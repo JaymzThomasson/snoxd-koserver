@@ -34,7 +34,6 @@ CVersionManagerDlg::CVersionManagerDlg(CWnd* pParent /*=NULL*/)
 	memset( m_ODBCName, NULL, 32 );
 	memset( m_ODBCLogin, NULL, 32 );
 	memset( m_ODBCPwd, NULL, 32 );
-	memset( m_TableName, NULL, 32 );
 
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -87,7 +86,7 @@ BOOL CVersionManagerDlg::OnInitDialog()
 	
 	char strconnection[256];
 	memset(strconnection, NULL, 256 );
-	sprintf( strconnection, "ODBC;DSN=%s;UID=%s;PWD=%s", m_ODBCName, m_ODBCLogin, m_ODBCPwd );
+	sprintf_s( strconnection, sizeof(strconnection), "ODBC;DSN=%s;UID=%s;PWD=%s", m_ODBCName, m_ODBCLogin, m_ODBCPwd );
 	if( !m_DBProcess.InitDatabase( strconnection ) ) {
 		AfxMessageBox("Database Connection Fail!!");
 		AfxPostQuitMessage(0);
@@ -121,13 +120,12 @@ BOOL CVersionManagerDlg::GetInfoFromIni()
 	GetPrivateProfileString( "ODBC", "DSN", "", m_ODBCName, 32, inipath );
 	GetPrivateProfileString( "ODBC", "UID", "", m_ODBCLogin, 32, inipath );
 	GetPrivateProfileString( "ODBC", "PWD", "", m_ODBCPwd, 32, inipath );
-	GetPrivateProfileString( "ODBC", "TABLE", "", m_TableName, 32, inipath );
 	GetPrivateProfileString( "CONFIGURATION", "DEFAULT_PATH", "", m_strDefaultPath, 256, inipath );
 
 	m_nServerCount = GetPrivateProfileInt( "SERVER_LIST", "COUNT", 0, inipath );
 
 	if( !strlen(m_strFtpUrl) || !strlen(m_strFilePath) ) return FALSE;
-	if( !strlen(m_ODBCName) || !strlen(m_ODBCLogin) || !strlen(m_ODBCPwd) || !strlen(m_TableName) ) return FALSE;
+	if( !strlen(m_ODBCName) || !strlen(m_ODBCLogin) || !strlen(m_ODBCPwd) ) return FALSE;
 	if( m_nServerCount <= 0 ) return FALSE;
 	
 	char ipkey[20]; memset( ipkey, 0x00, 20 );
@@ -137,8 +135,8 @@ BOOL CVersionManagerDlg::GetInfoFromIni()
 	m_ServerList.reserve(20);
 	for( int i=0; i<m_nServerCount; i++ ) {
 		pInfo = new _SERVER_INFO;
-		sprintf( ipkey, "SERVER_%02d", i );
-		sprintf( namekey, "NAME_%02d", i );
+		sprintf_s( ipkey, sizeof(ipkey), "SERVER_%02d", i );
+		sprintf_s( namekey, sizeof(namekey), "NAME_%02d", i );
 		GetPrivateProfileString( "SERVER_LIST", ipkey, "", pInfo->strServerIP, 32, inipath );
 		GetPrivateProfileString( "SERVER_LIST", namekey, "", pInfo->strServerName, 32, inipath );
 		m_ServerList.push_back( pInfo );
@@ -211,9 +209,9 @@ void CVersionManagerDlg::OnVersionSetting()
 	inipath.Format( "%s\\Version.ini", GetProgPath() );
 	CSettingDlg	setdlg(m_nLastVersion, this);
 	
-	strcpy( setdlg.m_strDefaultPath, m_strDefaultPath );
+	strcpy_s( setdlg.m_strDefaultPath, sizeof(setdlg.m_strDefaultPath), m_strDefaultPath );
 	if( setdlg.DoModal() == IDOK ) {
-		strcpy( m_strDefaultPath, setdlg.m_strDefaultPath );
+		strcpy_s( m_strDefaultPath, sizeof(m_strDefaultPath), setdlg.m_strDefaultPath );
 		WritePrivateProfileString("CONFIGURATION", "DEFAULT_PATH", m_strDefaultPath, inipath);
 	}
 }

@@ -129,7 +129,7 @@ DWORD CCentralDir::Locate()
 
 	// maximum size of end of central dir record
 	long uMaxRecordSize = 0xffff + CENTRALDIRSIZE;
-	DWORD uFileSize = m_pStorage->m_file.GetLength();
+	DWORD uFileSize = (DWORD)m_pStorage->m_file.GetLength();
 
 	if ((DWORD)uMaxRecordSize > uFileSize)
 		uMaxRecordSize = uFileSize;
@@ -472,7 +472,7 @@ bool CCentralDir::RemoveDataDescr(bool bFromBuffer)
 	}
 	else
 	{
-		uSize = m_pStorage->m_file.GetLength();
+		uSize = (DWORD)m_pStorage->m_file.GetLength();
 		if (!ah.CreateMapping((HANDLE)m_pStorage->m_file.m_hFile))
 			return false;
 		pFile = (char*)ah.m_pFileMap;

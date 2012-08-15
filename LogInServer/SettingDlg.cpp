@@ -117,9 +117,9 @@ void CSettingDlg::OnAddfile()
 		POSITION pos = dlg.GetStartPosition ();
 		while (pos)
 		{
-			strcpy( tempstr1, dlg.GetNextPathName (pos) );
-			addfullpath = _strlwr(tempstr1);
-			defaultpath = _strlwr(m_strDefaultPath);
+			strcpy_s( tempstr1, sizeof(tempstr1), dlg.GetNextPathName (pos) );
+			addfullpath = _strlwr_s(tempstr1, sizeof(tempstr1));
+			defaultpath = _strlwr_s(m_strDefaultPath, sizeof(m_strDefaultPath));
 			strsize = defaultpath.size();
 			addfilename = addfullpath.substr(strsize);
 
@@ -255,7 +255,7 @@ void CSettingDlg::OnPathBrowse()
 {
 	CDlgBrowsePath pathdlg;
 	if( pathdlg.DoModal() == IDOK ) {
-		strcpy( m_strDefaultPath, (char*)(LPCTSTR)pathdlg.m_szPath );
+		strcpy_s( m_strDefaultPath, sizeof(m_strDefaultPath), (char*)(LPCTSTR)pathdlg.m_szPath );
 		m_PathEdit.SetWindowText( m_strDefaultPath );
 	}
 }
@@ -418,7 +418,7 @@ void CSettingDlg::FolderRecurse(const char *foldername, bool b_test)
 	BOOL bFind = ff.FindFile();
 	while( bFind ) {
 		bFind = ff.FindNextFile();
-		strcpy( tempstr1, ff.GetFilePath() );
+		strcpy_s( tempstr1, _MAX_PATH, ff.GetFilePath() );
 
 		if( ff.IsDots() ) continue;
 		if( ff.IsDirectory() ) {
@@ -435,8 +435,8 @@ void CSettingDlg::FolderRecurse(const char *foldername, bool b_test)
 			continue;
 		}
 
-		addfullpath = _strlwr(tempstr1);
-		defaultpath = _strlwr(m_strDefaultPath);
+		addfullpath = _strlwr_s(tempstr1, _MAX_PATH);
+		defaultpath = _strlwr_s(m_strDefaultPath, _MAX_PATH);
 		strsize = defaultpath.size();
 		addfilename = addfullpath.substr(strsize);
 

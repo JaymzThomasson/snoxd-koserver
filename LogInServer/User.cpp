@@ -75,9 +75,6 @@ void CUser::Parsing(int len, char *pData)
 	case LS_LOGIN_REQ:
 		LogInReq( pData+index );
 		break;
-	case LS_MGAME_LOGIN:
-		MgameLogin( pData+index );
-		break;
 	}
 }
 void CUser::LogInReq(char *pBuf)
@@ -121,35 +118,6 @@ void CUser::LogInReq(char *pBuf)
 fail_return:
 	SetByte( send_buff, LS_LOGIN_REQ, send_index );
 	SetByte( send_buff, 0x02, send_index );				// id, pwd ÀÌ»ף...
-	Send( send_buff, send_index );
-}
-
-void CUser::MgameLogin(char *pBuf)
-{
-	int index = 0, idlen=0, pwdlen = 0, send_index = 0, result = 0;
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
-	char accountid[MAX_ID_SIZE+1], pwd[13];
-	memset( accountid, NULL, MAX_ID_SIZE+1 );
-	memset( pwd, NULL, 13);
-
-	idlen = GetShort( pBuf, index );
-	if( idlen > MAX_ID_SIZE || idlen <= 0)
-		goto fail_return;
-	GetString( accountid, pBuf, idlen, index );
-	pwdlen = GetShort( pBuf, index );
-	if( pwdlen > 12 )
-		goto fail_return;
-	GetString( pwd, pBuf, pwdlen, index );
-
-	result = m_pMain->m_DBProcess.MgameLogin( accountid, pwd );
-	SetByte( send_buff, LS_MGAME_LOGIN, send_index );
-	SetByte( send_buff, result, send_index );
-	Send( send_buff, send_index );
-
-	return;
-fail_return:
-	SetByte( send_buff, LS_MGAME_LOGIN, send_index );
-	SetByte( send_buff, 0x02, send_index );				// login fail...
 	Send( send_buff, send_index );
 }
 

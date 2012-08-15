@@ -44,7 +44,7 @@ void CDBProcess::ReConnectODBC(CDatabase *m_db, const char *strdb, const char *s
 {
 	char strlog[256];	memset( strlog, 0x00, 256);
 	CTime t = CTime::GetCurrentTime();
-	sprintf(strlog, "Try ReConnectODBC... %d월 %d일 %d시 %d분\r\n", t.GetMonth(), t.GetDay(), t.GetHour(), t.GetMinute());
+	sprintf_s(strlog, 256, "[%d-%d %d:%d] Trying to reconnect to ODBC...\r\n", t.GetMonth(), t.GetDay(), t.GetHour(), t.GetMinute());
 	LogFileWrite( strlog );
 
 	// DATABASE 연결...
@@ -80,7 +80,7 @@ BOOL CDBProcess::LoadVersionList()
 	CString tempfilename, tempcompname;
 
 	memset(szSQL, 0x00, 1024);
-	wsprintf(szSQL, TEXT("select * from %s"), m_pMain->m_TableName);
+	wsprintf(szSQL, TEXT("select * from VERSION"));
 	
 	SQLSMALLINT	version = 0, historyversion = 0;
 	TCHAR strfilename[256], strcompname[256];
@@ -178,41 +178,6 @@ int CDBProcess::AccountLogin(const char *id, const char *pwd)
 	return sParmRet;
 }
 
-int CDBProcess::MgameLogin(const char *id, const char *pwd)
-{
-	SQLHSTMT		hstmt = NULL;
-	SQLRETURN		retcode;
-	TCHAR			szSQL[1024];
-	memset( szSQL, 0x00, 1024 );
-	SQLSMALLINT		sParmRet = -1;
-	SQLINTEGER		cbParmRet=SQL_NTS;
-
-	wsprintf( szSQL, TEXT( "{call MGAME_LOGIN(\'%s\',\'%s\',?)}" ), id, pwd);
-
-	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_VersionDB.m_hdbc, &hstmt );
-	if (retcode == SQL_SUCCESS)
-	{
-		retcode = SQLBindParameter(hstmt,1, SQL_PARAM_OUTPUT, SQL_C_SSHORT, SQL_SMALLINT, 0,0, &sParmRet,0, &cbParmRet );
-		if(retcode == SQL_SUCCESS)
-		{
-			retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
-			if( retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO ) {
-				if( DisplayErrorMsg(hstmt) == -1 ) {
-					m_VersionDB.Close();
-					if( !m_VersionDB.IsOpen() ) {
-						ReConnectODBC( &m_VersionDB, m_pMain->m_ODBCName, m_pMain->m_ODBCLogin, m_pMain->m_ODBCPwd );
-						return 2;
-					}
-				}
-			}
-		}
-
-		SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
-	}
-	
-	return sParmRet;
-}
-
 BOOL CDBProcess::InsertVersion(int version, const char *filename, const char *compname, int historyversion)
 {
 	SQLHSTMT		hstmt = NULL;
@@ -221,7 +186,7 @@ BOOL CDBProcess::InsertVersion(int version, const char *filename, const char *co
 	memset( szSQL, 0x00, 1024 );
 	BOOL			retvalue = TRUE;
 
-	wsprintf( szSQL, TEXT( "INSERT INTO %s (sVersion, strFileName, strCompressName, sHistoryVersion) VALUES (%d, \'%s\', \'%s\', %d)" ), m_pMain->m_TableName, version, filename, compname, historyversion);
+	wsprintf( szSQL, TEXT( "INSERT INTO VERSION (sVersion, strFileName, strCompressName, sHistoryVersion) VALUES (%d, \'%s\', \'%s\', %d)" ), version, filename, compname, historyversion);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_VersionDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -246,7 +211,7 @@ BOOL CDBProcess::DeleteVersion( const char *filename)
 	memset( szSQL, 0x00, 1024 );
 	BOOL			retvalue = TRUE;
 
-	wsprintf( szSQL, TEXT( "DELETE FROM %s WHERE strFileName = \'%s\'" ), m_pMain->m_TableName, filename);
+	wsprintf( szSQL, TEXT( "DELETE FROM VERSION WHERE strFileName = \'%s\'" ), filename);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_VersionDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -320,8 +285,7 @@ BOOL CDBProcess::IsCurrentUser(const char *accountid, char* strServerIP, int &se
 	memset( szSQL, 0x00, 1024 );
 
 	SQLINTEGER	nServerNo = 0;
-	TCHAR strIP[20];
-	memset( strIP, 0x00, 20 );
+	TCHAR strIP[16] = {0};
 	SQLINTEGER Indexind = SQL_NTS;
 
 	wsprintf( szSQL, TEXT( "SELECT nServerNo, strServerIP FROM CURRENTUSER WHERE strAccountID = \'%s\'" ), accountid );
@@ -334,9 +298,9 @@ BOOL CDBProcess::IsCurrentUser(const char *accountid, char* strServerIP, int &se
 		retcode = SQLFetch(hstmt);
 		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 			SQLGetData(hstmt,1 ,SQL_C_SSHORT, &nServerNo,	0,	&Indexind);
-			SQLGetData(hstmt,2 ,SQL_C_CHAR, strIP, 20,	&Indexind);
+			SQLGetData(hstmt,2 ,SQL_C_CHAR, strIP, 15,	&Indexind);
 
-			strcpy( strServerIP, strIP );
+			strcpy_s( strServerIP, 16, strIP );
 			serverno = nServerNo;
 			retval = TRUE;
 		}

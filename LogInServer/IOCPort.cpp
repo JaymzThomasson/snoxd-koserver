@@ -59,7 +59,7 @@ DWORD WINAPI AcceptThread(LPVOID lp)
 				pSocket = pIocport->GetIOCPSocket( sid );
 				if( !pSocket ) {
 					TRACE("Socket Array has Broken...\n");
-					sprintf( logstr, "Socket Array has Broken...[sid:%d]\r\n", sid);
+					sprintf_s( logstr, sizeof(logstr), "Socket Array has Broken...[sid:%d]\r\n", sid);
 					LogFileWrite( logstr );
 //					pIocport->PutOldSid( sid );				// Invalid sid must forbidden to use
 					goto loop_pass_accept;

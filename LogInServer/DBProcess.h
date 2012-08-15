@@ -18,7 +18,6 @@ public:
 	BOOL DeleteVersion( const char* filename );
 	BOOL InsertVersion( int version, const char* filename, const char* compname, int historyversion );
 	BOOL InitDatabase( char* strconnection );
-	int MgameLogin( const char* id, const char* pwd );
 	int AccountLogin( const char* id, const char* pwd );
 	BOOL LoadVersionList();
 	BOOL LoadUserCountList();

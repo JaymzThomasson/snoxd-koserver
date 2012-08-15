@@ -43,7 +43,7 @@ CString CFileName::GetFileName()
 {
 	CString szFileName;
 
-	_splitpath(m_szFileName, m_szDrive, m_szDir, m_szFname, m_szExt);
+	_splitpath_s(m_szFileName, m_szDrive, sizeof(m_szDrive), m_szDir, sizeof(m_szDir), m_szFname, sizeof(m_szFname), m_szExt, sizeof(m_szExt));
 	szFileName = m_szFname;
 	szFileName += m_szExt;
 
@@ -64,7 +64,7 @@ CString CFileName::GetRoot()
 {
 	CString szFileName;
 
-	_splitpath(m_szFileName, m_szDrive, m_szDir, m_szFname, m_szExt);
+	_splitpath_s(m_szFileName, m_szDrive, sizeof(m_szDrive), m_szDir, sizeof(m_szDir), m_szFname, sizeof(m_szFname), m_szExt, sizeof(m_szExt));
 	szFileName = m_szDrive;
 	szFileName += m_szDir;
 
@@ -84,12 +84,8 @@ CString CFileName::GetRoot()
 ******************************************************************/
 CString CFileName::GetFileTitle()
 {
-	CString szFileName;
-
-	_splitpath(m_szFileName, m_szDrive, m_szDir, m_szFname, m_szExt);
-	szFileName = m_szFname;
-
-	return szFileName;
+	_splitpath_s(m_szFileName, m_szDrive, sizeof(m_szDrive), m_szDir, sizeof(m_szDir), m_szFname, sizeof(m_szFname), m_szExt, sizeof(m_szExt));
+	return m_szFname;
 }
 
 /*****************************************************************
@@ -1218,8 +1214,8 @@ bool CShellTree::SearchTree(HTREEITEM treeNode,
 						switch(attr)
 						{
 						case type_drive:
-							_splitpath(szCompare,drive,dir,fname,ext);
-							szCompare=drive;
+							_splitpath_s(szCompare, drive, sizeof(drive), dir, sizeof(dir), fname, sizeof(fname), ext, sizeof(ext));
+							szCompare = drive;
 							break;
 						case type_folder:
 							szCompare = GetItemText(treeNode);
@@ -1276,7 +1272,7 @@ void CShellTree::TunnelTree(CString szFindPath)
 		szFindPath += "\\";
 	}
 
-	_splitpath(szFindPath,drive,dir,fname,ext);
+	_splitpath_s(szFindPath, drive, sizeof(drive), dir, sizeof(dir), fname, sizeof(fname), ext, sizeof(ext));
 
 	//search the drive first
 	szPathHop=drive;
@@ -1286,13 +1282,13 @@ void CShellTree::TunnelTree(CString szFindPath)
 		if(SearchTree(subNode,szPathHop, CShellTree::type_drive))
 		{
 			//break down subfolders and search
-			char *p=strtok(dir,delimiter);
+			char *p = strtok(dir, delimiter);
 			while(p)
 			{
 				subNode = GetSelectedItem();
 				subNode = GetChildItem(subNode);
 				if(SearchTree(subNode,p,CShellTree::type_folder))
-					p=strtok(NULL,delimiter);
+					p = strtok(NULL,delimiter);
 				else
 					p=NULL;
 			}

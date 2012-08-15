@@ -499,32 +499,29 @@ bool CZipArchive::OpenNewFile(CFileHeader & header, int iLevel, const char* lpsz
 
 CString CZipArchive::GetFilePath(LPCTSTR lpszFilePath)
 {
-	TCHAR szDir[_MAX_DIR];
-	TCHAR szDrive[_MAX_DRIVE];
-	_tsplitpath(lpszFilePath, szDrive, szDir, NULL, NULL);
+	TCHAR szDir[_MAX_DIR], szDrive[_MAX_DRIVE];
+	_tsplitpath_s(lpszFilePath, szDrive, sizeof(szDrive), szDir, sizeof(szDir), NULL, 0, NULL, 0);
 	return  CString(szDrive) + CString(szDir);
 }
 
 CString CZipArchive::GetFileExt(LPCTSTR lpszFilePath)
 {
    TCHAR szExt[_MAX_EXT];
-   _tsplitpath(lpszFilePath, NULL, NULL, NULL, szExt);
+   _tsplitpath_s(lpszFilePath, NULL, 0, NULL, 0, NULL, 0, szExt, sizeof(szExt));
    return CString(szExt);
 }
 
 CString CZipArchive::GetFileTitle(LPCTSTR lpszFilePath)
 {
 	TCHAR szFname[_MAX_FNAME];
-	_tsplitpath(lpszFilePath, NULL, NULL, szFname, NULL);
+	_tsplitpath_s(lpszFilePath, NULL, 0, NULL, 0, szFname, sizeof(szFname), NULL, 0);
 	return  CString(szFname);
 }
 
 CString CZipArchive::GetFileDirAndName(LPCTSTR lpszFilePath)
 {
-	TCHAR szDir[_MAX_DIR];
-	TCHAR szFname[_MAX_FNAME];
-	TCHAR szExt[_MAX_EXT];
-	_tsplitpath(lpszFilePath, NULL , szDir, szFname, szExt);
+	TCHAR szDir[_MAX_DIR], szFname[_MAX_FNAME], szExt[_MAX_EXT];
+	_tsplitpath_s(lpszFilePath, NULL, 0, szDir, sizeof(szDir), szFname, sizeof(szFname), szExt, sizeof(szExt));
 	CString Dir = szDir;
 	Dir.TrimLeft("\\");
 	return  Dir + szFname + szExt;
@@ -533,9 +530,8 @@ CString CZipArchive::GetFileDirAndName(LPCTSTR lpszFilePath)
 
 CString CZipArchive::GetFileName(LPCTSTR lpszFilePath)
 {
-	TCHAR szExt[_MAX_EXT];
-	TCHAR szName[_MAX_FNAME];
-	_tsplitpath(lpszFilePath, NULL, NULL, szName, szExt);
+	TCHAR szExt[_MAX_EXT], szName[_MAX_FNAME];
+	_tsplitpath_s(lpszFilePath, NULL, 0, NULL, 0, szName, sizeof(szName), szExt, sizeof(szExt));
 	return CString(szName) + CString(szExt);
 }
 
@@ -858,7 +854,7 @@ bool CZipArchive::IsDriveRemovable(LPCTSTR lpszFilePath)
 CString CZipArchive::GetDrive(LPCTSTR lpszFilePath)
 {
 	TCHAR szDrive[_MAX_DRIVE];
-	_tsplitpath(lpszFilePath, szDrive, NULL, NULL, NULL);
+	_tsplitpath_s(lpszFilePath, szDrive, sizeof(szDrive), NULL, 0, NULL, 0, NULL, 0);
 	return szDrive;
 }
 

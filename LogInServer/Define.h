@@ -194,15 +194,14 @@ inline int ParseSpace( char* tBuf, char* sBuf)
 
 inline CString GetProgPath()
 {
-	char Buf[256], Path[256];
+	char Buf[_MAX_PATH], Path[_MAX_PATH];
 	char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 
-	::GetModuleFileName(AfxGetApp()->m_hInstance, Buf, 256);
-	_splitpath(Buf,drive,dir,fname,ext);
-	strcpy(Path, drive);
-	strcat(Path, dir);		
-	CString _Path = Path;
-	return _Path;
+	::GetModuleFileName(AfxGetApp()->m_hInstance, Buf, _MAX_PATH);
+	_splitpath_s(Buf, drive, _MAX_DRIVE, dir, _MAX_DIR, fname, _MAX_FNAME, ext, _MAX_EXT);
+	strcpy_s(Path, _MAX_PATH, drive);
+	strcat_s(Path, _MAX_PATH, dir);		
+	return (CString)(Path);
 };
 
 inline void LogFileWrite( LPCTSTR logstr )
@@ -235,7 +234,7 @@ inline int DisplayErrorMsg(SQLHANDLE hstmt)
 	i = 1;
 	while ((rc2 = SQLGetDiagRec(SQL_HANDLE_STMT, hstmt, i, SqlState, &NativeError, Msg, sizeof(Msg), &MsgLen)) != SQL_NO_DATA)
 	{
-		sprintf( logstr, "*** %s, %d, %s, %d ***\r\n", SqlState,NativeError,Msg,MsgLen );
+		sprintf_s( logstr, 512, "*** %s, %d, %s, %d ***\r\n", SqlState,NativeError,Msg,MsgLen );
 		LogFileWrite( logstr );
 
 		i++;

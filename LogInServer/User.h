@@ -23,7 +23,6 @@ public:
 	void CloseProcess();
 
 	void SendDownloadInfo( int version );
-	void MgameLogin( char* pBuf );
 	void LogInReq( char* pBuf );
 
 	CVersionManagerDlg* m_pMain;
