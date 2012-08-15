@@ -288,7 +288,6 @@
     <None Include="res\Server.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Server.rc">

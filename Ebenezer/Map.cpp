@@ -419,7 +419,7 @@ void C3DMap::RegionUserAdd(int rx, int rz, int uid)
 	LeaveCriticalSection( &g_region_critical );
 }
 
-Iterator C3DMap::RegionUserRemove(int rx, int rz, int uid)
+BOOL C3DMap::RegionUserRemove(int rx, int rz, int uid)
 {
 	if( rx<0 || rz<0 || rx>=m_nXRegion || rz>=m_nZRegion )
 		return FALSE;
@@ -430,13 +430,13 @@ Iterator C3DMap::RegionUserRemove(int rx, int rz, int uid)
 	EnterCriticalSection( &g_region_critical );
 	
 	region = &m_ppRegion[rx][rz];
-	Iter = region->m_RegionUserArray.DeleteData( uid );
+	region->m_RegionUserArray.DeleteData( uid );
 
 	//TRACE("---- Region Remove(%d) : x=%d, z=%d, uid=%d ----\n", m_nZoneNumber, rx, rz, uid);
 
 	LeaveCriticalSection( &g_region_critical );
 
-	return Iter;
+	return TRUE;
 }
 
 void C3DMap::RegionNpcAdd(int rx, int rz, int nid)
@@ -455,7 +455,7 @@ void C3DMap::RegionNpcAdd(int rx, int rz, int nid)
 	LeaveCriticalSection( &g_region_critical );
 }
 
-Iterator C3DMap::RegionNpcRemove(int rx, int rz, int nid)
+BOOL C3DMap::RegionNpcRemove(int rx, int rz, int nid)
 {
 	if( rx<0 || rz<0 || rx>=m_nXRegion || rz>=m_nZRegion )
 		return FALSE;
@@ -466,11 +466,11 @@ Iterator C3DMap::RegionNpcRemove(int rx, int rz, int nid)
 	EnterCriticalSection( &g_region_critical );
 
 	region = &m_ppRegion[rx][rz];
-	Iter = region->m_RegionNpcArray.DeleteData( nid );
+	region->m_RegionNpcArray.DeleteData( nid );
 
 	LeaveCriticalSection( &g_region_critical );
 
-	return Iter;
+	return TRUE;
 }
 
 BOOL C3DMap::CheckEvent(float x, float z, CUser* pUser)

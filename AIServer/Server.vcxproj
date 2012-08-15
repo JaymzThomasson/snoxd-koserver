@@ -439,7 +439,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Server.ico" />
-    <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Server.rc">

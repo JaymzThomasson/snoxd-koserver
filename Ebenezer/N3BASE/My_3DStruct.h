@@ -1,8 +1,8 @@
 #ifndef __MY_3DSTRUCT_H_
 #define __MY_3DSTRUCT_H_
 
-#include "D3DX8.h"
-#include "D3DX8Math.h"
+#include <D3DX8.h>
+#include <D3DX8Math.h>
 #include <string>
 
 const float __PI = 3.141592654f;
@@ -723,7 +723,7 @@ public:
 	DWORD	dwDestBlend; // 데스트 블렌딩 방법
 
 public:
-	void Init(const _D3DCOLORVALUE& diffuseColor)
+	void Init(const D3DCOLORVALUE& diffuseColor)
 	{
 		memset(this, 0, sizeof(__Material));
 
@@ -747,7 +747,7 @@ public:
 		this->Init(crDiffuse);
 	}
 
-	void ColorSet(const _D3DCOLORVALUE& crDiffuse)
+	void ColorSet(const D3DCOLORVALUE& crDiffuse)
 	{
 		Diffuse = crDiffuse; 
 		Ambient.a = Diffuse.a;
@@ -1090,9 +1090,9 @@ if(!(expr)) \
 
 D3DCOLOR		_RGB_To_D3DCOLOR(COLORREF cr, float fAlpha);
 COLORREF		_D3DCOLOR_To_RGB(D3DCOLOR cr);
-COLORREF		_D3DCOLORVALUE_To_RGB(const D3DCOLORVALUE& cr);
-D3DCOLOR		_D3DCOLORVALUE_To_D3DCOLOR(const D3DCOLORVALUE& cr);
-D3DCOLORVALUE	_RGB_To_D3DCOLORVALUE(COLORREF cr, float fAlpha);
+COLORREF		D3DCOLORVALUE_To_RGB(const D3DCOLORVALUE& cr);
+D3DCOLOR		D3DCOLORVALUE_To_D3DCOLOR(const D3DCOLORVALUE& cr);
+D3DCOLORVALUE	_RGB_ToD3DCOLORVALUE(COLORREF cr, float fAlpha);
 bool			_IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir , const __Vector3& v0, const __Vector3& v1, const __Vector3& v2, float& fT, float& fU, float& fV, __Vector3* pVCol = NULL);
 bool			_IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir, const __Vector3& v0, const __Vector3& v1, const __Vector3& v2);
 bool			_CheckCollisionByBox(const __Vector3& vOrig, const __Vector3& vDir, const __Vector3& vMin, const __Vector3& vMax);
@@ -1119,7 +1119,7 @@ inline COLORREF _D3DCOLOR_To_RGB(D3DCOLOR cr)
 	return cr2;
 };
 
-inline COLORREF _D3DCOLORVALUE_To_RGB(const D3DCOLORVALUE& cr)
+inline COLORREF D3DCOLORVALUE_To_RGB(const D3DCOLORVALUE& cr)
 {
 	COLORREF cr2 =	(((DWORD)(cr.r*255.0f))) | // R
 					(((DWORD)(cr.g*255.0f))<<8) | // G
@@ -1127,7 +1127,7 @@ inline COLORREF _D3DCOLORVALUE_To_RGB(const D3DCOLORVALUE& cr)
 	return cr2;
 };
 
-inline D3DCOLOR _D3DCOLORVALUE_To_D3DCOLOR(const D3DCOLORVALUE& cr)
+inline D3DCOLOR D3DCOLORVALUE_To_D3DCOLOR(const D3DCOLORVALUE& cr)
 {
 	COLORREF cr2 =	(((DWORD)(cr.a*255.0f))<<24) | // A
 					(((DWORD)(cr.r*255.0f))<<16) | // R
@@ -1136,7 +1136,7 @@ inline D3DCOLOR _D3DCOLORVALUE_To_D3DCOLOR(const D3DCOLORVALUE& cr)
 	return cr2;
 };
 
-inline D3DCOLORVALUE _RGB_To_D3DCOLORVALUE(COLORREF cr, float fAlpha)
+inline D3DCOLORVALUE _RGB_ToD3DCOLORVALUE(COLORREF cr, float fAlpha)
 {
 	D3DCOLORVALUE cr2;
 	cr2.a =	fAlpha; // Alpha
@@ -1146,7 +1146,7 @@ inline D3DCOLORVALUE _RGB_To_D3DCOLORVALUE(COLORREF cr, float fAlpha)
 	return cr2;
 };
 
-inline D3DCOLORVALUE _D3DCOLOR_To_D3DCOLORVALUE(D3DCOLOR cr)
+inline D3DCOLORVALUE _D3DCOLOR_ToD3DCOLORVALUE(D3DCOLOR cr)
 {
 	D3DCOLORVALUE cr2;
 	cr2.a =	((cr & 0xff000000)>>24)/255.0f;
