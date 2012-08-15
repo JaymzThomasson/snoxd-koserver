@@ -13,7 +13,15 @@
 *.lai
 *.la
 *.a
-*.lib
+
+# Source control
+*.scc
+
+# Log files
+*.txt
+
+# Map files
+*.smd
 
 # Debug info
 *.sbr
