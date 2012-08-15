@@ -21,7 +21,6 @@
 #include "Npc.h"
 #include "NpcThread.h"
 #include "Server.h"
-#include "Compress.h"
 #include "Party.h"
 
 #include "extern.h"			// 전역 객체
@@ -29,6 +28,9 @@
 #include "STLMap.h"
 #include <vector>
 #include <list>
+
+#include "../shared/lzf.h"
+#include "../shared/crc32.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CServerDlg dialog
@@ -176,7 +178,6 @@ public:
 
 private:
 	// 패킷 압축에 필요 변수   -------------
-	CCompressManager	m_CompMng;				
 	int					m_CompCount;
 	TCHAR				m_CompBuf[10240];
 	int					m_iCompIndex;

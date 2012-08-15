@@ -16,6 +16,9 @@
     <Filter Include="N3Base">
       <UniqueIdentifier>{106b3045-18ac-4051-aa12-c09788afdd05}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shared">
+      <UniqueIdentifier>{4e057f9a-36a1-4108-82b7-0c5069025f87}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AISocket.cpp">
@@ -28,9 +31,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CoefficientSet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Compress.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Ebenezer.cpp">
@@ -141,6 +141,15 @@
     <ClCompile Include="N3Base\N3ShapeMgr.cpp">
       <Filter>N3Base</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\crc32.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="JvCryption.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\lzf.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AIPacket.h">
@@ -156,9 +165,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CoefficientSet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Compress.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Define.h">
@@ -299,6 +305,12 @@
     <ClInclude Include="N3Base\StdAfxBase.h">
       <Filter>N3Base</Filter>
     </ClInclude>
+    <ClInclude Include="..\shared\crc32.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\lzf.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Ebenezer.ico">
@@ -307,14 +319,10 @@
     <None Include="res\Ebenezer.rc2">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Ebenezer.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="JvCryption.lib" />
   </ItemGroup>
 </Project>

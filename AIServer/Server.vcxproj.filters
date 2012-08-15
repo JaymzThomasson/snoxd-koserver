@@ -15,12 +15,12 @@
     <Filter Include="Resource Files">
       <UniqueIdentifier>{a28bbc89-f194-4df4-a771-852c2fa9c91c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shared">
+      <UniqueIdentifier>{af1ffd15-695e-4c2c-a6a1-c615428b2863}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CircularBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Compress.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Extern.cpp">
@@ -137,12 +137,15 @@
     <ClCompile Include="N3BASE\N3ShapeMgr.cpp">
       <Filter>N3Base</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\lzf.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\crc32.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CircularBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Compress.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Define.h">
@@ -155,9 +158,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="global.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IMPLODE.H">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Ini.h">
@@ -282,6 +282,12 @@
     </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\lzf.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\crc32.h">
+      <Filter>shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

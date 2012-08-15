@@ -59,7 +59,7 @@ extern CRITICAL_SECTION g_LogFileWrite;
 //////////////////////////////////////////////////////////////////////
 //	Inline Function
 //
-inline BOOL CNpc::SetUid(float x, float z, int id)
+BOOL CNpc::SetUid(float x, float z, int id)
 {
 	if(m_sNid == test_id)
 	{
@@ -227,7 +227,7 @@ void CNpc::InitUserList()
 /////////////////////////////////////////////////////////////////////////////////////////
 //	공격대상(Target)을 초기화 한다.
 //
-inline void CNpc::InitTarget()
+void CNpc::InitTarget()
 {
 	if(m_byAttackPos != 0)
 	{
@@ -4509,7 +4509,7 @@ result_value:
 	return nDir;
 }
 
-inline float CNpc::RandomGenf(float max, float min)
+float CNpc::RandomGenf(float max, float min)
 {
 	if ( max == min ) return max;
 	if ( min > max ) { float b = min; min = max; max = b; }

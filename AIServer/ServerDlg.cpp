@@ -1797,41 +1797,27 @@ void CServerDlg::SendCompressedData(int nZone)
 		TRACE("#### SendCompressData Fail --> count=%d, index=%d\n" , m_CompCount, m_iCompIndex);
 		return;
 	}
-
-	m_CompMng.FlushAddData();
-	m_CompMng.AddData( m_CompBuf, m_iCompIndex );
-	m_CompMng.PreCompressWork();
-	m_CompMng.Compress();
-
-	int comp_data_len = m_CompMng.GetCompressedDataCount();
-	int org_data_len = m_CompMng.GetUnCompressDataLength();
-	DWORD crc_value = m_CompMng.GetCrcValue();
+	char out_buff[10240]; memset(out_buff, 0x00, sizeof(out_buff));
+	int comp_data_len;
+	int org_data_len = m_iCompIndex;
+	DWORD crc_value = crc32((const unsigned char*)m_CompBuf, org_data_len);
+	comp_data_len = lzf_compress(m_CompBuf, org_data_len, out_buff, org_data_len + LZF_MARGIN);
 
 	int send_index = 0, packet_size = 0;
-	char send_buff[2048];		::ZeroMemory(send_buff, sizeof(send_buff));
+	char send_buff[10240];		::ZeroMemory(send_buff, sizeof(send_buff));
+
 	SetByte(send_buff, AG_COMPRESSED_DATA, send_index );
 	SetShort(send_buff, (short)comp_data_len, send_index );
 	SetShort(send_buff, (short)org_data_len, send_index );
 	SetDWORD(send_buff, crc_value, send_index);
-	SetShort(send_buff, (short)m_CompCount, send_index );
+//	SetShort(send_buff, (short)m_CompCount, send_index );
 
-	char* packet = m_CompMng.GetExtractedBufferPtr();
-	SetString( send_buff, packet, comp_data_len, send_index);
-
-	if(packet == NULL)
-	{
-		m_CompCount = 0;
-		m_iCompIndex = 0;
-		m_CompMng.FlushAddData();
-		TRACE("#### SendCompressData Fail packet==null\n" );
-		return;
-	}
-
+	SetString( send_buff, out_buff, comp_data_len, send_index);
 	packet_size = Send(send_buff, send_index, nZone);
 
 	m_CompCount = 0;
 	m_iCompIndex = 0;
-	m_CompMng.FlushAddData();	
+	memset(m_CompBuf, 0x00, 10240);
 }
 
 BOOL CServerDlg::PreTranslateMessage(MSG* pMsg) 

@@ -67,7 +67,7 @@
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>.\Release/Server.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
@@ -82,7 +82,7 @@
       <Culture>0x0412</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;implode.lib;Winmm.lib;Imm32.lib;d3d8.lib;d3dx8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>nafxcw.lib;libcmt.lib;ws2_32.lib;Winmm.lib;Imm32.lib;d3d8.lib;d3dx8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Release/Server.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ProgramDatabaseFile>.\Release/Server.pdb</ProgramDatabaseFile>
@@ -91,6 +91,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreSpecificDefaultLibraries>nafxcw.lib;libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -127,7 +128,7 @@
       <Culture>0x0000</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;implode.lib;Winmm.lib;Imm32.lib;d3d8.lib;d3dx8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>nafxcwd.lib;libcmtd.lib;ws2_32.lib;Winmm.lib;Imm32.lib;d3d8.lib;d3dx8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Debug/Server.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -139,6 +140,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreSpecificDefaultLibraries>nafxcwd.lib;libcmtd.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -146,13 +148,9 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\shared\crc32.cpp" />
+    <ClCompile Include="..\shared\lzf.cpp" />
     <ClCompile Include="CircularBuffer.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Compress.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -388,13 +386,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\shared\crc32.h" />
+    <ClInclude Include="..\shared\lzf.h" />
     <ClInclude Include="CircularBuffer.h" />
-    <ClInclude Include="Compress.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Extern.h" />
     <ClInclude Include="GameSocket.h" />
     <ClInclude Include="global.h" />
-    <ClInclude Include="IMPLODE.H" />
     <ClInclude Include="Ini.h" />
     <ClInclude Include="IOCPort.h" />
     <ClInclude Include="IOCPSocket2.h" />

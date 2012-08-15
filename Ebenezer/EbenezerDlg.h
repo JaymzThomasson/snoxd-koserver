@@ -18,7 +18,6 @@
 #include "Npc.h"
 #include "SharedMem.h"
 #include "ini.h"
-#include "Compress.h"
 #include "Knights.h"
 #include "KnightsManager.h"
 #include "EVENT.h"
@@ -224,7 +223,6 @@ public:
 	BOOL	m_bSanta;
 
 	// 패킷 압축에 필요 변수   -------------only from ai server
- 	CCompressMng		m_CompMng;
 	int					m_CompCount;
 	TCHAR				m_CompBuf[10240];
 	int					m_iCompIndex;

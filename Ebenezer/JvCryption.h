@@ -28,14 +28,10 @@ public:
 
 	void Init();
 
-	void JvEncryption(T_KEY private_key, int len, T_OCTET *datain, T_OCTET *dataout);
-	void JvDecryption(T_KEY private_key, int len, T_OCTET *datain, T_OCTET *dataout);
-
-	void JvEncryption( int len, T_OCTET *datain, T_OCTET *dataout );
-	void JvDecryption( int len, T_OCTET *datain, T_OCTET *dataout );
 	void JvEncryptionFast( int len, T_OCTET *datain, T_OCTET *dataout );
-	void JvDecryptionFast( int len, T_OCTET *datain, T_OCTET *dataout );
-
+	__forceinline void JvDecryptionFast( int len, T_OCTET *datain, T_OCTET *dataout ) { JvEncryptionFast(len, datain, dataout); };
+	
+	int JvDecryptionWithCRC32(int len, T_OCTET *datain, T_OCTET *dataout);
 };
 
 #endif

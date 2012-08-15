@@ -5,10 +5,10 @@
 #include "stdafx.h"
 #include "IOCPSocket2.h"
 #include "CircularBuffer.h"
-#include "Compress.h"
 #include "Packetdefine.h"
 #include "define.h"
-
+#include "../shared/lzf.h"
+#include "../shared/crc32.h"
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -25,7 +25,6 @@ CIOCPSocket2::CIOCPSocket2()
 {
 	m_pBuffer = new CCircularBuffer(SOCKET_BUFF_SIZE);
 	m_pRegionBuffer = new _REGION_BUFFER;
-	m_pCompressMng = new CCompressMng;
 	m_Socket = INVALID_SOCKET;
 
 	m_pIOCPort = NULL;
@@ -39,7 +38,6 @@ CIOCPSocket2::~CIOCPSocket2()
 {
 	delete m_pBuffer;
 	delete m_pRegionBuffer;
-	delete m_pCompressMng;
 }
 
 
@@ -571,39 +569,20 @@ void CIOCPSocket2::SendCompressingPacket(const char *pData, int len)
 	}
 
 	int send_index = 0, count = 0;
+	short out_length = 0, in_length = (short)len;
+	DWORD crc;
+	char out_buff[49152];		memset(out_buff, 0x00, 49152);
 	char send_buff[49152];		memset(send_buff, 0x00, 49152);
-	do {
-		if( m_pCompressMng->m_nBufferStatus == W ) {
-			bb();
-			count++;
-			continue;
-		}
-		m_pCompressMng->m_nBufferStatus = W;
-		m_pCompressMng->m_dwThreadID =  ::GetCurrentThreadId();
-		bb();
-		if( m_pCompressMng->m_dwThreadID != ::GetCurrentThreadId() ) {	// Dual Lock System...
-			count++;
-			continue;
-		}
-		m_pCompressMng->PreCompressWork(pData, len);
-		m_pCompressMng->Compress();
 
-		SetByte(send_buff, WIZ_COMPRESS_PACKET, send_index );
-		SetShort(send_buff, (short)m_pCompressMng->m_nOutputBufferCurPos, send_index );
-		SetShort(send_buff, (short)m_pCompressMng->m_nOrgDataLength, send_index );
-		SetDWORD(send_buff, m_pCompressMng->m_dwCrc, send_index);
-		SetString( send_buff, m_pCompressMng->m_pOutputBuffer, m_pCompressMng->m_nOutputBufferCurPos, send_index);
+	crc = (DWORD)crc32((const unsigned char*)pData, len);
+	out_length = lzf_compress(pData, len, out_buff, len + LZF_MARGIN);
 
-		m_pCompressMng->Initialize();	// buffer clear
-		m_pCompressMng->m_nBufferStatus = E;
-		break;
-	} while( count < 50 );
-	if( count > 49 ) {
-		TRACE("Compressing Fail Packet\n");
-		Send( (char*)pData, len );
-	}
-	else
-		Send( send_buff, send_index );
+	SetByte(send_buff, WIZ_COMPRESS_PACKET, send_index);
+	SetShort(send_buff, out_length, send_index);
+	SetShort(send_buff, in_length, send_index);
+	SetDWORD(send_buff, crc, send_index);
+	SetString(send_buff, out_buff, out_length, send_index);
+	Send(send_buff, send_index);
 }
 
 void CIOCPSocket2::RegionPacketAdd(char *pBuf, int len)
