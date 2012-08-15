@@ -128,7 +128,7 @@
       <Culture>0x0000</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>nafxcwd.lib;libcmtd.lib;ws2_32.lib;Winmm.lib;Imm32.lib;d3d8.lib;d3dx8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>nafxcwd.lib;libcmtd.lib;ws2_32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Debug/Server.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>

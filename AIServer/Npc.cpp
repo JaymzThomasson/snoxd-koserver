@@ -4523,7 +4523,7 @@ float CNpc::RandomGenf(float max, float min)
 // 인자: 현재 위치, 방향, random각, 이동거리
 // 반환값: 최종위치
 //////////////////////////////////////////////////////////////////////
-__Vector3 CNpc::MyFunc(__Vector3 vCur, __Vector3 vDir, float fYDegree, float fDistance)
+/*__Vector3 CNpc::MyFunc(__Vector3 vCur, __Vector3 vDir, float fYDegree, float fDistance)
 {
 	float fYRandom = RandomGenf( fYDegree/2.0f, -fYDegree/2.0f);
 
@@ -4540,7 +4540,7 @@ __Vector3 CNpc::MyFunc(__Vector3 vCur, __Vector3 vDir, float fYDegree, float fDi
 	__Vector3 vResult;
 	vResult = vCur + vDir;
 	return vResult;
-}
+}*/
 
 __Vector3 CNpc::GetDirection(__Vector3 vStart, __Vector3 vEnd)
 {
