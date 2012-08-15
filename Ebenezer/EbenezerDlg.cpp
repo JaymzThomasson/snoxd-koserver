@@ -37,7 +37,15 @@
 #define AWARD_GOLD          5000
 
 // Cryption
+#if __VERSION >= 1700
+T_KEY		g_private_key = 0x1207500120128966;
+#define CRYPTION_PRIVATE_KEY 0x1207500120128966
+#elif __VERSION >= 1298 && __VERSION < 1453
+#define CRYPTION_PRIVATE_KEY 0x1234567890123456
 T_KEY		g_private_key = 0x1234567890123456;
+#else
+T_KEY		g_private_key = 0x1257091582190465;
+#endif
 ///~
 
 #ifdef _DEBUG

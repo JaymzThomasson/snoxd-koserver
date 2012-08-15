@@ -1079,9 +1079,9 @@ if(!(expr)) \
 { \
 	_CrtDbgReport(_CRT_ASSERT, __FILE__, __LINE__, "N3 Custom Assert Functon", expMessage); \
 	char __szErr[512]; \
-	sprintf(__szErr, "  ---- N3 Assert Warning (File:%s, Line:%d) ---- \n", __FILE__, __LINE__); \
+	sprintf_s(__szErr, sizeof(__szErr), "  ---- N3 Assert Warning (File:%s, Line:%d) ---- \n", __FILE__, __LINE__); \
 	OutputDebugString(__szErr); \
-	sprintf(__szErr, "    : %s\n", expMessage); \
+	sprintf_s(__szErr, sizeof(__szErr), "    : %s\n", expMessage); \
 	OutputDebugString(__szErr); \
 	_CrtDbgBreak(); \
 }

@@ -268,55 +268,79 @@ void CUser::Parsing(int len, char *pData)
 
 	BYTE command = GetByte(pData, index);
 
-	switch( command )
+	// If crypto's not been enabled yet, force the version packet to be sent.
+	if (!m_CryptionFlag)
 	{
-	case WIZ_LOGIN:
-		LoginProcess( pData+index );
-		break;
-	case WIZ_SEL_NATION:
-		SelNationToAgent( pData+index );
-		break;
-	case WIZ_NEW_CHAR:
-		NewCharToAgent( pData+index );
-		break;
-	case WIZ_DEL_CHAR:
-		DelCharToAgent( pData+index );
-		break;
-	case WIZ_SEL_CHAR:
-		SelCharToAgent( pData+index );
-		break;
-	case WIZ_GAMESTART:
-		if( m_State == STATE_GAMESTART )
-			break;
-		m_State = STATE_GAMESTART;
-	/*	if( m_pUserData->m_bZone > 2)
-		{	
-			if( m_pUserData->m_bKnights != 0 )
-				m_pMain->m_KnightsManager.LoadKnightsIndex( m_pUserData->m_bKnights );
-		}	*/
-		//SendAllKnightsID();
-		SendMyInfo();
-		UserInOut( USER_REGENE );
-		m_pMain->UserInOutForMe(this);
-		m_pMain->NpcInOutForMe(this);
-		SendNotice();
-		SendTimeStatus();
-		TRACE("GAMESTART: %s..%d\n", m_pUserData->m_id, m_Sid);
-//
-		if(m_pMain->m_bPermanentChatMode) {		// If there is a permanent chat available!!!
-			int buffindex = 0;
-			char buff[1024]; memset( buff, 0x00, 1024 );
+		if (command == WIZ_VERSION_CHECK)
+			VersionCheck();
 
-			SetByte( buff, WIZ_CHAT, buffindex );
-			SetByte( buff, PERMANENT_CHAT, buffindex );
-			SetByte( buff, 0x01, buffindex );		// Nation
-			SetShort( buff, -1, buffindex );		// sid
-			SetShort( buff, strlen(m_pMain->m_strPermanentChat), buffindex );
-			SetString( buff, m_pMain->m_strPermanentChat, strlen(m_pMain->m_strPermanentChat), buffindex );
-			Send( buff, buffindex );			
+		return;
+	}
+	// If we're not authed yet, forced us to before we can do anything else.
+	else if (m_strAccountID[0] == 0)
+	{
+		if (command == WIZ_LOGIN)
+			LoginProcess(pData+index);
+
+		return;
+	}
+	// If we haven't logged in yet, don't let us hit in-game packets.
+	// TO-DO: Make sure we support all packets in the loading stage (and rewrite this logic considerably better).
+	else if (m_State != STATE_GAMESTART)
+	{
+		switch( command )
+		{
+		case WIZ_SEL_NATION:
+			SelNationToAgent( pData+index );
+			break;
+		case WIZ_NEW_CHAR:
+			NewCharToAgent( pData+index );
+			break;
+		case WIZ_DEL_CHAR:
+			DelCharToAgent( pData+index );
+			break;
+		case WIZ_SEL_CHAR:
+			SelCharToAgent( pData+index );
+			break;
+		case WIZ_GAMESTART:
+			if( m_State == STATE_GAMESTART )
+				break;
+			m_State = STATE_GAMESTART;
+		/*	if( m_pUserData->m_bZone > 2)
+			{	
+				if( m_pUserData->m_bKnights != 0 )
+					m_pMain->m_KnightsManager.LoadKnightsIndex( m_pUserData->m_bKnights );
+			}	*/
+			//SendAllKnightsID();
+			SendMyInfo();
+			UserInOut( USER_REGENE );
+			m_pMain->UserInOutForMe(this);
+			m_pMain->NpcInOutForMe(this);
+			SendNotice();
+			SendTimeStatus();
+			TRACE("GAMESTART: %s..%d\n", m_pUserData->m_id, m_Sid);
+	//
+			if(m_pMain->m_bPermanentChatMode) {		// If there is a permanent chat available!!!
+				int buffindex = 0;
+				char buff[1024]; memset( buff, 0x00, 1024 );
+
+				SetByte( buff, WIZ_CHAT, buffindex );
+				SetByte( buff, PERMANENT_CHAT, buffindex );
+				SetByte( buff, 0x01, buffindex );		// Nation
+				SetShort( buff, -1, buffindex );		// sid
+				SetShort( buff, strlen(m_pMain->m_strPermanentChat), buffindex );
+				SetString( buff, m_pMain->m_strPermanentChat, strlen(m_pMain->m_strPermanentChat), buffindex );
+				Send( buff, buffindex );			
+			}
+	//
+			break;
 		}
-//
-		break;
+		return;
+	}
+
+	// Otherwise, assume we're authed & in-game.
+	switch (command)
+	{
 	case WIZ_MOVE:
 		MoveProcess( pData+index );
 		break;
@@ -350,7 +374,6 @@ void CUser::Parsing(int len, char *pData)
 		RequestNpcIn( pData+index );
 		break;
 	case WIZ_WARP:
-//		if( m_pUserData->m_bAuthority == 0 || m_pUserData->m_bAuthority == 1) {
 		if( m_pUserData->m_bAuthority == 0 ) {
 			Warp( pData+index );
 		}
@@ -389,9 +412,6 @@ void CUser::Parsing(int len, char *pData)
 		break;
 	case WIZ_STATE_CHANGE:
 		StateChange( pData+index );
-		break;
-	case WIZ_VERSION_CHECK:
-		VersionCheck();
 		break;
 	//case WIZ_SPEEDHACK_USED:
 	//	SpeedHackUser();
