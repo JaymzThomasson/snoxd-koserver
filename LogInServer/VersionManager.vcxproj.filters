@@ -111,6 +111,5 @@
     <None Include="res\VersionManager.rc2">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="ReadMe.txt" />
   </ItemGroup>
 </Project>

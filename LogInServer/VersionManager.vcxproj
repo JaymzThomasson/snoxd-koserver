@@ -74,7 +74,7 @@
       <Culture>0x0412</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;./release/zip.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Release/VersionManager.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ProgramDatabaseFile>.\Release/VersionManager.pdb</ProgramDatabaseFile>
@@ -120,7 +120,7 @@
       <Culture>0x0412</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;./debug/zip.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Debug/VersionManager.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -214,7 +214,6 @@
   <ItemGroup>
     <None Include="res\VersionManager.ico" />
     <None Include="res\VersionManager.rc2" />
-    <None Include="ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

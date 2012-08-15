@@ -177,13 +177,13 @@ void CZipStorage::Close(bool bAfterException)
 		}
 		else
 #ifdef _DEBUG // to prevent assertion if the file is already closed
- 		if (m_file.m_hFile != (UINT)CFile::hFileNull)
+ 		if (m_file.m_hFile != CFile::hFileNull)
 #endif
 				m_file.Close();
 	}
 	else
 #ifdef _DEBUG // to prevent assertion if the file is already closed
- 		if (m_file.m_hFile != (UINT)CFile::hFileNull)
+ 		if (m_file.m_hFile != CFile::hFileNull)
 #endif
 				m_file.Close();
 
@@ -225,7 +225,7 @@ void CZipStorage::NextDisk(int iNeeded, LPCTSTR lpszFileName)
 		szFileName =  GetTdVolumeName(false, lpszFileName);
 
 #ifdef _DEBUG // to prevent assertion if the file is already closed
-	if (m_file.m_hFile != (UINT)CFile::hFileNull)
+	if (m_file.m_hFile != CFile::hFileNull)
 #endif
 		m_file.Close(); // if it is closed, so it will not close
 
@@ -389,11 +389,11 @@ void CZipStorage::Flush()
 
 DWORD CZipStorage::GetPosition()
 {
-	return m_file.GetPosition() + m_uBytesInWriteBuffer;
+	return (DWORD)m_file.GetPosition() + m_uBytesInWriteBuffer;
 }
 
 
 DWORD CZipStorage::GetFreeInBuffer()
 {
-	return m_pWriteBuffer.GetSize() - m_uBytesInWriteBuffer;
+	return (DWORD)m_pWriteBuffer.GetSize() - m_uBytesInWriteBuffer;
 }
