@@ -28,6 +28,7 @@
 *.tlog
 *.pdb
 *.ipch
+*.ncb
 
 # Config
 *.ini
