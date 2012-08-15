@@ -53,7 +53,7 @@ BOOL CSharedMemQueue::InitailizeMMF(DWORD dwOffsetsize, int maxcount, LPCTSTR lp
 		m_hMMFile = OpenFileMapping( FILE_MAP_ALL_ACCESS, TRUE, lpname );
 	
 	if( m_hMMFile == NULL ) {
-		strcpy( logstr , "Shared Memory Open Fail!!\r\n" );
+		strcpy_s( logstr, sizeof(logstr), "Shared Memory Open Fail!!\r\n" );
 		LogFileWrite( logstr );
 		return FALSE;
 	}
@@ -86,7 +86,7 @@ int CSharedMemQueue::PutData(char *pBuf, int size)
 	int index = 0, temp_rear = 0;
 
 	if( size > m_wOffset ) {
-		sprintf( logstr, "DataSize Over.. - %d bytes\r\n", size );
+		sprintf_s( logstr, sizeof(logstr), "DataSize Over.. - %d bytes\r\n", size );
 		LogFileWrite( logstr );
 		return SMQ_PKTSIZEOVER;
 	}

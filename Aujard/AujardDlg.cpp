@@ -322,7 +322,7 @@ BOOL CAujardDlg::LoadItemTable()
 		_ITEM_TABLE* pTableItem = new _ITEM_TABLE;
 				
 		pTableItem->m_iNum = ItemTableSet.m_Num;
-		strcpy(pTableItem->m_strName, ItemTableSet.m_strName);
+		strcpy_s(pTableItem->m_strName, sizeof(pTableItem->m_strName), ItemTableSet.m_strName);
 		pTableItem->m_bKind = ItemTableSet.m_Kind;
 		pTableItem->m_bSlot = ItemTableSet.m_Slot;
 		pTableItem->m_bRace = ItemTableSet.m_Race;
@@ -411,7 +411,7 @@ void CAujardDlg::SelectCharacter(char *pBuf)
 
 	CTime t = CTime::GetCurrentTime();
 	char logstr[256]; memset( logstr, 0x00, 256 );
-	sprintf( logstr, "SelectCharacter : acname=%s, name=%s, index=%d, pid : %d, front : %d\r\n", accountid, userid, packetindex, _getpid(), m_LoggerRecvQueue.GetFrontPointer() );
+	sprintf_s( logstr, sizeof(logstr), "SelectCharacter : acname=%s, name=%s, index=%d, pid : %d, front : %d\r\n", accountid, userid, packetindex, _getpid(), m_LoggerRecvQueue.GetFrontPointer() );
 	WriteLogFile( logstr );
 	//m_LogFile.Write(logstr, strlen(logstr));
 
@@ -440,7 +440,7 @@ void CAujardDlg::SelectCharacter(char *pBuf)
 	pUser = (_USER_DATA*)m_DBAgent.m_UserDataArray[uid];
 	if( !pUser ) goto fail_return;
 
-	strcpy( pUser->m_Accountid, accountid );
+	strcpy_s( pUser->m_Accountid, sizeof(pUser->m_Accountid), accountid );
 
 	SetByte( send_buff, WIZ_SEL_CHAR, send_index );
 	SetShort( send_buff, uid, send_index );
@@ -504,13 +504,13 @@ void CAujardDlg::UserLogOut(char *pBuf)
 		retval_3 = m_DBAgent.AccountLogout( accountid );
 	
 	CTime t = CTime::GetCurrentTime();
-	sprintf( logstr, "Logout : %s, %s (W:%d,U:%d)\r\n", accountid, userid, retval_1, retval_2 );
+	sprintf_s( logstr, sizeof(logstr), "Logout : %s, %s (W:%d,U:%d)\r\n", accountid, userid, retval_1, retval_2 );
 	WriteLogFile( logstr );
 	//m_LogFile.Write(logstr, strlen(logstr));
 	
 
 	if( retval_2 == 0 || retval_3 != 1 ) {
-		sprintf( logstr, "Invalid Logout : %s, %s (W:%d,U:%d,A:%d) \r\n", accountid, userid, retval_1, retval_2, retval_3 );
+		sprintf_s( logstr, sizeof(logstr), "Invalid Logout : %s, %s (W:%d,U:%d,A:%d) \r\n", accountid, userid, retval_1, retval_2, retval_3 );
 		WriteLogFile( logstr );
 		//m_LogFile.Write(logstr, strlen(logstr));
 	}
@@ -526,7 +526,7 @@ void CAujardDlg::UserLogOut(char *pBuf)
 		count++;
 	} while( count < 10 );
 	if( count >= 10 ) {
-		sprintf( logstr, "Logout Save Error: %s, %s (W:%d,U:%d) \r\n", accountid, userid, retval_1, retval_2 );
+		sprintf_s( logstr, sizeof(logstr), "Logout Save Error: %s, %s (W:%d,U:%d) \r\n", accountid, userid, retval_1, retval_2 );
 		WriteLogFile( logstr );
 		//m_LogFile.Write(logstr, strlen(logstr));
 	}
@@ -541,7 +541,7 @@ void CAujardDlg::UserLogOut(char *pBuf)
 		Sleep(10);
 	} while( count < 10 );
 	if( count >= 10 ) {
-		sprintf( logstr, "WarehouseData Logout Check Error: %s, %s (W:%d) \r\n", accountid, userid, retval_1);
+		sprintf_s( logstr, sizeof(logstr), "WarehouseData Logout Check Error: %s, %s (W:%d) \r\n", accountid, userid, retval_1);
 		WriteLogFile( logstr );
 		//m_LogFile.Write(logstr, strlen(logstr));
 	}
@@ -556,7 +556,7 @@ void CAujardDlg::UserLogOut(char *pBuf)
 		Sleep(10);
 	} while( count < 10 );
 	if( count >= 10 ) {
-		sprintf( logstr, "UserDataLogout Check Error: %s, %s (W:%d) \r\n", accountid, userid, retval_1);
+		sprintf_s( logstr, sizeof(logstr), "UserDataLogout Check Error: %s, %s (W:%d) \r\n", accountid, userid, retval_1);
 		WriteLogFile( logstr );
 		//m_LogFile.Write(logstr, strlen(logstr));
 	}
@@ -846,7 +846,7 @@ void CAujardDlg::AllSaveRoutine()
 				Sleep(10);
 			} while( count < 10 );
 			if( count >= 10 ) {
-				sprintf( logstr, "WarehouseData All Save Check Error: %s, %s (W:%d) \r\n", pUser->m_Accountid, pUser->m_id, retval_1 );
+				sprintf_s( logstr, sizeof(logstr), "WarehouseData All Save Check Error: %s, %s (W:%d) \r\n", pUser->m_Accountid, pUser->m_id, retval_1 );
 				WriteLogFile( logstr );
 				//m_LogFile.Write(logstr, strlen(logstr));
 				TRACE(logstr);
@@ -860,7 +860,7 @@ void CAujardDlg::AllSaveRoutine()
 				Sleep(10);
 			} while( count < 10 );
 			if( count >= 10 ) {
-				sprintf( logstr, "UserDataSave All Save Check Error: %s, %s (W:%d,U:%d) \r\n", pUser->m_Accountid, pUser->m_id, retval_1, retval_2 );
+				sprintf_s( logstr, sizeof(logstr), "UserDataSave All Save Check Error: %s, %s (W:%d,U:%d) \r\n", pUser->m_Accountid, pUser->m_id, retval_1, retval_2 );
 				WriteLogFile( logstr );
 				//m_LogFile.Write(logstr, strlen(logstr));
 				TRACE(logstr);
@@ -942,7 +942,7 @@ void CAujardDlg::UserDataSave(char *pBuf)
 		count++;
 	} while( count < 10 );
 	if( count >= 10 ) {
-		sprintf( logstr, "UserData Save Error: %s, %s (W:%d,U:%d) \r\n", accountid, userid, retval_1, retval_2 );
+		sprintf_s( logstr, sizeof(logstr), "UserData Save Error: %s, %s (W:%d,U:%d) \r\n", accountid, userid, retval_1, retval_2 );
 		WriteLogFile( logstr );
 		//m_LogFile.Write(logstr, strlen(logstr));
 	}
@@ -956,7 +956,7 @@ void CAujardDlg::UserDataSave(char *pBuf)
 		count++;
 	} while( count < 10 );
 	if( count >= 10 ) {
-		sprintf( logstr, "WarehouseDataSave Check Error: %s, %s (W:%d) \r\n", accountid, userid, retval_1 );
+		sprintf_s( logstr, sizeof(logstr), "WarehouseDataSave Check Error: %s, %s (W:%d) \r\n", accountid, userid, retval_1 );
 		WriteLogFile( logstr );
 		//m_LogFile.Write(logstr, strlen(logstr));
 	}
@@ -970,7 +970,7 @@ void CAujardDlg::UserDataSave(char *pBuf)
 		count++;
 	} while( count < 10 );
 	if( count >= 10 ) {
-		sprintf( logstr, "UserDataSave Check Error: %s, %s (W:%d) \r\n", accountid, userid, retval_1 );
+		sprintf_s( logstr, sizeof(logstr), "UserDataSave Check Error: %s, %s (W:%d) \r\n", accountid, userid, retval_1 );
 		WriteLogFile( logstr );
 		//m_LogFile.Write(logstr, strlen(logstr));
 	}
@@ -990,7 +990,7 @@ _USER_DATA* CAujardDlg::GetUserPtr(const char *struserid, int &uid)
 		pUser = (_USER_DATA*)m_DBAgent.m_UserDataArray[i];
 		if( !pUser )
 			continue;
-		if( strnicmp( struserid, pUser->m_id, MAX_ID_SIZE ) == 0 ) {
+		if( _strnicmp( struserid, pUser->m_id, MAX_ID_SIZE ) == 0 ) {
 			uid = i;
 			return pUser;
 		}
@@ -1316,7 +1316,7 @@ void CAujardDlg::SetLogInInfo(char *pBuf)
 			m_OutputList.AddString("Login Info Packet Drop!!!");
 
 		char logstr[256]; memset( logstr, 0x00, 256 );
-		sprintf( logstr, "LoginINFO Insert Fail : %s, %s, %d\r\n", accountid, charid, bInit );
+		sprintf_s( logstr, sizeof(logstr), "LoginINFO Insert Fail : %s, %s, %d\r\n", accountid, charid, bInit );
 		WriteLogFile( logstr );
 		//m_LogFile.Write(logstr, strlen(logstr));
 	}
@@ -1338,7 +1338,7 @@ void CAujardDlg::WritePacketLog()
 {
 	CTime t = CTime::GetCurrentTime();
 	char logstr[256]; memset( logstr, 0x00, 256 );
-	sprintf( logstr, "* Packet Count : recv=%d, send=%d, realsend=%d , time = %d:%d\r\n", m_iRecvPacketCount, m_iPacketCount, m_iSendPacketCount, t.GetHour(), t.GetMinute() );
+	sprintf_s( logstr, sizeof(logstr), "* Packet Count : recv=%d, send=%d, realsend=%d , time = %d:%d\r\n", m_iRecvPacketCount, m_iPacketCount, m_iSendPacketCount, t.GetHour(), t.GetMinute() );
 	WriteLogFile( logstr );
 	//m_LogFile.Write(logstr, strlen(logstr));
 }
