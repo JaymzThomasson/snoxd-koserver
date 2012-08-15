@@ -29,6 +29,7 @@
 *.pdb
 *.ipch
 *.ncb
+*.sdf
 
 # Config
 *.ini

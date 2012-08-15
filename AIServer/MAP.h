@@ -70,9 +70,9 @@ public:
 	BOOL ObjectIntersect(float x1, float z1, float y1, float x2, float z2, float y2);
 	float GetHeight( float x, float z );
 
-	Iterator RegionNpcRemove( int rx, int rz, int nid );
+	BOOL RegionNpcRemove( int rx, int rz, int nid );
 	void RegionNpcAdd( int rx, int rz, int nid );
-	Iterator RegionUserRemove( int rx, int rz, int uid );
+	BOOL RegionUserRemove( int rx, int rz, int uid );
 	void RegionUserAdd( int rx, int rz, int uid );
 	BOOL RegionItemRemove( int rx, int rz, int itemid, int count, int index );
 	void RegionItemAdd( int rx, int rz, int itemid, int count, int index );

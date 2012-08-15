@@ -723,7 +723,7 @@ public:
 	DWORD	dwDestBlend; // 데스트 블렌딩 방법
 
 public:
-	void Init(const _D3DCOLORVALUE& diffuseColor)
+	void Init(const D3DCOLORVALUE& diffuseColor)
 	{
 		memset(this, 0, sizeof(__Material));
 
@@ -747,7 +747,7 @@ public:
 		this->Init(crDiffuse);
 	}
 
-	void ColorSet(const _D3DCOLORVALUE& crDiffuse)
+	void ColorSet(const D3DCOLORVALUE& crDiffuse)
 	{
 		Diffuse = crDiffuse; 
 		Ambient.a = Diffuse.a;
