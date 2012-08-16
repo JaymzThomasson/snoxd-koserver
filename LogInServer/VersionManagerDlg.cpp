@@ -27,13 +27,13 @@ CVersionManagerDlg::CVersionManagerDlg(CWnd* pParent /*=NULL*/)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
 	
-	memset( m_strFtpUrl, NULL, 256 );
-	memset( m_strFilePath, NULL, 256 );
-	memset( m_strDefaultPath, NULL, _MAX_PATH );
+	memset(m_strFtpUrl, 0, sizeof(m_strFtpUrl));
+	memset(m_strFilePath, 0, sizeof(m_strFilePath));
+	memset(m_strDefaultPath, 0, sizeof(m_strDefaultPath));
 	m_nLastVersion = 0;
-	memset( m_ODBCName, NULL, 32 );
-	memset( m_ODBCLogin, NULL, 32 );
-	memset( m_ODBCPwd, NULL, 32 );
+	memset(m_ODBCName, 0, sizeof(m_ODBCName));
+	memset(m_ODBCLogin, 0, sizeof(m_ODBCLogin));
+	memset(m_ODBCPwd, 0, sizeof(m_ODBCPwd));
 
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -68,78 +68,112 @@ BOOL CVersionManagerDlg::OnInitDialog()
 	
 	m_Iocport.Init( MAX_USER, CLIENT_SOCKSIZE, 1 );
 	
-	for(int i=0; i<MAX_USER; i++) {
+	for (int i=0; i<MAX_USER; i++)
 		m_Iocport.m_SockArrayInActive[i] = new CUser;
-	}
 
-	if ( !m_Iocport.Listen( _LISTEN_PORT ) ) {
-		AfxMessageBox("FAIL TO CREATE LISTEN STATE");
+	if (!m_Iocport.Listen(_LISTEN_PORT))
+	{
+		AfxMessageBox("Failed to listen on server port.");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
 
-	if( !GetInfoFromIni() ) {
-		AfxMessageBox("Ini File Info Error!!");
+	if (!GetInfoFromIni())
+	{
+		AfxMessageBox("INI not found or not configured properly.");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
 	
-	char strconnection[256];
-	memset(strconnection, NULL, 256 );
-	sprintf_s( strconnection, sizeof(strconnection), "ODBC;DSN=%s;UID=%s;PWD=%s", m_ODBCName, m_ODBCLogin, m_ODBCPwd );
-	if( !m_DBProcess.InitDatabase( strconnection ) ) {
-		AfxMessageBox("Database Connection Fail!!");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-	if( !m_DBProcess.LoadVersionList() ) {
-		AfxMessageBox("Load Version List Fail!!");
+	char strConnection[256];
+	sprintf_s(strConnection, sizeof(strConnection), "ODBC;DSN=%s;UID=%s;PWD=%s", m_ODBCName, m_ODBCLogin, m_ODBCPwd);
+
+	if (!m_DBProcess.InitDatabase(strConnection)) 
+	{
+		AfxMessageBox("Unable to connect to the database using the details configured.");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
 
-	m_OutputList.AddString( strconnection );
+	if (!m_DBProcess.LoadVersionList())
+	{
+		AfxMessageBox("Unable to load the version list.");
+		AfxPostQuitMessage(0);
+		return FALSE;
+	}
+
+	m_OutputList.AddString(strConnection);
 	CString version;
-	version.Format("Latest Version : %d", m_nLastVersion );
+	version.Format("Latest Version : %d", m_nLastVersion);
 	m_OutputList.AddString( version );
 
-	::ResumeThread( m_Iocport.m_hAcceptThread );
+	::ResumeThread(m_Iocport.m_hAcceptThread);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
 BOOL CVersionManagerDlg::GetInfoFromIni()
 {
-	int errorcode = 0;
-	CString errorstr, inipath;
+	CString inipath;
 
-	inipath.Format( "%s\\Version.ini", GetProgPath() );
-	GetPrivateProfileString( "DOWNLOAD", "URL", "", m_strFtpUrl, 256, inipath );
-	GetPrivateProfileString( "DOWNLOAD", "PATH", "", m_strFilePath, 256, inipath );
+	inipath.Format("%s\\Version.ini", GetProgPath());
 
-	GetPrivateProfileString( "ODBC", "DSN", "", m_ODBCName, 32, inipath );
-	GetPrivateProfileString( "ODBC", "UID", "", m_ODBCLogin, 32, inipath );
-	GetPrivateProfileString( "ODBC", "PWD", "", m_ODBCPwd, 32, inipath );
-	GetPrivateProfileString( "CONFIGURATION", "DEFAULT_PATH", "", m_strDefaultPath, 256, inipath );
+	GetPrivateProfileString("DOWNLOAD", "URL", "ftp.yoursite.net", m_strFtpUrl, sizeof(m_strFtpUrl), inipath);
+	GetPrivateProfileString("DOWNLOAD", "PATH", "/", m_strFilePath, sizeof(m_strFilePath), inipath);
 
-	m_nServerCount = GetPrivateProfileInt( "SERVER_LIST", "COUNT", 0, inipath );
+	GetPrivateProfileString("ODBC", "DSN", "KN_online", m_ODBCName, sizeof(m_ODBCName), inipath);
+	GetPrivateProfileString("ODBC", "UID", "knight", m_ODBCLogin, sizeof(m_ODBCLogin), inipath);
+	GetPrivateProfileString("ODBC", "PWD", "knight", m_ODBCPwd, sizeof(m_ODBCPwd), inipath);
+	GetPrivateProfileString("CONFIGURATION", "DEFAULT_PATH", "", m_strDefaultPath, sizeof(m_strDefaultPath), inipath);
 
-	if( !strlen(m_strFtpUrl) || !strlen(m_strFilePath) ) return FALSE;
-	if( !strlen(m_ODBCName) || !strlen(m_ODBCLogin) || !strlen(m_ODBCPwd) ) return FALSE;
-	if( m_nServerCount <= 0 ) return FALSE;
+	m_nServerCount = GetPrivateProfileInt("SERVER_LIST", "COUNT", 0, inipath);
+
+	if (!strlen(m_strFtpUrl) || !strlen(m_strFilePath)
+		|| !strlen(m_ODBCName) || !strlen(m_ODBCLogin) || !strlen(m_ODBCPwd) 
+		|| m_nServerCount <= 0) 
+		return FALSE;
 	
-	char ipkey[20]; memset( ipkey, 0x00, 20 );
-	char namekey[20]; memset( namekey, 0x00, 20 );
+	char key[20]; 
 	_SERVER_INFO* pInfo = NULL;
 	
-	m_ServerList.reserve(20);
-	for( int i=0; i<m_nServerCount; i++ ) {
+	m_ServerList.reserve(m_nServerCount);
+
+	// TO-DO: Replace this nonsense with something a little more versatile
+	for (int i=0; i < m_nServerCount; i++)
+	{
 		pInfo = new _SERVER_INFO;
-		sprintf_s( ipkey, sizeof(ipkey), "SERVER_%02d", i );
-		sprintf_s( namekey, sizeof(namekey), "NAME_%02d", i );
-		GetPrivateProfileString( "SERVER_LIST", ipkey, "", pInfo->strServerIP, 32, inipath );
-		GetPrivateProfileString( "SERVER_LIST", namekey, "", pInfo->strServerName, 32, inipath );
-		m_ServerList.push_back( pInfo );
+
+		sprintf_s(key, sizeof(key), "SERVER_%02d", i);
+		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strServerIP, sizeof(pInfo->strServerIP), inipath);
+
+		sprintf_s(key, sizeof(key), "NAME_%02d", i);
+		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strServerName, sizeof(pInfo->strServerName), inipath);
+
+		sprintf_s(key, sizeof(key), "ID_%02d", i);
+		pInfo->sServerID = GetPrivateProfileInt("SERVER_LIST", key, 0, inipath);
+
+		sprintf_s(key, sizeof(key), "GROUPID_%02d", i);
+		pInfo->sGroupID = GetPrivateProfileInt("SERVER_LIST", key, 0, inipath);
+
+		sprintf_s(key, sizeof(key), "PREMLIMIT_%02d", i);
+		pInfo->sPlayerCap = GetPrivateProfileInt("SERVER_LIST", key, 0, inipath);
+
+		sprintf_s(key, sizeof(key), "FREELIMIT_%02d", i);
+		pInfo->sFreePlayerCap = GetPrivateProfileInt("SERVER_LIST", key, 0, inipath);
+
+		sprintf_s(key, sizeof(key), "KING1_%02d", i);
+		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strKarusKingName, sizeof(pInfo->strKarusKingName), inipath);
+
+		sprintf_s(key, sizeof(key), "KING2_%02d", i);
+		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strElMoradKingName, sizeof(pInfo->strElMoradKingName), inipath);
+
+		sprintf_s(key, sizeof(key), "KINGMSG1_%02d", i);
+		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strKarusNotice, sizeof(pInfo->strKarusNotice), inipath);
+
+		sprintf_s(key, sizeof(key), "KINGMSG2_%02d", i);
+		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strElMoradNotice, sizeof(pInfo->strElMoradNotice), inipath);
+
+		m_ServerList.push_back(pInfo);
 	}
 
 	return TRUE;
@@ -205,13 +239,14 @@ BOOL CVersionManagerDlg::DestroyWindow()
 
 void CVersionManagerDlg::OnVersionSetting() 
 {
-	CString errorstr, inipath;
-	inipath.Format( "%s\\Version.ini", GetProgPath() );
+	CString inipath;
+	inipath.Format("%s\\Version.ini", GetProgPath());
 	CSettingDlg	setdlg(m_nLastVersion, this);
 	
-	strcpy_s( setdlg.m_strDefaultPath, sizeof(setdlg.m_strDefaultPath), m_strDefaultPath );
-	if( setdlg.DoModal() == IDOK ) {
-		strcpy_s( m_strDefaultPath, sizeof(m_strDefaultPath), setdlg.m_strDefaultPath );
+	strcpy_s(setdlg.m_strDefaultPath, sizeof(setdlg.m_strDefaultPath), m_strDefaultPath);
+	if (setdlg.DoModal() == IDOK)
+	{
+		strcpy_s(m_strDefaultPath, sizeof(m_strDefaultPath), setdlg.m_strDefaultPath);
 		WritePrivateProfileString("CONFIGURATION", "DEFAULT_PATH", m_strDefaultPath, inipath);
 	}
 }

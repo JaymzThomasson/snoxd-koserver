@@ -56,15 +56,48 @@ void CUser::Parsing(int len, char *pData)
 		Send( buff, send_index );
 		break;
 	case LS_SERVERLIST:
-		m_pMain->m_DBProcess.LoadUserCountList();		// 기범이가 ^^;
+		m_pMain->m_DBProcess.LoadUserCountList();
+
 		SetByte( buff, LS_SERVERLIST, send_index );
+
+#if __VERSION >= 1500
+		SetShort(buff, GetShort(pData, index), send_index); // echo
+#endif
+
 		SetByte( buff, m_pMain->m_nServerCount, send_index );
-		for(i=0; i<m_pMain->m_ServerList.size(); i++) {		
-			SetShort( buff, strlen(m_pMain->m_ServerList[i]->strServerIP), send_index );
-			SetString( buff, m_pMain->m_ServerList[i]->strServerIP, strlen(m_pMain->m_ServerList[i]->strServerIP), send_index );
-			SetShort( buff, strlen(m_pMain->m_ServerList[i]->strServerName), send_index );
-			SetString( buff, m_pMain->m_ServerList[i]->strServerName, strlen( m_pMain->m_ServerList[i]->strServerName ), send_index );			
-			SetShort( buff, m_pMain->m_ServerList[i]->sUserCount, send_index);   // 기범이가 ^^;
+		for(i=0; i<m_pMain->m_ServerList.size(); i++) 
+		{		
+			_SERVER_INFO *pServer = m_pMain->m_ServerList[i];
+			SetShort(buff, strlen(pServer->strServerIP), send_index);
+			SetString(buff, pServer->strServerIP, strlen(pServer->strServerIP), send_index);
+			SetShort(buff, strlen(pServer->strServerName), send_index);
+			SetString(buff, pServer->strServerName, strlen(pServer->strServerName), send_index);			
+			if (pServer->sUserCount <= pServer->sPlayerCap)
+				SetShort( buff, pServer->sUserCount, send_index);
+			else
+				SetShort(buff, -1, send_index);
+#if __VERSION >= 1453
+			SetShort(buff, pServer->sServerID, send_index);
+			SetShort(buff, pServer->sGroupID, send_index);
+			SetShort(buff, pServer->sPlayerCap, send_index);
+			SetShort(buff, pServer->sFreePlayerCap, send_index);
+
+#if __VERSION < 1600
+			SetByte(buff, 1, send_index); // unknown, 1 in 15XX samples, 0 in 18XX+
+#else
+			SetByte(buff, 0, send_index); 
+#endif
+
+			// we read all this stuff from ini, TO-DO: make this more versatile.
+			SetShort(buff, strlen(pServer->strKarusKingName), send_index);
+			SetString(buff, pServer->strKarusKingName, strlen(pServer->strKarusKingName), send_index);
+			SetShort(buff, strlen(pServer->strKarusNotice), send_index);
+			SetString(buff, pServer->strKarusNotice, strlen(pServer->strKarusNotice), send_index);
+			SetShort(buff, strlen(pServer->strElMoradKingName), send_index );
+			SetString(buff, pServer->strElMoradKingName, strlen(pServer->strElMoradKingName), send_index );
+			SetShort(buff, strlen(pServer->strElMoradNotice), send_index );
+			SetString(buff, pServer->strElMoradNotice, strlen(pServer->strElMoradNotice), send_index );
+#endif
 		}
 		Send( buff, send_index );
 		break;

@@ -1465,7 +1465,7 @@ void CAISocket::RecvGateOpen( char* pBuf )
 
 	if( pNpc->m_tNpcType == NPC_GATE || pNpc->m_tNpcType == NPC_PHOENIX_GATE || pNpc->m_tNpcType == NPC_SPECIAL_GATE )	{
 		SetByte( send_buff, WIZ_OBJECT_EVENT, send_index );
-		SetByte( send_buff, pEvent->sType, send_index );
+		SetByte( send_buff, (BYTE) pEvent->sType, send_index );
 		SetByte( send_buff, 0x01, send_index );
 		SetShort( send_buff, nNid, send_index );
 		SetByte( send_buff, pNpc->m_byGateOpen, send_index );

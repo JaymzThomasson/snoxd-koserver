@@ -64,24 +64,44 @@ struct _VERSION_INFO
 
 struct _SERVER_INFO
 {
-	char strServerIP[20];
-	char strServerName[20];
-	short	sUserCount;
+	char strServerIP[32];
+	char strServerName[32];
+	short sUserCount;
+	short sServerID;
+	short sGroupID;
+	short sPlayerCap;
+	short sFreePlayerCap;
+	char strKarusKingName[MAX_ID_SIZE+1];
+	char strKarusNotice[256]; // not sure how big they should be
+	char strElMoradKingName[MAX_ID_SIZE+1];
+	char strElMoradNotice[256];
+
 	_SERVER_INFO() {
-		memset(strServerIP, 0x00, 20);
-		memset(strServerName, 0x00, 20);
-		sUserCount = 0;
+		memset(strServerIP, 0x00, sizeof(strServerIP));
+		memset(strServerName, 0x00, sizeof(strServerName));
+		memset(strKarusKingName, 0x00, sizeof(strKarusKingName));
+		memset(strKarusNotice, 0x00, sizeof(strKarusNotice));
+		memset(strElMoradKingName, 0x00, sizeof(strElMoradKingName));
+		memset(strElMoradNotice, 0x00, sizeof(strElMoradNotice));
+
+		sUserCount = sServerID = sGroupID = sPlayerCap = sFreePlayerCap = 0;
 	};
 };
 
 
 // Packet Define...
 
-#define LS_VERSION_REQ				0x01
-#define LS_DOWNLOADINFO_REQ			0x02
-#define LS_LOGIN_REQ				0xF3
-#define LS_MGAME_LOGIN				0xF4
-#define LS_SERVERLIST				0xF5
+enum LogonOpcodes
+{
+	LS_VERSION_REQ				= 0x01,
+	LS_DOWNLOADINFO_REQ			= 0x02,
+	LS_CRYPTION					= 0xF2,
+	LS_LOGIN_REQ				= 0xF3,
+	LS_MGAME_LOGIN				= 0xF4,
+	LS_SERVERLIST				= 0xF5,
+	LS_NEWS						= 0xF6,
+	LS_UNKF7					= 0xF7
+};
 
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////

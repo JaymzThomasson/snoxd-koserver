@@ -164,62 +164,7 @@ struct	_ITEM_DATA
 struct _ITEM_TABLE
 {
 	int   m_iNum;				// item num
-	char  m_strName[50];		// item Name
-	BYTE  m_bKind;				// item 종류
-	BYTE  m_bSlot;				// 장착위치
-	BYTE  m_bRace;				// 사용 가능한 종족
-	BYTE  m_bClass;				// 사용 가능한 Class
-	short m_sDamage;			// 최대 타격치
-	short m_sDelay;				// 공격시간
-	short m_sRange;				// 범위(유효거리)
-	short m_sWeight;			// 무게
-	short m_sDuration;			// 내구성
-	int	  m_iBuyPrice;			// 유저가 사는가격
-	int	  m_iSellPrice;			// 유저가 파는가격
-	short m_sAc;				// 방어력
 	BYTE  m_bCountable;			// 개수 개념 아이템
-	int	  m_iEffect1;			// 매직 이펙트1
-	int	  m_iEffect2;			// 매직 이펙트2
-	BYTE  m_bReqLevel;			// 요구 레벨
-	BYTE  m_bReqRank;			// 요구 작위
-	BYTE  m_bReqTitle;			// 요구 지위
-	BYTE  m_bReqStr;			// 요구 힘
-	BYTE  m_bReqSta;			// 요구 체력
-	BYTE  m_bReqDex;			// 요구 민첩
-	BYTE  m_bReqIntel;			// 요구 지능
-	BYTE  m_bReqCha;			// 요구 매력
-	BYTE  m_bSellingGroup;		// 상인 취급 물품
-	BYTE  m_ItemType;			// 매직아이템 또는 레어아이템
-	short m_sHitrate;			// 타격률
-	short m_sEvarate;			// 회피율
-	short m_sDaggerAc;			// 방어력1
-	short m_sSwordAc;			// 방어력2
-	short m_sMaceAc;			// 방어력3
-	short m_sAxeAc;				// 방어력4
-	short m_sSpearAc;			// 방어력5
-	short m_sBowAc;				// 방어력6
-	BYTE  m_bFireDamage;		// 불 속성
-	BYTE  m_bIceDamage;			// 냉기 속성
-	BYTE  m_bLightningDamage;	// 전격 속성
-	BYTE  m_bPoisonDamage;		// 독 속성
-	BYTE  m_bHPDrain;			// HP 흡수
-	BYTE  m_bMPDamage;			// MP 타격
-	BYTE  m_bMPDrain;			// MP 흡수
-	BYTE  m_bMirrorDamage;		// 반사 타격
-	BYTE  m_bDroprate;			// 드롭 비율
-	BYTE  m_bStrB;				// 힘 보너스
-	BYTE  m_bStaB;				// 체력 보너스
-	BYTE  m_bDexB;				// 민첩성 보너스
-	BYTE  m_bIntelB;			// 지능 보너스
-	BYTE  m_bChaB;				// 매력 보너스
-	short m_MaxHpB;				// MaxHP add
-	short m_MaxMpB;				// MaxMP add
-	BYTE  m_bFireR;				// 불 마법 저항력
-	BYTE  m_bColdR;				// 얼음 마법 저항력
-	BYTE  m_bLightningR;		// 전기 마법 저항력
-	BYTE  m_bMagicR;			// 기타 마법 저항력
-	BYTE  m_bPoisonR;			// 독 마법 저항력
-	BYTE  m_bCurseR;			// 저주 마법 저항력
 };
 
 struct _USER_DATA

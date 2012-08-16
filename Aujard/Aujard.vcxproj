@@ -172,6 +172,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\shared\version.h" />
     <ClInclude Include="Aujard.h" />
     <ClInclude Include="AujardDlg.h" />
     <ClInclude Include="DBAgent.h" />

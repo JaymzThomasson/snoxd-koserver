@@ -1,8 +1,6 @@
 #ifndef _GAMEDEFINE_H
 #define _GAMEDEFINE_H
 
-#define __VERSION			1914
-
 //////////////////// 직업별 Define ////////////////////
 #define KARUWARRRIOR		101		// 카루전사
 #define KARUROGUE			102		// 카루로그

@@ -319,6 +319,7 @@
   <ItemGroup>
     <ClInclude Include="..\shared\crc32.h" />
     <ClInclude Include="..\shared\lzf.h" />
+    <ClInclude Include="..\shared\version.h" />
     <ClInclude Include="AIPacket.h" />
     <ClInclude Include="AISocket.h" />
     <ClInclude Include="BattleSet.h" />
