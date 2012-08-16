@@ -1715,10 +1715,9 @@ void CUser::SendMyInfo()
 		m_pUserData->m_cury = 7;
 	}
 */
-
 	SetByte( send_buff, WIZ_MYINFO, send_index );
 	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, strlen(m_pUserData->m_id), send_index );
+	SetByte( send_buff, strlen(m_pUserData->m_id), send_index );
 	SetString( send_buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index );
 
 	SetShort( send_buff, (WORD)m_pUserData->m_curx*10, send_index );
@@ -1730,45 +1729,74 @@ void CUser::SendMyInfo()
 	SetShort( send_buff, m_pUserData->m_sClass, send_index );
 	SetByte( send_buff, m_pUserData->m_bFace, send_index );
 	SetByte( send_buff, m_pUserData->m_bHairColor, send_index );
+	SetByte( send_buff, 0x23, send_index );//r
+	SetByte( send_buff, 0x23, send_index );//g
+	SetByte( send_buff, 0x23, send_index );//b
 	SetByte( send_buff, m_pUserData->m_bRank, send_index );
 	SetByte( send_buff, m_pUserData->m_bTitle, send_index );
 	SetByte( send_buff, m_pUserData->m_bLevel, send_index );
-	SetByte( send_buff, m_pUserData->m_bPoints, send_index );
-	SetDWORD( send_buff, m_iMaxExp, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iExp, send_index );
+	SetShort( send_buff, m_pUserData->m_bPoints, send_index );
+	SetInt64( send_buff, m_iMaxExp, send_index );
+	SetInt64( send_buff, m_pUserData->m_iExp, send_index );
 	SetDWORD( send_buff, m_pUserData->m_iLoyalty, send_index );
-	SetByte( send_buff, m_pUserData->m_bCity, send_index );
+	SetDWORD( send_buff, m_pUserData->m_iLoyalty, send_index );//leader points
+	//SetByte( send_buff, m_pUserData->m_bCity, send_index );
 	SetShort( send_buff, m_pUserData->m_bKnights, send_index );
-	SetByte( send_buff, m_pUserData->m_bFame, send_index );
+	SetShort( send_buff, m_pUserData->m_bFame, send_index );
 
 	if( m_pUserData->m_bKnights == 0 )	{
-		SetShort( send_buff, 0, send_index );
-		SetByte( send_buff, 0, send_index );
-		SetByte( send_buff, 0, send_index );
+		SetByte( send_buff, 0, send_index );//mystery
+		SetByte( send_buff, 0, send_index );//type
+		SetByte( send_buff, 0, send_index );//name len
+		SetByte( send_buff, 0, send_index );//grade
+		SetByte( send_buff, 0, send_index );//rank
+		SetShort( send_buff, 0, send_index );//symbol type
+		SetShort( send_buff, 0xFFFF, send_index );//cape num
+		SetByte( send_buff, 0, send_index );//cape r
+		SetByte( send_buff, 0, send_index );//cape g
+		SetByte( send_buff, 0, send_index );//cape b
 	}
 	else {
 		pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
 		if( pKnights )	{
 			iLength = strlen( pKnights->m_strName );
-			SetShort( send_buff, iLength, send_index );
+
+			SetByte( send_buff, 0, send_index );//mystery
+			SetByte( send_buff, 0, send_index );//type
+			SetByte( send_buff, iLength, send_index );
 			SetString( send_buff, pKnights->m_strName, iLength, send_index );
-			SetByte( send_buff, pKnights->m_byGrade, send_index ); // Knights grade
-			SetByte( send_buff, pKnights->m_byRanking, send_index ); // Knights grade
-			//TRACE("sendmyinfo knights index = %d, kname=%s, name=%s\n" , iLength, pKnights->strName, m_pUserData->m_id);
+			SetByte( send_buff, pKnights->m_byGrade, send_index );
+			SetByte( send_buff, pKnights->m_byRanking, send_index );
+			SetShort( send_buff, 0, send_index );//symbol type
+			SetShort( send_buff, 0xFFFF, send_index );//cape num
+			SetByte( send_buff, 0, send_index );//cape r
+			SetByte( send_buff, 0, send_index );//cape g
+			SetByte( send_buff, 0, send_index );//cape b
 		}
 		else	{
-			SetShort( send_buff, 0, send_index );
-			SetByte( send_buff, 0, send_index );
-			SetByte( send_buff, 0, send_index );
+			SetByte( send_buff, 0, send_index );//mystery
+			SetByte( send_buff, 0, send_index );//type
+			SetByte( send_buff, 0, send_index );//name len
+			SetByte( send_buff, 0, send_index );//grade
+			SetByte( send_buff, 0, send_index );//rank
+			SetShort( send_buff, 0, send_index );//symbol type
+			SetShort( send_buff, 0xFFFF, send_index );//cape num
+			SetByte( send_buff, 0, send_index );//cape r
+			SetByte( send_buff, 0, send_index );//cape g
+			SetByte( send_buff, 0, send_index );//cape b
 		}
 	}
-
+	SetByte( send_buff, 0x00, send_index );
+	SetByte( send_buff, 0x00, send_index );
+	SetByte( send_buff, 0x00, send_index );
+	SetByte( send_buff, 0x00, send_index );
+	SetByte( send_buff, 0x00, send_index );
 	SetShort( send_buff, m_iMaxHp, send_index );
 	SetShort( send_buff, m_pUserData->m_sHp, send_index );
 	SetShort( send_buff, m_iMaxMp, send_index );
 	SetShort( send_buff, m_pUserData->m_sMp, send_index );
-	SetShort( send_buff, m_sMaxWeight, send_index );
-	SetShort( send_buff, m_sItemWeight, send_index );
+	SetDWORD( send_buff, m_sMaxWeight, send_index );
+	SetDWORD( send_buff, m_sItemWeight, send_index );
 	SetByte( send_buff, m_pUserData->m_bStr, send_index );
 	SetByte( send_buff, m_sItemStr, send_index );
 	SetByte( send_buff, m_pUserData->m_bSta, send_index );
@@ -1781,7 +1809,7 @@ void CUser::SendMyInfo()
 	SetByte( send_buff, m_sItemCham, send_index );	
 	SetShort( send_buff, m_sTotalHit, send_index );
 	SetShort( send_buff, m_sTotalAc, send_index );
-//	SetShort( send_buff, m_sBodyAc+m_sItemAc, send_index );		<- ���� �̷��� �غþ�? --;	
+//	SetShort( send_buff, m_sBodyAc+m_sItemAc, send_index );		<- ´©°¡ ÀÌ·¸°Ô ÇØºÃ¾î? --;	
 	SetByte( send_buff, m_bFireR, send_index );
 	SetByte( send_buff, m_bColdR, send_index );
 	SetByte( send_buff, m_bLightningR, send_index );
@@ -1789,22 +1817,21 @@ void CUser::SendMyInfo()
 	SetByte( send_buff, m_bDiseaseR, send_index );
 	SetByte( send_buff, m_bPoisonR, send_index );
 	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-// �̰� ���߿� �� �ּ��� --;
+// ÀÌ°Å ³ªÁß¿¡ ²À ÁÖ¼®ÇØ --;
 	SetByte( send_buff, m_pUserData->m_bAuthority, send_index );
 //
+	SetByte( send_buff, 0xFF, send_index );//rank nat
+	SetByte( send_buff, 0xFF, send_index );//rank ldr
 	for(i=0; i<9; i++)
 		SetByte(send_buff, m_pUserData->m_bstrSkill[i], send_index);
 
-	for(i=0; i<SLOT_MAX; i++ ) {
+	for(i=0; i<HAVE_MAX+SLOT_MAX + COSP_MAX + MBAG_MAX; i++ ) {
 		SetDWORD( send_buff, m_pUserData->m_sItemArray[i].nNum, send_index );
 		SetShort( send_buff, m_pUserData->m_sItemArray[i].sDuration, send_index );
 		SetShort( send_buff, m_pUserData->m_sItemArray[i].sCount, send_index );
-	}
-
-	for( i=0; i<HAVE_MAX; i++ ) {
-		SetDWORD( send_buff, m_pUserData->m_sItemArray[SLOT_MAX+i].nNum, send_index );
-		SetShort( send_buff, m_pUserData->m_sItemArray[SLOT_MAX+i].sDuration, send_index );
-		SetShort( send_buff, m_pUserData->m_sItemArray[SLOT_MAX+i].sCount, send_index );
+		SetInt64( send_buff, 0, send_index );//special data
+		SetShort( send_buff, 0, send_index );//special data
+		SetByte( send_buff, 0, send_index );//special data
 	}
 
 	Send( send_buff, send_index );
