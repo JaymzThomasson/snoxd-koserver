@@ -52,9 +52,9 @@ void CUser::Parsing(int len, char *pData)
 	switch (command) 
 	{
 	case LS_VERSION_REQ:
-		SetByte( buff, LS_VERSION_REQ, send_index );
-		SetShort( buff, m_pMain->m_nLastVersion, send_index );
-		Send( buff, send_index );
+		SetByte(buff, LS_VERSION_REQ, send_index);
+		SetShort(buff, m_pMain->m_nLastVersion, send_index);
+		Send(buff, send_index);
 		break;
 
 	case LS_SERVERLIST:
@@ -166,8 +166,7 @@ void CUser::LogInReq(char *pBuf)
 		if( bCurrentuser ) {
 			result = 0x05;		// Kick out
 			SetByte( send_buff, result, send_index );
-			SetShort( send_buff, strlen(serverip), send_index );
-			SetString( send_buff, serverip, strlen(serverip), send_index );
+			SetKOString(send_buff, serverip, send_index);
 			SetShort( send_buff, serverno, send_index );
 		}
 		else
@@ -188,31 +187,21 @@ void CUser::SendDownloadInfo(int version)
 {
 	int send_index = 0, filecount = 0;
 	_VERSION_INFO *pInfo = NULL;
-	std::set <string>	downloadset;
+	set <string> downloadset;
 	char buff[2048]; memset( buff, 0x00, 2048 );
 
-	std::map <string, _VERSION_INFO*>::iterator	Iter1, Iter2;
-	Iter1 = m_pMain->m_VersionList.m_UserTypeMap.begin();
-	Iter2 = m_pMain->m_VersionList.m_UserTypeMap.end();
-	for( ; Iter1 != Iter2; Iter1++ ) {
+	for (map <string, _VERSION_INFO*>::iterator Iter1 = m_pMain->m_VersionList.m_UserTypeMap.begin(); Iter1 != m_pMain->m_VersionList.m_UserTypeMap.end(); Iter1++ ) {
 		pInfo = (*Iter1).second;
 		if( pInfo->sVersion > version )
 			downloadset.insert(pInfo->strCompName);
 	}
 
 	SetByte( buff, LS_DOWNLOADINFO_REQ, send_index );
-	SetShort( buff, strlen( m_pMain->m_strFtpUrl), send_index );
-	SetString( buff, m_pMain->m_strFtpUrl, strlen( m_pMain->m_strFtpUrl), send_index );
-	SetShort( buff, strlen( m_pMain->m_strFilePath), send_index );
-	SetString( buff, m_pMain->m_strFilePath, strlen( m_pMain->m_strFilePath), send_index );
+	SetKOString(buff, m_pMain->m_strFtpUrl, send_index);
+	SetKOString(buff, m_pMain->m_strFilePath, send_index);
 	SetShort( buff, downloadset.size(), send_index );
 	
-	std::set <string>::iterator filenameIter1, filenameIter2;
-	filenameIter1 = downloadset.begin();
-	filenameIter2 = downloadset.end();
-	for(; filenameIter1 != filenameIter2; filenameIter1++ ) {
-		SetShort( buff, strlen( (*filenameIter1).c_str() ), send_index );
-		SetString( buff, (char*)((*filenameIter1).c_str()), strlen( (*filenameIter1).c_str() ), send_index );
-	}
+	for (set<string>::iterator filenameIter1 = downloadset.begin(); filenameIter1 != downloadset.end(); filenameIter1++ )
+		SetKOString( buff, (char*)((*filenameIter1).c_str()), send_index );
 	Send( buff, send_index );
 }
