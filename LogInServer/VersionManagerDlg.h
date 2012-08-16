@@ -14,6 +14,9 @@
 #include "STLMap.h"
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <sstream>
+
 /////////////////////////////////////////////////////////////////////////////
 // CVersionManagerDlg dialog
 
@@ -43,6 +46,8 @@ public:
 	VersionInfoList		m_VersionList;
 	ServerInfoList		m_ServerList;
 	int		m_nServerCount;
+
+	News m_news;
 
 	CDBProcess	m_DBProcess;
 

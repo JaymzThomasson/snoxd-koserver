@@ -88,6 +88,11 @@ struct _SERVER_INFO
 	};
 };
 
+struct News
+{
+	BYTE Content[4096];
+	size_t Size;
+};
 
 // Packet Define...
 
@@ -161,6 +166,17 @@ inline void SetShort(char* tBuf, int sShort, int& index)
 	index += 2;
 };
 
+inline void SetKOString(char* tBuf, char* sBuf, int& index, int lenSize = 2)
+{
+	short len = strlen(sBuf);
+	if (lenSize == 1)
+		SetByte(tBuf, (BYTE)len, index);
+	else if (lenSize == 2)
+		SetShort(tBuf, len, index);
+
+	SetString(tBuf, sBuf, len, index);
+};
+
 inline void SetDWORD(char* tBuf, DWORD sDWORD, int& index)
 {
 	CopyMemory( tBuf+index, &sDWORD, 4);
@@ -172,6 +188,13 @@ inline void Setfloat ( char* tBuf, float sFloat, int& index )
 	CopyMemory( tBuf+index, &sFloat, 4);
 	index += 4;
 };
+
+inline void SetInt64 ( char* tBuf, __int64 nInt64, int& index )
+{
+	CopyMemory( tBuf+index, &nInt64, 8);
+	index += 8;
+};
+
 // sungyong 2001.11.06
 inline int GetVarString(TCHAR* tBuf, TCHAR* sBuf, int nSize, int& index)
 {

@@ -176,6 +176,52 @@ BOOL CVersionManagerDlg::GetInfoFromIni()
 		m_ServerList.push_back(pInfo);
 	}
 
+	// Read news from INI (max 3 blocks)
+	#define BOX_START '#' << BYTE(0) << '\n'
+	#define LINE_ENDING BYTE(0) << '\n'
+	#define BOX_END BOX_START << LINE_ENDING
+
+	m_news.Size = 0;
+	stringstream ss;
+	for (int i = 0; i < 3; i++)
+	{
+		char tmp[128];
+		string title, message;
+
+		sprintf_s(key, sizeof(key), "TITLE_%02d", i);
+		memset(tmp, 0x00, sizeof(tmp));
+		GetPrivateProfileString("NEWS", key, "", tmp, sizeof(tmp), inipath);
+
+		title = tmp;
+		if (title.size() == 0)
+			continue;
+		
+		sprintf_s(key, sizeof(key), "MESSAGE_%02d", i);
+		memset(tmp, 0x00, sizeof(tmp));
+		GetPrivateProfileString("NEWS", key, "", tmp, sizeof(tmp), inipath);
+
+		message = tmp;
+		if (message.size() == 0)
+			continue;
+
+		size_t oldPos = 0, pos = 0;
+		ss << title << BOX_START;
+
+		// potentially support multiline by making | act as linebreaks (same as the TBL afaik, so at least we're conformant).
+		//replace(messages[i].begin(), messages[i].end(), '|', '\n');
+		//while ((pos = message.find('\r', pos)) != string::npos)
+		//	message.erase(pos, 1);
+		//Remove \n for now, perhaps re-implement later
+		//while ((pos = message.find('\n', pos)) != string::npos)
+		//	message.erase(pos, 1);
+
+		ss << message << LINE_ENDING << BOX_END;
+	}
+
+	m_news.Size = ss.str().size();
+	if (m_news.Size)
+		memcpy(&m_news.Content, ss.str().c_str(), m_news.Size);
+
 	return TRUE;
 }
 

@@ -45,16 +45,18 @@ void CUser::CloseProcess()
 
 void CUser::Parsing(int len, char *pData)
 {
-	int index = 0, send_index = 0, i=0, client_version = 0;
-	char buff[2048]; memset( buff, 0x00, 2048 );
-	BYTE command = GetByte( pData, index );
+	int index = 0, send_index = 0;
+	char buff[4096]; memset(buff, 0x00, sizeof(buff));
+	BYTE command = GetByte(pData, index);
 
-	switch( command ) {
+	switch (command) 
+	{
 	case LS_VERSION_REQ:
 		SetByte( buff, LS_VERSION_REQ, send_index );
 		SetShort( buff, m_pMain->m_nLastVersion, send_index );
 		Send( buff, send_index );
 		break;
+
 	case LS_SERVERLIST:
 		m_pMain->m_DBProcess.LoadUserCountList();
 
@@ -65,13 +67,13 @@ void CUser::Parsing(int len, char *pData)
 #endif
 
 		SetByte( buff, m_pMain->m_nServerCount, send_index );
-		for(i=0; i<m_pMain->m_ServerList.size(); i++) 
+		for (int i = 0; i < m_pMain->m_ServerList.size(); i++) 
 		{		
 			_SERVER_INFO *pServer = m_pMain->m_ServerList[i];
-			SetShort(buff, strlen(pServer->strServerIP), send_index);
-			SetString(buff, pServer->strServerIP, strlen(pServer->strServerIP), send_index);
-			SetShort(buff, strlen(pServer->strServerName), send_index);
-			SetString(buff, pServer->strServerName, strlen(pServer->strServerName), send_index);			
+
+			SetKOString(buff, pServer->strServerIP, send_index);
+			SetKOString(buff, pServer->strServerName, send_index);
+
 			if (pServer->sUserCount <= pServer->sPlayerCap)
 				SetShort( buff, pServer->sUserCount, send_index);
 			else
@@ -89,24 +91,52 @@ void CUser::Parsing(int len, char *pData)
 #endif
 
 			// we read all this stuff from ini, TO-DO: make this more versatile.
-			SetShort(buff, strlen(pServer->strKarusKingName), send_index);
-			SetString(buff, pServer->strKarusKingName, strlen(pServer->strKarusKingName), send_index);
-			SetShort(buff, strlen(pServer->strKarusNotice), send_index);
-			SetString(buff, pServer->strKarusNotice, strlen(pServer->strKarusNotice), send_index);
-			SetShort(buff, strlen(pServer->strElMoradKingName), send_index );
-			SetString(buff, pServer->strElMoradKingName, strlen(pServer->strElMoradKingName), send_index );
-			SetShort(buff, strlen(pServer->strElMoradNotice), send_index );
-			SetString(buff, pServer->strElMoradNotice, strlen(pServer->strElMoradNotice), send_index );
+			SetKOString(buff, pServer->strKarusKingName, send_index);
+			SetKOString(buff, pServer->strKarusNotice, send_index);
+			SetKOString(buff, pServer->strElMoradKingName, send_index);
+			SetKOString(buff, pServer->strElMoradNotice, send_index);
 #endif
 		}
-		Send( buff, send_index );
+		Send(buff, send_index);
 		break;
+
 	case LS_DOWNLOADINFO_REQ:
-		client_version = GetShort( pData, index );
-		SendDownloadInfo( client_version );
+		SendDownloadInfo(GetShort(pData, index));
 		break;
+
 	case LS_LOGIN_REQ:
 		LogInReq( pData+index );
+		break;
+
+	case LS_NEWS:
+		SetByte(buff, LS_NEWS, send_index);
+
+		if (m_pMain->m_news.Size)
+		{
+			SetKOString(buff, "Login Notice", send_index);
+			SetShort(buff, m_pMain->m_news.Size, send_index);
+			SetString(buff, (char *)m_pMain->m_news.Content, m_pMain->m_news.Size, send_index);
+		}
+		else
+		{
+			// dummy news, will skip past it
+			SetKOString(buff, "Login Notice", send_index);
+			SetKOString(buff, "<empty>", send_index);
+		}
+
+		Send(buff, send_index);
+		break;
+
+	case LS_CRYPTION: // send a key of 0, so it won't encrypt anything
+		SetByte(buff, LS_CRYPTION, send_index);
+		SetInt64(buff, 0, send_index);
+		Send(buff, send_index);
+		break;
+
+	case LS_UNKF7:
+		SetByte(buff, LS_UNKF7, send_index);
+		SetShort(buff, 0, send_index);
+		Send(buff, send_index);
 		break;
 	}
 }
