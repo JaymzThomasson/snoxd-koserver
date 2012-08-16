@@ -173,10 +173,18 @@ void CUser::LogInReq(char *pBuf)
 			SetShort( send_buff, serverno, send_index );
 		}
 		else
+		{
 			SetByte( send_buff, result, send_index );
+			SetByte(send_buff, -1, send_index); // prem type
+			SetByte(send_buff, -1, send_index); // prem days/hours (what are we even with 19XX)
+
+			// SetKOString(send_buff, accountid, send_index); // not really necessary...
+		}
 	}
 	else 
+	{
 		SetByte( send_buff, result, send_index );
+	}
 	Send( send_buff, send_index );
 
 	return;
