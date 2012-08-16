@@ -74,7 +74,7 @@ void CDBAgent::ReConnectODBC(CDatabase *m_db, char *strdb, char *strname, char *
 	m_pMain->WriteLogFile( strlog );
 	//m_pMain->m_LogFile.Write(strlog, strlen(strlog));
 
-	// DATABASE ¿¬°á...
+	// DATABASE ï¿½ï¿½ï¿½ï¿½...
 	CString strConnect;
 	strConnect.Format (_T("DSN=%s;UID=%s;PWD=%s"), strdb, strname, strpwd);
 	int iCount = 0;
@@ -142,10 +142,10 @@ void CDBAgent::MUserInit(int uid)
 	pUser->m_sBind = -1;
 	pUser->m_iBank = 0;
 
-	// ½ºÅ³ ÃÊ±âÈ­
+	// ï¿½ï¿½Å³ ï¿½Ê±ï¿½È­
 	for(int i=0; i<9; i++) pUser->m_bstrSkill[i] = 0;
 
-	for(int i = 0; i < SLOT_MAX+HAVE_MAX; i++) {// Âø¿ë°¹¼ö + ¼ÒÀ¯°¹¼ö(14+28=42)
+	for(int i = 0; i < SLOT_MAX+HAVE_MAX; i++) {// ï¿½ï¿½ë°¹ï¿½ï¿½ + ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(14+28=42)
 		pUser->m_sItemArray[i].nNum = 0;
 		pUser->m_sItemArray[i].sDuration = 0;
 		pUser->m_sItemArray[i].sCount = 0;
@@ -277,7 +277,7 @@ BOOL CDBAgent::LoadUserData(char *userid, int uid)
 	}
 	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
 
-	// ¿¥°× À¯Àú°¡ ¾Æ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Æ´Ï´ï¿½.
 /*	if(sRet == 0)	{
 		memset( logstr, 0x00, 256);
 		sprintf( logstr, "LoadUserData Fail : name=%s, sRet= %d, retval=%d, nation=%d \r\n", userid, sRet, retval, Nation );
@@ -311,7 +311,7 @@ BOOL CDBAgent::LoadUserData(char *userid, int uid)
 	//	m_pMain->m_LogFile.Write(logstr, strlen(logstr));
 		TRACE(logstr);
 	}
-	if( pUser->m_bLogout )	{	// ¾ÆÁ÷ Á¾·áµÇÁö ¾ÊÀº À¯Àú...
+	if( pUser->m_bLogout )	{	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½...
 		memset( logstr, 0x00, 256);
 		sprintf_s( logstr, sizeof(logstr), "LoadUserData logout Fail : name=%s, logout= %d \r\n", userid, pUser->m_bLogout );
 	//	m_pMain->m_LogFile.Write(logstr, strlen(logstr));
@@ -341,7 +341,7 @@ BOOL CDBAgent::LoadUserData(char *userid, int uid)
 	pUser->m_bFace = Face;
 	pUser->m_bCity = City;
 	pUser->m_bKnights = Knights;
-	// ÀÛ¾÷ : clanÁ¤º¸¸¦ ¹Þ¾Æ¿Í¾ß ÇÑ´Ù
+	// ï¿½Û¾ï¿½ : clanï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¾Æ¿Í¾ï¿½ ï¿½Ñ´ï¿½
 	//pUser->m_sClan = clan;
 	pUser->m_bFame = Fame;
 	pUser->m_sHp = Hp;
@@ -373,7 +373,7 @@ BOOL CDBAgent::LoadUserData(char *userid, int uid)
 	__int64 serial = 0;
 	_ITEM_TABLE* pTable = NULL;
 
-	for(int i = 0; i < HAVE_MAX+SLOT_MAX; i++)        // Âø¿ë°¹¼ö + ¼ÒÀ¯°¹¼ö(14+28=42)
+	for(int i = 0; i < HAVE_MAX+SLOT_MAX; i++)        // ï¿½ï¿½ë°¹ï¿½ï¿½ + ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(14+28=42)
 	{ 
 		itemid = GetDWORD(strItem, index);
 		duration = GetShort(strItem, index );
@@ -510,7 +510,7 @@ int CDBAgent::UpdateUser(const char *userid, int uid, int type )
 		SetByte(strSkill, pUser->m_bstrSkill[i], index);
 
 	index = 0;
-	for(int i = 0; i < HAVE_MAX+SLOT_MAX; i++) // Âø¿ë°¹¼ö + ¼ÒÀ¯°¹¼ö(14+28=42)
+	for(int i = 0; i < HAVE_MAX+SLOT_MAX; i++) // ï¿½ï¿½ë°¹ï¿½ï¿½ + ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(14+28=42)
 	{ 
 		if( pUser->m_sItemArray[i].nNum > 0 ) {
 			if( m_pMain->m_ItemtableArray.GetData(pUser->m_sItemArray[i].nNum) == FALSE )
@@ -523,7 +523,7 @@ int CDBAgent::UpdateUser(const char *userid, int uid, int type )
 		SetInt64(strSerial, pUser->m_sItemArray[i].nSerialNum, serial_index );
 	}
 
-	// ÀÛ¾÷ : clanÁ¤º¸µµ ¾÷µ¥ÀÌÆ®
+	// ï¿½Û¾ï¿½ : clanï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®
 	wsprintf( szSQL, TEXT( "{call UPDATE_USER_DATA ( \'%s\', %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,?,?,?)}" ),
 		pUser->m_id, pUser->m_bNation, pUser->m_bRace, pUser->m_sClass, pUser->m_bHairColor, pUser->m_bRank,
 		pUser->m_bTitle, pUser->m_bLevel, pUser->m_iExp, pUser->m_iLoyalty, pUser->m_bFace, 
@@ -814,6 +814,9 @@ BOOL CDBAgent::LoadCharInfo( char *id, char* buff, int &buff_index)
 	SetByte( buff, Level, buff_index );
 	SetByte( buff, Face, buff_index );
 	SetByte( buff, HairColor, buff_index );
+	SetByte( buff, 0x22, buff_index );//hair red
+	SetByte( buff, 0x22, buff_index );//hair green
+	SetByte( buff, 0x22, buff_index );//hair blue
 	SetByte( buff, Zone, buff_index );
 
 	int tempid = 0, count = 0, index = 0, duration = 0;
@@ -821,7 +824,7 @@ BOOL CDBAgent::LoadCharInfo( char *id, char* buff, int &buff_index)
 		tempid = GetDWORD( strItem, index );
 		duration = GetShort( strItem, index );
 		count = GetShort( strItem, index );
-		if( i == HEAD || i == BREAST || i == SHOULDER || i == LEG || i == GLOVE || i == FOOT ) {
+		if( i == HEAD || i == BREAST || i == SHOULDER || i == LEG || i == GLOVE || i == FOOT || i = RIGHTHAND || i = LEFTHAND) {
 			SetDWORD( buff, tempid, buff_index );
 			SetShort( buff, duration, buff_index );
 		}
@@ -1594,7 +1597,7 @@ void CDBAgent::LoadKnightsAllList( int nation)
 
 					count++;
 
-					if( count >= 40 )	{	// 40°³ ´ÜÀ§·Î º¸³½´Ù
+					if( count >= 40 )	{	// 40ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 						SetByte( send_buff, KNIGHTS_ALLLIST_REQ, send_index );
 						SetShort( send_buff, -1, send_index );
 						SetByte( send_buff, count, send_index );
@@ -1628,7 +1631,7 @@ void CDBAgent::LoadKnightsAllList( int nation)
 			}
 		}
 
-		if( count < 40 )	{				// 40°³¸¦ º¸³»Áö ¸øÇÑ °æ¿ì
+		if( count < 40 )	{				// 40ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 			SetByte( send_buff, KNIGHTS_ALLLIST_REQ, send_index );
 			SetShort( send_buff, -1, send_index );
 			SetByte( send_buff, count, send_index );
