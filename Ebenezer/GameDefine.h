@@ -1,32 +1,32 @@
 #ifndef _GAMEDEFINE_H
 #define _GAMEDEFINE_H
 
-//////////////////// Á÷¾÷º° Define ////////////////////
-#define KARUWARRRIOR		101		// Ä«·çÀü»ç
-#define KARUROGUE			102		// Ä«·ç·Î±×
-#define KARUWIZARD			103		// Ä«·ç¸¶¹ý
-#define KARUPRIEST			104		// Ä«·ç»çÁ¦
-#define BERSERKER			105		// ¹ö¼­Ä¿
-#define GUARDIAN			106		// °¡µð¾ð
-#define HUNTER				107		// ÇåÅÍ
-#define PENETRATOR			108		// Æä³ÊÆ®·¹ÀÌÅÍ
-#define SORSERER			109		// ¼Ò¼­·¯
-#define NECROMANCER			110		// ³×Å©·Î¸Ç¼­
-#define SHAMAN				111		// »þ¸¸
-#define DARKPRIEST			112		// ´ÙÅ©ÇÁ¸®½ºÆ®
+//////////////////// ï¿½ï¿½ï¿½ Define ////////////////////
+#define KARUWARRRIOR		101		// Ä«ï¿½ï¿½ï¿½ï¿½ï¿½
+#define KARUROGUE			102		// Ä«ï¿½ï¿½Î±ï¿½
+#define KARUWIZARD			103		// Ä«ï¿½ç¸¶ï¿½ï¿½
+#define KARUPRIEST			104		// Ä«ï¿½ï¿½ï¿½ï¿½
+#define BERSERKER			105		// ï¿½ï¿½Ä¿
+#define GUARDIAN			106		// ï¿½ï¿½ï¿½ï¿½ï¿½
+#define HUNTER				107		// ï¿½ï¿½ï¿½ï¿½
+#define PENETRATOR			108		// ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define SORSERER			109		// ï¿½Ò¼ï¿½ï¿½ï¿½
+#define NECROMANCER			110		// ï¿½ï¿½Å©ï¿½Î¸Ç¼ï¿½
+#define SHAMAN				111		// ï¿½ï¿½ï¿½ï¿½
+#define DARKPRIEST			112		// ï¿½ï¿½Å©ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 
-#define ELMORWARRRIOR		201		// ¿¤¸ðÀü»ç
-#define ELMOROGUE			202		// ¿¤¸ð·Î±×
-#define ELMOWIZARD			203		// ¿¤¸ð¸¶¹ý
-#define ELMOPRIEST			204		// ¿¤¸ð»çÁ¦
-#define BLADE				205		// ºí·¹ÀÌµå
-#define PROTECTOR			206		// ÇÁ·ÎÅØÅÍ
-#define RANGER				207		// ·¹ÀÎÁ®
-#define ASSASSIN			208		// ¾î½Ø½Å
-#define MAGE				209		// ¸ÞÀÌÁö
-#define ENCHANTER			210		// ¿£Ã¾ÅÍ
-#define CLERIC				211		// Å¬·¹¸¯
-#define DRUID				212		// µå·çÀÌµå
+#define ELMORWARRRIOR		201		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define ELMOROGUE			202		// ï¿½ï¿½ï¿½ï¿½Î±ï¿½
+#define ELMOWIZARD			203		// ï¿½ï¿½ï¿½ð¸¶¹ï¿½
+#define ELMOPRIEST			204		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define BLADE				205		// ï¿½ï¿½ï¿½Ìµï¿½
+#define PROTECTOR			206		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define RANGER				207		// ï¿½ï¿½ï¿½ï¿½ï¿½
+#define ASSASSIN			208		// ï¿½ï¿½Ø½ï¿½
+#define MAGE				209		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define ENCHANTER			210		// ï¿½ï¿½Ã¾ï¿½ï¿½
+#define CLERIC				211		// Å¬ï¿½ï¿½ï¿½ï¿½
+#define DRUID				212		// ï¿½ï¿½ï¿½ï¿½Ìµï¿½
 /////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////
@@ -59,11 +59,11 @@ const BYTE FOOT				= 13;
 const BYTE RESERVED			= 14;
 /////////////////////////////////////////////////////
 
-// Å¸°Ýºñº° ¼º°ø·ü //
-#define GREAT_SUCCESS			0X01		// ´ë¼º°ø
-#define SUCCESS					0X02		// ¼º°ø
-#define NORMAL					0X03		// º¸Åë
-#define	FAIL					0X04		// ½ÇÆÐ 
+// Å¸ï¿½Ýºï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ //
+#define GREAT_SUCCESS			0X01		// ï¿½ë¼ºï¿½ï¿½
+#define SUCCESS					0X02		// ï¿½ï¿½ï¿½ï¿½
+#define NORMAL					0X03		// ï¿½ï¿½ï¿½ï¿½
+#define	FAIL					0X04		// ï¿½ï¿½ï¿½ï¿½ 
 
 // Item Move Direction Define 
 #define ITEM_INVEN_SLOT			0x01
@@ -84,18 +84,18 @@ const BYTE RESERVED			= 14;
 #define WEAPON_LONGBOW			8
 #define WEAPON_LAUNCHER			10
 #define WEAPON_STAFF			11
-#define WEAPON_ARROW			12	// ½ºÅ³ ¾øÀ½
-#define WEAPON_JAVELIN			13	// ½ºÅ³ ¾øÀ½
-#define WEAPON_WORRIOR_AC		21	// ½ºÅ³ ¾øÀ½
-#define WEAPON_LOG_AC			22	// ½ºÅ³ ¾øÀ½
-#define WEAPON_WIZARD_AC		23	// ½ºÅ³ ¾øÀ½
-#define WEAPON_PRIEST_AC		24	// ½ºÅ³ ¾øÀ½
+#define WEAPON_ARROW			12	// ï¿½ï¿½Å³ ï¿½ï¿½ï¿½
+#define WEAPON_JAVELIN			13	// ï¿½ï¿½Å³ ï¿½ï¿½ï¿½
+#define WEAPON_WORRIOR_AC		21	// ï¿½ï¿½Å³ ï¿½ï¿½ï¿½
+#define WEAPON_LOG_AC			22	// ï¿½ï¿½Å³ ï¿½ï¿½ï¿½
+#define WEAPON_WIZARD_AC		23	// ï¿½ï¿½Å³ ï¿½ï¿½ï¿½
+#define WEAPON_PRIEST_AC		24	// ï¿½ï¿½Å³ ï¿½ï¿½ï¿½
 ////////////////////////////////////////////////////////////
 // User Status //
-#define USER_STANDING			0X01		// ¼­ ÀÖ´Ù.
-#define USER_SITDOWN			0X02		// ¾É¾Æ ÀÖ´Ù.
-#define USER_DEAD				0x03		// µà°Å¶°
-//#define USER_BLINKING			0x04		// ¹æ±Ý »ì¾Æ³µ¾î!!!
+#define USER_STANDING			0X01		// ï¿½ï¿½ ï¿½Ö´ï¿½.
+#define USER_SITDOWN			0X02		// ï¿½É¾ï¿½ ï¿½Ö´ï¿½.
+#define USER_DEAD				0x03		// ï¿½ï¿½Å¶ï¿½
+//#define USER_BLINKING			0x04		// ï¿½ï¿½ï¿½ ï¿½ï¿½Æ³ï¿½ï¿½ï¿½!!!
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 // Magic State
@@ -117,10 +117,10 @@ const BYTE RESERVED			= 14;
 //#define TRAINEE				0x02
 #define PUNISH				0x01	
 
-#define CHIEF				0x01	// ´ÜÀå
-#define VICECHIEF			0x02	// ºÎ´ÜÀå
-#define TRAINEE				0x05	// ¸â¹ö
-#define COMMAND_CAPTAIN		100		// ÁöÈÖ±ÇÀÚ
+#define CHIEF				0x01	// ï¿½ï¿½ï¿½ï¿½
+#define VICECHIEF			0x02	// ï¿½Î´ï¿½ï¿½ï¿½
+#define TRAINEE				0x05	// ï¿½ï¿½ï¿½
+#define COMMAND_CAPTAIN		100		// ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
@@ -133,8 +133,8 @@ const BYTE RESERVED			= 14;
 #define MAX_KNIGHTS_BANK	200
 #define MAX_KNIGHTS_MARK	512
 
-#define ITEM_GOLD			900000000	// µ· ¾ÆÀÌÅÛ ¹øÈ£...
-#define ITEM_NO_TRADE		900000001	// °Å·¡ ºÒ°¡ ¾ÆÀÌÅÛµé.... ºñ·¯¸Ó±Û Å©¸®½º¸¶½º ÀÌ¹êÆ® >.<		
+#define ITEM_GOLD			900000000	// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È£...
+#define ITEM_NO_TRADE		900000001	// ï¿½Å·ï¿½ ï¿½Ò°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ûµï¿½.... ï¿½ñ·¯¸Ó±ï¿½ Å©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½Æ® >.<		
 
 ////////////////////////////////////////////////////////////
 // EVENT TYPE DEFINE
@@ -262,9 +262,9 @@ struct _ZONE_ITEM {		// Bundle unit
 
 struct	_ITEM_DATA
 {
-	int		nNum;		// item ¹øÈ£
-	short	sDuration;	// item ³»±¸·Â
-	short	sCount;		// item °¹¼ö or item Ãàº¹ ¼Ó¼º¿¡ ÇØ´ç °ª
+	int		nNum;		// item ï¿½ï¿½È£
+	short	sDuration;	// item ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	short	sCount;		// item ï¿½ï¿½ï¿½ï¿½ or item ï¿½àº¹ ï¿½Ó¼ï¿½ï¿½ï¿½ ï¿½Ø´ï¿½ ï¿½ï¿½
 	__int64	nSerialNum;	// item serial code
 };
 
@@ -273,7 +273,7 @@ struct	_EXCHANGE_ITEM
 	int itemid;
 	int count;
 	short duration;
-	BYTE pos;			//  ±³È¯ÈÄ µé¾î°¥ ÀÚ¸®..
+	BYTE pos;			//  ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½î°¥ ï¿½Ú¸ï¿½..
 	__int64	nSerialNum;	// item serial code
 };
 
@@ -281,107 +281,107 @@ struct _ITEM_TABLE
 {
 	int   m_iNum;				// item num
 	char  m_strName[50];		// item Name
-	BYTE  m_bKind;				// item Á¾·ù
-	BYTE  m_bSlot;				// ÀåÂøÀ§Ä¡
-	BYTE  m_bRace;				// »ç¿ë °¡´ÉÇÑ Á¾Á·
-	BYTE  m_bClass;				// »ç¿ë °¡´ÉÇÑ Class
-	short m_sDamage;			// ÃÖ´ë Å¸°ÝÄ¡
-	short m_sDelay;				// °ø°Ý½Ã°£
-	short m_sRange;				// ¹üÀ§(À¯È¿°Å¸®)
-	short m_sWeight;			// ¹«°Ô
-	short m_sDuration;			// ³»±¸¼º
-	int	  m_iBuyPrice;			// À¯Àú°¡ »ç´Â°¡°Ý
-	int	  m_iSellPrice;			// À¯Àú°¡ ÆÄ´Â°¡°Ý
-	short m_sAc;				// ¹æ¾î·Â
-	BYTE  m_bCountable;			// °³¼ö °³³ä ¾ÆÀÌÅÛ
-	int	  m_iEffect1;			// ¸ÅÁ÷ ÀÌÆåÆ®1
-	int	  m_iEffect2;			// ¸ÅÁ÷ ÀÌÆåÆ®2
-	BYTE  m_bReqLevel;			// ¿ä±¸ ·¹º§
-	BYTE  m_bReqRank;			// ¿ä±¸ ÀÛÀ§
-	BYTE  m_bReqTitle;			// ¿ä±¸ ÁöÀ§
-	BYTE  m_bReqStr;			// ¿ä±¸ Èû
-	BYTE  m_bReqSta;			// ¿ä±¸ Ã¼·Â
-	BYTE  m_bReqDex;			// ¿ä±¸ ¹ÎÃ¸
-	BYTE  m_bReqIntel;			// ¿ä±¸ Áö´É
-	BYTE  m_bReqCha;			// ¿ä±¸ ¸Å·Â
-	BYTE  m_bSellingGroup;		// »óÀÎ Ãë±Þ ¹°Ç°
-	BYTE  m_ItemType;			// ¸ÅÁ÷¾ÆÀÌÅÛ ¶Ç´Â ·¹¾î¾ÆÀÌÅÛ
-	short m_sHitrate;			// Å¸°Ý·ü
-	short m_sEvarate;			// È¸ÇÇÀ²
-	short m_sDaggerAc;			// ¹æ¾î·Â1
-	short m_sSwordAc;			// ¹æ¾î·Â2
-	short m_sMaceAc;			// ¹æ¾î·Â3
-	short m_sAxeAc;				// ¹æ¾î·Â4
-	short m_sSpearAc;			// ¹æ¾î·Â5
-	short m_sBowAc;				// ¹æ¾î·Â6
-	BYTE  m_bFireDamage;		// ºÒ ¼Ó¼º
-	BYTE  m_bIceDamage;			// ³Ã±â ¼Ó¼º
-	BYTE  m_bLightningDamage;	// Àü°Ý ¼Ó¼º
-	BYTE  m_bPoisonDamage;		// µ¶ ¼Ó¼º
-	BYTE  m_bHPDrain;			// HP Èí¼ö
-	BYTE  m_bMPDamage;			// MP Å¸°Ý
-	BYTE  m_bMPDrain;			// MP Èí¼ö
-	BYTE  m_bMirrorDamage;		// ¹Ý»ç Å¸°Ý
-	BYTE  m_bDroprate;			// µå·Ó ºñÀ²
-	BYTE  m_bStrB;				// Èû º¸³Ê½º
-	BYTE  m_bStaB;				// Ã¼·Â º¸³Ê½º
-	BYTE  m_bDexB;				// ¹ÎÃ¸¼º º¸³Ê½º
-	BYTE  m_bIntelB;			// Áö´É º¸³Ê½º
-	BYTE  m_bChaB;				// ¸Å·Â º¸³Ê½º
+	BYTE  m_bKind;				// item ï¿½ï¿½ï¿½
+	BYTE  m_bSlot;				// ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡
+	BYTE  m_bRace;				// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
+	BYTE  m_bClass;				// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Class
+	short m_sDamage;			// ï¿½Ö´ï¿½ Å¸ï¿½ï¿½Ä¡
+	short m_sDelay;				// ï¿½ï¿½Ý½Ã°ï¿½
+	short m_sRange;				// ï¿½ï¿½ï¿½(ï¿½È¿ï¿½Å¸ï¿½)
+	short m_sWeight;			// ï¿½ï¿½ï¿½ï¿½
+	short m_sDuration;			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	int	  m_iBuyPrice;			// ï¿½ï¿½ï¿½ ï¿½ï¿½Â°ï¿½ï¿½ï¿½
+	int	  m_iSellPrice;			// ï¿½ï¿½ï¿½ ï¿½Ä´Â°ï¿½ï¿½ï¿½
+	short m_sAc;				// ï¿½ï¿½ï¿½ï¿½
+	BYTE  m_bCountable;			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	int	  m_iEffect1;			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®1
+	int	  m_iEffect2;			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®2
+	BYTE  m_bReqLevel;			// ï¿½ä±¸ ï¿½ï¿½ï¿½ï¿½
+	BYTE  m_bReqRank;			// ï¿½ä±¸ ï¿½ï¿½ï¿½
+	BYTE  m_bReqTitle;			// ï¿½ä±¸ ï¿½ï¿½ï¿½
+	BYTE  m_bReqStr;			// ï¿½ä±¸ ï¿½ï¿½
+	BYTE  m_bReqSta;			// ï¿½ä±¸ Ã¼ï¿½ï¿½
+	BYTE  m_bReqDex;			// ï¿½ä±¸ ï¿½ï¿½Ã¸
+	BYTE  m_bReqIntel;			// ï¿½ä±¸ ï¿½ï¿½ï¿½
+	BYTE  m_bReqCha;			// ï¿½ä±¸ ï¿½Å·ï¿½
+	BYTE  m_bSellingGroup;		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½Ç°
+	BYTE  m_ItemType;			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	short m_sHitrate;			// Å¸ï¿½Ý·ï¿½
+	short m_sEvarate;			// È¸ï¿½ï¿½ï¿½
+	short m_sDaggerAc;			// ï¿½ï¿½ï¿½ï¿½1
+	short m_sSwordAc;			// ï¿½ï¿½ï¿½ï¿½2
+	short m_sMaceAc;			// ï¿½ï¿½ï¿½ï¿½3
+	short m_sAxeAc;				// ï¿½ï¿½ï¿½ï¿½4
+	short m_sSpearAc;			// ï¿½ï¿½ï¿½ï¿½5
+	short m_sBowAc;				// ï¿½ï¿½ï¿½ï¿½6
+	BYTE  m_bFireDamage;		// ï¿½ï¿½ ï¿½Ó¼ï¿½
+	BYTE  m_bIceDamage;			// ï¿½Ã±ï¿½ ï¿½Ó¼ï¿½
+	BYTE  m_bLightningDamage;	// ï¿½ï¿½ï¿½ ï¿½Ó¼ï¿½
+	BYTE  m_bPoisonDamage;		// ï¿½ï¿½ ï¿½Ó¼ï¿½
+	BYTE  m_bHPDrain;			// HP ï¿½ï¿½ï¿½
+	BYTE  m_bMPDamage;			// MP Å¸ï¿½ï¿½
+	BYTE  m_bMPDrain;			// MP ï¿½ï¿½ï¿½
+	BYTE  m_bMirrorDamage;		// ï¿½Ý»ï¿½ Å¸ï¿½ï¿½
+	BYTE  m_bDroprate;			// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+	BYTE  m_bStrB;				// ï¿½ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½
+	BYTE  m_bStaB;				// Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½
+	BYTE  m_bDexB;				// ï¿½ï¿½Ã¸ï¿½ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½
+	BYTE  m_bIntelB;			// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½
+	BYTE  m_bChaB;				// ï¿½Å·ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½
 	short m_MaxHpB;				// MaxHP add
 	short m_MaxMpB;				// MaxMP add
-	BYTE  m_bFireR;				// ºÒ ¸¶¹ý ÀúÇ×·Â
-	BYTE  m_bColdR;				// ¾óÀ½ ¸¶¹ý ÀúÇ×·Â
-	BYTE  m_bLightningR;		// Àü±â ¸¶¹ý ÀúÇ×·Â
-	BYTE  m_bMagicR;			// ±âÅ¸ ¸¶¹ý ÀúÇ×·Â
-	BYTE  m_bPoisonR;			// µ¶ ¸¶¹ý ÀúÇ×·Â
-	BYTE  m_bCurseR;			// ÀúÁÖ ¸¶¹ý ÀúÇ×·Â
+	BYTE  m_bFireR;				// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE  m_bColdR;				// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE  m_bLightningR;		// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE  m_bMagicR;			// ï¿½ï¿½Å¸ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE  m_bPoisonR;			// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE  m_bCurseR;			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
 };
 
 struct _USER_DATA
 {
-	char	m_id[MAX_ID_SIZE+1];				// À¯Àú ID
-	char	m_Accountid[MAX_ID_SIZE+1];			// °èÁ¤ ID
+	char	m_id[MAX_ID_SIZE+1];				// ï¿½ï¿½ï¿½ ID
+	char	m_Accountid[MAX_ID_SIZE+1];			// ï¿½ï¿½ï¿½ ID
 
-	BYTE	m_bZone;						// ÇöÀç Zone
-	float	m_curx;							// ÇöÀç X ÁÂÇ¥
-	float	m_curz;							// ÇöÀç Z ÁÂÇ¥
-	float	m_cury;							// ÇöÀç Y ÁÂÇ¥
+	BYTE	m_bZone;						// ï¿½ï¿½ï¿½ï¿½ Zone
+	float	m_curx;							// ï¿½ï¿½ï¿½ï¿½ X ï¿½ï¿½Ç¥
+	float	m_curz;							// ï¿½ï¿½ï¿½ï¿½ Z ï¿½ï¿½Ç¥
+	float	m_cury;							// ï¿½ï¿½ï¿½ï¿½ Y ï¿½ï¿½Ç¥
 
-	BYTE	m_bNation;						// ¼Ò¼Ó±¹°¡
-	BYTE	m_bRace;						// Á¾Á·
-	short	m_sClass;						// Á÷¾÷
-	BYTE	m_bHairColor;					// ¸Ó¸®»ö±ò
-	BYTE	m_bRank;						// ÀÛÀ§
-	BYTE	m_bTitle;						// ÁöÀ§
-	BYTE	m_bLevel;						// ·¹º§
-	int		m_iExp;							// °æÇèÄ¡
-	int		m_iLoyalty;						// ·Î¿­Æ¼
-	BYTE	m_bFace;						// ¾ó±¼¸ð¾ç
-	BYTE	m_bCity;						// ¼Ò¼Óµµ½Ã
-	short	m_bKnights;						// ¼Ò¼Ó ±â»ç´Ü
-	BYTE	m_bFame;						// ¸í¼º
+	BYTE	m_bNation;						// ï¿½Ò¼Ó±ï¿½ï¿½ï¿½
+	BYTE	m_bRace;						// ï¿½ï¿½
+	short	m_sClass;						// ï¿½ï¿½ï¿½
+	BYTE	m_bHairColor;					// ï¿½Ó¸ï¿½ï¿½ï¿½ï¿½
+	BYTE	m_bRank;						// ï¿½ï¿½ï¿½
+	BYTE	m_bTitle;						// ï¿½ï¿½ï¿½
+	BYTE	m_bLevel;						// ï¿½ï¿½ï¿½ï¿½
+	int		m_iExp;							// ï¿½ï¿½ï¿½ï¿½Ä¡
+	int		m_iLoyalty;						// ï¿½Î¿ï¿½Æ¼
+	BYTE	m_bFace;						// ï¿½ó±¼¸ï¿½ï¿½
+	BYTE	m_bCity;						// ï¿½Ò¼Óµï¿½ï¿½ï¿½
+	short	m_bKnights;						// ï¿½Ò¼ï¿½ ï¿½ï¿½ï¿½ï¿½
+	BYTE	m_bFame;						// ï¿½ï¿½
 	short	m_sHp;							// HP
 	short	m_sMp;							// MP
 	short	m_sSp;							// SP
-	BYTE	m_bStr;							// Èû
-	BYTE	m_bSta;							// »ý¸í·Â
-	BYTE	m_bDex;							// °ø°Ý, È¸ÇÇÀ²
-	BYTE	m_bIntel;						// ÁöÇý(?), Ä³¸¯ÅÍ ¸¶¹ý·Â °áÁ¤
-	BYTE	m_bCha;							// ¸¶¹ý ¼º°ø·ü, ¹°°Ç °¡°Ý °áÁ¤(?)
-	BYTE	m_bAuthority;					// À¯Àú ±ÇÇÑ
-	BYTE	m_bPoints;						// º¸³Ê½º Æ÷ÀÎÆ®
-	int		m_iGold;						// Ä³¸¯ÀÌ Áö´Ñ µ·(21¾ï)
+	BYTE	m_bStr;							// ï¿½ï¿½
+	BYTE	m_bSta;							// ï¿½ï¿½ï¿½ï¿½
+	BYTE	m_bDex;							// ï¿½ï¿½ï¿½, È¸ï¿½ï¿½ï¿½
+	BYTE	m_bIntel;						// ï¿½ï¿½ï¿½ï¿½(?), Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+	BYTE	m_bCha;							// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½(?)
+	BYTE	m_bAuthority;					// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	BYTE	m_bPoints;						// ï¿½ï¿½ï¿½Ê½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®
+	int		m_iGold;						// Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½(21ï¿½ï¿½)
 	short	m_sBind;						// Saved Bind Point
-	int		m_iBank;						// Ã¢°íÀÇ µ·(21¾ï)
+	int		m_iBank;						// Ã¢ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½(21ï¿½ï¿½)
 
-	BYTE    m_bstrSkill[9];					// Á÷¾÷º° ½ºÅ³
-	_ITEM_DATA m_sItemArray[HAVE_MAX+SLOT_MAX];		// 42*8 bytes
-	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];	// Ã¢°í ¾ÆÀÌÅÛ	196*8 bytes
+	BYTE    m_bstrSkill[9];					// ï¿½ï¿½ï¿½ ï¿½ï¿½Å³
+	_ITEM_DATA m_sItemArray[HAVE_MAX+SLOT_MAX + COSP_MAX + MBAG_MAX];
+	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];	// Ã¢ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½	196*8 bytes
 
-	BYTE	m_bLogout;						// ·Î±×¾Æ¿ô ÇÃ·¡±×
-	BYTE	m_bWarehouse;					// Ã¢°í °Å·¡ Çß¾ú³ª?
-	DWORD	m_dwTime;						// ÇÃ·¹ÀÌ Å¸ÀÓ...
+	BYTE	m_bLogout;						// ï¿½Î±×¾Æ¿ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½
+	BYTE	m_bWarehouse;					// Ã¢ï¿½ï¿½ ï¿½Å·ï¿½ ï¿½ß¾ï¿½?
+	DWORD	m_dwTime;						// ï¿½Ã·ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½...
 
 };
 
@@ -394,7 +394,7 @@ struct _LEVELUP
 struct	_PARTY_GROUP
 {
 	WORD wIndex;
-	short uid[8];		// ÇÏ³ªÀÇ ÆÄÆ¼¿¡ 8¸í±îÁö °¡ÀÔ°¡´É
+	short uid[8];		// ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½ï¿½Æ¼ï¿½ï¿½ 8ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ô°ï¿½ï¿½ï¿½
 	short sMaxHp[8];
 	short sHp[8];
 	BYTE bLevel[8];
@@ -410,31 +410,31 @@ struct	_PARTY_GROUP
 
 struct _OBJECT_EVENT
 {
-	BYTE byLife;			// 1:»ì¾ÆÀÖ´Ù, 0:ÄÊ,, Á×À½
-	int sBelong;			// ¼Ò¼Ó
-	short sIndex;			// 100 ¹ø´ë - Ä«·ç½º ¹ÙÀÎµå Æ÷ÀÎÆ® | 200 ¹ø´ë ¿¤¸ð¶óµå ¹ÙÀÎµå Æ÷ÀÎÆ® | 1100 ¹ø´ë - Ä«·ç½º ¼º¹®µé 1200 - ¿¤¸ð¶óµå ¼º¹®µé
-	short sType;			// 0 - ¹ÙÀÎµå Æ÷ÀÎÆ®, 1 - ÁÂ¿ì·Î ¿­¸®´Â ¼º¹®, 2 - »óÇÏ·Î ¿­¸®´Â ¼º¹®, 3 - ·¹¹ö, 4 - ±ê¹ß·¹¹ö, 6:Ã¶Ã¢, 7-±úÁö´Â ºÎÈ°ºñ¼®
-	short sControlNpcID;	// Á¶Á¾ÇÒ NPC ID (Á¶Á¾ÇÒ Object Index), Type-> 5 : Warp Group ID
+	BYTE byLife;			// 1:ï¿½ï¿½ï¿½ï¿½Ö´ï¿½, 0:ï¿½ï¿½,, ï¿½ï¿½ï¿½
+	int sBelong;			// ï¿½Ò¼ï¿½
+	short sIndex;			// 100 ï¿½ï¿½ï¿½ - Ä«ï¿½ç½º ï¿½ï¿½ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½Æ® | 200 ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½Æ® | 1100 ï¿½ï¿½ï¿½ - Ä«ï¿½ç½º ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 1200 - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	short sType;			// 0 - ï¿½ï¿½ï¿½Îµï¿½ ï¿½ï¿½ï¿½ï¿½Æ®, 1 - ï¿½Â¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, 2 - ï¿½ï¿½ï¿½Ï·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, 3 - ï¿½ï¿½ï¿½ï¿½, 4 - ï¿½ï¿½ß·ï¿½ï¿½ï¿½, 6:Ã¶Ã¢, 7-ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½
+	short sControlNpcID;	// ï¿½ï¿½ï¿½ï¿½ NPC ID (ï¿½ï¿½ï¿½ï¿½ Object Index), Type-> 5 : Warp Group ID
 	short sStatus;			// status
-	float fPosX;			// À§Ä¡°ª
+	float fPosX;			// ï¿½Ä¡ï¿½ï¿½
 	float fPosY;
 	float fPosZ;
 };
 
 struct _REGENE_EVENT
 {
-	int	  sRegenePoint;		// Ä³¸¯ÅÍ ³ªÅ¸³ª´Â Áö¿ª ¹øÈ£
-	float fRegenePosX;		// Ä³¸¯ÅÍ ³ªÅ¸³ª´Â Áö¿ªÀÇ ¿Þ¾Æ·¡ÂÊ ±¸¼® ÁÂÇ¥ X
-	float fRegenePosY;		// Ä³¸¯ÅÍ ³ªÅ¸³ª´Â Áö¿ªÀÇ ¿Þ¾Æ·¡ÂÊ ±¸¼® ÁÂÇ¥ Y
-	float fRegenePosZ;		// Ä³¸¯ÅÍ ³ªÅ¸³ª´Â Áö¿ªÀÇ ¿Þ¾Æ·¡ÂÊ ±¸¼® ÁÂÇ¥ Z
-	float fRegeneAreaZ;		// Ä³¸¯ÅÍ ³ªÅ¸³ª´Â Áö¿ªÀÇ Z Ãà ±æÀÌ 
-	float fRegeneAreaX;		// Ä³¸¯ÅÍ ³ªÅ¸³ª´Â Áö¿ªÀÇ X Ãà ±æÀÌ
+	int	  sRegenePoint;		// Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½È£
+	float fRegenePosX;		// Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¾Æ·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ X
+	float fRegenePosY;		// Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¾Æ·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ Y
+	float fRegenePosZ;		// Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¾Æ·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ Z
+	float fRegeneAreaZ;		// Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Z ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 
+	float fRegeneAreaX;		// Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ X ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 };
 
 struct _KNIGHTS_USER
 {
-	BYTE    byUsed;								// »ç¿ëÁß : 1, ºñ»ç¿ëÁß : 0
-	char	strUserName[MAX_ID_SIZE+1];			// Ä³¸¯ÅÍÀÇ ÀÌ¸§
+	BYTE    byUsed;								// ï¿½ï¿½ï¿½ï¿½ï¿½ : 1, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ : 0
+	char	strUserName[MAX_ID_SIZE+1];			// Ä³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½
 };
 
 struct _MAGIC_TABLE
