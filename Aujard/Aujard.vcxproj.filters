@@ -78,6 +78,5 @@
     <None Include="res\Aujard.rc2">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="ReadMe.txt" />
   </ItemGroup>
 </Project>

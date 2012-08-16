@@ -39,7 +39,7 @@ BOOL CDBAgent::DatabaseInit()
 	strConnect.Format (_T("ODBC;DSN=%s;UID=%s;PWD=%s"), m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
 
 	m_GameDB.SetLoginTimeout (10);
-	if( !m_GameDB.Open(NULL,FALSE,FALSE,strConnect) )
+	if( !m_GameDB.Open(NULL, FALSE, FALSE, strConnect, 0) )
 	{
 		AfxMessageBox("GameDB SQL Connection Fail...");
 		return FALSE;
@@ -49,7 +49,7 @@ BOOL CDBAgent::DatabaseInit()
 
 	m_AccountDB.SetLoginTimeout (10);
 
-	if( !m_AccountDB.Open(NULL,FALSE,FALSE,strConnect) )
+	if( !m_AccountDB.Open(NULL, FALSE, FALSE, strConnect, 0) )
 	{
 		AfxMessageBox("AccountDB SQL Connection Fail...");
 		return FALSE;
@@ -57,7 +57,7 @@ BOOL CDBAgent::DatabaseInit()
 
 	m_AccountDB1.SetLoginTimeout (10);
 
-	if( !m_AccountDB1.Open(NULL,FALSE,FALSE,strConnect) )
+	if( !m_AccountDB1.Open(NULL, FALSE, FALSE, strConnect, 0) )
 	{
 		AfxMessageBox("AccountDB1 SQL Connection Fail...");
 		return FALSE;

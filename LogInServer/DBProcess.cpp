@@ -31,10 +31,9 @@ CDBProcess::~CDBProcess()
 BOOL CDBProcess::InitDatabase(char *strconnection)
 {
 	m_VersionDB.SetLoginTimeout(100);
-
 	m_pMain = (CVersionManagerDlg*)AfxGetMainWnd();
 
-	if( !m_VersionDB.Open( NULL,FALSE,FALSE, strconnection ) )
+	if (!m_VersionDB.Open(NULL, FALSE, FALSE, strconnection, 0))
 		return FALSE;
 
 	return TRUE;
