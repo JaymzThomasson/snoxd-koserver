@@ -65,6 +65,7 @@ struct _VERSION_INFO
 struct _SERVER_INFO
 {
 	char strServerIP[32];
+	char strLanIP[32];
 	char strServerName[32];
 	short sUserCount;
 	short sServerID;

@@ -72,6 +72,9 @@ void CUser::Parsing(int len, char *pData)
 			_SERVER_INFO *pServer = m_pMain->m_ServerList[i];
 
 			SetKOString(buff, pServer->strServerIP, send_index);
+#if __VERSION >= 1900
+			SetKOString(buff, pServer->strLanIP, send_index);
+#endif
 			SetKOString(buff, pServer->strServerName, send_index);
 
 			if (pServer->sUserCount <= pServer->sPlayerCap)

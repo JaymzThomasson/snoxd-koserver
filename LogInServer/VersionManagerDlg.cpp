@@ -146,6 +146,9 @@ BOOL CVersionManagerDlg::GetInfoFromIni()
 		sprintf_s(key, sizeof(key), "SERVER_%02d", i);
 		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strServerIP, sizeof(pInfo->strServerIP), inipath);
 
+		sprintf_s(key, sizeof(key), "LANIP_%02d", i);
+		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strLanIP, sizeof(pInfo->strLanIP), inipath);
+
 		sprintf_s(key, sizeof(key), "NAME_%02d", i);
 		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strServerName, sizeof(pInfo->strServerName), inipath);
 
