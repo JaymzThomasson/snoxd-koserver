@@ -173,14 +173,16 @@ BOOL CDBAgent::LoadUserData(char *accountid, char *userid, int uid)
 	wsprintf(szSQL, TEXT("{call LOAD_USER_DATA ('%s', '%s', ?)}"), accountid, userid);
 	
 	SQLCHAR Nation, Race, HairColor, Rank, Title, Level; 
-	SQLINTEGER Exp, Loyalty, Gold, PX, PZ, PY, dwTime;
+	SQLINTEGER Exp, Loyalty, Gold, PX, PZ, PY, dwTime, sQuestCount, MannerPoint, LoyaltyMonthly;
 	SQLCHAR Face, City, Fame, Authority, Points;
 	SQLSMALLINT Hp, Mp, Sp, sRet, Class, Bind, Knights;
 	SQLCHAR Str, Sta, Dex, Intel, Cha, Zone;
-	TCHAR strSkill[10], strItem[400], strSerial[400];
+
+	char strSkill[10], strItem[400], strSerial[400], strQuest[400];
 	memset( strSkill, 0x00, 10 );
 	memset( strItem, 0x00, 400 );
 	memset( strSerial, 0x00, 400 );
+	memset( strQuest, 0x00, 400 );
 
 	SQLINTEGER Indexind = SQL_NTS;
 
@@ -209,39 +211,44 @@ BOOL CDBAgent::LoadUserData(char *accountid, char *userid, int uid)
 	if (retcode == SQL_SUCCESS) { //|| retcode == SQL_SUCCESS_WITH_INFO){
 		retcode = SQLFetch(hstmt);
 		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO){
-			SQLGetData(hstmt,1  ,SQL_C_TINYINT  ,&Nation,		0,		&Indexind);
-			SQLGetData(hstmt,2  ,SQL_C_TINYINT  ,&Race,		0,		&Indexind);
-			SQLGetData(hstmt,3  ,SQL_C_SSHORT  , &Class,		0,		&Indexind);
-			SQLGetData(hstmt,4  ,SQL_C_TINYINT  ,&HairColor,	0,		&Indexind);
-			SQLGetData(hstmt,5  ,SQL_C_TINYINT  ,&Rank,		0,		&Indexind);
-			SQLGetData(hstmt,6  ,SQL_C_TINYINT  ,&Title,		0,		&Indexind);
-			SQLGetData(hstmt,7  ,SQL_C_TINYINT  ,&Level,		0,		&Indexind);
-			SQLGetData(hstmt,8  ,SQL_C_LONG	 ,&Exp,			0,		&Indexind);
-			SQLGetData(hstmt,9  ,SQL_C_LONG     ,&Loyalty,		0,		&Indexind);
-			SQLGetData(hstmt,10 ,SQL_C_TINYINT  ,&Face,		0,		&Indexind);
-			SQLGetData(hstmt,11 ,SQL_C_TINYINT  ,&City,		0,		&Indexind);
-			SQLGetData(hstmt,12 ,SQL_C_SSHORT  ,&Knights,		0,		&Indexind);
-			SQLGetData(hstmt,13 ,SQL_C_TINYINT  ,&Fame,		0,		&Indexind);
-			SQLGetData(hstmt,14 ,SQL_C_SSHORT	 ,&Hp,			0,		&Indexind);
-			SQLGetData(hstmt,15 ,SQL_C_SSHORT	 ,&Mp,			0,		&Indexind);
-			SQLGetData(hstmt,16 ,SQL_C_SSHORT	 ,&Sp,			0,		&Indexind);
-			SQLGetData(hstmt,17 ,SQL_C_TINYINT  ,&Str,			0,		&Indexind);
-			SQLGetData(hstmt,18 ,SQL_C_TINYINT  ,&Sta,			0,		&Indexind);
-			SQLGetData(hstmt,19 ,SQL_C_TINYINT  ,&Dex,			0,		&Indexind);
-			SQLGetData(hstmt,20 ,SQL_C_TINYINT  ,&Intel,		0,		&Indexind);
-			SQLGetData(hstmt,21 ,SQL_C_TINYINT  ,&Cha,			0,		&Indexind);
-			SQLGetData(hstmt,22 ,SQL_C_TINYINT  ,&Authority,	0,		&Indexind);
-			SQLGetData(hstmt,23 ,SQL_C_TINYINT  ,&Points,		0,		&Indexind);
-			SQLGetData(hstmt,24 ,SQL_C_LONG	 ,&Gold,		0,		&Indexind);
-			SQLGetData(hstmt,25 ,SQL_C_TINYINT  ,&Zone,	    0,		&Indexind);
-			SQLGetData(hstmt,26 ,SQL_C_SSHORT	 ,&Bind,		0,		&Indexind);
-			SQLGetData(hstmt,27 ,SQL_C_LONG	 ,&PX,			0,		&Indexind);
-			SQLGetData(hstmt,28 ,SQL_C_LONG	 ,&PZ,			0,		&Indexind);
-			SQLGetData(hstmt,29 ,SQL_C_LONG	 ,&PY,			0,		&Indexind);
-			SQLGetData(hstmt,30 ,SQL_C_LONG	 ,&dwTime,			0,		&Indexind);
-			SQLGetData(hstmt,31 ,SQL_C_CHAR		 ,strSkill,		10,		&Indexind);
-			SQLGetData(hstmt,32 ,SQL_C_CHAR		 ,strItem,		400,	&Indexind);
-			SQLGetData(hstmt,33 ,SQL_C_CHAR		 ,strSerial,	400,	&Indexind);
+			SQLGetData(hstmt, 1,  SQL_C_TINYINT,	&Nation,			0,		&Indexind);
+			SQLGetData(hstmt, 2,  SQL_C_TINYINT,	&Race,				0,		&Indexind);
+			SQLGetData(hstmt, 3,  SQL_C_SSHORT,		&Class,				0,		&Indexind);
+			SQLGetData(hstmt, 4,  SQL_C_TINYINT,	&HairColor,			0,		&Indexind);
+			SQLGetData(hstmt, 5,  SQL_C_TINYINT,	&Rank,				0,		&Indexind);
+			SQLGetData(hstmt, 6,  SQL_C_TINYINT,	&Title,				0,		&Indexind);
+			SQLGetData(hstmt, 7,  SQL_C_TINYINT,	&Level,				0,		&Indexind);
+			SQLGetData(hstmt, 8,  SQL_C_LONG,		&Exp,				0,		&Indexind);
+			SQLGetData(hstmt, 9,  SQL_C_LONG,		&Loyalty,			0,		&Indexind);
+			SQLGetData(hstmt, 10, SQL_C_TINYINT,	&Face,				0,		&Indexind);
+			SQLGetData(hstmt, 11, SQL_C_TINYINT,	&City,				0,		&Indexind);
+			SQLGetData(hstmt, 12, SQL_C_SSHORT,		&Knights,			0,		&Indexind);
+			SQLGetData(hstmt, 13, SQL_C_TINYINT,	&Fame,				0,		&Indexind);
+			SQLGetData(hstmt, 14, SQL_C_SSHORT,		&Hp,				0,		&Indexind);
+			SQLGetData(hstmt, 15, SQL_C_SSHORT,		&Mp,				0,		&Indexind);
+			SQLGetData(hstmt, 16, SQL_C_SSHORT,		&Sp,				0,		&Indexind);
+			SQLGetData(hstmt, 17, SQL_C_TINYINT,	&Str,				0,		&Indexind);
+			SQLGetData(hstmt, 18, SQL_C_TINYINT,	&Sta,				0,		&Indexind);
+			SQLGetData(hstmt, 19, SQL_C_TINYINT,	&Dex,				0,		&Indexind);
+			SQLGetData(hstmt, 20, SQL_C_TINYINT,	&Intel,				0,		&Indexind);
+			SQLGetData(hstmt, 21, SQL_C_TINYINT,	&Cha,				0,		&Indexind);
+			SQLGetData(hstmt, 22, SQL_C_TINYINT,	&Authority,			0,		&Indexind);
+			SQLGetData(hstmt, 23, SQL_C_TINYINT,	&Points,			0,		&Indexind);
+			SQLGetData(hstmt, 24, SQL_C_LONG,		&Gold,				0,		&Indexind);
+			SQLGetData(hstmt, 25, SQL_C_TINYINT,	&Zone,				0,		&Indexind);
+			SQLGetData(hstmt, 26, SQL_C_SSHORT,		&Bind,				0,		&Indexind);
+			SQLGetData(hstmt, 27, SQL_C_LONG,		&PX,				0,		&Indexind);
+			SQLGetData(hstmt, 28, SQL_C_LONG,		&PZ,				0,		&Indexind);
+			SQLGetData(hstmt, 29, SQL_C_LONG,		&PY,				0,		&Indexind);
+			SQLGetData(hstmt, 30, SQL_C_LONG,		&dwTime,			0,		&Indexind);
+			SQLGetData(hstmt, 31, SQL_C_CHAR,		strSkill,			10,		&Indexind);
+			SQLGetData(hstmt, 32, SQL_C_CHAR,		strItem,			400,	&Indexind);
+			SQLGetData(hstmt, 33, SQL_C_CHAR,		strSerial,			400,	&Indexind);
+			SQLGetData(hstmt, 34, SQL_C_SSHORT,		&sQuestCount,		0,		&Indexind);
+			SQLGetData(hstmt, 35, SQL_C_CHAR,		strQuest,			400,	&Indexind);
+			SQLGetData(hstmt, 36, SQL_C_LONG,		&MannerPoint,		0,		&Indexind);
+			SQLGetData(hstmt, 37, SQL_C_LONG,		&LoyaltyMonthly,	0,		&Indexind);
+			// SQLGetData(hstmt, 38, SQL_C_LONG,		&HairRGB,		0,		&Indexind);
 			retval =TRUE;
 		}
 		else	
@@ -311,11 +318,11 @@ BOOL CDBAgent::LoadUserData(char *accountid, char *userid, int uid)
 	pUser->m_bLevel = Level;
 	pUser->m_iExp = Exp;
 	pUser->m_iLoyalty = Loyalty;
+	pUser->m_iLoyaltyMonthly = LoyaltyMonthly;
+	pUser->m_iMannerPoint = MannerPoint;
 	pUser->m_bFace = Face;
 	pUser->m_bCity = City;
 	pUser->m_bKnights = Knights;
-	// �۾� : clan����� �޾ƿ;� �Ѵ�
-	//pUser->m_sClan = clan;
 	pUser->m_bFame = Fame;
 	pUser->m_sHp = Hp;
 	pUser->m_sMp = Mp;
@@ -337,8 +344,8 @@ BOOL CDBAgent::LoadUserData(char *accountid, char *userid, int uid)
 	//m_pMain->m_LogFile.Write(logstr, strlen(logstr));
 
 	int index = 0, serial_index = 0;
-	for(int i=0; i<9; i++) 
-		pUser->m_bstrSkill[i] = GetByte(strSkill, index);
+	memcpy(&pUser->m_bstrSkill, strSkill, 10);
+	memcpy(&pUser->m_bstrQuest, strQuest, 400);
 
 	index = 0;
 	DWORD itemid = 0;
@@ -450,7 +457,7 @@ int CDBAgent::UpdateUser(const char *userid, int uid, int type )
 	SQLHSTMT		hstmt;
 	SQLRETURN		retcode;
 	TCHAR			szSQL[1024];
-	SDWORD			sStrItem, sStrSkill, sStrSerial;
+	SDWORD			sStrItem, sStrSkill, sStrSerial, sStrQuest;
 	
 	_USER_DATA* pUser = NULL;
 	memset( szSQL, 0x00, 1024 );
@@ -468,15 +475,15 @@ int CDBAgent::UpdateUser(const char *userid, int uid, int type )
 	else if( type == UPDATE_LOGOUT || type == UPDATE_ALL_SAVE )
 		pUser->m_dwTime = 0;
 
-	TCHAR strSkill[10];
-	TCHAR strItem[400];
-	TCHAR strSerial[400];
+	TCHAR strSkill[10], strItem[400], strSerial[400];
+
 	memset( strSkill, 0x00, 10 );
 	memset( strItem, 0x00, 400 );
 	memset( strSerial, 0x00, 400 );
 	sStrSkill = sizeof(strSkill);
 	sStrItem = sizeof(strItem);
 	sStrSerial = sizeof(strSerial);
+	sStrQuest = sizeof(pUser->m_bstrQuest);
 
 	int index = 0, serial_index = 0;
 	for(int i=0; i<9; i++) 
@@ -497,12 +504,13 @@ int CDBAgent::UpdateUser(const char *userid, int uid, int type )
 	}
 
 	// �۾� : clan����� ����Ʈ
-	wsprintf( szSQL, TEXT( "{call UPDATE_USER_DATA ( \'%s\', %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,?,?,?)}" ),
+	wsprintf( szSQL, TEXT( "{call UPDATE_USER_DATA ( \'%s\', %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,?,?,?,?,%d,%d)}" ),
 		pUser->m_id, pUser->m_bNation, pUser->m_bRace, pUser->m_sClass, pUser->m_bHairColor, pUser->m_bRank,
 		pUser->m_bTitle, pUser->m_bLevel, pUser->m_iExp, pUser->m_iLoyalty, pUser->m_bFace, 
 		pUser->m_bCity,	pUser->m_bKnights, pUser->m_bFame, pUser->m_sHp, pUser->m_sMp, pUser->m_sSp, 
 		pUser->m_bStr, pUser->m_bSta, pUser->m_bDex, pUser->m_bIntel, pUser->m_bCha, pUser->m_bAuthority, pUser->m_bPoints, pUser->m_iGold, pUser->m_bZone, pUser->m_sBind, 
-		(int)(pUser->m_curx*100), (int)(pUser->m_curz*100), (int)(pUser->m_cury*100), pUser->m_dwTime );
+		(int)(pUser->m_curx*100), (int)(pUser->m_curz*100), (int)(pUser->m_cury*100), pUser->m_dwTime,
+		pUser->m_sQuestCount, pUser->m_iMannerPoint, pUser->m_iLoyaltyMonthly);
 
 	hstmt = NULL;
 
@@ -512,6 +520,7 @@ int CDBAgent::UpdateUser(const char *userid, int uid, int type )
 		retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, sizeof(strSkill),0, strSkill,0, &sStrSkill );
 		retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, sizeof(strItem),0, strItem,0, &sStrItem );
 		retcode = SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, sizeof(strSerial),0, strSerial,0, &sStrSerial );
+		retcode = SQLBindParameter(hstmt, 4, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, sizeof(pUser->m_bstrQuest),0, pUser->m_bstrQuest,0, &sStrQuest );
 		if(retcode == SQL_SUCCESS)
 		{
 			retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
@@ -786,10 +795,10 @@ BOOL CDBAgent::LoadCharInfo( char *id, char* buff, int &buff_index)
 	SetShort( buff, Class, buff_index );
 	SetByte( buff, Level, buff_index );
 	SetByte( buff, Face, buff_index );
+	SetByte( buff, 0x96, buff_index );//hair red
+	SetByte( buff, 0xE6, buff_index );//hair green
+	SetByte( buff, 0x9F, buff_index );//hair blue
 	SetByte( buff, HairColor, buff_index );
-	SetByte( buff, 0x22, buff_index );//hair red
-	SetByte( buff, 0x22, buff_index );//hair green
-	SetByte( buff, 0x22, buff_index );//hair blue
 	SetByte( buff, Zone, buff_index );
 
 	int tempid = 0, count = 0, index = 0, duration = 0;
@@ -1208,7 +1217,7 @@ BOOL CDBAgent::LoadWarehouseData(const char *accountid, int uid)
 				count = 1;
 			pUser->m_sWarehouseArray[i].sCount = count;
 			pUser->m_sWarehouseArray[i].nSerialNum = serial;
-			TRACE("%s : %d ware slot (%d : %I64d)\n", pUser->m_id, i, pUser->m_sWarehouseArray[i].nNum, pUser->m_sWarehouseArray[i].nSerialNum);
+			// TRACE("%s : %d ware slot (%d : %I64d)\n", pUser->m_id, i, pUser->m_sWarehouseArray[i].nNum, pUser->m_sWarehouseArray[i].nSerialNum);
 		}
 		else {
 			pUser->m_sWarehouseArray[i].nNum = 0;

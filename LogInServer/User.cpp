@@ -72,7 +72,7 @@ void CUser::Parsing(int len, char *pData)
 			_SERVER_INFO *pServer = m_pMain->m_ServerList[i];
 
 			SetKOString(buff, pServer->strServerIP, send_index);
-#if __VERSION >= 1900
+#if __VERSION >= 1880
 			SetKOString(buff, pServer->strLanIP, send_index);
 #endif
 			SetKOString(buff, pServer->strServerName, send_index);
@@ -165,7 +165,7 @@ void CUser::LogInReq(char *pBuf)
 	result = m_pMain->m_DBProcess.AccountLogin( accountid, pwd );
 	SetByte( send_buff, LS_LOGIN_REQ, send_index );
 	if( result == 1 ) { // success 
-		bCurrentuser = m_pMain->m_DBProcess.IsCurrentUser( accountid, serverip, serverno );
+/*		bCurrentuser = m_pMain->m_DBProcess.IsCurrentUser( accountid, serverip, serverno );
 		if( bCurrentuser ) {
 			result = 0x05;		// Kick out
 			SetByte( send_buff, result, send_index );
@@ -173,13 +173,13 @@ void CUser::LogInReq(char *pBuf)
 			SetShort( send_buff, serverno, send_index );
 		}
 		else
-		{
+		{*/
 			SetByte( send_buff, result, send_index );
 			SetByte(send_buff, -1, send_index); // prem type
 			SetByte(send_buff, -1, send_index); // prem days/hours (what are we even with 19XX)
 
 			SetKOString(send_buff, accountid, send_index); // it uses this for the game server now.
-		}
+//		}
 	}
 	else 
 	{

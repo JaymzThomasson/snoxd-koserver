@@ -340,49 +340,54 @@ struct _ITEM_TABLE
 
 struct _USER_DATA
 {
-	char	m_id[MAX_ID_SIZE+1];				// ��� ID
-	char	m_Accountid[MAX_ID_SIZE+1];			// ��� ID
+	char	m_id[MAX_ID_SIZE+1];
+	char	m_Accountid[MAX_ID_SIZE+1];
 
-	BYTE	m_bZone;						// ���� Zone
-	float	m_curx;							// ���� X ��ǥ
-	float	m_curz;							// ���� Z ��ǥ
-	float	m_cury;							// ���� Y ��ǥ
+	BYTE	m_bZone;
+	float	m_curx;	
+	float	m_curz;
+	float	m_cury;
 
-	BYTE	m_bNation;						// �Ҽӱ���
-	BYTE	m_bRace;						// ��
-	short	m_sClass;						// ���
-	BYTE	m_bHairColor;					// �Ӹ����
-	BYTE	m_bRank;						// ���
-	BYTE	m_bTitle;						// ���
-	BYTE	m_bLevel;						// ����
-	int		m_iExp;							// ����ġ
-	int		m_iLoyalty;						// �ο�Ƽ
-	BYTE	m_bFace;						// �󱼸��
-	BYTE	m_bCity;						// �Ҽӵ���
-	short	m_bKnights;						// �Ҽ� ����
-	BYTE	m_bFame;						// ��
-	short	m_sHp;							// HP
-	short	m_sMp;							// MP
-	short	m_sSp;							// SP
-	BYTE	m_bStr;							// ��
-	BYTE	m_bSta;							// ����
-	BYTE	m_bDex;							// ���, ȸ���
-	BYTE	m_bIntel;						// ����(?), ĳ���� ����� ���
-	BYTE	m_bCha;							// ���� �����, ���� ���� ���(?)
-	BYTE	m_bAuthority;					// ��� ����
-	BYTE	m_bPoints;						// ���ʽ� ����Ʈ
-	int		m_iGold;						// ĳ���� ��� ��(21��)
-	short	m_sBind;						// Saved Bind Point
-	int		m_iBank;						// â���� ��(21��)
-
-	BYTE    m_bstrSkill[9];					// ��� ��ų
+	BYTE	m_bNation;
+	BYTE	m_bRace;
+	short	m_sClass;
+	BYTE	m_bHairColor;
+	BYTE	m_bRank;
+	BYTE	m_bTitle;
+	BYTE	m_bLevel;
+	int		m_iExp;	
+	int		m_iLoyalty;	
+	int		m_iLoyaltyMonthly;
+	int		m_iMannerPoint;
+	BYTE	m_bFace;
+	BYTE	m_bCity;
+	short	m_bKnights;	
+	BYTE	m_bFame;
+	short	m_sHp;
+	short	m_sMp;
+	short	m_sSp;
+	BYTE	m_bStr;	
+	BYTE	m_bSta;	
+	BYTE	m_bDex;
+	BYTE	m_bIntel;
+	BYTE	m_bCha;
+	BYTE	m_bAuthority;
+	BYTE	m_bPoints;
+	int		m_iGold;
+	short	m_sBind;
+	int		m_iBank;
+	
+	BYTE    m_bstrSkill[9];	
 	_ITEM_DATA m_sItemArray[HAVE_MAX+SLOT_MAX + COSP_MAX + MBAG_MAX];
-	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];	// â�� ������	196*8 bytes
+	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];
 
-	BYTE	m_bLogout;						// �α׾ƿ� �÷���
-	BYTE	m_bWarehouse;					// â�� �ŷ� �߾�?
-	DWORD	m_dwTime;						// �÷��� Ÿ��...
+	BYTE	m_bLogout;
+	BYTE	m_bWarehouse;
+	DWORD	m_dwTime;
 
+	// this system needs replacing
+	int		m_sQuestCount;
+	BYTE	m_bstrQuest[400];
 };
 
 struct _LEVELUP

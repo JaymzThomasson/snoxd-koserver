@@ -96,6 +96,8 @@
 #define WIZ_EDIT_BOX			0x59	// Activate/Receive info from Input_Box.
 #define WIZ_SANTA				0x5A	// Activate motherfucking Santa Claus!!! :(
 
+#define WIZ_CHANGE_HAIR			0x89	// Changes hair colour/facial features at character selection
+
 #define WIZ_TEST_PACKET			0xff	// Test packet
 ////////////////////////////////////////////////////////////////
 // chat define

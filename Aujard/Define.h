@@ -146,10 +146,13 @@ typedef union{
 #define SEND_REGION				0x02
 #define SEND_ALL				0x03
 
-#define SLOT_MAX			14		// 착용 아템 MAX
-#define HAVE_MAX			28		// 소유 아템 MAX (인벤토리창)	
-#define ITEMCOUNT_MAX		9999	// 소모 아이템 소유 한계값
-#define WAREHOUSE_MAX		196		// 창고 아이템 MAX
+const BYTE SLOT_MAX			= 14;
+const BYTE HAVE_MAX			= 28;
+const BYTE COSP_MAX			= 7;
+const BYTE MBAG_MAX			= 24;
+const BYTE WAREHOUSE_MAX	= 196;
+const int ITEMCOUNT_MAX		= 999;
+
 /////////////////////////////////////////////////////////////////////////////////
 // Structure Define
 /////////////////////////////////////////////////////////////////////////////////
@@ -169,49 +172,54 @@ struct _ITEM_TABLE
 
 struct _USER_DATA
 {
-	char	m_id[MAX_ID_SIZE+1];			// 유저 ID
-	char	m_Accountid[MAX_ID_SIZE+1];		// 계정 ID
+	char	m_id[MAX_ID_SIZE+1];
+	char	m_Accountid[MAX_ID_SIZE+1];
 
-	BYTE	m_bZone;						// 현재 Zone
-	float	m_curx;							// 현재 X 좌표
-	float	m_curz;							// 현재 Z 좌표
-	float	m_cury;							// 현재 Y 좌표
+	BYTE	m_bZone;
+	float	m_curx;	
+	float	m_curz;
+	float	m_cury;
 
-	BYTE	m_bNation;						// 소속국가
-	BYTE	m_bRace;						// 종족
-	short	m_sClass;						// 직업
-	BYTE	m_bHairColor;					// 성별
-	BYTE	m_bRank;						// 작위
-	BYTE	m_bTitle;						// 지위
-	BYTE	m_bLevel;						// 레벨
-	int		m_iExp;							// 경험치
-	int		m_iLoyalty;						// 로열티
-	BYTE	m_bFace;					// 종교
-	BYTE	m_bCity;						// 소속도시
-	short	m_bKnights;						// 소속 기사단
-	//short	m_sClan;						// 소속 Clan
-	BYTE	m_bFame;						// 명성
-	short	m_sHp;							// HP
-	short	m_sMp;							// MP
-	short	m_sSp;							// SP
-	BYTE	m_bStr;							// 힘
-	BYTE	m_bSta;							// 생명력
-	BYTE	m_bDex;							// 공격, 회피율
-	BYTE	m_bIntel;						// 지혜(?), 캐릭터 마법력 결정
-	BYTE	m_bCha;							// 마법 성공률, 물건 가격 결정(?)
-	BYTE	m_bAuthority;					// 유저 권한
-	BYTE	m_bPoints;						// 보너스 포인트
-	int		m_iGold;						// 캐릭이 지닌 돈(21억)
-	short	m_sBind;						// Saved Bind Point
-	int		m_iBank;						// 창고의 돈(21억)
+	BYTE	m_bNation;
+	BYTE	m_bRace;
+	short	m_sClass;
+	BYTE	m_bHairColor;
+	BYTE	m_bRank;
+	BYTE	m_bTitle;
+	BYTE	m_bLevel;
+	int		m_iExp;	
+	int		m_iLoyalty;	
+	int		m_iLoyaltyMonthly;
+	int		m_iMannerPoint;
+	BYTE	m_bFace;
+	BYTE	m_bCity;
+	short	m_bKnights;	
+	BYTE	m_bFame;
+	short	m_sHp;
+	short	m_sMp;
+	short	m_sSp;
+	BYTE	m_bStr;	
+	BYTE	m_bSta;	
+	BYTE	m_bDex;
+	BYTE	m_bIntel;
+	BYTE	m_bCha;
+	BYTE	m_bAuthority;
+	BYTE	m_bPoints;
+	int		m_iGold;
+	short	m_sBind;
+	int		m_iBank;
 	
-	BYTE    m_bstrSkill[9];				// 직업별 스킬
-	_ITEM_DATA m_sItemArray[HAVE_MAX+SLOT_MAX];		// 42*8 bytes
-	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];	// 창고 아이템	196*8 bytes
+	BYTE    m_bstrSkill[9];	
+	_ITEM_DATA m_sItemArray[HAVE_MAX+SLOT_MAX + COSP_MAX + MBAG_MAX];
+	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];
 
-	BYTE	m_bLogout;						// 로그아웃 플래그
-	BYTE	m_bWarehouse;					// 창고 거래 했었나?
-	DWORD	m_dwTime;						// 플레이타임...
+	BYTE	m_bLogout;
+	BYTE	m_bWarehouse;
+	DWORD	m_dwTime;
+
+	// this system needs replacing
+	int		m_sQuestCount;
+	BYTE	m_bstrQuest[400];
 };
 
 
