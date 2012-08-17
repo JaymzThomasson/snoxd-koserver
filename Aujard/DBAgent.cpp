@@ -160,7 +160,7 @@ void CDBAgent::MUserInit(int uid)
 	pUser->m_dwTime = 0;
 }
 
-BOOL CDBAgent::LoadUserData(char *userid, int uid)
+BOOL CDBAgent::LoadUserData(char *accountid, char *userid, int uid)
 {
 	SQLHSTMT		hstmt;
 	SQLRETURN		retcode;
@@ -170,7 +170,7 @@ BOOL CDBAgent::LoadUserData(char *userid, int uid)
 	memset(szSQL, 0x00, 1024);
 
 	//wsprintf(szSQL, TEXT("{? = call LOAD_USER_DATA ('%s')}"), userid);
-	wsprintf(szSQL, TEXT("{call LOAD_USER_DATA ('%s', ?)}"), userid);
+	wsprintf(szSQL, TEXT("{call LOAD_USER_DATA ('%s', '%s', ?)}"), accountid, userid);
 	
 	SQLCHAR Nation, Race, HairColor, Rank, Title, Level; 
 	SQLINTEGER Exp, Loyalty, Gold, PX, PZ, PY, dwTime;
@@ -190,23 +190,18 @@ BOOL CDBAgent::LoadUserData(char *userid, int uid)
 
 	char logstr[256];
 	memset( logstr, 0x00, 256);
-	sprintf_s( logstr, sizeof(logstr), "LoadUserData : name=%s\r\n", userid );
-	//m_pMain->m_LogFile.Write(logstr, strlen(logstr));
+	sprintf_s( logstr, sizeof(logstr) - 1, "LoadUserData : name=%s\r\n", userid );
+	m_pMain->m_LogFile.Write(logstr, strlen(logstr));
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
 	if (retcode != SQL_SUCCESS)	{
-		memset( logstr, 0x00, 256);
-		sprintf_s( logstr, sizeof(logstr), "LoadUserData Fail 000 : name=%s\r\n", userid );
-	//	m_pMain->m_LogFile.Write(logstr, strlen(logstr));
 		return FALSE; 
 	}
 
-	retcode = SQLBindParameter(hstmt,1,SQL_PARAM_OUTPUT,SQL_C_SSHORT, SQL_SMALLINT,0,0, &sRet,0,&Indexind);
+	retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_OUTPUT, SQL_C_SSHORT, SQL_SMALLINT, 0, 0, &sRet, 0, &Indexind);
 	if (retcode != SQL_SUCCESS){
 		SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
 		memset( logstr, 0x00, 256);
-		sprintf_s( logstr, sizeof(logstr), "LoadUserData Fail : name=%s, retcode=%d\r\n", userid, retcode );
-	//	m_pMain->m_LogFile.Write(logstr, strlen(logstr));
 		return FALSE;
 	}
 
@@ -249,10 +244,8 @@ BOOL CDBAgent::LoadUserData(char *userid, int uid)
 			SQLGetData(hstmt,33 ,SQL_C_CHAR		 ,strSerial,	400,	&Indexind);
 			retval =TRUE;
 		}
-		else	{
-			memset( logstr, 0x00, 256);
-			sprintf_s( logstr, sizeof(logstr), "LoadUserData Fail 222 : name=%s, retcode=%d\r\n", userid, retcode );
-	//		m_pMain->m_LogFile.Write(logstr, strlen(logstr));
+		else	
+		{
 			retval = FALSE;
 		}
 	}
@@ -260,8 +253,8 @@ BOOL CDBAgent::LoadUserData(char *userid, int uid)
 		if( DisplayErrorMsg(hstmt) == -1 ) {
 			char logstr[256];
 			memset( logstr, 0x00, 256);
-			sprintf_s( logstr, sizeof(logstr), "[Error-DB Fail] LoadUserData : name=%s\r\n", userid );
-	//		m_pMain->m_LogFile.Write(logstr, strlen(logstr));
+			sprintf_s( logstr, sizeof(logstr) - 1, "[Error-DB Fail] LoadUserData : name=%s\r\n", userid );
+			m_pMain->m_LogFile.Write(logstr, strlen(logstr));
 
 			m_GameDB.Close();
 			if( !m_GameDB.IsOpen() ) {
@@ -270,10 +263,6 @@ BOOL CDBAgent::LoadUserData(char *userid, int uid)
 			}
 		}
 		retval= FALSE;
-
-		memset( logstr, 0x00, 256);
-		sprintf_s( logstr, sizeof(logstr), "LoadUserData Fail 333 : name=%s, retcode=%d\r\n", userid, retcode );
-	//	m_pMain->m_LogFile.Write(logstr, strlen(logstr));
 	}
 	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
 
@@ -285,42 +274,26 @@ BOOL CDBAgent::LoadUserData(char *userid, int uid)
 		return FALSE;
 	}	*/
 
-	if(retval == FALSE)	{
-		memset( logstr, 0x00, 256);
-		sprintf_s( logstr, sizeof(logstr), "LoadUserData Fail : name=%s, retval= %d \r\n", userid, retval );
-	//	m_pMain->m_LogFile.Write(logstr, strlen(logstr));
+	if(retval == FALSE)
 		return FALSE;
-	}
 
 	pUser = (_USER_DATA*)m_UserDataArray[uid];
-	if( !pUser )	{
-		memset( logstr, 0x00, 256);
-		sprintf_s( logstr, sizeof(logstr), "LoadUserData point is Fail : name=%s, uid= %d \r\n", userid, uid );
-	//	m_pMain->m_LogFile.Write(logstr, strlen(logstr));
+	if (pUser == NULL || strlen(pUser->m_id) != 0)
 		return FALSE;
-	}
-	if( strlen(pUser->m_id) != 0 )	{
-		memset( logstr, 0x00, 256);
-		sprintf_s( logstr, sizeof(logstr), "LoadUserData id length is null Fail : name=%s,  \r\n", userid );
-	//	m_pMain->m_LogFile.Write(logstr, strlen(logstr));
-		return FALSE;
-	}
+
 	if( dwTime != 0 ) {
 		char logstr[256];		memset( logstr, 0x00, 256);
-		sprintf_s( logstr, sizeof(logstr), "[LoadUserData dwTime Error : name=%s, dwTime=%d\r\n", userid, dwTime );
-	//	m_pMain->m_LogFile.Write(logstr, strlen(logstr));
+		sprintf_s( logstr, sizeof(logstr) - 1, "[LoadUserData dwTime Error : name=%s, dwTime=%d\r\n", userid, dwTime );
+		m_pMain->m_LogFile.Write(logstr, strlen(logstr));
 		TRACE(logstr);
 	}
-	if( pUser->m_bLogout )	{	// ���� ������ ��� ���...
-		memset( logstr, 0x00, 256);
-		sprintf_s( logstr, sizeof(logstr), "LoadUserData logout Fail : name=%s, logout= %d \r\n", userid, pUser->m_bLogout );
-	//	m_pMain->m_LogFile.Write(logstr, strlen(logstr));
+
+	if (pUser->m_bLogout)
 		return FALSE;
-	}
 
 	memset( logstr, 0x00, 256);
-	sprintf_s( logstr, sizeof(logstr), "LoadUserData Success : name=%s\r\n", userid );
-	//m_pMain->m_LogFile.Write(logstr, strlen(logstr));
+	sprintf_s( logstr, sizeof(logstr) - 1, "LoadUserData Success : name=%s\r\n", userid );
+	m_pMain->m_LogFile.Write(logstr, strlen(logstr));
 
 	strcpy_s(pUser->m_id, sizeof(pUser->m_id), userid);
 
