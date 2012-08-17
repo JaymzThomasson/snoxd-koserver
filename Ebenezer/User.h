@@ -318,7 +318,7 @@ public:
 	void SendNotice();
 	void UserLookChange( int pos, int itemid, int durability );
 	void SpeedHackUser();
-	void VersionCheck();
+	void VersionCheck(char *pBuf);
 	void LoyaltyChange( short tid );
 	void StateChange( char* pBuf );
 	void PointChange( char* pBuf );

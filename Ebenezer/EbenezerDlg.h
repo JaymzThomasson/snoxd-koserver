@@ -133,9 +133,9 @@ public:
 
 	static CIOCPort	m_Iocport;
 
-	CSharedMemQueue	m_LoggerSendQueue;
-	CSharedMemQueue	m_LoggerRecvQueue;
-	CSharedMemQueue m_ItemLoggerSendQ;
+	CEbenezerDlg * m_pMain; // don't remove this, required for debug logging until everything's cleaned up (then we can get rid of it)
+
+	CSharedMemQueue	m_LoggerSendQueue, m_LoggerRecvQueue;
 
 	HANDLE	m_hReadQueueThread;
 	HANDLE	m_hMMFile;
@@ -178,10 +178,6 @@ public:
 	float   m_fReConnectStart;	// 처음 소켓이 도착한 시간
 	short   m_sErrorSocketCount;  // 이상소켓 감시용
 	// ~sungyong 2002.05.23
-
-	int m_iPacketCount;		// packet check
-	int m_iSendPacketCount;		// packet check
-	int m_iRecvPacketCount;		// packet check
 
 	int m_nYear, m_nMonth, m_nDate, m_nHour, m_nMin, m_nWeather, m_nAmount;
 	int m_nCastleCapture;

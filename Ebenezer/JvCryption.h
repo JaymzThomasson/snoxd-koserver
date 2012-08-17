@@ -15,9 +15,7 @@ typedef _int64			T_KEY;
 class CJvCryption
 {
 private:
-	T_KEY m_public_key;
-	T_KEY m_private_key;
-	T_KEY m_tkey;
+	T_KEY m_public_key, m_private_key, m_tkey;
 
 public:
 	CJvCryption();

@@ -29,56 +29,45 @@ DWORD WINAPI AcceptThread(LPVOID lp)
 	DWORD				wait_return;
 	int					sid;
 	CIOCPSocket2*		pSocket = NULL;
-	char				logstr[1024];
-	memset( logstr, NULL, 1024 );
 
 	struct sockaddr_in  addr;
 	int					len;
 
-	while(1)
+	while (1)
 	{
-		wait_return = WaitForSingleObject( pIocport->m_hListenEvent, INFINITE);
-
-		if(wait_return == WAIT_FAILED)
+		wait_return = WaitForSingleObject(pIocport->m_hListenEvent, INFINITE);
+		if (wait_return == WAIT_FAILED)
 		{
-			TRACE("Wait failed Error %d\n", GetLastError());
-			char logstr[1024]; memset( logstr, NULL, 1024 );
-			sprintf( logstr, "Wait failed Error %d\r\n", GetLastError());
-			LogFileWrite( logstr );
+			DEBUG_LOG_FILE("WAit failed error: %d", GetLastError());
 			return 1;
 		}
 
 		WSAEnumNetworkEvents( pIocport->m_ListenSocket, pIocport->m_hListenEvent, &network_event);
-
-		if(network_event.lNetworkEvents &FD_ACCEPT)
+		if (network_event.lNetworkEvents & FD_ACCEPT)
 		{
 			if(network_event.iErrorCode[FD_ACCEPT_BIT] == 0 ) 
 			{
 				sid = pIocport->GetNewSid();
-				if(sid < 0) {
-					TRACE("Accepting User Socket Fail - New Uid is -1\n");
-					char logstr[1024]; memset( logstr, NULL, 1024 );
-					sprintf( logstr, "Accepting User Socket Fail - New Uid is -1\r\n");
-					LogFileWrite( logstr );
+				if (sid < 0) {
+					DEBUG_LOG_FILE("Accepting user socket fail - new UID is -1");
 					goto loop_pass_accept;
 				}
 
 				pSocket = pIocport->GetIOCPSocket( sid );
-				if( !pSocket ) {
-					TRACE("Socket Array has Broken...\n");
-					char logstr[1024]; memset( logstr, NULL, 1024 );
-					sprintf( logstr, "Socket Array has Broken...\r\n");
-					LogFileWrite( logstr );
+				if (!pSocket)
+				{
+					DEBUG_LOG_FILE("Socket array has broken");
 //					pIocport->PutOldSid( sid );				// Invalid sid must forbidden to use
+
+					// make sure we don't hold up the queue
+					closesocket(accept(pIocport->m_ListenSocket, (struct sockaddr *)&addr, &len));
 					goto loop_pass_accept;
 				}
 
 				len = sizeof(addr);
-				if( !pSocket->Accept( pIocport->m_ListenSocket, (struct sockaddr *)&addr, &len ) ) {
-					TRACE("Accept Fail %d\n", sid);
-					char logstr[1024]; memset( logstr, NULL, 1024 );
-					sprintf( logstr, "Accept Fail %d\r\n", sid);
-					LogFileWrite( logstr );
+				if (!pSocket->Accept( pIocport->m_ListenSocket, (struct sockaddr *)&addr, &len))
+				{
+					DEBUG_LOG_FILE("Accept fail: %d", sid);
 					pIocport->RidIOCPSocket( sid, pSocket );
 					pIocport->PutOldSid( sid );
 					goto loop_pass_accept;
@@ -86,23 +75,17 @@ DWORD WINAPI AcceptThread(LPVOID lp)
 
 				pSocket->InitSocket( pIocport );
 
-				if( !pIocport->Associate( pSocket, pIocport->m_hServerIOCPort ) ) {
-					TRACE("Socket Associate Fail\n");
-					char logstr[1024]; memset( logstr, NULL, 1024 );
-					sprintf( logstr, "Socket Associate Fail\r\n");
-					LogFileWrite( logstr );
+				if (!pIocport->Associate(pSocket, pIocport->m_hServerIOCPort))
+				{
+					DEBUG_LOG("Unable to associate socket with session: %d", sid);
 					pSocket->CloseProcess();
 					pIocport->RidIOCPSocket( sid, pSocket );
 					pIocport->PutOldSid( sid );
 					goto loop_pass_accept;
 				}
 
-				// Crytion
-				//pSocket->SendCryptionKey();	// ¾ÏÈ£È­
-				// ~
 				pSocket->Receive();
-
-				TRACE("Success Accepting...%d\n", sid);
+				TRACE("Accepted socket: %d\n", sid);
 			}
 
 loop_pass_accept:
@@ -118,7 +101,6 @@ DWORD WINAPI ReceiveWorkerThread(LPVOID lp)
 	CIOCPort* pIocport = (CIOCPort*) lp;
 
 	DWORD			WorkIndex;	
-	BOOL			b;
 	LPOVERLAPPED	pOvl;
 	DWORD			nbytes;
 	DWORD			dwFlag = 0;
@@ -126,32 +108,29 @@ DWORD WINAPI ReceiveWorkerThread(LPVOID lp)
 
 	while (1)
 	{
-		b = GetQueuedCompletionStatus( 
-									  pIocport->m_hServerIOCPort,
-									  &nbytes,
-									  &WorkIndex,
-									  &pOvl,
-									  INFINITE);
-		if(b || pOvl) 
+		BOOL b = GetQueuedCompletionStatus(pIocport->m_hServerIOCPort, &nbytes, &WorkIndex, &pOvl, INFINITE);
+		if (b || pOvl) 
 		{
-			if(b)
+			if (b)
 			{
-				if( WorkIndex > (DWORD)pIocport->m_SocketArraySize )
-					goto loop_pass;
-				pSocket = (CIOCPSocket2 *)pIocport->m_SockArray[WorkIndex];
-				if( !pSocket )
+				if (WorkIndex > (DWORD)pIocport->m_SocketArraySize)
 					goto loop_pass;
 
-				switch( pOvl->Offset )
+				pSocket = (CIOCPSocket2 *)pIocport->m_SockArray[WorkIndex];
+				if (!pSocket)
+					goto loop_pass;
+
+				switch (pOvl->Offset)
 				{
 				case	OVL_RECEIVE:
-					EnterCriticalSection( &g_critical );
-					if( !nbytes ) {
-						TRACE("User Closed By 0 byte Notify...%d\n", WorkIndex);
+					EnterCriticalSection(&g_critical);
+					if (!nbytes)
+					{
+						TRACE("Socket %d dropped (0 bytes received)\n", WorkIndex);
 						pSocket->CloseProcess();
-						pIocport->RidIOCPSocket( pSocket->GetSocketID(), pSocket );
-						pIocport->PutOldSid( pSocket->GetSocketID() );
-						LeaveCriticalSection( &g_critical );
+						pIocport->RidIOCPSocket(pSocket->GetSocketID(), pSocket);
+						pIocport->PutOldSid(pSocket->GetSocketID());
+						LeaveCriticalSection(&g_critical);
 						break;
 					}
 
@@ -168,21 +147,19 @@ DWORD WINAPI ReceiveWorkerThread(LPVOID lp)
 
 					break;
 				case	OVL_CLOSE:
-					EnterCriticalSection( &g_critical );
-					TRACE("User Closed By Close()...%d\n", WorkIndex);
-
+					TRACE("Socket %d disconnected by server\n", WorkIndex);
 					pSocket->CloseProcess();
-					pIocport->RidIOCPSocket( pSocket->GetSocketID(), pSocket );
-					pIocport->PutOldSid( pSocket->GetSocketID() );
 
-					LeaveCriticalSection( &g_critical );
-					break;
-				default:
+					EnterCriticalSection(&g_critical);
+					pIocport->RidIOCPSocket(pSocket->GetSocketID(), pSocket);
+					pIocport->PutOldSid(pSocket->GetSocketID());
+					LeaveCriticalSection(&g_critical);
 					break;
 				}
 			}
-			else {
-				if( WorkIndex > (DWORD)pIocport->m_SocketArraySize )
+			else 
+			{
+				if (WorkIndex > (DWORD)pIocport->m_SocketArraySize)
 					goto loop_pass;
 				pSocket = (CIOCPSocket2 *)pIocport->m_SockArray[WorkIndex];
 				if( !pSocket )
@@ -196,14 +173,10 @@ DWORD WINAPI ReceiveWorkerThread(LPVOID lp)
 				
 				LeaveCriticalSection( &g_critical );
 
-				if( pOvl ) {
-					TRACE("User Closed By Abnormal Termination...%d\n", WorkIndex);
-				}
-				else {
-					DWORD ioError = GetLastError();
-					TRACE("User Closed By IOCP Error[%d] - %d \n", ioError, WorkIndex);
-								
-				}
+				if (pOvl)
+					TRACE("Socket %d disconnected abnormally\n", WorkIndex);
+				else 
+					TRACE("Socket %d disconnected by IOCP error[%d] - %d\n", GetLastError(), WorkIndex);
 			}
 		}
 

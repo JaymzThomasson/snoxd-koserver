@@ -220,7 +220,7 @@ void CUdpSocket::ServerChat(char *pBuf)
 		return;
 	GetString( chatstr, pBuf, chatlen, index );
 
-	m_pMain->m_StatusList.AddString( chatstr );
+	DEBUG_LOG(chatstr);
 }
 
 void CUdpSocket::RecvBattleEvent(char *pBuf)

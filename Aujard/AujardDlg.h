@@ -25,7 +25,6 @@ public:
 	void BattleEventResult( char* pData );
 	void WriteLogFile( char* pData );
 	void SaveUserData();
-	void WritePacketLog();
 	void UserKickOut( char* pBuf );
 	void SetLogInInfo( char* pBuf );
 	void KnightsList( char* pBuf );
@@ -70,9 +69,6 @@ public:
 
 	CFile					m_LogFile;
 
-	int m_iPacketCount;		// packet의 수를 체크
-	int m_iSendPacketCount;		// packet의 수를 체크
-	int m_iRecvPacketCount;		// packet의 수를 체크
 	int m_iLogFileDay;
 
 // Dialog Data

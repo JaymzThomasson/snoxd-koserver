@@ -16,7 +16,6 @@ static char THIS_FILE[] = __FILE__;
 #define PROCESS_CHECK		100
 #define CONCURRENT_CHECK	200
 #define SERIAL_TIME			300
-#define PACKET_CHECK		400
 
 WORD	g_increase_serial = 50001;
 
@@ -115,10 +114,6 @@ CAujardDlg::CAujardDlg(CWnd* pParent /*=NULL*/)
 	memset( m_strLogDSN, 0x00, 24 );
 	memset( m_strLogUID, 0x00, 24 );
 	memset( m_strLogPWD, 0x00, 24 );
-
-	m_iSendPacketCount = 0;
-	m_iPacketCount = 0;
-	m_iRecvPacketCount = 0;
 }
 
 void CAujardDlg::DoDataExchange(CDataExchange* pDX)
@@ -202,14 +197,13 @@ BOOL CAujardDlg::OnInitDialog()
 	SetTimer( PROCESS_CHECK, 40000, NULL );
 	SetTimer( CONCURRENT_CHECK, 300000, NULL );
 //	SetTimer( SERIAL_TIME, 60000, NULL );
-	SetTimer( PACKET_CHECK, 120000, NULL);
 
 	DWORD id;
 	m_hReadQueueThread = ::CreateThread( NULL, 0, ReadQueueThread, (LPVOID)this, 0, &id);
 
 	CTime cur = CTime::GetCurrentTime();
 	CString starttime;
-	starttime.Format("Aujard Start : %d월 %d일 %d시 %d분\r\n", cur.GetMonth(), cur.GetDay(), cur.GetHour(), cur.GetMinute());
+	starttime.Format("Aujard Start : %02d/%02d/%04d %d:%02d\r\n", cur.GetDay(), cur.GetMonth(), cur.GetYear(), cur.GetHour(), cur.GetMinute());
 	m_LogFile.Write(starttime, starttime.GetLength());
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -256,7 +250,6 @@ BOOL CAujardDlg::DestroyWindow()
 	KillTimer( PROCESS_CHECK );
 	KillTimer( CONCURRENT_CHECK );
 //	KillTimer( SERIAL_TIME );
-	KillTimer( PACKET_CHECK );
 
 	if( m_hReadQueueThread ) {
 		::TerminateThread( m_hReadQueueThread, 0 );
@@ -352,15 +345,12 @@ void CAujardDlg::SelectCharacter(char *pBuf)
 	idlen2 = GetShort( pBuf, index );
 	GetString( userid, pBuf, idlen2, index );
 	bInit = GetByte( pBuf, index );
-	packetindex = GetDWORD( pBuf, index );
 
 	CTime t = CTime::GetCurrentTime();
 	char logstr[256]; memset( logstr, 0x00, 256 );
 	sprintf_s( logstr, sizeof(logstr), "SelectCharacter : acname=%s, name=%s, index=%d, pid : %d, front : %d\r\n", accountid, userid, packetindex, _getpid(), m_LoggerRecvQueue.GetFrontPointer() );
 	WriteLogFile( logstr );
 	//m_LogFile.Write(logstr, strlen(logstr));
-
-	m_iRecvPacketCount++;		// packet count
 
 	if( uid < 0 || uid >= MAX_USER )
 		goto fail_return;
@@ -392,16 +382,13 @@ void CAujardDlg::SelectCharacter(char *pBuf)
 	SetByte( send_buff, 0x01, send_index );
 	SetByte( send_buff, bInit, send_index );
 
-	m_iPacketCount++;		// packet count
-
-	do {
-		if( m_LoggerSendQueue.PutData( send_buff, send_index ) == 1 )	{
-			m_iSendPacketCount++;
+	do 
+	{
+		if (m_LoggerSendQueue.PutData(send_buff, send_index) == 1)
 			break;
-		}
 		else
 			count++;
-	} while( count < 50 );
+	} while (count < 50);
 	if( count >= 50 )
 		m_OutputList.AddString("Sel char Packet Drop!!!");
 	return;
@@ -746,10 +733,6 @@ void CAujardDlg::OnTimer(UINT nIDEvent)
 		break;
 	case SERIAL_TIME:
 		g_increase_serial = 50001;
-		break;
-	case PACKET_CHECK:
-		WritePacketLog();
-//		SaveUserData();
 		break;
 	}
 	
@@ -1277,15 +1260,6 @@ void CAujardDlg::UserKickOut(char *pBuf)
 	GetString( accountid, pBuf, idlen, index );
 
 	m_DBAgent.AccountLogout( accountid );
-}
-
-void CAujardDlg::WritePacketLog()
-{
-	CTime t = CTime::GetCurrentTime();
-	char logstr[256]; memset( logstr, 0x00, 256 );
-	sprintf_s( logstr, sizeof(logstr), "* Packet Count : recv=%d, send=%d, realsend=%d , time = %d:%d\r\n", m_iRecvPacketCount, m_iPacketCount, m_iSendPacketCount, t.GetHour(), t.GetMinute() );
-	WriteLogFile( logstr );
-	//m_LogFile.Write(logstr, strlen(logstr));
 }
 
 void CAujardDlg::SaveUserData()

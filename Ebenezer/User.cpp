@@ -271,8 +271,8 @@ void CUser::Parsing(int len, char *pData)
 	// If crypto's not been enabled yet, force the version packet to be sent.
 	if (!m_CryptionFlag)
 	{
-		if (command == WIZ_VERSION_CHECK)
-			VersionCheck();
+		if (command == WIZ_VERSION_CHECK) {
+			VersionCheck(pData+index); return; }
 
 		return;
 	}
@@ -550,18 +550,35 @@ void CUser::Parsing(int len, char *pData)
 	}
 }
 
-void CUser::VersionCheck()
+void CUser::VersionCheck(char *pBuf)
 {
 	int index = 0, send_index = 0;
 	char send_buff[128];
 	memset( send_buff, NULL, 128 );
 
+	/*
+	char strAccountID[MAX_ID_SIZE+1];
+	memset(strAccountID, 0x00, MAX_ID_SIZE+1);
+
+	short unk = GetShort(pBuf, index); // -1
+	if (!GetKOString(pBuf, strAccountID, MAX_ID_SIZE))
+		return;
+	*/
+
 	SetByte( send_buff, WIZ_VERSION_CHECK, send_index );
-	SetShort( send_buff, __VERSION, send_index );
+#if __VERSION >= 1800
+	SetByte(send_buff, 0, send_index); // unknown
+#endif
+	SetShort(send_buff, __VERSION, send_index );
 	// Cryption
 	SetInt64(send_buff, m_Public_key, send_index);
 	///~
-	Send( send_buff, send_index );
+	SetByte(send_buff, 0, send_index); // 0 = success, 1 = prem error
+#if __VERSION < 1700
+	SendCompressingPacket(send_buff, send_index);
+#else // doesn't seem to bother "compressing" it anymore
+	Send(send_buff, send_index);
+#endif
 	// Cryption
 	m_CryptionFlag = 1;
 	///~
@@ -569,8 +586,7 @@ void CUser::VersionCheck()
 
 void CUser::LoginProcess(char *pBuf )
 {
-	int index = 0, idlen = 0, send_index = 0, retvalue = 0;
-	int pwdlen = 0;
+	int index = 0, send_index = 0, retvalue = 0;
 
 	char accountid[MAX_ID_SIZE+1];
 	memset( accountid, NULL, MAX_ID_SIZE+1 );
@@ -583,18 +599,12 @@ void CUser::LoginProcess(char *pBuf )
 	CUser* pUser = NULL;
 	CTime t = CTime::GetCurrentTime();
 
-	idlen = GetShort( pBuf, index );
-	if( idlen > MAX_ID_SIZE || idlen <= 0)
+	if (!GetKOString(pBuf, accountid, index, MAX_ID_SIZE)
+		|| !GetKOString(pBuf, password, index, MAX_PW_SIZE))
 		goto fail_return;
-	GetString( accountid, pBuf, idlen, index );
-
-	pwdlen = GetShort( pBuf, index );
-	if ( pwdlen > MAX_PW_SIZE || pwdlen <= 0)
-		goto fail_return;
-	GetString( password, pBuf, pwdlen, index );
 
 	pUser = m_pMain->GetUserPtr( accountid, 0x01 );
-	if( pUser && (pUser->m_Sid != m_Sid) ) {
+	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) {
 		pUser->UserDataSaveToAgent();
 		pUser->Close();
 		goto fail_return;
@@ -602,16 +612,13 @@ void CUser::LoginProcess(char *pBuf )
 	
 	SetByte( send_buff, WIZ_LOGIN, send_index );
 	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, idlen, send_index );
-	SetString( send_buff, accountid, idlen, send_index );
-	SetShort( send_buff, pwdlen, send_index );
-	SetString( send_buff, password, pwdlen, send_index );
+	SetKOString(send_buff, accountid, index);
+	SetKOString(send_buff, password, index);
 
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if( retvalue >= SMQ_FULL ) {
-		char logstr[256]; memset( logstr, 0x00, 256 );
-		sprintf( logstr, "Login Send Fail : %d", retvalue);
-		m_pMain->m_StatusList.AddString(logstr);
+	if (retvalue >= SMQ_FULL) 
+	{
+		DEBUG_LOG("Login Send Fail : %d", retvalue);
 		goto fail_return;
 	}
 
@@ -702,14 +709,10 @@ void CUser::NewCharToAgent(char *pBuf)
 	SetByte( send_buff, cha, send_index );
 	
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if( retvalue >= SMQ_FULL ) {
-		char logstr[256]; memset( logstr, 0x00, 256 );
-		sprintf( logstr, "NewChar Send Fail : %d", retvalue);
-		m_pMain->m_StatusList.AddString(logstr);
-		goto fail_return;
-	}
+	if (retvalue < SMQ_FULL)
+		return;
 
-	return;
+	DEBUG_LOG("NewChar Send Fail : %d", retvalue);
 
 fail_return:
 	send_index = 0;
@@ -755,14 +758,10 @@ void CUser::DelCharToAgent(char *pBuf)
 	SetString( send_buff, socno, soclen, send_index );
 
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if( retvalue >= SMQ_FULL ) {
-		char logstr[256]; memset( logstr, 0x00, 256 );
-		sprintf( logstr, "DelChar Send Fail : %d", retvalue);
-		m_pMain->m_StatusList.AddString(logstr);
-		goto fail_return;
-	}
+	if (retvalue < SMQ_FULL)
+		return;
 
-	return;
+	DEBUG_LOG("DelChar Send Fail : %d", retvalue);
 
 fail_return:
 	send_index = 0;
@@ -790,14 +789,10 @@ void CUser::SelNationToAgent(char *pBuf)
 	SetByte( send_buff, nation, send_index );
 
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if( retvalue >= SMQ_FULL ) {
-		char logstr[256]; memset( logstr, 0x00, 256 );
-		sprintf( logstr, "Nation Sel Send Fail : %d", retvalue);
-		m_pMain->m_StatusList.AddString(logstr);
-		goto fail_return;
-	}
+	if (retvalue < SMQ_FULL)
+		return;
 
-	return;
+	DEBUG_LOG("Nation Sel Send Fail : %d", retvalue);
 
 fail_return:
 	send_index = 0;
@@ -833,16 +828,12 @@ void CUser::SelCharToAgent(char *pBuf)
 	zone = GetByte( pBuf, index );
 	
 	if( _strnicmp( accountid, m_strAccountID, MAX_ID_SIZE ) != 0 ) {
-		pUser = m_pMain->GetUserPtr( accountid, 0x01 );
-		if( pUser && (pUser->m_Sid != m_Sid) ) {
-			pUser->Close();
-			goto fail_return;
-		}
-		strcpy( m_strAccountID, accountid );	// 존이동 한 경우는 로그인 프로시져가 없으므로...
+		Close();
+		return;
 	}
 
 	pUser = m_pMain->GetUserPtr( userid, 0x02 );
-	if( pUser && (pUser->m_Sid != m_Sid) ) {
+	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) {
 		pUser->Close();
 		goto fail_return;
 	}
@@ -892,28 +883,18 @@ void CUser::SelCharToAgent(char *pBuf)
 	SetShort( send_buff, idlen2, send_index );
 	SetString( send_buff, userid, idlen2, send_index );
 	SetByte( send_buff, bInit, send_index );
-	SetDWORD( send_buff, m_pMain->m_iPacketCount, send_index );
 
-	char logfile[256];	memset(logfile, 0x00, 256);
-	wsprintf( logfile, "[SelCharToAgent : %d:%d:%d] - acname=%s, name=%s, count=%d, TH: %lu, Rear : %d\r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), m_strAccountID, userid, m_pMain->m_iPacketCount, ::GetCurrentThreadId(), m_pMain->m_LoggerSendQueue.GetRearPointer());
-	EnterCriticalSection( &g_LogFile_critical );
+	char logfile[256];
+	sprintf_s(logfile, sizeof(logfile), "[SelCharToAgent : %d:%d:%d] - acname=%s, name=%s, TH: %lu, Rear : %d\r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), m_strAccountID, userid, GetCurrentThreadId(), m_pMain->m_LoggerSendQueue.GetRearPointer());
+	EnterCriticalSection(&g_LogFile_critical);
 	m_pMain->m_LogFile.Write( logfile, strlen(logfile) );
-	LeaveCriticalSection( &g_LogFile_critical );
-
-	m_pMain->m_iPacketCount++;
+	LeaveCriticalSection(&g_LogFile_critical);
 
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if( retvalue >= SMQ_FULL ) {
-		char logstr[256]; memset( logstr, 0x00, 256 );
-		sprintf( logstr, "SelChar Send Fail : %d", retvalue);
-		m_pMain->m_StatusList.AddString(logstr);
-		goto fail_return;
-	}
+	if (retvalue < SMQ_FULL)
+		return;
 
-	m_pMain->m_iSendPacketCount++;
-	//TRACE(" select char to agent ,, acname=%s, userid=%s\n", m_strAccountID, userid);
-
-	return;
+	DEBUG_LOG("SelChar Send Fail : %d", retvalue);
 
 fail_return:
 	send_index = 0;
@@ -934,8 +915,6 @@ void CUser::SelectCharacter(char *pBuf)
 
 	result = GetByte( pBuf, index );
 	bInit = GetByte( pBuf, index );
-
-	m_pMain->m_iRecvPacketCount++;
 
 	if( result == 0x00 ) goto fail_return;
 	if( m_pUserData->m_bZone == 0 )	goto fail_return;
@@ -1023,17 +1002,6 @@ void CUser::SelectCharacter(char *pBuf)
 			return;
 		}
 		else if( m_pUserData->m_bKnights != 0 )	{
-		/*	memset( send_buff, 0x00, 256);	send_index = 0;
-			SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-			SetByte( send_buff, KNIGHTS_LIST_REQ+0x10, send_index );
-			SetShort( send_buff, GetSocketID(), send_index );
-			SetShort( send_buff, m_pUserData->m_bKnights, send_index );
-			retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-			if( retvalue >= SMQ_FULL ) {
-				//goto fail_return;
-				m_pMain->m_StatusList.AddString("KNIGHTS_LIST_REQ Packet Drop!!!");
-			}	*/
-
 			pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
 			if( pKnights )	{
 				m_pMain->m_KnightsManager.SetKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id );
@@ -1046,10 +1014,8 @@ void CUser::SelectCharacter(char *pBuf)
 				SetShort( send_buff, GetSocketID(), send_index );
 				SetShort( send_buff, m_pUserData->m_bKnights, send_index );
 				retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-				if( retvalue >= SMQ_FULL ) {
-					//goto fail_return;
-					m_pMain->m_StatusList.AddString("KNIGHTS_LIST_REQ Packet Drop!!!");
-				}
+				if (retvalue >= SMQ_FULL)
+					DEBUG_LOG("KNIGHTS_LIST_REQ Packet Drop!!!");
 
 				pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
 				if( pKnights )	{
@@ -1080,26 +1046,7 @@ void CUser::SelectCharacter(char *pBuf)
 		}
 	}
 
-	memset( send_buff, NULL, 256); send_index = 0;
-	SetByte( send_buff, WIZ_DATASAVE, send_index );
-	SetShort( send_buff, strlen(m_pUserData->m_Accountid), send_index );
-	SetString( send_buff, m_pUserData->m_Accountid, strlen(m_pUserData->m_Accountid), send_index );
-	SetShort( send_buff, strlen(m_pUserData->m_id), send_index );
-	SetString( send_buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index );
-	SetByte( send_buff, 0x01, send_index );	// login...
-	SetByte( send_buff, m_pUserData->m_bLevel, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iExp, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iLoyalty, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-
-	retvalue = m_pMain->m_ItemLoggerSendQ.PutData( send_buff, send_index );
-	if( retvalue >= SMQ_FULL ) {
-		char logstr[256]; memset( logstr, 0x00, 256 );
-		sprintf( logstr, "Login Logger Send Fail : %d", retvalue);
-		m_pMain->m_StatusList.AddString(logstr);
-	}
 	//TRACE("SelectCharacter - id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
-
 	return;
 
 fail_return:
@@ -1125,9 +1072,7 @@ void CUser::AllCharInfoToAgent()
 		SetByte( send_buff, WIZ_ALLCHAR_INFO_REQ, send_index );
 		SetByte( send_buff, 0xFF, send_index );
 		
-		char logstr[256]; memset( logstr, 0x00, 256 );
-		sprintf( logstr, "All CharInfo Send Fail : %d", retvalue);
-		m_pMain->m_StatusList.AddString(logstr);
+		DEBUG_LOG("All CharInfo Send Fail : %d", retvalue);
 	}
 }
 
@@ -1149,30 +1094,8 @@ void CUser::UserDataSaveToAgent()
 	SetString( send_buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index );
 
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if( retvalue >= SMQ_FULL ) {
-		char logstr[256]; memset( logstr, 0x00, 256 );
-		sprintf( logstr, "DataSave Send Fail : %d", retvalue);
-		m_pMain->m_StatusList.AddString(logstr);
-	}
-
-	memset( send_buff, NULL, 256); send_index = 0;
-	SetByte( send_buff, WIZ_DATASAVE, send_index );
-	SetShort( send_buff, strlen(m_pUserData->m_Accountid), send_index );
-	SetString( send_buff, m_pUserData->m_Accountid, strlen(m_pUserData->m_Accountid), send_index );
-	SetShort( send_buff, strlen(m_pUserData->m_id), send_index );
-	SetString( send_buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index );
-	SetByte( send_buff, 0x02, send_index );
-	SetByte( send_buff, m_pUserData->m_bLevel, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iExp, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iLoyalty, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-
-	retvalue = m_pMain->m_ItemLoggerSendQ.PutData( send_buff, send_index );
-	if( retvalue >= SMQ_FULL ) {
-		char logstr[256]; memset( logstr, 0x00, 256 );
-		sprintf( logstr, "Exp Logger Send Fail : %d", retvalue);
-		m_pMain->m_StatusList.AddString(logstr);
-	}
+	if (retvalue >= SMQ_FULL)
+		DEBUG_LOG("DataSave Send Fail : %d", retvalue);
 }
 
 void CUser::LogOut()
@@ -1189,7 +1112,7 @@ void CUser::LogOut()
 	LeaveCriticalSection( &g_LogFile_critical );
 
 	pUser = m_pMain->GetUserPtr( m_pUserData->m_Accountid, 0x01 );
-	if( pUser && (pUser->m_Sid != m_Sid) ) 
+	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) 
 	{
 		TRACE("%s : %s Logout: Sid 가 다른 경우...\n", m_pUserData->m_Accountid, m_pUserData->m_id);
 		return;
@@ -1219,25 +1142,6 @@ void CUser::LogOut()
 
 		SetByte( send_buf, AG_USER_LOG_OUT, index );
 		m_pMain->Send_AIServer( m_pUserData->m_bZone, send_buf, send_index);
-	
-		memset( send_buf, NULL, 256); send_index = 0;
-		SetByte( send_buf, WIZ_DATASAVE, send_index );
-		SetShort( send_buf, strlen(m_pUserData->m_Accountid), send_index );
-		SetString( send_buf, m_pUserData->m_Accountid, strlen(m_pUserData->m_Accountid), send_index );
-		SetShort( send_buf, strlen(m_pUserData->m_id), send_index );
-		SetString( send_buf, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index );
-		SetByte( send_buf, 0x03, send_index );		// logout
-		SetByte( send_buf, m_pUserData->m_bLevel, send_index );
-		SetDWORD( send_buf, m_pUserData->m_iExp, send_index );
-		SetDWORD( send_buf, m_pUserData->m_iLoyalty, send_index );
-		SetDWORD( send_buf, m_pUserData->m_iGold, send_index );
-
-		int retvalue = m_pMain->m_ItemLoggerSendQ.PutData( send_buf, send_index );
-		if( retvalue >= SMQ_FULL ) {
-			char logstr[256]; memset( logstr, 0x00, 256 );
-			sprintf( logstr, "Logout Logger Send Fail : %d", retvalue);
-			m_pMain->m_StatusList.AddString(logstr);
-		}
 	}
 
 //	if( m_pUserData->m_bKnights > 0 )	{
@@ -7544,7 +7448,7 @@ void CUser::FriendReport(char *pBuf)
 			SetByte( send_buff, 0, send_index);
 		}
 		else {
-			SetShort(send_buff, pUser->m_Sid, send_index);
+			SetShort(send_buff, pUser->GetSocketID(), send_index);
 			if (pUser->m_sPartyIndex >=0) {
 				SetByte( send_buff, 3, send_index);
 			}
@@ -8497,7 +8401,7 @@ void CUser::PartyBBSRegister(char *pBuf)
 			  || ( pUser->m_pUserData->m_bLevel <= (m_pUserData->m_bLevel+8) && pUser->m_pUserData->m_bLevel >= ((int)(m_pUserData->m_bLevel)-8) ) 
 		) ) continue;
 
-		if (pUser->m_Sid == m_Sid) break;
+		if (pUser->GetSocketID() == GetSocketID()) break;
 		counter++;		
 	}
 
@@ -9808,26 +9712,7 @@ void CUser::TestPacket( char* pBuf )
 
 void CUser::ItemLogToAgent(const char *srcid, const char *tarid, int type, __int64 serial, int itemid, int count, int durability)
 {
-	int send_index = 0, retvalue = 0;
-	char send_buff[1024]; memset( send_buff, 0x00, 1024 );
-
-	SetByte( send_buff, WIZ_ITEM_LOG, send_index );
-	SetShort( send_buff, strlen(srcid), send_index );
-	SetString( send_buff, (char*)srcid, strlen(srcid), send_index );
-	SetShort( send_buff, strlen(tarid), send_index );
-	SetString( send_buff, (char*)tarid, strlen(tarid), send_index );
-	SetByte( send_buff, type, send_index );
-	SetInt64( send_buff, serial, send_index );
-	SetDWORD( send_buff, itemid, send_index );
-	SetShort( send_buff, count, send_index );
-	SetShort( send_buff, durability, send_index );
-
-	retvalue = m_pMain->m_ItemLoggerSendQ.PutData( send_buff, send_index );
-	if( retvalue >= SMQ_FULL ) {
-		char logstr[256]; memset( logstr, 0x00, 256 );
-		sprintf( logstr, "ItemLog Write Fail : %d", retvalue);
-		m_pMain->m_StatusList.AddString(logstr);
-	}
+	// NOTE: item log implementation removed, keeping this method in for future reworkings
 }
 
 void CUser::SendItemWeight()

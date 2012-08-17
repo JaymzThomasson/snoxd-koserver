@@ -17,6 +17,7 @@ static char THIS_FILE[]=__FILE__;
 
 void bb() {};		// nop function
 
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -32,6 +33,7 @@ CIOCPSocket2::CIOCPSocket2()
 
 	// Cryption
 	m_CryptionFlag = 0;
+	m_Sen_val = 0;
 }
 
 CIOCPSocket2::~CIOCPSocket2()
@@ -91,7 +93,7 @@ BOOL CIOCPSocket2::Connect( CIOCPort* pIocp, LPCTSTR lpszHostAddress, UINT nHost
 	if ( result == SOCKET_ERROR )
 	{
 		int err = WSAGetLastError();
-//		TRACE("CONNECT FAIL : %d\n", err);
+		TRACE("CONNECT FAIL : %d\n", err);
 		closesocket( m_Socket );
 		return FALSE;
 	}
@@ -104,17 +106,18 @@ BOOL CIOCPSocket2::Connect( CIOCPort* pIocp, LPCTSTR lpszHostAddress, UINT nHost
 	if( m_Sid < 0 )
 		return FALSE;
 
+	m_ConnectAddress = lpszHostAddress;
+	m_State = STATE_CONNECTED;
+	m_Type = TYPE_CONNECT;
+
 	m_pIOCPort->m_ClientSockArray[m_Sid] = this;
 	
 	if ( !m_pIOCPort->Associate(this, m_pIOCPort->m_hClientIOCPort) )
 	{
 		TRACE("Socket Connecting Fail - Associate\n");
+		m_pIOCPort->RidIOCPSocket(m_Sid, this);
 		return FALSE;
 	}
-
-	m_ConnectAddress = lpszHostAddress;
-	m_State = STATE_CONNECTED;
-	m_Type = TYPE_CONNECT;
 
 	Receive();
 
@@ -129,27 +132,26 @@ int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 	OVERLAPPED *pOvl;
 	HANDLE	hComport = NULL;
 
-	if( length > MAX_PACKET_SIZE )
+	if (length >= MAX_PACKET_SIZE)
 		return 0;
 
-	BYTE pTBuf[MAX_PACKET_SIZE];
-	BYTE pTIBuf[MAX_PACKET_SIZE];
-	BYTE pTOutBuf[MAX_PACKET_SIZE];
-	memset( pTBuf, 0x00, MAX_PACKET_SIZE );
-	memset( pTIBuf, 0x00, MAX_PACKET_SIZE );
-	memset( pTOutBuf, 0x00, MAX_PACKET_SIZE );
+	BYTE pTBuf[MAX_PACKET_SIZE], pTIBuf[MAX_PACKET_SIZE], pTOutBuf[MAX_PACKET_SIZE];
+	memset(pTBuf, 0x00, sizeof(pTBuf));
+	memset(pTIBuf, 0x00, sizeof(pTIBuf));
+	memset(pTOutBuf, 0x00, sizeof(pTOutBuf));
 	int index = 0;
 
 	if( m_CryptionFlag )
 	{
-		unsigned short len = length + sizeof(WORD)+1+1;
+		unsigned short len = (unsigned short)(length + sizeof(WORD)+2+1);
 
 		m_Sen_val++;
 		m_Sen_val &= 0x00ffffff;
 
-		pTIBuf[0] = 0xfc; // 암호가 정확한지
-		memcpy( pTIBuf+1, &m_Sen_val, sizeof(WORD)+1 );
-		memcpy( pTIBuf+4, pBuf, length );
+		pTIBuf[0] = 0xfc;
+		pTIBuf[1] = 0x1e;
+		memcpy( &pTIBuf[2], &m_Sen_val, sizeof(WORD) );
+		memcpy( &pTIBuf[5], pBuf, length );
 		jct.JvEncryptionFast( len, pTIBuf, pTOutBuf );
 		
 		pTBuf[index++] = (BYTE)PACKET_START1;
@@ -303,24 +305,24 @@ close_routine:
 
 void CIOCPSocket2::ReceivedData(int length)
 {
-	if(!length) return;
+	if (length <= 0 || length >= MAX_PACKET_SIZE
+		|| m_pRecvBuff[0] == 0) return;
 
 	int len = 0;
+	char *pData;
 
-	if( !strlen(m_pRecvBuff) )		// 패킷길이는 존재하나 실 데이터가 없는 경우가 발생...
-		return;
-	m_pBuffer->PutData(m_pRecvBuff, length);		// 받은 Data를 버퍼에 넣는다
-	
-	char *pData = NULL;
-	char *pDecData = NULL;
+	// read received bytes into our circular buffer
+	m_pBuffer->PutData(m_pRecvBuff, length); 
 
+	// go over our circular buffer to try and find any KO packets, so we can parse them
 	while (PullOutCore(pData, len))
 	{
-		if(pData)
+		if (pData)
 		{
-			Parsing(len, pData);//		실제 파싱 함수...
+			// found a packet - it's parse time!
+			Parsing(len, pData);
 
-			delete[] pData;
+			delete [] pData;
 			pData = NULL;
 		}
 	}
@@ -328,33 +330,31 @@ void CIOCPSocket2::ReceivedData(int length)
 
 BOOL CIOCPSocket2::PullOutCore(char *&data, int &length)
 {
-	BYTE		*pTmp;
-	BYTE		*pBuff;
+	BYTE		*pTmp, *pBuff;
 	int			len;
 	BOOL		foundCore;
 	MYSHORT		slen;
-	DWORD		wSerial = 0;
-	int index = 1, recv_packet = 0;
+	DWORD		wSerial = 0, recv_packet = 0;
+	int index = 1;
 
 	len = m_pBuffer->GetValidCount();
 
-	if(len == 0 || len < 0) return FALSE;
+	if (len <= 0 || len >= MAX_PACKET_SIZE) 
+		return FALSE;
 
 	pTmp = new BYTE[len];
-
 	m_pBuffer->GetData((char*)pTmp, len);
-
 	foundCore = FALSE;
 
-	int	sPos=0, ePos = 0;
+	int	sPos = 0, ePos = 0;
 
 	for (int i = 0; i < len && !foundCore; i++)
 	{
-		if (i+2 >= len) break;
+		if (i+2 >= len) 
+			break;
 
 		if (pTmp[i] == PACKET_START1 && pTmp[i+1] == PACKET_START2)
 		{
-//			if( m_wPacketSerial >= wSerial ) goto cancelRoutine;
 			sPos = i+2;
 
 			slen.b[0] = pTmp[sPos];
@@ -362,43 +362,32 @@ BOOL CIOCPSocket2::PullOutCore(char *&data, int &length)
 
 			length = slen.w;
 
-			if( length < 0 ) goto cancelRoutine;
-			if( length > len ) goto cancelRoutine;
+			if (length < 0 || length > len || length >= MAX_PACKET_SIZE)
+				goto cancelRoutine;
 
 			ePos = sPos+length + 2;
 
-			if( (ePos + 2) > len ) goto cancelRoutine;
-//			ASSERT(ePos+2 <= len);
+			if ((ePos + 2) > len)
+				goto cancelRoutine;
 
 			if (pTmp[ePos] == PACKET_END1 && pTmp[ePos+1] == PACKET_END2)
 			{
-				if( m_CryptionFlag )	{	// 암호화
+				if (m_CryptionFlag)
+				{
 					pBuff = new BYTE[length+1]; 
-					jct.JvDecryptionFast( length, (unsigned char*)pTmp+sPos+2, pBuff );
-
-					if(pBuff[0] != 0xfc)	{ // 압축 푼 데이터 오류 일경우 버퍼에서 삭제 해버린다
+					if (jct.JvDecryptionWithCRC32(length, (unsigned char*)pTmp+sPos+2, pBuff) < 0)
+					{
 						TRACE("CIOCPSocket2::PutOutCore - Decryption Error... sockid(%d)\n", m_Socket);
 						delete[] pBuff;
 						Close();
 						goto cancelRoutine;
 					}
 
-					recv_packet = (WORD)GetShort( (char*)pBuff, index );
+					recv_packet = GetDWORD((char*)pBuff, index);
 					//TRACE("^^^ IOCPSocket2,, PullOutCore ,,, recv_val = %d ^^^\n", recv_packet);
-					if( m_Rec_val >= recv_packet )	{	// 무시,,
-						if( recv_packet == 0 )	{
-							m_Rec_val = recv_packet;
-						}
-						else	{
-							TRACE("CIOCPSocket2::PutOutCore - recv_packet Error... sockid(%d), len=%d, recv_packet=%d \n", m_Socket, length, recv_packet);
-							delete[] pBuff;
-							m_pBuffer->HeadIncrease(6+length); //6: header 2+ end 2+ length 2 + cryption 4
-							goto cancelRoutine;
-						}
-					}
-					else	m_Rec_val = recv_packet;
 
-					length = length-4;
+					m_Rec_val = recv_packet;
+					length = length-8;
 					if( length <= 0 )	{
 						TRACE("CIOCPSocket2::PutOutCore - length Error... sockid(%d), len=%d\n", m_Socket, length);
 						delete[] pBuff;
@@ -412,16 +401,14 @@ BOOL CIOCPSocket2::PullOutCore(char *&data, int &length)
 					int head = m_pBuffer->GetHeadPos(), tail = m_pBuffer->GetTailPos();
 					delete[] pBuff;
 				}
-				else	{					// 
+				else	
+				{
 					data = new char[length+1];
 					CopyMemory((void *)data, (const void *)(pTmp+sPos+2), length);
 					data[length] = 0;
 					foundCore = TRUE;
 					int head = m_pBuffer->GetHeadPos(), tail = m_pBuffer->GetTailPos();
-					//TRACE("data : %s, len : %d\n", data, length);
 				}
-//				TRACE("data : %s, len : %d\n", data, length);
-//				TRACE("head : %d, tail : %d\n", head, tail );
 				break;
 			}
 			else 
@@ -431,19 +418,10 @@ BOOL CIOCPSocket2::PullOutCore(char *&data, int &length)
 			}
 		}
 	}
+	if (foundCore)
+		m_pBuffer->HeadIncrease( (m_CryptionFlag ? 10 : 6) + length); // 6: header 2+ end 2+ length 2 + cryption 4
 
-	if( m_CryptionFlag )	{
-		if (foundCore) m_pBuffer->HeadIncrease(10+length); //6: header 2+ end 2+ length 2 + cryption 4
-	}
-	else	{
-		if (foundCore) m_pBuffer->HeadIncrease(6+length); //6: header 2+ end 2+ length 2
-	}
-
-	delete[] pTmp;
-
-	return foundCore;
-
-cancelRoutine:	
+cancelRoutine:
 	delete[] pTmp;
 	return foundCore;
 }
@@ -456,14 +434,6 @@ BOOL CIOCPSocket2::AsyncSelect( long lEvent )
 	err = WSAGetLastError();
 
 	return ( !retEventResult );
-}
-
-BOOL CIOCPSocket2::SetSockOpt( int nOptionName, const void* lpOptionValue, int nOptionLen, int nLevel )
-{
-	int retValue;
-	retValue = setsockopt( m_Socket, nLevel, nOptionName, (char *)lpOptionValue, nOptionLen );
-
-	return ( !retValue );
 }
 
 BOOL CIOCPSocket2::ShutDown( int nHow )
@@ -496,6 +466,7 @@ void CIOCPSocket2::Close()
 		TRACE("PostQueuedCompletionStatus Error : %d\n", errValue);
 	}
 }
+
 
 void CIOCPSocket2::CloseProcess()
 {
@@ -643,16 +614,3 @@ void CIOCPSocket2::RegioinPacketClear(char* GetBuf, int& len)
 	if( count > 29 )
 		TRACE("Region packet Clear Drop\n");
 }
-
-// Cryption
-void CIOCPSocket2::SendCryptionKey()
-{
-	char send_buff[128];	memset(send_buff, 0x00, 128);
-	int send_index = 0;
-	SetByte( send_buff, WIZ_CRYPTION, send_index );
-	SetInt64(send_buff, m_Public_key, send_index);
-	Send( send_buff, send_index );
-
-	m_CryptionFlag = 1;	
-}
-///~

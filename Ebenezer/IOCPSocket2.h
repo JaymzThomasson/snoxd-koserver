@@ -26,14 +26,12 @@ class CCompressMng;
 class CIOCPSocket2  
 {
 public:
-	void SendCryptionKey();
 	void RegioinPacketClear( char* GetBuf, int & len );
 	void RegionPacketAdd( char* pBuf, int len );
 	void SendCompressingPacket( const char* pData, int len );
 	void InitSocket( CIOCPort* pIOCPort );
 	void Close();
 	BOOL AsyncSelect( long lEvent = FD_READ | FD_WRITE | FD_OOB | FD_ACCEPT | FD_CONNECT | FD_CLOSE );
-	BOOL SetSockOpt( int nOptionName, const void* lpOptionValue, int nOptionLen, int nLevel = SOL_SOCKET );
 	BOOL ShutDown( int nHow = sends );
 	BOOL PullOutCore(char *&data, int &length);
 	void ReceivedData(int length);
@@ -45,11 +43,13 @@ public:
 				 long lEvent = FD_READ | FD_WRITE | FD_OOB | FD_ACCEPT | FD_CONNECT | FD_CLOSE,
 				 LPCTSTR lpszSocketAddress = NULL );
 	BOOL Accept( SOCKET listensocket, struct sockaddr* addr, int* len );
-	int	 GetSocketID() {return m_Sid;};
-	void SetSocketID(int sid) { m_Sid = sid;};
-	HANDLE GetSocketHandle() {return (HANDLE)m_Socket;};
-	BYTE GetState() {return m_State;};
-	BYTE GetSockType() {return m_Type;};
+
+	__forceinline int GetSocketID() { return m_Sid; };
+	__forceinline void SetSocketID(int sid) { m_Sid = sid; };
+	__forceinline HANDLE GetSocketHandle() { return (HANDLE)m_Socket; };
+	__forceinline BYTE GetState() { return m_State; };
+	__forceinline BYTE GetSockType() { return m_Type; };
+	__forceinline bool isCryptoEnabled() { return m_CryptionFlag == TRUE; };
 
 	virtual void CloseProcess();
 	virtual void Parsing( int length, char* pData );

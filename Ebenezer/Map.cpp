@@ -227,6 +227,12 @@ void C3DMap::LoadWarpList(HANDLE hFile)
 
 		ReadFile( hFile, pWarp, sizeof(_WARP_INFO),&dwNum, NULL );
 
+		if (pWarp->sWarpID == 0)
+		{
+			delete pWarp;
+			continue;
+		}
+
 		if( !m_WarpArray.PutData( pWarp->sWarpID, pWarp ) ) {
 			TRACE("Warp list PutData Fail - %d\n", pWarp->sWarpID);
 			delete pWarp;

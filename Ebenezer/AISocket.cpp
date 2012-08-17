@@ -138,7 +138,6 @@ void CAISocket::LoginProcess( char* pBuf )
 	float fReConnectEndTime = 0.0f;
 	BYTE ver = GetByte(pBuf, index);
 	BYTE byReConnect = GetByte(pBuf, index);	// 0 : 처음접속, 1 : 재접속
-	CString logstr;
 
 	if(ver == -1)	// zone 틀리면 에러 
 	{
@@ -146,8 +145,7 @@ void CAISocket::LoginProcess( char* pBuf )
 	}
 	else			// 틀리면 에러 
 	{
-		logstr.Format("AI Server Connect Success!! - %d", ver);
-		m_pMain->m_StatusList.AddString( logstr );
+		DEBUG_LOG("AI Server Connect Success!! - %d", ver);
 		if( byReConnect == 0 )	{
 			m_pMain->m_sSocketCount++;
 			if(m_pMain->m_sSocketCount == MAX_AI_SOCKET)	{
@@ -201,7 +199,7 @@ void CAISocket::RecvServerInfo(char* pBuf)
 	else if(type == SERVER_INFO_END)	{
 		short sTotalMonster = 0;
 		sTotalMonster = GetShort(pBuf, index);
-		m_pMain->m_StatusList.AddString("All Monster info Received!!");
+		DEBUG_LOG("All Monster info Received!!");
 		//Sleep(100);
 
 		m_pMain->m_sZoneCount++;
@@ -1305,11 +1303,8 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 				SetByte( send_buff, nLen, send_index );
 				SetString( send_buff, strMaxUserName, nLen, send_index );
 				retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-				if( retvalue >= SMQ_FULL ) {
-					char logstr[1024]; memset( logstr, 0x00, 1024 );
-					sprintf( logstr, "WIZ_BATTLE_EVENT Send Fail : %d, %d", retvalue, nType);
-					m_pMain->m_StatusList.AddString(logstr);
-				}
+				if (retvalue >= SMQ_FULL)
+					DEBUG_LOG("WIZ_BATTLE_EVENT Send Fail : %d, %d", retvalue, nType);
 				m_pMain->m_byBattleSave = 1;
 			}
 		}
@@ -1340,22 +1335,6 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 			if( nResult == 1 )	{
 				::_LoadStringFromResource(IDS_KILL_CAPTAIN, buff);
 				sprintf( chatstr, buff.c_str(), strKnightsName, strMaxUserName );
-				
-		/*		if( m_pMain->m_byBattleSave == 0 )	{
-					memset( send_buff, NULL, 256 );		send_index = 0;			// 승리국가를 sql에 저장
-					SetByte( send_buff, WIZ_BATTLE_EVENT, send_index );
-					SetByte( send_buff, nType, send_index );
-					SetByte( send_buff, m_pMain->m_bVictory, send_index );
-					SetByte( send_buff, nLen, send_index );
-					SetString( send_buff, strMaxUserName, nLen, send_index );
-					retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-					if( retvalue >= SMQ_FULL ) {
-						char logstr[256]; memset( logstr, 0x00, 256 );
-						sprintf( logstr, "WIZ_BATTLE_EVENT Send Fail : %d, %d", retvalue, nType);
-						m_pMain->m_StatusList.AddString(logstr);
-					}
-					m_pMain->m_byBattleSave = 1;
-				}	*/
 			}
 			else	if( nResult == 2 )	{
 				::_LoadStringFromResource(IDS_KILL_GATEKEEPER, buff);

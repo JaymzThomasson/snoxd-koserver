@@ -371,6 +371,21 @@ inline __int64 GetInt64(char* sBuf, int& index)
 	return *(__int64*)(sBuf+index-8);
 };
 
+inline bool GetKOString(char* sBuf, char* tBuf, int& index, unsigned int maxLen, int lenSize = 2)
+{
+	unsigned short len = 0;
+	if (lenSize == 1)
+		len = GetByte(sBuf, index);
+	else 
+		len = GetShort(sBuf, index);
+
+	if (len > maxLen)
+		return false;
+
+	GetString(tBuf, sBuf, len, index);
+	return true;
+};
+
 inline void SetString(char* tBuf, char* sBuf, int len, int& index)
 {
 	memcpy(tBuf+index, sBuf, len);
@@ -430,6 +445,18 @@ inline void SetVarString(TCHAR *tBuf, TCHAR* sBuf, int len, int &index)
 	CopyMemory(tBuf+index, sBuf, len);
 	index += len;
 };
+
+inline void SetKOString(char* tBuf, char* sBuf, int& index, int lenSize = 2)
+{
+	short len = strlen(sBuf);
+	if (lenSize == 1)
+		SetByte(tBuf, (BYTE)len, index);
+	else if (lenSize == 2)
+		SetShort(tBuf, len, index);
+
+	SetString(tBuf, sBuf, len, index);
+};
+
 // ~sungyong 2001.11.06
 inline int ParseSpace( char* tBuf, char* sBuf)
 {
@@ -476,6 +503,7 @@ inline void LogFileWrite( LPCTSTR logstr )
 
 	file.SeekToEnd();
 	file.Write(logstr, loglength);
+	file.Write("\r\n", 2);
 	file.Close();
 };
 
@@ -552,8 +580,28 @@ inline void	TimeTrace(TCHAR* pMsg)
 {
 	CString szMsg = _T("");
 	CTime time = CTime::GetCurrentTime();
-	szMsg.Format("%s,,  time : %d-%d-%d, %d:%d]\n", pMsg, time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute() );
+	szMsg.Format("%s,,  time : %d-%d-%d, %d:%d]\n", pMsg, time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute());
 	TRACE(szMsg);
 };
 
+
+/*
+	Yes, this is ugly and crude.
+	I want to wrap all the existing log code into this, and slowly get rid of it... bit by bit.
+*/
+#define DEBUG_LOG(...) _DEBUG_LOG(false, __VA_ARGS__)
+#define DEBUG_LOG_FILE(...) _DEBUG_LOG(true, __VA_ARGS__)
+inline void _DEBUG_LOG(bool toFile, char * format, ...)
+{
+	char buffer[256];
+	va_list args;
+	va_start(args, format);
+	vsprintf_s(buffer, sizeof(buffer), format, args);
+	va_end(args);
+
+	TRACE("%s\n", buffer);
+
+	if (toFile)
+		LogFileWrite(buffer);
+};
 #endif

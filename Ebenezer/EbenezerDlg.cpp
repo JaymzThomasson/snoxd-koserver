@@ -39,14 +39,11 @@
 // Cryption
 #if __VERSION >= 1700
 T_KEY		g_private_key = 0x1207500120128966;
-#define CRYPTION_PRIVATE_KEY 0x1207500120128966
 #elif __VERSION >= 1298 && __VERSION < 1453
-#define CRYPTION_PRIVATE_KEY 0x1234567890123456
 T_KEY		g_private_key = 0x1234567890123456;
 #else
 T_KEY		g_private_key = 0x1257091582190465;
 #endif
-///~
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -236,9 +233,6 @@ CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
 	m_nServerNo = 0;
 	m_nServerGroupNo = 0;
 	m_nServerGroup = 0;
-	m_iPacketCount = 0;
-	m_iSendPacketCount = 0;
-	m_iRecvPacketCount = 0;
 	m_sDiscount = 0;
 
 	m_pUdpSocket = NULL;
@@ -317,10 +311,6 @@ BOOL CEbenezerDlg::OnInitDialog()
 	m_fReConnectStart = 0.0f;
 	// sungyong~ 2002.05.23
 
-	if( AfxMessageBox("If you are restarting, please restart after all data is saved...do you want to continue?", MB_OKCANCEL) == IDCANCEL ) {
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
 	//----------------------------------------------------------------------
 	//	Logfile initialize
 	//----------------------------------------------------------------------
@@ -373,106 +363,100 @@ BOOL CEbenezerDlg::OnInitDialog()
 		return FALSE;
 	}
 
-	if( !m_ItemLoggerSendQ.InitailizeMMF( MAX_PKTSIZE, MAX_COUNT, SMQ_ITEMLOGGER ) ) {
-		AfxMessageBox("SMQ ItemLog Shared Memory Initialize Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-
-	LogFileWrite("before item\r\n");
+	LogFileWrite("before item");
 	if( LoadItemTable() == FALSE ){
 		AfxMessageBox("ItemTable Load Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
-	LogFileWrite("before main\r\n");
+	LogFileWrite("before main");
 	if( LoadMagicTable() == FALSE ){
 		AfxMessageBox("MagicTable Load Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
-	LogFileWrite("before 1\r\n");
+	LogFileWrite("before 1");
 	if( LoadMagicType1() == FALSE ) {
 		AfxMessageBox("MagicType1 Load Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
-	LogFileWrite("before 2\r\n");
+	LogFileWrite("before 2");
 	if( LoadMagicType2() == FALSE ) {
 		AfxMessageBox("MagicType2 Load Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
-	LogFileWrite("before 3\r\n");
+	LogFileWrite("before 3");
 	if( LoadMagicType3() == FALSE ) {
 		AfxMessageBox("MagicType3 Load Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
-	LogFileWrite("before 4\r\n");
+	LogFileWrite("before 4");
 	if( LoadMagicType4() == FALSE ) {
 		AfxMessageBox("MagicType4 Load Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
-	LogFileWrite("before 5\r\n");
+	LogFileWrite("before 5");
 	if( LoadMagicType5() == FALSE ) {
 		AfxMessageBox("MagicType5 Load Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
-	LogFileWrite("before 8\r\n");
+	LogFileWrite("before 8");
 	if( LoadMagicType8() == FALSE ) {
 		AfxMessageBox("MagicType8 Load Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
-	LogFileWrite("before Coeffi\r\n");
+	LogFileWrite("before Coefficient");
 	if( LoadCoefficientTable() == FALSE ){
 		AfxMessageBox("CharaterDataTable Load Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
-	LogFileWrite("before Level\r\n");
+	LogFileWrite("before Level");
 	if( LoadLevelUpTable() == FALSE ){
 		AfxMessageBox("LevelUpTable Load Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
 
-	LogFileWrite("before All Kinghts\r\n");
+	LogFileWrite("before All Knights");
 	if( LoadAllKnights() == FALSE ) {
 		AfxMessageBox("KnightsData Load Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
 	
-	LogFileWrite("before All Knights User\r\n");
+	LogFileWrite("before All Knights User");
 	if( LoadAllKnightsUserData() == FALSE ) {
 		AfxMessageBox("LoadAllKnightsUserData Load Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}	
 
-	LogFileWrite("before home\r\n");
+	LogFileWrite("before home");
 	if( LoadHomeTable() == FALSE ){
 		AfxMessageBox("LoadHomeTable Load Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
 
-	LogFileWrite("before battle\r\n");
+	LogFileWrite("before battle");
 	if( LoadBattleTable() == FALSE )	{
 		AfxMessageBox("LoadBattleTable Load Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
 
-	LogFileWrite("before map file\r\n");
+	LogFileWrite("before map file");
 	if( !MapFileLoad() )
 		AfxPostQuitMessage(0);
 
-	LogFileWrite("after map file\r\n");
+	LogFileWrite("after map file");
 
 	LoadNoticeData();
 
@@ -494,21 +478,17 @@ BOOL CEbenezerDlg::OnInitDialog()
 #endif
 	}
 
-	LogFileWrite("success\r\n");
+	LogFileWrite("success");
 	UserAcceptThread();
 
 	//CTime cur = CTime::GetCurrentTime();
-	CString starttime;
-	starttime.Format("Game Server Start : %d월 %d일 %d시 %d분\r\n", cur.GetMonth(), cur.GetDay(), cur.GetHour(), cur.GetMinute());
-	LogFileWrite( (char*)(LPCTSTR)starttime );
-	m_StatusList.AddString(starttime);
 
+	DEBUG_LOG_FILE("Game Server Start : %02d/%02d/%04d %d:%02d\r\n", cur.GetDay(), cur.GetMonth(), cur.GetYear(), cur.GetHour(), cur.GetMinute());
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
 void CEbenezerDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
-
 	CDialog::OnSysCommand(nID, lParam);
 }
 
@@ -719,9 +699,6 @@ void CEbenezerDlg::OnTimer(UINT nIDEvent)
 	case MARKET_BBS_TIME:
 		MarketBBSTimeCheck();
 		break;	
-	case PACKET_CHECK:
-		WritePacketLog();
-		break;
 	}
 
 	CDialog::OnTimer(nIDEvent);
@@ -1030,8 +1007,8 @@ BOOL CEbenezerDlg::InitializeMMF()
 		}
 		bCreate = FALSE;
 	}
-	logstr = "Shared Memory Create Success!!";
-	m_StatusList.AddString( logstr );
+	
+	DEBUG_LOG("Shared Memory Create Success!!");
 
     m_lpMMFile = (char *)MapViewOfFile (m_hMMFile, FILE_MAP_WRITE, 0, 0, 0);
 	if( !m_lpMMFile )
@@ -1648,7 +1625,6 @@ void CEbenezerDlg::GetTimeFromIni()
 	SetTimer( SEND_TIME, 200, NULL );
 	SetTimer( ALIVE_TIME, 34000, NULL );
 	SetTimer( MARKET_BBS_TIME, 300000, NULL );
-	SetTimer( PACKET_CHECK, 360000, NULL );
 }
 
 void CEbenezerDlg::UpdateGameTime()
@@ -2774,10 +2750,7 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 		return;
 	}
 
-	CString logstr;
-	logstr.Format("[Monster Point Delete]");
-	m_StatusList.AddString( logstr );
-
+	DEBUG_LOG("[Monster Point Delete]");
 	TRACE("*** DeleteAllNpcList - Start *** \n");
 
 	CUser* pUser = NULL;
@@ -3573,14 +3546,6 @@ void CEbenezerDlg::MarketBBSSellDelete(short index)
 	memset( m_strSellMessage[index], NULL, MAX_BBS_MESSAGE);
 	m_iSellPrice[index] = 0;
 	m_fSellStartTime[index] = 0.0f;
-}
-
-void CEbenezerDlg::WritePacketLog()
-{
-	CTime cur = CTime::GetCurrentTime();
-	CString starttime;
-	starttime.Format("* Packet Check : send=%d, realsend=%d, recv=%d, time %d:%d분\r\n", m_iPacketCount, m_iSendPacketCount, m_iRecvPacketCount, cur.GetHour(), cur.GetMinute());
-	LogFileWrite( (char*)(LPCTSTR)starttime );
 }
 
 int CEbenezerDlg::GetKnightsGrade(int nPoints)
