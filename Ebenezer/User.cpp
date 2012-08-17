@@ -556,7 +556,6 @@ void CUser::VersionCheck(char *pBuf)
 	char send_buff[128];
 	memset( send_buff, NULL, 128 );
 
-<<<<<<< .mine
 	/*
 	char strAccountID[MAX_ID_SIZE+1];
 	memset(strAccountID, 0x00, MAX_ID_SIZE+1);
@@ -566,47 +565,22 @@ void CUser::VersionCheck(char *pBuf)
 		return;
 	*/
 
-=======
-	/*
-	client data in 2b
-	FFFF
-	(short)account length
-	account string
-	*/
-
-
-
->>>>>>> .theirs
 	SetByte( send_buff, WIZ_VERSION_CHECK, send_index );
-<<<<<<< .mine
 #if __VERSION >= 1800
 	SetByte(send_buff, 0, send_index); // unknown
 #endif
 	SetShort(send_buff, __VERSION, send_index );
-=======
-	SetByte( send_buff, 0x00, send_index );
-	SetShort( send_buff, __VERSION, send_index );
 
-
->>>>>>> .theirs
 	// Cryption
 	SetInt64(send_buff, m_Public_key, send_index);
 	///~
-<<<<<<< .mine
 	SetByte(send_buff, 0, send_index); // 0 = success, 1 = prem error
 #if __VERSION < 1700
 	SendCompressingPacket(send_buff, send_index);
 #else // doesn't seem to bother "compressing" it anymore
 	Send(send_buff, send_index);
 #endif
-=======
-	SetByte( send_buff, 0x00, send_index );
-	Send( send_buff, send_index );
 
-
-
-
->>>>>>> .theirs
 	// Cryption
 	m_CryptionFlag = 1;
 	///~
@@ -633,23 +607,9 @@ void CUser::LoginProcess(char *pBuf )
 		|| !GetKOString(pBuf, password, index, MAX_PW_SIZE))
 		goto fail_return;
 
-<<<<<<< .mine
-
-
-
-
-
-
-
-=======
-	pwdlen = GetShort( pBuf, index );
-	if ( pwdlen > MAX_PW_SIZE || pwdlen <= 0)
-		goto fail_return;
-	GetString( password, pBuf, pwdlen, index );
 	unka = GetShort( pBuf, index );
 	unkb = GetDWORD( pBuf, index );
 
->>>>>>> .theirs
 	pUser = m_pMain->GetUserPtr( accountid, 0x01 );
 	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) {
 		pUser->UserDataSaveToAgent();
@@ -875,21 +835,8 @@ void CUser::SelCharToAgent(char *pBuf)
 	zone = GetByte( pBuf, index );
 	
 	if( _strnicmp( accountid, m_strAccountID, MAX_ID_SIZE ) != 0 ) {
-<<<<<<< .mine
 		Close();
 		return;
-
-
-
-
-=======
-		pUser = m_pMain->GetUserPtr( accountid, 0x01 );
-		if( pUser && (pUser->m_Sid != m_Sid) ) {
-			pUser->Close();
-			goto fail_return;
-		}
-		strcpy( m_strAccountID, accountid );	// ???? ?? ???? ?a??? ??????? ??????...
->>>>>>> .theirs
 	}
 
 	pUser = m_pMain->GetUserPtr( userid, 0x02 );
