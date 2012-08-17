@@ -70,9 +70,9 @@ void CUser::PartyCancel()
 	m_sPartyIndex = -1;
 	
 	leader_id = pParty->uid[0];
-	if( leader_id < 0 || leader_id >= MAX_USER ) return;
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[leader_id];
-	if( !pUser ) return;
+	pUser = m_pMain->GetUserPtr(leader_id);
+	if (pUser == NULL)
+		return;
 
 	for( int i=0; i<8; i++ ) {		
 		if( pParty->uid[i] >= 0 )
@@ -95,12 +95,12 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 	_PARTY_GROUP* pParty = NULL;
 	char send_buff[256]; memset( send_buff, 0x00, 256 );
 
-	if( memberid < 0 || memberid >= MAX_USER ) goto fail_return;
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[memberid];
-	if( !pUser ) goto fail_return;
-	if( pUser->m_sPartyIndex != -1 ) goto fail_return;
+	pUser = m_pMain->GetUserPtr(memberid);
+	if (pUser == NULL
+		|| pUser->m_sPartyIndex != -1) goto fail_return;
 
-	if( m_pUserData->m_bNation != pUser->m_pUserData->m_bNation ) {
+	if (getNation() != pUser->getNation())
+	{
 		result = -3;
 		goto fail_return;
 	}
@@ -192,10 +192,12 @@ void CUser::PartyInsert()	// ?????? ??? ???.  ????? ??Y?? ???°??? ???
 	}
 	
 	for(int i=0; i<8; i++) {	// Send your info to the rest of the party members.
-		if( pParty->uid[i] == m_Sid ) continue;
-		if( pParty->uid[i] < 0 || pParty->uid[i] >= MAX_USER ) continue;
-		pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[pParty->uid[i]];
-		if( !pUser ) continue;
+		if (pParty->uid[i] == GetSocketID())
+			continue;
+
+		pUser = m_pMain->GetUserPtr(pParty->uid[i]);
+		if (pUser == NULL)
+			continue;
 
 		memset( send_buff, 0x00, 256 ); send_index = 0;
 		SetByte( send_buff, WIZ_PARTY, send_index );
@@ -213,7 +215,7 @@ void CUser::PartyInsert()	// ?????? ??? ???.  ????? ??Y?? ???°??? ???
 	}
 
 	for(i=0; i<8; i++ ) {
-		if( pParty->uid[i] == -1 ) {		// Party Structure ?? ???
+		if( pParty->uid[i] == -1 ) {
 			pParty->uid[i] = m_Sid;
 			pParty->sMaxHp[i] = m_iMaxHp;
 			pParty->sHp[i] = m_pUserData->m_sHp;
@@ -223,28 +225,25 @@ void CUser::PartyInsert()	// ?????? ??? ???.  ????? ??Y?? ???°??? ???
 		}
 	}
 
-// ??? BBS?? ??? ???...	??????!!!
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[pParty->uid[0]];
-	if( !pUser ) return;
+	pUser = m_pMain->GetUserPtr(pParty->uid[0]);
+	if (pUser == NULL)
+		return;
 
-	if (pUser->m_bNeedParty == 2 && pUser->m_sPartyIndex != -1) {	// ??? ????? ??...
-		pUser->m_bNeedParty = 1;	// ?? ?? ??? ????? ??????? ??? ^^;
+	if (pUser->m_bNeedParty == 2 && pUser->m_sPartyIndex != -1) {
+		pUser->m_bNeedParty = 1;
 		memset( send_buff, 0x00, 256 ); send_index = 0;	
 		SetByte(send_buff, 2, send_index);
 		SetByte(send_buff, pUser->m_bNeedParty, send_index);
 		pUser->StateChange(send_buff);
 	}
-// ??? ??................
 
-// ??? BBS?? ??? ???...	?????!!!
-	if (m_bNeedParty == 2 && m_sPartyIndex != -1) {		// ??? ????? ????? ??? ??...
-		m_bNeedParty = 1;	// ?? ?? ??? ????? ??????? ??? ^^;
+	if (m_bNeedParty == 2 && m_sPartyIndex != -1) {		
+		m_bNeedParty = 1;	
 		memset( send_buff, 0x00, 256 ); send_index = 0;	
 		SetByte(send_buff, 2, send_index);
 		SetByte(send_buff, m_bNeedParty, send_index);
 		StateChange(send_buff);
 	}
-// ??? ??................
 
 	memset( send_buff, 0x00, 256 ); send_index = 0;
 	SetByte( send_buff, WIZ_PARTY, send_index );
@@ -280,22 +279,30 @@ void CUser::PartyRemove(int memberid)
 	CUser* pUser = NULL;
 	_PARTY_GROUP* pParty = NULL;
 
-	if( m_sPartyIndex == -1 ) return;
-	if( memberid < 0 || memberid >= MAX_USER ) return;
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[memberid];	// ??w? ???...
-	if( !pUser ) return;
-	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
-	if( !pParty ) {					// ????? ???
+	if (m_sPartyIndex == -1) 
+		return;
+
+	pUser = m_pMain->GetUserPtr(memberid);
+	if (pUser == NULL)
+		return;
+
+	pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
+	if (!pParty) 
+	{
 		pUser->m_sPartyIndex = -1;
 		m_sPartyIndex = -1;
 		return;
 	}
 
-	if( memberid != m_Sid ) {					// ?????? Z?? ?????
-		if( pParty->uid[0] != m_Sid ) return;	// ???? ??? ??? ??? ???..
+	if (memberid != GetSocketID())
+	{		
+		if (pParty->uid[0] != GetSocketID()) 
+			return;
 	}
-	else {
-		if( pParty->uid[0] == memberid ) {		// ???? Z????? ??? ????
+	else 
+	{
+		if (pParty->uid[0] == memberid)
+		{
 			PartyDelete();
 			return;
 		}
@@ -353,9 +360,9 @@ void CUser::PartyDelete()
 		return;
 	}
 	for( int i=0; i<8; i++ ) {
-		if( pParty->uid[i] < 0 || pParty->uid[i] >= MAX_USER ) continue;
-		pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[pParty->uid[i]];
-		if( !pUser ) continue;
+		pUser = m_pMain->GetUserPtr(pParty->uid[i]);
+		if (pUser == NULL) 
+			continue;
 		pUser->m_sPartyIndex = -1;
 	}
 
@@ -413,10 +420,12 @@ void CUser::PartyBBSRegister(char *pBuf)
 
 	send_index = 0; memset(send_buff, NULL, 256);	// Now, let's find out which page the user is on.
 	for (i = 0 ; i < MAX_USER ; i++) {
-		pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[i];
-		if (!pUser) continue;				// Protection codes.
-		if ( pUser->m_pUserData->m_bNation != m_pUserData->m_bNation) continue;
-		if ( pUser->m_bNeedParty == 1 ) continue;
+		pUser = m_pMain->GetUnsafeUserPtr(i);
+		if (pUser == NULL
+			|| pUser->getNation() != getNation()
+			|| pUser->m_bNeedParty == 1) 
+			continue;
+
 		if( !(   ( pUser->m_pUserData->m_bLevel <= (int)(m_pUserData->m_bLevel * 1.5) && pUser->m_pUserData->m_bLevel >= (int)(m_pUserData->m_bLevel * 1.5)) 
 			  || ( pUser->m_pUserData->m_bLevel <= (m_pUserData->m_bLevel+8) && pUser->m_pUserData->m_bLevel >= ((int)(m_pUserData->m_bLevel)-8) ) 
 		) ) continue;
@@ -487,11 +496,12 @@ void CUser::PartyBBSNeeded(char *pBuf, BYTE type)
 	SetByte(send_buff, result, send_index);
 
 	for (i = 0 ; i < MAX_USER ; i++) {
-		pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[i];
-		if (!pUser) continue;				// Protection codes.
+		pUser = m_pMain->GetUnsafeUserPtr(i);
+		if (pUser == NULL
+			|| pUser->getNation() != getNation()
+			|| pUser->m_bNeedParty == 1) 
+			continue;
 
-		if ( pUser->m_pUserData->m_bNation != m_pUserData->m_bNation) continue;
-		if ( pUser->m_bNeedParty == 1) continue;
 		if( !(   ( pUser->m_pUserData->m_bLevel <= (int)(m_pUserData->m_bLevel * 1.5) && pUser->m_pUserData->m_bLevel >= (int)(m_pUserData->m_bLevel * 1.5)) 
 			  || ( pUser->m_pUserData->m_bLevel <= (m_pUserData->m_bLevel+8) && pUser->m_pUserData->m_bLevel >= ((int)(m_pUserData->m_bLevel)-8) ) 
 		) ) continue;

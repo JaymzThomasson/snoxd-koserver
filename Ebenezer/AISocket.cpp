@@ -464,36 +464,38 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 
 		}
 
-		if( sid >= 0 && sid < MAX_USER && m_pMain->m_Iocport.m_SockArray[sid] ) {
-			((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->SendTargetHP( 0, tid, -damage ); 
+		pUser = m_pMain->GetUserPtr(sid);
+		if (pUser != NULL) 
+		{
+			pUser->SendTargetHP( 0, tid, -damage ); 
 			if( byAttackType != MAGIC_ATTACK && byAttackType != DURATION_ATTACK) {
-				((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->ItemWoreOut(ATTACK, damage);
-//
+				pUser->ItemWoreOut(ATTACK, damage);
+
 			// LEFT HAND!!! by Yookozuna
 			temp_damage = damage * ((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->m_bMagicTypeLeftHand / 100 ;
 
-			switch (((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->m_bMagicTypeLeftHand) {	// LEFT HAND!!!
+			switch (pUser->m_bMagicTypeLeftHand) {	// LEFT HAND!!!
 				case ITEM_TYPE_HP_DRAIN :	// HP Drain		
-					((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->HpChange(temp_damage, 0);	
+					pUser->HpChange(temp_damage, 0);	
 //					TRACE("%d : Èí¼ö HP : %d  ,  ÇöÀç HP : %d", sid, temp_damage, ((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->m_pUserData->m_sHp);
 					break;
 				case ITEM_TYPE_MP_DRAIN :	// MP Drain		
-					((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->MSpChange(temp_damage);
+					pUser->MSpChange(temp_damage);
 					break;
 				}				
 			
 			temp_damage = 0;	// reset data;
 
 			// RIGHT HAND!!! by Yookozuna
-			temp_damage = damage * ((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->m_bMagicTypeRightHand / 100 ;
+			temp_damage = damage * pUser->m_bMagicTypeRightHand / 100 ;
 
-			switch (((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->m_bMagicTypeRightHand) {	// LEFT HAND!!!
+			switch (pUser->m_bMagicTypeRightHand) {	// LEFT HAND!!!
 				case ITEM_TYPE_HP_DRAIN :	// HP Drain		
-					((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->HpChange(temp_damage, 0);			
+					pUser->HpChange(temp_damage, 0);			
 //					TRACE("%d : Èí¼ö HP : %d  ,  ÇöÀç HP : %d", sid, temp_damage, ((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->m_pUserData->m_sHp);
 					break;
 				case ITEM_TYPE_MP_DRAIN :	// MP Drain		
-					((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->MSpChange(temp_damage);
+					pUser->MSpChange(temp_damage);
 					break;
 				}	
 //		
@@ -516,7 +518,7 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 			if (pNpc->m_tNpcType == 2) {
 				if (sid >= 0 && sid < MAX_USER) {
 					if( m_pMain->m_Iocport.m_SockArray[sid] )
-						((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->GiveItem(900001000, 1);	
+						pUser->GiveItem(900001000, 1);	
 				}
 			}
 //
@@ -528,12 +530,11 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 		if(!pNpc)	return;
 
 		//TRACE("CAISocket-RecvNpcAttack 222 : sid=%s, tid=%d, zone_num=%d\n", sid, tid, m_iZoneNum);
-
 		if( tid >= USER_BAND && tid < NPC_BAND)
 		{
-			if( tid >= 0 && tid < MAX_USER && m_pMain->m_Iocport.m_SockArray[tid] )
-				pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];
-			if(pUser == NULL)	return;
+			pUser = m_pMain->GetUserPtr(tid);
+			if(pUser == NULL)	
+				return;
 
 			// sungyong 2002. 02.04
 /*			if( sHP <= 0 && pUser->m_pUserData->m_sHp > 0 ) {

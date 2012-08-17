@@ -201,8 +201,9 @@ void CUser::MarketBBSReport(char *pBuf, BYTE type)
 		if (buysell_index == MARKET_BBS_BUY) {
 			if (m_pMain->m_sBuyID[i] == -1) continue;
 
-			pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_pMain->m_sBuyID[i]];
-			if (!pUser) {		// Delete info!!!
+			pUser = m_pMain->GetUserPtr(m_pMain->m_sBuyID[i]);
+			if (pUser == NULL)
+			{
 				MarketBBSBuyDelete(i);
 				continue ;	
 			}
@@ -245,8 +246,9 @@ void CUser::MarketBBSReport(char *pBuf, BYTE type)
 		else if (buysell_index == MARKET_BBS_SELL) {
 			if (m_pMain->m_sSellID[i] == -1) continue;
 
-			pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_pMain->m_sSellID[i]];
-			if (!pUser) {	// Delete info!!!	
+			pUser = m_pMain->GetUserPtr(m_pMain->m_sSellID[i]);
+			if (pUser == NULL)
+			{
 				MarketBBSSellDelete(i);
 				continue ;	
 			}
@@ -350,8 +352,9 @@ void CUser::MarketBBSRemotePurchase(char *pBuf)
 			goto fail_return;
 		}
 
-		pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_pMain->m_sBuyID[message_index]];
-		if (!pUser) {	// Something wrong with the target ID.
+		pUser = m_pMain->GetUserPtr(m_pMain->m_sBuyID[message_index]);
+		if (pUser == NULL)
+		{	// Something wrong with the target ID.
 			sub_result = 1;
 			goto fail_return;
 		}
@@ -362,8 +365,9 @@ void CUser::MarketBBSRemotePurchase(char *pBuf)
 			goto fail_return;
 		}
 
-		pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_pMain->m_sSellID[message_index]];
-		if (!pUser) {	// Something wrong with the target ID.
+		pUser = m_pMain->GetUserPtr(m_pMain->m_sSellID[message_index]);
+		if (pUser == NULL)
+		{	// Something wrong with the target ID.
 			sub_result = 1;
 			goto fail_return;
 		}
@@ -410,8 +414,9 @@ void CUser::MarketBBSTimeCheck()
 
 	for (int i = 0 ; i < MAX_BBS_POST ; i++) {		
 		if (m_pMain->m_sBuyID[i] != -1) {	// BUY!!!
-			pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_pMain->m_sBuyID[i]];			
-			if (!pUser) {
+			pUser = m_pMain->GetUserPtr(m_pMain->m_sBuyID[i]);			
+			if (pUser == NULL)
+			{
 				MarketBBSBuyDelete(i);
 				continue;
 			}
@@ -435,8 +440,9 @@ void CUser::MarketBBSTimeCheck()
 		}
 		
 		if (m_pMain->m_sSellID[i] != -1) {	// SELL!!!
-			pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_pMain->m_sSellID[i]];
-			if (!pUser) {
+			pUser = m_pMain->GetUserPtr(m_pMain->m_sSellID[i]);
+			if (pUser == NULL)
+			{
 				MarketBBSSellDelete(i);
 				continue;
 			}

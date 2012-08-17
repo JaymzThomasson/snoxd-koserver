@@ -27,15 +27,14 @@ void CUser::FriendRequest(char *pBuf)
 	int index = 0, destid = -1, send_index = 0;
 
 	CUser* pUser = NULL;
-	char buff[256];	memset( buff, 0x00, 256 );
+	char buff[4];
 
-	destid = GetShort( pBuf, index );
-	if( destid < 0 || destid >= MAX_USER ) goto fail_return;
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[destid];
-
-	if( !pUser ) goto fail_return;
-	if( pUser->m_sFriendUser != -1 ) goto fail_return;
-	if( pUser->m_pUserData->m_bNation != m_pUserData->m_bNation ) goto fail_return;
+	destid = GetShort(pBuf, index);
+	pUser = m_pMain->GetUserPtr(destid);
+	if( pUser == NULL
+		|| pUser->m_sFriendUser != -1
+		|| pUser->getNation() != getNation())
+		goto fail_return;
 
 	m_sFriendUser = destid;
 	pUser->m_sFriendUser = m_Sid;
@@ -57,17 +56,12 @@ void CUser::FriendAccept(char *pBuf)
 	int index = 0, destid = -1, send_index = 0;
 	CUser* pUser = NULL;
 	char buff[256];	memset( buff, 0x00, 256 );
-
 	BYTE result = GetByte( pBuf, index );
 
-	if( m_sFriendUser < 0 || m_sFriendUser >= MAX_USER ) {
-		m_sFriendUser = -1;
-		return;
-	}
+	pUser = m_pMain->GetUserPtr(m_sFriendUser);
 
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_sFriendUser];
-
-	if( !pUser ) {
+	if (pUser == NULL) 
+	{
 		m_sFriendUser = -1;
 		return;
 	}

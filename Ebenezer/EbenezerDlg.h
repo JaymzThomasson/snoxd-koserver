@@ -128,12 +128,15 @@ public:
 	void Send_Region( char* pBuf, int len, int zone, int x, int z, CUser* pExceptUser = NULL, bool bDirect=true );	// zone == real zone number
 	void Send_All( char* pBuf, int len, CUser* pExceptUser = NULL, int nation=0 );	// pointer != NULL don`t send to that user pointer
 	void Send_AIServer( int zone, char* pBuf, int len );
-	static CUser* GetUserPtr( const char* userid, BYTE type );
+	CUser* GetUserPtr( const char* userid, BYTE type );
+
+	CUser * GetUserPtr(int sid);
+	__forceinline CUser * GetUnsafeUserPtr(int sid);
 
 	_PARTY_GROUP * CreateParty(CUser *pLeader);
 	void DeleteParty(short sIndex);
 
-	void WriteLog(char * format, ...);
+	void WriteLog(const char * format, ...);
 
 	CEbenezerDlg(CWnd* pParent = NULL);	// standard constructor
 

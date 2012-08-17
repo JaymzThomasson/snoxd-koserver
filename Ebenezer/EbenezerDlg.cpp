@@ -284,7 +284,7 @@ END_MESSAGE_MAP()
 BOOL CEbenezerDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
-
+	DEBUG_LOG("test");
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
@@ -620,37 +620,59 @@ void CEbenezerDlg::UserAcceptThread()
 	::ResumeThread( m_Iocport.m_hAcceptThread );
 }
 
-CUser* CEbenezerDlg::GetUserPtr(const char *userid, BYTE type )
+CUser* CEbenezerDlg::GetUserPtr(const char *userid, BYTE type)
 {
 	CUser* pUser = NULL;
 	BOOL bFind = FALSE;
 
-	if( type == 0x01 ) {					// Account id check....
-		for(int i=0; i<MAX_USER; i++) {
-			pUser = (CUser*)m_Iocport.m_SockArray[i];
-			if( pUser ) {
-				if( !_strnicmp( pUser->m_strAccountID, userid, MAX_ID_SIZE ) ) {
-					bFind = TRUE;
-					break;
-				}
+	if (type == 1)
+	{					// Account id check....
+		for (int i = 0; i < MAX_USER; i++) 
+		{
+			pUser = m_pMain->GetUnsafeUserPtr(i);
+			if (pUser == NULL)
+				continue;
+
+			if (!_strnicmp(pUser->m_strAccountID, userid, MAX_ID_SIZE)) 
+			{
+				bFind = TRUE;
+				break;
 			}
 		}
 	}
-	else {									// character id check...
-		for(int i=0; i<MAX_USER; i++) {
-			pUser = (CUser*)m_Iocport.m_SockArray[i];
-			if( pUser ) {
-				if( !_strnicmp( pUser->m_pUserData->m_id, userid, MAX_ID_SIZE ) ) {
-					bFind = TRUE;
-					break;
-				}
+	else
+	{									// character id check...
+		for (int i = 0; i < MAX_USER; i++) 
+		{
+			pUser = m_pMain->GetUnsafeUserPtr(i);
+			if (pUser == NULL)
+				continue;
+
+			if (!_strnicmp(pUser->m_pUserData->m_id, userid, MAX_ID_SIZE))
+			{
+				bFind = TRUE;
+				break;
 			}
 		}
 	}
 
-	if( !bFind ) return NULL;
+	if (!bFind)
+		return NULL;
 
 	return pUser;
+}
+
+CUser* CEbenezerDlg::GetUserPtr(int sid)
+{
+	if (sid < 0 || sid >= MAX_USER)
+		return NULL;
+
+	return GetUnsafeUserPtr(sid);
+}
+
+CUser* CEbenezerDlg::GetUnsafeUserPtr(int sid)
+{
+	return (CUser *)m_Iocport.m_SockArray[sid];
 }
 
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
@@ -685,9 +707,10 @@ void CEbenezerDlg::DeleteParty(short sIndex)
 	LeaveCriticalSection(&g_region_critical);
 }
 
-void CEbenezerDlg::WriteLog(char * format, ...)
+void CEbenezerDlg::WriteLog(const char * format, ...)
 {
-	char buffer[1024];
+	char buffer[256];
+
 	va_list args;
 	va_start(args, format);
 	vsprintf_s(buffer, sizeof(buffer), format, args);

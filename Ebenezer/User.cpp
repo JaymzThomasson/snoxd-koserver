@@ -35,6 +35,7 @@ void CUser::Initialize()
 	Make_public_key();
 	jct.SetPublicKey(m_Public_key);
 	jct.SetPrivateKey(g_private_key);
+	jct.Init();
 
 	m_CryptionFlag = 0;
 	m_Sen_val = 0;
@@ -563,7 +564,7 @@ void CUser::LogOut()
 	char send_buf[256]; 	memset( send_buf, NULL, 256 );
 
 	CTime t = CTime::GetCurrentTime();
-	m_pMain->WriteLog("[%s : %s Logout : %d:%d:%d]\r\n", m_pUserData->m_Accountid, m_pUserData->m_id, t.GetHour(), t.GetMinute(), t.GetSecond());
+	// m_pMain->WriteLog("[%s : %s Logout : %d:%d:%d]\r\n", m_pUserData->m_Accountid, m_pUserData->m_id, t.GetHour(), t.GetMinute(), t.GetSecond());
 
 	pUser = m_pMain->GetUserPtr( m_pUserData->m_Accountid, 0x01 );
 	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) 
@@ -3474,37 +3475,24 @@ CUser* CUser::GetItemRoutingUser(int itemid, short itemcount)
 	if( !pTable ) return NULL;
 //
 	while(count<8) {
-		select_user = pParty->uid[pParty->bItemRouting];
-		if( select_user >= 0 && select_user < MAX_USER ) {
-			pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[select_user];
-			if( pUser ) {
-//	??? ???? ?? ?'? ??????? ?????? ??.??
-				if (pTable->m_bCountable) {	// Check weight of countable item.
-					if ((pTable->m_sWeight * count + pUser->m_sItemWeight) <= pUser->m_sMaxWeight) {			
-						pParty->bItemRouting++;
-						if( pParty->bItemRouting > 6 )
-							pParty->bItemRouting = 0;
-						return pUser;	// ??, ????? ??????? ??????? :)
-					}
+		pUser = m_pMain->GetUserPtr(pParty->uid[pParty->bItemRouting]);
+		if( pUser ) {
+			if (pTable->m_bCountable) {	// Check weight of countable item.
+				if ((pTable->m_sWeight * count + pUser->m_sItemWeight) <= pUser->m_sMaxWeight) {			
+					pParty->bItemRouting++;
+					if( pParty->bItemRouting > 6 )
+						pParty->bItemRouting = 0;
+					return pUser;
 				}
-				else {	// Check weight of non-countable item.
-					if ((pTable->m_sWeight + pUser->m_sItemWeight) <= pUser->m_sMaxWeight) {
-						pParty->bItemRouting++;
-						if( pParty->bItemRouting > 6 )
-							pParty->bItemRouting = 0;
-						return pUser;	// ??, ????? ??????? ??????? :)
-					}
-				}
-//
-
-/*
-				pParty->bItemRouting++;
-				if( pParty->bItemRouting > 6 )
-					pParty->bItemRouting = 0;
-				return pUser;	// ??, ????? ??????? ??????? :)
-*/
 			}
-
+			else {	// Check weight of non-countable item.
+				if ((pTable->m_sWeight + pUser->m_sItemWeight) <= pUser->m_sMaxWeight) {
+					pParty->bItemRouting++;
+					if( pParty->bItemRouting > 6 )
+						pParty->bItemRouting = 0;
+					return pUser;
+				}
+			}
 		}
 		if( pParty->bItemRouting > 6 )
 			pParty->bItemRouting = 0;
@@ -3751,13 +3739,8 @@ fail_return:
 
 void CUser::GoldChange(short tid, int gold)
 {
-//
 	if (m_pUserData->m_bZone < 3) return;	// Money only changes in Frontier zone and Battle zone!!!
-//
-//
 	if (m_pUserData->m_bZone == ZONE_SNOW_BATTLE) return;
-//
-	if( tid >= MAX_USER || tid < 0 ) return;	// Users ONLY!!!
 
 	int s_temp_gold = 0; int t_temp_gold = 0, i = 0;
 	int send_index = 0;
@@ -3766,9 +3749,9 @@ void CUser::GoldChange(short tid, int gold)
 	char send_buff[256];
 	memset( send_buff, 0x00, 256 );	
 
-	CUser* pTUser = NULL;	
-	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];
-	if( !pTUser ) return;
+	CUser* pTUser = m_pMain->GetUserPtr(tid);
+	if (pTUser == NULL)
+		return;
 	
 	if ( pTUser->m_pUserData->m_iGold <= 0 ) return;
 
@@ -3814,9 +3797,9 @@ void CUser::GoldChange(short tid, int gold)
 
 			for( i=0; i<8; i++ ) {		
 				if( pParty->uid[i] != -1 || pParty->uid[i] >= MAX_USER ) {
-					CUser * pUser = NULL;
-					pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[pParty->uid[i]];
-					if( !pUser ) continue;
+					CUser * pUser = m_pMain->GetUserPtr(pParty->uid[i]);
+					if (pUser == NULL)
+						continue;
 
 					money = count * (float)( pUser->m_pUserData->m_bLevel/(float)levelsum );
 					pUser->m_pUserData->m_iGold += money;
@@ -3933,11 +3916,10 @@ void CUser::ZoneConCurrentUsers(char *pBuf)
 	zone = GetShort( pBuf, index );
 	nation = GetByte( pBuf, index );
 
-	for(int i=0; i<MAX_USER; i++ ) {
-		pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[i];
-		if( !pUser )
-			continue;
-		if( pUser->m_pUserData->m_bZone == zone && pUser->m_pUserData->m_bNation == nation)
+	for (int i = 0; i < MAX_USER; i++)
+	{
+		pUser = m_pMain->GetUnsafeUserPtr(i);
+		if (pUser != NULL && pUser->m_pUserData->m_bZone == zone && pUser->getNation() == nation)
 			usercount++;
 	}
 

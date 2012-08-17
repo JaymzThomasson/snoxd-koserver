@@ -34,19 +34,18 @@ void CUser::ExchangeReq(char *pBuf)
 	CUser* pUser = NULL;
 	char buff[256];	memset( buff, 0x00, 256 );
 
-	destid = GetShort( pBuf, index );
-	if( destid < 0 || destid >= MAX_USER ) goto fail_return;
-
 	if (isDead())
 	{
 		TRACE("### ExchangeProcess Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", m_pUserData->m_id, m_Sid, m_bResHpType, m_pUserData->m_sHp, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
 		goto fail_return;
 	}
 
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[destid];
-	if( !pUser ) goto fail_return;
-	if( pUser->m_sExchangeUser != -1 ) goto fail_return;
-	if( pUser->m_pUserData->m_bNation != m_pUserData->m_bNation ) goto fail_return;
+	destid = GetShort( pBuf, index );
+	pUser = m_pMain->GetUserPtr(destid);
+	if (pUser == NULL
+		|| pUser->m_sExchangeUser != -1
+		|| pUser->getNation() != getNation())
+		goto fail_return;
 
 	m_sExchangeUser = destid;
 	pUser->m_sExchangeUser = m_Sid;
@@ -107,12 +106,9 @@ void CUser::ExchangeAdd(char *pBuf)
 	BYTE pos;
 	BOOL bAdd = TRUE, bGold = FALSE;
 
-	if( m_sExchangeUser < 0 || m_sExchangeUser >= MAX_USER ) {
-		ExchangeCancel();
-		return;
-	}
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_sExchangeUser];
-	if( !pUser ) {
+	pUser = m_pMain->GetUserPtr(m_sExchangeUser);
+	if (pUser == NULL)
+	{
 		ExchangeCancel();
 		return;
 	}
@@ -214,15 +210,13 @@ void CUser::ExchangeDecide()
 	char buff[256];	memset( buff, 0x00, 256 );
 	BOOL bSuccess = TRUE;
 
-	if( m_sExchangeUser < 0 || m_sExchangeUser >= MAX_USER ) {
+	pUser = m_pMain->GetUserPtr(m_sExchangeUser);
+	if (pUser == NULL)
+	{
 		ExchangeCancel();
 		return;
 	}
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_sExchangeUser];
-	if( !pUser ) {
-		ExchangeCancel();
-		return;
-	}
+
 	if( !pUser->m_bExchangeOK ) {
 		m_bExchangeOK = 0x01;
 		SetByte( buff, WIZ_EXCHANGE, send_index );
@@ -309,9 +303,8 @@ void CUser::ExchangeCancel()
 	CUser* pUser = NULL;
 	BOOL bFind = TRUE;
 
-	if( m_sExchangeUser < 0 || m_sExchangeUser >= MAX_USER ) bFind = FALSE;
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_sExchangeUser];
-	if( !pUser ) bFind = FALSE;
+	pUser = m_pMain->GetUserPtr(m_sExchangeUser);
+	if (pUser == NULL) bFind = FALSE;
 
 	list<_EXCHANGE_ITEM*>::iterator	Iter;
 	for( Iter = m_ExchangeItemList.begin(); Iter != m_ExchangeItemList.end(); Iter++ ) {
@@ -370,17 +363,15 @@ BOOL CUser::ExecuteExchange()
 	DWORD money = 0;
 	short weight = 0, i=0;
 
-	if( m_sExchangeUser < 0 || m_sExchangeUser >= MAX_USER ) return FALSE;
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_sExchangeUser];
+	pUser = m_pMain->GetUserPtr(m_sExchangeUser);
 	if( !pUser ) return FALSE;
 
 	list<_EXCHANGE_ITEM*>::iterator	Iter;
 	int iCount = pUser->m_ExchangeItemList.size(); 
 	for( Iter = pUser->m_ExchangeItemList.begin(); Iter != pUser->m_ExchangeItemList.end(); Iter++ ) {
-//	????? u???????? ???T >.<
-		if( (*Iter)->itemid >= ITEM_NO_TRADE) {
+
+		if( (*Iter)->itemid >= ITEM_NO_TRADE)
 			return FALSE;
-		}
 		else if( (*Iter)->itemid == ITEM_GOLD ) {
 //
 //		if( (*Iter)->itemid == ITEM_GOLD ) {
@@ -438,9 +429,9 @@ int CUser::ExchangeDone()
 	CUser* pUser = NULL;
 	_ITEM_TABLE* pTable = NULL;
 
-	if( m_sExchangeUser < 0 || m_sExchangeUser >= MAX_USER ) return 0;
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_sExchangeUser];
-	if( !pUser ) return 0;
+	pUser = m_pMain->GetUserPtr(m_sExchangeUser);
+	if (pUser == NULL)
+		return 0;
 
 	list<_EXCHANGE_ITEM*>::iterator	Iter;
 	for( Iter = pUser->m_ExchangeItemList.begin(); Iter != pUser->m_ExchangeItemList.end(); ) {
