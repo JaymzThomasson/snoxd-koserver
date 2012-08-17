@@ -164,10 +164,6 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 					if( result == 0x00 )
 						pUser->Close();
 					break;
-				case DB_COUPON_EVENT:
-					if( pUser )
-						pUser->CouponEvent( pBuf+index );
-					break;
 			}
 		}
 		else
@@ -655,6 +651,51 @@ CUser* CEbenezerDlg::GetUserPtr(const char *userid, BYTE type )
 	if( !bFind ) return NULL;
 
 	return pUser;
+}
+
+_PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
+{
+	pLeader->m_sPartyIndex = m_sPartyIndex++;
+	if (m_sPartyIndex == 32767)
+		m_sPartyIndex = 0;
+
+	EnterCriticalSection( &g_region_critical );
+		
+	_PARTY_GROUP * pParty = new _PARTY_GROUP;
+	pParty->wIndex = pLeader->m_sPartyIndex;
+	pParty->uid[0] = pLeader->GetSocketID();
+	pParty->sMaxHp[0] = pLeader->m_iMaxHp;
+	pParty->sHp[0] = pLeader->m_pUserData->m_sHp;
+	pParty->bLevel[0] = pLeader->m_pUserData->m_bLevel;
+	pParty->sClass[0] = pLeader->m_pUserData->m_sClass;
+	if (!m_pMain->m_PartyArray.PutData( pParty->wIndex, pParty))
+	{
+		delete pParty;
+		pLeader->m_sPartyIndex = -1;
+		pParty = NULL;
+	}
+	LeaveCriticalSection(&g_region_critical);
+	return pParty;
+}
+
+void CEbenezerDlg::DeleteParty(short sIndex)
+{
+	EnterCriticalSection(&g_region_critical);
+	m_PartyArray.DeleteData(sIndex);
+	LeaveCriticalSection(&g_region_critical);
+}
+
+void CEbenezerDlg::WriteLog(char * format, ...)
+{
+	char buffer[1024];
+	va_list args;
+	va_start(args, format);
+	vsprintf_s(buffer, sizeof(buffer), format, args);
+	va_end(args);
+
+	EnterCriticalSection(&g_LogFile_critical);
+	m_pMain->m_LogFile.Write(buffer, strlen(buffer));
+	LeaveCriticalSection(&g_LogFile_critical);
 }
 
 void CEbenezerDlg::OnTimer(UINT nIDEvent) 

@@ -565,7 +565,8 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 			//TRACE("RecvNpcAttack ==> sid = %d, tid = %d, result = %d\n", sid, tid, result);
 
 			if(result == 0x02) {		// user dead
-				if(pUser->m_bResHpType == USER_DEAD)	return;
+				if (pUser->m_bResHpType == USER_DEAD)
+					return;
 				// 유저에게는 바로 데드 패킷을 날림... (한 번 더 보냄, 유령을 없애기 위해서)
 				pUser->Send( pOutBuf, send_index );
 
@@ -1055,16 +1056,6 @@ void CAISocket::RecvUserFail(char* pBuf)
 	CUser* pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[nid];
 	if(pUser == NULL)
 		return;
-
-	// 여기에서 게임데이타의 정보를 AI서버에 보내보자...
-/*	if(pUser->m_pUserData->m_sHp > 0 && pUser->m_bResHpType != USER_DEAD)	// 게임서버와 AI서버간의 데이타가 틀림..
-	{
-		SetByte(pOutBuf, AG_USER_FAIL, send_index);
-		SetShort( pOutBuf, nid, send_index );
-		SetShort( pOutBuf, sid, send_index );
-		SetShort( pOutBuf, pUser->m_pUserData->m_sHp, send_index);
-		Send( pOutBuf, send_index);
-	}	*/
 
 	pUser->HpChange(-10000, 1);
 

@@ -129,6 +129,12 @@ public:
 	void Send_All( char* pBuf, int len, CUser* pExceptUser = NULL, int nation=0 );	// pointer != NULL don`t send to that user pointer
 	void Send_AIServer( int zone, char* pBuf, int len );
 	static CUser* GetUserPtr( const char* userid, BYTE type );
+
+	_PARTY_GROUP * CreateParty(CUser *pLeader);
+	void DeleteParty(short sIndex);
+
+	void WriteLog(char * format, ...);
+
 	CEbenezerDlg(CWnd* pParent = NULL);	// standard constructor
 
 	static CIOCPort	m_Iocport;

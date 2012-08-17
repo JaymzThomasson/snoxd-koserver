@@ -113,7 +113,8 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 		CUser* pUser = NULL;
 		pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[sid] ;
 		if( !pUser)	return;
-		if( pUser->m_bResHpType == USER_DEAD || pUser->m_pUserData->m_sHp == 0 )	{
+		if (pUser->isDead())
+		{
 			TRACE("### Magic&Skill Fail : name=%s(%d), m_bResHpType=%d, hp=%d###\n", pUser->m_pUserData->m_id, pUser->GetSocketID(), pUser->m_bResHpType, pUser->m_pUserData->m_sHp);
 			return;
 		}

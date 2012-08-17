@@ -194,12 +194,13 @@ public:
 	
 
 public:
+	__forceinline bool isDead() { return m_bResHpType == USER_DEAD || m_pUserData->m_sHp <= 0; };
+	__forceinline BYTE getNation() { return m_pUserData->m_bNation; };
+
 	void RecvDeleteChar( char* pBuf );
 	BOOL ExistComEvent(int eventid);
 	void SaveComEvent(int eventid);
 	BOOL CheckItemCount(int itemid, short min, short max);
-	void CouponEvent( char* pBuf );
-	void LogCoupon(int itemid, int count);
 	void RecvEditBox(char *pBuf);
 	BOOL CheckCouponUsed();
 	BOOL CheckRandom(short percent);
@@ -269,7 +270,6 @@ public:
 	void FriendReport( char* pBuf );
 	CUser* GetItemRoutingUser(int itemid, short itemcount);
 	void Home();
-	void ReportBug(char *pBuf);
 	int GetEmptySlot( int itemid, int bCountable );
 	void InitType4();
 	void WarehouseProcess( char* pBuf );

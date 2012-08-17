@@ -824,7 +824,7 @@ BOOL CDBAgent::LoadCharInfo( char *id, char* buff, int &buff_index)
 		tempid = GetDWORD( strItem, index );
 		duration = GetShort( strItem, index );
 		count = GetShort( strItem, index );
-		if( i == HEAD || i == BREAST || i == SHOULDER || i == LEG || i == GLOVE || i == FOOT || i = RIGHTHAND || i = LEFTHAND) {
+		if( i == HEAD || i == BREAST || i == SHOULDER || i == LEG || i == GLOVE || i == FOOT || i == RIGHTHAND || i == LEFTHAND) {
 			SetDWORD( buff, tempid, buff_index );
 			SetShort( buff, duration, buff_index );
 		}
@@ -1692,101 +1692,4 @@ BOOL CDBAgent::UpdateBattleEvent( const char* charid, int nation )
 	}
 	
 	return TRUE;
-}
-
-BOOL CDBAgent::CheckCouponEvent( const char* accountid )
-{
-	SQLHSTMT		hstmt = NULL;
-	SQLRETURN		retcode;
-	BOOL			bData = TRUE,	retval = FALSE;
-	TCHAR			szSQL[1024];
-	memset( szSQL, 0x00, 1024 );
-
-	SQLINTEGER Indexind = SQL_NTS;
-	SQLSMALLINT sRet = 0;
-
-	wsprintf(szSQL, TEXT("{call CHECK_COUPON_EVENT (\'%s\', ?)}"), accountid);
-
-	hstmt = NULL;
-
-	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_AccountDB.m_hdbc, &hstmt );
-	if (retcode != SQL_SUCCESS)	{
-		return FALSE; 
-	}
-
-	retcode = SQLBindParameter(hstmt,1,SQL_PARAM_OUTPUT,SQL_C_SSHORT, SQL_SMALLINT,0,0, &sRet,0,&Indexind);
-	if (retcode != SQL_SUCCESS){
-		SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
-		return FALSE;
-	}
-
-	retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);	
-	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO){
-		//SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
-		if( sRet == 0 )	retval = TRUE;
-		else retval = FALSE;
-	}
-	else {
-		if( DisplayErrorMsg(hstmt) == -1 ) {
-			m_AccountDB.Close();
-			if( !m_AccountDB.IsOpen() ) {
-				ReConnectODBC( &m_AccountDB, m_pMain->m_strAccountDSN, m_pMain->m_strAccountUID, m_pMain->m_strAccountPWD );
-				return FALSE;
-			}
-		}
-		retval= FALSE;
-	}
-
-	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
-
-	return retval;
-}
-
-BOOL CDBAgent::UpdateCouponEvent( const char* accountid, char* charid, char* cpid, int itemid, int count )
-{
-	SQLHSTMT		hstmt = NULL;
-	SQLRETURN		retcode;
-	BOOL			bData = TRUE,	retval = FALSE;
-	TCHAR			szSQL[1024];
-	memset( szSQL, 0x00, 1024 );
-
-	SQLINTEGER Indexind = SQL_NTS;
-	SQLSMALLINT sRet = 0;
-
-	wsprintf(szSQL, TEXT("{call UPDATE_COUPON_EVENT (\'%s\', \'%s\', \'%s\', %d, %d)}"), accountid, charid, cpid, itemid, count);
-
-	hstmt = NULL;
-
-	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_AccountDB.m_hdbc, &hstmt );
-	if (retcode != SQL_SUCCESS)	{
-		return FALSE; 
-	}
-
-/*	retcode = SQLBindParameter(hstmt,1,SQL_PARAM_OUTPUT,SQL_C_SSHORT, SQL_SMALLINT,0,0, &sRet,0,&Indexind);
-	if (retcode != SQL_SUCCESS){
-		SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
-		return FALSE;
-	}	*/
-
-	retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);	
-	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO){
-		//SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
-		retval = TRUE;
-		//if( sRet == 1 )	retval = TRUE;
-		//else retval = FALSE;
-	}
-	else {
-		if( DisplayErrorMsg(hstmt) == -1 ) {
-			m_AccountDB.Close();
-			if( !m_AccountDB.IsOpen() ) {
-				ReConnectODBC( &m_AccountDB, m_pMain->m_strAccountDSN, m_pMain->m_strAccountUID, m_pMain->m_strAccountPWD );
-				return FALSE;
-			}
-		}
-		retval= FALSE;
-	}
-
-	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
-
-	return retval;
 }

@@ -82,9 +82,6 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 			case WIZ_BATTLE_EVENT:
 				pMain->BattleEventResult( recv_buff+index );
 				break;
-			case DB_COUPON_EVENT:
-				pMain->CouponEvent( recv_buff+index );
-				break;
 			}
 
 			recvlen = 0;
@@ -1327,55 +1324,3 @@ void CAujardDlg::BattleEventResult( char* pData )
 	}
 }
 
-void CAujardDlg::CouponEvent( char* pData )
-{
-	int nSid = 0, nEventNum = 0, nLen = 0, nCharLen=0, nCouponLen=0, index = 0, nType = 0, nResult = 0, send_index = 0, count = 0;
-	int nItemID = 0, nItemCount = 0, nMessageNum = 0;
-	char strAccountName[MAX_ID_SIZE+1];	memset( strAccountName, 0x00, MAX_ID_SIZE+1 );
-	char strCharName[MAX_ID_SIZE+1];	memset( strCharName, 0x00, MAX_ID_SIZE+1 );
-	char strCouponID[MAX_ID_SIZE+1];	memset( strCouponID, 0x00, MAX_ID_SIZE+1 );
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
-
-	nType = GetByte( pData, index );
-	if( nType == CHECK_COUPON_EVENT	)	{
-		nSid = GetShort( pData, index );
-		nLen = GetShort( pData, index);
-		GetString( strAccountName, pData, nLen, index );
-		nEventNum = GetDWORD( pData, index );
-// 비러머글 대사문 >.<
-		nMessageNum = GetDWORD( pData, index );
-//
-		nResult = m_DBAgent.CheckCouponEvent( strAccountName );
-
-		SetByte( send_buff, DB_COUPON_EVENT, send_index );
-		SetShort( send_buff, nSid, send_index );
-		SetByte( send_buff, nResult, send_index );	
-		SetDWORD( send_buff, nEventNum, send_index );
-// 비러머글 대사문 >.<
-		SetDWORD( send_buff, nMessageNum, send_index ); 
-//
-		do {
-			if( m_LoggerSendQueue.PutData( send_buff, send_index ) == 1 )
-				break;
-			else
-				count++;
-		} while( count < 50 );
-		if( count >= 50 )
-			m_OutputList.AddString("CouponEvent Packet Drop!!!");
-
-
-	}
-	else if( nType == UPDATE_COUPON_EVENT	)	{
-		nSid = GetShort( pData, index );
-		nLen = GetShort( pData, index);
-		GetString( strAccountName, pData, nLen, index );
-		nCharLen = GetShort( pData, index);
-		GetString( strCharName, pData, nCharLen, index );
-		nCouponLen = GetShort( pData, index);
-		GetString( strCouponID, pData, nCouponLen, index );
-		nItemID = GetDWORD( pData, index );
-		nItemCount = GetDWORD( pData, index );
-
-		nResult = m_DBAgent.UpdateCouponEvent( strAccountName, strCharName, strCouponID, nItemID, nItemCount);
-	}
-}

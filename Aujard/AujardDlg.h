@@ -21,7 +21,6 @@ class CAujardDlg : public CDialog
 {
 // Construction
 public:
-	void CouponEvent( char* pData );
 	void BattleEventResult( char* pData );
 	void WriteLogFile( char* pData );
 	void SaveUserData();

@@ -254,20 +254,23 @@ void CKnightsManager::JoinKnights(CUser *pUser, char *pBuf)
 		goto fail_return;
 	}
 	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[member_id];
-	if( !pTUser )	{
+	if (!pTUser)
+	{
 		ret_value = 2;
 		goto fail_return;
 	}
-	if( pTUser->m_bResHpType == USER_DEAD)	{
+	if (pTUser->isDead())
+	{
 		ret_value = 3;
 		goto fail_return;
 	}
-	if( pTUser->m_pUserData->m_bNation != pUser->m_pUserData->m_bNation ) {
+	if (pTUser->getNation() != pUser->getNation())
+	{
 		ret_value = 4;
 		goto fail_return;
 	}
-
-	if( pTUser->m_pUserData->m_bKnights > 0 ) {		// 기사단에 가입되어 있습니다
+	if (pTUser->m_pUserData->m_bKnights > 0)
+	{
 		ret_value = 5;
 		goto fail_return;
 	}
