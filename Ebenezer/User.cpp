@@ -145,7 +145,7 @@ void CUser::Initialize()
 
 	memset( m_strAccountID, NULL, MAX_ID_SIZE+1 );
 /*
-	m_iSelMsgEvent[0] = -1;		// ÀÌ¹êÆ® °ü·Ã ÃÊ±âÈ­ ^^;
+	m_iSelMsgEvent[0] = -1;		// ???T ??? ???? ^^;
 	m_iSelMsgEvent[1] = -1;
 	m_iSelMsgEvent[2] = -1;
 	m_iSelMsgEvent[3] = -1;
@@ -233,7 +233,7 @@ void CUser::CloseProcess()
 	if( m_sExchangeUser != -1 )
 		ExchangeCancel();
 
-/* ºÎµð Àß ÀÛµ¿ÇÏ±æ ¤Ð.¤Ð
+/* ?e? ?? ?????? ??.??
 	if (!m_bZoneChangeFlag) {
 		if (m_pUserData->m_bZone == ZONE_BATTLE || (m_pUserData->m_bZone != m_pUserData->m_bNation && m_pUserData->m_bZone < 3) ) {	
 			_HOME_INFO* pHomeInfo = NULL;	// Send user back home in case it was the battlezone.
@@ -251,7 +251,7 @@ void CUser::CloseProcess()
 				m_pUserData->m_curz = pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ); 
 			}
 		}
-		TRACE("º»±¹À¸·Î Àß ÀúÀåµÇ¾úÀ»°Å¾ß. °ÆÁ¤¸¶!!!\r\n");
+		TRACE("??????? ?? ????????ž?. ?????!!!\r\n");
 	}
 */
 
@@ -492,7 +492,7 @@ void CUser::Parsing(int len, char *pData)
 	case WIZ_ZONE_CONCURRENT:
 		ZoneConCurrentUsers( pData+index );
 		break;
-	case WIZ_VIRTUAL_SERVER:	// ÀÎ¿øÃ¼Å©°¡ ³¡³ª°í ÇØ´ç ¼­¹ö·Î °¡µµ ÁÁ´Ù´Â Çã¶ôÀ» ¹Þ¾Ò´Ù
+	case WIZ_VIRTUAL_SERVER:	// ???üu?? ?????? ??? ????? ???? ???? ???? ????
 		ServerChangeOk( pData+index );
 		break;
 	case WIZ_PARTY_BBS:
@@ -556,6 +556,7 @@ void CUser::VersionCheck(char *pBuf)
 	char send_buff[128];
 	memset( send_buff, NULL, 128 );
 
+<<<<<<< .mine
 	/*
 	char strAccountID[MAX_ID_SIZE+1];
 	memset(strAccountID, 0x00, MAX_ID_SIZE+1);
@@ -565,20 +566,47 @@ void CUser::VersionCheck(char *pBuf)
 		return;
 	*/
 
+=======
+	/*
+	client data in 2b
+	FFFF
+	(short)account length
+	account string
+	*/
+
+
+
+>>>>>>> .theirs
 	SetByte( send_buff, WIZ_VERSION_CHECK, send_index );
+<<<<<<< .mine
 #if __VERSION >= 1800
 	SetByte(send_buff, 0, send_index); // unknown
 #endif
 	SetShort(send_buff, __VERSION, send_index );
+=======
+	SetByte( send_buff, 0x00, send_index );
+	SetShort( send_buff, __VERSION, send_index );
+
+
+>>>>>>> .theirs
 	// Cryption
 	SetInt64(send_buff, m_Public_key, send_index);
 	///~
+<<<<<<< .mine
 	SetByte(send_buff, 0, send_index); // 0 = success, 1 = prem error
 #if __VERSION < 1700
 	SendCompressingPacket(send_buff, send_index);
 #else // doesn't seem to bother "compressing" it anymore
 	Send(send_buff, send_index);
 #endif
+=======
+	SetByte( send_buff, 0x00, send_index );
+	Send( send_buff, send_index );
+
+
+
+
+>>>>>>> .theirs
 	// Cryption
 	m_CryptionFlag = 1;
 	///~
@@ -587,6 +615,8 @@ void CUser::VersionCheck(char *pBuf)
 void CUser::LoginProcess(char *pBuf )
 {
 	int index = 0, send_index = 0, retvalue = 0;
+	short unka;
+	int unkb;
 
 	char accountid[MAX_ID_SIZE+1];
 	memset( accountid, NULL, MAX_ID_SIZE+1 );
@@ -603,6 +633,23 @@ void CUser::LoginProcess(char *pBuf )
 		|| !GetKOString(pBuf, password, index, MAX_PW_SIZE))
 		goto fail_return;
 
+<<<<<<< .mine
+
+
+
+
+
+
+
+=======
+	pwdlen = GetShort( pBuf, index );
+	if ( pwdlen > MAX_PW_SIZE || pwdlen <= 0)
+		goto fail_return;
+	GetString( password, pBuf, pwdlen, index );
+	unka = GetShort( pBuf, index );
+	unkb = GetDWORD( pBuf, index );
+
+>>>>>>> .theirs
 	pUser = m_pMain->GetUserPtr( accountid, 0x01 );
 	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) {
 		pUser->UserDataSaveToAgent();
@@ -744,7 +791,7 @@ void CUser::DelCharToAgent(char *pBuf)
 	// ~sungyong tw
 	GetString( socno, pBuf, soclen, index );
 
-	// ´ÜÀåÀº Ä³¸¯ »èÁ¦°¡ ¾ÈµÇ°Ô, ¸ÕÀú Å¬·£À» Å»Åð ÈÄ »èÁ¦°¡ µÇµµ·Ï,,
+	// ????? ??? ????? ??j?, ???? U??? Z?? ?? ????? ?????,,
 	if( m_pUserData->m_bKnights > 0 && m_pUserData->m_bFame == CHIEF)	goto fail_return;	
 
 	SetByte( send_buff, WIZ_DEL_CHAR, send_index );
@@ -828,8 +875,21 @@ void CUser::SelCharToAgent(char *pBuf)
 	zone = GetByte( pBuf, index );
 	
 	if( _strnicmp( accountid, m_strAccountID, MAX_ID_SIZE ) != 0 ) {
+<<<<<<< .mine
 		Close();
 		return;
+
+
+
+
+=======
+		pUser = m_pMain->GetUserPtr( accountid, 0x01 );
+		if( pUser && (pUser->m_Sid != m_Sid) ) {
+			pUser->Close();
+			goto fail_return;
+		}
+		strcpy( m_strAccountID, accountid );	// ???? ?? ???? ?a??? ??????? ??????...
+>>>>>>> .theirs
 	}
 
 	pUser = m_pMain->GetUserPtr( userid, 0x02 );
@@ -838,7 +898,7 @@ void CUser::SelCharToAgent(char *pBuf)
 		goto fail_return;
 	}
 
-	// À½³É,, ¿©±â¼­ Á¸À» ºñ±³,,,
+	// ???,, ???? ?? ??,,,
 	if( zone <= 0 )	{
 		TRACE("### SelCharToAgent zone Fail : zone=%d\n", zone);
 		goto fail_return;
@@ -946,7 +1006,7 @@ void CUser::SelectCharacter(char *pBuf)
 		return;
 	}
 
-	// ÀüÀïÁßÀÌ ¾Æ´Ñ»óÅÂ¿¡¼­´Â ´ëÀåÀ¯Àú°¡->ÀÏ¹Ý´ÜÀåÀ¸·Î
+	// ???????? ?????¿????? ???????->?????????
 	if( m_pMain->m_byBattleOpen == NO_BATTLE && m_pUserData->m_bFame == COMMAND_CAPTAIN )	{
 		m_pUserData->m_bFame = CHIEF;
 	}
@@ -985,17 +1045,17 @@ void CUser::SelectCharacter(char *pBuf)
 	SetByte( send_buff, m_pMain->m_byOldVictory, send_index );
 	Send( send_buff, send_index );
 
-	SetDetailData();	// µðºñ¿¡ ¾ø´Â µ¥ÀÌÅÍ ¼ÂÆÃ...
+	SetDetailData();	// ??? ??? ?????? ????...
 
 	//TRACE("SelectCharacter 111 - id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
 
-	// sungyong ,, zone server : Ä«·ç½º¿Í ÀüÀïÁ¸À» ÇÕÄ¡¹Ç·Î ÀÎÇØ¼­,,
-	// ÀüÀïÁ¸ÀÏ¶§ ... 
+	// sungyong ,, zone server : i???? ?????? ??g??? ?????,,
+	// ???????? ... 
 	if( m_pUserData->m_bZone > 2)	
 	{
-		// ³ªÀÇ ±â»ç´Ü ¸®½ºÆ®¿¡¼­ ³»°¡ ±â»ç´Ü Á¤º¸¿¡ ÀÖ´ÂÁö¸¦ °Ë»öÇØ¼­ ¸¸¾à ¾øÀ¸¸é 
-		// Ãß°¡ÇÑ´Ù(´Ù¸¥Á¸¿¡¼­ ±â»ç´Ü¿¡ °¡ÀÔµÈ °æ¿ì)
-		if( m_pUserData->m_bKnights == -1)	{	// Ãß¹æµÈ À¯Àú
+		// ???? ???? ????T???? ???? ???? ????? ????? ?????? ???? ????? 
+		// ??????(???????? ????? ????? ???)
+		if( m_pUserData->m_bKnights == -1)	{	// ???? ???
 			m_pUserData->m_bKnights = 0;
 			m_pUserData->m_bFame = 0;
 			//TRACE("SelectCharacter - id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
@@ -1007,7 +1067,7 @@ void CUser::SelectCharacter(char *pBuf)
 				m_pMain->m_KnightsManager.SetKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id );
 			}
 			else	{
-				//TRACE("SelectCharacter - ±â»ç´Ü ¸®½ºÆ® ¿äÃ»,, id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
+				//TRACE("SelectCharacter - ???? ????T ??û,, id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
 				memset( send_buff, 0x00, 256);	send_index = 0;
 				SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
 				SetByte( send_buff, KNIGHTS_LIST_REQ+0x10, send_index );
@@ -1019,16 +1079,16 @@ void CUser::SelectCharacter(char *pBuf)
 
 				pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
 				if( pKnights )	{
-					//TRACE("SelectCharacter - ±â»ç´Ü ¸®½ºÆ® Ãß°¡,, id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
+					//TRACE("SelectCharacter - ???? ????T ???,, id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
 					m_pMain->m_KnightsManager.SetKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id );
 				}
 			}
 		}
 	}
 	else	{	
-		// ³ªÀÇ ±â»ç´Ü ¸®½ºÆ®¿¡¼­ ³»°¡ ±â»ç´Ü Á¤º¸¿¡ ÀÖ´ÂÁö¸¦ °Ë»öÇØ¼­ ¸¸¾à ¾øÀ¸¸é 
-		// Ãß°¡ÇÑ´Ù(´Ù¸¥Á¸¿¡¼­ ±â»ç´Ü¿¡ °¡ÀÔµÈ °æ¿ì)
-		if( m_pUserData->m_bKnights == -1)	{	// Ãß¹æµÈ À¯Àú
+		// ???? ???? ????T???? ???? ???? ????? ????? ?????? ???? ????? 
+		// ??????(???????? ????? ????? ???)
+		if( m_pUserData->m_bKnights == -1)	{	// ???? ???
 			m_pUserData->m_bKnights = 0;
 			m_pUserData->m_bFame = 0;
 			//TRACE("SelectCharacter - id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
@@ -1039,7 +1099,7 @@ void CUser::SelectCharacter(char *pBuf)
 			if( pKnights )	{
 				m_pMain->m_KnightsManager.SetKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id );
 			}
-			else {			// ±â»ç´ÜÀÌ ÆÄ±«µÇ¾î ÀÖÀ½À¸·Î.. 
+			else {			// ?????? ?i???? ??????.. 
 				m_pUserData->m_bKnights = 0;
 				m_pUserData->m_bFame = 0;
 			}
@@ -1114,12 +1174,12 @@ void CUser::LogOut()
 	pUser = m_pMain->GetUserPtr( m_pUserData->m_Accountid, 0x01 );
 	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) 
 	{
-		TRACE("%s : %s Logout: Sid °¡ ´Ù¸¥ °æ¿ì...\n", m_pUserData->m_Accountid, m_pUserData->m_id);
+		TRACE("%s : %s Logout: Sid ?? ??? ???...\n", m_pUserData->m_Accountid, m_pUserData->m_id);
 		return;
 	}
 	else 
 	{
-		if( strlen( m_pUserData->m_id ) == 0 ) return; // ÀÌ¹Ì À¯Àú°¡ ºüÁø °æ¿ì.. 
+		if( strlen( m_pUserData->m_id ) == 0 ) return; // ??? ??? ???? ???.. 
 
 		SetByte( send_buf, WIZ_LOGOUT, send_index );
 		SetShort( send_buf, m_Sid, send_index );
@@ -1176,7 +1236,7 @@ void CUser::MoveProcess(char *pBuf )
 
 //	real_y = m_pMain->m_ZoneArray[m_iZoneIndex]->GetHeight(	real_x, real_y, real_z );
 
-//	if( speed > 60 ) {	// client ¿¡¼­ ÀÌ¼öÄ¡º¸´Ù Å©°Ô º¸³¾¶§°¡ ¸¹À½...
+//	if( speed > 60 ) {	// client ???? ???g???? u?? ???????? ???...
 //		if( m_bSpeedAmount == 100 )
 //			speed = 0;
 //	}
@@ -1187,16 +1247,16 @@ void CUser::MoveProcess(char *pBuf )
 	}
 
 	if( speed != 0 ) {
-		m_pUserData->m_curx = m_fWill_x;	// °¡Áö°í ÀÖ´ø ´ÙÀ½ÁÂÇ¥¸¦ ÇöÀçÁÂÇ¥·Î ¼ÂÆÃ...
+		m_pUserData->m_curx = m_fWill_x;	// ????? ??? ?????g?? ??????g?? ????...
 		m_pUserData->m_curz = m_fWill_z;
 		m_pUserData->m_cury = m_fWill_y;
 
-		m_fWill_x = will_x/10.0f;	// ´ÙÀ½ÁÂÇ¥¸¦ ±â¾ï....
+		m_fWill_x = will_x/10.0f;	// ?????g?? ???....
 		m_fWill_z = will_z/10.0f;
 		m_fWill_y = will_y/10.0f;
 	}
 	else {
-		m_pUserData->m_curx = m_fWill_x = will_x/10.0f;	// ´ÙÀ½ÁÂÇ¥ == ÇöÀç ÁÂÇ¥...
+		m_pUserData->m_curx = m_fWill_x = will_x/10.0f;	// ?????g == ???? ??g...
 		m_pUserData->m_curz = m_fWill_z = will_z/10.0f;
 		m_pUserData->m_cury = m_fWill_y = will_y/10.0f;
 	}
@@ -1253,7 +1313,7 @@ void CUser::UserInOut(BYTE Type)
 	if( Type == USER_OUT ) {
 		m_pMain->Send_Region( buff, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, this );
 
-		// AI ServerÂÊÀ¸·Î Á¤º¸ Àü¼Û..
+		// AI Server????? ??? ???..
 		send_index=0;
 		memset( buff, 0x00, 256 );
 		SetByte( buff, AG_USER_INOUT, send_index );
@@ -1301,7 +1361,7 @@ void CUser::UserInOut(BYTE Type)
 	SetByte( buff, m_pUserData->m_bFace, send_index );
 	SetByte( buff, m_pUserData->m_bHairColor, send_index );
 	SetByte( buff, m_bResHpType, send_index );
-// ºñ·¯¸Ó±Û ¼ö´É...
+// ????? ???...
 	SetByte( buff, m_bAbnormalType, send_index );
 //
 	SetByte( buff, m_bNeedParty, send_index );
@@ -1326,8 +1386,8 @@ void CUser::UserInOut(BYTE Type)
 //	TRACE("USERINOUT - %d, %s\n", m_Sid, m_pUserData->m_id);
 	m_pMain->Send_Region( buff, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, this );
 
-	// AI ServerÂÊÀ¸·Î Á¤º¸ Àü¼Û..
-// ÀÌ°Å ¾ÊµÇµµ ³Ê¹« ¹Ì¿öÇÏÁö ¸¶¼¼¿ä ¤Ì.¤Ì
+	// AI Server????? ??? ???..
+// ??? ???? ?'? ??????? ?????? ??.??
 	if (m_bAbnormalType != ABNORMAL_BLINKING) {
 		send_index=0;
 		memset( buff, 0x00, 256 );
@@ -1377,7 +1437,7 @@ void CUser::Attack(char *pBuf)
 	result = GetByte( pBuf, index );
 //	sid = GetShort( pBuf, index );
 	tid = GetShort( pBuf, index );
-// ºñ·¯¸Ó±Û ÇØÅ·Åø À¯Àú --;
+// ????? ??y?? ??? --;
 	delaytime = GetShort( pBuf, index );
 	distance = GetShort( pBuf,index );
 //
@@ -1397,7 +1457,7 @@ void CUser::Attack(char *pBuf)
 		TRACE("### Attack Fail : name=%s(%d), m_bResHpType=%d, hp=%d###\n", m_pUserData->m_id, m_Sid, m_bResHpType, m_pUserData->m_sHp);
 		return;
 	}
-// ºñ·¯¸Ó±Û ÇØÅ·Åø À¯Àú --;
+// ????? ??y?? ??? --;
 	pTable = m_pMain->m_ItemtableArray.GetData(m_pUserData->m_sItemArray[RIGHTHAND].nNum);	// This checks if such an item exists.
 	if(!pTable && m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0) return;
 	
@@ -1423,7 +1483,7 @@ void CUser::Attack(char *pBuf)
 		    || pTUser->m_pUserData->m_bNation == m_pUserData->m_bNation ) 
 			result = 0x00;
 		else {
-// ºñ·¯¸Ó±Û ÇØÅ·Åø À¯Àú --;
+// ????? ??y?? ??? --;
 			if (pTable) {	// Check if the user is holding a weapon!!! No null pointers allowed!!!
 //				TRACE("Distance : %f  , Table Distance : %f  \r\n", distance, pTable->m_sRange / 10.0f);
 //				if ( distance > (pTable->m_sRange / 10.0f)) {
@@ -1434,7 +1494,7 @@ void CUser::Attack(char *pBuf)
 //
 			damage = GetDamage(tid, 0);
 
-			// ´«½Î¿òÀüÀïÁ¸¿¡¼­ ´«½Î¿òÁßÀÌ¶ó¸é °ø°ÝÀº ´«À» ´øÁö´Â °Í¸¸ °¡´ÉÇÏµµ·Ï,,,
+			// ?????????????? ??????????? ???? ??? ????? ??? ?????????,,,
 			if( m_pUserData->m_bZone == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE )	{
 				damage = 0;		
 			}
@@ -1460,12 +1520,12 @@ void CUser::Attack(char *pBuf)
 
 					GoldChange(tid, 0);
 
-					// ±â¹üÀÌÀÇ ¿Ïº®ÇÑ º¸È£ ÄÚµù!!!
+					// ??????? ????? ??? ???!!!
 					pTUser->InitType3();	// Init Type 3.....
 					pTUser->InitType4();	// Init Type 4.....
 
 					memset( buff, 0x00, 256 );	send_index = 0;
-					if( pTUser->m_pUserData->m_bFame == COMMAND_CAPTAIN )	{	// ÁöÈÖ±ÇÇÑÀÌ ÀÖ´Â À¯Àú°¡ Á×´Â´Ù¸é,, ÁöÈÖ ±ÇÇÑ ¹ÚÅ»
+					if( pTUser->m_pUserData->m_bFame == COMMAND_CAPTAIN )	{	// ????????? ??? ??? ??´??,, ???? ???? ??Z
 						pTUser->m_pUserData->m_bFame = CHIEF;
 						SetByte( buff, WIZ_AUTHORITY_CHANGE, send_index );
 						SetByte( buff, COMMAND_AUTHORITY, send_index );
@@ -1483,7 +1543,7 @@ void CUser::Attack(char *pBuf)
 //
 					if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
 						pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
-						//TRACE("Á¤¸»·Î 1%¸¸ ±ï¿´´Ù´Ï±î¿ä ¤Ð.¤Ð\r\n");
+						//TRACE("????? 1%?? ??????? ??.??\r\n");
 					}
 //
 				}
@@ -1492,10 +1552,10 @@ void CUser::Attack(char *pBuf)
 		}
 	}
 	else if(tid >= NPC_BAND) { // NPC
-		if( m_pMain->m_bPointCheckFlag == FALSE)	return;	// Æ÷ÀÎÅÍ ÂüÁ¶ÇÏ¸é ¾ÈµÊ
+		if( m_pMain->m_bPointCheckFlag == FALSE)	return;	// ?????? ?????? ???
 		pNpc = m_pMain->m_arNpcArray.GetData(tid);		
-		if( pNpc && pNpc->m_NpcState != NPC_DEAD && pNpc->m_iHP > 0 ) {	// Npc »óÅÂ Ã¼Å©..
-// ºñ·¯¸Ó±Û ÇØÅ·Åø À¯Àú --;
+		if( pNpc && pNpc->m_NpcState != NPC_DEAD && pNpc->m_iHP > 0 ) {	// Npc ???? üu..
+// ????? ??y?? ??? --;
 			if (pTable) {	// Check if the user is holding a weapon!!! No null pointers allowed!!!
 //				TRACE("Distance : %f  , Table Distance : %f  \r\n", distance, pTable->m_sRange / 10.0f);
 //				if ( distance > (pTable->m_sRange / 10.0f)) {
@@ -1512,8 +1572,8 @@ void CUser::Attack(char *pBuf)
 //			SetShort( buff, sid, send_index );
 			SetShort( buff, m_Sid, send_index );
 			SetShort( buff, tid, send_index );
-			SetShort( buff, m_sTotalHit * m_bAttackAmount / 100, send_index );   // Ç¥½Ã
-			SetShort( buff, m_sTotalAc + m_sACAmount, send_index );   // Ç¥½Ã
+			SetShort( buff, m_sTotalHit * m_bAttackAmount / 100, send_index );   // g??
+			SetShort( buff, m_sTotalAc + m_sACAmount, send_index );   // g??
 			Setfloat( buff, m_sTotalHitrate, send_index );
 			Setfloat( buff, m_sTotalEvasionrate, send_index ); 
 			SetShort( buff, m_sItemAc, send_index);
@@ -1521,7 +1581,7 @@ void CUser::Attack(char *pBuf)
 			SetByte( buff, m_bMagicTypeRightHand, send_index);
 			SetShort( buff, m_sMagicAmountLeftHand, send_index);
 			SetShort( buff, m_sMagicAmountRightHand, send_index);
-			m_pMain->Send_AIServer(m_pUserData->m_bZone, buff, send_index);	// AI ServerÂÊÀ¸·Î Á¤º¸ Àü¼Û..
+			m_pMain->Send_AIServer(m_pUserData->m_bZone, buff, send_index);	// AI Server????? ??? ???..
 			return;
 		}
 	}
@@ -1538,7 +1598,7 @@ void CUser::Attack(char *pBuf)
 	if( tid < NPC_BAND )	{
 		if( result == 0x02 )	{
 			if( pTUser )	{
-				// À¯Àú¿¡°Ô´Â ¹Ù·Î µ¥µå ÆÐÅ¶À» ³¯¸²... (ÇÑ ¹ø ´õ º¸³¿, À¯·ÉÀ» ¾ø¾Ö±â À§ÇØ¼­)
+				// ????? ??? ???? ??Y? ????... (?? ?? ?? ????, ???? ???? ????)
 				pTUser->Send( buff, send_index );
 				memset(buff, 0x00, 256);
 				wsprintf(buff, "*** User Attack Dead, id=%s, result=%d, type=%d, HP=%d", pTUser->m_pUserData->m_id, result, pTUser->m_bResHpType, pTUser->m_pUserData->m_sHp);
@@ -1606,10 +1666,9 @@ void CUser::SendMyInfo()
 		m_pUserData->m_cury = 7;
 	}
 */
-
 	SetByte( send_buff, WIZ_MYINFO, send_index );
 	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, strlen(m_pUserData->m_id), send_index );
+	SetByte( send_buff, strlen(m_pUserData->m_id), send_index );
 	SetString( send_buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index );
 
 	SetShort( send_buff, (WORD)m_pUserData->m_curx*10, send_index );
@@ -1621,45 +1680,74 @@ void CUser::SendMyInfo()
 	SetShort( send_buff, m_pUserData->m_sClass, send_index );
 	SetByte( send_buff, m_pUserData->m_bFace, send_index );
 	SetByte( send_buff, m_pUserData->m_bHairColor, send_index );
+	SetByte( send_buff, 0x23, send_index );//r
+	SetByte( send_buff, 0x23, send_index );//g
+	SetByte( send_buff, 0x23, send_index );//b
 	SetByte( send_buff, m_pUserData->m_bRank, send_index );
 	SetByte( send_buff, m_pUserData->m_bTitle, send_index );
 	SetByte( send_buff, m_pUserData->m_bLevel, send_index );
-	SetByte( send_buff, m_pUserData->m_bPoints, send_index );
-	SetDWORD( send_buff, m_iMaxExp, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iExp, send_index );
+	SetShort( send_buff, m_pUserData->m_bPoints, send_index );
+	SetInt64( send_buff, m_iMaxExp, send_index );
+	SetInt64( send_buff, m_pUserData->m_iExp, send_index );
 	SetDWORD( send_buff, m_pUserData->m_iLoyalty, send_index );
-	SetByte( send_buff, m_pUserData->m_bCity, send_index );
+	SetDWORD( send_buff, m_pUserData->m_iLoyalty, send_index );//leader points
+	//SetByte( send_buff, m_pUserData->m_bCity, send_index );
 	SetShort( send_buff, m_pUserData->m_bKnights, send_index );
-	SetByte( send_buff, m_pUserData->m_bFame, send_index );
+	SetShort( send_buff, m_pUserData->m_bFame, send_index );
 
 	if( m_pUserData->m_bKnights == 0 )	{
-		SetShort( send_buff, 0, send_index );
-		SetByte( send_buff, 0, send_index );
-		SetByte( send_buff, 0, send_index );
+		SetByte( send_buff, 0, send_index );//mystery
+		SetByte( send_buff, 0, send_index );//type
+		SetByte( send_buff, 0, send_index );//name len
+		SetByte( send_buff, 0, send_index );//grade
+		SetByte( send_buff, 0, send_index );//rank
+		SetShort( send_buff, 0, send_index );//symbol type
+		SetShort( send_buff, 0xFFFF, send_index );//cape num
+		SetByte( send_buff, 0, send_index );//cape r
+		SetByte( send_buff, 0, send_index );//cape g
+		SetByte( send_buff, 0, send_index );//cape b
 	}
 	else {
 		pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
 		if( pKnights )	{
 			iLength = strlen( pKnights->m_strName );
-			SetShort( send_buff, iLength, send_index );
+
+			SetByte( send_buff, 0, send_index );//mystery
+			SetByte( send_buff, 0, send_index );//type
+			SetByte( send_buff, iLength, send_index );
 			SetString( send_buff, pKnights->m_strName, iLength, send_index );
-			SetByte( send_buff, pKnights->m_byGrade, send_index ); // Knights grade
-			SetByte( send_buff, pKnights->m_byRanking, send_index ); // Knights grade
-			//TRACE("sendmyinfo knights index = %d, kname=%s, name=%s\n" , iLength, pKnights->strName, m_pUserData->m_id);
+			SetByte( send_buff, pKnights->m_byGrade, send_index );
+			SetByte( send_buff, pKnights->m_byRanking, send_index );
+			SetShort( send_buff, 0, send_index );//symbol type
+			SetShort( send_buff, 0xFFFF, send_index );//cape num
+			SetByte( send_buff, 0, send_index );//cape r
+			SetByte( send_buff, 0, send_index );//cape g
+			SetByte( send_buff, 0, send_index );//cape b
 		}
 		else	{
-			SetShort( send_buff, 0, send_index );
-			SetByte( send_buff, 0, send_index );
-			SetByte( send_buff, 0, send_index );
+			SetByte( send_buff, 0, send_index );//mystery
+			SetByte( send_buff, 0, send_index );//type
+			SetByte( send_buff, 0, send_index );//name len
+			SetByte( send_buff, 0, send_index );//grade
+			SetByte( send_buff, 0, send_index );//rank
+			SetShort( send_buff, 0, send_index );//symbol type
+			SetShort( send_buff, 0xFFFF, send_index );//cape num
+			SetByte( send_buff, 0, send_index );//cape r
+			SetByte( send_buff, 0, send_index );//cape g
+			SetByte( send_buff, 0, send_index );//cape b
 		}
 	}
-
+	SetByte( send_buff, 0x00, send_index );
+	SetByte( send_buff, 0x00, send_index );
+	SetByte( send_buff, 0x00, send_index );
+	SetByte( send_buff, 0x00, send_index );
+	SetByte( send_buff, 0x00, send_index );
 	SetShort( send_buff, m_iMaxHp, send_index );
 	SetShort( send_buff, m_pUserData->m_sHp, send_index );
 	SetShort( send_buff, m_iMaxMp, send_index );
 	SetShort( send_buff, m_pUserData->m_sMp, send_index );
-	SetShort( send_buff, m_sMaxWeight, send_index );
-	SetShort( send_buff, m_sItemWeight, send_index );
+	SetDWORD( send_buff, m_sMaxWeight, send_index );
+	SetDWORD( send_buff, m_sItemWeight, send_index );
 	SetByte( send_buff, m_pUserData->m_bStr, send_index );
 	SetByte( send_buff, m_sItemStr, send_index );
 	SetByte( send_buff, m_pUserData->m_bSta, send_index );
@@ -1683,24 +1771,23 @@ void CUser::SendMyInfo()
 // ÀÌ°Å ³ªÁß¿¡ ²À ÁÖ¼®ÇØ --;
 	SetByte( send_buff, m_pUserData->m_bAuthority, send_index );
 //
+	SetByte( send_buff, 0xFF, send_index );//rank nat
+	SetByte( send_buff, 0xFF, send_index );//rank ldr
 	for(i=0; i<9; i++)
 		SetByte(send_buff, m_pUserData->m_bstrSkill[i], send_index);
 
-	for(i=0; i<SLOT_MAX; i++ ) {
+	for(i=0; i<HAVE_MAX+SLOT_MAX + COSP_MAX + MBAG_MAX; i++ ) {
 		SetDWORD( send_buff, m_pUserData->m_sItemArray[i].nNum, send_index );
 		SetShort( send_buff, m_pUserData->m_sItemArray[i].sDuration, send_index );
 		SetShort( send_buff, m_pUserData->m_sItemArray[i].sCount, send_index );
-	}
-
-	for( i=0; i<HAVE_MAX; i++ ) {
-		SetDWORD( send_buff, m_pUserData->m_sItemArray[SLOT_MAX+i].nNum, send_index );
-		SetShort( send_buff, m_pUserData->m_sItemArray[SLOT_MAX+i].sDuration, send_index );
-		SetShort( send_buff, m_pUserData->m_sItemArray[SLOT_MAX+i].sCount, send_index );
+		SetInt64( send_buff, 0, send_index );//special data
+		SetShort( send_buff, 0, send_index );//special data
+		SetByte( send_buff, 0, send_index );//special data
 	}
 
 	Send( send_buff, send_index );
 
-	// AI ServerÂÊÀ¸·Î Á¤º¸ Àü¼Û..
+	// AI Server????? ??? ???..
 	int  ai_send_index = 0;
 	char ai_send_buff[256];
 	memset( ai_send_buff, NULL, 256);
@@ -1715,8 +1802,8 @@ void CUser::SendMyInfo()
 	SetByte( ai_send_buff, m_pUserData->m_bLevel, ai_send_index );
 	SetShort( ai_send_buff, m_pUserData->m_sHp, ai_send_index );
 	SetShort( ai_send_buff, m_pUserData->m_sMp, ai_send_index );
-	SetShort( ai_send_buff, m_sTotalHit * m_bAttackAmount / 100, ai_send_index );  // Ç¥½Ã
-	SetShort( ai_send_buff, m_sTotalAc + m_sACAmount, ai_send_index );  // Ç¥½Ã
+	SetShort( ai_send_buff, m_sTotalHit * m_bAttackAmount / 100, ai_send_index );  // g??
+	SetShort( ai_send_buff, m_sTotalAc + m_sACAmount, ai_send_index );  // g??
 	Setfloat( ai_send_buff, m_sTotalHitrate, ai_send_index );
 	Setfloat( ai_send_buff, m_sTotalEvasionrate, ai_send_index );
 
@@ -1755,7 +1842,7 @@ void CUser::Chat(char *pBuf)
 
 	if( type == PUBLIC_CHAT ) {
 		if( m_pUserData->m_bAuthority != 0 ) return;
-		//sprintf( finalstr, "#### °øÁö : %s ####", chatstr );
+		//sprintf( finalstr, "#### ???? : %s ####", chatstr );
 		::_LoadStringFromResource(IDP_ANNOUNCEMENT, buff);
 		sprintf( finalstr, buff.c_str(), chatstr );
 	}
@@ -1776,7 +1863,7 @@ void CUser::Chat(char *pBuf)
 		break;
 	case PRIVATE_CHAT:
 		if( m_sPrivateChatUser < 0 || m_sPrivateChatUser >= MAX_USER ) break;
-		if( m_sPrivateChatUser == m_Sid) break;		// ÀÌ°Ç ³»°¡ Ãß°¡ÇßÁö·Õ :P
+		if( m_sPrivateChatUser == m_Sid) break;		// ??? ???? ???????? :P
 		pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_sPrivateChatUser];
 		if( !pUser || (pUser->GetState() != STATE_GAMESTART) ) break;
 		pUser->Send( send_buff, send_index );
@@ -1800,7 +1887,7 @@ void CUser::Chat(char *pBuf)
 		m_pMain->Send_All( send_buff, send_index );
 		break;
 	case COMMAND_CHAT:
-		if( m_pUserData->m_bFame == COMMAND_CAPTAIN )		// ÁöÈÖ±ÇÀÚ¸¸ Ã¤ÆÃÀÌ µÇµµ·Ï
+		if( m_pUserData->m_bFame == COMMAND_CAPTAIN )		// ???????? ä???? ?????
 			m_pMain->Send_CommandChat( send_buff, send_index, m_pUserData->m_bNation, this );
 		break;
 	//case WAR_SYSTEM_CHAT:
@@ -1826,7 +1913,7 @@ void CUser::SetMaxHp(int iFlag)
 	else	{
 		m_iMaxHp = (short)(((p_TableCoefficient->HP * m_pUserData->m_bLevel * m_pUserData->m_bLevel * temp_sta ) 
 		      + (0.1 * m_pUserData->m_bLevel * temp_sta ) + (temp_sta / 5)) + m_sMaxHPAmount + m_sItemMaxHp);
-		if( iFlag == 1 )	m_pUserData->m_sHp = m_iMaxHp + 20;		// Á¶±Ý ´õ hp¸¦ ÁÖ¸é ÀÚµ¿À¸·Î hpchange()ÇÔ¼ö°¡ ½ÇÇàµÊ,, ²Ç¼ö^^*
+		if( iFlag == 1 )	m_pUserData->m_sHp = m_iMaxHp + 20;		// ??? ?? hp?? ??? ?????? hpchange()??? ?????,, ???^^*
 		else if( iFlag == 2 )	m_iMaxHp = 100;
 		//TRACE("<-- SetMaxHp - name=%s, max=%d, hp=%d\n", m_pUserData->m_id, m_iMaxHp, m_pUserData->m_sHp);
 	}
@@ -1856,7 +1943,7 @@ void CUser::SetMaxMp()
 		m_iMaxMp = (short)((p_TableCoefficient->MP * m_pUserData->m_bLevel * m_pUserData->m_bLevel * temp_intel)
 				  + (0.1f * m_pUserData->m_bLevel * 2 * temp_intel) + (temp_intel / 5));
 		m_iMaxMp += m_sItemMaxMp;		
-		m_iMaxMp += 20;		 // ¼º·¡¾¾ ¿äÃ»
+		m_iMaxMp += 20;		 // ?????? ??û
 	}
 	else if( p_TableCoefficient->SP != 0)
 	{
@@ -1871,9 +1958,9 @@ void CUser::SetMaxMp()
 	}
 }
 
-void CUser::Regene(char *pBuf, int magicid)	// ³Ê¹« °³ÆÇÀÌ¶ó ³ªÁß¿¡ ¹Ýµå½Ã ¼öÁ¤ÇØ¾ß ÇÒ ÇÔ¼ö.... 
+void CUser::Regene(char *pBuf, int magicid)	// ?'? ??????? ????? ???? ?????? ?? ???.... 
 {
-//	Corpse();		// Get rid of the corpse ~ ¶Ç »ç°íÄ¥»· ÇßÀÚ³ª ÀÌ ¹Ùº¸¾ß!!!
+//	Corpse();		// Get rid of the corpse ~ ?? ???h?? ????? ?? ?????!!!
 
 	InitType3();
 	InitType4();
@@ -1911,7 +1998,7 @@ void CUser::Regene(char *pBuf, int magicid)	// ³Ê¹« °³ÆÇÀÌ¶ó ³ªÁß¿¡ ¹Ýµå½Ã ¼öÁ¤Ç
 
 	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return;
 
-	UserInOut(USER_OUT);	// ¿ø·¡´Â ÀÌ ÇÑÁÙ¹Û¿¡ ¾ø¾úÀ½ --;
+	UserInOut(USER_OUT);	// ??? ?? ?????? ???? --;
 
 	float x = 0.0f, z = 0.0f;
 	x = (float)(myrand( 0, 400 )/100.0f);	z = (float)(myrand( 0, 400 )/100.0f);
@@ -1941,14 +2028,14 @@ void CUser::Regene(char *pBuf, int magicid)	// ³Ê¹« °³ÆÇÀÌ¶ó ³ªÁß¿¡ ¹Ýµå½Ã ¼öÁ¤Ç
 */
 				x = pHomeInfo->BattleZoneX + myrand(0, pHomeInfo->BattleZoneLX);
 				z = pHomeInfo->BattleZoneZ + myrand(0, pHomeInfo->BattleZoneLZ);
-// ºñ·¯¸Ó±Û °³Ã´Á¸ ¹Ù²Ù¾îÄ¡±â >.<
+// ????? ??ô? ????g?? >.<
 				if (m_pUserData->m_bZone == ZONE_SNOW_BATTLE) {
 					x = pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX);
 					z = pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ);					
 				}
 //
 			}
-// ºñ·¯¸Ó±Û ´ºÁ¸ >.<
+// ????? ??? >.<
 			else if (m_pUserData->m_bZone > 10 && m_pUserData->m_bZone < 20) {
 				x = 527 + myrand(0, 10);
 				z = 543 + myrand(0, 10);			
@@ -1969,7 +2056,7 @@ void CUser::Regene(char *pBuf, int magicid)	// ³Ê¹« °³ÆÇÀÌ¶ó ³ªÁß¿¡ ¹Ýµå½Ã ¼öÁ¤Ç
 			m_pUserData->m_curx = x;
 			m_pUserData->m_curz = z;
 		}
-		else {		//  ÃßÈÄ¿¡ Warp ¶û ÇÕÃÄ¾ß ÇÒ°Í °°À½...
+		else {		//  ????? Warp ?? ???l? ??? ???...
 			if (m_pUserData->m_bNation == KARUS) {
 				x = pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX);
 				z = pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ);			
@@ -2018,14 +2105,14 @@ void CUser::Regene(char *pBuf, int magicid)	// ³Ê¹« °³ÆÇÀÌ¶ó ³ªÁß¿¡ ¹Ýµå½Ã ¼öÁ¤Ç
 		m_bRegeneType = REGENE_NORMAL;
 	}
 
-//	ºñ·¯¸Ó±Û Å¬·£ ¼ÒÈ¯!!!
+//	????? U?? ???!!!
 	m_fLastRegeneTime = TimeGet();
 //
 	m_sWhoKilledMe = -1;
 	m_iLostExp = 0;
 //	
 	if (m_bAbnormalType != ABNORMAL_BLINKING) {
-		// AI_server·Î regeneÁ¤º¸ Àü¼Û...	
+		// AI_server?? regene??? ???...	
 		memset( send_buff, NULL, 1024 ); send_index=0;
 		SetByte( send_buff, AG_USER_REGENE, send_index );
 		SetShort( send_buff, m_Sid, send_index );
@@ -2033,10 +2120,10 @@ void CUser::Regene(char *pBuf, int magicid)	// ³Ê¹« °³ÆÇÀÌ¶ó ³ªÁß¿¡ ¹Ýµå½Ã ¼öÁ¤Ç
 		m_pMain->Send_AIServer( m_pUserData->m_bZone, send_buff, send_index);
 	}
 //
-	memset( send_buff, NULL, 1024 ); send_index=0;	// ÀÌ send_index´Â ¿Ö ¾ø¾úÀ»±î??? --;
+	memset( send_buff, NULL, 1024 ); send_index=0;	// ?? send_index?? ?? ????????? --;
 	wsprintf(send_buff, "<------ User Regene ,, nid=%d, name=%s, type=%d ******", m_Sid, m_pUserData->m_id, m_bResHpType);
 	//TimeTrace(send_buff);
-	memset( send_buff, NULL, 1024 ); send_index=0;	// ÀÌ°Å È®ÀÎ»ç»ì·Î Ãß°¡Çß¾î¿ä!!!!
+	memset( send_buff, NULL, 1024 ); send_index=0;	// ??? ?????? ???????!!!!
 		
 	m_RegionX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
 	m_RegionZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
@@ -2103,7 +2190,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 	if( m_pMain->m_byBattleOpen == NATION_BATTLE )	{		// Battle zone open
 		if( m_pUserData->m_bZone == BATTLE_ZONE )	{
-			if( pMap->m_bType == 1 && m_pUserData->m_bNation != zone )	{	// »ó´ë¹æ ±¹°¡·Î ¸ø³Ñ¾î °¡°Ô..
+			if( pMap->m_bType == 1 && m_pUserData->m_bNation != zone )	{	// ???? ?????? ???? ????..
 				if( m_pUserData->m_bNation == KARUS && !m_pMain->m_byElmoradOpenFlag )	{
 					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", m_pUserData->m_id, m_pUserData->m_bNation, m_pMain->m_byElmoradOpenFlag);
 					return;
@@ -2114,12 +2201,12 @@ void CUser::ZoneChange(int zone, float x, float z)
 				}
 			}
 		}
-		else if( pMap->m_bType == 1 && m_pUserData->m_bNation != zone ) {		// »ó´ë¹æ ±¹°¡·Î ¸ø³Ñ¾î °¡°Ô..
+		else if( pMap->m_bType == 1 && m_pUserData->m_bNation != zone ) {		// ???? ?????? ???? ????..
 			return;
 		}
 //
 		else if( pMap->m_bType == 2 && zone == ZONE_FRONTIER ) {	 // You can't go to frontier zone when Battlezone is open.
-//	ºñ·¯¸Ó±Û ¸¶À» µµÂø °øÁö....
+//	????? ??? ???? ????....
 			int temp_index = 0;
 			char temp_buff[128];
 			memset( temp_buff, NULL, 128 );
@@ -2134,7 +2221,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 //
 	}
 	else if( m_pMain->m_byBattleOpen == SNOW_BATTLE )	{					// Snow Battle zone open
-		if( pMap->m_bType == 1 && m_pUserData->m_bNation != zone ) {		// »ó´ë¹æ ±¹°¡·Î ¸ø³Ñ¾î °¡°Ô..
+		if( pMap->m_bType == 1 && m_pUserData->m_bNation != zone ) {		// ???? ?????? ???? ????..
 			return;
 		}
 		else if( pMap->m_bType == 2 && (zone == ZONE_FRONTIER || zone == ZONE_BATTLE ) ) {			// You can't go to frontier zone when Battlezone is open.
@@ -2142,7 +2229,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		}
 	}
 	else	{					// Battle zone close
-		if( pMap->m_bType == 1 && m_pUserData->m_bNation != zone && (zone < 10 || zone > 20))		// »ó´ë¹æ ±¹°¡·Î ¸ø³Ñ¾î °¡°Ô..
+		if( pMap->m_bType == 1 && m_pUserData->m_bNation != zone && (zone < 10 || zone > 20))		// ???? ?????? ???? ????..
 			return;
 	}
 
@@ -2165,7 +2252,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		SetMaxHp();
 	}
 
-	PartyRemove(m_Sid);	// ÆÄÆ¼¿¡¼­ Å»ÅðµÇµµ·Ï Ã³¸®
+	PartyRemove(m_Sid);	// ??????? Z?????? ó??
 
 	//TRACE("ZoneChange ,,, id=%s, nation=%d, zone=%d, x=%.2f, z=%.2f\n", m_pUserData->m_id, m_pUserData->m_bNation, zone, x, z);
 	
@@ -2189,7 +2276,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		SetShort( send_buff, strlen( pInfo->strServerIP ), send_index );
 		SetString( send_buff, pInfo->strServerIP, strlen( pInfo->strServerIP ), send_index );
 		SetShort( send_buff, pInfo->sPort, send_index );
-		SetByte( send_buff, 0x02, send_index );				// Áß°£¿¡ ¼­¹ö°¡ ¹Ù²î´Â °æ¿ì...
+		SetByte( send_buff, 0x02, send_index );				// ????? ???? ???? ???...
 		SetByte( send_buff, m_pUserData->m_bZone, send_index );
 		SetByte( send_buff, m_pMain->m_byOldVictory, send_index );
 		Send( send_buff, send_index );
@@ -2208,7 +2295,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 	SetShort( send_buff, (short)m_pUserData->m_cury*10, send_index );
 	SetByte( send_buff, m_pMain->m_byOldVictory, send_index );
 	Send( send_buff, send_index );
-// ºñ·¯¸Ó±Û ¼ø°£ÀÌµ¿ >.<
+// ????? ????? >.<
 	if (!m_bZoneChangeSameZone) {
 		m_sWhoKilledMe = -1;
 		m_iLostExp = 0;
@@ -2318,7 +2405,7 @@ void CUser::SetDetailData()
 
 	m_iZoneIndex = m_pMain->GetZoneIndex( m_pUserData->m_bZone );
 
-	if( m_iZoneIndex == -1 ) {	// ÀÌ ¼­¹ö¿¡ ¾ø´Â Á¸....
+	if( m_iZoneIndex == -1 ) {	// ?? ???? ??? ?....
 		Close();
 	}
 
@@ -2349,12 +2436,12 @@ void CUser::RegisterRegion()
 		pMap->RegionUserAdd(m_RegionX, m_RegionZ, m_Sid);
 
 		if( m_State == STATE_GAMESTART ) {
-			RemoveRegion( old_region_x - m_RegionX, old_region_z - m_RegionZ );	// delete user ´Â °è»ê ¹æÇâÀÌ ÁøÇà¹æÇâÀÇ ¹Ý´ë...
-			InsertRegion( m_RegionX - old_region_x, m_RegionZ - old_region_z );	// add user ´Â °è»ê ¹æÇâÀÌ ÁøÇà¹æÇâ...
+			RemoveRegion( old_region_x - m_RegionX, old_region_z - m_RegionZ );	// delete user ?? ??? ?????? ????????? ???...
+			InsertRegion( m_RegionX - old_region_x, m_RegionZ - old_region_z );	// add user ?? ??? ?????? ???????...
 			m_pMain->RegionNpcInfoForMe(this);
 			m_pMain->RegionUserInOutForMe(this);
 		}
-//		TRACE("User¸¦ Region¿¡ µî·Ï,, region_x=%d, y=%d\n", m_RegionX, m_RegionZ);
+//		TRACE("User?? Region?? ???,, region_x=%d, y=%d\n", m_RegionX, m_RegionZ);
 	}
 }
 
@@ -2415,7 +2502,7 @@ void CUser::RemoveRegion(int del_x, int del_z)
 	SetByte( buff, m_pUserData->m_bFace, send_index );
 	SetByte( buff, m_pUserData->m_bHairColor, send_index );
 	SetByte( buff, m_bResHpType, send_index );
-// ºñ·¯¸Ó±Û ¼ö´É...
+// ????? ???...
 	SetByte( buff, m_bAbnormalType, send_index );
 //
 	SetByte( buff, m_bNeedParty, send_index );
@@ -2438,15 +2525,15 @@ void CUser::RemoveRegion(int del_x, int del_z)
 	SetShort( buff, m_pUserData->m_sItemArray[LEFTHAND].sDuration, send_index );
 
 */	//////
-	if( del_x != 0 ) {	// x ÃàÀ¸·Î ÀÌµ¿µÇ¾úÀ»¶§...
+	if( del_x != 0 ) {	// x ????? ?????????...
 		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x*2, m_RegionZ+del_z-1 );
 		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x*2, m_RegionZ+del_z );
 		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x*2, m_RegionZ+del_z+1 );
 //		TRACE("Remove : (%d %d), (%d %d), (%d %d)\n", m_RegionX+del_x*2, m_RegionZ+del_z-1, m_RegionX+del_x*2, m_RegionZ+del_z, m_RegionX+del_x*2, m_RegionZ+del_z+1 );
 	}
-	if( del_z != 0 ) {	// z ÃàÀ¸·Î ÀÌµ¿µÇ¾úÀ»¶§...
+	if( del_z != 0 ) {	// z ????? ?????????...
 		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x, m_RegionZ+del_z*2 );
-		if( del_x < 0 ) // x, z Ãà µÑ´Ù ÀÌµ¿µÇ¾úÀ»¶§ °ãÄ¡´Â ºÎºÐ ÇÑ¹ø¸¸ º¸³½´Ù..
+		if( del_x < 0 ) // x, z ?? ??? ????????? ??g?? ??? ??? ??????..
 			m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x+1, m_RegionZ+del_z*2 );
 		else if( del_x > 0 )
 			m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x-1, m_RegionZ+del_z*2 );
@@ -2511,11 +2598,11 @@ void CUser::InsertRegion(int del_x, int del_z)
 	SetByte( buff, m_pUserData->m_bFace, send_index );
 	SetByte( buff, m_pUserData->m_bHairColor, send_index );
 	SetByte( buff, m_bResHpType, send_index );
-// ºñ·¯¸Ó±Û ¼ö´É...
+// ????? ???...
 	SetByte( buff, m_bAbnormalType, send_index );
 //
 	SetByte( buff, m_bNeedParty, send_index );
-// ÀÌ°Íµµ ³ªÁß¿¡ ÁÖ¼® ÇØ --;
+// ???? ????? ??? ?? --;
 	SetByte( buff, m_pUserData->m_bAuthority, send_index );
 //
 	SetDWORD( buff, m_pUserData->m_sItemArray[BREAST].nNum, send_index );
@@ -2535,17 +2622,17 @@ void CUser::InsertRegion(int del_x, int del_z)
 	SetDWORD( buff, m_pUserData->m_sItemArray[LEFTHAND].nNum, send_index );
 	SetShort( buff, m_pUserData->m_sItemArray[LEFTHAND].sDuration, send_index );
 
-	if( del_x != 0 ) {	// x ÃàÀ¸·Î ÀÌµ¿µÇ¾úÀ»¶§...
+	if( del_x != 0 ) {	// x ????? ?????????...
 		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x, m_RegionZ-1 );
 		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x, m_RegionZ );
 		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x, m_RegionZ+1 );
 
 //		TRACE("Insert : (%d %d), (%d %d), (%d %d)\n", m_RegionX+del_x, m_RegionZ-1, m_RegionX+del_x, m_RegionZ, m_RegionX+del_x, m_RegionZ+1 );
 	}
-	if( del_z != 0 ) {	// z ÃàÀ¸·Î ÀÌµ¿µÇ¾úÀ»¶§...
+	if( del_z != 0 ) {	// z ????? ?????????...
 		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX, m_RegionZ+del_z );
 		
-		if( del_x < 0 )	// x, z Ãà µÑ´Ù ÀÌµ¿µÇ¾úÀ»¶§ °ãÄ¡´Â ºÎºÐ ÇÑ¹ø¸¸ º¸³½´Ù..
+		if( del_x < 0 )	// x, z ?? ??? ????????? ??g?? ??? ??? ??????..
 			m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+1, m_RegionZ+del_z );		
 		else if( del_x > 0 )
 			m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX-1, m_RegionZ+del_z );
@@ -2565,7 +2652,7 @@ void CUser::RequestUserIn(char *pBuf)
 	char buff[40960];
 	memset( buff, NULL, 40960 );
 
-	buff_index = 3;	// packet command ¿Í user_count ´Â ³ªÁß¿¡ ¼ÂÆÃÇÑ´Ù...
+	buff_index = 3;	// packet command ?? user_count ?? ????? ???????...
 	user_count = GetShort( pBuf, index );
 	for( i=0; i<user_count; i++ ) {
 		uid = GetShort( pBuf, index );
@@ -2613,11 +2700,11 @@ void CUser::RequestUserIn(char *pBuf)
 			SetByte( buff, pUser->m_pUserData->m_bFace, buff_index );
 			SetByte( buff, pUser->m_pUserData->m_bHairColor, buff_index );
 			SetByte( buff, pUser->m_bResHpType, buff_index );
-// ºñ·¯¸Ó±Û ¼ö´É...
+// ????? ???...
 			SetByte( buff, pUser->m_bAbnormalType, buff_index );
 //
 			SetByte( buff, pUser->m_bNeedParty, buff_index );
-// ¿©±âµÎ ÁÖ¼®Ã³¸®
+// ????? ???ó??
 			SetByte( buff, pUser->m_pUserData->m_bAuthority, buff_index );
 //
 			SetDWORD( buff, pUser->m_pUserData->m_sItemArray[BREAST].nNum, buff_index );
@@ -2654,14 +2741,14 @@ void CUser::RequestUserIn(char *pBuf)
 
 void CUser::RequestNpcIn(char *pBuf)
 {
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return;	// Æ÷ÀÎÅÍ ÂüÁ¶ÇÏ¸é ¾ÈµÊ
+	if( m_pMain->m_bPointCheckFlag == FALSE)	return;	// ?????? ?????? ???
 
 	int index = 0, nid = -1, npc_count = 0, buff_index = 0, t_count = 0, i=0,j=0;
 	CNpc* pNpc = NULL;
 	char buff[20480];
 	memset( buff, NULL, 20480 );
 
-	buff_index = 3;	// packet command ¿Í user_count ´Â ³ªÁß¿¡ ¼ÂÆÃÇÑ´Ù...
+	buff_index = 3;	// packet command ?? user_count ?? ????? ???????...
 	npc_count = GetShort( pBuf, index );
 	for( i=0; i<npc_count; i++ ) {
 		nid = GetShort( pBuf, index );
@@ -2669,7 +2756,7 @@ void CUser::RequestNpcIn(char *pBuf)
 			continue;
 		if( i > 1000 ) break;
 		pNpc = m_pMain->m_arNpcArray.GetData(nid);
-		//if( pNpc && (pNpc->m_NpcState == NPC_LIVE ) ) {	// À½³É,,
+		//if( pNpc && (pNpc->m_NpcState == NPC_LIVE ) ) {	// ???,,
 		if( pNpc )  {
 			SetShort( buff, pNpc->m_sNid, buff_index );
 			SetShort( buff, pNpc->m_sPid, buff_index );
@@ -2833,7 +2920,7 @@ BYTE CUser::GetHitRate(float rate)
 	return result;
 }
 
-void CUser::SetSlotItemValue()	// Âø¿ëÇÑ ¾ÆÀÌÅÛÀÇ °ª(Å¸°Ý·ü, È¸ÇÇÀ², µ¥¹ÌÁö)À» ±¸ÇÑ´Ù.
+void CUser::SetSlotItemValue()	// ????? ???????? ??(Ÿ???, ????, ??????)? ?????.
 {
 	_ITEM_TABLE* pTable = NULL;
 	int item_hit = 0, item_ac = 0;
@@ -2865,7 +2952,7 @@ void CUser::SetSlotItemValue()	// Âø¿ëÇÑ ¾ÆÀÌÅÛÀÇ °ª(Å¸°Ý·ü, È¸ÇÇÀ², µ¥¹ÌÁö)À» ±
 			m_sItemHit += item_hit;
 		if( i == LEFTHAND ) {
 			if( ( m_pUserData->m_sClass == BERSERKER || m_pUserData->m_sClass == BLADE ) )
-	//			m_sItemHit += item_hit * (double)( m_pUserData->m_bstrSkill[PRO_SKILL1] / 60.0 );    // ¼º·¡¾¾ ¿äÃ» ^^;
+	//			m_sItemHit += item_hit * (double)( m_pUserData->m_bstrSkill[PRO_SKILL1] / 60.0 );    // ?????? ??û ^^;
 				m_sItemHit += item_hit * 0.5f;
 		}
 
@@ -3021,8 +3108,8 @@ short CUser::GetDamage(short tid, int magicid)
 	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];	   // Get target info.
 	if( !pTUser || pTUser->m_bResHpType == USER_DEAD ) return -1;
 
-	temp_ac = pTUser->m_sTotalAc + pTUser->m_sACAmount;    // Ç¥½Ã   
-	temp_hit_B = (int)( (m_sTotalHit* m_bAttackAmount * 200 / 100) / (temp_ac + 240) ) ;   // Ç¥½Ã
+	temp_ac = pTUser->m_sTotalAc + pTUser->m_sACAmount;    // g??   
+	temp_hit_B = (int)( (m_sTotalHit* m_bAttackAmount * 200 / 100) / (temp_ac + 240) ) ;   // g??
 
 	if (magicid > 0) {    // Skill/Arrow hit.    
 		pTable = m_pMain->m_MagictableArray.GetData( magicid );     // Get main magic table.
@@ -3060,7 +3147,7 @@ short CUser::GetDamage(short tid, int magicid)
 				result = GetHitRate( (m_sTotalHitrate / pTUser->m_sTotalEvasionrate) * (pType2->sHitRate / 100.0f) );
 			
 			if(pType2->bHitType == 1 /* || pType2->bHitType == 2 */)  {
-				temp_hit = m_sTotalHit * m_bAttackAmount * (pType2->sAddDamage / 100.0f) / 100 ;   // Ç¥½Ã
+				temp_hit = m_sTotalHit * m_bAttackAmount * (pType2->sAddDamage / 100.0f) / 100 ;   // g??
 			}
 			else {
 				temp_hit = temp_hit_B * (pType2->sAddDamage / 100.0f);
@@ -3068,7 +3155,7 @@ short CUser::GetDamage(short tid, int magicid)
 		}
 	}
 	else {    // Normal Hit.     
-		temp_hit = m_sTotalHit * m_bAttackAmount / 100 ;	// Ç¥½Ã
+		temp_hit = m_sTotalHit * m_bAttackAmount / 100 ;	// g??
 		result = GetHitRate( m_sTotalHitrate / pTUser->m_sTotalEvasionrate ); 
 	}
 	
@@ -3100,8 +3187,8 @@ short CUser::GetDamage(short tid, int magicid)
 
 	damage = GetMagicDamage(damage, tid);	// 2. Magical item damage....	
 	damage = GetACDamage(damage, tid);		// 3. Additional AC calculation....	
-//	damage = damage / 2;	// ¼º·¡¾¾ Ãß°¡ ¿äÃ»!!!!
-	damage = damage / 3;	// ¼º·¡¾¾ Ãß°¡ ¿äÃ»!!!!  
+//	damage = damage / 2;	// ?????? ??? ??û!!!!
+	damage = damage / 3;	// ?????? ??? ??û!!!!  
 
 	return damage;	  
 }
@@ -3476,7 +3563,7 @@ void CUser::HpChange(int amount, int type, bool attack)		// type : Received From
 		m_pMain->Send_PartyMember(m_sPartyIndex, buff, send_index);
 	}
 	
-	if( m_pUserData->m_sHp == 0 && attack == false) // Á÷Á¢ °¡°ÝÇØ¼­ Á×´Â°æ¿ì´Â Dead Packet ¾øÀ½
+	if( m_pUserData->m_sHp == 0 && attack == false) // ??? ??????? ??°??? Dead Packet ???
 		Dead();
 }
 
@@ -3521,8 +3608,8 @@ void CUser::Send2AI_UserUpdateInfo()
 	SetByte( send_buf, m_pUserData->m_bLevel, send_index );
 	SetShort( send_buf, m_pUserData->m_sHp, send_index );
 	SetShort( send_buf, m_pUserData->m_sMp, send_index );
-	SetShort( send_buf, m_sTotalHit * m_bAttackAmount / 100 , send_index ); // Ç¥½Ã
-	SetShort( send_buf, m_sTotalAc + m_sACAmount, send_index );  // Ç¥½Ã
+	SetShort( send_buf, m_sTotalHit * m_bAttackAmount / 100 , send_index ); // g??
+	SetShort( send_buf, m_sTotalAc + m_sACAmount, send_index );  // g??
 	Setfloat( send_buf, m_sTotalHitrate, send_index );
 	Setfloat( send_buf, m_sTotalEvasionrate, send_index );
 
@@ -3549,7 +3636,7 @@ void CUser::SetUserAbility()
 	if( m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {
 		pItem = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
 		if( pItem ) {
-			switch(pItem->m_bKind/10) {	// ¹«±â Å¸ÀÔ....
+			switch(pItem->m_bKind/10) {	// ???? Ÿ??....
 			case WEAPON_DAGGER:
 				hitcoefficient = p_TableCoefficient->ShortSword;
 				break;
@@ -3592,9 +3679,9 @@ void CUser::SetUserAbility()
 		}
 	}
 	if( m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 && hitcoefficient == 0.0f ) {
-		pItem = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[LEFTHAND].nNum );	// ¿Þ¼Õ ¹«±â : È° Àû¿ëÀ» À§ÇØ
+		pItem = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[LEFTHAND].nNum );	// ??? ???? : ? ???? ???
 		if( pItem ) {
-			switch(pItem->m_bKind/10) {	// ¹«±â Å¸ÀÔ....
+			switch(pItem->m_bKind/10) {	// ???? Ÿ??....
 			case WEAPON_BOW:
 			case WEAPON_LONGBOW:
 			case WEAPON_LAUNCHER:
@@ -3616,8 +3703,8 @@ void CUser::SetUserAbility()
 	m_sBodyAc = m_pUserData->m_bLevel;
 	m_sMaxWeight = (m_pUserData->m_bStr + m_sItemStr ) * 50;
 /*
-	±Ã¼ö °ø°Ý·Â = 0.005 * È° °ø°Ý·Â * (Dex + 40) + Á÷¾÷°è¼ö * È° °ø°Ý·Â * È­»ì°ø°Ý·Â * ·¹º§ * Dex
-	Àü»ç °ø°Ý·Â = 0.005 * ¹«±â °ø°Ý·Â * (Str + 40) + Á÷¾÷°è¼ö * È° °ø°Ý·Â * È­»ì°ø°Ý·Â * ·¹º§ * Dex
+	?ü? ???? = 0.005 * ? ???? * (Dex + 40) + ????? * ? ???? * ?????? * ???? * Dex
+	??? ???? = 0.005 * ???? ???? * (Str + 40) + ????? * ? ???? * ?????? * ???? * Dex
 */
 	if( bHaveBow ) 
 //		m_sTotalHit = (short)((((0.005 * pItem->m_sDamage * temp_dex) + ( hitcoefficient * pItem->m_sDamage * m_pUserData->m_bLevel * temp_dex )) + 3) * (m_bAttackAmount/100)); 
@@ -3634,7 +3721,7 @@ void CUser::SetUserAbility()
 //	m_sTotalAc = (short)(((p_TableCoefficient->AC * (m_sBodyAc+m_sItemAc) * temp_str )) + m_sACAmount );
 //	m_sTotalAc = (short)(((p_TableCoefficient->AC * (m_sBodyAc + m_sItemAc + m_sACAmount) * temp_str )));
 
-	// ÅäÅ» AC = Å×ÀÌºí ÄÚ¿¡ÇÇ¼ÇÆ® * (·¹º§ + ¾ÆÀÌÅÛ AC + Å×ÀÌºí 4ÀÇ AC)
+	// ??Z AC = ????? ??????T * (???? + ?????? AC + ????? 4?? AC)
 //	m_sTotalAc = (short)(p_TableCoefficient->AC * (m_sBodyAc + m_sItemAc + m_sACAmount));
 	m_sTotalAc = (short)(p_TableCoefficient->AC * (m_sBodyAc + m_sItemAc));
 	m_sTotalHitrate = ((1 + p_TableCoefficient->Hitrate * m_pUserData->m_bLevel *  temp_dex ) * m_sItemHitrate/100 ) * (m_bHitRateAmount/100);
@@ -3690,24 +3777,24 @@ void CUser::ItemMove(char *pBuf)
 			goto fail_return;
 		if( !IsValidSlotPos( pTable, destpos ) )
 			goto fail_return;
-		else if( pTable->m_bSlot == 0x01 || (pTable->m_bSlot == 0x00 && destpos == RIGHTHAND) ) {	// ¿À¸¥¼ÕÀü¿ë ¹«±â(¶Ç´Â ¾ç¼Õ¾µ¼ö ÀÖ°í ÀåÂøÇÏ·Á´Â À§Ä¡°¡ ¿À¸¥¼Õ) ÀÎµ¥ ´Ù¸¥¼Õ¿¡ µÎ¼Õ¾²´Â °æ¿ì Ã¼Å©
+		else if( pTable->m_bSlot == 0x01 || (pTable->m_bSlot == 0x00 && destpos == RIGHTHAND) ) {	// ???????? ????(??? ?????? ??? ???????? ?g?? ?????) ?e? ?????? ?µ???? ??? üu
 			if(m_pUserData->m_sItemArray[LEFTHAND].nNum != 0) {
 				_ITEM_TABLE* pTable2 = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[LEFTHAND].nNum );
 				if( pTable2 ) {
 					if( pTable2->m_bSlot == 0x04 ) {
-						m_pUserData->m_sItemArray[RIGHTHAND].nNum = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum;	// ¿À¸¥¼Õ¿¡ ³Ö±¸..
+						m_pUserData->m_sItemArray[RIGHTHAND].nNum = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum;	// ?????? ???..
 						m_pUserData->m_sItemArray[RIGHTHAND].sDuration = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sDuration;
 						m_pUserData->m_sItemArray[RIGHTHAND].sCount = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sCount;
 						m_pUserData->m_sItemArray[RIGHTHAND].nSerialNum = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
 						if( m_pUserData->m_sItemArray[RIGHTHAND].nSerialNum == 0 )
 							m_pUserData->m_sItemArray[RIGHTHAND].nSerialNum = m_pMain->GenerateItemSerial();
-						m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum = m_pUserData->m_sItemArray[LEFTHAND].nNum; // ¿Þ¼Õ¹«±â¸¦ ÀÎº¥À¸·Î ³Ö¾îÁØ´Ù.
+						m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum = m_pUserData->m_sItemArray[LEFTHAND].nNum; // ?????? ?????? ??????.
 						m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sDuration = m_pUserData->m_sItemArray[LEFTHAND].sDuration;
 						m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sCount = m_pUserData->m_sItemArray[LEFTHAND].sCount;
 						m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nSerialNum = m_pUserData->m_sItemArray[LEFTHAND].nSerialNum;
 						if( m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nSerialNum == 0 )
 							m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nSerialNum = m_pMain->GenerateItemSerial();
-						m_pUserData->m_sItemArray[LEFTHAND].nNum = 0;			// ¿Þ¼ÕÀº ºñ¾îÀÖ°Ô µÇÁö...
+						m_pUserData->m_sItemArray[LEFTHAND].nNum = 0;			// ???? ?????? ????...
 						m_pUserData->m_sItemArray[LEFTHAND].sDuration = 0;
 						m_pUserData->m_sItemArray[LEFTHAND].sCount = 0;
 						m_pUserData->m_sItemArray[LEFTHAND].nSerialNum = 0;
@@ -3749,7 +3836,7 @@ void CUser::ItemMove(char *pBuf)
 					m_pUserData->m_sItemArray[destpos].nSerialNum = m_pMain->GenerateItemSerial();
 			}
 		}
-		else if( pTable->m_bSlot == 0x02 || (pTable->m_bSlot == 0x00 && destpos == LEFTHAND) ) {	// ¿Þ¼ÕÀü¿ë ¹«±â(¶Ç´Â ¾ç¼Õ¾µ¼ö ÀÖ°í ÀåÂøÇÏ·Á´Â À§Ä¡°¡ ¿Þ¼Õ) ÀÎµ¥ ´Ù¸¥¼Õ¿¡ µÎ¼Õ¾²´Â °æ¿ì Ã¼Å©
+		else if( pTable->m_bSlot == 0x02 || (pTable->m_bSlot == 0x00 && destpos == LEFTHAND) ) {	// ?????? ????(??? ?????? ??? ???????? ?g?? ???) ?e? ?????? ?µ???? ??? üu
 			if(m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0) {
 				_ITEM_TABLE* pTable2 = m_pMain->m_ItemtableArray.GetData(m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 				if( pTable2 ) {
@@ -3760,7 +3847,7 @@ void CUser::ItemMove(char *pBuf)
 						m_pUserData->m_sItemArray[LEFTHAND].nSerialNum = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
 						if( m_pUserData->m_sItemArray[LEFTHAND].nSerialNum == 0 )
 							m_pUserData->m_sItemArray[LEFTHAND].nSerialNum = m_pMain->GenerateItemSerial();
-						m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum = m_pUserData->m_sItemArray[RIGHTHAND].nNum; // ¿À¸¥¼Õ¹«±â¸¦ ÀÎº¥À¸·Î ³Ö¾îÁØ´Ù.
+						m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum = m_pUserData->m_sItemArray[RIGHTHAND].nNum; // ???????? ?????? ??????.
 						m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sDuration = m_pUserData->m_sItemArray[RIGHTHAND].sDuration;
 						m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sCount = m_pUserData->m_sItemArray[RIGHTHAND].sCount;
 						m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nSerialNum = m_pUserData->m_sItemArray[RIGHTHAND].nSerialNum;
@@ -3808,7 +3895,7 @@ void CUser::ItemMove(char *pBuf)
 					m_pUserData->m_sItemArray[destpos].nSerialNum = m_pMain->GenerateItemSerial();
 			}
 		}
-		else if( pTable->m_bSlot == 0x03 ) {	// µÎ¼Õ »ç¿ëÇÏ°í ¿À¸¥¼Õ ¹«±â
+		else if( pTable->m_bSlot == 0x03 ) {	// ?µ? ?????? ????? ????
 			if( m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 && m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 )
 				goto fail_return;
 			else if( m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 ) {
@@ -3847,7 +3934,7 @@ void CUser::ItemMove(char *pBuf)
 					m_pUserData->m_sItemArray[destpos].nSerialNum = m_pMain->GenerateItemSerial();
 			}
 		}
-		else if ( pTable->m_bSlot == 0x04 ) {	// µÎ¼Õ »ç¿ëÇÏ°í ¿Þ¼Õ ¹«±â
+		else if ( pTable->m_bSlot == 0x04 ) {	// ?µ? ?????? ??? ????
 			if( m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 && m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 )
 				goto fail_return;
 			else if( m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {
@@ -3999,7 +4086,7 @@ void CUser::ItemMove(char *pBuf)
 		break;
 	}
 
-	if( dir != ITEM_INVEN_INVEN ) {	// ÀåÂøÀÌ ¹Ù²î´Â °æ¿ì¿¡¸¸ °è»ê..
+	if( dir != ITEM_INVEN_INVEN ) {	// ?????? ???? ????? ???..
 		SetSlotItemValue();
 		SetUserAbility();
 	}
@@ -4031,7 +4118,7 @@ void CUser::ItemMove(char *pBuf)
 	BYTE	m_bChaAmount;
 */
 
-//	ºñ·¯¸Ó±Û »çÀÚÀÇ Èû >.<
+//	????? ?????? ?? >.<
 	SetByte( send_buff, WIZ_ITEM_MOVE, send_index );
 	SetByte( send_buff, 0x01, send_index );
 	SetShort( send_buff, m_sTotalHit, send_index );
@@ -4039,11 +4126,11 @@ void CUser::ItemMove(char *pBuf)
 	SetShort( send_buff, m_sMaxWeight, send_index );
 	SetShort( send_buff, m_iMaxHp, send_index );
 	SetShort( send_buff, m_iMaxMp, send_index );
-	SetByte( send_buff, m_sItemStr + m_bStrAmount, send_index );		// ºñ·¯¸Ó±Û »çÀÚÀÇ Èû >.<
-	SetByte( send_buff, m_sItemSta + m_bStaAmount, send_index );		// ºñ·¯¸Ó±Û »çÀÚÀÇ Èû >.<
-	SetByte( send_buff, m_sItemDex + m_bDexAmount, send_index );		// ºñ·¯¸Ó±Û »çÀÚÀÇ Èû >.<
-	SetByte( send_buff, m_sItemIntel + m_bIntelAmount, send_index );	// ºñ·¯¸Ó±Û »çÀÚÀÇ Èû >.<
-	SetByte( send_buff, m_sItemCham + m_bChaAmount, send_index );		// ºñ·¯¸Ó±Û »çÀÚÀÇ Èû >.<
+	SetByte( send_buff, m_sItemStr + m_bStrAmount, send_index );		// ????? ?????? ?? >.<
+	SetByte( send_buff, m_sItemSta + m_bStaAmount, send_index );		// ????? ?????? ?? >.<
+	SetByte( send_buff, m_sItemDex + m_bDexAmount, send_index );		// ????? ?????? ?? >.<
+	SetByte( send_buff, m_sItemIntel + m_bIntelAmount, send_index );	// ????? ?????? ?? >.<
+	SetByte( send_buff, m_sItemCham + m_bChaAmount, send_index );		// ????? ?????? ?? >.<
 	SetByte( send_buff, m_bFireR, send_index );
 	SetByte( send_buff, m_bColdR, send_index );
 	SetByte( send_buff, m_bLightningR, send_index );
@@ -4055,11 +4142,11 @@ void CUser::ItemMove(char *pBuf)
 	SendItemWeight();
 
 	if( (dir == ITEM_INVEN_SLOT ) && ( destpos == HEAD || destpos == BREAST || destpos == SHOULDER || destpos == LEFTHAND || destpos == RIGHTHAND || destpos == LEG || destpos == GLOVE || destpos == FOOT) ) 
-		UserLookChange( destpos, itemid, m_pUserData->m_sItemArray[destpos].sDuration );	// ÀåÂø
+		UserLookChange( destpos, itemid, m_pUserData->m_sItemArray[destpos].sDuration );	// ????
 	if( (dir == ITEM_SLOT_INVEN ) && ( srcpos == HEAD || srcpos == BREAST || srcpos == SHOULDER || srcpos == LEFTHAND || srcpos == RIGHTHAND || srcpos == LEG || srcpos == GLOVE || srcpos == FOOT) ) 
-		UserLookChange( srcpos, 0, 0 );		// ÇØÁ¦
+		UserLookChange( srcpos, 0, 0 );		// ???
 
-	// AI Server¿¡ ¹Ù…Î µ¥ÀÌÅ¸ Àü¼Û....
+	// AI Server?? ??? ????Ÿ ???....
 	Send2AI_UserUpdateInfo();
 
 	return;
@@ -4138,7 +4225,7 @@ BOOL CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)
 
 void CUser::NpcEvent(char *pBuf)
 {
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return;	// Æ÷ÀÎÅÍ ÂüÁ¶ÇÏ¸é ¾ÈµÊ
+	if( m_pMain->m_bPointCheckFlag == FALSE)	return;	// ?????? ?????? ???
 
 	int index = 0, send_index = 0, nid = 0, i=0, temp_index = 0;
 	char send_buf[2048];
@@ -4188,7 +4275,7 @@ void CUser::NpcEvent(char *pBuf)
 	case NPC_WARP:
 		break;
 
-	case NPC_CLERIC:	// ºñ·¯¸Ó±Û Äù½ºÆ® °ü·Ã NPCµé >.<....
+	case NPC_CLERIC:	// ????? ??T ??? NPC?? >.<....
 	case NPC_COUPON:
 	case NPC_MONK_KARUS:
 	case NPC_MONK_ELMORAD:
@@ -4207,7 +4294,7 @@ void CUser::ItemTrade(char *pBuf)
 	memset( send_buf, NULL, 128);
 	BYTE type, pos, destpos, result;
 
-	// »ó°Å·¡ ¾ÈµÇ°Ô...
+	// ??y? ??j?...
 	if( m_bResHpType == USER_DEAD || m_pUserData->m_sHp == 0 )	{
 		TRACE("### ItemTrade Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", m_pUserData->m_id, m_Sid, m_bResHpType, m_pUserData->m_sHp, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
 		result = 0x01;
@@ -4225,7 +4312,7 @@ void CUser::ItemTrade(char *pBuf)
 		destpos = GetByte( pBuf, index );
 	else
 		count = GetShort( pBuf, index );
-//	ºñ·¯¸Ó±Û Å©¸®½º¸¶½º ÀÌ¹êÆ® >.<
+//	????? u???????? ???T >.<
 	if (itemid >= ITEM_NO_TRADE) goto fail_return;
 //
 	if( type == 0x03 ) {	// item inven to inven move
@@ -4324,7 +4411,7 @@ void CUser::ItemTrade(char *pBuf)
 //
 		m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum = itemid;
 		m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;
-		if( pTable->m_bCountable && count > 0 ) {	// count °³³äÀÌ ÀÖ´Â ¾ÆÀÌÅÛ
+		if( pTable->m_bCountable && count > 0 ) {	// count ?????? ??? ??????
 			m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount += count;
 			m_pUserData->m_iGold -= (pTable->m_iBuyPrice * count);
 		}
@@ -4393,7 +4480,7 @@ void CUser::SendTargetHP( BYTE echo, int tid, int damage )
 	if( tid < 0 )
 		return;
 	if( tid >= NPC_BAND ) {
-		if( m_pMain->m_bPointCheckFlag == FALSE)	return;	// Æ÷ÀÎÅÍ ÂüÁ¶ÇÏ¸é ¾ÈµÊ
+		if( m_pMain->m_bPointCheckFlag == FALSE)	return;	// ?????? ?????? ???
 		pNpc = m_pMain->m_arNpcArray.GetData(tid);
 		if( !pNpc )
 			return;
@@ -4452,11 +4539,11 @@ BOOL CUser::IsValidName(char *name)
 	char* szInvalids[] = {	"~", "`", "!", "@", "#", "$", "%", "^", "&", "*",
 							"(", ")", "-", "+", "=", "|", "\\", "<", ">", ",",
 							".", "?", "/", "{", "[", "}", "]", "\"", "\'", " ",
-							"¡¡", "¿î¿µÀÚ", "³ªÀÌÆ®", "µµ¿ì¹Ì", "Knight", "Noahsystem", "Wizgate", "Mgame", "³ë¾Æ½Ã½ºÅÛ", "À§Áî°ÔÀÌÆ®", "¿¥°ÔÀÓ"};
+							"??", "????", "????T", "?????", "Knight", "Noahsystem", "Wizgate", "Mgame", "???ý???", "??????T", "??????"};
 	// taiwan version
 /*	char* szInvalids[] = {	"~", "`", "!", "@", "#", "$", "%", "^", "&", "*",
 							"(", ")", "-", "+", "=", "|", "\\", "<", ">", ",",
-							".", "?", "/", "{", "[", "}", "]", "\"", "\'", " ",	"¡¡" };	*/
+							".", "?", "/", "{", "[", "}", "]", "\"", "\'", " ",	"??" };	*/
 
 
 	BOOL bInvalidStr = FALSE;
@@ -4690,8 +4777,8 @@ void CUser::StateChange(char *pBuf)
 //
 	else {		// Just plain echo :)
 		SetByte( send_buff, buff, send_index );
-//		N3_SP_STATE_CHANGE_ACTION = 0x04,			// 1 - ÀÎ»ç, 11 - µµ¹ß
-//		N3_SP_STATE_CHANGE_VISIBLE = 0x05 };		// Åõ¸í 0 ~ 255
+//		N3_SP_STATE_CHANGE_ACTION = 0x04,			// 1 - ???, 11 - ????
+//		N3_SP_STATE_CHANGE_VISIBLE = 0x05 };		// ??? 0 ~ 255
 	}
 
 	m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ );
@@ -4853,7 +4940,7 @@ void CUser::PartyProcess(char *pBuf)
 		result = GetByte( pBuf, index );
 		if( result ) 
 			PartyInsert();
-		else									// °ÅÀýÇÑ °æ¿ì
+		else									// ?????? ???
 			PartyCancel();
 		break;
 	case PARTY_INSERT:
@@ -4876,7 +4963,7 @@ void CUser::PartyProcess(char *pBuf)
 	}
 }
 
-void CUser::PartyCancel()	// °ÅÀýÇÑ »ç¶÷ÇÑÅ× ¿Â´Ù... ¸®´õ¸¦ Ã£¾Æ¼­ ¾Ë·ÁÁÖ´Â ÇÔ¼ö
+void CUser::PartyCancel()	// ?????? ??????? ?´?... ???? ã??? ?????? ???
 {
 	int send_index = 0, leader_id = -1, count = 0;
 	CUser* pUser = NULL;
@@ -4885,7 +4972,7 @@ void CUser::PartyCancel()	// °ÅÀýÇÑ »ç¶÷ÇÑÅ× ¿Â´Ù... ¸®´õ¸¦ Ã£¾Æ¼­ ¾Ë·ÁÁÖ´Â ÇÔ¼ö
 
 	if( m_sPartyIndex == -1 ) return;
 	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
-	if( !pParty ) {				// ÀÌ»óÇÑ °æ¿ì
+	if( !pParty ) {				// ????? ???
 		m_sPartyIndex = -1;
 		return;
 	}
@@ -4897,13 +4984,13 @@ void CUser::PartyCancel()	// °ÅÀýÇÑ »ç¶÷ÇÑÅ× ¿Â´Ù... ¸®´õ¸¦ Ã£¾Æ¼­ ¾Ë·ÁÁÖ´Â ÇÔ¼ö
 	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[leader_id];
 	if( !pUser ) return;
 
-	for( int i=0; i<8; i++ ) {		// ÆÄÆ¼ »ý¼º½Ã Ãë¼ÒÇÑ°Å¸é..ÆÄÆ¼¸¦ »Ç°³¾ßÁã...
+	for( int i=0; i<8; i++ ) {		// ??? ??? ?????Ÿ?..????? ?j?????...
 		if( pParty->uid[i] >= 0 )
 			count++;
 	}
 
 	if( count == 1 )
-		pUser->PartyDelete();				// ¸®´õ È¥ÀÚÀÌ¸é ÆÄÆ¼ ±úÁü
+		pUser->PartyDelete();				// ???? ?????? ??? ????
 
 	SetByte( send_buff, WIZ_PARTY, send_index );
 	SetByte( send_buff, PARTY_INSERT, send_index );
@@ -4911,7 +4998,7 @@ void CUser::PartyCancel()	// °ÅÀýÇÑ »ç¶÷ÇÑÅ× ¿Â´Ù... ¸®´õ¸¦ Ã£¾Æ¼­ ¾Ë·ÁÁÖ´Â ÇÔ¼ö
 	pUser->Send( send_buff, send_index );
 }
 
-void CUser::PartyRequest(int memberid, BOOL bCreate)	//¸®´õ¿¡°Ô ÆÐÅ¶ÀÌ ¿Â°Å´Ù..
+void CUser::PartyRequest(int memberid, BOOL bCreate)	//????? ??Y?? ?°W?..
 {
 	int index = 0, send_index = 0, result = -1, i=0;
 	CUser* pUser = NULL;
@@ -4921,7 +5008,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)	//¸®´õ¿¡°Ô ÆÐÅ¶ÀÌ ¿Â°Å´Ù..
 	if( memberid < 0 || memberid >= MAX_USER ) goto fail_return;
 	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[memberid];
 	if( !pUser ) goto fail_return;
-	if( pUser->m_sPartyIndex != -1 ) goto fail_return;//ÀÌ¹Ì ÆÄÆ¼ °¡ÀÔµÇ¾î ÀÖÀ¸¸é ¾ÈµÇÂ¡...
+	if( pUser->m_sPartyIndex != -1 ) goto fail_return;//??? ??? ?????? ????? ???¡...
 
 	if( m_pUserData->m_bNation != pUser->m_pUserData->m_bNation ) {
 		result = -3;
@@ -4936,18 +5023,18 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)	//¸®´õ¿¡°Ô ÆÐÅ¶ÀÌ ¿Â°Å´Ù..
 		goto fail_return;
 	}
 
-	if( !bCreate ) {	// ±âÁ¸ÀÇ ÆÄÆ¼¿¡ Ãß°¡ÇÏ´Â °æ¿ì
+	if( !bCreate ) {	// ????? ????? ?????? ???
 		pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
 		if( !pParty ) goto fail_return;
 		for(i=0; i<8; i++) {
 			if( pParty->uid[i] < 0 ) 
 				break;
 		}
-		if( i==8 ) goto fail_return;	// ÆÄÆ¼ ÀÎ¿ø Full
+		if( i==8 ) goto fail_return;	// ??? ??? Full
 	}
 
 	if( bCreate ) {
-		if( m_sPartyIndex != -1 ) goto fail_return;	// (»ý¼ºÀÚ)¸®´õ°¡ ÀÌ¹Ì ÆÄÆ¼ °¡ÀÔµÇ¾î ÀÖÀ¸¸é ¾ÈµÇÂ¡...
+		if( m_sPartyIndex != -1 ) goto fail_return;	// (????)???? ??? ??? ?????? ????? ???¡...
 		m_sPartyIndex = m_pMain->m_sPartyIndex++;
 		if( m_pMain->m_sPartyIndex == 32767 )	
 			m_pMain->m_sPartyIndex = 0;
@@ -4982,9 +5069,9 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)	//¸®´õ¿¡°Ô ÆÐÅ¶ÀÌ ¿Â°Å´Ù..
 
 	pUser->m_sPartyIndex = m_sPartyIndex;
 
-/*	ÆÄÆ¼ BBS¸¦ À§ÇØ Ãß°¡...
+/*	??? BBS?? ??? ???...
 	if (pUser->m_bNeedParty == 2 && pUser->m_sPartyIndex != -1) {
-		pUser->m_bNeedParty = 1;	// ³­ ´õ ÀÌ»ó ÆÄÆ¼°¡ ÇÊ¿äÇÏÁö ¾Ê¾Æ ^^;
+		pUser->m_bNeedParty = 1;	// ?? ?? ??? ????? ??????? ??? ^^;
 		memset( send_buff, 0x00, 256 ); send_index = 0;	
 		SetByte(send_buff, 2, send_index);
 		SetByte(send_buff, pUser->m_bNeedParty, send_index);
@@ -4992,7 +5079,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)	//¸®´õ¿¡°Ô ÆÐÅ¶ÀÌ ¿Â°Å´Ù..
 	}
 
 	if (m_bNeedParty == 2 && m_sPartyIndex != -1) {
-		m_bNeedParty = 1;	// ³­ ´õ ÀÌ»ó ÆÄÆ¼°¡ ÇÊ¿äÇÏÁö ¾Ê¾Æ ^^;
+		m_bNeedParty = 1;	// ?? ?? ??? ????? ??????? ??? ^^;
 		memset( send_buff, 0x00, 256 ); send_index = 0;	
 		SetByte(send_buff, 2, send_index);
 		SetByte(send_buff, m_bNeedParty, send_index);
@@ -5003,7 +5090,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)	//¸®´õ¿¡°Ô ÆÐÅ¶ÀÌ ¿Â°Å´Ù..
 	SetByte( send_buff, WIZ_PARTY, send_index );
 	SetByte( send_buff, PARTY_PERMIT, send_index );
 	SetShort( send_buff, m_Sid, send_index );
-// ¿ø°Å¸®°¡ ¾ÊµÈµ¥ÀÚ³ª ¾¾~
+// ??Ÿ??? ??????? ??~
 	SetShort(send_buff, strlen(m_pUserData->m_id), send_index);	// Create packet.
 	SetString(send_buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index);
 //
@@ -5017,7 +5104,7 @@ fail_return:
 	Send( send_buff, send_index );
 }
 
-void CUser::PartyInsert()	// º»ÀÎÀÌ Ãß°¡ µÈ´Ù.  ¸®´õ¿¡°Ô ÆÐÅ¶ÀÌ °¡´Â°ÍÀÌ ¾Æ´Ô
+void CUser::PartyInsert()	// ?????? ??? ???.  ????? ??Y?? ???°??? ???
 {
 	int send_index = 0, i = 0;
 	CUser* pUser = NULL;
@@ -5026,7 +5113,7 @@ void CUser::PartyInsert()	// º»ÀÎÀÌ Ãß°¡ µÈ´Ù.  ¸®´õ¿¡°Ô ÆÐÅ¶ÀÌ °¡´Â°ÍÀÌ ¾Æ´Ô
 	if( m_sPartyIndex == -1 ) return;
 
 	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
-	if( !pParty ) {				// ÀÌ»óÇÑ °æ¿ì
+	if( !pParty ) {				// ????? ???
 		m_sPartyIndex = -1;
 		return;
 	}
@@ -5049,11 +5136,11 @@ void CUser::PartyInsert()	// º»ÀÎÀÌ Ãß°¡ µÈ´Ù.  ¸®´õ¿¡°Ô ÆÐÅ¶ÀÌ °¡´Â°ÍÀÌ ¾Æ´Ô
 		SetShort( send_buff, pParty->sClass[i], send_index );
 		SetShort( send_buff, pUser->m_iMaxMp, send_index );
 		SetShort( send_buff, pUser->m_pUserData->m_sMp, send_index );
-		Send( send_buff, send_index );	// Ãß°¡µÈ »ç¶÷¿¡°Ô ±âÁ¸ ÀÎ¿ø ´Ù ¹Þ°ÔÇÔ..
+		Send( send_buff, send_index );	// ????? ???? ??? ??? ?? ?????..
 	}
 
 	for(i=0; i<8; i++ ) {
-		if( pParty->uid[i] == -1 ) {		// Party Structure ¿¡ Ãß°¡
+		if( pParty->uid[i] == -1 ) {		// Party Structure ?? ???
 			pParty->uid[i] = m_Sid;
 			pParty->sMaxHp[i] = m_iMaxHp;
 			pParty->sHp[i] = m_pUserData->m_sHp;
@@ -5063,28 +5150,28 @@ void CUser::PartyInsert()	// º»ÀÎÀÌ Ãß°¡ µÈ´Ù.  ¸®´õ¿¡°Ô ÆÐÅ¶ÀÌ °¡´Â°ÍÀÌ ¾Æ´Ô
 		}
 	}
 
-// ÆÄÆ¼ BBS¸¦ À§ÇØ Ãß°¡...	´ëÀåÆÇ!!!
+// ??? BBS?? ??? ???...	??????!!!
 	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[pParty->uid[0]];
 	if( !pUser ) return;
 
-	if (pUser->m_bNeedParty == 2 && pUser->m_sPartyIndex != -1) {	// ÀÌ°Ç ÆÄÆ¼Àå °Í...
-		pUser->m_bNeedParty = 1;	// ³­ ´õ ÀÌ»ó ÆÄÆ¼°¡ ÇÊ¿äÇÏÁö ¾Ê¾Æ ^^;
+	if (pUser->m_bNeedParty == 2 && pUser->m_sPartyIndex != -1) {	// ??? ????? ??...
+		pUser->m_bNeedParty = 1;	// ?? ?? ??? ????? ??????? ??? ^^;
 		memset( send_buff, 0x00, 256 ); send_index = 0;	
 		SetByte(send_buff, 2, send_index);
 		SetByte(send_buff, pUser->m_bNeedParty, send_index);
 		pUser->StateChange(send_buff);
 	}
-// Ãß°¡ ³¡................
+// ??? ??................
 
-// ÆÄÆ¼ BBS¸¦ À§ÇØ Ãß°¡...	ÂÌµû±¸ÆÇ!!!
-	if (m_bNeedParty == 2 && m_sPartyIndex != -1) {		// ÀÌ°Ç ½ÇÁ¦·Î Ãß°¡µÈ »ç¶÷ °Í...
-		m_bNeedParty = 1;	// ³­ ´õ ÀÌ»ó ÆÄÆ¼°¡ ÇÊ¿äÇÏÁö ¾Ê¾Æ ^^;
+// ??? BBS?? ??? ???...	?????!!!
+	if (m_bNeedParty == 2 && m_sPartyIndex != -1) {		// ??? ????? ????? ??? ??...
+		m_bNeedParty = 1;	// ?? ?? ??? ????? ??????? ??? ^^;
 		memset( send_buff, 0x00, 256 ); send_index = 0;	
 		SetByte(send_buff, 2, send_index);
 		SetByte(send_buff, m_bNeedParty, send_index);
 		StateChange(send_buff);
 	}
-// Ãß°¡ ³¡................
+// ??? ??................
 
 	memset( send_buff, 0x00, 256 ); send_index = 0;
 	SetByte( send_buff, WIZ_PARTY, send_index );
@@ -5098,7 +5185,7 @@ void CUser::PartyInsert()	// º»ÀÎÀÌ Ãß°¡ µÈ´Ù.  ¸®´õ¿¡°Ô ÆÐÅ¶ÀÌ °¡´Â°ÍÀÌ ¾Æ´Ô
 	SetShort( send_buff, m_pUserData->m_sClass, send_index );
 	SetShort( send_buff, m_iMaxMp, send_index );
 	SetShort( send_buff, m_pUserData->m_sMp, send_index );
-	m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );	// Ãß°¡µÈ ÀÎ¿øÀ» ºê·ÎµåÄ³½ºÆÃ..
+	m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );	// ????? ???? ??e??????..
 
 	// AI Server
 	BYTE byIndex = i;
@@ -5122,20 +5209,20 @@ void CUser::PartyRemove(int memberid)
 
 	if( m_sPartyIndex == -1 ) return;
 	if( memberid < 0 || memberid >= MAX_USER ) return;
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[memberid];	// Á¦°ÅµÉ »ç¶÷...
+	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[memberid];	// ??w? ???...
 	if( !pUser ) return;
 	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
-	if( !pParty ) {					// ÀÌ»óÇÑ °æ¿ì
+	if( !pParty ) {					// ????? ???
 		pUser->m_sPartyIndex = -1;
 		m_sPartyIndex = -1;
 		return;
 	}
 
-	if( memberid != m_Sid ) {					// ÀÚ±âÀÚ½Å Å»Åð°¡ ¾Æ´Ñ°æ¿ì
-		if( pParty->uid[0] != m_Sid ) return;	// ¸®´õ¸¸ ¸â¹ö »èÁ¦ ÇÒ¼ö ÀÖÀ½..
+	if( memberid != m_Sid ) {					// ?????? Z?? ?????
+		if( pParty->uid[0] != m_Sid ) return;	// ???? ??? ??? ??? ???..
 	}
 	else {
-		if( pParty->uid[0] == memberid ) {		// ¸®´õ°¡ Å»ÅðÇÏ¸é ÆÄÆ¼ ±úÁü
+		if( pParty->uid[0] == memberid ) {		// ???? Z????? ??? ????
 			PartyDelete();
 			return;
 		}
@@ -5149,7 +5236,7 @@ void CUser::PartyRemove(int memberid)
 			count++;
 		}
 	}
-	if( count == 1 ) {		// ¸®´õ È¥ÀÚ ³²Àº °æ¿ì ÆÄÆ¼ ±úÁü
+	if( count == 1 ) {		// ???? ??? ??? ??? ??? ????
 		PartyDelete();
 		return;
 	}
@@ -5158,9 +5245,9 @@ void CUser::PartyRemove(int memberid)
 	SetByte( send_buff, WIZ_PARTY, send_index );
 	SetByte( send_buff, PARTY_REMOVE, send_index );
 	SetShort( send_buff, memberid, send_index );
-	m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );	// »èÁ¦µÈ ÀÎ¿øÀ» ºê·ÎµåÄ³½ºÆÃ..Á¦°ÅµÉ »ç¶÷ÇÑÅ×µÎ ÆÐÅ¶ÀÌ °£´Ù.
+	m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );	// ????? ???? ??e??????..??w? ???????? ??Y?? ????.
 
-	for( i=0; i<8; i++ ) {			// ÆÄÆ¼°¡ À¯È¿ÇÑ °æ¿ì ¿¡´Â ÆÄÆ¼ ¸®½ºÆ®¿¡¼­ »«´Ù.
+	for( i=0; i<8; i++ ) {			// ????? ???? ??? ???? ??? ????T???? ????.
 		if( pParty->uid[i] != -1 ) {
 			if( pParty->uid[i] == memberid ) {
 				pParty->uid[i] = -1;
@@ -5202,7 +5289,7 @@ void CUser::PartyDelete()
 	char send_buff[256]; memset( send_buff, 0x00, 256 );
 	SetByte( send_buff, WIZ_PARTY, send_index );
 	SetByte( send_buff, PARTY_DELETE, send_index );
-	m_pMain->Send_PartyMember( pParty->wIndex, send_buff, send_index );	// »èÁ¦µÈ ÀÎ¿øÀ» ºê·ÎµåÄ³½ºÆÃ..
+	m_pMain->Send_PartyMember( pParty->wIndex, send_buff, send_index );	// ????? ???? ??e??????..
 
 	// AI Server
 	send_index = 0; memset( send_buff, 0x00, 256 );
@@ -5251,7 +5338,7 @@ void CUser::ExchangeReq(char *pBuf)
 	destid = GetShort( pBuf, index );
 	if( destid < 0 || destid >= MAX_USER ) goto fail_return;
 
-	// ±³È¯ ¾ÈµÇ°Ô.....
+	// ??? ??j?.....
 	if( m_bResHpType == USER_DEAD || m_pUserData->m_sHp == 0 )	{
 		TRACE("### ExchangeProcess Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", m_pUserData->m_id, m_Sid, m_bResHpType, m_pUserData->m_sHp, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
 		goto fail_return;
@@ -5295,7 +5382,7 @@ void CUser::ExchangeAgree(char* pBuf)
 		m_sExchangeUser = -1;
 		return;
 	}
-	if( result == 0x00 ) {		// °ÅÀý
+	if( result == 0x00 ) {		// ????
 		m_sExchangeUser = -1;
 		pUser->m_sExchangeUser = -1;
 	}
@@ -5357,7 +5444,7 @@ void CUser::ExchangeAdd(char *pBuf)
 	}
 	else if( m_MirrorItem[pos].nNum == itemid ) {
 		if( m_MirrorItem[pos].sCount < count ) goto add_fail;
-		if( pTable->m_bCountable ) {		// Áßº¹Çã¿ë ¾ÆÀÌÅÛ
+		if( pTable->m_bCountable ) {		// ?????? ??????
 			for( Iter = m_ExchangeItemList.begin(); Iter != m_ExchangeItemList.end(); Iter++ ) {
 				if( (*Iter)->itemid == itemid ) {
 					(*Iter)->count += count;
@@ -5389,7 +5476,7 @@ void CUser::ExchangeAdd(char *pBuf)
 	if( m_ExchangeItemList.size() > ( (bGold) ? 13 : 12 ) )
 		goto add_fail;
 
-	if( bAdd ) {		// Gold °¡ Áßº¹µÇ¸é Ãß°¡ÇÏÁö ¾Ê´Â´ô..
+	if( bAdd ) {		// Gold ?? ?????? ??????? ??´?..
 		pItem = new _EXCHANGE_ITEM;
 		pItem->itemid = itemid;
 		pItem->duration = duration;
@@ -5443,19 +5530,19 @@ void CUser::ExchangeDecide()
 		SetByte( buff, EXCHANGE_OTHERDECIDE, send_index );
 		pUser->Send( buff, send_index );
 	}
-	else {										// µÑ´Ù ½ÂÀÎÇÑ °æ¿ì
+	else {										// ??? ?????? ???
 		list<_EXCHANGE_ITEM*>::iterator	Iter;
-		if( !ExecuteExchange() || !pUser->ExecuteExchange() ) {				// ±³È¯ ½ÇÆÐ
+		if( !ExecuteExchange() || !pUser->ExecuteExchange() ) {				// ??? ????
 			for( Iter = m_ExchangeItemList.begin(); Iter != m_ExchangeItemList.end(); Iter++ ) {
 				if( (*Iter)->itemid == ITEM_GOLD ) {
-					m_pUserData->m_iGold += (*Iter)->count;		// µ·¸¸ ¹é¾÷
+					m_pUserData->m_iGold += (*Iter)->count;		// ???? ???
 					break;
 				}
 			}
 			
 			for( Iter = pUser->m_ExchangeItemList.begin(); Iter != pUser->m_ExchangeItemList.end(); Iter++ ) {
 				if( (*Iter)->itemid == ITEM_GOLD ) {
-					pUser->m_pUserData->m_iGold += (*Iter)->count;		// µ·¸¸ ¹é¾÷
+					pUser->m_pUserData->m_iGold += (*Iter)->count;		// ???? ???
 					break;
 				}
 			}
@@ -5463,7 +5550,7 @@ void CUser::ExchangeDecide()
 			bSuccess = FALSE;
 		}
 		if( bSuccess ) {
-			getmoney = ExchangeDone();						// ½ÇÁ¦ µ¥ÀÌÅÍ ±³È¯...
+			getmoney = ExchangeDone();						// ??? ?????? ???...
 			putmoney = pUser->ExchangeDone();
 			if( getmoney > 0 )
 				ItemLogToAgent( m_pUserData->m_id, pUser->m_pUserData->m_id, ITEM_EXCHANGE_GET, 0, ITEM_GOLD, getmoney, 0 );
@@ -5476,14 +5563,14 @@ void CUser::ExchangeDecide()
 			SetDWORD( buff, m_pUserData->m_iGold, send_index );
 			SetShort( buff, pUser->m_ExchangeItemList.size(), send_index );
 			for( Iter = pUser->m_ExchangeItemList.begin(); Iter != pUser->m_ExchangeItemList.end(); Iter++ ) {
-				SetByte( buff, (*Iter)->pos, send_index );		// »õ·Î µé¾î°¥ ÀÎº¥Åä¸® À§Ä¡
+				SetByte( buff, (*Iter)->pos, send_index );		// ??? ??? ????? ?g
 				SetDWORD( buff, (*Iter)->itemid, send_index );
 				SetShort( buff, (*Iter)->count, send_index );
 				SetShort( buff, (*Iter)->duration, send_index );
 
 				ItemLogToAgent( m_pUserData->m_id, pUser->m_pUserData->m_id, ITEM_EXCHANGE_GET, (*Iter)->nSerialNum, (*Iter)->itemid, (*Iter)->count, (*Iter)->duration );
 			}
-			Send( buff, send_index );		// ³ªÇÑÅ× º¸³»°í...
+			Send( buff, send_index );		// ?????? ??????...
 
 			memset( buff, 0x00, 256 ); send_index = 0;
 			SetByte( buff, WIZ_EXCHANGE, send_index );
@@ -5492,14 +5579,14 @@ void CUser::ExchangeDecide()
 			SetDWORD( buff, pUser->m_pUserData->m_iGold, send_index );
 			SetShort( buff, m_ExchangeItemList.size(), send_index );
 			for( Iter = m_ExchangeItemList.begin(); Iter != m_ExchangeItemList.end(); Iter++ ) {
-				SetByte( buff, (*Iter)->pos, send_index );		// »õ·Î µé¾î°¥ ÀÎº¥Åä¸® À§Ä¡
+				SetByte( buff, (*Iter)->pos, send_index );		// ??? ??? ????? ?g
 				SetDWORD( buff, (*Iter)->itemid, send_index );
 				SetShort( buff, (*Iter)->count, send_index );
 				SetShort( buff, (*Iter)->duration, send_index );
 
 				ItemLogToAgent( m_pUserData->m_id, pUser->m_pUserData->m_id, ITEM_EXCHANGE_PUT, (*Iter)->nSerialNum, (*Iter)->itemid, (*Iter)->count, (*Iter)->duration );
 			}
-			pUser->Send( buff, send_index );	// »ó´ë¹æµµ º¸³»ÁØ´Ù. 
+			pUser->Send( buff, send_index );	// ???? ???????. 
 
 			SendItemWeight();
 			pUser->SendItemWeight();
@@ -5530,7 +5617,7 @@ void CUser::ExchangeCancel()
 	list<_EXCHANGE_ITEM*>::iterator	Iter;
 	for( Iter = m_ExchangeItemList.begin(); Iter != m_ExchangeItemList.end(); Iter++ ) {
 		if( (*Iter)->itemid == ITEM_GOLD ) {
-			m_pUserData->m_iGold += (*Iter)->count;		// µ·¸¸ ¹é¾÷
+			m_pUserData->m_iGold += (*Iter)->count;		// ???? ???
 			break;
 		}
 	}
@@ -5557,7 +5644,7 @@ void CUser::InitExchange(BOOL bStart)
 	}
 	m_ExchangeItemList.clear();
 
-	if( bStart ) {						// ±³È¯ ½ÃÀÛ½Ã ¹é¾÷
+	if( bStart ) {						// ??? ????? ???
 		for(int i=0; i<HAVE_MAX; i++ ) {
 			m_MirrorItem[i].nNum = m_pUserData->m_sItemArray[SLOT_MAX+i].nNum;
 			m_MirrorItem[i].sDuration = m_pUserData->m_sItemArray[SLOT_MAX+i].sDuration;
@@ -5565,7 +5652,7 @@ void CUser::InitExchange(BOOL bStart)
 			m_MirrorItem[i].nSerialNum = m_pUserData->m_sItemArray[SLOT_MAX+i].nSerialNum;
 		}
 	}
-	else {								// ±³È¯ Á¾·á½Ã Å¬¸®¾î
+	else {								// ??? ???? U????
 		m_sExchangeUser = -1;
 		m_bExchangeOK = 0x00;
 		for(int i=0; i<HAVE_MAX; i++ ) {
@@ -5591,7 +5678,7 @@ BOOL CUser::ExecuteExchange()
 	list<_EXCHANGE_ITEM*>::iterator	Iter;
 	int iCount = pUser->m_ExchangeItemList.size(); 
 	for( Iter = pUser->m_ExchangeItemList.begin(); Iter != pUser->m_ExchangeItemList.end(); Iter++ ) {
-//	ºñ·¯¸Ó±Û Å©¸®½º¸¶½º ÀÌ¹êÆ® >.<
+//	????? u???????? ???T >.<
 		if( (*Iter)->itemid >= ITEM_NO_TRADE) {
 			return FALSE;
 		}
@@ -5604,32 +5691,32 @@ BOOL CUser::ExecuteExchange()
 			pTable = m_pMain->m_ItemtableArray.GetData( (*Iter)->itemid );
 			if( !pTable ) continue;
 			for( i=0; i<HAVE_MAX; i++ ) {
-				if( m_MirrorItem[i].nNum == 0  && pTable->m_bCountable == 0 ) {  // Áõº¹Çã¿ë ¾ÊµÇ´Â ¾ÆÀÌÅÛ!!!
+				if( m_MirrorItem[i].nNum == 0  && pTable->m_bCountable == 0 ) {  // ????? ???? ??????!!!
 					m_MirrorItem[i].nNum = (*Iter)->itemid;
 					m_MirrorItem[i].sDuration = (*Iter)->duration;
 					m_MirrorItem[i].sCount = (*Iter)->count;
 					m_MirrorItem[i].nSerialNum = (*Iter)->nSerialNum;
-					(*Iter)->pos = i;							// ÆÐÅ¶¿ë µ¥ÀÌÅÍ...
+					(*Iter)->pos = i;							// ??Y?? ??????...
 					weight += pTable->m_sWeight;
 					break;
 				}
-				else if( m_MirrorItem[i].nNum == (*Iter)->itemid && pTable->m_bCountable == 1 ) {	// Áõº¹Çã¿ë ¾ÆÀÌÅÛ!!!				
+				else if( m_MirrorItem[i].nNum == (*Iter)->itemid && pTable->m_bCountable == 1 ) {	// ????? ??????!!!				
 					m_MirrorItem[i].sCount += (*Iter)->count;
 					if( m_MirrorItem[i].sCount > MAX_ITEM_COUNT )
 						m_MirrorItem[i].sCount = MAX_ITEM_COUNT;
 					weight += ( pTable->m_sWeight * (*Iter)->count );
-					(*Iter)->pos = i;							// ÆÐÅ¶¿ë µ¥ÀÌÅÍ...
+					(*Iter)->pos = i;							// ??Y?? ??????...
 					break;
 				}
 			}
 
-			if( i == HAVE_MAX && pTable->m_bCountable == 1 ) {	// Áßº¹ Çã¿ë ¾ÆÀÌÅÛÀÎµ¥ ±âÁ¸¿¡ °¡Áö°í ÀÖÁö ¾ÊÀº °æ¿ì ºó°÷¿¡ Ãß°¡			
+			if( i == HAVE_MAX && pTable->m_bCountable == 1 ) {	// ??? ??? ???????e? ????? ????? ???? ??? ??? ??? ???			
 				for( i=0; i<HAVE_MAX; i++ ) {
 					if( m_MirrorItem[i].nNum == 0 ) {
 						m_MirrorItem[i].nNum = (*Iter)->itemid;
 						m_MirrorItem[i].sDuration = (*Iter)->duration;
 						m_MirrorItem[i].sCount = (*Iter)->count;
-						(*Iter)->pos = i;							// ÆÐÅ¶¿ë µ¥ÀÌÅÍ...
+						(*Iter)->pos = i;							// ??Y?? ??????...
 						weight += ( pTable->m_sWeight * (*Iter)->count );
 						break;
 					}
@@ -5637,7 +5724,7 @@ BOOL CUser::ExecuteExchange()
 			}
 			
 			if( Iter != pUser->m_ExchangeItemList.end() && i == HAVE_MAX )
-				return FALSE;		// ÀÎº¥Åä¸® °ø°£ ºÎÁ·...
+				return FALSE;		// ????? ?? ???...
 		}
 	}
 
@@ -5669,8 +5756,8 @@ int CUser::ExchangeDone()
 	}
 	
 	if( money > 0 ) 
-		m_pUserData->m_iGold += money;		// »ó´ë¹æÀÌ ÁØ µ·.
-	for( int i=0; i<HAVE_MAX; i++ ) {			// ¼º°ø½Ã ¸®½ºÅä¾î..
+		m_pUserData->m_iGold += money;		// ?????? ?? ??.
+	for( int i=0; i<HAVE_MAX; i++ ) {			// ????? ???????..
 		m_pUserData->m_sItemArray[SLOT_MAX+i].nNum = m_MirrorItem[i].nNum;
 		m_pUserData->m_sItemArray[SLOT_MAX+i].sDuration = m_MirrorItem[i].sDuration;
 		m_pUserData->m_sItemArray[SLOT_MAX+i].sCount = m_MirrorItem[i].sCount;
@@ -5750,19 +5837,19 @@ void CUser::ClassChange(char *pBuf)
 
 	type = GetByte( pBuf, index );
 
-	if(type == CLASS_CHANGE_REQ)	{		// ÀüÁ÷¿äÃ»
+	if(type == CLASS_CHANGE_REQ)	{		// ?????û
 		ClassChangeReq();
 		return;
 	}
-	else if(type == ALL_POINT_CHANGE)	{	// Æ÷ÀÎÆ® ÃÊ±âÈ­
+	else if(type == ALL_POINT_CHANGE)	{	// ????T ????
 		AllPointChange();
 		return;
 	}
-	else if(type == ALL_SKILLPT_CHANGE)	{   // ½ºÅ³ ÃÊ±âÈ­
+	else if(type == ALL_SKILLPT_CHANGE)	{   // ??u ????
 		AllSkillPointChange();
 		return;
 	}
-	else if(type == CHANGE_MONEY_REQ)	{   // Æ÷ÀÎÆ® & ½ºÅ³ ÃÊ±âÈ­¿¡ µ·ÀÌ ¾ó¸¶ÀÎÁö¸¦ ¹¯´Â ¼­ºê ÆÐÅ¶
+	else if(type == CHANGE_MONEY_REQ)	{   // ????T & ??u ?????? ???? ?????? ???? ???? ??Y
 		sub_type = GetByte( pBuf, index );
 
 		money = pow(( m_pUserData->m_bLevel * 2 ), 3.4);
@@ -5771,8 +5858,8 @@ void CUser::ClassChange(char *pBuf)
 		else if( m_pUserData->m_bLevel >= 30 && m_pUserData->m_bLevel < 60 ) money = money * 1;
 		else if( m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= 90 ) money = money * 1.5;
 
-		if( sub_type == 1 )		{			// ´É·ÂÄ¡ Æ÷ÀÎÆ®
-			if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{	// ÇÒÀÎ½ÃÁ¡ÀÌ°í ½Â¸®±¹ÀÌ¶ó¸é
+		if( sub_type == 1 )		{			// ???g ????T
+			if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{	// ????????? ?¸???????
 				old_money = money;
 				money = money * 0.5;
 				//TRACE("^^ ClassChange -  point Discount ,, money=%d->%d\n", old_money, money);
@@ -5788,9 +5875,9 @@ void CUser::ClassChange(char *pBuf)
 			SetDWORD( send_buff, money, send_index );
 			Send( send_buff, send_index );
 		}
-		else if( sub_type == 2 )		{	// skill Æ÷ÀÎÆ®
-			money = money * 1.5;			// ½ºÅ³Àº ÇÑ¹ø ´õ 
-			if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{	// ÇÒÀÎ½ÃÁ¡ÀÌ°í ½Â¸®±¹ÀÌ¶ó¸é
+		else if( sub_type == 2 )		{	// skill ????T
+			money = money * 1.5;			// ??u? ??? ?? 
+			if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{	// ????????? ?¸???????
 				old_money = money;
 				money = money * 0.5;
 				//TRACE("^^ ClassChange -  skillpoint Discount ,, money=%d->%d\n", old_money, money);
@@ -5921,7 +6008,7 @@ void CUser::ChatTargetSelect(char *pBuf)
 	Send( send_buff, send_index );
 }
 
-// AI server¿¡ UserÁ¤º¸¸¦ ÀüºÎ Àü¼Û...
+// AI server?? User????? ??? ???...
 void CUser::SendUserInfo(char *temp_send, int &index)
 {
 	SetShort( temp_send, m_Sid, index );
@@ -5933,8 +6020,8 @@ void CUser::SendUserInfo(char *temp_send, int &index)
 	SetByte( temp_send, m_pUserData->m_bLevel, index );
 	SetShort( temp_send, m_pUserData->m_sHp, index );
 	SetShort( temp_send, m_pUserData->m_sMp, index );
-	SetShort( temp_send, m_sTotalHit * m_bAttackAmount / 100, index );    // Ç¥½Ã
-	SetShort( temp_send, m_sTotalAc + m_sACAmount , index );	// Ç¥½Ã
+	SetShort( temp_send, m_sTotalHit * m_bAttackAmount / 100, index );    // g??
+	SetShort( temp_send, m_sTotalAc + m_sACAmount , index );	// g??
 	Setfloat( temp_send, m_sTotalHitrate, index );
 	Setfloat( temp_send, m_sTotalEvasionrate, index );
 	SetShort( temp_send, m_sPartyIndex, index );
@@ -6107,14 +6194,14 @@ void CUser::Dead()
 
 	m_bResHpType = USER_DEAD;
 
-	Send( send_buff, send_index );		// À¯Àú¿¡°Ô´Â ¹Ù·Î µ¥µå ÆÐÅ¶À» ³¯¸²... (ÇÑ ¹ø ´õ º¸³¿, À¯·ÉÀ» ¾ø¾Ö±â À§ÇØ¼­)
+	Send( send_buff, send_index );		// ????? ??? ???? ??Y? ????... (?? ?? ?? ????, ???? ???? ????)
 
 	memset( send_buff, NULL, 1024 );
 	wsprintf(send_buff, "----> User Dead ,, nid=%d, name=%s, type=%d, x=%d, z=%d ******", m_Sid, m_pUserData->m_id, m_bResHpType, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
 	//TimeTrace(send_buff);
 
 	memset( send_buff, NULL, 1024 );		send_index = 0;
-	if( m_pUserData->m_bFame == COMMAND_CAPTAIN )	{	// ÁöÈÖ±ÇÇÑÀÌ ÀÖ´Â À¯Àú°¡ Á×´Â´Ù¸é,, ÁöÈÖ ±ÇÇÑ ¹ÚÅ»
+	if( m_pUserData->m_bFame == COMMAND_CAPTAIN )	{	// ????????? ??? ??? ??´??,, ???? ???? ??Z
 		m_pUserData->m_bFame = CHIEF;
 		SetByte( send_buff, WIZ_AUTHORITY_CHANGE, send_index );
 		SetByte( send_buff, COMMAND_AUTHORITY, send_index );
@@ -6141,7 +6228,7 @@ void CUser::Dead()
 		memset( send_buff, NULL, 1024 );		send_index = 0;
 		::_LoadStringFromResource(IDP_ANNOUNCEMENT, buff2);
 		sprintf( finalstr, buff2.c_str(), chatstr );
-		//sprintf( finalstr, "## °øÁö : %s ##", chatstr );
+		//sprintf( finalstr, "## ???? : %s ##", chatstr );
 		SetByte( send_buff, WIZ_CHAT, send_index );
 		SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
 		SetByte( send_buff, 1, send_index );
@@ -6231,7 +6318,7 @@ void CUser::ItemWoreOut(int type, int damage)
 		if( m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {
 			pTable = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
 			if( pTable ) {
-				if( pTable->m_bSlot == 2 ) {	// ¹æÆÐ?
+				if( pTable->m_bSlot == 2 ) {	// ?????
 					if( m_pUserData->m_sItemArray[RIGHTHAND].sDuration != 0 ) {
 						m_pUserData->m_sItemArray[RIGHTHAND].sDuration -= worerate;
 						ItemDurationChange( RIGHTHAND, pTable->m_sDuration, m_pUserData->m_sItemArray[RIGHTHAND].sDuration, worerate );
@@ -6242,7 +6329,7 @@ void CUser::ItemWoreOut(int type, int damage)
 		if( m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 ) {
 			pTable = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[LEFTHAND].nNum );
 			if( pTable ) {
-				if( pTable->m_bSlot == 2 ) {	// ¹æÆÐ?
+				if( pTable->m_bSlot == 2 ) {	// ?????
 					if( m_pUserData->m_sItemArray[LEFTHAND].sDuration != 0 ) {
 						m_pUserData->m_sItemArray[LEFTHAND].sDuration -= worerate;
 						ItemDurationChange( LEFTHAND, pTable->m_sDuration, m_pUserData->m_sItemArray[LEFTHAND].sDuration, worerate );
@@ -6273,7 +6360,7 @@ void CUser::ItemDurationChange(int slot, int maxvalue, int curvalue, int amount)
 		SetUserAbility();
 
 		memset( send_buff, 0x00, 128 ); send_index = 0;
-		SetByte( send_buff, WIZ_ITEM_MOVE, send_index );	// durability º¯°æ¿¡ µû¸¥ ¼öÄ¡ ÀçÁ¶Á¤...
+		SetByte( send_buff, WIZ_ITEM_MOVE, send_index );	// durability ???? ?? ??g ????...
 		SetByte( send_buff, 0x01, send_index );
 		SetShort( send_buff, m_sTotalHit, send_index );
 		SetShort( send_buff, m_sTotalAc, send_index );
@@ -6352,11 +6439,11 @@ void CUser::HPTimeChange(float currenttime)
 	}
 
 	/*
-	³ªÁß¿¡ ¶Ç °íÄ¥°Í¿¡ ´ëºñÇØ¼­ ¿©±â¿¡ µÎ±â·Î Çß½À´Ï´Ù :
+	????? ?? ??h??? ?????? ???? ?a?? ????? :
 
-	HP(MP)°¡ ¸ðµÎ Â÷´Â µ¥ °É¸®´Â ½Ã°£ A = (·¹º§ - 1) + 30
-	HP(MP)°¡ ¸ðµÎ Â÷´Â µ¥ °É¸®´Â È½¼ö B = A/5
-	ÇÑ¹ø¿¡ Â÷´Â HP(MP)ÀÇ ¾ç = Max HP / B
+	HP(MP)?? ??? ??? ?? ????? ?ð? A = (???? - 1) + 30
+	HP(MP)?? ??? ??? ?? ????? ??? B = A/5
+	??? ??? HP(MP)?? ?? = Max HP / B
 	*/
 }
 
@@ -6389,7 +6476,7 @@ void CUser::HPTimeChangeType3(float currenttime)
 //
 					if( m_pUserData->m_bZone != m_pUserData->m_bNation && m_pUserData->m_bZone < 3) {
 						ExpChange(-m_iMaxExp / 100);
-						//TRACE("Á¤¸»·Î 1%¸¸ ±ï¿´´Ù´Ï±î¿ä ¤Ð.¤Ð\r\n");
+						//TRACE("????? 1%?? ??????? ??.??\r\n");
 					}
 					else {
 //
@@ -6410,7 +6497,7 @@ void CUser::HPTimeChangeType3(float currenttime)
 						pUser->GoldChange(m_Sid, 0);
 					}
 				}				
-				// ±â¹üÀÌÀÇ ¿Ïº®ÇÑ º¸È£ ÄÚµù!!!
+				// ??????? ????? ??? ???!!!
 				InitType3();	// Init Type 3.....
 				InitType4();	// Init Type 4.....
 				
@@ -6419,7 +6506,7 @@ void CUser::HPTimeChangeType3(float currenttime)
 //
 					if( m_pUserData->m_bZone != m_pUserData->m_bNation && m_pUserData->m_bZone < 3) {
 						ExpChange(-m_iMaxExp / 100);
-						//TRACE("Á¤¸»·Î 1%¸¸ ±ï¿´´Ù´Ï±î¿ä ¤Ð.¤Ð\r\n");
+						//TRACE("????? 1%?? ??????? ??.??\r\n");
 					}
 //
 				}
@@ -6653,7 +6740,7 @@ void CUser::Type4Duration(float currenttime)
 
 		SetSlotItemValue();
 		SetUserAbility();
-		Send2AI_UserUpdateInfo();	// AI Server¿¡ ¹Ù…Î µ¥ÀÌÅ¸ Àü¼Û....		
+		Send2AI_UserUpdateInfo();	// AI Server?? ??? ????Ÿ ???....		
 
 		/*	Send Party Packet.....
 		if (m_sPartyIndex != -1) {
@@ -6944,7 +7031,7 @@ void CUser::SpeedHackTime(char* pBuf)
 */
 }
 
-// serverÀÇ »óÅÂ¸¦ Ã¼Å©..
+// server?? ???¸? üu..
 void CUser::ServerStatusCheck()
 {
 	int send_index = 0;
@@ -7015,7 +7102,7 @@ void CUser::WarehouseProcess(char *pBuf)
 	BYTE command = 0;
 	command = GetByte( pBuf, index );
 
-	// Ã¢°í ¾ÈµÇ°Ô...
+	// â?? ??j?...
 	if( m_bResHpType == USER_DEAD || m_pUserData->m_sHp == 0 )	{
 		TRACE("### WarehouseProcess Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", m_pUserData->m_id, m_Sid, m_bResHpType, m_pUserData->m_sHp, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
 		return;
@@ -7213,7 +7300,7 @@ void CUser::InitType4()
 	m_bMagicRAmount = 0;
 	m_bDiseaseRAmount = 0;
 	m_bPoisonRAmount = 0;		
-// ºñ·¯¸Ó±Û ¼ö´É
+// ????? ???
 	m_bAbnormalType = 1;
 //
 	m_sDuration1 = 0 ;  m_fStartTime1 = 0.0f ;		// Used for Type 4 Durational Spells.
@@ -7233,7 +7320,7 @@ void CUser::InitType4()
 	m_bType4Flag = FALSE;
 }
 
-int CUser::GetEmptySlot(int itemid, int bCountable)	// item ¸ÔÀ»¶§ ºñ¾îÀÕ´Â ½½·ÔÀ» Ã£¾Æ¾ßµÇ...
+int CUser::GetEmptySlot(int itemid, int bCountable)	// item ????? ?????? ????? ã????...
 {
 	int pos = 255, i=0;
 	
@@ -7305,7 +7392,7 @@ void CUser::Home()
 		x = pHomeInfo->BattleZoneX + myrand(0, pHomeInfo->BattleZoneLX);
 		z = pHomeInfo->BattleZoneZ + myrand(0, pHomeInfo->BattleZoneLZ);
 
-// ºñ·¯¸Ó±Û °³Ã´Áö´ë ¹Ù²ãÄ¡±â --;
+// ????? ??ô??? ???g?? --;
 		if (m_pUserData->m_bZone == ZONE_SNOW_BATTLE) {
 			x = pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX);
 			z = pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ);
@@ -7329,7 +7416,7 @@ void CUser::Home()
 		}		
 		else return;
 	}
-// ºñ·¯¸Ó±Û ´ºÁ¸ >.<
+// ????? ??? >.<
 	else if (m_pUserData->m_bZone > 10 && m_pUserData->m_bZone < 20) {
 		x = 527 + myrand(0, 10);
 		z = 543 + myrand(0, 10);			
@@ -7373,13 +7460,13 @@ CUser* CUser::GetItemRoutingUser(int itemid, short itemcount)
 		if( select_user >= 0 && select_user < MAX_USER ) {
 			pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[select_user];
 			if( pUser ) {
-//	ÀÌ°Å ¾ÊµÇµµ Àú¸¦ ³Ê¹« ¹Ì¿öÇÏÁö ¸¶¼¼¿ä ¤Ð.¤Ð
+//	??? ???? ?? ?'? ??????? ?????? ??.??
 				if (pTable->m_bCountable) {	// Check weight of countable item.
 					if ((pTable->m_sWeight * count + pUser->m_sItemWeight) <= pUser->m_sMaxWeight) {			
 						pParty->bItemRouting++;
 						if( pParty->bItemRouting > 6 )
 							pParty->bItemRouting = 0;
-						return pUser;	// Áï, À¯ÀúÀÇ Æ÷ÀÎÅÍ¸¦ ¸®ÅÏÇÑ´Ù :)
+						return pUser;	// ??, ????? ??????? ??????? :)
 					}
 				}
 				else {	// Check weight of non-countable item.
@@ -7387,7 +7474,7 @@ CUser* CUser::GetItemRoutingUser(int itemid, short itemcount)
 						pParty->bItemRouting++;
 						if( pParty->bItemRouting > 6 )
 							pParty->bItemRouting = 0;
-						return pUser;	// Áï, À¯ÀúÀÇ Æ÷ÀÎÅÍ¸¦ ¸®ÅÏÇÑ´Ù :)
+						return pUser;	// ??, ????? ??????? ??????? :)
 					}
 				}
 //
@@ -7396,7 +7483,7 @@ CUser* CUser::GetItemRoutingUser(int itemid, short itemcount)
 				pParty->bItemRouting++;
 				if( pParty->bItemRouting > 6 )
 					pParty->bItemRouting = 0;
-				return pUser;	// Áï, À¯ÀúÀÇ Æ÷ÀÎÅÍ¸¦ ¸®ÅÏÇÑ´Ù :)
+				return pUser;	// ??, ????? ??????? ??????? :)
 */
 			}
 
@@ -7479,9 +7566,9 @@ void CUser::ClassChangeReq()
 
 void CUser::AllSkillPointChange()
 {
-	// µ·À» ¸ÕÀú ±ï°í.. ¸¸¾à,, µ·ÀÌ ºÎÁ·ÇÏ¸é.. ¿¡·¯...
+	// ??? ???? ???.. ????,, ???? ??????.. ????...
 	int index = 0, send_index = 0, skill_point = 0, money = 0, i=0, j=0, temp_value = 0, old_money = 0;
-	BYTE type = 0x00;    // 0:µ·ÀÌ ºÎÁ·, 1:¼º°ø, 2:ÃÊ±âÈ­ÇÒ ½ºÅ³ÀÌ ¾øÀ»¶§..
+	BYTE type = 0x00;    // 0:???? ???, 1:????, 2:?????? ??u?? ?????..
 	char send_buff[128]; memset( send_buff, NULL, 128 );
 
 	temp_value = pow(( m_pUserData->m_bLevel * 2 ), 3.4);
@@ -7490,10 +7577,10 @@ void CUser::AllSkillPointChange()
 	else if( m_pUserData->m_bLevel >= 30 && m_pUserData->m_bLevel < 60 ) temp_value = temp_value * 1;
 	else if( m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= 90 ) temp_value = temp_value * 1.5;
 
-	// ½ºÅ³Àº ÇÑ¹ø ´õ 
+	// ??u? ??? ?? 
 	temp_value = temp_value * 1.5;
 
-	if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{	// ÇÒÀÎ½ÃÁ¡ÀÌ°í ½Â¸®±¹ÀÌ¶ó¸é
+	if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{	// ????????? ?¸???????
 		old_money = temp_value;
 		temp_value = temp_value * 0.5;
 		//TRACE("^^ AllSkillPointChange - Discount ,, money=%d->%d\n", old_money, temp_value);
@@ -7520,7 +7607,7 @@ void CUser::AllSkillPointChange()
 		goto fail_return;
 	}
 
-	// ¹®Á¦µÉ ¼ÒÁö°¡ ¸¹À½ : °¡¿ë½ºÅ³ÀÌ 255À» ³Ñ´Â »óÈ²ÀÌ ¹ß»ýÇÒ È®À²ÀÌ ³ôÀ½..
+	// ????? ???? ??? : ????u?? 255? ??? ????? ????? ???? ???..
 	//m_pUserData->m_bstrSkill[0] += skill_point;		
 	m_pUserData->m_bstrSkill[0] = (m_pUserData->m_bLevel - 9) * 2;
 	for(j=1; j<9; j++)	
@@ -7547,7 +7634,7 @@ fail_return:
 
 void CUser::AllPointChange()
 {
-	// µ·À» ¸ÕÀú ±ï°í.. ¸¸¾à,, µ·ÀÌ ºÎÁ·ÇÏ¸é.. ¿¡·¯...
+	// ??? ???? ???.. ????,, ???? ??????.. ????...
 	int index = 0, send_index = 0, total_point = 0, money = 0, classcode=0, temp_money = 0, old_money=0;
 	double dwMoney = 0;
 	BYTE type = 0x00;
@@ -7563,7 +7650,7 @@ void CUser::AllPointChange()
 	else if( m_pUserData->m_bLevel >= 30 && m_pUserData->m_bLevel < 60 ) temp_money = temp_money * 1;
 	else if( m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= 90 ) temp_money = temp_money * 1.5;
 
-	if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{	// ÇÒÀÎ½ÃÁ¡ÀÌ°í ½Â¸®±¹ÀÌ¶ó¸é
+	if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{	// ????????? ?¸???????
 		temp_money = temp_money * 0.5;
 		//TRACE("^^ AllPointChange - Discount ,, money=%d->%d\n", old_money, temp_money);
 	}
@@ -7575,7 +7662,7 @@ void CUser::AllPointChange()
 	money = m_pUserData->m_iGold - temp_money;
 	if(money < 0)	goto fail_return;
 
-	// ÀåÂø¾ÆÀÌÅÛÀÌ ÇÏ³ª¶óµµ ÀÖÀ¸¸é ¿¡·¯Ã³¸® 
+	// ??????????? ????? ????? ????ó?? 
 	for (i = 0 ; i < SLOT_MAX ; i++) {
 		if (m_pUserData->m_sItemArray[i].nNum) {
 			type = 0x04;
@@ -7820,7 +7907,7 @@ void CUser::SelectWarpList(char *pBuf)
 	C3DMap* pMap = NULL;
 	char send_buff[128]; memset( send_buff, 0x00, 128 );
 
-// ºñ·¯¸Ó±Û ¼ø°£ÀÌµ¿ >.<
+// ????? ????? >.<
 	BYTE type = 2 ;
 //		
 	warpid = GetShort( pBuf, index );
@@ -7845,7 +7932,7 @@ void CUser::SelectWarpList(char *pBuf)
 	rz = (float)myrand( 0, (int)pWarp->fR*2 );
 	if( rz < pWarp->fR ) rz = -rz;
 
-// ºñ·¯¸Ó±Û ¼ø°£ÀÌµ¿ >.<
+// ????? ????? >.<
 /*
 	SetByte( send_buff, WIZ_WARP_LIST, send_index );
 	SetByte( send_buff, type, send_index );
@@ -7899,7 +7986,7 @@ void CUser::ServerChangeOk(char *pBuf)
 	_WARP_INFO* pWarp = NULL;
 	C3DMap* pMap = NULL;
 	float rx = 0.0f, rz = 0.0f;
-/* ºñ·¯¸Ó±Û ¼ø°£ÀÌµ¿ >.<
+/* ????? ????? >.<
 	int send_index = 0;
 	char send_buff[128]; memset(send_buff, 0x00, 128);
 	BYTE type = 2 ;
@@ -7918,7 +8005,7 @@ void CUser::ServerChangeOk(char *pBuf)
 	rz = (float)myrand( 0, (int)pWarp->fR*2 );
 	if( rz < pWarp->fR ) rz = -rz;
 
-/* ºñ·¯¸Ó±Û ¼ø°£ÀÌµ¿ >.<
+/* ????? ????? >.<
 	SetByte( send_buff, WIZ_WARP_LIST, send_index );
 	SetByte( send_buff, type, send_index );
 	SetByte( send_buff, 1, send_index );
@@ -7931,12 +8018,12 @@ BOOL CUser::GetWarpList(int warp_group)
 {
 	_WARP_INFO* pWarp = NULL;
 	C3DMap* pMap = NULL;
-	int warpid = 0, send_index = 0;	// Çì´õ¿Í Ä«¿îÆ®¸¦ ³ªÁß¿¡ ÆÐÅ·...
+	int warpid = 0, send_index = 0;	// ???? i??T?? ????? ??y...
 	int zoneindex = -1, temp_index = 0, count = 0;
 	char buff[8192]; memset(buff, 0x00, 8192);
 	char send_buff[8192]; memset(send_buff, 0x00, 8192);
-// ºñ·¯¸Ó±Û ¸¶À» ÀÌ¸§ Ç¥½Ã >.<
-	BYTE type = 1;		// 1ÀÌ¸é ÀÏ¹Ý, 2ÀÌ¸é ¿öÇÁ ¼º°øÇß´ÂÁö ¾ÊÇß´ÂÁö ^^;
+// ????? ??? ??? g?? >.<
+	BYTE type = 1;		// 1??? ???, 2??? ???? ????????? ??????? ^^;
 //
 	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return FALSE;
 	pMap = m_pMain->m_ZoneArray[m_iZoneIndex];
@@ -7974,7 +8061,7 @@ BOOL CUser::GetWarpList(int warp_group)
 	}
 
 	SetByte( send_buff, WIZ_WARP_LIST, temp_index );
-// ºñ·¯¸Ó±Û ¸¶À» ÀÌ¸§ Ç¥½Ã >.<
+// ????? ??? ??? g?? >.<
 	SetByte( send_buff, type, temp_index );
 //
 	SetShort( send_buff, count, temp_index );
@@ -8025,7 +8112,7 @@ BOOL CUser::BindObjectEvent(short objectindex, short nid)
 
 BOOL CUser::GateObjectEvent(short objectindex, short nid)
 {
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return FALSE;	// Æ÷ÀÎÅÍ ÂüÁ¶ÇÏ¸é ¾ÈµÊ
+	if( m_pMain->m_bPointCheckFlag == FALSE)	return FALSE;	// ?????? ?????? ???
 
 	int  send_index = 0, result = 0 ;
 	char send_buff[128]; memset( send_buff, NULL, 128 );
@@ -8065,7 +8152,7 @@ BOOL CUser::GateObjectEvent(short objectindex, short nid)
 
 BOOL CUser::GateLeverObjectEvent(short objectindex, short nid)
 {
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return FALSE;	// Æ÷ÀÎÅÍ ÂüÁ¶ÇÏ¸é ¾ÈµÊ
+	if( m_pMain->m_bPointCheckFlag == FALSE)	return FALSE;	// ?????? ?????? ???
 
 	int send_index = 0, result = 0 ;
 	char send_buff[128]; memset( send_buff, NULL, 128 );
@@ -8132,7 +8219,7 @@ BOOL CUser::GateLeverObjectEvent(short objectindex, short nid)
 
 BOOL CUser::FlagObjectEvent(short objectindex, short nid)
 {
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return FALSE;	// Æ÷ÀÎÅÍ ÂüÁ¶ÇÏ¸é ¾ÈµÊ
+	if( m_pMain->m_bPointCheckFlag == FALSE)	return FALSE;	// ?????? ?????? ???
 
 	int  send_index = 0, result = 0;
 	char send_buff[128]; memset( send_buff, NULL, 128 );
@@ -8246,7 +8333,7 @@ void CUser::ObjectEvent(char *pBuf)
 		case 7:		// Destory Bind Point
 			if (!BindObjectEvent(objectindex, nid)) goto fail_return;
 			break;
-		case 1:		// Gate Object : »ç¿ëÄ¡ ¾ÊÀ½ : 2002.12.23
+		case 1:		// Gate Object : ???g ??? : 2002.12.23
 		case 2:
 			//if (!GateObjectEvent(objectindex, nid)) goto fail_return; 
 			break;
@@ -9129,7 +9216,7 @@ void CUser::BlinkTimeCheck(float currenttime)
 
 		//TRACE("?? BlinkTimeCheck : name=%s(%d), type=%d ??\n", m_pUserData->m_id, m_Sid, m_bAbnormalType);
 //
-		// AI_server·Î regeneÁ¤º¸ Àü¼Û...	
+		// AI_server?? regene??? ???...	
 		memset( send_buff, NULL, 256 ); send_index=0;
 		SetByte( send_buff, AG_USER_REGENE, send_index );
 		SetShort( send_buff, m_Sid, send_index );
@@ -9213,10 +9300,10 @@ void CUser::KickOut(char *pBuf)
 		m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
 	}
 }
-// ¿©±â¼­ ºÎÅÍ Á¤¾Ö¾¾°¡ °í»ýÇÏ¸é¼­ ÇØÁÖ½Å Äù½ºÆ® ºÎºÐ....
+// ???? ???? ?????? ?????? ????? ??T ???....
 void CUser::ClientEvent(char *pBuf)		// The main function for the quest procedures!!!
 {										// (actually, this only takes care of the first event :(  )
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return;	// Æ÷ÀÎÅÍ ÂüÁ¶ÇÏ¸é ¾ÈµÊ           //
+	if( m_pMain->m_bPointCheckFlag == FALSE)	return;	// ?????? ?????? ???           //
 
 	int index = 0;
 	CNpc* pNpc = NULL;
@@ -9230,9 +9317,9 @@ void CUser::ClientEvent(char *pBuf)		// The main function for the quest procedur
 	pNpc = m_pMain->m_arNpcArray.GetData(nid);
 	if( !pNpc )	return;	   // Better to check than not to check ;)
 
-	m_sEventNid = nid;     // ÀÌ°Ç ³ªÁß¿¡ ³»°¡ Ãß°¡ÇÑ °Å¿´½¿....
+	m_sEventNid = nid;     // ??? ????? ???? ????? ?????....
 
-//	if( pNpc->m_byEvent < 0 ) return;      // ÀÌ°Å ÀÏ´Ü ÁÖ¼® Ã³¸® Àý´ë »©Áö¸¶!!		//
+//	if( pNpc->m_byEvent < 0 ) return;      // ??? ??? ??? ó?? ??? ????!!		//
 
 	pEvent = m_pMain->m_Event.GetData(m_pUserData->m_bZone);	                    //
 	if(!pEvent)	return;																//
@@ -9316,7 +9403,7 @@ BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 
 				bExact = TRUE;
 			}
 			break;	
-// ºñ·¯¸Ó±Û º¹±Ç >.<		
+// ????? ???? >.<		
 		case	LOGIC_CHECK_EDITBOX:
 			if (!CheckEditBox()) {
 				bExact = TRUE;
@@ -9329,7 +9416,7 @@ BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 
 			}
 			break;
 //
-// ºñ·¯¸Ó±Û ¿¢¼¿ >.<
+// ????? ???? >.<
 		case	LOGIC_CHECK_LEVEL:		
 			if( m_pUserData->m_bLevel >= pLE->m_LogicElseInt[0] && m_pUserData->m_bLevel <= pLE->m_LogicElseInt[1] ) {
 				bExact = TRUE;
@@ -9429,10 +9516,10 @@ BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 
 				return FALSE;
 		}
 
-		if( !pLE->m_bAnd ) {	// OR Á¶°ÇÀÏ °æ¿ì bExact°¡ TRUEÀÌ¸é ÀüÃ¼°¡ TRUEÀÌ´Ù
+		if( !pLE->m_bAnd ) {	// OR ????? ??? bExact?? TRUE??? ??ü?? TRUE???
 			if(bExact) return TRUE;
 		}
-		else {					// AND Á¶°ÇÀÏ °æ¿ì bExact°¡ FALSEÀÌ¸é ÀüÃ¼°¡ FALSEÀÌ´Ù
+		else {					// AND ????? ??? bExact?? FALSE??? ??ü?? FALSE???
 			if(!bExact) return FALSE;
 		}
 	}
@@ -9479,7 +9566,7 @@ BOOL CUser::RunNpcEvent(CNpc *pNpc, EXEC *pExec)	// This part executes all the '
 	case	EXEC_ROB_ITEM:
 		if ( !RobItem(pExec->m_ExecInt[0], pExec->m_ExecInt[1]) )		return FALSE;
 		break;
-//	ºñ·¯¸Ó±Û º¹±Ç >.<
+//	????? ???? >.<
 	case	EXEC_OPEN_EDITBOX:
 		OpenEditBox(pExec->m_ExecInt[1], pExec->m_ExecInt[2]);
 		break;
@@ -9492,7 +9579,7 @@ BOOL CUser::RunNpcEvent(CNpc *pNpc, EXEC *pExec)	// This part executes all the '
 		LogCoupon(pExec->m_ExecInt[0], pExec->m_ExecInt[1]);
 		break;
 //
-// ºñ·¯¸Ó±Û ¿¢¼¿ >.<
+// ????? ???? >.<
 	case	EXEC_SAVE_COM_EVENT:
 		SaveComEvent(pExec->m_ExecInt[0]);
 		break;
@@ -9615,7 +9702,7 @@ BOOL CUser::RunEvent(EVENT_DATA *pEventData)
 				if ( !RobItem(pExec->m_ExecInt[0], pExec->m_ExecInt[1]) )
 					return FALSE;
 				break;
-//	ºñ·¯¸Ó±Û º¹±Ç >.<
+//	????? ???? >.<
 			case	EXEC_OPEN_EDITBOX:
 				OpenEditBox(pExec->m_ExecInt[1], pExec->m_ExecInt[2]);
 				break;
@@ -9628,7 +9715,7 @@ BOOL CUser::RunEvent(EVENT_DATA *pEventData)
 				LogCoupon(pExec->m_ExecInt[0], pExec->m_ExecInt[1]);
 				break;
 //
-// ºñ·¯¸Ó±Û ¿¢¼¿ >.<
+// ????? ???? >.<
 			case	EXEC_SAVE_COM_EVENT:
 				SaveComEvent(pExec->m_ExecInt[0]);
 				break;
@@ -9702,10 +9789,10 @@ BOOL CUser::RunEvent(EVENT_DATA *pEventData)
 
 	return TRUE;
 }
-// Á¤¾Ö¾¾°¡ °í»ýÇÏ¸é¼­ ÇØÁÖ½Å Äù½ºÆ® ºÎºÐ ³¡
+// ?????? ?????? ????? ??T ??? ??
 void CUser::TestPacket( char* pBuf )
 {
-	// npcÀÇ ¸®½ºÆ®¸¦ Àç ¿äÃ»ÇÏ´Â ±º,,,,,
+	// npc?? ????T?? ?? ??û??? ??,,,,,
 	m_pMain->RegionNpcInfoForMe(this, 1);
 	m_pMain->SyncTest(2);
 }
@@ -9902,7 +9989,7 @@ BOOL CUser::GiveItem(int itemid, short count)
 			if( pTable->m_bCountable != 1) return FALSE;
 			else if( m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != itemid ) return FALSE;
 		}
-/*	ÀÌ°Ç ÇÊ¿äÇÒ ¶§ ÁÖ¼® »©µµ·Ï....
+/*	??? ????? ?? ??? ??????....
 		if (pTable->m_bCountable) {	// Check weight of countable item.
 			if (((pTable->m_sWeight * count) + m_sItemWeight) > m_sMaxWeight) {			
 				return FALSE;
@@ -9971,7 +10058,7 @@ void CUser::RecvSelectMsg(char *pBuf)	// Receive menu reply from client.
 
 	selnum = GetByte( pBuf, index );
 //	if( selnum < 0 || selnum > 4 )
-	if( selnum < 0 || selnum > MAX_MESSAGE_EVENT )		// ºñ·¯¸Ó±Û Äù½ºÆ® >.<
+	if( selnum < 0 || selnum > MAX_MESSAGE_EVENT )		// ????? ??T >.<
 		goto fail_return;
 
 	selevent = m_iSelMsgEvent[selnum];	// Get the event number that needs to be processed next.
@@ -10000,7 +10087,7 @@ fail_return:
 	m_iSelMsgEvent[4] = -1;
 */
 
-// ºñ·¯¸Ó±Û Äù½ºÆ® >.<
+// ????? ??T >.<
 	for (int i = 0 ; i < MAX_MESSAGE_EVENT ; i++) {
 		m_iSelMsgEvent[i] = -1;
 	}
@@ -10031,13 +10118,13 @@ void CUser::SelectMsg(EXEC *pExec)
 
 	SetByte( send_buf, WIZ_SELECT_MSG, send_index );
 	SetShort( send_buf, m_sEventNid, send_index );
-//	SetByte( send_buf, (BYTE)pExec->m_ExecInt[0], send_index );		// NPC Á÷¾÷
-	SetDWORD( send_buf, pExec->m_ExecInt[1], send_index );			// Áö¹® ¹øÈ£
+//	SetByte( send_buf, (BYTE)pExec->m_ExecInt[0], send_index );		// NPC ???
+	SetDWORD( send_buf, pExec->m_ExecInt[1], send_index );			// ?? ???
 
 	chat = 2;
 
 //	for( i=0; i<4; i++ )	
-	for( i = 0 ; i < MAX_MESSAGE_EVENT ; i++ ) {	// ºñ·¯¸Ó±Û Äù½ºÆ® >.<
+	for( i = 0 ; i < MAX_MESSAGE_EVENT ; i++ ) {	// ????? ??T >.<
 		SetDWORD( send_buf, pExec->m_ExecInt[chat], send_index );
 		chat += 2;
 	}
@@ -10052,7 +10139,7 @@ void CUser::SelectMsg(EXEC *pExec)
 	m_iSelMsgEvent[4] = pExec->m_ExecInt[11];	
 */
 
-// ºñ·¯¸Ó±Û Äù½ºÆ® >.<
+// ????? ??T >.<
 	for (int j = 0 ; j < MAX_MESSAGE_EVENT ; j++) {
 		m_iSelMsgEvent[j] = pExec->m_ExecInt[(2 * j) + 3];
 	}
@@ -10126,7 +10213,7 @@ BOOL CUser::JobGroupCheck(short jobgroupid)
 	return FALSE;
 }
 
-void CUser::TrapProcess()		// À×...¼º¿ë¾¾ ¹Ì¿ö!!! ÈæÈæÈæ ¤Ð.¤Ð
+void CUser::TrapProcess()		// ??...???? ???!!! ?????? ??.??
 {
 	float currenttime = 0.0f;
 	currenttime = TimeGet();
@@ -10162,7 +10249,7 @@ void CUser::KickOutZoneUser(BOOL home)
 	if(home) {
 //		ZoneChange( pMap->m_nZoneNumber, pMap->m_fInitX, pMap->m_fInitZ );
 
-// ºñ·¯¸Ó±Û ¹öÆÛ
+// ????? ????
 		int random = myrand(0, 9000) ;
 		if( random >= 0 && random < 3000 )			yourmama = 0;
 		else if( random >= 3000 && random < 6000 )	yourmama = 1;
@@ -10262,9 +10349,9 @@ BOOL CUser::CheckEditBox()
 
 void CUser::OpenEditBox(int message, int event)
 {
-	//if( !CheckCouponUsed() ) return;	// ÀÌ°ÍÀº ±â¼úÁö¿ø ÇÊ¿äÇÔ ¤Ð.¤Ð
+	//if( !CheckCouponUsed() ) return;	// ???? ?????? ????? ??.??
 
-	// ÀÌ°ÍÀº ±â¼úÁö¿ø ÇÊ¿äÇÔ ¤Ð.¤Ð
+	// ???? ?????? ????? ??.??
 	int send_index = 0, retvalue = 0;
 	char send_buff[256];
 	memset( send_buff, NULL, 256);
@@ -10275,7 +10362,7 @@ void CUser::OpenEditBox(int message, int event)
 	SetShort( send_buff, strlen(m_strAccountID), send_index );
 	SetString( send_buff, m_strAccountID, strlen(m_strAccountID), send_index );
 	SetDWORD( send_buff, event, send_index );
-//	ºñ·¯¸Ó±Û ´ë»ç¹® >.<
+//	????? ??? >.<
 	SetDWORD( send_buff, message, send_index );
 //	
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
@@ -10328,7 +10415,7 @@ void CUser::RecvEditBox(char *pBuf)
 
 	selevent = m_iEditBoxEvent;
 
-	pEvent = m_pMain->m_Event.GetData(m_pUserData->m_bZone);	// ¿©±â¼­ ºÎÅÍ Áß¿äÇÔ --;
+	pEvent = m_pMain->m_Event.GetData(m_pUserData->m_bZone);	// ???? ???? ????? --;
 	if(!pEvent)	goto fail_return;
 
 	pEventData = pEvent->m_arEvent.GetData(selevent);
@@ -10350,15 +10437,15 @@ fail_return:
 
 BOOL CUser::CheckCouponUsed()
 {
-	// ÀÌ°ÍÀº ±â¼úÁö¿ø ÇÊ¿äÇÔ ¤Ð.¤Ð
+	// ???? ?????? ????? ??.??
 	return TRUE;
 
 }
 
 void CUser::LogCoupon(int itemid, int count)
 {
-	// Âü°í·Î ÄíÆù ¹øÈ£´Â : m_iEditboxEvent
-	// ÀÌ°ÍÀº ±â¼úÁö¿ø ÇÊ¿äÇÔ ¤Ð.¤Ð	
+	// ???? ???? ????? : m_iEditboxEvent
+	// ???? ?????? ????? ??.??	
 	int send_index = 0, retvalue = 0;
 	char send_buff[256];
 	memset( send_buff, NULL, 256);
@@ -10390,18 +10477,18 @@ void CUser::CouponEvent( char* pBuf )
 	int index = 0, nEventNum=0, nItemCount=0, nResult = 0, nMessageNum = 0; 
 	nResult = GetByte( pBuf, index );
 	nEventNum = GetDWORD( pBuf, index );
-// ºñ·¯¸Ó±Û ´ë»ç >.<
+// ????? ??? >.<
 	nMessageNum = GetDWORD( pBuf, index );
 //
 
 	if( nResult == 0 ) return;
 
-	// ¾Ë¾Æ¼­ »ç¿ë
+	// ???? ???
 	int send_index = 0;
 	char send_buf[128];	memset(send_buf, NULL, 128);
 	m_iEditBoxEvent = nEventNum;	// What will the next event be when an answer is given?
 	SetByte( send_buf, WIZ_EDIT_BOX, send_index );
-// ºñ·¯¸Ó±Û ´ë»ç >.<
+// ????? ??? >.<
 	SetDWORD( send_buf, nMessageNum, send_index );
 //
 	Send( send_buf, send_index );	
@@ -10483,7 +10570,7 @@ void CUser::RecvDeleteChar( char* pBuf )
 
 	memset( send_buff, 0x00, 128 );		send_index = 0;
 	SetByte( send_buff, WIZ_DEL_CHAR, send_index );
-	SetByte( send_buff, nResult, send_index );					// ¼º°ø½Ã ±¹°¡ Á¤º¸
+	SetByte( send_buff, nResult, send_index );					// ????? ???? ???
 	SetByte( send_buff, char_index, send_index );
 
 	Send( send_buff, send_index );
