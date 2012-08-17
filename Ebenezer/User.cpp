@@ -919,7 +919,7 @@ void CUser::SetDetailData()
 
 	m_iZoneIndex = m_pMain->GetZoneIndex( m_pUserData->m_bZone );
 
-	if( m_iZoneIndex == -1 ) {	// ?? ???? ??? ?....
+	if( m_iZoneIndex == -1 ) {
 		Close();
 	}
 
