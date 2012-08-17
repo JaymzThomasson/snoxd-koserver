@@ -284,7 +284,7 @@ END_MESSAGE_MAP()
 BOOL CEbenezerDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
-	DEBUG_LOG("test");
+
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
@@ -477,9 +477,7 @@ BOOL CEbenezerDlg::OnInitDialog()
 	LogFileWrite("success");
 	UserAcceptThread();
 
-	//CTime cur = CTime::GetCurrentTime();
-
-	DEBUG_LOG_FILE("Game Server Start : %02d/%02d/%04d %d:%02d\r\n", cur.GetDay(), cur.GetMonth(), cur.GetYear(), cur.GetHour(), cur.GetMinute());
+	AddToList("Game Server Start : %02d/%02d/%04d %d:%02d\r\n", cur.GetDay(), cur.GetMonth(), cur.GetYear(), cur.GetHour(), cur.GetMinute());
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -707,17 +705,35 @@ void CEbenezerDlg::DeleteParty(short sIndex)
 	LeaveCriticalSection(&g_region_critical);
 }
 
-void CEbenezerDlg::WriteLog(const char * format, ...)
+void CEbenezerDlg::AddToList(const char * format, ...)
 {
 	char buffer[256];
+	memset(buffer, 0x00, sizeof(buffer));
 
 	va_list args;
 	va_start(args, format);
-	vsprintf_s(buffer, sizeof(buffer), format, args);
+	_vsnprintf(buffer, sizeof(buffer) - 1, format, args);
+	va_end(args);
+
+	m_StatusList.AddString((CString)buffer);
+
+	EnterCriticalSection(&g_LogFile_critical);
+	m_LogFile.Write(buffer, strlen(buffer));
+	LeaveCriticalSection(&g_LogFile_critical);
+}
+
+void CEbenezerDlg::WriteLog(const char * format, ...)
+{
+	char buffer[256];
+	memset(buffer, 0x00, sizeof(buffer));
+
+	va_list args;
+	va_start(args, format);
+	_vsnprintf(buffer, sizeof(buffer) - 1, format, args);
 	va_end(args);
 
 	EnterCriticalSection(&g_LogFile_critical);
-	m_pMain->m_LogFile.Write(buffer, strlen(buffer));
+	m_LogFile.Write(buffer, strlen(buffer));
 	LeaveCriticalSection(&g_LogFile_critical);
 }
 

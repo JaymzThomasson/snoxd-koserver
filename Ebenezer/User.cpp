@@ -293,6 +293,9 @@ void CUser::Parsing(int len, char *pData)
 		case WIZ_SEL_CHAR:
 			SelCharToAgent( pData+index );
 			break;
+		case WIZ_ALLCHAR_INFO_REQ:
+			AllCharInfoToAgent();
+			break;
 		case WIZ_GAMESTART:
 			if( m_State == STATE_GAMESTART )
 				break;
@@ -340,9 +343,6 @@ void CUser::Parsing(int len, char *pData)
 		break;
 	case WIZ_ATTACK:
 		Attack( pData+index );
-		break;
-	case WIZ_ALLCHAR_INFO_REQ:
-		AllCharInfoToAgent();
 		break;
 	case WIZ_CHAT:
 		Chat( pData+index );
@@ -564,7 +564,7 @@ void CUser::LogOut()
 	char send_buf[256]; 	memset( send_buf, NULL, 256 );
 
 	CTime t = CTime::GetCurrentTime();
-	// m_pMain->WriteLog("[%s : %s Logout : %d:%d:%d]\r\n", m_pUserData->m_Accountid, m_pUserData->m_id, t.GetHour(), t.GetMinute(), t.GetSecond());
+	m_pMain->WriteLog("[%s : %s Logout : %d:%d:%d]\r\n", m_pUserData->m_Accountid, m_pUserData->m_id, t.GetHour(), t.GetMinute(), t.GetSecond());
 
 	pUser = m_pMain->GetUserPtr( m_pUserData->m_Accountid, 0x01 );
 	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) 

@@ -754,7 +754,7 @@ BOOL CDBAgent::LoadCharInfo( char *id, char* buff, int &buff_index)
 
 	userid = id;
 	userid.TrimRight();
-	strcpy_s( id, sizeof(id), (char*)(LPCTSTR)userid );
+	strcpy_s( id, MAX_ID_SIZE + 1, (char*)(LPCTSTR)userid );
 	
 	memset(szSQL, 0x00, 1024);
 
@@ -833,7 +833,7 @@ BOOL CDBAgent::LoadCharInfo( char *id, char* buff, int &buff_index)
 	return retval;
 }
 
-BOOL CDBAgent::GetAllCharID(const char *id, char *char1, char *char2, char *char3, char *char4, char *char5)
+BOOL CDBAgent::GetAllCharID(const char *id, char *char1, char *char2, char *char3)
 {
 	SQLHSTMT		hstmt;
 	SQLRETURN		retcode;
@@ -872,8 +872,6 @@ BOOL CDBAgent::GetAllCharID(const char *id, char *char1, char *char2, char *char
 			SQLGetData(hstmt,1 ,SQL_C_CHAR  ,charid1,	21,		&Indexind);
 			SQLGetData(hstmt,2 ,SQL_C_CHAR  ,charid2,	21,		&Indexind);
 			SQLGetData(hstmt,3 ,SQL_C_CHAR  ,charid3,	21,		&Indexind);
-			SQLGetData(hstmt,4 ,SQL_C_CHAR  ,charid4,	21,		&Indexind);
-			SQLGetData(hstmt,5 ,SQL_C_CHAR  ,charid5,	21,		&Indexind);
 			retval = TRUE;
 		}
 		else retval = FALSE;
@@ -892,11 +890,9 @@ BOOL CDBAgent::GetAllCharID(const char *id, char *char1, char *char2, char *char
 	if( sRet == 0 )
 		retval = FALSE;
 	else {
-		strcpy_s( char1, sizeof(char1), charid1 );
-		strcpy_s( char2, sizeof(char2), charid2 );
-		strcpy_s( char3, sizeof(char3), charid3 );
-		strcpy_s( char4, sizeof(char4), charid4 );
-		strcpy_s( char5, sizeof(char5), charid5 );
+		strcpy_s( char1, MAX_ID_SIZE + 1, charid1 );
+		strcpy_s( char2, MAX_ID_SIZE + 1, charid2 );
+		strcpy_s( char3, MAX_ID_SIZE + 1, charid3 );
 	}
 	
 	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);

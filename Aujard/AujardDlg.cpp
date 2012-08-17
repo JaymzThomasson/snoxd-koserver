@@ -668,8 +668,10 @@ void CAujardDlg::AllCharInfoReq(char *pBuf)
 	char send_buff[1024], buff[1024];
 	memset( send_buff, NULL, 1024 );
 	memset( buff, NULL, 1024 );
-	char charid1[MAX_ID_SIZE+1], charid2[MAX_ID_SIZE+1], charid3[MAX_ID_SIZE+1], charid4[MAX_ID_SIZE+1], charid5[MAX_ID_SIZE+1];
-	memset( charid1, NULL, MAX_ID_SIZE+1 );	memset( charid2, NULL, MAX_ID_SIZE+1 ); memset( charid3, NULL, MAX_ID_SIZE+1 );	memset( charid4, NULL, MAX_ID_SIZE+1 );	memset( charid5, NULL, MAX_ID_SIZE+1 );
+	char charid1[MAX_ID_SIZE+1], charid2[MAX_ID_SIZE+1], charid3[MAX_ID_SIZE+1];
+	memset( charid1, NULL, sizeof(charid1) );	
+	memset( charid2, NULL, sizeof(charid2) ); 
+	memset( charid3, NULL, sizeof(charid3) );	
 
 	uid = GetShort( pBuf, index );
 	idlen = GetShort( pBuf, index );
@@ -677,7 +679,7 @@ void CAujardDlg::AllCharInfoReq(char *pBuf)
 
 	SetByte( buff, 0x01, buff_index );	// result
 
-	m_DBAgent.GetAllCharID( accountid, charid1, charid2, charid3, charid4, charid5 );
+	m_DBAgent.GetAllCharID( accountid, charid1, charid2, charid3 );
 	m_DBAgent.LoadCharInfo( charid1, buff, buff_index );
 	m_DBAgent.LoadCharInfo( charid2, buff, buff_index );
 	m_DBAgent.LoadCharInfo( charid3, buff, buff_index );

@@ -136,6 +136,7 @@ public:
 	_PARTY_GROUP * CreateParty(CUser *pLeader);
 	void DeleteParty(short sIndex);
 
+	void AddToList(const char * format, ...);
 	void WriteLog(const char * format, ...);
 
 	CEbenezerDlg(CWnd* pParent = NULL);	// standard constructor

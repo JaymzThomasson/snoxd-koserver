@@ -36,7 +36,7 @@ public:
 	int DeleteKnights( int knightsindex );
 	int UpdateKnights( int Type, char* userid, int knightsindex, int domination );
 	int CreateKnights( int knightsindex, int nation, char* name, char* chief, int iFlag = 1 );
-	BOOL GetAllCharID( const char* id, char* char1, char* char2, char* char3, char* char4, char* char5);
+	BOOL GetAllCharID( const char* id, char* char1, char* char2, char* char3);
 	BOOL LoadCharInfo( char* id, char* buff, int &buff_index);
 	BOOL NationSelect( char* id, int nation );
 	BOOL DeleteChar( int index, char *id, char* charid, char* socno );

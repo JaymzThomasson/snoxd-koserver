@@ -596,9 +596,11 @@ inline void	TimeTrace(TCHAR* pMsg)
 inline void _DEBUG_LOG(bool toFile, char * format, ...)
 {
 	char buffer[256];
+	memset(buffer, 0x00, sizeof(buffer));
+
 	va_list args;
 	va_start(args, format);
-	vsprintf_s(buffer, sizeof(buffer), format, args);
+	_vsnprintf(buffer, sizeof(buffer) - 1, format, args);
 	va_end(args);
 
 	TRACE("%s\n", buffer);

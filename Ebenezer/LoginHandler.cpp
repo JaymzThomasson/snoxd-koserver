@@ -40,11 +40,9 @@ void CUser::VersionCheck(char *pBuf)
 	///~
 }
 
-void CUser::LoginProcess(char *pBuf )
+void CUser::LoginProcess(char *pBuf)
 {
 	int index = 0, send_index = 0, retvalue = 0;
-	short unka;
-	int unkb;
 
 	char accountid[MAX_ID_SIZE+1];
 	memset( accountid, NULL, MAX_ID_SIZE+1 );
@@ -61,9 +59,6 @@ void CUser::LoginProcess(char *pBuf )
 		|| !GetKOString(pBuf, password, index, MAX_PW_SIZE))
 		goto fail_return;
 
-	unka = GetShort( pBuf, index );
-	unkb = GetDWORD( pBuf, index );
-
 	pUser = m_pMain->GetUserPtr( accountid, 0x01 );
 	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) {
 		pUser->UserDataSaveToAgent();
@@ -71,10 +66,10 @@ void CUser::LoginProcess(char *pBuf )
 		goto fail_return;
 	}
 	
-	SetByte( send_buff, WIZ_LOGIN, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetKOString(send_buff, accountid, index);
-	SetKOString(send_buff, password, index);
+	SetByte( send_buff, WIZ_LOGIN, send_index);
+	SetShort( send_buff, m_Sid, send_index);
+	SetKOString(send_buff, accountid, send_index);
+	SetKOString(send_buff, password, send_index);
 
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
 	if (retvalue >= SMQ_FULL) 
@@ -84,7 +79,6 @@ void CUser::LoginProcess(char *pBuf )
 	}
 
 	strcpy( m_strAccountID, accountid );
-
 	return;
 
 fail_return:
