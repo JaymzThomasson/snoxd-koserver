@@ -511,22 +511,4 @@ void CUser::GameStart(char *pBuf)
 		// ItemMallMagicRecast();
 
 	}
-
-	
-			SendMyInfo();
-			TRACE("GAMESTART: %s..%d\n", m_pUserData->m_id, m_Sid);
-	//
-			if(m_pMain->m_bPermanentChatMode) {		// If there is a permanent chat available!!!
-				int buffindex = 0;
-				char buff[1024]; memset( buff, 0x00, 1024 );
-
-				SetByte( buff, WIZ_CHAT, buffindex );
-				SetByte( buff, PERMANENT_CHAT, buffindex );
-				SetByte( buff, 0x01, buffindex );		// Nation
-				SetShort( buff, -1, buffindex );		// sid
-				SetShort( buff, strlen(m_pMain->m_strPermanentChat), buffindex );
-				SetString( buff, m_pMain->m_strPermanentChat, strlen(m_pMain->m_strPermanentChat), buffindex );
-				Send( buff, buffindex );			
-			}
-	//
 }
