@@ -6,7 +6,7 @@
 
 void CUser::Chat(char *pBuf)
 {
-	int index = 0, chatlen = 0, send_index = 0, tid = -1;
+	int index = 0, send_index = 0;
 	BYTE type;
 	CUser* pUser = NULL;
 	char chatstr[1024]; memset( chatstr, NULL, 1024 );
@@ -15,65 +15,65 @@ void CUser::Chat(char *pBuf)
 
 	std::string buff;
 
-	if( m_pUserData->m_bAuthority == 2 ) return;		// this user refused chatting
-	type = GetByte( pBuf, index );
-	chatlen = GetShort( pBuf, index );
-	if( chatlen > 512 || chatlen <= 0 )
+	if (isMuted())
+		return;	
+
+	type = GetByte(pBuf, index);
+	if (!GetKOString(pBuf, chatstr, index, 512))
 		return;
-	GetString( chatstr, pBuf, chatlen, index );
 
-	if( type == PUBLIC_CHAT ) {
-		if( m_pUserData->m_bAuthority != 0 ) return;
-		//sprintf( finalstr, "#### ???? : %s ####", chatstr );
-		::_LoadStringFromResource(IDP_ANNOUNCEMENT, buff);
-		sprintf( finalstr, buff.c_str(), chatstr );
+	SetByte(send_buff, WIZ_CHAT, send_index);
+
+	if (type != PUBLIC_CHAT)
+	{
+		SetByte(send_buff, type, send_index);
+		SetByte(send_buff, getNation(), send_index);
+		SetShort(send_buff, GetSocketID(), send_index);
+		SetKOString(send_buff, m_pUserData->m_id, send_index, 1);
+		SetKOString(send_buff, chatstr, send_index);
 	}
-	else {
-		sprintf( finalstr, "%s : %s", m_pUserData->m_id, chatstr );
-	}
 
-	SetByte( send_buff, WIZ_CHAT, send_index );
-	SetByte( send_buff, type, send_index );
-	SetByte( send_buff, m_pUserData->m_bNation, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, strlen(finalstr), send_index );
-	SetString( send_buff, finalstr, strlen(finalstr), send_index );
-
-	switch(type) {
+	switch (type) 
+	{
 	case GENERAL_CHAT:
-		m_pMain->Send_NearRegion( send_buff, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, m_pUserData->m_curx, m_pUserData->m_curz );
+		m_pMain->Send_NearRegion(send_buff, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, m_pUserData->m_curx, m_pUserData->m_curz);
 		break;
+
 	case PRIVATE_CHAT:
-		if (m_sPrivateChatUser < 0 || m_sPrivateChatUser >= MAX_USER 
-			|| m_sPrivateChatUser == GetSocketID()) 
+		if (m_sPrivateChatUser == GetSocketID()) 
 			break;
 
 		pUser = m_pMain->GetUserPtr(m_sPrivateChatUser);
-		if (!pUser || pUser->GetState() != STATE_GAMESTART) 
+		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART) 
 			break;
 
-		pUser->Send( send_buff, send_index );
-		Send( send_buff, send_index );
+		pUser->Send(send_buff, send_index);
+		// Send(send_buff, send_index);
 		break;
+
 	case PARTY_CHAT:
-		m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );
+		if (isInParty())
+			m_pMain->Send_PartyMember(m_sPartyIndex, send_buff, send_index );
 		break;
-	case FORCE_CHAT:
-		break;
+
 	case SHOUT_CHAT:
-		if( m_pUserData->m_sMp < (m_iMaxMp/5) ) break;
-		MSpChange( -(m_iMaxMp/5) );
-		m_pMain->Send_Region( send_buff, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false );
+		if (m_pUserData->m_sMp < (m_iMaxMp / 5))
+			break;
+
+		MSpChange(-(m_iMaxMp / 5));
+		m_pMain->Send_Region(send_buff, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false);
 		break;
 
 	case KNIGHTS_CHAT:
-		m_pMain->Send_KnightsMember( m_pUserData->m_bKnights, send_buff, send_index, m_pUserData->m_bZone );
+		if (isInClan())
+			m_pMain->Send_KnightsMember(m_pUserData->m_bKnights, send_buff, send_index, m_pUserData->m_bZone);
 		break;
 	case PUBLIC_CHAT:
-		m_pMain->Send_All( send_buff, send_index );
+		if (isGM())
+			m_pMain->Send_All( send_buff, send_index );
 		break;
 	case COMMAND_CHAT:
-		if( m_pUserData->m_bFame == COMMAND_CAPTAIN )		// ???????? ä???? ?????
+		if( m_pUserData->m_bFame == COMMAND_CAPTAIN )
 			m_pMain->Send_CommandChat( send_buff, send_index, m_pUserData->m_bNation, this );
 		break;
 	//case WAR_SYSTEM_CHAT:

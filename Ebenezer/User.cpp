@@ -631,17 +631,10 @@ void CUser::SendMyInfo()
 		m_pUserData->m_curx = x;
 		m_pUserData->m_curz = z;
 	}
-/* Mins	
-	if (m_pUserData->m_bZone == 51) {
-		m_pUserData->m_curx = 40;
-		m_pUserData->m_curz = 10;
-		m_pUserData->m_cury = 7;
-	}
-*/
+
 	SetByte( send_buff, WIZ_MYINFO, send_index );
 	SetShort( send_buff, m_Sid, send_index );
-	SetByte( send_buff, strlen(m_pUserData->m_id), send_index );
-	SetString( send_buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index );
+	SetKOString(send_buff, m_pUserData->m_id, send_index, 1);
 
 	SetShort( send_buff, (WORD)m_pUserData->m_curx*10, send_index );
 	SetShort( send_buff, (WORD)m_pUserData->m_curz*10, send_index );
@@ -651,19 +644,22 @@ void CUser::SendMyInfo()
 	SetByte( send_buff, m_pUserData->m_bRace, send_index );
 	SetShort( send_buff, m_pUserData->m_sClass, send_index );
 	SetByte( send_buff, m_pUserData->m_bFace, send_index );
-	SetByte( send_buff, m_pUserData->m_bHairColor, send_index );
-	SetByte( send_buff, 0x23, send_index );//r
-	SetByte( send_buff, 0x23, send_index );//g
-	SetByte( send_buff, 0x23, send_index );//b
+
+	SetByte( send_buff, m_pUserData->m_bHair[HAIR_TYPE], send_index );
+	SetByte( send_buff, m_pUserData->m_bHair[HAIR_R], send_index );
+	SetByte( send_buff, m_pUserData->m_bHair[HAIR_G], send_index );
+	SetByte( send_buff, m_pUserData->m_bHair[HAIR_B], send_index );
+
 	SetByte( send_buff, m_pUserData->m_bRank, send_index );
 	SetByte( send_buff, m_pUserData->m_bTitle, send_index );
 	SetByte( send_buff, m_pUserData->m_bLevel, send_index );
-	SetShort( send_buff, m_pUserData->m_bPoints, send_index );
+	SetShort( send_buff, m_pUserData->m_sPoints, send_index );
 	SetInt64( send_buff, m_iMaxExp, send_index );
 	SetInt64( send_buff, m_pUserData->m_iExp, send_index );
 	SetDWORD( send_buff, m_pUserData->m_iLoyalty, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iLoyalty, send_index );//leader points
-	//SetByte( send_buff, m_pUserData->m_bCity, send_index );
+	SetDWORD( send_buff, m_pUserData->m_iLoyaltyMonthly, send_index );
+
+	SetByte( send_buff, m_pUserData->m_bCity, send_index );
 	SetShort( send_buff, m_pUserData->m_bKnights, send_index );
 	SetShort( send_buff, m_pUserData->m_bFame, send_index );
 
@@ -1349,8 +1345,8 @@ void CUser::LevelChange(short level, BYTE type )
 	int send_index = 0;
 
 	if( type ) {
-		if( (m_pUserData->m_bPoints+m_pUserData->m_bSta+m_pUserData->m_bStr+m_pUserData->m_bDex+m_pUserData->m_bIntel+m_pUserData->m_bCha) < (300+3*(level-1)) )
-			m_pUserData->m_bPoints += 3;
+		if( (m_pUserData->m_sPoints+m_pUserData->m_bSta+m_pUserData->m_bStr+m_pUserData->m_bDex+m_pUserData->m_bIntel+m_pUserData->m_bCha) < (300+3*(level-1)) )
+			m_pUserData->m_sPoints += 3;
 		if( level > 9 && (m_pUserData->m_bstrSkill[0]+m_pUserData->m_bstrSkill[1]+m_pUserData->m_bstrSkill[2]+m_pUserData->m_bstrSkill[3]+m_pUserData->m_bstrSkill[4]
 			+m_pUserData->m_bstrSkill[5]+m_pUserData->m_bstrSkill[6]+m_pUserData->m_bstrSkill[7]+m_pUserData->m_bstrSkill[8]) < (2*(level-9)) )
 			m_pUserData->m_bstrSkill[0] += 2;	// Skill Points up
@@ -1370,7 +1366,7 @@ void CUser::LevelChange(short level, BYTE type )
 	SetByte( buff, WIZ_LEVEL_CHANGE, send_index );
 	SetShort( buff, m_Sid, send_index );
 	SetByte( buff, m_pUserData->m_bLevel, send_index );
-	SetByte( buff, m_pUserData->m_bPoints, send_index );
+	SetShort( buff, m_pUserData->m_sPoints, send_index );
 	SetByte( buff, m_pUserData->m_bstrSkill[0], send_index );
 	SetDWORD( buff, m_iMaxExp, send_index );
 	SetDWORD( buff, m_pUserData->m_iExp, send_index );
@@ -1401,7 +1397,7 @@ void CUser::PointChange(char *pBuf)
 	type = GetByte( pBuf, index );
 	value = GetShort( pBuf, index );
 	if( type > 5 || abs(value) > 1 ) return;
-	if( m_pUserData->m_bPoints < 1 ) return;
+	if( m_pUserData->m_sPoints < 1 ) return;
 	switch( type ) {
 	case STR:
 		if( m_pUserData->m_bStr == 0xFF ) return;
@@ -1420,7 +1416,7 @@ void CUser::PointChange(char *pBuf)
 		break;
 	}
 
-	m_pUserData->m_bPoints -= value;
+	m_pUserData->m_sPoints -= value;
 
 	SetByte( send_buff, WIZ_POINT_CHANGE, send_index );
 	SetByte( send_buff, type, send_index );
@@ -3604,7 +3600,7 @@ void CUser::AllPointChange()
 		break;
 	}
 
-	m_pUserData->m_bPoints = (m_pUserData->m_bLevel-1) * 3 + 10;
+	m_pUserData->m_sPoints = (m_pUserData->m_bLevel-1) * 3 + 10;
 	m_pUserData->m_iGold = money;
 
 	SetUserAbility();
@@ -3624,7 +3620,7 @@ void CUser::AllPointChange()
 	SetShort( send_buff, m_iMaxMp, send_index );
 	SetShort( send_buff, m_sTotalHit, send_index );
 	SetShort( send_buff, m_sMaxWeight, send_index );
-	SetShort( send_buff, m_pUserData->m_bPoints, send_index );
+	SetShort( send_buff, m_pUserData->m_sPoints, send_index );
 	Send( send_buff, send_index );
 
 

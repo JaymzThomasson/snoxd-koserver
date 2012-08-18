@@ -170,6 +170,14 @@ struct _ITEM_TABLE
 	BYTE  m_bCountable;			// 개수 개념 아이템
 };
 
+enum HairData
+{
+	HAIR_R,
+	HAIR_G,
+	HAIR_B,
+	HAIR_TYPE
+};
+
 struct _USER_DATA
 {
 	char	m_id[MAX_ID_SIZE+1];
@@ -183,7 +191,9 @@ struct _USER_DATA
 	BYTE	m_bNation;
 	BYTE	m_bRace;
 	short	m_sClass;
-	BYTE	m_bHairColor;
+
+	BYTE	m_bHair[4];
+
 	BYTE	m_bRank;
 	BYTE	m_bTitle;
 	BYTE	m_bLevel;
@@ -204,7 +214,7 @@ struct _USER_DATA
 	BYTE	m_bIntel;
 	BYTE	m_bCha;
 	BYTE	m_bAuthority;
-	BYTE	m_bPoints;
+	short	m_sPoints;
 	int		m_iGold;
 	short	m_sBind;
 	int		m_iBank;

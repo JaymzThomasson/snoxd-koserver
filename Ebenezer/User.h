@@ -166,7 +166,7 @@ public:
 
 	short	m_sAliveCount;
 
-	BYTE	m_bAbnormalType;			// Is the player normal,a giant, or a dwarf?
+	DWORD	m_bAbnormalType;			// Is the player normal,a giant, or a dwarf?
 
 	short	m_sWhoKilledMe;				// Who killed me???
 	int		m_iLostExp;					// Experience point that was lost when you died.
@@ -194,8 +194,19 @@ public:
 	
 
 public:
+	__forceinline bool isBanned() { return getAuthority() == AUTHORITY_BANNED; };
+	__forceinline bool isMuted() { return getAuthority() == AUTHORITY_MUTED; };
+	__forceinline bool isAttackDisabled() { return getAuthority() == AUTHORITY_ATTACK_DISABLED; };
+	__forceinline bool isGM() { return getAuthority() == AUTHORITY_GAME_MASTER; };
+	__forceinline bool isLimitedGM() { return getAuthority() == AUTHORITY_LIMITED_GAME_MASTER; };
+
 	__forceinline bool isDead() { return m_bResHpType == USER_DEAD || m_pUserData->m_sHp <= 0; };
+
+	__forceinline bool isInParty() { return m_sPartyIndex != -1; };
+	__forceinline bool isInClan() { return m_pUserData->m_bKnights != -1; };
+
 	__forceinline BYTE getNation() { return m_pUserData->m_bNation; };
+	__forceinline BYTE getAuthority() { return m_pUserData->m_bAuthority; };
 
 	void RecvDeleteChar( char* pBuf );
 	BOOL ExistComEvent(int eventid);

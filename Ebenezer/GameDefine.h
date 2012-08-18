@@ -338,6 +338,14 @@ struct _ITEM_TABLE
 	BYTE  m_bCurseR;			// ���� ���� ���׷�
 };
 
+enum HairData
+{
+	HAIR_R,
+	HAIR_G,
+	HAIR_B,
+	HAIR_TYPE
+};
+
 struct _USER_DATA
 {
 	char	m_id[MAX_ID_SIZE+1];
@@ -351,7 +359,9 @@ struct _USER_DATA
 	BYTE	m_bNation;
 	BYTE	m_bRace;
 	short	m_sClass;
-	BYTE	m_bHairColor;
+
+	BYTE	m_bHair[4];
+
 	BYTE	m_bRank;
 	BYTE	m_bTitle;
 	BYTE	m_bLevel;
@@ -372,7 +382,7 @@ struct _USER_DATA
 	BYTE	m_bIntel;
 	BYTE	m_bCha;
 	BYTE	m_bAuthority;
-	BYTE	m_bPoints;
+	short	m_sPoints;
 	int		m_iGold;
 	short	m_sBind;
 	int		m_iBank;
@@ -590,6 +600,16 @@ struct _HOME_INFO
 	BYTE	BattleZoneLX;
 	BYTE	BattleZoneLZ;
 //
+};
+
+enum AuthorityTypes
+{
+	AUTHORITY_GAME_MASTER			= 0,
+	AUTHORITY_PLAYER				= 1,
+	AUTHORITY_MUTED					= 11,
+	AUTHORITY_ATTACK_DISABLED		= 12,
+	AUTHORITY_LIMITED_GAME_MASTER	= 250,
+	AUTHORITY_BANNED				= 255
 };
 
 #endif

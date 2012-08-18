@@ -131,8 +131,7 @@ void CUser::UserInOut(BYTE Type)
 		SetByte( buff, AG_USER_INOUT, send_index );
 		SetByte( buff, Type, send_index );
 		SetShort( buff, m_Sid, send_index );
-		SetShort( buff, strlen(m_pUserData->m_id), send_index );
-		SetString( buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index );
+		SetKOString(buff, m_pUserData->m_id, send_index);
 		Setfloat( buff, m_pUserData->m_curx, send_index );
 		Setfloat( buff, m_pUserData->m_curz, send_index );
 		m_pMain->Send_AIServer( m_pUserData->m_bZone, buff, send_index);
@@ -144,8 +143,9 @@ void CUser::GetUserInfo(char *buff, int & buff_index)
 {
 	CKnights* pKnights = NULL;
 
-	SetKOString(buff, m_pUserData->m_id, buff_index);
+	SetKOString(buff, m_pUserData->m_id, buff_index, 1);
 	SetByte(buff, m_pUserData->m_bNation, buff_index);
+	SetByte(buff, m_pUserData->m_bCity, buff_index); // probably isn't this, but it'll at least serve as filler if it's not
 	SetShort(buff, m_pUserData->m_bKnights, buff_index);
 	SetByte(buff, m_pUserData->m_bFame, buff_index);
 
@@ -170,7 +170,12 @@ void CUser::GetUserInfo(char *buff, int & buff_index)
 	SetShort(buff, m_pUserData->m_curz*10, buff_index);
 	SetShort(buff, m_pUserData->m_cury*10, buff_index);
 	SetByte(buff, m_pUserData->m_bFace, buff_index);
-	SetByte(buff, m_pUserData->m_bHairColor, buff_index);
+
+	SetByte(buff, m_pUserData->m_bHair[HAIR_TYPE], buff_index);
+	SetByte(buff, m_pUserData->m_bHair[HAIR_R], buff_index); // r
+	SetByte(buff, m_pUserData->m_bHair[HAIR_G], buff_index); // g
+	SetByte(buff, m_pUserData->m_bHair[HAIR_B], buff_index); // b
+
 	SetByte(buff, m_bResHpType, buff_index);
 
 	SetByte(buff, m_bAbnormalType, buff_index);

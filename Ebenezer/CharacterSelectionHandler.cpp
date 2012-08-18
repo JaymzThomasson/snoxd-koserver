@@ -64,11 +64,9 @@ void CUser::NewCharToAgent(char *pBuf)
 
 	SetByte( send_buff, WIZ_NEW_CHAR, send_index );
 	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, strlen(m_strAccountID), send_index );
-	SetString( send_buff, m_strAccountID, strlen(m_strAccountID), send_index );
+	SetKOString( send_buff, m_strAccountID, send_index );
 	SetByte( send_buff, charindex, send_index );
-	SetShort( send_buff, idlen, send_index );
-	SetString( send_buff, charid, idlen, send_index );
+	SetKOString(send_buff, charid, send_index);
 	SetByte( send_buff, race, send_index );
 	SetShort( send_buff, Class, send_index );
 	SetByte( send_buff, face, send_index );
@@ -119,13 +117,10 @@ void CUser::DelCharToAgent(char *pBuf)
 
 	SetByte( send_buff, WIZ_DEL_CHAR, send_index );
 	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, strlen(m_strAccountID), send_index );
-	SetString( send_buff, m_strAccountID, strlen(m_strAccountID), send_index );
+	SetKOString( send_buff, m_strAccountID, send_index );
 	SetByte( send_buff, charindex, send_index );
-	SetShort( send_buff, idlen, send_index );
-	SetString( send_buff, charid, idlen, send_index );
-	SetShort( send_buff, soclen, send_index );
-	SetString( send_buff, socno, soclen, send_index );
+	SetKOString(send_buff, charid, send_index);
+	SetKOString(send_buff, socno, send_index);
 
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
 	if (retvalue < SMQ_FULL)
@@ -163,8 +158,7 @@ void CUser::RecvDeleteChar( char* pBuf )
 		SetByte( send_buff, UDP_KNIGHTS_PROCESS, send_index );
 		SetByte( send_buff, KNIGHTS_WITHDRAW, send_index );
 		SetShort( send_buff, nKnights, send_index );
-		SetShort( send_buff, nLen, send_index );
-		SetString( send_buff, strCharID, nLen, send_index );
+		SetKOString(send_buff, strCharID, send_index);
 		if( m_pMain->m_nServerGroup == 0 )
 			m_pMain->Send_UDP_All( send_buff, send_index );
 		else
@@ -192,8 +186,7 @@ void CUser::SelNationToAgent(char *pBuf)
 
 	SetByte( send_buff, WIZ_SEL_NATION, send_index );
 	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, strlen(m_strAccountID), send_index );
-	SetString( send_buff, m_strAccountID, strlen(m_strAccountID), send_index );
+	SetKOString(send_buff, m_strAccountID, send_index);
 	SetByte( send_buff, nation, send_index );
 
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
@@ -288,8 +281,7 @@ void CUser::SelectCharacter(char *pBuf)
 
 		SetByte( send_buff, WIZ_SERVER_CHANGE, send_index );
 		SetShort( send_buff, strlen( pInfo->strServerIP ), send_index );
-		SetString( send_buff, pInfo->strServerIP, strlen( pInfo->strServerIP ), send_index );
-		SetShort( send_buff, pInfo->sPort, send_index );
+		SetKOString(send_buff, pInfo->strServerIP, send_index);
 		SetByte( send_buff, bInit, send_index );
 		SetByte( send_buff, m_pUserData->m_bZone, send_index );
 		SetByte( send_buff, m_pMain->m_byOldVictory, send_index );
@@ -414,8 +406,7 @@ void CUser::AllCharInfoToAgent()
 
 	SetByte( send_buff, WIZ_ALLCHAR_INFO_REQ, send_index );
 	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, strlen(m_strAccountID), send_index );
-	SetString( send_buff, m_strAccountID, strlen(m_strAccountID), send_index );
+	SetKOString(send_buff, m_strAccountID, send_index);
 
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
 	if( retvalue >= SMQ_FULL ) {
@@ -447,18 +438,15 @@ void CUser::SetLogInInfoToDB(BYTE bInit)
 	getpeername(m_Socket, (struct sockaddr*)&addr, &addrlen );
 	strcpy( strClientIP, inet_ntoa(addr.sin_addr) );
 
-	SetByte( send_buff, WIZ_LOGIN_INFO, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, strlen(m_strAccountID), send_index );
-	SetString( send_buff, m_strAccountID, strlen(m_strAccountID), send_index );
-	SetShort( send_buff, strlen(m_pUserData->m_id), send_index );
-	SetString( send_buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index );
-	SetShort( send_buff, strlen(pInfo->strServerIP), send_index );
-	SetString( send_buff, pInfo->strServerIP, strlen(pInfo->strServerIP), send_index );
-	SetShort( send_buff, pInfo->sPort, send_index );
-	SetShort( send_buff, strlen(strClientIP), send_index );
-	SetString( send_buff, strClientIP, strlen(strClientIP), send_index );
-	SetByte( send_buff, bInit, send_index );
+	SetByte(send_buff, WIZ_LOGIN_INFO, send_index);
+
+	SetShort(send_buff, m_Sid, send_index);
+	SetKOString(send_buff, m_strAccountID, send_index);
+	SetKOString(send_buff, m_pUserData->m_id, send_index);
+	SetKOString(send_buff, pInfo->strServerIP, send_index);
+	SetShort(send_buff, pInfo->sPort, send_index);
+	SetKOString(send_buff, strClientIP, send_index);
+	SetByte(send_buff, bInit, send_index);
 
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
 	if( retvalue >= SMQ_FULL ) {
