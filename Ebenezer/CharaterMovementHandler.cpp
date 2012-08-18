@@ -90,8 +90,6 @@ void CUser::UserInOut(BYTE Type)
 	memset( buff, 0x00, 256 );
 	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return;
 	C3DMap *pMap = m_pMain->m_ZoneArray[m_iZoneIndex];
-	CKnights* pKnights = NULL;
-	pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
 	if( !pMap )
 		return;
 
@@ -113,69 +111,14 @@ void CUser::UserInOut(BYTE Type)
 		SetByte( buff, AG_USER_INOUT, send_index );
 		SetByte( buff, Type, send_index );
 		SetShort( buff, m_Sid, send_index );
-		SetShort( buff, strlen(m_pUserData->m_id), send_index );
-		SetString( buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index );
+		SetKOString(buff, m_pUserData->m_id, send_index);
 		Setfloat( buff, m_pUserData->m_curx, send_index );
 		Setfloat( buff, m_pUserData->m_curz, send_index );
 		m_pMain->Send_AIServer( m_pUserData->m_bZone, buff, send_index);
 		return;
 	}
-	SetShort( buff, strlen(m_pUserData->m_id), send_index );
-	SetString( buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index );
-	SetByte( buff, m_pUserData->m_bNation, send_index );
-	SetShort( buff, m_pUserData->m_bKnights, send_index );
-	SetByte( buff, m_pUserData->m_bFame, send_index );
-	if( m_pUserData->m_bKnights == 0 )	{
-		SetShort( buff, 0, send_index );
-		SetByte( buff, 0, send_index );
-		SetByte( buff, 0, send_index );
-	}
-	else {
-		//pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
-		if( pKnights )	{
-			iLength = strlen( pKnights->m_strName );
-			SetShort( buff, (short)iLength, send_index );
-			SetString( buff, pKnights->m_strName, iLength, send_index );
-			SetByte( buff, pKnights->m_byGrade, send_index );  // knights grade
-			SetByte( buff, pKnights->m_byRanking, send_index );  // knights grade
-			//TRACE("userinout knights index = %d, kname=%s, name=%s\n" , iLength, pKnights->strName, m_pUserData->m_id);
-		}
-		else	{
-			SetShort( buff, 0, send_index );
-			SetByte( buff, 0, send_index );
-			SetByte( buff, 0, send_index );
-		}
-	}	
-	SetByte( buff, m_pUserData->m_bLevel, send_index );
-	SetByte( buff, m_pUserData->m_bRace, send_index );
-	SetShort( buff, m_pUserData->m_sClass, send_index );
-	SetShort( buff, (WORD)m_pUserData->m_curx*10, send_index );
-	SetShort( buff, (WORD)m_pUserData->m_curz*10, send_index );
-	SetShort( buff, (short)m_pUserData->m_cury*10, send_index );
-	SetByte( buff, m_pUserData->m_bFace, send_index );
-	SetByte( buff, m_pUserData->m_bHairColor, send_index );
-	SetByte( buff, m_bResHpType, send_index );
-// ????? ???...
-	SetByte( buff, m_bAbnormalType, send_index );
-//
-	SetByte( buff, m_bNeedParty, send_index );
-	SetByte( buff, m_pUserData->m_bAuthority, send_index );
-	SetDWORD( buff, m_pUserData->m_sItemArray[BREAST].nNum, send_index );
-	SetShort( buff, m_pUserData->m_sItemArray[BREAST].sDuration, send_index );
-	SetDWORD( buff, m_pUserData->m_sItemArray[LEG].nNum, send_index );
-	SetShort( buff, m_pUserData->m_sItemArray[LEG].sDuration, send_index );
-	SetDWORD( buff, m_pUserData->m_sItemArray[HEAD].nNum, send_index );
-	SetShort( buff, m_pUserData->m_sItemArray[HEAD].sDuration, send_index );
-	SetDWORD( buff, m_pUserData->m_sItemArray[GLOVE].nNum, send_index );
-	SetShort( buff, m_pUserData->m_sItemArray[GLOVE].sDuration, send_index );
-	SetDWORD( buff, m_pUserData->m_sItemArray[FOOT].nNum, send_index );
-	SetShort( buff, m_pUserData->m_sItemArray[FOOT].sDuration, send_index );
-	SetDWORD( buff, m_pUserData->m_sItemArray[SHOULDER].nNum, send_index );
-	SetShort( buff, m_pUserData->m_sItemArray[SHOULDER].sDuration, send_index );
-	SetDWORD( buff, m_pUserData->m_sItemArray[RIGHTHAND].nNum, send_index );
-	SetShort( buff, m_pUserData->m_sItemArray[RIGHTHAND].sDuration, send_index );
-	SetDWORD( buff, m_pUserData->m_sItemArray[LEFTHAND].nNum, send_index );
-	SetShort( buff, m_pUserData->m_sItemArray[LEFTHAND].sDuration, send_index );
+
+	GetUserInfo(buff, send_index);
 
 //	TRACE("USERINOUT - %d, %s\n", m_Sid, m_pUserData->m_id);
 	m_pMain->Send_Region( buff, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, this );
@@ -195,6 +138,61 @@ void CUser::UserInOut(BYTE Type)
 		m_pMain->Send_AIServer( m_pUserData->m_bZone, buff, send_index);
 	}
 //
+}
+
+void CUser::GetUserInfo(char *buff, int & buff_index)
+{
+	CKnights* pKnights = NULL;
+
+	SetKOString(buff, m_pUserData->m_id, buff_index);
+	SetByte(buff, m_pUserData->m_bNation, buff_index);
+	SetShort(buff, m_pUserData->m_bKnights, buff_index);
+	SetByte(buff, m_pUserData->m_bFame, buff_index);
+
+	pKnights = m_pMain->m_KnightsArray.GetData(m_pUserData->m_bKnights);
+	if (pKnights == NULL || m_pUserData->m_bKnights <= 0)
+	{
+		SetShort(buff, 0, buff_index );
+		SetByte(buff, 0, buff_index );
+		SetByte(buff, 0, buff_index );
+	}
+	else 
+	{
+		SetKOString(buff, pKnights->m_strName, buff_index);
+		SetByte(buff, pKnights->m_byGrade, buff_index);  // knights grade
+		SetByte(buff, pKnights->m_byRanking, buff_index);  // knights grade
+	}	
+
+	SetByte(buff, m_pUserData->m_bLevel, buff_index);
+	SetByte(buff, m_pUserData->m_bRace, buff_index);
+	SetShort(buff, m_pUserData->m_sClass, buff_index);
+	SetShort(buff, (WORD)m_pUserData->m_curx*10, buff_index);
+	SetShort(buff, m_pUserData->m_curz*10, buff_index);
+	SetShort(buff, m_pUserData->m_cury*10, buff_index);
+	SetByte(buff, m_pUserData->m_bFace, buff_index);
+	SetByte(buff, m_pUserData->m_bHairColor, buff_index);
+	SetByte(buff, m_bResHpType, buff_index);
+
+	SetByte(buff, m_bAbnormalType, buff_index);
+	SetByte(buff, m_bNeedParty, buff_index);
+	SetByte(buff, m_pUserData->m_bAuthority, buff_index);
+
+	SetDWORD(buff, m_pUserData->m_sItemArray[BREAST].nNum, buff_index);
+	SetShort(buff, m_pUserData->m_sItemArray[BREAST].sDuration, buff_index);
+	SetDWORD(buff, m_pUserData->m_sItemArray[LEG].nNum, buff_index);
+	SetShort(buff, m_pUserData->m_sItemArray[LEG].sDuration, buff_index);
+	SetDWORD(buff, m_pUserData->m_sItemArray[HEAD].nNum, buff_index);
+	SetShort(buff, m_pUserData->m_sItemArray[HEAD].sDuration, buff_index);
+	SetDWORD(buff, m_pUserData->m_sItemArray[GLOVE].nNum, buff_index);
+	SetShort(buff, m_pUserData->m_sItemArray[GLOVE].sDuration, buff_index);
+	SetDWORD(buff, m_pUserData->m_sItemArray[FOOT].nNum, buff_index);
+	SetShort(buff, m_pUserData->m_sItemArray[FOOT].sDuration, buff_index);
+	SetDWORD(buff, m_pUserData->m_sItemArray[SHOULDER].nNum, buff_index);
+	SetShort(buff, m_pUserData->m_sItemArray[SHOULDER].sDuration, buff_index);
+	SetDWORD(buff, m_pUserData->m_sItemArray[RIGHTHAND].nNum, buff_index);
+	SetShort(buff, m_pUserData->m_sItemArray[RIGHTHAND].sDuration, buff_index);
+	SetDWORD(buff, m_pUserData->m_sItemArray[LEFTHAND].nNum, buff_index);
+	SetShort(buff, m_pUserData->m_sItemArray[LEFTHAND].sDuration, buff_index);
 }
 
 void CUser::Rotate( char* pBuf )

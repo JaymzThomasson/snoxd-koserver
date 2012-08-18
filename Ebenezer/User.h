@@ -365,6 +365,7 @@ public:
 	void Send2AI_UserUpdateInfo();
 	void Attack( char* pBuf );
 	void UserInOut( BYTE Type );
+	void GetUserInfo(char *buff, int & buff_index);
 	void Initialize();
 	void MoveProcess( char* pBuf );
 	void Rotate( char* pBuf );
