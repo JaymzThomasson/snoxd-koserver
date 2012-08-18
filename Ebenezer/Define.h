@@ -197,6 +197,7 @@ const BYTE WAREHOUSE_MAX	= 196;		// â�� ������ MAX
 ////////////////////////////////////////////////////////////
 #define SOCKET_BUFF_SIZE	(1024*16)
 #define MAX_PACKET_SIZE		(1024*8)
+#define MAX_SEND_SIZE		(MAX_PACKET_SIZE * 2)
 #define REGION_BUFF_SIZE	(1024*16)
 
 #define PACKET_START1				0XAA

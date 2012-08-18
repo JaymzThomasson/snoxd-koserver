@@ -601,25 +601,25 @@ void CUdpSocket::RecvDestroyKnights( char* pBuf )
 	SetString( send_buff, finalstr, strlen(finalstr), send_index );
 	m_pMain->Send_KnightsMember( knightsindex, send_buff, send_index );
 
-	for( int i=0; i<MAX_USER; i++ ) {
-		pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[i];
-		if( !pTUser ) continue;
-		if( pTUser->m_pUserData->m_bKnights == knightsindex ) {
-			pTUser->m_pUserData->m_bKnights = 0;
-			pTUser->m_pUserData->m_bFame = 0;
+	for (int i = 0; i < MAX_USER; i++)
+	{
+		pTUser = m_pMain->GetUnsafeUserPtr(i);
+		if (pTUser == NULL || pTUser->m_pUserData->m_bKnights != knightsindex)
+			continue;
 
-			m_pMain->m_KnightsManager.RemoveKnightsUser( knightsindex, pTUser->m_pUserData->m_id );
+		pTUser->m_pUserData->m_bKnights = 0;
+		pTUser->m_pUserData->m_bFame = 0;
 
-			memset( send_buff, 0x00, 128 ); send_index = 0;
-			SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-			SetByte( send_buff, KNIGHTS_MODIFY_FAME, send_index );
-			SetByte( send_buff, 0x01, send_index );
-			SetShort( send_buff, pTUser->GetSocketID(), send_index );
-			SetShort( send_buff, pTUser->m_pUserData->m_bKnights, send_index );
-			SetByte( send_buff, pTUser->m_pUserData->m_bFame, send_index );
-			m_pMain->Send_Region( send_buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
-			//pTUser->Send( send_buff, send_index );
-		}
+		m_pMain->m_KnightsManager.RemoveKnightsUser( knightsindex, pTUser->m_pUserData->m_id );
+
+		memset( send_buff, 0x00, 128 ); send_index = 0;
+		SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
+		SetByte( send_buff, KNIGHTS_MODIFY_FAME, send_index );
+		SetByte( send_buff, 0x01, send_index );
+		SetShort( send_buff, pTUser->GetSocketID(), send_index );
+		SetShort( send_buff, pTUser->m_pUserData->m_bKnights, send_index );
+		SetByte( send_buff, pTUser->m_pUserData->m_bFame, send_index );
+		m_pMain->Send_Region( send_buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 	}
 	
 	m_pMain->m_KnightsArray.DeleteData( knightsindex );

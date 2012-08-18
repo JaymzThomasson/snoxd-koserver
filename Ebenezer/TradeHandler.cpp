@@ -71,20 +71,20 @@ void CUser::ExchangeAgree(char* pBuf)
 
 	BYTE result = GetByte( pBuf, index );
 
-	if( m_sExchangeUser < 0 || m_sExchangeUser >= MAX_USER ) {
+	pUser = m_pMain->GetUserPtr(m_sExchangeUser);
+	if (pUser == NULL) 
+	{
 		m_sExchangeUser = -1;
 		return;
 	}
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_sExchangeUser];
-	if( !pUser ) {
-		m_sExchangeUser = -1;
-		return;
-	}
-	if( result == 0x00 ) {		// ????
+
+	if (result == 0x00) // declined
+	{
 		m_sExchangeUser = -1;
 		pUser->m_sExchangeUser = -1;
 	}
-	else {
+	else 
+	{
 		InitExchange(TRUE);
 		pUser->InitExchange(TRUE);
 	}

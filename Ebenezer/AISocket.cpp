@@ -472,12 +472,11 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 				pUser->ItemWoreOut(ATTACK, damage);
 
 			// LEFT HAND!!! by Yookozuna
-			temp_damage = damage * ((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->m_bMagicTypeLeftHand / 100 ;
+			temp_damage = damage * pUser->m_bMagicTypeLeftHand / 100 ;
 
 			switch (pUser->m_bMagicTypeLeftHand) {	// LEFT HAND!!!
 				case ITEM_TYPE_HP_DRAIN :	// HP Drain		
 					pUser->HpChange(temp_damage, 0);	
-//					TRACE("%d : 흡수 HP : %d  ,  현재 HP : %d", sid, temp_damage, ((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->m_pUserData->m_sHp);
 					break;
 				case ITEM_TYPE_MP_DRAIN :	// MP Drain		
 					pUser->MSpChange(temp_damage);
@@ -492,7 +491,6 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 			switch (pUser->m_bMagicTypeRightHand) {	// LEFT HAND!!!
 				case ITEM_TYPE_HP_DRAIN :	// HP Drain		
 					pUser->HpChange(temp_damage, 0);			
-//					TRACE("%d : 흡수 HP : %d  ,  현재 HP : %d", sid, temp_damage, ((CUser*)(m_pMain->m_Iocport.m_SockArray[sid]))->m_pUserData->m_sHp);
 					break;
 				case ITEM_TYPE_MP_DRAIN :	// MP Drain		
 					pUser->MSpChange(temp_damage);
@@ -514,14 +512,8 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 				pEvent = m_pMain->m_ZoneArray[pNpc->m_sZoneIndex]->GetObjectEvent( pNpc->m_sSid );
 				if( pEvent )	pEvent->byLife = 0;
 			}
-//	성용씨! 대만 재미있어요? --;
-			if (pNpc->m_tNpcType == 2) {
-				if (sid >= 0 && sid < MAX_USER) {
-					if( m_pMain->m_Iocport.m_SockArray[sid] )
-						pUser->GiveItem(900001000, 1);	
-				}
-			}
-//
+			if (pNpc->m_tNpcType == 2 && pUser != NULL) // EXP 
+				pUser->GiveItem(900001000, 1);	
 		}
 	}
 	else if(type == 0x02)		// npc attack -> user
@@ -689,8 +681,10 @@ void CAISocket::RecvMagicAttackResult(char* pBuf)
 		//pNpc = m_pMain->m_arNpcArray.GetData(tid);
 		//if(!pNpc)	return;
 		if( sid >= USER_BAND && sid < NPC_BAND)	{
-			pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[sid];
-			if(pUser == NULL || pUser->m_bResHpType == USER_DEAD)	return;
+			pUser = m_pMain->GetUserPtr(sid);
+			if (pUser == NULL || pUser->isDead())
+				return;
+
 			index = 0;
 			SetByte( send_buff, WIZ_MAGIC_PROCESS, index );
 			m_pMain->Send_Region(send_buff, send_index, pUser->m_pUserData->m_bZone, pUser->m_RegionX, pUser->m_RegionZ, NULL, false);
@@ -886,7 +880,7 @@ void CAISocket::RecvUserHP(char* pBuf)
 	nMaxHP = GetDWORD(pBuf,index);
 
 	if( nid >= USER_BAND && nid < NPC_BAND)	{
-		CUser* pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[nid];
+		CUser* pUser = m_pMain->GetUserPtr(nid);
 		if(pUser == NULL)		return;
 		pUser->m_pUserData->m_sHp = nHP;
 	}
@@ -911,7 +905,7 @@ void CAISocket::RecvUserExp(char* pBuf)
 	sExp = GetShort(pBuf,index);
 	sLoyalty = GetShort(pBuf,index);
 
-	CUser* pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[nid];
+	CUser* pUser = m_pMain->GetUserPtr(nid);
 	if(pUser == NULL)
 		return;
 	if(sExp < 0 || sLoyalty < 0)	{
@@ -1029,8 +1023,8 @@ void CAISocket::RecvNpcGiveItem(char* pBuf)
 		delete pItem;
 		return;
 	}
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[sUid];
-	if( !pUser ) return;
+	pUser = m_pMain->GetUserPtr(sUid);
+	if (pUser == NULL) return;
 	
 	send_index = 0;
 	memset( send_buff, 0x00, 1024 );
@@ -1054,8 +1048,8 @@ void CAISocket::RecvUserFail(char* pBuf)
 	nid = GetShort(pBuf,index);
 	sid = GetShort(pBuf,index);
 
-	CUser* pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[nid];
-	if(pUser == NULL)
+	CUser* pUser = m_pMain->GetUserPtr(nid);
+	if (pUser == NULL)
 		return;
 
 	pUser->HpChange(-10000, 1);
@@ -1400,9 +1394,8 @@ void CAISocket::RecvNpcEventItem( char* pBuf )
 	nItemNumber = GetDWORD(pBuf, index);
 	nCount = GetDWORD(pBuf,index);
 
-	if( sUid < 0 || sUid >= MAX_USER ) return;
-	pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[sUid];
-	if( !pUser ) return;
+	pUser = m_pMain->GetUserPtr(sUid);
+	if (pUser == NULL) return;
 	pUser->EventMoneyItemGet( nItemNumber, nCount );
 }
 

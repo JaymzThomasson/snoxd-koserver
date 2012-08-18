@@ -1893,31 +1893,35 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 		if( x < 2.5f )	x = 1.5f + x;
 		if( z < 2.5f )	z = 1.5f + z;
 
-		CUser* pTUser = NULL ;     // Pointer initialization!			
-		pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[casted_member[j]] ;     // Get target info.
-		if (!pTUser) continue;
+		CUser* pTUser = m_pMain->GetUserPtr(casted_member[j]);
+		if (pTUser == NULL) continue;
 
 // 비러머글 대만 써비스 >.<
 		_HOME_INFO* pHomeInfo = NULL;
 		pHomeInfo = m_pMain->m_HomeArray.GetData(pTUser->m_pUserData->m_bNation);
 		if (!pHomeInfo) return;
 //
-		if (pType->bWarpType != 11) {     // Warp or Summon related.
-			if( !pTUser || pTUser->m_bResHpType == USER_DEAD ) {     // Check if target exists and not already dead.		
-				result = 0 ;
-				goto packet_send ;
+		if (pType->bWarpType != 11) 
+		{   // Warp or summon related: targets CANNOT be dead.
+			if (pTUser->isDead())
+			{
+				result = 0;
+				goto packet_send;
 			}
 		}
-		else {     // Resurrection related.
-			if( !pTUser || pTUser->m_bResHpType != USER_DEAD ) {     // Check if target exists and not alive.		
+		else 
+		{   // Resurrection related: we're reviving DEAD targets.
+			if (!pTUser->isDead()) 
+			{ 
 				result = 0 ;
-				goto packet_send ;
+				goto packet_send;
 			}
 		}
 
-		if(	pTUser->m_bWarp) {	// Is target already warping?			
-			result = 0 ;
-			goto packet_send ;
+		if (pTUser->m_bWarp)
+		{	// Is target already warping?			
+			result = 0;
+			goto packet_send;
 		}
 
 		switch(pType->bWarpType) {	
@@ -2178,11 +2182,8 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 	int random = 0, total_r = 0 ;
 	BYTE result; 
 
-	if( tid < 0 || tid >= MAX_USER) return -1;     // Check if target id is valid.
-
-	CUser* pTUser = NULL;              
-	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];	   // Get target info.
-	if( !pTUser || pTUser->m_bResHpType == USER_DEAD ) return -1;
+	CUser* pTUser = m_pMain->GetUserPtr(tid);  
+	if (pTUser == NULL || pTUser->isDead()) return 0;
 
 	if (sid >= NPC_BAND) {	// If the source is a monster.
 		pMon = m_pMain->m_arNpcArray.GetData(sid);
@@ -2266,107 +2267,6 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 	return damage ;		
 }
 
-/*
-BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius)
-{
-	CNpc* pMon = NULL;
-
-	BOOL bFlag = FALSE;
-
-	CUser* pTUser = NULL ;     // Pointer initialization!				
-	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];     // Get target info.  
-	if( !pTUser ) return FALSE ;     // Check if target exists and not already dead.
-	
-	if (sid >= NPC_BAND) {					
-		pMon = m_pMain->m_arNpcArray.GetData(sid);
-		if( !pMon || pMon->m_NpcState == NPC_DEAD ) return FALSE;
-		bFlag = TRUE;
-	}
-
-	_MAGIC_TABLE* pMagic = NULL;
-	pMagic = m_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
-	if( !pMagic ) return FALSE;
-
-	switch (pMagic->bMoral) {
-		case MORAL_PARTY_ALL :		// Check that it's your party.
-//			if( pTUser->m_sPartyIndex == -1) return FALSE; 
-
-//
-			if( pTUser->m_sPartyIndex == -1) {
-				if (sid == tid) {
-					return TRUE; 
-				}
-				else {
-					return FALSE; 
-				}
-			}			
-//
-			if ( pTUser->m_sPartyIndex == m_pSrcUser->m_sPartyIndex) 
-				goto final_test;
-
-			break;
-
-		case MORAL_SELF_AREA :
-		case MORAL_AREA_ENEMY :
-			if (!bFlag) {
-				if (pTUser->m_pUserData->m_bNation != m_pSrcUser->m_pUserData->m_bNation)		// Check that it's your enemy.
-					goto final_test;
-			}
-			else {
-				if (pTUser->m_pUserData->m_bNation != pMon->m_byGroup)
-					goto final_test;
-			}
-			break;
-
-		case MORAL_AREA_FRIEND :				
-			if (pTUser->m_pUserData->m_bNation == m_pSrcUser->m_pUserData->m_bNation) 		// Check that it's your ally.
-				goto final_test;
-			break;
-
-//		case MORAL_SELF_AREA :		// Make sure you don't kill yourself :)
-//			if (sid != tid) 
-//				goto final_test;
-//			break;
-
-	}
-
-	return FALSE;	
-
-final_test :
-	if (!bFlag) {
-		if ( pTUser->m_pUserData->m_bZone ==  m_pSrcUser->m_pUserData->m_bZone ) {		// Zone Check!
-			if ( (pTUser->m_RegionX == m_pSrcUser->m_RegionX) && (pTUser->m_RegionZ == m_pSrcUser->m_RegionZ) ) { // Region Check!
-				if (radius !=0) { 	// Radius check! ( ...in case there is one :(  )
-					int temp_x = pTUser->m_pUserData->m_curx - m_pSrcUser->m_pUserData->m_curx ;
-	//				int temp_y = pTUser->m_pUserData->m_cury - m_pSrcUser->m_pUserData->m_cury ;
-					int temp_z = pTUser->m_pUserData->m_curz - m_pSrcUser->m_pUserData->m_curz ;
-	//				int distance = pow(temp_x,2) + pow(temp_y,2) + pow(temp_z,2) ;
-
-					int distance = pow(temp_x,2) + pow(temp_z,2) ;	// Y-AXIS DISABLED TEMPORARILY!!!
-					if ( distance > pow(radius, 2) ) return FALSE ;
-				}		
-				return TRUE;	// Target is in the area.
-			}
-		}	
-	}
-	else {
-		if ( pTUser->m_pUserData->m_bZone == pMon->m_sCurZone ) {		// Zone Check!
-			if ( (pTUser->m_RegionX == pMon->m_sRegion_X) && (pTUser->m_RegionZ == pMon->m_sRegion_Z) ) { // Region Check!
-				if (radius !=0) { 	// Radius check! ( ...in case there is one :(  )
-					int temp_x = pTUser->m_pUserData->m_curx - pMon->m_fCurX ;
-					int temp_z = pTUser->m_pUserData->m_curz - pMon->m_fCurZ ;
-					int distance = pow(temp_x,2) + pow(temp_z,2) ;	
-					if ( distance > pow(radius, 2) ) return FALSE ;
-				}		
-				return TRUE;	// Target is in the area.
-			}
-		}	
-	}
-
-	return FALSE;
-}
-*/
-
 BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, short mousex, short mousez)
 {
 	CNpc* pMon = NULL;
@@ -2374,9 +2274,8 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 	float currenttime = 0.0f;
 	BOOL bFlag = FALSE;
 
-	CUser* pTUser = NULL ;     // Pointer initialization!				
-	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];     // Get target info.  
-	if( !pTUser ) return FALSE ;     // Check if target exists and not already dead.
+	CUser* pTUser = m_pMain->GetUserPtr(tid);  
+	if (pTUser == NULL) return FALSE;
 	
 	if (sid >= NPC_BAND) {					
 		pMon = m_pMain->m_arNpcArray.GetData(sid);
@@ -2517,9 +2416,8 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 	char send_buff[128];
 	memset( send_buff, NULL, 128);
 
-	CUser* pTUser = NULL ;									  // Pointer initialization!		
-	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];     // Get target info.  
-	if( !pTUser ) return;									  // Check if target exists and not already dead.		
+	CUser* pTUser = m_pMain->GetUserPtr(tid);  
+	if (pTUser == NULL) return;
 
 	_MAGIC_TYPE4* pType = NULL;
 	pType = m_pMain->m_Magictype4Array.GetData( magicid );     // Get magic skill table type 4.
@@ -2681,9 +2579,8 @@ void CMagicProcess::Type3Cancel(int magicid, short tid)
 	char send_buff[128];
 	memset( send_buff, NULL, 128);
 
-	CUser* pTUser = NULL ;									  // Pointer initialization!		
-	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];     // Get target info.  
-	if( !pTUser ) return;									  // Check if target exists and not already dead.		
+	CUser* pTUser = m_pMain->GetUserPtr(tid);  
+	if (pTUser == NULL) return;
 
 	_MAGIC_TYPE3* pType = NULL;
 	pType = m_pMain->m_Magictype3Array.GetData( magicid );     // Get magic skill table type 3.
@@ -2730,9 +2627,8 @@ void CMagicProcess::SendType4BuffRemove(short tid, BYTE buff)
 {
 	int send_index = 0; char send_buff[128];
 
-	CUser* pTUser = NULL ;									  // Pointer initialization!		
-	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];     // Get target info.  
-	if( !pTUser ) return;									  // Check if target exists and not already dead.
+	CUser* pTUser = m_pMain->GetUserPtr(tid);  
+	if (pTUser == NULL) return;
 
 	memset( send_buff, NULL, 128); send_index = 0;
 	SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );

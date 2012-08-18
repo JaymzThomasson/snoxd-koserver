@@ -232,6 +232,7 @@ public:
 	void ClientEvent(char* pBuf);
 	void KickOut( char* pBuf );
 	void SetLogInInfoToDB(BYTE bInit);
+	void BlinkStart();
 	void BlinkTimeCheck(float currenttime);
 	void MarketBBSSellPostFilter();
 	void MarketBBSBuyPostFilter();
@@ -321,6 +322,7 @@ public:
 	void VersionCheck(char *pBuf);
 	void LoyaltyChange( short tid );
 	void StateChange( char* pBuf );
+	void StateChangeServerDirect(BYTE bType, int nValue);
 	void PointChange( char* pBuf );
 	void ZoneChange( int zone, float x, float z );
 	void ItemGet( char* pBuf );
@@ -329,6 +331,7 @@ public:
 	void SelNationToAgent( char* pBuf );
 	void DelCharToAgent( char* pBuf );
 	void NewCharToAgent( char* pBuf );
+	void GameStart(char* pBuf);
 	void BundleOpenReq( char* pBuf );
 	void SendTargetHP( BYTE echo, int tid, int damage = 0 );
 	void ItemTrade( char* pBuf );
@@ -349,6 +352,7 @@ public:
 	void RegisterRegion();
 	void SetDetailData();
 	void SendTimeStatus();
+	void SendPremiumInfo();
 	void Regene(char* pBuf, int magicid = 0);
 	void SetMaxMp();
 	void SetMaxHp(int iFlag=0); // 0:default, 1:hp를 maxhp만큼 채워주기

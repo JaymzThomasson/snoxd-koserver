@@ -132,11 +132,10 @@ int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 	OVERLAPPED *pOvl;
 	HANDLE	hComport = NULL;
 
-	if (length >= MAX_PACKET_SIZE)
+	if (length + 5 /* crypto */ >= MAX_SEND_SIZE)
 		return 0;
 
-	BYTE pTBuf[MAX_PACKET_SIZE], pTIBuf[MAX_PACKET_SIZE], pTOutBuf[MAX_PACKET_SIZE];
-	memset(pTBuf, 0x00, sizeof(pTBuf));
+	BYTE pTIBuf[MAX_SEND_SIZE], pTOutBuf[MAX_SEND_SIZE];
 	memset(pTIBuf, 0x00, sizeof(pTIBuf));
 	memset(pTOutBuf, 0x00, sizeof(pTOutBuf));
 	int index = 0;
@@ -154,28 +153,28 @@ int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 		memcpy( &pTIBuf[5], pBuf, length );
 		jct.JvEncryptionFast( len, pTIBuf, pTOutBuf );
 		
-		pTBuf[index++] = (BYTE)PACKET_START1;
-		pTBuf[index++] = (BYTE)PACKET_START2;
-		memcpy( pTBuf+index, &len, 2 );
+		pTIBuf[index++] = (BYTE)PACKET_START1;
+		pTIBuf[index++] = (BYTE)PACKET_START2;
+		memcpy( pTIBuf+index, &len, 2 );
 		index += 2;
-		memcpy( pTBuf+index, pTOutBuf, len );
+		memcpy( pTIBuf+index, pTOutBuf, len );
 		index += len;
-		pTBuf[index++] = (BYTE)PACKET_END1;
-		pTBuf[index++] = (BYTE)PACKET_END2;
+		pTIBuf[index++] = (BYTE)PACKET_END1;
+		pTIBuf[index++] = (BYTE)PACKET_END2;
 	}
 	else
 	{
-		pTBuf[index++] = (BYTE)PACKET_START1;
-		pTBuf[index++] = (BYTE)PACKET_START2;
-		memcpy( pTBuf+index, &length, 2 );
+		pTIBuf[index++] = (BYTE)PACKET_START1;
+		pTIBuf[index++] = (BYTE)PACKET_START2;
+		memcpy( pTIBuf+index, &length, 2 );
 		index += 2;
-		memcpy( pTBuf+index, pBuf, length );
+		memcpy( pTIBuf+index, pBuf, length );
 		index += length;
-		pTBuf[index++] = (BYTE)PACKET_END1;
-		pTBuf[index++] = (BYTE)PACKET_END2;
+		pTIBuf[index++] = (BYTE)PACKET_END1;
+		pTIBuf[index++] = (BYTE)PACKET_END2;
 	}
 
-	out.buf = (char*)pTBuf;
+	out.buf = (char*)pTIBuf;
 	out.len = index;
 	
 	pOvl = &m_SendOverlapped;

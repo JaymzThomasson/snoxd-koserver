@@ -85,6 +85,8 @@ void CUser::FriendReport(char *pBuf)
 	memset( userid, NULL, MAX_ID_SIZE+1 );
 	CUser* pUser = NULL;
 
+	return;
+
 	usercount = GetShort( pBuf, index );	// Get usercount packet.
 	if( usercount >= 30 || usercount < 0) return;
 	

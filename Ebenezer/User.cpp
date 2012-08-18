@@ -297,36 +297,10 @@ void CUser::Parsing(int len, char *pData)
 			AllCharInfoToAgent();
 			break;
 		case WIZ_GAMESTART:
-			if( m_State == STATE_GAMESTART )
+			if (GetState() != STATE_GAMESTART)
 				break;
-			m_State = STATE_GAMESTART;
-		/*	if( m_pUserData->m_bZone > 2)
-			{	
-				if( m_pUserData->m_bKnights != 0 )
-					m_pMain->m_KnightsManager.LoadKnightsIndex( m_pUserData->m_bKnights );
-			}	*/
-			//SendAllKnightsID();
-			SendMyInfo();
-			UserInOut( USER_REGENE );
-			m_pMain->UserInOutForMe(this);
-			m_pMain->NpcInOutForMe(this);
-			SendNotice();
-			SendTimeStatus();
-			TRACE("GAMESTART: %s..%d\n", m_pUserData->m_id, m_Sid);
-	//
-			if(m_pMain->m_bPermanentChatMode) {		// If there is a permanent chat available!!!
-				int buffindex = 0;
-				char buff[1024]; memset( buff, 0x00, 1024 );
 
-				SetByte( buff, WIZ_CHAT, buffindex );
-				SetByte( buff, PERMANENT_CHAT, buffindex );
-				SetByte( buff, 0x01, buffindex );		// Nation
-				SetShort( buff, -1, buffindex );		// sid
-				SetShort( buff, strlen(m_pMain->m_strPermanentChat), buffindex );
-				SetString( buff, m_pMain->m_strPermanentChat, strlen(m_pMain->m_strPermanentChat), buffindex );
-				Send( buff, buffindex );			
-			}
-	//
+			GameStart(pData+index);
 			break;
 		}
 		return;
@@ -903,6 +877,18 @@ void CUser::SendTimeStatus()
 	Send( send_buff, send_index );
 }
 
+void CUser::SendPremiumInfo()
+{
+	char send_buff[7]; int send_index = 0;
+
+	SetByte(send_buff, WIZ_PREMIUM, send_index);
+	SetByte(send_buff, 1, send_index);
+	SetByte(send_buff, 0, send_index); // premium type
+	SetDWORD(send_buff, 0, send_index); // premium time
+
+	Send(send_buff, send_index);
+}
+
 void CUser::SetDetailData()
 {
 	C3DMap* pMap = NULL;
@@ -1103,7 +1089,7 @@ void CUser::RequestUserIn(char *pBuf)
 	char buff[40960];
 	memset( buff, NULL, 40960 );
 
-	buff_index = 3;	// packet command ?? user_count ?? ????? ???????...
+	buff_index = 3;
 	user_count = GetShort( pBuf, index );
 	for( i=0; i<user_count; i++ ) {
 		uid = GetShort( pBuf, index );
@@ -1111,8 +1097,9 @@ void CUser::RequestUserIn(char *pBuf)
 			continue;
 		if( i > 1000 ) 
 			break;
-		pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[uid];
-		if( pUser && (pUser->GetState() == STATE_GAMESTART) ) {
+		pUser = m_pMain->GetUserPtr(uid);
+		if (pUser != NULL && pUser->GetState() == STATE_GAMESTART)
+		{
 			SetShort( buff, pUser->GetSocketID(), buff_index );
 			SetShort( buff, strlen(pUser->m_pUserData->m_id), buff_index );
 			SetString( buff, pUser->m_pUserData->m_id, strlen(pUser->m_pUserData->m_id), buff_index );
@@ -1784,20 +1771,21 @@ void CUser::SendTargetHP( BYTE echo, int tid, int damage )
 	CUser* pTUser = NULL;
 	CNpc* pNpc = NULL;
 
-	if( tid < 0 )
+	if (tid < 0)
 		return;
-	if( tid >= NPC_BAND ) {
-		if( m_pMain->m_bPointCheckFlag == FALSE)	return;	// ?????? ?????? ???
+
+	if (tid >= NPC_BAND)
+	{
+		if (m_pMain->m_bPointCheckFlag == FALSE) return;
 		pNpc = m_pMain->m_arNpcArray.GetData(tid);
-		if( !pNpc )
+		if (!pNpc)
 			return;
 		hp = pNpc->m_iHP;	maxhp = pNpc->m_iMaxHP;
 	}
-	else {
-		if( tid >= MAX_USER )
-			return;
-		pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];
-		if( !pTUser || pTUser->m_bResHpType == USER_DEAD ) 
+	else 
+	{
+		pTUser = m_pMain->GetUserPtr(tid);
+		if( pTUser == NULL || pTUser->isDead()) 
 			return;
 		hp = pTUser->m_pUserData->m_sHp;	maxhp = pTUser->m_iMaxHp;
 	}
@@ -1985,9 +1973,9 @@ void CUser::ItemGet(char *pBuf)
 				}
 				if( usercount == 0 ) goto fail_return;
 				for( i=0; i<8; i++ ) {
-					if( pParty->uid[i] != -1 || pParty->uid[i] >= MAX_USER ) {
-						pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[pParty->uid[i]];
-						if( !pUser ) continue;
+					if( pParty->uid[i] != -1 ) {
+						pUser = m_pMain->GetUserPtr(pParty->uid[i]);
+						if (pUser == NULL) continue;
 
 						money = count * (float)( pUser->m_pUserData->m_bLevel/(float)levelsum );    
 						pUser->m_pUserData->m_iGold += money;
@@ -2091,16 +2079,25 @@ void CUser::StateChange(char *pBuf)
 	m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ );
 }
 
+void CUser::StateChangeServerDirect(BYTE bType, int nValue)
+{
+	char buff[5];
+	int index = 0;
+
+	SetByte(buff, bType, index);
+	SetDWORD(buff, nValue, index);
+	StateChange(buff);
+}
+
 void CUser::LoyaltyChange(short tid)
 {
 	int send_index = 0; char send_buff[256]; memset( send_buff, NULL, 256 );	
 	short level_difference = 0; short loyalty_source = 0; short loyalty_target = 0;
 
-	CUser* pTUser = NULL ;									  // Pointer initialization!		
-	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];     // Get target info.  
-	if( !pTUser ) return;									  // Check if target exists and not already dead.
+	CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.  
+	if (pTUser == NULL) return;									  // Check if target exists and not already dead.
 	
-	if (pTUser->m_pUserData->m_bNation != m_pUserData->m_bNation) {		// Different nations!!!
+	if (pTUser->getNation() != getNation()) {		// Different nations!!!
 		level_difference = pTUser->m_pUserData->m_bLevel - m_pUserData->m_bLevel ;	// Calculate difference!
 
 		if (pTUser->m_pUserData->m_iLoyalty <= 0) {		// No cheats allowed...
@@ -2212,6 +2209,7 @@ void CUser::SendNotice()
 	memset( send_buff, NULL, 2048 );
 
 	SetByte( send_buff, WIZ_NOTICE, send_index );
+#if __VERSION < 1453
 	for( int i=0; i<20; i++ ) {
 		if( !strlen(m_pMain->m_ppNotice[i]) )
 			continue;
@@ -2220,7 +2218,23 @@ void CUser::SendNotice()
 		count++;
 	}
 	SetByte( send_buff, count, send_index );
-	SetString( send_buff, buff, buff_index, send_index );
+	SetString( send_buff, buff, buff_index, send_index );*/
+#else
+	SetByte(send_buff, 2, send_index); // type 2 = new-style notices
+
+	// hardcoded temporarily
+	SetByte(send_buff, 3, send_index); // 3 boxes
+
+	SetKOString(send_buff, "Header 1", send_index);
+	SetKOString(send_buff, "Data in header 1", send_index);
+
+	SetKOString(send_buff, "Header 2", send_index);
+	SetKOString(send_buff, "Data in header 2", send_index);
+
+	SetKOString(send_buff, "Header 3", send_index);
+	SetKOString(send_buff, "Data in header 3", send_index);
+#endif
+	
 	Send( send_buff, send_index );
 }
 
@@ -2309,10 +2323,8 @@ void CUser::CountConcurrentUser()
 	CUser* pUser = NULL;
 
 	for(int i=0; i<MAX_USER; i++ ) {
-		pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[i];
-		if( !pUser )
-			continue;
-		if( pUser->GetState() == STATE_GAMESTART )
+		pUser = m_pMain->GetUnsafeUserPtr(i);
+		if (pUser != NULL && pUser->GetState() == STATE_GAMESTART)
 			usercount++;
 	}
 
@@ -2339,8 +2351,8 @@ void CUser::LoyaltyDivide(short tid)
 	if( !pParty ) return;
 
 	CUser* pTUser = NULL ;									  // Target Pointer initialization!		
-	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];     // Get target info.  
-	if( !pTUser ) return;									  // Check if target exists and not already dead.		
+	pTUser = m_pMain->GetUserPtr(tid);
+	if (pTUser == NULL) return;									  // Check if target exists and not already dead.		
 
 	for( int i = 0; i < 8; i++ ) {		// Get total level and number of members in party.
 		if( pParty->uid[i] != -1 ) {
@@ -2393,8 +2405,8 @@ void CUser::LoyaltyDivide(short tid)
 
 		for (int j = 0 ; j < 8 ; j++) {		// Distribute loyalty amongst party members.
 			if( pParty->uid[j] != -1 || pParty->uid[j] >= MAX_USER ) {
-				pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[pParty->uid[j]];
-				if( !pUser ) continue;
+				pUser = m_pMain->GetUserPtr(pParty->uid[j]);
+				if (pUser == NULL) continue;
 
 				//TRACE("LoyaltyDivide 111 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
 			
@@ -2419,8 +2431,8 @@ void CUser::LoyaltyDivide(short tid)
 //
 	for (int j = 0 ; j < 8 ; j++) {		// Distribute loyalty amongst party members.
 		if( pParty->uid[j] != -1 || pParty->uid[j] >= MAX_USER ) {
-			pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[pParty->uid[j]];
-			if( !pUser ) continue;
+			pUser = m_pMain->GetUserPtr(pParty->uid[j]);
+			if (pUser == NULL) continue;
 
 			//TRACE("LoyaltyDivide 333 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
 			individualvalue = pUser->m_pUserData->m_bLevel * loyalty_source / levelsum ;
@@ -2734,7 +2746,7 @@ void CUser::HPTimeChangeType3(float currenttime)
 			CUser* pUser = NULL;
 
 			if (m_sSourceID[h] >= 0 && m_sSourceID[h] < MAX_USER) {	// Send report to the source...
-				pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[m_sSourceID[h]];
+				pUser = m_pMain->GetUserPtr(m_sSourceID[h]);
 				if (pUser) {
 					pUser->SendTargetHP( 0, m_Sid, m_bHPAmount[h] );
 				}
@@ -3282,8 +3294,9 @@ void CUser::Type3AreaDuration(float currenttime)
 		for (int i = 0 ; i < MAX_USER ; i++) {	// Actual damage procedure.
 			if (magic_process.UserRegionCheck(m_Sid, i, m_iAreaMagicID, pType->bRadius)) {	// Region check.
 				CUser* pTUser = NULL ;     		
-				pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[i];     
-				if (!pTUser) continue;
+				pTUser = m_pMain->GetUnsafeUserPtr(i);
+				if (pTUser == NULL)
+					continue;
 
 				SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );	// Set packet.
 				SetByte( send_buff, MAGIC_EFFECTING, send_index );
@@ -4311,6 +4324,22 @@ void CUser::Corpse()
 	SetByte( send_buff, WIZ_CORPSE, send_index );
 	SetShort( send_buff, m_Sid, send_index );
 	m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false );	
+}
+
+void CUser::BlinkStart()
+{
+	// Don't blink in these zones
+	if (m_pUserData->m_bZone == 201 // colony zone
+		|| (m_pUserData->m_bZone / 100) == 1) // war zone
+		return;
+
+	m_bAbnormalType = ABNORMAL_BLINKING;
+	m_fBlinkStartTime = TimeGet();
+	m_bRegeneType = REGENE_ZONECHANGE;
+	
+	// TO-DO: Tell the AI server that mobs shouldn't see/attack us
+
+	StateChangeServerDirect(3, ABNORMAL_BLINKING);
 }
 
 void CUser::BlinkTimeCheck(float currenttime)
