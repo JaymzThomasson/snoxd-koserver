@@ -21,9 +21,8 @@ class CIOCPSocket2;
 class CIOCPort  
 {
 public:
-	int GetClientSid();
+	void CreateSendWorkerThread();
 	void CreateAcceptThread();
-	void CreateClientWorkerThread();
 	void RidIOCPSocket(int index, CIOCPSocket2 *pSock);
 	CIOCPSocket2* GetIOCPSocket(int index);
 	void CreateReceiveWorkerThread(int workernum);
@@ -39,7 +38,6 @@ public:
 	SOCKET m_ListenSocket;
 	HANDLE m_hListenEvent;
 	HANDLE m_hServerIOCPort;
-	HANDLE m_hClientIOCPort;
 	HANDLE m_hAcceptThread;
 
 	int m_SocketArraySize;
@@ -48,8 +46,6 @@ public:
 	SidList m_SidList;
 	CIOCPSocket2 **m_SockArray;
 	CIOCPSocket2 **m_SockArrayInActive;
-
-	CIOCPSocket2 **m_ClientSockArray;		// Connect¿ë ¼ÒÄÏ
 
 protected:
 	DWORD m_dwNumberOfWorkers;

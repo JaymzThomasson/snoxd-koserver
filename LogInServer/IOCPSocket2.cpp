@@ -53,49 +53,6 @@ BOOL CIOCPSocket2::Create( UINT nSocketPort, int nSocketType, long lEvent, LPCTS
 	return TRUE;
 }
 
-BOOL CIOCPSocket2::Connect( CIOCPort* pIocp, LPCTSTR lpszHostAddress, UINT nHostPort )
-{
-	struct sockaddr_in addr;
-
-	memset((void *)&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = inet_addr(lpszHostAddress);
-	addr.sin_port = htons(nHostPort);
-
-	int result = connect( m_Socket,(struct sockaddr *)&addr,sizeof(addr) );
-	if ( result == SOCKET_ERROR )
-	{
-		int err = WSAGetLastError();
-//		TRACE("CONNECT FAIL : %d\n", err);
-		closesocket( m_Socket );
-		return FALSE;
-	}
-
-	ASSERT( pIocp );
-
-	InitSocket( pIocp );
-
-	m_Sid = m_pIOCPort->GetClientSid();
-	if( m_Sid < 0 )
-		return FALSE;
-
-	m_pIOCPort->m_ClientSockArray[m_Sid] = this;
-	
-	if ( !m_pIOCPort->Associate(this, m_pIOCPort->m_hClientIOCPort) )
-	{
-		TRACE("Socket Connecting Fail - Associate\n");
-		return FALSE;
-	}
-
-	m_ConnectAddress = lpszHostAddress;
-	m_State = STATE_CONNECTED;
-	m_Type = TYPE_CONNECT;
-
-	Receive();
-
-	return TRUE;
-}
-
 int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 {
 	int ret_value = 0;
@@ -172,8 +129,6 @@ close_routine:
 	
 	if( m_Type == TYPE_ACCEPT )
 		hComport = m_pIOCPort->m_hServerIOCPort;
-	else
-		hComport = m_pIOCPort->m_hClientIOCPort;
 	
 	PostQueuedCompletionStatus( hComport, (DWORD)0, (DWORD)m_Sid, pOvl );
 	
@@ -237,8 +192,6 @@ close_routine:
 	
 	if( m_Type == TYPE_ACCEPT )
 		hComport = m_pIOCPort->m_hServerIOCPort;
-	else
-		hComport = m_pIOCPort->m_hClientIOCPort;
 	
 	PostQueuedCompletionStatus( hComport, (DWORD)0, (DWORD)m_Sid, pOvl );
 	
@@ -377,8 +330,6 @@ void CIOCPSocket2::Close()
 
 	if( m_Type == TYPE_ACCEPT )
 		hComport = m_pIOCPort->m_hServerIOCPort;
-	else
-		hComport = m_pIOCPort->m_hClientIOCPort;
 
 	int retValue = PostQueuedCompletionStatus( hComport, (DWORD)0, (DWORD)m_Sid, pOvl );
 
