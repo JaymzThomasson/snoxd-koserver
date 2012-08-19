@@ -21,6 +21,7 @@ class CIOCPSocket2;
 class CIOCPort  
 {
 public:
+	CIOCPort();
 	void CreateSendWorkerThread();
 	int GetClientSid();
 	void CreateAcceptThread();
@@ -34,7 +35,6 @@ public:
 	BOOL Listen( int port );
 	void Init( int serversocksize, int clientsocksize, int workernum = 0 );
 	void DeleteAllArray();
-	CIOCPort();
 	virtual ~CIOCPort();
 
 	SOCKET m_ListenSocket;
@@ -50,10 +50,15 @@ public:
 	int m_ClientSockSize;
 
 	SidList m_SidList;
+
+	HANDLE * m_hReceiveWorkerThreads;
+	HANDLE * m_hSendWorkerThreads;
+	HANDLE   m_hClientWorkerThreads[10]; // AI
+
 	CIOCPSocket2 **m_SockArray;
 	CIOCPSocket2 **m_SockArrayInActive;
 
-	CIOCPSocket2 **m_ClientSockArray;		// Connect¿ë ¼ÒÄÏ
+	CIOCPSocket2 **m_ClientSockArray;		// AI server
 
 protected:
 	DWORD m_dwNumberOfWorkers;

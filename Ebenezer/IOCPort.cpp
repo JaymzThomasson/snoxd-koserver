@@ -340,47 +340,13 @@ CIOCPort::CIOCPort()
 	m_ClientSockSize = 0;
 
 	m_dwConcurrency = 1;
-}
+	m_hAcceptThread = NULL;
 
-CIOCPort::~CIOCPort()
-{
-	DeleteAllArray();
-	DeleteCriticalSection( &g_critical );
+	m_hReceiveWorkerThreads = NULL;
+	m_hSendWorkerThreads = NULL;
 
-	WSACleanup();
-}
-
-void CIOCPort::DeleteAllArray()
-{
-	EnterCriticalSection( &g_critical );
-	for( int i=0; i<m_SocketArraySize; i++ ) {
-		if ( m_SockArray[i] != NULL ) {
-			delete m_SockArray[i];
-			m_SockArray[i] = NULL;
-		}
-	}
-	delete[] m_SockArray;
-
-	for (int i=0; i < m_SocketArraySize; i++ ) {
-		if ( m_SockArrayInActive[i] != NULL ) {
-			delete m_SockArrayInActive[i];
-			m_SockArrayInActive[i] = NULL;
-		}
-	}
-	delete[] m_SockArrayInActive;
-
-	for (int i=0; i < m_ClientSockSize; i++ ) {
-		if ( m_ClientSockArray[i] != NULL ) {
-			delete m_ClientSockArray[i];
-			m_ClientSockArray[i] = NULL;
-		}
-	}
-	delete[] m_ClientSockArray;
-
-	while( !m_SidList.empty() )
-		m_SidList.pop_back();
-
-	LeaveCriticalSection( &g_critical );
+	for (int i = 0; i < 10; i++)
+		m_hClientWorkerThreads[i] = NULL;
 }
 
 void CIOCPort::Init(int serversocksize, int clientsocksize, int workernum)
@@ -562,9 +528,6 @@ void CIOCPort::CreateReceiveWorkerThread(int workernum)
 {
 	SYSTEM_INFO		SystemInfo;
 
-	HANDLE			hWorkerThread[MAX_USER];
-	DWORD			WorkerId[MAX_USER];
-
 	//
 	// try to get timing more accurate... Avoid context
 	// switch that could occur when threads are released
@@ -577,68 +540,40 @@ void CIOCPort::CreateReceiveWorkerThread(int workernum)
 	//
 	GetSystemInfo (&SystemInfo);
 	
-	if( !workernum )
+	if (!workernum)
 		m_dwNumberOfWorkers = 2 * SystemInfo.dwNumberOfProcessors;
 	else
 		m_dwNumberOfWorkers = workernum;
+
 	m_dwConcurrency = SystemInfo.dwNumberOfProcessors;
+	m_hServerIOCPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, m_dwNumberOfWorkers);
 	
-	m_hServerIOCPort = CreateIoCompletionPort( INVALID_HANDLE_VALUE, NULL, 0, 10 );
-	
-	for(int i = 0; i < (int)m_dwNumberOfWorkers; i++)
+	m_hReceiveWorkerThreads = new HANDLE[m_dwNumberOfWorkers];
+	for (DWORD i = 0; i < m_dwNumberOfWorkers; i++)
 	{
-		hWorkerThread[i] = ::CreateThread(
-										NULL,
-										0,
-										ReceiveWorkerThread,
-										(LPVOID)this,
-										0,
-										&WorkerId[i]
-										);
+		DWORD workerId;
+		m_hReceiveWorkerThreads[i] = CreateThread(NULL, 0, ReceiveWorkerThread, (LPVOID)this, 0, &workerId);
 	}
 }
 
 void CIOCPort::CreateClientWorkerThread()
 {
-	HANDLE			hWorkerThread[MAX_USER];
-	DWORD			WorkerId[MAX_USER];
-
-	m_hClientIOCPort = CreateIoCompletionPort( INVALID_HANDLE_VALUE, NULL, 0, 10 );
-	
-	for(int i=0; i<(int)m_dwConcurrency; i++) {
-		hWorkerThread[i] = ::CreateThread(
-										NULL,
-										0,
-										ClientWorkerThread,
-										(LPVOID)this,
-										0,
-										&WorkerId[i]
-										);
+	m_hClientIOCPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 10);
+	for (int i = 0; i< 10; i++) 
+	{
+		DWORD workerId;
+		m_hClientWorkerThreads[i] = ::CreateThread(NULL, 0, ClientWorkerThread, (LPVOID)this, 0, &workerId);
 	}
 }
 
 void CIOCPort::CreateSendWorkerThread()
 {
-	SYSTEM_INFO		SystemInfo;
-	HANDLE			hWorkerThread[MAX_USER];
-	DWORD			WorkerId[MAX_USER];
-	DWORD			dwNumberOfWorkers = 0;
-
-	GetSystemInfo (&SystemInfo);
-	dwNumberOfWorkers = 2 * SystemInfo.dwNumberOfProcessors;
-
-	m_hSendIOCPort = CreateIoCompletionPort( INVALID_HANDLE_VALUE, NULL, 0, 10 );
-	
-	for(int i = 0; i < (int)dwNumberOfWorkers; i++)
+	m_hSendIOCPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, m_dwNumberOfWorkers);
+	m_hSendWorkerThreads = new HANDLE[m_dwNumberOfWorkers];
+	for (DWORD i = 0; i < m_dwNumberOfWorkers; i++)
 	{
-		hWorkerThread[i] = ::CreateThread(
-										NULL,
-										0,
-										SendWorkerThread,
-										(LPVOID)this,
-										0,
-										&WorkerId[i]
-										);
+		DWORD workerId;
+		m_hSendWorkerThreads[i] = CreateThread(NULL, 0, SendWorkerThread, (LPVOID)this, 0, &workerId);
 	}
 }
 
@@ -691,4 +626,83 @@ int CIOCPort::GetClientSid()
 	return -1;
 }
 
+void CIOCPort::DeleteAllArray()
+{
+	EnterCriticalSection( &g_critical );
+	for( int i=0; i<m_SocketArraySize; i++ ) {
+		if ( m_SockArray[i] != NULL ) {
+			delete m_SockArray[i];
+			m_SockArray[i] = NULL;
+		}
+	}
+	delete[] m_SockArray;
 
+	for (int i=0; i < m_SocketArraySize; i++ ) {
+		if ( m_SockArrayInActive[i] != NULL ) {
+			delete m_SockArrayInActive[i];
+			m_SockArrayInActive[i] = NULL;
+		}
+	}
+	delete[] m_SockArrayInActive;
+
+	for (int i=0; i < m_ClientSockSize; i++ ) {
+		if ( m_ClientSockArray[i] != NULL ) {
+			delete m_ClientSockArray[i];
+			m_ClientSockArray[i] = NULL;
+		}
+	}
+	delete[] m_ClientSockArray;
+
+	while( !m_SidList.empty() )
+		m_SidList.pop_back();
+
+	LeaveCriticalSection( &g_critical );
+}
+
+CIOCPort::~CIOCPort()
+{
+	if (m_hAcceptThread != NULL)
+		TerminateThread(m_hAcceptThread, 0);
+
+	if (m_hReceiveWorkerThreads != NULL)
+	{
+		for (DWORD i = 0; i < m_dwNumberOfWorkers; i++)
+		{
+			if (m_hReceiveWorkerThreads[i] == NULL)
+				continue;
+
+			TerminateThread(m_hReceiveWorkerThreads[i], 0);
+			m_hReceiveWorkerThreads[i] = NULL;
+		}
+
+		delete [] m_hReceiveWorkerThreads;
+	}
+
+	for (int i = 0; i < 10; i++)
+	{
+			if (m_hClientWorkerThreads[i] == NULL)
+				continue;
+
+		TerminateThread(m_hClientWorkerThreads[i], 0);
+		m_hClientWorkerThreads[i] = NULL;
+	}
+
+
+	if (m_hSendWorkerThreads != NULL)
+	{
+		for (DWORD i = 0; i < m_dwNumberOfWorkers; i++)
+		{
+			if (m_hSendWorkerThreads[i] == NULL)
+				continue;
+
+			TerminateThread(m_hSendWorkerThreads[i], 0);
+			m_hSendWorkerThreads[i] = NULL;
+		}
+
+		delete [] m_hSendWorkerThreads;
+	}
+	DeleteAllArray();
+	DeleteCriticalSection( &g_critical );
+
+	WSACleanup();
+}

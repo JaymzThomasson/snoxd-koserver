@@ -539,6 +539,8 @@ BOOL CEbenezerDlg::DestroyWindow()
 	KillTimer( ALIVE_TIME );
 	KillTimer( MARKET_BBS_TIME );
 
+	KickOutAllUsers();
+
 	if( m_hReadQueueThread )
 		::TerminateThread( m_hReadQueueThread, 0 );
 
