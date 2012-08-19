@@ -36,6 +36,9 @@ public:
 	void WithdrawKnights( CUser* pUser, char* pBuf );
 	void JoinKnights( CUser* pUser, char* pBuf );
 	void JoinKnightsReq( CUser* pUser, char* pBuf );
+
+	void ListTop10Clans(CUser *pUser);
+
 	int GetKnightsIndex( int nation );
 	BOOL IsAvailableName( const char* strname);	
 	void CreateKnights( CUser* pUser, char* pBuf );

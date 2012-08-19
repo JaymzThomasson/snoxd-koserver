@@ -453,6 +453,7 @@ void CUser::SetLogInInfoToDB(BYTE bInit)
 	}
 }
 
+// This packet actually contains the char name after the opcode
 void CUser::GameStart(char *pBuf)
 {
 	int index = 0;

@@ -289,7 +289,7 @@ void CUser::Parsing(int len, char *pData)
 	switch (command)
 	{
 	case WIZ_GAMESTART:
-		if (GetState() != STATE_GAMESTART)
+		if (GetState() == STATE_GAMESTART)
 			break;
 
 		GameStart(pData+index);
@@ -680,9 +680,8 @@ void CUser::LogOut()
 
 void CUser::SendMyInfo()
 {
-	C3DMap* pMap = NULL;
+	C3DMap* pMap = GetMap();
 	CKnights* pKnights = NULL;
-	ASSERT(GetMap() != NULL);
 
 	int  send_index = 0, i=0, iLength = 0;
 	char send_buff[2048];
@@ -728,6 +727,18 @@ void CUser::SendMyInfo()
 		m_pUserData->m_curx = x;
 		m_pUserData->m_curz = z;
 	}
+
+	// Unlock skill data (level 70 skill quest).
+	SetByte(send_buff, WIZ_QUEST, send_index);
+	SetByte(send_buff, 2, send_index);
+	SetShort(send_buff, 0, send_index); // if 50+baseclass quest ID is completed
+	SetByte(send_buff, 0, send_index);
+	Send(send_buff, send_index);
+
+	send_index = 0;
+	memset(send_buff, 0x00, sizeof(send_buff));
+
+
 
 	SetByte( send_buff, WIZ_MYINFO, send_index );
 	SetShort( send_buff, m_Sid, send_index );

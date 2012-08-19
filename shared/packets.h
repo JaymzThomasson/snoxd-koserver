@@ -202,24 +202,42 @@
 ////////////////////////////////////////////////////////////////
 // Knights Packet sub define 
 ////////////////////////////////////////////////////////////////
-#define KNIGHTS_CREATE			0x01		// 생성
-#define KNIGHTS_JOIN			0x02		// 가입
-#define KNIGHTS_WITHDRAW		0x03		// 탈퇴
-#define KNIGHTS_REMOVE			0x04		// 멤버 삭제
-#define KNIGHTS_DESTROY			0x05		// 뽀개기
-#define KNIGHTS_ADMIT			0x06		// 멤버 가입 허가
-#define KNIGHTS_REJECT			0x07		// 멤버 가입 거절
-#define KNIGHTS_PUNISH			0x08		// 멤버 징계
-#define KNIGHTS_CHIEF			0x09		// 단장 임명
-#define KNIGHTS_VICECHIEF		0x0A		// 부단장 임명
-#define KNIGHTS_OFFICER			0x0B		// 장교임명
-#define KNIGHTS_ALLLIST_REQ		0x0C		// 리스트를 10개 단위로 Page 요청
-#define KNIGHTS_MEMBER_REQ		0x0D		// 모든 멤버 요청
-#define KNIGHTS_CURRENT_REQ		0x0E		// 현재 접속 리스트
-#define KNIGHTS_STASH			0x0F		// 기사단 창고
-#define KNIGHTS_MODIFY_FAME		0x10		// 멤버의 직위 변경.. 해당 멤버에게 간다
-#define KNIGHTS_JOIN_REQ		0x11		// 해당멤버에게 가입요청을 한다
-#define KNIGHTS_LIST_REQ		0x12		// 기사단 리스트를  요청 ( index 검색 )
+enum
+{
+	KNIGHTS_CREATE			= 0x01, // clan creation
+	KNIGHTS_JOIN			= 0x02, // joining a clan
+	KNIGHTS_WITHDRAW		= 0x03, // leaving a clan
+	KNIGHTS_REMOVE			= 0x04,	// removing a clan member
+	KNIGHTS_DESTROY			= 0x05, // disbanding a clan
+	KNIGHTS_ADMIT			= 0x06,
+	KNIGHTS_REJECT			= 0x07,
+	KNIGHTS_PUNISH			= 0x08,
+	KNIGHTS_CHIEF			= 0x09,
+	KNIGHTS_VICECHIEF		= 0x0A,
+	KNIGHTS_OFFICER			= 0x0B,
+	KNIGHTS_ALLLIST_REQ		= 0x0C,
+	KNIGHTS_MEMBER_REQ		= 0x0D,
+	KNIGHTS_CURRENT_REQ		= 0x0E,
+	KNIGHTS_STASH			= 0x0F,
+	KNIGHTS_MODIFY_FAME		= 0x10,
+	KNIGHTS_JOIN_REQ		= 0x11,
+	KNIGHTS_LIST_REQ		= 0x12,
+
+	KNIGHTS_CAPE_NPC		= 0x1B,
+	KNIGHTS_ALLY_CREATE		= 0x1C,
+	KNIGHTS_ALLY_REQ		= 0x1D,
+	KNIGHTS_ALLY_INSERT		= 0x1E,
+	KNIGHTS_ALLY_REMOVE		= 0x1F,
+	KNIGHTS_ALLY_PUNISH		= 0x20,
+	KNIGHTS_ALLY_LIST		= 0x22,
+
+	KNIGHTS_MARK_REQ		= 0x23,
+	KNIGHTS_MARK_REMOVE		= 0x24,
+	KNIGHTS_MARK_REGION_REQ	= 0x25,
+
+	KNIGHTS_UPDATE_GRADE	= 0x30,
+	KNIGHTS_TOP10			= 0x41
+};
 
 ////////////////////////////////////////////////////////////////
 // Operator Autority Packet define

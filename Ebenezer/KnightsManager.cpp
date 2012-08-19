@@ -41,7 +41,7 @@ void CKnightsManager::PacketProcess(CUser *pUser, char *pBuf)
 	int index = 0;
 
 	BYTE command = GetByte( pBuf, index );
-	
+	TRACE("Clan packet: %X\n", command); 
 	if( !pUser ) return;
 
 	switch( command ) {
@@ -79,6 +79,9 @@ void CKnightsManager::PacketProcess(CUser *pUser, char *pBuf)
 		break;
 	case KNIGHTS_JOIN_REQ:
 		JoinKnightsReq( pUser, pBuf+index );
+		break;
+	case KNIGHTS_TOP10:
+		ListTop10Clans(pUser);
 		break;
 	}
 }
@@ -1630,3 +1633,31 @@ void CKnightsManager::RecvKnightsAllList(char *pBuf)
 	}
 }
 
+void CKnightsManager::ListTop10Clans(CUser *pUser)
+{
+	char send_buff[1024];
+	int send_index = 0;
+
+	SetByte(send_buff, WIZ_KNIGHTS_PROCESS, send_index);
+	SetByte(send_buff, KNIGHTS_TOP10, send_index);
+	SetShort(send_buff, 0, send_index);
+
+	// TO-DO: List top 10 clans
+	for (int i = 0; i < 5; i++)
+	{
+		SetShort(send_buff, -1, send_index); // clan ID
+		SetKOString(send_buff, "", send_index); // name
+		SetShort(send_buff, -1, send_index); // symbol/mark version
+		SetShort(send_buff, i, send_index); // rank
+	}
+
+	for (int i = 0; i < 5; i++)
+	{
+		SetShort(send_buff, -1, send_index); // clan ID
+		SetKOString(send_buff, "", send_index); // name
+		SetShort(send_buff, -1, send_index); // symbol/mark version
+		SetShort(send_buff, i, send_index); // rank
+	}
+
+	pUser->Send(send_buff, send_index);
+}

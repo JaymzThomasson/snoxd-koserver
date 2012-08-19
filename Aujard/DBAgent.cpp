@@ -122,7 +122,6 @@ BOOL CDBAgent::LoadUserData(char *accountid, char *userid, int uid)
 	memset(szSQL, 0x00, 1024);
 
 	wsprintf(szSQL, TEXT("{call LOAD_USER_DATA ('%s', '%s', ?)}"), accountid, userid);
-	
 	SQLCHAR Nation, Race, Rank, Title, Level; 
 	SQLINTEGER Exp, Loyalty, Gold, PX, PZ, PY, dwTime, sQuestCount, MannerPoint, LoyaltyMonthly, HairRGB;
 	SQLCHAR Face, City, Fame, Authority;
@@ -204,7 +203,7 @@ BOOL CDBAgent::LoadUserData(char *accountid, char *userid, int uid)
 	}
 	else 
 	{
-		if ( DisplayErrorMsg(hstmt) == -1 ) {
+		if ( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 			char logstr[256];
 			memset( logstr, 0x00, 256);
 			sprintf_s( logstr, sizeof(logstr) - 1, "[Error-DB Fail] LoadUserData : name=%s\r\n", userid );
@@ -475,7 +474,7 @@ int CDBAgent::UpdateUser(const char *userid, int uid, int type )
 			retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
 			if (retcode==SQL_ERROR)
 			{
-				if( DisplayErrorMsg(hstmt) == -1 ) {
+				if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 					m_GameDB.Close();
 					if( !m_GameDB.IsOpen() ) {
 						ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -531,7 +530,7 @@ int CDBAgent::AccountLogInReq( char *id, char *pw )
 			}
 			else
 			{
-				if( DisplayErrorMsg(hstmt) == -1 ) {
+				if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 					m_GameDB.Close();
 					if( !m_GameDB.IsOpen() ) {
 						ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -571,7 +570,7 @@ BOOL CDBAgent::NationSelect(char *id, int nation)
 			retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
 			if (retcode==SQL_ERROR)
 			{
-				if( DisplayErrorMsg(hstmt) == -1 ) {
+				if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 					m_GameDB.Close();
 					if( !m_GameDB.IsOpen() ) {
 						ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -615,7 +614,7 @@ int CDBAgent::CreateNewChar(char *accountid, int index, char *charid, int race, 
 			retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
 			if (retcode==SQL_ERROR)
 			{
-				if( DisplayErrorMsg(hstmt) == -1 ) {
+				if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 					m_GameDB.Close();
 					if( !m_GameDB.IsOpen() ) {
 						ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -657,7 +656,7 @@ BOOL CDBAgent::DeleteChar(int index, char *id, char *charid, char* socno)
 			retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
 			if (retcode==SQL_ERROR)
 			{
-				if( DisplayErrorMsg(hstmt) == -1 ) {
+				if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 					m_GameDB.Close();
 					if( !m_GameDB.IsOpen() ) {
 						ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -730,7 +729,7 @@ BOOL CDBAgent::LoadCharInfo( char *id, char* buff, int &buff_index)
 	}
 	else 
 	{
-		if( DisplayErrorMsg(hstmt) == -1 ) {
+		if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 			m_GameDB.Close();
 			if( !m_GameDB.IsOpen() ) {
 				ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -807,7 +806,7 @@ BOOL CDBAgent::GetAllCharID(const char *id, char *char1, char *char2, char *char
 		else retval = FALSE;
 	}
 	else {
-		if( DisplayErrorMsg(hstmt) == -1 ) {
+		if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 			m_GameDB.Close();
 			if( !m_GameDB.IsOpen() ) {
 				ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -853,7 +852,7 @@ int CDBAgent::CreateKnights(int knightsindex, int nation, char *name, char *chie
 			retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
 			if (retcode==SQL_ERROR)
 			{
-				if( DisplayErrorMsg(hstmt) == -1 ) {
+				if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 					m_GameDB.Close();
 					if( !m_GameDB.IsOpen() ) {
 						ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -896,7 +895,7 @@ int CDBAgent::UpdateKnights(int type, char *userid, int knightsindex, int domina
 			retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
 			if (retcode==SQL_ERROR)
 			{
-				if( DisplayErrorMsg(hstmt) == -1 ) {
+				if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 					m_GameDB.Close();
 					if( !m_GameDB.IsOpen() ) {
 						ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -940,7 +939,7 @@ int CDBAgent::DeleteKnights(int knightsindex)
 			retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
 			if (retcode==SQL_ERROR)
 			{
-				if( DisplayErrorMsg(hstmt) == -1 ) {
+				if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 					m_GameDB.Close();
 					if( !m_GameDB.IsOpen() ) {
 						ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -1025,7 +1024,7 @@ int CDBAgent::LoadKnightsAllMembers(int knightsindex, int start, char *temp_buff
 			}
 		}
 		else {
-			if( DisplayErrorMsg(hstmt) == -1 ) {
+			if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 				m_GameDB.Close();
 				if( !m_GameDB.IsOpen() ) {
 					ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -1068,7 +1067,7 @@ BOOL CDBAgent::UpdateConCurrentUserCount(int serverno, int zoneno, int t_count)
 		retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
 		if (retcode==SQL_ERROR)
 		{
-			if( DisplayErrorMsg(hstmt) == -1 ) {
+			if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 				m_AccountDB1.Close();
 				if( !m_AccountDB1.IsOpen() ) {
 					ReConnectODBC( &m_AccountDB1, m_pMain->m_strAccountDSN, m_pMain->m_strAccountUID, m_pMain->m_strAccountPWD );
@@ -1121,7 +1120,7 @@ BOOL CDBAgent::LoadWarehouseData(const char *accountid, int uid)
 			retval = FALSE;
 	}
 	else {
-		if( DisplayErrorMsg(hstmt) == -1 ) {
+		if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 			m_GameDB.Close();
 			if( !m_GameDB.IsOpen() ) {
 				ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -1236,7 +1235,7 @@ int CDBAgent::UpdateWarehouseData(const char *accountid, int uid, int type )
 			retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
 			if (retcode==SQL_ERROR)
 			{
-				if( DisplayErrorMsg(hstmt) == -1 ) {
+				if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 					m_GameDB.Close();
 					if( !m_GameDB.IsOpen() ) {
 						ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -1313,7 +1312,7 @@ BOOL CDBAgent::LoadKnightsInfo( int index, char* buff, int &buff_index)
 
 		}
 		else {
-			if( DisplayErrorMsg(hstmt) == -1 ) {
+			if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 				m_GameDB.Close();
 				if( !m_GameDB.IsOpen() ) {
 					ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -1338,12 +1337,12 @@ BOOL CDBAgent::SetLogInInfo(const char *accountid, const char *charid, const cha
 	TCHAR			szSQL[1024];
 	memset( szSQL, 0x00, 1024 );
 	SQLINTEGER		cbParmRet=SQL_NTS;
-	BOOL			bSuccess = TRUE;
+	BOOL			bSuccess = FALSE;
 
-	if( bInit == 0x01 )
-		wsprintf( szSQL, TEXT( "INSERT INTO CURRENTUSER (strAccountID, strCharID, nServerNo, strServerIP, strClientIP) VALUES (\'%s\',\'%s\',%d,\'%s\',\'%s\')" ), accountid, charid, serverno, serverip, clientip );
-	else if( bInit == 0x02 )
-		wsprintf( szSQL, TEXT( "UPDATE CURRENTUSER SET nServerNo=%d, strServerIP=\'%s\' WHERE strAccountID = \'%s\'" ), serverno, serverip, accountid );
+	if (bInit == 1)
+		wsprintf(szSQL, TEXT( "INSERT INTO CURRENTUSER (strAccountID, strCharID, nServerNo, strServerIP, strClientIP) VALUES(\'%s\',\'%s\',%d,\'%s\',\'%s\')" ), accountid, charid, serverno, serverip, clientip);
+	else if (bInit == 2) // leaving this one because the old proc's weird
+		wsprintf(szSQL, TEXT( "UPDATE CURRENTUSER SET nServerNo=%d, strServerIP=\'%s\' WHERE strAccountID = \'%s\'" ), serverno, serverip, accountid);
 	else
 		return FALSE;
 
@@ -1353,10 +1352,9 @@ BOOL CDBAgent::SetLogInInfo(const char *accountid, const char *charid, const cha
 	if (retcode == SQL_SUCCESS)
 	{
 		retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
-		if (retcode==SQL_ERROR)
+		if (retcode == SQL_ERROR)
 		{
-			bSuccess = FALSE;
-			if( DisplayErrorMsg(hstmt) == -1 ) {
+			if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 				m_AccountDB.Close();
 				if( !m_AccountDB.IsOpen() ) {
 					ReConnectODBC( &m_AccountDB, m_pMain->m_strAccountDSN, m_pMain->m_strAccountUID, m_pMain->m_strAccountPWD );
@@ -1364,9 +1362,12 @@ BOOL CDBAgent::SetLogInInfo(const char *accountid, const char *charid, const cha
 				}
 			}
 		}
-			
-		SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
+		else
+		{
+			bSuccess = TRUE;
+		}
 	}
+	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
 
 	return bSuccess;
 }
@@ -1408,7 +1409,7 @@ int CDBAgent::AccountLogout(const char *accountid)
 			}
 			else
 			{
-				if( DisplayErrorMsg(hstmt) == -1 ) {
+				if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 					m_AccountDB.Close();
 					if( !m_AccountDB.IsOpen() ) {
 						ReConnectODBC( &m_AccountDB, m_pMain->m_strAccountDSN, m_pMain->m_strAccountUID, m_pMain->m_strAccountPWD );
@@ -1462,7 +1463,7 @@ BOOL CDBAgent::CheckUserData(const char *accountid, const char *charid, int type
 
 		}
 		else {
-			if( DisplayErrorMsg(hstmt) == -1 ) {
+			if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 				m_GameDB.Close();
 				if( !m_GameDB.IsOpen() ) {
 					ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -1548,7 +1549,7 @@ void CDBAgent::LoadKnightsAllList( int nation)
 			}
 		}
 		else {
-			if( DisplayErrorMsg(hstmt) == -1 ) {
+			if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 				m_GameDB.Close();
 				if( !m_GameDB.IsOpen() ) {
 					ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -1604,7 +1605,7 @@ BOOL CDBAgent::UpdateBattleEvent( const char* charid, int nation )
 	if (retcode == SQL_SUCCESS)	{
 		retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
 		if (retcode==SQL_ERROR)	{
-			if( DisplayErrorMsg(hstmt) == -1 ) {
+			if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 					m_GameDB.Close();
 					if( !m_GameDB.IsOpen() ) {
 						ReConnectODBC( &m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD );
@@ -1633,7 +1634,7 @@ BOOL CDBAgent::LoadWebItemMall(char *charid, char *buff, int & buff_index)
 		return FALSE;
 
 	memset(szSQL, 0x00, 1024);
-	wsprintf(szSQL, TEXT("{call LOAD_WEB_ITEMMALL (?)}"));
+	wsprintf(szSQL, TEXT("{call LOAD_WEB_ITEMMALL (\'%s\')}", charid));
 	
 	TCHAR strAccountID[MAX_ID_SIZE+1];
 	SQLCHAR Race = 0x00, Level = 0x00, Face = 0x00, Zone = 0x00; 
@@ -1647,7 +1648,6 @@ BOOL CDBAgent::LoadWebItemMall(char *charid, char *buff, int & buff_index)
 	if (retcode != SQL_SUCCESS)	
 		return FALSE; 
 
-	retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, strlen(charid), 0, charid, 0, &sCharID);
 	if (retcode == SQL_SUCCESS)	
 	{
 		retcode = SQLExecDirect(hstmt, (unsigned char *)szSQL, 1024);	
@@ -1659,7 +1659,7 @@ BOOL CDBAgent::LoadWebItemMall(char *charid, char *buff, int & buff_index)
 
 			while (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
 			{
-				SQLGetData(hstmt, 1, SQL_C_CHAR,	strAccountID,	MAX_ID_SIZE,		&Indexind);
+				SQLGetData(hstmt, 1, SQL_C_CHAR,	strAccountID,	MAX_ID_SIZE,	&Indexind);
 				SQLGetData(hstmt, 2, SQL_C_LONG,	&ItemID,		0,		&Indexind);
 				SQLGetData(hstmt, 3, SQL_C_SHORT,	&ItemCount,		0,		&Indexind);
 
@@ -1679,7 +1679,7 @@ BOOL CDBAgent::LoadWebItemMall(char *charid, char *buff, int & buff_index)
 		}
 		else 
 		{
-			if (DisplayErrorMsg(hstmt) == -1)
+			if (DisplayErrorMsg(hstmt, szSQL) == -1)
 			{
 				m_AccountDB.Close();
 				if (!m_AccountDB.IsOpen()) 
@@ -1709,15 +1709,11 @@ BOOL CDBAgent::LoadSkillShortcut(char *charid, char *buff, int & buff_index)
 	_USER_DATA *pData = m_pMain->GetUserPtr(charid, uid); 
 
 	memset(szSQL, 0x00, 1024);
-	wsprintf(szSQL, TEXT("{call SKILLSHORTCUT_LOAD (?)}"));
-	
+	wsprintf(szSQL, TEXT("{call SKILLSHORTCUT_LOAD (\'%s\')}", charid));
 	SQLINTEGER Indexind = SQL_NTS;
 
 	hstmt = NULL;
 	retcode = SQLAllocHandle((SQLSMALLINT)SQL_HANDLE_STMT, m_AccountDB.m_hdbc, &hstmt);
-	if (retcode != SQL_SUCCESS)	
-
-	retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, strlen(charid), 0, charid, 0, &sCharID);
 	if (retcode == SQL_SUCCESS)
 	{
 		retcode = SQLExecDirect(hstmt, (unsigned char *)szSQL, 1024);	
@@ -1739,7 +1735,7 @@ BOOL CDBAgent::LoadSkillShortcut(char *charid, char *buff, int & buff_index)
 		}
 		else 
 		{
-			if (DisplayErrorMsg(hstmt) == -1)
+			if (DisplayErrorMsg(hstmt, szSQL) == -1)
 			{
 				m_AccountDB.Close();
 				if (!m_AccountDB.IsOpen()) 
@@ -1762,22 +1758,21 @@ void CDBAgent::SaveSkillShortcut(char *charid, int sCount, char *buff)
 	SDWORD			sCharID, sSkillData;
 
 	memset(szSQL, 0x00, 1024);
-	wsprintf(szSQL, TEXT("{call SKILLSHORTCUT_SAVE (?, %d, ?)}" ), sCount);
+	wsprintf(szSQL, TEXT("{call SKILLSHORTCUT_SAVE (\'%s\', %d, ?)}" ), charid, sCount);
 
 	hstmt = NULL;
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
 	{
-		retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, strlen(charid), 0, charid, 0, &sCharID);
-		retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 260, 0, buff, 0, &sSkillData);
+		retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 260, 0, buff, 0, &sSkillData);
 
 		if (retcode == SQL_SUCCESS)
 		{
 			retcode = SQLExecDirect(hstmt, (unsigned char *)szSQL, 1024);
 			if (retcode == SQL_ERROR)
 			{
-				if (DisplayErrorMsg(hstmt) == -1)
+				if (DisplayErrorMsg(hstmt, szSQL) == -1)
 				{
 					m_GameDB.Close();
 					if  (!m_GameDB.IsOpen())
