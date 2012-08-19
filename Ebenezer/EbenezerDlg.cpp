@@ -819,9 +819,13 @@ BOOL CEbenezerDlg::AIServerConnect()
 	strcpy(m_AIServerIP, m_Ini.GetProfileString("AI_SERVER", "IP", "192.203.143.119"));
 	
 	
-	for( int i=0; i<MAX_AI_SOCKET; i++ ) {
-		if( !AISocketConnect( i ) ) {
+	for (int i = 0; i < MAX_AI_SOCKET; i++)
+	{
+		if( !AISocketConnect( i ) ) 
+		{
+#ifndef _DEBUG
 			AfxMessageBox("AI Server Connect Fail!!");
+#endif
 			return FALSE;
 		}
 	}
@@ -2334,7 +2338,22 @@ BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg)
 			if( _strnicmp( "/down", chatstr, 5 ) == 0 ) {
 				g_serverdown_flag = TRUE;
 				::SuspendThread( m_Iocport.m_hAcceptThread );
-				KickOutAllUsers();
+				int users = KickOutAllUsers();
+				char output[128];
+				sprintf_s(output, 128, "Server shutdown, %d users kicked out.", users);
+				m_StatusList.AddString(output);
+				return TRUE;
+			}
+			if( _strnicmp( "/pause", chatstr, 6 ) == 0 ) {
+				g_serverdown_flag = TRUE;
+				::SuspendThread( m_Iocport.m_hAcceptThread );
+				m_StatusList.AddString("Server no longer accepting connections");
+				return TRUE;
+			}
+			if( _strnicmp( "/resume", chatstr, 7 ) == 0 ) {
+				g_serverdown_flag = FALSE;
+				::ResumeThread( m_Iocport.m_hAcceptThread );
+				m_StatusList.AddString("Server accepting connections");
 				return TRUE;
 			}
 			if( _strnicmp( "/discount", chatstr, 9 ) == 0 ) {
@@ -3431,18 +3450,29 @@ void CEbenezerDlg::CheckAliveUser()
 	}
 }
 
-void CEbenezerDlg::KickOutAllUsers()
+int CEbenezerDlg::KickOutAllUsers()
 {
 	CUser* pUser = NULL;
+	int count = 0;
 
-	for( int i=0; i<MAX_USER; i++) {
-		pUser = (CUser*)m_Iocport.m_SockArray[i];
-		if( !pUser )
+	for (int i = 0; i < MAX_USER; i++)
+	{
+		pUser = GetUnsafeUserPtr(i);
+		if (pUser == NULL || pUser->GetState() == STATE_DISCONNECTED)
 			continue;
 
-		pUser->Close();
-		Sleep(1000);
+		BYTE state = pUser->GetState();
+		pUser->CloseProcess();
+
+		// Only delay (for saving)if they're logged in, this is awful... 
+		// but until we do away with the shared memory system, it'll overflow the queue...
+		if (state == STATE_GAMESTART)
+		{
+			count++;
+			Sleep(50);
+		}
 	}
+	return count;
 }
 
 __int64 CEbenezerDlg::GenerateItemSerial()

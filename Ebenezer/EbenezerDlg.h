@@ -64,7 +64,7 @@ public:
 	void Send_UDP_All( char* pBuf, int len, int group_type = 0 );
 	void KickOutZoneUsers(short zone);
 	__int64 GenerateItemSerial();
-	void KickOutAllUsers();
+	int KickOutAllUsers();
 	void CheckAliveUser();
 	int GetKnightsGrade(int nPoints);
 	void WritePacketLog();

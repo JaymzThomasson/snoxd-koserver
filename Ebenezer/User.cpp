@@ -218,16 +218,19 @@ void CUser::Make_public_key()
 
 void CUser::CloseProcess()
 {
-	UserInOut( USER_OUT );
+	if (GetState() == STATE_GAMESTART)
+	{
+		UserInOut( USER_OUT );
 
-	if (isInParty())
-		PartyRemove(m_Sid);
+		if (isInParty())
+			PartyRemove(m_Sid);
 
-	if (m_sExchangeUser != -1 )
-		ExchangeCancel();
+		if (m_sExchangeUser != -1 )
+			ExchangeCancel();
 
-	MarketBBSUserDelete();
-	LogOut();
+		MarketBBSUserDelete();
+		LogOut();
+	}
 	Initialize();
 	CIOCPSocket2::CloseProcess();
 }
