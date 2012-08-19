@@ -537,7 +537,7 @@ void CUdpSocket::RecvModifyFame( char* pBuf, BYTE command )
 			SetShort( send_buff, pTUser->GetSocketID(), send_index );
 			SetShort( send_buff, pTUser->m_pUserData->m_bKnights, send_index );
 			SetByte( send_buff, pTUser->m_pUserData->m_bFame, send_index );
-			m_pMain->Send_Region( send_buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+			m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 		}
 		else	{
 			SetShort( send_buff, pTUser->GetSocketID(), send_index );
@@ -619,7 +619,7 @@ void CUdpSocket::RecvDestroyKnights( char* pBuf )
 		SetShort( send_buff, pTUser->GetSocketID(), send_index );
 		SetShort( send_buff, pTUser->m_pUserData->m_bKnights, send_index );
 		SetByte( send_buff, pTUser->m_pUserData->m_bFame, send_index );
-		m_pMain->Send_Region( send_buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+		m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 	}
 	
 	m_pMain->m_KnightsArray.DeleteData( knightsindex );

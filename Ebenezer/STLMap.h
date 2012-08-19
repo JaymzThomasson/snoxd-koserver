@@ -31,7 +31,7 @@ public:
 		pair<Iterator, bool> temp_pair = m_UserTypeMap.insert( ValueType( key_value, pData ) );
 		return temp_pair.second;
 	};
-	
+
 	T* GetData( int key_value )
 	{
 		T* pData = NULL;
@@ -70,7 +70,7 @@ public:
 		Iterator iter1 = m_UserTypeMap.begin(), iter2 = m_UserTypeMap.end();
 		for(; iter1 != iter2; iter1++ )
 			delete (*iter1).second;
-		
+
 		m_UserTypeMap.clear();
 	};
 

@@ -12,6 +12,7 @@
 #include "define.h"
 
 class CEbenezerDlg;
+class C3DMap;
 
 class CNpc  
 {
@@ -21,7 +22,9 @@ public:
 	short	m_sNid;				// NPC (서버상의)일련번호
 	short	m_sSid;				// NPC 테이블 참조번호
 	short	m_sCurZone;			// Current Zone;
-	short	m_sZoneIndex;		// NPC 가 존재하고 있는 존의 인덱스
+
+	C3DMap * m_pMap;
+
 	float	m_fCurX;			// Current X Pos;
 	float	m_fCurY;			// Current Y Pos;
 	float	m_fCurZ;			// Current Z Pos;
@@ -55,17 +58,21 @@ public:
 
 public:
 	CNpc();
-	virtual ~CNpc();
+
 
 	void Initialize();
 	void MoveResult(float xpos, float ypos, float zpos, float speed);
 	void NpcInOut(BYTE Type, float fx, float fz, float fy);
+	void GetNpcInfo(char *buff, int & send_index);
 	void RegisterRegion();
 	void RemoveRegion(int del_x, int del_z);
 	void InsertRegion(int del_x, int del_z);
 	int GetRegionNpcList(int region_x, int region_z, char *buff, int &t_count);
-	BYTE GetState()		{ return m_byState; };
 
+	__forceinline BYTE GetState() { return m_byState; };
+	__forceinline C3DMap * GetMap() { return m_pMap; };
+
+	virtual ~CNpc();
 };
 
 #endif // !defined(AFX_NPC_H__1DE71CDD_4040_4479_828D_E8EE07BD7A67__INCLUDED_)

@@ -145,7 +145,7 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 					SetShort( send_buff, 0, send_index );
 
 					if( m_bMagicState == CASTING ) {
-						m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
+						m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 					}
 					else {			
 						m_pSrcUser->Send( send_buff, send_index );				
@@ -184,7 +184,7 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 							SetShort( send_buff, 0, send_index );
 
 							if( m_bMagicState == CASTING ) {
-								m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
+								m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 							}
 							else {			
 								m_pSrcUser->Send( send_buff, send_index );				
@@ -225,7 +225,7 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 							SetShort( send_buff, 0, send_index ); 
 
 							if( m_bMagicState == CASTING ) {
-								m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
+								m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 							}
 							else {			
 								m_pSrcUser->Send( send_buff, send_index );				
@@ -424,10 +424,10 @@ return_echo:
 	SetShort( send_buff, data6, send_index );	
 
 	if (sid >= 0 && sid < MAX_USER) {
-		m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
+		m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 	}
 	else if (sid >= NPC_BAND) { 
-		m_pMain->Send_Region( send_buff, send_index, pMon->m_sCurZone, pMon->m_sRegion_X, pMon->m_sRegion_Z, NULL, false );
+		m_pMain->Send_Region( send_buff, send_index, pMon->GetMap(), pMon->m_sRegion_X, pMon->m_sRegion_Z, NULL, false );
 	}		
 }
 
@@ -792,10 +792,10 @@ fail_return:    // In case the magic failed, just send a packet.
 
 	if( m_bMagicState == CASTING ) {
 		if (!bFlag) {
-			m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
+			m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 		}
 		else {
-			m_pMain->Send_Region( send_buff, send_index, pMon->m_sCurZone, pMon->m_sRegion_X, pMon->m_sRegion_Z, NULL, false );
+			m_pMain->Send_Region( send_buff, send_index, pMon->GetMap(), pMon->m_sRegion_X, pMon->m_sRegion_Z, NULL, false );
 		}
 	}
 	else {
@@ -885,7 +885,7 @@ packet_send:
 			SetShort( send_buff, 0, send_index );
 		}
 
-		m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
+		m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 	}
 
 	return result ;
@@ -993,7 +993,7 @@ packet_send:
 			SetShort( send_buff, 0, send_index );
 		}
 
-		m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
+		m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 	}
 	return result;
 }
@@ -1054,10 +1054,10 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 			SetShort( send_buff, 0, send_index );
 
 			if (!bFlag) {
-				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 			}
 			else {
-				m_pMain->Send_Region( send_buff, send_index, pMon->m_sCurZone, pMon->m_sRegion_X, pMon->m_sRegion_Z, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, pMon->GetMap(), pMon->m_sRegion_X, pMon->m_sRegion_Z, NULL, false );
 			}
 		
 			return;			
@@ -1269,10 +1269,10 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 			SetShort( send_buff, result, send_index );	
 			SetShort( send_buff, data3, send_index );	
 			if (!bFlag) {
-				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 			}
 			else {
-				m_pMain->Send_Region( send_buff, send_index, pMon->m_sCurZone, pMon->m_sRegion_X, pMon->m_sRegion_Z, NULL, false ) ;
+				m_pMain->Send_Region( send_buff, send_index, pMon->GetMap(), pMon->m_sRegion_X, pMon->m_sRegion_Z, NULL, false ) ;
 			}	
 		}
 
@@ -1318,11 +1318,10 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 	if (tid == -1) {		// If the target was the source's party......		
 		for (int i = 0 ; i < MAX_USER ; i++) {		// Maximum number of members in a party...
 			CUser* pTUser = NULL ;     // Pointer initialization!		
-			pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[i];     // Get target info.  
-//			if( !pTUser || pTUser->m_bResHpType == USER_DEAD || pTUser->m_bResHpType == USER_BLINKING) continue ;   
-			if( !pTUser || pTUser->m_bResHpType == USER_DEAD || pTUser->m_bAbnormalType == ABNORMAL_BLINKING) continue ;
+			pTUser = m_pMain->GetUnsafeUserPtr(i);     // Get target info.  
+			if (pTUser == NULL || pTUser->isDead() 
+				|| pTUser->m_bAbnormalType == ABNORMAL_BLINKING) continue;
 			
-//			if (UserRegionCheck(sid, i, magicid, pType->bRadius)) {
 			if (UserRegionCheck(sid, i, magicid, pType->bRadius, data1, data3)) {
 				casted_member[party_index] = i ;
 				party_index++ ;
@@ -1342,7 +1341,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			SetShort( send_buff, 0, send_index );
 			SetShort( send_buff, 0, send_index );
 			if (sid >= 0 && sid < MAX_USER) {
-				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 			}
 			return ;	
 		}
@@ -1358,8 +1357,8 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 
 	for ( int j = 0 ; j < party_index ; j++) {	// THIS IS WHERE THE FUN STARTS!!!
 		CUser* pTUser = NULL ;     // Pointer initialization!		
-		pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[casted_member[j]] ;     // Get target info.  
-		if (!pTUser|| pTUser->m_bResHpType == USER_DEAD) continue;
+		pTUser = m_pMain->GetUserPtr(casted_member[j]) ;     // Get target info.  
+		if (pTUser == NULL || pTUser->isDead()) continue;
 //
 		if (pTUser->m_bType4Buff[pType->bBuffType - 1] == 2 && tid == -1) {		// Is this buff-type already casted on the player?
 			result = 0 ;				// If so, fail! 
@@ -1498,10 +1497,10 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			SetShort( send_buff, result, send_index );	
 			SetShort( send_buff, data3, send_index );	
 			if (sid >=0 && sid < MAX_USER) {
-				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 			}
 			else {
-				m_pMain->Send_Region( send_buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 			}
 		}
 
@@ -1520,10 +1519,10 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			SetShort( send_buff, result, send_index );	
 			SetShort( send_buff, data3, send_index );
 			if (sid >= 0 && sid < MAX_USER) {
-				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 			}
 			else {
-				m_pMain->Send_Region( send_buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 			}
 			memset( send_buff, NULL, 128); send_index = 0 ;
 		}
@@ -1811,10 +1810,10 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 		SetShort( send_buff, data3, send_index );
 
 		if (sid >= 0 && sid < MAX_USER) {
-			m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
+			m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 		}
 		else {
-			m_pMain->Send_Region( send_buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+			m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 		}
 	}
 	
@@ -1936,22 +1935,17 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				SetShort( send_buff, data1, send_index );	
 				SetShort( send_buff, result, send_index );	
 				SetShort( send_buff, data3, send_index );	
-				m_pMain->Send_Region( send_buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 
 				send_index = 0 ;
 				memset( send_buff, NULL, 128); 
-/*			
-				pTUser->Regene(NULL);	// Use Regene() to warp player to resurrection point.
-*/
 
-			//	pEvent = m_pMain->m_ZoneArray[m_iZoneIndex]->GetObjectEvent(m_pUserData->m_sBind);
-				pEvent = m_pMain->m_ZoneArray[pTUser->m_iZoneIndex]->GetObjectEvent(pTUser->m_pUserData->m_sBind);
+				if (pTUser->GetMap() == NULL)
+					continue;
+
+				pEvent = pTUser->GetMap()->GetObjectEvent(pTUser->m_pUserData->m_sBind);
 
 				if( pEvent ) {
-
-//					m_pUserData->m_curx = m_fWill_x = pEvent->fPosX + x;
-//					m_pUserData->m_curz = m_fWill_z = pEvent->fPosZ + z;
-//					m_pUserData->m_cury = 0;
 
 					SetShort(send_buff, (WORD)pEvent->fPosX*10 + x, send_index);
 					SetShort(send_buff, (WORD)pEvent->fPosZ*10 + z, send_index);
@@ -1960,9 +1954,6 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				}
 				else if(pTUser->m_pUserData->m_bNation != pTUser->m_pUserData->m_bZone && pTUser->m_pUserData->m_bZone < 3) {	 // User is in different zone.
 					if(pTUser->m_pUserData->m_bNation == 1 ) {	// Land of Karus
-
-//						m_pUserData->m_curx = m_fWill_x = (float)852.0 + x;
-//						m_pUserData->m_curz = m_fWill_z = (float)164.0 + z;
 
 						SetShort(send_buff, 852 + x, send_index);
 						SetShort(send_buff, 164 + z, send_index);
@@ -1991,13 +1982,8 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				}
 //
 				else {		//  No, I don't have any idea what this part means....
-
-//					m_pUserData->m_curx = m_pMain->m_ZoneArray[m_iZoneIndex]->m_fInitX + x;
-//					m_pUserData->m_curz = m_pMain->m_ZoneArray[m_iZoneIndex]->m_fInitZ + z;
-//					m_pUserData->m_cury = 0;
-
-					SetShort(send_buff, (WORD)m_pMain->m_ZoneArray[pTUser->m_iZoneIndex]->m_fInitX*10 + x, send_index);
-					SetShort(send_buff, (WORD)m_pMain->m_ZoneArray[pTUser->m_iZoneIndex]->m_fInitZ*10 + z, send_index);
+					SetShort(send_buff, (WORD)pTUser->GetMap()->m_fInitX*10 + x, send_index);
+					SetShort(send_buff, (WORD)pTUser->GetMap()->m_fInitZ*10 + z, send_index);
 					pTUser->Warp(send_buff);	
 				}
 							
@@ -2024,7 +2010,7 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				SetShort( send_buff, data1, send_index );	
 				SetShort( send_buff, result, send_index );	
 				SetShort( send_buff, data3, send_index );	
-				m_pMain->Send_Region( send_buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 
 				send_index = 0 ;
 				memset( send_buff, NULL, 128); 
@@ -2056,7 +2042,7 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				SetShort( send_buff, data1, send_index );	
 				SetShort( send_buff, result, send_index );	
 				SetShort( send_buff, data3, send_index );	
-				m_pMain->Send_Region( send_buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 				send_index = 0 ; memset( send_buff, NULL, 128); 
 					
 				SetShort(send_buff, (WORD)(m_pSrcUser->m_pUserData->m_curx * 10 /* + myrand(1,3) */), send_index);	// Send packet with new positions to the Warp() function.
@@ -2081,7 +2067,7 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				SetShort( send_buff, data1, send_index );	
 				SetShort( send_buff, result, send_index );	
 				SetShort( send_buff, data3, send_index );	
-				m_pMain->Send_Region( send_buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 
 				send_index = 0 ; memset( send_buff, NULL, 128); 
 
@@ -2100,7 +2086,7 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				SetShort( send_buff, data1, send_index );	
 				SetShort( send_buff, result, send_index );	
 				SetShort( send_buff, data3, send_index );	
-				m_pMain->Send_Region( send_buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 
 				send_index = 0 ;
 				memset( send_buff, NULL, 128); 				
@@ -2157,7 +2143,7 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 		SetShort( send_buff, data1, send_index );	
 		SetShort( send_buff, result, send_index );	
 		SetShort( send_buff, data3, send_index );	
-		m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
+		m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 
 		memset( send_buff, NULL, 128); send_index = 0 ;
 		result = 1;

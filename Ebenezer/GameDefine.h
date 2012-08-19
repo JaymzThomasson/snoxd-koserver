@@ -400,12 +400,6 @@ struct _USER_DATA
 	BYTE	m_bstrQuest[400];
 };
 
-struct _LEVELUP
-{
-	short	m_sLevel;
-	int		m_iExp;
-};
-
 struct	_PARTY_GROUP
 {
 	WORD wIndex;
@@ -600,6 +594,16 @@ struct _HOME_INFO
 	BYTE	BattleZoneLX;
 	BYTE	BattleZoneLZ;
 //
+};
+
+struct _SERVER_RESOURCE
+{
+	int nResourceID;
+	char strResource[255];
+	_SERVER_RESOURCE()
+	{
+		memset(strResource, NULL, 255);
+	};
 };
 
 enum AuthorityTypes

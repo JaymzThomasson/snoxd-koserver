@@ -265,13 +265,10 @@ void CUser::SelectCharacter(char *pBuf)
 	result = GetByte( pBuf, index );
 	bInit = GetByte( pBuf, index );
 
-	if( result == 0x00 ) goto fail_return;
-	if( m_pUserData->m_bZone == 0 )	goto fail_return;
+	if (result == 0 || !getZoneID()) goto fail_return;
 
-	zoneindex = m_pMain->GetZoneIndex(m_pUserData->m_bZone);
-	if( zoneindex < 0 || zoneindex >= m_pMain->m_ZoneArray.size() ) goto fail_return;
-	pMap = m_pMain->m_ZoneArray[zoneindex];
-	if( !pMap )
+	pMap = m_pMap = m_pMain->GetZoneByID(getZoneID());
+	if (pMap == NULL)
 		goto fail_return;
 
 	if( m_pMain->m_nServerNo != pMap->m_nServerNo ) {
@@ -325,7 +322,7 @@ void CUser::SelectCharacter(char *pBuf)
 
 	SetByte( send_buff, WIZ_SEL_CHAR, send_index );
 	SetByte( send_buff, result, send_index );
-	SetByte( send_buff, m_pUserData->m_bZone, send_index );
+	SetByte( send_buff, getZoneID(), send_index );
 	SetShort( send_buff, (WORD)m_pUserData->m_curx*10, send_index );
 	SetShort( send_buff, (WORD)m_pUserData->m_curz*10, send_index );
 	SetShort( send_buff, (short)m_pUserData->m_cury*10, send_index );
@@ -369,8 +366,6 @@ void CUser::SelectCharacter(char *pBuf)
 		}
 	}
 	else	{	
-		// ???? ???? ????T???? ???? ???? ????? ????? ?????? ???? ????? 
-		// ??????(???????? ????? ????? ???)
 		if( m_pUserData->m_bKnights == -1)	{	// ???? ???
 			m_pUserData->m_bKnights = 0;
 			m_pUserData->m_bFame = 0;
@@ -495,7 +490,7 @@ void CUser::GameStart(char *pBuf)
 
 			// a vector for this is stupid, we really need to replace this with a map.. we can be faster/safer with it
 			// for now, let's be (almost) as retarded as mgame (kill me now please...)
-			m_iLostExp = (m_pMain->m_LevelUpArray[level]->m_iExp * (m_pUserData->m_bCity % 10) / 100);
+			m_iLostExp = (m_pMain->GetExpByLevel(level) * (m_pUserData->m_bCity % 10) / 100);
 			if (((m_pUserData->m_bCity % 10) / 100) == 1)
 				m_iLostExp /= 2;
 		}

@@ -36,7 +36,7 @@ void CUser::Chat(char *pBuf)
 	switch (type) 
 	{
 	case GENERAL_CHAT:
-		m_pMain->Send_NearRegion(send_buff, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, m_pUserData->m_curx, m_pUserData->m_curz);
+		m_pMain->Send_NearRegion(send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, m_pUserData->m_curx, m_pUserData->m_curz);
 		break;
 
 	case PRIVATE_CHAT:
@@ -61,7 +61,7 @@ void CUser::Chat(char *pBuf)
 			break;
 
 		MSpChange(-(m_iMaxMp / 5));
-		m_pMain->Send_Region(send_buff, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false);
+		m_pMain->Send_Region(send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false);
 		break;
 
 	case KNIGHTS_CHAT:

@@ -216,7 +216,7 @@ void CGameSocket::RecvUserInfo(char* pBuf)
 {
 //	TRACE("RecvUserInfo()\n");
 	int index = 0;
-	short uid=-1, sHp, sMp, sZoneIndex, sLength = 0;
+	short uid=-1, sHp, sMp, sLength = 0;
 	BYTE bNation, bLevel, bZone, bAuthority=1;
 	short sDamage, sAC;
 	float fHitAgi, fAvoidAgi;
@@ -242,7 +242,6 @@ void CGameSocket::RecvUserInfo(char* pBuf)
 	}
 	GetString(strName, pBuf, sLength, index);
 	bZone = GetByte( pBuf, index );
-	sZoneIndex = GetShort( pBuf, index );
 	bNation = GetByte( pBuf, index );
 	bLevel = GetByte( pBuf, index );
 	sHp = GetShort( pBuf, index );
@@ -268,7 +267,7 @@ void CGameSocket::RecvUserInfo(char* pBuf)
 	pUser->m_iUserId = uid;
 	strcpy(pUser->m_strUserID, strName);
 	pUser->m_curZone = bZone;
-	pUser->m_sZoneIndex = sZoneIndex;
+	pUser->m_pMap = m_pMain->GetZoneByID(bZone);
 	pUser->m_bNation = bNation;
 	pUser->m_sLevel = bLevel;
 	pUser->m_sHP = sHp;
@@ -361,13 +360,7 @@ void CGameSocket::RecvUserInOut(char* pBuf)
 			}
 		}
 
-		if(pUser->m_sZoneIndex < 0 || pUser->m_sZoneIndex > m_pMain->g_arZone.size()) 
-		{
-			TRACE("#### GameSocket-RecvUserInOut ZoneIndex Fail : [name=%s], zoneindex=%d #####\n", pUser->m_strUserID, x1, z1);
-			return;
-		}
-
-		pMap = m_pMain->g_arZone[pUser->m_sZoneIndex];
+		pMap = pUser->GetMap();
 
 		if(pMap == NULL)
 		{
@@ -377,7 +370,7 @@ void CGameSocket::RecvUserInOut(char* pBuf)
 
 		if(x1 < 0 || z1 < 0 || x1 > pMap->m_sizeMap.cx || z1 > pMap->m_sizeMap.cy)
 		{
-			TRACE("#### RecvUserInOut Fail : [name=%s], x1=%d, z1=%d #####\n", pUser->m_strUserID, pUser->m_sZoneIndex);
+			TRACE("#### RecvUserInOut Fail : [name=%s], x1=%d, z1=%d #####\n", pUser->m_strUserID, region_x, region_z);
 			return;
 		}
 		// map 이동이 불가능이면 User등록 실패..
@@ -457,16 +450,10 @@ BOOL CGameSocket::SetUid(float x, float z, int id, int speed)
 		return FALSE;
 	}
 
-	// Zone번호도 받아야 함,,,
-	if(pUser->m_sZoneIndex < 0 || pUser->m_sZoneIndex > m_pMain->g_arZone.size()) 
+	MAP* pMap = pUser->GetMap();
+	if (pMap == NULL)
 	{
-		TRACE("#### GameSocket-SetUid ZoneIndex Fail : [name=%s], zoneindex=%d #####\n", pUser->m_strUserID, pUser->m_sZoneIndex);
-		return FALSE;
-	}
-	MAP* pMap = m_pMain->g_arZone[pUser->m_sZoneIndex];
-	if(pMap == NULL)
-	{
-		TRACE("#### User등록 실패 sid = %d ####\n", id);
+		TRACE("#### User not in valid zone, sid = %d ####\n", id);
 		return FALSE;
 	}
 	
@@ -766,17 +753,16 @@ void CGameSocket::RecvZoneChange(char* pBuf)
 {
 	int index = 0;
 	short uid=-1;;
-	BYTE byZoneIndex, byZoneNumber;
+	BYTE byZoneNumber;
 
 	uid = GetShort( pBuf, index );
-	byZoneIndex = GetByte(pBuf, index);
 	byZoneNumber = GetByte(pBuf, index);
 
 	// User List에서 User zone정보 수정
 	CUser* pUser = m_pMain->GetUserPtr(uid);
-	if(pUser == NULL)	return;
+	if (pUser == NULL)	return;
 
-	pUser->m_sZoneIndex = byZoneIndex;
+	pUser->m_pMap = m_pMain->GetZoneByID(byZoneNumber);
 	pUser->m_curZone = byZoneNumber;
 
 	TRACE("**** RecvZoneChange -- user(%s, %d), cur_zone = %d\n", pUser->m_strUserID, pUser->m_iUserId, byZoneNumber);
@@ -851,7 +837,7 @@ void CGameSocket::RecvUserInfoAllData(char* pBuf)
 {
 	int index = 0;
 	BYTE		byCount = 0;			// 마리수
-	short uid=-1, sHp, sMp, sZoneIndex, len;
+	short uid=-1, sHp, sMp, len;
 	BYTE bNation, bLevel, bZone, bAuthority=1;
 	short sDamage, sAC, sPartyIndex=0;
 	float fHitAgi, fAvoidAgi;
@@ -869,7 +855,6 @@ void CGameSocket::RecvUserInfoAllData(char* pBuf)
 		len = GetShort( pBuf, index );
 		GetString(strName, pBuf, len, index);
 		bZone = GetByte( pBuf, index );
-		sZoneIndex = GetShort( pBuf, index );
 		bNation = GetByte( pBuf, index );
 		bLevel = GetByte( pBuf, index );
 		sHp = GetShort( pBuf, index );
@@ -894,7 +879,7 @@ void CGameSocket::RecvUserInfoAllData(char* pBuf)
 		pUser->m_iUserId = uid;
 		strcpy(pUser->m_strUserID, strName);
 		pUser->m_curZone = bZone;
-		pUser->m_sZoneIndex = sZoneIndex;
+		pUser->m_pMap = m_pMain->GetZoneByID(bZone);
 		pUser->m_bNation = bNation;
 		pUser->m_sLevel = bLevel;
 		pUser->m_sHP = sHp;

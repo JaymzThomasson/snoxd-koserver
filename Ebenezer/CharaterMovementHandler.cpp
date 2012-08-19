@@ -9,6 +9,7 @@ extern BYTE g_serverdown_flag;
 
 void CUser::MoveProcess(char *pBuf )
 {
+	ASSERT(GetMap() != NULL);
 	if( m_bWarp ) return;
 		
 	int index = 0, send_index = 0, region = 0;
@@ -27,15 +28,9 @@ void CUser::MoveProcess(char *pBuf )
 	echo = GetByte( pBuf, index );
 
 	real_x = will_x/10.0f; real_z = will_z/10.0f; real_y = will_y/10.0f;
-	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return;
-	if( m_pMain->m_ZoneArray[m_iZoneIndex]->IsValidPosition( real_x, real_z, real_y ) == FALSE ) return;
 
-//	real_y = m_pMain->m_ZoneArray[m_iZoneIndex]->GetHeight(	real_x, real_y, real_z );
-
-//	if( speed > 60 ) {	// client ???? ???g???? u?? ???????? ???...
-//		if( m_bSpeedAmount == 100 )
-//			speed = 0;
-//	}
+	if (GetMap()->IsValidPosition(real_x, real_z, real_y) == FALSE) 
+		return;
 
 	if (isDead() && speed != 0)
 		TRACE("### MoveProcess Fail : name=%s(%d), m_bResHpType=%d, hp=%d, speed=%d, x=%d, z=%d ###\n", m_pUserData->m_id, m_Sid, m_bResHpType, m_pUserData->m_sHp, speed, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
@@ -64,10 +59,9 @@ void CUser::MoveProcess(char *pBuf )
 	SetByte( send_buf, echo, send_index );
 
 	RegisterRegion();
-	m_pMain->Send_Region( send_buf, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false );
+	m_pMain->Send_Region( send_buf, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
 
-	if( m_iZoneIndex >= 0 && m_iZoneIndex < m_pMain->m_ZoneArray.size() ) 
-		m_pMain->m_ZoneArray[m_iZoneIndex]->CheckEvent( real_x, real_z, this );
+	GetMap()->CheckEvent( real_x, real_z, this );
 
 	int  ai_send_index = 0;
 	char ai_send_buff[256];
@@ -88,22 +82,20 @@ void CUser::UserInOut(BYTE Type)
 	int send_index = 0, iLength = 0;
 	char buff[256];
 	memset( buff, 0x00, 256 );
-	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return;
-	C3DMap *pMap = m_pMain->m_ZoneArray[m_iZoneIndex];
-	if( !pMap )
-		return;
+
+	ASSERT(GetMap() != NULL);
 
 	if( Type == USER_OUT )
-		pMap->RegionUserRemove( m_RegionX, m_RegionZ, m_Sid );
+		GetMap()->RegionUserRemove( m_RegionX, m_RegionZ, m_Sid );
 	else
-		pMap->RegionUserAdd( m_RegionX, m_RegionZ, m_Sid );
+		GetMap()->RegionUserAdd( m_RegionX, m_RegionZ, m_Sid );
 
 	memset( buff, 0x00, 256 );		send_index = 0;
 	SetByte( buff, WIZ_USER_INOUT, send_index );
 	SetByte( buff, Type, send_index );
 	SetShort( buff, m_Sid, send_index );
 	if( Type == USER_OUT ) {
-		m_pMain->Send_Region( buff, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, this );
+		m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ, this );
 
 		// AI Server????? ??? ???..
 		send_index=0;
@@ -121,10 +113,8 @@ void CUser::UserInOut(BYTE Type)
 	GetUserInfo(buff, send_index);
 
 //	TRACE("USERINOUT - %d, %s\n", m_Sid, m_pUserData->m_id);
-	m_pMain->Send_Region( buff, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, this );
+	m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ, this );
 
-	// AI Server????? ??? ???..
-// ??? ???? ?'? ??????? ?????? ??.??
 	if (m_bAbnormalType != ABNORMAL_BLINKING) {
 		send_index=0;
 		memset( buff, 0x00, 256 );
@@ -215,7 +205,7 @@ void CUser::Rotate( char* pBuf )
 	SetShort( buff, m_Sid, send_index );
 	SetShort( buff, dir, send_index );
 
-	m_pMain->Send_Region( buff, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false );
+	m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
 }
 
 void CUser::ZoneChange(int zone, float x, float z)
@@ -230,11 +220,11 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 	if( g_serverdown_flag ) return;
 
-	zoneindex = m_pMain->GetZoneIndex( zone );
-	if( zoneindex < 0 || zoneindex >= m_pMain->m_ZoneArray.size() ) return;
-	pMap = (C3DMap*)m_pMain->m_ZoneArray[zoneindex];
-	if( !pMap ) return;
+	pMap = m_pMain->GetZoneByID(zone);
+	if (!pMap) 
+		return;
 
+	m_pMap = pMap;
 	if( pMap->m_bType == 2 ) {	// If Target zone is frontier zone.
 		if( m_pUserData->m_bLevel < 20 && m_pMain->m_byBattleOpen != SNOW_BATTLE)
 			return;
@@ -294,7 +284,6 @@ void CUser::ZoneChange(int zone, float x, float z)
 		SetMaxHp( 1 );
 	}
 
-	m_iZoneIndex = zoneindex;
 	m_pUserData->m_bZone = zone;
 	m_pUserData->m_curx = m_fWill_x = x;
 	m_pUserData->m_curz = m_fWill_z = z;
@@ -324,7 +313,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		SetShort( send_buff, strlen( pInfo->strServerIP ), send_index );
 		SetString( send_buff, pInfo->strServerIP, strlen( pInfo->strServerIP ), send_index );
 		SetShort( send_buff, pInfo->sPort, send_index );
-		SetByte( send_buff, 0x02, send_index );				// ????? ???? ???? ???...
+		SetByte( send_buff, 0x02, send_index );	
 		SetByte( send_buff, m_pUserData->m_bZone, send_index );
 		SetByte( send_buff, m_pMain->m_byOldVictory, send_index );
 		Send( send_buff, send_index );
@@ -343,7 +332,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 	SetShort( send_buff, (short)m_pUserData->m_cury*10, send_index );
 	SetByte( send_buff, m_pMain->m_byOldVictory, send_index );
 	Send( send_buff, send_index );
-// ????? ????? >.<
+
 	if (!m_bZoneChangeSameZone) {
 		m_sWhoKilledMe = -1;
 		m_iLostExp = 0;
@@ -364,7 +353,6 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 	SetByte( ai_send_buff, AG_ZONE_CHANGE, ai_send_index );
 	SetShort( ai_send_buff, m_Sid, ai_send_index );
-	SetByte( ai_send_buff, (BYTE)m_iZoneIndex, ai_send_index );
 	SetByte( ai_send_buff, m_pUserData->m_bZone, ai_send_index );
 
 	m_pMain->Send_AIServer(m_pUserData->m_bZone, ai_send_buff, ai_send_index);
@@ -374,25 +362,20 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 void CUser::Warp(char *pBuf)
 {
+	ASSERT(GetMap() != NULL);
 	if( m_bWarp ) return;
-//	if( m_pUserData->m_bAuthority != 0 ) return;
 
 	int index = 0, send_index = 0;
 	WORD warp_x, warp_z;
 	float real_x, real_z;
 	char	send_buff[128];
 	memset( send_buff, NULL, 128 );
-	C3DMap* pMap = NULL;
 
 	warp_x = GetShort( pBuf, index );
 	warp_z = GetShort( pBuf, index );
 
-	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return;
-	pMap = (C3DMap*)m_pMain->m_ZoneArray[m_iZoneIndex];
-	if( !pMap )	return;
-
 	real_x = warp_x/10.0f; real_z = warp_z/10.0f;
-	if( !pMap->IsValidPosition( real_x, real_z, 0.0f ) ) return;
+	if (!GetMap()->IsValidPosition(real_x, real_z, 0.0f)) return;
 
 	SetByte( send_buff, WIZ_WARP, send_index );
 	SetShort( send_buff, warp_x, send_index );

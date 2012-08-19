@@ -93,7 +93,7 @@ void CUser::Initialize()
 	m_sMagicAmountLeftHand = 0;        
 	m_sMagicAmountRightHand = 0;       
 
-	m_iZoneIndex = 0;	
+	m_pMap = NULL;	
 	m_bResHpType = USER_STANDING;
 	m_bWarp = 0x00;
 
@@ -219,32 +219,12 @@ void CUser::Make_public_key()
 void CUser::CloseProcess()
 {
 	UserInOut( USER_OUT );
-	if( m_sPartyIndex != -1 )
+
+	if (isInParty())
 		PartyRemove(m_Sid);
-	if( m_sExchangeUser != -1 )
+
+	if (m_sExchangeUser != -1 )
 		ExchangeCancel();
-
-/* ?e? ?? ?????? ??.??
-	if (!m_bZoneChangeFlag) {
-		if (m_pUserData->m_bZone == ZONE_BATTLE || (m_pUserData->m_bZone != m_pUserData->m_bNation && m_pUserData->m_bZone < 3) ) {	
-			_HOME_INFO* pHomeInfo = NULL;	// Send user back home in case it was the battlezone.
-			pHomeInfo = m_pMain->m_HomeArray.GetData(m_pUserData->m_bNation);
-			if (!pHomeInfo) return;
-
-			m_pUserData->m_bZone = m_pUserData->m_bNation;
-
-			if (m_pUserData->m_bNation == KARUS) {
-				m_pUserData->m_curx = pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX);
-				m_pUserData->m_curz = pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ); 
-			}
-			else {
-				m_pUserData->m_curx = pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX);
-				m_pUserData->m_curz = pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ); 
-			}
-		}
-		TRACE("??????? ?? ????????ž?. ?????!!!\r\n");
-	}
-*/
 
 	MarketBBSUserDelete();
 	LogOut();
@@ -327,7 +307,6 @@ void CUser::Parsing(int len, char *pData)
 	case WIZ_REGENE:	
 		InitType3();	// Init Type 3.....
 		InitType4();	// Init Type 4.....
-//		Corpse();
 		Regene( pData+index );
 //		InitType3();	// Init Type 3.....
 //		InitType4();	// Init Type 4.....
@@ -584,8 +563,7 @@ void CUser::SendMyInfo()
 {
 	C3DMap* pMap = NULL;
 	CKnights* pKnights = NULL;
-	pMap = (C3DMap*)m_pMain->m_ZoneArray[m_iZoneIndex];
-	if( !pMap ) return;
+	ASSERT(GetMap() != NULL);
 
 	int  send_index = 0, i=0, iLength = 0;
 	char send_buff[2048];
@@ -764,7 +742,6 @@ void CUser::SendMyInfo()
 	SetShort( ai_send_buff, strlen(m_pUserData->m_id), ai_send_index );
 	SetString( ai_send_buff, m_pUserData->m_id, strlen(m_pUserData->m_id), ai_send_index );
 	SetByte( ai_send_buff, m_pUserData->m_bZone, ai_send_index );
-	SetShort( ai_send_buff, m_iZoneIndex, ai_send_index );
 	SetByte( ai_send_buff, m_pUserData->m_bNation, ai_send_index );
 	SetByte( ai_send_buff, m_pUserData->m_bLevel, ai_send_index );
 	SetShort( ai_send_buff, m_pUserData->m_sHp, ai_send_index );
@@ -892,17 +869,20 @@ void CUser::SetDetailData()
 	SetSlotItemValue();
 	SetUserAbility();
 
-	if (m_pUserData->m_bLevel >= MAX_LEVEL ) {
-		Close();
+	if (getLevel() >= MAX_LEVEL) 
+	{
+		CloseProcess();
+		return;
 	}
 
-	m_iMaxExp = m_pMain->m_LevelUpArray[m_pUserData->m_bLevel-1]->m_iExp;
+	m_iMaxExp = m_pMain->GetExpByLevel(getLevel());
 	m_sMaxWeight = (m_pUserData->m_bStr + m_sItemStr) * 50;
 
-	m_iZoneIndex = m_pMain->GetZoneIndex( m_pUserData->m_bZone );
-
-	if( m_iZoneIndex == -1 ) {
-		Close();
+	m_pMap = m_pMain->GetZoneByID(m_pUserData->m_bZone);
+	if (m_pMap == NULL) 
+	{
+		CloseProcess();
+		return;
 	}
 
 	m_fWill_x = m_pUserData->m_curx;
@@ -919,10 +899,9 @@ void CUser::RegisterRegion()
 	iRegX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
 	iRegZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
 
-	if(m_RegionX != iRegX || m_RegionZ != iRegZ)
+	if( m_RegionX != iRegX || m_RegionZ != iRegZ)
 	{
-		if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return;
-		C3DMap* pMap = m_pMain->m_ZoneArray[m_iZoneIndex];
+		C3DMap* pMap = GetMap();
 		if( !pMap )
 			return;
 		
@@ -932,67 +911,55 @@ void CUser::RegisterRegion()
 		pMap->RegionUserAdd(m_RegionX, m_RegionZ, m_Sid);
 
 		if( m_State == STATE_GAMESTART ) {
-			RemoveRegion( old_region_x - m_RegionX, old_region_z - m_RegionZ );	// delete user ?? ??? ?????? ????????? ???...
-			InsertRegion( m_RegionX - old_region_x, m_RegionZ - old_region_z );	// add user ?? ??? ?????? ???????...
+			RemoveRegion( old_region_x - m_RegionX, old_region_z - m_RegionZ );
+			InsertRegion( m_RegionX - old_region_x, m_RegionZ - old_region_z );	
 			m_pMain->RegionNpcInfoForMe(this);
 			m_pMain->RegionUserInOutForMe(this);
 		}
-//		TRACE("User?? Region?? ???,, region_x=%d, y=%d\n", m_RegionX, m_RegionZ);
 	}
 }
 
 void CUser::RemoveRegion(int del_x, int del_z)
 {
-	int send_index = 0, i=0, iLength = 0;
-	int region_x = -1, region_z = -1, uid = -1;
+	int send_index = 0;
+	int region_x = -1, region_z = -1;
 	char buff[256];
 	memset( buff, NULL, 256 );
-	C3DMap* pMap = NULL;
-	CUser* pUser = NULL;
-	CKnights* pKnights = NULL;
+	C3DMap* pMap = GetMap();
 
-	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return;
-	pMap = (C3DMap*)m_pMain->m_ZoneArray[m_iZoneIndex];
-	if( !pMap )
+	if (!pMap)
 		return;
 
 	SetByte( buff, WIZ_USER_INOUT, send_index );
 	SetByte( buff, USER_OUT, send_index );
-	SetShort( buff, m_Sid, send_index );
+	SetShort( buff, GetSocketID(), send_index );
 
 	if( del_x != 0 ) {
-		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x*2, m_RegionZ+del_z-1 );
-		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x*2, m_RegionZ+del_z );
-		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x*2, m_RegionZ+del_z+1 );
-//		TRACE("Remove : (%d %d), (%d %d), (%d %d)\n", m_RegionX+del_x*2, m_RegionZ+del_z-1, m_RegionX+del_x*2, m_RegionZ+del_z, m_RegionX+del_x*2, m_RegionZ+del_z+1 );
+		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x*2, m_RegionZ+del_z-1 );
+		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x*2, m_RegionZ+del_z );
+		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x*2, m_RegionZ+del_z+1 );
 	}
 	if( del_z != 0 ) {
-		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x, m_RegionZ+del_z*2 );
+		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x, m_RegionZ+del_z*2 );
 		if( del_x < 0 )
-			m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x+1, m_RegionZ+del_z*2 );
+			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x+1, m_RegionZ+del_z*2 );
 		else if( del_x > 0 )
-			m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x-1, m_RegionZ+del_z*2 );
+			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x-1, m_RegionZ+del_z*2 );
 		else {
-			m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x-1, m_RegionZ+del_z*2 );
-			m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x+1, m_RegionZ+del_z*2 );
-//			TRACE("Remove : (%d %d), (%d %d), (%d %d)\n", m_RegionX+del_x-1, m_RegionZ+del_z*2, m_RegionX+del_x, m_RegionZ+del_z*2, m_RegionX+del_x+1, m_RegionZ+del_z*2 );
+			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x-1, m_RegionZ+del_z*2 );
+			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x+1, m_RegionZ+del_z*2 );
 		}
 	}
 }
 
 void CUser::InsertRegion(int del_x, int del_z)
 {
-	int send_index = 0, buff_index = 0, uid_sendindex = 0, i=0;
-	int region_x = -1, region_z = -1, user_count = 0, uid = -1, iLength=0;
+	int send_index = 0;
 	char buff[256];
-	memset( buff, NULL, 256 );
-	C3DMap* pMap = NULL;
-	CUser* pUser = NULL;
-	CKnights* pKnights = NULL;
+	memset(buff, NULL, 256);
+	C3DMap* pMap = GetMap();
 
-	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return;
-	pMap = (C3DMap*)m_pMain->m_ZoneArray[m_iZoneIndex];
-	if( !pMap )
+	if (pMap == NULL)
 		return;
 
 	SetByte( buff, WIZ_USER_INOUT, send_index );
@@ -1001,24 +968,24 @@ void CUser::InsertRegion(int del_x, int del_z)
 
 	GetUserInfo(buff, send_index);
 
-	if( del_x != 0 ) {	// x ????? ?????????...
-		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x, m_RegionZ-1 );
-		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x, m_RegionZ );
-		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+del_x, m_RegionZ+1 );
-
-//		TRACE("Insert : (%d %d), (%d %d), (%d %d)\n", m_RegionX+del_x, m_RegionZ-1, m_RegionX+del_x, m_RegionZ, m_RegionX+del_x, m_RegionZ+1 );
+	if (del_x != 0)
+	{
+		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x, m_RegionZ-1 );
+		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x, m_RegionZ );
+		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x, m_RegionZ+1 );
 	}
-	if( del_z != 0 ) {	// z ????? ?????????...
-		m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX, m_RegionZ+del_z );
+
+	if( del_z != 0 ) 
+	{
+		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX, m_RegionZ+del_z );
 		
-		if( del_x < 0 )	// x, z ?? ??? ????????? ??g?? ??? ??? ??????..
-			m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+1, m_RegionZ+del_z );		
+		if( del_x < 0 )	
+			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+1, m_RegionZ+del_z );		
 		else if( del_x > 0 )
-			m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX-1, m_RegionZ+del_z );
+			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX-1, m_RegionZ+del_z );
 		else {
-			m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX-1, m_RegionZ+del_z );
-			m_pMain->Send_UnitRegion( buff, send_index, m_iZoneIndex, m_RegionX+1, m_RegionZ+del_z );
-//			TRACE("Insert : (%d %d), (%d %d), (%d %d)\n", m_RegionX-1, m_RegionZ+del_z, m_RegionX, m_RegionZ+del_z, m_RegionX+1, m_RegionZ+del_z );
+			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX-1, m_RegionZ+del_z );
+			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+1, m_RegionZ+del_z );
 		}
 	}
 }
@@ -1146,7 +1113,6 @@ void CUser::SetSlotItemValue()	// ????? ???????? ??(Ÿ???, ????, ??????)? ?????.
 			m_sItemHit += item_hit;
 		if( i == LEFTHAND ) {
 			if( ( m_pUserData->m_sClass == BERSERKER || m_pUserData->m_sClass == BLADE ) )
-	//			m_sItemHit += item_hit * (double)( m_pUserData->m_bstrSkill[PRO_SKILL1] / 60.0 );    // ?????? ??û ^^;
 				m_sItemHit += item_hit * 0.5f;
 		}
 
@@ -1308,7 +1274,7 @@ void CUser::ExpChange(int iExp)
 	if( m_pUserData->m_iExp < 0 ) {
 		if( m_pUserData->m_bLevel > 5) {
 			m_pUserData->m_bLevel--;
-			m_pUserData->m_iExp = m_pMain->m_LevelUpArray[m_pUserData->m_bLevel-1]->m_iExp + m_pUserData->m_iExp;
+			m_pUserData->m_iExp = m_pMain->GetExpByLevel(m_pUserData->m_bLevel) + m_pUserData->m_iExp;
 			LevelChange( m_pUserData->m_bLevel, FALSE );
 			return;
 		}
@@ -1352,7 +1318,7 @@ void CUser::LevelChange(short level, BYTE type )
 			m_pUserData->m_bstrSkill[0] += 2;	// Skill Points up
 	}
 
-	m_iMaxExp = m_pMain->m_LevelUpArray[level-1]->m_iExp;
+	m_iMaxExp = m_pMain->GetExpByLevel(level);
 	
 	SetSlotItemValue();
 	SetUserAbility();
@@ -1376,7 +1342,7 @@ void CUser::LevelChange(short level, BYTE type )
 	SetShort( buff, m_pUserData->m_sMp, send_index );
 	SetShort( buff, m_sMaxWeight, send_index );	
 	SetShort( buff, m_sItemWeight, send_index );
-	m_pMain->Send_Region( buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ );
+	m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ );
 	if( m_sPartyIndex != -1 ) {
 		memset( buff, 0x00, 256 ); send_index = 0;
 		SetByte( buff, WIZ_PARTY, send_index );
@@ -1688,27 +1654,31 @@ void CUser::BundleOpenReq(char *pBuf)
 	char send_buff[256];
 	memset(send_buff, NULL, 256 );
 	_ZONE_ITEM* pItem = NULL;
-	C3DMap* pMap = NULL;
+	C3DMap* pMap = GetMap();
 	CRegion* pRegion = NULL;
 
 	bundle_index = GetDWORD( pBuf, index );
-	if( bundle_index < 1 )	return;
-	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return;
-		pMap = m_pMain->m_ZoneArray[m_iZoneIndex];
-	if( !pMap )	return;
-	if( m_RegionX < 0 || m_RegionZ < 0 || m_RegionX > pMap->GetXRegionMax() || m_RegionZ > pMap->GetZRegionMax() ) return;
+	if (pMap == NULL
+		|| bundle_index < 1 
+		|| m_RegionX < 0 || m_RegionZ < 0 
+		|| m_RegionX > pMap->GetXRegionMax() || m_RegionZ > pMap->GetZRegionMax())
+		return;
+
 	pRegion = &(pMap->m_ppRegion[m_RegionX][m_RegionZ]);
-	if( !pRegion ) return;
+	if (pRegion == NULL)
+		return;
 
 	pItem = (_ZONE_ITEM*)pRegion->m_RegionItemArray.GetData( bundle_index );
-	if( !pItem ) return;
+	if (pItem == NULL)
+		return;
 
-	SetByte( send_buff, WIZ_BUNDLE_OPEN_REQ, send_index );
-	for(int i=0; i<6; i++ ) {
-		SetDWORD( send_buff, pItem->itemid[i], send_index );
-		SetShort( send_buff, pItem->count[i], send_index );
+	SetByte(send_buff, WIZ_BUNDLE_OPEN_REQ, send_index);
+	for (int i = 0; i < 6; i++)
+	{
+		SetDWORD(send_buff, pItem->itemid[i], send_index);
+		SetShort(send_buff, pItem->count[i], send_index);
 	}
-	Send( send_buff, send_index );
+	Send(send_buff, send_index);
 }
 
 BOOL CUser::IsValidName(char *name)
@@ -1747,23 +1717,27 @@ void CUser::ItemGet(char *pBuf)
 	_ITEM_TABLE* pTable = NULL;
 	char send_buff[256];	memset( send_buff, NULL, 256 );
 	_ZONE_ITEM* pItem = NULL;
-	C3DMap* pMap = NULL;
+	C3DMap* pMap = GetMap();
 	CRegion* pRegion = NULL;
 	CUser* pUser = NULL;
 	CUser* pGetUser = NULL;
 	_PARTY_GROUP* pParty = NULL;
 
-	bundle_index = GetDWORD( pBuf, index );
-	if( bundle_index < 1 )	goto fail_return;
-	if( m_sExchangeUser != -1 ) goto fail_return;
-	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return;
-		pMap = m_pMain->m_ZoneArray[m_iZoneIndex];
-	if( !pMap )	goto fail_return;
-	if( m_RegionX < 0 || m_RegionZ < 0 || m_RegionX > pMap->GetXRegionMax() || m_RegionZ > pMap->GetZRegionMax() ) goto fail_return;
+	ASSERT(pMap != NULL);
+
+	bundle_index = GetDWORD(pBuf, index);
+	if (bundle_index < 1
+		|| m_sExchangeUser != -1)
+		goto fail_return;
+	
+	if (m_RegionX < 0 || m_RegionZ < 0 
+		|| m_RegionX > pMap->GetXRegionMax() || m_RegionZ > pMap->GetZRegionMax())
+		goto fail_return;
+
 	pRegion = &(pMap->m_ppRegion[m_RegionX][m_RegionZ]);
-	if( !pRegion )	goto fail_return;
+	if (!pRegion)	goto fail_return;
 	pItem = (_ZONE_ITEM*)pRegion->m_RegionItemArray.GetData( bundle_index );
-	if( !pItem ) goto fail_return;
+	if(!pItem) goto fail_return;
 
 	itemid = GetDWORD( pBuf, index );
 
@@ -1959,7 +1933,7 @@ void CUser::StateChange(char *pBuf)
 //		N3_SP_STATE_CHANGE_VISIBLE = 0x05 };		// ??? 0 ~ 255
 	}
 
-	m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ );
+	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ );
 }
 
 void CUser::StateChangeServerDirect(BYTE bType, int nValue)
@@ -2081,7 +2055,7 @@ void CUser::UserLookChange(int pos, int itemid, int durability)
 	SetByte( send_buff, (BYTE)pos, send_index );
 	SetDWORD( send_buff, itemid, send_index );
 	SetShort( send_buff, durability, send_index );
-	m_pMain->Send_Region( send_buff, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, this );
+	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, this );
 }
 
 void CUser::SendNotice()
@@ -2184,7 +2158,6 @@ void CUser::SendUserInfo(char *temp_send, int &index)
 	SetShort( temp_send, strlen(m_pUserData->m_id), index );
 	SetString( temp_send, m_pUserData->m_id, strlen(m_pUserData->m_id), index );
 	SetByte( temp_send, m_pUserData->m_bZone, index );
-	SetShort( temp_send, m_iZoneIndex, index );
 	SetByte( temp_send, m_pUserData->m_bNation, index );
 	SetByte( temp_send, m_pUserData->m_bLevel, index );
 	SetShort( temp_send, m_pUserData->m_sHp, index );
@@ -2357,7 +2330,7 @@ void CUser::Dead()
 
 	SetByte( send_buff, WIZ_DEAD, send_index );
 	SetShort( send_buff, m_Sid, send_index );
-	m_pMain->Send_Region( send_buff, send_index , m_pUserData->m_bZone, m_RegionX, m_RegionZ );
+	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ );
 
 	m_bResHpType = USER_DEAD;
 
@@ -2374,7 +2347,7 @@ void CUser::Dead()
 		SetByte( send_buff, COMMAND_AUTHORITY, send_index );
 		SetShort( send_buff, GetSocketID(), send_index );
 		SetByte( send_buff, m_pUserData->m_bFame, send_index );
-		m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ );
+		m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ );
 		Send( send_buff, send_index );
 
 		pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
@@ -3189,7 +3162,7 @@ void CUser::Type3AreaDuration(float currenttime)
 				SetShort( send_buff, 0, send_index );	
 				SetShort( send_buff, 0, send_index );	
 				SetShort( send_buff, 0, send_index );	
-				m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
 			}
 		}
 
@@ -3210,7 +3183,7 @@ void CUser::Type3AreaDuration(float currenttime)
 	SetShort( send_buff, 0, send_index );	
 	SetShort( send_buff, 0, send_index );	
 	SetShort( send_buff, 0, send_index );	
-	m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false );	// Send packet to region.
+	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );	// Send packet to region.
 }
 
 void CUser::InitType4()
@@ -3752,24 +3725,20 @@ void CUser::SelectWarpList(char *pBuf)
 	C3DMap* pMap = NULL;
 	char send_buff[128]; memset( send_buff, 0x00, 128 );
 
-// ????? ????? >.<
 	BYTE type = 2 ;
-//		
-	warpid = GetShort( pBuf, index );
+	warpid = GetShort(pBuf, index);
 
-	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return;
-	pMap = m_pMain->m_ZoneArray[m_iZoneIndex];
-	if( !pMap )	return; 
+	pWarp = GetMap()->m_WarpArray.GetData(warpid);
+	if (pWarp == NULL)
+		return;
 
-	pWarp = pMap->m_WarpArray.GetData( warpid );
-	if( !pWarp ) return;
+	pMap = m_pMain->GetZoneByID(pWarp->sZone);
+	if (pMap == NULL)
+		return;
 
-	zoneindex = m_pMain->GetZoneIndex( pWarp->sZone );
-	if( zoneindex < 0 ) return;
-
-	pMap = m_pMain->m_ZoneArray[zoneindex];
-	pInfo = m_pMain->m_ServerArray.GetData( pMap->m_nServerNo );
-	if( !pInfo ) return;
+	pInfo = m_pMain->m_ServerArray.GetData(pMap->m_nServerNo);
+	if (pInfo == NULL)
+		return;
 
 	float rx = 0.0f, rz = 0.0f;
 	rx = (float)myrand( 0, (int)pWarp->fR*2 );
@@ -3777,30 +3746,17 @@ void CUser::SelectWarpList(char *pBuf)
 	rz = (float)myrand( 0, (int)pWarp->fR*2 );
 	if( rz < pWarp->fR ) rz = -rz;
 
-// ????? ????? >.<
-/*
-	SetByte( send_buff, WIZ_WARP_LIST, send_index );
-	SetByte( send_buff, type, send_index );
-	SetByte( send_buff, 1, send_index );
-	Send(send_buff, send_index);
-*/	
-
-	if (m_pUserData->m_bZone == pWarp->sZone) {
+	if (m_pUserData->m_bZone == pWarp->sZone) 
+	{
 		m_bZoneChangeSameZone = TRUE;
 
-		SetByte( send_buff, WIZ_WARP_LIST, send_index );
-		SetByte( send_buff, type, send_index );
-		SetByte( send_buff, 1, send_index );
+		SetByte(send_buff, WIZ_WARP_LIST, send_index);
+		SetByte(send_buff, type, send_index);
+		SetByte(send_buff, 1, send_index);
 		Send(send_buff, send_index);
 	}
-//
-	ZoneChange( pWarp->sZone, pWarp->fX + rx, pWarp->fZ + rz );
-	
-/*	SetByte( send_buff, WIZ_VIRTUAL_SERVER, send_index );
-	SetShort( send_buff, strlen( pInfo->strServerIP ), send_index );
-	SetString( send_buff, pInfo->strServerIP, strlen( pInfo->strServerIP ), send_index );
-	SetShort( send_buff, pInfo->sPort, send_index );
-	Send( send_buff, send_index );	*/
+
+	ZoneChange(pWarp->sZone, pWarp->fX + rx, pWarp->fZ + rz);
 }
 
 void CUser::ZoneConCurrentUsers(char *pBuf)
@@ -3827,52 +3783,35 @@ void CUser::ZoneConCurrentUsers(char *pBuf)
 void CUser::ServerChangeOk(char *pBuf)
 {
 	int index = 0, warpid = 0;
-	_WARP_INFO* pWarp = NULL;
-	C3DMap* pMap = NULL;
+	C3DMap* pMap = GetMap();
 	float rx = 0.0f, rz = 0.0f;
-/* ????? ????? >.<
-	int send_index = 0;
-	char send_buff[128]; memset(send_buff, 0x00, 128);
-	BYTE type = 2 ;
-*/	
-	warpid = GetShort( pBuf, index );
+	warpid = GetShort(pBuf, index);
 
-	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return;
-	pMap = m_pMain->m_ZoneArray[m_iZoneIndex];
-	if( !pMap )	return;
+	if (pMap == NULL)
+		return;
 
-	pWarp = pMap->m_WarpArray.GetData( warpid );
-	if( !pWarp ) return;
+	_WARP_INFO* pWarp = pMap->m_WarpArray.GetData(warpid);
+	if (pWarp == NULL)
+		return;
 
-	rx = (float)myrand( 0, (int)pWarp->fR*2 );
-	if( rx < pWarp->fR ) rx = -rx;
-	rz = (float)myrand( 0, (int)pWarp->fR*2 );
-	if( rz < pWarp->fR ) rz = -rz;
+	rx = (float)myrand(0, (int)pWarp->fR * 2);
+	if (rx < pWarp->fR) rx = -rx;
+	rz = (float)myrand(0, (int)pWarp->fR * 2);
+	if (rz < pWarp->fR) rz = -rz;
 
-/* ????? ????? >.<
-	SetByte( send_buff, WIZ_WARP_LIST, send_index );
-	SetByte( send_buff, type, send_index );
-	SetByte( send_buff, 1, send_index );
-	Send(send_buff, send_index);
-*/
-	ZoneChange( pWarp->sZone, pWarp->fX + rx, pWarp->fZ + rz );
+	ZoneChange(pWarp->sZone, pWarp->fX + rx, pWarp->fZ + rz);
 }
 
 BOOL CUser::GetWarpList(int warp_group)
 {
 	_WARP_INFO* pWarp = NULL;
 	C3DMap* pMap = NULL;
-	int warpid = 0, send_index = 0;	// ???? i??T?? ????? ??y...
+	int warpid = 0, send_index = 0;
 	int zoneindex = -1, temp_index = 0, count = 0;
 	char buff[8192]; memset(buff, 0x00, 8192);
 	char send_buff[8192]; memset(send_buff, 0x00, 8192);
-// ????? ??? ??? g?? >.<
-	BYTE type = 1;		// 1??? ???, 2??? ???? ????????? ??????? ^^;
-//
-	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return FALSE;
-	pMap = m_pMain->m_ZoneArray[m_iZoneIndex];
-	if( !pMap )
-		return FALSE;
+
+	BYTE type = 1;
 
 	map < int, _WARP_INFO* >::iterator		Iter1;
 	map < int, _WARP_INFO* >::iterator		Iter2;
@@ -3882,21 +3821,18 @@ BOOL CUser::GetWarpList(int warp_group)
 
 	for( ; Iter1 != Iter2; Iter1++ ) {
 		pWarp = (*Iter1).second;
-		if( !pWarp ) continue;
-		if( (pWarp->sWarpID / 10) != warp_group ) continue;
+		if (pWarp == NULL || (pWarp->sWarpID / 10) != warp_group)
+			continue;
 		
 		SetShort( buff, pWarp->sWarpID, send_index );
 
-		SetShort( buff, strlen(pWarp->strWarpName), send_index );
-		SetString( buff, pWarp->strWarpName, strlen(pWarp->strWarpName), send_index );
-		SetShort( buff, strlen(pWarp->strAnnounce), send_index );
-		SetString( buff, pWarp->strAnnounce, strlen(pWarp->strAnnounce), send_index );
-		SetShort( buff, pWarp->sZone, send_index );
-		zoneindex = m_pMain->GetZoneIndex( pWarp->sZone );
-		if( zoneindex > -1 )
-			SetShort( buff, m_pMain->m_ZoneArray[zoneindex]->m_sMaxUser, send_index );
-		else
-			SetShort( buff, 0, send_index );
+		SetKOString(buff, pWarp->strWarpName, send_index);
+		SetKOString(buff, pWarp->strAnnounce, send_index);
+		SetShort(buff, pWarp->sZone, send_index);
+
+		pMap = m_pMain->GetZoneByID(pWarp->sZone);
+		SetShort(buff, pMap != NULL ? pMap->m_sMaxUser : 0, send_index);
+
 		SetDWORD( buff, pWarp->dwPay, send_index );
 		SetShort( buff, (short)(pWarp->fX*10), send_index );
 		SetShort( buff, (short)(pWarp->fZ*10), send_index );
@@ -3905,9 +3841,7 @@ BOOL CUser::GetWarpList(int warp_group)
 	}
 
 	SetByte( send_buff, WIZ_WARP_LIST, temp_index );
-// ????? ??? ??? g?? >.<
 	SetByte( send_buff, type, temp_index );
-//
 	SetShort( send_buff, count, temp_index );
 	SetString( send_buff, buff, send_index, temp_index );
 	Send( send_buff, temp_index );
@@ -3934,14 +3868,16 @@ BOOL CUser::BindObjectEvent(short objectindex, short nid)
 	int send_index = 0, result = 0;
 	char send_buff[128]; memset( send_buff, NULL, 128 );
 
-	_OBJECT_EVENT* pEvent = NULL;
-	pEvent = m_pMain->m_ZoneArray[m_iZoneIndex]->GetObjectEvent( objectindex );
-	if( !pEvent ) return FALSE;
+	_OBJECT_EVENT* pEvent = GetMap()->GetObjectEvent(objectindex);
+	if (pEvent == NULL) 
+		return FALSE;
 
-	if( pEvent->sBelong != 0 && pEvent->sBelong != m_pUserData->m_bNation ) {
+	if (pEvent->sBelong != 0 && pEvent->sBelong != getNation())
+	{
 		result = 0;
 	}
-	else {
+	else 
+	{
 		m_pUserData->m_sBind = pEvent->sIndex;
 		result = 1;
 	}
@@ -3956,18 +3892,16 @@ BOOL CUser::BindObjectEvent(short objectindex, short nid)
 
 BOOL CUser::GateObjectEvent(short objectindex, short nid)
 {
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return FALSE;	// ?????? ?????? ???
-
 	int  send_index = 0, result = 0 ;
 	char send_buff[128]; memset( send_buff, NULL, 128 );
 
-	_OBJECT_EVENT* pEvent = NULL;
-	pEvent = m_pMain->m_ZoneArray[m_iZoneIndex]->GetObjectEvent( objectindex );
-	if( !pEvent ) return FALSE;
+	_OBJECT_EVENT* pEvent = GetMap()->GetObjectEvent(objectindex);
+	if (pEvent == NULL)
+		return FALSE;
 
-	CNpc* pNpc = NULL;
-	pNpc = m_pMain->m_arNpcArray.GetData( nid );
-	if( !pNpc )	return FALSE;
+	CNpc* pNpc = m_pMain->m_arNpcArray.GetData(nid);
+	if (pNpc == NULL)
+		return FALSE;
 	
 	if( pNpc->m_tNpcType == NPC_GATE || pNpc->m_tNpcType == NPC_PHOENIX_GATE || pNpc->m_tNpcType == NPC_SPECIAL_GATE ) {
 		pNpc->m_byGateOpen = !pNpc->m_byGateOpen;
@@ -3989,32 +3923,28 @@ BOOL CUser::GateObjectEvent(short objectindex, short nid)
 	SetByte( send_buff, result, send_index );
 	SetShort( send_buff, nid, send_index );
 	SetByte( send_buff, pNpc->m_byGateOpen, send_index );
-	m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false );
+	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
 	
 	return TRUE;
 }
 
 BOOL CUser::GateLeverObjectEvent(short objectindex, short nid)
 {
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return FALSE;	// ?????? ?????? ???
-
 	int send_index = 0, result = 0 ;
 	char send_buff[128]; memset( send_buff, NULL, 128 );
 	
-	_OBJECT_EVENT* pEvent = NULL;
-	pEvent = m_pMain->m_ZoneArray[m_iZoneIndex]->GetObjectEvent( objectindex );
-	if( !pEvent ) return FALSE;
+	_OBJECT_EVENT* pEvent = GetMap()->GetObjectEvent(objectindex);
+	if (pEvent == NULL)
+		return FALSE;
 
-	CNpc* pNpc = NULL;
-	pNpc = m_pMain->m_arNpcArray.GetData( nid );
-	if( !pNpc ) return FALSE;
+	CNpc* pNpc = m_pMain->m_arNpcArray.GetData(nid);
+	if (pNpc == NULL)
+		return FALSE;
 
-	_OBJECT_EVENT* pGateEvent = NULL;	
-	pGateEvent = m_pMain->m_ZoneArray[m_iZoneIndex]->GetObjectEvent( pEvent->sControlNpcID );
-	if( !pGateEvent ) return FALSE;
+	_OBJECT_EVENT* pGateEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID);
+	if (pGateEvent == NULL) return FALSE;
 
-	CNpc* pGateNpc = NULL;
-	pGateNpc = m_pMain->GetNpcPtr(pEvent->sControlNpcID, m_pUserData->m_bZone);
+	CNpc* pGateNpc = m_pMain->GetNpcPtr(pEvent->sControlNpcID, m_pUserData->m_bZone);
 	if( !pGateNpc ) {
 		result = 0;
 	}
@@ -4045,7 +3975,7 @@ BOOL CUser::GateLeverObjectEvent(short objectindex, short nid)
 			SetByte( send_buff, result, send_index );
 			SetShort( send_buff, pGateNpc->m_sNid, send_index );
 			SetByte( send_buff, pGateNpc->m_byGateOpen, send_index );
-			m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false );	
+			m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );	
 		}
 		else	result = 0;
 	}
@@ -4056,29 +3986,27 @@ BOOL CUser::GateLeverObjectEvent(short objectindex, short nid)
 	SetByte( send_buff, result, send_index );
 	SetShort( send_buff, nid, send_index );
 	SetByte( send_buff, pNpc->m_byGateOpen, send_index );
-	m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false );	
+	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );	
 	
 	return TRUE;
 }
 
 BOOL CUser::FlagObjectEvent(short objectindex, short nid)
 {
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return FALSE;	// ?????? ?????? ???
-
 	int  send_index = 0, result = 0;
 	char send_buff[128]; memset( send_buff, NULL, 128 );
 
-	_OBJECT_EVENT* pEvent = NULL;
-	pEvent = m_pMain->m_ZoneArray[m_iZoneIndex]->GetObjectEvent( objectindex );
-	if( !pEvent ) return FALSE;
+	_OBJECT_EVENT* pEvent = GetMap()->GetObjectEvent(objectindex);
+	if (pEvent == NULL)
+		return FALSE;
 
-	CNpc* pNpc = NULL;
-	pNpc = m_pMain->m_arNpcArray.GetData( nid );
-	if( !pNpc ) return FALSE;
+	CNpc* pNpc = m_pMain->m_arNpcArray.GetData(nid);
+	if (pNpc == NULL)
+		return FALSE;
 
-	_OBJECT_EVENT* pFlagEvent = NULL;
-	pFlagEvent = m_pMain->m_ZoneArray[m_iZoneIndex]->GetObjectEvent( pEvent->sControlNpcID );
-	if ( !pFlagEvent ) return FALSE;
+	_OBJECT_EVENT* pFlagEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID);
+	if (pFlagEvent == NULL)
+		return FALSE;
 
 	CNpc* pFlagNpc = NULL;
 	pFlagNpc = m_pMain->GetNpcPtr(pEvent->sControlNpcID, m_pUserData->m_bZone);
@@ -4119,7 +4047,7 @@ BOOL CUser::FlagObjectEvent(short objectindex, short nid)
 			SetByte( send_buff, result, send_index );
 			SetShort( send_buff, pFlagNpc->m_sNid, send_index );
 			SetByte( send_buff, pFlagNpc->m_byGateOpen, send_index );
-			m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false );	
+			m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );	
 
 			if (m_pUserData->m_bNation == KARUS) {		// ADD FLAG SCORE !!!
 				m_pMain->m_bKarusFlag++;
@@ -4139,22 +4067,18 @@ BOOL CUser::FlagObjectEvent(short objectindex, short nid)
 	SetByte( send_buff, result, send_index );
 	SetShort( send_buff, nid, send_index );
 	SetByte( send_buff, pNpc->m_byGateOpen, send_index );
-	m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false );
+	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
 
 	return TRUE;
 }
 
 BOOL CUser::WarpListObjectEvent(short objectindex, short nid)
 {
-	int send_index = 0, result = 0;
-	char send_buff[128]; memset( send_buff, NULL, 128 );
+	_OBJECT_EVENT* pEvent = GetMap()->GetObjectEvent(objectindex);
+	if (pEvent == NULL
+		|| !GetWarpList(pEvent->sControlNpcID)) 
+		return FALSE;
 
-	_OBJECT_EVENT* pEvent = NULL;	
-	pEvent = m_pMain->m_ZoneArray[m_iZoneIndex]->GetObjectEvent( objectindex );
-	if( !pEvent ) return FALSE;
-
-	if( !GetWarpList( pEvent->sControlNpcID ) ) return FALSE;
-			
 	return TRUE;
 }
 
@@ -4163,13 +4087,15 @@ void CUser::ObjectEvent(char *pBuf)
 	int index = 0, objectindex = 0, send_index = 0, result = 0, nid = 0;
 	char send_buff[128]; memset( send_buff, NULL, 128 );
 
-	_OBJECT_EVENT* pEvent = NULL;
+	if (m_pMain->m_bPointCheckFlag == FALSE)
+		return;
+
+	ASSERT(GetMap() != NULL);
 
 	objectindex = GetShort( pBuf, index );
 	nid = GetShort( pBuf, index );
 	
-	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) goto fail_return;	
-	pEvent = m_pMain->m_ZoneArray[m_iZoneIndex]->GetObjectEvent( objectindex );
+	_OBJECT_EVENT * pEvent = GetMap()->GetObjectEvent(objectindex);
 	if( !pEvent ) goto fail_return;
 	
 	switch( pEvent->sType ) {
@@ -4197,16 +4123,6 @@ fail_return:
 	SetByte( send_buff, WIZ_OBJECT_EVENT, send_index );
 	SetByte( send_buff, 0x00, send_index );
 	Send( send_buff, send_index );
-}
-
-void CUser::Corpse()
-{
-	int send_index = 0;
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
-
-	SetByte( send_buff, WIZ_CORPSE, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false );	
 }
 
 void CUser::BlinkStart()
@@ -4402,33 +4318,24 @@ void CUser::TrapProcess()
 
 void CUser::KickOutZoneUser(BOOL home)
 {
-	int zoneindex = -1, yourmama=0, random = 0;
-	zoneindex = m_pMain->GetZoneIndex( m_pUserData->m_bNation );
-	if( zoneindex < 0 ) return;
-
+	int yourmama=0, random = 0;
 	_REGENE_EVENT* pRegene = NULL;
+	C3DMap* pMap = m_pMain->GetZoneByID(getNation());
+	if (pMap == NULL) return;
 
-	C3DMap* pMap = NULL;
-	pMap = m_pMain->m_ZoneArray[zoneindex];
-	if( !pMap ) return;
-
-	if(home) {
-//		ZoneChange( pMap->m_nZoneNumber, pMap->m_fInitX, pMap->m_fInitZ );
-
-// ????? ????
+	if (home)
+	{
 		int random = myrand(0, 9000) ;
 		if( random >= 0 && random < 3000 )			yourmama = 0;
 		else if( random >= 3000 && random < 6000 )	yourmama = 1;
 		else if( random >= 6000 && random < 9001 )	yourmama = 2;
 
-		pRegene = m_pMain->m_ZoneArray[zoneindex]->GetRegeneEvent(yourmama) ;	
-		if (!pRegene) {
-			TRACE("### KickOutZoneUser Fail - user=%s, reg=%d, zoneindex=%d\n", m_pUserData->m_id, yourmama, zoneindex);
-			KickOutZoneUser()	;
+		pRegene = pMap->GetRegeneEvent(yourmama) ;	
+		if (pRegene == NULL) 
+		{
+			KickOutZoneUser();
 			return;
 		}
-
-		//TRACE("KickOutZoneUser - user=%s, reg=%d\n", m_pUserData->m_id, yourmama);
 
 		int yourmama_x = myrand(0, pRegene->fRegeneAreaX) ;
 		int yourmama_z = myrand(0, pRegene->fRegeneAreaZ) ;
@@ -4437,7 +4344,6 @@ void CUser::KickOutZoneUser(BOOL home)
 		int y = pRegene->fRegenePosZ + yourmama_z ;
 
 		ZoneChange(pMap->m_nZoneNumber, x, y);			
-//
 	}
 	else {
 		if (m_pUserData->m_bNation == KARUS) {
@@ -4451,22 +4357,6 @@ void CUser::KickOutZoneUser(BOOL home)
 
 void CUser::EventMoneyItemGet( int itemid, int count )
 {
-/*
-	int index = 0, send_index = 0, bundle_index = 0, itemid = 0, count = 0, i=0;
-	BYTE pos;
-	char send_buff[256];	memset( send_buff, NULL, 256 );
-	C3DMap* pMap = NULL;
-	CUser* pUser = NULL;
-	CUser* pGetUser = NULL;
-	_PARTY_GROUP* pParty = NULL;
-
-	if( m_sExchangeUser != -1 ) goto fail_return;
-	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return;
-		pMap = m_pMain->m_ZoneArray[m_iZoneIndex];
-	if( !pMap )	goto fail_return;
-
-	pGetUser = this;
-*/
 }
 
 void CUser::NativeZoneReturn()

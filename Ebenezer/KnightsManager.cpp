@@ -858,21 +858,9 @@ void CKnightsManager::RecvCreateKnights(CUser *pUser, char *pBuf)
 	}	
 
 	m_pMain->m_KnightsArray.PutData( pKnights->m_sIndex, pKnights );
-
-	// Å¬·£Á¤º¸¿¡ Ãß°¡
 	AddKnightsUser( knightsindex, chiefname );
 
 	//TRACE("RecvCreateKnights - nid=%d, name=%s, index=%d, fame=%d, money=%d\n", pUser->GetSocketID(), pUser->m_pUserData->m_id, knightsindex, pUser->m_pUserData->m_bFame, money);
-
-	//if( pKnights->bFlag == KNIGHTS_TYPE )	{
-/*	memset( send_buff, 0x00, 128 ); send_index = 0;
-		SetByte( send_buff, WIZ_KNIGHTS_LIST, send_index );
-		SetByte( send_buff, 0x02, send_index );					// Insert Knights From List 
-		SetShort( send_buff, knightsindex, send_index );
-		SetShort( send_buff, namelen, send_index );
-		SetString( send_buff, knightsname, namelen, send_index );
-		m_pMain->Send_All( send_buff, send_index, pUser );	*/
-	//}
 
 	memset( send_buff, 0x00, 128 ); send_index = 0;
 	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
@@ -885,8 +873,7 @@ void CKnightsManager::RecvCreateKnights(CUser *pUser, char *pBuf)
 	SetByte( send_buff, 5, send_index );  // knights grade
 	SetByte( send_buff, 0, send_index );
 	SetDWORD( send_buff, money, send_index );
-	m_pMain->Send_Region( send_buff, send_index, pUser->m_pUserData->m_bZone, pUser->m_RegionX, pUser->m_RegionZ, NULL, false );
-	//pUser->Send( send_buff, send_index );
+	m_pMain->Send_Region( send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ, NULL, false );
 
 	memset( send_buff, 0x00, 128 ); send_index = 0;
 	SetByte( send_buff, UDP_KNIGHTS_PROCESS, send_index );
@@ -898,10 +885,8 @@ void CKnightsManager::RecvCreateKnights(CUser *pUser, char *pBuf)
 	SetString( send_buff, knightsname, namelen, send_index );
 	SetShort( send_buff, idlen, send_index );
 	SetString( send_buff, chiefname, idlen, send_index );
-	if( m_pMain->m_nServerGroup == 0 )
-		m_pMain->Send_UDP_All( send_buff, send_index );
-	else
-		m_pMain->Send_UDP_All( send_buff, send_index, 1 );
+
+	m_pMain->Send_UDP_All( send_buff, send_index, m_pMain->m_nServerGroup == 0 ? 0 : 1 );
 }
 
 void CKnightsManager::RecvJoinKnights(CUser *pUser, char* pBuf, BYTE command)
@@ -920,29 +905,15 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, char* pBuf, BYTE command)
 		pUser->m_pUserData->m_bKnights = knightsindex;
 		pUser->m_pUserData->m_bFame = TRAINEE;
 		sprintf( finalstr, "#### %s´ÔÀÌ °¡ÀÔÇÏ¼Ì½À´Ï´Ù. ####", pUser->m_pUserData->m_id );
-		// Å¬·£Á¤º¸¿¡ Ãß°¡
 		AddKnightsUser( knightsindex, pUser->m_pUserData->m_id );
 
 		//TRACE("RecvJoinKnights - °¡ÀÔ, nid=%d, name=%s, index=%d, fame=%d\n", pUser->GetSocketID(), pUser->m_pUserData->m_id, pUser->m_pUserData->m_bKnights, pUser->m_pUserData->m_bFame);
 	}
-	else {		// Å»Åğ..
+	else {
 		pUser->m_pUserData->m_bKnights = 0;
 		pUser->m_pUserData->m_bFame = 0;
 
-		// Å¬·£Á¤º¸¿¡ Ãß°¡
 		RemoveKnightsUser( knightsindex, pUser->m_pUserData->m_id );
-
-	/*	if(pKnights)	{
-			if( !strcmp( pKnights->strViceChief_1, pUser->m_pUserData->m_id) )
-				memset( pKnights->strViceChief_1, 0x00, MAX_ID_SIZE+1 );
-			else if( !strcmp( pKnights->strViceChief_2, pUser->m_pUserData->m_id) )
-				memset( pKnights->strViceChief_2, 0x00, MAX_ID_SIZE+1 );
-			else if( !strcmp( pKnights->strViceChief_3, pUser->m_pUserData->m_id) )
-				memset( pKnights->strViceChief_3, 0x00, MAX_ID_SIZE+1 );
-		}	*/
-		sprintf( finalstr, "#### %s´ÔÀÌ Å»ÅğÇÏ¼Ì½À´Ï´Ù. ####", pUser->m_pUserData->m_id );
-
-		//TRACE("RecvJoinKnights - Å»Åğ, nid=%d, name=%s, index=%d, fame=%d\n", pUser->GetSocketID(), pUser->m_pUserData->m_id, pUser->m_pUserData->m_bKnights, pUser->m_pUserData->m_bFame);
 	}
 
 	//TRACE("RecvJoinKnights - command=%d, nid=%d, name=%s, index=%d, fame=%d\n", command, pUser->GetSocketID(), pUser->m_pUserData->m_id, pUser->m_pUserData->m_bKnights, pUser->m_pUserData->m_bFame);
@@ -959,8 +930,7 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, char* pBuf, BYTE command)
 		SetByte( send_buff, pKnights->m_byGrade, send_index );  // knights grade
 		SetByte( send_buff, pKnights->m_byRanking, send_index );  // knights grade
 	}
-	m_pMain->Send_Region( send_buff, send_index, pUser->m_pUserData->m_bZone, pUser->m_RegionX, pUser->m_RegionZ, NULL, false );
-	//pUser->Send( send_buff, send_index );
+	m_pMain->Send_Region( send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ, NULL, false );
 
 	memset( send_buff, 0x00, 128 );		send_index = 0;
 	SetByte( send_buff, WIZ_CHAT, send_index );
@@ -1069,7 +1039,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, char *pBuf, BYTE command)
 			SetShort( send_buff, pTUser->GetSocketID(), send_index );
 			SetShort( send_buff, pTUser->m_pUserData->m_bKnights, send_index );
 			SetByte( send_buff, pTUser->m_pUserData->m_bFame, send_index );
-			m_pMain->Send_Region( send_buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+			m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 		}
 		else	{
 			SetShort( send_buff, pTUser->GetSocketID(), send_index );
@@ -1163,7 +1133,7 @@ void CKnightsManager::RecvDestroyKnights(CUser *pUser, char *pBuf)
 			SetShort( send_buff, pTUser->GetSocketID(), send_index );
 			SetShort( send_buff, pTUser->m_pUserData->m_bKnights, send_index );
 			SetByte( send_buff, pTUser->m_pUserData->m_bFame, send_index );
-			m_pMain->Send_Region( send_buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+			m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 			//pTUser->Send( send_buff, send_index );
 		}
 	}

@@ -77,7 +77,7 @@ void CUser::Initialize()
 	m_fWill_y = 0.0f;
 	m_fWill_z = 0.0f;
 	m_curZone = -1;				// 현재 존
-	m_sZoneIndex = -1;
+	m_pMap = NULL;
 	m_bNation = 0;						// 소속국가
 	m_sLevel = 0;						// 레벨
 	m_sHP = 0;							// HP
@@ -226,7 +226,6 @@ void CUser::SendAll(TCHAR *pBuf, int nLength)
 	}
 
 	if( m_pIocport == NULL) return;
-	if(m_sZoneIndex < 0 || m_sZoneIndex > m_pMain->g_arZone.size())	return;
 
 	SEND_DATA* pNewData = NULL;
 	pNewData = new SEND_DATA;
@@ -276,11 +275,7 @@ void CUser::Dead(int tid, int nDamage)
 	InitNpcAttack();
 
 	// region에서 삭제...
-	if(m_sZoneIndex < 0 || m_sZoneIndex > m_pMain->g_arZone.size())	{ 
-		TRACE("#### User-Dead ZoneIndex Fail : [name=%s], zoneindex=%d #####\n", m_strUserID, m_sZoneIndex);
-		return;
-	}
-	MAP* pMap = m_pMain->g_arZone[m_sZoneIndex];
+	MAP* pMap = GetMap();
 	if(pMap == NULL)	{
 		TRACE("#### CUser-Dead() Fail : [nid=%d, name=%s], pMap == NULL #####\n", m_iUserId, m_strUserID);
 		return;
@@ -1002,13 +997,8 @@ void CUser::HealMagic()
 	int region_x = m_curx / VIEW_DIST;
 	int region_z = m_curz / VIEW_DIST;
 
-	if(m_sZoneIndex < 0 || m_sZoneIndex > m_pMain->g_arZone.size()) {
-		TRACE("#### CUser--HealMagic ZoneIndex Fail : [name=%s], zoneindex=%d #####\n", m_strUserID, m_sZoneIndex);
-		return;
-	}
-
-	MAP* pMap = m_pMain->g_arZone[m_sZoneIndex];
-	if(pMap == NULL) return;
+	MAP* pMap = GetMap();
+	if (pMap == NULL) return;
 	int max_xx = pMap->m_sizeRegion.cx;
 	int max_zz = pMap->m_sizeRegion.cy;
 
@@ -1031,13 +1021,8 @@ void CUser::HealMagic()
 
 void CUser::HealAreaCheck(int rx, int rz)
 {
-	if(m_sZoneIndex < 0 || m_sZoneIndex > m_pMain->g_arZone.size()) {
-		TRACE("#### CUser--HealAreaCheck ZoneIndex Fail : [name=%s], zoneindex=%d #####\n", m_strUserID, m_sZoneIndex);
-		return;
-	}
-
-	MAP* pMap = m_pMain->g_arZone[m_sZoneIndex];
-	if(pMap == NULL) return;
+	MAP* pMap = GetMap();
+	if (pMap == NULL) return;
 	// 자신의 region에 있는 NpcArray을 먼저 검색하여,, 가까운 거리에 Monster가 있는지를 판단..
 	if(rx < 0 || rz < 0 || rx > pMap->GetXRegionMax() || rz > pMap->GetZRegionMax())	{
 		TRACE("#### CUser-HealAreaCheck() Fail : [nid=%d, name=%s], nRX=%d, nRZ=%d #####\n", m_iUserId, m_strUserID, rx, rz);

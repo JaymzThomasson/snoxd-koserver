@@ -151,20 +151,23 @@ UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */)
 {
 	CServerDlg* m_pMain = (CServerDlg*) pParam;
 	float  fCurrentTime = 0.0f;
-	MAP* pMap = NULL;
-	CRoomEvent* pRoom = NULL ;
-	int i=0, j=0;
+	int j=0;
 
-	while(!g_bNpcExit)
+	while (!g_bNpcExit)
 	{
 		fCurrentTime = TimeGet();
-		for( i=0; i<m_pMain->g_arZone.size(); i++)	{
-			pMap = m_pMain->g_arZone[i];
-			if( !pMap ) continue;
-			if( pMap->m_byRoomEvent == 0 ) continue;		// 현재의 존이 던젼담당하는 존이 아니면 리턴..
-			if( pMap->IsRoomStatusCheck() == TRUE )	continue;	// 전체방이 클리어 되었다면
-			for( j=1; j<pMap->m_arRoomEventArray.GetSize()+1; j++)	{	// 방번호는 1번부터 시작
-				pRoom = pMap->m_arRoomEventArray.GetData( j );
+		for (ZoneArray::Iterator itr = m_pMain->g_arZone.m_UserTypeMap.begin();
+				itr != m_pMain->g_arZone.m_UserTypeMap.end(); itr++)
+		{
+			MAP *pMap = itr->second;
+			if (pMap == NULL
+				|| pMap->m_byRoomEvent == 0
+				|| pMap->IsRoomStatusCheck()) 
+				continue;
+
+			for (j = 1; j < pMap->m_arRoomEventArray.GetSize() + 1; j++)
+			{
+				CRoomEvent* pRoom = pMap->m_arRoomEventArray.GetData(j);
 				if( !pRoom ) continue;
 				if( pRoom->m_byStatus == 1 || pRoom->m_byStatus == 3 )   continue; // 1:init, 2:progress, 3:clear
 				// 여기서 처리하는 로직...

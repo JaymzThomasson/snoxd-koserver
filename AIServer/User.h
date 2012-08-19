@@ -18,7 +18,7 @@ class CServerDlg;
 #include <list>
 
 typedef std::list <_USERLOG*>		UserLogList;
-
+class MAP;
 class CUser  
 {
 public:
@@ -29,8 +29,6 @@ public:
 
 	UserLogList	m_UserLogList;
 
-	// 필요한 정보 변수만 선언,,,
-	// 캐릭터 기본 속성
 	char m_strUserID[MAX_ID_SIZE+1];	// 캐릭터의 이름
 	int		m_iUserId;					// User의 번호
 	BYTE	m_bLive;					// 죽었니? 살았니?
@@ -43,7 +41,7 @@ public:
 	float			m_fWill_z;			// 다음 Z 좌표
 	short			m_sSpeed;			// 유저의 스피드	
 	BYTE 			m_curZone;			// 현재 존
-	short			m_sZoneIndex;		// 현재 존의 index 번호..
+	MAP *			m_pMap;
 
 	BYTE	m_bNation;						// 소속국가
 	short	m_sLevel;						// 레벨
@@ -115,6 +113,8 @@ public:
 	void SendSystemMsg(TCHAR *pMsg, BYTE type, int nWho);
 	void SendAll(TCHAR *pBuf, int nLength);						// game server로 패킷 전송...
 	BOOL IsOpIDCheck(char* szName);
+
+	__forceinline MAP * GetMap() { return m_pMap; };
 
 	CUser();
 	virtual ~CUser();

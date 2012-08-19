@@ -105,7 +105,7 @@ void CUser::Attack(char *pBuf)
 						SetByte( buff, COMMAND_AUTHORITY, send_index );
 						SetShort( buff, pTUser->GetSocketID(), send_index );
 						SetByte( buff, pTUser->m_pUserData->m_bFame, send_index );
-						m_pMain->Send_Region( buff, send_index, pTUser->m_pUserData->m_bZone, pTUser->m_RegionX, pTUser->m_RegionZ );
+						m_pMain->Send_Region( buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ );
 
 						Send( buff, send_index );
 						//TRACE("---> UserAttack Dead Captain Deprive - %s\n", pTUser->m_pUserData->m_id);
@@ -166,7 +166,7 @@ void CUser::Attack(char *pBuf)
 //	SetShort( buff, sid, send_index );
 	SetShort( buff, m_Sid, send_index );
 	SetShort( buff, tid, send_index );
-	m_pMain->Send_Region( buff, send_index, (int)m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false );
+	m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
 
 	if( tid < NPC_BAND )	{
 		if( result == 0x02 )	{
@@ -555,7 +555,7 @@ BYTE CUser::GetHitRate(float rate)
 
 void CUser::Regene(char *pBuf, int magicid)
 {
-//	Corpse();		// Get rid of the corpse ~ ?? ???h?? ????? ?? ?????!!!
+	ASSERT(GetMap() != NULL);
 
 	InitType3();
 	InitType4();
@@ -576,7 +576,7 @@ void CUser::Regene(char *pBuf, int magicid)
 	if (regene_type == 2) {
 		magicid = 490041;	// The Stone of Ressurection magic ID
 
-		if(ItemCountChange(379006000, 1, 3 * m_pUserData->m_bLevel) < 2) {
+		if(ItemCountChange(379006000, 1, 3 * getLevel()) < 2) {
 			return;	// Subtract resurrection stones.
 		}
 
@@ -591,8 +591,6 @@ void CUser::Regene(char *pBuf, int magicid)
 	int send_index = 0; char send_buff[1024];
 	memset( send_buff, NULL, 1024 );
 
-	if( m_iZoneIndex < 0 || m_iZoneIndex >= m_pMain->m_ZoneArray.size() ) return;
-
 	UserInOut(USER_OUT);	// ??? ?? ?????? ???? --;
 
 	float x = 0.0f, z = 0.0f;
@@ -600,7 +598,7 @@ void CUser::Regene(char *pBuf, int magicid)
 	if( x < 2.5f )	x = 1.5f + x;
 	if( z < 2.5f )	z = 1.5f + z;
 
-	pEvent = m_pMain->m_ZoneArray[m_iZoneIndex]->GetObjectEvent(m_pUserData->m_sBind);	
+	pEvent = GetMap()->GetObjectEvent(m_pUserData->m_sBind);	
 
 	if (magicid == 0) {
 		if( pEvent && pEvent->byLife == 1 ) {		// Bind Point

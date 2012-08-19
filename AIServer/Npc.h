@@ -113,6 +113,7 @@ struct _TargetHealer
 	short	sValue;				// 점수
 };
 
+class MAP;
 class CServerDlg;
 
 /*
@@ -147,7 +148,7 @@ public:
 
 	BOOL	m_bFirstLive;		// NPC 가 처음 생성되는지 죽었다 살아나는지 판단.
 	BYTE	m_NpcState;			// NPC의 상태 - 살았다, 죽었다, 서있다 등등...
-	short	m_ZoneIndex;		// NPC 가 존재하고 있는 존의 인덱스
+	MAP *	m_pZone;
 
 	short	m_sNid;				// NPC (서버상의)일련번호
 
@@ -347,6 +348,8 @@ public:
 
 
 public:
+	__forceinline MAP * GetMap() { return m_pZone; };
+
 	CNpc();
 	virtual ~CNpc();
 

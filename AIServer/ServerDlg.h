@@ -48,7 +48,7 @@ typedef CSTLMap <_MAKE_WEAPON>				MakeWeaponItemTableArray;
 typedef CSTLMap <_MAKE_ITEM_GRADE_CODE>		MakeGradeItemTableArray;
 typedef CSTLMap <_MAKE_ITEM_LARE_CODE>		MakeLareItemTableArray;
 typedef std::list <int>						ZoneNpcInfoList;
-typedef std::vector <MAP*>				ZoneArray;
+typedef CSTLMap <MAP>						ZoneArray;
 
 /*
      ** Repent AI Server 작업시 참고 사항 **
@@ -92,7 +92,7 @@ public:
 	CNpc*  GetEventNpcPtr();
 	BOOL   SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz);
 	int    MonsterSummon(TCHAR* pNpcName, int zone, float fx, float fz);
-	int GetZoneIndex( int zonenumber );
+	MAP * GetZoneByID(int zonenumber);
 	int GetServerNumber( int zonenumber );
 	void ClostSocket( int zonenumber );
 

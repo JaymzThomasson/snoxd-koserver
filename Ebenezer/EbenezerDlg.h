@@ -29,8 +29,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // CEbenezerDlg dialog
 
-typedef std::vector <C3DMap*>				ZoneArray;
-typedef std::vector <_LEVELUP*>				LevelUpArray;
+typedef CSTLMap <C3DMap>					ZoneArray;
+typedef map <int, long>						LevelUpArray;
 typedef CSTLMap <_CLASS_COEFFICIENT>		CoefficientArray;
 typedef CSTLMap <_ITEM_TABLE>				ItemtableArray;
 typedef CSTLMap <_MAGIC_TABLE>				MagictableArray;
@@ -47,6 +47,7 @@ typedef CSTLMap <CKnights>					KnightsArray;
 typedef CSTLMap <_ZONE_SERVERINFO>			ServerArray;
 typedef CSTLMap <_HOME_INFO>				HomeArray;
 typedef	CSTLMap	<EVENT>						QuestArray;
+typedef	CSTLMap	<_SERVER_RESOURCE>			ServerResourceArray;
 
 class CUser;
 class CEbenezerDlg : public CDialog
@@ -94,9 +95,8 @@ public:
 	BOOL AISocketConnect( int zone, int flag = 0 );
 	int GetRegionNpcIn( C3DMap* pMap, int region_x, int region_z, char* buff, int & t_count );
 	BOOL LoadNoticeData();
-	int GetZoneIndex( int zonenumber );
-	int GetRegionNpcList( C3DMap* pMap, int region_x, int region_z, char* nid_buff, int& t_count, int nType=0 ); // Region All Npcs nid Packaging Function
-	void RegionNpcInfoForMe( CUser* pSendUser, int nType=0 );	// 9 Regions All Npcs nid Packaging Function
+	int GetRegionNpcList( C3DMap* pMap, int region_x, int region_z, char* nid_buff, int& t_count ); // Region All Npcs nid Packaging Function
+	void RegionNpcInfoForMe( CUser* pSendUser );	// 9 Regions All Npcs nid Packaging Function
 	int GetRegionUserList( C3DMap* pMap, int region_x, int region_z, char* buff, int &t_count ); // Region All Users uid Packaging Function
 	int GetRegionUserIn( C3DMap* pMap, int region_x, int region_z, char* buff, int &t_count );	// Region All Users USERINOUT Packet Packaging Function
 	void RegionUserInOutForMe( CUser* pSendUser );	// 9 Regions All Users uid Packaging Function
@@ -105,18 +105,17 @@ public:
 	void UpdateWeather();
 	void UpdateGameTime();
 	void GetTimeFromIni();
-	void Send_NearRegion( char* pBuf, int len, int zone, int region_x, int region_z, float curx, float curz, CUser* pExceptUser=NULL );
-	void Send_FilterUnitRegion( char* pBuf, int len, int zoneindex, int x, int z, float ref_x, float ref_z, CUser* pExceptUser=NULL );
-	void Send_UnitRegion( char *pBuf, int len, int zoneindex, int x, int z, CUser* pExceptUser=NULL, bool bDirect=true );
+	void Send_NearRegion( char* pBuf, int len, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser=NULL );
+	void Send_FilterUnitRegion( char* pBuf, int len, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser* pExceptUser=NULL );
+	void Send_UnitRegion( char *pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser=NULL, bool bDirect=true );
 	BOOL LoadCoefficientTable();
 	BOOL LoadMagicTable();
 	BOOL LoadItemTable();
+	BOOL LoadServerResourceTable();
 	BOOL MapFileLoad();
 	void UserAcceptThread();
 	// sungyong 2001.11.06
 	BOOL AIServerConnect();
-	void SyncTest(int nType);
-	void SyncRegionTest(C3DMap* pMap, int rx, int rz, FILE* pfile, int nType);
 	void SendAllUserInfo();
 	void SendCompressedData();
 	void DeleteAllNpcList(int flag = 0);
@@ -125,11 +124,15 @@ public:
 	BOOL InitializeMMF();
 	void UserInOutForMe( CUser* pSendUser );	// 9 Regions All Users USERINOUT Packet Packaging Function
 	void NpcInOutForMe( CUser* pSendUser );	// 9 Regions All Npcs NPCINOUT Packet Packaging Function
-	void Send_Region( char* pBuf, int len, int zone, int x, int z, CUser* pExceptUser = NULL, bool bDirect=true );	// zone == real zone number
+	void Send_Region( char* pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL, bool bDirect=true );	// zone == real zone number
 	void Send_All( char* pBuf, int len, CUser* pExceptUser = NULL, int nation=0 );	// pointer != NULL don`t send to that user pointer
 	void Send_AIServer( int zone, char* pBuf, int len );
-	CUser* GetUserPtr( const char* userid, BYTE type );
 
+	_SERVER_RESOURCE * GetServerResource(int nResourceID);
+	long GetExpByLevel(int nLevel);
+	C3DMap * GetZoneByID(int zoneID);
+
+	CUser* GetUserPtr( const char* userid, BYTE type );
 	CUser * GetUserPtr(int sid);
 	__forceinline CUser * GetUnsafeUserPtr(int sid);
 
@@ -142,8 +145,6 @@ public:
 	CEbenezerDlg(CWnd* pParent = NULL);	// standard constructor
 
 	static CIOCPort	m_Iocport;
-
-	CEbenezerDlg * m_pMain; // don't remove this, required for debug logging until everything's cleaned up (then we can get rid of it)
 
 	CSharedMemQueue	m_LoggerSendQueue, m_LoggerRecvQueue;
 
@@ -167,12 +168,13 @@ public:
 	Magictype4Array			m_Magictype4Array;
 	Magictype5Array         m_Magictype5Array;
 	Magictype8Array         m_Magictype8Array;
-	CoefficientArray		m_CoefficientArray;		// 공식 계산 계수데이타 테이블
+	CoefficientArray		m_CoefficientArray;
 	LevelUpArray			m_LevelUpArray;
 	PartyArray				m_PartyArray;
 	KnightsArray			m_KnightsArray;
 	HomeArray				m_HomeArray;
 	QuestArray				m_Event;
+	ServerResourceArray		m_ServerResourceArray;
 
 	CKnightsManager			m_KnightsManager;
 

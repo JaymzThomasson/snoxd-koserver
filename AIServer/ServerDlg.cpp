@@ -1178,22 +1178,12 @@ BOOL CServerDlg::CreateNpcThread()
 						pNpc->m_nLimitMaxZ = NpcPosSet.m_LimitMaxZ;
 					}	
 			
-					pNpc->m_ZoneIndex		= -1;
-
-					for(i = 0; i < g_arZone.size(); i++)	{
-						if(g_arZone[i]->m_nZoneNumber == pNpc->m_sCurZone)	{
-							pNpc->m_ZoneIndex = i;
-							break;
-						}
-					}
-
-					if(pNpc->m_ZoneIndex == -1)		{
+					pNpc->m_pZone = GetZoneByID(pNpc->m_sCurZone);
+					if (pNpc->GetMap() == NULL)		{
 						AfxMessageBox("Error : CServerDlg,, Invaild zone Index!!");
 						return FALSE;
 					}
 
-					//pNpc->Init();
-					//m_arNpc.Add(pNpc);
 					if( !m_arNpc.PutData( pNpc->m_sNid, pNpc) )		{
 						TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
 						delete pNpc;
@@ -1201,17 +1191,16 @@ BOOL CServerDlg::CreateNpcThread()
 					}
 
 					// 
-					if( g_arZone[pNpc->m_ZoneIndex]->m_byRoomEvent > 0 && pNpc->m_byDungeonFamily > 0 )	{
-						pRoom = NULL;
-						pRoom = g_arZone[pNpc->m_ZoneIndex]->m_arRoomEventArray.GetData( pNpc->m_byDungeonFamily );
-						if( !pRoom )	{
-							TRACE("Error : CServerDlg,, Map Room Npc Fail!! : nid=%d, sid=%d, name=%s, fam=%d, zoneindex=%d\n", pNpc->m_sNid+NPC_BAND, pNpc->m_sSid, pNpc->m_strName, pNpc->m_byDungeonFamily, pNpc->m_ZoneIndex);
+					if (pNpc->GetMap()->m_byRoomEvent > 0 && pNpc->m_byDungeonFamily > 0 )	{
+						pRoom = pNpc->GetMap()->m_arRoomEventArray.GetData( pNpc->m_byDungeonFamily );
+						if (pRoom == NULL)
+						{
+							TRACE("Error : CServerDlg,, Map Room Npc Fail!! : nid=%d, sid=%d, name=%s, fam=%d, zone=%d\n", pNpc->m_sNid+NPC_BAND, pNpc->m_sSid, pNpc->m_strName, pNpc->m_byDungeonFamily, pNpc->m_sCurZone);
 							AfxMessageBox("Error : CServerDlg,, Map Room Npc Fail!!");
 							return FALSE;
 						}
 
-						int *pInt = NULL;
-						pInt = new int;
+						int *pInt = new int;
 						*pInt = pNpc->m_sNid;
 						if( !pRoom->m_mapRoomNpcArray.PutData( pNpc->m_sNid, pInt ) )	{
 							TRACE("### Map - Room Array MonsterNid Fail : nid=%d, sid=%d ###\n", pNpc->m_sNid, pNpc->m_sSid);
@@ -1382,9 +1371,8 @@ BOOL CServerDlg::DestroyWindow()
 	// DB테이블 삭제 부분
 
 	// Map(Zone) Array Delete...
-	for( i=0; i<g_arZone.size(); i++ )
-		delete g_arZone[i];
-	g_arZone.clear();
+	if (!g_arZone.IsEmpty())
+		g_arZone.DeleteAllData();
 
 	// NpcTable Array Delete
 	if( !m_arMonTable.IsEmpty() )
@@ -1556,7 +1544,7 @@ BOOL CServerDlg::MapFileLoad()
 			pMap->m_byRoomEvent = 1;
 		}	
 
-		g_arZone.push_back( pMap );
+		g_arZone.PutData(pMap->m_nZoneNumber, pMap);
 
 		ZoneInfoSet.MoveNext();
 
@@ -1573,17 +1561,18 @@ void CServerDlg::AllNpcInfo()
 {
 	// server alive check
 	CNpc* pNpc = NULL;
-	MAP* pMap = NULL;
-	int nZone = 0, i=0;
+	int nZone = 0;
 	int size = m_arNpc.GetSize();
 
 	int send_index = 0, zone_index = 0, packet_size = 0;
 	int count = 0, send_count = 0, send_tot = 0;
 	char send_buff[2048];		::ZeroMemory(send_buff, sizeof(send_buff));
 
-	for(i=0; i<m_sTotalMap; i++)	{
-		pMap = g_arZone[i];
-		if(pMap == NULL)	continue;
+	for (ZoneArray::Iterator itr = g_arZone.m_UserTypeMap.begin(); itr != g_arZone.m_UserTypeMap.end(); itr++)
+	{
+		MAP * pMap = itr->second;
+		if (pMap == NULL)
+			continue;
 		nZone = pMap->m_nZoneNumber;
 
 		::ZeroMemory(send_buff, sizeof(send_buff));
@@ -1593,7 +1582,6 @@ void CServerDlg::AllNpcInfo()
 		SetByte(send_buff, nZone, send_index );
 		packet_size = Send(send_buff, send_index, nZone);
 
-		zone_index = GetZoneIndex( nZone );
 		send_index = 2;		count = 0;	send_count = 0;
 		m_CompCount = 0;	m_iCompIndex = 0;
 		::ZeroMemory(send_buff, sizeof(send_buff));
@@ -1739,16 +1727,13 @@ void CServerDlg::DeleteAllUserList(int zone)
 	CString logstr;
 
 	if(zone == 9999 && m_bFirstServerFlag == TRUE)	{						// 모든 소켓이 끊어진 상태...
-		CUser* pUser = NULL;
-		MAP* pMap = NULL;
-		int i=0;
-
 		TRACE("*** DeleteAllUserList - Start *** \n");
-
-		for(i=0; i<m_sTotalMap; i++)	{
-			pMap = g_arZone[i];
-			if(pMap == NULL)	continue;
-			for( i=0; i<pMap->m_sizeRegion.cx; i++ ) {
+		for (ZoneArray::Iterator itr = g_arZone.m_UserTypeMap.begin(); itr != g_arZone.m_UserTypeMap.end(); itr++)
+		{
+			MAP * pMap = itr->second;
+			if (pMap == NULL)	
+				continue;
+			for (int i=0; i<pMap->m_sizeRegion.cx; i++ ) {
 				for( int j=0; j<pMap->m_sizeRegion.cy; j++ ) {
 					if( !pMap->m_ppRegion[i][j].m_RegionUserArray.IsEmpty() )
 						pMap->m_ppRegion[i][j].m_RegionUserArray.DeleteAllData();
@@ -1756,17 +1741,16 @@ void CServerDlg::DeleteAllUserList(int zone)
 			}
 		}
 
-		int size = g_arZone.size();
-
 		EnterCriticalSection( &g_User_critical );
-		// User Array Delete
-		for(i = 0; i < MAX_USER; i++)	{
-			pUser = m_pUser[i];
-			if(pUser == NULL)  continue;
+		for (int i = 0; i < MAX_USER; i++)	
+		{
+			CUser *pUser = m_pUser[i];
+			if (pUser == NULL)  
+				continue;
+
 			delete m_pUser[i];
 			m_pUser[i] = NULL;
 		}
-		// 파티 정보 삭제..
 		LeaveCriticalSection( &g_User_critical );
 
 		// Party Array Delete 
@@ -2037,14 +2021,16 @@ CNpc* CServerDlg::GetEventNpcPtr()
 
 int  CServerDlg::MonsterSummon(TCHAR* pNpcName, int zone, float fx, float fz)
 {
-	if(zone < 0 || zone > (g_arZone.size() + 1) ) {
-		TRACE("#### 소환 실패 : %s, zoneindex=%d #####\n", pNpcName, zone);
+	if (GetZoneByID(zone) == NULL)
+	{
+		TRACE("#### MonsterSummon : %s, zone=%d #####\n", pNpcName, zone);
 		return -1;
 	}
 
 	CNpc* pNpc = GetNpcPtr(pNpcName);
-	if(pNpc == NULL)	{
-		TRACE("소환할  몬스터의 이름(%s)이 잘못되었습니다.\n", pNpcName);
+	if (pNpc == NULL)	
+	{
+		TRACE("#### MonsterSummon : %s does not exist ####\n", pNpcName);
 		return  -1;
 	}
 
@@ -2137,20 +2123,14 @@ BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 	pEventNpc->m_tItemPer		= pNpc->m_tItemPer;	// NPC Type
 	pEventNpc->m_tDnPer			= pNpc->m_tDnPer;	// NPC Type
 
-	pEventNpc->m_ZoneIndex		= -1;
+	pEventNpc->m_pZone		= GetZoneByID(zone);
 
 	pEventNpc->m_NpcState = NPC_DEAD;	// 상태는 죽은것으로 해야 한다.. 
 	pEventNpc->m_bFirstLive = 1;		// 처음 살아난 경우로 해줘야 한다..
 
-	for(int i = 0; i < g_arZone.size(); i++)	{
-		if(g_arZone[i]->m_nZoneNumber == zone)	{
-			pEventNpc->m_ZoneIndex = i;
-			break;
-		}
-	}
-
-	if(pEventNpc->m_ZoneIndex == -1)	{
-		TRACE("Invaild zone Index!!\n");
+	if (pEventNpc->GetMap() == NULL)
+	{
+		TRACE("Zone %d doesn't exist (NPC=%d)\n", zone, pNpc->m_sSid);
 		return FALSE;
 	}
 
@@ -2376,11 +2356,10 @@ BOOL CServerDlg::GetMagicType4Data()
 void CServerDlg::RegionCheck()
 {
 	int i=0,k=0, total_user = 0;
-	MAP* pMap = NULL;
-
-	for(k=0; k<m_sTotalMap; k++)	{
-		pMap = g_arZone[k];
-		if(pMap == NULL)	continue;
+	for (ZoneArray::Iterator itr = g_arZone.m_UserTypeMap.begin(); itr != g_arZone.m_UserTypeMap.end(); itr++)	
+	{
+		MAP *pMap = itr->second;
+		if (pMap == NULL)	continue;
 		for( i=0; i<pMap->m_sizeRegion.cx; i++ ) {
 			for( int j=0; j<pMap->m_sizeRegion.cy; j++ ) {
 				EnterCriticalSection( &g_User_critical );
@@ -2503,15 +2482,17 @@ BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number)
 	pNpc->m_tItemPer		= pNpcTable->m_tItemPer;	// NPC Type
 	pNpc->m_tDnPer			= pNpcTable->m_tDnPer;	// NPC Type
 
-	pNpc->m_ZoneIndex = -1;
+	pNpc->m_pZone = GetZoneByID(zone_number);
 	pNpc->m_byObjectType = SPECIAL_OBJECT;
 	pNpc->m_bFirstLive = 1;		// 처음 살아난 경우로 해줘야 한다..
-	//pNpc->m_ZoneIndex = GetZoneIndex(pNpc->m_sCurZone);
-/*
-	if(pNpc->m_ZoneIndex == -1)	{
-		AfxMessageBox("Invaild zone Index!!");
+
+	if (pNpc->GetMap() == NULL)
+	{
+		TRACE("Npc PutData Fail - %d, invalid zone: %d\n", pNpc->m_sNid, zone_number);
+		delete pNpc;
+		pNpc = NULL;
 		return FALSE;
-	}	*/
+	}
 
 	//pNpc->Init();
 	if( !m_arNpc.PutData( pNpc->m_sNid, pNpc) )	{
@@ -2525,26 +2506,18 @@ BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number)
 	return TRUE;
 }
 
-int CServerDlg::GetZoneIndex( int zonenumber )
+MAP * CServerDlg::GetZoneByID(int zonenumber)
 {
-	int t_count = g_arZone.size();
-	for(int i=0; i<t_count; i++) {
-		if( g_arZone[i] && (zonenumber == g_arZone[i]->m_nZoneNumber) )
-			return i;
-	}
-
-	return -1;
+	return g_arZone.GetData(zonenumber);
 }
 
 int CServerDlg::GetServerNumber( int zonenumber )
 {
-	int t_count = g_arZone.size();
-	for(int i=0; i<t_count; i++) {
-		if( g_arZone[i] && (zonenumber == g_arZone[i]->m_nZoneNumber) )
-			return g_arZone[i]->m_nServerNo;
-	}
+	MAP *pMap = GetZoneByID(zonenumber);
+	if (pMap == NULL)
+		return -1;
 
-	return -1;
+	return pMap->m_nServerNo;
 }
 
 void CServerDlg::ClostSocket( int zonenumber )
@@ -2589,14 +2562,11 @@ void CServerDlg::SendSystemMsg( char* pMsg, int zone, int type, int who )
 void CServerDlg::ResetBattleZone()
 {
 	TRACE("ServerDlg - ResetBattleZone() : start \n");
-	MAP* pMap = NULL;
-	CRoomEvent* pRoom = NULL ;
-	int i=0, j=0;
-
-	for( i=0; i<g_arZone.size(); i++)	{
-		pMap = g_arZone[i];
-		if( !pMap ) continue;
-		if( pMap->m_byRoomEvent == 0 ) continue;		// 현재의 존이 던젼담당하는 존이 아니면 리턴..
+	for (ZoneArray::Iterator itr = g_arZone.m_UserTypeMap.begin(); itr != g_arZone.m_UserTypeMap.end(); itr++)
+	{
+		MAP *pMap = itr->second;
+		if (pMap == NULL || pMap->m_byRoomEvent == 0) 
+			continue;
 		//if( pMap->IsRoomStatusCheck() == TRUE )	continue;	// 전체방이 클리어 되었다면
 		pMap->InitializeRoom();
 	}

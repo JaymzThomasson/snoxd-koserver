@@ -84,7 +84,7 @@ public:
 	short	m_iMaxHp;
 	short	m_iMaxMp;
 	
-	short	m_iZoneIndex;
+	C3DMap * m_pMap;
 
 	float	m_fWill_x;
 	float	m_fWill_z;
@@ -206,7 +206,10 @@ public:
 	__forceinline bool isInClan() { return m_pUserData->m_bKnights != -1; };
 
 	__forceinline BYTE getNation() { return m_pUserData->m_bNation; };
+	__forceinline BYTE getLevel() { return m_pUserData->m_bLevel; };
+	__forceinline BYTE getZoneID() { return m_pUserData->m_bZone; };
 	__forceinline BYTE getAuthority() { return m_pUserData->m_bAuthority; };
+	__forceinline C3DMap * GetMap() { return m_pMap; };
 
 	void RecvDeleteChar( char* pBuf );
 	BOOL ExistComEvent(int eventid);
@@ -261,7 +264,6 @@ public:
 	void PartyBBSDelete(char *pBuf);
 	void PartyBBSRegister(char *pBuf);
 	void PartyBBS(char *pBuf);
-	void Corpse();
 	void FriendAccept(char *pBuf);
 	void FriendRequest(char *pBuf);
 	void Friend(char *pBuf);
