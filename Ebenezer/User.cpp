@@ -623,10 +623,7 @@ void CUser::SendMyInfo()
 	SetShort( send_buff, m_pUserData->m_sClass, send_index );
 	SetByte( send_buff, m_pUserData->m_bFace, send_index );
 
-	SetByte( send_buff, m_pUserData->m_bHair[HAIR_TYPE], send_index );
-	SetByte( send_buff, m_pUserData->m_bHair[HAIR_R], send_index );
-	SetByte( send_buff, m_pUserData->m_bHair[HAIR_G], send_index );
-	SetByte( send_buff, m_pUserData->m_bHair[HAIR_B], send_index );
+	SetDWORD( send_buff, m_pUserData->m_nHair, send_index );
 
 	SetByte( send_buff, m_pUserData->m_bRank, send_index );
 	SetByte( send_buff, m_pUserData->m_bTitle, send_index );

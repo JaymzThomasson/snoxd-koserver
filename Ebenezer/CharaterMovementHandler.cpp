@@ -161,10 +161,7 @@ void CUser::GetUserInfo(char *buff, int & buff_index)
 	SetShort(buff, m_pUserData->m_cury*10, buff_index);
 	SetByte(buff, m_pUserData->m_bFace, buff_index);
 
-	SetByte(buff, m_pUserData->m_bHair[HAIR_TYPE], buff_index);
-	SetByte(buff, m_pUserData->m_bHair[HAIR_R], buff_index); // r
-	SetByte(buff, m_pUserData->m_bHair[HAIR_G], buff_index); // g
-	SetByte(buff, m_pUserData->m_bHair[HAIR_B], buff_index); // b
+	SetDWORD(buff, m_pUserData->m_nHair, buff_index);
 
 	SetByte(buff, m_bResHpType, buff_index);
 

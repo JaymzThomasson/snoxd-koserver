@@ -123,7 +123,7 @@ BOOL CDBAgent::LoadUserData(char *accountid, char *userid, int uid)
 
 	wsprintf(szSQL, TEXT("{call LOAD_USER_DATA ('%s', '%s', ?)}"), accountid, userid);
 	
-	SQLCHAR Nation, Race, HairType, Rank, Title, Level; 
+	SQLCHAR Nation, Race, Rank, Title, Level; 
 	SQLINTEGER Exp, Loyalty, Gold, PX, PZ, PY, dwTime, sQuestCount, MannerPoint, LoyaltyMonthly, HairRGB;
 	SQLCHAR Face, City, Fame, Authority;
 	SQLSMALLINT Hp, Mp, Sp, sRet, Class, Bind, Knights, Points;
@@ -165,7 +165,7 @@ BOOL CDBAgent::LoadUserData(char *accountid, char *userid, int uid)
 			SQLGetData(hstmt, 1,  SQL_C_TINYINT,	&Nation,			0,		&Indexind);
 			SQLGetData(hstmt, 2,  SQL_C_TINYINT,	&Race,				0,		&Indexind);
 			SQLGetData(hstmt, 3,  SQL_C_SSHORT,		&Class,				0,		&Indexind);
-			SQLGetData(hstmt, 4,  SQL_C_TINYINT,	&HairType,			0,		&Indexind);
+			SQLGetData(hstmt, 4,  SQL_C_LONG,		&HairRGB,			0,		&Indexind);
 			SQLGetData(hstmt, 5,  SQL_C_TINYINT,	&Rank,				0,		&Indexind);
 			SQLGetData(hstmt, 6,  SQL_C_TINYINT,	&Title,				0,		&Indexind);
 			SQLGetData(hstmt, 7,  SQL_C_TINYINT,	&Level,				0,		&Indexind);
@@ -199,7 +199,6 @@ BOOL CDBAgent::LoadUserData(char *accountid, char *userid, int uid)
 			SQLGetData(hstmt, 35, SQL_C_CHAR,		strQuest,			400,	&Indexind);
 			SQLGetData(hstmt, 36, SQL_C_LONG,		&MannerPoint,		0,		&Indexind);
 			SQLGetData(hstmt, 37, SQL_C_LONG,		&LoyaltyMonthly,	0,		&Indexind);
-			SQLGetData(hstmt, 38, SQL_C_LONG,		&HairRGB,			0,		&Indexind);
 			retval = TRUE;
 		}
 	}
@@ -256,15 +255,10 @@ BOOL CDBAgent::LoadUserData(char *accountid, char *userid, int uid)
 	pUser->m_curz = (float)(PZ/100);
 	pUser->m_cury = (float)(PY/100);
 
-	BYTE * rgb = (BYTE *)&HairRGB;
-
 	pUser->m_bNation = Nation;
 	pUser->m_bRace = Race;
 	pUser->m_sClass = Class;
-	pUser->m_bHair[HAIR_TYPE] = HairType;
-	pUser->m_bHair[HAIR_R] = rgb[HAIR_R];
-	pUser->m_bHair[HAIR_G] = rgb[HAIR_G];
-	pUser->m_bHair[HAIR_B] = rgb[HAIR_B];
+	pUser->m_nHair = HairRGB;
 	pUser->m_bRank = Rank;
 	pUser->m_bTitle = Title;
 	pUser->m_bLevel = Level;
@@ -459,13 +453,13 @@ int CDBAgent::UpdateUser(const char *userid, int uid, int type )
 		NOTE: Hair type is set separately in the database here for management only. While it is kept in the HairRGB column as well, it's not used there.
 		While it'd save a byte removing the HairType column, it'd be harder to change in the database outside of the game... so for simplicity, HairType stays as is.
 	*/
-	wsprintf( szSQL, TEXT( "{call UPDATE_USER_DATA ( \'%s\', %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,?,?,?,?,%d,%d)}" ),
-		pUser->m_id, pUser->m_bNation, pUser->m_bRace, pUser->m_sClass, pUser->m_bHair[HAIR_TYPE], pUser->m_bRank,
+	wsprintf( szSQL, TEXT( "{call UPDATE_USER_DATA ( \'%s\', %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,?,?,?,?,%d)}" ),
+		pUser->m_id, pUser->m_bNation, pUser->m_bRace, pUser->m_sClass, pUser->m_nHair, pUser->m_bRank,
 		pUser->m_bTitle, pUser->m_bLevel, pUser->m_iExp, pUser->m_iLoyalty, pUser->m_bFace, 
 		pUser->m_bCity,	pUser->m_bKnights, pUser->m_bFame, pUser->m_sHp, pUser->m_sMp, pUser->m_sSp, 
 		pUser->m_bStr, pUser->m_bSta, pUser->m_bDex, pUser->m_bIntel, pUser->m_bCha, pUser->m_bAuthority, pUser->m_sPoints, pUser->m_iGold, pUser->m_bZone, pUser->m_sBind, 
 		(int)(pUser->m_curx*100), (int)(pUser->m_curz*100), (int)(pUser->m_cury*100), pUser->m_dwTime,
-		pUser->m_sQuestCount, pUser->m_iMannerPoint, pUser->m_iLoyaltyMonthly, *(DWORD *)(&pUser->m_bHair));
+		pUser->m_sQuestCount, pUser->m_iMannerPoint, pUser->m_iLoyaltyMonthly);
 
 	hstmt = NULL;
 
@@ -699,7 +693,7 @@ BOOL CDBAgent::LoadCharInfo( char *id, char* buff, int &buff_index)
 
 	DBProcessNumber( 8 );
 	
-	SQLCHAR Race = 0x00, HairType = 0x00, Level = 0x00, Face = 0x00, Zone = 0x00; 
+	SQLCHAR Race = 0x00, Level = 0x00, Face = 0x00, Zone = 0x00; 
 	SQLSMALLINT sRet, Class;
 	SQLINTEGER HairRGB;
 
@@ -725,12 +719,11 @@ BOOL CDBAgent::LoadCharInfo( char *id, char* buff, int &buff_index)
 		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO){
 			SQLGetData(hstmt, 1, SQL_C_TINYINT,	&Race,		0,		&Indexind);
 			SQLGetData(hstmt, 2, SQL_C_SSHORT,	&Class,		0,		&Indexind);
-			SQLGetData(hstmt, 3, SQL_C_TINYINT,	&HairType,	0,		&Indexind);
+			SQLGetData(hstmt, 3, SQL_C_LONG,	&HairRGB,	0,		&Indexind);
 			SQLGetData(hstmt, 4, SQL_C_TINYINT,	&Level,		0,		&Indexind);
 			SQLGetData(hstmt, 5, SQL_C_TINYINT,	&Face,		0,		&Indexind);
 			SQLGetData(hstmt, 6, SQL_C_TINYINT,	&Zone,		0,		&Indexind);
 			SQLGetData(hstmt, 7, SQL_C_CHAR,	strItem,	400,	&Indexind);
-			SQLGetData(hstmt, 8, SQL_C_LONG,	&HairRGB,	0,	&Indexind);
 
 			retval = TRUE;
 		}
@@ -747,18 +740,13 @@ BOOL CDBAgent::LoadCharInfo( char *id, char* buff, int &buff_index)
 	}
 	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
 
-	BYTE * rgb = (BYTE *)&HairRGB;
-
 	SetShort( buff, strlen( id ), buff_index );
 	SetString( buff, (char*)id, strlen( id ), buff_index );
 	SetByte( buff, Race, buff_index );
 	SetShort( buff, Class, buff_index );
 	SetByte( buff, Level, buff_index );
 	SetByte( buff, Face, buff_index );
-	SetByte( buff, rgb[HAIR_R], buff_index );
-	SetByte( buff, rgb[HAIR_G], buff_index );
-	SetByte( buff, rgb[HAIR_B], buff_index );
-	SetByte( buff, HairType, buff_index );
+	SetDWORD( buff, HairRGB, buff_index );
 	SetByte( buff, Zone, buff_index );
 
 	int tempid = 0, count = 0, index = 0, duration = 0;

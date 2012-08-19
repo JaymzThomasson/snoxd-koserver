@@ -192,7 +192,7 @@ struct _USER_DATA
 	BYTE	m_bRace;
 	short	m_sClass;
 
-	BYTE	m_bHair[4];
+	DWORD	m_nHair;
 
 	BYTE	m_bRank;
 	BYTE	m_bTitle;
