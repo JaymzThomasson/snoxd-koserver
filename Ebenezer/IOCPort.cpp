@@ -45,19 +45,13 @@ DWORD WINAPI AcceptThread(LPVOID lp)
 		WSAEnumNetworkEvents( pIocport->m_ListenSocket, pIocport->m_hListenEvent, &network_event);
 		if (network_event.lNetworkEvents & FD_ACCEPT)
 		{
-			if(network_event.iErrorCode[FD_ACCEPT_BIT] == 0 ) 
+			if (network_event.iErrorCode[FD_ACCEPT_BIT] == 0 ) 
 			{
 				sid = pIocport->GetNewSid();
-				if (sid < 0) {
-					DEBUG_LOG_FILE("Accepting user socket fail - new UID is -1");
-					goto loop_pass_accept;
-				}
-
-				pSocket = pIocport->GetIOCPSocket( sid );
-				if (!pSocket)
+				if (sid < 0
+					|| (pSocket = pIocport->GetIOCPSocket(sid)) == NULL) 
 				{
-					DEBUG_LOG_FILE("Socket array has broken");
-//					pIocport->PutOldSid( sid );				// Invalid sid must forbidden to use
+					DEBUG_LOG_FILE("Cannot accept anymore sockets.");
 
 					// make sure we don't hold up the queue
 					closesocket(accept(pIocport->m_ListenSocket, (struct sockaddr *)&addr, &len));
@@ -68,8 +62,10 @@ DWORD WINAPI AcceptThread(LPVOID lp)
 				if (!pSocket->Accept( pIocport->m_ListenSocket, (struct sockaddr *)&addr, &len))
 				{
 					DEBUG_LOG_FILE("Accept fail: %d", sid);
+					EnterCriticalSection(&g_critical);
 					pIocport->RidIOCPSocket( sid, pSocket );
 					pIocport->PutOldSid( sid );
+					LeaveCriticalSection(&g_critical);
 					goto loop_pass_accept;
 				}
 
@@ -79,8 +75,10 @@ DWORD WINAPI AcceptThread(LPVOID lp)
 				{
 					DEBUG_LOG("Unable to associate socket with session: %d", sid);
 					pSocket->CloseProcess();
+					EnterCriticalSection(&g_critical);
 					pIocport->RidIOCPSocket( sid, pSocket );
 					pIocport->PutOldSid( sid );
+					LeaveCriticalSection(&g_critical);
 					goto loop_pass_accept;
 				}
 
@@ -123,11 +121,11 @@ DWORD WINAPI ReceiveWorkerThread(LPVOID lp)
 				switch (pOvl->Offset)
 				{
 				case	OVL_RECEIVE:
-					EnterCriticalSection(&g_critical);
 					if (!nbytes)
 					{
 						TRACE("Socket %d dropped (0 bytes received)\n", WorkIndex);
 						pSocket->CloseProcess();
+						EnterCriticalSection(&g_critical);
 						pIocport->RidIOCPSocket(pSocket->GetSocketID(), pSocket);
 						pIocport->PutOldSid(pSocket->GetSocketID());
 						LeaveCriticalSection(&g_critical);
@@ -139,7 +137,6 @@ DWORD WINAPI ReceiveWorkerThread(LPVOID lp)
 
 					pSocket->ReceivedData((int)nbytes);
 					pSocket->Receive();
-					LeaveCriticalSection( &g_critical );
 					break;
 				case	OVL_SEND:
 					pSocket->m_nPending = 0;
@@ -165,12 +162,12 @@ DWORD WINAPI ReceiveWorkerThread(LPVOID lp)
 				if( !pSocket )
 					goto loop_pass;
 
-				EnterCriticalSection( &g_critical );
 
 				pSocket->CloseProcess();
+
+				EnterCriticalSection( &g_critical );
 				pIocport->RidIOCPSocket( pSocket->GetSocketID(), pSocket );
 				pIocport->PutOldSid( pSocket->GetSocketID() );
-				
 				LeaveCriticalSection( &g_critical );
 
 				if (pOvl)
@@ -219,12 +216,11 @@ DWORD WINAPI ClientWorkerThread(LPVOID lp)
 				switch( pOvl->Offset )
 				{
 				case	OVL_RECEIVE:
-					EnterCriticalSection( &g_critical );
 					if( !nbytes ) {
 						TRACE("AISocket Closed By 0 Byte Notify\n" );
 						pSocket->CloseProcess();
+						EnterCriticalSection( &g_critical ); // AI server doesn't need the sid system
 						pIocport->RidIOCPSocket( pSocket->GetSocketID(), pSocket );
-//						pIocport->PutOldSid( pSocket->GetSocketID() );		// 클라이언트 소켓은 Sid 관리하지 않음
 						LeaveCriticalSection( &g_critical );
 						break;
 					}
@@ -234,8 +230,6 @@ DWORD WINAPI ClientWorkerThread(LPVOID lp)
 
 					pSocket->ReceivedData((int)nbytes);
 					pSocket->Receive();
-
-					LeaveCriticalSection( &g_critical );
 					break;
 				case	OVL_SEND:
 					pSocket->m_nPending = 0;
@@ -243,13 +237,11 @@ DWORD WINAPI ClientWorkerThread(LPVOID lp)
 
 					break;
 				case	OVL_CLOSE:
-					EnterCriticalSection( &g_critical );
 					
 					TRACE("AISocket Closed By Close()\n" );
 					pSocket->CloseProcess();
+					EnterCriticalSection( &g_critical ); // AI server doesn't need the sid system
 					pIocport->RidIOCPSocket( pSocket->GetSocketID(), pSocket );
-//					pIocport->PutOldSid( pSocket->GetSocketID() );
-
 					LeaveCriticalSection( &g_critical );
 					break;
 				default:
@@ -264,12 +256,10 @@ DWORD WINAPI ClientWorkerThread(LPVOID lp)
 					if( !pSocket )
 						goto loop_pass;
 
-					EnterCriticalSection( &g_critical );
-
 					TRACE("AISocket Closed By Abnormal Termination\n" );
 					pSocket->CloseProcess();
-					pIocport->RidIOCPSocket( pSocket->GetSocketID(), pSocket );
-					
+					EnterCriticalSection( &g_critical );
+					pIocport->RidIOCPSocket( pSocket->GetSocketID(), pSocket );				
 					LeaveCriticalSection( &g_critical );
 				}
 			}
@@ -354,14 +344,15 @@ CIOCPort::CIOCPort()
 
 CIOCPort::~CIOCPort()
 {
-	DeleteCriticalSection( &g_critical );
 	DeleteAllArray();
+	DeleteCriticalSection( &g_critical );
 
 	WSACleanup();
 }
 
 void CIOCPort::DeleteAllArray()
 {
+	EnterCriticalSection( &g_critical );
 	for( int i=0; i<m_SocketArraySize; i++ ) {
 		if ( m_SockArray[i] != NULL ) {
 			delete m_SockArray[i];
@@ -388,6 +379,8 @@ void CIOCPort::DeleteAllArray()
 
 	while( !m_SidList.empty() )
 		m_SidList.pop_back();
+
+	LeaveCriticalSection( &g_critical );
 }
 
 void CIOCPort::Init(int serversocksize, int clientsocksize, int workernum)
@@ -526,30 +519,34 @@ BOOL CIOCPort::Associate(CIOCPSocket2 *pIocpSock, HANDLE hPort)
 
 int CIOCPort::GetNewSid()
 {
-	if( m_SidList.empty() ) {
-		TRACE("SID List Is Empty !!\n");
-		return -1;
-	}
+	int ret = -1;
 
-	int ret = m_SidList.front();
-	m_SidList.pop_front();
+	EnterCriticalSection(&g_critical);
+	if (m_SidList.empty())
+	{
+		TRACE("SID List Is Empty !!\n");
+	}
+	else
+	{
+		ret = m_SidList.front();
+		m_SidList.pop_front();
+	}
+	LeaveCriticalSection(&g_critical);
 
 	return ret;
 }
 
 void CIOCPort::PutOldSid(int sid)
 {
-	if( sid < 0 || sid > m_SocketArraySize ) {
+	if (sid < 0 || sid > m_SocketArraySize)
+	{
 		TRACE("recycle sid invalid value : %d\n", sid);
 		return;
 	}
 
-	list<int>::iterator  Iter;
-	Iter = find( m_SidList.begin(), m_SidList.end(), sid );
-	if( Iter != m_SidList.end() )
-		return;
-	
-	m_SidList.push_back(sid);
+	list<int>::iterator  Iter = find(m_SidList.begin(), m_SidList.end(), sid);
+	if (Iter == m_SidList.end())
+		m_SidList.push_back(sid);
 }
 
 void CIOCPort::CreateAcceptThread()

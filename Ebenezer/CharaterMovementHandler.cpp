@@ -83,7 +83,8 @@ void CUser::UserInOut(BYTE Type)
 	char buff[256];
 	memset( buff, 0x00, 256 );
 
-	ASSERT(GetMap() != NULL);
+	if (GetMap() == NULL)
+		return;
 
 	if( Type == USER_OUT )
 		GetMap()->RegionUserRemove( m_RegionX, m_RegionZ, m_Sid );
