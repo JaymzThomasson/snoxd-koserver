@@ -6,7 +6,6 @@
 #include "ebenezer.h"
 #include "UdpSocket.h"
 #include "define.h"
-#include "packetdefine.h"
 #include "EbenezerDlg.h"
 #include "AiPacket.h"
 #include "Knights.h"

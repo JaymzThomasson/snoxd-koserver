@@ -2,7 +2,6 @@
 #include "Ebenezer.h"
 #include "EbenezerDlg.h"
 #include "User.h"
-#include "PacketDefine.h"
 
 void CUser::WarehouseProcess(char *pBuf)
 {
@@ -304,7 +303,7 @@ success_return:
 	return TRUE;
 }
 
-BOOL CUser::GiveItem(int itemid, short count)
+BOOL CUser::GiveItem(int itemid, short count, bool send_packet /*= true*/)
 {
 	int pos = 255;
 	int send_index = 0 ;					
@@ -353,14 +352,18 @@ BOOL CUser::GiveItem(int itemid, short count)
 		return FALSE;	// No empty slots.
 	}
 
-	SendItemWeight();	// Change weight first :)
-	SetByte( send_buff, WIZ_ITEM_COUNT_CHANGE, send_index );	
-	SetShort( send_buff, 0x01, send_index );	// The number of for-loops
-	SetByte( send_buff, 0x01, send_index );
-	SetByte( send_buff, pos, send_index );
-	SetDWORD( send_buff, itemid, send_index );	// The ID of item.
-	SetDWORD( send_buff, m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount, send_index );
-	Send( send_buff, send_index );
+
+	SendItemWeight();	// Change weight first -- do this regardless.
+	if (send_packet)
+	{
+		SetByte( send_buff, WIZ_ITEM_COUNT_CHANGE, send_index );	
+		SetShort( send_buff, 0x01, send_index );	// The number of for-loops
+		SetByte( send_buff, 0x01, send_index );
+		SetByte( send_buff, pos, send_index );
+		SetDWORD( send_buff, itemid, send_index );	// The ID of item.
+		SetDWORD( send_buff, m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount, send_index );
+		Send( send_buff, send_index );
+	}
 	return TRUE;
 }
 

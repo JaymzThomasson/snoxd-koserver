@@ -8,7 +8,6 @@
 //#include "Knights.h"
 #include "User.h"
 #include "GameDefine.h"
-#include "PacketDefine.h"
 #include "EbenezerDlg.h"
 
 #ifdef _DEBUG

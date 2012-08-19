@@ -242,6 +242,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="LetterHandler.cpp" />
     <ClCompile Include="LevelUpTableSet.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -298,11 +299,13 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="RentalHandler.cpp" />
     <ClCompile Include="ServerResourceSet.cpp" />
     <ClCompile Include="SharedMem.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="ShoppingMallHandler.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -330,7 +333,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\shared\crc32.h" />
+    <ClInclude Include="..\shared\globals.h" />
     <ClInclude Include="..\shared\lzf.h" />
+    <ClInclude Include="..\shared\packets.h" />
     <ClInclude Include="..\shared\version.h" />
     <ClInclude Include="AIPacket.h" />
     <ClInclude Include="AISocket.h" />
@@ -369,7 +374,6 @@
     <ClInclude Include="MagicType8Set.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Npc.h" />
-    <ClInclude Include="PacketDefine.h" />
     <ClInclude Include="Region.h" />
     <ClInclude Include="ServerResourceSet.h" />
     <ClInclude Include="SharedMem.h" />

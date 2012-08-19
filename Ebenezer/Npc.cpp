@@ -7,7 +7,7 @@
 #include "Npc.h"
 #include "EbenezerDlg.h"
 #include "Map.h"
-#include "PacketDefine.h"
+#include "Define.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE

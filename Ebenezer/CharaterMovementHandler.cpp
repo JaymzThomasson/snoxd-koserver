@@ -3,7 +3,6 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 #include "AIPacket.h"
-#include "PacketDefine.h"
 
 extern BYTE g_serverdown_flag;
 

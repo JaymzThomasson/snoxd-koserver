@@ -8,9 +8,7 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 #include "Npc.h"
-#include "PacketDefine.h"
 #include "AiPacket.h"
-#include "GameDefine.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE

@@ -8,25 +8,14 @@
 #define AI_KARUS_SOCKET_PORT		10020
 #define AI_ELMO_SOCKET_PORT			10030
 #define AI_BATTLE_SOCKET_PORT		10040
-#define MAX_USER			3000
 #define CLIENT_SOCKSIZE		100
 #define MAX_AI_SOCKET		10			// sungyong~ 2002.05.22
 
 #define MAX_TYPE3_REPEAT    20
 #define MAX_TYPE4_BUFF		9
 
-#define MAX_ITEM_COUNT		9999		// �� ���Կ� ����� �ִ� ȭ��/���� ����
-
-#define MAX_ID_SIZE			20
-#define MAX_PW_SIZE			12
 #define MAX_ITEM			28
 #define VIEW_DISTANCE		48			// ���ðŸ�
-
-const BYTE SLOT_MAX			= 14;		// ��� ���� MAX
-const BYTE HAVE_MAX			= 28;		// ��� ���� MAX (�κ��丮â)
-const BYTE COSP_MAX			= 7;
-const BYTE MBAG_MAX			= 24;
-const BYTE WAREHOUSE_MAX	= 196;		// â�� ������ MAX
 
 #define NPC_HAVE_ITEM_LIST	6
 #define ZONEITEM_MAX		2100000000	// ��� ������� �ִ� �����ۼ�...
@@ -47,8 +36,6 @@ const BYTE WAREHOUSE_MAX	= 196;		// â�� ������ MAX
 #define MAX_COUPON_ID_LENGTH		20
 #define MAX_CURRENT_EVENT			20
 
-// ��� ���̴°͸� ��� �� ���ϴ�.
-// logic��� define
 #define LOGIC_CHECK_UNDER_WEIGHT	0X01
 #define LOGIC_CHECK_OVER_WEIGHT		0X02
 #define LOGIC_CHECK_SKILL_POINT		0X03
@@ -233,33 +220,6 @@ const BYTE WAREHOUSE_MAX	= 196;		// â�� ������ MAX
 #define SNOW_EVENT_MONEY		2000
 #define SNOW_EVENT_SKILL		490043
 
-//////////////////////////////////////////////////////////////////
-// DEFINE Shared Memory Queue
-//////////////////////////////////////////////////////////////////
-
-#define E	0x00
-#define R	0x01
-#define W	0x02
-#define WR	0x03
-
-// DEFINE Shared Memory Queue Return VALUE
-
-#define SMQ_BROKEN		10000
-#define SMQ_FULL		10001
-#define SMQ_EMPTY		10002
-#define SMQ_PKTSIZEOVER	10003
-#define SMQ_WRITING		10004
-#define SMQ_READING		10005
-#define SMQ_INVALID		10006
-
-// DEFINE Shared Memory Costumizing
-
-#define MAX_PKTSIZE		512
-#define MAX_COUNT		4096
-#define SMQ_LOGGERSEND	"KNIGHT_SEND"
-#define SMQ_LOGGERRECV	"KNIGHT_RECV"
-
-#define SMQ_ITEMLOGGER	"ITEMLOG_SEND"
 
 // Reply packet define...
 
@@ -317,180 +277,43 @@ typedef union{
 	BYTE		b[8];
 } MYINT64;
 
-struct _REGION_BUFFER {
-	int		iLength;
-	BYTE	bFlag;
-	DWORD	dwThreadID;
-
-	char	pDataBuff[REGION_BUFF_SIZE];
-	_REGION_BUFFER() {
-		iLength = 0;
-		bFlag = E;
-		dwThreadID = 0;
-		memset(pDataBuff, 0x00, REGION_BUFF_SIZE);
-	};
-};
-
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
 //
 //	Global Function Define
 //
 
-inline void GetString(char* tBuf, char* sBuf, int len, int& index)
+inline float TimeGet()
 {
-	memcpy(tBuf, sBuf+index, len);
-	index += len;
-};
-
-inline BYTE GetByte(char* sBuf, int& index)
-{
-	int t_index = index;
-	index++;
-	return (BYTE)(*(sBuf+t_index));
-};
-
-inline int GetShort(char* sBuf, int& index)
-{
-	index += 2;
-	return *(short*)(sBuf+index-2);
-};
-
-inline DWORD GetDWORD(char* sBuf, int& index)
-{
-	index += 4;
-	return *(DWORD*)(sBuf+index-4);
-};
-
-inline float Getfloat(char* sBuf, int& index)
-{
-	index += 4;
-	return *(float*)(sBuf+index-4);
-};
-
-inline __int64 GetInt64(char* sBuf, int& index)
-{
-	index += 8;
-	return *(__int64*)(sBuf+index-8);
-};
-
-inline bool GetKOString(char* sBuf, char* tBuf, int& index, unsigned int maxLen, int lenSize = 2)
-{
-	unsigned short len = 0;
-	if (lenSize == 1)
-		len = GetByte(sBuf, index);
-	else 
-		len = GetShort(sBuf, index);
-
-	if (len > maxLen)
-		return false;
-
-	GetString(tBuf, sBuf, len, index);
-	return true;
-};
-
-inline void SetString(char* tBuf, char* sBuf, int len, int& index)
-{
-	memcpy(tBuf+index, sBuf, len);
-	index += len;
-};
-
-inline void SetByte(char* tBuf, BYTE sByte, int& index)
-{
-	*(tBuf+index) = (char)sByte;
-	index++;
-};
-
-inline void SetShort(char* tBuf, int sShort, int& index)
-{
-	short temp = (short)sShort;
-
-	CopyMemory( tBuf+index, &temp, 2);
-	index += 2;
-};
-
-inline void SetDWORD(char* tBuf, DWORD sDWORD, int& index)
-{
-	CopyMemory( tBuf+index, &sDWORD, 4);
-	index += 4;
-};
-
-inline void Setfloat ( char* tBuf, float sFloat, int& index )
-{
-	CopyMemory( tBuf+index, &sFloat, 4);
-	index += 4;
-};
-
-inline void SetInt64 ( char* tBuf, __int64 nInt64, int& index )
-{
-	CopyMemory( tBuf+index, &nInt64, 8);
-	index += 8;
-};
-// sungyong 2001.11.06
-inline int GetVarString(TCHAR* tBuf, TCHAR* sBuf, int nSize, int& index)
-{
-	int nLen = 0;
+	static bool bInit = false;
+	static bool bUseHWTimer = FALSE;
+	static LARGE_INTEGER nTime, nFrequency;
 	
-	if(nSize == sizeof(BYTE))	nLen = GetByte(sBuf, index);
-	else nLen = GetShort(sBuf, index);
+	if(bInit == false)
+	{
+		if(TRUE == ::QueryPerformanceCounter(&nTime))
+		{
+			::QueryPerformanceFrequency(&nFrequency);
+			bUseHWTimer = TRUE;
+		}
+		else 
+		{
+			bUseHWTimer = FALSE;
+		}
 
-	GetString(tBuf, sBuf, nLen, index);
-	*(tBuf + nLen) = 0;
-
-	return nLen;
-};
-
-inline void SetVarString(TCHAR *tBuf, TCHAR* sBuf, int len, int &index)
-{
-	*(tBuf+index) = (BYTE)len;
-	index ++;
-
-	CopyMemory(tBuf+index, sBuf, len);
-	index += len;
-};
-
-inline void SetKOString(char* tBuf, char* sBuf, int& index, int lenSize = 2)
-{
-	short len = strlen(sBuf);
-	if (lenSize == 1)
-		SetByte(tBuf, (BYTE)len, index);
-	else if (lenSize == 2)
-		SetShort(tBuf, len, index);
-
-	SetString(tBuf, sBuf, len, index);
-};
-
-// ~sungyong 2001.11.06
-inline int ParseSpace( char* tBuf, char* sBuf)
-{
-	int i = 0, index = 0;
-	BOOL flag = FALSE;
-	
-	while(sBuf[index] == ' ' || sBuf[index] == '\t')index++;
-	while(sBuf[index] !=' ' && sBuf[index] !='\t' && sBuf[index] !=(BYTE) 0){
-		tBuf[i++] = sBuf[index++];
-		flag = TRUE;
+		bInit = true;
 	}
-	tBuf[i] = 0;
 
-	while(sBuf[index] == ' ' || sBuf[index] == '\t')index++;
-	if(!flag) return 0;	
-	return index;
+	if(bUseHWTimer)
+	{
+		::QueryPerformanceCounter(&nTime);
+		return (float)((double)(nTime.QuadPart)/(double)nFrequency.QuadPart);
+	}
+
+	return (float)timeGetTime();
 };
 
-inline CString GetProgPath()
-{
-	char Buf[256], Path[256];
-	char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-
-	::GetModuleFileName(AfxGetApp()->m_hInstance, Buf, 256);
-	_splitpath(Buf,drive,dir,fname,ext);
-	strcpy(Path, drive);
-	strcat(Path, dir);		
-	CString _Path = Path;
-	return _Path;
-};
-
+CString GetProgPath();
 inline void LogFileWrite( LPCTSTR logstr )
 {
 	CString ProgPath, LogFileName;
@@ -526,87 +349,21 @@ inline void DisplayErrorMsg(SQLHANDLE hstmt)
 	}
 };
 
-inline int myrand( int min, int max )
-{
-	if( min == max ) return min;
-	if( min > max )
-	{
-		int temp = min;
-		min = max;
-		max = temp;
-	}
+#include "../shared/globals.h"
 
-	double gap = max - min + 1;
-	double rrr = (double)RAND_MAX / gap;
 
-	double rand_result;
+struct _REGION_BUFFER {
+	int		iLength;
+	BYTE	bFlag;
+	DWORD	dwThreadID;
 
-	rand_result = (double)rand() / rrr;
-
-	if( (int)( min + (int)rand_result ) < min ) return min;
-	if( (int)( min + (int)rand_result ) > max ) return max;
-
-	return (int)( min + (int)rand_result );
+	char	pDataBuff[REGION_BUFF_SIZE];
+	_REGION_BUFFER() {
+		iLength = 0;
+		bFlag = E;
+		dwThreadID = 0;
+		memset(pDataBuff, 0x00, REGION_BUFF_SIZE);
+	};
 };
 
-inline float TimeGet()
-{
-	static bool bInit = false;
-	static bool bUseHWTimer = FALSE;
-	static LARGE_INTEGER nTime, nFrequency;
-	
-	if(bInit == false)
-	{
-		if(TRUE == ::QueryPerformanceCounter(&nTime))
-		{
-			::QueryPerformanceFrequency(&nFrequency);
-			bUseHWTimer = TRUE;
-		}
-		else 
-		{
-			bUseHWTimer = FALSE;
-		}
-
-		bInit = true;
-	}
-
-	if(bUseHWTimer)
-	{
-		::QueryPerformanceCounter(&nTime);
-		return (float)((double)(nTime.QuadPart)/(double)nFrequency.QuadPart);
-	}
-
-	return (float)timeGetTime();
-};
-
-inline void	TimeTrace(TCHAR* pMsg)
-{
-	CString szMsg = _T("");
-	CTime time = CTime::GetCurrentTime();
-	szMsg.Format("%s,,  time : %d-%d-%d, %d:%d]\n", pMsg, time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute());
-	TRACE(szMsg);
-};
-
-
-/*
-	Yes, this is ugly and crude.
-	I want to wrap all the existing log code into this, and slowly get rid of it... bit by bit.
-*/
-#define DEBUG_LOG(...) _DEBUG_LOG(false, __VA_ARGS__)
-#define DEBUG_LOG_FILE(...) _DEBUG_LOG(true, __VA_ARGS__)
-inline void _DEBUG_LOG(bool toFile, char * format, ...)
-{
-	char buffer[256];
-	memset(buffer, 0x00, sizeof(buffer));
-
-	va_list args;
-	va_start(args, format);
-	_vsnprintf(buffer, sizeof(buffer) - 1, format, args);
-	va_end(args);
-
-	TRACE("%s\n", buffer);
-
-	if (toFile)
-		LogFileWrite(buffer);
-};
 #endif

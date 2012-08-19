@@ -85,7 +85,7 @@ int CSharedMemQueue::PutData(char *pBuf, int size)
 	BYTE BlockMode;
 	int index = 0, count = 0;
 
-	if( size > m_wOffset ) {
+	if( (DWORD)size > m_wOffset ) {
 		sprintf( logstr, "DataSize Over.. - %d bytes\r\n", size );
 		LogFileWrite( logstr );
 		return SMQ_PKTSIZEOVER;

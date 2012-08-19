@@ -35,6 +35,9 @@ public:
 
 	char	m_strAccountID[MAX_ID_SIZE+1];	// Login -> Select Char 까지 한시적으로만 쓰는변수. 이외에는 _USER_DATA 안에있는 변수를 쓴다...agent 와의 데이터 동기화를 위해...
 	
+	bool	m_bSelectedCharacter;
+	bool	m_bStoreOpen;
+
 	short	m_RegionX;						// 현재 영역 X 좌표
 	short	m_RegionZ;						// 현재 영역 Z 좌표
 
@@ -204,6 +207,8 @@ public:
 
 	__forceinline bool isInParty() { return m_sPartyIndex != -1; };
 	__forceinline bool isInClan() { return m_pUserData->m_bKnights != -1; };
+	__forceinline bool isTrading() { return m_sExchangeUser != -1; };
+	__forceinline bool isStoreOpen() { return m_bStoreOpen; };
 
 	__forceinline BYTE getNation() { return m_pUserData->m_bNation; };
 	__forceinline BYTE getLevel() { return m_pUserData->m_bLevel; };
@@ -230,7 +235,7 @@ public:
 	BOOL CheckClass(short class1, short class2, short class3, short class4, short class5, short class6);
 	void Make_public_key();
 	void RecvSelectMsg(char *pBuf);
-	BOOL GiveItem(int itemid, short count);
+	BOOL GiveItem(int itemid, short count, bool send_packet = true);
 	BOOL RobItem(int itemid, short count);
 	BOOL CheckExistItem(int itemid, short count);
 	BOOL CheckWeight(int itemid, short count);
@@ -366,6 +371,7 @@ public:
 	void SetDetailData();
 	void SendTimeStatus();
 	void SendPremiumInfo();
+	void SetZoneAbilityChange(BYTE zone);
 	void Regene(char* pBuf, int magicid = 0);
 	void SetMaxMp();
 	void SetMaxHp(int iFlag=0); // 0:default, 1:hp를 maxhp만큼 채워주기
@@ -384,6 +390,25 @@ public:
 	void Rotate( char* pBuf );
 	void LoginProcess( char* pBuf );
 	void Parsing( int len, char* pData );
+
+	void SendServerIndex();
+	void RentalSystem(char *pData);
+
+	void SkillDataProcess(char *pData);
+	void SkillDataSave(char *pData);
+	void SkillDataLoad(char *pData);
+	void RecvSkillDataLoad(char *pData);
+
+	// from the client
+	void ShoppingMall(char *pData);
+	void HandleStoreClose();
+
+	// from Aujard
+	void RecvStore(char *pData);
+	void RecvStoreClose(char *pData);
+
+	void LetterSystem(char *pData);
+
 	void CloseProcess();
 	CUser();
 	virtual ~CUser();

@@ -20,6 +20,7 @@ class CAujardDlg;
 class CDBAgent  
 {
 public:
+	CDBAgent();
 	BOOL UpdateBattleEvent( const char* charid, int nation );
 	void DBProcessNumber( int number );
 	void LoadKnightsAllList( int nation);
@@ -42,10 +43,13 @@ public:
 	int	 AccountLogInReq( char* id , char* pw);	// return Nation value
 	int UpdateUser( const char *userid, int uid, int type);
 	BOOL LoadUserData( char *accountid, char* userid, int uid );
+	BOOL LoadWebItemMall(char *charid, char *buff, int & buff_index);
+	BOOL LoadSkillShortcut(char *charid, char *buff, int & buff_index);
+	void SaveSkillShortcut(char *charid, int sCount, char *buff);
+
 	void ReConnectODBC(CDatabase *m_db, char *strdb, char *strname, char *strpwd);
 	BOOL DatabaseInit();
 	void MUserInit(int uid);
-	CDBAgent();
 	virtual ~CDBAgent();
 
 	CDatabase	m_GameDB, m_AccountDB, m_GameDB1, m_AccountDB1;

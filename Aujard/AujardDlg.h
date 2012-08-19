@@ -47,6 +47,13 @@ public:
 	void UserLogOut(char *pBuf);
 	CAujardDlg(CWnd* pParent = NULL);	// standard constructor
 
+	void ShoppingMall(char *pBuf);
+	void LoadWebItemMall(char *pBuf);
+
+	void SkillDataProcess(char *pBuf);
+	void SkillDataSave(char *pBuf, int uid);
+	void SkillDataLoad(char *pBuf, int uid);
+
 	BOOL InitializeMMF();
 	void SelectCharacter( char* pBuf );
 

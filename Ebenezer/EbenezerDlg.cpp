@@ -6,7 +6,6 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 #include "AiPacket.h"
-#include "PacketDefine.h"
 
 #include "ItemTableSet.h"
 #include "MagicTableSet.h"
@@ -73,18 +72,21 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 	CUser* pUser = NULL;
 	int currenttime = 0;
 
-	while(TRUE) {
-		if( pMain->m_LoggerRecvQueue.GetFrontMode() != R ) {
+	while (TRUE)
+	{
+		if (pMain->m_LoggerRecvQueue.GetFrontMode() != R)
+		{
 			index = 0;
-			recvlen = pMain->m_LoggerRecvQueue.GetData( pBuf );
+			recvlen = pMain->m_LoggerRecvQueue.GetData(pBuf);
 
-			if( recvlen > MAX_PKTSIZE || recvlen == 0 ) {
+			if (recvlen > MAX_PKTSIZE || recvlen == 0)
+			{
 				Sleep(1);
 				continue;
 			}
 
-			command = GetByte( pBuf, index );
-			uid = GetShort( pBuf, index );
+			command = GetByte(pBuf, index);
+			uid = GetShort(pBuf, index);
 			if( command == KNIGHTS_ALLLIST_REQ+0x10 && uid == -1 )	{
 				pMain->m_KnightsManager.RecvKnightsAllList( pBuf+index );
 				continue;
@@ -96,7 +98,8 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 
 			pUser = (CUser*)pMain->m_Iocport.m_SockArray[uid];
 
-			switch( command ) {
+			switch (command)
+			{
 				case WIZ_LOGIN:
 					result = GetByte( pBuf, index );
 					if( result == 0xFF )
@@ -135,6 +138,15 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 					SetString( send_buff, pBuf+index, buff_length, send_index );
 					pUser->Send( send_buff, send_index );
 					break;
+				case WIZ_SHOPPING_MALL:
+					pUser->RecvStore(pBuf+index);
+					break;
+				case WIZ_SKILLDATA:
+					{ 
+						BYTE opcode = GetByte(pBuf, index);
+						if (opcode == SKILL_DATA_LOAD)
+							pUser->RecvSkillDataLoad(pBuf+index);
+					} break;
 				case WIZ_LOGOUT:
 					if( pUser ) {
 						if( strlen(pUser->m_pUserData->m_id) != 0 ) {

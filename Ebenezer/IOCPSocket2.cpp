@@ -5,7 +5,6 @@
 #include "stdafx.h"
 #include "IOCPSocket2.h"
 #include "CircularBuffer.h"
-#include "Packetdefine.h"
 #include "define.h"
 #include "../shared/lzf.h"
 #include "../shared/crc32.h"

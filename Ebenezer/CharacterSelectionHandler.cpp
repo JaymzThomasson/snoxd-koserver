@@ -2,7 +2,6 @@
 #include "Ebenezer.h"
 #include "EbenezerDlg.h"
 #include "User.h"
-#include "PacketDefine.h"
 
 void CUser::NewCharToAgent(char *pBuf)
 {
@@ -327,7 +326,10 @@ void CUser::SelectCharacter(char *pBuf)
 	SetShort( send_buff, (WORD)m_pUserData->m_curz*10, send_index );
 	SetShort( send_buff, (short)m_pUserData->m_cury*10, send_index );
 	SetByte( send_buff, m_pMain->m_byOldVictory, send_index );
+
+	m_bSelectedCharacter = true;
 	Send( send_buff, send_index );
+
 
 	SetDetailData();
 
@@ -488,8 +490,6 @@ void CUser::GameStart(char *pBuf)
 			else if (level < 1)
 				level = 1;
 
-			// a vector for this is stupid, we really need to replace this with a map.. we can be faster/safer with it
-			// for now, let's be (almost) as retarded as mgame (kill me now please...)
 			m_iLostExp = (m_pMain->GetExpByLevel(level) * (m_pUserData->m_bCity % 10) / 100);
 			if (((m_pUserData->m_bCity % 10) / 100) == 1)
 				m_iLostExp /= 2;

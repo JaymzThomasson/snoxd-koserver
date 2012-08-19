@@ -40,25 +40,6 @@
 #define ELMORAD_MAN			12
 #define ELMORAD_WOMAN		13
 
-/////////////////////////////////////////////////////
-// ITEM_SLOT DEFINE
-const BYTE RIGHTEAR			= 0;
-const BYTE HEAD				= 1;
-const BYTE LEFTEAR			= 2;
-const BYTE NECK				= 3;
-const BYTE BREAST			= 4;
-const BYTE SHOULDER			= 5;
-const BYTE RIGHTHAND		= 6;
-const BYTE WAIST			= 7;
-const BYTE LEFTHAND			= 8;
-const BYTE RIGHTRING		= 9;
-const BYTE LEG				= 10;
-const BYTE LEFTRING			= 11;
-const BYTE GLOVE			= 12;
-const BYTE FOOT				= 13;
-const BYTE RESERVED			= 14;
-/////////////////////////////////////////////////////
-
 // Ÿ�ݺ� ����� //
 #define GREAT_SUCCESS			0X01		// �뼺��
 #define SUCCESS					0X02		// ����
@@ -260,14 +241,6 @@ struct _ZONE_ITEM {		// Bundle unit
 	float time;
 };
 
-struct	_ITEM_DATA
-{
-	int		nNum;		// item ��ȣ
-	short	sDuration;	// item ������
-	short	sCount;		// item ���� or item �ູ �Ӽ��� �ش� ��
-	__int64	nSerialNum;	// item serial code
-};
-
 struct	_EXCHANGE_ITEM
 {
 	int itemid;
@@ -336,68 +309,6 @@ struct _ITEM_TABLE
 	BYTE  m_bMagicR;			// ��Ÿ ���� ���׷�
 	BYTE  m_bPoisonR;			// �� ���� ���׷�
 	BYTE  m_bCurseR;			// ���� ���� ���׷�
-};
-
-enum HairData
-{
-	HAIR_R,
-	HAIR_G,
-	HAIR_B,
-	HAIR_TYPE
-};
-
-struct _USER_DATA
-{
-	char	m_id[MAX_ID_SIZE+1];
-	char	m_Accountid[MAX_ID_SIZE+1];
-
-	BYTE	m_bZone;
-	float	m_curx;	
-	float	m_curz;
-	float	m_cury;
-
-	BYTE	m_bNation;
-	BYTE	m_bRace;
-	short	m_sClass;
-
-	DWORD	m_nHair;
-
-	BYTE	m_bRank;
-	BYTE	m_bTitle;
-	BYTE	m_bLevel;
-	int		m_iExp;	
-	int		m_iLoyalty;	
-	int		m_iLoyaltyMonthly;
-	int		m_iMannerPoint;
-	BYTE	m_bFace;
-	BYTE	m_bCity;
-	short	m_bKnights;	
-	BYTE	m_bFame;
-	short	m_sHp;
-	short	m_sMp;
-	short	m_sSp;
-	BYTE	m_bStr;	
-	BYTE	m_bSta;	
-	BYTE	m_bDex;
-	BYTE	m_bIntel;
-	BYTE	m_bCha;
-	BYTE	m_bAuthority;
-	short	m_sPoints;
-	int		m_iGold;
-	short	m_sBind;
-	int		m_iBank;
-	
-	BYTE    m_bstrSkill[9];	
-	_ITEM_DATA m_sItemArray[HAVE_MAX+SLOT_MAX + COSP_MAX + MBAG_MAX];
-	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];
-
-	BYTE	m_bLogout;
-	BYTE	m_bWarehouse;
-	DWORD	m_dwTime;
-
-	// this system needs replacing
-	int		m_sQuestCount;
-	BYTE	m_bstrQuest[400];
 };
 
 struct	_PARTY_GROUP

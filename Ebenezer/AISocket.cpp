@@ -7,7 +7,6 @@
 #include "AISocket.h"
 #include "EbenezerDlg.h"
 #include "define.h"
-#include "PacketDefine.h"
 #include "AiPacket.h"
 #include "Npc.h"
 #include "user.h"

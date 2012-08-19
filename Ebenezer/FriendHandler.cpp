@@ -2,7 +2,6 @@
 #include "Ebenezer.h"
 #include "EbenezerDlg.h"
 #include "User.h"
-#include "PacketDefine.h"
 
 void CUser::Friend(char *pBuf)
 {

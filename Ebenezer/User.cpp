@@ -8,7 +8,6 @@
 #include "User.h"
 #include "AiPacket.h"
 #include "Map.h"
-#include "PacketDefine.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -41,7 +40,10 @@ void CUser::Initialize()
 	m_Sen_val = 0;
 	m_Rec_val = 0;
 	///~
-	
+
+	m_bSelectedCharacter = false;
+	m_bStoreOpen = false;
+
 	m_MagicProcess.m_pMain = m_pMain;
 	m_MagicProcess.m_pSrcUser = this;
 
@@ -241,7 +243,7 @@ void CUser::Parsing(int len, char *pData)
 	float	currenttime = FLT_MIN;
 
 	BYTE command = GetByte(pData, index);
-
+	TRACE("Packet: %X (len=%d)\n", command, len);
 	// If crypto's not been enabled yet, force the version packet to be sent.
 	if (!m_CryptionFlag)
 	{
@@ -260,7 +262,7 @@ void CUser::Parsing(int len, char *pData)
 	}
 	// If we haven't logged in yet, don't let us hit in-game packets.
 	// TO-DO: Make sure we support all packets in the loading stage (and rewrite this logic considerably better).
-	else if (m_State != STATE_GAMESTART)
+	else if (!m_bSelectedCharacter)
 	{
 		switch( command )
 		{
@@ -279,12 +281,6 @@ void CUser::Parsing(int len, char *pData)
 		case WIZ_ALLCHAR_INFO_REQ:
 			AllCharInfoToAgent();
 			break;
-		case WIZ_GAMESTART:
-			if (GetState() != STATE_GAMESTART)
-				break;
-
-			GameStart(pData+index);
-			break;
 		}
 		return;
 	}
@@ -292,6 +288,21 @@ void CUser::Parsing(int len, char *pData)
 	// Otherwise, assume we're authed & in-game.
 	switch (command)
 	{
+	case WIZ_GAMESTART:
+		if (GetState() != STATE_GAMESTART)
+			break;
+
+		GameStart(pData+index);
+		break;
+	case WIZ_SERVER_INDEX:
+		SendServerIndex();
+		break;
+	case WIZ_RENTAL:
+		RentalSystem(pData+index);
+		break;
+	case WIZ_SKILLDATA:
+		SkillDataProcess(pData+index);
+		break;
 	case WIZ_MOVE:
 		MoveProcess( pData+index );
 		break;
@@ -457,6 +468,9 @@ void CUser::Parsing(int len, char *pData)
 	case WIZ_EDIT_BOX:
 		RecvEditBox( pData+index );
 		break;	
+	case WIZ_SHOPPING_MALL: // letter system's used in here too
+		ShoppingMall(pData+index);
+		break;
 	}
 
 	currenttime = TimeGet();
@@ -489,6 +503,108 @@ void CUser::Parsing(int len, char *pData)
 	if (m_bAbnormalType == ABNORMAL_BLINKING) {		// Should you stop blinking?
 		BlinkTimeCheck(currenttime);
 	}
+}
+
+void CUser::SendServerIndex()
+{
+	char send_buff[5];
+	int send_index = 0;
+	
+	SetByte(send_buff, WIZ_SERVER_INDEX, send_index);
+	SetShort(send_buff, 1, send_index); // success
+	SetShort(send_buff, m_pMain->m_nServerNo, send_index);
+
+	Send(send_buff, send_index);
+}
+
+void CUser::SkillDataProcess(char *pData)
+{
+	int index = 0;
+	BYTE opcode = GetByte(pData, index);
+
+	switch (opcode)
+	{
+	case SKILL_DATA_SAVE:
+		SkillDataSave(pData+index);
+		break;
+
+	case SKILL_DATA_LOAD:
+		SkillDataLoad(pData+index);
+		break;
+	}
+}
+
+void CUser::SkillDataSave(char *pData)
+{
+	char send_buff[512];
+	int index = 0, send_index = 0, sCount = 0;
+	memset(send_buff, 0x00, 512);
+
+	sCount = GetShort(pData, index);
+	if (sCount <= 0 || sCount > 64)
+		return;
+
+	SetByte(send_buff, WIZ_SKILLDATA, send_index);
+	SetShort(send_buff, GetSocketID(), send_index);
+	SetByte(send_buff, SKILL_DATA_SAVE, send_index);
+	SetShort(send_buff, sCount, send_index);
+
+	for (int i = 0; i < sCount; i++)
+	{
+		int nItemID = GetDWORD(pData, index);
+		SetDWORD(send_buff, nItemID, send_index);
+	}
+	
+	int result = m_pMain->m_LoggerSendQueue.PutData(send_buff, send_index);
+	if (result >= SMQ_FULL)
+		DEBUG_LOG("Failed to send skillbar save packet : %d", result);
+}
+
+void CUser::SkillDataLoad(char *pData)
+{
+	char send_buff[512];
+	int	send_index = 0;
+
+	memset(send_buff, 0x00, 512);
+
+	SetByte(send_buff, WIZ_SKILLDATA, send_index);
+	SetShort(send_buff, GetSocketID(), send_index);
+	SetByte(send_buff, SKILL_DATA_LOAD, send_index);
+
+	int result = m_pMain->m_LoggerSendQueue.PutData(send_buff, send_index);
+	if (result >= SMQ_FULL)
+		DEBUG_LOG("Failed to send skillbar load packet : %d", result);
+}
+
+void CUser::RecvSkillDataLoad(char *pData)
+{
+	char send_buff[512];
+	int index = 0, send_index = 0, sCount = 0;
+	memset(send_buff, 0x00, 512);
+
+	BYTE result = GetByte(pData, index);
+	if (!result)
+	{
+		sCount = 0;
+	}
+	else
+	{
+		sCount = GetShort(pData, index);
+		if (sCount < 0 || sCount > 64)
+			sCount = 0;
+	}
+
+	SetByte(send_buff, WIZ_SKILLDATA, send_index);
+	SetByte(send_buff, SKILL_DATA_LOAD, send_index);
+	SetShort(send_buff, sCount, send_index);
+
+	for (int i = 0; i < sCount; i++) 
+	{
+		int nItemID = GetDWORD(pData, index);
+		SetDWORD(send_buff, nItemID, send_index);
+	}
+
+	Send(send_buff,send_index);
 }
 
 void CUser::UserDataSaveToAgent()
@@ -637,101 +753,107 @@ void CUser::SendMyInfo()
 	SetDWORD( send_buff, m_pUserData->m_iLoyalty, send_index );
 	SetDWORD( send_buff, m_pUserData->m_iLoyaltyMonthly, send_index );
 
-	SetByte( send_buff, m_pUserData->m_bCity, send_index );
 	SetShort( send_buff, m_pUserData->m_bKnights, send_index );
 	SetShort( send_buff, m_pUserData->m_bFame, send_index );
+	SetByte( send_buff, m_pUserData->m_bCity, send_index );
 
-	if( m_pUserData->m_bKnights == 0 )	{
-		SetByte( send_buff, 0, send_index );//mystery
-		SetByte( send_buff, 0, send_index );//type
-		SetByte( send_buff, 0, send_index );//name len
-		SetByte( send_buff, 0, send_index );//grade
-		SetByte( send_buff, 0, send_index );//rank
-		SetShort( send_buff, 0, send_index );//symbol type
-		SetShort( send_buff, 0xFFFF, send_index );//cape num
-		SetByte( send_buff, 0, send_index );//cape r
-		SetByte( send_buff, 0, send_index );//cape g
-		SetByte( send_buff, 0, send_index );//cape b
+	if (m_pUserData->m_bKnights != 0)
+		pKnights = m_pMain->m_KnightsArray.GetData(m_pUserData->m_bKnights);
+
+	if (pKnights == NULL)
+	{
+		SetByte(send_buff, 0, send_index);   // clan rank
+		SetByte(send_buff, 0, send_index);   // grade type
+		SetByte(send_buff, 0, send_index);   // name len
+		SetByte(send_buff, 0, send_index);   // grade
+		SetByte(send_buff, 0, send_index );  // rank
+		SetShort(send_buff, 0, send_index);  // symbol/mark version
+
+		SetShort(send_buff, -1, send_index );// cape num
+		SetByte(send_buff, 0, send_index);   // cape r
+		SetByte(send_buff, 0, send_index);   // cape g
+		SetByte(send_buff, 0, send_index);   // cape b
 	}
-	else {
-		pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
-		if( pKnights )	{
-			iLength = strlen( pKnights->m_strName );
-
-			SetByte( send_buff, 0, send_index );//mystery
-			SetByte( send_buff, 0, send_index );//type
-			SetByte( send_buff, iLength, send_index );
-			SetString( send_buff, pKnights->m_strName, iLength, send_index );
-			SetByte( send_buff, pKnights->m_byGrade, send_index );
-			SetByte( send_buff, pKnights->m_byRanking, send_index );
-			SetShort( send_buff, 0, send_index );//symbol type
-			SetShort( send_buff, 0xFFFF, send_index );//cape num
-			SetByte( send_buff, 0, send_index );//cape r
-			SetByte( send_buff, 0, send_index );//cape g
-			SetByte( send_buff, 0, send_index );//cape b
-		}
-		else	{
-			SetByte( send_buff, 0, send_index );//mystery
-			SetByte( send_buff, 0, send_index );//type
-			SetByte( send_buff, 0, send_index );//name len
-			SetByte( send_buff, 0, send_index );//grade
-			SetByte( send_buff, 0, send_index );//rank
-			SetShort( send_buff, 0, send_index );//symbol type
-			SetShort( send_buff, 0xFFFF, send_index );//cape num
-			SetByte( send_buff, 0, send_index );//cape r
-			SetByte( send_buff, 0, send_index );//cape g
-			SetByte( send_buff, 0, send_index );//cape b
-		}
-	}
-	SetByte( send_buff, 0x00, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	SetShort( send_buff, m_iMaxHp, send_index );
-	SetShort( send_buff, m_pUserData->m_sHp, send_index );
-	SetShort( send_buff, m_iMaxMp, send_index );
-	SetShort( send_buff, m_pUserData->m_sMp, send_index );
-	SetDWORD( send_buff, m_sMaxWeight, send_index );
-	SetDWORD( send_buff, m_sItemWeight, send_index );
-	SetByte( send_buff, m_pUserData->m_bStr, send_index );
-	SetByte( send_buff, m_sItemStr, send_index );
-	SetByte( send_buff, m_pUserData->m_bSta, send_index );
-	SetByte( send_buff, m_sItemSta, send_index );
-	SetByte( send_buff, m_pUserData->m_bDex, send_index );
-	SetByte( send_buff, m_sItemDex, send_index );
-	SetByte( send_buff, m_pUserData->m_bIntel, send_index );
-	SetByte( send_buff, m_sItemIntel, send_index );
-	SetByte( send_buff, m_pUserData->m_bCha, send_index );
-	SetByte( send_buff, m_sItemCham, send_index );	
-	SetShort( send_buff, m_sTotalHit, send_index );
-	SetShort( send_buff, m_sTotalAc, send_index );
-//	SetShort( send_buff, m_sBodyAc+m_sItemAc, send_index );		<- 누가 이렇게 해봤어? --;	
-	SetByte( send_buff, m_bFireR, send_index );
-	SetByte( send_buff, m_bColdR, send_index );
-	SetByte( send_buff, m_bLightningR, send_index );
-	SetByte( send_buff, m_bMagicR, send_index );
-	SetByte( send_buff, m_bDiseaseR, send_index );
-	SetByte( send_buff, m_bPoisonR, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-// 이거 나중에 꼭 주석해 --;
-	SetByte( send_buff, m_pUserData->m_bAuthority, send_index );
-//
-	SetByte( send_buff, 0xFF, send_index );//rank nat
-	SetByte( send_buff, 0xFF, send_index );//rank ldr
-	for(i=0; i<9; i++)
-		SetByte(send_buff, m_pUserData->m_bstrSkill[i], send_index);
-
-	for(i=0; i<HAVE_MAX+SLOT_MAX + COSP_MAX + MBAG_MAX; i++ ) {
-		SetDWORD( send_buff, m_pUserData->m_sItemArray[i].nNum, send_index );
-		SetShort( send_buff, m_pUserData->m_sItemArray[i].sDuration, send_index );
-		SetShort( send_buff, m_pUserData->m_sItemArray[i].sCount, send_index );
-		SetInt64( send_buff, 0, send_index );//special data
-		SetShort( send_buff, 0, send_index );//special data
-		SetByte( send_buff, 0, send_index );//special data
+	else 
+	{
+		SetByte(send_buff, 0, send_index);  // clan rank
+		SetByte(send_buff, 0, send_index);  // grade type
+		SetKOString(send_buff, pKnights->m_strName, send_index, 1);
+		SetByte(send_buff, pKnights->m_byGrade, send_index );
+		SetByte(send_buff, pKnights->m_byRanking, send_index );
+		SetShort(send_buff, 0, send_index); // symbol/mark version
+		SetShort(send_buff, -1, send_index);// cape num
+		SetByte(send_buff, 0, send_index);  //cape r
+		SetByte(send_buff, 0, send_index);  //cape g
+		SetByte(send_buff, 0, send_index);  //cape b
 	}
 
-	Send( send_buff, send_index );
+	SetByte(send_buff, 0, send_index); // unknown
+	SetByte(send_buff, 2, send_index);
+	SetByte(send_buff, 3, send_index);
+	SetByte(send_buff, 4, send_index);
+	SetByte(send_buff, 5, send_index);
+
+	SetShort(send_buff, m_iMaxHp, send_index);
+	SetShort(send_buff, m_pUserData->m_sHp, send_index);
+
+	SetShort(send_buff, m_iMaxMp, send_index);
+	SetShort(send_buff, m_pUserData->m_sMp, send_index);
+
+	SetDWORD(send_buff, m_sMaxWeight, send_index);
+	SetDWORD(send_buff, m_sItemWeight, send_index);
+
+	SetByte(send_buff, m_pUserData->m_bStr, send_index);
+	SetByte(send_buff, m_sItemStr, send_index);
+	SetByte(send_buff, m_pUserData->m_bSta, send_index);
+	SetByte(send_buff, m_sItemSta, send_index);
+	SetByte(send_buff, m_pUserData->m_bDex, send_index);
+	SetByte(send_buff, m_sItemDex, send_index);
+	SetByte(send_buff, m_pUserData->m_bIntel, send_index);
+	SetByte(send_buff, m_sItemIntel, send_index);
+	SetByte(send_buff, m_pUserData->m_bCha, send_index);
+	SetByte(send_buff, m_sItemCham, send_index);	
+
+	SetShort(send_buff, m_sTotalHit, send_index);
+	SetShort(send_buff, m_sTotalAc, send_index);
+
+	SetByte(send_buff, m_bFireR, send_index);
+	SetByte(send_buff, m_bColdR, send_index);
+	SetByte(send_buff, m_bLightningR, send_index);
+	SetByte(send_buff, m_bMagicR, send_index);
+	SetByte(send_buff, m_bDiseaseR, send_index);
+	SetByte(send_buff, m_bPoisonR, send_index);
+
+	SetDWORD(send_buff, m_pUserData->m_iGold, send_index);
+	SetByte(send_buff, m_pUserData->m_bAuthority, send_index);
+
+	SetByte(send_buff, -1, send_index); // national rank
+	SetByte(send_buff, -1, send_index); // leader rank
+
+	SetString(send_buff, (char *)m_pUserData->m_bstrSkill, 9, send_index);
+
+	for (i=0; i < HAVE_MAX + SLOT_MAX + COSP_MAX + MBAG_MAX; i++)
+	{
+		SetDWORD(send_buff, m_pUserData->m_sItemArray[i].nNum, send_index);
+		SetShort(send_buff, m_pUserData->m_sItemArray[i].sDuration, send_index);
+		SetShort(send_buff, m_pUserData->m_sItemArray[i].sCount, send_index);
+		SetByte(send_buff, 0, send_index);  // item type flag (e.g. rented)
+		SetShort(send_buff, 0, send_index); // remaining time
+		SetDWORD(send_buff, 0, send_index); // unknown
+		SetDWORD(send_buff, 0, send_index); // expiration date
+	}
+
+	SetByte(send_buff, 0, send_index); // never worked out what this was for: possible values 0/1/2/3
+	SetByte(send_buff, 0, send_index); // premium type
+	SetShort(send_buff, 0, send_index); // premium time
+
+	SetByte(send_buff, 0, send_index); // chicken flag
+
+	SetDWORD(send_buff, m_pUserData->m_iMannerPoint, send_index);
+	Send(send_buff, send_index);
+
+	SendPremiumInfo();
+	SetZoneAbilityChange(getZoneID());
 
 	int  ai_send_index = 0;
 	char ai_send_buff[256];
@@ -739,8 +861,7 @@ void CUser::SendMyInfo()
 
 	SetByte( ai_send_buff, AG_USER_INFO, ai_send_index );
 	SetShort( ai_send_buff, m_Sid, ai_send_index );
-	SetShort( ai_send_buff, strlen(m_pUserData->m_id), ai_send_index );
-	SetString( ai_send_buff, m_pUserData->m_id, strlen(m_pUserData->m_id), ai_send_index );
+	SetKOString(ai_send_buff, m_pUserData->m_id, ai_send_index);
 	SetByte( ai_send_buff, m_pUserData->m_bZone, ai_send_index );
 	SetByte( ai_send_buff, m_pUserData->m_bNation, ai_send_index );
 	SetByte( ai_send_buff, m_pUserData->m_bLevel, ai_send_index );
@@ -848,6 +969,90 @@ void CUser::SendTimeStatus()
 	SetByte( send_buff, (BYTE)m_pMain->m_nWeather, send_index );
 	SetShort( send_buff, m_pMain->m_nAmount, send_index );
 	Send( send_buff, send_index );
+}
+
+void CUser::SetZoneAbilityChange(BYTE zone)
+{
+	char send_buff[6]; 
+	int send_index = 0;
+
+	SetByte(send_buff, WIZ_ZONEABILITY, send_index);
+	SetByte(send_buff, 1, send_index);
+
+	// Moradon or temples (but NOT FT).
+	if (zone == 21
+		|| ((zone / 10) == 5 && zone != 54))
+	{
+		SetByte(send_buff, 1, send_index);
+		SetByte(send_buff, 0, send_index);
+		SetByte(send_buff, 1, send_index);
+
+		if (zone == 21)
+			SetShort(send_buff, 20, send_index); // moradon tariff
+		else
+			SetShort(send_buff, 10, send_index); // tariff for all other 5* zones (temples), except FT
+	}
+	// Arena
+	else if (zone == 48)
+	{
+		SetByte(send_buff, 0, send_index);
+		SetByte(send_buff, 0, send_index);
+		SetByte(send_buff, 1, send_index);
+
+		SetShort(send_buff, 10, send_index);
+	}
+	// Now we handle FT
+	else if (zone == 54)
+	{
+		SetByte(send_buff, 0, send_index);
+		SetByte(send_buff, 7, send_index);
+		SetByte(send_buff, 1, send_index);
+
+		SetShort(send_buff, 10, send_index);
+	}
+	// desperation abyss & hell abyss
+	else if (zone == 32 || zone == 33)
+	{
+		SetByte(send_buff, 0, send_index);
+		SetByte(send_buff, 8, send_index);
+		SetByte(send_buff, 1, send_index);
+
+		SetShort(send_buff, 10, send_index); // tariff 
+	}
+	// colony zone
+	else if (zone == 201)
+	{
+		SetByte(send_buff, 0, send_index);
+		SetByte(send_buff, 1, send_index);
+		SetByte(send_buff, 0, send_index);
+
+		SetShort(send_buff, 20, send_index);
+	}
+	// delos
+	else if (zone == 31)
+	{
+		// to-do
+	}
+	else if (zone == 1 || zone == 11)
+	{
+		SetByte(send_buff, 0, send_index);
+		SetByte(send_buff, 1, send_index);
+		SetByte(send_buff, 0, send_index);
+
+		SetShort(send_buff, 10, send_index); // orc nation
+	}
+	else if (zone == 2 || zone == 12)
+	{
+		SetByte(send_buff, 0, send_index);
+		SetByte(send_buff, 1, send_index);
+		SetByte(send_buff, 0, send_index);
+
+		SetShort(send_buff, 10, send_index); // human nation
+	}
+	else
+		return;
+
+	Send(send_buff, send_index);
 }
 
 void CUser::SendPremiumInfo()

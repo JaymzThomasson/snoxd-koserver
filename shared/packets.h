@@ -96,8 +96,42 @@
 #define WIZ_EDIT_BOX			0x59	// Activate/Receive info from Input_Box.
 #define WIZ_SANTA				0x5A	// Activate motherfucking Santa Claus!!! :(
 
+#define WIZ_ITEM_UPGRADE		0x5B
+#define WIZ_ZONEABILITY			0x5E	
+#define WIZ_EVENT				0x5F
+#define WIZ_ROOM_PACKETPROCESS	0x61 // room system
+#define WIZ_ROOM				0x62
+#define WIZ_QUEST				0x64
+#define WIZ_RECOMMEND_USER		0x67
+#define WIZ_MERCHANT			0x68
+#define WIZ_MERCHANT_INOUT		0x69
+#define WIZ_SHOPPING_MALL		0x6A
+#define WIZ_SERVER_INDEX		0x6B
+#define WIZ_EFFECT				0x6C
+#define WIZ_SIEGE				0x6D
+#define WIZ_NAME_CHANGE			0x6E
+#define WIZ_WEBPAGE				0x6F
+#define WIZ_CAPE				0x70
 #define WIZ_PREMIUM				0x71
-#define WIZ_CHANGE_HAIR			0x89	// Changes hair colour/facial features at character selection
+#define WIZ_HACKTOOL			0x72
+#define WIZ_RENTAL				0x73
+#define WIZ_CHALLENGE			0x75
+#define WIZ_PET					0x76
+#define WIZ_CHINA				0x77 // we shouldn't need to worry about this
+#define WIZ_KING				0x78
+#define WIZ_SKILLDATA			0x79
+#define WIZ_PROGRAMCHECK		0x7A
+#define WIZ_BIFROST				0x7B
+#define WIZ_REPORT				0x7C
+#define WIZ_LOGOSSHOUT			0x7D
+#define WIZ_RANK				0x80
+#define WIZ_STORY				0x81
+#define WIZ_MINING				0x86
+#define WIZ_HELMET				0x87
+#define WIZ_RONARK_HELMET		0x88
+#define WIZ_CHANGE_HAIR			0x89 // Changes hair colour/facial features at character selection
+#define WIZ_DEATH_LIST			0x90
+#define WIZ_CLANPOINTS_BATTLE	0x91 // not sure
 
 #define WIZ_TEST_PACKET			0xff	// Test packet
 ////////////////////////////////////////////////////////////////
@@ -280,5 +314,36 @@
 // Authority change subpacket define
 ////////////////////////////////////////////////////////////////
 #define COMMAND_AUTHORITY			0x01
+
+enum ShoppingMallOpcodes
+{
+	STORE_OPEN		= 1,
+	STORE_CLOSE		= 2,
+	STORE_BUY		= 3,
+	STORE_MINI		= 4,
+	STORE_PROCESS	= 5,
+	STORE_LETTER	= 6
+};
+
+enum LetterOpcodes
+{
+	LETTER_UNREAD		= 1,
+	LETTER_LIST			= 2,
+	LETTER_HISTORY		= 3,
+	LETTER_GET_ITEM		= 4,
+	LETTER_READ			= 5,
+	LETTER_SEND			= 6,
+	LETTER_DELETE		= 7,
+	LETTER_ITEM_CHECK	= 8 // ???
+};
+
+// Skillbar
+enum SkillBarOpcodes
+{
+	SKILL_DATA_SAVE = 1,
+	SKILL_DATA_LOAD = 2
+	// NOTE: There's a type "4" in 1.298. 
+	// This is actually just used from AUJARD, *not* the client (despite mgame allowing them to).
+};
 
 #endif

@@ -70,9 +70,6 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 			case WIZ_KNIGHTS_PROCESS:
 				pMain->KnightsPacket( recv_buff+index );
 				break;
-			case WIZ_CLAN_PROCESS:
-				pMain->KnightsPacket( recv_buff+index );
-				break;
 			case WIZ_LOGIN_INFO:
 				pMain->SetLogInInfo( recv_buff+index );
 				break;
@@ -82,6 +79,11 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 			case WIZ_BATTLE_EVENT:
 				pMain->BattleEventResult( recv_buff+index );
 				break;
+			case WIZ_SHOPPING_MALL:
+				pMain->ShoppingMall(recv_buff+index);
+				break;
+			case WIZ_SKILLDATA:
+				pMain->SkillDataProcess(recv_buff+index);
 			}
 
 			recvlen = 0;
@@ -397,6 +399,86 @@ fail_return:
 	SetByte( send_buff, 0x00, send_index );
 	
 	m_LoggerSendQueue.PutData( send_buff, send_index );
+}
+
+void CAujardDlg::ShoppingMall(char *pBuf)
+{
+	int index = 0;
+	BYTE opcode = GetByte(pBuf, index);
+	switch (opcode)
+	{
+	case STORE_CLOSE:
+		LoadWebItemMall(pBuf);
+		break;
+	}
+}
+
+void CAujardDlg::LoadWebItemMall(char *pBuf)
+{
+	char send_buff[1024];
+	int index = 0, send_index = 0, uid = -1;
+	char charid[MAX_ID_SIZE+1];
+	memset(charid, 0x00, MAX_ID_SIZE+1);
+
+	uid = GetShort(pBuf, index);
+	if (uid < 0 || uid >= MAX_USER)
+		return;
+
+	_USER_DATA *pData = (_USER_DATA*)m_DBAgent.m_UserDataArray[uid];
+
+	SetByte(send_buff, WIZ_SHOPPING_MALL, send_index);
+	SetShort(send_buff, uid, send_index);
+	SetByte(send_buff, STORE_CLOSE, send_index);
+	SetByte(send_buff, 0, send_index); // result
+
+	if (m_DBAgent.LoadWebItemMall(charid, send_buff, send_index))
+		send_buff[4] = 1;
+
+	m_LoggerSendQueue.PutData(send_buff, send_index);
+}
+
+void CAujardDlg::SkillDataProcess(char *pBuf)
+{
+	int index = 0, uid = 0;
+	BYTE opcode = GetByte(pBuf, index);
+	uid = GetShort(pBuf, index);
+	if (uid < 0 || uid >= MAX_USER)
+		return;
+
+	if (opcode == SKILL_DATA_LOAD)
+		SkillDataLoad(pBuf+index, uid);
+	else if (opcode == SKILL_DATA_SAVE)
+		SkillDataSave(pBuf+index, uid);
+}
+
+void CAujardDlg::SkillDataLoad(char *pBuf, int uid)
+{
+	char send_buff[512];
+	int send_index = 0;
+
+	_USER_DATA *pData = m_DBAgent.m_UserDataArray[uid];
+	if (pData == NULL)
+		return;
+
+	SetByte(send_buff, WIZ_SKILLDATA, send_index);
+	SetByte(send_buff, uid, send_index);
+	SetByte(send_buff, SKILL_DATA_LOAD, send_index);
+
+	if (!m_DBAgent.LoadSkillShortcut(pData->m_id, send_buff, send_index))
+		SetByte(send_buff, 0, send_index);
+
+	m_LoggerSendQueue.PutData(send_buff, send_index);
+}
+
+void CAujardDlg::SkillDataSave(char *pBuf, int uid)
+{
+	_USER_DATA *pData = m_DBAgent.m_UserDataArray[uid];
+	if (pData == NULL)
+		return;
+
+	int index = 0, sCount = GetShort(pBuf, index);
+	m_DBAgent.SaveSkillShortcut(pData->m_id, sCount, pBuf);
+	// this doesn't send a response AFAIK
 }
 
 void CAujardDlg::UserLogOut(char *pBuf)

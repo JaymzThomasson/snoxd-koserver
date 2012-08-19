@@ -1619,3 +1619,175 @@ BOOL CDBAgent::UpdateBattleEvent( const char* charid, int nation )
 	
 	return TRUE;
 }
+
+BOOL CDBAgent::LoadWebItemMall(char *charid, char *buff, int & buff_index)
+{
+	SQLHSTMT		hstmt;
+	SQLRETURN		retcode;
+	TCHAR			szSQL[1024];
+	SDWORD			sCharID;
+	int uid = -1;
+	_USER_DATA *pData = m_pMain->GetUserPtr(charid, uid); 
+
+	if (pData == NULL)
+		return FALSE;
+
+	memset(szSQL, 0x00, 1024);
+	wsprintf(szSQL, TEXT("{call LOAD_WEB_ITEMMALL (?)}"));
+	
+	TCHAR strAccountID[MAX_ID_SIZE+1];
+	SQLCHAR Race = 0x00, Level = 0x00, Face = 0x00, Zone = 0x00; 
+	SQLINTEGER ItemID;
+	SQLSMALLINT ItemCount;
+
+	SQLINTEGER Indexind = SQL_NTS;
+
+	hstmt = NULL;
+	retcode = SQLAllocHandle((SQLSMALLINT)SQL_HANDLE_STMT, m_AccountDB.m_hdbc, &hstmt);
+	if (retcode != SQL_SUCCESS)	
+		return FALSE; 
+
+	retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, strlen(charid), 0, charid, 0, &sCharID);
+	if (retcode == SQL_SUCCESS)	
+	{
+		retcode = SQLExecDirect(hstmt, (unsigned char *)szSQL, 1024);	
+		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
+		{
+			retcode = SQLFetch(hstmt);
+			int count = 0, temp_index = buff_index;
+			buff_index += 2;
+
+			while (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
+			{
+				SQLGetData(hstmt, 1, SQL_C_CHAR,	strAccountID,	MAX_ID_SIZE,		&Indexind);
+				SQLGetData(hstmt, 2, SQL_C_LONG,	&ItemID,		0,		&Indexind);
+				SQLGetData(hstmt, 3, SQL_C_SHORT,	&ItemCount,		0,		&Indexind);
+
+				SetDWORD(buff, ItemID, buff_index);
+				SetShort(buff, ItemCount, buff_index);
+
+				if (++count >= 100) // don't want to crash Aujard with too many (100 = (6*100) [items] + 2 [count] + 2 [opcode/subopcode] + 1 [result] + 2 [uid] = 607)
+					break;
+
+				retcode = SQLFetch(hstmt);
+			}
+
+			SetShort(buff, count, temp_index); // set the count at the start
+
+			SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT, hstmt);
+			return TRUE;
+		}
+		else 
+		{
+			if (DisplayErrorMsg(hstmt) == -1)
+			{
+				m_AccountDB.Close();
+				if (!m_AccountDB.IsOpen()) 
+				{
+					ReConnectODBC(&m_AccountDB, m_pMain->m_strAccountDSN, m_pMain->m_strAccountUID, m_pMain->m_strAccountPWD);
+					return FALSE;
+				}
+			}
+		}
+	}
+	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT, hstmt);
+	return FALSE;
+}
+
+BOOL CDBAgent::LoadSkillShortcut(char *charid, char *buff, int & buff_index)
+{
+	SQLHSTMT		hstmt;
+	SQLRETURN		retcode;
+	TCHAR			szSQL[1024];
+	SDWORD			sCharID;
+
+	SQLSMALLINT	sCount;
+	char strSkillData[260];
+	memset(strSkillData, 0x00, sizeof(strSkillData));
+
+	int uid = -1;
+	_USER_DATA *pData = m_pMain->GetUserPtr(charid, uid); 
+
+	memset(szSQL, 0x00, 1024);
+	wsprintf(szSQL, TEXT("{call SKILLSHORTCUT_LOAD (?)}"));
+	
+	SQLINTEGER Indexind = SQL_NTS;
+
+	hstmt = NULL;
+	retcode = SQLAllocHandle((SQLSMALLINT)SQL_HANDLE_STMT, m_AccountDB.m_hdbc, &hstmt);
+	if (retcode != SQL_SUCCESS)	
+
+	retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, strlen(charid), 0, charid, 0, &sCharID);
+	if (retcode == SQL_SUCCESS)
+	{
+		retcode = SQLExecDirect(hstmt, (unsigned char *)szSQL, 1024);	
+		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
+		{
+			retcode = SQLFetch(hstmt);
+			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
+			{
+				SQLGetData(hstmt, 1, SQL_C_SHORT,	&sCount,		0,		&Indexind);
+				SQLGetData(hstmt, 2, SQL_C_CHAR,	strSkillData,	sizeof(strSkillData),		&Indexind);
+
+				SetByte(buff, 1, buff_index);
+				SetShort(buff, sCount, buff_index);
+				SetString(buff, strSkillData, sizeof(strSkillData), buff_index);
+
+				SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT, hstmt);
+				return TRUE;
+			}
+		}
+		else 
+		{
+			if (DisplayErrorMsg(hstmt) == -1)
+			{
+				m_AccountDB.Close();
+				if (!m_AccountDB.IsOpen()) 
+				{
+					ReConnectODBC(&m_AccountDB, m_pMain->m_strAccountDSN, m_pMain->m_strAccountUID, m_pMain->m_strAccountPWD);
+					return FALSE;
+				}
+			}
+		}
+	}
+	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT, hstmt);
+	return FALSE;
+}
+
+void CDBAgent::SaveSkillShortcut(char *charid, int sCount, char *buff)
+{
+	SQLHSTMT		hstmt;
+	SQLRETURN		retcode;
+	TCHAR			szSQL[1024];
+	SDWORD			sCharID, sSkillData;
+
+	memset(szSQL, 0x00, 1024);
+	wsprintf(szSQL, TEXT("{call SKILLSHORTCUT_SAVE (?, %d, ?)}" ), sCount);
+
+	hstmt = NULL;
+
+	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
+	if (retcode == SQL_SUCCESS)
+	{
+		retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, strlen(charid), 0, charid, 0, &sCharID);
+		retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 260, 0, buff, 0, &sSkillData);
+
+		if (retcode == SQL_SUCCESS)
+		{
+			retcode = SQLExecDirect(hstmt, (unsigned char *)szSQL, 1024);
+			if (retcode == SQL_ERROR)
+			{
+				if (DisplayErrorMsg(hstmt) == -1)
+				{
+					m_GameDB.Close();
+					if  (!m_GameDB.IsOpen())
+					{
+						ReConnectODBC(&m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD);
+						return;
+					}
+				}
+			}
+		}
+	}
+	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
+}
