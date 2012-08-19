@@ -595,7 +595,7 @@ void CAujardDlg::CreateNewChar(char *pBuf)
 	race = GetByte( pBuf, index );
 	Class = GetShort( pBuf, index );
 	face = GetByte( pBuf, index );
-	hair = GetByte( pBuf, index );
+	hair = GetDWORD( pBuf, index );
 	str = GetByte( pBuf, index );
 	sta = GetByte( pBuf, index );
 	dex = GetByte( pBuf, index );

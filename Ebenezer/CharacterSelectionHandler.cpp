@@ -17,18 +17,18 @@ void CUser::NewCharToAgent(char *pBuf)
 	_CLASS_COEFFICIENT* p_TableCoefficient = NULL;
 
 	charindex = GetByte( pBuf, index );
-	idlen = GetShort( pBuf, index );
-
-	if( idlen > MAX_ID_SIZE || idlen <= 0 ) {
+	if (!GetKOString(pBuf, charid, index, MAX_ID_SIZE))
+	{
 		result = 0x05;
 		goto fail_return;
 	}
 
-	GetString( charid, pBuf, idlen, index );
 	race = GetByte( pBuf, index );
 	Class = GetShort( pBuf, index );
 	face = GetByte( pBuf, index );
-	hair = GetByte( pBuf, index );
+
+	hair = GetDWORD( pBuf, index );
+
 	str = GetByte( pBuf, index );
 	sta = GetByte( pBuf, index );
 	dex = GetByte( pBuf, index );
@@ -70,7 +70,7 @@ void CUser::NewCharToAgent(char *pBuf)
 	SetByte( send_buff, race, send_index );
 	SetShort( send_buff, Class, send_index );
 	SetByte( send_buff, face, send_index );
-	SetByte( send_buff, hair, send_index );
+	SetDWORD( send_buff, hair, send_index );
 	SetByte( send_buff, str, send_index );
 	SetByte( send_buff, sta, send_index );
 	SetByte( send_buff, dex, send_index );
