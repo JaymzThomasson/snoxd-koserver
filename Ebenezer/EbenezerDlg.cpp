@@ -228,7 +228,6 @@ CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
 
 	m_bVictory = 0;	
 	m_byOldVictory = 0;
-	m_bBanishDelayStart = 0;
 	m_byBattleSave = 0;
 	m_sKarusCount = 0;
 	m_sElmoradCount = 0;
@@ -2831,8 +2830,6 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 	}
 	else return;
 
-	m_bBanishDelayStart = TimeGet();
-
 	Announcement(DECLARE_WINNER);
 
 	for (int i = 0 ; i < MAX_USER ; i++) {		// GOLD DISTRIBUTION PROCEDURE FOR WINNERS !!!
@@ -2882,7 +2879,6 @@ void CEbenezerDlg::ResetBattleZone()
 	}
 
 	m_bVictory = 0;
-	m_bBanishDelayStart = 0;
 	m_byBanishFlag = 0;
 	m_sBanishDelay = 0;
 	m_bKarusFlag = 0,

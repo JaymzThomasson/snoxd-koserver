@@ -391,16 +391,6 @@ void CUser::Parsing(int len, char *pData)
 		break;
 	case WIZ_WEATHER:
 	case WIZ_TIME:
-		//if (m_pMain->m_bBattleOpen == FALSE) {	// Check if it's time to open the Battlezone.
-		//	m_pMain->BattleZoneOpenTimer();
-		//}
-			
-	/*	if (m_pMain->m_bVictory) {		// If victory was declared....
-			if (currenttime > (m_pMain->m_bBanishDelayStart + BANISH_DELAY_TIME)) {
-				m_pMain->BanishLosers();
-				m_pMain->ResetBattleZone();
-			}							
-		}	*/
 		UpdateGameWeather( pData+index, command );
 		break;
 	case WIZ_CLASS_CHANGE:
