@@ -507,6 +507,21 @@ struct _HOME_INFO
 //
 };
 
+struct _START_POSITION
+{
+	int   ZoneID;
+	short sKarusX;
+	short sKarusZ;
+	short sElmoradX;
+	short sElmoradZ;
+	short sKarusGateX;
+	short sKarusGateZ;
+	short sElmoradGateX;
+	short sElmoradGateZ;
+	BYTE bRangeX;
+	BYTE bRangeZ;
+};
+
 struct _SERVER_RESOURCE
 {
 	int nResourceID;

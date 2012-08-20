@@ -306,6 +306,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="ShoppingMallHandler.cpp" />
+    <ClCompile Include="StartPositionSet.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -377,6 +378,7 @@
     <ClInclude Include="Region.h" />
     <ClInclude Include="ServerResourceSet.h" />
     <ClInclude Include="SharedMem.h" />
+    <ClInclude Include="StartPositionSet.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="STLMap.h" />
     <ClInclude Include="UdpSocket.h" />

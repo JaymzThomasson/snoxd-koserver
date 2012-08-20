@@ -23,6 +23,7 @@
 #include "KnightsUserSet.h"
 #include "KnightsRankSet.h"
 #include "HomeSet.h"
+#include "StartPositionSet.h"
 #include "BattleSet.h"
 
 #include "../shared/lzf.h"
@@ -372,101 +373,9 @@ BOOL CEbenezerDlg::OnInitDialog()
 		return FALSE;
 	}
 
-	LogFileWrite("before item");
-	if( LoadItemTable() == FALSE ){
-		AfxMessageBox("ItemTable Load Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-
-	LogFileWrite("before SERVER_RESOURCE table");
-	if (!LoadServerResourceTable())
+	if (!LoadTables())
 	{
-		AfxMessageBox("Failed to load SERVER_RESOURCE table");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-
-	LogFileWrite("before main");
-	if( LoadMagicTable() == FALSE ){
-		AfxMessageBox("MagicTable Load Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-	LogFileWrite("before 1");
-	if( LoadMagicType1() == FALSE ) {
-		AfxMessageBox("MagicType1 Load Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-	LogFileWrite("before 2");
-	if( LoadMagicType2() == FALSE ) {
-		AfxMessageBox("MagicType2 Load Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-	LogFileWrite("before 3");
-	if( LoadMagicType3() == FALSE ) {
-		AfxMessageBox("MagicType3 Load Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-	LogFileWrite("before 4");
-	if( LoadMagicType4() == FALSE ) {
-		AfxMessageBox("MagicType4 Load Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-	LogFileWrite("before 5");
-	if( LoadMagicType5() == FALSE ) {
-		AfxMessageBox("MagicType5 Load Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-	LogFileWrite("before 8");
-	if( LoadMagicType8() == FALSE ) {
-		AfxMessageBox("MagicType8 Load Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-	LogFileWrite("before Coefficient");
-	if( LoadCoefficientTable() == FALSE ){
-		AfxMessageBox("CharaterDataTable Load Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-	LogFileWrite("before Level");
-	if( LoadLevelUpTable() == FALSE ){
-		AfxMessageBox("LevelUpTable Load Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-
-	LogFileWrite("before All Knights");
-	if( LoadAllKnights() == FALSE ) {
-		AfxMessageBox("KnightsData Load Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-	
-	LogFileWrite("before All Knights User");
-	if( LoadAllKnightsUserData() == FALSE ) {
-		AfxMessageBox("LoadAllKnightsUserData Load Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}	
-
-	LogFileWrite("before home");
-	if( LoadHomeTable() == FALSE ){
-		AfxMessageBox("LoadHomeTable Load Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-
-	LogFileWrite("before battle");
-	if( LoadBattleTable() == FALSE )	{
-		AfxMessageBox("LoadBattleTable Load Fail");
-		AfxPostQuitMessage(0);
+		AfxPostQuitMessage(-1);
 		return FALSE;
 	}
 
@@ -501,6 +410,75 @@ BOOL CEbenezerDlg::OnInitDialog()
 
 	AddToList("Game server started : %02d/%02d/%04d %d:%02d\r\n", cur.GetDay(), cur.GetMonth(), cur.GetYear(), cur.GetHour(), cur.GetMinute());
 	return TRUE;  // return TRUE  unless you set the focus to a control
+}
+
+BOOL CEbenezerDlg::LoadTables()
+{
+	LogFileWrite("before ITEM");
+	if (!LoadItemTable())
+		return FALSE;
+
+	LogFileWrite("before SERVER_RESOURCE");
+	if (!LoadServerResourceTable())
+		return FALSE;
+
+	LogFileWrite("before MAGIC");
+	if (!LoadMagicTable())
+		return FALSE;
+
+	LogFileWrite("before MAGIC_TYPE1");
+	if (!LoadMagicType1())
+		return FALSE;
+
+	LogFileWrite("before MAGIC_TYPE2");
+	if (!LoadMagicType2())
+		return FALSE;
+
+	LogFileWrite("before MAGIC_TYPE3");
+	if (!LoadMagicType3())
+		return FALSE;
+
+	LogFileWrite("before MAGIC_TYPE4");
+	if (!LoadMagicType4())
+		return FALSE;
+
+	LogFileWrite("before MAGIC_TYPE5");
+	if (!LoadMagicType5())
+		return FALSE;
+
+	LogFileWrite("before MAGIC_TYPE8");
+	if (!LoadMagicType8())
+		return FALSE;
+
+	LogFileWrite("before COEFFICIENT");
+	if (!LoadCoefficientTable())
+		return FALSE;
+
+	LogFileWrite("before LEVEL_UP");
+	if (!LoadLevelUpTable())
+		return FALSE;
+
+	LogFileWrite("before KNIGHTS");
+	if (!LoadAllKnights())
+		return FALSE;
+
+	LogFileWrite("before KNIGHTS_USER");
+	if (!LoadAllKnightsUserData())
+		return FALSE;
+
+	LogFileWrite("before HOME");
+	if (!LoadHomeTable())
+		return FALSE;
+
+	LogFileWrite("before START_POSITION");
+	if (!LoadStartPositionTable())
+		return FALSE;
+
+	LogFileWrite("before BATTLE");
+	if (!LoadBattleTable())
+		return FALSE;
+
+	return TRUE;
 }
 
 void CEbenezerDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -3032,6 +3010,51 @@ BOOL CEbenezerDlg::LoadHomeTable()
 
 	return TRUE;
 }
+
+BOOL CEbenezerDlg::LoadStartPositionTable()
+{
+	CStartPositionSet StartPositionSet;
+
+	if (!StartPositionSet.Open())
+	{
+		AfxMessageBox(_T("Could not open START_POSITION table."));
+		return FALSE;
+	}
+
+	if (StartPositionSet.IsBOF() || StartPositionSet.IsEOF())
+	{
+		AfxMessageBox(_T("_START_POSITION table empty!"));
+		return FALSE;
+	}
+
+	StartPositionSet.MoveFirst();
+	while (!StartPositionSet.IsEOF())
+	{
+		_START_POSITION* pData = new _START_POSITION;
+		pData->ZoneID			= StartPositionSet.m_sZoneID;
+		pData->sKarusX			= StartPositionSet.m_sKarusX;
+		pData->sKarusZ			= StartPositionSet.m_sKarusZ;
+		pData->sElmoradX		= StartPositionSet.m_sElmoradX;
+		pData->sElmoradZ		= StartPositionSet.m_sElmoradZ;
+		pData->sKarusGateX		= StartPositionSet.m_sKarusGateX;
+		pData->sKarusGateZ		= StartPositionSet.m_sKarusGateZ;
+		pData->sElmoradGateX	= StartPositionSet.m_sElmoradGateX;
+		pData->sElmoradGateZ	= StartPositionSet.m_sElmoradGateZ;
+		pData->bRangeX			= StartPositionSet.m_bRangeX;
+		pData->bRangeZ			= StartPositionSet.m_bRangeZ;
+
+		if (!m_StartPositionArray.PutData(pData->ZoneID, pData))
+		{
+			TRACE("Could not add zone %d to the starting position array\n", pData->ZoneID);
+			delete pData;
+		}
+
+		StartPositionSet.MoveNext();
+	}
+
+	return TRUE;
+}
+
 
 BOOL CEbenezerDlg::LoadAllKnights()
 {

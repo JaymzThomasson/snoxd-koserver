@@ -204,6 +204,9 @@
     <ClCompile Include="RentalHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
+    <ClCompile Include="StartPositionSet.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AIPacket.h">
@@ -370,6 +373,9 @@
     </ClInclude>
     <ClInclude Include="..\shared\packets.h">
       <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="StartPositionSet.h">
+      <Filter>Database</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
