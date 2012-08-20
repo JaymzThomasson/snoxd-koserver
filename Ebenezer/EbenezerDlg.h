@@ -128,7 +128,8 @@ public:
 	void Send_All( char* pBuf, int len, CUser* pExceptUser = NULL, int nation=0 );	// pointer != NULL don`t send to that user pointer
 	void Send_AIServer( int zone, char* pBuf, int len );
 
-	_SERVER_RESOURCE * GetServerResource(int nResourceID);
+	CString GetServerResource(int nResourceID);
+
 	long GetExpByLevel(int nLevel);
 	C3DMap * GetZoneByID(int zoneID);
 

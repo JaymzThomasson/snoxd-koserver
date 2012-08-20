@@ -107,29 +107,12 @@ void EXEC::Parse(char *pBuf)
 		index += ParseSpace( temp, pBuf+index );	m_ExecInt[i++] = atoi( temp );	// Item no.
 		index += ParseSpace( temp, pBuf+index );	m_ExecInt[i++] = atoi( temp );	// Item count
 	}
-// 비러머글 퀘스트 >.<
-	else if( !strcmp( temp, "OPEN_EDITBOX") ) 
-	{
-		m_Exec = EXEC_OPEN_EDITBOX;
-
-		index += ParseSpace( temp, pBuf+index );	m_ExecInt[i++] = atoi( temp );	// Npc id.
-		index += ParseSpace( temp, pBuf+index );	m_ExecInt[i++] = atoi( temp );	// Input message.
-		index += ParseSpace( temp, pBuf+index );	m_ExecInt[i++] = atoi( temp );	// Next Event.		
-	}
 	else if( !strcmp( temp, "GIVE_NOAH") ) 
 	{
 		m_Exec = EXEC_GIVE_NOAH;
 
 		index += ParseSpace( temp, pBuf+index );	m_ExecInt[i++] = atoi( temp );	// Amount of Noah
 	}
-	else if( !strcmp(temp, "LOG_COUPON_ITEM"))
-	{
-		m_Exec = EXEC_LOG_COUPON_ITEM;
-
-		index += ParseSpace( temp, pBuf+index );	m_ExecInt[i++] = atoi( temp );	// Item ID.
-		index += ParseSpace( temp, pBuf+index );	m_ExecInt[i++] = atoi( temp );	// Number of Item.
-	}
-//
 	else if( !strcmp( temp, "RETURN" ) )
 	{
 		m_Exec = EXEC_RETURN;

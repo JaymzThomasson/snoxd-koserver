@@ -684,36 +684,34 @@ void CKnightsManager::CurrentKnightsMember(CUser *pUser, char* pBuf)
 	char temp_buff[4096]; memset( temp_buff, 0x00, 4096 );
 	CUser* pTUser = NULL;
 	CKnights* pKnights = NULL;
-	char errormsg[128]; memset( errormsg, 0x00, 128 );
-	std::string buff;
-
-//	sprintf(errormsg, "기사단에 가입되지 않았습니다.");
-	::_LoadStringFromResource(IDP_KNIGHT_NOT_REGISTERED, buff);
-	sprintf(errormsg, buff.c_str());
+	char errormsg[1024]; memset( errormsg, 0x00, 1024);
 
 	if( !pUser ) return;
 	if( pUser->m_pUserData->m_bKnights <= 0 ) goto fail_return;
 	pKnights = m_pMain->m_KnightsArray.GetData( pUser->m_pUserData->m_bKnights);
 	if( !pKnights ) goto fail_return;
+
+	_snprintf(errormsg, sizeof(errormsg), m_pMain->GetServerResource(IDP_KNIGHT_NOT_REGISTERED));
 	
 	page = GetShort( pBuf, index );
 	start = page * 10;			// page : 0 ~
 
-	for(i=0; i<MAX_USER; i++ ) {
-		pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[i];
+	for (int i = 0; i < MAX_USER; i++)
+	{
+		pTUser = m_pMain->GetUnsafeUserPtr(i);
 		if( !pTUser ) continue;
 		if( pTUser->m_pUserData->m_bKnights != pUser->m_pUserData->m_bKnights ) continue;
 		if( count < start ) {
 			count++;
 			continue;
 		}
-		SetShort( temp_buff, strlen(pUser->m_pUserData->m_id), buff_index );
-		SetString( temp_buff, pUser->m_pUserData->m_id, strlen( pUser->m_pUserData->m_id), buff_index );
+		SetKOString(temp_buff, pUser->m_pUserData->m_id, buff_index);
 		SetByte( temp_buff, pUser->m_pUserData->m_bFame, buff_index );
 		SetByte( temp_buff, pUser->m_pUserData->m_bLevel, buff_index );
 		SetShort( temp_buff, pUser->m_pUserData->m_sClass, buff_index );
 		count++;
-		if( count >= start + 10 )
+
+		if (count >= start + 10)
 			break;
 	}
 
@@ -731,6 +729,7 @@ fail_return:
 	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
 	SetByte( send_buff, KNIGHTS_CURRENT_REQ, send_index );
 	SetByte( send_buff, 0x00, send_index );
+
 	SetShort( send_buff, strlen(errormsg), send_index );
 	SetString( send_buff, errormsg, strlen(errormsg), send_index );
 	pUser->Send( send_buff, send_index );
@@ -742,24 +741,21 @@ void CKnightsManager::ReceiveKnightsProcess( CUser* pUser, char *pBuf, BYTE comm
 	BYTE result;
 	char send_buff[2048]; memset( send_buff, 0x00, 2048 );
 	CUser* pTUser = NULL;
-	char errormsg[128]; memset( errormsg, 0x00, 128 );
+	char errormsg[1024]; memset(errormsg, 0x00, 1024);
 	std::string buff;
-
-//	sprintf(errormsg, "기사단 DB처리에 실패하였습니다.");
-	::_LoadStringFromResource(IDP_KNIGHT_DB_FAIL, buff);
-	sprintf(errormsg, buff.c_str());
 
 	result = GetByte( pBuf, index );
 
 	//TRACE("ReceiveKnightsProcess - command=%d, result=%d, nid=%d, name=%s, index=%d, fame=%d\n", command, result, pUser->GetSocketID(), pUser->m_pUserData->m_id, pUser->m_pUserData->m_bKnights, pUser->m_pUserData->m_bFame);
 
-	if( result > 0 ) {
+	if (result > 0) 
+	{
+		_snprintf(errormsg, sizeof(errormsg), m_pMain->GetServerResource(IDP_KNIGHT_DB_FAIL)); // I don't think this is even still needed
+
 		SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
 		SetByte( send_buff, command-0x10, send_index );
-		//SetByte( send_buff, 0x00, send_index );
 		SetByte( send_buff, result, send_index );
-		SetShort( send_buff, strlen(errormsg), send_index );
-		SetString( send_buff, errormsg, strlen(errormsg), send_index );
+		SetKOString(send_buff, errormsg, send_index);
 		pUser->Send( send_buff, send_index );
 		return;
 	}

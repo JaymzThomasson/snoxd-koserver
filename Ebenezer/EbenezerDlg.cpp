@@ -499,7 +499,7 @@ BOOL CEbenezerDlg::OnInitDialog()
 	LogFileWrite("success");
 	UserAcceptThread();
 
-	AddToList("Game Server Start : %02d/%02d/%04d %d:%02d\r\n", cur.GetDay(), cur.GetMonth(), cur.GetYear(), cur.GetHour(), cur.GetMinute());
+	AddToList("Game server started : %02d/%02d/%04d %d:%02d\r\n", cur.GetDay(), cur.GetMonth(), cur.GetYear(), cur.GetHour(), cur.GetMinute());
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -640,9 +640,17 @@ void CEbenezerDlg::UserAcceptThread()
 	::ResumeThread( m_Iocport.m_hAcceptThread );
 }
 
-_SERVER_RESOURCE * CEbenezerDlg::GetServerResource(int nResourceID)
+CString CEbenezerDlg::GetServerResource(int nResourceID)
 {
-	return m_ServerResourceArray.GetData(nResourceID);
+	_SERVER_RESOURCE *pResource = m_ServerResourceArray.GetData(nResourceID);
+	CString result = "";
+
+	if (pResource == NULL)
+		result.Format("%d", nResourceID);	
+	else
+		result = pResource->strResource;
+
+	return result;
 }
 
 long CEbenezerDlg::GetExpByLevel(int nLevel)
@@ -2399,9 +2407,6 @@ BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg)
 				permanent_off = TRUE;
 //				return TRUE;	//이것은 고의적으로 TRUE를 뺐었음
 			}			
-//
-
-// 갓댐 산타!!! >.<
 			if( _strnicmp( "/santa", chatstr, 6 ) == 0 ) {
 				m_bSanta = TRUE;			// Make Motherfucking Santa Claus FLY!!!
 				return TRUE;
@@ -2411,32 +2416,21 @@ BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg)
 				m_bSanta = FALSE;			// SHOOT DOWN Motherfucking Santa Claus!!!
 				return TRUE;
 			}			
-//
 
-			char finalstr[256]; memset( finalstr, NULL, 256 );
-//			sprintf( finalstr, "#### 공지 : %s ####", chatstr );
+			char finalstr[512]; memset(finalstr, NULL, 512);
+			if (m_bPermanentChatFlag)
+				_snprintf(finalstr, sizeof(finalstr), "- %s -", chatstr);
+			else
+				_snprintf(finalstr, sizeof(finalstr), GetServerResource(IDP_ANNOUNCEMENT), chatstr);
 
-// 비러머글 남는 공지		
-			if (m_bPermanentChatFlag) {
-				sprintf( finalstr, "- %s -", chatstr );
-			}
-			else {
-				//sprintf( finalstr, "#### 공지 : %s ####", chatstr );
-				::_LoadStringFromResource(IDP_ANNOUNCEMENT, buff2);
-				sprintf( finalstr, buff2.c_str(), chatstr );
-			}
-//
 			SetByte( buff, WIZ_CHAT, buffindex );
-//			SetByte( buff, PUBLIC_CHAT, buffindex );
 
-// 비러머글 남는 공지
-			if (permanent_off) {
+			if (permanent_off)
 				SetByte( buff, END_PERMANENT_CHAT, buffindex );
-			}
-			else if(!m_bPermanentChatFlag) {
+			else if (!m_bPermanentChatFlag)
 				SetByte( buff, PUBLIC_CHAT, buffindex );
-			}
-			else {
+			else 
+			{
 				SetByte( buff, PERMANENT_CHAT, buffindex );
 				strcpy(m_strPermanentChat, finalstr);
 				m_bPermanentChatFlag = FALSE;
@@ -2933,88 +2927,65 @@ void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 	char finalstr[1024]; memset( finalstr, NULL, 1024 );
 	char send_buff[1024]; memset( send_buff, NULL, 1024 );
 	
-	std::string buff;
-	std::string buff2;
-
 	switch(type) {
 		case BATTLEZONE_OPEN:
-			::_LoadStringFromResource(IDP_BATTLEZONE_OPEN, buff);
-			sprintf( chatstr, buff.c_str());
-			break;
 		case SNOW_BATTLEZONE_OPEN:
-			::_LoadStringFromResource(IDP_BATTLEZONE_OPEN, buff);
-			sprintf( chatstr, buff.c_str());
+			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDP_BATTLEZONE_OPEN));
 			break;
 
 		case DECLARE_WINNER:
-			if(m_bVictory == KARUS) {
-				::_LoadStringFromResource(IDP_KARUS_VICTORY, buff);
-				sprintf( chatstr, buff.c_str(), m_sElmoradDead, m_sKarusDead );
-			}
-			else if (m_bVictory == ELMORAD) {		
-				::_LoadStringFromResource(IDP_ELMORAD_VICTORY, buff);
-				sprintf( chatstr, buff.c_str(), m_sKarusDead, m_sElmoradDead );
-			}
-			else return;
-
+			if (m_bVictory == KARUS)
+				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDP_KARUS_VICTORY), m_sElmoradDead, m_sKarusDead);
+			else if (m_bVictory == ELMORAD)
+				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDP_ELMORAD_VICTORY), m_sKarusDead, m_sElmoradDead);
+			else 
+				return;
 			break;
 		case DECLARE_LOSER:
-			if(m_bVictory == KARUS) {
-				::_LoadStringFromResource(IDS_ELMORAD_LOSER, buff);
-				sprintf( chatstr, buff.c_str(), m_sKarusDead, m_sElmoradDead );
-			}
-			else if (m_bVictory == ELMORAD) {		
-				::_LoadStringFromResource(IDS_KARUS_LOSER, buff);
-				sprintf( chatstr, buff.c_str(), m_sElmoradDead, m_sKarusDead );
-			}
-			else return;
+			if (m_bVictory == KARUS)
+				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_ELMORAD_LOSER), m_sKarusDead, m_sElmoradDead);
+			else if (m_bVictory == ELMORAD)
+				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_KARUS_LOSER), m_sElmoradDead, m_sKarusDead);
+			else 
+				return;
 			break;
 
 		case DECLARE_BAN:
-			::_LoadStringFromResource(IDS_BANISH_USER, buff);
-			sprintf( chatstr, buff.c_str());
+			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_BANISH_USER));
 			break;
 		case BATTLEZONE_CLOSE:
-			::_LoadStringFromResource(IDS_BATTLE_CLOSE, buff);
-			sprintf( chatstr, buff.c_str());
+			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_BATTLE_CLOSE));
 			break;
 		case KARUS_CAPTAIN_NOTIFY:
-			::_LoadStringFromResource(IDS_KARUS_CAPTAIN, buff);
-			sprintf( chatstr, buff.c_str(), m_strKarusCaptain );
+			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_KARUS_CAPTAIN), m_strKarusCaptain);
 			break;
 		case ELMORAD_CAPTAIN_NOTIFY:
-			::_LoadStringFromResource(IDS_ELMO_CAPTAIN, buff);
-			sprintf( chatstr, buff.c_str(), m_strElmoradCaptain );
+			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_ELMO_CAPTAIN), m_strElmoradCaptain);
 			break;
 		case KARUS_CAPTAIN_DEPRIVE_NOTIFY:
-			::_LoadStringFromResource(IDS_KARUS_CAPTAIN_DEPRIVE, buff);
-			sprintf( chatstr, buff.c_str(), m_strKarusCaptain );
+			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_KARUS_CAPTAIN_DEPRIVE), m_strKarusCaptain);
 			break;
 		case ELMORAD_CAPTAIN_DEPRIVE_NOTIFY:
-			::_LoadStringFromResource(IDS_ELMO_CAPTAIN_DEPRIVE, buff);
-			sprintf( chatstr, buff.c_str(), m_strElmoradCaptain );
+			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_ELMO_CAPTAIN_DEPRIVE), m_strElmoradCaptain);
 			break;
 	}
 
-	::_LoadStringFromResource(IDP_ANNOUNCEMENT, buff2);
-	sprintf( finalstr, buff2.c_str(), chatstr );
-	//sprintf( finalstr, "## 공지 : %s ##", chatstr );
+	_snprintf(finalstr, sizeof(finalstr), GetServerResource(IDP_ANNOUNCEMENT), chatstr);
 	SetByte( send_buff, WIZ_CHAT, send_index );
 	SetByte( send_buff, chat_type, send_index );
 	SetByte( send_buff, 1, send_index );
 	SetShort( send_buff, -1, send_index );
-	SetShort( send_buff, strlen(finalstr), send_index );
-	SetString( send_buff, finalstr, strlen(finalstr), send_index );
+	SetKOString(send_buff, finalstr, send_index);
 
-	CUser* pUser = NULL;
-	for( int i=0; i<MAX_USER; i++) {
-		pUser = (CUser*)m_Iocport.m_SockArray[i];
-		if( !pUser )
+	for (int i = 0; i < MAX_USER; i++)
+	{
+		CUser* pUser = GetUnsafeUserPtr(i);
+		if (pUser == NULL
+			|| pUser->GetState() != STATE_GAMESTART
+			|| (nation != 0 && nation != pUser->getNation()))
 			continue;
-		if( pUser->GetState() == STATE_GAMESTART )	{
-			if( nation == 0 )		pUser->Send( send_buff, send_index );
-			else if( nation == pUser->m_pUserData->m_bNation )	pUser->Send( send_buff, send_index );
-		}
+
+		pUser->Send(send_buff, send_index);
 	}
 }
 
@@ -3624,16 +3595,14 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 {
 	CKnightsRankSet	KRankSet;
 	int nRank = 0, nKnightsIndex = 0, nKaursRank = 0, nElmoRank = 0, nFindKarus = 0, nFindElmo = 0, send_index = 0, temp_index = 0;
+	CUser *pUser = NULL;
 	CKnights* pKnights = NULL;
-	CUser* pUser = NULL;
 	CString strKnightsName;
-
-	std::string buff;
 
 	char send_buff[1024];		memset( send_buff, 0x00, 1024 );
 	char temp_buff[1024];		memset( temp_buff, 0x00, 1024 );
-	char strKarusCaptainName[1024];		memset( send_buff, 0x00, 1024 );
-	char strElmoCaptainName[1024];		memset( send_buff, 0x00, 1024 );
+	char strKarusCaptainName[1024];		memset( strKarusCaptainName, 0x00, 1024 );
+	char strElmoCaptainName[1024];		memset( strElmoCaptainName, 0x00, 1024 );
 	char strKarusCaptain[5][50];	
 	char strElmoCaptain[5][50];	
 	for( int i=0; i<5; i++)	{
@@ -3663,13 +3632,11 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 			continue;
 		}
 		if( pKnights->m_byNation == KARUS )	{
-			//if( nKaursRank == 5 || nFindKarus == 1 )	{
 			if( nKaursRank == 5 )	{
 				KRankSet.MoveNext();
-				continue;			// 5위까지 클랜장이 없으면 대장은 없음			
+				continue;			
 			}	
 			pUser = GetUserPtr( pKnights->m_strChief, 0x02 );
-			//nKaursRank++;
 			if( !pUser )	{
 				KRankSet.MoveNext();
 				continue;
@@ -3690,20 +3657,15 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 				SetByte( send_buff, pUser->m_pUserData->m_bFame, send_index );
 				Send_Region( send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ );
 
-				//strcpy( m_strKarusCaptain, pUser->m_pUserData->m_id );
-				//Announcement( KARUS_CAPTAIN_NOTIFY, KARUS );
 				memset( send_buff, NULL, 1024 );	send_index = 0;
-				//TRACE("Karus Captain - %s, rank=%d, index=%d\n", pUser->m_pUserData->m_id, nRank, nKnightsIndex);
 			}
 		}
 		else if( pKnights->m_byNation == ELMORAD )	{
-			//if( nElmoRank == 5 || nFindElmo == 1 )	{
 			if( nElmoRank == 5 )	{
 				KRankSet.MoveNext();
-				continue;			// 5위까지 클랜장이 없으면 대장은 없음			
+				continue;
 			}
 			pUser = GetUserPtr( pKnights->m_strChief, 0x02 );
-			//nElmoRank++;
 			if( !pUser )	{
 				KRankSet.MoveNext();
 				continue;
@@ -3722,51 +3684,40 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 				SetByte( send_buff, COMMAND_AUTHORITY, send_index );
 				SetShort( send_buff, pUser->GetSocketID(), send_index );
 				SetByte( send_buff, pUser->m_pUserData->m_bFame, send_index );
-				//pUser->Send( send_buff, send_index );
 				Send_Region( send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ );
-
-				//strcpy( m_strElmoradCaptain, pUser->m_pUserData->m_id );
-				//Announcement( ELMORAD_CAPTAIN_NOTIFY, ELMORAD );
-				//memset( send_buff, NULL, 1024 );	send_index = 0;
-				//TRACE("Elmo Captain - %s, rank=%d, index=%d\n", pUser->m_pUserData->m_id, nRank, nKnightsIndex);
 			}
 		}
 		
 		KRankSet.MoveNext();
 	}
 
-	::_LoadStringFromResource(IDS_KARUS_CAPTAIN, buff);
-	sprintf( strKarusCaptainName, buff.c_str(), strKarusCaptain[0], strKarusCaptain[1], strKarusCaptain[2], strKarusCaptain[3], strKarusCaptain[4]);
+	_snprintf(strKarusCaptainName, sizeof(strKarusCaptainName), GetServerResource(IDS_KARUS_CAPTAIN), strKarusCaptain[0], strKarusCaptain[1], strKarusCaptain[2], strKarusCaptain[3], strKarusCaptain[4]);
+	_snprintf(strElmoCaptainName, sizeof(strElmoCaptainName), GetServerResource(IDS_ELMO_CAPTAIN), strElmoCaptain[0], strElmoCaptain[1], strElmoCaptain[2], strElmoCaptain[3], strElmoCaptain[4]);
 
-	::_LoadStringFromResource(IDS_ELMO_CAPTAIN, buff);
-	sprintf( strElmoCaptainName, buff.c_str(), strElmoCaptain[0], strElmoCaptain[1], strElmoCaptain[2], strElmoCaptain[3], strElmoCaptain[4]);
-
-	//sprintf( strKarusCaptainName, "카루스의 지휘관은 %s, %s, %s, %s, %s 입니다", strKarusCaptain[0], strKarusCaptain[1], strKarusCaptain[2], strKarusCaptain[3], strKarusCaptain[4]);
-	//sprintf( strElmoCaptainName, "엘모라드의 지휘관은 %s, %s, %s, %s, %s 입니다", strKarusCaptain[0], strKarusCaptain[1], strKarusCaptain[2], strKarusCaptain[3], strKarusCaptain[4]);
 	TRACE("LoadKnightsRankTable Success\n");
 	
 	SetByte( send_buff, WIZ_CHAT, send_index );
 	SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
 	SetByte( send_buff, 1, send_index );
 	SetShort( send_buff, -1, send_index );
-	SetShort( send_buff, strlen(strKarusCaptainName), send_index );
-	SetString( send_buff, strKarusCaptainName, strlen(strKarusCaptainName), send_index );
+	SetKOString(temp_buff, strKarusCaptainName, temp_index);
 
 	SetByte( temp_buff, WIZ_CHAT, temp_index );
 	SetByte( temp_buff, WAR_SYSTEM_CHAT, temp_index );
 	SetByte( temp_buff, 1, temp_index );
 	SetShort( temp_buff, -1, temp_index );
-	SetShort( temp_buff, strlen(strElmoCaptainName), temp_index );
-	SetString( temp_buff, strElmoCaptainName, strlen(strElmoCaptainName), temp_index );
+	SetKOString(temp_buff, strElmoCaptainName, temp_index);
 
-	for(int i=0; i<MAX_USER; i++) {
-		pUser = (CUser*)m_Iocport.m_SockArray[i];
-		if( !pUser )
+	for (int i = 0; i < MAX_USER; i++)
+	{
+		CUser *pUser = (CUser*)m_Iocport.m_SockArray[i];
+		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART)
 			continue;
-		if( pUser->GetState() == STATE_GAMESTART )	{
-			if( pUser->m_pUserData->m_bNation == KARUS )		pUser->Send( send_buff, send_index );
-			else if( pUser->m_pUserData->m_bNation == ELMORAD )	pUser->Send( temp_buff, temp_index );
-		}
+
+		if (pUser->m_pUserData->m_bNation == KARUS)
+			pUser->Send(send_buff, send_index);
+		else if (pUser->m_pUserData->m_bNation == ELMORAD)
+			pUser->Send(temp_buff, temp_index);
 	}
 
 	return TRUE;

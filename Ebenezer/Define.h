@@ -42,7 +42,6 @@
 #define LOGIC_EXIST_ITEM			0X04
 #define LOGIC_CHECK_CLASS			0x05
 #define LOGIC_CHECK_WEIGHT			0x06
-#define LOGIC_CHECK_EDITBOX			0x07
 #define LOGIC_RAND					0x08
 #define LOGIC_HOWMUCH_ITEM			0x09 
 #define	LOGIC_CHECK_LEVEL			0x0A
@@ -79,9 +78,7 @@
 #define EXEC_GIVE_ITEM				0X04
 #define EXEC_ROB_ITEM				0X05
 #define EXEC_RETURN					0X06
-#define EXEC_OPEN_EDITBOX			0x07
 #define EXEC_GIVE_NOAH				0x08
-#define EXEC_LOG_COUPON_ITEM		0x09
 #define EXEC_SAVE_COM_EVENT			0x0A
 #define EXEC_ROB_NOAH				0x0B
 

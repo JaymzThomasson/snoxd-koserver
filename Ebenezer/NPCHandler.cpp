@@ -154,12 +154,6 @@ BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 
 				bExact = TRUE;
 			}
 			break;	
-// ????? ???? >.<		
-		case	LOGIC_CHECK_EDITBOX:
-			if (!CheckEditBox()) {
-				bExact = TRUE;
-			}
-			break;
 
 		case	LOGIC_RAND:
 			if (CheckRandom(pLE->m_LogicElseInt[0])) {
@@ -317,10 +311,6 @@ BOOL CUser::RunNpcEvent(CNpc *pNpc, EXEC *pExec)	// This part executes all the '
 	case	EXEC_ROB_ITEM:
 		if ( !RobItem(pExec->m_ExecInt[0], pExec->m_ExecInt[1]) )		return FALSE;
 		break;
-//	????? ???? >.<
-	case	EXEC_OPEN_EDITBOX:
-		OpenEditBox(pExec->m_ExecInt[1], pExec->m_ExecInt[2]);
-		break;
 
 	case	EXEC_GIVE_NOAH:
 		GoldGain(pExec->m_ExecInt[0]);
@@ -448,10 +438,6 @@ BOOL CUser::RunEvent(EVENT_DATA *pEventData)
 			case	EXEC_ROB_ITEM:
 				if ( !RobItem(pExec->m_ExecInt[0], pExec->m_ExecInt[1]) )
 					return FALSE;
-				break;
-
-			case	EXEC_OPEN_EDITBOX:
-				OpenEditBox(pExec->m_ExecInt[1], pExec->m_ExecInt[2]);
 				break;
 
 			case	EXEC_GIVE_NOAH:

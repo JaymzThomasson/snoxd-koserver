@@ -89,13 +89,6 @@ void LOGIC_ELSE::Parse_and(char *pBuf)
 		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Weight & Empty Slot
 		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Weight & Empty Slot
 	}
-// 비러머글 복권!!!
-	else if( !strcmp( temp, "CHECK_EDITBOX") )
-	{
-		m_LogicElse = LOGIC_CHECK_EDITBOX;
-
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );
-	}
 	else if( !strcmp( temp, "RAND") )
 	{
 		m_LogicElse = LOGIC_RAND;

@@ -1194,9 +1194,6 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 	CUser* pUser = NULL;
 	CKnights* pKnights = NULL;
 
-	std::string buff;
-	std::string buff2;
-
 	nType = GetByte( pBuf, index );
 	nResult = GetByte(pBuf, index);
 
@@ -1272,40 +1269,44 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 					strcpy( strKnightsName, pKnights->m_strName );
 				}
 			}
-			//TRACE("--> RecvBattleEvent : 적국의 대장을 죽인 유저이름은? %s, len=%d\n", strMaxUserName, nResult);
-			if( nResult == 1 )	{
-				::_LoadStringFromResource(IDS_KILL_CAPTAIN, buff);
-				sprintf( chatstr, buff.c_str(), strKnightsName, strMaxUserName );
-			}
-			else	if( nResult == 2 )	{
-				::_LoadStringFromResource(IDS_KILL_GATEKEEPER, buff);
-				sprintf( chatstr, buff.c_str(), strKnightsName, strMaxUserName );
-			}
-			else	if( nResult == 3 )	{
-				::_LoadStringFromResource(IDS_KILL_KARUS_GUARD1, buff);
-				sprintf( chatstr, buff.c_str(), strKnightsName, strMaxUserName );
-			}
-			else	if( nResult == 4 )	{
-				::_LoadStringFromResource(IDS_KILL_KARUS_GUARD2, buff);
-				sprintf( chatstr, buff.c_str(), strKnightsName, strMaxUserName );
-			}
-			else	if( nResult == 5 )	{
-				::_LoadStringFromResource(IDS_KILL_ELMO_GUARD1, buff);
-				sprintf( chatstr, buff.c_str(), strKnightsName, strMaxUserName );
-			}
-			else	if( nResult == 6 )	{
-				::_LoadStringFromResource(IDS_KILL_ELMO_GUARD2, buff);
-				sprintf( chatstr, buff.c_str(), strKnightsName, strMaxUserName );
-			}
-			else	if( nResult == 7 || nResult == 8 )	{
-				::_LoadStringFromResource(IDS_KILL_GATEKEEPER, buff);
-				sprintf( chatstr, buff.c_str(), strKnightsName, strMaxUserName );
+
+			int nResourceID = 0;
+			switch (nResult)
+			{
+			case 1: // captain
+				nResourceID = IDS_KILL_CAPTAIN;
+				break;
+			case 2: // keeper
+
+			case 7: // warders?
+			case 8:
+				nResourceID = IDS_KILL_GATEKEEPER;
+				break;
+
+			case 3: // Karus sentry
+				nResourceID = IDS_KILL_KARUS_GUARD1;
+				break;
+			case 4: // Karus sentry
+				nResourceID = IDS_KILL_KARUS_GUARD2;
+				break;
+			case 5: // El Morad sentry
+				nResourceID = IDS_KILL_ELMO_GUARD1;
+				break;
+			case 6: // El Morad sentry
+				nResourceID = IDS_KILL_ELMO_GUARD2;
+				break;
 			}
 
+			if (nResourceID == 0)
+			{
+				TRACE("RecvBattleEvent: could not establish resource for result %d", nResult);
+				return;
+			}
+
+			_snprintf(chatstr, sizeof(chatstr), m_pMain->GetServerResource(nResourceID), strKnightsName, strMaxUserName);
+
 			memset( send_buff, NULL, 1024 );		send_index = 0;
-			//sprintf( finalstr, "## 공지 : %s ##", chatstr );
-			::_LoadStringFromResource(IDP_ANNOUNCEMENT, buff2);
-			sprintf( finalstr, buff2.c_str(), chatstr );
+			sprintf( finalstr, m_pMain->GetServerResource(IDP_ANNOUNCEMENT), chatstr );
 			SetByte( send_buff, WIZ_CHAT, send_index );
 			SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
 			SetByte( send_buff, 1, send_index );
@@ -1326,8 +1327,8 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 			SetByte( udp_buff, UDP_BATTLE_EVENT_PACKET, udp_index );
 			SetByte( udp_buff, nType, udp_index );
 			SetByte( udp_buff, nResult, udp_index );
-			SetByte( udp_buff, nLen, udp_index );
-			SetString( udp_buff, strMaxUserName, nLen, udp_index );
+			SetKOString(udp_buff, strKnightsName, udp_index);
+			SetKOString(udp_buff, strMaxUserName, udp_index);
 		}
 	}
 

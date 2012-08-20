@@ -223,8 +223,6 @@ public:
 	void RecvEditBox(char *pBuf);
 	BOOL CheckCouponUsed();
 	BOOL CheckRandom(short percent);
-	void OpenEditBox(int message, int event);
-	BOOL CheckEditBox();
 	void NativeZoneReturn();
 	void EventMoneyItemGet( int itemid, int count );
 	void KickOutZoneUser(BOOL home = FALSE);

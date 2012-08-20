@@ -1902,16 +1902,10 @@ BOOL CUser::IsValidName(char *name)
 							"(", ")", "-", "+", "=", "|", "\\", "<", ">", ",",
 							".", "?", "/", "{", "[", "}", "]", "\"", "\'", " ",
 							"??", "????", "????T", "?????", "Knight", "Noahsystem", "Wizgate", "Mgame", "???�???", "??????T", "??????"};
-	// taiwan version
-/*	char* szInvalids[] = {	"~", "`", "!", "@", "#", "$", "%", "^", "&", "*",
-							"(", ")", "-", "+", "=", "|", "\\", "<", ">", ",",
-							".", "?", "/", "{", "[", "}", "]", "\"", "\'", " ",	"??" };	*/
-
 
 	BOOL bInvalidStr = FALSE;
 	
-	for(int i = 0; i < 41; i++)		// korea version
-	//for(int i = 0; i < 31; i++)	// taiwan version
+	for(int i = 0; i < sizeof(szInvalids); i++)		// korea version
 	{
 		if(strstr(name, szInvalids[i]))
 		{
@@ -1919,7 +1913,6 @@ BOOL CUser::IsValidName(char *name)
 			break;
 		}
 	}
-	// ~sungyong tw
 
 	return !bInvalidStr;
 }
@@ -2539,8 +2532,6 @@ void CUser::Dead()
 	char send_buff[1024]; memset( send_buff, 0x00, 1024 );
 	char strKnightsName[MAX_ID_SIZE+1];		memset( strKnightsName, 0x00, MAX_ID_SIZE+1 );
 	CKnights* pKnights = NULL;
-	std::string buff;
-	std::string buff2;
 
 	SetByte( send_buff, WIZ_DEAD, send_index );
 	SetShort( send_buff, m_Sid, send_index );
@@ -2569,20 +2560,14 @@ void CUser::Dead()
 		else				strcpy( strKnightsName, "*" );
 		//TRACE("---> Dead Captain Deprive - %s\n", m_pUserData->m_id);
 		if( m_pUserData->m_bNation == KARUS )	{
-			//m_pMain->Announcement( KARUS_CAPTAIN_DEPRIVE_NOTIFY, KARUS );
-			::_LoadStringFromResource(IDS_KARUS_CAPTAIN_DEPRIVE, buff);
-			sprintf( chatstr, buff.c_str(), strKnightsName, m_pUserData->m_id );
+			sprintf( chatstr, m_pMain->GetServerResource(IDS_KARUS_CAPTAIN_DEPRIVE), strKnightsName, m_pUserData->m_id );
 		}
 		else if( m_pUserData->m_bNation == ELMORAD )	{
-			//m_pMain->Announcement( ELMORAD_CAPTAIN_DEPRIVE_NOTIFY, ELMORAD );
-			::_LoadStringFromResource(IDS_ELMO_CAPTAIN_DEPRIVE, buff);
-			sprintf( chatstr, buff.c_str(), strKnightsName, m_pUserData->m_id );
+			sprintf( chatstr, m_pMain->GetServerResource(IDS_ELMO_CAPTAIN_DEPRIVE), strKnightsName, m_pUserData->m_id );
 		}
 
 		memset( send_buff, NULL, 1024 );		send_index = 0;
-		::_LoadStringFromResource(IDP_ANNOUNCEMENT, buff2);
-		sprintf( finalstr, buff2.c_str(), chatstr );
-		//sprintf( finalstr, "## ???? : %s ##", chatstr );
+		sprintf( finalstr, m_pMain->GetServerResource(IDP_ANNOUNCEMENT), chatstr );
 		SetByte( send_buff, WIZ_CHAT, send_index );
 		SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
 		SetByte( send_buff, 1, send_index );
@@ -4589,73 +4574,6 @@ void CUser::NativeZoneReturn()
 		m_pUserData->m_curx = pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX);
 		m_pUserData->m_curz = pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ); 
 	}
-}
-
-BOOL CUser::CheckEditBox()
-{
-	char notepadid[MAX_COUPON_ID_LENGTH]; memset(notepadid, 0x00, MAX_COUPON_ID_LENGTH);
-	char postitid[MAX_COUPON_ID_LENGTH]; memset(postitid, 0x00, MAX_COUPON_ID_LENGTH); 
-
-	std::string buff; 
-	::_LoadStringFromResource(IDS_COUPON_NOTEPAD_ID, buff);
-	sprintf(notepadid, buff.c_str());
-	
-//	if( _strnicmp( notepadid, m_strCouponId, MAX_COUPON_ID_LENGTH ) == 0 ) {
-	if ( !strcmp( notepadid, m_strCouponId ) ) {
-		return TRUE;	
-	}
-
-	std::string buff1;
-	::_LoadStringFromResource(IDS_COUPON_POSTIT_ID, buff1);
-	sprintf(postitid, buff1.c_str());
-
-//	if( _strnicmp( postitid, m_strCouponId, MAX_COUPON_ID_LENGTH ) == 0 ) {
-	if ( !strcmp( postitid, m_strCouponId ) ) {
-		return TRUE;	
-	}
-
-	return FALSE;
-}
-
-void CUser::OpenEditBox(int message, int event)
-{
-	//if( !CheckCouponUsed() ) return;	// ???? ?????? ????? ??.??
-
-	// ???? ?????? ????? ??.??
-	int send_index = 0, retvalue = 0;
-	char send_buff[256];
-	memset( send_buff, NULL, 256);
-
-	SetByte( send_buff, DB_COUPON_EVENT, send_index );
-	SetByte( send_buff, CHECK_COUPON_EVENT, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, strlen(m_strAccountID), send_index );
-	SetString( send_buff, m_strAccountID, strlen(m_strAccountID), send_index );
-	SetDWORD( send_buff, event, send_index );
-//	????? ??? >.<
-	SetDWORD( send_buff, message, send_index );
-//	
-	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if( retvalue >= SMQ_FULL ) {
-		char logstr[256]; memset( logstr, 0x00, 256 );
-		sprintf( logstr, "Coupon Send Fail : %d", retvalue);
-		m_pMain->m_StatusList.AddString(logstr);
-		//goto fail_return;
-	}
-/*
-	return TRUE;
-
-fail_return:
-	send_index = 0;
-	return FALSE;
-
-	int i, send_index = 0;
-	char send_buf[128];	memset(send_buf, NULL, 128);
-
-	m_iEditBoxEvent = event;	// What will the next event be when an answer is given?
-
-	SetByte( send_buf, WIZ_EDIT_BOX, send_index );
-	Send( send_buf, send_index );	*/	
 }
 
 BOOL CUser::CheckRandom(short percent)

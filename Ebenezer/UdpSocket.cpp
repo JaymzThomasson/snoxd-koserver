@@ -227,10 +227,10 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 	int index = 0, send_index = 0, udp_index = 0;
 	int nType = 0, nResult = 0, nLen = 0, nKillKarus = 0, nElmoKill = 0;
 	char strMaxUserName[MAX_ID_SIZE+1];	memset( strMaxUserName, 0x00, MAX_ID_SIZE+1 );
-	char chatstr[256]; memset( chatstr, NULL, 256 );
-	char finalstr[256]; memset( finalstr, NULL, 256 );
-	char send_buff[256]; memset( send_buff, NULL, 256 );
-	char udp_buff[256]; memset( udp_buff, NULL, 256 );
+	char strKnightsName[MAX_ID_SIZE+1];	memset( strKnightsName, 0x00, MAX_ID_SIZE+1 );
+	char chatstr[256]; memset( chatstr, NULL, 1024 );
+	char finalstr[1024]; memset( finalstr, NULL, 1024);
+	char send_buff[1024]; memset( send_buff, NULL, 1024);
 
 	std::string buff;
 
@@ -273,52 +273,61 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 	}
 	else if( nType == BATTLE_EVENT_MAX_USER )	{
 		nLen = GetByte(pBuf, index);
+		if (!GetKOString(pBuf, strKnightsName, index, MAX_ID_SIZE)
+			|| GetKOString(pBuf, strMaxUserName, index, MAX_ID_SIZE))
+			return;
 
-		if( nLen > 0 && nLen < MAX_ID_SIZE+1 )	{
-			GetString( strMaxUserName, pBuf, nLen, index );
-			//TRACE("-->  UDP RecvBattleEvent : 적국의 대장을 죽인 유저이름은? %s, len=%d\n", strMaxUserName, nResult);
-			if( nResult == 1 )	{
-				::_LoadStringFromResource(IDS_KILL_CAPTAIN, buff);
-				sprintf( chatstr, buff.c_str(), strMaxUserName );
-			}
-			else	if( nResult == 2 )	{
-				::_LoadStringFromResource(IDS_KILL_GATEKEEPER, buff);
-				sprintf( chatstr, buff.c_str(), strMaxUserName );
-			}
-			else	if( nResult == 3 )	{
-				::_LoadStringFromResource(IDS_KILL_KARUS_GUARD1, buff);
-				sprintf( chatstr, buff.c_str(), strMaxUserName );
-			}
-			else	if( nResult == 4 )	{
-				::_LoadStringFromResource(IDS_KILL_KARUS_GUARD2, buff);
-				sprintf( chatstr, buff.c_str(), strMaxUserName );
-			}
-			else	if( nResult == 5 )	{
-				::_LoadStringFromResource(IDS_KILL_ELMO_GUARD1, buff);
-				sprintf( chatstr, buff.c_str(), strMaxUserName );
-			}
-			else	if( nResult == 6 )	{
-				::_LoadStringFromResource(IDS_KILL_ELMO_GUARD2, buff);
-				sprintf( chatstr, buff.c_str(), strMaxUserName );
-			}
-			sprintf( finalstr, "## 공지 : %s ##", chatstr );
-			SetByte( send_buff, WIZ_CHAT, send_index );
-			SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
-			SetByte( send_buff, 1, send_index );
-			SetShort( send_buff, -1, send_index );
-			SetShort( send_buff, strlen(finalstr), send_index );
-			SetString( send_buff, finalstr, strlen(finalstr), send_index );
-			m_pMain->Send_All( send_buff, send_index );
+		int nResourceID = 0;
+		switch (nResult)
+		{
+		case 1: // captain
+			nResourceID = IDS_KILL_CAPTAIN;
+			break;
+		case 2: // keeper
 
-			memset( send_buff, NULL, 256 );		send_index = 0;
-			SetByte( send_buff, WIZ_CHAT, send_index );
-			SetByte( send_buff, PUBLIC_CHAT, send_index );
-			SetByte( send_buff, 1, send_index );
-			SetShort( send_buff, -1, send_index );
-			SetShort( send_buff, strlen(finalstr), send_index );
-			SetString( send_buff, finalstr, strlen(finalstr), send_index );
-			m_pMain->Send_All( send_buff, send_index );
+		case 7: // warders?
+		case 8:
+			nResourceID = IDS_KILL_GATEKEEPER;
+			break;
+
+		case 3: // Karus sentry
+			nResourceID = IDS_KILL_KARUS_GUARD1;
+			break;
+		case 4: // Karus sentry
+			nResourceID = IDS_KILL_KARUS_GUARD2;
+			break;
+		case 5: // El Morad sentry
+			nResourceID = IDS_KILL_ELMO_GUARD1;
+			break;
+		case 6: // El Morad sentry
+			nResourceID = IDS_KILL_ELMO_GUARD2;
+			break;
 		}
+
+		if (nResourceID == 0)
+		{
+			TRACE("RecvBattleEvent: could not establish resource for result %d", nResult);
+			return;
+		}
+
+		_snprintf(finalstr, sizeof(finalstr), m_pMain->GetServerResource(nResourceID), strKnightsName, strMaxUserName);
+
+		SetByte( send_buff, WIZ_CHAT, send_index );
+		SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
+		SetByte( send_buff, 1, send_index );
+		SetShort( send_buff, -1, send_index );
+		SetShort( send_buff, strlen(finalstr), send_index );
+		SetString( send_buff, finalstr, strlen(finalstr), send_index );
+		m_pMain->Send_All( send_buff, send_index );
+
+		memset( send_buff, NULL, 256 );		send_index = 0;
+		SetByte( send_buff, WIZ_CHAT, send_index );
+		SetByte( send_buff, PUBLIC_CHAT, send_index );
+		SetByte( send_buff, 1, send_index );
+		SetShort( send_buff, -1, send_index );
+		SetShort( send_buff, strlen(finalstr), send_index );
+		SetString( send_buff, finalstr, strlen(finalstr), send_index );
+		m_pMain->Send_All( send_buff, send_index );
 	}
 	else if( nType == BATTLE_EVENT_KILL_USER )	{
 		if( nResult == 1 )	{
