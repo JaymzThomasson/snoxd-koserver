@@ -437,9 +437,8 @@ void CUser::Parsing(int len, char *pData)
 	case WIZ_HOME:
 		Home();
 		break; 
-	case WIZ_FRIEND_REPORT:
-		FriendReport( pData+index );
-//		Friend(pData+index);
+	case WIZ_FRIEND_PROCESS:
+		FriendProcess(pData+index);
 		break;
 	case WIZ_WARP_LIST:
 		SelectWarpList( pData+index );
@@ -638,7 +637,7 @@ void CUser::LogOut()
 	CTime t = CTime::GetCurrentTime();
 	m_pMain->WriteLog("[%s : %s Logout : %d:%d:%d]\r\n", m_pUserData->m_Accountid, m_pUserData->m_id, t.GetHour(), t.GetMinute(), t.GetSecond());
 
-	pUser = m_pMain->GetUserPtr( m_pUserData->m_Accountid, 0x01 );
+	pUser = m_pMain->GetUserPtr(m_pUserData->m_Accountid, TYPE_ACCOUNT);
 	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) 
 	{
 		TRACE("%s : %s Logout: Sid ?? ??? ???...\n", m_pUserData->m_Accountid, m_pUserData->m_id);
@@ -3246,7 +3245,7 @@ void CUser::OperatorCommand(char *pBuf)
 	if( idlen < 0 || idlen > MAX_ID_SIZE ) return;
 	GetString( userid, pBuf, idlen, index );
 
-	pUser = m_pMain->GetUserPtr( userid, 0x02 );
+	pUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
 	if( !pUser ) return;
 
 	switch( command ) {
@@ -4397,7 +4396,7 @@ void CUser::KickOut(char *pBuf)
 		return;
 	GetString( accountid, pBuf, idlen, index );
 
-	pUser = m_pMain->GetUserPtr( accountid, 0x01 );
+	pUser = m_pMain->GetUserPtr(accountid, TYPE_ACCOUNT);
 	if( pUser ) {
 		pUser->UserDataSaveToAgent();
 		pUser->Close();

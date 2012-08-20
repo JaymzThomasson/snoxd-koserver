@@ -667,12 +667,12 @@ C3DMap * CEbenezerDlg::GetZoneByID(int zoneID)
 	return m_ZoneArray.GetData(zoneID);
 }
 
-CUser* CEbenezerDlg::GetUserPtr(const char *userid, BYTE type)
+CUser* CEbenezerDlg::GetUserPtr(const char *userid, NameType type)
 {
 	CUser* pUser = NULL;
 	BOOL bFind = FALSE;
 
-	if (type == 1)
+	if (type == TYPE_ACCOUNT)
 	{					// Account id check....
 		for (int i = 0; i < MAX_USER; i++) 
 		{
@@ -687,7 +687,7 @@ CUser* CEbenezerDlg::GetUserPtr(const char *userid, BYTE type)
 			}
 		}
 	}
-	else
+	else if (type == TYPE_CHARACTER)
 	{									// character id check...
 		for (int i = 0; i < MAX_USER; i++) 
 		{
@@ -2659,7 +2659,7 @@ void CEbenezerDlg::KillUser(const char *strbuff)
 	if( strlen( strbuff ) <= 0 || strlen( strbuff ) > MAX_ID_SIZE ) return;
 
 	CUser* pUser = NULL;
-	pUser = GetUserPtr( strbuff, 0x02 );
+	pUser = GetUserPtr(strbuff, TYPE_CHARACTER);
 	if( !pUser ) return;
 
 	pUser->Close();
@@ -2977,16 +2977,7 @@ void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 	SetShort( send_buff, -1, send_index );
 	SetKOString(send_buff, finalstr, send_index);
 
-	for (int i = 0; i < MAX_USER; i++)
-	{
-		CUser* pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL
-			|| pUser->GetState() != STATE_GAMESTART
-			|| (nation != 0 && nation != pUser->getNation()))
-			continue;
-
-		pUser->Send(send_buff, send_index);
-	}
+	Send_All(send_buff, send_index, NULL, nation);
 }
 
 BOOL CEbenezerDlg::LoadHomeTable()
@@ -3277,7 +3268,7 @@ int  CEbenezerDlg::GetKnightsAllMembers(int knightsindex, char *temp_buff, int& 
 
 		for( i=0; i<MAX_CLAN; i++ )	{
 			if( pKnights->m_arKnightsUser[i].byUsed == 1 )	{	// 
-				pUser = GetUserPtr( pKnights->m_arKnightsUser[i].strUserName, 0x02 );
+				pUser = GetUserPtr(pKnights->m_arKnightsUser[i].strUserName, TYPE_CHARACTER);
 				if( pUser )	{		// 접속중인 회원
 					if( pUser->m_pUserData->m_bKnights == knightsindex )	{
 						SetShort( temp_buff, strlen(pUser->m_pUserData->m_id), buff_index );
@@ -3636,7 +3627,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 				KRankSet.MoveNext();
 				continue;			
 			}	
-			pUser = GetUserPtr( pKnights->m_strChief, 0x02 );
+			pUser = GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
 			if( !pUser )	{
 				KRankSet.MoveNext();
 				continue;
@@ -3665,7 +3656,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 				KRankSet.MoveNext();
 				continue;
 			}
-			pUser = GetUserPtr( pKnights->m_strChief, 0x02 );
+			pUser = GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
 			if( !pUser )	{
 				KRankSet.MoveNext();
 				continue;

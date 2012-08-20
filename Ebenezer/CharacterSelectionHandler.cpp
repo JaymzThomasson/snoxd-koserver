@@ -224,7 +224,7 @@ void CUser::SelCharToAgent(char *pBuf)
 		return;
 	}
 
-	pUser = m_pMain->GetUserPtr( userid, 0x02 );
+	pUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
 	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) {
 		pUser->Close();
 		goto fail_return;

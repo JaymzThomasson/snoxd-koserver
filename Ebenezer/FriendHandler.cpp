@@ -3,12 +3,13 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 
-void CUser::Friend(char *pBuf)
+void CUser::FriendProcess(char *pBuf)
 {
 	int index = 0;
 	BYTE subcommand = GetByte( pBuf, index );
 
-	switch( subcommand ) {
+	switch (subcommand)
+	{
 		case FRIEND_REQUEST:
 			FriendRequest(pBuf+index);
 			break;
@@ -17,6 +18,9 @@ void CUser::Friend(char *pBuf)
 			break;
 		case FRIEND_REPORT:
 			FriendReport(pBuf+index);
+			break;
+		case FRIEND_CANCEL:
+			FriendCancel(pBuf+index);
 			break;
 	}
 }
@@ -38,14 +42,14 @@ void CUser::FriendRequest(char *pBuf)
 	m_sFriendUser = destid;
 	pUser->m_sFriendUser = m_Sid;
 
-	SetByte( buff, WIZ_FRIEND_REPORT, send_index );
+	SetByte( buff, WIZ_FRIEND_PROCESS, send_index );
 	SetByte( buff, FRIEND_REQUEST, send_index );
 	SetShort( buff, m_Sid, send_index );
 	pUser->Send( buff, send_index );	
 	return;
 
 fail_return:
-	SetByte( buff, WIZ_FRIEND_REPORT, send_index );
+	SetByte( buff, WIZ_FRIEND_PROCESS, send_index );
 	SetByte( buff, FRIEND_CANCEL, send_index );
 	Send( buff, send_index );
 }
@@ -68,7 +72,7 @@ void CUser::FriendAccept(char *pBuf)
 	m_sFriendUser = -1;
 	pUser->m_sFriendUser = -1;
 
-	SetByte( buff, WIZ_FRIEND_REPORT, send_index );
+	SetByte( buff, WIZ_FRIEND_PROCESS, send_index );
 	SetByte( buff, FRIEND_ACCEPT, send_index );
 	SetByte( buff, result, send_index );
 	pUser->Send( buff, send_index );
@@ -78,8 +82,8 @@ void CUser::FriendReport(char *pBuf)
 {
 	int index = 0; short usercount = 0, idlen = 0;		// Basic Initializations.
 	int send_index = 0;
-	char send_buff[256];
-	memset( send_buff, NULL, 256);
+	char send_buff[640];
+	memset( send_buff, NULL, 640);
 	char userid[MAX_ID_SIZE+1];
 	memset( userid, NULL, MAX_ID_SIZE+1 );
 	CUser* pUser = NULL;
@@ -89,7 +93,7 @@ void CUser::FriendReport(char *pBuf)
 	usercount = GetShort( pBuf, index );	// Get usercount packet.
 	if( usercount >= 30 || usercount < 0) return;
 	
-	SetByte( send_buff, WIZ_FRIEND_REPORT, send_index );
+	SetByte( send_buff, WIZ_FRIEND_PROCESS, send_index );
 	SetShort( send_buff, usercount, send_index);
 
 	for (int k = 0 ; k < usercount ; k++) {
@@ -103,10 +107,9 @@ void CUser::FriendReport(char *pBuf)
 		}
 		GetString( userid, pBuf, idlen, index );
 
-		pUser = m_pMain->GetUserPtr( userid, 0x02 );
+		pUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
 
-		SetShort(send_buff, idlen, send_index);
-		SetString( send_buff, userid, idlen, send_index );
+		SetKOString(send_buff, userid, send_index);
 
 		if (!pUser) { // No such user
 			SetShort(send_buff, -1, send_index);
@@ -124,4 +127,9 @@ void CUser::FriendReport(char *pBuf)
 	}
 
 	Send( send_buff, send_index );
+}
+
+void CUser::FriendCancel(char *pBuf)
+{
+	// TO-DO
 }

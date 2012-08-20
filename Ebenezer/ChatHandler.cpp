@@ -92,6 +92,7 @@ void CUser::ChatTargetSelect(char *pBuf)
 	if( idlen > MAX_ID_SIZE || idlen < 0 ) return;
 	GetString( chatid, pBuf, idlen, index );
 
+	m_pMain->GetUserPtr(chatid, TYPE_CHARACTER);
 	for (i = 0; i < MAX_USER; i++)
 	{
 		pUser = m_pMain->GetUnsafeUserPtr(i); 

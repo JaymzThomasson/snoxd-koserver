@@ -485,7 +485,7 @@ void CUdpSocket::RecvModifyFame( char* pBuf, BYTE command )
 	idlen = GetShort( pBuf, index );
 	GetString( userid, pBuf, idlen, index );
 
-	pTUser = m_pMain->GetUserPtr( userid, 0x02 );
+	pTUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
 	pKnights = m_pMain->m_KnightsArray.GetData( knightsindex );
 
 	switch( command ) {

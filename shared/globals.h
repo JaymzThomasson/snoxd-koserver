@@ -11,6 +11,12 @@
 
 #define MAX_ITEM_COUNT		9999
 
+enum NameType
+{
+	TYPE_ACCOUNT,
+	TYPE_CHARACTER
+};
+
 // ITEM_SLOT DEFINE
 const BYTE RIGHTEAR			= 0;
 const BYTE HEAD				= 1;

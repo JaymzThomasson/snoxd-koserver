@@ -58,7 +58,7 @@ void CUser::LoginProcess(char *pBuf)
 		|| !GetKOString(pBuf, password, index, MAX_PW_SIZE))
 		goto fail_return;
 
-	pUser = m_pMain->GetUserPtr( accountid, 0x01 );
+	pUser = m_pMain->GetUserPtr(accountid, TYPE_ACCOUNT);
 	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) {
 		pUser->UserDataSaveToAgent();
 		pUser->Close();

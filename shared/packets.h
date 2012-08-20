@@ -77,7 +77,7 @@
 #define WIZ_SERVER_CHANGE		0x46	// When you change the server
 #define WIZ_REPORT_BUG			0x47	// Report Bug to the manager
 #define WIZ_HOME				0x48    // 'Come back home' by Seo Taeji & Boys
-#define WIZ_FRIEND_REPORT		0x49	// Get the status of your friend
+#define WIZ_FRIEND_PROCESS		0x49	// Get the status of your friend
 #define WIZ_GOLD_CHANGE			0x4A	// When you get the gold of your enemy.
 #define WIZ_WARP_LIST			0x4B	// Warp List by NPC or Object
 #define WIZ_VIRTUAL_SERVER		0x4C	// Battle zone Server Info packet	(IP, Port)

@@ -1262,7 +1262,7 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 
 		if( nLen > 0 && nLen < MAX_ID_SIZE+1 )	{
 			GetString( strMaxUserName, pBuf, nLen, index );
-			pUser = m_pMain->GetUserPtr( strMaxUserName, 0x02 );
+			pUser = m_pMain->GetUserPtr(strMaxUserName, TYPE_CHARACTER);
 			if( pUser )	{
 				pKnights = m_pMain->m_KnightsArray.GetData( pUser->m_pUserData->m_bKnights );
 				if( pKnights )	{

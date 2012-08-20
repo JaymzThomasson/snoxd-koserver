@@ -488,7 +488,7 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, char *pBuf, BYTE command
 		}
 	}
 
-	pTUser = m_pMain->GetUserPtr( userid, 2);
+	pTUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
 	if( !pTUser )	{
 		if( command == KNIGHTS_REMOVE )	{			// 게임상에 없는 유저 추방시 (100)
 			remove_flag = 0;
@@ -968,7 +968,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, char *pBuf, BYTE command)
 	GetString( userid, pBuf, idlen, index );
 	vicechief = GetByte( pBuf, index );
 
-	pTUser = m_pMain->GetUserPtr( userid, 0x02 );
+	pTUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
 	pKnights = m_pMain->m_KnightsArray.GetData( knightsindex );
 
 	switch( command ) {

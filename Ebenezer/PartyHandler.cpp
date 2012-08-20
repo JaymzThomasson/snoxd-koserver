@@ -19,7 +19,7 @@ void CUser::PartyProcess(char *pBuf)
 		idlength = GetShort( pBuf, index );
 		if (idlength <= 0 || idlength > MAX_ID_SIZE) return ;
 		GetString( strid, pBuf, idlength, index );
-		pUser = m_pMain->GetUserPtr( strid, 0x02 );
+		pUser = m_pMain->GetUserPtr(strid, TYPE_CHARACTER);
 		if( pUser ) {
 			memberid = pUser->GetSocketID();
 			PartyRequest( memberid, TRUE );
@@ -36,7 +36,7 @@ void CUser::PartyProcess(char *pBuf)
 		idlength = GetShort( pBuf, index );
 		if (idlength <= 0 || idlength > MAX_ID_SIZE) return ;
 		GetString( strid, pBuf, idlength, index );
-		pUser = m_pMain->GetUserPtr( strid, 0x02 );
+		pUser = m_pMain->GetUserPtr(strid, TYPE_CHARACTER);
 		if( pUser ) {
 			memberid = pUser->GetSocketID();
 			PartyRequest( memberid, FALSE );

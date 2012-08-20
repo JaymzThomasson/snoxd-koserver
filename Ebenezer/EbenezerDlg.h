@@ -133,7 +133,7 @@ public:
 	long GetExpByLevel(int nLevel);
 	C3DMap * GetZoneByID(int zoneID);
 
-	CUser* GetUserPtr( const char* userid, BYTE type );
+	CUser* GetUserPtr(const char* userid, NameType type);
 	CUser * GetUserPtr(int sid);
 	__forceinline CUser * GetUnsafeUserPtr(int sid);
 

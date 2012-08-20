@@ -267,9 +267,6 @@ public:
 	void PartyBBSDelete(char *pBuf);
 	void PartyBBSRegister(char *pBuf);
 	void PartyBBS(char *pBuf);
-	void FriendAccept(char *pBuf);
-	void FriendRequest(char *pBuf);
-	void Friend(char *pBuf);
 	BOOL WarpListObjectEvent(short objectindex, short nid);
 	BOOL FlagObjectEvent(short objectindex, short nid);
 	BOOL GateLeverObjectEvent(short objectindex, short nid);
@@ -284,7 +281,11 @@ public:
 	void AllSkillPointChange();
 	void AllPointChange();
 	void ClassChangeReq();
-	void FriendReport( char* pBuf );
+	void FriendProcess(char *pBuf);
+	void FriendRequest(char *pBuf);
+	void FriendAccept(char *pBuf);
+	void FriendReport(char *pBuf);
+	void FriendCancel(char *pBuf);
 	CUser* GetItemRoutingUser(int itemid, short itemcount);
 	void Home();
 	int GetEmptySlot( int itemid, int bCountable );
