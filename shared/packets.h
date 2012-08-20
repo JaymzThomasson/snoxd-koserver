@@ -176,17 +176,37 @@
 #define PARTY_REGISTER			0x0A	// Party Message Board Register
 #define PARTY_REPORT			0x0B	// Party Request Message Board Messages
 
-////////////////////////////////////////////////////////////////
-// Exchange Related subpacket define
-////////////////////////////////////////////////////////////////
-#define EXCHANGE_REQ			0x01
-#define EXCHANGE_AGREE			0x02
-#define EXCHANGE_ADD			0x03
-#define EXCHANGE_OTHERADD		0x04
-#define EXCHANGE_DECIDE			0x05
-#define EXCHANGE_OTHERDECIDE	0x06
-#define EXCHANGE_DONE			0x07
-#define EXCHANGE_CANCEL			0x08
+enum TradeOpcodes
+{
+	EXCHANGE_REQ			= 1,
+	EXCHANGE_AGREE			= 2,
+	EXCHANGE_ADD			= 3,
+	EXCHANGE_OTHERADD		= 4,
+	EXCHANGE_DECIDE			= 5,
+	EXCHANGE_OTHERDECIDE	= 6,
+	EXCHANGE_DONE			= 7,
+	EXCHANGE_CANCEL			= 8
+};
+
+enum MerchantOpcodes
+{
+	MERCHANT_OPEN			= 1,
+	MERCHANT_CLOSE			= 2,
+	MERCHANT_ITEM_ADD		= 3,
+	MERCHANT_ITEM_CANCEL	= 4,
+	MERCHANT_ITEM_LIST		= 5,
+	MERCHANT_ITEM_BUY		= 6,
+	MERCHANT_INSERT			= 7,
+	MERCHANT_TRADE_CANCEL	= 8,
+	MERCHANT_ITEM_PURCHASED	= 9,
+
+	MERCHANT_BUY_OPEN		= 0x21,
+	MERCHANT_BUY_INSERT		= 0x22,
+	MERCHANT_BUY_LIST		= 0x23,
+	MERCHANT_BUY_BUY		= 0x24,
+	MERCHANT_BUY_CLOSE		= 0x27
+};
+
 
 ////////////////////////////////////////////////////////////////
 // Magic Packet sub define 

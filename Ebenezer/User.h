@@ -319,14 +319,37 @@ public:
 	void UpdateGameWeather( char* pBuf, BYTE type );
 	void ObjectEvent( char* pBuf );
 	void SkillPointChange( char* pBuf );
+
+	// Trade system
 	BOOL ExecuteExchange();
+	void ExchangeProcess(char* pBuf);
 	void InitExchange(BOOL bStart);
 	void ExchangeCancel();
 	void ExchangeDecide();
-	void ExchangeAdd( char* pBuf );
-	void ExchangeAgree( char* pBuf );
-	void ExchangeReq( char* pBuf );
-	void ExchangeProcess( char* pBuf );
+	void ExchangeAdd(char* pBuf);
+	void ExchangeAgree(char* pBuf);
+	void ExchangeReq(char* pBuf);
+
+	// Merchant system (both types)
+	void MerchantProcess(char *pBuf);
+
+	// regular merchants
+	void MerchantOpen(char *pBuf);
+	void MerchantClose();
+	void MerchantItemAdd(char *pBuf);
+	void MerchantItemCancel(char *pBuf);
+	void MerchantItemList(char *pBuf);
+	void MerchantItemBuy(char *pBuf);
+	void MerchantInsert(char *pBuf);
+	void CancelMerchant();
+
+	// buying merchants
+	void BuyingMerchantOpen(char *pBuf);
+	void BuyingMerchantClose(char *pBuf);
+	void BuyingMerchantInsert(char *pBuf);
+	void BuyingMerchantList(char *pBuf);
+	void BuyingMerchantBuy(char *pBuf);
+
 	void PartyDelete();
 	void PartyRemove( int memberid );
 	void PartyInsert();

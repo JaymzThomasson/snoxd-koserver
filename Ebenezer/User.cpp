@@ -383,6 +383,9 @@ void CUser::Parsing(int len, char *pData)
 	case WIZ_MAGIC_PROCESS:
 		m_MagicProcess.MagicPacket( pData+index, len );
 		break;
+	case WIZ_MERCHANT:
+		MerchantProcess(pData+index);
+		break;
 	case WIZ_SKILLPT_CHANGE:
 		SkillPointChange( pData+index );
 		break;
@@ -436,7 +439,7 @@ void CUser::Parsing(int len, char *pData)
 	case WIZ_ZONE_CONCURRENT:
 		ZoneConCurrentUsers( pData+index );
 		break;
-	case WIZ_VIRTUAL_SERVER:	// ???�u?? ?????? ??? ????? ???? ???? ???? ????
+	case WIZ_VIRTUAL_SERVER:
 		ServerChangeOk( pData+index );
 		break;
 	case WIZ_PARTY_BBS:

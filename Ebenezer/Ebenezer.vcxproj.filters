@@ -207,6 +207,9 @@
     <ClCompile Include="StartPositionSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>
+    <ClCompile Include="MerchantHandler.cpp">
+      <Filter>Source Files\Handlers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AIPacket.h">
