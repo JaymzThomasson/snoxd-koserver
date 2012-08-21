@@ -302,8 +302,12 @@ void CUser::ExchangeCancel()
 	CUser* pUser = NULL;
 	BOOL bFind = TRUE;
 
+	if (!isTrading())
+		return;
+
 	pUser = m_pMain->GetUserPtr(m_sExchangeUser);
-	if (pUser == NULL) bFind = FALSE;
+	if (pUser == NULL) 
+		bFind = FALSE;
 
 	list<_EXCHANGE_ITEM*>::iterator	Iter;
 	for( Iter = m_ExchangeItemList.begin(); Iter != m_ExchangeItemList.end(); Iter++ ) {
