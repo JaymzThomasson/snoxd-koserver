@@ -50,7 +50,7 @@ void CUser::MerchantProcess(char *pBuf)
 			break;
 
 		case MERCHANT_BUY_CLOSE: 
-			BuyingMerchantClose(pBuf+index); 
+			BuyingMerchantClose(); 
 			break;
 
 		case MERCHANT_BUY_LIST: 
@@ -110,7 +110,7 @@ void CUser::BuyingMerchantOpen(char *pBuf)
 {
 }
 
-void CUser::BuyingMerchantClose(char *pBuf)
+void CUser::BuyingMerchantClose()
 {
 }
 
