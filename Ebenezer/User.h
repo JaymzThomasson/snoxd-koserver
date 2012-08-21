@@ -225,7 +225,7 @@ public:
 	BOOL CheckRandom(short percent);
 	void NativeZoneReturn();
 	void EventMoneyItemGet( int itemid, int count );
-	void KickOutZoneUser(BOOL home = FALSE);
+	void KickOutZoneUser(BOOL home = FALSE, int nZoneID = 21);
 	void TrapProcess();
 	BOOL JobGroupCheck(short jobgroupid);
 	void SelectMsg(EXEC* pExec);
@@ -288,6 +288,7 @@ public:
 	void FriendCancel(char *pBuf);
 	CUser* GetItemRoutingUser(int itemid, short itemcount);
 	void Home();
+	bool GetStartPosition(short & x, short & y, BYTE bZone = 0);
 	int GetEmptySlot( int itemid, int bCountable );
 	void InitType4();
 	void WarehouseProcess( char* pBuf );
@@ -345,7 +346,7 @@ public:
 
 	// buying merchants
 	void BuyingMerchantOpen(char *pBuf);
-	void BuyingMerchantClose(char *pBuf);
+	void BuyingMerchantClose();
 	void BuyingMerchantInsert(char *pBuf);
 	void BuyingMerchantList(char *pBuf);
 	void BuyingMerchantBuy(char *pBuf);
@@ -430,6 +431,8 @@ public:
 	void RecvStoreClose(char *pData);
 
 	void LetterSystem(char *pData);
+
+	void ResetWindows();
 
 	void CloseProcess();
 	CUser();

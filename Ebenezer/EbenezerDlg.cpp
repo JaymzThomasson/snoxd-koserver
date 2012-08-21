@@ -630,6 +630,11 @@ CString CEbenezerDlg::GetServerResource(int nResourceID)
 	return result;
 }
 
+_START_POSITION *CEbenezerDlg::GetStartPosition(int nZoneID)
+{
+	return m_StartPositionArray.GetData(nZoneID);
+}
+
 long CEbenezerDlg::GetExpByLevel(int nLevel)
 {
 	LevelUpArray::iterator itr = m_LevelUpArray.find(nLevel);

@@ -372,14 +372,18 @@ void CUser::Warp(char *pBuf)
 	warp_z = GetShort( pBuf, index );
 
 	real_x = warp_x/10.0f; real_z = warp_z/10.0f;
-	if (!GetMap()->IsValidPosition(real_x, real_z, 0.0f)) return;
+	if (!GetMap()->IsValidPosition(real_x, real_z, 0.0f)) 
+	{
+		TRACE("Invalid position %d,%d\n", real_x, real_z);
+		return;
+	}
 
-	SetByte( send_buff, WIZ_WARP, send_index );
-	SetShort( send_buff, warp_x, send_index );
-	SetShort( send_buff, warp_z, send_index );
-	Send( send_buff, send_index );
+	SetByte(send_buff, WIZ_WARP, send_index);
+	SetShort(send_buff, warp_x, send_index);
+	SetShort(send_buff, warp_z, send_index);
+	Send(send_buff, send_index);
 
-	UserInOut( USER_OUT );
+	UserInOut(USER_OUT);
 
 	m_pUserData->m_curx = m_fWill_x = real_x;
 	m_pUserData->m_curz = m_fWill_z = real_z;
@@ -389,8 +393,9 @@ void CUser::Warp(char *pBuf)
 
 	//TRACE(" Warp ,, name=%s, x=%.2f, z=%.2f\n", m_pUserData->m_id, m_pUserData->m_curx, m_pUserData->m_curz);
 
-	//UserInOut( USER_IN );
-	UserInOut( USER_WARP );
-	m_pMain->RegionUserInOutForMe(this);
-	m_pMain->RegionNpcInfoForMe(this);
+	UserInOut(USER_WARP);
+	m_pMain->UserInOutForMe(this);
+	m_pMain->NpcInOutForMe(this);
+
+	ResetWindows();
 }

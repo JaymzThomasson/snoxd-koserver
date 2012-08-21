@@ -131,6 +131,7 @@ public:
 	void Send_AIServer( int zone, char* pBuf, int len );
 
 	CString GetServerResource(int nResourceID);
+	_START_POSITION *GetStartPosition(int nZoneID);
 
 	long GetExpByLevel(int nLevel);
 	C3DMap * GetZoneByID(int zoneID);

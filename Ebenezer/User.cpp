@@ -3452,70 +3452,65 @@ int CUser::GetEmptySlot(int itemid, int bCountable)	// item ????? ?????? ????? ï
 
 void CUser::Home()
 {
-	int send_index = 0 ;    
-	char send_buff[128] ;
-	memset( send_buff, NULL, 128) ;
-	
-	short x = 0, z = 0 ;		// The point where you will be warped to.
+	// The point where you will be warped to.
+	short x = 0, z = 0;
 
-	_HOME_INFO* pHomeInfo = NULL;
-	pHomeInfo = m_pMain->m_HomeArray.GetData(m_pUserData->m_bNation);
-	if (!pHomeInfo) return;
-
-	if( m_pUserData->m_bNation != m_pUserData->m_bZone && m_pUserData->m_bZone > 200) {		// Frontier Zone...
-		x = pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX);
-		z = pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ);
-	}
-//
-	else if( m_pUserData->m_bNation != m_pUserData->m_bZone && m_pUserData->m_bZone > 100 && m_pUserData->m_bZone < 200) {	// Battle Zone...
-		x = pHomeInfo->BattleZoneX + myrand(0, pHomeInfo->BattleZoneLX);
-		z = pHomeInfo->BattleZoneZ + myrand(0, pHomeInfo->BattleZoneLZ);
-
-// ????? ??ï¿½??? ???g?? --;
-		if (m_pUserData->m_bZone == ZONE_SNOW_BATTLE) {
-			x = pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX);
-			z = pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ);
-		}
-//
-
-/*
-		KickOutZoneUser();
+	// Forgotten Temple
+	if (getZoneID() == 55)
+	{
+		KickOutZoneUser(TRUE);
 		return;
-*/
 	}
-//
-	else if (m_pUserData->m_bNation != m_pUserData->m_bZone && m_pUserData->m_bZone < 3) {	// Specific Lands...
-		if (m_pUserData->m_bNation == KARUS) {
-			x = pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX);
-			z = pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ);			
-		}
-		else if (m_pUserData->m_bNation == ELMORAD) {
-			x = pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX);
-			z = pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ);	
-		}		
-		else return;
-	}
-// ????? ??? >.<
-	else if (m_pUserData->m_bZone > 10 && m_pUserData->m_bZone < 20) {
-		x = 527 + myrand(0, 10);
-		z = 543 + myrand(0, 10);			
-	}
-//
-	else {	// Your own nation...
-		if (m_pUserData->m_bNation == KARUS) {
-			x = pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX);
-			z = pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ);			
-		}
-		else if (m_pUserData->m_bNation == ELMORAD) {			
-			x = pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX);
-			z = pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ);
-		}		
-		else return;
-	}
-	
+	// Prevent /town'ing in quest arenas
+	else if ((getZoneID() / 10) == 5
+		|| !GetStartPosition(x, z))
+		return;
+
+	char send_buff[4]; int send_index = 0;
 	SetShort(send_buff, (WORD)(x * 10), send_index);	
 	SetShort(send_buff, (WORD)(z * 10), send_index);
 	Warp(send_buff);
+}
+
+bool CUser::GetStartPosition(short & x, short & z, BYTE bZone /*= 0 */)
+{
+	// Get start position data for current zone (unless we specified a zone).
+	int nZoneID = (bZone == 0 ? getZoneID() : bZone);
+	_START_POSITION *pData = m_pMain->GetStartPosition(nZoneID);
+	if (pData == NULL)
+		return false;
+
+	// TO-DO: Allow for Delos/CSW.
+
+	// NOTE: This is how mgame does it.
+	// This only allows for positive randomisation; we should really allow for the full range...
+	if (getNation() == KARUS)
+	{
+		x = pData->sKarusX + myrand(0, pData->bRangeX);
+		z = pData->sKarusZ + myrand(0, pData->bRangeZ);
+	}
+	else
+	{
+		x = pData->sElmoradX + myrand(0, pData->bRangeX);
+		z = pData->sElmoradZ + myrand(0, pData->bRangeZ);
+	}
+
+	return true;
+}
+
+void CUser::ResetWindows()
+{
+/*	if (isTrading())
+		ExchangeCancel();
+
+	if (isUsingMerchant())
+		MerchantClose();
+
+	if (isUsingBuyingMerchant())
+		BuyingMerchantClose();
+
+	if (isUsingStore())
+		m_bStoreOpen = false;*/
 }
 
 CUser* CUser::GetItemRoutingUser(int itemid, short itemcount)
@@ -4507,11 +4502,12 @@ void CUser::TrapProcess()
 	m_fLastTrapAreaTime = currenttime;		// Update Last Trap Area time :)
 }
 
-void CUser::KickOutZoneUser(BOOL home)
+// TO-DO: This needs updating.
+void CUser::KickOutZoneUser(BOOL home, int nZoneID /*= 21 */)
 {
 	int yourmama=0, random = 0;
 	_REGENE_EVENT* pRegene = NULL;
-	C3DMap* pMap = m_pMain->GetZoneByID(getNation());
+	C3DMap* pMap = m_pMain->GetZoneByID(nZoneID);
 	if (pMap == NULL) return;
 
 	if (home)
