@@ -6,8 +6,8 @@
 #include "IOCPSocket2.h"
 #include "CircularBuffer.h"
 #include "define.h"
-#include "../shared/lzf.h"
-#include "../shared/crc32.h"
+#include "../shared/Compress.h"
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -532,25 +532,24 @@ void CIOCPSocket2::SendCompressingPacket(const char *pData, int len)
 		return;
 	}
 
-	if( len <= 0 || len >= 49152)	{
+	if (len <= 0 || len >= 49152)	
+	{
 		TRACE("### SendCompressingPacket Error : len = %d ### \n", len);
 		return;
 	}
 
-	int send_index = 0, count = 0;
-	short out_length = 0, in_length = (short)len;
-	DWORD crc;
-	char out_buff[49152];		memset(out_buff, 0x00, 49152);
-	char send_buff[49152];		memset(send_buff, 0x00, 49152);
+	CCompressMng comp;
+	int send_index = 0;
+	char send_buff[49152];
 
-	crc = (DWORD)crc32((const unsigned char*)pData, len);
-	out_length = lzf_compress(pData, len, out_buff, len + LZF_MARGIN);
+	comp.PreCompressWork(pData, len);
+	comp.Compress();
 
 	SetByte(send_buff, WIZ_COMPRESS_PACKET, send_index);
-	SetShort(send_buff, out_length, send_index);
-	SetShort(send_buff, in_length, send_index);
-	SetDWORD(send_buff, crc, send_index);
-	SetString(send_buff, out_buff, out_length, send_index);
+	SetDWORD(send_buff, comp.m_nOutputBufferCurPos, send_index);
+	SetDWORD(send_buff, comp.m_nOrgDataLength, send_index);
+	SetDWORD(send_buff, comp.m_dwCrc, send_index);
+	SetString(send_buff, comp.m_pOutputBuffer, comp.m_nOutputBufferCurPos, send_index);
 	Send(send_buff, send_index);
 }
 

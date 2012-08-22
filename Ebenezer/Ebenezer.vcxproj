@@ -94,7 +94,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
-      <IgnoreSpecificDefaultLibraries>Nafxcwd.lib;Libcmtd.lib</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>Nafxcwd.lib;Libcmtd.lib;libc.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -149,6 +149,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\shared\Compress.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
     <ClCompile Include="..\shared\lzf.cpp" />
     <ClCompile Include="AISocket.cpp">
@@ -334,6 +335,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\shared\Compress.h" />
     <ClInclude Include="..\shared\crc32.h" />
     <ClInclude Include="..\shared\globals.h" />
     <ClInclude Include="..\shared\lzf.h" />

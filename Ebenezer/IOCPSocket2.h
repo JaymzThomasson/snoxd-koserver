@@ -15,14 +15,11 @@
 #include "JvCryption.h"
 ///~
 
-
 #define receives				0
 #define sends					1
 #define both					2 
 
 class CCircularBuffer;
-class CCompressMng;
-
 class CIOCPSocket2  
 {
 public:
@@ -64,7 +61,6 @@ public:
 	_REGION_BUFFER*	m_pRegionBuffer;
 
 protected:
-	CCompressMng*	m_pCompressMng;
 	CIOCPort* m_pIOCPort;
 	CCircularBuffer*	m_pBuffer;
 

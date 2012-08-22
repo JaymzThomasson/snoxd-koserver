@@ -210,6 +210,9 @@
     <ClCompile Include="MerchantHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\Compress.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AIPacket.h">
@@ -379,6 +382,9 @@
     </ClInclude>
     <ClInclude Include="StartPositionSet.h">
       <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\Compress.h">
+      <Filter>Shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
