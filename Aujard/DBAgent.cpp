@@ -1562,7 +1562,7 @@ BOOL CDBAgent::LoadWebItemMall(char *charid, char *buff, int & buff_index)
 		return FALSE;
 
 	memset(szSQL, 0x00, 1024);
-	wsprintf(szSQL, TEXT("{call LOAD_WEB_ITEMMALL (\'%s\')}", charid));
+	wsprintf(szSQL, TEXT("{call LOAD_WEB_ITEMMALL (\'%s\')}"), charid);
 	
 	TCHAR strAccountID[MAX_ID_SIZE+1];
 	SQLCHAR Race = 0x00, Level = 0x00, Face = 0x00, Zone = 0x00; 
