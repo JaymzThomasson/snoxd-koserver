@@ -22,7 +22,6 @@ class CDBAgent
 public:
 	CDBAgent();
 	BOOL UpdateBattleEvent( const char* charid, int nation );
-	void DBProcessNumber( int number );
 	void LoadKnightsAllList( int nation);
 	BOOL CheckUserData( const char* accountid, const char*  charid, int type, int nTimeNumber, int comparedata );
 	int AccountLogout( const char* accountid );
