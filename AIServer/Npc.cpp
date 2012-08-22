@@ -963,12 +963,12 @@ BOOL CNpc::SetLive(CIOCPort* pIOCP)
 			}
 
 			if(pMap->m_pMap[nTileX][nTileZ].m_sEvent <= 0)	{
-				if(i >= 500)	{
+				if(i >= 50)	{
 					m_nInitX = m_fPrevX = m_fCurX;
 					m_nInitY = m_fPrevY = m_fCurY;
 					m_nInitZ = m_fPrevZ = m_fCurZ;
 					TRACE("### fail : sid = %d, nid = %d, zone=%d, loop = %d 나 설자리가 이상해... 고쳐줘... x = %d, y = %d\n", m_sSid, m_sNid+NPC_BAND, m_sCurZone, i, nX, nZ);
-					return FALSE;
+					//return FALSE;
 			
 				}
 				continue;
