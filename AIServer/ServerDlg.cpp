@@ -165,15 +165,12 @@ BOOL CServerDlg::OnInitDialog()
 	// Default Init ...
 	DefaultInit();
 
-	// TestCode
-	TestCode();
-
 	//----------------------------------------------------------------------
 	//	Sets a random number starting point.
 	//----------------------------------------------------------------------
 	SetTimer( CHECK_ALIVE, 10000, NULL );
 	srand( (unsigned)time(NULL) );
-	for(int i = 0; i < 10; i++) myrand(1, 10000);	// don't delete
+
 	// Compress Init
 	memset( m_CompBuf, NULL, 10240 );		// 압축할 데이터를 모으는 버퍼
 	m_iCompIndex = 0;						// 압축할 데이터의 길이
@@ -1126,18 +1123,13 @@ BOOL CServerDlg::CreateNpcThread()
 					pNpc->m_fCurY	= 0;
 					pNpc->m_fCurZ	= fRandom_Z;
 					
-					if(NpcPosSet.m_RegTime < 15)	{
-						TRACE("##### ServerDlg:CreateNpcThread - RegenTime Error :  nid=%d, name=%s, regentime=%d #####\n", pNpc->m_sNid+NPC_BAND, pNpc->m_strName, NpcPosSet.m_RegTime);
-						NpcPosSet.m_RegTime = 30;
-					}
-
 					pNpc->m_sRegenTime		= NpcPosSet.m_RegTime * 1000;	// 초(DB)단위-> 밀리세컨드로
 
 					pNpc->m_sMaxPathCount = NpcPosSet.m_DotCnt;
 
 					if( pNpc->m_byMoveType >= 2 && NpcPosSet.m_DotCnt == 0 )	{
+						pNpc->m_byMoveType = 1;
 						TRACE("##### ServerDlg:CreateNpcThread - Path type Error :  nid=%d, sid=%d, name=%s, acttype=%d, path=%d #####\n", pNpc->m_sNid+NPC_BAND, pNpc->m_sSid, pNpc->m_strName, pNpc->m_byMoveType, pNpc->m_sMaxPathCount);
-						return FALSE;
 					}
 
 					int index = 0;
@@ -1244,15 +1236,14 @@ BOOL CServerDlg::CreateNpcThread()
 	int nThreadNumber = 0;
 	CNpcThread* pNpcThread = NULL;
 
-	for(i = 0; i < m_arNpc.GetSize(); i++)
+	for (NpcArray::Iterator itr = m_arNpc.m_UserTypeMap.begin(); itr != m_arNpc.m_UserTypeMap.end(); itr++)
 	{
-		if( step == 0 )
-		{
+		if (step == 0)
 			pNpcThread = new CNpcThread;
-		}
-		pNpcThread->m_pNpc[step] = m_arNpc.GetData(i);
-		pNpcThread->m_pNpc[step]->m_sThreadNumber = nThreadNumber;
-		pNpcThread->m_pNpc[step]->Init();
+
+		CNpc *pNpc = pNpcThread->m_pNpc[step] = itr->second;
+		pNpc->m_sThreadNumber = nThreadNumber;
+		pNpc->Init();
 		
 		++step;
 		
@@ -2160,24 +2151,6 @@ BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 	TRACE("*** %d, %s 를 소환하였습니다. state = %d ***\n", pEventNpc->m_sNid+NPC_BAND, pEventNpc->m_strName, pEventNpc->m_NpcState);
 
 	return TRUE;
-}
-
-void CServerDlg::TestCode()
-{
-	//InitTrigonometricFunction();
-
-	int random=0, count_1=0, count_2=0, count_3=0;
-
-	// TestCoding
-	for(int i=0; i<100; i++)	{
-		random = myrand(1, 3);
-		if(random == 1) count_1++;
-		else if(random == 2) count_2++;
-		else if(random == 3) count_3++;
-	}
-
-	//TRACE("$$$ random test == 1=%d, 2=%d, 3=%d,, %d,%s $$$\n", count_1, count_2, count_3, __FILE__, __LINE__);
-
 }
 
 BOOL CServerDlg::GetMagicType1Data()
