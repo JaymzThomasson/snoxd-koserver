@@ -81,7 +81,6 @@ public:
 	//{{AFX_DATA(CAujardDlg)
 	enum { IDD = IDD_AUJARD_DIALOG };
 	CListBox	m_OutputList;
-	CString	    m_DBProcessNum;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

@@ -99,7 +99,6 @@ CAujardDlg::CAujardDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CAujardDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CAujardDlg)
-	m_DBProcessNum = _T("");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -120,7 +119,6 @@ void CAujardDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAujardDlg)
 	DDX_Control(pDX, IDC_OUT_LIST, m_OutputList);
-	DDX_Text(pDX, IDC_DB_PROCESS, m_DBProcessNum);
 	//}}AFX_DATA_MAP
 }
 
