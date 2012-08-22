@@ -1525,7 +1525,7 @@ BOOL CDBAgent::UpdateBattleEvent( const char* charid, int nation )
 	TCHAR			szSQL[1024];
 	memset( szSQL, 0x00, 1024 );
 
-	wsprintf( szSQL, TEXT( "UPDATE BATTLE SET byNation=%d, strUserName=\'%s\' WHERE sIndex=%d" ), nation, charid, 1 );
+	wsprintf( szSQL, TEXT( "UPDATE BATTLE SET byNation=%d, strUserName=\'%s\' WHERE sIndex=%d" ), nation, charid, m_pMain->m_nServerNo );
 
 	hstmt = NULL;
 
