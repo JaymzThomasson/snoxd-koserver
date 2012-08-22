@@ -532,6 +532,13 @@ void CIOCPSocket2::Initialize()
 
 void CIOCPSocket2::SendCompressingPacket(const char *pData, int len)
 {
+	// Data's too short to bother with compression...
+	if (len < 500)
+	{
+		Send((char *)pData, len);
+		return;
+	}
+
 	if( len <= 0 || len >= 49152)	{
 		TRACE("### SendCompressingPacket Error : len = %d ### \n", len);
 		return;
