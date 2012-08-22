@@ -499,20 +499,13 @@ BOOL CIOCPSocket2::Accept( SOCKET listensocket, struct sockaddr* addr, int* len 
 		return FALSE;
 	}
 
-//	int flag = 1;
-//	setsockopt(m_Socket, SOL_SOCKET, SO_DONTLINGER, (char *)&flag, sizeof(flag));
 
-//	int lensize, socklen=0;
+	struct linger lingerOpt;
 
-//	getsockopt( m_Socket, SOL_SOCKET, SO_RCVBUF, (char*)&socklen, &lensize);
-//	TRACE("getsockopt : %d\n", socklen);
+	lingerOpt.l_onoff = 1;
+	lingerOpt.l_linger = 0;
 
-//	struct linger lingerOpt;
-
-//	lingerOpt.l_onoff = 1;
-//	lingerOpt.l_linger = 0;
-
-//	setsockopt(m_Socket, SOL_SOCKET, SO_LINGER, (char *)&lingerOpt, sizeof(lingerOpt));
+	setsockopt(m_Socket, SOL_SOCKET, SO_LINGER, (const char *)&lingerOpt, sizeof(lingerOpt));
 
 	return TRUE;
 }
