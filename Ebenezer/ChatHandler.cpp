@@ -107,11 +107,10 @@ void CUser::ChatTargetSelect(char *pBuf)
 	}
 
 	SetByte( send_buff, WIZ_CHAT_TARGET, send_index );
-	if( i == MAX_USER )
-		SetShort( send_buff, 0, send_index );
-	else {
-		SetShort( send_buff, strlen( chatid ), send_index );
-		SetString( send_buff, chatid, strlen( chatid ), send_index );
-	}
-	Send( send_buff, send_index );
+	if (i == MAX_USER)
+		SetKOString(send_buff, "", send_index);
+	else
+		SetKOString(send_buff, chatid, send_index);
+
+	Send(send_buff, send_index);
 }

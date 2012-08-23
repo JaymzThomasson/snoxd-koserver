@@ -210,6 +210,7 @@ void CNpc::InsertRegion(int del_x, int del_z)
 
 	SetByte( buff, WIZ_NPC_INOUT, send_index );
 	SetByte( buff, NPC_IN, send_index );
+	SetShort(buff, m_sNid, send_index);
 
 	GetNpcInfo(buff, send_index);
 

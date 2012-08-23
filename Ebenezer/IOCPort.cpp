@@ -307,12 +307,7 @@ DWORD WINAPI SendWorkerThread(LPVOID lp)
 							len = 0;
 							memset( pBuff, 0x00, REGION_BUFF_SIZE );
 							pSocket->RegioinPacketClear( pBuff, len );
-							if( len < 500 )
-								pSocket->Send( pBuff, len );
-							else {
-								pSocket->SendCompressingPacket( pBuff, len );
-//								TRACE("Region Packet %d Bytes\n", len);
-							}
+							pSocket->SendCompressingPacket( pBuff, len );
 						}
 					}
 					break;

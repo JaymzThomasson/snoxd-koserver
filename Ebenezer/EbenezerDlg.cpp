@@ -149,11 +149,10 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 							pUser->RecvSkillDataLoad(pBuf+index);
 					} break;
 				case WIZ_LOGOUT:
-					if( pUser ) {
-						if( strlen(pUser->m_pUserData->m_id) != 0 ) {
-							TRACE("Logout Strange...%s\n", pUser->m_pUserData->m_id);
-							pUser->Close();
-						}
+					if (pUser != NULL && pUser->m_pUserData->m_id[0] != 0)
+					{
+						TRACE("Logout Strange...%s\n", pUser->m_pUserData->m_id);
+						pUser->Close();
 					}
 					break;
 				case KNIGHTS_CREATE+0x10:
@@ -2166,22 +2165,7 @@ int CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, int region_x, int region_z, char 
 		if( pNpc->m_sRegion_X != region_x || pNpc->m_sRegion_Z != region_z )
 			continue;
 		SetShort( buff, pNpc->m_sNid, buff_index );
-		SetShort( buff, pNpc->m_sPid, buff_index );
-		SetByte( buff, pNpc->m_tNpcType, buff_index );
-		SetDWORD( buff, pNpc->m_iSellingGroup, buff_index );
-		SetShort( buff, pNpc->m_sSize, buff_index );
-		SetDWORD( buff, pNpc->m_iWeapon_1, buff_index );
-		SetDWORD( buff, pNpc->m_iWeapon_2, buff_index );
-		SetShort( buff, strlen(pNpc->m_strName), buff_index );
-		SetString( buff, pNpc->m_strName, strlen(pNpc->m_strName), buff_index );
-		SetByte( buff, pNpc->m_byGroup, buff_index );
-		SetByte( buff, pNpc->m_byLevel, buff_index );
-		SetShort( buff, (WORD)pNpc->m_fCurX*10, buff_index );
-		SetShort( buff, (WORD)pNpc->m_fCurZ*10, buff_index );
-		SetShort( buff, (short)pNpc->m_fCurY*10, buff_index );
-		SetDWORD( buff, (int)pNpc->m_byGateOpen, buff_index );
-		SetByte( buff, pNpc->m_byObjectType, buff_index );
-		
+		pNpc->GetNpcInfo(buff, buff_index);
 		t_count++;
 	}
 
@@ -2420,15 +2404,13 @@ BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg)
 //
 			SetByte( buff, 0x01, buffindex );		// nation
 			SetShort( buff, -1, buffindex );		// sid
-			SetShort( buff, strlen(finalstr), buffindex );
-			SetString( buff, finalstr, strlen(finalstr), buffindex );
+			SetKOString( buff, finalstr, buffindex );
 			Send_All( buff, buffindex );
 
 			buffindex = 0;
 			memset( buff, 0x00, 1024 );
 			SetByte( buff, STS_CHAT, buffindex );
-			SetShort( buff, strlen(finalstr), buffindex );
-			SetString( buff, finalstr, strlen(finalstr), buffindex );
+			SetKOString( buff, finalstr, buffindex );
 
 			map < int, _ZONE_SERVERINFO* >::iterator		Iter1;
 			map < int, _ZONE_SERVERINFO* >::iterator		Iter2;
@@ -2638,18 +2620,17 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 
 void CEbenezerDlg::KillUser(const char *strbuff)
 {
-	if( strlen( strbuff ) <= 0 || strlen( strbuff ) > MAX_ID_SIZE ) return;
+	if (strbuff[0] == 0 || strlen(strbuff) > MAX_ID_SIZE )
+		return;
 
-	CUser* pUser = NULL;
-	pUser = GetUserPtr(strbuff, TYPE_CHARACTER);
-	if( !pUser ) return;
-
-	pUser->Close();
+	CUser* pUser = GetUserPtr(strbuff, TYPE_CHARACTER);
+	if (pUser != NULL)
+		pUser->Close();
 }
 
 CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
 {
-	if( m_bPointCheckFlag == FALSE)	return NULL;	// 포인터 참조하면 안됨
+	if( m_bPointCheckFlag == FALSE)	return NULL;
 
 	CNpc* pNpc = NULL;
 
@@ -2657,10 +2638,11 @@ CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
 
 	for( int i = 0; i < nSize; i++)	{
 		pNpc = m_arNpcArray.GetData( i+NPC_BAND );
-		if( !pNpc ) continue;
-		if(pNpc->getZoneID() != cur_zone)	continue;
+		if (pNpc == NULL || pNpc->getZoneID() != cur_zone
+			|| pNpc->m_sPid != sid) // this isn't a typo (unless it's mgame's typo).
+			continue;
 
-		if(pNpc->m_sPid == sid)	return pNpc;
+		return pNpc;
 	}
 
 	return NULL;
@@ -3273,17 +3255,16 @@ int  CEbenezerDlg::GetKnightsAllMembers(int knightsindex, char *temp_buff, int& 
 
 	if( type == 0 )	{
 		for( i=0; i<MAX_USER; i++ ) {
-			pUser = (CUser*)m_Iocport.m_SockArray[i];
-			if( !pUser ) continue;
-			if( pUser->m_pUserData->m_bKnights == knightsindex ) {		// 같은 소속의 클랜..
-				SetShort( temp_buff, strlen(pUser->m_pUserData->m_id), buff_index );
-				SetString( temp_buff, pUser->m_pUserData->m_id, strlen(pUser->m_pUserData->m_id), buff_index );
-				SetByte( temp_buff, pUser->m_pUserData->m_bFame, buff_index);
-				SetByte( temp_buff, pUser->m_pUserData->m_bLevel, buff_index);
-				SetShort( temp_buff, pUser->m_pUserData->m_sClass, buff_index);
-				SetByte( temp_buff, 1, buff_index);
-				count++;
-			}
+			pUser = GetUnsafeUserPtr(i);
+			if (pUser == NULL || pUser->m_pUserData->m_bKnights != knightsindex )
+				continue;
+
+			SetKOString( temp_buff, pUser->m_pUserData->m_id, buff_index );
+			SetByte( temp_buff, pUser->m_pUserData->m_bFame, buff_index);
+			SetByte( temp_buff, pUser->m_pUserData->m_bLevel, buff_index);
+			SetShort( temp_buff, pUser->m_pUserData->m_sClass, buff_index);
+			SetByte( temp_buff, 1, buff_index);
+			count++;
 		}	
 	}
 	else if( type == 1)	{
@@ -3293,23 +3274,21 @@ int  CEbenezerDlg::GetKnightsAllMembers(int knightsindex, char *temp_buff, int& 
 		for( i=0; i<MAX_CLAN; i++ )	{
 			if( pKnights->m_arKnightsUser[i].byUsed == 1 )	{	// 
 				pUser = GetUserPtr(pKnights->m_arKnightsUser[i].strUserName, TYPE_CHARACTER);
-				if( pUser )	{		// 접속중인 회원
+				if( pUser )	{
 					if( pUser->m_pUserData->m_bKnights == knightsindex )	{
-						SetShort( temp_buff, strlen(pUser->m_pUserData->m_id), buff_index );
-						SetString( temp_buff, pUser->m_pUserData->m_id, strlen(pUser->m_pUserData->m_id), buff_index );
+						SetKOString( temp_buff, pUser->m_pUserData->m_id, buff_index );
 						SetByte( temp_buff, pUser->m_pUserData->m_bFame, buff_index);
 						SetByte( temp_buff, pUser->m_pUserData->m_bLevel, buff_index);
 						SetShort( temp_buff, pUser->m_pUserData->m_sClass, buff_index);
 						SetByte( temp_buff, 1, buff_index);
 						count++;
 					}
-					else {		// 다른존에서 탈퇴나 추방된 유저이므로 메모리에서 삭제
+					else {
 						m_KnightsManager.RemoveKnightsUser( knightsindex, pUser->m_pUserData->m_id );
 					}
 				}
-				else	{			// 비접속중인 회원
-					SetShort( temp_buff, strlen(pKnights->m_arKnightsUser[i].strUserName), buff_index );
-					SetString( temp_buff, pKnights->m_arKnightsUser[i].strUserName, strlen(pKnights->m_arKnightsUser[i].strUserName), buff_index );
+				else	{
+					SetShort( temp_buff, 0, buff_index );
 					SetByte( temp_buff, 0, buff_index);
 					SetByte( temp_buff, 0, buff_index);
 					SetShort( temp_buff, 0, buff_index);

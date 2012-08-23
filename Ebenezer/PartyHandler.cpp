@@ -162,10 +162,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 	SetByte( send_buff, WIZ_PARTY, send_index );
 	SetByte( send_buff, PARTY_PERMIT, send_index );
 	SetShort( send_buff, m_Sid, send_index );
-// ??Ÿ??? ??????? ??~
-	SetShort(send_buff, strlen(m_pUserData->m_id), send_index);	// Create packet.
-	SetString(send_buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index);
-//
+	SetKOString(send_buff, m_pUserData->m_id, send_index);
 	pUser->Send( send_buff, send_index );
 	return;
 
@@ -202,15 +199,14 @@ void CUser::PartyInsert()	// ?????? ??? ???.  ????? ??Y?? ???°??? ???
 		SetByte( send_buff, WIZ_PARTY, send_index );
 		SetByte( send_buff, PARTY_INSERT, send_index );
 		SetShort( send_buff, pParty->uid[i], send_index );
-		SetShort( send_buff, strlen(pUser->m_pUserData->m_id), send_index );
-		SetString( send_buff, pUser->m_pUserData->m_id, strlen(pUser->m_pUserData->m_id), send_index );
+		SetKOString(send_buff, pUser->m_pUserData->m_id, send_index);
 		SetShort( send_buff, pParty->sMaxHp[i], send_index );
 		SetShort( send_buff, pParty->sHp[i], send_index );
 		SetByte( send_buff, pParty->bLevel[i], send_index );
 		SetShort( send_buff, pParty->sClass[i], send_index );
 		SetShort( send_buff, pUser->m_iMaxMp, send_index );
 		SetShort( send_buff, pUser->m_pUserData->m_sMp, send_index );
-		Send( send_buff, send_index );	// ????? ???? ??? ??? ?? ?????..
+		Send( send_buff, send_index );
 	}
 
 	for(i=0; i<8; i++ ) {
@@ -248,15 +244,14 @@ void CUser::PartyInsert()	// ?????? ??? ???.  ????? ??Y?? ???°??? ???
 	SetByte( send_buff, WIZ_PARTY, send_index );
 	SetByte( send_buff, PARTY_INSERT, send_index );
 	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, strlen(m_pUserData->m_id), send_index );
-	SetString( send_buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index );
+	SetKOString( send_buff, m_pUserData->m_id, send_index );
 	SetShort( send_buff, m_iMaxHp, send_index );		
 	SetShort( send_buff, m_pUserData->m_sHp, send_index );
 	SetByte( send_buff, m_pUserData->m_bLevel, send_index );
 	SetShort( send_buff, m_pUserData->m_sClass, send_index );
 	SetShort( send_buff, m_iMaxMp, send_index );
 	SetShort( send_buff, m_pUserData->m_sMp, send_index );
-	m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );	// ????? ???? ??e??????..
+	m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );
 
 	// AI Server
 	BYTE byIndex = i;
@@ -510,8 +505,7 @@ void CUser::PartyBBSNeeded(char *pBuf, BYTE type)
 		if (i < start_counter) continue;	// Range check codes.
 		if (valid_counter >= MAX_BBS_PAGE) continue;
 
-		SetShort(send_buff, strlen(pUser->m_pUserData->m_id), send_index);	// Create packet.
-		SetString(send_buff, pUser->m_pUserData->m_id, strlen(pUser->m_pUserData->m_id), send_index);
+		SetKOString(send_buff, pUser->m_pUserData->m_id, send_index);
 		SetByte(send_buff, pUser->m_pUserData->m_bLevel, send_index);
 		SetShort(send_buff, pUser->m_pUserData->m_sClass, send_index);
 
@@ -520,7 +514,6 @@ void CUser::PartyBBSNeeded(char *pBuf, BYTE type)
 	}
 
 	if ( valid_counter < MAX_BBS_PAGE ) {	// You still need to fill up ten slots.
-//		for (j = 0 ; j < MAX_BBS_PAGE ; j++) {
 		for (j = valid_counter ; j < MAX_BBS_PAGE ; j++) {
 			SetShort(send_buff, 0, send_index);
 			SetString(send_buff, NULL, 0, send_index);

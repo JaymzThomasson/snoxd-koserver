@@ -1302,8 +1302,7 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 			SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
 			SetByte( send_buff, 1, send_index );
 			SetShort( send_buff, -1, send_index );
-			SetShort( send_buff, strlen(finalstr), send_index );
-			SetString( send_buff, finalstr, strlen(finalstr), send_index );
+			SetKOString( send_buff, finalstr, send_index );
 			m_pMain->Send_All( send_buff, send_index );
 
 			memset( send_buff, NULL, 1024 );		send_index = 0;
@@ -1311,8 +1310,7 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 			SetByte( send_buff, PUBLIC_CHAT, send_index );
 			SetByte( send_buff, 1, send_index );
 			SetShort( send_buff, -1, send_index );
-			SetShort( send_buff, strlen(finalstr), send_index );
-			SetString( send_buff, finalstr, strlen(finalstr), send_index );
+			SetKOString( send_buff, finalstr, send_index );
 			m_pMain->Send_All( send_buff, send_index );
 
 			SetByte( udp_buff, UDP_BATTLE_EVENT_PACKET, udp_index );

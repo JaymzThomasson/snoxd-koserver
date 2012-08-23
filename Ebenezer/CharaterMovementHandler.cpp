@@ -307,8 +307,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		m_pUserData->m_bLogout = 2;	// server change flag
 
 		SetByte( send_buff, WIZ_SERVER_CHANGE, send_index );
-		SetShort( send_buff, strlen( pInfo->strServerIP ), send_index );
-		SetString( send_buff, pInfo->strServerIP, strlen( pInfo->strServerIP ), send_index );
+		SetKOString(send_buff, pInfo->strServerIP, send_index);
 		SetShort( send_buff, pInfo->sPort, send_index );
 		SetByte( send_buff, 0x02, send_index );	
 		SetByte( send_buff, m_pUserData->m_bZone, send_index );

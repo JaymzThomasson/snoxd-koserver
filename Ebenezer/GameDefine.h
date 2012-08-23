@@ -110,7 +110,7 @@
 #define KNIGHTS_TYPE		0x02
 ////////////////////////////////////////////////////////////
 
-#define MAX_CLAN			24
+#define MAX_CLAN			36
 #define MAX_KNIGHTS_BANK	200
 #define MAX_KNIGHTS_MARK	512
 

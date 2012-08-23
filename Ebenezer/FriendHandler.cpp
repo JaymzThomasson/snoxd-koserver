@@ -99,8 +99,7 @@ void CUser::FriendReport(char *pBuf)
 	for (int k = 0 ; k < usercount ; k++) {
 		idlen = GetShort( pBuf, index );
 		if( idlen > MAX_ID_SIZE ) {
-			SetShort(send_buff, strlen(userid), send_index);
-			SetString( send_buff, userid, strlen(userid), send_index );
+			SetKOString(send_buff, userid, send_index);
 			SetShort(send_buff, -1, send_index);
 			SetByte( send_buff, 0, send_index);
 			continue;

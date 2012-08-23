@@ -316,8 +316,7 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 		SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
 		SetByte( send_buff, 1, send_index );
 		SetShort( send_buff, -1, send_index );
-		SetShort( send_buff, strlen(finalstr), send_index );
-		SetString( send_buff, finalstr, strlen(finalstr), send_index );
+		SetKOString( send_buff, finalstr, send_index );
 		m_pMain->Send_All( send_buff, send_index );
 
 		memset( send_buff, NULL, 256 );		send_index = 0;
@@ -325,8 +324,7 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 		SetByte( send_buff, PUBLIC_CHAT, send_index );
 		SetByte( send_buff, 1, send_index );
 		SetShort( send_buff, -1, send_index );
-		SetShort( send_buff, strlen(finalstr), send_index );
-		SetString( send_buff, finalstr, strlen(finalstr), send_index );
+		SetKOString( send_buff, finalstr, send_index );
 		m_pMain->Send_All( send_buff, send_index );
 	}
 	else if( nType == BATTLE_EVENT_KILL_USER )	{
@@ -467,8 +465,7 @@ void CUdpSocket::RecvJoinKnights( char* pBuf, BYTE command )
 	SetByte( send_buff, KNIGHTS_CHAT, send_index );
 	SetByte( send_buff, 1, send_index );
 	SetShort( send_buff, -1, send_index );
-	SetShort( send_buff, strlen(finalstr), send_index );
-	SetString( send_buff, finalstr, strlen(finalstr), send_index );
+	SetKOString( send_buff, finalstr, send_index );
 	m_pMain->Send_KnightsMember( knightsindex, send_buff, send_index );
 }
 
@@ -560,8 +557,7 @@ void CUdpSocket::RecvModifyFame( char* pBuf, BYTE command )
 			SetByte( send_buff, KNIGHTS_CHAT, send_index );
 			SetByte( send_buff, 1, send_index );
 			SetShort( send_buff, -1, send_index );
-			SetShort( send_buff, strlen(finalstr), send_index );
-			SetString( send_buff, finalstr, strlen(finalstr), send_index );
+			SetKOString( send_buff, finalstr, send_index );
 			pTUser->Send( send_buff, send_index );
 		}
 	}
@@ -571,8 +567,7 @@ void CUdpSocket::RecvModifyFame( char* pBuf, BYTE command )
 	SetByte( send_buff, KNIGHTS_CHAT, send_index );
 	SetByte( send_buff, 1, send_index );
 	SetShort( send_buff, -1, send_index );
-	SetShort( send_buff, strlen(finalstr), send_index );
-	SetString( send_buff, finalstr, strlen(finalstr), send_index );
+	SetKOString( send_buff, finalstr, send_index );
 	m_pMain->Send_KnightsMember( knightsindex, send_buff, send_index );
 }
 
@@ -605,8 +600,7 @@ void CUdpSocket::RecvDestroyKnights( char* pBuf )
 	SetByte( send_buff, KNIGHTS_CHAT, send_index );
 	SetByte( send_buff, 1, send_index );
 	SetShort( send_buff, -1, send_index );
-	SetShort( send_buff, strlen(finalstr), send_index );
-	SetString( send_buff, finalstr, strlen(finalstr), send_index );
+	SetKOString( send_buff, finalstr, send_index );
 	m_pMain->Send_KnightsMember( knightsindex, send_buff, send_index );
 
 	for (int i = 0; i < MAX_USER; i++)

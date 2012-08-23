@@ -101,43 +101,29 @@ void CKnightsManager::CreateKnights(CUser* pUser, char *pBuf)
 	GetString( idname, pBuf, idlen, index );
 
 	if( !IsAvailableName( idname ) ) goto fail_return;
-	if( pUser->m_pUserData->m_bKnights != 0 ) {			// 기사단에 가입되어 있습니다
+	if( pUser->m_pUserData->m_bKnights != 0 ) {
 		ret_value = 5;
 		goto fail_return;
 	}
 
-	if( m_pMain->m_nServerGroup == 2 )	{				// 기사단은 서버 1군에서만 만들 수 있도록...
+	if( m_pMain->m_nServerGroup == 2 )	{
 		ret_value = 8;
 		goto fail_return;
 	}
-	// 요일 체크
 	week = time.GetDayOfWeek();
-/*	if(week == 1 || week == 6 || week == 7)	{}
-	else {
-		ret_value = 7;
-		goto fail_return;
-	}	*/
-	if( pUser->m_pUserData->m_bLevel < 20 ) {			// 20 Level 이상이 필요
+
+	if( pUser->m_pUserData->m_bLevel < 20 ) {
 		ret_value = 2;
 		goto fail_return;
 	}
-/*	if( pUser->m_pUserData->m_iLoyalty < 800 ) {		// 국가기여도 800 이상이 필요
-		goto fail_return;
-	}
-	if( pUser->m_pUserData->m_bstrSkill[ORDER_SKILL] < 10 || pUser->m_pUserData->m_bstrSkill[MANNER_SKILL] < 5 ) {	// 지휘스킬 10, 예절스킬 5 이상이 필요
-		goto fail_return;
-	}
-	if( pUser->m_pUserData->m_bCha < 120 ) {			// 매력 120 이상이 필요
-		goto fail_return;
-	}	*/
-	if( pUser->m_pUserData->m_iGold < 500000 ) {		// 5000000노아 이상이 필요
+
+	if( pUser->m_pUserData->m_iGold < 500000 ) {
 		ret_value = 4;
 		goto fail_return;
 	}	
 
 	knightindex = GetKnightsIndex( pUser->m_pUserData->m_bNation );
-	//knightindex = 0;
-	if( knightindex == -1 ) {							// 기사단 창설에 실패
+	if( knightindex == -1 ) {	
 		ret_value = 6;
 		goto fail_return;
 	}	
@@ -149,9 +135,7 @@ void CKnightsManager::CreateKnights(CUser* pUser, char *pBuf)
 	SetShort( send_buff, knightindex, send_index );
 	SetByte( send_buff, pUser->m_pUserData->m_bNation, send_index );
 	SetShort( send_buff, idlen, send_index );
-	SetString( send_buff, idname, idlen, send_index );
-	SetShort( send_buff, strlen(pUser->m_pUserData->m_id), send_index );
-	SetString( send_buff, pUser->m_pUserData->m_id, strlen(pUser->m_pUserData->m_id), send_index );
+	SetKOString( send_buff, pUser->m_pUserData->m_id, send_index );
 	m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
 
 	return;
@@ -227,7 +211,7 @@ void CKnightsManager::JoinKnights(CUser *pUser, char *pBuf)
 
 	if( !pUser ) return;
 
-	if( pUser->m_pUserData->m_bZone > 2 )	{	// 전쟁존에서는 기사단 처리가 안됨
+	if( pUser->m_pUserData->m_bZone > 2 )	{
 		ret_value = 12;
 		goto fail_return;
 	}
@@ -243,13 +227,7 @@ void CKnightsManager::JoinKnights(CUser *pUser, char *pBuf)
 		ret_value = 7;
 		goto fail_return;
 	}
-	// 인원 체크
-/*	if(pKnights->sMembers >= 24)	{
-		ret_value = 8;
-		goto fail_return;
-	}	*/
 
-	//community = GetByte( pBuf, index );
 	member_id = GetShort( pBuf, index );
 	if( member_id < 0 || member_id >= MAX_USER)	{
 		ret_value = 2;
@@ -282,8 +260,7 @@ void CKnightsManager::JoinKnights(CUser *pUser, char *pBuf)
 	SetByte( send_buff, 0x01, send_index );
 	SetShort( send_buff, pUser->GetSocketID(), send_index );
 	SetShort( send_buff, knightsindex, send_index );
-	SetShort( send_buff, strlen( pKnights->m_strName ), send_index );
-	SetString( send_buff, pKnights->m_strName, strlen( pKnights->m_strName ), send_index );
+	SetKOString( send_buff, pKnights->m_strName, send_index );
 	pTUser->Send( send_buff, send_index );
 
 	return;
@@ -577,18 +554,16 @@ void CKnightsManager::AllKnightsList(CUser *pUser, char* pBuf)
 	for( ; Iter1 != Iter2; Iter1++ ) {
 		pKnights = (*Iter1).second;
 		if( !pKnights ) continue;
-		if( pKnights->m_byFlag != KNIGHTS_TYPE ) continue;		// 기사단 리스트만 받자
+		if( pKnights->m_byFlag != KNIGHTS_TYPE ) continue;		
 		if( pKnights->m_byNation != pUser->m_pUserData->m_bNation ) continue;
 		if( count < start ) {
 			count++;
 			continue;
 		}
 		SetShort( temp_buff, pKnights->m_sIndex, buff_index );
-		SetShort( temp_buff, strlen(pKnights->m_strName), buff_index );
-		SetString( temp_buff, pKnights->m_strName, strlen(pKnights->m_strName), buff_index );
+		SetKOString( temp_buff, pKnights->m_strName, buff_index );
 		SetShort( temp_buff, pKnights->m_sMembers, buff_index );
-		SetShort( temp_buff, strlen(pKnights->m_strChief), buff_index );
-		SetString( temp_buff, pKnights->m_strChief, strlen(pKnights->m_strChief), buff_index );
+		SetKOString( temp_buff, pKnights->m_strChief, buff_index );
 		SetDWORD( temp_buff, pKnights->m_nPoints, buff_index );
 		count++;
 		if( count >= start + 10 )
@@ -718,8 +693,7 @@ void CKnightsManager::CurrentKnightsMember(CUser *pUser, char* pBuf)
 	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
 	SetByte( send_buff, KNIGHTS_CURRENT_REQ, send_index );
 	SetByte( send_buff, 0x01, send_index );
-	SetShort( send_buff, strlen(pKnights->m_strChief), send_index );
-	SetString( send_buff, pKnights->m_strChief, strlen( pKnights->m_strChief), send_index );
+	SetKOString( send_buff, pKnights->m_strChief, send_index );
 	SetShort( send_buff, page, send_index );
 	SetShort( send_buff, count-start, send_index );
 	SetString( send_buff, temp_buff, buff_index, send_index );
@@ -730,8 +704,7 @@ fail_return:
 	SetByte( send_buff, KNIGHTS_CURRENT_REQ, send_index );
 	SetByte( send_buff, 0x00, send_index );
 
-	SetShort( send_buff, strlen(errormsg), send_index );
-	SetString( send_buff, errormsg, strlen(errormsg), send_index );
+	SetKOString( send_buff, errormsg, send_index ); // is this even still usead anymore
 	pUser->Send( send_buff, send_index );
 }
 
@@ -795,9 +768,6 @@ void CKnightsManager::ReceiveKnightsProcess( CUser* pUser, char *pBuf, BYTE comm
 			SetByte( send_buff, 0x01, send_index );
 			SetShort( send_buff, pktsize, send_index );
 			SetShort( send_buff, count, send_index );
-			//SetShort( send_buff, strlen(pKnights->strChief), send_index );
-			//SetString( send_buff, pKnights->strChief, strlen( pKnights->strChief), send_index );
-			//SetString( send_buff, pBuf+index, pktsize, send_index );
 			SetString( send_buff, pBuf + index, pktsize, send_index );
 			pUser->Send( send_buff, send_index );
 		}
@@ -923,8 +893,7 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, char* pBuf, BYTE command)
 	SetShort( send_buff, pUser->m_pUserData->m_bKnights, send_index );
 	SetByte( send_buff, pUser->m_pUserData->m_bFame, send_index );
 	if( pKnights )	{
-		SetShort( send_buff, strlen( pKnights->m_strName ), send_index );
-		SetString( send_buff, pKnights->m_strName, strlen( pKnights->m_strName ), send_index );
+		SetKOString( send_buff, pKnights->m_strName, send_index );
 		SetByte( send_buff, pKnights->m_byGrade, send_index );  // knights grade
 		SetByte( send_buff, pKnights->m_byRanking, send_index );  // knights grade
 	}
@@ -935,21 +904,15 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, char* pBuf, BYTE command)
 	SetByte( send_buff, KNIGHTS_CHAT, send_index );
 	SetByte( send_buff, 1, send_index );
 	SetShort( send_buff, -1, send_index );
-	SetShort( send_buff, strlen(finalstr), send_index );
-	SetString( send_buff, finalstr, strlen(finalstr), send_index );
+	SetKOString( send_buff, finalstr, send_index );
 	m_pMain->Send_KnightsMember( knightsindex, send_buff, send_index );
 
-	idlen = strlen( pUser->m_pUserData->m_id );
 	memset( send_buff, 0x00, 128 );		send_index = 0;
 	SetByte( send_buff, UDP_KNIGHTS_PROCESS, send_index );
 	SetByte( send_buff, command-0x10, send_index );
 	SetShort( send_buff, knightsindex, send_index );
-	SetShort( send_buff, idlen, send_index );
-	SetString( send_buff, pUser->m_pUserData->m_id, idlen, send_index );
-	if( m_pMain->m_nServerGroup == 0 )
-		m_pMain->Send_UDP_All( send_buff, send_index );
-	else
-		m_pMain->Send_UDP_All( send_buff, send_index, 1 );
+	SetKOString( send_buff, pUser->m_pUserData->m_id, send_index );
+	m_pMain->Send_UDP_All(send_buff, send_index, m_pMain->m_nServerGroup == 0 ? 0 : 1);
 }
 
 void CKnightsManager::RecvModifyFame(CUser *pUser, char *pBuf, BYTE command)
@@ -1052,8 +1015,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, char *pBuf, BYTE command)
 			SetByte( send_buff, KNIGHTS_CHAT, send_index );
 			SetByte( send_buff, 1, send_index );
 			SetShort( send_buff, -1, send_index );
-			SetShort( send_buff, strlen(finalstr), send_index );
-			SetString( send_buff, finalstr, strlen(finalstr), send_index );
+			SetKOString( send_buff, finalstr, send_index );
 			pTUser->Send( send_buff, send_index );
 		}
 	}
@@ -1063,17 +1025,14 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, char *pBuf, BYTE command)
 	SetByte( send_buff, KNIGHTS_CHAT, send_index );
 	SetByte( send_buff, 1, send_index );
 	SetShort( send_buff, -1, send_index );
-	SetShort( send_buff, strlen(finalstr), send_index );
-	SetString( send_buff, finalstr, strlen(finalstr), send_index );
+	SetKOString( send_buff, finalstr, send_index );
 	m_pMain->Send_KnightsMember( knightsindex, send_buff, send_index );
 
-	idlen = strlen( userid );
 	memset( send_buff, 0x00, 128 );		send_index = 0;
 	SetByte( send_buff, UDP_KNIGHTS_PROCESS, send_index );
 	SetByte( send_buff, command-0x10, send_index );
 	SetShort( send_buff, knightsindex, send_index );
-	SetShort( send_buff, idlen, send_index );
-	SetString( send_buff, userid, idlen, send_index );
+	SetKOString( send_buff, userid, send_index );
 	if( m_pMain->m_nServerGroup == 0 )
 		m_pMain->Send_UDP_All( send_buff, send_index );
 	else
@@ -1111,12 +1070,11 @@ void CKnightsManager::RecvDestroyKnights(CUser *pUser, char *pBuf)
 	SetByte( send_buff, KNIGHTS_CHAT, send_index );
 	SetByte( send_buff, 1, send_index );
 	SetShort( send_buff, -1, send_index );
-	SetShort( send_buff, strlen(finalstr), send_index );
-	SetString( send_buff, finalstr, strlen(finalstr), send_index );
+	SetKOString( send_buff, finalstr, send_index );
 	m_pMain->Send_KnightsMember( knightsindex, send_buff, send_index );
 
 	for( int i=0; i<MAX_USER; i++ ) {
-		pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[i];
+		pTUser = m_pMain->GetUnsafeUserPtr(i);
 		if( !pTUser ) continue;
 		if( pTUser->m_pUserData->m_bKnights == knightsindex ) {
 			pTUser->m_pUserData->m_bKnights = 0;

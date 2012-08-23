@@ -757,16 +757,6 @@ void CUser::NpcEvent(char *pBuf)
 		SetByte( send_buf, WIZ_WAREHOUSE, send_index );
 		SetByte( send_buf, WAREHOUSE_REQ, send_index );
 		Send( send_buf, send_index );
-/*
-		SetByte( send_buf, WIZ_WAREHOUSE, send_index );
-		SetByte( send_buf, WAREHOUSE_OPEN, send_index );
-		SetDWORD( send_buf, m_pUserData->m_iBank, send_index );
-		for( i=0; i<WAREHOUSE_MAX; i++ ) {
-			SetDWORD( send_buf, m_pUserData->m_sWarehouseArray[i].nNum, send_index );
-			SetShort( send_buf, m_pUserData->m_sWarehouseArray[i].sDuration, send_index );
-			SetShort( send_buf, m_pUserData->m_sWarehouseArray[i].sCount, send_index );
-		}
-		SendCompressingPacket( send_buf, send_index );	*/
 		break;
 
 	case NPC_WARP:

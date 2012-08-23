@@ -604,17 +604,13 @@ void CUser::UserDataSaveToAgent()
 	int send_index = 0, retvalue = 0;
 	char send_buff[256];	memset( send_buff, NULL, 256);
 
-	if( strlen(m_pUserData->m_id) == 0 )
-		return;
-	if( strlen(m_pUserData->m_Accountid) == 0 )
+	if (m_pUserData->m_id[0] == 0 || m_pUserData->m_Accountid[0] == 0)
 		return;
 
 	SetByte( send_buff, WIZ_DATASAVE, send_index );
 	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, strlen(m_pUserData->m_Accountid), send_index );
-	SetString( send_buff, m_pUserData->m_Accountid, strlen(m_pUserData->m_Accountid), send_index );
-	SetShort( send_buff, strlen(m_pUserData->m_id), send_index );
-	SetString( send_buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index );
+	SetKOString(send_buff, m_pUserData->m_Accountid, send_index);
+	SetKOString(send_buff, m_pUserData->m_id, send_index);
 
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
 	if (retvalue >= SMQ_FULL)
@@ -638,14 +634,13 @@ void CUser::LogOut()
 	}
 	else 
 	{
-		if( strlen( m_pUserData->m_id ) == 0 ) return; // ??? ??? ???? ???.. 
+		if (m_pUserData->m_id[0] == 0) 
+			return; 
 
 		SetByte( send_buf, WIZ_LOGOUT, send_index );
 		SetShort( send_buf, m_Sid, send_index );
-		SetShort( send_buf, strlen(m_pUserData->m_Accountid), send_index );
-		SetString( send_buf, m_pUserData->m_Accountid, strlen(m_pUserData->m_Accountid), send_index);
-		SetShort( send_buf, strlen(m_pUserData->m_id), send_index );
-		SetString( send_buf, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index);
+		SetKOString( send_buf, m_pUserData->m_Accountid, send_index);
+		SetKOString( send_buf, m_pUserData->m_id, send_index);
 
 		do {
 			if( m_pMain->m_LoggerSendQueue.PutData( send_buf, send_index ) == 1 )
@@ -1224,13 +1219,7 @@ void CUser::RequestUserIn(char *pBuf)
 	int temp_index = 0;
 	SetByte( buff, WIZ_REQ_USERIN, temp_index );
 	SetShort( buff, t_count, temp_index );
-
-	if( buff_index < 500 )	{	
-		Send( buff, buff_index );
-	}
-	else	{
-		SendCompressingPacket( buff, buff_index );
-	}
+	SendCompressingPacket( buff, buff_index );
 }
 
 void CUser::RequestNpcIn(char *pBuf)
@@ -1242,7 +1231,7 @@ void CUser::RequestNpcIn(char *pBuf)
 	char buff[20480];
 	memset( buff, NULL, 20480 );
 
-	buff_index = 3;	// packet command ?? user_count ?? ????? ???????...
+	buff_index = 3;	
 	npc_count = GetShort( pBuf, index );
 	for( i=0; i<npc_count; i++ ) {
 		nid = GetShort( pBuf, index );
@@ -1250,41 +1239,19 @@ void CUser::RequestNpcIn(char *pBuf)
 			continue;
 		if( i > 1000 ) break;
 		pNpc = m_pMain->m_arNpcArray.GetData(nid);
-		//if( pNpc && (pNpc->m_NpcState == NPC_LIVE ) ) {	// ???,,
-		if( pNpc )  {
-			SetShort( buff, pNpc->m_sNid, buff_index );
-			SetShort( buff, pNpc->m_sPid, buff_index );
-			SetByte( buff, pNpc->m_tNpcType, buff_index );
-			SetDWORD( buff, pNpc->m_iSellingGroup, buff_index );
-			SetShort( buff, pNpc->m_sSize, buff_index );
-			SetDWORD( buff, pNpc->m_iWeapon_1, buff_index );
-			SetDWORD( buff, pNpc->m_iWeapon_2, buff_index );
-			SetShort( buff, strlen(pNpc->m_strName), buff_index );
-			SetString( buff, pNpc->m_strName, strlen(pNpc->m_strName), buff_index );
-			SetByte( buff, pNpc->m_byGroup, buff_index );
-			SetByte( buff, pNpc->m_byLevel, buff_index );
-			SetShort( buff, (WORD)pNpc->m_fCurX*10, buff_index );
-			SetShort( buff, (WORD)pNpc->m_fCurZ*10, buff_index );
-			SetShort( buff, (short)pNpc->m_fCurY*10, buff_index );
-			SetDWORD( buff, (int)pNpc->m_byGateOpen, buff_index );
-			SetByte( buff, pNpc->m_byObjectType, buff_index );
+		if (pNpc == NULL)
+			continue;
 
-			t_count++;
-		}
-
+		SetShort( buff, pNpc->m_sNid, buff_index );
+		pNpc->GetNpcInfo(buff, buff_index);
+		t_count++;
 	}
 
 	int temp_index = 0;
 	SetByte( buff, WIZ_REQ_NPCIN, temp_index );
 	SetShort( buff, t_count, temp_index );
 
-	if( buff_index < 500 )	{	
-		Send( buff, buff_index );
-	}
-	else	{
-		SendCompressingPacket( buff, buff_index );
-	}
-
+	SendCompressingPacket( buff, buff_index );
 }
 
 void CUser::SetSlotItemValue()	// ????? ???????? ??(�???, ????, ??????)? ?????.
@@ -2066,8 +2033,7 @@ void CUser::ItemGet(char *pBuf)
 		SetByte( send_buff, WIZ_ITEM_GET, send_index );
 		SetByte( send_buff, 0x03, send_index );
 		SetDWORD( send_buff, itemid, send_index );
-		SetShort( send_buff, strlen(pGetUser->m_pUserData->m_id), send_index );
-		SetString( send_buff, pGetUser->m_pUserData->m_id, strlen(pGetUser->m_pUserData->m_id), send_index );
+		SetKOString(send_buff, pGetUser->m_pUserData->m_id, send_index);
 		m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );
 		if( pGetUser != this ) {
 			memset( send_buff, NULL, 256 ); send_index = 0;
@@ -2226,7 +2192,7 @@ void CUser::LoyaltyChange(short tid)
 
 void CUser::SpeedHackUser()
 {
-	if( strlen(m_pUserData->m_id) == 0 )
+	if (GetState() != STATE_GAMESTART)
 		return;
 
 	char logstr[256];
@@ -2267,10 +2233,10 @@ void CUser::SendNotice()
 	SetByte( send_buff, WIZ_NOTICE, send_index );
 #if __VERSION < 1453
 	for( int i=0; i<20; i++ ) {
-		if( !strlen(m_pMain->m_ppNotice[i]) )
+		if (m_pMain->m_ppNotice[i][0] == 0)
 			continue;
-		SetByte( buff, strlen(m_pMain->m_ppNotice[i]), buff_index );
-		SetString( buff, m_pMain->m_ppNotice[i], strlen( m_pMain->m_ppNotice[i]), buff_index );
+
+		SetKOString(buff, m_pMain->m_ppNotice[i], buff_index, 1);
 		count++;
 	}
 	SetByte( send_buff, count, send_index );
@@ -2354,8 +2320,7 @@ void CUser::UpdateGameWeather(char *pBuf, BYTE type)
 void CUser::SendUserInfo(char *temp_send, int &index)
 {
 	SetShort( temp_send, m_Sid, index );
-	SetShort( temp_send, strlen(m_pUserData->m_id), index );
-	SetString( temp_send, m_pUserData->m_id, strlen(m_pUserData->m_id), index );
+	SetKOString(temp_send, m_pUserData->m_id, index);
 	SetByte( temp_send, m_pUserData->m_bZone, index );
 	SetByte( temp_send, m_pUserData->m_bNation, index );
 	SetByte( temp_send, m_pUserData->m_bLevel, index );
@@ -2564,8 +2529,7 @@ void CUser::Dead()
 		SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
 		SetByte( send_buff, 1, send_index );
 		SetShort( send_buff, -1, send_index );
-		SetShort( send_buff, strlen(finalstr), send_index );
-		SetString( send_buff, finalstr, strlen(finalstr), send_index );
+		SetKOString(send_buff, finalstr, send_index);
 		m_pMain->Send_All( send_buff, send_index, NULL, m_pUserData->m_bNation );
 	}
 }
@@ -3165,8 +3129,7 @@ void CUser::SendAllKnightsID()
 		if( !pKnights ) continue;
 		//if( pKnights->bFlag != KNIGHTS_TYPE ) continue;
 		SetShort( temp_buff, pKnights->m_sIndex, buff_index );
-		SetShort( temp_buff, strlen(pKnights->m_strName), buff_index );
-		SetString( temp_buff, pKnights->m_strName, strlen(pKnights->m_strName), buff_index );
+		SetKOString(temp_buff, pKnights->m_strName, buff_index);
 		count++;
 	}
 
@@ -3175,7 +3138,6 @@ void CUser::SendAllKnightsID()
 	SetShort( send_buff, count, send_index );
 	SetString( send_buff, temp_buff, buff_index, send_index );
 	SendCompressingPacket( send_buff, send_index );
-	//Send( send_buff, send_index );
 }
 
 void CUser::ItemRemove(char *pBuf)
@@ -4257,8 +4219,7 @@ void CUser::BlinkTimeCheck(float currenttime)
 		SetByte( send_buff, AG_USER_INOUT, send_index );
 		SetByte( send_buff, USER_REGENE, send_index );
 		SetShort( send_buff, m_Sid, send_index );
-		SetShort( send_buff, strlen(m_pUserData->m_id), send_index );
-		SetString( send_buff, m_pUserData->m_id, strlen(m_pUserData->m_id), send_index );
+		SetKOString(send_buff, m_pUserData->m_id, send_index);
 		Setfloat( send_buff, m_pUserData->m_curx, send_index );
 		Setfloat( send_buff, m_pUserData->m_curz, send_index );
 		m_pMain->Send_AIServer( m_pUserData->m_bZone, send_buff, send_index);
