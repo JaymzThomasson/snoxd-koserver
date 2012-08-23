@@ -64,7 +64,7 @@ BOOL CNpc::SetUid(float x, float z, int id)
 	MAP* pMap = GetMap();
 	if (pMap == NULL) 
 	{
-		TRACE("#### Npc-SetUid Zone Fail : [name=%s], zone=%d #####\n", m_strName, m_sCurZone);
+		TRACE("#### Npc-SetUid Zone Fail : [name=%s], zone=%d #####\n", m_strName, m_bCurZone);
 		return FALSE;
 	}
 
@@ -249,13 +249,13 @@ void CNpc::InitTarget()
 //	NPC 기본정보 초기화
 void CNpc::Init()
 {
-	m_pZone = m_pMain->GetZoneByID(m_sCurZone);
+	m_pZone = m_pMain->GetZoneByID(m_bCurZone);
 	m_Delay = 0;
 	m_fDelayTime = TimeGet();
 
 	if (GetMap() == NULL) 
 	{
-		TRACE("#### Npc-Init Zone Fail : [name=%s], zone=%d #####\n", m_strName, m_sCurZone);
+		TRACE("#### Npc-Init Zone Fail : [name=%s], zone=%d #####\n", m_strName, m_bCurZone);
 		return;
 	}
 	m_pOrgMap = GetMap()->m_pMap;	// MapInfo 정보 셋팅
@@ -690,7 +690,7 @@ void CNpc::NpcStanding()
 	MAP* pMap = GetMap();
 	if (pMap == NULL)	
 	{
-		TRACE("### NpcStanding Zone Index Error : nid=%d, name=%s, zone=%d ###\n", m_sNid+NPC_BAND, m_strName, m_sCurZone);
+		TRACE("### NpcStanding Zone Index Error : nid=%d, name=%s, zone=%d ###\n", m_sNid+NPC_BAND, m_strName, m_bCurZone);
 		return;
 	}
 
@@ -967,7 +967,7 @@ BOOL CNpc::SetLive(CIOCPort* pIOCP)
 					m_nInitX = m_fPrevX = m_fCurX;
 					m_nInitY = m_fPrevY = m_fCurY;
 					m_nInitZ = m_fPrevZ = m_fCurZ;
-					TRACE("### fail : sid = %d, nid = %d, zone=%d, loop = %d 나 설자리가 이상해... 고쳐줘... x = %d, y = %d\n", m_sSid, m_sNid+NPC_BAND, m_sCurZone, i, nX, nZ);
+					TRACE("### fail : sid = %d, nid = %d, zone=%d, loop = %d 나 설자리가 이상해... 고쳐줘... x = %d, y = %d\n", m_sSid, m_sNid+NPC_BAND, m_bCurZone, i, nX, nZ);
 					//return FALSE;
 			
 				}
@@ -1032,7 +1032,7 @@ BOOL CNpc::SetLive(CIOCPort* pIOCP)
 	//else if( m_byChangeType == 3)	{		// 몬스터의 출현,,,
 		char notify[50];	memset(notify, 0x00, 50);
 		//wsprintf( notify, "** 알림 : %s 몬스터가 출현하였습니다 **", m_strName);
-		//m_pMain->SendSystemMsg( notify, m_sCurZone, PUBLIC_CHAT, SEND_ALL);
+		//m_pMain->SendSystemMsg( notify, m_bCurZone, PUBLIC_CHAT, SEND_ALL);
 	}
 
 	SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);
@@ -1289,7 +1289,7 @@ BOOL CNpc::RandomBackMove()
 	float fDestX = -1.0f, fDestZ = -1.0f;
 	if (GetMap() == NULL) 
 	{
-		TRACE("#### Npc-RandomBackMove Zone Fail : [name=%s], zone=%d #####\n", m_strName, m_sCurZone);
+		TRACE("#### Npc-RandomBackMove Zone Fail : [name=%s], zone=%d #####\n", m_strName, m_bCurZone);
 		return FALSE;
 	}
 
@@ -1680,7 +1680,7 @@ void CNpc::Dead(CIOCPort* pIOCP, int iDeadType)
 
 	// 몬스터 소환 테스트
 	//if(m_sNid == 0)
-	//	m_pMain->MonsterSummon("클립토돈", m_sCurZone, 2605.0, 1375.0);
+	//	m_pMain->MonsterSummon("클립토돈", m_bCurZone, 2605.0, 1375.0);
 }
 
 //	NPC 주변의 적을 찾는다.
@@ -2437,7 +2437,7 @@ int CNpc::GetTargetPath(int option)
 			InitTarget();
 			return -1;
 		}
-		if(pUser->m_curZone != m_sCurZone)	{
+		if(pUser->m_curZone != m_bCurZone)	{
 			InitTarget();
 			return -1;
 		}
@@ -4048,7 +4048,7 @@ void CNpc::SendExpToUserList()
 
 				SetByte( send_buff, strlen(strMaxDamageUser), send_index );
 				SetString( send_buff, strMaxDamageUser, strlen(strMaxDamageUser), send_index );
-				m_pMain->Send( send_buff, send_index, m_sCurZone );
+				m_pMain->Send( send_buff, send_index, m_bCurZone );
 				TRACE("@@@ MaxDamageUser - %s @@@\n", strMaxDamageUser);
 
 				memset(send_buff, 0x00, 100 );	send_index = 0;
@@ -4058,7 +4058,7 @@ void CNpc::SendExpToUserList()
 					SetByte( send_buff, ELMORAD_ZONE, send_index );
 					SetByte( send_buff, strlen(strMaxDamageUser), send_index );
 					SetString( send_buff, strMaxDamageUser, strlen(strMaxDamageUser), send_index );
-					m_pMain->Send( send_buff, send_index, m_sCurZone );
+					m_pMain->Send( send_buff, send_index, m_bCurZone );
 					TRACE("@@@ Karus Victory - %d, %d @@@\n", m_pMain->m_sKillKarusNpc, pMap->m_sKarusRoom);
 				}
 				else if( m_pMain->m_sKillElmoNpc == pMap->m_sElmoradRoom )	{
@@ -4067,7 +4067,7 @@ void CNpc::SendExpToUserList()
 					SetByte( send_buff, KARUS_ZONE, send_index );
 					SetByte( send_buff, strlen(strMaxDamageUser), send_index );
 					SetString( send_buff, strMaxDamageUser, strlen(strMaxDamageUser), send_index );
-					m_pMain->Send( send_buff, send_index, m_sCurZone );
+					m_pMain->Send( send_buff, send_index, m_bCurZone );
 					TRACE("@@@ Elmorad Victory - %d, %d @@@\n", m_pMain->m_sKillElmoNpc, pMap->m_sElmoradRoom);
 				}
 			}
@@ -4294,7 +4294,7 @@ void CNpc::FillNpcInfo(char *temp_send, int &index, BYTE flag)
 	SetShort(temp_send, m_sSize, index );
 	SetInt(temp_send, m_iWeapon_1, index );
 	SetInt(temp_send, m_iWeapon_2, index );
-	SetShort(temp_send, m_sCurZone, index);
+	SetByte(temp_send, m_bCurZone, index);
 	SetVarString(temp_send, m_strName, _tcslen(m_strName), index);
 	SetByte(temp_send, m_byGroup, index);
 	SetByte(temp_send, (BYTE)m_sLevel, index);
@@ -4327,7 +4327,7 @@ void CNpc::SendNpcInfoAll(char *temp_send, int &index, int count)
 	SetShort(temp_send, m_sSize, index );
 	SetInt(temp_send, m_iWeapon_1, index );
 	SetInt(temp_send, m_iWeapon_2, index );
-	SetShort(temp_send, m_sCurZone, index);
+	SetByte(temp_send, m_bCurZone, index);
 	SetVarString(temp_send, m_strName, _tcslen(m_strName), index);
 	SetByte(temp_send, m_byGroup, index);
 	SetByte(temp_send, (BYTE)m_sLevel, index);
@@ -4495,7 +4495,7 @@ void CNpc::SendAll(CIOCPort* pIOCP, TCHAR *pBuf, int nLength)
 	pNewData = new SEND_DATA;
 	if(pNewData == NULL) return;
 
-	pNewData->sCurZone = m_sCurZone;
+	pNewData->sCurZone = m_bCurZone;
 	pNewData->sLength = nLength;
 	::CopyMemory(pNewData->pBuf, pBuf, nLength);
 
@@ -5113,7 +5113,7 @@ void CNpc::IsNoPathFind(float fDistance)
 	if (GetMap() == NULL)
 	{
 		ClearPathFindData();
-		TRACE("#### Npc-IsNoPathFind No map : [nid=%d, name=%s], zone=%d #####\n", m_sNid+NPC_BAND, m_strName, m_sCurZone);
+		TRACE("#### Npc-IsNoPathFind No map : [nid=%d, name=%s], zone=%d #####\n", m_sNid+NPC_BAND, m_strName, m_bCurZone);
 		return;
 	}
 	MAP* pMap = GetMap();
@@ -5236,7 +5236,7 @@ void CNpc::GiveNpcHaveItem(CIOCPort* pIOCP)
 	SetByte(pBuf, AG_NPC_GIVE_ITEM, index);
 	SetShort(pBuf, m_sMaxDamageUserid, index);	
 	SetShort(pBuf, m_sNid+NPC_BAND, index);
-	SetShort(pBuf, m_sCurZone, index);
+	SetByte(pBuf, m_bCurZone, index);
 	SetShort(pBuf, (short)m_iRegion_X, index);
 	SetShort(pBuf, (short)m_iRegion_Z, index);
 	Setfloat(pBuf, m_fCurX, index);
@@ -5396,7 +5396,7 @@ BOOL CNpc::IsInExpRange(CUser* pUser)
 	fDis = GetDistance(vStart, vEnd);
 	if((int)fDis <= iSearchRange)
 	{
-		if(m_sCurZone == pUser->m_curZone)
+		if(m_bCurZone == pUser->m_curZone)
 			return TRUE;
 	}
 
@@ -6258,7 +6258,7 @@ BOOL CNpc::Teleport(CIOCPort* pIOCP)
 
 		if(pMap->m_pMap[nTileX][nTileZ].m_sEvent <= 0)	{
 			if(i >= 500)	{
-				TRACE("### Teleport fail : sid = %d, nid = %d, zone=%d, loop = %d 나 이동자리가 이상해... 고쳐줘... x = %d, y = %d\n", m_sSid, m_sNid+NPC_BAND, m_sCurZone, i, nX, nZ);
+				TRACE("### Teleport fail : sid = %d, nid = %d, zone=%d, loop = %d 나 이동자리가 이상해... 고쳐줘... x = %d, y = %d\n", m_sSid, m_sNid+NPC_BAND, m_bCurZone, i, nX, nZ);
 				return FALSE;
 			}
 			continue;

@@ -21,7 +21,7 @@ public:
 
 	short	m_sNid;				// NPC (서버상의)일련번호
 	short	m_sSid;				// NPC 테이블 참조번호
-	short	m_sCurZone;			// Current Zone;
+	BYTE	m_bCurZone;			// Current Zone;
 
 	C3DMap * m_pMap;
 
@@ -69,8 +69,17 @@ public:
 	void InsertRegion(int del_x, int del_z);
 	int GetRegionNpcList(int region_x, int region_z, char *buff, int &t_count);
 
-	__forceinline bool isGate() { GetType() == NPC_GATE || GetType() == NPC_PHOENIX_GATE || GetType() == NPC_SPECIAL_GATE; };
+	void SendGateFlag(BYTE bFlag = -1, bool bSendAI = true);
+
+	__forceinline bool isGate() { return GetType() == NPC_GATE || GetType() == NPC_PHOENIX_GATE || GetType() == NPC_SPECIAL_GATE; };
+	__forceinline bool isGateOpen() { return m_byGateOpen == TRUE; };
+	__forceinline bool isGateClosed() { return !isGateOpen(); };
+
+	__forceinline short GetID() { return m_sNid; };
+	__forceinline short GetEntryID() { return m_sSid; };
 	__forceinline BYTE GetType() { return m_tNpcType; };
+	__forceinline BYTE getNation() { return m_byGroup; }; // NOTE: Need some consistency with naming
+	__forceinline BYTE getZoneID() { return m_bCurZone; };
 
 	__forceinline BYTE GetState() { return m_byState; };
 	__forceinline C3DMap * GetMap() { return m_pMap; };

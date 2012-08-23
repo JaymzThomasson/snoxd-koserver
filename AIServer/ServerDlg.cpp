@@ -1097,7 +1097,7 @@ BOOL CServerDlg::CreateNpcThread()
 					pNpc->m_byWhatAttackType = pNpcTable->m_byMagicAttack;
 
 					//////// MONSTER POS ////////////////////////////////////////
-					pNpc->m_sCurZone = NpcPosSet.m_ZoneID;
+					pNpc->m_bCurZone = NpcPosSet.m_ZoneID;
 
 					// map에 몬스터의 위치를 랜덤하게 위치시킨다.. (테스트 용 : 수정-DB에서 읽어오는데로 몬 위치 결정)
 					nRandom = abs(NpcPosSet.m_LeftX - NpcPosSet.m_RightX);
@@ -1170,7 +1170,7 @@ BOOL CServerDlg::CreateNpcThread()
 						pNpc->m_nLimitMaxZ = NpcPosSet.m_LimitMaxZ;
 					}	
 			
-					pNpc->m_pZone = GetZoneByID(pNpc->m_sCurZone);
+					pNpc->m_pZone = GetZoneByID(pNpc->m_bCurZone);
 					if (pNpc->GetMap() == NULL)		{
 						AfxMessageBox("Error : CServerDlg,, Invaild zone Index!!");
 						return FALSE;
@@ -1187,7 +1187,7 @@ BOOL CServerDlg::CreateNpcThread()
 						pRoom = pNpc->GetMap()->m_arRoomEventArray.GetData( pNpc->m_byDungeonFamily );
 						if (pRoom == NULL)
 						{
-							TRACE("Error : CServerDlg,, Map Room Npc Fail!! : nid=%d, sid=%d, name=%s, fam=%d, zone=%d\n", pNpc->m_sNid+NPC_BAND, pNpc->m_sSid, pNpc->m_strName, pNpc->m_byDungeonFamily, pNpc->m_sCurZone);
+							TRACE("Error : CServerDlg,, Map Room Npc Fail!! : nid=%d, sid=%d, name=%s, fam=%d, zone=%d\n", pNpc->m_sNid+NPC_BAND, pNpc->m_sSid, pNpc->m_strName, pNpc->m_byDungeonFamily, pNpc->m_bCurZone);
 							AfxMessageBox("Error : CServerDlg,, Map Room Npc Fail!!");
 							return FALSE;
 						}
@@ -1585,7 +1585,7 @@ void CServerDlg::AllNpcInfo()
 				TRACE("##### allNpcInfo Fail = %d\n", i);
 				continue;
 			}
-			if(pNpc->m_sCurZone != nZone)	continue;
+			if(pNpc->m_bCurZone != nZone)	continue;
 
 			pNpc->SendNpcInfoAll(send_buff, send_index, count);
 			count++;
@@ -1888,7 +1888,7 @@ void CServerDlg::SyncTest()
 			continue;
 		}
 
-		fprintf(stream, "nid=(%d, %s), zone=%d, x=%.2f, z=%.2f, rx=%d, rz=%d\n", pNpc->m_sNid+NPC_BAND, pNpc->m_strName,pNpc->m_sCurZone, pNpc->m_fCurX, pNpc->m_fCurZ, pNpc->m_iRegion_X, pNpc->m_iRegion_Z);
+		fprintf(stream, "nid=(%d, %s), zone=%d, x=%.2f, z=%.2f, rx=%d, rz=%d\n", pNpc->m_sNid+NPC_BAND, pNpc->m_strName,pNpc->m_bCurZone, pNpc->m_fCurX, pNpc->m_fCurZ, pNpc->m_iRegion_X, pNpc->m_iRegion_Z);
 
 	/*	vNpc.Set(pNpc->m_fCurX, 0, pNpc->m_fCurZ);
 		if(pNpc->m_byAttackPos)	{
@@ -2102,7 +2102,7 @@ BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 	pEventNpc->m_byWhatAttackType = pNpc->m_byWhatAttackType;
 
 	//////// MONSTER POS ////////////////////////////////////////
-	pEventNpc->m_sCurZone = zone;
+	pEventNpc->m_bCurZone = zone;
 	pEventNpc->m_fCurX	= fx;
 	pEventNpc->m_fCurY	= 0;
 	pEventNpc->m_fCurZ	= fz;
@@ -2437,7 +2437,7 @@ BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number)
 
 	//////// MONSTER POS ////////////////////////////////////////
 
-	pNpc->m_sCurZone = zone_number;
+	pNpc->m_bCurZone = zone_number;
 
 	pNpc->m_byGateOpen = pEvent->sStatus;
 	pNpc->m_fCurX	= pEvent->fPosX;

@@ -2658,7 +2658,7 @@ CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
 	for( int i = 0; i < nSize; i++)	{
 		pNpc = m_arNpcArray.GetData( i+NPC_BAND );
 		if( !pNpc ) continue;
-		if(pNpc->m_sCurZone != cur_zone)	continue;
+		if(pNpc->getZoneID() != cur_zone)	continue;
 
 		if(pNpc->m_sPid == sid)	return pNpc;
 	}

@@ -228,8 +228,7 @@ void CAISocket::RecvNpcInfoAll(char* pBuf)
 	BYTE        byType;				// 0:처음에 등장하지 않는 몬스터, 1:등장
 	short		nid;				// NPC index
 	short		sid;				// NPC index
-	short       sZone;				// Current zone number
-	short       sZoneIndex;			// Current zone index
+	BYTE		bZone;				// Current zone number
 	short		sPid;				// NPC Picture Number
 	short		sSize = 100;				// NPC Size
 	int			iweapon_1;
@@ -261,8 +260,7 @@ void CAISocket::RecvNpcInfoAll(char* pBuf)
 		sSize = GetShort(pBuf, index);
 		iweapon_1 = GetDWORD(pBuf, index);
 		iweapon_2 = GetDWORD(pBuf, index);
-		sZone = GetShort(pBuf, index);
-		sZoneIndex = GetShort(pBuf, index);
+		bZone = (BYTE)GetShort(pBuf, index);
 		int nLength = GetVarString(szName, pBuf, sizeof(BYTE), index);
 		byGroup = GetByte(pBuf, index);
 		byLevel  = GetByte(pBuf, index);
@@ -290,7 +288,7 @@ void CAISocket::RecvNpcInfoAll(char* pBuf)
 		CNpc* pNpc = NULL;
 		pNpc = new CNpc;
 		if(pNpc == NULL)	{ 
-			TRACE("#### Recv --> NpcUserInfoAll POINT Fail: uid=%d, sid=%d, name=%s, zoneindex=%d, x=%f, z=%f.. \n", nid, sPid, szName, sZoneIndex, fPosX, fPosZ);
+			TRACE("#### Recv --> NpcUserInfoAll POINT Fail: uid=%d, sid=%d, name=%s, zone=%d, x=%f, z=%f.. \n", nid, sPid, szName, bZone, fPosX, fPosZ);
 			continue;
 		}
 		pNpc->Initialize();
@@ -304,8 +302,8 @@ void CAISocket::RecvNpcInfoAll(char* pBuf)
 		strcpy(pNpc->m_strName, szName);
 		pNpc->m_byGroup = byGroup;
 		pNpc->m_byLevel = byLevel;
-		pNpc->m_sCurZone = sZone;
-		pNpc->m_pMap = m_pMain->GetZoneByID(sZone);
+		pNpc->m_bCurZone = bZone;
+		pNpc->m_pMap = m_pMain->GetZoneByID(bZone);
 		pNpc->m_fCurX = fPosX;
 		pNpc->m_fCurZ = fPosZ;
 		pNpc->m_fCurY = fPosY;
@@ -710,7 +708,7 @@ void CAISocket::RecvNpcInfo(char* pBuf)
 	short		sSize = 100;	// NPC Size
 	int			iWeapon_1;		// 오른손 무기
 	int			iWeapon_2;		// 왼손  무기
-	short       sZone;			// Current zone number
+	BYTE        bZone;			// Current zone number
 	char		szName[MAX_ID_SIZE+1];		// NPC Name
 	BYTE		byGroup;		// 소속 집단
 	BYTE		byLevel;			// level
@@ -737,7 +735,7 @@ void CAISocket::RecvNpcInfo(char* pBuf)
 	sSize = GetShort(pBuf, index);
 	iWeapon_1 = GetDWORD(pBuf, index);
 	iWeapon_2 = GetDWORD(pBuf, index);
-	sZone = GetShort(pBuf, index);
+	bZone = (BYTE)GetShort(pBuf, index);
 	int nLength = GetVarString(szName, pBuf, sizeof(BYTE), index);
 	if(nLength < 0 || nLength > MAX_ID_SIZE) return;		// 잘못된 monster 아이디 
 	byGroup = GetByte(pBuf, index);
@@ -784,8 +782,8 @@ void CAISocket::RecvNpcInfo(char* pBuf)
 	strcpy(pNpc->m_strName, szName);
 	pNpc->m_byGroup = byGroup;
 	pNpc->m_byLevel = byLevel;
-	pNpc->m_sCurZone = sZone;
-	pNpc->m_pMap = m_pMain->GetZoneByID(sZone);
+	pNpc->m_bCurZone = bZone;
+	pNpc->m_pMap = m_pMain->GetZoneByID(bZone);
 	pNpc->m_fCurX = fPosX;
 	pNpc->m_fCurZ = fPosZ;
 	pNpc->m_fCurY = fPosY;
@@ -1112,13 +1110,6 @@ void CAISocket::RecvGateDestory(char* pBuf)
 		if(!pNpc)	return;
 		pNpc->m_byGateOpen = gate_status;
 		TRACE("RecvGateDestory - (%d,%s), gate_status=%d\n", pNpc->m_sNid, pNpc->m_strName, pNpc->m_byGateOpen);
-/*
-		SetByte( send_buff, WIZ_OBJECT_EVENT, send_index );
-		SetByte( send_buff, 1, send_index );					// type
-		SetByte( send_buff, 1, send_index );
-		SetShort( send_buff, nid, send_index );
-		SetByte( send_buff, pNpc->m_byGateOpen, send_index );
-		m_pMain->Send_Region( send_buff, send_index, cur_zone, rx, rz );	*/	
 	}
 }
 
@@ -1357,38 +1348,31 @@ void CAISocket::RecvNpcEventItem( char* pBuf )
 
 void CAISocket::RecvGateOpen( char* pBuf )
 {
-	int index = 0, send_index = 0, nNid = 0, nSid = 0, nGateFlag = 0;
-	char send_buff[256];
-	memset( send_buff, 0x00, 256 );
+	int index = 0, nNid = 0, nSid = 0, nGateFlag = 0;
 	CNpc* pNpc = NULL;
 	_OBJECT_EVENT* pEvent = NULL;
 
-	nNid = GetShort(pBuf,index);
-	nSid = GetShort(pBuf,index);
-	nGateFlag = GetByte(pBuf,index);
+	nNid = GetShort(pBuf, index);
+	nSid = GetShort(pBuf, index);
+	nGateFlag = GetByte(pBuf, index);
 
-	pNpc = m_pMain->m_arNpcArray.GetData( nNid );
-	if(!pNpc)	{
+	pNpc = m_pMain->m_arNpcArray.GetData(nNid);
+	if (pNpc == NULL)	
+	{
 		TRACE("#### RecvGateOpen Npc Pointer null : nid=%d ####\n", nNid);
 		return;
 	}
 
-	pNpc->m_byGateOpen = nGateFlag;
+	pNpc->m_byGateOpen = nGateFlag; // possibly not needed (we'll do it below), but need to make sure.
 
-	pEvent = pNpc->GetMap()->GetObjectEvent( nSid );
-	if( !pEvent )	{
+	pEvent = pNpc->GetMap()->GetObjectEvent(nSid);
+	if (pEvent == NULL)	
+	{
 		TRACE("#### RecvGateOpen Npc Object fail : nid=%d, sid=%d ####\n", nNid, nSid);
 		return;
 	}
 
 	//TRACE("---> RecvGateOpen Npc Object fail : nid=%d, sid=%d, nGateFlag = %d ####\n", nNid, nSid, nGateFlag);
-
-	if( pNpc->m_tNpcType == NPC_GATE || pNpc->m_tNpcType == NPC_PHOENIX_GATE || pNpc->m_tNpcType == NPC_SPECIAL_GATE )	{
-		SetByte( send_buff, WIZ_OBJECT_EVENT, send_index );
-		SetByte( send_buff, (BYTE) pEvent->sType, send_index );
-		SetByte( send_buff, 0x01, send_index );
-		SetShort( send_buff, nNid, send_index );
-		SetByte( send_buff, pNpc->m_byGateOpen, send_index );
-		m_pMain->Send_Region( send_buff, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z, NULL, false);
-	}
+	if (pNpc->isGate())
+		pNpc->SendGateFlag(nGateFlag, false);
 }

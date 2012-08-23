@@ -2378,7 +2378,7 @@ final_test :
 		}	
 	}
 	else {			// When monsters attack...
-		if ( pTUser->m_pUserData->m_bZone == pMon->m_sCurZone ) {		// Zone Check!
+		if ( pTUser->getZoneID() == pMon->getZoneID() ) {		// Zone Check!
 			if ( (pTUser->m_RegionX == pMon->m_sRegion_X) && (pTUser->m_RegionZ == pMon->m_sRegion_Z) ) { // Region Check!
 				if (radius !=0) { 	// Radius check! ( ...in case there is one :(  )
 					int temp_x = pTUser->m_pUserData->m_curx - pMon->m_fCurX ;
