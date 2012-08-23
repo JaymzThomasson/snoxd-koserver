@@ -69,6 +69,9 @@ public:
 	void InsertRegion(int del_x, int del_z);
 	int GetRegionNpcList(int region_x, int region_z, char *buff, int &t_count);
 
+	__forceinline bool isGate() { GetType() == NPC_GATE || GetType() == NPC_PHOENIX_GATE || GetType() == NPC_SPECIAL_GATE; };
+	__forceinline BYTE GetType() { return m_tNpcType; };
+
 	__forceinline BYTE GetState() { return m_byState; };
 	__forceinline C3DMap * GetMap() { return m_pMap; };
 
