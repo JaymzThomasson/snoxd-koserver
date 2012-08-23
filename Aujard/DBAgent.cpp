@@ -1554,7 +1554,6 @@ BOOL CDBAgent::LoadWebItemMall(char *charid, char *buff, int & buff_index)
 	SQLHSTMT		hstmt;
 	SQLRETURN		retcode;
 	TCHAR			szSQL[1024];
-	SDWORD			sCharID;
 	int uid = -1;
 	_USER_DATA *pData = m_pMain->GetUserPtr(charid, uid); 
 
@@ -1627,7 +1626,6 @@ BOOL CDBAgent::LoadSkillShortcut(char *charid, char *buff, int & buff_index)
 	SQLHSTMT		hstmt;
 	SQLRETURN		retcode;
 	TCHAR			szSQL[1024];
-	SDWORD			sCharID;
 
 	SQLSMALLINT	sCount;
 	char strSkillData[260];
@@ -1637,7 +1635,7 @@ BOOL CDBAgent::LoadSkillShortcut(char *charid, char *buff, int & buff_index)
 	_USER_DATA *pData = m_pMain->GetUserPtr(charid, uid); 
 
 	memset(szSQL, 0x00, 1024);
-	wsprintf(szSQL, TEXT("{call SKILLSHORTCUT_LOAD (\'%s\')}", charid));
+	wsprintf(szSQL, TEXT("{call SKILLSHORTCUT_LOAD (\'%s\')}"), charid);
 	SQLINTEGER Indexind = SQL_NTS;
 
 	hstmt = NULL;
@@ -1683,10 +1681,10 @@ void CDBAgent::SaveSkillShortcut(char *charid, int sCount, char *buff)
 	SQLHSTMT		hstmt;
 	SQLRETURN		retcode;
 	TCHAR			szSQL[1024];
-	SDWORD			sCharID, sSkillData;
+	SDWORD			sSkillData;
 
 	memset(szSQL, 0x00, 1024);
-	wsprintf(szSQL, TEXT("{call SKILLSHORTCUT_SAVE (\'%s\', %d, ?)}" ), charid, sCount);
+	wsprintf(szSQL, TEXT("{call SKILLSHORTCUT_SAVE (\'%s\', %d, ?)}"), charid, sCount);
 
 	hstmt = NULL;
 
