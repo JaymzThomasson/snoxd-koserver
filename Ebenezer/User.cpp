@@ -4051,210 +4051,86 @@ void CUser::InitType3()
 
 BOOL CUser::BindObjectEvent(short objectindex, short nid)
 {
-	int send_index = 0, result = 0;
-	char send_buff[128]; memset( send_buff, NULL, 128 );
-
 	_OBJECT_EVENT* pEvent = GetMap()->GetObjectEvent(objectindex);
-	if (pEvent == NULL) 
+	int  send_index = 0;
+	char send_buff[3];
+
+	if (pEvent == NULL
+		|| pEvent->sBelong != 0 && pEvent->sBelong != getNation())
 		return FALSE;
 
-	if (pEvent->sBelong != 0 && pEvent->sBelong != getNation())
-	{
-		result = 0;
-	}
-	else 
-	{
-		m_pUserData->m_sBind = pEvent->sIndex;
-		result = 1;
-	}
+	m_pUserData->m_sBind = pEvent->sIndex;
 
-	SetByte( send_buff, WIZ_OBJECT_EVENT, send_index );
-	SetByte( send_buff, pEvent->sType, send_index );
-	SetByte( send_buff, result, send_index );
-	Send( send_buff, send_index );	
+	SetByte(send_buff, WIZ_OBJECT_EVENT, send_index);
+	SetByte(send_buff, (BYTE)pEvent->sType, send_index);
+	SetByte(send_buff, 1, send_index);
+	Send(send_buff, send_index);
 
-	return TRUE;
-}
-
-BOOL CUser::GateObjectEvent(short objectindex, short nid)
-{
-	int  send_index = 0, result = 0 ;
-	char send_buff[128]; memset( send_buff, NULL, 128 );
-
-	_OBJECT_EVENT* pEvent = GetMap()->GetObjectEvent(objectindex);
-	if (pEvent == NULL)
-		return FALSE;
-
-	CNpc* pNpc = m_pMain->m_arNpcArray.GetData(nid);
-	if (pNpc == NULL)
-		return FALSE;
-	
-	if( pNpc->m_tNpcType == NPC_GATE || pNpc->m_tNpcType == NPC_PHOENIX_GATE || pNpc->m_tNpcType == NPC_SPECIAL_GATE ) {
-		pNpc->m_byGateOpen = !pNpc->m_byGateOpen;
-		result = 1;
-
-		memset( send_buff, NULL, 128 );	send_index = 0;
-		SetByte( send_buff, AG_NPC_GATE_OPEN, send_index );
-		SetShort( send_buff, nid, send_index );
-		SetByte( send_buff, pNpc->m_byGateOpen, send_index );
-		m_pMain->Send_AIServer( m_pUserData->m_bZone, send_buff, send_index);
-	}
-	else {
-		result = 0;
-	}	
-	
-	memset( send_buff, NULL, 128 );	send_index = 0;		
-	SetByte( send_buff, WIZ_OBJECT_EVENT, send_index );
-	SetByte( send_buff, pEvent->sType, send_index );
-	SetByte( send_buff, result, send_index );
-	SetShort( send_buff, nid, send_index );
-	SetByte( send_buff, pNpc->m_byGateOpen, send_index );
-	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
-	
 	return TRUE;
 }
 
 BOOL CUser::GateLeverObjectEvent(short objectindex, short nid)
 {
-	int send_index = 0, result = 0 ;
-	char send_buff[128]; memset( send_buff, NULL, 128 );
-	
-	_OBJECT_EVENT* pEvent = GetMap()->GetObjectEvent(objectindex);
-	if (pEvent == NULL)
+	_OBJECT_EVENT* pEvent, *pGateEvent;
+	CNpc* pNpc, *pGateNpc;
+
+	// Does the lever object event exist?
+	if ((pEvent = GetMap()->GetObjectEvent(objectindex)) == NULL
+		// Does the lever (object) NPC exist?
+		|| (pNpc = m_pMain->m_arNpcArray.GetData(nid)) == NULL
+		// Does the corresponding gate object event exist?
+		|| (pGateEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID)) == NULL
+		// Does the corresponding gate (object) NPC exist?
+		|| (pGateNpc = m_pMain->m_arNpcArray.GetData(pEvent->sControlNpcID)) == NULL
+		// Is it even a gate?
+		|| !pGateNpc->isGate()
+		// If the gate's closed (i.e. the lever is down), we can't open it unless the lever isn't nation-specific
+		// or we're the correct nation. Seems the other nation cannot close them.
+		|| (pNpc->isGateClosed() && pNpc->getNation() != 0 && pNpc->getNation() != getNation()))
 		return FALSE;
 
-	CNpc* pNpc = m_pMain->m_arNpcArray.GetData(nid);
-	if (pNpc == NULL)
-		return FALSE;
+	// Move the lever (up/down).
+	pNpc->SendGateFlag(!pNpc->m_byGateOpen);
 
-	_OBJECT_EVENT* pGateEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID);
-	if (pGateEvent == NULL) return FALSE;
-
-	CNpc* pGateNpc = m_pMain->GetNpcPtr(pEvent->sControlNpcID, m_pUserData->m_bZone);
-	if( !pGateNpc ) {
-		result = 0;
-	}
-	else {
-		if( pGateNpc->m_tNpcType == NPC_GATE || pGateNpc->m_tNpcType == NPC_PHOENIX_GATE || pGateNpc->m_tNpcType == NPC_SPECIAL_GATE ) {
-			if(pNpc->m_byGroup != m_pUserData->m_bNation && pNpc->m_byGroup != 0)	{
-				if(pNpc->m_byGateOpen == 0)	return FALSE;
-			}
-			pNpc->m_byGateOpen = !pNpc->m_byGateOpen;
-			result = 1;
-			memset( send_buff, NULL, 128 );		send_index = 0;
-			SetByte( send_buff, AG_NPC_GATE_OPEN, send_index );
-			SetShort( send_buff, nid, send_index );
-			SetByte( send_buff, pNpc->m_byGateOpen, send_index );
-			m_pMain->Send_AIServer( m_pUserData->m_bZone, send_buff, send_index);
-
-			pGateNpc->m_byGateOpen = !pGateNpc->m_byGateOpen;
-			result = 1;
-			memset( send_buff, NULL, 128 );		send_index = 0;
-			SetByte( send_buff, AG_NPC_GATE_OPEN, send_index );
-			SetShort( send_buff, pGateNpc->m_sNid, send_index );
-			SetByte( send_buff, pGateNpc->m_byGateOpen, send_index );
-			m_pMain->Send_AIServer( m_pUserData->m_bZone, send_buff, send_index);
-
-			memset( send_buff, NULL, 128 );		send_index = 0;
-			SetByte( send_buff, WIZ_OBJECT_EVENT, send_index );
-			SetByte( send_buff, pGateEvent->sType, send_index );
-			SetByte( send_buff, result, send_index );
-			SetShort( send_buff, pGateNpc->m_sNid, send_index );
-			SetByte( send_buff, pGateNpc->m_byGateOpen, send_index );
-			m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );	
-		}
-		else	result = 0;
-	}
-
-	memset( send_buff, NULL, 128 );		send_index = 0;
-	SetByte( send_buff, WIZ_OBJECT_EVENT, send_index );
-	SetByte( send_buff, pEvent->sType, send_index );
-	SetByte( send_buff, result, send_index );
-	SetShort( send_buff, nid, send_index );
-	SetByte( send_buff, pNpc->m_byGateOpen, send_index );
-	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );	
-	
+	// Open/close the gate.
+	pGateNpc->SendGateFlag(!pGateNpc->m_byGateOpen);
 	return TRUE;
 }
 
+/***
+ * Not sure what this is used for, so keeping logic the same just in case.
+ ***/
 BOOL CUser::FlagObjectEvent(short objectindex, short nid)
 {
-	int  send_index = 0, result = 0;
-	char send_buff[128]; memset( send_buff, NULL, 128 );
+	_OBJECT_EVENT *pEvent, *pFlagEvent;
+	CNpc *pNpc, *pFlagNpc;
 
-	_OBJECT_EVENT* pEvent = GetMap()->GetObjectEvent(objectindex);
-	if (pEvent == NULL)
+	// Does the flag object event exist?
+	if ((pEvent = GetMap()->GetObjectEvent(objectindex)) == NULL
+		// Does the flag object NPC exist?
+		|| (pNpc = m_pMain->m_arNpcArray.GetData(nid)) == NULL
+		// Does the corresponding flag event exist?
+		|| (pFlagEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID)) == NULL
+		// Does the corresponding flag object NPC exist?
+		|| (pFlagNpc = m_pMain->GetNpcPtr(pEvent->sControlNpcID, getZoneID())) == NULL
+		// Is this marked a gate? (i.e. can control)
+		|| !pFlagNpc->isGate()
+		// Is the war over or the gate closed?
+		|| m_pMain->m_bVictory > 0 || pNpc->isGateClosed())
 		return FALSE;
 
-	CNpc* pNpc = m_pMain->m_arNpcArray.GetData(nid);
-	if (pNpc == NULL)
-		return FALSE;
+	// Reset objects
+	pNpc->SendGateFlag(0);
+	pFlagNpc->SendGateFlag(0);
 
-	_OBJECT_EVENT* pFlagEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID);
-	if (pFlagEvent == NULL)
-		return FALSE;
+	// Add flag score (not sure what this is, is this even used anymore?)
+	if (getNation() == KARUS) 
+		m_pMain->m_bKarusFlag++;
+	else
+		m_pMain->m_bElmoradFlag++;
 
-	CNpc* pFlagNpc = NULL;
-	pFlagNpc = m_pMain->GetNpcPtr(pEvent->sControlNpcID, m_pUserData->m_bZone);
-	if ( !pFlagNpc ) {
-		result = 0;
-	}
-	else {
-		if( pFlagNpc->m_tNpcType == NPC_GATE || pFlagNpc->m_tNpcType == NPC_PHOENIX_GATE || pFlagNpc->m_tNpcType == NPC_SPECIAL_GATE ) {
-			if (m_pMain->m_bVictory > 0) return FALSE;
-			if (pNpc->m_byGateOpen == 0) return FALSE;
-	//			if (pNpc->m_byGroup != 0 && pFlagNpc->m_byGroup != 0) goto fail_return;
-			
-			result = 1;
-
-	//			pNpc->m_byGroup = m_pUserData->m_bNation;		
-	//			pNpc->m_byGateOpen = !pNpc->m_byGateOpen;	
-			pNpc->m_byGateOpen = 0;	// LEVER !!!
-
-			memset( send_buff, NULL, 128 );		send_index = 0;
-			SetByte( send_buff, AG_NPC_GATE_OPEN, send_index );
-			SetShort( send_buff, nid, send_index );
-			SetByte( send_buff, pNpc->m_byGateOpen, send_index );
-			m_pMain->Send_AIServer( m_pUserData->m_bZone, send_buff, send_index);
-			memset( send_buff, NULL, 128 );		send_index = 0;
-
-	//			pFlagNpc->m_byGroup = m_pUserData->m_bNation;		
-	//			pFlagNpc->m_byGateOpen = !pFlagNpc->m_byGateOpen;	// FLAG !!!
-			pFlagNpc->m_byGateOpen = 0;
-
-			SetByte( send_buff, AG_NPC_GATE_OPEN, send_index );		// (Send to AI....)
-			SetShort( send_buff, pFlagNpc->m_sNid, send_index );
-			SetByte( send_buff, pFlagNpc->m_byGateOpen, send_index );
-			m_pMain->Send_AIServer( m_pUserData->m_bZone, send_buff, send_index);
-			memset( send_buff, NULL, 128 );		send_index = 0;
-
-			SetByte( send_buff, WIZ_OBJECT_EVENT, send_index );		// (Send to Region...)
-			SetByte( send_buff, pFlagEvent->sType, send_index );
-			SetByte( send_buff, result, send_index );
-			SetShort( send_buff, pFlagNpc->m_sNid, send_index );
-			SetByte( send_buff, pFlagNpc->m_byGateOpen, send_index );
-			m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );	
-
-			if (m_pUserData->m_bNation == KARUS) {		// ADD FLAG SCORE !!!
-				m_pMain->m_bKarusFlag++;
-			}
-			else if (m_pUserData->m_bNation == ELMORAD) {
-				m_pMain->m_bElmoradFlag++;
-			}
-			
-			m_pMain->BattleZoneVictoryCheck();		// Did one of the teams win?
-		}
-		else	result = 0;
-	}
-
-	memset( send_buff, NULL, 128 );		send_index = 0;
-	SetByte( send_buff, WIZ_OBJECT_EVENT, send_index );
-	SetByte( send_buff, pEvent->sType, send_index );
-	SetByte( send_buff, result, send_index );
-	SetShort( send_buff, nid, send_index );
-	SetByte( send_buff, pNpc->m_byGateOpen, send_index );
-	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
-
+	// Did one of the teams win?
+	m_pMain->BattleZoneVictoryCheck();	
 	return TRUE;
 }
 
@@ -4270,45 +4146,62 @@ BOOL CUser::WarpListObjectEvent(short objectindex, short nid)
 
 void CUser::ObjectEvent(char *pBuf)
 {
-	int index = 0, objectindex = 0, send_index = 0, result = 0, nid = 0;
-	char send_buff[128]; memset( send_buff, NULL, 128 );
+	int index = 0, objectindex = 0, send_index = 0, nid = 0;
+	char send_buff[6];
+	BOOL bSuccess = FALSE;
 
 	if (m_pMain->m_bPointCheckFlag == FALSE)
 		return;
 
-	ASSERT(GetMap() != NULL);
-
-	objectindex = GetShort( pBuf, index );
-	nid = GetShort( pBuf, index );
+	objectindex = GetShort(pBuf, index);
+	nid = GetShort(pBuf, index);
 	
 	_OBJECT_EVENT * pEvent = GetMap()->GetObjectEvent(objectindex);
-	if( !pEvent ) goto fail_return;
-	
-	switch( pEvent->sType ) {
-		case 0:		// Bind Point
-		case 7:		// Destory Bind Point
-			if (!BindObjectEvent(objectindex, nid)) goto fail_return;
-			break;
-		case 1:		// Gate Object : ???g ??? : 2002.12.23
-		case 2:
-			//if (!GateObjectEvent(objectindex, nid)) goto fail_return; 
-			break;
-		case 3:		// Gate lever Object
-			if (!GateLeverObjectEvent(objectindex, nid)) goto fail_return;
-			break;
-		case 4:		// Flag Lever Object
-			if (!FlagObjectEvent(objectindex, nid)) goto fail_return;
-			break;
-		case 5:		// Warp List
-			if( !WarpListObjectEvent(objectindex, nid)) goto fail_return;
-			break;
-	}
-	return;
+	if (pEvent != NULL)
+	{
+		switch (pEvent->sType)
+		{
+			case OBJECT_BIND:
+			case OBJECT_REMOVE_BIND:
+				bSuccess = BindObjectEvent(objectindex, nid);
+				break;
 
-fail_return:
-	SetByte( send_buff, WIZ_OBJECT_EVENT, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	Send( send_buff, send_index );
+			case OBJECT_GATE_LEVER:
+				bSuccess = GateLeverObjectEvent(objectindex, nid);
+				break;
+
+			case OBJECT_FLAG_LEVER:
+				bSuccess = FlagObjectEvent(objectindex, nid);
+				break;
+
+			case OBJECT_WARP_GATE:
+				bSuccess = WarpListObjectEvent(objectindex, nid);
+				if (bSuccess)
+					return;
+				break;
+
+			case OBJECT_ANVIL:
+				SendAnvilRequest(nid);
+				return;
+		}
+
+	}
+
+	if (!bSuccess)
+	{
+		SetByte(send_buff, WIZ_OBJECT_EVENT, send_index);
+		SetByte(send_buff, pEvent == NULL ? 0 : pEvent->sType, send_index);
+		SetByte(send_buff, 0, send_index);
+	}
+}
+
+void CUser::SendAnvilRequest(int nid)
+{
+	char send_buff[4]; int send_index = 0;
+	SetByte(send_buff, WIZ_ITEM_UPGRADE, send_index);
+	SetByte(send_buff, 1, send_index);
+	SetShort(send_buff, nid, send_index);
+	Send(send_buff, send_index);
 }
 
 void CUser::BlinkStart()

@@ -270,7 +270,6 @@ public:
 	BOOL WarpListObjectEvent(short objectindex, short nid);
 	BOOL FlagObjectEvent(short objectindex, short nid);
 	BOOL GateLeverObjectEvent(short objectindex, short nid);
-	BOOL GateObjectEvent(short objectindex, short nid);
 	BOOL BindObjectEvent(short objectindex, short nid);
 	void InitType3();
 	BOOL GetWarpList( int warp_group );
@@ -319,6 +318,7 @@ public:
 	void MSpChange(int amount);
 	void UpdateGameWeather( char* pBuf, BYTE type );
 	void ObjectEvent( char* pBuf );
+	void SendAnvilRequest(int nid);
 	void SkillPointChange( char* pBuf );
 
 	// Trade system

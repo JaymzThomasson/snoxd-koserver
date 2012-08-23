@@ -8,6 +8,7 @@
 #include "EbenezerDlg.h"
 #include "Map.h"
 #include "Define.h"
+#include "AIPacket.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -38,7 +39,7 @@ void CNpc::Initialize()
 	m_sNid = -1;				// NPC (서버상의)일련번호
 	m_sSid = 0;
 	m_pMap = NULL;
-	m_sCurZone = -1;			// Current Zone number
+	m_bCurZone = -1;			// Current Zone number
 	m_fCurX = 0;			// Current X Pos;
 	m_fCurY = 0;			// Current Y Pos;
 	m_fCurZ = 0;			// Current Z Pos;
@@ -99,7 +100,7 @@ void CNpc::NpcInOut(BYTE Type, float fx, float fz, float fy)
 	char buff[1024];
 	memset( buff, 0x00, 1024 );
 
-	C3DMap *pMap = m_pMain->GetZoneByID(m_sCurZone);
+	C3DMap *pMap = m_pMain->GetZoneByID(getZoneID());
 	if (pMap == NULL)
 		return;
 
@@ -270,4 +271,32 @@ int CNpc::GetRegionNpcList(int region_x, int region_z, char *buff, int &t_count)
 	LeaveCriticalSection( &g_region_critical );
 
 	return buff_index;
+}
+
+void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
+{
+	char send_buff[6]; int send_index = 0;
+
+	// If there's a flag to set, set it now.
+	if (bFlag >= 0)
+		m_byGateOpen = bFlag;
+
+	// Tell the AI server our new status
+	if (bSendAI)
+	{
+		SetByte(send_buff, AG_NPC_GATE_OPEN, send_index);
+		SetShort(send_buff, GetID(), send_index);
+		SetByte(send_buff, m_byGateOpen, send_index );
+		m_pMain->Send_AIServer(getZoneID(), send_buff, send_index);
+	}
+
+	// Tell everyone nearby our new status.
+	send_index = 0;
+	SetByte(send_buff, WIZ_OBJECT_EVENT, send_index );
+	SetByte(send_buff, OBJECT_FLAG_LEVER, send_index );
+	SetByte(send_buff, 1, send_index );
+	SetShort(send_buff, GetID(), send_index );
+	SetByte(send_buff, m_byGateOpen, send_index );
+
+	m_pMain->Send_Region(send_buff, send_index, GetMap(), m_sRegion_X, m_sRegion_Z, NULL, false);	
 }
