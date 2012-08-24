@@ -11,6 +11,8 @@
 #define CLIENT_SOCKSIZE		100
 #define MAX_AI_SOCKET		10			// sungyong~ 2002.05.22
 
+#define MAX_NPC_SIZE		30
+
 #define MAX_TYPE3_REPEAT    20
 #define MAX_TYPE4_BUFF		9
 

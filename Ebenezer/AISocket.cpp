@@ -233,7 +233,7 @@ void CAISocket::RecvNpcInfoAll(char* pBuf)
 	short		sSize = 100;				// NPC Size
 	int			iweapon_1;
 	int			iweapon_2;
-	char		szName[MAX_ID_SIZE+1];		// NPC Name
+	char		szName[MAX_NPC_SIZE+1];		// NPC Name
 	BYTE		byGroup;		// 소속 집단
 	BYTE		byLevel;		// level
 	float		fPosX;			// X Position
@@ -260,7 +260,7 @@ void CAISocket::RecvNpcInfoAll(char* pBuf)
 		sSize = GetShort(pBuf, index);
 		iweapon_1 = GetDWORD(pBuf, index);
 		iweapon_2 = GetDWORD(pBuf, index);
-		bZone = (BYTE)GetShort(pBuf, index);
+		bZone = GetByte(pBuf, index);
 		int nLength = GetVarString(szName, pBuf, sizeof(BYTE), index);
 		byGroup = GetByte(pBuf, index);
 		byLevel  = GetByte(pBuf, index);
@@ -278,7 +278,7 @@ void CAISocket::RecvNpcInfoAll(char* pBuf)
 
 		//TRACE("RecvNpcInfoAll  : nid=%d, szName=%s, count=%d\n", nid, szName, byCount);
 
-		if(nLength < 0 || nLength > MAX_ID_SIZE)	{
+		if(nLength < 0 || nLength > MAX_NPC_SIZE)	{
 			TRACE("#### RecvNpcInfoAll Fail : szName=%s\n", szName);
 			continue;		// 잘못된 monster 아이디 
 		}
@@ -709,7 +709,7 @@ void CAISocket::RecvNpcInfo(char* pBuf)
 	int			iWeapon_1;		// 오른손 무기
 	int			iWeapon_2;		// 왼손  무기
 	BYTE        bZone;			// Current zone number
-	char		szName[MAX_ID_SIZE+1];		// NPC Name
+	char		szName[MAX_NPC_SIZE+1];		// NPC Name
 	BYTE		byGroup;		// 소속 집단
 	BYTE		byLevel;			// level
 	float		fPosX;			// X Position
@@ -735,9 +735,9 @@ void CAISocket::RecvNpcInfo(char* pBuf)
 	sSize = GetShort(pBuf, index);
 	iWeapon_1 = GetDWORD(pBuf, index);
 	iWeapon_2 = GetDWORD(pBuf, index);
-	bZone = (BYTE)GetShort(pBuf, index);
+	bZone = GetByte(pBuf, index);
 	int nLength = GetVarString(szName, pBuf, sizeof(BYTE), index);
-	if(nLength < 0 || nLength > MAX_ID_SIZE) return;		// 잘못된 monster 아이디 
+	if(nLength < 0 || nLength > MAX_NPC_SIZE) return;		// 잘못된 monster 아이디 
 	byGroup = GetByte(pBuf, index);
 	byLevel  = GetByte(pBuf, index);
 	fPosX = Getfloat(pBuf, index);
@@ -1024,34 +1024,10 @@ void CAISocket::RecvUserFail(char* pBuf)
 void CAISocket::RecvCompressedData(char* pBuf)
 {
 	int index = 0;
-	short sCompLen, sOrgLen;
-	char pTempBuf[10240], *pOutBuf = NULL;
-	memset(pTempBuf, 0x00, 10240);
-	
-	DWORD dwCrcValue, dwActualCrc;
+	short sCompLen;
 	sCompLen = GetShort(pBuf, index);
-	sOrgLen = GetShort(pBuf, index);	
-	dwCrcValue = GetDWORD(pBuf, index);
 
-	memcpy( pTempBuf, pBuf+index, sCompLen );
-	index += sCompLen;
-
-	pOutBuf = new char[sOrgLen];
-	memset(pOutBuf, 0x00, sOrgLen);
-	
-
-	lzf_decompress(pTempBuf, sCompLen, pOutBuf, sOrgLen);
-	dwActualCrc = crc32((unsigned char*)pOutBuf, sOrgLen);
-
-	if (dwCrcValue != dwActualCrc)
-	{
-		TRACE("Invalid CRC - %x != %x\n", dwCrcValue, dwActualCrc);
-		return;
-	}
-
-	TRACE("Decompressed packet: %X\n", *pOutBuf);
-	Parsing(sOrgLen, pOutBuf);
-	delete [] pOutBuf;
+	Parsing(sCompLen, pBuf+index);
 }
 
 void CAISocket::InitEventMonster(int index)

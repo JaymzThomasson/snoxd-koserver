@@ -2553,21 +2553,12 @@ void CEbenezerDlg::SendCompressedData()
 		return;
 	}
 
-	short in_length = (short)m_iCompIndex, out_length;
 	int send_index = 0;
-	char send_buff[10240]; memset(send_buff, 0x00, sizeof(send_buff));
-	char out_buff[10240]; memset(out_buff, 0x00, sizeof(out_buff));
-	DWORD crc;
-
-	crc = crc32((const unsigned char*)m_CompBuf, in_length);
-	out_length = lzf_compress(m_CompBuf, in_length, out_buff, in_length + LZF_MARGIN);
-	ZeroMemory(m_CompBuf, sizeof(m_CompBuf));
+	char send_buff[10240];		::ZeroMemory(send_buff, sizeof(send_buff));
 
 	SetByte(send_buff, AG_COMPRESSED_DATA, send_index );
-	SetShort(send_buff, out_length, send_index );
-	SetShort(send_buff, in_length, send_index );
-	SetDWORD(send_buff, crc, send_index);
-	SetString(send_buff, out_buff, out_length, send_index);
+	SetShort(send_buff, (short)m_iCompIndex, send_index );
+	SetString( send_buff, m_CompBuf, m_iCompIndex, send_index);
 
 	Send_AIServer(1000, send_buff, send_index);
 

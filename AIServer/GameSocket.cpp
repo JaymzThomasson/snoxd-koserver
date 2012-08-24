@@ -804,33 +804,10 @@ void CGameSocket::RecvMagicAttackReq(char* pBuf)
 void CGameSocket::RecvCompressedData(char* pBuf)
 {
 	int index = 0;
-	short sCompLen, sOrgLen;
-	char pTempBuf[10240], *pOutBuf = NULL;
-	memset(pTempBuf, 0x00, 10240);
-	
-	DWORD dwCrcValue, dwActualCrc;
+	short sCompLen;
 	sCompLen = GetShort(pBuf, index);
-	sOrgLen = GetShort(pBuf, index);	
-	dwCrcValue = GetDWORD(pBuf, index);
 
-	memcpy( pTempBuf, pBuf+index, sCompLen );
-	index += sCompLen;
-
-	pOutBuf = new char[sOrgLen];
-	memset(pOutBuf, 0x00, sOrgLen);
-
-	lzf_decompress(pTempBuf, sCompLen, pOutBuf, sOrgLen);
-	dwActualCrc = crc32((unsigned char*)pOutBuf, sOrgLen);
-
-	if (dwCrcValue != dwActualCrc)
-	{
-		TRACE("Invalid CRC - %x != %x\n", dwCrcValue, dwActualCrc);
-		return;
-	}
-
-	TRACE("Decompressed packet: %X\n", *pOutBuf);
-	Parsing(sOrgLen, pOutBuf);
-	delete [] pOutBuf;
+	Parsing(sCompLen, pBuf+index);
 }
 
 void CGameSocket::RecvUserInfoAllData(char* pBuf)

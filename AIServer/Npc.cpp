@@ -962,18 +962,6 @@ BOOL CNpc::SetLive(CIOCPort* pIOCP)
 				return FALSE;
 			}
 
-			if(pMap->m_pMap[nTileX][nTileZ].m_sEvent <= 0)	{
-				if(i >= 50)	{
-					m_nInitX = m_fPrevX = m_fCurX;
-					m_nInitY = m_fPrevY = m_fCurY;
-					m_nInitZ = m_fPrevZ = m_fCurZ;
-					TRACE("### fail : sid = %d, nid = %d, zone=%d, loop = %d 나 설자리가 이상해... 고쳐줘... x = %d, y = %d\n", m_sSid, m_sNid+NPC_BAND, m_bCurZone, i, nX, nZ);
-					//return FALSE;
-			
-				}
-				continue;
-			}
-
 			m_nInitX = m_fPrevX = m_fCurX = (float)nX;
 			m_nInitZ = m_fPrevZ = m_fCurZ = (float)nZ;
 
@@ -998,7 +986,7 @@ BOOL CNpc::SetLive(CIOCPort* pIOCP)
 
 		InterlockedIncrement(&m_pMain->m_CurrentNPC);
 
-		//TRACE("Npc - SerLive :  cur = %d\n", m_pMain->m_CurrentNPC);
+		TRACE("Npc - SerLive :  cur = %d\n", m_pMain->m_CurrentNPC);
 		if(m_pMain->m_TotalNPC == m_pMain->m_CurrentNPC)	// 몬스터 총 수와 초기화한 몬스터의 수가 같다면
 		{
 			CString logstr;
@@ -4290,6 +4278,7 @@ void CNpc::FillNpcInfo(char *temp_send, int &index, BYTE flag)
 	else
 		SetByte(temp_send, 1, index );					// region에 등록		
 	SetShort(temp_send, m_sNid+NPC_BAND, index );
+	SetShort(temp_send, m_sSid, index);
 	SetShort(temp_send, m_sPid, index );
 	SetShort(temp_send, m_sSize, index );
 	SetInt(temp_send, m_iWeapon_1, index );
@@ -4323,6 +4312,7 @@ void CNpc::SendNpcInfoAll(char *temp_send, int &index, int count)
 	else
 		SetByte(temp_send, 1, index );					// region에 등록		
 	SetShort(temp_send, m_sNid+NPC_BAND, index );
+	SetShort(temp_send, m_sSid, index);
 	SetShort(temp_send, m_sPid, index );
 	SetShort(temp_send, m_sSize, index );
 	SetInt(temp_send, m_iWeapon_1, index );
@@ -6254,14 +6244,6 @@ BOOL CNpc::Teleport(CIOCPort* pIOCP)
 		if(nTileX < 0 || nTileZ < 0)	{
 			TRACE("#### Npc-SetLive() Fail : nTileX=%d, nTileZ=%d #####\n", nTileX, nTileZ);
 			return FALSE;
-		}
-
-		if(pMap->m_pMap[nTileX][nTileZ].m_sEvent <= 0)	{
-			if(i >= 500)	{
-				TRACE("### Teleport fail : sid = %d, nid = %d, zone=%d, loop = %d 나 이동자리가 이상해... 고쳐줘... x = %d, y = %d\n", m_sSid, m_sNid+NPC_BAND, m_bCurZone, i, nX, nZ);
-				return FALSE;
-			}
-			continue;
 		}
 		break;
 	}	

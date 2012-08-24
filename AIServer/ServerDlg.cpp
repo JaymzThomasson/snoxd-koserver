@@ -290,9 +290,12 @@ BOOL CServerDlg::OnInitDialog()
 	}
 
 	//----------------------------------------------------------------------
-	//	Load NPC Chat Table
+	//	Load Zone & Event...
 	//----------------------------------------------------------------------
-	
+	if( !MapFileLoad() )	{
+		AfxPostQuitMessage(0);
+	}
+
 	//----------------------------------------------------------------------
 	//	Load NPC Data & Activate NPC
 	//----------------------------------------------------------------------
@@ -304,13 +307,6 @@ BOOL CServerDlg::OnInitDialog()
 	if(!GetNpcTableData())	{			// NPC 특성치 테이블 Load
 		EndDialog(IDCANCEL);
 		return FALSE;
-	}
-
-	//----------------------------------------------------------------------
-	//	Load Zone & Event...
-	//----------------------------------------------------------------------
-	if( !MapFileLoad() )	{
-		AfxPostQuitMessage(0);
 	}
 
 	if(!CreateNpcThread())	{
@@ -1180,7 +1176,10 @@ BOOL CServerDlg::CreateNpcThread()
 						TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
 						delete pNpc;
 						pNpc = NULL;
+						continue;
 					}
+
+					pNpc->SetUid(pNpc->m_fCurX, pNpc->m_fCurZ, pNpc->m_sNid + NPC_BAND);
 
 					// 
 					if (pNpc->GetMap()->m_byRoomEvent > 0 && pNpc->m_byDungeonFamily > 0 )	{
@@ -1535,7 +1534,11 @@ BOOL CServerDlg::MapFileLoad()
 			pMap->m_byRoomEvent = 1;
 		}	
 
-		g_arZone.PutData(pMap->m_nZoneNumber, pMap);
+		if (!g_arZone.PutData(pMap->m_nZoneNumber, pMap))
+		{
+			TRACE("Duplicate zone %d\n", pMap->m_nZoneNumber);
+			delete pMap;
+		}
 
 		ZoneInfoSet.MoveNext();
 
@@ -1592,12 +1595,8 @@ void CServerDlg::AllNpcInfo()
 			if(count == NPC_NUM)	{
 				SetByte(send_buff, NPC_INFO_ALL, send_count );
 				SetByte(send_buff, (BYTE)count, send_count );
-				m_CompCount++;
-				//::CopyMemory(m_CompBuf+m_iCompIndex, send_buff, send_index);
-				memset(m_CompBuf, 0x00, 10240);
-				::CopyMemory(m_CompBuf, send_buff, send_index);
-				m_iCompIndex = send_index;
-				SendCompressedData(nZone);
+
+				Send(send_buff, send_index, nZone);
 				send_index = 2;
 				send_count = 0;
 				count = 0;
@@ -1772,23 +1771,13 @@ void CServerDlg::SendCompressedData(int nZone)
 		TRACE("#### SendCompressData Fail --> count=%d, index=%d\n" , m_CompCount, m_iCompIndex);
 		return;
 	}
-	char out_buff[10240]; memset(out_buff, 0x00, sizeof(out_buff));
-	int comp_data_len;
-	int org_data_len = m_iCompIndex;
-	DWORD crc_value = crc32((const unsigned char*)m_CompBuf, org_data_len);
-	comp_data_len = lzf_compress(m_CompBuf, org_data_len, out_buff, org_data_len + LZF_MARGIN);
-
-	int send_index = 0, packet_size = 0;
+	int send_index = 0;
 	char send_buff[10240];		::ZeroMemory(send_buff, sizeof(send_buff));
 
 	SetByte(send_buff, AG_COMPRESSED_DATA, send_index );
-	SetShort(send_buff, (short)comp_data_len, send_index );
-	SetShort(send_buff, (short)org_data_len, send_index );
-	SetDWORD(send_buff, crc_value, send_index);
-//	SetShort(send_buff, (short)m_CompCount, send_index );
-
-	SetString( send_buff, out_buff, comp_data_len, send_index);
-	packet_size = Send(send_buff, send_index, nZone);
+	SetShort(send_buff, (short)m_iCompIndex, send_index );
+	SetString( send_buff, m_CompBuf, m_iCompIndex, send_index);
+	Send(send_buff, send_index, nZone);
 
 	m_CompCount = 0;
 	m_iCompIndex = 0;
@@ -2359,10 +2348,13 @@ BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number)
 	//}
 
 	//if( zone_number > 201 )	return FALSE;	// test
-	pNpcTable = m_arNpcTable.GetData(pEvent->sIndex);
+	if (pEvent->sControlNpcID <= 0)
+		return FALSE;
+
+	pNpcTable = m_arNpcTable.GetData(pEvent->sControlNpcID);
 	if(pNpcTable == NULL)	{
 		bFindNpcTable = FALSE;
-		TRACE("#### AddObjectEventNpc Fail : [sid = %d], zone=%d #####\n", pEvent->sIndex, zone_number);
+		// TRACE("#### AddObjectEventNpc Fail : [sid = %d], zone=%d #####\n", pEvent->sIndex, zone_number);
 		return FALSE;
 	}
 	

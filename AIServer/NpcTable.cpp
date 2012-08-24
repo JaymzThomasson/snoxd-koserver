@@ -29,7 +29,7 @@ CNpcTable::~CNpcTable()
 void CNpcTable::Initialize()
 {
 	m_sSid = -1;				// MONSTER(NPC) Serial ID
-	memset(m_strName, 0x00, MAX_ID_SIZE+1);		// MONSTER(NPC) Name
+	memset(m_strName, 0x00, MAX_NPC_SIZE+1);		// MONSTER(NPC) Name
 	m_sPid = 0;
 	m_sSize = 0;
 	m_iWeapon_1 = 0;			// 무기계열
