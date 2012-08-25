@@ -324,12 +324,13 @@ inline void LogFileWrite( LPCTSTR logstr )
 
 	LogFileName.Format("%s\\Ebenezer.log", ProgPath);
 	
-	file.Open( LogFileName, CFile::modeCreate|CFile::modeNoTruncate|CFile::modeWrite );
-
-	file.SeekToEnd();
-	file.Write(logstr, loglength);
-	file.Write("\r\n", 2);
-	file.Close();
+	if (file.Open( LogFileName, CFile::modeCreate|CFile::modeNoTruncate|CFile::modeWrite ))
+	{
+		file.SeekToEnd();
+		file.Write(logstr, loglength);
+		file.Write("\r\n", 2);
+		file.Close();
+	}
 };
 
 inline void DisplayErrorMsg(SQLHANDLE hstmt)
