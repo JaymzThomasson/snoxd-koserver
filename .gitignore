@@ -44,6 +44,8 @@
 *.unsuccessfulbuild
 *.res
 *_manifest.rc
+*.ilk
+*.map
 
 # User project files
 *.vcxproj.user
