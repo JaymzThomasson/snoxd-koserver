@@ -17,6 +17,7 @@
     <SccLocalPath>
     </SccLocalPath>
     <Keyword>MFCProj</Keyword>
+    <ProjectName>AIServer</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -83,7 +84,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>nafxcw.lib;libcmt.lib;ws2_32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>.\Release/Server.exe</OutputFile>
+      <OutputFile>.\Release/AIServer.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ProgramDatabaseFile>.\Release/Server.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -129,7 +130,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>nafxcwd.lib;libcmtd.lib;ws2_32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>.\Debug/Server.exe</OutputFile>
+      <OutputFile>.\Debug/AIServer.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Debug/Server.pdb</ProgramDatabaseFile>
