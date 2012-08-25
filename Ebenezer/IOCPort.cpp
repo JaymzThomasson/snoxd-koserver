@@ -217,7 +217,7 @@ DWORD WINAPI ClientWorkerThread(LPVOID lp)
 				{
 				case	OVL_RECEIVE:
 					if( !nbytes ) {
-						TRACE("AISocket Closed By 0 Byte Notify\n" );
+						OutputDebugString("AISocket Closed By 0 Byte Notify\n" );
 						pSocket->CloseProcess();
 						EnterCriticalSection( &g_critical ); // AI server doesn't need the sid system
 						pIocport->RidIOCPSocket( pSocket->GetSocketID(), pSocket );
@@ -238,7 +238,7 @@ DWORD WINAPI ClientWorkerThread(LPVOID lp)
 					break;
 				case	OVL_CLOSE:
 					
-					TRACE("AISocket Closed By Close()\n" );
+					OutputDebugString("AISocket Closed By Close()\n" );
 					pSocket->CloseProcess();
 					EnterCriticalSection( &g_critical ); // AI server doesn't need the sid system
 					pIocport->RidIOCPSocket( pSocket->GetSocketID(), pSocket );
@@ -256,7 +256,7 @@ DWORD WINAPI ClientWorkerThread(LPVOID lp)
 					if( !pSocket )
 						goto loop_pass;
 
-					TRACE("AISocket Closed By Abnormal Termination\n" );
+					OutputDebugString("AISocket Closed By Abnormal Termination\n" );
 					pSocket->CloseProcess();
 					EnterCriticalSection( &g_critical );
 					pIocport->RidIOCPSocket( pSocket->GetSocketID(), pSocket );				
