@@ -3,6 +3,7 @@
 *.lo
 *.o
 *.obj
+*.lib
 
 # Compiled Dynamic libraries
 *.so
@@ -19,6 +20,7 @@
 
 # Log files
 *.txt
+*.log
 
 # Map files
 *.smd
@@ -30,6 +32,22 @@
 *.ipch
 *.ncb
 *.sdf
+*.opensdf
+*.bsc
+*.idb
+
+# Misc
+*.manifest
+*.manifest.res
+*.lastbuildstate
+*.pch
+*.unsuccessfulbuild
+*.res
+*_manifest.rc
+
+# User project files
+*.vcxproj.user
+*.suo
 
 # Config
 *.ini
