@@ -49,6 +49,7 @@ typedef CSTLMap <_HOME_INFO>				HomeArray;
 typedef CSTLMap <_START_POSITION>			StartPositionArray;
 typedef	CSTLMap	<EVENT>						QuestArray;
 typedef	CSTLMap	<_SERVER_RESOURCE>			ServerResourceArray;
+typedef vector <CString>					BlockNameArray;
 
 class CUser;
 class CEbenezerDlg : public CDialog
@@ -94,9 +95,11 @@ public:
 	void KillUser( const char* strbuff );
 	void Send_PartyMember( int party, char* pBuf, int len );
 	void Send_KnightsMember( int index, char* pBuf, int len, int zone=100 );
+	int GetAIServerPort();
 	BOOL AISocketConnect( int zone, int flag = 0 );
 	int GetRegionNpcIn( C3DMap* pMap, int region_x, int region_z, char* buff, int & t_count );
 	BOOL LoadNoticeData();
+	BOOL LoadBlockNameList();
 	int GetRegionNpcList( C3DMap* pMap, int region_x, int region_z, char* nid_buff, int& t_count ); // Region All Npcs nid Packaging Function
 	void RegionNpcInfoForMe( CUser* pSendUser );	// 9 Regions All Npcs nid Packaging Function
 	int GetRegionUserList( C3DMap* pMap, int region_x, int region_z, char* buff, int &t_count ); // Region All Users uid Packaging Function
@@ -180,6 +183,7 @@ public:
 	StartPositionArray		m_StartPositionArray;
 	QuestArray				m_Event;
 	ServerResourceArray		m_ServerResourceArray;
+	BlockNameArray			m_BlockNameArray;
 
 	CKnightsManager			m_KnightsManager;
 

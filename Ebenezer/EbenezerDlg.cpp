@@ -384,6 +384,7 @@ BOOL CEbenezerDlg::OnInitDialog()
 	LogFileWrite("after map file");
 
 	LoadNoticeData();
+	LoadBlockNameList();
 
 	srand((unsigned int)time(NULL));
 
@@ -397,11 +398,7 @@ BOOL CEbenezerDlg::OnInitDialog()
 		return FALSE;
 	}
 
-	if( !AIServerConnect() ) {
-#ifndef _DEBUG
-		AfxPostQuitMessage(0);
-#endif
-	}
+	AIServerConnect();
 
 	LogFileWrite("success");
 	UserAcceptThread();
@@ -776,20 +773,18 @@ void CEbenezerDlg::OnTimer(UINT nIDEvent)
 	case GAME_TIME:
 		UpdateGameTime();
 		{	// AIServer Socket Alive Check Routine
-			if( m_bFirstServerFlag != FALSE )	{
-				CAISocket* pAISock = NULL;
-				for(int i=0; i<MAX_AI_SOCKET; i++) {
-					pAISock = m_AISocketArray.GetData( i );
-					if( pAISock && pAISock->GetState() == STATE_DISCONNECTED )
-						AISocketConnect( i, 1 );
-					else if( !pAISock )
-						AISocketConnect( i, 1 );
-					else count++;
-				}
+			CAISocket* pAISock = NULL;
+			for(int i=0; i<MAX_AI_SOCKET; i++) {
+				pAISock = m_AISocketArray.GetData( i );
+				if( pAISock && pAISock->GetState() == STATE_DISCONNECTED )
+					AISocketConnect( i, 1 );
+				else if( !pAISock )
+					AISocketConnect( i, 1 );
+				else count++;
+			}
 
-				if(count <= 0)	{	
-					DeleteAllNpcList();
-				}
+			if(count <= 0)	{	
+				DeleteAllNpcList();
 			}
 			// sungyong~ 2002.05.23
 		}
@@ -814,24 +809,47 @@ void CEbenezerDlg::OnTimer(UINT nIDEvent)
 	CDialog::OnTimer(nIDEvent);
 }
 
+int CEbenezerDlg::GetAIServerPort()
+{
+	int nPort = AI_KARUS_SOCKET_PORT;
+	switch (m_nServerNo)
+	{
+	case ELMORAD:
+		nPort = AI_ELMO_SOCKET_PORT;
+		break;
+
+	case BATTLE:
+		nPort = AI_BATTLE_SOCKET_PORT;
+		break;
+	}
+	return nPort;
+}
+
 // sungyong 2002.05.22
 BOOL CEbenezerDlg::AIServerConnect()
 {
-	C3DMap* pMap = NULL;
-
 	strcpy(m_AIServerIP, m_Ini.GetProfileString("AI_SERVER", "IP", "127.0.0.1"));
-	
-	
+
 	for (int i = 0; i < MAX_AI_SOCKET; i++)
 	{
 		if( !AISocketConnect( i ) ) 
 		{
+			for (AISocketArray::Iterator itr = m_AISocketArray.m_UserTypeMap.begin(); itr != m_AISocketArray.m_UserTypeMap.end(); itr++)
+			{
+				if (itr->second == NULL)
+					continue;
+
+				itr->second->CloseProcess();
+			}
+			m_AISocketArray.m_UserTypeMap.clear();
+
+			AddToList("Failed to connect to AI server (%s:%d) - %d", m_AIServerIP, GetAIServerPort(), i);
+			
 #ifndef _DEBUG
 			AfxMessageBox("AI Server Connect Fail!!");
 #endif
 			return FALSE;
 		}
-		Sleep(100);
 	}
 
 	return TRUE;
@@ -854,29 +872,11 @@ BOOL CEbenezerDlg::AISocketConnect(int zone, int flag)
 	}
 
 	pAISock = new CAISocket(zone);
-
-	if( !pAISock->Create() ) {
+	if (!pAISock->Create()
+		|| !pAISock->Connect(&m_Iocport, m_AIServerIP, GetAIServerPort()))
+	{
 		delete pAISock;
 		return FALSE;
-	}
-
-	if(m_nServerNo == KARUS)	{
-		if( !pAISock->Connect(&m_Iocport, m_AIServerIP, AI_KARUS_SOCKET_PORT) ) {
-			delete pAISock;
-			return FALSE;
-		}
-	}
-	else if(m_nServerNo == ELMORAD)	{
-		if( !pAISock->Connect(&m_Iocport, m_AIServerIP, AI_ELMO_SOCKET_PORT) ) {
-			delete pAISock;
-			return FALSE;
-		}
-	}
-	else if(m_nServerNo == BATTLE)	{
-		if( !pAISock->Connect(&m_Iocport, m_AIServerIP, AI_BATTLE_SOCKET_PORT) ) {
-			delete pAISock;
-			return FALSE;
-		}
 	}
 
 	SetByte(pBuf, AI_SERVER_CONNECT, send_index);
@@ -2457,6 +2457,30 @@ BOOL CEbenezerDlg::LoadNoticeData()
 	}
 
 	txt_file.Close();
+
+	return TRUE;
+}
+
+
+BOOL CEbenezerDlg::LoadBlockNameList()
+{
+	CString NoticePath = GetProgPath() + "BlockWord.txt"; // we should rename this probably, but let's stick with their name for now
+	CString buff;
+	CStdioFile file;
+
+	if (!file.Open(NoticePath, CFile::modeRead))
+	{
+		AfxMessageBox("Cannot open BlockWord.txt!");
+		return FALSE;
+	}
+
+	while (file.ReadString(buff))
+	{
+		buff.MakeUpper();
+		m_BlockNameArray.push_back(buff);
+	}
+
+	file.Close();
 
 	return TRUE;
 }
