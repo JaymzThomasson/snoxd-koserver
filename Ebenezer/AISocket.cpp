@@ -62,7 +62,6 @@ void CAISocket::Parsing( int len, char* pData )
 			RecvServerInfo(pData+index);
 			break;
 		case NPC_INFO_ALL:
-//			Sleep(730);
 			RecvNpcInfoAll(pData+index);
 			break;
 		case MOVE_RESULT:
@@ -199,7 +198,6 @@ void CAISocket::RecvServerInfo(char* pBuf)
 		short sTotalMonster = 0;
 		sTotalMonster = GetShort(pBuf, index);
 		DEBUG_LOG("All Monster info Received!!");
-		//Sleep(100);
 
 		m_pMain->m_sZoneCount++;
 

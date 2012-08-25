@@ -1603,7 +1603,6 @@ void CServerDlg::AllNpcInfo()
 				send_tot++;
 				//TRACE("AllNpcInfo - send_count=%d, count=%d, zone=%d\n", send_tot, count, nZone);
 				::ZeroMemory(send_buff, sizeof(send_buff));
-				Sleep(50);
 			}
 		}	
 
@@ -1615,7 +1614,6 @@ void CServerDlg::AllNpcInfo()
 			Send(send_buff, send_index, nZone);
 			send_tot++;
 			//TRACE("AllNpcInfo - send_count=%d, count=%d, zone=%d\n", send_tot, count, nZone);
-			Sleep(50);
 		}
 
 		send_index = 0;
@@ -1628,8 +1626,6 @@ void CServerDlg::AllNpcInfo()
 
 		TRACE("****  allNpcInfo end = %d *****\n", nZone);
 	}
-
-	Sleep(1000);
 }
 // ~sungyong 2002.05.23
 
@@ -2464,6 +2460,7 @@ BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number)
 		TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
 		delete pNpc;
 		pNpc = NULL;
+		return FALSE;
 	}
 
 	m_TotalNPC = m_sMapEventNpc;
