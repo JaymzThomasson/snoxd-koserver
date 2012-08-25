@@ -373,7 +373,7 @@ void CUser::Warp(char *pBuf)
 	real_x = warp_x/10.0f; real_z = warp_z/10.0f;
 	if (!GetMap()->IsValidPosition(real_x, real_z, 0.0f)) 
 	{
-		TRACE("Invalid position %d,%d\n", real_x, real_z);
+		TRACE("Invalid position %f,%f\n", real_x, real_z);
 		return;
 	}
 
