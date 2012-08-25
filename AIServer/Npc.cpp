@@ -5404,7 +5404,7 @@ BOOL CNpc::CheckFindEnermy()
 	if (pMap == NULL
 		|| m_iRegion_X > pMap->GetXRegionMax() || m_iRegion_Z > pMap->GetZRegionMax() || m_iRegion_X < 0 || m_iRegion_Z < 0)
 	{
-		TRACE("#### CheckFindEnermy Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_sSid, m_iRegion_X, m_iRegion_Z);
+		//TRACE("#### CheckFindEnermy Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_sSid, m_iRegion_X, m_iRegion_Z);
 		return FALSE;
 	}
 
