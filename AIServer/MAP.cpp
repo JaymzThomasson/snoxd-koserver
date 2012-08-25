@@ -460,7 +460,7 @@ BOOL MAP::LoadRoomEvent( int zone_number )
 
 	if( !pFile.Open( filename, CFile::modeRead) ) return FALSE;
 
-	length = pFile.GetLength();
+	length = (DWORD)pFile.GetLength();
 	CArchive in(&pFile, CArchive::load);
 
 	count = 0;

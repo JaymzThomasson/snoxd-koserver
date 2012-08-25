@@ -487,21 +487,21 @@ struct _WARP_INFO
 struct _HOME_INFO
 {
 	BYTE	bNation;
-	float	ElmoZoneX;
-	float	ElmoZoneZ;
+	long	ElmoZoneX;
+	long	ElmoZoneZ;
 	BYTE	ElmoZoneLX;
 	BYTE	ElmoZoneLZ;
-	float	KarusZoneX;
-	float	KarusZoneZ;
+	long	KarusZoneX;
+	long	KarusZoneZ;
 	BYTE	KarusZoneLX;
 	BYTE	KarusZoneLZ;
-	float	FreeZoneX;
-	float	FreeZoneZ;
+	long	FreeZoneX;
+	long	FreeZoneZ;
 	BYTE	FreeZoneLX;
 	BYTE	FreeZoneLZ;
 //
-	float	BattleZoneX;
-	float	BattleZoneZ;
+	long	BattleZoneX;
+	long	BattleZoneZ;
 	BYTE	BattleZoneLX;
 	BYTE	BattleZoneLZ;
 //

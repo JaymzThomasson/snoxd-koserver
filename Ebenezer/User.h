@@ -267,10 +267,10 @@ public:
 	void PartyBBSDelete(char *pBuf);
 	void PartyBBSRegister(char *pBuf);
 	void PartyBBS(char *pBuf);
-	BOOL WarpListObjectEvent(short objectindex, short nid);
-	BOOL FlagObjectEvent(short objectindex, short nid);
-	BOOL GateLeverObjectEvent(short objectindex, short nid);
-	BOOL BindObjectEvent(short objectindex, short nid);
+	BOOL WarpListObjectEvent(_OBJECT_EVENT *pEvent);
+	BOOL FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid);
+	BOOL GateLeverObjectEvent(_OBJECT_EVENT *pEvent, int nid);
+	BOOL BindObjectEvent(_OBJECT_EVENT *pEvent);
 	void InitType3();
 	BOOL GetWarpList( int warp_group );
 	void ServerChangeOk( char* pBuf );
