@@ -543,7 +543,10 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 				if (pUser->m_bResHpType == USER_DEAD)
 					return;
 				// 유저에게는 바로 데드 패킷을 날림... (한 번 더 보냄, 유령을 없애기 위해서)
-				pUser->Send( pOutBuf, send_index );
+				send_index = 0;
+				SetByte(pOutBuf, WIZ_DEAD, send_index);
+				SetShort(pOutBuf, pUser->GetSocketID(), send_index);
+				m_pMain->Send_Region(pOutBuf, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ);
 
 				pUser->m_bResHpType = USER_DEAD;
 				char buff[256]; memset(buff, 0x00, 256);
