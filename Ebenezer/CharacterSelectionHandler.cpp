@@ -460,6 +460,7 @@ void CUser::GameStart(char *pBuf)
 
 	if (opcode == 1)
 	{
+		SendMyInfo();
 		m_pMain->UserInOutForMe(this);
 		m_pMain->NpcInOutForMe(this);
 		SendNotice();
@@ -499,7 +500,6 @@ void CUser::GameStart(char *pBuf)
 			m_iLostExp = 0;
 		}
 
-		SendMyInfo();
 		BlinkStart();
 		SetUserAbility();
 		// rental
