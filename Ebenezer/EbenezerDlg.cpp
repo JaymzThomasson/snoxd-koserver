@@ -831,6 +831,7 @@ BOOL CEbenezerDlg::AIServerConnect()
 #endif
 			return FALSE;
 		}
+		Sleep(100);
 	}
 
 	return TRUE;
