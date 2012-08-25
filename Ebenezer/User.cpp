@@ -674,45 +674,15 @@ void CUser::SendMyInfo()
 	char send_buff[2048];
 	memset( send_buff, NULL, 2048);
 
-	int x = 0; 
-	int z = 0;
+	short x = 0, z = 0;
 //	int map_size = (pMap->m_nMapSize - 1) * pMap->m_fUnitDist ;		// Are you within the map limits?
 //	if (m_pUserData->m_curx >= map_size || m_pUserData->m_curz >= map_size) {
 
 	if( !pMap->IsValidPosition( m_pUserData->m_curx, m_pUserData->m_curz, 0.0f ) ) {
-		_HOME_INFO* pHomeInfo = NULL;
-		pHomeInfo = m_pMain->m_HomeArray.GetData(m_pUserData->m_bNation);
-		if (!pHomeInfo) return;
+		GetStartPosition(x, z); 
 
-		if( m_pUserData->m_bNation != m_pUserData->m_bZone && m_pUserData->m_bZone > 200) {	// Battle Zone...
-			x = pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX);
-			z = pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ);
-		}
-		else if (m_pUserData->m_bNation != m_pUserData->m_bZone && m_pUserData->m_bZone < 3) {	// Specific Lands...
-			if (m_pUserData->m_bNation == KARUS) {
-				x = pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX);
-				z = pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ);			
-			}
-			else if (m_pUserData->m_bNation == ELMORAD) {
-				x = pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX);
-				z = pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ);	
-			}		
-			else return;
-		}
-		else {	// Your own nation...
-			if (m_pUserData->m_bNation == KARUS) {
-				x = pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX);
-				z = pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ);			
-			}
-			else if (m_pUserData->m_bNation == ELMORAD) {			
-				x = pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX);
-				z = pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ);
-			}		
-			else return;
-		}	
-		
-		m_pUserData->m_curx = x;
-		m_pUserData->m_curz = z;
+		m_pUserData->m_curx = (float)x;
+		m_pUserData->m_curz = (float)z;
 	}
 
 	// Unlock skill data (level 70 skill quest).
@@ -723,9 +693,6 @@ void CUser::SendMyInfo()
 	Send(send_buff, send_index);
 
 	send_index = 0;
-	memset(send_buff, 0x00, sizeof(send_buff));
-
-
 
 	SetByte( send_buff, WIZ_MYINFO, send_index );
 	SetShort( send_buff, m_Sid, send_index );
@@ -800,15 +767,15 @@ void CUser::SendMyInfo()
 	SetDWORD(send_buff, m_sItemWeight, send_index);
 
 	SetByte(send_buff, m_pUserData->m_bStr, send_index);
-	SetByte(send_buff, m_sItemStr, send_index);
+	SetByte(send_buff, (BYTE)m_sItemStr, send_index);
 	SetByte(send_buff, m_pUserData->m_bSta, send_index);
-	SetByte(send_buff, m_sItemSta, send_index);
+	SetByte(send_buff, (BYTE)m_sItemSta, send_index);
 	SetByte(send_buff, m_pUserData->m_bDex, send_index);
-	SetByte(send_buff, m_sItemDex, send_index);
+	SetByte(send_buff, (BYTE)m_sItemDex, send_index);
 	SetByte(send_buff, m_pUserData->m_bIntel, send_index);
-	SetByte(send_buff, m_sItemIntel, send_index);
+	SetByte(send_buff, (BYTE)m_sItemIntel, send_index);
 	SetByte(send_buff, m_pUserData->m_bCha, send_index);
-	SetByte(send_buff, m_sItemCham, send_index);	
+	SetByte(send_buff, (BYTE)m_sItemCham, send_index);	
 
 	SetShort(send_buff, m_sTotalHit, send_index);
 	SetShort(send_buff, m_sTotalAc, send_index);
@@ -1856,24 +1823,16 @@ void CUser::BundleOpenReq(char *pBuf)
 
 BOOL CUser::IsValidName(char *name)
 {
-	// sungyong tw
-	char* szInvalids[] = {	"~", "`", "!", "@", "#", "$", "%", "^", "&", "*",
-							"(", ")", "-", "+", "=", "|", "\\", "<", ">", ",",
-							".", "?", "/", "{", "[", "}", "]", "\"", "\'", " ",
-							"??", "????", "????T", "?????", "Knight", "Noahsystem", "Wizgate", "Mgame", "???�???", "??????T", "??????"};
+	CString upperName = name;
+	upperName.MakeUpper();
 
-	BOOL bInvalidStr = FALSE;
-	
-	for(int i = 0; i < sizeof(szInvalids); i++)		// korea version
+	for (BlockNameArray::iterator itr = m_pMain->m_BlockNameArray.begin(); itr != m_pMain->m_BlockNameArray.end(); itr++)
 	{
-		if(strstr(name, szInvalids[i]))
-		{
-			bInvalidStr = TRUE;
-			break;
-		}
+		if (strstr(upperName, *itr))
+			return FALSE;
 	}
 
-	return !bInvalidStr;
+	return TRUE;
 }
 
 void CUser::ItemGet(char *pBuf)
@@ -2000,7 +1959,7 @@ void CUser::ItemGet(char *pBuf)
 						pUser = m_pMain->GetUserPtr(pParty->uid[i]);
 						if (pUser == NULL) continue;
 
-						money = count * (float)( pUser->m_pUserData->m_bLevel/(float)levelsum );    
+						money = (int)(count * (float)(pUser->m_pUserData->m_bLevel / (float)levelsum));    
 						pUser->m_pUserData->m_iGold += money;
 
 						send_index = 0; memset( send_buff, 0x00, 256 );
@@ -2537,7 +2496,7 @@ void CUser::Dead()
 void CUser::ItemWoreOut(int type, int damage)
 {
 	_ITEM_TABLE* pTable = NULL;
-	int worerate = sqrt(damage/10.0);
+	int worerate = (int)sqrt(damage / 10.0f);
 	if( worerate == 0 ) return;
 
 	if( type == ATTACK ) {
@@ -2662,11 +2621,11 @@ void CUser::ItemDurationChange(int slot, int maxvalue, int curvalue, int amount)
 		SetShort( send_buff, m_sItemWeight, send_index );
 		SetShort( send_buff, m_iMaxHp, send_index );
 		SetShort( send_buff, m_iMaxMp, send_index );
-		SetByte( send_buff, m_sItemStr, send_index );
-		SetByte( send_buff, m_sItemSta, send_index );
-		SetByte( send_buff, m_sItemDex, send_index );
-		SetByte( send_buff, m_sItemIntel, send_index );
-		SetByte( send_buff, m_sItemCham, send_index );
+		SetByte( send_buff, (BYTE)m_sItemStr, send_index );
+		SetByte( send_buff, (BYTE)m_sItemSta, send_index );
+		SetByte( send_buff, (BYTE)m_sItemDex, send_index );
+		SetByte( send_buff, (BYTE)m_sItemIntel, send_index );
+		SetByte( send_buff, (BYTE)m_sItemCham, send_index );
 		SetByte( send_buff, m_bFireR, send_index );
 		SetByte( send_buff, m_bColdR, send_index );
 		SetByte( send_buff, m_bLightningR, send_index );
@@ -2676,8 +2635,8 @@ void CUser::ItemDurationChange(int slot, int maxvalue, int curvalue, int amount)
 		Send( send_buff, send_index );
 		return;
 	}
-	curpercent = ( curvalue / (double)maxvalue) * 100;
-	beforepercent = ( (curvalue+amount) / (double)maxvalue ) * 100;
+	curpercent = (int)((curvalue / (double)maxvalue) * 100);
+	beforepercent = (int)(((curvalue+amount) / (double)maxvalue ) * 100);
 	
 	curbasis = curpercent / 5;
 	beforebasis = beforepercent / 5;
@@ -3818,7 +3777,7 @@ void CUser::GoldChange(short tid, int gold)
 					if (pUser == NULL)
 						continue;
 
-					money = count * (float)( pUser->m_pUserData->m_bLevel/(float)levelsum );
+					money = (int)(count * (float)(pUser->m_pUserData->m_bLevel / (float)levelsum));
 					pUser->m_pUserData->m_iGold += money;
 
 					send_index = 0; memset( send_buff, 0x00, 256 );
@@ -4011,14 +3970,12 @@ void CUser::InitType3()
 	m_bType3Flag = FALSE;
 }
 
-BOOL CUser::BindObjectEvent(short objectindex, short nid)
+BOOL CUser::BindObjectEvent(_OBJECT_EVENT *pEvent)
 {
-	_OBJECT_EVENT* pEvent = GetMap()->GetObjectEvent(objectindex);
 	int  send_index = 0;
 	char send_buff[3];
 
-	if (pEvent == NULL
-		|| pEvent->sBelong != 0 && pEvent->sBelong != getNation())
+	if (pEvent->sBelong != 0 && pEvent->sBelong != getNation())
 		return FALSE;
 
 	m_pUserData->m_sBind = pEvent->sIndex;
@@ -4031,15 +3988,13 @@ BOOL CUser::BindObjectEvent(short objectindex, short nid)
 	return TRUE;
 }
 
-BOOL CUser::GateLeverObjectEvent(short objectindex, short nid)
+BOOL CUser::GateLeverObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 {
-	_OBJECT_EVENT* pEvent, *pGateEvent;
+	_OBJECT_EVENT *pGateEvent;
 	CNpc* pNpc, *pGateNpc;
 
-	// Does the lever object event exist?
-	if ((pEvent = GetMap()->GetObjectEvent(objectindex)) == NULL
 		// Does the lever (object) NPC exist?
-		|| (pNpc = m_pMain->m_arNpcArray.GetData(nid)) == NULL
+	if ((pNpc = m_pMain->m_arNpcArray.GetData(nid)) == NULL
 		// Does the corresponding gate object event exist?
 		|| (pGateEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID)) == NULL
 		// Does the corresponding gate (object) NPC exist?
@@ -4062,15 +4017,13 @@ BOOL CUser::GateLeverObjectEvent(short objectindex, short nid)
 /***
  * Not sure what this is used for, so keeping logic the same just in case.
  ***/
-BOOL CUser::FlagObjectEvent(short objectindex, short nid)
+BOOL CUser::FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 {
-	_OBJECT_EVENT *pEvent, *pFlagEvent;
+	_OBJECT_EVENT *pFlagEvent;
 	CNpc *pNpc, *pFlagNpc;
 
-	// Does the flag object event exist?
-	if ((pEvent = GetMap()->GetObjectEvent(objectindex)) == NULL
-		// Does the flag object NPC exist?
-		|| (pNpc = m_pMain->m_arNpcArray.GetData(nid)) == NULL
+	// Does the flag object NPC exist?
+	if ((pNpc = m_pMain->m_arNpcArray.GetData(nid)) == NULL
 		// Does the corresponding flag event exist?
 		|| (pFlagEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID)) == NULL
 		// Does the corresponding flag object NPC exist?
@@ -4096,11 +4049,9 @@ BOOL CUser::FlagObjectEvent(short objectindex, short nid)
 	return TRUE;
 }
 
-BOOL CUser::WarpListObjectEvent(short objectindex, short nid)
+BOOL CUser::WarpListObjectEvent(_OBJECT_EVENT *pEvent)
 {
-	_OBJECT_EVENT* pEvent = GetMap()->GetObjectEvent(objectindex);
-	if (pEvent == NULL
-		|| !GetWarpList(pEvent->sControlNpcID)) 
+	if (!GetWarpList(pEvent->sControlNpcID)) 
 		return FALSE;
 
 	return TRUE;
@@ -4123,21 +4074,21 @@ void CUser::ObjectEvent(char *pBuf)
 	{
 		switch (pEvent->sType)
 		{
-			case OBJECT_BIND:
+		case OBJECT_BIND:
 			case OBJECT_REMOVE_BIND:
-				bSuccess = BindObjectEvent(objectindex, nid);
+				bSuccess = BindObjectEvent(pEvent);
 				break;
 
 			case OBJECT_GATE_LEVER:
-				bSuccess = GateLeverObjectEvent(objectindex, nid);
+				bSuccess = GateLeverObjectEvent(pEvent, nid);
 				break;
 
 			case OBJECT_FLAG_LEVER:
-				bSuccess = FlagObjectEvent(objectindex, nid);
+				bSuccess = FlagObjectEvent(pEvent, nid);
 				break;
 
 			case OBJECT_WARP_GATE:
-				bSuccess = WarpListObjectEvent(objectindex, nid);
+				bSuccess = WarpListObjectEvent(pEvent);
 				if (bSuccess)
 					return;
 				break;
@@ -4378,11 +4329,8 @@ void CUser::KickOutZoneUser(BOOL home, int nZoneID /*= 21 */)
 			return;
 		}
 
-		int yourmama_x = myrand(0, pRegene->fRegeneAreaX) ;
-		int yourmama_z = myrand(0, pRegene->fRegeneAreaZ) ;
-
-		int x = pRegene->fRegenePosX + yourmama_x ;
-		int y = pRegene->fRegenePosZ + yourmama_z ;
+		float x = pRegene->fRegenePosX + (float)myrand(0, (int)pRegene->fRegeneAreaX);
+		float y = pRegene->fRegenePosZ + (float)myrand(0, (int)pRegene->fRegeneAreaZ);
 
 		ZoneChange(pMap->m_nZoneNumber, x, y);			
 	}
@@ -4409,12 +4357,12 @@ void CUser::NativeZoneReturn()
 	m_pUserData->m_bZone = m_pUserData->m_bNation;
 
 	if (m_pUserData->m_bNation == KARUS) {
-		m_pUserData->m_curx = pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX);
-		m_pUserData->m_curz = pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ); 
+		m_pUserData->m_curx = (float)(pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX));
+		m_pUserData->m_curz = (float)(pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ)); 
 	}
 	else {
-		m_pUserData->m_curx = pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX);
-		m_pUserData->m_curz = pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ); 
+		m_pUserData->m_curx = (float)(pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX));
+		m_pUserData->m_curz = (float)(pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ)); 
 	}
 }
 
