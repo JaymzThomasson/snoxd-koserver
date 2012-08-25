@@ -53,6 +53,7 @@ public:
 	HANDLE m_hClientIOCPort;
 	HANDLE m_hAcceptThread;
 	HANDLE m_hSendIOCP;					// sungyong~ 2002.05.22
+	HANDLE * m_hReceiveWorkerThreads;
 
 	int m_SocketArraySize;
 	int m_ClientSockSize;

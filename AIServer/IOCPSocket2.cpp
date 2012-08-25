@@ -53,49 +53,6 @@ BOOL CIOCPSocket2::Create( UINT nSocketPort, int nSocketType, long lEvent, LPCTS
 	return TRUE;
 }
 
-BOOL CIOCPSocket2::Connect( CIOCPort* pIocp, LPCTSTR lpszHostAddress, UINT nHostPort )
-{
-	struct sockaddr_in addr;
-
-	memset((void *)&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = inet_addr(lpszHostAddress);
-	addr.sin_port = htons(nHostPort);
-
-	int result = connect( m_Socket,(struct sockaddr *)&addr,sizeof(addr) );
-	if ( result == SOCKET_ERROR )
-	{
-		int err = WSAGetLastError();
-//		TRACE("CONNECT FAIL : %d\n", err);
-		closesocket( m_Socket );
-		return FALSE;
-	}
-
-	ASSERT( pIocp );
-
-	InitSocket( pIocp );
-
-	m_Sid = m_pIOCPort->GetClientSid();
-	if( m_Sid < 0 )
-		return FALSE;
-
-	m_pIOCPort->m_ClientSockArray[m_Sid] = this;
-	
-	if ( !m_pIOCPort->Associate(this, m_pIOCPort->m_hClientIOCPort) )
-	{
-		TRACE("Socket Connecting Fail - Associate\n");
-		return FALSE;
-	}
-
-	m_ConnectAddress = lpszHostAddress;
-	m_State = STATE_CONNECTED;
-	m_Type = TYPE_CONNECT;
-
-	Receive();
-
-	return TRUE;
-}
-
 int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 {
 	int ret_value = 0;
@@ -128,8 +85,6 @@ int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 	pOvl->OffsetHigh = out.len;
 
 	ret_value = WSASend( m_Socket, &out, 1, &sent, dwFlag, pOvl, NULL);
-	//if( sent > 100 )
-	//	TRACE("Send %d BYtes\n", sent);
 	
 	if ( ret_value == SOCKET_ERROR )
 	{
@@ -139,10 +94,8 @@ int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 		if ( last_err == WSA_IO_PENDING ) {
 			TRACE("SEND : IO_PENDING[SID=%d]\n", m_Sid);
 			m_nPending++;
-#ifdef __SAMMA
 			if( m_nPending > 3 )
 				goto close_routine;
-#endif
 			sent = length; 
 		}
 		else if ( last_err == WSAEWOULDBLOCK )
@@ -176,8 +129,6 @@ close_routine:
 	
 	if( m_Type == TYPE_ACCEPT )
 		hComport = m_pIOCPort->m_hServerIOCPort;
-	else
-		hComport = m_pIOCPort->m_hClientIOCPort;
 	
 	PostQueuedCompletionStatus( hComport, (DWORD)0, (DWORD)m_Sid, pOvl );
 	
@@ -241,8 +192,6 @@ close_routine:
 	
 	if( m_Type == TYPE_ACCEPT )
 		hComport = m_pIOCPort->m_hServerIOCPort;
-	else
-		hComport = m_pIOCPort->m_hClientIOCPort;
 	
 	PostQueuedCompletionStatus( hComport, (DWORD)0, (DWORD)m_Sid, pOvl );
 	
@@ -258,10 +207,6 @@ void CIOCPSocket2::ReceivedData(int length)
 	if( !strlen(m_pRecvBuff) )		// 패킷길이는 존재하나 실 데이터가 없는 경우가 발생...
 		return;
 	m_pBuffer->PutData(m_pRecvBuff, length);		// 받은 Data를 버퍼에 넣는다
-	
-	if( m_Type == TYPE_CONNECT && length == 7 ) {
-		TRACE("Received Data : %d\n", m_Sid);
-	}
 
 	char *pData = NULL;
 	char *pDecData = NULL;
@@ -284,7 +229,6 @@ BOOL CIOCPSocket2::PullOutCore(char *&data, int &length)
 	int			len;
 	BOOL		foundCore;
 	MYSHORT		slen;
-	DWORD		wSerial=0;
 
 	len = m_pBuffer->GetValidCount();
 
@@ -386,8 +330,6 @@ void CIOCPSocket2::Close()
 
 	if( m_Type == TYPE_ACCEPT )
 		hComport = m_pIOCPort->m_hServerIOCPort;
-	else
-		hComport = m_pIOCPort->m_hClientIOCPort;
 
 	int retValue = PostQueuedCompletionStatus( hComport, (DWORD)0, (DWORD)m_Sid, pOvl );
 
@@ -428,20 +370,12 @@ BOOL CIOCPSocket2::Accept( SOCKET listensocket, struct sockaddr* addr, int* len 
 		return FALSE;
 	}
 
-//	int flag = 1;
-//	setsockopt(m_Socket, SOL_SOCKET, SO_DONTLINGER, (char *)&flag, sizeof(flag));
+	struct linger lingerOpt;
 
-//	int lensize, socklen=0;
+	lingerOpt.l_onoff = 1;
+	lingerOpt.l_linger = 0;
 
-//	getsockopt( m_Socket, SOL_SOCKET, SO_RCVBUF, (char*)&socklen, &lensize);
-//	TRACE("getsockopt : %d\n", socklen);
-
-//	struct linger lingerOpt;
-
-//	lingerOpt.l_onoff = 1;
-//	lingerOpt.l_linger = 0;
-
-//	setsockopt(m_Socket, SOL_SOCKET, SO_LINGER, (char *)&lingerOpt, sizeof(lingerOpt));
+	setsockopt(m_Socket, SOL_SOCKET, SO_LINGER, (const char *)&lingerOpt, sizeof(lingerOpt));
 
 	return TRUE;
 }
