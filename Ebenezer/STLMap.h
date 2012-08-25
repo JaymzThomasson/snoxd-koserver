@@ -27,7 +27,6 @@ public:
 	
 	bool PutData( int key_value, T* pData)
 	{
-		if( !pData ) return false;
 		pair<Iterator, bool> temp_pair = m_UserTypeMap.insert( ValueType( key_value, pData ) );
 		return temp_pair.second;
 	};
