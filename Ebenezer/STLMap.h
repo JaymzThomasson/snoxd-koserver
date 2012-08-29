@@ -52,8 +52,7 @@ public:
 		if( iter == m_UserTypeMap.end() )
 			return m_UserTypeMap.end();
 		else {
-			T* pData = NULL;
-			pData = (*iter).second;
+			T* pData = (*iter).second;
 
 			iter = m_UserTypeMap.erase(iter);
 
