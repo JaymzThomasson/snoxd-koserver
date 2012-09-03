@@ -70,7 +70,7 @@ void CUser::RecvStore(char *pData)
 // Presumably received item data back from Aujard.
 void CUser::RecvStoreClose(char *pData)
 {
-	char send_buff[256];
+	char send_buff[2048];
 	int index = 0, send_index = 0;
 	BYTE result = GetByte(pData, index);
 
