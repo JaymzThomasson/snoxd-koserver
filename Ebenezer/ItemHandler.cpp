@@ -5,7 +5,8 @@
 
 void CUser::WarehouseProcess(char *pBuf)
 {
-	int index = 0, send_index = 0, itemid = 0, srcpos = -1, destpos = -1, page = -1, reference_pos = -1, count = 0;
+	int index = 0, send_index = 0, itemid = 0, srcpos = -1, destpos = -1, page = -1, reference_pos = -1;
+	DWORD count = 0;
 	char send_buff[2048]; memset( send_buff, 0x00, 2048 );
 	_ITEM_TABLE* pTable = NULL;
 	BYTE command = 0;

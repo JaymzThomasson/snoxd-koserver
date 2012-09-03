@@ -118,8 +118,10 @@ BOOL CDBAgent::LoadUserData(char *accountid, char *userid, int uid)
 	memset(szSQL, 0x00, 1024);
 
 	wsprintf(szSQL, TEXT("{call LOAD_USER_DATA ('%s', '%s', ?)}"), accountid, userid);
+	DEBUG_LOG("%s", szSQL);
 	SQLCHAR Nation, Race, Rank, Title, Level; 
-	SQLINTEGER Exp, Loyalty, Gold, PX, PZ, PY, dwTime, sQuestCount, MannerPoint, LoyaltyMonthly, HairRGB;
+	SQLINTEGER Exp, Loyalty, PX, PZ, PY, dwTime, sQuestCount, MannerPoint, LoyaltyMonthly, HairRGB;
+	SQLUINTEGER Gold;
 	SQLCHAR Face, City, Fame, Authority;
 	SQLSMALLINT Hp, Mp, Sp, sRet, Class, Bind, Knights, Points;
 	SQLCHAR Str, Sta, Dex, Intel, Cha, Zone;
@@ -178,7 +180,7 @@ BOOL CDBAgent::LoadUserData(char *accountid, char *userid, int uid)
 			SQLGetData(hstmt, 21, SQL_C_TINYINT,	&Cha,				0,		&Indexind);
 			SQLGetData(hstmt, 22, SQL_C_TINYINT,	&Authority,			0,		&Indexind);
 			SQLGetData(hstmt, 23, SQL_C_SSHORT,		&Points,			0,		&Indexind);
-			SQLGetData(hstmt, 24, SQL_C_LONG,		&Gold,				0,		&Indexind);
+			SQLGetData(hstmt, 24, SQL_C_ULONG,		&Gold,				0,		&Indexind);
 			SQLGetData(hstmt, 25, SQL_C_TINYINT,	&Zone,				0,		&Indexind);
 			SQLGetData(hstmt, 26, SQL_C_SSHORT,		&Bind,				0,		&Indexind);
 			SQLGetData(hstmt, 27, SQL_C_LONG,		&PX,				0,		&Indexind);
@@ -451,6 +453,7 @@ int CDBAgent::UpdateUser(const char *userid, int uid, int type )
 		pUser->m_bStr, pUser->m_bSta, pUser->m_bDex, pUser->m_bIntel, pUser->m_bCha, pUser->m_bAuthority, pUser->m_sPoints, pUser->m_iGold, pUser->m_bZone, pUser->m_sBind, 
 		(int)(pUser->m_curx*100), (int)(pUser->m_curz*100), (int)(pUser->m_cury*100), pUser->m_dwTime,
 		pUser->m_sQuestCount, pUser->m_iMannerPoint, pUser->m_iLoyaltyMonthly);
+	DEBUG_LOG("%s", szSQL);
 
 	hstmt = NULL;
 
@@ -502,6 +505,7 @@ int CDBAgent::AccountLogInReq( char *id, char *pw )
 	SQLINTEGER		cbParmRet=SQL_NTS;
 
 	wsprintf( szSQL, TEXT( "{call ACCOUNT_LOGIN( \'%s\', \'%s\', ?)}" ), id, pw);
+	DEBUG_LOG("%s", szSQL);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -548,6 +552,7 @@ BOOL CDBAgent::NationSelect(char *id, int nation)
 	SQLINTEGER		cbParmRet=SQL_NTS;
 
 	wsprintf( szSQL, TEXT( "{call NATION_SELECT ( ?, \'%s\', %d)}" ), id, nation);
+	DEBUG_LOG("%s", szSQL);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -590,6 +595,7 @@ int CDBAgent::CreateNewChar(char *accountid, int index, char *charid, int race, 
 	SQLINTEGER		cbParmRet=SQL_NTS;
 
 	wsprintf( szSQL, TEXT( "{call CREATE_NEW_CHAR ( ?, \'%s\', %d, \'%s\', %d,%d,%d,%d,%d,%d,%d,%d,%d)}" ), accountid, index, charid, race, Class, hair, face, str, sta, dex, intel, cha );
+	DEBUG_LOG("%s", szSQL);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -630,6 +636,7 @@ BOOL CDBAgent::DeleteChar(int index, char *id, char *charid, char* socno)
 	SQLINTEGER		cbParmRet=SQL_NTS;
 
 	wsprintf( szSQL, TEXT( "{ call DELETE_CHAR ( \'%s\', %d, \'%s\', \'%s\', ? )}" ), id, index, charid, socno );
+	DEBUG_LOG("%s", szSQL);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -673,6 +680,7 @@ BOOL CDBAgent::LoadCharInfo( char *id, char* buff, int &buff_index)
 	memset(szSQL, 0x00, 1024);
 
 	wsprintf(szSQL, TEXT("{call LOAD_CHAR_INFO ('%s', ?)}"), id);
+	DEBUG_LOG("%s", szSQL);
 
 	SQLCHAR Race = 0x00, Level = 0x00, Face = 0x00, Zone = 0x00; 
 	SQLSMALLINT sRet, Class;
@@ -756,6 +764,7 @@ BOOL CDBAgent::GetAllCharID(const char *id, char *char1, char *char2, char *char
 	memset(szSQL, 0x00, 1024);
 
 	wsprintf(szSQL, TEXT("{? = call LOAD_ACCOUNT_CHARID ('%s')}"), id);
+	DEBUG_LOG("%s", szSQL);
 
 	SQLSMALLINT sRet;
 	TCHAR charid1[21], charid2[21], charid3[21], charid4[21], charid5[21];
@@ -818,6 +827,7 @@ int CDBAgent::CreateKnights(int knightsindex, int nation, char *name, char *chie
 	SQLINTEGER		cbParmRet=SQL_NTS;
 
 	wsprintf( szSQL, TEXT( "{call CREATE_KNIGHTS ( ?, %d, %d, %d, \'%s\', \'%s\' )}" ), knightsindex, nation, iFlag, name, chief );
+	DEBUG_LOG("%s", szSQL);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -858,6 +868,7 @@ int CDBAgent::UpdateKnights(int type, char *userid, int knightsindex, int domina
 	SQLINTEGER		cbParmRet=SQL_NTS;
 
 	wsprintf( szSQL, TEXT( "{call UPDATE_KNIGHTS ( ?, %d, \'%s\', %d, %d)}" ), (BYTE)type, userid, knightsindex, (BYTE)domination );
+	DEBUG_LOG("%s", szSQL);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -899,6 +910,7 @@ int CDBAgent::DeleteKnights(int knightsindex)
 	SQLINTEGER		cbParmRet=SQL_NTS;
 
 	wsprintf( szSQL, TEXT( "{call DELETE_KNIGHTS ( ?, %d )}" ), knightsindex );
+	DEBUG_LOG("%s", szSQL);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -946,6 +958,7 @@ int CDBAgent::LoadKnightsAllMembers(int knightsindex, int start, char *temp_buff
 	_USER_DATA* pUser = NULL;
 
 	wsprintf( szSQL, TEXT( "{call LOAD_KNIGHTS_MEMBERS ( %d )}" ), knightsindex );
+	DEBUG_LOG("%s", szSQL);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -1015,6 +1028,7 @@ BOOL CDBAgent::UpdateConCurrentUserCount(int serverno, int zoneno, int t_count)
 	memset( szSQL, 0x00, 1024 );
 
 	wsprintf( szSQL, TEXT( "UPDATE CONCURRENT SET zone%d_count = %d WHERE serverid = %d" ), zoneno, t_count, serverno );
+	DEBUG_LOG("%s", szSQL);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_AccountDB1.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -1048,13 +1062,15 @@ BOOL CDBAgent::LoadWarehouseData(const char *accountid, int uid)
 
 	_USER_DATA* pUser = NULL;
 	_ITEM_TABLE* pTable = NULL;
-	SQLINTEGER	Money = 0, dwTime = 0;
+	SQLUINTEGER	Money = 0;
+	SQLINTEGER dwTime = 0;
 	TCHAR strItem[1600], strSerial[1600];
 	memset( strItem, 0x00, 1600 );
 	memset( strSerial, 0x00, 1600 );
 	SQLINTEGER Indexind = SQL_NTS;
 
 	wsprintf( szSQL, TEXT( "SELECT nMoney, dwTime, WarehouseData, strSerial FROM WAREHOUSE WHERE strAccountID = \'%s\'" ), accountid );
+	DEBUG_LOG("%s", szSQL);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
 	if (retcode != SQL_SUCCESS)	return FALSE; 
@@ -1063,7 +1079,7 @@ BOOL CDBAgent::LoadWarehouseData(const char *accountid, int uid)
 	if (retcode == SQL_SUCCESS|| retcode == SQL_SUCCESS_WITH_INFO) {
 		retcode = SQLFetch(hstmt);
 		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-			SQLGetData(hstmt,1 ,SQL_C_LONG, &Money,  0,		&Indexind);
+			SQLGetData(hstmt,1 ,SQL_C_ULONG, &Money,  0,		&Indexind);
 			SQLGetData(hstmt,2 ,SQL_C_LONG, &dwTime,  0,	&Indexind);
 			SQLGetData(hstmt,3 ,SQL_C_CHAR, strItem, 1600,	&Indexind);
 			SQLGetData(hstmt,4 ,SQL_C_CHAR, strSerial, 1600,	&Indexind);
@@ -1173,6 +1189,7 @@ int CDBAgent::UpdateWarehouseData(const char *accountid, int uid, int type )
 	}
 
 	wsprintf( szSQL, TEXT( "{call UPDATE_WAREHOUSE ( \'%s\', %d,%d,?,?)}" ),	 accountid, pUser->m_iBank, pUser->m_dwTime);
+	DEBUG_LOG("%s", szSQL);
 
 	hstmt = NULL;
 
@@ -1230,6 +1247,7 @@ BOOL CDBAgent::LoadKnightsInfo( int index, char* buff, int &buff_index)
 	int len = 0;
 
 	wsprintf( szSQL, TEXT( "SELECT IDNum, Nation, IDName, Members, Points FROM KNIGHTS WHERE IDNum=%d" ), index );
+	DEBUG_LOG("%s", szSQL);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -1294,6 +1312,7 @@ BOOL CDBAgent::SetLogInInfo(const char *accountid, const char *charid, const cha
 		wsprintf(szSQL, TEXT( "UPDATE CURRENTUSER SET nServerNo=%d, strServerIP=\'%s\' WHERE strAccountID = \'%s\'" ), serverno, serverip, accountid);
 	else
 		return FALSE;
+	DEBUG_LOG("%s", szSQL);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_AccountDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -1329,6 +1348,7 @@ int CDBAgent::AccountLogout(const char *accountid)
 	SQLINTEGER		cbParmRet=SQL_NTS;
 
 	wsprintf( szSQL, TEXT( "{call ACCOUNT_LOGOUT( \'%s\', ?)}" ), accountid);
+	DEBUG_LOG("%s", szSQL);
 
 	CTime t = CTime::GetCurrentTime();
 	char strlog[256]; memset(strlog, 0x00, 256);
@@ -1386,6 +1406,7 @@ BOOL CDBAgent::CheckUserData(const char *accountid, const char *charid, int type
 		wsprintf( szSQL, TEXT( "SELECT dwTime, nMoney FROM WAREHOUSE WHERE strAccountID=\'%s\'" ), accountid );
 	else
 		wsprintf( szSQL, TEXT( "SELECT dwTime, [Exp] FROM USERDATA WHERE strUserID=\'%s\'" ), charid );
+	DEBUG_LOG("%s", szSQL);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -1446,6 +1467,7 @@ void CDBAgent::LoadKnightsAllList( int nation)
 		wsprintf( szSQL, TEXT( "SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Points <> 0 ORDER BY Points DESC" ), nation );
 	else
 		wsprintf( szSQL, TEXT( "SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Nation=%d AND Points <> 0 ORDER BY Points DESC" ), nation );
+	DEBUG_LOG("%s", szSQL);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)	{
@@ -1526,6 +1548,7 @@ BOOL CDBAgent::UpdateBattleEvent( const char* charid, int nation )
 	memset( szSQL, 0x00, 1024 );
 
 	wsprintf( szSQL, TEXT( "UPDATE BATTLE SET byNation=%d, strUserName=\'%s\' WHERE sIndex=%d" ), nation, charid, m_pMain->m_nServerNo );
+	DEBUG_LOG("%s", szSQL);
 
 	hstmt = NULL;
 
@@ -1555,13 +1578,10 @@ BOOL CDBAgent::LoadWebItemMall(char *charid, char *buff, int & buff_index)
 	SQLRETURN		retcode;
 	TCHAR			szSQL[1024];
 	int uid = -1;
-	_USER_DATA *pData = m_pMain->GetUserPtr(charid, uid); 
-
-	if (pData == NULL)
-		return FALSE;
 
 	memset(szSQL, 0x00, 1024);
 	wsprintf(szSQL, TEXT("{call LOAD_WEB_ITEMMALL (\'%s\')}"), charid);
+	DEBUG_LOG("%s", szSQL);
 	
 	TCHAR strAccountID[MAX_ID_SIZE+1];
 	SQLCHAR Race = 0x00, Level = 0x00, Face = 0x00, Zone = 0x00; 
@@ -1632,10 +1652,10 @@ BOOL CDBAgent::LoadSkillShortcut(char *charid, char *buff, int & buff_index)
 	memset(strSkillData, 0x00, sizeof(strSkillData));
 
 	int uid = -1;
-	_USER_DATA *pData = m_pMain->GetUserPtr(charid, uid); 
 
 	memset(szSQL, 0x00, 1024);
 	wsprintf(szSQL, TEXT("{call SKILLSHORTCUT_LOAD (\'%s\')}"), charid);
+	DEBUG_LOG("%s", szSQL);
 	SQLINTEGER Indexind = SQL_NTS;
 
 	hstmt = NULL;
@@ -1685,7 +1705,7 @@ void CDBAgent::SaveSkillShortcut(char *charid, int sCount, char *buff)
 
 	memset(szSQL, 0x00, 1024);
 	wsprintf(szSQL, TEXT("{call SKILLSHORTCUT_SAVE (\'%s\', %d, ?)}"), charid, sCount);
-
+	DEBUG_LOG("%s", szSQL);
 	hstmt = NULL;
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );

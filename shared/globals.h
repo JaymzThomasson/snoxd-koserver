@@ -123,9 +123,9 @@ struct _USER_DATA
 	BYTE	m_bCha;
 	BYTE	m_bAuthority;
 	short	m_sPoints;
-	int		m_iGold;
+	unsigned int		m_iGold;
 	short	m_sBind;
-	int		m_iBank;
+	unsigned int		m_iBank;
 	
 	BYTE    m_bstrSkill[9];	
 	_ITEM_DATA m_sItemArray[HAVE_MAX+SLOT_MAX + COSP_MAX + MBAG_MAX];
