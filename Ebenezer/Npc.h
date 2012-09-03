@@ -28,7 +28,6 @@ public:
 	float	m_fCurX;			// Current X Pos;
 	float	m_fCurY;			// Current Y Pos;
 	float	m_fCurZ;			// Current Z Pos;
-	float	m_fDir;				// NPC가 보고 있는 방향
 	short	m_sPid;				// MONSTER(NPC) Picture ID
 	short	m_sSize;			// MONSTER(NPC) Size
 	int		m_iWeapon_1;
@@ -53,6 +52,7 @@ public:
 	BYTE	m_byGateOpen;		// Gate Npc Status -> 1 : open 0 : close
 	short   m_sHitRate;			// 공격 성공률
 	BYTE    m_byObjectType;     // 보통은 0, object타입(성문, 레버)은 1
+	BYTE	m_byDirection;
 
 	short   m_byEvent;		    // This is for the quest. 
 

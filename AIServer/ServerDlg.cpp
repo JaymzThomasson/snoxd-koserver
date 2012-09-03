@@ -1120,7 +1120,7 @@ BOOL CServerDlg::CreateNpcThread()
 					pNpc->m_fCurZ	= fRandom_Z;
 					
 					pNpc->m_sRegenTime		= NpcPosSet.m_RegTime * 1000;	// 초(DB)단위-> 밀리세컨드로
-
+					pNpc->m_byDirection = NpcPosSet.m_byDirection;
 					pNpc->m_sMaxPathCount = NpcPosSet.m_DotCnt;
 
 					if( pNpc->m_byMoveType >= 2 && NpcPosSet.m_DotCnt == 0 )	{

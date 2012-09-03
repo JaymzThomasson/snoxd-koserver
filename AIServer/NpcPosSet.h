@@ -35,6 +35,7 @@ public:
 	long	m_LimitMaxZ;
 	BYTE	m_NumNPC;
 	int		m_RegTime;
+	BYTE	m_byDirection;
 	BYTE	m_DotCnt;
 	CString	m_path;
 	//}}AFX_FIELD

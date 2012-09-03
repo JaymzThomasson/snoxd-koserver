@@ -237,7 +237,7 @@ void CAISocket::RecvNpcInfoAll(char* pBuf)
 	float		fPosX;			// X Position
 	float		fPosZ;			// Z Position
 	float		fPosY;			// Y Position
-	float		fDir;			// 
+	BYTE		byDirection;	// 
 	BYTE		tNpcType;		// 00	: Monster
 								// 01	: NPC
 	int		iSellingGroup;
@@ -265,7 +265,7 @@ void CAISocket::RecvNpcInfoAll(char* pBuf)
 		fPosX = Getfloat(pBuf, index);
 		fPosZ = Getfloat(pBuf, index);
 		fPosY = Getfloat(pBuf, index);
-		fDir = Getfloat(pBuf, index);
+		byDirection = GetByte(pBuf, index);
 		tNpcType = GetByte(pBuf, index);
 		iSellingGroup = GetDWORD(pBuf, index);
 		nMaxHP = GetDWORD(pBuf, index);
@@ -305,7 +305,7 @@ void CAISocket::RecvNpcInfoAll(char* pBuf)
 		pNpc->m_fCurX = fPosX;
 		pNpc->m_fCurZ = fPosZ;
 		pNpc->m_fCurY = fPosY;
-		pNpc->m_fDir = fDir;
+		pNpc->m_byDirection = byDirection;
 		pNpc->m_NpcState = NPC_LIVE;
 		pNpc->m_tNpcType = tNpcType;
 		pNpc->m_iSellingGroup = iSellingGroup;
@@ -716,7 +716,7 @@ void CAISocket::RecvNpcInfo(char* pBuf)
 	float		fPosX;			// X Position
 	float		fPosZ;			// Z Position
 	float		fPosY;			// Y Position
-	float		fDir;			// 방향
+	BYTE		byDirection;	// 방향
 	BYTE		tState;			// NPC 상태
 								// 00	: NPC Dead
 								// 01	: NPC Live
@@ -744,7 +744,7 @@ void CAISocket::RecvNpcInfo(char* pBuf)
 	fPosX = Getfloat(pBuf, index);
 	fPosZ = Getfloat(pBuf, index);
 	fPosY = Getfloat(pBuf, index);
-	fDir = Getfloat(pBuf, index);
+	byDirection = GetByte(pBuf, index);
 	tState = GetByte(pBuf, index);
 	tNpcKind = GetByte(pBuf, index);
 	iSellingGroup = GetDWORD(pBuf, index);
@@ -788,7 +788,7 @@ void CAISocket::RecvNpcInfo(char* pBuf)
 	pNpc->m_fCurX = fPosX;
 	pNpc->m_fCurZ = fPosZ;
 	pNpc->m_fCurY = fPosY;
-	pNpc->m_fDir = fDir;
+	pNpc->m_byDirection = byDirection;
 	pNpc->m_NpcState = tState;
 	pNpc->m_tNpcType = tNpcKind;
 	pNpc->m_iSellingGroup = iSellingGroup;

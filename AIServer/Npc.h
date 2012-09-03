@@ -305,6 +305,8 @@ public:
 
 	BYTE	m_byType;
 	int		m_sRegenTime;		// NPC 재생시간
+	
+	BYTE	m_byDirection;
 
 	int		m_nLimitMinX;		// 활동 영역
 	int		m_nLimitMinZ;
@@ -320,7 +322,6 @@ public:
 	float m_fBattlePos_z;
 
 	float m_fSecForRealMoveMetor;		// 초당 갈 수 있는 거리..(실제 클라이언트에 보내주는 거리)
-	float m_fDir;						// NPC의 방향
 
 	BOOL m_bPathFlag;					// 패스 파인드 실행여부 체크 변수..
 

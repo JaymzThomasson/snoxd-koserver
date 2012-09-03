@@ -61,7 +61,7 @@ void CNpc::Initialize()
 
 	m_sRegion_X = 0;			// region x position
 	m_sRegion_Z = 0;			// region z position
-	m_fDir = 0.0f;				// npc의 방향,,
+	m_byDirection = 0;			// npc의 방향,,
 	m_iWeapon_1 = 0;
 	m_iWeapon_2 = 0;
 	m_NpcState = NPC_LIVE;
@@ -144,6 +144,9 @@ void CNpc::GetNpcInfo(char *buff, int & send_index)
 	SetShort(buff, (short)m_fCurY*10, send_index );
 	SetDWORD(buff, (int)m_byGateOpen, send_index );
 	SetByte(buff, m_byObjectType, send_index );
+	SetShort(buff, 0, send_index); // unknown
+	SetShort(buff, 0, send_index); // unknown
+	SetByte(buff, m_byDirection, send_index); 
 }
 
 void CNpc::RegisterRegion()
