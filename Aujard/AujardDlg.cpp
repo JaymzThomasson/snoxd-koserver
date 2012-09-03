@@ -265,7 +265,7 @@ BOOL CAujardDlg::InitializeMMF()
 {
 	CString logstr;
 
-	DWORD filesize = MAX_USER * 4000;	// 1명당 4000 bytes 이내 소요
+	DWORD filesize = MAX_USER * sizeof(_USER_DATA);	// 1명당 4000 bytes 이내 소요
 	
 	m_hMMFile = OpenFileMapping( FILE_MAP_ALL_ACCESS, TRUE, "KNIGHT_DB" );
 	if( m_hMMFile == NULL ) {
@@ -285,7 +285,7 @@ BOOL CAujardDlg::InitializeMMF()
 	_USER_DATA* pUser = NULL;
 	for(int i=0; i< MAX_USER; i++)
 	{
-		pUser = (_USER_DATA*)(m_lpMMFile + i*4000);
+		pUser = (_USER_DATA*)(m_lpMMFile + i * sizeof(_USER_DATA));
 		m_DBAgent.m_UserDataArray.push_back(pUser);
 	}
 
@@ -406,7 +406,7 @@ void CAujardDlg::ShoppingMall(char *pBuf)
 	switch (opcode)
 	{
 	case STORE_CLOSE:
-		LoadWebItemMall(pBuf);
+		LoadWebItemMall(pBuf+index);
 		break;
 	}
 }
@@ -415,21 +415,17 @@ void CAujardDlg::LoadWebItemMall(char *pBuf)
 {
 	char send_buff[1024];
 	int index = 0, send_index = 0, uid = -1;
-	char charid[MAX_ID_SIZE+1];
-	memset(charid, 0x00, MAX_ID_SIZE+1);
 
 	uid = GetShort(pBuf, index);
 	if (uid < 0 || uid >= MAX_USER)
 		return;
-
-	_USER_DATA *pData = (_USER_DATA*)m_DBAgent.m_UserDataArray[uid];
 
 	SetByte(send_buff, WIZ_SHOPPING_MALL, send_index);
 	SetShort(send_buff, uid, send_index);
 	SetByte(send_buff, STORE_CLOSE, send_index);
 	SetByte(send_buff, 0, send_index); // result
 
-	if (m_DBAgent.LoadWebItemMall(charid, send_buff, send_index))
+	if (m_DBAgent.LoadWebItemMall(m_DBAgent.m_UserDataArray[uid]->m_id, send_buff, send_index))
 		send_buff[4] = 1;
 
 	m_LoggerSendQueue.PutData(send_buff, send_index);
@@ -454,15 +450,11 @@ void CAujardDlg::SkillDataLoad(char *pBuf, int uid)
 	char send_buff[512];
 	int send_index = 0;
 
-	_USER_DATA *pData = m_DBAgent.m_UserDataArray[uid];
-	if (pData == NULL)
-		return;
-
 	SetByte(send_buff, WIZ_SKILLDATA, send_index);
 	SetByte(send_buff, uid, send_index);
 	SetByte(send_buff, SKILL_DATA_LOAD, send_index);
 
-	if (!m_DBAgent.LoadSkillShortcut(pData->m_id, send_buff, send_index))
+	if (!m_DBAgent.LoadSkillShortcut(m_DBAgent.m_UserDataArray[uid]->m_id, send_buff, send_index))
 		SetByte(send_buff, 0, send_index);
 
 	m_LoggerSendQueue.PutData(send_buff, send_index);
@@ -470,12 +462,8 @@ void CAujardDlg::SkillDataLoad(char *pBuf, int uid)
 
 void CAujardDlg::SkillDataSave(char *pBuf, int uid)
 {
-	_USER_DATA *pData = m_DBAgent.m_UserDataArray[uid];
-	if (pData == NULL)
-		return;
-
 	int index = 0, sCount = GetShort(pBuf, index);
-	m_DBAgent.SaveSkillShortcut(pData->m_id, sCount, pBuf);
+	m_DBAgent.SaveSkillShortcut(m_DBAgent.m_UserDataArray[uid]->m_id, sCount, pBuf);
 	// this doesn't send a response AFAIK
 }
 

@@ -1088,7 +1088,7 @@ BOOL CEbenezerDlg::InitializeMMF()
 	BOOL bCreate = TRUE;
 	CString logstr;
 
-	DWORD filesize = MAX_USER * 4000;	// 1명당 3000 bytes 이내 소요
+	DWORD filesize = MAX_USER * sizeof(_USER_DATA);	// 1명당 3000 bytes 이내 소요
 	m_hMMFile = CreateFileMapping ( (HANDLE)0xFFFFFFFF, NULL, PAGE_READWRITE, 0, filesize, "KNIGHT_DB" );
 	
 	if (m_hMMFile != NULL && GetLastError() == ERROR_ALREADY_EXISTS) 
@@ -1116,7 +1116,7 @@ BOOL CEbenezerDlg::InitializeMMF()
 	{
 		pUser = (CUser*)m_Iocport.m_SockArrayInActive[i];
 		if( pUser ) {
-			pUser->m_pUserData = (_USER_DATA*)(m_lpMMFile + i*4000);	// 1 Person Offset are 4000 bytes
+			pUser->m_pUserData = (_USER_DATA*)(m_lpMMFile + i * sizeof(_USER_DATA));	// 1 Person Offset are 4000 bytes
 		}
 	}
 
@@ -2460,7 +2460,6 @@ BOOL CEbenezerDlg::LoadNoticeData()
 
 	return TRUE;
 }
-
 
 BOOL CEbenezerDlg::LoadBlockNameList()
 {
