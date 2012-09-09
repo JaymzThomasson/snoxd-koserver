@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClCompile Include="..\shared\Compress.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
+    <ClCompile Include="..\shared\Ini.cpp" />
     <ClCompile Include="..\shared\lzf.cpp" />
     <ClCompile Include="AISocket.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -202,10 +203,6 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="HomeSet.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="Ini.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -338,6 +335,7 @@
     <ClInclude Include="..\shared\Compress.h" />
     <ClInclude Include="..\shared\crc32.h" />
     <ClInclude Include="..\shared\globals.h" />
+    <ClInclude Include="..\shared\Ini.h" />
     <ClInclude Include="..\shared\lzf.h" />
     <ClInclude Include="..\shared\packets.h" />
     <ClInclude Include="..\shared\version.h" />
@@ -356,7 +354,6 @@
     <ClInclude Include="GameDefine.h" />
     <ClInclude Include="GameEvent.h" />
     <ClInclude Include="HomeSet.h" />
-    <ClInclude Include="Ini.h" />
     <ClInclude Include="IOCPort.h" />
     <ClInclude Include="IOCPSocket2.h" />
     <ClInclude Include="ItemTableSet.h" />

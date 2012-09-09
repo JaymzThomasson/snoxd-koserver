@@ -32,9 +32,6 @@
     <ClCompile Include="global.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Ini.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="IOCPort.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -143,6 +140,9 @@
     <ClCompile Include="..\shared\crc32.cpp">
       <Filter>shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\Ini.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CircularBuffer.h">
@@ -158,9 +158,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="global.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Ini.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IOCPort.h">
@@ -287,6 +284,9 @@
       <Filter>shared</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\crc32.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\Ini.h">
       <Filter>shared</Filter>
     </ClInclude>
   </ItemGroup>

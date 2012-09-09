@@ -33,6 +33,7 @@ CVersionManagerDlg::CVersionManagerDlg(CWnd* pParent /*=NULL*/)
 	memset(m_ODBCLogin, 0, sizeof(m_ODBCLogin));
 	memset(m_ODBCPwd, 0, sizeof(m_ODBCPwd));
 
+	m_Ini.SetPath("Version.ini");
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
@@ -76,12 +77,7 @@ BOOL CVersionManagerDlg::OnInitDialog()
 		return FALSE;
 	}
 
-	if (!GetInfoFromIni())
-	{
-		AfxMessageBox("INI not found or not configured properly.");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
+	GetInfoFromIni();
 	
 	char strConnection[256];
 	sprintf_s(strConnection, sizeof(strConnection), "ODBC;DSN=%s;UID=%s;PWD=%s", m_ODBCName, m_ODBCLogin, m_ODBCPwd);
@@ -110,25 +106,21 @@ BOOL CVersionManagerDlg::OnInitDialog()
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
-BOOL CVersionManagerDlg::GetInfoFromIni()
+void CVersionManagerDlg::GetInfoFromIni()
 {
-	CString inipath;
+	char tmp[128];
 
-	inipath.Format("%s\\Version.ini", GetProgPath());
+	m_Ini.GetString("DOWNLOAD", "URL", "ftp.yoursite.net", m_strFtpUrl, sizeof(m_strFtpUrl), false);
+	m_Ini.GetString("DOWNLOAD", "PATH", "/", m_strFilePath, sizeof(m_strFilePath), false);
 
-	GetPrivateProfileString("DOWNLOAD", "URL", "ftp.yoursite.net", m_strFtpUrl, sizeof(m_strFtpUrl), inipath);
-	GetPrivateProfileString("DOWNLOAD", "PATH", "/", m_strFilePath, sizeof(m_strFilePath), inipath);
+	m_Ini.GetString("ODBC", "DSN", "KN_online", m_ODBCName, sizeof(m_ODBCName), false);
+	m_Ini.GetString("ODBC", "UID", "knight", m_ODBCLogin, sizeof(m_ODBCLogin), false);
+	m_Ini.GetString("ODBC", "PWD", "knight", m_ODBCPwd, sizeof(m_ODBCPwd), false);
 
-	GetPrivateProfileString("ODBC", "DSN", "KN_online", m_ODBCName, sizeof(m_ODBCName), inipath);
-	GetPrivateProfileString("ODBC", "UID", "knight", m_ODBCLogin, sizeof(m_ODBCLogin), inipath);
-	GetPrivateProfileString("ODBC", "PWD", "knight", m_ODBCPwd, sizeof(m_ODBCPwd), inipath);
+	m_nServerCount = m_Ini.GetInt("SERVER_LIST", "COUNT", 1);
 
-	m_nServerCount = GetPrivateProfileInt("SERVER_LIST", "COUNT", 0, inipath);
-
-	if (!strlen(m_strFtpUrl) || !strlen(m_strFilePath)
-		|| !strlen(m_ODBCName) || !strlen(m_ODBCLogin) || !strlen(m_ODBCPwd) 
-		|| m_nServerCount <= 0) 
-		return FALSE;
+	if (m_nServerCount <= 0) 
+		m_nServerCount = 1;
 	
 	char key[20]; 
 	_SERVER_INFO* pInfo = NULL;
@@ -141,37 +133,37 @@ BOOL CVersionManagerDlg::GetInfoFromIni()
 		pInfo = new _SERVER_INFO;
 
 		sprintf_s(key, sizeof(key), "SERVER_%02d", i);
-		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strServerIP, sizeof(pInfo->strServerIP), inipath);
+		m_Ini.GetString("SERVER_LIST", key, "127.0.0.1", pInfo->strServerIP, sizeof(pInfo->strServerIP), false);
 
 		sprintf_s(key, sizeof(key), "LANIP_%02d", i);
-		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strLanIP, sizeof(pInfo->strLanIP), inipath);
+		m_Ini.GetString("SERVER_LIST", key, "127.0.0.1", pInfo->strLanIP, sizeof(pInfo->strLanIP), false);
 
 		sprintf_s(key, sizeof(key), "NAME_%02d", i);
-		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strServerName, sizeof(pInfo->strServerName), inipath);
+		m_Ini.GetString("SERVER_LIST", key, "TEST|Server 1", pInfo->strServerName, sizeof(pInfo->strServerName), false);
 
 		sprintf_s(key, sizeof(key), "ID_%02d", i);
-		pInfo->sServerID = GetPrivateProfileInt("SERVER_LIST", key, 0, inipath);
+		pInfo->sServerID = m_Ini.GetInt("SERVER_LIST", key, 1);
 
 		sprintf_s(key, sizeof(key), "GROUPID_%02d", i);
-		pInfo->sGroupID = GetPrivateProfileInt("SERVER_LIST", key, 0, inipath);
+		pInfo->sGroupID = m_Ini.GetInt("SERVER_LIST", key, 1);
 
 		sprintf_s(key, sizeof(key), "PREMLIMIT_%02d", i);
-		pInfo->sPlayerCap = GetPrivateProfileInt("SERVER_LIST", key, 0, inipath);
+		pInfo->sPlayerCap = m_Ini.GetInt("SERVER_LIST", key, MAX_USER);
 
 		sprintf_s(key, sizeof(key), "FREELIMIT_%02d", i);
-		pInfo->sFreePlayerCap = GetPrivateProfileInt("SERVER_LIST", key, 0, inipath);
+		pInfo->sFreePlayerCap = m_Ini.GetInt("SERVER_LIST", key, MAX_USER);
 
 		sprintf_s(key, sizeof(key), "KING1_%02d", i);
-		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strKarusKingName, sizeof(pInfo->strKarusKingName), inipath);
+		m_Ini.GetString("SERVER_LIST", key, "", pInfo->strKarusKingName, sizeof(pInfo->strKarusKingName));
 
 		sprintf_s(key, sizeof(key), "KING2_%02d", i);
-		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strElMoradKingName, sizeof(pInfo->strElMoradKingName), inipath);
+		m_Ini.GetString("SERVER_LIST", key, "", pInfo->strElMoradKingName, sizeof(pInfo->strElMoradKingName));
 
 		sprintf_s(key, sizeof(key), "KINGMSG1_%02d", i);
-		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strKarusNotice, sizeof(pInfo->strKarusNotice), inipath);
+		m_Ini.GetString("SERVER_LIST", key, "", pInfo->strKarusNotice, sizeof(pInfo->strKarusNotice));
 
 		sprintf_s(key, sizeof(key), "KINGMSG2_%02d", i);
-		GetPrivateProfileString("SERVER_LIST", key, "", pInfo->strElMoradNotice, sizeof(pInfo->strElMoradNotice), inipath);
+		m_Ini.GetString("SERVER_LIST", key, "", pInfo->strElMoradNotice, sizeof(pInfo->strElMoradNotice));
 
 		m_ServerList.push_back(pInfo);
 	}
@@ -185,12 +177,11 @@ BOOL CVersionManagerDlg::GetInfoFromIni()
 	stringstream ss;
 	for (int i = 0; i < 3; i++)
 	{
-		char tmp[128];
 		string title, message;
 
 		sprintf_s(key, sizeof(key), "TITLE_%02d", i);
 		memset(tmp, 0x00, sizeof(tmp));
-		GetPrivateProfileString("NEWS", key, "", tmp, sizeof(tmp), inipath);
+		m_Ini.GetString("NEWS", key, "", tmp, sizeof(tmp));
 
 		title = tmp;
 		if (title.size() == 0)
@@ -198,7 +189,7 @@ BOOL CVersionManagerDlg::GetInfoFromIni()
 		
 		sprintf_s(key, sizeof(key), "MESSAGE_%02d", i);
 		memset(tmp, 0x00, sizeof(tmp));
-		GetPrivateProfileString("NEWS", key, "", tmp, sizeof(tmp), inipath);
+		m_Ini.GetString("NEWS", key, "", tmp, sizeof(tmp));
 
 		message = tmp;
 		if (message.size() == 0)
@@ -221,8 +212,6 @@ BOOL CVersionManagerDlg::GetInfoFromIni()
 	m_news.Size = ss.str().size();
 	if (m_news.Size)
 		memcpy(&m_news.Content, ss.str().c_str(), m_news.Size);
-
-	return TRUE;
 }
 
 // If you add a minimize button to your dialog, you will need the code below
@@ -282,13 +271,6 @@ BOOL CVersionManagerDlg::DestroyWindow()
 
 	return CDialog::DestroyWindow();
 }
-
-void CVersionManagerDlg::OnVersionSetting() 
-{
-	CString inipath;
-	inipath.Format("%s\\Version.ini", GetProgPath());
-}
-
 
 void CVersionManagerDlg::OnBnClickedExit()
 {

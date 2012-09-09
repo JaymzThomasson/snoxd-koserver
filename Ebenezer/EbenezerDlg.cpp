@@ -828,7 +828,7 @@ int CEbenezerDlg::GetAIServerPort()
 // sungyong 2002.05.22
 BOOL CEbenezerDlg::AIServerConnect()
 {
-	strcpy(m_AIServerIP, m_Ini.GetProfileString("AI_SERVER", "IP", "127.0.0.1"));
+	m_Ini.GetString("AI_SERVER", "IP", "127.0.0.1", m_AIServerIP, sizeof(m_AIServerIP));
 
 	for (int i = 0; i < MAX_AI_SOCKET; i++)
 	{
@@ -1687,20 +1687,20 @@ void CEbenezerDlg::GetTimeFromIni()
 	char ipkey[20]; memset( ipkey, 0x00, 20 );
 
 	m_Ini.SetPath("gameserver.ini");
-	m_nYear = m_Ini.GetProfileInt("TIMER", "YEAR", 1);
-	m_nMonth = m_Ini.GetProfileInt("TIMER", "MONTH", 1);
-	m_nDate = m_Ini.GetProfileInt("TIMER", "DATE", 1);
-	m_nHour = m_Ini.GetProfileInt("TIMER", "HOUR", 1);
-	m_nWeather = m_Ini.GetProfileInt("TIMER", "WEATHER", 1);
+	m_nYear = m_Ini.GetInt("TIMER", "YEAR", 1);
+	m_nMonth = m_Ini.GetInt("TIMER", "MONTH", 1);
+	m_nDate = m_Ini.GetInt("TIMER", "DATE", 1);
+	m_nHour = m_Ini.GetInt("TIMER", "HOUR", 1);
+	m_nWeather = m_Ini.GetInt("TIMER", "WEATHER", 1);
 
-	m_nBattleZoneOpenWeek  = m_Ini.GetProfileInt("BATTLE", "WEEK", 5);
-	m_nBattleZoneOpenHourStart  = m_Ini.GetProfileInt("BATTLE", "START_TIME", 20);
-	m_nBattleZoneOpenHourEnd  = m_Ini.GetProfileInt("BATTLE", "END_TIME", 0);
+	m_nBattleZoneOpenWeek  = m_Ini.GetInt("BATTLE", "WEEK", 5);
+	m_nBattleZoneOpenHourStart  = m_Ini.GetInt("BATTLE", "START_TIME", 20);
+	m_nBattleZoneOpenHourEnd  = m_Ini.GetInt("BATTLE", "END_TIME", 0);
 
-	m_nCastleCapture = m_Ini.GetProfileInt("CASTLE", "NATION", 1);
-	m_nServerNo = m_Ini.GetProfileInt("ZONE_INFO", "MY_INFO", 1);
-	m_nServerGroup = m_Ini.GetProfileInt("ZONE_INFO", "SERVER_NUM", 0);
-	server_count = m_Ini.GetProfileInt("ZONE_INFO", "SERVER_COUNT", 1);
+	m_nCastleCapture = m_Ini.GetInt("CASTLE", "NATION", 1);
+	m_nServerNo = m_Ini.GetInt("ZONE_INFO", "MY_INFO", 1);
+	m_nServerGroup = m_Ini.GetInt("ZONE_INFO", "SERVER_NUM", 0);
+	server_count = m_Ini.GetInt("ZONE_INFO", "SERVER_COUNT", 1);
 	if( server_count < 1 ) {
 		AfxMessageBox("ServerCount Error!!");
 		return;
@@ -1709,17 +1709,17 @@ void CEbenezerDlg::GetTimeFromIni()
 	for( i=0; i<server_count; i++ ) {
 		_ZONE_SERVERINFO *pInfo = new _ZONE_SERVERINFO;
 		sprintf( ipkey, "SERVER_%02d", i );
-		pInfo->sServerNo = m_Ini.GetProfileInt("ZONE_INFO", ipkey, 1);
+		pInfo->sServerNo = m_Ini.GetInt("ZONE_INFO", ipkey, 1);
 		sprintf( ipkey, "SERVER_IP_%02d", i );
-		strcpy(pInfo->strServerIP, m_Ini.GetProfileString("ZONE_INFO", ipkey, "210.92.91.242"));
+		m_Ini.GetString("ZONE_INFO", ipkey, "210.92.91.242", pInfo->strServerIP, sizeof(pInfo->strServerIP));
 		pInfo->sPort = _LISTEN_PORT + pInfo->sServerNo;
 
 		m_ServerArray.PutData(pInfo->sServerNo, pInfo);
 	}
 
 	if( m_nServerGroup != 0 )	{
-		m_nServerGroupNo = m_Ini.GetProfileInt("SG_INFO", "GMY_INFO", 1);
-		sgroup_count = m_Ini.GetProfileInt("SG_INFO", "GSERVER_COUNT", 1);
+		m_nServerGroupNo = m_Ini.GetInt("SG_INFO", "GMY_INFO", 1);
+		sgroup_count = m_Ini.GetInt("SG_INFO", "GSERVER_COUNT", 1);
 		if( server_count < 1 ) {
 			AfxMessageBox("ServerCount Error!!");
 			return;
@@ -1727,9 +1727,9 @@ void CEbenezerDlg::GetTimeFromIni()
 		for( i=0; i<sgroup_count; i++ ) {
 			_ZONE_SERVERINFO *pInfo = new _ZONE_SERVERINFO;
 			sprintf( ipkey, "GSERVER_%02d", i );
-			pInfo->sServerNo = m_Ini.GetProfileInt("SG_INFO", ipkey, 1);
+			pInfo->sServerNo = m_Ini.GetInt("SG_INFO", ipkey, 1);
 			sprintf( ipkey, "GSERVER_IP_%02d", i );
-			strcpy(pInfo->strServerIP, m_Ini.GetProfileString("SG_INFO", ipkey, "210.92.91.242"));
+			m_Ini.GetString("SG_INFO", ipkey, "210.92.91.242", pInfo->strServerIP, sizeof(pInfo->strServerIP));
 			pInfo->sPort = _LISTEN_PORT + pInfo->sServerNo;
 
 			m_ServerGroupArray.PutData(pInfo->sServerNo, pInfo);
@@ -1837,11 +1837,11 @@ void CEbenezerDlg::UpdateWeather()
 
 void CEbenezerDlg::SetGameTime()
 {
-	m_Ini.SetProfileInt( "TIMER", "YEAR", m_nYear );
-	m_Ini.SetProfileInt( "TIMER", "MONTH", m_nMonth );
-	m_Ini.SetProfileInt( "TIMER", "DATE", m_nDate );
-	m_Ini.SetProfileInt( "TIMER", "HOUR", m_nHour );
-	m_Ini.SetProfileInt( "TIMER", "WEATHER", m_nWeather );
+	m_Ini.SetInt( "TIMER", "YEAR", m_nYear );
+	m_Ini.SetInt( "TIMER", "MONTH", m_nMonth );
+	m_Ini.SetInt( "TIMER", "DATE", m_nDate );
+	m_Ini.SetInt( "TIMER", "HOUR", m_nHour );
+	m_Ini.SetInt( "TIMER", "WEATHER", m_nWeather );
 }
 
 void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)

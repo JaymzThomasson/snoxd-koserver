@@ -17,7 +17,7 @@
 #include "AISocket.h"
 #include "Npc.h"
 #include "SharedMem.h"
-#include "ini.h"
+#include "../shared/ini.h"
 #include "Knights.h"
 #include "KnightsManager.h"
 #include "EVENT.h"

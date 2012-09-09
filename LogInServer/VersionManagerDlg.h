@@ -16,6 +16,7 @@
 #include <string>
 #include <algorithm>
 #include <sstream>
+#include "../shared/Ini.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CVersionManagerDlg dialog
@@ -27,7 +28,7 @@ class CVersionManagerDlg : public CDialog
 {
 // Construction
 public:
-	BOOL GetInfoFromIni();
+	void GetInfoFromIni();
 	
 	CVersionManagerDlg(CWnd* pParent = NULL);	// standard constructor
 
@@ -35,7 +36,6 @@ public:
 
 	char	m_strFtpUrl[256];
 	char	m_strFilePath[256];
-	char	m_strDefaultPath[_MAX_PATH];
 
 	int		m_nLastVersion;
 
@@ -50,7 +50,7 @@ public:
 	News m_news;
 
 	CDBProcess	m_DBProcess;
-
+	
 // Dialog Data
 	//{{AFX_DATA(CVersionManagerDlg)
 	enum { IDD = IDD_VERSIONMANAGER_DIALOG };
@@ -69,13 +69,13 @@ public:
 // Implementation
 protected:
 	HICON m_hIcon;
+	CIni	m_Ini;
 
 	// Generated message map functions
 	//{{AFX_MSG(CVersionManagerDlg)
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
-	afx_msg void OnVersionSetting();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 public:

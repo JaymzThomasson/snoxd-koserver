@@ -22,7 +22,7 @@
 #include "MakeGradeItemTableSet.h"
 #include "MakeLareItemTableSet.h"
 #include "Region.h"
-#include "ini.h"
+#include "../shared/ini.h"
 
 //#include "extern.h"			// Àü¿ª °´Ã¼
 
@@ -2502,7 +2502,7 @@ void CServerDlg::GetServerInfoIni()
 {
 	CIni inifile;
 	inifile.SetPath("server.ini");
-	m_byZone = inifile.GetProfileInt("SERVER", "ZONE", 1);
+	m_byZone = inifile.GetInt("SERVER", "ZONE", 1);
 }
 
 void CServerDlg::SendSystemMsg( char* pMsg, int zone, int type, int who )
