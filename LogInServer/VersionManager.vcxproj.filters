@@ -21,19 +21,10 @@
     <ClCompile Include="DBProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DlgBrowsePath.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="IOCPort.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="IOCPSocket2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SettingDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ShellTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StdAfx.cpp">
@@ -67,9 +58,6 @@
     <ClInclude Include="Define.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DlgBrowsePath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IOCPort.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -77,12 +65,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SettingDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShellTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StdAfx.h">
@@ -101,12 +83,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VersionSet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="zconf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="zlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\version.h">

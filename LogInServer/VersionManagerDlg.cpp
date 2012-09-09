@@ -6,7 +6,6 @@
 #include "VersionManagerDlg.h"
 #include "IOCPSocket2.h"
 #include "VersionSet.h"
-#include "SettingDlg.h"
 #include "User.h"
 
 #ifdef _DEBUG
@@ -29,7 +28,6 @@ CVersionManagerDlg::CVersionManagerDlg(CWnd* pParent /*=NULL*/)
 	
 	memset(m_strFtpUrl, 0, sizeof(m_strFtpUrl));
 	memset(m_strFilePath, 0, sizeof(m_strFilePath));
-	memset(m_strDefaultPath, 0, sizeof(m_strDefaultPath));
 	m_nLastVersion = 0;
 	memset(m_ODBCName, 0, sizeof(m_ODBCName));
 	memset(m_ODBCLogin, 0, sizeof(m_ODBCLogin));
@@ -50,7 +48,7 @@ BEGIN_MESSAGE_MAP(CVersionManagerDlg, CDialog)
 	//{{AFX_MSG_MAP(CVersionManagerDlg)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_SETTING, OnVersionSetting)
+	ON_BN_CLICKED(IDC_EXIT, &CVersionManagerDlg::OnBnClickedExit)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -124,7 +122,6 @@ BOOL CVersionManagerDlg::GetInfoFromIni()
 	GetPrivateProfileString("ODBC", "DSN", "KN_online", m_ODBCName, sizeof(m_ODBCName), inipath);
 	GetPrivateProfileString("ODBC", "UID", "knight", m_ODBCLogin, sizeof(m_ODBCLogin), inipath);
 	GetPrivateProfileString("ODBC", "PWD", "knight", m_ODBCPwd, sizeof(m_ODBCPwd), inipath);
-	GetPrivateProfileString("CONFIGURATION", "DEFAULT_PATH", "", m_strDefaultPath, sizeof(m_strDefaultPath), inipath);
 
 	m_nServerCount = GetPrivateProfileInt("SERVER_LIST", "COUNT", 0, inipath);
 
@@ -290,12 +287,10 @@ void CVersionManagerDlg::OnVersionSetting()
 {
 	CString inipath;
 	inipath.Format("%s\\Version.ini", GetProgPath());
-	CSettingDlg	setdlg(m_nLastVersion, this);
-	
-	strcpy_s(setdlg.m_strDefaultPath, sizeof(setdlg.m_strDefaultPath), m_strDefaultPath);
-	if (setdlg.DoModal() == IDOK)
-	{
-		strcpy_s(m_strDefaultPath, sizeof(m_strDefaultPath), setdlg.m_strDefaultPath);
-		WritePrivateProfileString("CONFIGURATION", "DEFAULT_PATH", m_strDefaultPath, inipath);
-	}
+}
+
+
+void CVersionManagerDlg::OnBnClickedExit()
+{
+	CDialog::OnCancel();
 }

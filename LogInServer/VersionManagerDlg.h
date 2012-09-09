@@ -78,6 +78,8 @@ protected:
 	afx_msg void OnVersionSetting();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnBnClickedExit();
 };
 
 //{{AFX_INSERT_LOCATION}}
