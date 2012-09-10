@@ -2500,8 +2500,7 @@ void CServerDlg::ClostSocket( int zonenumber )
 
 void CServerDlg::GetServerInfoIni()
 {
-	CIni inifile;
-	inifile.SetPath("server.ini");
+	CIni inifile("server.ini");
 	m_byZone = inifile.GetInt("SERVER", "ZONE", 1);
 }
 

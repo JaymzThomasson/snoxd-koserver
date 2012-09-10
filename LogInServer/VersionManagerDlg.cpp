@@ -20,7 +20,7 @@ CIOCPort	CVersionManagerDlg::m_Iocport;
 // CVersionManagerDlg dialog
 
 CVersionManagerDlg::CVersionManagerDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CVersionManagerDlg::IDD, pParent)
+	: CDialog(CVersionManagerDlg::IDD, pParent), m_Ini("Version.ini")
 {
 	//{{AFX_DATA_INIT(CVersionManagerDlg)
 		// NOTE: the ClassWizard will add member initialization here
@@ -33,7 +33,6 @@ CVersionManagerDlg::CVersionManagerDlg(CWnd* pParent /*=NULL*/)
 	memset(m_ODBCLogin, 0, sizeof(m_ODBCLogin));
 	memset(m_ODBCPwd, 0, sizeof(m_ODBCPwd));
 
-	m_Ini.SetPath("Version.ini");
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 

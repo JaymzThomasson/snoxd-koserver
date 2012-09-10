@@ -271,8 +271,10 @@ public:
 
 private:
 	CIni	m_Ini;
+	CDatabase m_GameDB;
 
 	BOOL LoadTables();
+	BOOL ConnectToDatabase(bool reconnect = false);
 
 // Implementation
 protected:

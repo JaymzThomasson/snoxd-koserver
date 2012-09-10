@@ -194,7 +194,7 @@ loop_pass:
 // CEbenezerDlg dialog
 
 CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CEbenezerDlg::IDD, pParent)
+	: CDialog(CEbenezerDlg::IDD, pParent), m_Ini("gameserver.ini")
 {
 	//{{AFX_DATA_INIT(CEbenezerDlg)
 	//}}AFX_DATA_INIT
@@ -471,6 +471,36 @@ BOOL CEbenezerDlg::LoadTables()
 
 	LogFileWrite("before BATTLE");
 	if (!LoadBattleTable())
+		return FALSE;
+
+	return TRUE;
+}
+
+BOOL CEbenezerDlg::ConnectToDatabase(bool reconnect /*= false*/)
+{
+	char dsn[128], uid[128], pwd[128];
+
+	m_Ini.GetString("ODBC", "GAME_DSN", "KN_online", dsn, sizeof(dsn), false);
+	m_Ini.GetString("ODBC", "GAME_UID", "knight", uid, sizeof(uid), false);
+	m_Ini.GetString("ODBC", "GAME_PWD", "knight", pwd, sizeof(pwd), false);
+
+	CString strConnect;
+	strConnect.Format(_T("DSN=%s;UID=%s;PWD=%s"), dsn, uid, pwd);
+
+	if (reconnect)
+		m_GameDB.Close();
+
+	try
+	{
+		m_GameDB.SetLoginTimeout(10);
+		m_GameDB.OpenEx((LPCTSTR )strConnect, CDatabase::noOdbcDialog);
+	}
+	catch (CDBException* e)
+	{
+		e->Delete();
+	}
+	
+	if (!m_GameDB.IsOpen())
 		return FALSE;
 
 	return TRUE;
@@ -1130,7 +1160,7 @@ BOOL CEbenezerDlg::MapFileLoad()
 	C3DMap* pMap = NULL;
 	EVENT*	pEvent = NULL;
 
-	CZoneInfoSet	ZoneInfoSet;
+	CZoneInfoSet	ZoneInfoSet(&m_GameDB);
 
 	if( !ZoneInfoSet.Open() ) {
 		AfxMessageBox(_T("ZoneInfoTable Open Fail!"));
@@ -1198,7 +1228,7 @@ BOOL CEbenezerDlg::MapFileLoad()
 
 BOOL CEbenezerDlg::LoadItemTable()
 {
-	CItemTableSet	ItemTableSet;
+	CItemTableSet	ItemTableSet(&m_GameDB);
 
 	if( !ItemTableSet.Open() ) {
 		AfxMessageBox(_T("ItemTable Open Fail!"));
@@ -1287,7 +1317,7 @@ BOOL CEbenezerDlg::LoadItemTable()
 
 BOOL CEbenezerDlg::LoadServerResourceTable()
 {
-	CServerResourceSet ServerResourceSet;
+	CServerResourceSet ServerResourceSet(&m_GameDB);
 
 	if (!ServerResourceSet.Open())
 	{
@@ -1320,7 +1350,7 @@ BOOL CEbenezerDlg::LoadServerResourceTable()
 
 BOOL CEbenezerDlg::LoadMagicTable()
 {
-	CMagicTableSet	MagicTableSet;
+	CMagicTableSet	MagicTableSet(&m_GameDB);
 
 	if( !MagicTableSet.Open() ) {
 		AfxMessageBox(_T("MagicTable Open Fail!"));
@@ -1368,7 +1398,7 @@ BOOL CEbenezerDlg::LoadMagicTable()
 
 BOOL CEbenezerDlg::LoadMagicType1()
 {
-	CMagicType1Set	MagicType1Set;
+	CMagicType1Set	MagicType1Set(&m_GameDB);
 
 	if( !MagicType1Set.Open() ) {
 		AfxMessageBox(_T("MagicType1 Open Fail!"));
@@ -1409,7 +1439,7 @@ BOOL CEbenezerDlg::LoadMagicType1()
 
 BOOL CEbenezerDlg::LoadMagicType2()
 {
-	CMagicType2Set	MagicType2Set;
+	CMagicType2Set	MagicType2Set(&m_GameDB);
 
 	if( !MagicType2Set.Open() ) {
 		AfxMessageBox(_T("MagicType2 Open Fail!"));
@@ -1446,7 +1476,7 @@ BOOL CEbenezerDlg::LoadMagicType2()
 
 BOOL CEbenezerDlg::LoadMagicType3()
 {
-	CMagicType3Set	MagicType3Set;
+	CMagicType3Set	MagicType3Set(&m_GameDB);
 
 	if( !MagicType3Set.Open() ) {
 		AfxMessageBox(_T("MagicType3 Open Fail!"));
@@ -1486,7 +1516,7 @@ BOOL CEbenezerDlg::LoadMagicType3()
 
 BOOL CEbenezerDlg::LoadMagicType4()
 {
-	CMagicType4Set	MagicType4Set;
+	CMagicType4Set	MagicType4Set(&m_GameDB);
 
 	if( !MagicType4Set.Open() ) {
 		AfxMessageBox(_T("MagicType4 Open Fail!"));
@@ -1539,7 +1569,7 @@ BOOL CEbenezerDlg::LoadMagicType4()
 
 BOOL CEbenezerDlg::LoadMagicType5()
 {
-	CMagicType5Set	MagicType5Set;
+	CMagicType5Set	MagicType5Set(&m_GameDB);
 
 	if( !MagicType5Set.Open() ) {
 		AfxMessageBox(_T("MagicType5 Open Fail!"));
@@ -1575,7 +1605,7 @@ BOOL CEbenezerDlg::LoadMagicType5()
 
 BOOL CEbenezerDlg::LoadMagicType8()
 {
-	CMagicType8Set	MagicType8Set;
+	CMagicType8Set	MagicType8Set(&m_GameDB);
 
 	if( !MagicType8Set.Open() ) {
 		AfxMessageBox(_T("MagicType8 Open Fail!"));
@@ -1612,7 +1642,7 @@ BOOL CEbenezerDlg::LoadMagicType8()
 
 BOOL CEbenezerDlg::LoadCoefficientTable()
 {
-	CCoefficientSet	CoefficientSet;
+	CCoefficientSet	CoefficientSet(&m_GameDB);
 
 	if( !CoefficientSet.Open() ) {
 		AfxMessageBox(_T("CharacterDataTable Open Fail!"));
@@ -1659,7 +1689,7 @@ BOOL CEbenezerDlg::LoadCoefficientTable()
 
 BOOL CEbenezerDlg::LoadLevelUpTable()
 {
-	CLevelUpTableSet	LevelUpTableSet;
+	CLevelUpTableSet	LevelUpTableSet(&m_GameDB);
 
 	if( !LevelUpTableSet.Open() ) {
 		AfxMessageBox(_T("LevelUpTable Open Fail!"));
@@ -1686,7 +1716,12 @@ void CEbenezerDlg::GetTimeFromIni()
 	int year=0, month=0, date=0, hour=0, server_count=0, sgroup_count = 0, i=0;
 	char ipkey[20]; memset( ipkey, 0x00, 20 );
 
-	m_Ini.SetPath("gameserver.ini");
+	if (!ConnectToDatabase())
+	{
+		AfxMessageBox(_T("Couldn't connect to game database."));
+		return;
+	}
+
 	m_nYear = m_Ini.GetInt("TIMER", "YEAR", 1);
 	m_nMonth = m_Ini.GetInt("TIMER", "MONTH", 1);
 	m_nDate = m_Ini.GetInt("TIMER", "DATE", 1);
@@ -2958,7 +2993,7 @@ void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 
 BOOL CEbenezerDlg::LoadHomeTable()
 {
-	CHomeSet	HomeSet;
+	CHomeSet	HomeSet(&m_GameDB);
 
 	if( !HomeSet.Open() ) {
 		AfxMessageBox(_T("Home Data Open Fail!"));
@@ -3011,7 +3046,7 @@ BOOL CEbenezerDlg::LoadHomeTable()
 
 BOOL CEbenezerDlg::LoadStartPositionTable()
 {
-	CStartPositionSet StartPositionSet;
+	CStartPositionSet StartPositionSet(&m_GameDB);
 
 	if (!StartPositionSet.Open())
 	{
@@ -3056,7 +3091,7 @@ BOOL CEbenezerDlg::LoadStartPositionTable()
 
 BOOL CEbenezerDlg::LoadAllKnights()
 {
-	CKnightsSet	KnightsSet;
+	CKnightsSet	KnightsSet(&m_GameDB);
 	CString strKnightsName, strChief, strViceChief_1, strViceChief_2, strViceChief_3;
 	int i=0;
 
@@ -3214,7 +3249,7 @@ BOOL CEbenezerDlg::LoadAllKnights()
 
 BOOL CEbenezerDlg::LoadAllKnightsUserData()
 {
-	CKnightsUserSet	KnightsSet;
+	CKnightsUserSet	KnightsSet(&m_GameDB);
 	CString strUserName;
 	int iFame=0, iLevel=0, iClass=0;
 
@@ -3546,7 +3581,7 @@ void CEbenezerDlg::Send_UDP_All( char* pBuf, int len, int group_type )
 
 BOOL CEbenezerDlg::LoadBattleTable()
 {
-	CBattleSet	BattleSet;
+	CBattleSet	BattleSet(&m_GameDB);
 
 	if( !BattleSet.Open() ) {
 		AfxMessageBox(_T("BattleSet Data Open Fail!"));
@@ -3602,7 +3637,7 @@ void CEbenezerDlg::GetCaptainUserPtr()
 
 BOOL CEbenezerDlg::LoadKnightsRankTable()
 {
-	CKnightsRankSet	KRankSet;
+	CKnightsRankSet	KRankSet(&m_GameDB);
 	int nRank = 0, nKnightsIndex = 0, nKaursRank = 0, nElmoRank = 0, nFindKarus = 0, nFindElmo = 0, send_index = 0, temp_index = 0;
 	CUser *pUser = NULL;
 	CKnights* pKnights = NULL;
@@ -3620,8 +3655,12 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 	}
 
 	if( !KRankSet.Open() ) {
-		TRACE("### KnightsRankTable Open Fail! ###\n");
-		return TRUE;
+		ConnectToDatabase(true);
+		if (!KRankSet.Open())
+		{
+			TRACE("### KnightsRankTable Open Fail! ###\n");
+			return TRUE;
+		}
 	}
 	if(KRankSet.IsBOF() || KRankSet.IsEOF()) {
 		TRACE("### KnightsRankTable Empty! ###\n");
