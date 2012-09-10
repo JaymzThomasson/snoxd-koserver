@@ -151,7 +151,7 @@ int CDBProcess::AccountLogin(const char *id, const char *pwd)
 	SQLSMALLINT		sParmRet = 3;
 	SQLINTEGER		cbParmRet=SQL_NTS;
 
-	wsprintf( szSQL, TEXT( "{call ACCOUNT_LOGIN(\'%s\',\'%s\',?)}" ), id, pwd);
+	wsprintf( szSQL, TEXT( "{call MAIN_LOGIN(\'%s\',\'%s\',?)}" ), id, pwd);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_VersionDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
