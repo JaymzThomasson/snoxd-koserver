@@ -79,7 +79,7 @@ void CUser::Initialize()
 	m_curZone = -1;				// 현재 존
 	m_pMap = NULL;
 	m_bNation = 0;						// 소속국가
-	m_sLevel = 0;						// 레벨
+	m_bLevel = 0;						// 레벨
 	m_sHP = 0;							// HP
 	m_sMP = 0;							// MP
 	m_sSP = 0;							// SP
@@ -181,7 +181,7 @@ void CUser::SendAttackSuccess(int tuid, BYTE result, short sDamage, int nHP, sho
 	SetShort( buff, tid, send_index );
 	SetShort( buff, sDamage, send_index );
 	SetDWORD( buff, nHP, send_index );
-	SetByte( buff, sAttack_type, send_index );
+	SetByte( buff, (BYTE)sAttack_type, send_index );
 
 	//TRACE("User - SendAttackSuccess() : [sid=%d, tid=%d, result=%d], damage=%d, hp = %d\n", sid, tid, bResult, sDamage, sHP);
 
@@ -352,7 +352,7 @@ void CUser::SetExp(int iNpcExp, int iLoyalty, int iLevel)
 	int nLoyalty = 0;
 	int nLevel = 0;
 	double TempValue = 0;
-	nLevel = iLevel - m_sLevel;
+	nLevel = iLevel - m_bLevel;
 
 	if(nLevel <= -14)	{
 		//TRACE("$$ User - SetExp Level Fail : %s, exp=%d, loyalty=%d, mylevel=%d, level=%d $$\n", m_strUserID, iNpcExp, iLoyalty, m_sLevel, iLevel);
@@ -424,7 +424,7 @@ void CUser::SetPartyExp(int iNpcExp, int iLoyalty, int iPartyLevel, int iMan)
 	double TempValue = 0;
 
 	TempValue = (double)iPartyLevel / 100.0;
-	nExpPercent = iNpcExp * TempValue;
+	nExpPercent = (int)(iNpcExp * TempValue);
 
 	//TRACE("$$ User - SetPartyExp Level : %s, exp=%d->%d, loy=%d->%d, mylevel=%d, iPartyLevel=%d $$\n", m_strUserID, iNpcExp, nExpPercent, iLoyalty, nLoyalty, m_sLevel, iPartyLevel);
 
@@ -496,7 +496,7 @@ short CUser::GetDamage(int tid, int magicid)
 				Hit = HitB * (pType1->sHit / 100.0f) ;
 			}		
 */
-			Hit = HitB * (pType1->sHit / 100.0f) ;
+			Hit = (short)(HitB * (pType1->sHit / 100.0f));
 		}
 		else if (pTable->bType1 == 2)   { // ARROW HIT!
 			pType2 = m_pMain->m_Magictype2Array.GetData( magicid );	    // Get magic skill table type 1.
@@ -513,11 +513,11 @@ short CUser::GetDamage(int tid, int magicid)
 			}
 			
 			if(pType2->bHitType == 1 /* || pType2->bHitType == 2 */ )   {
-				Hit = m_sHitDamage * (pType2->sAddDamage / 100.0f);
+				Hit = (short)(m_sHitDamage * (pType2->sAddDamage / 100.0f));
 			}
 			else{				
 //				Hit = (m_sHitDamage - pNpc->m_sDefense) * (pType2->sAddDamage / 100.0f);
-				Hit = HitB * (pType2->sAddDamage / 100.0f);
+				Hit = (short)(HitB * (pType2->sAddDamage / 100.0f));
 			}
 		}
 	}
@@ -994,8 +994,8 @@ BOOL CUser::IsOpIDCheck(char* szName)
 
 void CUser::HealMagic()
 {
-	int region_x = m_curx / VIEW_DIST;
-	int region_z = m_curz / VIEW_DIST;
+	int region_x = (int)(m_curx / VIEW_DIST);
+	int region_z = (int)(m_curz / VIEW_DIST);
 
 	MAP* pMap = GetMap();
 	if (pMap == NULL) return;

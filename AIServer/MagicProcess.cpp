@@ -391,7 +391,7 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 			if(pNpc->m_MagicType3[i].sHPAttackUserID == -1 && pNpc->m_MagicType3[i].byHPDuration == 0)	{
 				pNpc->m_MagicType3[i].sHPAttackUserID = m_pSrcUser->m_iUserId;
 				pNpc->m_MagicType3[i].fStartTime = TimeGet();
-				pNpc->m_MagicType3[i].byHPDuration = pType->sDuration;
+				pNpc->m_MagicType3[i].byHPDuration = (BYTE)pType->sDuration;
 				pNpc->m_MagicType3[i].byHPInterval = 2;
 				pNpc->m_MagicType3[i].sHPAmount = damage / (pType->sDuration / 2);
 				break;
@@ -466,8 +466,8 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 				pNpc->m_MagicType4[pType->bBuffType-1].byAmount = pType->bSpeed;
 				pNpc->m_MagicType4[pType->bBuffType-1].sDurationTime = pType->sDuration;
 				pNpc->m_MagicType4[pType->bBuffType-1].fStartTime = TimeGet();
-				pNpc->m_fSpeed_1 = pNpc->m_fOldSpeed_1 * ((double)pType->bSpeed / 100);
-				pNpc->m_fSpeed_2 = pNpc->m_fOldSpeed_2 * ((double)pType->bSpeed / 100);
+				pNpc->m_fSpeed_1 = (float)(pNpc->m_fOldSpeed_1 * ((double)pType->bSpeed / 100));
+				pNpc->m_fSpeed_2 = (float)(pNpc->m_fOldSpeed_2 * ((double)pType->bSpeed / 100));
 				//TRACE("executeType4 ,, speed1=%.2f, %.2f,, type=%d, cur=%.2f, %.2f\n", pNpc->m_fOldSpeed_1, pNpc->m_fOldSpeed_2, pType->bSpeed, pNpc->m_fSpeed_1, pNpc->m_fSpeed_2);
 //			}
 			break;
@@ -602,7 +602,7 @@ short CMagicProcess::GetMagicDamage(int tid, int total_hit, int attribute, int d
 		
 		damage = (short)(total_hit - (0.7f * total_hit * total_r / 200)) ;
 		random = myrand (0, damage) ;
-		damage = (short)(0.7f * (total_hit - (0.9f * total_hit * total_r / 200))) + 0.2f * random ;
+		damage = (short)((0.7f * (total_hit - (0.9f * total_hit * total_r / 200))) + 0.2f * random);
 //		damage = damage + (3 * righthand_damage);
 		damage = damage + righthand_damage;
 	}
@@ -820,8 +820,8 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 								pNpc->m_MagicType4[pType4->bBuffType-1].byAmount = pType4->bSpeed;
 								pNpc->m_MagicType4[pType4->bBuffType-1].sDurationTime = pType4->sDuration;
 								pNpc->m_MagicType4[pType4->bBuffType-1].fStartTime = TimeGet();
-								pNpc->m_fSpeed_1 = pNpc->m_fOldSpeed_1 * ((double)pType4->bSpeed / 100);
-								pNpc->m_fSpeed_2 = pNpc->m_fOldSpeed_2 * ((double)pType4->bSpeed / 100);
+								pNpc->m_fSpeed_1 = (float)(pNpc->m_fOldSpeed_1 * ((double)pType4->bSpeed / 100));
+								pNpc->m_fSpeed_2 = (float)(pNpc->m_fOldSpeed_2 * ((double)pType4->bSpeed / 100));
 							//}
 							break;
 

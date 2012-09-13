@@ -1064,10 +1064,10 @@ BOOL CServerDlg::CreateNpcThread()
 					pNpc->m_sAttackDelay	= pNpcTable->m_sAttackDelay;// 공격딜레이
 					pNpc->m_sSpeed			= pNpcTable->m_sSpeed;		// 이동속도
 					dbSpeed = pNpcTable->m_sSpeed;	
-					pNpc->m_fSpeed_1		= (float)pNpcTable->m_bySpeed_1 * (dbSpeed / 1000);	// 기본 이동 타입
-					pNpc->m_fSpeed_2		= (float)pNpcTable->m_bySpeed_2 * (dbSpeed / 1000);	// 뛰는 이동 타입..
-					pNpc->m_fOldSpeed_1		= (float)pNpcTable->m_bySpeed_1 * (dbSpeed / 1000);	// 기본 이동 타입
-					pNpc->m_fOldSpeed_2		= (float)pNpcTable->m_bySpeed_2 * (dbSpeed / 1000);	// 뛰는 이동 타입..
+					pNpc->m_fSpeed_1		= (float)(pNpcTable->m_bySpeed_1 * (dbSpeed / 1000));	// 기본 이동 타입
+					pNpc->m_fSpeed_2		= (float)(pNpcTable->m_bySpeed_2 * (dbSpeed / 1000));	// 뛰는 이동 타입..
+					pNpc->m_fOldSpeed_1		= (float)(pNpcTable->m_bySpeed_1 * (dbSpeed / 1000));	// 기본 이동 타입
+					pNpc->m_fOldSpeed_2		= (float)(pNpcTable->m_bySpeed_2 * (dbSpeed / 1000));	// 뛰는 이동 타입..
 					pNpc->m_fSecForMetor    = 4.0f;						// 초당 갈 수 있는 거리..
 					pNpc->m_sStandTime		= pNpcTable->m_sStandTime;	// 서있는 시간
 					pNpc->m_iMagic1			= pNpcTable->m_iMagic1;		// 사용마법 1
@@ -1301,18 +1301,14 @@ BOOL CServerDlg::CreateNpcThread()
 //	NPC Thread 들을 작동시킨다.
 void CServerDlg::ResumeAI()
 {
-	int i, j;
-
-	for(i = 0; i < m_arNpcThread.size(); i++)
+	for (NpcThreadArray::iterator itr = m_arNpcThread.begin(); itr != m_arNpcThread.end(); itr++)
 	{
-		for(j = 0; j < NPC_NUM; j++)
-		{
-			m_arNpcThread[i]->m_ThreadInfo.pNpc[j] = m_arNpcThread[i]->m_pNpc[j];
-		}
+		for (int j = 0; j < NPC_NUM; j++)
+			(*itr)->m_ThreadInfo.pNpc[j] = (*itr)->m_pNpc[j];
 
-		m_arNpcThread[i]->m_ThreadInfo.pIOCP = &m_Iocport;
+		(*itr)->m_ThreadInfo.pIOCP = &m_Iocport;
 
-		::ResumeThread(m_arNpcThread[i]->m_pThread->m_hThread);
+		ResumeThread((*itr)->m_pThread->m_hThread);
 	}
 
 
@@ -1328,7 +1324,7 @@ void CServerDlg::ResumeAI()
 	::ResumeThread(m_arEventNpcThread[0]->m_pThread->m_hThread);	
 	*/
 
-	::ResumeThread(m_pZoneEventThread->m_hThread);
+	ResumeThread(m_pZoneEventThread->m_hThread);
 }
 
 //	메모리 정리
@@ -1342,13 +1338,9 @@ BOOL CServerDlg::DestroyWindow()
 
 	if(m_UserLogFile.m_hFile != CFile::hFileNull) m_UserLogFile.Close();
 	if(m_ItemLogFile.m_hFile != CFile::hFileNull) m_ItemLogFile.Close();
-	
-	int i=0;
 
-	for(i = 0; i < m_arNpcThread.size(); i++)
-	{
-		WaitForSingleObject(m_arNpcThread[i]->m_pThread->m_hThread, INFINITE);
-	}
+	for (NpcThreadArray::iterator itr = m_arNpcThread.begin(); itr != m_arNpcThread.end(); itr++)
+		WaitForSingleObject((*itr)->m_pThread->m_hThread, INFINITE);
 
 	// Event Npc Logic
 /*	for(i = 0; i < m_arEventNpcThread.size(); i++)
@@ -1373,8 +1365,8 @@ BOOL CServerDlg::DestroyWindow()
 		m_arNpcTable.DeleteAllData();
 	
 	// NpcThread Array Delete
-	for(i = 0; i < m_arNpcThread.size(); i++)
-		delete m_arNpcThread[i];
+	for (NpcThreadArray::iterator itr = m_arNpcThread.begin(); itr != m_arNpcThread.end(); itr++)
+		delete *itr;
 	m_arNpcThread.clear();
 
 	// Event Npc Logic
@@ -1426,7 +1418,7 @@ BOOL CServerDlg::DestroyWindow()
 		m_arNpc.DeleteAllData();
 
 	// User Array Delete
-	for(i = 0; i < MAX_USER; i++)	{
+	for(int i = 0; i < MAX_USER; i++)	{
 		if(m_pUser[i])	{
 			delete m_pUser[i];
 			m_pUser[i] = NULL;
@@ -2427,15 +2419,15 @@ BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number)
 
 	pNpc->m_bCurZone = zone_number;
 
-	pNpc->m_byGateOpen = pEvent->sStatus;
+	pNpc->m_byGateOpen = (BYTE)pEvent->sStatus;
 	pNpc->m_fCurX	= pEvent->fPosX;
 	pNpc->m_fCurY	= pEvent->fPosY;
 	pNpc->m_fCurZ	= pEvent->fPosZ;
 	
- 	pNpc->m_nInitMinX			= pEvent->fPosX-1;
-	pNpc->m_nInitMinY			= pEvent->fPosZ-1;
-	pNpc->m_nInitMaxX			= pEvent->fPosX+1;
-	pNpc->m_nInitMaxY			= pEvent->fPosZ+1;	
+ 	pNpc->m_nInitMinX			= (int)pEvent->fPosX-1;
+	pNpc->m_nInitMinY			= (int)pEvent->fPosZ-1;
+	pNpc->m_nInitMaxX			= (int)pEvent->fPosX+1;
+	pNpc->m_nInitMaxY			= (int)pEvent->fPosZ+1;	
 
 	pNpc->m_sRegenTime		= 10000 * 1000;	// 초(DB)단위-> 밀리세컨드로
 	//pNpc->m_sRegenTime		= 30 * 1000;	// 초(DB)단위-> 밀리세컨드로

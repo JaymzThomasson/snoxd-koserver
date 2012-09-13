@@ -269,7 +269,7 @@ void CGameSocket::RecvUserInfo(char* pBuf)
 	pUser->m_curZone = bZone;
 	pUser->m_pMap = m_pMain->GetZoneByID(bZone);
 	pUser->m_bNation = bNation;
-	pUser->m_sLevel = bLevel;
+	pUser->m_bLevel = bLevel;
 	pUser->m_sHP = sHp;
 	pUser->m_sMP = sMp;
 	//pUser->m_sSP = sSp;
@@ -297,7 +297,7 @@ void CGameSocket::RecvUserInfo(char* pBuf)
 	pUserLog = new _USERLOG;
 	pUserLog->t = CTime::GetCurrentTime();
 	pUserLog->byFlag = USER_LOGIN;
-	pUserLog->byLevel = pUser->m_sLevel;
+	pUserLog->byLevel = pUser->m_bLevel;
 	strcpy( pUserLog->strUserID, pUser->m_strUserID );
 	pUser->m_UserLogList.push_back( pUserLog );
 }
@@ -613,7 +613,7 @@ void CGameSocket::RecvUserLogOut(char* pBuf)
 	pUserLog = new _USERLOG;
 	pUserLog->t = CTime::GetCurrentTime();
 	pUserLog->byFlag = USER_LOGOUT;
-	pUserLog->byLevel = pUser->m_sLevel;
+	pUserLog->byLevel = pUser->m_bLevel;
 	strcpy( pUserLog->strUserID, pUser->m_strUserID );
 	pUser->m_UserLogList.push_back( pUserLog );
 
@@ -704,7 +704,7 @@ void CGameSocket::RecvUserUpdate(char* pBuf)
 	CUser* pUser = m_pMain->GetUserPtr(uid);
 	if(pUser == NULL)	return;
 
-	if(pUser->m_sLevel < byLevel)		// level up
+	if(pUser->m_bLevel < byLevel)		// level up
 	{
 		pUser->m_sHP = sHP;
 		pUser->m_sMP = sMP;
@@ -717,7 +717,7 @@ void CGameSocket::RecvUserUpdate(char* pBuf)
 		strcpy( pUserLog->strUserID, pUser->m_strUserID );
 		pUser->m_UserLogList.push_back( pUserLog );
 	}
-	pUser->m_sLevel = byLevel;
+	pUser->m_bLevel = byLevel;
 	pUser->m_sHitDamage = sDamage;
 	pUser->m_fHitrate = fHitAgi;
 	pUser->m_fAvoidrate = fAvoidAgi;
@@ -731,7 +731,7 @@ void CGameSocket::RecvUserUpdate(char* pBuf)
 	pUser->m_sMagicAmountRightHand = sAmountRight;
 //
 	char buff[256];	memset(buff, 0x00, 256);
-	wsprintf(buff, "**** RecvUserUpdate -- uid = (%s,%d), HP = %d, level=%d->%d", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP, byLevel, pUser->m_sLevel);
+	wsprintf(buff, "**** RecvUserUpdate -- uid = (%s,%d), HP = %d, level=%d->%d", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP, byLevel, pUser->m_bLevel);
 	//TimeTrace(buff);
 	//TRACE("**** RecvUserUpdate -- uid = (%s,%d), HP = %d\n", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP);
 }
@@ -858,7 +858,7 @@ void CGameSocket::RecvUserInfoAllData(char* pBuf)
 		pUser->m_curZone = bZone;
 		pUser->m_pMap = m_pMain->GetZoneByID(bZone);
 		pUser->m_bNation = bNation;
-		pUser->m_sLevel = bLevel;
+		pUser->m_bLevel = bLevel;
 		pUser->m_sHP = sHp;
 		pUser->m_sMP = sMp;
 		//pUser->m_sSP = sSp;

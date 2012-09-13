@@ -44,7 +44,7 @@ public:
 	MAP *			m_pMap;
 
 	BYTE	m_bNation;						// 소속국가
-	short	m_sLevel;						// 레벨
+	BYTE	m_bLevel;						// 레벨
 
 	short	m_sHP;							// HP
 	short	m_sMP;							// MP

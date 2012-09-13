@@ -476,7 +476,7 @@ void CNpc::NpcTracing(CIOCPort* pIOCP)
 		Setfloat(pBuf, m_fPrevX, index);
 		Setfloat(pBuf, m_fPrevZ, index);
 		Setfloat(pBuf, m_fPrevY, index);
-		fMoveSpeed = m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000);
+		fMoveSpeed = (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
 		Setfloat(pBuf, fMoveSpeed, index);
 		//Setfloat(pBuf, m_fSecForRealMoveMetor, index);
 		//TRACE("Npc Tracing --> nid = %d, cur=[x=%.2f, z=%.2f], prev=[x=%.2f, z=%.2f, metor = %.2f], frame=%d, speed = %d \n", m_sNid, m_fCurX, m_fCurZ, m_fPrevX, m_fPrevZ, m_fSecForRealMoveMetor, m_sStepCount, m_sSpeed);
@@ -608,8 +608,8 @@ void CNpc::NpcMoving(CIOCPort* pIOCP)
 			TRACE("Npc-NpcMoving-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_strName, m_fCurX, m_fCurZ);
 		}
 
-		int rx=m_fCurX / VIEW_DIST;
-		int rz=m_fCurZ / VIEW_DIST;
+		int rx = (int)(m_fCurX / VIEW_DIST);
+		int rz = (int)(m_fCurZ / VIEW_DIST);
 		//TRACE("** NpcMoving --> IsMovingEnd() 이동이 끝남,, rx=%d, rz=%d, stand로\n", rx, rz);
 		m_NpcState = NPC_STANDING;
 		m_Delay = m_sStandTime;
@@ -659,7 +659,7 @@ void CNpc::NpcMoving(CIOCPort* pIOCP)
 		Setfloat(pBuf, m_fPrevX, index);
 		Setfloat(pBuf, m_fPrevZ, index);
 		Setfloat(pBuf, m_fPrevY, index);
-		fMoveSpeed = m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000);
+		fMoveSpeed = (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
 		Setfloat(pBuf, fMoveSpeed, index);
 		//Setfloat(pBuf, m_fSecForRealMoveMetor, index);
 		//TRACE("Npc Move --> nid = %d, cur=[x=%.2f, z=%.2f], prev=[x=%.2f, z=%.2f, metor = %.2f], frame=%d, speed = %d \n", m_sNid+NPC_BAND, m_fCurX, m_fCurZ, m_fPrevX, m_fPrevZ, m_fSecForRealMoveMetor, m_sStepCount, m_sSpeed);
@@ -842,7 +842,7 @@ void CNpc::NpcBack(CIOCPort* pIOCP)
 	Setfloat(pBuf, m_fPrevX, index);
 	Setfloat(pBuf, m_fPrevZ, index);
 	Setfloat(pBuf, m_fPrevY, index);
-	fMoveSpeed = m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000);
+	fMoveSpeed = (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
 	Setfloat(pBuf, fMoveSpeed, index);
 	//Setfloat(pBuf, m_fSecForRealMoveMetor, index);
 
@@ -1197,7 +1197,7 @@ BOOL CNpc::RandomMove()
 		return FALSE;
 	}
 
-	int mapWidth = ( max_xx - 1) * GetMap()->m_fUnitDist;
+	int mapWidth = (int)((max_xx - 1) * GetMap()->m_fUnitDist);
 
 	if(m_fCurX > mapWidth || m_fCurZ > mapWidth || fDestX > mapWidth || fDestZ > mapWidth)	{
 		TRACE("##### RandomMove Fail : value is overflow .. [nid = %d, name=%s], cur_x=%.2f, z=%.2f, dest_x=%.2f, dest_z=%.2f#####\n", m_sNid+NPC_BAND, m_strName, m_fCurX, m_fCurZ, fDestX, fDestZ);
@@ -1950,7 +1950,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 							}
 						}
 						else	{	// 선공몹...
-							iLevelComprison = pUser->m_sLevel - m_sLevel;
+							iLevelComprison = pUser->m_bLevel - m_sLevel;
 							// 작업할 것 : 타입에 따른 공격성향으로..
 							//if(iLevelComprison > ATTACK_LIMIT_LEVEL)	continue;
 
@@ -2490,7 +2490,7 @@ int CNpc::GetTargetPath(int option)
 		//TRACE("Npc-GetTargetPath() : [nid=%d] t_Name=%s, AttackPos=%d\n", m_sNid, pUser->m_strUserID, m_byAttackPos);
 
 		if(m_byAttackPos > 0 && m_byAttackPos < 9)	{
-			fDegree = (m_byAttackPos-1)*45;
+			fDegree = (float)((m_byAttackPos-1)*45);
 			fTargetDistance = 2.0f+m_fBulk;
 			vEnd22 = ComputeDestPos(vUser, 0.0f, fDegree, fTargetDistance);
 			fSurX = vEnd22.x - vUser.x;			fSurZ = vEnd22.z - vUser.z;
@@ -2498,7 +2498,7 @@ int CNpc::GetTargetPath(int option)
 			m_fEndPoint_X = vUser.x + fSurX;	m_fEndPoint_Y = vUser.z + fSurZ;
 		}
 		else	{
-			vEnd22 = CalcAdaptivePosition(vNpc, vUser, 2.0+m_fBulk);
+			vEnd22 = CalcAdaptivePosition(vNpc, vUser, 2.0f+m_fBulk);
 			m_fEndPoint_X = vEnd22.x;	m_fEndPoint_Y = vEnd22.z;
 		}
 	}
@@ -3290,7 +3290,7 @@ int CNpc::GetFinalDamage(CUser *pUser, int type)
 
 //	Ac = (short)pUser->m_sItemAC + (short)pUser->m_sLevel ;	// 방어자 Ac 
 //	Ac = (short)pUser->m_sAC - (short)pUser->m_sLevel ;	// 방어자 Ac. 잉...성래씨 미워 ㅜ.ㅜ
-	Ac = (short)pUser->m_sItemAC + (short)pUser->m_sLevel + (short)(pUser->m_sAC - pUser->m_sLevel - pUser->m_sItemAC);
+	Ac = (short)pUser->m_sItemAC + (short)pUser->m_bLevel + (short)(pUser->m_sAC - pUser->m_bLevel - pUser->m_sItemAC);
 
 //	ASSERT(Ac != 0);
 //	short kk = (short)pUser->m_sItemAC;
@@ -3733,7 +3733,7 @@ go_result:
 	{
 		if(nAttackType == 3 && m_NpcState != NPC_FAINTING)	{			// 기절 시키는 스킬을 사용했다면..
 			// 확률 계산..
-			iLightningR = 10 + (40 - 40 * ( (double)m_byLightningR / 80) );
+			iLightningR = (int)(10 + (40 - 40 * ( (double)m_byLightningR / 80)));
 			if( COMPARE(iRandom, 0, iLightningR) )	{
 				m_NpcState = NPC_FAINTING;
 				m_Delay = 0;
@@ -3872,7 +3872,7 @@ void CNpc::SendExpToUserList()
 							pPartyUser = m_pMain->GetUserPtr(uid);
 							if(pPartyUser)	{
 								nTotalMan++;
-								nTotalLevel += pPartyUser->m_sLevel;
+								nTotalLevel += pPartyUser->m_bLevel;
 							}
 						}
 
@@ -3887,14 +3887,14 @@ void CNpc::SendExpToUserList()
 								// monster와 거리를 판단
 								if( IsInExpRange(pPartyUser) == TRUE)
 								{
-									TempValue = ( nPartyExp * ( 1+0.3*( nTotalMan-1 ) ) ) * (double)pPartyUser->m_sLevel / (double)nTotalLevel;
+									TempValue = ( nPartyExp * ( 1+0.3*( nTotalMan-1 ) ) ) * (double)pPartyUser->m_bLevel / (double)nTotalLevel;
 									//TempValue = ( nPartyExp * ( 1+0.3*( nTotalMan-1 ) ) );
 									nExp = (int)TempValue;
 									if(TempValue > nExp)	nExp = nExp + 1;
 									if(nPartyLoyalty <= 0)
 										nLoyalty = 0;
 									else	{
-										TempValue = ( nPartyLoyalty * ( 1+0.2*( nTotalMan-1 ) ) ) * (double)pPartyUser->m_sLevel / (double)nTotalLevel;
+										TempValue = ( nPartyLoyalty * ( 1+0.2*( nTotalMan-1 ) ) ) * (double)pPartyUser->m_bLevel / (double)nTotalLevel;
 										nLoyalty = (int)TempValue;
 										if(TempValue > nLoyalty)	nLoyalty = nLoyalty + 1;
 									}
@@ -3919,7 +3919,7 @@ void CNpc::SendExpToUserList()
 						pPartyUser = m_pMain->GetUserPtr(uid);
 						if(pPartyUser)	{
 							nTotalMan++;
-							nTotalLevel += pPartyUser->m_sLevel;
+							nTotalLevel += pPartyUser->m_bLevel;
 						}
 					}
 
@@ -3934,14 +3934,14 @@ void CNpc::SendExpToUserList()
 							// monster와 거리를 판단
 							if( IsInExpRange(pPartyUser) == TRUE)
 							{
-								TempValue = ( nPartyExp * ( 1+0.3*( nTotalMan-1 ) ) ) * (double)pPartyUser->m_sLevel / (double)nTotalLevel;
+								TempValue = ( nPartyExp * ( 1+0.3*( nTotalMan-1 ) ) ) * (double)pPartyUser->m_bLevel / (double)nTotalLevel;
 								//TempValue = ( nPartyExp * ( 1+0.3*( nTotalMan-1 ) ) );
 								nExp = (int)TempValue;
 								if(TempValue > nExp)	nExp = nExp + 1;
 								if(nPartyLoyalty <= 0)
 									nLoyalty = 0;
 								else	{
-									TempValue = ( nPartyLoyalty * ( 1+0.2*( nTotalMan-1 ) ) ) * (double)pPartyUser->m_sLevel / (double)nTotalLevel;
+									TempValue = ( nPartyLoyalty * ( 1+0.2*( nTotalMan-1 ) ) ) * (double)pPartyUser->m_bLevel / (double)nTotalLevel;
 									nLoyalty = (int)TempValue;
 									if(TempValue > nLoyalty)	nLoyalty = nLoyalty + 1;
 								}
@@ -4235,9 +4235,9 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 				else if(type == 2)	{
 					if(pHealer == NULL) continue;
 					// HP상태를 체크
-					iHP = pNpc->m_iMaxHP * 0.9;
+					iHP = (int)(pNpc->m_iMaxHP * 0.9);
 					if(pNpc->m_iHP <= iHP)	{		// HP 체크
-						iCompValue = (pNpc->m_iMaxHP - pNpc->m_iHP) / (pNpc->m_iMaxHP * 0.01);
+						iCompValue = (int)((pNpc->m_iMaxHP - pNpc->m_iHP) / (pNpc->m_iMaxHP * 0.01));
 						if(iValue < iCompValue)		{
 							iValue = iCompValue;
 							pHealer->sNID = pNpc->m_sNid+NPC_BAND;
@@ -4520,8 +4520,8 @@ void CNpc::NpcMoveEnd(CIOCPort* pIOCP)
 	Setfloat(pBuf, m_fCurY, index);
 	Setfloat(pBuf, 0, index);
 
-	int rx=m_fCurX / VIEW_DIST;
-	int rz=m_fCurZ / VIEW_DIST;
+	int rx = (int)(m_fCurX / VIEW_DIST);
+	int rz = (int)(m_fCurZ / VIEW_DIST);
 	//TRACE("NpcMoveEnd() --> nid = %d, x=%f, y=%f, rx=%d,rz=%d, frame=%d, speed = %d \n", m_sNid, m_fCurX, m_fCurZ, rx,rz, m_iAniFrameCount, m_sSpeed);
 	SendAll(pIOCP, pBuf, index);   // thread 에서 send
 }
@@ -4630,7 +4630,7 @@ void CNpc::SendAttackSuccess(CIOCPort* pIOCP, BYTE byResult, int tuid, short sDa
 		SetShort( buff, tid, send_index );
 		SetShort( buff, sDamage, send_index );
 		SetDWORD( buff, nHP, send_index );	
-		SetByte( buff, sAttack_type, send_index );
+		SetByte( buff, (BYTE)sAttack_type, send_index );
 	}
 	else	{
 		type = 0x01;
@@ -4644,7 +4644,7 @@ void CNpc::SendAttackSuccess(CIOCPort* pIOCP, BYTE byResult, int tuid, short sDa
 		SetShort( buff, tid, send_index );
 		SetShort( buff, sDamage, send_index );
 		SetDWORD( buff, nHP, send_index );	
-		SetByte( buff, sAttack_type, send_index );
+		SetByte( buff, (BYTE)sAttack_type, send_index );
 	}
 
 	//TRACE("Npc - SendAttackSuccess() : [sid=%d, tid=%d, result=%d], damage=%d, hp = %d\n", sid, tid, byResult, sDamage, sHP);
@@ -6069,7 +6069,7 @@ void CNpc::NpcHealing(CIOCPort* pIOCP)
 		}
 
 		// 치료 체크여부 
-		iHP = pNpc->m_iMaxHP * 0.9;		// 90퍼센트의 HP
+		iHP = (int)(pNpc->m_iMaxHP * 0.9);		// 90퍼센트의 HP
 		if( pNpc->m_iHP >= iHP)	{		// Heal 완료상태..
 			InitTarget();
 		}
@@ -6176,16 +6176,16 @@ void CNpc::ChangeAbility(int iChangeType)	// iChangeType - 0:능력치 다운, 1:능력
 
 	// 정보수정......
 	if( iChangeType == BATTLEZONE_OPEN )	{		// 능력치 다운
-		nHP = pNpcTable->m_iMaxHP * 0.5;
-		nAC = pNpcTable->m_sDefense * 0.2;
-		nDamage = pNpcTable->m_sDamage * 0.3;
-		nLightR = pNpcTable->m_byLightR*0.5;
-		nMagicR = pNpcTable->m_byMagicR*0.5;
-		nDiseaseR = pNpcTable->m_byDiseaseR*0.5;
-		nPoisonR = pNpcTable->m_byPoisonR*0.5;
-		nLightningR = pNpcTable->m_byLightningR*0.5;
-		nFireR = pNpcTable->m_byFireR*0.5;
-		nColdR = pNpcTable->m_byColdR*0.5;
+		nHP = (int)(pNpcTable->m_iMaxHP / 2);
+		nAC = (int)(pNpcTable->m_sDefense * 0.2);
+		nDamage = (int)(pNpcTable->m_sDamage * 0.3);
+		nLightR = (int)(pNpcTable->m_byLightR / 2);
+		nMagicR = (int)(pNpcTable->m_byMagicR / 2);
+		nDiseaseR = (int)(pNpcTable->m_byDiseaseR / 2);
+		nPoisonR = (int)(pNpcTable->m_byPoisonR / 2);
+		nLightningR = (int)(pNpcTable->m_byLightningR / 2);
+		nFireR = (int)(pNpcTable->m_byFireR / 2);
+		nColdR = (int)(pNpcTable->m_byColdR / 2);
 		m_iMaxHP = nHP;
 		if( m_iHP > nHP )	{	// HP도 바꿔야 겠군,,
 			HpChange( &m_pMain->m_Iocport );
@@ -6255,7 +6255,7 @@ BOOL CNpc::Teleport(CIOCPort* pIOCP)
 	Setfloat(buff, m_fCurY, send_index);
 	SendAll(pIOCP, buff, send_index);   // thread 에서 send
 
-	m_fCurX = nX;	m_fCurZ = nZ;
+	m_fCurX = (float)nX;	m_fCurZ = (float)nZ;
 
 	memset( buff, 0x00, 256 );	send_index = 0;
 	SetByte( buff, AG_NPC_INOUT, send_index );
