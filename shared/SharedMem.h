@@ -9,7 +9,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "define.h"
+#include "globals.h"
 
 struct _SMQ_HEADER
 {
@@ -20,8 +20,8 @@ struct _SMQ_HEADER
 	BYTE FrontMode;
 	BYTE RearMode;
 
-	int  WritePid;
-	int	 ReadPid;
+	DWORD WritePid;
+	DWORD ReadPid;
 	
 	DWORD CreatePid;
 };

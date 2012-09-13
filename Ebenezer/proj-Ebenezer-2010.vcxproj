@@ -61,7 +61,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_3DSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;EBENEZER;_DEBUG;_WINDOWS;_3DSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeaderOutputFile>.\Debug/Ebenezer.pch</PrecompiledHeaderOutputFile>
@@ -110,7 +110,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_3DSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;EBENEZER;NDEBUG;_WINDOWS;_3DSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -149,6 +149,7 @@
     <ClCompile Include="..\shared\crc32.cpp" />
     <ClCompile Include="..\shared\Ini.cpp" />
     <ClCompile Include="..\shared\lzf.cpp" />
+    <ClCompile Include="..\shared\SharedMem.cpp" />
     <ClCompile Include="AISocket.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -296,10 +297,6 @@
     </ClCompile>
     <ClCompile Include="RentalHandler.cpp" />
     <ClCompile Include="ServerResourceSet.cpp" />
-    <ClCompile Include="SharedMem.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
     <ClCompile Include="ShoppingMallHandler.cpp" />
     <ClCompile Include="StartPositionSet.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -332,6 +329,7 @@
     <ClInclude Include="..\shared\Ini.h" />
     <ClInclude Include="..\shared\lzf.h" />
     <ClInclude Include="..\shared\packets.h" />
+    <ClInclude Include="..\shared\SharedMem.h" />
     <ClInclude Include="..\shared\version.h" />
     <ClInclude Include="AIPacket.h" />
     <ClInclude Include="AISocket.h" />
@@ -371,7 +369,6 @@
     <ClInclude Include="Npc.h" />
     <ClInclude Include="Region.h" />
     <ClInclude Include="ServerResourceSet.h" />
-    <ClInclude Include="SharedMem.h" />
     <ClInclude Include="StartPositionSet.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="STLMap.h" />

@@ -329,6 +329,36 @@ inline void	TimeTrace(TCHAR* pMsg)
 	Yes, this is ugly and crude.
 	I want to wrap all the existing log code into this, and slowly get rid of it... bit by bit.
 */
+
+CString GetProgPath();
+inline void LogFileWrite( LPCTSTR logstr )
+{
+	CString ProgPath, LogFileName;
+	CFile file;
+	int loglength;
+
+	ProgPath = GetProgPath();
+	loglength = strlen( logstr );
+
+#if defined(EBENEZER)
+	LogFileName.Format("%s\\Ebenezer.log", ProgPath);
+#elif defined(AI_SERVER)
+	LogFileName.Format("%s\\AIServer.log", ProgPath);
+#elif defined(AUJARD)
+	LogFileName.Format("%s\\Aujard.log", ProgPath);
+#elif defined(LOGIN_SERVER)
+	LogFileName.Format("%s\\Aujard.log", ProgPath);
+#endif
+
+	if (file.Open( LogFileName, CFile::modeCreate|CFile::modeNoTruncate|CFile::modeWrite ))
+	{
+		file.SeekToEnd();
+		file.Write(logstr, loglength);
+		file.Write("\r\n", 2);
+		file.Close();
+	}
+};
+
 #define DEBUG_LOG(...) _DEBUG_LOG(false, __VA_ARGS__)
 #define DEBUG_LOG_FILE(...) _DEBUG_LOG(true, __VA_ARGS__)
 inline void _DEBUG_LOG(bool toFile, char * format, ...)
@@ -347,4 +377,31 @@ inline void _DEBUG_LOG(bool toFile, char * format, ...)
 		LogFileWrite(buffer);
 };
 
+#ifdef SQL_NO_DATA
+inline int DisplayErrorMsg(SQLHANDLE hstmt, char *sql)
+{
+	SQLCHAR       SqlState[6], Msg[1024];
+	SQLINTEGER    NativeError;
+	SQLSMALLINT   i, MsgLen;
+	SQLRETURN     rc2;
+	char		  logstr[512];
+	memset( logstr, NULL, 512 );
+
+	i = 1;
+	while ((rc2 = SQLGetDiagRec(SQL_HANDLE_STMT, hstmt, i, SqlState, &NativeError, Msg, sizeof(Msg), &MsgLen)) != SQL_NO_DATA)
+	{
+		sprintf_s( logstr, sizeof(logstr), "*** %s, %d, %s, %d ***", SqlState,NativeError,Msg,MsgLen );
+		LogFileWrite( logstr );
+
+		LogFileWrite(sql);
+
+		i++;
+	}
+
+	if( strcmp((char *)SqlState, "08S01") == 0 )
+		return -1;
+	else
+		return 0;
+};
+#endif
 #endif

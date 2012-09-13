@@ -312,27 +312,6 @@ inline float TimeGet()
 	return (float)timeGetTime();
 };
 
-CString GetProgPath();
-inline void LogFileWrite( LPCTSTR logstr )
-{
-	CString ProgPath, LogFileName;
-	CFile file;
-	int loglength;
-
-	ProgPath = GetProgPath();
-	loglength = strlen( logstr );
-
-	LogFileName.Format("%s\\Ebenezer.log", ProgPath);
-	
-	if (file.Open( LogFileName, CFile::modeCreate|CFile::modeNoTruncate|CFile::modeWrite ))
-	{
-		file.SeekToEnd();
-		file.Write(logstr, loglength);
-		file.Write("\r\n", 2);
-		file.Close();
-	}
-};
-
 inline void DisplayErrorMsg(SQLHANDLE hstmt)
 {
 	SQLCHAR       SqlState[6], Msg[1024];

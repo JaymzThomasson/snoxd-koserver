@@ -155,11 +155,15 @@ BOOL CAujardDlg::OnInitDialog()
 
 	InitializeCriticalSection( &g_LogFileWrite );
 	
-	m_LoggerRecvQueue.InitailizeMMF( MAX_PKTSIZE, MAX_COUNT, SMQ_LOGGERSEND, FALSE );	// Dispatcher ÀÇ Send Queue
-	m_LoggerSendQueue.InitailizeMMF( MAX_PKTSIZE, MAX_COUNT, SMQ_LOGGERRECV, FALSE );	// Dispatcher ÀÇ Read Queue
+	if (!m_LoggerRecvQueue.InitailizeMMF( MAX_PKTSIZE, MAX_COUNT, SMQ_LOGGERSEND, FALSE)
+		|| !m_LoggerSendQueue.InitailizeMMF( MAX_PKTSIZE, MAX_COUNT, SMQ_LOGGERRECV, FALSE ))
+	{
+		AfxMessageBox("Unable to initialize shared memory queue.");
+		return FALSE;
+	}
 
 	if( !InitializeMMF() ) {
-		AfxMessageBox("Main Shared Memory Initialize Fail");
+		AfxMessageBox("Unable to initialize primary shared memory.");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}

@@ -16,7 +16,7 @@
 #include "GameDefine.h"
 #include "AISocket.h"
 #include "Npc.h"
-#include "SharedMem.h"
+#include "../shared/SharedMem.h"
 #include "../shared/ini.h"
 #include "Knights.h"
 #include "KnightsManager.h"

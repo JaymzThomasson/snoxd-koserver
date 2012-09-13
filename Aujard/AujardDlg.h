@@ -8,7 +8,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "SharedMem.h"
+#include "../shared/SharedMem.h"
 #include "DBAgent.h"
 #include "define.h"
 #include "STLMap.h"
