@@ -16,7 +16,6 @@
 #include "NpcItemSet.h"
 #include "NpcTableSet.h"
 #include "MonTableSet.h"
-#include "RNpcPosSet.h"
 #include "MakeWeaponTableSet.h"
 #include "MakeDefensiveTableSet.h"
 #include "MakeGradeItemTableSet.h"
