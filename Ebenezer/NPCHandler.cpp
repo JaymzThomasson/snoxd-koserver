@@ -31,7 +31,7 @@ void CUser::ItemRepair(char *pBuf)
 	else if( pos == 2 ) 
 		quantity = pTable->m_sDuration - m_pUserData->m_sItemArray[SLOT_MAX+slot].sDuration;
 	
-	money = (unsigned int)((((pTable->m_iBuyPrice-10) / 10000.0f) + pow(pTable->m_iBuyPrice, 0.75f)) * quantity / (double)durability);
+	money = (unsigned int)((((pTable->m_iBuyPrice-10) / 10000.0f) + pow((float)pTable->m_iBuyPrice, 0.75f)) * quantity / (double)durability);
 	if( money > m_pUserData->m_iGold ) goto fail_return;
 
 	m_pUserData->m_iGold -= money;

@@ -926,7 +926,7 @@ BYTE CMagicProcess::ExecuteType2(int magicid, int sid, int tid, int data1, int d
 	sx = (int)m_pSrcUser->m_pUserData->m_curx; tx = (int)pTUser->m_pUserData->m_curx;
 	sz = (int)m_pSrcUser->m_pUserData->m_curz; tz = (int)pTUser->m_pUserData->m_curz;
 	
-	if ((pow((sx - tx), 2.0f) + pow((sz - tz), 2.0f)) > total_range) {	   // Target is out of range, exit.
+	if ((pow((float)(sx - tx), 2.0f) + pow((float)(sz - tz), 2.0f)) > total_range) {	   // Target is out of range, exit.
 		result = 0;
 		goto packet_send;
 	}
@@ -2350,7 +2350,7 @@ final_test :
 					float temp_x = pTUser->m_pUserData->m_curx - mousex;
 					float temp_z = pTUser->m_pUserData->m_curz - mousez;
 					float distance = pow(temp_x, 2.0f) + pow(temp_z, 2.0f);
-					if ( distance > pow(radius, 2.0f) ) return FALSE ;
+					if ( distance > pow((float)radius, 2.0f) ) return FALSE ;
 				}		
 				return TRUE;	// Target is in the area.
 			}
@@ -2363,7 +2363,7 @@ final_test :
 					float temp_x = pTUser->m_pUserData->m_curx - pMon->m_fCurX;
 					float temp_z = pTUser->m_pUserData->m_curz - pMon->m_fCurZ;
 					float distance = pow(temp_x, 2.0f) + pow(temp_z, 2.0f);	
-					if ( distance > pow(radius, 2.0f) ) return FALSE ;
+					if ( distance > pow((float)radius, 2.0f) ) return FALSE ;
 				}		
 				return TRUE;	// Target is in the area.
 			}
