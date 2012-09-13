@@ -2,6 +2,7 @@
 #define AFX_STDAFX_H__N3BASE__INCLUDED_
 
 // TODO: reference additional headers your program requires here
+#define _WIN32_WINNT _WIN32_WINNT_MAXVER
 #include "AfxVer_.h"
 
 #include "My_3DStruct.h"

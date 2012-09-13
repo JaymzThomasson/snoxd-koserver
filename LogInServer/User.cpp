@@ -67,9 +67,9 @@ void CUser::Parsing(int len, char *pData)
 #endif
 
 		SetByte( buff, m_pMain->m_nServerCount, send_index );
-		for (int i = 0; i < m_pMain->m_ServerList.size(); i++) 
+		for (ServerInfoList::iterator itr = m_pMain->m_ServerList.begin(); itr != m_pMain->m_ServerList.end(); itr++) 
 		{		
-			_SERVER_INFO *pServer = m_pMain->m_ServerList[i];
+			_SERVER_INFO *pServer = *itr;
 
 			SetKOString(buff, pServer->strServerIP, send_index);
 #if __VERSION >= 1890
