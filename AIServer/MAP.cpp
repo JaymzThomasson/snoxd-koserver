@@ -456,7 +456,7 @@ BOOL MAP::LoadRoomEvent( int zone_number )
 	int			event_num = 0, nation = 0;
 
 	CRoomEvent*	pEvent = NULL;
-	filename.Format( ".\\MAP\\%d.evt", zone_number);
+	filename.Format( ".\\MAP\\%d.aievt", zone_number);
 
 	if( !pFile.Open( filename, CFile::modeRead) ) return FALSE;
 
