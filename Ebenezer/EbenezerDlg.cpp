@@ -493,7 +493,7 @@ BOOL CEbenezerDlg::ConnectToDatabase(bool reconnect /*= false*/)
 	try
 	{
 		m_GameDB.SetLoginTimeout(10);
-		m_GameDB.OpenEx((LPCTSTR )strConnect, CDatabase::noOdbcDialog);
+		m_GameDB.Open(_T(""), FALSE, FALSE, (LPCTSTR )strConnect, FALSE);
 	}
 	catch (CDBException* e)
 	{
@@ -549,87 +549,33 @@ HCURSOR CEbenezerDlg::OnQueryDragIcon()
 
 BOOL CEbenezerDlg::DestroyWindow() 
 {
-	KillTimer( GAME_TIME );
-	KillTimer( SEND_TIME );
-	KillTimer( ALIVE_TIME );
-	KillTimer( MARKET_BBS_TIME );
+	KillTimer(GAME_TIME);
+	KillTimer(SEND_TIME);
+	KillTimer(ALIVE_TIME);
+	KillTimer(MARKET_BBS_TIME);
 
 	KickOutAllUsers();
 
-	if( m_hReadQueueThread )
-		::TerminateThread( m_hReadQueueThread, 0 );
+	if (m_hReadQueueThread != NULL)
+	{
+		TerminateThread(m_hReadQueueThread, 0);
+		m_hReadQueueThread = 0;
+	}
 
 	if (m_bMMFCreate)
 	{
-		UnmapViewOfFile (m_lpMMFile);
-		CloseHandle (m_hMMFile);
+		UnmapViewOfFile(m_lpMMFile);
+		CloseHandle(m_hMMFile);
 	}
 
-	if(m_RegionLogFile.m_hFile != CFile::hFileNull) m_RegionLogFile.Close();
-	if(m_LogFile.m_hFile != CFile::hFileNull) m_LogFile.Close();
+	if (m_RegionLogFile.m_hFile != CFile::hFileNull) m_RegionLogFile.Close();
+	if (m_LogFile.m_hFile != CFile::hFileNull) m_LogFile.Close();
 
-	DeleteCriticalSection( &g_LogFile_critical );
-	DeleteCriticalSection( &g_serial_critical );
+	DeleteCriticalSection(&g_LogFile_critical);
+	DeleteCriticalSection(&g_serial_critical);
 	
-	if( !m_ItemtableArray.IsEmpty() )
-		m_ItemtableArray.DeleteAllData();
-
-	if( !m_MagictableArray.IsEmpty() )
-		m_MagictableArray.DeleteAllData();
-
-	if( !m_Magictype1Array.IsEmpty() )
-		m_Magictype1Array.DeleteAllData();
-
-	if( !m_Magictype2Array.IsEmpty() )
-		m_Magictype2Array.DeleteAllData();
-	
-	if( !m_Magictype3Array.IsEmpty() )
-		m_Magictype3Array.DeleteAllData();
-
-	if( !m_Magictype4Array.IsEmpty() )
-		m_Magictype4Array.DeleteAllData();
-
-	if( !m_Magictype5Array.IsEmpty() )
-		m_Magictype5Array.DeleteAllData();
-
-	if( !m_Magictype8Array.IsEmpty() )
-		m_Magictype8Array.DeleteAllData(); 
-
-	if( !m_arNpcArray.IsEmpty() )
-		m_arNpcArray.DeleteAllData();
-
-	if( !m_AISocketArray.IsEmpty() ) 
-		m_AISocketArray.DeleteAllData();
-	
-	if( !m_PartyArray.IsEmpty() )
-		m_PartyArray.DeleteAllData();
-
-	if( !m_CoefficientArray.IsEmpty() )
-		m_CoefficientArray.DeleteAllData();
-
-	if ( !m_KnightsArray.IsEmpty() )
-		m_KnightsArray.DeleteAllData();
-
-	if ( !m_ServerArray.IsEmpty() )
-		m_ServerArray.DeleteAllData();
-
-	if ( !m_ServerGroupArray.IsEmpty() )
-		m_ServerGroupArray.DeleteAllData();
-
-	if ( !m_ServerResourceArray.IsEmpty() )
-		m_ServerResourceArray.DeleteAllData();
-
-	if ( !m_HomeArray.IsEmpty() )
-		m_HomeArray.DeleteAllData();
-
-	if (!m_ZoneArray.IsEmpty())
-		m_ZoneArray.DeleteAllData();
-
 	if (m_LevelUpArray.size())
 		m_LevelUpArray.clear();
-
-	if( !m_Event.IsEmpty() )
-		m_Event.DeleteAllData();
 
 	if( m_pUdpSocket )
 		delete m_pUdpSocket;
