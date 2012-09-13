@@ -261,7 +261,7 @@ struct _ITEM_TABLE
 	short m_sDamage;			// �ִ� Ÿ��ġ
 	short m_sDelay;				// ��ݽð�
 	short m_sRange;				// ���(�ȿ�Ÿ�)
-	short m_sWeight;			// ����
+	unsigned short m_sWeight;			// ����
 	short m_sDuration;			// ������
 	int	  m_iBuyPrice;			// ��� ��°���
 	int	  m_iSellPrice;			// ��� �Ĵ°���

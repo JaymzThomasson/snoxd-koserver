@@ -62,7 +62,7 @@ void CUser::WarehouseProcess(char *pBuf)
 			m_pUserData->m_sWarehouseArray[reference_pos+destpos].nSerialNum = m_pMain->GenerateItemSerial();
 
 		if( pTable->m_bCountable ) {
-			m_pUserData->m_sWarehouseArray[reference_pos+destpos].sCount += count;
+			m_pUserData->m_sWarehouseArray[reference_pos+destpos].sCount += (unsigned short)count;
 		}
 		else {
 			m_pUserData->m_sWarehouseArray[reference_pos+destpos].sCount = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sCount;
@@ -75,7 +75,7 @@ void CUser::WarehouseProcess(char *pBuf)
 			m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nSerialNum = 0;
 		}
 		else {
-			m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sCount -= count;
+			m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sCount -= (unsigned short)count;
 			if( m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sCount <= 0 ) {
 				m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum = 0;
 				m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sDuration = 0;
@@ -117,7 +117,7 @@ void CUser::WarehouseProcess(char *pBuf)
 		m_pUserData->m_sItemArray[SLOT_MAX+destpos].sDuration = m_pUserData->m_sWarehouseArray[reference_pos+srcpos].sDuration;
 		m_pUserData->m_sItemArray[SLOT_MAX+destpos].nSerialNum = m_pUserData->m_sWarehouseArray[reference_pos+srcpos].nSerialNum;
 		if( pTable->m_bCountable )
-			m_pUserData->m_sItemArray[SLOT_MAX+destpos].sCount += count;
+			m_pUserData->m_sItemArray[SLOT_MAX+destpos].sCount += (unsigned short)count;
 		else {
 			if( m_pUserData->m_sItemArray[SLOT_MAX+destpos].nSerialNum == 0 )
 				m_pUserData->m_sItemArray[SLOT_MAX+destpos].nSerialNum = m_pMain->GenerateItemSerial();
@@ -130,7 +130,7 @@ void CUser::WarehouseProcess(char *pBuf)
 			m_pUserData->m_sWarehouseArray[reference_pos+srcpos].nSerialNum = 0;
 		}
 		else {
-			m_pUserData->m_sWarehouseArray[reference_pos+srcpos].sCount -= count;
+			m_pUserData->m_sWarehouseArray[reference_pos+srcpos].sCount -= (unsigned short)count;
 			if( m_pUserData->m_sWarehouseArray[reference_pos+srcpos].sCount <= 0 ) {
 				m_pUserData->m_sWarehouseArray[reference_pos+srcpos].nNum = 0;
 				m_pUserData->m_sWarehouseArray[reference_pos+srcpos].sDuration = 0;

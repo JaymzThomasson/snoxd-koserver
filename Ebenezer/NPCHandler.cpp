@@ -5,7 +5,8 @@
 
 void CUser::ItemRepair(char *pBuf)
 {
-	int index = 0, send_index = 0, money = 0, quantity = 0;
+	unsigned int money = 0;
+	int index = 0, send_index = 0, quantity = 0;
 	int itemid = 0, pos = 0, slot = -1, durability = 0;
 	char send_buff[128]; memset( send_buff, 0x00, 128 );
 	_ITEM_TABLE* pTable = NULL;
@@ -30,7 +31,7 @@ void CUser::ItemRepair(char *pBuf)
 	else if( pos == 2 ) 
 		quantity = pTable->m_sDuration - m_pUserData->m_sItemArray[SLOT_MAX+slot].sDuration;
 	
-	money = (int)( ((pTable->m_iBuyPrice-10)/10000.0f) + pow(pTable->m_iBuyPrice, 0.75)) * quantity / (double)durability;
+	money = (unsigned int)((((pTable->m_iBuyPrice-10) / 10000.0f) + pow(pTable->m_iBuyPrice, 0.75f)) * quantity / (double)durability);
 	if( money > m_pUserData->m_iGold ) goto fail_return;
 
 	m_pUserData->m_iGold -= money;
@@ -187,7 +188,7 @@ BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 
 			break;
 
 		case	LOGIC_CHECK_NOAH:
-			if ( m_pUserData->m_iGold >= pLE->m_LogicElseInt[0] && m_pUserData->m_iGold <= pLE->m_LogicElseInt[1] ) {
+			if ( m_pUserData->m_iGold >= (unsigned int)pLE->m_LogicElseInt[0] && m_pUserData->m_iGold <= (unsigned int)pLE->m_LogicElseInt[1] ) {
 				bExact = TRUE;	
 			}
 			break;
@@ -546,22 +547,21 @@ void CUser::ClassChange(char *pBuf)
 	{
 		sub_type = GetByte( pBuf, index );
 
-		money = pow(( m_pUserData->m_bLevel * 2 ), 3.4);
+		money = (int)pow((m_pUserData->m_bLevel * 2.0f), 3.4f);
 		money = ( money / 100 )*100;
-		if( m_pUserData->m_bLevel < 30)		money = money * 0.4;
-		else if( m_pUserData->m_bLevel >= 30 && m_pUserData->m_bLevel < 60 ) money = money * 1;
-		else if( m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= 90 ) money = money * 1.5;
+		if( m_pUserData->m_bLevel < 30)		money = (int)(money * 0.4f);
+		else if( m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= 90 ) money = (int)(money * 1.5f);
 
 		if( sub_type == 1 )		{
 			if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{
 				old_money = money;
-				money = money * 0.5;
+				money = (int)(money * 0.5f);
 				//TRACE("^^ ClassChange -  point Discount ,, money=%d->%d\n", old_money, money);
 			}
 
 			if( m_pMain->m_sDiscount == 2 )		{	
 				old_money = money;
-				money = money * 0.5;
+				money = (int)(money * 0.5f);
 			}
 
 			SetByte( send_buff, WIZ_CLASS_CHANGE, send_index );
@@ -570,16 +570,16 @@ void CUser::ClassChange(char *pBuf)
 			Send( send_buff, send_index );
 		}
 		else if( sub_type == 2 )		{	
-			money = money * 1.5;			
+			money = (int)(money * 1.5f);			
 			if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{
 				old_money = money;
-				money = money * 0.5;
+				money = (int)(money * 0.5f);
 				//TRACE("^^ ClassChange -  skillpoint Discount ,, money=%d->%d\n", old_money, money);
 			}
 
 			if( m_pMain->m_sDiscount == 2 )		{	
 				old_money = money;
-				money = money * 0.5;
+				money = (int)(money * 0.5f);
 			}
 			
 			SetByte( send_buff, WIZ_CLASS_CHANGE, send_index );
@@ -775,7 +775,8 @@ void CUser::NpcEvent(char *pBuf)
 // NPC shops
 void CUser::ItemTrade(char *pBuf)
 {
-	int index = 0, send_index = 0, itemid = 0, money = 0, count = 0, group = 0, npcid = 0;
+	int index = 0, send_index = 0, itemid = 0, money = 0, group = 0, npcid = 0;
+	unsigned int count = 0;
 	_ITEM_TABLE* pTable = NULL;
 	char send_buf[128];
 	CNpc* pNpc = NULL;

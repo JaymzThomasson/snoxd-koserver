@@ -96,7 +96,8 @@ void CUser::ExchangeAgree(char* pBuf)
 
 void CUser::ExchangeAdd(char *pBuf)
 {
-	int index = 0, send_index = 0, count = 0, itemid = 0, duration = 0;
+	int index = 0, send_index = 0, itemid = 0, duration = 0;
+	unsigned int count = 0;
 	CUser* pUser = NULL;
 	_EXCHANGE_ITEM* pItem = NULL;
 	_ITEM_TABLE* pTable = NULL;
@@ -167,7 +168,7 @@ void CUser::ExchangeAdd(char *pBuf)
 			break;
 		}
 	}
-	if( m_ExchangeItemList.size() > ( (bGold) ? 13 : 12 ) )
+	if( (int)m_ExchangeItemList.size() > ( (bGold) ? 13 : 12 ) )
 		goto add_fail;
 
 	if( bAdd ) {		// Gold ?? ?????? ??????? ??´?..
@@ -364,7 +365,8 @@ BOOL CUser::ExecuteExchange()
 	_ITEM_TABLE* pTable = NULL;
 	CUser* pUser = NULL;
 	DWORD money = 0;
-	short weight = 0, i=0;
+	short weight = 0;
+	BYTE i = 0;
 
 	pUser = m_pMain->GetUserPtr(m_sExchangeUser);
 	if( !pUser ) return FALSE;

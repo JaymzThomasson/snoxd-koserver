@@ -7,7 +7,7 @@
 void CUser::Attack(char *pBuf)
 {
 	int index = 0, send_index = 0;
-	int sid = -1, tid = -1, damage = 0; float delaytime = 0.0f ; float distance = 0.0f ;	
+	int sid = -1, tid = -1, damage = 0; short delaytime = 0; short distance = 0;	
 	BYTE type, result;	
 	char buff[256]; memset( buff, 0x00, 256 );
 	
@@ -217,7 +217,7 @@ short CUser::GetDamage(short tid, int magicid)
 			else {     // Relative hit.
 				result = GetHitRate( (m_sTotalHitrate / pTUser->m_sTotalEvasionrate) * (pType1->sHitRate / 100.0f) );			
 			}
-			temp_hit = temp_hit_B * (pType1->sHit / 100.0f);
+			temp_hit = (short)(temp_hit_B * (pType1->sHit / 100.0f));
 		}
 		else if (pTable->bType1 == 2) {   // ARROW HIT!
 			pType2 = m_pMain->m_Magictype2Array.GetData( magicid );	    // Get magic skill table type 1.
@@ -235,10 +235,10 @@ short CUser::GetDamage(short tid, int magicid)
 				result = GetHitRate( (m_sTotalHitrate / pTUser->m_sTotalEvasionrate) * (pType2->sHitRate / 100.0f) );
 			
 			if(pType2->bHitType == 1 /* || pType2->bHitType == 2 */)  {
-				temp_hit = m_sTotalHit * m_bAttackAmount * (pType2->sAddDamage / 100.0f) / 100 ;   // g??
+				temp_hit = (short)(m_sTotalHit * m_bAttackAmount * (pType2->sAddDamage / 100.0f) / 100);
 			}
 			else {
-				temp_hit = temp_hit_B * (pType2->sAddDamage / 100.0f);
+				temp_hit = (short)(temp_hit_B * (pType2->sAddDamage / 100.0f));
 			}
 		}
 	}
@@ -607,8 +607,8 @@ void CUser::Regene(char *pBuf, int magicid)
 		}
 		else if( m_pUserData->m_bNation != m_pUserData->m_bZone) {	// Free Zone or Opposite Zone
 			if(m_pUserData->m_bZone > 200) {		// Frontier Zone...
-				x = pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX);
-				z = pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ);
+				x = (float)(pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX));
+				z = (float)(pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ));
 			}
 //
 			else if(m_pUserData->m_bZone > 100 && m_pUserData->m_bZone < 200) {		// Battle Zone...
@@ -618,29 +618,25 @@ void CUser::Regene(char *pBuf, int magicid)
 				KickOutZoneUser();	// Go back to your own zone!
 				return;
 */
-				x = pHomeInfo->BattleZoneX + myrand(0, pHomeInfo->BattleZoneLX);
-				z = pHomeInfo->BattleZoneZ + myrand(0, pHomeInfo->BattleZoneLZ);
-// ????? ??ô? ????g?? >.<
+				x = (float)(pHomeInfo->BattleZoneX + myrand(0, pHomeInfo->BattleZoneLX));
+				z = (float)(pHomeInfo->BattleZoneZ + myrand(0, pHomeInfo->BattleZoneLZ));
 				if (m_pUserData->m_bZone == ZONE_SNOW_BATTLE) {
-					x = pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX);
-					z = pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ);					
+					x = (float)(pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX));
+					z = (float)(pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ));					
 				}
-//
 			}
-// ????? ??? >.<
 			else if (m_pUserData->m_bZone > 10 && m_pUserData->m_bZone < 20) {
-				x = 527 + myrand(0, 10);
-				z = 543 + myrand(0, 10);			
+				x = (float)(527 + myrand(0, 10));
+				z = (float)(543 + myrand(0, 10));
 			}
-//
 			else if (m_pUserData->m_bZone < 3) {	// Specific Lands...
 				if (m_pUserData->m_bNation == KARUS) {
-					x = pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX);
-					z = pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ);			
+					x = (float)(pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX));
+					z = (float)(pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ));			
 				}
 				else if (m_pUserData->m_bNation == ELMORAD) {
-					x = pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX);
-					z = pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ);	
+					x = (float)(pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX));
+					z = (float)(pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ));	
 				}		
 				else return;
 			}
@@ -648,14 +644,14 @@ void CUser::Regene(char *pBuf, int magicid)
 			m_pUserData->m_curx = x;
 			m_pUserData->m_curz = z;
 		}
-		else {		//  ????? Warp ?? ???l? ??? ???...
+		else {	
 			if (m_pUserData->m_bNation == KARUS) {
-				x = pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX);
-				z = pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ);			
+				x = (float)(pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX));
+				z = (float)(pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ));			
 			}
 			else if (m_pUserData->m_bNation == ELMORAD) {			
-				x = pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX);
-				z = pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ);
+				x = (float)(pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX));
+				z = (float)(pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ));
 			}		
 			else return;		
 
@@ -666,9 +662,9 @@ void CUser::Regene(char *pBuf, int magicid)
 
 	SetByte( send_buff, WIZ_REGENE, send_index );
 //	SetShort( send_buff, m_Sid, send_index );    //
-	SetShort( send_buff, (WORD)m_pUserData->m_curx*10, send_index );
-	SetShort( send_buff, (WORD)m_pUserData->m_curz*10, send_index );
-	SetShort( send_buff, (short)m_pUserData->m_cury*10, send_index );
+	SetShort( send_buff, (WORD)(m_pUserData->m_curx*10), send_index );
+	SetShort( send_buff, (WORD)(m_pUserData->m_curz*10), send_index );
+	SetShort( send_buff, (short)(m_pUserData->m_cury*10), send_index );
 	Send( send_buff, send_index );
 //	m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false ); //
 	

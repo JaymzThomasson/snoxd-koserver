@@ -156,16 +156,16 @@ void CUser::GetUserInfo(char *buff, int & buff_index)
 	SetByte(buff, m_pUserData->m_bLevel, buff_index);
 	SetByte(buff, m_pUserData->m_bRace, buff_index);
 	SetShort(buff, m_pUserData->m_sClass, buff_index);
-	SetShort(buff, (WORD)m_pUserData->m_curx*10, buff_index);
-	SetShort(buff, m_pUserData->m_curz*10, buff_index);
-	SetShort(buff, m_pUserData->m_cury*10, buff_index);
+	SetShort(buff, (WORD)(m_pUserData->m_curx*10), buff_index);
+	SetShort(buff, (WORD)(m_pUserData->m_curz*10), buff_index);
+	SetShort(buff, (WORD)(m_pUserData->m_cury*10), buff_index);
 	SetByte(buff, m_pUserData->m_bFace, buff_index);
 
 	SetDWORD(buff, m_pUserData->m_nHair, buff_index);
 
 	SetByte(buff, m_bResHpType, buff_index);
 
-	SetByte(buff, m_bAbnormalType, buff_index);
+	SetDWORD(buff, m_bAbnormalType, buff_index);
 	SetByte(buff, m_bNeedParty, buff_index);
 	SetByte(buff, m_pUserData->m_bAuthority, buff_index);
 

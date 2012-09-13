@@ -74,7 +74,7 @@ struct	_ITEM_DATA
 {
 	int		nNum;
 	short	sDuration;
-	short	sCount;	
+	unsigned short	sCount;	
 	__int64	nSerialNum;
 };
 
@@ -105,7 +105,7 @@ struct _USER_DATA
 	BYTE	m_bRank;
 	BYTE	m_bTitle;
 	BYTE	m_bLevel;
-	int		m_iExp;	
+	__int64		m_iExp;	
 	int		m_iLoyalty;	
 	int		m_iLoyaltyMonthly;
 	int		m_iMannerPoint;

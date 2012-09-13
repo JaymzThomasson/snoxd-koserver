@@ -301,7 +301,7 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 
 						if (pMagic->bType1 == 3) {
 //
-							total_magic_damage += ((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->m_pUserData->m_bLevel) / 60);
+							total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->m_pUserData->m_bLevel) / 60);
 //
 							_MAGIC_TYPE3* pType3 = NULL;
 							pType3 = m_pMain->m_Magictype3Array.GetData( magicid );     // Get magic skill table type 4.
@@ -309,7 +309,7 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
   
 							if (m_pSrcUser->m_bMagicTypeRightHand == pType3->bAttribute ) {							
 //								total_magic_damage += pRightHand->m_sDamage ;
-								total_magic_damage += ((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * m_pSrcUser->m_pUserData->m_bLevel) / 30);
+								total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * m_pSrcUser->m_pUserData->m_bLevel) / 30);
 							}
 //
 							if (pType3->bAttribute == 4) {	// Remember what Sunglae told ya!
@@ -894,7 +894,7 @@ BYTE CMagicProcess::ExecuteType2(int magicid, int sid, int tid, int data1, int d
 	int damage = 0, send_index = 0, result = 1 ; // Variable initialization. result == 1 : success, 0 : fail	
 	char send_buff[128];	memset( send_buff, NULL, 128);     // For the packet. 
 
-	int total_range = 0 ;	// These variables are used for range verification!
+	float total_range = 0.0f;	// These variables are used for range verification!
 	int sx, sz, tx, tz;
 
 	_MAGIC_TABLE* pMagic = NULL;
@@ -922,13 +922,11 @@ BYTE CMagicProcess::ExecuteType2(int magicid, int sid, int tid, int data1, int d
 		goto packet_send;
 	}
 	
-	total_range = pow(((pType->sAddRange * pTable->m_sRange) / 100 ), 2.0) ;     // Range verification procedure.
-//	total_range = pow(((pType->sAddRange / 100) * pTable->m_sRange), 2) ;     // Range verification procedure.
-	sx = m_pSrcUser->m_pUserData->m_curx; tx = pTUser->m_pUserData->m_curx;
-//	sy = m_pSrcUser->m_pUserData->m_cury; ty = pTUser->m_pUserData->m_cury;   // Y-AXIS DISABLED TEMPORARILY!!!
-	sz = m_pSrcUser->m_pUserData->m_curz; tz = pTUser->m_pUserData->m_curz;
+	total_range = pow(((pType->sAddRange * pTable->m_sRange) / 100.0f), 2.0f) ;     // Range verification procedure.
+	sx = (int)m_pSrcUser->m_pUserData->m_curx; tx = (int)pTUser->m_pUserData->m_curx;
+	sz = (int)m_pSrcUser->m_pUserData->m_curz; tz = (int)pTUser->m_pUserData->m_curz;
 	
-	if ((pow((sx - tx), 2.0)/* + pow((sy - ty), 2)*/ + pow((sz - tz), 2.0)) > total_range) {	   // Target is out of range, exit.
+	if ((pow((sx - tx), 2.0f) + pow((sz - tz), 2.0f)) > total_range) {	   // Target is out of range, exit.
 		result = 0;
 		goto packet_send;
 	}
@@ -1231,7 +1229,7 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 				for (int k = 0 ; k < MAX_TYPE3_REPEAT ; k++) {	// For continuous damages...
 					if (pTUser->m_bHPInterval[k] == 5) {
 						pTUser->m_fHPStartTime[k] = pTUser->m_fHPLastTime[k] = TimeGet();     // The durational magic routine.
-						pTUser->m_bHPDuration[k] = pType->sDuration;
+						pTUser->m_bHPDuration[k] = (BYTE)pType->sDuration;
 						pTUser->m_bHPInterval[k] = 2;		
 						pTUser->m_bHPAmount[k] = duration_damage / ( pTUser->m_bHPDuration[k] / pTUser->m_bHPInterval[k] ) ;
 						pTUser->m_sSourceID[k] = sid;
@@ -1814,25 +1812,6 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 			m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 		}
 	}
-	
-	return;
-
-fail_return:
-	if (sid >= 0 && sid < MAX_USER) {
-		memset( send_buff, NULL, 128); send_index = 0;
-		SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );		// In case of failure!!!
-		SetByte( send_buff, MAGIC_FAIL, send_index );
-		SetDWORD( send_buff, magicid, send_index );
-		SetShort( send_buff, sid, send_index );
-		SetShort( send_buff, tid, send_index );
-		SetShort( send_buff, 0, send_index );
-		SetShort( send_buff, 0, send_index );
-		SetShort( send_buff, 0, send_index );
-		SetShort( send_buff, 0, send_index );
-		SetShort( send_buff, 0, send_index );
-		SetShort( send_buff, 0, send_index );
-		m_pSrcUser->Send( send_buff, send_index );
-	}
 }
 
 void CMagicProcess::ExecuteType6(int magicid)
@@ -1945,16 +1924,16 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 
 				if( pEvent ) {
 
-					SetShort(send_buff, (WORD)pEvent->fPosX*10 + x, send_index);
-					SetShort(send_buff, (WORD)pEvent->fPosZ*10 + z, send_index);
+					SetShort(send_buff, (WORD)(pEvent->fPosX*10 + x), send_index);
+					SetShort(send_buff, (WORD)(pEvent->fPosZ*10 + z), send_index);
 					pTUser->Warp(send_buff);	
 					
 				}
 				else if(pTUser->m_pUserData->m_bNation != pTUser->m_pUserData->m_bZone && pTUser->m_pUserData->m_bZone < 3) {	 // User is in different zone.
 					if(pTUser->m_pUserData->m_bNation == 1 ) {	// Land of Karus
 
-						SetShort(send_buff, 852 + x, send_index);
-						SetShort(send_buff, 164 + z, send_index);
+						SetShort(send_buff, (WORD)(852 + x), send_index);
+						SetShort(send_buff, (WORD)(164 + z), send_index);
 						pTUser->Warp(send_buff);	
 					}
 					else {	// Land of Elmorad
@@ -1962,26 +1941,26 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 //						m_pUserData->m_curx = m_fWill_x = (float)177.0 + x;
 //						m_pUserData->m_curz = m_fWill_z = (float)923.0 + z;
 
-						SetShort(send_buff, 177 + x, send_index);
-						SetShort(send_buff, 923 + z, send_index);
+						SetShort(send_buff, (WORD)(177 + x), send_index);
+						SetShort(send_buff, (WORD)(923 + z), send_index);
 						pTUser->Warp(send_buff);	
 					}				
 				}
 // 비러머글 대만 써비스 >.<
 				else if (pTUser->m_pUserData->m_bZone == ZONE_BATTLE) {		// 전쟁존 --;
-					SetShort(send_buff, (WORD)pHomeInfo->BattleZoneX * 10 + x, send_index);
-					SetShort(send_buff, (WORD)pHomeInfo->BattleZoneZ * 10 + z, send_index);
+					SetShort(send_buff, (WORD)(pHomeInfo->BattleZoneX * 10 + x), send_index);
+					SetShort(send_buff, (WORD)(pHomeInfo->BattleZoneZ * 10 + z), send_index);
 					pTUser->Warp(send_buff);	
 				}
 				else if (pTUser->m_pUserData->m_bZone == ZONE_FRONTIER) {		// 개척존 --;
-					SetShort(send_buff, (WORD)pHomeInfo->FreeZoneX * 10 + x, send_index);
-					SetShort(send_buff, (WORD)pHomeInfo->FreeZoneZ * 10 + z, send_index);
+					SetShort(send_buff, (WORD)(pHomeInfo->FreeZoneX * 10 + x), send_index);
+					SetShort(send_buff, (WORD)(pHomeInfo->FreeZoneZ * 10 + z), send_index);
 					pTUser->Warp(send_buff);
 				}
 //
 				else {		//  No, I don't have any idea what this part means....
-					SetShort(send_buff, (WORD)pTUser->GetMap()->m_fInitX*10 + x, send_index);
-					SetShort(send_buff, (WORD)pTUser->GetMap()->m_fInitZ*10 + z, send_index);
+					SetShort(send_buff, (WORD)(pTUser->GetMap()->m_fInitX*10 + x), send_index);
+					SetShort(send_buff, (WORD)(pTUser->GetMap()->m_fInitZ*10 + z), send_index);
 					pTUser->Warp(send_buff);	
 				}
 							
@@ -2095,8 +2074,8 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				warp_x = pTUser->m_pUserData->m_curx;	// Get current locations.
 				warp_z = pTUser->m_pUserData->m_curz;
 
-				temp_warp_x = myrand(0, 20) ;	// Get random positions (within 20 meters)
-				temp_warp_z = myrand(0, 20) ;
+				temp_warp_x = (float)myrand(0, 20) ;	// Get random positions (within 20 meters)
+				temp_warp_z = (float)myrand(0, 20) ;
 
 				if (temp_warp_x > 10)	// Get new x-position.
 					warp_x = warp_x + (temp_warp_x - 10 ) ;
@@ -2230,15 +2209,15 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 		}
 
 		damage = (short)(total_hit - ((0.7 * total_hit * total_r) / 200)) ;
-		random = myrand (0, damage) ;
-		damage = (short)(0.7 * (total_hit - ((0.9 * total_hit * total_r) / 200))) + 0.2 * random ;
+		random = myrand (0, damage);
+		damage = (short)((0.7 * (total_hit - ((0.9 * total_hit * total_r) / 200))) + 0.2 * random);
 //	
 		if (sid >= NPC_BAND) {
-			damage = damage - (3 * righthand_damage) - (3 * attribute_damage);
+			damage -= (3 * righthand_damage) - (3 * attribute_damage);
 		}
 		else{
 			if (attribute != 4) {	// Only if the staff has an attribute.
-				damage = damage - ((righthand_damage * 0.8f) + (righthand_damage * m_pSrcUser->m_pUserData->m_bLevel) / 60) - ((attribute_damage * 0.8f) + (attribute_damage * m_pSrcUser->m_pUserData->m_bLevel) / 30);
+				damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * m_pSrcUser->m_pUserData->m_bLevel) / 60) - ((attribute_damage * 0.8f) + (attribute_damage * m_pSrcUser->m_pUserData->m_bLevel) / 30));
 			}
 
 
@@ -2368,10 +2347,10 @@ final_test :
 		if ( pTUser->m_pUserData->m_bZone == m_pSrcUser->m_pUserData->m_bZone ) {		// Zone Check!
 			if ( (pTUser->m_RegionX == m_pSrcUser->m_RegionX) && (pTUser->m_RegionZ == m_pSrcUser->m_RegionZ) ) { // Region Check!
 				if (radius !=0) { 	// Radius check! ( ...in case there is one :(  )
-					int temp_x = pTUser->m_pUserData->m_curx - mousex ;
-					int temp_z = pTUser->m_pUserData->m_curz - mousez ;
-					int distance = pow(temp_x,2.0) + pow(temp_z,2.0) ;	// Y-AXIS DISABLED TEMPORARILY!!!
-					if ( distance > pow(radius, 2.0) ) return FALSE ;
+					float temp_x = pTUser->m_pUserData->m_curx - mousex;
+					float temp_z = pTUser->m_pUserData->m_curz - mousez;
+					float distance = pow(temp_x, 2.0f) + pow(temp_z, 2.0f);
+					if ( distance > pow(radius, 2.0f) ) return FALSE ;
 				}		
 				return TRUE;	// Target is in the area.
 			}
@@ -2381,10 +2360,10 @@ final_test :
 		if ( pTUser->getZoneID() == pMon->getZoneID() ) {		// Zone Check!
 			if ( (pTUser->m_RegionX == pMon->m_sRegion_X) && (pTUser->m_RegionZ == pMon->m_sRegion_Z) ) { // Region Check!
 				if (radius !=0) { 	// Radius check! ( ...in case there is one :(  )
-					int temp_x = pTUser->m_pUserData->m_curx - pMon->m_fCurX ;
-					int temp_z = pTUser->m_pUserData->m_curz - pMon->m_fCurZ ;
-					int distance = pow(temp_x,2.0) + pow(temp_z,2.0) ;	
-					if ( distance > pow(radius, 2.0) ) return FALSE ;
+					float temp_x = pTUser->m_pUserData->m_curx - pMon->m_fCurX;
+					float temp_z = pTUser->m_pUserData->m_curz - pMon->m_fCurZ;
+					float distance = pow(temp_x, 2.0f) + pow(temp_z, 2.0f);	
+					if ( distance > pow(radius, 2.0f) ) return FALSE ;
 				}		
 				return TRUE;	// Target is in the area.
 			}

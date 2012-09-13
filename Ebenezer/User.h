@@ -41,8 +41,8 @@ public:
 	short	m_RegionX;						// 현재 영역 X 좌표
 	short	m_RegionZ;						// 현재 영역 Z 좌표
 
-	int		m_iMaxExp;						// 다음 레벨이 되기 위해 필요한 Exp량
-	short	m_sMaxWeight;					// 들 수 있는 최대 무게
+	__int64		m_iMaxExp;						// 다음 레벨이 되기 위해 필요한 Exp량
+	unsigned short	m_sMaxWeight;					// 들 수 있는 최대 무게
 	BYTE    m_sSpeed;						// 스피드
 
 	short	m_sBodyAc;						// 맨몸 방어력
@@ -54,7 +54,7 @@ public:
 
 	short   m_sItemMaxHp;                   // 아이템 총 최대 HP Bonus
 	short   m_sItemMaxMp;                   // 아이템 총 최대 MP Bonus
-	short	m_sItemWeight;					// 아이템 총무게
+	unsigned short	m_sItemWeight;					// 아이템 총무게
 	short	m_sItemHit;						// 아이템 총타격치
 	short	m_sItemAc;						// 아이템 총방어력
 	short	m_sItemStr;						// 아이템 총힘 보너스
@@ -172,7 +172,7 @@ public:
 	DWORD	m_bAbnormalType;			// Is the player normal,a giant, or a dwarf?
 
 	short	m_sWhoKilledMe;				// Who killed me???
-	int		m_iLostExp;					// Experience point that was lost when you died.
+	__int64		m_iLostExp;					// Experience point that was lost when you died.
 
 	float	m_fLastTrapAreaTime;		// The last moment you were in the trap area.
 
@@ -238,7 +238,7 @@ public:
 	BOOL CheckExistItem(int itemid, short count);
 	BOOL CheckWeight(int itemid, short count);
 	BOOL CheckSkillPoint(BYTE skillnum, BYTE min, BYTE max);
-	BOOL GoldLose(int gold);
+	BOOL GoldLose(unsigned int gold);
 	void GoldGain(int gold);
 	void SendItemWeight();
 	void ItemLogToAgent(const char *srcid, const char *tarid, int type, __int64 serial, int itemid, int count, int durability);
@@ -398,7 +398,7 @@ public:
 	void Regene(char* pBuf, int magicid = 0);
 	void SetMaxMp();
 	void SetMaxHp(int iFlag=0); // 0:default, 1:hp를 maxhp만큼 채워주기
-	void ExpChange(int iExp);
+	void ExpChange(__int64 iExp);
 	void Chat( char* pBuf );
 	void LogOut();
 	void SelCharToAgent( char* pBuf );

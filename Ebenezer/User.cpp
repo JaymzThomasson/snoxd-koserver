@@ -1253,7 +1253,7 @@ void CUser::SetSlotItemValue()	// ????? ???????? ??(�???, ????, ??????)? ?????
 			m_sItemHit += item_hit;
 		if( i == LEFTHAND ) {
 			if( ( m_pUserData->m_sClass == BERSERKER || m_pUserData->m_sClass == BLADE ) )
-				m_sItemHit += item_hit * 0.5f;
+				m_sItemHit += (short)(item_hit * 0.5f);
 		}
 
 		m_sItemMaxHp += pTable->m_MaxHpB;
@@ -1391,7 +1391,7 @@ void CUser::SetSlotItemValue()	// ????? ???????? ??(�???, ????, ??????)? ?????
 	}
 }
 
-void CUser::ExpChange(int iExp)
+void CUser::ExpChange(__int64 iExp)
 {	
 	char buff[256];
 	memset( buff, 0x00, 256 );
@@ -1432,7 +1432,7 @@ void CUser::ExpChange(int iExp)
 	}
 
 	SetByte( buff, WIZ_EXP_CHANGE, send_index );
-	SetDWORD( buff, m_pUserData->m_iExp, send_index );
+	SetInt64( buff, m_pUserData->m_iExp, send_index );
 	Send( buff, send_index);
 //	
 	if (iExp < 0) {
@@ -1474,8 +1474,8 @@ void CUser::LevelChange(short level, BYTE type )
 	SetByte( buff, m_pUserData->m_bLevel, send_index );
 	SetShort( buff, m_pUserData->m_sPoints, send_index );
 	SetByte( buff, m_pUserData->m_bstrSkill[0], send_index );
-	SetDWORD( buff, m_iMaxExp, send_index );
-	SetDWORD( buff, m_pUserData->m_iExp, send_index );
+	SetInt64( buff, m_iMaxExp, send_index );
+	SetInt64( buff, m_pUserData->m_iExp, send_index );
 	SetShort( buff, m_iMaxHp, send_index );
 	SetShort( buff, m_pUserData->m_sHp, send_index );
 	SetShort( buff, m_iMaxMp, send_index );
@@ -2048,7 +2048,7 @@ void CUser::StateChange(char *pBuf)
 	}
 //
 	else if (type == 3) {
-		SetByte( send_buff, m_bAbnormalType, send_index );
+		SetDWORD( send_buff, m_bAbnormalType, send_index ); // NOTE: This packet needs to be explicitly updated.
 	}	
 //
 	else {		// Just plain echo :)
@@ -3502,23 +3502,22 @@ void CUser::AllSkillPointChange()
 	BYTE type = 0x00;    // 0:???? ???, 1:????, 2:?????? ??u?? ?????..
 	char send_buff[128]; memset( send_buff, NULL, 128 );
 
-	temp_value = pow(( m_pUserData->m_bLevel * 2 ), 3.4);
+	temp_value = (int)pow(( m_pUserData->m_bLevel * 2.0f ), 3.4f);
 	temp_value = ( temp_value / 100 )*100;
-	if( m_pUserData->m_bLevel < 30)		temp_value = temp_value * 0.4;
-	else if( m_pUserData->m_bLevel >= 30 && m_pUserData->m_bLevel < 60 ) temp_value = temp_value * 1;
-	else if( m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= 90 ) temp_value = temp_value * 1.5;
+	if( m_pUserData->m_bLevel < 30)		temp_value = (int)(temp_value * 0.4f);
+	else if( m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= 90 ) temp_value = (int)(temp_value * 1.5f);
 
-	temp_value = temp_value * 1.5;
+	temp_value = (int)(temp_value * 1.5);
 
 	if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{	// ????????? ?�???????
 		old_money = temp_value;
-		temp_value = temp_value * 0.5;
+		temp_value = (int)(temp_value * 0.5f);
 		//TRACE("^^ AllSkillPointChange - Discount ,, money=%d->%d\n", old_money, temp_value);
 	}
 
 	if( m_pMain->m_sDiscount == 2  )		{	
 		old_money = temp_value;
-		temp_value = temp_value * 0.5;
+		temp_value = (int)(temp_value * 0.5f);
 		//TRACE("^^ AllSkillPointChange - Discount ,, money=%d->%d\n", old_money, temp_value);
 	}
 
@@ -3574,19 +3573,18 @@ void CUser::AllPointChange()
 
 	if( m_pUserData->m_bLevel > 80 ) goto fail_return;
 
-	temp_money = pow(( m_pUserData->m_bLevel * 2 ), 3.4);
+	temp_money = (int)pow(( m_pUserData->m_bLevel * 2.0f ), 3.4f);
 	temp_money = (temp_money/100)*100;
-	if( m_pUserData->m_bLevel < 30)		temp_money = temp_money * 0.4;
-	else if( m_pUserData->m_bLevel >= 30 && m_pUserData->m_bLevel < 60 ) temp_money = temp_money * 1;
-	else if( m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= 90 ) temp_money = temp_money * 1.5;
+	if( m_pUserData->m_bLevel < 30)		temp_money = (int)(temp_money * 0.4f);
+	else if( m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= 90 ) temp_money = (int)(temp_money * 1.5f);
 
 	if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{	// ????????? ?�???????
-		temp_money = temp_money * 0.5;
+		temp_money = (int)(temp_money * 0.5f);
 		//TRACE("^^ AllPointChange - Discount ,, money=%d->%d\n", old_money, temp_money);
 	}
 
 	if( m_pMain->m_sDiscount == 2  )		{	
-		temp_money = temp_money * 0.5;
+		temp_money = (int)(temp_money * 0.5f);
 	}
 
 	money = m_pUserData->m_iGold - temp_money;
@@ -4153,7 +4151,7 @@ void CUser::BlinkTimeCheck(float currenttime)
 		m_bRegeneType = REGENE_NORMAL;
 //
 		SetByte(send_buff, 3, send_index);
-		SetByte(send_buff, m_bAbnormalType, send_index);
+		SetDWORD(send_buff, m_bAbnormalType, send_index); // NOTE: this packet needs to explicitly be updated.
 		StateChange(send_buff); 
 
 		//TRACE("?? BlinkTimeCheck : name=%s(%d), type=%d ??\n", m_pUserData->m_id, m_Sid, m_bAbnormalType);
@@ -4216,7 +4214,7 @@ void CUser::GoldGain(int gold)	// 1 -> Get gold    2 -> Lose gold
 	Send( send_buff, send_index );	
 }
 
-BOOL CUser::GoldLose(int gold)
+BOOL CUser::GoldLose(unsigned int gold)
 {
 	int send_index = 0;
 	char send_buff[256]; memset( send_buff, 0x00, 256 );	
