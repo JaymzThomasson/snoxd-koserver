@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AIServer", "AIServer\Server.vcxproj", "{36A92A8F-3820-435C-AC63-E861A556C1BB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AIServer", "AIServer\proj-AIServer.vcxproj", "{36A92A8F-3820-435C-AC63-E861A556C1BB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ebenezer", "Ebenezer\Ebenezer.vcxproj", "{99006BDF-4BBD-4687-99C3-1424F32D95FC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ebenezer", "Ebenezer\proj-Ebenezer.vcxproj", "{99006BDF-4BBD-4687-99C3-1424F32D95FC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Aujard", "Aujard\Aujard.vcxproj", "{AE4F49EA-414D-4BDD-9CB0-127CAFAA575F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Aujard", "Aujard\proj-Aujard.vcxproj", "{AE4F49EA-414D-4BDD-9CB0-127CAFAA575F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VersionManager", "LogInServer\VersionManager.vcxproj", "{F68DA1BF-90B2-4166-8DDB-B82D813EA961}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VersionManager", "LogInServer\proj-VersionManager.vcxproj", "{F68DA1BF-90B2-4166-8DDB-B82D813EA961}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
