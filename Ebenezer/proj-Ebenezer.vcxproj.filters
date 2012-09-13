@@ -13,9 +13,6 @@
       <UniqueIdentifier>{af2e61dc-c6bd-4804-b0cf-e40469960eb9}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
-    <Filter Include="N3Base">
-      <UniqueIdentifier>{106b3045-18ac-4051-aa12-c09788afdd05}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shared">
       <UniqueIdentifier>{4e057f9a-36a1-4108-82b7-0c5069025f87}</UniqueIdentifier>
     </Filter>
@@ -27,6 +24,9 @@
     </Filter>
     <Filter Include="Networking">
       <UniqueIdentifier>{073be5de-f0b1-4042-8494-5704e8177083}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N3Base">
+      <UniqueIdentifier>{65077a65-a242-4880-9f12-b9c7a324593b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -83,9 +83,6 @@
     </ClCompile>
     <ClCompile Include="User.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="N3Base\N3ShapeMgr.cpp">
-      <Filter>N3Base</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\crc32.cpp">
       <Filter>Shared</Filter>
@@ -213,6 +210,9 @@
     <ClCompile Include="..\shared\Ini.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp">
+      <Filter>N3Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AIPacket.h">
@@ -280,18 +280,6 @@
     </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="N3Base\My_3DStruct.h">
-      <Filter>N3Base</Filter>
-    </ClInclude>
-    <ClInclude Include="N3Base\My_Macro.h">
-      <Filter>N3Base</Filter>
-    </ClInclude>
-    <ClInclude Include="N3Base\N3ShapeMgr.h">
-      <Filter>N3Base</Filter>
-    </ClInclude>
-    <ClInclude Include="N3Base\StdAfxBase.h">
-      <Filter>N3Base</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\crc32.h">
       <Filter>Shared</Filter>
@@ -385,6 +373,18 @@
     </ClInclude>
     <ClInclude Include="..\shared\Ini.h">
       <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\N3BASE\N3ShapeMgr.h">
+      <Filter>N3Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\N3BASE\StdAfxBase.h">
+      <Filter>N3Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\N3BASE\My_3DStruct.h">
+      <Filter>N3Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\N3BASE\My_Macro.h">
+      <Filter>N3Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

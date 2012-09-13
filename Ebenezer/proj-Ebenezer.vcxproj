@@ -149,6 +149,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp" />
     <ClCompile Include="..\shared\Compress.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
     <ClCompile Include="..\shared\Ini.cpp" />
@@ -324,14 +325,12 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="N3Base\N3ShapeMgr.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\N3BASE\My_3DStruct.h" />
+    <ClInclude Include="..\N3BASE\My_Macro.h" />
+    <ClInclude Include="..\N3BASE\N3ShapeMgr.h" />
+    <ClInclude Include="..\N3BASE\StdAfxBase.h" />
     <ClInclude Include="..\shared\Compress.h" />
     <ClInclude Include="..\shared\crc32.h" />
     <ClInclude Include="..\shared\globals.h" />
@@ -385,10 +384,6 @@
     <ClInclude Include="User.h" />
     <ClInclude Include="ZoneInfoSet.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="N3Base\My_3DStruct.h" />
-    <ClInclude Include="N3Base\My_Macro.h" />
-    <ClInclude Include="N3Base\N3ShapeMgr.h" />
-    <ClInclude Include="N3Base\StdAfxBase.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Ebenezer.ico" />

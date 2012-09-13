@@ -9,14 +9,14 @@
       <UniqueIdentifier>{28f89997-9b80-4a68-8e92-b328a184b607}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl</Extensions>
     </Filter>
-    <Filter Include="N3Base">
-      <UniqueIdentifier>{938b4500-97e5-4e4b-aac1-bd8d7565e018}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{a28bbc89-f194-4df4-a771-852c2fa9c91c}</UniqueIdentifier>
     </Filter>
     <Filter Include="shared">
       <UniqueIdentifier>{af1ffd15-695e-4c2c-a6a1-c615428b2863}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="N3Base">
+      <UniqueIdentifier>{fa21436e-07a8-4f77-9e59-aa7a05e3570e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -131,9 +131,6 @@
     <ClCompile Include="ZoneInfoSet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="N3BASE\N3ShapeMgr.cpp">
-      <Filter>N3Base</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\lzf.cpp">
       <Filter>shared</Filter>
     </ClCompile>
@@ -142,6 +139,9 @@
     </ClCompile>
     <ClCompile Include="..\shared\Ini.cpp">
       <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp">
+      <Filter>N3Base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -265,18 +265,6 @@
     <ClInclude Include="ZoneInfoSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="N3BASE\My_3DStruct.h">
-      <Filter>N3Base</Filter>
-    </ClInclude>
-    <ClInclude Include="N3BASE\My_Macro.h">
-      <Filter>N3Base</Filter>
-    </ClInclude>
-    <ClInclude Include="N3BASE\N3ShapeMgr.h">
-      <Filter>N3Base</Filter>
-    </ClInclude>
-    <ClInclude Include="N3BASE\StdAfxBase.h">
-      <Filter>N3Base</Filter>
-    </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
@@ -288,6 +276,18 @@
     </ClInclude>
     <ClInclude Include="..\shared\Ini.h">
       <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\N3BASE\My_3DStruct.h">
+      <Filter>N3Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\N3BASE\My_Macro.h">
+      <Filter>N3Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\N3BASE\N3ShapeMgr.h">
+      <Filter>N3Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\N3BASE\StdAfxBase.h">
+      <Filter>N3Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
