@@ -264,8 +264,8 @@ BOOL CVersionManagerDlg::DestroyWindow()
 	if( !m_VersionList.IsEmpty() )
 		m_VersionList.DeleteAllData();
 	
-	for( int i=0; i<m_ServerList.size(); i++)
-		delete m_ServerList[i];
+	for (ServerInfoList::iterator itr = m_ServerList.begin(); itr != m_ServerList.end(); itr++)
+		delete *itr;
 	m_ServerList.clear();
 
 	return CDialog::DestroyWindow();
