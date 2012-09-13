@@ -251,18 +251,6 @@ public:
 	void SetLogInInfoToDB(BYTE bInit);
 	void BlinkStart();
 	void BlinkTimeCheck(float currenttime);
-	void MarketBBSSellPostFilter();
-	void MarketBBSBuyPostFilter();
-	void MarketBBSMessage(char *pBuf);
-	void MarketBBSSellDelete(short index);
-	void MarketBBSBuyDelete(short index);
-	void MarketBBSUserDelete();
-	void MarketBBSTimeCheck();
-	void MarketBBSRemotePurchase(char *pBuf);
-	void MarketBBSReport(char *pBuf, BYTE type);
-	void MarketBBSDelete(char *pBuf);
-	void MarketBBSRegister(char *pBuf);
-	void MarketBBS(char *pBuf);
 	void PartyBBSNeeded(char *pBuf, BYTE type);
 	void PartyBBSDelete(char *pBuf);
 	void PartyBBSRegister(char *pBuf);

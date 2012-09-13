@@ -230,7 +230,6 @@ void CUser::CloseProcess()
 		if (m_sExchangeUser != -1 )
 			ExchangeCancel();
 
-		MarketBBSUserDelete();
 		LogOut();
 	}
 	Initialize();
@@ -444,9 +443,6 @@ void CUser::Parsing(int len, char *pData)
 		break;
 	case WIZ_PARTY_BBS:
 		PartyBBS( pData+index );
-		break;
-	case WIZ_MARKET_BBS:
-		MarketBBS( pData+index );
 		break;
 	case WIZ_KICKOUT:
 		KickOut( pData+index );

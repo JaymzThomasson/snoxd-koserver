@@ -70,9 +70,6 @@ public:
 	void CheckAliveUser();
 	int GetKnightsGrade(int nPoints);
 	void WritePacketLog();
-	void MarketBBSSellDelete(short index);
-	void MarketBBSBuyDelete(short index);
-	void MarketBBSTimeCheck();
 	int  GetKnightsAllMembers( int knightsindex, char *temp_buff, int& buff_index, int type=0 );
 	BOOL LoadAllKnightsUserData();
 	BOOL LoadAllKnights();

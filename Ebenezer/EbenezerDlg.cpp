@@ -32,7 +32,6 @@
 #define GAME_TIME       	100
 #define SEND_TIME			200
 #define ALIVE_TIME			400
-#define MARKET_BBS_TIME		1000
 
 #define NUM_FLAG_VICTORY    4
 #define AWARD_GOLD          5000
@@ -552,7 +551,6 @@ BOOL CEbenezerDlg::DestroyWindow()
 	KillTimer(GAME_TIME);
 	KillTimer(SEND_TIME);
 	KillTimer(ALIVE_TIME);
-	KillTimer(MARKET_BBS_TIME);
 
 	KickOutAllUsers();
 
@@ -777,9 +775,6 @@ void CEbenezerDlg::OnTimer(UINT nIDEvent)
 	case ALIVE_TIME:
 		CheckAliveUser();
 		break;
-	case MARKET_BBS_TIME:
-		MarketBBSTimeCheck();
-		break;	
 	}
 
 	CDialog::OnTimer(nIDEvent);
@@ -1720,7 +1715,6 @@ void CEbenezerDlg::GetTimeFromIni()
 	SetTimer( GAME_TIME, 6000, NULL );
 	SetTimer( SEND_TIME, 200, NULL );
 	SetTimer( ALIVE_TIME, 34000, NULL );
-	SetTimer( MARKET_BBS_TIME, 300000, NULL );
 }
 
 void CEbenezerDlg::UpdateGameTime()
@@ -3297,87 +3291,6 @@ int  CEbenezerDlg::GetKnightsAllMembers(int knightsindex, char *temp_buff, int& 
 	}
 
 	return count;
-}
-
-void CEbenezerDlg::MarketBBSTimeCheck()
-{
-	CUser* pUser = NULL;	// Basic Initializations. 	
-	int send_index = 0;			
-	char send_buff[256]; memset(send_buff, NULL, 256);	
-	float currenttime = 0.0f;
-	int price = 0;
-
-	currenttime = TimeGet();
-
-	for (int i = 0 ; i < MAX_BBS_POST ; i++) {		
-		if (m_sBuyID[i] != -1) {	// BUY!!!
-			pUser = (CUser*)m_Iocport.m_SockArray[m_sBuyID[i]];			
-			if (!pUser) {
-				MarketBBSBuyDelete(i);
-				continue;
-			}
-			
-			if (m_fBuyStartTime[i] + BBS_CHECK_TIME < currenttime) {
-//				if (pUser->m_pUserData->m_iGold >= BUY_POST_PRICE) {
-//					pUser->m_pUserData->m_iGold -= BUY_POST_PRICE ;
-//					m_fBuyStartTime[i] = TimeGet();
-
-//					memset(send_buff, NULL, 256); send_index = 0;	
-//					SetByte( send_buff, WIZ_GOLD_CHANGE, send_index );	// Now the target
-//					SetByte( send_buff, 0x02, send_index );
-//					SetDWORD( send_buff, BUY_POST_PRICE, send_index );
-//					SetDWORD( send_buff, pUser->m_pUserData->m_iGold, send_index );
-//					pUser->Send( send_buff, send_index );	
-//				}
-//				else {
-					MarketBBSBuyDelete(i);
-//				}
-			}
-		}
-		
-		if (m_sSellID[i] != -1) {	// SELL!!!
-			pUser = (CUser*)m_Iocport.m_SockArray[m_sSellID[i]];
-			if (!pUser) {
-				MarketBBSSellDelete(i);
-				continue;
-			}
-		
-			if (m_fSellStartTime[i] + BBS_CHECK_TIME < currenttime) {
-//				if (pUser->m_pUserData->m_iGold >= SELL_POST_PRICE) {
-//					pUser->m_pUserData->m_iGold -= SELL_POST_PRICE ;
-//					m_fSellStartTime[i] = TimeGet();
-
-//					memset(send_buff, NULL, 256); send_index = 0;
-//					SetByte( send_buff, WIZ_GOLD_CHANGE, send_index );	// Now the target
-//					SetByte( send_buff, 0x02, send_index );
-//					SetDWORD( send_buff, SELL_POST_PRICE, send_index );
-//					SetDWORD( send_buff, pUser->m_pUserData->m_iGold, send_index );
-//					pUser->Send( send_buff, send_index );	
-//				}
-//				else {
-					MarketBBSSellDelete(i);
-//				}
-			}
-		}
-	}
-}
-
-void CEbenezerDlg::MarketBBSBuyDelete(short index)
-{
-	m_sBuyID[index] = -1;
-	memset( m_strBuyTitle[index], NULL, MAX_BBS_TITLE);
-	memset( m_strBuyMessage[index], NULL, MAX_BBS_MESSAGE);
-	m_iBuyPrice[index] = 0;
-	m_fBuyStartTime[index] = 0.0f;	
-}
-
-void CEbenezerDlg::MarketBBSSellDelete(short index)
-{
-	m_sSellID[index] = -1;
-	memset( m_strSellTitle[index], NULL, MAX_BBS_TITLE);
-	memset( m_strSellMessage[index], NULL, MAX_BBS_MESSAGE);
-	m_iSellPrice[index] = 0;
-	m_fSellStartTime[index] = 0.0f;
 }
 
 int CEbenezerDlg::GetKnightsGrade(int nPoints)
