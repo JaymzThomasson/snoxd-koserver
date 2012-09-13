@@ -23,7 +23,7 @@ public:
 	CDBAgent();
 	BOOL UpdateBattleEvent( const char* charid, int nation );
 	void LoadKnightsAllList( int nation);
-	BOOL CheckUserData( const char* accountid, const char*  charid, int type, int nTimeNumber, int comparedata );
+	BOOL CheckUserData( const char* accountid, const char*  charid, int type, int nTimeNumber, __int64 comparedata );
 	int AccountLogout( const char* accountid );
 	BOOL SetLogInInfo( const char* accountid, const char* charid, const char* serverip,  int serverno, const char* clientip, BYTE bInit );
 	BOOL LoadKnightsInfo( int index, char* buff, int &buff_index);

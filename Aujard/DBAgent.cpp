@@ -1392,7 +1392,7 @@ int CDBAgent::AccountLogout(const char *accountid)
 	return -1;
 }
 
-BOOL CDBAgent::CheckUserData(const char *accountid, const char *charid, int type, int nTimeNumber, int comparedata)
+BOOL CDBAgent::CheckUserData(const char *accountid, const char *charid, int type, int nTimeNumber, __int64 comparedata)
 {
 	SQLHSTMT		hstmt = NULL;
 	SQLRETURN		retcode;
