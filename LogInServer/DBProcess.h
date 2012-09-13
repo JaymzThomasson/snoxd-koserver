@@ -15,8 +15,6 @@ class CDBProcess
 public:
 	BOOL IsCurrentUser( const char* accountid, char* strServerIP, int &serverno );
 	void ReConnectODBC(CDatabase *m_db, const char *strdb, const char *strname, const char *strpwd);
-	BOOL DeleteVersion( const char* filename );
-	BOOL InsertVersion( int version, const char* filename, const char* compname, int historyversion );
 	BOOL InitDatabase( char* strconnection );
 	int AccountLogin( const char* id, const char* pwd );
 	BOOL LoadVersionList();

@@ -150,6 +150,20 @@
   <ItemGroup>
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
+    <ClCompile Include="..\shared\database\MagicTableSet.cpp" />
+    <ClCompile Include="..\shared\database\MagicType1Set.cpp" />
+    <ClCompile Include="..\shared\database\MagicType2Set.cpp" />
+    <ClCompile Include="..\shared\database\MagicType3Set.cpp" />
+    <ClCompile Include="..\shared\database\MagicType4Set.cpp" />
+    <ClCompile Include="..\shared\database\MakeDefensiveTableSet.cpp" />
+    <ClCompile Include="..\shared\database\MakeGradeItemTableSet.cpp" />
+    <ClCompile Include="..\shared\database\MakeLareItemTableSet.cpp" />
+    <ClCompile Include="..\shared\database\MakeWeaponTableSet.cpp" />
+    <ClCompile Include="..\shared\database\MonTableSet.cpp" />
+    <ClCompile Include="..\shared\database\NpcItemSet.cpp" />
+    <ClCompile Include="..\shared\database\NpcPosSet.cpp" />
+    <ClCompile Include="..\shared\database\NpcTableSet.cpp" />
+    <ClCompile Include="..\shared\database\ZoneInfoSet.cpp" />
     <ClCompile Include="..\shared\Ini.cpp" />
     <ClCompile Include="..\shared\lzf.cpp" />
     <ClCompile Include="CircularBuffer.cpp">
@@ -188,67 +202,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="MagicTableSet.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="MagicType1Set.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="MagicType2Set.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="MagicType3Set.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="MagicType4Set.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="MakeDefensiveTableSet.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="MakeGradeItemTableSet.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="MakeLareItemTableSet.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="MakeWeaponTableSet.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="MAP.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="MonTableSet.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -266,31 +220,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="NpcItemSet.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="NpcMagicProcess.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="NpcPosSet.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="NpcTable.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="NpcTableSet.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -356,12 +292,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ZoneInfoSet.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\N3BASE\My_3DStruct.h" />
@@ -369,6 +299,20 @@
     <ClInclude Include="..\N3BASE\N3ShapeMgr.h" />
     <ClInclude Include="..\N3BASE\StdAfxBase.h" />
     <ClInclude Include="..\shared\crc32.h" />
+    <ClInclude Include="..\shared\database\MagicTableSet.h" />
+    <ClInclude Include="..\shared\database\MagicType1Set.h" />
+    <ClInclude Include="..\shared\database\MagicType2Set.h" />
+    <ClInclude Include="..\shared\database\MagicType3Set.h" />
+    <ClInclude Include="..\shared\database\MagicType4Set.h" />
+    <ClInclude Include="..\shared\database\MakeDefensiveTableSet.h" />
+    <ClInclude Include="..\shared\database\MakeGradeItemTableSet.h" />
+    <ClInclude Include="..\shared\database\MakeLareItemTableSet.h" />
+    <ClInclude Include="..\shared\database\MakeWeaponTableSet.h" />
+    <ClInclude Include="..\shared\database\MonTableSet.h" />
+    <ClInclude Include="..\shared\database\NpcItemSet.h" />
+    <ClInclude Include="..\shared\database\NpcPosSet.h" />
+    <ClInclude Include="..\shared\database\NpcTableSet.h" />
+    <ClInclude Include="..\shared\database\ZoneInfoSet.h" />
     <ClInclude Include="..\shared\Ini.h" />
     <ClInclude Include="..\shared\lzf.h" />
     <ClInclude Include="CircularBuffer.h" />
@@ -379,24 +323,11 @@
     <ClInclude Include="IOCPort.h" />
     <ClInclude Include="IOCPSocket2.h" />
     <ClInclude Include="MagicProcess.h" />
-    <ClInclude Include="MagicTableSet.h" />
-    <ClInclude Include="MagicType1Set.h" />
-    <ClInclude Include="MagicType2Set.h" />
-    <ClInclude Include="MagicType3Set.h" />
-    <ClInclude Include="MagicType4Set.h" />
-    <ClInclude Include="MakeDefensiveTableSet.h" />
-    <ClInclude Include="MakeGradeItemTableSet.h" />
-    <ClInclude Include="MakeLareItemTableSet.h" />
-    <ClInclude Include="MakeWeaponTableSet.h" />
     <ClInclude Include="MAP.h" />
-    <ClInclude Include="MonTableSet.h" />
     <ClInclude Include="Npc.h" />
     <ClInclude Include="NpcItem.h" />
-    <ClInclude Include="NpcItemSet.h" />
     <ClInclude Include="NpcMagicProcess.h" />
-    <ClInclude Include="NpcPosSet.h" />
     <ClInclude Include="NpcTable.h" />
-    <ClInclude Include="NpcTableSet.h" />
     <ClInclude Include="NpcThread.h" />
     <ClInclude Include="Packet.h" />
     <ClInclude Include="Party.h" />
@@ -409,7 +340,6 @@
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="STLMap.h" />
     <ClInclude Include="User.h" />
-    <ClInclude Include="ZoneInfoSet.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>

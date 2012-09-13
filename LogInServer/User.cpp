@@ -204,7 +204,7 @@ void CUser::SendDownloadInfo(int version)
 	for (map <string, _VERSION_INFO*>::iterator Iter1 = m_pMain->m_VersionList.m_UserTypeMap.begin(); Iter1 != m_pMain->m_VersionList.m_UserTypeMap.end(); Iter1++ ) {
 		pInfo = (*Iter1).second;
 		if( pInfo->sVersion > version )
-			downloadset.insert(pInfo->strCompName);
+			downloadset.insert(pInfo->strFileName);
 	}
 
 	SetByte( buff, LS_DOWNLOADINFO_REQ, send_index );

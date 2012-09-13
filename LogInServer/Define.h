@@ -59,7 +59,6 @@ struct _VERSION_INFO
 	short sVersion;
 	short sHistoryVersion;
 	string strFileName;
-	string strCompName;
 };
 
 struct _SERVER_INFO

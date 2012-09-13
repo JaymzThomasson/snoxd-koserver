@@ -16,6 +16,9 @@
     <Filter Include="Shared">
       <UniqueIdentifier>{55d67395-849f-475d-b15c-6a5308cb778d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Database">
+      <UniqueIdentifier>{4fef33e7-0850-4a21-8150-8feb10b1693d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CircularBuffer.cpp">
@@ -42,11 +45,11 @@
     <ClCompile Include="VersionManagerDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VersionSet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\Ini.cpp">
       <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\VersionSet.cpp">
+      <Filter>Database</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -88,14 +91,14 @@
     <ClInclude Include="VersionManagerDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VersionSet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\Ini.h">
       <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\VersionSet.h">
+      <Filter>Database</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

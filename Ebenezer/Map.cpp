@@ -8,7 +8,7 @@
 #include "Region.h"
 #include "Define.h"
 #include "User.h"
-#include "EventSet.h"
+#include "../shared/database/EventSet.h"
 #include "EbenezerDlg.h"
 
 #ifdef _DEBUG

@@ -120,57 +120,6 @@
     <ClCompile Include="MarketBBSHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
-    <ClCompile Include="MagicTableSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="MagicType8Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="MagicType1Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="MagicType2Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="MagicType3Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="MagicType4Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="MagicType5Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="ServerResourceSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="ZoneInfoSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="CoefficientSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="KnightsRankSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="KnightsUserSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="KnightsSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="LevelUpTableSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="BattleSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="HomeSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="EventSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
     <ClCompile Include="IOCPort.cpp">
       <Filter>Networking</Filter>
     </ClCompile>
@@ -183,9 +132,6 @@
     <ClCompile Include="CircularBuffer.cpp">
       <Filter>Networking</Filter>
     </ClCompile>
-    <ClCompile Include="ItemTableSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
     <ClCompile Include="ShoppingMallHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
@@ -194,9 +140,6 @@
     </ClCompile>
     <ClCompile Include="RentalHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="StartPositionSet.cpp">
-      <Filter>Database</Filter>
     </ClCompile>
     <ClCompile Include="MerchantHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
@@ -212,6 +155,63 @@
     </ClCompile>
     <ClCompile Include="..\shared\SharedMem.cpp">
       <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\ServerResourceSet.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\StartPositionSet.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\ZoneInfoSet.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\BattleSet.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\CoefficientSet.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\EventSet.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\HomeSet.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\ItemTableSet.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\KnightsRankSet.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\KnightsSet.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\KnightsUserSet.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\LevelUpTableSet.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\MagicTableSet.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\MagicType1Set.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\MagicType2Set.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\MagicType3Set.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\MagicType4Set.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\MagicType5Set.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\MagicType8Set.cpp">
+      <Filter>Database</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -287,57 +287,6 @@
     <ClInclude Include="..\shared\version.h">
       <Filter>Shared</Filter>
     </ClInclude>
-    <ClInclude Include="ServerResourceSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="BattleSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="EventSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="HomeSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="KnightsSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="KnightsRankSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="KnightsUserSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="LevelUpTableSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="MagicTableSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="MagicType1Set.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="MagicType2Set.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="MagicType3Set.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="MagicType4Set.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="MagicType5Set.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="MagicType8Set.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="ZoneInfoSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="CoefficientSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
     <ClInclude Include="UdpSocket.h">
       <Filter>Networking</Filter>
     </ClInclude>
@@ -353,17 +302,11 @@
     <ClInclude Include="CircularBuffer.h">
       <Filter>Networking</Filter>
     </ClInclude>
-    <ClInclude Include="ItemTableSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\globals.h">
       <Filter>Shared</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\packets.h">
       <Filter>Shared</Filter>
-    </ClInclude>
-    <ClInclude Include="StartPositionSet.h">
-      <Filter>Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\Compress.h">
       <Filter>Shared</Filter>
@@ -385,6 +328,63 @@
     </ClInclude>
     <ClInclude Include="..\shared\SharedMem.h">
       <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\ServerResourceSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\StartPositionSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\ZoneInfoSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\BattleSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\CoefficientSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\EventSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\HomeSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\ItemTableSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\KnightsRankSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\KnightsSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\KnightsUserSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\LevelUpTableSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\MagicTableSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\MagicType1Set.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\MagicType2Set.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\MagicType3Set.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\MagicType4Set.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\MagicType5Set.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\MagicType8Set.h">
+      <Filter>Database</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

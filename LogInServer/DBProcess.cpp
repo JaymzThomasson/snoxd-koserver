@@ -7,6 +7,7 @@
 #include "define.h"
 #include "DBProcess.h"
 #include "VersionManagerDlg.h"
+#include "../shared/database/VersionSet.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -72,62 +73,28 @@ void CDBProcess::ReConnectODBC(CDatabase *m_db, const char *strdb, const char *s
 
 BOOL CDBProcess::LoadVersionList()
 {
-	SQLHSTMT		hstmt = NULL;
-	SQLRETURN		retcode;
-	TCHAR			szSQL[1024];
-	
-	CString tempfilename, tempcompname;
+	CVersionSet VersionSet(&m_VersionDB);
+	if (VersionSet.Open() 
+		&& !VersionSet.IsBOF() && !VersionSet.IsEOF())
+	{
+		VersionSet.MoveFirst();
 
-	memset(szSQL, 0x00, 1024);
-	wsprintf(szSQL, TEXT("select * from VERSION"));
-	
-	SQLSMALLINT	version = 0, historyversion = 0;
-	TCHAR strfilename[256], strcompname[256];
-	memset( strfilename, NULL, 256 );
-	memset( strcompname, NULL, 256 );
-	SQLINTEGER Indexind = SQL_NTS;
-
-	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_VersionDB.m_hdbc, &hstmt );
-	if (retcode != SQL_SUCCESS)	return FALSE; 
-
-	retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);	
-	if( retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO ) {
-		if( DisplayErrorMsg(hstmt) == -1 ) {
-			m_VersionDB.Close();
-			if( !m_VersionDB.IsOpen() ) {
-				ReConnectODBC( &m_VersionDB, m_pMain->m_ODBCName, m_pMain->m_ODBCLogin, m_pMain->m_ODBCPwd );
-				return FALSE;
-			}
-		}
-		SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
-		return FALSE;
-	}
-	while (retcode == SQL_SUCCESS|| retcode == SQL_SUCCESS_WITH_INFO) {
-		retcode = SQLFetch(hstmt);
-		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO){
-			SQLGetData(hstmt,1 ,SQL_C_SSHORT  , &version,   0, &Indexind);
-			SQLGetData(hstmt,2 ,SQL_C_CHAR  ,strfilename, 256, &Indexind);
-			SQLGetData(hstmt,3 ,SQL_C_CHAR  ,strcompname, 256, &Indexind);
-			SQLGetData(hstmt,4 ,SQL_C_SSHORT  , &historyversion,   0, &Indexind);
-
+		while (!VersionSet.IsEOF())
+		{
 			_VERSION_INFO* pInfo = new _VERSION_INFO;
-			
-			tempfilename = strfilename;	tempcompname = strcompname;
-			tempfilename.TrimRight(); tempcompname.TrimRight();
-
-			pInfo->sVersion = version;
-			pInfo->strFileName = tempfilename;
-			pInfo->strCompName = tempcompname;
-			pInfo->sHistoryVersion = historyversion;
-
-			if( !m_pMain->m_VersionList.PutData( pInfo->strFileName, pInfo ) ) {
-				TRACE("VersionInfo PutData Fail - %d\n", pInfo->strFileName );
+			pInfo->sVersion = VersionSet.m_sVersion;
+			pInfo->sHistoryVersion = VersionSet.m_sHistoryVersion;
+	
+			if (!m_pMain->m_VersionList.PutData( pInfo->strFileName, pInfo))
+			{
+				TRACE("VersionInfo PutData Fail - %s\n", pInfo->strFileName);
 				delete pInfo;
 				pInfo = NULL;
 			}
+
+			VersionSet.MoveNext();
 		}
 	}
-	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
 
 	m_pMain->m_nLastVersion = 0;
 
@@ -175,56 +142,6 @@ int CDBProcess::AccountLogin(const char *id, const char *pwd)
 	}
 	
 	return sParmRet;
-}
-
-BOOL CDBProcess::InsertVersion(int version, const char *filename, const char *compname, int historyversion)
-{
-	SQLHSTMT		hstmt = NULL;
-	SQLRETURN		retcode;
-	TCHAR			szSQL[1024];
-	memset( szSQL, 0x00, 1024 );
-	BOOL			retvalue = TRUE;
-
-	wsprintf( szSQL, TEXT( "INSERT INTO VERSION (sVersion, strFileName, strCompressName, sHistoryVersion) VALUES (%d, \'%s\', \'%s\', %d)" ), version, filename, compname, historyversion);
-
-	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_VersionDB.m_hdbc, &hstmt );
-	if (retcode == SQL_SUCCESS)
-	{
-		retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
-		if( retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO ) {
-			DisplayErrorMsg( hstmt );
-			retvalue = FALSE;
-		}
-
-		SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
-	}
-	
-	return retvalue;
-}
-
-BOOL CDBProcess::DeleteVersion( const char *filename)
-{
-	SQLHSTMT		hstmt = NULL;
-	SQLRETURN		retcode;
-	TCHAR			szSQL[1024];
-	memset( szSQL, 0x00, 1024 );
-	BOOL			retvalue = TRUE;
-
-	wsprintf( szSQL, TEXT( "DELETE FROM VERSION WHERE strFileName = \'%s\'" ), filename);
-
-	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_VersionDB.m_hdbc, &hstmt );
-	if (retcode == SQL_SUCCESS)
-	{
-		retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
-		if( retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO ) {
-			DisplayErrorMsg( hstmt );
-			retvalue = FALSE;
-		}
-
-		SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
-	}
-	
-	return retvalue;
 }
 
 BOOL CDBProcess::LoadUserCountList()
