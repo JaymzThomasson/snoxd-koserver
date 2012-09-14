@@ -163,8 +163,6 @@ public:
 	float	m_fSpeedHackClientTime, m_fSpeedHackServerTime;
 	BYTE	m_bSpeedHackCheck;
 
-	short	m_sFriendUser;				// who are you trying to make friends with?
-
 	float	m_fBlinkStartTime;			// When did you start to blink?
 
 	short	m_sAliveCount;
@@ -270,9 +268,12 @@ public:
 	void ClassChangeReq();
 	void FriendProcess(char *pBuf);
 	void FriendRequest(char *pBuf);
-	void FriendAccept(char *pBuf);
+	void FriendModify(char *pBuf);
 	void FriendReport(char *pBuf);
-	void FriendCancel(char *pBuf);
+	void RecvFriendProcess(char *pBuf);
+	void RecvFriendRequest(char *pBuf);
+	void RecvFriendModify(char *pBuf);
+	BYTE GetFriendStatus(char * charName, short & sid);
 	CUser* GetItemRoutingUser(int itemid, short itemcount);
 	void Home();
 	bool GetStartPosition(short & x, short & y, BYTE bZone = 0);

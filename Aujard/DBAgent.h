@@ -46,6 +46,10 @@ public:
 	BOOL LoadSkillShortcut(char *charid, char *buff, int & buff_index);
 	void SaveSkillShortcut(char *charid, int sCount, char *buff);
 
+	void RequestFriendList(int uid, std::vector<std::string> & friendList);
+	FriendAddResult AddFriend(short sid, short tid);
+	FriendRemoveResult RemoveFriend(short sid, char *charName);
+
 	void ReConnectODBC(CDatabase *m_db, char *strdb, char *strname, char *strpwd);
 	BOOL DatabaseInit();
 	void MUserInit(int uid);

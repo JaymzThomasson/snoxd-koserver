@@ -1730,5 +1730,140 @@ void CDBAgent::SaveSkillShortcut(char *charid, int sCount, char *buff)
 			}
 		}
 	}
-	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
+	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT, hstmt);
+}
+
+void CDBAgent::RequestFriendList(int uid, vector<string> & friendList)
+{
+	SQLHSTMT		hstmt;
+	SQLRETURN		retcode;
+	TCHAR			szSQL[1024];
+
+	if (uid < 0 || uid >= MAX_USER
+		|| m_UserDataArray[uid]->m_id[0] == 0)
+		return;
+
+	memset(szSQL, 0x00, 1024);
+	wsprintf(szSQL, TEXT("SELECT * FROM FRIEND_LIST WHERE strUserID = \'%s\'"), m_UserDataArray[uid]->m_id);
+	DEBUG_LOG("%s", szSQL);
+	SQLINTEGER Indexind = SQL_NTS;
+
+	hstmt = NULL;
+	retcode = SQLAllocHandle((SQLSMALLINT)SQL_HANDLE_STMT, m_AccountDB.m_hdbc, &hstmt);
+	if (retcode == SQL_SUCCESS)
+	{
+		retcode = SQLExecDirect(hstmt, (unsigned char *)szSQL, 1024);	
+		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
+		{
+			retcode = SQLFetch(hstmt);
+			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
+			{
+				for (int i = 2; i <= 25; i++)
+				{
+					char charid[MAX_ID_SIZE+1];
+					memset(charid, 0x00, MAX_ID_SIZE+1);
+					SQLGetData(hstmt, i, SQL_C_CHAR, charid, MAX_ID_SIZE, &Indexind);
+					if (charid[0] != 0)
+						friendList.push_back((string)charid);
+				}
+			}
+		}
+		else 
+		{
+			if (DisplayErrorMsg(hstmt, szSQL) == -1)
+			{
+				m_AccountDB.Close();
+				if (!m_AccountDB.IsOpen()) 
+				{
+					ReConnectODBC(&m_AccountDB, m_pMain->m_strAccountDSN, m_pMain->m_strAccountUID, m_pMain->m_strAccountPWD);
+					return;
+				}
+			}
+		}
+	}
+	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT, hstmt);
+}
+
+FriendAddResult CDBAgent::AddFriend(short sid, short tid)
+{
+	SQLHSTMT		hstmt;
+	SQLRETURN		retcode;
+	TCHAR			szSQL[1024];
+	SQLSMALLINT		sParmRet = -1;
+	SQLINTEGER		cbParmRet = SQL_NTS;
+
+	memset(szSQL, 0x00, 1024);
+	wsprintf(szSQL, TEXT("{call INSERT_FRIEND_LIST (\'%s\', \'%s\', ?)}"), m_UserDataArray[sid]->m_id, m_UserDataArray[tid]->m_id); // IDs checked prior to call
+	DEBUG_LOG("%s", szSQL);
+	hstmt = NULL;
+
+	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
+	if (retcode == SQL_SUCCESS)
+	{
+		retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_OUTPUT, SQL_C_SSHORT, SQL_SMALLINT, 0, 0, &sParmRet, 0, &cbParmRet);
+
+		if (retcode == SQL_SUCCESS)
+		{
+			retcode = SQLExecDirect(hstmt, (unsigned char *)szSQL, 1024);
+			if (retcode == SQL_ERROR)
+			{
+				if (DisplayErrorMsg(hstmt, szSQL) == -1)
+				{
+					m_GameDB.Close();
+					if  (!m_GameDB.IsOpen())
+					{
+						ReConnectODBC(&m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD);
+						return FRIEND_ADD_ERROR;
+					}
+				}
+			}
+		}
+	}
+	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT, hstmt);
+	if (sParmRet < 0 || sParmRet >= FRIEND_ADD_MAX)
+		sParmRet = FRIEND_ADD_ERROR;
+
+	return (FriendAddResult)sParmRet;
+}
+
+FriendRemoveResult CDBAgent::RemoveFriend(short sid, char *charName)
+{
+	SQLHSTMT		hstmt;
+	SQLRETURN		retcode;
+	TCHAR			szSQL[1024];
+	SQLSMALLINT		sParmRet = -1;
+	SQLINTEGER		cbParmRet = SQL_NTS;
+
+	memset(szSQL, 0x00, 1024);
+	wsprintf(szSQL, TEXT("{call DELETE_FRIEND_LIST (\'%s\', \'%s\', ?)}"), m_UserDataArray[sid]->m_id, charName); // ID's checked prior to call
+	DEBUG_LOG("%s", szSQL);
+	hstmt = NULL;
+
+	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_GameDB.m_hdbc, &hstmt );
+	if (retcode == SQL_SUCCESS)
+	{
+		retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_OUTPUT, SQL_C_SSHORT, SQL_SMALLINT, 0, 0, &sParmRet, 0, &cbParmRet);
+
+		if (retcode == SQL_SUCCESS)
+		{
+			retcode = SQLExecDirect(hstmt, (unsigned char *)szSQL, 1024);
+			if (retcode == SQL_ERROR)
+			{
+				if (DisplayErrorMsg(hstmt, szSQL) == -1)
+				{
+					m_GameDB.Close();
+					if  (!m_GameDB.IsOpen())
+					{
+						ReConnectODBC(&m_GameDB, m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD);
+						return FRIEND_REMOVE_ERROR;
+					}
+				}
+			}
+		}
+	}
+	SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT, hstmt);
+	if (sParmRet < 0 || sParmRet >= FRIEND_REMOVE_MAX)
+		sParmRet = FRIEND_REMOVE_MAX;
+
+	return (FriendRemoveResult)sParmRet;
 }

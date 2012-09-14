@@ -54,6 +54,11 @@ public:
 	void SkillDataSave(char *pBuf, int uid);
 	void SkillDataLoad(char *pBuf, int uid);
 
+	void FriendProcess(char *pBuf);
+	void RequestFriendList(char *pBuf);
+	void AddFriend(char *pBuf);
+	void RemoveFriend(char *pBuf);
+
 	BOOL InitializeMMF();
 	void SelectCharacter( char* pBuf );
 

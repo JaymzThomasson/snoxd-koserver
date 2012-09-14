@@ -3,6 +3,7 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 
+// From the client
 void CUser::FriendProcess(char *pBuf)
 {
 	int index = 0;
@@ -13,122 +14,169 @@ void CUser::FriendProcess(char *pBuf)
 		case FRIEND_REQUEST:
 			FriendRequest(pBuf+index);
 			break;
-		case FRIEND_ACCEPT:
-			FriendAccept(pBuf+index);
-			break;
 		case FRIEND_REPORT:
 			FriendReport(pBuf+index);
 			break;
-		case FRIEND_CANCEL:
-			FriendCancel(pBuf+index);
+		case FRIEND_ADD:
+		case FRIEND_REMOVE:
+			FriendModify(pBuf);
 			break;
 	}
 }
 
+// Request friend list.
 void CUser::FriendRequest(char *pBuf)
 {
-	int index = 0, destid = -1, send_index = 0;
+	int send_index = 0;
+	char send_buff[4];
 
-	CUser* pUser = NULL;
-	char buff[4];
+	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
+	SetByte(send_buff, FRIEND_REQUEST, send_index);
+	SetShort(send_buff, m_Sid, send_index);
 
-	destid = GetShort(pBuf, index);
-	pUser = m_pMain->GetUserPtr(destid);
-	if( pUser == NULL
-		|| pUser->m_sFriendUser != -1
-		|| pUser->getNation() != getNation())
-		goto fail_return;
-
-	m_sFriendUser = destid;
-	pUser->m_sFriendUser = m_Sid;
-
-	SetByte( buff, WIZ_FRIEND_PROCESS, send_index );
-	SetByte( buff, FRIEND_REQUEST, send_index );
-	SetShort( buff, m_Sid, send_index );
-	pUser->Send( buff, send_index );	
-	return;
-
-fail_return:
-	SetByte( buff, WIZ_FRIEND_PROCESS, send_index );
-	SetByte( buff, FRIEND_CANCEL, send_index );
-	Send( buff, send_index );
+	int result = m_pMain->m_LoggerSendQueue.PutData(send_buff, send_index);
+	if (result >= SMQ_FULL)
+		DEBUG_LOG("Failed to send friend list request packet : %d", result);
 }
 
-void CUser::FriendAccept(char *pBuf)
+// Add or remove a friend from your list.
+void CUser::FriendModify(char *pBuf)
 {
-	int index = 0, destid = -1, send_index = 0;
-	CUser* pUser = NULL;
-	char buff[256];	memset( buff, 0x00, 256 );
-	BYTE result = GetByte( pBuf, index );
+	CUser *pUser = NULL;
+	char charName[MAX_ID_SIZE+1] = "";
+	int index = 0, send_index = 0;
+	char send_buff[6];
+	BYTE opcode = GetByte(pBuf, index);
 
-	pUser = m_pMain->GetUserPtr(m_sFriendUser);
-
-	if (pUser == NULL) 
-	{
-		m_sFriendUser = -1;
+	if (!GetKOString(pBuf, charName, index, MAX_ID_SIZE)
+		|| (opcode == FRIEND_ADD && (pUser = m_pMain->GetUserPtr(charName, TYPE_CHARACTER)) == NULL))
 		return;
-	}
 
-	m_sFriendUser = -1;
-	pUser->m_sFriendUser = -1;
+	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
+	SetByte(send_buff, opcode, send_index);
+	SetShort(send_buff, GetSocketID(), send_index);
+	if (opcode == FRIEND_ADD)
+		SetShort(send_buff, pUser->GetSocketID(), send_index);
+	SetKOString(send_buff, charName, send_index, sizeof(BYTE));
 
-	SetByte( buff, WIZ_FRIEND_PROCESS, send_index );
-	SetByte( buff, FRIEND_ACCEPT, send_index );
-	SetByte( buff, result, send_index );
-	pUser->Send( buff, send_index );
+	int result = m_pMain->m_LoggerSendQueue.PutData(send_buff, send_index);
+	if (result >= SMQ_FULL)
+		DEBUG_LOG("Failed to send friend list modify packet : %d", result);
 }
 
+// Refresh the status of your friends.
 void CUser::FriendReport(char *pBuf)
 {
-	int index = 0; short usercount = 0, idlen = 0;		// Basic Initializations.
-	int send_index = 0;
+	int index = 0, send_index = 0;
+	short usercount = 0, idlen = 0;
 	char send_buff[640];
-	memset( send_buff, NULL, 640);
-	char userid[MAX_ID_SIZE+1];
-	memset( userid, NULL, MAX_ID_SIZE+1 );
-	CUser* pUser = NULL;
 
-	return;
-
-	usercount = GetShort( pBuf, index );	// Get usercount packet.
-	if( usercount >= 30 || usercount < 0) return;
+	usercount = GetShort(pBuf, index);	// Get usercount packet.
+	if (usercount > MAX_FRIEND_COUNT || usercount < 0) return;
 	
-	SetByte( send_buff, WIZ_FRIEND_PROCESS, send_index );
-	SetShort( send_buff, usercount, send_index);
+	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
+	SetByte(send_buff, FRIEND_REPORT, send_index);
+	SetShort(send_buff, usercount, send_index);
 
-	for (int k = 0 ; k < usercount ; k++) {
-		idlen = GetShort( pBuf, index );
-		if( idlen > MAX_ID_SIZE ) {
-			SetKOString(send_buff, userid, send_index);
-			SetShort(send_buff, -1, send_index);
-			SetByte( send_buff, 0, send_index);
-			continue;
-		}
-		GetString( userid, pBuf, idlen, index );
+	for (int i = 0; i < usercount; i++) 
+	{
+		char charName[MAX_ID_SIZE+1] = "";
+		short sid;
 
-		pUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
+		GetKOString(pBuf, charName, index, MAX_ID_SIZE);
+		SetKOString(send_buff, charName, send_index);
 
-		SetKOString(send_buff, userid, send_index);
-
-		if (!pUser) { // No such user
-			SetShort(send_buff, -1, send_index);
-			SetByte( send_buff, 0, send_index);
-		}
-		else {
-			SetShort(send_buff, pUser->GetSocketID(), send_index);
-			if (pUser->m_sPartyIndex >=0) {
-				SetByte( send_buff, 3, send_index);
-			}
-			else {
-				SetByte( send_buff, 1, send_index);
-			}
-		}
+		BYTE result = GetFriendStatus(charName, sid);
+		SetShort(send_buff, sid, send_index);
+		SetShort(send_buff, result, send_index);
 	}
 
-	Send( send_buff, send_index );
+	Send(send_buff, send_index);
 }
 
-void CUser::FriendCancel(char *pBuf)
+// Retrieves the status (and socket ID) of a character.
+BYTE CUser::GetFriendStatus(char * charName, short & sid)
 {
-	// TO-DO
+	CUser *pUser;
+	if (charName[0] == 0
+		|| (pUser = m_pMain->GetUserPtr(charName, TYPE_CHARACTER)) == NULL)
+	{
+		sid = -1;
+		return 0; // user not found
+	}
+
+	sid = pUser->GetSocketID();
+	if (pUser->m_sPartyIndex != -1) // user in party
+		return 3;
+
+	return 1; // user not in party
+}
+
+// From Aujard
+void CUser::RecvFriendProcess(char *pBuf)
+{
+	int index = 0;
+	BYTE subcommand = GetByte(pBuf, index);
+
+	switch (subcommand)
+	{
+		case FRIEND_REQUEST:
+			RecvFriendRequest(pBuf+index);
+			break;
+		case FRIEND_ADD:
+		case FRIEND_REMOVE:
+			RecvFriendModify(pBuf);
+			break;
+	}
+}
+
+void CUser::RecvFriendRequest(char *pBuf)
+{
+	char send_buff[(MAX_ID_SIZE * MAX_FRIEND_COUNT + 3) + 2 + 2];
+	int index = 0, send_index = 0;
+	BYTE count = GetByte(pBuf, index);
+
+	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
+	SetByte(send_buff, FRIEND_REQUEST, send_index);
+	SetShort(send_buff, count, send_index);
+
+	for (int i = 0; i < count; i++)
+	{
+		char charName[MAX_ID_SIZE+1] = "";
+		if (!GetKOString(pBuf, charName, index, MAX_ID_SIZE, sizeof(BYTE)))
+			continue;
+
+		short sid;
+		BYTE status = GetFriendStatus(charName, sid);
+
+		SetKOString(send_buff, charName, send_index);
+		SetShort(send_buff, status, send_index);
+		SetByte(send_buff, status, send_index);
+	}
+	Send(send_buff, send_index);
+}
+
+void CUser::RecvFriendModify(char *pBuf)
+{
+	char send_buff[7+MAX_ID_SIZE], charName[MAX_ID_SIZE+1] = "";
+	int index = 0, send_index = 0;
+	BYTE opcode = GetByte(pBuf, index),
+		 result = GetByte(pBuf, index);
+	short sid = -1;
+	if (opcode == FRIEND_ADD)
+		sid = GetShort(pBuf, index);
+
+	if (!GetKOString(pBuf, charName, index, MAX_ID_SIZE, sizeof(BYTE)))
+		return;
+
+	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
+	SetByte(send_buff, opcode, send_index);
+	SetByte(send_buff, result, send_index);
+	SetKOString(send_buff, charName, send_index);
+
+	BYTE status = GetFriendStatus(charName, sid);
+	SetShort(send_buff, sid, send_index);
+	SetByte(send_buff, status, send_index);
+	
+	Send(send_buff, send_index);
 }

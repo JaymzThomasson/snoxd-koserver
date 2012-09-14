@@ -296,10 +296,31 @@ enum
 ////////////////////////////////////////////////////////////////
 // Friend subpacket define
 ////////////////////////////////////////////////////////////////
-#define FRIEND_REQUEST			0x01
-#define FRIEND_ACCEPT			0x02
-#define FRIEND_REPORT			0x03
-#define FRIEND_CANCEL			0x04
+enum FriendOpcodes
+{
+	FRIEND_REQUEST	= 1,
+	FRIEND_REPORT	= 2,
+	FRIEND_ADD		= 3,
+	FRIEND_REMOVE	= 4
+};
+
+enum FriendAddResult
+{
+	FRIEND_ADD_SUCCESS	= 0,
+	FRIEND_ADD_ERROR	= 1,
+	FRIEND_ADD_FULL		= 2,
+
+	FRIEND_ADD_MAX
+};
+
+enum FriendRemoveResult
+{
+	FRIEND_REMOVE_SUCCESS	= 0,
+	FRIEND_REMOVE_ERROR		= 1,
+	FRIEND_REMOVE_NOT_FOUND	= 2,
+
+	FRIEND_REMOVE_MAX
+};
 
 ////////////////////////////////////////////////////////////////
 // Party BBS subpacket define

@@ -118,11 +118,6 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 					break;
 				case WIZ_DEL_CHAR:
 					pUser->RecvDeleteChar( pBuf + index );
-				/*	result = GetByte( pBuf, index );
-					SetByte( send_buff, WIZ_DEL_CHAR, send_index );
-					SetByte( send_buff, result, send_index );					// 성공시 국가 정보
-					SetByte( send_buff, GetByte( pBuf, index ), send_index );
-					pUser->Send( send_buff, send_index );	*/
 					break;
 				case WIZ_SEL_CHAR:
 					pUser->SelectCharacter( pBuf + index );
@@ -145,11 +140,14 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 							pUser->RecvSkillDataLoad(pBuf+index);
 					} break;
 				case WIZ_LOGOUT:
-					if (pUser != NULL && pUser->m_pUserData->m_id[0] != 0)
+					if (pUser->m_pUserData->m_id[0] != 0)
 					{
 						TRACE("Logout Strange...%s\n", pUser->m_pUserData->m_id);
 						pUser->Close();
 					}
+					break;
+				case WIZ_FRIEND_PROCESS:
+					pUser->RecvFriendProcess(pBuf+index);
 					break;
 				case KNIGHTS_CREATE+0x10:
 				case KNIGHTS_JOIN+0x10:

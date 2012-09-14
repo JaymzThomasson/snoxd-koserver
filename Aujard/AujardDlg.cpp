@@ -282,7 +282,7 @@ BOOL CAujardDlg::InitializeMMF()
 	m_DBAgent.m_UserDataArray.reserve( MAX_USER );
 
 	for (int i = 0; i < MAX_USER; i++)
-		m_DBAgent.m_UserDataArray.push_back((_USER_DATA*)(m_lpMMFile + i * sizeof(_USER_DATA));
+		m_DBAgent.m_UserDataArray.push_back((_USER_DATA*)(m_lpMMFile + i * sizeof(_USER_DATA)));
 
 	return TRUE;
 }
@@ -460,6 +460,88 @@ void CAujardDlg::SkillDataSave(char *pBuf, int uid)
 	int index = 0, sCount = GetShort(pBuf, index);
 	m_DBAgent.SaveSkillShortcut(m_DBAgent.m_UserDataArray[uid]->m_id, sCount, pBuf);
 	// this doesn't send a response AFAIK
+}
+
+void CAujardDlg::FriendProcess(char *pBuf)
+{
+	int index = 0;
+	BYTE opcode = GetByte(pBuf, index);
+
+	switch (opcode)
+	{
+	case FRIEND_REQUEST:
+		RequestFriendList(pBuf+index);
+		break;
+
+	case FRIEND_ADD:
+		AddFriend(pBuf+index);
+		break;
+
+	case FRIEND_REMOVE:
+		RemoveFriend(pBuf+index);
+		break;
+	}
+}
+
+void CAujardDlg::RequestFriendList(char *pBuf)
+{
+	char send_buff[MAX_ID_SIZE * MAX_FRIEND_COUNT + 2 + 2 + 1];
+	vector<string> friendList;
+	int index = 0, send_index = 0;
+	short sid = GetShort(pBuf, index);
+
+	m_DBAgent.RequestFriendList(sid, friendList);
+
+	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
+	SetShort(send_buff, sid, send_index);
+	SetByte(send_buff, FRIEND_REQUEST, send_index);
+	SetByte(send_buff, (BYTE)(friendList.size()), send_index);
+
+	for (vector<string>::iterator itr = friendList.begin(); itr != friendList.end(); itr++)
+		SetKOString(send_buff, (char *)(*itr).c_str(), send_index, sizeof(BYTE));
+}
+
+void CAujardDlg::AddFriend(char *pBuf)
+{
+	char send_buff[8+MAX_ID_SIZE], charName[MAX_ID_SIZE+1];
+	int index = 0, send_index = 0;
+	short sid = GetShort(pBuf, index), // player adding a friend
+		  tid = GetShort(pBuf, index); // friend being added (HAS to be online to add - no other way.)
+
+	// Safety checks! Don't leave home without them.
+	if (sid < 0 || sid >= MAX_USER
+		|| tid < 0 || tid >= MAX_USER
+		|| !GetKOString(pBuf, charName, index, MAX_ID_SIZE, sizeof(BYTE)))
+		return;
+
+	FriendAddResult result = m_DBAgent.AddFriend(sid, tid);
+	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
+	SetShort(send_buff, sid, send_index);
+	SetByte(send_buff, FRIEND_ADD, send_index);
+	SetShort(send_buff, tid, send_index);
+	SetByte(send_buff, (BYTE)result, send_index);
+	SetKOString(send_buff, charName, send_index, sizeof(BYTE));
+	m_LoggerSendQueue.PutData(send_buff, send_index);
+}
+
+void CAujardDlg::RemoveFriend(char *pBuf)
+{
+	int index = 0, send_index = 0;
+	char send_buff[6+MAX_ID_SIZE], charName[MAX_ID_SIZE+1];
+	short sid = GetShort(pBuf, index); // player removing a friend
+
+	// Safety checks! Don't leave home without them.
+	if (sid < 0 || sid >= MAX_USER
+		|| !GetKOString(pBuf, charName, index, MAX_ID_SIZE, sizeof(BYTE)))
+		return;
+
+	FriendRemoveResult result = m_DBAgent.RemoveFriend(sid, charName);
+	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
+	SetShort(send_buff, sid, send_index);
+	SetByte(send_buff, FRIEND_REMOVE, send_index);
+	SetByte(send_buff, (BYTE)result, send_index);
+	SetKOString(send_buff, charName, send_index, sizeof(BYTE));
+	m_LoggerSendQueue.PutData(send_buff, send_index);
 }
 
 void CAujardDlg::UserLogOut(char *pBuf)

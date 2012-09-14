@@ -116,8 +116,6 @@ void CUser::Initialize()
 	m_bAreaInterval = 5;
 	m_iAreaMagicID = 0;
 
-	m_sFriendUser = -1; 
-
 	InitType3();	 // Initialize durational type 3 stuff :)
 	InitType4();	 // Initialize durational type 4 stuff :)
 

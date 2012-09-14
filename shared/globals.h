@@ -9,6 +9,8 @@
 #define MAX_ID_SIZE			20
 #define MAX_PW_SIZE			12
 
+#define MAX_FRIEND_COUNT	24
+
 #define MAX_ITEM_COUNT		9999
 
 enum NameType
