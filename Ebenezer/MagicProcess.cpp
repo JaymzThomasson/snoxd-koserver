@@ -1234,7 +1234,6 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 //
 		} 
 	
-	packet_send:
 		if ( pMagic->bType2 == 0 || pMagic->bType2 == 3 ) {
 			SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 			SetByte( send_buff, MAGIC_EFFECTING, send_index );
