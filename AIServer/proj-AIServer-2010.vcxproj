@@ -146,17 +146,13 @@
   <ItemGroup>
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
-    <ClCompile Include="..\shared\database\ItemTableSet.cpp" />
     <ClCompile Include="..\shared\database\MagicTableSet.cpp" />
     <ClCompile Include="..\shared\database\MagicType1Set.cpp" />
     <ClCompile Include="..\shared\database\MagicType2Set.cpp" />
     <ClCompile Include="..\shared\database\MagicType3Set.cpp" />
     <ClCompile Include="..\shared\database\MagicType4Set.cpp" />
-    <ClCompile Include="..\shared\database\MagicType5Set.cpp" />
-    <ClCompile Include="..\shared\database\MagicType8Set.cpp" />
     <ClCompile Include="..\shared\database\MakeDefensiveTableSet.cpp" />
     <ClCompile Include="..\shared\database\MakeGradeItemTableSet.cpp" />
-    <ClCompile Include="..\shared\database\MakeItemTableSet.cpp" />
     <ClCompile Include="..\shared\database\MakeLareItemTableSet.cpp" />
     <ClCompile Include="..\shared\database\MakeWeaponTableSet.cpp" />
     <ClCompile Include="..\shared\database\MonTableSet.cpp" />
@@ -256,12 +252,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Region.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="RoomEvent.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -299,17 +289,13 @@
     <ClInclude Include="..\N3BASE\N3ShapeMgr.h" />
     <ClInclude Include="..\N3BASE\StdAfxBase.h" />
     <ClInclude Include="..\shared\crc32.h" />
-    <ClInclude Include="..\shared\database\ItemTableSet.h" />
     <ClInclude Include="..\shared\database\MagicTableSet.h" />
     <ClInclude Include="..\shared\database\MagicType1Set.h" />
     <ClInclude Include="..\shared\database\MagicType2Set.h" />
     <ClInclude Include="..\shared\database\MagicType3Set.h" />
     <ClInclude Include="..\shared\database\MagicType4Set.h" />
-    <ClInclude Include="..\shared\database\MagicType5Set.h" />
-    <ClInclude Include="..\shared\database\MagicType8Set.h" />
     <ClInclude Include="..\shared\database\MakeDefensiveTableSet.h" />
     <ClInclude Include="..\shared\database\MakeGradeItemTableSet.h" />
-    <ClInclude Include="..\shared\database\MakeItemTableSet.h" />
     <ClInclude Include="..\shared\database\MakeLareItemTableSet.h" />
     <ClInclude Include="..\shared\database\MakeWeaponTableSet.h" />
     <ClInclude Include="..\shared\database\MonTableSet.h" />

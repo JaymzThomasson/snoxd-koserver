@@ -68,9 +68,6 @@
     <ClCompile Include="PathFind.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Region.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RoomEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

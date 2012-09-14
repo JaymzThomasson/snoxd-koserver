@@ -260,9 +260,6 @@ BOOL CVersionManagerDlg::PreTranslateMessage(MSG* pMsg)
 
 BOOL CVersionManagerDlg::DestroyWindow() 
 {
-	if( !m_VersionList.IsEmpty() )
-		m_VersionList.DeleteAllData();
-	
 	for (ServerInfoList::iterator itr = m_ServerList.begin(); itr != m_ServerList.end(); itr++)
 		delete *itr;
 	m_ServerList.clear();

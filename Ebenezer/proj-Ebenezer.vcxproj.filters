@@ -69,9 +69,6 @@
     <ClCompile Include="Npc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Region.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="StdAfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

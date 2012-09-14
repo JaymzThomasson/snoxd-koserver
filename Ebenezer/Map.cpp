@@ -69,15 +69,6 @@ C3DMap::~C3DMap()
 		m_ppnEvent = NULL;
 	}
 
-	if( !m_EventArray.IsEmpty() )
-		m_EventArray.DeleteAllData();
-	if( !m_ObjectEventArray.IsEmpty() )
-		m_ObjectEventArray.DeleteAllData();
-	if( !m_ObjectRegeneArray.IsEmpty() )
-		m_ObjectRegeneArray.DeleteAllData();
-	if( !m_WarpArray.IsEmpty() )
-		m_WarpArray.DeleteAllData();
-
 	DeleteCriticalSection( &g_region_critical );
 }
 

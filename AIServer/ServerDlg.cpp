@@ -1351,18 +1351,6 @@ BOOL CServerDlg::DestroyWindow()
 
 	// DB테이블 삭제 부분
 
-	// Map(Zone) Array Delete...
-	if (!g_arZone.IsEmpty())
-		g_arZone.DeleteAllData();
-
-	// NpcTable Array Delete
-	if( !m_arMonTable.IsEmpty() )
-		m_arMonTable.DeleteAllData();
-
-	// NpcTable Array Delete
-	if( !m_arNpcTable.IsEmpty() )
-		m_arNpcTable.DeleteAllData();
-	
 	// NpcThread Array Delete
 	for (NpcThreadArray::iterator itr = m_arNpcThread.begin(); itr != m_arNpcThread.end(); itr++)
 		delete *itr;
@@ -1384,37 +1372,6 @@ BOOL CServerDlg::DestroyWindow()
 		m_NpcItem.m_ppItem = NULL;
 	}
 
-	if( !m_MakeWeaponItemArray.IsEmpty() )
-		m_MakeWeaponItemArray.DeleteAllData();
-
-	if( !m_MakeDefensiveItemArray.IsEmpty() )
-		m_MakeDefensiveItemArray.DeleteAllData();
-
-	if( !m_MakeGradeItemArray.IsEmpty() )
-		m_MakeGradeItemArray.DeleteAllData();
-
-	if( !m_MakeLareItemArray.IsEmpty() )
-		m_MakeLareItemArray.DeleteAllData();
-
-	// MagicTable Array Delete
-	if( !m_MagictableArray.IsEmpty() )
-		m_MagictableArray.DeleteAllData();
-
-	if( !m_Magictype1Array.IsEmpty() )
-		m_Magictype1Array.DeleteAllData();
-
-	if( !m_Magictype2Array.IsEmpty() )
-		m_Magictype2Array.DeleteAllData();
-
-	if( !m_Magictype3Array.IsEmpty() )
-		m_Magictype3Array.DeleteAllData();
-
-	if( !m_Magictype4Array.IsEmpty() )
-		m_Magictype4Array.DeleteAllData();
-
-	// Npc Array Delete
-	if( !m_arNpc.IsEmpty() )
-		m_arNpc.DeleteAllData();
 
 	// User Array Delete
 	for(int i = 0; i < MAX_USER; i++)	{
@@ -1424,12 +1381,7 @@ BOOL CServerDlg::DestroyWindow()
 		}
 	}
 
-	// Party Array Delete 
-	if( !m_arParty.IsEmpty() )
-		m_arParty.DeleteAllData();
-
-	while( !m_ZoneNpcList.empty() )
-		m_ZoneNpcList.pop_front();
+	m_ZoneNpcList.clear();
 
 	DeleteCriticalSection( &g_User_critical );
 	DeleteCriticalSection( &g_LogFileWrite );

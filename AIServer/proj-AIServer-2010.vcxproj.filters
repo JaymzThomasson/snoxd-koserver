@@ -68,9 +68,6 @@
     <ClCompile Include="PathFind.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Region.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RoomEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -110,9 +107,6 @@
     <ClCompile Include="..\shared\database\ZoneInfoSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\database\ItemTableSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\database\MagicTableSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>
@@ -128,19 +122,10 @@
     <ClCompile Include="..\shared\database\MagicType4Set.cpp">
       <Filter>Database</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\database\MagicType5Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\MagicType8Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\database\MakeDefensiveTableSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\database\MakeGradeItemTableSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\MakeItemTableSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\database\MakeLareItemTableSet.cpp">
@@ -265,9 +250,6 @@
     <ClInclude Include="..\shared\database\ZoneInfoSet.h">
       <Filter>Database</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\database\ItemTableSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\database\MagicTableSet.h">
       <Filter>Database</Filter>
     </ClInclude>
@@ -283,19 +265,10 @@
     <ClInclude Include="..\shared\database\MagicType4Set.h">
       <Filter>Database</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\database\MagicType5Set.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\MagicType8Set.h">
-      <Filter>Database</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\database\MakeDefensiveTableSet.h">
       <Filter>Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\database\MakeGradeItemTableSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\MakeItemTableSet.h">
       <Filter>Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\database\MakeLareItemTableSet.h">

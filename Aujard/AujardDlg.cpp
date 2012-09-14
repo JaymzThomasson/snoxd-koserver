@@ -256,10 +256,7 @@ BOOL CAujardDlg::DestroyWindow()
 		::TerminateThread( m_hReadQueueThread, 0 );
 	}
 	
-	if( !m_ItemtableArray.IsEmpty() )
-		m_ItemtableArray.DeleteAllData();
-
-	if(m_LogFile.m_hFile != CFile::hFileNull) m_LogFile.Close();
+	if (m_LogFile.m_hFile != CFile::hFileNull) m_LogFile.Close();
 	DeleteCriticalSection( &g_LogFileWrite );
 
 	return CDialog::DestroyWindow();
