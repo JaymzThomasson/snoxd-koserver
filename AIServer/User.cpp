@@ -644,132 +644,6 @@ short CUser::GetMagicDamage(int damage, short tid)
 
 BYTE CUser::GetHitRate(float rate)
 {
-/*
-	BYTE result;
-	int random = 0;
-	random = myrand(1, 10000);
-
-	if( rate >= 5.0 )
-	{
-		if( random >= 1 && random <= 3500)
-			result = GREAT_SUCCESS;
-		else if( random >= 3501 && random <= 7500)
-			result = SUCCESS;
-		else if( random >= 7501 && random <= 9500)
-			result = NORMAL;
-		else if( random >= 9501 && random <= 10000)
-			result = FAIL;
-		else
-			result = FAIL;
-	}
-	else if ( rate < 5.0 && rate >= 3.0)
-	{
-		if( random >= 1 && random <= 2500)
-			result = GREAT_SUCCESS;
-		else if( random >= 2501 && random <= 6000)
-			result = SUCCESS;
-		else if( random >= 6001 && random <= 9000)
-			result = NORMAL;
-		else if( random >= 9001 && random <= 10000)
-			result = FAIL;
-		else
-			result = FAIL;
-	}
-	else if ( rate < 3.0 && rate >= 2.0)
-	{
-		if( random >= 1 && random <= 2000)
-			result = GREAT_SUCCESS;
-		else if( random >= 2001 && random <= 5000)
-			result = SUCCESS;
-		else if( random >= 5001 && random <= 9000)
-			result = NORMAL;
-		else if( random >= 9001 && random <= 10000)
-			result = FAIL;
-		else
-			result = FAIL;
-	}
-	else if ( rate < 2.0 && rate >= 1.25)
-	{
-		if( random >= 1 && random <= 1500)
-			result = GREAT_SUCCESS;
-		else if( random >= 1501 && random <= 4000)
-			result = SUCCESS;
-		else if( random >= 4001 && random <= 8500)
-			result = NORMAL;
-		else if( random >= 8501 && random <= 10000)
-			result = FAIL;
-		else
-			result = FAIL;
-	}
-	else if ( rate < 1.25 && rate >= 0.8)
-	{
-		if( random >= 1 && random <= 1000)
-			result = GREAT_SUCCESS;
-		else if( random >= 1001 && random <= 3000)
-			result = SUCCESS;
-		else if( random >= 3001 && random <= 8000)
-			result = NORMAL;
-		else if( random >= 8001 && random <= 10000)
-			result = FAIL;
-		else
-			result = FAIL;
-	}	
-	else if ( rate < 0.8 && rate >= 0.5)
-	{
-		if( random >= 1 && random <= 800)
-			result = GREAT_SUCCESS;
-		else if( random >= 801 && random <= 2400)
-			result = SUCCESS;
-		else if( random >= 2401 && random <= 7000)
-			result = NORMAL;
-		else if( random >= 7001 && random <= 10000)
-			result = FAIL;
-		else
-			result = FAIL;
-	}
-	else if ( rate < 0.5 && rate >= 0.33)
-	{
-		if( random >= 1 && random <= 600)
-			result = GREAT_SUCCESS;
-		else if( random >= 601 && random <= 1800)
-			result = SUCCESS;
-		else if( random >= 1801 && random <= 6000)
-			result = NORMAL;
-		else if( random >= 6001 && random <= 10000)
-			result = FAIL;
-		else
-			result = FAIL;
-	}
-	else if ( rate < 0.33 && rate >= 0.2)
-	{
-		if( random >= 1 && random <= 400)
-			result = GREAT_SUCCESS;
-		else if( random >= 401 && random <= 1300)
-			result = SUCCESS;
-		else if( random >= 1301 && random <= 5000)
-			result = NORMAL;
-		else if( random >= 5001 && random <= 10000)
-			result = FAIL;
-		else
-			result = FAIL;
-	}
-	else
-	{
-		if( random >= 1 && random <= 200)
-			result = GREAT_SUCCESS;
-		else if( random >= 201 && random <= 800)
-			result = SUCCESS;
-		else if( random >= 801 && random <= 4000)
-			result = NORMAL;
-		else if( random >= 4001 && random <= 10000)
-			result = FAIL;
-		else
-			result = FAIL;
-	}
-	
-	return result;
-*/
-
 	BYTE result;
 	int random = 0;
 	random = myrand(1, 10000);
@@ -782,8 +656,6 @@ BYTE CUser::GetHitRate(float rate)
 			result = SUCCESS;
 		else if( random >= 7501 && random <= 9800)
 			result = NORMAL;
-		else if( random >= 9801 && random <= 10000)
-			result = FAIL;
 		else
 			result = FAIL;
 	}
@@ -795,8 +667,6 @@ BYTE CUser::GetHitRate(float rate)
 			result = SUCCESS;
 		else if( random >= 6001 && random <= 9600)
 			result = NORMAL;
-		else if( random >= 9601 && random <= 10000)
-			result = FAIL;
 		else
 			result = FAIL;
 	}
@@ -808,8 +678,6 @@ BYTE CUser::GetHitRate(float rate)
 			result = SUCCESS;
 		else if( random >= 5001 && random <= 9400)
 			result = NORMAL;
-		else if( random >= 9401 && random <= 10000)
-			result = FAIL;
 		else
 			result = FAIL;
 	}
@@ -821,8 +689,6 @@ BYTE CUser::GetHitRate(float rate)
 			result = SUCCESS;
 		else if( random >= 4001 && random <= 9200)
 			result = NORMAL;
-		else if( random >= 9201 && random <= 10000)
-			result = FAIL;
 		else
 			result = FAIL;
 	}
@@ -834,8 +700,6 @@ BYTE CUser::GetHitRate(float rate)
 			result = SUCCESS;
 		else if( random >= 3001 && random <= 9000)
 			result = NORMAL;
-		else if( random >= 9001 && random <= 10000)
-			result = FAIL;
 		else
 			result = FAIL;
 	}	
@@ -847,8 +711,6 @@ BYTE CUser::GetHitRate(float rate)
 			result = SUCCESS;
 		else if( random >= 2501 && random <= 8000)
 			result = NORMAL;
-		else if( random >= 8001 && random <= 10000)
-			result = FAIL;
 		else
 			result = FAIL;
 	}
@@ -860,8 +722,6 @@ BYTE CUser::GetHitRate(float rate)
 			result = SUCCESS;
 		else if( random >= 2001 && random <= 7000)
 			result = NORMAL;
-		else if( random >= 7001 && random <= 10000)
-			result = FAIL;
 		else
 			result = FAIL;
 	}
@@ -873,8 +733,6 @@ BYTE CUser::GetHitRate(float rate)
 			result = SUCCESS;
 		else if( random >= 1501 && random <= 6000)
 			result = NORMAL;
-		else if( random >= 6001 && random <= 10000)
-			result = FAIL;
 		else
 			result = FAIL;
 	}
@@ -886,8 +744,6 @@ BYTE CUser::GetHitRate(float rate)
 			result = SUCCESS;
 		else if( random >= 1001 && random <= 5000)
 			result = NORMAL;
-		else if( random >= 5001 && random <= 10000)
-			result = FAIL;
 		else
 			result = FAIL;
 	}
