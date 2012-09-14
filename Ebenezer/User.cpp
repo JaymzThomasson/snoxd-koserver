@@ -137,13 +137,7 @@ void CUser::Initialize()
 	m_fLastTrapAreaTime = 0.0f;
 
 	memset( m_strAccountID, NULL, MAX_ID_SIZE+1 );
-/*
-	m_iSelMsgEvent[0] = -1;		// ???T ??? ???? ^^;
-	m_iSelMsgEvent[1] = -1;
-	m_iSelMsgEvent[2] = -1;
-	m_iSelMsgEvent[3] = -1;
-	m_iSelMsgEvent[4] = -1;
-*/
+
 	for (int i = 0 ; i < MAX_MESSAGE_EVENT ; i++) {
 		m_iSelMsgEvent[i] = -1;
 	}

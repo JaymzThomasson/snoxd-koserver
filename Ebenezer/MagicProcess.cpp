@@ -108,22 +108,16 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 		if( !pMon || pMon->m_NpcState == NPC_DEAD ) return;
 	}
 	else if( sid >=0 && sid < MAX_USER )	{
-		CUser* pUser = NULL;
-		pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[sid] ;
-		if( !pUser)	return;
-		if (pUser->isDead())
-		{
-			TRACE("### Magic&Skill Fail : name=%s(%d), m_bResHpType=%d, hp=%d###\n", pUser->m_pUserData->m_id, pUser->GetSocketID(), pUser->m_bResHpType, pUser->m_pUserData->m_sHp);
+		CUser* pUser = m_pMain->GetUserPtr(sid);
+		if (pUser == NULL || pUser->isDead())	
 			return;
-		}
 	}
 
 	if (tid >= 0 && tid < MAX_USER) {	// Type 4 Repeat Check!!!
 		if (pMagic->bType1 == 4) {
 			if (pMagic->bMoral < 5) {
-				CUser* pTUser;
-				pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid] ;
-				if ( !pTUser ) return ;
+				CUser* pTUser = m_pMain->GetUserPtr(tid) ;
+				if (pTUser == NULL) return;
 
 				_MAGIC_TYPE4* pType4 = NULL;
 				pType4 = m_pMain->m_Magictype4Array.GetData( magicid );     // Get magic skill table type 4.
@@ -158,9 +152,8 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 	if (tid >= 0 && tid < MAX_USER) {		// Type 3 Repeat Check!!!
 		if (pMagic->bType1 == 3) {
 			if (pMagic->bMoral < 5) {
-				CUser* pTUser;
-				pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid] ;
-				if ( !pTUser ) return ;
+				CUser* pTUser = m_pMain->GetUserPtr(tid);
+				if (pTUser == NULL) return;
 
 				_MAGIC_TYPE3* pType3 = NULL;
 				pType3 = m_pMain->m_Magictype3Array.GetData( magicid );     // Get magic skill table type 4.
@@ -205,9 +198,8 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 						float currenttime;
 						currenttime = TimeGet();
 
-						CUser* pTUser;
-						pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid] ;
-						if ( !pTUser ) return ;
+						CUser* pTUser = m_pMain->GetUserPtr(tid);
+						if (pTUser == NULL) return;
 
 						if (currenttime - pTUser->m_fLastRegeneTime < CLAN_SUMMON_TIME) {
 							SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
@@ -459,10 +451,10 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 	else goto fail_return;
 
 	if( tid >= 0 && tid < MAX_USER ) {		// Target existence check routine for player.          
-		pUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];
+		pUser = m_pMain->GetUserPtr(tid);
 
 		if (pTable->bType1 != 5) {		// If not a Warp/Resurrection spell...
-			if( !pUser || pUser->m_bResHpType == USER_DEAD || pUser->m_bAbnormalType == ABNORMAL_BLINKING) {
+			if (pUser == NULL || pUser->isDead() || pUser->m_bAbnormalType == ABNORMAL_BLINKING) {
 				goto fail_return;
 			}
 		}
@@ -472,7 +464,7 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 			if (!pUser) goto fail_return;	
 
 			if (pUser->m_bAbnormalType == ABNORMAL_BLINKING) goto fail_return;
-			if (pUser->m_bResHpType == USER_DEAD && pType->sNeedStone == 0 && pType->bExpRecover == 0) goto fail_return;					
+			if (pUser->isDead() && pType->sNeedStone == 0 && pType->bExpRecover == 0) goto fail_return;					
 		}
 
 		moral = pUser->m_pUserData->m_bNation;
@@ -728,8 +720,7 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 						pType = m_pMain->m_Magictype5Array.GetData(magicid);    
 						if (!pType) goto fail_return;
 
-						CUser* pTUser = NULL ;    
-						pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid] ;    
+						CUser* pTUser = m_pMain->GetUserPtr(tid);    
 						if (!pTUser) goto fail_return;
 // 비러머글 부활 --;
 						if (pType->bType == 3 && pTUser->m_pUserData->m_bLevel <= 5) {	
@@ -823,9 +814,9 @@ BYTE CMagicProcess::ExecuteType1(int magicid, int sid, int tid, int data1, int d
 
 	damage = m_pSrcUser->GetDamage(tid, magicid);  // Get damage points of enemy.
 
-	CUser* pTUser = NULL ;      // Pointer initialization!
-	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];     // Get target info.  
-	if( !pTUser || pTUser->m_bResHpType == USER_DEAD ) {
+	CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.  
+	if (pTUser == NULL || pTUser->isDead())
+	{
 		result = 0;
 		goto packet_send;
 	}
@@ -915,9 +906,9 @@ BYTE CMagicProcess::ExecuteType2(int magicid, int sid, int tid, int data1, int d
 	pType = m_pMain->m_Magictype2Array.GetData( magicid );     // Get magic skill table type 2.
 	if( !pType ) return 0;
 
-	CUser* pTUser = NULL ;     
-	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];     // Get target info.  
-	if( !pTUser || pTUser->m_bResHpType == USER_DEAD) {
+	CUser* pTUser = m_pMain->GetUserPtr(tid);
+	if (pTUser == NULL || pTUser->isDead())
+	{
 		result = 0;
 		goto packet_send;
 	}
@@ -1024,12 +1015,9 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 
 	if (tid == -1) {		// If the target was the source's party....
 		for (int i = 0 ; i < MAX_USER ; i++) {		// Maximum number of users in the server....
-			CUser* pTUser = NULL ;     // Pointer initialization!		
-			pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[i];     // Get target info.  
-//			if( !pTUser || pTUser->m_bResHpType == USER_DEAD || pTUser->m_bResHpType == USER_BLINKING) continue ;     
-			if( !pTUser || pTUser->m_bResHpType == USER_DEAD || pTUser->m_bAbnormalType == ABNORMAL_BLINKING) continue ;
+			CUser* pTUser = m_pMain->GetUnsafeUserPtr(i);
+			if (pTUser == NULL || pTUser->m_bResHpType == USER_DEAD || pTUser->m_bAbnormalType == ABNORMAL_BLINKING) continue;
 			
-//			if (UserRegionCheck(sid, i, magicid, pType->bRadius)) {
 			if (UserRegionCheck(sid, i, magicid, pType->bRadius, data1, data3)) {
 				casted_member[party_index] = i ;
 				party_index++ ;
@@ -1060,25 +1048,17 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 		}
 	}
 	else {		// If the target was another single player.
-		CUser* pTUser = NULL ;     // Pointer initialization!		
-		pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];     // Get target info.  
-		if( !pTUser ) return;     // Check if target exists and not already dead.		
+		CUser* pTUser = m_pMain->GetUserPtr(tid);
+		if (pTUser == NULL) return;		
 		
 		casted_member[0] = tid ;
 		party_index = 1 ;
 	}
 	
 	for ( int j = 0 ; j < party_index ; j++) {	// THIS IS WHERE THE FUN STARTS!!!
-		CUser* pTUser = NULL ;     // Pointer initialization!		
-		pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[casted_member[j]];     // Get target info.  
-		if (!pTUser|| pTUser->m_bResHpType == USER_DEAD) continue;
+		CUser* pTUser = m_pMain->GetUserPtr(casted_member[j]);     // Get target info.  
+		if (pTUser == NULL || pTUser->m_bResHpType == USER_DEAD) continue;
 
-		if( !pTUser || pTUser->m_bResHpType == USER_DEAD) {     // Check if target exists and not already dead.		
-			result = 0 ;
-			goto packet_send ;
-		}
-
-//		if (pType->sFirstDamage < 0) {		// If you are casting an attack spell.
 		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1) && (magicid < 400000)) {		// If you are casting an attack spell.
 			damage = GetMagicDamage(sid, casted_member[j], pType->sFirstDamage, pType->bAttribute) ;	// Get Magical damage point.
 		}
@@ -1343,9 +1323,8 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 		}
 	}
 	else {		// If the target was another single player.
-		CUser* pTUser = NULL ;     // Pointer initialization!		
-		pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];     // Get target info.  
-		if( !pTUser ) return;     // Check if target exists and not already dead.		
+		CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.  
+		if (pTUser == NULL) return;     // Check if target exists		
 		
 		casted_member[0] = tid ;
 		party_index = 1 ;
@@ -1558,9 +1537,8 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 	pType = m_pMain->m_Magictype5Array.GetData(magicid);     // Get magic skill table type 4.
 	if ( !pType ) return;
 
-	CUser* pTUser = NULL ;     // Pointer initialization!		
-	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid] ;     // Get target info.  
-	if (!pTUser || (pTUser->m_bResHpType == USER_DEAD && pType->bType != RESURRECTION) ||
+	CUser* pTUser = m_pMain->GetUserPtr(tid);
+	if (pTUser == NULL || (pTUser->m_bResHpType == USER_DEAD && pType->bType != RESURRECTION) ||
 				   (pTUser->m_bResHpType != USER_DEAD && pType->bType == RESURRECTION)) return;
 
 	switch(pType->bType) {
@@ -1839,13 +1817,11 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 	pType = m_pMain->m_Magictype8Array.GetData( magicid );      // Get magic skill table type 8.
 	if( !pType ) return;
 
-	if (tid == -1) {		// If the target was the source's party...
-		for (int i = 0 ; i < MAX_USER ; i++) {		// Maximum number of members in a party...
-			CUser* pTUser = NULL ;     // Pointer initialization!		
-			pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[i];     // Get target info.  
-			if( !pTUser ) continue ;     // Check if target exists and not already dead.
+	if (tid == -1) {		
+		for (int i = 0 ; i < MAX_USER ; i++) {		
+			CUser* pTUser = m_pMain->GetUnsafeUserPtr(i);
+			if (pTUser == NULL) continue;     // Check if target exists
 			
-//			if (UserRegionCheck(sid, i, magicid, pType->sRadius)) {
 			if (UserRegionCheck(sid, i, magicid, pType->sRadius, data1, data3)) {
 				casted_member[party_index] = i ;
 				party_index++ ;
@@ -1854,9 +1830,8 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 		if (party_index == 0) return;	// If none of the members are in the region, return.
 	}
 	else {		// If the target was another single player.
-		CUser* pTUser = NULL ;     // Pointer initialization!		
-		pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];     // Get target info.  
-		if( !pTUser ) return;     // Check if target exists and not already dead.		
+		CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.  
+		if (pTUser == NULL) return;     // Check if target exists		
 		
 		casted_member[0] = tid ;
 		party_index = 1 ;

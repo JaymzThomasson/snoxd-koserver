@@ -264,31 +264,25 @@ BOOL CAujardDlg::DestroyWindow()
 
 BOOL CAujardDlg::InitializeMMF()
 {
-	CString logstr;
-
 	DWORD filesize = MAX_USER * sizeof(_USER_DATA);	// 1명당 4000 bytes 이내 소요
 	
 	m_hMMFile = OpenFileMapping( FILE_MAP_ALL_ACCESS, TRUE, "KNIGHT_DB" );
-	if( m_hMMFile == NULL ) {
-		logstr = "Shared Memory Load Fail!!";
+	if (m_hMMFile == NULL)
+	{
+		m_OutputList.AddString("Shared Memory Load Fail!!");
 		m_hMMFile = INVALID_HANDLE_VALUE; 
 		return FALSE;
 	}
-	logstr = "Shared Memory Load Success!!";
-	m_OutputList.AddString( logstr );
+	m_OutputList.AddString("Shared Memory Load Success!!");
 
     m_lpMMFile = (char *)MapViewOfFile (m_hMMFile, FILE_MAP_WRITE, 0, 0, 0);
-	if( !m_lpMMFile )
+	if (!m_lpMMFile)
 		return FALSE;
 
 	m_DBAgent.m_UserDataArray.reserve( MAX_USER );
 
-	_USER_DATA* pUser = NULL;
-	for(int i=0; i< MAX_USER; i++)
-	{
-		pUser = (_USER_DATA*)(m_lpMMFile + i * sizeof(_USER_DATA));
-		m_DBAgent.m_UserDataArray.push_back(pUser);
-	}
+	for (int i = 0; i < MAX_USER; i++)
+		m_DBAgent.m_UserDataArray.push_back((_USER_DATA*)(m_lpMMFile + i * sizeof(_USER_DATA));
 
 	return TRUE;
 }

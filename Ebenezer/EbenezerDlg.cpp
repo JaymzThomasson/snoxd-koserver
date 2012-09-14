@@ -91,12 +91,9 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 				pMain->m_KnightsManager.RecvKnightsAllList( pBuf+index );
 				continue;
 			}
-			if( uid < 0 || uid >= MAX_USER )
-				goto loop_pass;
-			if( !pMain->m_Iocport.m_SockArray[uid] )
-				goto loop_pass;
 
-			pUser = (CUser*)pMain->m_Iocport.m_SockArray[uid];
+			if ((pUser = pMain->GetUserPtr(uid)) == NULL)
+				goto loop_pass;
 
 			switch (command)
 			{
@@ -677,10 +674,10 @@ CUser* CEbenezerDlg::GetUnsafeUserPtr(int sid)
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 {
 	pLeader->m_sPartyIndex = m_sPartyIndex++;
-	if (m_sPartyIndex == 32767)
+	if (m_sPartyIndex == SHORT_MAX)
 		m_sPartyIndex = 0;
 
-	EnterCriticalSection( &g_region_critical );
+	EnterCriticalSection(&g_region_critical);
 		
 	_PARTY_GROUP * pParty = new _PARTY_GROUP;
 	pParty->wIndex = pLeader->m_sPartyIndex;
@@ -871,10 +868,10 @@ void CEbenezerDlg::Send_All(char *pBuf, int len, CUser* pExceptUser, int nation 
 	for (int i = 0; i < MAX_USER; i++)
 	{
 		CUser * pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART)
+		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART || (nation != 0 && nation != pUser->getNation()))
 			continue;
-		if (nation == 0 || nation == pUser->getNation())
-			pUser->Send( pBuf, len );
+
+		pUser->Send(pBuf, len);
 	}
 }
 
@@ -893,37 +890,25 @@ void CEbenezerDlg::Send_Region(char *pBuf, int len, C3DMap *pMap, int x, int z, 
 
 void CEbenezerDlg::Send_UnitRegion(char *pBuf, int len, C3DMap *pMap, int x, int z, CUser *pExceptUser, bool bDirect)
 {
-	int t_count = 0, uid = -1;
-	CUser* pUser = NULL;
-
 	if (pMap == NULL 
 		|| x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())
 		return;
 
-	EnterCriticalSection( &g_region_critical );
+	EnterCriticalSection(&g_region_critical);
+	CRegion *pRegion = &pMap->m_ppRegion[x][z];
 
-	map < int, int* >::iterator		Iter1;
-	map < int, int* >::iterator		Iter2;
-	
-	Iter1 = pMap->m_ppRegion[x][z].m_RegionUserArray.m_UserTypeMap.begin();
-	Iter2 = pMap->m_ppRegion[x][z].m_RegionUserArray.m_UserTypeMap.end();
+	for (ZoneUserArray::Iterator itr = pRegion->m_RegionUserArray.m_UserTypeMap.begin(); itr != pRegion->m_RegionUserArray.m_UserTypeMap.end(); itr++)
+	{
+		CUser *pUser = GetUserPtr(*(*itr).second);
+		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART)
+			continue;
 
-	for( ; Iter1 != Iter2; Iter1++ ) {
-		uid = *( (*Iter1).second );
-		if( uid < 0 )
-			continue;
-		pUser = (CUser*)m_Iocport.m_SockArray[uid];
-		if( pUser == pExceptUser )
-			continue;
-		if( pUser && (pUser->GetState() == STATE_GAMESTART) ) {
-			if( bDirect )
-				pUser->Send( pBuf, len );
-			else
-				pUser->RegionPacketAdd( pBuf, len );
-		}
+		if (bDirect)
+			pUser->Send(pBuf, len);
+		else
+			pUser->RegionPacketAdd(pBuf, len);
 	}
-
-	LeaveCriticalSection( &g_region_critical );
+	LeaveCriticalSection(&g_region_critical);
 }
 
 void CEbenezerDlg::Send_NearRegion(char *pBuf, int len, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser)
@@ -958,32 +943,21 @@ void CEbenezerDlg::Send_NearRegion(char *pBuf, int len, C3DMap *pMap, int region
 
 void CEbenezerDlg::Send_FilterUnitRegion(char *pBuf, int len, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser *pExceptUser)
 {
-	int t_count = 0, uid = -1;
-	CUser* pUser = NULL;
-
 	if (pMap == NULL
 		|| x < 0 || z < 0 || x > pMap->GetXRegionMax() || z>pMap->GetZRegionMax())
 		return;
 
-//	EnterCriticalSection( &g_region_critical );
+//	EnterCriticalSection(&g_region_critical);
+	CRegion *pRegion = &pMap->m_ppRegion[x][z];
 
-	map < int, int* >::iterator		Iter1;
-	map < int, int* >::iterator		Iter2;
-	
-	Iter1 = pMap->m_ppRegion[x][z].m_RegionUserArray.m_UserTypeMap.begin();
-	Iter2 = pMap->m_ppRegion[x][z].m_RegionUserArray.m_UserTypeMap.end();
+	for (ZoneUserArray::Iterator itr = pRegion->m_RegionUserArray.m_UserTypeMap.begin(); itr != pRegion->m_RegionUserArray.m_UserTypeMap.end(); itr++)
+	{
+		CUser *pUser = GetUserPtr(*(*itr).second);
+		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART)
+			continue;
 
-	for( ; Iter1 != Iter2; Iter1++ ) {
-		uid = *( (*Iter1).second );
-		if( uid < 0 )
-			continue;
-		pUser = (CUser*)m_Iocport.m_SockArray[uid];
-		if( pUser == pExceptUser )
-			continue;
-		if( pUser && (pUser->GetState() == STATE_GAMESTART) ) {
-			if( sqrt( pow((pUser->m_pUserData->m_curx - ref_x), 2 ) + pow((pUser->m_pUserData->m_curz - ref_z), 2 ) ) < 32 )
-				pUser->RegionPacketAdd( pBuf, len );
-		}
+		if (sqrt(pow((pUser->m_pUserData->m_curx - ref_x), 2) + pow((pUser->m_pUserData->m_curz - ref_z), 2)) < 32)
+			pUser->RegionPacketAdd(pBuf, len);
 	}
 
 //	LeaveCriticalSection( &g_region_critical );
@@ -1057,16 +1031,15 @@ void CEbenezerDlg::Send_AIServer( int zone, char* pBuf, int len)
 BOOL CEbenezerDlg::InitializeMMF()
 {
 	BOOL bCreate = TRUE;
-	CString logstr;
-
-	DWORD filesize = MAX_USER * sizeof(_USER_DATA);	// 1명당 3000 bytes 이내 소요
-	m_hMMFile = CreateFileMapping ( (HANDLE)0xFFFFFFFF, NULL, PAGE_READWRITE, 0, filesize, "KNIGHT_DB" );
+	DWORD filesize = MAX_USER * sizeof(_USER_DATA);
+	m_hMMFile = CreateFileMapping ((HANDLE)-1, NULL, PAGE_READWRITE, 0, filesize, "KNIGHT_DB");
 	
 	if (m_hMMFile != NULL && GetLastError() == ERROR_ALREADY_EXISTS) 
 	{
-		m_hMMFile = OpenFileMapping( FILE_MAP_ALL_ACCESS, TRUE, "KNIGHT_DB" );
-		if( m_hMMFile == NULL ) {
-			logstr = "Shared Memory Load Fail!!";
+		m_hMMFile = OpenFileMapping(FILE_MAP_ALL_ACCESS, TRUE, "KNIGHT_DB");
+		if (m_hMMFile == NULL)
+		{
+			DEBUG_LOG("Shared Memory Load Fail!!");
 			m_hMMFile = INVALID_HANDLE_VALUE; 
 			return FALSE;
 		}
@@ -1075,20 +1048,20 @@ BOOL CEbenezerDlg::InitializeMMF()
 	
 	DEBUG_LOG("Shared Memory Create Success!!");
 
-    m_lpMMFile = (char *)MapViewOfFile (m_hMMFile, FILE_MAP_WRITE, 0, 0, 0);
-	if( !m_lpMMFile )
+    m_lpMMFile = (char *)MapViewOfFile(m_hMMFile, FILE_MAP_WRITE, 0, 0, 0);
+	if (!m_lpMMFile)
 		return FALSE;
-	memset( m_lpMMFile, NULL, filesize );
+
+	if (bCreate)
+		memset(m_lpMMFile, NULL, filesize);
 
 	m_bMMFCreate = bCreate;
 
-	CUser* pUser = NULL;
-	for(int i=0; i< MAX_USER; i++)
+	for (int i = 0; i < MAX_USER; i++)
 	{
-		pUser = (CUser*)m_Iocport.m_SockArrayInActive[i];
-		if( pUser ) {
-			pUser->m_pUserData = (_USER_DATA*)(m_lpMMFile + i * sizeof(_USER_DATA));	// 1 Person Offset are 4000 bytes
-		}
+		CUser* pUser = (CUser*)m_Iocport.m_SockArrayInActive[i];
+		if (pUser)
+			pUser->m_pUserData = (_USER_DATA*)(m_lpMMFile + i * sizeof(_USER_DATA));
 	}
 
 	return TRUE;
@@ -1981,76 +1954,56 @@ void CEbenezerDlg::RegionUserInOutForMe(CUser *pSendUser)
 
 int CEbenezerDlg::GetRegionUserIn( C3DMap *pMap, int region_x, int region_z, char *buff, int &t_count)
 {
-	int buff_index = 0, i=0, j=0;
-	CUser* pUser = NULL;
-	CKnights* pKnights = NULL;
-	int user_count = 0, uid = -1, iLength=0;
+	int buff_index = 0;
 
-	if( !pMap )
-		return 0;
-	if( region_x<0 || region_z<0 || region_x>pMap->GetXRegionMax() || region_z>pMap->GetZRegionMax() )
+	if (pMap == NULL || region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
 		return 0;
 
-	EnterCriticalSection( &g_region_critical );
+	EnterCriticalSection(&g_region_critical);
+	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
 
-	map < int, int* >::iterator		Iter1;
-	map < int, int* >::iterator		Iter2;
-	
-	Iter1 = pMap->m_ppRegion[region_x][region_z].m_RegionUserArray.m_UserTypeMap.begin();
-	Iter2 = pMap->m_ppRegion[region_x][region_z].m_RegionUserArray.m_UserTypeMap.end();
-
-	for( ; Iter1 != Iter2; Iter1++ ) {
-		uid = *( (*Iter1).second );
-		if( uid < 0 )
+	for (ZoneUserArray::Iterator itr = pRegion->m_RegionUserArray.m_UserTypeMap.begin(); itr != pRegion->m_RegionUserArray.m_UserTypeMap.end(); itr++)
+	{
+		CUser *pUser = GetUserPtr(*(*itr).second);
+		if (pUser == NULL || 
+			pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z ||
+			pUser->GetState() != STATE_GAMESTART)
 			continue;
-		pUser = (CUser*)m_Iocport.m_SockArray[uid];
-		if( !pUser ) continue;
-		if( pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z ) continue;
-		if( pUser->GetState() != STATE_GAMESTART ) continue;
 
-		SetShort( buff, pUser->GetSocketID(), buff_index );
+		SetShort(buff, pUser->GetSocketID(), buff_index);
 		pUser->GetUserInfo(buff, buff_index);
 
 		t_count++;
 	}
 
-	LeaveCriticalSection( &g_region_critical );
-
+	LeaveCriticalSection(&g_region_critical);
 	return buff_index;
 }
 
 int CEbenezerDlg::GetRegionUserList( C3DMap* pMap, int region_x, int region_z, char *buff, int &t_count)
 {
-	int buff_index = 0, i=0;
-	int user_count = 0, uid = -1;
-	CUser* pUser = NULL;
+	int buff_index = 0;
 
-	if( !pMap )
-		return 0;
-	if( region_x<0 || region_z<0 || region_x>pMap->GetXRegionMax() || region_z>pMap->GetZRegionMax() )
+	if (pMap == NULL || region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
 		return 0;
 
-	EnterCriticalSection( &g_region_critical );
+	EnterCriticalSection(&g_region_critical);
+	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
 
-	map < int, int* >::iterator		Iter1;
-	map < int, int* >::iterator		Iter2;
-	
-	Iter1 = pMap->m_ppRegion[region_x][region_z].m_RegionUserArray.m_UserTypeMap.begin();
-	Iter2 = pMap->m_ppRegion[region_x][region_z].m_RegionUserArray.m_UserTypeMap.end();
-
-	for( ; Iter1 != Iter2; Iter1++ ) {
-		uid = *( (*Iter1).second );
-		if( uid < 0 )
+	for (ZoneUserArray::Iterator itr = pRegion->m_RegionUserArray.m_UserTypeMap.begin(); itr != pRegion->m_RegionUserArray.m_UserTypeMap.end(); itr++)
+	{
+		CUser *pUser = GetUserPtr(*(*itr).second);
+		if (pUser == NULL || 
+			pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z ||
+			pUser->GetState() != STATE_GAMESTART)
 			continue;
-		pUser = (CUser*)m_Iocport.m_SockArray[uid];
-		if( pUser && (pUser->GetState() == STATE_GAMESTART) ) {
-			SetShort( buff, pUser->GetSocketID(), buff_index );
-			t_count++;
-		}
+
+		SetShort(buff, pUser->GetSocketID(), buff_index);
+
+		t_count++;
 	}
 
-	LeaveCriticalSection( &g_region_critical );
-
+	LeaveCriticalSection(&g_region_critical);
 	return buff_index;
 }
 
@@ -2810,9 +2763,8 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 	Announcement(DECLARE_WINNER);
 
 	for (int i = 0 ; i < MAX_USER ; i++) {		// GOLD DISTRIBUTION PROCEDURE FOR WINNERS !!!
-		CUser* pTUser = NULL ;     // Pointer initialization!			
-		pTUser = (CUser*)m_Iocport.m_SockArray[i] ;     // Get target info.
-		if (!pTUser) continue;
+		CUser* pTUser = GetUnsafeUserPtr(i);
+		if (pTUser == NULL) continue;
 		
 		if (pTUser->m_pUserData->m_bNation == m_bVictory) {
 			if ( pTUser->m_pUserData->m_bZone == pTUser->m_pUserData->m_bNation ) {		// Zone Check!
@@ -2825,14 +2777,13 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 void CEbenezerDlg::BanishLosers()
 {
 	int zoneindex = -1, send_index = 0;;
-	CUser* pTUser = NULL ;     // Pointer initialization!			
 	C3DMap* pMap = NULL;
 	char send_buff[256];	memset( send_buff, 0x00, 256 );
 
 
-	for(int i = 0 ; i < MAX_USER ; i++) {				// EVACUATION PROCEDURE FOR LOSERS !!!		
-		pTUser = (CUser*)m_Iocport.m_SockArray[i] ;     // Get target info.
-		if (!pTUser) continue;	
+	for (int i = 0 ; i < MAX_USER ; i++) {				// EVACUATION PROCEDURE FOR LOSERS !!!		
+		CUser *pTUser = GetUnsafeUserPtr(i); 
+		if (pTUser == NULL) continue;	
 		if ( pTUser->m_pUserData->m_bFame == COMMAND_CAPTAIN )	{
 			pTUser->m_pUserData->m_bFame = CHIEF;
 			send_index = 0;		memset( send_buff, 0x00, 256 );
@@ -3320,20 +3271,16 @@ int CEbenezerDlg::GetKnightsGrade(int nPoints)
 
 void CEbenezerDlg::CheckAliveUser()
 {
-	CUser* pUser = NULL;
-
-	for( int i=0; i<MAX_USER; i++) {
-		pUser = (CUser*)m_Iocport.m_SockArray[i];
-		if( !pUser )
+	for (int i = 0; i < MAX_USER; i++)
+	{
+		CUser *pUser = GetUnsafeUserPtr(i);
+		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART)
 			continue;
-		if( pUser->GetState() == STATE_GAMESTART ) {
-			if( pUser->m_sAliveCount > 3 ) {
-				pUser->Close();
-				char logstr[1024]; memset( logstr, NULL, 1024 );
-				sprintf( logstr, "User Alive Close - (%d) %s\r\n", pUser->GetSocketID(), pUser->m_pUserData->m_id );
-				LogFileWrite( logstr );
-			}
-			pUser->m_sAliveCount++;			
+
+		if (pUser->m_sAliveCount++ > 3)
+		{
+			pUser->Close();
+			DEBUG_LOG_FILE("User dropped due to inactivity - char=%s", pUser->m_pUserData->m_id);
 		}
 	}
 }
@@ -3463,16 +3410,12 @@ BOOL CEbenezerDlg::LoadBattleTable()
 
 void CEbenezerDlg::Send_CommandChat( char* pBuf, int len, int nation, CUser* pExceptUser )
 {
-	CUser* pUser = NULL;
-
-	for( int i=0; i<MAX_USER; i++) {
-		pUser = (CUser*)m_Iocport.m_SockArray[i];
-		if( !pUser )						continue;
-		//if( pUser == pExceptUser )			continue;
-		if( pUser->GetState() == STATE_GAMESTART )	{
-			if( pUser->m_pUserData->m_bNation == nation )
-				pUser->Send( pBuf, len );
-		}
+	for (int i = 0; i < MAX_USER; i++)
+	{
+		CUser * pUser = GetUnsafeUserPtr(i);
+		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART || pUser == pExceptUser || (nation != 0 && nation != pUser->m_pUserData->m_bNation))
+			continue;
+		pUser->Send(pBuf, len);
 	}
 }
 
@@ -3617,7 +3560,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 
 	for (int i = 0; i < MAX_USER; i++)
 	{
-		CUser *pUser = (CUser*)m_Iocport.m_SockArray[i];
+		CUser *pUser = GetUnsafeUserPtr(i);
 		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART)
 			continue;
 

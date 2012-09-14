@@ -233,8 +233,8 @@ void CKnightsManager::JoinKnights(CUser *pUser, char *pBuf)
 		ret_value = 2;
 		goto fail_return;
 	}
-	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[member_id];
-	if (!pTUser)
+	pTUser = m_pMain->GetUserPtr(member_id);
+	if (pTUser == NULL)
 	{
 		ret_value = 2;
 		goto fail_return;
@@ -292,8 +292,9 @@ void CKnightsManager::JoinKnightsReq(CUser *pUser, char *pBuf)
 		pTUser->Send( send_buff, send_index );
 		return;
 	}
-	pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[sid];
-	if( !pTUser )	{
+	pTUser = m_pMain->GetUserPtr(sid);
+	if (pTUser == NULL)
+	{
 		ret_value = 2;
 		SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
 		SetByte( send_buff, KNIGHTS_JOIN, send_index );

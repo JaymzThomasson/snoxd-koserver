@@ -93,7 +93,6 @@ public:
 	int    MonsterSummon(TCHAR* pNpcName, int zone, float fx, float fz);
 	MAP * GetZoneByID(int zonenumber);
 	int GetServerNumber( int zonenumber );
-	void ClostSocket( int zonenumber );
 
 	void CheckAliveTest();
 	void DeleteUserList(int uid);

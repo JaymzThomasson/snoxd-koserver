@@ -2425,22 +2425,6 @@ int CServerDlg::GetServerNumber( int zonenumber )
 	return pMap->m_nServerNo;
 }
 
-void CServerDlg::ClostSocket( int zonenumber )
-{
-	CGameSocket* pSocket = NULL;
-
-	for(int i=0; i<MAX_SOCKET; i++) {
-		pSocket = (CGameSocket*)m_Iocport.m_SockArray[i];
-		if(pSocket == NULL) continue;
-		if(pSocket->m_sSocketID == zonenumber) {
-		//TRACE("size = %d, socket_num = %d, i=%d \n", size, pSocket->m_sSocketID, i);
-			pSocket->CloseProcess();
-			m_Iocport.RidIOCPSocket( pSocket->GetSocketID(), pSocket );
-		}
-	}
-	
-}
-
 void CServerDlg::GetServerInfoIni()
 {
 	CIni inifile("server.ini");
