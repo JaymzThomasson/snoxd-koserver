@@ -308,7 +308,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 		SetByte( send_buff, WIZ_SERVER_CHANGE, send_index );
 		SetKOString(send_buff, pInfo->strServerIP, send_index);
-		SetShort( send_buff, pInfo->sPort, send_index );
+		SetShort( send_buff, _LISTEN_PORT, send_index );
 		SetByte( send_buff, 0x02, send_index );	
 		SetByte( send_buff, m_pUserData->m_bZone, send_index );
 		SetByte( send_buff, m_pMain->m_byOldVictory, send_index );

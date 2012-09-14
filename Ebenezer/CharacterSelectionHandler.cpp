@@ -440,7 +440,7 @@ void CUser::SetLogInInfoToDB(BYTE bInit)
 	SetKOString(send_buff, m_strAccountID, send_index);
 	SetKOString(send_buff, m_pUserData->m_id, send_index);
 	SetKOString(send_buff, pInfo->strServerIP, send_index);
-	SetShort(send_buff, pInfo->sPort, send_index);
+	SetShort(send_buff, _LISTEN_PORT, send_index);
 	SetKOString(send_buff, strClientIP, send_index);
 	SetByte(send_buff, bInit, send_index);
 

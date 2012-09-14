@@ -347,8 +347,12 @@ BOOL CEbenezerDlg::OnInitDialog()
 		return FALSE;
 	}
 
-	if ( !m_Iocport.Listen( pInfo->sPort ) )
+	if (!m_Iocport.Listen(_LISTEN_PORT))
+	{
 		AfxMessageBox("FAIL TO CREATE LISTEN STATE", MB_OK);
+		AfxPostQuitMessage(0);
+		return FALSE;
+	}
 
 	if( !InitializeMMF() ) {
 		AfxMessageBox("Main Shared Memory Initialize Fail");
@@ -1661,8 +1665,6 @@ void CEbenezerDlg::GetTimeFromIni()
 		pInfo->sServerNo = m_Ini.GetInt("ZONE_INFO", ipkey, 1);
 		sprintf( ipkey, "SERVER_IP_%02d", i );
 		m_Ini.GetString("ZONE_INFO", ipkey, "210.92.91.242", pInfo->strServerIP, sizeof(pInfo->strServerIP));
-		pInfo->sPort = _LISTEN_PORT + pInfo->sServerNo;
-
 		m_ServerArray.PutData(pInfo->sServerNo, pInfo);
 	}
 
@@ -1679,7 +1681,6 @@ void CEbenezerDlg::GetTimeFromIni()
 			pInfo->sServerNo = m_Ini.GetInt("SG_INFO", ipkey, 1);
 			sprintf( ipkey, "GSERVER_IP_%02d", i );
 			m_Ini.GetString("SG_INFO", ipkey, "210.92.91.242", pInfo->strServerIP, sizeof(pInfo->strServerIP));
-			pInfo->sPort = _LISTEN_PORT + pInfo->sServerNo;
 
 			m_ServerGroupArray.PutData(pInfo->sServerNo, pInfo);
 		}

@@ -460,7 +460,6 @@ struct _MAGIC_TYPE1
 struct _ZONE_SERVERINFO
 {
 	short		sServerNo;
-	short		sPort;
 	char		strServerIP[20];
 	_ZONE_SERVERINFO() {memset(strServerIP, 0x00, 20);};
 };

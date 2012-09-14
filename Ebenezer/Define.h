@@ -3,7 +3,7 @@
 
 #include <mmsystem.h>
 
-#define _LISTEN_PORT		15000
+#define _LISTEN_PORT		15001
 #define _UDP_PORT			8888
 #define AI_KARUS_SOCKET_PORT		10020
 #define AI_ELMO_SOCKET_PORT			10030
