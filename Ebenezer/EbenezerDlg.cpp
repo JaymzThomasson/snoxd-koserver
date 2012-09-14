@@ -1574,20 +1574,20 @@ BOOL CEbenezerDlg::LoadCoefficientTable()
 		_CLASS_COEFFICIENT* p_TableCoefficient = new _CLASS_COEFFICIENT;
 
 		p_TableCoefficient->sClassNum = (short)CoefficientSet.m_sClass;
-		p_TableCoefficient->ShortSword = (float)CoefficientSet.m_ShortSword;
-		p_TableCoefficient->Sword = (float)CoefficientSet.m_Sword;
-		p_TableCoefficient->Axe = (float)CoefficientSet.m_Axe;
-		p_TableCoefficient->Club = (float)CoefficientSet.m_Club;
-		p_TableCoefficient->Spear = (float)CoefficientSet.m_Spear;
-		p_TableCoefficient->Pole = (float)CoefficientSet.m_Pole;
-		p_TableCoefficient->Staff = (float)CoefficientSet.m_Staff;
-		p_TableCoefficient->Bow = (float)CoefficientSet.m_Bow;
-		p_TableCoefficient->HP = (float)CoefficientSet.m_Hp;
-		p_TableCoefficient->MP = (float)CoefficientSet.m_Mp;
-		p_TableCoefficient->SP = (float)CoefficientSet.m_Sp;
-		p_TableCoefficient->AC = (float)CoefficientSet.m_Ac;
-		p_TableCoefficient->Hitrate = (float)CoefficientSet.m_Hitrate;
-		p_TableCoefficient->Evasionrate = (float)CoefficientSet.m_Evasionrate;
+		p_TableCoefficient->ShortSword = CoefficientSet.m_ShortSword;
+		p_TableCoefficient->Sword = CoefficientSet.m_Sword;
+		p_TableCoefficient->Axe = CoefficientSet.m_Axe;
+		p_TableCoefficient->Club = CoefficientSet.m_Club;
+		p_TableCoefficient->Spear = CoefficientSet.m_Spear;
+		p_TableCoefficient->Pole = CoefficientSet.m_Pole;
+		p_TableCoefficient->Staff = CoefficientSet.m_Staff;
+		p_TableCoefficient->Bow = CoefficientSet.m_Bow;
+		p_TableCoefficient->HP = CoefficientSet.m_Hp;
+		p_TableCoefficient->MP = CoefficientSet.m_Mp;
+		p_TableCoefficient->SP = CoefficientSet.m_Sp;
+		p_TableCoefficient->AC = CoefficientSet.m_Ac;
+		p_TableCoefficient->Hitrate = CoefficientSet.m_Hitrate;
+		p_TableCoefficient->Evasionrate = CoefficientSet.m_Evasionrate;
 
 		if( !m_CoefficientArray.PutData(p_TableCoefficient->sClassNum, p_TableCoefficient) ) {
 			TRACE("Coefficient PutData Fail - %d\n", p_TableCoefficient->sClassNum );

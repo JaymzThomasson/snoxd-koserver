@@ -19,20 +19,20 @@ public:
 // Field/Param Data
 	//{{AFX_FIELD(CCoefficientSet, CRecordset)
 	int		m_sClass;
-	double	m_ShortSword;
-	double	m_Sword;
-	double	m_Axe;
-	double	m_Club;
-	double	m_Spear;
-	double	m_Pole;
-	double	m_Staff;
-	double	m_Bow;
-	double	m_Hp;
-	double	m_Mp;
-	double	m_Sp;
-	double	m_Ac;
-	double	m_Hitrate;
-	double	m_Evasionrate;
+	float	m_ShortSword;
+	float	m_Sword;
+	float	m_Axe;
+	float	m_Club;
+	float	m_Spear;
+	float	m_Pole;
+	float	m_Staff;
+	float	m_Bow;
+	float	m_Hp;
+	float	m_Mp;
+	float	m_Sp;
+	float	m_Ac;
+	float	m_Hitrate;
+	float	m_Evasionrate;
 	//}}AFX_FIELD
 
 
