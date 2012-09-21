@@ -303,8 +303,7 @@ close_routine:
 
 void CIOCPSocket2::ReceivedData(int length)
 {
-	if (length <= 0 || length >= MAX_PACKET_SIZE
-		|| m_pRecvBuff[0] == 0) return;
+	if (length <= 0 || length >= MAX_PACKET_SIZE) return;
 
 	int len = 0;
 	char *pData;

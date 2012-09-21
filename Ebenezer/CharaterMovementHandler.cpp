@@ -73,7 +73,7 @@ void CUser::MoveProcess(char *pBuf )
 	Setfloat( ai_send_buff, m_fWill_y, ai_send_index );
 	SetShort( ai_send_buff, speed, ai_send_index );
 	
-	m_pMain->Send_AIServer(m_pUserData->m_bZone, ai_send_buff, ai_send_index);
+	m_pMain->Send_AIServer(ai_send_buff, ai_send_index);
 }
 
 void CUser::UserInOut(BYTE Type)
@@ -106,7 +106,7 @@ void CUser::UserInOut(BYTE Type)
 		SetKOString(buff, m_pUserData->m_id, send_index);
 		Setfloat( buff, m_pUserData->m_curx, send_index );
 		Setfloat( buff, m_pUserData->m_curz, send_index );
-		m_pMain->Send_AIServer( m_pUserData->m_bZone, buff, send_index);
+		m_pMain->Send_AIServer(buff, send_index);
 		return;
 	}
 
@@ -124,7 +124,7 @@ void CUser::UserInOut(BYTE Type)
 		SetKOString(buff, m_pUserData->m_id, send_index);
 		Setfloat( buff, m_pUserData->m_curx, send_index );
 		Setfloat( buff, m_pUserData->m_curz, send_index );
-		m_pMain->Send_AIServer( m_pUserData->m_bZone, buff, send_index);
+		m_pMain->Send_AIServer(buff, send_index);
 	}
 //
 }
@@ -351,7 +351,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 	SetShort( ai_send_buff, m_Sid, ai_send_index );
 	SetByte( ai_send_buff, m_pUserData->m_bZone, ai_send_index );
 
-	m_pMain->Send_AIServer(m_pUserData->m_bZone, ai_send_buff, ai_send_index);
+	m_pMain->Send_AIServer(ai_send_buff, ai_send_index);
 
 	m_bZoneChangeFlag = FALSE;
 }

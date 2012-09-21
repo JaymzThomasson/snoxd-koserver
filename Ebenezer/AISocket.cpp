@@ -48,8 +48,11 @@ void CAISocket::Parsing( int len, char* pData )
 
 	BYTE command = GetByte(pData, index);
 
-	//TRACE("Parsing - command=%d, length = %d\n", command, len);
-
+	TRACE("Parsing - command=%d, length = %d\n", command, len);
+	if (command != 55 && command != 1)
+	{
+		int abc = 2;
+	}
 	switch( command )
 	{
 		case AG_CHECK_ALIVE_REQ:

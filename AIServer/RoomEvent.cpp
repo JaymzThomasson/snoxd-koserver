@@ -76,7 +76,7 @@ void CRoomEvent::MainRoom( float fcurtime )
 		bRunCheck = RunEvent( event_num );
 		if( bRunCheck )	{
 			//wsprintf(notify, "** 알림 : [%d]방이 클리어 되어습니다. **", m_sRoomNumber);
-			//m_pMain->SendSystemMsg( notify, m_iZoneNumber, PUBLIC_CHAT, SEND_ALL);
+			//m_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
 			m_byStatus = 3;
 		}
 	}
@@ -176,7 +176,7 @@ BOOL  CRoomEvent::RunEvent( int event_num )
 		}
 
 		//wsprintf(notify, "** 알림 : [%d] 문이 열립니다 **", m_sRoomNumber);
-		//m_pMain->SendSystemMsg( notify, m_iZoneNumber, PUBLIC_CHAT, SEND_ALL);
+		//m_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
 
 		if( m_byCheck == m_byLogicNumber )	{	// 방이 클리어
 			return TRUE;
@@ -195,7 +195,7 @@ BOOL  CRoomEvent::RunEvent( int event_num )
 		bRetValue = CheckMonsterCount( nOption_1, nOption_2, 2 );
 
 		//wsprintf(notify, "** 알림 : [%d, %d] 몬스터 출현 **", nOption_1, nOption_2);
-		//m_pMain->SendSystemMsg( notify, m_iZoneNumber, PUBLIC_CHAT, SEND_ALL);
+		//m_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
 
 		if( m_byCheck == m_byLogicNumber )	{	// 방이 클리어
 			return TRUE;
@@ -374,7 +374,7 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 			break;
 		}
 
-		m_pMain->SendSystemMsg( notify, m_iZoneNumber, WAR_SYSTEM_CHAT, SEND_ALL);
+		m_pMain->SendSystemMsg( notify, WAR_SYSTEM_CHAT, SEND_ALL);
 
 		break;
 	case 2:							// 클리어 상태에서 클라이언트에 내려줄 내용와 적국으로 갈 수 있는 이벤트 존 열어주기
@@ -385,7 +385,7 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
 			SetByte( send_buff, BATTLE_MAP_EVENT_RESULT, send_index );
 			SetByte( send_buff, KARUS_ZONE, send_index );
-			m_pMain->Send( send_buff, send_index, m_iZoneNumber );
+			m_pMain->Send( send_buff, send_index );
 		}
 		else if( option2 == ELMORAD_ZONE )	{
 			::_LoadStringFromResource(IDS_ELMORAD_PATHWAY, buff);
@@ -394,10 +394,10 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
 			SetByte( send_buff, BATTLE_MAP_EVENT_RESULT, send_index );
 			SetByte( send_buff, ELMORAD_ZONE, send_index );
-			m_pMain->Send( send_buff, send_index, m_iZoneNumber );
+			m_pMain->Send( send_buff, send_index );
 		}
 
-		m_pMain->SendSystemMsg( notify, m_iZoneNumber, WAR_SYSTEM_CHAT, SEND_ALL);
+		m_pMain->SendSystemMsg( notify, WAR_SYSTEM_CHAT, SEND_ALL);
 
 		break;
 	case 3:							// 클리어 상태에서 클라이언트에 내려줄 내용와 승리팀을 알려준다.
@@ -405,13 +405,13 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
 			SetByte( send_buff, BATTLE_EVENT_RESULT, send_index );
 			SetByte( send_buff, KARUS_ZONE, send_index );
-			m_pMain->Send( send_buff, send_index, m_iZoneNumber );
+			m_pMain->Send( send_buff, send_index );
 		}
 		else if( option2 == ELMORAD_ZONE )	{
 			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
 			SetByte( send_buff, BATTLE_EVENT_RESULT, send_index );
 			SetByte( send_buff, ELMORAD_ZONE, send_index );
-			m_pMain->Send( send_buff, send_index, m_iZoneNumber );
+			m_pMain->Send( send_buff, send_index );
 		}
 		break;
 	}

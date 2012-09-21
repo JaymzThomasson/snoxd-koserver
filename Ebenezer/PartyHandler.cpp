@@ -136,7 +136,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 		//SetShort( send_buff, pParty->sHp[0], send_index );
 		//SetByte( send_buff, pParty->bLevel[0], send_index );
 		//SetShort( send_buff, pParty->sClass[0], send_index );
-		m_pMain->Send_AIServer(m_pUserData->m_bZone, send_buff, send_index);
+		m_pMain->Send_AIServer(send_buff, send_index);
 	}
 
 	pUser->m_sPartyIndex = m_sPartyIndex;
@@ -264,7 +264,7 @@ void CUser::PartyInsert()	// ?????? ??? ???.  ????? ??Y?? ???°??? ???
 	//SetShort( send_buff, pParty->sHp[i], send_index );
 	//SetByte( send_buff, pParty->bLevel[i], send_index );
 	//SetShort( send_buff, pParty->sClass[i], send_index );
-	m_pMain->Send_AIServer(m_pUserData->m_bZone, send_buff, send_index);
+	m_pMain->Send_AIServer(send_buff, send_index);
 }
 
 void CUser::PartyRemove(int memberid)
@@ -338,7 +338,7 @@ void CUser::PartyRemove(int memberid)
 	SetByte( send_buff, PARTY_REMOVE, send_index );
 	SetShort( send_buff, pParty->wIndex, send_index );
 	SetShort( send_buff, memberid, send_index );
-	m_pMain->Send_AIServer(m_pUserData->m_bZone, send_buff, send_index);
+	m_pMain->Send_AIServer(send_buff, send_index);
 }
 
 void CUser::PartyDelete()
@@ -370,7 +370,7 @@ void CUser::PartyDelete()
 	SetByte( send_buff, AG_USER_PARTY, send_index );
 	SetByte( send_buff, PARTY_DELETE, send_index );
 	SetShort( send_buff, pParty->wIndex, send_index );
-	m_pMain->Send_AIServer(m_pUserData->m_bZone, send_buff, send_index);
+	m_pMain->Send_AIServer(send_buff, send_index);
 
 	m_pMain->DeleteParty(pParty->wIndex);
 }

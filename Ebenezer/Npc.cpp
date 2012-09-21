@@ -291,7 +291,7 @@ void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
 		SetByte(send_buff, AG_NPC_GATE_OPEN, send_index);
 		SetShort(send_buff, GetID(), send_index);
 		SetByte(send_buff, m_byGateOpen, send_index );
-		m_pMain->Send_AIServer(getZoneID(), send_buff, send_index);
+		m_pMain->Send_AIServer(send_buff, send_index);
 	}
 
 	// Tell everyone nearby our new status.

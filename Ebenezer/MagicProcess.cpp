@@ -320,7 +320,7 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 					SetShort(send_buff, 0, send_index);
 				}				
 
-				m_pMain->Send_AIServer( m_pSrcUser->m_pUserData->m_bZone, send_buff, send_index);		
+				m_pMain->Send_AIServer(send_buff, send_index);		
 			}
 		}
 
@@ -1258,7 +1258,7 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 					memset( send_buff, NULL, 128);    send_index = 0;
 					SetByte( send_buff, AG_HEAL_MAGIC, send_index );
 					SetShort( send_buff, sid, send_index );
-					m_pMain->Send_AIServer( m_pSrcUser->m_pUserData->m_bZone, send_buff, send_index);
+					m_pMain->Send_AIServer(send_buff, send_index);
 				}
 			}
 		}
@@ -1973,7 +1973,7 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				SetByte( send_buff, AG_USER_REGENE, send_index ) ;		// Send a packet to AI server.
 				SetShort( send_buff, casted_member[j], send_index );
 				SetShort( send_buff, pTUser->m_pUserData->m_bZone, send_index);
-				m_pMain->Send_AIServer( pTUser->m_pUserData->m_bZone, send_buff, send_index);
+				m_pMain->Send_AIServer(send_buff, send_index);
 
 				send_index = 0;			// Clear index and buffer!
 				memset( send_buff, NULL, 128);		

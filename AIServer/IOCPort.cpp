@@ -206,10 +206,8 @@ DWORD WINAPI SendThreadMain(LPVOID pVoid)
 			count = -1;
 			EnterCriticalSection(&(pIocp->m_critSendData));
 			iRemainCount = pIocp->m_SendDataList.size();
-			if( iRemainCount <= 0 )	{
-				LeaveCriticalSection( &(pIocp->m_critSendData) );
-				continue;
-			}
+			if( iRemainCount <= 0 )
+				goto keep_sending;
 
 			while(pIocp->m_SendDataList.size()) {
 				Iter = pIocp->m_SendDataList.begin();
@@ -247,7 +245,7 @@ DWORD WINAPI SendThreadMain(LPVOID pVoid)
 				pIocp->m_SendDataList.pop_front();
 			}
 			//pIocp->m_SendDataList.clear();
-
+keep_sending:
 			LeaveCriticalSection( &(pIocp->m_critSendData) );
 		}
 	}

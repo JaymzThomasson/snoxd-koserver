@@ -1019,7 +1019,7 @@ BOOL CNpc::SetLive(CIOCPort* pIOCP)
 	//else if( m_byChangeType == 3)	{		// 몬스터의 출현,,,
 		char notify[50];	memset(notify, 0x00, 50);
 		//wsprintf( notify, "** 알림 : %s 몬스터가 출현하였습니다 **", m_strName);
-		//m_pMain->SendSystemMsg( notify, m_bCurZone, PUBLIC_CHAT, SEND_ALL);
+		//m_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
 	}
 
 	SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);
@@ -4035,7 +4035,7 @@ void CNpc::SendExpToUserList()
 
 				SetByte( send_buff, strlen(strMaxDamageUser), send_index );
 				SetString( send_buff, strMaxDamageUser, strlen(strMaxDamageUser), send_index );
-				m_pMain->Send( send_buff, send_index, m_bCurZone );
+				m_pMain->Send( send_buff, send_index );
 				TRACE("@@@ MaxDamageUser - %s @@@\n", strMaxDamageUser);
 
 				memset(send_buff, 0x00, 100 );	send_index = 0;
@@ -4045,7 +4045,7 @@ void CNpc::SendExpToUserList()
 					SetByte( send_buff, ELMORAD_ZONE, send_index );
 					SetByte( send_buff, strlen(strMaxDamageUser), send_index );
 					SetString( send_buff, strMaxDamageUser, strlen(strMaxDamageUser), send_index );
-					m_pMain->Send( send_buff, send_index, m_bCurZone );
+					m_pMain->Send( send_buff, send_index );
 					TRACE("@@@ Karus Victory - %d, %d @@@\n", m_pMain->m_sKillKarusNpc, pMap->m_sKarusRoom);
 				}
 				else if( m_pMain->m_sKillElmoNpc == pMap->m_sElmoradRoom )	{
@@ -4054,7 +4054,7 @@ void CNpc::SendExpToUserList()
 					SetByte( send_buff, KARUS_ZONE, send_index );
 					SetByte( send_buff, strlen(strMaxDamageUser), send_index );
 					SetString( send_buff, strMaxDamageUser, strlen(strMaxDamageUser), send_index );
-					m_pMain->Send( send_buff, send_index, m_bCurZone );
+					m_pMain->Send( send_buff, send_index );
 					TRACE("@@@ Elmorad Victory - %d, %d @@@\n", m_pMain->m_sKillElmoNpc, pMap->m_sElmoradRoom);
 				}
 			}
@@ -4484,7 +4484,6 @@ void CNpc::SendAll(CIOCPort* pIOCP, TCHAR *pBuf, int nLength)
 	pNewData = new SEND_DATA;
 	if(pNewData == NULL) return;
 
-	pNewData->sCurZone = m_bCurZone;
 	pNewData->sLength = nLength;
 	::CopyMemory(pNewData->pBuf, pBuf, nLength);
 

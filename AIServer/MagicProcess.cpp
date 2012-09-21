@@ -257,7 +257,7 @@ BYTE CMagicProcess::ExecuteType2(int magicid, int tid, int data1, int data2, int
 				SetShort( send_buff, 0, send_index );
 			}
 
-			m_pMain->Send( send_buff, send_index, m_pSrcUser->m_curZone );
+			m_pMain->Send( send_buff, send_index );
 			// Npc가 죽은 경우,,
 			pNpc->SendExpToUserList(); // 경험치 분배!!
 			pNpc->SendDead(m_pSrcUser->m_pIocport);
@@ -294,7 +294,7 @@ packet_send:
 		SetShort( send_buff, 0, send_index );
 	}
 
-	m_pMain->Send( send_buff, send_index, m_pSrcUser->m_curZone );
+	m_pMain->Send( send_buff, send_index );
 
 	return result;
 }
@@ -413,7 +413,7 @@ packet_send:
 		SetShort( send_buff, moral, send_index );
 		SetShort( send_buff, 0, send_index );
 		SetShort( send_buff, 0, send_index );
-		m_pMain->Send( send_buff, send_index, m_pSrcUser->m_curZone );
+		m_pMain->Send( send_buff, send_index );
 	}
 	
 }
@@ -497,7 +497,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 	SetShort( send_buff, 0, send_index );
 	SetShort( send_buff, 0, send_index );
 	SetShort( send_buff, 0, send_index );
-	m_pMain->Send( send_buff, send_index, m_pSrcUser->m_curZone );
+	m_pMain->Send( send_buff, send_index );
 	return;
 
 fail_return:
@@ -512,7 +512,7 @@ fail_return:
 	SetShort( send_buff, 0, send_index );
 	SetShort( send_buff, 0, send_index );
 	SetShort( send_buff, 0, send_index );
-	m_pMain->Send( send_buff, send_index, m_pSrcUser->m_curZone );
+	m_pMain->Send( send_buff, send_index );
 }
 
 void CMagicProcess::ExecuteType5(int magicid)
@@ -794,7 +794,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 						SetShort( send_buff, 0, send_index );
 						SetShort( send_buff, 0, send_index );
 
-						m_pMain->Send( send_buff, send_index, m_pSrcUser->m_curZone );
+						m_pMain->Send( send_buff, send_index );
 					}
 				}
 				else if(magictype == 4)	{	// 타잎 4일 경우...
@@ -852,7 +852,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 					SetShort( send_buff, 0, send_index );
 					SetShort( send_buff, 0, send_index );
 					SetShort( send_buff, 0, send_index );
-					m_pMain->Send( send_buff, send_index, m_pSrcUser->m_curZone );
+					m_pMain->Send( send_buff, send_index );
 				}
 			}	
 			else continue;

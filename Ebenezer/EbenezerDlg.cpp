@@ -995,7 +995,7 @@ void CEbenezerDlg::Send_KnightsMember( int index, char* pBuf, int len, int zone 
 }
 
 // sungyong 2002.05.22
-void CEbenezerDlg::Send_AIServer( int zone, char* pBuf, int len)
+void CEbenezerDlg::Send_AIServer(char* pBuf, int len)
 {
 	CAISocket* pSocket = NULL;
 	int send_size = 0, old_send_socket = 0;
@@ -1723,7 +1723,7 @@ void CEbenezerDlg::UpdateGameTime()
 	int send_index = 0;
 	char pSendBuf[256];		::ZeroMemory(pSendBuf, sizeof(pSendBuf));
 	//SetByte(pSendBuf, AG_CHECK_ALIVE_REQ, send_index);
-	//Send_AIServer(1000, pSendBuf, send_index);
+	//Send_AIServer(pSendBuf, send_index);
 
 	// 시간과 날씨 정보를 보낸다..
 	::ZeroMemory(pSendBuf, sizeof(pSendBuf));   send_index = 0;
@@ -1735,7 +1735,7 @@ void CEbenezerDlg::UpdateGameTime()
 	SetShort( pSendBuf, m_nMin, send_index );
 	SetByte( pSendBuf, (BYTE)m_nWeather, send_index );		// weather info
 	SetShort( pSendBuf, m_nAmount, send_index );
-	Send_AIServer(1000, pSendBuf, send_index);
+	Send_AIServer(pSendBuf, send_index);
 
 	if( bKnights )	{
 		::ZeroMemory(pSendBuf, sizeof(pSendBuf));   send_index = 0;
@@ -2417,7 +2417,7 @@ void CEbenezerDlg::SendAllUserInfo()
 
 	SetByte(send_buff, AG_SERVER_INFO, send_index );
 	SetByte(send_buff, SERVER_INFO_START, send_index );
-	Send_AIServer( 1000, send_buff, send_index );
+	Send_AIServer(send_buff, send_index );
 
 	int count = 0;
 	send_index = 2;
@@ -2437,7 +2437,7 @@ void CEbenezerDlg::SendAllUserInfo()
 		if(count == tot)	{
 			SetByte(send_buff, AG_USER_INFO_ALL, send_count );
 			SetByte(send_buff, (BYTE)count, send_count );
-			Send_AIServer(1000, send_buff, send_index);
+			Send_AIServer(send_buff, send_index);
 			send_index = 2;
 			send_count = 0;
 			count = 0;
@@ -2450,7 +2450,7 @@ void CEbenezerDlg::SendAllUserInfo()
 		send_count = 0;
 		SetByte(send_buff, AG_USER_INFO_ALL, send_count );
 		SetByte(send_buff, (BYTE)count, send_count );
-		Send_AIServer( 1000, send_buff, send_index );
+		Send_AIServer(send_buff, send_index );
 		send_tot++;
 		//TRACE("AllNpcInfo - send_count=%d, count=%d\n", send_tot, count);
 		//Sleep(1);
@@ -2476,7 +2476,7 @@ void CEbenezerDlg::SendAllUserInfo()
 			//SetShort(send_buff, pParty->sClass[j], send_index );			// Class
 		}
 
-		Send_AIServer( 1000, send_buff, send_index );
+		Send_AIServer(send_buff, send_index );
 	}
 
 	LeaveCriticalSection( &g_region_critical );
@@ -2485,7 +2485,7 @@ void CEbenezerDlg::SendAllUserInfo()
 	::ZeroMemory(send_buff, sizeof(send_buff));
 	SetByte(send_buff, AG_SERVER_INFO, send_index );
 	SetByte(send_buff, SERVER_INFO_END, send_index );
-	Send_AIServer( 1000, send_buff, send_index );
+	Send_AIServer(send_buff, send_index );
 
 	TRACE("** SendAllUserInfo() **\n");
 }
@@ -2679,7 +2679,7 @@ void CEbenezerDlg::BattleZoneOpenTimer()
 			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
 			SetByte( send_buff, BATTLE_EVENT_OPEN, send_index );
 			SetByte( send_buff, BATTLEZONE_CLOSE, send_index );
-			Send_AIServer( 1000, send_buff, send_index );
+			Send_AIServer(send_buff, send_index );
 			ResetBattleZone();
 		}
 	}
@@ -2719,7 +2719,7 @@ void CEbenezerDlg::BattleZoneOpen( int nType )
 	SetByte( send_buff, AG_BATTLE_EVENT, send_index );		// Send packet to AI server.
 	SetByte( send_buff, BATTLE_EVENT_OPEN, send_index );
 	SetByte( send_buff, nType, send_index );
-	Send_AIServer( 1000, send_buff, send_index );
+	Send_AIServer(send_buff, send_index );
 }
 
 void CEbenezerDlg::BattleZoneVictoryCheck()

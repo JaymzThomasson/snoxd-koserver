@@ -1509,7 +1509,7 @@ void CServerDlg::AllNpcInfo()
 		SetByte(send_buff, AG_SERVER_INFO, send_index );
 		SetByte(send_buff, SERVER_INFO_START, send_index );
 		SetByte(send_buff, nZone, send_index );
-		packet_size = Send(send_buff, send_index, nZone);
+		packet_size = Send(send_buff, send_index);
 
 		send_index = 2;		count = 0;	send_count = 0;
 		::ZeroMemory(send_buff, sizeof(send_buff));
@@ -1531,7 +1531,7 @@ void CServerDlg::AllNpcInfo()
 				SetByte(send_buff, NPC_INFO_ALL, send_count );
 				SetByte(send_buff, (BYTE)count, send_count );
 
-				Send(send_buff, send_index, nZone);
+				Send(send_buff, send_index);
 				send_index = 2;
 				send_count = 0;
 				count = 0;
@@ -1546,7 +1546,7 @@ void CServerDlg::AllNpcInfo()
 			send_count = 0;
 			SetByte(send_buff, NPC_INFO_ALL, send_count );
 			SetByte(send_buff, (BYTE)count, send_count );
-			Send(send_buff, send_index, nZone);
+			Send(send_buff, send_index);
 			send_tot++;
 			//TRACE("AllNpcInfo - send_count=%d, count=%d, zone=%d\n", send_tot, count, nZone);
 		}
@@ -1557,7 +1557,7 @@ void CServerDlg::AllNpcInfo()
 		SetByte(send_buff, SERVER_INFO_END, send_index );
 		SetByte(send_buff, nZone, send_index );
 		SetShort(send_buff, (short)m_TotalNPC, send_index );
-		packet_size = Send(send_buff, send_index, nZone);
+		packet_size = Send(send_buff, send_index);
 
 		TRACE("****  allNpcInfo end = %d *****\n", nZone);
 	}
@@ -1705,13 +1705,12 @@ BOOL CServerDlg::PreTranslateMessage(MSG* pMsg)
 }
 
 // sungyong 2002.05.23
-int CServerDlg::Send(char* pData, int length, int nZone)
+int CServerDlg::Send(char* pData, int length)
 {
 	SEND_DATA* pNewData = NULL;
 	pNewData = new SEND_DATA;
 	if(pNewData == NULL) return 0;
 
-	pNewData->sCurZone = nZone;
 	pNewData->sLength = length;
 	::CopyMemory(pNewData->pBuf, pData, length);
 
@@ -2400,7 +2399,7 @@ void CServerDlg::GetServerInfoIni()
 	m_byZone = inifile.GetInt("SERVER", "ZONE", 1);
 }
 
-void CServerDlg::SendSystemMsg( char* pMsg, int zone, int type, int who )
+void CServerDlg::SendSystemMsg( char* pMsg, int type, int who )
 {
 	int send_index = 0;
 	char buff[256];
@@ -2413,7 +2412,7 @@ void CServerDlg::SendSystemMsg( char* pMsg, int zone, int type, int who )
 	SetShort(buff, sLength, send_index );
 	SetString( buff, pMsg, sLength, send_index );
 
-	Send(buff, send_index, zone);   	
+	Send(buff, send_index);   	
 }
 
 void CServerDlg::ResetBattleZone()

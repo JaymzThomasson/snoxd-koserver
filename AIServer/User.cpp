@@ -231,7 +231,6 @@ void CUser::SendAll(TCHAR *pBuf, int nLength)
 	pNewData = new SEND_DATA;
 	if(pNewData == NULL) return;
 
-	pNewData->sCurZone = m_curZone;
 	pNewData->sLength = nLength;
 	::CopyMemory(pNewData->pBuf, pBuf, nLength);
 

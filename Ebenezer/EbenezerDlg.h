@@ -127,7 +127,7 @@ public:
 	void NpcInOutForMe( CUser* pSendUser );	// 9 Regions All Npcs NPCINOUT Packet Packaging Function
 	void Send_Region( char* pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL, bool bDirect=true );	// zone == real zone number
 	void Send_All( char* pBuf, int len, CUser* pExceptUser = NULL, int nation=0 );	// pointer != NULL don`t send to that user pointer
-	void Send_AIServer( int zone, char* pBuf, int len );
+	void Send_AIServer( char* pBuf, int len );
 
 	CString GetServerResource(int nResourceID);
 	_START_POSITION *GetStartPosition(int nZoneID);

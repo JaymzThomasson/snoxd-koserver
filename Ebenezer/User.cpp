@@ -643,7 +643,7 @@ void CUser::LogOut()
 		}
 
 		SetByte( send_buf, AG_USER_LOG_OUT, index );
-		m_pMain->Send_AIServer( m_pUserData->m_bZone, send_buf, send_index);
+		m_pMain->Send_AIServer(send_buf, send_index);
 	}
 
 //	if( m_pUserData->m_bKnights > 0 )	{
@@ -831,7 +831,7 @@ void CUser::SendMyInfo()
 	SetShort( ai_send_buff, m_sMagicAmountRightHand, ai_send_index);
 	SetByte( ai_send_buff, m_pUserData->m_bAuthority, ai_send_index );
 //
-	m_pMain->Send_AIServer( m_pUserData->m_bZone, ai_send_buff, ai_send_index);
+	m_pMain->Send_AIServer(ai_send_buff, ai_send_index);
 
 //	if( m_pUserData->m_bKnights > 0 )	{
 //		m_pMain->m_KnightsManager.ModifyKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id, m_pUserData->m_bFame, m_pUserData->m_bLevel, m_pUserData->m_sClass, 1);
@@ -1571,7 +1571,7 @@ void CUser::HpChange(int amount, int type, bool attack)		// type : Received From
 		SetByte( buff, AG_USER_SET_HP, send_index );
 		SetShort( buff, m_Sid, send_index );
 		SetDWORD( buff, m_pUserData->m_sHp, send_index );
-		m_pMain->Send_AIServer( m_pUserData->m_bZone, buff, send_index);
+		m_pMain->Send_AIServer(buff, send_index);
 	}
 
 	if( m_sPartyIndex != -1 ) {
@@ -1645,7 +1645,7 @@ void CUser::Send2AI_UserUpdateInfo()
 	SetShort( send_buf, m_sMagicAmountRightHand, send_index );
 //
 
-	m_pMain->Send_AIServer( m_pUserData->m_bZone, send_buf, send_index);
+	m_pMain->Send_AIServer(send_buf, send_index);
 }
 
 void CUser::SetUserAbility()
@@ -4149,7 +4149,7 @@ void CUser::BlinkTimeCheck(float currenttime)
 		SetByte( send_buff, AG_USER_REGENE, send_index );
 		SetShort( send_buff, m_Sid, send_index );
 		SetShort( send_buff, m_pUserData->m_sHp, send_index );
-		m_pMain->Send_AIServer( m_pUserData->m_bZone, send_buff, send_index);
+		m_pMain->Send_AIServer(send_buff, send_index);
 //
 //
 		memset( send_buff, 0x00, 256 ); send_index=0;		// To AI Server....
@@ -4159,7 +4159,7 @@ void CUser::BlinkTimeCheck(float currenttime)
 		SetKOString(send_buff, m_pUserData->m_id, send_index);
 		Setfloat( send_buff, m_pUserData->m_curx, send_index );
 		Setfloat( send_buff, m_pUserData->m_curz, send_index );
-		m_pMain->Send_AIServer( m_pUserData->m_bZone, send_buff, send_index);
+		m_pMain->Send_AIServer(send_buff, send_index);
 //
 	}
 }

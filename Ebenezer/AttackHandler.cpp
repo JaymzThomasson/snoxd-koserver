@@ -153,7 +153,7 @@ void CUser::Attack(char *pBuf)
 			SetByte( buff, m_bMagicTypeRightHand, send_index);
 			SetShort( buff, m_sMagicAmountLeftHand, send_index);
 			SetShort( buff, m_sMagicAmountRightHand, send_index);
-			m_pMain->Send_AIServer(m_pUserData->m_bZone, buff, send_index);	
+			m_pMain->Send_AIServer(buff, send_index);	
 			return;
 		}
 	}
@@ -699,7 +699,7 @@ void CUser::Regene(char *pBuf, int magicid)
 		SetByte( send_buff, AG_USER_REGENE, send_index );
 		SetShort( send_buff, m_Sid, send_index );
 		SetShort( send_buff, m_pUserData->m_sHp, send_index );
-		m_pMain->Send_AIServer( m_pUserData->m_bZone, send_buff, send_index);
+		m_pMain->Send_AIServer(send_buff, send_index);
 	}
 
 	memset( send_buff, NULL, 1024 ); send_index=0;

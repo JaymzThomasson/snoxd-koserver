@@ -97,8 +97,8 @@ public:
 	void CheckAliveTest();
 	void DeleteUserList(int uid);
 	void DeleteAllUserList(int zone);
-	int Send(char* pData, int length, int nZone=0);
-	void SendSystemMsg( char* pMsg, int zone, int type=0, int who=0 );
+	int Send(char* pData, int length);
+	void SendSystemMsg( char* pMsg, int type=0, int who=0 );
 	void ResetBattleZone();
 
 	CServerDlg(CWnd* pParent = NULL);	// standard constructor
