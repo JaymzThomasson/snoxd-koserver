@@ -68,51 +68,51 @@ void CAISocket::Parsing( int len, char* pData )
 			RecvNpcInfoAll(pData+index);
 			break;
 		case MOVE_RESULT:
-			RecvNpcMoveResult(pData+1);
+			RecvNpcMoveResult(pData+index);
 			break;
 		case MOVE_END_RESULT:
 			break;
 		case AG_ATTACK_RESULT:
-			RecvNpcAttack(pData+1);
+			RecvNpcAttack(pData+index);
 			break;
 		case AG_MAGIC_ATTACK_RESULT:
-			RecvMagicAttackResult(pData+1);
+			RecvMagicAttackResult(pData+index);
 			break;
 		case AG_NPC_INFO:
-			RecvNpcInfo(pData+1);
+			RecvNpcInfo(pData+index);
 			break;
 		case AG_USER_SET_HP:
-			RecvUserHP(pData+1);
+			RecvUserHP(pData+index);
 			break;
 		case AG_USER_EXP:
-			RecvUserExp(pData+1);
+			RecvUserExp(pData+index);
 			break;
 		case AG_SYSTEM_MSG:
-			RecvSystemMsg(pData+1);
+			RecvSystemMsg(pData+index);
 			break;
 		case AG_NPC_GIVE_ITEM:
-			RecvNpcGiveItem(pData+1);
+			RecvNpcGiveItem(pData+index);
 			break;
 		case AG_USER_FAIL:
-			RecvUserFail(pData+1);
+			RecvUserFail(pData+index);
 			break;
 		case AG_NPC_GATE_DESTORY:
-			RecvGateDestory(pData+1);
+			RecvGateDestory(pData+index);
 			break;
 		case AG_DEAD:
-			RecvNpcDead(pData+1);
+			RecvNpcDead(pData+index);
 			break;
 		case AG_NPC_INOUT:
-			RecvNpcInOut(pData+1);
+			RecvNpcInOut(pData+index);
 			break;
 		case AG_BATTLE_EVENT:
-			RecvBattleEvent(pData+1);
+			RecvBattleEvent(pData+index);
 			break;
 		case AG_NPC_EVENT_ITEM:
-			RecvNpcEventItem(pData+1);
+			RecvNpcEventItem(pData+index);
 			break;
 		case AG_NPC_GATE_OPEN:
-			RecvGateOpen(pData+1);
+			RecvGateOpen(pData+index);
 			break;
 	}
 }
