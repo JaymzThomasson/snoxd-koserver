@@ -48,7 +48,7 @@
 *.map
 
 # User project files
-*.vcxproj.user
+# *.vcxproj.user
 *.suo
 
 # Config
