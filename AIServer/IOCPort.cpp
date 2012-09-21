@@ -263,6 +263,8 @@ CIOCPort::CIOCPort()
 
 	m_dwConcurrency = 1;
 	m_hReceiveWorkerThreads = NULL;
+
+	m_AiSocketCount = 0;
 }
 
 CIOCPort::~CIOCPort()
