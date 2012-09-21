@@ -111,9 +111,6 @@
     <ClCompile Include="FriendHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
-    <ClCompile Include="MarketBBSHandler.cpp">
-      <Filter>Source Files\Handlers</Filter>
-    </ClCompile>
     <ClCompile Include="IOCPort.cpp">
       <Filter>Networking</Filter>
     </ClCompile>
