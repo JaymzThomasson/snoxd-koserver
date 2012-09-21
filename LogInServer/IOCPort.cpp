@@ -16,9 +16,6 @@ static char THIS_FILE[]=__FILE__;
 
 CRITICAL_SECTION g_critical;
 
-DWORD WINAPI AcceptThread(LPVOID lp);
-DWORD WINAPI ReceiveWorkerThread(LPVOID lp);
-
 DWORD WINAPI AcceptThread(LPVOID lp)
 {
 	CIOCPort* pIocport = (CIOCPort*) lp;
@@ -200,20 +197,16 @@ CIOCPort::~CIOCPort()
 void CIOCPort::DeleteAllArray()
 {
 	EnterCriticalSection( &g_critical );
-	for( int i=0; i<m_SocketArraySize; i++ ) {
-		if ( m_SockArray[i] != NULL ) {
+	for (int i = 0; i < m_SocketArraySize; i++)
+	{
+		if (m_SockArray[i] != NULL)
 			delete m_SockArray[i];
-			m_SockArray[i] = NULL;
-		}
-	}
-	delete[] m_SockArray;
 
-	for (int i=0; i < m_SocketArraySize; i++ ) {
-		if ( m_SockArrayInActive[i] != NULL ) {
+		if (m_SockArrayInActive[i] != NULL)
 			delete m_SockArrayInActive[i];
-			m_SockArrayInActive[i] = NULL;
-		}
 	}
+
+	delete[] m_SockArray;
 	delete[] m_SockArrayInActive;
 
 	while( !m_SidList.empty() )
@@ -228,27 +221,20 @@ void CIOCPort::Init(int serversocksize, int clientsocksize, int workernum)
 	m_ClientSockSize = clientsocksize;
 	
 	m_SockArray = new CIOCPSocket2* [serversocksize];
-	for(int i = 0; i<serversocksize; i++ ) {
-		m_SockArray[i] = NULL;
-	}
-
 	m_SockArrayInActive = new CIOCPSocket2* [serversocksize];
-	for(int i = 0; i<serversocksize; i++ ) {
+	for (int i = 0; i<serversocksize; i++)
+	{
+		m_SockArray[i] = NULL;
 		m_SockArrayInActive[i] = NULL;
-	}
-
-	for(int i = 0; i<serversocksize; i++)
 		m_SidList.push_back(i);
+	}
 
 	InitializeCriticalSection( &g_critical );
 
 	CreateReceiveWorkerThread(workernum);
 
-	WORD wVersionRequested;
 	WSADATA wsaData;
-	int err;
-	wVersionRequested = MAKEWORD( 2, 2 );
-	err = WSAStartup( wVersionRequested, &wsaData ); 
+	int err = WSAStartup(MAKEWORD(2, 2), &wsaData); 
 }
 
 BOOL CIOCPort::Listen(int port)
