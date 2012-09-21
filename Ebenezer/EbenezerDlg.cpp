@@ -676,7 +676,7 @@ CUser* CEbenezerDlg::GetUnsafeUserPtr(int sid)
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 {
 	pLeader->m_sPartyIndex = m_sPartyIndex++;
-	if (m_sPartyIndex == SHORT_MAX)
+	if (m_sPartyIndex == SHRT_MAX)
 		m_sPartyIndex = 0;
 
 	EnterCriticalSection(&g_region_critical);
