@@ -48,7 +48,7 @@ void CAISocket::Parsing( int len, char* pData )
 
 	BYTE command = GetByte(pData, index);
 
-	TRACE("CAISocket::Parsing - command=%d, length = %d\n", command, len);
+	//TRACE("CAISocket::Parsing - command=%d, length = %d\n", command, len);
 
 	switch( command )
 	{
