@@ -1497,7 +1497,6 @@ BOOL CServerDlg::MapFileLoad()
 void CServerDlg::AllNpcInfo()
 {
 	// server alive check
-	CNpc* pNpc = NULL;
 	int nZone = 0;
 	int size = m_arNpc.GetSize();
 
@@ -1507,10 +1506,7 @@ void CServerDlg::AllNpcInfo()
 
 	for (ZoneArray::Iterator itr = g_arZone.m_UserTypeMap.begin(); itr != g_arZone.m_UserTypeMap.end(); itr++)
 	{
-		MAP * pMap = itr->second;
-		if (pMap == NULL)
-			continue;
-		nZone = pMap->m_nZoneNumber;
+		nZone = itr->first;
 
 		::ZeroMemory(send_buff, sizeof(send_buff));
 		send_index = 0;
@@ -1525,10 +1521,11 @@ void CServerDlg::AllNpcInfo()
 
 		TRACE("****  allNpcInfo start = %d *****\n", nZone);
 
-		for(int i=0; i<size; i++)	{
-			pNpc = m_arNpc.GetData(i);
+		for (NpcArray::Iterator itr = m_arNpc.m_UserTypeMap.begin(); itr != m_arNpc.m_UserTypeMap.end(); itr++)
+		{
+			CNpc *pNpc = itr->second;
 			if(pNpc == NULL)	{
-				TRACE("##### allNpcInfo Fail = %d\n", i);
+				TRACE("##### allNpcInfo Fail = %d\n", itr->first);
 				continue;
 			}
 			if(pNpc->m_bCurZone != nZone)	continue;
