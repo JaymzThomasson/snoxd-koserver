@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "Aujard.h"
 #include "AujardDlg.h"
+#include "../shared/Ini.h"
 #include "ItemTableset.h"
 #include <process.h>
 
@@ -19,7 +20,6 @@ static char THIS_FILE[] = __FILE__;
 
 WORD	g_increase_serial = 50001;
 
-DWORD WINAPI	ReadQueueThread(LPVOID lp);
 CRITICAL_SECTION g_LogFileWrite;
 
 DWORD WINAPI ReadQueueThread(LPVOID lp)
@@ -168,21 +168,20 @@ BOOL CAujardDlg::OnInitDialog()
 		return FALSE;
 	}
 
-	CString inipath;
-	inipath.Format( "%s\\Aujard.ini", GetProgPath() );
+	CIni ini("Aujard.ini");
 
-	GetPrivateProfileString( "ODBC", "ACCOUNT_DSN", "", m_strAccountDSN, 24, inipath );
-	GetPrivateProfileString( "ODBC", "ACCOUNT_UID", "", m_strAccountUID, 24, inipath );
-	GetPrivateProfileString( "ODBC", "ACCOUNT_PWD", "", m_strAccountPWD, 24, inipath );
-	GetPrivateProfileString( "ODBC", "GAME_DSN", "", m_strGameDSN, 24, inipath );
-	GetPrivateProfileString( "ODBC", "GAME_UID", "", m_strGameUID, 24, inipath );
-	GetPrivateProfileString( "ODBC", "GAME_PWD", "", m_strGamePWD, 24, inipath );
-	GetPrivateProfileString( "ODBC", "LOG_DSN", "", m_strLogDSN, 24, inipath );
-	GetPrivateProfileString( "ODBC", "LOG_UID", "", m_strLogUID, 24, inipath );
-	GetPrivateProfileString( "ODBC", "LOG_PWD", "", m_strLogPWD, 24, inipath );
+	ini.GetString( "ODBC", "ACCOUNT_DSN", "KN_online", m_strAccountDSN, 24 );
+	ini.GetString( "ODBC", "ACCOUNT_UID", "knight", m_strAccountUID, 24 );
+	ini.GetString( "ODBC", "ACCOUNT_PWD", "knight", m_strAccountPWD, 24 );
+	ini.GetString( "ODBC", "GAME_DSN", "KN_online", m_strGameDSN, 24 );
+	ini.GetString( "ODBC", "GAME_UID", "knight", m_strGameUID, 24 );
+	ini.GetString( "ODBC", "GAME_PWD", "knight", m_strGamePWD, 24 );
+	ini.GetString( "ODBC", "LOG_DSN", "KN_online", m_strLogDSN, 24 );
+	ini.GetString( "ODBC", "LOG_UID", "knight", m_strLogUID, 24 );
+	ini.GetString( "ODBC", "LOG_PWD", "knight", m_strLogPWD, 24 );
 
-	m_nServerNo = GetPrivateProfileInt("ZONE_INFO", "GROUP_INFO", 1, inipath);
-	m_nZoneNo = GetPrivateProfileInt("ZONE_INFO", "ZONE_INFO", 1, inipath);
+	m_nServerNo = ini.GetInt("ZONE_INFO", "GROUP_INFO", 1);
+	m_nZoneNo = ini.GetInt("ZONE_INFO", "ZONE_INFO", 1);
 
 	if( !m_DBAgent.DatabaseInit() ) {
 		AfxPostQuitMessage(0);
@@ -1416,14 +1415,14 @@ void CAujardDlg::SaveUserData()
 		pUser = (_USER_DATA*)m_DBAgent.m_UserDataArray[i];
 		if( !pUser )
 			continue;
-		if( strlen( pUser->m_id ) > 0 ) {
-			if( ::GetTickCount() - pUser->m_dwTime > 360000 ) {
-				memset( send_buff, 0x00, 256 ); send_index = 0;
+		if (*pUser->m_id != 0)
+		{
+			if (GetTickCount() - pUser->m_dwTime > 360000)
+			{
+				send_index = 0;
 				SetShort( send_buff, i, send_index );
-				SetShort( send_buff, strlen(pUser->m_Accountid), send_index );
-				SetString( send_buff, pUser->m_Accountid, strlen(pUser->m_Accountid), send_index );
-				SetShort( send_buff, strlen(pUser->m_id), send_index );
-				SetString( send_buff, pUser->m_id, strlen(pUser->m_id), send_index );
+				SetKOString( send_buff, pUser->m_Accountid, send_index );
+				SetKOString( send_buff, pUser->m_id, send_index );
 				UserDataSave(send_buff);
 				Sleep(100);
 			}

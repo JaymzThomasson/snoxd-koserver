@@ -134,6 +134,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\shared\Ini.cpp" />
     <ClCompile Include="..\shared\SharedMem.cpp" />
     <ClCompile Include="Aujard.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -165,6 +166,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\shared\Ini.h" />
     <ClInclude Include="..\shared\packets.h" />
     <ClInclude Include="..\shared\SharedMem.h" />
     <ClInclude Include="..\shared\version.h" />

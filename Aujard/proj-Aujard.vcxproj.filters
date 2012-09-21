@@ -13,6 +13,9 @@
       <UniqueIdentifier>{1bc50753-663e-4e73-b1d1-802ee9c7dec9}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
+    <Filter Include="Shared">
+      <UniqueIdentifier>{895de363-39e3-412e-9492-65b990862e75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Aujard.cpp">
@@ -32,6 +35,9 @@
     </ClCompile>
     <ClCompile Include="..\shared\SharedMem.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\Ini.cpp">
+      <Filter>Shared</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +75,9 @@
     </ClInclude>
     <ClInclude Include="..\shared\SharedMem.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\Ini.h">
+      <Filter>Shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
