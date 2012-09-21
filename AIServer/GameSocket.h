@@ -47,7 +47,6 @@ public:
 	void RecvUserUpdate(char* pBuf);
 	void RecvZoneChange(char* pBuf);
 	void RecvMagicAttackReq(char* pBuf);
-	void RecvCompressedData(char* pBuf);
 	void RecvUserInfoAllData(char* pBuf);
 	void RecvPartyInfoAllData(char* pBuf);
 	void RecvGateOpen(char* pBuf);

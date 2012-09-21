@@ -113,9 +113,6 @@ void CGameSocket::Parsing( int length, char* pData )
 	case AG_MAGIC_ATTACK_REQ:
 		RecvMagicAttackReq(pData+index);
 		break;
-	case AG_COMPRESSED_DATA:
-		RecvCompressedData(pData+index);
-		break;
 	case AG_USER_INFO_ALL:
 		RecvUserInfoAllData(pData+index);
 		break;
@@ -799,15 +796,6 @@ void CGameSocket::RecvMagicAttackReq(char* pBuf)
 
 	//pUser->MagicAttack(tid, iMagicID);
 	pUser->m_MagicProcess.MagicPacket( pBuf+index );
-}
-
-void CGameSocket::RecvCompressedData(char* pBuf)
-{
-	int index = 0;
-	short sCompLen;
-	sCompLen = GetShort(pBuf, index);
-
-	Parsing(sCompLen, pBuf+index);
 }
 
 void CGameSocket::RecvUserInfoAllData(char* pBuf)

@@ -119,7 +119,6 @@ public:
 	// sungyong 2001.11.06
 	BOOL AIServerConnect();
 	void SendAllUserInfo();
-	void SendCompressedData();
 	void DeleteAllNpcList(int flag = 0);
 	CNpc*  GetNpcPtr( int sid, int cur_zone );
 	// ~sungyong 2001.11.06
@@ -234,12 +233,6 @@ public:
 
 	// ~Yookozuna 2002.12.11 - 갓댐 산타 클로스 --;
 	BOOL	m_bSanta;
-
-	// 패킷 압축에 필요 변수   -------------only from ai server
-	int					m_CompCount;
-	TCHAR				m_CompBuf[10240];
-	int					m_iCompIndex;
-	// ~패킷 압축에 필요 변수   -------------
 
 	// zone server info
 	int					m_nServerNo, m_nServerGroupNo;

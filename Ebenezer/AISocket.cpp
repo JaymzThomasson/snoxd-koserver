@@ -93,9 +93,6 @@ void CAISocket::Parsing( int len, char* pData )
 		case AG_USER_FAIL:
 			RecvUserFail(pData+1);
 			break;
-		case AG_COMPRESSED_DATA:
-			RecvCompressedData(pData+1);
-			break;
 		case AG_NPC_GATE_DESTORY:
 			RecvGateDestory(pData+1);
 			break;
@@ -1020,15 +1017,6 @@ void CAISocket::RecvUserFail(char* pBuf)
 
 	m_pMain->Send_Region(pOutBuf, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ);
 
-}
-
-void CAISocket::RecvCompressedData(char* pBuf)
-{
-	int index = 0;
-	short sCompLen;
-	sCompLen = GetShort(pBuf, index);
-
-	Parsing(sCompLen, pBuf+index);
 }
 
 void CAISocket::InitEventMonster(int index)

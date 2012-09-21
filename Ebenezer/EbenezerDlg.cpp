@@ -296,11 +296,6 @@ BOOL CEbenezerDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	// Compress Init
-	memset( m_CompBuf, NULL, 10240 );		// 압축할 데이터를 모으는 버퍼
-	m_iCompIndex = 0;						// 압축할 데이터의 길이
-	m_CompCount = 0;						// 압축할 데이터의 개수
-
 	m_sZoneCount = 0;
 	m_sSocketCount = 0;
 	m_sErrorSocketCount = 0;
@@ -2442,11 +2437,7 @@ void CEbenezerDlg::SendAllUserInfo()
 		if(count == tot)	{
 			SetByte(send_buff, AG_USER_INFO_ALL, send_count );
 			SetByte(send_buff, (BYTE)count, send_count );
-			m_CompCount++;
-			memset(m_CompBuf, 0x00, 10240);
-			::CopyMemory(m_CompBuf, send_buff, send_index);
-			m_iCompIndex = send_index;
-			SendCompressedData();
+			Send_AIServer(1000, send_buff, send_index);
 			send_index = 2;
 			send_count = 0;
 			count = 0;
@@ -2497,28 +2488,6 @@ void CEbenezerDlg::SendAllUserInfo()
 	Send_AIServer( 1000, send_buff, send_index );
 
 	TRACE("** SendAllUserInfo() **\n");
-}
-
-void CEbenezerDlg::SendCompressedData()
-{
-	if( !m_CompCount || m_CompCount < 0 || !m_iCompIndex || m_iCompIndex < 0)
-	{
-		m_CompCount = 0;
-		m_iCompIndex = 0;
-		return;
-	}
-
-	int send_index = 0;
-	char send_buff[10240];		::ZeroMemory(send_buff, sizeof(send_buff));
-
-	SetByte(send_buff, AG_COMPRESSED_DATA, send_index );
-	SetShort(send_buff, (short)m_iCompIndex, send_index );
-	SetString( send_buff, m_CompBuf, m_iCompIndex, send_index);
-
-	Send_AIServer(1000, send_buff, send_index);
-
-	m_CompCount = 0;
-	m_iCompIndex = 0;
 }
 
 // sungyong 2002. 05. 23

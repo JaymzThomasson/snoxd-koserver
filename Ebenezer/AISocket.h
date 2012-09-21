@@ -47,7 +47,6 @@ public:
 	void RecvSystemMsg(char* pBuf);
 	void RecvNpcGiveItem(char* pBuf);
 	void RecvUserFail(char* pBuf);
-	void RecvCompressedData(char* pBuf);
 	void RecvGateDestory(char* pBuf);
 	void RecvNpcDead(char* pBuf);
 	void RecvNpcInOut(char* pBuf);

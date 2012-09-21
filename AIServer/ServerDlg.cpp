@@ -170,10 +170,6 @@ BOOL CServerDlg::OnInitDialog()
 	SetTimer( CHECK_ALIVE, 10000, NULL );
 	srand( (unsigned)time(NULL) );
 
-	// Compress Init
-	memset( m_CompBuf, NULL, 10240 );		// 압축할 데이터를 모으는 버퍼
-	m_iCompIndex = 0;						// 압축할 데이터의 길이
-	m_CompCount = 0;						// 압축할 데이터의 개수
 	InitializeCriticalSection( &g_User_critical );
 	InitializeCriticalSection( &g_LogFileWrite );
 	m_sSocketCount = 0;
@@ -1516,7 +1512,6 @@ void CServerDlg::AllNpcInfo()
 		packet_size = Send(send_buff, send_index, nZone);
 
 		send_index = 2;		count = 0;	send_count = 0;
-		m_CompCount = 0;	m_iCompIndex = 0;
 		::ZeroMemory(send_buff, sizeof(send_buff));
 
 		TRACE("****  allNpcInfo start = %d *****\n", nZone);
@@ -1695,29 +1690,6 @@ void CServerDlg::DeleteAllUserList(int zone)
 			m_StatusList.AddString( logstr );
 		}
 	}
-}
-// ~sungyong 2002.05.23
-
-void CServerDlg::SendCompressedData(int nZone)
-{
-	if( !m_CompCount || m_CompCount < 0 || !m_iCompIndex || m_iCompIndex < 0)
-	{
-		m_CompCount = 0;
-		m_iCompIndex = 0;
-		TRACE("#### SendCompressData Fail --> count=%d, index=%d\n" , m_CompCount, m_iCompIndex);
-		return;
-	}
-	int send_index = 0;
-	char send_buff[10240];		::ZeroMemory(send_buff, sizeof(send_buff));
-
-	SetByte(send_buff, AG_COMPRESSED_DATA, send_index );
-	SetShort(send_buff, (short)m_iCompIndex, send_index );
-	SetString( send_buff, m_CompBuf, m_iCompIndex, send_index);
-	Send(send_buff, send_index, nZone);
-
-	m_CompCount = 0;
-	m_iCompIndex = 0;
-	memset(m_CompBuf, 0x00, 10240);
 }
 
 BOOL CServerDlg::PreTranslateMessage(MSG* pMsg) 

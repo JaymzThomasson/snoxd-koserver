@@ -97,7 +97,6 @@ public:
 	void CheckAliveTest();
 	void DeleteUserList(int uid);
 	void DeleteAllUserList(int zone);
-	void SendCompressedData(int nZone);			// 패킷을 압축해서 보낸다..
 	int Send(char* pData, int length, int nZone=0);
 	void SendSystemMsg( char* pMsg, int zone, int type=0, int who=0 );
 	void ResetBattleZone();
@@ -175,12 +174,6 @@ public:
 	CIOCPort m_Iocport;	
 
 private:
-	// 패킷 압축에 필요 변수   -------------
-	int					m_CompCount;
-	TCHAR				m_CompBuf[10240];
-	int					m_iCompIndex;
-	// ~패킷 압축에 필요 변수   -------------
-
 	BYTE				m_byZone;
 	
 
