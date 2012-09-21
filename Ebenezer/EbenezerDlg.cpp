@@ -1657,7 +1657,7 @@ void CEbenezerDlg::GetTimeFromIni()
 		sprintf( ipkey, "SERVER_%02d", i );
 		pInfo->sServerNo = m_Ini.GetInt("ZONE_INFO", ipkey, 1);
 		sprintf( ipkey, "SERVER_IP_%02d", i );
-		m_Ini.GetString("ZONE_INFO", ipkey, "210.92.91.242", pInfo->strServerIP, sizeof(pInfo->strServerIP));
+		m_Ini.GetString("ZONE_INFO", ipkey, "127.0.0.1", pInfo->strServerIP, sizeof(pInfo->strServerIP));
 		m_ServerArray.PutData(pInfo->sServerNo, pInfo);
 	}
 
@@ -1673,7 +1673,7 @@ void CEbenezerDlg::GetTimeFromIni()
 			sprintf( ipkey, "GSERVER_%02d", i );
 			pInfo->sServerNo = m_Ini.GetInt("SG_INFO", ipkey, 1);
 			sprintf( ipkey, "GSERVER_IP_%02d", i );
-			m_Ini.GetString("SG_INFO", ipkey, "210.92.91.242", pInfo->strServerIP, sizeof(pInfo->strServerIP));
+			m_Ini.GetString("SG_INFO", ipkey, "127.0.0.1", pInfo->strServerIP, sizeof(pInfo->strServerIP));
 
 			m_ServerGroupArray.PutData(pInfo->sServerNo, pInfo);
 		}
