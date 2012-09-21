@@ -213,19 +213,6 @@ public:
 	// ~Yookozuna 2002.07.17
 	BYTE	m_bMaxRegenePoint;
 
-	// ~Yookozuna 2002.09.21 - Today is Chusok :( 
-	short m_sBuyID[MAX_BBS_POST];
-	char  m_strBuyTitle[MAX_BBS_POST][MAX_BBS_TITLE];
-	char  m_strBuyMessage[MAX_BBS_POST][MAX_BBS_MESSAGE];
-	int   m_iBuyPrice[MAX_BBS_POST];
-	float m_fBuyStartTime[MAX_BBS_POST];
-
-	short m_sSellID[MAX_BBS_POST];
-	char  m_strSellTitle[MAX_BBS_POST][MAX_BBS_TITLE];
-	char  m_strSellMessage[MAX_BBS_POST][MAX_BBS_MESSAGE];
-	int   m_iSellPrice[MAX_BBS_POST];
-	float m_fSellStartTime[MAX_BBS_POST];
-
 	// ~Yookozuna 2002.11.26 - 비러머글 남는 공지 --;
 	BOOL	m_bPermanentChatMode;
 	BOOL	m_bPermanentChatFlag;

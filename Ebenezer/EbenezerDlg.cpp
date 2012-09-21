@@ -235,20 +235,6 @@ CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
 
 	m_pUdpSocket = NULL;
 
-	for (int h = 0 ; h < MAX_BBS_POST ; h++) {
-		m_sBuyID[h] = -1;
-		memset(m_strBuyTitle[h], NULL, MAX_BBS_TITLE);
-		memset(m_strBuyMessage[h], NULL, MAX_BBS_MESSAGE);
-		m_iBuyPrice[h] = 0;
-		m_fBuyStartTime[h] = 0.0f;
-
-		m_sSellID[h] = -1;
-		memset(m_strSellTitle[h], NULL, MAX_BBS_TITLE);
-		memset(m_strSellMessage[h], NULL, MAX_BBS_MESSAGE);
-		m_iSellPrice[h] = 0;
-		m_fSellStartTime[h] = 0.0f;
-	}
-
 	for(int i=0; i<20; i++)
 		memset( m_ppNotice[i], NULL, 128 );
 	memset( m_AIServerIP, NULL, 20 );
