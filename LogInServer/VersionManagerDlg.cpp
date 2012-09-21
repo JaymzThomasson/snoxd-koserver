@@ -260,7 +260,7 @@ BOOL CVersionManagerDlg::PreTranslateMessage(MSG* pMsg)
 
 BOOL CVersionManagerDlg::DestroyWindow() 
 {
-	for (ServerInfoList::iterator itr = m_ServerList.begin(); itr != m_ServerList.end(); itr++)
+	foreach (itr, m_ServerList)
 		delete *itr;
 	m_ServerList.clear();
 

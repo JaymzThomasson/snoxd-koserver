@@ -1814,11 +1814,9 @@ BOOL CUser::IsValidName(char *name)
 	CString upperName = name;
 	upperName.MakeUpper();
 
-	for (BlockNameArray::iterator itr = m_pMain->m_BlockNameArray.begin(); itr != m_pMain->m_BlockNameArray.end(); itr++)
-	{
+	foreach (itr, m_pMain->m_BlockNameArray)
 		if (strstr(upperName, *itr))
 			return FALSE;
-	}
 
 	return TRUE;
 }
@@ -3063,16 +3061,11 @@ BYTE CUser::ItemCountChange(int itemid, int type, int amount)	// 0 : Requested i
 void CUser::SendAllKnightsID()
 {
 	int send_index = 0, count = 0, buff_index = 0;
-	char send_buff[4096]; memset( send_buff, 0x00, 4096 );
-	char temp_buff[4096]; memset( temp_buff, 0x00, 4096 );
-	map < int, CKnights*>::iterator Iter1, Iter2;
-	CKnights* pKnights = NULL;
+	char send_buff[4096], temp_buff[4096];
 
-	Iter1 = m_pMain->m_KnightsArray.m_UserTypeMap.begin();
-	Iter2 = m_pMain->m_KnightsArray.m_UserTypeMap.end();
-	
-	for( ; Iter1 != Iter2; Iter1++ ) {
-		pKnights = (*Iter1).second;
+	foreach_stlmap (itr, m_pMain->m_KnightsArray)
+	{
+		CKnights *pKnights = itr->second;
 		if( !pKnights ) continue;
 		//if( pKnights->bFlag != KNIGHTS_TYPE ) continue;
 		SetShort( temp_buff, pKnights->m_sIndex, buff_index );
@@ -3897,23 +3890,16 @@ void CUser::ServerChangeOk(char *pBuf)
 
 BOOL CUser::GetWarpList(int warp_group)
 {
-	_WARP_INFO* pWarp = NULL;
-	C3DMap* pMap = NULL;
+	C3DMap* pMap = GetMap();
 	int warpid = 0, send_index = 0;
 	int zoneindex = -1, temp_index = 0, count = 0;
 	char buff[8192]; memset(buff, 0x00, 8192);
 	char send_buff[8192]; memset(send_buff, 0x00, 8192);
 
 	BYTE type = 1;
-
-	map < int, _WARP_INFO* >::iterator		Iter1;
-	map < int, _WARP_INFO* >::iterator		Iter2;
-	
-	Iter1 = pMap->m_WarpArray.m_UserTypeMap.begin();
-	Iter2 = pMap->m_WarpArray.m_UserTypeMap.end();
-
-	for( ; Iter1 != Iter2; Iter1++ ) {
-		pWarp = (*Iter1).second;
+	foreach_stlmap (itr, pMap->m_WarpArray)
+	{
+		_WARP_INFO *pWarp = itr->second;
 		if (pWarp == NULL || (pWarp->sWarpID / 10) != warp_group)
 			continue;
 		
@@ -3923,8 +3909,8 @@ BOOL CUser::GetWarpList(int warp_group)
 		SetKOString(buff, pWarp->strAnnounce, send_index);
 		SetShort(buff, pWarp->sZone, send_index);
 
-		pMap = m_pMain->GetZoneByID(pWarp->sZone);
-		SetShort(buff, pMap != NULL ? pMap->m_sMaxUser : 0, send_index);
+		C3DMap *pDstMap = m_pMain->GetZoneByID(pWarp->sZone);
+		SetShort(buff, pDstMap != NULL ? pDstMap->m_sMaxUser : 0, send_index);
 
 		SetDWORD( buff, pWarp->dwPay, send_index );
 		SetShort( buff, (short)(pWarp->fX*10), send_index );

@@ -98,16 +98,12 @@ void CUser::ClientEvent(char *pBuf)		// The main function for the quest procedur
 
 
 	pEventData = pEvent->m_arEvent.GetData(eventid);		// Make sure you change this later!!!	
-	if(!pEventData) return;								                           
-	
-	if( !CheckEventLogic(pEventData) ) return;	// Check if all 'A's meet the requirements in Event #1
+	if (pEventData == NULL
+		|| !CheckEventLogic(pEventData)) return; // Check if all 'A's meet the requirements in Event #1
 
-	list<EXEC*>::iterator	Iter;		        // Execute the 'E' events in Event #1
-	for( Iter = pEventData->m_arExec.begin(); Iter != pEventData->m_arExec.end(); Iter++ ) {
-		if( !RunNpcEvent( pNpc, (*Iter) ) ){
+	foreach (itr, pEventData->m_arExec)
+		if (!RunNpcEvent(pNpc, *itr))
 			return;
-		}
-	}
 }
 
 BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 'A' parts and checks if the 
@@ -116,12 +112,12 @@ BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 
 
 	BOOL bExact = TRUE;
 
-	list<LOGIC_ELSE*>::iterator	Iter;
-	for( Iter = pEventData->m_arLogicElse.begin(); Iter != pEventData->m_arLogicElse.end(); Iter++ ) {
+	foreach (itr, pEventData->m_arLogicElse)
+	{
 		bExact = FALSE;
 
-		LOGIC_ELSE* pLE = (*Iter);
-		if( !pLE ) return FALSE;
+		LOGIC_ELSE* pLE = (*itr);
+		if (pLE == NULL) return FALSE;
 
 		switch( pLE->m_LogicElse ) {
 		case	LOGIC_CHECK_UNDER_WEIGHT:
@@ -294,13 +290,10 @@ BOOL CUser::RunNpcEvent(CNpc *pNpc, EXEC *pExec)	// This part executes all the '
 
 			if( !CheckEventLogic(pEventData) )	break;
 
-			list<EXEC*>::iterator	Iter;
-			for( Iter = pEventData->m_arExec.begin(); Iter != pEventData->m_arExec.end(); Iter++ ) 
+			foreach (itr, pEventData->m_arExec) 
 			{
-				if( !RunNpcEvent( pNpc, (*Iter) ) )
-				{
+				if  (!RunNpcEvent(pNpc, *itr))
 					return FALSE;
-				}
 			}
 		}
 		break;
@@ -317,74 +310,13 @@ BOOL CUser::RunNpcEvent(CNpc *pNpc, EXEC *pExec)	// This part executes all the '
 		GoldGain(pExec->m_ExecInt[0]);
 		break;
 
-// ????? ???? >.<
 	case	EXEC_SAVE_COM_EVENT:
 		SaveComEvent(pExec->m_ExecInt[0]);
 		break;
-//
+
 	case	EXEC_RETURN:
 		return FALSE;
 		break;
-/*
-		case EXEC_SAY:		
-			break;
-
-		case EXEC_SELECT_MSG:
-			SelectMsg( pExec );
-			break;
-
-		case EXEC_RUN_EVENT:
-			{
-				EVENT* pEvent = NULL;
-				pEvent = m_pMain->m_Quest.GetData(m_pUserData->m_bZone);		
-				if(!pEvent)	break;
-
-				EVENT_DATA* pEventData = NULL;
-				pEventData = pEvent->m_arEvent.GetData(pExec->m_ExecInt[0]);
-				if(!pEventData) break;
-
-				if( !CheckEventLogic(pEventData) )	break;
-
-				list<EXEC*>::iterator	Iter;
-				for( Iter = pEventData->m_arExec.begin(); Iter != pEventData->m_arExec.end(); Iter++ ) {
-					if( !RunNpcEvent( pNpc, (*Iter) ) ){
-						return FALSE;
-					}
-				}
-			}
-			break;
-
-		case EXEC_ROB_NOAH:
-			GoldLose(pExec->m_ExecInt[0]);
-			break;
-
-		case EXEC_GIVE_QUEST:
-			break;
-
-		case EXEC_QUEST_END:		
-			break;
-
-		case EXEC_QUEST_SAVE:
-			break;
-
-		case EXEC_RETURN:
-			return FALSE;
-
-		case EXEC_GIVE_NOAH:
-			GoldGain(pExec->m_ExecInt[0]);
-/////// These events are for the test quest. ///////
-		case EXEC_ROB_ITEM:		
-			if (!RobItem(pExec->m_ExecInt[0], pExec->m_ExecInt[1])) {
-				return FALSE;	
-			}
-			break;
-
-		case EXEC_GIVE_ITEM:	
-			if (!GiveItem(pExec->m_ExecInt[0], pExec->m_ExecInt[1])) {
-				return FALSE;
-			}
-			break;
-*/
 
 		default:
 			break;
@@ -395,13 +327,11 @@ BOOL CUser::RunNpcEvent(CNpc *pNpc, EXEC *pExec)	// This part executes all the '
 
 BOOL CUser::RunEvent(EVENT_DATA *pEventData)
 {
-	EXEC* pExec = NULL;
-	list<EXEC*>::iterator	Iter;
-
-	for( Iter = pEventData->m_arExec.begin(); Iter != pEventData->m_arExec.end(); Iter++ ) 
+	foreach (itr, pEventData->m_arExec) 
 	{
-		pExec = (*Iter);
-		if( !pExec ) break;
+		EXEC* pExec = *itr;
+		if (pExec == NULL)
+			break;
 
 		switch(pExec->m_Exec){
 			case EXEC_SAY:

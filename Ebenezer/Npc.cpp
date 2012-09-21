@@ -242,8 +242,7 @@ int CNpc::GetRegionNpcList(int region_x, int region_z, char *buff, int &t_count)
 {
 	if( m_pMain->m_bPointCheckFlag == FALSE)	return 0;	// 포인터 참조하면 안됨
 
-	int buff_index = 0, i=0, j=0;
-	int user_count = 0, nid = -1;
+	int buff_index = 0;
 	C3DMap* pMap = GetMap();
 	CNpc* pNpc = NULL;
 
@@ -255,21 +254,14 @@ int CNpc::GetRegionNpcList(int region_x, int region_z, char *buff, int &t_count)
 
 	EnterCriticalSection( &g_region_critical );
 
-	map < int, int* >::iterator		Iter1;
-	map < int, int* >::iterator		Iter2;
-	
-	Iter1 = pMap->m_ppRegion[region_x][region_z].m_RegionNpcArray.m_UserTypeMap.begin();
-	Iter2 = pMap->m_ppRegion[region_x][region_z].m_RegionNpcArray.m_UserTypeMap.end();
-
-	for( ; Iter1 != Iter2; Iter1++ ) {
-		nid = *( (*Iter1).second );
-		if( nid < 0 )
+	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
+	foreach_stlmap (itr, pRegion->m_RegionNpcArray)
+	{
+		CNpc *pNpc = m_pMain->m_arNpcArray.GetData(*itr->second);
+		if (pNpc == NULL)
 			continue;
-		pNpc = (CNpc*)m_pMain->m_arNpcArray.GetData(nid);
-		if( pNpc) {
-			SetShort( buff, pNpc->m_sNid, buff_index );
-			t_count++;
-		}
+		SetShort(buff, pNpc->m_sNid, buff_index);
+		t_count++;
 	}
 
 	LeaveCriticalSection( &g_region_critical );

@@ -25,7 +25,7 @@
 
 #include "extern.h"			// Àü¿ª °´Ã¼
 
-#include "STLMap.h"
+#include "../shared/STLMap.h"
 #include <vector>
 #include <list>
 

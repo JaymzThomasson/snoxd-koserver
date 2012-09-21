@@ -11,7 +11,7 @@
 #include "../shared/SharedMem.h"
 #include "DBAgent.h"
 #include "define.h"
-#include "STLMap.h"
+#include "../shared/STLMap.h"
 
 typedef CSTLMap <_ITEM_TABLE>		ItemtableArray;
 /////////////////////////////////////////////////////////////////////////////

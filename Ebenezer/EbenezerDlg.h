@@ -23,7 +23,7 @@
 #include "EVENT.h"
 #include "UdpSocket.h"
 
-#include "STLMap.h"
+#include "../shared/STLMap.h"
 #include <vector>
 
 /////////////////////////////////////////////////////////////////////////////

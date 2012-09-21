@@ -360,8 +360,8 @@ void CIOCPort::PutOldSid(int sid)
 		return;
 	}
 
-	list<int>::iterator  Iter = find(m_SidList.begin(), m_SidList.end(), sid);
-	if (Iter == m_SidList.end())
+	auto itr = find(m_SidList.begin(), m_SidList.end(), sid);
+	if (itr == m_SidList.end())
 		m_SidList.push_back(sid);
 }
 

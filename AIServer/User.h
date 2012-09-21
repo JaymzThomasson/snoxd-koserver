@@ -14,7 +14,7 @@
 class CServerDlg;
 
 #include "extern.h"
-#include "STLMap.h"
+#include "../shared/STLMap.h"
 #include <list>
 
 typedef std::list <_USERLOG*>		UserLogList;

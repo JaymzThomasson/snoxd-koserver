@@ -9,7 +9,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "STLMap.h"
+#include "../shared/STLMap.h"
 
 #define MAX_CHECK_EVENT	5
 

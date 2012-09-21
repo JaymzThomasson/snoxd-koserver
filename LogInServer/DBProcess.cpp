@@ -85,11 +85,15 @@ BOOL CDBProcess::LoadVersionList()
 			pInfo->sVersion = VersionSet.m_sVersion;
 			pInfo->sHistoryVersion = VersionSet.m_sHistoryVersion;
 	
-			if (!m_pMain->m_VersionList.PutData( pInfo->strFileName, pInfo))
+			VersionInfoList::iterator itr = m_pMain->m_VersionList.find(pInfo->strFileName);
+			if (itr != m_pMain->m_VersionList.end())
 			{
 				TRACE("VersionInfo PutData Fail - %s\n", pInfo->strFileName);
 				delete pInfo;
-				pInfo = NULL;
+			}
+			else
+			{
+				m_pMain->m_VersionList.insert(make_pair(pInfo->strFileName, pInfo));
 			}
 
 			VersionSet.MoveNext();
@@ -98,12 +102,10 @@ BOOL CDBProcess::LoadVersionList()
 
 	m_pMain->m_nLastVersion = 0;
 
-	map<string,_VERSION_INFO*>::iterator	Iter1, Iter2;
-	Iter1 = m_pMain->m_VersionList.m_UserTypeMap.begin();
-	Iter2 = m_pMain->m_VersionList.m_UserTypeMap.end();
-	for( ; Iter1 != Iter2; Iter1++ ) {
-		if( m_pMain->m_nLastVersion < ((*Iter1).second)->sVersion )
-			m_pMain->m_nLastVersion = ((*Iter1).second)->sVersion;
+	foreach (itr, m_pMain->m_VersionList)
+	{
+		if (m_pMain->m_nLastVersion < itr->second->sVersion)
+			m_pMain->m_nLastVersion = itr->second->sVersion;
 	}
 
 	return TRUE;

@@ -890,28 +890,19 @@ void CUser::HealAreaCheck(int rx, int rz)
 	CNpc* pNpc = NULL ;      // Pointer initialization!
 	float fDis = 0.0f;
 	vStart.Set(m_curx, (float)0, m_curz);
-	char send_buff[256];	memset(send_buff, 0x00, 256);
-	int nid = 0, send_index=0, result = 1, count = 0, total_mon = 0; 
-	int* pNpcIDList = NULL;
+	int send_index=0, result = 1, count = 0; 
 
 	EnterCriticalSection( &g_region_critical );
-	map < int, int* >::iterator		Iter1;
-	map < int, int* >::iterator		Iter2;
+	CRegion *pRegion = &pMap->m_ppRegion[rx][rz];
+	int total_mon = pRegion->m_RegionNpcArray.GetSize();
+	int *pNpcIDList = new int[total_mon];
+	foreach_stlmap (itr, pRegion->m_RegionNpcArray)
+		pNpcIDList[count++] = *itr->second;
 
-	Iter1 = pMap->m_ppRegion[rx][rz].m_RegionNpcArray.m_UserTypeMap.begin();
-	Iter2 = pMap->m_ppRegion[rx][rz].m_RegionNpcArray.m_UserTypeMap.end();
-
-	total_mon = pMap->m_ppRegion[rx][rz].m_RegionNpcArray.GetSize();
-	pNpcIDList = new int[total_mon];
-	for( ; Iter1 != Iter2; Iter1++ ) {
-		nid = *( (*Iter1).second );
-		pNpcIDList[count] = nid;
-		count++;
-	}
 	LeaveCriticalSection( &g_region_critical );
 
 	for(int i = 0 ; i < total_mon; i++ ) {
-		nid = pNpcIDList[i];
+		int nid = pNpcIDList[i];
 		if( nid < NPC_BAND ) continue;
 		pNpc = (CNpc*)m_pMain->m_arNpc.GetData(nid - NPC_BAND);
 
@@ -923,29 +914,30 @@ void CUser::HealAreaCheck(int rx, int rz)
 			if(fDis <= fRadius)	{	// NPC가 반경안에 있을 경우...
 				pNpc->ChangeTarget(1004, this, m_pIocport);
 			}	
-			else continue;
 		}
 	}
 
-	if(pNpcIDList)	{
+	if (pNpcIDList)
 		delete [] pNpcIDList;
-		pNpcIDList = NULL;
-	}
 }
 
 void CUser::WriteUserLog()
 {
-	CString string;
-	list<_USERLOG*>::iterator	Iter;
+	foreach (itr, m_UserLogList)
+	{
+		CString type = "unknown";
+		if ((*itr)->byFlag == USER_LOGIN)
+			type = "LogIn";
+		else if ((*itr)->byFlag == USER_LOGOUT)
+			type = "LogOut";
+		else if ((*itr)->byFlag == USER_LEVEL_UP)
+			type = "LevelUp";
 
-	for( Iter = m_UserLogList.begin(); Iter != m_UserLogList.end(); Iter++ ) {
-		//string.ReleaseBuffer();
-		if( (*Iter)->byFlag == USER_LOGIN )
-			string.Format( "%d-%d-%d %d:%d, %s, %d, %s\r\n", (*Iter)->t.GetYear(), (*Iter)->t.GetMonth(), (*Iter)->t.GetDay(), (*Iter)->t.GetHour(), (*Iter)->t.GetMinute(), "LogIn", (*Iter)->byLevel, (*Iter)->strUserID);
-		else if( (*Iter)->byFlag == USER_LOGOUT )
-			string.Format( "%d-%d-%d %d:%d, %s, %d, %s\r\n", (*Iter)->t.GetYear(), (*Iter)->t.GetMonth(), (*Iter)->t.GetDay(), (*Iter)->t.GetHour(), (*Iter)->t.GetMinute(), "LogOut", (*Iter)->byLevel, (*Iter)->strUserID);
-		else if( (*Iter)->byFlag == USER_LEVEL_UP )
-			string.Format( "%d-%d-%d %d:%d, %s, %d, %s\r\n", (*Iter)->t.GetYear(), (*Iter)->t.GetMonth(), (*Iter)->t.GetDay(), (*Iter)->t.GetHour(), (*Iter)->t.GetMinute(), "LevelUp", (*Iter)->byLevel, (*Iter)->strUserID);
+		CString string = _T("");
+		string.Format( "%d-%d-%d %d:%d, %s, %d, %s\r\n", (*itr)->t.GetYear(), (*itr)->t.GetMonth(), (*itr)->t.GetDay(), 
+			(*itr)->t.GetHour(), (*itr)->t.GetMinute(), 
+			type, (*itr)->byLevel, (*itr)->strUserID);
+
 		EnterCriticalSection( &g_LogFileWrite );
 		m_pMain->m_UserLogFile.Write(string, string.GetLength());
 		LeaveCriticalSection( &g_LogFileWrite );

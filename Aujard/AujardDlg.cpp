@@ -497,7 +497,7 @@ void CAujardDlg::RequestFriendList(char *pBuf)
 	SetByte(send_buff, FRIEND_REQUEST, send_index);
 	SetByte(send_buff, (BYTE)(friendList.size()), send_index);
 
-	for (vector<string>::iterator itr = friendList.begin(); itr != friendList.end(); itr++)
+	foreach (itr, friendList)
 		SetKOString(send_buff, (char *)(*itr).c_str(), send_index, sizeof(BYTE));
 }
 

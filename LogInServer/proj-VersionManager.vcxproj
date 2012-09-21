@@ -192,7 +192,6 @@
     <ClInclude Include="IOCPSocket2.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="StdAfx.h" />
-    <ClInclude Include="STLMap.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="VersionManager.h" />
     <ClInclude Include="VersionManagerDlg.h" />

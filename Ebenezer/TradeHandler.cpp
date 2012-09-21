@@ -117,18 +117,18 @@ void CUser::ExchangeAdd(char *pBuf)
 	itemid = GetDWORD( pBuf, index );
 	count = GetDWORD( pBuf, index );
 	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
-	if( !pTable )
+	if (pTable == NULL
+		|| (itemid != ITEM_GOLD && pos >= HAVE_MAX)
+		|| m_bExchangeOK)
 		goto add_fail;
-	if( itemid != ITEM_GOLD && pos >= HAVE_MAX )
-		goto add_fail;
-	if( m_bExchangeOK )
-		goto add_fail;
+
 	if( itemid == ITEM_GOLD ) {
-		if( count > m_pUserData->m_iGold ) goto add_fail;
-		if( count <= 0 ) goto add_fail;
-		for( Iter = m_ExchangeItemList.begin(); Iter != m_ExchangeItemList.end(); Iter++ ) {
-			if( (*Iter)->itemid == ITEM_GOLD ) {
-				(*Iter)->count += count;
+		if (count <= 0 || count > m_pUserData->m_iGold) goto add_fail;
+		foreach (itr, m_ExchangeItemList)
+		{
+			if ((*itr)->itemid == ITEM_GOLD)
+			{
+				(*itr)->count += count;
 				m_pUserData->m_iGold -= count;
 				bAdd = FALSE;
 				break;
@@ -139,10 +139,12 @@ void CUser::ExchangeAdd(char *pBuf)
 	}
 	else if( m_MirrorItem[pos].nNum == itemid ) {
 		if( m_MirrorItem[pos].sCount < count ) goto add_fail;
-		if( pTable->m_bCountable ) {		// ?????? ??????
-			for( Iter = m_ExchangeItemList.begin(); Iter != m_ExchangeItemList.end(); Iter++ ) {
-				if( (*Iter)->itemid == itemid ) {
-					(*Iter)->count += count;
+		if( pTable->m_bCountable ) {
+			foreach (itr, m_ExchangeItemList)
+			{
+				if ((*itr)->itemid == itemid)
+				{
+					(*itr)->count += count;
 					m_MirrorItem[pos].sCount -= count;
 					bAdd = FALSE;
 					break;
@@ -162,8 +164,11 @@ void CUser::ExchangeAdd(char *pBuf)
 	}
 	else
 		goto add_fail;
-	for( Iter = m_ExchangeItemList.begin(); Iter != m_ExchangeItemList.end(); Iter++ ) {
-		if( (*Iter)->itemid == ITEM_GOLD ) {
+
+	foreach (itr, m_ExchangeItemList)
+	{
+		if ((*itr)->itemid == ITEM_GOLD)
+		{
 			bGold = TRUE;
 			break;
 		}
@@ -223,19 +228,22 @@ void CUser::ExchangeDecide()
 		SetByte( buff, EXCHANGE_OTHERDECIDE, send_index );
 		pUser->Send( buff, send_index );
 	}
-	else {										// ??? ?????? ???
-		list<_EXCHANGE_ITEM*>::iterator	Iter;
-		if( !ExecuteExchange() || !pUser->ExecuteExchange() ) {				// ??? ????
-			for( Iter = m_ExchangeItemList.begin(); Iter != m_ExchangeItemList.end(); Iter++ ) {
-				if( (*Iter)->itemid == ITEM_GOLD ) {
-					m_pUserData->m_iGold += (*Iter)->count;		// ???? ???
+	else {
+		if( !ExecuteExchange() || !pUser->ExecuteExchange() ) {
+			foreach (itr, m_ExchangeItemList)
+			{
+				if ((*itr)->itemid == ITEM_GOLD )
+				{
+					m_pUserData->m_iGold += (*itr)->count;
 					break;
 				}
 			}
 			
-			for( Iter = pUser->m_ExchangeItemList.begin(); Iter != pUser->m_ExchangeItemList.end(); Iter++ ) {
-				if( (*Iter)->itemid == ITEM_GOLD ) {
-					pUser->m_pUserData->m_iGold += (*Iter)->count;		// ???? ???
+			foreach (itr, pUser->m_ExchangeItemList)
+			{
+				if ((*itr)->itemid == ITEM_GOLD)
+				{
+					pUser->m_pUserData->m_iGold += (*itr)->count;
 					break;
 				}
 			}
@@ -243,7 +251,7 @@ void CUser::ExchangeDecide()
 			bSuccess = FALSE;
 		}
 		if( bSuccess ) {
-			getmoney = ExchangeDone();						// ??? ?????? ???...
+			getmoney = ExchangeDone();
 			putmoney = pUser->ExchangeDone();
 			if( getmoney > 0 )
 				ItemLogToAgent( m_pUserData->m_id, pUser->m_pUserData->m_id, ITEM_EXCHANGE_GET, 0, ITEM_GOLD, getmoney, 0 );
@@ -255,15 +263,16 @@ void CUser::ExchangeDecide()
 			SetByte( buff, 0x01, send_index );
 			SetDWORD( buff, m_pUserData->m_iGold, send_index );
 			SetShort( buff, pUser->m_ExchangeItemList.size(), send_index );
-			for( Iter = pUser->m_ExchangeItemList.begin(); Iter != pUser->m_ExchangeItemList.end(); Iter++ ) {
-				SetByte( buff, (*Iter)->pos, send_index );		// ??? ??? ????? ?g
-				SetDWORD( buff, (*Iter)->itemid, send_index );
-				SetShort( buff, (*Iter)->count, send_index );
-				SetShort( buff, (*Iter)->duration, send_index );
+			foreach (itr, pUser->m_ExchangeItemList)
+			{
+				SetByte( buff, (*itr)->pos, send_index );
+				SetDWORD( buff, (*itr)->itemid, send_index );
+				SetShort( buff, (*itr)->count, send_index );
+				SetShort( buff, (*itr)->duration, send_index );
 
-				ItemLogToAgent( m_pUserData->m_id, pUser->m_pUserData->m_id, ITEM_EXCHANGE_GET, (*Iter)->nSerialNum, (*Iter)->itemid, (*Iter)->count, (*Iter)->duration );
+				ItemLogToAgent( m_pUserData->m_id, pUser->m_pUserData->m_id, ITEM_EXCHANGE_GET, (*itr)->nSerialNum, (*itr)->itemid, (*itr)->count, (*itr)->duration );
 			}
-			Send( buff, send_index );		// ?????? ??????...
+			Send( buff, send_index );
 
 			memset( buff, 0x00, 256 ); send_index = 0;
 			SetByte( buff, WIZ_EXCHANGE, send_index );
@@ -271,15 +280,16 @@ void CUser::ExchangeDecide()
 			SetByte( buff, 0x01, send_index );
 			SetDWORD( buff, pUser->m_pUserData->m_iGold, send_index );
 			SetShort( buff, m_ExchangeItemList.size(), send_index );
-			for( Iter = m_ExchangeItemList.begin(); Iter != m_ExchangeItemList.end(); Iter++ ) {
-				SetByte( buff, (*Iter)->pos, send_index );		// ??? ??? ????? ?g
-				SetDWORD( buff, (*Iter)->itemid, send_index );
-				SetShort( buff, (*Iter)->count, send_index );
-				SetShort( buff, (*Iter)->duration, send_index );
+			foreach (itr, m_ExchangeItemList)
+			{
+				SetByte( buff, (*itr)->pos, send_index );
+				SetDWORD( buff, (*itr)->itemid, send_index );
+				SetShort( buff, (*itr)->count, send_index );
+				SetShort( buff, (*itr)->duration, send_index );
 
-				ItemLogToAgent( m_pUserData->m_id, pUser->m_pUserData->m_id, ITEM_EXCHANGE_PUT, (*Iter)->nSerialNum, (*Iter)->itemid, (*Iter)->count, (*Iter)->duration );
+				ItemLogToAgent( m_pUserData->m_id, pUser->m_pUserData->m_id, ITEM_EXCHANGE_PUT, (*itr)->nSerialNum, (*itr)->itemid, (*itr)->count, (*itr)->duration );
 			}
-			pUser->Send( buff, send_index );	// ???? ???????. 
+			pUser->Send( buff, send_index );
 
 			SendItemWeight();
 			pUser->SendItemWeight();
@@ -310,10 +320,11 @@ void CUser::ExchangeCancel()
 	if (pUser == NULL) 
 		bFind = FALSE;
 
-	list<_EXCHANGE_ITEM*>::iterator	Iter;
-	for( Iter = m_ExchangeItemList.begin(); Iter != m_ExchangeItemList.end(); Iter++ ) {
-		if( (*Iter)->itemid == ITEM_GOLD ) {
-			m_pUserData->m_iGold += (*Iter)->count;		// ???? ???
+	foreach (itr, m_ExchangeItemList)
+	{
+		if ((*itr)->itemid == ITEM_GOLD)
+		{
+			m_pUserData->m_iGold += (*itr)->count;
 			break;
 		}
 	}
@@ -369,49 +380,45 @@ BOOL CUser::ExecuteExchange()
 	BYTE i = 0;
 
 	pUser = m_pMain->GetUserPtr(m_sExchangeUser);
-	if( !pUser ) return FALSE;
+	if (pUser == NULL) return FALSE;
 
-	list<_EXCHANGE_ITEM*>::iterator	Iter;
-	int iCount = pUser->m_ExchangeItemList.size(); 
-	for( Iter = pUser->m_ExchangeItemList.begin(); Iter != pUser->m_ExchangeItemList.end(); Iter++ ) {
-
+	foreach (Iter, pUser->m_ExchangeItemList)
+	{
 		if( (*Iter)->itemid >= ITEM_NO_TRADE)
 			return FALSE;
 		else if( (*Iter)->itemid == ITEM_GOLD ) {
-//
-//		if( (*Iter)->itemid == ITEM_GOLD ) {
 			money = (*Iter)->count;
 		}
 		else {
 			pTable = m_pMain->m_ItemtableArray.GetData( (*Iter)->itemid );
 			if( !pTable ) continue;
-			for( i=0; i<HAVE_MAX; i++ ) {
-				if( m_MirrorItem[i].nNum == 0  && pTable->m_bCountable == 0 ) {  // ????? ???? ??????!!!
+			for (i=0; i<HAVE_MAX; i++ ) {
+				if( m_MirrorItem[i].nNum == 0  && pTable->m_bCountable == 0 ) {
 					m_MirrorItem[i].nNum = (*Iter)->itemid;
 					m_MirrorItem[i].sDuration = (*Iter)->duration;
 					m_MirrorItem[i].sCount = (*Iter)->count;
 					m_MirrorItem[i].nSerialNum = (*Iter)->nSerialNum;
-					(*Iter)->pos = i;							// ??Y?? ??????...
+					(*Iter)->pos = i;	
 					weight += pTable->m_sWeight;
 					break;
 				}
-				else if( m_MirrorItem[i].nNum == (*Iter)->itemid && pTable->m_bCountable == 1 ) {	// ????? ??????!!!				
+				else if( m_MirrorItem[i].nNum == (*Iter)->itemid && pTable->m_bCountable == 1 ) {			
 					m_MirrorItem[i].sCount += (*Iter)->count;
 					if( m_MirrorItem[i].sCount > MAX_ITEM_COUNT )
 						m_MirrorItem[i].sCount = MAX_ITEM_COUNT;
 					weight += ( pTable->m_sWeight * (*Iter)->count );
-					(*Iter)->pos = i;							// ??Y?? ??????...
+					(*Iter)->pos = i;	
 					break;
 				}
 			}
 
-			if( i == HAVE_MAX && pTable->m_bCountable == 1 ) {	// ??? ??? ???????e? ????? ????? ???? ??? ??? ??? ???			
+			if( i == HAVE_MAX && pTable->m_bCountable == 1 ) {
 				for( i=0; i<HAVE_MAX; i++ ) {
 					if( m_MirrorItem[i].nNum == 0 ) {
 						m_MirrorItem[i].nNum = (*Iter)->itemid;
 						m_MirrorItem[i].sDuration = (*Iter)->duration;
 						m_MirrorItem[i].sCount = (*Iter)->count;
-						(*Iter)->pos = i;							// ??Y?? ??????...
+						(*Iter)->pos = i;
 						weight += ( pTable->m_sWeight * (*Iter)->count );
 						break;
 					}
@@ -419,7 +426,7 @@ BOOL CUser::ExecuteExchange()
 			}
 			
 			if( Iter != pUser->m_ExchangeItemList.end() && i == HAVE_MAX )
-				return FALSE;		// ????? ?? ???...
+				return FALSE;
 		}
 	}
 
@@ -438,21 +445,23 @@ int CUser::ExchangeDone()
 	if (pUser == NULL)
 		return 0;
 
-	list<_EXCHANGE_ITEM*>::iterator	Iter;
-	for( Iter = pUser->m_ExchangeItemList.begin(); Iter != pUser->m_ExchangeItemList.end(); ) {
-		if( (*Iter)->itemid == ITEM_GOLD ) {
-			money = (*Iter)->count;
-			delete (*Iter);
-			Iter = pUser->m_ExchangeItemList.erase(Iter);
+	foreach (itr, pUser->m_ExchangeItemList)
+	{
+		if ((*itr)->itemid == ITEM_GOLD)
+		{
+			money = (*itr)->count;
+			delete (*itr);
+			itr = pUser->m_ExchangeItemList.erase(itr);
+			itr--; // this needs checking over
 			continue;
 		}
 
-		Iter++;
+		itr++;
 	}
 	
 	if( money > 0 ) 
-		m_pUserData->m_iGold += money;		// ?????? ?? ??.
-	for( int i=0; i<HAVE_MAX; i++ ) {			// ????? ???????..
+		m_pUserData->m_iGold += money;
+	for( int i=0; i<HAVE_MAX; i++ ) {
 		m_pUserData->m_sItemArray[SLOT_MAX+i].nNum = m_MirrorItem[i].nNum;
 		m_pUserData->m_sItemArray[SLOT_MAX+i].sDuration = m_MirrorItem[i].sDuration;
 		m_pUserData->m_sItemArray[SLOT_MAX+i].sCount = m_MirrorItem[i].sCount;

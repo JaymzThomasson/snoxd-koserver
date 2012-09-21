@@ -67,7 +67,7 @@ void CUser::Parsing(int len, char *pData)
 #endif
 
 		SetByte( buff, m_pMain->m_nServerCount, send_index );
-		for (ServerInfoList::iterator itr = m_pMain->m_ServerList.begin(); itr != m_pMain->m_ServerList.end(); itr++) 
+		foreach (itr, m_pMain->m_ServerList) 
 		{		
 			_SERVER_INFO *pServer = *itr;
 
@@ -197,12 +197,12 @@ fail_return:
 void CUser::SendDownloadInfo(int version)
 {
 	int send_index = 0, filecount = 0;
-	_VERSION_INFO *pInfo = NULL;
 	set <string> downloadset;
-	char buff[2048]; memset( buff, 0x00, 2048 );
+	char buff[2048];
 
-	for (map <string, _VERSION_INFO*>::iterator Iter1 = m_pMain->m_VersionList.m_UserTypeMap.begin(); Iter1 != m_pMain->m_VersionList.m_UserTypeMap.end(); Iter1++ ) {
-		pInfo = (*Iter1).second;
+	foreach (itr, m_pMain->m_VersionList) 
+	{
+		_VERSION_INFO *pInfo = itr->second;
 		if( pInfo->sVersion > version )
 			downloadset.insert(pInfo->strFileName);
 	}
@@ -212,7 +212,7 @@ void CUser::SendDownloadInfo(int version)
 	SetKOString(buff, m_pMain->m_strFilePath, send_index);
 	SetShort( buff, downloadset.size(), send_index );
 	
-	for (set<string>::iterator filenameIter1 = downloadset.begin(); filenameIter1 != downloadset.end(); filenameIter1++ )
-		SetKOString( buff, (char*)((*filenameIter1).c_str()), send_index );
+	foreach (itr, downloadset)
+		SetKOString( buff, (char*)(*itr).c_str(), send_index );
 	Send( buff, send_index );
 }

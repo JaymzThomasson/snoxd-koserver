@@ -726,27 +726,22 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 	float fDis = 0.0f;
 	vStart.Set((float)data1, (float)0, (float)data3);
 	char send_buff[256];	memset(send_buff, 0x00, 256);
-	int nid = 0, send_index=0, result = 1, count = 0, total_mon = 0, attack_type=0;; 
+	int send_index=0, result = 1, count = 0, total_mon = 0, attack_type=0;; 
 	int* pNpcIDList = NULL;
 
 	EnterCriticalSection( &g_region_critical );
-	map < int, int* >::iterator		Iter1;
-	map < int, int* >::iterator		Iter2;
 
-	Iter1 = pMap->m_ppRegion[rx][rz].m_RegionNpcArray.m_UserTypeMap.begin();
-	Iter2 = pMap->m_ppRegion[rx][rz].m_RegionNpcArray.m_UserTypeMap.end();
-
-	total_mon = pMap->m_ppRegion[rx][rz].m_RegionNpcArray.GetSize();
+	CRegion *pRegion = &pMap->m_ppRegion[rx][rz];
+	total_mon = pRegion->m_RegionNpcArray.GetSize();
 	pNpcIDList = new int[total_mon];
-	for( ; Iter1 != Iter2; Iter1++ ) {
-		nid = *( (*Iter1).second );
-		pNpcIDList[count] = nid;
-		count++;
-	}
-	LeaveCriticalSection( &g_region_critical );
+
+	foreach_stlmap (itr, pRegion->m_RegionNpcArray)
+		pNpcIDList[count++] = *itr->second;
+
+	LeaveCriticalSection(&g_region_critical);
 
 	for(int i = 0 ; i < total_mon; i++ ) {
-		nid = pNpcIDList[i];
+		int nid = pNpcIDList[i];
 		if( nid < NPC_BAND ) continue;
 		pNpc = (CNpc*)m_pMain->m_arNpc.GetData(nid - NPC_BAND);
 
@@ -855,7 +850,6 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 					m_pMain->Send( send_buff, send_index );
 				}
 			}	
-			else continue;
 		}
 	}
 
@@ -863,15 +857,6 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 		delete [] pNpcIDList;
 		pNpcIDList = NULL;
 	}
-
-	/*
-	for( Iter = pMap->m_ppRegion[rx][rz].m_RegionNpcArray.m_UserTypeMap.begin(); Iter != pMap->m_ppRegion[rx][rz].m_RegionNpcArray.m_UserTypeMap.end(); ) {
-		if( bDead ) {
-			Iter = pMap->m_ppRegion[rx][rz].m_RegionNpcArray.DeleteData( Iter );
-			continue;
-		}
-		Iter++;
-	}	*/
 }
 
 short CMagicProcess::GetWeatherDamage(short damage, short attribute)

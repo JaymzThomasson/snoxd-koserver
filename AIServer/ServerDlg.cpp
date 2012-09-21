@@ -1226,11 +1226,10 @@ BOOL CServerDlg::CreateNpcThread()
 		return FALSE;
 	}
 		
-	int step = 0;
-	int nThreadNumber = 0;
+	int step = 0, nThreadNumber = 0;
 	CNpcThread* pNpcThread = NULL;
 
-	for (NpcArray::Iterator itr = m_arNpc.m_UserTypeMap.begin(); itr != m_arNpc.m_UserTypeMap.end(); itr++)
+	foreach_stlmap (itr, m_arNpc)
 	{
 		if (step == 0)
 			pNpcThread = new CNpcThread;
@@ -1258,31 +1257,6 @@ BOOL CServerDlg::CreateNpcThread()
 		m_arNpcThread.push_back( pNpcThread );
 	}
 
-	// Event Npc Logic
-/*
-	pNpcThread = NULL;
-	pNpcThread = new CNpcThread;	
-	pNpcThread->pIOCP = &m_Iocport;
-	pNpcThread->m_sThreadNumber = 1000;
-
-	for(i = 0; i < NPC_NUM; i++) // 미리 최대 소환 NPC_NUM마리 메모리 할당
-	{
-		CNpc*	pNpc = new CNpc;
-		pNpc->m_sNid = nSerial++;
-		pNpc->m_NpcState = NPC_DEAD;
-		pNpc->m_lEventNpc = 0;
-		pNpcThread->m_pNpc[i] = pNpc;
-		if( !m_arNpc.PutData( pNpc->m_sNid, pNpc) )	{
-			TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
-			delete pNpc;
-			pNpc = NULL;
-		}
-	}
-
-	pNpcThread->m_pThread = AfxBeginThread(NpcThreadProc, &(pNpcThread->m_ThreadInfo), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-	m_arEventNpcThread.push_back( pNpcThread );
-	*/
-
 	m_pZoneEventThread = AfxBeginThread(ZoneEventThreadProc, (LPVOID)(this), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
 
 	//TRACE("m_TotalNPC = %d \n", m_TotalNPC);
@@ -1296,7 +1270,7 @@ BOOL CServerDlg::CreateNpcThread()
 //	NPC Thread 들을 작동시킨다.
 void CServerDlg::ResumeAI()
 {
-	for (NpcThreadArray::iterator itr = m_arNpcThread.begin(); itr != m_arNpcThread.end(); itr++)
+	foreach (itr, m_arNpcThread)
 	{
 		for (int j = 0; j < NPC_NUM; j++)
 			(*itr)->m_ThreadInfo.pNpc[j] = (*itr)->m_pNpc[j];
@@ -1305,19 +1279,6 @@ void CServerDlg::ResumeAI()
 
 		ResumeThread((*itr)->m_pThread->m_hThread);
 	}
-
-
-	// Event Npc Logic
-/*	m_arEventNpcThread[0]->m_ThreadInfo.hWndMsg = this->GetSafeHwnd();
-	for(j = 0; j < NPC_NUM; j++)
-	{
-		m_arEventNpcThread[0]->m_ThreadInfo.pNpc[j] = NULL;	// 초기 소환 몹이 당연히 없으므로 NULL로 작동을 안시킴
-		m_arEventNpcThread[0]->m_ThreadInfo.m_byNpcUsed[j] = 0;
-	}
-	m_arEventNpcThread[0]->m_ThreadInfo.pIOCP = &m_Iocport;
-
-	::ResumeThread(m_arEventNpcThread[0]->m_pThread->m_hThread);	
-	*/
 
 	ResumeThread(m_pZoneEventThread->m_hThread);
 }
@@ -1334,29 +1295,15 @@ BOOL CServerDlg::DestroyWindow()
 	if(m_UserLogFile.m_hFile != CFile::hFileNull) m_UserLogFile.Close();
 	if(m_ItemLogFile.m_hFile != CFile::hFileNull) m_ItemLogFile.Close();
 
-	for (NpcThreadArray::iterator itr = m_arNpcThread.begin(); itr != m_arNpcThread.end(); itr++)
+	foreach (itr, m_arNpcThread)
 		WaitForSingleObject((*itr)->m_pThread->m_hThread, INFINITE);
-
-	// Event Npc Logic
-/*	for(i = 0; i < m_arEventNpcThread.size(); i++)
-	{
-		WaitForSingleObject(m_arEventNpcThread[i]->m_pThread->m_hThread, INFINITE);
-	}	*/
 
 	WaitForSingleObject(m_pZoneEventThread, INFINITE);
 
-	// DB테이블 삭제 부분
-
 	// NpcThread Array Delete
-	for (NpcThreadArray::iterator itr = m_arNpcThread.begin(); itr != m_arNpcThread.end(); itr++)
+	foreach (itr, m_arNpcThread)
 		delete *itr;
 	m_arNpcThread.clear();
-
-	// Event Npc Logic
-	// EventNpcThread Array Delete
-/*	for(i = 0; i < m_arEventNpcThread.size(); i++)
-		delete m_arEventNpcThread[i];
-	m_arEventNpcThread.clear();		*/
 
 	// Item Array Delete
 	if( m_NpcItem.m_ppItem ) {
@@ -1500,7 +1447,7 @@ void CServerDlg::AllNpcInfo()
 	int count = 0, send_count = 0, send_tot = 0;
 	char send_buff[2048];		::ZeroMemory(send_buff, sizeof(send_buff));
 
-	for (ZoneArray::Iterator itr = g_arZone.m_UserTypeMap.begin(); itr != g_arZone.m_UserTypeMap.end(); itr++)
+	foreach_stlmap (itr, g_arZone)
 	{
 		nZone = itr->first;
 
@@ -1516,7 +1463,7 @@ void CServerDlg::AllNpcInfo()
 
 		TRACE("****  allNpcInfo start = %d *****\n", nZone);
 
-		for (NpcArray::Iterator itr = m_arNpc.m_UserTypeMap.begin(); itr != m_arNpc.m_UserTypeMap.end(); itr++)
+		foreach_stlmap (itr, m_arNpc)
 		{
 			CNpc *pNpc = itr->second;
 			if(pNpc == NULL)	{
@@ -1525,8 +1472,7 @@ void CServerDlg::AllNpcInfo()
 			}
 			if(pNpc->m_bCurZone != nZone)	continue;
 
-			pNpc->SendNpcInfoAll(send_buff, send_index, count);
-			count++;
+			pNpc->SendNpcInfoAll(send_buff, send_index, count++);
 			if(count == NPC_NUM)	{
 				SetByte(send_buff, NPC_INFO_ALL, send_count );
 				SetByte(send_buff, (BYTE)count, send_count );
@@ -1647,9 +1593,9 @@ void CServerDlg::DeleteAllUserList(int zone)
 
 	CString logstr;
 
-	if(zone == 9999 && m_bFirstServerFlag == TRUE)	{						// 모든 소켓이 끊어진 상태...
+	if(zone == 9999 && m_bFirstServerFlag == TRUE)	{
 		TRACE("*** DeleteAllUserList - Start *** \n");
-		for (ZoneArray::Iterator itr = g_arZone.m_UserTypeMap.begin(); itr != g_arZone.m_UserTypeMap.end(); itr++)
+		foreach_stlmap (itr, g_arZone)
 		{
 			MAP * pMap = itr->second;
 			if (pMap == NULL)	
@@ -2225,7 +2171,7 @@ BOOL CServerDlg::GetMagicType4Data()
 void CServerDlg::RegionCheck()
 {
 	int i=0,k=0, total_user = 0;
-	for (ZoneArray::Iterator itr = g_arZone.m_UserTypeMap.begin(); itr != g_arZone.m_UserTypeMap.end(); itr++)	
+	foreach_stlmap(itr, g_arZone)	
 	{
 		MAP *pMap = itr->second;
 		if (pMap == NULL)	continue;
@@ -2418,7 +2364,7 @@ void CServerDlg::SendSystemMsg( char* pMsg, int type, int who )
 void CServerDlg::ResetBattleZone()
 {
 	TRACE("ServerDlg - ResetBattleZone() : start \n");
-	for (ZoneArray::Iterator itr = g_arZone.m_UserTypeMap.begin(); itr != g_arZone.m_UserTypeMap.end(); itr++)
+	foreach_stlmap (itr, g_arZone)
 	{
 		MAP *pMap = itr->second;
 		if (pMap == NULL || pMap->m_byRoomEvent == 0) 

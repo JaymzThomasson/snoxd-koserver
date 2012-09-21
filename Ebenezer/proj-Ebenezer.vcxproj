@@ -321,7 +321,6 @@
     <ClInclude Include="Npc.h" />
     <ClInclude Include="Region.h" />
     <ClInclude Include="StdAfx.h" />
-    <ClInclude Include="STLMap.h" />
     <ClInclude Include="UdpSocket.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="Resource.h" />

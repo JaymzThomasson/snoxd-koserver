@@ -156,8 +156,7 @@ UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */)
 	while (!g_bNpcExit)
 	{
 		fCurrentTime = TimeGet();
-		for (ZoneArray::Iterator itr = m_pMain->g_arZone.m_UserTypeMap.begin();
-				itr != m_pMain->g_arZone.m_UserTypeMap.end(); itr++)
+		foreach_stlmap (itr, m_pMain->g_arZone)
 		{
 			MAP *pMap = itr->second;
 			if (pMap == NULL

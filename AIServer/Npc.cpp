@@ -1896,17 +1896,10 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 	int iLevelComprison = 0;
 	
 	if(nType == 1)	{		// user을 타겟으로 잡는 경우
-		int nUserid = 0, count = 0;
-		CUser* pUser = NULL;
-
 		EnterCriticalSection( &g_region_critical );
-		map < int, int* >::iterator		Iter1;
-		map < int, int* >::iterator		Iter2;
-		
-		Iter1 = pMap->m_ppRegion[nRX][nRZ].m_RegionUserArray.m_UserTypeMap.begin();
-		Iter2 = pMap->m_ppRegion[nRX][nRZ].m_RegionUserArray.m_UserTypeMap.end();
+		CRegion *pRegion = &pMap->m_ppRegion[nRX][nRZ];
+		int nUser = pRegion->m_RegionUserArray.GetSize(), count = 0;
 
-		int nUser= pMap->m_ppRegion[nRX][nRZ].m_RegionUserArray.GetSize();
 		//TRACE("FindEnemyExpand type1,, region_x=%d, region_z=%d, user=%d, mon=%d\n", nRX, nRZ, nUser, nMonster);
 		if( nUser == 0 )	{
 			LeaveCriticalSection( &g_region_critical );
@@ -1914,17 +1907,12 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 		}
 
 		pIDList = new int[nUser];
-		for( ; Iter1 != Iter2; Iter1++ ) {
-			nUserid = *( (*Iter1).second );
-			pIDList[count] = nUserid;
-			count++;
-		}
+		foreach_stlmap (itr, pRegion->m_RegionUserArray)
+			pIDList[count++] = *itr->second;
 		LeaveCriticalSection( &g_region_critical );
 
 		for(int i=0 ; i<nUser; i++ ) {
-			nUserid = pIDList[i];
-			if( nUserid < 0 )	continue;
-			pUser = (CUser*)m_pMain->GetUserPtr(nUserid);
+			CUser *pUser = m_pMain->GetUserPtr(pIDList[i]);
 			if( pUser != NULL && pUser->m_bLive == USER_LIVE)	{
 				// 같은 국가의 유저는 공격을 하지 않도록 한다...
 				if(m_byGroup == pUser->m_bNation)	continue;
@@ -1963,22 +1951,14 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 						}
 					}
 				}	
-				else continue;
 			}
 		}
 	}
 	else if(nType == 2)		{		// 경비병이 몬스터를 타겟으로 잡는 경우
-		int nNpcid = 0, count = 0;
-		CNpc* pNpc = NULL;
-	
 		EnterCriticalSection( &g_region_critical );
-		map < int, int* >::iterator		Iter1;
-		map < int, int* >::iterator		Iter2;
-		
-		Iter1 = pMap->m_ppRegion[nRX][nRZ].m_RegionNpcArray.m_UserTypeMap.begin();
-		Iter2 = pMap->m_ppRegion[nRX][nRZ].m_RegionNpcArray.m_UserTypeMap.end();
-
-		int nMonster= pMap->m_ppRegion[nRX][nRZ].m_RegionNpcArray.GetSize();
+		CRegion *pRegion = &pMap->m_ppRegion[nRX][nRZ];
+		int nMonster = pRegion->m_RegionNpcArray.GetSize(), count = 0;
+	
 		//TRACE("FindEnemyExpand type1,, region_x=%d, region_z=%d, user=%d, mon=%d\n", nRX, nRZ, nUser, nMonster);
 		if( nMonster == 0 )	{
 			LeaveCriticalSection( &g_region_critical );
@@ -1986,19 +1966,16 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 		}
 
 		pIDList = new int[nMonster];
-		for( ; Iter1 != Iter2; Iter1++ ) {
-			nNpcid = *( (*Iter1).second );
-			pIDList[count] = nNpcid;
-			count++;
-		}
+		foreach_stlmap (itr, pRegion->m_RegionNpcArray)
+			pIDList[count++] = *itr->second;
 		LeaveCriticalSection( &g_region_critical );
 
 		//TRACE("FindEnemyExpand type2,, region_x=%d, region_z=%d, user=%d, mon=%d\n", nRX, nRZ, nUser, nMonster);
 
 		for(int i=0 ; i<nMonster; i++ ) {
-			nNpcid = pIDList[i];
+			int nNpcid = pIDList[i];
 			if( nNpcid < NPC_BAND )	continue;
-			pNpc = (CNpc*)m_pMain->m_arNpc.GetData(nNpcid - NPC_BAND);
+			CNpc *pNpc = (CNpc*)m_pMain->m_arNpc.GetData(nNpcid - NPC_BAND);
 
 			if(m_sNid == pNpc->m_sNid)	continue;
 
@@ -4170,23 +4147,16 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 		return;
 	}
 
-	int* pNpcIDList = NULL;
-	int total_mon = 0, count = 0, nid = 0;
+	int* pNpcIDList = NULL, total_mon, count = 0;
 
 	EnterCriticalSection( &g_region_critical );
-	map < int, int* >::iterator		Iter1;
-	map < int, int* >::iterator		Iter2;
 
-	Iter1 = pMap->m_ppRegion[x][z].m_RegionNpcArray.m_UserTypeMap.begin();
-	Iter2 = pMap->m_ppRegion[x][z].m_RegionNpcArray.m_UserTypeMap.end();
-
-	total_mon = pMap->m_ppRegion[x][z].m_RegionNpcArray.GetSize();
+	CRegion *pRegion = &pMap->m_ppRegion[x][z];
+	total_mon = pRegion->m_RegionNpcArray.GetSize();
 	pNpcIDList = new int[total_mon];
-	for( ; Iter1 != Iter2; Iter1++ ) {
-		nid = *( (*Iter1).second );
-		pNpcIDList[count] = nid;
-		count++;
-	}
+
+	foreach_stlmap (itr, pRegion->m_RegionNpcArray)
+		pNpcIDList[count++] = *itr->second;
 	LeaveCriticalSection( &g_region_critical );
 
 	CNpc* pNpc = NULL;
@@ -4200,7 +4170,7 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 	int iValue = 0, iCompValue = 0, iHP = 0;
 
 	for(int i=0 ; i<total_mon; i++ ) {
-		nid = pNpcIDList[i];
+		int nid = pNpcIDList[i];
 		if( nid < NPC_BAND )	continue;
 		pNpc = (CNpc*)m_pMain->m_arNpc.GetData(nid - NPC_BAND);
 
@@ -4578,24 +4548,16 @@ BOOL CNpc::GetUserInViewRange(int x, int z)
 	}
 
 	EnterCriticalSection( &g_region_critical );
-	CUser* pUser = NULL;
 	__Vector3 vStart, vEnd;
 	vStart.Set(m_fCurX, 0, m_fCurZ);
 	float fDis = 0.0f; 
-	int nUserid = 0;
 
-	map < int, int* >::iterator		Iter1;
-	map < int, int* >::iterator		Iter2;
-	Iter1 = pMap->m_ppRegion[x][z].m_RegionUserArray.m_UserTypeMap.begin();
-	Iter2 = pMap->m_ppRegion[x][z].m_RegionUserArray.m_UserTypeMap.end();
+	foreach_stlmap (itr, pMap->m_ppRegion[x][z].m_RegionUserArray)
+	{
+		CUser *pUser = m_pMain->GetUserPtr(*itr->second);
+		if (pUser == NULL)
+			continue;
 
-	for( ; Iter1 != Iter2; Iter1++ )	{
-		nUserid = *( (*Iter1).second );
-		if( nUserid < 0 )			continue;
-		pUser = (CUser*)m_pMain->GetUserPtr(nUserid);
-
-		if( !pUser ) continue;
-		// 가시 거리 계산 
 		vEnd.Set(pUser->m_curx, 0, pUser->m_curz);
 		fDis = GetDistance(vStart, vEnd);
 		if(fDis <= NPC_VIEW_RANGE)	{

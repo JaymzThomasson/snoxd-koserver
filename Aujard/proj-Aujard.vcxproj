@@ -179,7 +179,6 @@
     <ClInclude Include="ItemTableSet.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="StdAfx.h" />
-    <ClInclude Include="STLMap.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Aujard.ico" />

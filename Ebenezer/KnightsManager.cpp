@@ -150,17 +150,9 @@ fail_return:
 
 BOOL CKnightsManager::IsAvailableName( const char *strname)
 {
-	CKnights* pKnights;
-	map < int, CKnights* >::iterator		Iter1, Iter2;
-	
-	Iter1 = m_pMain->m_KnightsArray.m_UserTypeMap .begin();
-	Iter2 = m_pMain->m_KnightsArray.m_UserTypeMap.end();
-
-	for( ; Iter1 != Iter2; Iter1++ ) {
-		pKnights = (*Iter1).second;
-		if( _strnicmp( pKnights->m_strName, strname, MAX_ID_SIZE ) == 0 )
+	foreach_stlmap (itr, m_pMain->m_KnightsArray)
+		if (_strnicmp(itr->second->m_strName, strname, MAX_ID_SIZE) == 0)
 			return FALSE;
-	}
 
 	return TRUE;
 }
@@ -169,34 +161,25 @@ int CKnightsManager::GetKnightsIndex( int nation )
 {
 	//TRACE("GetKnightsIndex = nation=%d\n", nation);
 	int knightindex = 0;
-	// sungyong tw~
-	//if( m_pMain->m_nServerNo == ELMORAD )	knightindex = 15000;
-	if( nation == ELMORAD )	knightindex = 15000;
-	// ~sungyong tw
 
-	map < int, CKnights* >::iterator		Iter1, Iter2;
-	
-	Iter1 = m_pMain->m_KnightsArray.m_UserTypeMap.begin();
-	Iter2 = m_pMain->m_KnightsArray.m_UserTypeMap.end();
+	if (nation == ELMORAD)	knightindex = 15000;
 
-	for( ; Iter1 != Iter2; Iter1++ ) {
-		if( knightindex < ((*Iter1).second)->m_sIndex )	{
-			if( nation == KARUS )	{							// sungyong,, 카루스와 전쟁존의 합침으로 인해서,,,
-				if( ((*Iter1).second)->m_sIndex >= 15000 )	continue;
-			}
-			knightindex = ((*Iter1).second)->m_sIndex;
+	foreach_stlmap (itr, m_pMain->m_KnightsArray)
+	{
+		if (itr->second != NULL && 
+			knightindex < itr->second->m_sIndex)
+		{
+			if (nation == KARUS && itr->second->m_sIndex >= 15000)
+				continue;
+
+			knightindex = itr->second->m_sIndex;
 		}
 	}
 
 	knightindex++;
-	if( nation == KARUS )	{
-		if( knightindex >= 15000 || knightindex < 0 )	return -1;
-	}
-	else if( nation == ELMORAD )	{
-		if( knightindex < 15000 || knightindex > 30000 )	return -1;
-	}
-
-	if( m_pMain->m_KnightsArray.GetData( knightindex ) )	// 확인 사살..
+	if ((nation == KARUS && (knightindex >= 15000 || knightindex < 0))
+		|| nation == ELMORAD && (knightindex < 15000 || knightindex > 30000)
+		|| m_pMain->m_KnightsArray.GetData(knightindex))
 		return -1;
 
 	return knightindex;
@@ -542,32 +525,27 @@ void CKnightsManager::AllKnightsList(CUser *pUser, char* pBuf)
 	int send_index = 0, buff_index = 0, count = 0, page = 0, index = 0, start = 0;
 	char send_buff[4096]; memset( send_buff, 0x00, 4096 );
 	char temp_buff[4096]; memset( temp_buff, 0x00, 4096 );
-	map < int, CKnights*>::iterator Iter1, Iter2;
-	CKnights* pKnights = NULL;
 
 	if( !pUser ) return;
 
 	page = GetShort( pBuf, index );
 	start = page * 10;			// page : 0 ~
 
-	Iter1 = m_pMain->m_KnightsArray.m_UserTypeMap.begin();
-	Iter2 = m_pMain->m_KnightsArray.m_UserTypeMap.end();
-	for( ; Iter1 != Iter2; Iter1++ ) {
-		pKnights = (*Iter1).second;
-		if( !pKnights ) continue;
-		if( pKnights->m_byFlag != KNIGHTS_TYPE ) continue;		
-		if( pKnights->m_byNation != pUser->m_pUserData->m_bNation ) continue;
-		if( count < start ) {
-			count++;
+	foreach_stlmap (itr, m_pMain->m_KnightsArray)
+	{
+		CKnights* pKnights = itr->second;
+		if (pKnights == NULL
+			|| pKnights->m_byFlag != KNIGHTS_TYPE
+			|| pKnights->m_byNation != pUser->m_pUserData->m_bNation
+			|| count++ < start) 
 			continue;
-		}
+
 		SetShort( temp_buff, pKnights->m_sIndex, buff_index );
 		SetKOString( temp_buff, pKnights->m_strName, buff_index );
 		SetShort( temp_buff, pKnights->m_sMembers, buff_index );
 		SetKOString( temp_buff, pKnights->m_strChief, buff_index );
 		SetDWORD( temp_buff, pKnights->m_nPoints, buff_index );
-		count++;
-		if( count >= start + 10 )
+		if (count >= start + 10)
 			break;
 	}
 
