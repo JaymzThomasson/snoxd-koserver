@@ -31,7 +31,7 @@ void CUser::ExchangeReq(char *pBuf)
 {
 	int index = 0, destid = -1, send_index = 0, type = 0;
 	CUser* pUser = NULL;
-	char buff[256];	memset( buff, 0x00, 256 );
+	char buff[256];
 
 	if (isDead())
 	{
@@ -66,7 +66,7 @@ void CUser::ExchangeAgree(char* pBuf)
 {
 	int index = 0, destid = -1, send_index = 0;
 	CUser* pUser = NULL;
-	char buff[256];	memset( buff, 0x00, 256 );
+	char buff[256];
 
 	BYTE result = GetByte( pBuf, index );
 
@@ -102,7 +102,7 @@ void CUser::ExchangeAdd(char *pBuf)
 	_EXCHANGE_ITEM* pItem = NULL;
 	_ITEM_TABLE* pTable = NULL;
 	list<_EXCHANGE_ITEM*>::iterator	Iter;
-	char buff[256];	memset( buff, 0x00, 256 );
+	char buff[256];
 	BYTE pos;
 	BOOL bAdd = TRUE, bGold = FALSE;
 
@@ -212,7 +212,7 @@ void CUser::ExchangeDecide()
 	int send_index = 0, getmoney = 0, putmoney = 0;
 	CUser* pUser = NULL;
 	_EXCHANGE_ITEM* pItem = NULL;
-	char buff[256];	memset( buff, 0x00, 256 );
+	char buff[256];
 	BOOL bSuccess = TRUE;
 
 	pUser = m_pMain->GetUserPtr(m_sExchangeUser);
@@ -274,7 +274,7 @@ void CUser::ExchangeDecide()
 			}
 			Send( buff, send_index );
 
-			memset( buff, 0x00, 256 ); send_index = 0;
+			send_index = 0;
 			SetByte( buff, WIZ_EXCHANGE, send_index );
 			SetByte( buff, EXCHANGE_DONE, send_index );
 			SetByte( buff, 0x01, send_index );
@@ -309,7 +309,7 @@ void CUser::ExchangeDecide()
 void CUser::ExchangeCancel()
 {
 	int send_index = 0;
-	char buff[256];	memset( buff, 0x00, 256 );
+	char buff[256];
 	CUser* pUser = NULL;
 	BOOL bFind = TRUE;
 

@@ -7,7 +7,7 @@ void CUser::WarehouseProcess(char *pBuf)
 {
 	int index = 0, send_index = 0, itemid = 0, srcpos = -1, destpos = -1, page = -1, reference_pos = -1;
 	DWORD count = 0;
-	char send_buff[2048]; memset( send_buff, 0x00, 2048 );
+	char send_buff[2048];
 	_ITEM_TABLE* pTable = NULL;
 	BYTE command = 0;
 	command = GetByte( pBuf, index );
@@ -257,7 +257,7 @@ BOOL CUser::CheckExistItem(int itemid, short count)
 BOOL CUser::RobItem(int itemid, short count)
 {
 	int send_index = 0, i = 0;					
-	char send_buff[256]; memset( send_buff, 0x00, 256 ) ;
+	char send_buff[256];
 	BYTE type = 1;
 
 	_ITEM_TABLE* pTable = NULL;				// This checks if such an item exists.
@@ -308,7 +308,7 @@ BOOL CUser::GiveItem(int itemid, short count, bool send_packet /*= true*/)
 {
 	int pos = 255;
 	int send_index = 0 ;					
-	char send_buff[128]; memset( send_buff, 0x00, 128 ) ;
+	char send_buff[128];
 
 	_ITEM_TABLE* pTable = NULL;				// This checks if such an item exists.
 	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
@@ -376,7 +376,7 @@ void CUser::ItemLogToAgent(const char *srcid, const char *tarid, int type, __int
 void CUser::SendItemWeight()
 {
 	int send_index = 0 ;
-	char send_buff[256]; memset(send_buff, 0x00, 256);
+	char send_buff[3];
 
 	SetSlotItemValue();
 	SetByte( send_buff, WIZ_WEIGHT_CHANGE, send_index );
@@ -411,10 +411,8 @@ BOOL CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 
 void CUser::ItemMove(char *pBuf)
 {
-	int index = 0, itemid = 0, srcpos = -1, destpos = -1;
-	int send_index = 0;
+	int index = 0, itemid = 0, srcpos = -1, destpos = -1, send_index = 0;
 	char send_buff[128];
-	memset( send_buff, NULL, 128 );
 	_ITEM_TABLE* pTable = NULL;
 	BYTE dir;
 

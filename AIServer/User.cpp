@@ -166,7 +166,6 @@ void CUser::SendAttackSuccess(int tuid, BYTE result, short sDamage, int nHP, sho
 	int sid = -1, tid = -1;
 	BYTE type, bResult;
 	char buff[256];
-	memset( buff, 0x00, 256 );
 	float rx=0.0f, ry=0.0f, rz=0.0f;
 
 	type = 0x01;
@@ -194,7 +193,6 @@ void CUser::SendMagicAttackResult(int tuid, BYTE result, short sDamage, short sH
 	int sid = -1, tid = -1;
 	BYTE type, bResult;
 	char buff[256];
-	memset( buff, 0x00, 256 );
 	float rx=0.0f, ry=0.0f, rz=0.0f;
 
 	type = 0x01;				
@@ -294,12 +292,9 @@ void CUser::Dead(int tid, int nDamage)
 	int sid = -1, targid = -1;
 	BYTE type, result;
 	char buff[256];
-	memset( buff, 0x00, 256 );
 
-	wsprintf(buff, "*** User Dead = %d, %s ***", m_iUserId, m_strUserID);
+	sprintf_s(buff, sizeof(buff), "*** User Dead = %d, %s ***", m_iUserId, m_strUserID);
 	TimeTrace(buff);
-	//TRACE("*** User Dead = %d, %s ********\n", m_iUserId, m_strUserID);
-	memset( buff, 0x00, 256 );
 
 	float rx=0.0f, ry=0.0f, rz=0.0f;
 
@@ -336,7 +331,6 @@ void CUser::SendHP()
 	// HP 변동량을 게임서버로...
 	int send_index = 0;
 	char buff[256];
-	memset( buff, 0x00, 256 );
 
 	SetByte(buff, AG_USER_SET_HP, send_index );
 	SetShort(buff, m_iUserId, send_index );
@@ -435,7 +429,6 @@ void CUser::SendExp(int iExp, int iLoyalty, int tType)
 {
 	int send_index = 0;
 	char buff[256];
-	memset( buff, 0x00, 256 );
 
 	SetByte(buff, AG_USER_EXP, send_index );
 	SetShort(buff, m_iUserId, send_index );
@@ -755,7 +748,6 @@ void CUser::SendSystemMsg(TCHAR *pMsg, BYTE type, int nWho)
 {
 	int send_index = 0;
 	char buff[1024];
-	memset( buff, 0x00, 1024 );
 	short sLength = _tcslen(pMsg);
 
 	SetByte(buff, AG_SYSTEM_MSG, send_index );

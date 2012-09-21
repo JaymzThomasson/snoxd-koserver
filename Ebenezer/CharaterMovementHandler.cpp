@@ -16,8 +16,7 @@ void CUser::MoveProcess(char *pBuf )
 	short will_y, speed=0;
 	float real_x, real_z, real_y;
 	BYTE echo;
-	char send_buf[1024];
-	memset( send_buf, 0x00, 1024 );
+	char send_buff[32];
 
 	will_x = GetShort( pBuf, index );
 	will_z = GetShort( pBuf, index );
@@ -49,38 +48,34 @@ void CUser::MoveProcess(char *pBuf )
 		m_pUserData->m_cury = m_fWill_y = will_y/10.0f;
 	}
 
-	SetByte( send_buf, WIZ_MOVE, send_index );
-	SetShort( send_buf, m_Sid, send_index );
-	SetShort( send_buf, will_x, send_index );
-	SetShort( send_buf, will_z, send_index );
-	SetShort( send_buf, will_y, send_index );
-	SetShort( send_buf, speed, send_index );
-	SetByte( send_buf, echo, send_index );
+	SetByte( send_buff, WIZ_MOVE, send_index );
+	SetShort( send_buff, m_Sid, send_index );
+	SetShort( send_buff, will_x, send_index );
+	SetShort( send_buff, will_z, send_index );
+	SetShort( send_buff, will_y, send_index );
+	SetShort( send_buff, speed, send_index );
+	SetByte( send_buff, echo, send_index );
 
 	RegisterRegion();
-	m_pMain->Send_Region( send_buf, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
+	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
 
 	GetMap()->CheckEvent( real_x, real_z, this );
 
-	int  ai_send_index = 0;
-	char ai_send_buff[256];
-	memset( ai_send_buff, NULL, 256);
-
-	SetByte( ai_send_buff, AG_USER_MOVE, ai_send_index );
-	SetShort( ai_send_buff, m_Sid, ai_send_index );
-	Setfloat( ai_send_buff, m_fWill_x, ai_send_index );
-	Setfloat( ai_send_buff, m_fWill_z, ai_send_index );
-	Setfloat( ai_send_buff, m_fWill_y, ai_send_index );
-	SetShort( ai_send_buff, speed, ai_send_index );
+	send_index = 0;
+	SetByte( send_buff, AG_USER_MOVE, send_index );
+	SetShort( send_buff, m_Sid, send_index );
+	Setfloat( send_buff, m_fWill_x, send_index );
+	Setfloat( send_buff, m_fWill_z, send_index );
+	Setfloat( send_buff, m_fWill_y, send_index );
+	SetShort( send_buff, speed, send_index );
 	
-	m_pMain->Send_AIServer(ai_send_buff, ai_send_index);
+	m_pMain->Send_AIServer(send_buff, send_index);
 }
 
 void CUser::UserInOut(BYTE Type)
 {
 	int send_index = 0, iLength = 0;
 	char buff[256];
-	memset( buff, 0x00, 256 );
 
 	if (GetMap() == NULL)
 		return;
@@ -90,16 +85,14 @@ void CUser::UserInOut(BYTE Type)
 	else
 		GetMap()->RegionUserAdd( m_RegionX, m_RegionZ, m_Sid );
 
-	memset( buff, 0x00, 256 );		send_index = 0;
+	send_index = 0;
 	SetByte( buff, WIZ_USER_INOUT, send_index );
 	SetByte( buff, Type, send_index );
 	SetShort( buff, m_Sid, send_index );
 	if( Type == USER_OUT ) {
 		m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ, this );
 
-		// AI Server????? ??? ???..
 		send_index=0;
-		memset( buff, 0x00, 256 );
 		SetByte( buff, AG_USER_INOUT, send_index );
 		SetByte( buff, Type, send_index );
 		SetShort( buff, m_Sid, send_index );
@@ -117,7 +110,6 @@ void CUser::UserInOut(BYTE Type)
 
 	if (m_bAbnormalType != ABNORMAL_BLINKING) {
 		send_index=0;
-		memset( buff, 0x00, 256 );
 		SetByte( buff, AG_USER_INOUT, send_index );
 		SetByte( buff, Type, send_index );
 		SetShort( buff, m_Sid, send_index );
@@ -193,7 +185,6 @@ void CUser::Rotate( char* pBuf )
 	int uid = -1;
 	BYTE type = 0x00;
 	char buff[256];
-	memset( buff, NULL, 256 );
 	short dir;
 
 	dir = GetShort( pBuf, index );
@@ -211,7 +202,6 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 	int send_index = 0, zoneindex = 0;
 	char send_buff[128];
-	memset( send_buff, NULL, 128 );
 	C3DMap* pMap = NULL;
 	_ZONE_SERVERINFO *pInfo = NULL;
 
@@ -245,10 +235,8 @@ void CUser::ZoneChange(int zone, float x, float z)
 		}
 //
 		else if( pMap->m_bType == 2 && zone == ZONE_FRONTIER ) {	 // You can't go to frontier zone when Battlezone is open.
-//	????? ??? ???? ????....
 			int temp_index = 0;
-			char temp_buff[128];
-			memset( temp_buff, NULL, 128 );
+			char temp_buff[3];
 
 			SetByte( temp_buff, WIZ_WARP_LIST, temp_index );
 			SetByte( temp_buff, 2, temp_index );
@@ -342,16 +330,13 @@ void CUser::ZoneChange(int zone, float x, float z)
 	if (m_bZoneChangeSameZone) {
 		m_bZoneChangeSameZone = FALSE;
 	}
-//
-	int  ai_send_index = 0;
-	char ai_send_buff[256];
-	memset( ai_send_buff, NULL, 256);
 
-	SetByte( ai_send_buff, AG_ZONE_CHANGE, ai_send_index );
-	SetShort( ai_send_buff, m_Sid, ai_send_index );
-	SetByte( ai_send_buff, m_pUserData->m_bZone, ai_send_index );
+	send_index = 0;
+	SetByte( send_buff, AG_ZONE_CHANGE, send_index );
+	SetShort( send_buff, m_Sid, send_index );
+	SetByte( send_buff, getZoneID(), send_index );
 
-	m_pMain->Send_AIServer(ai_send_buff, ai_send_index);
+	m_pMain->Send_AIServer(send_buff, send_index);
 
 	m_bZoneChangeFlag = FALSE;
 }
@@ -365,7 +350,6 @@ void CUser::Warp(char *pBuf)
 	WORD warp_x, warp_z;
 	float real_x, real_z;
 	char	send_buff[128];
-	memset( send_buff, NULL, 128 );
 
 	warp_x = GetShort( pBuf, index );
 	warp_z = GetShort( pBuf, index );

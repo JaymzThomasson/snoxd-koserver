@@ -7,11 +7,9 @@ void CUser::VersionCheck(char *pBuf)
 {
 	int index = 0, send_index = 0;
 	char send_buff[128];
-	memset( send_buff, NULL, 128 );
 
 	/*
 	char strAccountID[MAX_ID_SIZE+1];
-	memset(strAccountID, 0x00, MAX_ID_SIZE+1);
 
 	short unk = GetShort(pBuf, index); // -1
 	if (!GetKOString(pBuf, strAccountID, MAX_ID_SIZE))
@@ -43,16 +41,8 @@ void CUser::LoginProcess(char *pBuf)
 {
 	int index = 0, send_index = 0, retvalue = 0;
 
-	char accountid[MAX_ID_SIZE+1];
-	memset( accountid, NULL, MAX_ID_SIZE+1 );
-
-	char password[MAX_PW_SIZE+1];
-	memset( password, NULL, MAX_PW_SIZE+1 );
-
-	char send_buff[256];
-	memset( send_buff, NULL, 256);
+	char accountid[MAX_ID_SIZE+1], password[MAX_PW_SIZE+1], send_buff[256];
 	CUser* pUser = NULL;
-	CTime t = CTime::GetCurrentTime();
 
 	if (!GetKOString(pBuf, accountid, index, MAX_ID_SIZE)
 		|| !GetKOString(pBuf, password, index, MAX_PW_SIZE))
@@ -65,8 +55,8 @@ void CUser::LoginProcess(char *pBuf)
 		goto fail_return;
 	}
 	
-	SetByte( send_buff, WIZ_LOGIN, send_index);
-	SetShort( send_buff, m_Sid, send_index);
+	SetByte(send_buff, WIZ_LOGIN, send_index);
+	SetShort(send_buff, m_Sid, send_index);
 	SetKOString(send_buff, accountid, send_index);
 	SetKOString(send_buff, password, send_index);
 

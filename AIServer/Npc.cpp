@@ -735,10 +735,8 @@ void CNpc::NpcStanding()
 	m_fDelayTime = TimeGet();
 	
 	if( m_tNpcType == NPC_SPECIAL_GATE && m_pMain->m_byBattleEvent == BATTLEZONE_OPEN )	{
-		// 문이 자동으로 열리고 닫히도록(2분을 주기로-standing time을 이용)
 		m_byGateOpen = !m_byGateOpen;		// 
-		// client와 gameserver에 정보전송
-		memset( send_buff, NULL, 128 );		send_index = 0;
+		send_index = 0;
 		SetByte( send_buff, AG_NPC_GATE_OPEN, send_index );
 		SetShort( send_buff, m_sNid+NPC_BAND, send_index );
 		SetByte( send_buff, m_byGateOpen, send_index );
@@ -1017,8 +1015,8 @@ BOOL CNpc::SetLive(CIOCPort* pIOCP)
 	}
 	else if( m_bySpecialType == 5 && m_byChangeType == 3)	{		// 몬스터의 출현,,,
 	//else if( m_byChangeType == 3)	{		// 몬스터의 출현,,,
-		char notify[50];	memset(notify, 0x00, 50);
-		//wsprintf( notify, "** 알림 : %s 몬스터가 출현하였습니다 **", m_strName);
+		//char notify[50];
+		//sprintf_s( notify, sizeof(notify), "** 알림 : %s 몬스터가 출현하였습니다 **", m_strName);
 		//m_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
 	}
 
@@ -2550,7 +2548,6 @@ int CNpc::Attack(CIOCPort* pIOCP)
 	int send_index = 0;
 	BOOL bTeleport = FALSE;
 	char buff[256];
-	memset( buff, 0x00, 256 );
 
 /*	nRandom = myrand(1, 10000);
 	if( COMPARE( nRandom, 8000, 10000) )	{
@@ -2652,7 +2649,7 @@ int CNpc::Attack(CIOCPort* pIOCP)
 		if(m_byWhatAttackType == 4 || m_byWhatAttackType == 5)	{		// 지역 마법 사용 몬스터이면.....
 			nRandom = myrand(1, 10000);
 			if(nRandom < nPercent)	{				// 지역마법공격...
-				memset( buff, 0x00, 256 );	send_index = 0;
+				send_index = 0;
 				SetByte( buff, MAGIC_EFFECTING, send_index );		
 				SetDWORD( buff, m_iMagic2, send_index );				// Area Magic
 				SetShort( buff, m_sNid+NPC_BAND, send_index );
@@ -2677,7 +2674,7 @@ int CNpc::Attack(CIOCPort* pIOCP)
 				//nRandom = 100;
 
 				if(nRandom < nPercent)	{				// 독공격...
-					memset( buff, 0x00, 256 );	send_index = 0;
+					send_index = 0;
 					SetByte( buff, AG_MAGIC_ATTACK_RESULT, send_index );
 					SetByte( buff, MAGIC_EFFECTING, send_index );		
 					SetDWORD( buff, m_iMagic1, send_index );				// FireBall
@@ -2774,7 +2771,6 @@ int CNpc::LongAndMagicAttack(CIOCPort* pIOCP)
 	int nStandingTime = m_sStandTime;
 	int send_index = 0;
 	char buff[256];
-	memset( buff, 0x00, 256 );
 
 	ret = IsCloseTarget(m_byAttackRange, 2);
 
@@ -3630,7 +3626,6 @@ BOOL CNpc::SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid, CIOCPort*
 	CUser* pUser = NULL;
 	CNpc* pNpc = NULL;
 	char strDurationID[MAX_ID_SIZE+1];
-	memset(strDurationID, 0x00, MAX_ID_SIZE+1);
 
 	if(uid >= USER_BAND && uid < NPC_BAND)	{	// Target 이 User 인 경우
 		pUser = m_pMain->GetUserPtr(uid);	// 해당 사용자인지 인증
@@ -3651,7 +3646,7 @@ BOOL CNpc::SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid, CIOCPort*
 		if(m_DamagedUserList[i].iUid == uid)	{
 			if(_stricmp("**duration**", id) == 0) {
 				bFlag = TRUE;
-				strcpy(strDurationID, pUser->m_strUserID);
+				strcpy_s(strDurationID, sizeof(strDurationID), pUser->m_strUserID);
 				if(_stricmp(m_DamagedUserList[i].strUserID, strDurationID) == 0)	{
 					m_DamagedUserList[i].nDamage += userDamage; 
 					goto go_result;
@@ -3676,7 +3671,7 @@ BOOL CNpc::SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid, CIOCPort*
 					TRACE("###  Npc SerDamage Fail ---> uid = %d, name=%s, len=%d, id=%s  ### \n", m_sNid+NPC_BAND, m_strName, len, id);
 					continue;
 				}
-				if(bFlag == TRUE)	strcpy(m_DamagedUserList[i].strUserID, strDurationID);
+				if(bFlag == TRUE)	strcpy_s(m_DamagedUserList[i].strUserID, sizeof(m_DamagedUserList[i].strUserID), strDurationID);
 				else	{
 					if(_stricmp("**duration**", id) == 0) {
 						strcpy(m_DamagedUserList[i].strUserID, pUser->m_strUserID);
@@ -3741,7 +3736,6 @@ BOOL CNpc::SetHMagicDamage(int nDamage, CIOCPort* pIOCP)
 	if(pIOCP == NULL)	return FALSE;
 
 	char buff[256];
-	memset( buff, 0x00, 256 );
 	int send_index = 0, oldHP = 0;
 
 	oldHP = m_iHP;
@@ -3778,7 +3772,7 @@ void CNpc::SendExpToUserList()
 	CUser* pPartyUser = NULL;
 	CUser* pMaxDamageUser = NULL;
 	_PARTY_GROUP* pParty = NULL;
-	char strMaxDamageUser[MAX_ID_SIZE+1];	memset(strMaxDamageUser, 0x00, MAX_ID_SIZE+1 );
+	char strMaxDamageUser[MAX_ID_SIZE+1];
 	MAP* pMap = GetMap();
 	if (pMap == NULL) return;
 
@@ -3802,11 +3796,11 @@ void CNpc::SendExpToUserList()
 					pMaxDamageUser = m_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
 					if(pMaxDamageUser == NULL)	{
 						m_byMaxDamagedNation = pUser->m_bNation;
-						strcpy( strMaxDamageUser, pUser->m_strUserID );
+						strcpy_s( strMaxDamageUser, sizeof(strMaxDamageUser), pUser->m_strUserID );
 					}
 					else	{
 						m_byMaxDamagedNation = pMaxDamageUser->m_bNation;
-						strcpy( strMaxDamageUser, pMaxDamageUser->m_strUserID );
+						strcpy_s( strMaxDamageUser, sizeof(strMaxDamageUser), pMaxDamageUser->m_strUserID );
 					}
 				}
 
@@ -3952,11 +3946,11 @@ void CNpc::SendExpToUserList()
 					pMaxDamageUser = m_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
 					if(pMaxDamageUser == NULL)	{
 						m_byMaxDamagedNation = pUser->m_bNation;
-						strcpy( strMaxDamageUser, pUser->m_strUserID );
+						strcpy_s( strMaxDamageUser, sizeof(strMaxDamageUser), pUser->m_strUserID );
 					}
 					else	{
 						m_byMaxDamagedNation = pMaxDamageUser->m_bNation;
-						strcpy( strMaxDamageUser, pMaxDamageUser->m_strUserID );
+						strcpy_s( strMaxDamageUser, sizeof(strMaxDamageUser), pMaxDamageUser->m_strUserID );
 					}
 				}
 
@@ -3980,7 +3974,7 @@ void CNpc::SendExpToUserList()
 	if( m_pMain->m_byBattleEvent == BATTLEZONE_OPEN )	{	// 전쟁중
 		if( m_bySpecialType >= 90 && m_bySpecialType <= 100 )	{					// 죽었을때 데미지를 많이 입힌 유저를 기록해 주세여
 			if( strlen( strMaxDamageUser) != 0 )	{		// 몬스터에게 가장 데미지를 많이 입힌 유저의 이름을 전송
-				char send_buff[100];	memset(send_buff, 0x00, 100 );
+				char send_buff[100];
 				int send_index = 0;
 				SetByte( send_buff, AG_BATTLE_EVENT, send_index );
 				SetByte( send_buff, BATTLE_EVENT_MAX_USER, send_index );
@@ -4015,7 +4009,7 @@ void CNpc::SendExpToUserList()
 				m_pMain->Send( send_buff, send_index );
 				TRACE("@@@ MaxDamageUser - %s @@@\n", strMaxDamageUser);
 
-				memset(send_buff, 0x00, 100 );	send_index = 0;
+				send_index = 0;
 				if( m_pMain->m_sKillKarusNpc == pMap->m_sKarusRoom )	{
 					SetByte( send_buff, AG_BATTLE_EVENT, send_index );
 					SetByte( send_buff, BATTLE_EVENT_RESULT, send_index );
@@ -4576,7 +4570,6 @@ void CNpc::SendAttackSuccess(CIOCPort* pIOCP, BYTE byResult, int tuid, short sDa
 	int sid = -1, tid = -1;
 	BYTE type, result=0;
 	char buff[256];
-	memset( buff, 0x00, 256 );
 	float rx=0.0f, ry=0.0f, rz=0.0f;
 
 	if( byFlag == 0 )	{
@@ -4970,13 +4963,7 @@ void CNpc::IsNoPathFind(float fDistance)
 void CNpc::GiveNpcHaveItem(CIOCPort* pIOCP)
 {
 	char pBuf[1024];
-	::ZeroMemory(pBuf, 1024);	
-	char logfile[256];	memset(logfile, 0x00, 256);
-	int index = 0;
-	int temp = 0;
-	int iPer = 0, iMakeItemCode = 0, iMoney = 0;
-	int iRandom;
-	int nCount = 1, i =0;
+	int index = 0, temp = 0, iPer = 0, iMakeItemCode = 0, iMoney = 0, iRandom, nCount = 1, i =0;
 	CString string;
 
 /*	if( m_byMoneyType == 1 )	{
@@ -5161,24 +5148,13 @@ void CNpc::HpChange(CIOCPort* pIOCP)
 	int amount =  (int)(m_iMaxHP / 20) ;
 
 	char buff[256];
-	memset( buff, 0x00, 256 );
 	int send_index = 0;
-
-	char logstr[256];
-	memset( logstr, 0x00, 256 );
-	sprintf( logstr, "Npc-HpChange : id=%d, cur_HP=%d, damage=%d\r\n", m_sNid+NPC_BAND, m_iHP, amount);
-	//TRACE(logstr);
 
 	m_iHP += amount;
 	if( m_iHP < 0 )
 		m_iHP = 0;
 	else if ( m_iHP > m_iMaxHP )
 		m_iHP = m_iMaxHP;
-
-	memset( logstr, 0x00, 256 );
-	sprintf( logstr, "Npc-HpChange-22 : id=%d, cur_HP=%d, damage=%d\r\n", m_sNid+NPC_BAND, m_iHP, amount);
-	//if(m_iHP != m_iMaxHP)
-	//	TRACE(logstr);
 
 	SetByte( buff, AG_USER_SET_HP, send_index );
 	SetShort( buff, m_sNid+NPC_BAND, send_index );
@@ -5564,10 +5540,7 @@ int  CNpc::GetItemCodeNumber(int level, int item_type)
 
 void CNpc::DurationMagic_4(CIOCPort* pIOCP, float currenttime)
 {
-	int send_index = 0, buff_type = 0 ;					
-	char send_buff[128] ;
-	memset( send_buff, 0x00, 128 ) ;
-
+	int buff_type = 0;	
 	MAP* pMap = GetMap();
 	if (pMap == NULL)	
 		return;
@@ -5817,7 +5790,7 @@ void CNpc::NpcHealing(CIOCPort* pIOCP)
 	BOOL bFlag = FALSE;
 	char buff[256];
 	int send_index = 0, iHP = 0;
-	memset( buff, 0x00, 256 );	send_index = 0;
+	send_index = 0;
 
 	int ret = 0;
 	int nStandingTime = m_sStandTime;
@@ -5889,7 +5862,7 @@ void CNpc::NpcHealing(CIOCPort* pIOCP)
 			InitTarget();
 		}
 		else	{						// Heal 해주기
-			memset( buff, 0x00, 256 );	send_index = 0;
+			send_index = 0;
 			//SetByte( buff, AG_MAGIC_ATTACK_RESULT, send_index );
 			SetByte( buff, MAGIC_EFFECTING, send_index );		
 			SetDWORD( buff, m_iMagic3, send_index );				// FireBall
@@ -6038,7 +6011,7 @@ void CNpc::ChangeAbility(int iChangeType)	// iChangeType - 0:능력치 다운, 1:능력
 BOOL CNpc::Teleport(CIOCPort* pIOCP)
 {
 	int send_index = 0, i=0;
-	char buff[256];	memset( buff, 0x00, 256 );
+	char buff[256];
 	int nX=0, nZ=0, nTileX=0, nTileZ=0;
 	MAP* pMap = GetMap();
 	if (pMap == NULL)	return FALSE;
@@ -6072,7 +6045,7 @@ BOOL CNpc::Teleport(CIOCPort* pIOCP)
 
 	m_fCurX = (float)nX;	m_fCurZ = (float)nZ;
 
-	memset( buff, 0x00, 256 );	send_index = 0;
+	send_index = 0;
 	SetByte( buff, AG_NPC_INOUT, send_index );
 	SetByte( buff, NPC_IN, send_index );
 	SetShort( buff, m_sNid+NPC_BAND, send_index );

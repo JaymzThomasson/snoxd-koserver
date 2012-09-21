@@ -23,12 +23,6 @@ static char THIS_FILE[]=__FILE__;
 CKnightsManager::CKnightsManager()
 {
 	m_pMain = NULL;
-	
-/*	CString strConnect;
-	strConnect.Format (_T("ODBC;DSN=%s;UID=%s;PWD=%s"), "KN_Online", "knight", "knight");
-	m_KnightsDB.SetLoginTimeout (10);
-	if( !m_KnightsDB.Open(NULL,FALSE,FALSE,strConnect) )
-		AfxMessageBox("KnightsDB Connection Fail...");	*/
 }
 
 CKnightsManager::~CKnightsManager()
@@ -88,19 +82,14 @@ void CKnightsManager::PacketProcess(CUser *pUser, char *pBuf)
 
 void CKnightsManager::CreateKnights(CUser* pUser, char *pBuf)
 {
-	int index = 0, send_index = 0, idlen = 0, knightindex = 0, ret_value = 3, week = 0;
-	char idname[MAX_ID_SIZE+1]; memset( idname, 0x00, MAX_ID_SIZE+1 );
-	CTime time = CTime::GetCurrentTime();
-
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
+	int index = 0, send_index = 0, knightindex = 0, ret_value = 3;
+	char idname[MAX_ID_SIZE+1], send_buff[256]; 
 
 	if( !pUser ) return;
 
-	idlen = GetShort( pBuf, index );
-	if( idlen > MAX_ID_SIZE || idlen < 0 ) goto fail_return;
-	GetString( idname, pBuf, idlen, index );
-
-	if( !IsAvailableName( idname ) ) goto fail_return;
+	if (!GetKOString(pBuf, idname, index, MAX_ID_SIZE)
+		|| !IsAvailableName(idname))
+		goto fail_return;
 	if( pUser->m_pUserData->m_bKnights != 0 ) {
 		ret_value = 5;
 		goto fail_return;
@@ -110,7 +99,6 @@ void CKnightsManager::CreateKnights(CUser* pUser, char *pBuf)
 		ret_value = 8;
 		goto fail_return;
 	}
-	week = time.GetDayOfWeek();
 
 	if( pUser->m_pUserData->m_bLevel < 20 ) {
 		ret_value = 2;
@@ -134,7 +122,7 @@ void CKnightsManager::CreateKnights(CUser* pUser, char *pBuf)
 	SetByte( send_buff, CLAN_TYPE, send_index );
 	SetShort( send_buff, knightindex, send_index );
 	SetByte( send_buff, pUser->m_pUserData->m_bNation, send_index );
-	SetShort( send_buff, idlen, send_index );
+	SetKOString(send_buff, idname, send_index);
 	SetKOString( send_buff, pUser->m_pUserData->m_id, send_index );
 	m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
 
@@ -188,7 +176,7 @@ int CKnightsManager::GetKnightsIndex( int nation )
 void CKnightsManager::JoinKnights(CUser *pUser, char *pBuf)
 {
 	int knightsindex = 0, index = 0, send_index = 0, ret_value = 0, member_id = 0, community = 0;
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
+	char send_buff[128]; 
 	CUser* pTUser = NULL;
 	CKnights* pKnights = NULL;
 
@@ -258,7 +246,7 @@ fail_return:
 void CKnightsManager::JoinKnightsReq(CUser *pUser, char *pBuf)
 {
 	int knightsindex = 0, index = 0, send_index = 0, ret_value = 0, member_id = 0, community = 0, flag = 0, sid = -1;
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
+	char send_buff[128]; 
 	CUser* pTUser = NULL;
 	CKnights* pKnights = NULL;
 
@@ -328,7 +316,7 @@ fail_return:
 void CKnightsManager::WithdrawKnights(CUser *pUser, char *pBuf)
 {
 	int index = 0, send_index = 0, ret_value = 0;
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
+	char send_buff[128]; 
 	CKnights* pKnights = NULL;
 
 	if( !pUser ) return;
@@ -383,7 +371,7 @@ fail_return:
 void CKnightsManager::DestroyKnights( CUser* pUser )
 {
 	int index = 0, send_index = 0, ret_value = 0;
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
+	char send_buff[128]; 
 
 	if( !pUser ) return;
 	if( pUser->m_pUserData->m_bFame != CHIEF ) goto fail_return;
@@ -409,19 +397,16 @@ fail_return:
 
 void CKnightsManager::ModifyKnightsMember(CUser *pUser, char *pBuf, BYTE command )
 {
-	int index = 0, send_index = 0, idlen = 0, ret_value = 0, vicechief = 0, remove_flag = 0;
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
-	char userid[MAX_ID_SIZE+1]; memset( userid, 0x00, MAX_ID_SIZE+1 );
+	int index = 0, send_index = 0, ret_value = 0, vicechief = 0, remove_flag = 0;
+	char send_buff[128], userid[MAX_ID_SIZE+1]; 
 	CUser* pTUser = NULL;
 	
 	if( !pUser ) return;
-	idlen = GetShort( pBuf, index );
-	if( idlen > MAX_ID_SIZE || idlen <= 0 ) {	// 잘못된 아이디
+	if (!GetKOString(pBuf, userid, index, MAX_ID_SIZE))
+	{
 		ret_value = 2;
 		goto fail_return;
 	}
-	GetString( userid, pBuf, idlen, index );
-
 	if( pUser->m_pUserData->m_bZone > 2 )	{	// 전쟁존에서는 기사단 처리가 안됨
 		ret_value = 12;
 		goto fail_return;
@@ -457,8 +442,7 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, char *pBuf, BYTE command
 			SetByte( send_buff, command+0x10, send_index );
 			SetShort( send_buff, pUser->GetSocketID(), send_index );
 			SetShort( send_buff, pUser->m_pUserData->m_bKnights, send_index );
-			SetShort( send_buff, idlen, send_index );
-			SetString( send_buff, userid, idlen, send_index );
+			SetKOString(send_buff, userid, send_index);
 			SetByte( send_buff, remove_flag, send_index );
 			m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
 			return;
@@ -506,8 +490,7 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, char *pBuf, BYTE command
 	SetByte( send_buff, command+0x10, send_index );
 	SetShort( send_buff, pUser->GetSocketID(), send_index );
 	SetShort( send_buff, pUser->m_pUserData->m_bKnights, send_index );
-	SetShort( send_buff, idlen, send_index );
-	SetString( send_buff, userid, idlen, send_index );
+	SetKOString( send_buff, userid, send_index );
 	SetByte( send_buff, remove_flag, send_index );						
 	m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
 	return;
@@ -523,8 +506,7 @@ fail_return:
 void CKnightsManager::AllKnightsList(CUser *pUser, char* pBuf)
 {
 	int send_index = 0, buff_index = 0, count = 0, page = 0, index = 0, start = 0;
-	char send_buff[4096]; memset( send_buff, 0x00, 4096 );
-	char temp_buff[4096]; memset( temp_buff, 0x00, 4096 );
+	char send_buff[4096], temp_buff[4096];
 
 	if( !pUser ) return;
 
@@ -561,8 +543,7 @@ void CKnightsManager::AllKnightsList(CUser *pUser, char* pBuf)
 void CKnightsManager::AllKnightsMember(CUser *pUser, char* pBuf)
 {
 	int index = 0, send_index = 0, page = 0, ret_value = 0, temp_index = 0, count=0, pktsize = 0;
-	char send_buff[4096]; memset( send_buff, 0x00, 4096 );
-	char temp_buff[4096]; memset( temp_buff, 0x00, 4096 );
+	char send_buff[4096], temp_buff[4096]; 
 	CKnights* pKnights = NULL;
 
 	if( !pUser ) return;
@@ -634,11 +615,9 @@ fail_return:
 void CKnightsManager::CurrentKnightsMember(CUser *pUser, char* pBuf)
 {
 	int index = 0, send_index = 0, buff_index = 0, count = 0, i=0, page = 0, start = 0;
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
-	char temp_buff[4096]; memset( temp_buff, 0x00, 4096 );
+	char send_buff[128], temp_buff[4096], errormsg[1024];
 	CUser* pTUser = NULL;
 	CKnights* pKnights = NULL;
-	char errormsg[1024]; memset( errormsg, 0x00, 1024);
 
 	if( !pUser ) return;
 	if( pUser->m_pUserData->m_bKnights <= 0 ) goto fail_return;
@@ -691,9 +670,8 @@ void CKnightsManager::ReceiveKnightsProcess( CUser* pUser, char *pBuf, BYTE comm
 {
 	int index = 0, send_index = 0, pktsize = 0, count = 0;
 	BYTE result;
-	char send_buff[2048]; memset( send_buff, 0x00, 2048 );
+	char send_buff[2048], errormsg[1024];
 	CUser* pTUser = NULL;
-	char errormsg[1024]; memset(errormsg, 0x00, 1024);
 	std::string buff;
 
 	result = GetByte( pBuf, index );
@@ -761,21 +739,18 @@ void CKnightsManager::ReceiveKnightsProcess( CUser* pUser, char *pBuf, BYTE comm
 
 void CKnightsManager::RecvCreateKnights(CUser *pUser, char *pBuf)
 {
-	int index = 0, send_index = 0, namelen = 0, idlen = 0, knightsindex = 0, nation = 0, community = 0, money = 0;
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
-	char knightsname[MAX_ID_SIZE+1]; memset( knightsname, 0x00, MAX_ID_SIZE+1 );
-	char chiefname[MAX_ID_SIZE+1]; memset( chiefname, 0x00, MAX_ID_SIZE+1 );
+	int index = 0, send_index = 0, knightsindex = 0, nation = 0, community = 0, money = 0;
+	char send_buff[128], knightsname[MAX_ID_SIZE+1], chiefname[MAX_ID_SIZE+1];
 	CKnights* pKnights = NULL;
 
-	if( !pUser ) return;
+	if (pUser == NULL) return;
 
 	community = GetByte( pBuf, index );
 	knightsindex = GetShort( pBuf, index );
 	nation = GetByte( pBuf, index );
-	namelen = GetShort( pBuf, index );
-	GetString( knightsname, pBuf, namelen, index );
-	idlen = GetShort( pBuf, index );
-	GetString( chiefname, pBuf, idlen, index );
+	if (!GetKOString(pBuf, knightsname, index, MAX_ID_SIZE)
+		|| !GetKOString(pBuf, chiefname, index, MAX_ID_SIZE))
+		return;
 
 	pKnights = new CKnights;
 	pKnights->InitializeValue();
@@ -783,8 +758,8 @@ void CKnightsManager::RecvCreateKnights(CUser *pUser, char *pBuf)
 	pKnights->m_sIndex = knightsindex;
 	pKnights->m_byFlag = community;
 	pKnights->m_byNation = nation;
-	strcpy( pKnights->m_strName, knightsname );
-	strcpy( pKnights->m_strChief, chiefname );
+	strcpy_s( pKnights->m_strName, sizeof(pKnights->m_strName), knightsname );
+	strcpy_s( pKnights->m_strChief, sizeof(pKnights->m_strChief), chiefname );
 	memset( pKnights->m_strViceChief_1, 0x00, MAX_ID_SIZE+1);
 	memset( pKnights->m_strViceChief_2, 0x00, MAX_ID_SIZE+1);
 	memset( pKnights->m_strViceChief_3, 0x00, MAX_ID_SIZE+1);
@@ -809,41 +784,37 @@ void CKnightsManager::RecvCreateKnights(CUser *pUser, char *pBuf)
 
 	//TRACE("RecvCreateKnights - nid=%d, name=%s, index=%d, fame=%d, money=%d\n", pUser->GetSocketID(), pUser->m_pUserData->m_id, knightsindex, pUser->m_pUserData->m_bFame, money);
 
-	memset( send_buff, 0x00, 128 ); send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
 	SetByte( send_buff, KNIGHTS_CREATE, send_index );
 	SetByte( send_buff, 0x01, send_index );
 	SetShort( send_buff, pUser->GetSocketID(), send_index );
 	SetShort( send_buff, knightsindex, send_index );
-	SetShort( send_buff, namelen, send_index );
-	SetString( send_buff, knightsname, namelen, send_index );
+	SetKOString( send_buff, knightsname, send_index );
 	SetByte( send_buff, 5, send_index );  // knights grade
 	SetByte( send_buff, 0, send_index );
 	SetDWORD( send_buff, money, send_index );
 	m_pMain->Send_Region( send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ, NULL, false );
 
-	memset( send_buff, 0x00, 128 ); send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, UDP_KNIGHTS_PROCESS, send_index );
 	SetByte( send_buff, KNIGHTS_CREATE, send_index );
 	SetByte( send_buff, community, send_index );
 	SetShort( send_buff, knightsindex, send_index );
 	SetByte( send_buff, nation, send_index );
-	SetShort( send_buff, namelen, send_index );
-	SetString( send_buff, knightsname, namelen, send_index );
-	SetShort( send_buff, idlen, send_index );
-	SetString( send_buff, chiefname, idlen, send_index );
+	SetKOString( send_buff, knightsname, send_index );
+	SetKOString( send_buff, chiefname, send_index );
 
 	m_pMain->Send_UDP_All( send_buff, send_index, m_pMain->m_nServerGroup == 0 ? 0 : 1 );
 }
 
 void CKnightsManager::RecvJoinKnights(CUser *pUser, char* pBuf, BYTE command)
 {
-	int send_index = 0, knightsindex = 0, index = 0, idlen = 0;
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
-	char finalstr[128]; memset( finalstr, 0x00, 128 );
+	int send_index = 0, knightsindex = 0, index = 0;
+	char send_buff[128], finalstr[128];
 	CKnights*	pKnights = NULL;
 
-	if( !pUser ) return;
+	if (pUser == NULL) return;
 
 	knightsindex = GetShort( pBuf, index );
 	pKnights = m_pMain->m_KnightsArray.GetData( knightsindex );
@@ -878,7 +849,7 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, char* pBuf, BYTE command)
 	}
 	m_pMain->Send_Region( send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ, NULL, false );
 
-	memset( send_buff, 0x00, 128 );		send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, WIZ_CHAT, send_index );
 	SetByte( send_buff, KNIGHTS_CHAT, send_index );
 	SetByte( send_buff, 1, send_index );
@@ -886,7 +857,7 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, char* pBuf, BYTE command)
 	SetKOString( send_buff, finalstr, send_index );
 	m_pMain->Send_KnightsMember( knightsindex, send_buff, send_index );
 
-	memset( send_buff, 0x00, 128 );		send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, UDP_KNIGHTS_PROCESS, send_index );
 	SetByte( send_buff, command-0x10, send_index );
 	SetShort( send_buff, knightsindex, send_index );
@@ -896,18 +867,16 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, char* pBuf, BYTE command)
 
 void CKnightsManager::RecvModifyFame(CUser *pUser, char *pBuf, BYTE command)
 {
-	int index = 0, send_index = 0, knightsindex = 0, idlen = 0, vicechief = 0;
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
-	char finalstr[128]; memset( finalstr, 0x00, 128 );
-	char userid[MAX_ID_SIZE+1]; memset( userid, 0x00, MAX_ID_SIZE+1 );
+	int index = 0, send_index = 0, knightsindex = 0, vicechief = 0;
+	char send_buff[128], finalstr[128], userid[MAX_ID_SIZE+1];
 	CUser* pTUser = NULL;
 	CKnights*	pKnights = NULL;
 
-	if( !pUser ) return;
+	if (pUser == NULL) return;
 
 	knightsindex = GetShort( pBuf, index );
-	idlen = GetShort( pBuf, index );
-	GetString( userid, pBuf, idlen, index );
+	if (!GetKOString(pBuf, userid, index, MAX_ID_SIZE))
+		return;
 	vicechief = GetByte( pBuf, index );
 
 	pTUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
@@ -962,16 +931,11 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, char *pBuf, BYTE command)
 		break;
 	}
 
-/*	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-	SetByte( send_buff, command-0x10, send_index );
-	SetByte( send_buff, 0x01, send_index );
-	pUser->Send( send_buff, send_index );
-*/
 	//TRACE("RecvModifyFame - command=%d, nid=%d, name=%s, index=%d, fame=%d\n", command, pTUser->GetSocketID(), pTUser->m_pUserData->m_id, knightsindex, pTUser->m_pUserData->m_bFame);
 	
 	if( pTUser ) {
 		//TRACE("RecvModifyFame - command=%d, nid=%d, name=%s, index=%d, fame=%d\n", command, pTUser->GetSocketID(), pTUser->m_pUserData->m_id, knightsindex, pTUser->m_pUserData->m_bFame);
-		memset( send_buff, 0x00, 128 ); send_index = 0;
+		send_index = 0;
 		SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
 		SetByte( send_buff, KNIGHTS_MODIFY_FAME, send_index );
 		SetByte( send_buff, 0x01, send_index );
@@ -989,7 +953,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, char *pBuf, BYTE command)
 		}
 
 		if( command == KNIGHTS_REMOVE+0x10 )	{
-			memset( send_buff, 0x00, 128 );		send_index = 0;
+			send_index = 0;
 			SetByte( send_buff, WIZ_CHAT, send_index );
 			SetByte( send_buff, KNIGHTS_CHAT, send_index );
 			SetByte( send_buff, 1, send_index );
@@ -999,7 +963,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, char *pBuf, BYTE command)
 		}
 	}
 
-	memset( send_buff, 0x00, 128 );		send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, WIZ_CHAT, send_index );
 	SetByte( send_buff, KNIGHTS_CHAT, send_index );
 	SetByte( send_buff, 1, send_index );
@@ -1007,7 +971,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, char *pBuf, BYTE command)
 	SetKOString( send_buff, finalstr, send_index );
 	m_pMain->Send_KnightsMember( knightsindex, send_buff, send_index );
 
-	memset( send_buff, 0x00, 128 );		send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, UDP_KNIGHTS_PROCESS, send_index );
 	SetByte( send_buff, command-0x10, send_index );
 	SetShort( send_buff, knightsindex, send_index );
@@ -1021,8 +985,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, char *pBuf, BYTE command)
 void CKnightsManager::RecvDestroyKnights(CUser *pUser, char *pBuf)
 {
 	int send_index = 0, knightsindex = 0, index = 0, flag = 0;
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
-	char finalstr[128]; memset( finalstr, 0x00, 128 );
+	char send_buff[128], finalstr[128]; 
 	CKnights*	pKnights = NULL;
 	CUser* pTUser = NULL;
 
@@ -1044,7 +1007,7 @@ void CKnightsManager::RecvDestroyKnights(CUser *pUser, char *pBuf)
 	else if( flag == KNIGHTS_TYPE )
 		sprintf( finalstr, "#### %s 기사단이 해체되었습니다 ####", pKnights->m_strName );
 
-	memset( send_buff, 0x00, 128 );		send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, WIZ_CHAT, send_index );
 	SetByte( send_buff, KNIGHTS_CHAT, send_index );
 	SetByte( send_buff, 1, send_index );
@@ -1061,7 +1024,7 @@ void CKnightsManager::RecvDestroyKnights(CUser *pUser, char *pBuf)
 
 			RemoveKnightsUser( knightsindex, pTUser->m_pUserData->m_id );
 
-			memset( send_buff, 0x00, 128 ); send_index = 0;
+			send_index = 0;
 			SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
 			SetByte( send_buff, KNIGHTS_MODIFY_FAME, send_index );
 			SetByte( send_buff, 0x01, send_index );
@@ -1076,13 +1039,13 @@ void CKnightsManager::RecvDestroyKnights(CUser *pUser, char *pBuf)
 	m_pMain->m_KnightsArray.DeleteData( knightsindex );
 	//TRACE("RecvDestoryKnights - nid=%d, name=%s, index=%d, fame=%d\n", pUser->GetSocketID(), pUser->m_pUserData->m_id, knightsindex, pUser->m_pUserData->m_bFame);
 
-	memset( send_buff, 0x00, 128 ); send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
 	SetByte( send_buff, KNIGHTS_DESTROY, send_index );
 	SetByte( send_buff, 0x01, send_index );
 	pUser->Send( send_buff, send_index );
 
-	memset( send_buff, 0x00, 128 );		send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, UDP_KNIGHTS_PROCESS, send_index );
 	SetByte( send_buff, KNIGHTS_DESTROY, send_index );
 	SetShort( send_buff, knightsindex, send_index );
@@ -1092,7 +1055,7 @@ void CKnightsManager::RecvDestroyKnights(CUser *pUser, char *pBuf)
 		m_pMain->Send_UDP_All( send_buff, send_index, 1 );
 
 	//if( flag == KNIGHTS_TYPE )	{
-/*	memset( send_buff, 0x00, 128 ); send_index = 0;
+/*		send_index = 0;
 		SetByte( send_buff, WIZ_KNIGHTS_LIST, send_index );
 		SetByte( send_buff, 0x03, send_index );					// Knights Remove From List 
 		SetShort( send_buff, knightsindex, send_index );
@@ -1100,263 +1063,17 @@ void CKnightsManager::RecvDestroyKnights(CUser *pUser, char *pBuf)
 	//}
 }
 
-BOOL CKnightsManager::LoadAllKnights()
-{
-	SQLHSTMT		hstmt = NULL;
-	//SQLRETURN		retcode;
-	BOOL			bData = TRUE,	retval = FALSE;
-	CString			tempid, tempchief, tempvice_1, tempvice_2, tempvice_3;
-	TCHAR			szSQL[1024];
-	memset( szSQL, 0x00, 1024 );
-/*
-	CKnights* pKnights = NULL;
-
-	SQLCHAR IDName[MAX_ID_SIZE+1], Chief[MAX_ID_SIZE+1], ViceChief_1[MAX_ID_SIZE+1], ViceChief_2[MAX_ID_SIZE+1], ViceChief_3[MAX_ID_SIZE+1], Nation;
-	memset( IDName, 0x00, MAX_ID_SIZE+1 ); memset( Chief, 0x00, MAX_ID_SIZE+1 ); memset( ViceChief_1, 0x00, MAX_ID_SIZE+1 ); 
-	memset( ViceChief_2, 0x00, MAX_ID_SIZE+1 );	memset( ViceChief_3, 0x00, MAX_ID_SIZE+1 );
-	SQLSMALLINT	IDNum, Members, Domination;
-	SQLINTEGER Money, Points;
-	SQLINTEGER Indexind = SQL_NTS;
-
-	//wsprintf( szSQL, TEXT( "SELECT IDNum, Nation, IDName, Members, Chief, ViceChief, Officer, Gold, Domination, Points, Mark FROM KNIGHTS" ) );
-	wsprintf( szSQL, TEXT( "SELECT IDNum, Nation, IDName, Members, Chief, ViceChief_1, ViceChief_2, ViceChief_3, Gold, Domination, Points, Mark FROM KNIGHTS" ) );
-
-	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_KnightsDB.m_hdbc, &hstmt );
-	if (retcode == SQL_SUCCESS)
-	{
-		retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
-		if (retcode == SQL_SUCCESS|| retcode == SQL_SUCCESS_WITH_INFO) {
-			while (bData) {
-				retcode = SQLFetch(hstmt);
-				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-					SQLGetData(hstmt,1  ,SQL_C_SSHORT,&IDNum, 0,&Indexind);
-					SQLGetData(hstmt,2  ,SQL_C_TINYINT,&Nation, 0,&Indexind);
-					SQLGetData(hstmt,3  ,SQL_C_CHAR  ,IDName, MAX_ID_SIZE,&Indexind);
-					SQLGetData(hstmt,4  ,SQL_C_SSHORT,&Members, 0,&Indexind);
-					SQLGetData(hstmt,5  ,SQL_C_CHAR  ,Chief, MAX_ID_SIZE,&Indexind);
-					SQLGetData(hstmt,6  ,SQL_C_CHAR  ,ViceChief_1, MAX_ID_SIZE,&Indexind);
-					SQLGetData(hstmt,7  ,SQL_C_CHAR  ,ViceChief_2, MAX_ID_SIZE,&Indexind);
-					SQLGetData(hstmt,8  ,SQL_C_CHAR  ,ViceChief_3, MAX_ID_SIZE,&Indexind);
-					SQLGetData(hstmt,9  ,SQL_C_LONG, &Money, 0,&Indexind);
-					SQLGetData(hstmt,10  ,SQL_C_SSHORT,&Domination, 0,&Indexind);
-					SQLGetData(hstmt,11  ,SQL_C_LONG, &Points, 0,&Indexind);
-
-					tempid = IDName;
-					tempid.TrimRight();
-					tempchief = Chief;
-					tempchief.TrimRight();
-					tempvice_1 = ViceChief_1;
-					tempvice_1.TrimRight();
-					tempvice_2 = ViceChief_2;
-					tempvice_2.TrimRight();
-					tempvice_3 = ViceChief_3;
-					tempvice_3.TrimRight();
-
-					if( m_pMain->m_nServerNo == KARUS )	{
-						if( IDNum < 15000 )	{
-							pKnights = new CKnights;
-							pKnights->sIndex = IDNum;
-							pKnights->bNation = Nation;
-							strcpy( pKnights->strName, (char*)(LPCTSTR)tempid );
-							pKnights->sMembers = Members;
-							strcpy( pKnights->strChief, (char*)(LPCTSTR)tempchief );
-							strcpy( pKnights->strViceChief_1, (char*)(LPCTSTR)tempvice_1 );
-							strcpy( pKnights->strViceChief_2, (char*)(LPCTSTR)tempvice_2 );
-							strcpy( pKnights->strViceChief_3, (char*)(LPCTSTR)tempvice_3 );
-							pKnights->nMoney = Money;
-							pKnights->sDomination = Domination;
-							pKnights->nPoints = Points;
-
-							if( !m_pMain->m_KnightsArray.PutData(pKnights->sIndex, pKnights) ) {
-								TRACE("Knights PutData Fail - %d\n", pKnights->sIndex);
-								delete pKnights;
-								pKnights = NULL;
-							}
-						}
-					}
-					else if( m_pMain->m_nServerNo == ELMORAD )	{
-						if( IDNum >= 15000 && IDNum < 30000 )	{
-							pKnights = new CKnights;
-							pKnights->sIndex = IDNum;
-							pKnights->bNation = Nation;
-							strcpy( pKnights->strName, (char*)(LPCTSTR)tempid );
-							pKnights->sMembers = Members;
-							strcpy( pKnights->strChief, (char*)(LPCTSTR)tempchief );
-							strcpy( pKnights->strViceChief_1, (char*)(LPCTSTR)tempvice_1 );
-							strcpy( pKnights->strViceChief_2, (char*)(LPCTSTR)tempvice_2 );
-							strcpy( pKnights->strViceChief_3, (char*)(LPCTSTR)tempvice_3 );
-							pKnights->nMoney = Money;
-							pKnights->sDomination = Domination;
-							pKnights->nPoints = Points;
-
-							if( !m_pMain->m_KnightsArray.PutData(pKnights->sIndex, pKnights) ) {
-								TRACE("Knights PutData Fail - %d\n", pKnights->sIndex);
-								delete pKnights;
-								pKnights = NULL;
-							}
-
-							//TRACE("knightindex = %d\n", IDNum);
-
-						}
-					}
-					else	{
-						pKnights = new CKnights;
-						pKnights->sIndex = IDNum;
-						pKnights->bNation = Nation;
-						strcpy( pKnights->strName, (char*)(LPCTSTR)tempid );
-						pKnights->sMembers = Members;
-						strcpy( pKnights->strChief, (char*)(LPCTSTR)tempchief );
-						strcpy( pKnights->strViceChief_1, (char*)(LPCTSTR)tempvice_1 );
-						strcpy( pKnights->strViceChief_2, (char*)(LPCTSTR)tempvice_2 );
-						strcpy( pKnights->strViceChief_3, (char*)(LPCTSTR)tempvice_3 );
-						pKnights->nMoney = Money;
-						pKnights->sDomination = Domination;
-						pKnights->nPoints = Points;
-
-						if( !m_pMain->m_KnightsArray.PutData(pKnights->sIndex, pKnights) ) {
-							TRACE("Knights PutData Fail - %d\n", pKnights->sIndex);
-							delete pKnights;
-							pKnights = NULL;
-						}
-					}
-
-					bData = TRUE;
-				}
-				else
-					bData = FALSE;
-
-				memset( IDName, 0x00, MAX_ID_SIZE+1 ); memset( Chief, 0x00, MAX_ID_SIZE+1 ); memset( ViceChief_1, 0x00, MAX_ID_SIZE+1 ); 
-				memset( ViceChief_2, 0x00, MAX_ID_SIZE+1 );	memset( ViceChief_3, 0x00, MAX_ID_SIZE+1 );
-			}
-			retval = TRUE;
-		}
-		else {
-			DisplayErrorMsg( hstmt );
-			retval = FALSE;
-		}
-	
-		SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
-	}
-	else
-		return FALSE;	*/
-	
-	return retval;
-}
-
-BOOL CKnightsManager::LoadKnightsIndex(int index)
-{
-	SQLHSTMT		hstmt = NULL;
-	//SQLRETURN		retcode;
-	BOOL			bData = TRUE,	retval = FALSE;
-	CString			tempid, tempchief, tempvice_1, tempvice_2, tempvice_3;
-	TCHAR			szSQL[1024];
-	memset( szSQL, 0x00, 1024 );
-
-/*	CKnights* pKnights = NULL;
-
-	SQLCHAR IDName[MAX_ID_SIZE+1], Chief[MAX_ID_SIZE+1], ViceChief_1[MAX_ID_SIZE+1], ViceChief_2[MAX_ID_SIZE+1], ViceChief_3[MAX_ID_SIZE+1], Nation;
-	memset( IDName, 0x00, MAX_ID_SIZE+1 ); memset( Chief, 0x00, MAX_ID_SIZE+1 ); memset( ViceChief_1, 0x00, MAX_ID_SIZE+1 ); 
-	memset( ViceChief_2, 0x00, MAX_ID_SIZE+1 );	memset( ViceChief_3, 0x00, MAX_ID_SIZE+1 );
-	SQLSMALLINT	IDNum, Members, Domination;
-	SQLINTEGER Money, Points;
-	SQLINTEGER Indexind = SQL_NTS;
-
-	//wsprintf( szSQL, TEXT( "SELECT IDNum, Nation, IDName, Members, Chief, ViceChief, Officer, Gold, Domination, Points, Mark FROM KNIGHTS" ) );
-	wsprintf( szSQL, TEXT( "SELECT IDNum, Nation, IDName, Members, Chief, ViceChief_1, ViceChief_2, ViceChief_3, Gold, Domination, Points, Mark FROM KNIGHTS WHERE IDNum=%d" ), index );
-
-	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_KnightsDB.m_hdbc, &hstmt );
-	if (retcode == SQL_SUCCESS)
-	{
-		retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
-		if (retcode == SQL_SUCCESS|| retcode == SQL_SUCCESS_WITH_INFO) {
-			retcode = SQLFetch(hstmt);
-			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-				SQLGetData(hstmt,1  ,SQL_C_SSHORT,&IDNum, 0,&Indexind);
-				SQLGetData(hstmt,2  ,SQL_C_TINYINT,&Nation, 0,&Indexind);
-				SQLGetData(hstmt,3  ,SQL_C_CHAR  ,IDName, MAX_ID_SIZE,&Indexind);
-				SQLGetData(hstmt,4  ,SQL_C_SSHORT,&Members, 0,&Indexind);
-				SQLGetData(hstmt,5  ,SQL_C_CHAR  ,Chief, MAX_ID_SIZE,&Indexind);
-				SQLGetData(hstmt,6  ,SQL_C_CHAR  ,ViceChief_1, MAX_ID_SIZE,&Indexind);
-				SQLGetData(hstmt,7  ,SQL_C_CHAR  ,ViceChief_2, MAX_ID_SIZE,&Indexind);
-				SQLGetData(hstmt,8  ,SQL_C_CHAR  ,ViceChief_3, MAX_ID_SIZE,&Indexind);
-				SQLGetData(hstmt,9  ,SQL_C_LONG, &Money, 0,&Indexind);
-				SQLGetData(hstmt,10  ,SQL_C_SSHORT,&Domination, 0,&Indexind);
-				SQLGetData(hstmt,11  ,SQL_C_LONG, &Points, 0,&Indexind);
-
-				tempid = IDName;
-				tempid.TrimRight();
-				tempchief = Chief;
-				tempchief.TrimRight();
-				tempvice_1 = ViceChief_1;
-				tempvice_1.TrimRight();
-				tempvice_2 = ViceChief_2;
-				tempvice_2.TrimRight();
-				tempvice_3 = ViceChief_3;
-				tempvice_3.TrimRight();
-
-				if( m_pMain->m_nServerNo == BATTLE ) {
-					pKnights = m_pMain->m_KnightsArray.GetData( index );
-					if( pKnights )	{
-						pKnights->sIndex = IDNum;
-						pKnights->bNation = Nation;
-						strcpy( pKnights->strName, (char*)(LPCTSTR)tempid );
-						pKnights->sMembers = Members;
-						strcpy( pKnights->strChief, (char*)(LPCTSTR)tempchief );
-						strcpy( pKnights->strViceChief_1, (char*)(LPCTSTR)tempvice_1 );
-						strcpy( pKnights->strViceChief_2, (char*)(LPCTSTR)tempvice_2 );
-						strcpy( pKnights->strViceChief_3, (char*)(LPCTSTR)tempvice_3 );
-						pKnights->nMoney = Money;
-						pKnights->sDomination = Domination;
-						pKnights->nPoints = Points;
-					}
-					else	{
-						pKnights = new CKnights;
-						pKnights->sIndex = IDNum;
-						pKnights->bNation = Nation;
-						strcpy( pKnights->strName, (char*)(LPCTSTR)tempid );
-						pKnights->sMembers = Members;
-						strcpy( pKnights->strChief, (char*)(LPCTSTR)tempchief );
-						strcpy( pKnights->strViceChief_1, (char*)(LPCTSTR)tempvice_1 );
-						strcpy( pKnights->strViceChief_2, (char*)(LPCTSTR)tempvice_2 );
-						strcpy( pKnights->strViceChief_3, (char*)(LPCTSTR)tempvice_3 );
-						pKnights->nMoney = Money;
-						pKnights->sDomination = Domination;
-						pKnights->nPoints = Points;
-
-						if( !m_pMain->m_KnightsArray.PutData(pKnights->sIndex, pKnights) ) {
-							TRACE("Knights PutData Fail - %d\n", pKnights->sIndex);
-							delete pKnights;
-							pKnights = NULL;
-						}
-					}
-				}
-			}
-
-		}
-		else {
-			DisplayErrorMsg( hstmt );
-			retval = FALSE;
-		}
-	
-		SQLFreeHandle((SQLSMALLINT)SQL_HANDLE_STMT,hstmt);
-	}
-	else
-		return FALSE;
-*/	
-	return retval;
-}
-
 void CKnightsManager::RecvKnightsList( char* pBuf )
 {
 	CKnights* pKnights = NULL;
 
-	int nation = 0, members = 0, index = 0, iLength = 0, knightsindex = 0, points = 0, ranking = 0;
-	char knightsname[MAX_ID_SIZE+1]; memset( knightsname, 0x00, MAX_ID_SIZE+1 );
+	int nation = 0, members = 0, index = 0, knightsindex = 0, points = 0, ranking = 0;
+	char knightsname[MAX_ID_SIZE+1]; 
 
 	knightsindex = GetShort( pBuf, index );
 	nation = GetByte( pBuf, index );
-	iLength = GetShort( pBuf, index );
-	GetString( knightsname, pBuf, iLength, index );
+	if (!GetKOString(pBuf, knightsname, index, MAX_ID_SIZE))
+		return;
 	members = GetShort( pBuf, index );
 	points = GetDWORD( pBuf, index ); // knights grade
 	ranking = GetByte( pBuf, index );
@@ -1366,7 +1083,7 @@ void CKnightsManager::RecvKnightsList( char* pBuf )
 		if( pKnights )	{
 			pKnights->m_sIndex = knightsindex;
 			pKnights->m_byNation = nation;
-			strcpy( pKnights->m_strName, knightsname );
+			strcpy_s( pKnights->m_strName, sizeof(pKnights->m_strName), knightsname );
 			pKnights->m_sMembers = members;
 			pKnights->m_nPoints = points;
 			pKnights->m_byGrade = m_pMain->GetKnightsGrade( points );
@@ -1376,7 +1093,7 @@ void CKnightsManager::RecvKnightsList( char* pBuf )
 			pKnights = new CKnights;
 			pKnights->m_sIndex = knightsindex;
 			pKnights->m_byNation = nation;
-			strcpy( pKnights->m_strName, knightsname );
+			strcpy_s( pKnights->m_strName, sizeof(pKnights->m_strName), knightsname );
 			pKnights->m_sMembers = members;
 			strcpy( pKnights->m_strChief, "" );
 			strcpy( pKnights->m_strViceChief_1, "" );
@@ -1522,8 +1239,7 @@ void CKnightsManager::RecvKnightsAllList(char *pBuf)
 	int index = 0, knightsindex = 0, points = 0, count = 0, grade=0, ranking = 0;
 	int send_index = 0, temp_index = 0, send_count = 0;
 	CKnights* pKnights = NULL;
-	char send_buff[512];	memset(send_buff, 0x00, 512);
-	char temp_buff[512];	memset(temp_buff, 0x00, 512);
+	char send_buff[512], temp_buff[512];
 
 	count = GetByte( pBuf, index );
 

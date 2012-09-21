@@ -8,7 +8,7 @@ void CUser::ItemRepair(char *pBuf)
 	unsigned int money = 0;
 	int index = 0, send_index = 0, quantity = 0;
 	int itemid = 0, pos = 0, slot = -1, durability = 0;
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
+	char send_buff[128];
 	_ITEM_TABLE* pTable = NULL;
 
 	pos = GetByte( pBuf, index );
@@ -453,7 +453,7 @@ BOOL CUser::RunEvent(EVENT_DATA *pEventData)
 void CUser::ClassChange(char *pBuf)
 {
 	int index = 0, classcode = 0, send_index = 0, type=0, sub_type = 0, money = 0, old_money=0;
-	char send_buff[128]; memset( send_buff, NULL, 128 );
+	char send_buff[128];
 	BOOL bSuccess = FALSE;
 
 	type = GetByte( pBuf, index );
@@ -557,7 +557,7 @@ void CUser::ClassChange(char *pBuf)
 		break;
 	}
 
-	memset( send_buff, NULL, 128 );	send_index = 0;
+	send_index = 0;
 	if( !bSuccess ) {
 		SetByte( send_buff, WIZ_CLASS_CHANGE, send_index );
 		SetByte( send_buff, CLASS_CHANGE_RESULT, send_index );
@@ -613,7 +613,7 @@ fail_return:
 void CUser::SendNpcSay(EXEC *pExec)
 {
 	int i, send_index = 0;
-	char send_buf[128];	memset(send_buf, NULL, 128);
+	char send_buf[128];
 
 	if( !pExec ) return;
 
@@ -628,7 +628,7 @@ void CUser::SendNpcSay(EXEC *pExec)
 void CUser::SelectMsg(EXEC *pExec)
 {
 	int i, chat, send_index = 0;
-	char send_buf[128];		memset(send_buf, NULL, 128);
+	char send_buf[128];
 
 	if( !pExec ) return;
 
@@ -656,7 +656,6 @@ void CUser::NpcEvent(char *pBuf)
 
 	int index = 0, send_index = 0, nid = 0, i=0, temp_index = 0;
 	char send_buf[2048];
-	memset( send_buf, NULL, 2048);
 	CNpc* pNpc = NULL;
 
 	nid = GetShort( pBuf, index );
@@ -710,7 +709,6 @@ void CUser::ItemTrade(char *pBuf)
 	_ITEM_TABLE* pTable = NULL;
 	char send_buf[128];
 	CNpc* pNpc = NULL;
-	memset( send_buf, NULL, 128);
 	BYTE type, pos, destpos, result;
 
 	if (isDead())

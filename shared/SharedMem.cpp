@@ -38,8 +38,6 @@ CSharedMemQueue::~CSharedMemQueue()
 
 BOOL CSharedMemQueue::InitailizeMMF(DWORD dwOffsetsize, int maxcount, LPCTSTR lpname, BOOL bCreate )
 {
-	char logstr[256];
-	memset( logstr, 0x00, 256);
 	if( maxcount < 1 )
 		return FALSE;
 	DWORD dwfullsize = dwOffsetsize * maxcount + sizeof(_SMQ_HEADER);

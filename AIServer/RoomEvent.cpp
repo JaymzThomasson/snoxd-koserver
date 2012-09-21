@@ -65,8 +65,6 @@ void CRoomEvent::MainRoom( float fcurtime )
 {
 	// 조건 검색먼저 해야 겠지..
 	BOOL bCheck = FALSE, bRunCheck = FALSE;
-	char notify[50];	memset(notify, 0x00, 50);
-
 	int event_num  = m_Logic[m_byLogicNumber-1].sNumber;
 
 	bCheck = CheckEvent( event_num, fcurtime );
@@ -144,7 +142,6 @@ BOOL  CRoomEvent::CheckEvent( int event_num, float fcurtime )
 
 BOOL  CRoomEvent::RunEvent( int event_num )
 {
-	char notify[50];	memset(notify, 0x00, 50);
 	CNpc* pNpc = NULL;
 	int nOption_1 = 0, nOption_2 = 0;
 	BOOL bRetValue = FALSE;
@@ -321,8 +318,7 @@ void CRoomEvent::InitializeRoom()
 
 void CRoomEvent::EndEventSay( int option1, int option2 )
 {
-	char notify[256];		memset(notify, 0x00, 256);
-	char send_buff[128];	memset(send_buff, 0x00, 128);
+	char notify[256], send_buff[128];
 	int send_index = 0;
 
 	std::string buff;

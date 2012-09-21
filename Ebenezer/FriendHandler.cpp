@@ -43,7 +43,7 @@ void CUser::FriendRequest(char *pBuf)
 void CUser::FriendModify(char *pBuf)
 {
 	CUser *pUser = NULL;
-	char charName[MAX_ID_SIZE+1] = "";
+	char charName[MAX_ID_SIZE+1];
 	int index = 0, send_index = 0;
 	char send_buff[6];
 	BYTE opcode = GetByte(pBuf, index);

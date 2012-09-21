@@ -72,7 +72,6 @@ int CIni::SetInt(char* lpAppName, char* lpKeyName, int nDefault)
 		return -1;
 
 	char tmpDefault[INI_BUFFER];
-	memset(tmpDefault, 0x00, INI_BUFFER);
 	sprintf_s(tmpDefault, INI_BUFFER, "%d", nDefault);
 
 	return WritePrivateProfileString(lpAppName, lpKeyName, tmpDefault, m_szFileName);

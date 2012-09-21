@@ -65,7 +65,6 @@ int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 		return 0;
 
 	char pTBuf[MAX_PACKET_SIZE];
-	memset( pTBuf, 0x00, MAX_PACKET_SIZE );
 	int index = 0;
 
 	pTBuf[index++] = (BYTE)PACKET_START1;
@@ -143,7 +142,6 @@ int CIOCPSocket2::Receive()
 	OVERLAPPED *pOvl;
 	HANDLE	hComport = NULL;
 
-	memset(m_pRecvBuff, NULL, MAX_PACKET_SIZE );
 	in.len = MAX_PACKET_SIZE;
 	in.buf = m_pRecvBuff;
 

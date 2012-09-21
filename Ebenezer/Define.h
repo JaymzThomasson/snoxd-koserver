@@ -1,8 +1,6 @@
 #ifndef _DEFINE_H
 #define _DEFINE_H
 
-#include <mmsystem.h>
-
 #define _LISTEN_PORT		15001
 #define _UDP_PORT			8888
 #define AI_KARUS_SOCKET_PORT		10020
@@ -276,60 +274,7 @@ typedef union{
 	BYTE		b[8];
 } MYINT64;
 
-//////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////
-//
-//	Global Function Define
-//
-
-inline float TimeGet()
-{
-	static bool bInit = false;
-	static bool bUseHWTimer = FALSE;
-	static LARGE_INTEGER nTime, nFrequency;
-	
-	if(bInit == false)
-	{
-		if(TRUE == ::QueryPerformanceCounter(&nTime))
-		{
-			::QueryPerformanceFrequency(&nFrequency);
-			bUseHWTimer = TRUE;
-		}
-		else 
-		{
-			bUseHWTimer = FALSE;
-		}
-
-		bInit = true;
-	}
-
-	if(bUseHWTimer)
-	{
-		::QueryPerformanceCounter(&nTime);
-		return (float)((double)(nTime.QuadPart)/(double)nFrequency.QuadPart);
-	}
-
-	return (float)timeGetTime();
-};
-
-inline void DisplayErrorMsg(SQLHANDLE hstmt)
-{
-	SQLCHAR       SqlState[6], Msg[1024];
-	SQLINTEGER    NativeError;
-	SQLSMALLINT   i, MsgLen;
-	SQLRETURN     rc2;
-
-	i = 1;
-	while ((rc2 = SQLGetDiagRec(SQL_HANDLE_STMT, hstmt, i, SqlState, &NativeError, Msg, sizeof(Msg), &MsgLen)) != SQL_NO_DATA)
-	{
-		TRACE("*** %s, %d, %s, %d ***\n", SqlState,NativeError,Msg,MsgLen);
-
-		i++;
-	}
-};
-
 #include "../shared/globals.h"
-
 
 struct _REGION_BUFFER {
 	int		iLength;

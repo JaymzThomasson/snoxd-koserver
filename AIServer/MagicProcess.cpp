@@ -38,7 +38,6 @@ void CMagicProcess::MagicPacket(char *pBuf)
 {
 	int index = 0, send_index = 0, magicid = 0, sid = -1, tid = -1, TotalDex=0, righthand_damage = 0;
 	int data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0, result = 1;
-	char send_buff[128]; memset( send_buff, NULL, 128 );
 	_MAGIC_TABLE* pTable = NULL;
 
 	sid = m_pSrcUser->m_iUserId;
@@ -138,8 +137,6 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, BYTE type )
 
 	int modulator = 0, Class = 0, send_index = 0, moral = 0;
 
-	char send_buff[128];
-	memset( send_buff, NULL, 128); 
 	if( !m_pSrcUser ) return FALSE;
 
 	pTable = m_pMain->m_MagictableArray.GetData( magicid );     // Get main magic table.
@@ -148,7 +145,7 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, BYTE type )
 	return pTable;      // Magic was successful! 
 
 fail_return:    // In case the magic failed. 
-	memset( send_buff, NULL, 128 ); send_index = 0;
+	send_index = 0;
 	//SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 	//SetByte( send_buff, MAGIC_FAIL, send_index );
 	//SetShort( send_buff, m_pSrcUser->GetSocketID(), send_index );
@@ -161,7 +158,7 @@ fail_return:    // In case the magic failed.
 BYTE CMagicProcess::ExecuteType1(int magicid, int tid, int data1, int data2, int data3, BYTE sequence)   // Applied to an attack skill using a weapon.
 {	
 	int damage = 0, send_index = 0, result = 1;     // Variable initialization. result == 1 : success, 0 : fail
-	char send_buff[128];	memset( send_buff, NULL, 128); 
+	char send_buff[128];
 	_MAGIC_TABLE* pMagic = NULL;
 	pMagic = m_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
 	if( !pMagic ) return 0; 
@@ -223,7 +220,7 @@ packet_send:
 BYTE CMagicProcess::ExecuteType2(int magicid, int tid, int data1, int data2, int data3)
 {
 	int damage = 0, send_index = 0, result = 1 ; // Variable initialization. result == 1 : success, 0 : fail
-	char send_buff[128];	memset( send_buff, NULL, 128);     // For the packet. 
+	char send_buff[128]; 
 	
 	damage = m_pSrcUser->GetDamage(tid, magicid);  // Get damage points of enemy.	
 //	if(damage <= 0)	damage = 1;
@@ -302,7 +299,7 @@ packet_send:
 void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int data3, int moral, int dexpoint, int righthand_damage )   // Applied when a magical attack, healing, and mana restoration is done.
 {	
 	int damage = 0, result = 1, send_index=0, attack_type = 0; 
-	char send_buff[256];	memset(send_buff, 0x00, 256);
+	char send_buff[256];
 	_MAGIC_TYPE3* pType = NULL;
 	CNpc* pNpc = NULL ;      // Pointer initialization!
 
@@ -422,7 +419,6 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 {
 	int damage = 0, send_index = 0, result = 1;     // Variable initialization. result == 1 : success, 0 : fail
 	char send_buff[128];
-	memset( send_buff, NULL, 128);
 
 	_MAGIC_TYPE4* pType = NULL;
 	CNpc* pNpc = NULL ;      // Pointer initialization!
@@ -725,7 +721,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 	CNpc* pNpc = NULL ;      // Pointer initialization!
 	float fDis = 0.0f;
 	vStart.Set((float)data1, (float)0, (float)data3);
-	char send_buff[256];	memset(send_buff, 0x00, 256);
+	char send_buff[256];
 	int send_index=0, result = 1, count = 0, total_mon = 0, attack_type=0;; 
 	int* pNpcIDList = NULL;
 
@@ -773,7 +769,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 						}
 					}
 
-					memset(send_buff, 0x00, 256);	send_index = 0;	
+					send_index = 0;	
 					// 패킷 전송.....
 					//if ( pMagic->bType2 == 0 || pMagic->bType2 == 3 ) 
 					{
@@ -793,7 +789,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 					}
 				}
 				else if(magictype == 4)	{	// 타잎 4일 경우...
-					memset(send_buff, 0x00, 256);	send_index = 0;		result = 1;
+					send_index = 0;		result = 1;
 					switch (pType4->bBuffType) {	// Depending on which buff-type it is.....
 						case 1 :				// HP 올리기..
 							break;

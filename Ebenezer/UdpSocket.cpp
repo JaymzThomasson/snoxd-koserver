@@ -17,8 +17,6 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-DWORD WINAPI RecvUDPThread( LPVOID lp );
-
 DWORD WINAPI RecvUDPThread( LPVOID lp )
 {
 	CUdpSocket *pUdp = (CUdpSocket*)lp;
@@ -108,7 +106,6 @@ int CUdpSocket::SendUDPPacket(char* strAddress, char* pBuf, int len)
 	int s_size = 0, index = 0;
 	
 	BYTE pTBuf[2048];
-	memset( pTBuf, 0x00, 2048 );
 
 	if( len > 2048 || len <= 0 )
 		return 0;
@@ -211,13 +208,11 @@ void CUdpSocket::Parsing(char *pBuf, int len)
 
 void CUdpSocket::ServerChat(char *pBuf)
 {
-	int index = 0, chatlen = 0;
-	char chatstr[1024]; memset( chatstr, NULL, 1024 );
+	int index = 0;
+	char chatstr[512];
 
-	chatlen = GetShort( pBuf, index );
-	if( chatlen > 512 || chatlen <= 0 )
+	if (!GetKOString(pBuf, chatstr, index, sizeof(chatstr)))
 		return;
-	GetString( chatstr, pBuf, chatlen, index );
 
 	DEBUG_LOG(chatstr);
 }
@@ -226,11 +221,8 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 {
 	int index = 0, send_index = 0, udp_index = 0;
 	int nType = 0, nResult = 0, nLen = 0, nKillKarus = 0, nElmoKill = 0;
-	char strMaxUserName[MAX_ID_SIZE+1];	memset( strMaxUserName, 0x00, MAX_ID_SIZE+1 );
-	char strKnightsName[MAX_ID_SIZE+1];	memset( strKnightsName, 0x00, MAX_ID_SIZE+1 );
-	char chatstr[256]; memset( chatstr, NULL, 1024 );
-	char finalstr[1024]; memset( finalstr, NULL, 1024);
-	char send_buff[1024]; memset( send_buff, NULL, 1024);
+	char strMaxUserName[MAX_ID_SIZE+1], strKnightsName[MAX_ID_SIZE+1];
+	char finalstr[1024], send_buff[1024];
 
 	std::string buff;
 
@@ -319,7 +311,7 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 		SetKOString( send_buff, finalstr, send_index );
 		m_pMain->Send_All( send_buff, send_index );
 
-		memset( send_buff, NULL, 256 );		send_index = 0;
+		send_index = 0;
 		SetByte( send_buff, WIZ_CHAT, send_index );
 		SetByte( send_buff, PUBLIC_CHAT, send_index );
 		SetByte( send_buff, 1, send_index );
@@ -388,18 +380,16 @@ void CUdpSocket::ReceiveKnightsProcess( char* pBuf )
 
 void CUdpSocket::RecvCreateKnights( char* pBuf )
 {
-	int index = 0, send_index = 0, namelen = 0, idlen = 0, knightsindex = 0, nation = 0, community = 0;
-	char knightsname[MAX_ID_SIZE+1]; memset( knightsname, 0x00, MAX_ID_SIZE+1 );
-	char chiefname[MAX_ID_SIZE+1]; memset( chiefname, 0x00, MAX_ID_SIZE+1 );
+	int index = 0, send_index = 0, knightsindex = 0, nation = 0, community = 0;
+	char knightsname[MAX_ID_SIZE+1], chiefname[MAX_ID_SIZE+1];
 	CKnights* pKnights = NULL;
 
 	community = GetByte( pBuf, index );
 	knightsindex = GetShort( pBuf, index );
 	nation = GetByte( pBuf, index );
-	namelen = GetShort( pBuf, index );
-	GetString( knightsname, pBuf, namelen, index );
-	idlen = GetShort( pBuf, index );
-	GetString( chiefname, pBuf, idlen, index );
+	if (!GetKOString(pBuf, knightsname, index, MAX_ID_SIZE)
+		|| !GetKOString(pBuf, chiefname, index, MAX_ID_SIZE))
+		return;
 
 	pKnights = new CKnights;
 	pKnights->InitializeValue();
@@ -407,8 +397,8 @@ void CUdpSocket::RecvCreateKnights( char* pBuf )
 	pKnights->m_sIndex = knightsindex;
 	pKnights->m_byFlag = community;
 	pKnights->m_byNation = nation;
-	strcpy( pKnights->m_strName, knightsname );
-	strcpy( pKnights->m_strChief, chiefname );
+	strcpy_s( pKnights->m_strName, sizeof(pKnights->m_strName), knightsname );
+	strcpy_s( pKnights->m_strChief, sizeof(pKnights->m_strChief), chiefname );
 	memset( pKnights->m_strViceChief_1, 0x00, MAX_ID_SIZE+1);
 	memset( pKnights->m_strViceChief_2, 0x00, MAX_ID_SIZE+1);
 	memset( pKnights->m_strViceChief_3, 0x00, MAX_ID_SIZE+1);
@@ -433,15 +423,13 @@ void CUdpSocket::RecvCreateKnights( char* pBuf )
 
 void CUdpSocket::RecvJoinKnights( char* pBuf, BYTE command )
 {
-	int send_index = 0, knightsindex = 0, index = 0, idlen = 0;
-	char charid[MAX_ID_SIZE+1]; memset( charid, 0x00, MAX_ID_SIZE+1 );
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
-	char finalstr[128]; memset( finalstr, 0x00, 128 );
+	int send_index = 0, knightsindex = 0, index = 0;
+	char charid[MAX_ID_SIZE+1], send_buff[128], finalstr[128];
 	CKnights*	pKnights = NULL;
 
 	knightsindex = GetShort( pBuf, index );
-	idlen = GetShort( pBuf, index );
-	GetString( charid, pBuf, idlen, index );
+	if (!GetKOString(pBuf, charid, index, MAX_ID_SIZE))
+		return;
 
 	pKnights = m_pMain->m_KnightsArray.GetData( knightsindex );
 
@@ -460,7 +448,7 @@ void CUdpSocket::RecvJoinKnights( char* pBuf, BYTE command )
 
 	//TRACE("UDP - RecvJoinKnights - command=%d, name=%s, index=%d\n", command, charid, knightsindex);
 
-	memset( send_buff, 0x00, 128 );		send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, WIZ_CHAT, send_index );
 	SetByte( send_buff, KNIGHTS_CHAT, send_index );
 	SetByte( send_buff, 1, send_index );
@@ -471,16 +459,14 @@ void CUdpSocket::RecvJoinKnights( char* pBuf, BYTE command )
 
 void CUdpSocket::RecvModifyFame( char* pBuf, BYTE command )
 {
-	int index = 0, send_index = 0, knightsindex = 0, idlen = 0, vicechief = 0;
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
-	char finalstr[128]; memset( finalstr, 0x00, 128 );
-	char userid[MAX_ID_SIZE+1]; memset( userid, 0x00, MAX_ID_SIZE+1 );
+	int index = 0, send_index = 0, knightsindex = 0, vicechief = 0;
+	char send_buff[128], finalstr[128], userid[MAX_ID_SIZE+1];
 	CUser* pTUser = NULL;
 	CKnights*	pKnights = NULL;
 
 	knightsindex = GetShort( pBuf, index );
-	idlen = GetShort( pBuf, index );
-	GetString( userid, pBuf, idlen, index );
+	if (!GetKOString(pBuf, userid, index, MAX_ID_SIZE))
+		return;
 
 	pTUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
 	pKnights = m_pMain->m_KnightsArray.GetData( knightsindex );
@@ -534,7 +520,7 @@ void CUdpSocket::RecvModifyFame( char* pBuf, BYTE command )
 
 	if( pTUser ) {
 		//TRACE("UDP - RecvModifyFame - command=%d, nid=%d, name=%s, index=%d, fame=%d\n", command, pTUser->GetSocketID(), pTUser->m_pUserData->m_id, knightsindex, pTUser->m_pUserData->m_bFame);
-		memset( send_buff, 0x00, 128 ); send_index = 0;
+		send_index = 0;
 		SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
 		SetByte( send_buff, KNIGHTS_MODIFY_FAME, send_index );
 		SetByte( send_buff, 0x01, send_index );
@@ -552,7 +538,7 @@ void CUdpSocket::RecvModifyFame( char* pBuf, BYTE command )
 		}
 
 		if( command == KNIGHTS_REMOVE )	{
-			memset( send_buff, 0x00, 128 );		send_index = 0;
+			send_index = 0;
 			SetByte( send_buff, WIZ_CHAT, send_index );
 			SetByte( send_buff, KNIGHTS_CHAT, send_index );
 			SetByte( send_buff, 1, send_index );
@@ -562,7 +548,7 @@ void CUdpSocket::RecvModifyFame( char* pBuf, BYTE command )
 		}
 	}
 
-	memset( send_buff, 0x00, 128 );		send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, WIZ_CHAT, send_index );
 	SetByte( send_buff, KNIGHTS_CHAT, send_index );
 	SetByte( send_buff, 1, send_index );
@@ -574,8 +560,7 @@ void CUdpSocket::RecvModifyFame( char* pBuf, BYTE command )
 void CUdpSocket::RecvDestroyKnights( char* pBuf )
 {
 	int send_index = 0, knightsindex = 0, index = 0, flag = 0;
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
-	char finalstr[128]; memset( finalstr, 0x00, 128 );
+	char send_buff[128], finalstr[128]; 
 	CKnights*	pKnights = NULL;
 	CUser* pTUser = NULL;
 
@@ -595,7 +580,7 @@ void CUdpSocket::RecvDestroyKnights( char* pBuf )
 	else if( flag == KNIGHTS_TYPE )
 		sprintf( finalstr, "#### %s 기사단이 해체되었습니다 ####", pKnights->m_strName );
 
-	memset( send_buff, 0x00, 128 );		send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, WIZ_CHAT, send_index );
 	SetByte( send_buff, KNIGHTS_CHAT, send_index );
 	SetByte( send_buff, 1, send_index );
@@ -614,7 +599,7 @@ void CUdpSocket::RecvDestroyKnights( char* pBuf )
 
 		m_pMain->m_KnightsManager.RemoveKnightsUser( knightsindex, pTUser->m_pUserData->m_id );
 
-		memset( send_buff, 0x00, 128 ); send_index = 0;
+		send_index = 0;
 		SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
 		SetByte( send_buff, KNIGHTS_MODIFY_FAME, send_index );
 		SetByte( send_buff, 0x01, send_index );

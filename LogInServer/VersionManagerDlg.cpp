@@ -178,7 +178,6 @@ void CVersionManagerDlg::GetInfoFromIni()
 		string title, message;
 
 		sprintf_s(key, sizeof(key), "TITLE_%02d", i);
-		memset(tmp, 0x00, sizeof(tmp));
 		m_Ini.GetString("NEWS", key, "", tmp, sizeof(tmp));
 
 		title = tmp;
@@ -186,7 +185,6 @@ void CVersionManagerDlg::GetInfoFromIni()
 			continue;
 		
 		sprintf_s(key, sizeof(key), "MESSAGE_%02d", i);
-		memset(tmp, 0x00, sizeof(tmp));
 		m_Ini.GetString("NEWS", key, "", tmp, sizeof(tmp));
 
 		message = tmp;

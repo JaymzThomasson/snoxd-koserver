@@ -42,9 +42,9 @@ BOOL CDBProcess::InitDatabase(char *strconnection)
 
 void CDBProcess::ReConnectODBC(CDatabase *m_db, const char *strdb, const char *strname, const char *strpwd)
 {
-	char strlog[256];	memset( strlog, 0x00, 256);
+	char strlog[256];
 	CTime t = CTime::GetCurrentTime();
-	sprintf_s(strlog, 256, "[%d-%d %d:%d] Trying to reconnect to ODBC...\r\n", t.GetMonth(), t.GetDay(), t.GetHour(), t.GetMinute());
+	sprintf_s(strlog, sizeof(strlog), "[%d-%d %d:%d] Trying to reconnect to ODBC...\r\n", t.GetMonth(), t.GetDay(), t.GetHour(), t.GetMinute());
 	LogFileWrite( strlog );
 
 	// DATABASE ¿¬°á...
@@ -115,12 +115,11 @@ int CDBProcess::AccountLogin(const char *id, const char *pwd)
 {
 	SQLHSTMT		hstmt = NULL;
 	SQLRETURN		retcode;
-	TCHAR			szSQL[1024];
-	memset( szSQL, 0x00, 1024 );
+	char			szSQL[1024];
 	SQLSMALLINT		sParmRet = 3;
 	SQLINTEGER		cbParmRet=SQL_NTS;
 
-	wsprintf( szSQL, TEXT( "{call MAIN_LOGIN(\'%s\',\'%s\',?)}" ), id, pwd);
+	sprintf_s( szSQL, _T( "{call MAIN_LOGIN(\'%s\',\'%s\',?)}" ), id, pwd);
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_VersionDB.m_hdbc, &hstmt );
 	if (retcode == SQL_SUCCESS)
@@ -130,7 +129,7 @@ int CDBProcess::AccountLogin(const char *id, const char *pwd)
 		{
 			retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);
 			if( retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO ) {
-				if( DisplayErrorMsg(hstmt) == -1 ) {
+				if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 					m_VersionDB.Close();
 					if( !m_VersionDB.IsOpen() ) {
 						ReConnectODBC( &m_VersionDB, m_pMain->m_ODBCName, m_pMain->m_ODBCLogin, m_pMain->m_ODBCPwd );
@@ -150,12 +149,11 @@ BOOL CDBProcess::LoadUserCountList()
 {
 	SQLHSTMT		hstmt = NULL;
 	SQLRETURN		retcode;
-	TCHAR			szSQL[1024];
+	char			szSQL[1024];
 	
 	CString tempfilename, tempcompname;
 
-	memset(szSQL, 0x00, 1024);
-	wsprintf(szSQL, TEXT("select * from CONCURRENT"));
+	sprintf_s(szSQL, sizeof(szSQL), _T("select * from CONCURRENT"));
 	
 	SQLCHAR serverid;
 	SQLSMALLINT	zone_1 = 0, zone_2 = 0, zone_3 = 0;
@@ -166,7 +164,7 @@ BOOL CDBProcess::LoadUserCountList()
 
 	retcode = SQLExecDirect (hstmt, (unsigned char *)szSQL, 1024);	
 	if( retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO ) {
-		if( DisplayErrorMsg(hstmt) == -1 ) {
+		if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 			m_VersionDB.Close();
 			if( !m_VersionDB.IsOpen() ) {
 				ReConnectODBC( &m_VersionDB, m_pMain->m_ODBCName, m_pMain->m_ODBCLogin, m_pMain->m_ODBCPwd );
@@ -199,14 +197,13 @@ BOOL CDBProcess::IsCurrentUser(const char *accountid, char* strServerIP, int &se
 	SQLHSTMT		hstmt = NULL;
 	SQLRETURN		retcode;
 	BOOL retval;
-	TCHAR			szSQL[1024];
-	memset( szSQL, 0x00, 1024 );
+	char			szSQL[1024];
 
 	SQLINTEGER	nServerNo = 0;
 	TCHAR strIP[16] = {0};
 	SQLINTEGER Indexind = SQL_NTS;
 
-	wsprintf( szSQL, TEXT( "SELECT nServerNo, strServerIP FROM CURRENTUSER WHERE strAccountID = \'%s\'" ), accountid );
+	sprintf_s( szSQL, sizeof(szSQL), _T( "SELECT nServerNo, strServerIP FROM CURRENTUSER WHERE strAccountID = \'%s\'" ), accountid );
 
 	retcode = SQLAllocHandle( (SQLSMALLINT)SQL_HANDLE_STMT, m_VersionDB.m_hdbc, &hstmt );
 	if (retcode != SQL_SUCCESS)	return FALSE; 
@@ -226,7 +223,7 @@ BOOL CDBProcess::IsCurrentUser(const char *accountid, char* strServerIP, int &se
 			retval = FALSE;
 	}
 	else {
-		if( DisplayErrorMsg(hstmt) == -1 ) {
+		if( DisplayErrorMsg(hstmt, szSQL) == -1 ) {
 			m_VersionDB.Close();
 			if( !m_VersionDB.IsOpen() ) {
 				ReConnectODBC( &m_VersionDB, m_pMain->m_ODBCName, m_pMain->m_ODBCLogin, m_pMain->m_ODBCPwd );

@@ -8,17 +8,16 @@
 
 void CUser::PartyProcess(char *pBuf)
 {
-	int index = 0, idlength = 0, memberid = -1;
-	char strid[MAX_ID_SIZE+1]; memset( strid, 0x00, MAX_ID_SIZE+1 );
+	int index = 0, memberid = -1;
+	char strid[MAX_ID_SIZE+1];
 	BYTE subcommand, result;
 	CUser* pUser = NULL;
 
 	subcommand = GetByte( pBuf, index );
 	switch( subcommand ) {
 	case PARTY_CREATE:
-		idlength = GetShort( pBuf, index );
-		if (idlength <= 0 || idlength > MAX_ID_SIZE) return ;
-		GetString( strid, pBuf, idlength, index );
+		if (!GetKOString(pBuf, strid, index, MAX_ID_SIZE))
+			return;
 		pUser = m_pMain->GetUserPtr(strid, TYPE_CHARACTER);
 		if( pUser ) {
 			memberid = pUser->GetSocketID();
@@ -33,9 +32,8 @@ void CUser::PartyProcess(char *pBuf)
 			PartyCancel();
 		break;
 	case PARTY_INSERT:
-		idlength = GetShort( pBuf, index );
-		if (idlength <= 0 || idlength > MAX_ID_SIZE) return ;
-		GetString( strid, pBuf, idlength, index );
+		if (!GetKOString(pBuf, strid, index, MAX_ID_SIZE))
+			return;
 		pUser = m_pMain->GetUserPtr(strid, TYPE_CHARACTER);
 		if( pUser ) {
 			memberid = pUser->GetSocketID();
@@ -57,7 +55,7 @@ void CUser::PartyCancel()
 	int send_index = 0, leader_id = -1, count = 0;
 	CUser* pUser = NULL;
 	_PARTY_GROUP* pParty = NULL;
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
+	char send_buff[256];
 
 	if( m_sPartyIndex == -1 ) return;
 	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
@@ -92,7 +90,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 	int index = 0, send_index = 0, result = -1, i=0;
 	CUser* pUser = NULL;
 	_PARTY_GROUP* pParty = NULL;
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
+	char send_buff[256];
 
 	pUser = m_pMain->GetUserPtr(memberid);
 	if (pUser == NULL
@@ -128,7 +126,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 			goto fail_return;
 
 		// AI Server
-		send_index = 0; memset( send_buff, 0x00, 256 );
+		send_index = 0;
 		SetByte( send_buff, AG_USER_PARTY, send_index );
 		SetByte( send_buff, PARTY_CREATE, send_index );
 		SetShort( send_buff, pParty->wIndex, send_index );
@@ -141,24 +139,24 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 
 	pUser->m_sPartyIndex = m_sPartyIndex;
 
-/*	??? BBS?? ??? ???...
+/*
 	if (pUser->m_bNeedParty == 2 && pUser->m_sPartyIndex != -1) {
-		pUser->m_bNeedParty = 1;	// ?? ?? ??? ????? ??????? ??? ^^;
-		memset( send_buff, 0x00, 256 ); send_index = 0;	
+		pUser->m_bNeedParty = 1;
+		send_index = 0;	
 		SetByte(send_buff, 2, send_index);
 		SetByte(send_buff, pUser->m_bNeedParty, send_index);
 		pUser->StateChange(send_buff);
 	}
 
 	if (m_bNeedParty == 2 && m_sPartyIndex != -1) {
-		m_bNeedParty = 1;	// ?? ?? ??? ????? ??????? ??? ^^;
-		memset( send_buff, 0x00, 256 ); send_index = 0;	
+		m_bNeedParty = 1;
+		send_index = 0;	
 		SetByte(send_buff, 2, send_index);
 		SetByte(send_buff, m_bNeedParty, send_index);
 		StateChange(send_buff);
 	}	
 */
-	send_index = 0; memset( send_buff, 0x00, 256 );
+	send_index = 0;
 	SetByte( send_buff, WIZ_PARTY, send_index );
 	SetByte( send_buff, PARTY_PERMIT, send_index );
 	SetShort( send_buff, m_Sid, send_index );
@@ -173,16 +171,16 @@ fail_return:
 	Send( send_buff, send_index );
 }
 
-void CUser::PartyInsert()	// ?????? ??? ???.  ????? ??Y?? ???°??? ???
+void CUser::PartyInsert()
 {
 	int send_index = 0, i = 0;
 	CUser* pUser = NULL;
 	_PARTY_GROUP* pParty = NULL;
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
+	char send_buff[256];
 	if( m_sPartyIndex == -1 ) return;
 
 	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
-	if( !pParty ) {				// ????? ???
+	if( !pParty ) {	
 		m_sPartyIndex = -1;
 		return;
 	}
@@ -195,7 +193,7 @@ void CUser::PartyInsert()	// ?????? ??? ???.  ????? ??Y?? ???°??? ???
 		if (pUser == NULL)
 			continue;
 
-		memset( send_buff, 0x00, 256 ); send_index = 0;
+		send_index = 0;
 		SetByte( send_buff, WIZ_PARTY, send_index );
 		SetByte( send_buff, PARTY_INSERT, send_index );
 		SetShort( send_buff, pParty->uid[i], send_index );
@@ -226,7 +224,7 @@ void CUser::PartyInsert()	// ?????? ??? ???.  ????? ??Y?? ???°??? ???
 
 	if (pUser->m_bNeedParty == 2 && pUser->m_sPartyIndex != -1) {
 		pUser->m_bNeedParty = 1;
-		memset( send_buff, 0x00, 256 ); send_index = 0;	
+		send_index = 0;	
 		SetByte(send_buff, 2, send_index);
 		SetByte(send_buff, pUser->m_bNeedParty, send_index);
 		pUser->StateChange(send_buff);
@@ -234,13 +232,13 @@ void CUser::PartyInsert()	// ?????? ??? ???.  ????? ??Y?? ???°??? ???
 
 	if (m_bNeedParty == 2 && m_sPartyIndex != -1) {		
 		m_bNeedParty = 1;	
-		memset( send_buff, 0x00, 256 ); send_index = 0;	
+		send_index = 0;	
 		SetByte(send_buff, 2, send_index);
 		SetByte(send_buff, m_bNeedParty, send_index);
 		StateChange(send_buff);
 	}
 
-	memset( send_buff, 0x00, 256 ); send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, WIZ_PARTY, send_index );
 	SetByte( send_buff, PARTY_INSERT, send_index );
 	SetShort( send_buff, m_Sid, send_index );
@@ -255,7 +253,7 @@ void CUser::PartyInsert()	// ?????? ??? ???.  ????? ??Y?? ???°??? ???
 
 	// AI Server
 	BYTE byIndex = i;
-	send_index = 0; memset( send_buff, 0x00, 256 );
+	send_index = 0;
 	SetByte( send_buff, AG_USER_PARTY, send_index );
 	SetByte( send_buff, PARTY_INSERT, send_index );
 	SetShort( send_buff, pParty->wIndex, send_index );
@@ -310,18 +308,18 @@ void CUser::PartyRemove(int memberid)
 			count++;
 		}
 	}
-	if( count == 1 ) {		// ???? ??? ??? ??? ??? ????
+	if( count == 1 ) {
 		PartyDelete();
 		return;
 	}
 
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
+	char send_buff[256]; 
 	SetByte( send_buff, WIZ_PARTY, send_index );
 	SetByte( send_buff, PARTY_REMOVE, send_index );
 	SetShort( send_buff, memberid, send_index );
-	m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );	// ????? ???? ??e??????..??w? ???????? ??Y?? ????.
+	m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );
 
-	for( i=0; i<8; i++ ) {			// ????? ???? ??? ???? ??? ????T???? ????.
+	for( i=0; i<8; i++ ) {
 		if( pParty->uid[i] != -1 ) {
 			if( pParty->uid[i] == memberid ) {
 				pParty->uid[i] = -1;
@@ -333,7 +331,7 @@ void CUser::PartyRemove(int memberid)
 		}
 	}
 	// AI Server
-	send_index = 0; memset( send_buff, 0x00, 256 );
+	send_index = 0;
 	SetByte( send_buff, AG_USER_PARTY, send_index );
 	SetByte( send_buff, PARTY_REMOVE, send_index );
 	SetShort( send_buff, pParty->wIndex, send_index );
@@ -360,13 +358,13 @@ void CUser::PartyDelete()
 		pUser->m_sPartyIndex = -1;
 	}
 
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
+	char send_buff[256];
 	SetByte( send_buff, WIZ_PARTY, send_index );
 	SetByte( send_buff, PARTY_DELETE, send_index );
 	m_pMain->Send_PartyMember( pParty->wIndex, send_buff, send_index );	// ????? ???? ??e??????..
 
 	// AI Server
-	send_index = 0; memset( send_buff, 0x00, 256 );
+	send_index = 0;
 	SetByte( send_buff, AG_USER_PARTY, send_index );
 	SetByte( send_buff, PARTY_DELETE, send_index );
 	SetShort( send_buff, pParty->wIndex, send_index );
@@ -399,7 +397,7 @@ void CUser::PartyBBSRegister(char *pBuf)
 	CUser* pUser = NULL;
 	int index = 0, send_index = 0;	// Basic Initializations. 			
 	BYTE result = 0; short bbs_len = 0;
-	char send_buff[256]; memset(send_buff, NULL, 256);
+	char send_buff[256]; 
 	int i = 0, counter = 0;
 
 	if (m_sPartyIndex != -1) goto fail_return;	// You are already in a party!
@@ -412,7 +410,7 @@ void CUser::PartyBBSRegister(char *pBuf)
 	SetByte(send_buff, m_bNeedParty, send_index);
 	StateChange(send_buff);
 
-	send_index = 0; memset(send_buff, NULL, 256);	// Now, let's find out which page the user is on.
+	send_index = 0; // Now, let's find out which page the user is on.
 	for (i = 0 ; i < MAX_USER ; i++) {
 		pUser = m_pMain->GetUnsafeUserPtr(i);
 		if (pUser == NULL
@@ -444,7 +442,7 @@ void CUser::PartyBBSDelete(char *pBuf)
 {
 	int send_index = 0;	// Basic Initializations. 			
 	BYTE result = 0; 
-	char send_buff[256]; memset( send_buff, NULL, 256);
+	char send_buff[256]; 
 
 	if (m_bNeedParty == 1) goto fail_return;	// You don't need anymore 
 
@@ -455,7 +453,7 @@ void CUser::PartyBBSDelete(char *pBuf)
 	SetByte(send_buff, m_bNeedParty, send_index);
 	StateChange(send_buff);
 
-	send_index = 0; memset(send_buff, NULL, 256);	// Now, let's find out which page the user is on.
+	send_index = 0; // Now, let's find out which page the user is on.
 	SetShort(send_buff, 0, send_index);
 	PartyBBSNeeded(send_buff, PARTY_BBS_DELETE);
 	return;
@@ -473,7 +471,7 @@ void CUser::PartyBBSNeeded(char *pBuf, BYTE type)
 	CUser* pUser = NULL;	// Basic Initializations. 	
 	int index = 0, send_index = 0;				
 	BYTE result = 0; short bbs_len = 0;
-	char send_buff[256]; memset( send_buff, NULL, 256 );
+	char send_buff[256];
 	short page_index = 0; short start_counter = 0; BYTE valid_counter = 0 ;
 	int  i = 0, j = 0; short BBS_Counter = 0;
 	

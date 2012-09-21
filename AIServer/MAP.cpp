@@ -44,7 +44,7 @@ MAP::MAP()
 	m_byRoomEvent = 0;
 	m_byRoomStatus = 1;
 	m_byInitRoomCount = 0;
-	memset( m_MapName, NULL, 256 );
+	memset( m_MapName, NULL, sizeof(m_MapName) );
 	m_sKarusRoom = 0;
 	m_sElmoradRoom = 0;
 //	for(int i=0; i<MAX_DUNGEON_BOSS_MONSTER; i++)
@@ -592,7 +592,6 @@ int MAP::IsRoomCheck(float fx, float fz)
 	// 현재의 존이 던젼인지를 판단, 아니면 리턴처리
 	
 	CRoomEvent* pRoom = NULL;
-	char notify[100]; memset(notify, 0x00, 100);
 
 	int nSize = m_arRoomEventArray.GetSize();
 	int nX = (int)fx;

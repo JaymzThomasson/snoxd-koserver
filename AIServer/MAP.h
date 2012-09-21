@@ -44,7 +44,7 @@ public:
 	CSize			m_sizeRegion;			// ∏ ¿« resion size
 	int m_nZoneNumber;						// zone number
 	int	m_nServerNo;
-	char m_MapName[256];
+	char m_MapName[_MAX_PATH];
 	int			m_nMapSize;		// Grid Unit ex) 4m
 	float		m_fUnitDist;	// i Grid Distance
 	float**		m_fHeight;

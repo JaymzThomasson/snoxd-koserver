@@ -190,6 +190,7 @@ inline bool GetKOString(char* sBuf, char* tBuf, int& index, unsigned int maxLen,
 	if (len > maxLen)
 		return false;
 
+	memset(tBuf, 0, maxLen + 1);
 	GetString(tBuf, sBuf, len, index);
 	return true;
 };
@@ -349,7 +350,7 @@ inline void LogFileWrite( LPCTSTR logstr )
 #elif defined(AUJARD)
 	LogFileName.Format("%s\\Aujard.log", ProgPath);
 #elif defined(LOGIN_SERVER)
-	LogFileName.Format("%s\\Aujard.log", ProgPath);
+	LogFileName.Format("%s\\Login.log", ProgPath);
 #endif
 
 	if (file.Open( LogFileName, CFile::modeCreate|CFile::modeNoTruncate|CFile::modeWrite ))
@@ -366,7 +367,6 @@ inline void LogFileWrite( LPCTSTR logstr )
 inline void _DEBUG_LOG(bool toFile, char * format, ...)
 {
 	char buffer[256];
-	memset(buffer, 0x00, sizeof(buffer));
 
 	va_list args;
 	va_start(args, format);
@@ -404,6 +404,39 @@ inline int DisplayErrorMsg(SQLHANDLE hstmt, char *sql)
 		return -1;
 	else
 		return 0;
+};
+#endif
+
+#if defined(EBENEZER)
+#include <mmsystem.h>
+inline float TimeGet()
+{
+	static bool bInit = false;
+	static bool bUseHWTimer = FALSE;
+	static LARGE_INTEGER nTime, nFrequency;
+	
+	if(bInit == false)
+	{
+		if(TRUE == ::QueryPerformanceCounter(&nTime))
+		{
+			::QueryPerformanceFrequency(&nFrequency);
+			bUseHWTimer = TRUE;
+		}
+		else 
+		{
+			bUseHWTimer = FALSE;
+		}
+
+		bInit = true;
+	}
+
+	if(bUseHWTimer)
+	{
+		::QueryPerformanceCounter(&nTime);
+		return (float)((double)(nTime.QuadPart)/(double)nFrequency.QuadPart);
+	}
+
+	return (float)timeGetTime();
 };
 #endif
 #endif

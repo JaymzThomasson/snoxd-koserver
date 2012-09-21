@@ -5,12 +5,9 @@
 
 void CUser::NewCharToAgent(char *pBuf)
 {
-	int index = 0, idlen = 0, send_index = 0, retvalue = 0;
+	int index = 0, send_index = 0, retvalue = 0;
 	int charindex = 0, race = 0, Class = 0, hair = 0, face = 0, str = 0, sta = 0, dex = 0, intel = 0, cha = 0;
-	char charid[MAX_ID_SIZE+1];
-	memset( charid, NULL, MAX_ID_SIZE+1 );
-	char send_buff[256];
-	memset( send_buff, NULL, 256);
+	char charid[MAX_ID_SIZE+1], send_buff[256];
 	BYTE result;
 	int sum = 0;
 	_CLASS_COEFFICIENT* p_TableCoefficient = NULL;
@@ -91,26 +88,14 @@ fail_return:
 
 void CUser::DelCharToAgent(char *pBuf)
 {
-	int index = 0, idlen = 0, send_index = 0, retvalue = 0;
-	int charindex = 0, soclen = 0;
-	char charid[MAX_ID_SIZE+1];
-	char socno[15];
-	memset( charid, NULL, MAX_ID_SIZE+1 );
-	memset( socno, NULL, 15 );
-	char send_buff[256];
-	memset( send_buff, NULL, 256);
+	int index = 0, send_index = 0, retvalue = 0, charindex = 0;
+	char charid[MAX_ID_SIZE+1], socno[15], send_buff[256];
 
 	charindex = GetByte( pBuf, index );
-	if( charindex > 4 )	goto fail_return;
-	idlen = GetShort( pBuf, index );
-	if( idlen > MAX_ID_SIZE || idlen <= 0 )	goto fail_return;
-	GetString( charid, pBuf, idlen, index );
-	soclen = GetShort( pBuf, index );
-	// sungyong tw
-	//if( soclen != 14 ) goto fail_return;
-	if( soclen > 14 || soclen <= 0 ) goto fail_return;
-	// ~sungyong tw
-	GetString( socno, pBuf, soclen, index );
+	if (charindex > 2
+		|| !GetKOString(pBuf, charid, index, MAX_ID_SIZE)
+		|| !GetKOString(pBuf, socno, index, sizeof(socno) - 1))
+		goto fail_return;
 
 	if( m_pUserData->m_bKnights > 0 && m_pUserData->m_bFame == CHIEF)	goto fail_return;	
 
@@ -139,21 +124,20 @@ fail_return:
 
 void CUser::RecvDeleteChar( char* pBuf )
 {
-	int nResult = 0, nLen = 0, index = 0, send_index = 0, char_index = 0, nKnights = 0;
-	char strCharID[MAX_ID_SIZE+1];	memset( strCharID, 0x00, MAX_ID_SIZE+1 );
-	char send_buff[256];			memset( send_buff, 0x00, 256 );
+	int nResult = 0, index = 0, send_index = 0, char_index = 0, nKnights = 0;
+	char strCharID[MAX_ID_SIZE+1], send_buff[256];
 
 	nResult = GetByte( pBuf, index );
 	char_index = GetByte( pBuf, index );
 	nKnights = GetShort( pBuf, index );
-	nLen = GetShort( pBuf, index );
-	GetString( strCharID, pBuf, nLen, index );
+	if (!GetKOString(pBuf, strCharID, index, MAX_ID_SIZE))
+		return;
 
 	if( nResult == 1 && nKnights != 0 )	{
 		m_pMain->m_KnightsManager.RemoveKnightsUser( nKnights, strCharID );
 		TRACE("RecvDeleteChar ==> name=%s, knights=%d\n", strCharID, nKnights );
 
-		memset( send_buff, 0x00, 128 );		send_index = 0;
+		send_index = 0;
 		SetByte( send_buff, UDP_KNIGHTS_PROCESS, send_index );
 		SetByte( send_buff, KNIGHTS_WITHDRAW, send_index );
 		SetShort( send_buff, nKnights, send_index );
@@ -164,7 +148,7 @@ void CUser::RecvDeleteChar( char* pBuf )
 			m_pMain->Send_UDP_All( send_buff, send_index, 1 );
 	}
 
-	memset( send_buff, 0x00, 128 );		send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, WIZ_DEL_CHAR, send_index );
 	SetByte( send_buff, nResult, send_index );	
 	SetByte( send_buff, char_index, send_index );
@@ -177,7 +161,6 @@ void CUser::SelNationToAgent(char *pBuf)
 	int index = 0, send_index = 0, retvalue = 0;
 	int nation = 0;
 	char send_buff[256];
-	memset( send_buff, NULL, 256);
 
 	nation = GetByte( pBuf, index );
 	if( nation > 2 )
@@ -204,11 +187,7 @@ fail_return:
 void CUser::SelCharToAgent(char *pBuf)
 {
 	int index = 0, send_index = 0, retvalue = 0;
-	char userid[MAX_ID_SIZE+1], accountid[MAX_ID_SIZE+1];
-	memset( userid, NULL, MAX_ID_SIZE+1 );
-	memset( accountid, NULL, MAX_ID_SIZE+1 );
-	char send_buff[256];
-	memset( send_buff, NULL, 256);
+	char userid[MAX_ID_SIZE+1], accountid[MAX_ID_SIZE+1], send_buff[256];
 	CUser* pUser = NULL;
 	CTime t = CTime::GetCurrentTime();
 	BYTE	bInit = 0x01;
@@ -254,8 +233,8 @@ fail_return:
 void CUser::SelectCharacter(char *pBuf)
 {
 	int index = 0, send_index = 0, zoneindex = -1, retvalue = 0;
-	char send_buff[MAX_SEND_SIZE];
-	memset(send_buff, NULL, sizeof(send_buff));
+	char send_buff[10];
+	
 	BYTE result, bInit;
 	C3DMap* pMap = NULL;
 	_ZONE_SERVERINFO *pInfo	= NULL;
@@ -349,7 +328,7 @@ void CUser::SelectCharacter(char *pBuf)
 			}
 			else	{
 				//TRACE("SelectCharacter - ???? ????T ??û,, id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
-				memset( send_buff, 0x00, 256);	send_index = 0;
+				send_index = 0;
 				SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
 				SetByte( send_buff, KNIGHTS_LIST_REQ+0x10, send_index );
 				SetShort( send_buff, GetSocketID(), send_index );
@@ -397,8 +376,7 @@ fail_return:
 void CUser::AllCharInfoToAgent()
 {
 	int send_index = 0, retvalue = 0;
-	char send_buff[256];
-	memset( send_buff, NULL, 256);
+	char send_buff[32];
 
 	SetByte( send_buff, WIZ_ALLCHAR_INFO_REQ, send_index );
 	SetShort( send_buff, m_Sid, send_index );
@@ -406,7 +384,7 @@ void CUser::AllCharInfoToAgent()
 
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
 	if( retvalue >= SMQ_FULL ) {
-		memset( send_buff, NULL, 256); send_index = 0;
+		send_index = 0;
 		SetByte( send_buff, WIZ_ALLCHAR_INFO_REQ, send_index );
 		SetByte( send_buff, 0xFF, send_index );
 		
@@ -419,7 +397,6 @@ void CUser::SetLogInInfoToDB(BYTE bInit)
 {
 	int index = 0, send_index = 0, retvalue = 0, addrlen = 20;
 	char send_buff[256], strClientIP[20];
-	memset( send_buff, NULL, 256); memset( strClientIP, 0x00, 20 );
 	_ZONE_SERVERINFO *pInfo	= NULL;
 	struct sockaddr_in addr;
 
@@ -432,7 +409,7 @@ void CUser::SetLogInInfoToDB(BYTE bInit)
 	}
 
 	getpeername(m_Socket, (struct sockaddr*)&addr, &addrlen );
-	strcpy( strClientIP, inet_ntoa(addr.sin_addr) );
+	strcpy_s( strClientIP, sizeof(strClientIP),inet_ntoa(addr.sin_addr) );
 
 	SetByte(send_buff, WIZ_LOGIN_INFO, send_index);
 
@@ -445,11 +422,8 @@ void CUser::SetLogInInfoToDB(BYTE bInit)
 	SetByte(send_buff, bInit, send_index);
 
 	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if( retvalue >= SMQ_FULL ) {
-		char logstr[256]; memset( logstr, 0x00, 256 );
-		sprintf( logstr, "UserInfo Send Fail : %d", retvalue);
-		m_pMain->m_StatusList.AddString(logstr);
-	}
+	if( retvalue >= SMQ_FULL )
+		m_pMain->AddToList("UserInfo Send Fail : %d", retvalue);
 }
 
 // This packet actually contains the char name after the opcode

@@ -34,7 +34,7 @@ CNpcMagicProcess::~CNpcMagicProcess()
 void CNpcMagicProcess::MagicPacket(char *pBuf, int len, CIOCPort* pIOCP)
 {
 	int index = 0, send_index = 0, magicid = 0, sid = -1, tid = -1, data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0;
-	char send_buff[128]; memset( send_buff, NULL, 128 );
+	char send_buff[128];
 	_MAGIC_TABLE* pTable = NULL;
 	
 	BYTE command = GetByte( pBuf, index );		// Get the magic status.  
@@ -146,7 +146,6 @@ _MAGIC_TABLE* CNpcMagicProcess::IsAvailable(int magicid, int tid, BYTE type )
 	int modulator = 0, Class = 0, send_index = 0, moral = 0;
 
 	char send_buff[128];
-	memset( send_buff, NULL, 128); 
 	if( !m_pSrcNpc ) return FALSE;
 
 	pTable = m_pMain->m_MagictableArray.GetData( magicid );     // Get main magic table.
@@ -224,7 +223,7 @@ _MAGIC_TABLE* CNpcMagicProcess::IsAvailable(int magicid, int tid, BYTE type )
 	return pTable;      // Magic was successful! 
 
 fail_return:    // In case the magic failed. 
-	memset( send_buff, NULL, 128 ); send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
 	SetByte( send_buff, MAGIC_FAIL, send_index );
 	SetDWORD( send_buff, magicid, send_index );
@@ -264,7 +263,7 @@ void CNpcMagicProcess::ExecuteType2(int magicid, int tid, int data1, int data2, 
 void CNpcMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int data3, int moral )  // Applied when a magical attack, healing, and mana restoration is done.
 {	
 	int damage = 0, result = 1, send_index=0, attack_type = 0; 
-	char send_buff[256];	memset(send_buff, 0x00, 256);
+	char send_buff[256];
 	_MAGIC_TYPE3* pType = NULL;
 	CNpc* pNpc = NULL ;      // Pointer initialization!
 	int dexpoint = 0;
@@ -333,22 +332,6 @@ packet_send:
 		SetShort( send_buff, 0, send_index );
 		m_pSrcNpc->SendAll(&m_pMain->m_Iocport, send_buff, send_index);
 	}
-
-/*	int send_index = 0, result = 1;
-	char send_buff[256];
-	memset( send_buff, NULL, 256); 
-	SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
-	SetByte( send_buff, MAGIC_EFFECTING, send_index );
-	SetDWORD( send_buff, magicid, send_index );
-	SetShort( send_buff, m_pSrcNpc->m_sNid+NPC_BAND, send_index );
-	SetShort( send_buff, tid, send_index );
-	SetShort( send_buff, data1, send_index );	
-	SetShort( send_buff, result, send_index );	
-	SetShort( send_buff, data3, send_index );	
-	SetShort( send_buff, moral, send_index );
-	SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
-	m_pSrcNpc->SendAll(&m_pMain->m_Iocport, send_buff, send_index);	*/
 }
 
 void CNpcMagicProcess::ExecuteType4(int magicid, int tid)

@@ -67,8 +67,6 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 	int recvlen = 0, index = 0, uid = -1, send_index = 0, buff_length = 0;
 	BYTE command, result;
 	char pBuf[1024], send_buff[1024];
-	memset( pBuf, NULL, 1024 );
-	memset( send_buff, NULL, 1024 );
 	CUser* pUser = NULL;
 	int currenttime = 0;
 
@@ -178,9 +176,7 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 
 loop_pass:
 		recvlen = 0;
-		memset( pBuf, NULL, 1024 );
 		send_index = 0;
-		memset( send_buff, NULL, 1024 );
 	}
 }
 
@@ -312,12 +308,12 @@ BOOL CEbenezerDlg::OnInitDialog()
 	//	Logfile initialize
 	//----------------------------------------------------------------------
 	CTime cur = CTime::GetCurrentTime();
-	char strLogFile[50];		memset(strLogFile, 0x00, 50);
-	wsprintf(strLogFile, "RegionLog-%d-%d-%d.txt", cur.GetYear(), cur.GetMonth(), cur.GetDay());
+	char strLogFile[50];
+	sprintf_s(strLogFile, sizeof(strLogFile), "RegionLog-%d-%d-%d.txt", cur.GetYear(), cur.GetMonth(), cur.GetDay());
 	m_RegionLogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
 	m_RegionLogFile.SeekToEnd();
 
-	wsprintf(strLogFile, "PacketLog-%d-%d-%d.txt", cur.GetYear(), cur.GetMonth(), cur.GetDay());
+	sprintf_s(strLogFile, sizeof(strLogFile), "PacketLog-%d-%d-%d.txt", cur.GetYear(), cur.GetMonth(), cur.GetDay());
 	m_LogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
 	m_LogFile.SeekToEnd();
 
@@ -703,7 +699,6 @@ void CEbenezerDlg::DeleteParty(short sIndex)
 void CEbenezerDlg::AddToList(const char * format, ...)
 {
 	char buffer[256];
-	memset(buffer, 0x00, sizeof(buffer));
 
 	va_list args;
 	va_start(args, format);
@@ -720,7 +715,6 @@ void CEbenezerDlg::AddToList(const char * format, ...)
 void CEbenezerDlg::WriteLog(const char * format, ...)
 {
 	char buffer[256];
-	memset(buffer, 0x00, sizeof(buffer));
 
 	va_list args;
 	va_start(args, format);
@@ -825,9 +819,6 @@ BOOL CEbenezerDlg::AISocketConnect(int zone, int flag)
 	CAISocket* pAISock = NULL;
 	int send_index = 0;
 	char pBuf[128];
-	memset( pBuf, NULL, 128 );
-
-	//if( m_nServerNo == 3 ) return FALSE;
 
 	pAISock = m_AISocketArray.GetData( zone );
 	if( pAISock ) {
@@ -1625,7 +1616,7 @@ BOOL CEbenezerDlg::LoadLevelUpTable()
 void CEbenezerDlg::GetTimeFromIni()
 {
 	int year=0, month=0, date=0, hour=0, server_count=0, sgroup_count = 0, i=0;
-	char ipkey[20]; memset( ipkey, 0x00, 20 );
+	char ipkey[20];
 
 	if (!ConnectToDatabase())
 	{
@@ -1750,7 +1741,6 @@ void CEbenezerDlg::UpdateWeather()
 {
 	int weather = 0, result = 0, send_index = 0;
 	char send_buff[256];
-	memset( send_buff, NULL, 256 );
 
 	result = myrand( 0, 100 );
 
@@ -1794,8 +1784,6 @@ void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 
 	int region_x = -1, region_z = -1, user_count = 0, uid = -1;
 	char buff[16384], send_buff[49152];
-	memset( buff, NULL, 16384 );
-	memset( send_buff, NULL, 49152 );
 
 	if( !pSendUser ) return;
 
@@ -1803,11 +1791,11 @@ void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ;			// CENTER
 	buff_index = GetRegionUserIn( pMap, region_x, region_z, buff, t_count );
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 16384 );
+
 	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ - 1;	// NORTH WEST
 	buff_index = GetRegionUserIn( pMap, region_x, region_z, buff, t_count );
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 16384 );
+
 	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ - 1;		// NORTH
 	buff_index = GetRegionUserIn( pMap, region_x, region_z, buff, t_count );
 	prev_index = buff_index + send_index;
@@ -1816,7 +1804,7 @@ void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 		return;
 	}
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 16384 );
+
 	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ - 1;	// NORTH EAST
 	buff_index = GetRegionUserIn( pMap, region_x, region_z, buff, t_count );
 	prev_index = buff_index + send_index;
@@ -1825,7 +1813,7 @@ void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 		return;
 	}
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 16384 );
+
 	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ;		// WEST
 	buff_index = GetRegionUserIn( pMap, region_x, region_z, buff, t_count );
 	prev_index = buff_index + send_index;
@@ -1834,7 +1822,7 @@ void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 		return;
 	}
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 16384 );
+
 	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ;		// EAST
 	buff_index = GetRegionUserIn( pMap, region_x, region_z, buff, t_count );
 	prev_index = buff_index + send_index;
@@ -1843,7 +1831,7 @@ void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 		return;
 	}
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 16384 );
+
 	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ + 1;	// SOUTH WEST
 	buff_index = GetRegionUserIn( pMap, region_x, region_z, buff, t_count );
 	prev_index = buff_index + send_index;
@@ -1852,7 +1840,7 @@ void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 		return;
 	}
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 16384 );
+
 	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ + 1;		// SOUTH
 	buff_index = GetRegionUserIn( pMap, region_x, region_z, buff, t_count );
 	prev_index = buff_index + send_index;
@@ -1861,7 +1849,7 @@ void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 		return;
 	}
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 16384 );
+
 	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ + 1;	// SOUTH EAST
 	buff_index = GetRegionUserIn( pMap, region_x, region_z, buff, t_count );
 	prev_index = buff_index + send_index;
@@ -1885,8 +1873,6 @@ void CEbenezerDlg::RegionUserInOutForMe(CUser *pSendUser)
 	ASSERT(pMap != NULL);
 	int region_x = -1, region_z = -1, user_count = 0, uid_sendindex = 0;
 	char uid_buff[2048], send_buff[16384];
-	memset( uid_buff, NULL, 2048 );
-	memset( send_buff, NULL, 16384 );
 
 	if( !pSendUser ) return;
 
@@ -1895,42 +1881,34 @@ void CEbenezerDlg::RegionUserInOutForMe(CUser *pSendUser)
 	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ;			// CENTER
 	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
 	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-	memset( uid_buff, NULL, 2048 );
 
 	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ - 1;	// NORTH WEST
 	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
 	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-	memset( uid_buff, NULL, 2048 );
 	
 	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ - 1;		// NORTH
 	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
 	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-	memset( uid_buff, NULL, 2048 );
 
 	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ - 1;	// NORTH EAST
 	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
 	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-	memset( uid_buff, NULL, 2048 );
 
 	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ;		// WEST
 	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
 	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-	memset( uid_buff, NULL, 2048 );
 
 	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ;		// EAST
 	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
 	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-	memset( uid_buff, NULL, 2048 );
 
 	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ + 1;	// SOUTH WEST
 	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
 	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-	memset( uid_buff, NULL, 2048 );
 
 	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ + 1;		// SOUTH
 	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
 	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-	memset( uid_buff, NULL, 2048 );
 
 	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ + 1;	// SOUTH EAST
 	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
@@ -2008,8 +1986,6 @@ void CEbenezerDlg::NpcInOutForMe( CUser* pSendUser )
 	ASSERT(pMap != NULL);
 	int region_x = -1, region_z = -1, npc_count = 0, nid = -1;
 	char buff[8192], send_buff[32768];
-	memset( buff, NULL, 8192 );
-	memset( send_buff, NULL, 32768 );
 
 	if( !pSendUser ) return;
 
@@ -2017,35 +1993,35 @@ void CEbenezerDlg::NpcInOutForMe( CUser* pSendUser )
 	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ;			// CENTER
 	buff_index = GetRegionNpcIn( pMap, region_x, region_z, buff, t_count );
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 8192 );
+
 	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ - 1;	// NORTH WEST
 	buff_index = GetRegionNpcIn( pMap, region_x, region_z, buff, t_count );
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 8192 );
+
 	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ - 1;		// NORTH
 	buff_index = GetRegionNpcIn( pMap, region_x, region_z, buff, t_count );
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 8192 );
+
 	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ - 1;	// NORTH EAST
 	buff_index = GetRegionNpcIn( pMap, region_x, region_z, buff, t_count );
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 8192 );
+
 	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ;		// WEST
 	buff_index = GetRegionNpcIn( pMap, region_x, region_z, buff, t_count );
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 8192 );
+
 	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ;		// EAST
 	buff_index = GetRegionNpcIn( pMap, region_x, region_z, buff, t_count );
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 8192 );
+
 	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ + 1;	// SOUTH WEST
 	buff_index = GetRegionNpcIn( pMap, region_x, region_z, buff, t_count );
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 8192 );
+
 	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ + 1;		// SOUTH
 	buff_index = GetRegionNpcIn( pMap, region_x, region_z, buff, t_count );
 	SetString( send_buff, buff, buff_index, send_index );
-	memset( buff, NULL, 8192 );
+
 	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ + 1;	// SOUTH EAST
 	buff_index = GetRegionNpcIn( pMap, region_x, region_z, buff, t_count );
 	SetString( send_buff, buff, buff_index, send_index );
@@ -2092,8 +2068,6 @@ void CEbenezerDlg::RegionNpcInfoForMe(CUser *pSendUser)
 	ASSERT(pMap != NULL);
 	int region_x = -1, region_z = -1, npc_count = 0, nid_sendindex = 0;
 	char nid_buff[1024], send_buff[8192];
-	memset( nid_buff, NULL, 1024 );
-	memset( send_buff, NULL, 8192 );
 	CString string;
 
 	if( !pSendUser ) return;
@@ -2103,42 +2077,34 @@ void CEbenezerDlg::RegionNpcInfoForMe(CUser *pSendUser)
 	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ;			// CENTER
 	buff_index = GetRegionNpcList( pMap, region_x, region_z, nid_buff, npc_count );
 	SetString( send_buff, nid_buff, buff_index, nid_sendindex );
-	memset( nid_buff, NULL, 1024 );
 
 	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ - 1;	// NORTH WEST
 	buff_index = GetRegionNpcList( pMap, region_x, region_z, nid_buff, npc_count );
 	SetString( send_buff, nid_buff, buff_index, nid_sendindex );
-	memset( nid_buff, NULL, 1024 );
 	
 	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ - 1;		// NORTH
 	buff_index = GetRegionNpcList( pMap, region_x, region_z, nid_buff, npc_count );
 	SetString( send_buff, nid_buff, buff_index, nid_sendindex );
-	memset( nid_buff, NULL, 1024 );
 
 	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ - 1;	// NORTH EAST
 	buff_index = GetRegionNpcList( pMap, region_x, region_z, nid_buff, npc_count );
 	SetString( send_buff, nid_buff, buff_index, nid_sendindex );
-	memset( nid_buff, NULL, 1024 );
 
 	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ;		// WEST
 	buff_index = GetRegionNpcList( pMap, region_x, region_z, nid_buff, npc_count );
 	SetString( send_buff, nid_buff, buff_index, nid_sendindex );
-	memset( nid_buff, NULL, 1024 );
 
 	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ;		// EAST
 	buff_index = GetRegionNpcList( pMap, region_x, region_z, nid_buff, npc_count );
 	SetString( send_buff, nid_buff, buff_index, nid_sendindex );
-	memset( nid_buff, NULL, 1024 );
 
 	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ + 1;	// SOUTH WEST
 	buff_index = GetRegionNpcList( pMap, region_x, region_z, nid_buff, npc_count );
 	SetString( send_buff, nid_buff, buff_index, nid_sendindex );
-	memset( nid_buff, NULL, 1024 );
 
 	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ + 1;		// SOUTH
 	buff_index = GetRegionNpcList( pMap, region_x, region_z, nid_buff, npc_count );
 	SetString( send_buff, nid_buff, buff_index, nid_sendindex );
-	memset( nid_buff, NULL, 1024 );
 
 	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ + 1;	// SOUTH EAST
 	buff_index = GetRegionNpcList( pMap, region_x, region_z, nid_buff, npc_count );
@@ -2179,10 +2145,7 @@ int CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, int region_x, int region_z, cha
 
 BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg) 
 {
-	char buff[1024];
-	memset( buff, 0x00, 1024 );
-	char chatstr[256], killstr[256];
-	memset( chatstr, 0x00, 256 ); memset( killstr, 0x00, 256 );
+	char buff[1024], chatstr[256], killstr[256];
 	int chatlen = 0, buffindex = 0;
 	_ZONE_SERVERINFO *pInfo	= NULL;
 
@@ -2279,7 +2242,7 @@ BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg)
 				return TRUE;
 			}			
 
-			char finalstr[512]; memset(finalstr, NULL, 512);
+			char finalstr[512];
 			if (m_bPermanentChatFlag)
 				_snprintf(finalstr, sizeof(finalstr), "- %s -", chatstr);
 			else
@@ -2304,7 +2267,6 @@ BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg)
 			Send_All( buff, buffindex );
 
 			buffindex = 0;
-			memset( buff, 0x00, 1024 );
 			SetByte( buff, STS_CHAT, buffindex );
 			SetKOString( buff, finalstr, buffindex );
 
@@ -2562,24 +2524,10 @@ void CEbenezerDlg::BattleZoneOpenTimer()
 	// sungyong modify
 	int nWeek = cur.GetDayOfWeek();
 	int nTime = cur.GetHour();
-	char send_buff[128];	memset(send_buff, 0x00, 128);
+	char send_buff[128];
 	int send_index = 0, loser_nation = 0, snow_battle = 0;
 	CUser* pKarusUser = NULL;
 	CUser* pElmoUser = NULL;
-
-/*	if( m_byBattleOpen == NO_BATTLE )	{	// When Battlezone is closed, open it!
-		if( nWeek == m_nBattleZoneOpenWeek && nTime == m_nBattleZoneOpenHourStart )	{	// 수요일, 20시에 전쟁존 open
-			TRACE("전쟁 자동 시작 - week=%d, time=%d\n", nWeek, nTime);
-			BattleZoneOpen(BATTLEZONE_OPEN);
-//			KickOutZoneUsers(ZONE_FRONTIER);	// Kick out users in frontier zone.
-		}
-	}
-	else {	  // When Battlezone is open, close it!
-		if( nWeek == (m_nBattleZoneOpenWeek+1) && nTime == m_nBattleZoneOpenHourEnd )	{	// 목요일, 0시에 전쟁존 close
-			TRACE("전쟁 자동 종료 - week=%d, time=%d\n", nWeek, nTime);
-			m_byBanishFlag = 1;
-		}
-	}	*/
 
 	if( m_byBattleOpen == NATION_BATTLE )		BattleZoneCurrentUsers();
 
@@ -2588,11 +2536,8 @@ void CEbenezerDlg::BattleZoneOpenTimer()
 			m_byBattleOpen = NO_BATTLE;
 			m_byKarusOpenFlag = 0;		// 카루스 땅으로 넘어갈 수 없도록
 			m_byElmoradOpenFlag = 0;	// 엘모 땅으로 넘어갈 수 없도록
-			memset( m_strKarusCaptain, 0x00, MAX_ID_SIZE+1 );
-			memset( m_strElmoradCaptain, 0x00, MAX_ID_SIZE+1 );
-			TRACE("전쟁 종료 0단계\n");
 			if( m_nServerNo == KARUS )	{
-				memset(send_buff, 0x00, 128);		send_index = 0;
+				send_index = 0;
 				SetByte( send_buff, UDP_BATTLE_EVENT_PACKET, send_index );
 				SetByte( send_buff, BATTLE_EVENT_KILL_USER, send_index );
 				SetByte( send_buff, 1, send_index );						// karus의 정보 전송
@@ -2651,8 +2596,7 @@ void CEbenezerDlg::BattleZoneOpenTimer()
 void CEbenezerDlg::BattleZoneOpen( int nType )
 {
 	int send_index = 0;
-	char send_buff[1024]; memset( send_buff, NULL, 1024 );
-	char strLogFile[100]; memset( strLogFile, NULL, 100 );
+	char send_buff[1024], strLogFile[100];
 	CTime time = CTime::GetCurrentTime();
 
 	if( nType == BATTLEZONE_OPEN ) {				// Open battlezone.
@@ -2662,7 +2606,7 @@ void CEbenezerDlg::BattleZoneOpen( int nType )
 	else if( nType == SNOW_BATTLEZONE_OPEN ) {		// Open snow battlezone.
 		m_byBattleOpen = SNOW_BATTLE;	
 		m_byOldBattleOpen = SNOW_BATTLE;
-		wsprintf(strLogFile, "EventLog-%d-%d-%d.txt", time.GetYear(), time.GetMonth(), time.GetDay());
+		sprintf_s(strLogFile, sizeof(strLogFile), "EventLog-%d-%d-%d.txt", time.GetYear(), time.GetMonth(), time.GetDay());
 		m_EvnetLogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
 		m_EvnetLogFile.SeekToEnd();
 	}
@@ -2673,10 +2617,9 @@ void CEbenezerDlg::BattleZoneOpen( int nType )
 	else return;
 
 	Announcement(nType);	// Send an announcement out that the battlezone is open/closed.
-//
+
 	KickOutZoneUsers(ZONE_FRONTIER);
-//
-	memset( send_buff, NULL, 1024 );
+
 	SetByte( send_buff, AG_BATTLE_EVENT, send_index );		// Send packet to AI server.
 	SetByte( send_buff, BATTLE_EVENT_OPEN, send_index );
 	SetByte( send_buff, nType, send_index );
@@ -2709,17 +2652,15 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 
 void CEbenezerDlg::BanishLosers()
 {
-	int zoneindex = -1, send_index = 0;;
-	C3DMap* pMap = NULL;
-	char send_buff[256];	memset( send_buff, 0x00, 256 );
-
+	int zoneindex = -1, send_index = 0;
+	char send_buff[256];
 
 	for (int i = 0 ; i < MAX_USER ; i++) {				// EVACUATION PROCEDURE FOR LOSERS !!!		
 		CUser *pTUser = GetUnsafeUserPtr(i); 
 		if (pTUser == NULL) continue;	
 		if ( pTUser->m_pUserData->m_bFame == COMMAND_CAPTAIN )	{
 			pTUser->m_pUserData->m_bFame = CHIEF;
-			send_index = 0;		memset( send_buff, 0x00, 256 );
+			send_index = 0;
 			SetByte( send_buff, WIZ_AUTHORITY_CHANGE, send_index );
 			SetByte( send_buff, COMMAND_AUTHORITY, send_index );
 			SetShort( send_buff, pTUser->GetSocketID(), send_index );
@@ -2758,10 +2699,8 @@ void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 {
 	int send_index = 0;
 
-	char chatstr[1024]; memset( chatstr, NULL, 1024 );
-	char finalstr[1024]; memset( finalstr, NULL, 1024 );
-	char send_buff[1024]; memset( send_buff, NULL, 1024 );
-	
+	char chatstr[1024], finalstr[1024], send_buff[1024]; 
+
 	switch(type) {
 		case BATTLEZONE_OPEN:
 		case SNOW_BATTLEZONE_OPEN:
@@ -3355,16 +3294,8 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 	CKnights* pKnights = NULL;
 	CString strKnightsName;
 
-	char send_buff[1024];		memset( send_buff, 0x00, 1024 );
-	char temp_buff[1024];		memset( temp_buff, 0x00, 1024 );
-	char strKarusCaptainName[1024];		memset( strKarusCaptainName, 0x00, 1024 );
-	char strElmoCaptainName[1024];		memset( strElmoCaptainName, 0x00, 1024 );
-	char strKarusCaptain[5][50];	
-	char strElmoCaptain[5][50];	
-	for( int i=0; i<5; i++)	{
-		memset( strKarusCaptain[i], 0x00, 50 );
-		memset( strElmoCaptain[i], 0x00, 50 );
-	}
+	char send_buff[1024], temp_buff[1024], strKarusCaptainName[1024], strElmoCaptainName[1024];		
+	char strKarusCaptain[5][50], strElmoCaptain[5][50];	
 
 	if( !KRankSet.Open() ) {
 		ConnectToDatabase(true);
@@ -3387,59 +3318,45 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 		pKnights = m_KnightsArray.GetData( nKnightsIndex );
 		strKnightsName = KRankSet.m_strName;
 		strKnightsName.TrimRight();
-		if( !pKnights )	{
-			KRankSet.MoveNext();
-			continue;
-		}
-		if( pKnights->m_byNation == KARUS )	{
-			if( nKaursRank == 5 )	{
-				KRankSet.MoveNext();
-				continue;			
-			}	
+		if (pKnights == NULL)
+			goto next_row;
+
+		if (pKnights->m_byNation == KARUS)
+		{
+			if(nKaursRank == 5)
+				goto next_row;
+			
 			pUser = GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
-			if( !pUser )	{
-				KRankSet.MoveNext();
-				continue;
-			}
-			if( pUser->m_pUserData->m_bZone != ZONE_BATTLE )	{
-				KRankSet.MoveNext();
-				continue;
-			}
+			if (pUser == NULL || pUser->getZoneID() != ZONE_BATTLE)
+				goto next_row;
+
 			if( pUser->m_pUserData->m_bKnights == nKnightsIndex	)	{
 				pUser->m_pUserData->m_bFame = COMMAND_CAPTAIN;
-				sprintf( strKarusCaptain[nKaursRank], "[%s][%s]", strKnightsName, pUser->m_pUserData->m_id);
+				sprintf_s( strKarusCaptain[nKaursRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData->m_id);
 				nKaursRank++;
 				nFindKarus = 1;
-				memset( send_buff, NULL, 1024 );	send_index = 0;
+				send_index = 0;
 				SetByte( send_buff, WIZ_AUTHORITY_CHANGE, send_index );
 				SetByte( send_buff, COMMAND_AUTHORITY, send_index );
 				SetShort( send_buff, pUser->GetSocketID(), send_index );
 				SetByte( send_buff, pUser->m_pUserData->m_bFame, send_index );
 				Send_Region( send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ );
 
-				memset( send_buff, NULL, 1024 );	send_index = 0;
+				send_index = 0;
 			}
 		}
 		else if( pKnights->m_byNation == ELMORAD )	{
-			if( nElmoRank == 5 )	{
-				KRankSet.MoveNext();
-				continue;
-			}
+			if (nElmoRank == 5)
+				goto next_row;
 			pUser = GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
-			if( !pUser )	{
-				KRankSet.MoveNext();
-				continue;
-			}
-			if( pUser->m_pUserData->m_bZone != ZONE_BATTLE )	{
-				KRankSet.MoveNext();
-				continue;
-			}
+			if (pUser == NULL || pUser->getZoneID() != ZONE_BATTLE)
+				goto next_row;
 			if( pUser->m_pUserData->m_bKnights == nKnightsIndex	)	{
 				pUser->m_pUserData->m_bFame = COMMAND_CAPTAIN;
-				sprintf( strElmoCaptain[nElmoRank], "[%s][%s]", strKnightsName, pUser->m_pUserData->m_id);
+				sprintf_s( strElmoCaptain[nElmoRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData->m_id);
 				nFindElmo = 1;
 				nElmoRank++;
-				memset( send_buff, NULL, 1024 );	send_index = 0;
+				send_index = 0;
 				SetByte( send_buff, WIZ_AUTHORITY_CHANGE, send_index );
 				SetByte( send_buff, COMMAND_AUTHORITY, send_index );
 				SetShort( send_buff, pUser->GetSocketID(), send_index );
@@ -3448,6 +3365,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 			}
 		}
 		
+next_row:
 		KRankSet.MoveNext();
 	}
 
@@ -3489,7 +3407,7 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 	if (pMap == NULL || m_nServerNo != pMap->m_nServerNo)
 		return;
 
-	char send_buff[128];	memset( send_buff, 0x00, 128 );
+	char send_buff[128];
 	int nKarusMan = 0, nElmoradMan = 0, send_index = 0;
 
 	for (int i = 0; i < MAX_USER; i++)
@@ -3518,18 +3436,15 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 
 void CEbenezerDlg::FlySanta()
 {
-	int send_index = 0;
-	char send_buff[128];	memset( send_buff, 0x00, 128 );	
-
-	SetByte( send_buff, WIZ_SANTA, send_index );
-	Send_All( send_buff, send_index );
+	char send_buff[] = { WIZ_SANTA };
+	Send_All(send_buff, 1);
 } 
 
 void CEbenezerDlg::WriteEventLog( char* pBuf )
 {
-	char strLog[256];	memset(strLog, 0x00, 256);
+	char strLog[256];
 	CTime t = CTime::GetCurrentTime();
-	wsprintf(strLog, "%d:%d-%d : %s \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), pBuf);
+	sprintf_s(strLog, sizeof(strLog), "%d:%d-%d : %s \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), pBuf);
 	EnterCriticalSection( &g_LogFile_critical );
 	m_EvnetLogFile.Write( strLog, strlen(strLog) );
 	LeaveCriticalSection( &g_LogFile_critical );

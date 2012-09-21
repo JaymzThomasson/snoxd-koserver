@@ -28,9 +28,7 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 	int recvlen = 0, index = 0;
 	BYTE command;
 	char recv_buff[1024];
-	memset( recv_buff, NULL, 1024 );
 	CString string;
-	//char logstr[256];
 
 	while(TRUE) {
 		if( pMain->m_LoggerRecvQueue.GetFrontMode() != R ) {
@@ -87,7 +85,6 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 			}
 
 			recvlen = 0;
-			memset( recv_buff, NULL, 1024 );
 		}
 	}
 }
@@ -146,8 +143,8 @@ BOOL CAujardDlg::OnInitDialog()
 	//	Logfile initialize
 	//----------------------------------------------------------------------
 	CTime time=CTime::GetCurrentTime();
-	char strLogFile[50];		memset(strLogFile, 0x00, 50);
-	wsprintf(strLogFile, "AujardLog-%d-%d-%d.txt", time.GetYear(), time.GetMonth(), time.GetDay());
+	char strLogFile[50];
+	sprintf_s(strLogFile, sizeof(strLogFile), "AujardLog-%d-%d-%d.txt", time.GetYear(), time.GetMonth(), time.GetDay());
 	m_LogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
 	m_LogFile.SeekToEnd();
 
@@ -322,39 +319,29 @@ BOOL CAujardDlg::LoadItemTable()
 
 void CAujardDlg::SelectCharacter(char *pBuf)
 {
-	int index = 0, uid = -1, send_index = 0, idlen1 = 0, idlen2 = 0, t_uid = -1, count = 0, packetindex = 0;
+	int index = 0, uid = -1, send_index = 0, t_uid = -1, count = 0, packetindex = 0;
 	BYTE bInit = 0x01;
 	char send_buff[256], accountid[MAX_ID_SIZE+1], userid[MAX_ID_SIZE+1];
-	memset( send_buff, NULL, 256 );
-	memset( userid, NULL, MAX_ID_SIZE+1 );
-	memset( accountid, NULL, MAX_ID_SIZE+1 );
 	_USER_DATA* pUser = NULL;
 
 	uid = GetShort( pBuf, index );
-	idlen1 = GetShort( pBuf, index );
-	GetString( accountid, pBuf, idlen1, index );
-	idlen2 = GetShort( pBuf, index );
-	GetString( userid, pBuf, idlen2, index );
+	if (uid < 0 || uid >= MAX_USER
+		|| !GetKOString(pBuf, accountid, index, MAX_ID_SIZE)
+		|| !GetKOString(pBuf, userid, index, MAX_ID_SIZE)
+		|| *accountid == 0 || *userid == 0)
+		goto fail_return;
+
 	bInit = GetByte( pBuf, index );
 
-	CTime t = CTime::GetCurrentTime();
-	char logstr[256]; memset( logstr, 0x00, 256 );
+	char logstr[256]; 
 	sprintf_s( logstr, sizeof(logstr), "SelectCharacter : acname=%s, name=%s, index=%d, pid : %d, front : %d\r\n", accountid, userid, packetindex, _getpid(), m_LoggerRecvQueue.GetFrontPointer() );
 	WriteLogFile( logstr );
 	//m_LogFile.Write(logstr, strlen(logstr));
 
-	if( uid < 0 || uid >= MAX_USER )
-		goto fail_return;
-	if( !strlen( accountid ) )
-		goto fail_return;
-	if( !strlen( userid ) )
-		goto fail_return;
 	if( GetUserPtr( userid, t_uid ) ) {
 		SetShort( send_buff, t_uid, send_index );
-		SetShort( send_buff, idlen1, send_index );
-		SetString( send_buff, accountid, idlen1, send_index );
-		SetShort( send_buff, idlen2, send_index );
-		SetString( send_buff, userid, idlen2, send_index );
+		SetKOString( send_buff, accountid, send_index );
+		SetKOString( send_buff, userid, send_index );
 		UserLogOut( send_buff );
 		return;
 	}
@@ -545,25 +532,15 @@ void CAujardDlg::RemoveFriend(char *pBuf)
 
 void CAujardDlg::UserLogOut(char *pBuf)
 {
-	int index = 0, uid = -1, idlen1 = 0, idlen2 = 0, send_index = 0, count = 0;
+	int index = 0, uid = -1, send_index = 0, count = 0;
 	int retval_1 = 0, retval_2 = 0, retval_3 = 1;
-	char userid[MAX_ID_SIZE+1], accountid[MAX_ID_SIZE+1];	
-	memset( userid, NULL, MAX_ID_SIZE+1 );
-	memset( accountid, NULL, MAX_ID_SIZE+1 );
-	char send_buff[256];
-	memset( send_buff, NULL, 256 );
-	char logstr[256]; memset( logstr, 0x00, 256 );
+	char userid[MAX_ID_SIZE+1], accountid[MAX_ID_SIZE+1], send_buff[256], logstr[256];
 	_USER_DATA* pUser = NULL;
 
 	uid = GetShort( pBuf, index );
-	idlen1 = GetShort( pBuf, index );
-	GetString( accountid, pBuf, idlen1, index );
-	idlen2 = GetShort( pBuf, index );
-	GetString( userid, pBuf, idlen2, index );
-
-	if( uid < 0 || uid >= MAX_USER )
-		return;
-	if( !strlen( userid ) )
+	if (uid < 0 || uid >= MAX_USER
+		|| !GetKOString(pBuf, accountid, index, MAX_ID_SIZE)
+		|| !GetKOString(pBuf, userid, index, MAX_ID_SIZE))
 		return;
 
 	pUser = (_USER_DATA*)m_DBAgent.m_UserDataArray[uid];
@@ -652,23 +629,13 @@ void CAujardDlg::UserLogOut(char *pBuf)
 
 void CAujardDlg::AccountLogIn(char *pBuf)
 {
-	int index = 0, uid = -1, idlen = 0, pwdlen = 0, send_index = 0, count = 0;
-	int nation = -1;
-
-	char accountid[MAX_ID_SIZE+1];
-	memset( accountid, NULL, MAX_ID_SIZE+1 );
-
-	char password[MAX_PW_SIZE + 1];
-	memset( password, NULL, MAX_PW_SIZE+1 );
-
-	char send_buff[256];
-	memset( send_buff, NULL, 256 );
+	int index = 0, uid = -1, send_index = 0, count = 0, nation = -1;
+	char accountid[MAX_ID_SIZE+1], password[MAX_PW_SIZE + 1], send_buff[256];
 
 	uid = GetShort( pBuf, index );
-	idlen = GetShort( pBuf, index );
-	GetString( accountid, pBuf, idlen, index );
-	pwdlen = GetShort( pBuf, index );
-	GetString( password, pBuf, pwdlen, index );
+	if (!GetKOString(pBuf, accountid, index, MAX_ID_SIZE)
+		|| !GetKOString(pBuf, password, index, MAX_PW_SIZE)) 
+		return;
 
 	nation = m_DBAgent.AccountLogInReq( accountid, password);
 
@@ -688,17 +655,13 @@ void CAujardDlg::AccountLogIn(char *pBuf)
 
 void CAujardDlg::SelectNation(char *pBuf)
 {
-	int index = 0, uid = -1, idlen = 0, send_index = 0, count = 0;
-	int nation = -1;
+	int index = 0, uid = -1, send_index = 0, count = 0, nation = -1;
 	BYTE result;
-	char accountid[MAX_ID_SIZE+1], password[13];
-	memset( accountid, NULL, MAX_ID_SIZE+1 );	memset( password, NULL, 13 );
-	char send_buff[256];
-	memset( send_buff, NULL, 256 );
+	char accountid[MAX_ID_SIZE+1], send_buff[256];
 
 	uid = GetShort( pBuf, index );
-	idlen = GetShort( pBuf, index );
-	GetString( accountid, pBuf, idlen, index );
+	if (!GetKOString(pBuf, accountid, index, MAX_ID_SIZE))
+		return;
 	nation = GetByte( pBuf, index );
 
 	result = m_DBAgent.NationSelect( accountid, nation );
@@ -722,20 +685,16 @@ void CAujardDlg::SelectNation(char *pBuf)
 
 void CAujardDlg::CreateNewChar(char *pBuf)
 {
-	int index = 0, uid = -1, idlen = 0, charidlen = 0, send_index = 0, result = 0, count = 0;
+	int index = 0, uid = -1, send_index = 0, result = 0, count = 0;
 	int charindex = 0, race = 0, Class = 0, hair = 0, face = 0, str = 0, sta = 0, dex = 0, intel = 0, cha = 0;
-	char accountid[MAX_ID_SIZE+1], charid[MAX_ID_SIZE+1];
-	memset( accountid, NULL, MAX_ID_SIZE+1 );
-	memset( charid, NULL, MAX_ID_SIZE+1 );
-	char send_buff[256];
-	memset( send_buff, NULL, 256);
+	char accountid[MAX_ID_SIZE+1], charid[MAX_ID_SIZE+1], send_buff[256];
 
 	uid = GetShort( pBuf, index );
-	idlen = GetShort( pBuf, index );
-	GetString( accountid, pBuf, idlen, index );
+	if (!GetKOString(pBuf, accountid, index, MAX_ID_SIZE))
+		return;
 	charindex = GetByte( pBuf, index );
-	charidlen = GetShort( pBuf, index );
-	GetString( charid, pBuf, charidlen, index );
+	if (!GetKOString(pBuf, charid, index, MAX_ID_SIZE))
+		return;
 	race = GetByte( pBuf, index );
 	Class = GetShort( pBuf, index );
 	face = GetByte( pBuf, index );
@@ -764,23 +723,17 @@ void CAujardDlg::CreateNewChar(char *pBuf)
 
 void CAujardDlg::DeleteChar(char *pBuf)
 {
-	int index = 0, uid = -1, idlen = 0, charidlen = 0, send_index = 0, result = 0, count = 0;
+	int index = 0, uid = -1, send_index = 0, result = 0, count = 0;
 	int charindex = 0, soclen = 0;
-	char accountid[MAX_ID_SIZE+1], charid[MAX_ID_SIZE+1], socno[15];
-	memset( accountid, NULL, MAX_ID_SIZE+1 );
-	memset( charid, NULL, MAX_ID_SIZE+1 );
-	memset( socno, NULL, 15 );
-	char send_buff[256];
-	memset( send_buff, NULL, 256);
+	char accountid[MAX_ID_SIZE+1], charid[MAX_ID_SIZE+1], socno[15], send_buff[256];
 
 	uid = GetShort( pBuf, index );
-	idlen = GetShort( pBuf, index );
-	GetString( accountid, pBuf, idlen, index );
+	if (!GetKOString(pBuf, accountid, index, MAX_ID_SIZE))
+		return;
 	charindex = GetByte( pBuf, index );
-	charidlen = GetShort( pBuf, index );
-	GetString( charid, pBuf, charidlen, index );
-	soclen = GetShort( pBuf, index );
-	GetString( socno, pBuf, soclen, index );
+	if (!GetKOString(pBuf, charid, index, MAX_ID_SIZE)
+		|| !GetKOString(pBuf, socno, index, sizeof(socno) - 1))
+		return;
 
 	result = m_DBAgent.DeleteChar( charindex, accountid, charid, socno );
 
@@ -806,20 +759,12 @@ void CAujardDlg::DeleteChar(char *pBuf)
 
 void CAujardDlg::AllCharInfoReq(char *pBuf)
 {
-	int index = 0, uid = 0, idlen = 0, send_index = 0, buff_index = 0, count = 0;
-	char accountid[MAX_ID_SIZE+1];
-	memset( accountid, NULL, MAX_ID_SIZE+1 );
-	char send_buff[1024], buff[1024];
-	memset( send_buff, NULL, 1024 );
-	memset( buff, NULL, 1024 );
-	char charid1[MAX_ID_SIZE+1], charid2[MAX_ID_SIZE+1], charid3[MAX_ID_SIZE+1];
-	memset( charid1, NULL, sizeof(charid1) );	
-	memset( charid2, NULL, sizeof(charid2) ); 
-	memset( charid3, NULL, sizeof(charid3) );	
+	int index = 0, uid = 0, send_index = 0, buff_index = 0, count = 0;
+	char accountid[MAX_ID_SIZE+1], send_buff[1024], buff[1024], charid1[MAX_ID_SIZE+1], charid2[MAX_ID_SIZE+1], charid3[MAX_ID_SIZE+1];
 
 	uid = GetShort( pBuf, index );
-	idlen = GetShort( pBuf, index );
-	GetString( accountid, pBuf, idlen, index );
+	if (!GetKOString(pBuf, accountid, index, MAX_ID_SIZE))
+		return;
 
 	SetByte( buff, 0x01, buff_index );	// result
 
@@ -888,10 +833,10 @@ void CAujardDlg::AllSaveRoutine()
 	int t_count = 0, retval_1 = 0, retval_2 = 0, count = 0;
 	bool bsaved = false;
 	CString msgstr;
-	char logstr[256]; memset( logstr, 0x00, 256 );
+	char logstr[256]; 
 
 	CTime cur = CTime::GetCurrentTime();
-	TRACE("Dead Time : %d년 %d월 %d일 %d시 %d분\n", cur.GetYear(), cur.GetMonth(), cur.GetDay(), cur.GetHour(), cur.GetMinute());
+	DEBUG_LOG("Server down : %02d/%02d/%04d %02d:%02d", cur.GetYear(), cur.GetMonth(), cur.GetDay(), cur.GetHour(), cur.GetMinute());
 
 	t_count = m_DBAgent.m_UserDataArray.size();
 	for( int i=0; i<t_count; i++ ) {
@@ -902,12 +847,10 @@ void CAujardDlg::AllSaveRoutine()
 			continue;
 
 		m_DBAgent.AccountLogout( pUser->m_Accountid );
-		Sleep(100);
 		m_DBAgent.UpdateWarehouseData( pUser->m_Accountid, i, UPDATE_ALL_SAVE );
 		Sleep(100);
 		if( m_DBAgent.UpdateUser( pUser->m_id, i, UPDATE_ALL_SAVE ) ) {
 			TRACE("GameServer Dead!! - %s Saved\n", pUser->m_id );
-			Sleep(100);
 			count = 0;
 			do {
 				if( retval_1 = m_DBAgent.CheckUserData( pUser->m_Accountid, pUser->m_id, 1, pUser->m_dwTime, pUser->m_iBank) )
@@ -973,30 +916,16 @@ void CAujardDlg::ConCurrentUserCount()
 
 void CAujardDlg::UserDataSave(char *pBuf)
 {
-	int index = 0, uid = -1, idlen1 = 0, idlen2 = 0, retval_1 = 0, retval_2 = 0, count = 0;
+	int index = 0, uid = -1, retval_1 = 0, retval_2 = 0, count = 0;
 	_USER_DATA* pUser = NULL;
-	char logstr[256]; memset( logstr, 0x00, 256 );
-	char accountid[MAX_ID_SIZE+1];	
-	char userid[MAX_ID_SIZE+1];	
-	memset( accountid, NULL, MAX_ID_SIZE+1 );
-	memset( userid, NULL, MAX_ID_SIZE+1 );
+	char logstr[256], accountid[MAX_ID_SIZE+1], userid[MAX_ID_SIZE+1];	
 
 	uid = GetShort( pBuf, index );
-	idlen1 = GetShort( pBuf, index );
-	GetString( accountid, pBuf, idlen1, index );
-	idlen2 = GetShort( pBuf, index );
-	GetString( userid, pBuf, idlen2, index );
-
-	if( uid < 0 || uid >= MAX_USER )
+	if (uid < 0 || uid >= MAX_USER
+		|| !GetKOString(pBuf, accountid, index, MAX_ID_SIZE)
+		|| !GetKOString(pBuf, userid, index, MAX_ID_SIZE)
+		|| (pUser = (_USER_DATA*)m_DBAgent.m_UserDataArray[uid]) == NULL)
 		return;
-	if( !strlen( accountid ) )
-		return;
-	if( !strlen( userid ) )
-		return;
-
-	if( uid < 0 || uid >= MAX_USER ) return;
-	pUser = (_USER_DATA*)m_DBAgent.m_UserDataArray[uid];
-	if( !pUser )	return;
 
 	retval_2 = m_DBAgent.UpdateUser( userid, uid, UPDATE_PACKET_SAVE );
 	Sleep(10);
@@ -1114,19 +1043,16 @@ void CAujardDlg::KnightsPacket(char *pBuf)
 
 void CAujardDlg::CreateKnights(char *pBuf)
 {
-	int index = 0, send_index = 0, namelen = 0, idlen = 0, knightindex = 0, uid = -1, nation = 0, result = 0, community = 0, count = 0;
-	char knightsname[MAX_ID_SIZE+1]; memset( knightsname, 0x00, MAX_ID_SIZE+1 );
-	char chiefname[MAX_ID_SIZE+1]; memset( chiefname, 0x00, MAX_ID_SIZE+1 );
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
+	int index = 0, send_index = 0, knightindex = 0, uid = -1, nation = 0, result = 0, community = 0, count = 0;
+	char knightsname[MAX_ID_SIZE+1], chiefname[MAX_ID_SIZE+1], send_buff[256];
 
 	uid = GetShort( pBuf, index );
 	community = GetByte( pBuf, index );
 	knightindex = GetShort( pBuf, index );
 	nation = GetByte( pBuf, index );
-	namelen = GetShort( pBuf, index );
-	GetString( knightsname, pBuf, namelen, index );
-	idlen = GetShort( pBuf, index );
-	GetString( chiefname, pBuf, idlen, index );
+	if (!GetKOString(pBuf, knightsname, index, MAX_ID_SIZE)
+		|| !GetKOString(pBuf, chiefname, index, MAX_ID_SIZE))
+		return;
 
 	if( uid < 0 || uid >= MAX_USER ) return;
 	result = m_DBAgent.CreateKnights( knightindex, nation, knightsname, chiefname, community );
@@ -1139,10 +1065,9 @@ void CAujardDlg::CreateKnights(char *pBuf)
 	SetByte( send_buff, community, send_index );
 	SetShort( send_buff, knightindex, send_index );
 	SetByte( send_buff, nation, send_index );
-	SetShort( send_buff, namelen, send_index );
-	SetString( send_buff, knightsname, namelen, send_index );
-	SetShort( send_buff, idlen, send_index );
-	SetString( send_buff, chiefname, idlen, send_index );
+
+	SetKOString( send_buff, knightsname, send_index );
+	SetKOString( send_buff, chiefname, send_index );
 
 	do {
 		if( m_LoggerSendQueue.PutData( send_buff, send_index ) == 1 )
@@ -1158,7 +1083,7 @@ void CAujardDlg::JoinKnights(char *pBuf)
 {
 	int index = 0, send_index = 0, knightindex = 0, uid = -1, count = 0;
 	BYTE result = 0;
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
+	char send_buff[256];
 	_USER_DATA* pUser = NULL;
 
 	uid = GetShort( pBuf, index );
@@ -1191,7 +1116,7 @@ void CAujardDlg::WithdrawKnights(char *pBuf)
 {
 	int index = 0, send_index = 0, knightindex = 0, uid = -1, count = 0;
 	BYTE result = 0;
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
+	char send_buff[256];
 	_USER_DATA* pUser = NULL;
 
 	uid = GetShort( pBuf, index );
@@ -1220,15 +1145,16 @@ void CAujardDlg::WithdrawKnights(char *pBuf)
 
 void CAujardDlg::ModifyKnightsMember(char *pBuf, BYTE command)
 {
-	int index = 0, send_index = 0, knightindex = 0, uid = -1, idlen = 0, vicechief = 0, remove_flag = 0, count = 0;
+	int index = 0, send_index = 0, knightindex = 0, uid = -1, vicechief = 0, remove_flag = 0, count = 0;
 	BYTE result = 0;
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
-	char userid[MAX_ID_SIZE+1]; memset( userid, 0x00, MAX_ID_SIZE+1 );
+	char send_buff[256], userid[MAX_ID_SIZE+1];
 
 	uid = GetShort( pBuf, index );
 	knightindex = GetShort( pBuf, index );
-	idlen = GetShort( pBuf, index );
-	GetString( userid, pBuf, idlen, index );
+
+	if (!GetKOString(pBuf, userid, index, MAX_ID_SIZE))
+		return;
+
 	remove_flag = GetByte( pBuf, index );
 
 	if( uid < 0 || uid >= MAX_USER ) return;
@@ -1247,8 +1173,7 @@ void CAujardDlg::ModifyKnightsMember(char *pBuf, BYTE command)
 	SetShort( send_buff, uid, send_index );
 	SetByte( send_buff, result, send_index );
 	SetShort( send_buff, knightindex, send_index );
-	SetShort( send_buff, idlen, send_index );
-	SetString( send_buff, userid, idlen, send_index );
+	SetKOString(send_buff, userid, send_index);
 	SetByte( send_buff, remove_flag, send_index );
 
 	do {
@@ -1265,7 +1190,7 @@ void CAujardDlg::DestroyKnights(char *pBuf)
 {
 	int index = 0, send_index = 0, knightindex = 0, uid = -1, count = 0;
 	BYTE result = 0;
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
+	char send_buff[256]; 
 
 	uid = GetShort( pBuf, index );
 	knightindex = GetShort( pBuf, index );
@@ -1293,8 +1218,7 @@ void CAujardDlg::AllKnightsMember(char *pBuf)
 {
 	int index = 0, send_index = 0, knightindex = 0, uid = -1, buff_index = 0, page = 0, count = 0, t_count = 0;
 	BYTE result = 0;
-	char send_buff[2048]; memset( send_buff, 0x00, 2048 );
-	char temp_buff[2048]; memset( temp_buff, 0x00, 2048 );
+	char send_buff[2048], temp_buff[2048];
 
 	uid = GetShort( pBuf, index );
 	knightindex = GetShort( pBuf, index );
@@ -1326,8 +1250,7 @@ void CAujardDlg::AllKnightsMember(char *pBuf)
 void CAujardDlg::KnightsList( char* pBuf )
 {
 	int index = 0, send_index = 0, knightindex = 0, uid = -1, buff_index = 0, count = 0, retvalue = 0;
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
-	char temp_buff[256]; memset( temp_buff, 0x00, 256 );
+	char send_buff[256], temp_buff[256];
 
 	uid = GetShort( pBuf, index );
 	knightindex = GetShort( pBuf, index );
@@ -1352,25 +1275,20 @@ void CAujardDlg::KnightsList( char* pBuf )
 
 void CAujardDlg::SetLogInInfo(char *pBuf)
 {
-	int index = 0, idlen = 0, serverno = 0, iplen1 = 0, iplen2 = 0, uid = -1, send_index = 0, count = 0, idlen2 = 0;
+	int index = 0, serverno = 0, uid = -1, send_index = 0, count = 0;
 	BYTE bInit;
-	char accountid[MAX_ID_SIZE+1], serverip[20], clientip[20], charid[MAX_ID_SIZE+1];	
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
-	memset( accountid, NULL, MAX_ID_SIZE+1 );
-	memset( charid, NULL, MAX_ID_SIZE+1 );
-	memset( serverip, NULL, 20 );
-	memset( clientip, NULL, 20 );
+	char accountid[MAX_ID_SIZE+1], serverip[20], clientip[20], charid[MAX_ID_SIZE+1], send_buff[256]; 
 
 	uid = GetShort( pBuf, index );
-	idlen = GetShort( pBuf, index );
-	GetString( accountid, pBuf, idlen, index );
-	idlen2 = GetShort( pBuf, index );
-	GetString( charid, pBuf, idlen2, index );
-	iplen1 = GetShort( pBuf, index );
-	GetString( serverip, pBuf, iplen1, index );
+	if (!GetKOString(pBuf, accountid, index, MAX_ID_SIZE)
+		|| !GetKOString(pBuf, charid, index, MAX_ID_SIZE)
+		|| !GetKOString(pBuf, serverip, index, sizeof(serverip) - 1))
+		return;
+
 	serverno = GetShort( pBuf, index );
-	iplen2 = GetShort( pBuf, index );
-	GetString( clientip, pBuf, iplen2, index );
+	if (!GetKOString(pBuf, clientip, index, sizeof(clientip) - 1))
+		return;
+
 	bInit = GetByte( pBuf, index );
 
 	if( m_DBAgent.SetLogInInfo( accountid, charid, serverip, serverno, clientip, bInit ) == FALSE ) {
@@ -1386,21 +1304,18 @@ void CAujardDlg::SetLogInInfo(char *pBuf)
 		if( count >= 50 )
 			m_OutputList.AddString("Login Info Packet Drop!!!");
 
-		char logstr[256]; memset( logstr, 0x00, 256 );
+		char logstr[256];
 		sprintf_s( logstr, sizeof(logstr), "LoginINFO Insert Fail : %s, %s, %d\r\n", accountid, charid, bInit );
 		WriteLogFile( logstr );
-		//m_LogFile.Write(logstr, strlen(logstr));
 	}
 }
 
 void CAujardDlg::UserKickOut(char *pBuf)
 {
-	int index = 0, idlen = 0;
+	int index = 0;
 	char accountid[MAX_ID_SIZE+1];
-	memset( accountid, NULL, MAX_ID_SIZE+1 );
-
-	idlen = GetShort( pBuf, index );
-	GetString( accountid, pBuf, idlen, index );
+	if (!GetKOString(pBuf, accountid, index, MAX_ID_SIZE))
+		return;
 
 	m_DBAgent.AccountLogout( accountid );
 }
@@ -1408,7 +1323,7 @@ void CAujardDlg::UserKickOut(char *pBuf)
 void CAujardDlg::SaveUserData()
 {
 	_USER_DATA* pUser = NULL;
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
+	char send_buff[256];
 	int send_index = 0;
 	
 	for( int i=0; i<MAX_USER; i++ ) {
@@ -1433,19 +1348,19 @@ void CAujardDlg::SaveUserData()
 void CAujardDlg::WriteLogFile( char* pData )
 {
 	CTime cur = CTime::GetCurrentTime();
-	char strLog[1024];	memset(strLog, 0x00, 1024);
+	char strLog[1024];
 	int nDay = cur.GetDay();
 
 	if( m_iLogFileDay != nDay )	{
 		if(m_LogFile.m_hFile != CFile::hFileNull) m_LogFile.Close();
 
-		wsprintf(strLog, "AujardLog-%d-%d-%d.txt", cur.GetYear(), cur.GetMonth(), cur.GetDay());
+		sprintf_s(strLog, sizeof(strLog), "AujardLog-%d-%d-%d.txt", cur.GetYear(), cur.GetMonth(), cur.GetDay());
 		m_LogFile.Open( strLog, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
 		m_LogFile.SeekToEnd();
 		m_iLogFileDay = nDay;
 	}
 
-	wsprintf(strLog, "%d-%d-%d %d:%d, %s\r\n", cur.GetYear(), cur.GetMonth(), cur.GetDay(), cur.GetHour(), cur.GetMinute(), pData);
+	sprintf_s(strLog, sizeof(strLog), "%d-%d-%d %d:%d, %s\r\n", cur.GetYear(), cur.GetMonth(), cur.GetDay(), cur.GetHour(), cur.GetMinute(), pData);
 	int nLen = strlen(strLog);
 	if( nLen >= 1024 )	{
 		TRACE("### WriteLogFile Fail : length = %d ###\n", nLen);
@@ -1457,14 +1372,14 @@ void CAujardDlg::WriteLogFile( char* pData )
 
 void CAujardDlg::BattleEventResult( char* pData )
 {
-	int nType = 0, nResult = 0, nLen = 0, index = 0;
-	char strMaxUserName[MAX_ID_SIZE+1];	memset( strMaxUserName, 0x00, MAX_ID_SIZE+1 );
+	int nType = 0, nResult = 0, index = 0;
+	char strMaxUserName[MAX_ID_SIZE+1];
 
-	nType = GetByte( pData, index );
+	nType = GetByte(pData, index);
 	nResult = GetByte(pData, index);
-	nLen = GetByte(pData, index);
-	if( nLen > 0 && nLen < MAX_ID_SIZE+1 )	{
-		GetString( strMaxUserName, pData, nLen, index );
+
+	if (GetKOString(pData, strMaxUserName, index, MAX_ID_SIZE, sizeof(BYTE)))
+	{
 		TRACE("--> BattleEventResult : 적국의 대장을 죽인 유저이름은? %s, len=%d, nation=%d \n", strMaxUserName, nResult, nResult);
 		m_DBAgent.UpdateBattleEvent( strMaxUserName, nResult );
 	}

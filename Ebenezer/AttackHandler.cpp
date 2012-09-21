@@ -9,7 +9,7 @@ void CUser::Attack(char *pBuf)
 	int index = 0, send_index = 0;
 	int sid = -1, tid = -1, damage = 0; short delaytime = 0; short distance = 0;	
 	BYTE type, result;	
-	char buff[256]; memset( buff, 0x00, 256 );
+	char buff[256]; 
 	
 //	CUser* pUser = NULL;
 	CUser* pTUser = NULL;
@@ -97,7 +97,7 @@ void CUser::Attack(char *pBuf)
 					pTUser->InitType3();	// Init Type 3.....
 					pTUser->InitType4();	// Init Type 4.....
 
-					memset( buff, 0x00, 256 );	send_index = 0;
+					send_index = 0;
 					if( pTUser->m_pUserData->m_bFame == COMMAND_CAPTAIN )	{
 						pTUser->m_pUserData->m_bFame = CHIEF;
 						SetByte( buff, WIZ_AUTHORITY_CHANGE, send_index );
@@ -137,7 +137,7 @@ void CUser::Attack(char *pBuf)
 //				TRACE("Success!!! \r\n");
 			}
 //
-			memset( buff, 0x00, 256 );	send_index = 0;
+			send_index = 0;
 			SetByte( buff, AG_ATTACK_REQ, send_index );
 			SetByte( buff, type, send_index );
 			SetByte( buff, result, send_index ); 
@@ -158,7 +158,7 @@ void CUser::Attack(char *pBuf)
 		}
 	}
 
-	memset( buff, 0x00, 256 );	send_index = 0;
+	send_index = 0;
 	SetByte( buff, WIZ_ATTACK, send_index );
 	SetByte( buff, type, send_index );
 	SetByte( buff, result, send_index );
@@ -171,9 +171,7 @@ void CUser::Attack(char *pBuf)
 		if( result == 0x02 )	{
 			if( pTUser )	{
 				pTUser->Send( buff, send_index );
-				memset(buff, 0x00, 256);
-				wsprintf(buff, "*** User Attack Dead, id=%s, result=%d, type=%d, HP=%d", pTUser->m_pUserData->m_id, result, pTUser->m_bResHpType, pTUser->m_pUserData->m_sHp);
-				TimeTrace(buff);
+				DEBUG_LOG("*** User Attack Dead, id=%s, result=%d, type=%d, HP=%d", pTUser->m_pUserData->m_id, result, pTUser->m_bResHpType, pTUser->m_pUserData->m_sHp);
 			}
 		}
 	}
@@ -588,7 +586,6 @@ void CUser::Regene(char *pBuf, int magicid)
 	if (!pHomeInfo) return;
 
 	int send_index = 0; char send_buff[1024];
-	memset( send_buff, NULL, 1024 );
 
 	UserInOut(USER_OUT);	// ??? ?? ?????? ???? --;
 
@@ -695,18 +692,13 @@ void CUser::Regene(char *pBuf, int magicid)
 	m_iLostExp = 0;
 
 	if (m_bAbnormalType != ABNORMAL_BLINKING) {
-		memset( send_buff, NULL, 1024 ); send_index=0;
+		send_index = 0;
 		SetByte( send_buff, AG_USER_REGENE, send_index );
 		SetShort( send_buff, m_Sid, send_index );
 		SetShort( send_buff, m_pUserData->m_sHp, send_index );
 		m_pMain->Send_AIServer(send_buff, send_index);
 	}
 
-	memset( send_buff, NULL, 1024 ); send_index=0;
-	wsprintf(send_buff, "<------ User Regene ,, nid=%d, name=%s, type=%d ******", m_Sid, m_pUserData->m_id, m_bResHpType);
-	//TimeTrace(send_buff);
-	memset( send_buff, NULL, 1024 ); send_index=0;	
-		
 	m_RegionX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
 	m_RegionZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
 
@@ -719,7 +711,7 @@ void CUser::Regene(char *pBuf, int magicid)
 //
 	// Send Party Packet.....
 	if (m_sPartyIndex != -1 && m_bType3Flag == FALSE) {
-		memset( send_buff, NULL, 128); send_index = 0 ;
+		send_index = 0;
 		SetByte( send_buff, WIZ_PARTY, send_index );
 		SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
 		SetShort( send_buff, m_Sid, send_index );
@@ -732,7 +724,7 @@ void CUser::Regene(char *pBuf, int magicid)
 //
 	// Send Party Packet for Type 4
 	if (m_sPartyIndex != -1 && m_bType4Flag == FALSE) {
-		memset( send_buff, NULL, 128); send_index = 0 ;
+		send_index = 0;
 		SetByte( send_buff, WIZ_PARTY, send_index );
 		SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
 		SetShort( send_buff, m_Sid, send_index );

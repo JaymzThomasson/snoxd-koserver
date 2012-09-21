@@ -135,8 +135,6 @@ int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 		return 0;
 
 	BYTE pTIBuf[MAX_SEND_SIZE], pTOutBuf[MAX_SEND_SIZE];
-	memset(pTIBuf, 0x00, sizeof(pTIBuf));
-	memset(pTOutBuf, 0x00, sizeof(pTOutBuf));
 	int index = 0;
 
 	if( m_CryptionFlag )
@@ -206,9 +204,6 @@ int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 		else
 		{
 			TRACE("SEND : ERROR [SID=%d] - %d\n", m_Sid, last_err);
-//			char logstr[1024]; memset( logstr, NULL, 1024 );
-//			sprintf( logstr, "SEND : ERROR [SID=%d] - %d\r\n", m_Sid, last_err);
-//			LogFileWrite( logstr );
 			m_nSocketErr++;
 			goto close_routine;
 		}
@@ -491,10 +486,7 @@ BOOL CIOCPSocket2::Accept( SOCKET listensocket, struct sockaddr* addr, int* len 
 	m_Socket = accept( listensocket, addr, len);
 	if( m_Socket == INVALID_SOCKET) {
 		int err = WSAGetLastError();
-		TRACE("Socket Accepting Fail - %d\n", err);
-		char logstr[1024]; memset( logstr, NULL, 1024 );
-		sprintf( logstr, "Socket Accepting Fail - %d\r\n", err);
-		LogFileWrite( logstr );
+		DEBUG_LOG_FILE("Socket Accepting Fail - %d\n", err);
 		return FALSE;
 	}
 

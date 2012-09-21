@@ -147,7 +147,6 @@ void CGameSocket::RecvServerConnect(char *pBuf)
 	int outindex = 0, zone_index = 0;
 	float fReConnectEndTime = 0.0f;
 	char pData[1024];
-	memset(pData, 0, 1024);
 	BYTE byZoneNumber = GetByte(pBuf, index);
 	BYTE byReConnect = GetByte(pBuf, index);	// 0 : 처음접속, 1 : 재접속
 
@@ -218,21 +217,16 @@ void CGameSocket::RecvUserInfo(char* pBuf)
 	short sDamage, sAC;
 	float fHitAgi, fAvoidAgi;
 	char strName[MAX_ID_SIZE+1];
-	memset(strName, 0x00, MAX_ID_SIZE+1);
-//
-	short  sItemAC;
-	BYTE   bTypeLeft;
-	BYTE   bTypeRight;
-	short  sAmountLeft;
-	short  sAmountRight;
-//
+
+	short  sItemAC, sAmountLeft, sAmountRight;
+	BYTE   bTypeLeft, bTypeRight;
+
 	uid = GetShort( pBuf, index );
 	sLength = GetShort( pBuf, index );
 	if( sLength > MAX_ID_SIZE || sLength <= 0 ) {
 		char countstr[256];
-		memset( countstr, NULL, 256 );
 		CTime cur = CTime::GetCurrentTime();
-		sprintf( countstr, "RecvUserInfo() Fail : %d월 %d일 %d시 %d분 - uid=%d, name=%s\r\n", cur.GetMonth(), cur.GetDay(), cur.GetHour(), cur.GetMinute(), uid, strName);
+		sprintf_s( countstr, "RecvUserInfo() Fail : %02d/%02d %02d:%02d - uid=%d, name=%s\r\n", cur.GetMonth(), cur.GetDay(), cur.GetHour(), cur.GetMinute(), uid, strName);
 		LogFileWrite( countstr );
 		TRACE("###  RecvUserInfo() Fail ---> uid = %d, name=%s  ### \n", uid, strName);
 		return;
@@ -304,8 +298,7 @@ void CGameSocket::RecvUserInOut(char* pBuf)
 	int index = 0;
 	BYTE bType=-1;
 	short uid=-1, len=0;
-	char strName[MAX_ID_SIZE+1];
-	memset(strName, 0x00, MAX_ID_SIZE+1);
+	char strName[MAX_ID_SIZE+1] = "";
 	float fX=-1, fZ=-1;
 
 	bType = GetByte( pBuf, index );
@@ -520,8 +513,6 @@ void CGameSocket::RecvAttackReq(char* pBuf)
 	int index = 0;
 	int sid = -1, tid = -1;
 	BYTE type, result;
-	char buff[256];
-	memset( buff, 0x00, 256 );
 	float rx=0.0f, ry=0.0f, rz=0.0f;
 	float fDir = 0.0f;
 	short sDamage, sAC;
@@ -552,8 +543,7 @@ void CGameSocket::RecvAttackReq(char* pBuf)
 
 	//TRACE("RecvAttackReq : [sid=%d, tid=%d, zone_num=%d] \n", sid, tid, m_sSocketID);
 
-	CUser* pUser = NULL;
-	pUser = m_pMain->GetUserPtr(sid);
+	CUser* pUser = m_pMain->GetUserPtr(sid);
 	if(pUser == NULL) return;
 	//TRACE("RecvAttackReq 222 :  [id=%d, %s, bLive=%d, zone_num=%d] \n", pUser->m_iUserId, pUser->m_strUserID, pUser->m_bLive, m_sSocketID);
 
@@ -591,8 +581,7 @@ void CGameSocket::RecvUserLogOut(char* pBuf)
 {
 	int index = 0;
 	short uid=-1, len=0;
-	char strName[MAX_ID_SIZE+1];
-	memset(strName, 0x00, MAX_ID_SIZE+1);
+	char strName[MAX_ID_SIZE+1] = "";
 
 	uid = GetShort( pBuf, index );
 	len = GetShort( pBuf, index );
@@ -637,8 +626,7 @@ void CGameSocket::RecvUserRegene(char* pBuf)
 	pUser->m_sHP = sHP;
 
 	char buff[256];
-	memset(buff, 0x00, 256);
-	wsprintf(buff, "**** RecvUserRegene -- uid = (%s,%d), HP = %d", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP);
+	sprintf_s(buff, sizeof(buff), "**** RecvUserRegene -- uid = (%s,%d), HP = %d", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP);
 	TimeTrace(buff);
 	//TRACE("**** RecvUserRegene -- uid = (%s,%d), HP = %d\n", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP);
 }
@@ -727,8 +715,8 @@ void CGameSocket::RecvUserUpdate(char* pBuf)
 	pUser->m_sMagicAmountLeftHand = sAmountLeft;
 	pUser->m_sMagicAmountRightHand = sAmountRight;
 //
-	char buff[256];	memset(buff, 0x00, 256);
-	wsprintf(buff, "**** RecvUserUpdate -- uid = (%s,%d), HP = %d, level=%d->%d", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP, byLevel, pUser->m_bLevel);
+	//char buff[256];
+	//sprintf_s(buff, sizeof(buff), "**** RecvUserUpdate -- uid = (%s,%d), HP = %d, level=%d->%d", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP, byLevel, pUser->m_bLevel);
 	//TimeTrace(buff);
 	//TRACE("**** RecvUserUpdate -- uid = (%s,%d), HP = %d\n", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP);
 }
@@ -737,7 +725,7 @@ void CGameSocket::Send_UserError(short uid, short tid)
 {
 	int send_index = 0;
 	char buff[256];
-	memset( buff, 0x00, 256 );
+
 	SetByte(buff, AG_USER_FAIL, send_index);
 	SetShort(buff, uid, send_index);
 	SetShort(buff, tid, send_index);
@@ -806,15 +794,14 @@ void CGameSocket::RecvUserInfoAllData(char* pBuf)
 	BYTE bNation, bLevel, bZone, bAuthority=1;
 	short sDamage, sAC, sPartyIndex=0;
 	float fHitAgi, fAvoidAgi;
-	char strName[MAX_ID_SIZE+1];
 
 	TRACE(" ***** 유저의 모든 정보를 받기 시작합니다 ****** \n");
 
 	byCount = GetByte(pBuf, index);
 	for(int i=0; i<byCount; i++)
 	{
+		char strName[MAX_ID_SIZE+1] = "";
 		len = 0;
-		memset(strName, 0x00, MAX_ID_SIZE+1);
 
 		uid = GetShort( pBuf, index );
 		len = GetShort( pBuf, index );
@@ -1002,15 +989,12 @@ void CGameSocket::RecvUserFail(char* pBuf)
 {
 	int index = 0;
 	int sid = -1, tid = -1, sHP=0;
-	char buff[256];
-	memset( buff, 0x00, 256 );
 
 	sid = GetShort(pBuf,index);
 	tid = GetShort(pBuf,index);
-	sHP = GetShort( pBuf, index );
+	sHP = GetShort(pBuf, index);
 
-	CUser* pUser = NULL;
-	pUser = m_pMain->GetUserPtr(sid);
+	CUser* pUser = m_pMain->GetUserPtr(sid);
 	if(pUser == NULL) return;
 
 	pUser->m_bLive = USER_LIVE;

@@ -8,10 +8,7 @@ void CUser::Chat(char *pBuf)
 	int index = 0, send_index = 0;
 	BYTE type;
 	CUser* pUser = NULL;
-	char chatstr[1024]; memset( chatstr, NULL, 1024 );
-	char finalstr[1024]; memset( finalstr, NULL, 1024 );
-	char send_buff[1024]; memset( send_buff, NULL, 1024 );
-
+	char chatstr[1024], send_buff[1024]; 
 	std::string buff;
 
 	if (isMuted())
@@ -83,14 +80,13 @@ void CUser::Chat(char *pBuf)
 
 void CUser::ChatTargetSelect(char *pBuf)
 {
-	int index = 0, send_index = 0, idlen = 0, i = 0;
+	int index = 0, send_index = 0, i = 0;
 	CUser* pUser = NULL;
-	char chatid[MAX_ID_SIZE+1]; memset( chatid, 0x00, MAX_ID_SIZE+1 );
-	char send_buff[128]; memset( send_buff, 0x00, 128 );
+	char chatid[MAX_ID_SIZE+1];
+	char send_buff[128];
 
-	idlen = GetShort( pBuf, index );
-	if( idlen > MAX_ID_SIZE || idlen < 0 ) return;
-	GetString( chatid, pBuf, idlen, index );
+	if (!GetKOString(pBuf, chatid, index, MAX_ID_SIZE))
+		return;
 
 	m_pMain->GetUserPtr(chatid, TYPE_CHARACTER);
 	for (i = 0; i < MAX_USER; i++)

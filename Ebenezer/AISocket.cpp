@@ -355,7 +355,7 @@ void CAISocket::RecvNpcInfoAll(char* pBuf)
 void CAISocket::RecvNpcMoveResult(char *pBuf)
 {
 	// sungyong tw
-	char send_buff[256];	memset( send_buff, 0x00, 256 );
+	char send_buff[256];
 	int index = 0, send_index = 0;
 	BYTE		flag;			// 01(INFO_MODIFY)	: NPC 정보 변경
 								// 02(INFO_DELETE)	: NPC 정보 삭제
@@ -388,21 +388,14 @@ void CAISocket::RecvNpcMoveResult(char *pBuf)
 
 void CAISocket::RecvNpcAttack(char* pBuf)
 {
-	int index = 0, send_index = 0;
-	int sid = -1, tid = -1;
-	BYTE type, result;
+	int index = 0, send_index = 0, sid = -1, tid = -1, nHP = 0, temp_damage = 0;
+	BYTE type, result, byAttackType = 0;
 	float fDir=0.0f;
 	short damage = 0;
-	int nHP = 0;
-	BYTE  byAttackType = 0;
-	CNpc* pNpc = NULL;
-	CNpc* pMon = NULL;
+	CNpc* pNpc = NULL, *pMon = NULL;
 	CUser* pUser = NULL;
 	char pOutBuf[1024];
-	memset(pOutBuf, NULL, 1024);
 	_OBJECT_EVENT* pEvent = NULL;
-
-	int temp_damage = 0;
 
 	type = GetByte(pBuf,index);
 	result = GetByte(pBuf,index);
@@ -544,11 +537,9 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 				m_pMain->Send_Region(pOutBuf, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ);
 
 				pUser->m_bResHpType = USER_DEAD;
-				char buff[256]; memset(buff, 0x00, 256);
-				wsprintf(buff, "*** User Dead, id=%s, result=%d, AI_HP=%d, GM_HP=%d, x=%d, z=%d", pUser->m_pUserData->m_id, result, nHP, pUser->m_pUserData->m_sHp, (int)pUser->m_pUserData->m_curx, (int)pUser->m_pUserData->m_curz);
-				TimeTrace(buff);
+				DEBUG_LOG("*** User Dead, id=%s, result=%d, AI_HP=%d, GM_HP=%d, x=%d, z=%d", pUser->m_pUserData->m_id, result, nHP, pUser->m_pUserData->m_sHp, (int)pUser->m_pUserData->m_curx, (int)pUser->m_pUserData->m_curz);
 
-				memset(pOutBuf, NULL, 1024);		send_index = 0;
+				send_index = 0;
 				if( pUser->m_pUserData->m_bFame == COMMAND_CAPTAIN )	{	// 지휘권한이 있는 유저가 죽는다면,, 지휘 권한 박탈
 					pUser->m_pUserData->m_bFame = CHIEF;
 					SetByte( pOutBuf, WIZ_AUTHORITY_CHANGE, send_index );
@@ -591,7 +582,7 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 			if( pMon->m_iHP < 0 )
 				pMon->m_iHP = 0;
 
-			memset(pOutBuf, NULL, 1024);		send_index = 0;
+			send_index = 0;
 			SetByte(pOutBuf, WIZ_ATTACK, send_index);
 			SetByte( pOutBuf, byAttackType, send_index );
 			SetByte( pOutBuf, result, send_index );
@@ -615,15 +606,13 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 
 void CAISocket::RecvMagicAttackResult(char* pBuf)
 {
-	int index = 0, send_index = 1;
-	int sid = -1, tid = -1, magicid=0;
+	int index = 0, send_index = 1, sid = -1, tid = -1, magicid=0;
 	BYTE byCommand; 
 	short data0, data1, data2, data3, data4, data5;
 
 	CNpc* pNpc = NULL;
 	CUser* pUser = NULL;
 	char send_buff[1024];
-	memset(send_buff, NULL, 1024);
 
 	//byType = GetByte(pBuf,index);				// who ( 1:mon->user 2:mon->mon )
 	//byAttackType = GetByte(pBuf,index);			// attack type ( 1:long attack, 2:magic attack
@@ -677,7 +666,7 @@ void CAISocket::RecvMagicAttackResult(char* pBuf)
 				m_pMain->Send_Region(send_buff, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z, NULL, false);
 				return;
 			}
-			memset(send_buff, NULL, 1024);	send_index = 0;
+			send_index = 0;
 			SetByte( send_buff, byCommand, send_index );
 			SetDWORD( send_buff, magicid, send_index );
 			SetShort( send_buff, sid, send_index );
@@ -758,15 +747,15 @@ void CAISocket::RecvNpcInfo(char* pBuf)
 
 	pNpc->m_NpcState = NPC_DEAD;
 
-	char strLog[256]; 
 	if( pNpc->m_NpcState == NPC_LIVE )	{	// 살아 있는데 또 정보를 받는 경우
-		memset(strLog, 0x00, 256);
+		char strLog[256]; 
 		CTime t = CTime::GetCurrentTime();
-		wsprintf(strLog, "## time(%d:%d-%d) npc regen check(%d) : nid=%d, name=%s, x=%d, z=%d, rx=%d, rz=%d ## \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), pNpc->m_NpcState, nid, szName, (int)pNpc->m_fCurX, (int)pNpc->m_fCurZ, pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
+		sprintf_s(strLog, sizeof(strLog), "## time(%d:%d-%d) npc regen check(%d) : nid=%d, name=%s, x=%d, z=%d, rx=%d, rz=%d ## \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), pNpc->m_NpcState, nid, szName, (int)pNpc->m_fCurX, (int)pNpc->m_fCurZ, pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
 		EnterCriticalSection( &g_LogFile_critical );
 		m_pMain->m_RegionLogFile.Write( strLog, strlen(strLog) );
 		LeaveCriticalSection( &g_LogFile_critical );
 		TRACE(strLog);
+		// to-do: replace with m_pMain->WriteRegionLog(...);
 	}
 
 	pNpc->m_NpcState = NPC_LIVE;
@@ -820,15 +809,11 @@ void CAISocket::RecvNpcInfo(char* pBuf)
 
 void CAISocket::RecvUserHP(char* pBuf)
 {
-	int index = 0, send_index = 0;
-	int nid = 0;
-	int nHP = 0, nMaxHP = 0;
-	char send_buff[256];
-	memset( send_buff, 0x00, 256 );
+	int index = 0, nid = 0, nHP = 0, nMaxHP = 0;
 
-	nid = GetShort(pBuf,index);
-	nHP = GetDWORD(pBuf,index);
-	nMaxHP = GetDWORD(pBuf,index);
+	nid = GetShort(pBuf, index);
+	nHP = GetDWORD(pBuf, index);
+	nMaxHP = GetDWORD(pBuf, index);
 
 	if( nid >= USER_BAND && nid < NPC_BAND)	{
 		CUser* pUser = m_pMain->GetUserPtr(nid);
@@ -867,7 +852,7 @@ void CAISocket::RecvUserExp(char* pBuf)
 	pUser->ExpChange(sExp);
 
 	if( sLoyalty > 0 )	{
-		char send_buff[128];  memset( send_buff, 0x00, 128 );
+		char send_buff[128]; 
 		int send_index = 0;
 		SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );
 		SetDWORD( send_buff, pUser->m_pUserData->m_iLoyalty, send_index );
@@ -878,18 +863,15 @@ void CAISocket::RecvUserExp(char* pBuf)
 void CAISocket::RecvSystemMsg(char* pBuf)
 {
 	int index = 0, send_index = 0;
-	char send_buff[256];
-	memset( send_buff, 0x00, 256 );
-	char strSysMsg[256];
-	memset( strSysMsg, 0x00, 256 );
+	char send_buff[256], strSysMsg[256];
 
 	BYTE bType;
-	short sWho, sLength;
+	short sWho;
 
 	bType = GetByte(pBuf,index);
 	sWho = GetShort(pBuf,index);
-	sLength = GetShort(pBuf,index);
-	GetString( strSysMsg, pBuf, sLength, index );
+	if (!GetKOString(pBuf, strSysMsg, index, sizeof(strSysMsg) - 1))
+		return;
 
 	//TRACE("RecvSystemMsg - type=%d, who=%d, len=%d, msg=%s\n", bType, sWho, sLength, strSysMsg);
 
@@ -904,8 +886,7 @@ void CAISocket::RecvSystemMsg(char* pBuf)
 		SetByte( send_buff, bType, send_index );
 		SetByte( send_buff, 0x01, send_index );		// nation
 		SetShort( send_buff, -1, send_index );		// sid
-		SetShort( send_buff, sLength, send_index );
-		SetString( send_buff, strSysMsg, sLength, send_index );
+		SetKOString( send_buff, strSysMsg, send_index );
 		m_pMain->Send_All( send_buff, send_index );
 		break;
 	case SEND_ZONE:
@@ -918,7 +899,6 @@ void CAISocket::RecvNpcGiveItem(char* pBuf)
 {
 	int index = 0, send_index = 0;
 	char send_buff[1024];
-	memset( send_buff, 0x00, 1024 );
 	short sUid, sNid, sZone, regionx, regionz;
 	float fX, fZ, fY;
 	BYTE byCount;
@@ -976,7 +956,6 @@ void CAISocket::RecvNpcGiveItem(char* pBuf)
 		return;
 	
 	send_index = 0;
-	memset( send_buff, 0x00, 1024 );
 
 	SetByte( send_buff, WIZ_ITEM_DROP, send_index );
 	SetShort( send_buff, sNid, send_index );
@@ -992,7 +971,6 @@ void CAISocket::RecvUserFail(char* pBuf)
 	short nid = 0, sid=0;
 	int index = 0, send_index = 0;
 	char pOutBuf[1024];
-	memset(pOutBuf, NULL, 1024);
 
 	nid = GetShort(pBuf,index);
 	sid = GetShort(pBuf,index);
@@ -1059,10 +1037,8 @@ void CAISocket::RecvCheckAlive(char* pBuf)
 
 void CAISocket::RecvGateDestory(char* pBuf)
 {
-	int index = 0, send_index = 0, cur_zone=0, rx=0, rz=0;
+	int index = 0, cur_zone=0, rx=0, rz=0;
 	int nid = 0, gate_status = 0;
-	char send_buff[256];
-	memset( send_buff, 0x00, 256 );
 
 	nid = GetShort(pBuf,index);
 	gate_status = GetByte(pBuf,index);
@@ -1083,7 +1059,6 @@ void CAISocket::RecvNpcDead(char* pBuf)
 	int index = 0, send_index = 0;
 	int nid = 0;
 	char send_buff[256];
-	memset( send_buff, 0x00, 256 );
 	_OBJECT_EVENT* pEvent = NULL;
 
 	nid = GetShort(pBuf,index);
@@ -1118,11 +1093,8 @@ void CAISocket::RecvNpcDead(char* pBuf)
 
 void CAISocket::RecvNpcInOut(char* pBuf)
 {
-	int index = 0, send_index = 0;
-	int nid = 0, nType = 0;
+	int index = 0, nid = 0, nType = 0;
 	float fx = 0.0f, fz=0.0f, fy=0.0f;
-	char send_buff[256];
-	memset( send_buff, 0x00, 256 );
 
 	nType = GetByte( pBuf, index );
 	nid = GetShort(pBuf, index);
@@ -1141,12 +1113,8 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 {
 	int index = 0, send_index = 0, udp_index = 0, retvalue = 0;
 	int nType = 0, nResult = 0, nLen = 0;
-	char strMaxUserName[MAX_ID_SIZE+1];	memset( strMaxUserName, 0x00, MAX_ID_SIZE+1 );
-	char strKnightsName[MAX_ID_SIZE+1];	memset( strKnightsName, 0x00, MAX_ID_SIZE+1 );
-	char chatstr[1024]; memset( chatstr, NULL, 1024 );
-	char finalstr[1024]; memset( finalstr, NULL, 1024 );
-	char send_buff[1024]; memset( send_buff, NULL, 1024 );
-	char udp_buff[1024]; memset( udp_buff, NULL, 1024 );
+	char strMaxUserName[MAX_ID_SIZE+1], strKnightsName[MAX_ID_SIZE+1];
+	char chatstr[1024], finalstr[1024], send_buff[1024], udp_buff[1024];
 	CUser* pUser = NULL;
 	CKnights* pKnights = NULL;
 
@@ -1190,7 +1158,7 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 		if( nLen > 0 && nLen < MAX_ID_SIZE+1 )	{
 			GetString( strMaxUserName, pBuf, nLen, index );
 			if( m_pMain->m_byBattleSave == 0 )	{
-				memset( send_buff, NULL, 1024 );		send_index = 0;			// 승리국가를 sql에 저장
+				send_index = 0;			// 승리국가를 sql에 저장
 				SetByte( send_buff, WIZ_BATTLE_EVENT, send_index );
 				SetByte( send_buff, nType, send_index );
 				SetByte( send_buff, nResult, send_index );
@@ -1214,15 +1182,13 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 		SetByte( udp_buff, nResult, udp_index );
 	}
 	else if( nType == BATTLE_EVENT_MAX_USER )	{
-		nLen = GetByte(pBuf, index);
-
-		if( nLen > 0 && nLen < MAX_ID_SIZE+1 )	{
-			GetString( strMaxUserName, pBuf, nLen, index );
+		if (GetKOString(pBuf, strMaxUserName, index, MAX_ID_SIZE, sizeof(BYTE)))
+		{
 			pUser = m_pMain->GetUserPtr(strMaxUserName, TYPE_CHARACTER);
 			if( pUser )	{
 				pKnights = m_pMain->m_KnightsArray.GetData( pUser->m_pUserData->m_bKnights );
 				if( pKnights )	{
-					strcpy( strKnightsName, pKnights->m_strName );
+					strcpy_s( strKnightsName, sizeof(strKnightsName), pKnights->m_strName );
 				}
 			}
 
@@ -1261,7 +1227,7 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 
 			_snprintf(chatstr, sizeof(chatstr), m_pMain->GetServerResource(nResourceID), strKnightsName, strMaxUserName);
 
-			memset( send_buff, NULL, 1024 );		send_index = 0;
+			send_index = 0;
 			sprintf( finalstr, m_pMain->GetServerResource(IDP_ANNOUNCEMENT), chatstr );
 			SetByte( send_buff, WIZ_CHAT, send_index );
 			SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
@@ -1270,7 +1236,7 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 			SetKOString( send_buff, finalstr, send_index );
 			m_pMain->Send_All( send_buff, send_index );
 
-			memset( send_buff, NULL, 1024 );		send_index = 0;
+			send_index = 0;
 			SetByte( send_buff, WIZ_CHAT, send_index );
 			SetByte( send_buff, PUBLIC_CHAT, send_index );
 			SetByte( send_buff, 1, send_index );
@@ -1292,11 +1258,8 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 
 void CAISocket::RecvNpcEventItem( char* pBuf )
 {
-	int index = 0, send_index = 0, zoneindex = -1;
-	char send_buff[1024];
-	memset( send_buff, 0x00, 1024 );
+	int index = 0, zoneindex = -1, nItemNumber = 0, nCount = 0;
 	short sUid = 0, sNid = 0;
-	int nItemNumber = 0, nCount = 0;
 	CUser* pUser = NULL;
 
 	sUid = GetShort(pBuf,index);	// Item을 가져갈 사람의 아이디... (이것을 참조해서 작업하셈~)

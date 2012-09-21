@@ -46,7 +46,7 @@ void CUser::CloseProcess()
 void CUser::Parsing(int len, char *pData)
 {
 	int index = 0, send_index = 0;
-	char buff[4096]; memset(buff, 0x00, sizeof(buff));
+	char buff[4096]; 
 	BYTE command = GetByte(pData, index);
 
 	switch (command) 
@@ -145,22 +145,13 @@ void CUser::Parsing(int len, char *pData)
 }
 void CUser::LogInReq(char *pBuf)
 {
-	int index = 0, idlen=0, pwdlen = 0, send_index = 0, result = 0, serverno = 0;
+	int index = 0, send_index = 0, result = 0, serverno = 0;
 	BOOL bCurrentuser = FALSE;
-	char send_buff[256]; memset( send_buff, 0x00, 256 );
-	char serverip[20]; memset( serverip, 0x00, 20 );
-	char accountid[MAX_ID_SIZE+1], pwd[13];
-	memset( accountid, NULL, MAX_ID_SIZE+1 );
-	memset( pwd, NULL, 13);
+	char send_buff[256], serverip[20] = "", accountid[MAX_ID_SIZE+1], pwd[MAX_PW_SIZE+1];
 
-	idlen = GetShort( pBuf, index );
-	if( idlen > MAX_ID_SIZE || idlen <= 0)
+	if (!GetKOString(pBuf, accountid, index, MAX_ID_SIZE)
+		|| !GetKOString(pBuf, pwd, index, MAX_PW_SIZE))
 		goto fail_return;
-	GetString( accountid, pBuf, idlen, index );
-	pwdlen = GetShort( pBuf, index );
-	if( pwdlen > 12 || pwdlen < 0)
-		goto fail_return;
-	GetString( pwd, pBuf, pwdlen, index );
 
 	result = m_pMain->m_DBProcess.AccountLogin( accountid, pwd );
 	SetByte( send_buff, LS_LOGIN_REQ, send_index );

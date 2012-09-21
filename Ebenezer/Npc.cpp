@@ -82,7 +82,6 @@ void CNpc::MoveResult(float xpos, float ypos, float zpos, float speed)
 
 	int send_index = 0;
 	char pOutBuf[1024];
-	memset(pOutBuf, 0, 1024);
 
 	SetByte(pOutBuf, WIZ_NPC_MOVE, send_index);
 	SetShort(pOutBuf, m_sNid, send_index);
@@ -98,7 +97,6 @@ void CNpc::NpcInOut(BYTE Type, float fx, float fz, float fy)
 {
 	int send_index = 0;
 	char buff[1024];
-	memset( buff, 0x00, 1024 );
 
 	C3DMap *pMap = m_pMain->GetZoneByID(getZoneID());
 	if (pMap == NULL)
@@ -176,7 +174,6 @@ void CNpc::RemoveRegion(int del_x, int del_z)
 	int send_index = 0, i=0;
 	int region_x = -1, region_z = -1, uid = -1;
 	char buff[128];
-	memset( buff, NULL, 128 );
 	C3DMap* pMap = GetMap();
 
 	SetByte( buff, WIZ_NPC_INOUT, send_index );
@@ -206,7 +203,6 @@ void CNpc::InsertRegion(int del_x, int del_z)
 	int send_index = 0, buff_index = 0, i=0;
 	int region_x = -1, region_z = -1;
 	char buff[128];
-	memset( buff, NULL, 128 );
 	C3DMap* pMap = GetMap();
 	if (pMap == NULL)
 		return;

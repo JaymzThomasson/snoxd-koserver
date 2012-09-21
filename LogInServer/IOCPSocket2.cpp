@@ -65,7 +65,6 @@ int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 		return 0;
 
 	char pTBuf[MAX_PACKET_SIZE];
-	memset( pTBuf, 0x00, MAX_PACKET_SIZE );
 	int index = 0;
 
 	pTBuf[index++] = (BYTE)PACKET_START1;

@@ -69,8 +69,8 @@ CMagicProcess::~CMagicProcess()
 
 void CMagicProcess::MagicPacket(char *pBuf, int len)
 {
-	int index = 0, send_index = 0, magicid = 0, sid = -1, tid = -2, data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0;
-	char send_buff[128]; memset( send_buff, NULL, 128 ); int type3_attribute = 0;
+	int index = 0, send_index = 0, magicid = 0, sid = -1, tid = -2, data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0, type3_attribute = 0;
+	char send_buff[128];
 
 	_MAGIC_TABLE* pTable = NULL;
 	CNpc* pMon = NULL;
@@ -432,7 +432,6 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 	
 	int modulator = 0, Class = 0, send_index = 0, moral = 0 ;	// Variable Initialization.
 	char send_buff[128] ;	
-	memset( send_buff, NULL, 128) ; 
 	int skill_mod = 0 ;
 
 	_MAGIC_TABLE* pTable = NULL;
@@ -763,7 +762,7 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 	return pTable;      // Magic was successful! 
 
 fail_return:    // In case the magic failed, just send a packet.
-	memset( send_buff, NULL, 128 ); send_index = 0;
+	send_index = 0;
 	SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 	SetByte( send_buff, MAGIC_FAIL, send_index );
 	SetDWORD( send_buff, magicid, send_index );
@@ -799,7 +798,7 @@ fail_return:    // In case the magic failed, just send a packet.
 BYTE CMagicProcess::ExecuteType1(int magicid, int sid, int tid, int data1, int data2, int data3)   // Applied to an attack skill using a weapon.
 {	
 	int damage = 0, send_index = 0, result = 1;     // Variable initialization. result == 1 : success, 0 : fail
-	char send_buff[128];	memset( send_buff, NULL, 128); 
+	char send_buff[128];
 
 	_MAGIC_TABLE* pMagic = NULL;
 	pMagic = m_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
@@ -883,7 +882,7 @@ packet_send:
 BYTE CMagicProcess::ExecuteType2(int magicid, int sid, int tid, int data1, int data2, int data3)
 {		
 	int damage = 0, send_index = 0, result = 1 ; // Variable initialization. result == 1 : success, 0 : fail	
-	char send_buff[128];	memset( send_buff, NULL, 128);     // For the packet. 
+	char send_buff[128];
 
 	float total_range = 0.0f;	// These variables are used for range verification!
 	int sx, sz, tx, tz;
@@ -988,16 +987,11 @@ packet_send:
 void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int data2, int data3)  // Applied when a magical attack, healing, and mana restoration is done.
 {	
 	int damage = 0, duration_damage = 0, send_index = 0, result = 1;     // Variable initialization. result == 1 : success, 0 : fail
-	char send_buff[128];	memset( send_buff, NULL, 128); 
-	char strLogData[128];	memset( strLogData, NULL, 128); 
+	char send_buff[128], strLogData[128];
 	BOOL bFlag = FALSE; 
 	CNpc* pMon = NULL;
 
-	int casted_member[MAX_USER], party_index = 0 ;
-
-	for (int h = 0 ; h < MAX_USER ; h++) {
-		casted_member[h] = -1;
-	}
+	vector<int> casted_member;
 
 	_MAGIC_TABLE* pMagic = NULL;
 	pMagic = m_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
@@ -1018,13 +1012,11 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 			CUser* pTUser = m_pMain->GetUnsafeUserPtr(i);
 			if (pTUser == NULL || pTUser->m_bResHpType == USER_DEAD || pTUser->m_bAbnormalType == ABNORMAL_BLINKING) continue;
 			
-			if (UserRegionCheck(sid, i, magicid, pType->bRadius, data1, data3)) {
-				casted_member[party_index] = i ;
-				party_index++ ;
-			}						
+			if (UserRegionCheck(sid, i, magicid, pType->bRadius, data1, data3))
+				casted_member.push_back(i);
 		}
 
-		if (party_index == 0) {		// If none of the members are in the region, return.				
+		if (casted_member.size() == 0) {		// If none of the members are in the region, return.				
 			SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 			SetByte( send_buff, MAGIC_FAIL, send_index );
 			SetDWORD( send_buff, magicid, send_index );
@@ -1051,16 +1043,16 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 		CUser* pTUser = m_pMain->GetUserPtr(tid);
 		if (pTUser == NULL) return;		
 		
-		casted_member[0] = tid ;
-		party_index = 1 ;
+		casted_member.push_back(tid);
 	}
 	
-	for ( int j = 0 ; j < party_index ; j++) {	// THIS IS WHERE THE FUN STARTS!!!
-		CUser* pTUser = m_pMain->GetUserPtr(casted_member[j]);     // Get target info.  
+	foreach (itr, casted_member)
+	{
+		CUser* pTUser = m_pMain->GetUserPtr(*itr);     // Get target info.  
 		if (pTUser == NULL || pTUser->m_bResHpType == USER_DEAD) continue;
 
 		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1) && (magicid < 400000)) {		// If you are casting an attack spell.
-			damage = GetMagicDamage(sid, casted_member[j], pType->sFirstDamage, pType->bAttribute) ;	// Get Magical damage point.
+			damage = GetMagicDamage(sid, *itr, pType->sFirstDamage, pType->bAttribute) ;	// Get Magical damage point.
 		}
 		else damage = pType->sFirstDamage ;
 
@@ -1117,13 +1109,13 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 						}
 						else	{
 							if( m_pSrcUser->m_sPartyIndex == -1 ) {    // Something regarding loyalty points.
-								m_pSrcUser->LoyaltyChange(casted_member[j]);
+								m_pSrcUser->LoyaltyChange(*itr);
 							}
 							else {
-								m_pSrcUser->LoyaltyDivide(casted_member[j]);
+								m_pSrcUser->LoyaltyDivide(*itr);
 							}
 
-							m_pSrcUser->GoldChange(casted_member[j], 0);
+							m_pSrcUser->GoldChange(*itr, 0);
 						}
 					}
 
@@ -1142,7 +1134,7 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 					}
 				}
 
-				if (!bFlag) m_pSrcUser->SendTargetHP( 0, casted_member[j], damage ) ;     // Change the HP of the target.			
+				if (!bFlag) m_pSrcUser->SendTargetHP( 0, *itr, damage ) ;     // Change the HP of the target.			
 			}
 			else if ( pType->bDirectType == 2 || pType->bDirectType == 3 )    // Magic or Skill Point related !
 				pTUser->MSpChange(damage);     // Change the SP or the MP of the target.		
@@ -1174,13 +1166,13 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 					
 					if (!bFlag) {	// Killed by another player.
 						if( m_pSrcUser->m_sPartyIndex == -1 ) {    // Something regarding loyalty points.
-							m_pSrcUser->LoyaltyChange(casted_member[j]);
+							m_pSrcUser->LoyaltyChange(*itr);
 						}
 						else {
-							m_pSrcUser->LoyaltyDivide(casted_member[j]);
+							m_pSrcUser->LoyaltyDivide(*itr);
 						}
 
-						m_pSrcUser->GoldChange(casted_member[j], 0);
+						m_pSrcUser->GoldChange(*itr, 0);
 					}
 
 					// 기범이의 완벽한 보호 코딩 !!!
@@ -1197,12 +1189,12 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 						pTUser->m_sWhoKilledMe = sid;	// Who the hell killed me?
 					}
 				}
-				if (!bFlag) m_pSrcUser->SendTargetHP( 0, casted_member[j], damage );     // Change the HP of the target. 
+				if (!bFlag) m_pSrcUser->SendTargetHP( 0, *itr, damage );     // Change the HP of the target. 
 			}
 
 			if (pTUser->m_bResHpType != USER_DEAD) {	// 여기도 보호 코딩 했슴...
 				if (pType->sTimeDamage < 0) {
-					duration_damage = GetMagicDamage(sid, casted_member[j], pType->sTimeDamage, pType->bAttribute) ;
+					duration_damage = GetMagicDamage(sid, *itr, pType->sTimeDamage, pType->bAttribute) ;
 				}
 				else duration_damage = pType->sTimeDamage ;
 
@@ -1224,11 +1216,11 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 			if (pTUser->m_sPartyIndex != -1 && pType->sTimeDamage < 0) {
 				SetByte( send_buff, WIZ_PARTY, send_index );
 				SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-				SetShort( send_buff, casted_member[j], send_index );
+				SetShort( send_buff, *itr, send_index );
 				SetByte( send_buff, 1, send_index );
 				SetByte( send_buff, 0x01, send_index);
 				m_pMain->Send_PartyMember(pTUser->m_sPartyIndex, send_buff, send_index);
-				memset( send_buff, NULL, 128); send_index = 0 ;
+				send_index = 0;
 			}
 			//  end of Send Party Packet......//
 //
@@ -1239,7 +1231,7 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 			SetByte( send_buff, MAGIC_EFFECTING, send_index );
 			SetDWORD( send_buff, magicid, send_index );
 			SetShort( send_buff, sid, send_index );
-			SetShort( send_buff, casted_member[j], send_index );
+			SetShort( send_buff, *itr, send_index );
 			SetShort( send_buff, data1, send_index );	
 			SetShort( send_buff, result, send_index );	
 			SetShort( send_buff, data3, send_index );	
@@ -1255,7 +1247,7 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 		if( pType->bDirectType == 1 && damage > 0)	{
 			if (!bFlag) {
 				if (sid != tid) {		
-					memset( send_buff, NULL, 128);    send_index = 0;
+					send_index = 0;
 					SetByte( send_buff, AG_HEAL_MAGIC, send_index );
 					SetShort( send_buff, sid, send_index );
 					m_pMain->Send_AIServer(send_buff, send_index);
@@ -1264,7 +1256,7 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 		}
 
 		result = 1 ;
-		memset( send_buff, NULL, 128); send_index = 0 ;
+		send_index = 0 ;
 	}
 	
 	return;		
@@ -1274,14 +1266,9 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 {
 	int damage = 0, send_index = 0, result = 1;     // Variable initialization. result == 1 : success, 0 : fail
 	char send_buff[128];
-	memset( send_buff, NULL, 128);
 
-	int casted_member[MAX_USER], party_index = 0 ;
+	vector<int> casted_member;
 	 
-	for (int h = 0 ; h < MAX_USER ; h++) {
-		casted_member[h] = -1;
-	}
-
 	_MAGIC_TABLE* pMagic = NULL;
 	pMagic = m_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
 	if( !pMagic ) return;
@@ -1297,13 +1284,11 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			if (pTUser == NULL || pTUser->isDead() 
 				|| pTUser->m_bAbnormalType == ABNORMAL_BLINKING) continue;
 			
-			if (UserRegionCheck(sid, i, magicid, pType->bRadius, data1, data3)) {
-				casted_member[party_index] = i ;
-				party_index++ ;
-			}						
+			if (UserRegionCheck(sid, i, magicid, pType->bRadius, data1, data3))
+				casted_member.push_back(i);
 		}
 
-		if (party_index == 0) {		// If none of the members are in the region, return.
+		if (casted_member.size() == 0) {		// If none of the members are in the region, return.
 			SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 			SetByte( send_buff, MAGIC_FAIL, send_index );
 			SetDWORD( send_buff, magicid, send_index );
@@ -1325,13 +1310,12 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 		CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.  
 		if (pTUser == NULL) return;     // Check if target exists		
 		
-		casted_member[0] = tid ;
-		party_index = 1 ;
+		casted_member.push_back(tid);
 	}
 
-	for ( int j = 0 ; j < party_index ; j++) {	// THIS IS WHERE THE FUN STARTS!!!
-		CUser* pTUser = NULL ;     // Pointer initialization!		
-		pTUser = m_pMain->GetUserPtr(casted_member[j]) ;     // Get target info.  
+	foreach (itr, casted_member)
+	{
+		CUser* pTUser = m_pMain->GetUserPtr(*itr) ;     // Get target info.  
 		if (pTUser == NULL || pTUser->isDead()) continue;
 //
 		if (pTUser->m_bType4Buff[pType->bBuffType - 1] == 2 && tid == -1) {		// Is this buff-type already casted on the player?
@@ -1353,18 +1337,18 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 //
 			case 3 : 
 				if (magicid == 490034) {	// Bezoar!!!
-					memset( send_buff, NULL, 128); send_index = 0 ;
+					send_index = 0 ;
 					SetByte(send_buff, 3, send_index);	// You are now a giant!!!
 					SetByte(send_buff, ABNORMAL_GIANT, send_index);
 					pTUser->StateChange(send_buff);					
-					memset( send_buff, NULL, 128); send_index = 0 ;
+					send_index = 0;
 				}
 				else if (magicid == 490035) {	// Rice Cake!!!
-					memset( send_buff, NULL, 128); send_index = 0 ;
+					send_index = 0 ;
 					SetByte(send_buff, 3, send_index);	// You are now a dwarf!!!
 					SetByte(send_buff, ABNORMAL_DWARF, send_index);
 					pTUser->StateChange(send_buff);						
-					memset( send_buff, NULL, 128); send_index = 0 ;
+					send_index = 0;
 				}
 
 				pTUser->m_sDuration3 = pType->sDuration;
@@ -1455,7 +1439,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			SetByte( send_buff, 2, send_index );
 			SetByte( send_buff, 0x01, send_index);
 			m_pMain->Send_PartyMember(pTUser->m_sPartyIndex, send_buff, send_index);
-			memset( send_buff, NULL, 128); send_index = 0 ;
+			send_index = 0;
 		}
 		//  end of Send Party Packet.....//
 //	
@@ -1466,7 +1450,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			SetByte( send_buff, MAGIC_EFFECTING, send_index );
 			SetDWORD( send_buff, magicid, send_index );
 			SetShort( send_buff, sid, send_index );
-			SetShort( send_buff, casted_member[j], send_index );
+			SetShort( send_buff, *itr, send_index );
 			SetShort( send_buff, data1, send_index );	
 			SetShort( send_buff, result, send_index );	
 			SetShort( send_buff, data3, send_index );	
@@ -1478,7 +1462,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			}
 		}
 
-		memset( send_buff, NULL, 128); send_index = 0 ;
+		send_index = 0;
 		result = 1;	
 		continue; 
 
@@ -1488,7 +1472,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			SetByte( send_buff, MAGIC_EFFECTING, send_index );
 			SetDWORD( send_buff, magicid, send_index );
 			SetShort( send_buff, sid, send_index );
-			SetShort( send_buff, casted_member[j], send_index );
+			SetShort( send_buff, *itr, send_index );
 			SetShort( send_buff, data1, send_index );	
 			SetShort( send_buff, result, send_index );	
 			SetShort( send_buff, data3, send_index );
@@ -1498,7 +1482,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			else {
 				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 			}
-			memset( send_buff, NULL, 128); send_index = 0 ;
+			send_index = 0 ;
 		}
 		
 		if (sid >= 0 && sid < MAX_USER) {
@@ -1506,7 +1490,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			SetByte( send_buff, MAGIC_FAIL, send_index );
 			SetDWORD( send_buff, magicid, send_index );
 			SetShort( send_buff, sid, send_index );
-			SetShort( send_buff, casted_member[j], send_index );
+			SetShort( send_buff, *itr, send_index );
 			SetShort( send_buff, 0, send_index );
 			SetShort( send_buff, 0, send_index );
 			SetShort( send_buff, 0, send_index );
@@ -1516,7 +1500,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			m_pSrcUser->Send( send_buff, send_index );
 		}
 
-		memset( send_buff, NULL, 128); send_index = 0 ;
+		send_index = 0 ;
 		result = 1;	
 		continue;
 	}
@@ -1525,7 +1509,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int data2, int data3 )
 {
 	int damage = 0, send_index = 0, result = 1;     // Variable initialization. result == 1 : success, 0 : fail
-	char send_buff[128]; memset( send_buff, NULL, 128);
+	char send_buff[128]; 
 	int i = 0, j = 0, k =0; int buff_test = 0; BOOL bType3Test = TRUE; BOOL bType4Test = TRUE; 	
 
 	_MAGIC_TABLE* pMagic = NULL;
@@ -1551,7 +1535,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 					pTUser->m_bHPInterval[i] = 5;
 					pTUser->m_sSourceID[i] = -1;
 
-					memset( send_buff, NULL, 128); send_index = 0;
+					send_index = 0;
 					SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 					SetByte( send_buff, MAGIC_TYPE3_END, send_index );	
 					SetByte( send_buff, 200, send_index );		// REMOVE ALL!!!
@@ -1575,7 +1559,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 
 			// Send Party Packet....   
 			if (pTUser->m_sPartyIndex != -1 && bType3Test) {
-				memset( send_buff, NULL, 128); send_index = 0 ;
+				send_index = 0 ;
 				SetByte( send_buff, WIZ_PARTY, send_index );
 				SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
 				SetShort( send_buff, tid, send_index );
@@ -1676,6 +1660,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 
 			/*	Send Party Packet.....
 			if (m_sPartyIndex != -1) {
+				send_index = 0;
 				SetByte( send_buff, WIZ_PARTY, send_index );
 				SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
 				SetShort( send_buff, m_Sid, send_index );
@@ -1687,7 +1672,6 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 	//			}
 				SetByte( send_buff, 0x00, send_index);
 				m_pMain->Send_PartyMember(m_sPartyIndex, send_buff, send_index);
-				memset( send_buff, NULL, 128); send_index = 0 ;
 			}
 			//  end of Send Party Packet.....  */
 		
@@ -1707,24 +1691,22 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 //
 			// Send Party Packet.....
 			if (pTUser->m_sPartyIndex != -1 && bType4Test) {
-				memset( send_buff, NULL, 128); send_index = 0 ;
+				send_index = 0 ;
 				SetByte( send_buff, WIZ_PARTY, send_index );
 				SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
 				SetShort( send_buff, tid, send_index );
 				SetByte( send_buff, 2, send_index );
 				SetByte( send_buff, 0x00, send_index);
 				m_pMain->Send_PartyMember(pTUser->m_sPartyIndex, send_buff, send_index);
-				memset( send_buff, NULL, 128); send_index = 0;
 			}
 			//  end of Send Party Packet.....  //
 //
 			break;
 			
 		case RESURRECTION:		// RESURRECT A DEAD PLAYER!!!
-			memset( send_buff, NULL, 128); send_index = 0;
+			send_index = 0;
 			SetByte( send_buff, 1, send_index );
 			pTUser->Regene(send_buff, magicid);
-			memset( send_buff, NULL, 128); send_index = 0;
 			break;
 
 		case REMOVE_BLESS:
@@ -1756,14 +1738,13 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 
 				// Send Party Packet.....
 				if (pTUser->m_sPartyIndex != -1 && bType4Test) {
-					memset( send_buff, NULL, 128); send_index = 0 ;
+					send_index = 0 ;
 					SetByte( send_buff, WIZ_PARTY, send_index );
 					SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
 					SetShort( send_buff, tid, send_index );
 					SetByte( send_buff, 2, send_index );
 					SetByte( send_buff, 0x00, send_index);
 					m_pMain->Send_PartyMember(pTUser->m_sPartyIndex, send_buff, send_index);
-					memset( send_buff, NULL, 128); send_index = 0;
 				}
 				//  end of Send Party Packet.....  //
 			}
@@ -1772,7 +1753,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 	}
 
 	if ( pMagic->bType2 == 0 || pMagic->bType2 == 5) {		   // In case of success!!!
-		memset( send_buff, NULL, 128); send_index = 0;
+		send_index = 0;
 		SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 		SetByte( send_buff, MAGIC_EFFECTING, send_index );
 		SetDWORD( send_buff, magicid, send_index );
@@ -1804,14 +1785,10 @@ void CMagicProcess::ExecuteType7(int magicid)
 void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int data2, int data3 )	// Warp, resurrection, and summon spells.
 {	
 	int damage = 0, send_index = 0, result = 1;     // Variable initialization. result == 1 : success, 0 : fail
-	char send_buff[128];	memset(send_buff, NULL, 128); 
+	char send_buff[128];
 
-	int casted_member[MAX_USER], party_index = 0 ;
+	vector<int> casted_member;
 	
-	for (int h = 0 ; h < MAX_USER ; h++) {
-		casted_member[h] = -1;
-	}
-
 	_MAGIC_TYPE8* pType = NULL;
 	pType = m_pMain->m_Magictype8Array.GetData( magicid );      // Get magic skill table type 8.
 	if( !pType ) return;
@@ -1821,29 +1798,27 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 			CUser* pTUser = m_pMain->GetUnsafeUserPtr(i);
 			if (pTUser == NULL) continue;     // Check if target exists
 			
-			if (UserRegionCheck(sid, i, magicid, pType->sRadius, data1, data3)) {
-				casted_member[party_index] = i ;
-				party_index++ ;
-			}						
+			if (UserRegionCheck(sid, i, magicid, pType->sRadius, data1, data3))
+				casted_member.push_back(i);
 		}
-		if (party_index == 0) return;	// If none of the members are in the region, return.
+		if (casted_member.size() == 0) return;	// If none of the members are in the region, return.
 	}
 	else {		// If the target was another single player.
 		CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.  
 		if (pTUser == NULL) return;     // Check if target exists		
 		
-		casted_member[0] = tid ;
-		party_index = 1 ;
+		casted_member.push_back(tid);
 	}
 
-	for ( int j = 0 ; j < party_index ; j++) {	// THIS IS WHERE THE FUN STARTS!!!
+	foreach (itr, casted_member)
+	{
 		_OBJECT_EVENT* pEvent = NULL;
 		float x = 0.0f, z = 0.0f;
 		x = (float)(myrand( 0, 400 )/100.0f);	z = (float)(myrand( 0, 400 )/100.0f);
 		if( x < 2.5f )	x = 1.5f + x;
 		if( z < 2.5f )	z = 1.5f + z;
 
-		CUser* pTUser = m_pMain->GetUserPtr(casted_member[j]);
+		CUser* pTUser = m_pMain->GetUserPtr(*itr);
 		if (pTUser == NULL) continue;
 
 // 비러머글 대만 써비스 >.<
@@ -1882,14 +1857,13 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				SetByte( send_buff, MAGIC_EFFECTING, send_index );
 				SetDWORD( send_buff, magicid, send_index );
 				SetShort( send_buff, sid, send_index );
-				SetShort( send_buff, casted_member[j], send_index );
+				SetShort( send_buff, *itr, send_index );
 				SetShort( send_buff, data1, send_index );	
 				SetShort( send_buff, result, send_index );	
 				SetShort( send_buff, data3, send_index );	
 				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 
 				send_index = 0 ;
-				memset( send_buff, NULL, 128); 
 
 				if (pTUser->GetMap() == NULL)
 					continue;
@@ -1939,7 +1913,6 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				}
 							
 				send_index = 0 ;
-				memset( send_buff, NULL, 128); 
 				break;
 
 			case 2:		// Send target to teleport point WITHIN the zone.
@@ -1957,26 +1930,24 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				SetByte( send_buff, MAGIC_EFFECTING, send_index );
 				SetDWORD( send_buff, magicid, send_index );
 				SetShort( send_buff, sid, send_index );
-				SetShort( send_buff, casted_member[j], send_index );
+				SetShort( send_buff, *itr, send_index );
 				SetShort( send_buff, data1, send_index );	
 				SetShort( send_buff, result, send_index );	
 				SetShort( send_buff, data3, send_index );	
 				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 
 				send_index = 0 ;
-				memset( send_buff, NULL, 128); 
 
 				pTUser->m_bResHpType = USER_STANDING;     // Target status is officially alive now.
 				pTUser->HpChange( pTUser->m_iMaxHp);	 // Refill HP.	
 				pTUser->ExpChange( pType->sExpRecover/100 );     // Increase target experience.
 				
 				SetByte( send_buff, AG_USER_REGENE, send_index ) ;		// Send a packet to AI server.
-				SetShort( send_buff, casted_member[j], send_index );
+				SetShort( send_buff, *itr, send_index );
 				SetShort( send_buff, pTUser->m_pUserData->m_bZone, send_index);
 				m_pMain->Send_AIServer(send_buff, send_index);
 
 				send_index = 0;			// Clear index and buffer!
-				memset( send_buff, NULL, 128);		
 				break;
 
 			case 12:	// Summon a target within the zone.	
@@ -1989,19 +1960,18 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				SetByte( send_buff, MAGIC_EFFECTING, send_index );
 				SetDWORD( send_buff, magicid, send_index );
 				SetShort( send_buff, sid, send_index );
-				SetShort( send_buff, casted_member[j], send_index );
+				SetShort( send_buff, *itr, send_index );
 				SetShort( send_buff, data1, send_index );	
 				SetShort( send_buff, result, send_index );	
 				SetShort( send_buff, data3, send_index );	
 				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
-				send_index = 0 ; memset( send_buff, NULL, 128); 
+				send_index = 0; 
 					
 				SetShort(send_buff, (WORD)(m_pSrcUser->m_pUserData->m_curx * 10 /* + myrand(1,3) */), send_index);	// Send packet with new positions to the Warp() function.
 				SetShort(send_buff, (WORD)(m_pSrcUser->m_pUserData->m_curz * 10 /* + myrand(1,3) */), send_index);
 				pTUser->Warp(send_buff);
 				
 				send_index = 0;			
-				memset( send_buff, NULL, 128);		
 				break;
 
 			case 13:	// Summon a target outside the zone.			
@@ -2014,13 +1984,13 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				SetByte( send_buff, MAGIC_EFFECTING, send_index );
 				SetDWORD( send_buff, magicid, send_index );
 				SetShort( send_buff, sid, send_index );
-				SetShort( send_buff, casted_member[j], send_index );
+				SetShort( send_buff, *itr, send_index );
 				SetShort( send_buff, data1, send_index );	
 				SetShort( send_buff, result, send_index );	
 				SetShort( send_buff, data3, send_index );	
 				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 
-				send_index = 0 ; memset( send_buff, NULL, 128); 
+				send_index = 0;
 
 				pTUser->ZoneChange(m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_pUserData->m_curx, m_pSrcUser->m_pUserData->m_curz) ;
 				//pTUser->UserInOut( USER_IN );
@@ -2033,14 +2003,13 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				SetByte( send_buff, MAGIC_EFFECTING, send_index );
 				SetDWORD( send_buff, magicid, send_index );
 				SetShort( send_buff, sid, send_index );
-				SetShort( send_buff, casted_member[j], send_index );
+				SetShort( send_buff, *itr, send_index );
 				SetShort( send_buff, data1, send_index );	
 				SetShort( send_buff, result, send_index );	
 				SetShort( send_buff, data3, send_index );	
 				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
 
 				send_index = 0 ;
-				memset( send_buff, NULL, 128); 				
 
 				float warp_x, warp_z;		// Variable Initialization.
 				float temp_warp_x, temp_warp_z;
@@ -2071,8 +2040,6 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				pTUser->Warp(send_buff);
 
 				send_index = 0;			// Clear index and buffer!
-				memset( send_buff, NULL, 128);
-				
 				break;
 
 			case 21:	// Summon a monster within a zone.
@@ -2090,13 +2057,13 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 		SetByte( send_buff, MAGIC_EFFECTING, send_index );
 		SetDWORD( send_buff, magicid, send_index );
 		SetShort( send_buff, sid, send_index );
-		SetShort( send_buff, casted_member[j], send_index );
+		SetShort( send_buff, *itr, send_index );
 		SetShort( send_buff, data1, send_index );	
 		SetShort( send_buff, result, send_index );	
 		SetShort( send_buff, data3, send_index );	
 		m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 
-		memset( send_buff, NULL, 128); send_index = 0 ;
+		send_index = 0 ;
 		result = 1;
 	}
 }
@@ -2351,7 +2318,6 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 {
 	int send_index = 0;     
 	char send_buff[128];
-	memset( send_buff, NULL, 128);
 
 	CUser* pTUser = m_pMain->GetUserPtr(tid);  
 	if (pTUser == NULL) return;
@@ -2386,11 +2352,11 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 			pTUser->m_sDuration3 = 0;		
 			pTUser->m_fStartTime3 = 0.0f;
 
-			memset( send_buff, NULL, 128); send_index = 0 ;
+			send_index = 0 ;
 			SetByte(send_buff, 3, send_index);	
 			SetByte(send_buff, ABNORMAL_NORMAL, send_index);
 			pTUser->StateChange(send_buff);						
-			memset( send_buff, NULL, 128); send_index = 0 ;					
+			send_index = 0 ;					
 			buff = TRUE;	
 			break;
 //  
@@ -2480,7 +2446,7 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 //			}
 			SetByte( send_buff, 0x00, send_index);
 			m_pMain->Send_PartyMember(m_sPartyIndex, send_buff, send_index);
-			memset( send_buff, NULL, 128); send_index = 0 ;
+			send_index = 0 ;
 		}
 		//  end of Send Party Packet.....  */
 
@@ -2498,7 +2464,7 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 //
 	// Send Party Packet.....
 	if (pTUser->m_sPartyIndex != -1 && pTUser->m_bType4Flag == FALSE) {
-		memset( send_buff, NULL, 128); send_index = 0 ;
+		send_index = 0 ;
 		SetByte( send_buff, WIZ_PARTY, send_index );
 		SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
 		SetShort( send_buff, tid, send_index );
@@ -2514,7 +2480,6 @@ void CMagicProcess::Type3Cancel(int magicid, short tid)
 {
 	int send_index = 0;     
 	char send_buff[128];
-	memset( send_buff, NULL, 128);
 
 	CUser* pTUser = m_pMain->GetUserPtr(tid);  
 	if (pTUser == NULL) return;
@@ -2548,7 +2513,7 @@ void CMagicProcess::Type3Cancel(int magicid, short tid)
 //
 	// Send Party Packet....   
 	if (pTUser->m_sPartyIndex != -1 && pTUser->m_bType3Flag == FALSE) {
-		memset( send_buff, NULL, 128); send_index = 0 ;
+		send_index = 0 ;
 		SetByte( send_buff, WIZ_PARTY, send_index );
 		SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
 		SetShort( send_buff, tid, send_index );
@@ -2567,7 +2532,6 @@ void CMagicProcess::SendType4BuffRemove(short tid, BYTE buff)
 	CUser* pTUser = m_pMain->GetUserPtr(tid);  
 	if (pTUser == NULL) return;
 
-	memset( send_buff, NULL, 128); send_index = 0;
 	SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 	SetByte( send_buff, MAGIC_TYPE4_END, send_index );	
 	SetByte( send_buff, buff, send_index );		

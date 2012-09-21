@@ -196,13 +196,12 @@ BOOL CServerDlg::OnInitDialog()
 	//----------------------------------------------------------------------
 	//	Logfile initialize
 	//----------------------------------------------------------------------
-	char strLogFile[50];		memset(strLogFile, 0x00, 50);
-	wsprintf(strLogFile, "UserLog-%d-%d-%d.txt", time.GetYear(), time.GetMonth(), time.GetDay());
+	char strLogFile[50];
+	sprintf_s(strLogFile, sizeof(strLogFile), "UserLog-%d-%d-%d.txt", time.GetYear(), time.GetMonth(), time.GetDay());
 	m_UserLogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
 	m_UserLogFile.SeekToEnd();
 
-	memset(strLogFile, 0x00, 50);
-	wsprintf(strLogFile, "ItemLog-%d-%d-%d.txt", time.GetYear(), time.GetMonth(), time.GetDay());
+	sprintf_s(strLogFile, sizeof(strLogFile), "ItemLog-%d-%d-%d.txt", time.GetYear(), time.GetMonth(), time.GetDay());
 	m_ItemLogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
 	m_ItemLogFile.SeekToEnd();
 
@@ -1124,8 +1123,7 @@ BOOL CServerDlg::CreateNpcThread()
 					}
 
 					int index = 0;
-					memset(szPath, 0, 500);
-					strcpy(szPath, NpcPosSet.m_path);
+					strcpy_s(szPath, sizeof(szPath), NpcPosSet.m_path);
 
 					if(NpcPosSet.m_DotCnt != 0)	{
 						for(int l = 0; l<NpcPosSet.m_DotCnt; l++)	{
@@ -2349,7 +2347,6 @@ void CServerDlg::SendSystemMsg( char* pMsg, int type, int who )
 {
 	int send_index = 0;
 	char buff[256];
-	memset( buff, 0x00, 256 );
 	short sLength = _tcslen(pMsg);
 
 	SetByte(buff, AG_SYSTEM_MSG, send_index );
