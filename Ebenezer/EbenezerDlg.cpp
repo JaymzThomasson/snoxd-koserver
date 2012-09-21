@@ -2372,13 +2372,17 @@ BOOL CEbenezerDlg::LoadNoticeData()
 	int count = 0;
 
 	if (!txt_file.Open(NoticePath, CFile::modeRead)) {
-		AfxMessageBox("cannot open Notice.txt!!");
+		DEBUG_LOG("cannot open Notice.txt!!");
 		return FALSE;
 	}
 
 	while( txt_file.ReadString(buff) ) {
 		if( count > 19 )
-			AfxMessageBox("Notice Count Overflow!!");
+		{
+			AfxMessageBox("Too many lines in Notice.txt");
+			txt_file.Close();
+			return FALSE;
+		}
 		strcpy( m_ppNotice[count], (char*)(LPCTSTR)buff );
 		count++;
 	}
@@ -2396,7 +2400,7 @@ BOOL CEbenezerDlg::LoadBlockNameList()
 
 	if (!file.Open(NoticePath, CFile::modeRead))
 	{
-		AfxMessageBox("Cannot open BlockWord.txt!");
+		DEBUG_LOG("Cannot open BlockWord.txt!");
 		return FALSE;
 	}
 
