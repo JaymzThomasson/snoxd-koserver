@@ -890,6 +890,8 @@ BOOL CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)
 		if( destpos != WAIST )
 			return FALSE;
 		break;
+	default:
+		return FALSE;
 	}
 
 	return TRUE;
