@@ -1,45 +1,37 @@
-#if !defined(AFX_LEVELUPTABLESET_H__D86CBDDA_46E3_4514_B317_10362D6051DB__INCLUDED_)
-#define AFX_LEVELUPTABLESET_H__D86CBDDA_46E3_4514_B317_10362D6051DB__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// LevelUpTableSet.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CLevelUpTableSet recordset
+typedef pair<BYTE, long>	LevelUpPair;
+#define T		LevelUpPair
+#define MapType	LevelUpArray
 
-class CLevelUpTableSet : public CRecordset
+class CLevelUpTableSet : public CMyRecordSet<T>
 {
 public:
-	CLevelUpTableSet(CDatabase* pDatabase = NULL);
+	CLevelUpTableSet(MapType *pMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_map(pMap)
+	{
+		m_nFields = 2;
+	}
+
 	DECLARE_DYNAMIC(CLevelUpTableSet)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[LEVEL_UP]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CLevelUpTableSet, CRecordset)
-	BYTE	m_level;
-	long	m_Exp;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Byte(pFX, _T("[Level]"), m_data.first);
+		RFX_Long(pFX, _T("[Exp]"), m_data.second);
+	};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CLevelUpTableSet)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+	virtual void HandleRead()
+	{
+		m_map->insert(m_data);
+	};
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+private:
+	MapType * m_map;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_LEVELUPTABLESET_H__D86CBDDA_46E3_4514_B317_10362D6051DB__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CLevelUpTableSet, CRecordset)

@@ -1,51 +1,65 @@
-#if !defined(AFX_ZONEINFOSET_H__2F772D75_7255_43A8_869E_82FA34930974__INCLUDED_)
-#define AFX_ZONEINFOSET_H__2F772D75_7255_43A8_869E_82FA34930974__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// ZoneInfoSet.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CZoneInfoSet recordset
+#ifdef AI_SERVER
+#define T	MAP
+#else
+#define T	C3DMap
+#endif
+#define MapType	ZoneArray
 
-class CZoneInfoSet : public CRecordset
+class CZoneInfoSet : public CMyRecordSet<T>
 {
 public:
-	CZoneInfoSet(CDatabase* pDatabase = NULL);
+	CZoneInfoSet(MapType *stlMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	{
+#ifdef EBENEZER
+		m_nFields = 7;
+#else
+		m_nFields = 4;
+#endif
+	}
+
 	DECLARE_DYNAMIC(CZoneInfoSet)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[ZONE_INFO]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CZoneInfoSet, CRecordset)
-	int		m_ServerNo;
-	int		m_ZoneNo;
-	CString	m_strZoneName;
-	long	m_InitX;
-	long	m_InitZ;
-	long	m_InitY;
-	BYTE	m_Type;
-	BYTE    m_RoomEvent;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Int(pFX, _T("[ServerNo]"), m_data.m_nServerNo);
+		RFX_Int(pFX, _T("[ZoneNo]"), m_data.m_nZoneNumber);
+		RFX_Text(pFX, _T("[strZoneName]"), m_data.m_MapName);
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CZoneInfoSet)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+#ifdef EBENEZER
+		RFX_Long(pFX, _T("[InitX]"), m_InitX);
+		RFX_Long(pFX, _T("[InitZ]"), m_InitZ);
+		RFX_Long(pFX, _T("[InitY]"), m_InitY);
+		RFX_Byte(pFX, _T("[Type]"), m_data.m_bType);
+#else
+		RFX_Byte(pFX, _T("[RoomEvent]"), m_data.m_byRoomEvent);
+#endif
+	};
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
+	virtual void HandleRead()
+	{
+		T * data = COPY_ROW();
+
+#ifdef EBENEZER
+		data->m_fInitX = (float)(m_InitX / 100.0f);
+		data->m_fInitY = (float)(m_InitY / 100.0f);
+		data->m_fInitZ = (float)(m_InitZ / 100.0f);
+#endif
+		if (!m_stlMap->PutData(data->m_nZoneNumber, data))
+			delete data;
+	};
+
+private:
+	MapType * m_stlMap;
+#ifdef EBENEZER
+	long m_InitX, m_InitY, m_InitZ;
 #endif
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_ZONEINFOSET_H__2F772D75_7255_43A8_869E_82FA34930974__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CZoneInfoSet, CRecordset)

@@ -1,54 +1,45 @@
-#if !defined(AFX_MAGICTYPE1SET_H__05C21F9B_4066_44D8_92ED_AA39405D389F__INCLUDED_)
-#define AFX_MAGICTYPE1SET_H__05C21F9B_4066_44D8_92ED_AA39405D389F__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// MagicType1Set.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CMagicType1Set recordset
+#define T		_MAGIC_TYPE1
+#define MapType	Magictype1Array
 
-class CMagicType1Set : public CRecordset
+class CMagicType1Set : public CMyRecordSet<T>
 {
 public:
-	CMagicType1Set(CDatabase* pDatabase = NULL);
+	CMagicType1Set(MapType *stlMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	{
+		m_nFields = 9;
+	}
+
 	DECLARE_DYNAMIC(CMagicType1Set)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[MAGIC_TYPE1]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CMagicType1Set, CRecordset)
-	long	m_iNum;
-	CString	m_Name;
-	CString	m_Description;
-	BYTE	m_Type;
-	int		m_HitRate;
-	int		m_Hit;
-	BYTE	m_Delay;
-	BYTE	m_ComboType;
-	BYTE	m_ComboCount;
-	int		m_ComboDamage;
-	int		m_Range;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Long(pFX, _T("[iNum]"), m_data.iNum);
+		RFX_Byte(pFX, _T("[Type]"), m_data.bHitType);
+		RFX_Int(pFX, _T("[HitRate]"), m_data.sHitRate);
+		RFX_Int(pFX, _T("[Hit]"), m_data.sHit);
+		RFX_Byte(pFX, _T("[Delay]"), m_data.bDelay);
+		RFX_Byte(pFX, _T("[ComboType]"), m_data.bComboType);
+		RFX_Byte(pFX, _T("[ComboCount]"), m_data.bComboCount);
+		RFX_Int(pFX, _T("[ComboDamage]"), m_data.sComboDamage);
+		RFX_Int(pFX, _T("[Range]"), m_data.sRange);
+	};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMagicType1Set)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+	virtual void HandleRead()
+	{
+		T * data = COPY_ROW();
+		if (!m_stlMap->PutData(data->iNum, data))
+			delete data;
+	};
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+private:
+	MapType * m_stlMap;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_MAGICTYPE1SET_H__05C21F9B_4066_44D8_92ED_AA39405D389F__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CMagicType1Set, CRecordset)

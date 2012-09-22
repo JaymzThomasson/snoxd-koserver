@@ -13,6 +13,8 @@
 #include "define.h"
 #include "../shared/STLMap.h"
 
+using namespace std;
+
 typedef CSTLMap <_ITEM_TABLE>		ItemtableArray;
 /////////////////////////////////////////////////////////////////////////////
 // CAujardDlg dialog

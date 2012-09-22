@@ -18,7 +18,6 @@ typedef CSTLMap <CGameEvent>		EventArray;
 typedef CSTLMap <_OBJECT_EVENT>		ObjectEventArray;
 typedef CSTLMap <_REGENE_EVENT>		ObjectRegeneArray;
 typedef	CSTLMap <_WARP_INFO>		WarpArray;
-typedef	map < int, int* >::iterator		Iterator;
 
 class CUser;
 class CEbenezerDlg;
@@ -69,7 +68,7 @@ public:
 	C3DMap();
 	virtual ~C3DMap();
 
-	char m_MapName[256];
+	CString m_MapName;
 	int	m_nServerNo;
 	int m_nZoneNumber;
 	float m_fInitX;

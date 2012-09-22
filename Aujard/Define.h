@@ -25,7 +25,7 @@
 
 struct _ITEM_TABLE
 {
-	int   m_iNum;				// item num
+	long  m_iNum;				// item num
 	BYTE  m_bCountable;			// 개수 개념 아이템
 };
 

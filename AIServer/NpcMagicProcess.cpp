@@ -290,7 +290,7 @@ void CNpcMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, 
 
 	//TRACE("magictype3 ,, magicid=%d, damage=%d\n", magicid, damage);
 	
-	if (pType->sDuration == 0)    { // Non-Durational Spells.
+	if (pType->bDuration == 0)    { // Non-Durational Spells.
 		if (pType->bDirectType == 1) {    // Health Point related !
 			if(damage > 0)	{
 				result = pNpc->SetHMagicDamage(damage, &m_pMain->m_Iocport);
@@ -313,7 +313,7 @@ void CNpcMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, 
 			}
 		}
 	}
-	else if (pType->sDuration != 0)   {  // Durational Spells! Remember, durational spells only involve HPs.
+	else if (pType->bDuration != 0)   {  // Durational Spells! Remember, durational spells only involve HPs.
 	} 
 
 packet_send:

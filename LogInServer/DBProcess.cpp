@@ -73,32 +73,9 @@ void CDBProcess::ReConnectODBC(CDatabase *m_db, const char *strdb, const char *s
 
 BOOL CDBProcess::LoadVersionList()
 {
-	CVersionSet VersionSet(&m_VersionDB);
-	if (VersionSet.Open() 
-		&& !VersionSet.IsBOF() && !VersionSet.IsEOF())
-	{
-		VersionSet.MoveFirst();
-
-		while (!VersionSet.IsEOF())
-		{
-			_VERSION_INFO* pInfo = new _VERSION_INFO;
-			pInfo->sVersion = VersionSet.m_sVersion;
-			pInfo->sHistoryVersion = VersionSet.m_sHistoryVersion;
-	
-			VersionInfoList::iterator itr = m_pMain->m_VersionList.find(pInfo->strFileName);
-			if (itr != m_pMain->m_VersionList.end())
-			{
-				TRACE("VersionInfo PutData Fail - %s\n", pInfo->strFileName);
-				delete pInfo;
-			}
-			else
-			{
-				m_pMain->m_VersionList.insert(make_pair(pInfo->strFileName, pInfo));
-			}
-
-			VersionSet.MoveNext();
-		}
-	}
+	CVersionSet VersionSet(&m_pMain->m_VersionList, &m_VersionDB);
+	if (!VersionSet.Read())
+		return FALSE;
 
 	m_pMain->m_nLastVersion = 0;
 

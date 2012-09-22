@@ -48,9 +48,6 @@
     <ClCompile Include="..\shared\Ini.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\database\VersionSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VersionManager.rc">

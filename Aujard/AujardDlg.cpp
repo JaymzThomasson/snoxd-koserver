@@ -285,36 +285,8 @@ BOOL CAujardDlg::InitializeMMF()
 
 BOOL CAujardDlg::LoadItemTable()
 {
-	CItemTableSet	ItemTableSet;
-
-	if( !ItemTableSet.Open() ) {
-		AfxMessageBox(_T("ItemTable Open Fail!"));
-		return FALSE;
-	}
-	if(ItemTableSet.IsBOF() || ItemTableSet.IsEOF()) {
-		AfxMessageBox(_T("ItemTable Empty!"));
-		return FALSE;
-	}
-
-	ItemTableSet.MoveFirst();
-
-	while( !ItemTableSet.IsEOF() )
-	{
-		_ITEM_TABLE* pTableItem = new _ITEM_TABLE;
-				
-		pTableItem->m_iNum = ItemTableSet.m_Num;
-		pTableItem->m_bCountable = ItemTableSet.m_Countable;
-
-		if( !m_ItemtableArray.PutData(pTableItem->m_iNum, pTableItem) ) {
-			TRACE("ItemTable PutData Fail - %d\n", pTableItem->m_iNum );
-			delete pTableItem;
-			pTableItem = NULL;
-		}
-		
-		ItemTableSet.MoveNext();
-	}
-
-	return TRUE;
+	CItemTableSet ItemTableSet(&m_ItemtableArray);
+	return ItemTableSet.Read();
 }
 
 void CAujardDlg::SelectCharacter(char *pBuf)

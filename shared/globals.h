@@ -266,6 +266,12 @@ inline void SetKOString(char* tBuf, char* sBuf, int& index, int lenSize = 2)
 	SetString(tBuf, sBuf, len, index);
 };
 
+#define C2A(s) (LPTSTR)((LPCTSTR)s)
+inline void SetCString(char* tBuf, CString sBuf, int& index, int lenSize = 2)
+{
+	SetKOString(tBuf, C2A(sBuf), index, lenSize);
+}
+
 // ~sungyong 2001.11.06
 inline int ParseSpace( char* tBuf, char* sBuf)
 {

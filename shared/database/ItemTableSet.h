@@ -1,100 +1,92 @@
-#if !defined(AFX_ITEMTABLESET_H__9C214CAF_6316_4E33_84A4_8DEBC3D83176__INCLUDED_)
-#define AFX_ITEMTABLESET_H__9C214CAF_6316_4E33_84A4_8DEBC3D83176__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// ItemTableSet.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CItemTableSet recordset
+#define T		_ITEM_TABLE
+#define MapType	ItemtableArray
 
-class CItemTableSet : public CRecordset
+class CItemTableSet : public CMyRecordSet<T>
 {
 public:
-	CItemTableSet(CDatabase* pDatabase = NULL);
+	CItemTableSet(MapType *stlMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	{
+		m_nFields = 56;
+	}
+
 	DECLARE_DYNAMIC(CItemTableSet)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[ITEM]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CItemTableSet, CRecordset)
-	long	m_Num;
-	CString	m_strName;
-	BYTE	m_Kind;
-	BYTE	m_Slot;
-	BYTE	m_Race;
-	BYTE	m_Class;
-	int		m_Damage;
-	int		m_Delay;
-	int		m_Range;
-	int		m_Weight;
-	int		m_Duration;
-	long	m_BuyPrice;
-	long	m_SellPrice;
-	int		m_Ac;
-	BYTE	m_Countable;
-	long	m_Effect1;
-	long	m_Effect2;
-	BYTE	m_ReqLevel;
-	BYTE	m_ReqRank;
-	BYTE	m_ReqTitle;
-	BYTE	m_ReqStr;
-	BYTE	m_ReqSta;
-	BYTE	m_ReqDex;
-	BYTE	m_ReqIntel;
-	BYTE	m_ReqCha;
-	BYTE	m_SellingGroup;
-	BYTE	m_ItemType;
-	int		m_Hitrate;
-	int		m_Evasionrate;
-	int		m_DaggerAc;
-	int		m_SwordAc;
-	int		m_MaceAc;
-	int		m_AxeAc;
-	int		m_SpearAc;
-	int		m_BowAc;
-	BYTE	m_FireDamage;
-	BYTE	m_IceDamage;
-	BYTE	m_LightningDamage;
-	BYTE	m_PoisonDamage;
-	BYTE	m_HPDrain;
-	BYTE	m_MPDamage;
-	BYTE	m_MPDrain;
-	BYTE	m_MirrorDamage;
-	BYTE	m_Droprate;
-	int		m_StrB;
-	int		m_StaB;
-	int		m_DexB;
-	int		m_IntelB;
-	int		m_ChaB;
-	int		m_MaxHpB;
-	int		m_MaxMpB;
-	int		m_FireR;
-	int		m_ColdR;
-	int		m_LightningR;
-	int		m_MagicR;
-	int		m_PoisonR;
-	int		m_CurseR;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Long(pFX, _T("[Num]"), m_data.m_iNum);
+		RFX_Byte(pFX, _T("[Kind]"), m_data.m_bKind);
+		RFX_Byte(pFX, _T("[Slot]"), m_data.m_bSlot);
+		RFX_Byte(pFX, _T("[Race]"), m_data.m_bRace);
+		RFX_Byte(pFX, _T("[Class]"), m_data.m_bClass);
+		RFX_Int(pFX, _T("[Damage]"), m_data.m_sDamage);
+		RFX_Int(pFX, _T("[Delay]"), m_data.m_sDelay);
+		RFX_Int(pFX, _T("[Range]"), m_data.m_sRange);
+		RFX_Int(pFX, _T("[Weight]"), m_data.m_sWeight);
+		RFX_Int(pFX, _T("[Duration]"), m_data.m_sDuration);
+		RFX_Long(pFX, _T("[BuyPrice]"), m_data.m_iBuyPrice);
+		RFX_Long(pFX, _T("[SellPrice]"), m_data.m_iSellPrice);
+		RFX_Int(pFX, _T("[Ac]"), m_data.m_sAc);
+		RFX_Byte(pFX, _T("[Countable]"), m_data.m_bCountable);
+		RFX_Long(pFX, _T("[Effect1]"), m_data.m_iEffect1);
+		RFX_Long(pFX, _T("[Effect2]"), m_data.m_iEffect2);
+		RFX_Byte(pFX, _T("[ReqLevel]"), m_data.m_bReqLevel);
+		RFX_Byte(pFX, _T("[ReqRank]"), m_data.m_bReqRank);
+		RFX_Byte(pFX, _T("[ReqTitle]"), m_data.m_bReqTitle);
+		RFX_Byte(pFX, _T("[ReqStr]"), m_data.m_bReqStr);
+		RFX_Byte(pFX, _T("[ReqSta]"), m_data.m_bReqSta);
+		RFX_Byte(pFX, _T("[ReqDex]"), m_data.m_bReqDex);
+		RFX_Byte(pFX, _T("[ReqIntel]"), m_data.m_bReqIntel);
+		RFX_Byte(pFX, _T("[ReqCha]"), m_data.m_bReqCha);
+		RFX_Byte(pFX, _T("[SellingGroup]"), m_data.m_bSellingGroup);
+		RFX_Byte(pFX, _T("[ItemType]"), m_data.m_ItemType);
+		RFX_Int(pFX, _T("[Hitrate]"), m_data.m_sHitrate);
+		RFX_Int(pFX, _T("[Evasionrate]"), m_data.m_sEvarate);
+		RFX_Int(pFX, _T("[DaggerAc]"), m_data.m_sDaggerAc);
+		RFX_Int(pFX, _T("[SwordAc]"), m_data.m_sSwordAc);
+		RFX_Int(pFX, _T("[MaceAc]"), m_data.m_sMaceAc);
+		RFX_Int(pFX, _T("[AxeAc]"), m_data.m_sAxeAc);
+		RFX_Int(pFX, _T("[SpearAc]"), m_data.m_sSpearAc);
+		RFX_Int(pFX, _T("[BowAc]"), m_data.m_sBowAc);
+		RFX_Byte(pFX, _T("[FireDamage]"), m_data.m_bFireDamage);
+		RFX_Byte(pFX, _T("[IceDamage]"), m_data.m_bIceDamage);
+		RFX_Byte(pFX, _T("[LightningDamage]"), m_data.m_bLightningDamage);
+		RFX_Byte(pFX, _T("[PoisonDamage]"), m_data.m_bPoisonDamage);
+		RFX_Byte(pFX, _T("[HPDrain]"), m_data.m_bHPDrain);
+		RFX_Byte(pFX, _T("[MPDamage]"), m_data.m_bMPDamage);
+		RFX_Byte(pFX, _T("[MPDrain]"), m_data.m_bMPDrain);
+		RFX_Byte(pFX, _T("[MirrorDamage]"), m_data.m_bMirrorDamage);
+		RFX_Byte(pFX, _T("[Droprate]"), m_data.m_bDroprate);
+		RFX_Int(pFX, _T("[StrB]"), m_data.m_bStrB);
+		RFX_Int(pFX, _T("[StaB]"), m_data.m_bStaB);
+		RFX_Int(pFX, _T("[DexB]"), m_data.m_bDexB);
+		RFX_Int(pFX, _T("[IntelB]"), m_data.m_bIntelB);
+		RFX_Int(pFX, _T("[ChaB]"), m_data.m_bChaB);
+		RFX_Int(pFX, _T("[MaxHpB]"), m_data.m_MaxHpB);
+		RFX_Int(pFX, _T("[MaxMpB]"), m_data.m_MaxMpB);
+		RFX_Int(pFX, _T("[FireR]"), m_data.m_bFireR);
+		RFX_Int(pFX, _T("[ColdR]"), m_data.m_bColdR);
+		RFX_Int(pFX, _T("[LightningR]"), m_data.m_bLightningR);
+		RFX_Int(pFX, _T("[MagicR]"), m_data.m_bMagicR);
+		RFX_Int(pFX, _T("[PoisonR]"), m_data.m_bPoisonR);
+		RFX_Int(pFX, _T("[CurseR]"), m_data.m_bCurseR);
+	};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CItemTableSet)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+	virtual void HandleRead()
+	{
+		T * data = COPY_ROW();
+		if (!m_stlMap->PutData(data->m_iNum, data))
+			delete data;
+	};
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+private:
+	MapType * m_stlMap;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_ITEMTABLESET_H__9C214CAF_6316_4E33_84A4_8DEBC3D83176__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CItemTableSet, CRecordset)

@@ -1,54 +1,47 @@
-#if !defined(AFX_STARTPOSITIONSET_H__496F83FF_F4B8_4DBF_803B_BA8E741D9FDB__INCLUDED_)
-#define AFX_STARTPOSITIONSET_H__496F83FF_F4B8_4DBF_803B_BA8E741D9FDB__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// StartPositionSet.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CStartPositionSet recordset
+#define T		_START_POSITION
+#define MapType	StartPositionArray
 
-class CStartPositionSet : public CRecordset
+class CStartPositionSet : public CMyRecordSet<T>
 {
 public:
-	CStartPositionSet(CDatabase* pDatabase = NULL);
+	CStartPositionSet(MapType *stlMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	{
+		m_nFields = 11;
+	}
+
 	DECLARE_DYNAMIC(CStartPositionSet)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[START_POSITION]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CStartPositionSet, CRecordset)
-	int   m_sZoneID;
-	int   m_sKarusX;
-	int   m_sKarusZ;
-	int   m_sElmoradX;
-	int   m_sElmoradZ;
-	int   m_sKarusGateX;
-	int   m_sKarusGateZ;
-	int   m_sElmoradGateX;
-	int   m_sElmoradGateZ;
-	BYTE  m_bRangeX;
-	BYTE  m_bRangeZ;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Int(pFX, _T("[ZoneID]"), m_data.ZoneID);
+		RFX_Int(pFX, _T("[sKarusX]"), m_data.sKarusX);
+		RFX_Int(pFX, _T("[sKarusZ]"), m_data.sKarusZ);
+		RFX_Int(pFX, _T("[sElmoradX]"), m_data.sElmoradX);
+		RFX_Int(pFX, _T("[sElmoradZ]"), m_data.sElmoradZ);
+		RFX_Int(pFX, _T("[sKarusGateX]"), m_data.sKarusGateX);
+		RFX_Int(pFX, _T("[sKarusGateZ]"), m_data.sKarusGateZ);
+		RFX_Int(pFX, _T("[sElmoGateX]"), m_data.sElmoradGateX);
+		RFX_Int(pFX, _T("[sElmoGateZ]"), m_data.sElmoradGateZ);
+		RFX_Byte(pFX, _T("[bRangeX]"), m_data.bRangeX);
+		RFX_Byte(pFX, _T("[bRangeZ]"), m_data.bRangeZ);
+	};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CStartPositionSet)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+	virtual void HandleRead()
+	{
+		T * data = COPY_ROW();
+		if (!m_stlMap->PutData(data->ZoneID, data))
+			delete data;
+	};
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+private:
+	MapType * m_stlMap;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_STARTPOSITIONSET_H__496F83FF_F4B8_4DBF_803B_BA8E741D9FDB__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CStartPositionSet, CRecordset)

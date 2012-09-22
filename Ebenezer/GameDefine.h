@@ -112,7 +112,7 @@
 
 #define MAX_CLAN			36
 #define MAX_KNIGHTS_BANK	200
-#define MAX_KNIGHTS_MARK	512
+#define MAX_KNIGHTS_MARK	2400
 
 #define ITEM_GOLD			900000000	// �� ������ ��ȣ...
 #define ITEM_NO_TRADE		900000001	// �ŷ� �Ұ� �����۵�.... �񷯸ӱ� ũ�������� �̹�Ʈ >.<		
@@ -213,8 +213,7 @@
 
 struct _CLASS_COEFFICIENT
 {
-	short	sClassNum;
-	char	strClassName[30];
+	int		sClassNum;
 	float	ShortSword;
 	float	Sword;
 	float	Axe;
@@ -246,75 +245,74 @@ struct	_EXCHANGE_ITEM
 	int itemid;
 	int count;
 	short duration;
-	BYTE pos;			//  ��ȯ�� �� �ڸ�..
-	__int64	nSerialNum;	// item serial code
+	BYTE pos;
+	__int64	nSerialNum;
 };
 
 struct _ITEM_TABLE
 {
-	int   m_iNum;				// item num
-	char  m_strName[50];		// item Name
-	BYTE  m_bKind;				// item ���
-	BYTE  m_bSlot;				// �����ġ
-	BYTE  m_bRace;				// ��� ������ ��
-	BYTE  m_bClass;				// ��� ������ Class
-	short m_sDamage;			// �ִ� Ÿ��ġ
-	short m_sDelay;				// ��ݽð�
-	short m_sRange;				// ���(�ȿ�Ÿ�)
-	unsigned short m_sWeight;			// ����
-	short m_sDuration;			// ������
-	int	  m_iBuyPrice;			// ��� ��°���
-	int	  m_iSellPrice;			// ��� �Ĵ°���
-	short m_sAc;				// ����
-	BYTE  m_bCountable;			// ���� ���� ������
-	int	  m_iEffect1;			// ���� ����Ʈ1
-	int	  m_iEffect2;			// ���� ����Ʈ2
-	BYTE  m_bReqLevel;			// �䱸 ����
-	BYTE  m_bReqRank;			// �䱸 ���
-	BYTE  m_bReqTitle;			// �䱸 ���
-	BYTE  m_bReqStr;			// �䱸 ��
-	BYTE  m_bReqSta;			// �䱸 ü��
-	BYTE  m_bReqDex;			// �䱸 ��ø
-	BYTE  m_bReqIntel;			// �䱸 ���
-	BYTE  m_bReqCha;			// �䱸 �ŷ�
-	BYTE  m_bSellingGroup;		// ���� ��� ��ǰ
-	BYTE  m_ItemType;			// ��������� �Ǵ� ���������
-	short m_sHitrate;			// Ÿ�ݷ�
-	short m_sEvarate;			// ȸ���
-	short m_sDaggerAc;			// ����1
-	short m_sSwordAc;			// ����2
-	short m_sMaceAc;			// ����3
-	short m_sAxeAc;				// ����4
-	short m_sSpearAc;			// ����5
-	short m_sBowAc;				// ����6
-	BYTE  m_bFireDamage;		// �� �Ӽ�
-	BYTE  m_bIceDamage;			// �ñ� �Ӽ�
-	BYTE  m_bLightningDamage;	// ��� �Ӽ�
-	BYTE  m_bPoisonDamage;		// �� �Ӽ�
-	BYTE  m_bHPDrain;			// HP ���
-	BYTE  m_bMPDamage;			// MP Ÿ��
-	BYTE  m_bMPDrain;			// MP ���
-	BYTE  m_bMirrorDamage;		// �ݻ� Ÿ��
-	BYTE  m_bDroprate;			// ��� ���
-	BYTE  m_bStrB;				// �� ���ʽ�
-	BYTE  m_bStaB;				// ü�� ���ʽ�
-	BYTE  m_bDexB;				// ��ø�� ���ʽ�
-	BYTE  m_bIntelB;			// ��� ���ʽ�
-	BYTE  m_bChaB;				// �ŷ� ���ʽ�
-	short m_MaxHpB;				// MaxHP add
-	short m_MaxMpB;				// MaxMP add
-	BYTE  m_bFireR;				// �� ���� ���׷�
-	BYTE  m_bColdR;				// ��� ���� ���׷�
-	BYTE  m_bLightningR;		// ��� ���� ���׷�
-	BYTE  m_bMagicR;			// ��Ÿ ���� ���׷�
-	BYTE  m_bPoisonR;			// �� ���� ���׷�
-	BYTE  m_bCurseR;			// ���� ���� ���׷�
+	long  m_iNum;
+	BYTE  m_bKind;
+	BYTE  m_bSlot;
+	BYTE  m_bRace;
+	BYTE  m_bClass;
+	int   m_sDamage;
+	int   m_sDelay;
+	int   m_sRange;
+	int   m_sWeight;
+	int   m_sDuration;
+	long  m_iBuyPrice;
+	long  m_iSellPrice;
+	int   m_sAc;
+	BYTE  m_bCountable;
+	long  m_iEffect1;
+	long  m_iEffect2;
+	BYTE  m_bReqLevel;
+	BYTE  m_bReqRank;
+	BYTE  m_bReqTitle;
+	BYTE  m_bReqStr;
+	BYTE  m_bReqSta;
+	BYTE  m_bReqDex;
+	BYTE  m_bReqIntel;
+	BYTE  m_bReqCha;
+	BYTE  m_bSellingGroup;
+	BYTE  m_ItemType;
+	int   m_sHitrate;
+	int   m_sEvarate;
+	int   m_sDaggerAc;
+	int   m_sSwordAc;
+	int   m_sMaceAc;
+	int   m_sAxeAc;
+	int   m_sSpearAc;
+	int   m_sBowAc;
+	BYTE  m_bFireDamage;
+	BYTE  m_bIceDamage;
+	BYTE  m_bLightningDamage;
+	BYTE  m_bPoisonDamage;
+	BYTE  m_bHPDrain;
+	BYTE  m_bMPDamage;
+	BYTE  m_bMPDrain;
+	BYTE  m_bMirrorDamage;
+	BYTE  m_bDroprate;
+	int   m_bStrB;
+	int   m_bStaB;
+	int   m_bDexB;
+	int   m_bIntelB;
+	int   m_bChaB;
+	int   m_MaxHpB;
+	int   m_MaxMpB;
+	int   m_bFireR;
+	int   m_bColdR;
+	int   m_bLightningR;
+	int   m_bMagicR;
+	int   m_bPoisonR;
+	int   m_bCurseR;
 };
 
 struct	_PARTY_GROUP
 {
 	WORD wIndex;
-	short uid[8];		// �ϳ��� ��Ƽ�� 8����� ���԰���
+	short uid[8];
 	short sMaxHp[8];
 	short sHp[8];
 	BYTE bLevel[8];
@@ -330,84 +328,88 @@ struct	_PARTY_GROUP
 
 struct _OBJECT_EVENT
 {
-	BYTE byLife;			// 1:����ִ�, 0:��,, ���
-	int sBelong;			// �Ҽ�
-	short sIndex;			// 100 ��� - ī�罺 ���ε� ����Ʈ | 200 ��� ������ ���ε� ����Ʈ | 1100 ��� - ī�罺 ������ 1200 - ������ ������
-	short sType;			// 0 - ���ε� ����Ʈ, 1 - �¿�� ������ ����, 2 - ���Ϸ� ������ ����, 3 - ����, 4 - ��߷���, 6:öâ, 7-����� ��Ȱ��
-	short sControlNpcID;	// ���� NPC ID (���� Object Index), Type-> 5 : Warp Group ID
-	short sStatus;			// status
-	float fPosX;			// �ġ��
+	BYTE byLife;
+	int sBelong;
+	short sIndex;
+	short sType;
+	short sControlNpcID;
+	short sStatus;
+	float fPosX;
 	float fPosY;
 	float fPosZ;
 };
 
 struct _REGENE_EVENT
 {
-	int	  sRegenePoint;		// ĳ���� ��Ÿ���� �� ��ȣ
-	float fRegenePosX;		// ĳ���� ��Ÿ���� ���� �޾Ʒ��� ���� ��ǥ X
-	float fRegenePosY;		// ĳ���� ��Ÿ���� ���� �޾Ʒ��� ���� ��ǥ Y
-	float fRegenePosZ;		// ĳ���� ��Ÿ���� ���� �޾Ʒ��� ���� ��ǥ Z
-	float fRegeneAreaZ;		// ĳ���� ��Ÿ���� ���� Z �� ���� 
-	float fRegeneAreaX;		// ĳ���� ��Ÿ���� ���� X �� ����
+	int	  sRegenePoint;
+	float fRegenePosX;
+	float fRegenePosY;
+	float fRegenePosZ;
+	float fRegeneAreaZ;
+	float fRegeneAreaX;
 };
 
 struct _KNIGHTS_USER
 {
-	BYTE    byUsed;								// ����� : 1, ������ : 0
-	char	strUserName[MAX_ID_SIZE+1];			// ĳ������ �̸�
+	BYTE    byUsed;
+	CString strUserName;
 };
 
 struct _MAGIC_TABLE
 {
-	int		iNum;
-	short	sFlyingEffect;
+	long	iNum;
+	BYTE	bBeforeAction;
+	BYTE	bTargetAction;
+	BYTE	bSelfEffect;
+	BYTE	bFlyingEffect;
+	int		iTargetEffect;
 	BYTE	bMoral;
-	BYTE	bSkillLevel;	
-	short	sSkill;
-	short	sMsp;
-	short   sHP;
+	int		sSkillLevel;	
+	int		sSkill;
+	int		sMsp;
+	int		sHP;
 	BYTE	bItemGroup;
-	int		iUseItem;
+	long	iUseItem;
 	BYTE	bCastTime;
 	BYTE	bReCastTime;
 	BYTE	bSuccessRate;
 	BYTE	bType1;
 	BYTE	bType2;
-	short   sRange;
+	int		sRange;
 	BYTE	bEtc;
 };
 
 struct _MAGIC_TYPE8
 {
-	int     iNum;
+	long    iNum;
 	BYTE    bTarget;
-	short   sRadius;
+	int		sRadius;
 	BYTE    bWarpType;
-	short   sExpRecover;
+	int		sExpRecover;
 };
 
 struct _MAGIC_TYPE5
 {
-	int		iNum;
+	long	iNum;
 	BYTE	bType;
 	BYTE	bExpRecover;
-	short	sNeedStone;
+	int		sNeedStone;
 };
 
 struct _MAGIC_TYPE4
 {
-	int     iNum;
-	short   sMSP;
+	long    iNum;
+	int		sMSP;
 	BYTE    bBuffType;
 	BYTE    bRadius;
-	short   sDuration;
+	int		sDuration;
 	BYTE    bAttackSpeed;
 	BYTE    bSpeed;
-	short   sAC;
+	int		sAC;
 	BYTE    bAttack;
-	short   sMaxHP;
+	int		sMaxHP;
 	BYTE    bHitRate;
-	short   sAvoidRate;
+	int		sAvoidRate;
 	BYTE    bStr;
 	BYTE    bSta;
 	BYTE    bDex;
@@ -423,38 +425,38 @@ struct _MAGIC_TYPE4
 
 struct _MAGIC_TYPE3
 {
-	int		iNum;
+	long	iNum;
 	BYTE	bRadius;
-	short	sAngle;
-	short	sFirstDamage;
-	short	sEndDamage;
-	short	sTimeDamage;
+	int		sAngle;
+	int		sFirstDamage;
+	int		sEndDamage;
+	int		sTimeDamage;
 	BYTE	bDirectType;
-	short	sDuration;
+	BYTE	bDuration;
 	BYTE	bAttribute;
 };
 
 struct _MAGIC_TYPE2
 {
-	int     iNum;
+	long    iNum;
 	BYTE    bHitType;
-	short   sHitRate;
-	short	sAddDamage;
-	short   sAddRange;
+	int		sHitRate;
+	int		sAddDamage;
+	int		sAddRange;
 	BYTE    bNeedArrow;
 };
 
 struct _MAGIC_TYPE1
 {
-	int		iNum;
+	long	iNum;
 	BYTE	bHitType;
-	short	sHitRate;
-	short	sHit;
+	int		sHitRate;
+	int		sHit;
 	BYTE	bDelay;
 	BYTE	bComboType;
 	BYTE	bComboCount;
-	short	sComboDamage;
-	short	sRange;
+	int		sComboDamage;
+	int		sRange;
 };
 
 struct _ZONE_SERVERINFO
@@ -508,15 +510,15 @@ struct _HOME_INFO
 
 struct _START_POSITION
 {
-	int   ZoneID;
-	short sKarusX;
-	short sKarusZ;
-	short sElmoradX;
-	short sElmoradZ;
-	short sKarusGateX;
-	short sKarusGateZ;
-	short sElmoradGateX;
-	short sElmoradGateZ;
+	int	ZoneID;
+	int	sKarusX;
+	int	sKarusZ;
+	int	sElmoradX;
+	int	sElmoradZ;
+	int	sKarusGateX;
+	int	sKarusGateZ;
+	int	sElmoradGateX;
+	int	sElmoradGateZ;
 	BYTE bRangeX;
 	BYTE bRangeZ;
 };
@@ -524,11 +526,7 @@ struct _START_POSITION
 struct _SERVER_RESOURCE
 {
 	int nResourceID;
-	char strResource[255];
-	_SERVER_RESOURCE()
-	{
-		memset(strResource, NULL, 255);
-	};
+	CString strResource;
 };
 
 enum AuthorityTypes

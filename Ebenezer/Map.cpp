@@ -8,6 +8,7 @@
 #include "Region.h"
 #include "Define.h"
 #include "User.h"
+#include "../shared/database/MyRecordSet.h"
 #include "../shared/database/EventSet.h"
 #include "EbenezerDlg.h"
 
@@ -33,11 +34,12 @@ C3DMap::C3DMap()
 	m_nZRegion = 0;
 
 	m_ppRegion = NULL;
+	m_ppnEvent = NULL;
+	
 	m_nZoneNumber = 0;
 	m_bType = 0;
 	m_wBundle = 1;
 	m_sMaxUser = 150;	// Max user in Battlezone!!!
-	memset( m_MapName, NULL, 256 );
 	m_pMain = NULL;
 }
 
@@ -509,58 +511,8 @@ BOOL C3DMap::CheckEvent(float x, float z, CUser* pUser)
 
 BOOL C3DMap::LoadEvent()
 {
-	CEventSet	EventSet;
-	CGameEvent* pEvent = NULL;
-
-	LogFileWrite("LoadEvent start \r\n");
-
-	if( !EventSet.Open() ) {
-		LogFileWrite("LoadEvent 22 \r\n");
-		AfxMessageBox(_T("EventTable Open Fail!"));
-		return FALSE;
-	}
-	if( EventSet.IsBOF() || EventSet.IsEOF()) {
-		LogFileWrite("LoadEvent 33 \r\n");
-		AfxMessageBox(_T("EventTable Empty!"));
-		return FALSE;
-	}
-	EventSet.MoveFirst();
-
-	while( !EventSet.IsEOF() ) {
-		if( EventSet.m_ZoneNum == m_nZoneNumber ) {
-			pEvent = new CGameEvent;
-			
-			pEvent->m_sIndex = EventSet.m_EventNum;
-			pEvent->m_bType = EventSet.m_Type;
-			pEvent->m_iCond[0] = atoi( EventSet.m_Cond1 );
-			pEvent->m_iCond[1] = atoi( EventSet.m_Cond2 );
-			pEvent->m_iCond[2] = atoi( EventSet.m_Cond3 );
-			pEvent->m_iCond[3] = atoi( EventSet.m_Cond4 );
-			pEvent->m_iCond[4] = atoi( EventSet.m_Cond5 );
-			
-			pEvent->m_iExec[0] = atoi( EventSet.m_Exec1 );
-			pEvent->m_iExec[1] = atoi( EventSet.m_Exec2 );
-			pEvent->m_iExec[2] = atoi( EventSet.m_Exec3 );
-			pEvent->m_iExec[3] = atoi( EventSet.m_Exec4 );
-			pEvent->m_iExec[4] = atoi( EventSet.m_Exec5 );
-
-			strcpy( pEvent->m_strExec[0], EventSet.m_Exec1 );
-			strcpy( pEvent->m_strExec[1], EventSet.m_Exec2 );
-			strcpy( pEvent->m_strExec[2], EventSet.m_Exec3 );
-			strcpy( pEvent->m_strExec[3], EventSet.m_Exec4 );
-			strcpy( pEvent->m_strExec[4], EventSet.m_Exec5 );
-
-			if( !m_EventArray.PutData(pEvent->m_sIndex, pEvent) ) {
-				TRACE("Event PutData Fail - %d\n", pEvent->m_sIndex );
-				delete pEvent;
-				pEvent = NULL;
-			}
-		}
-		EventSet.MoveNext();
-	}
-
-	LogFileWrite("LoadEvent 44 \r\n");
-	return TRUE;
+	CEventSet EventSet(&m_EventArray, (BYTE)m_nZoneNumber);
+	return EventSet.Read();
 }
 
 BOOL C3DMap::IsValidPosition(float x, float z, float y)

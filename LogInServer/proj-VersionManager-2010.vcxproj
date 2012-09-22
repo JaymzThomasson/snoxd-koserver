@@ -136,7 +136,6 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\shared\database\VersionSet.cpp" />
     <ClCompile Include="..\shared\Ini.cpp" />
     <ClCompile Include="CircularBuffer.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>

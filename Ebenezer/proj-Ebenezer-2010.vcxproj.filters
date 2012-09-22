@@ -147,65 +147,11 @@
     <ClCompile Include="UdpSocket.cpp">
       <Filter>Networking</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\database\ServerResourceSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\StartPositionSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\ZoneInfoSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\BattleSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\CoefficientSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\EventSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\HomeSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\ItemTableSet.cpp">
-      <Filter>Database</Filter>
+    <ClCompile Include="AISocket.cpp">
+      <Filter>Networking</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\database\KnightsRankSet.cpp">
       <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\KnightsSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\KnightsUserSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\LevelUpTableSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\MagicTableSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\MagicType1Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\MagicType2Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\MagicType3Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\MagicType4Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\MagicType5Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\MagicType8Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="AISocket.cpp">
-      <Filter>Networking</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -375,6 +321,9 @@
       <Filter>Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\database\MagicType5Set.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\MyRecordSet.h">
       <Filter>Database</Filter>
     </ClInclude>
   </ItemGroup>

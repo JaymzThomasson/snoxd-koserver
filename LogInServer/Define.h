@@ -54,9 +54,9 @@ typedef union{
 
 struct _VERSION_INFO
 {
-	short sVersion;
-	short sHistoryVersion;
-	string strFileName;
+	int sVersion;
+	int sHistoryVersion;
+	CString strFileName;
 };
 
 struct _SERVER_INFO

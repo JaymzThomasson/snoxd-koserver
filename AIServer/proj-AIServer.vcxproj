@@ -150,11 +150,6 @@
   <ItemGroup>
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
-    <ClCompile Include="..\shared\database\MagicTableSet.cpp" />
-    <ClCompile Include="..\shared\database\MagicType1Set.cpp" />
-    <ClCompile Include="..\shared\database\MagicType2Set.cpp" />
-    <ClCompile Include="..\shared\database\MagicType3Set.cpp" />
-    <ClCompile Include="..\shared\database\MagicType4Set.cpp" />
     <ClCompile Include="..\shared\database\MakeDefensiveTableSet.cpp" />
     <ClCompile Include="..\shared\database\MakeGradeItemTableSet.cpp" />
     <ClCompile Include="..\shared\database\MakeLareItemTableSet.cpp" />
@@ -163,7 +158,6 @@
     <ClCompile Include="..\shared\database\NpcItemSet.cpp" />
     <ClCompile Include="..\shared\database\NpcPosSet.cpp" />
     <ClCompile Include="..\shared\database\NpcTableSet.cpp" />
-    <ClCompile Include="..\shared\database\ZoneInfoSet.cpp" />
     <ClCompile Include="..\shared\Ini.cpp" />
     <ClCompile Include="..\shared\lzf.cpp" />
     <ClCompile Include="CircularBuffer.cpp">

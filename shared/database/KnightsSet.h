@@ -1,59 +1,59 @@
-#if !defined(AFX_KNIGHTSSET_H__1942BDDE_8833_404F_83C6_EFE16E0435F4__INCLUDED_)
-#define AFX_KNIGHTSSET_H__1942BDDE_8833_404F_83C6_EFE16E0435F4__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// KnightsSet.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CKnightsSet recordset
+#define T		CKnights
+#define MapType	KnightsArray
 
-class CKnightsSet : public CRecordset
+class CKnightsSet : public CMyRecordSet<T>
 {
 public:
-	CKnightsSet(CDatabase* pDatabase = NULL);
+	CKnightsSet(MapType *stlMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	{
+		m_nFields = 14;
+	}
+
 	DECLARE_DYNAMIC(CKnightsSet)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[KNIGHTS]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CKnightsSet, CRecordset)
-	int		m_IDNum;
-	BYTE	m_Flag;
-	BYTE	m_Nation;
-	BYTE	m_Ranking;
-	CString	m_IDName;
-	int		m_Members;
-	CString	m_Chief;
-	CString	m_ViceChief_1;
-	CString	m_ViceChief_2;
-	CString	m_ViceChief_3;
-	CString	m_Gold;
-	int		m_Domination;
-	long	m_Points;
-	CTime	m_CreateTime;
-	CLongBinary	m_Mark;
-	CString	m_Stash;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Int(pFX, _T("[IDNum]"), m_data.m_sIndex);
+		RFX_Byte(pFX, _T("[Flag]"), m_data.m_byFlag);
+		RFX_Byte(pFX, _T("[Nation]"), m_data.m_byNation);
+		RFX_Byte(pFX, _T("[Ranking]"), m_data.m_byRanking);
+		RFX_Text(pFX, _T("[IDName]"), m_data.m_strName);
+		RFX_Int(pFX, _T("[Members]"), m_data.m_sMembers);
+		RFX_Text(pFX, _T("[Chief]"), m_data.m_strChief);
+		RFX_Text(pFX, _T("[ViceChief_1]"), m_data.m_strViceChief_1);
+		RFX_Text(pFX, _T("[ViceChief_2]"), m_data.m_strViceChief_2);
+		RFX_Text(pFX, _T("[ViceChief_3]"), m_data.m_strViceChief_3);
+		RFX_BigInt(pFX, _T("[Gold]"), m_data.m_nMoney);
+		RFX_Int(pFX, _T("[Domination]"), m_data.m_sDomination);
+		RFX_Long(pFX, _T("[Points]"), m_data.m_nPoints);
+		RFX_Binary(pFX, _T("[Mark]"), m_Image, sizeof(m_data.m_Image));	
+	};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CKnightsSet)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+	virtual void HandleRead()
+	{
+		T * data = COPY_ROW();
+		memcpy(data->m_Image, m_Image.GetData(), sizeof(data->m_Image));
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+		data->m_strName.TrimRight();
+		data->m_strChief.TrimRight();
+		data->m_strViceChief_1.TrimRight();
+		data->m_strViceChief_2.TrimRight();
+		data->m_strViceChief_3.TrimRight();
+
+		if (!m_stlMap->PutData(data->m_sIndex, data))
+			delete data;
+	};
+
+private:
+	MapType * m_stlMap;
+	CByteArray m_Image;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_KNIGHTSSET_H__1942BDDE_8833_404F_83C6_EFE16E0435F4__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CKnightsSet, CRecordset)

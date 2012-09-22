@@ -1,45 +1,39 @@
-#if !defined(AFX_KNIGHTSUSERSET_H__1246D470_46DD_415D_A548_86829EAE6465__INCLUDED_)
-#define AFX_KNIGHTSUSERSET_H__1246D470_46DD_415D_A548_86829EAE6465__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// KnightsUserSet.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CKnightsUserSet recordset
+#define T		_KNIGHTS_USER
+#define MapType	KnightsUserArray
 
-class CKnightsUserSet : public CRecordset
+class CKnightsUserSet : public CMyRecordSet<T>
 {
 public:
-	CKnightsUserSet(CDatabase* pDatabase = NULL);
+	CKnightsUserSet(CKnightsManager *pManager, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_KnightsManager(pManager)
+	{
+		m_nFields = 2;
+	}
+
 	DECLARE_DYNAMIC(CKnightsUserSet)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[KNIGHTS_USER]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CKnightsUserSet, CRecordset)
-	int		m_sIDNum;
-	CString	m_strUserID;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Int(pFX, _T("[sIDNum]"), m_sIDNum);
+		RFX_Text(pFX, _T("[strUserID]"), m_strUserID);
+	};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CKnightsUserSet)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+	virtual void HandleRead()
+	{
+		m_strUserID.TrimRight();
+		m_KnightsManager->AddKnightsUser(m_sIDNum, C2A(m_strUserID));
+	};
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+private:
+	CKnightsManager * m_KnightsManager;
+	int m_sIDNum;
+	CString m_strUserID;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_KNIGHTSUSERSET_H__1246D470_46DD_415D_A548_86829EAE6465__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CKnightsUserSet, CRecordset)

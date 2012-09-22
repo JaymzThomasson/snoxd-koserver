@@ -333,7 +333,7 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 
 	//TRACE("magictype3 ,, magicid=%d, damage=%d\n", magicid, damage);
 	
-	if (pType->sDuration == 0)    { // Non-Durational Spells.
+	if (pType->bDuration == 0)    { // Non-Durational Spells.
 		if (pType->bDirectType == 1) {    // Health Point related !
 			//damage = pType->sFirstDamage;     // Reduce target health point
 //			if(damage >= 0)	{
@@ -362,7 +362,7 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 		else if( pType->bDirectType == 4 )     // Armor Durability related.
 			pNpc->ItemWoreOut( DEFENCE, pType->sFirstDamage);     // Reduce Slot Item Durability
 	}
-	else if (pType->sDuration != 0)   {  // Durational Spells! Remember, durational spells only involve HPs.
+	else if (pType->bDuration != 0)   {  // Durational Spells! Remember, durational spells only involve HPs.
 		if(damage >= 0)	{
 		}
 		else	{
@@ -388,9 +388,9 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 			if(pNpc->m_MagicType3[i].sHPAttackUserID == -1 && pNpc->m_MagicType3[i].byHPDuration == 0)	{
 				pNpc->m_MagicType3[i].sHPAttackUserID = m_pSrcUser->m_iUserId;
 				pNpc->m_MagicType3[i].fStartTime = TimeGet();
-				pNpc->m_MagicType3[i].byHPDuration = (BYTE)pType->sDuration;
+				pNpc->m_MagicType3[i].byHPDuration = pType->bDuration;
 				pNpc->m_MagicType3[i].byHPInterval = 2;
-				pNpc->m_MagicType3[i].sHPAmount = damage / (pType->sDuration / 2);
+				pNpc->m_MagicType3[i].sHPAmount = damage / (pType->bDuration / 2);
 				break;
 			}
 		}	

@@ -30,7 +30,7 @@
 // CEbenezerDlg dialog
 
 typedef CSTLMap <C3DMap>					ZoneArray;
-typedef map <int, long>						LevelUpArray;
+typedef map<int, long>						LevelUpArray;
 typedef CSTLMap <_CLASS_COEFFICIENT>		CoefficientArray;
 typedef CSTLMap <_ITEM_TABLE>				ItemtableArray;
 typedef CSTLMap <_MAGIC_TABLE>				MagictableArray;

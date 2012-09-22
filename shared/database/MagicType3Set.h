@@ -1,54 +1,45 @@
-#if !defined(AFX_MAGICTYPE3SET_H__A6269DA7_04F5_464A_8E10_106082601DC1__INCLUDED_)
-#define AFX_MAGICTYPE3SET_H__A6269DA7_04F5_464A_8E10_106082601DC1__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// MagicType3Set.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CMagicType3Set recordset
+#define T		_MAGIC_TYPE3
+#define MapType	Magictype3Array
 
-class CMagicType3Set : public CRecordset
+class CMagicType3Set : public CMyRecordSet<T>
 {
 public:
-	CMagicType3Set(CDatabase* pDatabase = NULL);
+	CMagicType3Set(MapType *stlMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	{
+		m_nFields = 9;
+	}
+
 	DECLARE_DYNAMIC(CMagicType3Set)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[MAGIC_TYPE3]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CMagicType3Set, CRecordset)
-	long	m_iNum;
-	CString	m_Name;
-	CString	m_Description;
-	BYTE	m_Radius;
-	int		m_Angle;
-	BYTE	m_DirectType;
-	int		m_FirstDamage;
-	int		m_EndDamage;
-	int		m_TimeDamage;
-	BYTE	m_Duration;
-	BYTE	m_Attribute;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Long(pFX, _T("[iNum]"), m_data.iNum);
+		RFX_Byte(pFX, _T("[Radius]"), m_data.bRadius);
+		RFX_Int(pFX, _T("[Angle]"), m_data.sAngle);
+		RFX_Byte(pFX, _T("[DirectType]"), m_data.bDirectType);
+		RFX_Int(pFX, _T("[FirstDamage]"), m_data.sFirstDamage);
+		RFX_Int(pFX, _T("[EndDamage]"), m_data.sEndDamage);
+		RFX_Int(pFX, _T("[TimeDamage]"), m_data.sTimeDamage);
+		RFX_Byte(pFX, _T("[Duration]"), m_data.bDuration);
+		RFX_Byte(pFX, _T("[Attribute]"), m_data.bAttribute);
+	};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMagicType3Set)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+	virtual void HandleRead()
+	{
+		T * data = COPY_ROW();
+		if (!m_stlMap->PutData(data->iNum, data))
+			delete data;
+	};
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+private:
+	MapType * m_stlMap;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_MAGICTYPE3SET_H__A6269DA7_04F5_464A_8E10_106082601DC1__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CMagicType3Set, CRecordset)

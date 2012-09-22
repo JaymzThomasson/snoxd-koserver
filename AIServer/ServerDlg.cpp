@@ -6,6 +6,8 @@
 #include "ServerDlg.h"
 #include "GameSocket.h"
 #include "math.h"
+
+#include "../shared/database/MyRecordSet.h"
 #include "../shared/database/MagicTableSet.h"
 #include "../shared/database/MagicType1Set.h"
 #include "../shared/database/MagicType2Set.h"
@@ -419,49 +421,8 @@ void CServerDlg::DefaultInit()
 //	Magic Table 을 읽는다.
 BOOL CServerDlg::GetMagicTableData()
 {
-	CMagicTableSet	MagicTableSet;
-
-	if( !MagicTableSet.Open() ) {
-		AfxMessageBox(_T("MagicTable Open Fail!"));
-		return FALSE;
-	}
-	if(MagicTableSet.IsBOF() || MagicTableSet.IsEOF()) {
-		AfxMessageBox(_T("MagicTable Empty!"));
-		return FALSE;
-	}
-
-	MagicTableSet.MoveFirst();
-
-	while( !MagicTableSet.IsEOF() )
-	{
-		_MAGIC_TABLE* pTableMagic = new _MAGIC_TABLE;
-				
-		pTableMagic->iNum = MagicTableSet.m_MagicNum;
-		pTableMagic->bMoral = MagicTableSet.m_Moral;
-		pTableMagic->bSkillLevel = MagicTableSet.m_SkillLevel;
-		pTableMagic->sSkill = MagicTableSet.m_Skill;
-		pTableMagic->sMsp = MagicTableSet.m_Msp;
-		pTableMagic->sHP = MagicTableSet.m_HP;
-		pTableMagic->bItemGroup = MagicTableSet.m_ItemGroup;
-		pTableMagic->iUseItem = MagicTableSet.m_UseItem;
-		pTableMagic->bCastTime = MagicTableSet.m_CastTime;
-		pTableMagic->bReCastTime = MagicTableSet.m_ReCastTime;
-		pTableMagic->bSuccessRate = MagicTableSet.m_SuccessRate;
-		pTableMagic->bType1 = MagicTableSet.m_Type1;
-		pTableMagic->bType2 = MagicTableSet.m_Type2;
-		pTableMagic->sRange = MagicTableSet.m_Range;
-		pTableMagic->bEtc = MagicTableSet.m_Etc;
-
-		if( !m_MagictableArray.PutData(pTableMagic->iNum, pTableMagic) ) {
-			TRACE("MagicTable PutData Fail - %d\n", pTableMagic->iNum );
-			delete pTableMagic;
-			pTableMagic = NULL;
-		}
-		
-		MagicTableSet.MoveNext();
-	}
-
-	return TRUE;
+	CMagicTableSet MagicTableSet(&m_MagictableArray);
+	return MagicTableSet.Read();
 }
 
 BOOL CServerDlg::GetMakeWeaponItemTableData()
@@ -1361,74 +1322,44 @@ void CServerDlg::DeleteUserList(int uid)
 
 BOOL CServerDlg::MapFileLoad()
 {
-	CFile file;
-	CString szFullPath, errormsg, sZoneName;
-	MAP* pMap = NULL;
+	CZoneInfoSet ZoneInfoSet(&g_arZone);
+
 	m_sTotalMap = 0;
-
-	CZoneInfoSet	ZoneInfoSet;
-
-	if( !ZoneInfoSet.Open() )
-	{
-		AfxMessageBox(_T("ZoneInfoTable Open Fail!"));
+	if (!ZoneInfoSet.Read())
 		return FALSE;
-	}
 
-	if(ZoneInfoSet.IsBOF() || ZoneInfoSet.IsEOF()) 
+	foreach_stlmap (itr, g_arZone)
 	{
-		AfxMessageBox(_T("ZoneInfoTable Empty!"));
-		return FALSE;
-	}
+		CFile file;
+		CString szFullPath;
+		MAP *pMap = itr->second;
 
-	ZoneInfoSet.MoveFirst();
-
-	while( !ZoneInfoSet.IsEOF() )
-	{
-		sZoneName = ZoneInfoSet.m_strZoneName;
-
-		szFullPath.Format(".\\MAP\\%s", sZoneName);
-		
-		if (!file.Open(szFullPath, CFile::modeRead))
+		szFullPath.Format(".\\MAP\\%s", pMap->m_MapName);
+		if (!file.Open(szFullPath, CFile::modeRead)
+			|| !pMap->LoadMap((HANDLE)file.m_hFile))
 		{
-			errormsg.Format( "파일 Open 실패 - %s\n", szFullPath );
-			AfxMessageBox(errormsg);
+			AfxMessageBox("Unable to load SMD - " + szFullPath);
+			g_arZone.DeleteData(itr->first);
+			m_sTotalMap = 0;
 			return FALSE;
 		}
-
-		pMap = new MAP;
-		pMap->m_nServerNo = ZoneInfoSet.m_ServerNo;
-		pMap->m_nZoneNumber = ZoneInfoSet.m_ZoneNo;
-		strcpy( pMap->m_MapName, (char*)(LPCTSTR)sZoneName );
-
-		if( !pMap->LoadMap( (HANDLE)file.m_hFile ) ) {
-			errormsg.Format( "Map Load 실패 - %s\n", szFullPath );
-			AfxMessageBox(errormsg);
-			delete pMap;
-			return FALSE;
-		}
-
-		// dungeon work
-		if( ZoneInfoSet.m_RoomEvent > 0 )	{
-			if( !pMap->LoadRoomEvent( ZoneInfoSet.m_RoomEvent ) )	{
-				errormsg.Format( "Map Room Event Load 실패 - %s\n", szFullPath );
-				AfxMessageBox(errormsg);
-				delete pMap;
-				return FALSE;
-			}
-			pMap->m_byRoomEvent = 1;
-		}	
-
-		if (!g_arZone.PutData(pMap->m_nZoneNumber, pMap))
-		{
-			TRACE("Duplicate zone %d\n", pMap->m_nZoneNumber);
-			delete pMap;
-		}
-
-		ZoneInfoSet.MoveNext();
-
 		file.Close();
+		
+		if (pMap->m_byRoomEvent > 0)
+		{
+			if (!pMap->LoadRoomEvent(pMap->m_byRoomEvent))
+			{
+				AfxMessageBox("Unable to load room event for map - %s" + szFullPath);
+				pMap->m_byRoomEvent = 0;
+			}
+			else
+			{
+				pMap->m_byRoomEvent = 1;
+			}
+		}
+
 		m_sTotalMap++;
-	}	
+	}
 
 	return TRUE;
 }
@@ -1995,194 +1926,42 @@ BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 
 BOOL CServerDlg::GetMagicType1Data()
 {
-
-	CMagicType1Set	MagicType1Set;
-
-	if( !MagicType1Set.Open() ) {
-		AfxMessageBox(_T("MagicType1 Open Fail!"));
-		return FALSE;
-	}
-	if(MagicType1Set.IsBOF() || MagicType1Set.IsEOF()) {
-		AfxMessageBox(_T("MagicType1 Empty!"));
-		return FALSE;
-	}
-
-	MagicType1Set.MoveFirst();
-
-	while( !MagicType1Set.IsEOF() )
-	{
-		_MAGIC_TYPE1* pType1Magic = new _MAGIC_TYPE1;
-				
-		pType1Magic->iNum = MagicType1Set.m_iNum;
-		pType1Magic->bHitType = MagicType1Set.m_Type;
-		pType1Magic->bDelay = MagicType1Set.m_Delay;
-		pType1Magic->bComboCount = MagicType1Set.m_ComboCount;
-		pType1Magic->bComboType = MagicType1Set.m_ComboType;
-		pType1Magic->sComboDamage = MagicType1Set.m_ComboDamage;
-		pType1Magic->sHit = MagicType1Set.m_Hit;
-		pType1Magic->sHitRate = MagicType1Set.m_HitRate;
-		pType1Magic->sRange = MagicType1Set.m_Range;
-
-		if( !m_Magictype1Array.PutData(pType1Magic->iNum, pType1Magic) ) {
-			TRACE("MagicType1 PutData Fail - %d\n", pType1Magic->iNum );
-			delete pType1Magic;
-			pType1Magic = NULL;
-		}
-
-		MagicType1Set.MoveNext();
-	}
-
-	return TRUE;
+	CMagicType1Set MagicType1Set(&m_Magictype1Array);
+	return MagicType1Set.Read();
 }
 
 BOOL CServerDlg::GetMagicType2Data()
 {
-	CMagicType2Set	MagicType2Set;
-
-	if( !MagicType2Set.Open() ) {
-		AfxMessageBox(_T("MagicType1 Open Fail!"));
-		return FALSE;
-	}
-	if(MagicType2Set.IsBOF() || MagicType2Set.IsEOF()) {
-		AfxMessageBox(_T("MagicType1 Empty!"));
-		return FALSE;
-	}
-
-	MagicType2Set.MoveFirst();
-
-	while( !MagicType2Set.IsEOF() )
-	{
-		_MAGIC_TYPE2* pType2Magic = new _MAGIC_TYPE2;
-				
-		pType2Magic->iNum = MagicType2Set.m_iNum;
-		pType2Magic->bHitType = MagicType2Set.m_HitType;
-		pType2Magic->sHitRate = MagicType2Set.m_HitRate;
-		pType2Magic->sAddDamage = MagicType2Set.m_AddDamage;
-		pType2Magic->sAddRange = MagicType2Set.m_AddRange;
-		pType2Magic->bNeedArrow = MagicType2Set.m_NeedArrow;
-
-		if( !m_Magictype2Array.PutData(pType2Magic->iNum, pType2Magic) ) {
-			TRACE("MagicType2 PutData Fail - %d\n", pType2Magic->iNum );
-			delete pType2Magic;
-			pType2Magic = NULL;
-		}
-		MagicType2Set.MoveNext();
-	}
-
-	return TRUE;
+	CMagicType2Set MagicType2Set(&m_Magictype2Array);
+	return MagicType2Set.Read();
 }
-
 
 BOOL CServerDlg::GetMagicType3Data()
 {
-	CMagicType3Set	MagicType3Set;
-
-	if( !MagicType3Set.Open() ) {
-		AfxMessageBox(_T("MagicType3 Open Fail!"));
-		return FALSE;
-	}
-	if(MagicType3Set.IsBOF() || MagicType3Set.IsEOF()) {
-		AfxMessageBox(_T("MagicType3 Empty!"));
-		return FALSE;
-	}
-
-	MagicType3Set.MoveFirst();
-
-	while( !MagicType3Set.IsEOF() )
-	{
-		_MAGIC_TYPE3* pType3Magic = new _MAGIC_TYPE3;
-				
-		pType3Magic->iNum = MagicType3Set.m_iNum;
-		pType3Magic->bAttribute = MagicType3Set.m_Attribute;
-		pType3Magic->bDirectType = MagicType3Set.m_DirectType;
-		//pType3Magic->bDistance = MagicType3Set.m_Distance;
-		pType3Magic->bRadius = MagicType3Set.m_Radius;
-		pType3Magic->sAngle = MagicType3Set.m_Angle;
-		pType3Magic->sDuration = MagicType3Set.m_Duration;
-		pType3Magic->sEndDamage = MagicType3Set.m_EndDamage;
-		pType3Magic->sFirstDamage = MagicType3Set.m_FirstDamage;
-		pType3Magic->sTimeDamage = MagicType3Set.m_TimeDamage;
-
-		if( !m_Magictype3Array.PutData(pType3Magic->iNum, pType3Magic) ) {
-			TRACE("MagicType3 PutData Fail - %d\n", pType3Magic->iNum );
-			delete pType3Magic;
-			pType3Magic = NULL;
-		}
-	
-		MagicType3Set.MoveNext();
-	}
-
-	return TRUE;
+	CMagicType3Set MagicType3Set(&m_Magictype3Array);
+	return MagicType3Set.Read();
 }
 
 BOOL CServerDlg::GetMagicType4Data()
 {
-	CMagicType4Set	MagicType4Set;
-
-	if( !MagicType4Set.Open() ) {
-		AfxMessageBox(_T("MagicType4 Open Fail!"));
-		return FALSE;
-	}
-	if(MagicType4Set.IsBOF() || MagicType4Set.IsEOF()) {
-		AfxMessageBox(_T("MagicType4 Empty!"));
-		return FALSE;
-	}
-
-	MagicType4Set.MoveFirst();
-
-	while( !MagicType4Set.IsEOF() )	{
-		_MAGIC_TYPE4* pType4Magic = new _MAGIC_TYPE4;
-						
-		pType4Magic->iNum = MagicType4Set.m_iNum;
-		pType4Magic->bBuffType = MagicType4Set.m_BuffType;
-		pType4Magic->bRadius = MagicType4Set.m_Radius;
-		pType4Magic->sDuration = MagicType4Set.m_Duration;
-		pType4Magic->bAttackSpeed = MagicType4Set.m_AttackSpeed;
-		pType4Magic->bSpeed = MagicType4Set.m_Speed;
-		pType4Magic->sAC = MagicType4Set.m_AC;
-		pType4Magic->bAttack = MagicType4Set.m_Attack;
-		pType4Magic->sMaxHP = MagicType4Set.m_MaxHP;
-		pType4Magic->bHitRate = MagicType4Set.m_HitRate;
-		pType4Magic->sAvoidRate = MagicType4Set.m_AvoidRate;
-		pType4Magic->bStr = MagicType4Set.m_Str;
-		pType4Magic->bSta = MagicType4Set.m_Sta;
-		pType4Magic->bDex = MagicType4Set.m_Dex;
-		pType4Magic->bIntel = MagicType4Set.m_Intel;
-		pType4Magic->bCha = MagicType4Set.m_Cha;
-		pType4Magic->bFireR = MagicType4Set.m_FireR;
-		pType4Magic->bColdR = MagicType4Set.m_ColdR;
-		pType4Magic->bLightningR = MagicType4Set.m_LightningR;
-		pType4Magic->bMagicR = MagicType4Set.m_MagicR;
-		pType4Magic->bDiseaseR = MagicType4Set.m_DiseaseR;
-		pType4Magic->bPoisonR = MagicType4Set.m_PoisonR;
-
-		if( !m_Magictype4Array.PutData(pType4Magic->iNum, pType4Magic) )	{
-			TRACE("MagicType4 PutData Fail - %d\n", pType4Magic->iNum );
-			delete pType4Magic;
-			pType4Magic = NULL;
-		}	
-		MagicType4Set.MoveNext();
-	}
-	return TRUE;
+	CMagicType4Set MagicType4Set(&m_Magictype4Array);
+	return MagicType4Set.Read();
 }
 
 void CServerDlg::RegionCheck()
 {
-	int i=0,k=0, total_user = 0;
+	EnterCriticalSection( &g_User_critical );
 	foreach_stlmap(itr, g_arZone)	
 	{
 		MAP *pMap = itr->second;
-		if (pMap == NULL)	continue;
-		for( i=0; i<pMap->m_sizeRegion.cx; i++ ) {
-			for( int j=0; j<pMap->m_sizeRegion.cy; j++ ) {
-				EnterCriticalSection( &g_User_critical );
-				total_user = pMap->m_ppRegion[i][j].m_RegionUserArray.GetSize();
-				LeaveCriticalSection( &g_User_critical );
-				if( total_user > 0 )  	pMap->m_ppRegion[i][j].m_byMoving = 1;
-				else	pMap->m_ppRegion[i][j].m_byMoving = 0; 
-			}
-		}
+		if (pMap == NULL)
+			continue;
+
+		for (int i = 0; i < pMap->m_sizeRegion.cx; i++)
+			for (int j = 0; j < pMap->m_sizeRegion.cy; j++)
+				pMap->m_ppRegion[i][j].m_byMoving = (pMap->m_ppRegion[i][j].m_RegionUserArray.GetSize() > 0 ? 1 : 0);
 	}
+	LeaveCriticalSection( &g_User_critical );
 }
 
 BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number)

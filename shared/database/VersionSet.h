@@ -1,45 +1,41 @@
-#if !defined(AFX_VERSIONSET_H__AE3C6553_0D3F_4A4A_AD05_57EF200CB92C__INCLUDED_)
-#define AFX_VERSIONSET_H__AE3C6553_0D3F_4A4A_AD05_57EF200CB92C__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// VersionSet.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CVersionSet recordset
+#define T		_VERSION_INFO
+#define MapType	VersionInfoList
 
-class CVersionSet : public CRecordset
+#include "MyRecordSet.h"
+class CVersionSet : public CMyRecordSet<T>
 {
 public:
-	CVersionSet(CDatabase* pDatabase = NULL);
+	CVersionSet(MapType *pMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_map(pMap)
+	{
+		m_nFields = 3;
+	}
+
 	DECLARE_DYNAMIC(CVersionSet)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[VERSION]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CVersionSet, CRecordset)
-	int		m_sVersion;
-	int		m_sHistoryVersion;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Int(pFX, _T("[sVersion]"), m_data.sVersion);
+		RFX_Int(pFX, _T("[sHistoryVersion]"), m_data.sHistoryVersion);
+		RFX_Text(pFX, _T("[strFileName]"), m_data.strFileName);
+	};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CVersionSet)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+	virtual void HandleRead()
+	{
+		T * data = COPY_ROW();
+		auto itr = m_map->insert(make_pair(data->strFileName, data));
+		if (!itr.second)
+			delete data;
+	};
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+private:
+	MapType * m_map;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_VERSIONSET_H__AE3C6553_0D3F_4A4A_AD05_57EF200CB92C__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CVersionSet, CRecordset)

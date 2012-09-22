@@ -1,45 +1,39 @@
-#if !defined(AFX_ITEMTABLESET_H__9C214CAF_6316_4E33_84A4_8DEBC3D83176__INCLUDED_)
-#define AFX_ITEMTABLESET_H__9C214CAF_6316_4E33_84A4_8DEBC3D83176__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// ItemTableSet.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CItemTableSet recordset
+#define T		_ITEM_TABLE
+#define MapType	ItemtableArray
 
-class CItemTableSet : public CRecordset
+#include "../shared/database/MyRecordSet.h"
+class CItemTableSet : public CMyRecordSet<T>
 {
 public:
-	CItemTableSet(CDatabase* pDatabase = NULL);
+	CItemTableSet(MapType *stlMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	{
+		m_nFields = 2;
+	}
+
 	DECLARE_DYNAMIC(CItemTableSet)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[ITEM]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CItemTableSet, CRecordset)
-	long	m_Num;
-	BYTE	m_Countable;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Long(pFX, _T("[Num]"), m_data.m_iNum);
+		RFX_Byte(pFX, _T("[Countable]"), m_data.m_bCountable);
+	};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CItemTableSet)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+	virtual void HandleRead()
+	{
+		T * data = COPY_ROW();
+		if (!m_stlMap->PutData(data->m_iNum, data))
+			delete data;
+	};
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+private:
+	MapType * m_stlMap;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_ITEMTABLESET_H__9C214CAF_6316_4E33_84A4_8DEBC3D83176__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CItemTableSet, CRecordset)

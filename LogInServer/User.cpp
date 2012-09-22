@@ -187,8 +187,8 @@ fail_return:
 
 void CUser::SendDownloadInfo(int version)
 {
-	int send_index = 0, filecount = 0;
-	set <string> downloadset;
+	int send_index = 0;
+	set<CString> downloadset;
 	char buff[2048];
 
 	foreach (itr, m_pMain->m_VersionList) 
@@ -204,6 +204,6 @@ void CUser::SendDownloadInfo(int version)
 	SetShort( buff, downloadset.size(), send_index );
 	
 	foreach (itr, downloadset)
-		SetKOString( buff, (char*)(*itr).c_str(), send_index );
+		SetCString( buff, (*itr), send_index );
 	Send( buff, send_index );
 }

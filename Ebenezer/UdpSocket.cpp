@@ -391,27 +391,13 @@ void CUdpSocket::RecvCreateKnights( char* pBuf )
 		|| !GetKOString(pBuf, chiefname, index, MAX_ID_SIZE))
 		return;
 
-	pKnights = new CKnights;
-	pKnights->InitializeValue();
+	pKnights = new CKnights();
 
 	pKnights->m_sIndex = knightsindex;
 	pKnights->m_byFlag = community;
 	pKnights->m_byNation = nation;
-	strcpy_s( pKnights->m_strName, sizeof(pKnights->m_strName), knightsname );
-	strcpy_s( pKnights->m_strChief, sizeof(pKnights->m_strChief), chiefname );
-	memset( pKnights->m_strViceChief_1, 0x00, MAX_ID_SIZE+1);
-	memset( pKnights->m_strViceChief_2, 0x00, MAX_ID_SIZE+1);
-	memset( pKnights->m_strViceChief_3, 0x00, MAX_ID_SIZE+1);
-	pKnights->m_sMembers = 1;
-	pKnights->m_nMoney = 0;
-	pKnights->m_nPoints = 0;
-	pKnights->m_byGrade = 5;
-	pKnights->m_byRanking = 0;
-
-	for(int i=0; i<MAX_CLAN; i++)	{
-		pKnights->m_arKnightsUser[i].byUsed = 0;
-		strcpy(pKnights->m_arKnightsUser[i].strUserName, "");
-	}	
+	pKnights->m_strName = knightsname;
+	pKnights->m_strChief = chiefname;
 
 	m_pMain->m_KnightsArray.PutData( pKnights->m_sIndex, pKnights );
 

@@ -1,51 +1,42 @@
-#if !defined(AFX_MAGICTYPE2SET_H__001DA334_7072_49B2_B158_F37D50A5E4F5__INCLUDED_)
-#define AFX_MAGICTYPE2SET_H__001DA334_7072_49B2_B158_F37D50A5E4F5__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// MagicType2Set.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CMagicType2Set recordset
+#define T		_MAGIC_TYPE2
+#define MapType	Magictype2Array
 
-class CMagicType2Set : public CRecordset
+class CMagicType2Set : public CMyRecordSet<T>
 {
 public:
-	CMagicType2Set(CDatabase* pDatabase = NULL);
+	CMagicType2Set(MapType *stlMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	{
+		m_nFields = 6;
+	}
+
 	DECLARE_DYNAMIC(CMagicType2Set)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[MAGIC_TYPE2]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CMagicType2Set, CRecordset)
-	long	m_iNum;
-	CString	m_Name;
-	CString	m_Description;
-	BYTE	m_HitType;
-	int		m_HitRate;
-	int		m_AddDamage;
-	int		m_AddRange;
-	BYTE	m_NeedArrow;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Long(pFX, _T("[iNum]"), m_data.iNum);
+		RFX_Byte(pFX, _T("[HitType]"), m_data.bHitType);
+		RFX_Int(pFX, _T("[HitRate]"), m_data.sHitRate);
+		RFX_Int(pFX, _T("[AddDamage]"), m_data.sAddDamage);
+		RFX_Int(pFX, _T("[AddRange]"), m_data.sAddRange);
+		RFX_Byte(pFX, _T("[NeedArrow]"), m_data.bNeedArrow);
+	};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMagicType2Set)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+	virtual void HandleRead()
+	{
+		T * data = COPY_ROW();
+		if (!m_stlMap->PutData(data->iNum, data))
+			delete data;
+	};
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+private:
+	MapType * m_stlMap;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_MAGICTYPE2SET_H__001DA334_7072_49B2_B158_F37D50A5E4F5__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CMagicType2Set, CRecordset)

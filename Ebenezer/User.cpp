@@ -722,7 +722,7 @@ void CUser::SendMyInfo()
 	else 
 	{
 		SetByte(send_buff, 0, send_index);  // grade type
-		SetKOString(send_buff, pKnights->m_strName, send_index, 1);
+		SetCString(send_buff, pKnights->m_strName, send_index, 1);
 		SetByte(send_buff, pKnights->m_byGrade, send_index );
 		SetByte(send_buff, pKnights->m_byRanking, send_index );
 		SetShort(send_buff, 0, send_index); // symbol/mark version
@@ -3018,7 +3018,7 @@ void CUser::SendAllKnightsID()
 		if( !pKnights ) continue;
 		//if( pKnights->bFlag != KNIGHTS_TYPE ) continue;
 		SetShort( temp_buff, pKnights->m_sIndex, buff_index );
-		SetKOString(temp_buff, pKnights->m_strName, buff_index);
+		SetCString(temp_buff, pKnights->m_strName, buff_index);
 		count++;
 	}
 
@@ -3182,7 +3182,7 @@ void CUser::Type3AreaDuration(float currenttime)
 			}
 		}
 
-		if ( (( currenttime - m_fAreaStartTime) >= pType->sDuration) || m_bResHpType == USER_DEAD) { // Did area duration end? 			
+		if ( (( currenttime - m_fAreaStartTime) >= pType->bDuration) || m_bResHpType == USER_DEAD) { // Did area duration end? 			
 			m_bAreaInterval = 5;
 			m_fAreaStartTime = 0.0f;
 			m_fAreaLastTime = 0.0f;

@@ -1,96 +1,49 @@
-// STLMap.h: interface for the CSTLMap class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_STLMap_H__9153F571_6888_4BD4_ABC9_E97416B54096__INCLUDED_)
-#define AFX_STLMap_H__9153F571_6888_4BD4_ABC9_E97416B54096__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-
-#pragma warning(disable : 4786)
-
 #include <map>
-using namespace std;
+
+#define foreach(itr, arr) for (auto itr = arr.begin(); itr != arr.end(); itr++)
+#define foreach_stlmap(itr, arr) for (auto itr = arr.m_UserTypeMap.begin(); itr != arr.m_UserTypeMap.end(); itr++)
+#define foreach_array(itr, arr) foreach_array_n(itr, arr, sizeof(arr) / sizeof(arr[0]))
+#define foreach_array_n(itr, arr, len) auto itr ## Value = arr[0]; for (auto itr = 0; itr < len; itr++, itr ## Value = arr[itr])
 
 template <class T> class CSTLMap  
 {
 public:
-	typedef typename map < int, T* >::iterator		Iterator;
-	typedef typename map < int, T* >::value_type		ValueType;
-
-	map < int, T* >		m_UserTypeMap;
+	typedef typename std::map<long, T*>::iterator Iterator;
+	std::map<long, T*> m_UserTypeMap;
 	
-
 	int GetSize() { return m_UserTypeMap.size(); };
-	
-	bool PutData( int key_value, T* pData)
-	{
-		pair<Iterator, bool> temp_pair = m_UserTypeMap.insert( ValueType( key_value, pData ) );
-		return temp_pair.second;
-	};
+	bool IsExist(long key_value) { return (m_UserTypeMap.find(key_value) != m_UserTypeMap.end()) };
+	bool IsEmpty() { return m_UserTypeMap.empty(); };
+	bool PutData(long key_value, T* pData) { return m_UserTypeMap.insert(std::make_pair(key_value, pData)).second; };
 
-	T* GetData( int key_value )
+	T* GetData(long key_value)
 	{
-		T* pData = NULL;
-		Iterator iter = m_UserTypeMap.find( key_value );
-		if( iter == m_UserTypeMap.end() )
+		Iterator iter = m_UserTypeMap.find(key_value);
+		if (iter == m_UserTypeMap.end())
 			return NULL;
-		else
-			pData = (*iter).second;
-		
-		return pData;
+
+		return (*iter).second;
 	};
 
-	Iterator DeleteData( int key_value )
+	Iterator DeleteData(long key_value)
 	{
-		if( m_UserTypeMap.empty() )
+		Iterator iter = m_UserTypeMap.find(key_value);
+		if (iter == m_UserTypeMap.end())
 			return m_UserTypeMap.end();
-		
-		Iterator iter = m_UserTypeMap.find( key_value );
-		if( iter == m_UserTypeMap.end() )
-			return m_UserTypeMap.end();
-		else {
-			T* pData = (*iter).second;
 
-			iter = m_UserTypeMap.erase(iter);
-
-			delete pData;
-			pData = NULL;
-
-			return iter;
-		}
+		delete (*iter).second;
+		return m_UserTypeMap.erase(iter);
 	};
 
 	void DeleteAllData()
 	{
-		Iterator iter1 = m_UserTypeMap.begin(), iter2 = m_UserTypeMap.end();
-		for(; iter1 != iter2; iter1++ )
-			delete (*iter1).second;
+		foreach (itr, m_UserTypeMap)
+			delete itr->second;
 
 		Clear();
 	};
 
-	void Clear()
-	{
-		m_UserTypeMap.clear();
-	};
-
-	bool IsExist( int key_value )
-	{
-		return (m_UserTypeMap.find(key_value) != m_UserTypeMap.end())
-	};
-
-	bool IsEmpty() { return m_UserTypeMap.empty(); };
-
-	CSTLMap() {};
-	virtual ~CSTLMap() {
-		DeleteAllData();
-	};
+	void Clear() { m_UserTypeMap.clear(); };
+	~CSTLMap() { DeleteAllData(); };
 };
-
-#define foreach(itr, arr) for (auto itr = arr.begin(); itr != arr.end(); itr++)
-#define foreach_stlmap(itr, arr) for (auto itr = arr.m_UserTypeMap.begin(); itr != arr.m_UserTypeMap.end(); itr++)
-
-#endif // !defined(AFX_STLMap_H__9153F571_6888_4BD4_ABC9_E97416B54096__INCLUDED_)

@@ -1,45 +1,39 @@
-#if !defined(AFX_SERVERRESOURCESET_H__2F772D75_7255_43A8_869E_82FA34930974__INCLUDED_)
-#define AFX_SERVERRESOURCESET_H__2F772D75_7255_43A8_869E_82FA34930974__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// ServerResourceSet.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CServerResourceSet recordset
+// TO-DO: Make this a simple int->CString map
+#define T		_SERVER_RESOURCE
+#define MapType	ServerResourceArray
 
-class CServerResourceSet : public CRecordset
+class CServerResourceSet : public CMyRecordSet<T>
 {
 public:
-	CServerResourceSet(CDatabase* pDatabase = NULL);
+	CServerResourceSet(MapType *stlMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	{
+		m_nFields = 2;
+	}
+
 	DECLARE_DYNAMIC(CServerResourceSet)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[SERVER_RESOURCE]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CServerResourceSet, CRecordset)
-	int		m_nResourceID;
-	CString	m_strResource;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Int(pFX, _T("[nResourceID]"), m_data.nResourceID);
+		RFX_Text(pFX, _T("[strResource]"), m_data.strResource);
+	};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CServerResourceSet)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+	virtual void HandleRead()
+	{
+		T * data = COPY_ROW();
+		if (!m_stlMap->PutData(data->nResourceID, data))
+			delete data;
+	};
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+private:
+	MapType * m_stlMap;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_SERVERRESOURCESET_H__2F772D75_7255_43A8_869E_82FA34930974__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CServerResourceSet, CRecordset)

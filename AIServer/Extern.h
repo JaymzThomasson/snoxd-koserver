@@ -50,74 +50,42 @@ struct _MAKE_ITEM_LARE_CODE
 
 struct _MAGIC_TABLE
 {
-	int		iNum;
+	long	iNum;
+	BYTE	bBeforeAction;
+	BYTE	bTargetAction;
+	BYTE	bSelfEffect;
+	BYTE	bFlyingEffect;
+	int		iTargetEffect;
 	BYTE	bMoral;
-	BYTE	bSkillLevel;
-	short	sSkill;
-	short	sMsp;
-	short   sHP;
+	int		sSkillLevel;	
+	int		sSkill;
+	int		sMsp;
+	int		sHP;
 	BYTE	bItemGroup;
-	int		iUseItem;
+	long	iUseItem;
 	BYTE	bCastTime;
 	BYTE	bReCastTime;
 	BYTE	bSuccessRate;
 	BYTE	bType1;
 	BYTE	bType2;
-	short   sRange;
+	int		sRange;
 	BYTE	bEtc;
-};
-
-struct _MAGIC_TYPE1
-{
-	int		iNum;
-	BYTE	bHitType;
-	short	sHitRate;
-	short	sHit;
-	BYTE	bDelay;
-	BYTE	bComboType;
-	BYTE	bComboCount;
-	short	sComboDamage;
-	short	sRange;
-};
-
-struct _MAGIC_TYPE2
-{
-	int     iNum;
-	BYTE    bHitType;
-	short   sHitRate;
-	short	sAddDamage;
-	short   sAddRange;
-	BYTE    bNeedArrow;
-};
-
-struct _MAGIC_TYPE3
-{
-	int		iNum;
-	//BYTE	bDistance;
-	BYTE	bRadius;
-	short	sAngle;
-	short	sFirstDamage;
-	short	sEndDamage;
-	short	sTimeDamage;
-	BYTE	bDirectType;
-	short	sDuration;
-	BYTE	bAttribute;
 };
 
 struct _MAGIC_TYPE4
 {
-	int     iNum;
-	short   sMSP;
+	long    iNum;
+	int		sMSP;
 	BYTE    bBuffType;
 	BYTE    bRadius;
-	short   sDuration;
+	int		sDuration;
 	BYTE    bAttackSpeed;
 	BYTE    bSpeed;
-	short   sAC;
+	int		sAC;
 	BYTE    bAttack;
-	short   sMaxHP;
+	int		sMaxHP;
 	BYTE    bHitRate;
-	short   sAvoidRate;
+	int		sAvoidRate;
 	BYTE    bStr;
 	BYTE    bSta;
 	BYTE    bDex;
@@ -129,6 +97,42 @@ struct _MAGIC_TYPE4
 	BYTE    bMagicR;
 	BYTE    bDiseaseR;
 	BYTE    bPoisonR;
+};
+
+struct _MAGIC_TYPE3
+{
+	long	iNum;
+	BYTE	bRadius;
+	int		sAngle;
+	int		sFirstDamage;
+	int		sEndDamage;
+	int		sTimeDamage;
+	BYTE	bDirectType;
+	BYTE	bDuration;
+	BYTE	bAttribute;
+};
+
+struct _MAGIC_TYPE2
+{
+	long    iNum;
+	BYTE    bHitType;
+	int		sHitRate;
+	int		sAddDamage;
+	int		sAddRange;
+	BYTE    bNeedArrow;
+};
+
+struct _MAGIC_TYPE1
+{
+	long	iNum;
+	BYTE	bHitType;
+	int		sHitRate;
+	int		sHit;
+	BYTE	bDelay;
+	BYTE	bComboType;
+	BYTE	bComboCount;
+	int		sComboDamage;
+	int		sRange;
 };
 
 struct	_USERLOG

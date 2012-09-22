@@ -239,7 +239,7 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 			if( !pType ) return;
 
 			if (sid >= 0 && sid < MAX_USER)	{	// If the PLAYER shoots an arrow.
-				if (pMagic->sFlyingEffect > 0) {	// Only if Flying Effect is greater than 0.			
+				if (pMagic->bFlyingEffect > 0) {	// Only if Flying Effect is greater than 0.			
 					int total_hit = m_pSrcUser->m_sTotalHit + m_pSrcUser->m_sItemHit ;
 					int skill_mana = total_hit * pMagic->sMsp / 100 ;
 
@@ -607,9 +607,9 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 		if( modulator != 0 ) {	
 			Class = pTable->sSkill / 10;
 			if( Class != m_pSrcUser->m_pUserData->m_sClass ) goto fail_return;
-			if( pTable->bSkillLevel > m_pSrcUser->m_pUserData->m_bstrSkill[modulator] ) goto fail_return;
+			if( pTable->sSkillLevel > m_pSrcUser->m_pUserData->m_bstrSkill[modulator] ) goto fail_return;
 		}
-		else if( pTable->bSkillLevel > m_pSrcUser->m_pUserData->m_bLevel ) goto fail_return;
+		else if( pTable->sSkillLevel > m_pSrcUser->m_pUserData->m_bLevel ) goto fail_return;
 
 		if (pTable->bType1 == 1) {	// Weapons verification in case of COMBO attack (another hacking prevention).
 			if (pTable->sSkill == 1055 || pTable->sSkill == 2055) {		// Weapons verification in case of DUAL ATTACK (type 1)!		
@@ -645,7 +645,7 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 			int total_hit = m_pSrcUser->m_sTotalHit ;
 			int skill_mana = (pTable->sMsp * total_hit) / 100 ; 
 
-			if ( pTable->bType1 == 2 && pTable->sFlyingEffect != 0) {		// Type 2 related...
+			if ( pTable->bType1 == 2 && pTable->bFlyingEffect != 0) {		// Type 2 related...
 				m_bMagicState = NONE;
 				return pTable;		// Do not reduce MP/SP when flying effect is not 0.
 			}
@@ -1063,7 +1063,7 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 			}
 		}
 
-		if (pType->sDuration == 0) {     // Non-Durational Spells.
+		if (pType->bDuration == 0) {     // Non-Durational Spells.
 			if (pType->bDirectType == 1)     // Health Point related !
 			{			
 				pTUser->HpChange( damage );     // Reduce target health point.
@@ -1141,7 +1141,7 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 			else if( pType->bDirectType == 4 )     // Armor Durability related.
 				pTUser->ItemWoreOut( DEFENCE, -damage);     // Reduce Slot Item Durability
 		}
-		else if (pType->sDuration != 0) {    // Durational Spells! Remember, durational spells only involve HPs.
+		else if (pType->bDuration != 0) {    // Durational Spells! Remember, durational spells only involve HPs.
 			if (damage != 0) {		// In case there was first damage......
 				pTUser->HpChange( damage );			// Initial damage!!!
 		
@@ -1201,7 +1201,7 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 				for (int k = 0 ; k < MAX_TYPE3_REPEAT ; k++) {	// For continuous damages...
 					if (pTUser->m_bHPInterval[k] == 5) {
 						pTUser->m_fHPStartTime[k] = pTUser->m_fHPLastTime[k] = TimeGet();     // The durational magic routine.
-						pTUser->m_bHPDuration[k] = (BYTE)pType->sDuration;
+						pTUser->m_bHPDuration[k] = pType->bDuration;
 						pTUser->m_bHPInterval[k] = 2;		
 						pTUser->m_bHPAmount[k] = duration_damage / ( pTUser->m_bHPDuration[k] / pTUser->m_bHPInterval[k] ) ;
 						pTUser->m_sSourceID[k] = sid;

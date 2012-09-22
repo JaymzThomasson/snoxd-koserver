@@ -1,66 +1,56 @@
-#if !defined(AFX_MAGICTABLESET_H__E8A08990_A716_4AF2_8C03_7C0C9666F842__INCLUDED_)
-#define AFX_MAGICTABLESET_H__E8A08990_A716_4AF2_8C03_7C0C9666F842__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// MagicTableSet.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CMagicTableSet recordset
+#define T		_MAGIC_TABLE
+#define MapType	MagictableArray
 
-class CMagicTableSet : public CRecordset
+class CMagicTableSet : public CMyRecordSet<T>
 {
 public:
-	CMagicTableSet(CDatabase* pDatabase = NULL);
+	CMagicTableSet(MapType *stlMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	{
+		m_nFields = 20;
+	}
+
 	DECLARE_DYNAMIC(CMagicTableSet)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[MAGIC]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CMagicTableSet, CRecordset)
-	long	m_MagicNum;
-	CString	m_EnName;
-	CString	m_KrName;
-	CString	m_Description;
-	BYTE	m_BeforeAction;
-	BYTE	m_TargetAction;
-	BYTE	m_SelfEffect;
-	BYTE	m_FlyingEffect;
-	int		m_TargetEffect;
-	BYTE	m_Moral;
-	int		m_SkillLevel;
-	int		m_Skill;
-	int		m_Msp;
-	int     m_HP;
-	BYTE	m_ItemGroup;
-	long	m_UseItem;
-	BYTE	m_CastTime;
-	BYTE	m_ReCastTime;
-	BYTE	m_SuccessRate;
-	BYTE	m_Type1;
-	BYTE	m_Type2;
-	int     m_Range;
-	BYTE	m_Etc;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Long(pFX, _T("[MagicNum]"), m_data.iNum);
+		RFX_Byte(pFX, _T("[BeforeAction]"), m_data.bBeforeAction);
+		RFX_Byte(pFX, _T("[TargetAction]"), m_data.bTargetAction);
+		RFX_Byte(pFX, _T("[SelfEffect]"),  m_data.bSelfEffect);
+		RFX_Byte(pFX, _T("[FlyingEffect]"), m_data.bFlyingEffect);
+		RFX_Int(pFX, _T("[TargetEffect]"), m_data.iTargetEffect);
+		RFX_Byte(pFX, _T("[Moral]"), m_data.bMoral);
+		RFX_Int(pFX, _T("[SkillLevel]"), m_data.sSkillLevel);
+		RFX_Int(pFX, _T("[Skill]"), m_data.sSkill);
+		RFX_Int(pFX, _T("[Msp]"), m_data.sMsp);
+		RFX_Int(pFX, _T("[HP]"), m_data.sHP);
+		RFX_Byte(pFX, _T("[ItemGroup]"), m_data.bItemGroup);
+		RFX_Long(pFX, _T("[UseItem]"), m_data.iUseItem);
+		RFX_Byte(pFX, _T("[CastTime]"), m_data.bCastTime);
+		RFX_Byte(pFX, _T("[ReCastTime]"), m_data.bReCastTime);
+		RFX_Byte(pFX, _T("[SuccessRate]"), m_data.bSuccessRate);
+		RFX_Byte(pFX, _T("[Type1]"), m_data.bType1);
+		RFX_Byte(pFX, _T("[Type2]"), m_data.bType2);
+		RFX_Int(pFX, _T("[Range]"), m_data.sRange);
+		RFX_Byte(pFX, _T("[Etc]"), m_data.bEtc);
+	};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMagicTableSet)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+	virtual void HandleRead()
+	{
+		T * data = COPY_ROW();
+		if (!m_stlMap->PutData(data->iNum, data))
+			delete data;
+	};
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+private:
+	MapType * m_stlMap;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_MAGICTABLESET_H__E8A08990_A716_4AF2_8C03_7C0C9666F842__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CMagicTableSet, CRecordset)

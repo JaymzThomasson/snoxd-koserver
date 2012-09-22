@@ -1,49 +1,40 @@
-#if !defined(AFX_MAGICTYPE5SET_H__31B93053_D378_431B_ACF1_9034BF0DE977__INCLUDED_)
-#define AFX_MAGICTYPE5SET_H__31B93053_D378_431B_ACF1_9034BF0DE977__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// MagicType5Set.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CMagicType5Set recordset
+#define T		_MAGIC_TYPE5
+#define MapType	Magictype5Array
 
-class CMagicType5Set : public CRecordset
+class CMagicType5Set : public CMyRecordSet<T>
 {
 public:
-	CMagicType5Set(CDatabase* pDatabase = NULL);
+	CMagicType5Set(MapType *stlMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	{
+		m_nFields = 4;
+	}
+
 	DECLARE_DYNAMIC(CMagicType5Set)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[MAGIC_TYPE5]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CMagicType5Set, CRecordset)
-	long	m_iNum;
-	CString	m_Name;
-	CString	m_Description;
-	BYTE	m_Type;
-	BYTE	m_ExpRecover;
-	int		m_NeedStone;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Long(pFX, _T("[iNum]"), m_data.iNum);
+		RFX_Byte(pFX, _T("[Type]"), m_data.bType);
+		RFX_Byte(pFX, _T("[ExpRecover]"), m_data.bExpRecover);
+		RFX_Int(pFX, _T("[NeedStone]"), m_data.sNeedStone);
+	};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMagicType5Set)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+	virtual void HandleRead()
+	{
+		T * data = COPY_ROW();
+		if (!m_stlMap->PutData(data->iNum, data))
+			delete data;
+	};
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+private:
+	MapType * m_stlMap;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_MAGICTYPE5SET_H__31B93053_D378_431B_ACF1_9034BF0DE977__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CMagicType5Set, CRecordset)

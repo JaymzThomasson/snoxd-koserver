@@ -1,67 +1,58 @@
-#if !defined(AFX_MAGICTYPE4SET_H__CE4EE739_4C6D_43D1_8EB6_E9CC144F9EE2__INCLUDED_)
-#define AFX_MAGICTYPE4SET_H__CE4EE739_4C6D_43D1_8EB6_E9CC144F9EE2__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// MagicType4Set.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CMagicType4Set recordset
+#define T		_MAGIC_TYPE4
+#define MapType	Magictype4Array
 
-class CMagicType4Set : public CRecordset
+class CMagicType4Set : public CMyRecordSet<T>
 {
 public:
-	CMagicType4Set(CDatabase* pDatabase = NULL);
+	CMagicType4Set(MapType *stlMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	{
+		m_nFields = 22;
+	}
+
 	DECLARE_DYNAMIC(CMagicType4Set)
+	virtual CString GetDefaultSQL() { return _T("[dbo].[MAGIC_TYPE4]"); };
 
-// Field/Param Data
-	//{{AFX_FIELD(CMagicType4Set, CRecordset)
-	long	m_iNum;
-	CString	m_Name;
-	CString	m_Description;
-	BYTE	m_BuffType;
-	BYTE	m_Radius;
-	int		m_Duration;
-	BYTE	m_AttackSpeed;
-	BYTE	m_Speed;
-	int		m_AC;
-	BYTE	m_Attack;
-	int		m_MaxHP;
-	BYTE	m_HitRate;
-	int		m_AvoidRate;
-	BYTE	m_Str;
-	BYTE	m_Sta;
-	BYTE	m_Dex;
-	BYTE	m_Intel;
-	BYTE	m_Cha;
-	BYTE	m_FireR;
-	BYTE	m_ColdR;
-	BYTE	m_LightningR;
-	BYTE	m_MagicR;
-	BYTE	m_DiseaseR;
-	BYTE	m_PoisonR;
-	//}}AFX_FIELD
+	virtual void DoFieldExchange(CFieldExchange* pFX)
+	{
+		pFX->SetFieldType(CFieldExchange::outputColumn);
 
+		RFX_Long(pFX, _T("[iNum]"), m_data.iNum);
+		RFX_Byte(pFX, _T("[BuffType]"), m_data.bBuffType);
+		RFX_Byte(pFX, _T("[Radius]"), m_data.bRadius);
+		RFX_Int(pFX, _T("[Duration]"), m_data.sDuration);
+		RFX_Byte(pFX, _T("[AttackSpeed]"), m_data.bAttackSpeed);
+		RFX_Byte(pFX, _T("[Speed]"), m_data.bSpeed);
+		RFX_Int(pFX, _T("[AC]"), m_data.sAC);
+		RFX_Byte(pFX, _T("[Attack]"), m_data.bAttack);
+		RFX_Int(pFX, _T("[MaxHP]"), m_data.sMaxHP);
+		RFX_Byte(pFX, _T("[HitRate]"), m_data.bHitRate);
+		RFX_Int(pFX, _T("[AvoidRate]"), m_data.sAvoidRate);
+		RFX_Byte(pFX, _T("[Str]"), m_data.bStr);
+		RFX_Byte(pFX, _T("[Sta]"), m_data.bSta);
+		RFX_Byte(pFX, _T("[Dex]"), m_data.bDex);
+		RFX_Byte(pFX, _T("[Intel]"), m_data.bIntel);
+		RFX_Byte(pFX, _T("[Cha]"), m_data.bCha);
+		RFX_Byte(pFX, _T("[FireR]"), m_data.bFireR);
+		RFX_Byte(pFX, _T("[ColdR]"), m_data.bColdR);
+		RFX_Byte(pFX, _T("[LightningR]"), m_data.bLightningR);
+		RFX_Byte(pFX, _T("[MagicR]"), m_data.bMagicR);
+		RFX_Byte(pFX, _T("[DiseaseR]"), m_data.bDiseaseR);
+		RFX_Byte(pFX, _T("[PoisonR]"), m_data.bPoisonR);	
+	};
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMagicType4Set)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+	virtual void HandleRead()
+	{
+		T * data = COPY_ROW();
+		if (!m_stlMap->PutData(data->iNum, data))
+			delete data;
+	};
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+private:
+	MapType * m_stlMap;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_MAGICTYPE4SET_H__CE4EE739_4C6D_43D1_8EB6_E9CC144F9EE2__INCLUDED_)
+#undef MapType
+#undef T
+IMPLEMENT_DYNAMIC(CMagicType4Set, CRecordset)
