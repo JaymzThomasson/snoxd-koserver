@@ -37,11 +37,16 @@ void CUser::ExchangeReq(char *pBuf)
 		TRACE("### ExchangeProcess Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", m_pUserData->m_id, m_Sid, m_bResHpType, m_pUserData->m_sHp, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
 		goto fail_return;
 	}
+	else if (isTrading())
+	{
+		ExchangeCancel();
+		return;
+	}
 
 	destid = GetShort( pBuf, index );
 	pUser = m_pMain->GetUserPtr(destid);
 	if (pUser == NULL
-		|| pUser->m_sExchangeUser != -1
+		|| pUser->isTrading()
 		|| pUser->getNation() != getNation())
 		goto fail_return;
 
