@@ -172,9 +172,10 @@ fail_return:
 
 void CUser::PartyInsert()
 {
-	int send_index = 0, i = 0;
+	int send_index = 0;
 	CUser* pUser = NULL;
 	_PARTY_GROUP* pParty = NULL;
+	BYTE byIndex = -1;
 	char send_buff[256];
 	if( m_sPartyIndex == -1 ) return;
 
@@ -184,6 +185,17 @@ void CUser::PartyInsert()
 		return;
 	}
 	
+	// make sure user isn't already in the array...
+	// kind of slow, but it works for the moment
+	foreach_array (i, pParty->uid)
+	{
+		if (iValue == GetSocketID())
+		{
+			m_sPartyIndex = -1;
+			return;
+		}
+	}
+
 	for(int i=0; i<8; i++) {	// Send your info to the rest of the party members.
 		if (pParty->uid[i] == GetSocketID())
 			continue;
@@ -206,13 +218,14 @@ void CUser::PartyInsert()
 		Send( send_buff, send_index );
 	}
 
-	for(i=0; i<8; i++ ) {
+	for (int i = 0; i < 8; i++ ) {
 		if( pParty->uid[i] == -1 ) {
 			pParty->uid[i] = m_Sid;
 			pParty->sMaxHp[i] = m_iMaxHp;
 			pParty->sHp[i] = m_pUserData->m_sHp;
 			pParty->bLevel[i] = m_pUserData->m_bLevel;
 			pParty->sClass[i] = m_pUserData->m_sClass;
+			byIndex = i;
 			break;
 		}
 	}
@@ -251,13 +264,12 @@ void CUser::PartyInsert()
 	m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );
 
 	// AI Server
-	BYTE byIndex = i;
 	send_index = 0;
 	SetByte( send_buff, AG_USER_PARTY, send_index );
 	SetByte( send_buff, PARTY_INSERT, send_index );
 	SetShort( send_buff, pParty->wIndex, send_index );
 	SetByte( send_buff, byIndex, send_index );
-	SetShort( send_buff, pParty->uid[i], send_index );
+	SetShort( send_buff, pParty->uid[byIndex], send_index );
 	//SetShort( send_buff, pParty->sHp[i], send_index );
 	//SetByte( send_buff, pParty->bLevel[i], send_index );
 	//SetShort( send_buff, pParty->sClass[i], send_index );
