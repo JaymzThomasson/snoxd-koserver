@@ -1471,8 +1471,9 @@ void CUser::PointChange(char *pBuf)
 
 	type = GetByte( pBuf, index );
 	value = GetShort( pBuf, index );
-	if( type > 5 || abs(value) > 1 ) return;
-	if( m_pUserData->m_sPoints < 1 ) return;
+	if (type > 5 || value != 1
+		|| m_pUserData->m_sPoints < 1) return;
+
 	switch( type ) {
 	case STR:
 		if( m_pUserData->m_bStr == 0xFF ) return;
