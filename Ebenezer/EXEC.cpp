@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "Ebenezer.h"
 #include "Define.h"
 #include "EXEC.h"
 

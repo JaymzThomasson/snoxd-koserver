@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "Ebenezer.h"
 #include "Map.h"
 #include "Region.h"
 #include "Define.h"

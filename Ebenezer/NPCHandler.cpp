@@ -1,5 +1,4 @@
 #include "StdAfx.h" // oh god, this needs reworking, a LOT.
-#include "Ebenezer.h"
 #include "EbenezerDlg.h"
 #include "User.h"
 

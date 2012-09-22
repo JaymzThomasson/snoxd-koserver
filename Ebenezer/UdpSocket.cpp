@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "ebenezer.h"
 #include "UdpSocket.h"
 #include "define.h"
 #include "EbenezerDlg.h"

@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-//#include "Ebenezer.h"
 #include "CircularBuffer.h"
 
 #ifdef _DEBUG

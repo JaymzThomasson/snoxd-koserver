@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "ebenezer.h"
 #include "MagicProcess.h"
 #include "EbenezerDlg.h"
 #include "User.h"

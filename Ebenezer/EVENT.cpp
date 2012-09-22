@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "Ebenezer.h"
 #include "Define.h"
 #include "EVENT.h"
 #include "EVENT_DATA.h"

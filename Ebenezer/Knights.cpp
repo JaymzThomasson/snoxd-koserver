@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "ebenezer.h"
 #include "Knights.h"
 #include "User.h"
 #include "GameDefine.h"

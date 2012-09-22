@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "Ebenezer.h"
 #include "Npc.h"
 #include "EbenezerDlg.h"
 #include "Map.h"

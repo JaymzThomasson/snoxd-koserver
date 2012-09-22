@@ -2,7 +2,6 @@
 //
 
 #include "stdafx.h"
-#include "Ebenezer.h"
 #include "EbenezerDlg.h"
 #include "User.h"
 #include "AiPacket.h"

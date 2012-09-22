@@ -3,9 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "ebenezer.h"
 #include "KnightsManager.h"
-//#include "Knights.h"
 #include "User.h"
 #include "GameDefine.h"
 #include "EbenezerDlg.h"

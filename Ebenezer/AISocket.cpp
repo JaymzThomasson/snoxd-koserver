@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "Ebenezer.h"
 #include "AISocket.h"
 #include "EbenezerDlg.h"
 #include "define.h"

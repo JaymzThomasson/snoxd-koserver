@@ -11,6 +11,7 @@
 #pragma warning(disable : 4786)
 
 #include "Iocport.h"
+#include "Ebenezer.h"
 #include "Map.h"
 #include "Define.h"
 #include "GameDefine.h"
