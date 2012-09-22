@@ -772,8 +772,11 @@ BOOL CAujardDlg::PreTranslateMessage(MSG* pMsg)
 
 void CAujardDlg::OnOK() 
 {
-	if( AfxMessageBox("진짜 끝낼까요?", MB_YESNO) == IDYES )
+	if (AfxMessageBox("Are you sure you wish to exit? Ebenezer must be closed - player data will be saved.", MB_YESNO) == IDYES)
+	{
+		AllSaveRoutine();
 		CDialog::OnOK();
+	}
 }
 
 void CAujardDlg::OnTimer(UINT nIDEvent) 
