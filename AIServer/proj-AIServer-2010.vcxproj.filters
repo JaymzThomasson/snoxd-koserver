@@ -21,21 +21,12 @@
     <Filter Include="Database">
       <UniqueIdentifier>{10107a99-2051-407f-aea1-5685605581ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Networking">
+      <UniqueIdentifier>{c8f64b2e-056b-40ea-95a2-2f714d3268e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CircularBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameSocket.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="global.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IOCPort.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IOCPSocket2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MagicProcess.cpp">
@@ -137,11 +128,20 @@
     <ClCompile Include="..\shared\database\MonTableSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>
+    <ClCompile Include="GameSocket.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="IOCPort.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="IOCPSocket2.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\CircularBuffer.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CircularBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Define.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -152,12 +152,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="global.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IOCPort.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IOCPSocket2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MagicProcess.h">
@@ -276,6 +270,15 @@
     </ClInclude>
     <ClInclude Include="..\shared\database\MonTableSet.h">
       <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="IOCPort.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="IOCPSocket2.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\CircularBuffer.h">
+      <Filter>Networking</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

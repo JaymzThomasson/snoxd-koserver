@@ -21,21 +21,12 @@
     <Filter Include="Database">
       <UniqueIdentifier>{20471dba-a07d-44f4-8d18-1dfea6801a6c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Networking">
+      <UniqueIdentifier>{326b4ac4-0852-4c3e-8e55-4e739d9d8101}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CircularBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameSocket.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="global.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IOCPort.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IOCPSocket2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MagicProcess.cpp">
@@ -119,27 +110,27 @@
     <ClCompile Include="..\shared\database\MakeWeaponTableSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>
+    <ClCompile Include="GameSocket.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="IOCPort.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="IOCPSocket2.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\CircularBuffer.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CircularBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Define.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Extern.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameSocket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="global.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IOCPort.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IOCPSocket2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MagicProcess.h">
@@ -258,6 +249,18 @@
     </ClInclude>
     <ClInclude Include="..\shared\database\MakeLareItemTableSet.h">
       <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="IOCPort.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="IOCPSocket2.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSocket.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\CircularBuffer.h">
+      <Filter>Networking</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

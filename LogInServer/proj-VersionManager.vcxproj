@@ -138,11 +138,8 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\shared\CircularBuffer.cpp" />
     <ClCompile Include="..\shared\Ini.cpp" />
-    <ClCompile Include="CircularBuffer.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
     <ClCompile Include="DBProcess.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -181,10 +178,10 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\shared\CircularBuffer.h" />
     <ClInclude Include="..\shared\database\VersionSet.h" />
     <ClInclude Include="..\shared\Ini.h" />
     <ClInclude Include="..\shared\version.h" />
-    <ClInclude Include="CircularBuffer.h" />
     <ClInclude Include="DBProcess.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="IOCPort.h" />

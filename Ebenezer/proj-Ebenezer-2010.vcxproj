@@ -145,6 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp" />
+    <ClCompile Include="..\shared\CircularBuffer.cpp" />
     <ClCompile Include="..\shared\Compress.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
     <ClCompile Include="..\shared\database\KnightsRankSet.cpp" />
@@ -159,10 +160,6 @@
     <ClCompile Include="CharacterSelectionHandler.cpp" />
     <ClCompile Include="CharaterMovementHandler.cpp" />
     <ClCompile Include="ChatHandler.cpp" />
-    <ClCompile Include="CircularBuffer.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
     <ClCompile Include="Ebenezer.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -249,6 +246,7 @@
     <ClInclude Include="..\N3BASE\My_Macro.h" />
     <ClInclude Include="..\N3BASE\N3ShapeMgr.h" />
     <ClInclude Include="..\N3BASE\StdAfxBase.h" />
+    <ClInclude Include="..\shared\CircularBuffer.h" />
     <ClInclude Include="..\shared\Compress.h" />
     <ClInclude Include="..\shared\crc32.h" />
     <ClInclude Include="..\shared\database\BattleSet.h" />
@@ -279,7 +277,6 @@
     <ClInclude Include="..\shared\version.h" />
     <ClInclude Include="AIPacket.h" />
     <ClInclude Include="AISocket.h" />
-    <ClInclude Include="CircularBuffer.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Ebenezer.h" />
     <ClInclude Include="EbenezerDlg.h" />

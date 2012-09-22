@@ -4,7 +4,7 @@
 
 #include "stdafx.h"
 #include "IOCPSocket2.h"
-#include "CircularBuffer.h"
+#include "../shared/CircularBuffer.h"
 #include "define.h"
 #include "../shared/Compress.h"
 

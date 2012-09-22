@@ -117,9 +117,6 @@
     <ClCompile Include="JvCryption.cpp">
       <Filter>Networking</Filter>
     </ClCompile>
-    <ClCompile Include="CircularBuffer.cpp">
-      <Filter>Networking</Filter>
-    </ClCompile>
     <ClCompile Include="ShoppingMallHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
@@ -151,6 +148,9 @@
       <Filter>Networking</Filter>
     </ClCompile>
     <ClCompile Include="AISocket.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\CircularBuffer.cpp">
       <Filter>Networking</Filter>
     </ClCompile>
   </ItemGroup>
@@ -234,9 +234,6 @@
       <Filter>Networking</Filter>
     </ClInclude>
     <ClInclude Include="JvCryption.h">
-      <Filter>Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="CircularBuffer.h">
       <Filter>Networking</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\globals.h">
@@ -325,6 +322,9 @@
     </ClInclude>
     <ClInclude Include="..\shared\database\MyRecordSet.h">
       <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\CircularBuffer.h">
+      <Filter>Networking</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

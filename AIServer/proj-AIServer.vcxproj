@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp" />
+    <ClCompile Include="..\shared\CircularBuffer.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
     <ClCompile Include="..\shared\database\MakeDefensiveTableSet.cpp" />
     <ClCompile Include="..\shared\database\MakeGradeItemTableSet.cpp" />
@@ -160,12 +161,6 @@
     <ClCompile Include="..\shared\database\NpcTableSet.cpp" />
     <ClCompile Include="..\shared\Ini.cpp" />
     <ClCompile Include="..\shared\lzf.cpp" />
-    <ClCompile Include="CircularBuffer.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="GameSocket.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -286,6 +281,7 @@
     <ClInclude Include="..\N3BASE\My_Macro.h" />
     <ClInclude Include="..\N3BASE\N3ShapeMgr.h" />
     <ClInclude Include="..\N3BASE\StdAfxBase.h" />
+    <ClInclude Include="..\shared\CircularBuffer.h" />
     <ClInclude Include="..\shared\crc32.h" />
     <ClInclude Include="..\shared\database\MagicTableSet.h" />
     <ClInclude Include="..\shared\database\MagicType1Set.h" />
@@ -303,7 +299,6 @@
     <ClInclude Include="..\shared\database\ZoneInfoSet.h" />
     <ClInclude Include="..\shared\Ini.h" />
     <ClInclude Include="..\shared\lzf.h" />
-    <ClInclude Include="CircularBuffer.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Extern.h" />
     <ClInclude Include="GameSocket.h" />

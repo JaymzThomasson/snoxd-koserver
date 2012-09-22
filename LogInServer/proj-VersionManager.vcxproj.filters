@@ -19,18 +19,12 @@
     <Filter Include="Database">
       <UniqueIdentifier>{4fef33e7-0850-4a21-8150-8feb10b1693d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Networking">
+      <UniqueIdentifier>{9116a0ee-149c-43d8-a220-0dbf0675898e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CircularBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DBProcess.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IOCPort.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IOCPSocket2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StdAfx.cpp">
@@ -48,6 +42,15 @@
     <ClCompile Include="..\shared\Ini.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
+    <ClCompile Include="IOCPSocket2.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="IOCPort.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\CircularBuffer.cpp">
+      <Filter>Networking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VersionManager.rc">
@@ -55,19 +58,10 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CircularBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DBProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Define.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IOCPort.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IOCPSocket2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
@@ -85,14 +79,23 @@
     <ClInclude Include="VersionManagerDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\Ini.h">
       <Filter>Shared</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\database\VersionSet.h">
       <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="IOCPort.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="IOCPSocket2.h">
+      <Filter>Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\version.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\CircularBuffer.h">
+      <Filter>Networking</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
