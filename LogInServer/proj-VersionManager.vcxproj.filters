@@ -24,9 +24,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DBProcess.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="StdAfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -50,6 +47,9 @@
     </ClCompile>
     <ClCompile Include="..\shared\CircularBuffer.cpp">
       <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="DBProcess.cpp">
+      <Filter>Database</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
