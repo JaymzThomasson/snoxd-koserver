@@ -125,7 +125,8 @@ void CUser::Attack(char *pBuf)
 	else if(tid >= NPC_BAND) { // NPC
 		if( m_pMain->m_bPointCheckFlag == FALSE)	return;	
 		pNpc = m_pMain->m_arNpcArray.GetData(tid);		
-		if( pNpc && pNpc->m_NpcState != NPC_DEAD && pNpc->m_iHP > 0 ) {	
+		if( pNpc && pNpc->m_NpcState != NPC_DEAD && pNpc->m_iHP > 0 
+			&& (pNpc->getNation() == 0 || pNpc->getNation() == getNation())) {	
 
 			if (pTable) {	// Check if the user is holding a weapon!!! No null pointers allowed!!!
 //				TRACE("Distance : %f  , Table Distance : %f  \r\n", distance, pTable->m_sRange / 10.0f);
