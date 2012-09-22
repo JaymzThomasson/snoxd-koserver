@@ -4149,22 +4149,24 @@ BOOL CUser::JobGroupCheck(short jobgroupid)
 	if (jobgroupid > 100) 
 		return m_pUserData->m_sClass == jobgroupid;
 
+	int subClass = m_pUserData->m_sClass % 100;
+
 	switch (jobgroupid) 
 	{
 		case GROUP_WARRIOR:
-			return (m_pUserData->m_sClass % 10 == 1 || m_pUserData->m_sClass % 10 == 5 || m_pUserData->m_sClass % 10 == 6);
+			return (subClass == 1 || subClass == 5 || subClass == 6);
 
 		case GROUP_ROGUE:
-			return (m_pUserData->m_sClass % 10 == 2 || m_pUserData->m_sClass % 10 == 7 || m_pUserData->m_sClass % 10 == 8);
+			return (subClass == 2 || subClass == 7 || subClass == 8);
 
 		case GROUP_MAGE:
-			return (m_pUserData->m_sClass % 10 == 3 || m_pUserData->m_sClass % 10 == 9 || m_pUserData->m_sClass % 10 == 10);
+			return (subClass == 3 || subClass == 9 || subClass == 10);
 
 		case GROUP_CLERIC:	
-			return (m_pUserData->m_sClass % 10 == 4 || m_pUserData->m_sClass % 10 == 11 || m_pUserData->m_sClass % 10 == 12);
+			return (subClass == 4 || subClass == 11 || subClass == 12);
 
 		default: // for all others
-			return m_pUserData->m_sClass % 10 == jobgroupid;
+			return (subClass == jobgroupid);
 	}
 
 	return FALSE; // this will never hit
