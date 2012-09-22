@@ -223,16 +223,15 @@ void CIOCPSocket2::ReceivedData(int length)
 
 BOOL CIOCPSocket2::PullOutCore(char *&data, int &length)
 {
-	BYTE		*pTmp;
+	BYTE		pTmp[MAX_PACKET_SIZE];
 	int			len;
 	BOOL		foundCore;
 	MYSHORT		slen;
 
 	len = m_pBuffer->GetValidCount();
 
-	if(len == 0 || len < 0) return FALSE;
-
-	pTmp = new BYTE[len];
+	if (len <= 0 || len >= MAX_PACKET_SIZE) 
+		return FALSE;
 
 	m_pBuffer->GetData((char*)pTmp, len);
 
@@ -281,13 +280,9 @@ BOOL CIOCPSocket2::PullOutCore(char *&data, int &length)
 		}
 	}
 	if (foundCore) m_pBuffer->HeadIncrease(6+length); //6: header 2+ end 2+ length 2
-
-	delete[] pTmp;
-
 	return foundCore;
 
 cancelRoutine:	
-	delete[] pTmp;
 	return foundCore;
 }
 
