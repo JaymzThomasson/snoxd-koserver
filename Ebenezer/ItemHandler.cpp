@@ -386,23 +386,16 @@ void CUser::SendItemWeight()
 
 BOOL CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 {
-	if( !pTable )
-		return FALSE;
-//	if( pTable->m_bReqLevel > m_pUserData->m_bLevel )
-//		return FALSE;
-	if( pTable->m_bReqRank > m_pUserData->m_bRank )
-		return FALSE;
-	if( pTable->m_bReqTitle > m_pUserData->m_bTitle )
-		return FALSE;
-	if( pTable->m_bReqStr > m_pUserData->m_bStr )
-		return FALSE;
-	if( pTable->m_bReqSta > m_pUserData->m_bSta )
-		return FALSE;
-	if( pTable->m_bReqDex > m_pUserData->m_bDex )
-		return FALSE;
-	if( pTable->m_bReqIntel > m_pUserData->m_bIntel )
-		return FALSE;
-	if( pTable->m_bReqCha > m_pUserData->m_bCha )
+	if (pTable == NULL
+		|| pTable->m_bReqLevel > m_pUserData->m_bLevel
+		|| m_pUserData->m_bLevel > pTable->m_bReqLevelMax
+		|| pTable->m_bReqRank > m_pUserData->m_bRank
+		|| pTable->m_bReqTitle > m_pUserData->m_bTitle
+		|| pTable->m_bReqStr > m_pUserData->m_bStr
+		|| pTable->m_bReqSta > m_pUserData->m_bSta
+		|| pTable->m_bReqDex > m_pUserData->m_bDex
+		|| pTable->m_bReqIntel > m_pUserData->m_bIntel
+		|| pTable->m_bReqCha > m_pUserData->m_bCha)
 		return FALSE;
 
 	return TRUE;

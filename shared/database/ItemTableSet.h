@@ -9,7 +9,7 @@ public:
 	CItemTableSet(MapType *stlMap, CDatabase* pDatabase = NULL)
 		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
 	{
-		m_nFields = 56;
+		m_nFields = 57;
 	}
 
 	DECLARE_DYNAMIC(CItemTableSet)
@@ -36,6 +36,7 @@ public:
 		RFX_Long(pFX, _T("[Effect1]"), m_data.m_iEffect1);
 		RFX_Long(pFX, _T("[Effect2]"), m_data.m_iEffect2);
 		RFX_Byte(pFX, _T("[ReqLevel]"), m_data.m_bReqLevel);
+		RFX_Byte(pFX, _T("[ReqLevelMax]"), m_data.m_bReqLevelMax);
 		RFX_Byte(pFX, _T("[ReqRank]"), m_data.m_bReqRank);
 		RFX_Byte(pFX, _T("[ReqTitle]"), m_data.m_bReqTitle);
 		RFX_Byte(pFX, _T("[ReqStr]"), m_data.m_bReqStr);

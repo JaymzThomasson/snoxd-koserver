@@ -268,6 +268,7 @@ struct _ITEM_TABLE
 	long  m_iEffect1;
 	long  m_iEffect2;
 	BYTE  m_bReqLevel;
+	BYTE  m_bReqLevelMax;
 	BYTE  m_bReqRank;
 	BYTE  m_bReqTitle;
 	BYTE  m_bReqStr;
