@@ -182,7 +182,6 @@
     <ClInclude Include="..\shared\database\VersionSet.h" />
     <ClInclude Include="..\shared\Ini.h" />
     <ClInclude Include="..\shared\Packet.h" />
-    <ClInclude Include="..\shared\version.h" />
     <ClInclude Include="DBProcess.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="IOCPort.h" />

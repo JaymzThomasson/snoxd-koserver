@@ -221,9 +221,6 @@
     <ClInclude Include="..\shared\lzf.h">
       <Filter>Shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\version.h">
-      <Filter>Shared</Filter>
-    </ClInclude>
     <ClInclude Include="UdpSocket.h">
       <Filter>Networking</Filter>
     </ClInclude>

@@ -88,9 +88,6 @@
     <ClInclude Include="IOCPSocket2.h">
       <Filter>Networking</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\version.h">
-      <Filter>Shared</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\CircularBuffer.h">
       <Filter>Networking</Filter>
     </ClInclude>
