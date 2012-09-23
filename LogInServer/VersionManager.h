@@ -13,7 +13,6 @@
 #endif
 
 #include "resource.h"		// main symbols
-#include "../shared/version.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CVersionManagerApp:

@@ -274,7 +274,6 @@
     <ClInclude Include="..\shared\lzf.h" />
     <ClInclude Include="..\shared\packets.h" />
     <ClInclude Include="..\shared\SharedMem.h" />
-    <ClInclude Include="..\shared\version.h" />
     <ClInclude Include="AIPacket.h" />
     <ClInclude Include="AISocket.h" />
     <ClInclude Include="Define.h" />
