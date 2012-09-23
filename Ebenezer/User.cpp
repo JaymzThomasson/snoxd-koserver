@@ -168,44 +168,33 @@ void CUser::Initialize()
 // Cryption
 void CUser::Make_public_key()
 {
-	BYTE rand1,rand2,rand3,rand4,rand5,rand6,rand7,rand8;
-	
 	int out_flag = 0;
 	do
 	{
-		rand1 = rand();
-		rand2 = rand();
-		rand3 = rand();
-		rand4 = rand();
-		rand5 = rand();
-		rand6 = rand();
-		rand7 = rand();
-		rand8 = rand();
-
-		m_Public_key = rand1;
+		m_Public_key = rand();
 		m_Public_key <<= 8;
 
-		m_Public_key |= rand2;
+		m_Public_key |= rand();
 		m_Public_key <<= 8;
 
-		m_Public_key |= rand3;
+		m_Public_key |= rand();
 		m_Public_key <<= 8;
 
-		m_Public_key |= rand4;
+		m_Public_key |= rand();
 		m_Public_key <<= 8;
 
-		m_Public_key |= rand5;
+		m_Public_key |= rand();
 		m_Public_key <<= 8;
 
-		m_Public_key |= rand6;
+		m_Public_key |= rand();
 		m_Public_key <<= 8;
 
-		m_Public_key |= rand7;
+		m_Public_key |= rand();
 		m_Public_key <<= 8;
 
-		m_Public_key |= rand8;
+		m_Public_key |= rand();
 
-		if(m_Public_key != 0)
+		if (m_Public_key != 0)
 			out_flag = 1;
 
 	} while( !out_flag );
@@ -221,7 +210,7 @@ void CUser::CloseProcess()
 		if (isInParty())
 			PartyRemove(m_Sid);
 
-		if (m_sExchangeUser != -1 )
+		if (isTrading())
 			ExchangeCancel();
 
 		LogOut();
@@ -240,8 +229,8 @@ void CUser::Parsing(int len, char *pData)
 	// If crypto's not been enabled yet, force the version packet to be sent.
 	if (!m_CryptionFlag)
 	{
-		if (command == WIZ_VERSION_CHECK) {
-			VersionCheck(pData+index); return; }
+		if (command == WIZ_VERSION_CHECK)
+			VersionCheck(pData+index);
 
 		return;
 	}
@@ -364,9 +353,6 @@ void CUser::Parsing(int len, char *pData)
 	case WIZ_STATE_CHANGE:
 		StateChange( pData+index );
 		break;
-	//case WIZ_SPEEDHACK_USED:
-	//	SpeedHackUser();
-	//	break;
 	case WIZ_PARTY:
 		PartyProcess( pData+index );
 		break;
@@ -475,13 +461,11 @@ void CUser::Parsing(int len, char *pData)
 		}
 	} 
 
-	if (m_bType4Flag) {		// For Type 4 Stat Duration.
+	if (m_bType4Flag)		// For Type 4 Stat Duration.
 		Type4Duration(currenttime);
-	}
 		
-	if (m_bAbnormalType == ABNORMAL_BLINKING) {		// Should you stop blinking?
+	if (m_bAbnormalType == ABNORMAL_BLINKING)		// Should you stop blinking?
 		BlinkTimeCheck(currenttime);
-	}
 }
 
 void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/)
@@ -616,35 +600,27 @@ void CUser::LogOut()
 		TRACE("%s : %s Logout: Sid ?? ??? ???...\n", m_pUserData->m_Accountid, m_pUserData->m_id);
 		return;
 	}
-	else 
-	{
-		if (m_pUserData->m_id[0] == 0) 
-			return; 
 
-		SetByte( send_buf, WIZ_LOGOUT, send_index );
-		SetShort( send_buf, m_Sid, send_index );
-		SetKOString( send_buf, m_pUserData->m_Accountid, send_index);
-		SetKOString( send_buf, m_pUserData->m_id, send_index);
+	if (m_pUserData->m_id[0] == 0) 
+		return; 
 
-		do {
-			if( m_pMain->m_LoggerSendQueue.PutData( send_buf, send_index ) == 1 )
-				break;
-			else
-				count++;
-		} while( count < 30 );
-		if( count > 29 ) {
-			m_pMain->AddToList("Logout Send Fail : acname=%s, charid=%s ", m_pUserData->m_Accountid, m_pUserData->m_id);
-		}
+	SetByte( send_buf, WIZ_LOGOUT, send_index );
+	SetShort( send_buf, m_Sid, send_index );
+	SetKOString( send_buf, m_pUserData->m_Accountid, send_index);
+	SetKOString( send_buf, m_pUserData->m_id, send_index);
 
-		SetByte( send_buf, AG_USER_LOG_OUT, index );
-		m_pMain->Send_AIServer(send_buf, send_index);
+	do {
+		if( m_pMain->m_LoggerSendQueue.PutData( send_buf, send_index ) == 1 )
+			break;
+		else
+			count++;
+	} while( count < 30 );
+	if( count > 29 ) {
+		m_pMain->AddToList("Logout Send Fail : acname=%s, charid=%s ", m_pUserData->m_Accountid, m_pUserData->m_id);
 	}
 
-//	if( m_pUserData->m_bKnights > 0 )	{
-//		m_pMain->m_KnightsManager.ModifyKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id, m_pUserData->m_bFame, m_pUserData->m_bLevel, m_pUserData->m_sClass, 0);
-//	}
-//	TRACE("Send Logout Result - %s\n", m_pUserData->m_id);
-	return; 
+	SetByte( send_buf, AG_USER_LOG_OUT, index );
+	m_pMain->Send_AIServer(send_buf, send_index);
 }
 
 void CUser::SendMyInfo()
