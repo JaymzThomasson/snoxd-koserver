@@ -123,7 +123,7 @@ BOOL CIOCPSocket2::Connect( CIOCPort* pIocp, LPCTSTR lpszHostAddress, UINT nHost
 	return TRUE;
 }
 
-int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
+int CIOCPSocket2::Send(char *pBuf, long length)
 {
 	int ret_value = 0;
 	WSABUF out;
@@ -178,7 +178,7 @@ int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 	pOvl->Offset = OVL_SEND;
 	pOvl->OffsetHigh = out.len;
 
-	ret_value = WSASend( m_Socket, &out, 1, &sent, dwFlag, pOvl, NULL);
+	ret_value = WSASend( m_Socket, &out, 1, &sent, 0, pOvl, NULL);
 	
 	if ( ret_value == SOCKET_ERROR )
 	{
@@ -230,6 +230,124 @@ close_routine:
 	
 	return -1;
 }
+
+int CIOCPSocket2::Send(Packet *result)
+{
+	int ret_value = 0;
+	WSABUF out;
+	DWORD sent = 0;
+	OVERLAPPED *pOvl;
+	HANDLE	hComport = NULL;
+
+	BYTE pTIBuf[MAX_SEND_SIZE], pTOutBuf[MAX_SEND_SIZE];
+	int index = 0;
+	uint16 length = (uint16)result->size() + 1;
+
+	if( m_CryptionFlag )
+	{
+		if (length + 5 >= MAX_SEND_SIZE) // crypto
+			return 0;
+
+		uint16 totalLen = length + 5;
+
+		m_Sen_val++;
+		m_Sen_val &= 0x00ffffff;
+
+		pTIBuf[0] = 0xfc;
+		pTIBuf[1] = 0x1e;
+		memcpy(&pTIBuf[2], &m_Sen_val, 2);
+		pTIBuf[5] = result->GetOpcode();
+		memcpy(&pTIBuf[6], result->contents(), length - 1);
+
+		// encrypt to output buffer
+		jct.JvEncryptionFast( totalLen, pTIBuf, pTOutBuf );
+		
+		// replace input buffer with full, encrypted packet.
+		pTIBuf[index++] = (BYTE)PACKET_START1; // packet header
+		pTIBuf[index++] = (BYTE)PACKET_START2;
+		memcpy(pTIBuf+index, &totalLen, 2);
+		index += 2;
+		memcpy(pTIBuf+index, pTOutBuf, totalLen); // throw encrypted packet data into packet body
+		index += totalLen;
+		pTIBuf[index++] = (BYTE)PACKET_END1; // packet tail
+		pTIBuf[index++] = (BYTE)PACKET_END2;
+	}
+	else
+	{
+		if (length >= MAX_SEND_SIZE) // no crypto
+			return 0;
+
+		pTIBuf[index++] = (BYTE)PACKET_START1;
+		pTIBuf[index++] = (BYTE)PACKET_START2;
+		memcpy(pTIBuf+index, &length, 2);
+		index += 2;
+		pTIBuf[index++] = result->GetOpcode();
+		memcpy(pTIBuf+index, result->contents(), length - 1);
+		index += length - 1;
+		pTIBuf[index++] = (BYTE)PACKET_END1;
+		pTIBuf[index++] = (BYTE)PACKET_END2;
+	}
+
+	out.buf = (char*)pTIBuf;
+	out.len = index;
+	
+	pOvl = &m_SendOverlapped;
+	pOvl->Offset = OVL_SEND;
+	pOvl->OffsetHigh = out.len;
+
+	ret_value = WSASend( m_Socket, &out, 1, &sent, 0, pOvl, NULL);
+	
+	if ( ret_value == SOCKET_ERROR )
+	{
+		int last_err;
+		last_err = WSAGetLastError();
+
+		if ( last_err == WSA_IO_PENDING ) {
+			TRACE("SEND : IO_PENDING[SID=%d]\n", m_Sid);
+			m_nPending++;
+			if( m_nPending > 3 )
+				goto close_routine;
+			sent = length; 
+		}
+		else if ( last_err == WSAEWOULDBLOCK )
+		{
+			TRACE("SEND : WOULDBLOCK[SID=%d]\n", m_Sid);
+
+			m_nWouldblock++;
+			if( m_nWouldblock > 3 )
+				goto close_routine;
+			return 0;
+		}
+		else
+		{
+			TRACE("SEND : ERROR [SID=%d] - %d\n", m_Sid, last_err);
+			m_nSocketErr++;
+			goto close_routine;
+		}
+	}
+	else if ( !ret_value )
+	{
+		m_nPending = 0;
+		m_nWouldblock = 0;
+		m_nSocketErr = 0;
+	}
+
+	return sent;
+
+close_routine:
+	pOvl = &m_RecvOverlapped;
+	pOvl->Offset = OVL_CLOSE;
+	
+	if( m_Type == TYPE_ACCEPT )
+		hComport = m_pIOCPort->m_hServerIOCPort;
+	else
+		hComport = m_pIOCPort->m_hClientIOCPort;
+	
+	PostQueuedCompletionStatus( hComport, (DWORD)0, (DWORD)m_Sid, pOvl );
+	
+	return -1;
+}
+
 
 int CIOCPSocket2::Receive()
 {
@@ -501,7 +619,10 @@ BOOL CIOCPSocket2::Accept( SOCKET listensocket, struct sockaddr* addr, int* len 
 
 void CIOCPSocket2::Parsing(int length, char *pData)
 {
+}
 
+void CIOCPSocket2::Parsing(Packet & pkt)
+{
 }
 
 void CIOCPSocket2::Initialize()

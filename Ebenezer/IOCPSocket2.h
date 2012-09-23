@@ -11,6 +11,7 @@
 
 #include "IOCPort.h"
 #include "Define.h"
+#include "../shared/Packet.h"
 // Cryption
 #include "JvCryption.h"
 ///~
@@ -33,7 +34,8 @@ public:
 	BOOL PullOutCore(char *&data, int &length);
 	void ReceivedData(int length);
 	int  Receive();
-	int  Send(char *pBuf, long length, int dwFlag=0);
+	int  Send(char *pBuf, long length);
+	int  Send(Packet *result);
 	BOOL Connect( CIOCPort* pIocp, LPCTSTR lpszHostAddress, UINT nHostPort );
 	BOOL Create( UINT nSocketPort = 0,
 				 int nSocketType = SOCK_STREAM, 
@@ -50,6 +52,7 @@ public:
 
 	virtual void CloseProcess();
 	virtual void Parsing( int length, char* pData );
+	virtual void Parsing(Packet & pkt);
 	virtual void Initialize();
 
 	CIOCPSocket2();
