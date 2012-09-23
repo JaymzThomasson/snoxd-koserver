@@ -2,7 +2,6 @@
 //
 
 #include "stdafx.h"
-#include "VersionManager.h"
 #include "VersionManagerDlg.h"
 #include "IOCPSocket2.h"
 #include "User.h"

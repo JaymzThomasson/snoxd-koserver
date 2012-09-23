@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "versionmanager.h"
 #include "versionmanagerdlg.h"
 #include "User.h"
 
@@ -33,14 +32,7 @@ CUser::~CUser()
 void CUser::Initialize()
 {
 	m_pMain = (CVersionManagerDlg*)AfxGetApp()->GetMainWnd();
-
 	CIOCPSocket2::Initialize();
-}
-
-void CUser::CloseProcess()
-{
-
-	CIOCPSocket2::CloseProcess();
 }
 
 void CUser::Parsing(int len, char *pData)
@@ -48,7 +40,7 @@ void CUser::Parsing(int len, char *pData)
 	int index = 0, send_index = 0;
 	char buff[4096]; 
 	BYTE command = GetByte(pData, index);
-
+	
 	switch (command) 
 	{
 	case LS_VERSION_REQ:

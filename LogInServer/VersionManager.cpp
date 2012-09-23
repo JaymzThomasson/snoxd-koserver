@@ -2,7 +2,6 @@
 //
 
 #include "stdafx.h"
-#include "VersionManager.h"
 #include "VersionManagerDlg.h"
 
 #ifdef _DEBUG

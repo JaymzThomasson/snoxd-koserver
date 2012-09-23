@@ -20,7 +20,6 @@ public:
 
 	void Initialize();
 	void Parsing( int len, char* pData );
-	void CloseProcess();
 
 	void SendDownloadInfo( int version );
 	void LogInReq( char* pBuf );

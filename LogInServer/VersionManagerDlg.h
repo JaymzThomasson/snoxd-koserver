@@ -11,12 +11,14 @@
 #include "define.h"
 #include "Iocport.h"
 #include "DBProcess.h"
+#include "VersionManager.h"
 #include "../shared/STLMap.h"
+#include "../shared/Ini.h"
+
 #include <vector>
 #include <string>
 #include <algorithm>
 #include <sstream>
-#include "../shared/Ini.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CVersionManagerDlg dialog
