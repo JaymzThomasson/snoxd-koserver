@@ -426,9 +426,6 @@ void CUser::Parsing(int len, char *pData)
 	case WIZ_WARP_LIST:
 		SelectWarpList( pData+index );
 		break;
-	case WIZ_ZONE_CONCURRENT:
-		ZoneConCurrentUsers( pData+index );
-		break;
 	case WIZ_VIRTUAL_SERVER:
 		ServerChangeOk( pData+index );
 		break;
@@ -3760,27 +3757,6 @@ void CUser::SelectWarpList(char *pBuf)
 	}
 
 	ZoneChange(pWarp->sZone, pWarp->fX + rx, pWarp->fZ + rz);
-}
-
-void CUser::ZoneConCurrentUsers(char *pBuf)
-{
-	int index = 0, send_index = 0, zone = 0, usercount = 0, nation = 0;
-	char send_buff[128];
-	CUser* pUser = NULL;
-
-	zone = GetShort( pBuf, index );
-	nation = GetByte( pBuf, index );
-
-	for (int i = 0; i < MAX_USER; i++)
-	{
-		pUser = m_pMain->GetUnsafeUserPtr(i);
-		if (pUser != NULL && pUser->m_pUserData->m_bZone == zone && pUser->getNation() == nation)
-			usercount++;
-	}
-
-	SetByte( send_buff, WIZ_ZONE_CONCURRENT, send_index );
-	SetShort( send_buff, usercount, send_index );
-	Send( send_buff, send_index );
 }
 
 void CUser::ServerChangeOk(char *pBuf)
