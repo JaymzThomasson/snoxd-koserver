@@ -71,6 +71,9 @@ public:
 
 	void SendGateFlag(BYTE bFlag = -1, bool bSendAI = true);
 
+	__forceinline bool isDead() { return m_NpcState == NPC_DEAD || m_iHP <= 0; };
+	__forceinline bool isAlive() { return !isDead(); };
+
 	__forceinline bool isGate() { return GetType() == NPC_GATE || GetType() == NPC_PHOENIX_GATE || GetType() == NPC_SPECIAL_GATE; };
 	__forceinline bool isGateOpen() { return m_byGateOpen == TRUE; };
 	__forceinline bool isGateClosed() { return !isGateOpen(); };
