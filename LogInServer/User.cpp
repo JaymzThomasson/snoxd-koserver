@@ -112,7 +112,6 @@ void CUser::HandleLogin(Packet & pkt)
 		result << account; // it uses this for the game server now.
 	}
 	Send(&result);
-	return;
 }
 
 void CUser::HandleServerlist(Packet & pkt)
