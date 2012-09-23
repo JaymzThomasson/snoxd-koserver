@@ -405,7 +405,8 @@ public:
 	void Send2AI_UserUpdateInfo(bool initialInfo = false);
 	void Attack( char* pBuf );
 	void UserInOut( BYTE Type );
-	void GetUserInfo(char *buff, int & buff_index);
+	void GetUserInfo(char *buff, int & buff_index); // PENDING DEPRECATION
+	void GetUserInfo(Packet & pkt);
 	void Initialize();
 	void MoveProcess( char* pBuf );
 	void Rotate( char* pBuf );

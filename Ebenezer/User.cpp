@@ -952,39 +952,37 @@ void CUser::RemoveRegion(int del_x, int del_z)
 	}
 }
 
-void CUser::InsertRegion(int del_x, int del_z)
+void CUser::InsertRegion(int insert_x, int insert_z)
 {
-	int send_index = 0;
-	char buff[256];
+	Packet result(WIZ_USER_INOUT, uint8(USER_IN));
 	C3DMap* pMap = GetMap();
 
 	if (pMap == NULL)
 		return;
 
-	SetByte( buff, WIZ_USER_INOUT, send_index );
-	SetByte( buff, USER_IN, send_index );
-	SetShort( buff, m_Sid, send_index );
+	result << uint16(GetSocketID());
 
-	GetUserInfo(buff, send_index);
+	GetUserInfo(result);
 
-	if (del_x != 0)
+	if (insert_x != 0)
 	{
-		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x, m_RegionZ-1 );
-		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x, m_RegionZ );
-		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x, m_RegionZ+1 );
+		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+insert_x, m_RegionZ-1);
+		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+insert_x, m_RegionZ);
+		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+insert_x, m_RegionZ+1);
 	}
 
-	if( del_z != 0 ) 
+	if (insert_z != 0) 
 	{
-		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX, m_RegionZ+del_z );
+		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX, m_RegionZ+insert_z);
 		
-		if( del_x < 0 )	
-			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+1, m_RegionZ+del_z );		
-		else if( del_x > 0 )
-			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX-1, m_RegionZ+del_z );
-		else {
-			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX-1, m_RegionZ+del_z );
-			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+1, m_RegionZ+del_z );
+		if (insert_x < 0)	
+			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+1, m_RegionZ+insert_z);
+		else if (insert_x > 0 )
+			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX-1, m_RegionZ+insert_z);
+		else 
+		{
+			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX-1, m_RegionZ+insert_z);
+			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+1, m_RegionZ+insert_z);
 		}
 	}
 }

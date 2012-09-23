@@ -178,6 +178,40 @@ void CUser::GetUserInfo(char *buff, int & buff_index)
 	SetShort(buff, m_pUserData->m_sItemArray[LEFTHAND].sDuration, buff_index);
 }
 
+// TO-DO: Update this. It's VERY dated.
+void CUser::GetUserInfo(Packet & pkt)
+{
+	pkt.SByte();
+	pkt		<< m_pUserData->m_id
+			<< getNation() << m_pUserData->m_bCity // probably isn't this, but it'll at least serve as filler if it's not
+			<< m_pUserData->m_bKnights << m_pUserData->m_bFame;
+
+	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(m_pUserData->m_bKnights);
+	if (pKnights == NULL || m_pUserData->m_bKnights <= 0)
+	{
+		pkt << uint32(0);
+	}
+	else 
+	{
+		pkt << pKnights->m_strName << pKnights->m_byGrade << pKnights->m_byRanking;
+	}	
+
+	pkt	<< getLevel() << m_pUserData->m_bRace << m_pUserData->m_sClass
+		<< GetSPosX() << GetSPosZ() << GetSPosY()
+		<< m_pUserData->m_bFace << uint32(m_pUserData->m_nHair)
+		<< m_bResHpType << uint32(m_bAbnormalType)
+		<< m_bNeedParty
+		<< m_pUserData->m_bAuthority
+		<< m_pUserData->m_sItemArray[BREAST].nNum << m_pUserData->m_sItemArray[BREAST].sDuration
+		<< m_pUserData->m_sItemArray[LEG].nNum << m_pUserData->m_sItemArray[LEG].sDuration
+		<< m_pUserData->m_sItemArray[HEAD].nNum << m_pUserData->m_sItemArray[HEAD].sDuration
+		<< m_pUserData->m_sItemArray[GLOVE].nNum << m_pUserData->m_sItemArray[GLOVE].sDuration
+		<< m_pUserData->m_sItemArray[FOOT].nNum << m_pUserData->m_sItemArray[FOOT].sDuration
+		<< m_pUserData->m_sItemArray[SHOULDER].nNum << m_pUserData->m_sItemArray[SHOULDER].sDuration
+		<< m_pUserData->m_sItemArray[RIGHTHAND].nNum << m_pUserData->m_sItemArray[RIGHTHAND].sDuration
+		<< m_pUserData->m_sItemArray[LEFTHAND].nNum << m_pUserData->m_sItemArray[LEFTHAND].sDuration;
+}
+
 void CUser::Rotate( char* pBuf )
 {
 	int index = 0, send_index = 0;
