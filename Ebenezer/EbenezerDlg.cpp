@@ -862,6 +862,19 @@ void CEbenezerDlg::Send_Region(char *pBuf, int len, C3DMap *pMap, int x, int z, 
 	Send_UnitRegion( pBuf, len, pMap, x+1, z+1, pExceptUser, bDirect );	// SE
 }
 
+void CEbenezerDlg::Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser, bool bDirect)
+{
+	Send_UnitRegion(pkt, pMap, x, z, pExceptUser, bDirect );
+	Send_UnitRegion(pkt, pMap, x-1, z-1, pExceptUser, bDirect );	// NW
+	Send_UnitRegion(pkt, pMap, x, z-1, pExceptUser, bDirect );		// N
+	Send_UnitRegion(pkt, pMap, x+1, z-1, pExceptUser, bDirect );	// NE
+	Send_UnitRegion(pkt, pMap, x-1, z, pExceptUser, bDirect );		// W
+	Send_UnitRegion(pkt, pMap, x+1, z, pExceptUser, bDirect );		// E
+	Send_UnitRegion(pkt, pMap, x-1, z+1, pExceptUser, bDirect );	// SW
+	Send_UnitRegion(pkt, pMap, x, z+1, pExceptUser, bDirect );		// S
+	Send_UnitRegion(pkt, pMap, x+1, z+1, pExceptUser, bDirect );	// SE
+}
+
 void CEbenezerDlg::Send_UnitRegion(char *pBuf, int len, C3DMap *pMap, int x, int z, CUser *pExceptUser, bool bDirect)
 {
 	if (pMap == NULL 
@@ -881,6 +894,29 @@ void CEbenezerDlg::Send_UnitRegion(char *pBuf, int len, C3DMap *pMap, int x, int
 			pUser->Send(pBuf, len);
 		else
 			pUser->RegionPacketAdd(pBuf, len);
+	}
+	LeaveCriticalSection(&g_region_critical);
+}
+
+void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser *pExceptUser, bool bDirect)
+{
+	if (pMap == NULL 
+		|| x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())
+		return;
+
+	EnterCriticalSection(&g_region_critical);
+	CRegion *pRegion = &pMap->m_ppRegion[x][z];
+
+	foreach_stlmap (itr, pRegion->m_RegionUserArray)
+	{
+		CUser *pUser = GetUserPtr(*itr->second);
+		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART)
+			continue;
+
+		if (bDirect)
+			pUser->Send(pkt);
+		else
+			pUser->RegionPacketAdd(pkt);
 	}
 	LeaveCriticalSection(&g_region_critical);
 }
@@ -953,6 +989,22 @@ void CEbenezerDlg::Send_PartyMember(int party, char *pBuf, int len)
 	}
 }
 
+void CEbenezerDlg::Send_PartyMember(int party, Packet *result)
+{
+	_PARTY_GROUP* pParty = m_PartyArray.GetData(party);
+	if (pParty == NULL)
+		return;
+
+	for (int i = 0; i < 8; i++)
+	{
+		CUser *pUser = GetUserPtr(pParty->uid[i]);
+		if (pUser == NULL)
+			continue;
+
+		pUser->Send(result);
+	}
+}
+
 void CEbenezerDlg::Send_KnightsMember( int index, char* pBuf, int len, int zone )
 {
 	CKnights* pKnights = m_KnightsArray.GetData(index);
@@ -971,7 +1023,6 @@ void CEbenezerDlg::Send_KnightsMember( int index, char* pBuf, int len, int zone 
 	}
 }
 
-// sungyong 2002.05.22
 void CEbenezerDlg::Send_AIServer(char* pBuf, int len)
 {
 	CAISocket* pSocket = NULL;
@@ -1000,7 +1051,34 @@ void CEbenezerDlg::Send_AIServer(char* pBuf, int len)
 		}
 	}
 }
-// ~sungyong 2002.05.22
+
+void CEbenezerDlg::Send_AIServer(Packet *pkt)
+{
+	int send_size = 0, old_send_socket = 0;
+
+	for (int i = 0; i < MAX_AI_SOCKET; i++)
+	{
+		CAISocket *pSocket = m_AISocketArray.GetData( i );
+		if (pSocket == NULL)
+		{
+			if (++m_sSendSocket >= MAX_AI_SOCKET)
+				m_sSendSocket = 0;
+
+			continue;
+		}
+
+		if (i == m_sSendSocket)
+		{
+			int send_size = pSocket->Send(pkt);
+			old_send_socket = m_sSendSocket;
+			if (++m_sSendSocket >= MAX_AI_SOCKET)	
+				m_sSendSocket = 0;
+
+			if (send_size != 0)
+				return;
+		}
+	}
+}
 
 BOOL CEbenezerDlg::InitializeMMF()
 {

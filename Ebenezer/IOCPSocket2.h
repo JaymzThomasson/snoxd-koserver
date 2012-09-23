@@ -11,7 +11,6 @@
 
 #include "IOCPort.h"
 #include "Define.h"
-#include "../shared/Packet.h"
 // Cryption
 #include "JvCryption.h"
 ///~
@@ -24,9 +23,11 @@ class CCircularBuffer;
 class CIOCPSocket2  
 {
 public:
-	void RegioinPacketClear( char* GetBuf, int & len );
-	void RegionPacketAdd( char* pBuf, int len );
-	void SendCompressingPacket( const char* pData, int len );
+	void SendRegionPackets();
+	void RegionPacketAdd( char* pBuf, int len ); // PENDING DEPRECATION
+	void RegionPacketAdd(Packet *pkt); 
+	void SendCompressingPacket( const char* pData, int len ); // PENDING DEPRECATION
+	void SendCompressingPacket(Packet *pkt);
 	void InitSocket( CIOCPort* pIOCPort );
 	void Close();
 	BOOL AsyncSelect( long lEvent = FD_READ | FD_WRITE | FD_OOB | FD_ACCEPT | FD_CONNECT | FD_CLOSE );

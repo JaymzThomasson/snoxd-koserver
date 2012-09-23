@@ -214,6 +214,12 @@ public:
 	__forceinline BYTE getAuthority() { return m_pUserData->m_bAuthority; };
 	__forceinline C3DMap * GetMap() { return m_pMap; };
 
+	__forceinline uint16 GetSPosX() { return uint16(m_pUserData->m_curx * 10); };
+	__forceinline uint16 GetSPosY() { return uint16(m_pUserData->m_cury * 10); };
+	__forceinline uint16 GetSPosZ() { return uint16(m_pUserData->m_curz * 10); };
+
+	void SendLoyaltyChange(int32 nChangeAmount = 0);
+
 	void RecvDeleteChar( char* pBuf );
 	BOOL ExistComEvent(int eventid);
 	void SaveComEvent(int eventid);
@@ -304,7 +310,9 @@ public:
 	void ChatTargetSelect( char* pBuf );
 	BOOL ItemEquipAvailable( _ITEM_TABLE* pTable );
 	void ClassChange( char* pBuf );
+	void HpChange(int amount, int type=0, bool attack=false);
 	void MSpChange(int amount);
+	void SendPartyHPUpdate();
 	void UpdateGameWeather( char* pBuf, BYTE type );
 	void ObjectEvent( char* pBuf );
 	void SendAnvilRequest(int nid);
@@ -372,7 +380,6 @@ public:
 	void RequestNpcIn( char* pBuf );
 	void SetUserAbility();
 	void LevelChange(short level, BYTE type=TRUE);	// type : TRUE => level up, FALSE => level down
-	void HpChange(int amount, int type=0, bool attack=false);
 	short GetDamage(short tid, int magicid);
 	void SetSlotItemValue();
 	BYTE GetHitRate(float rate);
@@ -381,7 +388,9 @@ public:
 	void RemoveRegion( int del_x, int del_z );
 	void RegisterRegion();
 	void SetDetailData();
-	void SendTimeStatus();
+	void SendTimeStatus(); // TO-DO: Deprecate
+	void SendTime();
+	void SendWeather();
 	void SendPremiumInfo();
 	void SetZoneAbilityChange(BYTE zone);
 	void Regene(char* pBuf, int magicid = 0);
@@ -393,7 +402,7 @@ public:
 	void SelCharToAgent( char* pBuf );
 	void SendMyInfo();
 	void SelectCharacter( char* pBuf );
-	void Send2AI_UserUpdateInfo();
+	void Send2AI_UserUpdateInfo(bool initialInfo = false);
 	void Attack( char* pBuf );
 	void UserInOut( BYTE Type );
 	void GetUserInfo(char *buff, int & buff_index);

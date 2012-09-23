@@ -276,18 +276,10 @@ typedef union{
 
 #include "../shared/globals.h"
 
-struct _REGION_BUFFER {
-	int		iLength;
-	BYTE	bFlag;
-	DWORD	dwThreadID;
-
-	char	pDataBuff[REGION_BUFF_SIZE];
-	_REGION_BUFFER() {
-		iLength = 0;
-		bFlag = E;
-		dwThreadID = 0;
-		memset(pDataBuff, 0x00, REGION_BUFF_SIZE);
-	};
+struct _REGION_BUFFER 
+{
+	ByteBuffer Buffer;
+	RWLock Lock;
 };
 
 #endif

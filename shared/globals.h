@@ -4,6 +4,8 @@
 
 #include "version.h"
 #include "packets.h"
+#include "Packet.h"
+#include "RWLock.h"
 
 #define MAX_USER			3000
 

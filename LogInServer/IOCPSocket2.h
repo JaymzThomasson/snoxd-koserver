@@ -11,7 +11,6 @@
 
 #include "IOCPort.h"
 #include "Define.h"
-#include "../shared/Packet.h"
 
 #define receives				0
 #define sends					1

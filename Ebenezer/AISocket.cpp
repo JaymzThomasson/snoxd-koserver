@@ -353,9 +353,7 @@ void CAISocket::RecvNpcInfoAll(char* pBuf)
 
 void CAISocket::RecvNpcMoveResult(char *pBuf)
 {
-	// sungyong tw
-	char send_buff[256];
-	int index = 0, send_index = 0;
+	int index = 0;
 	BYTE		flag;			// 01(INFO_MODIFY)	: NPC 정보 변경
 								// 02(INFO_DELETE)	: NPC 정보 삭제
 	short		nid;			// NPC index
@@ -374,13 +372,12 @@ void CAISocket::RecvNpcMoveResult(char *pBuf)
 	if(!pNpc)
 		return;
 
-	if( pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP <= 0 ) {	// Npc 상태 동기화 불량,, 재요청..
-		SetByte( send_buff, AG_NPC_HP_REQ, send_index);
-		SetShort( send_buff, nid, send_index );
-		SetDWORD( send_buff, pNpc->m_iHP, send_index );
-		Send( send_buff, send_index );
+	if (pNpc->isDead())
+	{
+		Packet result(AG_NPC_HP_REQ);
+		result << nid << pNpc->m_iHP;
+		Send(&result);
 	}
-	// ~sungyong tw
 	
 	pNpc->MoveResult(fPosX, fPosY, fPosZ, fSecForMetor);
 }
@@ -847,16 +844,9 @@ void CAISocket::RecvUserExp(char* pBuf)
 		TRACE("#### AISocket - RecvUserExp : exp=%d, loyalty=%d,, 잘못된 경험치가 온다,, 수정해!!\n", sExp, sLoyalty);
 		return;
 	}
-	pUser->m_pUserData->m_iLoyalty += sLoyalty;
 	pUser->ExpChange(sExp);
-
-	if( sLoyalty > 0 )	{
-		char send_buff[128]; 
-		int send_index = 0;
-		SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );
-		SetDWORD( send_buff, pUser->m_pUserData->m_iLoyalty, send_index );
-		pUser->Send( send_buff, send_index );
-	}
+	if (sLoyalty > 0)
+		pUser->SendLoyaltyChange(sLoyalty);
 }
 
 void CAISocket::RecvSystemMsg(char* pBuf)
@@ -896,8 +886,8 @@ void CAISocket::RecvSystemMsg(char* pBuf)
 
 void CAISocket::RecvNpcGiveItem(char* pBuf)
 {
-	int index = 0, send_index = 0;
-	char send_buff[1024];
+	Packet result(WIZ_ITEM_DROP);
+	int index = 0;
 	short sUid, sNid, sZone, regionx, regionz;
 	float fX, fZ, fY;
 	BYTE byCount;
@@ -953,16 +943,12 @@ void CAISocket::RecvNpcGiveItem(char* pBuf)
 	pUser = m_pMain->GetUserPtr(sUid);
 	if (pUser == NULL) 
 		return;
-	
-	send_index = 0;
 
-	SetByte( send_buff, WIZ_ITEM_DROP, send_index );
-	SetShort( send_buff, sNid, send_index );
-	SetDWORD( send_buff, pItem->bundle_index, send_index );
-	if( pUser->m_sPartyIndex == -1 )
-		pUser->Send( send_buff, send_index );
+	result << sNid << uint32(pItem->bundle_index);
+	if (!pUser->isInParty())
+		pUser->Send(&result);
 	else
-		m_pMain->Send_PartyMember( pUser->m_sPartyIndex, send_buff, send_index );
+		m_pMain->Send_PartyMember(pUser->m_sPartyIndex, &result);
 }
 
 void CAISocket::RecvUserFail(char* pBuf)
@@ -1026,12 +1012,9 @@ void CAISocket::InitEventMonster(int index)
 
 void CAISocket::RecvCheckAlive(char* pBuf)
 {
-//	TRACE("CAISocket-RecvCheckAlive : zone_num=%d\n", m_iZoneNum);
+	Packet result(AG_CHECK_ALIVE_REQ);		
 	m_pMain->m_sErrorSocketCount = 0;
-	int len = 0;
-	char pSendBuf[256];		::ZeroMemory(pSendBuf, sizeof(pSendBuf));
-	SetByte(pSendBuf, AG_CHECK_ALIVE_REQ, len);
-	Send(pSendBuf, len);
+	Send(&result);
 }
 
 void CAISocket::RecvGateDestory(char* pBuf)
