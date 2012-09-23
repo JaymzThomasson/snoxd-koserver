@@ -11,6 +11,7 @@
 
 #include "IOCPort.h"
 #include "Define.h"
+#include "../shared/Packet.h"
 
 #define receives				0
 #define sends					1
@@ -29,7 +30,7 @@ public:
 	BOOL PullOutCore(char *&data, int &length);
 	void ReceivedData(int length);
 	int  Receive();
-	int  Send(char *pBuf, long length, int dwFlag=0);
+	int  Send(Packet *result);
 	BOOL Create( UINT nSocketPort = 0,
 				 int nSocketType = SOCK_STREAM, 
 				 long lEvent = FD_READ | FD_WRITE | FD_OOB | FD_ACCEPT | FD_CONNECT | FD_CLOSE,
@@ -42,7 +43,7 @@ public:
 	BYTE GetSockType() {return m_Type;};
 
 	virtual void CloseProcess();
-	virtual void Parsing( int length, char* pData );
+	virtual void Parsing(Packet & pkt);
 	virtual void Initialize();
 
 	CIOCPSocket2();

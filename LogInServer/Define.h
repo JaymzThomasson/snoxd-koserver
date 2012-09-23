@@ -103,7 +103,9 @@ enum LogonOpcodes
 	LS_MGAME_LOGIN				= 0xF4,
 	LS_SERVERLIST				= 0xF5,
 	LS_NEWS						= 0xF6,
-	LS_UNKF7					= 0xF7
+	LS_UNKF7					= 0xF7,
+
+	NUM_LS_OPCODES
 };
 
 #include "../shared/globals.h"

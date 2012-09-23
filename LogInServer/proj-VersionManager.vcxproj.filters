@@ -97,6 +97,9 @@
     <ClInclude Include="DBProcess.h">
       <Filter>Database</Filter>
     </ClInclude>
+    <ClInclude Include="..\shared\Packet.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\VersionManager.ico">

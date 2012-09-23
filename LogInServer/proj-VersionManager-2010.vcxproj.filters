@@ -82,9 +82,6 @@
     <ClInclude Include="..\shared\database\VersionSet.h">
       <Filter>Database</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\version.h">
-      <Filter>Shared</Filter>
-    </ClInclude>
     <ClInclude Include="IOCPort.h">
       <Filter>Networking</Filter>
     </ClInclude>
@@ -96,6 +93,9 @@
     </ClInclude>
     <ClInclude Include="DBProcess.h">
       <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\Packet.h">
+      <Filter>Shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

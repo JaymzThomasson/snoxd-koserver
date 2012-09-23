@@ -53,7 +53,7 @@ BOOL CIOCPSocket2::Create( UINT nSocketPort, int nSocketType, long lEvent, LPCTS
 	return TRUE;
 }
 
-int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
+int CIOCPSocket2::Send(Packet *result)
 {
 	int ret_value = 0;
 	WSABUF out;
@@ -61,7 +61,8 @@ int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 	OVERLAPPED *pOvl;
 	HANDLE	hComport = NULL;
 
-	if( length > MAX_PACKET_SIZE )
+	uint16 len = result->size() + 1;
+	if (len + 1 > MAX_PACKET_SIZE)
 		return 0;
 
 	char pTBuf[MAX_PACKET_SIZE];
@@ -69,10 +70,11 @@ int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 
 	pTBuf[index++] = (BYTE)PACKET_START1;
 	pTBuf[index++] = (BYTE)PACKET_START2;
-	memcpy( pTBuf+index, &length, 2 );
+	memcpy(pTBuf+index, &len, 2);
 	index += 2;
-	memcpy( pTBuf+index, pBuf, length );
-	index += length;
+	pTBuf[index++] = result->GetOpcode();
+	memcpy(pTBuf+index, result->contents(), len - 1);
+	index += len - 1;
 	pTBuf[index++] = (BYTE)PACKET_END1;
 	pTBuf[index++] = (BYTE)PACKET_END2;
 
@@ -83,7 +85,7 @@ int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 	pOvl->Offset = OVL_SEND;
 	pOvl->OffsetHigh = out.len;
 
-	ret_value = WSASend( m_Socket, &out, 1, &sent, dwFlag, pOvl, NULL);
+	ret_value = WSASend( m_Socket, &out, 1, &sent, 0, pOvl, NULL);
 	
 	if ( ret_value == SOCKET_ERROR )
 	{
@@ -95,7 +97,7 @@ int CIOCPSocket2::Send(char *pBuf, long length, int dwFlag)
 			m_nPending++;
 			if( m_nPending > 3 )
 				goto close_routine;
-			sent = length; 
+			sent = len; 
 		}
 		else if ( last_err == WSAEWOULDBLOCK )
 		{
@@ -126,11 +128,10 @@ close_routine:
 	pOvl = &m_RecvOverlapped;
 	pOvl->Offset = OVL_CLOSE;
 	
-	if( m_Type == TYPE_ACCEPT )
+	if (m_Type == TYPE_ACCEPT)
 		hComport = m_pIOCPort->m_hServerIOCPort;
 	
-	PostQueuedCompletionStatus( hComport, (DWORD)0, (DWORD)m_Sid, pOvl );
-	
+	PostQueuedCompletionStatus(hComport, (DWORD)0, (DWORD)m_Sid, pOvl);
 	return -1;
 }
 
@@ -199,22 +200,26 @@ close_routine:
 
 void CIOCPSocket2::ReceivedData(int length)
 {
-	if(!length) return;
+	if (length <= 0 || length >= MAX_PACKET_SIZE)
+		return;
 
 	int len = 0;
 
-	if( !strlen(m_pRecvBuff) )		// 패킷길이는 존재하나 실 데이터가 없는 경우가 발생...
+	if(*m_pRecvBuff == 0)
 		return;
-	m_pBuffer->PutData(m_pRecvBuff, length);		// 받은 Data를 버퍼에 넣는다
+
+	m_pBuffer->PutData(m_pRecvBuff, length);
 
 	char *pData = NULL;
-	char *pDecData = NULL;
-
 	while (PullOutCore(pData, len))
 	{
-		if(pData)
+		if (pData)
 		{
-			Parsing(len, pData);//		실제 파싱 함수...
+			len--;
+			Packet pkt(*pData, (size_t)len);
+			if (len)
+				pkt.append(pData+1, len);
+			Parsing(pkt);
 
 			delete[] pData;
 			pData = NULL;
@@ -375,7 +380,7 @@ BOOL CIOCPSocket2::Accept( SOCKET listensocket, struct sockaddr* addr, int* len 
 	return TRUE;
 }
 
-void CIOCPSocket2::Parsing(int length, char *pData)
+void CIOCPSocket2::Parsing(Packet & pkt)
 {
 
 }

@@ -98,6 +98,7 @@ BOOL CVersionManagerDlg::OnInitDialog()
 	version.Format("Latest Version : %d", m_nLastVersion);
 	m_OutputList.AddString( version );
 
+	InitPacketHandlers();
 	::ResumeThread(m_Iocport.m_hAcceptThread);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
