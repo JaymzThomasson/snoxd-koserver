@@ -355,7 +355,10 @@ BOOL CEbenezerDlg::OnInitDialog()
 
 	LogFileWrite("before map file");
 	if( !MapFileLoad() )
+	{
 		AfxPostQuitMessage(0);
+		return FALSE;
+	}
 
 	LogFileWrite("after map file");
 
@@ -1148,7 +1151,7 @@ BOOL CEbenezerDlg::MapFileLoad()
 			|| !pMap->LoadMap((HANDLE)file.m_hFile))
 		{
 			AfxMessageBox("Unable to load SMD - " + szFullPath);
-			m_ZoneArray.DeleteData(itr->first);
+			m_ZoneArray.DeleteAllData();
 			if (file.m_hFile != CFile::hFileNull)
 				file.Close();
 			return FALSE;
