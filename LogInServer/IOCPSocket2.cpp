@@ -73,8 +73,11 @@ int CIOCPSocket2::Send(Packet *result)
 	memcpy(pTBuf+index, &len, 2);
 	index += 2;
 	pTBuf[index++] = result->GetOpcode();
-	memcpy(pTBuf+index, result->contents(), len - 1);
-	index += len - 1;
+	if (len > 1)
+	{
+		memcpy(pTBuf+index, result->contents(), len - 1);
+		index += len - 1;
+	}
 	pTBuf[index++] = (BYTE)PACKET_END1;
 	pTBuf[index++] = (BYTE)PACKET_END2;
 

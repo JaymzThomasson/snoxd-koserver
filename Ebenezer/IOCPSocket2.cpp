@@ -267,8 +267,11 @@ int CIOCPSocket2::Send(Packet *result)
 		pTIBuf[index++] = (BYTE)PACKET_START2;
 		memcpy(pTIBuf+index, &totalLen, 2);
 		index += 2;
-		memcpy(pTIBuf+index, pTOutBuf, totalLen); // throw encrypted packet data into packet body
-		index += totalLen;
+		if (totalLen > 0)
+		{
+			memcpy(pTIBuf+index, pTOutBuf, totalLen); // throw encrypted packet data into packet body
+			index += totalLen;
+		}
 		pTIBuf[index++] = (BYTE)PACKET_END1; // packet tail
 		pTIBuf[index++] = (BYTE)PACKET_END2;
 	}
@@ -282,8 +285,11 @@ int CIOCPSocket2::Send(Packet *result)
 		memcpy(pTIBuf+index, &length, 2);
 		index += 2;
 		pTIBuf[index++] = result->GetOpcode();
-		memcpy(pTIBuf+index, result->contents(), length - 1);
-		index += length - 1;
+		if (length > 1)
+		{
+			memcpy(pTIBuf+index, result->contents(), length - 1);
+			index += length - 1;
+		}
 		pTIBuf[index++] = (BYTE)PACKET_END1;
 		pTIBuf[index++] = (BYTE)PACKET_END2;
 	}
