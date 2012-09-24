@@ -20,19 +20,19 @@ public:
 		pFX->SetFieldType(CFieldExchange::outputColumn);
 
 		RFX_Int(pFX, _T("[sIDNum]"), m_sIDNum);
-		RFX_Text(pFX, _T("[strUserID]"), m_strUserID);
+		RFX_Text(pFX, _T("[strUserID]"), m_strUserID, sizeof(m_strUserID));
 	};
 
 	virtual void HandleRead()
 	{
-		m_strUserID.TrimRight();
-		m_KnightsManager->AddKnightsUser(m_sIDNum, C2A(m_strUserID));
+		TRIM_RIGHT(m_strUserID);
+		m_KnightsManager->AddKnightsUser(m_sIDNum, m_strUserID);
 	};
 
 private:
 	CKnightsManager * m_KnightsManager;
 	int m_sIDNum;
-	CString m_strUserID;
+	char m_strUserID[MAX_ID_SIZE+1];
 };
 #undef MapType
 #undef T
