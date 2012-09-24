@@ -1125,15 +1125,23 @@ BOOL CEbenezerDlg::InitializeMMF()
 
 BOOL CEbenezerDlg::MapFileLoad()
 {
-	CZoneInfoSet ZoneInfoSet(&m_ZoneArray, &m_GameDB);
+	map<int, _ZONE_INFO*> zoneMap;
+	CZoneInfoSet ZoneInfoSet(&zoneMap, &m_GameDB);
+
 	if (!ZoneInfoSet.Read())
 		return FALSE;
 
-	foreach_stlmap (itr, m_ZoneArray)
+	foreach (itr, zoneMap)
 	{
 		CFile file;
 		CString szFullPath;
-		C3DMap *pMap = itr->second;
+		_ZONE_INFO *pZone = itr->second;
+
+		C3DMap *pMap = new C3DMap();
+		pMap->Initialize(pZone);
+		delete pZone;
+
+		m_ZoneArray.PutData(pMap->m_nZoneNumber, pMap);
 
 		szFullPath.Format(".\\MAP\\%s", pMap->m_MapName);
 		if (!file.Open(szFullPath, CFile::modeRead)

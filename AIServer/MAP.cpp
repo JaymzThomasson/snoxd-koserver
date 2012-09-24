@@ -51,6 +51,14 @@ MAP::MAP()
 //		m_arDungeonBossMonster[i] = 1;
 }
 
+void MAP::Initialize(_ZONE_INFO *pZone)
+{
+	m_nServerNo = pZone->m_nServerNo;
+	m_nZoneNumber = pZone->m_nZoneNumber;
+	m_MapName = pZone->m_MapName;
+	m_byRoomEvent = pZone->m_byRoomEvent;
+}
+
 MAP::~MAP()
 {
 	RemoveMapData();
@@ -401,15 +409,13 @@ int  MAP::GetRegionNpcSize(int rx, int rz)
 
 void MAP::LoadObjectEvent(HANDLE hFile)
 {
-	int 	iEventObjectCount = 0, zonenum = 0;
-	__Vector3 vPos(0,0,0);
+	int 	iEventObjectCount = 0;
 	DWORD	dwNum;
-	_OBJECT_EVENT* pEvent = NULL;
 
 	ReadFile(hFile, &iEventObjectCount, 4, &dwNum, NULL);
 	for( int i=0; i<iEventObjectCount; i++)
 	{
-		pEvent = new _OBJECT_EVENT;
+		_OBJECT_EVENT* pEvent = new _OBJECT_EVENT;
 		ReadFile(hFile, &(pEvent->sBelong), 4, &dwNum, NULL);					// ¼Ò¼Ó 
 		ReadFile(hFile, &(pEvent->sIndex), 2, &dwNum, NULL);				// Event Index
 		ReadFile(hFile, &(pEvent->sType), 2, &dwNum, NULL);
@@ -429,9 +435,7 @@ void MAP::LoadObjectEvent(HANDLE hFile)
 
 		if( pEvent->sIndex <= 0 ) continue;
 		if( !m_ObjectEventArray.PutData(pEvent->sIndex, pEvent) ) {
-			TRACE("Object Event PutData Fail - %d\n", pEvent->sIndex );
 			delete pEvent;
-			pEvent = NULL;
 		}
 	}
 }

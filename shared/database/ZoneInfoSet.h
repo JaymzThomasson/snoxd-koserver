@@ -1,17 +1,13 @@
 #pragma once
 
-#ifdef AI_SERVER
-#define T	MAP
-#else
-#define T	C3DMap
-#endif
-#define MapType	ZoneArray
+#define T _ZONE_INFO
+#define MapType	map<int, _ZONE_INFO *>
 
 class CZoneInfoSet : public CMyRecordSet<T>
 {
 public:
-	CZoneInfoSet(MapType *stlMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	CZoneInfoSet(MapType *pMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_map(pMap)
 	{
 #ifdef EBENEZER
 		m_nFields = 7;
@@ -43,19 +39,29 @@ public:
 
 	virtual void HandleRead()
 	{
-		T * data = COPY_ROW();
+		// we're going to have to copy this one manually, because it's too fiddly to memcpy.
+		T * data = new T();
+
+		data->m_nServerNo = m_data.m_nServerNo;
+		data->m_nZoneNumber = m_data.m_nZoneNumber;
+		data->m_MapName = m_data.m_MapName;
 
 #ifdef EBENEZER
 		data->m_fInitX = (float)(m_InitX / 100.0f);
 		data->m_fInitY = (float)(m_InitY / 100.0f);
 		data->m_fInitZ = (float)(m_InitZ / 100.0f);
+		data->m_bType = m_data.m_bType;
+#else
+		data->m_byRoomEvent = m_data.m_byRoomEvent;
 #endif
-		if (!m_stlMap->PutData(data->m_nZoneNumber, data))
+
+		data->m_MapName = m_data.m_MapName; // overwrite it, CString is terrible.
+		if (!m_map->insert(make_pair(data->m_nZoneNumber, data)).second)
 			delete data;
 	};
 
 private:
-	MapType * m_stlMap;
+	MapType * m_map;
 #ifdef EBENEZER
 	long m_InitX, m_InitY, m_InitZ;
 #endif

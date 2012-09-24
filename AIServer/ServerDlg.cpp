@@ -1325,17 +1325,24 @@ void CServerDlg::DeleteUserList(int uid)
 
 BOOL CServerDlg::MapFileLoad()
 {
-	CZoneInfoSet ZoneInfoSet(&g_arZone);
+	map<int, _ZONE_INFO*> zoneMap;
+	CZoneInfoSet ZoneInfoSet(&zoneMap);
 
 	m_sTotalMap = 0;
 	if (!ZoneInfoSet.Read())
 		return FALSE;
 
-	foreach_stlmap (itr, g_arZone)
+	foreach (itr, zoneMap)
 	{
 		CFile file;
 		CString szFullPath;
-		MAP *pMap = itr->second;
+		_ZONE_INFO *pZone = itr->second;
+
+		MAP *pMap = new MAP();
+		pMap->Initialize(pZone);
+		delete pZone;
+
+		g_arZone.PutData(pMap->m_nZoneNumber, pMap);
 
 		szFullPath.Format(".\\MAP\\%s", pMap->m_MapName);
 		if (!file.Open(szFullPath, CFile::modeRead)
