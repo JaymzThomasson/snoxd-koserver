@@ -400,9 +400,6 @@ void CUser::Parsing(int len, char *pData)
 		SpeedHackTime( pData+index );
 		m_sAliveCount = 0;
 		break;
-	case WIZ_SERVER_CHECK:
-		ServerStatusCheck();
-		break;
 	case WIZ_WAREHOUSE:
 		WarehouseProcess( pData+index );
 		break;
@@ -2939,15 +2936,6 @@ void CUser::SpeedHackTime(char* pBuf)
 	}
 }
 
-void CUser::ServerStatusCheck()
-{
-	int send_index = 0;
-	char send_buff[3];
-	SetByte(send_buff, WIZ_SERVER_CHECK, send_index );
-	SetShort(send_buff, m_pMain->m_sErrorSocketCount, send_index);
-	Send( send_buff, send_index );
-}
-
 void CUser::Type3AreaDuration(float currenttime)
 {
 	int send_index = 0;
@@ -3184,81 +3172,72 @@ CUser* CUser::GetItemRoutingUser(int itemid, short itemcount)
 
 void CUser::ClassChangeReq()
 {
-	char send_buff[128];
-	int send_index = 0;
-
-	SetByte( send_buff, WIZ_CLASS_CHANGE, send_index );
-	SetByte( send_buff, CLASS_CHANGE_RESULT, send_index );
-	if( m_pUserData->m_bLevel < 10 )
-		SetByte( send_buff, 0x02, send_index );
-	else if ( (m_pUserData->m_sClass % 100) > 4 )
-		SetByte( send_buff, 0x03, send_index );
-	else
-		SetByte( send_buff, 0x01, send_index );
-	Send( send_buff, send_index );
+	Packet result(WIZ_CLASS_CHANGE, uint8(CLASS_CHANGE_RESULT));
+	if (getLevel() < 10) // if we haven't got our first job change
+		result << uint8(2);
+	else if ((m_pUserData->m_sClass % 100) > 4) // if we've already got our job change
+		result << uint8(3);
+	else // otherwise
+		result << uint8(1);
+	Send(&result);
 }
 
 void CUser::AllSkillPointChange()
 {
-	int index = 0, send_index = 0, skill_point = 0, money = 0, i=0, j=0, temp_value = 0, old_money = 0;
-	BYTE type = 0x00;    // 0:???? ???, 1:????, 2:?????? ??u?? ?????..
-	char send_buff[128];
+	Packet result(WIZ_CLASS_CHANGE, uint8(ALL_SKILLPT_CHANGE));
+	int index = 0, skill_point = 0, money = 0, temp_value = 0, old_money = 0;
+	uint8 type = 0;
 
-	temp_value = (int)pow(( m_pUserData->m_bLevel * 2.0f ), 3.4f);
-	temp_value = ( temp_value / 100 )*100;
-	if( m_pUserData->m_bLevel < 30)		temp_value = (int)(temp_value * 0.4f);
-	else if( m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= 90 ) temp_value = (int)(temp_value * 1.5f);
+	temp_value = (int)pow((m_pUserData->m_bLevel * 2.0f), 3.4f);
+	temp_value = (temp_value / 100) * 100;
+	if (m_pUserData->m_bLevel < 30)		
+		temp_value = (int)(temp_value * 0.4f);
+	else if (m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= MAX_LEVEL)
+		temp_value = (int)(temp_value * 1.5f);
 
-	temp_value = (int)(temp_value * 1.5);
+	temp_value = (int)(temp_value * 1.5f);
 
-	if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{	// ????????? ?�???????
-		old_money = temp_value;
+	// If global discounts are enabled 
+	if (m_pMain->m_sDiscount == 2 // or war discounts are enabled
+		|| (m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation))
+	{
+		old_money = temp_value; // get it half price
 		temp_value = (int)(temp_value * 0.5f);
-		//TRACE("^^ AllSkillPointChange - Discount ,, money=%d->%d\n", old_money, temp_value);
-	}
-
-	if( m_pMain->m_sDiscount == 2  )		{	
-		old_money = temp_value;
-		temp_value = (int)(temp_value * 0.5f);
-		//TRACE("^^ AllSkillPointChange - Discount ,, money=%d->%d\n", old_money, temp_value);
 	}
 
 	money = m_pUserData->m_iGold - temp_value;
-	//money = m_pUserData->m_iGold - 100;
 
-	if(money < 0)	goto fail_return;
-	if( m_pUserData->m_bLevel < 10 )	goto fail_return;
+	// Not enough money, or level too low.
+	if (money < 0
+		|| getLevel() < 10)
+		goto fail_return;
 
-	for(i=1; i<9; i++)	{
+	// Get total skill points
+	for (int i = 1; i < 9; i++)
 		skill_point += m_pUserData->m_bstrSkill[i];
-	}
 
-	if(skill_point <= 0) {
+	// If we don't have any skill points, there's no point resetting now is there.
+	if (skill_point <= 0)
+	{
 		type = 2;
 		goto fail_return;
 	}
 
-	m_pUserData->m_bstrSkill[0] = (m_pUserData->m_bLevel - 9) * 2;
-	for(j=1; j<9; j++)	
+	// Reset skill points.
+	m_pUserData->m_bstrSkill[0] = (getLevel() - 9) * 2;
+	for (int i = 1; i < 9; i++)	
 		m_pUserData->m_bstrSkill[j] = 0;
+
+	// Take coins.
 	m_pUserData->m_iGold = money;
-	type = 1;
 
-	SetByte( send_buff, WIZ_CLASS_CHANGE, send_index );
-	SetByte( send_buff, ALL_SKILLPT_CHANGE, send_index );
-	SetByte( send_buff, type, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-	SetByte( send_buff, m_pUserData->m_bstrSkill[0], send_index );
-	Send( send_buff, send_index );
-
+	result << uint8(1) << m_pUserData->m_iGold << m_pUserData->m_bstrSkill[0];
+	Send(&result);
 	return;
 
 fail_return:
-	SetByte( send_buff, WIZ_CLASS_CHANGE, send_index );
-	SetByte( send_buff, ALL_SKILLPT_CHANGE, send_index );
-	SetByte( send_buff, type, send_index );
-	SetDWORD( send_buff, temp_value, send_index );
-	Send( send_buff, send_index );
+	result << type << temp_value;
+	Send(&result);
 }
 
 void CUser::AllPointChange()

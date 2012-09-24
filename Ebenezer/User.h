@@ -289,7 +289,6 @@ public:
 	short GetACDamage(int damage, short tid);
 	short GetMagicDamage(int damage, short tid);
 	void Type3AreaDuration( float currenttime);
-	void ServerStatusCheck();
 	void SpeedHackTime( char* pBuf );
 	void OperatorCommand( char* pBuf );
 	void ItemRemove( char* pBuf );
