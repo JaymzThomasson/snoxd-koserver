@@ -527,7 +527,7 @@ struct _START_POSITION
 struct _SERVER_RESOURCE
 {
 	int nResourceID;
-	CString strResource;
+	char strResource[100];
 };
 
 enum AuthorityTypes

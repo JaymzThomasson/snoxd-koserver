@@ -410,8 +410,8 @@ void CUdpSocket::RecvCreateKnights( char* pBuf )
 	pKnights->m_sIndex = knightsindex;
 	pKnights->m_byFlag = community;
 	pKnights->m_byNation = nation;
-	pKnights->m_strName = knightsname;
-	pKnights->m_strChief = chiefname;
+	strcpy(pKnights->m_strName, knightsname);
+	strcpy(pKnights->m_strChief, chiefname);
 
 	m_pMain->m_KnightsArray.PutData( pKnights->m_sIndex, pKnights );
 

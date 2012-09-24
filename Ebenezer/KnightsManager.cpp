@@ -755,8 +755,8 @@ void CKnightsManager::RecvCreateKnights(CUser *pUser, char *pBuf)
 	pKnights->m_sIndex = knightsindex;
 	pKnights->m_byFlag = community;
 	pKnights->m_byNation = nation;
-	pKnights->m_strName = knightsname;
-	pKnights->m_strChief = chiefname;
+	strcpy(pKnights->m_strName, knightsname);
+	strcpy(pKnights->m_strChief, chiefname);
 
 	pUser->m_pUserData->m_bKnights = knightsindex;
 	pUser->m_pUserData->m_bFame = CHIEF;
@@ -1072,7 +1072,7 @@ void CKnightsManager::RecvKnightsList( char* pBuf )
 		if( pKnights )	{
 			pKnights->m_sIndex = knightsindex;
 			pKnights->m_byNation = nation;
-			pKnights->m_strName = knightsname;
+			strcpy(pKnights->m_strName, knightsname);
 			pKnights->m_sMembers = members;
 			pKnights->m_nPoints = points;
 			pKnights->m_byGrade = m_pMain->GetKnightsGrade( points );
@@ -1082,7 +1082,7 @@ void CKnightsManager::RecvKnightsList( char* pBuf )
 			pKnights = new CKnights();
 			pKnights->m_sIndex = knightsindex;
 			pKnights->m_byNation = nation;
-			pKnights->m_strName = knightsname;
+			strcpy(pKnights->m_strName, knightsname);
 			pKnights->m_sMembers = members;
 			pKnights->m_nPoints = points;
 			pKnights->m_byGrade = m_pMain->GetKnightsGrade( points );

@@ -17,7 +17,7 @@ struct _ZONE_INFO
 {
 	int m_nServerNo;
 	int m_nZoneNumber;
-	CString m_MapName;
+	char m_MapName[_MAX_PATH];
 	BYTE m_byRoomEvent;
 };
 

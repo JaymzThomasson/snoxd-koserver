@@ -20,12 +20,12 @@ public:
 	BYTE	m_byNation;			// nation
 	BYTE	m_byGrade;
 	BYTE	m_byRanking;
-	CString	m_strName;
+	char	m_strName[MAX_ID_SIZE+1];
 	int		m_sMembers;
-	CString	m_strChief;
-	CString m_strViceChief_1;
-	CString m_strViceChief_2;
-	CString m_strViceChief_3;
+	char	m_strChief[MAX_ID_SIZE+1];
+	char	m_strViceChief_1[MAX_ID_SIZE+1];
+	char	m_strViceChief_2[MAX_ID_SIZE+1];
+	char	m_strViceChief_3[MAX_ID_SIZE+1];
 	__int64	m_nMoney;
 	int     m_sDomination;
 	long	m_nPoints;

@@ -56,7 +56,7 @@ struct _VERSION_INFO
 {
 	int sVersion;
 	int sHistoryVersion;
-	CString strFileName;
+	char strFileName[_MAX_PATH];
 };
 
 struct _SERVER_INFO
