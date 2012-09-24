@@ -62,7 +62,7 @@ public:
 	bool Read(bool bAllowEmptyTable = false)
 	{
 		bool isEmpty = false;
-		if (!AttemptOpen(bAllowEmptyTable))
+		if (!AttemptOpen(isEmpty, bAllowEmptyTable))
 			return isEmpty && bAllowEmptyTable;
 
 		while (!IsEOF())
