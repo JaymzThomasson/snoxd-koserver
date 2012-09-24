@@ -300,7 +300,9 @@ public:
 	int ExchangeDone();
 	void HPTimeChange( float currenttime );
 	void HPTimeChangeType3( float currenttime );
-	void ItemDurationChange( int slot, int maxvalue, int curvalue, int amount );
+	void ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint16 amount);
+	void SendDurability(uint8 slot, uint16 durability);
+	void SendItemMove(bool bFail = false);
 	void ItemWoreOut( int type, int damage );
 	void Dead();
 	void LoyaltyDivide( short tid );

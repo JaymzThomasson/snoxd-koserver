@@ -989,37 +989,31 @@ void CUser::InsertRegion(int insert_x, int insert_z)
 
 void CUser::RequestUserIn(char *pBuf)
 {
-	int index = 0, uid = -1, user_count = 0, buff_index = 0, t_count = 0, i=0,j=0, iLength=0;
-	CUser* pUser = NULL;
-	CKnights* pKnights = NULL;
-	char buff[40960];
+	Packet result(WIZ_REQ_USERIN);
+	int index = 0, user_count = 0;
+	short count = 0;
+	result << uint16(0); // placeholder for user count
 
-	buff_index = 3;
-	user_count = GetShort( pBuf, index );
-	for( i=0; i<user_count; i++ ) {
-		uid = GetShort( pBuf, index );
-		if( uid < 0 || uid >= MAX_USER )
+	user_count = GetShort(pBuf, index);
+	for (int i = 0; i < user_count; i++)
+	{
+		short uid = GetShort(pBuf, index);
+		CUser *pUser = m_pMain->GetUserPtr(uid);
+		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART)
 			continue;
-		if( i > 1000 ) 
-			break;
-		pUser = m_pMain->GetUserPtr(uid);
-		if (pUser != NULL && pUser->GetState() == STATE_GAMESTART)
-		{
-			SetShort( buff, pUser->GetSocketID(), buff_index );
-			GetUserInfo(buff, buff_index);
-			t_count++;
-		}
+
+		result << uint16(pUser->GetSocketID());
+		GetUserInfo(result);
+		count++;
 	}
 
-	int temp_index = 0;
-	SetByte( buff, WIZ_REQ_USERIN, temp_index );
-	SetShort( buff, t_count, temp_index );
-	SendCompressingPacket( buff, buff_index );
+	result.put(0, count); // substitute count in
+	SendCompressingPacket(&result);
 }
 
 void CUser::RequestNpcIn(char *pBuf)
 {
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return;	// ?????? ?????? ???
+	if( m_pMain->m_bPointCheckFlag == FALSE)	return;
 
 	int index = 0, nid = -1, npc_count = 0, buff_index = 0, t_count = 0, i=0,j=0;
 	CNpc* pNpc = NULL;
@@ -1048,7 +1042,7 @@ void CUser::RequestNpcIn(char *pBuf)
 	SendCompressingPacket( buff, buff_index );
 }
 
-void CUser::SetSlotItemValue()	// ????? ???????? ??(�???, ????, ??????)? ?????.
+void CUser::SetSlotItemValue()
 {
 	_ITEM_TABLE* pTable = NULL;
 	int item_hit = 0, item_ac = 0;
@@ -1540,37 +1534,30 @@ void CUser::SetUserAbility()
 
 void CUser::SendTargetHP( BYTE echo, int tid, int damage )
 {
-	int send_index = 0, hp = 0, maxhp = 0;
-	char buff[256];
-	CUser* pTUser = NULL;
-	CNpc* pNpc = NULL;
-
-	if (tid < 0)
-		return;
+	int hp = 0, maxhp = 0;
 
 	if (tid >= NPC_BAND)
 	{
 		if (m_pMain->m_bPointCheckFlag == FALSE) return;
-		pNpc = m_pMain->m_arNpcArray.GetData(tid);
-		if (!pNpc)
+		CNpc *pNpc = m_pMain->m_arNpcArray.GetData(tid);
+		if (pNpc == NULL)
 			return;
-		hp = pNpc->m_iHP;	maxhp = pNpc->m_iMaxHP;
+		hp = pNpc->m_iHP;	
+		maxhp = pNpc->m_iMaxHP;
 	}
 	else 
 	{
-		pTUser = m_pMain->GetUserPtr(tid);
-		if( pTUser == NULL || pTUser->isDead()) 
+		CUser *pUser = m_pMain->GetUserPtr(tid);
+		if (pUser == NULL || pUser->isDead()) 
 			return;
-		hp = pTUser->m_pUserData->m_sHp;	maxhp = pTUser->m_iMaxHp;
+
+		hp = pUser->m_pUserData->m_sHp;	
+		maxhp = pUser->m_iMaxHp;
 	}
 
-	SetByte( buff, WIZ_TARGET_HP, send_index );
-	SetShort( buff, tid, send_index );
-	SetByte( buff, echo, send_index );
-	SetDWORD( buff, maxhp, send_index );
-	SetDWORD( buff, hp, send_index );
-	SetShort( buff, damage, send_index );
-	Send( buff, send_index );
+	Packet result(WIZ_TARGET_HP);
+	result << uint16(tid) << echo << maxhp << hp << uint16(damage);
+	Send(&result);
 }
 
 void CUser::BundleOpenReq(char *pBuf)
@@ -1945,18 +1932,12 @@ void CUser::SpeedHackUser()
 
 void CUser::UserLookChange(int pos, int itemid, int durability)
 {
-	int send_index = 0;
-	char send_buff[256];
-
-	if( pos >= SLOT_MAX )
+	if (pos >= SLOT_MAX)
 		return;
 
-	SetByte( send_buff, WIZ_USERLOOK_CHANGE, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetByte( send_buff, (BYTE)pos, send_index );
-	SetDWORD( send_buff, itemid, send_index );
-	SetShort( send_buff, durability, send_index );
-	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, this );
+	Packet result(WIZ_USERLOOK_CHANGE);
+	result << uint16(GetSocketID()) << uint8(pos) << itemid << uint16(durability);
+	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this);
 }
 
 void CUser::SendNotice()
@@ -2362,64 +2343,63 @@ void CUser::ItemWoreOut(int type, int damage)
 	}
 }
 
-void CUser::ItemDurationChange(int slot, int maxvalue, int curvalue, int amount)
+void CUser::ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint16 amount)
 {
-	if( maxvalue <= 0 ) return;
-	if( slot < 0 || slot > SLOT_MAX ) return;
-	
+	if (slot >= SLOT_MAX)
+		return;
+
 	int curpercent = 0, beforepercent = 0, curbasis = 0, beforebasis = 0;
-	int send_index = 0;
-	char send_buff[128];
-	
-	if( m_pUserData->m_sItemArray[slot].sDuration <= 0 ) {
+
+	// If the durability's now less than 0, reset it to 0.
+	if (m_pUserData->m_sItemArray[slot].sDuration <= 0)
+	{
 		m_pUserData->m_sItemArray[slot].sDuration = 0;
-		SetByte( send_buff, WIZ_DURATION, send_index );
-		SetByte( send_buff, slot, send_index );
-		SetShort( send_buff, 0, send_index );
-		Send( send_buff, send_index );
+		SendDurability(slot, 0);
 		
 		SetSlotItemValue();
 		SetUserAbility();
-
-		send_index = 0;
-		SetByte( send_buff, WIZ_ITEM_MOVE, send_index );
-		SetByte( send_buff, 0x01, send_index );
-		SetShort( send_buff, m_sTotalHit, send_index );
-		SetShort( send_buff, m_sTotalAc, send_index );
-		SetShort( send_buff, m_sItemWeight, send_index );
-		SetShort( send_buff, m_iMaxHp, send_index );
-		SetShort( send_buff, m_iMaxMp, send_index );
-		SetByte( send_buff, (BYTE)m_sItemStr, send_index );
-		SetByte( send_buff, (BYTE)m_sItemSta, send_index );
-		SetByte( send_buff, (BYTE)m_sItemDex, send_index );
-		SetByte( send_buff, (BYTE)m_sItemIntel, send_index );
-		SetByte( send_buff, (BYTE)m_sItemCham, send_index );
-		SetByte( send_buff, m_bFireR, send_index );
-		SetByte( send_buff, m_bColdR, send_index );
-		SetByte( send_buff, m_bLightningR, send_index );
-		SetByte( send_buff, m_bMagicR, send_index );
-		SetByte( send_buff, m_bDiseaseR, send_index );
-		SetByte( send_buff, m_bPoisonR, send_index );
-		Send( send_buff, send_index );
+		SendItemMove();
 		return;
 	}
-	curpercent = (int)((curvalue / (double)maxvalue) * 100);
-	beforepercent = (int)(((curvalue+amount) / (double)maxvalue ) * 100);
+
+	curpercent = (int)((curValue / (double)maxValue) * 100);
+	beforepercent = (int)(((curValue + amount) / (double)maxValue ) * 100);
 	
 	curbasis = curpercent / 5;
 	beforebasis = beforepercent / 5;
 
-	if( curbasis != beforebasis ) {
-		SetByte( send_buff, WIZ_DURATION, send_index );
-		SetByte( send_buff, slot, send_index );
-		SetShort( send_buff, curvalue, send_index );
-		Send( send_buff, send_index );
+	if (curbasis != beforebasis) 
+	{
+		SendDurability(slot, curValue);
 
-		if( curpercent >= 65 && curpercent < 70 )
-			UserLookChange( slot, m_pUserData->m_sItemArray[slot].nNum, curvalue );
-		if( curpercent >= 25 && curpercent < 30 )
-			UserLookChange( slot, m_pUserData->m_sItemArray[slot].nNum, curvalue );
+		if (curpercent >= 65 && curpercent < 70
+			|| curpercent >= 25 && curpercent < 30)
+			UserLookChange( slot, m_pUserData->m_sItemArray[slot].nNum, curValue);
 	}
+}
+
+void CUser::SendDurability(uint8 slot, uint16 durability)
+{
+	Packet result(WIZ_DURATION, slot);
+	result << durability;
+	Send(&result);
+}
+
+void CUser::SendItemMove(bool bFail /*= false*/)
+{
+	// NOT the boolean to produce either a 0 on failure (!(bFail = true) = false = 0), or 1 on success.
+	Packet result(WIZ_ITEM_MOVE, uint8(!bFail));
+
+	// If we're sending an error, don't send the stats as well.
+	if (!bFail)
+	{
+		result	<< m_sTotalHit << m_sTotalAc
+				<< m_iMaxHp << m_iMaxMp
+				<< uint8(m_sItemStr) << uint8(m_sItemSta) << uint8(m_sItemDex) 
+				<< uint8(m_sItemIntel) << uint8(m_sItemCham)
+				<< m_bFireR << m_bColdR << m_bLightningR << m_bMagicR << m_bDiseaseR << m_bPoisonR;
+	}
+	Send(&result);
 }
 
 void CUser::HPTimeChange(float currenttime)
@@ -3419,106 +3399,68 @@ void CUser::GoldChange(short tid, int gold)
 	if (m_pUserData->m_bZone < 3) return;	// Money only changes in Frontier zone and Battle zone!!!
 	if (m_pUserData->m_bZone == ZONE_SNOW_BATTLE) return;
 
-	int s_temp_gold = 0; int t_temp_gold = 0, i = 0, send_index = 0;
-	BYTE s_type = 0; BYTE t_type = 0;    // 1 -> Get gold    2 -> Lose gold
-
-	char send_buff[256];
-
 	CUser* pTUser = m_pMain->GetUserPtr(tid);
-	if (pTUser == NULL)
+	if (pTUser == NULL || pTUser->m_pUserData->m_iGold <= 0)
 		return;
-	
-	if ( pTUser->m_pUserData->m_iGold <= 0 ) return;
 
-	if (gold == 0) {		// Reward money in battle zone!!!
-		if (!isInParty()) {	// Source is NOT in a party.
-			s_type = 1 ; t_type = 2 ;
-
-			s_temp_gold = (pTUser->m_pUserData->m_iGold * 4) / 10;
-			t_temp_gold = pTUser->m_pUserData->m_iGold / 2;
-
-			m_pUserData->m_iGold += s_temp_gold;
-			pTUser->m_pUserData->m_iGold -= t_temp_gold;			
+	// Reward money in war zone
+	if (gold == 0)
+	{
+		// If we're not in a party, we can distribute cleanly.
+		if (!isInParty())
+		{
+			GoldGain((pTUser->m_pUserData->m_iGold * 4) / 10);
+			pTUser->GoldLose(pTUser->m_pUserData->m_iGold / 2);
+			return;
 		}
-		else {	// When the source is in a party.			
-			_PARTY_GROUP* pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
-			if( !pParty ) return;			
 
-			s_type = 1 ; t_type = 2 ;
+		// Otherwise, if we're in a party, we need to divide it up.
+		_PARTY_GROUP* pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
+		if (pParty == NULL)
+			return;			
 
-			s_temp_gold = (pTUser->m_pUserData->m_iGold * 4) / 10;
-			t_temp_gold = pTUser->m_pUserData->m_iGold / 2;
-			
-			pTUser->m_pUserData->m_iGold -= t_temp_gold;		
+		int userCount = 0, levelSum = 0, temp_gold = (pTUser->m_pUserData->m_iGold * 4) / 10;	
+		pTUser->GoldLose(pTUser->m_pUserData->m_iGold / 2);		
 
-			SetByte( send_buff, WIZ_GOLD_CHANGE, send_index );	// First the victim...
-			SetByte( send_buff, t_type, send_index );
-			SetDWORD( send_buff, t_temp_gold, send_index );
-			SetDWORD( send_buff, pTUser->m_pUserData->m_iGold, send_index );
-			pTUser->Send( send_buff, send_index );	
+		// TO-DO: Clean up the party system. 
+		for (int i = 0; i < 8; i++)
+		{
+			if (pParty->uid[i] == -1)
+				continue;
 
-			int usercount = 0, money = 0, levelsum = 0, count = 0;		// For the loot sharing procedure...
-			count = s_temp_gold ;
-
-			for( i=0; i<8; i++ ) {
-				if( pParty->uid[i] != -1 ) {
-					usercount++;
-					levelsum += pParty->bLevel[i];
-				}
-			}
-
-			if( usercount == 0 ) return;
-
-			for( i=0; i<8; i++ ) {		
-				if( pParty->uid[i] != -1 || pParty->uid[i] >= MAX_USER ) {
-					CUser * pUser = m_pMain->GetUserPtr(pParty->uid[i]);
-					if (pUser == NULL)
-						continue;
-
-					money = (int)(count * (float)(pUser->m_pUserData->m_bLevel / (float)levelsum));
-					pUser->m_pUserData->m_iGold += money;
-
-					send_index = 0;
-					SetByte( send_buff, WIZ_GOLD_CHANGE, send_index );		// Now the party members...
-					SetByte( send_buff, 1, send_index );
-					SetDWORD( send_buff, money, send_index );
-					SetDWORD( send_buff, pUser->m_pUserData->m_iGold, send_index );
-					pUser->Send( send_buff, send_index );
-				}
-			}			
-			return ;
+			userCount++;
+			levelSum += pParty->bLevel[i];
 		}
-	}
-	else {	// When actual values are provided.
-		if (gold > 0 ) {	// Source gains money.
-			s_type = 1; t_type = 2;
-			s_temp_gold = gold; t_temp_gold = gold;
 
-			m_pUserData->m_iGold += s_temp_gold;
-			pTUser->m_pUserData->m_iGold -= t_temp_gold;
-		}
-		else {	// Source loses money.
-			s_type = 2; t_type = 1;
-			s_temp_gold = gold; t_temp_gold = gold;
+		// No users (this should never happen! Needs to be cleaned up...), don't bother with the below loop.
+		if (userCount == 0) 
+			return;
 
-			m_pUserData->m_iGold -= s_temp_gold;
-			pTUser->m_pUserData->m_iGold += t_temp_gold;
-		}
+		for (int i = 0; i < 8; i++)
+		{		
+			CUser * pUser = m_pMain->GetUserPtr(pParty->uid[i]);
+			if (pUser == NULL)
+					continue;
+
+			pUser->GoldGain((int)(temp_gold * (float)(pUser->m_pUserData->m_bLevel / (float)levelSum)));
+		}			
+		return;
 	}
 
-	SetByte( send_buff, WIZ_GOLD_CHANGE, send_index );	// First the source...
-	SetByte( send_buff, s_type, send_index );
-	SetDWORD( send_buff, s_temp_gold, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-	Send( send_buff, send_index );	
+	// Otherwise, use the coin amount provided.
 
-	send_index = 0;
-
-	SetByte( send_buff, WIZ_GOLD_CHANGE, send_index );	// Now the target
-	SetByte( send_buff, t_type, send_index );
-	SetDWORD( send_buff, t_temp_gold, send_index );
-	SetDWORD( send_buff, pTUser->m_pUserData->m_iGold, send_index );
-	pTUser->Send( send_buff, send_index );	
+	// Source gains money
+	if (gold > 0)
+	{
+		GoldGain(gold);
+		pTUser->GoldLose(gold);
+	}
+	// Source loses money
+	else
+	{
+		GoldLose(gold);
+		pTUser->GoldGain(gold);
+	}
 }
 
 void CUser::SelectWarpList(char *pBuf)
