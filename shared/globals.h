@@ -1,6 +1,4 @@
 ﻿#pragma once
-#ifndef __GLOBALS_H
-#define __GLOBALS_H
 
 #include "version.h"
 #include "packets.h"
@@ -78,6 +76,19 @@ const int ITEMCOUNT_MAX		= 999;
 #define SMQ_LOGGERRECV	"KNIGHT_RECV"
 
 #define SMQ_ITEMLOGGER	"ITEMLOG_SEND"
+
+#define NEWCHAR_SUCCESS						uint8(0)
+#define NEWCHAR_NO_MORE						uint8(1)
+#define NEWCHAR_INVALID_DETAILS				uint8(2)
+#define NEWCHAR_EXISTS						uint8(3)
+#define NEWCHAR_DB_ERROR					uint8(4)
+#define NEWCHAR_INVALID_NAME				uint8(5)
+#define NEWCHAR_BAD_NAME					uint8(6)
+#define NEWCHAR_INVALID_RACE				uint8(7)
+#define NEWCHAR_NOT_SUPPORTED_RACE			uint8(8)
+#define NEWCHAR_INVALID_CLASS				uint8(9)
+#define NEWCHAR_POINTS_REMAINING			uint8(10)
+#define NEWCHAR_STAT_TOO_LOW				uint8(11)
 
 struct	_ITEM_DATA
 {
@@ -451,5 +462,4 @@ inline float TimeGet()
 
 	return (float)timeGetTime();
 };
-#endif
 #endif

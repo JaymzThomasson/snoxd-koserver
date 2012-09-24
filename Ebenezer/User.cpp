@@ -3226,7 +3226,7 @@ void CUser::AllSkillPointChange()
 	// Reset skill points.
 	m_pUserData->m_bstrSkill[0] = (getLevel() - 9) * 2;
 	for (int i = 1; i < 9; i++)	
-		m_pUserData->m_bstrSkill[j] = 0;
+		m_pUserData->m_bstrSkill[i] = 0;
 
 	// Take coins.
 	m_pUserData->m_iGold = money;

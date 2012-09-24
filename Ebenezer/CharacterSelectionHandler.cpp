@@ -4,17 +4,16 @@
 
 void CUser::NewCharToAgent(char *pBuf)
 {
-	int index = 0, send_index = 0, retvalue = 0;
-	int charindex = 0, race = 0, Class = 0, hair = 0, face = 0, str = 0, sta = 0, dex = 0, intel = 0, cha = 0;
-	char charid[MAX_ID_SIZE+1], send_buff[256];
-	BYTE result;
-	int sum = 0;
-	_CLASS_COEFFICIENT* p_TableCoefficient = NULL;
+	Packet result(WIZ_NEW_CHAR);
+	int index = 0, hair;
+	uint16 Class;
+	uint8 charindex, race, face, str, sta, dex, intel, cha, errorCode;
+	char charid[MAX_ID_SIZE+1];
 
 	charindex = GetByte( pBuf, index );
 	if (!GetKOString(pBuf, charid, index, MAX_ID_SIZE))
 	{
-		result = 0x05;
+		errorCode = NEWCHAR_INVALID_NAME;
 		goto fail_return;
 	}
 
@@ -30,96 +29,78 @@ void CUser::NewCharToAgent(char *pBuf)
 	intel = GetByte( pBuf, index );
 	cha = GetByte( pBuf, index );
 
-	if( charindex > 4 || charindex < 0 ) {
-		result = 0x01;
+	if (charindex > 2)
+	{
+		errorCode = NEWCHAR_NO_MORE;
 		goto fail_return;
 	}
 
-	if( !IsValidName( charid ) ) {
-		result = 0x05;
+	if (!IsValidName(charid))
+	{
+		result = NEWCHAR_INVALID_NAME;
 		goto fail_return;
 	}
 
-	p_TableCoefficient = m_pMain->m_CoefficientArray.GetData( Class );
-	if( !p_TableCoefficient ) {
-		result = 0x02;
+	_CLASS_COEFFICIENT* p_TableCoefficient = m_pMain->m_CoefficientArray.GetData(Class);
+	if (p_TableCoefficient == NULL
+		|| (str + sta + dex + intel + cha) > 300) 
+	{
+		errorCode = NEWCHAR_INVALID_DETAILS;
 		goto fail_return;
 	}
 
-	sum = str + sta + dex + intel + cha;
-	if( sum > 300 ) {
-		result = 0x02;
-		goto fail_return;
-	}
-
-	if (str < 50 || sta < 50 || dex < 50 || intel < 50 || cha < 50) {
-		result = 0x11;
+	if (str < 50 || sta < 50 || dex < 50 || intel < 50 || cha < 50) 
+	{
+		errorCode = NEWCHAR_STAT_TOO_LOW;
 		goto fail_return;		
 	}
 
-	SetByte( send_buff, WIZ_NEW_CHAR, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetKOString( send_buff, m_strAccountID, send_index );
-	SetByte( send_buff, charindex, send_index );
-	SetKOString(send_buff, charid, send_index);
-	SetByte( send_buff, race, send_index );
-	SetShort( send_buff, Class, send_index );
-	SetByte( send_buff, face, send_index );
-	SetDWORD( send_buff, hair, send_index );
-	SetByte( send_buff, str, send_index );
-	SetByte( send_buff, sta, send_index );
-	SetByte( send_buff, dex, send_index );
-	SetByte( send_buff, intel, send_index );
-	SetByte( send_buff, cha, send_index );
+	// Send packet to Aujard
+	result	<< uint16(GetSocketID())
+			<< m_strAccountID
+			<< charindex << charid << race << Class << face << hair
+			<< str << sta << dex << intel << cha;
 	
-	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if (retvalue < SMQ_FULL)
+	int retValue = m_pMain->m_LoggerSendQueue.PutData(&result);
+	if (retValue < SMQ_FULL)
 		return;
 
-	DEBUG_LOG("NewChar Send Fail : %d", retvalue);
+	DEBUG_LOG("NewChar Send Fail : %d", retValue);
 
 fail_return:
-	send_index = 0;
-	SetByte( send_buff, WIZ_NEW_CHAR, send_index );
-	SetByte( send_buff, result, send_index );
-	Send( send_buff, send_index );
+	result << errorCode;
+	Send(&result);
 }
 
 void CUser::DelCharToAgent(char *pBuf)
 {
-	int index = 0, send_index = 0, retvalue = 0, charindex = 0;
-	char charid[MAX_ID_SIZE+1], socno[15], send_buff[256];
+	Packet result(WIZ_DEL_CHAR);
+	int index = 0;
+	char charid[MAX_ID_SIZE+1], socno[15];
 
-	charindex = GetByte( pBuf, index );
+	uint8 charindex = GetByte( pBuf, index );
 	if (charindex > 2
 		|| !GetKOString(pBuf, charid, index, MAX_ID_SIZE)
 		|| !GetKOString(pBuf, socno, index, sizeof(socno) - 1))
 		goto fail_return;
 
-	if( m_pUserData->m_bKnights > 0 && m_pUserData->m_bFame == CHIEF)	goto fail_return;	
+	if (isClanLeader())	
+		goto fail_return;	
 
-	SetByte( send_buff, WIZ_DEL_CHAR, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetKOString( send_buff, m_strAccountID, send_index );
-	SetByte( send_buff, charindex, send_index );
-	SetKOString(send_buff, charid, send_index);
-	SetKOString(send_buff, socno, send_index);
+	// Send packet to Aujard
+	result	<< uint16(GetSocketID())
+			<< m_strAccountID << charindex << charid << socno;
 
-	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if (retvalue < SMQ_FULL)
+	int retValue = m_pMain->m_LoggerSendQueue.PutData(&result);
+	if (retValue < SMQ_FULL)
 		return;
 
-	DEBUG_LOG("DelChar Send Fail : %d", retvalue);
+	DEBUG_LOG("DelChar Send Fail : %d", retValue);
 
 fail_return:
-	send_index = 0;
-	SetByte( send_buff, WIZ_DEL_CHAR, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	SetByte( send_buff, 0xFF, send_index );
-	Send( send_buff, send_index );
+	result << uint8(0) << uint8(-1);
+	Send(&result);
 }
-
-
 
 void CUser::RecvDeleteChar( char* pBuf )
 {
@@ -253,12 +234,7 @@ void CUser::SelectCharacter(char *pBuf)
 		if( !pInfo ) 
 			goto fail_return;
 
-		SetByte( send_buff, WIZ_SERVER_CHANGE, send_index );
-		SetKOString(send_buff, pInfo->strServerIP, send_index);
-		SetByte( send_buff, bInit, send_index );
-		SetByte( send_buff, m_pUserData->m_bZone, send_index );
-		SetByte( send_buff, m_pMain->m_byOldVictory, send_index );
-		Send( send_buff, send_index );
+		SendServerChange(pInfo->strServerIP, bInit);
 		return;
 	}
 
@@ -370,6 +346,13 @@ fail_return:
 	SetByte( send_buff, WIZ_SEL_CHAR, send_index );
 	SetByte( send_buff, 0x00, send_index );
 	Send( send_buff, send_index );
+}
+
+void CUser::SendServerChange(char *ip, uint8 bInit)
+{
+	Packet result(WIZ_SERVER_CHANGE);
+	result << ip << uint16(_LISTEN_PORT) << bInit << getZoneID() << m_pMain->m_byOldVictory;
+	Send(&result);
 }
 
 void CUser::AllCharInfoToAgent()

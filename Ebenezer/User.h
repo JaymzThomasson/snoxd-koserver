@@ -205,6 +205,8 @@ public:
 
 	__forceinline bool isInParty() { return m_sPartyIndex != -1; };
 	__forceinline bool isInClan() { return m_pUserData->m_bKnights != -1; };
+	__forceinline bool isClanLeader() { return isInClan() && getFame() == CHIEF; };
+
 	__forceinline bool isTrading() { return m_sExchangeUser != -1; };
 	__forceinline bool isStoreOpen() { return m_bStoreOpen; };
 
@@ -212,6 +214,8 @@ public:
 	__forceinline BYTE getLevel() { return m_pUserData->m_bLevel; };
 	__forceinline BYTE getZoneID() { return m_pUserData->m_bZone; };
 	__forceinline BYTE getAuthority() { return m_pUserData->m_bAuthority; };
+	__forceinline BYTE getFame() { return m_pUserData->m_bFame; };
+
 	__forceinline C3DMap * GetMap() { return m_pMap; };
 
 	__forceinline uint16 GetSPosX() { return uint16(m_pUserData->m_curx * 10); };
@@ -403,6 +407,7 @@ public:
 	void SelCharToAgent( char* pBuf );
 	void SendMyInfo();
 	void SelectCharacter( char* pBuf );
+	void SendServerChange(char *ip, uint8 bInit);
 	void Send2AI_UserUpdateInfo(bool initialInfo = false);
 	void Attack( char* pBuf );
 	void UserInOut( BYTE Type );
