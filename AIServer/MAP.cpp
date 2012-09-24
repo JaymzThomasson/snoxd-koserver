@@ -38,6 +38,7 @@ MAP::MAP()
 	m_sizeMap.cy = 0;
 
 	m_ppRegion = NULL;
+	m_pMap = NULL;
 	//m_pRoomEvent = NULL;
 	m_nZoneNumber = 0;
 	m_byRoomType = 0;
@@ -85,12 +86,8 @@ void MAP::RemoveMapData()
 		m_pMap = NULL;
 	}
 
-	if( !m_ObjectEventArray.IsEmpty() )
-		m_ObjectEventArray.DeleteAllData();
-	if( !m_arRoomEventArray.IsEmpty() )
-		m_arRoomEventArray.DeleteAllData();
-
-	DeleteCriticalSection( &g_region_critical );
+	m_ObjectEventArray.DeleteAllData();
+	m_arRoomEventArray.DeleteAllData();
 }
 
 BOOL MAP::IsMovable(int dest_x, int dest_y)
@@ -141,8 +138,6 @@ BOOL MAP::LoadMap(HANDLE hFile)
 
 	LoadObjectEvent(hFile);
 	LoadMapTile(hFile);
-
-	InitializeCriticalSection( &g_region_critical );
 
 	return TRUE;
 }
@@ -484,7 +479,7 @@ BOOL MAP::LoadRoomEvent( int zone_number )
 				logic = 0; exec = 0;
 				t_index += ParseSpace( temp, buf + t_index );	event_num = atoi( temp );
 
-				if( m_arRoomEventArray.GetData(event_num) )	{
+				if( m_arRoomEventArray.IsExist(event_num) )	{
 					TRACE("Event Double !!\n" );
 					goto cancel_event_load;
 				}

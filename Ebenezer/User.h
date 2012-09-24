@@ -311,7 +311,7 @@ public:
 	void LoyaltyDivide( short tid );
 	void UserDataSaveToAgent();
 	void CountConcurrentUser();
-	void SendUserInfo(char *temp_send, int &index);
+	void SendUserInfo(Packet & result);
 	void ChatTargetSelect( char* pBuf );
 	BOOL ItemEquipAvailable( _ITEM_TABLE* pTable );
 	void ClassChange( char* pBuf );

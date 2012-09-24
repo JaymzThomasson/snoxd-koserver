@@ -172,6 +172,7 @@ BOOL CServerDlg::OnInitDialog()
 	SetTimer( CHECK_ALIVE, 10000, NULL );
 	srand( (unsigned)time(NULL) );
 
+	InitializeCriticalSection( &g_region_critical );
 	InitializeCriticalSection( &g_User_critical );
 	InitializeCriticalSection( &g_LogFileWrite );
 	m_sSocketCount = 0;
@@ -289,7 +290,8 @@ BOOL CServerDlg::OnInitDialog()
 	//	Load Zone & Event...
 	//----------------------------------------------------------------------
 	if( !MapFileLoad() )	{
-		AfxPostQuitMessage(0);
+		EndDialog(IDCANCEL);
+		return FALSE;
 	}
 
 	//----------------------------------------------------------------------
@@ -1285,6 +1287,7 @@ BOOL CServerDlg::DestroyWindow()
 
 	m_ZoneNpcList.clear();
 
+	DeleteCriticalSection( &g_region_critical );
 	DeleteCriticalSection( &g_User_critical );
 	DeleteCriticalSection( &g_LogFileWrite );
 
@@ -1339,7 +1342,7 @@ BOOL CServerDlg::MapFileLoad()
 			|| !pMap->LoadMap((HANDLE)file.m_hFile))
 		{
 			AfxMessageBox("Unable to load SMD - " + szFullPath);
-			g_arZone.DeleteData(itr->first);
+			g_arZone.DeleteAllData();
 			m_sTotalMap = 0;
 			return FALSE;
 		}
@@ -1349,7 +1352,7 @@ BOOL CServerDlg::MapFileLoad()
 		{
 			if (!pMap->LoadRoomEvent(pMap->m_byRoomEvent))
 			{
-				AfxMessageBox("Unable to load room event for map - %s" + szFullPath);
+				AfxMessageBox("Unable to load room event for map - " + szFullPath);
 				pMap->m_byRoomEvent = 0;
 			}
 			else
@@ -1531,8 +1534,7 @@ void CServerDlg::DeleteAllUserList(int zone)
 				continue;
 			for (int i=0; i<pMap->m_sizeRegion.cx; i++ ) {
 				for( int j=0; j<pMap->m_sizeRegion.cy; j++ ) {
-					if( !pMap->m_ppRegion[i][j].m_RegionUserArray.IsEmpty() )
-						pMap->m_ppRegion[i][j].m_RegionUserArray.DeleteAllData();
+					pMap->m_ppRegion[i][j].m_RegionUserArray.DeleteAllData();
 				}
 			}
 		}
@@ -1550,8 +1552,7 @@ void CServerDlg::DeleteAllUserList(int zone)
 		LeaveCriticalSection( &g_User_critical );
 
 		// Party Array Delete 
-		if( !m_arParty.IsEmpty() )
-			m_arParty.DeleteAllData();
+		m_arParty.DeleteAllData();
 
 		m_bFirstServerFlag = FALSE;
 		TRACE("*** DeleteAllUserList - End *** \n");

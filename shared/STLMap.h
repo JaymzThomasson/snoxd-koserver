@@ -13,37 +13,40 @@ public:
 	std::map<long, T*> m_UserTypeMap;
 	
 	int GetSize() { return m_UserTypeMap.size(); };
-	bool IsExist(long key_value) { return (m_UserTypeMap.find(key_value) != m_UserTypeMap.end()) };
+	bool IsExist(int key_value)  { return (m_UserTypeMap.find(key_value) != m_UserTypeMap.end()); };
+
 	bool IsEmpty() { return m_UserTypeMap.empty(); };
 	bool PutData(long key_value, T* pData) { return m_UserTypeMap.insert(std::make_pair(key_value, pData)).second; };
 
 	T* GetData(long key_value)
 	{
-		Iterator iter = m_UserTypeMap.find(key_value);
-		if (iter == m_UserTypeMap.end())
-			return NULL;
-
-		return (*iter).second;
+		T *result = NULL;
+		auto itr = m_UserTypeMap.find(key_value);
+		if (itr != m_UserTypeMap.end())
+			result = itr->second;
+		return result;
 	};
 
-	Iterator DeleteData(long key_value)
+	void DeleteData(long key_value)
 	{
-		Iterator iter = m_UserTypeMap.find(key_value);
-		if (iter == m_UserTypeMap.end())
-			return m_UserTypeMap.end();
-
-		delete (*iter).second;
-		return m_UserTypeMap.erase(iter);
+		auto itr = m_UserTypeMap.find(key_value);
+		if (itr!= m_UserTypeMap.end())
+		{
+			delete itr->second;
+			m_UserTypeMap.erase(itr);
+		}
 	};
 
 	void DeleteAllData()
 	{
+		if (IsEmpty())
+			return;
+
 		foreach (itr, m_UserTypeMap)
 			delete itr->second;
-
-		Clear();
+		m_UserTypeMap.clear();
 	};
 
-	void Clear() { m_UserTypeMap.clear(); };
 	~CSTLMap() { DeleteAllData(); };
+
 };

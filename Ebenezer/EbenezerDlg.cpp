@@ -303,6 +303,7 @@ BOOL CEbenezerDlg::OnInitDialog()
 	m_LogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
 	m_LogFile.SeekToEnd();
 
+	InitializeCriticalSection( &g_region_critical );
 	InitializeCriticalSection( &g_LogFile_critical );
 	InitializeCriticalSection( &g_serial_critical );
 
@@ -545,6 +546,7 @@ BOOL CEbenezerDlg::DestroyWindow()
 	if (m_RegionLogFile.m_hFile != CFile::hFileNull) m_RegionLogFile.Close();
 	if (m_LogFile.m_hFile != CFile::hFileNull) m_LogFile.Close();
 
+	DeleteCriticalSection(&g_region_critical);
 	DeleteCriticalSection(&g_LogFile_critical);
 	DeleteCriticalSection(&g_serial_critical);
 	
@@ -802,11 +804,7 @@ BOOL CEbenezerDlg::AIServerConnect()
 
 BOOL CEbenezerDlg::AISocketConnect(int zone, int flag)
 {
-	CAISocket* pAISock = NULL;
-	int send_index = 0;
-	char pBuf[128];
-
-	pAISock = m_AISocketArray.GetData( zone );
+	CAISocket* pAISock = m_AISocketArray.GetData( zone );
 	if( pAISock ) {
 		if( pAISock->GetState() != STATE_DISCONNECTED )
 			return TRUE;
@@ -821,15 +819,9 @@ BOOL CEbenezerDlg::AISocketConnect(int zone, int flag)
 		return FALSE;
 	}
 
-	SetByte(pBuf, AI_SERVER_CONNECT, send_index);
-	SetByte(pBuf, zone, send_index);
-	if(flag == 1)	SetByte(pBuf, 1, send_index);			// 재접속
-	else			SetByte(pBuf, 0, send_index);			// 처음 접속..
-	pAISock->Send(pBuf, send_index);
-
-	// 해야할일 :이 부분 처리.....
-	//SendAllUserInfo();
-	//m_sSocketCount = zone;
+	Packet result(AI_SERVER_CONNECT, uint8(zone));
+	result << uint8(flag == 1 ? 1 : 0);
+	pAISock->Send(&result);
 	m_AISocketArray.PutData( zone, pAISock );
 
 	TRACE("**** AISocket Connect Success!! ,, zone = %d ****\n", zone);
@@ -846,6 +838,18 @@ void CEbenezerDlg::Send_All(char *pBuf, int len, CUser* pExceptUser, int nation 
 			continue;
 
 		pUser->Send(pBuf, len);
+	}
+}
+
+void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 nation /*= 0*/)
+{
+	for (int i = 0; i < MAX_USER; i++)
+	{
+		CUser * pUser = GetUnsafeUserPtr(i);
+		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART || (nation != 0 && nation != pUser->getNation()))
+			continue;
+
+		pUser->Send(pkt);
 	}
 }
 
@@ -1943,19 +1947,13 @@ BOOL CEbenezerDlg::LoadBlockNameList()
 
 void CEbenezerDlg::SendAllUserInfo()
 {
-	int send_index = 0;
-	char send_buff[2048];		::ZeroMemory(send_buff, sizeof(send_buff));
+	Packet result(AG_SERVER_INFO, uint8(SERVER_INFO_START));
+	uint8 count = 0;
+	Send_AIServer(&result);
 
-	SetByte(send_buff, AG_SERVER_INFO, send_index );
-	SetByte(send_buff, SERVER_INFO_START, send_index );
-	Send_AIServer(send_buff, send_index );
-
-	int count = 0;
-	send_index = 2;
-	::ZeroMemory(send_buff, sizeof(send_buff));
-	int send_count = 0;
-	int send_tot = 0;
-	int tot = 20;
+	result.Initialize(AG_USER_INFO_ALL);
+	result << uint8(0); // placeholder for user count
+	const int tot = 20;
 
 	for (int i = 0; i < MAX_USER; i++)
 	{
@@ -1963,60 +1961,44 @@ void CEbenezerDlg::SendAllUserInfo()
 		if (pUser == NULL)
 			continue;
 
-		pUser->SendUserInfo(send_buff, send_index);
-		count++;
-		if(count == tot)	{
-			SetByte(send_buff, AG_USER_INFO_ALL, send_count );
-			SetByte(send_buff, (BYTE)count, send_count );
-			Send_AIServer(send_buff, send_index);
-			send_index = 2;
-			send_count = 0;
+		pUser->SendUserInfo(result);
+		if (++count == tot)	{
+			result.put(0, count);
+			Send_AIServer(&result);
 			count = 0;
-			send_tot++;
-			::ZeroMemory(send_buff, sizeof(send_buff));
+			result.clear();
 		}
 	}	
 
-	if(count != 0 && count < (tot-1) )	{
-		send_count = 0;
-		SetByte(send_buff, AG_USER_INFO_ALL, send_count );
-		SetByte(send_buff, (BYTE)count, send_count );
-		Send_AIServer(send_buff, send_index );
-		send_tot++;
-		//TRACE("AllNpcInfo - send_count=%d, count=%d\n", send_tot, count);
-		//Sleep(1);
+	if (count != 0 && count < (tot - 1))
+	{
+		result.put(0, count);
+		Send_AIServer(&result);
+		count = 0;
+		result.clear();
 	}
 
-	// 파티에 대한 정보도 보내도록 한다....
-	_PARTY_GROUP* pParty = NULL;
-	
 	EnterCriticalSection( &g_region_critical );
 
-	for(int i=0; i<m_PartyArray.GetSize(); i++)	{
-		pParty = m_PartyArray.GetData( i );
-		if( !pParty ) return;
-		send_index = 0;
-		::ZeroMemory(send_buff, sizeof(send_buff));
-		SetByte(send_buff, AG_PARTY_INFO_ALL, send_index );
-		SetShort(send_buff, i, send_index );					// 파티 번호
-		//if( i == pParty->wIndex )
-		for( int j=0; j<8; j++ ) {
-			SetShort(send_buff, pParty->uid[j], send_index );				// 유저 번호
-			//SetShort(send_buff, pParty->sHp[j], send_index );				// HP
-			//SetByte(send_buff, pParty->bLevel[j], send_index );				// Level
-			//SetShort(send_buff, pParty->sClass[j], send_index );			// Class
-		}
+	foreach_stlmap (itr, m_PartyArray)
+	{
+		_PARTY_GROUP *pParty = itr->second;
+		if (pParty == NULL) 
+			continue;
 
-		Send_AIServer(send_buff, send_index );
+		result.Initialize(AG_PARTY_INFO_ALL);
+		result << uint16(itr->first);
+		for (int i = 0; i < 8; i++)
+			result << uint16(pParty->uid[i]);
+
+		Send_AIServer(&result);
 	}
 
 	LeaveCriticalSection( &g_region_critical );
 
-	send_index = 0;
-	::ZeroMemory(send_buff, sizeof(send_buff));
-	SetByte(send_buff, AG_SERVER_INFO, send_index );
-	SetByte(send_buff, SERVER_INFO_END, send_index );
-	Send_AIServer(send_buff, send_index );
+	result.Initialize(AG_SERVER_INFO);
+	result << uint8(SERVER_INFO_END);
+	Send_AIServer(&result);
 
 	TRACE("** SendAllUserInfo() **\n");
 }
@@ -2044,16 +2026,12 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 		for (int i = 0; i < pMap->GetXRegionMax(); i++)
 		{
 			for (int j = 0; j<pMap->GetZRegionMax(); j++)
-			{
-				if (!pMap->m_ppRegion[i][j].m_RegionNpcArray.IsEmpty())
-					pMap->m_ppRegion[i][j].m_RegionNpcArray.DeleteAllData();
-			}
+				pMap->m_ppRegion[i][j].m_RegionNpcArray.DeleteAllData();
 		}
 	}
 
 	// Npc Array Delete
-	if (!m_arNpcArray.IsEmpty())
-		m_arNpcArray.DeleteAllData();
+	m_arNpcArray.DeleteAllData();
 
 	m_bServerCheckFlag = FALSE;
 
@@ -2561,6 +2539,16 @@ void CEbenezerDlg::Send_UDP_All( char* pBuf, int len, int group_type )
 	{
 		if (itr->second && itr->second->sServerNo == server_number)
 			m_pUdpSocket->SendUDPPacket(itr->second->strServerIP, pBuf, len);
+	}
+}
+
+void CEbenezerDlg::Send_UDP_All(Packet *pkt, int group_type /*= 0*/)
+{
+	int server_number = (group_type == 0 ? m_nServerNo : m_nServerGroupNo);
+	foreach_stlmap (itr, (group_type == 0 ? m_ServerArray : m_ServerGroupArray))
+	{
+		if (itr->second && itr->second->sServerNo == server_number)
+			m_pUdpSocket->SendUDPPacket(itr->second->strServerIP, pkt);
 	}
 }
 

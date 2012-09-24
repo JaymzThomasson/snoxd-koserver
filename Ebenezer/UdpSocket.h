@@ -23,7 +23,8 @@ public:
 	void ServerChat( char* pBuf );
 	void Parsing( char* pBuf, int len );
 	bool PacketProcess(int len);
-	int  SendUDPPacket(char* strAddress, char* pBuf, int len);
+	int  SendUDPPacket(char* strAddress, char* pBuf, int len); // PENDING DEPRECATION
+	int SendUDPPacket(char* strAddress, Packet *pkt);
 	bool CreateSocket();
 	CUdpSocket(CEbenezerDlg* pMain=NULL);
 	virtual ~CUdpSocket();

@@ -1998,53 +1998,39 @@ fail_return:
 
 void CUser::UpdateGameWeather(char *pBuf, BYTE type)
 {
-	int index = 0, send_index = 0, year = 0, month = 0, date = 0;
-	char send_buff[128];
-
-	if( m_pUserData->m_bAuthority != 0 )	// is this user administrator?
+	Packet result(type);
+	int index = 0;
+	if (m_pUserData->m_bAuthority != 0)	// is this user a GM?
 		return;
 
-	if( type == WIZ_WEATHER ) {
+	if (type == WIZ_WEATHER)
+	{
 		m_pMain->m_nWeather = GetByte( pBuf, index );
 		m_pMain->m_nAmount = GetShort( pBuf, index );
-
-		SetByte( send_buff, WIZ_WEATHER, send_index );
-		SetByte( send_buff, (BYTE)m_pMain->m_nWeather, send_index );
-		SetShort( send_buff, m_pMain->m_nAmount, send_index );
-		m_pMain->Send_All( send_buff, send_index );
+		result.append(pBuf, 4); // copy the packet
 	}
-	else if( type == WIZ_TIME ) {
-		year = GetShort( pBuf, index );
-		month = GetShort( pBuf, index );
-		date = GetShort( pBuf, index );
+	else
+	{
+		short year = GetShort( pBuf, index ),
+			month = GetShort( pBuf, index ),
+			date = GetShort( pBuf, index );
 		m_pMain->m_nHour = GetShort( pBuf, index );
 		m_pMain->m_nMin = GetShort( pBuf, index );
-
-		SetByte( send_buff, WIZ_TIME, send_index );
-		SetShort( send_buff, year, send_index );
-		SetShort( send_buff, month, send_index );
-		SetShort( send_buff, date, send_index );
-		SetShort( send_buff, m_pMain->m_nHour, send_index );
-		SetShort( send_buff, m_pMain->m_nMin, send_index );
-		m_pMain->Send_All( send_buff, send_index );
+		result.append(pBuf, 10); // copy the packet
 	}
+	Send(&result);
 }
 
-void CUser::SendUserInfo(char *temp_send, int &index)
+void CUser::SendUserInfo(Packet & result)
 {
-	SetShort( temp_send, m_Sid, index );
-	SetKOString(temp_send, m_pUserData->m_id, index);
-	SetByte( temp_send, m_pUserData->m_bZone, index );
-	SetByte( temp_send, m_pUserData->m_bNation, index );
-	SetByte( temp_send, m_pUserData->m_bLevel, index );
-	SetShort( temp_send, m_pUserData->m_sHp, index );
-	SetShort( temp_send, m_pUserData->m_sMp, index );
-	SetShort( temp_send, m_sTotalHit * m_bAttackAmount / 100, index );    // g??
-	SetShort( temp_send, m_sTotalAc + m_sACAmount , index );	// g??
-	Setfloat( temp_send, m_sTotalHitrate, index );
-	Setfloat( temp_send, m_sTotalEvasionrate, index );
-	SetShort( temp_send, m_sPartyIndex, index );
-	SetByte( temp_send, m_pUserData->m_bAuthority, index );
+	result.DByte(); // string is double byte
+	result	<< uint16(GetSocketID())
+			<< m_pUserData->m_id << getZoneID() << getNation() << getLevel()
+			<< m_pUserData->m_sHp << m_pUserData->m_sMp 
+			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
+			<< uint16(m_sTotalAc + m_sACAmount)
+			<< m_sTotalHitrate << m_sTotalEvasionrate
+			<< m_sPartyIndex << m_pUserData->m_bAuthority;
 }
 
 void CUser::CountConcurrentUser()

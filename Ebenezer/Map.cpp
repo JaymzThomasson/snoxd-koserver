@@ -70,7 +70,6 @@ C3DMap::~C3DMap()
 		m_ppnEvent = NULL;
 	}
 
-	DeleteCriticalSection( &g_region_critical );
 }
 
 BOOL C3DMap::LoadMap(HANDLE hFile)
@@ -114,8 +113,6 @@ BOOL C3DMap::LoadMap(HANDLE hFile)
 		AfxMessageBox("Event Load Fail!!");
 //		return FALSE;
 	}
-
-	InitializeCriticalSection( &g_region_critical );
 
 	return TRUE;
 }
