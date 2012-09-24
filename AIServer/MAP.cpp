@@ -654,14 +654,13 @@ int MAP::IsRoomCheck(float fx, float fz)
 
 CRoomEvent* MAP::SetRoomEvent( int number )
 {
-	CRoomEvent* pEvent = NULL;
-	pEvent = m_arRoomEventArray.GetData( number );
+	CRoomEvent* pEvent = m_arRoomEventArray.GetData( number );
 	if( pEvent )	{
 		TRACE("#### SetRoom Error : double event number = %d ####\n", number);
 		return NULL;
 	}
 
-	pEvent = new CRoomEvent;
+	pEvent = new CRoomEvent();
 	pEvent->m_iZoneNumber = m_nZoneNumber;
 	pEvent->m_sRoomNumber = number;
 	if( !m_arRoomEventArray.PutData( pEvent->m_sRoomNumber, pEvent) ) {
@@ -675,20 +674,20 @@ CRoomEvent* MAP::SetRoomEvent( int number )
 
 BOOL MAP::IsRoomStatusCheck()
 {
-	CRoomEvent* pRoom = NULL;
-	int nTotalRoom = m_arRoomEventArray.GetSize()+1;
 	int nClearRoom = 1;
+	int nTotalRoom = m_arRoomEventArray.GetSize() + 1;
 
 	if( m_byRoomStatus == 2 )	{	// 방을 초기화중
 		m_byInitRoomCount++;
 	}
 
-	for(int i=1; i<nTotalRoom; i++)	{
-		pRoom = m_arRoomEventArray.GetData( i );
-		if( !pRoom )	{
-			TRACE("#### IsRoomStatusCheck Error : room empty number = %d ####\n", i);
+	foreach_stlmap (itr, m_arRoomEventArray)
+	{
+		CRoomEvent *pRoom = itr->second;
+		if (pRoom == NULL)
+		{
+			TRACE("#### IsRoomStatusCheck Error : room empty number = %d ####\n", itr->first);
 			continue;
-			//return NULL;
 		}
 
 		if( m_byRoomStatus == 1)	{	// 방 진행중
@@ -724,13 +723,12 @@ BOOL MAP::IsRoomStatusCheck()
 
 void MAP::InitializeRoom()
 {
-	CRoomEvent* pRoom = NULL;
-	int nTotalRoom = m_arRoomEventArray.GetSize()+1;
-
-	for(int i=1; i<nTotalRoom; i++)	{
-		pRoom = m_arRoomEventArray.GetData( i );
-		if( !pRoom )	{
-			TRACE("#### InitializeRoom Error : room empty number = %d ####\n", i);
+	foreach_stlmap (itr, m_arRoomEventArray)
+	{
+		CRoomEvent *pRoom = itr->second;
+		if (pRoom == NULL)
+		{
+			TRACE("#### InitializeRoom Error : room empty number = %d ####\n", itr->first);
 			continue;
 		}
 
