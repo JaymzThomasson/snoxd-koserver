@@ -1257,9 +1257,9 @@ BOOL CServerDlg::DestroyWindow()
 	if(m_ItemLogFile.m_hFile != CFile::hFileNull) m_ItemLogFile.Close();
 
 	foreach (itr, m_arNpcThread)
-		WaitForSingleObject((*itr)->m_pThread->m_hThread, INFINITE);
+		WaitForSingleObject((*itr)->m_pThread->m_hThread, 1000);
 
-	WaitForSingleObject(m_pZoneEventThread, INFINITE);
+	WaitForSingleObject(m_pZoneEventThread, 1000);
 
 	// NpcThread Array Delete
 	foreach (itr, m_arNpcThread)
