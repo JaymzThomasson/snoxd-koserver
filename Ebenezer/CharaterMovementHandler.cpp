@@ -139,7 +139,7 @@ void CUser::GetUserInfo(char *buff, int & buff_index)
 	}
 	else 
 	{
-		SetCString(buff, pKnights->m_strName, buff_index);
+		SetKOString(buff, pKnights->m_strName, buff_index);
 		SetByte(buff, pKnights->m_byGrade, buff_index);  // knights grade
 		SetByte(buff, pKnights->m_byRanking, buff_index);  // knights grade
 	}	

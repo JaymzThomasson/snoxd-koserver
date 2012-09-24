@@ -229,7 +229,7 @@ void CKnightsManager::JoinKnights(CUser *pUser, char *pBuf)
 	SetByte( send_buff, 0x01, send_index );
 	SetShort( send_buff, pUser->GetSocketID(), send_index );
 	SetShort( send_buff, knightsindex, send_index );
-	SetCString( send_buff, pKnights->m_strName, send_index );
+	SetKOString( send_buff, pKnights->m_strName, send_index );
 	pTUser->Send( send_buff, send_index );
 
 	return;
@@ -521,9 +521,9 @@ void CKnightsManager::AllKnightsList(CUser *pUser, char* pBuf)
 			continue;
 
 		SetShort( temp_buff, pKnights->m_sIndex, buff_index );
-		SetCString( temp_buff, pKnights->m_strName, buff_index );
+		SetKOString( temp_buff, pKnights->m_strName, buff_index );
 		SetShort( temp_buff, pKnights->m_sMembers, buff_index );
-		SetCString( temp_buff, pKnights->m_strChief, buff_index );
+		SetKOString( temp_buff, pKnights->m_strChief, buff_index );
 		SetDWORD( temp_buff, pKnights->m_nPoints, buff_index );
 		if (count >= start + 10)
 			break;
@@ -649,7 +649,7 @@ void CKnightsManager::CurrentKnightsMember(CUser *pUser, char* pBuf)
 	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
 	SetByte( send_buff, KNIGHTS_CURRENT_REQ, send_index );
 	SetByte( send_buff, 0x01, send_index );
-	SetCString( send_buff, pKnights->m_strChief, send_index );
+	SetKOString( send_buff, pKnights->m_strChief, send_index );
 	SetShort( send_buff, page, send_index );
 	SetShort( send_buff, count-start, send_index );
 	SetString( send_buff, temp_buff, buff_index, send_index );
@@ -832,7 +832,7 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, char* pBuf, BYTE command)
 	SetShort( send_buff, pUser->m_pUserData->m_bKnights, send_index );
 	SetByte( send_buff, pUser->m_pUserData->m_bFame, send_index );
 	if( pKnights )	{
-		SetCString( send_buff, pKnights->m_strName, send_index );
+		SetKOString( send_buff, pKnights->m_strName, send_index );
 		SetByte( send_buff, pKnights->m_byGrade, send_index );  // knights grade
 		SetByte( send_buff, pKnights->m_byRanking, send_index );  // knights grade
 	}

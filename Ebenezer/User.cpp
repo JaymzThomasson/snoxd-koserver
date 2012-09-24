@@ -2799,7 +2799,7 @@ void CUser::SendAllKnightsID()
 		if( !pKnights ) continue;
 		//if( pKnights->bFlag != KNIGHTS_TYPE ) continue;
 		SetShort( temp_buff, pKnights->m_sIndex, buff_index );
-		SetCString(temp_buff, pKnights->m_strName, buff_index);
+		SetKOString(temp_buff, pKnights->m_strName, buff_index);
 		count++;
 	}
 
