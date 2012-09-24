@@ -23,12 +23,12 @@ public:
 		RFX_Byte(pFX, _T("[Flag]"), m_data.m_byFlag);
 		RFX_Byte(pFX, _T("[Nation]"), m_data.m_byNation);
 		RFX_Byte(pFX, _T("[Ranking]"), m_data.m_byRanking);
-		RFX_Text(pFX, _T("[IDName]"), m_data.m_strName, sizeof(m_data.m_strName));
+		RFX_Text(pFX, _T("[IDName]"), m_data.m_strName, sizeof(m_data.m_strName) - 1);
 		RFX_Int(pFX, _T("[Members]"), m_data.m_sMembers);
-		RFX_Text(pFX, _T("[Chief]"), m_data.m_strChief, sizeof(m_data.m_strChief));
-		RFX_Text(pFX, _T("[ViceChief_1]"), m_data.m_strViceChief_1, sizeof(m_data.m_strViceChief_1));
-		RFX_Text(pFX, _T("[ViceChief_2]"), m_data.m_strViceChief_2, sizeof(m_data.m_strViceChief_2));
-		RFX_Text(pFX, _T("[ViceChief_3]"), m_data.m_strViceChief_3, sizeof(m_data.m_strViceChief_3));
+		RFX_Text(pFX, _T("[Chief]"), m_data.m_strChief, sizeof(m_data.m_strChief) - 1);
+		RFX_Text(pFX, _T("[ViceChief_1]"), m_data.m_strViceChief_1, sizeof(m_data.m_strViceChief_1) - 1);
+		RFX_Text(pFX, _T("[ViceChief_2]"), m_data.m_strViceChief_2, sizeof(m_data.m_strViceChief_2) - 1);
+		RFX_Text(pFX, _T("[ViceChief_3]"), m_data.m_strViceChief_3, sizeof(m_data.m_strViceChief_3) - 1);
 		RFX_BigInt(pFX, _T("[Gold]"), m_data.m_nMoney);
 		RFX_Int(pFX, _T("[Domination]"), m_data.m_sDomination);
 		RFX_Long(pFX, _T("[Points]"), m_data.m_nPoints);

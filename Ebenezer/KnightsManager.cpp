@@ -763,11 +763,6 @@ void CKnightsManager::RecvCreateKnights(CUser *pUser, char *pBuf)
 	money = pUser->m_pUserData->m_iGold - 500000;
 	pUser->m_pUserData->m_iGold = money;
 
-	for(int i=0; i<MAX_CLAN; i++)	{
-		pKnights->m_arKnightsUser[i].byUsed = 0;
-		pKnights->m_arKnightsUser[i].strUserName = _T("");
-	}	
-
 	m_pMain->m_KnightsArray.PutData( pKnights->m_sIndex, pKnights );
 	AddKnightsUser( knightsindex, chiefname );
 
@@ -1111,7 +1106,7 @@ BOOL CKnightsManager::AddKnightsUser( int index, char* UserName )
 	for(int i=0; i<MAX_CLAN; i++)	{
 		if( pKnights->m_arKnightsUser[i].byUsed == 0 )	{
 			pKnights->m_arKnightsUser[i].byUsed = 1;
-			pKnights->m_arKnightsUser[i].strUserName = UserName;
+			strcpy(pKnights->m_arKnightsUser[i].strUserName, UserName);
 			bCheckFlag = TRUE;
 			//TRACE("+++ AddKnightsUser knightsindex : username=%s, knightsindex=%d, i=%d \n", UserName, index, i);
 			break;
@@ -1141,7 +1136,7 @@ BOOL CKnightsManager::ModifyKnightsUser( int index, char* UserName )
 		if( pKnights->m_arKnightsUser[i].byUsed == 0 )	continue;
 		if( !strcmp( pKnights->m_arKnightsUser[i].strUserName , UserName ) )	{
 			pKnights->m_arKnightsUser[i].byUsed = 1;
-			pKnights->m_arKnightsUser[i].strUserName = UserName;
+			strcpy(pKnights->m_arKnightsUser[i].strUserName, UserName);
 			bCheckFlag = TRUE;
 			break;
 		}
@@ -1170,7 +1165,7 @@ BOOL CKnightsManager::RemoveKnightsUser( int index, char* UserName )
 		if( pKnights->m_arKnightsUser[i].byUsed == 0 )	continue;
 		if( !strcmp( pKnights->m_arKnightsUser[i].strUserName , UserName ) )	{
 			pKnights->m_arKnightsUser[i].byUsed = 0;
-			pKnights->m_arKnightsUser[i].strUserName = "";
+			strcpy(pKnights->m_arKnightsUser[i].strUserName, "");
 			bCheckFlag = TRUE;
 			//TRACE("---> RemoveKnightsUser knightsindex : username=%s, knightsindex=%d, i=%d \n", UserName, index, i);
 			break;

@@ -25,7 +25,7 @@ public:
 
 		RFX_Int(pFX, _T("[ServerNo]"), m_data.m_nServerNo);
 		RFX_Int(pFX, _T("[ZoneNo]"), m_data.m_nZoneNumber);
-		RFX_Text(pFX, _T("[strZoneName]"), m_data.m_MapName, sizeof(m_data.m_MapName));
+		RFX_Text(pFX, _T("[strZoneName]"), m_data.m_MapName, sizeof(m_data.m_MapName) - 1);
 
 #ifdef EBENEZER
 		RFX_Long(pFX, _T("[InitX]"), m_InitX);

@@ -1,7 +1,6 @@
 #pragma once
 
 #define T		_KNIGHTS_USER
-#define MapType	KnightsUserArray
 
 class CKnightsUserSet : public CMyRecordSet<T>
 {
@@ -20,20 +19,18 @@ public:
 		pFX->SetFieldType(CFieldExchange::outputColumn);
 
 		RFX_Int(pFX, _T("[sIDNum]"), m_sIDNum);
-		RFX_Text(pFX, _T("[strUserID]"), m_strUserID, sizeof(m_strUserID));
+		RFX_Text(pFX, _T("[strUserID]"), m_data.strUserName, sizeof(m_data.strUserName) - 1);
 	};
 
 	virtual void HandleRead()
 	{
-		TRIM_RIGHT(m_strUserID);
-		m_KnightsManager->AddKnightsUser(m_sIDNum, m_strUserID);
+		TRIM_RIGHT(m_data.strUserName);
+		m_KnightsManager->AddKnightsUser(m_sIDNum, m_data.strUserName);
 	};
 
 private:
 	CKnightsManager * m_KnightsManager;
 	int m_sIDNum;
-	char m_strUserID[MAX_ID_SIZE+1];
 };
-#undef MapType
 #undef T
 IMPLEMENT_DYNAMIC(CKnightsUserSet, CRecordset)

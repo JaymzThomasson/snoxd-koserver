@@ -21,12 +21,13 @@ public:
 		pFX->SetFieldType(CFieldExchange::outputColumn);
 
 		RFX_Int(pFX, _T("[nResourceID]"), m_data.nResourceID);
-		RFX_Text(pFX, _T("[strResource]"), m_data.strResource, 100);
+		RFX_Text(pFX, _T("[strResource]"), m_data.strResource, sizeof(m_data.strResource) - 1);
 	};
 
 	virtual void HandleRead()
 	{
 		T * data = COPY_ROW();
+		TRIM_RIGHT(m_data.strResource);
 		if (!m_stlMap->PutData(data->nResourceID, data))
 			delete data;
 	};

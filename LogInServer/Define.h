@@ -57,6 +57,10 @@ struct _VERSION_INFO
 	int sVersion;
 	int sHistoryVersion;
 	char strFileName[_MAX_PATH];
+	_VERSION_INFO()
+	{
+		memset(strFileName, 0x00, sizeof(strFileName));
+	};
 };
 
 struct _SERVER_INFO

@@ -22,7 +22,7 @@ public:
 
 		RFX_Int(pFX, _T("[sVersion]"), m_data.sVersion);
 		RFX_Int(pFX, _T("[sHistoryVersion]"), m_data.sHistoryVersion);
-		RFX_Text(pFX, _T("[strFileName]"), m_data.strFileName, sizeof(m_data.strFileName));
+		RFX_Text(pFX, _T("[strFileName]"), m_data.strFileName, sizeof(m_data.strFileName) - 1);
 	};
 
 	virtual void HandleRead()

@@ -45,9 +45,4 @@ void CKnights::InitializeValue()
 	m_nMoney = 0;
 	m_sDomination = 0;
 	m_nPoints = 0;
-	
-	for( int i=0; i<MAX_CLAN; i++ )	{
-		m_arKnightsUser[i].byUsed = 0;
-		m_arKnightsUser[i].strUserName = _T("");
-	}
 }

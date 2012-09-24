@@ -353,7 +353,12 @@ struct _REGENE_EVENT
 struct _KNIGHTS_USER
 {
 	BYTE    byUsed;
-	CString strUserName;
+	char	strUserName[MAX_ID_SIZE+1];
+	_KNIGHTS_USER()
+	{
+		byUsed = 0;
+		memset(strUserName, 0x00, sizeof(strUserName));
+	};
 };
 
 struct _MAGIC_TABLE
@@ -527,7 +532,11 @@ struct _START_POSITION
 struct _SERVER_RESOURCE
 {
 	int nResourceID;
-	char strResource[100];
+	char strResource[101];
+	_SERVER_RESOURCE()
+	{
+		memset(strResource, 0x00, sizeof(strResource));
+	};
 };
 
 enum AuthorityTypes

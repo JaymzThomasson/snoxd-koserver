@@ -21,6 +21,11 @@ struct _ZONE_INFO
 	char m_MapName[_MAX_PATH];
 	float m_fInitX, m_fInitY, m_fInitZ;
 	BYTE m_bType;
+
+	_ZONE_INFO()
+	{
+		memset(m_MapName, 0x00, sizeof(m_MapName));
+	};
 };
 
 
