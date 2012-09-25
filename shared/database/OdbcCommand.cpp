@@ -36,6 +36,10 @@ bool OdbcCommand::Execute(const tstring & szSQL)
 	if (!Open())
 		return false;
 
+#ifdef _DEBUG
+	OutputDebugString((szSQL + _T("\n")).c_str());
+#endif
+
 	if (!SQL_SUCCEEDED(SQLExecDirect(m_hStmt, (SQLTCHAR *)szSQL.c_str(), szSQL.length())))
 	{
 		if (m_odbcConnection != NULL)
@@ -73,6 +77,10 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 {
 	if (!Open())
 		return false;
+
+#ifdef _DEBUG
+	OutputDebugString((szSQL + _T("\n")).c_str());
+#endif
 
 	if (!SQL_SUCCEEDED(SQLPrepare(m_hStmt, (SQLTCHAR *)szSQL.c_str(), szSQL.length())))
 	{
@@ -124,10 +132,9 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 
 
 #define ADD_ODBC_PARAMETER(name, type, sqlType) void OdbcCommand::AddParameter(SQLSMALLINT paramType, type *value, SQLLEN maxLength) { m_params.insert(std::make_pair(m_params.size(), new OdbcParameter(paramType, sqlType, (SQLPOINTER)value, maxLength))); } \
-	type OdbcCommand::Fetch ## name(int pos, SQLLEN maxLength) { type value; SQLINTEGER cb = SQL_NTS; SQLGetData(m_hStmt, pos, sqlType, &value, maxLength, &cb); return value; };
+	type OdbcCommand::Fetch ## name(int pos, SQLLEN maxLength) { type value; SQLINTEGER cb = SQL_NTS; SQLGetData(m_hStmt, pos, sqlType, &value, maxLength, &cb); return value; }
 ADD_ODBC_PARAMETER(Byte, uint8, SQL_C_TINYINT)
 ADD_ODBC_PARAMETER(SByte, int8, SQL_C_STINYINT)
-ADD_ODBC_PARAMETER(Char, char, SQL_C_CHAR)
 ADD_ODBC_PARAMETER(UInt16, uint16, SQL_C_USHORT)
 ADD_ODBC_PARAMETER(Int16, int16, SQL_C_SSHORT)
 ADD_ODBC_PARAMETER(UInt32, uint32, SQL_C_ULONG)
@@ -135,6 +142,18 @@ ADD_ODBC_PARAMETER(Int32, int32, SQL_C_LONG)
 ADD_ODBC_PARAMETER(Single, float, SQL_C_FLOAT)
 ADD_ODBC_PARAMETER(Double, double, SQL_C_DOUBLE)
 #undef ADD_ODBC_PARAMETER
+
+void OdbcCommand::AddParameter(SQLSMALLINT paramType, char *value, SQLLEN maxLength)
+{
+	m_params.insert(std::make_pair(m_params.size(), new OdbcParameter(paramType, SQL_C_CHAR, (SQLPOINTER)value, maxLength))); 
+}
+
+void OdbcCommand::FetchString(int pos, TCHAR *charArray, SQLLEN maxLength)
+{
+	SQLINTEGER bufferSize = 0;
+	memset(charArray, 0x00, maxLength);
+	SQLGetData(m_hStmt, pos, SQL_C_TCHAR, charArray, maxLength, &bufferSize);
+}
 
 tstring OdbcCommand::FetchString(int pos, SQLLEN maxLength)
 {
@@ -153,7 +172,7 @@ tstring OdbcCommand::FetchString(int pos, SQLLEN maxLength)
 	}
 
 	return tstring();
-};
+}
 
 void OdbcCommand::ClearParameters()
 {

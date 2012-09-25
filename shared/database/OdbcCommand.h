@@ -25,16 +25,19 @@ public:
 #define ADD_ODBC_PARAMETER(name, type, sqlType) void AddParameter(SQLSMALLINT paramType, type *value, SQLLEN maxLength = sizeof(type)); \
 	type OdbcCommand::Fetch ## name(int pos, SQLLEN maxLength = 0);
 
-ADD_ODBC_PARAMETER(Byte, uint8, SQL_C_TINYINT)
-ADD_ODBC_PARAMETER(SByte, int8, SQL_C_STINYINT)
-ADD_ODBC_PARAMETER(Char, char, SQL_C_CHAR)
-ADD_ODBC_PARAMETER(UInt16, uint16, SQL_C_USHORT)
-ADD_ODBC_PARAMETER(Int16, int16, SQL_C_SSHORT)
-ADD_ODBC_PARAMETER(UInt32, uint32, SQL_C_ULONG)
-ADD_ODBC_PARAMETER(Int32, int32, SQL_C_LONG)
-ADD_ODBC_PARAMETER(Single, float, SQL_C_FLOAT)
-ADD_ODBC_PARAMETER(Double, double, SQL_C_DOUBLE)
-tstring OdbcCommand::FetchString(int pos, SQLLEN maxLength = 0);
+	ADD_ODBC_PARAMETER(Byte, uint8, SQL_C_TINYINT)
+	ADD_ODBC_PARAMETER(SByte, int8, SQL_C_STINYINT)
+	ADD_ODBC_PARAMETER(UInt16, uint16, SQL_C_USHORT)
+	ADD_ODBC_PARAMETER(Int16, int16, SQL_C_SSHORT)
+	ADD_ODBC_PARAMETER(UInt32, uint32, SQL_C_ULONG)
+	ADD_ODBC_PARAMETER(Int32, int32, SQL_C_LONG)
+	ADD_ODBC_PARAMETER(Single, float, SQL_C_FLOAT)
+	ADD_ODBC_PARAMETER(Double, double, SQL_C_DOUBLE)
+
+	tstring OdbcCommand::FetchString(int pos, SQLLEN maxLength = 0);
+
+	void AddParameter(SQLSMALLINT paramType, char *value, SQLLEN maxLength);
+	void FetchString(int pos, char *outBuffer, SQLLEN maxLength);
 #undef ADD_ODBC_PARAMETER
 
 	void Detach();
