@@ -36,14 +36,13 @@ void CKnights::InitializeValue()
 	m_byGrade = 0;			// clan 등급 (1 ~ 5등급)
 	m_byRanking = 0;		// clan 등급 (1 ~ 5등)
 	m_sMembers = 1;
-	m_strName = m_strChief = m_strViceChief_1 = m_strViceChief_2 = m_strViceChief_3 = _T("");
+	memset(m_strName, 0x00, sizeof(m_strName));
+	memset(m_strChief, 0x00, sizeof(m_strChief));
+	memset(m_strViceChief_1, 0x00, sizeof(m_strViceChief_1));
+	memset(m_strViceChief_2, 0x00, sizeof(m_strViceChief_2));
+	memset(m_strViceChief_3, 0x00, sizeof(m_strViceChief_3));
 	memset( m_Image, 0x00, MAX_KNIGHTS_MARK );
 	m_nMoney = 0;
 	m_sDomination = 0;
 	m_nPoints = 0;
-	
-	for( int i=0; i<MAX_CLAN; i++ )	{
-		m_arKnightsUser[i].byUsed = 0;
-		m_arKnightsUser[i].strUserName = _T("");
-	}
 }

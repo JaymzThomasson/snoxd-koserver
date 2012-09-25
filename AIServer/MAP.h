@@ -13,6 +13,14 @@
 #include "../shared/STLMap.h"
 #include "RoomEvent.h"
 
+struct _ZONE_INFO
+{
+	int m_nServerNo;
+	int m_nZoneNumber;
+	char m_MapName[_MAX_PATH];
+	BYTE m_byRoomEvent;
+};
+
 typedef CSTLMap <_OBJECT_EVENT>		ObjectEventArray;
 typedef CSTLMap <CRoomEvent>		RoomEventArray;
 
@@ -60,6 +68,8 @@ public:
 public:
 	MAP();
 	virtual ~MAP();
+
+	void Initialize(_ZONE_INFO *pZone);
 
 	BOOL LoadMap( HANDLE hFile );
 	void LoadTerrain( HANDLE hFile );

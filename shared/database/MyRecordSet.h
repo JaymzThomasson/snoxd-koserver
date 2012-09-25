@@ -11,6 +11,9 @@
 // Somewhat hacky, but MFC works awkwardly enough that this is required.
 #define COPY_ROW() new T(); memcpy(data, &m_data, sizeof(T));
 
+// Cheap right trim, used for strings. We should do this better.
+#define TRIM_RIGHT(v) { CString str = v; str.TrimRight(); strcpy(v, str); }
+
 class DummyStorage
 {
 };
@@ -59,7 +62,7 @@ public:
 	bool Read(bool bAllowEmptyTable = false)
 	{
 		bool isEmpty = false;
-		if (!AttemptOpen(bAllowEmptyTable))
+		if (!AttemptOpen(isEmpty, bAllowEmptyTable))
 			return isEmpty && bAllowEmptyTable;
 
 		while (!IsEOF())

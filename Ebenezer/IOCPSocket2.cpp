@@ -267,8 +267,11 @@ int CIOCPSocket2::Send(Packet *result)
 		pTIBuf[index++] = (BYTE)PACKET_START2;
 		memcpy(pTIBuf+index, &totalLen, 2);
 		index += 2;
-		memcpy(pTIBuf+index, pTOutBuf, totalLen); // throw encrypted packet data into packet body
-		index += totalLen;
+		if (totalLen > 0)
+		{
+			memcpy(pTIBuf+index, pTOutBuf, totalLen); // throw encrypted packet data into packet body
+			index += totalLen;
+		}
 		pTIBuf[index++] = (BYTE)PACKET_END1; // packet tail
 		pTIBuf[index++] = (BYTE)PACKET_END2;
 	}
@@ -282,8 +285,11 @@ int CIOCPSocket2::Send(Packet *result)
 		memcpy(pTIBuf+index, &length, 2);
 		index += 2;
 		pTIBuf[index++] = result->GetOpcode();
-		memcpy(pTIBuf+index, result->contents(), length - 1);
-		index += length - 1;
+		if (length > 1)
+		{
+			memcpy(pTIBuf+index, result->contents(), length - 1);
+			index += length - 1;
+		}
 		pTIBuf[index++] = (BYTE)PACKET_END1;
 		pTIBuf[index++] = (BYTE)PACKET_END2;
 	}
@@ -628,8 +634,6 @@ void CIOCPSocket2::Parsing(Packet & pkt)
 void CIOCPSocket2::Initialize()
 {
 	m_wPacketSerial = 0;
-	m_pRegionBuffer->iLength = 0;
-	memset( m_pRegionBuffer->pDataBuff, 0x00, REGION_BUFF_SIZE );
 	m_CryptionFlag = 0;
 }
 
@@ -641,83 +645,63 @@ void CIOCPSocket2::SendCompressingPacket(const char *pData, int len)
 		Send((char *)pData, len);
 		return;
 	}
-
-	if (len <= 0 || len >= 49152)	
-	{
-		TRACE("### SendCompressingPacket Error : len = %d ### \n", len);
-		return;
-	}
-
+	
 	CCompressMng comp;
-	int send_index = 0;
-	char send_buff[49152];
-
 	comp.PreCompressWork(pData, len);
 	comp.Compress();
 
-	SetByte(send_buff, WIZ_COMPRESS_PACKET, send_index);
-	SetDWORD(send_buff, comp.m_nOutputBufferCurPos, send_index);
-	SetDWORD(send_buff, comp.m_nOrgDataLength, send_index);
-	SetDWORD(send_buff, comp.m_dwCrc, send_index);
-	SetString(send_buff, comp.m_pOutputBuffer, comp.m_nOutputBufferCurPos, send_index);
-	Send(send_buff, send_index);
+	Packet result(WIZ_COMPRESS_PACKET);
+	result << comp.m_nOutputBufferCurPos << comp.m_nOrgDataLength << uint32(comp.m_dwCrc);
+	result.append(comp.m_pOutputBuffer, comp.m_nOutputBufferCurPos);
+	Send(&result);
+}
+
+void CIOCPSocket2::SendCompressingPacket(Packet *pkt)
+{
+	// Data's too short to bother with compression...
+	if (pkt->size() < 500)
+	{
+		Send(pkt);
+		return;
+	}
+
+	// TO-DO: Replace this with LZF (again), so much simpler.
+	CCompressMng comp;
+	ByteBuffer buff(pkt->size() + 1);
+	buff << pkt->GetOpcode() << *pkt;
+	comp.PreCompressWork((const char *)buff.contents(), buff.size());
+	comp.Compress();
+
+	Packet result(WIZ_COMPRESS_PACKET);
+	result << comp.m_nOutputBufferCurPos << comp.m_nOrgDataLength << uint32(comp.m_dwCrc);
+	result.append(comp.m_pOutputBuffer, comp.m_nOutputBufferCurPos);
+	Send(&result);
 }
 
 void CIOCPSocket2::RegionPacketAdd(char *pBuf, int len)
 {
-	int count = 0;
-	do {
-		if( m_pRegionBuffer->bFlag == W ) {
-			bb();
-			count++;
-			continue;
-		}
-		m_pRegionBuffer->bFlag = W;
-		m_pRegionBuffer->dwThreadID = ::GetCurrentThreadId();
-		bb();
-		if( m_pRegionBuffer->dwThreadID != ::GetCurrentThreadId() ) {	// Dual Lock System...
-			count++;
-			continue;
-		}
-		SetShort( m_pRegionBuffer->pDataBuff, len, m_pRegionBuffer->iLength );
-		SetString( m_pRegionBuffer->pDataBuff, pBuf, len, m_pRegionBuffer->iLength );
-		m_pRegionBuffer->bFlag = WR;
-		break;
-	} while( count < 30 );
-	if( count > 29 ) {
-//		TRACE("Region packet Add Drop\n");
-		Send( pBuf, len );
-	}
+	m_pRegionBuffer->Lock.AcquireWriteLock();
+	m_pRegionBuffer->Buffer << uint16(len);
+	m_pRegionBuffer->Buffer.append(pBuf, len);
+	m_pRegionBuffer->Lock.ReleaseWriteLock();
 }
 
-void CIOCPSocket2::RegioinPacketClear(char* GetBuf, int& len)
+void CIOCPSocket2::RegionPacketAdd(Packet *pkt)
 {
-	int count = 0;
-	do {
-		if( m_pRegionBuffer->bFlag == W ) {
-			bb();
-			count++;
-			continue;
-		}
-		m_pRegionBuffer->bFlag = W;
-		m_pRegionBuffer->dwThreadID = ::GetCurrentThreadId();
-		bb();
-		if( m_pRegionBuffer->dwThreadID != ::GetCurrentThreadId() ) {	// Dual Lock System...
-			count++;
-			continue;
-		}
-		
-		int index = 0;
-		SetByte( GetBuf, WIZ_CONTINOUS_PACKET, index );
-		SetShort( GetBuf, m_pRegionBuffer->iLength, index );
-		SetString( GetBuf, m_pRegionBuffer->pDataBuff, m_pRegionBuffer->iLength, index );
-		len = index;
+	m_pRegionBuffer->Lock.AcquireWriteLock();
+	m_pRegionBuffer->Buffer << pkt->size() << *pkt;
+	m_pRegionBuffer->Lock.ReleaseWriteLock();
+}
 
-		memset( m_pRegionBuffer->pDataBuff, 0x00, REGION_BUFF_SIZE );
-		m_pRegionBuffer->iLength = 0;
-		m_pRegionBuffer->bFlag = E;
-		break;
-	} while( count < 30 );
-	if( count > 29 )
-		TRACE("Region packet Clear Drop\n");
+void CIOCPSocket2::SendRegionPackets()
+{
+	m_pRegionBuffer->Lock.AcquireReadLock();
+	if (m_pRegionBuffer->Buffer.size())
+	{
+		Packet result(WIZ_CONTINOUS_PACKET);
+		result << uint16(m_pRegionBuffer->Buffer.size()) << m_pRegionBuffer->Buffer;
+		m_pRegionBuffer->Buffer.clear();
+		SendCompressingPacket(&result);
+	}
+	m_pRegionBuffer->Lock.ReleaseReadLock();
 }

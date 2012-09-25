@@ -38,6 +38,7 @@ MAP::MAP()
 	m_sizeMap.cy = 0;
 
 	m_ppRegion = NULL;
+	m_pMap = NULL;
 	//m_pRoomEvent = NULL;
 	m_nZoneNumber = 0;
 	m_byRoomType = 0;
@@ -48,6 +49,14 @@ MAP::MAP()
 	m_sElmoradRoom = 0;
 //	for(int i=0; i<MAX_DUNGEON_BOSS_MONSTER; i++)
 //		m_arDungeonBossMonster[i] = 1;
+}
+
+void MAP::Initialize(_ZONE_INFO *pZone)
+{
+	m_nServerNo = pZone->m_nServerNo;
+	m_nZoneNumber = pZone->m_nZoneNumber;
+	m_MapName = pZone->m_MapName;
+	m_byRoomEvent = pZone->m_byRoomEvent;
 }
 
 MAP::~MAP()
@@ -85,12 +94,8 @@ void MAP::RemoveMapData()
 		m_pMap = NULL;
 	}
 
-	if( !m_ObjectEventArray.IsEmpty() )
-		m_ObjectEventArray.DeleteAllData();
-	if( !m_arRoomEventArray.IsEmpty() )
-		m_arRoomEventArray.DeleteAllData();
-
-	DeleteCriticalSection( &g_region_critical );
+	m_ObjectEventArray.DeleteAllData();
+	m_arRoomEventArray.DeleteAllData();
 }
 
 BOOL MAP::IsMovable(int dest_x, int dest_y)
@@ -141,8 +146,6 @@ BOOL MAP::LoadMap(HANDLE hFile)
 
 	LoadObjectEvent(hFile);
 	LoadMapTile(hFile);
-
-	InitializeCriticalSection( &g_region_critical );
 
 	return TRUE;
 }
@@ -406,15 +409,13 @@ int  MAP::GetRegionNpcSize(int rx, int rz)
 
 void MAP::LoadObjectEvent(HANDLE hFile)
 {
-	int 	iEventObjectCount = 0, zonenum = 0;
-	__Vector3 vPos(0,0,0);
+	int 	iEventObjectCount = 0;
 	DWORD	dwNum;
-	_OBJECT_EVENT* pEvent = NULL;
 
 	ReadFile(hFile, &iEventObjectCount, 4, &dwNum, NULL);
 	for( int i=0; i<iEventObjectCount; i++)
 	{
-		pEvent = new _OBJECT_EVENT;
+		_OBJECT_EVENT* pEvent = new _OBJECT_EVENT;
 		ReadFile(hFile, &(pEvent->sBelong), 4, &dwNum, NULL);					// 소속 
 		ReadFile(hFile, &(pEvent->sIndex), 2, &dwNum, NULL);				// Event Index
 		ReadFile(hFile, &(pEvent->sType), 2, &dwNum, NULL);
@@ -434,9 +435,7 @@ void MAP::LoadObjectEvent(HANDLE hFile)
 
 		if( pEvent->sIndex <= 0 ) continue;
 		if( !m_ObjectEventArray.PutData(pEvent->sIndex, pEvent) ) {
-			TRACE("Object Event PutData Fail - %d\n", pEvent->sIndex );
 			delete pEvent;
-			pEvent = NULL;
 		}
 	}
 }
@@ -484,7 +483,7 @@ BOOL MAP::LoadRoomEvent( int zone_number )
 				logic = 0; exec = 0;
 				t_index += ParseSpace( temp, buf + t_index );	event_num = atoi( temp );
 
-				if( m_arRoomEventArray.GetData(event_num) )	{
+				if( m_arRoomEventArray.IsExist(event_num) )	{
 					TRACE("Event Double !!\n" );
 					goto cancel_event_load;
 				}
@@ -655,14 +654,13 @@ int MAP::IsRoomCheck(float fx, float fz)
 
 CRoomEvent* MAP::SetRoomEvent( int number )
 {
-	CRoomEvent* pEvent = NULL;
-	pEvent = m_arRoomEventArray.GetData( number );
+	CRoomEvent* pEvent = m_arRoomEventArray.GetData( number );
 	if( pEvent )	{
 		TRACE("#### SetRoom Error : double event number = %d ####\n", number);
 		return NULL;
 	}
 
-	pEvent = new CRoomEvent;
+	pEvent = new CRoomEvent();
 	pEvent->m_iZoneNumber = m_nZoneNumber;
 	pEvent->m_sRoomNumber = number;
 	if( !m_arRoomEventArray.PutData( pEvent->m_sRoomNumber, pEvent) ) {
@@ -676,20 +674,20 @@ CRoomEvent* MAP::SetRoomEvent( int number )
 
 BOOL MAP::IsRoomStatusCheck()
 {
-	CRoomEvent* pRoom = NULL;
-	int nTotalRoom = m_arRoomEventArray.GetSize()+1;
 	int nClearRoom = 1;
+	int nTotalRoom = m_arRoomEventArray.GetSize() + 1;
 
 	if( m_byRoomStatus == 2 )	{	// 방을 초기화중
 		m_byInitRoomCount++;
 	}
 
-	for(int i=1; i<nTotalRoom; i++)	{
-		pRoom = m_arRoomEventArray.GetData( i );
-		if( !pRoom )	{
-			TRACE("#### IsRoomStatusCheck Error : room empty number = %d ####\n", i);
+	foreach_stlmap (itr, m_arRoomEventArray)
+	{
+		CRoomEvent *pRoom = itr->second;
+		if (pRoom == NULL)
+		{
+			TRACE("#### IsRoomStatusCheck Error : room empty number = %d ####\n", itr->first);
 			continue;
-			//return NULL;
 		}
 
 		if( m_byRoomStatus == 1)	{	// 방 진행중
@@ -725,13 +723,12 @@ BOOL MAP::IsRoomStatusCheck()
 
 void MAP::InitializeRoom()
 {
-	CRoomEvent* pRoom = NULL;
-	int nTotalRoom = m_arRoomEventArray.GetSize()+1;
-
-	for(int i=1; i<nTotalRoom; i++)	{
-		pRoom = m_arRoomEventArray.GetData( i );
-		if( !pRoom )	{
-			TRACE("#### InitializeRoom Error : room empty number = %d ####\n", i);
+	foreach_stlmap (itr, m_arRoomEventArray)
+	{
+		CRoomEvent *pRoom = itr->second;
+		if (pRoom == NULL)
+		{
+			TRACE("#### InitializeRoom Error : room empty number = %d ####\n", itr->first);
 			continue;
 		}
 

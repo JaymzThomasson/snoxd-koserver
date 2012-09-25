@@ -7,6 +7,9 @@
 #include "User.h"
 #include "AiPacket.h"
 #include "Map.h"
+#include <set>
+
+using namespace std;
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -165,44 +168,33 @@ void CUser::Initialize()
 // Cryption
 void CUser::Make_public_key()
 {
-	BYTE rand1,rand2,rand3,rand4,rand5,rand6,rand7,rand8;
-	
 	int out_flag = 0;
 	do
 	{
-		rand1 = rand();
-		rand2 = rand();
-		rand3 = rand();
-		rand4 = rand();
-		rand5 = rand();
-		rand6 = rand();
-		rand7 = rand();
-		rand8 = rand();
-
-		m_Public_key = rand1;
+		m_Public_key = rand();
 		m_Public_key <<= 8;
 
-		m_Public_key |= rand2;
+		m_Public_key |= rand();
 		m_Public_key <<= 8;
 
-		m_Public_key |= rand3;
+		m_Public_key |= rand();
 		m_Public_key <<= 8;
 
-		m_Public_key |= rand4;
+		m_Public_key |= rand();
 		m_Public_key <<= 8;
 
-		m_Public_key |= rand5;
+		m_Public_key |= rand();
 		m_Public_key <<= 8;
 
-		m_Public_key |= rand6;
+		m_Public_key |= rand();
 		m_Public_key <<= 8;
 
-		m_Public_key |= rand7;
+		m_Public_key |= rand();
 		m_Public_key <<= 8;
 
-		m_Public_key |= rand8;
+		m_Public_key |= rand();
 
-		if(m_Public_key != 0)
+		if (m_Public_key != 0)
 			out_flag = 1;
 
 	} while( !out_flag );
@@ -218,7 +210,7 @@ void CUser::CloseProcess()
 		if (isInParty())
 			PartyRemove(m_Sid);
 
-		if (m_sExchangeUser != -1 )
+		if (isTrading())
 			ExchangeCancel();
 
 		LogOut();
@@ -237,8 +229,8 @@ void CUser::Parsing(int len, char *pData)
 	// If crypto's not been enabled yet, force the version packet to be sent.
 	if (!m_CryptionFlag)
 	{
-		if (command == WIZ_VERSION_CHECK) {
-			VersionCheck(pData+index); return; }
+		if (command == WIZ_VERSION_CHECK)
+			VersionCheck(pData+index);
 
 		return;
 	}
@@ -361,9 +353,6 @@ void CUser::Parsing(int len, char *pData)
 	case WIZ_STATE_CHANGE:
 		StateChange( pData+index );
 		break;
-	//case WIZ_SPEEDHACK_USED:
-	//	SpeedHackUser();
-	//	break;
 	case WIZ_PARTY:
 		PartyProcess( pData+index );
 		break;
@@ -410,9 +399,6 @@ void CUser::Parsing(int len, char *pData)
 	case WIZ_SPEEDHACK_CHECK:
 		SpeedHackTime( pData+index );
 		m_sAliveCount = 0;
-		break;
-	case WIZ_SERVER_CHECK:
-		ServerStatusCheck();
 		break;
 	case WIZ_WAREHOUSE:
 		WarehouseProcess( pData+index );
@@ -472,25 +458,26 @@ void CUser::Parsing(int len, char *pData)
 		}
 	} 
 
-	if (m_bType4Flag) {		// For Type 4 Stat Duration.
+	if (m_bType4Flag)		// For Type 4 Stat Duration.
 		Type4Duration(currenttime);
-	}
 		
-	if (m_bAbnormalType == ABNORMAL_BLINKING) {		// Should you stop blinking?
+	if (m_bAbnormalType == ABNORMAL_BLINKING)		// Should you stop blinking?
 		BlinkTimeCheck(currenttime);
-	}
+}
+
+void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/)
+{
+	Packet result(WIZ_LOYALTY_CHANGE);
+	m_pUserData->m_iLoyalty += nChangeAmount;
+	result << m_pUserData->m_iLoyalty;
+	Send(&result);
 }
 
 void CUser::SendServerIndex()
 {
-	char send_buff[5];
-	int send_index = 0;
-	
-	SetByte(send_buff, WIZ_SERVER_INDEX, send_index);
-	SetShort(send_buff, 1, send_index); // success
-	SetShort(send_buff, m_pMain->m_nServerNo, send_index);
-
-	Send(send_buff, send_index);
+	Packet result(WIZ_SERVER_INDEX);
+	result << uint16(1) << uint16(m_pMain->m_nServerNo);
+	Send(&result);
 }
 
 void CUser::SkillDataProcess(char *pData)
@@ -551,11 +538,10 @@ void CUser::SkillDataLoad(char *pData)
 
 void CUser::RecvSkillDataLoad(char *pData)
 {
-	char send_buff[512];
-	int index = 0, send_index = 0, sCount = 0;
+	int index = 0, sCount = 0;
 
-	BYTE result = GetByte(pData, index);
-	if (!result)
+	BYTE bSuccess = GetByte(pData, index);
+	if (!bSuccess)
 	{
 		sCount = 0;
 	}
@@ -566,17 +552,16 @@ void CUser::RecvSkillDataLoad(char *pData)
 			sCount = 0;
 	}
 
-	SetByte(send_buff, WIZ_SKILLDATA, send_index);
-	SetByte(send_buff, SKILL_DATA_LOAD, send_index);
-	SetShort(send_buff, sCount, send_index);
+	Packet result(WIZ_SKILLDATA, uint8(SKILL_DATA_LOAD));
+	result << sCount;
 
 	for (int i = 0; i < sCount; i++) 
 	{
 		int nItemID = GetDWORD(pData, index);
-		SetDWORD(send_buff, nItemID, send_index);
+		result << nItemID;
 	}
 
-	Send(send_buff,send_index);
+	Send(&result);
 }
 
 void CUser::UserDataSaveToAgent()
@@ -612,35 +597,27 @@ void CUser::LogOut()
 		TRACE("%s : %s Logout: Sid ?? ??? ???...\n", m_pUserData->m_Accountid, m_pUserData->m_id);
 		return;
 	}
-	else 
-	{
-		if (m_pUserData->m_id[0] == 0) 
-			return; 
 
-		SetByte( send_buf, WIZ_LOGOUT, send_index );
-		SetShort( send_buf, m_Sid, send_index );
-		SetKOString( send_buf, m_pUserData->m_Accountid, send_index);
-		SetKOString( send_buf, m_pUserData->m_id, send_index);
+	if (m_pUserData->m_id[0] == 0) 
+		return; 
 
-		do {
-			if( m_pMain->m_LoggerSendQueue.PutData( send_buf, send_index ) == 1 )
-				break;
-			else
-				count++;
-		} while( count < 30 );
-		if( count > 29 ) {
-			m_pMain->AddToList("Logout Send Fail : acname=%s, charid=%s ", m_pUserData->m_Accountid, m_pUserData->m_id);
-		}
+	SetByte( send_buf, WIZ_LOGOUT, send_index );
+	SetShort( send_buf, m_Sid, send_index );
+	SetKOString( send_buf, m_pUserData->m_Accountid, send_index);
+	SetKOString( send_buf, m_pUserData->m_id, send_index);
 
-		SetByte( send_buf, AG_USER_LOG_OUT, index );
-		m_pMain->Send_AIServer(send_buf, send_index);
+	do {
+		if( m_pMain->m_LoggerSendQueue.PutData( send_buf, send_index ) == 1 )
+			break;
+		else
+			count++;
+	} while( count < 30 );
+	if( count > 29 ) {
+		m_pMain->AddToList("Logout Send Fail : acname=%s, charid=%s ", m_pUserData->m_Accountid, m_pUserData->m_id);
 	}
 
-//	if( m_pUserData->m_bKnights > 0 )	{
-//		m_pMain->m_KnightsManager.ModifyKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id, m_pUserData->m_bFame, m_pUserData->m_bLevel, m_pUserData->m_sClass, 0);
-//	}
-//	TRACE("Send Logout Result - %s\n", m_pUserData->m_id);
-	return; 
+	SetByte( send_buf, AG_USER_LOG_OUT, index );
+	m_pMain->Send_AIServer(send_buf, send_index);
 }
 
 void CUser::SendMyInfo()
@@ -648,14 +625,9 @@ void CUser::SendMyInfo()
 	C3DMap* pMap = GetMap();
 	CKnights* pKnights = NULL;
 
-	int  send_index = 0, i=0, iLength = 0;
-	char send_buff[2048];
-
-	short x = 0, z = 0;
-//	int map_size = (pMap->m_nMapSize - 1) * pMap->m_fUnitDist ;		// Are you within the map limits?
-//	if (m_pUserData->m_curx >= map_size || m_pUserData->m_curz >= map_size) {
-
-	if( !pMap->IsValidPosition( m_pUserData->m_curx, m_pUserData->m_curz, 0.0f ) ) {
+	if (!pMap->IsValidPosition( m_pUserData->m_curx, m_pUserData->m_curz, 0.0f))
+	{
+		short x = 0, z = 0;
 		GetStartPosition(x, z); 
 
 		m_pUserData->m_curx = (float)x;
@@ -663,166 +635,83 @@ void CUser::SendMyInfo()
 	}
 
 	// Unlock skill data (level 70 skill quest).
-	SetByte(send_buff, WIZ_QUEST, send_index);
-	SetByte(send_buff, 2, send_index);
-	SetShort(send_buff, 0, send_index); // if 50+baseclass quest ID is completed
-	SetByte(send_buff, 0, send_index);
-	Send(send_buff, send_index);
+	Packet result(WIZ_QUEST, uint8(2));
+	result << uint16(0) << uint8(0); // if 50+baseclass quest ID is completed
+	Send(&result);
 
-	send_index = 0;
+	result.Initialize(WIZ_MYINFO);
 
-	SetByte( send_buff, WIZ_MYINFO, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetKOString(send_buff, m_pUserData->m_id, send_index, 1);
+	result.SByte(); // character name has a single byte length
+	result	<< uint16(GetSocketID())
+			<< m_pUserData->m_id
+			<< GetSPosX() << GetSPosY() << GetSPosZ()
+			<< getNation() 
+			<< m_pUserData->m_bRace << m_pUserData->m_sClass << m_pUserData->m_bFace
+			<< uint32(m_pUserData->m_nHair)
+			<< m_pUserData->m_bRank << m_pUserData->m_bTitle
+			<< getLevel()
+			<< m_pUserData->m_sPoints
+			<< m_iMaxExp << m_pUserData->m_iExp
+			<< m_pUserData->m_iLoyalty << m_pUserData->m_iLoyaltyMonthly
+			<< m_pUserData->m_bKnights << uint16(m_pUserData->m_bFame)
+			<< m_pUserData->m_bCity;
 
-	SetShort( send_buff, (WORD)m_pUserData->m_curx*10, send_index );
-	SetShort( send_buff, (WORD)m_pUserData->m_curz*10, send_index );
-	SetShort( send_buff, (short)m_pUserData->m_cury*10, send_index );
-
-	SetByte( send_buff, m_pUserData->m_bNation, send_index );
-	SetByte( send_buff, m_pUserData->m_bRace, send_index );
-	SetShort( send_buff, m_pUserData->m_sClass, send_index );
-	SetByte( send_buff, m_pUserData->m_bFace, send_index );
-
-	SetDWORD( send_buff, m_pUserData->m_nHair, send_index );
-
-	SetByte( send_buff, m_pUserData->m_bRank, send_index );
-	SetByte( send_buff, m_pUserData->m_bTitle, send_index );
-	SetByte( send_buff, m_pUserData->m_bLevel, send_index );
-	SetShort( send_buff, m_pUserData->m_sPoints, send_index );
-	SetInt64( send_buff, m_iMaxExp, send_index );
-	SetInt64( send_buff, m_pUserData->m_iExp, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iLoyalty, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iLoyaltyMonthly, send_index );
-
-	SetShort( send_buff, m_pUserData->m_bKnights, send_index );
-	SetShort( send_buff, m_pUserData->m_bFame, send_index );
-	SetByte( send_buff, m_pUserData->m_bCity, send_index );
-
-	if (m_pUserData->m_bKnights != 0)
+	if (isInClan())
 		pKnights = m_pMain->m_KnightsArray.GetData(m_pUserData->m_bKnights);
 
 	if (pKnights == NULL)
 	{
-		SetByte(send_buff, 0, send_index);   // grade type
-		SetByte(send_buff, 0, send_index);   // name len
-		SetByte(send_buff, 0, send_index);   // grade
-		SetByte(send_buff, 0, send_index );  // rank
-		SetShort(send_buff, 0, send_index);  // symbol/mark version
-
-		SetShort(send_buff, -1, send_index );// cape num
-		SetByte(send_buff, 0, send_index);   // cape r
-		SetByte(send_buff, 0, send_index);   // cape g
-		SetByte(send_buff, 0, send_index);   // cape b
+		// should work out to be 11 bytes, 6-7 being cape ID.
+		result	<< uint32(0) << uint16(0) << uint16(-1) << uint16(0) << uint8(0);
 	}
 	else 
 	{
-		SetByte(send_buff, 0, send_index);  // grade type
-		SetCString(send_buff, pKnights->m_strName, send_index, 1);
-		SetByte(send_buff, pKnights->m_byGrade, send_index );
-		SetByte(send_buff, pKnights->m_byRanking, send_index );
-		SetShort(send_buff, 0, send_index); // symbol/mark version
-		SetShort(send_buff, -1, send_index);// cape num
-		SetByte(send_buff, 0, send_index);  //cape r
-		SetByte(send_buff, 0, send_index);  //cape g
-		SetByte(send_buff, 0, send_index);  //cape b
+		result	<< uint8(0) // grade type
+				<< pKnights->m_strName
+				<< pKnights->m_byGrade << pKnights->m_byRanking
+				<< uint16(0) // symbol/mark version
+				<< uint16(-1) // cape ID
+				<< uint8(0) << uint8(0) << uint8(0); // cape RGB
 	}
 
-	SetByte(send_buff, 0, send_index); // unknown
-	SetByte(send_buff, 2, send_index);
-	SetByte(send_buff, 3, send_index);
-	SetByte(send_buff, 4, send_index);
-	SetByte(send_buff, 5, send_index);
+	result	<< uint8(0) << uint8(2) << uint8(3) << uint8(4) << uint8(5) // unknown
+			<< m_iMaxHp << m_pUserData->m_sHp
+			<< m_iMaxMp << m_pUserData->m_sMp
+			<< uint32(m_sMaxWeight) << uint32(m_sItemWeight)
+			<< m_pUserData->m_bStr << uint8(m_sItemStr)
+			<< m_pUserData->m_bSta << uint8(m_sItemSta)
+			<< m_pUserData->m_bDex << uint8(m_sItemDex)
+			<< m_pUserData->m_bIntel << uint8(m_sItemIntel)
+			<< m_pUserData->m_bCha << uint8(m_sItemCham)
+			<< m_sTotalHit << m_sTotalAc
+			<< m_bFireR << m_bColdR << m_bLightningR << m_bMagicR << m_bDiseaseR << m_bPoisonR
+			<< m_pUserData->m_iGold
+			<< m_pUserData->m_bAuthority
+			<< uint8(-1) << uint8(-1); // national rank, leader rank
 
-	SetShort(send_buff, m_iMaxHp, send_index);
-	SetShort(send_buff, m_pUserData->m_sHp, send_index);
+	result.append(m_pUserData->m_bstrSkill, 9);
 
-	SetShort(send_buff, m_iMaxMp, send_index);
-	SetShort(send_buff, m_pUserData->m_sMp, send_index);
-
-	SetDWORD(send_buff, m_sMaxWeight, send_index);
-	SetDWORD(send_buff, m_sItemWeight, send_index);
-
-	SetByte(send_buff, m_pUserData->m_bStr, send_index);
-	SetByte(send_buff, (BYTE)m_sItemStr, send_index);
-	SetByte(send_buff, m_pUserData->m_bSta, send_index);
-	SetByte(send_buff, (BYTE)m_sItemSta, send_index);
-	SetByte(send_buff, m_pUserData->m_bDex, send_index);
-	SetByte(send_buff, (BYTE)m_sItemDex, send_index);
-	SetByte(send_buff, m_pUserData->m_bIntel, send_index);
-	SetByte(send_buff, (BYTE)m_sItemIntel, send_index);
-	SetByte(send_buff, m_pUserData->m_bCha, send_index);
-	SetByte(send_buff, (BYTE)m_sItemCham, send_index);	
-
-	SetShort(send_buff, m_sTotalHit, send_index);
-	SetShort(send_buff, m_sTotalAc, send_index);
-
-	SetByte(send_buff, m_bFireR, send_index);
-	SetByte(send_buff, m_bColdR, send_index);
-	SetByte(send_buff, m_bLightningR, send_index);
-	SetByte(send_buff, m_bMagicR, send_index);
-	SetByte(send_buff, m_bDiseaseR, send_index);
-	SetByte(send_buff, m_bPoisonR, send_index);
-
-	SetDWORD(send_buff, m_pUserData->m_iGold, send_index);
-	SetByte(send_buff, m_pUserData->m_bAuthority, send_index);
-
-	SetByte(send_buff, -1, send_index); // national rank
-	SetByte(send_buff, -1, send_index); // leader rank
-
-	SetString(send_buff, (char *)m_pUserData->m_bstrSkill, 9, send_index);
-
-	for (i=0; i < HAVE_MAX + SLOT_MAX + COSP_MAX + MBAG_MAX; i++)
+	for (int i = 0; i < HAVE_MAX + SLOT_MAX + COSP_MAX + MBAG_MAX; i++)
 	{
-		SetDWORD(send_buff, m_pUserData->m_sItemArray[i].nNum, send_index);
-		SetShort(send_buff, m_pUserData->m_sItemArray[i].sDuration, send_index);
-		SetShort(send_buff, m_pUserData->m_sItemArray[i].sCount, send_index);
-		SetByte(send_buff, 0, send_index);  // item type flag (e.g. rented)
-		SetShort(send_buff, 0, send_index); // remaining time
-		SetDWORD(send_buff, 0, send_index); // unknown
-		SetDWORD(send_buff, 0, send_index); // expiration date
+		result	<< m_pUserData->m_sItemArray[i].nNum
+				<< m_pUserData->m_sItemArray[i].sDuration << m_pUserData->m_sItemArray[i].sCount
+				<< uint8(0)		// item type flag (e.g. rented)
+				<< uint16(0)	// remaining time
+				<< uint32(0)	// unknown 
+				<< uint32(0);	// expiration date
 	}
 
-	SetByte(send_buff, 0, send_index); // never worked out what this was for: possible values 0/1/2/3
-	SetByte(send_buff, 0, send_index); // premium type
-	SetShort(send_buff, 0, send_index); // premium time
+	result	<< uint8(0)		// never worked out what this was for: possible values 0/1/2/3
+			<< uint8(0)		// premium type
+			<< uint16(0)	// premium time
+			<< uint8(0)		// chicken flag
+			<< m_pUserData->m_iMannerPoint;
 
-	SetByte(send_buff, 0, send_index); // chicken flag
-
-	SetDWORD(send_buff, m_pUserData->m_iMannerPoint, send_index);
-	Send(send_buff, send_index);
+	Send(&result);
 
 	SendPremiumInfo();
 	SetZoneAbilityChange(getZoneID());
-
-	send_index = 0;
-
-	SetByte( send_buff, AG_USER_INFO, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetKOString(send_buff, m_pUserData->m_id, send_index);
-	SetByte( send_buff, m_pUserData->m_bZone, send_index );
-	SetByte( send_buff, m_pUserData->m_bNation, send_index );
-	SetByte( send_buff, m_pUserData->m_bLevel, send_index );
-	SetShort( send_buff, m_pUserData->m_sHp, send_index );
-	SetShort( send_buff, m_pUserData->m_sMp, send_index );
-	SetShort( send_buff, m_sTotalHit * m_bAttackAmount / 100, send_index );  // g??
-	SetShort( send_buff, m_sTotalAc + m_sACAmount, send_index );  // g??
-	Setfloat( send_buff, m_sTotalHitrate, send_index );
-	Setfloat( send_buff, m_sTotalEvasionrate, send_index );
-
-// Yookozuna
-	SetShort( send_buff, m_sItemAc, send_index);
-	SetByte( send_buff, m_bMagicTypeLeftHand, send_index);
-	SetByte( send_buff, m_bMagicTypeRightHand, send_index);
-	SetShort( send_buff, m_sMagicAmountLeftHand, send_index);
-	SetShort( send_buff, m_sMagicAmountRightHand, send_index);
-	SetByte( send_buff, m_pUserData->m_bAuthority, send_index );
-//
-	m_pMain->Send_AIServer(send_buff, send_index);
-
-//	if( m_pUserData->m_bKnights > 0 )	{
-//		m_pMain->m_KnightsManager.ModifyKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id, m_pUserData->m_bFame, m_pUserData->m_bLevel, m_pUserData->m_sClass, 1);
-//	}
+	Send2AI_UserUpdateInfo(true); 
 }
 
 void CUser::SetMaxHp(int iFlag)
@@ -889,80 +778,59 @@ void CUser::SetMaxMp()
 
 void CUser::SendTimeStatus()
 {
-	char	send_buff[256];
-	int send_index = 0;
+	SendTime();
+	SendWeather();
+}
 
-	SetByte( send_buff, WIZ_TIME, send_index );
-	SetShort( send_buff, m_pMain->m_nYear, send_index );
-	SetShort( send_buff, m_pMain->m_nMonth, send_index );
-	SetShort( send_buff, m_pMain->m_nDate, send_index );
-	SetShort( send_buff, m_pMain->m_nHour, send_index );
-	SetShort( send_buff, m_pMain->m_nMin, send_index );
-	Send( send_buff, send_index );
+void CUser::SendTime()
+{
+	Packet result(WIZ_TIME);
+	result	<< uint16(m_pMain->m_nYear) << uint16(m_pMain->m_nMonth) << uint16(m_pMain->m_nDate)
+			<< uint16(m_pMain->m_nHour) << uint16(m_pMain->m_nMin);
+	Send(&result);
+}
 
-	send_index = 0;
-	SetByte( send_buff, WIZ_WEATHER, send_index );
-	SetByte( send_buff, (BYTE)m_pMain->m_nWeather, send_index );
-	SetShort( send_buff, m_pMain->m_nAmount, send_index );
-	Send( send_buff, send_index );
+void CUser::SendWeather()
+{
+	Packet result(WIZ_WEATHER);
+	result << uint8(m_pMain->m_nWeather) << uint16(m_pMain->m_nAmount);
+	Send(&result);
 }
 
 void CUser::SetZoneAbilityChange(BYTE zone)
 {
-	char send_buff[6]; 
-	int send_index = 0;
-
-	SetByte(send_buff, WIZ_ZONEABILITY, send_index);
-	SetByte(send_buff, 1, send_index);
+	Packet result(WIZ_ZONEABILITY, uint8(1));
 
 	// Moradon or temples (but NOT FT).
 	if (zone == 21
 		|| ((zone / 10) == 5 && zone != 54))
 	{
-		SetByte(send_buff, 1, send_index);
-		SetByte(send_buff, 0, send_index);
-		SetByte(send_buff, 1, send_index);
-
-		if (zone == 21)
-			SetShort(send_buff, 20, send_index); // moradon tariff
-		else
-			SetShort(send_buff, 10, send_index); // tariff for all other 5* zones (temples), except FT
+		result	<< uint8(1) << uint8(0) << uint8(1)
+				<< uint16(zone == 21 ? 20 : 10); // zone tariff
 	}
 	// Arena
 	else if (zone == 48)
 	{
-		SetByte(send_buff, 0, send_index);
-		SetByte(send_buff, 0, send_index);
-		SetByte(send_buff, 1, send_index);
-
-		SetShort(send_buff, 10, send_index);
+		result	<< uint8(0) << uint8(0) << uint8(1)
+				<< uint16(10);
 	}
 	// Now we handle FT
 	else if (zone == 54)
 	{
-		SetByte(send_buff, 0, send_index);
-		SetByte(send_buff, 7, send_index);
-		SetByte(send_buff, 1, send_index);
-
-		SetShort(send_buff, 10, send_index);
+		result	<< uint8(0) << uint8(7) << uint8(1)
+				<< uint16(10);
 	}
 	// desperation abyss & hell abyss
 	else if (zone == 32 || zone == 33)
 	{
-		SetByte(send_buff, 0, send_index);
-		SetByte(send_buff, 8, send_index);
-		SetByte(send_buff, 1, send_index);
-
-		SetShort(send_buff, 10, send_index); // tariff 
+		result	<< uint8(0) << uint8(8) << uint8(1)
+				<< uint16(10);
 	}
 	// colony zone
 	else if (zone == 201)
 	{
-		SetByte(send_buff, 0, send_index);
-		SetByte(send_buff, 1, send_index);
-		SetByte(send_buff, 0, send_index);
-
-		SetShort(send_buff, 20, send_index);
+		result	<< uint8(0) << uint8(1) << uint8(0)
+				<< uint16(20);
 	}
 	// delos
 	else if (zone == 31)
@@ -971,36 +839,25 @@ void CUser::SetZoneAbilityChange(BYTE zone)
 	}
 	else if (zone == 1 || zone == 11)
 	{
-		SetByte(send_buff, 0, send_index);
-		SetByte(send_buff, 1, send_index);
-		SetByte(send_buff, 0, send_index);
-
-		SetShort(send_buff, 10, send_index); // orc nation
+		result	<< uint8(0) << uint8(1) << uint8(0)
+				<< uint16(10); // orc-side tariff
 	}
 	else if (zone == 2 || zone == 12)
 	{
-		SetByte(send_buff, 0, send_index);
-		SetByte(send_buff, 1, send_index);
-		SetByte(send_buff, 0, send_index);
-
-		SetShort(send_buff, 10, send_index); // human nation
+		result	<< uint8(0) << uint8(1) << uint8(0)
+				<< uint16(10); // human-side tariff
 	}
-	else
+	else 
 		return;
 
-	Send(send_buff, send_index);
+	Send(&result);
 }
 
 void CUser::SendPremiumInfo()
 {
-	char send_buff[7]; int send_index = 0;
-
-	SetByte(send_buff, WIZ_PREMIUM, send_index);
-	SetByte(send_buff, 1, send_index);
-	SetByte(send_buff, 0, send_index); // premium type
-	SetDWORD(send_buff, 0, send_index); // premium time
-
-	Send(send_buff, send_index);
+	Packet result(WIZ_PREMIUM, uint8(1));
+	result << uint8(0) << uint32(0); // premium type, time
+	Send(&result);
 }
 
 void CUser::SetDetailData()
@@ -1092,76 +949,68 @@ void CUser::RemoveRegion(int del_x, int del_z)
 	}
 }
 
-void CUser::InsertRegion(int del_x, int del_z)
+void CUser::InsertRegion(int insert_x, int insert_z)
 {
-	int send_index = 0;
-	char buff[256];
+	Packet result(WIZ_USER_INOUT, uint8(USER_IN));
 	C3DMap* pMap = GetMap();
 
 	if (pMap == NULL)
 		return;
 
-	SetByte( buff, WIZ_USER_INOUT, send_index );
-	SetByte( buff, USER_IN, send_index );
-	SetShort( buff, m_Sid, send_index );
+	result << uint16(GetSocketID());
 
-	GetUserInfo(buff, send_index);
+	GetUserInfo(result);
 
-	if (del_x != 0)
+	if (insert_x != 0)
 	{
-		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x, m_RegionZ-1 );
-		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x, m_RegionZ );
-		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x, m_RegionZ+1 );
+		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+insert_x, m_RegionZ-1);
+		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+insert_x, m_RegionZ);
+		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+insert_x, m_RegionZ+1);
 	}
 
-	if( del_z != 0 ) 
+	if (insert_z != 0) 
 	{
-		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX, m_RegionZ+del_z );
+		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX, m_RegionZ+insert_z);
 		
-		if( del_x < 0 )	
-			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+1, m_RegionZ+del_z );		
-		else if( del_x > 0 )
-			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX-1, m_RegionZ+del_z );
-		else {
-			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX-1, m_RegionZ+del_z );
-			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+1, m_RegionZ+del_z );
+		if (insert_x < 0)	
+			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+1, m_RegionZ+insert_z);
+		else if (insert_x > 0 )
+			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX-1, m_RegionZ+insert_z);
+		else 
+		{
+			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX-1, m_RegionZ+insert_z);
+			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+1, m_RegionZ+insert_z);
 		}
 	}
 }
 
 void CUser::RequestUserIn(char *pBuf)
 {
-	int index = 0, uid = -1, user_count = 0, buff_index = 0, t_count = 0, i=0,j=0, iLength=0;
-	CUser* pUser = NULL;
-	CKnights* pKnights = NULL;
-	char buff[40960];
+	Packet result(WIZ_REQ_USERIN);
+	int index = 0, user_count = 0;
+	short count = 0;
+	result << uint16(0); // placeholder for user count
 
-	buff_index = 3;
-	user_count = GetShort( pBuf, index );
-	for( i=0; i<user_count; i++ ) {
-		uid = GetShort( pBuf, index );
-		if( uid < 0 || uid >= MAX_USER )
+	user_count = GetShort(pBuf, index);
+	for (int i = 0; i < user_count; i++)
+	{
+		short uid = GetShort(pBuf, index);
+		CUser *pUser = m_pMain->GetUserPtr(uid);
+		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART)
 			continue;
-		if( i > 1000 ) 
-			break;
-		pUser = m_pMain->GetUserPtr(uid);
-		if (pUser != NULL && pUser->GetState() == STATE_GAMESTART)
-		{
-			SetShort( buff, pUser->GetSocketID(), buff_index );
-			GetUserInfo(buff, buff_index);
-			t_count++;
-		}
+
+		result << uint16(pUser->GetSocketID());
+		GetUserInfo(result);
+		count++;
 	}
 
-	int temp_index = 0;
-	SetByte( buff, WIZ_REQ_USERIN, temp_index );
-	SetShort( buff, t_count, temp_index );
-	SendCompressingPacket( buff, buff_index );
+	result.put(0, count); // substitute count in
+	SendCompressingPacket(&result);
 }
 
 void CUser::RequestNpcIn(char *pBuf)
 {
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return;	// ?????? ?????? ???
+	if( m_pMain->m_bPointCheckFlag == FALSE)	return;
 
 	int index = 0, nid = -1, npc_count = 0, buff_index = 0, t_count = 0, i=0,j=0;
 	CNpc* pNpc = NULL;
@@ -1190,7 +1039,7 @@ void CUser::RequestNpcIn(char *pBuf)
 	SendCompressingPacket( buff, buff_index );
 }
 
-void CUser::SetSlotItemValue()	// ????? ???????? ??(�???, ????, ??????)? ?????.
+void CUser::SetSlotItemValue()
 {
 	_ITEM_TABLE* pTable = NULL;
 	int item_hit = 0, item_ac = 0;
@@ -1362,51 +1211,53 @@ void CUser::SetSlotItemValue()	// ????? ???????? ??(�???, ????, ??????)? ?????
 
 void CUser::ExpChange(__int64 iExp)
 {	
-	char buff[256];
-	int send_index = 0;
-
-	if( m_pUserData->m_bLevel < 6 && iExp < 0 )
+	// Stop players level 5 or under from losing XP on death.
+	if ((getLevel() < 6 && iExp < 0)
+		// Stop players in the war zone (TO-DO: Add other war zones) from losing XP on death.
+		|| (m_pUserData->m_bZone == ZONE_BATTLE && iExp < 0))
 		return;
-//	
-	if( m_pUserData->m_bZone == ZONE_BATTLE && iExp < 0 ) 
-		return;
-//
 
-/*
-	if( m_pUserData->m_bZone != m_pUserData->m_bNation && m_pUserData->m_bZone < 3 && iExp < 0 ) {
-		iExp = iExp / 10;
-	}
-*/
+	// TO-DO: Make this all work unsigned. Negative XP values are NOT fun.
 	m_pUserData->m_iExp += iExp;
 
-	if( m_pUserData->m_iExp < 0 ) {
-		if( m_pUserData->m_bLevel > 5) {
-			m_pUserData->m_bLevel--;
-			m_pUserData->m_iExp = m_pMain->GetExpByLevel(m_pUserData->m_bLevel) + m_pUserData->m_iExp;
-			LevelChange( m_pUserData->m_bLevel, FALSE );
-			return;
-		}
+	// If we've lost XP, we need to delevel.
+	if (m_pUserData->m_iExp < 0)
+	{
+		// Drop us back a level.
+		m_pUserData->m_bLevel--;
+
+		// Find max XP for our new level, and take our excess XP off it.
+		m_pUserData->m_iExp = m_pMain->GetExpByLevel(getLevel()) + m_pUserData->m_iExp;
+
+		// Get new stats etc.
+		LevelChange(getLevel(), FALSE);
+		return;
 	}
-	else if( m_pUserData->m_iExp >= m_iMaxExp ) {
-		if( m_pUserData->m_bLevel >= MAX_LEVEL ) {
+	// If we've exceeded our XP requirement, we've leveled.
+	else if (m_pUserData->m_iExp >= m_iMaxExp)
+	{
+		// Hit the max level? Can't level any further. Cap the XP.
+		if (getLevel() >= MAX_LEVEL)
+		{
 			m_pUserData->m_iExp = m_iMaxExp;
 			return;
 		}
 
-		m_pUserData->m_iExp = m_pUserData->m_iExp - m_iMaxExp;
+		// Reset our XP to 0, level us up.
+		m_pUserData->m_iExp = 0;
 		m_pUserData->m_bLevel++;
-		LevelChange( m_pUserData->m_bLevel );
+		LevelChange(getLevel());
 		return;
 	}
 
-	SetByte( buff, WIZ_EXP_CHANGE, send_index );
-	SetInt64( buff, m_pUserData->m_iExp, send_index );
-	Send( buff, send_index);
-//	
-	if (iExp < 0) {
+	// Tell the client our new XP
+	Packet result(WIZ_EXP_CHANGE);
+	result << m_pUserData->m_iExp;
+	Send(&result);
+
+	// If we've lost XP, save it for possible refund later.
+	if (iExp < 0)
 		m_iLostExp = -iExp;
-	}
-//
 }
 
 void CUser::LevelChange(short level, BYTE type )
@@ -1435,22 +1286,17 @@ void CUser::LevelChange(short level, BYTE type )
 
 	Send2AI_UserUpdateInfo();
 
-	send_index = 0;
-	SetByte( buff, WIZ_LEVEL_CHANGE, send_index );
-	SetShort( buff, m_Sid, send_index );
-	SetByte( buff, m_pUserData->m_bLevel, send_index );
-	SetShort( buff, m_pUserData->m_sPoints, send_index );
-	SetByte( buff, m_pUserData->m_bstrSkill[0], send_index );
-	SetInt64( buff, m_iMaxExp, send_index );
-	SetInt64( buff, m_pUserData->m_iExp, send_index );
-	SetShort( buff, m_iMaxHp, send_index );
-	SetShort( buff, m_pUserData->m_sHp, send_index );
-	SetShort( buff, m_iMaxMp, send_index );
-	SetShort( buff, m_pUserData->m_sMp, send_index );
-	SetShort( buff, m_sMaxWeight, send_index );	
-	SetShort( buff, m_sItemWeight, send_index );
-	m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ );
-	if( m_sPartyIndex != -1 ) {
+	Packet result(WIZ_LEVEL_CHANGE);
+	result	<< uint16(GetSocketID())
+			<< getLevel() << m_pUserData->m_sPoints << m_pUserData->m_bstrSkill[0]
+			<< m_iMaxExp << m_pUserData->m_iExp
+			<< m_iMaxHp << m_pUserData->m_sHp 
+			<< m_iMaxMp << m_pUserData->m_sMp
+			<< m_sMaxWeight << m_sItemWeight;
+
+	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
+	if (isInParty())
+	{
 		send_index = 0;
 		SetByte( buff, WIZ_PARTY, send_index );
 		SetByte( buff, PARTY_LEVELCHANGE, send_index );
@@ -1462,11 +1308,8 @@ void CUser::LevelChange(short level, BYTE type )
 
 void CUser::PointChange(char *pBuf)
 {
-	int index = 0, send_index = 0, value = 0;
-	BYTE type = 0x00;
-	char send_buff[128];
-
-	type = GetByte( pBuf, index );
+	int index = 0, value = 0;
+	BYTE type = GetByte( pBuf, index );
 	value = GetShort( pBuf, index );
 	if (type > 5 || value != 1
 		|| m_pUserData->m_sPoints < 1) return;
@@ -1491,138 +1334,107 @@ void CUser::PointChange(char *pBuf)
 
 	m_pUserData->m_sPoints -= value;
 
-	SetByte( send_buff, WIZ_POINT_CHANGE, send_index );
-	SetByte( send_buff, type, send_index );
+	Packet result(WIZ_POINT_CHANGE, type);
 	switch( type ) {
 	case STR:
-		m_pUserData->m_bStr++;
-		SetShort( send_buff, m_pUserData->m_bStr, send_index );
+		result << uint16(++m_pUserData->m_bStr);
 		SetUserAbility();
 		break;
 	case STA:
-		m_pUserData->m_bSta++;
-		SetShort( send_buff, m_pUserData->m_bSta, send_index );
+		result << uint16(++m_pUserData->m_bSta);
 		SetMaxHp();
 		SetMaxMp();
 		break;
 	case DEX:
-		m_pUserData->m_bDex++;
-		SetShort( send_buff, m_pUserData->m_bDex, send_index );
+		result << uint16(++m_pUserData->m_bDex);
 		SetUserAbility();
 		break;
 	case INTEL:
-		m_pUserData->m_bIntel++;
-		SetShort( send_buff, m_pUserData->m_bIntel, send_index );
+		result << uint16(++m_pUserData->m_bIntel);
 		SetMaxMp();
 		break;
 	case CHA:
-		m_pUserData->m_bCha++;
-		SetShort( send_buff, m_pUserData->m_bCha, send_index );
+		result << uint16(++m_pUserData->m_bCha);
 		break;
 	}
-	SetShort( send_buff, m_iMaxHp, send_index );
-	SetShort( send_buff, m_iMaxMp, send_index );
-	SetShort( send_buff, m_sTotalHit, send_index );
-	SetShort( send_buff, m_sMaxWeight, send_index );
-	Send( send_buff, send_index );
+
+	result << m_iMaxHp << m_iMaxMp << m_sTotalHit << m_sMaxWeight;
+	Send(&result);
 }
 
 void CUser::HpChange(int amount, int type, bool attack)		// type : Received From AIServer -> 1, The Others -> 0
 {															// attack : Direct Attack(true) or Other Case(false)
-	char buff[256];
-	int send_index = 0;
+	Packet result(WIZ_HP_CHANGE);
 
+	// TO-DO: Make this behave unsigned.
 	m_pUserData->m_sHp += amount;
-	if( m_pUserData->m_sHp < 0 )
+	if (m_pUserData->m_sHp < 0)
 		m_pUserData->m_sHp = 0;
-	else if ( m_pUserData->m_sHp > m_iMaxHp )
+	else if (m_pUserData->m_sHp > m_iMaxHp)
 		m_pUserData->m_sHp = m_iMaxHp;
 
-	SetByte( buff, WIZ_HP_CHANGE, send_index );
-	SetShort( buff, m_iMaxHp, send_index );
-	SetShort( buff, m_pUserData->m_sHp, send_index );
-	Send( buff, send_index);
+	result << m_iMaxHp << m_pUserData->m_sHp;
+	Send(&result);
 
-	if(type == 0) {
-		send_index = 0;
-
-		SetByte( buff, AG_USER_SET_HP, send_index );
-		SetShort( buff, m_Sid, send_index );
-		SetDWORD( buff, m_pUserData->m_sHp, send_index );
-		m_pMain->Send_AIServer(buff, send_index);
+	if (type == 0)
+	{
+		result.Initialize(AG_USER_SET_HP);
+		result << uint16(GetSocketID()) << uint32(m_pUserData->m_sHp);
+		m_pMain->Send_AIServer(&result);
 	}
 
-	if( m_sPartyIndex != -1 ) {
-		send_index = 0;
+	if (isInParty())
+		SendPartyHPUpdate();
 
-		SetByte( buff, WIZ_PARTY, send_index );
-		SetByte( buff, PARTY_HPCHANGE, send_index );
-		SetShort( buff, m_Sid, send_index );
-		SetShort( buff, m_iMaxHp, send_index );
-		SetShort( buff, m_pUserData->m_sHp, send_index );
-		SetShort( buff, m_iMaxMp, send_index );
-		SetShort( buff, m_pUserData->m_sMp, send_index );
-		m_pMain->Send_PartyMember(m_sPartyIndex, buff, send_index);
-	}
-	
-	if( m_pUserData->m_sHp == 0 && attack == false) // ??? ??????? ??�??? Dead Packet ???
+	if (m_pUserData->m_sHp == 0 && attack == false)
 		Dead();
 }
 
 void CUser::MSpChange(int amount)
 {
-	char buff[256];
-	int send_index = 0;
+	Packet result(WIZ_MSP_CHANGE);
 
+	// TO-DO: Make this behave unsigned.
 	m_pUserData->m_sMp += amount;
-	if( m_pUserData->m_sMp < 0 )
+	if (m_pUserData->m_sMp < 0)
 		m_pUserData->m_sMp = 0;
-	else if ( m_pUserData->m_sMp > m_iMaxMp )
+	else if (m_pUserData->m_sMp > m_iMaxMp)
 		m_pUserData->m_sMp = m_iMaxMp;
-	
-	SetByte( buff, WIZ_MSP_CHANGE, send_index );
-	SetShort( buff, m_iMaxMp, send_index );
-	SetShort( buff, m_pUserData->m_sMp, send_index );
-	Send( buff, send_index);
 
-	if( m_sPartyIndex != -1 ) {
-		send_index = 0; 
+	result << m_iMaxMp << m_pUserData->m_sMp;
+	Send(&result);
 
-		SetByte( buff, WIZ_PARTY, send_index );
-		SetByte( buff, PARTY_HPCHANGE, send_index );
-		SetShort( buff, m_Sid, send_index );
-		SetShort( buff, m_iMaxHp, send_index );
-		SetShort( buff, m_pUserData->m_sHp, send_index );
-		SetShort( buff, m_iMaxMp, send_index );
-		SetShort( buff, m_pUserData->m_sMp, send_index );
-		m_pMain->Send_PartyMember(m_sPartyIndex, buff, send_index);
-	}
+	if (isInParty())
+		SendPartyHPUpdate(); // handles MP too
 }
 
-void CUser::Send2AI_UserUpdateInfo()
+void CUser::SendPartyHPUpdate()
 {
-	int  send_index = 0;
-	char send_buf[1024];
+	Packet result(WIZ_PARTY);
+	result	<< uint8(PARTY_HPCHANGE)
+			<< uint16(GetSocketID())
+			<< m_iMaxHp << m_pUserData->m_sHp
+			<< m_iMaxMp << m_pUserData->m_sMp;
+	m_pMain->Send_PartyMember(m_sPartyIndex, &result);
+}
 
-	SetByte(send_buf, AG_USER_UPDATE, send_index );
-	SetShort( send_buf, m_Sid, send_index );
-	SetByte( send_buf, m_pUserData->m_bLevel, send_index );
-	SetShort( send_buf, m_pUserData->m_sHp, send_index );
-	SetShort( send_buf, m_pUserData->m_sMp, send_index );
-	SetShort( send_buf, m_sTotalHit * m_bAttackAmount / 100 , send_index ); // g??
-	SetShort( send_buf, m_sTotalAc + m_sACAmount, send_index );  // g??
-	Setfloat( send_buf, m_sTotalHitrate, send_index );
-	Setfloat( send_buf, m_sTotalEvasionrate, send_index );
+void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
+{
+	Packet result(initialInfo ? AG_USER_INFO : AG_USER_UPDATE);
 
-//
-	SetShort( send_buf, m_sItemAc, send_index );
-	SetByte( send_buf, m_bMagicTypeLeftHand, send_index );
-	SetByte( send_buf, m_bMagicTypeRightHand, send_index );
-	SetShort( send_buf, m_sMagicAmountLeftHand, send_index );
-	SetShort( send_buf, m_sMagicAmountRightHand, send_index );
-//
+	result	<< uint16(GetSocketID())
+			<< m_pUserData->m_id 
+			<< getZoneID() << getNation() << getLevel()
+			<< m_pUserData->m_sHp << m_pUserData->m_sMp
+			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
+			<< uint16(m_sTotalAc + m_sACAmount)
+			<< m_sTotalHitrate << m_sTotalEvasionrate
+			<< m_sItemAc
+			<< m_bMagicTypeLeftHand << m_bMagicTypeRightHand
+			<< m_sMagicAmountLeftHand << m_sMagicAmountRightHand
+			<< m_pUserData->m_bAuthority;
 
-	m_pMain->Send_AIServer(send_buf, send_index);
+	m_pMain->Send_AIServer(&result);
 }
 
 void CUser::SetUserAbility()
@@ -1719,37 +1531,30 @@ void CUser::SetUserAbility()
 
 void CUser::SendTargetHP( BYTE echo, int tid, int damage )
 {
-	int send_index = 0, hp = 0, maxhp = 0;
-	char buff[256];
-	CUser* pTUser = NULL;
-	CNpc* pNpc = NULL;
-
-	if (tid < 0)
-		return;
+	int hp = 0, maxhp = 0;
 
 	if (tid >= NPC_BAND)
 	{
 		if (m_pMain->m_bPointCheckFlag == FALSE) return;
-		pNpc = m_pMain->m_arNpcArray.GetData(tid);
-		if (!pNpc)
+		CNpc *pNpc = m_pMain->m_arNpcArray.GetData(tid);
+		if (pNpc == NULL)
 			return;
-		hp = pNpc->m_iHP;	maxhp = pNpc->m_iMaxHP;
+		hp = pNpc->m_iHP;	
+		maxhp = pNpc->m_iMaxHP;
 	}
 	else 
 	{
-		pTUser = m_pMain->GetUserPtr(tid);
-		if( pTUser == NULL || pTUser->isDead()) 
+		CUser *pUser = m_pMain->GetUserPtr(tid);
+		if (pUser == NULL || pUser->isDead()) 
 			return;
-		hp = pTUser->m_pUserData->m_sHp;	maxhp = pTUser->m_iMaxHp;
+
+		hp = pUser->m_pUserData->m_sHp;	
+		maxhp = pUser->m_iMaxHp;
 	}
 
-	SetByte( buff, WIZ_TARGET_HP, send_index );
-	SetShort( buff, tid, send_index );
-	SetByte( buff, echo, send_index );
-	SetDWORD( buff, maxhp, send_index );
-	SetDWORD( buff, hp, send_index );
-	SetShort( buff, damage, send_index );
-	Send( buff, send_index );
+	Packet result(WIZ_TARGET_HP);
+	result << uint16(tid) << echo << maxhp << hp << uint16(damage);
+	Send(&result);
 }
 
 void CUser::BundleOpenReq(char *pBuf)
@@ -2124,18 +1929,12 @@ void CUser::SpeedHackUser()
 
 void CUser::UserLookChange(int pos, int itemid, int durability)
 {
-	int send_index = 0;
-	char send_buff[256];
-
-	if( pos >= SLOT_MAX )
+	if (pos >= SLOT_MAX)
 		return;
 
-	SetByte( send_buff, WIZ_USERLOOK_CHANGE, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetByte( send_buff, (BYTE)pos, send_index );
-	SetDWORD( send_buff, itemid, send_index );
-	SetShort( send_buff, durability, send_index );
-	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, this );
+	Packet result(WIZ_USERLOOK_CHANGE);
+	result << uint16(GetSocketID()) << uint8(pos) << itemid << uint16(durability);
+	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this);
 }
 
 void CUser::SendNotice()
@@ -2199,53 +1998,39 @@ fail_return:
 
 void CUser::UpdateGameWeather(char *pBuf, BYTE type)
 {
-	int index = 0, send_index = 0, year = 0, month = 0, date = 0;
-	char send_buff[128];
-
-	if( m_pUserData->m_bAuthority != 0 )	// is this user administrator?
+	Packet result(type);
+	int index = 0;
+	if (m_pUserData->m_bAuthority != 0)	// is this user a GM?
 		return;
 
-	if( type == WIZ_WEATHER ) {
+	if (type == WIZ_WEATHER)
+	{
 		m_pMain->m_nWeather = GetByte( pBuf, index );
 		m_pMain->m_nAmount = GetShort( pBuf, index );
-
-		SetByte( send_buff, WIZ_WEATHER, send_index );
-		SetByte( send_buff, (BYTE)m_pMain->m_nWeather, send_index );
-		SetShort( send_buff, m_pMain->m_nAmount, send_index );
-		m_pMain->Send_All( send_buff, send_index );
+		result.append(pBuf, 4); // copy the packet
 	}
-	else if( type == WIZ_TIME ) {
-		year = GetShort( pBuf, index );
-		month = GetShort( pBuf, index );
-		date = GetShort( pBuf, index );
+	else
+	{
+		short year = GetShort( pBuf, index ),
+			month = GetShort( pBuf, index ),
+			date = GetShort( pBuf, index );
 		m_pMain->m_nHour = GetShort( pBuf, index );
 		m_pMain->m_nMin = GetShort( pBuf, index );
-
-		SetByte( send_buff, WIZ_TIME, send_index );
-		SetShort( send_buff, year, send_index );
-		SetShort( send_buff, month, send_index );
-		SetShort( send_buff, date, send_index );
-		SetShort( send_buff, m_pMain->m_nHour, send_index );
-		SetShort( send_buff, m_pMain->m_nMin, send_index );
-		m_pMain->Send_All( send_buff, send_index );
+		result.append(pBuf, 10); // copy the packet
 	}
+	Send(&result);
 }
 
-void CUser::SendUserInfo(char *temp_send, int &index)
+void CUser::SendUserInfo(Packet & result)
 {
-	SetShort( temp_send, m_Sid, index );
-	SetKOString(temp_send, m_pUserData->m_id, index);
-	SetByte( temp_send, m_pUserData->m_bZone, index );
-	SetByte( temp_send, m_pUserData->m_bNation, index );
-	SetByte( temp_send, m_pUserData->m_bLevel, index );
-	SetShort( temp_send, m_pUserData->m_sHp, index );
-	SetShort( temp_send, m_pUserData->m_sMp, index );
-	SetShort( temp_send, m_sTotalHit * m_bAttackAmount / 100, index );    // g??
-	SetShort( temp_send, m_sTotalAc + m_sACAmount , index );	// g??
-	Setfloat( temp_send, m_sTotalHitrate, index );
-	Setfloat( temp_send, m_sTotalEvasionrate, index );
-	SetShort( temp_send, m_sPartyIndex, index );
-	SetByte( temp_send, m_pUserData->m_bAuthority, index );
+	result.DByte(); // string is double byte
+	result	<< uint16(GetSocketID())
+			<< m_pUserData->m_id << getZoneID() << getNation() << getLevel()
+			<< m_pUserData->m_sHp << m_pUserData->m_sMp 
+			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
+			<< uint16(m_sTotalAc + m_sACAmount)
+			<< m_sTotalHitrate << m_sTotalEvasionrate
+			<< m_sPartyIndex << m_pUserData->m_bAuthority;
 }
 
 void CUser::CountConcurrentUser()
@@ -2541,64 +2326,63 @@ void CUser::ItemWoreOut(int type, int damage)
 	}
 }
 
-void CUser::ItemDurationChange(int slot, int maxvalue, int curvalue, int amount)
+void CUser::ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint16 amount)
 {
-	if( maxvalue <= 0 ) return;
-	if( slot < 0 || slot > SLOT_MAX ) return;
-	
+	if (slot >= SLOT_MAX)
+		return;
+
 	int curpercent = 0, beforepercent = 0, curbasis = 0, beforebasis = 0;
-	int send_index = 0;
-	char send_buff[128];
-	
-	if( m_pUserData->m_sItemArray[slot].sDuration <= 0 ) {
+
+	// If the durability's now less than 0, reset it to 0.
+	if (m_pUserData->m_sItemArray[slot].sDuration <= 0)
+	{
 		m_pUserData->m_sItemArray[slot].sDuration = 0;
-		SetByte( send_buff, WIZ_DURATION, send_index );
-		SetByte( send_buff, slot, send_index );
-		SetShort( send_buff, 0, send_index );
-		Send( send_buff, send_index );
+		SendDurability(slot, 0);
 		
 		SetSlotItemValue();
 		SetUserAbility();
-
-		send_index = 0;
-		SetByte( send_buff, WIZ_ITEM_MOVE, send_index );
-		SetByte( send_buff, 0x01, send_index );
-		SetShort( send_buff, m_sTotalHit, send_index );
-		SetShort( send_buff, m_sTotalAc, send_index );
-		SetShort( send_buff, m_sItemWeight, send_index );
-		SetShort( send_buff, m_iMaxHp, send_index );
-		SetShort( send_buff, m_iMaxMp, send_index );
-		SetByte( send_buff, (BYTE)m_sItemStr, send_index );
-		SetByte( send_buff, (BYTE)m_sItemSta, send_index );
-		SetByte( send_buff, (BYTE)m_sItemDex, send_index );
-		SetByte( send_buff, (BYTE)m_sItemIntel, send_index );
-		SetByte( send_buff, (BYTE)m_sItemCham, send_index );
-		SetByte( send_buff, m_bFireR, send_index );
-		SetByte( send_buff, m_bColdR, send_index );
-		SetByte( send_buff, m_bLightningR, send_index );
-		SetByte( send_buff, m_bMagicR, send_index );
-		SetByte( send_buff, m_bDiseaseR, send_index );
-		SetByte( send_buff, m_bPoisonR, send_index );
-		Send( send_buff, send_index );
+		SendItemMove();
 		return;
 	}
-	curpercent = (int)((curvalue / (double)maxvalue) * 100);
-	beforepercent = (int)(((curvalue+amount) / (double)maxvalue ) * 100);
+
+	curpercent = (int)((curValue / (double)maxValue) * 100);
+	beforepercent = (int)(((curValue + amount) / (double)maxValue ) * 100);
 	
 	curbasis = curpercent / 5;
 	beforebasis = beforepercent / 5;
 
-	if( curbasis != beforebasis ) {
-		SetByte( send_buff, WIZ_DURATION, send_index );
-		SetByte( send_buff, slot, send_index );
-		SetShort( send_buff, curvalue, send_index );
-		Send( send_buff, send_index );
+	if (curbasis != beforebasis) 
+	{
+		SendDurability(slot, curValue);
 
-		if( curpercent >= 65 && curpercent < 70 )
-			UserLookChange( slot, m_pUserData->m_sItemArray[slot].nNum, curvalue );
-		if( curpercent >= 25 && curpercent < 30 )
-			UserLookChange( slot, m_pUserData->m_sItemArray[slot].nNum, curvalue );
+		if (curpercent >= 65 && curpercent < 70
+			|| curpercent >= 25 && curpercent < 30)
+			UserLookChange( slot, m_pUserData->m_sItemArray[slot].nNum, curValue);
 	}
+}
+
+void CUser::SendDurability(uint8 slot, uint16 durability)
+{
+	Packet result(WIZ_DURATION, slot);
+	result << durability;
+	Send(&result);
+}
+
+void CUser::SendItemMove(bool bFail /*= false*/)
+{
+	// NOT the boolean to produce either a 0 on failure (!(bFail = true) = false = 0), or 1 on success.
+	Packet result(WIZ_ITEM_MOVE, uint8(!bFail));
+
+	// If we're sending an error, don't send the stats as well.
+	if (!bFail)
+	{
+		result	<< m_sTotalHit << m_sTotalAc
+				<< m_iMaxHp << m_iMaxMp
+				<< uint8(m_sItemStr) << uint8(m_sItemSta) << uint8(m_sItemDex) 
+				<< uint8(m_sItemIntel) << uint8(m_sItemCham)
+				<< m_bFireR << m_bColdR << m_bLightningR << m_bMagicR << m_bDiseaseR << m_bPoisonR;
+	}
+	Send(&result);
 }
 
 void CUser::HPTimeChange(float currenttime)
@@ -3015,7 +2799,7 @@ void CUser::SendAllKnightsID()
 		if( !pKnights ) continue;
 		//if( pKnights->bFlag != KNIGHTS_TYPE ) continue;
 		SetShort( temp_buff, pKnights->m_sIndex, buff_index );
-		SetCString(temp_buff, pKnights->m_strName, buff_index);
+		SetKOString(temp_buff, pKnights->m_strName, buff_index);
 		count++;
 	}
 
@@ -3136,15 +2920,6 @@ void CUser::SpeedHackTime(char* pBuf)
 			m_fSpeedHackServerTime = TimeGet();
 		}
 	}
-}
-
-void CUser::ServerStatusCheck()
-{
-	int send_index = 0;
-	char send_buff[3];
-	SetByte(send_buff, WIZ_SERVER_CHECK, send_index );
-	SetShort(send_buff, m_pMain->m_sErrorSocketCount, send_index);
-	Send( send_buff, send_index );
 }
 
 void CUser::Type3AreaDuration(float currenttime)
@@ -3383,91 +3158,80 @@ CUser* CUser::GetItemRoutingUser(int itemid, short itemcount)
 
 void CUser::ClassChangeReq()
 {
-	char send_buff[128];
-	int send_index = 0;
-
-	SetByte( send_buff, WIZ_CLASS_CHANGE, send_index );
-	SetByte( send_buff, CLASS_CHANGE_RESULT, send_index );
-	if( m_pUserData->m_bLevel < 10 )
-		SetByte( send_buff, 0x02, send_index );
-	else if ( (m_pUserData->m_sClass % 100) > 4 )
-		SetByte( send_buff, 0x03, send_index );
-	else
-		SetByte( send_buff, 0x01, send_index );
-	Send( send_buff, send_index );
+	Packet result(WIZ_CLASS_CHANGE, uint8(CLASS_CHANGE_RESULT));
+	if (getLevel() < 10) // if we haven't got our first job change
+		result << uint8(2);
+	else if ((m_pUserData->m_sClass % 100) > 4) // if we've already got our job change
+		result << uint8(3);
+	else // otherwise
+		result << uint8(1);
+	Send(&result);
 }
 
 void CUser::AllSkillPointChange()
 {
-	int index = 0, send_index = 0, skill_point = 0, money = 0, i=0, j=0, temp_value = 0, old_money = 0;
-	BYTE type = 0x00;    // 0:???? ???, 1:????, 2:?????? ??u?? ?????..
-	char send_buff[128];
+	Packet result(WIZ_CLASS_CHANGE, uint8(ALL_SKILLPT_CHANGE));
+	int index = 0, skill_point = 0, money = 0, temp_value = 0, old_money = 0;
+	uint8 type = 0;
 
-	temp_value = (int)pow(( m_pUserData->m_bLevel * 2.0f ), 3.4f);
-	temp_value = ( temp_value / 100 )*100;
-	if( m_pUserData->m_bLevel < 30)		temp_value = (int)(temp_value * 0.4f);
-	else if( m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= 90 ) temp_value = (int)(temp_value * 1.5f);
+	temp_value = (int)pow((m_pUserData->m_bLevel * 2.0f), 3.4f);
+	temp_value = (temp_value / 100) * 100;
+	if (m_pUserData->m_bLevel < 30)		
+		temp_value = (int)(temp_value * 0.4f);
+	else if (m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= MAX_LEVEL)
+		temp_value = (int)(temp_value * 1.5f);
 
-	temp_value = (int)(temp_value * 1.5);
+	temp_value = (int)(temp_value * 1.5f);
 
-	if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{	// ????????? ?�???????
-		old_money = temp_value;
+	// If global discounts are enabled 
+	if (m_pMain->m_sDiscount == 2 // or war discounts are enabled
+		|| (m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation))
+	{
+		old_money = temp_value; // get it half price
 		temp_value = (int)(temp_value * 0.5f);
-		//TRACE("^^ AllSkillPointChange - Discount ,, money=%d->%d\n", old_money, temp_value);
-	}
-
-	if( m_pMain->m_sDiscount == 2  )		{	
-		old_money = temp_value;
-		temp_value = (int)(temp_value * 0.5f);
-		//TRACE("^^ AllSkillPointChange - Discount ,, money=%d->%d\n", old_money, temp_value);
 	}
 
 	money = m_pUserData->m_iGold - temp_value;
-	//money = m_pUserData->m_iGold - 100;
 
-	if(money < 0)	goto fail_return;
-	if( m_pUserData->m_bLevel < 10 )	goto fail_return;
+	// Not enough money, or level too low.
+	if (money < 0
+		|| getLevel() < 10)
+		goto fail_return;
 
-	for(i=1; i<9; i++)	{
+	// Get total skill points
+	for (int i = 1; i < 9; i++)
 		skill_point += m_pUserData->m_bstrSkill[i];
-	}
 
-	if(skill_point <= 0) {
+	// If we don't have any skill points, there's no point resetting now is there.
+	if (skill_point <= 0)
+	{
 		type = 2;
 		goto fail_return;
 	}
 
-	// ????? ???? ??? : ????u?? 255? ??? ????? ????? ???? ???..
-	//m_pUserData->m_bstrSkill[0] += skill_point;		
-	m_pUserData->m_bstrSkill[0] = (m_pUserData->m_bLevel - 9) * 2;
-	for(j=1; j<9; j++)	
-		m_pUserData->m_bstrSkill[j] = 0;
+	// Reset skill points.
+	m_pUserData->m_bstrSkill[0] = (getLevel() - 9) * 2;
+	for (int i = 1; i < 9; i++)	
+		m_pUserData->m_bstrSkill[i] = 0;
+
+	// Take coins.
 	m_pUserData->m_iGold = money;
-	type = 1;
 
-	SetByte( send_buff, WIZ_CLASS_CHANGE, send_index );
-	SetByte( send_buff, ALL_SKILLPT_CHANGE, send_index );
-	SetByte( send_buff, type, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-	SetByte( send_buff, m_pUserData->m_bstrSkill[0], send_index );
-	Send( send_buff, send_index );
-
+	result << uint8(1) << m_pUserData->m_iGold << m_pUserData->m_bstrSkill[0];
+	Send(&result);
 	return;
 
 fail_return:
-	SetByte( send_buff, WIZ_CLASS_CHANGE, send_index );
-	SetByte( send_buff, ALL_SKILLPT_CHANGE, send_index );
-	SetByte( send_buff, type, send_index );
-	SetDWORD( send_buff, temp_value, send_index );
-	Send( send_buff, send_index );
+	result << type << temp_value;
+	Send(&result);
 }
 
 void CUser::AllPointChange()
 {
-	int index = 0, send_index = 0, total_point = 0, money = 0, classcode=0, temp_money = 0, old_money=0;
+	Packet result(WIZ_CLASS_CHANGE, uint8(ALL_POINT_CHANGE));
+	int index = 0, total_point = 0, money = 0, classcode=0, temp_money = 0, old_money=0;
 	double dwMoney = 0;
 	BYTE type = 0x00;
-	char send_buff[128];
 
 	if( m_pUserData->m_bLevel > 80 ) goto fail_return;
 
@@ -3582,30 +3346,16 @@ void CUser::AllPointChange()
 	SetUserAbility();
 	Send2AI_UserUpdateInfo();
 
-	type = 0x01;
-	SetByte( send_buff, WIZ_CLASS_CHANGE, send_index );
-	SetByte( send_buff, ALL_POINT_CHANGE, send_index );
-	SetByte( send_buff, type, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-	SetShort( send_buff, m_pUserData->m_bStr, send_index );
-	SetShort( send_buff, m_pUserData->m_bSta, send_index );
-	SetShort( send_buff, m_pUserData->m_bDex, send_index );
-	SetShort( send_buff, m_pUserData->m_bIntel, send_index );
-	SetShort( send_buff, m_pUserData->m_bCha, send_index );
-	SetShort( send_buff, m_iMaxHp, send_index );
-	SetShort( send_buff, m_iMaxMp, send_index );
-	SetShort( send_buff, m_sTotalHit, send_index );
-	SetShort( send_buff, m_sMaxWeight, send_index );
-	SetShort( send_buff, m_pUserData->m_sPoints, send_index );
-	Send( send_buff, send_index );
-
+	type = 1;
+	result << type
+		<< m_pUserData->m_iGold
+		<< m_pUserData->m_bStr << m_pUserData->m_bSta << m_pUserData->m_bDex << m_pUserData->m_bIntel << m_pUserData->m_bCha
+		<< m_iMaxHp << m_iMaxMp << m_sTotalHit << m_sMaxWeight << m_pUserData->m_sPoints;
+	Send(&result);
 
 fail_return:
-	SetByte( send_buff, WIZ_CLASS_CHANGE, send_index );
-	SetByte( send_buff, ALL_POINT_CHANGE, send_index );
-	SetByte( send_buff, type, send_index );
-	SetDWORD( send_buff, temp_money, send_index );
-	Send( send_buff, send_index );
+	result << type << temp_money;
+	Send(&result);
 
 }
 
@@ -3614,129 +3364,84 @@ void CUser::GoldChange(short tid, int gold)
 	if (m_pUserData->m_bZone < 3) return;	// Money only changes in Frontier zone and Battle zone!!!
 	if (m_pUserData->m_bZone == ZONE_SNOW_BATTLE) return;
 
-	int s_temp_gold = 0; int t_temp_gold = 0, i = 0, send_index = 0;
-	BYTE s_type = 0; BYTE t_type = 0;    // 1 -> Get gold    2 -> Lose gold
-
-	char send_buff[256];
-
 	CUser* pTUser = m_pMain->GetUserPtr(tid);
-	if (pTUser == NULL)
+	if (pTUser == NULL || pTUser->m_pUserData->m_iGold <= 0)
 		return;
-	
-	if ( pTUser->m_pUserData->m_iGold <= 0 ) return;
 
-	if (gold == 0) {		// Reward money in battle zone!!!
-		if (m_sPartyIndex == -1) {	// Source is NOT in a party.
-			s_type = 1 ; t_type = 2 ;
-
-			s_temp_gold = (pTUser->m_pUserData->m_iGold * 4) / 10;
-			t_temp_gold = pTUser->m_pUserData->m_iGold / 2;
-
-			m_pUserData->m_iGold += s_temp_gold;
-			pTUser->m_pUserData->m_iGold -= t_temp_gold;			
+	// Reward money in war zone
+	if (gold == 0)
+	{
+		// If we're not in a party, we can distribute cleanly.
+		if (!isInParty())
+		{
+			GoldGain((pTUser->m_pUserData->m_iGold * 4) / 10);
+			pTUser->GoldLose(pTUser->m_pUserData->m_iGold / 2);
+			return;
 		}
-		else {	// When the source is in a party.			
-			_PARTY_GROUP* pParty = NULL;
-			pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
-			if( !pParty ) return;			
 
-			s_type = 1 ; t_type = 2 ;
+		// Otherwise, if we're in a party, we need to divide it up.
+		_PARTY_GROUP* pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
+		if (pParty == NULL)
+			return;			
 
-			s_temp_gold = (pTUser->m_pUserData->m_iGold * 4) / 10;
-			t_temp_gold = pTUser->m_pUserData->m_iGold / 2;
-			
-			pTUser->m_pUserData->m_iGold -= t_temp_gold;		
+		int userCount = 0, levelSum = 0, temp_gold = (pTUser->m_pUserData->m_iGold * 4) / 10;	
+		pTUser->GoldLose(pTUser->m_pUserData->m_iGold / 2);		
 
-			SetByte( send_buff, WIZ_GOLD_CHANGE, send_index );	// First the victim...
-			SetByte( send_buff, t_type, send_index );
-			SetDWORD( send_buff, t_temp_gold, send_index );
-			SetDWORD( send_buff, pTUser->m_pUserData->m_iGold, send_index );
-			pTUser->Send( send_buff, send_index );	
+		// TO-DO: Clean up the party system. 
+		for (int i = 0; i < 8; i++)
+		{
+			if (pParty->uid[i] == -1)
+				continue;
 
-			int usercount = 0, money = 0, levelsum = 0, count = 0;		// For the loot sharing procedure...
-			count = s_temp_gold ;
-
-			for( i=0; i<8; i++ ) {
-				if( pParty->uid[i] != -1 ) {
-					usercount++;
-					levelsum += pParty->bLevel[i];
-				}
-			}
-
-			if( usercount == 0 ) return;
-
-			for( i=0; i<8; i++ ) {		
-				if( pParty->uid[i] != -1 || pParty->uid[i] >= MAX_USER ) {
-					CUser * pUser = m_pMain->GetUserPtr(pParty->uid[i]);
-					if (pUser == NULL)
-						continue;
-
-					money = (int)(count * (float)(pUser->m_pUserData->m_bLevel / (float)levelsum));
-					pUser->m_pUserData->m_iGold += money;
-
-					send_index = 0;
-					SetByte( send_buff, WIZ_GOLD_CHANGE, send_index );		// Now the party members...
-					SetByte( send_buff, 1, send_index );
-					SetDWORD( send_buff, money, send_index );
-					SetDWORD( send_buff, pUser->m_pUserData->m_iGold, send_index );
-					pUser->Send( send_buff, send_index );
-				}
-			}			
-			return ;
+			userCount++;
+			levelSum += pParty->bLevel[i];
 		}
-	}
-	else {	// When actual values are provided.
-		if (gold > 0 ) {	// Source gains money.
-			s_type = 1; t_type = 2;
-			s_temp_gold = gold; t_temp_gold = gold;
 
-			m_pUserData->m_iGold += s_temp_gold;
-			pTUser->m_pUserData->m_iGold -= t_temp_gold;
-		}
-		else {	// Source loses money.
-			s_type = 2; t_type = 1;
-			s_temp_gold = gold; t_temp_gold = gold;
+		// No users (this should never happen! Needs to be cleaned up...), don't bother with the below loop.
+		if (userCount == 0) 
+			return;
 
-			m_pUserData->m_iGold -= s_temp_gold;
-			pTUser->m_pUserData->m_iGold += t_temp_gold;
-		}
+		for (int i = 0; i < 8; i++)
+		{		
+			CUser * pUser = m_pMain->GetUserPtr(pParty->uid[i]);
+			if (pUser == NULL)
+					continue;
+
+			pUser->GoldGain((int)(temp_gold * (float)(pUser->m_pUserData->m_bLevel / (float)levelSum)));
+		}			
+		return;
 	}
 
-	SetByte( send_buff, WIZ_GOLD_CHANGE, send_index );	// First the source...
-	SetByte( send_buff, s_type, send_index );
-	SetDWORD( send_buff, s_temp_gold, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-	Send( send_buff, send_index );	
+	// Otherwise, use the coin amount provided.
 
-	send_index = 0;
-
-	SetByte( send_buff, WIZ_GOLD_CHANGE, send_index );	// Now the target
-	SetByte( send_buff, t_type, send_index );
-	SetDWORD( send_buff, t_temp_gold, send_index );
-	SetDWORD( send_buff, pTUser->m_pUserData->m_iGold, send_index );
-	pTUser->Send( send_buff, send_index );	
+	// Source gains money
+	if (gold > 0)
+	{
+		GoldGain(gold);
+		pTUser->GoldLose(gold);
+	}
+	// Source loses money
+	else
+	{
+		GoldLose(gold);
+		pTUser->GoldGain(gold);
+	}
 }
 
 void CUser::SelectWarpList(char *pBuf)
 {
-	int index = 0, send_index = 0, warpid = 0, zoneindex = 0;
-	_WARP_INFO* pWarp = NULL;
-	_ZONE_SERVERINFO *pInfo	= NULL;
-	C3DMap* pMap = NULL;
-	char send_buff[128]; 
-
-	BYTE type = 2 ;
+	int index = 0, warpid = 0;
 	warpid = GetShort(pBuf, index);
 
-	pWarp = GetMap()->m_WarpArray.GetData(warpid);
+	_WARP_INFO *pWarp = GetMap()->m_WarpArray.GetData(warpid);
 	if (pWarp == NULL)
 		return;
 
-	pMap = m_pMain->GetZoneByID(pWarp->sZone);
+	C3DMap *pMap = m_pMain->GetZoneByID(pWarp->sZone);
 	if (pMap == NULL)
 		return;
 
-	pInfo = m_pMain->m_ServerArray.GetData(pMap->m_nServerNo);
+	_ZONE_SERVERINFO *pInfo = m_pMain->m_ServerArray.GetData(pMap->m_nServerNo);
 	if (pInfo == NULL)
 		return;
 
@@ -3750,10 +3455,9 @@ void CUser::SelectWarpList(char *pBuf)
 	{
 		m_bZoneChangeSameZone = TRUE;
 
-		SetByte(send_buff, WIZ_WARP_LIST, send_index);
-		SetByte(send_buff, type, send_index);
-		SetByte(send_buff, 1, send_index);
-		Send(send_buff, send_index);
+		Packet result(WIZ_WARP_LIST, uint8(2));
+		result << uint8(1);
+		Send(&result);
 	}
 
 	ZoneChange(pWarp->sZone, pWarp->fX + rx, pWarp->fZ + rz);
@@ -3783,40 +3487,34 @@ void CUser::ServerChangeOk(char *pBuf)
 
 BOOL CUser::GetWarpList(int warp_group)
 {
+	Packet result(WIZ_WARP_LIST, uint8(1));
 	C3DMap* pMap = GetMap();
-	int warpid = 0, send_index = 0;
-	int zoneindex = -1, temp_index = 0, count = 0;
-	char buff[8192], send_buff[8192]; 
+	set<_WARP_INFO*> warpList;
 
-	BYTE type = 1;
 	foreach_stlmap (itr, pMap->m_WarpArray)
 	{
 		_WARP_INFO *pWarp = itr->second;
 		if (pWarp == NULL || (pWarp->sWarpID / 10) != warp_group)
 			continue;
 		
-		SetShort( buff, pWarp->sWarpID, send_index );
-
-		SetKOString(buff, pWarp->strWarpName, send_index);
-		SetKOString(buff, pWarp->strAnnounce, send_index);
-		SetShort(buff, pWarp->sZone, send_index);
-
-		C3DMap *pDstMap = m_pMain->GetZoneByID(pWarp->sZone);
-		SetShort(buff, pDstMap != NULL ? pDstMap->m_sMaxUser : 0, send_index);
-
-		SetDWORD( buff, pWarp->dwPay, send_index );
-		SetShort( buff, (short)(pWarp->fX*10), send_index );
-		SetShort( buff, (short)(pWarp->fZ*10), send_index );
-		SetShort( buff, (short)(pWarp->fY*10), send_index );
-		count++;
+		warpList.insert(pWarp);
 	}
 
-	SetByte( send_buff, WIZ_WARP_LIST, temp_index );
-	SetByte( send_buff, type, temp_index );
-	SetShort( send_buff, count, temp_index );
-	SetString( send_buff, buff, send_index, temp_index );
-	Send( send_buff, temp_index );
-	
+	result << uint16(warpList.size());
+	foreach (itr, warpList)
+	{
+		C3DMap *pDstMap = m_pMain->GetZoneByID((*itr)->sZone);
+		if (pDstMap == NULL)
+			continue;
+
+		result	<< (*itr)->sWarpID 
+				<< (*itr)->strWarpName << (*itr)->strAnnounce
+				<< (*itr)->sZone
+				<< pDstMap->m_sMaxUser
+				<< uint32((*itr)->dwPay);
+	}
+
+	Send(&result);
 	return TRUE;
 }
 
@@ -3836,19 +3534,15 @@ void CUser::InitType3()
 
 BOOL CUser::BindObjectEvent(_OBJECT_EVENT *pEvent)
 {
-	int  send_index = 0;
-	char send_buff[3];
-
 	if (pEvent->sBelong != 0 && pEvent->sBelong != getNation())
 		return FALSE;
 
+	Packet result(WIZ_OBJECT_EVENT, uint8(pEvent->sType));
+
 	m_pUserData->m_sBind = pEvent->sIndex;
 
-	SetByte(send_buff, WIZ_OBJECT_EVENT, send_index);
-	SetByte(send_buff, (BYTE)pEvent->sType, send_index);
-	SetByte(send_buff, 1, send_index);
-	Send(send_buff, send_index);
-
+	result << uint8(1);
+	Send(&result);
 	return TRUE;
 }
 
@@ -3923,8 +3617,7 @@ BOOL CUser::WarpListObjectEvent(_OBJECT_EVENT *pEvent)
 
 void CUser::ObjectEvent(char *pBuf)
 {
-	int index = 0, objectindex = 0, send_index = 0, nid = 0;
-	char send_buff[6];
+	int index = 0, objectindex = 0, nid = 0;
 	BOOL bSuccess = FALSE;
 
 	if (m_pMain->m_bPointCheckFlag == FALSE)
@@ -3966,19 +3659,17 @@ void CUser::ObjectEvent(char *pBuf)
 
 	if (!bSuccess)
 	{
-		SetByte(send_buff, WIZ_OBJECT_EVENT, send_index);
-		SetByte(send_buff, pEvent == NULL ? 0 : pEvent->sType, send_index);
-		SetByte(send_buff, 0, send_index);
+		Packet result(WIZ_OBJECT_EVENT, uint8(pEvent == NULL ? 0 : pEvent->sType));
+		result << uint8(0);
+		Send(&result);
 	}
 }
 
 void CUser::SendAnvilRequest(int nid)
 {
-	char send_buff[4]; int send_index = 0;
-	SetByte(send_buff, WIZ_ITEM_UPGRADE, send_index);
-	SetByte(send_buff, 1, send_index);
-	SetShort(send_buff, nid, send_index);
-	Send(send_buff, send_index);
+	Packet result(WIZ_ITEM_UPGRADE, uint8(1));
+	result << nid;
+	Send(&result);
 }
 
 void CUser::BlinkStart()
@@ -4054,70 +3745,47 @@ void CUser::KickOut(char *pBuf)
 	if( pUser ) {
 		pUser->UserDataSaveToAgent();
 		pUser->Close();
+		return;
 	}
-	else {
-		SetByte( send_buff, WIZ_KICKOUT, send_index );
-		SetKOString( send_buff, accountid, send_index );
-		m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	}
+
+	SetByte( send_buff, WIZ_KICKOUT, send_index );
+	SetKOString( send_buff, accountid, send_index );
+	m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
 }
 
 void CUser::GoldGain(int gold)	// 1 -> Get gold    2 -> Lose gold
 {
-	int send_index = 0;
-	char send_buff[256];
+	Packet result(WIZ_GOLD_CHANGE);
 	
-	m_pUserData->m_iGold += gold;	// Add gold.
+	m_pUserData->m_iGold += gold;
 
-	SetByte( send_buff, WIZ_GOLD_CHANGE, send_index );	// First the source...
-	SetByte( send_buff, 0x01, send_index );
-	SetDWORD( send_buff, gold, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-	Send( send_buff, send_index );	
+	result << uint8(1) << gold << m_pUserData->m_iGold;
+	Send(&result);	
 }
 
 BOOL CUser::GoldLose(unsigned int gold)
 {
-	int send_index = 0;
-	char send_buff[256];
+	if (m_pUserData->m_iGold < gold) 
+		return FALSE;
 	
-	if (m_pUserData->m_iGold < gold) return FALSE;	// Insufficient gold!
-	
-	m_pUserData->m_iGold -= gold;	// Subtract gold.
-
-	SetByte( send_buff, WIZ_GOLD_CHANGE, send_index );	// First the source...
-	SetByte( send_buff, 0x02, send_index );
-	SetDWORD( send_buff, gold, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-	Send( send_buff, send_index );	
-
+	Packet result(WIZ_GOLD_CHANGE);
+	m_pUserData->m_iGold -= gold;
+	result << uint8(2) << gold << m_pUserData->m_iGold;
+	Send(&result);	
 	return TRUE;
 }
 
 BOOL CUser::CheckSkillPoint(BYTE skillnum, BYTE min, BYTE max)
 {
-	if (skillnum < 5 || skillnum > 8) return FALSE;
-
-	if (m_pUserData->m_bstrSkill[skillnum] >= min && m_pUserData->m_bstrSkill[skillnum] <= max) {
-		return TRUE;
-	}
-	else {
+	if (skillnum < 5 || skillnum > 8) 
 		return FALSE;
-	}		
 
-	return FALSE;
+	return (m_pUserData->m_bstrSkill[skillnum] >= min && m_pUserData->m_bstrSkill[skillnum] <= max);
 }
 
 BOOL CUser::CheckClass(short class1, short class2, short class3, short class4, short class5, short class6)
 {
-
-	if (JobGroupCheck(class1)) return TRUE;
-	if (JobGroupCheck(class2)) return TRUE;
-	if (JobGroupCheck(class3)) return TRUE;
-	if (JobGroupCheck(class4)) return TRUE;
-	if (JobGroupCheck(class5)) return TRUE;
-	if (JobGroupCheck(class6)) return TRUE;
-	return FALSE;
+	return (JobGroupCheck(class1) || JobGroupCheck(class2) || JobGroupCheck(class3) || JobGroupCheck(class4) || JobGroupCheck(class5) || JobGroupCheck(class6));
 }
 
 BOOL CUser::JobGroupCheck(short jobgroupid)

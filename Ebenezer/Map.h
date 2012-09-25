@@ -14,6 +14,21 @@
 #include "GameEvent.h"
 #include "../shared/STLMap.h"
 
+struct _ZONE_INFO
+{
+	int m_nServerNo;
+	int m_nZoneNumber;
+	char m_MapName[_MAX_PATH];
+	float m_fInitX, m_fInitY, m_fInitZ;
+	BYTE m_bType;
+
+	_ZONE_INFO()
+	{
+		memset(m_MapName, 0x00, sizeof(m_MapName));
+	};
+};
+
+
 typedef CSTLMap <CGameEvent>		EventArray;
 typedef CSTLMap <_OBJECT_EVENT>		ObjectEventArray;
 typedef CSTLMap <_REGENE_EVENT>		ObjectRegeneArray;
@@ -66,6 +81,7 @@ public:
 	int GetZRegionMax() {return m_nZRegion-1;};
 
 	C3DMap();
+	void Initialize(_ZONE_INFO *pZone);
 	virtual ~C3DMap();
 
 	CString m_MapName;

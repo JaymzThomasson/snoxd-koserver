@@ -100,15 +100,12 @@ CAujardDlg::CAujardDlg(CWnd* pParent /*=NULL*/)
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
-	memset( m_strGameDSN, 0x00, 24 );
-	memset( m_strGameUID, 0x00, 24 );
-	memset( m_strGamePWD, 0x00, 24 );
-	memset( m_strAccountDSN, 0x00, 24 );
-	memset( m_strAccountUID, 0x00, 24 );
-	memset( m_strAccountPWD, 0x00, 24 );
-	memset( m_strLogDSN, 0x00, 24 );
-	memset( m_strLogUID, 0x00, 24 );
-	memset( m_strLogPWD, 0x00, 24 );
+	memset(m_strGameDSN, 0x00, sizeof(m_strAccountPWD));
+	memset(m_strGameUID, 0x00, sizeof(m_strAccountPWD));
+	memset(m_strGamePWD, 0x00, sizeof(m_strAccountPWD));
+	memset(m_strAccountDSN, 0x00, sizeof(m_strAccountPWD));
+	memset(m_strAccountUID, 0x00, sizeof(m_strAccountPWD));
+	memset(m_strAccountPWD, 0x00, sizeof(m_strAccountPWD));
 }
 
 void CAujardDlg::DoDataExchange(CDataExchange* pDX)
@@ -167,15 +164,12 @@ BOOL CAujardDlg::OnInitDialog()
 
 	CIni ini("Aujard.ini");
 
-	ini.GetString( "ODBC", "ACCOUNT_DSN", "KN_online", m_strAccountDSN, 24 );
-	ini.GetString( "ODBC", "ACCOUNT_UID", "knight", m_strAccountUID, 24 );
-	ini.GetString( "ODBC", "ACCOUNT_PWD", "knight", m_strAccountPWD, 24 );
-	ini.GetString( "ODBC", "GAME_DSN", "KN_online", m_strGameDSN, 24 );
-	ini.GetString( "ODBC", "GAME_UID", "knight", m_strGameUID, 24 );
-	ini.GetString( "ODBC", "GAME_PWD", "knight", m_strGamePWD, 24 );
-	ini.GetString( "ODBC", "LOG_DSN", "KN_online", m_strLogDSN, 24 );
-	ini.GetString( "ODBC", "LOG_UID", "knight", m_strLogUID, 24 );
-	ini.GetString( "ODBC", "LOG_PWD", "knight", m_strLogPWD, 24 );
+	ini.GetString("ODBC", "ACCOUNT_DSN", "KN_online", m_strAccountDSN, sizeof(m_strAccountDSN));
+	ini.GetString("ODBC", "ACCOUNT_UID", "knight", m_strAccountUID, sizeof(m_strAccountUID));
+	ini.GetString("ODBC", "ACCOUNT_PWD", "knight", m_strAccountPWD, sizeof(m_strAccountPWD));
+	ini.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, sizeof(m_strGameDSN));
+	ini.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, sizeof(m_strGameUID));
+	ini.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, sizeof(m_strGamePWD));
 
 	m_nServerNo = ini.GetInt("ZONE_INFO", "GROUP_INFO", 1);
 	m_nZoneNo = ini.GetInt("ZONE_INFO", "ZONE_INFO", 1);

@@ -42,6 +42,17 @@ C3DMap::C3DMap()
 	m_pMain = NULL;
 }
 
+void C3DMap::Initialize(_ZONE_INFO *pZone)
+{
+	m_nServerNo = pZone->m_nServerNo;
+	m_nZoneNumber = pZone->m_nZoneNumber;
+	m_MapName = pZone->m_MapName;
+	m_fInitX = pZone->m_fInitX;
+	m_fInitY = pZone->m_fInitY;
+	m_fInitZ = m_fInitZ;
+	m_bType = pZone->m_bType;
+}
+
 C3DMap::~C3DMap()
 {
 	if( m_ppRegion ) {
@@ -70,7 +81,6 @@ C3DMap::~C3DMap()
 		m_ppnEvent = NULL;
 	}
 
-	DeleteCriticalSection( &g_region_critical );
 }
 
 BOOL C3DMap::LoadMap(HANDLE hFile)
@@ -114,8 +124,6 @@ BOOL C3DMap::LoadMap(HANDLE hFile)
 		AfxMessageBox("Event Load Fail!!");
 //		return FALSE;
 	}
-
-	InitializeCriticalSection( &g_region_critical );
 
 	return TRUE;
 }

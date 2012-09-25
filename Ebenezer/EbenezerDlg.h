@@ -64,7 +64,8 @@ public:
 	void GetCaptainUserPtr();
 	void Send_CommandChat( char* pBuf, int len, int nation, CUser* pExceptUser = NULL );
 	BOOL LoadBattleTable();
-	void Send_UDP_All( char* pBuf, int len, int group_type = 0 );
+	void Send_UDP_All( char* pBuf, int len, int group_type = 0 ); // PENDING DEPRECATION
+	void Send_UDP_All(Packet *pkt, int group_type = 0);
 	void KickOutZoneUsers(short zone);
 	__int64 GenerateItemSerial();
 	int KickOutAllUsers();
@@ -91,7 +92,8 @@ public:
 	BOOL LoadMagicType2();
 	BOOL LoadMagicType1();
 	void KillUser( const char* strbuff );
-	void Send_PartyMember( int party, char* pBuf, int len );
+	void Send_PartyMember(int party, char* pBuf, int len);
+	void Send_PartyMember(int party, Packet *result);
 	void Send_KnightsMember( int index, char* pBuf, int len, int zone=100 );
 	int GetAIServerPort();
 	BOOL AISocketConnect( int zone, int flag = 0 );
@@ -108,9 +110,6 @@ public:
 	void UpdateWeather();
 	void UpdateGameTime();
 	void GetTimeFromIni();
-	void Send_NearRegion( char* pBuf, int len, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser=NULL );
-	void Send_FilterUnitRegion( char* pBuf, int len, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser* pExceptUser=NULL );
-	void Send_UnitRegion( char *pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser=NULL, bool bDirect=true );
 	BOOL LoadCoefficientTable();
 	BOOL LoadMagicTable();
 	BOOL LoadItemTable();
@@ -126,9 +125,16 @@ public:
 	BOOL InitializeMMF();
 	void UserInOutForMe( CUser* pSendUser );	// 9 Regions All Users USERINOUT Packet Packaging Function
 	void NpcInOutForMe( CUser* pSendUser );	// 9 Regions All Npcs NPCINOUT Packet Packaging Function
-	void Send_Region( char* pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL, bool bDirect=true );	// zone == real zone number
-	void Send_All( char* pBuf, int len, CUser* pExceptUser = NULL, int nation=0 );	// pointer != NULL don`t send to that user pointer
-	void Send_AIServer( char* pBuf, int len );
+	void Send_Region( char* pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL, bool bDirect=true );	// PENDING DEPRECATION
+	void Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL, bool bDirect = true);
+	void Send_UnitRegion( char *pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser=NULL, bool bDirect=true ); // PENDING DEPRECATION
+	void Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL, bool bDirect = true);
+	void Send_NearRegion( char* pBuf, int len, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser=NULL );
+	void Send_FilterUnitRegion( char* pBuf, int len, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser* pExceptUser=NULL );
+	void Send_All( char* pBuf, int len, CUser* pExceptUser = NULL, int nation=0 );	// PENDING DEPRECATION
+	void Send_All(Packet *pkt, CUser* pExceptUser = NULL, uint8 nation = 0);
+	void Send_AIServer( char* pBuf, int len ); // PENDING DEPRECATION
+	void Send_AIServer(Packet *pkt);
 
 	CString GetServerResource(int nResourceID);
 	_START_POSITION *GetStartPosition(int nZoneID);

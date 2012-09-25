@@ -23,7 +23,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // CVersionManagerDlg dialog
 
-typedef map <CString, _VERSION_INFO*> VersionInfoList;
+typedef map <std::string, _VERSION_INFO*> VersionInfoList;
 typedef std::vector <_SERVER_INFO*>	ServerInfoList;
 
 class CVersionManagerDlg : public CDialog

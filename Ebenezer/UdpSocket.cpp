@@ -3,8 +3,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "UdpSocket.h"
 #include "define.h"
+#include "UdpSocket.h"
 #include "EbenezerDlg.h"
 #include "AiPacket.h"
 #include "Knights.h"
@@ -123,6 +123,21 @@ int CUdpSocket::SendUDPPacket(char* strAddress, char* pBuf, int len)
 	s_size = sendto(m_hUDPSocket, (char*)pTBuf, index, 0, (LPSOCKADDR)&m_SocketAddress, sizeof(m_SocketAddress));
 
 	return s_size;
+}
+
+int CUdpSocket::SendUDPPacket(char* strAddress, Packet *pkt)
+{
+	uint16 len = (uint16)pkt->size() + 1;
+	if (len == 0)
+		return 0;
+
+	ByteBuffer buff(len + 6);
+	buff	<< uint8(PACKET_START1) << uint8(PACKET_START2)
+			<< len << pkt->GetOpcode() << *pkt
+			<< uint8(PACKET_END1) << uint8(PACKET_END2);
+
+    m_SocketAddress.sin_addr.s_addr = inet_addr(strAddress);
+	return sendto(m_hUDPSocket, (const char *)buff.contents(), buff.size(), 0, (LPSOCKADDR)&m_SocketAddress, sizeof(m_SocketAddress));
 }
 
 bool CUdpSocket::PacketProcess(int len)
@@ -395,8 +410,8 @@ void CUdpSocket::RecvCreateKnights( char* pBuf )
 	pKnights->m_sIndex = knightsindex;
 	pKnights->m_byFlag = community;
 	pKnights->m_byNation = nation;
-	pKnights->m_strName = knightsname;
-	pKnights->m_strChief = chiefname;
+	strcpy(pKnights->m_strName, knightsname);
+	strcpy(pKnights->m_strChief, chiefname);
 
 	m_pMain->m_KnightsArray.PutData( pKnights->m_sIndex, pKnights );
 

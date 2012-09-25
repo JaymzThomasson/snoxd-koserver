@@ -281,7 +281,6 @@ DWORD WINAPI SendWorkerThread(LPVOID lp)
 	LPOVERLAPPED	pOvl;
 	DWORD			nbytes;
 	DWORD			dwFlag = 0;
-	char			pBuff[REGION_BUFF_SIZE];
 
 	while (1)
 	{
@@ -301,12 +300,8 @@ DWORD WINAPI SendWorkerThread(LPVOID lp)
 					for (int i = 0; i < MAX_USER; i++)
 					{
 						CIOCPSocket2 *pSocket = pIocport->m_SockArray[i];
-						if( pSocket ) {
-							if( pSocket->m_pRegionBuffer->iLength == 0 ) continue;
-							int len = 0;
-							pSocket->RegioinPacketClear( pBuff, len );
-							pSocket->SendCompressingPacket( pBuff, len );
-						}
+						if (pSocket != NULL)
+							pSocket->SendRegionPackets();
 					}
 					break;
 				default:

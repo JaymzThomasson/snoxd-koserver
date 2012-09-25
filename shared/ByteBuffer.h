@@ -88,7 +88,6 @@ public:
 		return *this;
 	}	
 	ByteBuffer &operator<<(char *str)  { *this << (const char*)str; return *this; }
-	ByteBuffer &operator<<(CString &str)  { *this << (const char*)str; return *this; }
 
 	ByteBuffer &operator>>(std::string& value) 
 	{

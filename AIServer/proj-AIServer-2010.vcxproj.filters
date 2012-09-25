@@ -95,24 +95,6 @@
     <ClCompile Include="..\shared\database\NpcTableSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\database\ZoneInfoSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\MagicTableSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\MagicType1Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\MagicType2Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\MagicType3Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\MagicType4Set.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\database\MakeDefensiveTableSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>

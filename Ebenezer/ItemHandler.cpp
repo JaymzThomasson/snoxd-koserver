@@ -403,8 +403,7 @@ BOOL CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 
 void CUser::ItemMove(char *pBuf)
 {
-	int index = 0, itemid = 0, srcpos = -1, destpos = -1, send_index = 0;
-	char send_buff[128];
+	int index = 0, itemid = 0, srcpos = -1, destpos = -1;
 	_ITEM_TABLE* pTable = NULL;
 	BYTE dir;
 
@@ -757,54 +756,8 @@ void CUser::ItemMove(char *pBuf)
 		SetSlotItemValue();
 		SetUserAbility();
 	}
-/*
-	SetByte( send_buff, WIZ_ITEM_MOVE, send_index );
-	SetByte( send_buff, 0x01, send_index );
-	SetShort( send_buff, m_sTotalHit, send_index );
-	SetShort( send_buff, m_sTotalAc, send_index );
-	SetShort( send_buff, m_sMaxWeight, send_index );
-	SetShort( send_buff, m_iMaxHp, send_index );
-	SetShort( send_buff, m_iMaxMp, send_index );
-	SetByte( send_buff, m_sItemStr, send_index );
-	SetByte( send_buff, m_sItemSta, send_index );
-	SetByte( send_buff, m_sItemDex, send_index );
-	SetByte( send_buff, m_sItemIntel, send_index );
-	SetByte( send_buff, m_sItemCham, send_index );
-	SetByte( send_buff, m_bFireR, send_index );
-	SetByte( send_buff, m_bColdR, send_index );
-	SetByte( send_buff, m_bLightningR, send_index );
-	SetByte( send_buff, m_bMagicR, send_index );
-	SetByte( send_buff, m_bDiseaseR, send_index );
-	SetByte( send_buff, m_bPoisonR, send_index );
-	Send( send_buff, send_index );
 
-	BYTE	m_bStrAmount;
-	BYTE	m_bStaAmount;
-	BYTE	m_bDexAmount;
-	BYTE	m_bIntelAmount;
-	BYTE	m_bChaAmount;
-*/
-
-	SetByte( send_buff, WIZ_ITEM_MOVE, send_index );
-	SetByte( send_buff, 0x01, send_index );
-	SetShort( send_buff, m_sTotalHit, send_index );
-	SetShort( send_buff, m_sTotalAc, send_index );
-	SetShort( send_buff, m_sMaxWeight, send_index );
-	SetShort( send_buff, m_iMaxHp, send_index );
-	SetShort( send_buff, m_iMaxMp, send_index );
-	SetByte( send_buff, m_sItemStr + m_bStrAmount, send_index );		
-	SetByte( send_buff, m_sItemSta + m_bStaAmount, send_index );		
-	SetByte( send_buff, m_sItemDex + m_bDexAmount, send_index );		
-	SetByte( send_buff, m_sItemIntel + m_bIntelAmount, send_index );	
-	SetByte( send_buff, m_sItemCham + m_bChaAmount, send_index );		
-	SetByte( send_buff, m_bFireR, send_index );
-	SetByte( send_buff, m_bColdR, send_index );
-	SetByte( send_buff, m_bLightningR, send_index );
-	SetByte( send_buff, m_bMagicR, send_index );
-	SetByte( send_buff, m_bDiseaseR, send_index );
-	SetByte( send_buff, m_bPoisonR, send_index );
-	Send( send_buff, send_index );
-//
+	SendItemMove();
 	SendItemWeight();
 
 	if( (dir == ITEM_INVEN_SLOT ) && ( destpos == HEAD || destpos == BREAST || destpos == SHOULDER || destpos == LEFTHAND || destpos == RIGHTHAND || destpos == LEG || destpos == GLOVE || destpos == FOOT) ) 
@@ -817,10 +770,7 @@ void CUser::ItemMove(char *pBuf)
 	return;
 
 fail_return:
-	send_index = 0;
-	SetByte( send_buff, WIZ_ITEM_MOVE, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	Send( send_buff, send_index );
+	SendItemMove(true);
 }
 
 BOOL CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)

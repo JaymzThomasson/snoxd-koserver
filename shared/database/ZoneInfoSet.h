@@ -1,17 +1,13 @@
 #pragma once
 
-#ifdef AI_SERVER
-#define T	MAP
-#else
-#define T	C3DMap
-#endif
-#define MapType	ZoneArray
+#define T _ZONE_INFO
+#define MapType	map<int, _ZONE_INFO *>
 
 class CZoneInfoSet : public CMyRecordSet<T>
 {
 public:
-	CZoneInfoSet(MapType *stlMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	CZoneInfoSet(MapType *pMap, CDatabase* pDatabase = NULL)
+		: CMyRecordSet<T>(pDatabase), m_map(pMap)
 	{
 #ifdef EBENEZER
 		m_nFields = 7;
@@ -29,7 +25,7 @@ public:
 
 		RFX_Int(pFX, _T("[ServerNo]"), m_data.m_nServerNo);
 		RFX_Int(pFX, _T("[ZoneNo]"), m_data.m_nZoneNumber);
-		RFX_Text(pFX, _T("[strZoneName]"), m_data.m_MapName);
+		RFX_Text(pFX, _T("[strZoneName]"), m_data.m_MapName, sizeof(m_data.m_MapName) - 1);
 
 #ifdef EBENEZER
 		RFX_Long(pFX, _T("[InitX]"), m_InitX);
@@ -50,12 +46,13 @@ public:
 		data->m_fInitY = (float)(m_InitY / 100.0f);
 		data->m_fInitZ = (float)(m_InitZ / 100.0f);
 #endif
-		if (!m_stlMap->PutData(data->m_nZoneNumber, data))
+
+		if (!m_map->insert(make_pair(data->m_nZoneNumber, data)).second)
 			delete data;
 	};
 
 private:
-	MapType * m_stlMap;
+	MapType * m_map;
 #ifdef EBENEZER
 	long m_InitX, m_InitY, m_InitZ;
 #endif

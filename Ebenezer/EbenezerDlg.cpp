@@ -303,6 +303,7 @@ BOOL CEbenezerDlg::OnInitDialog()
 	m_LogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
 	m_LogFile.SeekToEnd();
 
+	InitializeCriticalSection( &g_region_critical );
 	InitializeCriticalSection( &g_LogFile_critical );
 	InitializeCriticalSection( &g_serial_critical );
 
@@ -354,7 +355,10 @@ BOOL CEbenezerDlg::OnInitDialog()
 
 	LogFileWrite("before map file");
 	if( !MapFileLoad() )
+	{
 		AfxPostQuitMessage(0);
+		return FALSE;
+	}
 
 	LogFileWrite("after map file");
 
@@ -453,7 +457,7 @@ BOOL CEbenezerDlg::LoadTables()
 
 BOOL CEbenezerDlg::ConnectToDatabase(bool reconnect /*= false*/)
 {
-	char dsn[128], uid[128], pwd[128];
+	char dsn[32], uid[32], pwd[32];
 
 	m_Ini.GetString("ODBC", "GAME_DSN", "KN_online", dsn, sizeof(dsn), false);
 	m_Ini.GetString("ODBC", "GAME_UID", "knight", uid, sizeof(uid), false);
@@ -545,6 +549,7 @@ BOOL CEbenezerDlg::DestroyWindow()
 	if (m_RegionLogFile.m_hFile != CFile::hFileNull) m_RegionLogFile.Close();
 	if (m_LogFile.m_hFile != CFile::hFileNull) m_LogFile.Close();
 
+	DeleteCriticalSection(&g_region_critical);
 	DeleteCriticalSection(&g_LogFile_critical);
 	DeleteCriticalSection(&g_serial_critical);
 	
@@ -802,11 +807,7 @@ BOOL CEbenezerDlg::AIServerConnect()
 
 BOOL CEbenezerDlg::AISocketConnect(int zone, int flag)
 {
-	CAISocket* pAISock = NULL;
-	int send_index = 0;
-	char pBuf[128];
-
-	pAISock = m_AISocketArray.GetData( zone );
+	CAISocket* pAISock = m_AISocketArray.GetData( zone );
 	if( pAISock ) {
 		if( pAISock->GetState() != STATE_DISCONNECTED )
 			return TRUE;
@@ -821,15 +822,9 @@ BOOL CEbenezerDlg::AISocketConnect(int zone, int flag)
 		return FALSE;
 	}
 
-	SetByte(pBuf, AI_SERVER_CONNECT, send_index);
-	SetByte(pBuf, zone, send_index);
-	if(flag == 1)	SetByte(pBuf, 1, send_index);			// 재접속
-	else			SetByte(pBuf, 0, send_index);			// 처음 접속..
-	pAISock->Send(pBuf, send_index);
-
-	// 해야할일 :이 부분 처리.....
-	//SendAllUserInfo();
-	//m_sSocketCount = zone;
+	Packet result(AI_SERVER_CONNECT, uint8(zone));
+	result << uint8(flag == 1 ? 1 : 0);
+	pAISock->Send(&result);
 	m_AISocketArray.PutData( zone, pAISock );
 
 	TRACE("**** AISocket Connect Success!! ,, zone = %d ****\n", zone);
@@ -849,6 +844,18 @@ void CEbenezerDlg::Send_All(char *pBuf, int len, CUser* pExceptUser, int nation 
 	}
 }
 
+void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 nation /*= 0*/)
+{
+	for (int i = 0; i < MAX_USER; i++)
+	{
+		CUser * pUser = GetUnsafeUserPtr(i);
+		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART || (nation != 0 && nation != pUser->getNation()))
+			continue;
+
+		pUser->Send(pkt);
+	}
+}
+
 void CEbenezerDlg::Send_Region(char *pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser, bool bDirect)
 {
 	Send_UnitRegion( pBuf, len, pMap, x, z, pExceptUser, bDirect );
@@ -860,6 +867,19 @@ void CEbenezerDlg::Send_Region(char *pBuf, int len, C3DMap *pMap, int x, int z, 
 	Send_UnitRegion( pBuf, len, pMap, x-1, z+1, pExceptUser, bDirect );	// SW
 	Send_UnitRegion( pBuf, len, pMap, x, z+1, pExceptUser, bDirect );		// S
 	Send_UnitRegion( pBuf, len, pMap, x+1, z+1, pExceptUser, bDirect );	// SE
+}
+
+void CEbenezerDlg::Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser, bool bDirect)
+{
+	Send_UnitRegion(pkt, pMap, x, z, pExceptUser, bDirect );
+	Send_UnitRegion(pkt, pMap, x-1, z-1, pExceptUser, bDirect );	// NW
+	Send_UnitRegion(pkt, pMap, x, z-1, pExceptUser, bDirect );		// N
+	Send_UnitRegion(pkt, pMap, x+1, z-1, pExceptUser, bDirect );	// NE
+	Send_UnitRegion(pkt, pMap, x-1, z, pExceptUser, bDirect );		// W
+	Send_UnitRegion(pkt, pMap, x+1, z, pExceptUser, bDirect );		// E
+	Send_UnitRegion(pkt, pMap, x-1, z+1, pExceptUser, bDirect );	// SW
+	Send_UnitRegion(pkt, pMap, x, z+1, pExceptUser, bDirect );		// S
+	Send_UnitRegion(pkt, pMap, x+1, z+1, pExceptUser, bDirect );	// SE
 }
 
 void CEbenezerDlg::Send_UnitRegion(char *pBuf, int len, C3DMap *pMap, int x, int z, CUser *pExceptUser, bool bDirect)
@@ -881,6 +901,29 @@ void CEbenezerDlg::Send_UnitRegion(char *pBuf, int len, C3DMap *pMap, int x, int
 			pUser->Send(pBuf, len);
 		else
 			pUser->RegionPacketAdd(pBuf, len);
+	}
+	LeaveCriticalSection(&g_region_critical);
+}
+
+void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser *pExceptUser, bool bDirect)
+{
+	if (pMap == NULL 
+		|| x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())
+		return;
+
+	EnterCriticalSection(&g_region_critical);
+	CRegion *pRegion = &pMap->m_ppRegion[x][z];
+
+	foreach_stlmap (itr, pRegion->m_RegionUserArray)
+	{
+		CUser *pUser = GetUserPtr(*itr->second);
+		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART)
+			continue;
+
+		if (bDirect)
+			pUser->Send(pkt);
+		else
+			pUser->RegionPacketAdd(pkt);
 	}
 	LeaveCriticalSection(&g_region_critical);
 }
@@ -953,6 +996,22 @@ void CEbenezerDlg::Send_PartyMember(int party, char *pBuf, int len)
 	}
 }
 
+void CEbenezerDlg::Send_PartyMember(int party, Packet *result)
+{
+	_PARTY_GROUP* pParty = m_PartyArray.GetData(party);
+	if (pParty == NULL)
+		return;
+
+	for (int i = 0; i < 8; i++)
+	{
+		CUser *pUser = GetUserPtr(pParty->uid[i]);
+		if (pUser == NULL)
+			continue;
+
+		pUser->Send(result);
+	}
+}
+
 void CEbenezerDlg::Send_KnightsMember( int index, char* pBuf, int len, int zone )
 {
 	CKnights* pKnights = m_KnightsArray.GetData(index);
@@ -971,7 +1030,6 @@ void CEbenezerDlg::Send_KnightsMember( int index, char* pBuf, int len, int zone 
 	}
 }
 
-// sungyong 2002.05.22
 void CEbenezerDlg::Send_AIServer(char* pBuf, int len)
 {
 	CAISocket* pSocket = NULL;
@@ -1000,7 +1058,34 @@ void CEbenezerDlg::Send_AIServer(char* pBuf, int len)
 		}
 	}
 }
-// ~sungyong 2002.05.22
+
+void CEbenezerDlg::Send_AIServer(Packet *pkt)
+{
+	int send_size = 0, old_send_socket = 0;
+
+	for (int i = 0; i < MAX_AI_SOCKET; i++)
+	{
+		CAISocket *pSocket = m_AISocketArray.GetData( i );
+		if (pSocket == NULL)
+		{
+			if (++m_sSendSocket >= MAX_AI_SOCKET)
+				m_sSendSocket = 0;
+
+			continue;
+		}
+
+		if (i == m_sSendSocket)
+		{
+			int send_size = pSocket->Send(pkt);
+			old_send_socket = m_sSendSocket;
+			if (++m_sSendSocket >= MAX_AI_SOCKET)	
+				m_sSendSocket = 0;
+
+			if (send_size != 0)
+				return;
+		}
+	}
+}
 
 BOOL CEbenezerDlg::InitializeMMF()
 {
@@ -1043,22 +1128,30 @@ BOOL CEbenezerDlg::InitializeMMF()
 
 BOOL CEbenezerDlg::MapFileLoad()
 {
-	CZoneInfoSet ZoneInfoSet(&m_ZoneArray, &m_GameDB);
+	map<int, _ZONE_INFO*> zoneMap;
+	CZoneInfoSet ZoneInfoSet(&zoneMap, &m_GameDB);
+
 	if (!ZoneInfoSet.Read())
 		return FALSE;
 
-	foreach_stlmap (itr, m_ZoneArray)
+	foreach (itr, zoneMap)
 	{
 		CFile file;
 		CString szFullPath;
-		C3DMap *pMap = itr->second;
+		_ZONE_INFO *pZone = itr->second;
+
+		C3DMap *pMap = new C3DMap();
+		pMap->Initialize(pZone);
+		delete pZone;
+
+		m_ZoneArray.PutData(pMap->m_nZoneNumber, pMap);
 
 		szFullPath.Format(".\\MAP\\%s", pMap->m_MapName);
 		if (!file.Open(szFullPath, CFile::modeRead)
 			|| !pMap->LoadMap((HANDLE)file.m_hFile))
 		{
 			AfxMessageBox("Unable to load SMD - " + szFullPath);
-			m_ZoneArray.DeleteData(itr->first);
+			m_ZoneArray.DeleteAllData();
 			if (file.m_hFile != CFile::hFileNull)
 				file.Close();
 			return FALSE;
@@ -1865,19 +1958,13 @@ BOOL CEbenezerDlg::LoadBlockNameList()
 
 void CEbenezerDlg::SendAllUserInfo()
 {
-	int send_index = 0;
-	char send_buff[2048];		::ZeroMemory(send_buff, sizeof(send_buff));
+	Packet result(AG_SERVER_INFO, uint8(SERVER_INFO_START));
+	uint8 count = 0;
+	Send_AIServer(&result);
 
-	SetByte(send_buff, AG_SERVER_INFO, send_index );
-	SetByte(send_buff, SERVER_INFO_START, send_index );
-	Send_AIServer(send_buff, send_index );
-
-	int count = 0;
-	send_index = 2;
-	::ZeroMemory(send_buff, sizeof(send_buff));
-	int send_count = 0;
-	int send_tot = 0;
-	int tot = 20;
+	result.Initialize(AG_USER_INFO_ALL);
+	result << uint8(0); // placeholder for user count
+	const int tot = 20;
 
 	for (int i = 0; i < MAX_USER; i++)
 	{
@@ -1885,60 +1972,44 @@ void CEbenezerDlg::SendAllUserInfo()
 		if (pUser == NULL)
 			continue;
 
-		pUser->SendUserInfo(send_buff, send_index);
-		count++;
-		if(count == tot)	{
-			SetByte(send_buff, AG_USER_INFO_ALL, send_count );
-			SetByte(send_buff, (BYTE)count, send_count );
-			Send_AIServer(send_buff, send_index);
-			send_index = 2;
-			send_count = 0;
+		pUser->SendUserInfo(result);
+		if (++count == tot)	{
+			result.put(0, count);
+			Send_AIServer(&result);
 			count = 0;
-			send_tot++;
-			::ZeroMemory(send_buff, sizeof(send_buff));
+			result.clear();
 		}
 	}	
 
-	if(count != 0 && count < (tot-1) )	{
-		send_count = 0;
-		SetByte(send_buff, AG_USER_INFO_ALL, send_count );
-		SetByte(send_buff, (BYTE)count, send_count );
-		Send_AIServer(send_buff, send_index );
-		send_tot++;
-		//TRACE("AllNpcInfo - send_count=%d, count=%d\n", send_tot, count);
-		//Sleep(1);
+	if (count != 0 && count < (tot - 1))
+	{
+		result.put(0, count);
+		Send_AIServer(&result);
+		count = 0;
+		result.clear();
 	}
 
-	// 파티에 대한 정보도 보내도록 한다....
-	_PARTY_GROUP* pParty = NULL;
-	
 	EnterCriticalSection( &g_region_critical );
 
-	for(int i=0; i<m_PartyArray.GetSize(); i++)	{
-		pParty = m_PartyArray.GetData( i );
-		if( !pParty ) return;
-		send_index = 0;
-		::ZeroMemory(send_buff, sizeof(send_buff));
-		SetByte(send_buff, AG_PARTY_INFO_ALL, send_index );
-		SetShort(send_buff, i, send_index );					// 파티 번호
-		//if( i == pParty->wIndex )
-		for( int j=0; j<8; j++ ) {
-			SetShort(send_buff, pParty->uid[j], send_index );				// 유저 번호
-			//SetShort(send_buff, pParty->sHp[j], send_index );				// HP
-			//SetByte(send_buff, pParty->bLevel[j], send_index );				// Level
-			//SetShort(send_buff, pParty->sClass[j], send_index );			// Class
-		}
+	foreach_stlmap (itr, m_PartyArray)
+	{
+		_PARTY_GROUP *pParty = itr->second;
+		if (pParty == NULL) 
+			continue;
 
-		Send_AIServer(send_buff, send_index );
+		result.Initialize(AG_PARTY_INFO_ALL);
+		result << uint16(itr->first);
+		for (int i = 0; i < 8; i++)
+			result << uint16(pParty->uid[i]);
+
+		Send_AIServer(&result);
 	}
 
 	LeaveCriticalSection( &g_region_critical );
 
-	send_index = 0;
-	::ZeroMemory(send_buff, sizeof(send_buff));
-	SetByte(send_buff, AG_SERVER_INFO, send_index );
-	SetByte(send_buff, SERVER_INFO_END, send_index );
-	Send_AIServer(send_buff, send_index );
+	result.Initialize(AG_SERVER_INFO);
+	result << uint8(SERVER_INFO_END);
+	Send_AIServer(&result);
 
 	TRACE("** SendAllUserInfo() **\n");
 }
@@ -1966,16 +2037,12 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 		for (int i = 0; i < pMap->GetXRegionMax(); i++)
 		{
 			for (int j = 0; j<pMap->GetZRegionMax(); j++)
-			{
-				if (!pMap->m_ppRegion[i][j].m_RegionNpcArray.IsEmpty())
-					pMap->m_ppRegion[i][j].m_RegionNpcArray.DeleteAllData();
-			}
+				pMap->m_ppRegion[i][j].m_RegionNpcArray.DeleteAllData();
 		}
 	}
 
 	// Npc Array Delete
-	if (!m_arNpcArray.IsEmpty())
-		m_arNpcArray.DeleteAllData();
+	m_arNpcArray.DeleteAllData();
 
 	m_bServerCheckFlag = FALSE;
 
@@ -2483,6 +2550,16 @@ void CEbenezerDlg::Send_UDP_All( char* pBuf, int len, int group_type )
 	{
 		if (itr->second && itr->second->sServerNo == server_number)
 			m_pUdpSocket->SendUDPPacket(itr->second->strServerIP, pBuf, len);
+	}
+}
+
+void CEbenezerDlg::Send_UDP_All(Packet *pkt, int group_type /*= 0*/)
+{
+	int server_number = (group_type == 0 ? m_nServerNo : m_nServerGroupNo);
+	foreach_stlmap (itr, (group_type == 0 ? m_ServerArray : m_ServerGroupArray))
+	{
+		if (itr->second && itr->second->sServerNo == server_number)
+			m_pUdpSocket->SendUDPPacket(itr->second->strServerIP, pkt);
 	}
 }
 

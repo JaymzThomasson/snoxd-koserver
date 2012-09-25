@@ -205,6 +205,8 @@ public:
 
 	__forceinline bool isInParty() { return m_sPartyIndex != -1; };
 	__forceinline bool isInClan() { return m_pUserData->m_bKnights != -1; };
+	__forceinline bool isClanLeader() { return isInClan() && getFame() == CHIEF; };
+
 	__forceinline bool isTrading() { return m_sExchangeUser != -1; };
 	__forceinline bool isStoreOpen() { return m_bStoreOpen; };
 
@@ -212,7 +214,15 @@ public:
 	__forceinline BYTE getLevel() { return m_pUserData->m_bLevel; };
 	__forceinline BYTE getZoneID() { return m_pUserData->m_bZone; };
 	__forceinline BYTE getAuthority() { return m_pUserData->m_bAuthority; };
+	__forceinline BYTE getFame() { return m_pUserData->m_bFame; };
+
 	__forceinline C3DMap * GetMap() { return m_pMap; };
+
+	__forceinline uint16 GetSPosX() { return uint16(m_pUserData->m_curx * 10); };
+	__forceinline uint16 GetSPosY() { return uint16(m_pUserData->m_cury * 10); };
+	__forceinline uint16 GetSPosZ() { return uint16(m_pUserData->m_curz * 10); };
+
+	void SendLoyaltyChange(int32 nChangeAmount = 0);
 
 	void RecvDeleteChar( char* pBuf );
 	BOOL ExistComEvent(int eventid);
@@ -282,7 +292,6 @@ public:
 	short GetACDamage(int damage, short tid);
 	short GetMagicDamage(int damage, short tid);
 	void Type3AreaDuration( float currenttime);
-	void ServerStatusCheck();
 	void SpeedHackTime( char* pBuf );
 	void OperatorCommand( char* pBuf );
 	void ItemRemove( char* pBuf );
@@ -293,17 +302,21 @@ public:
 	int ExchangeDone();
 	void HPTimeChange( float currenttime );
 	void HPTimeChangeType3( float currenttime );
-	void ItemDurationChange( int slot, int maxvalue, int curvalue, int amount );
+	void ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint16 amount);
+	void SendDurability(uint8 slot, uint16 durability);
+	void SendItemMove(bool bFail = false);
 	void ItemWoreOut( int type, int damage );
 	void Dead();
 	void LoyaltyDivide( short tid );
 	void UserDataSaveToAgent();
 	void CountConcurrentUser();
-	void SendUserInfo(char *temp_send, int &index);
+	void SendUserInfo(Packet & result);
 	void ChatTargetSelect( char* pBuf );
 	BOOL ItemEquipAvailable( _ITEM_TABLE* pTable );
 	void ClassChange( char* pBuf );
+	void HpChange(int amount, int type=0, bool attack=false);
 	void MSpChange(int amount);
+	void SendPartyHPUpdate();
 	void UpdateGameWeather( char* pBuf, BYTE type );
 	void ObjectEvent( char* pBuf );
 	void SendAnvilRequest(int nid);
@@ -371,7 +384,6 @@ public:
 	void RequestNpcIn( char* pBuf );
 	void SetUserAbility();
 	void LevelChange(short level, BYTE type=TRUE);	// type : TRUE => level up, FALSE => level down
-	void HpChange(int amount, int type=0, bool attack=false);
 	short GetDamage(short tid, int magicid);
 	void SetSlotItemValue();
 	BYTE GetHitRate(float rate);
@@ -380,7 +392,9 @@ public:
 	void RemoveRegion( int del_x, int del_z );
 	void RegisterRegion();
 	void SetDetailData();
-	void SendTimeStatus();
+	void SendTimeStatus(); // TO-DO: Deprecate
+	void SendTime();
+	void SendWeather();
 	void SendPremiumInfo();
 	void SetZoneAbilityChange(BYTE zone);
 	void Regene(char* pBuf, int magicid = 0);
@@ -392,10 +406,12 @@ public:
 	void SelCharToAgent( char* pBuf );
 	void SendMyInfo();
 	void SelectCharacter( char* pBuf );
-	void Send2AI_UserUpdateInfo();
+	void SendServerChange(char *ip, uint8 bInit);
+	void Send2AI_UserUpdateInfo(bool initialInfo = false);
 	void Attack( char* pBuf );
 	void UserInOut( BYTE Type );
-	void GetUserInfo(char *buff, int & buff_index);
+	void GetUserInfo(char *buff, int & buff_index); // PENDING DEPRECATION
+	void GetUserInfo(Packet & pkt);
 	void Initialize();
 	void MoveProcess( char* pBuf );
 	void Rotate( char* pBuf );

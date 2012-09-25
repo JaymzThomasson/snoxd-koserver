@@ -172,6 +172,7 @@ BOOL CServerDlg::OnInitDialog()
 	SetTimer( CHECK_ALIVE, 10000, NULL );
 	srand( (unsigned)time(NULL) );
 
+	InitializeCriticalSection( &g_region_critical );
 	InitializeCriticalSection( &g_User_critical );
 	InitializeCriticalSection( &g_LogFileWrite );
 	m_sSocketCount = 0;
@@ -289,7 +290,8 @@ BOOL CServerDlg::OnInitDialog()
 	//	Load Zone & Event...
 	//----------------------------------------------------------------------
 	if( !MapFileLoad() )	{
-		AfxPostQuitMessage(0);
+		EndDialog(IDCANCEL);
+		return FALSE;
 	}
 
 	//----------------------------------------------------------------------
@@ -1255,9 +1257,9 @@ BOOL CServerDlg::DestroyWindow()
 	if(m_ItemLogFile.m_hFile != CFile::hFileNull) m_ItemLogFile.Close();
 
 	foreach (itr, m_arNpcThread)
-		WaitForSingleObject((*itr)->m_pThread->m_hThread, INFINITE);
+		WaitForSingleObject((*itr)->m_pThread->m_hThread, 1000);
 
-	WaitForSingleObject(m_pZoneEventThread, INFINITE);
+	WaitForSingleObject(m_pZoneEventThread, 1000);
 
 	// NpcThread Array Delete
 	foreach (itr, m_arNpcThread)
@@ -1285,6 +1287,7 @@ BOOL CServerDlg::DestroyWindow()
 
 	m_ZoneNpcList.clear();
 
+	DeleteCriticalSection( &g_region_critical );
 	DeleteCriticalSection( &g_User_critical );
 	DeleteCriticalSection( &g_LogFileWrite );
 
@@ -1322,24 +1325,31 @@ void CServerDlg::DeleteUserList(int uid)
 
 BOOL CServerDlg::MapFileLoad()
 {
-	CZoneInfoSet ZoneInfoSet(&g_arZone);
+	map<int, _ZONE_INFO*> zoneMap;
+	CZoneInfoSet ZoneInfoSet(&zoneMap);
 
 	m_sTotalMap = 0;
 	if (!ZoneInfoSet.Read())
 		return FALSE;
 
-	foreach_stlmap (itr, g_arZone)
+	foreach (itr, zoneMap)
 	{
 		CFile file;
 		CString szFullPath;
-		MAP *pMap = itr->second;
+		_ZONE_INFO *pZone = itr->second;
+
+		MAP *pMap = new MAP();
+		pMap->Initialize(pZone);
+		delete pZone;
+
+		g_arZone.PutData(pMap->m_nZoneNumber, pMap);
 
 		szFullPath.Format(".\\MAP\\%s", pMap->m_MapName);
 		if (!file.Open(szFullPath, CFile::modeRead)
 			|| !pMap->LoadMap((HANDLE)file.m_hFile))
 		{
 			AfxMessageBox("Unable to load SMD - " + szFullPath);
-			g_arZone.DeleteData(itr->first);
+			g_arZone.DeleteAllData();
 			m_sTotalMap = 0;
 			return FALSE;
 		}
@@ -1349,7 +1359,7 @@ BOOL CServerDlg::MapFileLoad()
 		{
 			if (!pMap->LoadRoomEvent(pMap->m_byRoomEvent))
 			{
-				AfxMessageBox("Unable to load room event for map - %s" + szFullPath);
+				AfxMessageBox("Unable to load room event for map - " + szFullPath);
 				pMap->m_byRoomEvent = 0;
 			}
 			else
@@ -1531,8 +1541,7 @@ void CServerDlg::DeleteAllUserList(int zone)
 				continue;
 			for (int i=0; i<pMap->m_sizeRegion.cx; i++ ) {
 				for( int j=0; j<pMap->m_sizeRegion.cy; j++ ) {
-					if( !pMap->m_ppRegion[i][j].m_RegionUserArray.IsEmpty() )
-						pMap->m_ppRegion[i][j].m_RegionUserArray.DeleteAllData();
+					pMap->m_ppRegion[i][j].m_RegionUserArray.DeleteAllData();
 				}
 			}
 		}
@@ -1550,8 +1559,7 @@ void CServerDlg::DeleteAllUserList(int zone)
 		LeaveCriticalSection( &g_User_critical );
 
 		// Party Array Delete 
-		if( !m_arParty.IsEmpty() )
-			m_arParty.DeleteAllData();
+		m_arParty.DeleteAllData();
 
 		m_bFirstServerFlag = FALSE;
 		TRACE("*** DeleteAllUserList - End *** \n");
