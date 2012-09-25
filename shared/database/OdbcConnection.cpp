@@ -47,14 +47,6 @@ bool OdbcConnection::Connect()
 		goto error_handler;
 	}
 
-/*	if (!SQL_SUCCEEDED(SQLConnect(m_connHandle, (SQLTCHAR *)m_szDSN.c_str(), SQL_NTS, 
-										m_szUser.length() > 0 ? (SQLTCHAR *)m_szUser.c_str() : NULL, SQL_NTS,
-										m_szPass.length() > 0 ? (SQLTCHAR *)m_szPass.c_str() : NULL, SQL_NTS)))
-	{
-		ReportSQLError(SQL_HANDLE_DBC, m_connHandle, _T("SQLConnect"), _T("Unable to establish connection."));
-		goto error_handler;
-	}*/
-
 	if (m_szUser.length())
 	{
 		szConn += "UID=" + m_szUser + ";";
