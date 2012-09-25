@@ -155,13 +155,6 @@ tstring OdbcCommand::FetchString(int pos, SQLLEN maxLength)
 	return tstring();
 };
 
-void OdbcCommand::FetchString(int pos, TCHAR *charArray, SQLLEN maxLength)
-{
-	SQLINTEGER bufferSize = 0;
-//	memset(charArray, 0x00, maxLength);
-	SQLGetData(m_hStmt, pos, SQL_C_TCHAR, charArray, maxLength, &bufferSize);
-}
-
 void OdbcCommand::ClearParameters()
 {
 	if (m_params.size())

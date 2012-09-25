@@ -35,7 +35,6 @@ ADD_ODBC_PARAMETER(Int32, int32, SQL_C_LONG)
 ADD_ODBC_PARAMETER(Single, float, SQL_C_FLOAT)
 ADD_ODBC_PARAMETER(Double, double, SQL_C_DOUBLE)
 tstring OdbcCommand::FetchString(int pos, SQLLEN maxLength = 0);
-void OdbcCommand::FetchString(int pos, TCHAR * charArray, SQLLEN maxLength);
 #undef ADD_ODBC_PARAMETER
 
 	void Detach();
