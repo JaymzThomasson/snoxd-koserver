@@ -7,16 +7,10 @@
 #include <sqltypes.h>
 #include <sql.h>
 
-#include <string>
 #include <set>
 #include <vector>
 
-#ifdef UNICODE
-typedef std::wstring tstring;
-#else
-typedef std::string tstring;
-#endif
-
+#include "../tstring.h"
 #include "OdbcCommand.h"
 
 struct OdbcError
