@@ -35,6 +35,7 @@ bool CDBProcess::LoadVersionList()
 	if (!dbCommand->Execute(_T("SELECT sVersion, sHistoryVersion, strFileName FROM VERSION")))
 		goto cleanup;
 
+	m_pMain->m_nLastVersion = 0;
 	if (dbCommand->hasData())
 	{
 		do
@@ -46,15 +47,11 @@ bool CDBProcess::LoadVersionList()
 			pVersion->strFileName = dbCommand->FetchString(3);
 
 			m_pMain->m_VersionList.insert(make_pair(pVersion->strFileName, pVersion));
+
+			if (m_pMain->m_nLastVersion < pVersion->sVersion)
+				m_pMain->m_nLastVersion = pVersion->sVersion;
+
 		} while (dbCommand->MoveNext());
-	}
-
-	m_pMain->m_nLastVersion = 0;
-
-	foreach (itr, m_pMain->m_VersionList)
-	{
-		if (m_pMain->m_nLastVersion < itr->second->sVersion)
-			m_pMain->m_nLastVersion = itr->second->sVersion;
 	}
 
 	result = true;
@@ -116,7 +113,6 @@ uint16 CDBProcess::AccountLogin(string & id, string & pwd)
 		}
 	}
 
-cleanup:
 	delete dbCommand;
 	return result;
 }
