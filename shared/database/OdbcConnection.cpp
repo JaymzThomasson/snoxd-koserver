@@ -64,6 +64,9 @@ bool OdbcConnection::Connect()
 		goto error_handler;
 	}
 
+	for (auto itr = m_commandSet.begin(); itr != m_commandSet.end(); itr++)
+		(*itr)->SetConnectionHandle(m_connHandle);
+
 	return true;
 
 error_handler:

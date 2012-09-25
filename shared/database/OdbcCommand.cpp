@@ -32,6 +32,9 @@ bool OdbcCommand::Open(bool bRetry /*= false*/)
 		// Perform soft disconnect, preserving existing commands
 		m_odbcConnection->Close();
 
+		// Reconnect
+		m_odbcConnection->Connect();
+
 		// Now try running the statement once more time.
 		return Open(true); 
 	}

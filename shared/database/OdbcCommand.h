@@ -15,6 +15,7 @@ public:
 	__forceinline bool isOpen() { return m_hStmt != NULL; };
 	__forceinline TCHAR * GetError() { return (TCHAR *)m_szError.c_str();  };
 	__forceinline bool hasData() { return m_resultCode != SQL_NO_DATA && SQL_SUCCEEDED(m_resultCode); };
+	__forceinline void SetConnectionHandle(HDBC handle) { m_connHandle = handle; };
 
 	bool Execute(const tstring & szSQL);
 	bool MoveNext();
