@@ -167,15 +167,12 @@ BOOL CAujardDlg::OnInitDialog()
 
 	CIni ini("Aujard.ini");
 
-	ini.GetString( "ODBC", "ACCOUNT_DSN", "KN_online", m_strAccountDSN, 24 );
-	ini.GetString( "ODBC", "ACCOUNT_UID", "knight", m_strAccountUID, 24 );
-	ini.GetString( "ODBC", "ACCOUNT_PWD", "knight", m_strAccountPWD, 24 );
-	ini.GetString( "ODBC", "GAME_DSN", "KN_online", m_strGameDSN, 24 );
-	ini.GetString( "ODBC", "GAME_UID", "knight", m_strGameUID, 24 );
-	ini.GetString( "ODBC", "GAME_PWD", "knight", m_strGamePWD, 24 );
-	ini.GetString( "ODBC", "LOG_DSN", "KN_online", m_strLogDSN, 24 );
-	ini.GetString( "ODBC", "LOG_UID", "knight", m_strLogUID, 24 );
-	ini.GetString( "ODBC", "LOG_PWD", "knight", m_strLogPWD, 24 );
+	ini.GetString("ODBC", "ACCOUNT_DSN", "KN_online", m_strAccountDSN, sizeof(m_strAccountDSN));
+	ini.GetString("ODBC", "ACCOUNT_UID", "knight", m_strAccountUID, sizeof(m_strAccountUID));
+	ini.GetString("ODBC", "ACCOUNT_PWD", "knight", m_strAccountPWD, sizeof(m_strAccountPWD));
+	ini.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, sizeof(m_strGameDSN));
+	ini.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, sizeof(m_strGameUID));
+	ini.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, sizeof(m_strGamePWD));
 
 	m_nServerNo = ini.GetInt("ZONE_INFO", "GROUP_INFO", 1);
 	m_nZoneNo = ini.GetInt("ZONE_INFO", "ZONE_INFO", 1);

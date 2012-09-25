@@ -457,7 +457,7 @@ BOOL CEbenezerDlg::LoadTables()
 
 BOOL CEbenezerDlg::ConnectToDatabase(bool reconnect /*= false*/)
 {
-	char dsn[128], uid[128], pwd[128];
+	char dsn[32], uid[32], pwd[32];
 
 	m_Ini.GetString("ODBC", "GAME_DSN", "KN_online", dsn, sizeof(dsn), false);
 	m_Ini.GetString("ODBC", "GAME_UID", "knight", uid, sizeof(uid), false);
