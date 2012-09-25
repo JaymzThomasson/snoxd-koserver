@@ -33,6 +33,8 @@ public:
 	ADD_ODBC_PARAMETER(Int32, int32, SQL_C_LONG)
 	ADD_ODBC_PARAMETER(Single, float, SQL_C_FLOAT)
 	ADD_ODBC_PARAMETER(Double, double, SQL_C_DOUBLE)
+	ADD_ODBC_PARAMETER(UInt64, uint64, SQL_C_UBIGINT)
+	ADD_ODBC_PARAMETER(Int64, int64, SQL_C_SBIGINT)
 
 	tstring OdbcCommand::FetchString(int pos, SQLLEN maxLength = 0);
 
