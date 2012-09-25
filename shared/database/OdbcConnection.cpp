@@ -2,15 +2,16 @@
 #include "OdbcConnection.h"
 
 OdbcConnection::OdbcConnection()
-	: m_connHandle(NULL), m_envHandle(NULL)
+	: m_connHandle(NULL), m_envHandle(NULL), m_bMarsEnabled(false)
 {
 }
 
-bool OdbcConnection::Connect(tstring szDSN, tstring szUser, tstring szPass)
+bool OdbcConnection::Connect(tstring szDSN, tstring szUser, tstring szPass, bool bMarsEnabled /*= true*/)
 {
 	m_szDSN = szDSN;
 	m_szUser = szUser;
 	m_szPass = szPass;
+	m_bMarsEnabled = bMarsEnabled;
 
 	return Connect();
 }
@@ -62,7 +63,8 @@ bool OdbcConnection::Connect()
 	}
 
 	// Enable multiple active result sets
-	szConn += "MARS_Connection=yes;";
+	if (m_bMarsEnabled)
+		szConn += "MARS_Connection=yes;";
 
 	if (!SQL_SUCCEEDED(SQLDriverConnect(m_connHandle, NULL, (SQLTCHAR *)szConn.c_str(), SQL_NTS, NULL, NULL, NULL, NULL)))
 	{

@@ -37,7 +37,7 @@ public:
 	__forceinline bool isError() { return m_odbcErrors.size() > 0; };
 	__forceinline HDBC GetConnectionHandle() { return m_connHandle; };
 
-	bool Connect(tstring szDSN, tstring szUser, tstring szPass);
+	bool Connect(tstring szDSN, tstring szUser, tstring szPass, bool bMarsEnabled = true);
 	bool Connect();
 
 	OdbcCommand *CreateCommand();
@@ -63,4 +63,6 @@ private:
 
 	std::vector<OdbcError   *> m_odbcErrors;
 	std::set   <OdbcCommand *> m_commandSet;
+
+	bool m_bMarsEnabled;
 };
