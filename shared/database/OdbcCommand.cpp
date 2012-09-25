@@ -13,7 +13,7 @@ OdbcCommand::OdbcCommand(OdbcConnection * conn)
 	m_odbcConnection->AddCommand(this);
 }
 
-bool OdbcCommand::Open()
+bool OdbcCommand::Open(bool bRetry /*= false*/)
 {
 	if (isOpen())
 		Close();
@@ -25,7 +25,15 @@ bool OdbcCommand::Open()
 		else
 			m_szError = OdbcConnection::GetSQLError(SQL_HANDLE_DBC, m_connHandle);
 
-		return false;
+		// Attempt full SQL reconnection once.
+		if (m_odbcConnection == NULL || bRetry)
+			return false;
+		
+		// Perform soft disconnect, preserving existing commands
+		m_odbcConnection->Close();
+
+		// Now try running the statement once more time.
+		return Open(true); 
 	}
 
 	return true;

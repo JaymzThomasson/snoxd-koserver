@@ -189,12 +189,19 @@ void OdbcConnection::Disconnect()
 		m_commandSet.clear();
 	}
 
+	// Close the connect ion to the server & reset our handles
+	Close();
+}
+
+void OdbcConnection::Close()
+{
 	// Disconnect from server.
 	SQLDisconnect(m_connHandle);
 
 	// Reset handles
 	ResetHandles();
 }
+
 
 OdbcConnection::~OdbcConnection()
 {
