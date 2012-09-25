@@ -51,6 +51,15 @@
     <ClCompile Include="DBProcess.cpp">
       <Filter>Database</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcCommand.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcConnection.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcParameter.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VersionManager.rc">
@@ -79,9 +88,6 @@
     <ClInclude Include="..\shared\Ini.h">
       <Filter>Shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\database\VersionSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
     <ClInclude Include="IOCPort.h">
       <Filter>Networking</Filter>
     </ClInclude>
@@ -96,6 +102,15 @@
     </ClInclude>
     <ClInclude Include="..\shared\Packet.h">
       <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcCommand.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcConnection.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcParameter.h">
+      <Filter>Database</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

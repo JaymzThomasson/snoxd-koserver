@@ -60,7 +60,7 @@ void CUser::HandleVersion(Packet & pkt)
 void CUser::HandlePatches(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
-	set<CString> downloadset;
+	std::set<std::string> downloadset;
 
 	uint16 version;
 	pkt >> version;
@@ -95,17 +95,17 @@ void CUser::HandleLogin(Packet & pkt)
 	};
 
 	Packet result(pkt.GetOpcode());
-	BYTE resultCode = 0;
+	uint16 resultCode = 0;
 	string account, password;
 
 	pkt >> account >> password;
 	if (account.size() == 0 || account.size() > MAX_ID_SIZE 
 		|| password.size() == 0 || password.size() > MAX_PW_SIZE)
-		resultCode = uint8(AUTH_NOT_FOUND); 
+		resultCode = AUTH_NOT_FOUND; 
 	else
-		resultCode = m_pMain->m_DBProcess.AccountLogin(account.c_str(), password.c_str());
+		resultCode = m_pMain->m_DBProcess.AccountLogin(account, password);
 
-	result << resultCode;
+	result << uint8(resultCode);
 	if (resultCode == AUTH_SUCCESS)
 	{
 		result << int8(-1) << int8(-1); // prem type, prem days/hours (what are we even with 19XX)

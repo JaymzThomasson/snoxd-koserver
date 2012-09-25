@@ -6,12 +6,6 @@
 #include "IOCPSocket2.h"
 #include "User.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 CIOCPort	CVersionManagerDlg::m_Iocport;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -76,15 +70,14 @@ BOOL CVersionManagerDlg::OnInitDialog()
 
 	GetInfoFromIni();
 	
-	char strConnection[256];
-	sprintf_s(strConnection, sizeof(strConnection), "ODBC;DSN=%s;UID=%s;PWD=%s", m_ODBCName, m_ODBCLogin, m_ODBCPwd);
-
-	if (!m_DBProcess.InitDatabase(strConnection)) 
+	if (!m_DBProcess.Connect(m_ODBCName, m_ODBCLogin, m_ODBCPwd)) 
 	{
 		AfxMessageBox("Unable to connect to the database using the details configured.");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
+
+	m_OutputList.AddString(_T("Connected to database server."));
 
 	if (!m_DBProcess.LoadVersionList())
 	{
@@ -93,7 +86,6 @@ BOOL CVersionManagerDlg::OnInitDialog()
 		return FALSE;
 	}
 
-	m_OutputList.AddString(strConnection);
 	CString version;
 	version.Format("Latest Version : %d", m_nLastVersion);
 	m_OutputList.AddString( version );
