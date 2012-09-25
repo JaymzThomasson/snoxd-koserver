@@ -254,6 +254,10 @@ BOOL CVersionManagerDlg::DestroyWindow()
 		delete *itr;
 	m_ServerList.clear();
 
+	foreach (itr, m_VersionList)
+		delete itr->second;
+	m_VersionList.clear();
+
 	return CDialog::DestroyWindow();
 }
 
