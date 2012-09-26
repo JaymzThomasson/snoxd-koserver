@@ -22,22 +22,32 @@ bool CDBProcess::Connect(TCHAR *szDSN, TCHAR *szUser, TCHAR *szPass)
 	if (m_pMain == NULL)
 		m_pMain = (CVersionManagerDlg*)AfxGetApp()->GetMainWnd();
 
-	return m_dbConnection.Connect(szDSN, szUser, szPass);
+	if (!m_dbConnection.Connect(szDSN, szUser, szPass))
+	{
+		m_pMain->ReportSQLError(m_dbConnection.GetError());
+		return false;
+	}
+
+	return true;
 }
 
 bool CDBProcess::LoadVersionList()
 {
 	bool result = false;
-	auto dbCommand = m_dbConnection.CreateCommand();
-	if (dbCommand == NULL)
+	auto_ptr<OdbcCommand> dbCommand(m_dbConnection.CreateCommand());
+
+	if (dbCommand.get() == NULL)
 		return false;
 
 	if (!dbCommand->Execute(_T("SELECT sVersion, sHistoryVersion, strFileName FROM VERSION")))
-		goto cleanup;
+	{
+		m_pMain->ReportSQLError(m_dbConnection.GetError());
+		return false;
+	}
 
-	m_pMain->m_nLastVersion = 0;
 	if (dbCommand->hasData())
 	{
+		m_pMain->m_sLastVersion = 0;
 		do
 		{
 			_VERSION_INFO *pVersion = new _VERSION_INFO;
@@ -48,29 +58,27 @@ bool CDBProcess::LoadVersionList()
 
 			m_pMain->m_VersionList.insert(make_pair(pVersion->strFileName, pVersion));
 
-			if (m_pMain->m_nLastVersion < pVersion->sVersion)
-				m_pMain->m_nLastVersion = pVersion->sVersion;
+			if (m_pMain->m_sLastVersion < pVersion->sVersion)
+				m_pMain->m_sLastVersion = pVersion->sVersion;
 
 		} while (dbCommand->MoveNext());
 	}
 
-	result = true;
-
-cleanup:
-	delete dbCommand;	
-	return result;
+	return true;
 }
 
 bool CDBProcess::LoadUserCountList()
 {
-	bool result = false;
-	auto dbCommand = m_dbConnection.CreateCommand();
-	if (dbCommand == NULL)
+	auto_ptr<OdbcCommand> dbCommand(m_dbConnection.CreateCommand());
+	if (dbCommand.get() == NULL)
 		return false;
 
 	if (!dbCommand->Execute(_T("SELECT serverid, zone1_count, zone2_count, zone3_count FROM CONCURRENT")))
-		goto cleanup;
-	
+	{
+		m_pMain->ReportSQLError(m_dbConnection.GetError());
+		return false;
+	}
+
 	if (dbCommand->hasData())
 	{
 		do
@@ -80,23 +88,19 @@ bool CDBProcess::LoadUserCountList()
 					zone_2 = dbCommand->FetchUInt16(3),
 					zone_3 = dbCommand->FetchUInt16(4);
 
-			if (serverID - 1 < m_pMain->m_nServerCount)
+			if ((uint8)(serverID - 1) < m_pMain->m_ServerList.size())
 				m_pMain->m_ServerList[serverID - 1]->sUserCount = zone_1 + zone_2 + zone_3;
 		} while (dbCommand->MoveNext());
 	}
 
-	result = true;
-
-cleanup:
-	delete dbCommand;
-	return result;
+	return true;
 }
 
 uint16 CDBProcess::AccountLogin(string & id, string & pwd)
 {
 	uint16 result = 2; // account not found
-	auto dbCommand = m_dbConnection.CreateCommand();
-	if (dbCommand == NULL)
+	auto_ptr<OdbcCommand> dbCommand(m_dbConnection.CreateCommand());
+	if (dbCommand.get() == NULL)
 		return false;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)id.c_str(), id.length());
@@ -104,15 +108,7 @@ uint16 CDBProcess::AccountLogin(string & id, string & pwd)
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &result);
 
 	if (!dbCommand->Prepare(_T("{CALL MAIN_LOGIN(?, ?, ?)}")))
-	{
-		OdbcError *pError = m_dbConnection.GetError();
-		if (pError)
-		{
-			// error logging
-			delete pError;
-		}
-	}
+		m_pMain->ReportSQLError(m_dbConnection.GetError());
 
-	delete dbCommand;
 	return result;
 }

@@ -12,7 +12,7 @@ CIOCPort	CVersionManagerDlg::m_Iocport;
 // CVersionManagerDlg dialog
 
 CVersionManagerDlg::CVersionManagerDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CVersionManagerDlg::IDD, pParent), m_Ini("Version.ini")
+	: CDialog(CVersionManagerDlg::IDD, pParent), m_Ini("Version.ini"), m_sLastVersion(__VERSION)
 {
 	//{{AFX_DATA_INIT(CVersionManagerDlg)
 		// NOTE: the ClassWizard will add member initialization here
@@ -20,7 +20,6 @@ CVersionManagerDlg::CVersionManagerDlg(CWnd* pParent /*=NULL*/)
 	
 	memset(m_strFtpUrl, 0, sizeof(m_strFtpUrl));
 	memset(m_strFilePath, 0, sizeof(m_strFilePath));
-	m_nLastVersion = 0;
 	memset(m_ODBCName, 0, sizeof(m_ODBCName));
 	memset(m_ODBCLogin, 0, sizeof(m_ODBCLogin));
 	memset(m_ODBCPwd, 0, sizeof(m_ODBCPwd));
@@ -87,7 +86,7 @@ BOOL CVersionManagerDlg::OnInitDialog()
 	}
 
 	CString version;
-	version.Format("Latest Version : %d", m_nLastVersion);
+	version.Format("Latest Version : %d", GetVersion());
 	m_OutputList.AddString( version );
 
 	InitPacketHandlers();
@@ -107,18 +106,17 @@ void CVersionManagerDlg::GetInfoFromIni()
 	m_Ini.GetString("ODBC", "UID", "knight", m_ODBCLogin, sizeof(m_ODBCLogin), false);
 	m_Ini.GetString("ODBC", "PWD", "knight", m_ODBCPwd, sizeof(m_ODBCPwd), false);
 
-	m_nServerCount = m_Ini.GetInt("SERVER_LIST", "COUNT", 1);
-
-	if (m_nServerCount <= 0) 
-		m_nServerCount = 1;
+	int nServerCount = m_Ini.GetInt("SERVER_LIST", "COUNT", 1);
+	if (nServerCount <= 0) 
+		nServerCount = 1;
 	
 	char key[20]; 
 	_SERVER_INFO* pInfo = NULL;
 	
-	m_ServerList.reserve(m_nServerCount);
+	m_ServerList.reserve(nServerCount);
 
 	// TO-DO: Replace this nonsense with something a little more versatile
-	for (int i=0; i < m_nServerCount; i++)
+	for (int i = 0; i < nServerCount; i++)
 	{
 		pInfo = new _SERVER_INFO;
 
@@ -200,6 +198,19 @@ void CVersionManagerDlg::GetInfoFromIni()
 	m_news.Size = ss.str().size();
 	if (m_news.Size)
 		memcpy(&m_news.Content, ss.str().c_str(), m_news.Size);
+}
+
+void CVersionManagerDlg::ReportSQLError(OdbcError *pError)
+{
+	if (pError == NULL)
+		return;
+
+	// This is *very* temporary.
+	string errorMessage = string_format(_T("ODBC error occurred.\r\nSource: %s\r\nError: %s\r\nDescription: %s"),
+		pError->Source.c_str(), pError->ExtendedErrorMessage.c_str(), pError->ErrorMessage.c_str());
+
+	LogFileWrite(errorMessage.c_str());
+	delete pError;
 }
 
 // If you add a minimize button to your dialog, you will need the code below

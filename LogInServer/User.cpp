@@ -53,7 +53,7 @@ void CUser::Parsing(Packet & pkt)
 void CUser::HandleVersion(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
-	result << uint16(m_pMain->m_nLastVersion);
+	result << m_pMain->GetVersion();
 	Send(&result);
 }
 
@@ -61,18 +61,17 @@ void CUser::HandlePatches(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
 	std::set<std::string> downloadset;
-
 	uint16 version;
 	pkt >> version;
 
-	foreach (itr, m_pMain->m_VersionList) 
+	foreach (itr, (*m_pMain->GetPatchList())) 
 	{
-		_VERSION_INFO *pInfo = itr->second;
+		auto pInfo = itr->second;
 		if (pInfo->sVersion > version)
 			downloadset.insert(pInfo->strFileName);
 	}
 
-	result << m_pMain->m_strFtpUrl << m_pMain->m_strFilePath;
+	result << m_pMain->GetFTPUrl() << m_pMain->GetFTPPath();
 	result << uint16(downloadset.size());
 	
 	foreach (itr, downloadset)
@@ -125,8 +124,8 @@ void CUser::HandleServerlist(Packet & pkt)
 	result << echo;
 #endif
 
-	result << uint8(m_pMain->m_nServerCount);
-	foreach (itr, m_pMain->m_ServerList) 
+	result << uint8(m_pMain->GetServerList()->size());
+	foreach (itr, (*m_pMain->GetServerList())) 
 	{		
 		_SERVER_INFO *pServer = *itr;
 
@@ -155,17 +154,19 @@ void CUser::HandleServerlist(Packet & pkt)
 				<< pServer->strElMoradKingName << pServer->strElMoradNotice;
 #endif
 	}
+
 	Send(&result);
 }
 
 void CUser::HandleNews(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
+	News *pNews = m_pMain->GetNews();
 
-	if (m_pMain->m_news.Size)
+	if (pNews->Size)
 	{
-		result << "Login Notice" << uint16(m_pMain->m_news.Size);
-		result.append(m_pMain->m_news.Content, m_pMain->m_news.Size);
+		result << "Login Notice" << uint16(pNews->Size);
+		result.append(pNews->Content, pNews->Size);
 	}
 	else // dummy news, will skip past it
 	{

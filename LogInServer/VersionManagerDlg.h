@@ -28,60 +28,65 @@ typedef std::vector <_SERVER_INFO*>	ServerInfoList;
 
 class CVersionManagerDlg : public CDialog
 {
-// Construction
+	friend class CDBProcess;
 public:
-	void GetInfoFromIni();
-	
 	CVersionManagerDlg(CWnd* pParent = NULL);	// standard constructor
+
+	__forceinline short GetVersion() { return m_sLastVersion; };
+	__forceinline char * GetFTPUrl() { return m_strFtpUrl; };
+	__forceinline char * GetFTPPath() { return m_strFilePath; };
+
+	__forceinline News * GetNews() { return &m_news; };
+
+	__forceinline VersionInfoList* GetPatchList() { return &m_VersionList; };
+	__forceinline ServerInfoList* GetServerList() { return &m_ServerList; };
+
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual BOOL DestroyWindow();
+
+	afx_msg void OnBnClickedExit();
 
 	static CIOCPort	m_Iocport;
 
-	char	m_strFtpUrl[256];
-	char	m_strFilePath[256];
+private:
+	void GetInfoFromIni();
+	void ReportSQLError(OdbcError *pError);
 
-	int		m_nLastVersion;
+// Implementation
+protected:
+	HICON m_hIcon;
 
-	char	m_ODBCName[32];
-	char	m_ODBCLogin[32];
-	char	m_ODBCPwd[32];
-
-	VersionInfoList		m_VersionList;
-	ServerInfoList		m_ServerList;
-	int		m_nServerCount;
-
-	News m_news;
-
-	CDBProcess	m_DBProcess;
-	
-// Dialog Data
+	// Dialog Data
 	//{{AFX_DATA(CVersionManagerDlg)
 	enum { IDD = IDD_VERSIONMANAGER_DIALOG };
 	CListBox	m_OutputList;
 	//}}AFX_DATA
 
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CVersionManagerDlg)
-	public:
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	virtual BOOL DestroyWindow();
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
-	//}}AFX_VIRTUAL
-
-// Implementation
-protected:
-	HICON m_hIcon;
-	CIni	m_Ini;
-
 	// Generated message map functions
 	//{{AFX_MSG(CVersionManagerDlg)
 	virtual BOOL OnInitDialog();
+	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+
+private:
+	char	m_strFtpUrl[256], m_strFilePath[256];
+	char	m_ODBCName[32], m_ODBCLogin[32], m_ODBCPwd[32];
+	short	m_sLastVersion;
+
+	VersionInfoList		m_VersionList;
+	ServerInfoList		m_ServerList;
+
+	CIni m_Ini;
+	News m_news;
+
+	RWLock m_serverListLock;
+	RWLock m_patchListLock;
+
 public:
-	afx_msg void OnBnClickedExit();
+	CDBProcess	m_DBProcess;
 };
 
 //{{AFX_INSERT_LOCATION}}
