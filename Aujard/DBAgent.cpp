@@ -102,11 +102,10 @@ bool CDBAgent::NationSelect(string & strAccountID, uint8 bNation)
 	if (dbCommand.get() == NULL)
 		return false;
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strAccountID.c_str(), strAccountID.length());
-	dbCommand->AddParameter(SQL_PARAM_INPUT, &bNation);
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
+	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strAccountID.c_str(), strAccountID.length());
 
-	if (!dbCommand->Prepare(_T("{CALL NATION_SELECT(?, ?, ?)}")))
+	if (!dbCommand->Prepare(string_format(_T("{CALL NATION_SELECT(?, ?, %d)}"), bNation)))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	return (nRet > 0);
