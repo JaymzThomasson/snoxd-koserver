@@ -175,7 +175,8 @@ int CSharedMemQueue::PutData(Packet *pkt)
 		memcpy(queue+index, &size, 2);
 		index += 2;
 		queue[index++] = pkt->GetOpcode();
-		memcpy(queue+index, pkt->contents(), size);
+		if (pkt->size() > 0)
+			memcpy(queue+index, pkt->contents(), size);
 		m_pHeader->nCount++;
 
 		m_pHeader->Rear = (m_pHeader->Rear + 1) % MAX_COUNT;
@@ -283,8 +284,8 @@ int CSharedMemQueue::GetData(Packet & pkt)
 	if (size <= 0 || size > MAX_PKTSIZE)
 		return 0;
 
-	pkt.SetOpcode(*(char *)pQueue);
-	pkt.append((char *)(pQueue + 1), size - 1);
+	pkt.SetOpcode(*(char *)(pQueue + index));
+	pkt.append((char *)(pQueue + index + 1), size - 1);
 
 	m_pHeader->nCount--;
 
