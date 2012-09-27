@@ -19,7 +19,7 @@ public:
 		pFX->SetFieldType(CFieldExchange::outputColumn);
 
 		RFX_Int(pFX, _T("[sIDNum]"), m_sIDNum);
-		RFX_Text(pFX, _T("[strUserID]"), m_data.strUserName, sizeof(m_data.strUserName) - 1);
+		RFX_Text(pFX, _T("[strUserID]"), m_data.strUserName, sizeof(m_data.strUserName));
 	};
 
 	virtual void HandleRead()

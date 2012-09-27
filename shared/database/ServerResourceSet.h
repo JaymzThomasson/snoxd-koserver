@@ -21,7 +21,7 @@ public:
 		pFX->SetFieldType(CFieldExchange::outputColumn);
 
 		RFX_Int(pFX, _T("[nResourceID]"), m_data.nResourceID);
-		RFX_Text(pFX, _T("[strResource]"), m_data.strResource, sizeof(m_data.strResource) - 1);
+		RFX_Text(pFX, _T("[strResource]"), m_data.strResource, sizeof(m_data.strResource));
 	};
 
 	virtual void HandleRead()
