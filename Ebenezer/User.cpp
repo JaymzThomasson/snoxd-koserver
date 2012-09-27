@@ -1227,7 +1227,7 @@ void CUser::ExpChange(__int64 iExp)
 		m_pUserData->m_bLevel--;
 
 		// Find max XP for our new level, and take our excess XP off it.
-		m_pUserData->m_iExp = m_pMain->GetExpByLevel(getLevel()) + m_pUserData->m_iExp;
+		m_pUserData->m_iExp += m_pMain->GetExpByLevel(getLevel());
 
 		// Get new stats etc.
 		LevelChange(getLevel(), FALSE);

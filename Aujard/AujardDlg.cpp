@@ -97,11 +97,11 @@ CAujardDlg::CAujardDlg(CWnd* pParent /*=NULL*/)
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
-	memset(m_strGameDSN, 0x00, sizeof(m_strAccountPWD));
-	memset(m_strGameUID, 0x00, sizeof(m_strAccountPWD));
-	memset(m_strGamePWD, 0x00, sizeof(m_strAccountPWD));
-	memset(m_strAccountDSN, 0x00, sizeof(m_strAccountPWD));
-	memset(m_strAccountUID, 0x00, sizeof(m_strAccountPWD));
+	memset(m_strGameDSN, 0x00, sizeof(m_strGameDSN));
+	memset(m_strGameUID, 0x00, sizeof(m_strGameUID));
+	memset(m_strGamePWD, 0x00, sizeof(m_strGamePWD));
+	memset(m_strAccountDSN, 0x00, sizeof(m_strAccountDSN));
+	memset(m_strAccountUID, 0x00, sizeof(m_strAccountUID));
 	memset(m_strAccountPWD, 0x00, sizeof(m_strAccountPWD));
 }
 

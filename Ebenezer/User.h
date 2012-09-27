@@ -270,7 +270,6 @@ public:
 	void InitType3();
 	BOOL GetWarpList( int warp_group );
 	void ServerChangeOk( char* pBuf );
-	void ZoneConCurrentUsers( char* pBuf );
 	void SelectWarpList( char* pBuf );
 	void GoldChange(short tid, int gold);
 	void AllSkillPointChange();
