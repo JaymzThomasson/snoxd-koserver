@@ -15,13 +15,12 @@
 // DEFINE MACRO PART...
 #define BufInc(x) (x)++;(x) %= SOCKET_BUF_SIZE;
 
-////////////////////////////////////////////////////////////////
-// Update User Data type define
-////////////////////////////////////////////////////////////////
-#define UPDATE_LOGOUT			0x01
-#define UPDATE_ALL_SAVE			0x02
-#define UPDATE_PACKET_SAVE		0x03
-
+enum UserUpdateType
+{
+	UPDATE_LOGOUT,
+	UPDATE_ALL_SAVE,
+	UPDATE_PACKET_SAVE,
+};
 
 struct _ITEM_TABLE
 {

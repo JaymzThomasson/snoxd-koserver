@@ -84,11 +84,25 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 			}
 
 			command = GetByte(pBuf, index);
-			uid = GetShort(pBuf, index);
-			if( command == KNIGHTS_ALLLIST_REQ+0x10 && uid == -1 )	{
-				pMain->m_KnightsManager.RecvKnightsAllList( pBuf+index );
-				continue;
+
+			// clan packets are main opcode | sub opcode | uid
+			if (command == WIZ_KNIGHTS_PROCESS)
+			{
+				uid = *(short *)(pBuf + index + 1);
+
+				// this packet needs to be handled server-side, not per user
+				if (*(uint8 *)(pBuf + index) == KNIGHTS_ALLLIST_REQ && uid == -1)
+				{
+					pMain->m_KnightsManager.RecvKnightsAllList(pBuf + index + 3);
+					continue;
+				}
 			}
+			// everything else is main opcode | uid
+			else
+			{
+				uid = GetShort(pBuf, index);
+			}
+
 
 			if ((pUser = pMain->GetUserPtr(uid)) == NULL)
 				goto loop_pass;
@@ -147,21 +161,7 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 				case WIZ_FRIEND_PROCESS:
 					pUser->RecvFriendProcess(pBuf+index);
 					break;
-				case KNIGHTS_CREATE+0x10:
-				case KNIGHTS_JOIN+0x10:
-				case KNIGHTS_WITHDRAW+0x10:
-				case KNIGHTS_REMOVE+0x10:
-				case KNIGHTS_ADMIT+0x10:
-				case KNIGHTS_REJECT+0x10:
-				case KNIGHTS_CHIEF+0x10:
-				case KNIGHTS_VICECHIEF+0x10:
-				case KNIGHTS_OFFICER+0x10:
-				case KNIGHTS_PUNISH+0x10:
-				case KNIGHTS_DESTROY+0x10:
-				case KNIGHTS_MEMBER_REQ+0x10:
-				case KNIGHTS_STASH+0x10:
-				case KNIGHTS_LIST_REQ+0x10:
-				case KNIGHTS_ALLLIST_REQ+0x10:
+				case WIZ_KNIGHTS_PROCESS:
 					pMain->m_KnightsManager.ReceiveKnightsProcess( pUser, pBuf+index, command );
 					break;
 				case WIZ_LOGIN_INFO:
@@ -1351,7 +1351,7 @@ void CEbenezerDlg::UpdateGameTime()
 	if( bKnights )	{
 		::ZeroMemory(pSendBuf, sizeof(pSendBuf));   send_index = 0;
 		SetByte( pSendBuf, WIZ_KNIGHTS_PROCESS, send_index );
-		SetByte( pSendBuf, KNIGHTS_ALLLIST_REQ+0x10, send_index );
+		SetByte( pSendBuf, KNIGHTS_ALLLIST_REQ, send_index );
 		SetByte( pSendBuf, m_nServerNo, send_index );
 		m_LoggerSendQueue.PutData( pSendBuf, send_index );
 	}

@@ -138,6 +138,9 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\shared\database\OdbcCommand.cpp" />
+    <ClCompile Include="..\shared\database\OdbcConnection.cpp" />
+    <ClCompile Include="..\shared\database\OdbcParameter.cpp" />
     <ClCompile Include="..\shared\Ini.cpp" />
     <ClCompile Include="..\shared\SharedMem.cpp" />
     <ClCompile Include="Aujard.cpp">
@@ -166,6 +169,9 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\shared\database\OdbcCommand.h" />
+    <ClInclude Include="..\shared\database\OdbcConnection.h" />
+    <ClInclude Include="..\shared\database\OdbcParameter.h" />
     <ClInclude Include="..\shared\Ini.h" />
     <ClInclude Include="..\shared\packets.h" />
     <ClInclude Include="..\shared\SharedMem.h" />

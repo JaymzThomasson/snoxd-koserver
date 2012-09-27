@@ -16,15 +16,15 @@
     <Filter Include="Shared">
       <UniqueIdentifier>{1a952fb2-71cf-456d-a95a-c198c55179c3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Database">
+      <UniqueIdentifier>{bab6979a-188c-4a90-a1e2-50edbc3e67ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Aujard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AujardDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DBAgent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StdAfx.cpp">
@@ -35,6 +35,18 @@
     </ClCompile>
     <ClCompile Include="..\shared\Ini.cpp">
       <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="DBAgent.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcCommand.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcConnection.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcParameter.cpp">
+      <Filter>Database</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -49,13 +61,7 @@
     <ClInclude Include="AujardDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DBAgent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Define.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ItemTableSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
@@ -72,6 +78,18 @@
     </ClInclude>
     <ClInclude Include="..\shared\Ini.h">
       <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="DBAgent.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcParameter.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcCommand.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcConnection.h">
+      <Filter>Database</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

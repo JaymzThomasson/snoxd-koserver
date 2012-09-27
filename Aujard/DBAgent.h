@@ -1,65 +1,65 @@
-// DBAgent.h: interface for the CDBAgent class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_DBAGENT_H__C7580B9A_10FF_46DE_93C2_B0C9BA9D0422__INCLUDED_)
-#define AFX_DBAGENT_H__C7580B9A_10FF_46DE_93C2_B0C9BA9D0422__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-
-#pragma warning(disable : 4786)
 
 #include "define.h"
 #include <vector>
 
+#include "../shared/database/OdbcConnection.h"
+#include "../shared/STLMap.h"
+
 typedef std::vector <_USER_DATA*>			UserDataArray;
+typedef CSTLMap <_ITEM_TABLE>		ItemtableArray;
 
 class CAujardDlg;
 class CDBAgent  
 {
 public:
 	CDBAgent();
-	BOOL UpdateBattleEvent( const char* charid, int nation );
-	void LoadKnightsAllList( int nation);
-	BOOL CheckUserData( const char* accountid, const char*  charid, int type, int nTimeNumber, __int64 comparedata );
-	int AccountLogout( const char* accountid );
-	BOOL SetLogInInfo( const char* accountid, const char* charid, const char* serverip,  int serverno, const char* clientip, BYTE bInit );
-	BOOL LoadKnightsInfo( int index, char* buff, int &buff_index);
-	int UpdateWarehouseData( const char* accountid, int uid, int type );
-	BOOL LoadWarehouseData( const char* accountid, int uid );
-	BOOL UpdateConCurrentUserCount( int serverno, int zoneno, int t_count );
-	int LoadKnightsAllMembers( int knightsindex, int start, char *temp_buff, int& buff_index );
-	int DeleteKnights( int knightsindex );
-	int UpdateKnights( int Type, char* userid, int knightsindex, int domination );
-	int CreateKnights( int knightsindex, int nation, char* name, char* chief, int iFlag = 1 );
-	BOOL GetAllCharID( const char* id, char* char1, char* char2, char* char3);
-	BOOL LoadCharInfo( char* id, char* buff, int &buff_index);
-	BOOL NationSelect( char* id, int nation );
-	BOOL DeleteChar( int index, char *id, char* charid, char* socno );
-	int CreateNewChar( char* accountid, int index, char* charid, int race, int Class, int hair, int face, int str, int sta, int dex, int intel, int cha );
-	int	 AccountLogInReq( char* id , char* pw);	// return Nation value
-	int UpdateUser( const char *userid, int uid, int type);
-	BOOL LoadUserData( char *accountid, char* userid, int uid );
-	BOOL LoadWebItemMall(char *charid, char *buff, int & buff_index);
-	BOOL LoadSkillShortcut(char *charid, char *buff, int & buff_index);
-	void SaveSkillShortcut(char *charid, int sCount, char *buff);
 
-	void RequestFriendList(int uid, std::vector<std::string> & friendList);
+	bool Connect();
+	bool LoadItemTable();
+
+	void MUserInit(uint16 uid);
+	_USER_DATA *GetUser(uint16 uid);
+
+	int8 AccountLogin(std::string & strAccountID, std::string & strPasswd);
+	bool NationSelect(std::string & strAccountID, uint8 bNation);
+	bool GetAllCharID(std::string & strAccountID, std::string & strCharID1, std::string & strCharID2, std::string & strCharID3);
+	void LoadCharInfo(std::string & strCharID, ByteBuffer & result);
+	int8 CreateNewChar(std::string & strAccountID, int index, std::string & strCharID, uint8 bRace, uint16 sClass, uint32 nHair, uint8 bFace, uint8 bStr, uint8 bSta, uint8 bDex, uint8 bInt, uint8 bCha);
+	int8 DeleteChar(std::string & strAccountID, int index, std::string & strCharID, std::string & strSocNo);
+
+	bool LoadUserData(std::string & strAccountID, std::string & strCharID, short uid);
+	bool LoadWarehouseData(std::string & strAccountID, short uid);
+	bool SetLogInInfo(std::string & strAccountID, std::string & strCharID, std::string & strServerIP, short sServerNo, std::string & strClientIP, uint8 bInit);
+
+	bool LoadWebItemMall(short uid, Packet & result);
+
+	bool LoadSkillShortcut(short uid, Packet & result);
+	void SaveSkillShortcut(short uid, short sCount, char *buff);
+
+	void RequestFriendList(short uid, std::vector<std::string> & friendList);
 	FriendAddResult AddFriend(short sid, short tid);
-	FriendRemoveResult RemoveFriend(short sid, char *charName);
+	FriendRemoveResult RemoveFriend(short sid, std::string & strCharID);
 
-	void ReConnectODBC(CDatabase *m_db, char *strdb, char *strname, char *strpwd);
-	BOOL DatabaseInit();
-	void MUserInit(int uid);
-	virtual ~CDBAgent();
+	bool UpdateUser(std::string & strCharID, short uid, UserUpdateType type);
+	bool UpdateWarehouseData(std::string & strAccountID, short uid, UserUpdateType type);
 
-	CDatabase	m_GameDB, m_AccountDB, m_GameDB1, m_AccountDB1;
+	int8 CreateKnights(uint16 sClanID, uint8 bNation, std::string & strKnightsName, std::string & strChief, uint8 bFlag = 1);
+	int UpdateKnights(uint8 bType, std::string & strCharID, uint16 sClanID, uint8 bDomination);
+	int DeleteKnights(uint16 sClanID);
+	uint16 LoadKnightsAllMembers(uint16 sClanID, Packet & result);
+	void LoadKnightsInfo(uint16 sClanID, Packet & result);
+	void LoadKnightsAllList(uint8 bNation);
 
-	UserDataArray	m_UserDataArray;
+	void UpdateBattleEvent(std::string & strCharID, uint8 bNation);
+	void AccountLogout(std::string & strAccountID);
 
+	void UpdateConCurrentUserCount(int nServerNo, int nZoneNo, int nCount);
+
+	UserDataArray m_UserDataArray;
+
+private:
+	OdbcConnection m_GameDB, m_AccountDB;
 	CAujardDlg* m_pMain;
+	ItemtableArray m_itemTableArray;
 };
-
-#endif // !defined(AFX_DBAGENT_H__C7580B9A_10FF_46DE_93C2_B0C9BA9D0422__INCLUDED_)

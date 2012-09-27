@@ -11,58 +11,57 @@
 #include "../shared/SharedMem.h"
 #include "DBAgent.h"
 #include "define.h"
-#include "../shared/STLMap.h"
 
 using namespace std;
 
-typedef CSTLMap <_ITEM_TABLE>		ItemtableArray;
 /////////////////////////////////////////////////////////////////////////////
 // CAujardDlg dialog
 
+struct OdbcError;
 class CAujardDlg : public CDialog
 {
 // Construction
 public:
-	void BattleEventResult( char* pData );
-	void WriteLogFile( char* pData );
-	void SaveUserData();
-	void UserKickOut( char* pBuf );
-	void SetLogInInfo( char* pBuf );
-	void KnightsList( char* pBuf );
-	void ConCurrentUserCount();
-	void AllKnightsMember( char* pBuf );
-	void DestroyKnights( char* pBuf );
-	void ModifyKnightsMember( char* pBuf, BYTE command );
-	void WithdrawKnights( char* pBuf );
-	void JoinKnights( char* pBuf );
-	void CreateKnights( char* pBuf );
-	void KnightsPacket( char* pBuf );
-	_USER_DATA* GetUserPtr( const char* struserid, int& uid );
-	void UserDataSave( char* pBuf );
-	void AllSaveRoutine();
-	void AllCharInfoReq( char* pBuf );
-	void AccountLogIn( char* pBuf );
-	void DeleteChar( char* pBuf );
-	void CreateNewChar( char* pBuf );
-	void SelectNation( char* pBuf );
-	BOOL LoadItemTable();
-	void UserLogOut(char *pBuf);
 	CAujardDlg(CWnd* pParent = NULL);	// standard constructor
 
-	void ShoppingMall(char *pBuf);
-	void LoadWebItemMall(char *pBuf);
-
-	void SkillDataProcess(char *pBuf);
-	void SkillDataSave(char *pBuf, int uid);
-	void SkillDataLoad(char *pBuf, int uid);
-
-	void FriendProcess(char *pBuf);
-	void RequestFriendList(char *pBuf);
-	void AddFriend(char *pBuf);
-	void RemoveFriend(char *pBuf);
-
 	BOOL InitializeMMF();
-	void SelectCharacter( char* pBuf );
+	void ReportSQLError(OdbcError *pError);
+	void WriteLogFile( char* pData );
+
+	void AccountLogIn(Packet & pkt);
+	void SelectNation(Packet & pkt);
+	void AllCharInfoReq(Packet & pkt);
+	void CreateNewChar(Packet & pkt);
+	void DeleteChar(Packet & pkt);
+	void SelectCharacter(Packet & pkt);
+	void UserLogOut(Packet & pkt);
+	void UserDataSave(Packet & pkt);
+	void KnightsPacket(Packet & pkt);
+	void CreateKnights(Packet & pkt);
+	void JoinKnights(Packet & pkt);
+	void WithdrawKnights(Packet & pkt);
+	void ModifyKnightsMember(Packet & pkt, uint8 command);
+	void DestroyKnights(Packet & pkt);
+	void AllKnightsMember(Packet & pkt);
+	void KnightsList(Packet & pkt);
+	void LoadKnightsAllList(Packet & pkt);
+	void SetLogInInfo(Packet & pkt);
+	void UserKickOut(Packet & pkt);
+	void BattleEventResult(Packet & pkt);
+	void ShoppingMall(Packet & pkt);
+	void LoadWebItemMall(Packet & pkt);
+	void SkillDataProcess(Packet & pkt);
+	void SkillDataSave(Packet & pkt, short uid);
+	void SkillDataLoad(Packet & pkt, short uid);
+	void FriendProcess(Packet & pkt);
+	void RequestFriendList(Packet & pkt);
+	void AddFriend(Packet & pkt);
+	void RemoveFriend(Packet & pkt);
+
+	void SaveUserData();
+	void ConCurrentUserCount();
+	_USER_DATA* GetUserPtr(const char* struserid, short & uid);
+	void AllSaveRoutine();
 
 	CSharedMemQueue	m_LoggerSendQueue;
 	CSharedMemQueue	m_LoggerRecvQueue;
@@ -73,8 +72,6 @@ public:
 
 	CDBAgent	m_DBAgent;
 
-	ItemtableArray		m_ItemtableArray;
-	
 	int	m_nServerNo, m_nZoneNo;
 	char m_strGameDSN[32], m_strAccountDSN[32];
 	char m_strGameUID[32], m_strAccountUID[32];

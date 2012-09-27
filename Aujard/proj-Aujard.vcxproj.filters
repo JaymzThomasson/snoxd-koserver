@@ -16,15 +16,15 @@
     <Filter Include="Shared">
       <UniqueIdentifier>{895de363-39e3-412e-9492-65b990862e75}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Database">
+      <UniqueIdentifier>{77169356-c2bb-45e7-b362-0b2a6cbc2b66}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Aujard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AujardDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DBAgent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StdAfx.cpp">
@@ -35,6 +35,18 @@
     </ClCompile>
     <ClCompile Include="..\shared\Ini.cpp">
       <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcCommand.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcConnection.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcParameter.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="DBAgent.cpp">
+      <Filter>Database</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -47,9 +59,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AujardDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DBAgent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Define.h">
@@ -72,6 +81,18 @@
     </ClInclude>
     <ClInclude Include="..\shared\Ini.h">
       <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcParameter.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcCommand.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcConnection.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="DBAgent.h">
+      <Filter>Database</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
