@@ -22,7 +22,7 @@ static tstring string_format(const tstring fmt, ...)
 	{
         str.resize(size);
         va_start(ap, fmt);
-        int n = _vsntprintf_s((TCHAR *)str.c_str(), size, size, fmt.c_str(), ap);
+        int n = vsnprintf((TCHAR *)str.c_str(), size, fmt.c_str(), ap);
         va_end(ap);
 
         if (n > -1 && n < size)
