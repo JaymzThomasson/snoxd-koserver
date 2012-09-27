@@ -76,7 +76,8 @@ error_handler:
 
 OdbcCommand *OdbcConnection::CreateCommand()
 {
-	if (!isConnected())
+	if (!isConnected()
+		&& !Connect())
 		return NULL;
 
 	return new OdbcCommand(this);
