@@ -189,14 +189,15 @@ void CAujardDlg::SelectNation(Packet & pkt)
 
 void CAujardDlg::AllCharInfoReq(Packet & pkt)
 {
-	Packet result(WIZ_ALLCHAR_INFO_REQ, uint8(1));
+	Packet result(WIZ_ALLCHAR_INFO_REQ);
 	ByteBuffer tmp;
 	string strAccountID, strCharID1, strCharID2, strCharID3;
 	short uid;
 
 	pkt >> uid >> strAccountID;
-	result << uid << strAccountID;
+	result << uid;
 
+	tmp << uint8(1);
 	m_DBAgent.GetAllCharID(strAccountID, strCharID1, strCharID2, strCharID3);
 	m_DBAgent.LoadCharInfo(strCharID1, tmp);
 	m_DBAgent.LoadCharInfo(strCharID2, tmp);
