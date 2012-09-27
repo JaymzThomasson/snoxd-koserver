@@ -28,7 +28,7 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 		{
 			Packet pkt;
 			int recvlen = pMain->m_LoggerRecvQueue.GetData(pkt);
-			if (recvlen == 0)
+			if (recvlen > MAX_PKTSIZE || recvlen == 0)
 			{
 				Sleep(1);
 				continue;
