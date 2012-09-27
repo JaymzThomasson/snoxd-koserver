@@ -1,6 +1,10 @@
 #pragma once
 
 #include <string>
+#include <algorithm> 
+#include <functional> 
+#include <cctype>
+#include <locale>
 
 #ifdef UNICODE
 typedef std::wstring tstring;
@@ -32,4 +36,11 @@ static tstring string_format(const tstring fmt, ...)
         else
             size *= 2;
     }
+}
+
+// trim from end
+static inline tstring & rtrim(tstring &s) 
+{
+	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+	return s;
 }
