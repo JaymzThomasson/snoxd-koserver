@@ -496,7 +496,7 @@ void CAujardDlg::AllSaveRoutine()
 	}
 
 	CString msg;
-	msg.Format("All data saved: %04d/%02d/%02d %02d:%02d:%02d", cur.GetYear(), cur.GetMonth(), cur.GetDay(), cur.GetHour(), cur.GetMinute());
+	msg.Format("All data saved: %04d/%02d/%02d %02d:%02d", cur.GetYear(), cur.GetMonth(), cur.GetDay(), cur.GetHour(), cur.GetMinute());
 	m_OutputList.AddString(msg);
 }
 
