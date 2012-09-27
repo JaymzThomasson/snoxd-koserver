@@ -399,8 +399,7 @@ bool CDBAgent::LoadWarehouseData(string & strAccountID, short uid)
 
 	_USER_DATA *pUser = GetUser(uid);
 	if (pUser == NULL 
-		|| pUser->m_bLogout
-		|| strlen(pUser->m_id) != 0)
+		|| pUser->m_bLogout)
 		return false;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strAccountID.c_str(), strAccountID.length());
