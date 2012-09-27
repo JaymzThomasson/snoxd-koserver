@@ -138,8 +138,8 @@ bool CDBAgent::GetAllCharID(string & strAccountID, string & strCharID1, string &
 
 void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 {
-	uint32 nHair;
-	uint16 sClass, nRet;
+	uint32 nHair = 0;
+	uint16 sClass = 0, nRet;
 	uint8 bRace = 0, bLevel = 0, bFace = 0, bZone = 0; 
 	char strItem[400];
 	ByteBuffer itemData;
