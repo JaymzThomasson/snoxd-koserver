@@ -296,8 +296,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 	if (nRet == 0)
 		return false;
 
-	memset(pUser->m_id, 0x00, sizeof(pUser->m_id));
-	memcpy(pUser->m_id, strCharID.c_str(), strCharID.length());
+	_tstrcpy(pUser->m_id, strCharID);
 
 	ByteBuffer itemBuffer, serialBuffer;
 	itemBuffer.append(strItem, sizeof(strItem));

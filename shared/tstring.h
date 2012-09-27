@@ -44,3 +44,11 @@ static inline tstring & rtrim(tstring &s)
 	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
 	return s;
 }
+
+static inline void tstrcpy(TCHAR *dst, size_t len, tstring & src)
+{
+	memset(dst, 0x00, len);
+	memcpy(dst, src.c_str(), src.length() > len ? len : src.length());
+}
+
+#define _tstrcpy(dst, src) tstrcpy(dst, sizeof(dst), src)

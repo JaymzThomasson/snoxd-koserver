@@ -258,8 +258,7 @@ void CAujardDlg::SelectCharacter(Packet & pkt)
 	if (pUser == NULL)
 		goto fail_return;
 
-	memset(pUser->m_Accountid, 0x00, sizeof(pUser->m_Accountid));
-	memcpy(pUser->m_Accountid, strAccountID.c_str(), strAccountID.length());
+	_tstrcpy(pUser->m_Accountid, strAccountID);
 
 	result << uint8(1) << bInit;
 	m_LoggerSendQueue.PutData(&result);
