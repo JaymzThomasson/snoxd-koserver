@@ -52,7 +52,7 @@ public:
 	ByteBuffer &operator<<(ByteBuffer &value)
 	{
 		if (value.size())
-			append(value.contents());
+			append(value.contents(), value.size());
 		return *this;
 	}
 
