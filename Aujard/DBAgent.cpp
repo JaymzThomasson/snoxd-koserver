@@ -24,7 +24,7 @@ bool CDBAgent::Connect()
 
 	if (!m_GameDB.Connect(m_pMain->m_strGameDSN, m_pMain->m_strGameUID, m_pMain->m_strGamePWD))
 	{
-		m_pMain->ReportSQLError(m_AccountDB.GetError());
+		m_pMain->ReportSQLError(m_GameDB.GetError());
 		return false;
 	}
 
