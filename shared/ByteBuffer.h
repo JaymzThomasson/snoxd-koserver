@@ -51,8 +51,8 @@ public:
 
 	ByteBuffer &operator<<(ByteBuffer &value)
 	{
-		if (value.size())
-			append(value.contents(), value.size());
+		if (value.wpos())
+			append(value.contents(), value.wpos());
 		return *this;
 	}
 
