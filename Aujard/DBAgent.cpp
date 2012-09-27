@@ -129,8 +129,6 @@ bool CDBAgent::GetAllCharID(string & strAccountID, string & strCharID1, string &
 		strCharID1 = dbCommand->FetchString(1);
 		strCharID2 = dbCommand->FetchString(2);
 		strCharID3 = dbCommand->FetchString(3);
-
-		dbCommand->MoveNextSet(); // pull next set containing return value/row count
 	}
 
 	return (nRet > 0);
@@ -168,8 +166,6 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 			bFace = dbCommand->FetchByte(5);
 			bZone = dbCommand->FetchByte(6);
 			dbCommand->FetchString(7, strItem, sizeof(strItem));
-
-			dbCommand->MoveNextSet(); // pull next set containing return value/row count
 		}
 	}
 
@@ -252,7 +248,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 	memset(strItem, 0x00, sizeof(strItem));
 	memset(strSerial, 0x00, sizeof(strSerial));
 
-	int field = 0;
+	int field = 1;
 	pUser->m_bNation = dbCommand->FetchByte(field++);
 	pUser->m_bRace = dbCommand->FetchByte(field++);
 	pUser->m_sClass = dbCommand->FetchUInt16(field++);
@@ -290,7 +286,6 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 	dbCommand->FetchString(field++, (char *)pUser->m_bstrQuest, sizeof(pUser->m_bstrQuest));
 	pUser->m_iMannerPoint = dbCommand->FetchUInt32(field++);
 	pUser->m_iLoyaltyMonthly = dbCommand->FetchUInt32(field++);
-	dbCommand->MoveNextSet(); // pull output variables
 
 	// kind of unnecessary
 	if (nRet == 0)

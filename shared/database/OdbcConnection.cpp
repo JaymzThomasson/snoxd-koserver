@@ -206,7 +206,6 @@ void OdbcConnection::Close()
 	ResetHandles();
 }
 
-
 OdbcConnection::~OdbcConnection()
 {
 	Disconnect();

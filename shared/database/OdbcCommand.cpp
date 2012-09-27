@@ -39,6 +39,7 @@ bool OdbcCommand::Open(bool bRetry /*= false*/)
 		return Open(true); 
 	}
 
+	SQLExecDirect(m_hStmt, (SQLTCHAR *)_T("SET NOCOUNT ON"), SQL_NTS);
 	return true;
 }
 
@@ -50,6 +51,23 @@ bool OdbcCommand::Execute(const tstring & szSQL)
 #ifdef _DEBUG
 	OutputDebugString((szSQL + _T("\n")).c_str());
 #endif
+
+	for (auto itr = m_params.begin(); itr != m_params.end(); itr++)
+	{
+		SQLINTEGER pcbValue = SQL_NTS;
+		auto param = itr->second;
+
+		if (!SQL_SUCCEEDED(SQLBindParameter(m_hStmt, itr->first + 1, param->GetParameterType(), param->GetCDataType(), param->GetDataType(), param->GetDataTypeSize(), 0, param->GetAddress(), param->GetDataTypeSize(), &pcbValue)))
+		{
+			if (m_odbcConnection != NULL)
+				m_szError = m_odbcConnection->ReportSQLError(SQL_HANDLE_STMT, m_hStmt, _T("SQLBindParameter"), _T("Failed to bind parameter."));
+			else
+				m_szError = OdbcConnection::GetSQLError(SQL_HANDLE_STMT, m_hStmt);
+
+			Close();
+			return false;
+		}
+	}
 
 	if (!SQL_SUCCEEDED(SQLExecDirect(m_hStmt, (SQLTCHAR *)szSQL.c_str(), szSQL.length())))
 	{
@@ -104,7 +122,6 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 		return false;
 	}
 
-	// Bind parameters
 	for (auto itr = m_params.begin(); itr != m_params.end(); itr++)
 	{
 		SQLINTEGER pcbValue = SQL_NTS;
@@ -144,12 +161,12 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 
 #define ADD_ODBC_PARAMETER(name, type, sqlType) void OdbcCommand::AddParameter(SQLSMALLINT paramType, type *value, SQLLEN maxLength) { m_params.insert(std::make_pair(m_params.size(), new OdbcParameter(paramType, sqlType, (SQLPOINTER)value, maxLength))); } \
 	type OdbcCommand::Fetch ## name(int pos, SQLLEN maxLength) { type value; SQLINTEGER cb = SQL_NTS; SQLGetData(m_hStmt, pos, sqlType, &value, maxLength, &cb); return value; }
-ADD_ODBC_PARAMETER(Byte, uint8, SQL_C_TINYINT)
+ADD_ODBC_PARAMETER(Byte, uint8, SQL_C_UTINYINT)
 ADD_ODBC_PARAMETER(SByte, int8, SQL_C_STINYINT)
 ADD_ODBC_PARAMETER(UInt16, uint16, SQL_C_USHORT)
 ADD_ODBC_PARAMETER(Int16, int16, SQL_C_SSHORT)
 ADD_ODBC_PARAMETER(UInt32, uint32, SQL_C_ULONG)
-ADD_ODBC_PARAMETER(Int32, int32, SQL_C_LONG)
+ADD_ODBC_PARAMETER(Int32, int32, SQL_C_SLONG)
 ADD_ODBC_PARAMETER(Single, float, SQL_C_FLOAT)
 ADD_ODBC_PARAMETER(Double, double, SQL_C_DOUBLE)
 ADD_ODBC_PARAMETER(UInt64, uint64, SQL_C_UBIGINT)
