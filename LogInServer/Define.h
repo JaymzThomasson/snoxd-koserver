@@ -52,13 +52,6 @@ typedef union{
 	BYTE		b[4];
 } MYDWORD;
 
-struct _VERSION_INFO
-{
-	short sVersion;
-	short sHistoryVersion;
-	std::string strFileName;
-};
-
 struct _SERVER_INFO
 {
 	char strServerIP[32];
@@ -109,4 +102,12 @@ enum LogonOpcodes
 };
 
 #include "../shared/globals.h"
+
+struct _VERSION_INFO
+{
+	uint16 sVersion;
+	uint16 sHistoryVersion;
+	std::string strFileName;
+};
+
 #endif

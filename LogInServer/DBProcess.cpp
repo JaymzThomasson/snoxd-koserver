@@ -52,8 +52,8 @@ bool CDBProcess::LoadVersionList()
 		{
 			_VERSION_INFO *pVersion = new _VERSION_INFO;
 
-			pVersion->sVersion = dbCommand->FetchUInt16(1);
-			pVersion->sHistoryVersion = dbCommand->FetchUInt16(2);
+			dbCommand->FetchUInt16(1, pVersion->sVersion);
+			dbCommand->FetchUInt16(2, pVersion->sHistoryVersion);
 			pVersion->strFileName = dbCommand->FetchString(3);
 
 			m_pMain->m_VersionList.insert(make_pair(pVersion->strFileName, pVersion));
@@ -83,10 +83,11 @@ bool CDBProcess::LoadUserCountList()
 	{
 		do
 		{
-			uint8 serverID = dbCommand->FetchByte(1);
-			uint16 zone_1 = dbCommand->FetchUInt16(2),
-					zone_2 = dbCommand->FetchUInt16(3),
-					zone_3 = dbCommand->FetchUInt16(4);
+			uint16 zone_1, zone_2, zone_3; uint8 serverID;
+			dbCommand->FetchByte(1, serverID);
+			dbCommand->FetchUInt16(2, zone_1);
+			dbCommand->FetchUInt16(3, zone_2);
+			dbCommand->FetchUInt16(4, zone_3);
 
 			if ((uint8)(serverID - 1) < m_pMain->m_ServerList.size())
 				m_pMain->m_ServerList[serverID - 1]->sUserCount = zone_1 + zone_2 + zone_3;

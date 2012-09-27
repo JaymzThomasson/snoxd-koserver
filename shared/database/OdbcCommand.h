@@ -24,7 +24,8 @@ public:
 	bool Prepare(const tstring & szSQL);
 
 #define ADD_ODBC_PARAMETER(name, type, sqlType) void AddParameter(SQLSMALLINT paramType, type *value, SQLLEN maxLength = sizeof(type)); \
-	type OdbcCommand::Fetch ## name(int pos, SQLLEN maxLength = 0);
+	type OdbcCommand::Fetch ## name(int pos); \
+	void OdbcCommand::Fetch ## name(int pos, type & value);
 
 	ADD_ODBC_PARAMETER(Byte, uint8, SQL_C_TINYINT)
 	ADD_ODBC_PARAMETER(SByte, int8, SQL_C_STINYINT)

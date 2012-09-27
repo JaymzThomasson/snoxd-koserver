@@ -159,12 +159,12 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 
 		if (dbCommand->hasData())
 		{
-			bRace = dbCommand->FetchByte(1);
-			sClass = dbCommand->FetchUInt16(2);
-			nHair = dbCommand->FetchUInt32(3);
-			bLevel = dbCommand->FetchByte(4);
-			bFace = dbCommand->FetchByte(5);
-			bZone = dbCommand->FetchByte(6);
+			dbCommand->FetchByte(1, bRace);
+			dbCommand->FetchUInt16(2, sClass);
+			dbCommand->FetchUInt32(3, nHair);
+			dbCommand->FetchByte(4, bLevel);
+			dbCommand->FetchByte(5, bFace);
+			dbCommand->FetchByte(6, bZone);
 			dbCommand->FetchString(7, strItem, sizeof(strItem));
 		}
 	}
@@ -249,32 +249,32 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 	memset(strSerial, 0x00, sizeof(strSerial));
 
 	int field = 1;
-	pUser->m_bNation = dbCommand->FetchByte(field++);
-	pUser->m_bRace = dbCommand->FetchByte(field++);
-	pUser->m_sClass = dbCommand->FetchUInt16(field++);
-	pUser->m_nHair = dbCommand->FetchUInt32(field++);
-	pUser->m_bRank = dbCommand->FetchByte(field++);
-	pUser->m_bTitle = dbCommand->FetchByte(field++);
-	pUser->m_bLevel = dbCommand->FetchByte(field++);
-	pUser->m_iExp = dbCommand->FetchUInt64(field++);
-	pUser->m_iLoyalty = dbCommand->FetchUInt32(field++);
-	pUser->m_bFace = dbCommand->FetchByte(field++);
-	pUser->m_bCity = dbCommand->FetchByte(field++);
-	pUser->m_bKnights = dbCommand->FetchUInt16(field++);
-	pUser->m_bFame = dbCommand->FetchByte(field++);
-	pUser->m_sHp = dbCommand->FetchUInt16(field++);
-	pUser->m_sMp = dbCommand->FetchUInt16(field++);
-	pUser->m_sSp = dbCommand->FetchUInt16(field++);
-	pUser->m_bStr = dbCommand->FetchByte(field++);
-	pUser->m_bSta = dbCommand->FetchByte(field++);
-	pUser->m_bDex = dbCommand->FetchByte(field++);
-	pUser->m_bIntel = dbCommand->FetchByte(field++);
-	pUser->m_bCha = dbCommand->FetchByte(field++);
-	pUser->m_bAuthority = dbCommand->FetchByte(field++);
-	pUser->m_sPoints = dbCommand->FetchUInt16(field++);
-	pUser->m_iGold = dbCommand->FetchUInt32(field++);
-	pUser->m_bZone = dbCommand->FetchByte(field++);
-	pUser->m_sBind = dbCommand->FetchByte(field++);
+	dbCommand->FetchByte(field++, pUser->m_bNation);
+	dbCommand->FetchByte(field++, pUser->m_bRace);
+	dbCommand->FetchUInt16(field++, pUser->m_sClass);
+	dbCommand->FetchUInt32(field++, pUser->m_nHair);
+	dbCommand->FetchByte(field++, pUser->m_bRank);
+	dbCommand->FetchByte(field++, pUser->m_bTitle);
+	dbCommand->FetchByte(field++, pUser->m_bLevel);
+	dbCommand->FetchInt64(field++, pUser->m_iExp);
+	dbCommand->FetchInt32(field++, pUser->m_iLoyalty);
+	dbCommand->FetchByte(field++, pUser->m_bFace);
+	dbCommand->FetchByte(field++, pUser->m_bCity);
+	dbCommand->FetchInt16(field++, pUser->m_bKnights);
+	dbCommand->FetchByte(field++, pUser->m_bFame);
+	dbCommand->FetchInt16(field++, pUser->m_sHp);
+	dbCommand->FetchInt16(field++, pUser->m_sMp);
+	dbCommand->FetchInt16(field++, pUser->m_sSp);
+	dbCommand->FetchByte(field++, pUser->m_bStr);
+	dbCommand->FetchByte(field++, pUser->m_bSta);
+	dbCommand->FetchByte(field++, pUser->m_bDex);
+	dbCommand->FetchByte(field++, pUser->m_bIntel);
+	dbCommand->FetchByte(field++, pUser->m_bCha);
+	dbCommand->FetchByte(field++, pUser->m_bAuthority);
+	dbCommand->FetchUInt16(field++, pUser->m_sPoints);
+	dbCommand->FetchUInt32(field++, pUser->m_iGold);
+	dbCommand->FetchByte(field++, pUser->m_bZone);
+	dbCommand->FetchInt16(field++, pUser->m_sBind);
 	pUser->m_curx = (float)(dbCommand->FetchInt32(field++) / 100.0f);
 	pUser->m_curz = (float)(dbCommand->FetchInt32(field++) / 100.0f);
 	pUser->m_cury = (float)(dbCommand->FetchInt32(field++) / 100.0f);
@@ -282,10 +282,10 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 	dbCommand->FetchString(field++, (char *)pUser->m_bstrSkill, sizeof(pUser->m_bstrSkill));
 	dbCommand->FetchString(field++, strItem, sizeof(strItem));
 	dbCommand->FetchString(field++, strSerial, sizeof(strSerial));
-	pUser->m_sQuestCount = dbCommand->FetchUInt16(field++);
+	dbCommand->FetchUInt16(field++, pUser->m_sQuestCount);
 	dbCommand->FetchString(field++, (char *)pUser->m_bstrQuest, sizeof(pUser->m_bstrQuest));
-	pUser->m_iMannerPoint = dbCommand->FetchUInt32(field++);
-	pUser->m_iLoyaltyMonthly = dbCommand->FetchUInt32(field++);
+	dbCommand->FetchInt32(field++, pUser->m_iMannerPoint);
+	dbCommand->FetchInt32(field++, pUser->m_iLoyaltyMonthly);
 
 	// kind of unnecessary
 	if (nRet == 0)
@@ -408,7 +408,7 @@ bool CDBAgent::LoadWarehouseData(string & strAccountID, short uid)
 	memset(strItem, 0x00, sizeof(strItem));
 	memset(strSerial, 0x00, sizeof(strSerial));
 
-	pUser->m_iBank = dbCommand->FetchUInt32(1);
+	dbCommand->FetchUInt32(1, pUser->m_iBank);
 	dbCommand->FetchString(2, strItem, sizeof(strItem));
 	dbCommand->FetchString(3, strSerial, sizeof(strSerial));
 
@@ -501,8 +501,9 @@ bool CDBAgent::LoadWebItemMall(short uid, Packet & result)
 
 	do
 	{
-		uint32 nItemID = dbCommand->FetchUInt32(2); // 1 is the account name, which we don't need to use unless we're logging	
-		uint16 sCount = dbCommand->FetchUInt16(3);
+		uint32 nItemID; uint16 sCount;
+		dbCommand->FetchUInt32(2, nItemID); // 1 is the account name, which we don't need to use unless we're logging	
+		dbCommand->FetchUInt16(3, sCount);
 
 		result << nItemID << sCount;
 
@@ -537,7 +538,7 @@ bool CDBAgent::LoadSkillShortcut(short uid, Packet & result)
 	if (!dbCommand->hasData())
 		return false;
 
-	sCount = dbCommand->FetchUInt16(1);
+	dbCommand->FetchUInt16(1, sCount);
 	dbCommand->FetchString(2, strSkillData, sizeof(strSkillData));
 
 	result << sCount;
@@ -777,10 +778,11 @@ uint16 CDBAgent::LoadKnightsAllMembers(uint16 sClanID, Packet & result)
 	uint16 count = 0;
 	do
 	{
+		uint16 sClass; uint8 bFame, bLevel;
 		string strCharID = dbCommand->FetchString(1);
-		uint8 bFame = dbCommand->FetchByte(2);
-		uint8 bLevel = dbCommand->FetchByte(3);
-		uint16 sClass = dbCommand->FetchUInt16(4);
+		dbCommand->FetchByte(2, bFame);
+		dbCommand->FetchByte(3, bLevel);
+		dbCommand->FetchUInt16(4, sClass);
 
 		rtrim(strCharID);
 
@@ -806,10 +808,11 @@ void CDBAgent::LoadKnightsInfo(uint16 sClanID, Packet & result)
 	if (!dbCommand->hasData())
 		return;
 
-	uint8 bNation = dbCommand->FetchByte(2); // clan ID is first, but we already know that
+	uint32 nPoints; uint16 sMembers; uint8 bNation;
+	dbCommand->FetchByte(2, bNation); // clan ID is first, but we already know that
 	string strKnightsName = dbCommand->FetchString(3);
-	uint16 sMembers = dbCommand->FetchUInt16(4);
-	uint32 nPoints = dbCommand->FetchUInt32(5);
+	dbCommand->FetchUInt16(4, sMembers);
+	dbCommand->FetchUInt32(5, nPoints);
 
 	rtrim(strKnightsName);
 	result << sClanID << bNation << strKnightsName << sMembers << nPoints;
@@ -860,9 +863,10 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 			offset = result.wpos() - 1;
 		}
 
-		uint16 sClanID = dbCommand->FetchUInt16(1);
-		uint32 nPoints = dbCommand->FetchUInt32(2);
-		uint8 bRanking = dbCommand->FetchByte(3);
+		uint32 nPoints; uint16 sClanID; uint8 bRanking;
+		dbCommand->FetchUInt16(1, sClanID);
+		dbCommand->FetchUInt32(2, nPoints);
+		dbCommand->FetchByte(3, bRanking);
 
 		result << sClanID << nPoints << bRanking;
 

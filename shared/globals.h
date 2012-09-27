@@ -111,53 +111,43 @@ struct _USER_DATA
 	char	m_id[MAX_ID_SIZE+1];
 	char	m_Accountid[MAX_ID_SIZE+1];
 
-	BYTE	m_bZone;
-	float	m_curx;	
-	float	m_curz;
-	float	m_cury;
+	uint8	m_bZone;
+	float	m_curx, m_curz, m_cury;
 
-	BYTE	m_bNation;
-	BYTE	m_bRace;
-	short	m_sClass;
+	uint8	m_bNation;
+	uint8	m_bRace;
+	uint16	m_sClass;
 
-	DWORD	m_nHair;
+	uint32	m_nHair;
 
-	BYTE	m_bRank;
-	BYTE	m_bTitle;
-	BYTE	m_bLevel;
-	__int64		m_iExp;	
-	int		m_iLoyalty;	
-	int		m_iLoyaltyMonthly;
-	int		m_iMannerPoint;
-	BYTE	m_bFace;
-	BYTE	m_bCity;
-	short	m_bKnights;	
-	BYTE	m_bFame;
-	short	m_sHp;
-	short	m_sMp;
-	short	m_sSp;
-	BYTE	m_bStr;	
-	BYTE	m_bSta;	
-	BYTE	m_bDex;
-	BYTE	m_bIntel;
-	BYTE	m_bCha;
-	BYTE	m_bAuthority;
-	short	m_sPoints;
-	unsigned int		m_iGold;
-	short	m_sBind;
-	unsigned int		m_iBank;
+	uint8	m_bRank;
+	uint8	m_bTitle;
+	uint8	m_bLevel;
+	int64	m_iExp;	
+	int32	m_iLoyalty, m_iLoyaltyMonthly;
+	int32	m_iMannerPoint;
+	uint8	m_bFace;
+	uint8	m_bCity;
+	int16	m_bKnights;	
+	uint8	m_bFame;
+	int16	m_sHp, m_sMp, m_sSp;
+	uint8	m_bStr, m_bSta, m_bDex, m_bIntel, m_bCha;
+	uint8	m_bAuthority;
+	uint16	m_sPoints;
+	uint32	m_iGold, m_iBank;
+	int16	m_sBind;
 	
-	BYTE    m_bstrSkill[9];	
+	uint8    m_bstrSkill[9];	
 	_ITEM_DATA m_sItemArray[HAVE_MAX+SLOT_MAX + COSP_MAX + MBAG_MAX];
 	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];
 
-	BYTE	m_bLogout;
-	BYTE	m_bWarehouse;
+	uint8	m_bLogout;
+	uint8	m_bWarehouse;
 	DWORD	m_dwTime;
 
 	// this system needs replacing
-	int		m_sQuestCount;
-	BYTE	m_bstrQuest[400];
+	uint16	m_sQuestCount;
+	uint8	m_bstrQuest[400];
 };
 
 inline void GetString(char* tBuf, char* sBuf, int len, int& index)

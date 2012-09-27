@@ -160,7 +160,8 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 
 
 #define ADD_ODBC_PARAMETER(name, type, sqlType) void OdbcCommand::AddParameter(SQLSMALLINT paramType, type *value, SQLLEN maxLength) { m_params.insert(std::make_pair(m_params.size(), new OdbcParameter(paramType, sqlType, (SQLPOINTER)value, maxLength))); } \
-	type OdbcCommand::Fetch ## name(int pos, SQLLEN maxLength) { type value; SQLINTEGER cb = SQL_NTS; SQLGetData(m_hStmt, pos, sqlType, &value, maxLength, &cb); return value; }
+	type OdbcCommand::Fetch ## name(int pos) { type value; SQLINTEGER cb = SQL_NTS; SQLGetData(m_hStmt, pos, sqlType, &value, 0, &cb); return value; } \
+	void OdbcCommand::Fetch ## name(int pos, type & value) { SQLINTEGER cb = SQL_NTS; SQLGetData(m_hStmt, pos, sqlType, &value, 0, &cb); }
 ADD_ODBC_PARAMETER(Byte, uint8, SQL_C_UTINYINT)
 ADD_ODBC_PARAMETER(SByte, int8, SQL_C_STINYINT)
 ADD_ODBC_PARAMETER(UInt16, uint16, SQL_C_USHORT)
