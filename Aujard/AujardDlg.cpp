@@ -171,7 +171,7 @@ void CAujardDlg::AccountLogIn(Packet & pkt)
 	uint8 nation = m_DBAgent.AccountLogin(strAccountID, strPasswd);
 
 	Packet result(WIZ_LOGIN);
-	result >> uid >> nation;
+	result << uid << nation;
 	m_LoggerSendQueue.PutData(&result);
 }
 
