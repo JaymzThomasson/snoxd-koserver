@@ -16,7 +16,7 @@ typedef unsigned __int8 uint8;
 class ByteBuffer
 {
 public:
-	const static size_t DEFAULT_SIZE = 0x1000;
+	const static size_t DEFAULT_SIZE = 32;
 	bool m_doubleByte;
 
 	ByteBuffer(): _rpos(0), _wpos(0), m_doubleByte(true) { _storage.reserve(DEFAULT_SIZE); }
