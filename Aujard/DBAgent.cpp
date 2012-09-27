@@ -234,6 +234,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 	if (pUser == NULL 
 		|| pUser->m_bLogout
 		|| strlen(pUser->m_id) != 0
+		|| strCharID.length() > MAX_ID_SIZE
 		/*|| pUser->m_dwTime != 0*/)
 		return false;
 
@@ -295,7 +296,8 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 	if (nRet == 0)
 		return false;
 
-	strcpy_s(pUser->m_id, strCharID.size(), strCharID.c_str());
+	memset(pUser->m_id, 0x00, sizeof(pUser->m_id));
+	memcpy(pUser->m_id, strCharID.c_str(), strCharID.length());
 
 	ByteBuffer itemBuffer, serialBuffer;
 	itemBuffer.append(strItem, sizeof(strItem));
