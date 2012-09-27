@@ -136,7 +136,7 @@ int CSharedMemQueue::PutData(Packet *pkt)
 	char logstr[256];
 	BYTE BlockMode;
 	int index = 0, count = 0;
-	short size = pkt->size();
+	short size = pkt->size() + 1;
 
 	if ((DWORD)size > m_wOffset)
 	{
