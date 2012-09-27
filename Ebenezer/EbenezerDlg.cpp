@@ -162,7 +162,7 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 					pUser->RecvFriendProcess(pBuf+index);
 					break;
 				case WIZ_KNIGHTS_PROCESS:
-					pMain->m_KnightsManager.ReceiveKnightsProcess( pUser, pBuf+index, command );
+					pMain->m_KnightsManager.ReceiveKnightsProcess(pUser, pBuf+index);
 					break;
 				case WIZ_LOGIN_INFO:
 					result = GetByte( pBuf, index );

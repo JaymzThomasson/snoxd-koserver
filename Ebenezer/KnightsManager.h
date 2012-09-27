@@ -27,7 +27,7 @@ public:
 	void RecvModifyFame( CUser* pUser, char* pBuf, BYTE command );
 	void RecvJoinKnights( CUser* pUser, char* pBuf, BYTE command );
 	void RecvCreateKnights( CUser* pUser, char* pBuf );
-	void ReceiveKnightsProcess( CUser* pUser, char* pBuf, BYTE command );
+	void ReceiveKnightsProcess( CUser* pUser, char* pBuf);
 	void CurrentKnightsMember( CUser* pUser, char* pBuf );
 	void AllKnightsMember( CUser* pUser, char* pBuf );
 	void AllKnightsList( CUser* pUser, char* pBuf );
