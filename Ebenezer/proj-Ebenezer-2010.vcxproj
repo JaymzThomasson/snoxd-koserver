@@ -158,7 +158,7 @@
     </ClCompile>
     <ClCompile Include="AttackHandler.cpp" />
     <ClCompile Include="CharacterSelectionHandler.cpp" />
-    <ClCompile Include="CharaterMovementHandler.cpp" />
+    <ClCompile Include="CharacterMovementHandler.cpp" />
     <ClCompile Include="ChatHandler.cpp" />
     <ClCompile Include="Ebenezer.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>

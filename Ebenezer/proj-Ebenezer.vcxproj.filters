@@ -84,9 +84,6 @@
     <ClCompile Include="CharacterSelectionHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
-    <ClCompile Include="CharaterMovementHandler.cpp">
-      <Filter>Source Files\Handlers</Filter>
-    </ClCompile>
     <ClCompile Include="ChatHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
@@ -152,6 +149,9 @@
     </ClCompile>
     <ClCompile Include="..\shared\CircularBuffer.cpp">
       <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterMovementHandler.cpp">
+      <Filter>Source Files\Handlers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
