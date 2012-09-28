@@ -14,7 +14,7 @@ typedef std::string tstring;
 
 static tstring string_format(const tstring fmt, ...)
 {
-    int size = 128;
+    int size = fmt.size() + 128;
     tstring str;
     va_list ap;
 
