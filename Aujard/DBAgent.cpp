@@ -148,9 +148,6 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 		if (dbCommand.get() == NULL)
 			return;
 
-		// ensure it's all 0'd out initially.
-		memset(strItem, 0x00, sizeof(strItem));
-
 		dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strCharID.c_str(), strCharID.length());
 		dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
@@ -169,6 +166,8 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 		}
 	}
 
+	// ensure it's all 0'd out initially.
+	memset(strItem, 0x00, sizeof(strItem));
 	itemData.append(strItem, sizeof(strItem));
 
 	result	<< strCharID << bRace << sClass << bLevel << bFace << nHair << bZone;
