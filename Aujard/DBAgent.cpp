@@ -916,10 +916,10 @@ void CDBAgent::AccountLogout(string & strAccountID)
 
 void CDBAgent::UpdateConCurrentUserCount(int nServerNo, int nZoneNo, int nCount)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_AccountDB.CreateCommand());
 	if (dbCommand.get() == NULL)
 		return;
 
 	if (!dbCommand->Execute(string_format(_T("UPDATE CONCURRENT SET zone%d_count = %d WHERE serverid = %d"), nZoneNo, nCount, nServerNo)))
-		m_pMain->ReportSQLError(m_GameDB.GetError());
+		m_pMain->ReportSQLError(m_AccountDB.GetError());
 }
