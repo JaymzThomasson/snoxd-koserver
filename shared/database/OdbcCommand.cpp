@@ -186,7 +186,7 @@ void OdbcCommand::FetchString(int pos, TCHAR *charArray, SQLLEN maxLength)
 	SQLGetData(m_hStmt, pos, SQL_C_TCHAR, charArray, maxLength, &bufferSize);
 }
 
-tstring OdbcCommand::FetchString(int pos, SQLLEN maxLength)
+tstring OdbcCommand::FetchString(int pos)
 {
 	SQLINTEGER bufferSize = 0;
 	TCHAR buffer[256] = _T("");
