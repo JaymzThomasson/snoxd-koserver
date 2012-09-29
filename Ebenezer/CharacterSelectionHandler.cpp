@@ -357,55 +357,33 @@ void CUser::SendServerChange(char *ip, uint8 bInit)
 
 void CUser::AllCharInfoToAgent()
 {
-	int send_index = 0, retvalue = 0;
-	char send_buff[32];
-
-	SetByte( send_buff, WIZ_ALLCHAR_INFO_REQ, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetKOString(send_buff, m_strAccountID, send_index);
-
-	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if( retvalue >= SMQ_FULL ) {
-		send_index = 0;
-		SetByte( send_buff, WIZ_ALLCHAR_INFO_REQ, send_index );
-		SetByte( send_buff, 0xFF, send_index );
-		
-		DEBUG_LOG("All CharInfo Send Fail : %d", retvalue);
-	}
+	Packet result(WIZ_ALLCHAR_INFO_REQ);
+	result << uint16(GetSocketID()) << m_strAccountID; 
+	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 // happens on character selection
 void CUser::SetLogInInfoToDB(BYTE bInit)
 {
-	int index = 0, send_index = 0, retvalue = 0, addrlen = 20;
-	char send_buff[256], strClientIP[20];
-	_ZONE_SERVERINFO *pInfo	= NULL;
+	int addrlen = 20;
+	char strClientIP[20];
 	struct sockaddr_in addr;
 
-	pInfo = m_pMain->m_ServerArray.GetData( m_pMain->m_nServerNo );
-	if( !pInfo ) {
-		CString logstr;
-		logstr.Format("%d Server Info Invalid User Closed...\r\n", m_pMain->m_nServerNo );
-		LogFileWrite( logstr );
+	_ZONE_SERVERINFO *pInfo = m_pMain->m_ServerArray.GetData(m_pMain->m_nServerNo);
+	if (pInfo == NULL) 
+	{
 		Close();
+		return;
 	}
 
 	getpeername(m_Socket, (struct sockaddr*)&addr, &addrlen );
 	strcpy_s( strClientIP, sizeof(strClientIP),inet_ntoa(addr.sin_addr) );
 
-	SetByte(send_buff, WIZ_LOGIN_INFO, send_index);
-
-	SetShort(send_buff, m_Sid, send_index);
-	SetKOString(send_buff, m_strAccountID, send_index);
-	SetKOString(send_buff, m_pUserData->m_id, send_index);
-	SetKOString(send_buff, pInfo->strServerIP, send_index);
-	SetShort(send_buff, _LISTEN_PORT, send_index);
-	SetKOString(send_buff, strClientIP, send_index);
-	SetByte(send_buff, bInit, send_index);
-
-	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if( retvalue >= SMQ_FULL )
-		m_pMain->AddToList("UserInfo Send Fail : %d", retvalue);
+	Packet result(WIZ_LOGIN_INFO);
+	result	<< uint16(GetSocketID()) << m_strAccountID << m_pUserData->m_id 
+			<< pInfo->strServerIP << uint16(_LISTEN_PORT) << strClientIP 
+			<< bInit;
+	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 // This packet actually contains the char name after the opcode
