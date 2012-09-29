@@ -12,11 +12,6 @@
 #include "DBAgent.h"
 #include "define.h"
 
-using namespace std;
-
-/////////////////////////////////////////////////////////////////////////////
-// CAujardDlg dialog
-
 struct OdbcError;
 class CAujardDlg : public CDialog
 {

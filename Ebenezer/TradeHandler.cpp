@@ -2,6 +2,8 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 
+using namespace std;
+
 void CUser::ExchangeProcess(char *pBuf)
 {
 	int index = 0;

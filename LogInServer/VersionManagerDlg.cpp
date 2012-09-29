@@ -6,6 +6,8 @@
 #include "IOCPSocket2.h"
 #include "User.h"
 
+using namespace std;
+
 CIOCPort	CVersionManagerDlg::m_Iocport;
 
 /////////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,8 @@
 #include "../shared/Ini.h"
 #include <process.h>
 
+using namespace std;
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -370,7 +372,7 @@ void CAujardDlg::FriendProcess(Packet & pkt)
 void CAujardDlg::RequestFriendList(Packet & pkt)
 {
 	Packet result(WIZ_FRIEND_PROCESS);
-	vector<string> friendList;
+	vector<tstring> friendList;
 	short sid;
 
 	result.SByte();

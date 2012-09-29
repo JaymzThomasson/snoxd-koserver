@@ -23,7 +23,7 @@
 
 #include <list>
 typedef	 std::list<_EXCHANGE_ITEM*>		ItemList;
-typedef  list<int>				UserEventList;	// 이밴트를 위하여 ^^;
+typedef  std::list<int>					UserEventList;
 
 #define BANISH_DELAY_TIME    30
 

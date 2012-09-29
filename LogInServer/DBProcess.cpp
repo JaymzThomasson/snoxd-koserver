@@ -7,11 +7,7 @@
 #include "DBProcess.h"
 #include "VersionManagerDlg.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
+using namespace std;
 
 CDBProcess::CDBProcess() : m_pMain(NULL)
 {
@@ -104,8 +100,8 @@ uint16 CDBProcess::AccountLogin(string & id, string & pwd)
 	if (dbCommand.get() == NULL)
 		return false;
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)id.c_str(), id.length());
-	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)pwd.c_str(), pwd.length());
+	dbCommand->AddParameter(SQL_PARAM_INPUT, id.c_str(), id.length());
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pwd.c_str(), pwd.length());
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &result);
 
 	if (!dbCommand->Prepare(_T("{CALL MAIN_LOGIN(?, ?, ?)}")))

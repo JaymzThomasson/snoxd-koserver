@@ -12,9 +12,8 @@
 #pragma warning(disable : 4786)
 
 #include <list>
-using namespace std;
 
-typedef  list<int>  SidList;
+typedef  std::list<int>  SidList;
 
 class CIOCPSocket2;
 

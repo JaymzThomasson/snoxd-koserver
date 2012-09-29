@@ -25,7 +25,7 @@
 #include "Region.h"
 #include "../shared/ini.h"
 
-//#include "extern.h"			// Àü¿ª °´Ã¼
+using namespace std;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

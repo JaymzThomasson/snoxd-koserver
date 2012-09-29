@@ -20,10 +20,9 @@ typedef struct _SEND_DATA
 // ~sungyong 2002.05.22
 
 #include <list>
-using namespace std;
 
-typedef  list<int>  SidList;
-typedef  list<_SEND_DATA*>  SendDataList;	// sungyong~ 2002.05.22
+typedef  std::list<int>  SidList;
+typedef  std::list<_SEND_DATA*>  SendDataList;	// sungyong~ 2002.05.22
 
 class CIOCPSocket2;
 

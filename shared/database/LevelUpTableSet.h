@@ -1,6 +1,6 @@
 #pragma once
 
-typedef pair<BYTE, long>	LevelUpPair;
+typedef std::pair<BYTE, long>	LevelUpPair;
 #define T		LevelUpPair
 #define MapType	LevelUpArray
 

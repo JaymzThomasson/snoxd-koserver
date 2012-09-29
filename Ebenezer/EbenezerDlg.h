@@ -31,7 +31,7 @@
 // CEbenezerDlg dialog
 
 typedef CSTLMap <C3DMap>					ZoneArray;
-typedef map<int, long>						LevelUpArray;
+typedef std::map<int, long>					LevelUpArray;
 typedef CSTLMap <_CLASS_COEFFICIENT>		CoefficientArray;
 typedef CSTLMap <_ITEM_TABLE>				ItemtableArray;
 typedef CSTLMap <_MAGIC_TABLE>				MagictableArray;
@@ -50,7 +50,7 @@ typedef CSTLMap <_HOME_INFO>				HomeArray;
 typedef CSTLMap <_START_POSITION>			StartPositionArray;
 typedef	CSTLMap	<EVENT>						QuestArray;
 typedef	CSTLMap	<_SERVER_RESOURCE>			ServerResourceArray;
-typedef vector <CString>					BlockNameArray;
+typedef std::vector <CString>				BlockNameArray;
 
 class CUser;
 class CEbenezerDlg : public CDialog

@@ -13,7 +13,7 @@ public:
 	bool LoadVersionList();
 	bool LoadUserCountList();
 
-	uint16 AccountLogin(string & id, string & pwd);
+	uint16 AccountLogin(std::string & id, std::string & pwd);
 
 	OdbcConnection m_dbConnection;
 	CVersionManagerDlg* m_pMain;

@@ -29,6 +29,8 @@
 #include "../shared/lzf.h"
 #include "../shared/crc32.h"
 
+using namespace std;
+
 #define GAME_TIME       	100
 #define SEND_TIME			200
 #define ALIVE_TIME			400

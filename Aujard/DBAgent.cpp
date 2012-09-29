@@ -7,6 +7,8 @@
 #include "DBAgent.h"
 #include "AujardDlg.h"
 
+using namespace std;
+
 CDBAgent::CDBAgent() : m_pMain(NULL)
 {
 }
@@ -85,8 +87,8 @@ int8 CDBAgent::AccountLogin(string & strAccountID, string & strPasswd)
 	if (dbCommand.get() == NULL)
 		return false;
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strAccountID.c_str(), strAccountID.length());
-	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strPasswd.c_str(), strPasswd.length());
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strAccountID.c_str(), strAccountID.length());
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strPasswd.c_str(), strPasswd.length());
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
 	if (!dbCommand->Prepare(_T("{CALL ACCOUNT_LOGIN(?, ?, ?)}")))

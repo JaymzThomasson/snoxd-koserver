@@ -1,7 +1,7 @@
 #pragma once
 
 #define T _ZONE_INFO
-#define MapType	map<int, _ZONE_INFO *>
+#define MapType	std::map<int, _ZONE_INFO *>
 
 class CZoneInfoSet : public CMyRecordSet<T>
 {
@@ -47,7 +47,7 @@ public:
 		data->m_fInitZ = (float)(m_InitZ / 100.0f);
 #endif
 
-		if (!m_map->insert(make_pair(data->m_nZoneNumber, data)).second)
+		if (!m_map->insert(std::make_pair(data->m_nZoneNumber, data)).second)
 			delete data;
 	};
 

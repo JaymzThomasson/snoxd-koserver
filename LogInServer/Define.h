@@ -2,8 +2,6 @@
 #define _DEFINE_H
 
 #pragma warning(disable : 4786)
-#include <string>
-using namespace std;
 
 #define _LISTEN_PORT		15100
 
