@@ -4,74 +4,48 @@
 
 void CUser::VersionCheck(char *pBuf)
 {
-	int index = 0, send_index = 0;
-	char send_buff[128];
-
+	Packet result(WIZ_VERSION_CHECK);
 	/*
 	char strAccountID[MAX_ID_SIZE+1];
+	int index = 0;
 
 	short unk = GetShort(pBuf, index); // -1
 	if (!GetKOString(pBuf, strAccountID, MAX_ID_SIZE))
 		return;
 	*/
 
-	SetByte( send_buff, WIZ_VERSION_CHECK, send_index );
-#if __VERSION >= 1800
-	SetByte(send_buff, 0, send_index); // unknown
-#endif
-	SetShort(send_buff, __VERSION, send_index );
+	result	<< uint8(0) << uint16(__VERSION) << m_Public_key 
+			<< uint8(0); // 0 = success, 1 = prem error
+	Send(&result);
 
-	// Cryption
-	SetInt64(send_buff, m_Public_key, send_index);
-	///~
-	SetByte(send_buff, 0, send_index); // 0 = success, 1 = prem error
-#if __VERSION < 1700
-	SendCompressingPacket(send_buff, send_index);
-#else // doesn't seem to bother "compressing" it anymore
-	Send(send_buff, send_index);
-#endif
-
-	// Cryption
+	// Enable encryption
 	m_CryptionFlag = 1;
-	///~
 }
 
 void CUser::LoginProcess(char *pBuf)
 {
-	int index = 0, send_index = 0, retvalue = 0;
-
-	char accountid[MAX_ID_SIZE+1], password[MAX_PW_SIZE+1], send_buff[256];
-	CUser* pUser = NULL;
+	Packet result(WIZ_LOGIN);
+	int index = 0;
+	char accountid[MAX_ID_SIZE+1], password[MAX_PW_SIZE+1];
 
 	if (!GetKOString(pBuf, accountid, index, MAX_ID_SIZE)
 		|| !GetKOString(pBuf, password, index, MAX_PW_SIZE))
 		goto fail_return;
 
-	pUser = m_pMain->GetUserPtr(accountid, TYPE_ACCOUNT);
-	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) {
-		pUser->UserDataSaveToAgent();
-		pUser->Close();
-		goto fail_return;
-	}
-	
-	SetByte(send_buff, WIZ_LOGIN, send_index);
-	SetShort(send_buff, m_Sid, send_index);
-	SetKOString(send_buff, accountid, send_index);
-	SetKOString(send_buff, password, send_index);
-
-	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if (retvalue >= SMQ_FULL) 
+	CUser *pUser = m_pMain->GetUserPtr(accountid, TYPE_ACCOUNT);
+	if (pUser && (pUser->GetSocketID() != GetSocketID()))
 	{
-		DEBUG_LOG("Login Send Fail : %d", retvalue);
+		pUser->UserDataSaveToAgent();
+		pUser->CloseProcess();
 		goto fail_return;
 	}
 
-	strcpy( m_strAccountID, accountid );
+	result << uint16(GetSocketID()) << accountid << password;
+	m_pMain->m_LoggerSendQueue.PutData(&result);
+	strcpy_s(m_strAccountID, sizeof(m_strAccountID), accountid);
 	return;
 
 fail_return:
-	send_index = 0;
-	SetByte( send_buff, WIZ_LOGIN, send_index );
-	SetByte( send_buff, 0xFF, send_index );		 // 성공시 국가 정보... FF 실패
-	Send( send_buff, send_index );
+	result << uint8(-1);
+	Send(&result);
 }
