@@ -190,9 +190,14 @@ tstring OdbcCommand::FetchString(int pos, SQLLEN maxLength)
 {
 	SQLINTEGER bufferSize = 0;
 	TCHAR buffer[256] = _T("");
+	tstring result;
 
 	if (SQL_SUCCEEDED(SQLGetData(m_hStmt, pos, SQL_C_TCHAR, buffer, sizeof(buffer), &bufferSize)))
-		return tstring(buffer);
+	{
+		result = tstring(buffer);
+		rtrim(result);
+		return result;
+	}
 
 	// A bigger buffer is needed
 	if (bufferSize > 0)
@@ -200,10 +205,11 @@ tstring OdbcCommand::FetchString(int pos, SQLLEN maxLength)
 		std::auto_ptr<TCHAR> p_data(new TCHAR[bufferSize + 1]);
 		memset((TCHAR *)p_data.get(), 0x00, bufferSize + 1);
 		SQLGetData(m_hStmt, pos, SQL_C_TCHAR, (SQLTCHAR *)p_data.get(), bufferSize + 1, &bufferSize);
-		return tstring(p_data.get());
+		result = p_data.get();
+		rtrim(result);
 	}
 
-	return tstring();
+	return result;
 }
 
 void OdbcCommand::ClearParameters()
