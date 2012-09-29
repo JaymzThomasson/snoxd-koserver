@@ -54,7 +54,7 @@ bool CDBProcess::LoadVersionList()
 
 			dbCommand->FetchUInt16(1, pVersion->sVersion);
 			dbCommand->FetchUInt16(2, pVersion->sHistoryVersion);
-			pVersion->strFileName = dbCommand->FetchString(3);
+			dbCommand->FetchString(3, pVersion->strFileName);
 
 			m_pMain->m_VersionList.insert(make_pair(pVersion->strFileName, pVersion));
 

@@ -126,9 +126,9 @@ bool CDBAgent::GetAllCharID(string & strAccountID, string & strCharID1, string &
 
 	if (dbCommand->hasData())
 	{
-		strCharID1 = dbCommand->FetchString(1);
-		strCharID2 = dbCommand->FetchString(2);
-		strCharID3 = dbCommand->FetchString(3);
+		dbCommand->FetchString(1, strCharID1);
+		dbCommand->FetchString(2, strCharID2);
+		dbCommand->FetchString(3, strCharID3);
 	}
 
 	return (nRet > 0);
@@ -579,10 +579,11 @@ void CDBAgent::RequestFriendList(short uid, vector<string> & friendList)
 	if (!dbCommand->hasData())
 		return;
 
+	string strCharID;
 	for (int i = 2; i <= 25; i++)
 	{
-		string strCharID = dbCommand->FetchString(i);
-		if (strCharID.length() > 0)
+		if (dbCommand->FetchString(i, strCharID)
+			&& strCharID.length())
 			friendList.push_back(strCharID);
 	}
 }
@@ -777,8 +778,8 @@ uint16 CDBAgent::LoadKnightsAllMembers(uint16 sClanID, Packet & result)
 	uint16 count = 0;
 	do
 	{
-		uint16 sClass; uint8 bFame, bLevel;
-		string strCharID = dbCommand->FetchString(1);
+		string strCharID; uint16 sClass; uint8 bFame, bLevel;
+		dbCommand->FetchString(1, strCharID);
 		dbCommand->FetchByte(2, bFame);
 		dbCommand->FetchByte(3, bLevel);
 		dbCommand->FetchUInt16(4, sClass);
@@ -807,9 +808,9 @@ void CDBAgent::LoadKnightsInfo(uint16 sClanID, Packet & result)
 	if (!dbCommand->hasData())
 		return;
 
-	uint32 nPoints; uint16 sMembers; uint8 bNation;
+	string strKnightsName; uint32 nPoints; uint16 sMembers; uint8 bNation;
 	dbCommand->FetchByte(2, bNation); // clan ID is first, but we already know that
-	string strKnightsName = dbCommand->FetchString(3);
+	dbCommand->FetchString(3, strKnightsName);
 	dbCommand->FetchUInt16(4, sMembers);
 	dbCommand->FetchUInt32(5, nPoints);
 

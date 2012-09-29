@@ -179,37 +179,43 @@ void OdbcCommand::AddParameter(SQLSMALLINT paramType, char *value, SQLLEN maxLen
 	m_params.insert(std::make_pair(m_params.size(), new OdbcParameter(paramType, SQL_C_CHAR, (SQLPOINTER)value, maxLength))); 
 }
 
-void OdbcCommand::FetchString(int pos, TCHAR *charArray, SQLLEN maxLength)
+bool OdbcCommand::FetchString(int pos, TCHAR *charArray, SQLLEN maxLength, SQLLEN *bufferSize)
 {
-	SQLINTEGER bufferSize = 0;
 	memset(charArray, 0x00, maxLength);
-	SQLGetData(m_hStmt, pos, SQL_C_TCHAR, charArray, maxLength, &bufferSize);
+	return SQL_SUCCEEDED(SQLGetData(m_hStmt, pos, SQL_C_TCHAR, charArray, maxLength, bufferSize));
 }
 
-tstring OdbcCommand::FetchString(int pos)
+bool OdbcCommand::FetchString(int pos, tstring & value)
 {
 	SQLINTEGER bufferSize = 0;
 	TCHAR buffer[256] = _T("");
-	tstring result;
 
-	if (SQL_SUCCEEDED(SQLGetData(m_hStmt, pos, SQL_C_TCHAR, buffer, sizeof(buffer), &bufferSize)))
+	// Attempt to fetch "small" string of 256 bytes at most (should fit everything we'll need)
+	if (!FetchString(pos, buffer, sizeof(buffer), &bufferSize))
 	{
-		result = tstring(buffer);
-		rtrim(result);
-		return result;
+		// Error fetching string, nothing we can do.
+		if (bufferSize <= 0)
+			return false;
+
+		// Allocate a buffer large enough for the string's actual length
+		std::auto_ptr<TCHAR> varBuffer(new TCHAR[bufferSize + 1]);
+
+		// If the string still couldn't be fetched, nothing we can do.
+		if (!FetchString(pos, varBuffer.get(), bufferSize + 1, &bufferSize))
+			return false;
+
+		value = varBuffer.get();
+	}
+	// String could be fetched, copy it over to the output var.
+	else
+	{
+		value = tstring(buffer);
 	}
 
-	// A bigger buffer is needed
-	if (bufferSize > 0)
-	{
-		std::auto_ptr<TCHAR> p_data(new TCHAR[bufferSize + 1]);
-		memset((TCHAR *)p_data.get(), 0x00, bufferSize + 1);
-		SQLGetData(m_hStmt, pos, SQL_C_TCHAR, (SQLTCHAR *)p_data.get(), bufferSize + 1, &bufferSize);
-		result = p_data.get();
-		rtrim(result);
-	}
-
-	return result;
+	// This line's necessary for SQL_CHAR type columns to trim the padding.
+	// NOTE: If we need the padding, we should be using the OTHER FetchString() method for it (to fetch it straight into a char array)
+	rtrim(value);
+	return true;
 }
 
 void OdbcCommand::ClearParameters()
