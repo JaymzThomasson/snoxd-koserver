@@ -174,21 +174,21 @@ ADD_ODBC_PARAMETER(UInt64, uint64, SQL_C_UBIGINT)
 ADD_ODBC_PARAMETER(Int64, int64, SQL_C_SBIGINT)
 #undef ADD_ODBC_PARAMETER
 
-void OdbcCommand::AddParameter(SQLSMALLINT paramType, char *value, SQLLEN maxLength)
+void OdbcCommand::AddParameter(SQLSMALLINT paramType, const char *value, SQLLEN maxLength)
 {
 	m_params.insert(std::make_pair(m_params.size(), new OdbcParameter(paramType, SQL_C_CHAR, (SQLPOINTER)value, maxLength))); 
 }
 
-bool OdbcCommand::FetchString(int pos, TCHAR *charArray, SQLLEN maxLength, SQLLEN *bufferSize)
+bool OdbcCommand::FetchString(int pos, char *charArray, SQLLEN maxLength, SQLLEN *bufferSize)
 {
 	memset(charArray, 0x00, maxLength);
-	return SQL_SUCCEEDED(SQLGetData(m_hStmt, pos, SQL_C_TCHAR, charArray, maxLength, bufferSize));
+	return SQL_SUCCEEDED(SQLGetData(m_hStmt, pos, SQL_C_CHAR, charArray, maxLength, bufferSize));
 }
 
-bool OdbcCommand::FetchString(int pos, tstring & value)
+bool OdbcCommand::FetchString(int pos, std::string & value)
 {
 	SQLINTEGER bufferSize = 0;
-	TCHAR buffer[256] = _T("");
+	char buffer[256] = _T("");
 
 	// Attempt to fetch "small" string of 256 bytes at most (should fit everything we'll need)
 	if (!FetchString(pos, buffer, sizeof(buffer), &bufferSize))
@@ -198,7 +198,7 @@ bool OdbcCommand::FetchString(int pos, tstring & value)
 			return false;
 
 		// Allocate a buffer large enough for the string's actual length
-		std::auto_ptr<TCHAR> varBuffer(new TCHAR[bufferSize + 1]);
+		std::auto_ptr<char> varBuffer(new char[bufferSize + 1]);
 
 		// If the string still couldn't be fetched, nothing we can do.
 		if (!FetchString(pos, varBuffer.get(), bufferSize + 1, &bufferSize))
@@ -209,7 +209,7 @@ bool OdbcCommand::FetchString(int pos, tstring & value)
 	// String could be fetched, copy it over to the output var.
 	else
 	{
-		value = tstring(buffer);
+		value = buffer;
 	}
 
 	// This line's necessary for SQL_CHAR type columns to trim the padding.
