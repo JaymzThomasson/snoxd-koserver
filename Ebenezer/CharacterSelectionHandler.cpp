@@ -212,140 +212,83 @@ fail_return:
 
 void CUser::SelectCharacter(char *pBuf)
 {
-	int index = 0, send_index = 0, zoneindex = -1, retvalue = 0;
-	char send_buff[10];
+	Packet result(WIZ_SEL_CHAR);
+	int index = 0;
 	
-	BYTE result, bInit;
+	BYTE bResult, bInit;
 	C3DMap* pMap = NULL;
 	_ZONE_SERVERINFO *pInfo	= NULL;
-	CKnights* pKnights = NULL;
 
-	result = GetByte( pBuf, index );
+	bResult = GetByte( pBuf, index );
 	bInit = GetByte( pBuf, index );
-
-	if (result == 0 || !getZoneID()) goto fail_return;
+	result << bResult;
+	if (bResult == 0 || !getZoneID()) 
+		goto fail_return;
 
 	pMap = m_pMap = m_pMain->GetZoneByID(getZoneID());
 	if (pMap == NULL)
 		goto fail_return;
 
-	if( m_pMain->m_nServerNo != pMap->m_nServerNo ) {
+	if (m_pMain->m_nServerNo != pMap->m_nServerNo)
+	{
 		pInfo = m_pMain->m_ServerArray.GetData( pMap->m_nServerNo );
-		if( !pInfo ) 
+		if (pInfo == NULL) 
 			goto fail_return;
 
 		SendServerChange(pInfo->strServerIP, bInit);
 		return;
 	}
 
-	if( m_pUserData->m_bAuthority == 0xff ) {
+	if (m_pUserData->m_bAuthority == 0xff)
+	{
 		Close();
 		return;
 	}
 
-	if( m_pMain->m_byBattleOpen == NO_BATTLE && m_pUserData->m_bFame == COMMAND_CAPTAIN )	{
+	if (m_pMain->m_byBattleOpen == NO_BATTLE && m_pUserData->m_bFame == COMMAND_CAPTAIN)
 		m_pUserData->m_bFame = CHIEF;
-	}
 
-	if(m_pUserData->m_bZone != m_pUserData->m_bNation && m_pUserData->m_bZone < 3 && !m_pMain->m_byBattleOpen) {
+	if ((getZoneID() != getNation() && getZoneID() < 3 && !m_pMain->m_byBattleOpen)
+		|| (getZoneID() == ZONE_BATTLE && (m_pMain->m_byBattleOpen != NATION_BATTLE))
+		|| (getZoneID() == ZONE_SNOW_BATTLE && (m_pMain->m_byBattleOpen != SNOW_BATTLE))
+		|| (getZoneID() == ZONE_FRONTIER && m_pMain->m_byBattleOpen))
+	{
 		NativeZoneReturn();
 		Close();
 		return;
 	}
 
-	if(m_pUserData->m_bZone == ZONE_BATTLE && ( m_pMain->m_byBattleOpen != NATION_BATTLE) ) {
-		NativeZoneReturn();
-		Close();
-		return;
-	}
-	if(m_pUserData->m_bZone == ZONE_SNOW_BATTLE && ( m_pMain->m_byBattleOpen != SNOW_BATTLE) ) {
-		NativeZoneReturn();
-		Close();
-		return;
-	}
-	
-	if(m_pUserData->m_bZone == ZONE_FRONTIER && m_pMain->m_byBattleOpen) {
-		NativeZoneReturn();
-		Close();
-		return;
-	}
-//
-	SetLogInInfoToDB(bInit);	// Write User Login Info To DB for Kicking out or Billing
+	SetLogInInfoToDB(bInit);
 
-	SetByte( send_buff, WIZ_SEL_CHAR, send_index );
-	SetByte( send_buff, result, send_index );
-	SetByte( send_buff, getZoneID(), send_index );
-	SetShort( send_buff, (WORD)m_pUserData->m_curx*10, send_index );
-	SetShort( send_buff, (WORD)m_pUserData->m_curz*10, send_index );
-	SetShort( send_buff, (short)m_pUserData->m_cury*10, send_index );
-	SetByte( send_buff, m_pMain->m_byOldVictory, send_index );
-
+	result << getZoneID() << GetSPosX() << GetSPosZ() << GetSPosY() << m_pMain->m_byOldVictory;
 	m_bSelectedCharacter = true;
-	Send( send_buff, send_index );
-
+	Send(&result);
 
 	SetDetailData();
 
-	//TRACE("SelectCharacter 111 - id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
-
-	if( m_pUserData->m_bZone > 2)	
+	if (m_pUserData->m_bKnights == -1)
 	{
-		if( m_pUserData->m_bKnights == -1)	{	// ???? ???
-			m_pUserData->m_bKnights = 0;
-			m_pUserData->m_bFame = 0;
-			//TRACE("SelectCharacter - id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
-			return;
+		m_pUserData->m_bKnights = m_pUserData->m_bFame = 0;
+		return;
+	}
+	else if (m_pUserData->m_bKnights != 0)
+	{
+		CKnights* pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
+		if (pKnights != NULL)
+		{
+			m_pMain->m_KnightsManager.SetKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id );
 		}
-		else if( m_pUserData->m_bKnights != 0 )	{
-			pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
-			if( pKnights )	{
-				m_pMain->m_KnightsManager.SetKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id );
-			}
-			else	{
-				//TRACE("SelectCharacter - ???? ????T ??û,, id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
-				send_index = 0;
-				SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-				SetByte( send_buff, KNIGHTS_LIST_REQ+0x10, send_index );
-				SetShort( send_buff, GetSocketID(), send_index );
-				SetShort( send_buff, m_pUserData->m_bKnights, send_index );
-				retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-				if (retvalue >= SMQ_FULL)
-					DEBUG_LOG("KNIGHTS_LIST_REQ Packet Drop!!!");
-
-				pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
-				if( pKnights )	{
-					//TRACE("SelectCharacter - ???? ????T ???,, id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
-					m_pMain->m_KnightsManager.SetKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id );
-				}
-			}
+		else if (getZoneID() > 2)
+		{
+			result.Initialize(WIZ_KNIGHTS_PROCESS);
+			result << uint8(KNIGHTS_LIST_REQ) << uint16(GetSocketID()) << m_pUserData->m_bKnights;
+			m_pMain->m_LoggerSendQueue.PutData(&result);
 		}
 	}
-	else	{	
-		if( m_pUserData->m_bKnights == -1)	{	// ???? ???
-			m_pUserData->m_bKnights = 0;
-			m_pUserData->m_bFame = 0;
-			//TRACE("SelectCharacter - id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
-			return;
-		}
-		else if( m_pUserData->m_bKnights != 0 )	{
-			pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
-			if( pKnights )	{
-				m_pMain->m_KnightsManager.SetKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id );
-			}
-			else {			// ?????? ?i???? ??????.. 
-				m_pUserData->m_bKnights = 0;
-				m_pUserData->m_bFame = 0;
-			}
-		}
-	}
-
-	//TRACE("SelectCharacter - id=%s, knights=%d, fame=%d\n", m_pUserData->m_id, m_pUserData->m_bKnights, m_pUserData->m_bFame);
 	return;
 
 fail_return:
-	SetByte( send_buff, WIZ_SEL_CHAR, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	Send( send_buff, send_index );
+	Send(&result);
 }
 
 void CUser::SendServerChange(char *ip, uint8 bInit)
