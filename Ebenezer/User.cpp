@@ -469,6 +469,8 @@ void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/)
 {
 	Packet result(WIZ_LOYALTY_CHANGE);
 	m_pUserData->m_iLoyalty += nChangeAmount;
+	if (m_pUserData->m_iLoyalty < 0)
+		m_pUserData->m_iLoyalty = 0;
 	result << m_pUserData->m_iLoyalty;
 	Send(&result);
 }
@@ -1837,7 +1839,6 @@ void CUser::StateChangeServerDirect(BYTE bType, int nValue)
 
 void CUser::LoyaltyChange(short tid)
 {
-	int send_index = 0; char send_buff[256];
 	short level_difference = 0, loyalty_source = 0, loyalty_target = 0;
 
 	CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.  
@@ -1877,26 +1878,9 @@ void CUser::LoyaltyChange(short tid)
 	if (m_pUserData->m_bZone != m_pUserData->m_bNation && m_pUserData->m_bZone < 3) { 
 		loyalty_source  = 2 * loyalty_source;
 	}
-//
 
-	//TRACE("LoyaltyChange 222 - user1=%s, %d,, user2=%s, %d\n", m_pUserData->m_id,  m_pUserData->m_iLoyalty, pTUser->m_pUserData->m_id, pTUser->m_pUserData->m_iLoyalty);
-	
-	m_pUserData->m_iLoyalty += loyalty_source;			// Recalculations of Loyalty...
-	pTUser->m_pUserData->m_iLoyalty += loyalty_target;  
-
-	if (m_pUserData->m_iLoyalty < 0) m_pUserData->m_iLoyalty = 0;	// Cannot be less than zero.
-	if (pTUser->m_pUserData->m_iLoyalty < 0) pTUser->m_pUserData->m_iLoyalty = 0;
-
-	//TRACE("LoyaltyChange 222 - user1=%s, %d,, user2=%s, %d\n", m_pUserData->m_id,  m_pUserData->m_iLoyalty, pTUser->m_pUserData->m_id, pTUser->m_pUserData->m_iLoyalty);
-
-	SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );	// Send result to source.
-	SetDWORD( send_buff, m_pUserData->m_iLoyalty, send_index );
-	Send( send_buff, send_index );
-
-	send_index = 0;		// Send result to target.
-	SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );
-	SetDWORD( send_buff, pTUser->m_pUserData->m_iLoyalty, send_index );
-	pTUser->Send( send_buff, send_index );
+	SendLoyaltyChange(loyalty_source);
+	pTUser->SendLoyaltyChange(loyalty_target);
 
 //	This is for the Event Battle on Wednesday :(
 	if (m_pMain->m_byBattleOpen) {
