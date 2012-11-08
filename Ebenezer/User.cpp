@@ -45,6 +45,7 @@ void CUser::Initialize()
 
 	m_bSelectedCharacter = false;
 	m_bStoreOpen = false;
+	m_bIsMerchanting = false;
 
 	m_MagicProcess.m_pMain = m_pMain;
 	m_MagicProcess.m_pSrcUser = this;
@@ -646,7 +647,7 @@ void CUser::SendMyInfo()
 	result.SByte(); // character name has a single byte length
 	result	<< uint16(GetSocketID())
 			<< m_pUserData->m_id
-			<< GetSPosX() << GetSPosY() << GetSPosZ()
+			<< GetSPosX() << GetSPosZ() << GetSPosY()
 			<< getNation() 
 			<< m_pUserData->m_bRace << m_pUserData->m_sClass << m_pUserData->m_bFace
 			<< uint32(m_pUserData->m_nHair)
@@ -1425,7 +1426,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 	Packet result(initialInfo ? AG_USER_INFO : AG_USER_UPDATE);
 
 	result	<< uint16(GetSocketID())
-			<< m_pUserData->m_id 
+			<< m_pUserData->m_id
 			<< getZoneID() << getNation() << getLevel()
 			<< m_pUserData->m_sHp << m_pUserData->m_sMp
 			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
@@ -1913,12 +1914,12 @@ void CUser::SpeedHackUser()
 
 void CUser::UserLookChange(int pos, int itemid, int durability)
 {
-	if (pos >= SLOT_MAX)
-		return;
-
-	Packet result(WIZ_USERLOOK_CHANGE);
-	result << uint16(GetSocketID()) << uint8(pos) << itemid << uint16(durability);
-	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this);
+	if ((pos <= SLOT_MAX && pos >= 0) || (pos >= SLOT_MAX+HAVE_MAX && pos <= SLOT_MAX+HAVE_MAX+COSP_MAX-2)) {
+			Packet result(WIZ_USERLOOK_CHANGE);	 	
+			result << uint16(GetSocketID()) << uint8(pos) << itemid << uint16(durability);	 	
+			m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this);	 	
+		} else 	 	
+			return;
 }
 
 void CUser::SendNotice()
