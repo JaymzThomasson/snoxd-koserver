@@ -73,51 +73,28 @@ void CUser::MoveProcess(char *pBuf )
 
 void CUser::UserInOut(BYTE Type)
 {
-	int send_index = 0, iLength = 0;
-	char buff[256];
-
 	if (GetMap() == NULL)
 		return;
 
-	if( Type == USER_OUT )
-		GetMap()->RegionUserRemove( m_RegionX, m_RegionZ, m_Sid );
+	Packet result(WIZ_USER_INOUT);
+	result << Type << uint8(0) << uint16(GetSocketID());
+
+	if (Type == USER_OUT)
+		GetMap()->RegionUserRemove(m_RegionX, m_RegionZ, GetSocketID());
 	else
-		GetMap()->RegionUserAdd( m_RegionX, m_RegionZ, m_Sid );
+		GetMap()->RegionUserAdd(m_RegionX, m_RegionZ, GetSocketID());
 
-	send_index = 0;
-	SetByte( buff, WIZ_USER_INOUT, send_index );
-	SetByte( buff, Type, send_index );
-	SetShort( buff, m_Sid, send_index );
-	if( Type == USER_OUT ) {
-		m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ, this );
+	if (Type != USER_OUT)
+		GetUserInfo(result);
 
-		send_index=0;
-		SetByte( buff, AG_USER_INOUT, send_index );
-		SetByte( buff, Type, send_index );
-		SetShort( buff, m_Sid, send_index );
-		SetKOString(buff, m_pUserData->m_id, send_index);
-		Setfloat( buff, m_pUserData->m_curx, send_index );
-		Setfloat( buff, m_pUserData->m_curz, send_index );
-		m_pMain->Send_AIServer(buff, send_index);
-		return;
+	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this );
+
+	if (Type == USER_OUT || m_bAbnormalType != ABNORMAL_BLINKING) 
+	{
+		result.Initialize(AG_USER_INOUT);
+		result << Type << uint16(GetSocketID()) << m_pUserData->m_id << m_pUserData->m_curx << m_pUserData->m_curz;
+		m_pMain->Send_AIServer(&result);
 	}
-
-	GetUserInfo(buff, send_index);
-
-//	TRACE("USERINOUT - %d, %s\n", m_Sid, m_pUserData->m_id);
-	m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ, this );
-
-	if (m_bAbnormalType != ABNORMAL_BLINKING) {
-		send_index=0;
-		SetByte( buff, AG_USER_INOUT, send_index );
-		SetByte( buff, Type, send_index );
-		SetShort( buff, m_Sid, send_index );
-		SetKOString(buff, m_pUserData->m_id, send_index);
-		Setfloat( buff, m_pUserData->m_curx, send_index );
-		Setfloat( buff, m_pUserData->m_curz, send_index );
-		m_pMain->Send_AIServer(buff, send_index);
-	}
-//
 }
 
 void CUser::GetUserInfo(char *buff, int & buff_index)
@@ -181,24 +158,34 @@ void CUser::GetUserInfo(char *buff, int & buff_index)
 // TO-DO: Update this. It's VERY dated.
 void CUser::GetUserInfo(Packet & pkt)
 {
+	CKnights *pKnights = NULL;
 	pkt.SByte();
-	pkt		<< m_pUserData->m_id
-			<< getNation() << m_pUserData->m_bCity // probably isn't this, but it'll at least serve as filler if it's not
+	pkt		<< uint8(1) // unknown, but was always 1 in my samples
+			<< m_pUserData->m_id
+			<< getNation()
 			<< m_pUserData->m_bKnights << m_pUserData->m_bFame;
 
-	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(m_pUserData->m_bKnights);
-	if (pKnights == NULL || m_pUserData->m_bKnights <= 0)
+	if (isInClan())
+		pKnights = m_pMain->m_KnightsArray.GetData(m_pUserData->m_bKnights);
+
+	if (pKnights == NULL)
 	{
-		pkt << uint32(0);
+		// should work out to be 11 bytes, 6-7 being cape ID.
+		pkt	<< uint32(0) << uint16(0) << uint16(-1) << uint16(0) << uint8(0);
 	}
 	else 
 	{
-		pkt << pKnights->m_strName << pKnights->m_byGrade << pKnights->m_byRanking;
-	}	
+		pkt	<< uint8(0) // grade type
+				<< pKnights->m_strName
+				<< pKnights->m_byGrade << pKnights->m_byRanking
+				<< uint16(0) // symbol/mark version
+				<< uint16(-1) // cape ID
+				<< uint8(0) << uint8(0) << uint8(0); // cape RGB
+	}
 
 	pkt	<< getLevel() << m_pUserData->m_bRace << m_pUserData->m_sClass
 		<< GetSPosX() << GetSPosZ() << GetSPosY()
-		<< m_pUserData->m_bFace << uint32(m_pUserData->m_nHair)
+		<< m_pUserData->m_bFace << m_pUserData->m_nHair
 		<< m_bResHpType << uint32(m_bAbnormalType)
 		<< m_bNeedParty
 		<< m_pUserData->m_bAuthority
