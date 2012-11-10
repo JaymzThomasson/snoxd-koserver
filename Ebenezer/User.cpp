@@ -1,4 +1,4 @@
-// User.cpp: implementation of the CUser class.
+﻿// User.cpp: implementation of the CUser class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -148,6 +148,7 @@ void CUser::Initialize()
 	m_bZoneChangeFlag = FALSE;
 
 	m_bRegeneType = 0;
+	//Testing out .gitattributes!
 
 	m_fLastRegeneTime = 0.0f;
 
@@ -247,6 +248,7 @@ void CUser::Parsing(int len, char *pData)
 	// TO-DO: Make sure we support all packets in the loading stage (and rewrite this logic considerably better).
 	else if (!m_bSelectedCharacter)
 	{
+		//This works!
 		switch( command )
 		{
 		case WIZ_SEL_NATION:
