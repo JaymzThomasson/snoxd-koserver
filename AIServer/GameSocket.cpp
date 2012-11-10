@@ -10,6 +10,7 @@
 #include "Map.h"
 #include "region.h"
 #include "Party.h"
+#include "../shared/globals.h"
 
 #include "extern.h"
 
@@ -222,16 +223,7 @@ void CGameSocket::RecvUserInfo(char* pBuf)
 	BYTE   bTypeLeft, bTypeRight;
 
 	uid = GetShort( pBuf, index );
-	sLength = GetShort( pBuf, index );
-	if( sLength > MAX_ID_SIZE || sLength <= 0 ) {
-		char countstr[256];
-		CTime cur = CTime::GetCurrentTime();
-		sprintf_s( countstr, "RecvUserInfo() Fail : %02d/%02d %02d:%02d - uid=%d, name=%s\r\n", cur.GetMonth(), cur.GetDay(), cur.GetHour(), cur.GetMinute(), uid, strName);
-		LogFileWrite( countstr );
-		TRACE("###  RecvUserInfo() Fail ---> uid = %d, name=%s  ### \n", uid, strName);
-		return;
-	}
-	GetString(strName, pBuf, sLength, index);
+	GetKOString(pBuf, strName, index, MAX_ID_SIZE);
 	bZone = GetByte( pBuf, index );
 	bNation = GetByte( pBuf, index );
 	bLevel = GetByte( pBuf, index );
@@ -658,6 +650,8 @@ void CGameSocket::RecvUserUpdate(char* pBuf)
 	int index = 0;
 	short uid=-1, sHP=0, sMP=0, sSP=0;
 	BYTE byLevel;
+	char name[MAX_ID_SIZE+1];
+	memset( name, NULL, MAX_ID_SIZE+1);
 
 	short sDamage, sAC;
 	float fHitAgi, fAvoidAgi;
@@ -670,6 +664,7 @@ void CGameSocket::RecvUserUpdate(char* pBuf)
 //
 
 	uid = GetShort( pBuf, index );
+	GetKOString( pBuf, name, index , MAX_ID_SIZE);
 	byLevel = GetByte(pBuf, index);
 	sHP = GetShort( pBuf, index );
 	sMP = GetShort( pBuf, index );
@@ -687,7 +682,11 @@ void CGameSocket::RecvUserUpdate(char* pBuf)
 
 	// User List에서 User정보,, 삭제...
 	CUser* pUser = m_pMain->GetUserPtr(uid);
-	if(pUser == NULL)	return;
+	if( pUser == NULL )
+		return;
+
+	if( pUser->m_strUserID != name )
+		return;
 
 	if(pUser->m_bLevel < byLevel)		// level up
 	{

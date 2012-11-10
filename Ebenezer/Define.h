@@ -145,6 +145,83 @@
 #define NPC_DOMESTIC_ANIMAL		99		// ���� NPC
 #define NPC_COUPON				100		// �񷯸ӱ� ���� >.<
 
+// SPECIAL TYPE
+#define NPC_UPGRADE				24 // Magic anvil
+#define NPC_KAISHAN				34 // [Grand merchant] kaishan
+#define NPC_SIEGE				44 // Arendil [Castle Siege Warfare]
+#define NPC_CHAOTIC				137 // Chaotic generator (137)(162)
+#define NPC_BOARD				64
+#define NPC_TOWER				63 // Guard tower
+#define NPC_RENTAL				78 // Rental NPC
+#define NPC_ELECTION			79 // Election NPC
+#define NPC_LORD				80 // Lord
+#define NPC_KISS				32 // KissMe
+#define NPC_ADVISOR				26 // Clan match advisor
+#define NPC_KJWAR				133 // duel kjwar
+#define NPC_SIEGE2				134 // Joyce[siege war event]
+//
+#define NPC_ARTIFACT1			65 // Protective Artifact 
+#define NPC_ARTIFACT2			66 // Guard Tower Artifact
+#define NPC_ARTIFACT3			67 // Guard Artifact
+#define NPC_ARTIFACT4			68 // Defense Artifact
+#define NPC_MONUMENT			122 // El Morad Monument & Asga Village Monument & Raiba Village Monument & Doda Camp Monument & Elmorad Snowman
+#define NPC_GATE2				150 // Doda Camp Gate 
+#define NPC_VICTORY_GATE		53 // Victory Gate
+#define NPC_RECON				43 // Recon Guard NPC
+#define NPC_ROYAL_GUARD			142 // Royal Guard NPC
+#define NPC_ADVISOR2			149 // Advisor NPC
+#define NPC_SPY					141 // Spy NPC
+#define NPC_ROYAL_CHEF			143 // Royal Chef NPC
+#define NPC_GATE_GUARD			148 // Gate Guard NPC
+#define NPC_ESLANT_WOMAN		144 // Eslant Woman (near gate)
+#define NPC_FARMER				145 // Farm NPC
+#define NPC_UNKNOWN1			155
+#define NPC_UNKNOWN2			156
+#define NPC_UNKNOWN3			157
+#define NPC_UNKNOWN4			158
+#define NPC_UNKNOWN5			159
+#define NPC_UNKNOWN6			160
+#define NPC_UNKNOWN7			161
+#define NPC_CRAFTSMAN			135 // Craftsman boy
+
+// QUEST TYPE
+#define NPC_MOIRA				29 // Operator moira
+#define NPC_MENU				33 // Isaac event
+#define NPC_LADY				38 // Calamus lady event
+#define NPC_QUEST				47 // Sentinel patrick
+#define NPC_ENCAMPMENT			64 // Encampment
+#define NPC_BLACKMITH			77 // Blacksmith heppa
+#define NPC_HERO_STATUS1		106 // Elmorad & Karus Hero statue & 1st place clan
+#define NPC_HERO_STATUS2		107 // Elmorad & Karus Hero statue & 2st place clan
+#define NPC_HERO_STATUS3		108 // Elmorad & Karus Hero statue & 3st place clan
+#define NPC_MINERVA				131 // Learth [Forgotten Temple 3] & priest iris
+#define NPC_HUGOR				27 // Captain Hugor[maintain]
+#define NPC_ARENA				43 // Arena
+#define NPC_SABICE				25 // Sabice mantle
+#define NPC_NPC1				101
+#define NPC_NPC2				102
+#define NPC_NPC3				103
+#define NPC_NPC4				104
+#define NPC_NPC5				105
+#define NPC_KEY1				111 // Sentinel of the Key
+#define NPC_KEY2				112 // Watcher of the Key
+#define NPC_KEY3				113 // Protector of the Key
+#define NPC_KEY4				114 // Ranger of the Key
+#define NPC_KEY5				115 // Patroller of the Key
+#define NPC_KEY6				116 // Recon of the Key
+#define NPC_KEY7				117 // Keeper of the Key
+#define NPC_ADELIA				153 // Goddess Adelia[event]
+#define NPC_LAEMITH1			129 // Laemith[Forgotten Temple 1]
+#define NPC_LAEMITH2			130 // Laemith[Forgotten Temple 2]
+#define NPC_LAEMITH3			131 // Learth[Forgotten Temple 3]
+#define	NPC_ATHIAN				39 // Priest athian
+//
+#define NPC_ROBOS				118 // Robos
+#define NPC_TRANSFER			123 // lillia server transfer
+#define NPC_RANKING				124 // hardis ranking
+#define NPC_LYONI				125 // lyoni
+#define NPC_HELPER				127 // adine beginner helper
+
 
 ///////////////// NATION ///////////////////////////////////
 #define UNIFY_NATION		0

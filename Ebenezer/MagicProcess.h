@@ -39,7 +39,7 @@ public:
 	void ExecuteType7(int magicid);
 	void ExecuteType6(int magicid);
 	void ExecuteType5(int magicid, int sid, int tid, int data1, int data2, int data3);
-	void ExecuteType4(int magicid, int sid, int tid, int data1, int data2, int data3);
+	void ExecuteType4(int magicid, int sid, int tid, int data1, int data2, int data3, int data4 );
 	void ExecuteType3(int magicid, int sid, int tid, int data1, int data2, int data3);
 	BYTE ExecuteType2(int magicid, int sid, int tid, int data1, int data2, int data3);
 	BYTE ExecuteType1(int magicid, int sid, int tid, int data1, int data2, int data3);	

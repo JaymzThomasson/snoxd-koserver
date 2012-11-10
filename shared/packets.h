@@ -150,6 +150,8 @@
 #define REPEAT_CHAT						0x0B
 #define END_REPEAT_CHAT					0x0C
 #define COMMAND_CHAT					0x0D
+#define MERCHANT_CHAT					0x0E
+#define ANNOUNCEMENT_CHAT				0x11
 
 ////////////////////////////////////////////////////////////////
 
@@ -218,6 +220,7 @@ enum MerchantOpcodes
 #define MAGIC_TYPE3_END			0x05	// For type 3 durational spells.
 #define MAGIC_TYPE4_END			0x05	// For type 4 durational spells.
 #define MAGIC_CANCEL            0x06    // When you wanna cancel your own Type 4.
+#define MAGIC_CANCEL2			0x0D	// Not sure but it cancels...
 					
 ////////////////////////////////////////////////////////////////
 // Knights Packet sub define 

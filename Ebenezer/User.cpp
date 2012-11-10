@@ -1,4 +1,4 @@
-﻿// User.cpp: implementation of the CUser class.
+// User.cpp: implementation of the CUser class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -148,7 +148,6 @@ void CUser::Initialize()
 	m_bZoneChangeFlag = FALSE;
 
 	m_bRegeneType = 0;
-	//Testing out .gitattributes!
 
 	m_fLastRegeneTime = 0.0f;
 
@@ -248,7 +247,6 @@ void CUser::Parsing(int len, char *pData)
 	// TO-DO: Make sure we support all packets in the loading stage (and rewrite this logic considerably better).
 	else if (!m_bSelectedCharacter)
 	{
-		//This works!
 		switch( command )
 		{
 		case WIZ_SEL_NATION:
@@ -1917,11 +1915,11 @@ void CUser::SpeedHackUser()
 void CUser::UserLookChange(int pos, int itemid, int durability)
 {
 	if ((pos <= SLOT_MAX && pos >= 0) || (pos >= SLOT_MAX+HAVE_MAX && pos <= SLOT_MAX+HAVE_MAX+COSP_MAX-2)) {
-			Packet result(WIZ_USERLOOK_CHANGE);	 	
-			result << uint16(GetSocketID()) << uint8(pos) << itemid << uint16(durability);	 	
-			m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this);	 	
-		} else 	 	
-			return;
+		Packet result(WIZ_USERLOOK_CHANGE);
+		result << uint16(GetSocketID()) << uint8(pos) << itemid << uint16(durability);
+		m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this);
+	} else 
+		return;
 }
 
 void CUser::SendNotice()
@@ -2878,7 +2876,7 @@ void CUser::OperatorCommand(char *pBuf)
 
 void CUser::SpeedHackTime(char* pBuf)
 {
-	BYTE b_first = 0x00;
+	/*BYTE b_first = 0x00;
 	int index = 0;
 	float servertime = 0.0f, clienttime = 0.0f, client_gap = 0.0f, server_gap = 0.0f;
 
@@ -2906,7 +2904,7 @@ void CUser::SpeedHackTime(char* pBuf)
 			m_fSpeedHackClientTime = clienttime;
 			m_fSpeedHackServerTime = TimeGet();
 		}
-	}
+	}*/
 }
 
 void CUser::Type3AreaDuration(float currenttime)

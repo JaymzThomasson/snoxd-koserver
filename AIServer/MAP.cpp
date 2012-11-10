@@ -264,7 +264,8 @@ void MAP::RegionUserAdd(int rx, int rz, int uid)
 
 	pInt = new int;
 	*pInt = uid;
-	m_ppRegion[rx][rz].m_RegionUserArray.PutData( uid, pInt );
+	if( !m_ppRegion[rx][rz].m_RegionUserArray.PutData( uid, pInt ) )
+		TRACE("RegionUserAdd Fail");
 
 	LeaveCriticalSection( &g_region_critical );
 }
@@ -298,12 +299,9 @@ void MAP::RegionNpcAdd(int rx, int rz, int nid)
 
 	pInt = new int;
 	*pInt = nid;
-	if( !m_ppRegion[rx][rz].m_RegionNpcArray.PutData( nid, pInt ) )	{
-		TRACE("### Map - RegionNpcAdd Fail : x=%d,z=%d, nid=%d ###\n", rx,rz,nid);
-	}
-
+	m_ppRegion[rx][rz].m_RegionNpcArray.PutData( nid, pInt );
 	int nSize = m_ppRegion[rx][rz].m_RegionNpcArray.GetSize();
-	//TRACE("+++ Map - RegionNpcAdd : x=%d,z=%d, nid=%d, total=%d \n", rx,rz,nid, nSize);
+	TRACE("+++ Map - RegionNpcAdd : x=%d,z=%d, nid=%d, total=%d \n", rx,rz,nid, nSize);
 
 	LeaveCriticalSection( &g_region_critical );
 }

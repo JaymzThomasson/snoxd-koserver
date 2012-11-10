@@ -1,4 +1,5 @@
 #include "StdAfx.h" // oh god, this needs reworking, a LOT.
+#include "Ebenezer.h"
 #include "EbenezerDlg.h"
 #include "User.h"
 
@@ -252,33 +253,6 @@ void CUser::MerchantInsert(char *pBuf)
 	Send( send_buff, send_index );
 }
 
-void CUser::CancelMerchant()
-{
-}
-
-/*
-	Buying merchants: 1.7XX only
-*/
-void CUser::BuyingMerchantOpen(char *pBuf)
-{
-}
-
-void CUser::BuyingMerchantClose()
-{
-}
-
-void CUser::BuyingMerchantInsert(char *pBuf)
-{
-}
-
-void CUser::BuyingMerchantList(char *pBuf)
-{
-}
-
-void CUser::BuyingMerchantBuy(char *pBuf)
-{
-}
-
 void CUser::TakeMerchantItems()
 {
 	BYTE nOriginalSlot = 0;
@@ -315,4 +289,31 @@ void CUser::ClearSellingItems(int nSellingSlot)
 	m_arSellingItems[nSellingSlot].sCount = 0;
 	m_arSellingItems[nSellingSlot].sDuration = 0;
 	m_arSellingItems[nSellingSlot].nOriginalSlot = 0;
+}
+
+void CUser::CancelMerchant()
+{
+}
+
+/*
+	Buying merchants: 1.7XX only
+*/
+void CUser::BuyingMerchantOpen(char *pBuf)
+{
+}
+
+void CUser::BuyingMerchantClose()
+{
+}
+
+void CUser::BuyingMerchantInsert(char *pBuf)
+{
+}
+
+void CUser::BuyingMerchantList(char *pBuf)
+{
+}
+
+void CUser::BuyingMerchantBuy(char *pBuf)
+{
 }

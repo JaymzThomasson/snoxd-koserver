@@ -17,22 +17,20 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-#define MORAL_SELF				1		// 나 자신..
-#define MORAL_FRIEND_WITHME		2		// 나를 포함한 우리편(국가) 중 하나 ..
-#define MORAL_FRIEND_EXCEPTME	3		// 나를 뺀 우리편 중 하나 
-#define MORAL_PARTY				4		// 나를 포함한 우리파티 중 하나..
-#define MORAL_NPC				5		// NPC중 하나.
-#define MORAL_PARTY_ALL			6		// 나를 호함한 파티 모두..
-#define MORAL_ENEMY				7		// 울편을 제외한 모든 적중 하나(NPC포함)
-#define MORAL_ALL				8		// 겜상에 존재하는 모든 것중 하나.
-#define MORAL_AREA_ENEMY		10		// 지역에 포함된 적
-#define MORAL_AREA_FRIEND		11		// 지역에 포함된 우리편
-#define MORAL_AREA_ALL			12		// 지역에 포함된 모두
-#define MORAL_SELF_AREA			13		// 나를 중심으로 한 지역
-// 비러머글 클랜소환
-#define MORAL_CLAN				14		// 클랜 맴버 중 한명...
-#define MORAL_CLAN_ALL			15		// 나를 포함한 클랜 맴버 다...
-//
+#define MORAL_SELF				1
+#define MORAL_FRIEND_WITHME		2
+#define MORAL_FRIEND_EXCEPTME	3
+#define MORAL_PARTY				4
+#define MORAL_NPC				5
+#define MORAL_PARTY_ALL			6
+#define MORAL_ENEMY				7
+#define MORAL_ALL				8
+#define MORAL_AREA_ENEMY		10
+#define MORAL_AREA_FRIEND		11
+#define MORAL_AREA_ALL			12
+#define MORAL_SELF_AREA			13
+#define MORAL_CLAN				14
+#define MORAL_CLAN_ALL			15
 
 #define MORAL_UNDEAD			16		// Undead Monster
 #define MORAL_PET_WITHME		17      // My Pet
@@ -70,7 +68,7 @@ CMagicProcess::~CMagicProcess()
 
 void CMagicProcess::MagicPacket(char *pBuf, int len)
 {
-	int index = 0, send_index = 0, magicid = 0, sid = -1, tid = -2, data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0, type3_attribute = 0;
+	int index = 0, send_index = 0, magicid = 0, sid = -1, tid = -2, data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0, data7 = 0, type3_attribute = 0;
 	char send_buff[128];
 
 	_MAGIC_TABLE* pTable = NULL;
@@ -78,6 +76,15 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 
 	BYTE command = GetByte( pBuf, index );		// Get the magic status.  
 	magicid = GetDWORD( pBuf, index );          // Get ID of magic.
+
+	if (command == MAGIC_CANCEL2 &&  m_pSrcUser) {
+		Type3Cancel(magicid, m_pSrcUser->GetSocketID());	 // Type 3 cancel procedure.
+		Type4Cancel(magicid, m_pSrcUser->GetSocketID());   // Type 4 cancel procedure.
+		//Type6Cancel(magicid, m_pSrcUser);   // Scrolls etc.
+		//Type9Cancel(magicid, m_pSrcUser);
+		return;
+	}
+
 	sid = GetShort( pBuf, index );			    // Get ID of source.
 	tid = GetShort( pBuf, index );              // Get ID of target.
 	data1 = GetShort( pBuf, index );            // Additional Info :)
@@ -86,35 +93,41 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 	data4 = GetShort( pBuf, index );
 	data5 = GetShort( pBuf, index );
 	data6 = GetShort( pBuf, index ); 
+	data7 = GetShort( pBuf, index );
 
-	// 눈싸움전쟁존에서 눈싸움중이라면 공격은 눈을 던지는 것만 가능하도록,,,
 	if( m_pSrcUser )	{
 		if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE )	{
-			if( magicid != SNOW_EVENT_SKILL )		return;		// 하드 코딩 싫어,,, 
+			if( magicid != SNOW_EVENT_SKILL )		return;
 		}
 	}
 
-	if (command == MAGIC_CANCEL) {
+	if ( command == MAGIC_CANCEL ) {
 		Type3Cancel(magicid, sid);	 // Type 3 cancel procedure.
 		Type4Cancel(magicid, sid);   // Type 4 cancel procedure.
+		//Type6Cancel(magicid, m_pSrcUser);   // Scrolls etc.
+		//Type9Cancel(magicid, m_pSrcUser);
 		return;
 	}
 
 	_MAGIC_TABLE* pMagic = NULL ;
 	pMagic = m_pMain->m_MagictableArray.GetData( magicid ) ;   // Get main magic table.
-	if( !pMagic ) return ;	
+	if( !pMagic )
+		return ;	
 
-	if (sid >= NPC_BAND) {
+	if( pMagic->bMoral == 10 && tid != -1 )
+		return;
+
+	if ( sid >= NPC_BAND ) {
 		pMon = m_pMain->m_arNpcArray.GetData(sid);
 		if( !pMon || pMon->m_NpcState == NPC_DEAD ) return;
 	}
 	else if( sid >=0 && sid < MAX_USER )	{
 		CUser* pUser = m_pMain->GetUserPtr(sid);
-		if (pUser == NULL || pUser->isDead())	
+		if ( pUser == NULL || pUser->isDead() )	
 			return;
 	}
 
-	if (tid >= 0 && tid < MAX_USER) {	// Type 4 Repeat Check!!!
+	if ( tid >= 0 && tid < MAX_USER ) {	// Type 4 Repeat Check!!!
 		if (pMagic->bType1 == 4) {
 			if (pMagic->bMoral < 5) {
 				CUser* pTUser = m_pMain->GetUserPtr(tid) ;
@@ -338,7 +351,7 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 				ExecuteType3( pTable->iNum, sid, tid, data1, data2, data3 );
 				break;
 			case 4:
-				ExecuteType4( pTable->iNum, sid, tid, data1, data2, data3 );
+				ExecuteType4( pTable->iNum, sid, tid, data1, data2, data3, data4 );
 				break;
 			case 5:
 				ExecuteType5( pTable->iNum, sid, tid, data1, data2, data3  );
@@ -372,7 +385,7 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 					ExecuteType3( pTable->iNum, sid, tid, data1, data2, data3 );
 					break;
 				case 4:
-					ExecuteType4( pTable->iNum, sid, tid, data1, data2, data3 );
+					ExecuteType4( pTable->iNum, sid, tid, data1, data2, data3, data4 );
 					break;
 				case 5:
 					ExecuteType5( pTable->iNum, sid, tid, data1, data2, data3 );
@@ -1263,13 +1276,18 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 	return;		
 }
 
-void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int data2, int data3 )
+void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int data2, int data3, int data4 )
 {
 	int damage = 0, send_index = 0, result = 1;     // Variable initialization. result == 1 : success, 0 : fail
 	char send_buff[128];
+	memset( send_buff, NULL, 128);
 
-	vector<int> casted_member;
+	int casted_member[MAX_USER], party_index = 0 ;
 	 
+	for (int h = 0 ; h < MAX_USER ; h++) {
+		casted_member[h] = -1;
+	}
+
 	_MAGIC_TABLE* pMagic = NULL;
 	pMagic = m_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
 	if( !pMagic ) return;
@@ -1281,15 +1299,18 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 	if (tid == -1) {		// If the target was the source's party......		
 		for (int i = 0 ; i < MAX_USER ; i++) {		// Maximum number of members in a party...
 			CUser* pTUser = NULL ;     // Pointer initialization!		
-			pTUser = m_pMain->GetUnsafeUserPtr(i);     // Get target info.  
-			if (pTUser == NULL || pTUser->isDead() 
-				|| pTUser->m_bAbnormalType == ABNORMAL_BLINKING) continue;
+			pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[i];     // Get target info.  
+//			if( !pTUser || pTUser->m_bResHpType == USER_DEAD || pTUser->m_bResHpType == USER_BLINKING) continue ;   
+			if( !pTUser || pTUser->m_bResHpType == USER_DEAD || pTUser->m_bAbnormalType == ABNORMAL_BLINKING) continue ;
 			
-			if (UserRegionCheck(sid, i, magicid, pType->bRadius, data1, data3))
-				casted_member.push_back(i);
+//			if (UserRegionCheck(sid, i, magicid, pType->bRadius)) {
+			if (UserRegionCheck(sid, i, magicid, pType->bRadius, data1, data3)) {
+				casted_member[party_index] = i ;
+				party_index++ ;
+			}						
 		}
 
-		if (casted_member.size() == 0) {		// If none of the members are in the region, return.
+		if (party_index == 0) {		// If none of the members are in the region, return.
 			SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 			SetByte( send_buff, MAGIC_FAIL, send_index );
 			SetDWORD( send_buff, magicid, send_index );
@@ -1308,22 +1329,27 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 		}
 	}
 	else {		// If the target was another single player.
-		CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.  
-		if (pTUser == NULL) return;     // Check if target exists		
+		CUser* pTUser = NULL ;     // Pointer initialization!		
+		pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[tid];     // Get target info.  
+		if( !pTUser ) return;     // Check if target exists and not already dead.		
 		
-		casted_member.push_back(tid);
+		casted_member[0] = tid ;
+		party_index = 1 ;
 	}
 
-	foreach (itr, casted_member)
-	{
-		CUser* pTUser = m_pMain->GetUserPtr(*itr) ;     // Get target info.  
-		if (pTUser == NULL || pTUser->isDead()) continue;
+	for ( int j = 0 ; j < party_index ; j++) {	// THIS IS WHERE THE FUN STARTS!!!
+		CUser* pTUser = NULL ;     // Pointer initialization!		
+		pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[casted_member[j]] ;     // Get target info.  
+		if (!pTUser|| pTUser->m_bResHpType == USER_DEAD) continue;
 //
 		if (pTUser->m_bType4Buff[pType->bBuffType - 1] == 2 && tid == -1) {		// Is this buff-type already casted on the player?
 			result = 0 ;				// If so, fail! 
 			goto fail_return ;					
 		}
 //
+		if ( data4 == -1 )
+			//pTUser->InsertSavedMagic( magicid, pType->sDuration );
+
 		switch (pType->bBuffType) {	// Depending on which buff-type it is.....
 			case 1 :
 				pTUser->m_sMaxHPAmount = pType->sMaxHP;		// Get the amount that will be added/multiplied.
@@ -1338,18 +1364,18 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 //
 			case 3 : 
 				if (magicid == 490034) {	// Bezoar!!!
-					send_index = 0 ;
+					memset( send_buff, NULL, 128); send_index = 0 ;
 					SetByte(send_buff, 3, send_index);	// You are now a giant!!!
 					SetByte(send_buff, ABNORMAL_GIANT, send_index);
 					pTUser->StateChange(send_buff);					
-					send_index = 0;
+					memset( send_buff, NULL, 128); send_index = 0 ;
 				}
 				else if (magicid == 490035) {	// Rice Cake!!!
-					send_index = 0 ;
+					memset( send_buff, NULL, 128); send_index = 0 ;
 					SetByte(send_buff, 3, send_index);	// You are now a dwarf!!!
 					SetByte(send_buff, ABNORMAL_DWARF, send_index);
 					pTUser->StateChange(send_buff);						
-					send_index = 0;
+					memset( send_buff, NULL, 128); send_index = 0 ;
 				}
 
 				pTUser->m_sDuration3 = pType->sDuration;
@@ -1408,9 +1434,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 		}
 
 		if (tid != -1 && pMagic->bType1 == 4) {
-// 비러머글 하피 >.<
 			if (sid >= 0 && sid < MAX_USER) {
-//
 				m_pSrcUser->MSpChange( -(pMagic->sMsp) );
 			}
 		}
@@ -1440,58 +1464,73 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			SetByte( send_buff, 2, send_index );
 			SetByte( send_buff, 0x01, send_index);
 			m_pMain->Send_PartyMember(pTUser->m_sPartyIndex, send_buff, send_index);
-			send_index = 0;
+			memset( send_buff, NULL, 128); send_index = 0 ;
 		}
 		//  end of Send Party Packet.....//
 //	
-		pTUser->Send2AI_UserUpdateInfo();	// AI Server에 바끤 데이타 전송....
+		pTUser->Send2AI_UserUpdateInfo();
 
 		if ( pMagic->bType2 == 0 || pMagic->bType2 == 4 ) {
+
 			SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 			SetByte( send_buff, MAGIC_EFFECTING, send_index );
 			SetDWORD( send_buff, magicid, send_index );
 			SetShort( send_buff, sid, send_index );
-			SetShort( send_buff, *itr, send_index );
+			SetShort( send_buff, casted_member[j], send_index );
 			SetShort( send_buff, data1, send_index );	
 			SetShort( send_buff, result, send_index );	
 			SetShort( send_buff, data3, send_index );	
+			SetShort( send_buff, pType->sDuration, send_index );
+			SetShort( send_buff, 0x00, send_index );
+			SetShort( send_buff, pType->bSpeed, send_index );
+
 			if (sid >=0 && sid < MAX_USER) {
 				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 			}
 			else {
-				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 			}
 		}
-
-		send_index = 0;
 		result = 1;	
 		continue; 
 
 	fail_return:
 		if ( pMagic->bType2 == 4 ) {
+			memset( send_buff, NULL, 128); send_index = 0 ;
+
 			SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 			SetByte( send_buff, MAGIC_EFFECTING, send_index );
 			SetDWORD( send_buff, magicid, send_index );
 			SetShort( send_buff, sid, send_index );
-			SetShort( send_buff, *itr, send_index );
+			SetShort( send_buff, casted_member[j], send_index );
 			SetShort( send_buff, data1, send_index );	
 			SetShort( send_buff, result, send_index );	
 			SetShort( send_buff, data3, send_index );
+
+			if( data4 != 0 )
+				SetShort( send_buff, data4, send_index );
+			else
+				SetShort( send_buff, pType->sDuration, send_index );
+
+			SetShort( send_buff, 0x00, send_index );
+			SetShort( send_buff, pType->bSpeed, send_index );
+
 			if (sid >= 0 && sid < MAX_USER) {
 				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 			}
 			else {
-				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ, NULL, false );
 			}
-			send_index = 0 ;
 		}
 		
 		if (sid >= 0 && sid < MAX_USER) {
+			memset( send_buff, NULL, 128); send_index = 0 ;
+
 			SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 			SetByte( send_buff, MAGIC_FAIL, send_index );
 			SetDWORD( send_buff, magicid, send_index );
 			SetShort( send_buff, sid, send_index );
-			SetShort( send_buff, *itr, send_index );
+			SetShort( send_buff, casted_member[j], send_index );
 			SetShort( send_buff, 0, send_index );
 			SetShort( send_buff, 0, send_index );
 			SetShort( send_buff, 0, send_index );
@@ -1501,7 +1540,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			m_pSrcUser->Send( send_buff, send_index );
 		}
 
-		send_index = 0 ;
+		memset( send_buff, NULL, 128); send_index = 0 ;
 		result = 1;	
 		continue;
 	}

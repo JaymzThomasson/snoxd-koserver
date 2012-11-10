@@ -199,7 +199,7 @@ void CAujardDlg::AllCharInfoReq(Packet & pkt)
 	pkt >> uid >> strAccountID;
 	result << uid;
 
-	tmp << uint8(1) << uint8(1); // flag, probably indicates whether there's any characters or not (stays 1 for 1+ characters though, so not a count :'(). Untested without.
+	tmp << uint8(1);
 	m_DBAgent.GetAllCharID(strAccountID, strCharID1, strCharID2, strCharID3);
 	m_DBAgent.LoadCharInfo(strCharID1, tmp);
 	m_DBAgent.LoadCharInfo(strCharID2, tmp);

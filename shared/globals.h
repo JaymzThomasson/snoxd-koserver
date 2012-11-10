@@ -41,12 +41,12 @@ const BYTE GLOVE			= 12;
 const BYTE FOOT				= 13;
 const BYTE RESERVED			= 14;
 
-const BYTE CWING			= 42;	 	
-const BYTE CHELMET			= 43;	 	
-const BYTE CLEFT			= 44;	 	
-const BYTE CRIGHT			= 45;	 	
-const BYTE CTOP				= 46;	 	
-const BYTE BAG1				= 47;	 	
+const BYTE CWING			= 42;
+const BYTE CHELMET			= 43;
+const BYTE CLEFT			= 44;
+const BYTE CRIGHT			= 45;
+const BYTE CTOP				= 46;
+const BYTE BAG1				= 47;
 const BYTE BAG2				= 48;
 
 const BYTE SLOT_MAX			= 14;
@@ -115,14 +115,14 @@ enum HairData
 	HAIR_TYPE
 };
 
-struct _MERCH_DATA	 	
-{	 	
-	int nNum;	 	
-	short sDuration;	 	
-	unsigned short sCount;	 	
-	__int64 nSerialNum;	 	
-	int nPrice;	 	
-	BYTE nOriginalSlot;	 	
+struct _MERCH_DATA
+{
+	int nNum;
+	short sDuration;
+	unsigned short sCount;
+	__int64 nSerialNum;
+	int nPrice;
+	BYTE nOriginalSlot;
 };
 
 struct _USER_DATA

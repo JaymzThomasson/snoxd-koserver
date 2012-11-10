@@ -126,7 +126,7 @@ void CUser::GetUserInfo(char *buff, int & buff_index)
 
 	SetKOString(buff, m_pUserData->m_id, buff_index, 1);
 	SetByte(buff, m_pUserData->m_bNation, buff_index);
-	SetByte(buff, m_pUserData->m_bCity, buff_index); // probably isn't this, but it'll at least serve as filler if it's not
+	SetByte(buff, m_pUserData->m_bRace, buff_index); // probably isn't this, but it'll at least serve as filler if it's not
 	SetShort(buff, m_pUserData->m_bKnights, buff_index);
 	SetByte(buff, m_pUserData->m_bFame, buff_index);
 
@@ -405,6 +405,7 @@ void CUser::Warp(char *pBuf)
 	UserInOut(USER_WARP);
 	m_pMain->UserInOutForMe(this);
 	m_pMain->NpcInOutForMe(this);
+	m_pMain->MerchantUserInOutForMe(this);
 
 	ResetWindows();
 }

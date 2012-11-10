@@ -4,7 +4,7 @@
 
 void CUser::WarehouseProcess(char *pBuf)
 {
-	int index = 0, send_index = 0, itemid = 0, srcpos = -1, destpos = -1, page = -1, reference_pos = -1;
+	int index = 0, send_index = 0, itemid = 0, srcpos = -1, destpos = -1, page = -1, reference_pos = -1, npcid = 0;
 	DWORD count = 0;
 	char send_buff[2048];
 	_ITEM_TABLE* pTable = NULL;
@@ -22,16 +22,24 @@ void CUser::WarehouseProcess(char *pBuf)
 	if( command == WAREHOUSE_OPEN )	{
 		SetByte( send_buff, WIZ_WAREHOUSE, send_index );
 		SetByte( send_buff, WAREHOUSE_OPEN, send_index );
+		SetByte( send_buff, WAREHOUSE_OPEN, send_index );
 		SetDWORD( send_buff, m_pUserData->m_iBank, send_index );
 		for(int i=0; i<WAREHOUSE_MAX; i++ ) {
 			SetDWORD( send_buff, m_pUserData->m_sWarehouseArray[i].nNum, send_index );
 			SetShort( send_buff, m_pUserData->m_sWarehouseArray[i].sDuration, send_index );
 			SetShort( send_buff, m_pUserData->m_sWarehouseArray[i].sCount, send_index );
+
+			SetByte( send_buff, 0,send_index); //rent or nrmal 4 0
+			SetShort( send_buff, 0, send_index );
+			SetShort( send_buff, 0, send_index );
+			SetShort( send_buff, 0, send_index );
+			SetShort( send_buff, 0, send_index ); 
 		}
 		SendCompressingPacket( send_buff, send_index );	
 		return;
 	}
 
+	npcid = GetShort(pBuf,index);
 	itemid = GetDWORD( pBuf, index );
 	page = GetByte( pBuf, index );
 	srcpos = GetByte( pBuf, index );
@@ -404,6 +412,8 @@ BOOL CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 void CUser::ItemMove(char *pBuf)
 {
 	int index = 0, itemid = 0, srcpos = -1, destpos = -1;
+	int sItemID = 0, sItemCount = 0, sItemDuration = 0;
+	__int64 sItemSerial = 0;
 	_ITEM_TABLE* pTable = NULL;
 	BYTE dir;
 
@@ -418,7 +428,7 @@ void CUser::ItemMove(char *pBuf)
 		goto fail_return;
 //	if( dir == ITEM_INVEN_SLOT && ((pTable->m_sWeight + m_sItemWeight) > m_sMaxWeight) )
 //		goto fail_return;
-	if( dir > 0x04 || srcpos >= SLOT_MAX+HAVE_MAX || destpos >= SLOT_MAX+HAVE_MAX )
+	if( dir > 0x0B || srcpos >= SLOT_MAX+HAVE_MAX+COSP_MAX+MBAG_MAX || destpos >= SLOT_MAX+HAVE_MAX+COSP_MAX+MBAG_MAX )
 		goto fail_return;
 	if( (dir == ITEM_INVEN_SLOT || dir == ITEM_SLOT_SLOT ) && destpos > SLOT_MAX )
 		goto fail_return;
@@ -438,6 +448,131 @@ void CUser::ItemMove(char *pBuf)
 	}
 
 	switch( dir ) {
+	case ITEM_MBAG_TO_MBAG:
+		if(SLOT_MAX+HAVE_MAX+COSP_MAX+destpos >= 49 && SLOT_MAX+HAVE_MAX+COSP_MAX+destpos <=60 && m_pUserData->m_sItemArray[BAG1].nNum==0)
+			goto fail_return;
+		if(SLOT_MAX+HAVE_MAX+COSP_MAX+destpos >= 61 && SLOT_MAX+HAVE_MAX+COSP_MAX+destpos <=72 && m_pUserData->m_sItemArray[BAG2].nNum==0)
+			goto fail_return;
+		if( itemid != m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].nNum ) 
+			goto fail_return;
+
+		if( m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].nNum != 0 ) {
+			sItemID = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].nNum;
+			sItemDuration = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].sDuration;
+			sItemCount = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].sCount;
+			sItemSerial = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].nSerialNum;
+		}
+
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].nNum = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].nNum ;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].sDuration = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].sDuration;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].sCount = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].sCount;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].nSerialNum = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].nSerialNum;
+		if( m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].nSerialNum == 0 ) 
+			m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].nSerialNum = m_pMain->GenerateItemSerial();
+
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].nNum = sItemID;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].sDuration = sItemDuration;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].sCount = sItemCount;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].nSerialNum = sItemSerial;
+		break;
+	case ITEM_MBAG_TO_INVEN:
+		if( itemid != m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].nNum ) 
+			goto fail_return;
+		
+		if( m_pUserData->m_sItemArray[SLOT_MAX+destpos].nNum != 0 ) {
+			sItemID = m_pUserData->m_sItemArray[SLOT_MAX+destpos].nNum;
+			sItemCount = m_pUserData->m_sItemArray[SLOT_MAX+destpos].sCount;
+			sItemDuration = m_pUserData->m_sItemArray[SLOT_MAX+destpos].sDuration;
+			sItemSerial = m_pUserData->m_sItemArray[SLOT_MAX+destpos].nSerialNum;
+		}
+
+		m_pUserData->m_sItemArray[SLOT_MAX+destpos].nNum = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].nNum;
+		m_pUserData->m_sItemArray[SLOT_MAX+destpos].sDuration = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].sDuration;
+		m_pUserData->m_sItemArray[SLOT_MAX+destpos].sCount = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].sCount;
+		m_pUserData->m_sItemArray[SLOT_MAX+destpos].nSerialNum = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].nSerialNum;
+		if( m_pUserData->m_sItemArray[SLOT_MAX+destpos].nSerialNum == 0 ) 
+			m_pUserData->m_sItemArray[SLOT_MAX+destpos].nSerialNum = m_pMain->GenerateItemSerial();
+
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].nNum = sItemID;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].sDuration = sItemDuration;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].sCount = sItemCount;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+srcpos].nSerialNum = sItemSerial;
+		break;
+
+	case ITEM_INVEN_TO_MBAG:
+		// TO-DO : Change the m_sItemArray[BAG1/2].nNum check to the actual magic bag ID.
+		if(SLOT_MAX+HAVE_MAX+COSP_MAX+destpos >= 49 && SLOT_MAX+HAVE_MAX+COSP_MAX+destpos <=60 && m_pUserData->m_sItemArray[BAG1].nNum == 0)
+			goto fail_return;
+		if(SLOT_MAX+HAVE_MAX+COSP_MAX+destpos >= 61 && SLOT_MAX+HAVE_MAX+COSP_MAX+destpos <=73 && m_pUserData->m_sItemArray[BAG2].nNum == 0)
+			goto fail_return;
+		if( itemid != m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum ) 
+			goto fail_return;
+		if( m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].nNum != 0 ) {
+			sItemID = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].nNum;
+			sItemCount = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].sCount;
+			sItemDuration = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].sDuration;
+			sItemSerial = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].nSerialNum;
+		}
+
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].nNum = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].sDuration = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sDuration;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].sCount = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sCount;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].nSerialNum = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
+		if( m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].nSerialNum == 0 ) 
+			m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+COSP_MAX+destpos].nSerialNum = m_pMain->GenerateItemSerial();
+
+		m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum = sItemID;
+		m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sDuration = sItemDuration;
+		m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sCount = sItemCount;
+		m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nSerialNum = sItemSerial;
+		break;
+
+	case ITEM_COSP_TO_INVEN:
+		if( itemid != m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+srcpos].nNum ) //Make sure we actually have that item.
+			goto fail_return;
+
+		if( m_pUserData->m_sItemArray[SLOT_MAX+destpos].nNum != 0 )
+			goto fail_return;
+
+		m_pUserData->m_sItemArray[SLOT_MAX+destpos].nNum = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+srcpos].nNum;
+		m_pUserData->m_sItemArray[SLOT_MAX+destpos].sDuration = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+srcpos].sDuration;
+		m_pUserData->m_sItemArray[SLOT_MAX+destpos].sCount = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+srcpos].sCount;
+		m_pUserData->m_sItemArray[SLOT_MAX+destpos].nSerialNum = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+srcpos].nSerialNum;
+
+		if( m_pUserData->m_sItemArray[SLOT_MAX+destpos].nSerialNum == 0 ) 
+			m_pUserData->m_sItemArray[SLOT_MAX+destpos].nSerialNum = m_pMain->GenerateItemSerial();
+
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+srcpos].nNum = 0;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+srcpos].sDuration = 0;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+srcpos].sCount = 0;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+srcpos].nSerialNum = 0;
+		break;
+
+	case ITEM_INVEN_TO_COSP:
+		if( itemid != m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum ) //Make sure we actually have that item.
+			goto fail_return;
+
+		if( m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+destpos].nNum != 0 ) {
+			sItemID = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+destpos].nNum;
+			sItemCount = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+destpos].sCount;
+			sItemDuration = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+destpos].sDuration;
+			sItemSerial = m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+destpos].nSerialNum;
+		}
+
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+destpos].nNum = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+destpos].sDuration = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sDuration;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+destpos].sCount = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sCount;
+		m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+destpos].nSerialNum = m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
+
+		if( m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+destpos].nSerialNum == 0 ) 
+			m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+destpos].nSerialNum = m_pMain->GenerateItemSerial();
+
+		m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum = sItemID;
+		m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sDuration = sItemDuration;
+		m_pUserData->m_sItemArray[SLOT_MAX+srcpos].sCount = sItemCount;
+		m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nSerialNum = sItemSerial;
+		break;
+
 	case ITEM_INVEN_SLOT:
 		if( itemid != m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum )
 			goto fail_return;
@@ -657,6 +792,7 @@ void CUser::ItemMove(char *pBuf)
 				m_pUserData->m_sItemArray[destpos].nSerialNum = m_pMain->GenerateItemSerial();
 		}
 		break;
+
 	case ITEM_SLOT_INVEN:
 		if( itemid != m_pUserData->m_sItemArray[srcpos].nNum )
 			goto fail_return;
@@ -674,6 +810,7 @@ void CUser::ItemMove(char *pBuf)
 		m_pUserData->m_sItemArray[srcpos].sCount = 0;
 		m_pUserData->m_sItemArray[srcpos].nSerialNum = 0;
 		break;
+
 	case ITEM_INVEN_INVEN:
 		if( itemid != m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum )
 			goto fail_return;
@@ -704,6 +841,7 @@ void CUser::ItemMove(char *pBuf)
 			}
 		}
 		break;
+
 	case ITEM_SLOT_SLOT:
 		if( itemid != m_pUserData->m_sItemArray[srcpos].nNum )
 			goto fail_return;
@@ -764,6 +902,10 @@ void CUser::ItemMove(char *pBuf)
 		UserLookChange( destpos, itemid, m_pUserData->m_sItemArray[destpos].sDuration );	
 	if( (dir == ITEM_SLOT_INVEN ) && ( srcpos == HEAD || srcpos == BREAST || srcpos == SHOULDER || srcpos == LEFTHAND || srcpos == RIGHTHAND || srcpos == LEG || srcpos == GLOVE || srcpos == FOOT) ) 
 		UserLookChange( srcpos, 0, 0 );	
+	if( (dir == ITEM_INVEN_TO_COSP ) && ( SLOT_MAX+HAVE_MAX+destpos == CWING || SLOT_MAX+HAVE_MAX+destpos == CHELMET || SLOT_MAX+HAVE_MAX+destpos == CLEFT || SLOT_MAX+HAVE_MAX+destpos == CRIGHT || SLOT_MAX+HAVE_MAX+destpos == CTOP ) )
+		UserLookChange( SLOT_MAX+HAVE_MAX+destpos, itemid, m_pUserData->m_sItemArray[SLOT_MAX+HAVE_MAX+destpos].sDuration );
+	if( (dir == ITEM_COSP_TO_INVEN ) && ( SLOT_MAX+HAVE_MAX+srcpos == CWING || SLOT_MAX+HAVE_MAX+srcpos == CHELMET || SLOT_MAX+HAVE_MAX+srcpos == CLEFT || SLOT_MAX+HAVE_MAX+srcpos == CRIGHT || SLOT_MAX+HAVE_MAX+srcpos == CTOP ) )
+		UserLookChange( SLOT_MAX+HAVE_MAX+srcpos, 0, 0 );
 
 	Send2AI_UserUpdateInfo();
 

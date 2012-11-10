@@ -127,13 +127,17 @@ void CNpc::NpcInOut(BYTE Type, float fx, float fz, float fy)
 
 void CNpc::GetNpcInfo(char *buff, int & send_index)
 {
+	SetShort(buff, m_sSid, send_index );
+	if(m_byGroup == 0)
+		SetByte( buff, 0x01, send_index ); //Monster, probably need a better way e.g. compare the sSid.
+	else
+		SetByte( buff, 0x02, send_index ); //NPC
 	SetShort(buff, m_sPid, send_index );
 	SetByte(buff, m_tNpcType, send_index );
 	SetDWORD(buff, m_iSellingGroup, send_index );
 	SetShort(buff, m_sSize, send_index );
 	SetDWORD(buff, m_iWeapon_1, send_index );
 	SetDWORD(buff, m_iWeapon_2, send_index );
-	SetKOString(buff, m_strName, send_index);
 	SetByte(buff, m_byGroup, send_index );
 	SetByte(buff, m_byLevel, send_index );
 	SetShort(buff, (WORD)m_fCurX*10, send_index );
@@ -143,7 +147,8 @@ void CNpc::GetNpcInfo(char *buff, int & send_index)
 	SetByte(buff, m_byObjectType, send_index );
 	SetShort(buff, 0, send_index); // unknown
 	SetShort(buff, 0, send_index); // unknown
-	SetByte(buff, m_byDirection, send_index); 
+	SetShort(buff, m_byDirection, send_index);
+
 }
 
 void CNpc::RegisterRegion()
