@@ -20,22 +20,14 @@ void CUser::WarehouseProcess(char *pBuf)
 	if( m_sExchangeUser != -1 ) goto fail_return;
 
 	if( command == WAREHOUSE_OPEN )	{
-		SetByte( send_buff, WIZ_WAREHOUSE, send_index );
-		SetByte( send_buff, WAREHOUSE_OPEN, send_index );
-		SetByte( send_buff, WAREHOUSE_OPEN, send_index );
-		SetDWORD( send_buff, m_pUserData->m_iBank, send_index );
+		Packet result(WIZ_WAREHOUSE);
+		result << uint8(WAREHOUSE_OPEN) << uint8(WAREHOUSE_OPEN) <<
+			uint32(m_pUserData->m_iBank);
 		for(int i=0; i<WAREHOUSE_MAX; i++ ) {
-			SetDWORD( send_buff, m_pUserData->m_sWarehouseArray[i].nNum, send_index );
-			SetShort( send_buff, m_pUserData->m_sWarehouseArray[i].sDuration, send_index );
-			SetShort( send_buff, m_pUserData->m_sWarehouseArray[i].sCount, send_index );
-
-			SetByte( send_buff, 0,send_index); //rent or nrmal 4 0
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index ); 
+			result << m_pUserData->m_sWarehouseArray[i].nNum << m_pUserData->m_sWarehouseArray[i].sDuration << send_buff, m_pUserData->m_sWarehouseArray[i].sCount <<
+				uint8(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
 		}
-		SendCompressingPacket( send_buff, send_index );	
+		Send(&result);
 		return;
 	}
 

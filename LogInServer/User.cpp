@@ -126,7 +126,7 @@ void CUser::HandleServerlist(Packet & pkt)
 		_SERVER_INFO *pServer = *itr;
 
 		result << pServer->strServerIP;
-#if __VERSION >= 1890
+#if __VERSION >= 1888
 		result << pServer->strLanIP;
 #endif
 		result << pServer->strServerName;

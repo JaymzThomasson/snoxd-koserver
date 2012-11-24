@@ -122,18 +122,6 @@
     <ClCompile Include="..\shared\CircularBuffer.cpp">
       <Filter>Networking</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcCommand.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcConnection.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcParameter.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="DBProcess.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -276,18 +264,6 @@
     </ClInclude>
     <ClInclude Include="..\shared\globals.h">
       <Filter>shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\OdbcParameter.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\OdbcCommand.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\OdbcConnection.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="DBProcess.h">
-      <Filter>Database</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
