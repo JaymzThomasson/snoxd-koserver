@@ -85,83 +85,78 @@ void CUser::MerchantProcess(char *pBuf)
 */
 void CUser::MerchantOpen(char *pBuf)
 {
-	int index = 0, send_index = 0;
-	char send_buff[1024];
-
-	SetByte( send_buff, WIZ_MERCHANT, send_index );
-	SetByte( send_buff, MERCHANT_OPEN, send_index );
+	Packet result(WIZ_MERCHANT);
+	result << uint8(MERCHANT_OPEN);
 
 		if( isDead() ) {
-			SetShort( send_buff, MERCHANT_OPEN_DEAD, send_index );
-			Send( send_buff, send_index );
+			result << uint16(MERCHANT_OPEN_DEAD);
+			Send(&result);
 			return;
 		}
 
 		if( isStoreOpen() ) {
-			SetShort( send_buff, MERCHANT_OPEN_SHOPPING, send_index );
-			Send( send_buff, send_index );
+			result << uint16(MERCHANT_OPEN_SHOPPING);
+			Send(&result);
 			return;
 		}
 
 		if( isTrading() ) {
-			SetShort( send_buff, MERCHANT_OPEN_TRADING, send_index );
-			Send( send_buff, send_index );
+			result << uint16(MERCHANT_OPEN_TRADING);
+			Send(&result);
 			return;
 		}
 
 		if( getZoneID() > 21 || getZoneID() < 1 ) {
-			SetShort( send_buff, MERCHANT_OPEN_INVALID_ZONE, send_index );
-			Send( send_buff, send_index );
+			result << uint16(MERCHANT_OPEN_INVALID_ZONE);
+			Send(&result);
 			return;
 		}
 
 		if( getLevel() < 30 ) {
-			SetShort( send_buff, MERCHANT_OPEN_UNDERLEVELED, send_index );
-			Send( send_buff, send_index );
+			result << uint16(MERCHANT_OPEN_UNDERLEVELED);
+			Send(&result);
 			return;
 		}
 
-		if(m_bIsMerchanting) {
-			MerchantClose();
-			SetShort( send_buff, 0, send_index );
-			Send( send_buff, send_index );
+		if( m_bIsMerchanting ) {
+			MerchantClose(); //Close the current merchant session first before allowing a new one.
+			result << uint16(0);
+			Send(&result);
 			return;
 		}
 		
-	SetShort( send_buff, MERCHANT_OPEN_SUCCESS, send_index );
+	result << uint16(MERCHANT_OPEN_SUCCESS);
 		for(int i = 0; i < MAX_MERCH_ITEMS; i++) {
-				ClearSellingItems(i); // Making sure the m_arSellingItems array is empty before filling it up again, incase it's leftover from a previous merchant.
+				ClearSellingItems(i); // Making sure the m_arSellingItems array is empty before filling it up again, incase it's leftover from a previous merchant. ## shouldn't be needed however ##
 		}
-	Send( send_buff, send_index );
+	Send(&result);
 }
 
 void CUser::MerchantClose()
 {
-	int send_index = 0;
-	char send_buff[1024];
-
 	if( m_bIsMerchanting ) {
 			m_bIsMerchanting = FALSE;
 			GiveMerchantItems(); //Give back to the user that which hasn't been sold, if any.
 			for(int i = 0; i < MAX_MERCH_ITEMS; i++) {
 				ClearSellingItems(i);
 			}
-			SetByte( send_buff, WIZ_MERCHANT, send_index );
-			SetByte( send_buff, MERCHANT_CLOSE, send_index );
-			SetByte( send_buff, -1, send_index );
-			SetByte( send_buff, -1, send_index );
-			Send( send_buff, send_index );
+			Packet result(WIZ_MERCHANT);
+			result 
+				<< uint8(WIZ_MERCHANT) 
+				<< uint8(MERCHANT_CLOSE) 
+				<< uint8(-1) 
+				<< uint8(-1);
+			Send(&result);
 	}
 }
 
 void CUser::MerchantItemAdd(char *pBuf)
 {
-	int nItem = 0, nGold = 0, index = 0, send_index = 0;
+	int nItem = 0, nGold = 0, index = 0;
 	unsigned short nCount = 0;
 	short nDuration = 0;
 	__int64 nSerialNum = 0;
 	BYTE nInventorySlot = 0, nSellingSlot = 0, nMode = 0;
-	char send_buff[1024];
 
 	nItem = GetDWORD( pBuf, index );
 	nCount = GetShort( pBuf, index );
@@ -183,33 +178,31 @@ void CUser::MerchantItemAdd(char *pBuf)
 	m_arSellingItems[nSellingSlot].nSerialNum = nSerialNum;
 	m_arSellingItems[nSellingSlot].nOriginalSlot = nInventorySlot;
 
-	SetByte( send_buff, WIZ_MERCHANT, send_index );
-	SetByte( send_buff, MERCHANT_ITEM_ADD, send_index );
-	SetShort( send_buff, 0x01, send_index );
-	SetDWORD( send_buff, nItem, send_index );
-	SetShort( send_buff, nCount, send_index );
-	SetShort( send_buff, nDuration, send_index );
-	SetDWORD( send_buff, nGold, send_index );
-	SetByte( send_buff, nInventorySlot, send_index );
-	SetByte( send_buff, nSellingSlot, send_index );
-	Send( send_buff, send_index );
+	Packet result(WIZ_MERCHANT);
+	result 
+		<< uint8(MERCHANT_ITEM_ADD) 
+		<< uint16(1) 
+		<< uint32(nItem) << uint16(nCount) << uint16(nDuration) << uint32(nGold) 
+		<< uint8(nInventorySlot) << uint8(nSellingSlot);
+
+	Send(&result);
 }
 
 void CUser::MerchantItemCancel(char *pBuf)
 {
-	int index = 0, send_index = 0;
+	int index = 0;
 	BYTE nSellingSlot = 0;
-	char send_buff[1024];
 	nSellingSlot = GetByte( pBuf, index );
 	
 	if( m_arSellingItems[nSellingSlot].nNum != 0 && nSellingSlot < MAX_MERCH_ITEMS) {
 			ClearSellingItems(nSellingSlot);
 
-			SetByte( send_buff, WIZ_MERCHANT, send_index );
-			SetByte( send_buff, MERCHANT_ITEM_CANCEL, send_index );
-			SetShort( send_buff, 0x01, send_index );
-			SetByte( send_buff, nSellingSlot, send_index );
-			Send( send_buff, send_index );
+			Packet result(WIZ_MERCHANT);
+
+			result << uint8(MERCHANT_ITEM_CANCEL) 
+				<< uint16(1) 
+				<< uint8(nSellingSlot);
+			Send(&result);
 	}
 }
 
@@ -223,10 +216,9 @@ void CUser::MerchantItemBuy(char *pBuf)
 
 void CUser::MerchantInsert(char *pBuf)
 {
-	int index = 0, send_index = 0;
+	int index = 0;
 	short mLength = 0;
 	char mText[40];
-	char send_buff[1024];
 
 	mLength = GetShort( pBuf, index );
 	if(mLength > 40)
@@ -238,19 +230,18 @@ void CUser::MerchantInsert(char *pBuf)
 
 	GetString( mText, pBuf, mLength, index );
 
-	SetByte( send_buff, WIZ_MERCHANT, send_index );
-	SetByte( send_buff, MERCHANT_INSERT, send_index );
-	SetShort( send_buff, 0x01, send_index );
-	SetShort( send_buff, mLength, send_index );
-	SetString( send_buff, mText, mLength, send_index);
-	SetShort( send_buff, m_Sid, send_index );
-	SetByte( send_buff, 0x00, send_index ); // 0 is for "normal" merchant mode, 1 for "premium" merchant mode. Send "normal" until we have support for the skills.
+	Packet result(WIZ_MERCHANT);
+	result << uint8(MERCHANT_INSERT)
+		<< uint16(1)
+		<< mText
+		<< uint16(m_Sid)
+		<< uint8(0); // 0 is for "normal" merchant mode, 1 for "premium" merchant mode. Send "normal" until we have support for the skills.
 
 	for( int i = 0; i < MAX_MERCH_ITEMS ;i++ ) {
-		SetDWORD( send_buff, m_arSellingItems[i].nNum, send_index);
+		result << uint32(m_arSellingItems[i].nNum);
 	}
 
-	Send( send_buff, send_index );
+	Send(&result);
 }
 
 void CUser::TakeMerchantItems()
@@ -271,7 +262,7 @@ void CUser::GiveMerchantItems()
 {
 	byte nOriginalSlot = 0;
 	for (int i = 0; i < MAX_MERCH_ITEMS ;i++) {
-		nOriginalSlot = m_arSellingItems[i].nOriginalSlot + 14; //Still need to add 14 to make sure it matches with our m_sItemArray place!
+		nOriginalSlot = m_arSellingItems[i].nOriginalSlot + 14; //Still need to add 14 to make sure it matches with the original place!
 		if(nOriginalSlot = 0)
 			return;
 		m_pUserData->m_sItemArray[nOriginalSlot].nNum = m_arSellingItems[i].nNum;

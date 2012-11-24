@@ -149,7 +149,7 @@ void CUser::RecvFriendRequest(char *pBuf)
 		BYTE status = GetFriendStatus(charName, sid);
 
 		SetKOString(send_buff, charName, send_index);
-		SetShort(send_buff, status, send_index);
+		SetShort(send_buff, sid, send_index);
 		SetByte(send_buff, status, send_index);
 	}
 	Send(send_buff, send_index);
