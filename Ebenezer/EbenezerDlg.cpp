@@ -1769,7 +1769,8 @@ void CEbenezerDlg::NpcInOutForMe( CUser* pSendUser )
 	buff_index = GetRegionNpcIn( pMap, region_x, region_z, buff, t_count );
 	SetString( send_buff, buff, buff_index, send_index );
 	memset( buff, NULL, 8192 );
-	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ + i;		// SOUTH		buff_index = GetRegionNpcIn( pMap, region_x, region_z, buff, t_count );
+	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ + i;		// SOUTH		
+	buff_index = GetRegionNpcIn( pMap, region_x, region_z, buff, t_count );
 	SetString( send_buff, buff, buff_index, send_index );
 	memset( buff, NULL, 8192 );
 	region_x = pSendUser->m_RegionX + i;	region_z = pSendUser->m_RegionZ + i;	// SOUTH EAST

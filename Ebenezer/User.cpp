@@ -1707,6 +1707,7 @@ void CUser::ItemGet(char *pBuf)
 				m_pUserData->m_iGold += count;
 				SetByte( send_buff, WIZ_ITEM_GET, send_index );
 				SetByte( send_buff, 0x01, send_index );
+				SetDWORD( send_buff, bundle_index, send_index );
 				SetByte( send_buff, pos, send_index );
 				SetDWORD( send_buff, itemid, send_index );
 				SetShort( send_buff, count, send_index );
@@ -1735,6 +1736,7 @@ void CUser::ItemGet(char *pBuf)
 						send_index = 0; 
 						SetByte( send_buff, WIZ_ITEM_GET, send_index );
 						SetByte( send_buff, 0x02, send_index );
+						SetDWORD( send_buff, bundle_index, send_index );
 						SetByte( send_buff, 0xff, send_index );			// gold -> pos : 0xff
 						SetDWORD( send_buff, itemid, send_index );
 						SetDWORD( send_buff, pUser->m_pUserData->m_iGold, send_index );
@@ -1761,6 +1763,7 @@ void CUser::ItemGet(char *pBuf)
 		send_index = 0;
 		SetByte( send_buff, WIZ_ITEM_GET, send_index );
 		SetByte( send_buff, 0x03, send_index );
+		SetDWORD( send_buff, bundle_index, send_index );
 		SetDWORD( send_buff, itemid, send_index );
 		SetKOString(send_buff, pGetUser->m_pUserData->m_id, send_index);
 		m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );

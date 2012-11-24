@@ -10,12 +10,11 @@ void CUser::MoveProcess(char *pBuf )
 	ASSERT(GetMap() != NULL);
 	if( m_bWarp ) return;
 		
-	int index = 0, send_index = 0, region = 0;
+	int index = 0, region = 0;
 	WORD will_x, will_z;
 	short will_y, speed=0;
 	float real_x, real_z, real_y;
 	BYTE echo;
-	char send_buff[32];
 
 	will_x = GetShort( pBuf, index );
 	will_z = GetShort( pBuf, index );
@@ -47,28 +46,19 @@ void CUser::MoveProcess(char *pBuf )
 		m_pUserData->m_cury = m_fWill_y = will_y/10.0f;
 	}
 
-	SetByte( send_buff, WIZ_MOVE, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, will_x, send_index );
-	SetShort( send_buff, will_z, send_index );
-	SetShort( send_buff, will_y, send_index );
-	SetShort( send_buff, speed, send_index );
-	SetByte( send_buff, echo, send_index );
+	Packet result(WIZ_MOVE);
+	result << uint16(m_Sid)
+		<< uint16(will_x) << uint16(will_z) << uint16(will_y) << speed
+		<< echo;
 
 	RegisterRegion();
-	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
+	m_pMain->Send_Region( &result, GetMap(), m_RegionX, m_RegionZ, NULL, false );
 
 	GetMap()->CheckEvent( real_x, real_z, this );
 
-	send_index = 0;
-	SetByte( send_buff, AG_USER_MOVE, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	Setfloat( send_buff, m_fWill_x, send_index );
-	Setfloat( send_buff, m_fWill_z, send_index );
-	Setfloat( send_buff, m_fWill_y, send_index );
-	SetShort( send_buff, speed, send_index );
-	
-	m_pMain->Send_AIServer(send_buff, send_index);
+	result.Initialize(AG_USER_MOVE);
+	result << uint16(m_Sid) << m_fWill_x << m_fWill_z << m_fWill_y << uint16(speed);
+	m_pMain->Send_AIServer(&result);
 }
 
 void CUser::UserInOut(BYTE Type)
