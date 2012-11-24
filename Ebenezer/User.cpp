@@ -1256,7 +1256,7 @@ void CUser::ExpChange(__int64 iExp)
 
 	// Tell the client our new XP
 	Packet result(WIZ_EXP_CHANGE);
-	result << m_pUserData->m_iExp;
+	result << uint8(0) << m_pUserData->m_iExp;
 	Send(&result);
 
 	// If we've lost XP, save it for possible refund later.
