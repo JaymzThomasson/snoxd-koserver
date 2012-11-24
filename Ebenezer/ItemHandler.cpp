@@ -21,10 +21,9 @@ void CUser::WarehouseProcess(char *pBuf)
 
 	if( command == WAREHOUSE_OPEN )	{
 		Packet result(WIZ_WAREHOUSE);
-		result << uint8(WAREHOUSE_OPEN) << uint8(WAREHOUSE_OPEN) <<
-			uint32(m_pUserData->m_iBank);
+		result << uint8(WAREHOUSE_OPEN) << uint8(WAREHOUSE_OPEN) << uint32(m_pUserData->m_iBank);
 		for(int i=0; i<WAREHOUSE_MAX; i++ ) {
-			result << m_pUserData->m_sWarehouseArray[i].nNum << m_pUserData->m_sWarehouseArray[i].sDuration << send_buff, m_pUserData->m_sWarehouseArray[i].sCount <<
+			result << m_pUserData->m_sWarehouseArray[i].nNum << m_pUserData->m_sWarehouseArray[i].sDuration <<  m_pUserData->m_sWarehouseArray[i].sCount <<
 				uint8(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
 		}
 		Send(&result);
