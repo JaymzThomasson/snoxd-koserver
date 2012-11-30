@@ -104,6 +104,7 @@ public:
 	void RegionNpcInfoForMe( CUser* pSendUser );	// 9 Regions All Npcs nid Packaging Function
 	int GetRegionUserList( C3DMap* pMap, int region_x, int region_z, char* buff, int &t_count ); // Region All Users uid Packaging Function
 	int GetRegionUserIn( C3DMap* pMap, int region_x, int region_z, char* buff, int &t_count );	// Region All Users USERINOUT Packet Packaging Function
+	void GetRegionUserIn( C3DMap* pMap, int region_x, int region_z, Packet *pkt, int &t_count );
 	void RegionUserInOutForMe( CUser* pSendUser );	// 9 Regions All Users uid Packaging Function
 	int GetRegionMerchantUserIn( C3DMap* pMap, int region_x, int region_z, char* buff, int &t_count );	// Region All Users USERINOUT Packet Packaging Function
 	BOOL LoadLevelUpTable();

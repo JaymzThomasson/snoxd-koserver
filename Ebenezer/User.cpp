@@ -1,4 +1,4 @@
-// User.cpp: implementation of the CUser class.
+﻿// User.cpp: implementation of the CUser class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -310,6 +310,7 @@ void CUser::Parsing(int len, char *pData)
 		break;
 	case WIZ_REQ_USERIN:
 		RequestUserIn( pData+index );
+		//Request merchant characters too.
 		break;
 	case WIZ_REQ_NPCIN:
 		RequestNpcIn( pData+index );
@@ -342,10 +343,10 @@ void CUser::Parsing(int len, char *pData)
 		ItemGet( pData+index );
 		break;
 	case WIZ_ZONE_CHANGE:
-		//UserInOut( USER_IN );
 		UserInOut( USER_REGENE );
 		m_pMain->RegionUserInOutForMe(this);
 		m_pMain->RegionNpcInfoForMe(this);
+		m_pMain->MerchantUserInOutForMe(this);
 		m_bWarp = 0x00;
 		break;
 	case WIZ_POINT_CHANGE:
@@ -933,6 +934,7 @@ void CUser::RemoveRegion(int del_x, int del_z)
 
 	SetByte( buff, WIZ_USER_INOUT, send_index );
 	SetByte( buff, USER_OUT, send_index );
+	SetByte( buff, 0x00, send_index );
 	SetShort( buff, GetSocketID(), send_index );
 
 	if( del_x != 0 ) {
@@ -955,13 +957,13 @@ void CUser::RemoveRegion(int del_x, int del_z)
 
 void CUser::InsertRegion(int insert_x, int insert_z)
 {
-	Packet result(WIZ_USER_INOUT, uint8(USER_IN));
+	Packet result(WIZ_USER_INOUT);
 	C3DMap* pMap = GetMap();
 
 	if (pMap == NULL)
 		return;
 
-	result << uint16(GetSocketID());
+	result << USER_IN << uint8(0) << uint16(GetSocketID());
 
 	GetUserInfo(result);
 
@@ -1003,13 +1005,13 @@ void CUser::RequestUserIn(char *pBuf)
 		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART)
 			continue;
 
-		result << uint16(pUser->GetSocketID());
+		result << uint8(0) << uint16(pUser->GetSocketID());
 		GetUserInfo(result);
 		count++;
 	}
 
 	result.put(0, count); // substitute count in
-	SendCompressingPacket(&result);
+	Send(&result);
 }
 
 void CUser::RequestNpcIn(char *pBuf)
@@ -1040,7 +1042,7 @@ void CUser::RequestNpcIn(char *pBuf)
 	SetByte( buff, WIZ_REQ_NPCIN, temp_index );
 	SetShort( buff, t_count, temp_index );
 
-	SendCompressingPacket( buff, buff_index );
+	Send( buff, buff_index );
 }
 
 void CUser::SetSlotItemValue()
@@ -3419,7 +3421,8 @@ void CUser::GoldChange(short tid, int gold)
 
 void CUser::SelectWarpList(char *pBuf)
 {
-	int index = 0, warpid = 0;
+	int index = 0, warpid = 0, npcid = 0;
+	npcid = GetShort(pBuf, index);
 	warpid = GetShort(pBuf, index);
 
 	_WARP_INFO *pWarp = GetMap()->m_WarpArray.GetData(warpid);
@@ -3485,7 +3488,7 @@ BOOL CUser::GetWarpList(int warp_group)
 		_WARP_INFO *pWarp = itr->second;
 		if (pWarp == NULL || (pWarp->sWarpID / 10) != warp_group)
 			continue;
-		
+
 		warpList.insert(pWarp);
 	}
 
@@ -3609,9 +3612,8 @@ void CUser::ObjectEvent(char *pBuf)
 	int index = 0, objectindex = 0, nid = 0;
 	BOOL bSuccess = FALSE;
 
-	if (m_pMain->m_bPointCheckFlag == FALSE)
-		return;
-
+	//if (m_pMain->m_bPointCheckFlag == FALSE)
+	//	return;
 	objectindex = GetShort(pBuf, index);
 	nid = GetShort(pBuf, index);
 	
@@ -3921,4 +3923,11 @@ void CUser::RecvEditBox(char *pBuf)
 fail_return:
 	m_iEditBoxEvent = -1;
 	memset(m_strCouponId, NULL, MAX_COUPON_ID_LENGTH);
+}
+
+void CUser::FinalizeZoneChange()
+{
+	Packet result(WIZ_ZONE_CHANGE);
+	result << uint8(2);
+	Send(&result);
 }

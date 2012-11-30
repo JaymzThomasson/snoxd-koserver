@@ -198,24 +198,23 @@ close_routine:
 
 void CIOCPSocket2::ReceivedData(int length)
 {
-	if(!length) return;
+	if (length <= 0 || length >= MAX_PACKET_SIZE) return;
 
 	int len = 0;
+	char *pData;
 
-	if( !strlen(m_pRecvBuff) )		// 패킷길이는 존재하나 실 데이터가 없는 경우가 발생...
-		return;
-	m_pBuffer->PutData(m_pRecvBuff, length);		// 받은 Data를 버퍼에 넣는다
+	// read received bytes into our circular buffer
+	m_pBuffer->PutData(m_pRecvBuff, length); 
 
-	char *pData = NULL;
-	char *pDecData = NULL;
-
+	// go over our circular buffer to try and find any KO packets, so we can parse them
 	while (PullOutCore(pData, len))
 	{
-		if(pData)
+		if (pData)
 		{
-			Parsing(len, pData);//		실제 파싱 함수...
+			// found a packet - it's parse time!
+			Parsing(len, pData);
 
-			delete[] pData;
+			delete [] pData;
 			pData = NULL;
 		}
 	}

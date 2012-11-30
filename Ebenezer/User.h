@@ -431,6 +431,7 @@ public:
 	void SkillDataSave(char *pData);
 	void SkillDataLoad(char *pData);
 	void RecvSkillDataLoad(char *pData);
+	void FinalizeZoneChange();
 
 	// from the client
 	void ShoppingMall(char *pData);

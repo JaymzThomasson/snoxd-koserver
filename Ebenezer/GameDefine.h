@@ -484,13 +484,16 @@ struct _WARP_INFO
 	char	strAnnounce[256];
 	DWORD	dwPay;
 	short	sZone;
+	short sXNan;
 	float	fX;
 	float	fY;
 	float	fZ;
 	float	fR;
+	short sNation;
+	short sX;
 
 	_WARP_INFO() {
-		sWarpID = 0; sZone = 0;
+		sWarpID = 0; sZone = 0, sNation = 0, sX = 0, sXNan = 0;
 		fX = fZ = fY = fR = 0.0f;
 		memset( strWarpName, 0x00, 32 ); memset( strAnnounce, 0x00, 256 );
 	};
