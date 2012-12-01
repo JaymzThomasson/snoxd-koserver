@@ -295,7 +295,7 @@ void CGameSocket::RecvUserInOut(char* pBuf)
 
 	bType = GetByte( pBuf, index );
 	uid = GetShort( pBuf, index );
-	length = GetByte( pBuf, index );
+	len = GetByte( pBuf, index );
 	GetString(strName, pBuf, len, index );
 	fX = Getfloat(pBuf, index);
 	fZ = Getfloat(pBuf, index);
