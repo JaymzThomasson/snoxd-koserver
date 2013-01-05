@@ -321,6 +321,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 
 		pUser->m_sItemArray[i].nNum = nItemID;
 		pUser->m_sItemArray[i].sDuration = sDurability;
+		pUser->m_sItemArray[i].sCount = sCount;
 		pUser->m_sItemArray[i].nSerialNum = nSerialNum;
 	}
 
@@ -558,7 +559,7 @@ void CDBAgent::SaveSkillShortcut(short uid, short sCount, char *buff)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_id, strlen(pUser->m_id));
 	dbCommand->AddParameter(SQL_PARAM_INPUT, buff, 260);
 
-	if (!dbCommand->Prepare(string_format(_T("{CALL SKILL_SHORTCUT_SAVE(?, %d, ?)}"), sCount)))
+	if (!dbCommand->Prepare(string_format(_T("{CALL SKILLSHORTCUT_SAVE(?, %d, ?)}"), sCount)))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	delete dbCommand;
@@ -657,7 +658,7 @@ bool CDBAgent::UpdateUser(string & strCharID, short uid, UserUpdateType type)
 
 	// This *should* be padded like the database field is (unnecessarily), but I want to see how MSSQL repsponds
 	ByteBuffer itemBuffer, serialBuffer;
-	for (int i = 0; i < HAVE_MAX+SLOT_MAX; i++)
+	for (int i = 0; i < HAVE_MAX+SLOT_MAX+COSP_MAX+MBAG_MAX; i++)
 	{
 		_ITEM_DATA *pItem = &pUser->m_sItemArray[i];
 		itemBuffer << pItem->nNum << pItem->sDuration << pItem->sCount;

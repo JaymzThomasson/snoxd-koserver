@@ -38,6 +38,9 @@ public:
 	bool	m_bSelectedCharacter;
 	bool	m_bStoreOpen;
 
+	bool	m_bIsMerchanting; //Is the character merchanting already?
+	_MERCH_DATA	m_arSellingItems[MAX_MERCH_ITEMS]; //What is this person selling? Stored in "_MERCH_DATA" structure.
+
 	short	m_RegionX;						// 현재 영역 X 좌표
 	short	m_RegionZ;						// 현재 영역 Z 좌표
 
@@ -334,6 +337,9 @@ public:
 
 	// Merchant system (both types)
 	void MerchantProcess(char *pBuf);
+	void ClearSellingItems(int nSellinItems);
+	void TakeMerchantItems();
+	void GiveMerchantItems();
 
 	// regular merchants
 	void MerchantOpen(char *pBuf);
@@ -425,6 +431,7 @@ public:
 	void SkillDataSave(char *pData);
 	void SkillDataLoad(char *pData);
 	void RecvSkillDataLoad(char *pData);
+	void FinalizeZoneChange();
 
 	// from the client
 	void ShoppingMall(char *pData);

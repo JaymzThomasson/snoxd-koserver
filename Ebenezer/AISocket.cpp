@@ -888,9 +888,9 @@ void CAISocket::RecvNpcGiveItem(char* pBuf)
 {
 	Packet result(WIZ_ITEM_DROP);
 	int index = 0;
-	short sUid, sNid, sZone, regionx, regionz;
+	short sUid, sNid, regionx, regionz;
 	float fX, fZ, fY;
-	BYTE byCount;
+	BYTE byCount, bZone;
 	int nItemNumber[NPC_HAVE_ITEM_LIST];
 	short sCount[NPC_HAVE_ITEM_LIST];
 	_ZONE_ITEM* pItem = NULL;
@@ -899,7 +899,7 @@ void CAISocket::RecvNpcGiveItem(char* pBuf)
 
 	sUid = GetShort(pBuf,index);	// Item을 가져갈 사람의 아이디... (이것을 참조해서 작업하셈~)
 	sNid = GetShort(pBuf,index);
-	sZone = GetShort(pBuf, index);
+	bZone = GetByte(pBuf, index);
 	regionx = GetShort( pBuf, index );
 	regionz = GetShort( pBuf, index );
 	fX = Getfloat(pBuf,index);
@@ -913,7 +913,7 @@ void CAISocket::RecvNpcGiveItem(char* pBuf)
 	}
 
 	if( sUid < 0 || sUid >= MAX_USER ) return;
-	pMap = m_pMain->GetZoneByID(sZone);
+	pMap = m_pMain->GetZoneByID(bZone);
 	if (pMap == NULL)
 		return;
 

@@ -298,12 +298,7 @@ void MAP::RegionNpcAdd(int rx, int rz, int nid)
 
 	pInt = new int;
 	*pInt = nid;
-	if( !m_ppRegion[rx][rz].m_RegionNpcArray.PutData( nid, pInt ) )	{
-		TRACE("### Map - RegionNpcAdd Fail : x=%d,z=%d, nid=%d ###\n", rx,rz,nid);
-	}
-
-	int nSize = m_ppRegion[rx][rz].m_RegionNpcArray.GetSize();
-	//TRACE("+++ Map - RegionNpcAdd : x=%d,z=%d, nid=%d, total=%d \n", rx,rz,nid, nSize);
+	m_ppRegion[rx][rz].m_RegionNpcArray.PutData( nid, pInt );
 
 	LeaveCriticalSection( &g_region_critical );
 }

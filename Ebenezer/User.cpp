@@ -45,6 +45,7 @@ void CUser::Initialize()
 
 	m_bSelectedCharacter = false;
 	m_bStoreOpen = false;
+	m_bIsMerchanting = false;
 
 	m_MagicProcess.m_pMain = m_pMain;
 	m_MagicProcess.m_pSrcUser = this;
@@ -309,6 +310,7 @@ void CUser::Parsing(int len, char *pData)
 		break;
 	case WIZ_REQ_USERIN:
 		RequestUserIn( pData+index );
+		//Request merchant characters too.
 		break;
 	case WIZ_REQ_NPCIN:
 		RequestNpcIn( pData+index );
@@ -345,6 +347,7 @@ void CUser::Parsing(int len, char *pData)
 		UserInOut( USER_REGENE );
 		m_pMain->RegionUserInOutForMe(this);
 		m_pMain->RegionNpcInfoForMe(this);
+		m_pMain->MerchantUserInOutForMe(this);
 		m_bWarp = 0x00;
 		break;
 	case WIZ_POINT_CHANGE:
@@ -646,7 +649,7 @@ void CUser::SendMyInfo()
 	result.SByte(); // character name has a single byte length
 	result	<< uint16(GetSocketID())
 			<< m_pUserData->m_id
-			<< GetSPosX() << GetSPosY() << GetSPosZ()
+			<< GetSPosX() << GetSPosZ() << GetSPosY()
 			<< getNation() 
 			<< m_pUserData->m_bRace << m_pUserData->m_sClass << m_pUserData->m_bFace
 			<< uint32(m_pUserData->m_nHair)
@@ -668,7 +671,8 @@ void CUser::SendMyInfo()
 	}
 	else 
 	{
-		result	<< uint8(0) // grade type
+		result	<< uint8(pKnights->m_byRanking) // Knights Ranking
+				<< uint8(12) // Kind of grade - 1 Normal Clan // 2 Trainin Clan // 3 -7 Acreditation // Royal 8-12
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
 				<< uint16(0) // symbol/mark version
@@ -931,6 +935,7 @@ void CUser::RemoveRegion(int del_x, int del_z)
 
 	SetByte( buff, WIZ_USER_INOUT, send_index );
 	SetByte( buff, USER_OUT, send_index );
+	SetByte( buff, 0x00, send_index );
 	SetShort( buff, GetSocketID(), send_index );
 
 	if( del_x != 0 ) {
@@ -1001,13 +1006,13 @@ void CUser::RequestUserIn(char *pBuf)
 		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART)
 			continue;
 
-		result << uint16(pUser->GetSocketID());
+		result << uint8(0) << uint16(pUser->GetSocketID());
 		GetUserInfo(result);
 		count++;
 	}
 
 	result.put(0, count); // substitute count in
-	SendCompressingPacket(&result);
+	Send(&result); // NOTE: Compress
 }
 
 void CUser::RequestNpcIn(char *pBuf)
@@ -1038,7 +1043,7 @@ void CUser::RequestNpcIn(char *pBuf)
 	SetByte( buff, WIZ_REQ_NPCIN, temp_index );
 	SetShort( buff, t_count, temp_index );
 
-	SendCompressingPacket( buff, buff_index );
+	Send( buff, buff_index ); // NOTE: Compress
 }
 
 void CUser::SetSlotItemValue()
@@ -1254,7 +1259,7 @@ void CUser::ExpChange(__int64 iExp)
 
 	// Tell the client our new XP
 	Packet result(WIZ_EXP_CHANGE);
-	result << m_pUserData->m_iExp;
+	result << uint8(0) << m_pUserData->m_iExp; // NOTE: Use proper flag
 	Send(&result);
 
 	// If we've lost XP, save it for possible refund later.
@@ -1425,7 +1430,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 	Packet result(initialInfo ? AG_USER_INFO : AG_USER_UPDATE);
 
 	result	<< uint16(GetSocketID())
-			<< m_pUserData->m_id 
+			<< m_pUserData->m_id
 			<< getZoneID() << getNation() << getLevel()
 			<< m_pUserData->m_sHp << m_pUserData->m_sMp
 			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
@@ -1705,6 +1710,7 @@ void CUser::ItemGet(char *pBuf)
 				m_pUserData->m_iGold += count;
 				SetByte( send_buff, WIZ_ITEM_GET, send_index );
 				SetByte( send_buff, 0x01, send_index );
+				SetDWORD( send_buff, bundle_index, send_index );
 				SetByte( send_buff, pos, send_index );
 				SetDWORD( send_buff, itemid, send_index );
 				SetShort( send_buff, count, send_index );
@@ -1733,6 +1739,7 @@ void CUser::ItemGet(char *pBuf)
 						send_index = 0; 
 						SetByte( send_buff, WIZ_ITEM_GET, send_index );
 						SetByte( send_buff, 0x02, send_index );
+						SetDWORD( send_buff, bundle_index, send_index );
 						SetByte( send_buff, 0xff, send_index );			// gold -> pos : 0xff
 						SetDWORD( send_buff, itemid, send_index );
 						SetDWORD( send_buff, pUser->m_pUserData->m_iGold, send_index );
@@ -1759,6 +1766,7 @@ void CUser::ItemGet(char *pBuf)
 		send_index = 0;
 		SetByte( send_buff, WIZ_ITEM_GET, send_index );
 		SetByte( send_buff, 0x03, send_index );
+		SetDWORD( send_buff, bundle_index, send_index );
 		SetDWORD( send_buff, itemid, send_index );
 		SetKOString(send_buff, pGetUser->m_pUserData->m_id, send_index);
 		m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );
@@ -1913,7 +1921,7 @@ void CUser::SpeedHackUser()
 
 void CUser::UserLookChange(int pos, int itemid, int durability)
 {
-	if (pos >= SLOT_MAX)
+	if (pos >= SLOT_MAX) // let's leave it at this for the moment, the updated check needs considerable reworking
 		return;
 
 	Packet result(WIZ_USERLOOK_CHANGE);
@@ -2875,6 +2883,7 @@ void CUser::OperatorCommand(char *pBuf)
 
 void CUser::SpeedHackTime(char* pBuf)
 {
+#if 0 // temporarily disabled
 	BYTE b_first = 0x00;
 	int index = 0;
 	float servertime = 0.0f, clienttime = 0.0f, client_gap = 0.0f, server_gap = 0.0f;
@@ -2904,6 +2913,7 @@ void CUser::SpeedHackTime(char* pBuf)
 			m_fSpeedHackServerTime = TimeGet();
 		}
 	}
+#endif
 }
 
 void CUser::Type3AreaDuration(float currenttime)
@@ -3414,7 +3424,8 @@ void CUser::GoldChange(short tid, int gold)
 
 void CUser::SelectWarpList(char *pBuf)
 {
-	int index = 0, warpid = 0;
+	int index = 0, warpid = 0, npcid = 0;
+	npcid = GetShort(pBuf, index);
 	warpid = GetShort(pBuf, index);
 
 	_WARP_INFO *pWarp = GetMap()->m_WarpArray.GetData(warpid);
@@ -3916,4 +3927,11 @@ void CUser::RecvEditBox(char *pBuf)
 fail_return:
 	m_iEditBoxEvent = -1;
 	memset(m_strCouponId, NULL, MAX_COUPON_ID_LENGTH);
+}
+
+void CUser::FinalizeZoneChange()
+{
+	Packet result(WIZ_ZONE_CHANGE);
+	result << uint8(2);
+	Send(&result);
 }

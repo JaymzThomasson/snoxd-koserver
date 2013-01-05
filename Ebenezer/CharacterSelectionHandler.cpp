@@ -339,6 +339,7 @@ void CUser::GameStart(char *pBuf)
 	{
 		SendMyInfo();
 		m_pMain->UserInOutForMe(this);
+		m_pMain->MerchantUserInOutForMe(this);
 		m_pMain->NpcInOutForMe(this);
 		SendNotice();
 		SendTimeStatus();

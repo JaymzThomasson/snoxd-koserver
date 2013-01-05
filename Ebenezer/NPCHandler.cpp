@@ -653,10 +653,11 @@ void CUser::NpcEvent(char *pBuf)
 {
 	if( m_pMain->m_bPointCheckFlag == FALSE)	return;	
 
-	int index = 0, send_index = 0, nid = 0, i=0, temp_index = 0;
+	int index = 0, send_index = 0, nid = 0, i=0, temp_index = 0, unknown = 0;
 	char send_buf[2048];
 	CNpc* pNpc = NULL;
 
+	unknown = GetByte( pBuf, index );
 	nid = GetShort( pBuf, index );
 	pNpc = m_pMain->m_arNpcArray.GetData(nid);
 	if( !pNpc ) return;
@@ -671,6 +672,19 @@ void CUser::NpcEvent(char *pBuf)
 		SetByte( send_buf, WIZ_REPAIR_NPC, send_index );
 		SetDWORD( send_buf, pNpc->m_iSellingGroup, send_index );
 		Send( send_buf, send_index );
+		break;
+	/*case NPC_MENU:
+		SetByte( send_buf, WIZ_QUEST, send_index );
+		SetByte( send_buf, 0x07, send_index ); 
+		SetShort( send_buf, SendNPCMenu(pNpc->m_sSid), send_index );
+		SetShort( send_buf, 0x00, send_index );
+		SetShort( send_buf, pNpc->m_sSid, send_index );
+		Send( send_buf, send_index );
+		break; */
+	case NPC_SABICE:
+		SetByte(send_buf,WIZ_KNIGHTS_PROCESS,send_index);
+		SetByte(send_buf,KNIGHTS_CAPE_NPC,send_index);
+		Send(send_buf,send_index);
 		break;
 	case NPC_CAPTAIN:
 		SetByte( send_buf, WIZ_CLASS_CHANGE, send_index );
@@ -704,7 +718,7 @@ void CUser::NpcEvent(char *pBuf)
 void CUser::ItemTrade(char *pBuf)
 {
 	int index = 0, send_index = 0, itemid = 0, money = 0, group = 0, npcid = 0;
-	unsigned int count = 0;
+	unsigned int count = 0, real_count = 0;
 	_ITEM_TABLE* pTable = NULL;
 	char send_buf[128];
 	CNpc* pNpc = NULL;
@@ -718,7 +732,7 @@ void CUser::ItemTrade(char *pBuf)
 	}
 
 	type = GetByte( pBuf, index );
-	if( type == 0x01 ) {// item buy
+	if( type == 0x01 || type == 0x02) {// item buy 1, item sell 2
 		group = GetDWORD( pBuf, index );
 		npcid = GetShort( pBuf, index );
 	}
@@ -769,7 +783,7 @@ void CUser::ItemTrade(char *pBuf)
 		goto fail_return;
 	}
 
-	if( count <= 0 || count > MAX_ITEM_COUNT) {
+	if( count <= 0 || count > MAX_ITEM_COUNT ) {
 		result = 0x02;
 		goto fail_return;
 	}
@@ -872,8 +886,12 @@ void CUser::ItemTrade(char *pBuf)
 	}
 
 	SetByte( send_buf, WIZ_ITEM_TRADE, send_index );
-	SetByte( send_buf, 0x01, send_index );
+	SetShort( send_buf, 0x01, send_index );
 	SetDWORD( send_buf, m_pUserData->m_iGold, send_index );
+	if( type == 0x01)
+		SetDWORD( send_buf, (pTable->m_iBuyPrice * count), send_index );
+	if( type == 0x02)
+		SetDWORD( send_buf, (pTable->m_iSellPrice * count), send_index );
 	Send( send_buf, send_index );
 	return;
 

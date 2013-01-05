@@ -10,12 +10,11 @@ void CUser::MoveProcess(char *pBuf )
 	ASSERT(GetMap() != NULL);
 	if( m_bWarp ) return;
 		
-	int index = 0, send_index = 0, region = 0;
+	int index = 0, region = 0;
 	WORD will_x, will_z;
 	short will_y, speed=0;
 	float real_x, real_z, real_y;
 	BYTE echo;
-	char send_buff[32];
 
 	will_x = GetShort( pBuf, index );
 	will_z = GetShort( pBuf, index );
@@ -47,28 +46,19 @@ void CUser::MoveProcess(char *pBuf )
 		m_pUserData->m_cury = m_fWill_y = will_y/10.0f;
 	}
 
-	SetByte( send_buff, WIZ_MOVE, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, will_x, send_index );
-	SetShort( send_buff, will_z, send_index );
-	SetShort( send_buff, will_y, send_index );
-	SetShort( send_buff, speed, send_index );
-	SetByte( send_buff, echo, send_index );
+	Packet result(WIZ_MOVE);
+	result << uint16(m_Sid)
+		<< will_x << will_z << will_y << speed
+		<< echo;
 
 	RegisterRegion();
-	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
+	m_pMain->Send_Region( &result, GetMap(), m_RegionX, m_RegionZ, NULL, true ); //last argument should be false but until region packets are fixed keep this true.
 
 	GetMap()->CheckEvent( real_x, real_z, this );
 
-	send_index = 0;
-	SetByte( send_buff, AG_USER_MOVE, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	Setfloat( send_buff, m_fWill_x, send_index );
-	Setfloat( send_buff, m_fWill_z, send_index );
-	Setfloat( send_buff, m_fWill_y, send_index );
-	SetShort( send_buff, speed, send_index );
-	
-	m_pMain->Send_AIServer(send_buff, send_index);
+	result.Initialize(AG_USER_MOVE);
+	result << uint16(m_Sid) << m_fWill_x << m_fWill_z << m_fWill_y << speed;
+	m_pMain->Send_AIServer(&result);
 }
 
 void CUser::UserInOut(BYTE Type)
@@ -105,7 +95,7 @@ void CUser::GetUserInfo(char *buff, int & buff_index)
 	SetByte(buff, m_pUserData->m_bNation, buff_index);
 	SetByte(buff, m_pUserData->m_bCity, buff_index); // probably isn't this, but it'll at least serve as filler if it's not
 	SetShort(buff, m_pUserData->m_bKnights, buff_index);
-	SetByte(buff, m_pUserData->m_bFame, buff_index);
+	SetShort(buff, m_pUserData->m_bFame, buff_index);
 
 	pKnights = m_pMain->m_KnightsArray.GetData(m_pUserData->m_bKnights);
 	if (pKnights == NULL || m_pUserData->m_bKnights <= 0)
@@ -113,14 +103,34 @@ void CUser::GetUserInfo(char *buff, int & buff_index)
 		SetShort(buff, 0, buff_index );
 		SetByte(buff, 0, buff_index );
 		SetByte(buff, 0, buff_index );
+		SetByte( buff, 0x00, buff_index );
+		SetByte( buff, 0x00, buff_index );
+
+		SetByte( buff, -1, buff_index );
+		SetByte( buff, -1, buff_index );
+
+		SetByte( buff, 0x00, buff_index );
+		SetByte( buff, 0x00, buff_index );
+		SetByte( buff, 0x00, buff_index );
 	}
 	else 
 	{
+		SetByte( buff, 0, buff_index ); // Knights Type
 		SetKOString(buff, pKnights->m_strName, buff_index);
 		SetByte(buff, pKnights->m_byGrade, buff_index);  // knights grade
-		SetByte(buff, pKnights->m_byRanking, buff_index);  // knights grade
+		SetByte(buff, pKnights->m_byRanking, buff_index);  // knights ranking
+
+		SetByte( buff, 0x00, buff_index ); //knights symbol/mark version
+		SetByte( buff, 0x00, buff_index ); 
+
+		SetShort( buff, -1, buff_index ); // cape id
+		SetByte( buff, 0x00, buff_index ); // R
+		SetByte( buff, 0x00, buff_index ); // G
+		SetByte( buff, 0x00, buff_index ); // B
 	}	
 
+	SetByte( buff, m_pUserData->m_bRank, buff_index );
+	SetByte( buff, m_pUserData->m_bTitle, buff_index );
 	SetByte(buff, m_pUserData->m_bLevel, buff_index);
 	SetByte(buff, m_pUserData->m_bRace, buff_index);
 	SetShort(buff, m_pUserData->m_sClass, buff_index);
@@ -137,22 +147,63 @@ void CUser::GetUserInfo(char *buff, int & buff_index)
 	SetByte(buff, m_bNeedParty, buff_index);
 	SetByte(buff, m_pUserData->m_bAuthority, buff_index);
 
+	SetByte( buff, 0x00, buff_index );
+	SetByte( buff, 0x00, buff_index );
+	SetByte( buff, 0x00, buff_index );
+	SetByte( buff, 0x00, buff_index );
+	SetByte( buff, 0xF6, buff_index );
+	SetByte( buff, 0x00, buff_index );
+	SetByte( buff, 0x00, buff_index );
+	SetByte( buff, 0x00, buff_index );
+
+	SetByte( buff, -1, buff_index );
+	SetByte( buff, -1, buff_index );
+
 	SetDWORD(buff, m_pUserData->m_sItemArray[BREAST].nNum, buff_index);
 	SetShort(buff, m_pUserData->m_sItemArray[BREAST].sDuration, buff_index);
+	SetByte( buff, 0x00, buff_index );
 	SetDWORD(buff, m_pUserData->m_sItemArray[LEG].nNum, buff_index);
 	SetShort(buff, m_pUserData->m_sItemArray[LEG].sDuration, buff_index);
+	SetByte( buff, 0x00, buff_index );
 	SetDWORD(buff, m_pUserData->m_sItemArray[HEAD].nNum, buff_index);
 	SetShort(buff, m_pUserData->m_sItemArray[HEAD].sDuration, buff_index);
+	SetByte( buff, 0x00, buff_index );
 	SetDWORD(buff, m_pUserData->m_sItemArray[GLOVE].nNum, buff_index);
 	SetShort(buff, m_pUserData->m_sItemArray[GLOVE].sDuration, buff_index);
+	SetByte( buff, 0x00, buff_index );
 	SetDWORD(buff, m_pUserData->m_sItemArray[FOOT].nNum, buff_index);
 	SetShort(buff, m_pUserData->m_sItemArray[FOOT].sDuration, buff_index);
+	SetByte( buff, 0x00, buff_index );
 	SetDWORD(buff, m_pUserData->m_sItemArray[SHOULDER].nNum, buff_index);
 	SetShort(buff, m_pUserData->m_sItemArray[SHOULDER].sDuration, buff_index);
+	SetByte( buff, 0x00, buff_index );
 	SetDWORD(buff, m_pUserData->m_sItemArray[RIGHTHAND].nNum, buff_index);
 	SetShort(buff, m_pUserData->m_sItemArray[RIGHTHAND].sDuration, buff_index);
+	SetByte( buff, 0x00, buff_index );
 	SetDWORD(buff, m_pUserData->m_sItemArray[LEFTHAND].nNum, buff_index);
 	SetShort(buff, m_pUserData->m_sItemArray[LEFTHAND].sDuration, buff_index);
+	SetByte( buff, 0x00, buff_index );
+	SetDWORD( buff, m_pUserData->m_sItemArray[CWING].nNum, buff_index );
+	SetShort( buff, m_pUserData->m_sItemArray[CWING].sDuration, buff_index );
+	SetByte( buff, 0x00, buff_index );
+	SetDWORD( buff, m_pUserData->m_sItemArray[CTOP].nNum, buff_index );
+	SetShort( buff, m_pUserData->m_sItemArray[CTOP].sDuration, buff_index );
+	SetByte( buff, 0x00, buff_index );
+	SetDWORD( buff, m_pUserData->m_sItemArray[CHELMET].nNum, buff_index );
+	SetShort( buff, m_pUserData->m_sItemArray[CHELMET].sDuration, buff_index );
+	SetByte( buff, 0x00, buff_index );
+	SetDWORD( buff, m_pUserData->m_sItemArray[CRIGHT].nNum, buff_index );
+	SetShort( buff, m_pUserData->m_sItemArray[CRIGHT].sDuration, buff_index );
+	SetByte( buff, 0x00, buff_index );
+	SetDWORD( buff, m_pUserData->m_sItemArray[CLEFT].nNum, buff_index );
+	SetShort( buff, m_pUserData->m_sItemArray[CLEFT].sDuration, buff_index );
+	SetByte( buff, 0x00, buff_index );
+
+	SetByte( buff, m_pUserData->m_bZone, buff_index );
+	SetShort( buff, -1, buff_index );
+	SetDWORD( buff, 0, buff_index );
+	SetByte( buff, 0, buff_index );
+	SetByte( buff, 1, buff_index );
 }
 
 // TO-DO: Update this. It's VERY dated.
@@ -160,10 +211,8 @@ void CUser::GetUserInfo(Packet & pkt)
 {
 	CKnights *pKnights = NULL;
 	pkt.SByte();
-	pkt		<< uint8(1) // unknown, but was always 1 in my samples
-			<< m_pUserData->m_id
-			<< getNation()
-			<< m_pUserData->m_bKnights << m_pUserData->m_bFame;
+	pkt		<< m_pUserData->m_id
+			<< uint16(getNation()) << m_pUserData->m_bKnights << uint16(m_pUserData->m_bFame);
 
 	if (isInClan())
 		pKnights = m_pMain->m_KnightsArray.GetData(m_pUserData->m_bKnights);
@@ -191,12 +240,20 @@ void CUser::GetUserInfo(Packet & pkt)
 		<< m_pUserData->m_bAuthority
 		<< m_pUserData->m_sItemArray[BREAST].nNum << m_pUserData->m_sItemArray[BREAST].sDuration
 		<< m_pUserData->m_sItemArray[LEG].nNum << m_pUserData->m_sItemArray[LEG].sDuration
-		<< m_pUserData->m_sItemArray[HEAD].nNum << m_pUserData->m_sItemArray[HEAD].sDuration
-		<< m_pUserData->m_sItemArray[GLOVE].nNum << m_pUserData->m_sItemArray[GLOVE].sDuration
-		<< m_pUserData->m_sItemArray[FOOT].nNum << m_pUserData->m_sItemArray[FOOT].sDuration
-		<< m_pUserData->m_sItemArray[SHOULDER].nNum << m_pUserData->m_sItemArray[SHOULDER].sDuration
-		<< m_pUserData->m_sItemArray[RIGHTHAND].nNum << m_pUserData->m_sItemArray[RIGHTHAND].sDuration
-		<< m_pUserData->m_sItemArray[LEFTHAND].nNum << m_pUserData->m_sItemArray[LEFTHAND].sDuration;
+		<< m_pUserData->m_sItemArray[BREAST].nNum << m_pUserData->m_sItemArray[BREAST].sDuration << uint8(0)
+		<< m_pUserData->m_sItemArray[LEG].nNum << m_pUserData->m_sItemArray[LEG].sDuration << uint8(0)
+		<< m_pUserData->m_sItemArray[HEAD].nNum << m_pUserData->m_sItemArray[HEAD].sDuration << uint8(0)
+		<< m_pUserData->m_sItemArray[GLOVE].nNum << m_pUserData->m_sItemArray[GLOVE].sDuration << uint8(0)
+		<< m_pUserData->m_sItemArray[FOOT].nNum << m_pUserData->m_sItemArray[FOOT].sDuration << uint8(0)
+		<< m_pUserData->m_sItemArray[SHOULDER].nNum << m_pUserData->m_sItemArray[SHOULDER].sDuration << uint8(0)
+		<< m_pUserData->m_sItemArray[RIGHTHAND].nNum << m_pUserData->m_sItemArray[RIGHTHAND].sDuration << uint8(0)
+		<< m_pUserData->m_sItemArray[LEFTHAND].nNum << m_pUserData->m_sItemArray[LEFTHAND].sDuration << uint8(0)
+		<< m_pUserData->m_sItemArray[CWING].nNum << m_pUserData->m_sItemArray[CWING].sDuration << uint8(0)
+		<< m_pUserData->m_sItemArray[CTOP].nNum << m_pUserData->m_sItemArray[CTOP].sDuration << uint8(0)
+		<< m_pUserData->m_sItemArray[CHELMET].nNum << m_pUserData->m_sItemArray[CHELMET].sDuration << uint8(0)
+		<< m_pUserData->m_sItemArray[CRIGHT].nNum << m_pUserData->m_sItemArray[CRIGHT].sDuration << uint8(0)
+		<< m_pUserData->m_sItemArray[CLEFT].nNum << m_pUserData->m_sItemArray[CLEFT].sDuration << uint8(0)
+		<< getZoneID() << uint8(-1) << uint8(-1) << uint16(0) << uint16(0) << uint16(0);
 }
 
 void CUser::Rotate( char* pBuf )
@@ -323,6 +380,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 	m_RegionZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
 
 	SetByte( send_buff, WIZ_ZONE_CHANGE, send_index );
+	SetByte( send_buff, 0x03, send_index );
 	SetByte( send_buff, m_pUserData->m_bZone, send_index );
 	SetShort( send_buff, (WORD)m_pUserData->m_curx*10, send_index );
 	SetShort( send_buff, (WORD)m_pUserData->m_curz*10, send_index );
@@ -392,6 +450,7 @@ void CUser::Warp(char *pBuf)
 	UserInOut(USER_WARP);
 	m_pMain->UserInOutForMe(this);
 	m_pMain->NpcInOutForMe(this);
+	m_pMain->MerchantUserInOutForMe(this);
 
 	ResetWindows();
 }

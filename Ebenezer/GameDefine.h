@@ -47,12 +47,17 @@
 #define	FAIL					0X04		// ���� 
 
 // Item Move Direction Define 
-#define ITEM_INVEN_SLOT			0x01
-#define ITEM_SLOT_INVEN			0x02
-#define ITEM_INVEN_INVEN		0x03
-#define ITEM_SLOT_SLOT			0x04
-#define ITEM_INVEN_ZONE			0x05
-#define ITEM_ZONE_INVEN			0x06
+#define ITEM_INVEN_SLOT				0x01
+#define ITEM_SLOT_INVEN				0x02
+#define ITEM_INVEN_INVEN			0x03
+#define ITEM_SLOT_SLOT				0x04
+#define ITEM_INVEN_ZONE				0x05
+#define ITEM_ZONE_INVEN				0x06
+#define	ITEM_INVEN_TO_COSP			0x07 //Inventory -> Cospre bag
+#define	ITEM_COSP_TO_INVEN			0x08 //Cospre bag -> Inventory
+#define	ITEM_INVEN_TO_MBAG			0x09 //Inventory -> Magic bag
+#define	ITEM_MBAG_TO_INVEN			0x0A //Magic bag -> Magic bag
+#define	ITEM_MBAG_TO_MBAG			0x0B //Magic bag -> Magic bag
 
 // Item Weapon Type Define
 #define WEAPON_DAGGER			1
@@ -479,13 +484,16 @@ struct _WARP_INFO
 	char	strAnnounce[256];
 	DWORD	dwPay;
 	short	sZone;
+	short sXNan;
 	float	fX;
 	float	fY;
 	float	fZ;
 	float	fR;
+	short sNation;
+	short sX;
 
 	_WARP_INFO() {
-		sWarpID = 0; sZone = 0;
+		sWarpID = 0; sZone = 0, sNation = 0, sX = 0, sXNan = 0;
 		fX = fZ = fY = fR = 0.0f;
 		memset( strWarpName, 0x00, 32 ); memset( strAnnounce, 0x00, 256 );
 	};
