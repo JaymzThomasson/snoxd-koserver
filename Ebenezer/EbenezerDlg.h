@@ -97,16 +97,30 @@ public:
 	void Send_KnightsMember( int index, char* pBuf, int len, int zone=100 );
 	int GetAIServerPort();
 	BOOL AISocketConnect( int zone, int flag = 0 );
-	int GetRegionNpcIn( C3DMap* pMap, int region_x, int region_z, char* buff, int & t_count );
 	BOOL LoadNoticeData();
 	BOOL LoadBlockNameList();
-	int GetRegionNpcList( C3DMap* pMap, int region_x, int region_z, char* nid_buff, int& t_count ); // Region All Npcs nid Packaging Function
-	void RegionNpcInfoForMe( CUser* pSendUser );	// 9 Regions All Npcs nid Packaging Function
-	int GetRegionUserList( C3DMap* pMap, int region_x, int region_z, char* buff, int &t_count ); // Region All Users uid Packaging Function
-	int GetRegionUserIn( C3DMap* pMap, int region_x, int region_z, char* buff, int &t_count );	// Region All Users USERINOUT Packet Packaging Function
-	void GetRegionUserIn( C3DMap* pMap, int region_x, int region_z, Packet *pkt, int &t_count );
-	void RegionUserInOutForMe( CUser* pSendUser );	// 9 Regions All Users uid Packaging Function
-	int GetRegionMerchantUserIn( C3DMap* pMap, int region_x, int region_z, char* buff, int &t_count );	// Region All Users USERINOUT Packet Packaging Function
+
+	// Get info for NPCs in region
+	int GetRegionNpcIn(C3DMap* pMap, int region_x, int region_z, char* buff, int & t_count);
+
+	// Get list of NPC IDs in region
+	int GetRegionNpcList(C3DMap* pMap, int region_x, int region_z, char* nid_buff, int & t_count);
+
+	// Get list of NPCs for regions around user
+	void RegionNpcInfoForMe(CUser* pSendUser);	
+
+	// Get info for users in region
+	void GetRegionUserIn(C3DMap* pMap, int region_x, int region_z, Packet *pkt, int & t_count );
+
+	// Get list of user IDs in region
+	int GetRegionUserList(C3DMap* pMap, int region_x, int region_z, Packet *pkt, int & t_count);
+
+	// Get list of users for regions around user
+	void RegionUserInOutForMe(CUser* pSendUser);
+
+	// Get list of merchants in region
+	int GetRegionMerchantUserIn(C3DMap* pMap, int region_x, int region_z, char* buff, int & t_count);
+
 	BOOL LoadLevelUpTable();
 	void SetGameTime();
 	void UpdateWeather();

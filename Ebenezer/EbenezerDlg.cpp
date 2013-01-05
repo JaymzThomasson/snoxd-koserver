@@ -1400,139 +1400,58 @@ void CEbenezerDlg::SetGameTime()
 
 void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 {
-	int t_count = 0;
-	C3DMap* pMap = pSendUser->GetMap();
-	ASSERT(pMap != NULL);
+	if (pSendUser == NULL)
+		return;
 
 	Packet result(WIZ_REQ_USERIN);
-	result << uint16(0); //placeholder for the usercount.
+	C3DMap* pMap = pSendUser->GetMap();
+	ASSERT(pMap != NULL);
+	int user_count = 0;
 
-	int region_x = -1, region_z = -1;
+	result << uint16(0); // placeholder for the user count
 
-	if( !pSendUser ) return;
+	GetRegionUserIn(pMap, pSendUser->m_RegionX, pSendUser->m_RegionZ, &result, user_count);			// CENTER
+	GetRegionUserIn(pMap, pSendUser->m_RegionX - 1, pSendUser->m_RegionZ - 1, &result, user_count);	// NORTH WEST
+	GetRegionUserIn(pMap, pSendUser->m_RegionX, pSendUser->m_RegionZ - 1, &result, user_count);		// NORTH
+	GetRegionUserIn(pMap, pSendUser->m_RegionX + 1, pSendUser->m_RegionZ - 1, &result, user_count);	// NORTH EAST
+	GetRegionUserIn(pMap, pSendUser->m_RegionX - 1, pSendUser->m_RegionZ, &result, user_count);		// WEST
+	GetRegionUserIn(pMap, pSendUser->m_RegionX + 1, pSendUser->m_RegionZ, &result, user_count);		// EAST
+	GetRegionUserIn(pMap, pSendUser->m_RegionX - 1, pSendUser->m_RegionZ + 1, &result, user_count);	// SOUTH WEST
+	GetRegionUserIn(pMap, pSendUser->m_RegionX, pSendUser->m_RegionZ + 1, &result, user_count);		// SOUTH
+	GetRegionUserIn(pMap, pSendUser->m_RegionX + 1, pSendUser->m_RegionZ + 1, &result, user_count);	// SOUTH EAST
 
-	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ;			// CENTER
-	GetRegionUserIn( pMap, region_x, region_z, &result, t_count );
-
-	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ - 1;	// NORTH WEST
-	GetRegionUserIn( pMap, region_x, region_z, &result, t_count );
-
-	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ - 1;		// NORTH
-	GetRegionUserIn( pMap, region_x, region_z, &result, t_count );
-
-	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ - 1;	// NORTH EAST
-	GetRegionUserIn( pMap, region_x, region_z, &result, t_count );
-
-	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ;		// WEST
-	GetRegionUserIn( pMap, region_x, region_z, &result, t_count );
-
-	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ;		// EAST
-	GetRegionUserIn( pMap, region_x, region_z, &result, t_count );
-
-	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ + 1;	// SOUTH WEST
-	GetRegionUserIn( pMap, region_x, region_z, &result, t_count );
-
-	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ + 1;		// SOUTH
-	GetRegionUserIn( pMap, region_x, region_z, &result, t_count );
-
-	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ + 1;	// SOUTH EAST
-	GetRegionUserIn( pMap, region_x, region_z, &result, t_count );
-
-	result.put(0, uint16(t_count));
+	result.put(0, uint16(user_count));
 	pSendUser->SendCompressingPacket( &result );
 }
 
 void CEbenezerDlg::RegionUserInOutForMe(CUser *pSendUser)
 {
-	int send_index = 0, buff_index = 0, i=0, j=0, t_count = 0;
+	if (pSendUser == NULL)
+		return;
+
+	Packet result(WIZ_REGIONCHANGE, uint8(1));
 	C3DMap* pMap = pSendUser->GetMap();
 	ASSERT(pMap != NULL);
-	int region_x = -1, region_z = -1, user_count = 0, uid_sendindex = 0;
-	char uid_buff[2048], send_buff[16384];
+	int user_count = 0;
 
-	if( !pSendUser ) return;
+	result << uint16(0); // placeholder for the user count
 
-	uid_sendindex = 3;	// packet command 와 user_count 는 나중에 셋팅한다...
+	GetRegionUserList(pMap, pSendUser->m_RegionX, pSendUser->m_RegionZ, &result, user_count);			// CENTER
+	GetRegionUserList(pMap, pSendUser->m_RegionX - 1, pSendUser->m_RegionZ - 1, &result, user_count);	// NORTH WEST
+	GetRegionUserList(pMap, pSendUser->m_RegionX, pSendUser->m_RegionZ - 1, &result, user_count);		// NORTH
+	GetRegionUserList(pMap, pSendUser->m_RegionX + 1, pSendUser->m_RegionZ - 1, &result, user_count);	// NORTH EAST
+	GetRegionUserList(pMap, pSendUser->m_RegionX - 1, pSendUser->m_RegionZ, &result, user_count);		// WEST
+	GetRegionUserList(pMap, pSendUser->m_RegionX + 1, pSendUser->m_RegionZ, &result, user_count);		// EAST
+	GetRegionUserList(pMap, pSendUser->m_RegionX - 1, pSendUser->m_RegionZ + 1, &result, user_count);	// SOUTH WEST
+	GetRegionUserList(pMap, pSendUser->m_RegionX, pSendUser->m_RegionZ + 1, &result, user_count);		// SOUTH
+	GetRegionUserList(pMap, pSendUser->m_RegionX + 1, pSendUser->m_RegionZ + 1, &result, user_count);	// SOUTH EAST
 
-	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ;			// CENTER
-	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
-	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-
-	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ - 1;	// NORTH WEST
-	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
-	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-	
-	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ - 1;		// NORTH
-	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
-	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-
-	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ - 1;	// NORTH EAST
-	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
-	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-
-	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ;		// WEST
-	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
-	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-
-	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ;		// EAST
-	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
-	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-
-	region_x = pSendUser->m_RegionX - 1;	region_z = pSendUser->m_RegionZ + 1;	// SOUTH WEST
-	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
-	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-
-	region_x = pSendUser->m_RegionX;	region_z = pSendUser->m_RegionZ + 1;		// SOUTH
-	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
-	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-
-	region_x = pSendUser->m_RegionX + 1;	region_z = pSendUser->m_RegionZ + 1;	// SOUTH EAST
-	buff_index = GetRegionUserList( pMap, region_x, region_z, uid_buff, user_count );
-	SetString( send_buff, uid_buff, buff_index, uid_sendindex );
-
-	int temp_index = 0;
-	SetByte( send_buff, WIZ_REGIONCHANGE, temp_index );
-	SetByte( send_buff, 0x01, temp_index );
-	SetShort( send_buff, user_count, temp_index );
-
-	pSendUser->Send( send_buff, uid_sendindex );
-	
-	if( user_count > 500 )
-		TRACE("Req UserIn: %d \n", user_count);
+	result.put(1, uint16(user_count));
+	pSendUser->Send(&result); // TO-DO: Compress
 }
 
-int CEbenezerDlg::GetRegionUserIn( C3DMap *pMap, int region_x, int region_z, char *buff, int &t_count)
+void CEbenezerDlg::GetRegionUserIn( C3DMap *pMap, int region_x, int region_z, Packet *pkt, int & t_count)
 {
-	int buff_index = 0;
-
-	if (pMap == NULL || region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
-		return 0;
-
-	EnterCriticalSection(&g_region_critical);
-	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
-
-	foreach_stlmap (itr, pRegion->m_RegionUserArray)
-	{
-		CUser *pUser = GetUserPtr(*itr->second);
-		if (pUser == NULL || 
-			pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z ||
-			pUser->GetState() != STATE_GAMESTART)
-			continue;
-
-		SetByte(buff, 0x00, buff_index);
-		SetShort(buff, pUser->GetSocketID(), buff_index);
-		pUser->GetUserInfo(buff, buff_index);
-
-		t_count++;
-	}
-
-	LeaveCriticalSection(&g_region_critical);
-	return buff_index;
-}
-
-void CEbenezerDlg::GetRegionUserIn( C3DMap *pMap, int region_x, int region_z, Packet *pkt, int &t_count)
-{
-
 	if (pMap == NULL || region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
 		return;
 
@@ -1546,6 +1465,7 @@ void CEbenezerDlg::GetRegionUserIn( C3DMap *pMap, int region_x, int region_z, Pa
 			pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z ||
 			pUser->GetState() != STATE_GAMESTART)
 			continue;
+
 		*pkt << uint8(0) << uint16(pUser->GetSocketID());
 		pUser->GetUserInfo(*pkt);
 
@@ -1555,7 +1475,7 @@ void CEbenezerDlg::GetRegionUserIn( C3DMap *pMap, int region_x, int region_z, Pa
 	LeaveCriticalSection(&g_region_critical);
 }
 
-int CEbenezerDlg::GetRegionUserList( C3DMap* pMap, int region_x, int region_z, char *buff, int &t_count)
+int CEbenezerDlg::GetRegionUserList(C3DMap* pMap, int region_x, int region_z, Packet * pkt, int & t_count)
 {
 	int buff_index = 0;
 
@@ -1573,8 +1493,7 @@ int CEbenezerDlg::GetRegionUserList( C3DMap* pMap, int region_x, int region_z, c
 			pUser->GetState() != STATE_GAMESTART)
 			continue;
 
-		SetShort(buff, pUser->GetSocketID(), buff_index);
-
+		*pkt << uint16(pUser->GetSocketID());
 		t_count++;
 	}
 
@@ -1684,12 +1603,12 @@ int CEbenezerDlg::GetRegionMerchantUserIn( C3DMap *pMap, int region_x, int regio
 	foreach_stlmap (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr->second);
-		if (pUser == NULL || 
-			pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z ||
-			pUser->GetState() != STATE_GAMESTART)
+		if (pUser == NULL 
+			|| pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z 
+			|| pUser->GetState() != STATE_GAMESTART
+			|| !pUser->isMerchanting())
 			continue;
-		if (pUser->m_bIsMerchanting == false ) //Is this user merchanting?
-			continue; 
+
 		SetShort( buff, pUser->GetSocketID(), buff_index );
 		SetByte( buff,0, buff_index );
 		SetByte( buff,0, buff_index ); //type of merchant [normal - gold]
