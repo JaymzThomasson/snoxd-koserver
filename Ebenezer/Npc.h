@@ -52,7 +52,7 @@ public:
 	BYTE	m_byGateOpen;		// Gate Npc Status -> 1 : open 0 : close
 	short   m_sHitRate;			// 공격 성공률
 	BYTE    m_byObjectType;     // 보통은 0, object타입(성문, 레버)은 1
-	BYTE	m_byDirection;
+	int16	m_byDirection;
 
 	short   m_byEvent;		    // This is for the quest. 
 
@@ -63,7 +63,7 @@ public:
 	void Initialize();
 	void MoveResult(float xpos, float ypos, float zpos, float speed);
 	void NpcInOut(BYTE Type, float fx, float fz, float fy);
-	void GetNpcInfo(char *buff, int & send_index);
+	void GetNpcInfo(Packet & pkt);
 	void RegisterRegion();
 	void RemoveRegion(int del_x, int del_z);
 	void InsertRegion(int del_x, int del_z);
@@ -86,6 +86,10 @@ public:
 
 	__forceinline BYTE GetState() { return m_byState; };
 	__forceinline C3DMap * GetMap() { return m_pMap; };
+
+	__forceinline uint16 GetSPosX() { return uint16(m_fCurX * 10); };
+	__forceinline uint16 GetSPosY() { return uint16(m_fCurY * 10); };
+	__forceinline uint16 GetSPosZ() { return uint16(m_fCurZ * 10); };
 
 	virtual ~CNpc();
 };

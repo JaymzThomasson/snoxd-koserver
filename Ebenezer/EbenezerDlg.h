@@ -99,28 +99,6 @@ public:
 	BOOL AISocketConnect( int zone, int flag = 0 );
 	BOOL LoadNoticeData();
 	BOOL LoadBlockNameList();
-
-	// Get info for NPCs in region
-	int GetRegionNpcIn(C3DMap* pMap, int region_x, int region_z, char* buff, int & t_count);
-
-	// Get list of NPC IDs in region
-	int GetRegionNpcList(C3DMap* pMap, int region_x, int region_z, char* nid_buff, int & t_count);
-
-	// Get list of NPCs for regions around user
-	void RegionNpcInfoForMe(CUser* pSendUser);	
-
-	// Get info for users in region
-	void GetRegionUserIn(C3DMap* pMap, int region_x, int region_z, Packet *pkt, int & t_count );
-
-	// Get list of user IDs in region
-	int GetRegionUserList(C3DMap* pMap, int region_x, int region_z, Packet *pkt, int & t_count);
-
-	// Get list of users for regions around user
-	void RegionUserInOutForMe(CUser* pSendUser);
-
-	// Get list of merchants in region
-	int GetRegionMerchantUserIn(C3DMap* pMap, int region_x, int region_z, char* buff, int & t_count);
-
 	BOOL LoadLevelUpTable();
 	void SetGameTime();
 	void UpdateWeather();
@@ -139,9 +117,37 @@ public:
 	CNpc*  GetNpcPtr( int sid, int cur_zone );
 	// ~sungyong 2001.11.06
 	BOOL InitializeMMF();
-	void UserInOutForMe( CUser* pSendUser );	// 9 Regions All Users USERINOUT Packet Packaging Function
-	void MerchantUserInOutForMe( CUser* pSendUser ); // 9 Regions All Users MERCHANTINOUT Packet Packaging Function
-	void NpcInOutForMe( CUser* pSendUser );	// 9 Regions All Npcs NPCINOUT Packet Packaging Function
+
+	// Get info for NPCs in regions around user (WIZ_REQ_NPCIN)
+	void NpcInOutForMe(CUser* pSendUser);
+
+	// Get info for NPCs in region
+	void GetRegionNpcIn(C3DMap* pMap, int region_x, int region_z, Packet & pkt, int & t_count);
+
+	// Get list of NPC IDs in region
+	void GetRegionNpcList(C3DMap* pMap, int region_x, int region_z, Packet & pkt, int & t_count);
+
+	// Get list of NPCs for regions around user (WIZ_NPC_REGION)
+	void RegionNpcInfoForMe(CUser* pSendUser);	
+
+	// Get info for users in regions around user (WIZ_REQ_USERIN)
+	void UserInOutForMe(CUser* pSendUser);
+
+	// Get info for users in region
+	void GetRegionUserIn(C3DMap* pMap, int region_x, int region_z, Packet & pkt, int & t_count);
+
+	// Get list of user IDs in region
+	void GetRegionUserList(C3DMap* pMap, int region_x, int region_z, Packet & pkt, int & t_count);
+
+	// Get list of users for regions around user (WIZ_REGIONCHANGE)
+	void RegionUserInOutForMe(CUser* pSendUser);
+
+	// Get info for merchants in regions around user
+	void MerchantUserInOutForMe(CUser* pSendUser);
+
+	// Get list of merchants in region
+	void GetRegionMerchantUserIn(C3DMap* pMap, int region_x, int region_z, Packet & pkt, int & t_count);
+
 	void Send_Region( char* pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL, bool bDirect=true );	// PENDING DEPRECATION
 	void Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL, bool bDirect = true);
 	void Send_UnitRegion( char *pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser=NULL, bool bDirect=true ); // PENDING DEPRECATION

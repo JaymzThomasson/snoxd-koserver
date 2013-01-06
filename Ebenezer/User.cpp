@@ -1017,33 +1017,35 @@ void CUser::RequestUserIn(char *pBuf)
 
 void CUser::RequestNpcIn(char *pBuf)
 {
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return;
+	if (m_pMain->m_bPointCheckFlag == FALSE)
+		return;
 
-	int index = 0, nid = -1, npc_count = 0, buff_index = 0, t_count = 0, i=0,j=0;
-	CNpc* pNpc = NULL;
-	char buff[20480];
+	Packet result(WIZ_REQ_NPCIN);
+	int index = 0; // temporary until we replace the incoming data with a Packet
+	uint16 npc_count = GetShort(pBuf, index);
+	result << uint16(0); // NPC count placeholder
 
-	buff_index = 3;	
-	npc_count = GetShort( pBuf, index );
-	for( i=0; i<npc_count; i++ ) {
-		nid = GetShort( pBuf, index );
-		if( nid < 0 || nid > NPC_BAND+NPC_BAND)
+	for (int i = 0; i < npc_count; i++)
+	{
+		uint16 nid = GetShort(pBuf, index);
+		if (nid < 0 || nid > NPC_BAND+NPC_BAND)
 			continue;
-		if( i > 1000 ) break;
-		pNpc = m_pMain->m_arNpcArray.GetData(nid);
+		if (i > 1000)
+		{
+			npc_count = 1000;
+			break;
+		}
+
+		CNpc *pNpc = m_pMain->m_arNpcArray.GetData(nid);
 		if (pNpc == NULL)
 			continue;
 
-		SetShort( buff, pNpc->m_sNid, buff_index );
-		pNpc->GetNpcInfo(buff, buff_index);
-		t_count++;
+		result << pNpc->GetID();
+		pNpc->GetNpcInfo(result);
 	}
 
-	int temp_index = 0;
-	SetByte( buff, WIZ_REQ_NPCIN, temp_index );
-	SetShort( buff, t_count, temp_index );
-
-	Send( buff, buff_index ); // NOTE: Compress
+	result.put(0, npc_count);
+	Send(&result); // NOTE: Compress
 }
 
 void CUser::SetSlotItemValue()
