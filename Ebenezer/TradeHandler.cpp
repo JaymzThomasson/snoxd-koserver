@@ -30,9 +30,8 @@ void CUser::ExchangeProcess(char *pBuf)
 
 void CUser::ExchangeReq(char *pBuf)
 {
-	int index = 0, destid = -1, send_index = 0, type = 0;
-	CUser* pUser = NULL;
-	char buff[256];
+	int index = 0, destid = -1;
+	Packet result(WIZ_EXCHANGE);
 
 	if (isDead())
 	{
@@ -46,26 +45,25 @@ void CUser::ExchangeReq(char *pBuf)
 	}
 
 	destid = GetShort( pBuf, index );
-	pUser = m_pMain->GetUserPtr(destid);
+	CUser* pUser = m_pMain->GetUserPtr(destid);
 	if (pUser == NULL
 		|| pUser->isTrading()
-		|| pUser->getNation() != getNation())
+		|| (pUser->getNation() != getNation() && pUser->getZoneID() != 21 && getZoneID() != 21)
+		|| pUser->getZoneID() != getZoneID())
 		goto fail_return;
 
 	m_sExchangeUser = destid;
 	pUser->m_sExchangeUser = m_Sid;
 
-	SetByte( buff, WIZ_EXCHANGE, send_index );
-	SetByte( buff, EXCHANGE_REQ, send_index );
-	SetShort( buff, m_Sid, send_index );
-	pUser->Send( buff, send_index );
 	
+	result << uint8(EXCHANGE_REQ) << uint16(m_Sid);
+	pUser->Send( &result );
+
 	return;
 
 fail_return:
-	SetByte( buff, WIZ_EXCHANGE, send_index );
-	SetByte( buff, EXCHANGE_CANCEL, send_index );
-	Send( buff, send_index );
+	result << uint8(EXCHANGE_CANCEL);
+	Send( &result );
 }
 
 void CUser::ExchangeAgree(char* pBuf)

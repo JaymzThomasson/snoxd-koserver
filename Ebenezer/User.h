@@ -24,6 +24,7 @@
 #include <list>
 typedef	 std::list<_EXCHANGE_ITEM*>		ItemList;
 typedef  std::list<int>					UserEventList;
+typedef	 std::list<_SKILL_COOLDOWN*>	SkillCooldownList;
 
 #define BANISH_DELAY_TIME    30
 
@@ -40,6 +41,10 @@ public:
 
 	bool	m_bIsMerchanting; //Is the character merchanting already?
 	_MERCH_DATA	m_arSellingItems[MAX_MERCH_ITEMS]; //What is this person selling? Stored in "_MERCH_DATA" structure.
+
+	//Magic System Cooldown checks
+
+	SkillCooldownList	m_CoolDownList;
 
 	short	m_RegionX;						// 현재 영역 X 좌표
 	short	m_RegionZ;						// 현재 영역 Z 좌표
@@ -423,6 +428,7 @@ public:
 	void Rotate( char* pBuf );
 	void LoginProcess( char* pBuf );
 	void Parsing( int len, char* pData );
+	void Parsing( Packet & pkt );
 
 	void SendServerIndex();
 	void RentalSystem(char *pData);
@@ -432,6 +438,13 @@ public:
 	void SkillDataLoad(char *pData);
 	void RecvSkillDataLoad(char *pData);
 	void FinalizeZoneChange();
+
+	//Magic System - rewrite
+	void MagicSystem(Packet & pkt);
+	BOOL CheckSkillCooldown(int32 magicid, int32 skill_received_time);
+	void LogSkillCooldown(int32 magicid, int32 skill_received_time);
+	void MagicType(uint16 effect_type);
+	void MagicType1(int32 magicid, int16 sid, int16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4, uint16 data5, uint16 data6, uint16 data7);
 
 	// from the client
 	void ShoppingMall(char *pData);
