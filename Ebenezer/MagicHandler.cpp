@@ -1,4 +1,4 @@
-// MagicHandler.cpp: implementation of the CMagicHandler class.
+﻿// MagicHandler.cpp: implementation of the CMagicHandler class.
 //
 //////////////////////////////////////////////////////////////////////
 
