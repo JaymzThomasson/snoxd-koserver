@@ -1501,7 +1501,7 @@ void CEbenezerDlg::MerchantUserInOutForMe(CUser *pSendUser)
 	foreach_region(x, z)
 		GetRegionMerchantUserIn(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, user_count);
 
-	result.put(3, uint16(user_count));
+	result.put(1, uint16(user_count));
 	pSendUser->Send(&result); // TO-DO: Compress
 }
 
