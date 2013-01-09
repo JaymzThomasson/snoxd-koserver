@@ -57,7 +57,7 @@ void CUser::MagicSystem( Packet & pkt )
 	CUser *pUser, *pTargetUser = NULL;
 	CNpc *pMon = NULL;
 
-	skill_received_time = TimeGetInt(); //Retrieve the time at which the Magic packet is going for internal processing.
+	skill_received_time = GetTickCount(); //Retrieve the time at which the Magic packet is going for internal processing.
 
 	command = pkt.GetOpcode();
 	pkt >> subcommand >> magicid >> sid >> tid;
@@ -85,10 +85,10 @@ void CUser::MagicSystem( Packet & pkt )
 	}
 
 	/*
-	Do ALL required pre-liminary checks here
+	Do ALL required pre-liminary checks here, will wrap that into another function, until then leaving this disabled.
 	*/
-	if(!CheckSkillCooldown(magicid, skill_received_time)) //Check if the skill is off-cooldown.
-		return;
+	//if(!CheckSkillCooldown(magicid, skill_received_time)) //Check if the skill is off-cooldown.
+	//	return;
 
 	//LogSkillCooldown(magicid, skill_received_time); Use this <if> the skill is successfully casted!
 
@@ -127,47 +127,28 @@ echo :
 	}
 }
 
-BOOL CUser::CheckSkillCooldown(int32 magicid, int32 skill_received_time)
+bool CUser::CheckSkillCooldown(int32 magicid, uint32 skill_received_time)
 {
-	int result = true;
 	_MAGIC_TABLE* pMagic = m_pMain->m_MagictableArray.GetData( magicid );
-	if( !pMagic ) //Return before processing anything as there is no skill with this ID.
+	if( !pMagic ) //Return before processing anything as there is no skill with this ID. (When the all-wrapping check is created this can be removed)
 		return false;
 
 	if( m_CoolDownList.empty() )
-		return result;
+		return true;
 
-	foreach (itr, m_CoolDownList)
-		{
-			if ((*itr)->magicid == magicid && ( ( skill_received_time - (*itr)->last_used_time) < ( (int32)pMagic->bReCastTime + (int32)pMagic->bCastTime) ) )
-			{
-				result = false;
-				break;
-			}
-		}
-	return result;
+	if((skill_received_time - m_CoolDownList.find(magicid)->second) < ((int32)pMagic->bReCastTime + (int32)pMagic->bCastTime) ) //Need to make sure those times are in milliseconds, not sure if they are as of yet. 
+	{
+		return false;
+	}
+	return true;
 }
 
-void CUser::LogSkillCooldown(int32 magicid, int32 skill_received_time)
-{	
-	bool new_entry = true; //Flag to indicate a new entry requirement.
-	foreach(itr, m_CoolDownList)
-	{
-		if((*itr)->magicid == magicid) 
-		{
-			(*itr)->last_used_time = skill_received_time;
-			new_entry = false;
-		}
-	}
-
-	if(new_entry = true) //If this magic id hasn't been casted before, add it to the cooldownlist
-	{
-		_SKILL_COOLDOWN* pCooldown;
-		pCooldown = new _SKILL_COOLDOWN;
-		pCooldown->magicid = magicid;
-		pCooldown->last_used_time = skill_received_time;
-		m_CoolDownList.push_front(pCooldown);
-	}
+void CUser::LogSkillCooldown(int32 magicid, uint32 skill_received_time)
+{
+	if(m_CoolDownList.find(magicid)->first == magicid)
+		m_CoolDownList.find(magicid)->second = skill_received_time;
+	else
+		m_CoolDownList.insert(std::pair<int32, uint32>(magicid, skill_received_time));
 }
 
 void CUser::MagicType1(int32 magicid, int16 sid, int16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4, uint16 data5, uint16 data6, uint16 data7)
@@ -230,23 +211,39 @@ packet_send:
 
 void CUser::MagicType(uint16 effect_type)
 {
+
+	enum effect_type
+	{
+		ATTACK_SKILL = 1,
+		FLYING_SKILL = 2,
+		ATTACK_SKILL_BONUS = 3,
+		BUFF_SKILL = 4,
+		CURING_SKILL = 5,
+		TRANSFORMATION_SKILL = 6,
+		MONSTER_STATUS_CHANGE_SKILL = 7,
+		TELEPORT_SKILL = 8,
+		MAGIC_EFFECT_9 = 9
+	};
+
 	switch(effect_type)
 	{
-	case 1:
+	case ATTACK_SKILL:
 		break;
-	case 2:
+	case FLYING_SKILL:
 		break;
-	case 3:
+	case ATTACK_SKILL_BONUS:
 		break;
-	case 4:
+	case BUFF_SKILL:
 		break;
-	case 5:
+	case CURING_SKILL:
 		break;
-	case 6:
+	case TRANSFORMATION_SKILL:
 		break;
-	case 7:
+	case MONSTER_STATUS_CHANGE_SKILL:
 		break;
-	case 8:
+	case TELEPORT_SKILL:
+		break;
+	case MAGIC_EFFECT_9:
 		break;
 	}
 }

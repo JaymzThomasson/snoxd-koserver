@@ -24,7 +24,7 @@
 #include <list>
 typedef	 std::list<_EXCHANGE_ITEM*>		ItemList;
 typedef  std::list<int>					UserEventList;
-typedef	 std::list<_SKILL_COOLDOWN*>	SkillCooldownList;
+typedef	 std::map<int32, uint32>		SkillCooldownList;
 
 #define BANISH_DELAY_TIME    30
 
@@ -441,8 +441,8 @@ public:
 
 	//Magic System - rewrite
 	void MagicSystem(Packet & pkt);
-	BOOL CheckSkillCooldown(int32 magicid, int32 skill_received_time);
-	void LogSkillCooldown(int32 magicid, int32 skill_received_time);
+	bool CheckSkillCooldown(int32 magicid, uint32 skill_received_time);
+	void LogSkillCooldown(int32 magicid, uint32 skill_received_time);
 	void MagicType(uint16 effect_type);
 	void MagicType1(int32 magicid, int16 sid, int16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4, uint16 data5, uint16 data6, uint16 data7);
 

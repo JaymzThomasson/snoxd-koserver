@@ -254,12 +254,6 @@ struct	_EXCHANGE_ITEM
 	__int64	nSerialNum;
 };
 
-struct _SKILL_COOLDOWN
-{
-	int32 magicid;
-	int32 last_used_time;
-};
-
 struct _ITEM_TABLE
 {
 	long  m_iNum;
