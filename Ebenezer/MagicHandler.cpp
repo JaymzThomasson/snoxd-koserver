@@ -49,6 +49,19 @@ static char THIS_FILE[]=__FILE__;
 #define	RESURRECTION_SELF		4
 #define REMOVE_BLESS			5
 
+enum effect_type
+{
+	ATTACK_SKILL = 1,
+	FLYING_SKILL = 2,
+	ATTACK_SKILL_BONUS = 3,
+	BUFF_SKILL = 4,
+	CURING_SKILL = 5,
+	TRANSFORMATION_SKILL = 6,
+	MONSTER_STATUS_CHANGE_SKILL = 7,
+	TELEPORT_SKILL = 8,
+	MAGIC_EFFECT_9 = 9
+};
+
 void CUser::MagicSystem( Packet & pkt )
 {
 	uint8 command, subcommand;
@@ -127,8 +140,9 @@ echo :
 	}
 }
 
-bool CUser::CheckSkillCooldown(int32 magicid, uint32 skill_received_time)
+bool CUser::CheckSkillCooldown(uint32 magicid, uint32 skill_received_time)
 {
+	std::map<int32,uint32>::iterator it;
 	_MAGIC_TABLE* pMagic = m_pMain->m_MagictableArray.GetData( magicid );
 	if( !pMagic ) //Return before processing anything as there is no skill with this ID. (When the all-wrapping check is created this can be removed)
 		return false;
@@ -136,22 +150,29 @@ bool CUser::CheckSkillCooldown(int32 magicid, uint32 skill_received_time)
 	if( m_CoolDownList.empty() )
 		return true;
 
-	if((skill_received_time - m_CoolDownList.find(magicid)->second) < ((int32)pMagic->bReCastTime + (int32)pMagic->bCastTime) ) //Need to make sure those times are in milliseconds, not sure if they are as of yet. 
+	it = m_CoolDownList.find(magicid);
+	if( it == m_CoolDownList.end() ) // Incase there is no such entry in the cooldown map the skill will be off-cooldown, thus allow it to cast.
+		return true;
+
+	if((skill_received_time - m_CoolDownList.find(magicid)->second) < (((int32)pMagic->bReCastTime + (int32)pMagic->bCastTime) * 100) ) //Need to make sure those times are in milliseconds, not sure if they are as of yet. 
 	{
 		return false;
 	}
 	return true;
 }
 
-void CUser::LogSkillCooldown(int32 magicid, uint32 skill_received_time)
+void CUser::LogSkillCooldown(uint32 magicid, uint32 skill_received_time)
 {
-	if(m_CoolDownList.find(magicid)->first == magicid)
-		m_CoolDownList.find(magicid)->second = skill_received_time;
-	else
+	std::map<int32,uint32>::iterator it;
+	it = m_CoolDownList.find(magicid);
+	
+	if( it == m_CoolDownList.end() ) //find() returns a pointer to end() incase it didn't find anything that matches the magicid, thus requiring a new entry.
 		m_CoolDownList.insert(std::pair<int32, uint32>(magicid, skill_received_time));
+	else //in this case it did find one, thus update the last time the skill was used.
+		m_CoolDownList.find(magicid)->second = skill_received_time;	
 }
 
-void CUser::MagicType1(int32 magicid, int16 sid, int16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4, uint16 data5, uint16 data6, uint16 data7)
+void CUser::MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4, uint16 data5, uint16 data6, uint16 data7)
 {
 
 	int16 damage = GetDamage(tid, magicid); //Get the amount of damage that will be inflicted.
@@ -211,20 +232,6 @@ packet_send:
 
 void CUser::MagicType(uint16 effect_type)
 {
-
-	enum effect_type
-	{
-		ATTACK_SKILL = 1,
-		FLYING_SKILL = 2,
-		ATTACK_SKILL_BONUS = 3,
-		BUFF_SKILL = 4,
-		CURING_SKILL = 5,
-		TRANSFORMATION_SKILL = 6,
-		MONSTER_STATUS_CHANGE_SKILL = 7,
-		TELEPORT_SKILL = 8,
-		MAGIC_EFFECT_9 = 9
-	};
-
 	switch(effect_type)
 	{
 	case ATTACK_SKILL:
