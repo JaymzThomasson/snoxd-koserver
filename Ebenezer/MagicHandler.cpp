@@ -65,7 +65,8 @@ enum effect_type
 void CUser::MagicSystem( Packet & pkt )
 {
 	uint8 command, subcommand;
-	uint32 magicid, skill_received_time;
+	uint32 magicid;
+	time_t skill_received_time;
 	uint16 sid, tid, data1, data2, data3, data4, data5, data6, data7;
 	CUser *pUser, *pTargetUser = NULL;
 	CNpc *pMon = NULL;
@@ -140,9 +141,9 @@ echo :
 	}
 }
 
-bool CUser::CheckSkillCooldown(uint32 magicid, uint32 skill_received_time)
+bool CUser::CheckSkillCooldown(uint32 magicid, time_t skill_received_time)
 {
-	std::map<int32,uint32>::iterator it;
+	std::map<uint32, time_t>::iterator it;
 	_MAGIC_TABLE* pMagic = m_pMain->m_MagictableArray.GetData( magicid );
 	if( !pMagic ) //Return before processing anything as there is no skill with this ID. (When the all-wrapping check is created this can be removed)
 		return false;
@@ -154,20 +155,20 @@ bool CUser::CheckSkillCooldown(uint32 magicid, uint32 skill_received_time)
 	if( it == m_CoolDownList.end() ) // Incase there is no such entry in the cooldown map the skill will be off-cooldown, thus allow it to cast.
 		return true;
 
-	if((skill_received_time - m_CoolDownList.find(magicid)->second) < (((int32)pMagic->bReCastTime + (int32)pMagic->bCastTime) * 100) ) //Need to make sure those times are in milliseconds, not sure if they are as of yet. 
+	if((skill_received_time - m_CoolDownList.find(magicid)->second) < ((pMagic->bReCastTime + pMagic->bCastTime) * 100) )
 	{
 		return false;
 	}
 	return true;
 }
 
-void CUser::LogSkillCooldown(uint32 magicid, uint32 skill_received_time)
+void CUser::LogSkillCooldown(uint32 magicid, time_t skill_received_time)
 {
-	std::map<int32,uint32>::iterator it;
+	std::map<uint32, time_t>::iterator it;
 	it = m_CoolDownList.find(magicid);
 	
 	if( it == m_CoolDownList.end() ) //find() returns a pointer to end() incase it didn't find anything that matches the magicid, thus requiring a new entry.
-		m_CoolDownList.insert(std::pair<int32, uint32>(magicid, skill_received_time));
+		m_CoolDownList.insert(std::pair<uint32, time_t>(magicid, skill_received_time));
 	else //in this case it did find one, thus update the last time the skill was used.
 		m_CoolDownList.find(magicid)->second = skill_received_time;	
 }
