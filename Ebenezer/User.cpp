@@ -220,6 +220,26 @@ void CUser::CloseProcess()
 	CIOCPSocket2::CloseProcess();
 }
 
+void CUser::Parsing(Packet & pkt)
+{
+	uint8 command = pkt.GetOpcode();
+	TRACE("Command : %X\n", command);
+	if(!m_CryptionFlag)
+	{
+		return;
+	}
+	else if (m_strAccountID[0] == 0)
+		return;
+	else if(!m_bSelectedCharacter)
+		return;
+	switch(command)
+	{
+		case WIZ_MAGIC_PROCESS:
+			MagicSystem(pkt);
+		break;
+	}
+}
+
 void CUser::Parsing(int len, char *pData)
 {
 	int index = 0;
@@ -362,12 +382,12 @@ void CUser::Parsing(int len, char *pData)
 	case WIZ_EXCHANGE:
 		ExchangeProcess( pData+index );
 		break;
-	case WIZ_MAGIC_PROCESS:
-		m_MagicProcess.MagicPacket( pData+index, len );
-		break;
 	case WIZ_MERCHANT:
 		MerchantProcess(pData+index);
 		break;
+	//case WIZ_MAGIC_PROCESS:
+	//	m_MagicProcess.MagicPacket(pData+index, len);
+	//	break;
 	case WIZ_SKILLPT_CHANGE:
 		SkillPointChange( pData+index );
 		break;

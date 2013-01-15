@@ -53,3 +53,6 @@
 
 # Config
 *.ini
+
+# Temporary files
+*.tmp
