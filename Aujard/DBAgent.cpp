@@ -672,9 +672,9 @@ bool CDBAgent::UpdateUser(string & strCharID, short uid, UserUpdateType type)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)pUser->m_bstrQuest, sizeof(pUser->m_bstrQuest));
 
 	if (!dbCommand->Prepare(string_format(_T("{CALL UPDATE_USER_DATA (?,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,?,?,?,?,%d,%d)}"),
-		(unsigned char)pUser->m_bNation, (unsigned char)pUser->m_bRace, (short int)pUser->m_sClass, (int)pUser->m_nHair, (unsigned char)pUser->m_bRank, (unsigned char)pUser->m_bTitle, (unsigned char)pUser->m_bLevel, (int)pUser->m_iExp, (int)pUser->m_iLoyalty, (unsigned char)pUser->m_bFace, 
-		(unsigned char)pUser->m_bCity,	(short int)pUser->m_bKnights, (unsigned char)pUser->m_bFame, (short int)pUser->m_sHp, (short int)pUser->m_sMp, (short int)pUser->m_sSp, (unsigned char)pUser->m_bStr, (unsigned char)pUser->m_bSta, (unsigned char)pUser->m_bDex, (unsigned char)pUser->m_bIntel, (unsigned char)pUser->m_bCha, 
-		(unsigned char)pUser->m_bAuthority, (short int)pUser->m_sPoints, pUser->m_iGold, (unsigned char)pUser->m_bZone, (short int)pUser->m_sBind, (int)(pUser->m_curx*100), (int)(pUser->m_curz*100), (int)(pUser->m_cury*100), pUser->m_dwTime,
+		pUser->m_bNation, pUser->m_bRace, pUser->m_sClass, pUser->m_nHair, pUser->m_bRank, pUser->m_bTitle, pUser->m_bLevel, pUser->m_iExp, pUser->m_iLoyalty, pUser->m_bFace, 
+		pUser->m_bCity,	pUser->m_bKnights, pUser->m_bFame, pUser->m_sHp, pUser->m_sMp, pUser->m_sSp, pUser->m_bStr, pUser->m_bSta, pUser->m_bDex, pUser->m_bIntel, pUser->m_bCha, 
+		pUser->m_bAuthority, pUser->m_sPoints, pUser->m_iGold, pUser->m_bZone, pUser->m_sBind, (int)(pUser->m_curx*100), (int)(pUser->m_curz*100), (int)(pUser->m_cury*100), pUser->m_dwTime,
 		pUser->m_sQuestCount, pUser->m_iMannerPoint, pUser->m_iLoyaltyMonthly)))
 	{
 		m_pMain->ReportSQLError(m_GameDB.GetError());
@@ -833,7 +833,7 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 	if (bNation == 3)
 		szSQL = _T("SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Points != 0 ORDER BY Points DESC");
 	else
-		szSQL = string_format(_T("SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Nation=%d AND Points != 0 ORDER BY Points DESC"), bNation); 
+		szSQL = string_format(_T("SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Nation=%d, AND Points != 0 ORDER BY Points DESC"), bNation); 
 
 	if (!dbCommand->Execute(szSQL))
 		m_pMain->ReportSQLError(m_GameDB.GetError());

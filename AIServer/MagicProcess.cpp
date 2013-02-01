@@ -462,8 +462,8 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 				pNpc->m_MagicType4[pType->bBuffType-1].byAmount = pType->bSpeed;
 				pNpc->m_MagicType4[pType->bBuffType-1].sDurationTime = pType->sDuration;
 				pNpc->m_MagicType4[pType->bBuffType-1].fStartTime = TimeGet();
-				pNpc->m_fSpeed_1 = pNpc->m_fOldSpeed_1 * ((double)pType->bSpeed / 100);
-				pNpc->m_fSpeed_2 = pNpc->m_fOldSpeed_2 * ((double)pType->bSpeed / 100);
+				pNpc->m_fSpeed_1 = (float)(pNpc->m_fOldSpeed_1 * ((double)pType->bSpeed / 100));
+				pNpc->m_fSpeed_2 = (float)(pNpc->m_fOldSpeed_2 * ((double)pType->bSpeed / 100));
 				//TRACE("executeType4 ,, speed1=%.2f, %.2f,, type=%d, cur=%.2f, %.2f\n", pNpc->m_fOldSpeed_1, pNpc->m_fOldSpeed_2, pType->bSpeed, pNpc->m_fSpeed_1, pNpc->m_fSpeed_2);
 //			}
 			break;

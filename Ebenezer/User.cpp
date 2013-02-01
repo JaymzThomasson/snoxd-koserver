@@ -1,4 +1,4 @@
-﻿// User.cpp: implementation of the CUser class.
+// User.cpp: implementation of the CUser class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -232,12 +232,14 @@ void CUser::Parsing(Packet & pkt)
 		return;
 	else if(!m_bSelectedCharacter)
 		return;
-	switch(command)
+
+/*	switch(command)
 	{
 		case WIZ_MAGIC_PROCESS:
 			MagicSystem(pkt);
 		break;
 	}
+*/
 }
 
 void CUser::Parsing(int len, char *pData)
@@ -370,6 +372,7 @@ void CUser::Parsing(int len, char *pData)
 		ItemGet( pData+index );
 		break;
 	case WIZ_ZONE_CHANGE:
+		//UserInOut( USER_IN );
 		UserInOut( USER_REGENE );
 		m_pMain->RegionUserInOutForMe(this);
 		m_pMain->RegionNpcInfoForMe(this);
@@ -991,13 +994,13 @@ void CUser::RemoveRegion(int del_x, int del_z)
 
 void CUser::InsertRegion(int insert_x, int insert_z)
 {
-	Packet result(WIZ_USER_INOUT);
+	Packet result(WIZ_USER_INOUT, uint8(USER_IN));
 	C3DMap* pMap = GetMap();
 
 	if (pMap == NULL)
 		return;
 
-	result << USER_IN << uint8(0) << uint16(GetSocketID());
+	result << uint16(GetSocketID());
 
 	GetUserInfo(result);
 
@@ -1045,38 +1048,40 @@ void CUser::RequestUserIn(char *pBuf)
 	}
 
 	result.put(0, count); // substitute count in
-	Send(&result);
+	Send(&result); // NOTE: Compress
 }
 
 void CUser::RequestNpcIn(char *pBuf)
 {
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return;
+	if (m_pMain->m_bPointCheckFlag == FALSE)
+		return;
 
-	int index = 0, nid = -1, npc_count = 0, buff_index = 0, t_count = 0, i=0,j=0;
-	CNpc* pNpc = NULL;
-	char buff[20480];
+	Packet result(WIZ_REQ_NPCIN);
+	int index = 0; // temporary until we replace the incoming data with a Packet
+	uint16 npc_count = GetShort(pBuf, index);
+	result << uint16(0); // NPC count placeholder
 
-	buff_index = 3;	
-	npc_count = GetShort( pBuf, index );
-	for( i=0; i<npc_count; i++ ) {
-		nid = GetShort( pBuf, index );
-		if( nid < 0 || nid > NPC_BAND+NPC_BAND)
+	for (int i = 0; i < npc_count; i++)
+	{
+		uint16 nid = GetShort(pBuf, index);
+		if (nid < 0 || nid > NPC_BAND+NPC_BAND)
 			continue;
-		if( i > 1000 ) break;
-		pNpc = m_pMain->m_arNpcArray.GetData(nid);
+		if (i > 1000)
+		{
+			npc_count = 1000;
+			break;
+		}
+
+		CNpc *pNpc = m_pMain->m_arNpcArray.GetData(nid);
 		if (pNpc == NULL)
 			continue;
 
-		SetShort( buff, pNpc->m_sNid, buff_index );
-		pNpc->GetNpcInfo(buff, buff_index);
-		t_count++;
+		result << pNpc->GetID();
+		pNpc->GetNpcInfo(result);
 	}
 
-	int temp_index = 0;
-	SetByte( buff, WIZ_REQ_NPCIN, temp_index );
-	SetShort( buff, t_count, temp_index );
-
-	Send( buff, buff_index );
+	result.put(0, npc_count);
+	Send(&result); // NOTE: Compress
 }
 
 void CUser::SetSlotItemValue()
@@ -1292,7 +1297,7 @@ void CUser::ExpChange(__int64 iExp)
 
 	// Tell the client our new XP
 	Packet result(WIZ_EXP_CHANGE);
-	result << uint8(0) << m_pUserData->m_iExp;
+	result << uint8(0) << m_pUserData->m_iExp; // NOTE: Use proper flag
 	Send(&result);
 
 	// If we've lost XP, save it for possible refund later.
@@ -1981,12 +1986,12 @@ void CUser::SpeedHackUser()
 
 void CUser::UserLookChange(int pos, int itemid, int durability)
 {
-	if ((pos <= SLOT_MAX && pos >= 0) || (pos >= SLOT_MAX+HAVE_MAX && pos <= SLOT_MAX+HAVE_MAX+COSP_MAX-2)) {
-		Packet result(WIZ_USERLOOK_CHANGE);
-		result << uint16(GetSocketID()) << uint8(pos) << itemid << uint16(durability);
-		m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this);
-	} else 
+	if (pos >= SLOT_MAX) // let's leave it at this for the moment, the updated check needs considerable reworking
 		return;
+
+	Packet result(WIZ_USERLOOK_CHANGE);
+	result << uint16(GetSocketID()) << uint8(pos) << itemid << uint16(durability);
+	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this);
 }
 
 void CUser::SendNotice()
@@ -2943,7 +2948,8 @@ void CUser::OperatorCommand(char *pBuf)
 
 void CUser::SpeedHackTime(char* pBuf)
 {
-	/*BYTE b_first = 0x00;
+#if 0 // temporarily disabled
+	BYTE b_first = 0x00;
 	int index = 0;
 	float servertime = 0.0f, clienttime = 0.0f, client_gap = 0.0f, server_gap = 0.0f;
 
@@ -2971,7 +2977,8 @@ void CUser::SpeedHackTime(char* pBuf)
 			m_fSpeedHackClientTime = clienttime;
 			m_fSpeedHackServerTime = TimeGet();
 		}
-	}*/
+	}
+#endif
 }
 
 void CUser::Type3AreaDuration(float currenttime)
@@ -3549,7 +3556,7 @@ BOOL CUser::GetWarpList(int warp_group)
 		_WARP_INFO *pWarp = itr->second;
 		if (pWarp == NULL || (pWarp->sWarpID / 10) != warp_group)
 			continue;
-
+		
 		warpList.insert(pWarp);
 	}
 
@@ -3673,8 +3680,9 @@ void CUser::ObjectEvent(char *pBuf)
 	int index = 0, objectindex = 0, nid = 0;
 	BOOL bSuccess = FALSE;
 
-	//if (m_pMain->m_bPointCheckFlag == FALSE)
-	//	return;
+	if (m_pMain->m_bPointCheckFlag == FALSE)
+		return;
+
 	objectindex = GetShort(pBuf, index);
 	nid = GetShort(pBuf, index);
 	

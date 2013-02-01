@@ -55,7 +55,7 @@ void CUser::Attack(char *pBuf)
 		pTUser = m_pMain->GetUserPtr(tid);
  
 		if( !pTUser || pTUser->m_bResHpType == USER_DEAD || pTUser->m_bAbnormalType == ABNORMAL_BLINKING
-		    || pTUser->m_pUserData->m_bNation == m_pUserData->m_bNation || pTUser->getZoneID() <= 21) 
+		    || pTUser->m_pUserData->m_bNation == m_pUserData->m_bNation ) 
 			result = 0x00;
 		else {
 			if (pTable) {	// Check if the user is holding a weapon!!! No null pointers allowed!!!
@@ -191,7 +191,7 @@ short CUser::GetDamage(short tid, int magicid)
 	if( tid < 0 || tid >= MAX_USER) return -1;     // Check if target id is valid.
 
 	CUser* pTUser = m_pMain->GetUserPtr(tid);
-	if (!pTUser || pTUser->isDead() || pTUser->getZoneID() <= 21) 
+	if (!pTUser || pTUser->isDead()) 
 		return -1;
 
 	temp_ac = pTUser->m_sTotalAc + pTUser->m_sACAmount;    // g??   

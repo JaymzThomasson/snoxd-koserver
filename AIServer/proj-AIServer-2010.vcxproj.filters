@@ -262,9 +262,6 @@
     <ClInclude Include="..\shared\CircularBuffer.h">
       <Filter>Networking</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\globals.h">
-      <Filter>shared</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Server.ico">

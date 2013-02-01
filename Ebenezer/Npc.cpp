@@ -94,61 +94,51 @@ void CNpc::MoveResult(float xpos, float ypos, float zpos, float speed)
 
 void CNpc::NpcInOut(BYTE Type, float fx, float fz, float fy)
 {
-	int send_index = 0;
-	char buff[1024];
-
 	C3DMap *pMap = m_pMain->GetZoneByID(getZoneID());
 	if (pMap == NULL)
 		return;
 
 	m_pMap = pMap;
 
-	if( Type == NPC_OUT )
+	if (Type == NPC_OUT)
 	{
-		pMap->RegionNpcRemove( m_sRegion_X, m_sRegion_Z, m_sNid );
+		pMap->RegionNpcRemove(m_sRegion_X, m_sRegion_Z, GetID());
 	}
 	else	
 	{
-		pMap->RegionNpcAdd( m_sRegion_X, m_sRegion_Z, m_sNid );
+		pMap->RegionNpcAdd(m_sRegion_X, m_sRegion_Z, GetID());
 		m_fCurX = fx;	m_fCurZ = fz;	m_fCurY = fy;
 	}
 
-	SetByte( buff, WIZ_NPC_INOUT, send_index );
-	SetByte( buff, Type, send_index );
-	SetShort( buff, m_sNid, send_index );
-	if( Type == NPC_OUT ) {
-		m_pMain->Send_Region(buff, send_index, GetMap(), m_sRegion_X, m_sRegion_Z);
+	Packet result(WIZ_NPC_INOUT, Type);
+	result << GetID();
+
+	if (Type == NPC_OUT)
+	{
+		m_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
 		return;
 	}
 
-	GetNpcInfo(buff, send_index);
-	m_pMain->Send_Region(buff, send_index, GetMap(), m_sRegion_X, m_sRegion_Z);
+	GetNpcInfo(result);
+	m_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
 }
 
-void CNpc::GetNpcInfo(char *buff, int & send_index)
+void CNpc::GetNpcInfo(Packet & pkt)
 {
-	SetShort(buff, m_sSid, send_index );
-	if(m_byGroup == 0)
-		SetByte( buff, 0x01, send_index ); //Monster, probably need a better way e.g. compare the sSid.
-	else
-		SetByte( buff, 0x02, send_index ); //NPC
-	SetShort(buff, m_sPid, send_index );
-	SetByte(buff, m_tNpcType, send_index );
-	SetDWORD(buff, m_iSellingGroup, send_index );
-	SetShort(buff, m_sSize, send_index );
-	SetDWORD(buff, m_iWeapon_1, send_index );
-	SetDWORD(buff, m_iWeapon_2, send_index );
-	SetByte(buff, m_byGroup, send_index );
-	SetByte(buff, m_byLevel, send_index );
-	SetShort(buff, (WORD)m_fCurX*10, send_index );
-	SetShort(buff, (WORD)m_fCurZ*10, send_index );
-	SetShort(buff, (short)m_fCurY*10, send_index );
-	SetDWORD(buff, (int)m_byGateOpen, send_index );
-	SetByte(buff, m_byObjectType, send_index );
-	SetShort(buff, 0, send_index); // unknown
-	SetShort(buff, 0, send_index); // unknown
-	SetShort(buff, m_byDirection, send_index);
-
+	pkt << GetEntryID()
+		<< (getNation() == 0 ? 1 : 2) // Monster = 1, NPC = 2 (need to use a better flag)
+		<< m_sPid
+		<< m_tNpcType
+		<< m_iSellingGroup
+		<< m_sSize
+		<< m_iWeapon_1 << m_iWeapon_2
+		<< getNation()
+		<< m_byLevel
+		<< GetSPosX() << GetSPosZ() << GetSPosY()
+		<< uint32(isGateOpen())
+		<< m_byObjectType
+		<< uint16(0) << uint16(0) // unknown
+		<< int16(m_byDirection);
 }
 
 void CNpc::RegisterRegion()
@@ -204,36 +194,33 @@ void CNpc::RemoveRegion(int del_x, int del_z)
 
 void CNpc::InsertRegion(int del_x, int del_z)
 {
-	int send_index = 0, buff_index = 0, i=0;
-	int region_x = -1, region_z = -1;
-	char buff[128];
 	C3DMap* pMap = GetMap();
 	if (pMap == NULL)
 		return;
 
-	SetByte( buff, WIZ_NPC_INOUT, send_index );
-	SetByte( buff, NPC_IN, send_index );
-	SetShort(buff, m_sNid, send_index);
+	Packet result(WIZ_NPC_INOUT, uint8(NPC_IN));
+	result << GetID();
+	GetNpcInfo(result);
 
-	GetNpcInfo(buff, send_index);
-
-	if( del_x != 0 ) {
-		m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X+del_x, m_sRegion_Z-1 );
-		m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X+del_x, m_sRegion_Z );
-		m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X+del_x, m_sRegion_Z+1 );
+	if (del_x != 0)
+	{
+		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X + del_x, m_sRegion_Z - 1);
+		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X + del_x, m_sRegion_Z);
+		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X + del_x, m_sRegion_Z + 1);
 	}
-	if( del_z != 0 ) {
-		m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X, m_sRegion_Z+del_z );
+
+	if (del_z != 0)
+	{
+		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X, m_sRegion_Z + del_z);
 		
-		if( del_x < 0 )	{
-			m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X+1, m_sRegion_Z+del_z );
-		}
-		else if( del_x > 0 ) {
-			m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X-1, m_sRegion_Z+del_z );
-		}
-		else {
-			m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X-1, m_sRegion_Z+del_z );
-			m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X+1, m_sRegion_Z+del_z );
+		if (del_x < 0)
+			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X + 1, m_sRegion_Z + del_z);
+		else if (del_x > 0)
+			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X - 1, m_sRegion_Z + del_z);
+		else 
+		{
+			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X - 1, m_sRegion_Z + del_z);
+			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X + 1, m_sRegion_Z + del_z);
 		}
 	}
 }

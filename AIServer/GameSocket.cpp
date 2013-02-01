@@ -296,7 +296,7 @@ void CGameSocket::RecvUserInOut(char* pBuf)
 	bType = GetByte( pBuf, index );
 	uid = GetShort( pBuf, index );
 	len = GetByte( pBuf, index );
-	GetString(strName, pBuf, len, index );
+	GetString(strName, pBuf, len, index);
 	fX = Getfloat(pBuf, index);
 	fZ = Getfloat(pBuf, index);
 
@@ -682,10 +682,7 @@ void CGameSocket::RecvUserUpdate(char* pBuf)
 
 	// User List에서 User정보,, 삭제...
 	CUser* pUser = m_pMain->GetUserPtr(uid);
-	if( pUser == NULL )
-		return;
-
-	if( pUser->m_strUserID != name )
+	if(pUser == NULL)
 		return;
 
 	if(pUser->m_bLevel < byLevel)		// level up

@@ -767,7 +767,7 @@ void CUser::ItemTrade(char *pBuf)
 		m_pUserData->m_sItemArray[SLOT_MAX+destpos].sDuration = duration;
 		m_pUserData->m_sItemArray[SLOT_MAX+destpos].sCount = itemcount;
 		SetByte( send_buf, WIZ_ITEM_TRADE, send_index );
-		SetByte( send_buf, 0x03, send_index ); 
+		SetByte( send_buf, 0x03, send_index );
 		Send( send_buf, send_index );
 		return;
 	}
@@ -859,7 +859,7 @@ void CUser::ItemTrade(char *pBuf)
 			result = 0x02;
 			goto fail_return;
 		}
-		if( m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount < count) {
+		if( m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount < count ) {
 			result = 0x03;
 			goto fail_return;
 		}

@@ -217,6 +217,7 @@ public:
 
 	__forceinline bool isTrading() { return m_sExchangeUser != -1; };
 	__forceinline bool isStoreOpen() { return m_bStoreOpen; };
+	__forceinline bool isMerchanting() { return m_bIsMerchanting; };
 
 	__forceinline BYTE getNation() { return m_pUserData->m_bNation; };
 	__forceinline BYTE getLevel() { return m_pUserData->m_bLevel; };
@@ -421,7 +422,6 @@ public:
 	void Send2AI_UserUpdateInfo(bool initialInfo = false);
 	void Attack( char* pBuf );
 	void UserInOut( BYTE Type );
-	void GetUserInfo(char *buff, int & buff_index); // PENDING DEPRECATION
 	void GetUserInfo(Packet & pkt);
 	void Initialize();
 	void MoveProcess( char* pBuf );

@@ -39,7 +39,7 @@ public:
 private:
 	bool AttemptOpen(bool & isEmpty, bool bAllowEmptyTable = false)
 	{
-		if (!Open())
+		if (!Open(CRecordset::dynaset))
 		{
 			AfxMessageBox(_T(GetDefaultSQL() + " could not be opened!"));
 			return false;

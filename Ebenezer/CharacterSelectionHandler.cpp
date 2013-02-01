@@ -338,7 +338,6 @@ void CUser::GameStart(char *pBuf)
 	if (opcode == 1)
 	{
 		SendMyInfo();
-		UserInOut( USER_REGENE );
 		m_pMain->UserInOutForMe(this);
 		m_pMain->MerchantUserInOutForMe(this);
 		m_pMain->NpcInOutForMe(this);
