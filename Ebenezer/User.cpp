@@ -232,12 +232,14 @@ void CUser::Parsing(Packet & pkt)
 		return;
 	else if(!m_bSelectedCharacter)
 		return;
-	switch(command)
+
+/*	switch(command)
 	{
 		case WIZ_MAGIC_PROCESS:
 			MagicSystem(pkt);
 		break;
 	}
+*/
 }
 
 void CUser::Parsing(int len, char *pData)
