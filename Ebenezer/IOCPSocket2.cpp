@@ -92,7 +92,7 @@ BOOL CIOCPSocket2::Connect( CIOCPort* pIocp, LPCTSTR lpszHostAddress, UINT nHost
 	if ( result == SOCKET_ERROR )
 	{
 		int err = WSAGetLastError();
-		TRACE("CONNECT FAIL : %d\n", err);
+		// TRACE("CONNECT FAIL : %d\n", err);
 		closesocket( m_Socket );
 		return FALSE;
 	}

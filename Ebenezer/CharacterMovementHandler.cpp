@@ -8,7 +8,8 @@ extern BYTE g_serverdown_flag;
 void CUser::MoveProcess(char *pBuf )
 {
 	ASSERT(GetMap() != NULL);
-	if( m_bWarp ) return;
+	if( m_bWarp ) 
+		return;
 		
 	int index = 0, region = 0;
 	WORD will_x, will_z;
@@ -82,6 +83,7 @@ void CUser::UserInOut(BYTE Type)
 	if (Type == USER_OUT || m_bAbnormalType != ABNORMAL_BLINKING) 
 	{
 		result.Initialize(AG_USER_INOUT);
+		result.SByte();
 		result << Type << uint16(GetSocketID()) << m_pUserData->m_id << m_pUserData->m_curx << m_pUserData->m_curz;
 		m_pMain->Send_AIServer(&result);
 	}

@@ -115,7 +115,9 @@
 #define KNIGHTS_TYPE		0x02
 ////////////////////////////////////////////////////////////
 
-#define MAX_CLAN			36
+#define CLAN_COIN_REQUIREMENT	500000
+#define CLAN_LEVEL_REQUIREMENT	20
+
 #define MAX_KNIGHTS_BANK	200
 #define MAX_KNIGHTS_MARK	2400
 

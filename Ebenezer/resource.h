@@ -46,6 +46,13 @@
 #define IDS_ELMO_CAPTAIN_DEPRIVE        143
 #define IDS_COUPON_NOTEPAD_ID           144
 #define IDS_COUPON_POSTIT_ID            145
+#define IDS_KNIGHTS_JOIN				146
+#define IDS_KNIGHTS_WITHDRAW			147
+#define	IDS_KNIGHTS_REMOVE				148
+#define IDS_KNIGHTS_CHIEF				149
+#define IDS_KNIGHTS_VICECHIEF			150
+#define IDS_KNIGHTS_DESTROY				151
+#define IDS_CLAN_DESTROY				152
 #define IDC_LIST1                       1000
 #define IDC_COUNT_EDIT                  1001
 #define IDC_GONGJI_EDIT                 1002

@@ -930,43 +930,43 @@ void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUse
 	LeaveCriticalSection(&g_region_critical);
 }
 
-void CEbenezerDlg::Send_NearRegion(char *pBuf, int len, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser)
+void CEbenezerDlg::Send_NearRegion(Packet *pkt, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser)
 {
 	int left_border = region_x * VIEW_DISTANCE, top_border = region_z * VIEW_DISTANCE;
-	Send_FilterUnitRegion( pBuf, len, pMap, region_x, region_z, curx, curz, pExceptUser);
+	Send_FilterUnitRegion(pkt, pMap, region_x, region_z, curx, curz, pExceptUser);
 	if( ((curx - left_border) > (VIEW_DISTANCE/2.0f)) ) {			// RIGHT
 		if( ((curz - top_border) > (VIEW_DISTANCE/2.0f)) ) {	// BOTTOM
-			Send_FilterUnitRegion( pBuf, len, pMap, region_x+1, region_z, curx, curz, pExceptUser);
-			Send_FilterUnitRegion( pBuf, len, pMap, region_x, region_z+1, curx, curz, pExceptUser);
-			Send_FilterUnitRegion( pBuf, len, pMap, region_x+1, region_z+1, curx, curz, pExceptUser);
+			Send_FilterUnitRegion(pkt, pMap, region_x+1, region_z, curx, curz, pExceptUser);
+			Send_FilterUnitRegion(pkt, pMap, region_x, region_z+1, curx, curz, pExceptUser);
+			Send_FilterUnitRegion(pkt, pMap, region_x+1, region_z+1, curx, curz, pExceptUser);
 		}
 		else {													// TOP
-			Send_FilterUnitRegion( pBuf, len, pMap, region_x+1, region_z, curx, curz, pExceptUser);
-			Send_FilterUnitRegion( pBuf, len, pMap, region_x, region_z-1, curx, curz, pExceptUser);
-			Send_FilterUnitRegion( pBuf, len, pMap, region_x+1, region_z-1, curx, curz, pExceptUser);
+			Send_FilterUnitRegion(pkt, pMap, region_x+1, region_z, curx, curz, pExceptUser);
+			Send_FilterUnitRegion(pkt, pMap, region_x, region_z-1, curx, curz, pExceptUser);
+			Send_FilterUnitRegion(pkt, pMap, region_x+1, region_z-1, curx, curz, pExceptUser);
 		}
 	}
 	else {														// LEFT
 		if( ((curz - top_border) > (VIEW_DISTANCE/2.0f)) ) {	// BOTTOM
-			Send_FilterUnitRegion( pBuf, len, pMap, region_x-1, region_z, curx, curz, pExceptUser);
-			Send_FilterUnitRegion( pBuf, len, pMap, region_x, region_z+1, curx, curz, pExceptUser);
-			Send_FilterUnitRegion( pBuf, len, pMap, region_x-1, region_z+1, curx, curz, pExceptUser);
+			Send_FilterUnitRegion(pkt, pMap, region_x-1, region_z, curx, curz, pExceptUser);
+			Send_FilterUnitRegion(pkt, pMap, region_x, region_z+1, curx, curz, pExceptUser);
+			Send_FilterUnitRegion(pkt, pMap, region_x-1, region_z+1, curx, curz, pExceptUser);
 		}
 		else {													// TOP
-			Send_FilterUnitRegion( pBuf, len, pMap, region_x-1, region_z, curx, curz, pExceptUser);
-			Send_FilterUnitRegion( pBuf, len, pMap, region_x, region_z-1, curx, curz, pExceptUser);
-			Send_FilterUnitRegion( pBuf, len, pMap, region_x-1, region_z-1, curx, curz, pExceptUser);
+			Send_FilterUnitRegion(pkt, pMap, region_x-1, region_z, curx, curz, pExceptUser);
+			Send_FilterUnitRegion(pkt, pMap, region_x, region_z-1, curx, curz, pExceptUser);
+			Send_FilterUnitRegion(pkt, pMap, region_x-1, region_z-1, curx, curz, pExceptUser);
 		}
 	}
 }
 
-void CEbenezerDlg::Send_FilterUnitRegion(char *pBuf, int len, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser *pExceptUser)
+void CEbenezerDlg::Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser *pExceptUser)
 {
 	if (pMap == NULL
 		|| x < 0 || z < 0 || x > pMap->GetXRegionMax() || z>pMap->GetZRegionMax())
 		return;
 
-//	EnterCriticalSection(&g_region_critical);
+	EnterCriticalSection(&g_region_critical);
 	CRegion *pRegion = &pMap->m_ppRegion[x][z];
 
 	foreach_stlmap (itr, pRegion->m_RegionUserArray)
@@ -976,10 +976,10 @@ void CEbenezerDlg::Send_FilterUnitRegion(char *pBuf, int len, C3DMap *pMap, int 
 			continue;
 
 		if (sqrt(pow((pUser->m_pUserData->m_curx - ref_x), 2) + pow((pUser->m_pUserData->m_curz - ref_z), 2)) < 32)
-			pUser->RegionPacketAdd(pBuf, len);
+			pUser->RegionPacketAdd(pkt);
 	}
 
-//	LeaveCriticalSection( &g_region_critical );
+	LeaveCriticalSection( &g_region_critical );
 }
 
 void CEbenezerDlg::Send_PartyMember(int party, char *pBuf, int len)
@@ -1014,7 +1014,7 @@ void CEbenezerDlg::Send_PartyMember(int party, Packet *result)
 	}
 }
 
-void CEbenezerDlg::Send_KnightsMember( int index, char* pBuf, int len, int zone )
+void CEbenezerDlg::Send_KnightsMember(int index, Packet *pkt)
 {
 	CKnights* pKnights = m_KnightsArray.GetData(index);
 	if (pKnights == NULL)
@@ -1027,8 +1027,7 @@ void CEbenezerDlg::Send_KnightsMember( int index, char* pBuf, int len, int zone 
 			|| pUser->m_pUserData->m_bKnights != index) 
 			continue;
 
-		if (zone == 100 || pUser->getZoneID() == zone)
-			pUser->Send( pBuf, len );
+		pUser->Send(pkt);
 	}
 }
 
@@ -2251,7 +2250,7 @@ int  CEbenezerDlg::GetKnightsAllMembers(int knightsindex, char *temp_buff, int& 
 		pKnights = m_KnightsArray.GetData( knightsindex );
 		if( !pKnights ) return 0;
 
-		for( i=0; i<MAX_CLAN; i++ )	{
+		for( i=0; i<MAX_CLAN_USERS; i++ )	{
 			if( pKnights->m_arKnightsUser[i].byUsed == 1 )	{	// 
 				pUser = GetUserPtr(pKnights->m_arKnightsUser[i].strUserName, TYPE_CHARACTER);
 				if( pUser )	{
@@ -2285,27 +2284,18 @@ int  CEbenezerDlg::GetKnightsAllMembers(int knightsindex, char *temp_buff, int& 
 
 int CEbenezerDlg::GetKnightsGrade(int nPoints)
 {
-	int nGrade = 5;
-	int nClanPoints = nPoints / 24;		// 클랜등급 = 클랜원 국가 기여도의 총합 / 24
+	int nClanPoints = nPoints / MAX_CLAN_USERS;
 
-	if( nClanPoints >= 0 && nClanPoints < 2000 )	{
-		nGrade = 5;
-	}
-	else if( nClanPoints >= 2000 && nClanPoints < 5000 )	{
-		nGrade = 4;
-	}
-	else if( nClanPoints >= 5000 && nClanPoints < 10000 )	{
-		nGrade = 3;
-	}
-	else if( nClanPoints >= 10000 && nClanPoints < 20000 )	{
-		nGrade = 2;
-	}
-	else if( nClanPoints >= 20000 )	{
-		nGrade = 1;
-	}
-	else nGrade = 5;
+	if (nClanPoints >= 20000)
+		return 1;
+	else if (nClanPoints >= 10000)
+		return 2;
+	else if (nClanPoints >= 5000)
+		return 3;
+	else if (nClanPoints >= 2000)
+		return 4;
 
-	return nGrade;
+	return 5;
 }
 
 void CEbenezerDlg::CheckAliveUser()
@@ -2422,14 +2412,16 @@ BOOL CEbenezerDlg::LoadBattleTable()
 	return BattleSet.Read();
 }
 
-void CEbenezerDlg::Send_CommandChat( char* pBuf, int len, int nation, CUser* pExceptUser )
+void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser )
 {
 	for (int i = 0; i < MAX_USER; i++)
 	{
 		CUser * pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART || pUser == pExceptUser || (nation != 0 && nation != pUser->m_pUserData->m_bNation))
+		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART || pUser == pExceptUser 
+			|| (nation != 0 && nation != pUser->m_pUserData->m_bNation))
 			continue;
-		pUser->Send(pBuf, len);
+
+		pUser->Send(pkt);
 	}
 }
 

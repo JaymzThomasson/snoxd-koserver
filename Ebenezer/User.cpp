@@ -3957,3 +3957,22 @@ void CUser::FinalizeZoneChange()
 	result << uint8(2);
 	Send(&result);
 }
+
+void CUser::SendToRegion(Packet *pkt, CUser *pExceptUser /*= NULL*/, bool bDirect /*= true*/)
+{
+	m_pMain->Send_Region(pkt, GetMap(), m_RegionX, m_RegionZ, pExceptUser, bDirect);
+}
+
+// We have no clan handler, we probably won't need to implement it (but we'll see).
+void CUser::SendClanUserStatusUpdate(bool bToRegion /*= true*/)
+{
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MODIFY_FAME));
+	result	<< uint8(1) << uint16(GetSocketID()) 
+			<< m_pUserData->m_bKnights << m_pUserData->m_bFame;
+
+	// TO-DO: Make this region code user-specific to perform faster.
+	if (bToRegion)
+		SendToRegion(&result, NULL, false);
+	else
+		Send(&result);
+}

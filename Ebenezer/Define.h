@@ -23,6 +23,9 @@
 #define MAX_CLASS			26			// ��� MAX
 #define MAX_LEVEL			83			// �ְ�...
 
+#define MAX_PARTY_USERS		8
+#define MAX_CLAN_USERS		36
+
 #define SERVER_INFO_START			0X01
 #define SERVER_INFO_END				0X02
 

@@ -62,7 +62,7 @@ public:
 	void BattleZoneCurrentUsers();
 	BOOL LoadKnightsRankTable();
 	void GetCaptainUserPtr();
-	void Send_CommandChat( char* pBuf, int len, int nation, CUser* pExceptUser = NULL );
+	void Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser = NULL);
 	BOOL LoadBattleTable();
 	void Send_UDP_All( char* pBuf, int len, int group_type = 0 ); // PENDING DEPRECATION
 	void Send_UDP_All(Packet *pkt, int group_type = 0);
@@ -94,7 +94,7 @@ public:
 	void KillUser( const char* strbuff );
 	void Send_PartyMember(int party, char* pBuf, int len);
 	void Send_PartyMember(int party, Packet *result);
-	void Send_KnightsMember( int index, char* pBuf, int len, int zone=100 );
+	void Send_KnightsMember(int index, Packet *pkt);
 	int GetAIServerPort();
 	BOOL AISocketConnect( int zone, int flag = 0 );
 	BOOL LoadNoticeData();
@@ -152,8 +152,8 @@ public:
 	void Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL, bool bDirect = true);
 	void Send_UnitRegion( char *pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser=NULL, bool bDirect=true ); // PENDING DEPRECATION
 	void Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL, bool bDirect = true);
-	void Send_NearRegion( char* pBuf, int len, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser=NULL );
-	void Send_FilterUnitRegion( char* pBuf, int len, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser* pExceptUser=NULL );
+	void Send_NearRegion(Packet *pkt, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser=NULL );
+	void Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser* pExceptUser=NULL );
 	void Send_All( char* pBuf, int len, CUser* pExceptUser = NULL, int nation=0 );	// PENDING DEPRECATION
 	void Send_All(Packet *pkt, CUser* pExceptUser = NULL, uint8 nation = 0);
 	void Send_AIServer( char* pBuf, int len ); // PENDING DEPRECATION

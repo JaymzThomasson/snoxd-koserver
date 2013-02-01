@@ -4823,7 +4823,7 @@ BOOL CNpc::IsPathFindCheck(float fDistance)
 		return FALSE;
 	}
 
-	while(1)
+	do
 	{
 		vOldDis.Set(vDis.x, 0, vDis.z);
 		vDis = GetVectorPosition(vDis, vEnd, fDistance);
@@ -4835,47 +4835,20 @@ BOOL CNpc::IsPathFindCheck(float fDistance)
 			break;
 		}
 		
-		if(fDis <= fDistance)
-		{
-			nX = (int)(vDis.x / TILE_SIZE);
-			nZ = (int)(vDis.z / TILE_SIZE);
-			if(pMap->IsMovable(nX, nZ) == TRUE)
-			{
-				nError = -1;
-				break;
-			}
+		nX = (int)(vDis.x / TILE_SIZE);
+		nZ = (int)(vDis.z / TILE_SIZE);
 
-			if(count >= MAX_PATH_LINE)
-			{
-				nError = -1;
-				break;
-			}
-			m_pPoint[count].fXPos = vEnd.x;
-			m_pPoint[count].fZPos = vEnd.z;
-			count++;
+		if(pMap->IsMovable(nX, nZ) == TRUE
+			|| count >= MAX_PATH_LINE)
+		{
+			nError = -1;
 			break;
 		}
-		else
-		{
-			nX = (int)(vDis.x / TILE_SIZE);
-			nZ = (int)(vDis.z / TILE_SIZE);
-			if(pMap->IsMovable(nX, nZ) == TRUE)
-			{
-				nError = -1;
-				break;
-			}
 
-			if(count >= MAX_PATH_LINE)
-			{
-				nError = -1;
-				break;
-			}
-			m_pPoint[count].fXPos = vDis.x;
-			m_pPoint[count].fZPos = vDis.z;
-		}
+		m_pPoint[count].fXPos = vEnd.x;
+		m_pPoint[count++].fZPos = vEnd.z;
 
-		count++;
-	}
+	} while (fDis <= fDistance);
 
 	m_iAniFrameIndex = count;
 
@@ -4915,40 +4888,23 @@ void CNpc::IsNoPathFind(float fDistance)
 	}
 	MAP* pMap = GetMap();
 
-	while(1)
+	do
 	{
 		vOldDis.Set(vDis.x, 0, vDis.z);
 		vDis = GetVectorPosition(vDis, vEnd, fDistance);
 		fDis = GetDistance(vOldDis, vEnd);
 		
-		if(fDis <= fDistance)
-		{
-			nX = (int)(vDis.x / TILE_SIZE);
-			nZ = (int)(vDis.z / TILE_SIZE);
-			if(count < 0 || count >= MAX_PATH_LINE)	{	
-				ClearPathFindData();
-				TRACE("#### Npc-IsNoPathFind index overflow Fail 1 :  count=%d ####\n", count);
-				return;
-			}	
-			m_pPoint[count].fXPos = vEnd.x;
-			m_pPoint[count].fZPos = vEnd.z;
-			count++;
-			break;
-		}
-		else
-		{
-			if(count < 0 || count >= MAX_PATH_LINE)	{	
-				ClearPathFindData();
-				TRACE("#### Npc-IsNoPathFind index overflow Fail 2 :  count=%d ####\n", count);
-				return;
-			}	
-			nX = (int)(vDis.x / TILE_SIZE);
-			nZ = (int)(vDis.z / TILE_SIZE);
-			m_pPoint[count].fXPos = vDis.x;
-			m_pPoint[count].fZPos = vDis.z;
-		}
-		count++;
-	}
+		nX = (int)(vDis.x / TILE_SIZE);
+		nZ = (int)(vDis.z / TILE_SIZE);
+		if(count < 0 || count >= MAX_PATH_LINE)	{	
+			ClearPathFindData();
+			TRACE("#### Npc-IsNoPathFind index overflow Fail 1 :  count=%d ####\n", count);
+			return;
+		}	
+
+		m_pPoint[count].fXPos = vEnd.x;
+		m_pPoint[count++].fZPos = vEnd.z;
+	} while (fDis <= fDistance);
 
 	if(count <= 0 || count >= MAX_PATH_LINE)	{	
 		ClearPathFindData();

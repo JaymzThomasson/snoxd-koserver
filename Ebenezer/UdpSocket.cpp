@@ -362,7 +362,10 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 
 }
 
-void CUdpSocket::ReceiveKnightsProcess( char* pBuf )
+/***
+ * Another server has informed us of a clan event.
+ ***/
+void CUdpSocket::ReceiveKnightsProcess(char* pBuf)
 {
 	int index = 0, command = 0, pktsize = 0, count = 0;
 
@@ -392,7 +395,10 @@ void CUdpSocket::ReceiveKnightsProcess( char* pBuf )
 	}
 }
 
-void CUdpSocket::RecvCreateKnights( char* pBuf )
+/***
+ * We've been told from another server that a clan has been created. 
+ ***/
+void CUdpSocket::RecvCreateKnights(char* pBuf)
 {
 	int index = 0, send_index = 0, knightsindex = 0, nation = 0, community = 0;
 	char knightsname[MAX_ID_SIZE+1], chiefname[MAX_ID_SIZE+1];
@@ -412,207 +418,152 @@ void CUdpSocket::RecvCreateKnights( char* pBuf )
 	pKnights->m_byNation = nation;
 	strcpy(pKnights->m_strName, knightsname);
 	strcpy(pKnights->m_strChief, chiefname);
+	pKnights->AddUser(chiefname);
 
 	m_pMain->m_KnightsArray.PutData( pKnights->m_sIndex, pKnights );
-
-	// 클랜정보에 추가
-	m_pMain->m_KnightsManager.AddKnightsUser( knightsindex, chiefname );
 
 	//TRACE("UDP - RecvCreateKnights - knname=%s, name=%s, index=%d\n", knightsname, chiefname, knightsindex);
 }
 
-void CUdpSocket::RecvJoinKnights( char* pBuf, BYTE command )
+/***
+ * We've been told from another server that someone has joined (or rejected joining) a clan.
+ ***/
+void CUdpSocket::RecvJoinKnights(char* pBuf, BYTE command)
 {
-	int send_index = 0, knightsindex = 0, index = 0;
-	char charid[MAX_ID_SIZE+1], send_buff[128], finalstr[128];
-	CKnights*	pKnights = NULL;
+	int knightsindex = 0, index = 0;
+	char charid[MAX_ID_SIZE+1];
+	CString clanNotice;
 
 	knightsindex = GetShort( pBuf, index );
 	if (!GetKOString(pBuf, charid, index, MAX_ID_SIZE))
 		return;
 
-	pKnights = m_pMain->m_KnightsArray.GetData( knightsindex );
+	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(knightsindex);
+	if (pKnights == NULL)
+		return;
 
-	if( command == KNIGHTS_JOIN ) {
-		sprintf( finalstr, "#### %s님이 가입하셨습니다. ####", charid );
-		// 클랜정보에 추가
-		m_pMain->m_KnightsManager.AddKnightsUser( knightsindex, charid );
-		TRACE("UDP - RecvJoinKnights - 가입, name=%s, index=%d\n", charid, knightsindex);
+	if (command == KNIGHTS_JOIN)
+	{	
+		clanNotice = m_pMain->GetServerResource(IDS_KNIGHTS_JOIN);
+		pKnights->AddUser(charid);
+		TRACE("UDP - RecvJoinKnights - name=%s, index=%d\n", charid, knightsindex);
 	}
-	else {		// 탈퇴..
-		// 클랜정보에 추가
-		m_pMain->m_KnightsManager.RemoveKnightsUser( knightsindex, charid );
-		sprintf( finalstr, "#### %s님이 탈퇴하셨습니다. ####", charid );
-		TRACE("UDP - RecvJoinKnights - 탈퇴, name=%s, index=%d\n", charid, knightsindex );
+	else 
+	{
+		clanNotice = m_pMain->GetServerResource(IDS_KNIGHTS_WITHDRAW);
+		pKnights->RemoveUser(charid);
+		TRACE("UDP - RecvJoinKnights - name=%s, index=%d\n", charid, knightsindex );
 	}
 
-	//TRACE("UDP - RecvJoinKnights - command=%d, name=%s, index=%d\n", command, charid, knightsindex);
-
-	send_index = 0;
-	SetByte( send_buff, WIZ_CHAT, send_index );
-	SetByte( send_buff, KNIGHTS_CHAT, send_index );
-	SetByte( send_buff, 1, send_index );
-	SetShort( send_buff, -1, send_index );
-	SetKOString( send_buff, finalstr, send_index );
-	m_pMain->Send_KnightsMember( knightsindex, send_buff, send_index );
+	pKnights->SendChat(clanNotice, charid);
 }
 
-void CUdpSocket::RecvModifyFame( char* pBuf, BYTE command )
+/***
+ * We've been told from another server that a user's status in the clan has changed.
+ ***/
+void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 {
-	int index = 0, send_index = 0, knightsindex = 0, vicechief = 0;
-	char send_buff[128], finalstr[128], userid[MAX_ID_SIZE+1];
-	CUser* pTUser = NULL;
-	CKnights*	pKnights = NULL;
+	CString clanNotice;
+	int index = 0, knightsindex = 0, vicechief = 0;
+	char userid[MAX_ID_SIZE+1];
 
-	knightsindex = GetShort( pBuf, index );
+	knightsindex = GetShort(pBuf, index);
 	if (!GetKOString(pBuf, userid, index, MAX_ID_SIZE))
 		return;
 
-	pTUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
-	pKnights = m_pMain->m_KnightsArray.GetData( knightsindex );
+	CUser *pTUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
+	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(knightsindex);
+	if (pKnights == NULL)
+		return;
 
-	switch( command ) {
+	switch (command)
+	{
 	case KNIGHTS_REMOVE:
-		if( pTUser ) {
+	case KNIGHTS_REJECT:
+		if (pTUser)
+		{
 			pTUser->m_pUserData->m_bKnights = 0;
 			pTUser->m_pUserData->m_bFame = 0;
-			sprintf( finalstr, "#### %s님이 추방되셨습니다. ####", pTUser->m_pUserData->m_id );
-			m_pMain->m_KnightsManager.RemoveKnightsUser( knightsindex, pTUser->m_pUserData->m_id );
+
+			if (command == KNIGHTS_REMOVE)
+				clanNotice = m_pMain->GetServerResource(IDS_KNIGHTS_REMOVE);
 		}
-		else	{
-			m_pMain->m_KnightsManager.RemoveKnightsUser( knightsindex, userid );
-		}
+
+		m_pMain->m_KnightsManager.RemoveKnightsUser(knightsindex, userid);
 		break;
+
 	case KNIGHTS_ADMIT:
-		if( pTUser )
+		if (pTUser)
 			pTUser->m_pUserData->m_bFame = KNIGHT;
 		break;
-	case KNIGHTS_REJECT:
-		if( pTUser ) {
-			pTUser->m_pUserData->m_bKnights = 0;
-			pTUser->m_pUserData->m_bFame = 0;
-			m_pMain->m_KnightsManager.RemoveKnightsUser( knightsindex, pTUser->m_pUserData->m_id );
-		}
-		break;
+
 	case KNIGHTS_CHIEF+0x10:
-		if( pTUser )	{
+		if (pTUser)
+		{
 			pTUser->m_pUserData->m_bFame = CHIEF;
-			m_pMain->m_KnightsManager.ModifyKnightsUser( knightsindex, pTUser->m_pUserData->m_id );
-			sprintf( finalstr, "#### %s님이 단장으로 임명되셨습니다. ####", pTUser->m_pUserData->m_id );
+			clanNotice = m_pMain->GetServerResource(IDS_KNIGHTS_CHIEF);
 		}
 		break;
+
 	case KNIGHTS_VICECHIEF+0x10:
-		if( pTUser )	{
+		if (pTUser)
+		{
 			pTUser->m_pUserData->m_bFame = VICECHIEF;
-			m_pMain->m_KnightsManager.ModifyKnightsUser( knightsindex, pTUser->m_pUserData->m_id );
-			sprintf( finalstr, "#### %s님이 부단장으로 임명되셨습니다. ####", pTUser->m_pUserData->m_id );
+			clanNotice = m_pMain->GetServerResource(IDS_KNIGHTS_VICECHIEF);
 		}
 		break;
+
 	case KNIGHTS_OFFICER+0x10:
-		if( pTUser )
+		if (pTUser)
 			pTUser->m_pUserData->m_bFame = OFFICER;
 		break;
+
 	case KNIGHTS_PUNISH+0x10:
-		if( pTUser )
+		if (pTUser)
 			pTUser->m_pUserData->m_bFame = PUNISH;
 		break;
 	}
 
-	if( pTUser ) {
-		//TRACE("UDP - RecvModifyFame - command=%d, nid=%d, name=%s, index=%d, fame=%d\n", command, pTUser->GetSocketID(), pTUser->m_pUserData->m_id, knightsindex, pTUser->m_pUserData->m_bFame);
-		send_index = 0;
-		SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-		SetByte( send_buff, KNIGHTS_MODIFY_FAME, send_index );
-		SetByte( send_buff, 0x01, send_index );
-		if( command == KNIGHTS_REMOVE )	{
-			SetShort( send_buff, pTUser->GetSocketID(), send_index );
-			SetShort( send_buff, pTUser->m_pUserData->m_bKnights, send_index );
-			SetByte( send_buff, pTUser->m_pUserData->m_bFame, send_index );
-			m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
-		}
-		else	{
-			SetShort( send_buff, pTUser->GetSocketID(), send_index );
-			SetShort( send_buff, pTUser->m_pUserData->m_bKnights, send_index );
-			SetByte( send_buff, pTUser->m_pUserData->m_bFame, send_index );
-			pTUser->Send( send_buff, send_index );
-		}
+	if (pTUser != NULL)
+		pTUser->SendClanUserStatusUpdate(command == KNIGHTS_REMOVE);
 
-		if( command == KNIGHTS_REMOVE )	{
-			send_index = 0;
-			SetByte( send_buff, WIZ_CHAT, send_index );
-			SetByte( send_buff, KNIGHTS_CHAT, send_index );
-			SetByte( send_buff, 1, send_index );
-			SetShort( send_buff, -1, send_index );
-			SetKOString( send_buff, finalstr, send_index );
-			pTUser->Send( send_buff, send_index );
-		}
-	}
+	if (clanNotice.GetLength() == 0)
+		return;
 
-	send_index = 0;
-	SetByte( send_buff, WIZ_CHAT, send_index );
-	SetByte( send_buff, KNIGHTS_CHAT, send_index );
-	SetByte( send_buff, 1, send_index );
-	SetShort( send_buff, -1, send_index );
-	SetKOString( send_buff, finalstr, send_index );
-	m_pMain->Send_KnightsMember( knightsindex, send_buff, send_index );
+	Packet result;
+
+	// Construct the clan system chat packet
+	pKnights->ConstructChatPacket(result, clanNotice, pTUser != NULL ? pTUser->m_pUserData->m_id : userid); 
+
+	// If we've been removed from a clan, tell the user as well (since they're no longer in the clan)
+	if (command == KNIGHTS_REMOVE && pTUser != NULL)
+		pTUser->Send(&result);
+
+	// Otherwise, since we're actually in the clan, we don't need to be explicitly told what happened.
+	if (pKnights != NULL)
+		pKnights->Send(&result);
 }
 
-void CUdpSocket::RecvDestroyKnights( char* pBuf )
+/***
+ * We've been told from another server that the clan is disbanding 
+ ***/
+void CUdpSocket::RecvDestroyKnights(char* pBuf)
 {
-	int send_index = 0, knightsindex = 0, index = 0, flag = 0;
-	char send_buff[128], finalstr[128]; 
-	CKnights*	pKnights = NULL;
-	CUser* pTUser = NULL;
-
-	knightsindex = GetShort( pBuf, index );
-
-	pKnights = m_pMain->m_KnightsArray.GetData( knightsindex );
-	if( !pKnights )		{
+	int index = 0;
+	int16 knightsindex = GetShort(pBuf, index);
+	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(knightsindex);
+	if (pKnights == NULL)
+	{
 		TRACE("UDP - ### RecvDestoryKnights  Fail == index = %d ###\n", knightsindex);
 		return;
 	}
 
-	flag = pKnights->m_byFlag;
-
-	// 클랜이나 기사단이 파괴된 메시지를 보내고 유저 데이타를 초기화
-	if( flag == CLAN_TYPE)
-		sprintf( finalstr, "#### %s 클랜이 해체되었습니다 ####", pKnights->m_strName );
-	else if( flag == KNIGHTS_TYPE )
-		sprintf( finalstr, "#### %s 기사단이 해체되었습니다 ####", pKnights->m_strName );
-
-	send_index = 0;
-	SetByte( send_buff, WIZ_CHAT, send_index );
-	SetByte( send_buff, KNIGHTS_CHAT, send_index );
-	SetByte( send_buff, 1, send_index );
-	SetShort( send_buff, -1, send_index );
-	SetKOString( send_buff, finalstr, send_index );
-	m_pMain->Send_KnightsMember( knightsindex, send_buff, send_index );
-
-	for (int i = 0; i < MAX_USER; i++)
-	{
-		pTUser = m_pMain->GetUnsafeUserPtr(i);
-		if (pTUser == NULL || pTUser->m_pUserData->m_bKnights != knightsindex)
-			continue;
-
-		pTUser->m_pUserData->m_bKnights = 0;
-		pTUser->m_pUserData->m_bFame = 0;
-
-		m_pMain->m_KnightsManager.RemoveKnightsUser( knightsindex, pTUser->m_pUserData->m_id );
-
-		send_index = 0;
-		SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-		SetByte( send_buff, KNIGHTS_MODIFY_FAME, send_index );
-		SetByte( send_buff, 0x01, send_index );
-		SetShort( send_buff, pTUser->GetSocketID(), send_index );
-		SetShort( send_buff, pTUser->m_pUserData->m_bKnights, send_index );
-		SetByte( send_buff, pTUser->m_pUserData->m_bFame, send_index );
-		m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
-	}
-	
-	m_pMain->m_KnightsArray.DeleteData( knightsindex );
-	//TRACE("UDP - RecvDestoryKnights - index=%d\n", knightsindex);
+	pKnights->Disband();
 }
-	
+
+/***
+ * Another server has updated our war player counts.
+ ***/
 void CUdpSocket::RecvBattleZoneCurrentUsers( char* pBuf )
 {
 	int nKarusMan = 0, nElmoradMan = 0, index = 0;

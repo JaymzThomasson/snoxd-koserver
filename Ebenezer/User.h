@@ -212,7 +212,7 @@ public:
 	__forceinline bool isDead() { return m_bResHpType == USER_DEAD || m_pUserData->m_sHp <= 0; };
 
 	__forceinline bool isInParty() { return m_sPartyIndex != -1; };
-	__forceinline bool isInClan() { return m_pUserData->m_bKnights != -1; };
+	__forceinline bool isInClan() { return m_pUserData->m_bKnights > 0; };
 	__forceinline bool isClanLeader() { return isInClan() && getFame() == CHIEF; };
 
 	__forceinline bool isTrading() { return m_sExchangeUser != -1; };
@@ -413,7 +413,7 @@ public:
 	void SetMaxMp();
 	void SetMaxHp(int iFlag=0); // 0:default, 1:hp를 maxhp만큼 채워주기
 	void ExpChange(__int64 iExp);
-	void Chat( char* pBuf );
+	void Chat(char* pBuf);
 	void LogOut();
 	void SelCharToAgent( char* pBuf );
 	void SendMyInfo();
@@ -438,6 +438,11 @@ public:
 	void SkillDataLoad(char *pData);
 	void RecvSkillDataLoad(char *pData);
 	void FinalizeZoneChange();
+
+	void SendToRegion(Packet *pkt, CUser *pExceptUser = NULL, bool bDirect = true);
+
+	// Clan system
+	void SendClanUserStatusUpdate(bool bToRegion = true);
 
 	//Magic System - rewrite
 	void MagicSystem(Packet & pkt);
