@@ -21,7 +21,7 @@ void bb() {};		// nop function
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CIOCPSocket2::CIOCPSocket2()
+CIOCPSocket2::CIOCPSocket2() : m_remaining(0)
 {
 	m_pBuffer = new CCircularBuffer(SOCKET_BUFF_SIZE);
 	m_pRegionBuffer = new _REGION_BUFFER;
@@ -92,7 +92,7 @@ BOOL CIOCPSocket2::Connect( CIOCPort* pIocp, LPCTSTR lpszHostAddress, UINT nHost
 	if ( result == SOCKET_ERROR )
 	{
 		int err = WSAGetLastError();
-		TRACE("CONNECT FAIL : %d\n", err);
+		//TRACE("CONNECT FAIL : %d\n", err);
 		closesocket( m_Socket );
 		return FALSE;
 	}
@@ -378,10 +378,10 @@ int CIOCPSocket2::Receive()
 		last_err = WSAGetLastError();
 
 		if ( last_err == WSA_IO_PENDING ) {
-//			TRACE("RECV : IO_PENDING[SID=%d]\n", m_Sid);
-//			m_nPending++;
-//			if( m_nPending > 3 )
-//				goto close_routine;
+			TRACE("RECV : IO_PENDING[SID=%d]\n", m_Sid);
+			m_nPending++;
+			if( m_nPending > 3 )
+				goto close_routine;
 			return 0;
 		}
 		else if ( last_err == WSAEWOULDBLOCK )
@@ -422,122 +422,103 @@ close_routine:
 
 void CIOCPSocket2::ReceivedData(int length)
 {
-	if (length <= 0 || length >= MAX_PACKET_SIZE) return;
+	if (length <= 0 || length >= MAX_PACKET_SIZE) 
+		return;
 
-	int len = 0;
-	char *pData;
+	// Add the new packet data to the buffer
+	m_pBuffer->PutData(m_pRecvBuff, length);
 
-	// read received bytes into our circular buffer
-	m_pBuffer->PutData(m_pRecvBuff, length); 
-
-	// go over our circular buffer to try and find any KO packets, so we can parse them
-	while (PullOutCore(pData, len))
+	do
 	{
-		if (pData)
+		// if we haven't started reading the packet, let's start now...
+		if (m_remaining == 0)
 		{
-			// found a packet - it's parse time!
-			Parsing(len, pData);
+			// do we have enough data to start reading?
+			if (m_pBuffer->GetSize() < 5)
+				return; // wait for more data
 
-			delete [] pData;
-			pData = NULL;
+			// pull the first 2 bytes from the stream, should be our header.
+			uint16 header;
+			m_pBuffer->GetData((char *)&header, sizeof(header));
+			m_pBuffer->HeadIncrease(sizeof(header));
+
+			// not our header? uh oh.
+			if (header != 0x55aa)
+			{
+				TRACE("[SID=%d] Invalid header (%X)\n", m_Sid, header);
+				Close();
+				return;
+			}
+
+			// next 2 bytes should be the packet length
+			m_pBuffer->GetData((char *)&m_remaining, sizeof(m_remaining));
+			m_pBuffer->HeadIncrease(sizeof(m_remaining));
 		}
-	}
-}
 
-BOOL CIOCPSocket2::PullOutCore(char *&data, int &length)
-{
-	BYTE		pTmp[MAX_PACKET_SIZE], *pBuff;
-	int			len;
-	BOOL		foundCore;
-	MYSHORT		slen;
-	DWORD		wSerial = 0, recv_packet = 0;
-	int index = 1;
-
-	len = m_pBuffer->GetValidCount();
-
-	if (len <= 0 || len >= MAX_PACKET_SIZE) 
-		return FALSE;
-
-	m_pBuffer->GetData((char*)pTmp, len);
-	foundCore = FALSE;
-
-	int	sPos = 0, ePos = 0;
-
-	for (int i = 0; i < len && !foundCore; i++)
-	{
-		if (i+2 >= len) 
-			break;
-
-		if (pTmp[i] == PACKET_START1 && pTmp[i+1] == PACKET_START2)
+		// is the packet just too big to do anything with? well, screw them.
+		if (m_remaining > MAX_PACKET_SIZE)
 		{
-			sPos = i+2;
-
-			slen.b[0] = pTmp[sPos];
-			slen.b[1] = pTmp[sPos + 1];
-
-			length = slen.w;
-
-			if (length < 0 || length > len || length >= MAX_PACKET_SIZE)
-				goto cancelRoutine;
-
-			ePos = sPos+length + 2;
-
-			if ((ePos + 2) > len)
-				goto cancelRoutine;
-
-			if (pTmp[ePos] == PACKET_END1 && pTmp[ePos+1] == PACKET_END2)
-			{
-				if (m_CryptionFlag)
-				{
-					pBuff = new BYTE[length+1]; 
-					if (jct.JvDecryptionWithCRC32(length, (unsigned char*)pTmp+sPos+2, pBuff) < 0)
-					{
-						TRACE("CIOCPSocket2::PutOutCore - Decryption Error... sockid(%d)\n", m_Socket);
-						delete[] pBuff;
-						Close();
-						goto cancelRoutine;
-					}
-
-					recv_packet = GetDWORD((char*)pBuff, index);
-					//TRACE("^^^ IOCPSocket2,, PullOutCore ,,, recv_val = %d ^^^\n", recv_packet);
-
-					m_Rec_val = recv_packet;
-					length = length-8;
-					if( length <= 0 )	{
-						TRACE("CIOCPSocket2::PutOutCore - length Error... sockid(%d), len=%d\n", m_Socket, length);
-						delete[] pBuff;
-						Close();
-						goto cancelRoutine;
-					}
-					data = new char[length+1];
-					CopyMemory((void *)data, (const void *)(pBuff+4), length);
-					data[length] = 0;
-					foundCore = TRUE;
-					int head = m_pBuffer->GetHeadPos(), tail = m_pBuffer->GetTailPos();
-					delete[] pBuff;
-				}
-				else	
-				{
-					data = new char[length+1];
-					CopyMemory((void *)data, (const void *)(pTmp+sPos+2), length);
-					data[length] = 0;
-					foundCore = TRUE;
-					int head = m_pBuffer->GetHeadPos(), tail = m_pBuffer->GetTailPos();
-				}
-				break;
-			}
-			else 
-			{
-				m_pBuffer->HeadIncrease(3);
-				break;
-			}
+			TRACE("[SID=%d] Packet too big (or broken packet) at %d bytes\n", m_Sid, m_remaining);
+			Close();
+			return;
 		}
-	}
-	if (foundCore)
-		m_pBuffer->HeadIncrease( (m_CryptionFlag ? 10 : 6) + length); // 6: header 2+ end 2+ length 2 + cryption 4
 
-cancelRoutine:
-	return foundCore;
+		// Do we have all the data in our buffer yet?
+		// If not, we'll wait and try again (in the case of fragmented packets)... but we're not going to wait too long, mind.
+		if (m_pBuffer->GetSize() < m_remaining)
+		{
+			TRACE("[SID=%d] Don't have enough data to read packet, tried %d times so far\n", m_Sid, m_retryAttempts);
+			if (++m_retryAttempts > 3)
+			{
+				TRACE("[SID=%d] Too many attempts to retrieve packet, user is laggy or screwing with us.\n", m_Sid);
+				Close();
+			}
+			return;
+		}
+
+		// We have all of the packet! Yay us!
+		m_retryAttempts = 0;
+
+		// this is really horrible, but it'll suffice for testing
+		uint8 in_stream[MAX_PACKET_SIZE], out_stream[MAX_PACKET_SIZE];
+
+		m_pBuffer->GetData((char *)in_stream, m_remaining);
+		m_pBuffer->HeadIncrease(m_remaining);
+
+		// Is the packet encrypted? If so, decrypt it first.
+		if (m_CryptionFlag)
+		{
+			int result = jct.JvDecryptionWithCRC32(m_remaining, in_stream, out_stream);
+			if (m_remaining < 4 // invalid packet (server packets have a checksum)
+				|| result < 0 // invalid checksum 
+				|| ++m_Rec_val != *(uint32 *)(out_stream)) // invalid sequence ID
+			{
+				TRACE("[SID=%d] m_remaining(%d) < 4, invalid CRC(%d) or invalid sequence (%d != %d)\n", m_Sid, m_remaining, result, m_Rec_val, *(uint32 *)(out_stream));
+				Close();
+				return;
+			}
+
+			m_remaining -= 4;
+			memcpy(in_stream, &out_stream[4], m_remaining); // sigh..
+			// TRACE("[SID=%d] Decrypted packet %X (len=%d)\n", m_Sid, *in_stream,  m_remaining);
+		}
+
+		uint16 footer;
+		m_pBuffer->GetData((char *)&footer, sizeof(footer));
+		m_pBuffer->HeadIncrease(sizeof(footer));
+
+		if (footer != 0xaa55)
+		{
+			TRACE("[SID=%d] Invalid packet footer, received %X\n", m_Sid, footer); // LAST ONE!?
+			Close();
+			return;
+		}
+
+		// found a packet - it's parse time!
+		Parsing(m_remaining, (char *)in_stream);
+		m_remaining = 0;
+	}
+	while (!m_pBuffer->isEmpty());
 }
 
 BOOL CIOCPSocket2::AsyncSelect( long lEvent )
@@ -676,32 +657,4 @@ void CIOCPSocket2::SendCompressingPacket(Packet *pkt)
 	result << uint16(comp.m_nOutputBufferCurPos) << uint16(comp.m_nOrgDataLength) << uint32(comp.m_dwCrc);
 	result.append(comp.m_pOutputBuffer, comp.m_nOutputBufferCurPos);
 	Send(&result);
-}
-
-void CIOCPSocket2::RegionPacketAdd(char *pBuf, int len)
-{
-	m_pRegionBuffer->Lock.AcquireWriteLock();
-	m_pRegionBuffer->Buffer << uint16(len);
-	m_pRegionBuffer->Buffer.append(pBuf, len);
-	m_pRegionBuffer->Lock.ReleaseWriteLock();
-}
-
-void CIOCPSocket2::RegionPacketAdd(Packet *pkt)
-{
-	m_pRegionBuffer->Lock.AcquireWriteLock();
-	m_pRegionBuffer->Buffer << uint16(pkt->size()) << *pkt;
-	m_pRegionBuffer->Lock.ReleaseWriteLock();
-}
-
-void CIOCPSocket2::SendRegionPackets()
-{
-	m_pRegionBuffer->Lock.AcquireReadLock();
-	if (m_pRegionBuffer->Buffer.size())
-	{
-		Packet result(WIZ_CONTINOUS_PACKET);
-		result << uint16(m_pRegionBuffer->Buffer.size()) << m_pRegionBuffer->Buffer;
-		m_pRegionBuffer->Buffer.clear();
-		Send(&result);
-	}
-	m_pRegionBuffer->Lock.ReleaseReadLock();
 }

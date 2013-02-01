@@ -777,7 +777,7 @@ void CKnightsManager::RecvCreateKnights(CUser *pUser, char *pBuf)
 	SetByte( send_buff, 5, send_index );  // knights grade
 	SetByte( send_buff, 0, send_index );
 	SetDWORD( send_buff, money, send_index );
-	m_pMain->Send_Region( send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ, NULL, false );
+	m_pMain->Send_Region( send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ );
 
 	send_index = 0;
 	SetByte( send_buff, UDP_KNIGHTS_PROCESS, send_index );
@@ -830,7 +830,7 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, char* pBuf, BYTE command)
 		SetByte( send_buff, pKnights->m_byGrade, send_index );  // knights grade
 		SetByte( send_buff, pKnights->m_byRanking, send_index );  // knights grade
 	}
-	m_pMain->Send_Region( send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ, NULL, false );
+	m_pMain->Send_Region( send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ );
 
 	send_index = 0;
 	SetByte( send_buff, WIZ_CHAT, send_index );
@@ -926,7 +926,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, char *pBuf, BYTE command)
 			SetShort( send_buff, pTUser->GetSocketID(), send_index );
 			SetShort( send_buff, pTUser->m_pUserData->m_bKnights, send_index );
 			SetByte( send_buff, pTUser->m_pUserData->m_bFame, send_index );
-			m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+			m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ );
 		}
 		else	{
 			SetShort( send_buff, pTUser->GetSocketID(), send_index );
@@ -1014,7 +1014,7 @@ void CKnightsManager::RecvDestroyKnights(CUser *pUser, char *pBuf)
 			SetShort( send_buff, pTUser->GetSocketID(), send_index );
 			SetShort( send_buff, pTUser->m_pUserData->m_bKnights, send_index );
 			SetByte( send_buff, pTUser->m_pUserData->m_bFame, send_index );
-			m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL, false );
+			m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ );
 			//pTUser->Send( send_buff, send_index );
 		}
 	}

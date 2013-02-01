@@ -75,7 +75,7 @@ void CUser::Chat(char *pBuf)
 			break;
 
 		MSpChange(-(m_iMaxMp / 5));
-		m_pMain->Send_Region(send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false);
+		m_pMain->Send_Region(send_buff, send_index, GetMap(), m_RegionX, m_RegionZ);
 		break;
 
 	case KNIGHTS_CHAT:
@@ -95,7 +95,7 @@ void CUser::Chat(char *pBuf)
 			m_pMain->Send_CommandChat( send_buff, send_index, m_pUserData->m_bNation, this );
 		break;
 	case MERCHANT_CHAT:
-		m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
+		m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ );
 	break;
 	//case WAR_SYSTEM_CHAT:
 	//	m_pMain->Send_All( send_buff, send_index );

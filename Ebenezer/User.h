@@ -450,6 +450,8 @@ public:
 	void ShoppingMall(char *pData);
 	void HandleStoreClose();
 
+	void HandleHelmet(char *pData);
+
 	// from Aujard
 	void RecvStore(char *pData);
 	void RecvStoreClose(char *pData);

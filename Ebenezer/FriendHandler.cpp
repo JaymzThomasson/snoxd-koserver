@@ -26,16 +26,9 @@ void CUser::FriendProcess(char *pBuf)
 // Request friend list.
 void CUser::FriendRequest(char *pBuf)
 {
-	int send_index = 0;
-	char send_buff[4];
-
-	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
-	SetByte(send_buff, FRIEND_REQUEST, send_index);
-	SetShort(send_buff, m_Sid, send_index);
-
-	int result = m_pMain->m_LoggerSendQueue.PutData(send_buff, send_index);
-	if (result >= SMQ_FULL)
-		DEBUG_LOG("Failed to send friend list request packet : %d", result);
+	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REQUEST));
+	result << uint16(GetSocketID());
+	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 // Add or remove a friend from your list.

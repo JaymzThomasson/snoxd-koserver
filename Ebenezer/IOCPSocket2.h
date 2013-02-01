@@ -23,16 +23,12 @@ class CCircularBuffer;
 class CIOCPSocket2  
 {
 public:
-	void SendRegionPackets();
-	void RegionPacketAdd( char* pBuf, int len ); // PENDING DEPRECATION
-	void RegionPacketAdd(Packet *pkt); 
 	void SendCompressingPacket( const char* pData, int len ); // PENDING DEPRECATION
 	void SendCompressingPacket(Packet *pkt);
 	void InitSocket( CIOCPort* pIOCPort );
 	void Close();
 	BOOL AsyncSelect( long lEvent = FD_READ | FD_WRITE | FD_OOB | FD_ACCEPT | FD_CONNECT | FD_CLOSE );
 	BOOL ShutDown( int nHow = sends );
-	BOOL PullOutCore(char *&data, int &length);
 	void ReceivedData(int length);
 	int  Receive();
 	int  Send(char *pBuf, long length);
@@ -67,6 +63,8 @@ public:
 protected:
 	CIOCPort* m_pIOCPort;
 	CCircularBuffer*	m_pBuffer;
+	uint16 m_remaining;
+	uint8 m_retryAttempts;
 
 	SOCKET				m_Socket;
 
@@ -88,7 +86,7 @@ protected:
 	int					m_CryptionFlag;
 	T_KEY				m_Public_key;
 	DWORD				m_Sen_val;
-	DWORD				m_Rec_val;
+	uint32				m_Rec_val;
 	///~
 
 	DWORD		m_wPacketSerial;

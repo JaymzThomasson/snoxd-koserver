@@ -17,29 +17,28 @@ public:
 
 	void	PutData(char *pData, int len);
 	void	GetData(char *pData, int len);
-	int		GetOutData(char *pData); //HeadPos, 변화
-	void	PutData(char& data);
-	char&	GetHeadData(){return m_pBuffer[m_iHeadPos];}
-	//1 Byte Operation;
-	//false : 모든데이터 다빠짐, TRUE: 정상적으로 진행중
-	BOOL	HeadIncrease(int increasement=1);
-	void	SetEmpty() {m_iHeadPos=0; m_iTailPos=0;}
+	char&	GetHeadData() { return m_pBuffer[m_iHeadPos]; }
 
-	int&	GetBufferSize() {return m_iBufSize;}
-	int&	GetHeadPos() {return m_iHeadPos;}
-	int&	GetTailPos() {return m_iTailPos;}
+	BOOL	HeadIncrease(int increasement=1);
+	void	SetEmpty() { m_iOffset = m_iHeadPos = m_iTailPos = 0; }
+
 	int		GetValidCount();
+
+	unsigned int GetSize() { return m_iOffset; }
+	bool isEmpty() { return (m_iOffset == 0); }
+
 protected:
-	//over flow 먼저 점검한 후 IndexOverFlow 점검
-	BOOL	IsOverFlowCondition(int &len) {return (len >= m_iBufSize-GetValidCount()) ? TRUE: FALSE;}
-	BOOL	IsIndexOverFlow(int &len) {return (len+m_iTailPos>=m_iBufSize) ? TRUE:FALSE;}
-	void	BufferResize(); //overflow condition 일때 size를 현재의 두배로 늘림
+	BOOL	IsOverFlowCondition(int &len) { return (len >= m_iBufSize-GetValidCount()); }
+	BOOL	IsIndexOverFlow(int &len) { return (len+m_iTailPos>=m_iBufSize); }
+	void	BufferResize(); 
 protected:
 	int		m_iBufSize;
 	char	*m_pBuffer;
 
 	int		m_iHeadPos;
 	int		m_iTailPos;
+
+	unsigned int	m_iOffset;
 };
 
 inline int CCircularBuffer::GetValidCount()
@@ -51,7 +50,9 @@ inline int CCircularBuffer::GetValidCount()
 
 inline void CCircularBuffer::BufferResize()
 {
-	int prevBufSize = m_iBufSize;
+	int prevBufSize;
+	
+	prevBufSize = m_iBufSize;
 	m_iBufSize <<= 1;
 	char *pNewData = new char[m_iBufSize];
 	CopyMemory(pNewData, m_pBuffer, prevBufSize);
@@ -62,14 +63,6 @@ inline void CCircularBuffer::BufferResize()
 	}
 	delete [] m_pBuffer;
 	m_pBuffer = pNewData;
-}
-
-inline void CCircularBuffer::PutData(char &data)
-{
-	int len = 1;
-	while (IsOverFlowCondition(len)) BufferResize();
-	m_pBuffer[m_iTailPos++] = data;
-	if (m_iTailPos==m_iBufSize) m_iTailPos = 0;
 }
 
 inline void CCircularBuffer::PutData(char *pData, int len)
@@ -88,34 +81,15 @@ inline void CCircularBuffer::PutData(char *pData, int len)
 			m_iTailPos = SecondCopyLen;
 		}
 		else m_iTailPos = 0;
+
+		m_iOffset += len;
 	}
 	else
 	{
 		CopyMemory(m_pBuffer+m_iTailPos, pData, len);
 		m_iTailPos += len;
+		m_iOffset += len;
 	}
-}
-
-inline int CCircularBuffer::GetOutData(char *pData)
-{
-	int len = GetValidCount();
-	int fc, sc;
-	fc = m_iBufSize-m_iHeadPos;
-	if (len>fc)
-	{
-		sc = len - fc;
-		CopyMemory(pData, m_pBuffer+m_iHeadPos, fc);
-		CopyMemory(pData+fc, m_pBuffer, sc);
-		m_iHeadPos = sc;
-		ASSERT(m_iHeadPos==m_iTailPos);
-	}
-	else
-	{
-		CopyMemory(pData, m_pBuffer+m_iHeadPos, len);
-		m_iHeadPos += len;
-		if (m_iHeadPos==m_iBufSize) m_iHeadPos = 0;
-	}
-	return len;
 }
 
 inline void CCircularBuffer::GetData(char *pData, int len)
@@ -131,6 +105,9 @@ inline void CCircularBuffer::GetData(char *pData, int len)
 		CopyMemory(pData, m_pBuffer+m_iHeadPos, fc);
 		if (sc) CopyMemory(pData+fc, m_pBuffer, sc);
 	}
+
+	ASSERT(m_iOffset >= (unsigned int)len);
+	m_iOffset -= len;
 }
 
 inline BOOL CCircularBuffer::HeadIncrease(int increasement)
