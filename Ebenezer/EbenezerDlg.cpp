@@ -1569,10 +1569,17 @@ void CEbenezerDlg::RegionNpcInfoForMe(CUser *pSendUser)
 	ASSERT(pMap != NULL);
 	int npc_count = 0;
 	result << uint16(0); // placeholder for NPC count
+<<<<<<< HEAD
 
 	foreach_region(x, z)
 		GetRegionNpcList(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, npc_count);
 
+=======
+
+	foreach_region(x, z)
+		GetRegionNpcList(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, npc_count);
+
+>>>>>>> 2fa44c583bbba9aac2d2a5ebd074bf1c7f9b8dc6
 	result.put(0, uint16(npc_count));
 	pSendUser->Send(&result); // NOTE: Compress
 }

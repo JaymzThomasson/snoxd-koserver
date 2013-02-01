@@ -658,3 +658,34 @@ void CIOCPSocket2::SendCompressingPacket(Packet *pkt)
 	result.append(comp.m_pOutputBuffer, comp.m_nOutputBufferCurPos);
 	Send(&result);
 }
+<<<<<<< HEAD
+=======
+
+void CIOCPSocket2::RegionPacketAdd(char *pBuf, int len)
+{
+	m_pRegionBuffer->Lock.AcquireWriteLock();
+	m_pRegionBuffer->Buffer << uint16(len);
+	m_pRegionBuffer->Buffer.append(pBuf, len);
+	m_pRegionBuffer->Lock.ReleaseWriteLock();
+}
+
+void CIOCPSocket2::RegionPacketAdd(Packet *pkt)
+{
+	m_pRegionBuffer->Lock.AcquireWriteLock();
+	m_pRegionBuffer->Buffer << uint16(pkt->size()) << *pkt;
+	m_pRegionBuffer->Lock.ReleaseWriteLock();
+}
+
+void CIOCPSocket2::SendRegionPackets()
+{
+	m_pRegionBuffer->Lock.AcquireReadLock();
+	if (m_pRegionBuffer->Buffer.size())
+	{
+		Packet result(WIZ_CONTINOUS_PACKET);
+		result << uint16(m_pRegionBuffer->Buffer.size()) << m_pRegionBuffer->Buffer;
+		m_pRegionBuffer->Buffer.clear();
+		Send(&result); // NOTE: Compress
+	}
+	m_pRegionBuffer->Lock.ReleaseReadLock();
+}
+>>>>>>> 2fa44c583bbba9aac2d2a5ebd074bf1c7f9b8dc6
