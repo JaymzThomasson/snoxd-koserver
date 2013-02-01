@@ -89,7 +89,7 @@ void CNpc::MoveResult(float xpos, float ypos, float zpos, float speed)
 	SetShort(pOutBuf, (short)m_fCurY*10, send_index);
 	SetShort(pOutBuf, (short)speed*10, send_index);
 
-	m_pMain->Send_Region(pOutBuf, send_index, GetMap(), m_sRegion_X, m_sRegion_Z, NULL, false );
+	m_pMain->Send_Region(pOutBuf, send_index, GetMap(), m_sRegion_X, m_sRegion_Z );
 }
 
 void CNpc::NpcInOut(BYTE Type, float fx, float fz, float fy)
@@ -281,5 +281,5 @@ void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
 	SetShort(send_buff, GetID(), send_index );
 	SetByte(send_buff, m_byGateOpen, send_index );
 
-	m_pMain->Send_Region(send_buff, send_index, GetMap(), m_sRegion_X, m_sRegion_Z, NULL, false);	
+	m_pMain->Send_Region(send_buff, send_index, GetMap(), m_sRegion_X, m_sRegion_Z);	
 }

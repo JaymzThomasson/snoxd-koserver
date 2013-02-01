@@ -133,11 +133,11 @@ echo :
 
 	if (sid < MAX_USER)
 	{
-		m_pMain->Send_Region( &result, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ, NULL, false );
+		m_pMain->Send_Region( &result, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ );
 	}
 	else if ( sid >= NPC_BAND)
 	{ 
-		m_pMain->Send_Region( &result, pMon->GetMap(), pMon->m_sRegion_X, pMon->m_sRegion_Z, NULL, false );
+		m_pMain->Send_Region( &result, pMon->GetMap(), pMon->m_sRegion_X, pMon->m_sRegion_Z );
 	}
 }
 
@@ -225,7 +225,7 @@ packet_send:
 			result << uint16(0);
 		}
 
-		m_pMain->Send_Region( &result, GetMap(), m_RegionX, m_RegionZ, NULL, false );
+		m_pMain->Send_Region( &result, GetMap(), m_RegionX, m_RegionZ );
 	}
 
 	return;

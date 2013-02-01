@@ -266,9 +266,6 @@ BOOL CIOCPSocket2::PullOutCore(char *&data, int &length)
 				CopyMemory((void *)data, (const void *)(pTmp+sPos+2), length);
 				data[length] = 0;
 				foundCore = TRUE;
-				int head = m_pBuffer->GetHeadPos(), tail = m_pBuffer->GetTailPos();
-//				TRACE("data : %s, len : %d\n", data, length);
-//				TRACE("head : %d, tail : %d\n", head, tail );
 				break;
 			}
 			else 

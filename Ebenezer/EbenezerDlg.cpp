@@ -32,7 +32,6 @@
 using namespace std;
 
 #define GAME_TIME       	100
-#define SEND_TIME			200
 #define ALIVE_TIME			400
 
 #define NUM_FLAG_VICTORY    4
@@ -531,7 +530,6 @@ HCURSOR CEbenezerDlg::OnQueryDragIcon()
 BOOL CEbenezerDlg::DestroyWindow() 
 {
 	KillTimer(GAME_TIME);
-	KillTimer(SEND_TIME);
 	KillTimer(ALIVE_TIME);
 
 	KickOutAllUsers();
@@ -744,15 +742,6 @@ void CEbenezerDlg::OnTimer(UINT nIDEvent)
 			// sungyong~ 2002.05.23
 		}
 		break;
-	case SEND_TIME:
-		m_Iocport.m_PostOverlapped.Offset = OVL_SEND;
-		retval = PostQueuedCompletionStatus( m_Iocport.m_hSendIOCPort, (DWORD)0, (DWORD)0, &(m_Iocport.m_PostOverlapped) );
-		if ( !retval ) {
-			int errValue;
-			errValue = GetLastError();
-			TRACE("Send PostQueued Error : %d\n", errValue);
-		}
-		break;
 	case ALIVE_TIME:
 		CheckAliveUser();
 		break;
@@ -858,33 +847,33 @@ void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 na
 	}
 }
 
-void CEbenezerDlg::Send_Region(char *pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser, bool bDirect)
+void CEbenezerDlg::Send_Region(char *pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser)
 {
-	Send_UnitRegion( pBuf, len, pMap, x, z, pExceptUser, bDirect );
-	Send_UnitRegion( pBuf, len, pMap, x-1, z-1, pExceptUser, bDirect );	// NW
-	Send_UnitRegion( pBuf, len, pMap, x, z-1, pExceptUser, bDirect );		// N
-	Send_UnitRegion( pBuf, len, pMap, x+1, z-1, pExceptUser, bDirect );	// NE
-	Send_UnitRegion( pBuf, len, pMap, x-1, z, pExceptUser, bDirect );		// W
-	Send_UnitRegion( pBuf, len, pMap, x+1, z, pExceptUser, bDirect );		// E
-	Send_UnitRegion( pBuf, len, pMap, x-1, z+1, pExceptUser, bDirect );	// SW
-	Send_UnitRegion( pBuf, len, pMap, x, z+1, pExceptUser, bDirect );		// S
-	Send_UnitRegion( pBuf, len, pMap, x+1, z+1, pExceptUser, bDirect );	// SE
+	Send_UnitRegion( pBuf, len, pMap, x, z, pExceptUser );
+	Send_UnitRegion( pBuf, len, pMap, x-1, z-1, pExceptUser );	// NW
+	Send_UnitRegion( pBuf, len, pMap, x, z-1, pExceptUser );		// N
+	Send_UnitRegion( pBuf, len, pMap, x+1, z-1, pExceptUser );	// NE
+	Send_UnitRegion( pBuf, len, pMap, x-1, z, pExceptUser );		// W
+	Send_UnitRegion( pBuf, len, pMap, x+1, z, pExceptUser );		// E
+	Send_UnitRegion( pBuf, len, pMap, x-1, z+1, pExceptUser );	// SW
+	Send_UnitRegion( pBuf, len, pMap, x, z+1, pExceptUser );		// S
+	Send_UnitRegion( pBuf, len, pMap, x+1, z+1, pExceptUser );	// SE
 }
 
-void CEbenezerDlg::Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser, bool bDirect)
+void CEbenezerDlg::Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser)
 {
-	Send_UnitRegion(pkt, pMap, x, z, pExceptUser, bDirect );
-	Send_UnitRegion(pkt, pMap, x-1, z-1, pExceptUser, bDirect );	// NW
-	Send_UnitRegion(pkt, pMap, x, z-1, pExceptUser, bDirect );		// N
-	Send_UnitRegion(pkt, pMap, x+1, z-1, pExceptUser, bDirect );	// NE
-	Send_UnitRegion(pkt, pMap, x-1, z, pExceptUser, bDirect );		// W
-	Send_UnitRegion(pkt, pMap, x+1, z, pExceptUser, bDirect );		// E
-	Send_UnitRegion(pkt, pMap, x-1, z+1, pExceptUser, bDirect );	// SW
-	Send_UnitRegion(pkt, pMap, x, z+1, pExceptUser, bDirect );		// S
-	Send_UnitRegion(pkt, pMap, x+1, z+1, pExceptUser, bDirect );	// SE
+	Send_UnitRegion(pkt, pMap, x, z, pExceptUser );
+	Send_UnitRegion(pkt, pMap, x-1, z-1, pExceptUser );	// NW
+	Send_UnitRegion(pkt, pMap, x, z-1, pExceptUser );		// N
+	Send_UnitRegion(pkt, pMap, x+1, z-1, pExceptUser );	// NE
+	Send_UnitRegion(pkt, pMap, x-1, z, pExceptUser );		// W
+	Send_UnitRegion(pkt, pMap, x+1, z, pExceptUser );		// E
+	Send_UnitRegion(pkt, pMap, x-1, z+1, pExceptUser );	// SW
+	Send_UnitRegion(pkt, pMap, x, z+1, pExceptUser );		// S
+	Send_UnitRegion(pkt, pMap, x+1, z+1, pExceptUser );	// SE
 }
 
-void CEbenezerDlg::Send_UnitRegion(char *pBuf, int len, C3DMap *pMap, int x, int z, CUser *pExceptUser, bool bDirect)
+void CEbenezerDlg::Send_UnitRegion(char *pBuf, int len, C3DMap *pMap, int x, int z, CUser *pExceptUser)
 {
 	if (pMap == NULL 
 		|| x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())
@@ -899,15 +888,12 @@ void CEbenezerDlg::Send_UnitRegion(char *pBuf, int len, C3DMap *pMap, int x, int
 		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART)
 			continue;
 
-		if (bDirect)
-			pUser->Send(pBuf, len);
-		else
-			pUser->RegionPacketAdd(pBuf, len);
+		pUser->Send(pBuf, len);
 	}
 	LeaveCriticalSection(&g_region_critical);
 }
 
-void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser *pExceptUser, bool bDirect)
+void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser *pExceptUser)
 {
 	if (pMap == NULL 
 		|| x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())
@@ -922,10 +908,7 @@ void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUse
 		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART)
 			continue;
 
-		if (bDirect)
-			pUser->Send(pkt);
-		else
-			pUser->RegionPacketAdd(pkt);
+		pUser->Send(pkt);
 	}
 	LeaveCriticalSection(&g_region_critical);
 }
@@ -976,7 +959,7 @@ void CEbenezerDlg::Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z
 			continue;
 
 		if (sqrt(pow((pUser->m_pUserData->m_curx - ref_x), 2) + pow((pUser->m_pUserData->m_curz - ref_z), 2)) < 32)
-			pUser->RegionPacketAdd(pkt);
+			pUser->Send(pkt);
 	}
 
 	LeaveCriticalSection( &g_region_critical );
@@ -1292,7 +1275,6 @@ void CEbenezerDlg::GetTimeFromIni()
 	}
 
 	SetTimer( GAME_TIME, 6000, NULL );
-	SetTimer( SEND_TIME, 200, NULL );
 	SetTimer( ALIVE_TIME, 34000, NULL );
 }
 

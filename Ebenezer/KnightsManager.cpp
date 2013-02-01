@@ -733,7 +733,7 @@ void CKnightsManager::RecvCreateKnights(CUser *pUser, char *pBuf)
 			<< pKnights->m_byGrade << pKnights->m_byRanking
 			<< pUser->m_pUserData->m_iGold;
 
-	pUser->SendToRegion(&result, NULL, false);
+	pUser->SendToRegion(&result);
 
 	result.Initialize(UDP_KNIGHTS_PROCESS);
 	result	<< uint8(KNIGHTS_CREATE)
@@ -764,7 +764,7 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, char* pBuf, BYTE command)
 	if (pKnights != NULL)
 		result << pKnights->m_strName << pKnights->m_byGrade << pKnights->m_byRanking;
 
-	pUser->SendToRegion(&result, NULL, false);
+	pUser->SendToRegion(&result);
 
 	result.Initialize(UDP_KNIGHTS_PROCESS);
 	result << command << knightsindex << pUser->m_pUserData->m_id;
@@ -839,7 +839,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, char *pBuf, BYTE command)
 
 	if (pTUser != NULL)
 		pTUser->SendClanUserStatusUpdate(command == KNIGHTS_REMOVE);
-	
+
 	Packet result(UDP_KNIGHTS_PROCESS, command);
 	result << knightsindex << userid;
 	m_pMain->Send_UDP_All(&result, (m_pMain->m_nServerGroup == 0 ? 0 : 1));
@@ -875,14 +875,6 @@ void CKnightsManager::RecvDestroyKnights(CUser *pUser, char *pBuf)
 	Packet result(UDP_KNIGHTS_PROCESS, uint8(KNIGHTS_DESTROY));
 	result << knightsindex;
 	m_pMain->Send_UDP_All(&result, (m_pMain->m_nServerGroup == 0 ? 0 : 1));
-
-	//if( flag == KNIGHTS_TYPE )	{
-/*		send_index = 0;
-		SetByte( send_buff, WIZ_KNIGHTS_LIST, send_index );
-		SetByte( send_buff, 0x03, send_index );					// Knights Remove From List 
-		SetShort( send_buff, knightsindex, send_index );
-		m_pMain->Send_All( send_buff, send_index, pUser );	*/
-	//}
 }
 
 void CKnightsManager::RecvKnightsList( char* pBuf )

@@ -232,12 +232,14 @@ void CUser::Parsing(Packet & pkt)
 		return;
 	else if(!m_bSelectedCharacter)
 		return;
-	switch(command)
+
+/*	switch(command)
 	{
 		case WIZ_MAGIC_PROCESS:
 			MagicSystem(pkt);
 		break;
 	}
+*/
 }
 
 void CUser::Parsing(int len, char *pData)
@@ -246,7 +248,7 @@ void CUser::Parsing(int len, char *pData)
 	float	currenttime = FLT_MIN;
 
 	BYTE command = GetByte(pData, index);
-	TRACE("Packet: %X (len=%d)\n", command, len);
+	TRACE("[SID=%d] Packet: %X (len=%d)\n", m_Sid, command, len);
 	// If crypto's not been enabled yet, force the version packet to be sent.
 	if (!m_CryptionFlag)
 	{
@@ -283,6 +285,13 @@ void CUser::Parsing(int len, char *pData)
 			break;
 		case WIZ_ALLCHAR_INFO_REQ:
 			AllCharInfoToAgent();
+			break;
+		case WIZ_SPEEDHACK_CHECK:
+			SpeedHackTime(pData+index);
+			break;
+
+		default:
+			TRACE("[SID=%d] Unhandled packet (%X) prior to selecting character\n", m_Sid, command);
 			break;
 		}
 		return;
@@ -455,6 +464,13 @@ void CUser::Parsing(int len, char *pData)
 		break;	
 	case WIZ_SHOPPING_MALL: // letter system's used in here too
 		ShoppingMall(pData+index);
+		break;
+	case WIZ_HELMET:
+		HandleHelmet(pData+index);
+		break;
+
+	default:
+		TRACE("[SID=%d] Unknown packet %X\n", m_Sid, command);
 		break;
 	}
 
@@ -1811,50 +1827,77 @@ fail_return:
 
 void CUser::StateChange(char *pBuf)
 {
-	int index = 0, send_index = 0;
-
-	BYTE type = 0x00;
-	BYTE buff = 0x00;
-
-	char send_buff[128];
+	int index = 0;
+	uint8 type, buff;
+	uint32 nBuff;
 
 	type = GetByte( pBuf, index );
-	buff = GetByte( pBuf, index );
+	nBuff = GetDWORD( pBuf, index );
 
 	if( type > 5 ) return;
 	if( type == 5 && m_pUserData->m_bAuthority != 0) return;	//  Operators only!!!
-	
-	if (type == 1) {
+
+	buff = *(uint8 *)&nBuff; // don't ask
+
+	switch (type)
+	{
+	case 1:
 		m_bResHpType = buff;
-	}
-	else if (type == 2) {
+		break;
+
+/*	case 2:
 		m_bNeedParty = buff;
-	}
-	else if (type == 3) {
+		break;*/
+
+	case 3:
+		switch (buff)
+		{
+		case 1: // unview
+		case 5: // view
+			// to-do: should implement GM check, but we'll leave it off for now (for science!)
+			// we have no visibility flag? ugh.
+			break;
+
+		case ABNORMAL_BLINKING: // blinking, duh 
+			break;
+
+		default:
+			TRACE("[SID=%d] StateChange: %s tripped (%d,%d) somehow, HOW!?\n", m_Sid, m_pUserData->m_id, type, buff);
+			break;
+
+		}
 		m_bAbnormalType = buff;
+		break;
+
+	case 4: // emotions
+		switch (buff)
+		{
+		case 1: // Greeting 1-3
+		case 2:
+		case 3:
+		case 11: // Provoke 1-3
+		case 12:
+		case 13:
+			break; // don't do anything with them (this can be handled neater, but just for testing purposes), just make sure they're allowed
+
+		default:
+			TRACE("[SID=%d] StateChange: %s tripped (%d,%d) somehow, HOW!?\n", m_Sid, m_pUserData->m_id, type, buff);
+			break;
+		}
+		break;
+
+	case 7:
+	case 8: // beginner quest
+		break;
+
+	default:
+		TRACE("[SID=%d] StateChange: %s tripped (%d,%d) somehow, HOW!?\n", m_Sid, m_pUserData->m_id, type, buff);
+		break;
 	}
 
-	SetByte( send_buff, WIZ_STATE_CHANGE, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetByte( send_buff, type, send_index );
-	if (type == 1) {
-		SetByte( send_buff, m_bResHpType, send_index );
-	}
-	else if (type == 2) {
-		SetByte( send_buff, m_bNeedParty, send_index );
-	}
-//
-	else if (type == 3) {
-		SetDWORD( send_buff, m_bAbnormalType, send_index ); // NOTE: This packet needs to be explicitly updated.
-	}	
-//
-	else {		// Just plain echo :)
-		SetByte( send_buff, buff, send_index );
-//		N3_SP_STATE_CHANGE_ACTION = 0x04,			// 1 - ???, 11 - ????
-//		N3_SP_STATE_CHANGE_VISIBLE = 0x05 };		// ??? 0 ~ 255
-	}
-
-	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ );
+	Packet result(WIZ_STATE_CHANGE);
+	result << uint16(GetSocketID()) << type << nBuff; /* hmm, it should probably be nBuff, not sure how transformations are to be handled so... otherwise, it's correct either way */
+	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
 }
 
 void CUser::StateChangeServerDirect(BYTE bType, int nValue)
@@ -2966,7 +3009,7 @@ void CUser::Type3AreaDuration(float currenttime)
 				SetShort( send_buff, 0, send_index );	
 				SetShort( send_buff, 0, send_index );	
 				SetShort( send_buff, 0, send_index );	
-				m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
+				m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ );
 			}
 		}
 
@@ -2987,7 +3030,7 @@ void CUser::Type3AreaDuration(float currenttime)
 	SetShort( send_buff, 0, send_index );	
 	SetShort( send_buff, 0, send_index );	
 	SetShort( send_buff, 0, send_index );	
-	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );	// Send packet to region.
+	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ );	// Send packet to region.
 }
 
 void CUser::InitType4()
@@ -3915,14 +3958,10 @@ void CUser::NativeZoneReturn()
 
 BOOL CUser::CheckRandom(short percent)
 {
-	if (percent < 0 || percent > 1000) return FALSE;
+	if (percent < 0 || percent > 1000) 
+		return FALSE;
 
-	int rand = 0;
-	rand = myrand(0, 1000);
-	
-	if (percent > rand) return TRUE;
-
-	return FALSE;
+	return (percent > myrand(0, 1000));
 }
 
 void CUser::RecvEditBox(char *pBuf)
@@ -3958,9 +3997,9 @@ void CUser::FinalizeZoneChange()
 	Send(&result);
 }
 
-void CUser::SendToRegion(Packet *pkt, CUser *pExceptUser /*= NULL*/, bool bDirect /*= true*/)
+void CUser::SendToRegion(Packet *pkt, CUser *pExceptUser /*= NULL*/)
 {
-	m_pMain->Send_Region(pkt, GetMap(), m_RegionX, m_RegionZ, pExceptUser, bDirect);
+	m_pMain->Send_Region(pkt, GetMap(), m_RegionX, m_RegionZ, pExceptUser);
 }
 
 // We have no clan handler, we probably won't need to implement it (but we'll see).
@@ -3972,7 +4011,17 @@ void CUser::SendClanUserStatusUpdate(bool bToRegion /*= true*/)
 
 	// TO-DO: Make this region code user-specific to perform faster.
 	if (bToRegion)
-		SendToRegion(&result, NULL, false);
+		SendToRegion(&result);
 	else
 		Send(&result);
+}
+
+void CUser::HandleHelmet(char *pData)
+{
+	Packet result(WIZ_HELMET);
+	int index = 0;
+	uint8 type = GetByte(pData, index);
+	// to-do: store helmet type
+	result << type << uint16(m_Sid) << uint16(0);
+	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
 }

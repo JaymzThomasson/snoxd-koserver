@@ -414,7 +414,7 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 		if(result == 0x04)	{								// 마법으로 죽는경우
 			SetByte( pOutBuf, WIZ_DEAD, send_index );
 			SetShort( pOutBuf, tid, send_index );
-			m_pMain->Send_Region(pOutBuf, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z, NULL, false);
+			m_pMain->Send_Region(pOutBuf, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
 		}
 		else {
 
@@ -427,7 +427,7 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 			SetShort( pOutBuf, sid, send_index );
 			SetShort( pOutBuf, tid, send_index );
 		
-			m_pMain->Send_Region(pOutBuf, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z, NULL, false);
+			m_pMain->Send_Region(pOutBuf, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
 
 		}
 
@@ -518,7 +518,7 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 			SetShort( pOutBuf, sid, send_index );
 			SetShort( pOutBuf, tid, send_index );
 			
-			m_pMain->Send_Region(pOutBuf, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z, NULL, false);
+			m_pMain->Send_Region(pOutBuf, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
 
 //			TRACE("RecvNpcAttack : id=%s, result=%d, AI_HP=%d, GM_HP=%d\n", pUser->m_pUserData->m_id, result, sHP, pUser->m_pUserData->m_sHp);
 			//TRACE("RecvNpcAttack ==> sid = %d, tid = %d, result = %d\n", sid, tid, result);
@@ -595,7 +595,7 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 				}
 			}
 
-			m_pMain->Send_Region(pOutBuf, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z, NULL, false);
+			m_pMain->Send_Region(pOutBuf, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
 		}
 	}
 }
@@ -639,7 +639,7 @@ void CAISocket::RecvMagicAttackResult(char* pBuf)
 		if(!pNpc)	return;
 		index = 0;
 		SetByte( send_buff, WIZ_MAGIC_PROCESS, index );
-		m_pMain->Send_Region(send_buff, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z, NULL, false);
+		m_pMain->Send_Region(send_buff, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
 	}
 	else if(byCommand == 0x03)	{	// effecting
 		//pNpc = m_pMain->m_arNpcArray.GetData(tid);
@@ -651,7 +651,7 @@ void CAISocket::RecvMagicAttackResult(char* pBuf)
 
 			index = 0;
 			SetByte( send_buff, WIZ_MAGIC_PROCESS, index );
-			m_pMain->Send_Region(send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ, NULL, false);
+			m_pMain->Send_Region(send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ);
 		}
 		else if(sid >= NPC_BAND)	{
 			if(tid >= NPC_BAND)	{
@@ -659,7 +659,7 @@ void CAISocket::RecvMagicAttackResult(char* pBuf)
 				if(!pNpc)	return;
 				index = 0;
 				SetByte( send_buff, WIZ_MAGIC_PROCESS, index );
-				m_pMain->Send_Region(send_buff, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z, NULL, false);
+				m_pMain->Send_Region(send_buff, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
 				return;
 			}
 			send_index = 0;
@@ -1067,7 +1067,7 @@ void CAISocket::RecvNpcDead(char* pBuf)
 
 		SetByte( send_buff, WIZ_DEAD, send_index );
 		SetShort( send_buff, nid, send_index );
-		m_pMain->Send_Region(send_buff, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z, NULL, false);
+		m_pMain->Send_Region(send_buff, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
 
 		pNpc->m_sRegion_X = 0;		pNpc->m_sRegion_Z = 0;
 	}

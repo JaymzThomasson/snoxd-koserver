@@ -21,7 +21,6 @@ class CIOCPort
 {
 public:
 	CIOCPort();
-	void CreateSendWorkerThread();
 	int GetClientSid();
 	void CreateAcceptThread();
 	void CreateClientWorkerThread();
@@ -40,7 +39,6 @@ public:
 	HANDLE m_hListenEvent;
 	HANDLE m_hServerIOCPort;
 	HANDLE m_hClientIOCPort;
-	HANDLE m_hSendIOCPort;		// Compress Packet Send Exclusively
 	HANDLE m_hAcceptThread;
 
 	OVERLAPPED		m_PostOverlapped;
@@ -51,7 +49,6 @@ public:
 	SidList m_SidList;
 
 	HANDLE * m_hReceiveWorkerThreads;
-	HANDLE * m_hSendWorkerThreads;
 	HANDLE   m_hClientWorkerThreads[10]; // AI
 
 	CIOCPSocket2 **m_SockArray;

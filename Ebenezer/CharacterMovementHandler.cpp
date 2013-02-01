@@ -53,7 +53,7 @@ void CUser::MoveProcess(char *pBuf )
 		<< echo;
 
 	RegisterRegion();
-	m_pMain->Send_Region( &result, GetMap(), m_RegionX, m_RegionZ, NULL, true ); //last argument should be false but until region packets are fixed keep this true.
+	m_pMain->Send_Region( &result, GetMap(), m_RegionX, m_RegionZ );
 
 	GetMap()->CheckEvent( real_x, real_z, this );
 
@@ -153,7 +153,7 @@ void CUser::Rotate( char* pBuf )
 	SetShort( buff, m_Sid, send_index );
 	SetShort( buff, dir, send_index );
 
-	m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
+	m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ );
 }
 
 void CUser::ZoneChange(int zone, float x, float z)

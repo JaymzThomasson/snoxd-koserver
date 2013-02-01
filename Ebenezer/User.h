@@ -439,7 +439,7 @@ public:
 	void RecvSkillDataLoad(char *pData);
 	void FinalizeZoneChange();
 
-	void SendToRegion(Packet *pkt, CUser *pExceptUser = NULL, bool bDirect = true);
+	void SendToRegion(Packet *pkt, CUser *pExceptUser = NULL);
 
 	// Clan system
 	void SendClanUserStatusUpdate(bool bToRegion = true);
@@ -454,6 +454,8 @@ public:
 	// from the client
 	void ShoppingMall(char *pData);
 	void HandleStoreClose();
+
+	void HandleHelmet(char *pData);
 
 	// from Aujard
 	void RecvStore(char *pData);

@@ -165,7 +165,7 @@ void CUser::Attack(char *pBuf)
 //	SetShort( buff, sid, send_index );
 	SetShort( buff, m_Sid, send_index );
 	SetShort( buff, tid, send_index );
-	m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ, NULL, false );
+	m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ );
 
 	if( tid < NPC_BAND )	{
 		if( result == 0x02 )	{
@@ -663,7 +663,7 @@ void CUser::Regene(char *pBuf, int magicid)
 	SetShort( send_buff, (WORD)(m_pUserData->m_curz*10), send_index );
 	SetShort( send_buff, (short)(m_pUserData->m_cury*10), send_index );
 	Send( send_buff, send_index );
-//	m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ, NULL, false ); //
+//	m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ ); //
 	
 	if (magicid > 0) {	// Clerical Resurrection.
 		pType = m_pMain->m_Magictype5Array.GetData(magicid);     
