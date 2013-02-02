@@ -10,7 +10,7 @@ public:
 		: CMyRecordSet<T>(pDatabase), m_map(pMap)
 	{
 #ifdef EBENEZER
-		m_nFields = 7;
+		m_nFields = 8;
 #else
 		m_nFields = 4;
 #endif

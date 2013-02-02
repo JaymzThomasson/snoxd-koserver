@@ -20,8 +20,7 @@ struct _ZONE_INFO
 	int m_nZoneNumber;
 	char m_MapName[_MAX_PATH];
 	float m_fInitX, m_fInitY, m_fInitZ;
-	BYTE m_bType;
-	uint8 isAttackZone;
+	BYTE m_bType, isAttackZone;
 
 	_ZONE_INFO()
 	{

@@ -4032,5 +4032,5 @@ bool CUser::isAttackZone()
 		|| ((getZoneID() == 1  && m_pMain->m_byKarusOpenFlag) || (getZoneID() == 2 && m_pMain->m_byElmoradOpenFlag)) )  //Taking into account invasions
 		return true;
 	else
-		return GetMap()->m_isAttackZone;
+		return (GetMap()->m_isAttackZone == 1 ? true : false);
 }

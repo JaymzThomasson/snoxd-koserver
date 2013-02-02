@@ -68,7 +68,7 @@ void CUser::MagicSystem( Packet & pkt )
 	uint32 magicid;
 	time_t skill_received_time;
 	uint16 sid, tid, data1, data2, data3, data4, data5, data6, data7;
-	CUser *pUser, *pTargetUser = NULL;
+	CUser *pTargetUser = NULL;
 	CNpc *pMon = NULL;
 
 	skill_received_time = GetTickCount(); //Retrieve the time at which the Magic packet is going for internal processing.
@@ -313,5 +313,5 @@ bool CUser::CanCast(uint32 magicid, uint16 sid, uint16 tid)
 	//Weapon checks incase of dualwield-only attacks, double-handed-only attacks, staff-only attacks etc.
 
 	//
-
+	return true;
 }
