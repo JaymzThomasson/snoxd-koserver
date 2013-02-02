@@ -21,6 +21,7 @@ struct _ZONE_INFO
 	char m_MapName[_MAX_PATH];
 	float m_fInitX, m_fInitY, m_fInitZ;
 	BYTE m_bType;
+	uint8 isAttackZone;
 
 	_ZONE_INFO()
 	{
@@ -92,6 +93,7 @@ public:
 	float m_fInitY;
 	BYTE	m_bType;		// Zone Type : 1 -> common zone,  2 -> battle zone, 3 -> 24 hour open battle zone
 	short	m_sMaxUser;
+	uint8 m_isAttackZone;
 
 	CRegion**	m_ppRegion;
 	short**		m_ppnEvent;

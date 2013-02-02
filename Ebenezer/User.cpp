@@ -4025,3 +4025,12 @@ void CUser::HandleHelmet(char *pData)
 	result << type << uint16(m_Sid) << uint16(0);
 	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
 }
+
+bool CUser::isAttackZone()
+{
+	if(getZoneID() == 21 && (GetSPosX() > 1 && GetSPosZ() > 1)															//TO-DO : Needs the correct coordinates to allow for the outdoors arena
+		|| ((getZoneID() == 1  && m_pMain->m_byKarusOpenFlag) || (getZoneID() == 2 && m_pMain->m_byElmoradOpenFlag)) )  //Taking into account invasions
+		return true;
+	else
+		return GetMap()->m_isAttackZone;
+}

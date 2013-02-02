@@ -117,7 +117,7 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 	if( !pMagic )
 		return ;	
 
-	if( pMagic->bMoral == 10 && tid != -1 )
+	if( pMagic->bMoral == 10 && tid != -1 ) //AoE attack on enemies, yet no target id.
 		return;
 
 	if ( sid >= NPC_BAND ) {

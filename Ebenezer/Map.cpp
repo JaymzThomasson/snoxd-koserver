@@ -39,6 +39,7 @@ C3DMap::C3DMap()
 	
 	m_nZoneNumber = 0;
 	m_bType = 0;
+	m_isAttackZone = 0;
 	m_wBundle = 1;
 	m_sMaxUser = 150;	// Max user in Battlezone!!!
 	m_pMain = NULL;
@@ -53,6 +54,7 @@ void C3DMap::Initialize(_ZONE_INFO *pZone)
 	m_fInitY = pZone->m_fInitY;
 	m_fInitZ = m_fInitZ;
 	m_bType = pZone->m_bType;
+	m_isAttackZone = pZone->isAttackZone;
 }
 
 C3DMap::~C3DMap()

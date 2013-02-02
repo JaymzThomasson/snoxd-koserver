@@ -73,17 +73,14 @@ void CUser::MagicSystem( Packet & pkt )
 
 	skill_received_time = GetTickCount(); //Retrieve the time at which the Magic packet is going for internal processing.
 
-	command = pkt.GetOpcode();
+	command = pkt.GetOpcode(); //This is actually WIZ_MAGIC_PROCESS
 	pkt >> subcommand >> magicid >> sid >> tid;
 
 	if( sid < 0 || tid < 0 || tid > INVALID_BAND || sid != (uint16)GetSocketID()) //Return if there's an invalid source or target received.
 		return;
 
-	if( sid < MAX_USER )
-	{
-		if (isDead())	
-			return;
-	}
+	if( sid < MAX_USER && isDead() )
+		return;
 
 	if(tid >= NPC_BAND)
 	{
@@ -99,8 +96,11 @@ void CUser::MagicSystem( Packet & pkt )
 	}
 
 	/*
-	Do ALL required pre-liminary checks here, will wrap that into another function, until then leaving this disabled.
+	Do ALL required pre-liminary checks here, wrapped into CanCast()
 	*/
+	if(!CanCast(magicid, sid, tid))
+		return;
+
 	//if(!CheckSkillCooldown(magicid, skill_received_time)) //Check if the skill is off-cooldown.
 	//	return;
 
@@ -108,13 +108,15 @@ void CUser::MagicSystem( Packet & pkt )
 
 	pkt >> data1 >> data2 >> data3 >> data4 >> data5 >> data6 >> data7;
 
-	switch(command)
+	switch(subcommand)
 	{
 	case MAGIC_CASTING:
+		goto echo;
 		break;
 	case MAGIC_FLYING:
 		break;
 	case MAGIC_EFFECTING:
+		MagicType(1, 1); //Replace 1 with the type of magic that's being "in effect"
 		break;
 	case MAGIC_FAIL:
 		goto echo;
@@ -133,7 +135,7 @@ echo :
 
 	if (sid < MAX_USER)
 	{
-		m_pMain->Send_Region( &result, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ );
+		m_pMain->Send_Region( &result, GetMap(), m_RegionX, m_RegionZ );
 	}
 	else if ( sid >= NPC_BAND)
 	{ 
@@ -212,7 +214,7 @@ void CUser::MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 	} 
 	SendTargetHP( 0, tid, -damage );     // Change the HP of the target.
 	if(pMagic->bType2 > 0 && pMagic->bType2 != 1)
-		MagicType(pMagic->bType2); //If the skill has a second effect, be sure to cast that one too.
+		MagicType(pMagic->bType2, 1); //If the skill has a second effect, be sure to cast that one too. (DONT FORGET THE SUB_TYPE HERE!!)
 
 packet_send:
 	if (pMagic->bType2 == 0 || pMagic->bType2 == 1) {
@@ -231,17 +233,23 @@ packet_send:
 	return;
 }
 
-void CUser::MagicType(uint16 effect_type)
+void CUser::MagicType(uint16 effect_type, uint8 sub_type)
 {
 	switch(effect_type)
 	{
 	case ATTACK_SKILL:
 		break;
 	case FLYING_SKILL:
+		if(sub_type == MAGIC_FLYING) //Basically a check if the player has enough mana and arrows.
+			break;					 //subcommand will be MAGIC_FAIL and it'll just echo if the player has insufficient of either.
 		break;
 	case ATTACK_SKILL_BONUS:
+		if(sub_type == MAGIC_CANCEL || sub_type == MAGIC_CANCEL2) //Cancelling type 3 magic.
+			break;
 		break;
 	case BUFF_SKILL:
+		if(sub_type == MAGIC_CANCEL || sub_type == MAGIC_CANCEL2) //Cancelling type 4 magic.
+			break;
 		break;
 	case CURING_SKILL:
 		break;
@@ -254,4 +262,56 @@ void CUser::MagicType(uint16 effect_type)
 	case MAGIC_EFFECT_9:
 		break;
 	}
+}
+
+bool CUser::CanCast(uint32 magicid, uint16 sid, uint16 tid)
+{
+	CUser *pTargetUser = NULL;
+	CNpc *pMon = NULL;
+	_MAGIC_TABLE *pMagic = NULL;
+
+	pMagic = m_pMain->m_MagictableArray.GetData( magicid );
+	if(!pMagic)
+		return false;
+
+	if(tid < MAX_USER)
+		pTargetUser = m_pMain->GetUserPtr(tid);
+	else if(tid >= NPC_BAND)
+		pMon = m_pMain->m_arNpcArray.GetData(tid);
+
+	if(pMagic->iUseItem != 0 && pMagic->bType1 != 5 && !(this)->CheckItemCount(pMagic->iUseItem, 1, 999)) //The user does not have sufficient amount of items to cast this skill.
+		return false;
+
+	if((this)->m_pUserData->m_sClass != (pMagic->sSkill % 10)) //Trying to use a skill that is not meant to be casted by this character, either not mastered or totally different class' skill.
+		return false;
+
+	if(((this)->m_pUserData->m_sMp - pMagic->sMsp) < 0) //This user does not have enough mana for this skill.
+		return false;
+
+	if( (pTargetUser != NULL && (pTargetUser->getZoneID() != (this)->getZoneID())) //The source and target aren't even in the same zone, how could they possibly interact!
+		|| (pTargetUser != NULL && !pTargetUser->isAttackZone())				   //The target is not in an attackable zone!
+		|| (pMon != NULL && (pMon->getZoneID() != (this)->getZoneID()))) 
+		return false;
+
+
+	//Checks for type 3 / 4 - already casted upon target?
+
+	//Checks for "moral" and corresponding targets etc.
+
+	//Zone checks in general - if both target and source are players
+
+	//Cooldown checks
+
+	//Check source validity when player and NPC
+
+	//Check target validity when player and NPC
+
+	//Check nations, player vs player, player vs npc, npc vs player.
+	
+	//Class checks for the magic being casted.
+
+	//Weapon checks incase of dualwield-only attacks, double-handed-only attacks, staff-only attacks etc.
+
+	//
+
 }

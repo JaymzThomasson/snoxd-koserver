@@ -448,8 +448,12 @@ public:
 	void MagicSystem(Packet & pkt);
 	bool CheckSkillCooldown(uint32 magicid, time_t skill_received_time);
 	void LogSkillCooldown(uint32 magicid, time_t skill_received_time);
-	void MagicType(uint16 effect_type);
+	void MagicType(uint16 effect_type, uint8 sub_type);
 	void MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4, uint16 data5, uint16 data6, uint16 data7);
+	bool CanCast(uint32 magicid, uint16 sid, uint16 tid);
+
+	//Zone checks
+	bool isAttackZone();
 
 	// from the client
 	void ShoppingMall(char *pData);

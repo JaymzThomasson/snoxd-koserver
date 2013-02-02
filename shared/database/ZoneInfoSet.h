@@ -32,6 +32,7 @@ public:
 		RFX_Long(pFX, _T("[InitZ]"), m_InitZ);
 		RFX_Long(pFX, _T("[InitY]"), m_InitY);
 		RFX_Byte(pFX, _T("[Type]"), m_data.m_bType);
+		RFX_Byte(pFX, _T("[isAttackZone]"), m_data.isAttackZone);
 #else
 		RFX_Byte(pFX, _T("[RoomEvent]"), m_data.m_byRoomEvent);
 #endif
