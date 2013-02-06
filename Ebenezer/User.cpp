@@ -1910,50 +1910,60 @@ void CUser::StateChangeServerDirect(BYTE bType, int nValue)
 	StateChange(buff);
 }
 
-void CUser::LoyaltyChange(short tid)
+void CUser::LoyaltyChange(short tid,int loyalty)
 {
 	short level_difference = 0, loyalty_source = 0, loyalty_target = 0;
+	int send_index = 0; char send_buff[256]; memset( send_buff, NULL, 256 );	
+	if( m_pUserData->m_bZone == 48 || m_pUserData->m_bZone == 21) return;
 
 	CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.  
-	if (pTUser == NULL) return;									  // Check if target exists and not already dead.
-	
-	if (pTUser->getNation() != getNation()) {		// Different nations!!!
-		level_difference = pTUser->m_pUserData->m_bLevel - m_pUserData->m_bLevel ;	// Calculate difference!
+	if( !pTUser && !loyalty) return;									  // Check if target exists and not already dead.
 
-		if (pTUser->m_pUserData->m_iLoyalty <= 0) {		// No cheats allowed...
+
+	if(pTUser){
+	if (pTUser->getNation() != getNation()) {		// Different nations!!!
+		if (pTUser->m_pUserData->m_iLoyalty <= 0) {
 			loyalty_source = 0;
 			loyalty_target = 0;
 		}
-		else if (level_difference > 5) {	// Target at least six levels lower...
-			loyalty_source = 50;
+		else if (pTUser->m_pUserData->m_bZone == 71) {	//Colony Zone
+			loyalty_source = 64;
+			loyalty_target = -50;
+		}
+		else if (pTUser->m_pUserData->m_bZone == 72) {	//Ardream
+			loyalty_source =  25; 
 			loyalty_target = -25;
 		}
-		else if (level_difference < -5) {	// Target at least six levels higher...
-			loyalty_source =  10; 
-			loyalty_target = -5;
+		else {											//Other Zone
+			loyalty_source =  50;
+			loyalty_target = -50;
 		}
-		else {								// Target within the 5 and -5 range...
-			loyalty_source =  30;
-			loyalty_target = -15;
-		}
-	}
-	else {		// Same Nations!!!
-		if (pTUser->m_pUserData->m_iLoyalty >= 0) {		
-			loyalty_source  = -1000;
-			loyalty_target = -15;			
-		}
-		else {
-			loyalty_source  =  100;
-			loyalty_target = -15;
-		}
-	}
-//
-	if (m_pUserData->m_bZone != m_pUserData->m_bNation && m_pUserData->m_bZone < 3) { 
-		loyalty_source  = 2 * loyalty_source;
-	}
 
-	SendLoyaltyChange(loyalty_source);
-	pTUser->SendLoyaltyChange(loyalty_target);
+//	if(m_pUserData->m_bZone == 71){						//Colony Zone Rank
+//	m_zColonyZoneLoyalty += loyalty_source;
+//	m_pMain->UpdateColonyZoneRankInfo();
+//	}
+
+	pTUser->m_pUserData->m_iLoyaltyMonthly += loyalty_target;
+	pTUser->m_pUserData->m_iLoyalty += loyalty_target;  
+
+	if (pTUser->m_pUserData->m_iLoyalty < 0) 
+		pTUser->m_pUserData->m_iLoyalty = 0;
+	if (pTUser->m_pUserData->m_iLoyaltyMonthly < 0) 
+		pTUser->m_pUserData->m_iLoyaltyMonthly = 0;
+		
+//	SendLoyaltyChange(loyalty_source);
+//	pTUser->SendLoyaltyChange(loyalty_target);
+	memset( send_buff, NULL, 256 ); send_index = 0;
+	SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );	// Send result to target.,
+	SetByte( send_buff, 0x01, send_index );					// Type
+	SetDWORD( send_buff, pTUser->m_pUserData->m_iLoyalty, send_index );
+	SetDWORD( send_buff, pTUser->m_pUserData->m_iLoyaltyMonthly, send_index );
+	SetDWORD( send_buff, 0, send_index );//Clan Donate
+	SetDWORD( send_buff, 0, send_index );//Premium NP	
+	pTUser->Send( send_buff, send_index );
+
+
 
 //	This is for the Event Battle on Wednesday :(
 	if (m_pMain->m_byBattleOpen) {
@@ -1968,6 +1978,37 @@ void CUser::LoyaltyChange(short tid)
 			}
 		}
 	}
+}
+	if (loyalty)
+	if (m_pUserData->m_bZone == ZONE_BATTLE) //Lunar War
+		loyalty_source = loyalty;
+/*
+	if (m_pUserData->m_bZone != m_pUserData->m_bNation && m_pUserData->m_bZone < 3) { 
+		loyalty_source  = 2 * loyalty_source;
+	}
+*/
+//
+	if(m_pUserData->m_bPremiumType != 0)
+	loyalty_source += 2;
+
+	m_pUserData->m_iLoyalty += loyalty_source;
+	m_pUserData->m_iLoyaltyMonthly += loyalty_source;
+
+	if (m_pUserData->m_iLoyalty < 0)
+		m_pUserData->m_iLoyalty = 0;
+	if (m_pUserData->m_iLoyaltyMonthly < 0)
+		m_pUserData->m_iLoyaltyMonthly = 0;
+		
+	SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );	// Send result to source.
+	SetByte( send_buff, 0x01, send_index );					// Type
+	SetDWORD( send_buff, m_pUserData->m_iLoyalty, send_index );
+	SetDWORD( send_buff, m_pUserData->m_iLoyaltyMonthly, send_index );
+	SetDWORD( send_buff, 0, send_index );//Clan Donate
+	if(m_pUserData->m_bPremiumType != 0)
+	SetDWORD( send_buff, 2, send_index );//Premium NP	
+	else
+	SetDWORD( send_buff, 0, send_index );//Premium NP	
+	Send( send_buff, send_index );		
 //
 }
 
