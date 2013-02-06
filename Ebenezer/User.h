@@ -34,7 +34,7 @@ class CUser : public CIOCPSocket2
 public:
 	_USER_DATA*	m_pUserData;
 
-	char	m_strAccountID[MAX_ID_SIZE+1];	// Login -> Select Char ±îÁö ÇÑ½ÃÀûÀ¸·Î¸¸ ¾²´Âº¯¼ö. ÀÌ¿Ü¿¡´Â _USER_DATA ¾È¿¡ÀÖ´Â º¯¼ö¸¦ ¾´´Ù...agent ¿ÍÀÇ µ¥ÀÌÅÍ µ¿±âÈ­¸¦ À§ÇØ...
+	char	m_strAccountID[MAX_ID_SIZE+1];	// Login -> Select Char ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î¸ï¿½ ï¿½ï¿½ï¿½Âºï¿½ï¿½ï¿½. ï¿½Ì¿Ü¿ï¿½ï¿½ï¿½ _USER_DATA ï¿½È¿ï¿½ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½...agent ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½...
 	
 	bool	m_bSelectedCharacter;
 	bool	m_bStoreOpen;
@@ -46,39 +46,39 @@ public:
 
 	SkillCooldownList	m_CoolDownList;
 
-	short	m_RegionX;						// ÇöÀç ¿µ¿ª X ÁÂÇ¥
-	short	m_RegionZ;						// ÇöÀç ¿µ¿ª Z ÁÂÇ¥
+	short	m_RegionX;						// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ X ï¿½ï¿½Ç¥
+	short	m_RegionZ;						// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Z ï¿½ï¿½Ç¥
 
-	__int64		m_iMaxExp;						// ´ÙÀ½ ·¹º§ÀÌ µÇ±â À§ÇØ ÇÊ¿äÇÑ Exp·®
-	unsigned short	m_sMaxWeight;					// µé ¼ö ÀÖ´Â ÃÖ´ë ¹«°Ô
-	BYTE    m_sSpeed;						// ½ºÇÇµå
+	__int64		m_iMaxExp;						// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ç±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ Expï¿½ï¿½
+	unsigned short	m_sMaxWeight;					// ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½
+	BYTE    m_sSpeed;						// ï¿½ï¿½ï¿½Çµï¿½
 
-	short	m_sBodyAc;						// ¸Ç¸ö ¹æ¾î·Â
+	short	m_sBodyAc;						// ï¿½Ç¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-	short	m_sTotalHit;					// ÃÑ Å¸°Ý°ø°Ý·Â	
-	short	m_sTotalAc;						// ÃÑ ¹æ¾î·Â
-	float	m_sTotalHitrate;				// ÃÑ °ø°Ý¼º°ø ¹ÎÃ¸¼º
-	float	m_sTotalEvasionrate;			// ÃÑ ¹æ¾î ¹ÎÃ¸¼º
+	short	m_sTotalHit;					// ï¿½ï¿½ Å¸ï¿½Ý°ï¿½ï¿½Ý·ï¿½	
+	short	m_sTotalAc;						// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	float	m_sTotalHitrate;				// ï¿½ï¿½ ï¿½ï¿½ï¿½Ý¼ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¸ï¿½ï¿½
+	float	m_sTotalEvasionrate;			// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¸ï¿½ï¿½
 
-	short   m_sItemMaxHp;                   // ¾ÆÀÌÅÛ ÃÑ ÃÖ´ë HP Bonus
-	short   m_sItemMaxMp;                   // ¾ÆÀÌÅÛ ÃÑ ÃÖ´ë MP Bonus
-	unsigned short	m_sItemWeight;					// ¾ÆÀÌÅÛ ÃÑ¹«°Ô
-	short	m_sItemHit;						// ¾ÆÀÌÅÛ ÃÑÅ¸°ÝÄ¡
-	short	m_sItemAc;						// ¾ÆÀÌÅÛ ÃÑ¹æ¾î·Â
-	short	m_sItemStr;						// ¾ÆÀÌÅÛ ÃÑÈû º¸³Ê½º
-	short	m_sItemSta;						// ¾ÆÀÌÅÛ ÃÑÃ¼·Â º¸³Ê½º
-	short	m_sItemDex;						// ¾ÆÀÌÅÛ ÃÑ¹ÎÃ¸¼º º¸³Ê½º
-	short	m_sItemIntel;					// ¾ÆÀÌÅÛ ÃÑÁö´É º¸³Ê½º
-	short	m_sItemCham;					// ¾ÆÀÌÅÛ ÃÑ¸Å·Âº¸³Ê½º
-	short	m_sItemHitrate;					// ¾ÆÀÌÅÛ ÃÑÅ¸°ÝÀ²
-	short	m_sItemEvasionrate;				// ¾ÆÀÌÅÛ ÃÑÈ¸ÇÇÀ²
+	short   m_sItemMaxHp;                   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ HP Bonus
+	short   m_sItemMaxMp;                   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ MP Bonus
+	unsigned short	m_sItemWeight;					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¹ï¿½ï¿½ï¿½
+	short	m_sItemHit;						// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½Ä¡
+	short	m_sItemAc;						// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½
+	short	m_sItemStr;						// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½
+	short	m_sItemSta;						// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½
+	short	m_sItemDex;						// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¹ï¿½Ã¸ï¿½ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½
+	short	m_sItemIntel;					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½
+	short	m_sItemCham;					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¸Å·Âºï¿½ï¿½Ê½ï¿½
+	short	m_sItemHitrate;					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½
+	short	m_sItemEvasionrate;				// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½
 
-	BYTE	m_bFireR;						// ºÒ ¸¶¹ý ÀúÇ×·Â
-	BYTE	m_bColdR;						// ¾óÀ½ ¸¶¹ý ÀúÇ×·Â
-	BYTE	m_bLightningR;					// Àü±â ¸¶¹ý ÀúÇ×·Â
-	BYTE	m_bMagicR;						// ±âÅ¸ ¸¶¹ý ÀúÇ×·Â
-	BYTE	m_bDiseaseR;					// ÀúÁÖ ¸¶¹ý ÀúÇ×·Â
-	BYTE	m_bPoisonR;						// µ¶ ¸¶¹ý ÀúÇ×·Â
+	BYTE	m_bFireR;						// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE	m_bColdR;						// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE	m_bLightningR;					// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE	m_bMagicR;						// ï¿½ï¿½Å¸ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE	m_bDiseaseR;					// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE	m_bPoisonR;						// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
 
 	BYTE    m_bMagicTypeLeftHand;			// The type of magic item in user's left hand  
 	BYTE    m_bMagicTypeRightHand;			// The type of magic item in user's right hand
@@ -101,16 +101,16 @@ public:
 	float	m_fWill_z;
 	float	m_fWill_y;
 
-	BYTE	m_bResHpType;					// HP È¸º¹Å¸ÀÔ
-	BYTE	m_bWarp;						// Á¸ÀÌµ¿Áß...
-	BYTE	m_bNeedParty;					// ÆÄÆ¼....±¸ÇØ¿ä
+	BYTE	m_bResHpType;					// HP È¸ï¿½ï¿½Å¸ï¿½ï¿½
+	BYTE	m_bWarp;						// ï¿½ï¿½ï¿½Ìµï¿½ï¿½ï¿½...
+	BYTE	m_bNeedParty;					// ï¿½ï¿½Æ¼....ï¿½ï¿½ï¿½Ø¿ï¿½
 
 	short	m_sPartyIndex;
-	short	m_sExchangeUser;				// ±³È¯ÁßÀÎ À¯Àú
+	short	m_sExchangeUser;				// ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	BYTE	m_bExchangeOK;
 
 	ItemList	m_ExchangeItemList;
-	_ITEM_DATA	m_MirrorItem[HAVE_MAX];			// ±³È¯½Ã ¹é¾÷ ¾ÆÀÌÅÛ ¸®½ºÆ®¸¦ ¾´´Ù.
+	_ITEM_DATA	m_MirrorItem[HAVE_MAX];			// ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 
 	short	m_sPrivateChatUser;
 
@@ -182,7 +182,7 @@ public:
 
 	float	m_fLastTrapAreaTime;		// The last moment you were in the trap area.
 
-	BOOL	m_bZoneChangeFlag;			// ¼º¿ë¾¾ ¹Ì¿ö!!
+	BOOL	m_bZoneChangeFlag;			// ï¿½ï¿½ï¿½ë¾¾ ï¿½Ì¿ï¿½!!
 
 	BYTE	m_bRegeneType;				// Did you die and go home or did you type '/town'?
 
@@ -190,16 +190,16 @@ public:
 
 	BOOL	m_bZoneChangeSameZone;		// Did the server change when you warped?
 
-	// ÀÌ¹êÆ®¿ë °ü·Ã.... Á¤¾Ö¾¾ ÀÌ°Å º¸¸é ÄÚÄ«½º ½ò²²¿ä ^^;
-//	int					m_iSelMsgEvent[5];	// ½ÇÇàÁßÀÎ ¼±ÅÃ ¸Þ¼¼Áö¹Ú½º ÀÌº¥Æ®
-	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];	// ½ÇÇàÁßÀÎ ¼±ÅÃ ¸Þ¼¼Áö¹Ú½º ÀÌº¥Æ®
-	short				m_sEventNid;		// ¸¶Áö¸·À¸·Î ¼±ÅÃÇÑ ÀÌº¥Æ® NPC ¹øÈ£
-	UserEventList		m_arUserEvent;		// ½ÇÇàÇÑ ÀÌº¥Æ® ¸®½ºÆ®
+	// ï¿½Ì¹ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.... ï¿½ï¿½ï¿½Ö¾ï¿½ ï¿½Ì°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä«ï¿½ï¿½ ï¿½ò²²¿ï¿½ ^^;
+//	int					m_iSelMsgEvent[5];	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¼ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ ï¿½Ìºï¿½Æ®
+	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¼ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ ï¿½Ìºï¿½Æ®
+	short				m_sEventNid;		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® NPC ï¿½ï¿½È£
+	UserEventList		m_arUserEvent;		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½Æ®
 
 	char	m_strCouponId[MAX_COUPON_ID_LENGTH];		// What was the number of the coupon?
 	int		m_iEditBoxEvent;
 
-	short	m_sEvent[MAX_CURRENT_EVENT];				// ÀÌ¹Ì ½ÇÇàµÈ ÀÌ¹êÆ® ¸®½ºÆ®µé :)
+	short	m_sEvent[MAX_CURRENT_EVENT];				// ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½Æ® ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ :)
 	
 
 public:
@@ -374,7 +374,7 @@ public:
 	void UserLookChange( int pos, int itemid, int durability );
 	void SpeedHackUser();
 	void VersionCheck(char *pBuf);
-	void LoyaltyChange( short tid );
+	void LoyaltyChange( short tid,int loyalty = -1 );
 	void StateChange( char* pBuf );
 	void StateChangeServerDirect(BYTE bType, int nValue);
 	void PointChange( char* pBuf );
@@ -411,7 +411,7 @@ public:
 	void SetZoneAbilityChange(BYTE zone);
 	void Regene(char* pBuf, int magicid = 0);
 	void SetMaxMp();
-	void SetMaxHp(int iFlag=0); // 0:default, 1:hp¸¦ maxhp¸¸Å­ Ã¤¿öÁÖ±â
+	void SetMaxHp(int iFlag=0); // 0:default, 1:hpï¿½ï¿½ maxhpï¿½ï¿½Å­ Ã¤ï¿½ï¿½ï¿½Ö±ï¿½
 	void ExpChange(__int64 iExp);
 	void Chat(char* pBuf);
 	void LogOut();
