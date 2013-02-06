@@ -1193,16 +1193,69 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 
 			case 3: // Karus sentry
 				nResourceID = IDS_KILL_KARUS_GUARD1;
+			pUser = m_pMain->GetUserPtr(strMaxUserName, 0x02);
+			if(!pUser) return;
+			if( pUser->m_sPartyIndex == -1 )
+				pUser->LoyaltyChange(NULL,500);
+			else
+				pUser->LoyaltyDivide(NULL,500);				
 				break;
 			case 4: // Karus sentry
 				nResourceID = IDS_KILL_KARUS_GUARD2;
+			pUser = m_pMain->GetUserPtr(strMaxUserName, 0x02);
+			if(!pUser) return;
+			if( pUser->m_sPartyIndex == -1 )
+				pUser->LoyaltyChange(NULL,500);
+			else
+				pUser->LoyaltyDivide(NULL,500);				
 				break;
 			case 5: // El Morad sentry
 				nResourceID = IDS_KILL_ELMO_GUARD1;
+			pUser = m_pMain->GetUserPtr(strMaxUserName, 0x02);
+			if(!pUser) return;
+			if( pUser->m_sPartyIndex == -1 )
+				pUser->LoyaltyChange(NULL,500);
+			else
+				pUser->LoyaltyDivide(NULL,500);				
 				break;
 			case 6: // El Morad sentry
 				nResourceID = IDS_KILL_ELMO_GUARD2;
+			pUser = m_pMain->GetUserPtr(strMaxUserName, 0x02);
+			if(!pUser) return;
+			if( pUser->m_sPartyIndex == -1 )
+				pUser->LoyaltyChange(NULL,500);
+			else
+				pUser->LoyaltyDivide(NULL,500);				
 				break;
+			case 7:
+/*			pServerResource = m_pMain->m_ServerResource.GetData( 134 );
+			strbuff =  pServerResource->m_strResource;
+			strbuff.TrimRight();
+			strcpy( buff,(char*)(LPCTSTR)strbuff);
+			sprintf( finalstr,buff,strKnightsName,strMaxUserName);
+*/			
+			pUser = m_pMain->GetUserPtr(strMaxUserName, 0x02);
+			if(!pUser) return;
+			if( pUser->m_sPartyIndex == -1 )
+				pUser->LoyaltyChange(NULL,1000);
+			else
+				pUser->LoyaltyDivide(NULL,1000);
+			break;
+
+			case 8:
+/*			pServerResource = m_pMain->m_ServerResource.GetData( 134 );
+			strbuff =  pServerResource->m_strResource;
+			strbuff.TrimRight();
+			strcpy( buff,(char*)(LPCTSTR)strbuff);
+			sprintf( finalstr,buff,strKnightsName,strMaxUserName);
+*/			
+			pUser = m_pMain->GetUserPtr(strMaxUserName, 0x02);
+			if(!pUser) return;
+			if( pUser->m_sPartyIndex == -1 )
+				pUser->LoyaltyChange(NULL,1000);
+			else
+				pUser->LoyaltyDivide(NULL,1000);
+			break;				
 			}
 
 			if (nResourceID == 0)
