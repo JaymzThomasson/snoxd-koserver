@@ -35,7 +35,8 @@ using namespace std;
 #define ALIVE_TIME			400
 
 #define NUM_FLAG_VICTORY    4
-#define AWARD_GOLD          5000
+#define AWARD_GOLD          100000
+#define AWARD_EXP			5000
 
 // Cryption
 #if __VERSION >= 1700
@@ -115,18 +116,18 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 					if( result == 0xFF )
 						memset( pUser->m_strAccountID, NULL, MAX_ID_SIZE+1 );
 					SetByte( send_buff, WIZ_LOGIN, send_index );
-					SetByte( send_buff, result, send_index );					// ¼º°ø½Ã ±¹°¡ Á¤º¸
+					SetByte( send_buff, result, send_index );					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 					pUser->Send( send_buff, send_index );
 					break;
 				case WIZ_SEL_NATION:
 					SetByte( send_buff, WIZ_SEL_NATION, send_index );
-					SetByte( send_buff, GetByte( pBuf, index ), send_index );	// ±¹°¡ Á¤º¸
+					SetByte( send_buff, GetByte( pBuf, index ), send_index );	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 					pUser->Send( send_buff, send_index );
 					break;
 				case WIZ_NEW_CHAR:
 					result = GetByte( pBuf, index );
 					SetByte( send_buff, WIZ_NEW_CHAR, send_index );
-					SetByte( send_buff, result, send_index );					// ¼º°ø½Ã ±¹°¡ Á¤º¸
+					SetByte( send_buff, result, send_index );					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 					pUser->Send( send_buff, send_index );
 					break;
 				case WIZ_DEL_CHAR:
@@ -240,13 +241,13 @@ CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
 		memset( m_ppNotice[i], NULL, 128 );
 	memset( m_AIServerIP, NULL, 20 );
 
-	m_bPermanentChatMode = FALSE;			// ºñ·¯¸Ó±Û ³²´Â °øÁö --;
+	m_bPermanentChatMode = FALSE;			// ï¿½ñ·¯¸Ó±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ --;
 	m_bPermanentChatFlag = FALSE;
 	memset(m_strPermanentChat, NULL, 1024);
 	memset( m_strKarusCaptain, 0x00, MAX_ID_SIZE+1 );
 	memset( m_strElmoradCaptain, 0x00, MAX_ID_SIZE+1 );
 
-	m_bSanta = FALSE;		// °«´ï »êÅ¸!!! >.<
+	m_bSanta = FALSE;		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸!!! >.<
 }
 
 void CEbenezerDlg::DoDataExchange(CDataExchange* pDX)
@@ -1292,7 +1293,7 @@ void CEbenezerDlg::UpdateGameTime()
 		m_nMin = 0;
 		UpdateWeather();
 		SetGameTime();
-//  °«´ï »êÅ¸!! >.<
+//  ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸!! >.<
 		if (m_bSanta) {
 			FlySanta();
 		}
@@ -1319,7 +1320,7 @@ void CEbenezerDlg::UpdateGameTime()
 	//SetByte(pSendBuf, AG_CHECK_ALIVE_REQ, send_index);
 	//Send_AIServer(pSendBuf, send_index);
 
-	// ½Ã°£°ú ³¯¾¾ Á¤º¸¸¦ º¸³½´Ù..
+	// ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½..
 	::ZeroMemory(pSendBuf, sizeof(pSendBuf));   send_index = 0;
 	SetByte(pSendBuf, AG_TIME_WEATHER, send_index);
 	SetShort( pSendBuf, m_nYear, send_index );				// time info
@@ -1357,7 +1358,7 @@ void CEbenezerDlg::UpdateWeather()
 		weather = WEATHER_FINE;
 
 	m_nAmount = myrand( 0, 100 );
-	if( weather == WEATHER_FINE ) {		// WEATHER_FINE ÀÏ¶§ m_nAmount ´Â ¾È°³ Á¤µµ Ç¥½Ã
+	if( weather == WEATHER_FINE ) {		// WEATHER_FINE ï¿½Ï¶ï¿½ m_nAmount ï¿½ï¿½ ï¿½È°ï¿½ ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½
 		if( m_nAmount > 70 )
 			m_nAmount = m_nAmount/2;
 		else
@@ -1669,7 +1670,7 @@ BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg)
 				m_sDiscount = 0;
 				return TRUE;
 			}
-// ºñ·¯¸Ó±Û ³²´Â °øÁö --;
+// ï¿½ñ·¯¸Ó±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ --;
 			if( _strnicmp( "/permanent", chatstr, 10 ) == 0 ) {
 				m_bPermanentChatMode = TRUE;
 				m_bPermanentChatFlag = TRUE;
@@ -1684,7 +1685,7 @@ BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg)
 				m_bPermanentChatMode = FALSE;
 				m_bPermanentChatFlag = FALSE;
 				permanent_off = TRUE;
-//				return TRUE;	//ÀÌ°ÍÀº °íÀÇÀûÀ¸·Î TRUE¸¦ »°¾úÀ½
+//				return TRUE;	//ï¿½Ì°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ TRUEï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			}			
 			if( _strnicmp( "/santa", chatstr, 6 ) == 0 ) {
 				m_bSanta = TRUE;			// Make Motherfucking Santa Claus FLY!!!
@@ -1854,7 +1855,7 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 	if(m_bServerCheckFlag == FALSE)	return;
 	if(m_bPointCheckFlag == TRUE)	{
 		m_bPointCheckFlag = FALSE;
-		TRACE("*** Point ÂüÁ¶ ÇÏ¸é ¾ÈµÇ¿© *** \n");
+		TRACE("*** Point ï¿½ï¿½ï¿½ï¿½ ï¿½Ï¸ï¿½ ï¿½ÈµÇ¿ï¿½ *** \n");
 		return;
 	}
 
@@ -1962,13 +1963,13 @@ void CEbenezerDlg::BattleZoneOpenTimer()
 	if( m_byBanishFlag == 1 )	{		
 		if( m_sBanishDelay == 0 )	{
 			m_byBattleOpen = NO_BATTLE;
-			m_byKarusOpenFlag = 0;		// Ä«·ç½º ¶¥À¸·Î ³Ñ¾î°¥ ¼ö ¾øµµ·Ï
-			m_byElmoradOpenFlag = 0;	// ¿¤¸ð ¶¥À¸·Î ³Ñ¾î°¥ ¼ö ¾øµµ·Ï
+			m_byKarusOpenFlag = 0;		// Ä«ï¿½ç½º ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¾î°¥ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			m_byElmoradOpenFlag = 0;	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¾î°¥ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			if( m_nServerNo == KARUS )	{
 				send_index = 0;
 				SetByte( send_buff, UDP_BATTLE_EVENT_PACKET, send_index );
 				SetByte( send_buff, BATTLE_EVENT_KILL_USER, send_index );
-				SetByte( send_buff, 1, send_index );						// karusÀÇ Á¤º¸ Àü¼Û
+				SetByte( send_buff, 1, send_index );						// karusï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 				SetShort( send_buff, m_sKarusDead, send_index );
 				SetShort( send_buff, m_sElmoradDead, send_index );
 				Send_UDP_All( send_buff, send_index );
@@ -1978,7 +1979,7 @@ void CEbenezerDlg::BattleZoneOpenTimer()
 		m_sBanishDelay++;
 
 		if( m_sBanishDelay == 3 )	{
-			if( m_byOldBattleOpen == SNOW_BATTLE )	{		// ´«½Î¿ò ÀüÀï
+			if( m_byOldBattleOpen == SNOW_BATTLE )	{		// ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½
 				if( m_sKarusDead > m_sElmoradDead )	{
 					m_bVictory = ELMORAD;
 					loser_nation = KARUS;
@@ -1999,17 +2000,17 @@ void CEbenezerDlg::BattleZoneOpenTimer()
 				Announcement( DECLARE_WINNER, m_bVictory );
 				Announcement( DECLARE_LOSER, loser_nation );
 			}
-			TRACE("ÀüÀï Á¾·á 1´Ü°è, m_bVictory=%d\n", m_bVictory);
+			TRACE("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 1ï¿½Ü°ï¿½, m_bVictory=%d\n", m_bVictory);
 		}
 		else if( m_sBanishDelay == 8 )	{
 			Announcement(DECLARE_BAN);
 		}
 		else if( m_sBanishDelay == 10 )	{
-			TRACE("ÀüÀï Á¾·á 2´Ü°è - ¸ðµç À¯Àú ÀÚ±â ±¹°¡·Î °¡ \n");
+			TRACE("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 2ï¿½Ü°ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ú±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ \n");
 			BanishLosers();
 		}
 		else if( m_sBanishDelay == 20 )	{
-			TRACE("ÀüÀï Á¾·á 3´Ü°è - ÃÊ±âÈ­ ÇØÁÖ¼¼¿© \n");
+			TRACE("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 3ï¿½Ü°ï¿½ - ï¿½Ê±ï¿½È­ ï¿½ï¿½ï¿½Ö¼ï¿½ï¿½ï¿½ \n");
 			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
 			SetByte( send_buff, BATTLE_EVENT_OPEN, send_index );
 			SetByte( send_buff, BATTLEZONE_CLOSE, send_index );
@@ -2072,7 +2073,19 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 		
 		if (pTUser->m_pUserData->m_bNation == m_bVictory) {
 			if ( pTUser->m_pUserData->m_bZone == pTUser->m_pUserData->m_bNation ) {		// Zone Check!
-				pTUser->m_pUserData->m_iGold += AWARD_GOLD;	// Target is in the area.
+				pTUser->GoldGain(AWARD_GOLD);	// Target is in the area.
+				pTUser->ExpChange(AWARD_EXP);
+				if(pTUser->m_pUserData->m_bFame == COMMAND_CAPTAIN){
+				if(pTUser->m_pUserData->m_bRank == 0x01)
+				pTUser->LoyaltyChange(NULL,500);
+					else
+				pTUser->LoyaltyChange(NULL,300);
+				}
+				
+				SetByte(send_buff, 4, send_index);	// You are now normal again!!!
+				SetByte(send_buff, 12, send_index);
+				pTUser->StateChange(send_buff);
+				
 			}
 		}
 	}		
@@ -2512,12 +2525,14 @@ next_row:
 	SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
 	SetByte( send_buff, 1, send_index );
 	SetShort( send_buff, -1, send_index );
+	SetByte( send_buff, 0x00, send_index );	
 	SetKOString(temp_buff, strKarusCaptainName, temp_index);
 
 	SetByte( temp_buff, WIZ_CHAT, temp_index );
 	SetByte( temp_buff, WAR_SYSTEM_CHAT, temp_index );
 	SetByte( temp_buff, 1, temp_index );
 	SetShort( temp_buff, -1, temp_index );
+	SetByte( send_buff, 0x00, send_index );	
 	SetKOString(temp_buff, strElmoCaptainName, temp_index);
 
 	for (int i = 0; i < MAX_USER; i++)
