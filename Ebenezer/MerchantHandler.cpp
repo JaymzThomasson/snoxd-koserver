@@ -117,7 +117,8 @@ void CUser::MerchantOpen(char *pBuf)
 			return;
 		}
 
-		if( m_bIsMerchanting ) {
+		if (isMerchanting())
+		{
 			MerchantClose(); //Close the current merchant session first before allowing a new one.
 			result << uint16(0);
 			Send(&result);
@@ -125,28 +126,24 @@ void CUser::MerchantOpen(char *pBuf)
 		}
 		
 	result << uint16(MERCHANT_OPEN_SUCCESS);
-		for(int i = 0; i < MAX_MERCH_ITEMS; i++) {
+		for(int i = 0; i < MAX_MERCH_ITEMS; i++)
 				ClearSellingItems(i); // Making sure the m_arSellingItems array is empty before filling it up again, incase it's leftover from a previous merchant. ## shouldn't be needed however ##
-		}
 	Send(&result);
 }
 
 void CUser::MerchantClose()
 {
-	if( m_bIsMerchanting ) {
-			m_bIsMerchanting = FALSE;
-			GiveMerchantItems(); //Give back to the user that which hasn't been sold, if any.
-			for(int i = 0; i < MAX_MERCH_ITEMS; i++) {
-				ClearSellingItems(i);
-			}
-			Packet result(WIZ_MERCHANT);
-			result 
-				<< uint8(WIZ_MERCHANT) 
-				<< uint8(MERCHANT_CLOSE) 
-				<< uint8(-1) 
-				<< uint8(-1);
-			Send(&result);
-	}
+	if (!isMerchanting())
+		return;
+
+	m_bIsMerchanting = false;
+	GiveMerchantItems(); // Give back to the user that which hasn't been sold, if any.
+	for (int i = 0; i < MAX_MERCH_ITEMS; i++)
+		ClearSellingItems(i);
+
+	Packet result(WIZ_MERCHANT, uint8(MERCHANT_CLOSE));
+	result << uint16(GetSocketID());
+	SendToRegion(&result);
 }
 
 void CUser::MerchantItemAdd(char *pBuf)
@@ -223,7 +220,7 @@ void CUser::MerchantInsert(char *pBuf)
 	if(mLength > 40)
 		return;
 
-	m_bIsMerchanting = TRUE;
+	m_bIsMerchanting = true;
 
 	TakeMerchantItems(); // Removing the items from the user's inventory
 
