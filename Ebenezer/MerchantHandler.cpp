@@ -161,11 +161,11 @@ void CUser::MerchantItemAdd(char *pBuf)
 	nSellingSlot = GetByte( pBuf, index );
 	nMode = GetByte( pBuf, index ); // Might be a flag for normal / "premium" merchant mode, once skills are implemented take another look at this.
 
-	if( m_pUserData->m_sItemArray[nInventorySlot+14].nNum != nItem || m_pUserData->m_sItemArray[nInventorySlot+14].sCount < nCount || nSellingSlot >= MAX_MERCH_ITEMS)
+	if( m_pUserData->m_sItemArray[nInventorySlot+SLOT_MAX].nNum != nItem || m_pUserData->m_sItemArray[nInventorySlot+SLOT_MAX].sCount < nCount || nSellingSlot >= MAX_MERCH_ITEMS)
 			return;
 
-	nDuration = m_pUserData->m_sItemArray[nInventorySlot+14].sDuration;
-	nSerialNum = m_pUserData->m_sItemArray[nInventorySlot+14].nSerialNum;
+	nDuration = m_pUserData->m_sItemArray[nInventorySlot+SLOT_MAX].sDuration;
+	nSerialNum = m_pUserData->m_sItemArray[nInventorySlot+SLOT_MAX].nSerialNum;
 
 	m_arSellingItems[nSellingSlot].nNum = nItem;
 	m_arSellingItems[nSellingSlot].nPrice = nGold;
@@ -244,7 +244,7 @@ void CUser::TakeMerchantItems()
 {
 	BYTE nOriginalSlot = 0;
 	for (int i = 0; i < MAX_MERCH_ITEMS ;i++ ) {
-		nOriginalSlot = m_arSellingItems[i].nOriginalSlot + 14; //Still need to add 14 to make sure it matches with our m_sItemArray place!
+		nOriginalSlot = m_arSellingItems[i].nOriginalSlot + SLOT_MAX; //Still need to add 14 to make sure it matches with our m_sItemArray place!
 		if(nOriginalSlot = 0)
 			return;
 		m_pUserData->m_sItemArray[nOriginalSlot].nNum = 0;
@@ -258,7 +258,7 @@ void CUser::GiveMerchantItems()
 {
 	byte nOriginalSlot = 0;
 	for (int i = 0; i < MAX_MERCH_ITEMS ;i++) {
-		nOriginalSlot = m_arSellingItems[i].nOriginalSlot + 14; //Still need to add 14 to make sure it matches with the original place!
+		nOriginalSlot = m_arSellingItems[i].nOriginalSlot + SLOT_MAX; //Still need to add 14 to make sure it matches with the original place!
 		if(nOriginalSlot = 0)
 			return;
 		m_pUserData->m_sItemArray[nOriginalSlot].nNum = m_arSellingItems[i].nNum;
