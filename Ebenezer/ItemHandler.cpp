@@ -929,26 +929,41 @@ BOOL CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)
 	return TRUE;
 }
 
+/**
+ * Firstly, hello there weary traveler! You've come a long way.
+ * I hate to point out the obvious, but well... no, you don't need to get your 
+ * glasses/eyes checked.
+ *
+ * Yes, you're looking at a piece of (luckily for you) cleaned up work of mgame's
+ * that seems completely out of place.
+ *
+ * But why, you ask? Why would we check a stack's range? There's really no reason 
+ * for ever doing that, is there? 
+ * Surely there's no NPC that says "I ONLY WANT 10 OF THIS ITEM, IF YOU GET 11, 
+ * I'LL.. I'LL.. WELL, I'M USELESS SO I'LL JUST NOT TALK TO YOU!"
+ *
+ * You'd think not.
+ *
+ * This method still exists purely because of EVT's dependence upon it
+ * to check when a required item count does NOT exist. Wait -- what?!
+ *
+ * This could *easily* be fixed with reverse logic in the EVT, but as we don't 
+ * want to break existing EVT implementations we'll leave this method intact.
+ *
+ * For now.
+ **/
 BOOL CUser::CheckItemCount(int itemid, short min, short max)
 {
-	_ITEM_TABLE* pTable = NULL;				// This checks if such an item exists.
-	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
-	if( !pTable ) return FALSE;	
+	_ITEM_TABLE* pTable = m_pMain->m_ItemtableArray.GetData( itemid );
+	if (pTable == NULL)
+		return FALSE;	
 
-	for ( int i = 0 ; i < SLOT_MAX + HAVE_MAX ; i++ ) {		// Check every slot in this case.....
-		if( m_pUserData->m_sItemArray[i].nNum == itemid ) {		
-			if (!pTable->m_bCountable) {	// Non-countable item. Automatically return TRUE				
-				return FALSE;	// Let's return false in this case.
-			}
-			else {
-				if (m_pUserData->m_sItemArray[i].sCount >= min && m_pUserData->m_sItemArray[i].sCount <= max) {	// Countable items. Make sure the amount is 
-					return TRUE;                                    // same or higher.
-				}
-				else {
-					return FALSE;
-				}
-			}
-		}
+	for (int i = 0 ; i < SLOT_MAX + HAVE_MAX; i++)
+	{
+		if (m_pUserData->m_sItemArray[i].nNum != itemid)
+			continue;
+
+		return (m_pUserData->m_sItemArray[i].sCount >= min && m_pUserData->m_sItemArray[i].sCount <= max);
 	}
 
 	return FALSE;		
