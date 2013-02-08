@@ -264,7 +264,6 @@ public:
 	BOOL RunNpcEvent(CNpc* pNpc, EXEC* pExec);
 	BOOL CheckEventLogic(EVENT_DATA* pEventData);
 	void ClientEvent(char* pBuf);
-	void KickOut( char* pBuf );
 	void SetLogInInfoToDB(BYTE bInit);
 	void BlinkStart();
 	void BlinkTimeCheck(float currenttime);

@@ -450,9 +450,6 @@ void CUser::Parsing(int len, char *pData)
 	case WIZ_PARTY_BBS:
 		PartyBBS( pData+index );
 		break;
-	case WIZ_KICKOUT:
-		KickOut( pData+index );
-		break;
 	case WIZ_CLIENT_EVENT:
 		ClientEvent( pData+index );
 		break;
@@ -3751,26 +3748,6 @@ void CUser::BlinkTimeCheck(float currenttime)
 		m_pMain->Send_AIServer(send_buff, send_index);
 //
 	}
-}
-
-void CUser::KickOut(char *pBuf)
-{
-	int index = 0, send_index = 0;
-	char accountid[MAX_ID_SIZE+1], send_buff[256];
-	CUser* pUser = NULL;
-	if (!GetKOString(pBuf, accountid, index, MAX_ID_SIZE))
-		return;
-
-	pUser = m_pMain->GetUserPtr(accountid, TYPE_ACCOUNT);
-	if( pUser ) {
-		pUser->UserDataSaveToAgent();
-		pUser->Close();
-		return;
-	}
-
-	SetByte( send_buff, WIZ_KICKOUT, send_index );
-	SetKOString( send_buff, accountid, send_index );
-	m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
 }
 
 void CUser::GoldGain(int gold)	// 1 -> Get gold    2 -> Lose gold
