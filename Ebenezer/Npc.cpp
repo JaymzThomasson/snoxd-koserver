@@ -73,23 +73,16 @@ void CNpc::Initialize()
 
 void CNpc::MoveResult(float xpos, float ypos, float zpos, float speed)
 {
+	Packet result(WIZ_NPC_MOVE);
+
 	m_fCurX = xpos;
 	m_fCurZ = zpos;
 	m_fCurY = ypos;
 
 	RegisterRegion();
 
-	int send_index = 0;
-	char pOutBuf[1024];
-
-	SetByte(pOutBuf, WIZ_NPC_MOVE, send_index);
-	SetShort(pOutBuf, m_sNid, send_index);
-	SetShort(pOutBuf, (WORD)m_fCurX*10, send_index);
-	SetShort(pOutBuf, (WORD)m_fCurZ*10, send_index);
-	SetShort(pOutBuf, (short)m_fCurY*10, send_index);
-	SetShort(pOutBuf, (short)speed*10, send_index);
-
-	m_pMain->Send_Region(pOutBuf, send_index, GetMap(), m_sRegion_X, m_sRegion_Z );
+	result << GetID() << GetSPosX() << GetSPosZ() << GetSPosY() << uint16(speed * 10); 
+	m_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
 }
 
 void CNpc::NpcInOut(BYTE Type, float fx, float fz, float fy)
@@ -258,28 +251,21 @@ int CNpc::GetRegionNpcList(int region_x, int region_z, char *buff, int &t_count)
 
 void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
 {
-	char send_buff[6]; int send_index = 0;
+	Packet result(WIZ_OBJECT_EVENT, uint8(OBJECT_FLAG_LEVER));
 
 	// If there's a flag to set, set it now.
 	if (bFlag >= 0)
 		m_byGateOpen = bFlag;
 
+	// Tell everyone nearby our new status.
+	result << uint8(1) << GetID() << m_byGateOpen;
+	m_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
+
 	// Tell the AI server our new status
 	if (bSendAI)
 	{
-		SetByte(send_buff, AG_NPC_GATE_OPEN, send_index);
-		SetShort(send_buff, GetID(), send_index);
-		SetByte(send_buff, m_byGateOpen, send_index );
-		m_pMain->Send_AIServer(send_buff, send_index);
+		result.Initialize(AG_NPC_GATE_OPEN);
+		result << GetID() << m_byGateOpen;
+		m_pMain->Send_AIServer(&result);
 	}
-
-	// Tell everyone nearby our new status.
-	send_index = 0;
-	SetByte(send_buff, WIZ_OBJECT_EVENT, send_index );
-	SetByte(send_buff, OBJECT_FLAG_LEVER, send_index );
-	SetByte(send_buff, 1, send_index );
-	SetShort(send_buff, GetID(), send_index );
-	SetByte(send_buff, m_byGateOpen, send_index );
-
-	m_pMain->Send_Region(send_buff, send_index, GetMap(), m_sRegion_X, m_sRegion_Z);	
 }

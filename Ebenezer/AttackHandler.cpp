@@ -573,7 +573,7 @@ void CUser::Regene(char *pBuf, int magicid)
 	if (regene_type == 2) {
 		magicid = 490041;	// The Stone of Ressurection magic ID
 
-		if(ItemCountChange(379006000, 1, 3 * getLevel()) < 2) {
+		if (!RobItem(379006000, 3 * getLevel())) {
 			return;	// Subtract resurrection stones.
 		}
 

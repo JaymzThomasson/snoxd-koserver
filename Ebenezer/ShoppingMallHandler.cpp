@@ -40,18 +40,13 @@ void CUser::ShoppingMall(char *pBuf)
 	}
 }
 
+// Tell Aujard we're closing the PUS so that we can call LOAD_WEB_ITEMMALL and load the extra items.
 void CUser::HandleStoreClose()
 {
-	char send_buff[256];
-	int send_index = 0;
-
+	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_CLOSE));
 	m_bStoreOpen = false;
-
-	// Tell Aujard we're closing the PUS so that we can call LOAD_WEB_ITEMMALL and load the extra items.
-	SetByte(send_buff, WIZ_SHOPPING_MALL, send_index);
-	SetByte(send_buff, STORE_CLOSE, send_index);
-	SetShort(send_buff, GetSocketID(), send_index);
-	m_pMain->m_LoggerSendQueue.PutData(send_buff, send_index);
+	result << uint16(GetSocketID());
+	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::RecvStore(char *pData)
@@ -69,12 +64,12 @@ void CUser::RecvStore(char *pData)
 // Presumably received item data back from Aujard.
 void CUser::RecvStoreClose(char *pData)
 {
-	char send_buff[2048];
-	int index = 0, send_index = 0;
-	BYTE result = GetByte(pData, index);
+	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_CLOSE));
+	int index = 0;
+	uint8 bResult = GetByte(pData, index);
 
 	// If it was succesful, i.e. it loaded data, give it to us
-	if (result)
+	if (bResult)
 	{
 		short count = GetShort(pData, index);
 		for (int i = 0; i < count; i++)
@@ -86,21 +81,18 @@ void CUser::RecvStoreClose(char *pData)
 			GiveItem(nItemID, sCount, false); 
 		}
 	}
-	
-	SetByte(send_buff, WIZ_SHOPPING_MALL, send_index);
-	SetByte(send_buff, STORE_CLOSE, send_index);
 
 	// not sure if this limit's correct
 	for (int i = 0; i < HAVE_MAX + SLOT_MAX + COSP_MAX + MBAG_MAX; i++)
 	{
-		SetDWORD(send_buff, m_pUserData->m_sItemArray[i].nNum, send_index);
-		SetShort(send_buff, m_pUserData->m_sItemArray[i].sDuration, send_index);
-		SetShort(send_buff, m_pUserData->m_sItemArray[i].sCount, send_index);
-		SetByte(send_buff, 0, send_index);  // item type flag (e.g. rented)
-		SetShort(send_buff, 0, send_index); // remaining time
-		SetDWORD(send_buff, 0, send_index); // unknown
-		SetDWORD(send_buff, 0, send_index); // expiration date
+		result	<< m_pUserData->m_sItemArray[i].nNum
+				<< m_pUserData->m_sItemArray[i].sDuration
+				<< m_pUserData->m_sItemArray[i].sCount
+				<< uint8(0) // item type flag (e.g. rented)
+				<< uint16(0) // remaining time
+				<< uint32(0) // unknown
+				<< uint32(0); // expiration date
 	}
 
-	Send(send_buff, send_index);
+	Send(&result);
 }

@@ -303,7 +303,7 @@ public:
 	void OperatorCommand( char* pBuf );
 	void ItemRemove( char* pBuf );
 	void SendAllKnightsID();
-	BYTE ItemCountChange(int itemid, int type, int amount);
+	void SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes, not a bug */, uint16 sDurability, uint8 bPos, bool bNewItem = false);
 	void Type4Duration(float currenttime);
 	void ItemRepair( char* pBuf );
 	int ExchangeDone();

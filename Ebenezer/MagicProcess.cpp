@@ -68,6 +68,17 @@ CMagicProcess::~CMagicProcess()
 {
 }
 
+void CMagicProcess::MagicPacket(Packet & pkt)
+{
+	/* TO-DO: Update the main method with this... eventually. */
+	char *tmp_buff = new char[pkt.size() + 1];
+	tmp_buff[0] = pkt.GetOpcode();
+	if (pkt.size() > 0)
+		memcpy(tmp_buff + 1, pkt.contents(), pkt.size()); 
+	MagicPacket(tmp_buff, pkt.size() + 1);
+	delete [] tmp_buff;
+}
+
 void CMagicProcess::MagicPacket(char *pBuf, int len)
 {
 	int index = 0, send_index = 0, magicid = 0, sid = -1, tid = -2, data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0, data7 = 0,data8 = 0, type3_attribute = 0,NpcMagic = 0;
@@ -276,7 +287,7 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 					m_pSrcUser->MSpChange( -(skill_mana) ) ;
 				}
 
-				if (m_pSrcUser->ItemCountChange( pMagic->iUseItem, 1, pType->bNeedArrow) < 2) { // Subtract Arrow!				
+				if (!m_pSrcUser->RobItem(pMagic->iUseItem, pType->bNeedArrow)) { // Subtract Arrow!				
 					command = MAGIC_FAIL ;
 					goto return_echo ; 
 				}
@@ -731,7 +742,7 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 							}
 						}
 //
-						if (m_pSrcUser->ItemCountChange( pTable->iUseItem, 1, 1) < 2) {					
+						if (!m_pSrcUser->RobItem(pTable->iUseItem, 1)) {					
 							type = MAGIC_CASTING;
 							goto fail_return;
 						}
@@ -754,16 +765,14 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 						}
 //
 						if (pType->bType == 3) {
-							if (pTUser->ItemCountChange( pTable->iUseItem, 1, pType->sNeedStone) < 2) {
+							if (!pTUser->RobItem(pTable->iUseItem, pType->sNeedStone)) {
 								type = MAGIC_CASTING;
 								goto fail_return; 
 							}
 						}
-						else {
-							if (m_pSrcUser->ItemCountChange( pTable->iUseItem, 1, pType->sNeedStone) < 2) {
-								type = MAGIC_CASTING;
-								goto fail_return; 
-							}						
+						else if (!m_pSrcUser->RobItem(pTable->iUseItem, pType->sNeedStone)) {
+							type = MAGIC_CASTING;
+							goto fail_return; 
 						}
 					}
 				}

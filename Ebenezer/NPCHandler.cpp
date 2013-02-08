@@ -4,10 +4,10 @@
 
 void CUser::ItemRepair(char *pBuf)
 {
-	unsigned int money = 0;
-	int index = 0, send_index = 0, quantity = 0;
+	Packet result(WIZ_ITEM_REPAIR);
+	uint32 money = 0;
+	int index = 0, quantity = 0;
 	int itemid = 0, pos = 0, slot = -1, durability = 0;
-	char send_buff[128];
 	_ITEM_TABLE* pTable = NULL;
 
 	pos = GetByte( pBuf, index );
@@ -39,17 +39,13 @@ void CUser::ItemRepair(char *pBuf)
 	else if( pos == 2 )
 		m_pUserData->m_sItemArray[SLOT_MAX+slot].sDuration = durability;
 
-	SetByte( send_buff, WIZ_ITEM_REPAIR, send_index );
-	SetByte( send_buff, 0x01, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-	Send( send_buff, send_index );
-
+	result << uint8(1) << m_pUserData->m_iGold;
+	Send(&result);
 	return;
+
 fail_return:
-	SetByte( send_buff, WIZ_ITEM_REPAIR, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-	Send( send_buff, send_index );
+	result << uint8(0) << m_pUserData->m_iGold;
+	Send(&result);
 }
 
 void CUser::ClientEvent(char *pBuf)		// The main function for the quest procedures!!!
@@ -187,74 +183,9 @@ BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 
 				bExact = TRUE;	
 			}
 			break;
-//
 
-//
-/*
-			case LOGIC_CHECK_NATION:
-				if( pLE->m_LogicElseInt[0] == m_pUserData->m_bNation ) {
-					bExact = TRUE;
-				}
-				break;
-
-			case LOGIC_CHECK_LEVEL:		
-				if( m_pUserData->m_bLevel >= pLE->m_LogicElseInt[0] && m_pUserData->m_bLevel <= pLE->m_LogicElseInt[1] ) {
-					bExact = TRUE;
-				}
-				break;
-
-			case LOGIC_NOEXIST_ITEM:	
-				if (ItemCountChange(pLE->m_LogicElseInt[0], 1, 0) < 2) {
-					bExact = TRUE;
-				}
-				break;
-
-			case LOGIC_QUEST_END:	
-				break;
-
-			case LOGIC_QUEST_LOG:
-				break;
-
-			case LOGIC_CHECK_NOAH:
-				if(m_pUserData->m_iGold >= pLE->m_LogicElseInt[0]) {
-					bExact = TRUE;
-				}
-				break;
-
-			case LOGIC_CHECK_RACE:
-				if (pLE->m_LogicElseInt[0] == m_pUserData->m_bRace) {
-					bExact = TRUE;
-				}
-				break;
-///////// These logics are for the test quest.
-			case LOGIC_EXIST_ITEM:
-				if (CheckExistItem(pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1])) {
-					bExact = TRUE;
-				}
-				break;
-
-			case LOGIC_CHECK_CLASS:		
-				if (CheckClass( pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1], pLE->m_LogicElseInt[2],
-					pLE->m_LogicElseInt[3], pLE->m_LogicElseInt[4], pLE->m_LogicElseInt[5])) {
-					bExact = TRUE;
-				}
-				break;
-
-			case LOGIC_CHECK_WEIGHT:	
-				if (CheckWeight( pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1])) {				
-					bExact = TRUE;
-				}
-				break;
-
-			case LOGIC_CHECK_SKILLPOINT:
-				if (CheckSkillPoint(pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1], pLE->m_LogicElseInt[2])) {	
-					bExact = TRUE;
-				}
-				break;
-*/
-
-			default:
-				return FALSE;
+		default:
+			return FALSE;
 		}
 
 		if( !pLE->m_bAnd ) {	// OR ????? ??? bExact?? TRUE??? ??ü?? TRUE???
@@ -315,7 +246,6 @@ BOOL CUser::RunNpcEvent(CNpc *pNpc, EXEC *pExec)	// This part executes all the '
 
 	case	EXEC_RETURN:
 		return FALSE;
-		break;
 
 		default:
 			break;
@@ -384,61 +314,6 @@ BOOL CUser::RunEvent(EVENT_DATA *pEventData)
 //
 			case	EXEC_RETURN:
 				return FALSE;
-				break;
-
-/*
-			case EXEC_SAY:		
-				break;
-
-			case EXEC_SELECT_MSG:
-				SelectMsg( pExec );
-				break;
-
-			case EXEC_RUN_EVENT:
-				{								
-					EVENT* pEvent = NULL;
-					pEvent = m_pMain->m_Quest.GetData(m_pUserData->m_bZone);
-					if(!pEvent)	break;
-
-					EVENT_DATA* pEventData = NULL;
-					pEventData = pEvent->m_arEvent.GetData(pExec->m_ExecInt[0]);
-					if(!pEventData) break;
-
-					if( !CheckEventLogic(pEventData) )	break;
-
-					if( !RunEvent(pEventData) ) {
-						return FALSE;
-					}
-				}
-				break;
-
-			case EXEC_ROB_NOAH:
-				break;
-
-			case EXEC_GIVE_QUEST:
-				break;
-
-			case EXEC_QUEST_END:		
-				break;
-
-			case EXEC_QUEST_SAVE:
-				break;
-
-			case EXEC_RETURN:
-				return FALSE;
-/////// These events are for the test quest. ///////
-			case EXEC_ROB_ITEM:
-				if (!RobItem(pExec->m_ExecInt[0], pExec->m_ExecInt[1])) {
-					return FALSE;	
-				}
-				break;
-
-			case EXEC_GIVE_ITEM:
-				if (!GiveItem(pExec->m_ExecInt[0], pExec->m_ExecInt[1])) {
-					return FALSE;
-				}
-				break;
-*/
 
 			default:
 				break;

@@ -602,83 +602,54 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 
 void CAISocket::RecvMagicAttackResult(char* pBuf)
 {
-	int index = 0, send_index = 1, sid = -1, tid = -1, magicid=0;
+	Packet result(WIZ_MAGIC_PROCESS, uint8(*pBuf));
+	int index = 0, sid = -1, tid = -1, magicid=0;
 	BYTE byCommand; 
 	short data0, data1, data2, data3, data4, data5;
 
-	CNpc* pNpc = NULL;
-	CUser* pUser = NULL;
-	char send_buff[1024];
+	/* 
+		This is all so redundant...
+		When everything's switched over to pass in Packets
+		we can just pass it through directly!
+		As it is now.. we still need a length (which we can hardcode, but meh)
+	*/
+	byCommand = GetByte(pBuf, index);			// magic type ( 1:casting, 2:flying, 3:effecting, 4:fail )
+	magicid = GetDWORD(pBuf, index);
+	sid = GetShort(pBuf, index);
+	tid = GetShort(pBuf, index);
+	data0 = GetShort(pBuf, index);
+	data1 = GetShort(pBuf, index);
+	data2 = GetShort(pBuf, index);
+	data3 = GetShort(pBuf, index);
+	data4 = GetShort(pBuf, index);
+	data5 = GetShort(pBuf, index);
 
-	//byType = GetByte(pBuf,index);				// who ( 1:mon->user 2:mon->mon )
-	//byAttackType = GetByte(pBuf,index);			// attack type ( 1:long attack, 2:magic attack
-	byCommand = GetByte(pBuf,index);			// magic type ( 1:casting, 2:flying, 3:effecting, 4:fail )
-	magicid = GetDWORD(pBuf,index);
-	sid = GetShort(pBuf,index);
-	tid = GetShort(pBuf,index);
-	data0 = GetShort(pBuf,index);
-	data1 = GetShort(pBuf,index);
-	data2 = GetShort(pBuf,index);
-	data3 = GetShort(pBuf,index);
-	data4 = GetShort(pBuf,index);
-	data5 = GetShort(pBuf,index);
+	result	<< byCommand << magicid << sid << tid 
+			<< data0 << data1 << data2 << data3 << data4 << data5;
 
-	SetByte( send_buff, byCommand, send_index );
-	SetDWORD( send_buff, magicid, send_index );
-	SetShort( send_buff, sid, send_index );
-	SetShort( send_buff, tid, send_index );
-	SetShort( send_buff, data0, send_index );
-	SetShort( send_buff, data1, send_index );
-	SetShort( send_buff, data2, send_index );
-	SetShort( send_buff, data3, send_index );
-	SetShort( send_buff, data4, send_index );
-	SetShort( send_buff, data5, send_index );
+	if (byCommand == MAGIC_CASTING
+		|| (byCommand == MAGIC_EFFECTING && sid >= NPC_BAND && tid >= NPC_BAND))
+	{
+		CNpc *pNpc = m_pMain->m_arNpcArray.GetData(sid);
+		if (!pNpc)
+			return;
 
-	if(byCommand == 0x01)	{		// casting
-		pNpc = m_pMain->m_arNpcArray.GetData(sid);
-		if(!pNpc)	return;
-		index = 0;
-		SetByte( send_buff, WIZ_MAGIC_PROCESS, index );
-		m_pMain->Send_Region(send_buff, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
+		m_pMain->Send_Region(&result, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
 	}
-	else if(byCommand == 0x03)	{	// effecting
-		//pNpc = m_pMain->m_arNpcArray.GetData(tid);
-		//if(!pNpc)	return;
-		if( sid >= USER_BAND && sid < NPC_BAND)	{
-			pUser = m_pMain->GetUserPtr(sid);
+	else if (byCommand == MAGIC_EFFECTING)
+	{
+		if (sid >= USER_BAND && sid < NPC_BAND)
+		{
+			CUser *pUser = m_pMain->GetUserPtr(sid);
 			if (pUser == NULL || pUser->isDead())
 				return;
 
-			index = 0;
-			SetByte( send_buff, WIZ_MAGIC_PROCESS, index );
-			m_pMain->Send_Region(send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ);
+			m_pMain->Send_Region(&result, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ);
+			return;
 		}
-		else if(sid >= NPC_BAND)	{
-			if(tid >= NPC_BAND)	{
-				pNpc = m_pMain->m_arNpcArray.GetData(tid);
-				if(!pNpc)	return;
-				index = 0;
-				SetByte( send_buff, WIZ_MAGIC_PROCESS, index );
-				m_pMain->Send_Region(send_buff, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
-				return;
-			}
-			send_index = 0;
-			SetByte( send_buff, byCommand, send_index );
-			SetDWORD( send_buff, magicid, send_index );
-			SetShort( send_buff, sid, send_index );
-			SetShort( send_buff, tid, send_index );
-			SetShort( send_buff, data0, send_index );
-			SetShort( send_buff, data1, send_index );
-			SetShort( send_buff, data2, send_index );
-			SetShort( send_buff, data3, send_index );
-			SetShort( send_buff, data4, send_index );
-			SetShort( send_buff, data5, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetByte( send_buff, 1, send_index );	
-			m_MagicProcess.MagicPacket(send_buff, send_index);
-		}
+
+		// If we're an NPC, casting a skill (rather, it's finished casting) on a player...
+		m_MagicProcess.MagicPacket(result);
 	}
 	
 }
@@ -855,8 +826,9 @@ void CAISocket::RecvUserExp(char* pBuf)
 
 void CAISocket::RecvSystemMsg(char* pBuf)
 {
-	int index = 0, send_index = 0;
-	char send_buff[256], strSysMsg[256];
+	Packet result(WIZ_CHAT);
+	int index = 0;
+	char strSysMsg[256];
 
 	BYTE bType;
 	short sWho;
@@ -870,19 +842,9 @@ void CAISocket::RecvSystemMsg(char* pBuf)
 
 	switch(sWho)
 	{
-	case SEND_ME:
-		break;
-	case SEND_REGION:
-		break;
 	case SEND_ALL:
-		SetByte( send_buff, WIZ_CHAT, send_index );
-		SetByte( send_buff, bType, send_index );
-		SetByte( send_buff, 0x01, send_index );		// nation
-		SetShort( send_buff, -1, send_index );		// sid
-		SetKOString( send_buff, strSysMsg, send_index );
-		m_pMain->Send_All( send_buff, send_index );
-		break;
-	case SEND_ZONE:
+		result << bType << uint8(1) << int16(-1) << strSysMsg; 
+		m_pMain->Send_All(&result);
 		break;
 	}
 	
@@ -1042,39 +1004,33 @@ void CAISocket::RecvGateDestory(char* pBuf)
 
 void CAISocket::RecvNpcDead(char* pBuf)
 {
-	int index = 0, send_index = 0;
-	int nid = 0;
-	char send_buff[256];
-	_OBJECT_EVENT* pEvent = NULL;
+	int index = 0;
+	short nid = GetShort(pBuf, index);
+	if (nid < NPC_BAND)	
+		return;
 
-	nid = GetShort(pBuf,index);
+	CNpc* pNpc = m_pMain->m_arNpcArray.GetData(nid);
+	if (!pNpc)
+		return;
 
+	C3DMap* pMap = pNpc->GetMap();
+	if (pMap == NULL)
+		return;
 
-	if(nid >= NPC_BAND)		{
-		CNpc* pNpc = m_pMain->m_arNpcArray.GetData(nid);
-		if(!pNpc)	return;
-
-		C3DMap* pMap = pNpc->GetMap();
-		if (pMap == NULL)
-			return;
-
-		if( pNpc->m_byObjectType == SPECIAL_OBJECT )	{
-			pEvent = pMap->GetObjectEvent( pNpc->m_sSid );
-			if( pEvent )	pEvent->byLife = 0;
-		}
-
-		//pNpc->NpcInOut( NPC_OUT );
-		//TRACE("RecvNpcDead - (%d,%s)\n", pNpc->m_sNid, pNpc->m_strName);
-
-		pMap->RegionNpcRemove(pNpc->m_sRegion_X, pNpc->m_sRegion_Z, nid);
-		//TRACE("--- RecvNpcDead : Npc�� Region���� ����ó��.. ,, zone=%d, region_x=%d, y=%d\n", pNpc->m_sZoneIndex, pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
-
-		SetByte( send_buff, WIZ_DEAD, send_index );
-		SetShort( send_buff, nid, send_index );
-		m_pMain->Send_Region(send_buff, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
-
-		pNpc->m_sRegion_X = 0;		pNpc->m_sRegion_Z = 0;
+	if (pNpc->m_byObjectType == SPECIAL_OBJECT)
+	{
+		_OBJECT_EVENT *pEvent = pMap->GetObjectEvent(pNpc->m_sSid);
+		if (pEvent)
+			pEvent->byLife = 0;
 	}
+
+	pMap->RegionNpcRemove(pNpc->m_sRegion_X, pNpc->m_sRegion_Z, nid);
+
+	Packet result(WIZ_DEAD);
+	result << nid;
+	m_pMain->Send_Region(&result, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
+
+	pNpc->m_sRegion_X = pNpc->m_sRegion_Z = 0;
 }
 
 void CAISocket::RecvNpcInOut(char* pBuf)
@@ -1082,17 +1038,18 @@ void CAISocket::RecvNpcInOut(char* pBuf)
 	int index = 0, nid = 0, nType = 0;
 	float fx = 0.0f, fz=0.0f, fy=0.0f;
 
-	nType = GetByte( pBuf, index );
+	nType = GetByte(pBuf, index);
 	nid = GetShort(pBuf, index);
-	fx = Getfloat( pBuf, index );
-	fz = Getfloat( pBuf, index );
-	fy = Getfloat( pBuf, index );
+	fx = Getfloat(pBuf, index);
+	fz = Getfloat(pBuf, index);
+	fy = Getfloat(pBuf, index);
 
-	if(nid >= NPC_BAND)		{
-		CNpc* pNpc = m_pMain->m_arNpcArray.GetData(nid);
-		if(!pNpc)	return;
-		pNpc->NpcInOut( nType, fx, fz, fy );
-	}
+	if (nid < NPC_BAND)
+		return;
+
+	CNpc* pNpc = m_pMain->m_arNpcArray.GetData(nid);
+	if (pNpc)
+		pNpc->NpcInOut(nType, fx, fz, fy);
 }
 
 void CAISocket::RecvBattleEvent(char* pBuf)

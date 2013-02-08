@@ -51,37 +51,33 @@ void CUser::PartyProcess(char *pBuf)
 
 void CUser::PartyCancel()
 {
-	int send_index = 0, leader_id = -1, count = 0;
-	CUser* pUser = NULL;
-	_PARTY_GROUP* pParty = NULL;
-	char send_buff[256];
+	int leader_id = -1, count = 0;
 
-	if( m_sPartyIndex == -1 ) return;
-	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
-	if( !pParty ) {				
-		m_sPartyIndex = -1;
+	if (!isInParty())
 		return;
-	}
 
+	_PARTY_GROUP *pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
 	m_sPartyIndex = -1;
+	if (pParty == NULL)
+		return;
 	
 	leader_id = pParty->uid[0];
-	pUser = m_pMain->GetUserPtr(leader_id);
+	CUser *pUser = m_pMain->GetUserPtr(leader_id);
 	if (pUser == NULL)
 		return;
 
-	for( int i=0; i<8; i++ ) {		
-		if( pParty->uid[i] >= 0 )
+	for (int i = 0; i < 8; i++)
+	{		
+		if (pParty->uid[i] >= 0)
 			count++;
 	}
 
-	if( count == 1 )
+	if (count == 1)
 		pUser->PartyDelete();			
 
-	SetByte( send_buff, WIZ_PARTY, send_index );
-	SetByte( send_buff, PARTY_INSERT, send_index );
-	SetShort( send_buff, -1, send_index );
-	pUser->Send( send_buff, send_index );
+	Packet result(WIZ_PARTY, uint8(PARTY_INSERT));
+	result << int16(-1);
+	pUser->Send(&result);
 }
 
 void CUser::PartyRequest(int memberid, BOOL bCreate)

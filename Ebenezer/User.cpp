@@ -546,41 +546,23 @@ void CUser::SkillDataProcess(char *pData)
 
 void CUser::SkillDataSave(char *pData)
 {
-	char send_buff[512];
-	int index = 0, send_index = 0, sCount = 0;
-
-	sCount = GetShort(pData, index);
+	Packet result(WIZ_SKILLDATA);
+	int index = 0, sCount = GetShort(pData, index);
 	if (sCount <= 0 || sCount > 64)
 		return;
 
-	SetByte(send_buff, WIZ_SKILLDATA, send_index);
-	SetShort(send_buff, GetSocketID(), send_index);
-	SetByte(send_buff, SKILL_DATA_SAVE, send_index);
-	SetShort(send_buff, sCount, send_index);
-
+	result	<< uint16(GetSocketID()) << uint8(SKILL_DATA_SAVE) << sCount;
 	for (int i = 0; i < sCount; i++)
-	{
-		int nItemID = GetDWORD(pData, index);
-		SetDWORD(send_buff, nItemID, send_index);
-	}
+		result << (uint32)GetDWORD(pData, index);
 	
-	int result = m_pMain->m_LoggerSendQueue.PutData(send_buff, send_index);
-	if (result >= SMQ_FULL)
-		DEBUG_LOG("Failed to send skillbar save packet : %d", result);
+	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::SkillDataLoad(char *pData)
 {
-	char send_buff[512];
-	int	send_index = 0;
-
-	SetByte(send_buff, WIZ_SKILLDATA, send_index);
-	SetShort(send_buff, GetSocketID(), send_index);
-	SetByte(send_buff, SKILL_DATA_LOAD, send_index);
-
-	int result = m_pMain->m_LoggerSendQueue.PutData(send_buff, send_index);
-	if (result >= SMQ_FULL)
-		DEBUG_LOG("Failed to send skillbar load packet : %d", result);
+	Packet result(WIZ_SKILLDATA);
+	result << uint16(GetSocketID()) << uint8(SKILL_DATA_LOAD);
+	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::RecvSkillDataLoad(char *pData)
@@ -613,20 +595,12 @@ void CUser::RecvSkillDataLoad(char *pData)
 
 void CUser::UserDataSaveToAgent()
 {
-	int send_index = 0, retvalue = 0;
-	char send_buff[256];
-
-	if (m_pUserData->m_id[0] == 0 || m_pUserData->m_Accountid[0] == 0)
+	if (GetState() != STATE_GAMESTART)
 		return;
 
-	SetByte( send_buff, WIZ_DATASAVE, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetKOString(send_buff, m_pUserData->m_Accountid, send_index);
-	SetKOString(send_buff, m_pUserData->m_id, send_index);
-
-	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if (retvalue >= SMQ_FULL)
-		DEBUG_LOG("DataSave Send Fail : %d", retvalue);
+	Packet result(WIZ_DATASAVE);
+	result << uint16(GetSocketID()) << m_pUserData->m_Accountid << m_pUserData->m_id;
+	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::LogOut()
@@ -2750,107 +2724,28 @@ void CUser::Type4Duration(float currenttime)
 //
 }
 
-BYTE CUser::ItemCountChange(int itemid, int type, int amount)	// 0 : Requested item not available.
-{																// 1 : Amount is greater than current item count.
-	int send_index = 0, result = 0, slot = -1 ;					// 2 : Success. Current item count updated or deleted.
-	char send_buff[128];
-
-	_ITEM_TABLE* pTable = NULL;				// This checks if such an item exists.
-	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
-	if( !pTable ) {
-		result = 0;
-		return result;	
-	}
-
-	for ( int i = SLOT_MAX * type ; i < SLOT_MAX + HAVE_MAX * type ; i++ ) {
-		if( m_pUserData->m_sItemArray[i].nNum == itemid ) {		
-// 
-			if (pTable->m_bReqDex > (m_pUserData->m_bDex + m_sItemDex + m_bDexAmount) && pTable->m_bReqDex != 0) {
-				return result;
-			}
-
-			if (pTable->m_bReqStr > (m_pUserData->m_bStr + m_sItemStr + m_bStrAmount) && pTable->m_bReqStr != 0) {
-				return result;
-			}
-
-			if (pTable->m_bReqSta > (m_pUserData->m_bSta + m_sItemSta + m_bStaAmount) && pTable->m_bReqSta != 0) {
-				return result;
-			}
-
-			if (pTable->m_bReqIntel > (m_pUserData->m_bIntel + m_sItemIntel + m_bIntelAmount) && pTable->m_bReqIntel != 0) {
-				return result;
-			}
-
-			if (pTable->m_bReqCha > (m_pUserData->m_bCha + m_sItemCham + m_bChaAmount) && pTable->m_bReqCha !=0) {
-				return result;
-			}
-//
-			if (!pTable->m_bCountable) {	// This checks if the user actually has that item.
-				result = 2;
-				return result;
-			}
-
-			slot = i ;
-			m_pUserData->m_sItemArray[i].sCount -= amount ;
-
-			if (m_pUserData->m_sItemArray[i].sCount == 0) {
-				m_pUserData->m_sItemArray[i].nNum = 0 ;
-				result = 2 ;	// You have just ran out of items.
-				break;
-			}
-			else if (m_pUserData->m_sItemArray[i].sCount < 0) {
-				m_pUserData->m_sItemArray[i].sCount += amount ;
-				result = 1 ;	// Insufficient number of items.
-				break;
-			}
-
-			result = 2 ;		// No error detected....
-		}		
-	}
-
-	if ( result < 2 ) return result ;	// Something happened :(
-
-	SendItemWeight();
-
-	SetByte( send_buff, WIZ_ITEM_COUNT_CHANGE, send_index );	
-	SetShort( send_buff, 1, send_index );	// The number of for-loops
-	SetByte( send_buff, type, send_index );
-	SetByte( send_buff, slot - type * SLOT_MAX , send_index );
-	SetDWORD( send_buff, itemid, send_index );	// The ID of item.
-	SetDWORD( send_buff, m_pUserData->m_sItemArray[slot].sCount, send_index );
-
-	Send( send_buff, send_index );
-
-	return result ;		// Success :) 
-}
-
 void CUser::SendAllKnightsID()
 {
-	int send_index = 0, count = 0, buff_index = 0;
-	char send_buff[4096], temp_buff[4096];
-
+	Packet result(WIZ_KNIGHTS_LIST, uint8(1));
+	uint16 count = 0;
 	foreach_stlmap (itr, m_pMain->m_KnightsArray)
 	{
 		CKnights *pKnights = itr->second;
-		if( !pKnights ) continue;
-		//if( pKnights->bFlag != KNIGHTS_TYPE ) continue;
-		SetShort( temp_buff, pKnights->m_sIndex, buff_index );
-		SetKOString(temp_buff, pKnights->m_strName, buff_index);
+		if (pKnights == NULL)
+			continue;
+		result << pKnights->m_sIndex << pKnights->m_strName;
 		count++;
 	}
 
-	SetByte( send_buff, WIZ_KNIGHTS_LIST, send_index );
-	SetByte( send_buff, 0x01, send_index );					// All List 
-	SetShort( send_buff, count, send_index );
-	SetString( send_buff, temp_buff, buff_index, send_index );
-	SendCompressingPacket( send_buff, send_index );
+	result.put(0, count);
+	SendCompressingPacket(&result);
 }
 
 void CUser::ItemRemove(char *pBuf)
 {
-	int index = 0, send_index = 0, slot = 0, pos = 0, itemid = 0, count = 0, durability = 0;
+	Packet result(WIZ_ITEM_REMOVE);
+	int index = 0, slot = 0, pos = 0, itemid = 0, count = 0, durability = 0;
 	__int64 serial = 0;
-	char send_buff[128];
 
 	slot = GetByte( pBuf, index );
 	pos = GetByte( pBuf, index );
@@ -2881,16 +2776,14 @@ void CUser::ItemRemove(char *pBuf)
 
 	SendItemWeight();
 
-	SetByte( send_buff, WIZ_ITEM_REMOVE, send_index );
-	SetByte( send_buff, 0x01, send_index );
-	Send( send_buff, send_index );
+	result << uint8(1);
+	Send(&result);
 
 	ItemLogToAgent( m_pUserData->m_id, "DESTROY", ITEM_DESTROY, serial, itemid, count, durability );
 	return;
 fail_return:
-	SetByte( send_buff, WIZ_ITEM_REMOVE, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	Send( send_buff, send_index );
+	result << uint8(0);
+	Send(&result);
 }
 
 void CUser::OperatorCommand(char *pBuf)
@@ -2962,37 +2855,32 @@ void CUser::SpeedHackTime(char* pBuf)
 
 void CUser::Type3AreaDuration(float currenttime)
 {
-	int send_index = 0;
-	char send_buff[128];
+	Packet result(WIZ_MAGIC_PROCESS);
 
-	_MAGIC_TYPE3* pType = NULL;
-	pType = m_pMain->m_Magictype3Array.GetData(m_iAreaMagicID);      // Get magic skill table type 3.
-	if( !pType ) return;
+	_MAGIC_TYPE3* pType = m_pMain->m_Magictype3Array.GetData(m_iAreaMagicID);
+	if (pType == NULL)
+		return;
 
-	if ( m_fAreaLastTime != 0.0f && (currenttime - m_fAreaLastTime) > m_bAreaInterval) {    // Did one second pass?
-		m_fAreaLastTime = currenttime ;
-		if( m_bResHpType == USER_DEAD ) return;
+	if (m_fAreaLastTime != 0.0f && (currenttime - m_fAreaLastTime) > m_bAreaInterval)
+	{
+		m_fAreaLastTime = currenttime;
+		if (isDead())
+			return;
 		
-		for (int i = 0 ; i < MAX_USER ; i++) {	// Actual damage procedure.
-			if (m_MagicProcess.UserRegionCheck(m_Sid, i, m_iAreaMagicID, pType->bRadius)) {	// Region check.
-				CUser* pTUser = NULL ;     		
-				pTUser = m_pMain->GetUnsafeUserPtr(i);
-				if (pTUser == NULL)
-					continue;
-
-				SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );	// Set packet.
-				SetByte( send_buff, MAGIC_EFFECTING, send_index );
-				SetDWORD( send_buff, m_iAreaMagicID, send_index );
-				SetShort( send_buff, m_Sid, send_index );
-				SetShort( send_buff, i, send_index );
-				SetShort( send_buff, 0, send_index );	
-				SetShort( send_buff, 0, send_index );	
-				SetShort( send_buff, 0, send_index );	
-				m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ );
+		for (int i = 0; i < MAX_USER; i++)
+		{
+			if (m_MagicProcess.UserRegionCheck(m_Sid, i, m_iAreaMagicID, pType->bRadius))
+			{
+				result.clear();
+				result	<< uint8(MAGIC_EFFECTING) << m_iAreaMagicID
+						<< uint16(GetSocketID()) << uint16(i)
+						<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
+				m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
 			}
 		}
 
-		if ( (( currenttime - m_fAreaStartTime) >= pType->bDuration) || m_bResHpType == USER_DEAD) { // Did area duration end? 			
+		if ( (( currenttime - m_fAreaStartTime) >= pType->bDuration))
+		{ // Did area duration end? 			
 			m_bAreaInterval = 5;
 			m_fAreaStartTime = 0.0f;
 			m_fAreaLastTime = 0.0f;
@@ -3001,15 +2889,11 @@ void CUser::Type3AreaDuration(float currenttime)
 	}	
 
 
-	SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );	// Set packet.
-	SetByte( send_buff, MAGIC_EFFECTING, send_index );
-	SetDWORD( send_buff, m_iAreaMagicID, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetShort( send_buff, 0, send_index );	
-	SetShort( send_buff, 0, send_index );	
-	SetShort( send_buff, 0, send_index );	
-	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ );	// Send packet to region.
+	result.clear();
+	result	<< uint8(MAGIC_EFFECTING) << m_iAreaMagicID
+			<< uint16(GetSocketID()) << uint16(GetSocketID())
+			<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
+	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
 }
 
 void CUser::InitType4()
@@ -3045,10 +2929,7 @@ void CUser::InitType4()
 	m_sDuration8 = 0 ;  m_fStartTime8 = 0.0f ;
 	m_sDuration9 = 0 ;  m_fStartTime9 = 0.0f ;
 
-	for (int h = 0 ; h < MAX_TYPE4_BUFF ; h++) {
-		m_bType4Buff[h] = 0 ;
-	}
-
+	memset(m_bType4Buff, 0, sizeof(*m_bType4Buff) * MAX_TYPE4_BUFF);
 	m_bType4Flag = FALSE;
 }
 
@@ -3707,47 +3588,29 @@ void CUser::BlinkStart()
 
 void CUser::BlinkTimeCheck(float currenttime)
 {
-	int send_index = 0;				
-	char send_buff[256];
+	if ((currenttime - m_fBlinkStartTime) < BLINK_TIME)
+		return;
 
-	if (BLINK_TIME < (currenttime - m_fBlinkStartTime)) {
-		m_fBlinkStartTime = 0.0f;
-		
-		m_bAbnormalType = ABNORMAL_NORMAL;
-//
-		if (m_bRegeneType == REGENE_MAGIC) {
-			HpChange(m_iMaxHp / 2);					// Refill HP.	
-		}
-		else {
-			HpChange(m_iMaxHp);	
-		}
+	m_fBlinkStartTime = 0.0f;
+	if (m_bRegeneType == REGENE_MAGIC)
+		HpChange(m_iMaxHp / 2);
+	else
+		HpChange(m_iMaxHp);	
 
-		m_bRegeneType = REGENE_NORMAL;
-//
-		SetByte(send_buff, 3, send_index);
-		SetDWORD(send_buff, m_bAbnormalType, send_index); // NOTE: this packet needs to explicitly be updated.
-		StateChange(send_buff); 
+	m_bRegeneType = REGENE_NORMAL;
+	m_bAbnormalType = ABNORMAL_NORMAL;
+	StateChangeServerDirect(3, m_bAbnormalType);
 
-		//TRACE("?? BlinkTimeCheck : name=%s(%d), type=%d ??\n", m_pUserData->m_id, m_Sid, m_bAbnormalType);
-//
-		// AI_server?? regene??? ???...	
-		send_index=0;
-		SetByte( send_buff, AG_USER_REGENE, send_index );
-		SetShort( send_buff, m_Sid, send_index );
-		SetShort( send_buff, m_pUserData->m_sHp, send_index );
-		m_pMain->Send_AIServer(send_buff, send_index);
-//
-//
-		send_index=0;		// To AI Server....
-		SetByte( send_buff, AG_USER_INOUT, send_index );
-		SetByte( send_buff, USER_REGENE, send_index );
-		SetShort( send_buff, m_Sid, send_index );
-		SetKOString(send_buff, m_pUserData->m_id, send_index);
-		Setfloat( send_buff, m_pUserData->m_curx, send_index );
-		Setfloat( send_buff, m_pUserData->m_curz, send_index );
-		m_pMain->Send_AIServer(send_buff, send_index);
-//
-	}
+	Packet result(AG_USER_REGENE);
+	result	<< uint16(GetSocketID()) << m_pUserData->m_sHp;
+	m_pMain->Send_AIServer(&result);
+
+
+	result.Initialize(AG_USER_INOUT);
+	result	<< uint8(USER_REGENE) << uint16(GetSocketID())
+			<< m_pUserData->m_id
+			<< m_pUserData->m_curx << m_pUserData->m_curz;
+	m_pMain->Send_AIServer(&result);
 }
 
 void CUser::GoldGain(int gold)	// 1 -> Get gold    2 -> Lose gold

@@ -2547,7 +2547,6 @@ int CNpc::Attack(CIOCPort* pIOCP)
 	int nRandom = 0, nPercent=1000;
 	int send_index = 0;
 	BOOL bTeleport = FALSE;
-	char buff[256];
 
 /*	nRandom = myrand(1, 10000);
 	if( COMPARE( nRandom, 8000, 10000) )	{

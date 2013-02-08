@@ -264,65 +264,37 @@ success_return:
 
 BOOL CUser::GiveItem(int itemid, short count, bool send_packet /*= true*/)
 {
-	int pos = 255;
-	int send_index = 0 ;					
-	char send_buff[128];
-
-	_ITEM_TABLE* pTable = NULL;				// This checks if such an item exists.
-	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
-	if( !pTable ) return FALSE;	
+	uint8 pos;
+	bool bNewItem = true;
+	_ITEM_TABLE* pTable = m_pMain->m_ItemtableArray.GetData( itemid );
+	if (pTable == NULL)
+		return FALSE;	
 	
 	pos = GetEmptySlot( itemid, pTable->m_bCountable );
+	if (pos < 0)
+		return FALSE;
 
-	if( pos != 0xFF ) {	// Common Item
-		if( pos >= HAVE_MAX ) return FALSE;
+	if (m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != 0)
+	{	
+		// If non-stackable item and there's an item there already... not happening.
+		if (!pTable->m_bCountable
+			// otherwise, if the item isn't what the client thinks it is, better not change anything either.
+			|| m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != itemid) 
+			return FALSE;
 
-		if( m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != 0 ) {	
-			if( pTable->m_bCountable != 1) return FALSE;
-			else if( m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != itemid ) return FALSE;
-		}
-/*	
-		if (pTable->m_bCountable) {	// Check weight of countable item.
-			if (((pTable->m_sWeight * count) + m_sItemWeight) > m_sMaxWeight) {			
-				return FALSE;
-			}
-		}
-		else {	// Check weight of non-countable item.
-			if ((pTable->m_sWeight + m_sItemWeight) > m_sMaxWeight) {
-				return FALSE;
-			}
-		}
-*/
-		m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum = itemid;	// Add item to inventory. 
+		bNewItem = false;
+	}
 
-		if( pTable->m_bCountable) {	// Apply number of items to a countable item.
-			m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount += count;
-			if( m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount > MAX_ITEM_COUNT ) {
-				m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = MAX_ITEM_COUNT;
-			}
-		}
-		else {		// Just add uncountable item to inventory.
-			m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = 1;
-		}
+	m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum = itemid;
+	m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount += count;
+	if (m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount > MAX_ITEM_COUNT)
+		m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = MAX_ITEM_COUNT;
 		
-		m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;	// Apply duration to item.
-	}
-	else {
-		return FALSE;	// No empty slots.
-	}
-
+	m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;
 
 	SendItemWeight();	// Change weight first -- do this regardless.
 	if (send_packet)
-	{
-		SetByte( send_buff, WIZ_ITEM_COUNT_CHANGE, send_index );	
-		SetShort( send_buff, 0x01, send_index );	// The number of for-loops
-		SetByte( send_buff, 0x01, send_index );
-		SetByte( send_buff, pos, send_index );
-		SetDWORD( send_buff, itemid, send_index );	// The ID of item.
-		SetDWORD( send_buff, m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount, send_index );
-		Send( send_buff, send_index );
-	}
+		SendStackChange(itemid, m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount, m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration, pos, true);
 	return TRUE;
 }
 
@@ -927,6 +899,21 @@ BOOL CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)
 	}
 
 	return TRUE;
+}
+
+void CUser::SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes, not a bug */, uint16 sDurability, uint8 bPos, bool bNewItem /* = false */)
+{
+	Packet result(WIZ_ITEM_COUNT_CHANGE);
+
+	result << uint16(1);
+	result << uint8(1);
+	result << uint8(bPos - SLOT_MAX);
+	result << nItemID << nCount;
+	result << uint8(bNewItem ? 100 : 0);
+	result << sDurability;
+
+	SendItemWeight();
+	Send(&result);
 }
 
 /**
