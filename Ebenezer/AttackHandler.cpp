@@ -585,9 +585,7 @@ void CUser::Regene(char *pBuf, int magicid)
 	pHomeInfo = m_pMain->m_HomeArray.GetData(m_pUserData->m_bNation);
 	if (!pHomeInfo) return;
 
-	int send_index = 0; char send_buff[1024];
-
-	UserInOut(USER_OUT);	// ??? ?? ?????? ???? --;
+	UserInOut(USER_OUT);
 
 	float x = 0.0f, z = 0.0f;
 	x = (float)(myrand( 0, 400 )/100.0f);	z = (float)(myrand( 0, 400 )/100.0f);
@@ -596,6 +594,7 @@ void CUser::Regene(char *pBuf, int magicid)
 
 	pEvent = GetMap()->GetObjectEvent(m_pUserData->m_sBind);	
 
+	// TO-DO: Clean this entire thing up. Holy crap.
 	if (magicid == 0) {
 		if( pEvent && pEvent->byLife == 1 ) {		// Bind Point
 			m_pUserData->m_curx = m_fWill_x = pEvent->fPosX + x;
@@ -657,13 +656,9 @@ void CUser::Regene(char *pBuf, int magicid)
 		}
 	}
 
-	SetByte( send_buff, WIZ_REGENE, send_index );
-//	SetShort( send_buff, m_Sid, send_index );    //
-	SetShort( send_buff, (WORD)(m_pUserData->m_curx*10), send_index );
-	SetShort( send_buff, (WORD)(m_pUserData->m_curz*10), send_index );
-	SetShort( send_buff, (short)(m_pUserData->m_cury*10), send_index );
-	Send( send_buff, send_index );
-//	m_pMain->Send_Region( send_buff, send_index, m_pUserData->m_bZone, m_RegionX, m_RegionZ ); //
+	Packet result(WIZ_REGENE);
+	result << GetSPosX() << GetSPosZ() << GetSPosY();
+	Send(&result);
 	
 	if (magicid > 0) {	// Clerical Resurrection.
 		pType = m_pMain->m_Magictype5Array.GetData(magicid);     
@@ -692,11 +687,9 @@ void CUser::Regene(char *pBuf, int magicid)
 	m_iLostExp = 0;
 
 	if (m_bAbnormalType != ABNORMAL_BLINKING) {
-		send_index = 0;
-		SetByte( send_buff, AG_USER_REGENE, send_index );
-		SetShort( send_buff, m_Sid, send_index );
-		SetShort( send_buff, m_pUserData->m_sHp, send_index );
-		m_pMain->Send_AIServer(send_buff, send_index);
+		result.Initialize(AG_USER_REGENE);
+		result << uint16(GetSocketID()) << m_pUserData->m_sHp;
+		m_pMain->Send_AIServer(&result);
 	}
 
 	m_RegionX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
@@ -708,30 +701,24 @@ void CUser::Regene(char *pBuf, int magicid)
 	m_pMain->RegionNpcInfoForMe(this);
 
 	BlinkStart();
-//
-	// Send Party Packet.....
-	if (m_sPartyIndex != -1 && m_bType3Flag == FALSE) {
-		send_index = 0;
-		SetByte( send_buff, WIZ_PARTY, send_index );
-		SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-		SetShort( send_buff, m_Sid, send_index );
-		SetByte( send_buff, 1, send_index );
-		SetByte( send_buff, 0x00, send_index);
-		m_pMain->Send_PartyMember(m_sPartyIndex, send_buff, send_index);
+
+	if (isInParty())
+	{
+		// TO-DO: Wrap these up into Party-specific methods (nothing for that yet)
+		if (!m_bType3Flag)
+		{
+			result.Initialize(WIZ_PARTY);
+			result	<< uint8(PARTY_STATUSCHANGE)
+					<< uint16(GetSocketID()) << uint8(1) << uint8(0);
+			m_pMain->Send_PartyMember(m_sPartyIndex, &result);
+		}
+
+		if (!m_bType4Flag)
+		{
+			result.Initialize(WIZ_PARTY);
+			result	<< uint8(PARTY_STATUSCHANGE)
+					<< uint16(GetSocketID()) << uint8(2) << uint8(0);
+			m_pMain->Send_PartyMember(m_sPartyIndex, &result);
+		}
 	}
-	//  end of Send Party Packet.....  //
-//
-//
-	// Send Party Packet for Type 4
-	if (m_sPartyIndex != -1 && m_bType4Flag == FALSE) {
-		send_index = 0;
-		SetByte( send_buff, WIZ_PARTY, send_index );
-		SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-		SetShort( send_buff, m_Sid, send_index );
-		SetByte( send_buff, 2, send_index );
-		SetByte( send_buff, 0x00, send_index);
-		m_pMain->Send_PartyMember(m_sPartyIndex, send_buff, send_index);
-	}
-	//  end of Send Party Packet.....  //
-//
 }

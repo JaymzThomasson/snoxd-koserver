@@ -160,8 +160,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 {
 	m_bZoneChangeFlag = TRUE;
 
-	int send_index = 0, zoneindex = 0;
-	char send_buff[128];
+	int zoneindex = 0;
 	C3DMap* pMap = NULL;
 	_ZONE_SERVERINFO *pInfo = NULL;
 
@@ -262,14 +261,9 @@ void CUser::ZoneChange(int zone, float x, float z)
 	m_RegionX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
 	m_RegionZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
 
-	SetByte( send_buff, WIZ_ZONE_CHANGE, send_index );
-	SetByte( send_buff, 0x03, send_index );
-	SetByte( send_buff, m_pUserData->m_bZone, send_index );
-	SetShort( send_buff, (WORD)m_pUserData->m_curx*10, send_index );
-	SetShort( send_buff, (WORD)m_pUserData->m_curz*10, send_index );
-	SetShort( send_buff, (short)m_pUserData->m_cury*10, send_index );
-	SetByte( send_buff, m_pMain->m_byOldVictory, send_index );
-	Send( send_buff, send_index );
+	Packet result(WIZ_ZONE_CHANGE, uint8(3)); // magic numbers, sigh.
+	result << getZoneID() << GetSPosX() << GetSPosZ() << GetSPosY() << m_pMain->m_byOldVictory;
+	Send(&result);
 
 	if (!m_bZoneChangeSameZone) {
 		m_sWhoKilledMe = -1;
@@ -281,17 +275,11 @@ void CUser::ZoneChange(int zone, float x, float z)
 		InitType4();
 	}	
 
-	if (m_bZoneChangeSameZone) {
-		m_bZoneChangeSameZone = FALSE;
-	}
+	result.Initialize(AG_ZONE_CHANGE);
+	result << uint16(GetSocketID()) << getZoneID();
+	m_pMain->Send_AIServer(&result);
 
-	send_index = 0;
-	SetByte( send_buff, AG_ZONE_CHANGE, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetByte( send_buff, getZoneID(), send_index );
-
-	m_pMain->Send_AIServer(send_buff, send_index);
-
+	m_bZoneChangeSameZone = FALSE;
 	m_bZoneChangeFlag = FALSE;
 }
 

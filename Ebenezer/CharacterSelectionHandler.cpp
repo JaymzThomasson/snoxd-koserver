@@ -104,110 +104,80 @@ fail_return:
 
 void CUser::RecvDeleteChar( char* pBuf )
 {
-	int nResult = 0, index = 0, send_index = 0, char_index = 0, nKnights = 0;
-	char strCharID[MAX_ID_SIZE+1], send_buff[256];
+	Packet result;
+	int index = 0, sKnights = 0;
+	char strCharID[MAX_ID_SIZE+1];
+	uint8 bResult, bCharIndex;
 
-	nResult = GetByte( pBuf, index );
-	char_index = GetByte( pBuf, index );
-	nKnights = GetShort( pBuf, index );
+	bResult = GetByte(pBuf, index);
+	bCharIndex = GetByte(pBuf, index);
+	sKnights = GetShort(pBuf, index);
 	if (!GetKOString(pBuf, strCharID, index, MAX_ID_SIZE))
 		return;
 
-	if( nResult == 1 && nKnights != 0 )	{
-		m_pMain->m_KnightsManager.RemoveKnightsUser( nKnights, strCharID );
-		TRACE("RecvDeleteChar ==> name=%s, knights=%d\n", strCharID, nKnights );
-
-		send_index = 0;
-		SetByte( send_buff, UDP_KNIGHTS_PROCESS, send_index );
-		SetByte( send_buff, KNIGHTS_WITHDRAW, send_index );
-		SetShort( send_buff, nKnights, send_index );
-		SetKOString(send_buff, strCharID, send_index);
-		if( m_pMain->m_nServerGroup == 0 )
-			m_pMain->Send_UDP_All( send_buff, send_index );
-		else
-			m_pMain->Send_UDP_All( send_buff, send_index, 1 );
+	if (bResult == 1 && sKnights != 0)
+	{
+		// TO-DO: Synchronise this system better. Much better. This is dumb.
+		m_pMain->m_KnightsManager.RemoveKnightsUser(sKnights, strCharID);
+		result.SetOpcode(UDP_KNIGHTS_PROCESS);
+		result << uint8(KNIGHTS_WITHDRAW) << sKnights << strCharID;
+		m_pMain->Send_UDP_All(&result, m_pMain->m_nServerGroup == 0 ? 0 : 1);
 	}
 
-	send_index = 0;
-	SetByte( send_buff, WIZ_DEL_CHAR, send_index );
-	SetByte( send_buff, nResult, send_index );	
-	SetByte( send_buff, char_index, send_index );
 
-	Send( send_buff, send_index );
+	result.Initialize(WIZ_DEL_CHAR);
+	result << bResult << bCharIndex;
+	Send(&result);
 }
 
 void CUser::SelNationToAgent(char *pBuf)
 {
-	int index = 0, send_index = 0, retvalue = 0;
-	int nation = 0;
-	char send_buff[256];
-
-	nation = GetByte( pBuf, index );
-	if( nation > 2 )
-		goto fail_return;
-
-	SetByte( send_buff, WIZ_SEL_NATION, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetKOString(send_buff, m_strAccountID, send_index);
-	SetByte( send_buff, nation, send_index );
-
-	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if (retvalue < SMQ_FULL)
+	Packet result(WIZ_SEL_NATION);
+	int index = 0;
+	uint8 nation = GetByte(pBuf, index);
+	if (nation != KARUS && nation != ELMORAD)
+	{
+		result << uint8(0);
+		Send(&result);
 		return;
+	}
 
-	DEBUG_LOG("Nation Sel Send Fail : %d", retvalue);
-
-fail_return:
-	send_index = 0;
-	SetByte( send_buff, WIZ_SEL_NATION, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	Send( send_buff, send_index );
+	result << uint16(GetSocketID()) << m_strAccountID << nation; 
+	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::SelCharToAgent(char *pBuf)
 {
-	int index = 0, send_index = 0, retvalue = 0;
-	char userid[MAX_ID_SIZE+1], accountid[MAX_ID_SIZE+1], send_buff[256];
-	CUser* pUser = NULL;
+	Packet result(WIZ_SEL_CHAR);
+	int index = 0;
+	char userid[MAX_ID_SIZE+1], accountid[MAX_ID_SIZE+1];
 	CTime t = CTime::GetCurrentTime();
 	BYTE	bInit = 0x01;
 
 	if (!GetKOString(pBuf, accountid, index, MAX_ID_SIZE)
-		|| !GetKOString(pBuf, userid, index, MAX_ID_SIZE))
-		goto fail_return;
-
-	bInit = GetByte( pBuf, index );
-	
-	if( _strnicmp( accountid, m_strAccountID, MAX_ID_SIZE ) != 0 ) {
+		|| !GetKOString(pBuf, userid, index, MAX_ID_SIZE)
+		|| _strnicmp( accountid, m_strAccountID, MAX_ID_SIZE) != 0)
+	{
 		Close();
 		return;
 	}
 
-	pUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
-	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) {
+	bInit = GetByte(pBuf, index);
+
+	// Disconnect any currently logged in sessions.
+	CUser *pUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
+	if (pUser && (pUser->GetSocketID() != GetSocketID()))
+	{
 		pUser->Close();
-		goto fail_return;
+
+		// And reject the login attempt (otherwise we'll probably desync char data)
+		result << uint8(0);
+		Send(&result);
+		return;
 	}
 
-	SetByte( send_buff, WIZ_SEL_CHAR, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetKOString(send_buff, m_strAccountID, send_index);
-	SetKOString(send_buff, userid, send_index);
-	SetByte( send_buff, bInit, send_index );
-
-	m_pMain->WriteLog("[SelCharToAgent : %d:%d:%d] - acname=%s, name=%s, TH: %lu, Rear : %d\r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), m_strAccountID, userid, GetCurrentThreadId(), m_pMain->m_LoggerSendQueue.GetRearPointer());
-
-	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if (retvalue < SMQ_FULL)
-		return;
-
-	DEBUG_LOG("SelChar Send Fail : %d", retvalue);
-
-fail_return:
-	send_index = 0;
-	SetByte( send_buff, WIZ_SEL_CHAR, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	Send( send_buff, send_index );
+	result << uint16(GetSocketID()) << m_strAccountID << userid << bInit;
+	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::SelectCharacter(char *pBuf)
