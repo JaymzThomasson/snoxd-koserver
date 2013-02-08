@@ -374,7 +374,8 @@ public:
 	void UserLookChange( int pos, int itemid, int durability );
 	void SpeedHackUser();
 	void VersionCheck(char *pBuf);
-	void LoyaltyChange( short tid,int loyalty = -1 );
+	void LoyaltyChange(short tid);
+	void ChangeNP(short sAmount, bool bDistributeToParty = true);
 	void StateChange( char* pBuf );
 	void StateChangeServerDirect(BYTE bType, int nValue);
 	void PointChange( char* pBuf );

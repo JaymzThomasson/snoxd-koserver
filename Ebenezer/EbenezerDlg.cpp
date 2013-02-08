@@ -2071,21 +2071,26 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 		CUser* pTUser = GetUnsafeUserPtr(i);
 		if (pTUser == NULL) continue;
 		
-		if (pTUser->m_pUserData->m_bNation == m_bVictory) {
+		if (pTUser->getNation() == m_bVictory) {
 			if ( pTUser->m_pUserData->m_bZone == pTUser->m_pUserData->m_bNation ) {		// Zone Check!
 				pTUser->GoldGain(AWARD_GOLD);	// Target is in the area.
 				pTUser->ExpChange(AWARD_EXP);
-				if(pTUser->m_pUserData->m_bFame == COMMAND_CAPTAIN){
-				if(pTUser->m_pUserData->m_bRank == 0x01)
-				pTUser->LoyaltyChange(NULL,500);
+
+				if (pTUser->m_pUserData->m_bFame == COMMAND_CAPTAIN)
+				{
+					if(pTUser->m_pUserData->m_bRank == 1)
+						pTUser->ChangeNP(500);
 					else
-				pTUser->LoyaltyChange(NULL,300);
+						pTUser->ChangeNP(300);
 				}
 				
-				SetByte(send_buff, 4, send_index);	// You are now normal again!!!
+				/*
+				// What's this meant to do? Make the winning nation use a victory emotion or some such? 4,12 should be provoke 2.
+				// Disabling because it currently seems pointless (and it's better off having it sent directly, rather than processed as if it were a packet)
+				SetByte(send_buff, 4, send_index);
 				SetByte(send_buff, 12, send_index);
 				pTUser->StateChange(send_buff);
-				
+				*/
 			}
 		}
 	}		

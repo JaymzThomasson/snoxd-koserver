@@ -99,11 +99,18 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 	data8 = GetShort( pBuf, index ); // new
 	NpcMagic = GetByte( pBuf, index ); // new
 
-	// ���ο����������� ���ο����̶��� ������ ���� ������ �͸� �����ϵ���,,,
-	if( m_pSrcUser )	{
-		if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE )	{
-			if( magicid != SNOW_EVENT_SKILL )		return;		// �ϵ� �ڵ� �Ⱦ�,,, 
-		}
+	if (m_pSrcUser)
+	{
+		// We don't want the source ever being anyone other than us.
+		// Ever. Even in the case of NPCs, it's BAD. BAD!
+		// We're better than that -- we don't need to have the client tell NPCs what to do.
+		if (sid != m_pSrcUser->GetSocketID()) 
+			return;
+
+		// If we're in a snow war, we're only ever allowed to use the snowball skill.
+		if (m_pSrcUser->getZoneID() == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE 
+			&& magicid != SNOW_EVENT_SKILL)
+			return;
 	}
 
 	if (command == MAGIC_CANCEL) {
@@ -121,9 +128,6 @@ void CMagicProcess::MagicPacket(char *pBuf, int len)
 
 	if( pMagic->bMoral == 10 && tid != -1 )
 		return;
-
-	if(m_pSrcUser)
-	if(!NpcMagic && sid != m_pSrcUser->GetSocketID()) return; // charid control
 
 	if ( sid >= NPC_BAND ) {
 		pMon = m_pMain->m_arNpcArray.GetData(sid);

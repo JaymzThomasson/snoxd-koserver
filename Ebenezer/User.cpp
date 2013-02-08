@@ -506,11 +506,20 @@ void CUser::Parsing(int len, char *pData)
 
 void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/)
 {
-	Packet result(WIZ_LOYALTY_CHANGE);
+	Packet result(WIZ_LOYALTY_CHANGE, uint8(1));
+
 	m_pUserData->m_iLoyalty += nChangeAmount;
+	m_pUserData->m_iLoyaltyMonthly += nChangeAmount;
+
 	if (m_pUserData->m_iLoyalty < 0)
 		m_pUserData->m_iLoyalty = 0;
-	result << m_pUserData->m_iLoyalty;
+	if (m_pUserData->m_iLoyaltyMonthly < 0)
+		m_pUserData->m_iLoyaltyMonthly = 0;
+
+	result	<< m_pUserData->m_iLoyalty << m_pUserData->m_iLoyaltyMonthly
+			<< uint32(0) // Clan donations(? Donations made by this user? For the clan overall?)
+			<< uint32(0); // Premium NP(? Additional NP gained?)
+
 	Send(&result);
 }
 
@@ -1910,106 +1919,71 @@ void CUser::StateChangeServerDirect(BYTE bType, int nValue)
 	StateChange(buff);
 }
 
-void CUser::LoyaltyChange(short tid,int loyalty)
+void CUser::LoyaltyChange(short tid)
 {
-	short level_difference = 0, loyalty_source = 0, loyalty_target = 0;
-	int send_index = 0; char send_buff[256]; memset( send_buff, NULL, 256 );	
-	if( m_pUserData->m_bZone == 48 || m_pUserData->m_bZone == 21) return;
+	short loyalty_source = 0, loyalty_target = 0;
 
-	CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.  
-	if( !pTUser && !loyalty) return;									  // Check if target exists and not already dead.
+	// TO-DO: Rewrite this out, it shouldn't handle all cases so generally like this
+	if (m_pUserData->m_bZone == 48 || m_pUserData->m_bZone == 21) 
+		return;
 
+	CUser* pTUser = m_pMain->GetUserPtr(tid);  
+	if (pTUser == NULL) 
+		return;
 
-	if(pTUser){
-	if (pTUser->getNation() != getNation()) {		// Different nations!!!
-		if (pTUser->m_pUserData->m_iLoyalty <= 0) {
+	if (pTUser->getNation() != getNation()) 
+	{
+		if (pTUser->m_pUserData->m_iLoyalty <= 0) 
+		{
 			loyalty_source = 0;
 			loyalty_target = 0;
 		}
-		else if (pTUser->m_pUserData->m_bZone == 71) {	//Colony Zone
+		// TO-DO: Rewrite this out, it'd be better to handle this in the database.
+		// Colony Zone
+		else if (pTUser->getZoneID() == 71) 
+		{
 			loyalty_source = 64;
 			loyalty_target = -50;
+
+			// Handle CZ rank
+			//	m_zColonyZoneLoyalty += loyalty_source;
+			//	m_pMain->UpdateColonyZoneRankInfo();
 		}
-		else if (pTUser->m_pUserData->m_bZone == 72) {	//Ardream
+		// Ardream
+		else if (pTUser->getZoneID() == 72)
+		{
 			loyalty_source =  25; 
 			loyalty_target = -25;
 		}
-		else {											//Other Zone
+		// Other zones
+		else 
+		{
 			loyalty_source =  50;
 			loyalty_target = -50;
 		}
+	}
 
-//	if(m_pUserData->m_bZone == 71){						//Colony Zone Rank
-//	m_zColonyZoneLoyalty += loyalty_source;
-//	m_pMain->UpdateColonyZoneRankInfo();
-//	}
+	SendLoyaltyChange(loyalty_source);
+	pTUser->SendLoyaltyChange(loyalty_target);
 
-	pTUser->m_pUserData->m_iLoyaltyMonthly += loyalty_target;
-	pTUser->m_pUserData->m_iLoyalty += loyalty_target;  
-
-	if (pTUser->m_pUserData->m_iLoyalty < 0) 
-		pTUser->m_pUserData->m_iLoyalty = 0;
-	if (pTUser->m_pUserData->m_iLoyaltyMonthly < 0) 
-		pTUser->m_pUserData->m_iLoyaltyMonthly = 0;
-		
-//	SendLoyaltyChange(loyalty_source);
-//	pTUser->SendLoyaltyChange(loyalty_target);
-	memset( send_buff, NULL, 256 ); send_index = 0;
-	SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );	// Send result to target.,
-	SetByte( send_buff, 0x01, send_index );					// Type
-	SetDWORD( send_buff, pTUser->m_pUserData->m_iLoyalty, send_index );
-	SetDWORD( send_buff, pTUser->m_pUserData->m_iLoyaltyMonthly, send_index );
-	SetDWORD( send_buff, 0, send_index );//Clan Donate
-	SetDWORD( send_buff, 0, send_index );//Premium NP	
-	pTUser->Send( send_buff, send_index );
-
-
-
-//	This is for the Event Battle on Wednesday :(
-	if (m_pMain->m_byBattleOpen) {
-		if (m_pUserData->m_bZone == ZONE_BATTLE ) { // || m_pUserData->m_bZone == ZONE_SNOW_BATTLE) {
-			if (pTUser->m_pUserData->m_bNation == KARUS) {
-				m_pMain->m_sKarusDead++;
-				//TRACE("++ LoyaltyChange - ka=%d, el=%d\n", m_pMain->m_sKarusDead, m_pMain->m_sElmoradDead);
-			}
-			else if (pTUser->m_pUserData->m_bNation == ELMORAD) {
-				m_pMain->m_sElmoradDead++;
-				//TRACE("++ LoyaltyChange - ka=%d, el=%d\n", m_pMain->m_sKarusDead, m_pMain->m_sElmoradDead);
-			}
-		}
+	// TO-DO: Move this to a better place (death handler, preferrably)
+	// If a war's running, and we died/killed in a war zone... (this method should NOT be so tied up in specifics( 
+	if (m_pMain->m_byBattleOpen && getZoneID() / 100 == 1) 
+	{
+		// Update the casualty count
+		if (pTUser->getNation() == KARUS)
+			m_pMain->m_sKarusDead++;
+		else 
+			m_pMain->m_sElmoradDead++;
 	}
 }
-	if (loyalty)
-	if (m_pUserData->m_bZone == ZONE_BATTLE) //Lunar War
-		loyalty_source = loyalty;
-/*
-	if (m_pUserData->m_bZone != m_pUserData->m_bNation && m_pUserData->m_bZone < 3) { 
-		loyalty_source  = 2 * loyalty_source;
-	}
-*/
-//
-	if(m_pUserData->m_bPremiumType != 0)
-	loyalty_source += 2;
 
-	m_pUserData->m_iLoyalty += loyalty_source;
-	m_pUserData->m_iLoyaltyMonthly += loyalty_source;
-
-	if (m_pUserData->m_iLoyalty < 0)
-		m_pUserData->m_iLoyalty = 0;
-	if (m_pUserData->m_iLoyaltyMonthly < 0)
-		m_pUserData->m_iLoyaltyMonthly = 0;
-		
-	SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );	// Send result to source.
-	SetByte( send_buff, 0x01, send_index );					// Type
-	SetDWORD( send_buff, m_pUserData->m_iLoyalty, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iLoyaltyMonthly, send_index );
-	SetDWORD( send_buff, 0, send_index );//Clan Donate
-	if(m_pUserData->m_bPremiumType != 0)
-	SetDWORD( send_buff, 2, send_index );//Premium NP	
-	else
-	SetDWORD( send_buff, 0, send_index );//Premium NP	
-	Send( send_buff, send_index );		
-//
+void CUser::ChangeNP(short sAmount, bool bDistributeToParty /*= true*/)
+{
+	if (bDistributeToParty && isInParty()) 
+		; /* TO-DO: Cut out all the specifics from LoyaltyDivide() and implement the core of it as its own method */
+	else // Otherwise, we just give NP to the player (which this does, implicitly)
+		SendLoyaltyChange(sAmount); 
 }
 
 void CUser::SpeedHackUser()

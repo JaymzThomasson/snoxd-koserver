@@ -167,6 +167,8 @@ struct _USER_DATA
 	// this system needs replacing
 	uint16	m_sQuestCount;
 	uint8	m_bstrQuest[400];
+
+	uint8	m_bPremiumType;
 };
 
 inline void GetString(char* tBuf, char* sBuf, int len, int& index)

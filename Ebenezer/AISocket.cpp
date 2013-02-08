@@ -1171,11 +1171,19 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 		if (GetKOString(pBuf, strMaxUserName, index, MAX_ID_SIZE, sizeof(BYTE)))
 		{
 			pUser = m_pMain->GetUserPtr(strMaxUserName, TYPE_CHARACTER);
-			if( pUser )	{
+			if (pUser != NULL)
+			{
 				pKnights = m_pMain->m_KnightsArray.GetData( pUser->m_pUserData->m_bKnights );
-				if( pKnights )	{
-					strcpy_s( strKnightsName, sizeof(strKnightsName), pKnights->m_strName );
-				}
+				if (pKnights)
+					strcpy_s(strKnightsName, sizeof(strKnightsName), pKnights->m_strName);
+
+				/* War rewards */
+				// Warders
+				if (nResult >= 3 && nResult <= 6)
+					pUser->ChangeNP(500); /* TO-DO: Remove hardcoded values */
+				// Keeper
+				else if (nResult == 8)
+					pUser->ChangeNP(1000);
 			}
 
 			int nResourceID = 0;
@@ -1184,78 +1192,21 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 			case 1: // captain
 				nResourceID = IDS_KILL_CAPTAIN;
 				break;
-			case 2: // keeper
-
-			case 7: // warders?
-			case 8:
+			case 3: // Karus warder 1
+				nResourceID = IDS_KILL_KARUS_GUARD1;
+				break;
+			case 4: // Karus warder 2
+				nResourceID = IDS_KILL_KARUS_GUARD2;
+				break;
+			case 5: // El Morad warder 1
+				nResourceID = IDS_KILL_ELMO_GUARD1;
+				break;
+			case 6: // El Morad warder 2
+				nResourceID = IDS_KILL_ELMO_GUARD2;
+				break;
+			case 8: // Keeper
 				nResourceID = IDS_KILL_GATEKEEPER;
 				break;
-
-			case 3: // Karus sentry
-				nResourceID = IDS_KILL_KARUS_GUARD1;
-			pUser = m_pMain->GetUserPtr(strMaxUserName, 0x02);
-			if(!pUser) return;
-			if( pUser->m_sPartyIndex == -1 )
-				pUser->LoyaltyChange(NULL,500);
-			else
-				pUser->LoyaltyDivide(NULL,500);				
-				break;
-			case 4: // Karus sentry
-				nResourceID = IDS_KILL_KARUS_GUARD2;
-			pUser = m_pMain->GetUserPtr(strMaxUserName, 0x02);
-			if(!pUser) return;
-			if( pUser->m_sPartyIndex == -1 )
-				pUser->LoyaltyChange(NULL,500);
-			else
-				pUser->LoyaltyDivide(NULL,500);				
-				break;
-			case 5: // El Morad sentry
-				nResourceID = IDS_KILL_ELMO_GUARD1;
-			pUser = m_pMain->GetUserPtr(strMaxUserName, 0x02);
-			if(!pUser) return;
-			if( pUser->m_sPartyIndex == -1 )
-				pUser->LoyaltyChange(NULL,500);
-			else
-				pUser->LoyaltyDivide(NULL,500);				
-				break;
-			case 6: // El Morad sentry
-				nResourceID = IDS_KILL_ELMO_GUARD2;
-			pUser = m_pMain->GetUserPtr(strMaxUserName, 0x02);
-			if(!pUser) return;
-			if( pUser->m_sPartyIndex == -1 )
-				pUser->LoyaltyChange(NULL,500);
-			else
-				pUser->LoyaltyDivide(NULL,500);				
-				break;
-			case 7:
-/*			pServerResource = m_pMain->m_ServerResource.GetData( 134 );
-			strbuff =  pServerResource->m_strResource;
-			strbuff.TrimRight();
-			strcpy( buff,(char*)(LPCTSTR)strbuff);
-			sprintf( finalstr,buff,strKnightsName,strMaxUserName);
-*/			
-			pUser = m_pMain->GetUserPtr(strMaxUserName, 0x02);
-			if(!pUser) return;
-			if( pUser->m_sPartyIndex == -1 )
-				pUser->LoyaltyChange(NULL,1000);
-			else
-				pUser->LoyaltyDivide(NULL,1000);
-			break;
-
-			case 8:
-/*			pServerResource = m_pMain->m_ServerResource.GetData( 134 );
-			strbuff =  pServerResource->m_strResource;
-			strbuff.TrimRight();
-			strcpy( buff,(char*)(LPCTSTR)strbuff);
-			sprintf( finalstr,buff,strKnightsName,strMaxUserName);
-*/			
-			pUser = m_pMain->GetUserPtr(strMaxUserName, 0x02);
-			if(!pUser) return;
-			if( pUser->m_sPartyIndex == -1 )
-				pUser->LoyaltyChange(NULL,1000);
-			else
-				pUser->LoyaltyDivide(NULL,1000);
-			break;				
 			}
 
 			if (nResourceID == 0)
