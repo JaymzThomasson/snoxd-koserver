@@ -1651,16 +1651,14 @@ BOOL CUser::IsValidName(char *name)
 
 void CUser::ItemGet(char *pBuf)
 {
-	int index = 0, send_index = 0, bundle_index = 0, itemid = 0, count = 0, i=0;
+	Packet result(WIZ_ITEM_GET);
+	int index = 0, bundle_index = 0, itemid = 0, usercount = 0, money = 0, levelsum = 0, i = 0;
 	BYTE pos;
 	_ITEM_TABLE* pTable = NULL;
-	char send_buff[256];
 	_ZONE_ITEM* pItem = NULL;
 	C3DMap* pMap = GetMap();
 	CRegion* pRegion = NULL;
-	CUser* pUser = NULL;
 	CUser* pGetUser = NULL;
-	_PARTY_GROUP* pParty = NULL;
 
 	ASSERT(pMap != NULL);
 
@@ -1680,152 +1678,127 @@ void CUser::ItemGet(char *pBuf)
 
 	itemid = GetDWORD( pBuf, index );
 
-	for(i=0; i<6; i++) {
-		if( pItem->itemid[i] == itemid )
+	for (i = 0; i < 6; i++)
+	{
+		if (pItem->itemid[i] == itemid)
 			break;
 	}
-	if(i == 6 ) goto fail_return;
-	count = pItem->count[i];
-
-	if( pMap->RegionItemRemove( m_RegionX, m_RegionZ, bundle_index, pItem->itemid[i], pItem->count[i] ) == FALSE )
+	if (i == 6
+		|| pMap->RegionItemRemove(m_RegionX, m_RegionZ, bundle_index, pItem->itemid[i], pItem->count[i]) == FALSE)
 		goto fail_return;
+
+	short count = pItem->count[i];
+
 	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
-	if( !pTable ) goto fail_return;
+	if (pTable == NULL)
+		goto fail_return;
 
 	if( m_sPartyIndex != -1 && itemid != ITEM_GOLD ) 
 		pGetUser = GetItemRoutingUser(itemid, count);
 	else
 		pGetUser = this;
 		
-	if( !pGetUser ) goto fail_return;
-	pos = pGetUser->GetEmptySlot( itemid, pTable->m_bCountable );
+	if (pGetUser == NULL) 
+		goto fail_return;
 
-	if( pos != 0xFF ) {	// Common Item
-		if( pos >= HAVE_MAX ) goto fail_return;
+	if (itemid == ITEM_GOLD)
+	{
+		if (count == 0 || count >= 32767)
+			return;
 
-		if( pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != 0 ) {	
-			if( pTable->m_bCountable != 1 ) goto fail_return;	
-			else if( pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != itemid ) goto fail_return;
-		}
-//
-		if (pTable->m_bCountable) {	// Check weight of countable item.
-			if ((pTable->m_sWeight * count + pGetUser->m_sItemWeight) > pGetUser->m_sMaxWeight) {			
-				send_index = 0; 
-				SetByte( send_buff, WIZ_ITEM_GET, send_index );
-				SetByte( send_buff, 0x06, send_index );
-				pGetUser->Send( send_buff, send_index );
-				return;
-			}
-		}
-		else {	// Check weight of non-countable item.
-			if ((pTable->m_sWeight + pGetUser->m_sItemWeight) > pGetUser->m_sMaxWeight) {
-				send_index = 0; 
-				SetByte( send_buff, WIZ_ITEM_GET, send_index );
-				SetByte( send_buff, 0x06, send_index );
-				pGetUser->Send( send_buff, send_index );			
-				return;
-			}
-		}
-//
-		pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum = itemid;	// Add item to inventory. 
-
-		if( pTable->m_bCountable ) {	// Apply number of item.		
-			pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount += count;
-			if( pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount > MAX_ITEM_COUNT ) {
-				pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = MAX_ITEM_COUNT;
-			}
-		}
-		else {
-			pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = 1;
-			pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum = m_pMain->GenerateItemSerial();
+		if (!isInParty())
+		{
+			m_pUserData->m_iGold += count;
+			result << uint8(1) << bundle_index << pos << itemid << count << m_pUserData->m_iGold;
+			Send(&result);
+			return;
 		}
 
-		pGetUser->SendItemWeight();
-		pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;
-		pGetUser->ItemLogToAgent( pGetUser->m_pUserData->m_id, "MONSTER", ITEM_MONSTER_GET, pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum, itemid, count, pTable->m_sDuration );
-	}
-	else {	// Gold
-		if( itemid != ITEM_GOLD ) goto fail_return;
-		if( count > 0 && count < 32767 ) {
-			if( m_sPartyIndex == -1 ) {
-				m_pUserData->m_iGold += count;
-				SetByte( send_buff, WIZ_ITEM_GET, send_index );
-				SetByte( send_buff, 0x01, send_index );
-				SetDWORD( send_buff, bundle_index, send_index );
-				SetByte( send_buff, pos, send_index );
-				SetDWORD( send_buff, itemid, send_index );
-				SetShort( send_buff, count, send_index );
-				SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-				Send( send_buff, send_index );
-			}
-			else {
-				pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
-				if( !pParty ) goto fail_return;
-				int usercount = 0, money = 0, levelsum = 0;
-				for( i=0; i<8; i++ ) {
-					if( pParty->uid[i] != -1 ) {
-						usercount++;
-						levelsum += pParty->bLevel[i];
-					}
-				}
-				if( usercount == 0 ) goto fail_return;
-				for( i=0; i<8; i++ ) {
-					if( pParty->uid[i] != -1 ) {
-						pUser = m_pMain->GetUserPtr(pParty->uid[i]);
-						if (pUser == NULL) continue;
+		_PARTY_GROUP *pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
+		if (!pParty)
+			goto fail_return;
 
-						money = (int)(count * (float)(pUser->m_pUserData->m_bLevel / (float)levelsum));    
-						pUser->m_pUserData->m_iGold += money;
-
-						send_index = 0; 
-						SetByte( send_buff, WIZ_ITEM_GET, send_index );
-						SetByte( send_buff, 0x02, send_index );
-						SetDWORD( send_buff, bundle_index, send_index );
-						SetByte( send_buff, 0xff, send_index );			// gold -> pos : 0xff
-						SetDWORD( send_buff, itemid, send_index );
-						SetDWORD( send_buff, pUser->m_pUserData->m_iGold, send_index );
-						pUser->Send( send_buff, send_index );
-					}
-				}
+		for( i=0; i<8; i++ ) {
+			if( pParty->uid[i] != -1 ) {
+				usercount++;
+				levelsum += pParty->bLevel[i];
 			}
+		}
+		if( usercount == 0 ) goto fail_return;
+		for( i=0; i<8; i++ ) {
+			if (pParty->uid[i] == -1)
+				continue;
+
+			CUser *pUser = m_pMain->GetUserPtr(pParty->uid[i]);
+			if (pUser == NULL) 
+				continue;
+
+			money = (int)(count * (float)(pUser->m_pUserData->m_bLevel / (float)levelsum));    
+			pUser->m_pUserData->m_iGold += money;
+
+			result.clear();
+			result << uint8(2) << bundle_index << uint8(-1) << itemid << pUser->m_pUserData->m_iGold;
+			pUser->Send(&result);
 		}
 		return;
 	}
-	
-	SetByte( send_buff, WIZ_ITEM_GET, send_index );
-	if( pGetUser == this )
-		SetByte( send_buff, 0x01, send_index );
-	else
-		SetByte( send_buff, 0x05, send_index );
-	SetByte( send_buff, pos, send_index );
-	SetDWORD( send_buff, itemid, send_index );
-	SetShort( send_buff, pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount, send_index );
-	SetDWORD( send_buff, pGetUser->m_pUserData->m_iGold, send_index );
-	pGetUser->Send( send_buff, send_index );
 
-	if( m_sPartyIndex != -1 ) {
-		send_index = 0;
-		SetByte( send_buff, WIZ_ITEM_GET, send_index );
-		SetByte( send_buff, 0x03, send_index );
-		SetDWORD( send_buff, bundle_index, send_index );
-		SetDWORD( send_buff, itemid, send_index );
-		SetKOString(send_buff, pGetUser->m_pUserData->m_id, send_index);
-		m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );
-		if( pGetUser != this ) {
-			send_index = 0;
-			SetByte( send_buff, WIZ_ITEM_GET, send_index );
-			SetByte( send_buff, 0x04, send_index );
-			Send( send_buff, send_index );
+	pos = pGetUser->GetEmptySlot(itemid, pTable->m_bCountable);
+	if (pos < 0) 
+		goto fail_return;
+
+	if (!pGetUser->CheckWeight(itemid, count))
+	{
+		result << uint8(6);
+		pGetUser->Send(&result);
+		return;
+	}
+
+	pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum = itemid;	// Add item to inventory. 
+	if (pTable->m_bCountable)
+	{
+		pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount += count;
+		if (pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount > MAX_ITEM_COUNT)
+			pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = MAX_ITEM_COUNT;
+	}
+	else
+	{
+		pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = 1;
+		pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum = m_pMain->GenerateItemSerial();
+	}
+
+	pGetUser->SendItemWeight();
+	pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;
+	pGetUser->ItemLogToAgent( pGetUser->m_pUserData->m_id, "MONSTER", ITEM_MONSTER_GET, pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum, itemid, count, pTable->m_sDuration );
+	
+	// 1 = self, 5 = party
+	// Tell the user who got the item that they actually got it.
+	result	<< uint8(pGetUser == this ? 1 : 5)
+			<< pos << itemid << pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount
+			<< pGetUser->m_pUserData->m_iGold;
+	pGetUser->Send(&result);
+
+	if (isInParty())
+	{
+		// Tell our party the item was looted
+		result.clear();
+		result << uint8(3) << bundle_index << itemid << pGetUser->m_pUserData->m_id;
+		m_pMain->Send_PartyMember(m_sPartyIndex, &result);
+
+		// Let us know the other user got the item
+		if (pGetUser != this)
+		{
+			result.clear();
+			result << uint8(4);
+			Send(&result);
 		}
 	} 
 
 	return;
 
 fail_return:
-	send_index = 0;
-	SetByte( send_buff, WIZ_ITEM_GET, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	Send( send_buff, send_index );
+	result << uint8(0);
+	Send(&result);
 }
 
 void CUser::StateChange(char *pBuf)
@@ -3082,37 +3055,15 @@ void CUser::InitType4()
 	m_bType4Flag = FALSE;
 }
 
-int CUser::GetEmptySlot(int itemid, int bCountable)	// item ????? ?????? ????? �????...
+int CUser::GetEmptySlot(int itemid, int bCountable)
 {
-	int pos = 255, i=0;
-	
-	_ITEM_TABLE* pTable = NULL;
-
-	if (bCountable == -1) {
-		pTable = m_pMain->m_ItemtableArray.GetData( itemid );
-		if (!pTable) return pos;
-		
-		bCountable = pTable->m_bCountable;
+	for (int i = 0; i < HAVE_MAX; i++)
+	{
+		if (m_pUserData->m_sItemArray[SLOT_MAX+i].nNum == 0)
+			return i;
 	}
 
-	if( itemid == ITEM_GOLD ) return pos;
-	for(i=0; i<HAVE_MAX; i++) {
-		if( m_pUserData->m_sItemArray[SLOT_MAX+i].nNum != 0 )
-			continue;
-		else {
-			pos = i;
-			break;
-		}
-	}
-	if( bCountable ){
-		for(i=0; i<HAVE_MAX; i++) {
-			if( m_pUserData->m_sItemArray[SLOT_MAX+i].nNum == itemid )
-				return i;
-		}
-		if( i == HAVE_MAX )
-			return pos;
-	}
-	return pos;
+	return -1;
 }
 
 void CUser::Home()

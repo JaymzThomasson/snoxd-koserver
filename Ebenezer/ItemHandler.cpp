@@ -4,9 +4,9 @@
 
 void CUser::WarehouseProcess(char *pBuf)
 {
-	int index = 0, send_index = 0, itemid = 0, srcpos = -1, destpos = -1, page = -1, reference_pos = -1, npcid = 0;
+	Packet result(WIZ_WAREHOUSE);
+	int index = 0, itemid = 0, srcpos = -1, destpos = -1, page = -1, reference_pos = -1, npcid = 0;
 	DWORD count = 0;
-	char send_buff[2048];
 	_ITEM_TABLE* pTable = NULL;
 	BYTE command = 0;
 	command = GetByte( pBuf, index );
@@ -20,7 +20,6 @@ void CUser::WarehouseProcess(char *pBuf)
 	if( m_sExchangeUser != -1 ) goto fail_return;
 
 	if( command == WAREHOUSE_OPEN )	{
-		Packet result(WIZ_WAREHOUSE);
 		result << uint8(WAREHOUSE_OPEN) << uint8(WAREHOUSE_OPEN) << uint32(m_pUserData->m_iBank);
 		for(int i=0; i<WAREHOUSE_MAX; i++ ) {
 			result << m_pUserData->m_sWarehouseArray[i].nNum << m_pUserData->m_sWarehouseArray[i].sDuration <<  m_pUserData->m_sWarehouseArray[i].sCount <<
@@ -177,76 +176,37 @@ void CUser::WarehouseProcess(char *pBuf)
 
 	m_pUserData->m_bWarehouse = 1;
 
-	SetByte( send_buff, WIZ_WAREHOUSE, send_index );
-	SetByte( send_buff, command, send_index );
-	SetByte( send_buff, 0x01, send_index );
-	Send( send_buff, send_index );
+	result << uint8(command) << uint8(1);
+	Send(&result);
 	return;
-fail_return:
-	SetByte( send_buff, WIZ_WAREHOUSE, send_index );
-	SetByte( send_buff, command, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	Send( send_buff, send_index );
+
+fail_return: // hmm...
+	result << uint8(command) << uint8(0);
+	Send(&result);
 }
-
-
 
 BOOL CUser::CheckWeight(int itemid, short count)
 {
-	_ITEM_TABLE* pTable = NULL;
-	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
-	if (!pTable) return FALSE;
-
-	if (!pTable->m_bCountable) {
-		if ((m_sItemWeight + pTable->m_sWeight ) <= m_sMaxWeight) {		// Check weight first!
-			if (GetEmptySlot(itemid, 0) != 0xFF) {		// Now check empty slots :P
-				return TRUE;
-			}
-			else {
-				return FALSE;
-			}
-		}
-		else {
-			return FALSE;
-		}
-	}
-	else {
-		if (((pTable->m_sWeight * count) + m_sItemWeight) <= m_sMaxWeight) {	// Check weight first!
-			if (GetEmptySlot(itemid, pTable->m_bCountable) != 0xFF) {	// Now check empty slots :P
-				return TRUE;
-			}
-			else {
-				return FALSE;
-			}			
-		}
-		else {
-			return FALSE;
-		}
-	}
-
-	return FALSE;
+	_ITEM_TABLE* pTable = m_pMain->m_ItemtableArray.GetData(itemid);
+	return (pTable != NULL // Make sure the item exists
+			// and that the weight doesn't exceed our limit
+			&& (m_sItemWeight + (pTable->m_sWeight * count)) <= m_sMaxWeight
+			// and we have room for the item.
+			&& GetEmptySlot(itemid, pTable->m_bCountable) >= 0);
 }
 
 BOOL CUser::CheckExistItem(int itemid, short count)
 {
-	_ITEM_TABLE* pTable = NULL;				// This checks if such an item exists.
-	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
-	if( !pTable ) return FALSE;	
+	_ITEM_TABLE* pTable = m_pMain->m_ItemtableArray.GetData(itemid);
+	if (pTable == NULL)
+		return FALSE;	
 
-	for ( int i = 0 ; i < SLOT_MAX + HAVE_MAX ; i++ ) {		// Check every slot in this case.....
-		if( m_pUserData->m_sItemArray[i].nNum == itemid ) {		
-			if (!pTable->m_bCountable) {	// Non-countable item. Automatically return TRUE				
-				return TRUE;
-			}
-			else {
-				if (m_pUserData->m_sItemArray[i].sCount >= count) {	// Countable items. Make sure the amount is 
-					return TRUE;                                    // same or higher.
-				}
-				else {
-					return FALSE;
-				}
-			}
-		}
+	for (int i = 0; i < SLOT_MAX + HAVE_MAX; i++)
+	{
+		// This implementation fixes a bug where it ignored the possibility for multiple stacks.
+		if (m_pUserData->m_sItemArray[i].nNum == itemid
+				&& m_pUserData->m_sItemArray[i].sCount >= count)
+			return TRUE;
 	}
 
 	return FALSE;
