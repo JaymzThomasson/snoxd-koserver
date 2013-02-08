@@ -1680,7 +1680,7 @@ void CUser::ItemGet(char *pBuf)
 		if (!isInParty())
 		{
 			m_pUserData->m_iGold += count;
-			result << uint8(1) << bundle_index << pos << itemid << count << m_pUserData->m_iGold;
+			result << uint8(1) << bundle_index << uint8(-1) << itemid << count << m_pUserData->m_iGold;
 			Send(&result);
 			return;
 		}
