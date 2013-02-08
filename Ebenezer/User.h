@@ -341,7 +341,6 @@ public:
 
 	// Merchant system (both types)
 	void MerchantProcess(char *pBuf);
-	void ClearSellingItems(int nSellinItems);
 	void TakeMerchantItems();
 	void GiveMerchantItems();
 

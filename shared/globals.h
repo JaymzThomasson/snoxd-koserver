@@ -122,7 +122,7 @@ struct _MERCH_DATA
 	unsigned short sCount;
 	__int64 nSerialNum;
 	int nPrice;
-	BYTE nOriginalSlot;
+	uint8 bOriginalSlot;
 };
 
 struct _USER_DATA
