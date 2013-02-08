@@ -89,7 +89,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 
 	pUser = m_pMain->GetUserPtr(memberid);
 	if (pUser == NULL
-		|| pUser->m_sPartyIndex != -1) goto fail_return;
+		|| pUser->isInParty()) goto fail_return;
 
 	if (getNation() != pUser->getNation())
 	{
@@ -116,7 +116,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 	}
 
 	if( bCreate ) {
-		if( m_sPartyIndex != -1 ) goto fail_return;	// can't create a party ifw e're already in one
+		if( isInParty() ) goto fail_return;	// can't create a party ifw e're already in one
 		if (!m_pMain->CreateParty(this))
 			goto fail_return;
 
@@ -135,7 +135,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 	pUser->m_sPartyIndex = m_sPartyIndex;
 
 /*
-	if (pUser->m_bNeedParty == 2 && pUser->m_sPartyIndex != -1) {
+	if (pUser->m_bNeedParty == 2 && pUser->isInParty()) {
 		pUser->m_bNeedParty = 1;
 		send_index = 0;	
 		SetByte(send_buff, 2, send_index);
@@ -143,7 +143,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 		pUser->StateChange(send_buff);
 	}
 
-	if (m_bNeedParty == 2 && m_sPartyIndex != -1) {
+	if (m_bNeedParty == 2 && isInParty()) {
 		m_bNeedParty = 1;
 		send_index = 0;	
 		SetByte(send_buff, 2, send_index);
@@ -173,7 +173,7 @@ void CUser::PartyInsert()
 	_PARTY_GROUP* pParty = NULL;
 	BYTE byIndex = -1;
 	char send_buff[256];
-	if( m_sPartyIndex == -1 ) return;
+	if( !isInParty() ) return;
 
 	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
 	if( !pParty ) {	
@@ -230,7 +230,7 @@ void CUser::PartyInsert()
 	if (pUser == NULL)
 		return;
 
-	if (pUser->m_bNeedParty == 2 && pUser->m_sPartyIndex != -1) {
+	if (pUser->m_bNeedParty == 2 && pUser->isInParty()) {
 		pUser->m_bNeedParty = 1;
 		send_index = 0;	
 		SetByte(send_buff, 2, send_index);
@@ -238,7 +238,7 @@ void CUser::PartyInsert()
 		pUser->StateChange(send_buff);
 	}
 
-	if (m_bNeedParty == 2 && m_sPartyIndex != -1) {		
+	if (m_bNeedParty == 2 && isInParty()) {		
 		m_bNeedParty = 1;	
 		send_index = 0;	
 		SetByte(send_buff, 2, send_index);
@@ -278,7 +278,7 @@ void CUser::PartyRemove(int memberid)
 	CUser* pUser = NULL;
 	_PARTY_GROUP* pParty = NULL;
 
-	if (m_sPartyIndex == -1) 
+	if (!isInParty()) 
 		return;
 
 	pUser = m_pMain->GetUserPtr(memberid);
@@ -351,7 +351,7 @@ void CUser::PartyDelete()
 	int send_index = 0;
 	CUser* pUser = NULL;
 	_PARTY_GROUP* pParty = NULL;
-	if( m_sPartyIndex == -1 ) return;
+	if( !isInParty() ) return;
 
 	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
 	if( !pParty ) {
@@ -407,7 +407,7 @@ void CUser::PartyBBSRegister(char *pBuf)
 	char send_buff[256]; 
 	int i = 0, counter = 0;
 
-	if (m_sPartyIndex != -1) goto fail_return;	// You are already in a party!
+	if (isInParty()) goto fail_return;	// You are already in a party!
 	if (m_bNeedParty == 2) goto fail_return;	// You are already on the BBS!
 
 	m_bNeedParty = 2;	// Success! Now you officially need a party!!!

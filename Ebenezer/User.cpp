@@ -1664,7 +1664,7 @@ void CUser::ItemGet(char *pBuf)
 	if (pTable == NULL)
 		goto fail_return;
 
-	if( m_sPartyIndex != -1 && itemid != ITEM_GOLD ) 
+	if( isInParty() && itemid != ITEM_GOLD ) 
 		pGetUser = GetItemRoutingUser(itemid, count);
 	else
 		pGetUser = this;
@@ -2072,7 +2072,7 @@ void CUser::LoyaltyDivide(short tid)
 	CUser* pUser = NULL;
 
 	_PARTY_GROUP* pParty = NULL;		// Party Pointer Initialization!
-	if( m_sPartyIndex < 0 ) return;
+	if( !isInParty() ) return;
 	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
 	if( !pParty ) return;
 
@@ -2468,7 +2468,7 @@ void CUser::HPTimeChangeType3(float currenttime)
 				}
 				else {	// You got killed by another player
 					if (pUser) {	// (No more pointer mistakes....)
-						if( pUser->m_sPartyIndex == -1 ) {     // Something regarding loyalty points.
+						if( !pUser->isInParty() ) {     // Something regarding loyalty points.
 							pUser->LoyaltyChange(m_Sid);
 						}
 						else {
@@ -2502,7 +2502,7 @@ void CUser::HPTimeChangeType3(float currenttime)
 		if( m_bHPDuration[i] > 0 ) {
 			if( ((currenttime - m_fHPStartTime[i]) >= m_bHPDuration[i]) || m_bResHpType == USER_DEAD) {
 				/*	Send Party Packet.....
-				if (m_sPartyIndex != -1) {
+				if (isInParty()) {
 					SetByte( send_buff, WIZ_PARTY, send_index );
 					SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
 					SetShort( send_buff, m_Sid, send_index );
@@ -2551,7 +2551,7 @@ void CUser::HPTimeChangeType3(float currenttime)
 	}
 
 	// Send Party Packet.....
-	if (m_sPartyIndex != -1 && bType3Test) {
+	if (isInParty() && bType3Test) {
 		send_index = 0;
 		SetByte( send_buff, WIZ_PARTY, send_index );
 		SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
@@ -2674,7 +2674,7 @@ void CUser::Type4Duration(float currenttime)
 		Send2AI_UserUpdateInfo();	// AI Server?? ??? ????� ???....		
 
 		/*	Send Party Packet.....
-		if (m_sPartyIndex != -1) {
+		if (isInParty()) {
 			SetByte( send_buff, WIZ_PARTY, send_index );
 			SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
 			SetShort( send_buff, m_Sid, send_index );
@@ -2711,7 +2711,7 @@ void CUser::Type4Duration(float currenttime)
 	}
 //
 	// Send Party Packet.....
-	if (m_sPartyIndex != -1 && bType4Test) {
+	if (isInParty() && bType4Test) {
 		send_index = 0 ;
 		SetByte( send_buff, WIZ_PARTY, send_index );
 		SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
@@ -3009,7 +3009,7 @@ void CUser::ResetWindows()
 
 CUser* CUser::GetItemRoutingUser(int itemid, short itemcount)
 {
-	if( m_sPartyIndex == -1 ) return NULL;
+	if( !isInParty() ) return NULL;
 
 	CUser* pUser = NULL;
 	_PARTY_GROUP* pParty = NULL;

@@ -84,7 +84,7 @@ void CUser::Attack(char *pBuf)
 					pTUser->m_bResHpType = USER_DEAD;
 
 					// sungyong work : loyalty					
-					if( m_sPartyIndex == -1 ) {    // Something regarding loyalty points.
+					if( !isInParty() ) {    // Something regarding loyalty points.
 						LoyaltyChange(tid);
 					}
 					else {

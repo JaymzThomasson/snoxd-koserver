@@ -91,7 +91,7 @@ BYTE CUser::GetFriendStatus(char * charName, short & sid)
 	}
 
 	sid = pUser->GetSocketID();
-	if (pUser->m_sPartyIndex != -1) // user in party
+	if (pUser->isInParty()) // user in party
 		return 3;
 
 	return 1; // user not in party

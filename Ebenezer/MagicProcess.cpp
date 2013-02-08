@@ -566,7 +566,7 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 			}
 			break;
 		case MORAL_PARTY:	 // #4
-			if( m_pSrcUser->m_sPartyIndex == -1 && sid != tid) goto fail_return;
+			if( !m_pSrcUser->isInParty() && sid != tid) goto fail_return;
 			if (m_pSrcUser->m_pUserData->m_bNation != moral) goto fail_return;
 			if( pUser )
 				if( pUser->m_sPartyIndex != m_pSrcUser->m_sPartyIndex ) goto fail_return;
@@ -576,8 +576,8 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 			if( pNpc->m_byGroup != moral ) goto fail_return;
 			break;
 		case MORAL_PARTY_ALL:     // #6
-//			if ( m_pSrcUser->m_sPartyIndex == -1 ) goto fail_return;		
-//			if ( m_pSrcUser->m_sPartyIndex == -1 && sid != tid) goto fail_return;					
+//			if ( !m_pSrcUser->isInParty() ) goto fail_return;		
+//			if ( !m_pSrcUser->isInParty() && sid != tid) goto fail_return;					
 
 			break;
 		case MORAL_ENEMY:	// #7	
@@ -864,12 +864,12 @@ BYTE CMagicProcess::ExecuteType1(int magicid, int sid, int tid, int data1, int d
 
 /* �������� ���� �ӽ÷� ��
 //		pTUser->ExpChange( -pTUser->m_iMaxExp/100 );     // Reduce target experience.
-		if( m_pSrcUser->m_sPartyIndex == -1 )     // Something regarding loyalty points.
+		if( !m_pSrcUser->isInParty() )     // Something regarding loyalty points.
 			m_pSrcUser->LoyaltyChange( (pTUser->m_pUserData->m_bLevel * pTUser->m_pUserData->m_bLevel) );
 		else
 			m_pSrcUser->LoyaltyDivide( (pTUser->m_pUserData->m_bLevel * pTUser->m_pUserData->m_bLevel) );
 */
-		if( m_pSrcUser->m_sPartyIndex == -1 ) {    // Something regarding loyalty points.
+		if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
 			m_pSrcUser->LoyaltyChange(tid);
 		}
 		else {
@@ -967,13 +967,13 @@ BYTE CMagicProcess::ExecuteType2(int magicid, int sid, int tid, int data1, int d
 
 /* �������� ���� �ӽ÷� ��
 //		pTUser->ExpChange( -pTUser->m_iMaxExp/100 );     // Reduce target experience.
-		if( m_pSrcUser->m_sPartyIndex == -1 )     // Something regarding loyalty points.
+		if( !m_pSrcUser->isInParty() )     // Something regarding loyalty points.
 			m_pSrcUser->LoyaltyChange( (pTUser->m_pUserData->m_bLevel * pTUser->m_pUserData->m_bLevel) );
 		else
 			m_pSrcUser->LoyaltyDivide( (pTUser->m_pUserData->m_bLevel * pTUser->m_pUserData->m_bLevel) );
 */
 
-		if( m_pSrcUser->m_sPartyIndex == -1 ) {    // Something regarding loyalty points.
+		if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
 			m_pSrcUser->LoyaltyChange(tid);
 		}
 		else {
@@ -1143,7 +1143,7 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 
 						}
 						else	{
-							if( m_pSrcUser->m_sPartyIndex == -1 ) {    // Something regarding loyalty points.
+							if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
 								m_pSrcUser->LoyaltyChange(*itr);
 							}
 							else {
@@ -1200,7 +1200,7 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 					}
 					
 					if (!bFlag) {	// Killed by another player.
-						if( m_pSrcUser->m_sPartyIndex == -1 ) {    // Something regarding loyalty points.
+						if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
 							m_pSrcUser->LoyaltyChange(*itr);
 						}
 						else {
@@ -1248,7 +1248,7 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 			}
 //
 			//	Send Party Packet.....
-			if (pTUser->m_sPartyIndex != -1 && pType->sTimeDamage < 0) {
+			if (pTUser->isInParty() && pType->sTimeDamage < 0) {
 				SetByte( send_buff, WIZ_PARTY, send_index );
 				SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
 				SetShort( send_buff, *itr, send_index );
@@ -1468,7 +1468,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 		pTUser->SetUserAbility();
 //
 		//	Send Party Packet.....	
-		if (pTUser->m_sPartyIndex != -1 && pTUser->m_bType4Buff[pType->bBuffType - 1] == 1) {
+		if (pTUser->isInParty() && pTUser->m_bType4Buff[pType->bBuffType - 1] == 1) {
 			SetByte( send_buff, WIZ_PARTY, send_index );
 			SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
 			SetShort( send_buff, tid, send_index );
@@ -1607,7 +1607,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 			}
 
 			// Send Party Packet....   
-			if (pTUser->m_sPartyIndex != -1 && bType3Test) {
+			if (pTUser->isInParty() && bType3Test) {
 				send_index = 0 ;
 				SetByte( send_buff, WIZ_PARTY, send_index );
 				SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
@@ -1708,7 +1708,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 			pTUser->Send2AI_UserUpdateInfo();	// AI Server�� �م� ����Ÿ ����....		
 
 			/*	Send Party Packet.....
-			if (m_sPartyIndex != -1) {
+			if (isInParty()) {
 				send_index = 0;
 				SetByte( send_buff, WIZ_PARTY, send_index );
 				SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
@@ -1739,7 +1739,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 			}
 //
 			// Send Party Packet.....
-			if (pTUser->m_sPartyIndex != -1 && bType4Test) {
+			if (pTUser->isInParty() && bType4Test) {
 				send_index = 0 ;
 				SetByte( send_buff, WIZ_PARTY, send_index );
 				SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
@@ -1786,7 +1786,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 				}
 
 				// Send Party Packet.....
-				if (pTUser->m_sPartyIndex != -1 && bType4Test) {
+				if (pTUser->isInParty() && bType4Test) {
 					send_index = 0 ;
 					SetByte( send_buff, WIZ_PARTY, send_index );
 					SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
@@ -2243,7 +2243,7 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 	switch (pMagic->bMoral) {
 		case MORAL_PARTY_ALL :		// Check that it's your party.
 /*
-			if( pTUser->m_sPartyIndex == -1) {
+			if( !pTUser->isInParty()) {
 				if (sid == tid) {
 					return TRUE; 
 				}
@@ -2259,7 +2259,7 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 */
 
 // �񷯸ӱ� ������ ��Ƽ ��ȯ >.<
-			if( pTUser->m_sPartyIndex == -1) {
+			if( !pTUser->isInParty()) {
 				if (sid == tid) {
 					return TRUE; 
 				}
@@ -2483,7 +2483,7 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 		pTUser->Send2AI_UserUpdateInfo();	// AI Server�� �م� ����Ÿ ����....		
 
 		/*	Send Party Packet.....
-		if (m_sPartyIndex != -1) {
+		if (isInParty()) {
 			SetByte( send_buff, WIZ_PARTY, send_index );
 			SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
 			SetShort( send_buff, m_Sid, send_index );
@@ -2512,7 +2512,7 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 	if (buff_test == 0) pTUser->m_bType4Flag = FALSE;	
 //
 	// Send Party Packet.....
-	if (pTUser->m_sPartyIndex != -1 && pTUser->m_bType4Flag == FALSE) {
+	if (pTUser->isInParty() && pTUser->m_bType4Flag == FALSE) {
 		send_index = 0 ;
 		SetByte( send_buff, WIZ_PARTY, send_index );
 		SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
@@ -2561,7 +2561,7 @@ void CMagicProcess::Type3Cancel(int magicid, short tid)
 	if (buff_test == 0) pTUser->m_bType3Flag = FALSE;	
 //
 	// Send Party Packet....   
-	if (pTUser->m_sPartyIndex != -1 && pTUser->m_bType3Flag == FALSE) {
+	if (pTUser->isInParty() && pTUser->m_bType3Flag == FALSE) {
 		send_index = 0 ;
 		SetByte( send_buff, WIZ_PARTY, send_index );
 		SetByte( send_buff, PARTY_STATUSCHANGE, send_index );

@@ -196,7 +196,7 @@ void CUser::MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 		if(sid >= NPC_BAND)
 			pTUser->ExpChange( -pTUser->m_iMaxExp/100 );     // Reduce target's experience if the source was an NPC.
 
-		if( m_sPartyIndex == -1 ) {    // If the user is not in a party allocate all the National Points to the user, ifnot, divide it between the party.
+		if( !isInParty() ) {    // If the user is not in a party allocate all the National Points to the user, ifnot, divide it between the party.
 			LoyaltyChange(tid);
 		}
 		else {

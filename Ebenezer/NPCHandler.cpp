@@ -440,7 +440,7 @@ void CUser::ClassChange(char *pBuf)
 	}
 	else {
 		m_pUserData->m_sClass = classcode;
-		if( m_sPartyIndex != -1 ) {
+		if( isInParty() ) {
 			SetByte( send_buff, WIZ_PARTY, send_index );
 			SetByte( send_buff, PARTY_CLASSCHANGE, send_index );
 			SetShort( send_buff, m_Sid, send_index );
