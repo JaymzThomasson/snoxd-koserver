@@ -1635,7 +1635,7 @@ void CUser::ItemGet(char *pBuf)
 
 	bundle_index = GetDWORD(pBuf, index);
 	if (bundle_index < 1
-		|| m_sExchangeUser != -1)
+		|| isTrading())
 		goto fail_return;
 	
 	if (m_RegionX < 0 || m_RegionZ < 0 

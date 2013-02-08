@@ -647,7 +647,8 @@ void CUser::ItemTrade(char *pBuf)
 		return;
 	}
 
-	if( m_sExchangeUser != -1 ) goto fail_return;
+	if (isTrading())
+		goto fail_return;
 	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
 	if( !pTable ) {
 		result = 0x01;

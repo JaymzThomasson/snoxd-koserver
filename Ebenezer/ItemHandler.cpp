@@ -17,7 +17,8 @@ void CUser::WarehouseProcess(char *pBuf)
 		TRACE("### WarehouseProcess Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", m_pUserData->m_id, m_Sid, m_bResHpType, m_pUserData->m_sHp, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
 		return;
 	}
-	if( m_sExchangeUser != -1 ) goto fail_return;
+	if (isTrading())
+		goto fail_return;
 
 	if( command == WAREHOUSE_OPEN )	{
 		result << uint8(WAREHOUSE_OPEN) << uint8(WAREHOUSE_OPEN) << uint32(m_pUserData->m_iBank);
@@ -341,7 +342,8 @@ void CUser::ItemMove(char *pBuf)
 	srcpos = GetByte( pBuf, index );
 	destpos = GetByte( pBuf, index );
 
-	if( m_sExchangeUser != -1 ) goto fail_return;
+	if (isTrading())
+		goto fail_return;
 	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
 	if( !pTable )
 		goto fail_return;
