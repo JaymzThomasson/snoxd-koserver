@@ -1011,29 +1011,25 @@ void CKnightsManager::RecvKnightsAllList(char *pBuf)
 
 void CKnightsManager::ListTop10Clans(CUser *pUser)
 {
-	char send_buff[1024];
-	int send_index = 0;
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_TOP10));
+	result << uint16(0);
 
-	SetByte(send_buff, WIZ_KNIGHTS_PROCESS, send_index);
-	SetByte(send_buff, KNIGHTS_TOP10, send_index);
-	SetShort(send_buff, 0, send_index);
-
-	// TO-DO: List top 10 clans
+	// TO-DO: List top 10 clans of each nation
 	for (int i = 0; i < 5; i++)
 	{
-		SetShort(send_buff, -1, send_index); // clan ID
-		SetKOString(send_buff, "", send_index); // name
-		SetShort(send_buff, -1, send_index); // symbol/mark version
-		SetShort(send_buff, i, send_index); // rank
+		result	<< int16(-1)	// Clan ID
+				<< ""			// Clan name
+				<< int16(-1)	// Symbol version
+				<< int16(i);	// Rank
 	}
 
 	for (int i = 0; i < 5; i++)
 	{
-		SetShort(send_buff, -1, send_index); // clan ID
-		SetKOString(send_buff, "", send_index); // name
-		SetShort(send_buff, -1, send_index); // symbol/mark version
-		SetShort(send_buff, i, send_index); // rank
+		result	<< int16(-1)	// Clan ID
+				<< ""			// Clan name
+				<< int16(-1)	// Symbol version
+				<< int16(i);	// Rank
 	}
 
-	pUser->Send(send_buff, send_index);
+	pUser->Send(&result);
 }

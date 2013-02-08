@@ -1613,11 +1613,9 @@ void CUser::SendTargetHP( BYTE echo, int tid, int damage )
 
 void CUser::BundleOpenReq(char *pBuf)
 {
-	int index = 0, send_index = 0, bundle_index = 0;
-	char send_buff[256];
-	_ZONE_ITEM* pItem = NULL;
+	Packet result(WIZ_BUNDLE_OPEN_REQ);
+	int index = 0, bundle_index = 0;
 	C3DMap* pMap = GetMap();
-	CRegion* pRegion = NULL;
 
 	bundle_index = GetDWORD( pBuf, index );
 	if (pMap == NULL
@@ -1626,21 +1624,17 @@ void CUser::BundleOpenReq(char *pBuf)
 		|| m_RegionX > pMap->GetXRegionMax() || m_RegionZ > pMap->GetZRegionMax())
 		return;
 
-	pRegion = &(pMap->m_ppRegion[m_RegionX][m_RegionZ]);
+	CRegion *pRegion = &(pMap->m_ppRegion[m_RegionX][m_RegionZ]);
 	if (pRegion == NULL)
 		return;
 
-	pItem = (_ZONE_ITEM*)pRegion->m_RegionItemArray.GetData( bundle_index );
+	_ZONE_ITEM *pItem = pRegion->m_RegionItemArray.GetData( bundle_index );
 	if (pItem == NULL)
 		return;
 
-	SetByte(send_buff, WIZ_BUNDLE_OPEN_REQ, send_index);
 	for (int i = 0; i < 6; i++)
-	{
-		SetDWORD(send_buff, pItem->itemid[i], send_index);
-		SetShort(send_buff, pItem->count[i], send_index);
-	}
-	Send(send_buff, send_index);
+		result << pItem->itemid[i] << pItem->count[i];
+	Send(&result);
 }
 
 BOOL CUser::IsValidName(char *name)

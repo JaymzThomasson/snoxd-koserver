@@ -373,15 +373,11 @@ void CUser::ItemLogToAgent(const char *srcid, const char *tarid, int type, __int
 
 void CUser::SendItemWeight()
 {
-	int send_index = 0 ;
-	char send_buff[3];
-
+	Packet result(WIZ_WEIGHT_CHANGE);
 	SetSlotItemValue();
-	SetByte( send_buff, WIZ_WEIGHT_CHANGE, send_index );
-	SetShort( send_buff, m_sItemWeight, send_index );
-	Send(send_buff, send_index);
+	result << m_sItemWeight;
+	Send(&result);
 }
-
 
 BOOL CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 {

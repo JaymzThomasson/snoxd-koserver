@@ -346,8 +346,8 @@ void CUser::GameStart(char *pBuf)
 
 		// SendHackToolList();
 
-		char send_buff[] = { WIZ_GAMESTART };
-		Send(send_buff, sizeof(send_buff));
+		Packet result(WIZ_GAMESTART);
+		Send(&result);
 	}
 	else if (opcode == 2)
 	{

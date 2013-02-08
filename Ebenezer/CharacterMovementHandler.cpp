@@ -300,10 +300,11 @@ void CUser::Warp(char *pBuf)
 	ASSERT(GetMap() != NULL);
 	if( m_bWarp ) return;
 
-	int index = 0, send_index = 0;
+	Packet result(WIZ_WARP);
+
+	int index = 0;
 	WORD warp_x, warp_z;
 	float real_x, real_z;
-	char	send_buff[128];
 
 	warp_x = GetShort( pBuf, index );
 	warp_z = GetShort( pBuf, index );
@@ -315,10 +316,8 @@ void CUser::Warp(char *pBuf)
 		return;
 	}
 
-	SetByte(send_buff, WIZ_WARP, send_index);
-	SetShort(send_buff, warp_x, send_index);
-	SetShort(send_buff, warp_z, send_index);
-	Send(send_buff, send_index);
+	result << warp_x << warp_z;
+	Send(&result);
 
 	UserInOut(USER_OUT);
 
@@ -327,8 +326,6 @@ void CUser::Warp(char *pBuf)
 
 	m_RegionX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
 	m_RegionZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
-
-	//TRACE(" Warp ,, name=%s, x=%.2f, z=%.2f\n", m_pUserData->m_id, m_pUserData->m_curx, m_pUserData->m_curz);
 
 	UserInOut(USER_WARP);
 	m_pMain->UserInOutForMe(this);

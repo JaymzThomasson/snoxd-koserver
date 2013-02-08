@@ -289,7 +289,6 @@ public:
 	void FriendModify(char *pBuf);
 	void FriendReport(char *pBuf);
 	void RecvFriendProcess(char *pBuf);
-	void RecvFriendRequest(char *pBuf);
 	void RecvFriendModify(char *pBuf);
 	BYTE GetFriendStatus(char * charName, short & sid);
 	CUser* GetItemRoutingUser(int itemid, short itemcount);

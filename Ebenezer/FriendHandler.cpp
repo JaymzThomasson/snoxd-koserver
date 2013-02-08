@@ -59,31 +59,24 @@ void CUser::FriendModify(char *pBuf)
 // Refresh the status of your friends.
 void CUser::FriendReport(char *pBuf)
 {
-	int index = 0, send_index = 0;
-	short usercount = 0, idlen = 0;
-	char send_buff[640];
+	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REPORT));
+	int index = 0;
+	short usercount = 0, sid;
+	char charName[MAX_ID_SIZE+1];
 
-	usercount = GetShort(pBuf, index);	// Get usercount packet.
-	if (usercount > MAX_FRIEND_COUNT || usercount < 0) return;
-	
-	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
-	SetByte(send_buff, FRIEND_REPORT, send_index);
-	SetShort(send_buff, usercount, send_index);
+	usercount = GetShort(pBuf, index);
+	if (usercount > MAX_FRIEND_COUNT || usercount < 0) 
+		return;
 
+	result << usercount;
 	for (int i = 0; i < usercount; i++) 
 	{
-		char charName[MAX_ID_SIZE+1] = "";
-		short sid;
-
 		GetKOString(pBuf, charName, index, MAX_ID_SIZE);
-		SetKOString(send_buff, charName, send_index);
-
-		BYTE result = GetFriendStatus(charName, sid);
-		SetShort(send_buff, sid, send_index);
-		SetShort(send_buff, result, send_index);
+		uint8 status = GetFriendStatus(charName, sid);
+		result << charName << sid << status;
 	}
 
-	Send(send_buff, send_index);
+	Send(&result);
 }
 
 // Retrieves the status (and socket ID) of a character.
@@ -113,7 +106,7 @@ void CUser::RecvFriendProcess(char *pBuf)
 	switch (subcommand)
 	{
 		case FRIEND_REQUEST:
-			RecvFriendRequest(pBuf+index);
+			FriendReport(pBuf+index); // Hmm, old method was redundant. Need to check this.
 			break;
 		case FRIEND_ADD:
 		case FRIEND_REMOVE:
@@ -122,38 +115,14 @@ void CUser::RecvFriendProcess(char *pBuf)
 	}
 }
 
-void CUser::RecvFriendRequest(char *pBuf)
-{
-	char send_buff[(MAX_ID_SIZE * MAX_FRIEND_COUNT + 3) + 2 + 2];
-	int index = 0, send_index = 0;
-	BYTE count = GetByte(pBuf, index);
-
-	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
-	SetByte(send_buff, FRIEND_REQUEST, send_index);
-	SetShort(send_buff, count, send_index);
-
-	for (int i = 0; i < count; i++)
-	{
-		char charName[MAX_ID_SIZE+1] = "";
-		if (!GetKOString(pBuf, charName, index, MAX_ID_SIZE, sizeof(BYTE)))
-			continue;
-
-		short sid;
-		BYTE status = GetFriendStatus(charName, sid);
-
-		SetKOString(send_buff, charName, send_index);
-		SetShort(send_buff, sid, send_index);
-		SetByte(send_buff, status, send_index);
-	}
-	Send(send_buff, send_index);
-}
-
 void CUser::RecvFriendModify(char *pBuf)
 {
-	char send_buff[7+MAX_ID_SIZE], charName[MAX_ID_SIZE+1] = "";
-	int index = 0, send_index = 0;
-	BYTE opcode = GetByte(pBuf, index),
-		 result = GetByte(pBuf, index);
+	Packet result(WIZ_FRIEND_PROCESS);
+	char charName[MAX_ID_SIZE+1];
+	int index = 0;
+	uint8 opcode = GetByte(pBuf, index),
+		 bResult = GetByte(pBuf, index);
+
 	short sid = -1;
 	if (opcode == FRIEND_ADD)
 		sid = GetShort(pBuf, index);
@@ -161,14 +130,7 @@ void CUser::RecvFriendModify(char *pBuf)
 	if (!GetKOString(pBuf, charName, index, MAX_ID_SIZE, sizeof(BYTE)))
 		return;
 
-	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
-	SetByte(send_buff, opcode, send_index);
-	SetByte(send_buff, result, send_index);
-	SetKOString(send_buff, charName, send_index);
-
-	BYTE status = GetFriendStatus(charName, sid);
-	SetShort(send_buff, sid, send_index);
-	SetByte(send_buff, status, send_index);
-	
-	Send(send_buff, send_index);
+	uint8 status = GetFriendStatus(charName, sid);
+	result << opcode << bResult << charName << sid << status;
+	Send(&result);
 }
