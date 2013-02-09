@@ -34,8 +34,8 @@ class CUser : public CIOCPSocket2
 public:
 	_USER_DATA*	m_pUserData;
 
-	char	m_strAccountID[MAX_ID_SIZE+1];	// Login -> Select Char ���� �ѽ������θ� ���º���. �̿ܿ��� _USER_DATA �ȿ��ִ� ������ ����...agent ���� ������ ����ȭ�� ����...
-	
+	std::string m_strAccountID;
+
 	bool	m_bSelectedCharacter;
 	bool	m_bStoreOpen;
 
@@ -196,9 +196,6 @@ public:
 	short				m_sEventNid;		// ���������� ������ �̺�Ʈ NPC ��ȣ
 	UserEventList		m_arUserEvent;		// ������ �̺�Ʈ ����Ʈ
 
-	char	m_strCouponId[MAX_COUPON_ID_LENGTH];		// What was the number of the coupon?
-	int		m_iEditBoxEvent;
-
 	short	m_sEvent[MAX_CURRENT_EVENT];				// �̹� ������ �̹�Ʈ ����Ʈ�� :)
 	
 
@@ -210,6 +207,7 @@ public:
 	__forceinline bool isLimitedGM() { return getAuthority() == AUTHORITY_LIMITED_GAME_MASTER; };
 
 	__forceinline bool isDead() { return m_bResHpType == USER_DEAD || m_pUserData->m_sHp <= 0; };
+	__forceinline bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; };
 
 	__forceinline bool isInParty() { return m_sPartyIndex != -1; };
 	__forceinline bool isInClan() { return m_pUserData->m_bKnights > 0; };
@@ -237,8 +235,6 @@ public:
 	BOOL ExistComEvent(int eventid);
 	void SaveComEvent(int eventid);
 	BOOL CheckItemCount(int itemid, short min, short max);
-	void RecvEditBox(char *pBuf);
-	BOOL CheckCouponUsed();
 	BOOL CheckRandom(short percent);
 	void NativeZoneReturn();
 	void EventMoneyItemGet( int itemid, int count );
@@ -249,7 +245,6 @@ public:
 	void SendNpcSay(EXEC* pExec);
 	BOOL CheckClass(short class1, short class2, short class3, short class4, short class5, short class6);
 	void Make_public_key();
-	void RecvSelectMsg(char *pBuf);
 	BOOL GiveItem(int itemid, short count, bool send_packet = true);
 	BOOL RobItem(int itemid, short count);
 	BOOL CheckExistItem(int itemid, short count);
@@ -260,53 +255,21 @@ public:
 	void SendItemWeight();
 	void ItemLogToAgent(const char *srcid, const char *tarid, int type, __int64 serial, int itemid, int count, int durability);
 	void TestPacket( char* pBuf );
-	BOOL RunEvent(EVENT_DATA *pEventData);
-	BOOL RunNpcEvent(CNpc* pNpc, EXEC* pExec);
-	BOOL CheckEventLogic(EVENT_DATA* pEventData);
-	void ClientEvent(char* pBuf);
 	void SetLogInInfoToDB(BYTE bInit);
 	void BlinkStart();
 	void BlinkTimeCheck(float currenttime);
-	void PartyBBSNeeded(char *pBuf, BYTE type);
-	void PartyBBSDelete(char *pBuf);
-	void PartyBBSRegister(char *pBuf);
-	void PartyBBS(char *pBuf);
-	BOOL WarpListObjectEvent(_OBJECT_EVENT *pEvent);
-	BOOL FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid);
-	BOOL GateLeverObjectEvent(_OBJECT_EVENT *pEvent, int nid);
-	BOOL BindObjectEvent(_OBJECT_EVENT *pEvent);
 	void InitType3();
-	BOOL GetWarpList( int warp_group );
-	void ServerChangeOk( char* pBuf );
-	void SelectWarpList( char* pBuf );
 	void GoldChange(short tid, int gold);
-	void AllSkillPointChange();
-	void AllPointChange();
-	void ClassChangeReq();
-	void FriendProcess(char *pBuf);
-	void FriendRequest(char *pBuf);
-	void FriendModify(char *pBuf);
-	void FriendReport(char *pBuf);
-	void RecvFriendProcess(char *pBuf);
-	void RecvFriendModify(char *pBuf);
-	BYTE GetFriendStatus(char * charName, short & sid);
 	CUser* GetItemRoutingUser(int itemid, short itemcount);
-	void Home();
 	bool GetStartPosition(short & x, short & y, BYTE bZone = 0);
 	int GetEmptySlot( int itemid, int bCountable );
 	void InitType4();
-	void WarehouseProcess( char* pBuf );
 	short GetACDamage(int damage, short tid);
 	short GetMagicDamage(int damage, short tid);
 	void Type3AreaDuration( float currenttime);
-	void SpeedHackTime( char* pBuf );
-	void OperatorCommand( char* pBuf );
-	void ItemRemove( char* pBuf );
 	void SendAllKnightsID();
 	void SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes, not a bug */, uint16 sDurability, uint8 bPos, bool bNewItem = false);
 	void Type4Duration(float currenttime);
-	void ItemRepair( char* pBuf );
-	int ExchangeDone();
 	void HPTimeChange( float currenttime );
 	void HPTimeChangeType3( float currenttime );
 	void ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint16 amount);
@@ -315,89 +278,170 @@ public:
 	void ItemWoreOut( int type, int damage );
 	void Dead();
 	void LoyaltyDivide( short tid );
-	void UserDataSaveToAgent();
-	void CountConcurrentUser();
 	void SendUserInfo(Packet & result);
-	void ChatTargetSelect( char* pBuf );
 	BOOL ItemEquipAvailable( _ITEM_TABLE* pTable );
-	void ClassChange( char* pBuf );
 	void HpChange(int amount, int type=0, bool attack=false);
 	void MSpChange(int amount);
 	void SendPartyHPUpdate();
-	void UpdateGameWeather( char* pBuf, BYTE type );
-	void ObjectEvent( char* pBuf );
 	void SendAnvilRequest(int nid);
-	void SkillPointChange( char* pBuf );
 
-	// Trade system
-	BOOL ExecuteExchange();
-	void ExchangeProcess(char* pBuf);
-	void InitExchange(BOOL bStart);
-	void ExchangeCancel();
-	void ExchangeDecide();
-	void ExchangeAdd(char* pBuf);
-	void ExchangeAgree(char* pBuf);
-	void ExchangeReq(char* pBuf);
+	// packet handlers start here
+	void VersionCheck(Packet & pkt);
+	void LoginProcess(Packet & pkt);
+	void SelNationToAgent(Packet & pkt);
+	void AllCharInfoToAgent();
+	void NewCharToAgent(Packet & pkt);
+	void DelCharToAgent(Packet & pkt);
+	void SelCharToAgent(Packet & pkt);
 
-	// Merchant system (both types)
-	void MerchantProcess(char *pBuf);
-	void TakeMerchantItems();
-	void GiveMerchantItems();
+	void SpeedHackTime(Packet & pkt);
 
-	// regular merchants
-	void MerchantOpen(char *pBuf);
-	void MerchantClose();
-	void MerchantItemAdd(char *pBuf);
-	void MerchantItemCancel(char *pBuf);
-	void MerchantItemList(char *pBuf);
-	void MerchantItemBuy(char *pBuf);
-	void MerchantInsert(char *pBuf);
-	void CancelMerchant();
+	void GameStart(Packet & pkt);
+	void RentalSystem(Packet & pkt);
+	void SkillDataProcess(Packet & pkt);
+	void SkillDataSave(Packet & pkt);
+	void SkillDataLoad();
+	void RecvSkillDataLoad(char *pData);
+	void MoveProcess(Packet & pkt);
+	void Rotate(Packet & pkt);
+	void Attack(Packet & pkt);
+	void Chat(Packet & pkt);
+	void ChatTargetSelect(Packet & pkt);
+	void RecvRegene(Packet & pkt);
+	void Regene(uint8 regene_type, uint32 magicid = 0);
+	void RequestUserIn(Packet & pkt);
+	void RequestNpcIn(Packet & pkt);
+	void RecvWarp(Packet & pkt);
+	void Warp(uint16 sPosX, uint16 sPosZ);
+	void ItemMove(Packet & pkt);
+	void NpcEvent(Packet & pkt);
 
-	// buying merchants
-	void BuyingMerchantOpen(char *pBuf);
-	void BuyingMerchantClose();
-	void BuyingMerchantInsert(char *pBuf);
-	void BuyingMerchantList(char *pBuf);
-	void BuyingMerchantBuy(char *pBuf);
+	void ItemTrade(Packet & pkt);
 
+	void BundleOpenReq(Packet & pkt);
+	void ItemGet(Packet & pkt);
+
+	void RecvZoneChange(Packet & pkt);
+	void PointChange(Packet & pkt);
+
+	void StateChange(Packet & pkt);
+	void StateChangeServerDirect(BYTE bType, int nValue);
+
+	void PartyProcess(Packet & pkt);
 	void PartyDelete();
 	void PartyRemove( int memberid );
 	void PartyInsert();
 	void PartyCancel();
 	void PartyRequest( int memberid, BOOL bCreate );
-	void PartyProcess( char* pBuf );
+
+	// Trade system
+	void ExchangeProcess(Packet & pkt);
+	void ExchangeReq(Packet & pkt);
+	void ExchangeAgree(Packet & pkt);
+	void ExchangeAdd(Packet & pkt);
+	void ExchangeDecide();
+	void ExchangeCancel();
+
+	void InitExchange(BOOL bStart);
+	BOOL ExecuteExchange();
+	int ExchangeDone();
+
+	// Merchant system (both types)
+	void MerchantProcess(Packet & pkt);
+	void TakeMerchantItems();
+	void GiveMerchantItems();
+
+	// regular merchants
+	void MerchantOpen();
+	void MerchantClose();
+	void MerchantItemAdd(Packet & pkt);
+	void MerchantItemCancel(Packet & pkt);
+	void MerchantItemList(Packet & pkt);
+	void MerchantItemBuy(Packet & pkt);
+	void MerchantInsert(Packet & pkt);
+	void CancelMerchant();
+
+	// buying merchants
+	void BuyingMerchantOpen(Packet & pkt);
+	void BuyingMerchantClose();
+	void BuyingMerchantInsert(Packet & pkt);
+	void BuyingMerchantList(Packet & pkt);
+	void BuyingMerchantBuy(Packet & pkt);
+
+	void SkillPointChange(Packet & pkt);
+
+	void ObjectEvent(Packet & pkt);
+	BOOL BindObjectEvent(_OBJECT_EVENT *pEvent);
+	BOOL GateLeverObjectEvent(_OBJECT_EVENT *pEvent, int nid);
+	BOOL FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid);
+	BOOL WarpListObjectEvent(_OBJECT_EVENT *pEvent);
+
+	void UpdateGameWeather(Packet & pkt);
+
+	void ClassChange(Packet & pkt);
+	void ClassChangeReq();
+	void AllPointChange();
+	void AllSkillPointChange();
+
+	void CountConcurrentUser();
+	void UserDataSaveToAgent();
+
+	void ItemRepair(Packet & pkt);
+	void ItemRemove(Packet & pkt);
+	void OperatorCommand(Packet & pkt);
+	void WarehouseProcess(Packet & pkt);
+	void Home();
+
+	void FriendProcess(Packet & pkt);
+	void FriendRequest();
+	void FriendModify(Packet & pkt);
+	void FriendReport(Packet & pkt);
+	void RecvFriendProcess(char *pBuf);
+	void RecvFriendModify(char *pBuf);
+	BYTE GetFriendStatus(std::string & charName, int16 & sid);
+
+	void SelectWarpList(Packet & pkt);
+	BOOL GetWarpList( int warp_group );
+
+	void ServerChangeOk(Packet & pkt);
+
+	void PartyBBS(Packet & pkt);
+	void PartyBBSRegister(Packet & pkt);
+	void PartyBBSDelete(Packet & pkt);
+	void PartyBBSNeeded(Packet & pkt, BYTE type);
+
+	void ClientEvent(Packet & pkt);
+	BOOL CheckEventLogic(EVENT_DATA* pEventData);
+	BOOL RunNpcEvent(CNpc* pNpc, EXEC* pExec);
+	BOOL RunEvent(EVENT_DATA *pEventData);
+
+	void RecvSelectMsg(Packet & pkt);
+
+	// from the client
+	void ShoppingMall(Packet & pkt);
+	void HandleStoreClose();
+	void LetterSystem(Packet & pkt);
+
+	// from Aujard
+	void RecvStore(char *pData);
+	void RecvStoreClose(char *pData);
+
+	void HandleHelmet(Packet & pkt);
+
 	void SendNotice();
 	void UserLookChange( int pos, int itemid, int durability );
 	void SpeedHackUser();
-	void VersionCheck(char *pBuf);
 	void LoyaltyChange(short tid);
 	void ChangeNP(short sAmount, bool bDistributeToParty = true);
-	void StateChange( char* pBuf );
-	void StateChangeServerDirect(BYTE bType, int nValue);
-	void PointChange( char* pBuf );
 	void ZoneChange( int zone, float x, float z );
-	void ItemGet( char* pBuf );
-	BOOL IsValidName( char* name );
-	void AllCharInfoToAgent();
-	void SelNationToAgent( char* pBuf );
-	void DelCharToAgent( char* pBuf );
-	void NewCharToAgent( char* pBuf );
-	void GameStart(char* pBuf);
-	void BundleOpenReq( char* pBuf );
+	BOOL IsValidName(const char* name);
 	void SendTargetHP( BYTE echo, int tid, int damage = 0 );
-	void ItemTrade( char* pBuf );
-	void NpcEvent( char* pBuf );
 	BOOL IsValidSlotPos( _ITEM_TABLE* pTable, int destpos );
-	void ItemMove( char* pBuf );
-	void Warp( char* pBuf );
-	void RequestNpcIn( char* pBuf );
 	void SetUserAbility();
 	void LevelChange(short level, BYTE type=TRUE);	// type : TRUE => level up, FALSE => level down
 	short GetDamage(short tid, int magicid);
 	void SetSlotItemValue();
 	BYTE GetHitRate(float rate);
-	void RequestUserIn( char* pBuf );
 	void InsertRegion(int del_x, int del_z);
 	void RemoveRegion( int del_x, int del_z );
 	void RegisterRegion();
@@ -407,35 +451,21 @@ public:
 	void SendWeather();
 	void SendPremiumInfo();
 	void SetZoneAbilityChange(BYTE zone);
-	void Regene(char* pBuf, int magicid = 0);
 	void SetMaxMp();
 	void SetMaxHp(int iFlag=0); // 0:default, 1:hp�� maxhp��ŭ ä���ֱ�
 	void ExpChange(__int64 iExp);
-	void Chat(char* pBuf);
 	void LogOut();
-	void SelCharToAgent( char* pBuf );
 	void SendMyInfo();
 	void SelectCharacter( char* pBuf );
 	void SendServerChange(char *ip, uint8 bInit);
 	void Send2AI_UserUpdateInfo(bool initialInfo = false);
-	void Attack( char* pBuf );
 	void UserInOut( BYTE Type );
 	void GetUserInfo(Packet & pkt);
 	void Initialize();
-	void MoveProcess( char* pBuf );
-	void Rotate( char* pBuf );
-	void LoginProcess( char* pBuf );
-	void Parsing( int len, char* pData );
 	void Parsing( Packet & pkt );
-
+	
+	void ChangeFame(uint8 bFame);
 	void SendServerIndex();
-	void RentalSystem(char *pData);
-
-	void SkillDataProcess(char *pData);
-	void SkillDataSave(char *pData);
-	void SkillDataLoad(char *pData);
-	void RecvSkillDataLoad(char *pData);
-	void FinalizeZoneChange();
 
 	void SendToRegion(Packet *pkt, CUser *pExceptUser = NULL);
 
@@ -448,18 +478,6 @@ public:
 	void LogSkillCooldown(uint32 magicid, time_t skill_received_time);
 	void MagicType(uint16 effect_type);
 	void MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4, uint16 data5, uint16 data6, uint16 data7);
-
-	// from the client
-	void ShoppingMall(char *pData);
-	void HandleStoreClose();
-
-	void HandleHelmet(char *pData);
-
-	// from Aujard
-	void RecvStore(char *pData);
-	void RecvStoreClose(char *pData);
-
-	void LetterSystem(char *pData);
 
 	void ResetWindows();
 

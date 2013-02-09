@@ -2,12 +2,11 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 
-void CUser::ShoppingMall(char *pBuf)
+void CUser::ShoppingMall(Packet & pkt)
 {
-	int index = 0;
-	BYTE subcommand = GetByte( pBuf, index );
+	uint8 opcode = pkt.read<uint8>();
 		
-	switch (subcommand)
+	switch (opcode)
 	{
 	case STORE_OPEN:
 		TRACE("STORE_OPEN\n");
@@ -32,11 +31,11 @@ void CUser::ShoppingMall(char *pBuf)
 
 	case STORE_LETTER:
 		TRACE("STORE_LETTER\n");
-		LetterSystem(pBuf + index);
+		LetterSystem(pkt);
 		break;
 
 	default:
-		TRACE("Unknown shoppingmall packet: %X\n", subcommand);
+		TRACE("Unknown shoppingmall packet: %X\n", opcode);
 	}
 }
 

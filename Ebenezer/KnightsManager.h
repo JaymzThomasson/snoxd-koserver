@@ -11,11 +11,24 @@
 
 class CUser;
 class CEbenezerDlg;
+class Packet;
+
 class CKnightsManager  
 {
 public:
+
+	void CreateKnights(CUser* pUser, Packet & pkt);
+	void JoinKnights(CUser* pUser, Packet & pkt);
+	void WithdrawKnights(CUser* pUser, Packet & pkt);
+	void ModifyKnightsMember(CUser* pUser, Packet & pkt);
+	void DestroyKnights(CUser* pUser);
+	void AllKnightsList(CUser* pUser, Packet & pkt);
+	void AllKnightsMember(CUser* pUser);
+	void CurrentKnightsMember(CUser* pUser, Packet & pkt);
+	void JoinKnightsReq(CUser* pUser, Packet & pkt);
+	void ListTop10Clans(CUser *pUser);
+
 	void RecvKnightsAllList( char* pBuf );
-	// knight packet
 	BOOL AddKnightsUser(int index, char* UserName);
 	void SetKnightsUser( int index, char* UserName );
 	BOOL RemoveKnightsUser( int index, char* UserName );
@@ -27,21 +40,10 @@ public:
 	void RecvJoinKnights( CUser* pUser, char* pBuf, BYTE command );
 	void RecvCreateKnights( CUser* pUser, char* pBuf );
 	void ReceiveKnightsProcess( CUser* pUser, char* pBuf);
-	void CurrentKnightsMember( CUser* pUser, char* pBuf );
-	void AllKnightsMember( CUser* pUser, char* pBuf );
-	void AllKnightsList( CUser* pUser, char* pBuf );
-	void ModifyKnightsMember( CUser* pUser, char* pBuf, BYTE command );
-	void DestroyKnights( CUser* pUser );
-	void WithdrawKnights( CUser* pUser, char* pBuf );
-	void JoinKnights( CUser* pUser, char* pBuf );
-	void JoinKnightsReq( CUser* pUser, char* pBuf );
-
-	void ListTop10Clans(CUser *pUser);
 
 	int GetKnightsIndex( int nation );
 	BOOL IsAvailableName( const char* strname);	
-	void CreateKnights( CUser* pUser, char* pBuf );
-	void PacketProcess( CUser* pUser, char* pBuf);	
+	void PacketProcess(CUser* pUser, Packet & pkt);	
 
 	CKnightsManager();
 	virtual ~CKnightsManager();

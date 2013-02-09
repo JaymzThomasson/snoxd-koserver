@@ -48,7 +48,6 @@ public:
 	__forceinline bool isCryptoEnabled() { return m_CryptionFlag == TRUE; };
 
 	virtual void CloseProcess();
-	virtual void Parsing( int length, char* pData );
 	virtual void Parsing(Packet & pkt);
 	virtual void Initialize();
 

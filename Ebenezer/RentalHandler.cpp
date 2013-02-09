@@ -1,10 +1,10 @@
 #include "StdAfx.h" // oh god, this needs reworking, a LOT.
 #include "EbenezerDlg.h"
 #include "User.h"
-void CUser::RentalSystem(char *pBuf)
+
+void CUser::RentalSystem(Packet & pkt)
 {
-	int index = 0;
-	BYTE opcode = GetByte(pBuf, index);
+	uint8 opcode = pkt.read<uint8>();
 
 	// TO-DO
 	/*if (opcode == 1)

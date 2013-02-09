@@ -3,177 +3,126 @@
 #include "User.h"
 #include "AIPacket.h"
 
-void CUser::Attack(char *pBuf)
+void CUser::Attack(Packet & pkt)
 {
-	int index = 0, send_index = 0;
-	int sid = -1, tid = -1, damage = 0; short delaytime = 0; short distance = 0;	
-	BYTE type, result;	
-	char buff[256]; 
+	Packet result;
+	int16 sid = -1, tid = -1, damage, delaytime, distance;	
+	uint8 bType, bResult;	
 	
-//	CUser* pUser = NULL;
 	CUser* pTUser = NULL;
-	CNpc* pNpc  = NULL;
-	_ITEM_TABLE* pTable = NULL;
 
-	type = GetByte( pBuf, index );
-	result = GetByte( pBuf, index );
-//	sid = GetShort( pBuf, index );
-	tid = GetShort( pBuf, index );
-
-	delaytime = GetShort( pBuf, index );
-	distance = GetShort( pBuf,index );
+	pkt >> bType >> bResult >> tid >> delaytime >> distance;
 
 //	delaytime = delaytime / 100.0f;
-//	distance = distance / 10.0f;	// 'Coz the server multiplies it by 10 before they send it to you.
+//	distance = distance / 10.0f;
 
-	if (m_bAbnormalType == ABNORMAL_BLINKING) return;
-
-	if (isDead())
-	{
-		TRACE("### Attack Fail : name=%s(%d), m_bResHpType=%d, hp=%d###\n", m_pUserData->m_id, m_Sid, m_bResHpType, m_pUserData->m_sHp);
+	if (isBlinking()
+		|| isDead())
 		return;
-	}
-	pTable = m_pMain->m_ItemtableArray.GetData(m_pUserData->m_sItemArray[RIGHTHAND].nNum);	// This checks if such an item exists.
-	if(!pTable && m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0) return;
+
+	_ITEM_TABLE *pTable = m_pMain->m_ItemtableArray.GetData(m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+	if (pTable == NULL && m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0) 
+		return;
 	
-	if (pTable) {	// If you're holding a weapon, do a delay check.
-//		TRACE("Delay time : %f  ,  Table Delay Time : %f \r\n", delaytime, pTable->m_sDelay / 100.0f);
-//		if (delaytime + 0.01f < (pTable->m_sDelay / 100.0f)) {
-		if (delaytime < pTable->m_sDelay) {
-			return;	
-		}
-	}
-	else {		// Empty handed.
-//		if (delaytime + 0.01f < 1.0f) { 
-		if (delaytime < 100) {
-			return;			
-		}
-	}
-//
-	if(tid < NPC_BAND) {	// USER
-		if( tid >= MAX_USER || tid < 0 ) return;
+	// If you're holding a weapon, do a client-based (ugh, do not trust!) delay check.
+	if (pTable 
+		&& delaytime < pTable->m_sDelay
+			|| distance > pTable->m_sRange)
+		return;	
+	// Empty handed.
+	else if (delaytime < 100)
+		return;			
+
+	// We're attacking a player...
+	if (tid < NPC_BAND)
+	{
 		pTUser = m_pMain->GetUserPtr(tid);
  
-		if( !pTUser || pTUser->m_bResHpType == USER_DEAD || pTUser->m_bAbnormalType == ABNORMAL_BLINKING
-		    || pTUser->m_pUserData->m_bNation == m_pUserData->m_bNation ) 
-			result = 0x00;
-		else {
-			if (pTable) {	// Check if the user is holding a weapon!!! No null pointers allowed!!!
-//				TRACE("Distance : %f  , Table Distance : %f  \r\n", distance, pTable->m_sRange / 10.0f);
-//				if ( distance > (pTable->m_sRange / 10.0f)) {
-				if ( distance > pTable->m_sRange ) {
-					return;
-				}
-			}
-//
+		if (pTUser == NULL || pTUser->isDead() || pTUser->isBlinking()
+				|| (pTUser->getNation() == getNation() && getZoneID() != 48 /* TO-DO: implement better checks */)) 
+			bResult = 0;
+		else 
+		{
 			damage = GetDamage(tid, 0);
-
-			if( m_pUserData->m_bZone == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE )	{
+			if (getZoneID() == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE)
 				damage = 0;		
-			}
 
-			if( damage <= 0 )
-				result = 0x00;
-			else {
-				pTUser->HpChange( -damage, 0, true );
-				ItemWoreOut( ATTACK, damage );
-				pTUser->ItemWoreOut( DEFENCE, damage );
-				//TRACE("%s - HP:%d, (damage-%d, t_hit-%d)\n", pTUser->m_pUserData->m_id, pTUser->m_pUserData->m_sHp, damage, m_sTotalHit);
-				if( pTUser->m_pUserData->m_sHp == 0) {
-					result = 0x02;
+			if (damage <= 0)
+				bResult = 0;
+			else 
+			{
+				// TO-DO: Move all this redundant code into appropriate event-based methods so that all the other cases don't have to copypasta (and forget stuff).
+				pTUser->HpChange(-damage, 0, true);
+				ItemWoreOut(ATTACK, damage);
+				pTUser->ItemWoreOut(DEFENCE, damage);
+
+				if (pTUser->m_pUserData->m_sHp == 0)
+				{
+					bResult = 2;
 					pTUser->m_bResHpType = USER_DEAD;
 
-					// sungyong work : loyalty					
-					if( !isInParty() ) {    // Something regarding loyalty points.
+					if (!isInParty())
 						LoyaltyChange(tid);
-					}
-					else {
+					else
 						LoyaltyDivide(tid);
-					}
 
 					GoldChange(tid, 0);
 
-					pTUser->InitType3();	// Init Type 3.....
-					pTUser->InitType4();	// Init Type 4.....
+					pTUser->InitType3();
+					pTUser->InitType4();
 
-					send_index = 0;
-					if( pTUser->m_pUserData->m_bFame == COMMAND_CAPTAIN )	{
-						pTUser->m_pUserData->m_bFame = CHIEF;
-						SetByte( buff, WIZ_AUTHORITY_CHANGE, send_index );
-						SetByte( buff, COMMAND_AUTHORITY, send_index );
-						SetShort( buff, pTUser->GetSocketID(), send_index );
-						SetByte( buff, pTUser->m_pUserData->m_bFame, send_index );
-						m_pMain->Send_Region( buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ );
-
-						Send( buff, send_index );
-						//TRACE("---> UserAttack Dead Captain Deprive - %s\n", pTUser->m_pUserData->m_id);
-						if( pTUser->m_pUserData->m_bNation == KARUS )			m_pMain->Announcement( KARUS_CAPTAIN_DEPRIVE_NOTIFY, KARUS );
-						else if( pTUser->m_pUserData->m_bNation == ELMORAD )	m_pMain->Announcement( ELMORAD_CAPTAIN_DEPRIVE_NOTIFY, ELMORAD );
+					if (pTUser->getFame() == COMMAND_CAPTAIN)
+					{
+						pTUser->ChangeFame(CHIEF);
+						if (pTUser->getNation() == KARUS)			m_pMain->Announcement( KARUS_CAPTAIN_DEPRIVE_NOTIFY, KARUS );
+						else if (pTUser->getNation() == ELMORAD)	m_pMain->Announcement( ELMORAD_CAPTAIN_DEPRIVE_NOTIFY, ELMORAD );
 					}
 
 					pTUser->m_sWhoKilledMe = m_Sid;		// You killed me, you.....
-//
-					if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
-						pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
-					}
-//
+
+					if( pTUser->getZoneID() != pTUser->getNation() && pTUser->m_pUserData->m_bZone <= ELMORAD)
+						pTUser->ExpChange(-(pTUser->m_iMaxExp / 100));
 				}
-				SendTargetHP( 0, tid, -damage );
+				SendTargetHP(0, tid, -damage);
 			}
 		}
 	}
-	else if(tid >= NPC_BAND) { // NPC
-		if( m_pMain->m_bPointCheckFlag == FALSE)	return;	
-		pNpc = m_pMain->m_arNpcArray.GetData(tid);		
-		if( pNpc && pNpc->m_NpcState != NPC_DEAD && pNpc->m_iHP > 0 
-			&& (pNpc->getNation() == 0 || pNpc->getNation() == getNation())) {	
+	// We're attacking an NPC...
+	else if (tid >= NPC_BAND)
+	{
+		// AI hasn't loaded yet
+		if (m_pMain->m_bPointCheckFlag == FALSE)	
+			return;	
 
-			if (pTable) {	// Check if the user is holding a weapon!!! No null pointers allowed!!!
-//				TRACE("Distance : %f  , Table Distance : %f  \r\n", distance, pTable->m_sRange / 10.0f);
-//				if ( distance > (pTable->m_sRange / 10.0f)) {
-				if ( distance > pTable->m_sRange ) {
-					return;
-				}
-//				TRACE("Success!!! \r\n");
-			}
-//
-			send_index = 0;
-			SetByte( buff, AG_ATTACK_REQ, send_index );
-			SetByte( buff, type, send_index );
-			SetByte( buff, result, send_index ); 
-//			SetShort( buff, sid, send_index );
-			SetShort( buff, m_Sid, send_index );
-			SetShort( buff, tid, send_index );
-			SetShort( buff, m_sTotalHit * m_bAttackAmount / 100, send_index );  
-			SetShort( buff, m_sTotalAc + m_sACAmount, send_index );   
-			Setfloat( buff, m_sTotalHitrate, send_index );
-			Setfloat( buff, m_sTotalEvasionrate, send_index ); 
-			SetShort( buff, m_sItemAc, send_index);
-			SetByte( buff, m_bMagicTypeLeftHand, send_index);
-			SetByte( buff, m_bMagicTypeRightHand, send_index);
-			SetShort( buff, m_sMagicAmountLeftHand, send_index);
-			SetShort( buff, m_sMagicAmountRightHand, send_index);
-			m_pMain->Send_AIServer(buff, send_index);	
+		CNpc *pNpc = m_pMain->m_arNpcArray.GetData(tid);		
+		if (pNpc && pNpc->m_NpcState != NPC_DEAD && pNpc->m_iHP > 0 
+			&& (pNpc->getNation() == 0 || pNpc->getNation() == getNation()))
+		{
+			result.SetOpcode(AG_ATTACK_REQ);
+			result	<< bType << bResult
+					<< uint16(GetSocketID()) << tid
+					<< uint16(m_sTotalHit * m_bAttackAmount / 100)
+					<< uint16(m_sTotalAc + m_sACAmount)
+					<< m_sTotalHitrate /* this is actually a float. screwed up naming... */
+					<< m_sTotalEvasionrate /* also a float */
+					<< m_sItemAc
+					<< m_bMagicTypeLeftHand << m_bMagicTypeRightHand
+					<< m_sMagicAmountLeftHand, m_sMagicAmountRightHand;
+			m_pMain->Send_AIServer(&result);	
 			return;
 		}
 	}
 
-	send_index = 0;
-	SetByte( buff, WIZ_ATTACK, send_index );
-	SetByte( buff, type, send_index );
-	SetByte( buff, result, send_index );
-//	SetShort( buff, sid, send_index );
-	SetShort( buff, m_Sid, send_index );
-	SetShort( buff, tid, send_index );
-	m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ );
+	result.SetOpcode(WIZ_ATTACK);
+	result << bType << bResult << uint16(GetSocketID()) << tid;
+	SendToRegion(&result);
 
-	if( tid < NPC_BAND )	{
-		if( result == 0x02 )	{
-			if( pTUser )	{
-				pTUser->Send( buff, send_index );
-				DEBUG_LOG("*** User Attack Dead, id=%s, result=%d, type=%d, HP=%d", pTUser->m_pUserData->m_id, result, pTUser->m_bResHpType, pTUser->m_pUserData->m_sHp);
-			}
-		}
+	if (tid < NPC_BAND
+		&& bResult == 2 // 2 means a player died.
+		&& pTUser) 
+	{
+		pTUser->Send(&result);
+		DEBUG_LOG("*** User Attack Dead, id=%s, result=%d, type=%d, HP=%d", pTUser->m_pUserData->m_id, bResult, pTUser->m_bResHpType, pTUser->m_pUserData->m_sHp);
 	}
 }
 
@@ -550,7 +499,13 @@ BYTE CUser::GetHitRate(float rate)
 	return result;
 }
 
-void CUser::Regene(char *pBuf, int magicid)
+void CUser::RecvRegene(Packet & pkt)
+{
+	uint8 regene_type = pkt.read<uint8>();
+	Regene(regene_type);
+}
+
+void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 {
 	ASSERT(GetMap() != NULL);
 
@@ -561,10 +516,6 @@ void CUser::Regene(char *pBuf, int magicid)
 	_OBJECT_EVENT* pEvent = NULL;
 	_HOME_INFO* pHomeInfo = NULL;
 	_MAGIC_TYPE5* pType = NULL;
-
-	int index = 0; BYTE regene_type = 0;
-
-	regene_type = GetByte(pBuf, index);
 
 	if (regene_type != 1 && regene_type != 2) {
 		regene_type = 1;
@@ -594,7 +545,7 @@ void CUser::Regene(char *pBuf, int magicid)
 
 	pEvent = GetMap()->GetObjectEvent(m_pUserData->m_sBind);	
 
-	// TO-DO: Clean this entire thing up. Holy crap.
+	// TO-DO: Clean this entire thing up. Wow.
 	if (magicid == 0) {
 		if( pEvent && pEvent->byLife == 1 ) {		// Bind Point
 			m_pUserData->m_curx = m_fWill_x = pEvent->fPosX + x;
@@ -712,7 +663,7 @@ void CUser::Regene(char *pBuf, int magicid)
 					<< uint16(GetSocketID()) << uint8(1) << uint8(0);
 			m_pMain->Send_PartyMember(m_sPartyIndex, &result);
 		}
-
+ 
 		if (!m_bType4Flag)
 		{
 			result.Initialize(WIZ_PARTY);

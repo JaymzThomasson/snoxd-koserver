@@ -114,7 +114,7 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 				case WIZ_LOGIN:
 					result = GetByte( pBuf, index );
 					if( result == 0xFF )
-						memset( pUser->m_strAccountID, NULL, MAX_ID_SIZE+1 );
+						pUser->m_strAccountID = "";
 					SetByte( send_buff, WIZ_LOGIN, send_index );
 					SetByte( send_buff, result, send_index );					// ������ ���� ����
 					pUser->Send( send_buff, send_index );
@@ -603,44 +603,37 @@ C3DMap * CEbenezerDlg::GetZoneByID(int zoneID)
 
 CUser* CEbenezerDlg::GetUserPtr(const char *userid, NameType type)
 {
-	CUser* pUser = NULL;
-	BOOL bFind = FALSE;
-
 	if (type == TYPE_ACCOUNT)
 	{					// Account id check....
+		string accountToFind = userid;
+		STRTOUPPER(accountToFind);
+
 		for (int i = 0; i < MAX_USER; i++) 
 		{
-			pUser = GetUnsafeUserPtr(i);
+			CUser *pUser = GetUnsafeUserPtr(i);
 			if (pUser == NULL)
 				continue;
 
-			if (!_strnicmp(pUser->m_strAccountID, userid, MAX_ID_SIZE)) 
-			{
-				bFind = TRUE;
-				break;
-			}
+			string UpperName = pUser->m_strAccountID;
+			STRTOUPPER(UpperName);
+			if (accountToFind == UpperName) 
+				return pUser;
 		}
 	}
 	else if (type == TYPE_CHARACTER)
 	{									// character id check...
 		for (int i = 0; i < MAX_USER; i++) 
 		{
-			pUser = GetUnsafeUserPtr(i);
+			CUser *pUser = GetUnsafeUserPtr(i);
 			if (pUser == NULL)
 				continue;
 
 			if (!_strnicmp(pUser->m_pUserData->m_id, userid, MAX_ID_SIZE))
-			{
-				bFind = TRUE;
-				break;
-			}
+				return pUser;
 		}
 	}
 
-	if (!bFind)
-		return NULL;
-
-	return pUser;
+	return NULL;
 }
 
 CUser* CEbenezerDlg::GetUserPtr(int sid)
@@ -2087,35 +2080,30 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 				/*
 				// What's this meant to do? Make the winning nation use a victory emotion or some such? 4,12 should be provoke 2.
 				// Disabling because it currently seems pointless (and it's better off having it sent directly, rather than processed as if it were a packet)
-				SetByte(send_buff, 4, send_index);
-				SetByte(send_buff, 12, send_index);
-				pTUser->StateChange(send_buff);
+				pTUser->StateChangeServerDirect(4, 12);
 				*/
 			}
 		}
 	}		
 }
 
+/**
+ * Kicks invaders out of the invaded nation after a war
+ * and resets captains.
+ **/
 void CEbenezerDlg::BanishLosers()
 {
-	int zoneindex = -1, send_index = 0;
-	char send_buff[256];
-
-	for (int i = 0 ; i < MAX_USER ; i++) {				// EVACUATION PROCEDURE FOR LOSERS !!!		
+	for (int i = 0; i < MAX_USER; i++)
+	{
 		CUser *pTUser = GetUnsafeUserPtr(i); 
-		if (pTUser == NULL) continue;	
-		if ( pTUser->m_pUserData->m_bFame == COMMAND_CAPTAIN )	{
-			pTUser->m_pUserData->m_bFame = CHIEF;
-			send_index = 0;
-			SetByte( send_buff, WIZ_AUTHORITY_CHANGE, send_index );
-			SetByte( send_buff, COMMAND_AUTHORITY, send_index );
-			SetShort( send_buff, pTUser->GetSocketID(), send_index );
-			SetByte( send_buff, pTUser->m_pUserData->m_bFame, send_index );
-			pTUser->Send( send_buff, send_index );
-		}
-		if (pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation ) {
+		if (pTUser == NULL) 
+			continue;	
+
+		if (pTUser->getFame() == COMMAND_CAPTAIN)
+			pTUser->ChangeFame(CHIEF);
+
+		if (pTUser->getZoneID() != pTUser->getNation())
 			pTUser->KickOutZoneUser(TRUE);
-		}
 	}
 }
 
@@ -2483,18 +2471,10 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 				goto next_row;
 
 			if( pUser->m_pUserData->m_bKnights == nKnightsIndex	)	{
-				pUser->m_pUserData->m_bFame = COMMAND_CAPTAIN;
 				sprintf_s( strKarusCaptain[nKaursRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData->m_id);
-				nKaursRank++;
 				nFindKarus = 1;
-				send_index = 0;
-				SetByte( send_buff, WIZ_AUTHORITY_CHANGE, send_index );
-				SetByte( send_buff, COMMAND_AUTHORITY, send_index );
-				SetShort( send_buff, pUser->GetSocketID(), send_index );
-				SetByte( send_buff, pUser->m_pUserData->m_bFame, send_index );
-				Send_Region( send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ );
-
-				send_index = 0;
+				nKaursRank++;
+				pUser->ChangeFame(COMMAND_CAPTAIN);
 			}
 		}
 		else if( pKnights->m_byNation == ELMORAD )	{
@@ -2504,16 +2484,10 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 			if (pUser == NULL || pUser->getZoneID() != ZONE_BATTLE)
 				goto next_row;
 			if( pUser->m_pUserData->m_bKnights == nKnightsIndex	)	{
-				pUser->m_pUserData->m_bFame = COMMAND_CAPTAIN;
 				sprintf_s( strElmoCaptain[nElmoRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData->m_id);
 				nFindElmo = 1;
 				nElmoRank++;
-				send_index = 0;
-				SetByte( send_buff, WIZ_AUTHORITY_CHANGE, send_index );
-				SetByte( send_buff, COMMAND_AUTHORITY, send_index );
-				SetShort( send_buff, pUser->GetSocketID(), send_index );
-				SetByte( send_buff, pUser->m_pUserData->m_bFame, send_index );
-				Send_Region( send_buff, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ );
+				pUser->ChangeFame(COMMAND_CAPTAIN);
 			}
 		}
 		

@@ -46,7 +46,7 @@ public:
 	BYTE ExecuteType1(int magicid, int sid, int tid, int data1, int data2, int data3);	
 
 	_MAGIC_TABLE* IsAvailable( int magicid, int tid, int sid, BYTE type, int data1, int data2, int data3 );
-	void MagicPacket(char* pBuf, int len); // PENDING DEPRECATION
+	void MagicPacket(char* pBuf); // PENDING DEPRECATION
 	void MagicPacket(Packet & pkt);
 
 	CMagicProcess();

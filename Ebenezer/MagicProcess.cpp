@@ -75,11 +75,11 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 	tmp_buff[0] = pkt.GetOpcode();
 	if (pkt.size() > 0)
 		memcpy(tmp_buff + 1, pkt.contents(), pkt.size()); 
-	MagicPacket(tmp_buff, pkt.size() + 1);
+	MagicPacket(tmp_buff);
 	delete [] tmp_buff;
 }
 
-void CMagicProcess::MagicPacket(char *pBuf, int len)
+void CMagicProcess::MagicPacket(char *pBuf)
 {
 	int index = 0, send_index = 0, magicid = 0, sid = -1, tid = -2, data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0, data7 = 0,data8 = 0, type3_attribute = 0,NpcMagic = 0;
 	char send_buff[128];
@@ -1374,20 +1374,11 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 				break;
 //
 			case 3 : 
-				if (magicid == 490034) {	// Bezoar!!!
-					send_index = 0 ;
-					SetByte(send_buff, 3, send_index);	// You are now a giant!!!
-					SetByte(send_buff, ABNORMAL_GIANT, send_index);
-					pTUser->StateChange(send_buff);					
-					send_index = 0;
-				}
-				else if (magicid == 490035) {	// Rice Cake!!!
-					send_index = 0 ;
-					SetByte(send_buff, 3, send_index);	// You are now a dwarf!!!
-					SetByte(send_buff, ABNORMAL_DWARF, send_index);
-					pTUser->StateChange(send_buff);						
-					send_index = 0;
-				}
+				// These really shouldn't be hardcoded
+				if (magicid == 490034)	// Bezoar!!!
+					pTUser->StateChangeServerDirect(3, ABNORMAL_GIANT); 
+				else if (magicid == 490035)	// Rice Cake!!!
+					pTUser->StateChangeServerDirect(3, ABNORMAL_DWARF); 
 
 				pTUser->m_sDuration3 = pType->sDuration;
 				pTUser->m_fStartTime3 = TimeGet();
@@ -1753,9 +1744,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 			break;
 			
 		case RESURRECTION:		// RESURRECT A DEAD PLAYER!!!
-			send_index = 0;
-			SetByte( send_buff, 1, send_index );
-			pTUser->Regene(send_buff, magicid);
+			pTUser->Regene(1, magicid);
 			break;
 
 		case REMOVE_BLESS:
@@ -1920,45 +1909,25 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				pEvent = pTUser->GetMap()->GetObjectEvent(pTUser->m_pUserData->m_sBind);
 
 				if( pEvent ) {
-
-					SetShort(send_buff, (WORD)(pEvent->fPosX*10 + x), send_index);
-					SetShort(send_buff, (WORD)(pEvent->fPosZ*10 + z), send_index);
-					pTUser->Warp(send_buff);	
-					
+					pTUser->Warp(uint16((pEvent->fPosX + x) * 10), uint16((pEvent->fPosZ + z) * 10));	
 				}
-				else if(pTUser->m_pUserData->m_bNation != pTUser->m_pUserData->m_bZone && pTUser->m_pUserData->m_bZone < 3) {	 // User is in different zone.
-					if(pTUser->m_pUserData->m_bNation == 1 ) {	// Land of Karus
-
-						SetShort(send_buff, (WORD)(852 + x), send_index);
-						SetShort(send_buff, (WORD)(164 + z), send_index);
-						pTUser->Warp(send_buff);	
+				// TO-DO: Remove this hardcoded nonsense
+				else if(pTUser->getNation() != pTUser->getZoneID() && pTUser->getZoneID() <= ELMORAD) {	 // User is in different zone.
+					if(pTUser->getNation() == KARUS) {	// Land of Karus
+						pTUser->Warp(uint16((852 + x) * 10), uint16((164 + z) * 10));
 					}
 					else {	// Land of Elmorad
-
-//						m_pUserData->m_curx = m_fWill_x = (float)177.0 + x;
-//						m_pUserData->m_curz = m_fWill_z = (float)923.0 + z;
-
-						SetShort(send_buff, (WORD)(177 + x), send_index);
-						SetShort(send_buff, (WORD)(923 + z), send_index);
-						pTUser->Warp(send_buff);	
+						pTUser->Warp(uint16((177 + x) * 10), uint16((923 + z) * 10));
 					}				
 				}
-// �񷯸ӱ� �븸 ������ >.<
-				else if (pTUser->m_pUserData->m_bZone == ZONE_BATTLE) {		// ������ --;
-					SetShort(send_buff, (WORD)(pHomeInfo->BattleZoneX * 10 + x), send_index);
-					SetShort(send_buff, (WORD)(pHomeInfo->BattleZoneZ * 10 + z), send_index);
-					pTUser->Warp(send_buff);	
+				else if (pTUser->m_pUserData->m_bZone == ZONE_BATTLE) {
+					pTUser->Warp(uint16((pHomeInfo->BattleZoneX + x) * 10), uint16((pHomeInfo->BattleZoneZ + z) * 10));	
 				}
-				else if (pTUser->m_pUserData->m_bZone == ZONE_FRONTIER) {		// ��ô�� --;
-					SetShort(send_buff, (WORD)(pHomeInfo->FreeZoneX * 10 + x), send_index);
-					SetShort(send_buff, (WORD)(pHomeInfo->FreeZoneZ * 10 + z), send_index);
-					pTUser->Warp(send_buff);
+				else if (pTUser->m_pUserData->m_bZone == ZONE_FRONTIER) {
+					pTUser->Warp(uint16((pHomeInfo->FreeZoneX + x) * 10), uint16((pHomeInfo->FreeZoneZ + z) * 10));
 				}
-//
-				else {		//  No, I don't have any idea what this part means....
-					SetShort(send_buff, (WORD)(pTUser->GetMap()->m_fInitX*10 + x), send_index);
-					SetShort(send_buff, (WORD)(pTUser->GetMap()->m_fInitZ*10 + z), send_index);
-					pTUser->Warp(send_buff);	
+				else {		
+					pTUser->Warp(uint16((pTUser->GetMap()->m_fInitX + x) * 10), uint16((pTUser->GetMap()->m_fInitZ + z) * 10));	
 				}
 							
 				send_index = 0 ;
@@ -2016,15 +1985,11 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ );
 				send_index = 0; 
 					
-				SetShort(send_buff, (WORD)(m_pSrcUser->m_pUserData->m_curx * 10 /* + myrand(1,3) */), send_index);	// Send packet with new positions to the Warp() function.
-				SetShort(send_buff, (WORD)(m_pSrcUser->m_pUserData->m_curz * 10 /* + myrand(1,3) */), send_index);
-				pTUser->Warp(send_buff);
-				
-				send_index = 0;			
+				pTUser->Warp(m_pSrcUser->GetSPosX(), m_pSrcUser->GetSPosZ());
 				break;
 
 			case 13:	// Summon a target outside the zone.			
-				if (m_pSrcUser->m_pUserData->m_bZone == pTUser->m_pUserData->m_bZone) {	  // Different zone? 
+				if (m_pSrcUser->getZoneID() == pTUser->getZoneID()) {	  // Different zone? 
 					result = 0 ;
 					goto packet_send ;
 				}
@@ -2086,7 +2051,7 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 
 				SetShort(send_buff, (WORD)warp_x, send_index);	// Send packet with new positions to the Warp() function.
 				SetShort(send_buff, (WORD)warp_z, send_index);
-				pTUser->Warp(send_buff);
+				pTUser->Warp(uint16(warp_x * 10), uint16(warp_z * 10));
 
 				send_index = 0;			// Clear index and buffer!
 				break;
@@ -2400,12 +2365,7 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 		case 3:
 			pTUser->m_sDuration3 = 0;		
 			pTUser->m_fStartTime3 = 0.0f;
-
-			send_index = 0 ;
-			SetByte(send_buff, 3, send_index);	
-			SetByte(send_buff, ABNORMAL_NORMAL, send_index);
-			pTUser->StateChange(send_buff);						
-			send_index = 0 ;					
+			pTUser->StateChangeServerDirect(3, ABNORMAL_NORMAL);
 			buff = TRUE;	
 			break;
 //  

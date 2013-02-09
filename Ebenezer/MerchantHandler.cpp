@@ -4,26 +4,24 @@
 
 enum MerchantOpenResponseCodes
 {
-MERCHANT_OPEN_SUCCESS = 1,
-MERCHANT_OPEN_NO_SESSION = -1,
-MERCHANT_OPEN_DEAD = -2,
-MERCHANT_OPEN_TRADING = -3,
-MERCHANT_OPEN_MERCHANTING = -4,
-MERCHANT_OPEN_INVALID_ZONE = -5,
-MERCHANT_OPEN_SHOPPING = -6,
-MERCHANT_OPEN_UNDERLEVELED = 30
+	MERCHANT_OPEN_SUCCESS = 1,
+	MERCHANT_OPEN_NO_SESSION = -1,
+	MERCHANT_OPEN_DEAD = -2,
+	MERCHANT_OPEN_TRADING = -3,
+	MERCHANT_OPEN_MERCHANTING = -4,
+	MERCHANT_OPEN_INVALID_ZONE = -5,
+	MERCHANT_OPEN_SHOPPING = -6,
+	MERCHANT_OPEN_UNDERLEVELED = 30
 };
 
-void CUser::MerchantProcess(char *pBuf)
+void CUser::MerchantProcess(Packet & pkt)
 {
-	int index = 0;
-	BYTE subcommand = GetByte(pBuf, index);
-
-	switch (subcommand)
+	uint8 opcode = pkt.read<uint8>();
+	switch (opcode)
 	{
 		// Regular merchants
 		case MERCHANT_OPEN: 
-			MerchantOpen(pBuf+index); 
+			MerchantOpen(); 
 			break;
 
 		case MERCHANT_CLOSE: 
@@ -31,23 +29,23 @@ void CUser::MerchantProcess(char *pBuf)
 			break;
 
 		case MERCHANT_ITEM_ADD: 
-			MerchantItemAdd(pBuf+index); 
+			MerchantItemAdd(pkt); 
 			break;
 
 		case MERCHANT_ITEM_CANCEL: 
-			MerchantItemCancel(pBuf+index); 
+			MerchantItemCancel(pkt); 
 			break;
 
 		case MERCHANT_ITEM_LIST: 
-			MerchantItemList(pBuf+index); 
+			MerchantItemList(pkt); 
 			break;
 
 		case MERCHANT_ITEM_BUY: 
-			MerchantItemBuy(pBuf+index); 
+			MerchantItemBuy(pkt); 
 			break;
 
 		case MERCHANT_INSERT: 
-			MerchantInsert(pBuf+index); 
+			MerchantInsert(pkt); 
 			break;
 
 		case MERCHANT_TRADE_CANCEL: 
@@ -57,7 +55,7 @@ void CUser::MerchantProcess(char *pBuf)
 #if __VERSION >= 1700
 		// Buying merchants
 		case MERCHANT_BUY_OPEN: 
-			BuyingMerchantOpen(pBuf+index); 
+			BuyingMerchantOpen(pkt); 
 			break;
 
 		case MERCHANT_BUY_CLOSE: 
@@ -65,15 +63,15 @@ void CUser::MerchantProcess(char *pBuf)
 			break;
 
 		case MERCHANT_BUY_LIST: 
-			BuyingMerchantList(pBuf+index); 
+			BuyingMerchantList(pkt); 
 			break;
 
 		case MERCHANT_BUY_INSERT: 
-			BuyingMerchantInsert(pBuf+index); 
+			BuyingMerchantInsert(pkt); 
 			break;
 
 		case MERCHANT_BUY_BUY: // seeya!
-			BuyingMerchantBuy(pBuf+index); 
+			BuyingMerchantBuy(pkt); 
 			break;
 #endif
 	}
@@ -82,51 +80,32 @@ void CUser::MerchantProcess(char *pBuf)
 /*
 	Regular merchants
 */
-void CUser::MerchantOpen(char *pBuf)
+void CUser::MerchantOpen()
 {
-	Packet result(WIZ_MERCHANT);
-	result << uint8(MERCHANT_OPEN);
+	int16 errorCode = 0;
+	if (isDead())
+		errorCode = MERCHANT_OPEN_DEAD;
+	else if (isStoreOpen())
+		errorCode = MERCHANT_OPEN_SHOPPING;
+	else if (isTrading())
+		errorCode = MERCHANT_OPEN_TRADING;
+	else if (getZoneID() > 21 || getZoneID() <= ELMORAD)
+		errorCode = MERCHANT_OPEN_INVALID_ZONE;
+	else if (getLevel() < 30)
+		errorCode = MERCHANT_OPEN_UNDERLEVELED;
+	else if (isMerchanting())
+		errorCode = MERCHANT_OPEN_MERCHANTING;
+	else 
+		errorCode = MERCHANT_OPEN_SUCCESS;
 
-		if( isDead() ) {
-			result << uint16(MERCHANT_OPEN_DEAD);
-			Send(&result);
-			return;
-		}
-
-		if( isStoreOpen() ) {
-			result << uint16(MERCHANT_OPEN_SHOPPING);
-			Send(&result);
-			return;
-		}
-
-		if( isTrading() ) {
-			result << uint16(MERCHANT_OPEN_TRADING);
-			Send(&result);
-			return;
-		}
-
-		if( getZoneID() > 21 || getZoneID() < 1 ) {
-			result << uint16(MERCHANT_OPEN_INVALID_ZONE);
-			Send(&result);
-			return;
-		}
-
-		if( getLevel() < 30 ) {
-			result << uint16(MERCHANT_OPEN_UNDERLEVELED);
-			Send(&result);
-			return;
-		}
-
-		if (isMerchanting())
-		{
-			MerchantClose(); //Close the current merchant session first before allowing a new one.
-			result << uint16(0);
-			Send(&result);
-			return;
-		}
-		
-	result << uint16(MERCHANT_OPEN_SUCCESS);
+	Packet result(WIZ_MERCHANT, uint8(MERCHANT_OPEN));
+	result << errorCode;
 	Send(&result);
+
+	// If we're already merchanting, user may be desynced
+	// so we need to close our current merchant first.
+	if (errorCode == MERCHANT_OPEN_MERCHANTING)
+		MerchantClose();
 }
 
 void CUser::MerchantClose()
@@ -141,48 +120,43 @@ void CUser::MerchantClose()
 	SendToRegion(&result);
 }
 
-void CUser::MerchantItemAdd(char *pBuf)
+void CUser::MerchantItemAdd(Packet & pkt)
 {
-	int index = 0;
 	uint32 nGold, nItemID;
-	uint16 sCount = 0, sDuration = 0;
-	uint8 bInventorySlot = 0, bSellingSlot = 0, bMode = 0;
+	uint16 sCount;
+	uint8 bSrcPos, // It sends the "actual" inventory slot (SLOT_MAX -> INVENTORY_MAX-SLOT_MAX), so need to allow for it. 
+		bDstPos, 
+		bMode; // Might be a flag for normal / "premium" merchant mode, once skills are implemented take another look at this.
 
-	nItemID = GetDWORD(pBuf, index);
-	sCount = GetShort(pBuf, index);
-	nGold = GetDWORD(pBuf, index);
-	bInventorySlot = GetByte(pBuf, index); // It sends the "actual" inventory slot (SLOT_MAX -> INVENTORY_MAX-SLOT_MAX), so need to allow for it. 
-	bSellingSlot = GetByte(pBuf, index);
-	bMode = GetByte(pBuf, index); // Might be a flag for normal / "premium" merchant mode, once skills are implemented take another look at this.
 
-	if (bInventorySlot >= HAVE_MAX
-		|| bSellingSlot >= MAX_MERCH_ITEMS)
+	pkt >> nItemID >> sCount >> nGold >> bSrcPos >> bDstPos >> bMode;
+	if (bSrcPos >= HAVE_MAX
+		|| bDstPos >= MAX_MERCH_ITEMS)
 		return;
 
-	bInventorySlot += SLOT_MAX;
-	if (m_pUserData->m_sItemArray[bInventorySlot].nNum != nItemID
-		|| m_pUserData->m_sItemArray[bInventorySlot].sCount < sCount)
+	bSrcPos += SLOT_MAX;
+	if (m_pUserData->m_sItemArray[bSrcPos].nNum != nItemID
+		|| m_pUserData->m_sItemArray[bSrcPos].sCount < sCount)
 		return;
 
-	m_arSellingItems[bSellingSlot].nNum = nItemID;
-	m_arSellingItems[bSellingSlot].nPrice = nGold;
-	m_arSellingItems[bSellingSlot].sCount = sCount;
-	m_arSellingItems[bSellingSlot].sDuration = m_pUserData->m_sItemArray[bInventorySlot].sDuration;
-	m_arSellingItems[bSellingSlot].nSerialNum = m_pUserData->m_sItemArray[bInventorySlot].nSerialNum; // NOTE: Stackable items will have an issue with this.
-	m_arSellingItems[bSellingSlot].bOriginalSlot = bInventorySlot;
+	m_arSellingItems[bDstPos].nNum = nItemID;
+	m_arSellingItems[bDstPos].nPrice = nGold;
+	m_arSellingItems[bDstPos].sCount = sCount;
+	m_arSellingItems[bDstPos].sDuration = m_pUserData->m_sItemArray[bSrcPos].sDuration;
+	m_arSellingItems[bDstPos].nSerialNum = m_pUserData->m_sItemArray[bSrcPos].nSerialNum; // NOTE: Stackable items will have an issue with this.
+	m_arSellingItems[bDstPos].bOriginalSlot = bSrcPos;
 
 	Packet result(WIZ_MERCHANT, uint8(MERCHANT_ITEM_ADD));
 	result	<< uint16(1)
-			<< nItemID << sCount << sDuration << nGold 
-			<< bInventorySlot << bSellingSlot;
+			<< nItemID << sCount << m_arSellingItems[bDstPos].sDuration << nGold 
+			<< bSrcPos << bDstPos;
 	Send(&result);
 }
 
-void CUser::MerchantItemCancel(char *pBuf)
+void CUser::MerchantItemCancel(Packet & pkt)
 {
 	Packet result(WIZ_MERCHANT, uint8(MERCHANT_ITEM_CANCEL));
-	int index = 0;
-	uint8 bSrcPos = GetByte(pBuf, index);
+	uint8 bSrcPos = pkt.read<uint8>();
 
 /*	if (this == NULL)
 		result << int16(-1);*/
@@ -205,26 +179,26 @@ void CUser::MerchantItemCancel(char *pBuf)
 	Send(&result);
 }
 
-void CUser::MerchantItemList(char *pBuf)
+void CUser::MerchantItemList(Packet & pkt)
 {
 }
 
-void CUser::MerchantItemBuy(char *pBuf)
+void CUser::MerchantItemBuy(Packet & pkt)
 {
 }
 
-void CUser::MerchantInsert(char *pBuf)
+void CUser::MerchantInsert(Packet & pkt)
 {
-	int index = 0;
-	char mText[40];
-	if (!GetKOString(mText, pBuf, index, sizeof(mText)))
+	std::string advertMessage;
+	pkt >> advertMessage;
+	if (advertMessage.empty() || advertMessage.size() >= MAX_MERCH_MESSAGE)
 		return;
 
 	m_bIsMerchanting = true;
 	TakeMerchantItems(); // Removing the items from the user's inventory
 
 	Packet result(WIZ_MERCHANT, uint8(MERCHANT_INSERT));
-	result << uint16(1) << mText << uint16(GetSocketID())
+	result << uint16(1) << advertMessage << uint16(GetSocketID())
 		<< uint8(0); // 0 is for "normal" merchant mode, 1 for "premium" merchant mode. Send "normal" until we have support for the skills.
 
 	for (int i = 0; i < MAX_MERCH_ITEMS; i++)
@@ -258,7 +232,7 @@ void CUser::CancelMerchant()
 /*
 	Buying merchants: 1.7XX only
 */
-void CUser::BuyingMerchantOpen(char *pBuf)
+void CUser::BuyingMerchantOpen(Packet & pkt)
 {
 }
 
@@ -266,14 +240,14 @@ void CUser::BuyingMerchantClose()
 {
 }
 
-void CUser::BuyingMerchantInsert(char *pBuf)
+void CUser::BuyingMerchantInsert(Packet & pkt)
 {
 }
 
-void CUser::BuyingMerchantList(char *pBuf)
+void CUser::BuyingMerchantList(Packet & pkt)
 {
 }
 
-void CUser::BuyingMerchantBuy(char *pBuf)
+void CUser::BuyingMerchantBuy(Packet & pkt)
 {
 }

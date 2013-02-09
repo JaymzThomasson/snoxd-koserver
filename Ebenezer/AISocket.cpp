@@ -537,18 +537,11 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 
 				send_index = 0;
 				if( pUser->m_pUserData->m_bFame == COMMAND_CAPTAIN )	{	// ���ֱ����� �ִ� ������ �״´ٸ�,, ���� ���� ��Ż
-					pUser->m_pUserData->m_bFame = CHIEF;
-					SetByte( pOutBuf, WIZ_AUTHORITY_CHANGE, send_index );
-					SetByte( pOutBuf, COMMAND_AUTHORITY, send_index );
-					SetShort( pOutBuf, pUser->GetSocketID(), send_index );
-					SetByte( pOutBuf, pUser->m_pUserData->m_bFame, send_index );
-					m_pMain->Send_Region( pOutBuf, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ );
-					// sungyong tw
-					pUser->Send( pOutBuf, send_index );
-					// ~sungyong tw
+					pUser->ChangeFame(CHIEF);
+
 					TRACE("---> AISocket->RecvNpcAttack() Dead Captain Deprive - %s\n", pUser->m_pUserData->m_id);
-					if( pUser->m_pUserData->m_bNation == KARUS )			m_pMain->Announcement( KARUS_CAPTAIN_DEPRIVE_NOTIFY, KARUS );
-					else if( pUser->m_pUserData->m_bNation == ELMORAD )	m_pMain->Announcement( ELMORAD_CAPTAIN_DEPRIVE_NOTIFY, ELMORAD );
+					if (pUser->getNation() == KARUS)		m_pMain->Announcement( KARUS_CAPTAIN_DEPRIVE_NOTIFY, KARUS );
+					else if (pUser->getNation() == ELMORAD)	m_pMain->Announcement( ELMORAD_CAPTAIN_DEPRIVE_NOTIFY, ELMORAD );
 
 				}
 

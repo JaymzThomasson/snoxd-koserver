@@ -2,12 +2,11 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 
-void CUser::LetterSystem(char *pBuf)
+void CUser::LetterSystem(Packet & pkt)
 {
-	int index = 0;
-	BYTE subcommand = GetByte(pBuf, index);
+	uint8 opcode = pkt.read<uint8>();
 		
-	switch (subcommand)
+	switch (opcode)
 	{
 	case LETTER_UNREAD:
 		TRACE("LETTER_UNREAD\n");
@@ -38,6 +37,6 @@ void CUser::LetterSystem(char *pBuf)
 		break;
 
 	default:
-		TRACE("Unknown letter packet: %X\n", subcommand);
+		TRACE("Unknown letter packet: %X\n", opcode);
 	}
 }

@@ -137,8 +137,6 @@ void CUser::Initialize()
 
 	m_fLastTrapAreaTime = 0.0f;
 
-	memset( m_strAccountID, NULL, MAX_ID_SIZE+1 );
-
 	for (int i = 0 ; i < MAX_MESSAGE_EVENT ; i++) {
 		m_iSelMsgEvent[i] = -1;
 	}
@@ -152,9 +150,6 @@ void CUser::Initialize()
 	m_fLastRegeneTime = 0.0f;
 
 	m_bZoneChangeSameZone = FALSE;
-
-	memset(m_strCouponId, NULL, MAX_COUPON_ID_LENGTH);
-	m_iEditBoxEvent = -1;
 
 	for (int j = 0 ; j < MAX_CURRENT_EVENT ; j++) {
 		m_sEvent[j] = -1;
@@ -222,46 +217,24 @@ void CUser::CloseProcess()
 
 void CUser::Parsing(Packet & pkt)
 {
-	uint8 command = pkt.GetOpcode();
-	TRACE("Command : %X\n", command);
-	if(!m_CryptionFlag)
-	{
-		return;
-	}
-	else if (m_strAccountID[0] == 0)
-		return;
-	else if(!m_bSelectedCharacter)
-		return;
-
-/*	switch(command)
-	{
-		case WIZ_MAGIC_PROCESS:
-			MagicSystem(pkt);
-		break;
-	}
-*/
-}
-
-void CUser::Parsing(int len, char *pData)
-{
 	int index = 0;
 	float	currenttime = FLT_MIN;
 
-	BYTE command = GetByte(pData, index);
-	TRACE("[SID=%d] Packet: %X (len=%d)\n", m_Sid, command, len);
+	uint8 command = pkt.GetOpcode();
+	TRACE("[SID=%d] Packet: %X (len=%d)\n", m_Sid, command, pkt.size());
 	// If crypto's not been enabled yet, force the version packet to be sent.
 	if (!m_CryptionFlag)
 	{
 		if (command == WIZ_VERSION_CHECK)
-			VersionCheck(pData+index);
+			VersionCheck(pkt);
 
 		return;
 	}
 	// If we're not authed yet, forced us to before we can do anything else.
-	else if (m_strAccountID[0] == 0)
+	else if (m_strAccountID.empty())
 	{
 		if (command == WIZ_LOGIN)
-			LoginProcess(pData+index);
+			LoginProcess(pkt);
 
 		return;
 	}
@@ -269,25 +242,25 @@ void CUser::Parsing(int len, char *pData)
 	// TO-DO: Make sure we support all packets in the loading stage (and rewrite this logic considerably better).
 	else if (!m_bSelectedCharacter)
 	{
-		switch( command )
+		switch (command)
 		{
 		case WIZ_SEL_NATION:
-			SelNationToAgent( pData+index );
-			break;
-		case WIZ_NEW_CHAR:
-			NewCharToAgent( pData+index );
-			break;
-		case WIZ_DEL_CHAR:
-			DelCharToAgent( pData+index );
-			break;
-		case WIZ_SEL_CHAR:
-			SelCharToAgent( pData+index );
+			SelNationToAgent(pkt);
 			break;
 		case WIZ_ALLCHAR_INFO_REQ:
 			AllCharInfoToAgent();
 			break;
+		case WIZ_NEW_CHAR:
+			NewCharToAgent(pkt);
+			break;
+		case WIZ_DEL_CHAR:
+			DelCharToAgent(pkt);
+			break;
+		case WIZ_SEL_CHAR:
+			SelCharToAgent(pkt);
+			break;
 		case WIZ_SPEEDHACK_CHECK:
-			SpeedHackTime(pData+index);
+			SpeedHackTime(pkt);
 			break;
 
 		default:
@@ -301,114 +274,101 @@ void CUser::Parsing(int len, char *pData)
 	switch (command)
 	{
 	case WIZ_GAMESTART:
-		if (GetState() == STATE_GAMESTART)
-			break;
-
-		GameStart(pData+index);
+		GameStart(pkt);
 		break;
 	case WIZ_SERVER_INDEX:
 		SendServerIndex();
 		break;
 	case WIZ_RENTAL:
-		RentalSystem(pData+index);
+		RentalSystem(pkt);
 		break;
 	case WIZ_SKILLDATA:
-		SkillDataProcess(pData+index);
+		SkillDataProcess(pkt);
 		break;
 	case WIZ_MOVE:
-		MoveProcess( pData+index );
+		MoveProcess(pkt);
 		break;
 	case WIZ_ROTATE:
-		Rotate( pData+index );
+		Rotate(pkt);
 		break;
 	case WIZ_ATTACK:
-		Attack( pData+index );
+		Attack(pkt);
 		break;
 	case WIZ_CHAT:
-		Chat( pData+index );
+		Chat(pkt);
 		break;
 	case WIZ_CHAT_TARGET:
-		ChatTargetSelect( pData+index );
+		ChatTargetSelect(pkt);
 		break;
 	case WIZ_REGENE:	
-		InitType3();	// Init Type 3.....
-		InitType4();	// Init Type 4.....
-		Regene( pData+index );
-//		InitType3();	// Init Type 3.....
-//		InitType4();	// Init Type 4.....
+		RecvRegene(pkt);
 		break;
 	case WIZ_REQ_USERIN:
-		RequestUserIn( pData+index );
+		RequestUserIn(pkt);
 		//Request merchant characters too.
 		break;
 	case WIZ_REQ_NPCIN:
-		RequestNpcIn( pData+index );
+		RequestNpcIn(pkt);
 		break;
 	case WIZ_WARP:
-		if( m_pUserData->m_bAuthority == 0 ) {
-			Warp( pData+index );
-		}
+		if (isGM())
+			RecvWarp(pkt);
 		break;
 	case WIZ_ITEM_MOVE:
-		ItemMove( pData+index );
+		ItemMove(pkt);
 		break;
 	case WIZ_NPC_EVENT:
-		NpcEvent( pData+index );
+		NpcEvent(pkt);
 		break;
 	case WIZ_ITEM_TRADE:
-		ItemTrade( pData+index );
+		ItemTrade(pkt);
 		break;
 	case WIZ_TARGET_HP:
 		{
-			int uid = GetShort( pData, index );
-			BYTE echo = GetByte( pData, index );
+			uint16 uid = pkt.read<uint16>();
+			uint8 echo = pkt.read<uint8>();
 			SendTargetHP(echo, uid);
 		}
 		break;
 	case WIZ_BUNDLE_OPEN_REQ:
-		BundleOpenReq( pData+index );
+		BundleOpenReq(pkt);
 		break;
 	case WIZ_ITEM_GET:
-		ItemGet( pData+index );
+		ItemGet(pkt);
 		break;
 	case WIZ_ZONE_CHANGE:
-		//UserInOut( USER_IN );
-		UserInOut( USER_REGENE );
-		m_pMain->RegionUserInOutForMe(this);
-		m_pMain->RegionNpcInfoForMe(this);
-		m_pMain->MerchantUserInOutForMe(this);
-		m_bWarp = 0x00;
+		RecvZoneChange(pkt);
 		break;
 	case WIZ_POINT_CHANGE:
-		PointChange( pData+index );
+		PointChange(pkt);
 		break;
 	case WIZ_STATE_CHANGE:
-		StateChange( pData+index );
+		StateChange(pkt);
 		break;
 	case WIZ_PARTY:
-		PartyProcess( pData+index );
+		PartyProcess(pkt);
 		break;
 	case WIZ_EXCHANGE:
-		ExchangeProcess( pData+index );
+		ExchangeProcess(pkt);
 		break;
 	case WIZ_MERCHANT:
-		MerchantProcess(pData+index);
+		MerchantProcess(pkt);
 		break;
-	//case WIZ_MAGIC_PROCESS:
-	//	m_MagicProcess.MagicPacket(pData+index, len);
-	//	break;
+	case WIZ_MAGIC_PROCESS:
+		m_MagicProcess.MagicPacket(pkt);
+		break;
 	case WIZ_SKILLPT_CHANGE:
-		SkillPointChange( pData+index );
+		SkillPointChange(pkt);
 		break;
 	case WIZ_OBJECT_EVENT:
-		ObjectEvent( pData+index );
+		ObjectEvent(pkt);
 		break;
 	case WIZ_WEATHER:
 	case WIZ_TIME:
-		UpdateGameWeather( pData+index, command );
+		UpdateGameWeather(pkt);
 		break;
 	case WIZ_CLASS_CHANGE:
-		ClassChange( pData+index );
+		ClassChange(pkt);
 		break;
 	case WIZ_CONCURRENTUSER:
 		CountConcurrentUser();
@@ -417,53 +377,50 @@ void CUser::Parsing(int len, char *pData)
 		UserDataSaveToAgent();
 		break;
 	case WIZ_ITEM_REPAIR:
-		ItemRepair( pData+index );
+		ItemRepair(pkt);
 		break;
 	case WIZ_KNIGHTS_PROCESS:
-		m_pMain->m_KnightsManager.PacketProcess( this, pData+index );
+		m_pMain->m_KnightsManager.PacketProcess(this, pkt);
 		break;
 	case WIZ_ITEM_REMOVE:
-		ItemRemove( pData+index );
+		ItemRemove(pkt);
 		break;
 	case WIZ_OPERATOR:
-		OperatorCommand( pData+index );
+		OperatorCommand(pkt);
 		break;
 	case WIZ_SPEEDHACK_CHECK:
-		SpeedHackTime( pData+index );
+		SpeedHackTime(pkt);
 		m_sAliveCount = 0;
 		break;
 	case WIZ_WAREHOUSE:
-		WarehouseProcess( pData+index );
+		WarehouseProcess(pkt);
 		break;
 	case WIZ_HOME:
 		Home();
 		break; 
 	case WIZ_FRIEND_PROCESS:
-		FriendProcess(pData+index);
+		FriendProcess(pkt);
 		break;
 	case WIZ_WARP_LIST:
-		SelectWarpList( pData+index );
+		SelectWarpList(pkt);
 		break;
 	case WIZ_VIRTUAL_SERVER:
-		ServerChangeOk( pData+index );
+		ServerChangeOk(pkt);
 		break;
 	case WIZ_PARTY_BBS:
-		PartyBBS( pData+index );
+		PartyBBS(pkt);
 		break;
 	case WIZ_CLIENT_EVENT:
-		ClientEvent( pData+index );
+		ClientEvent(pkt);
 		break;
 	case WIZ_SELECT_MSG:
-		RecvSelectMsg( pData+index );
+		RecvSelectMsg(pkt);
 		break;
-	case WIZ_EDIT_BOX:
-		RecvEditBox( pData+index );
-		break;	
 	case WIZ_SHOPPING_MALL: // letter system's used in here too
-		ShoppingMall(pData+index);
+		ShoppingMall(pkt);
 		break;
 	case WIZ_HELMET:
-		HandleHelmet(pData+index);
+		HandleHelmet(pkt);
 		break;
 
 	default:
@@ -520,6 +477,15 @@ void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/)
 	Send(&result);
 }
 
+void CUser::ChangeFame(uint8 bFame)
+{
+	Packet result(WIZ_AUTHORITY_CHANGE, uint8(COMMAND_AUTHORITY));
+
+	m_pUserData->m_bFame = CHIEF;
+	result << uint16(GetSocketID()) << getFame();
+	SendToRegion(&result);
+}
+
 void CUser::SendServerIndex()
 {
 	Packet result(WIZ_SERVER_INDEX);
@@ -527,38 +493,36 @@ void CUser::SendServerIndex()
 	Send(&result);
 }
 
-void CUser::SkillDataProcess(char *pData)
+void CUser::SkillDataProcess(Packet & pkt)
 {
-	int index = 0;
-	BYTE opcode = GetByte(pData, index);
-
+	uint8 opcode = pkt.read<uint8>();
 	switch (opcode)
 	{
 	case SKILL_DATA_SAVE:
-		SkillDataSave(pData+index);
+		SkillDataSave(pkt);
 		break;
 
 	case SKILL_DATA_LOAD:
-		SkillDataLoad(pData+index);
+		SkillDataLoad();
 		break;
 	}
 }
 
-void CUser::SkillDataSave(char *pData)
+void CUser::SkillDataSave(Packet & pkt)
 {
 	Packet result(WIZ_SKILLDATA);
-	int index = 0, sCount = GetShort(pData, index);
-	if (sCount <= 0 || sCount > 64)
+	uint16 sCount = pkt.read<uint16>();
+	if (sCount == 0 || sCount > 64)
 		return;
 
 	result	<< uint16(GetSocketID()) << uint8(SKILL_DATA_SAVE) << sCount;
 	for (int i = 0; i < sCount; i++)
-		result << (uint32)GetDWORD(pData, index);
+		result << pkt.read<uint32>();
 	
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
-void CUser::SkillDataLoad(char *pData)
+void CUser::SkillDataLoad()
 {
 	Packet result(WIZ_SKILLDATA);
 	result << uint16(GetSocketID()) << uint8(SKILL_DATA_LOAD);
@@ -1007,45 +971,42 @@ void CUser::InsertRegion(int insert_x, int insert_z)
 	}
 }
 
-void CUser::RequestUserIn(char *pBuf)
+void CUser::RequestUserIn(Packet & pkt)
 {
 	Packet result(WIZ_REQ_USERIN);
-	int index = 0, user_count = 0;
-	short count = 0;
+	short user_count = pkt.read<uint16>(), online_count = 0;
 	result << uint16(0); // placeholder for user count
 
-	user_count = GetShort(pBuf, index);
 	for (int i = 0; i < user_count; i++)
 	{
-		short uid = GetShort(pBuf, index);
-		CUser *pUser = m_pMain->GetUserPtr(uid);
+		CUser *pUser = m_pMain->GetUserPtr(pkt.read<uint16>());
 		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART)
 			continue;
 
 		result << uint8(0) << uint16(pUser->GetSocketID());
 		GetUserInfo(result);
-		count++;
+		online_count++;
 	}
 
-	result.put(0, count); // substitute count in
+	result.put(0, online_count); // substitute count in
 	Send(&result); // NOTE: Compress
 }
 
-void CUser::RequestNpcIn(char *pBuf)
+void CUser::RequestNpcIn(Packet & pkt)
 {
 	if (m_pMain->m_bPointCheckFlag == FALSE)
 		return;
 
 	Packet result(WIZ_REQ_NPCIN);
-	int index = 0; // temporary until we replace the incoming data with a Packet
-	uint16 npc_count = GetShort(pBuf, index);
+	uint16 npc_count = pkt.read<uint16>();
 	result << uint16(0); // NPC count placeholder
 
 	for (int i = 0; i < npc_count; i++)
 	{
-		uint16 nid = GetShort(pBuf, index);
+		uint16 nid = pkt.read<uint16>();
 		if (nid < 0 || nid > NPC_BAND+NPC_BAND)
 			continue;
+
 		if (i > 1000)
 		{
 			npc_count = 1000;
@@ -1331,36 +1292,37 @@ void CUser::LevelChange(short level, BYTE type )
 	}
 }
 
-void CUser::PointChange(char *pBuf)
+void CUser::PointChange(Packet & pkt)
 {
-	int index = 0, value = 0;
-	BYTE type = GetByte( pBuf, index );
-	value = GetShort( pBuf, index );
+	uint8 type = pkt.read<uint8>();
+	uint16 value = pkt.read<uint16>();
 	if (type > 5 || value != 1
 		|| m_pUserData->m_sPoints < 1) return;
 
-	switch( type ) {
-	case STR:
-		if( m_pUserData->m_bStr == 0xFF ) return;
+	switch (type)
+	{
+	case STR: 
+		if (m_pUserData->m_bStr == 0xFF) return;
 		break;
 	case STA:
-		if( m_pUserData->m_bSta == 0xFF ) return;
+		if (m_pUserData->m_bSta == 0xFF) return;
 		break;
 	case DEX:
-		if( m_pUserData->m_bDex == 0xFF ) return;
+		if (m_pUserData->m_bDex == 0xFF) return;
 		break;
 	case INTEL:
-		if( m_pUserData->m_bIntel == 0xFF ) return;
+		if (m_pUserData->m_bIntel == 0xFF) return;
 		break;
 	case CHA:
-		if( m_pUserData->m_bCha == 0xFF ) return;
+		if (m_pUserData->m_bCha == 0xFF) return;
 		break;
 	}
 
-	m_pUserData->m_sPoints -= value;
+	m_pUserData->m_sPoints--;
 
 	Packet result(WIZ_POINT_CHANGE, type);
-	switch( type ) {
+	switch (type)
+	{
 	case STR:
 		result << uint16(++m_pUserData->m_bStr);
 		SetUserAbility();
@@ -1582,13 +1544,12 @@ void CUser::SendTargetHP( BYTE echo, int tid, int damage )
 	Send(&result);
 }
 
-void CUser::BundleOpenReq(char *pBuf)
+void CUser::BundleOpenReq(Packet & pkt)
 {
 	Packet result(WIZ_BUNDLE_OPEN_REQ);
-	int index = 0, bundle_index = 0;
+	uint32 bundle_index = pkt.read<uint32>();
 	C3DMap* pMap = GetMap();
 
-	bundle_index = GetDWORD( pBuf, index );
 	if (pMap == NULL
 		|| bundle_index < 1 
 		|| m_RegionX < 0 || m_RegionZ < 0 
@@ -1605,14 +1566,18 @@ void CUser::BundleOpenReq(char *pBuf)
 
 	for (int i = 0; i < 6; i++)
 		result << pItem->itemid[i] << pItem->count[i];
+
 	Send(&result);
 }
 
-BOOL CUser::IsValidName(char *name)
+BOOL CUser::IsValidName(const char *name)
 {
 	CString upperName = name;
-	upperName.MakeUpper();
+	if (upperName.GetLength() == 0
+		|| upperName.GetLength() > MAX_ID_SIZE)
+		return FALSE;
 
+	upperName.MakeUpper();
 	foreach (itr, m_pMain->m_BlockNameArray)
 		if (strstr(upperName, *itr))
 			return FALSE;
@@ -1620,10 +1585,10 @@ BOOL CUser::IsValidName(char *name)
 	return TRUE;
 }
 
-void CUser::ItemGet(char *pBuf)
+void CUser::ItemGet(Packet & pkt)
 {
 	Packet result(WIZ_ITEM_GET);
-	int index = 0, bundle_index = 0, itemid = 0, usercount = 0, money = 0, levelsum = 0, i = 0;
+	uint32 bundle_index = pkt.read<uint32>(), itemid = pkt.read<uint32>(), usercount = 0, money = 0, levelsum = 0, i = 0;
 	BYTE pos;
 	_ITEM_TABLE* pTable = NULL;
 	_ZONE_ITEM* pItem = NULL;
@@ -1633,7 +1598,6 @@ void CUser::ItemGet(char *pBuf)
 
 	ASSERT(pMap != NULL);
 
-	bundle_index = GetDWORD(pBuf, index);
 	if (bundle_index < 1
 		|| isTrading())
 		goto fail_return;
@@ -1646,8 +1610,6 @@ void CUser::ItemGet(char *pBuf)
 	if (!pRegion)	goto fail_return;
 	pItem = (_ZONE_ITEM*)pRegion->m_RegionItemArray.GetData( bundle_index );
 	if(!pItem) goto fail_return;
-
-	itemid = GetDWORD( pBuf, index );
 
 	for (i = 0; i < 6; i++)
 	{
@@ -1772,14 +1734,11 @@ fail_return:
 	Send(&result);
 }
 
-void CUser::StateChange(char *pBuf)
+void CUser::StateChange(Packet & pkt)
 {
 	int index = 0;
-	uint8 type, buff;
-	uint32 nBuff;
-
-	type = GetByte( pBuf, index );
-	nBuff = GetDWORD( pBuf, index );
+	uint8 type = pkt.read<uint8>(), buff;
+	uint32 nBuff = pkt.read<uint32>();
 
 	if( type > 5 ) return;
 	if( type == 5 && m_pUserData->m_bAuthority != 0) return;	//  Operators only!!!
@@ -1849,12 +1808,9 @@ void CUser::StateChange(char *pBuf)
 
 void CUser::StateChangeServerDirect(BYTE bType, int nValue)
 {
-	char buff[5];
-	int index = 0;
-
-	SetByte(buff, bType, index);
-	SetDWORD(buff, nValue, index);
-	StateChange(buff);
+	Packet result; // TO-DO: Make this standalone.
+	result << bType << nValue;
+	StateChange(result);
 }
 
 void CUser::LoyaltyChange(short tid)
@@ -1983,52 +1939,37 @@ void CUser::SendNotice()
 	Send( send_buff, send_index );
 }
 
-void CUser::SkillPointChange(char *pBuf)
+void CUser::SkillPointChange(Packet & pkt)
 {
-	int index = 0, send_index = 0, value = 0;
-	BYTE type = 0x00;
-	char send_buff[128];
-
-	type = GetByte( pBuf, index );
-	if( type > 0x08 ) goto fail_return;
-	if( m_pUserData->m_bstrSkill[0] < 1 ) goto fail_return;
-	if( (m_pUserData->m_bstrSkill[type]+1) > m_pUserData->m_bLevel ) goto fail_return;
+	uint8 type = pkt.read<uint8>();
+	Packet result(WIZ_SKILLPT_CHANGE, type);
+	if (type > 8 // invalid type
+		|| m_pUserData->m_bstrSkill[0] < 1 // not enough free skill points to allocate
+		|| m_pUserData->m_bstrSkill[type] + 1 > getLevel()) // restrict skill points per category to your level
+	{
+		result << m_pUserData->m_bstrSkill[type]; // only send the packet on failure
+		Send(&result);
+	}
 
 	m_pUserData->m_bstrSkill[0] -= 1;
 	m_pUserData->m_bstrSkill[type] += 1;
-
-	return;
-
-fail_return:
-	SetByte( send_buff, WIZ_SKILLPT_CHANGE, send_index );
-	SetByte( send_buff, type, send_index );
-	SetByte( send_buff, m_pUserData->m_bstrSkill[type], send_index );
-	Send( send_buff, send_index );
 }
 
-void CUser::UpdateGameWeather(char *pBuf, BYTE type)
+void CUser::UpdateGameWeather(Packet & pkt)
 {
-	Packet result(type);
-	int index = 0;
-	if (m_pUserData->m_bAuthority != 0)	// is this user a GM?
+	if (!isGM())	// is this user a GM?
 		return;
 
-	if (type == WIZ_WEATHER)
+	if (pkt.GetOpcode() == WIZ_WEATHER)
 	{
-		m_pMain->m_nWeather = GetByte( pBuf, index );
-		m_pMain->m_nAmount = GetShort( pBuf, index );
-		result.append(pBuf, 4); // copy the packet
+		pkt >> m_pMain->m_nWeather >> m_pMain->m_nAmount;
 	}
 	else
 	{
-		short year = GetShort( pBuf, index ),
-			month = GetShort( pBuf, index ),
-			date = GetShort( pBuf, index );
-		m_pMain->m_nHour = GetShort( pBuf, index );
-		m_pMain->m_nMin = GetShort( pBuf, index );
-		result.append(pBuf, 10); // copy the packet
+		uint16 y, m, d;
+		pkt >> y >> m >> d >> m_pMain->m_nHour >> m_pMain->m_nMin;
 	}
-	Send(&result);
+	Send(&pkt); // pass the packet straight on
 }
 
 void CUser::SendUserInfo(Packet & result)
@@ -2205,13 +2146,7 @@ void CUser::Dead()
 
 	send_index = 0;
 	if( m_pUserData->m_bFame == COMMAND_CAPTAIN )	{	// ????????? ??? ??? ??�??,, ???? ???? ??Z
-		m_pUserData->m_bFame = CHIEF;
-		SetByte( send_buff, WIZ_AUTHORITY_CHANGE, send_index );
-		SetByte( send_buff, COMMAND_AUTHORITY, send_index );
-		SetShort( send_buff, GetSocketID(), send_index );
-		SetByte( send_buff, m_pUserData->m_bFame, send_index );
-		m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ );
-		Send( send_buff, send_index );
+		ChangeFame(CHIEF);
 
 		pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
 		if( pKnights )		strcpy_s( strKnightsName, sizeof(strKnightsName), pKnights->m_strName );
@@ -2594,10 +2529,7 @@ void CUser::Type4Duration(float currenttime)
 			m_fStartTime3 = 0.0f;
 			buff_type = 3 ;
 			
-			send_index = 0 ;
-			SetByte(send_buff, 3, send_index);	// You are now normal again!!!
-			SetByte(send_buff, ABNORMAL_NORMAL, send_index);
-			StateChange(send_buff);					
+			StateChangeServerDirect(3, ABNORMAL_NORMAL);
 			send_index = 0 ;
 		}
 	}
@@ -2741,92 +2673,89 @@ void CUser::SendAllKnightsID()
 	SendCompressingPacket(&result);
 }
 
-void CUser::ItemRemove(char *pBuf)
+void CUser::ItemRemove(Packet & pkt)
 {
 	Packet result(WIZ_ITEM_REMOVE);
-	int index = 0, slot = 0, pos = 0, itemid = 0, count = 0, durability = 0;
-	__int64 serial = 0;
+	uint8 bType, bPos;
+	uint32 nItemID;
 
-	slot = GetByte( pBuf, index );
-	pos = GetByte( pBuf, index );
-	itemid = GetDWORD( pBuf, index );
+	pkt >> bType >> bPos >> nItemID;
 
-	if( slot == 1 ) {
-		if( pos > SLOT_MAX ) goto fail_return;
-		if( m_pUserData->m_sItemArray[pos].nNum != itemid ) goto fail_return;
-		count = m_pUserData->m_sItemArray[pos].sCount;
-		durability = m_pUserData->m_sItemArray[pos].sDuration;
-		serial = m_pUserData->m_sItemArray[pos].nSerialNum;
-		m_pUserData->m_sItemArray[pos].nNum = 0;
-		m_pUserData->m_sItemArray[pos].sCount = 0;
-		m_pUserData->m_sItemArray[pos].sDuration = 0;
-		m_pUserData->m_sItemArray[pos].nSerialNum = 0;
+	// Inventory
+	if (bType == 0)
+	{
+		if (bPos >= HAVE_MAX)
+			goto fail_return;
+
+		bPos += SLOT_MAX;
 	}
-	else {
-		if( pos > HAVE_MAX ) goto fail_return;
-		if( m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != itemid ) goto fail_return;
-		count = m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount;
-		durability = m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration;
-		serial = m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum;
-		m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum = 0;
-		m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = 0;
-		m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = 0;
-		m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum = 0;
+	// Equipped items
+	else if (bType == 1)
+	{
+		if (bPos >= SLOT_MAX)
+			goto fail_return;
 	}
+
+
+	// Make sure the item matches what the client says it is
+	if (m_pUserData->m_sItemArray[bPos].nNum != nItemID)
+		goto fail_return;
+
+	_ITEM_DATA *pItem = &m_pUserData->m_sItemArray[bPos];
+	ItemLogToAgent(m_pUserData->m_id, "DESTROY", ITEM_DESTROY, pItem->nSerialNum, pItem->nNum, pItem->sCount, pItem->sDuration);
+	memset(pItem, 0, sizeof(_ITEM_DATA));
 
 	SendItemWeight();
-
 	result << uint8(1);
 	Send(&result);
 
-	ItemLogToAgent( m_pUserData->m_id, "DESTROY", ITEM_DESTROY, serial, itemid, count, durability );
 	return;
 fail_return:
 	result << uint8(0);
 	Send(&result);
 }
 
-void CUser::OperatorCommand(char *pBuf)
+void CUser::OperatorCommand(Packet & pkt)
 {
-	int index = 0;
-	char userid[MAX_ID_SIZE+1];
-	CUser* pUser = NULL;
-
-	if( m_pUserData->m_bAuthority != 0 ) return;	// Is this user`s authority operator?
-	
-	BYTE command = GetByte( pBuf, index );
-	if (!GetKOString(pBuf, userid, index, MAX_ID_SIZE))
+	if (!isGM())
 		return;
 
-	pUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
-	if( !pUser ) return;
+	std::string strUserID;
+	uint8 opcode;
+	pkt >> opcode >> strUserID;
 
-	switch( command ) {
+	if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
+		return;
+
+	CUser *pUser = m_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+	if (pUser == NULL)
+		return;
+
+	switch (opcode)
+	{
 	case OPERATOR_ARREST:
 		ZoneChange( pUser->m_pUserData->m_bZone, pUser->m_pUserData->m_curx, pUser->m_pUserData->m_curz );
 		break;
 	case OPERATOR_KILL:
-		pUser->m_pUserData->m_bAuthority = 255;
+		pUser->m_pUserData->m_bAuthority = AUTHORITY_BANNED;
 		pUser->Close();
 		break;
 	case OPERATOR_NOTCHAT:
-		pUser->m_pUserData->m_bAuthority = 2;
+		pUser->m_pUserData->m_bAuthority = AUTHORITY_MUTED;
 		break;
 	case OPERATOR_CHAT:
-		pUser->m_pUserData->m_bAuthority = 1;
+		pUser->m_pUserData->m_bAuthority = AUTHORITY_PLAYER;
 		break;
 	}
 }
 
-void CUser::SpeedHackTime(char* pBuf)
+void CUser::SpeedHackTime(Packet & pkt)
 {
 #if 0 // temporarily disabled
-	BYTE b_first = 0x00;
-	int index = 0;
+	BYTE b_first;
 	float servertime = 0.0f, clienttime = 0.0f, client_gap = 0.0f, server_gap = 0.0f;
 
-	b_first = GetByte( pBuf, index );
-	clienttime = Getfloat( pBuf, index );
+	pkt >> b_first >> clienttime;
 
 	if( b_first ) {
 		m_fSpeedHackClientTime = clienttime;
@@ -2960,10 +2889,7 @@ void CUser::Home()
 		|| !GetStartPosition(x, z))
 		return;
 
-	char send_buff[4]; int send_index = 0;
-	SetShort(send_buff, (WORD)(x * 10), send_index);	
-	SetShort(send_buff, (WORD)(z * 10), send_index);
-	Warp(send_buff);
+	Warp(x * 10, z * 10);
 }
 
 bool CUser::GetStartPosition(short & x, short & z, BYTE bZone /*= 0 */)
@@ -3325,11 +3251,10 @@ void CUser::GoldChange(short tid, int gold)
 	}
 }
 
-void CUser::SelectWarpList(char *pBuf)
+void CUser::SelectWarpList(Packet & pkt)
 {
-	int index = 0, warpid = 0, npcid = 0;
-	npcid = GetShort(pBuf, index);
-	warpid = GetShort(pBuf, index);
+	uint16 npcid, warpid;
+	pkt >> npcid >> warpid;
 
 	_WARP_INFO *pWarp = GetMap()->m_WarpArray.GetData(warpid);
 	if (pWarp == NULL)
@@ -3361,13 +3286,11 @@ void CUser::SelectWarpList(char *pBuf)
 	ZoneChange(pWarp->sZone, pWarp->fX + rx, pWarp->fZ + rz);
 }
 
-void CUser::ServerChangeOk(char *pBuf)
+void CUser::ServerChangeOk(Packet & pkt)
 {
-	int index = 0, warpid = 0;
+	uint16 warpid = pkt.read<uint16>();
 	C3DMap* pMap = GetMap();
 	float rx = 0.0f, rz = 0.0f;
-	warpid = GetShort(pBuf, index);
-
 	if (pMap == NULL)
 		return;
 
@@ -3513,17 +3436,15 @@ BOOL CUser::WarpListObjectEvent(_OBJECT_EVENT *pEvent)
 	return TRUE;
 }
 
-void CUser::ObjectEvent(char *pBuf)
+void CUser::ObjectEvent(Packet & pkt)
 {
-	int index = 0, objectindex = 0, nid = 0;
-	BOOL bSuccess = FALSE;
-
 	if (m_pMain->m_bPointCheckFlag == FALSE)
 		return;
 
-	objectindex = GetShort(pBuf, index);
-	nid = GetShort(pBuf, index);
-	
+	BOOL bSuccess = FALSE;
+	uint16 objectindex, nid;
+	pkt >> objectindex >> nid;
+
 	_OBJECT_EVENT * pEvent = GetMap()->GetObjectEvent(objectindex);
 	if (pEvent != NULL)
 	{
@@ -3598,8 +3519,7 @@ void CUser::BlinkTimeCheck(float currenttime)
 		HpChange(m_iMaxHp);	
 
 	m_bRegeneType = REGENE_NORMAL;
-	m_bAbnormalType = ABNORMAL_NORMAL;
-	StateChangeServerDirect(3, m_bAbnormalType);
+	StateChangeServerDirect(3, ABNORMAL_NORMAL);
 
 	Packet result(AG_USER_REGENE);
 	result	<< uint16(GetSocketID()) << m_pUserData->m_sHp;
@@ -3764,39 +3684,6 @@ BOOL CUser::CheckRandom(short percent)
 	return (percent > myrand(0, 1000));
 }
 
-void CUser::RecvEditBox(char *pBuf)
-{
-	EVENT* pEvent = NULL;
-	EVENT_DATA* pEventData = NULL;
-
-	int index = 0; int selevent = -1; 
-	if (!GetKOString(pBuf, m_strCouponId, index, MAX_COUPON_ID_LENGTH))
-		return;
-	selevent = m_iEditBoxEvent;
-
-	pEvent = m_pMain->m_Event.GetData(getZoneID());
-	if(!pEvent)	goto fail_return;
-
-	pEventData = pEvent->m_arEvent.GetData(selevent);
-	if (pEventData == NULL
-		|| CheckEventLogic(pEventData)
-		|| !RunEvent(pEventData))
-		goto fail_return;
-
-	return;	
-
-fail_return:
-	m_iEditBoxEvent = -1;
-	memset(m_strCouponId, NULL, MAX_COUPON_ID_LENGTH);
-}
-
-void CUser::FinalizeZoneChange()
-{
-	Packet result(WIZ_ZONE_CHANGE);
-	result << uint8(2);
-	Send(&result);
-}
-
 void CUser::SendToRegion(Packet *pkt, CUser *pExceptUser /*= NULL*/)
 {
 	m_pMain->Send_Region(pkt, GetMap(), m_RegionX, m_RegionZ, pExceptUser);
@@ -3816,12 +3703,11 @@ void CUser::SendClanUserStatusUpdate(bool bToRegion /*= true*/)
 		Send(&result);
 }
 
-void CUser::HandleHelmet(char *pData)
+void CUser::HandleHelmet(Packet & pkt)
 {
 	Packet result(WIZ_HELMET);
-	int index = 0;
-	uint8 type = GetByte(pData, index);
+	uint8 type = pkt.read<uint8>();
 	// to-do: store helmet type
 	result << type << uint16(m_Sid) << uint16(0);
-	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
+	SendToRegion(&result);
 }
