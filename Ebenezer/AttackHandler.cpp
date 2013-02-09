@@ -1,7 +1,4 @@
-#include "StdAfx.h" // oh god, this needs reworking, a LOT.
-#include "EbenezerDlg.h"
-#include "User.h"
-#include "AIPacket.h"
+#include "StdAfx.h"
 
 void CUser::Attack(Packet & pkt)
 {
@@ -656,20 +653,11 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	if (isInParty())
 	{
 		// TO-DO: Wrap these up into Party-specific methods (nothing for that yet)
+		// UPDATE: Sticking them in the CUser class for the moment. Need to have them make sense, though.
 		if (!m_bType3Flag)
-		{
-			result.Initialize(WIZ_PARTY);
-			result	<< uint8(PARTY_STATUSCHANGE)
-					<< uint16(GetSocketID()) << uint8(1) << uint8(0);
-			m_pMain->Send_PartyMember(m_sPartyIndex, &result);
-		}
+			SendPartyStatusUpdate(1);
  
 		if (!m_bType4Flag)
-		{
-			result.Initialize(WIZ_PARTY);
-			result	<< uint8(PARTY_STATUSCHANGE)
-					<< uint16(GetSocketID()) << uint8(2) << uint8(0);
-			m_pMain->Send_PartyMember(m_sPartyIndex, &result);
-		}
+			SendPartyStatusUpdate(2);
 	}
 }

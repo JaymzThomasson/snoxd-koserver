@@ -92,7 +92,6 @@ public:
 	BOOL LoadMagicType2();
 	BOOL LoadMagicType1();
 	void KillUser( const char* strbuff );
-	void Send_PartyMember(int party, char* pBuf, int len);
 	void Send_PartyMember(int party, Packet *result);
 	void Send_KnightsMember(int index, Packet *pkt);
 	int GetAIServerPort();

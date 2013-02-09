@@ -1247,17 +1247,8 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 				pTUser->m_bType3Flag = TRUE;
 			}
 //
-			//	Send Party Packet.....
-			if (pTUser->isInParty() && pType->sTimeDamage < 0) {
-				SetByte( send_buff, WIZ_PARTY, send_index );
-				SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-				SetShort( send_buff, *itr, send_index );
-				SetByte( send_buff, 1, send_index );
-				SetByte( send_buff, 0x01, send_index);
-				m_pMain->Send_PartyMember(pTUser->m_sPartyIndex, send_buff, send_index);
-				send_index = 0;
-			}
-			//  end of Send Party Packet......//
+			if (pTUser->isInParty() && pType->sTimeDamage < 0)
+				pTUser->SendPartyStatusUpdate(1, 1);
 //
 		} 
 	
@@ -1457,19 +1448,10 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 
 		pTUser->SetSlotItemValue();				// Update character stats.
 		pTUser->SetUserAbility();
-//
-		//	Send Party Packet.....	
-		if (pTUser->isInParty() && pTUser->m_bType4Buff[pType->bBuffType - 1] == 1) {
-			SetByte( send_buff, WIZ_PARTY, send_index );
-			SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-			SetShort( send_buff, tid, send_index );
-			SetByte( send_buff, 2, send_index );
-			SetByte( send_buff, 0x01, send_index);
-			m_pMain->Send_PartyMember(pTUser->m_sPartyIndex, send_buff, send_index);
-			send_index = 0;
-		}
-		//  end of Send Party Packet.....//
-//	
+
+		if (pTUser->isInParty() && pTUser->m_bType4Buff[pType->bBuffType - 1] == 1)
+			pTUser->SendPartyStatusUpdate(2, 1);
+
 		pTUser->Send2AI_UserUpdateInfo();	// AI Server�� �م� ����Ÿ ����....
 
 		if ( pMagic->bType2 == 0 || pMagic->bType2 == 4 ) {
@@ -1596,19 +1578,9 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 					break;
 				}
 			}
-
-			// Send Party Packet....   
-			if (pTUser->isInParty() && bType3Test) {
-				send_index = 0 ;
-				SetByte( send_buff, WIZ_PARTY, send_index );
-				SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-				SetShort( send_buff, tid, send_index );
-				SetByte( send_buff, 1, send_index );
-				SetByte( send_buff, 0x00, send_index);
-				m_pMain->Send_PartyMember(pTUser->m_sPartyIndex, send_buff, send_index);
-			}
-			//  end of Send Party Packet.....  //
-//
+  
+			if (pTUser->isInParty() && bType3Test)
+				pTUser->SendPartyStatusUpdate(1);
 			break;
 
 		case REMOVE_TYPE4:		// REMOVE TYPE 4!!!
@@ -1698,23 +1670,6 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 			pTUser->SetUserAbility();
 			pTUser->Send2AI_UserUpdateInfo();	// AI Server�� �م� ����Ÿ ����....		
 
-			/*	Send Party Packet.....
-			if (isInParty()) {
-				send_index = 0;
-				SetByte( send_buff, WIZ_PARTY, send_index );
-				SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-				SetShort( send_buff, m_Sid, send_index );
-	//			if (buff_type != 5 && buff_type != 6) {
-	//				SetByte( send_buff, 3, send_index );
-	//			}
-	//			else {
-				SetByte( send_buff, 2, send_index );
-	//			}
-				SetByte( send_buff, 0x00, send_index);
-				m_pMain->Send_PartyMember(m_sPartyIndex, send_buff, send_index);
-			}
-			//  end of Send Party Packet.....  */
-		
 			buff_test = 0;
 			for (i = 0 ; i < MAX_TYPE4_BUFF ; i++) {
 				buff_test += pTUser->m_bType4Buff[i];
@@ -1728,19 +1683,9 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 					break;
 				}
 			}
-//
-			// Send Party Packet.....
-			if (pTUser->isInParty() && bType4Test) {
-				send_index = 0 ;
-				SetByte( send_buff, WIZ_PARTY, send_index );
-				SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-				SetShort( send_buff, tid, send_index );
-				SetByte( send_buff, 2, send_index );
-				SetByte( send_buff, 0x00, send_index);
-				m_pMain->Send_PartyMember(pTUser->m_sPartyIndex, send_buff, send_index);
-			}
-			//  end of Send Party Packet.....  //
-//
+
+			if (pTUser->isInParty() && bType4Test)
+				pTUser->SendPartyStatusUpdate(2, 0);
 			break;
 			
 		case RESURRECTION:		// RESURRECT A DEAD PLAYER!!!
@@ -1774,17 +1719,8 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 					}
 				}
 
-				// Send Party Packet.....
-				if (pTUser->isInParty() && bType4Test) {
-					send_index = 0 ;
-					SetByte( send_buff, WIZ_PARTY, send_index );
-					SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-					SetShort( send_buff, tid, send_index );
-					SetByte( send_buff, 2, send_index );
-					SetByte( send_buff, 0x00, send_index);
-					m_pMain->Send_PartyMember(pTUser->m_sPartyIndex, send_buff, send_index);
-				}
-				//  end of Send Party Packet.....  //
+				if (pTUser->isInParty() && bType4Test) 
+					pTUser->SendPartyStatusUpdate(2, 0);
 			}
 
 			break;
@@ -2442,23 +2378,6 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 		pTUser->SetUserAbility();
 		pTUser->Send2AI_UserUpdateInfo();	// AI Server�� �م� ����Ÿ ����....		
 
-		/*	Send Party Packet.....
-		if (isInParty()) {
-			SetByte( send_buff, WIZ_PARTY, send_index );
-			SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-			SetShort( send_buff, m_Sid, send_index );
-//			if (buff_type != 5 && buff_type != 6) {
-//				SetByte( send_buff, 3, send_index );
-//			}
-//			else {
-			SetByte( send_buff, 2, send_index );
-//			}
-			SetByte( send_buff, 0x00, send_index);
-			m_pMain->Send_PartyMember(m_sPartyIndex, send_buff, send_index);
-			send_index = 0 ;
-		}
-		//  end of Send Party Packet.....  */
-
 		SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 		SetByte( send_buff, MAGIC_TYPE4_END, send_index );	
 		SetByte( send_buff, buff_type, send_index ); 
@@ -2470,19 +2389,9 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 		buff_test += pTUser->m_bType4Buff[i];
 	}
 	if (buff_test == 0) pTUser->m_bType4Flag = FALSE;	
-//
-	// Send Party Packet.....
-	if (pTUser->isInParty() && pTUser->m_bType4Flag == FALSE) {
-		send_index = 0 ;
-		SetByte( send_buff, WIZ_PARTY, send_index );
-		SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-		SetShort( send_buff, tid, send_index );
-		SetByte( send_buff, 2, send_index );
-		SetByte( send_buff, 0x00, send_index);
-		m_pMain->Send_PartyMember(pTUser->m_sPartyIndex, send_buff, send_index);
-	}
-	//  end of Send Party Packet.....  //
-//
+
+	if (pTUser->isInParty() && !pTUser->m_bType4Flag)
+		pTUser->SendPartyStatusUpdate(2);
 }
 
 void CMagicProcess::Type3Cancel(int magicid, short tid)
@@ -2519,19 +2428,9 @@ void CMagicProcess::Type3Cancel(int magicid, short tid)
 		buff_test += pTUser->m_bHPDuration[j];
 	}
 	if (buff_test == 0) pTUser->m_bType3Flag = FALSE;	
-//
-	// Send Party Packet....   
-	if (pTUser->isInParty() && pTUser->m_bType3Flag == FALSE) {
-		send_index = 0 ;
-		SetByte( send_buff, WIZ_PARTY, send_index );
-		SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-		SetShort( send_buff, tid, send_index );
-		SetByte( send_buff, 1, send_index );
-		SetByte( send_buff, 0x00, send_index);
-		m_pMain->Send_PartyMember(pTUser->m_sPartyIndex, send_buff, send_index);
-	}
-	//  end of Send Party Packet.....  //
-//
+
+	if (pTUser->isInParty() && !pTUser->m_bType3Flag)
+		pTUser->SendPartyStatusUpdate(1, 0);
 }
 
 void CMagicProcess::SendType4BuffRemove(short tid, BYTE buff)

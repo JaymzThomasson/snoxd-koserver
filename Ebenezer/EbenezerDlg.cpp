@@ -660,10 +660,6 @@ _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 	_PARTY_GROUP * pParty = new _PARTY_GROUP;
 	pParty->wIndex = pLeader->m_sPartyIndex;
 	pParty->uid[0] = pLeader->GetSocketID();
-	pParty->sMaxHp[0] = pLeader->m_iMaxHp;
-	pParty->sHp[0] = pLeader->m_pUserData->m_sHp;
-	pParty->bLevel[0] = pLeader->m_pUserData->m_bLevel;
-	pParty->sClass[0] = pLeader->m_pUserData->m_sClass;
 	if (!m_PartyArray.PutData( pParty->wIndex, pParty))
 	{
 		delete pParty;
@@ -959,29 +955,13 @@ void CEbenezerDlg::Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z
 	LeaveCriticalSection( &g_region_critical );
 }
 
-void CEbenezerDlg::Send_PartyMember(int party, char *pBuf, int len)
-{
-	_PARTY_GROUP* pParty = m_PartyArray.GetData(party);
-	if (pParty == NULL)
-		return;
-
-	for (int i = 0; i < 8; i++)
-	{
-		CUser *pUser = GetUserPtr(pParty->uid[i]);
-		if (pUser == NULL)
-			continue;
-
-		pUser->Send(pBuf, len);
-	}
-}
-
 void CEbenezerDlg::Send_PartyMember(int party, Packet *result)
 {
 	_PARTY_GROUP* pParty = m_PartyArray.GetData(party);
 	if (pParty == NULL)
 		return;
 
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < MAX_PARTY_USERS; i++)
 	{
 		CUser *pUser = GetUserPtr(pParty->uid[i]);
 		if (pUser == NULL)

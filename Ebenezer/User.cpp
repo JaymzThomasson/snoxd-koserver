@@ -1251,9 +1251,6 @@ void CUser::LevelChange(short level, BYTE type )
 	if( level < 1 || level > MAX_LEVEL )
 		return;
 
-	char buff[256];
-	int send_index = 0;
-
 	if( type ) {
 		if( (m_pUserData->m_sPoints+m_pUserData->m_bSta+m_pUserData->m_bStr+m_pUserData->m_bDex+m_pUserData->m_bIntel+m_pUserData->m_bCha) < (300+3*(level-1)) )
 			m_pUserData->m_sPoints += 3;
@@ -1283,12 +1280,10 @@ void CUser::LevelChange(short level, BYTE type )
 	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
 	if (isInParty())
 	{
-		send_index = 0;
-		SetByte( buff, WIZ_PARTY, send_index );
-		SetByte( buff, PARTY_LEVELCHANGE, send_index );
-		SetShort( buff, m_Sid, send_index );
-		SetByte( buff, m_pUserData->m_bLevel, send_index );
-		m_pMain->Send_PartyMember(m_sPartyIndex, buff, send_index);
+		// TO-DO: Move this to party specific code
+		result.Initialize(WIZ_PARTY);
+		result << uint8(PARTY_LEVELCHANGE) << uint16(GetSocketID()) << getLevel();
+		m_pMain->Send_PartyMember(m_sPartyIndex, &result);
 	}
 }
 
@@ -1651,22 +1646,24 @@ void CUser::ItemGet(Packet & pkt)
 		if (!pParty)
 			goto fail_return;
 
-		for( i=0; i<8; i++ ) {
-			if( pParty->uid[i] != -1 ) {
-				usercount++;
-				levelsum += pParty->bLevel[i];
-			}
-		}
-		if( usercount == 0 ) goto fail_return;
-		for( i=0; i<8; i++ ) {
-			if (pParty->uid[i] == -1)
+		for (i = 0; i < MAX_PARTY_USERS; i++)
+		{
+			CUser *pUser = m_pMain->GetUserPtr(pParty->uid[i]);
+			if (pUser == NULL)
 				continue;
 
+			usercount++;
+			levelsum += pUser->getLevel();
+		}
+		if( usercount == 0 ) goto fail_return;
+
+		for (i = 0; i < MAX_PARTY_USERS; i++)
+		{
 			CUser *pUser = m_pMain->GetUserPtr(pParty->uid[i]);
 			if (pUser == NULL) 
 				continue;
 
-			money = (int)(count * (float)(pUser->m_pUserData->m_bLevel / (float)levelsum));    
+			money = (int)(count * (float)(pUser->getLevel() / (float)levelsum));    
 			pUser->m_pUserData->m_iGold += money;
 
 			result.clear();
@@ -2010,22 +2007,24 @@ void CUser::LoyaltyDivide(short tid)
 	short temp_loyalty = 0, level_difference = 0, loyalty_source = 0, loyalty_target = 0, average_level = 0; 
 	BYTE total_member = 0;
 
-	CUser* pUser = NULL;
+	if (!isInParty())
+		return;
 
-	_PARTY_GROUP* pParty = NULL;		// Party Pointer Initialization!
-	if( !isInParty() ) return;
-	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
-	if( !pParty ) return;
+	_PARTY_GROUP *pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
+	if (pParty == NULL)
+		return;
 
-	CUser* pTUser = NULL ;									  // Target Pointer initialization!		
-	pTUser = m_pMain->GetUserPtr(tid);
-	if (pTUser == NULL) return;									  // Check if target exists and not already dead.		
+	CUser* pTUser = m_pMain->GetUserPtr(tid);
+	if (pTUser == NULL) 
+		return;
 
-	for( int i = 0; i < 8; i++ ) {		// Get total level and number of members in party.
-		if( pParty->uid[i] != -1 ) {
-			levelsum += pParty->bLevel[i];
-			total_member ++;			
-		}
+	for (int i = 0; i < MAX_PARTY_USERS; i++)
+	{
+		CUser *pUser = m_pMain->GetUserPtr(pParty->uid[i]);
+		if (pUser == NULL)
+			continue;
+		levelsum += pUser->getLevel();
+		total_member++;
 	}
 
 	if (levelsum <= 0) return;		// Protection codes.
@@ -2070,24 +2069,23 @@ void CUser::LoyaltyDivide(short tid)
 	else {		// Same Nation!!! 
 		individualvalue = -1000 ;
 
-		for (int j = 0 ; j < 8 ; j++) {		// Distribute loyalty amongst party members.
-			if( pParty->uid[j] != -1 || pParty->uid[j] >= MAX_USER ) {
-				pUser = m_pMain->GetUserPtr(pParty->uid[j]);
-				if (pUser == NULL) continue;
+		for (int j = 0; j < MAX_PARTY_USERS; j++) {		// Distribute loyalty amongst party members.
+			CUser *pUser = m_pMain->GetUserPtr(pParty->uid[j]);
+			if (pUser == NULL)
+				continue;
 
-				//TRACE("LoyaltyDivide 111 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
+			//TRACE("LoyaltyDivide 111 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
 			
-				pUser->m_pUserData->m_iLoyalty += individualvalue;	
-				if (pUser->m_pUserData->m_iLoyalty < 0) pUser->m_pUserData->m_iLoyalty = 0;	// Cannot be less than zero.
+			pUser->m_pUserData->m_iLoyalty += individualvalue;	
+			if (pUser->m_pUserData->m_iLoyalty < 0) pUser->m_pUserData->m_iLoyalty = 0;	// Cannot be less than zero.
 
-				//TRACE("LoyaltyDivide 222 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
+			//TRACE("LoyaltyDivide 222 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
 
-				send_index = 0;	
-				SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );	// Send result to source.
-				SetDWORD( send_buff, pUser->m_pUserData->m_iLoyalty, send_index );
-				pUser->Send( send_buff, send_index );			
-			}
-		}		
+			send_index = 0;	
+			SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );	// Send result to source.
+			SetDWORD( send_buff, pUser->m_pUserData->m_iLoyalty, send_index );
+			pUser->Send( send_buff, send_index );			
+		}
 		
 		return;
 	}
@@ -2096,25 +2094,24 @@ void CUser::LoyaltyDivide(short tid)
 		loyalty_source  = 2 * loyalty_source;
 	}
 //
-	for (int j = 0 ; j < 8 ; j++) {		// Distribute loyalty amongst party members.
-		if( pParty->uid[j] != -1 || pParty->uid[j] >= MAX_USER ) {
-			pUser = m_pMain->GetUserPtr(pParty->uid[j]);
-			if (pUser == NULL) continue;
+	for (int j = 0; j < MAX_PARTY_USERS; j++) {		// Distribute loyalty amongst party members.
+		CUser *pUser = m_pMain->GetUserPtr(pParty->uid[j]);
+		if (pUser == NULL)
+			continue;
 
-			//TRACE("LoyaltyDivide 333 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
-			individualvalue = pUser->m_pUserData->m_bLevel * loyalty_source / levelsum ;
-			pUser->m_pUserData->m_iLoyalty += individualvalue;	
-			if (pUser->m_pUserData->m_iLoyalty < 0) pUser->m_pUserData->m_iLoyalty = 0;
+		//TRACE("LoyaltyDivide 333 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
+		individualvalue = pUser->m_pUserData->m_bLevel * loyalty_source / levelsum ;
+		pUser->m_pUserData->m_iLoyalty += individualvalue;	
+		if (pUser->m_pUserData->m_iLoyalty < 0) pUser->m_pUserData->m_iLoyalty = 0;
 
-			//TRACE("LoyaltyDivide 444 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
+		//TRACE("LoyaltyDivide 444 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
 
-			send_index = 0;	
-			SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );	// Send result to source.
-			SetDWORD( send_buff, pUser->m_pUserData->m_iLoyalty, send_index );
-			pUser->Send( send_buff, send_index );
+		send_index = 0;	
+		SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );	// Send result to source.
+		SetDWORD( send_buff, pUser->m_pUserData->m_iLoyalty, send_index );
+		pUser->Send( send_buff, send_index );
 
-			individualvalue = 0;
-		}
+		individualvalue = 0;
 	}
 
 	pTUser->m_pUserData->m_iLoyalty += loyalty_target;	// Recalculate target loyalty.
@@ -2365,6 +2362,7 @@ void CUser::HPTimeChange(float currenttime)
 
 void CUser::HPTimeChangeType3(float currenttime)
 {
+	Packet result;
 	int send_index = 0;
 	char send_buff[128];
 
@@ -2436,18 +2434,6 @@ void CUser::HPTimeChangeType3(float currenttime)
 	for (int i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {	// Type 3 Cancellation Process.
 		if( m_bHPDuration[i] > 0 ) {
 			if( ((currenttime - m_fHPStartTime[i]) >= m_bHPDuration[i]) || m_bResHpType == USER_DEAD) {
-				/*	Send Party Packet.....
-				if (isInParty()) {
-					SetByte( send_buff, WIZ_PARTY, send_index );
-					SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-					SetShort( send_buff, m_Sid, send_index );
-					SetByte( send_buff, 1, send_index );
-					SetByte( send_buff, 0x00, send_index);
-					m_pMain->Send_PartyMember(m_sPartyIndex, send_buff, send_index);
-					send_index = 0 ;
-				}
-				//  end of Send Party Packet.....*/ 
-
 				SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 				SetByte( send_buff, MAGIC_TYPE3_END, send_index );	
 
@@ -2485,22 +2471,13 @@ void CUser::HPTimeChangeType3(float currenttime)
 		}
 	}
 
-	// Send Party Packet.....
-	if (isInParty() && bType3Test) {
-		send_index = 0;
-		SetByte( send_buff, WIZ_PARTY, send_index );
-		SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-		SetShort( send_buff, m_Sid, send_index );
-		SetByte( send_buff, 1, send_index );
-		SetByte( send_buff, 0x00, send_index);
-		m_pMain->Send_PartyMember(m_sPartyIndex, send_buff, send_index);
-	}
-	//  end of Send Party Packet.....  //
-//
+	if (isInParty() && bType3Test)
+		SendPartyStatusUpdate(1, 0);
 }
 
 void CUser::Type4Duration(float currenttime)
 {
+	Packet result;
 	int send_index = 0;
 	char send_buff[128];
 	BYTE buff_type = 0;					
@@ -2605,23 +2582,6 @@ void CUser::Type4Duration(float currenttime)
 		SetUserAbility();
 		Send2AI_UserUpdateInfo();	// AI Server?? ??? ????� ???....		
 
-		/*	Send Party Packet.....
-		if (isInParty()) {
-			SetByte( send_buff, WIZ_PARTY, send_index );
-			SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-			SetShort( send_buff, m_Sid, send_index );
-//			if (buff_type != 5 && buff_type != 6) {
-//				SetByte( send_buff, 3, send_index );
-//			}
-//			else {
-			SetByte( send_buff, 2, send_index );
-//			}
-			SetByte( send_buff, 0x00, send_index);
-			m_pMain->Send_PartyMember(m_sPartyIndex, send_buff, send_index);
-			send_index = 0 ;
-		}
-		//  end of Send Party Packet.....  */
-
 		SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
 		SetByte( send_buff, MAGIC_TYPE4_END, send_index );	
 		SetByte( send_buff, buff_type, send_index ); 
@@ -2641,19 +2601,9 @@ void CUser::Type4Duration(float currenttime)
 			break;
 		}
 	}
-//
-	// Send Party Packet.....
-	if (isInParty() && bType4Test) {
-		send_index = 0 ;
-		SetByte( send_buff, WIZ_PARTY, send_index );
-		SetByte( send_buff, PARTY_STATUSCHANGE, send_index );
-		SetShort( send_buff, m_Sid, send_index );
-		SetByte( send_buff, 2, send_index );
-		SetByte( send_buff, 0x00, send_index);
-		m_pMain->Send_PartyMember(m_sPartyIndex, send_buff, send_index);
-	}
-	//  end of Send Party Packet.....  //
-//
+
+	if (isInParty() && bType4Test)
+		SendPartyStatusUpdate(2);
 }
 
 void CUser::SendAllKnightsID()
@@ -3211,26 +3161,27 @@ void CUser::GoldChange(short tid, int gold)
 		pTUser->GoldLose(pTUser->m_pUserData->m_iGold / 2);		
 
 		// TO-DO: Clean up the party system. 
-		for (int i = 0; i < 8; i++)
+		for (int i = 0; i < MAX_PARTY_USERS; i++)
 		{
-			if (pParty->uid[i] == -1)
+			CUser *pUser = m_pMain->GetUserPtr(pParty->uid[i]);
+			if (pUser == NULL)
 				continue;
 
 			userCount++;
-			levelSum += pParty->bLevel[i];
+			levelSum += pUser->getLevel();
 		}
 
 		// No users (this should never happen! Needs to be cleaned up...), don't bother with the below loop.
 		if (userCount == 0) 
 			return;
 
-		for (int i = 0; i < 8; i++)
+		for (int i = 0; i < MAX_PARTY_USERS; i++)
 		{		
 			CUser * pUser = m_pMain->GetUserPtr(pParty->uid[i]);
 			if (pUser == NULL)
-					continue;
+				continue;
 
-			pUser->GoldGain((int)(temp_gold * (float)(pUser->m_pUserData->m_bLevel / (float)levelSum)));
+			pUser->GoldGain((int)(temp_gold * (float)(pUser->getLevel() / (float)levelSum)));
 		}			
 		return;
 	}
@@ -3701,6 +3652,16 @@ void CUser::SendClanUserStatusUpdate(bool bToRegion /*= true*/)
 		SendToRegion(&result);
 	else
 		Send(&result);
+}
+
+void CUser::SendPartyStatusUpdate(uint8 bStatus, uint8 bResult /*= 0*/)
+{
+	if (!isInParty())
+		return;
+
+	Packet result(WIZ_PARTY, uint8(PARTY_STATUSCHANGE));
+	result << uint16(GetSocketID()) << bStatus << bResult;
+	m_pMain->Send_PartyMember(m_sPartyIndex, &result);
 }
 
 void CUser::HandleHelmet(Packet & pkt)

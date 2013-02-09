@@ -319,17 +319,15 @@ struct _ITEM_TABLE
 
 struct	_PARTY_GROUP
 {
-	WORD wIndex;
-	short uid[8];
-	short sMaxHp[8];
-	short sHp[8];
-	BYTE bLevel[8];
-	short sClass[8];
-	BYTE bItemRouting;
-	_PARTY_GROUP() {
-		for(int i=0;i<8;i++) {
-			uid[i] = -1; sMaxHp[i] = 0; sHp[i] = 0; bLevel[i] = 0; sClass[i] = 0;
-		}
+	WORD	wIndex;
+	short	uid		[MAX_PARTY_USERS];
+	BYTE	bItemRouting;
+
+	_PARTY_GROUP()
+	{
+		for (int i = 0; i < MAX_PARTY_USERS; i++)
+			uid[i] = -1; 
+
 		bItemRouting = 0;
 	};
 };

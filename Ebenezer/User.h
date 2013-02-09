@@ -472,6 +472,8 @@ public:
 	// Clan system
 	void SendClanUserStatusUpdate(bool bToRegion = true);
 
+	void SendPartyStatusUpdate(uint8 bStatus, uint8 bResult = 0);
+
 	//Magic System - rewrite
 	void MagicSystem(Packet & pkt);
 	bool CheckSkillCooldown(uint32 magicid, time_t skill_received_time);

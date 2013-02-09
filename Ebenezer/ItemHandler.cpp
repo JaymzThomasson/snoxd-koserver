@@ -1,6 +1,4 @@
-#include "StdAfx.h" // oh god, this needs reworking, a LOT.
-#include "EbenezerDlg.h"
-#include "User.h"
+#include "StdAfx.h"
 
 void CUser::WarehouseProcess(Packet & pkt)
 {

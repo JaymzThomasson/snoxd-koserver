@@ -1,7 +1,4 @@
-#include "StdAfx.h" // oh god, this needs reworking, a LOT.
-#include "EbenezerDlg.h"
-#include "User.h"
-#include "AIPacket.h"
+#include "StdAfx.h"
 
 extern BYTE g_serverdown_flag;
 
