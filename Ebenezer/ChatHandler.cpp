@@ -2,21 +2,18 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 
-void CUser::Chat(char *pBuf)
+void CUser::Chat(Packet & pkt)
 {
 	Packet result(WIZ_CHAT);
-	int index = 0;
-	uint8 type;
-	CUser* pUser = NULL;
-	char chatstr[1024], finalstr[1024]; 
-	memset( finalstr, NULL, 1024 );
-	std::string buff;
+	uint8 type = pkt.read<uint8>();
+	char finalstr[1024] = ""; 
+	std::string buff, chatstr;
 
 	if (isMuted())
 		return;	
 
-	type = GetByte(pBuf, index);
-	if (!GetKOString(pBuf, chatstr, index, 512))
+	pkt >> chatstr;
+	if (chatstr.empty() || chatstr.size() >= 128)
 		return;
 
 
@@ -68,15 +65,16 @@ void CUser::Chat(char *pBuf)
 		break;
 
 	case PRIVATE_CHAT:
+	{
 		if (m_sPrivateChatUser == GetSocketID()) 
 			break;
 
-		pUser = m_pMain->GetUserPtr(m_sPrivateChatUser);
+		CUser *pUser = m_pMain->GetUserPtr(m_sPrivateChatUser);
 		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART) 
 			break;
 
 		pUser->Send(&result);
-		break;
+	} break;
 
 	case PARTY_CHAT:
 		if (isInParty())
@@ -114,35 +112,40 @@ void CUser::Chat(char *pBuf)
 	}
 }
 
-void CUser::ChatTargetSelect(char *pBuf)
+void CUser::ChatTargetSelect(Packet & pkt)
 {
-	int index = 0, send_index = 0, i = 0;
-	CUser* pUser = NULL;
-	char chatid[MAX_ID_SIZE+1];
-	char send_buff[128];
+	uint8 type = pkt.read<uint8>();
 
-	if (!GetKOString(pBuf, chatid, index, MAX_ID_SIZE))
-		return;
-
-	m_pMain->GetUserPtr(chatid, TYPE_CHARACTER);
-	for (i = 0; i < MAX_USER; i++)
+	// TO-DO: Replace this with an enum
+	// Attempt to find target player in-game
+	if (type == 1)
 	{
-		pUser = m_pMain->GetUnsafeUserPtr(i); 
-		if (pUser && pUser->GetState() == STATE_GAMESTART)
+		Packet result(WIZ_CHAT_TARGET, type);
+		std::string strUserID;
+		if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
+			return;
+
+		CUser *pUser = m_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+		if (pUser == NULL || pUser == this)
 		{
-			if (_strnicmp(chatid, pUser->m_pUserData->m_id, MAX_ID_SIZE) == 0)
-			{
-				m_sPrivateChatUser = i;
-				break;
-			}
+			result << int16(0); 
 		}
+/*		TO-DO: Implement PM blocking
+		else if (pUser->isBlockingPMs())
+		{
+			result << int16(-1);
+		}
+*/
+		else
+		{
+			m_sPrivateChatUser = pUser->GetSocketID();
+			result << int16(0) << pUser->m_pUserData->m_id;
+		}
+		Send(&result);
 	}
-
-	SetByte( send_buff, WIZ_CHAT_TARGET, send_index );
-	if (i == MAX_USER)
-		SetKOString(send_buff, "", send_index);
+	// Allow/block PMs
 	else
-		SetKOString(send_buff, chatid, send_index);
-
-	Send(send_buff, send_index);
+	{
+		// m_bAllowPrivateChat = GetByte(pBuf, index); 
+	}
 }

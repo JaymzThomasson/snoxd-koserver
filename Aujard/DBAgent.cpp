@@ -658,7 +658,7 @@ bool CDBAgent::UpdateUser(string & strCharID, short uid, UserUpdateType type)
 
 	// This *should* be padded like the database field is (unnecessarily), but I want to see how MSSQL repsponds
 	ByteBuffer itemBuffer, serialBuffer;
-	for (int i = 0; i < HAVE_MAX+SLOT_MAX+COSP_MAX+MBAG_MAX; i++)
+	for (int i = 0; i < INVENTORY_TOTAL; i++)
 	{
 		_ITEM_DATA *pItem = &pUser->m_sItemArray[i];
 		itemBuffer << pItem->nNum << pItem->sDuration << pItem->sCount;

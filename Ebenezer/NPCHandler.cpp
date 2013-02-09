@@ -2,17 +2,15 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 
-void CUser::ItemRepair(char *pBuf)
+void CUser::ItemRepair(Packet & pkt)
 {
-	unsigned int money = 0;
-	int index = 0, send_index = 0, quantity = 0;
-	int itemid = 0, pos = 0, slot = -1, durability = 0;
-	char send_buff[128];
+	Packet result(WIZ_ITEM_REPAIR);
+	uint32 money, itemid;
+	uint16 durability, quantity;
 	_ITEM_TABLE* pTable = NULL;
+	uint8 pos, slot;
 
-	pos = GetByte( pBuf, index );
-	slot = GetByte( pBuf, index );
-	itemid = GetDWORD( pBuf, index );
+	pkt >> pos >> slot >> itemid;
 	if( pos == 1 ) {	// SLOT
 		if( slot >= SLOT_MAX ) goto fail_return;
 		if( m_pUserData->m_sItemArray[slot].nNum != itemid ) goto fail_return;
@@ -39,64 +37,57 @@ void CUser::ItemRepair(char *pBuf)
 	else if( pos == 2 )
 		m_pUserData->m_sItemArray[SLOT_MAX+slot].sDuration = durability;
 
-	SetByte( send_buff, WIZ_ITEM_REPAIR, send_index );
-	SetByte( send_buff, 0x01, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-	Send( send_buff, send_index );
-
+	result << uint8(1) << m_pUserData->m_iGold;
+	Send(&result);
 	return;
+
 fail_return:
-	SetByte( send_buff, WIZ_ITEM_REPAIR, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	SetDWORD( send_buff, m_pUserData->m_iGold, send_index );
-	Send( send_buff, send_index );
+	result << uint8(0) << m_pUserData->m_iGold;
+	Send(&result);
 }
 
-void CUser::ClientEvent(char *pBuf)		// The main function for the quest procedures!!!
-{										// (actually, this only takes care of the first event :(  )
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return;	// ?????? ?????? ???           //
+void CUser::ClientEvent(Packet & pkt)
+{
+	// Ensure AI's loaded
+	if (!m_pMain->m_bPointCheckFlag)
+		return;
 
-	int index = 0;
-	CNpc* pNpc = NULL;
-	int nid = 0, eventnum = 0;
-	BYTE code = 0x00;
-	EVENT* pEvent = NULL;
-	EVENT_DATA* pEventData = NULL;
-	int eventid = -1;
+	uint16 sNpcID = pkt.read<uint16>(), sEventID = 0;
+	CNpc *pNpc = m_pMain->m_arNpcArray.GetData(sNpcID);
+	if (pNpc == NULL)
+		return;
+	m_sEventNid = sNpcID;
 
-	nid = GetShort( pBuf, index );
-	pNpc = m_pMain->m_arNpcArray.GetData(nid);
-	if( !pNpc )	return;	   // Better to check than not to check ;)
+	// Get events for this zone
+	EVENT *pEvent = m_pMain->m_Event.GetData(getZoneID());
+	if (pEvent == NULL)
+		return;
 
-	m_sEventNid = nid;     // ??? ????? ???? ????? ?????....
-
-//	if( pNpc->m_byEvent < 0 ) return;      // ??? ??? ??? ó?? ??? ????!!		//
-
-	pEvent = m_pMain->m_Event.GetData(m_pUserData->m_bZone);	                    //
-	if(!pEvent)	return;																//
-
-//	pEventData = pEvent->m_arEvent.GetData(pNpc->m_byEvent);						//
-
-	switch(pNpc->m_tNpcType) {
+	// Get the corresponding event ID for this NPC type
+	switch (pNpc->GetType()) 
+	{
 		case NPC_CLERIC:
-			eventid = EVENT_POTION;
+			sEventID = EVENT_POTION;
 			break;
 
 		case NPC_COUPON:
-			eventid = EVENT_COUPON;
+			sEventID = EVENT_COUPON;
 			break;
 
 		case NPC_MONK_ELMORAD:
-			eventid = EVENT_LOGOS_ELMORAD;
+			sEventID = EVENT_LOGOS_ELMORAD;
 			break;
 
 		case NPC_MONK_KARUS:
-			eventid = EVENT_LOGOS_KARUS;
+			sEventID = EVENT_LOGOS_KARUS;
 			break;
 	}
 
+	// No event was set
+	if (sEventID == 0)
+		return;
 
-	pEventData = pEvent->m_arEvent.GetData(eventid);		// Make sure you change this later!!!	
+	EVENT_DATA *pEventData = pEvent->m_arEvent.GetData(sEventID);
 	if (pEventData == NULL
 		|| !CheckEventLogic(pEventData)) return; // Check if all 'A's meet the requirements in Event #1
 
@@ -187,74 +178,9 @@ BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 
 				bExact = TRUE;	
 			}
 			break;
-//
 
-//
-/*
-			case LOGIC_CHECK_NATION:
-				if( pLE->m_LogicElseInt[0] == m_pUserData->m_bNation ) {
-					bExact = TRUE;
-				}
-				break;
-
-			case LOGIC_CHECK_LEVEL:		
-				if( m_pUserData->m_bLevel >= pLE->m_LogicElseInt[0] && m_pUserData->m_bLevel <= pLE->m_LogicElseInt[1] ) {
-					bExact = TRUE;
-				}
-				break;
-
-			case LOGIC_NOEXIST_ITEM:	
-				if (ItemCountChange(pLE->m_LogicElseInt[0], 1, 0) < 2) {
-					bExact = TRUE;
-				}
-				break;
-
-			case LOGIC_QUEST_END:	
-				break;
-
-			case LOGIC_QUEST_LOG:
-				break;
-
-			case LOGIC_CHECK_NOAH:
-				if(m_pUserData->m_iGold >= pLE->m_LogicElseInt[0]) {
-					bExact = TRUE;
-				}
-				break;
-
-			case LOGIC_CHECK_RACE:
-				if (pLE->m_LogicElseInt[0] == m_pUserData->m_bRace) {
-					bExact = TRUE;
-				}
-				break;
-///////// These logics are for the test quest.
-			case LOGIC_EXIST_ITEM:
-				if (CheckExistItem(pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1])) {
-					bExact = TRUE;
-				}
-				break;
-
-			case LOGIC_CHECK_CLASS:		
-				if (CheckClass( pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1], pLE->m_LogicElseInt[2],
-					pLE->m_LogicElseInt[3], pLE->m_LogicElseInt[4], pLE->m_LogicElseInt[5])) {
-					bExact = TRUE;
-				}
-				break;
-
-			case LOGIC_CHECK_WEIGHT:	
-				if (CheckWeight( pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1])) {				
-					bExact = TRUE;
-				}
-				break;
-
-			case LOGIC_CHECK_SKILLPOINT:
-				if (CheckSkillPoint(pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1], pLE->m_LogicElseInt[2])) {	
-					bExact = TRUE;
-				}
-				break;
-*/
-
-			default:
-				return FALSE;
+		default:
+			return FALSE;
 		}
 
 		if( !pLE->m_bAnd ) {	// OR ????? ??? bExact?? TRUE??? ??ü?? TRUE???
@@ -315,7 +241,6 @@ BOOL CUser::RunNpcEvent(CNpc *pNpc, EXEC *pExec)	// This part executes all the '
 
 	case	EXEC_RETURN:
 		return FALSE;
-		break;
 
 		default:
 			break;
@@ -384,61 +309,6 @@ BOOL CUser::RunEvent(EVENT_DATA *pEventData)
 //
 			case	EXEC_RETURN:
 				return FALSE;
-				break;
-
-/*
-			case EXEC_SAY:		
-				break;
-
-			case EXEC_SELECT_MSG:
-				SelectMsg( pExec );
-				break;
-
-			case EXEC_RUN_EVENT:
-				{								
-					EVENT* pEvent = NULL;
-					pEvent = m_pMain->m_Quest.GetData(m_pUserData->m_bZone);
-					if(!pEvent)	break;
-
-					EVENT_DATA* pEventData = NULL;
-					pEventData = pEvent->m_arEvent.GetData(pExec->m_ExecInt[0]);
-					if(!pEventData) break;
-
-					if( !CheckEventLogic(pEventData) )	break;
-
-					if( !RunEvent(pEventData) ) {
-						return FALSE;
-					}
-				}
-				break;
-
-			case EXEC_ROB_NOAH:
-				break;
-
-			case EXEC_GIVE_QUEST:
-				break;
-
-			case EXEC_QUEST_END:		
-				break;
-
-			case EXEC_QUEST_SAVE:
-				break;
-
-			case EXEC_RETURN:
-				return FALSE;
-/////// These events are for the test quest. ///////
-			case EXEC_ROB_ITEM:
-				if (!RobItem(pExec->m_ExecInt[0], pExec->m_ExecInt[1])) {
-					return FALSE;	
-				}
-				break;
-
-			case EXEC_GIVE_ITEM:
-				if (!GiveItem(pExec->m_ExecInt[0], pExec->m_ExecInt[1])) {
-					return FALSE;
-				}
-				break;
-*/
 
 			default:
 				break;
@@ -448,80 +318,50 @@ BOOL CUser::RunEvent(EVENT_DATA *pEventData)
 	return TRUE;
 }
 
-
-void CUser::ClassChange(char *pBuf)
+void CUser::ClassChange(Packet & pkt)
 {
-	int index = 0, classcode = 0, send_index = 0, type=0, sub_type = 0, money = 0, old_money=0;
-	char send_buff[128];
+	Packet result(WIZ_CLASS_CHANGE);
 	BOOL bSuccess = FALSE;
-
-	type = GetByte( pBuf, index );
-
-	if (type == CLASS_CHANGE_REQ)	
+	uint8 opcode = pkt.read<uint8>();
+	if (opcode == CLASS_CHANGE_REQ)	
 	{
 		ClassChangeReq();
 		return;
 	}
-	else if (type == ALL_POINT_CHANGE)	
+	else if (opcode == ALL_POINT_CHANGE)	
 	{
 		AllPointChange();
 		return;
 	}
-	else if (type == ALL_SKILLPT_CHANGE)	
+	else if (opcode == ALL_SKILLPT_CHANGE)	
 	{
 		AllSkillPointChange();
 		return;
 	}
-	else if (type == CHANGE_MONEY_REQ)	
+	else if (opcode == CHANGE_MONEY_REQ)	
 	{
-		sub_type = GetByte( pBuf, index );
+		uint8 sub_type = pkt.read<uint8>(); // type is irrelevant
+		uint32 money = (uint32)pow((getLevel() * 2.0f), 3.4f);
 
-		money = (int)pow((m_pUserData->m_bLevel * 2.0f), 3.4f);
-		money = ( money / 100 )*100;
-		if( m_pUserData->m_bLevel < 30)		money = (int)(money * 0.4f);
-		else if( m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= 90 ) money = (int)(money * 1.5f);
+		if (getLevel() < 30)	
+			money = (uint32)(money * 0.4f);
+		else if (getLevel() >= 60)
+			money = (uint32)(money * 1.5f);
 
-		if( sub_type == 1 )		{
-			if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{
-				old_money = money;
-				money = (int)(money * 0.5f);
-				//TRACE("^^ ClassChange -  point Discount ,, money=%d->%d\n", old_money, money);
-			}
+		// If nation discounts are enabled (1), and this nation has won the last war, get it half price.
+		// If global discounts are enabled (2), everyone can get it for half price.
+		if ((m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == getNation())
+			|| m_pMain->m_sDiscount == 2)
+			money /= 2;
 
-			if( m_pMain->m_sDiscount == 2 )		{	
-				old_money = money;
-				money = (int)(money * 0.5f);
-			}
-
-			SetByte( send_buff, WIZ_CLASS_CHANGE, send_index );
-			SetByte( send_buff, CHANGE_MONEY_REQ, send_index );
-			SetDWORD( send_buff, money, send_index );
-			Send( send_buff, send_index );
-		}
-		else if( sub_type == 2 )		{	
-			money = (int)(money * 1.5f);			
-			if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{
-				old_money = money;
-				money = (int)(money * 0.5f);
-				//TRACE("^^ ClassChange -  skillpoint Discount ,, money=%d->%d\n", old_money, money);
-			}
-
-			if( m_pMain->m_sDiscount == 2 )		{	
-				old_money = money;
-				money = (int)(money * 0.5f);
-			}
-			
-			SetByte( send_buff, WIZ_CLASS_CHANGE, send_index );
-			SetByte( send_buff, CHANGE_MONEY_REQ, send_index );
-			SetDWORD( send_buff, money, send_index );
-			Send( send_buff, send_index );
-		}
+		result << uint8(CHANGE_MONEY_REQ) << money;
+		Send(&result);
 		return;
 	}
 
-	classcode = GetByte( pBuf, index );
-
-	switch( m_pUserData->m_sClass ) {
+	uint8 classcode = pkt.read<uint8>();
+	switch (m_pUserData->m_sClass)
+	{
 	case KARUWARRRIOR:
 		if( classcode == BERSERKER || classcode == GUARDIAN )
 			bSuccess = TRUE;
@@ -556,57 +396,48 @@ void CUser::ClassChange(char *pBuf)
 		break;
 	}
 
-	send_index = 0;
-	if( !bSuccess ) {
-		SetByte( send_buff, WIZ_CLASS_CHANGE, send_index );
-		SetByte( send_buff, CLASS_CHANGE_RESULT, send_index );
-		SetByte( send_buff, 0x00, send_index );
-		Send( send_buff, send_index );
+	// Not allowed this job change
+	if (!bSuccess)
+	{
+		result << uint8(CLASS_CHANGE_RESULT) << uint8(0);
+		Send(&result);
+		return;
 	}
-	else {
-		m_pUserData->m_sClass = classcode;
-		if( m_sPartyIndex != -1 ) {
-			SetByte( send_buff, WIZ_PARTY, send_index );
-			SetByte( send_buff, PARTY_CLASSCHANGE, send_index );
-			SetShort( send_buff, m_Sid, send_index );
-			SetShort( send_buff, m_pUserData->m_sClass, send_index );
-			m_pMain->Send_PartyMember(m_sPartyIndex, send_buff, send_index);
-		}
+
+	m_pUserData->m_sClass = classcode;
+	if (isInParty())
+	{
+		// TO-DO: Move this somewhere better.
+		result.SetOpcode(WIZ_PARTY);
+		result << uint8(PARTY_CLASSCHANGE) << uint16(GetSocketID()) << uint16(classcode);
+		m_pMain->Send_PartyMember(m_sPartyIndex, &result);
 	}
 }
 
-
-void CUser::RecvSelectMsg(char *pBuf)	// Receive menu reply from client.
+void CUser::RecvSelectMsg(Packet & pkt)	// Receive menu reply from client.
 {
-	int index = 0, selevent, selnum;
-	EVENT* pEvent = NULL;
-	EVENT_DATA* pEventData = NULL;
-
-	selnum = GetByte( pBuf, index );
-	if( selnum < 0 || selnum > MAX_MESSAGE_EVENT )
+	uint8 bMenuIndex = pkt.read<uint8>();
+	if (bMenuIndex >= MAX_MESSAGE_EVENT)
 		goto fail_return;
 
-	selevent = m_iSelMsgEvent[selnum];	// Get the event number that needs to be processed next.
-
-	pEvent = m_pMain->m_Event.GetData(m_pUserData->m_bZone);
-	if(!pEvent)	goto fail_return;
-
-	pEventData = pEvent->m_arEvent.GetData(selevent);
-	if(!pEventData) goto fail_return;
-
-	if( !CheckEventLogic(pEventData) )	goto fail_return;
-
-	if( !RunEvent(pEventData) )
-	{
+	// Get the event number that needs to be processed next.
+	int selectedEvent = m_iSelMsgEvent[bMenuIndex];
+	EVENT *pEvent = m_pMain->m_Event.GetData(m_pUserData->m_bZone);
+	if (pEvent == NULL)	
 		goto fail_return;
-	}
 
+	EVENT_DATA *pEventData = pEvent->m_arEvent.GetData(selectedEvent);
+	if (pEventData == NULL
+		|| !CheckEventLogic(pEventData)
+		|| !RunEvent(pEventData))
+		goto fail_return;
+
+	// wonderful logic, need to fix it later.
 	return;
 
 fail_return:
-	for (int i = 0 ; i < MAX_MESSAGE_EVENT ; i++) {
+	for (int i = 0 ; i < MAX_MESSAGE_EVENT; i++)
 		m_iSelMsgEvent[i] = -1;
-	}
 }
 
 void CUser::SendNpcSay(EXEC *pExec)
@@ -649,56 +480,57 @@ void CUser::SelectMsg(EXEC *pExec)
 	}
 }
 
-void CUser::NpcEvent(char *pBuf)
+void CUser::NpcEvent(Packet & pkt)
 {
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return;	
+	// Ensure AI is loaded first
+	if (!m_pMain->m_bPointCheckFlag)
+		return;	
 
-	int index = 0, send_index = 0, nid = 0, i=0, temp_index = 0, unknown = 0;
-	char send_buf[2048];
-	CNpc* pNpc = NULL;
+	Packet result;
+	uint8 bUnknown = pkt.read<uint8>();
+	uint16 sNpcID = pkt.read<uint16>();
 
-	unknown = GetByte( pBuf, index );
-	nid = GetShort( pBuf, index );
-	pNpc = m_pMain->m_arNpcArray.GetData(nid);
-	if( !pNpc ) return;
+	CNpc *pNpc = m_pMain->m_arNpcArray.GetData(sNpcID);
+	if (pNpc == NULL)
+		return;
 
-	switch( pNpc->m_tNpcType ) {
+	switch (pNpc->GetType())
+	{
 	case NPC_MERCHANT:
-		SetByte( send_buf, WIZ_TRADE_NPC, send_index );
-		SetDWORD( send_buf, pNpc->m_iSellingGroup, send_index );
-		Send( send_buf, send_index );
-		break;
 	case NPC_TINKER:
-		SetByte( send_buf, WIZ_REPAIR_NPC, send_index );
-		SetDWORD( send_buf, pNpc->m_iSellingGroup, send_index );
-		Send( send_buf, send_index );
+		result.SetOpcode(pNpc->GetType() == NPC_MERCHANT ? WIZ_TRADE_NPC : WIZ_REPAIR_NPC);
+		result << pNpc->m_iSellingGroup;
+		Send(&result);
 		break;
+
 	/*case NPC_MENU:
-		SetByte( send_buf, WIZ_QUEST, send_index );
-		SetByte( send_buf, 0x07, send_index ); 
-		SetShort( send_buf, SendNPCMenu(pNpc->m_sSid), send_index );
-		SetShort( send_buf, 0x00, send_index );
-		SetShort( send_buf, pNpc->m_sSid, send_index );
-		Send( send_buf, send_index );
+		result.SetOpcode(WIZ_QUEST);
+		result	<< uint8(7) << uint16(SendNPCMenu(pNpc->m_sSid))
+				<< uint16(0) << uint16(pNpc->m_sSid);
+		Send(&result);
 		break; */
+
 	case NPC_SABICE:
-		SetByte(send_buf,WIZ_KNIGHTS_PROCESS,send_index);
-		SetByte(send_buf,KNIGHTS_CAPE_NPC,send_index);
-		Send(send_buf,send_index);
+		result.SetOpcode(WIZ_KNIGHTS_PROCESS);
+		result << uint8(KNIGHTS_CAPE_NPC);
+		Send(&result);
 		break;
+
 	case NPC_CAPTAIN:
-		SetByte( send_buf, WIZ_CLASS_CHANGE, send_index );
-		SetByte( send_buf, CLASS_CHANGE_REQ, send_index );
-		Send( send_buf, send_index );
+		result.SetOpcode(WIZ_CLASS_CHANGE);
+		result << uint8(CLASS_CHANGE_REQ);
+		Send(&result);
 		break;
-	case NPC_OFFICER:
-		SetShort( send_buf, 0, send_index );	// default 0 page
-		m_pMain->m_KnightsManager.AllKnightsList( this, send_buf );
+
+	case NPC_OFFICER: // this HAS to go.
+		result << uint16(0); // page 0
+		m_pMain->m_KnightsManager.AllKnightsList(this, result);
 		break;
+
 	case NPC_WAREHOUSE:
-		SetByte( send_buf, WIZ_WAREHOUSE, send_index );
-		SetByte( send_buf, WAREHOUSE_REQ, send_index );
-		Send( send_buf, send_index );
+		result.SetOpcode(WIZ_WAREHOUSE);
+		result << uint8(WAREHOUSE_REQ);
+		Send(&result);
 		break;
 
 	case NPC_WARP:
@@ -708,17 +540,18 @@ void CUser::NpcEvent(char *pBuf)
 	case NPC_COUPON:
 	case NPC_MONK_KARUS:
 	case NPC_MONK_ELMORAD:
-		SetShort( send_buf, nid, send_index );
-		ClientEvent( send_buf );
+		result << sNpcID; // this HAS to go.
+		ClientEvent(result);
 		break;
 	}   
 }
 
 // NPC shops
-void CUser::ItemTrade(char *pBuf)
+void CUser::ItemTrade(Packet & pkt)
 {
-	int index = 0, send_index = 0, itemid = 0, money = 0, group = 0, npcid = 0;
-	unsigned int count = 0, real_count = 0;
+	int send_index = 0, itemid = 0, money = 0, group = 0;
+	uint16 npcid;
+	uint16 count, real_count = 0;
 	_ITEM_TABLE* pTable = NULL;
 	char send_buf[128];
 	CNpc* pNpc = NULL;
@@ -731,17 +564,16 @@ void CUser::ItemTrade(char *pBuf)
 		goto fail_return;
 	}
 
-	type = GetByte( pBuf, index );
-	if( type == 0x01 || type == 0x02) {// item buy 1, item sell 2
-		group = GetDWORD( pBuf, index );
-		npcid = GetShort( pBuf, index );
-	}
-	itemid = GetDWORD( pBuf, index );
-	pos = GetByte( pBuf, index );
-	if( type == 0x03 ) 	// item move only
-		destpos = GetByte( pBuf, index );
+	pkt >> type;
+	// Buy == 1, Sell == 2
+	if (type == 1 || type == 2)
+		pkt >> group >> npcid;
+	pkt >> itemid >> pos;
+
+	if (type == 3) 	// Move only (this is so useless mgame -- why not just handle it with the CUser::ItemMove(). Gah.)
+		pkt >> destpos;
 	else
-		count = GetShort( pBuf, index );
+		pkt >> count;
 
 	if (itemid >= ITEM_NO_TRADE) goto fail_return;
 
@@ -772,7 +604,8 @@ void CUser::ItemTrade(char *pBuf)
 		return;
 	}
 
-	if( m_sExchangeUser != -1 ) goto fail_return;
+	if (isTrading())
+		goto fail_return;
 	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
 	if( !pTable ) {
 		result = 0x01;
@@ -821,7 +654,7 @@ void CUser::ItemTrade(char *pBuf)
 				goto fail_return;
 			}
 		}
-		if( m_pUserData->m_iGold < (pTable->m_iBuyPrice*count) ) {
+		if( m_pUserData->m_iGold < ((uint32)pTable->m_iBuyPrice*count) ) {
 			result = 0x03;
 			goto fail_return;
 		}

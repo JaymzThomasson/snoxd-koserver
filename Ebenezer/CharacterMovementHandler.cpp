@@ -5,57 +5,46 @@
 
 extern BYTE g_serverdown_flag;
 
-void CUser::MoveProcess(char *pBuf )
+void CUser::MoveProcess(Packet & pkt)
 {
 	ASSERT(GetMap() != NULL);
 	if( m_bWarp ) 
 		return;
 		
-	int index = 0, region = 0;
-	WORD will_x, will_z;
-	short will_y, speed=0;
+	uint16 will_x, will_z, will_y, speed=0;
 	float real_x, real_z, real_y;
-	BYTE echo;
+	uint8 echo;
 
-	will_x = GetShort( pBuf, index );
-	will_z = GetShort( pBuf, index );
-	will_y = GetShort( pBuf, index );
-
-	speed = GetShort( pBuf, index );
-	echo = GetByte( pBuf, index );
-
+	pkt >> will_x >> will_z >> will_y >> speed >> echo;
 	real_x = will_x/10.0f; real_z = will_z/10.0f; real_y = will_y/10.0f;
 
 	if (GetMap()->IsValidPosition(real_x, real_z, real_y) == FALSE) 
 		return;
 
-	if (isDead() && speed != 0)
-		TRACE("### MoveProcess Fail : name=%s(%d), m_bResHpType=%d, hp=%d, speed=%d, x=%d, z=%d ###\n", m_pUserData->m_id, m_Sid, m_bResHpType, m_pUserData->m_sHp, speed, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
-
-	if( speed != 0 ) {
-		m_pUserData->m_curx = m_fWill_x;	// ????? ??? ?????g?? ??????g?? ????...
+	if (speed != 0)
+	{
+		m_pUserData->m_curx = m_fWill_x;
 		m_pUserData->m_curz = m_fWill_z;
 		m_pUserData->m_cury = m_fWill_y;
 
-		m_fWill_x = will_x/10.0f;	// ?????g?? ???....
-		m_fWill_z = will_z/10.0f;
-		m_fWill_y = will_y/10.0f;
+		m_fWill_x = real_x;
+		m_fWill_z = real_z;
+		m_fWill_y = real_y;
 	}
-	else {
-		m_pUserData->m_curx = m_fWill_x = will_x/10.0f;	// ?????g == ???? ??g...
-		m_pUserData->m_curz = m_fWill_z = will_z/10.0f;
-		m_pUserData->m_cury = m_fWill_y = will_y/10.0f;
+	else 
+	{
+		m_pUserData->m_curx = m_fWill_x = real_x;
+		m_pUserData->m_curz = m_fWill_z = real_z;
+		m_pUserData->m_cury = m_fWill_y = real_y;
 	}
-
-	Packet result(WIZ_MOVE);
-	result << uint16(m_Sid)
-		<< will_x << will_z << will_y << speed
-		<< echo;
 
 	RegisterRegion();
-	m_pMain->Send_Region( &result, GetMap(), m_RegionX, m_RegionZ );
 
-	GetMap()->CheckEvent( real_x, real_z, this );
+	Packet result(WIZ_MOVE);
+	result << uint16(m_Sid) << will_x << will_z << will_y << speed << echo;
+	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
+
+	GetMap()->CheckEvent(real_x, real_z, this);
 
 	result.Initialize(AG_USER_MOVE);
 	result << uint16(m_Sid) << m_fWill_x << m_fWill_z << m_fWill_y << speed;
@@ -139,29 +128,19 @@ void CUser::GetUserInfo(Packet & pkt)
 		<< getZoneID() << uint8(-1) << uint8(-1) << uint16(0) << uint16(0) << uint16(0);
 }
 
-void CUser::Rotate( char* pBuf )
+void CUser::Rotate(Packet & pkt)
 {
-	int index = 0, send_index = 0;
-	int uid = -1;
-	BYTE type = 0x00;
-	char buff[256];
-	short dir;
-
-	dir = GetShort( pBuf, index );
-
-	SetByte( buff, WIZ_ROTATE, send_index );
-	SetShort( buff, m_Sid, send_index );
-	SetShort( buff, dir, send_index );
-
-	m_pMain->Send_Region( buff, send_index, GetMap(), m_RegionX, m_RegionZ );
+	Packet result(WIZ_ROTATE);
+	int16 dir = pkt.read<int16>();
+	result << uint16(GetSocketID()) << dir;
+	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
 }
 
 void CUser::ZoneChange(int zone, float x, float z)
 {
 	m_bZoneChangeFlag = TRUE;
 
-	int send_index = 0, zoneindex = 0;
-	char send_buff[128];
+	int zoneindex = 0;
 	C3DMap* pMap = NULL;
 	_ZONE_SERVERINFO *pInfo = NULL;
 
@@ -262,14 +241,9 @@ void CUser::ZoneChange(int zone, float x, float z)
 	m_RegionX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
 	m_RegionZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
 
-	SetByte( send_buff, WIZ_ZONE_CHANGE, send_index );
-	SetByte( send_buff, 0x03, send_index );
-	SetByte( send_buff, m_pUserData->m_bZone, send_index );
-	SetShort( send_buff, (WORD)m_pUserData->m_curx*10, send_index );
-	SetShort( send_buff, (WORD)m_pUserData->m_curz*10, send_index );
-	SetShort( send_buff, (short)m_pUserData->m_cury*10, send_index );
-	SetByte( send_buff, m_pMain->m_byOldVictory, send_index );
-	Send( send_buff, send_index );
+	Packet result(WIZ_ZONE_CHANGE, uint8(3)); // magic numbers, sigh.
+	result << getZoneID() << GetSPosX() << GetSPosZ() << GetSPosY() << m_pMain->m_byOldVictory;
+	Send(&result);
 
 	if (!m_bZoneChangeSameZone) {
 		m_sWhoKilledMe = -1;
@@ -281,44 +255,30 @@ void CUser::ZoneChange(int zone, float x, float z)
 		InitType4();
 	}	
 
-	if (m_bZoneChangeSameZone) {
-		m_bZoneChangeSameZone = FALSE;
-	}
+	result.Initialize(AG_ZONE_CHANGE);
+	result << uint16(GetSocketID()) << getZoneID();
+	m_pMain->Send_AIServer(&result);
 
-	send_index = 0;
-	SetByte( send_buff, AG_ZONE_CHANGE, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetByte( send_buff, getZoneID(), send_index );
-
-	m_pMain->Send_AIServer(send_buff, send_index);
-
+	m_bZoneChangeSameZone = FALSE;
 	m_bZoneChangeFlag = FALSE;
 }
 
-void CUser::Warp(char *pBuf)
+void CUser::Warp(uint16 sPosX, uint16 sPosZ)
 {
 	ASSERT(GetMap() != NULL);
-	if( m_bWarp ) return;
+	if (m_bWarp)
+		return;
 
-	int index = 0, send_index = 0;
-	WORD warp_x, warp_z;
-	float real_x, real_z;
-	char	send_buff[128];
-
-	warp_x = GetShort( pBuf, index );
-	warp_z = GetShort( pBuf, index );
-
-	real_x = warp_x/10.0f; real_z = warp_z/10.0f;
+	float real_x = sPosX / 10.0f, real_z = sPosZ / 10.0f;
 	if (!GetMap()->IsValidPosition(real_x, real_z, 0.0f)) 
 	{
 		TRACE("Invalid position %f,%f\n", real_x, real_z);
 		return;
 	}
 
-	SetByte(send_buff, WIZ_WARP, send_index);
-	SetShort(send_buff, warp_x, send_index);
-	SetShort(send_buff, warp_z, send_index);
-	Send(send_buff, send_index);
+	Packet result(WIZ_WARP);
+	result << sPosX << sPosZ;
+	Send(&result);
 
 	UserInOut(USER_OUT);
 
@@ -328,8 +288,6 @@ void CUser::Warp(char *pBuf)
 	m_RegionX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
 	m_RegionZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
 
-	//TRACE(" Warp ,, name=%s, x=%.2f, z=%.2f\n", m_pUserData->m_id, m_pUserData->m_curx, m_pUserData->m_curz);
-
 	UserInOut(USER_WARP);
 	m_pMain->UserInOutForMe(this);
 	m_pMain->NpcInOutForMe(this);
@@ -337,3 +295,40 @@ void CUser::Warp(char *pBuf)
 
 	ResetWindows();
 }
+
+void CUser::RecvWarp(Packet & pkt)
+{
+	uint16 warp_x, warp_z;
+	pkt >> warp_x >> warp_z;
+	Warp(warp_x, warp_z);	
+}
+
+void CUser::RecvZoneChange(Packet & pkt)
+{
+	Packet result(WIZ_ZONE_CHANGE);
+	uint8 opcode = pkt.read<uint8>();
+	if (opcode == 1)
+	{
+		m_pMain->UserInOutForMe(this);
+		m_pMain->NpcInOutForMe(this);
+		m_pMain->MerchantUserInOutForMe(this);
+		
+		result << uint8(2); // finalise the zone change
+		Send(&result);
+	}
+	else if (opcode == 2)
+	{
+		UserInOut(USER_REGENE);
+
+		// TO-DO: Fix all this up (it's too messy/confusing)
+		if (!m_bZoneChangeSameZone)
+		{
+			BlinkStart();
+			// TO-DO: 'recast' buffs (otherwise they're lost to the client on zone change)
+		}
+
+		m_bZoneChangeFlag = 0;
+		m_bWarp = 0;
+	}
+}
+

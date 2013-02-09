@@ -200,7 +200,7 @@ void CUser::MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 		if(sid >= NPC_BAND)
 			pTUser->ExpChange( -pTUser->m_iMaxExp/100 );     // Reduce target's experience if the source was an NPC.
 
-		if( m_sPartyIndex == -1 ) {    // If the user is not in a party allocate all the National Points to the user, ifnot, divide it between the party.
+		if( !isInParty() ) {    // If the user is not in a party allocate all the National Points to the user, ifnot, divide it between the party.
 			LoyaltyChange(tid);
 		}
 		else {
@@ -299,13 +299,11 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 				break;
 
 			case 3 : 
-				Packet pkt(3); //This packet does not have an opcode, the first byte is always 3 which is then parsed by CUser::StateChange()
-				if (magicid == 490034)
-					pkt << ABNORMAL_GIANT;
-				else if (magicid == 490035)
-					pkt << ABNORMAL_DWARF;
+				if (magicid == 490034) // Bezoar
+					StateChangeServerDirect(3, ABNORMAL_GIANT);
+				else if (magicid == 490035) // Rice cake
+					StateChangeServerDirect(3, ABNORMAL_DWARF);
 
-				pTUser->StateChange(&pkt);
 				pTUser->m_sDuration3 = pType->sDuration;
 				pTUser->m_fStartTime3 = TimeGet();
 				break;

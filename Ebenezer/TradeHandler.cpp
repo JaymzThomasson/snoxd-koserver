@@ -4,20 +4,19 @@
 
 using namespace std;
 
-void CUser::ExchangeProcess(char *pBuf)
+void CUser::ExchangeProcess(Packet & pkt)
 {
-	int index = 0;
-	BYTE subcommand = GetByte( pBuf, index );
-
-	switch( subcommand ) {
+	uint8 opcode = pkt.read<uint8>();
+	switch (opcode)
+	{
 	case EXCHANGE_REQ:
-		ExchangeReq( pBuf+index );
+		ExchangeReq(pkt);
 		break;
 	case EXCHANGE_AGREE:
-		ExchangeAgree( pBuf+index );
+		ExchangeAgree(pkt);
 		break;
 	case EXCHANGE_ADD:
-		ExchangeAdd( pBuf+index );
+		ExchangeAdd(pkt);
 		break;
 	case EXCHANGE_DECIDE:
 		ExchangeDecide();
@@ -28,23 +27,18 @@ void CUser::ExchangeProcess(char *pBuf)
 	}
 }
 
-void CUser::ExchangeReq(char *pBuf)
+void CUser::ExchangeReq(Packet & pkt)
 {
-	int index = 0, destid = -1;
 	Packet result(WIZ_EXCHANGE);
-
 	if (isDead())
-	{
-		TRACE("### ExchangeProcess Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", m_pUserData->m_id, m_Sid, m_bResHpType, m_pUserData->m_sHp, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
 		goto fail_return;
-	}
 	else if (isTrading())
 	{
 		ExchangeCancel();
 		return;
 	}
 
-	destid = GetShort( pBuf, index );
+	uint16 destid = pkt.read<uint16>();
 	CUser* pUser = m_pMain->GetUserPtr(destid);
 	if (pUser == NULL
 		|| pUser->isTrading()
@@ -55,33 +49,29 @@ void CUser::ExchangeReq(char *pBuf)
 	m_sExchangeUser = destid;
 	pUser->m_sExchangeUser = m_Sid;
 
-	
 	result << uint8(EXCHANGE_REQ) << uint16(m_Sid);
 	pUser->Send( &result );
-
 	return;
 
 fail_return:
 	result << uint8(EXCHANGE_CANCEL);
-	Send( &result );
+	Send(&result);
 }
 
-void CUser::ExchangeAgree(char* pBuf)
+void CUser::ExchangeAgree(Packet & pkt)
 {
-	int index = 0, destid = -1, send_index = 0;
-	CUser* pUser = NULL;
-	char buff[256];
+	if (!isTrading())
+		return;
 
-	BYTE result = GetByte( pBuf, index );
-
-	pUser = m_pMain->GetUserPtr(m_sExchangeUser);
+	uint8 bResult = pkt.read<uint8>();
+	CUser *pUser = m_pMain->GetUserPtr(m_sExchangeUser);
 	if (pUser == NULL) 
 	{
 		m_sExchangeUser = -1;
 		return;
 	}
 
-	if (result == 0x00) // declined
+	if (!bResult) // declined
 	{
 		m_sExchangeUser = -1;
 		pUser->m_sExchangeUser = -1;
@@ -92,14 +82,16 @@ void CUser::ExchangeAgree(char* pBuf)
 		pUser->InitExchange(TRUE);
 	}
 
-	SetByte( buff, WIZ_EXCHANGE, send_index );
-	SetByte( buff, EXCHANGE_AGREE, send_index );
-	SetShort( buff, result, send_index );
-	pUser->Send( buff, send_index );
+	Packet result(WIZ_EXCHANGE, uint8(EXCHANGE_AGREE));
+	result << uint16(bResult);
+	pUser->Send(&result);
 }
 
-void CUser::ExchangeAdd(char *pBuf)
+void CUser::ExchangeAdd(Packet & pkt)
 {
+	if (!isTrading())
+		return;
+
 	int index = 0, send_index = 0, itemid = 0, duration = 0;
 	unsigned int count = 0;
 	CUser* pUser = NULL;
@@ -117,9 +109,7 @@ void CUser::ExchangeAdd(char *pBuf)
 		return;
 	}
 
-	pos = GetByte( pBuf, index );
-	itemid = GetDWORD( pBuf, index );
-	count = GetDWORD( pBuf, index );
+	pkt >> pos >> itemid >> count;
 	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
 	if (pTable == NULL
 		|| (itemid != ITEM_GOLD && pos >= HAVE_MAX)

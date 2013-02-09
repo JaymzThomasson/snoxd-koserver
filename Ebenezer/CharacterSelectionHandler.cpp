@@ -2,212 +2,145 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 
-void CUser::NewCharToAgent(char *pBuf)
+void CUser::SelNationToAgent(Packet & pkt)
 {
-	Packet result(WIZ_NEW_CHAR);
-	int index = 0, hair;
-	uint16 Class;
-	uint8 charindex, race, face, str, sta, dex, intel, cha, errorCode;
-	char charid[MAX_ID_SIZE+1];
-
-	charindex = GetByte( pBuf, index );
-	if (!GetKOString(pBuf, charid, index, MAX_ID_SIZE))
+	Packet result(WIZ_SEL_NATION);
+	uint8 nation = pkt.read<uint8>();
+	if (nation != KARUS && nation != ELMORAD)
 	{
-		errorCode = NEWCHAR_INVALID_NAME;
-		goto fail_return;
-	}
-
-	race = GetByte( pBuf, index );
-	Class = GetShort( pBuf, index );
-	face = GetByte( pBuf, index );
-
-	hair = GetDWORD( pBuf, index );
-
-	str = GetByte( pBuf, index );
-	sta = GetByte( pBuf, index );
-	dex = GetByte( pBuf, index );
-	intel = GetByte( pBuf, index );
-	cha = GetByte( pBuf, index );
-
-	if (charindex > 2)
-	{
-		errorCode = NEWCHAR_NO_MORE;
-		goto fail_return;
-	}
-
-	if (!IsValidName(charid))
-	{
-		result = NEWCHAR_INVALID_NAME;
-		goto fail_return;
-	}
-
-	_CLASS_COEFFICIENT* p_TableCoefficient = m_pMain->m_CoefficientArray.GetData(Class);
-	if (p_TableCoefficient == NULL
-		|| (str + sta + dex + intel + cha) > 300) 
-	{
-		errorCode = NEWCHAR_INVALID_DETAILS;
-		goto fail_return;
-	}
-
-	if (str < 50 || sta < 50 || dex < 50 || intel < 50 || cha < 50) 
-	{
-		errorCode = NEWCHAR_STAT_TOO_LOW;
-		goto fail_return;		
-	}
-
-	// Send packet to Aujard
-	result	<< uint16(GetSocketID())
-			<< m_strAccountID
-			<< charindex << charid << race << Class << face << hair
-			<< str << sta << dex << intel << cha;
-	
-	int retValue = m_pMain->m_LoggerSendQueue.PutData(&result);
-	if (retValue < SMQ_FULL)
+		result << uint8(0);
+		Send(&result);
 		return;
+	}
 
-	DEBUG_LOG("NewChar Send Fail : %d", retValue);
-
-fail_return:
-	result << errorCode;
-	Send(&result);
+	result << uint16(GetSocketID()) << m_strAccountID << nation; 
+	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
-void CUser::DelCharToAgent(char *pBuf)
+void CUser::AllCharInfoToAgent()
+{
+	Packet result(WIZ_ALLCHAR_INFO_REQ);
+	result << uint16(GetSocketID()) << m_strAccountID; 
+	m_pMain->m_LoggerSendQueue.PutData(&result);
+}
+
+void CUser::NewCharToAgent(Packet & pkt)
+{
+	Packet result(WIZ_NEW_CHAR);
+	uint32 nHair;
+	uint16 sClass;
+	uint8 bCharIndex, bRace, bFace, str, sta, dex, intel, cha, errorCode = 0;
+	std::string strUserID;
+
+	pkt	>> bCharIndex >> strUserID >> bRace >> sClass >> bFace >> nHair
+		>> str >> sta >> dex >> intel >> cha;
+
+	_CLASS_COEFFICIENT* p_TableCoefficient = m_pMain->m_CoefficientArray.GetData(sClass);
+
+	if (!IsValidName(strUserID.c_str()))
+		errorCode = NEWCHAR_INVALID_NAME;
+	else if (bCharIndex > 2)
+		errorCode = NEWCHAR_NO_MORE;
+	else if (p_TableCoefficient == NULL
+			|| (str + sta + dex + intel + cha) > 300) 
+		errorCode = NEWCHAR_INVALID_DETAILS;
+	else if (str < 50 || sta < 50 || dex < 50 || intel < 50 || cha < 50) 
+		errorCode = NEWCHAR_STAT_TOO_LOW;
+
+	if (errorCode != 0)
+	{
+		result << errorCode;
+		Send(&result);
+		return;
+	}
+	
+	result	<< uint16(GetSocketID())
+			<< m_strAccountID
+			<< bCharIndex << strUserID << bRace << sClass << bFace << nHair
+			<< str << sta << dex << intel << cha;
+	m_pMain->m_LoggerSendQueue.PutData(&result);
+}
+
+void CUser::DelCharToAgent(Packet & pkt)
 {
 	Packet result(WIZ_DEL_CHAR);
-	int index = 0;
-	char charid[MAX_ID_SIZE+1], socno[15];
+	std::string strUserID, strSocNo;
+	uint8 bCharIndex;
+	pkt >> bCharIndex >> strUserID >> strSocNo; 
 
-	uint8 charindex = GetByte( pBuf, index );
-	if (charindex > 2
-		|| !GetKOString(pBuf, charid, index, MAX_ID_SIZE)
-		|| !GetKOString(pBuf, socno, index, sizeof(socno) - 1))
-		goto fail_return;
-
-	if (isClanLeader())	
-		goto fail_return;	
+	if (bCharIndex > 2
+		|| strUserID.empty() || strUserID.size() > MAX_ID_SIZE
+		|| strSocNo.empty() || strSocNo.size() > 15
+		|| isClanLeader())
+	{
+		result << uint8(0) << uint8(-1);
+		Send(&result);
+		return;
+	}
 
 	// Send packet to Aujard
 	result	<< uint16(GetSocketID())
-			<< m_strAccountID << charindex << charid << socno;
-
-	int retValue = m_pMain->m_LoggerSendQueue.PutData(&result);
-	if (retValue < SMQ_FULL)
-		return;
-
-	DEBUG_LOG("DelChar Send Fail : %d", retValue);
-
-fail_return:
-	result << uint8(0) << uint8(-1);
-	Send(&result);
+			<< m_strAccountID << bCharIndex << strUserID << strSocNo;
+	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::RecvDeleteChar( char* pBuf )
 {
-	int nResult = 0, index = 0, send_index = 0, char_index = 0, nKnights = 0;
-	char strCharID[MAX_ID_SIZE+1], send_buff[256];
+	Packet result;
+	int index = 0, sKnights = 0;
+	char strCharID[MAX_ID_SIZE+1];
+	uint8 bResult, bCharIndex;
 
-	nResult = GetByte( pBuf, index );
-	char_index = GetByte( pBuf, index );
-	nKnights = GetShort( pBuf, index );
+	bResult = GetByte(pBuf, index);
+	bCharIndex = GetByte(pBuf, index);
+	sKnights = GetShort(pBuf, index);
 	if (!GetKOString(pBuf, strCharID, index, MAX_ID_SIZE))
 		return;
 
-	if( nResult == 1 && nKnights != 0 )	{
-		m_pMain->m_KnightsManager.RemoveKnightsUser( nKnights, strCharID );
-		TRACE("RecvDeleteChar ==> name=%s, knights=%d\n", strCharID, nKnights );
-
-		send_index = 0;
-		SetByte( send_buff, UDP_KNIGHTS_PROCESS, send_index );
-		SetByte( send_buff, KNIGHTS_WITHDRAW, send_index );
-		SetShort( send_buff, nKnights, send_index );
-		SetKOString(send_buff, strCharID, send_index);
-		if( m_pMain->m_nServerGroup == 0 )
-			m_pMain->Send_UDP_All( send_buff, send_index );
-		else
-			m_pMain->Send_UDP_All( send_buff, send_index, 1 );
+	if (bResult == 1 && sKnights != 0)
+	{
+		// TO-DO: Synchronise this system better. Much better. This is dumb.
+		m_pMain->m_KnightsManager.RemoveKnightsUser(sKnights, strCharID);
+		result.SetOpcode(UDP_KNIGHTS_PROCESS);
+		result << uint8(KNIGHTS_WITHDRAW) << sKnights << strCharID;
+		m_pMain->Send_UDP_All(&result, m_pMain->m_nServerGroup == 0 ? 0 : 1);
 	}
 
-	send_index = 0;
-	SetByte( send_buff, WIZ_DEL_CHAR, send_index );
-	SetByte( send_buff, nResult, send_index );	
-	SetByte( send_buff, char_index, send_index );
 
-	Send( send_buff, send_index );
+	result.Initialize(WIZ_DEL_CHAR);
+	result << bResult << bCharIndex;
+	Send(&result);
 }
 
-void CUser::SelNationToAgent(char *pBuf)
+void CUser::SelCharToAgent(Packet & pkt)
 {
-	int index = 0, send_index = 0, retvalue = 0;
-	int nation = 0;
-	char send_buff[256];
+	Packet result(WIZ_SEL_CHAR);
+	std::string strUserID, strAccountID;
+	uint8 bInit;
 
-	nation = GetByte( pBuf, index );
-	if( nation > 2 )
-		goto fail_return;
-
-	SetByte( send_buff, WIZ_SEL_NATION, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetKOString(send_buff, m_strAccountID, send_index);
-	SetByte( send_buff, nation, send_index );
-
-	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if (retvalue < SMQ_FULL)
-		return;
-
-	DEBUG_LOG("Nation Sel Send Fail : %d", retvalue);
-
-fail_return:
-	send_index = 0;
-	SetByte( send_buff, WIZ_SEL_NATION, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	Send( send_buff, send_index );
-}
-
-void CUser::SelCharToAgent(char *pBuf)
-{
-	int index = 0, send_index = 0, retvalue = 0;
-	char userid[MAX_ID_SIZE+1], accountid[MAX_ID_SIZE+1], send_buff[256];
-	CUser* pUser = NULL;
-	CTime t = CTime::GetCurrentTime();
-	BYTE	bInit = 0x01;
-
-	if (!GetKOString(pBuf, accountid, index, MAX_ID_SIZE)
-		|| !GetKOString(pBuf, userid, index, MAX_ID_SIZE))
-		goto fail_return;
-
-	bInit = GetByte( pBuf, index );
-	
-	if( _strnicmp( accountid, m_strAccountID, MAX_ID_SIZE ) != 0 ) {
+	pkt >> strAccountID >> strUserID >> bInit;
+	if (strAccountID.empty() || strAccountID.size() > MAX_ID_SIZE
+		|| strUserID.empty() || strUserID.size() > MAX_ID_SIZE
+		||strAccountID != m_strAccountID)
+	{
 		Close();
 		return;
 	}
 
-	pUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
-	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) {
+	// Disconnect any currently logged in sessions.
+	CUser *pUser = m_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+	if (pUser && (pUser->GetSocketID() != GetSocketID()))
+	{
 		pUser->Close();
-		goto fail_return;
+
+		// And reject the login attempt (otherwise we'll probably desync char data)
+		result << uint8(0);
+		Send(&result);
+		return;
 	}
 
-	SetByte( send_buff, WIZ_SEL_CHAR, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetKOString(send_buff, m_strAccountID, send_index);
-	SetKOString(send_buff, userid, send_index);
-	SetByte( send_buff, bInit, send_index );
-
-	m_pMain->WriteLog("[SelCharToAgent : %d:%d:%d] - acname=%s, name=%s, TH: %lu, Rear : %d\r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), m_strAccountID, userid, GetCurrentThreadId(), m_pMain->m_LoggerSendQueue.GetRearPointer());
-
-	retvalue = m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	if (retvalue < SMQ_FULL)
-		return;
-
-	DEBUG_LOG("SelChar Send Fail : %d", retvalue);
-
-fail_return:
-	send_index = 0;
-	SetByte( send_buff, WIZ_SEL_CHAR, send_index );
-	SetByte( send_buff, 0x00, send_index );
-	Send( send_buff, send_index );
+	result << uint16(GetSocketID()) << m_strAccountID << strUserID << bInit;
+	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::SelectCharacter(char *pBuf)
@@ -298,13 +231,6 @@ void CUser::SendServerChange(char *ip, uint8 bInit)
 	Send(&result);
 }
 
-void CUser::AllCharInfoToAgent()
-{
-	Packet result(WIZ_ALLCHAR_INFO_REQ);
-	result << uint16(GetSocketID()) << m_strAccountID; 
-	m_pMain->m_LoggerSendQueue.PutData(&result);
-}
-
 // happens on character selection
 void CUser::SetLogInInfoToDB(BYTE bInit)
 {
@@ -330,10 +256,12 @@ void CUser::SetLogInInfoToDB(BYTE bInit)
 }
 
 // This packet actually contains the char name after the opcode
-void CUser::GameStart(char *pBuf)
+void CUser::GameStart(Packet & pkt)
 {
-	int index = 0;
-	BYTE opcode = GetByte(pBuf, index);
+	if (GetState() == STATE_GAMESTART)
+		return;
+
+	uint8 opcode = pkt.read<uint8>();
 
 	if (opcode == 1)
 	{
@@ -346,8 +274,8 @@ void CUser::GameStart(char *pBuf)
 
 		// SendHackToolList();
 
-		char send_buff[] = { WIZ_GAMESTART };
-		Send(send_buff, sizeof(send_buff));
+		Packet result(WIZ_GAMESTART);
+		Send(&result);
 	}
 	else if (opcode == 2)
 	{

@@ -228,7 +228,9 @@ public:
 	short   m_sErrorSocketCount;  // 이상소켓 감시용
 	// ~sungyong 2002.05.23
 
-	int m_nYear, m_nMonth, m_nDate, m_nHour, m_nMin, m_nWeather, m_nAmount;
+	uint16 m_nYear, m_nMonth, m_nDate, m_nHour, m_nMin;
+	uint8 m_nWeather;
+	uint16 m_nAmount;
 	int m_nCastleCapture;
 
 	// ~Yookozuna 2002.06.12

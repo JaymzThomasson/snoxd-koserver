@@ -3,28 +3,26 @@
 #include "User.h"
 
 // From the client
-void CUser::FriendProcess(char *pBuf)
+void CUser::FriendProcess(Packet & pkt)
 {
-	int index = 0;
-	BYTE subcommand = GetByte( pBuf, index );
-
-	switch (subcommand)
+	uint8 opcode = pkt.read<uint8>();
+	switch (opcode)
 	{
 		case FRIEND_REQUEST:
-			FriendRequest(pBuf+index);
+			FriendRequest();
 			break;
 		case FRIEND_REPORT:
-			FriendReport(pBuf+index);
+			FriendReport(pkt);
 			break;
 		case FRIEND_ADD:
 		case FRIEND_REMOVE:
-			FriendModify(pBuf);
+			FriendModify(pkt);
 			break;
 	}
 }
 
 // Request friend list.
-void CUser::FriendRequest(char *pBuf)
+void CUser::FriendRequest()
 {
 	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REQUEST));
 	result << uint16(GetSocketID());
@@ -32,73 +30,66 @@ void CUser::FriendRequest(char *pBuf)
 }
 
 // Add or remove a friend from your list.
-void CUser::FriendModify(char *pBuf)
+void CUser::FriendModify(Packet & pkt)
 {
-	CUser *pUser = NULL;
-	char charName[MAX_ID_SIZE+1];
-	int index = 0, send_index = 0;
-	char send_buff[6];
-	BYTE opcode = GetByte(pBuf, index);
+	uint8 opcode;
+	std::string strUserID;
+	CUser *pUser;
+	pkt >> opcode >> strUserID;
 
-	if (!GetKOString(pBuf, charName, index, MAX_ID_SIZE)
-		|| (opcode == FRIEND_ADD && (pUser = m_pMain->GetUserPtr(charName, TYPE_CHARACTER)) == NULL))
+	if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE
+		|| (opcode == FRIEND_ADD && (pUser = m_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER)) == NULL))
 		return;
 
-	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
-	SetByte(send_buff, opcode, send_index);
-	SetShort(send_buff, GetSocketID(), send_index);
+	Packet result(WIZ_FRIEND_PROCESS, opcode);
+	result << uint16(GetSocketID());
 	if (opcode == FRIEND_ADD)
-		SetShort(send_buff, pUser->GetSocketID(), send_index);
-	SetKOString(send_buff, charName, send_index, sizeof(BYTE));
+		result << uint16(pUser->GetSocketID());
 
-	int result = m_pMain->m_LoggerSendQueue.PutData(send_buff, send_index);
-	if (result >= SMQ_FULL)
-		DEBUG_LOG("Failed to send friend list modify packet : %d", result);
+	result.SByte();
+	result << strUserID;
+	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 // Refresh the status of your friends.
-void CUser::FriendReport(char *pBuf)
+void CUser::FriendReport(Packet & pkt)
 {
-	int index = 0, send_index = 0;
-	short usercount = 0, idlen = 0;
-	char send_buff[640];
+	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REPORT));
+	uint16 usercount = pkt.read<uint16>();
 
-	usercount = GetShort(pBuf, index);	// Get usercount packet.
-	if (usercount > MAX_FRIEND_COUNT || usercount < 0) return;
-	
-	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
-	SetByte(send_buff, FRIEND_REPORT, send_index);
-	SetShort(send_buff, usercount, send_index);
+	if (usercount > MAX_FRIEND_COUNT) 
+		return;
 
+	result << usercount;
 	for (int i = 0; i < usercount; i++) 
 	{
-		char charName[MAX_ID_SIZE+1] = "";
-		short sid;
+		std::string strUserID;
+		int16 sid;
 
-		GetKOString(pBuf, charName, index, MAX_ID_SIZE);
-		SetKOString(send_buff, charName, send_index);
+		pkt >> strUserID;
+		if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
+			return; // malformed packet, just ignore it.
 
-		BYTE result = GetFriendStatus(charName, sid);
-		SetShort(send_buff, sid, send_index);
-		SetShort(send_buff, result, send_index);
+		uint8 status = GetFriendStatus(strUserID, sid);
+		result << strUserID << sid << status;
 	}
 
-	Send(send_buff, send_index);
+	Send(&result);
 }
 
 // Retrieves the status (and socket ID) of a character.
-BYTE CUser::GetFriendStatus(char * charName, short & sid)
+BYTE CUser::GetFriendStatus(std::string & charName, int16 & sid)
 {
 	CUser *pUser;
-	if (charName[0] == 0
-		|| (pUser = m_pMain->GetUserPtr(charName, TYPE_CHARACTER)) == NULL)
+	if (charName.empty()
+		|| (pUser = m_pMain->GetUserPtr(charName.c_str(), TYPE_CHARACTER)) == NULL)
 	{
 		sid = -1;
 		return 0; // user not found
 	}
 
 	sid = pUser->GetSocketID();
-	if (pUser->m_sPartyIndex != -1) // user in party
+	if (pUser->isInParty()) // user in party
 		return 3;
 
 	return 1; // user not in party
@@ -113,7 +104,7 @@ void CUser::RecvFriendProcess(char *pBuf)
 	switch (subcommand)
 	{
 		case FRIEND_REQUEST:
-			RecvFriendRequest(pBuf+index);
+			//FriendReport(pkt); // Hmm, old method was redundant. Need to check this.
 			break;
 		case FRIEND_ADD:
 		case FRIEND_REMOVE:
@@ -122,53 +113,23 @@ void CUser::RecvFriendProcess(char *pBuf)
 	}
 }
 
-void CUser::RecvFriendRequest(char *pBuf)
-{
-	char send_buff[(MAX_ID_SIZE * MAX_FRIEND_COUNT + 3) + 2 + 2];
-	int index = 0, send_index = 0;
-	BYTE count = GetByte(pBuf, index);
-
-	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
-	SetByte(send_buff, FRIEND_REQUEST, send_index);
-	SetShort(send_buff, count, send_index);
-
-	for (int i = 0; i < count; i++)
-	{
-		char charName[MAX_ID_SIZE+1] = "";
-		if (!GetKOString(pBuf, charName, index, MAX_ID_SIZE, sizeof(BYTE)))
-			continue;
-
-		short sid;
-		BYTE status = GetFriendStatus(charName, sid);
-
-		SetKOString(send_buff, charName, send_index);
-		SetShort(send_buff, sid, send_index);
-		SetByte(send_buff, status, send_index);
-	}
-	Send(send_buff, send_index);
-}
-
 void CUser::RecvFriendModify(char *pBuf)
 {
-	char send_buff[7+MAX_ID_SIZE], charName[MAX_ID_SIZE+1] = "";
-	int index = 0, send_index = 0;
-	BYTE opcode = GetByte(pBuf, index),
-		 result = GetByte(pBuf, index);
-	short sid = -1;
+	Packet result(WIZ_FRIEND_PROCESS);
+	char charName[MAX_ID_SIZE+1];
+	int index = 0;
+	uint8 opcode = GetByte(pBuf, index),
+		 bResult = GetByte(pBuf, index);
+
+	int16 sid = -1;
 	if (opcode == FRIEND_ADD)
 		sid = GetShort(pBuf, index);
 
 	if (!GetKOString(pBuf, charName, index, MAX_ID_SIZE, sizeof(BYTE)))
 		return;
 
-	SetByte(send_buff, WIZ_FRIEND_PROCESS, send_index);
-	SetByte(send_buff, opcode, send_index);
-	SetByte(send_buff, result, send_index);
-	SetKOString(send_buff, charName, send_index);
-
-	BYTE status = GetFriendStatus(charName, sid);
-	SetShort(send_buff, sid, send_index);
-	SetByte(send_buff, status, send_index);
-	
-	Send(send_buff, send_index);
+	std::string tmp = charName; // this entire method will be updated soon
+	uint8 status = GetFriendStatus(tmp, sid);
+	result << opcode << bResult << charName << sid << status;
+	Send(&result);
 }

@@ -34,8 +34,8 @@ class CUser : public CIOCPSocket2
 public:
 	_USER_DATA*	m_pUserData;
 
-	char	m_strAccountID[MAX_ID_SIZE+1];	// Login -> Select Char ±îÁö ÇÑ½ÃÀûÀ¸·Î¸¸ ¾²´Âº¯¼ö. ÀÌ¿Ü¿¡´Â _USER_DATA ¾È¿¡ÀÖ´Â º¯¼ö¸¦ ¾´´Ù...agent ¿ÍÀÇ µ¥ÀÌÅÍ µ¿±âÈ­¸¦ À§ÇØ...
-	
+	std::string m_strAccountID;
+
 	bool	m_bSelectedCharacter;
 	bool	m_bStoreOpen;
 
@@ -46,39 +46,39 @@ public:
 
 	SkillCooldownList	m_CoolDownList;
 
-	short	m_RegionX;						// ÇöÀç ¿µ¿ª X ÁÂÇ¥
-	short	m_RegionZ;						// ÇöÀç ¿µ¿ª Z ÁÂÇ¥
+	short	m_RegionX;						// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ X ï¿½ï¿½Ç¥
+	short	m_RegionZ;						// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Z ï¿½ï¿½Ç¥
 
-	__int64		m_iMaxExp;						// ´ÙÀ½ ·¹º§ÀÌ µÇ±â À§ÇØ ÇÊ¿äÇÑ Exp·®
-	unsigned short	m_sMaxWeight;					// µé ¼ö ÀÖ´Â ÃÖ´ë ¹«°Ô
-	BYTE    m_sSpeed;						// ½ºÇÇµå
+	__int64		m_iMaxExp;						// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ç±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ Expï¿½ï¿½
+	unsigned short	m_sMaxWeight;					// ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½
+	BYTE    m_sSpeed;						// ï¿½ï¿½ï¿½Çµï¿½
 
-	short	m_sBodyAc;						// ¸Ç¸ö ¹æ¾î·Â
+	short	m_sBodyAc;						// ï¿½Ç¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-	short	m_sTotalHit;					// ÃÑ Å¸°Ý°ø°Ý·Â	
-	short	m_sTotalAc;						// ÃÑ ¹æ¾î·Â
-	float	m_sTotalHitrate;				// ÃÑ °ø°Ý¼º°ø ¹ÎÃ¸¼º
-	float	m_sTotalEvasionrate;			// ÃÑ ¹æ¾î ¹ÎÃ¸¼º
+	short	m_sTotalHit;					// ï¿½ï¿½ Å¸ï¿½Ý°ï¿½ï¿½Ý·ï¿½	
+	short	m_sTotalAc;						// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	float	m_sTotalHitrate;				// ï¿½ï¿½ ï¿½ï¿½ï¿½Ý¼ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¸ï¿½ï¿½
+	float	m_sTotalEvasionrate;			// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¸ï¿½ï¿½
 
-	short   m_sItemMaxHp;                   // ¾ÆÀÌÅÛ ÃÑ ÃÖ´ë HP Bonus
-	short   m_sItemMaxMp;                   // ¾ÆÀÌÅÛ ÃÑ ÃÖ´ë MP Bonus
-	unsigned short	m_sItemWeight;					// ¾ÆÀÌÅÛ ÃÑ¹«°Ô
-	short	m_sItemHit;						// ¾ÆÀÌÅÛ ÃÑÅ¸°ÝÄ¡
-	short	m_sItemAc;						// ¾ÆÀÌÅÛ ÃÑ¹æ¾î·Â
-	short	m_sItemStr;						// ¾ÆÀÌÅÛ ÃÑÈû º¸³Ê½º
-	short	m_sItemSta;						// ¾ÆÀÌÅÛ ÃÑÃ¼·Â º¸³Ê½º
-	short	m_sItemDex;						// ¾ÆÀÌÅÛ ÃÑ¹ÎÃ¸¼º º¸³Ê½º
-	short	m_sItemIntel;					// ¾ÆÀÌÅÛ ÃÑÁö´É º¸³Ê½º
-	short	m_sItemCham;					// ¾ÆÀÌÅÛ ÃÑ¸Å·Âº¸³Ê½º
-	short	m_sItemHitrate;					// ¾ÆÀÌÅÛ ÃÑÅ¸°ÝÀ²
-	short	m_sItemEvasionrate;				// ¾ÆÀÌÅÛ ÃÑÈ¸ÇÇÀ²
+	short   m_sItemMaxHp;                   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ HP Bonus
+	short   m_sItemMaxMp;                   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ MP Bonus
+	unsigned short	m_sItemWeight;					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¹ï¿½ï¿½ï¿½
+	short	m_sItemHit;						// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½Ä¡
+	short	m_sItemAc;						// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½
+	short	m_sItemStr;						// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½
+	short	m_sItemSta;						// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½
+	short	m_sItemDex;						// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¹ï¿½Ã¸ï¿½ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½
+	short	m_sItemIntel;					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½
+	short	m_sItemCham;					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¸Å·Âºï¿½ï¿½Ê½ï¿½
+	short	m_sItemHitrate;					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½
+	short	m_sItemEvasionrate;				// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¸ï¿½ï¿½ï¿½ï¿½
 
-	BYTE	m_bFireR;						// ºÒ ¸¶¹ý ÀúÇ×·Â
-	BYTE	m_bColdR;						// ¾óÀ½ ¸¶¹ý ÀúÇ×·Â
-	BYTE	m_bLightningR;					// Àü±â ¸¶¹ý ÀúÇ×·Â
-	BYTE	m_bMagicR;						// ±âÅ¸ ¸¶¹ý ÀúÇ×·Â
-	BYTE	m_bDiseaseR;					// ÀúÁÖ ¸¶¹ý ÀúÇ×·Â
-	BYTE	m_bPoisonR;						// µ¶ ¸¶¹ý ÀúÇ×·Â
+	BYTE	m_bFireR;						// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE	m_bColdR;						// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE	m_bLightningR;					// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE	m_bMagicR;						// ï¿½ï¿½Å¸ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE	m_bDiseaseR;					// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
+	BYTE	m_bPoisonR;						// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×·ï¿½
 
 	BYTE    m_bMagicTypeLeftHand;			// The type of magic item in user's left hand  
 	BYTE    m_bMagicTypeRightHand;			// The type of magic item in user's right hand
@@ -101,16 +101,16 @@ public:
 	float	m_fWill_z;
 	float	m_fWill_y;
 
-	BYTE	m_bResHpType;					// HP È¸º¹Å¸ÀÔ
-	BYTE	m_bWarp;						// Á¸ÀÌµ¿Áß...
-	BYTE	m_bNeedParty;					// ÆÄÆ¼....±¸ÇØ¿ä
+	BYTE	m_bResHpType;					// HP È¸ï¿½ï¿½Å¸ï¿½ï¿½
+	BYTE	m_bWarp;						// ï¿½ï¿½ï¿½Ìµï¿½ï¿½ï¿½...
+	BYTE	m_bNeedParty;					// ï¿½ï¿½Æ¼....ï¿½ï¿½ï¿½Ø¿ï¿½
 
 	short	m_sPartyIndex;
-	short	m_sExchangeUser;				// ±³È¯ÁßÀÎ À¯Àú
+	short	m_sExchangeUser;				// ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	BYTE	m_bExchangeOK;
 
 	ItemList	m_ExchangeItemList;
-	_ITEM_DATA	m_MirrorItem[HAVE_MAX];			// ±³È¯½Ã ¹é¾÷ ¾ÆÀÌÅÛ ¸®½ºÆ®¸¦ ¾´´Ù.
+	_ITEM_DATA	m_MirrorItem[HAVE_MAX];			// ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 
 	short	m_sPrivateChatUser;
 
@@ -182,7 +182,7 @@ public:
 
 	float	m_fLastTrapAreaTime;		// The last moment you were in the trap area.
 
-	BOOL	m_bZoneChangeFlag;			// ¼º¿ë¾¾ ¹Ì¿ö!!
+	BOOL	m_bZoneChangeFlag;			// ï¿½ï¿½ï¿½ë¾¾ ï¿½Ì¿ï¿½!!
 
 	BYTE	m_bRegeneType;				// Did you die and go home or did you type '/town'?
 
@@ -190,16 +190,13 @@ public:
 
 	BOOL	m_bZoneChangeSameZone;		// Did the server change when you warped?
 
-	// ÀÌ¹êÆ®¿ë °ü·Ã.... Á¤¾Ö¾¾ ÀÌ°Å º¸¸é ÄÚÄ«½º ½ò²²¿ä ^^;
-//	int					m_iSelMsgEvent[5];	// ½ÇÇàÁßÀÎ ¼±ÅÃ ¸Þ¼¼Áö¹Ú½º ÀÌº¥Æ®
-	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];	// ½ÇÇàÁßÀÎ ¼±ÅÃ ¸Þ¼¼Áö¹Ú½º ÀÌº¥Æ®
-	short				m_sEventNid;		// ¸¶Áö¸·À¸·Î ¼±ÅÃÇÑ ÀÌº¥Æ® NPC ¹øÈ£
-	UserEventList		m_arUserEvent;		// ½ÇÇàÇÑ ÀÌº¥Æ® ¸®½ºÆ®
+	// ï¿½Ì¹ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.... ï¿½ï¿½ï¿½Ö¾ï¿½ ï¿½Ì°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä«ï¿½ï¿½ ï¿½ò²²¿ï¿½ ^^;
+//	int					m_iSelMsgEvent[5];	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¼ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ ï¿½Ìºï¿½Æ®
+	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¼ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ ï¿½Ìºï¿½Æ®
+	short				m_sEventNid;		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® NPC ï¿½ï¿½È£
+	UserEventList		m_arUserEvent;		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ï¿½Æ®
 
-	char	m_strCouponId[MAX_COUPON_ID_LENGTH];		// What was the number of the coupon?
-	int		m_iEditBoxEvent;
-
-	short	m_sEvent[MAX_CURRENT_EVENT];				// ÀÌ¹Ì ½ÇÇàµÈ ÀÌ¹êÆ® ¸®½ºÆ®µé :)
+	short	m_sEvent[MAX_CURRENT_EVENT];				// ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½Æ® ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ :)
 	
 
 public:
@@ -210,6 +207,7 @@ public:
 	__forceinline bool isLimitedGM() { return getAuthority() == AUTHORITY_LIMITED_GAME_MASTER; };
 
 	__forceinline bool isDead() { return m_bResHpType == USER_DEAD || m_pUserData->m_sHp <= 0; };
+	__forceinline bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; };
 
 	__forceinline bool isInParty() { return m_sPartyIndex != -1; };
 	__forceinline bool isInClan() { return m_pUserData->m_bKnights > 0; };
@@ -237,8 +235,6 @@ public:
 	BOOL ExistComEvent(int eventid);
 	void SaveComEvent(int eventid);
 	BOOL CheckItemCount(int itemid, short min, short max);
-	void RecvEditBox(char *pBuf);
-	BOOL CheckCouponUsed();
 	BOOL CheckRandom(short percent);
 	void NativeZoneReturn();
 	void EventMoneyItemGet( int itemid, int count );
@@ -249,7 +245,6 @@ public:
 	void SendNpcSay(EXEC* pExec);
 	BOOL CheckClass(short class1, short class2, short class3, short class4, short class5, short class6);
 	void Make_public_key();
-	void RecvSelectMsg(char *pBuf);
 	BOOL GiveItem(int itemid, short count, bool send_packet = true);
 	BOOL RobItem(int itemid, short count);
 	BOOL CheckExistItem(int itemid, short count);
@@ -260,55 +255,21 @@ public:
 	void SendItemWeight();
 	void ItemLogToAgent(const char *srcid, const char *tarid, int type, __int64 serial, int itemid, int count, int durability);
 	void TestPacket( char* pBuf );
-	BOOL RunEvent(EVENT_DATA *pEventData);
-	BOOL RunNpcEvent(CNpc* pNpc, EXEC* pExec);
-	BOOL CheckEventLogic(EVENT_DATA* pEventData);
-	void ClientEvent(char* pBuf);
-	void KickOut( char* pBuf );
 	void SetLogInInfoToDB(BYTE bInit);
 	void BlinkStart();
 	void BlinkTimeCheck(float currenttime);
-	void PartyBBSNeeded(char *pBuf, BYTE type);
-	void PartyBBSDelete(char *pBuf);
-	void PartyBBSRegister(char *pBuf);
-	void PartyBBS(char *pBuf);
-	BOOL WarpListObjectEvent(_OBJECT_EVENT *pEvent);
-	BOOL FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid);
-	BOOL GateLeverObjectEvent(_OBJECT_EVENT *pEvent, int nid);
-	BOOL BindObjectEvent(_OBJECT_EVENT *pEvent);
 	void InitType3();
-	BOOL GetWarpList( int warp_group );
-	void ServerChangeOk( char* pBuf );
-	void SelectWarpList( char* pBuf );
 	void GoldChange(short tid, int gold);
-	void AllSkillPointChange();
-	void AllPointChange();
-	void ClassChangeReq();
-	void FriendProcess(char *pBuf);
-	void FriendRequest(char *pBuf);
-	void FriendModify(char *pBuf);
-	void FriendReport(char *pBuf);
-	void RecvFriendProcess(char *pBuf);
-	void RecvFriendRequest(char *pBuf);
-	void RecvFriendModify(char *pBuf);
-	BYTE GetFriendStatus(char * charName, short & sid);
 	CUser* GetItemRoutingUser(int itemid, short itemcount);
-	void Home();
 	bool GetStartPosition(short & x, short & y, BYTE bZone = 0);
 	int GetEmptySlot( int itemid, int bCountable );
 	void InitType4();
-	void WarehouseProcess( char* pBuf );
 	short GetACDamage(int damage, short tid);
 	short GetMagicDamage(int damage, short tid);
 	void Type3AreaDuration( float currenttime);
-	void SpeedHackTime( char* pBuf );
-	void OperatorCommand( char* pBuf );
-	void ItemRemove( char* pBuf );
 	void SendAllKnightsID();
-	BYTE ItemCountChange(int itemid, int type, int amount);
+	void SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes, not a bug */, uint16 sDurability, uint8 bPos, bool bNewItem = false);
 	void Type4Duration(float currenttime);
-	void ItemRepair( char* pBuf );
-	int ExchangeDone();
 	void HPTimeChange( float currenttime );
 	void HPTimeChangeType3( float currenttime );
 	void ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint16 amount);
@@ -317,90 +278,170 @@ public:
 	void ItemWoreOut( int type, int damage );
 	void Dead();
 	void LoyaltyDivide( short tid );
-	void UserDataSaveToAgent();
-	void CountConcurrentUser();
 	void SendUserInfo(Packet & result);
-	void ChatTargetSelect( char* pBuf );
 	BOOL ItemEquipAvailable( _ITEM_TABLE* pTable );
-	void ClassChange( char* pBuf );
 	void HpChange(int amount, int type=0, bool attack=false);
 	void MSpChange(int amount);
 	void SendPartyHPUpdate();
-	void UpdateGameWeather( char* pBuf, BYTE type );
-	void ObjectEvent( char* pBuf );
 	void SendAnvilRequest(int nid);
-	void SkillPointChange( char* pBuf );
 
-	// Trade system
-	BOOL ExecuteExchange();
-	void ExchangeProcess(char* pBuf);
-	void InitExchange(BOOL bStart);
-	void ExchangeCancel();
-	void ExchangeDecide();
-	void ExchangeAdd(char* pBuf);
-	void ExchangeAgree(char* pBuf);
-	void ExchangeReq(char* pBuf);
+	// packet handlers start here
+	void VersionCheck(Packet & pkt);
+	void LoginProcess(Packet & pkt);
+	void SelNationToAgent(Packet & pkt);
+	void AllCharInfoToAgent();
+	void NewCharToAgent(Packet & pkt);
+	void DelCharToAgent(Packet & pkt);
+	void SelCharToAgent(Packet & pkt);
 
-	// Merchant system (both types)
-	void MerchantProcess(char *pBuf);
-	void ClearSellingItems(int nSellinItems);
-	void TakeMerchantItems();
-	void GiveMerchantItems();
+	void SpeedHackTime(Packet & pkt);
 
-	// regular merchants
-	void MerchantOpen(char *pBuf);
-	void MerchantClose();
-	void MerchantItemAdd(char *pBuf);
-	void MerchantItemCancel(char *pBuf);
-	void MerchantItemList(char *pBuf);
-	void MerchantItemBuy(char *pBuf);
-	void MerchantInsert(char *pBuf);
-	void CancelMerchant();
+	void GameStart(Packet & pkt);
+	void RentalSystem(Packet & pkt);
+	void SkillDataProcess(Packet & pkt);
+	void SkillDataSave(Packet & pkt);
+	void SkillDataLoad();
+	void RecvSkillDataLoad(char *pData);
+	void MoveProcess(Packet & pkt);
+	void Rotate(Packet & pkt);
+	void Attack(Packet & pkt);
+	void Chat(Packet & pkt);
+	void ChatTargetSelect(Packet & pkt);
+	void RecvRegene(Packet & pkt);
+	void Regene(uint8 regene_type, uint32 magicid = 0);
+	void RequestUserIn(Packet & pkt);
+	void RequestNpcIn(Packet & pkt);
+	void RecvWarp(Packet & pkt);
+	void Warp(uint16 sPosX, uint16 sPosZ);
+	void ItemMove(Packet & pkt);
+	void NpcEvent(Packet & pkt);
 
-	// buying merchants
-	void BuyingMerchantOpen(char *pBuf);
-	void BuyingMerchantClose();
-	void BuyingMerchantInsert(char *pBuf);
-	void BuyingMerchantList(char *pBuf);
-	void BuyingMerchantBuy(char *pBuf);
+	void ItemTrade(Packet & pkt);
 
+	void BundleOpenReq(Packet & pkt);
+	void ItemGet(Packet & pkt);
+
+	void RecvZoneChange(Packet & pkt);
+	void PointChange(Packet & pkt);
+
+	void StateChange(Packet & pkt);
+	void StateChangeServerDirect(BYTE bType, int nValue);
+
+	void PartyProcess(Packet & pkt);
 	void PartyDelete();
 	void PartyRemove( int memberid );
 	void PartyInsert();
 	void PartyCancel();
 	void PartyRequest( int memberid, BOOL bCreate );
-	void PartyProcess( char* pBuf );
+
+	// Trade system
+	void ExchangeProcess(Packet & pkt);
+	void ExchangeReq(Packet & pkt);
+	void ExchangeAgree(Packet & pkt);
+	void ExchangeAdd(Packet & pkt);
+	void ExchangeDecide();
+	void ExchangeCancel();
+
+	void InitExchange(BOOL bStart);
+	BOOL ExecuteExchange();
+	int ExchangeDone();
+
+	// Merchant system (both types)
+	void MerchantProcess(Packet & pkt);
+	void TakeMerchantItems();
+	void GiveMerchantItems();
+
+	// regular merchants
+	void MerchantOpen();
+	void MerchantClose();
+	void MerchantItemAdd(Packet & pkt);
+	void MerchantItemCancel(Packet & pkt);
+	void MerchantItemList(Packet & pkt);
+	void MerchantItemBuy(Packet & pkt);
+	void MerchantInsert(Packet & pkt);
+	void CancelMerchant();
+
+	// buying merchants
+	void BuyingMerchantOpen(Packet & pkt);
+	void BuyingMerchantClose();
+	void BuyingMerchantInsert(Packet & pkt);
+	void BuyingMerchantList(Packet & pkt);
+	void BuyingMerchantBuy(Packet & pkt);
+
+	void SkillPointChange(Packet & pkt);
+
+	void ObjectEvent(Packet & pkt);
+	BOOL BindObjectEvent(_OBJECT_EVENT *pEvent);
+	BOOL GateLeverObjectEvent(_OBJECT_EVENT *pEvent, int nid);
+	BOOL FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid);
+	BOOL WarpListObjectEvent(_OBJECT_EVENT *pEvent);
+
+	void UpdateGameWeather(Packet & pkt);
+
+	void ClassChange(Packet & pkt);
+	void ClassChangeReq();
+	void AllPointChange();
+	void AllSkillPointChange();
+
+	void CountConcurrentUser();
+	void UserDataSaveToAgent();
+
+	void ItemRepair(Packet & pkt);
+	void ItemRemove(Packet & pkt);
+	void OperatorCommand(Packet & pkt);
+	void WarehouseProcess(Packet & pkt);
+	void Home();
+
+	void FriendProcess(Packet & pkt);
+	void FriendRequest();
+	void FriendModify(Packet & pkt);
+	void FriendReport(Packet & pkt);
+	void RecvFriendProcess(char *pBuf);
+	void RecvFriendModify(char *pBuf);
+	BYTE GetFriendStatus(std::string & charName, int16 & sid);
+
+	void SelectWarpList(Packet & pkt);
+	BOOL GetWarpList( int warp_group );
+
+	void ServerChangeOk(Packet & pkt);
+
+	void PartyBBS(Packet & pkt);
+	void PartyBBSRegister(Packet & pkt);
+	void PartyBBSDelete(Packet & pkt);
+	void PartyBBSNeeded(Packet & pkt, BYTE type);
+
+	void ClientEvent(Packet & pkt);
+	BOOL CheckEventLogic(EVENT_DATA* pEventData);
+	BOOL RunNpcEvent(CNpc* pNpc, EXEC* pExec);
+	BOOL RunEvent(EVENT_DATA *pEventData);
+
+	void RecvSelectMsg(Packet & pkt);
+
+	// from the client
+	void ShoppingMall(Packet & pkt);
+	void HandleStoreClose();
+	void LetterSystem(Packet & pkt);
+
+	// from Aujard
+	void RecvStore(char *pData);
+	void RecvStoreClose(char *pData);
+
+	void HandleHelmet(Packet & pkt);
+
 	void SendNotice();
 	void UserLookChange( int pos, int itemid, int durability );
 	void SpeedHackUser();
-	void VersionCheck(char *pBuf);
-	void LoyaltyChange( short tid );
-	void StateChange( char* pBuf );
-	void StateChange( Packet *pkt);
-	void StateChangeServerDirect(BYTE bType, int nValue);
-	void PointChange( char* pBuf );
+	void LoyaltyChange(short tid);
+	void ChangeNP(short sAmount, bool bDistributeToParty = true);
 	void ZoneChange( int zone, float x, float z );
-	void ItemGet( char* pBuf );
-	BOOL IsValidName( char* name );
-	void AllCharInfoToAgent();
-	void SelNationToAgent( char* pBuf );
-	void DelCharToAgent( char* pBuf );
-	void NewCharToAgent( char* pBuf );
-	void GameStart(char* pBuf);
-	void BundleOpenReq( char* pBuf );
+	BOOL IsValidName(const char* name);
 	void SendTargetHP( BYTE echo, int tid, int damage = 0 );
-	void ItemTrade( char* pBuf );
-	void NpcEvent( char* pBuf );
 	BOOL IsValidSlotPos( _ITEM_TABLE* pTable, int destpos );
-	void ItemMove( char* pBuf );
-	void Warp( char* pBuf );
-	void RequestNpcIn( char* pBuf );
 	void SetUserAbility();
 	void LevelChange(short level, BYTE type=TRUE);	// type : TRUE => level up, FALSE => level down
 	short GetDamage(short tid, int magicid);
 	void SetSlotItemValue();
 	BYTE GetHitRate(float rate);
-	void RequestUserIn( char* pBuf );
 	void InsertRegion(int del_x, int del_z);
 	void RemoveRegion( int del_x, int del_z );
 	void RegisterRegion();
@@ -410,35 +451,21 @@ public:
 	void SendWeather();
 	void SendPremiumInfo();
 	void SetZoneAbilityChange(BYTE zone);
-	void Regene(char* pBuf, int magicid = 0);
 	void SetMaxMp();
-	void SetMaxHp(int iFlag=0); // 0:default, 1:hp¸¦ maxhp¸¸Å­ Ã¤¿öÁÖ±â
+	void SetMaxHp(int iFlag=0); // 0:default, 1:hpï¿½ï¿½ maxhpï¿½ï¿½Å­ Ã¤ï¿½ï¿½ï¿½Ö±ï¿½
 	void ExpChange(__int64 iExp);
-	void Chat(char* pBuf);
 	void LogOut();
-	void SelCharToAgent( char* pBuf );
 	void SendMyInfo();
 	void SelectCharacter( char* pBuf );
 	void SendServerChange(char *ip, uint8 bInit);
 	void Send2AI_UserUpdateInfo(bool initialInfo = false);
-	void Attack( char* pBuf );
 	void UserInOut( BYTE Type );
 	void GetUserInfo(Packet & pkt);
 	void Initialize();
-	void MoveProcess( char* pBuf );
-	void Rotate( char* pBuf );
-	void LoginProcess( char* pBuf );
-	void Parsing( int len, char* pData );
 	void Parsing( Packet & pkt );
-
+	
+	void ChangeFame(uint8 bFame);
 	void SendServerIndex();
-	void RentalSystem(char *pData);
-
-	void SkillDataProcess(char *pData);
-	void SkillDataSave(char *pData);
-	void SkillDataLoad(char *pData);
-	void RecvSkillDataLoad(char *pData);
-	void FinalizeZoneChange();
 
 	void SendToRegion(Packet *pkt, CUser *pExceptUser = NULL);
 
@@ -457,18 +484,6 @@ public:
 
 	//Zone checks
 	bool isAttackZone();
-
-	// from the client
-	void ShoppingMall(char *pData);
-	void HandleStoreClose();
-
-	void HandleHelmet(char *pData);
-
-	// from Aujard
-	void RecvStore(char *pData);
-	void RecvStoreClose(char *pData);
-
-	void LetterSystem(char *pData);
 
 	void ResetWindows();
 

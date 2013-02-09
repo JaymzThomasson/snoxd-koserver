@@ -515,7 +515,10 @@ void CIOCPSocket2::ReceivedData(int length)
 		}
 
 		// found a packet - it's parse time!
-		Parsing(m_remaining, (char *)in_stream);
+		Packet pkt(*in_stream, (size_t)m_remaining--);
+		if (m_remaining > 0)
+			pkt.append(in_stream, m_remaining);
+		Parsing(pkt);
 		m_remaining = 0;
 	}
 	while (!m_pBuffer->isEmpty());
@@ -602,10 +605,6 @@ BOOL CIOCPSocket2::Accept( SOCKET listensocket, struct sockaddr* addr, int* len 
 	setsockopt(m_Socket, SOL_SOCKET, SO_LINGER, (const char *)&lingerOpt, sizeof(lingerOpt));
 
 	return TRUE;
-}
-
-void CIOCPSocket2::Parsing(int length, char *pData)
-{
 }
 
 void CIOCPSocket2::Parsing(Packet & pkt)

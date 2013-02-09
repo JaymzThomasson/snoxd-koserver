@@ -2546,8 +2546,8 @@ int CNpc::Attack(CIOCPort* pIOCP)
 	// 텔레포트 가능하게,, (렌덤으로,, )
 	int nRandom = 0, nPercent=1000;
 	int send_index = 0;
+	char buff[128];
 	BOOL bTeleport = FALSE;
-	char buff[256];
 
 /*	nRandom = myrand(1, 10000);
 	if( COMPARE( nRandom, 8000, 10000) )	{

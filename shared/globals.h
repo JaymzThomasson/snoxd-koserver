@@ -49,12 +49,37 @@ const BYTE CTOP				= 46;
 const BYTE BAG1				= 47;
 const BYTE BAG2				= 48;
 
-const BYTE SLOT_MAX			= 14;
-const BYTE HAVE_MAX			= 28;
-const BYTE COSP_MAX			= 7;
-const BYTE MBAG_MAX			= 24;
+const BYTE SLOT_MAX			= 14; // 14 equipped item slots
+const BYTE HAVE_MAX			= 28; // 28 inventory slots
+const BYTE COSP_MAX			= 5; // 5 cospre slots
+const BYTE MBAG_COUNT		= 2; // 2 magic bag slots
+const BYTE MBAG_MAX			= 12; // 12 slots per magic bag
+
+// Total number of magic bag slots
+#define MBAG_TOTAL			(MBAG_MAX * MBAG_COUNT)
+
+// Start of inventory area
+#define INVENTORY_INVENT	(SLOT_MAX)
+
+// Start of cospre area
+#define INVENTORY_COSP		(SLOT_MAX+HAVE_MAX)
+
+// Start of magic bag slots (after the slots for the bags themselves)
+#define INVENTORY_MBAG		(SLOT_MAX+HAVE_MAX+COSP_MAX+MBAG_COUNT)
+
+// Start of magic bag 1 slots (after the slots for the bags themselves)
+#define INVENTORY_MBAG1		(INVENTORY_MBAG)
+
+// Start of magic bag 2 slots (after the slots for the bags themselves)
+#define INVENTORY_MBAG2		(INVENTORY_MBAG+MBAG_MAX)
+
+// Total slots in the general-purpose inventory storage
+#define INVENTORY_TOTAL		(INVENTORY_MBAG2+MBAG_MAX)
+
 const BYTE WAREHOUSE_MAX	= 196;
 const BYTE MAX_MERCH_ITEMS	= 12;
+
+#define MAX_MERCH_MESSAGE	40
 
 const int ITEMCOUNT_MAX		= 999;
 
@@ -122,7 +147,7 @@ struct _MERCH_DATA
 	unsigned short sCount;
 	__int64 nSerialNum;
 	int nPrice;
-	BYTE nOriginalSlot;
+	uint8 bOriginalSlot;
 };
 
 struct _USER_DATA
@@ -157,7 +182,7 @@ struct _USER_DATA
 	int16	m_sBind;
 	
 	uint8    m_bstrSkill[9];	
-	_ITEM_DATA m_sItemArray[HAVE_MAX+SLOT_MAX + COSP_MAX + MBAG_MAX];
+	_ITEM_DATA m_sItemArray[INVENTORY_TOTAL];
 	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];
 
 	uint8	m_bLogout;
@@ -167,6 +192,8 @@ struct _USER_DATA
 	// this system needs replacing
 	uint16	m_sQuestCount;
 	uint8	m_bstrQuest[400];
+
+	uint8	m_bPremiumType;
 };
 
 inline void GetString(char* tBuf, char* sBuf, int len, int& index)
@@ -464,5 +491,17 @@ inline float TimeGet()
 	}
 
 	return (float)timeGetTime();
+};
+
+__forceinline void STRTOLOWER(std::string& str)
+{
+	for(size_t i = 0; i < str.length(); ++i)
+		str[i] = (char)tolower(str[i]);
+};
+
+__forceinline void STRTOUPPER(std::string& str)
+{
+	for(size_t i = 0; i < str.length(); ++i)
+		str[i] = (char)toupper(str[i]);
 };
 #endif

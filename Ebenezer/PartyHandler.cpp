@@ -5,44 +5,41 @@
 
 // we'll throw the party BBS system in here too
 
-void CUser::PartyProcess(char *pBuf)
+void CUser::PartyProcess(Packet & pkt)
 {
-	int index = 0, memberid = -1;
-	char strid[MAX_ID_SIZE+1];
-	BYTE subcommand, result;
-	CUser* pUser = NULL;
-
-	subcommand = GetByte( pBuf, index );
-	switch( subcommand ) {
-	case PARTY_CREATE:
-		if (!GetKOString(pBuf, strid, index, MAX_ID_SIZE))
+	// TO-DO: Clean this entire system up.
+	std::string strUserID;
+	CUser *pUser;
+	uint8 opcode = pkt.read<uint8>();
+	switch (opcode)
+	{
+	case PARTY_CREATE: // Attempt to create a party.
+	case PARTY_INSERT: // Attempt to invite a user to an existing party.
+		pkt >> strUserID;
+		if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
 			return;
-		pUser = m_pMain->GetUserPtr(strid, TYPE_CHARACTER);
-		if( pUser ) {
-			memberid = pUser->GetSocketID();
-			PartyRequest( memberid, TRUE );
-		}
+
+		pUser = m_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+		if (pUser == NULL)
+			return;
+
+		PartyRequest(pUser->GetSocketID(), (opcode == PARTY_CREATE));
 		break;
+
+	// Did the user we invited accept our party invite?
 	case PARTY_PERMIT:
-		result = GetByte( pBuf, index );
-		if( result ) 
+		if (pkt.read<uint8>()) 
 			PartyInsert();
 		else							
 			PartyCancel();
 		break;
-	case PARTY_INSERT:
-		if (!GetKOString(pBuf, strid, index, MAX_ID_SIZE))
-			return;
-		pUser = m_pMain->GetUserPtr(strid, TYPE_CHARACTER);
-		if( pUser ) {
-			memberid = pUser->GetSocketID();
-			PartyRequest( memberid, FALSE );
-		}
-		break;
+
+	// Remove a user from our party.
 	case PARTY_REMOVE:
-		memberid = GetShort( pBuf, index );
-		PartyRemove( memberid );
+		PartyRemove(pkt.read<uint16>());
 		break;
+
+	// Disband our party.
 	case PARTY_DELETE:
 		PartyDelete();
 		break;
@@ -51,37 +48,33 @@ void CUser::PartyProcess(char *pBuf)
 
 void CUser::PartyCancel()
 {
-	int send_index = 0, leader_id = -1, count = 0;
-	CUser* pUser = NULL;
-	_PARTY_GROUP* pParty = NULL;
-	char send_buff[256];
+	int leader_id = -1, count = 0;
 
-	if( m_sPartyIndex == -1 ) return;
-	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
-	if( !pParty ) {				
-		m_sPartyIndex = -1;
+	if (!isInParty())
 		return;
-	}
 
+	_PARTY_GROUP *pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
 	m_sPartyIndex = -1;
+	if (pParty == NULL)
+		return;
 	
 	leader_id = pParty->uid[0];
-	pUser = m_pMain->GetUserPtr(leader_id);
+	CUser *pUser = m_pMain->GetUserPtr(leader_id);
 	if (pUser == NULL)
 		return;
 
-	for( int i=0; i<8; i++ ) {		
-		if( pParty->uid[i] >= 0 )
+	for (int i = 0; i < 8; i++)
+	{		
+		if (pParty->uid[i] >= 0)
 			count++;
 	}
 
-	if( count == 1 )
+	if (count == 1)
 		pUser->PartyDelete();			
 
-	SetByte( send_buff, WIZ_PARTY, send_index );
-	SetByte( send_buff, PARTY_INSERT, send_index );
-	SetShort( send_buff, -1, send_index );
-	pUser->Send( send_buff, send_index );
+	Packet result(WIZ_PARTY, uint8(PARTY_INSERT));
+	result << int16(-1);
+	pUser->Send(&result);
 }
 
 void CUser::PartyRequest(int memberid, BOOL bCreate)
@@ -93,7 +86,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 
 	pUser = m_pMain->GetUserPtr(memberid);
 	if (pUser == NULL
-		|| pUser->m_sPartyIndex != -1) goto fail_return;
+		|| pUser->isInParty()) goto fail_return;
 
 	if (getNation() != pUser->getNation())
 	{
@@ -120,7 +113,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 	}
 
 	if( bCreate ) {
-		if( m_sPartyIndex != -1 ) goto fail_return;	// can't create a party ifw e're already in one
+		if( isInParty() ) goto fail_return;	// can't create a party ifw e're already in one
 		if (!m_pMain->CreateParty(this))
 			goto fail_return;
 
@@ -138,23 +131,6 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 
 	pUser->m_sPartyIndex = m_sPartyIndex;
 
-/*
-	if (pUser->m_bNeedParty == 2 && pUser->m_sPartyIndex != -1) {
-		pUser->m_bNeedParty = 1;
-		send_index = 0;	
-		SetByte(send_buff, 2, send_index);
-		SetByte(send_buff, pUser->m_bNeedParty, send_index);
-		pUser->StateChange(send_buff);
-	}
-
-	if (m_bNeedParty == 2 && m_sPartyIndex != -1) {
-		m_bNeedParty = 1;
-		send_index = 0;	
-		SetByte(send_buff, 2, send_index);
-		SetByte(send_buff, m_bNeedParty, send_index);
-		StateChange(send_buff);
-	}	
-*/
 	send_index = 0;
 	SetByte( send_buff, WIZ_PARTY, send_index );
 	SetByte( send_buff, PARTY_PERMIT, send_index );
@@ -177,7 +153,7 @@ void CUser::PartyInsert()
 	_PARTY_GROUP* pParty = NULL;
 	BYTE byIndex = -1;
 	char send_buff[256];
-	if( m_sPartyIndex == -1 ) return;
+	if( !isInParty() ) return;
 
 	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
 	if( !pParty ) {	
@@ -234,21 +210,11 @@ void CUser::PartyInsert()
 	if (pUser == NULL)
 		return;
 
-	if (pUser->m_bNeedParty == 2 && pUser->m_sPartyIndex != -1) {
-		pUser->m_bNeedParty = 1;
-		send_index = 0;	
-		SetByte(send_buff, 2, send_index);
-		SetByte(send_buff, pUser->m_bNeedParty, send_index);
-		pUser->StateChange(send_buff);
-	}
+	if (pUser->m_bNeedParty == 2 && pUser->isInParty())
+		pUser->StateChangeServerDirect(2, 1);
 
-	if (m_bNeedParty == 2 && m_sPartyIndex != -1) {		
-		m_bNeedParty = 1;	
-		send_index = 0;	
-		SetByte(send_buff, 2, send_index);
-		SetByte(send_buff, m_bNeedParty, send_index);
-		StateChange(send_buff);
-	}
+	if (m_bNeedParty == 2 && isInParty()) 
+		StateChangeServerDirect(2, 1);
 
 	send_index = 0;
 	SetByte( send_buff, WIZ_PARTY, send_index );
@@ -282,7 +248,7 @@ void CUser::PartyRemove(int memberid)
 	CUser* pUser = NULL;
 	_PARTY_GROUP* pParty = NULL;
 
-	if (m_sPartyIndex == -1) 
+	if (!isInParty()) 
 		return;
 
 	pUser = m_pMain->GetUserPtr(memberid);
@@ -355,7 +321,7 @@ void CUser::PartyDelete()
 	int send_index = 0;
 	CUser* pUser = NULL;
 	_PARTY_GROUP* pParty = NULL;
-	if( m_sPartyIndex == -1 ) return;
+	if( !isInParty() ) return;
 
 	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
 	if( !pParty ) {
@@ -384,42 +350,38 @@ void CUser::PartyDelete()
 	m_pMain->DeleteParty(pParty->wIndex);
 }
 
-void CUser::PartyBBS(char *pBuf)
+// Seeking party system
+void CUser::PartyBBS(Packet & pkt)
 {
-	return; // just going to disable this method for the time being, I'm not even sure if it's used anymore?
-	int index = 0;
-	BYTE subcommand = GetByte( pBuf, index );
-		
-	switch( subcommand ) {
-		case PARTY_BBS_REGISTER :	// When you register a message on the Party BBS.
-			PartyBBSRegister(pBuf+index);
+	uint8 opcode = pkt.read<uint8>();
+	switch (opcode)
+	{
+		case PARTY_BBS_REGISTER:
+			PartyBBSRegister(pkt);
 			break;
-		case PARTY_BBS_DELETE :		// When you delete your message on the Party BBS.
-			PartyBBSDelete(pBuf+index);
+		case PARTY_BBS_DELETE:
+			PartyBBSDelete(pkt);
 			break;
-		case PARTY_BBS_NEEDED :		// Get the 'needed' messages from the Party BBS.
-			PartyBBSNeeded(pBuf+index, PARTY_BBS_NEEDED);
+		case PARTY_BBS_NEEDED:
+			PartyBBSNeeded(pkt, PARTY_BBS_NEEDED);
 			break;
 	}
 }
 
-void CUser::PartyBBSRegister(char *pBuf)
+void CUser::PartyBBSRegister(Packet & pkt)
 {
+#if 0 // temporarily disabled
 	CUser* pUser = NULL;
 	int index = 0, send_index = 0;	// Basic Initializations. 			
 	BYTE result = 0; short bbs_len = 0;
 	char send_buff[256]; 
 	int i = 0, counter = 0;
 
-	if (m_sPartyIndex != -1) goto fail_return;	// You are already in a party!
+	if (isInParty()) goto fail_return;	// You are already in a party!
 	if (m_bNeedParty == 2) goto fail_return;	// You are already on the BBS!
 
-	m_bNeedParty = 2;	// Success! Now you officially need a party!!!
 	result = 1;
-
-	SetByte(send_buff, 2, send_index);	// Send new 'Need Party Status' to region!!!
-	SetByte(send_buff, m_bNeedParty, send_index);
-	StateChange(send_buff);
+	StateChangeServerDirect(2, 2); // seeking a party
 
 	send_index = 0; // Now, let's find out which page the user is on.
 	for (i = 0 ; i < MAX_USER ; i++) {
@@ -447,22 +409,21 @@ fail_return:
 	SetByte(send_buff, result, send_index);
 	Send(send_buff, send_index);
 	return;
+#endif
 }
 
-void CUser::PartyBBSDelete(char *pBuf)
+void CUser::PartyBBSDelete(Packet & pkt)
 {
+#if 0 // temporarily disabled
 	int send_index = 0;	// Basic Initializations. 			
 	BYTE result = 0; 
 	char send_buff[256]; 
 
 	if (m_bNeedParty == 1) goto fail_return;	// You don't need anymore 
 
-	m_bNeedParty = 1;	// Success! You no longer need a party !!!
 	result = 1;
 
-	SetByte(send_buff, 2, send_index);	// Send new 'Need Party Status' to region!!!
-	SetByte(send_buff, m_bNeedParty, send_index);
-	StateChange(send_buff);
+	StateChangeServerDirect(2, 1); // not looking for a party
 
 	send_index = 0; // Now, let's find out which page the user is on.
 	SetShort(send_buff, 0, send_index);
@@ -475,10 +436,12 @@ fail_return:
 	SetByte(send_buff, result, send_index);
 	Send(send_buff, send_index);
 	return;	
+#endif
 }
 
-void CUser::PartyBBSNeeded(char *pBuf, BYTE type)
+void CUser::PartyBBSNeeded(Packet & pkt, BYTE type)
 {
+#if 0 // temporarily disabled
 	CUser* pUser = NULL;	// Basic Initializations. 	
 	int index = 0, send_index = 0;				
 	BYTE result = 0; short bbs_len = 0;
@@ -542,4 +505,5 @@ fail_return:
 	SetByte(send_buff, result, send_index);
 	Send(send_buff, send_index);
 	return;		
+#endif
 }
