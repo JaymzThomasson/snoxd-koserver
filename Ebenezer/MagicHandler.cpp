@@ -116,7 +116,7 @@ void CUser::MagicSystem( Packet & pkt )
 	case MAGIC_FLYING:
 		break;
 	case MAGIC_EFFECTING:
-		MagicType(1, 1); //Replace 1 with the type of magic that's being "in effect"
+		MagicType(1, 1, magicid, sid, tid, data1, data2, data3, data4, data5, data6, data7); //First byte : subcommand, second byte : subtype
 		break;
 	case MAGIC_FAIL:
 		goto echo;
@@ -178,7 +178,7 @@ void CUser::LogSkillCooldown(uint32 magicid, time_t skill_received_time)
 void CUser::MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4, uint16 data5, uint16 data6, uint16 data7)
 {
 
-	int16 damage = GetDamage(tid, magicid); //Get the amount of damage that will be inflicted.
+	int16 damage = 0;
 
 	_MAGIC_TABLE* pMagic = m_pMain->m_MagictableArray.GetData( magicid ); //Checking if the skill exists has already happened.
 
@@ -189,6 +189,8 @@ void CUser::MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 	CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.
 	if (!pTUser || pTUser->isDead())
 		return;
+
+	damage = GetDamage(tid, magicid); //Get the amount of damage that will be inflicted.
 
 	pTUser->HpChange( -damage );     // Reduce target health point.
 
@@ -214,30 +216,222 @@ void CUser::MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 	} 
 	SendTargetHP( 0, tid, -damage );     // Change the HP of the target.
 	if(pMagic->bType2 > 0 && pMagic->bType2 != 1)
-		MagicType(pMagic->bType2, 1); //If the skill has a second effect, be sure to cast that one too. (DONT FORGET THE SUB_TYPE HERE!!)
+		MagicType(pMagic->bType2, 1, magicid, sid, tid, data1, data2, data3, data4, data5, data6, data7); //If the skill has a second effect, be sure to cast that one too. (DONT FORGET THE SUB_TYPE HERE!!)
 
 packet_send:
 	if (pMagic->bType2 == 0 || pMagic->bType2 == 1) {
 		Packet result(WIZ_MAGIC_PROCESS);
 		result << MAGIC_EFFECTING << magicid << sid << tid << data1 << data2 << data3;
-		if (damage == 0) {
+		if (damage == 0)
 			result << int16(-104);
-		}
-		else {
+		else
 			result << uint16(0);
-		}
 
-		m_pMain->Send_Region( &result, GetMap(), m_RegionX, m_RegionZ );
+		m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
 	}
-
 	return;
 }
 
-void CUser::MagicType(uint16 effect_type, uint8 sub_type)
+void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4)
+{
+	int damage = 0;
+	Packet result(WIZ_MAGIC_PROCESS);
+
+	vector<int> casted_member;
+
+	_MAGIC_TABLE* pMagic = pMagic = m_pMain->m_MagictableArray.GetData( magicid );
+
+	_MAGIC_TYPE4* pType = pType = m_pMain->m_Magictype4Array.GetData( magicid );
+	if (!pType)
+		return;
+
+	if (tid == -1) { //Means the source is targetting his whole party.
+		for (int i = 0 ; i < MAX_USER ; i++) { //This however, what the fuck? Definitely need to remember making this better when doing the party system!
+			CUser* pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[i];
+			if( !pTUser || pTUser->m_bResHpType == USER_DEAD || pTUser->m_bAbnormalType == ABNORMAL_BLINKING) continue ;
+
+			//if (UserRegionCheck(sid, i, magicid, pType->bRadius, data1, data3)) 
+			//	casted_member.push_back(i);
+		}
+
+		if (casted_member.empty()) {
+			result << MAGIC_FAIL << magicid
+				<< sid << tid
+				<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
+
+			if (sid >= 0 && sid < MAX_USER) {
+				m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, NULL );
+			}
+			return;	
+		}
+	}
+	else //Means the target is another user
+	{
+		CUser* pTUser = m_pMain->GetUserPtr(tid);
+		if (pTUser == NULL)
+			return;
+		
+		casted_member.push_back(tid);
+	}
+
+	foreach (itr, casted_member)
+	{
+		CUser* pTUser = m_pMain->GetUserPtr(*itr) ;     // Get target info.  
+		if (!pTUser || pTUser->isDead()) continue;
+
+		if (pTUser->m_bType4Buff[pType->bBuffType - 1] == 2 && tid == -1) {		// Is this buff-type already casted on the player?
+			result = 0 ;				// If so, fail! 
+			goto fail_return;					
+		}
+
+		//Will handle saving scrolls etc. differently - replace m_bType4Buff with list with extra doSave flag.
+
+		switch (pType->bBuffType) {	// Depending on which buff-type it is.....
+			case 1 :
+				pTUser->m_sMaxHPAmount = pType->sMaxHP;		// Get the amount that will be added/multiplied.
+				pTUser->m_sDuration1 = pType->sDuration;	// Get the duration time.
+				pTUser->m_fStartTime1 = TimeGet();			// Get the time when Type 4 spell starts.	
+				break;
+			case 2 :
+				pTUser->m_sACAmount = pType->sAC;
+				pTUser->m_sDuration2 = pType->sDuration;
+				pTUser->m_fStartTime2 = TimeGet();
+				break;
+
+			case 3 : 
+				Packet pkt(3); //This packet does not have an opcode, the first byte is always 3 which is then parsed by CUser::StateChange()
+				if (magicid == 490034)
+					pkt << ABNORMAL_GIANT;
+				else if (magicid == 490035)
+					pkt << ABNORMAL_DWARF;
+
+				pTUser->StateChange(&pkt);
+				pTUser->m_sDuration3 = pType->sDuration;
+				pTUser->m_fStartTime3 = TimeGet();
+				break;
+
+			case 4 :
+				pTUser->m_bAttackAmount = pType->bAttack;
+				pTUser->m_sDuration4 = pType->sDuration;
+				pTUser->m_fStartTime4 = TimeGet();					
+				break;
+
+			case 5 :
+				pTUser->m_bAttackSpeedAmount = pType->bAttackSpeed;
+				pTUser->m_sDuration5 = pType->sDuration;
+				pTUser->m_fStartTime5 = TimeGet();
+				break;
+
+			case 6 :
+				pTUser->m_bSpeedAmount = pType->bSpeed;
+				pTUser->m_sDuration6 = pType->sDuration;
+				pTUser->m_fStartTime6 = TimeGet();
+				break;
+
+			case 7 :
+				pTUser->m_bStrAmount = pType->bStr;
+				pTUser->m_bStaAmount = pType->bSta;
+				pTUser->m_bDexAmount = pType->bDex;
+				pTUser->m_bIntelAmount = pType->bIntel;
+				pTUser->m_bChaAmount = pType->bCha;	
+				pTUser->m_sDuration7 = pType->sDuration;
+				pTUser->m_fStartTime7 = TimeGet();
+				break;
+
+			case 8 :
+				pTUser->m_bFireRAmount = pType->bFireR;
+				pTUser->m_bColdRAmount = pType->bColdR;
+				pTUser->m_bLightningRAmount = pType->bLightningR;
+				pTUser->m_bMagicRAmount = pType->bMagicR;
+				pTUser->m_bDiseaseRAmount = pType->bDiseaseR;
+				pTUser->m_bPoisonRAmount = pType->bPoisonR;
+				pTUser->m_sDuration8 = pType->sDuration;
+				pTUser->m_fStartTime8 = TimeGet();
+				break;
+
+			case 9 :
+				pTUser->m_bHitRateAmount = pType->bHitRate;
+				pTUser->m_sAvoidRateAmount = pType->sAvoidRate;
+				pTUser->m_sDuration9 = pType->sDuration;
+				pTUser->m_fStartTime9 = TimeGet();
+				break;	
+
+			default :
+				result = 0 ;
+				goto fail_return;
+		}
+
+		if ((tid != -1 && pMagic->bType1 == 4) && (sid >= 0 && sid < MAX_USER))
+				MSpChange( -(pMagic->sMsp) );
+
+		if (sid >= 0 && sid < MAX_USER) {
+			if (m_pUserData->m_bNation == pTUser->m_pUserData->m_bNation)
+				pTUser->m_bType4Buff[pType->bBuffType - 1] = 2;
+			else
+				pTUser->m_bType4Buff[pType->bBuffType - 1] = 1;
+		}
+		else
+			pTUser->m_bType4Buff[pType->bBuffType - 1] = 1;
+
+		pTUser->m_bType4Flag = TRUE;
+
+		pTUser->SetSlotItemValue();
+		pTUser->SetUserAbility();
+
+		if (pTUser->m_sPartyIndex != -1 && pTUser->m_bType4Buff[pType->bBuffType - 1] == 1) {
+			Packet partypacket(WIZ_PARTY);
+			partypacket << PARTY_STATUSCHANGE << tid << uint8(2) << uint8(1);
+			m_pMain->Send_PartyMember(pTUser->m_sPartyIndex, &partypacket);
+		}
+		pTUser->Send2AI_UserUpdateInfo();
+
+		if ( pMagic->bType2 == 0 || pMagic->bType2 == 4 ) {
+			result << MAGIC_EFFECTING << magicid << sid << uint16(*itr) << data1 << 1 //result
+				<< data3 << uint16(pType->sDuration) << uint8(0) << uint16(pType->bSpeed);
+
+			if (sid >=0 && sid < MAX_USER)
+				m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, NULL);
+			else
+				m_pMain->Send_Region(&result, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL);
+		}
+		result = 1;	
+		continue; 
+
+fail_return:
+		if ( pMagic->bType2 == 4 ) {
+			result << MAGIC_EFFECTING << magicid << sid << uint16(*itr) << data1 << 0 //result(is always 0)
+				<< data3;
+
+			if( data4 != 0 )
+				result << data4;
+			else
+				result << uint16(pType->sDuration);
+
+			result << uint16(0) << uint16(pType->bSpeed);
+
+			if (sid >= 0 && sid < MAX_USER)
+				m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, NULL);
+			else
+				m_pMain->Send_Region(&result, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL);
+		}
+		
+		if (sid >= 0 && sid < MAX_USER) {
+			Packet result(WIZ_MAGIC_PROCESS);
+			result << MAGIC_FAIL << magicid << sid << uint16(*itr) << uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
+			Send( &result );
+		}
+
+		result = 1;	
+		continue;
+	}
+}
+
+void CUser::MagicType(uint16 effect_type, uint8 sub_type, uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4, uint16 data5, uint16 data6, uint16 data7)
 {
 	switch(effect_type)
 	{
 	case ATTACK_SKILL:
+		MagicType1(magicid, sid, tid, data1, data2, data3, data4, data5, data6, data7);
 		break;
 	case FLYING_SKILL:
 		if(sub_type == MAGIC_FLYING) //Basically a check if the player has enough mana and arrows.
@@ -279,10 +473,11 @@ bool CUser::CanCast(uint32 magicid, uint16 sid, uint16 tid)
 	else if(tid >= NPC_BAND)
 		pMon = m_pMain->m_arNpcArray.GetData(tid);
 
-	if(pMagic->iUseItem != 0 && pMagic->bType1 != 5 && !(this)->CheckItemCount(pMagic->iUseItem, 1, 999)) //The user does not have sufficient amount of items to cast this skill.
-		return false;
+	if(pMagic->iUseItem != 0 && pMagic->bType1 != 5 && !CanUseItem(pMagic->iUseItem)) //The user does not meet the item's requirements or does not have any of said item.
+			return false;
 
-	if((this)->m_pUserData->m_sClass != (pMagic->sSkill % 10)) //Trying to use a skill that is not meant to be casted by this character, either not mastered or totally different class' skill.
+	if((this)->m_pUserData->m_sClass != (pMagic->sSkill % 10)    //Trying to use a skill that is not meant to be casted by this character, either not mastered or totally different class' skill.
+		|| pMagic->sSkillLevel > (this)->m_pUserData->m_bLevel)  //Skill level check.
 		return false;
 
 	if(((this)->m_pUserData->m_sMp - pMagic->sMsp) < 0) //This user does not have enough mana for this skill.

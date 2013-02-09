@@ -1900,6 +1900,81 @@ void CUser::StateChange(char *pBuf)
 	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
 }
 
+void CUser::StateChange(Packet *pkt)
+{
+	uint8 type, buff;
+	uint32 nBuff;
+
+	*pkt >> type >> nBuff;
+
+	if( type > 5 )
+		return;
+	if( type == 5 && m_pUserData->m_bAuthority != 0)
+		return;	//  Operators only!!!
+
+	buff = *(uint8 *)&nBuff; // don't ask
+
+	switch (type)
+	{
+	case 1:
+		m_bResHpType = buff;
+		break;
+
+/*	case 2:
+		m_bNeedParty = buff;
+		break;*/
+
+	case 3:
+		switch (buff)
+		{
+		case 1: // unview
+		case 5: // view
+			// to-do: should implement GM check, but we'll leave it off for now (for science!)
+			// we have no visibility flag? ugh.
+			break;
+
+		case ABNORMAL_BLINKING: // blinking, duh 
+			break;
+
+		default:
+			TRACE("[SID=%d] StateChange: %s tripped (%d,%d) somehow, HOW!?\n", m_Sid, m_pUserData->m_id, type, buff);
+			break;
+
+		}
+		m_bAbnormalType = buff;
+		break;
+
+	case 4: // emotions
+		switch (buff)
+		{
+		case 1: // Greeting 1-3
+		case 2:
+		case 3:
+		case 11: // Provoke 1-3
+		case 12:
+		case 13:
+			break; // don't do anything with them (this can be handled neater, but just for testing purposes), just make sure they're allowed
+
+		default:
+			TRACE("[SID=%d] StateChange: %s tripped (%d,%d) somehow, HOW!?\n", m_Sid, m_pUserData->m_id, type, buff);
+			break;
+		}
+		break;
+
+	case 7:
+	case 8: // beginner quest
+		break;
+
+	default:
+		TRACE("[SID=%d] StateChange: %s tripped (%d,%d) somehow, HOW!?\n", m_Sid, m_pUserData->m_id, type, buff);
+		break;
+	}
+
+	Packet result(WIZ_STATE_CHANGE);
+	result << uint16(GetSocketID()) << type << nBuff; /* hmm, it should probably be nBuff, not sure how transformations are to be handled so... otherwise, it's correct either way */
+	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
+}
+
 void CUser::StateChangeServerDirect(BYTE bType, int nValue)
 {
 	char buff[5];
@@ -4033,4 +4108,22 @@ bool CUser::isAttackZone()
 		return true;
 	else
 		return (GetMap()->m_isAttackZone == 1 ? true : false);
+}
+
+bool CUser::CanUseItem(long itemid)
+{
+	_ITEM_TABLE* pItem = pItem = m_pMain->m_ItemtableArray.GetData(itemid);
+	if(!pItem)
+		return false;
+
+	if(pItem->m_bClass != 0 && pItem->m_bClass != m_pUserData->m_sClass) //Class related item check
+		return false;
+
+	if(pItem->m_bReqLevel > m_pUserData->m_bLevel) //Level related item check
+		return false;
+
+	if(!(this)->CheckItemCount(itemid, 1, 999)) //Does the character posses said item?
+		return false;
+
+	return true;
 }
