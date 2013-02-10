@@ -855,7 +855,7 @@ void CUser::SetDetailData()
 	}
 
 	m_iMaxExp = m_pMain->GetExpByLevel(getLevel());
-	m_sMaxWeight = (getStat(STAT_STR) + getStatItemBonus(STAT_STR)) * 50;
+	m_sMaxWeight = getStatWithItemBonus(STAT_STR) * 50;
 
 	m_pMap = m_pMain->GetZoneByID(m_pUserData->m_bZone);
 	if (m_pMap == NULL) 
