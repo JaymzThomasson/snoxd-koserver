@@ -46,14 +46,11 @@ public:
 
 	SkillCooldownList	m_CoolDownList;
 
-	short	m_RegionX;						// ���� ���� X ��ǥ
-	short	m_RegionZ;						// ���� ���� Z ��ǥ
+	short	m_RegionX, m_RegionZ;
 
-	__int64		m_iMaxExp;						// ���� ������ �Ǳ� ���� �ʿ��� Exp��
-	unsigned short	m_sMaxWeight;					// �� �� �ִ� �ִ� ����
-	BYTE    m_sSpeed;						// ���ǵ�
-
-	short	m_sBodyAc;						// �Ǹ� ������
+	int64	m_iMaxExp;
+	uint16	m_sMaxWeight;
+	uint16   m_sSpeed;	// NOTE: Currently unused
 
 	short	m_sTotalHit;					// �� Ÿ�ݰ��ݷ�	
 	short	m_sTotalAc;						// �� ������

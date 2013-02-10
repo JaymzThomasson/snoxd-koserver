@@ -145,10 +145,9 @@ BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 
 				bExact = TRUE;
 			}
 			break;
-//
-// ????? ???? >.<
+
 		case	LOGIC_CHECK_LEVEL:		
-			if( m_pUserData->m_bLevel >= pLE->m_LogicElseInt[0] && m_pUserData->m_bLevel <= pLE->m_LogicElseInt[1] ) {
+			if( getLevel() >= pLE->m_LogicElseInt[0] && getLevel() <= pLE->m_LogicElseInt[1] ) {
 				bExact = TRUE;
 			}
 			break;

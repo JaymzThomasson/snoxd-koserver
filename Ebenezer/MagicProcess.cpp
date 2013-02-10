@@ -326,11 +326,11 @@ void CMagicProcess::MagicPacket(char *pBuf)
 
 					if( pRightHand && m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum == 0 && pRightHand->m_bKind / 10 == WEAPON_STAFF) {					
 //						total_magic_damage += pRightHand->m_sDamage ;
-//						total_magic_damage += ((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->m_pUserData->m_bLevel) / 60);
+//						total_magic_damage += ((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 60);
 
 						if (pMagic->bType1 == 3) {
 //
-							total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->m_pUserData->m_bLevel) / 60);
+							total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 60);
 //
 							_MAGIC_TYPE3* pType3 = NULL;
 							pType3 = m_pMain->m_Magictype3Array.GetData( magicid );     // Get magic skill table type 4.
@@ -338,7 +338,7 @@ void CMagicProcess::MagicPacket(char *pBuf)
   
 							if (m_pSrcUser->m_bMagicTypeRightHand == pType3->bAttribute ) {							
 //								total_magic_damage += pRightHand->m_sDamage ;
-								total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * m_pSrcUser->m_pUserData->m_bLevel) / 30);
+								total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 30);
 							}
 //
 							if (pType3->bAttribute == 4) {	// Remember what Sunglae told ya!
@@ -629,24 +629,13 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 	}
 
 	if(!bFlag) {	// If the user cast the spell (and not the NPC).....
-
-/*	���߿� �ݵ��� �� �κ� ��ĥ�� !!!
-		if( type == MAGIC_CASTING ) {    		
-			if( m_bMagicState == CASTING && pTable->bType1 != 2 ) goto fail_return;		
-			if( pTable->bCastTime == 0 )  goto fail_return;
-			m_bMagicState = CASTING;
-		}
-		else if ( type == MAGIC_EFFECTING && pTable->bType1 != 2 ) {
-			if( m_bMagicState == NONE  && pTable->bCastTime != 0 ) goto fail_return;
-		} 
-*/		
 		modulator = pTable->sSkill % 10;     // Hacking prevention!
 		if( modulator != 0 ) {	
 			Class = pTable->sSkill / 10;
 			if( Class != m_pSrcUser->m_pUserData->m_sClass ) goto fail_return;
 			if( pTable->sSkillLevel > m_pSrcUser->m_pUserData->m_bstrSkill[modulator] ) goto fail_return;
 		}
-		else if( pTable->sSkillLevel > m_pSrcUser->m_pUserData->m_bLevel ) goto fail_return;
+		else if (pTable->sSkillLevel > m_pSrcUser->getLevel()) goto fail_return;
 
 		if (pTable->bType1 == 1) {	// Weapons verification in case of COMBO attack (another hacking prevention).
 			if (pTable->sSkill == 1055 || pTable->sSkill == 2055) {		// Weapons verification in case of DUAL ATTACK (type 1)!		
@@ -736,7 +725,7 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 						}
 						
 						if (pItem->m_bReqLevel != 0) {
-							if (m_pSrcUser->m_pUserData->m_bLevel < pItem->m_bReqLevel) {
+							if (m_pSrcUser->getLevel() < pItem->m_bReqLevel) {
 								type = MAGIC_CASTING;
 								goto fail_return;
 							}
@@ -759,7 +748,7 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 						CUser* pTUser = m_pMain->GetUserPtr(tid);    
 						if (!pTUser) goto fail_return;
 // �񷯸ӱ� ��Ȱ --;
-						if (pType->bType == 3 && pTUser->m_pUserData->m_bLevel <= 5) {	
+						if (pType->bType == 3 && pTUser->getLevel() <= 5) {	
 							type = MAGIC_CASTING;	// No resurrections for low level users...
 							goto fail_return; 							
 						}
@@ -860,15 +849,6 @@ BYTE CMagicProcess::ExecuteType1(int magicid, int sid, int tid, int data1, int d
 	if( pTUser->m_pUserData->m_sHp == 0) {    // Check if the target is dead.
 		pTUser->m_bResHpType = USER_DEAD;     // Target status is officially dead now.
 
-		// sungyong work : loyalty
-
-/* �������� ���� �ӽ÷� ��
-//		pTUser->ExpChange( -pTUser->m_iMaxExp/100 );     // Reduce target experience.
-		if( !m_pSrcUser->isInParty() )     // Something regarding loyalty points.
-			m_pSrcUser->LoyaltyChange( (pTUser->m_pUserData->m_bLevel * pTUser->m_pUserData->m_bLevel) );
-		else
-			m_pSrcUser->LoyaltyDivide( (pTUser->m_pUserData->m_bLevel * pTUser->m_pUserData->m_bLevel) );
-*/
 		if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
 			m_pSrcUser->LoyaltyChange(tid);
 		}
@@ -878,15 +858,12 @@ BYTE CMagicProcess::ExecuteType1(int magicid, int sid, int tid, int data1, int d
 
 		m_pSrcUser->GoldChange(tid, 0);
 
-		// �������� �Ϻ��� ��ȣ �ڵ�!!!
 		pTUser->InitType3();	// Init Type 3.....
 		pTUser->InitType4();	// Init Type 4.....
-//
+
 		if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
 			pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
-			//TRACE("������ 1%�� �￴�ٴϱ��� ��.��\r\n");
 		}
-//
 		pTUser->m_sWhoKilledMe = sid;		// Who the hell killed me?
 	} 
 	m_pSrcUser->SendTargetHP( 0, tid, -damage );     // Change the HP of the target.
@@ -963,16 +940,6 @@ BYTE CMagicProcess::ExecuteType2(int magicid, int sid, int tid, int data1, int d
 	if( pTUser->m_pUserData->m_sHp == 0){     // Check if the target is dead.    
 		pTUser->m_bResHpType = USER_DEAD;     // Target status is officially dead now.
 
-		// sungyong work : loyalty
-
-/* �������� ���� �ӽ÷� ��
-//		pTUser->ExpChange( -pTUser->m_iMaxExp/100 );     // Reduce target experience.
-		if( !m_pSrcUser->isInParty() )     // Something regarding loyalty points.
-			m_pSrcUser->LoyaltyChange( (pTUser->m_pUserData->m_bLevel * pTUser->m_pUserData->m_bLevel) );
-		else
-			m_pSrcUser->LoyaltyDivide( (pTUser->m_pUserData->m_bLevel * pTUser->m_pUserData->m_bLevel) );
-*/
-
 		if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
 			m_pSrcUser->LoyaltyChange(tid);
 		}
@@ -982,15 +949,12 @@ BYTE CMagicProcess::ExecuteType2(int magicid, int sid, int tid, int data1, int d
 
 		m_pSrcUser->GoldChange(tid, 0);
 
-		// �������� �Ϻ��� ��ȣ �ڵ�!!!
 		pTUser->InitType3();	// Init Type 3.....
 		pTUser->InitType4();	// Init Type 4.....
-//
+
 		if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
 			pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
-			//TRACE("������ 1%�� �￴�ٴϱ��� ��.��\r\n");
 		}
-//
 		pTUser->m_sWhoKilledMe = sid;		// Who the hell killed me?
 	} 
 
@@ -2108,7 +2072,7 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 		}
 		else{
 			if (attribute != 4) {	// Only if the staff has an attribute.
-				damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * m_pSrcUser->m_pUserData->m_bLevel) / 60) - ((attribute_damage * 0.8f) + (attribute_damage * m_pSrcUser->m_pUserData->m_bLevel) / 30));
+				damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * m_pSrcUser->getLevel()) / 60) - ((attribute_damage * 0.8f) + (attribute_damage * m_pSrcUser->getLevel()) / 30));
 			}
 
 

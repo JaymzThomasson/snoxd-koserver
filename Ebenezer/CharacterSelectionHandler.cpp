@@ -285,7 +285,7 @@ void CUser::GameStart(Packet & pkt)
 
 		if (m_pUserData->m_bCity > 0)
 		{
-			int level = m_pUserData->m_bLevel;
+			int level = getLevel();
 			if (m_pUserData->m_bCity <= 100)
 				level--;
 

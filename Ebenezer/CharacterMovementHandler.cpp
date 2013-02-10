@@ -149,7 +149,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 	m_pMap = pMap;
 	if( pMap->m_bType == 2 ) {	// If Target zone is frontier zone.
-		if( m_pUserData->m_bLevel < 20 && m_pMain->m_byBattleOpen != SNOW_BATTLE)
+		if( getLevel() < 20 && m_pMain->m_byBattleOpen != SNOW_BATTLE)
 			return;
 	}
 

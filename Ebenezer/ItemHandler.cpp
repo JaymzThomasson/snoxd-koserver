@@ -285,8 +285,8 @@ void CUser::SendItemWeight()
 BOOL CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 {
 	if (pTable == NULL
-		|| pTable->m_bReqLevel > m_pUserData->m_bLevel
-		|| m_pUserData->m_bLevel > pTable->m_bReqLevelMax
+		|| pTable->m_bReqLevel > getLevel()
+		|| getLevel() > pTable->m_bReqLevelMax
 		|| pTable->m_bReqRank > m_pUserData->m_bRank
 		|| pTable->m_bReqTitle > m_pUserData->m_bTitle
 		|| pTable->m_bReqStr > m_pUserData->m_bStr

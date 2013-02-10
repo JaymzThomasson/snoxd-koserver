@@ -53,7 +53,6 @@ void CUser::Initialize()
 	m_RegionX = -1;
 	m_RegionZ = -1;
 
-	m_sBodyAc = 0;
 	m_sTotalHit = 0;
 	m_sTotalAc = 0;
 	m_sTotalHitrate = 0;
@@ -712,14 +711,12 @@ void CUser::SetMaxHp(int iFlag)
 
 	if( m_pUserData->m_bZone == ZONE_SNOW_BATTLE && iFlag == 0 )	{
 		m_iMaxHp = 100;
-		//TRACE("--> SetMaxHp - name=%s, max=%d, hp=%d\n", m_pUserData->m_id, m_iMaxHp, m_pUserData->m_sHp);
 	}
 	else	{
-		m_iMaxHp = (short)(((p_TableCoefficient->HP * m_pUserData->m_bLevel * m_pUserData->m_bLevel * temp_sta ) 
-		      + (0.1 * m_pUserData->m_bLevel * temp_sta ) + (temp_sta / 5)) + m_sMaxHPAmount + m_sItemMaxHp);
-		if( iFlag == 1 )	m_pUserData->m_sHp = m_iMaxHp + 20;		// ??? ?? hp?? ??? ?????? hpchange()??? ?????,, ???^^*
+		m_iMaxHp = (short)(((p_TableCoefficient->HP * getLevel() * getLevel() * temp_sta ) 
+		      + (0.1 * getLevel() * temp_sta ) + (temp_sta / 5)) + m_sMaxHPAmount + m_sItemMaxHp);
+		if( iFlag == 1 )	m_pUserData->m_sHp = m_iMaxHp + 20;
 		else if( iFlag == 2 )	m_iMaxHp = 100;
-		//TRACE("<-- SetMaxHp - name=%s, max=%d, hp=%d\n", m_pUserData->m_id, m_iMaxHp, m_pUserData->m_sHp);
 	}
 
 	if(m_iMaxHp < m_pUserData->m_sHp) {
@@ -744,15 +741,15 @@ void CUser::SetMaxMp()
 
 	if( p_TableCoefficient->MP != 0)
 	{
-		m_iMaxMp = (short)((p_TableCoefficient->MP * m_pUserData->m_bLevel * m_pUserData->m_bLevel * temp_intel)
-				  + (0.1f * m_pUserData->m_bLevel * 2 * temp_intel) + (temp_intel / 5));
+		m_iMaxMp = (short)((p_TableCoefficient->MP * getLevel() * getLevel() * temp_intel)
+				  + (0.1f * getLevel() * 2 * temp_intel) + (temp_intel / 5));
 		m_iMaxMp += m_sItemMaxMp;		
-		m_iMaxMp += 20;		 // ?????? ??�
+		m_iMaxMp += 20;	
 	}
 	else if( p_TableCoefficient->SP != 0)
 	{
-		m_iMaxMp = (short)((p_TableCoefficient->SP * m_pUserData->m_bLevel * m_pUserData->m_bLevel * temp_sta )
-			  + (0.1f * m_pUserData->m_bLevel * temp_sta) + (temp_sta / 5));
+		m_iMaxMp = (short)((p_TableCoefficient->SP * getLevel() * getLevel() * temp_sta )
+			  + (0.1f * getLevel() * temp_sta) + (temp_sta / 5));
 		m_iMaxMp += m_sItemMaxMp;
 	}
 
@@ -1195,7 +1192,7 @@ void CUser::SetSlotItemValue()
 	}
 }
 
-void CUser::ExpChange(__int64 iExp)
+void CUser::ExpChange(int64 iExp)
 {	
 	// Stop players level 5 or under from losing XP on death.
 	if ((getLevel() < 6 && iExp < 0)
@@ -1203,37 +1200,50 @@ void CUser::ExpChange(__int64 iExp)
 		|| (m_pUserData->m_bZone == ZONE_BATTLE && iExp < 0))
 		return;
 
-	// TO-DO: Make this all work unsigned. Negative XP values are NOT fun.
-	m_pUserData->m_iExp += iExp;
+	// Despite being signed, we don't want m_iExp ever going below 0.
+	// If this happens, we need to investigate why -- not sweep it under the rug.
+	ASSERT(m_pUserData->m_iExp >= 0);
 
-	// If we've lost XP, we need to delevel.
-	if (m_pUserData->m_iExp < 0)
+	bool bLevel = true;
+	if (iExp < 0 
+		&& (m_pUserData->m_iExp - iExp) < 0)
+		bLevel = false;
+	else
+		m_pUserData->m_iExp += iExp;
+
+	// If we need to delevel...
+	if (!bLevel)
 	{
 		// Drop us back a level.
 		m_pUserData->m_bLevel--;
 
-		// Find max XP for our new level, and take our excess XP off it.
-		m_pUserData->m_iExp += m_pMain->GetExpByLevel(getLevel());
+		// Get the excess XP (i.e. below 0), so that we can take it off the max XP of the previous level
+		// Remember: we're deleveling, not necessarily starting from scratch at the previous level
+		int64 diffXP = -(iExp) - m_pUserData->m_iExp;
+
+		// Now reset our XP to max for the former level.
+		m_pUserData->m_iExp = m_pMain->GetExpByLevel(getLevel());
 
 		// Get new stats etc.
 		LevelChange(getLevel(), FALSE);
+
+		// Take the remainder of the XP off (and delevel again if necessary).
+		ExpChange(-(diffXP));
 		return;
 	}
 	// If we've exceeded our XP requirement, we've leveled.
 	else if (m_pUserData->m_iExp >= m_iMaxExp)
 	{
-		// Hit the max level? Can't level any further. Cap the XP.
-		if (getLevel() >= MAX_LEVEL)
+		if (getLevel() < MAX_LEVEL)
 		{
-			m_pUserData->m_iExp = m_iMaxExp;
+			// Reset our XP to 0, level us up.
+			m_pUserData->m_iExp = 0;
+			LevelChange(++m_pUserData->m_bLevel);
 			return;
 		}
 
-		// Reset our XP to 0, level us up.
-		m_pUserData->m_iExp = 0;
-		m_pUserData->m_bLevel++;
-		LevelChange(getLevel());
-		return;
+		// Hit the max level? Can't level any further. Cap the XP.
+		m_pUserData->m_iExp = m_iMaxExp;
 	}
 
 	// Tell the client our new XP
@@ -1246,6 +1256,10 @@ void CUser::ExpChange(__int64 iExp)
 		m_iLostExp = -iExp;
 }
 
+/*
+	This method name is something of a misnomer: 
+	it's called after the level has changed (so that stats can be applied, etc), it does not change the level 
+*/
 void CUser::LevelChange(short level, BYTE type )
 {
 	if( level < 1 || level > MAX_LEVEL )
@@ -1495,17 +1509,16 @@ void CUser::SetUserAbility()
 	temp_dex = m_pUserData->m_bDex+m_bDexAmount+m_sItemDex;
 //	if( temp_dex > 255 ) temp_dex = 255;
 
-	m_sBodyAc = m_pUserData->m_bLevel;
 	m_sMaxWeight = (m_pUserData->m_bStr + m_sItemStr ) * 50;
 	if( bHaveBow ) 
-		m_sTotalHit = (short)((((0.005 * pItem->m_sDamage * (temp_dex + 40)) + ( hitcoefficient * pItem->m_sDamage * m_pUserData->m_bLevel * temp_dex )) + 3));
+		m_sTotalHit = (short)((((0.005 * pItem->m_sDamage * (temp_dex + 40)) + ( hitcoefficient * pItem->m_sDamage * getLevel() * temp_dex )) + 3));
 	else
-		m_sTotalHit = (short)((((0.005f * m_sItemHit * (temp_str + 40)) + ( hitcoefficient * m_sItemHit * m_pUserData->m_bLevel * temp_str )) + 3)); 	
+		m_sTotalHit = (short)((((0.005f * m_sItemHit * (temp_str + 40)) + ( hitcoefficient * m_sItemHit * getLevel() * temp_str )) + 3)); 	
 
-	m_sTotalAc = (short)(p_TableCoefficient->AC * (m_sBodyAc + m_sItemAc));
-	m_sTotalHitrate = ((1 + p_TableCoefficient->Hitrate * m_pUserData->m_bLevel *  temp_dex ) * m_sItemHitrate/100 ) * (m_bHitRateAmount/100);
+	m_sTotalAc = (short)(p_TableCoefficient->AC * (getLevel() + m_sItemAc));
+	m_sTotalHitrate = ((1 + p_TableCoefficient->Hitrate * getLevel() *  temp_dex ) * m_sItemHitrate/100 ) * (m_bHitRateAmount/100);
 
-	m_sTotalEvasionrate = ((1 + p_TableCoefficient->Evasionrate * m_pUserData->m_bLevel * temp_dex ) * m_sItemEvasionrate/100) * (m_sAvoidRateAmount/100);
+	m_sTotalEvasionrate = ((1 + p_TableCoefficient->Evasionrate * getLevel() * temp_dex ) * m_sItemEvasionrate/100) * (m_sAvoidRateAmount/100);
 
 	SetMaxHp();
 	SetMaxMp();
@@ -2047,7 +2060,7 @@ void CUser::LoyaltyDivide(short tid)
 	}
 		
 	if (pTUser->m_pUserData->m_bNation != m_pUserData->m_bNation) {		// Different nations!!!
-		level_difference = pTUser->m_pUserData->m_bLevel - average_level;	// Calculate difference!
+		level_difference = pTUser->getLevel() - average_level;	// Calculate difference!
 
 		if (pTUser->m_pUserData->m_iLoyalty <= 0) {	   // No cheats allowed...
 			loyalty_source = 0;
@@ -2100,7 +2113,7 @@ void CUser::LoyaltyDivide(short tid)
 			continue;
 
 		//TRACE("LoyaltyDivide 333 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
-		individualvalue = pUser->m_pUserData->m_bLevel * loyalty_source / levelsum ;
+		individualvalue = pUser->getLevel() * loyalty_source / levelsum ;
 		pUser->m_pUserData->m_iLoyalty += individualvalue;	
 		if (pUser->m_pUserData->m_iLoyalty < 0) pUser->m_pUserData->m_iLoyalty = 0;
 
@@ -2344,18 +2357,18 @@ void CUser::HPTimeChange(float currenttime)
 	if( m_bResHpType == USER_STANDING ) {
 		if( m_pUserData->m_sHp < 1 ) return;
 		if( m_iMaxHp != m_pUserData->m_sHp )
-			HpChange( (int)((m_pUserData->m_bLevel*(1+m_pUserData->m_bLevel/60.0) + 1)*0.2)+3 );
+			HpChange( (int)((getLevel()*(1+getLevel()/60.0) + 1)*0.2)+3 );
 
 		if( m_iMaxMp != m_pUserData->m_sMp )
-			MSpChange( (int)((m_pUserData->m_bLevel*(1+m_pUserData->m_bLevel/60.0) + 1)*0.2)+3 );
+			MSpChange( (int)((getLevel()*(1+getLevel()/60.0) + 1)*0.2)+3 );
 	}
 	else if ( m_bResHpType == USER_SITDOWN ) {
 		if( m_pUserData->m_sHp < 1 ) return;
 		if( m_iMaxHp != m_pUserData->m_sHp ) {
-			HpChange( (int)(m_pUserData->m_bLevel*(1+m_pUserData->m_bLevel/30.0) ) + 3 );
+			HpChange( (int)(getLevel()*(1+getLevel()/30.0) ) + 3 );
 		}
 		if( m_iMaxMp != m_pUserData->m_sMp ) {
-			MSpChange((int)((m_iMaxMp * 5) / ((m_pUserData->m_bLevel - 1) + 30 )) + 3 ) ;
+			MSpChange((int)((m_iMaxMp * 5) / ((getLevel() - 1) + 30 )) + 3 ) ;
 		}
 	}
 }
@@ -2947,11 +2960,10 @@ void CUser::AllSkillPointChange()
 	int index = 0, skill_point = 0, money = 0, temp_value = 0, old_money = 0;
 	uint8 type = 0;
 
-	temp_value = (int)pow((m_pUserData->m_bLevel * 2.0f), 3.4f);
-	temp_value = (temp_value / 100) * 100;
-	if (m_pUserData->m_bLevel < 30)		
+	temp_value = (int)pow((getLevel() * 2.0f), 3.4f);
+	if (getLevel() < 30)		
 		temp_value = (int)(temp_value * 0.4f);
-	else if (m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= MAX_LEVEL)
+	else if (getLevel() >= 60)
 		temp_value = (int)(temp_value * 1.5f);
 
 	temp_value = (int)(temp_value * 1.5f);
@@ -2959,10 +2971,7 @@ void CUser::AllSkillPointChange()
 	// If global discounts are enabled 
 	if (m_pMain->m_sDiscount == 2 // or war discounts are enabled
 		|| (m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation))
-	{
-		old_money = temp_value; // get it half price
-		temp_value = (int)(temp_value * 0.5f);
-	}
+		temp_value /= 2;
 
 	money = m_pUserData->m_iGold - temp_value;
 
@@ -3006,21 +3015,18 @@ void CUser::AllPointChange()
 	double dwMoney = 0;
 	BYTE type = 0x00;
 
-	if( m_pUserData->m_bLevel > 80 ) goto fail_return;
+	if (getLevel() > MAX_LEVEL)
+		goto fail_return;
 
-	temp_money = (int)pow(( m_pUserData->m_bLevel * 2.0f ), 3.4f);
-	temp_money = (temp_money/100)*100;
-	if( m_pUserData->m_bLevel < 30)		temp_money = (int)(temp_money * 0.4f);
-	else if( m_pUserData->m_bLevel >= 60 && m_pUserData->m_bLevel <= 90 ) temp_money = (int)(temp_money * 1.5f);
+	temp_money = (int)pow((getLevel() * 2.0f ), 3.4f);
+	if (getLevel() < 30)
+		temp_money = (int)(temp_money * 0.4f);
+	else if (getLevel() >= 60) 
+		temp_money = (int)(temp_money * 1.5f);
 
-	if( m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == m_pUserData->m_bNation )		{	// ????????? ?�???????
-		temp_money = (int)(temp_money * 0.5f);
-		//TRACE("^^ AllPointChange - Discount ,, money=%d->%d\n", old_money, temp_money);
-	}
-
-	if( m_pMain->m_sDiscount == 2  )		{	
-		temp_money = (int)(temp_money * 0.5f);
-	}
+	if ((m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == getNation())
+		|| m_pMain->m_sDiscount == 2)
+		temp_money /= 2;
 
 	money = m_pUserData->m_iGold - temp_money;
 	if(money < 0)	goto fail_return;
@@ -3113,7 +3119,7 @@ void CUser::AllPointChange()
 		break;
 	}
 
-	m_pUserData->m_sPoints = (m_pUserData->m_bLevel-1) * 3 + 10;
+	m_pUserData->m_sPoints = (getLevel() - 1) * 3 + 10;
 	m_pUserData->m_iGold = money;
 
 	SetUserAbility();

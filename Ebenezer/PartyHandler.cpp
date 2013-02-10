@@ -89,10 +89,9 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 		goto fail_return;
 	}
 
-	if( !(   ( pUser->m_pUserData->m_bLevel <= (int)(m_pUserData->m_bLevel * 1.5) && pUser->m_pUserData->m_bLevel >= (int)(m_pUserData->m_bLevel * 1.5)) 
-		  || ( pUser->m_pUserData->m_bLevel <= (m_pUserData->m_bLevel+8) && pUser->m_pUserData->m_bLevel >= ((int)(m_pUserData->m_bLevel)-8) ) 
-		 )
-	  )  {
+	if( !(   ( pUser->getLevel() <= (int)(getLevel() * 1.5) && pUser->getLevel() >= (int)(getLevel() * 1.5)) 
+		  || ( pUser->getLevel() <= (getLevel() + 8) && pUser->getLevel() >= ((int)(getLevel()) - 8))))
+	{
 		result = -2;
 		goto fail_return;
 	}
@@ -118,9 +117,6 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 		SetByte( send_buff, PARTY_CREATE, send_index );
 		SetShort( send_buff, pParty->wIndex, send_index );
 		SetShort( send_buff, pParty->uid[0], send_index );
-		//SetShort( send_buff, pParty->sHp[0], send_index );
-		//SetByte( send_buff, pParty->bLevel[0], send_index );
-		//SetShort( send_buff, pParty->sClass[0], send_index );
 		m_pMain->Send_AIServer(send_buff, send_index);
 	}
 
@@ -352,9 +348,9 @@ void CUser::PartyBBSRegister(Packet & pkt)
 			|| pUser->m_bNeedParty == 1) 
 			continue;
 
-		if( !(   ( pUser->m_pUserData->m_bLevel <= (int)(m_pUserData->m_bLevel * 1.5) && pUser->m_pUserData->m_bLevel >= (int)(m_pUserData->m_bLevel * 1.5)) 
-			  || ( pUser->m_pUserData->m_bLevel <= (m_pUserData->m_bLevel+8) && pUser->m_pUserData->m_bLevel >= ((int)(m_pUserData->m_bLevel)-8) ) 
-		) ) continue;
+		if( !(   ( pUser->getLevel() <= (int)(getLevel() * 1.5) && pUser->getLevel() >= (int)(getLevel() * 1.5)) 
+			  || ( pUser->getLevel() <= (getLevel() + 8) && pUser->getLevel() >= ((int)(getLevel()) - 8))))
+			  continue;
 
 		if (pUser->GetSocketID() == GetSocketID()) break;
 		counter++;		
@@ -429,9 +425,9 @@ void CUser::PartyBBSNeeded(Packet & pkt, BYTE type)
 			|| pUser->m_bNeedParty == 1) 
 			continue;
 
-		if( !(   ( pUser->m_pUserData->m_bLevel <= (int)(m_pUserData->m_bLevel * 1.5) && pUser->m_pUserData->m_bLevel >= (int)(m_pUserData->m_bLevel * 1.5)) 
-			  || ( pUser->m_pUserData->m_bLevel <= (m_pUserData->m_bLevel+8) && pUser->m_pUserData->m_bLevel >= ((int)(m_pUserData->m_bLevel)-8) ) 
-		) ) continue;
+		if( !(   ( pUser->getLevel() <= (int)(getLevel() * 1.5) && pUser->getLevel() >= (int)(getLevel() * 1.5)) 
+			  || ( pUser->getLevel() <= (getLevel() + 8) && pUser->getLevel() >= ((int)(getLevel()) - 8))))
+			  continue;
 
 		BBS_Counter++;
 
@@ -439,7 +435,7 @@ void CUser::PartyBBSNeeded(Packet & pkt, BYTE type)
 		if (valid_counter >= MAX_BBS_PAGE) continue;
 
 		SetKOString(send_buff, pUser->m_pUserData->m_id, send_index);
-		SetByte(send_buff, pUser->m_pUserData->m_bLevel, send_index);
+		SetByte(send_buff, pUser->getLevel(), send_index);
 		SetShort(send_buff, pUser->m_pUserData->m_sClass, send_index);
 
 		valid_counter++;		// Increment counters.

@@ -93,11 +93,10 @@ void CKnightsManager::CreateKnights(CUser* pUser, Packet & pkt)
 		ret_value = 5;
 	else if (m_pMain->m_nServerGroup == 2)
 		ret_value = 8;
-	else if (pUser->m_pUserData->m_bLevel < CLAN_LEVEL_REQUIREMENT)
+	else if (pUser->getLevel() < CLAN_LEVEL_REQUIREMENT)
 		ret_value = 2;
 	else if (pUser->m_pUserData->m_iGold < CLAN_COIN_REQUIREMENT)
 		ret_value = 4;
-
 
 	if (ret_value == 0)
 	{
@@ -595,7 +594,7 @@ void CKnightsManager::CurrentKnightsMember(CUser *pUser, Packet & pkt)
 		}
 		SetKOString(temp_buff, pUser->m_pUserData->m_id, buff_index);
 		SetByte( temp_buff, pUser->m_pUserData->m_bFame, buff_index );
-		SetByte( temp_buff, pUser->m_pUserData->m_bLevel, buff_index );
+		SetByte( temp_buff, pUser->getLevel(), buff_index );
 		SetShort( temp_buff, pUser->m_pUserData->m_sClass, buff_index );
 		count++;
 

@@ -2208,7 +2208,7 @@ int  CEbenezerDlg::GetKnightsAllMembers(int knightsindex, char *temp_buff, int& 
 
 			SetKOString( temp_buff, pUser->m_pUserData->m_id, buff_index );
 			SetByte( temp_buff, pUser->m_pUserData->m_bFame, buff_index);
-			SetByte( temp_buff, pUser->m_pUserData->m_bLevel, buff_index);
+			SetByte( temp_buff, pUser->getLevel(), buff_index);
 			SetShort( temp_buff, pUser->m_pUserData->m_sClass, buff_index);
 			SetByte( temp_buff, 1, buff_index);
 			count++;
@@ -2225,7 +2225,7 @@ int  CEbenezerDlg::GetKnightsAllMembers(int knightsindex, char *temp_buff, int& 
 					if( pUser->m_pUserData->m_bKnights == knightsindex )	{
 						SetKOString( temp_buff, pUser->m_pUserData->m_id, buff_index );
 						SetByte( temp_buff, pUser->m_pUserData->m_bFame, buff_index);
-						SetByte( temp_buff, pUser->m_pUserData->m_bLevel, buff_index);
+						SetByte( temp_buff, pUser->getLevel(), buff_index);
 						SetShort( temp_buff, pUser->m_pUserData->m_sClass, buff_index);
 						SetByte( temp_buff, 1, buff_index);
 						count++;

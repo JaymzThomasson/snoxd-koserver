@@ -525,7 +525,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 			return;	// Subtract resurrection stones.
 		}
 
-		if (m_pUserData->m_bLevel <= 5) {
+		if (getLevel() <= 5) {
 			return;	// 5 level minimum.
 		}
 	}
