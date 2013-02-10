@@ -57,7 +57,6 @@ public:
 	short			m_nSocketErr;
 	short			m_nPending;
 	short			m_nWouldblock;
-	_REGION_BUFFER*	m_pRegionBuffer;
 
 protected:
 	CIOCPort* m_pIOCPort;

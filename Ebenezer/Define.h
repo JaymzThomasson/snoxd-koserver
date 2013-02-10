@@ -355,10 +355,4 @@ typedef union{
 
 #include "../shared/globals.h"
 
-struct _REGION_BUFFER 
-{
-	ByteBuffer Buffer;
-	RWLock Lock;
-};
-
 #endif
