@@ -1283,32 +1283,24 @@ void CEbenezerDlg::UpdateGameTime()
 
 void CEbenezerDlg::UpdateWeather()
 {
-	int weather = 0, result = 0, send_index = 0;
-	char send_buff[256];
+	int weather = 0, rnd = myrand( 0, 100 );
+	if (rnd < 2)		weather = WEATHER_SNOW;
+	else if (rnd < 7)	weather = WEATHER_RAIN;
+	else				weather = WEATHER_FINE;
 
-	result = myrand( 0, 100 );
-
-//	if( result < 5 )
-	if( result < 2 )
-		weather = WEATHER_SNOW;
-//	else if( result < 15 )
-	else if( result < 7 )
-		weather = WEATHER_RAIN;
-	else
-		weather = WEATHER_FINE;
-
-	m_nAmount = myrand( 0, 100 );
-	if( weather == WEATHER_FINE ) {		// WEATHER_FINE �϶� m_nAmount �� �Ȱ� ���� ǥ��
-		if( m_nAmount > 70 )
-			m_nAmount = m_nAmount/2;
+	m_nAmount = myrand(0, 100);
+	if (weather == WEATHER_FINE)
+	{
+		if (m_nAmount > 70)
+			m_nAmount /= 2;
 		else
 			m_nAmount = 0;
 	}
 	m_nWeather = weather;
-	SetByte( send_buff, WIZ_WEATHER, send_index );
-	SetByte( send_buff, (BYTE)m_nWeather, send_index );
-	SetShort( send_buff, m_nAmount, send_index );
-	Send_All( send_buff, send_index );
+
+	Packet result(WIZ_WEATHER, m_nWeather);
+	result << m_nAmount;
+	Send_All(&result);
 }
 
 void CEbenezerDlg::SetGameTime()
