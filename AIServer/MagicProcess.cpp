@@ -61,7 +61,7 @@ void CMagicProcess::MagicPacket(char *pBuf)
 
 	if( command == MAGIC_EFFECTING )     // Is target another player? 
 	{
-		switch( pTable->bType1 ) {
+		switch( pTable->bType[0] ) {
 		case 1:
 			result = ExecuteType1( pTable->iNum, tid, data1, data2, data3, 1 );
 			break;
@@ -95,7 +95,7 @@ void CMagicProcess::MagicPacket(char *pBuf)
 		}
 
 		if(result != 0)	{
-			switch( pTable->bType2 ) {
+			switch( pTable->bType[1] ) {
 			case 1:
 				ExecuteType1( pTable->iNum, tid, data4, data5, data6, 2 );
 				break;
@@ -191,7 +191,7 @@ BYTE CMagicProcess::ExecuteType1(int magicid, int tid, int data1, int data2, int
 //		result = 0;
 
 packet_send:
-	if (pMagic->bType2 == 0 || pMagic->bType2 == 1) {
+	if (pMagic->bType[1] == 0 || pMagic->bType[1] == 1) {
 		SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
 		SetByte( send_buff, MAGIC_EFFECTING, send_index );
 		SetDWORD( send_buff, magicid, send_index );
@@ -397,7 +397,7 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 	} 
 
 packet_send:
-	//if ( pMagic->bType2 == 0 || pMagic->bType2 == 3 ) 
+	//if ( pMagic->bType[1] == 0 || pMagic->bType[1] == 3 ) 
 	{
 		SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
 		SetByte( send_buff, MAGIC_EFFECTING, send_index );
@@ -771,7 +771,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 
 					send_index = 0;	
 					// 패킷 전송.....
-					//if ( pMagic->bType2 == 0 || pMagic->bType2 == 3 ) 
+					//if ( pMagic->bType[1] == 0 || pMagic->bType[1] == 3 ) 
 					{
 						SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
 						SetByte( send_buff, MAGIC_EFFECTING, send_index );

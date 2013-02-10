@@ -138,13 +138,7 @@
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// USER POINT DEFINE
-#define STR					0x01
-#define STA					0x02
-#define DEX					0x03
-#define INTEL				0x04
-#define CHA					0x05
-
+// SKILL POINT DEFINE
 #define ORDER_SKILL			0x01
 #define MANNER_SKILL		0X02
 #define LANGUAGE_SKILL		0x03
@@ -319,17 +313,15 @@ struct _ITEM_TABLE
 
 struct	_PARTY_GROUP
 {
-	WORD wIndex;
-	short uid[8];
-	short sMaxHp[8];
-	short sHp[8];
-	BYTE bLevel[8];
-	short sClass[8];
-	BYTE bItemRouting;
-	_PARTY_GROUP() {
-		for(int i=0;i<8;i++) {
-			uid[i] = -1; sMaxHp[i] = 0; sHp[i] = 0; bLevel[i] = 0; sClass[i] = 0;
-		}
+	WORD	wIndex;
+	short	uid		[MAX_PARTY_USERS];
+	BYTE	bItemRouting;
+
+	_PARTY_GROUP()
+	{
+		for (int i = 0; i < MAX_PARTY_USERS; i++)
+			uid[i] = -1; 
+
 		bItemRouting = 0;
 	};
 };
@@ -386,8 +378,7 @@ struct _MAGIC_TABLE
 	BYTE	bCastTime;
 	BYTE	bReCastTime;
 	BYTE	bSuccessRate;
-	BYTE	bType1;
-	BYTE	bType2;
+	BYTE	bType[2];
 	int		sRange;
 	BYTE	bEtc;
 };

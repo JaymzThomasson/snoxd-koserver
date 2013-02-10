@@ -1,7 +1,4 @@
-#include "StdAfx.h" // oh god, this needs reworking, a LOT.
-#include "EbenezerDlg.h"
-#include "User.h"
-#include "AIPacket.h"
+#include "StdAfx.h"
 
 void CUser::Attack(Packet & pkt)
 {
@@ -150,7 +147,7 @@ short CUser::GetDamage(short tid, int magicid)
 		pTable = m_pMain->m_MagictableArray.GetData( magicid );     // Get main magic table.
 		if( !pTable ) return -1; 
 		
-		if (pTable->bType1 == 1) {	// SKILL HIT!			                                
+		if (pTable->bType[0] == 1) {	// SKILL HIT!			                                
 			pType1 = m_pMain->m_Magictype1Array.GetData( magicid );	    // Get magic skill table type 1.
 			if( !pType1 ) return -1;     	                                
 
@@ -166,7 +163,7 @@ short CUser::GetDamage(short tid, int magicid)
 			}
 			temp_hit = (short)(temp_hit_B * (pType1->sHit / 100.0f));
 		}
-		else if (pTable->bType1 == 2) {   // ARROW HIT!
+		else if (pTable->bType[0] == 2) {   // ARROW HIT!
 			pType2 = m_pMain->m_Magictype2Array.GetData( magicid );	    // Get magic skill table type 1.
 			if( !pType2 ) return -1; 
 			
@@ -201,7 +198,7 @@ short CUser::GetDamage(short tid, int magicid)
 			if( magicid > 0 ) {	 // Skill Hit.
 				damage = (short)temp_hit;
 				random = myrand(0, damage);
-				if (pTable->bType1 == 1) {
+				if (pTable->bType[0] == 1) {
 					damage = (short)((temp_hit + 0.3f * random) + 0.99f);
 				}
 				else {
@@ -528,7 +525,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 			return;	// Subtract resurrection stones.
 		}
 
-		if (m_pUserData->m_bLevel <= 5) {
+		if (getLevel() <= 5) {
 			return;	// 5 level minimum.
 		}
 	}
@@ -656,20 +653,11 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	if (isInParty())
 	{
 		// TO-DO: Wrap these up into Party-specific methods (nothing for that yet)
+		// UPDATE: Sticking them in the CUser class for the moment. Need to have them make sense, though.
 		if (!m_bType3Flag)
-		{
-			result.Initialize(WIZ_PARTY);
-			result	<< uint8(PARTY_STATUSCHANGE)
-					<< uint16(GetSocketID()) << uint8(1) << uint8(0);
-			m_pMain->Send_PartyMember(m_sPartyIndex, &result);
-		}
+			SendPartyStatusUpdate(1);
  
 		if (!m_bType4Flag)
-		{
-			result.Initialize(WIZ_PARTY);
-			result	<< uint8(PARTY_STATUSCHANGE)
-					<< uint16(GetSocketID()) << uint8(2) << uint8(0);
-			m_pMain->Send_PartyMember(m_sPartyIndex, &result);
-		}
+			SendPartyStatusUpdate(2);
 	}
 }

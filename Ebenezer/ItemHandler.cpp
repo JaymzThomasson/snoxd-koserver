@@ -1,6 +1,4 @@
-#include "StdAfx.h" // oh god, this needs reworking, a LOT.
-#include "EbenezerDlg.h"
-#include "User.h"
+#include "StdAfx.h"
 
 void CUser::WarehouseProcess(Packet & pkt)
 {
@@ -286,19 +284,16 @@ void CUser::SendItemWeight()
 
 BOOL CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 {
-	if (pTable == NULL
-		|| pTable->m_bReqLevel > m_pUserData->m_bLevel
-		|| m_pUserData->m_bLevel > pTable->m_bReqLevelMax
-		|| pTable->m_bReqRank > m_pUserData->m_bRank
-		|| pTable->m_bReqTitle > m_pUserData->m_bTitle
-		|| pTable->m_bReqStr > m_pUserData->m_bStr
-		|| pTable->m_bReqSta > m_pUserData->m_bSta
-		|| pTable->m_bReqDex > m_pUserData->m_bDex
-		|| pTable->m_bReqIntel > m_pUserData->m_bIntel
-		|| pTable->m_bReqCha > m_pUserData->m_bCha)
-		return FALSE;
-
-	return TRUE;
+	return (pTable != NULL
+		&& getLevel() >= pTable->m_bReqLevel 
+		&& getLevel() <= pTable->m_bReqLevelMax
+		&& m_pUserData->m_bRank >= pTable->m_bReqRank // this needs to be verified
+		&& m_pUserData->m_bTitle >= pTable->m_bReqTitle // this is unused
+		&& getStat(STAT_STR) >= pTable->m_bReqStr 
+		&& getStat(STAT_STA) >= pTable->m_bReqSta 
+		&& getStat(STAT_DEX) >= pTable->m_bReqDex 
+		&& getStat(STAT_INT) >= pTable->m_bReqIntel 
+		&& getStat(STAT_CHA) >= pTable->m_bReqCha);
 }
 
 void CUser::ItemMove(Packet & pkt)

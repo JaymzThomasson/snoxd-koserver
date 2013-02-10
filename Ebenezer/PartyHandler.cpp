@@ -1,9 +1,4 @@
-#include "StdAfx.h" // oh god, this needs reworking, a LOT.
-#include "EbenezerDlg.h"
-#include "User.h"
-#include "AIPacket.h"
-
-// we'll throw the party BBS system in here too
+#include "StdAfx.h"
 
 void CUser::PartyProcess(Packet & pkt)
 {
@@ -94,10 +89,9 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 		goto fail_return;
 	}
 
-	if( !(   ( pUser->m_pUserData->m_bLevel <= (int)(m_pUserData->m_bLevel * 1.5) && pUser->m_pUserData->m_bLevel >= (int)(m_pUserData->m_bLevel * 1.5)) 
-		  || ( pUser->m_pUserData->m_bLevel <= (m_pUserData->m_bLevel+8) && pUser->m_pUserData->m_bLevel >= ((int)(m_pUserData->m_bLevel)-8) ) 
-		 )
-	  )  {
+	if( !(   ( pUser->getLevel() <= (int)(getLevel() * 1.5) && pUser->getLevel() >= (int)(getLevel() * 1.5)) 
+		  || ( pUser->getLevel() <= (getLevel() + 8) && pUser->getLevel() >= ((int)(getLevel()) - 8))))
+	{
 		result = -2;
 		goto fail_return;
 	}
@@ -123,9 +117,6 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 		SetByte( send_buff, PARTY_CREATE, send_index );
 		SetShort( send_buff, pParty->wIndex, send_index );
 		SetShort( send_buff, pParty->uid[0], send_index );
-		//SetShort( send_buff, pParty->sHp[0], send_index );
-		//SetByte( send_buff, pParty->bLevel[0], send_index );
-		//SetShort( send_buff, pParty->sClass[0], send_index );
 		m_pMain->Send_AIServer(send_buff, send_index);
 	}
 
@@ -148,12 +139,12 @@ fail_return:
 
 void CUser::PartyInsert()
 {
-	int send_index = 0;
+	Packet result(WIZ_PARTY);
 	CUser* pUser = NULL;
 	_PARTY_GROUP* pParty = NULL;
 	BYTE byIndex = -1;
-	char send_buff[256];
-	if( !isInParty() ) return;
+	if (!isInParty())
+		return;
 
 	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
 	if( !pParty ) {	
@@ -172,40 +163,35 @@ void CUser::PartyInsert()
 		}
 	}
 
-	for(int i=0; i<8; i++) {	// Send your info to the rest of the party members.
-		if (pParty->uid[i] == GetSocketID())
+	// Send the played who just joined the existing party list
+	for (int i = 0; i < MAX_PARTY_USERS; i++)
+	{
+		// No player set?
+		if (pParty->uid[i] < 0)
+		{
+			// If we're not in the list yet, add us.
+			if (byIndex < 0)
+			{
+				pParty->uid[i] = GetSocketID();
+				byIndex = i;
+			}
 			continue;
+		}
 
+		// For everyone else, 
 		pUser = m_pMain->GetUserPtr(pParty->uid[i]);
 		if (pUser == NULL)
 			continue;
 
-		send_index = 0;
-		SetByte( send_buff, WIZ_PARTY, send_index );
-		SetByte( send_buff, PARTY_INSERT, send_index );
-		SetShort( send_buff, pParty->uid[i], send_index );
-		SetKOString(send_buff, pUser->m_pUserData->m_id, send_index);
-		SetShort( send_buff, pParty->sMaxHp[i], send_index );
-		SetShort( send_buff, pParty->sHp[i], send_index );
-		SetByte( send_buff, pParty->bLevel[i], send_index );
-		SetShort( send_buff, pParty->sClass[i], send_index );
-		SetShort( send_buff, pUser->m_iMaxMp, send_index );
-		SetShort( send_buff, pUser->m_pUserData->m_sMp, send_index );
-		Send( send_buff, send_index );
+		result.clear();
+		result	<< uint8(PARTY_INSERT) << pParty->uid[i]
+				<< pUser->m_pUserData->m_id
+				<< pUser->m_iMaxHp << pUser->m_pUserData->m_sHp
+				<< pUser->getLevel() << pUser->m_pUserData->m_sClass
+				<< pUser->m_iMaxMp << pUser->m_pUserData->m_sMp;
+		Send(&result);
 	}
-
-	for (int i = 0; i < 8; i++ ) {
-		if( pParty->uid[i] == -1 ) {
-			pParty->uid[i] = m_Sid;
-			pParty->sMaxHp[i] = m_iMaxHp;
-			pParty->sHp[i] = m_pUserData->m_sHp;
-			pParty->bLevel[i] = m_pUserData->m_bLevel;
-			pParty->sClass[i] = m_pUserData->m_sClass;
-			byIndex = i;
-			break;
-		}
-	}
-
+	
 	pUser = m_pMain->GetUserPtr(pParty->uid[0]);
 	if (pUser == NULL)
 		return;
@@ -216,50 +202,32 @@ void CUser::PartyInsert()
 	if (m_bNeedParty == 2 && isInParty()) 
 		StateChangeServerDirect(2, 1);
 
-	send_index = 0;
-	SetByte( send_buff, WIZ_PARTY, send_index );
-	SetByte( send_buff, PARTY_INSERT, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetKOString( send_buff, m_pUserData->m_id, send_index );
-	SetShort( send_buff, m_iMaxHp, send_index );		
-	SetShort( send_buff, m_pUserData->m_sHp, send_index );
-	SetByte( send_buff, m_pUserData->m_bLevel, send_index );
-	SetShort( send_buff, m_pUserData->m_sClass, send_index );
-	SetShort( send_buff, m_iMaxMp, send_index );
-	SetShort( send_buff, m_pUserData->m_sMp, send_index );
-	m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );
+	result.clear();
+	result	<< uint8(PARTY_INSERT) << uint16(GetSocketID())
+			<< m_pUserData->m_id
+			<< m_iMaxHp << m_pUserData->m_sHp
+			<< getLevel() << m_pUserData->m_sClass
+			<< m_iMaxMp << m_pUserData->m_sMp;
+	m_pMain->Send_PartyMember(m_sPartyIndex, &result);
 
-	// AI Server
-	send_index = 0;
-	SetByte( send_buff, AG_USER_PARTY, send_index );
-	SetByte( send_buff, PARTY_INSERT, send_index );
-	SetShort( send_buff, pParty->wIndex, send_index );
-	SetByte( send_buff, byIndex, send_index );
-	SetShort( send_buff, pParty->uid[byIndex], send_index );
-	//SetShort( send_buff, pParty->sHp[i], send_index );
-	//SetByte( send_buff, pParty->bLevel[i], send_index );
-	//SetShort( send_buff, pParty->sClass[i], send_index );
-	m_pMain->Send_AIServer(send_buff, send_index);
+	result.Initialize(AG_USER_PARTY);
+	result	<< uint8(PARTY_INSERT) << pParty->wIndex << byIndex << uint16(GetSocketID());
+	m_pMain->Send_AIServer(&result);
 }
 
 void CUser::PartyRemove(int memberid)
 {
-	int index = 0, send_index = 0, count = 0, i = 0;
-	CUser* pUser = NULL;
-	_PARTY_GROUP* pParty = NULL;
-
 	if (!isInParty()) 
 		return;
 
-	pUser = m_pMain->GetUserPtr(memberid);
+	CUser *pUser = m_pMain->GetUserPtr(memberid);
 	if (pUser == NULL)
 		return;
 
-	pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
-	if (!pParty) 
+	_PARTY_GROUP *pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
+	if (pParty == NULL) 
 	{
-		pUser->m_sPartyIndex = -1;
-		m_sPartyIndex = -1;
+		m_sPartyIndex = pUser->m_sPartyIndex = -1;
 		return;
 	}
 
@@ -277,75 +245,64 @@ void CUser::PartyRemove(int memberid)
 		}
 	}
 
-	for( i=0; i<8; i++ ) {
-		if( pParty->uid[i] != -1 ) {
-			if( pParty->uid[i] == memberid ) {
-				count--;
-			}
-			count++;
+	int count = 0, memberPos = -1;
+	for (int i = 0; i < MAX_PARTY_USERS; i++)
+	{
+		if (pParty->uid[i] < 0)
+			continue;
+		else if (pParty->uid[i] == memberid)
+		{
+			memberPos = i;
+			continue;
 		}
+
+		count++;
 	}
-	if( count == 1 ) {
+
+	if (count == 1)
+	{
 		PartyDelete();
 		return;
 	}
 
-	char send_buff[256]; 
-	SetByte( send_buff, WIZ_PARTY, send_index );
-	SetByte( send_buff, PARTY_REMOVE, send_index );
-	SetShort( send_buff, memberid, send_index );
-	m_pMain->Send_PartyMember( m_sPartyIndex, send_buff, send_index );
+	Packet result(WIZ_PARTY, uint8(PARTY_REMOVE));
+	result << uint16(memberid);
+	m_pMain->Send_PartyMember(m_sPartyIndex, &result);
 
-	for( i=0; i<8; i++ ) {
-		if( pParty->uid[i] != -1 ) {
-			if( pParty->uid[i] == memberid ) {
-				pParty->uid[i] = -1;
-				pParty->sHp[i] = 0;
-				pParty->bLevel[i] = 0;
-				pParty->sClass[i] = 0;
-				pUser->m_sPartyIndex = -1;
-			}
-		}
-	}
+	if (memberPos >= 0)
+		pUser->m_sPartyIndex = pParty->uid[memberPos] = -1;
+
 	// AI Server
-	send_index = 0;
-	SetByte( send_buff, AG_USER_PARTY, send_index );
-	SetByte( send_buff, PARTY_REMOVE, send_index );
-	SetShort( send_buff, pParty->wIndex, send_index );
-	SetShort( send_buff, memberid, send_index );
-	m_pMain->Send_AIServer(send_buff, send_index);
+	result.Initialize(AG_USER_PARTY);
+	result << uint8(PARTY_REMOVE) << pParty->wIndex << uint16(memberid);
+	m_pMain->Send_AIServer(&result);
 }
 
 void CUser::PartyDelete()
 {
-	int send_index = 0;
-	CUser* pUser = NULL;
-	_PARTY_GROUP* pParty = NULL;
-	if( !isInParty() ) return;
+	if (!isInParty())
+		return;
 
-	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
-	if( !pParty ) {
+	_PARTY_GROUP *pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
+	if (pParty == NULL)
+	{
 		m_sPartyIndex = -1;
 		return;
 	}
-	for( int i=0; i<8; i++ ) {
-		pUser = m_pMain->GetUserPtr(pParty->uid[i]);
-		if (pUser == NULL) 
-			continue;
-		pUser->m_sPartyIndex = -1;
+
+	for (int i = 0; i < MAX_PARTY_USERS; i++)
+	{
+		CUser *pUser = m_pMain->GetUserPtr(pParty->uid[i]);
+		if (pUser != NULL) 
+			pUser->m_sPartyIndex = -1;
 	}
 
-	char send_buff[256];
-	SetByte( send_buff, WIZ_PARTY, send_index );
-	SetByte( send_buff, PARTY_DELETE, send_index );
-	m_pMain->Send_PartyMember( pParty->wIndex, send_buff, send_index );	// ????? ???? ??e??????..
+	Packet result(WIZ_PARTY, uint8(PARTY_DELETE));
+	m_pMain->Send_PartyMember(pParty->wIndex, &result);
+	result.Initialize(AG_USER_PARTY);
 
-	// AI Server
-	send_index = 0;
-	SetByte( send_buff, AG_USER_PARTY, send_index );
-	SetByte( send_buff, PARTY_DELETE, send_index );
-	SetShort( send_buff, pParty->wIndex, send_index );
-	m_pMain->Send_AIServer(send_buff, send_index);
+	result << uint8(PARTY_DELETE) << uint16(pParty->wIndex);
+	m_pMain->Send_AIServer(&result);
 
 	m_pMain->DeleteParty(pParty->wIndex);
 }
@@ -391,9 +348,9 @@ void CUser::PartyBBSRegister(Packet & pkt)
 			|| pUser->m_bNeedParty == 1) 
 			continue;
 
-		if( !(   ( pUser->m_pUserData->m_bLevel <= (int)(m_pUserData->m_bLevel * 1.5) && pUser->m_pUserData->m_bLevel >= (int)(m_pUserData->m_bLevel * 1.5)) 
-			  || ( pUser->m_pUserData->m_bLevel <= (m_pUserData->m_bLevel+8) && pUser->m_pUserData->m_bLevel >= ((int)(m_pUserData->m_bLevel)-8) ) 
-		) ) continue;
+		if( !(   ( pUser->getLevel() <= (int)(getLevel() * 1.5) && pUser->getLevel() >= (int)(getLevel() * 1.5)) 
+			  || ( pUser->getLevel() <= (getLevel() + 8) && pUser->getLevel() >= ((int)(getLevel()) - 8))))
+			  continue;
 
 		if (pUser->GetSocketID() == GetSocketID()) break;
 		counter++;		
@@ -468,9 +425,9 @@ void CUser::PartyBBSNeeded(Packet & pkt, BYTE type)
 			|| pUser->m_bNeedParty == 1) 
 			continue;
 
-		if( !(   ( pUser->m_pUserData->m_bLevel <= (int)(m_pUserData->m_bLevel * 1.5) && pUser->m_pUserData->m_bLevel >= (int)(m_pUserData->m_bLevel * 1.5)) 
-			  || ( pUser->m_pUserData->m_bLevel <= (m_pUserData->m_bLevel+8) && pUser->m_pUserData->m_bLevel >= ((int)(m_pUserData->m_bLevel)-8) ) 
-		) ) continue;
+		if( !(   ( pUser->getLevel() <= (int)(getLevel() * 1.5) && pUser->getLevel() >= (int)(getLevel() * 1.5)) 
+			  || ( pUser->getLevel() <= (getLevel() + 8) && pUser->getLevel() >= ((int)(getLevel()) - 8))))
+			  continue;
 
 		BBS_Counter++;
 
@@ -478,7 +435,7 @@ void CUser::PartyBBSNeeded(Packet & pkt, BYTE type)
 		if (valid_counter >= MAX_BBS_PAGE) continue;
 
 		SetKOString(send_buff, pUser->m_pUserData->m_id, send_index);
-		SetByte(send_buff, pUser->m_pUserData->m_bLevel, send_index);
+		SetByte(send_buff, pUser->getLevel(), send_index);
 		SetShort(send_buff, pUser->m_pUserData->m_sClass, send_index);
 
 		valid_counter++;		// Increment counters.

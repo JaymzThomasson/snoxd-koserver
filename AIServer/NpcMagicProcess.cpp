@@ -64,7 +64,7 @@ void CNpcMagicProcess::MagicPacket(char *pBuf, int len, CIOCPort* pIOCP)
 	{
 		//if (tid < -1 || tid >= MAX_USER) return;	
 
-		switch( pTable->bType1 ) {
+		switch( pTable->bType[0] ) {
 		case 1:
 			ExecuteType1( pTable->iNum, tid, data1, data2, data3 );
 			break;
@@ -97,7 +97,7 @@ void CNpcMagicProcess::MagicPacket(char *pBuf, int len, CIOCPort* pIOCP)
 			break;
 		}
 
-		switch( pTable->bType2 ) {
+		switch( pTable->bType[1] ) {
 		case 1:
 			ExecuteType1( pTable->iNum, tid, data4, data5, data6 );
 			break;
@@ -317,7 +317,7 @@ void CNpcMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, 
 	} 
 
 packet_send:
-	//if ( pMagic->bType2 == 0 || pMagic->bType2 == 3 ) 
+	//if ( pMagic->bType[1] == 0 || pMagic->bType[1] == 3 ) 
 	{
 		SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
 		SetByte( send_buff, MAGIC_EFFECTING, send_index );

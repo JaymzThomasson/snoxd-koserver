@@ -1,11 +1,4 @@
-// MagicHandler.cpp: implementation of the CMagicHandler class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#include "StdAfx.h" // oh god, this needs reworking, a LOT.
-#include "EbenezerDlg.h"
-#include "User.h"
-#include "AIPacket.h"
+#include "StdAfx.h"
 
 using namespace std;
 
@@ -215,11 +208,12 @@ void CUser::MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 		pTUser->m_sWhoKilledMe = sid;
 	} 
 	SendTargetHP( 0, tid, -damage );     // Change the HP of the target.
-	if(pMagic->bType2 > 0 && pMagic->bType2 != 1)
-		MagicType(pMagic->bType2, 1, magicid, sid, tid, data1, data2, data3, data4, data5, data6, data7); //If the skill has a second effect, be sure to cast that one too. (DONT FORGET THE SUB_TYPE HERE!!)
+
+	if (pMagic->bType[1] > 0 && pMagic->bType[1] != 1)
+		MagicType(pMagic->bType[1], 1, magicid, sid, tid, data1, data2, data3, data4, data5, data6, data7); //If the skill has a second effect, be sure to cast that one too. (DONT FORGET THE SUB_TYPE HERE!!)
 
 packet_send:
-	if (pMagic->bType2 == 0 || pMagic->bType2 == 1) {
+	if (pMagic->bType[1] == 0 || pMagic->bType[1] == 1) {
 		Packet result(WIZ_MAGIC_PROCESS);
 		result << MAGIC_EFFECTING << magicid << sid << tid << data1 << data2 << data3;
 		if (damage == 0)

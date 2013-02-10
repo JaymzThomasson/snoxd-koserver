@@ -24,7 +24,6 @@ void bb() {};		// nop function
 CIOCPSocket2::CIOCPSocket2() : m_remaining(0)
 {
 	m_pBuffer = new CCircularBuffer(SOCKET_BUFF_SIZE);
-	m_pRegionBuffer = new _REGION_BUFFER;
 	m_Socket = INVALID_SOCKET;
 
 	m_pIOCPort = NULL;
@@ -38,7 +37,6 @@ CIOCPSocket2::CIOCPSocket2() : m_remaining(0)
 CIOCPSocket2::~CIOCPSocket2()
 {
 	delete m_pBuffer;
-	delete m_pRegionBuffer;
 }
 
 
