@@ -1005,35 +1005,6 @@ void CEbenezerDlg::Send_KnightsMember(int index, Packet *pkt)
 	}
 }
 
-void CEbenezerDlg::Send_AIServer(char* pBuf, int len)
-{
-	CAISocket* pSocket = NULL;
-	int send_size = 0, old_send_socket = 0;
-
-	for(int i=0; i<MAX_AI_SOCKET; i++) {
-		pSocket = m_AISocketArray.GetData( i );
-		if( pSocket == NULL)	{
-			m_sSendSocket++;
-			if(m_sSendSocket >= MAX_AI_SOCKET)	m_sSendSocket = 0;
-			continue;
-		}
-		if( i == m_sSendSocket )	{
-			send_size = pSocket->Send( pBuf, len);
-			old_send_socket = m_sSendSocket;
-			m_sSendSocket++;
-			if(m_sSendSocket >= MAX_AI_SOCKET)	m_sSendSocket = 0;
-			if(send_size == 0)	continue;
-			else	{
-				//TRACE(" <--- Send_AIServer : length = %d, socket = %d \n", send_size, old_send_socket);
-				return;
-			}
-		}
-		else	{
-			continue;
-		}
-	}
-}
-
 void CEbenezerDlg::Send_AIServer(Packet *pkt)
 {
 	int send_size = 0, old_send_socket = 0;
@@ -1305,29 +1276,16 @@ void CEbenezerDlg::UpdateGameTime()
 
 	// ai status check packet...
 	m_sErrorSocketCount++;
-	int send_index = 0;
-	char pSendBuf[256];		::ZeroMemory(pSendBuf, sizeof(pSendBuf));
-	//SetByte(pSendBuf, AG_CHECK_ALIVE_REQ, send_index);
-	//Send_AIServer(pSendBuf, send_index);
 
-	// �ð��� ���� ������ ������..
-	::ZeroMemory(pSendBuf, sizeof(pSendBuf));   send_index = 0;
-	SetByte(pSendBuf, AG_TIME_WEATHER, send_index);
-	SetShort( pSendBuf, m_nYear, send_index );				// time info
-	SetShort( pSendBuf, m_nMonth, send_index );
-	SetShort( pSendBuf, m_nDate, send_index );
-	SetShort( pSendBuf, m_nHour, send_index );
-	SetShort( pSendBuf, m_nMin, send_index );
-	SetByte( pSendBuf, (BYTE)m_nWeather, send_index );		// weather info
-	SetShort( pSendBuf, m_nAmount, send_index );
-	Send_AIServer(pSendBuf, send_index);
+	Packet result(AG_TIME_WEATHER);
+	result << m_nYear << m_nMonth << m_nDate << m_nHour << m_nMin << m_nWeather << m_nAmount;
+	Send_AIServer(&result);
 
-	if( bKnights )	{
-		::ZeroMemory(pSendBuf, sizeof(pSendBuf));   send_index = 0;
-		SetByte( pSendBuf, WIZ_KNIGHTS_PROCESS, send_index );
-		SetByte( pSendBuf, KNIGHTS_ALLLIST_REQ, send_index );
-		SetByte( pSendBuf, m_nServerNo, send_index );
-		m_LoggerSendQueue.PutData( pSendBuf, send_index );
+	if (bKnights)
+	{
+		result.Initialize(WIZ_KNIGHTS_PROCESS);
+		result << uint8(KNIGHTS_ALLLIST_REQ) << uint8(m_nServerNo);
+		m_LoggerSendQueue.PutData(&result);
 	}
 }
 
@@ -1935,26 +1893,21 @@ void CEbenezerDlg::BattleZoneOpenTimer()
 	// sungyong modify
 	int nWeek = cur.GetDayOfWeek();
 	int nTime = cur.GetHour();
-	char send_buff[128];
-	int send_index = 0, loser_nation = 0, snow_battle = 0;
-	CUser* pKarusUser = NULL;
-	CUser* pElmoUser = NULL;
+	int loser_nation = 0, snow_battle = 0;
+	CUser *pKarusUser = NULL, *pElmoUser = NULL;
 
 	if( m_byBattleOpen == NATION_BATTLE )		BattleZoneCurrentUsers();
 
 	if( m_byBanishFlag == 1 )	{		
 		if( m_sBanishDelay == 0 )	{
 			m_byBattleOpen = NO_BATTLE;
-			m_byKarusOpenFlag = 0;		// ī�罺 ������ �Ѿ �� ������
-			m_byElmoradOpenFlag = 0;	// ���� ������ �Ѿ �� ������
-			if( m_nServerNo == KARUS )	{
-				send_index = 0;
-				SetByte( send_buff, UDP_BATTLE_EVENT_PACKET, send_index );
-				SetByte( send_buff, BATTLE_EVENT_KILL_USER, send_index );
-				SetByte( send_buff, 1, send_index );						// karus�� ���� ����
-				SetShort( send_buff, m_sKarusDead, send_index );
-				SetShort( send_buff, m_sElmoradDead, send_index );
-				Send_UDP_All( send_buff, send_index );
+			m_byKarusOpenFlag = m_byElmoradOpenFlag = 0;
+
+			if (m_nServerNo == KARUS)
+			{
+				Packet result(UDP_BATTLE_EVENT_PACKET, uint8(BATTLE_EVENT_KILL_USER));
+				result << uint8(1) << m_sKarusDead << m_sElmoradDead;
+				Send_UDP_All(&result);
 			}
 		}
 
@@ -1982,32 +1935,26 @@ void CEbenezerDlg::BattleZoneOpenTimer()
 				Announcement( DECLARE_WINNER, m_bVictory );
 				Announcement( DECLARE_LOSER, loser_nation );
 			}
-			TRACE("���� ���� 1�ܰ�, m_bVictory=%d\n", m_bVictory);
 		}
 		else if( m_sBanishDelay == 8 )	{
 			Announcement(DECLARE_BAN);
 		}
 		else if( m_sBanishDelay == 10 )	{
-			TRACE("���� ���� 2�ܰ� - ���� ���� �ڱ� ������ �� \n");
 			BanishLosers();
 		}
-		else if( m_sBanishDelay == 20 )	{
-			TRACE("���� ���� 3�ܰ� - �ʱ�ȭ ���ּ��� \n");
-			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
-			SetByte( send_buff, BATTLE_EVENT_OPEN, send_index );
-			SetByte( send_buff, BATTLEZONE_CLOSE, send_index );
-			Send_AIServer(send_buff, send_index );
+		else if( m_sBanishDelay == 20 )
+		{
+			Packet result(AG_BATTLE_EVENT, uint8(BATTLE_EVENT_OPEN));
+			result << uint8(BATTLEZONE_CLOSE);
+			Send_AIServer(&result);
 			ResetBattleZone();
 		}
 	}
-
-	// ~
 }
 
 void CEbenezerDlg::BattleZoneOpen( int nType )
 {
-	int send_index = 0;
-	char send_buff[1024], strLogFile[100];
+	char strLogFile[100];
 	CTime time = CTime::GetCurrentTime();
 
 	if( nType == BATTLEZONE_OPEN ) {				// Open battlezone.
@@ -2031,10 +1978,9 @@ void CEbenezerDlg::BattleZoneOpen( int nType )
 
 	KickOutZoneUsers(ZONE_FRONTIER);
 
-	SetByte( send_buff, AG_BATTLE_EVENT, send_index );		// Send packet to AI server.
-	SetByte( send_buff, BATTLE_EVENT_OPEN, send_index );
-	SetByte( send_buff, nType, send_index );
-	Send_AIServer(send_buff, send_index );
+	Packet result(AG_BATTLE_EVENT, uint8(BATTLE_EVENT_OPEN));
+	result << uint8(nType);
+	Send_AIServer(&result);
 }
 
 void CEbenezerDlg::BattleZoneVictoryCheck()

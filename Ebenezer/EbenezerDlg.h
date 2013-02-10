@@ -157,7 +157,6 @@ public:
 
 	void Send_All( char* pBuf, int len, CUser* pExceptUser = NULL, int nation=0 );	// PENDING DEPRECATION
 	void Send_All(Packet *pkt, CUser* pExceptUser = NULL, uint8 nation = 0);
-	void Send_AIServer( char* pBuf, int len ); // PENDING DEPRECATION
 	void Send_AIServer(Packet *pkt);
 
 	CString GetServerResource(int nResourceID);
