@@ -46,7 +46,6 @@ public:
 	void  ExecuteType9(_MAGIC_TABLE *pSkill);
 
 	bool IsAvailable(_MAGIC_TABLE *pSkill);
-	void MagicPacket(char* pBuf); // PENDING DEPRECATION
 	void MagicPacket(Packet & pkt);
 
 	uint8 ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType);

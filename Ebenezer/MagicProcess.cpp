@@ -69,17 +69,6 @@ CMagicProcess::~CMagicProcess()
 
 void CMagicProcess::MagicPacket(Packet & pkt)
 {
-	/* TO-DO: Update the main method with this... eventually. */
-	char *tmp_buff = new char[pkt.size() + 1];
-	tmp_buff[0] = pkt.GetOpcode();
-	if (pkt.size() > 0)
-		memcpy(tmp_buff + 1, pkt.contents(), pkt.size()); 
-	MagicPacket(tmp_buff);
-	delete [] tmp_buff;
-}
-
-void CMagicProcess::MagicPacket(char *pBuf)
-{
 	int index = 0;
 
 	_MAGIC_TYPE2 *pType2 = NULL;
@@ -88,8 +77,7 @@ void CMagicProcess::MagicPacket(char *pBuf)
 	CUser *pUser = NULL;
 	CNpc *pMon = NULL;
 
-	m_opcode = GetByte(pBuf, index);
-	m_nSkillID = GetDWORD(pBuf, index);
+	pkt >> m_opcode >> m_nSkillID;
 
 	_MAGIC_TABLE *pMagic = m_pMain->m_MagictableArray.GetData(m_nSkillID);
 	if (pMagic == NULL)
@@ -105,17 +93,9 @@ void CMagicProcess::MagicPacket(char *pBuf)
 		return;
 	}
 
-	m_pSkillCaster = GetShort(pBuf, index);
-	m_pSkillTarget = GetShort(pBuf, index);
-
-	m_sData1 = GetShort(pBuf, index);
-	m_sData2 = GetShort(pBuf, index);		 
-	m_sData3 = GetShort(pBuf, index);
-	m_sData4 = GetShort(pBuf, index);
-	m_sData5 = GetShort(pBuf, index);
-	m_sData6 = GetShort(pBuf, index); 
-	m_sData7 = GetShort(pBuf, index); // new -- from when?
-	m_sData8 = GetShort(pBuf, index);
+	pkt >> m_pSkillCaster >> m_pSkillTarget
+		>> m_sData1 >> m_sData2 >> m_sData3 >> m_sData4
+		>> m_sData5 >> m_sData6 >> m_sData7 >> m_sData8;
 
 	if (m_pSrcUser)
 	{
