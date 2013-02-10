@@ -1000,10 +1000,10 @@ void CAISocket::RecvNpcInOut(char* pBuf)
 
 void CAISocket::RecvBattleEvent(char* pBuf)
 {
-	int index = 0, send_index = 0, udp_index = 0, retvalue = 0;
+	int index = 0, send_index = 0, retvalue = 0;
 	int nType = 0, nResult = 0, nLen = 0;
 	char strMaxUserName[MAX_ID_SIZE+1], strKnightsName[MAX_ID_SIZE+1];
-	char chatstr[1024], finalstr[1024], send_buff[1024], udp_buff[1024];
+	char chatstr[1024], finalstr[1024], send_buff[1024];
 	CUser* pUser = NULL;
 	CKnights* pKnights = NULL;
 
@@ -1026,9 +1026,9 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 			m_pMain->m_byElmoradOpenFlag = 1;	// ���� ������ �Ѿ �� �־�
 		}
 
-		SetByte( udp_buff, UDP_BATTLE_EVENT_PACKET, udp_index );
-		SetByte( udp_buff, nType, udp_index );
-		SetByte( udp_buff, nResult, udp_index );
+		Packet result(UDP_BATTLE_EVENT_PACKET, uint8(nType));
+		result << uint8(nResult);
+		m_pMain->Send_UDP_All(&result);
 	}
 	else if( nType == BATTLE_EVENT_RESULT )	{
 		if( m_pMain->m_byBattleOpen == NO_BATTLE )	{
@@ -1066,9 +1066,9 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 		m_pMain->m_byElmoradOpenFlag = 0;	// ���� ������ �Ѿ �� ������
 		m_pMain->m_byBanishFlag = 1;
 
-		SetByte( udp_buff, UDP_BATTLE_EVENT_PACKET, udp_index );	// udp�� �ٸ������� ���� ����
-		SetByte( udp_buff, nType, udp_index );
-		SetByte( udp_buff, nResult, udp_index );
+		Packet result(UDP_BATTLE_EVENT_PACKET, uint8(nType));
+		result << uint8(nResult);
+		m_pMain->Send_UDP_All(&result);
 	}
 	else if( nType == BATTLE_EVENT_MAX_USER )	{
 		if (GetKOString(pBuf, strMaxUserName, index, MAX_ID_SIZE, sizeof(BYTE)))
@@ -1137,15 +1137,11 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 			SetKOString( send_buff, finalstr, send_index );
 			m_pMain->Send_All( send_buff, send_index );
 
-			SetByte( udp_buff, UDP_BATTLE_EVENT_PACKET, udp_index );
-			SetByte( udp_buff, nType, udp_index );
-			SetByte( udp_buff, nResult, udp_index );
-			SetKOString(udp_buff, strKnightsName, udp_index);
-			SetKOString(udp_buff, strMaxUserName, udp_index);
+			Packet result(UDP_BATTLE_EVENT_PACKET, uint8(nType));
+			result << uint8(nResult) << strKnightsName << strMaxUserName;
+			m_pMain->Send_UDP_All(&result);
 		}
 	}
-
-	m_pMain->Send_UDP_All( udp_buff, udp_index );
 }
 
 

@@ -2309,16 +2309,6 @@ void CEbenezerDlg::KickOutZoneUsers(short zone)
 	}
 }
 
-void CEbenezerDlg::Send_UDP_All( char* pBuf, int len, int group_type )
-{
-	int server_number = (group_type == 0 ? m_nServerNo : m_nServerGroupNo);
-	foreach_stlmap (itr, (group_type == 0 ? m_ServerArray : m_ServerGroupArray))
-	{
-		if (itr->second && itr->second->sServerNo == server_number)
-			m_pUdpSocket->SendUDPPacket(itr->second->strServerIP, pBuf, len);
-	}
-}
-
 void CEbenezerDlg::Send_UDP_All(Packet *pkt, int group_type /*= 0*/)
 {
 	int server_number = (group_type == 0 ? m_nServerNo : m_nServerGroupNo);
@@ -2470,7 +2460,6 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 	if (pMap == NULL || m_nServerNo != pMap->m_nServerNo)
 		return;
 
-	char send_buff[128];
 	int nKarusMan = 0, nElmoradMan = 0, send_index = 0;
 
 	for (int i = 0; i < MAX_USER; i++)
@@ -2490,10 +2479,9 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 
 	//TRACE("---> BattleZoneCurrentUsers - karus=%d, elmorad=%d\n", m_sKarusCount, m_sElmoradCount);
 
-	SetByte( send_buff, UDP_BATTLEZONE_CURRENT_USERS, send_index );
-	SetShort( send_buff, m_sKarusCount, send_index );
-	SetShort( send_buff, m_sElmoradCount, send_index );
-	Send_UDP_All( send_buff, send_index );
+	Packet result(UDP_BATTLEZONE_CURRENT_USERS);
+	result << m_sKarusCount << m_sElmoradCount;
+	Send_UDP_All(&result);
 
 }
 

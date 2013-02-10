@@ -64,7 +64,6 @@ public:
 	void GetCaptainUserPtr();
 	void Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser = NULL);
 	BOOL LoadBattleTable();
-	void Send_UDP_All( char* pBuf, int len, int group_type = 0 ); // PENDING DEPRECATION
 	void Send_UDP_All(Packet *pkt, int group_type = 0);
 	void KickOutZoneUsers(short zone);
 	__int64 GenerateItemSerial();
