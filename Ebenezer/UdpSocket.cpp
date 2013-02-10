@@ -341,13 +341,9 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 			m_pMain->m_sElmoradDead = m_pMain->m_sElmoradDead + nElmoKill;
 
 			//TRACE("-->  UDP RecvBattleEvent type = 1 : 적국 유저 죽인수 : karus=%d->%d, elmo=%d->%d\n", nKillKarus, m_pMain->m_sKarusDead, nElmoKill, m_pMain->m_sElmoradDead);
-
-			SetByte( send_buff, UDP_BATTLE_EVENT_PACKET, send_index );
-			SetByte( send_buff, BATTLE_EVENT_KILL_USER, send_index );
-			SetByte( send_buff, 2, send_index );						// karus의 정보 전송
-			SetShort( send_buff, m_pMain->m_sKarusDead, send_index );
-			SetShort( send_buff, m_pMain->m_sElmoradDead, send_index );
-			m_pMain->Send_UDP_All( send_buff, send_index );
+			Packet result(UDP_BATTLE_EVENT_PACKET, uint8(BATTLE_EVENT_KILL_USER));
+			result << uint8(2) << m_pMain->m_sKarusDead << m_pMain->m_sElmoradDead;
+			m_pMain->Send_UDP_All(&result);
 		}
 		else if( nResult == 2 )	{
 			nKillKarus = GetShort( pBuf, index );

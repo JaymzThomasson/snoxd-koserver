@@ -74,67 +74,60 @@ void CUser::PartyCancel()
 
 void CUser::PartyRequest(int memberid, BOOL bCreate)
 {
-	int index = 0, send_index = 0, result = -1, i=0;
-	CUser* pUser = NULL;
+	Packet result;
+	int16 errorCode = -1, i=0;
 	_PARTY_GROUP* pParty = NULL;
-	char send_buff[256];
 
-	pUser = m_pMain->GetUserPtr(memberid);
+	CUser *pUser = m_pMain->GetUserPtr(memberid);
 	if (pUser == NULL
 		|| pUser->isInParty()) goto fail_return;
 
 	if (getNation() != pUser->getNation())
 	{
-		result = -3;
+		errorCode = -3;
 		goto fail_return;
 	}
 
 	if( !(   ( pUser->getLevel() <= (int)(getLevel() * 1.5) && pUser->getLevel() >= (int)(getLevel() * 1.5)) 
 		  || ( pUser->getLevel() <= (getLevel() + 8) && pUser->getLevel() >= ((int)(getLevel()) - 8))))
 	{
-		result = -2;
+		errorCode = -2;
 		goto fail_return;
 	}
 
-	if( !bCreate ) {	// ????? ????? ?????? ???
+	if( !bCreate ) {
 		pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
 		if( !pParty ) goto fail_return;
 		for(i=0; i<8; i++) {
 			if( pParty->uid[i] < 0 ) 
 				break;
 		}
-		if( i==8 ) goto fail_return;	// ??? ??? Full
+		if( i==8 ) goto fail_return;	// party is full
 	}
 
 	if( bCreate ) {
-		if( isInParty() ) goto fail_return;	// can't create a party ifw e're already in one
-		if (!m_pMain->CreateParty(this))
+		if( isInParty() ) goto fail_return;	// can't create a party if we're already in one
+		pParty = m_pMain->CreateParty(this);
+		if (pParty == NULL)
 			goto fail_return;
 
-		// AI Server
-		send_index = 0;
-		SetByte( send_buff, AG_USER_PARTY, send_index );
-		SetByte( send_buff, PARTY_CREATE, send_index );
-		SetShort( send_buff, pParty->wIndex, send_index );
-		SetShort( send_buff, pParty->uid[0], send_index );
-		m_pMain->Send_AIServer(send_buff, send_index);
+		
+		result.Initialize(AG_USER_PARTY);
+		result << uint8(PARTY_CREATE) << pParty->wIndex << pParty->uid[0];
+		m_pMain->Send_AIServer(&result);
 	}
 
 	pUser->m_sPartyIndex = m_sPartyIndex;
 
-	send_index = 0;
-	SetByte( send_buff, WIZ_PARTY, send_index );
-	SetByte( send_buff, PARTY_PERMIT, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	SetKOString(send_buff, m_pUserData->m_id, send_index);
-	pUser->Send( send_buff, send_index );
+	result.Initialize(WIZ_PARTY);
+	result << uint8(PARTY_PERMIT) << uint16(GetSocketID()) << m_pUserData->m_id;
+	pUser->Send(&result);
 	return;
 
 fail_return:
-	SetByte( send_buff, WIZ_PARTY, send_index );
-	SetByte( send_buff, PARTY_INSERT, send_index );
-	SetShort( send_buff, result, send_index );
-	Send( send_buff, send_index );
+	result.Initialize(WIZ_PARTY);
+	result << uint8(PARTY_INSERT) << errorCode;
+	Send(&result);
 }
 
 void CUser::PartyInsert()

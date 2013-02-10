@@ -567,40 +567,25 @@ void CUser::UserDataSaveToAgent()
 
 void CUser::LogOut()
 {
-	int index = 0, idlen = 0, idindex = 0, send_index = 0, count = 0;
-	CUser* pUser = NULL;
-	char send_buf[256]; 
-
 	CTime t = CTime::GetCurrentTime();
 	m_pMain->WriteLog("[%s : %s Logout : %d:%d:%d]\r\n", m_pUserData->m_Accountid, m_pUserData->m_id, t.GetHour(), t.GetMinute(), t.GetSecond());
 
-	pUser = m_pMain->GetUserPtr(m_pUserData->m_Accountid, TYPE_ACCOUNT);
-	if( pUser && (pUser->GetSocketID() != GetSocketID()) ) 
+	CUser *pUser = m_pMain->GetUserPtr(m_pUserData->m_Accountid, TYPE_ACCOUNT);
+	if (pUser && (pUser->GetSocketID() != GetSocketID()))
 	{
-		TRACE("%s : %s Logout: Sid ?? ??? ???...\n", m_pUserData->m_Accountid, m_pUserData->m_id);
+		TRACE("[SID=%D] %s : %s logged out\n", GetSocketID(), m_pUserData->m_Accountid, m_pUserData->m_id);
 		return;
 	}
 
 	if (m_pUserData->m_id[0] == 0) 
 		return; 
 
-	SetByte( send_buf, WIZ_LOGOUT, send_index );
-	SetShort( send_buf, m_Sid, send_index );
-	SetKOString( send_buf, m_pUserData->m_Accountid, send_index);
-	SetKOString( send_buf, m_pUserData->m_id, send_index);
+	Packet result(WIZ_LOGOUT);
+	result << uint16(GetSocketID()) << m_pUserData->m_Accountid << m_pUserData->m_id;
+	m_pMain->m_LoggerSendQueue.PutData(&result);
 
-	do {
-		if( m_pMain->m_LoggerSendQueue.PutData( send_buf, send_index ) == 1 )
-			break;
-		else
-			count++;
-	} while( count < 30 );
-	if( count > 29 ) {
-		m_pMain->AddToList("Logout Send Fail : acname=%s, charid=%s ", m_pUserData->m_Accountid, m_pUserData->m_id);
-	}
-
-	SetByte( send_buf, AG_USER_LOG_OUT, index );
-	m_pMain->Send_AIServer(send_buf, send_index);
+	result.SetOpcode(AG_USER_LOG_OUT); // same packet, just change the opcode
+	m_pMain->Send_AIServer(&result);
 }
 
 void CUser::SendMyInfo()
@@ -906,27 +891,7 @@ void CUser::RemoveRegion(int del_x, int del_z)
 
 	Packet result(WIZ_USER_INOUT, uint8(USER_OUT));
 	result << uint8(0) << uint16(GetSocketID());
-
-	if (del_x != 0)
-	{
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x*2, m_RegionZ+del_z-1);
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x*2, m_RegionZ+del_z);
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x*2, m_RegionZ+del_z+1);
-	}
-
-	if (del_z != 0)
-	{
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x, m_RegionZ+del_z*2);
-		if (del_x < 0)
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x+1, m_RegionZ+del_z*2);
-		else if (del_x > 0)
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x-1, m_RegionZ+del_z*2);
-		else
-		{
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x-1, m_RegionZ+del_z*2);
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x+1, m_RegionZ+del_z*2);
-		}
-	}
+	m_pMain->Send_OldRegions(&result, del_x, del_z, pMap, m_RegionX, m_RegionZ);
 }
 
 void CUser::InsertRegion(int insert_x, int insert_z)
@@ -939,28 +904,7 @@ void CUser::InsertRegion(int insert_x, int insert_z)
 
 	result << uint16(GetSocketID());
 	GetUserInfo(result);
-
-	if (insert_x != 0)
-	{
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+insert_x, m_RegionZ-1);
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+insert_x, m_RegionZ);
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+insert_x, m_RegionZ+1);
-	}
-
-	if (insert_z != 0) 
-	{
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX, m_RegionZ+insert_z);
-		
-		if (insert_x < 0)	
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+1, m_RegionZ+insert_z);
-		else if (insert_x > 0 )
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX-1, m_RegionZ+insert_z);
-		else 
-		{
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX-1, m_RegionZ+insert_z);
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+1, m_RegionZ+insert_z);
-		}
-	}
+	m_pMain->Send_NewRegions(&result, insert_x, insert_z, pMap, m_RegionX, m_RegionZ);
 }
 
 void CUser::RequestUserIn(Packet & pkt)

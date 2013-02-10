@@ -515,7 +515,7 @@ void CIOCPSocket2::ReceivedData(int length)
 		// found a packet - it's parse time!
 		Packet pkt(*in_stream, (size_t)m_remaining--);
 		if (m_remaining > 0)
-			pkt.append(in_stream, m_remaining);
+			pkt.append(in_stream + 1, m_remaining);
 		Parsing(pkt);
 		m_remaining = 0;
 	}
@@ -613,25 +613,6 @@ void CIOCPSocket2::Initialize()
 {
 	m_wPacketSerial = 0;
 	m_CryptionFlag = 0;
-}
-
-void CIOCPSocket2::SendCompressingPacket(const char *pData, int len)
-{
-	// Data's too short to bother with compression...
-	if (len < 500)
-	{
-		Send((char *)pData, len);
-		return;
-	}
-	
-	CCompressMng comp;
-	comp.PreCompressWork(pData, len);
-	comp.Compress();
-
-	Packet result(WIZ_COMPRESS_PACKET);
-	result << comp.m_nOutputBufferCurPos << comp.m_nOrgDataLength << uint32(comp.m_dwCrc);
-	result.append(comp.m_pOutputBuffer, comp.m_nOutputBufferCurPos);
-	Send(&result);
 }
 
 void CIOCPSocket2::SendCompressingPacket(Packet *pkt)

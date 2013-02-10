@@ -23,7 +23,6 @@ class CCircularBuffer;
 class CIOCPSocket2  
 {
 public:
-	void SendCompressingPacket( const char* pData, int len ); // PENDING DEPRECATION
 	void SendCompressingPacket(Packet *pkt);
 	void InitSocket( CIOCPort* pIOCPort );
 	void Close();

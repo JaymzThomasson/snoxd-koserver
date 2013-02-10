@@ -235,6 +235,7 @@ void OdbcCommand::Close()
 	{
 		SQLCloseCursor(m_hStmt); // free results, if any
 		SQLFreeHandle(SQL_HANDLE_STMT, m_hStmt);
+		m_hStmt = NULL;
 	}
 }
 

@@ -64,7 +64,6 @@ public:
 	void GetCaptainUserPtr();
 	void Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser = NULL);
 	BOOL LoadBattleTable();
-	void Send_UDP_All( char* pBuf, int len, int group_type = 0 ); // PENDING DEPRECATION
 	void Send_UDP_All(Packet *pkt, int group_type = 0);
 	void KickOutZoneUsers(short zone);
 	__int64 GenerateItemSerial();
@@ -149,13 +148,14 @@ public:
 
 	void Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
 	void Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
+	void Send_OldRegions(Packet *pkt, int old_x, int old_z, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
+	void Send_NewRegions(Packet *pkt, int new_x, int new_z, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
 
 	void Send_NearRegion(Packet *pkt, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser=NULL );
 	void Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser* pExceptUser=NULL );
 
 	void Send_All( char* pBuf, int len, CUser* pExceptUser = NULL, int nation=0 );	// PENDING DEPRECATION
 	void Send_All(Packet *pkt, CUser* pExceptUser = NULL, uint8 nation = 0);
-	void Send_AIServer( char* pBuf, int len ); // PENDING DEPRECATION
 	void Send_AIServer(Packet *pkt);
 
 	CString GetServerResource(int nResourceID);

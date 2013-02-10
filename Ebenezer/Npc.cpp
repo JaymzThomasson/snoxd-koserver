@@ -162,27 +162,7 @@ void CNpc::RemoveRegion(int del_x, int del_z)
 
 	Packet result(WIZ_NPC_INOUT, uint8(NPC_OUT));
 	result << GetID();
-
-	if (del_x != 0)
-	{
-		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x*2, m_sRegion_Z+del_z-1);
-		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x*2, m_sRegion_Z+del_z);
-		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x*2, m_sRegion_Z+del_z+1);
-	}
-
-	if (del_z != 0)
-	{	
-		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x, m_sRegion_Z+del_z*2);
-		if (del_x < 0) 
-			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x+1, m_sRegion_Z+del_z*2);
-		else if (del_x > 0)
-			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x-1, m_sRegion_Z+del_z*2);
-		else
-		{
-			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x-1, m_sRegion_Z+del_z*2);
-			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x+1, m_sRegion_Z+del_z*2);
-		}
-	}
+	m_pMain->Send_OldRegions(&result, del_x, del_z, GetMap(), m_sRegion_X, m_sRegion_Z);
 }
 
 void CNpc::InsertRegion(int del_x, int del_z)
@@ -192,28 +172,7 @@ void CNpc::InsertRegion(int del_x, int del_z)
 	Packet result(WIZ_NPC_INOUT, uint8(NPC_IN));
 	result << GetID();
 	GetNpcInfo(result);
-
-	if (del_x != 0)
-	{
-		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X + del_x, m_sRegion_Z - 1);
-		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X + del_x, m_sRegion_Z);
-		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X + del_x, m_sRegion_Z + 1);
-	}
-
-	if (del_z != 0)
-	{
-		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X, m_sRegion_Z + del_z);
-		
-		if (del_x < 0)
-			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X + 1, m_sRegion_Z + del_z);
-		else if (del_x > 0)
-			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X - 1, m_sRegion_Z + del_z);
-		else 
-		{
-			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X - 1, m_sRegion_Z + del_z);
-			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X + 1, m_sRegion_Z + del_z);
-		}
-	}
+	m_pMain->Send_NewRegions(&result, del_x, del_z, GetMap(), m_sRegion_X, m_sRegion_Z);
 }
 
 int CNpc::GetRegionNpcList(int region_x, int region_z, char *buff, int &t_count)
