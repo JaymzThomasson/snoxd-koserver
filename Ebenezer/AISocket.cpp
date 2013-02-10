@@ -385,16 +385,15 @@ void CAISocket::RecvNpcMoveResult(char *pBuf)
 void CAISocket::RecvNpcAttack(char* pBuf)
 {
 	int index = 0, send_index = 0, sid = -1, tid = -1, nHP = 0, temp_damage = 0;
-	BYTE type, result, byAttackType = 0;
+	BYTE type, bResult, byAttackType = 0;
 	float fDir=0.0f;
 	short damage = 0;
 	CNpc* pNpc = NULL, *pMon = NULL;
 	CUser* pUser = NULL;
-	char pOutBuf[1024];
 	_OBJECT_EVENT* pEvent = NULL;
 
 	type = GetByte(pBuf,index);
-	result = GetByte(pBuf,index);
+	bResult = GetByte(pBuf,index);
 	sid = GetShort(pBuf,index);
 	tid = GetShort(pBuf,index);
 	damage = GetShort(pBuf,index);
@@ -411,24 +410,14 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 		if( pNpc->m_iHP < 0 )
 			pNpc->m_iHP = 0;
 
-		if(result == 0x04)	{								// �������� �״°���
-			SetByte( pOutBuf, WIZ_DEAD, send_index );
-			SetShort( pOutBuf, tid, send_index );
-			m_pMain->Send_Region(pOutBuf, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
-		}
-		else {
-
-			SetByte(pOutBuf, WIZ_ATTACK, send_index);
-			SetByte( pOutBuf, byAttackType, send_index );		// ����:1, ����:2, ���Ӹ���:3
-			//if(result == 0x04)								// �������� �״°���
-			//	SetByte( pOutBuf, 0x02, send_index );
-			//else											// �ܼ��������� �״°���
-				SetByte( pOutBuf, result, send_index );
-			SetShort( pOutBuf, sid, send_index );
-			SetShort( pOutBuf, tid, send_index );
-		
-			m_pMain->Send_Region(pOutBuf, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
-
+		// NPC died
+		if (bResult == 4)
+			pNpc->OnDeath();
+		else 
+		{
+			Packet result(WIZ_ATTACK, byAttackType);
+			result << bResult << sid << tid;
+			pNpc->SendToRegion(&result);
 		}
 
 		pUser = m_pMain->GetUserPtr(sid);
@@ -467,7 +456,7 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 			}
 		}
 
-		if(result == 0x02 || result == 0x04)		// npc dead
+		if (bResult == 2 || bResult== 4)		// npc dead
 		{
 			pNpc->GetMap()->RegionNpcRemove(pNpc->m_sRegion_X, pNpc->m_sRegion_Z, tid);
 			
@@ -482,7 +471,7 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 				pUser->GiveItem(900001000, 1);	
 		}
 	}
-	else if(type == 0x02)		// npc attack -> user
+	else if (type == 2)		// npc attack -> user
 	{
 		pNpc = m_pMain->m_arNpcArray.GetData(sid);
 		if(!pNpc)	return;
@@ -494,44 +483,23 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 			if(pUser == NULL)	
 				return;
 
-			// sungyong 2002. 02.04
-/*			if( sHP <= 0 && pUser->m_pUserData->m_sHp > 0 ) {
-				TRACE("Npc Attack : id=%s, result=%d, AI_HP=%d, GM_HP=%d\n", pUser->m_pUserData->m_id, result, sHP, pUser->m_pUserData->m_sHp);
-				if(result == 0x02)
-					pUser->HpChange(-1000, 1);
-			}
-			else	
-				pUser->HpChange(-damage, 1);
-			*/  
-			// ~sungyong 2002. 02.04
-			if( pUser->m_MagicProcess.m_bMagicState == CASTING ) 
-				pUser->m_MagicProcess.IsAvailable( 0, -1, -1, MAGIC_EFFECTING ,0,0,0 );
 			pUser->HpChange(-damage, 1, true);
 			pUser->ItemWoreOut(DEFENCE, damage);
 
-			SetByte(pOutBuf, WIZ_ATTACK, send_index);
-			SetByte( pOutBuf, byAttackType, send_index );
-			if(result == 0x03)
-				SetByte( pOutBuf, 0x00, send_index );
-			else
-				SetByte( pOutBuf, result, send_index );
-			SetShort( pOutBuf, sid, send_index );
-			SetShort( pOutBuf, tid, send_index );
-			
-			m_pMain->Send_Region(pOutBuf, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
+			Packet result(WIZ_ATTACK, byAttackType);
+			result	<< uint8(bResult == 3 ? 0 : bResult)
+					<< sid << tid;
+			pNpc->SendToRegion(&result);
 
-//			TRACE("RecvNpcAttack : id=%s, result=%d, AI_HP=%d, GM_HP=%d\n", pUser->m_pUserData->m_id, result, sHP, pUser->m_pUserData->m_sHp);
 			//TRACE("RecvNpcAttack ==> sid = %d, tid = %d, result = %d\n", sid, tid, result);
 
-			if(result == 0x02) {		// user dead
+			// user dead
+			if (bResult == 2) 
+			{
 				if (pUser->m_bResHpType == USER_DEAD)
 					return;
-				// �������Դ� �ٷ� ���� ��Ŷ�� ����... (�� �� �� ����, ������ ���ֱ� ���ؼ�)
-				send_index = 0;
-				SetByte(pOutBuf, WIZ_DEAD, send_index);
-				SetShort(pOutBuf, pUser->GetSocketID(), send_index);
-				m_pMain->Send_Region(pOutBuf, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ);
 
+				pUser->OnDeath();
 				pUser->m_bResHpType = USER_DEAD;
 				DEBUG_LOG("*** User Dead, id=%s, result=%d, AI_HP=%d, GM_HP=%d, x=%d, z=%d", pUser->m_pUserData->m_id, result, nHP, pUser->m_pUserData->m_sHp, (int)pUser->m_pUserData->m_curx, (int)pUser->m_pUserData->m_curz);
 
@@ -571,13 +539,9 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 			if( pMon->m_iHP < 0 )
 				pMon->m_iHP = 0;
 
-			send_index = 0;
-			SetByte(pOutBuf, WIZ_ATTACK, send_index);
-			SetByte( pOutBuf, byAttackType, send_index );
-			SetByte( pOutBuf, result, send_index );
-			SetShort( pOutBuf, sid, send_index );
-			SetShort( pOutBuf, tid, send_index );
-			if(result == 0x02)	{		// npc dead
+			Packet result(WIZ_ATTACK, byAttackType);
+			result << bResult << sid << tid;
+			if (bResult == 2)	{		// npc dead
 				pNpc->GetMap()->RegionNpcRemove(pMon->m_sRegion_X, pMon->m_sRegion_Z, tid);
 //				TRACE("--- Npc Dead : Npc�� Region���� ����ó��.. ,, region_x=%d, y=%d\n", pMon->m_sRegion_X, pMon->m_sRegion_Z);
 				pMon->m_sRegion_X = 0;		pMon->m_sRegion_Z = 0;
@@ -587,8 +551,7 @@ void CAISocket::RecvNpcAttack(char* pBuf)
 					if( pEvent )	pEvent->byLife = 0;
 				}
 			}
-
-			m_pMain->Send_Region(pOutBuf, send_index, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
+			pNpc->SendToRegion(&result);
 		}
 	}
 }
@@ -913,8 +876,7 @@ void CAISocket::RecvNpcGiveItem(char* pBuf)
 void CAISocket::RecvUserFail(char* pBuf)
 {
 	short nid = 0, sid=0;
-	int index = 0, send_index = 0;
-	char pOutBuf[1024];
+	int index = 0;
 
 	nid = GetShort(pBuf,index);
 	sid = GetShort(pBuf,index);
@@ -925,20 +887,11 @@ void CAISocket::RecvUserFail(char* pBuf)
 
 	pUser->HpChange(-10000, 1);
 
-	BYTE type = 0x01;
-	BYTE result = 0x02;
-	float fDir = 0.0f;
-
-	SetByte(pOutBuf, WIZ_ATTACK, send_index);
-	SetByte( pOutBuf, type, send_index );
-	SetByte( pOutBuf, result, send_index );
-	SetShort( pOutBuf, sid, send_index );
-	SetShort( pOutBuf, nid, send_index );
+	Packet result(WIZ_ATTACK, uint8(1));
+	result << uint8(2) << sid << nid;
+	pUser->SendToRegion(&result);
 
 	TRACE("### AISocket - RecvUserFail : sid=%d, tid=%d, id=%s ####\n", sid, nid, pUser->m_pUserData->m_id);
-
-	m_pMain->Send_Region(pOutBuf, send_index, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ);
-
 }
 
 void CAISocket::InitEventMonster(int index)

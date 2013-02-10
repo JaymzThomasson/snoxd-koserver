@@ -147,9 +147,7 @@ public:
 	// Get list of merchants in region
 	void GetRegionMerchantUserIn(C3DMap* pMap, int region_x, int region_z, Packet & pkt, int & t_count);
 
-	void Send_Region( char* pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);	// PENDING DEPRECATION
 	void Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
-	void Send_UnitRegion( char *pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser=NULL); // PENDING DEPRECATION
 	void Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
 
 	void Send_NearRegion(Packet *pkt, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser=NULL );

@@ -66,8 +66,7 @@ struct _MAGIC_TABLE
 	BYTE	bCastTime;
 	BYTE	bReCastTime;
 	BYTE	bSuccessRate;
-	BYTE	bType1;
-	BYTE	bType2;
+	BYTE	bType[2];
 	int		sRange;
 	BYTE	bEtc;
 };

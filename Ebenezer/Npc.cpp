@@ -158,38 +158,36 @@ void CNpc::RegisterRegion()
 
 void CNpc::RemoveRegion(int del_x, int del_z)
 {
-	int send_index = 0, i=0;
-	int region_x = -1, region_z = -1, uid = -1;
-	char buff[128];
-	C3DMap* pMap = GetMap();
+	ASSERT(GetMap() != NULL);
 
-	SetByte( buff, WIZ_NPC_INOUT, send_index );
-	SetByte( buff, NPC_OUT, send_index );
-	SetShort( buff, m_sNid, send_index );
+	Packet result(WIZ_NPC_INOUT, uint8(NPC_OUT));
+	result << GetID();
 
-	if( del_x != 0 ) {
-		m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X+del_x*2, m_sRegion_Z+del_z-1 );
-		m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X+del_x*2, m_sRegion_Z+del_z );
-		m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X+del_x*2, m_sRegion_Z+del_z+1 );
+	if (del_x != 0)
+	{
+		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x*2, m_sRegion_Z+del_z-1);
+		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x*2, m_sRegion_Z+del_z);
+		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x*2, m_sRegion_Z+del_z+1);
 	}
-	if( del_z != 0 ) {	
-		m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X+del_x, m_sRegion_Z+del_z*2 );
-		if( del_x < 0 ) 
-			m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X+del_x+1, m_sRegion_Z+del_z*2 );
-		else if( del_x > 0 )
-			m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X+del_x-1, m_sRegion_Z+del_z*2 );
-		else {
-			m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X+del_x-1, m_sRegion_Z+del_z*2 );
-			m_pMain->Send_UnitRegion( buff, send_index, GetMap(), m_sRegion_X+del_x+1, m_sRegion_Z+del_z*2 );
+
+	if (del_z != 0)
+	{	
+		m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x, m_sRegion_Z+del_z*2);
+		if (del_x < 0) 
+			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x+1, m_sRegion_Z+del_z*2);
+		else if (del_x > 0)
+			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x-1, m_sRegion_Z+del_z*2);
+		else
+		{
+			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x-1, m_sRegion_Z+del_z*2);
+			m_pMain->Send_UnitRegion(&result, GetMap(), m_sRegion_X+del_x+1, m_sRegion_Z+del_z*2);
 		}
 	}
 }
 
 void CNpc::InsertRegion(int del_x, int del_z)
 {
-	C3DMap* pMap = GetMap();
-	if (pMap == NULL)
-		return;
+	ASSERT(GetMap() != NULL);
 
 	Packet result(WIZ_NPC_INOUT, uint8(NPC_IN));
 	result << GetID();
@@ -268,4 +266,22 @@ void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
 		result << GetID() << m_byGateOpen;
 		m_pMain->Send_AIServer(&result);
 	}
+}
+
+/* NOTE: This code onwards needs to be merged with user code */
+void CNpc::SendToRegion(Packet *result)
+{
+	m_pMain->Send_Region(result, GetMap(), m_sRegion_X, m_sRegion_Z);
+}
+
+void CNpc::OnDeath()
+{
+	SendDeathAnimation();
+}
+
+void CNpc::SendDeathAnimation()
+{
+	Packet result(WIZ_DEAD);
+	result << GetID();
+	SendToRegion(&result);
 }

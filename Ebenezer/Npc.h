@@ -70,6 +70,10 @@ public:
 	int GetRegionNpcList(int region_x, int region_z, char *buff, int &t_count);
 
 	void SendGateFlag(BYTE bFlag = -1, bool bSendAI = true);
+	void SendToRegion(Packet *result);
+
+	void OnDeath();
+	void SendDeathAnimation();
 
 	__forceinline bool isDead() { return m_NpcState == NPC_DEAD || m_iHP <= 0; };
 	__forceinline bool isAlive() { return !isDead(); };

@@ -900,33 +900,31 @@ void CUser::RegisterRegion()
 
 void CUser::RemoveRegion(int del_x, int del_z)
 {
-	int send_index = 0;
-	int region_x = -1, region_z = -1;
-	char buff[256];
 	C3DMap* pMap = GetMap();
-
 	if (!pMap)
 		return;
 
-	SetByte( buff, WIZ_USER_INOUT, send_index );
-	SetByte( buff, USER_OUT, send_index );
-	SetByte( buff, 0x00, send_index );
-	SetShort( buff, GetSocketID(), send_index );
+	Packet result(WIZ_USER_INOUT, uint8(USER_OUT));
+	result << uint8(0) << uint16(GetSocketID());
 
-	if( del_x != 0 ) {
-		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x*2, m_RegionZ+del_z-1 );
-		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x*2, m_RegionZ+del_z );
-		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x*2, m_RegionZ+del_z+1 );
+	if (del_x != 0)
+	{
+		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x*2, m_RegionZ+del_z-1);
+		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x*2, m_RegionZ+del_z);
+		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x*2, m_RegionZ+del_z+1);
 	}
-	if( del_z != 0 ) {
-		m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x, m_RegionZ+del_z*2 );
-		if( del_x < 0 )
-			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x+1, m_RegionZ+del_z*2 );
-		else if( del_x > 0 )
-			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x-1, m_RegionZ+del_z*2 );
-		else {
-			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x-1, m_RegionZ+del_z*2 );
-			m_pMain->Send_UnitRegion( buff, send_index, pMap, m_RegionX+del_x+1, m_RegionZ+del_z*2 );
+
+	if (del_z != 0)
+	{
+		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x, m_RegionZ+del_z*2);
+		if (del_x < 0)
+			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x+1, m_RegionZ+del_z*2);
+		else if (del_x > 0)
+			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x-1, m_RegionZ+del_z*2);
+		else
+		{
+			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x-1, m_RegionZ+del_z*2);
+			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x+1, m_RegionZ+del_z*2);
 		}
 	}
 }
@@ -940,7 +938,6 @@ void CUser::InsertRegion(int insert_x, int insert_z)
 		return;
 
 	result << uint16(GetSocketID());
-
 	GetUserInfo(result);
 
 	if (insert_x != 0)
@@ -2107,22 +2104,16 @@ void CUser::LoyaltyDivide(short tid)
 
 void CUser::Dead()
 {
-	int send_index = 0;
-	char chatstr[1024], finalstr[1024], send_buff[1024], strKnightsName[MAX_ID_SIZE+1];	
-	CKnights* pKnights = NULL;
-
-	SetByte( send_buff, WIZ_DEAD, send_index );
-	SetShort( send_buff, m_Sid, send_index );
-	m_pMain->Send_Region( send_buff, send_index, GetMap(), m_RegionX, m_RegionZ );
+	Packet result(WIZ_DEAD);
+	result << uint16(GetSocketID());
+	SendToRegion(&result);
 
 	m_bResHpType = USER_DEAD;
-
-	Send( send_buff, send_index );		// ????? ??? ???? ??Y? ????... (?? ?? ?? ????, ???? ???? ????)
-
 	DEBUG_LOG("----> User Dead ,, nid=%d, name=%s, type=%d, x=%d, z=%d ******", m_Sid, m_pUserData->m_id, m_bResHpType, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
 
+#if 0 // removed for now until we have a better system for it
 	send_index = 0;
-	if( m_pUserData->m_bFame == COMMAND_CAPTAIN )	{	// ????????? ??? ??? ??�??,, ???? ???? ??Z
+	if( m_pUserData->m_bFame == COMMAND_CAPTAIN )	{
 		ChangeFame(CHIEF);
 
 		pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
@@ -2145,6 +2136,7 @@ void CUser::Dead()
 		SetKOString(send_buff, finalstr, send_index);
 		m_pMain->Send_All( send_buff, send_index, NULL, m_pUserData->m_bNation );
 	}
+#endif
 }
 
 void CUser::ItemWoreOut(int type, int damage)
@@ -3584,6 +3576,18 @@ BOOL CUser::CheckRandom(short percent)
 void CUser::SendToRegion(Packet *pkt, CUser *pExceptUser /*= NULL*/)
 {
 	m_pMain->Send_Region(pkt, GetMap(), m_RegionX, m_RegionZ, pExceptUser);
+}
+
+void CUser::OnDeath()
+{
+	SendDeathAnimation();
+}
+
+void CUser::SendDeathAnimation()
+{
+	Packet result(WIZ_DEAD);
+	result << uint16(GetSocketID());
+	SendToRegion(&result);
 }
 
 // We have no clan handler, we probably won't need to implement it (but we'll see).

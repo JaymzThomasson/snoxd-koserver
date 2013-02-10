@@ -34,20 +34,28 @@ public:
 //	BOOL UserRegionCheck(int sid, int tid, int magicid, int radius);
 	BOOL UserRegionCheck(int sid, int tid, int magicid, int radius, short mousex = 0, short mousez = 0);
 	short GetMagicDamage(int sid, int tid, int total_hit, int attribute);
-	void ExecuteType10(int magicid);
-	void ExecuteType9(int magicid);
-	void ExecuteType8(int magicid, int sid, int tid, int data1, int data2, int data3);
-	void ExecuteType7(int magicid);
-	void ExecuteType6(int magicid);
-	void ExecuteType5(int magicid, int sid, int tid, int data1, int data2, int data3);
-	void ExecuteType4(int magicid, int sid, int tid, int data1, int data2, int data3, int data4 );
-	void ExecuteType3(int magicid, int sid, int tid, int data1, int data2, int data3);
-	BYTE ExecuteType2(int magicid, int sid, int tid, int data1, int data2, int data3);
-	BYTE ExecuteType1(int magicid, int sid, int tid, int data1, int data2, int data3);	
 
-	_MAGIC_TABLE* IsAvailable( int magicid, int tid, int sid, BYTE type, int data1, int data2, int data3 );
+	uint8 ExecuteType1(_MAGIC_TABLE *pSkill);	
+	uint8 ExecuteType2(_MAGIC_TABLE *pSkill);
+	void  ExecuteType3(_MAGIC_TABLE *pSkill);
+	void  ExecuteType4(_MAGIC_TABLE *pSkill);
+	void  ExecuteType5(_MAGIC_TABLE *pSkill);
+	void  ExecuteType6(_MAGIC_TABLE *pSkill);
+	void  ExecuteType7(_MAGIC_TABLE *pSkill);
+	void  ExecuteType8(_MAGIC_TABLE *pSkill);
+	void  ExecuteType9(_MAGIC_TABLE *pSkill);
+
+	bool IsAvailable(_MAGIC_TABLE *pSkill);
 	void MagicPacket(char* pBuf); // PENDING DEPRECATION
 	void MagicPacket(Packet & pkt);
+
+	uint8 ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType);
+
+	void SendSkillFailed();
+	void SendSkill(int16 pSkillCaster = -1, int16 pSkillTarget = -1, 
+					int8 opcode = -1, uint32 nSkillID = 0, 
+					int16 sData1 = -999, int16 sData2 = -999, int16 sData3 = -999, int16 sData4 = -999, 
+					int16 sData5 = -999, int16 sData6 = -999, int16 sData7 = -999, int16 sData8 = -999);
 
 	CMagicProcess();
 	virtual ~CMagicProcess();
@@ -55,7 +63,14 @@ public:
 	CEbenezerDlg*	m_pMain;
 	CUser*			m_pSrcUser;	
 
-	BYTE	m_bMagicState;
+	// Need to make sure this data's not going to change during skill handling
+	// (i.e. during multiple concurrent packets)
+	// This cannot happen with the existing system, but it's a potential later worry.
+	uint8	m_opcode;
+	uint32	m_nSkillID;
+	int16	m_pSkillCaster, m_pSkillTarget; // these should be pointers to the user/mob
+	uint16	m_sData1, m_sData2, m_sData3, m_sData4, 
+			m_sData5, m_sData6, m_sData7, m_sData8;
 };
 
 #endif // !defined(AFX_MAGICPROCESS_H__C39F1966_3F41_47A9_B26A_77F311683A05__INCLUDED_)

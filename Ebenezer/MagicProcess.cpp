@@ -61,7 +61,6 @@ CMagicProcess::CMagicProcess()
 {
 	m_pSrcUser = NULL;
 	m_pMain = NULL;
-	m_bMagicState = NONE; 
 }
 
 CMagicProcess::~CMagicProcess()
@@ -81,183 +80,144 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 
 void CMagicProcess::MagicPacket(char *pBuf)
 {
-	int index = 0, send_index = 0, magicid = 0, sid = -1, tid = -2, data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0, data7 = 0,data8 = 0, type3_attribute = 0,NpcMagic = 0;
-	char send_buff[128];
+	int index = 0;
 
-	_MAGIC_TABLE* pTable = NULL;
-	CNpc* pMon = NULL;
+	_MAGIC_TYPE2 *pType2 = NULL;
+	_MAGIC_TYPE3 *pType3 = NULL;
+	_MAGIC_TYPE4 *pType4 = NULL;
+	CUser *pUser = NULL;
+	CNpc *pMon = NULL;
 
-	BYTE command = GetByte( pBuf, index );		// Get the magic status.  
-	magicid = GetDWORD( pBuf, index );          // Get ID of magic.
+	m_opcode = GetByte(pBuf, index);
+	m_nSkillID = GetDWORD(pBuf, index);
 
-	if (command == MAGIC_CANCEL2 &&  m_pSrcUser) {
-		Type3Cancel(magicid, m_pSrcUser->GetSocketID());	 // Type 3 cancel procedure.
-		Type4Cancel(magicid, m_pSrcUser->GetSocketID());   // Type 4 cancel procedure.
-		//Type6Cancel(magicid, m_pSrcUser);   // Scrolls etc.
-		//Type9Cancel(magicid, m_pSrcUser);   // Stealth lupin etc.
+	_MAGIC_TABLE *pMagic = m_pMain->m_MagictableArray.GetData(m_nSkillID);
+	if (pMagic == NULL)
+		return;
+
+	if ((m_opcode == MAGIC_CANCEL
+		|| m_opcode == MAGIC_CANCEL2) && m_pSrcUser)
+	{
+		Type3Cancel(m_nSkillID, m_pSrcUser->GetSocketID());
+		Type4Cancel(m_nSkillID, m_pSrcUser->GetSocketID());
+		//Type6Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Scrolls etc.
+		//Type9Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Stealth lupine etc.
 		return;
 	}
 
-	sid = GetShort( pBuf, index );			    // Get ID of source.
-	tid = GetShort( pBuf, index );              // Get ID of target.
-	data1 = GetShort( pBuf, index );            // Additional Info :)
-	data2 = GetShort( pBuf, index );		 
-	data3 = GetShort( pBuf, index );
-	data4 = GetShort( pBuf, index );
-	data5 = GetShort( pBuf, index );
-	data6 = GetShort( pBuf, index ); 
-	data7 = GetShort( pBuf, index );
-	data8 = GetShort( pBuf, index ); // new
-	NpcMagic = GetByte( pBuf, index ); // new
+	m_pSkillCaster = GetShort(pBuf, index);
+	m_pSkillTarget = GetShort(pBuf, index);
+
+	m_sData1 = GetShort(pBuf, index);
+	m_sData2 = GetShort(pBuf, index);		 
+	m_sData3 = GetShort(pBuf, index);
+	m_sData4 = GetShort(pBuf, index);
+	m_sData5 = GetShort(pBuf, index);
+	m_sData6 = GetShort(pBuf, index); 
+	m_sData7 = GetShort(pBuf, index); // new -- from when?
+	m_sData8 = GetShort(pBuf, index);
 
 	if (m_pSrcUser)
 	{
 		// We don't want the source ever being anyone other than us.
 		// Ever. Even in the case of NPCs, it's BAD. BAD!
 		// We're better than that -- we don't need to have the client tell NPCs what to do.
-		if (sid != m_pSrcUser->GetSocketID()) 
+		if (m_pSkillCaster != m_pSrcUser->GetSocketID()) 
 			return;
 
 		// If we're in a snow war, we're only ever allowed to use the snowball skill.
 		if (m_pSrcUser->getZoneID() == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE 
-			&& magicid != SNOW_EVENT_SKILL)
+			&& m_nSkillID != SNOW_EVENT_SKILL)
 			return;
 	}
 
-	if (command == MAGIC_CANCEL) {
-		Type3Cancel(magicid, sid);	 // Type 3 cancel procedure.
-		Type4Cancel(magicid, sid);   // Type 4 cancel procedure.
-		//Type6Cancel(magicid, m_pSrcUser);   // Scrolls etc.
-		//Type9Cancel(magicid, m_pSrcUser);
-		return;
+	// For the types we use (all over the place), we may as well perform the one lookup, rather than look up every time we need it.
+	// NOTE: Not really implemented, but works for this method at least (also not worth it alone, so...).
+	for (int i = 0; i < 2; i++)
+	{
+		switch (pMagic->bType[i])
+		{
+		case 2:
+			pType2 = m_pMain->m_Magictype2Array.GetData(m_nSkillID);
+			if (pType2 == NULL)
+				return;
+			break;
+
+		case 3:
+			pType3 = m_pMain->m_Magictype3Array.GetData(m_nSkillID);
+			if (pType3 == NULL)
+				return;
+			break;  
+
+		case 4:
+			pType4 = m_pMain->m_Magictype4Array.GetData(m_nSkillID);
+			if (pType4 == NULL)
+				return;
+			break;  
+		}
 	}
 
-	_MAGIC_TABLE* pMagic = NULL ;
-	pMagic = m_pMain->m_MagictableArray.GetData( magicid ) ;   // Get main magic table.
-	if( !pMagic )
-		return ;	
-
-	if( pMagic->bMoral == 10 && tid != -1 )
+	// If we're using an AOE, and the target is specified... something's not right.
+	if ((pMagic->bMoral >= MORAL_AREA_ENEMY
+			&& pMagic->bMoral <= MORAL_SELF_AREA)
+		&& m_pSkillTarget != -1)
 		return;
 
-	if ( sid >= NPC_BAND ) {
-		pMon = m_pMain->m_arNpcArray.GetData(sid);
-		if( !pMon || pMon->m_NpcState == NPC_DEAD ) return;
+	if (m_pSkillCaster >= NPC_BAND)
+	{
+		pMon = m_pMain->m_arNpcArray.GetData(m_pSkillCaster);
+		if (pMon == NULL || pMon->isDead())
+			return;
 	}
-	else if( sid >=0 && sid < MAX_USER )	{
-		CUser* pUser = m_pMain->GetUserPtr(sid);
-		if (pUser == NULL || pUser->isDead())	
+	else if (m_pSkillCaster >= 0)
+	{
+		pUser = m_pMain->GetUserPtr(m_pSkillCaster);
+		if (pUser == NULL || pUser->isDead() || pUser->isBlinking())	
 			return;
 	}
 
-	if (tid >= 0 && tid < MAX_USER) {	// Type 4 Repeat Check!!!
-		if (pMagic->bType1 == 4) {
-			if (pMagic->bMoral < 5) {
-				CUser* pTUser = m_pMain->GetUserPtr(tid) ;
-				if (pTUser == NULL) return;
+	if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER
+		&& pMagic->bMoral < MORAL_NPC)
+	{
+		CUser *pTUser = m_pMain->GetUserPtr(m_pSkillTarget);
+		// revives are the only other concern here, but since we're only checking types 3 & 4 (revive is 5) there's no problem
+		if (pTUser == NULL || pTUser->isDead()) 
+			return;
 
-				_MAGIC_TYPE4* pType4 = NULL;
-				pType4 = m_pMain->m_Magictype4Array.GetData( magicid );     // Get magic skill table type 4.
-				if ( !pType4 ) return ;
-
-				if ( pTUser->m_bType4Buff[pType4->bBuffType - 1] > 0) {			
-					SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-					SetByte( send_buff, MAGIC_FAIL, send_index );
-					SetDWORD( send_buff, magicid, send_index );
-					SetShort( send_buff, sid, send_index );
-					SetShort( send_buff, tid, send_index );	
-					SetShort( send_buff, 0, send_index );	
-					SetShort( send_buff, 0, send_index );
-					SetShort( send_buff, 0, send_index );
-					SetShort( send_buff, -103, send_index );			
-					SetShort( send_buff, 0, send_index );
-					SetShort( send_buff, 0, send_index );
-
-					if( m_bMagicState == CASTING ) {
-						m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-					}
-					else {			
-						m_pSrcUser->Send( send_buff, send_index );				
-					}
-					m_bMagicState = NONE;
-					return;     // Magic was a failure!						
-				}
-			}
+		// Check if we're casting a skill with the same buff type
+		if  (pMagic->bType[0] == 4 && pTUser->m_bType4Buff[pType4->bBuffType - 1] > 0)
+		{
+			m_sData4 = -103; // Not sure if this is necessary.
+			SendSkillFailed(); 
+			return;
 		}
-	}
-	
-	if (tid >= 0 && tid < MAX_USER) {		// Type 3 Repeat Check!!!
-		if (pMagic->bType1 == 3) {
-			if (pMagic->bMoral < 5) {
-				CUser* pTUser = m_pMain->GetUserPtr(tid);
-				if (pTUser == NULL) return;
+		else if (pMagic->bType[0] == 3 && pType3->sTimeDamage > 0)
+		{
+			for (int i = 0 ; i < MAX_TYPE3_REPEAT; i++)
+			{
+				if (pTUser->m_bHPAmount[i] <= 0)
+					continue;
 
-				_MAGIC_TYPE3* pType3 = NULL;
-				pType3 = m_pMain->m_Magictype3Array.GetData( magicid );     // Get magic skill table type 4.
-				if ( !pType3 ) return ;
-
-				if (pType3->sTimeDamage > 0) {
-					for (int i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {
-						if (pTUser->m_bHPAmount[i] > 0) {
-							SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-							SetByte( send_buff, MAGIC_FAIL, send_index );
-							SetDWORD( send_buff, magicid, send_index );
-							SetShort( send_buff, sid, send_index );
-							SetShort( send_buff, tid, send_index );	
-							SetShort( send_buff, 0, send_index );	
-							SetShort( send_buff, 0, send_index );
-							SetShort( send_buff, 0, send_index );
-							SetShort( send_buff, -103, send_index );			
-							SetShort( send_buff, 0, send_index );
-							SetShort( send_buff, 0, send_index );
-
-							if( m_bMagicState == CASTING ) {
-								m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-							}
-							else {			
-								m_pSrcUser->Send( send_buff, send_index );				
-							}
-							m_bMagicState = NONE;
-							return;     // Magic was a failure!	
-						}
-					}
-				}				
-			}
+				m_sData4 = -103; // Not sure if this is necessary.
+				SendSkillFailed();
+				return;
+			}				
 		}
 	}
 
-// �񷯸ӱ� Ŭ�� ��ȯ >.<
-	if (sid >= 0 && sid < MAX_USER) {	// Make sure the source is a user!
-		if (m_pSrcUser->m_pUserData->m_bZone == ZONE_BATTLE) {		// Make sure the zone is a battlezone!
-			if (tid >= 0 && tid < MAX_USER) {		// Make sure the target is another player.
-				if (pMagic->bType1 == 8) {		// Is it a warp spell?
+	if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER) {	// Make sure the source is a user!
+		if ((m_pSrcUser->m_pUserData->m_bZone / 100) == 1) {		// Make sure the zone is a battlezone!
+			if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER) {		// Make sure the target is another player.
+				if (pMagic->bType[0] == 8) {		// Is it a warp spell?
 					if (pMagic->bMoral < 5 || pMagic->bMoral == MORAL_CLAN) {		
-						float currenttime;
-						currenttime = TimeGet();
+						float currenttime = TimeGet();
 
-						CUser* pTUser = m_pMain->GetUserPtr(tid);
+						CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);
 						if (pTUser == NULL) return;
 
 						if (currenttime - pTUser->m_fLastRegeneTime < CLAN_SUMMON_TIME) {
-							SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-							SetByte( send_buff, MAGIC_FAIL, send_index );
-							SetDWORD( send_buff, magicid, send_index );
-							SetShort( send_buff, sid, send_index );
-							SetShort( send_buff, tid, send_index );	
-							SetShort( send_buff, 0, send_index );	
-							SetShort( send_buff, 0, send_index );
-							SetShort( send_buff, 0, send_index );
-							SetShort( send_buff, -103, send_index );			
-							SetShort( send_buff, 0, send_index );
-							SetShort( send_buff, 0, send_index ); 
-
-							if( m_bMagicState == CASTING ) {
-								m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-							}
-							else {			
-								m_pSrcUser->Send( send_buff, send_index );				
-							}
-							m_bMagicState = NONE;
+							m_sData4 = -103; // Not sure if this is necessary.
+							SendSkillFailed();
 							return;     // Magic was a failure!	
 						}		
 					}
@@ -265,308 +225,313 @@ void CMagicProcess::MagicPacket(char *pBuf)
 			}
 		}
 	}
-//
-	if( command == MAGIC_FAIL ) 	// Client indicates that magic failed. Just send back packet.
-		goto return_echo;
-	
-	if ( command == MAGIC_FLYING ) {	// When the arrow starts flying....
-	 	if (pMagic->bType1 == 2) {
-			_MAGIC_TYPE2* pType = NULL;
-			pType = m_pMain->m_Magictype2Array.GetData( magicid );     // Get magic skill table type 2.
-			if( !pType ) return;
 
-			if (sid >= 0 && sid < MAX_USER)	{	// If the PLAYER shoots an arrow.
+	if (m_opcode == MAGIC_FLYING) {	// When the arrow starts flying... 
+	 	if (pMagic->bType[0] == 2) {
+			if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER)	{	// If the PLAYER shoots an arrow.
 				if (pMagic->bFlyingEffect > 0) {	// Only if Flying Effect is greater than 0.			
 					int total_hit = m_pSrcUser->m_sTotalHit + m_pSrcUser->m_sItemHit ;
 					int skill_mana = total_hit * pMagic->sMsp / 100 ;
 
 					if( skill_mana > m_pSrcUser->m_pUserData->m_sMp ) {	// Reduce Magic Point!
-						command = MAGIC_FAIL ;
-						goto return_echo ; 
+						SendSkillFailed();
+						return;
 					}				
 					m_pSrcUser->MSpChange( -(skill_mana) ) ;
 				}
 
-				if (!m_pSrcUser->RobItem(pMagic->iUseItem, pType->bNeedArrow)) { // Subtract Arrow!				
-					command = MAGIC_FAIL ;
-					goto return_echo ; 
+				if (!m_pSrcUser->RobItem(pMagic->iUseItem, pType2->bNeedArrow)) { // Subtract Arrow!				
+					SendSkillFailed();
+					return;
 				}
 			}		
 		}
-		goto return_echo;
 	}
+
+	// Client indicates that magic failed. Just send back packet (seriously, is this even expected of us? So dumb.)
+	if (m_opcode == MAGIC_FLYING || m_opcode == MAGIC_FAIL)
+	{
+		SendSkill();
+		return;
+	}	
 	
-	pTable = IsAvailable( magicid, tid, sid, command, data1, data2, data3 );     // If magic was successful...
-	if( !pTable ) return;
+	if (!IsAvailable(pMagic))
+		return;
 
-	if( command == MAGIC_EFFECTING ) {
-		int initial_result = 1;
-		
-		if (sid >= 0 && sid < MAX_USER) {
-			if( tid >= NPC_BAND || (tid == -1 && (pMagic->bMoral == MORAL_AREA_ENEMY || pMagic->bMoral == MORAL_SELF_AREA))) {		// If the target is an NPC.
-				int total_magic_damage = 0;
+	// This is so that we still have the IsAvailable() check for this packet.
+	if (m_opcode == MAGIC_CASTING)
+	{
+		SendSkill();
+		return;
+	}
 
-				SetByte( send_buff, AG_MAGIC_ATTACK_REQ, send_index );
-				SetShort( send_buff, sid, send_index );
-				SetByte( send_buff, command, send_index );
-				SetShort( send_buff, tid, send_index );
-				SetDWORD( send_buff, magicid, send_index );
-				SetShort( send_buff, data1, send_index );
-				SetShort( send_buff, data2, send_index );
-				SetShort( send_buff, data3, send_index );
-				SetShort( send_buff, data4, send_index );
-				SetShort( send_buff, data5, send_index );
-				SetShort( send_buff, data6, send_index );
+	// That's it for anything else!
+	if (m_opcode != MAGIC_EFFECTING)
+		return;
 
-				SetShort( send_buff, m_pSrcUser->getStatWithItemBonus(STAT_CHA), send_index);
+	int initial_result = 1;
+	if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER)
+	{
+		// If the target is an NPC.
+		if (m_pSkillTarget >= NPC_BAND 
+			|| (m_pSkillTarget == -1 && (pMagic->bMoral == MORAL_AREA_ENEMY || pMagic->bMoral == MORAL_SELF_AREA)))
+		{		
+			int total_magic_damage = 0;
 
-				if( m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {	// Does the magic user have a staff?
-					_ITEM_TABLE* pRightHand = NULL;
-					pRightHand = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+			Packet result(AG_MAGIC_ATTACK_REQ); // this is the order it was in.
+			result	<< m_pSkillCaster << m_opcode << m_pSkillTarget << m_nSkillID 
+					<< m_sData1 << m_sData2 << m_sData3 
+					<< m_sData4 << m_sData5 << m_sData6
+					<< m_pSrcUser->getStatWithItemBonus(STAT_CHA);
 
-					if( pRightHand && m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum == 0 && pRightHand->m_bKind / 10 == WEAPON_STAFF) {					
+			if( m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {	// Does the magic user have a staff?
+				_ITEM_TABLE* pRightHand = NULL;
+				pRightHand = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+
+				if( pRightHand && m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum == 0 && pRightHand->m_bKind / 10 == WEAPON_STAFF) {					
 //						total_magic_damage += pRightHand->m_sDamage ;
 //						total_magic_damage += ((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 60);
 
-						if (pMagic->bType1 == 3) {
-//
-							total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 60);
-//
-							_MAGIC_TYPE3* pType3 = NULL;
-							pType3 = m_pMain->m_Magictype3Array.GetData( magicid );     // Get magic skill table type 4.
-							if ( !pType3 ) return ;
-  
-							if (m_pSrcUser->m_bMagicTypeRightHand == pType3->bAttribute ) {							
-//								total_magic_damage += pRightHand->m_sDamage ;
-								total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 30);
-							}
-//
-							if (pType3->bAttribute == 4) {	// Remember what Sunglae told ya!
-								total_magic_damage = 0;
-							}
-//
-						}
+					if (pMagic->bType[0] == 3) {
+						total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 60);
 
-						SetShort(send_buff, total_magic_damage, send_index);						
-					}
-					else {
-						SetShort(send_buff, 0, send_index);
+						if (m_pSrcUser->m_bMagicTypeRightHand == pType3->bAttribute ) {							
+							total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 30);
+						}
+//
+						if (pType3->bAttribute == 4) {	// Remember what Sunglae told ya! (no, not really?)
+							total_magic_damage = 0;
+						}
 					}
 				}
-				else {	// If not, just use the normal formula :)
-					SetShort(send_buff, 0, send_index);
-				}				
-
-				m_pMain->Send_AIServer(send_buff, send_index);		
 			}
-		}
 
-		if (tid < -1 || tid >= MAX_USER) return;	// Make sure the target is another player and it exists.
-
-		switch( pTable->bType1 ) {
-			case 1:
-				initial_result = ExecuteType1( pTable->iNum, sid, tid, data1, data2, data3 );
-				break;
-			case 2:
-				initial_result = ExecuteType2( pTable->iNum, sid, tid, data1, data2, data3 );	
-				break;
-			case 3:
-				ExecuteType3( pTable->iNum, sid, tid, data1, data2, data3 );
-				break;
-			case 4:
-				ExecuteType4( pTable->iNum, sid, tid, data1, data2, data3, data4 );
-				break;
-			case 5:
-				ExecuteType5( pTable->iNum, sid, tid, data1, data2, data3  );
-				break;
-			case 6:
-				ExecuteType6( pTable->iNum );
-				break;
-			case 7:
-				ExecuteType7( pTable->iNum );
-				break;
-			case 8:
-				ExecuteType8( pTable->iNum, sid, tid, data1, data2, data3 );
-				break;
-			case 9:
-				ExecuteType9( pTable->iNum );
-				break;
-			case 10:
-				ExecuteType10( pTable->iNum );
-				break;
-		}
-
-		if (initial_result != 0) {
-			switch( pTable->bType2 ) {
-				case 1:
-					ExecuteType1( pTable->iNum, sid, tid, data1, data2, data3 );
-					break;
-				case 2:
-					ExecuteType2( pTable->iNum, sid, tid, data1, data2, data3 );	
-					break;
-				case 3:
-					ExecuteType3( pTable->iNum, sid, tid, data1, data2, data3 );
-					break;
-				case 4:
-					ExecuteType4( pTable->iNum, sid, tid, data1, data2, data3, data4 );
-					break;
-				case 5:
-					ExecuteType5( pTable->iNum, sid, tid, data1, data2, data3 );
-					break;
-				case 6:
-					ExecuteType6( pTable->iNum );
-					break;
-				case 7:
-					ExecuteType7( pTable->iNum );
-					break;
-				case 8:
-					ExecuteType8( pTable->iNum, sid, tid, data1, data2, data3 );
-					break;
-				case 9:
-					ExecuteType9( pTable->iNum );
-					break;
-				case 10:
-					ExecuteType10( pTable->iNum );
-					break;	
-			}
+			result << uint16(total_magic_damage);
+			m_pMain->Send_AIServer(&result);		
 		}
 	}
-	else if( command == MAGIC_CASTING ) {
-		goto return_echo;		// ���� �����ٸ� �־���.....
-	}
 
-	return;
+	if (m_pSkillTarget < -1 || m_pSkillTarget >= MAX_USER) return;	// Make sure the target is another player and it exists.
 
-return_echo:
-	SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-	SetByte( send_buff, command, send_index );
-	SetDWORD( send_buff, magicid, send_index );
-	SetShort( send_buff, sid, send_index );
-	SetShort( send_buff, tid, send_index );
-	SetShort( send_buff, data1, send_index );	
-	SetShort( send_buff, data2, send_index );	
-	SetShort( send_buff, data3, send_index );	
-	SetShort( send_buff, data4, send_index );	
-	SetShort( send_buff, data5, send_index );	
-	SetShort( send_buff, data6, send_index );	
-
-	if (sid >= 0 && sid < MAX_USER) {
-		m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-	}
-	else if (sid >= NPC_BAND) { 
-		m_pMain->Send_Region( send_buff, send_index, pMon->GetMap(), pMon->m_sRegion_X, pMon->m_sRegion_Z );
-	}		
+	// NOTE: Some ROFD skills require a THIRD type.
+	uint8 bInitialResult = ExecuteSkill(pMagic, pMagic->bType[0]);
+	if (bInitialResult != 0)
+		ExecuteSkill(pMagic, pMagic->bType[1]);
 }
 
-_MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE type, int data1, int data2, int data3)
+uint8 CMagicProcess::ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType)
+{
+	uint8 bResult = 0;
+
+	switch (bType)
+	{
+		case 1:
+			bResult = ExecuteType1(pSkill);
+			break;
+
+		case 2:
+			bResult = ExecuteType2(pSkill);
+			break;
+	
+		case 3:
+			ExecuteType3(pSkill);
+			break;
+
+		case 4:
+			ExecuteType4(pSkill);
+			break;
+	
+		case 5:
+			ExecuteType5(pSkill);
+			break;
+	
+		case 6:
+			ExecuteType6(pSkill);
+			break;
+	
+		case 7:
+			ExecuteType7(pSkill);
+			break;
+	
+		case 8:
+			ExecuteType8(pSkill);
+			break;
+	
+		case 9:
+			ExecuteType9(pSkill);
+			break;
+	}
+
+	return bResult;
+}
+
+void CMagicProcess::SendSkillFailed()
+{
+	SendSkill(m_pSkillCaster, m_pSkillTarget, MAGIC_FAIL, 
+				m_nSkillID, m_sData1, m_sData2, m_sData3, m_sData4, 
+				m_sData5, m_sData6, m_sData7, m_sData8);
+}
+
+void CMagicProcess::SendSkill(int16 pSkillCaster /* = -1 */, int16 pSkillTarget /* = -1 */,	
+								int8 opcode /* = -1 */, uint32 nSkillID /* = 0 */, 
+								int16 sData1 /* = -999 */, int16 sData2 /* = -999 */, int16 sData3 /* = -999 */, int16 sData4 /* = -999 */, 
+								int16 sData5 /* = -999 */, int16 sData6 /* = -999 */, int16 sData7 /* = -999 */, int16 sData8 /* = -999 */)
+{
+	Packet result(WIZ_MAGIC_PROCESS);
+	int16 sid = 0, tid = 0;
+
+	// Yes, these are all default value overrides.
+	// This is completely horrible, but will suffice for now...
+
+	if (opcode == -1)
+		opcode = m_opcode;
+
+	if (opcode == MAGIC_FAIL
+		&& pSkillCaster >= NPC_BAND)
+		return;
+
+	if (pSkillCaster  == -1)
+		pSkillCaster = m_pSkillCaster;
+
+	if (pSkillTarget  == -1)
+		pSkillTarget = m_pSkillTarget;
+
+	if (nSkillID == 0)
+		nSkillID = m_nSkillID;
+
+	if (sData1 == -999)
+		sData1 = m_sData1;
+	if (sData2 == -999)
+		sData2 = m_sData2;
+	if (sData3 == -999)
+		sData3 = m_sData3;
+	if (sData4 == -999)
+		sData4 = m_sData4;
+	if (sData5 == -999)
+		sData5 = m_sData5;
+	if (sData6 == -999)
+		sData6 = m_sData6;
+	if (sData7 == -999)
+		sData7 = m_sData7;
+	if (sData8 == -999)
+		sData8 = m_sData8;
+
+	result	<< opcode << nSkillID << pSkillCaster << pSkillTarget 
+			<< sData1 << sData2 << sData3 << sData4
+			<< sData5 << sData6 << sData7 << sData8;
+
+	if (m_pSrcUser == NULL)
+	{
+		CNpc *pNpc = m_pMain->m_arNpcArray.GetData(pSkillCaster);
+		if (pNpc == NULL)
+			return;
+
+		pNpc->SendToRegion(&result);
+	}
+	else
+	{
+		CUser *pUser = NULL;
+		if ((pSkillCaster < 0 || pSkillCaster >= MAX_USER)
+			&& (pSkillTarget >= 0 && pSkillTarget < MAX_USER))
+			pUser = m_pMain->GetUserPtr(pSkillTarget);
+		else
+			pUser = m_pSrcUser;
+
+		if (pUser == NULL)
+			return;
+
+		if (opcode == MAGIC_FAIL)
+			m_pSrcUser->Send(&result);
+		else
+			pUser->SendToRegion(&result);
+	}
+}
+
+bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 {
 	CUser* pUser = NULL;	// When the target is a player....
 	CUser* pParty = NULL;   // When the target is a party....
 	CNpc* pNpc = NULL;		// When the monster is the target....
 	CNpc* pMon = NULL;		// When the monster is the source....
-	BOOL bFlag = FALSE;		// Identifies source : TRUE means source is NPC.
+	bool isNPC = (m_pSkillCaster >= NPC_BAND);		// Identifies source : TRUE means source is NPC.
 	_MAGIC_TYPE5* pType = NULL;		// Only for type 5 magic!
 	
-	int modulator = 0, Class = 0, send_index = 0, moral = 0 ;	// Variable Initialization.
-	char send_buff[128] ;	
-	int skill_mod = 0 ;
+	int modulator = 0, Class = 0, moral = 0, skill_mod = 0 ;
 
-	_MAGIC_TABLE* pTable = NULL;
-	pTable = m_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
-	if( !pTable ) goto fail_return;   
-	
-	if ( sid >= 0 && sid < MAX_USER) {		// Check source validity when the source is a player.
-		if (!m_pSrcUser) goto fail_return;
-		if (m_pSrcUser->m_bAbnormalType == ABNORMAL_BLINKING) goto fail_return; 
-	}
-	else if( sid >= NPC_BAND) {	   //  Check source validity when the source is a NPC.
-		bFlag = TRUE;
-		pMon = m_pMain->m_arNpcArray.GetData(sid);
-		if( !pMon || pMon->m_NpcState == NPC_DEAD ) goto fail_return;
-	}
-	else goto fail_return;
+	if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER) {		// Target existence check routine for player.          
+		pUser = m_pMain->GetUserPtr(m_pSkillTarget);
+		if (pUser == NULL)
+			goto fail_return;
 
-	if( tid >= 0 && tid < MAX_USER ) {		// Target existence check routine for player.          
-		pUser = m_pMain->GetUserPtr(tid);
-
-		if (pTable->bType1 != 5) {		// If not a Warp/Resurrection spell...
-			if (pUser == NULL || pUser->isDead() || pUser->m_bAbnormalType == ABNORMAL_BLINKING) {
+		if (pSkill->bType[0] != 5) // If not a Warp/Resurrection spell...
+		{
+			if (pUser->isDead() || pUser->isBlinking())
 				goto fail_return;
-			}
 		}
-		else if (pTable->bType1 == 5) {
-			pType = m_pMain->m_Magictype5Array.GetData(magicid);    
-			if (!pType) goto fail_return;
-			if (!pUser) goto fail_return;	
-
-			if (pUser->m_bAbnormalType == ABNORMAL_BLINKING) goto fail_return;
-			if (pUser->isDead() && pType->sNeedStone == 0 && pType->bExpRecover == 0) goto fail_return;					
+		else // skill type 5 (warp/resurrection)
+		{
+			pType = m_pMain->m_Magictype5Array.GetData(pSkill->iNum);    
+			if (pType == NULL
+				|| pUser->isBlinking()
+				|| (pUser->isDead() && pType->sNeedStone == 0 && pType->bExpRecover == 0))
+				goto fail_return;					
 		}
 
-		moral = pUser->m_pUserData->m_bNation;
+		moral = pUser->getNation();
 	}
-	else if ( tid >= NPC_BAND ) {     // Target existence check routine for NPC.          	
-		if( m_pMain->m_bPointCheckFlag == FALSE)	goto fail_return;	// ������ �����ϸ� �ȵ�
-		pNpc = m_pMain->m_arNpcArray.GetData(tid);
-		if( !pNpc || pNpc->m_NpcState == NPC_DEAD ) goto fail_return;	//... Assuming NPCs can't be resurrected.
+	else if (m_pSkillTarget >= NPC_BAND)     // Target existence check routine for NPC.          	
+	{
+		if (!m_pMain->m_bPointCheckFlag)
+			goto fail_return;	
+		pNpc = m_pMain->m_arNpcArray.GetData(m_pSkillTarget);
+		if (pNpc == NULL || pNpc->isDead())
+			goto fail_return;	//... Assuming NPCs can't be resurrected.
 
 		moral = pNpc->m_byGroup;
 	}
-	else if ( tid == -1) {  // Party Moral check routine.
-		if (pTable->bMoral == MORAL_AREA_ENEMY) {
-			if(!bFlag)	{
-				if (m_pSrcUser->m_pUserData->m_bNation == 1) {	// Switch morals.
-					moral = 2 ;
-				}
-				else {
-					moral = 1 ;
-				}
-			}
-			else {
-				moral = 1 ;
-			}
+	else if (m_pSkillTarget == -1)  // AOE/Party Moral check routine.
+	{
+		if (isNPC)
+		{
+			moral = 1;
 		}
-		else {
-			if(!bFlag)	{
-				moral = m_pSrcUser->m_pUserData->m_bNation;	
-			}
-			else {
-				moral = 1;
-			}
-
+		else
+		{
+			if (pSkill->bMoral == MORAL_AREA_ENEMY)
+				moral = m_pSrcUser->getNation() == KARUS ? ELMORAD : KARUS;
+			else 
+				moral = m_pSrcUser->getNation();	
 		}
 	}
-	else moral = m_pSrcUser->m_pUserData->m_bNation ;
+	else 
+		moral = m_pSrcUser->getNation();
 	
-	switch( pTable->bMoral ) {		// Compare morals between source and target character.
+	switch( pSkill->bMoral ) {		// Compare morals between source and target character.
 		case MORAL_SELF:   // #1         // ( to see if spell is cast on the right target or not )
-			if(bFlag) {
-				if( tid != pMon->m_sNid ) goto fail_return;
+			if(isNPC) {
+				if( m_pSkillTarget != pMon->m_sNid ) goto fail_return;
 			}
 			else {
-				if( tid != m_pSrcUser->GetSocketID() ) goto fail_return;
+				if( m_pSkillTarget != m_pSrcUser->GetSocketID() ) goto fail_return;
 			}
 			break;
 		case MORAL_FRIEND_WITHME:	// #2
-			if(bFlag) {
-				if(pMon->m_byGroup != moral ) goto fail_return;
-			}
-			else {
-				if( m_pSrcUser->m_pUserData->m_bNation != moral ) goto fail_return;
-			}
+			if ((isNPC && pMon->m_byGroup != moral)
+				|| (!isNPC && m_pSrcUser->getNation() != moral))
+				goto fail_return;
 			break;
 		case MORAL_FRIEND_EXCEPTME:	   // #3
-			if(bFlag) {
+			if(isNPC) {
 				if( pMon->m_byGroup != moral ) goto fail_return;
-				if( tid == pMon->m_sNid ) goto fail_return;				
+				if( m_pSkillTarget == pMon->m_sNid ) goto fail_return;				
 			}
 			else {
 				if( m_pSrcUser->m_pUserData->m_bNation != moral ) goto fail_return;
-				if( tid == m_pSrcUser->GetSocketID() ) goto fail_return;
+				if( m_pSkillTarget == m_pSrcUser->GetSocketID() ) goto fail_return;
 			}
 			break;
 		case MORAL_PARTY:	 // #4
-			if( !m_pSrcUser->isInParty() && sid != tid) goto fail_return;
+			if( !m_pSrcUser->isInParty() && m_pSkillCaster != m_pSkillTarget) goto fail_return;
 			if (m_pSrcUser->m_pUserData->m_bNation != moral) goto fail_return;
 			if( pUser )
 				if( pUser->m_sPartyIndex != m_pSrcUser->m_sPartyIndex ) goto fail_return;
@@ -581,11 +546,11 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 
 			break;
 		case MORAL_ENEMY:	// #7	
-			if(bFlag) {
+			if(isNPC) {
 				if( pMon->m_byGroup == moral ) goto fail_return;		
 			}
 			else {
-				if( m_pSrcUser->m_pUserData->m_bNation == moral ) goto fail_return;	
+				if( m_pSrcUser->getNation() == moral ) goto fail_return;	
 			}
 			break;	
 		case MORAL_ALL:	 // #8
@@ -604,19 +569,19 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 			// Remeber, EVERYONE in the area is affected by this one. No moral check!!!
 			break;
 		case MORAL_CORPSE_FRIEND:		// #25
-			if(bFlag) {
+			if(isNPC) {
 				if( pMon->m_byGroup != moral ) goto fail_return;
-				if( tid == pMon->m_sNid ) goto fail_return;				
+				if( m_pSkillTarget == pMon->m_sNid ) goto fail_return;				
 			}
 			else {
-				if( m_pSrcUser->m_pUserData->m_bNation != moral ) goto fail_return;
-				if( tid == m_pSrcUser->GetSocketID() ) goto fail_return;
+				if( m_pSrcUser->getNation() != moral ) goto fail_return;
+				if( m_pSkillTarget == m_pSrcUser->GetSocketID() ) goto fail_return;
 				if(pUser->m_bResHpType != USER_DEAD) goto fail_return; 
 			}
 			break;
 //
 		case MORAL_CLAN:		// #14
-			if( m_pSrcUser->m_pUserData->m_bKnights == -1 && sid != tid ) goto fail_return;
+			if( m_pSrcUser->m_pUserData->m_bKnights == -1 && m_pSkillCaster != m_pSkillTarget ) goto fail_return;
 			if( m_pSrcUser->m_pUserData->m_bNation != moral ) goto fail_return;
 			if( pUser ) {
 				if( pUser->m_pUserData->m_bKnights != m_pSrcUser->m_pUserData->m_bKnights ) goto fail_return;
@@ -628,235 +593,158 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, int sid, BYTE typ
 //
 	}
 
-	if(!bFlag) {	// If the user cast the spell (and not the NPC).....
-		modulator = pTable->sSkill % 10;     // Hacking prevention!
+	if (!isNPC) {	// If the user cast the spell (and not the NPC).....
+		modulator = pSkill->sSkill % 10;     // Hacking prevention!
 		if( modulator != 0 ) {	
-			Class = pTable->sSkill / 10;
+			Class = pSkill->sSkill / 10;
 			if( Class != m_pSrcUser->m_pUserData->m_sClass ) goto fail_return;
-			if( pTable->sSkillLevel > m_pSrcUser->m_pUserData->m_bstrSkill[modulator] ) goto fail_return;
+			if( pSkill->sSkillLevel > m_pSrcUser->m_pUserData->m_bstrSkill[modulator] ) goto fail_return;
 		}
-		else if (pTable->sSkillLevel > m_pSrcUser->getLevel()) goto fail_return;
+		else if (pSkill->sSkillLevel > m_pSrcUser->getLevel()) goto fail_return;
 
-		if (pTable->bType1 == 1) {	// Weapons verification in case of COMBO attack (another hacking prevention).
-			if (pTable->sSkill == 1055 || pTable->sSkill == 2055) {		// Weapons verification in case of DUAL ATTACK (type 1)!		
-				_ITEM_TABLE* pLeftHand = NULL;		// Get item info for left hand.
-				pLeftHand = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
-				if (!pLeftHand) return NULL;
+		if (pSkill->bType[0] == 1) {	// Weapons verification in case of COMBO attack (another hacking prevention).
+			if (pSkill->sSkill == 1055 || pSkill->sSkill == 2055) {		// Weapons verification in case of DUAL ATTACK (type 1)!		
+				_ITEM_TABLE* pLeftHand = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
+				if (!pLeftHand) return false;
 
-				_ITEM_TABLE* pRightHand = NULL;     // Get item info for right hand.
-				pRightHand = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
-				if (!pRightHand) return NULL;
+				_ITEM_TABLE* pRightHand = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+				if (!pRightHand) return false;
 				
 				int left_index = pLeftHand->m_bKind / 10 ;
 				int right_index = pRightHand->m_bKind / 10 ;
 
 				if ((left_index != WEAPON_SWORD && left_index != WEAPON_AXE && left_index != WEAPON_MACE) 
 					&& (right_index != WEAPON_SWORD  && right_index != WEAPON_AXE && right_index != WEAPON_MACE)) 
-					return NULL ;
+					return false;
 			}
-			else if (pTable->sSkill == 1056 || pTable->sSkill == 2056) {	// Weapons verification in case of DOUBLE ATTACK !
-				_ITEM_TABLE* pRightHand = NULL;     // Get item info for right hand.
-				pRightHand = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
-				if (!pRightHand) return NULL;
+			else if (pSkill->sSkill == 1056 || pSkill->sSkill == 2056) {	// Weapons verification in case of DOUBLE ATTACK !
+				_ITEM_TABLE* pRightHand = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+				if (!pRightHand) return false;
 
 				int right_index = pRightHand->m_bKind / 10 ;
 
 				if(	(right_index != WEAPON_SWORD && right_index != WEAPON_AXE && right_index != WEAPON_MACE
 						&& right_index != WEAPON_SPEAR) || m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 )
-					return NULL ;
+					return false;
 			}
 		}
 
-		if( type == MAGIC_EFFECTING ) {    // MP/SP SUBTRACTION ROUTINE!!! ITEM AND HP TOO!!!	
+		if (m_opcode == MAGIC_EFFECTING) {    // MP/SP SUBTRACTION ROUTINE!!! ITEM AND HP TOO!!!	
 			int total_hit = m_pSrcUser->m_sTotalHit ;
-			int skill_mana = (pTable->sMsp * total_hit) / 100 ; 
+			int skill_mana = (pSkill->sMsp * total_hit) / 100 ; 
 
-			if ( pTable->bType1 == 2 && pTable->bFlyingEffect != 0) {		// Type 2 related...
-				m_bMagicState = NONE;
-				return pTable;		// Do not reduce MP/SP when flying effect is not 0.
-			}
+			if (pSkill->bType[0] == 2 && pSkill->bFlyingEffect != 0) // Type 2 related...
+				return true;		// Do not reduce MP/SP when flying effect is not 0.
 
-			if ( pTable->bType1 == 1 && data1 > 1) {
-				m_bMagicState = NONE;
-				return pTable;		// Do not reduce MP/SP when combo number is higher than 0.
-			}
+			if (pSkill->bType[0] == 1 && m_sData1 > 1)
+				return true;		// Do not reduce MP/SP when combo number is higher than 0.
  
-			if( pTable->bType1 == 1 || pTable->bType1 == 2 ) {
-				if( skill_mana > m_pSrcUser->m_pUserData->m_sMp )
+			if (pSkill->bType[0] == 1 || pSkill->bType[0] == 2)
+			{
+				if (skill_mana > m_pSrcUser->m_pUserData->m_sMp)
 					goto fail_return;
 			}
-			else{
-				if( pTable->sMsp > m_pSrcUser->m_pUserData->m_sMp )
-					goto fail_return;
-			}
-/*
-			if ( pTable->bType1 == 1 || pTable->bType1 == 2 ) {	// Actual deduction of Skill or Magic point.
-				m_pSrcUser->MSpChange( -(skill_mana) ) ;
-			}	
-			else if (pTable->bType1 != 4 || (pTable->bType1 == 4 && tid == -1)) {
-				m_pSrcUser->MSpChange( -(pTable->sMsp) );
-			}
+			else if (pSkill->sMsp > m_pSrcUser->m_pUserData->m_sMp)
+				goto fail_return;
 
-			if (pTable->sHP > 0 && pTable->sMsp == 0) {			// DEDUCTION OF HPs in Magic/Skill using HPs.
-				if (pTable->sHP > m_pSrcUser->m_pUserData->m_sHp) goto fail_return;
-				m_pSrcUser->HpChange(-pTable->sHP);
-			}
-*/
-			if (pTable->bType1 == 3 || pTable->bType1 == 4) {   // If the PLAYER uses an item to cast a spell.
-				if (sid >= 0 && sid < MAX_USER)	{	
-					if (pTable->iUseItem != 0) {
-//	�̰͵� ������ ��û�� ���� �ϴ� ���Դϴ� --;
+			if (pSkill->bType[0] == 3 || pSkill->bType[0] == 4) {   // If the PLAYER uses an item to cast a spell.
+				if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER)
+				{	
+					if (pSkill->iUseItem != 0) {
 						_ITEM_TABLE* pItem = NULL;				// This checks if such an item exists.
-						pItem = m_pMain->m_ItemtableArray.GetData(pTable->iUseItem);
-						if( !pItem ) return FALSE;
+						pItem = m_pMain->m_ItemtableArray.GetData(pSkill->iUseItem);
+						if( !pItem ) return false;
 						
-						if (pItem->m_bRace != 0) {
-							if (m_pSrcUser->m_pUserData->m_bRace != pItem->m_bRace) {
-								type = MAGIC_CASTING;
-								goto fail_return;
-							}
-						}
-
-						if (pItem->m_bClass != 0) {
-							if (!(m_pSrcUser->JobGroupCheck(pItem->m_bClass))) {
-								type = MAGIC_CASTING;
-								goto fail_return;
-							}
-						}
-						
-						if (pItem->m_bReqLevel != 0) {
-							if (m_pSrcUser->getLevel() < pItem->m_bReqLevel) {
-								type = MAGIC_CASTING;
-								goto fail_return;
-							}
-						}
-//
-						if (!m_pSrcUser->RobItem(pTable->iUseItem, 1)) {					
-							type = MAGIC_CASTING;
-							goto fail_return;
-						}
+						if ((pItem->m_bRace != 0 && m_pSrcUser->m_pUserData->m_bRace != pItem->m_bRace)
+							|| (pItem->m_bClass != 0 && !m_pSrcUser->JobGroupCheck(pItem->m_bClass))
+							|| (pItem->m_bReqLevel != 0 && m_pSrcUser->getLevel() < pItem->m_bReqLevel)
+							|| (!m_pSrcUser->RobItem(pSkill->iUseItem, 1)))	
+							return false;
 					}
 				}
 			}
 			
-			if (pTable->bType1 == 5) {
-				if (tid >= 0 && tid < MAX_USER)	{	
-					if (pTable->iUseItem != 0) {					
-						pType = m_pMain->m_Magictype5Array.GetData(magicid);    
+			if (pSkill->bType[0] == 5) {
+				if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER)	{	
+					if (pSkill->iUseItem != 0) {					
+						pType = m_pMain->m_Magictype5Array.GetData(pSkill->iNum);    
 						if (!pType) goto fail_return;
 
-						CUser* pTUser = m_pMain->GetUserPtr(tid);    
+						CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);    
 						if (!pTUser) goto fail_return;
-// �񷯸ӱ� ��Ȱ --;
-						if (pType->bType == 3 && pTUser->getLevel() <= 5) {	
-							type = MAGIC_CASTING;	// No resurrections for low level users...
-							goto fail_return; 							
-						}
-//
+
+						// No resurrections for low level users
+						if (pType->bType == 3 && pTUser->getLevel() <= 5)
+							return false;
+
 						if (pType->bType == 3) {
-							if (!pTUser->RobItem(pTable->iUseItem, pType->sNeedStone)) {
-								type = MAGIC_CASTING;
-								goto fail_return; 
-							}
+							if (!pTUser->RobItem(pSkill->iUseItem, pType->sNeedStone))
+								return false;
 						}
-						else if (!m_pSrcUser->RobItem(pTable->iUseItem, pType->sNeedStone)) {
-							type = MAGIC_CASTING;
-							goto fail_return; 
-						}
+						else if (!m_pSrcUser->RobItem(pSkill->iUseItem, pType->sNeedStone))
+							return false;
 					}
 				}
 			}
 //
-			if ( pTable->bType1 == 1 || pTable->bType1 == 2 ) {	// Actual deduction of Skill or Magic point.
-				m_pSrcUser->MSpChange( -(skill_mana) ) ;
-			}	
-			else if (pTable->bType1 != 4 || (pTable->bType1 == 4 && tid == -1)) {
-				m_pSrcUser->MSpChange( -(pTable->sMsp) );
-			}
+			if (pSkill->bType[0] == 1 || pSkill->bType[0] == 2)	// Actual deduction of Skill or Magic point.
+				m_pSrcUser->MSpChange(-(skill_mana));
+			else if (pSkill->bType[0] != 4 || (pSkill->bType[0] == 4 && m_pSkillTarget == -1))
+				m_pSrcUser->MSpChange(-(pSkill->sMsp));
 
-			if (pTable->sHP > 0 && pTable->sMsp == 0) {			// DEDUCTION OF HPs in Magic/Skill using HPs.
-				if (pTable->sHP > m_pSrcUser->m_pUserData->m_sHp) goto fail_return;
-				m_pSrcUser->HpChange(-pTable->sHP);
+			if (pSkill->sHP > 0 && pSkill->sMsp == 0) {			// DEDUCTION OF HPs in Magic/Skill using HPs.
+				if (pSkill->sHP > m_pSrcUser->m_pUserData->m_sHp) goto fail_return;
+				m_pSrcUser->HpChange(-pSkill->sHP);
 			}
 //
-			m_bMagicState = NONE;	
 		}
 	}
 
-	return pTable;      // Magic was successful! 
+	return true;      // Magic was successful! 
 
-fail_return:    // In case the magic failed, just send a packet.
-	send_index = 0;
-	SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-	SetByte( send_buff, MAGIC_FAIL, send_index );
-	SetDWORD( send_buff, magicid, send_index );
-	SetShort( send_buff, sid, send_index );
-	SetShort( send_buff, tid, send_index );	
-	SetShort( send_buff, 0, send_index );	
-	SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
-	if( type == MAGIC_CASTING )
-		SetShort( send_buff, -100, send_index );
-	else
-		SetShort( send_buff, 0, send_index );	
-	SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
+fail_return:    // In case of failure, send a packet(!)
+	if (!isNPC)
+		SendSkillFailed();
 
-	if( m_bMagicState == CASTING ) {
-		if (!bFlag) {
-			m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-		}
-		else {
-			m_pMain->Send_Region( send_buff, send_index, pMon->GetMap(), pMon->m_sRegion_X, pMon->m_sRegion_Z );
-		}
-	}
-	else {
-		if (!bFlag) {
-			m_pSrcUser->Send( send_buff, send_index );
-		}	
-	}
-	m_bMagicState = NONE;
-	return NULL;     // Magic was a failure!
+	return false;     // Magic was a failure!
 }
 
-BYTE CMagicProcess::ExecuteType1(int magicid, int sid, int tid, int data1, int data2, int data3)   // Applied to an attack skill using a weapon.
+BYTE CMagicProcess::ExecuteType1(_MAGIC_TABLE *pSkill)
 {	
-	int damage = 0, send_index = 0, result = 1;     // Variable initialization. result == 1 : success, 0 : fail
-	char send_buff[128];
+	int damage = 0;
+	uint8 bResult = 0;
 
-	_MAGIC_TABLE* pMagic = NULL;
-	pMagic = m_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
-	if( !pMagic ) return 0; 
+	if (pSkill == NULL)
+		return 0; 
 
-	_MAGIC_TYPE1* pType = NULL;
-	pType = m_pMain->m_Magictype1Array.GetData( magicid );     // Get magic skill table type 1.
-	if( !pType ) {
-		result = 0;
-		return result;
-	}
+	_MAGIC_TYPE1* pType = m_pMain->m_Magictype1Array.GetData(pSkill->iNum);
+	if (pType == NULL)
+		return 0;
 
-	damage = m_pSrcUser->GetDamage(tid, magicid);  // Get damage points of enemy.
+	damage = m_pSrcUser->GetDamage(m_pSkillTarget, pSkill->iNum);  // Get damage points of enemy.
 
-	CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.  
+	// TO-DO: See if this has already be checked?
+	CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);     // Get target info.  
 	if (pTUser == NULL || pTUser->isDead())
-	{
-		result = 0;
 		goto packet_send;
-	}
 
+	bResult = 1;
+
+	// TO-DO: Replace all of this with more abstract attack/death code 
+	// so that when we actually want to tweak behaviour, we don't have to tweak 9999999 cases where things die. Just the one...
 	pTUser->HpChange( -damage );     // Reduce target health point.
 
 	if( pTUser->m_pUserData->m_sHp == 0) {    // Check if the target is dead.
 		pTUser->m_bResHpType = USER_DEAD;     // Target status is officially dead now.
 
 		if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
-			m_pSrcUser->LoyaltyChange(tid);
+			m_pSrcUser->LoyaltyChange(m_pSkillTarget);
 		}
 		else {
-			m_pSrcUser->LoyaltyDivide(tid);
+			m_pSrcUser->LoyaltyDivide(m_pSkillTarget);
 		}
 
-		m_pSrcUser->GoldChange(tid, 0);
+		m_pSrcUser->GoldChange(m_pSkillTarget, 0);
 
 		pTUser->InitType3();	// Init Type 3.....
 		pTUser->InitType4();	// Init Type 4.....
@@ -864,76 +752,58 @@ BYTE CMagicProcess::ExecuteType1(int magicid, int sid, int tid, int data1, int d
 		if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
 			pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
 		}
-		pTUser->m_sWhoKilledMe = sid;		// Who the hell killed me?
+		pTUser->m_sWhoKilledMe = m_pSkillCaster;		// Who the hell killed me?
 	} 
-	m_pSrcUser->SendTargetHP( 0, tid, -damage );     // Change the HP of the target.
+	m_pSrcUser->SendTargetHP( 0, m_pSkillTarget, -damage );     // Change the HP of the target.
 
 packet_send:
-	if (pMagic->bType2 == 0 || pMagic->bType2 == 1) {
-		SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-		SetByte( send_buff, MAGIC_EFFECTING, send_index );
-		SetDWORD( send_buff, magicid, send_index );
-		SetShort( send_buff, sid, send_index );
-		SetShort( send_buff, tid, send_index );
-		SetShort( send_buff, data1, send_index );	
-		SetShort( send_buff, data2, send_index );	
-		SetShort( send_buff, data3, send_index );	
-		if (damage == 0) {
-			SetShort( send_buff, -104, send_index );
-		}
-		else {
-			SetShort( send_buff, 0, send_index );
-		}
 
-		m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-	}
+	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
+	m_sData4 = (damage == 0 ? -104 : 0);
+	SendSkill();	
 
-	return result ;
+	return bResult;
 }
 
-BYTE CMagicProcess::ExecuteType2(int magicid, int sid, int tid, int data1, int data2, int data3)
+BYTE CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 {		
-	int damage = 0, send_index = 0, result = 1 ; // Variable initialization. result == 1 : success, 0 : fail	
-	char send_buff[128];
-
+	int damage = 0;
+	uint8 bResult = 0;
 	float total_range = 0.0f;	// These variables are used for range verification!
 	int sx, sz, tx, tz;
 
-	_MAGIC_TABLE* pMagic = NULL;
-	pMagic = m_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
-	if( !pMagic ) return 0;
+	if (pSkill == NULL)
+		return 0;
 
 	_ITEM_TABLE* pTable = NULL;		// Get item info.
-	if (m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum) {
+	if (m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum)
 		pTable = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
-	}
-	else{
+	else
 		pTable = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
-	}
 
-	if (!pTable) return 0;
+	if (pTable == NULL) 
+		return 0;
 
-	_MAGIC_TYPE2* pType = NULL;
-	pType = m_pMain->m_Magictype2Array.GetData( magicid );     // Get magic skill table type 2.
-	if( !pType ) return 0;
+	_MAGIC_TYPE2* pType = m_pMain->m_Magictype2Array.GetData(pSkill->iNum);     // Get magic skill table type 2.
+	if (pType == NULL)
+		return 0;
 
-	CUser* pTUser = m_pMain->GetUserPtr(tid);
+	CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);
+	// is this checked already?
 	if (pTUser == NULL || pTUser->isDead())
-	{
-		result = 0;
 		goto packet_send;
-	}
 	
 	total_range = pow(((pType->sAddRange * pTable->m_sRange) / 100.0f), 2.0f) ;     // Range verification procedure.
 	sx = (int)m_pSrcUser->m_pUserData->m_curx; tx = (int)pTUser->m_pUserData->m_curx;
 	sz = (int)m_pSrcUser->m_pUserData->m_curz; tz = (int)pTUser->m_pUserData->m_curz;
 	
-	if ((pow((float)(sx - tx), 2.0f) + pow((float)(sz - tz), 2.0f)) > total_range) {	   // Target is out of range, exit.
-		result = 0;
+	if ((pow((float)(sx - tx), 2.0f) + pow((float)(sz - tz), 2.0f)) > total_range)	   // Target is out of range, exit.
 		goto packet_send;
-	}
 	
-	damage = m_pSrcUser->GetDamage(tid, magicid);  // Get damage points of enemy.	
+	damage = m_pSrcUser->GetDamage(m_pSkillTarget, pSkill->iNum);  // Get damage points of enemy.	
+
+	// TO-DO: Replace all of this with more abstract attack/death code 
+	// so that when we actually want to tweak behaviour, we don't have to tweak 9999999 cases where things die. Just the one...
 
 	pTUser->HpChange( -damage );     // Reduce target health point.
 
@@ -941,13 +811,13 @@ BYTE CMagicProcess::ExecuteType2(int magicid, int sid, int tid, int data1, int d
 		pTUser->m_bResHpType = USER_DEAD;     // Target status is officially dead now.
 
 		if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
-			m_pSrcUser->LoyaltyChange(tid);
+			m_pSrcUser->LoyaltyChange(m_pSkillTarget);
 		}
 		else {
-			m_pSrcUser->LoyaltyDivide(tid);
+			m_pSrcUser->LoyaltyDivide(m_pSkillTarget);
 		}
 
-		m_pSrcUser->GoldChange(tid, 0);
+		m_pSrcUser->GoldChange(m_pSkillTarget, 0);
 
 		pTUser->InitType3();	// Init Type 3.....
 		pTUser->InitType4();	// Init Type 4.....
@@ -955,114 +825,84 @@ BYTE CMagicProcess::ExecuteType2(int magicid, int sid, int tid, int data1, int d
 		if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
 			pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
 		}
-		pTUser->m_sWhoKilledMe = sid;		// Who the hell killed me?
+		pTUser->m_sWhoKilledMe = m_pSkillCaster;		// Who the hell killed me?
 	} 
 
-	m_pSrcUser->SendTargetHP( 0, tid, -damage );     // Change the HP of the target.
+	m_pSrcUser->SendTargetHP( 0, m_pSkillTarget, -damage );     // Change the HP of the target.
 
 packet_send:
-	if ( pMagic->bType2 == 0 || pMagic->bType2 == 2) {
-		SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-		SetByte( send_buff, MAGIC_EFFECTING, send_index );
-		SetDWORD( send_buff, magicid, send_index ); 
-		SetShort( send_buff, sid, send_index );
-		SetShort( send_buff, tid, send_index );
-		SetShort( send_buff, data1, send_index );	
-		SetShort( send_buff, result, send_index );	
-		SetShort( send_buff, data3, send_index );	
+	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
+	m_sData4 = (damage == 0 ? -104 : 0);
+	SendSkill();
 
-		if (damage == 0) {
-			SetShort( send_buff, -104, send_index );
-		}
-		else {
-			SetShort( send_buff, 0, send_index );
-		}
-
-		m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-	}
-	return result;
+	return bResult;
 }
 
-void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int data2, int data3)  // Applied when a magical attack, healing, and mana restoration is done.
+void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magical attack, healing, and mana restoration is done.
 {	
-	int damage = 0, duration_damage = 0, send_index = 0, result = 1;     // Variable initialization. result == 1 : success, 0 : fail
-	char send_buff[128], strLogData[128];
-	BOOL bFlag = FALSE; 
+	int damage = 0, duration_damage = 0;
+	bool isNPC = false;
 	CNpc* pMon = NULL;
 
-	vector<int> casted_member;
+	vector<CUser *> casted_member;
 
-	_MAGIC_TABLE* pMagic = NULL;
-	pMagic = m_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
-	if( !pMagic ) return;
+	if (pSkill == NULL) 
+		return;
 
-	_MAGIC_TYPE3* pType = NULL;
-	pType = m_pMain->m_Magictype3Array.GetData(magicid);      // Get magic skill table type 3.
-	if( !pType ) return;
+	_MAGIC_TYPE3* pType = m_pMain->m_Magictype3Array.GetData(pSkill->iNum);
+	if (pType == NULL) 
+		return;
 
-	if (sid >= NPC_BAND) {
-		bFlag = TRUE;
-		pMon = m_pMain->m_arNpcArray.GetData(sid);
-		if( !pMon || pMon->m_NpcState == NPC_DEAD ) return;
+	if (m_pSkillCaster >= NPC_BAND)
+	{
+		isNPC = true;
+		pMon = m_pMain->m_arNpcArray.GetData(m_pSkillCaster);
+		if (pMon == NULL || pMon->isDead())
+			return;
 	}
 
-	if (tid == -1) {		// If the target was the source's party....
-		for (int i = 0 ; i < MAX_USER ; i++) {		// Maximum number of users in the server....
+	if (m_pSkillTarget == -1) {		// If the target was the source's party....
+		// TO-DO: Make this not completely and utterly suck (i.e. kill that loop!).
+		for (int i = 0; i < MAX_USER; i++) {		// Maximum number of users in the server....
 			CUser* pTUser = m_pMain->GetUnsafeUserPtr(i);
-			if (pTUser == NULL || pTUser->m_bResHpType == USER_DEAD || pTUser->m_bAbnormalType == ABNORMAL_BLINKING) continue;
+			if (pTUser == NULL || pTUser->isDead() || pTUser->isBlinking())
+				continue;
 			
-			if (UserRegionCheck(sid, i, magicid, pType->bRadius, data1, data3))
-				casted_member.push_back(i);
+			if (UserRegionCheck(m_pSkillCaster, i, pSkill->iNum, pType->bRadius, m_sData1, m_sData3))
+				casted_member.push_back(pTUser);
 		}
 
-		if (casted_member.size() == 0) {		// If none of the members are in the region, return.				
-			SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-			SetByte( send_buff, MAGIC_FAIL, send_index );
-			SetDWORD( send_buff, magicid, send_index );
-			SetShort( send_buff, sid, send_index );
-			SetShort( send_buff, tid, send_index );	
-			SetShort( send_buff, 0, send_index );	
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-
-			if (!bFlag) {
-				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-			}
-			else {
-				m_pMain->Send_Region( send_buff, send_index, pMon->GetMap(), pMon->m_sRegion_X, pMon->m_sRegion_Z );
-			}
-		
+		if (casted_member.empty())
+		{
+			SendSkillFailed();
 			return;			
 		}
 	}
-	else {		// If the target was another single player.
-		CUser* pTUser = m_pMain->GetUserPtr(tid);
-		if (pTUser == NULL) return;		
+	else
+	{	// If the target was another single player.
+		CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);
+		if (pTUser == NULL || pTUser->isDead() || pTUser->isBlinking()) 
+			return;		
 		
-		casted_member.push_back(tid);
+		casted_member.push_back(pTUser);
 	}
 	
 	foreach (itr, casted_member)
 	{
-		CUser* pTUser = m_pMain->GetUserPtr(*itr);     // Get target info.  
-		if (pTUser == NULL || pTUser->m_bResHpType == USER_DEAD) continue;
-
-		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1) && (magicid < 400000)) {		// If you are casting an attack spell.
-			damage = GetMagicDamage(sid, *itr, pType->sFirstDamage, pType->bAttribute) ;	// Get Magical damage point.
+		CUser* pTUser = *itr; // it's checked above, not much need to check it again
+		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1) && (pSkill->iNum < 400000)) {		// If you are casting an attack spell.
+			damage = GetMagicDamage(m_pSkillCaster, pTUser->GetSocketID(), pType->sFirstDamage, pType->bAttribute) ;	// Get Magical damage point.
 		}
-		else damage = pType->sFirstDamage ;
+		else damage = pType->sFirstDamage;
 
-		// ���ο����������� ���ο����̶��� ������ ���� ������ �͸� �����ϵ���,,,
 		if( m_pSrcUser )	{
 			if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE )	{
 				damage = -10;		
 			}
 		}
 
-		if (pType->bDuration == 0) {     // Non-Durational Spells.
+		if (pType->bDuration == 0) 
+		{     // Non-Durational Spells.
 			if (pType->bDirectType == 1)     // Health Point related !
 			{			
 				pTUser->HpChange( damage );     // Reduce target health point.
@@ -1070,9 +910,7 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 				if( pTUser->m_pUserData->m_sHp == 0) {     // Check if the target is dead.		
 					pTUser->m_bResHpType = USER_DEAD;
 
-					// sungyong work : loyalty
-
-					if (bFlag) {	// Killed by monster/NPC.
+					if (isNPC) {	// Killed by monster/NPC.
 //
 						if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
 							pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
@@ -1085,14 +923,10 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 						}
 //
 					}
-
-					if (!bFlag) {	// Killed by another player.
-						// ���ο����������� ���ο����̶��� ������ ���� ������ �͸� �����ϵ���,,,
+					else 
+					{	// Killed by another player.
 						if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE )	{
 							m_pSrcUser->GoldGain( SNOW_EVENT_MONEY );	// 10000���Ƹ� �ִ� �κ�,,,,,
-
-							wsprintf( strLogData, "%s -> %s userdead", m_pSrcUser->m_pUserData->m_id, pTUser->m_pUserData->m_id);
-							m_pMain->WriteEventLog( strLogData );
 
 							if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE )	{
 								if (pTUser->m_pUserData->m_bNation == KARUS) {
@@ -1108,32 +942,28 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 						}
 						else	{
 							if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
-								m_pSrcUser->LoyaltyChange(*itr);
+								m_pSrcUser->LoyaltyChange(pTUser->GetSocketID());
 							}
 							else {
-								m_pSrcUser->LoyaltyDivide(*itr);
+								m_pSrcUser->LoyaltyDivide(pTUser->GetSocketID());
 							}
 
-							m_pSrcUser->GoldChange(*itr, 0);
+							m_pSrcUser->GoldChange(pTUser->GetSocketID(), 0);
 						}
 					}
 
-					// �������� �Ϻ��� ��ȣ �ڵ�!!!
 					pTUser->InitType3();	// Init Type 3.....
 					pTUser->InitType4();	// Init Type 4.....
 
-					if (sid >= 0 && sid < MAX_USER) {
-//
+					if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER) {
 						if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
 							pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
-							//TRACE("������ 1%�� �￴�ٴϱ��� ��.��\r\n");
 						}
-//
-						pTUser->m_sWhoKilledMe = sid;	// Who the hell killed me?
+						pTUser->m_sWhoKilledMe = m_pSkillCaster;	// Who the hell killed me?
 					}
 				}
 
-				if (!bFlag) m_pSrcUser->SendTargetHP( 0, *itr, damage ) ;     // Change the HP of the target.			
+				if (!isNPC) m_pSrcUser->SendTargetHP( 0, (*itr)->GetSocketID(), damage ) ;     // Change the HP of the target.			
 			}
 			else if ( pType->bDirectType == 2 || pType->bDirectType == 3 )    // Magic or Skill Point related !
 				pTUser->MSpChange(damage);     // Change the SP or the MP of the target.		
@@ -1147,9 +977,7 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 				if( pTUser->m_pUserData->m_sHp == 0) {     // Check if the target is dead.	
 					pTUser->m_bResHpType = USER_DEAD;
 
-					// sungyong work : loyalty
-
-					if (bFlag) {	// Killed by monster/NPC.
+					if (isNPC) {	// Killed by monster/NPC.
 //
 						if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
 							pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
@@ -1162,38 +990,34 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 						}
 //
 					}
-					
-					if (!bFlag) {	// Killed by another player.
+					else 
+					{	// Killed by another player.
 						if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
-							m_pSrcUser->LoyaltyChange(*itr);
+							m_pSrcUser->LoyaltyChange(pTUser->GetSocketID());
 						}
 						else {
-							m_pSrcUser->LoyaltyDivide(*itr);
+							m_pSrcUser->LoyaltyDivide(pTUser->GetSocketID());
 						}
 
-						m_pSrcUser->GoldChange(*itr, 0);
+						m_pSrcUser->GoldChange(pTUser->GetSocketID(), 0);
 					}
 
-					// �������� �Ϻ��� ��ȣ �ڵ� !!!
 					pTUser->InitType3();	// Init Type 3.....
 					pTUser->InitType4();	// Init Type 4..... 
 
-					if (sid >= 0 && sid < MAX_USER) {
-//
+					if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER) {
 						if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
 							pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
-							//TRACE("������ 1%�� �￴�ٴϱ��� ��.��\r\n");
 						}
-//
-						pTUser->m_sWhoKilledMe = sid;	// Who the hell killed me?
+						pTUser->m_sWhoKilledMe = m_pSkillCaster;	// Who the hell killed me?
 					}
 				}
-				if (!bFlag) m_pSrcUser->SendTargetHP( 0, *itr, damage );     // Change the HP of the target. 
+				if (!isNPC) m_pSrcUser->SendTargetHP( 0, pTUser->GetSocketID(), damage );     // Change the HP of the target. 
 			}
 
 			if (pTUser->m_bResHpType != USER_DEAD) {	// ���⵵ ��ȣ �ڵ� �߽�...
 				if (pType->sTimeDamage < 0) {
-					duration_damage = GetMagicDamage(sid, *itr, pType->sTimeDamage, pType->bAttribute) ;
+					duration_damage = GetMagicDamage(m_pSkillCaster, pTUser->GetSocketID(), pType->sTimeDamage, pType->bAttribute) ;
 				}
 				else duration_damage = pType->sTimeDamage ;
 
@@ -1203,113 +1027,83 @@ void CMagicProcess::ExecuteType3(int magicid, int sid, int tid, int data1, int d
 						pTUser->m_bHPDuration[k] = pType->bDuration;
 						pTUser->m_bHPInterval[k] = 2;		
 						pTUser->m_bHPAmount[k] = duration_damage / ( pTUser->m_bHPDuration[k] / pTUser->m_bHPInterval[k] ) ;
-						pTUser->m_sSourceID[k] = sid;
+						pTUser->m_sSourceID[k] = m_pSkillCaster;
 						break;
 					}
 				}
 
 				pTUser->m_bType3Flag = TRUE;
 			}
-//
+
 			if (pTUser->isInParty() && pType->sTimeDamage < 0)
 				pTUser->SendPartyStatusUpdate(1, 1);
-//
 		} 
 	
-		if ( pMagic->bType2 == 0 || pMagic->bType2 == 3 ) {
-			SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-			SetByte( send_buff, MAGIC_EFFECTING, send_index );
-			SetDWORD( send_buff, magicid, send_index );
-			SetShort( send_buff, sid, send_index );
-			SetShort( send_buff, *itr, send_index );
-			SetShort( send_buff, data1, send_index );	
-			SetShort( send_buff, result, send_index );	
-			SetShort( send_buff, data3, send_index );	
-			if (!bFlag) {
-				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-			}
-			else {
-				m_pMain->Send_Region( send_buff, send_index, pMon->GetMap(), pMon->m_sRegion_X, pMon->m_sRegion_Z ) ;
-			}	
-		}
+		if ( pSkill->bType[1] == 0 || pSkill->bType[1] == 3 )
+			SendSkill(m_pSkillCaster, pTUser->GetSocketID());
+		
+		// Tell the AI server we're healing someone (so that they can choose to pick on the healer!)
+		if (pType->bDirectType == 1 && damage > 0
+			&& !isNPC
+			&& m_pSkillCaster != m_pSkillTarget)
+		{
 
-		// Heal magic
-		if( pType->bDirectType == 1 && damage > 0)	{
-			if (!bFlag) {
-				if (sid != tid) {		
-					send_index = 0;
-					SetByte( send_buff, AG_HEAL_MAGIC, send_index );
-					SetShort( send_buff, sid, send_index );
-					m_pMain->Send_AIServer(send_buff, send_index);
-				}
-			}
+			Packet result(AG_HEAL_MAGIC);
+			result << m_pSkillCaster;
+			m_pMain->Send_AIServer(&result);
 		}
-
-		result = 1 ;
-		send_index = 0 ;
 	}
-	
-	return;		
 }
 
-void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int data2, int data3, int data4 )
+void CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 {
-	int damage = 0, send_index = 0, result = 1;     // Variable initialization. result == 1 : success, 0 : fail
-	char send_buff[128];
+	int damage = 0;
 
-	vector<int> casted_member;
+	vector<CUser *> casted_member;
+	if (pSkill == NULL)
+		return;
 
-	_MAGIC_TABLE* pMagic = NULL;
-	pMagic = m_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
-	if( !pMagic ) return;
+	_MAGIC_TYPE4* pType = m_pMain->m_Magictype4Array.GetData(pSkill->iNum);
+	if (pType == NULL)
+		return;
 
-	_MAGIC_TYPE4* pType = NULL;
-	pType = m_pMain->m_Magictype4Array.GetData( magicid );     // Get magic skill table type 4.
-	if ( !pType ) return;
-
-	if (tid == -1) {		// If the target was the source's party......		
-		for (int i = 0 ; i < MAX_USER ; i++) {		// Maximum number of members in a party...
-			CUser* pTUser = NULL ;     // Pointer initialization!		
-			pTUser = m_pMain->GetUnsafeUserPtr(i);     // Get target info.  
-			if (pTUser == NULL || pTUser->isDead() 
-				|| pTUser->m_bAbnormalType == ABNORMAL_BLINKING) continue;
+	if (m_pSkillTarget == -1)
+	{
+		// TO-DO: Localise this. This is horribly unnecessary.
+		for (int i = 0; i < MAX_USER; i++)
+		{
+			CUser* pTUser = m_pMain->GetUnsafeUserPtr(i);
+			if (pTUser == NULL 
+				|| pTUser->isDead() || pTUser->isBlinking())
+				continue;
 			
-			if (UserRegionCheck(sid, i, magicid, pType->bRadius, data1, data3))
-				casted_member.push_back(i);
+			if (UserRegionCheck(m_pSkillCaster, i, pSkill->iNum, pType->bRadius, m_sData1, m_sData3))
+				casted_member.push_back(pTUser);
 		}
 
-		if (casted_member.empty()) {		// If none of the members are in the region, return.
-			SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-			SetByte( send_buff, MAGIC_FAIL, send_index );
-			SetDWORD( send_buff, magicid, send_index );
-			SetShort( send_buff, sid, send_index );
-			SetShort( send_buff, tid, send_index );	
-			SetShort( send_buff, 0, send_index );	
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			if (sid >= 0 && sid < MAX_USER) {
-				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-			}
-			return ;	
+		if (casted_member.empty())
+		{		
+			if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER) 
+				SendSkillFailed();
+			return;	
 		}
 	}
-	else {		// If the target was another single player.
-		CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.  
-		if (pTUser == NULL) return;     // Check if target exists		
-		
-		casted_member.push_back(tid);
+	else 
+	{
+		// If the target was another single player.
+		CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);
+		if (pTUser == NULL 
+			|| pTUser->isDead() || pTUser->isBlinking()) 
+			return;
+		casted_member.push_back(pTUser);
 	}
 
 	foreach (itr, casted_member)
 	{
-		CUser* pTUser = m_pMain->GetUserPtr(*itr) ;     // Get target info.  
-		if (pTUser == NULL || pTUser->isDead()) continue;
+		uint8 bResult = 0;
+		CUser* pTUser = *itr;
 //
-		if (pTUser->m_bType4Buff[pType->bBuffType - 1] == 2 && tid == -1) {		// Is this buff-type already casted on the player?
-			result = 0 ;				// If so, fail! 
+		if (pTUser->m_bType4Buff[pType->bBuffType - 1] == 2 && m_pSkillTarget == -1) {		// Is this buff-type already casted on the player?
 			goto fail_return ;					
 		}
 //
@@ -1317,47 +1111,48 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			//pTUser->InsertSavedMagic( magicid, pType->sDuration );
 
 		switch (pType->bBuffType) {	// Depending on which buff-type it is.....
-			case 1 :
+			case 1:
 				pTUser->m_sMaxHPAmount = pType->sMaxHP;		// Get the amount that will be added/multiplied.
 				pTUser->m_sDuration1 = pType->sDuration;	// Get the duration time.
 				pTUser->m_fStartTime1 = TimeGet();			// Get the time when Type 4 spell starts.	
 				break;
-			case 2 :
+
+			case 2:
 				pTUser->m_sACAmount = pType->sAC;
 				pTUser->m_sDuration2 = pType->sDuration;
 				pTUser->m_fStartTime2 = TimeGet();
 				break;
-//
-			case 3 : 
-				// These really shouldn't be hardcoded
-				if (magicid == 490034)	// Bezoar!!!
+
+			case 3:
+				// These really shouldn't be hardcoded, but with mgame's implementation it doesn't seem we have a choice (as is).
+				if (pSkill->iNum == 490034)	// Bezoar!!!
 					pTUser->StateChangeServerDirect(3, ABNORMAL_GIANT); 
-				else if (magicid == 490035)	// Rice Cake!!!
+				else if (pSkill->iNum == 490035)	// Rice Cake!!!
 					pTUser->StateChangeServerDirect(3, ABNORMAL_DWARF); 
 
 				pTUser->m_sDuration3 = pType->sDuration;
 				pTUser->m_fStartTime3 = TimeGet();
 				break;
-//
-			case 4 :
+
+			case 4:
 				pTUser->m_bAttackAmount = pType->bAttack;
 				pTUser->m_sDuration4 = pType->sDuration;
 				pTUser->m_fStartTime4 = TimeGet();					
 				break;
 
-			case 5 :
+			case 5:
 				pTUser->m_bAttackSpeedAmount = pType->bAttackSpeed;
 				pTUser->m_sDuration5 = pType->sDuration;
 				pTUser->m_fStartTime5 = TimeGet();
 				break;
 
-			case 6 :
+			case 6:
 				pTUser->m_bSpeedAmount = pType->bSpeed;
 				pTUser->m_sDuration6 = pType->sDuration;
 				pTUser->m_fStartTime6 = TimeGet();
 				break;
 
-			case 7 :
+			case 7:
 				pTUser->setStatBuff(STAT_STR, pType->bStr);
 				pTUser->setStatBuff(STAT_STA, pType->bSta);
 				pTUser->setStatBuff(STAT_DEX, pType->bDex);
@@ -1367,7 +1162,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 				pTUser->m_fStartTime7 = TimeGet();
 				break;
 
-			case 8 :
+			case 8:
 				pTUser->m_bFireRAmount = pType->bFireR;
 				pTUser->m_bColdRAmount = pType->bColdR;
 				pTUser->m_bLightningRAmount = pType->bLightningR;
@@ -1378,35 +1173,28 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 				pTUser->m_fStartTime8 = TimeGet();
 				break;
 
-			case 9 :
+			case 9:
 				pTUser->m_bHitRateAmount = pType->bHitRate;
 				pTUser->m_sAvoidRateAmount = pType->sAvoidRate;
 				pTUser->m_sDuration9 = pType->sDuration;
 				pTUser->m_fStartTime9 = TimeGet();
 				break;	
 
-			default :
-				result = 0 ;
+			default:
+				bResult = 0;
 				goto fail_return;
 		}
 
-		if (tid != -1 && pMagic->bType1 == 4) {
-			if (sid >= 0 && sid < MAX_USER) {
-				m_pSrcUser->MSpChange( -(pMagic->sMsp) );
-			}
+		if (m_pSkillTarget != -1 && pSkill->bType[0] == 4)
+		{
+			if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER)
+				m_pSrcUser->MSpChange( -(pSkill->sMsp) );
 		}
 
-		if (sid >= 0 && sid < MAX_USER) {
-			if (m_pSrcUser->m_pUserData->m_bNation == pTUser->m_pUserData->m_bNation) {
-				pTUser->m_bType4Buff[pType->bBuffType - 1] = 2;
-			}
-			else {
-				pTUser->m_bType4Buff[pType->bBuffType - 1] = 1;
-			}
-		}
-		else {
+		if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER) 
+			pTUser->m_bType4Buff[pType->bBuffType - 1] = (m_pSrcUser->getNation() == pTUser->getNation() ? 2 : 1);
+		else
 			pTUser->m_bType4Buff[pType->bBuffType - 1] = 1;
-		}
 
 		pTUser->m_bType4Flag = TRUE;
 
@@ -1416,99 +1204,44 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 		if (pTUser->isInParty() && pTUser->m_bType4Buff[pType->bBuffType - 1] == 1)
 			pTUser->SendPartyStatusUpdate(2, 1);
 
-		pTUser->Send2AI_UserUpdateInfo();	// AI Server�� �م� ����Ÿ ����....
-
-		if ( pMagic->bType2 == 0 || pMagic->bType2 == 4 ) {
-			SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-			SetByte( send_buff, MAGIC_EFFECTING, send_index );
-			SetDWORD( send_buff, magicid, send_index );
-			SetShort( send_buff, sid, send_index );
-			SetShort( send_buff, *itr, send_index );
-			SetShort( send_buff, data1, send_index );	
-			SetShort( send_buff, result, send_index );	
-			SetShort( send_buff, data3, send_index );	
-			SetShort( send_buff, pType->sDuration, send_index );
-			SetShort( send_buff, 0x00, send_index );
-			SetShort( send_buff, pType->bSpeed, send_index );
-
-			if (sid >=0 && sid < MAX_USER) {
-				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-			}
-			else {
-				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ );
-			}
-		}
-
-		send_index = 0;
-		result = 1;	
-		continue; 
+		pTUser->Send2AI_UserUpdateInfo();
 
 	fail_return:
-		if ( pMagic->bType2 == 4 ) {
-			SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-			SetByte( send_buff, MAGIC_EFFECTING, send_index );
-			SetDWORD( send_buff, magicid, send_index );
-			SetShort( send_buff, sid, send_index );
-			SetShort( send_buff, *itr, send_index );
-			SetShort( send_buff, data1, send_index );	
-			SetShort( send_buff, result, send_index );	
-			SetShort( send_buff, data3, send_index );
+		if (pSkill->bType[1] == 0 || pSkill->bType[1] == 4)
+		{
+			CUser *pUser = (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER ? m_pSrcUser : pTUser);
 
-			if( data4 != 0 )
-				SetShort( send_buff, data4, send_index );
-			else
-				SetShort( send_buff, pType->sDuration, send_index );
-
-			SetShort( send_buff, 0x00, send_index );
-			SetShort( send_buff, pType->bSpeed, send_index );
-
-			if (sid >= 0 && sid < MAX_USER) {
-				m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-			}
-			else {
-				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ );
-			}
-			send_index = 0 ;
+			pUser->m_MagicProcess.SendSkill(m_pSkillCaster, (*itr)->GetSocketID(),
+				m_opcode, m_nSkillID,
+				m_sData1, bResult, m_sData3,
+				(bResult == 1 || m_sData4 == 0 ? pType->sDuration : 0),
+				0, pType->bSpeed);
 		}
 		
-		if (sid >= 0 && sid < MAX_USER) {
-			SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-			SetByte( send_buff, MAGIC_FAIL, send_index );
-			SetDWORD( send_buff, magicid, send_index );
-			SetShort( send_buff, sid, send_index );
-			SetShort( send_buff, *itr, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			SetShort( send_buff, 0, send_index );
-			m_pSrcUser->Send( send_buff, send_index );
-		}
-
-		send_index = 0 ;
-		result = 1;	
+		if (bResult == 0
+			&& m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER)
+			SendSkill(m_pSkillCaster, (*itr)->GetSocketID(), MAGIC_FAIL);
 		continue;
 	}
 }
 
-void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int data2, int data3 )
+void CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 {
-	int damage = 0, send_index = 0, result = 1;     // Variable initialization. result == 1 : success, 0 : fail
-	char send_buff[128]; 
-	int i = 0, j = 0, k =0; int buff_test = 0; BOOL bType3Test = TRUE; BOOL bType4Test = TRUE; 	
+	int damage = 0;
+	int i = 0, j = 0, k =0; int buff_test = 0; BOOL bType3Test = TRUE, bType4Test = TRUE; 	
 
-	_MAGIC_TABLE* pMagic = NULL;
-	pMagic = m_pMain->m_MagictableArray.GetData(magicid);   // Get main magic table.
-	if( !pMagic ) return;
+	if (pSkill == NULL)
+		return;
 
-	_MAGIC_TYPE5* pType = NULL;
-	pType = m_pMain->m_Magictype5Array.GetData(magicid);     // Get magic skill table type 4.
-	if ( !pType ) return;
+	_MAGIC_TYPE5* pType = m_pMain->m_Magictype5Array.GetData(pSkill->iNum);
+	if (pType == NULL)
+		return;
 
-	CUser* pTUser = m_pMain->GetUserPtr(tid);
-	if (pTUser == NULL || (pTUser->m_bResHpType == USER_DEAD && pType->bType != RESURRECTION) ||
-				   (pTUser->m_bResHpType != USER_DEAD && pType->bType == RESURRECTION)) return;
+	CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);
+	if (pTUser == NULL 
+		|| (pTUser->isDead() && pType->bType != RESURRECTION) 
+		|| (!pTUser->isDead() && pType->bType == RESURRECTION)) 
+		return;
 
 	switch(pType->bType) {
 		case REMOVE_TYPE3:		// REMOVE TYPE 3!!!
@@ -1521,20 +1254,18 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 					pTUser->m_bHPInterval[i] = 5;
 					pTUser->m_sSourceID[i] = -1;
 
-					send_index = 0;
-					SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-					SetByte( send_buff, MAGIC_TYPE3_END, send_index );	
-					SetByte( send_buff, 200, send_index );		// REMOVE ALL!!!
-					pTUser->Send( send_buff, send_index ); 
+					// TO-DO: Wrap this up (ugh, I feel so dirty)
+					Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
+					result << uint8(200); // removes all
+					pTUser->Send(&result); 
 				}
 			}
 
 			buff_test = 0;
-			for (j = 0 ; j < MAX_TYPE3_REPEAT ; j++) {
+			for (j = 0; j < MAX_TYPE3_REPEAT; j++)
 				buff_test += pTUser->m_bHPDuration[j];
-			}
 			if (buff_test == 0) pTUser->m_bType3Flag = FALSE;	
-//
+
 			// Check for Type 3 Curses.
 			for (k = 0 ; k < MAX_TYPE3_REPEAT ; k++) {
 				if (pTUser->m_bHPAmount[k] < 0) {
@@ -1554,7 +1285,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 				pTUser->m_sMaxHPAmount = 0;
 				pTUser->m_bType4Buff[0] = 0;
 
-				SendType4BuffRemove(tid, 1);
+				SendType4BuffRemove(m_pSkillTarget, 1);
 			}
 
 			if (pTUser->m_bType4Buff[1] == 1) {
@@ -1563,7 +1294,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 				pTUser->m_sACAmount = 0;
 				pTUser->m_bType4Buff[1] = 0;
 				
-				SendType4BuffRemove(tid, 2);
+				SendType4BuffRemove(m_pSkillTarget, 2);
 			}
 
 			if (pTUser->m_bType4Buff[3] == 1) {
@@ -1572,7 +1303,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 				pTUser->m_bAttackAmount = 100;
 				pTUser->m_bType4Buff[3] = 0;
 
-				SendType4BuffRemove(tid, 4);
+				SendType4BuffRemove(m_pSkillTarget, 4);
 			}
 
 			if (pTUser->m_bType4Buff[4] == 1) {
@@ -1581,7 +1312,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 				pTUser->m_bAttackSpeedAmount = 100;	
 				pTUser->m_bType4Buff[4] = 0;
 
-				SendType4BuffRemove(tid, 5);
+				SendType4BuffRemove(m_pSkillTarget, 5);
 			}
 
 			if (pTUser->m_bType4Buff[5] == 1) {
@@ -1590,7 +1321,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 				pTUser->m_bSpeedAmount = 100;
 				pTUser->m_bType4Buff[5] = 0;				
 
-				SendType4BuffRemove(tid, 6);
+				SendType4BuffRemove(m_pSkillTarget, 6);
 			}
 
 			if (pTUser->m_bType4Buff[6] == 1) {
@@ -1599,7 +1330,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 				// TO-DO: Implement reset.
 				memset(pTUser->m_bStatBuffs, 0, sizeof(uint8) * STAT_COUNT);
 				pTUser->m_bType4Buff[6] = 0;			
-				SendType4BuffRemove(tid, 7);
+				SendType4BuffRemove(m_pSkillTarget, 7);
 			}
 
 			if (pTUser->m_bType4Buff[7] == 1) {
@@ -1613,7 +1344,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 				pTUser->m_bPoisonRAmount = 0;
 				pTUser->m_bType4Buff[7] = 0;			
 
-				SendType4BuffRemove(tid, 8);
+				SendType4BuffRemove(m_pSkillTarget, 8);
 			}
 
 			if (pTUser->m_bType4Buff[8] == 1) {
@@ -1623,21 +1354,20 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 				pTUser->m_sAvoidRateAmount = 100;
 				pTUser->m_bType4Buff[8] = 0;			
 
-				SendType4BuffRemove(tid, 9);
+				SendType4BuffRemove(m_pSkillTarget, 9);
 			}
 
 			pTUser->SetSlotItemValue();
 			pTUser->SetUserAbility();
-			pTUser->Send2AI_UserUpdateInfo();	// AI Server�� �م� ����Ÿ ����....		
+			pTUser->Send2AI_UserUpdateInfo();
 
 			buff_test = 0;
-			for (i = 0 ; i < MAX_TYPE4_BUFF ; i++) {
+			for (i = 0 ; i < MAX_TYPE4_BUFF; i++)
 				buff_test += pTUser->m_bType4Buff[i];
-			}
 			if (buff_test == 0) pTUser->m_bType4Flag = FALSE;
 
 			bType4Test = TRUE ;
-			for (j = 0 ; j < MAX_TYPE4_BUFF ; j++) {
+			for (j = 0; j < MAX_TYPE4_BUFF; j++) {
 				if (pTUser->m_bType4Buff[j] == 1) {
 					bType4Test = FALSE;
 					break;
@@ -1649,7 +1379,7 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 			break;
 			
 		case RESURRECTION:		// RESURRECT A DEAD PLAYER!!!
-			pTUser->Regene(1, magicid);
+			pTUser->Regene(1, m_nSkillID);
 			break;
 
 		case REMOVE_BLESS:
@@ -1659,11 +1389,11 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 				pTUser->m_sMaxHPAmount = 0;
 				pTUser->m_bType4Buff[0] = 0;
 
-				SendType4BuffRemove(tid, 1);
+				SendType4BuffRemove(m_pSkillTarget, 1);
 
 				pTUser->SetSlotItemValue();
 				pTUser->SetUserAbility();
-				pTUser->Send2AI_UserUpdateInfo();	// AI Server�� �م� ����Ÿ ����....		
+				pTUser->Send2AI_UserUpdateInfo();
 			
 				buff_test = 0;
 				for (i = 0 ; i < MAX_TYPE4_BUFF ; i++) {
@@ -1686,118 +1416,81 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 			break;
 	}
 
-	if ( pMagic->bType2 == 0 || pMagic->bType2 == 5) {		   // In case of success!!!
-		send_index = 0;
-		SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-		SetByte( send_buff, MAGIC_EFFECTING, send_index );
-		SetDWORD( send_buff, magicid, send_index );
-		SetShort( send_buff, sid, send_index );
-		SetShort( send_buff, tid, send_index );
-		SetShort( send_buff, data1, send_index );	
-		SetShort( send_buff, result, send_index );	
-		SetShort( send_buff, data3, send_index );
-
-		if (sid >= 0 && sid < MAX_USER) {
-			m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-		}
-		else {
-			m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ );
-		}
-	}
+	if (pSkill->bType[1] == 0 || pSkill->bType[1] == 5)
+		SendSkill();
 }
 
-void CMagicProcess::ExecuteType6(int magicid)
+void CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 {
-	return;
 }
 
-void CMagicProcess::ExecuteType7(int magicid)
+void CMagicProcess::ExecuteType7(_MAGIC_TABLE *pSkill)
 {
-	return;
 }
 
-void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int data2, int data3 )	// Warp, resurrection, and summon spells.
+void CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, and summon spells.
 {	
-	int damage = 0, send_index = 0, result = 1;     // Variable initialization. result == 1 : success, 0 : fail
-	char send_buff[128];
+	if (pSkill == NULL)
+		return;
 
-	vector<int> casted_member;
-	
-	_MAGIC_TYPE8* pType = NULL;
-	pType = m_pMain->m_Magictype8Array.GetData( magicid );      // Get magic skill table type 8.
-	if( !pType ) return;
+	vector<CUser *> casted_member;
+	_MAGIC_TYPE8* pType = m_pMain->m_Magictype8Array.GetData(pSkill->iNum);
+	if (pType == NULL)
+		return;
 
-	if (tid == -1) {		
-		for (int i = 0 ; i < MAX_USER ; i++) {		
+	if (m_pSkillTarget == -1)
+	{
+		// TO-DO: Localise this loop to make it not suck (the life out of the server).
+		for (int i = 0; i < MAX_USER; i++)
+		{		
 			CUser* pTUser = m_pMain->GetUnsafeUserPtr(i);
-			if (pTUser == NULL) continue;     // Check if target exists
-			
-			if (UserRegionCheck(sid, i, magicid, pType->sRadius, data1, data3))
-				casted_member.push_back(i);
+			if (pTUser != NULL && UserRegionCheck(m_pSkillCaster, i, pSkill->iNum, pType->sRadius, m_sData1, m_sData3))
+				casted_member.push_back(pTUser);
 		}
-		if (casted_member.size() == 0) return;	// If none of the members are in the region, return.
+
+		if (casted_member.empty()) 
+			return;	
 	}
-	else {		// If the target was another single player.
-		CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.  
-		if (pTUser == NULL) return;     // Check if target exists		
+	else 
+	{	// If the target was another single player.
+		CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);
+		if (pTUser == NULL) 
+			return;
 		
-		casted_member.push_back(tid);
+		casted_member.push_back(pTUser);
 	}
 
 	foreach (itr, casted_member)
 	{
+		uint8 bResult = 0;
 		_OBJECT_EVENT* pEvent = NULL;
 		float x = 0.0f, z = 0.0f;
 		x = (float)(myrand( 0, 400 )/100.0f);	z = (float)(myrand( 0, 400 )/100.0f);
 		if( x < 2.5f )	x = 1.5f + x;
 		if( z < 2.5f )	z = 1.5f + z;
 
-		CUser* pTUser = m_pMain->GetUserPtr(*itr);
-		if (pTUser == NULL) continue;
+		CUser* pTUser = *itr;
+		_HOME_INFO* pHomeInfo = m_pMain->m_HomeArray.GetData(pTUser->m_pUserData->m_bNation);
+		if (pHomeInfo == NULL)
+			return;
 
-// �񷯸ӱ� �븸 ������ >.<
-		_HOME_INFO* pHomeInfo = NULL;
-		pHomeInfo = m_pMain->m_HomeArray.GetData(pTUser->m_pUserData->m_bNation);
-		if (!pHomeInfo) return;
-//
 		if (pType->bWarpType != 11) 
 		{   // Warp or summon related: targets CANNOT be dead.
 			if (pTUser->isDead())
-			{
-				result = 0;
 				goto packet_send;
-			}
 		}
-		else 
-		{   // Resurrection related: we're reviving DEAD targets.
-			if (!pTUser->isDead()) 
-			{ 
-				result = 0 ;
-				goto packet_send;
-			}
-		}
-
-		if (pTUser->m_bWarp)
-		{	// Is target already warping?			
-			result = 0;
+		// Resurrection related: we're reviving DEAD targets.
+		else if (!pTUser->isDead()) 
 			goto packet_send;
-		}
+
+		// Is target already warping?			
+		if (pTUser->m_bWarp)
+			goto packet_send;
 
 		switch(pType->bWarpType) {	
 			case 1:		// Send source to resurrection point.
-//				_OBJECT_EVENT* pEvent = NULL;
-
-				SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-				SetByte( send_buff, MAGIC_EFFECTING, send_index );
-				SetDWORD( send_buff, magicid, send_index );
-				SetShort( send_buff, sid, send_index );
-				SetShort( send_buff, *itr, send_index );
-				SetShort( send_buff, data1, send_index );	
-				SetShort( send_buff, result, send_index );	
-				SetShort( send_buff, data3, send_index );	
-				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ );
-
-				send_index = 0 ;
+				pTUser->m_MagicProcess.SendSkill(m_pSkillCaster, (*itr)->GetSocketID(), 
+					m_opcode, m_nSkillID, m_sData1, 1, m_sData3);
 
 				if (pTUser->GetMap() == NULL)
 					continue;
@@ -1808,25 +1501,19 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 					pTUser->Warp(uint16((pEvent->fPosX + x) * 10), uint16((pEvent->fPosZ + z) * 10));	
 				}
 				// TO-DO: Remove this hardcoded nonsense
-				else if(pTUser->getNation() != pTUser->getZoneID() && pTUser->getZoneID() <= ELMORAD) {	 // User is in different zone.
-					if(pTUser->getNation() == KARUS) {	// Land of Karus
+				else if(pTUser->getNation() != pTUser->getZoneID() && pTUser->getZoneID() <= ELMORAD) 
+				{	 // User is in different zone.
+					if (pTUser->getNation() == KARUS) // Land of Karus
 						pTUser->Warp(uint16((852 + x) * 10), uint16((164 + z) * 10));
-					}
-					else {	// Land of Elmorad
+					else	// Land of Elmorad
 						pTUser->Warp(uint16((177 + x) * 10), uint16((923 + z) * 10));
-					}				
 				}
-				else if (pTUser->m_pUserData->m_bZone == ZONE_BATTLE) {
+				else if (pTUser->m_pUserData->m_bZone == ZONE_BATTLE)
 					pTUser->Warp(uint16((pHomeInfo->BattleZoneX + x) * 10), uint16((pHomeInfo->BattleZoneZ + z) * 10));	
-				}
-				else if (pTUser->m_pUserData->m_bZone == ZONE_FRONTIER) {
+				else if (pTUser->m_pUserData->m_bZone == ZONE_FRONTIER)
 					pTUser->Warp(uint16((pHomeInfo->FreeZoneX + x) * 10), uint16((pHomeInfo->FreeZoneZ + z) * 10));
-				}
-				else {		
+				else
 					pTUser->Warp(uint16((pTUser->GetMap()->m_fInitX + x) * 10), uint16((pTUser->GetMap()->m_fInitZ + z) * 10));	
-				}
-							
-				send_index = 0 ;
 				break;
 
 			case 2:		// Send target to teleport point WITHIN the zone.
@@ -1840,86 +1527,44 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				break;
 			
 			case 11:	// Resurrect a dead player.
-				SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-				SetByte( send_buff, MAGIC_EFFECTING, send_index );
-				SetDWORD( send_buff, magicid, send_index );
-				SetShort( send_buff, sid, send_index );
-				SetShort( send_buff, *itr, send_index );
-				SetShort( send_buff, data1, send_index );	
-				SetShort( send_buff, result, send_index );	
-				SetShort( send_buff, data3, send_index );	
-				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ );
-
-				send_index = 0 ;
+			{
+				pTUser->m_MagicProcess.SendSkill(m_pSkillCaster, (*itr)->GetSocketID(), 
+					m_opcode, m_nSkillID, m_sData1, 1, m_sData3);
 
 				pTUser->m_bResHpType = USER_STANDING;     // Target status is officially alive now.
 				pTUser->HpChange( pTUser->m_iMaxHp);	 // Refill HP.	
 				pTUser->ExpChange( pType->sExpRecover/100 );     // Increase target experience.
 				
-				SetByte( send_buff, AG_USER_REGENE, send_index ) ;		// Send a packet to AI server.
-				SetShort( send_buff, *itr, send_index );
-				SetShort( send_buff, pTUser->m_pUserData->m_bZone, send_index);
-				m_pMain->Send_AIServer(send_buff, send_index);
-
-				send_index = 0;			// Clear index and buffer!
-				break;
+				Packet result(AG_USER_REGENE);
+				result << uint16((*itr)->GetSocketID()) << uint16(pTUser->getZoneID());
+				m_pMain->Send_AIServer(&result);
+			} break;
 
 			case 12:	// Summon a target within the zone.	
-				if (m_pSrcUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bZone) {	  // Same zone? 
-					result = 0 ;
-					goto packet_send ;
-				}
+				if (m_pSrcUser->getZoneID() != pTUser->getZoneID())   // Same zone? 
+					goto packet_send;
 
-				SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-				SetByte( send_buff, MAGIC_EFFECTING, send_index );
-				SetDWORD( send_buff, magicid, send_index );
-				SetShort( send_buff, sid, send_index );
-				SetShort( send_buff, *itr, send_index );
-				SetShort( send_buff, data1, send_index );	
-				SetShort( send_buff, result, send_index );	
-				SetShort( send_buff, data3, send_index );	
-				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ );
-				send_index = 0; 
+				pTUser->m_MagicProcess.SendSkill(m_pSkillCaster, (*itr)->GetSocketID(), 
+					m_opcode, m_nSkillID, m_sData1, 1, m_sData3);
 					
 				pTUser->Warp(m_pSrcUser->GetSPosX(), m_pSrcUser->GetSPosZ());
 				break;
 
 			case 13:	// Summon a target outside the zone.			
-				if (m_pSrcUser->getZoneID() == pTUser->getZoneID()) {	  // Different zone? 
-					result = 0 ;
-					goto packet_send ;
-				}
+				if (m_pSrcUser->getZoneID() == pTUser->getZoneID())	  // Different zone? 
+					goto packet_send;
 
-				SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-				SetByte( send_buff, MAGIC_EFFECTING, send_index );
-				SetDWORD( send_buff, magicid, send_index );
-				SetShort( send_buff, sid, send_index );
-				SetShort( send_buff, *itr, send_index );
-				SetShort( send_buff, data1, send_index );	
-				SetShort( send_buff, result, send_index );	
-				SetShort( send_buff, data3, send_index );	
-				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ );
+				pTUser->m_MagicProcess.SendSkill(m_pSkillCaster, (*itr)->GetSocketID(), 
+					m_opcode, m_nSkillID, m_sData1, 1, m_sData3);
 
-				send_index = 0;
-
-				pTUser->ZoneChange(m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_pUserData->m_curx, m_pSrcUser->m_pUserData->m_curz) ;
-				//pTUser->UserInOut( USER_IN );
+				pTUser->ZoneChange(m_pSrcUser->getZoneID(), m_pSrcUser->m_pUserData->m_curx, m_pSrcUser->m_pUserData->m_curz) ;
 				pTUser->UserInOut( USER_REGENE );
 				//TRACE(" Summon ,, name=%s, x=%.2f, z=%.2f\n", pTUser->m_pUserData->m_id, pTUser->m_pUserData->m_curx, pTUser->m_pUserData->m_curz);
 				break;
 
 			case 20:	// Randomly teleport the source (within 20 meters)		
-				SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-				SetByte( send_buff, MAGIC_EFFECTING, send_index );
-				SetDWORD( send_buff, magicid, send_index );
-				SetShort( send_buff, sid, send_index );
-				SetShort( send_buff, *itr, send_index );
-				SetShort( send_buff, data1, send_index );	
-				SetShort( send_buff, result, send_index );	
-				SetShort( send_buff, data3, send_index );	
-				m_pMain->Send_Region( send_buff, send_index, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ );
-
-				send_index = 0 ;
+				pTUser->m_MagicProcess.SendSkill(m_pSkillCaster, (*itr)->GetSocketID(), 
+					m_opcode, m_nSkillID, m_sData1, 1, m_sData3);
 
 				float warp_x, warp_z;		// Variable Initialization.
 				float temp_warp_x, temp_warp_z;
@@ -1945,47 +1590,24 @@ void CMagicProcess::ExecuteType8(int magicid, int sid, int tid, int data1, int d
 				if (warp_z < 0.0f) warp_z = 0.0f ;		// (Warp function does not check this!)
 				if (warp_z > 4096) warp_z = 4096 ;
 
-				SetShort(send_buff, (WORD)warp_x, send_index);	// Send packet with new positions to the Warp() function.
-				SetShort(send_buff, (WORD)warp_z, send_index);
 				pTUser->Warp(uint16(warp_x * 10), uint16(warp_z * 10));
-
-				send_index = 0;			// Clear index and buffer!
 				break;
 
 			case 21:	// Summon a monster within a zone.
 				// LATER!!! 
 				break;
-
-			default :
-				result = 0 ;
-				goto packet_send ;
-				break;
 		}
-		
-	packet_send:
-		SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-		SetByte( send_buff, MAGIC_EFFECTING, send_index );
-		SetDWORD( send_buff, magicid, send_index );
-		SetShort( send_buff, sid, send_index );
-		SetShort( send_buff, *itr, send_index );
-		SetShort( send_buff, data1, send_index );	
-		SetShort( send_buff, result, send_index );	
-		SetShort( send_buff, data3, send_index );	
-		m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->GetMap(), m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
 
-		send_index = 0 ;
-		result = 1;
+		bResult = 1;
+		
+packet_send:
+		m_sData2 = bResult;
+		SendSkill(m_pSkillCaster, (*itr)->GetSocketID());
 	}
 }
 
-void CMagicProcess::ExecuteType9(int magicid)
+void CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 {
-	return;
-}
-
-void CMagicProcess::ExecuteType10(int magicid)
-{
-	return;
 }
 
 short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribute)
@@ -2129,10 +1751,10 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 				}
 			}			
 
-			if ( pTUser->m_sPartyIndex == m_pSrcUser->m_sPartyIndex && pMagic->bType1 != 8 ) {
+			if ( pTUser->m_sPartyIndex == m_pSrcUser->m_sPartyIndex && pMagic->bType[0] != 8 ) {
 				goto final_test;
 			}
-			else if (pTUser->m_sPartyIndex == m_pSrcUser->m_sPartyIndex && pMagic->bType1 == 8) {
+			else if (pTUser->m_sPartyIndex == m_pSrcUser->m_sPartyIndex && pMagic->bType[0] == 8) {
 				currenttime = TimeGet();
 				if (pTUser->m_pUserData->m_bZone == ZONE_BATTLE && (currenttime - pTUser->m_fLastRegeneTime < CLAN_SUMMON_TIME)) {
 					return FALSE;
@@ -2174,10 +1796,10 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 			if ( pTUser->m_pUserData->m_bKnights == m_pSrcUser->m_pUserData->m_bKnights) 
 				goto final_test;
 */
-			if ( pTUser->m_pUserData->m_bKnights == m_pSrcUser->m_pUserData->m_bKnights && pMagic->bType1 != 8 ) {
+			if ( pTUser->m_pUserData->m_bKnights == m_pSrcUser->m_pUserData->m_bKnights && pMagic->bType[0] != 8 ) {
 				goto final_test;
 			}
-			else if (pTUser->m_pUserData->m_bKnights == m_pSrcUser->m_pUserData->m_bKnights && pMagic->bType1 == 8) {
+			else if (pTUser->m_pUserData->m_bKnights == m_pSrcUser->m_pUserData->m_bKnights && pMagic->bType[0] == 8) {
 				currenttime = TimeGet();
 				if (pTUser->m_pUserData->m_bZone == ZONE_BATTLE && (currenttime - pTUser->m_fLastRegeneTime < CLAN_SUMMON_TIME)) {
 					return FALSE;
@@ -2226,15 +1848,13 @@ final_test :
 
 void CMagicProcess::Type4Cancel(int magicid, short tid)
 {
-	int send_index = 0;     
-	char send_buff[128];
-
 	CUser* pTUser = m_pMain->GetUserPtr(tid);  
-	if (pTUser == NULL) return;
+	if (pTUser == NULL) 
+		return;
 
-	_MAGIC_TYPE4* pType = NULL;
-	pType = m_pMain->m_Magictype4Array.GetData( magicid );     // Get magic skill table type 4.
-	if ( !pType ) return;
+	_MAGIC_TYPE4* pType = m_pMain->m_Magictype4Array.GetData(magicid);
+	if (pType == NULL)
+		return;
 
 	BOOL buff = FALSE;
 	BYTE buff_type = pType->bBuffType; 
@@ -2328,22 +1948,21 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 			break;
 	}
 	
-	if (buff) {
+	if (buff)
+	{
 		pTUser->m_bType4Buff[buff_type - 1] = 0;
 		pTUser->SetSlotItemValue();
 		pTUser->SetUserAbility();
-		pTUser->Send2AI_UserUpdateInfo();	// AI Server�� �م� ����Ÿ ����....		
+		pTUser->Send2AI_UserUpdateInfo();
 
-		SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-		SetByte( send_buff, MAGIC_TYPE4_END, send_index );	
-		SetByte( send_buff, buff_type, send_index ); 
-		pTUser->Send( send_buff, send_index ); 		
+		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
+		result << buff_type;
+		pTUser->Send(&result);
 	}
 
 	int buff_test = 0;
-	for (int i = 0 ; i < MAX_TYPE4_BUFF ; i++) {
+	for (int i = 0; i < MAX_TYPE4_BUFF; i++)
 		buff_test += pTUser->m_bType4Buff[i];
-	}
 	if (buff_test == 0) pTUser->m_bType4Flag = FALSE;	
 
 	if (pTUser->isInParty() && !pTUser->m_bType4Flag)
@@ -2352,15 +1971,13 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 
 void CMagicProcess::Type3Cancel(int magicid, short tid)
 {
-	int send_index = 0;     
-	char send_buff[128];
-
 	CUser* pTUser = m_pMain->GetUserPtr(tid);  
-	if (pTUser == NULL) return;
+	if (pTUser == NULL) 
+		return;
 
-	_MAGIC_TYPE3* pType = NULL;
-	pType = m_pMain->m_Magictype3Array.GetData( magicid );     // Get magic skill table type 3.
-	if ( !pType ) return;
+	_MAGIC_TYPE3* pType = m_pMain->m_Magictype3Array.GetData(magicid);
+	if (pType == NULL)
+		return;
 
 	for (int i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {
 		if (pTUser->m_bHPAmount[i] > 0) {
@@ -2374,15 +1991,13 @@ void CMagicProcess::Type3Cancel(int magicid, short tid)
 		}
 	}
 
-	SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-	SetByte( send_buff, MAGIC_TYPE3_END, send_index );	
-	SetByte( send_buff, 100, send_index );
-	pTUser->Send( send_buff, send_index ); 
+	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
+	result << uint8(100);
+	pTUser->Send(&result); 
 
 	int buff_test = 0;
-	for (int j = 0 ; j < MAX_TYPE3_REPEAT ; j++) {
+	for (int j = 0; j < MAX_TYPE3_REPEAT; j++)
 		buff_test += pTUser->m_bHPDuration[j];
-	}
 	if (buff_test == 0) pTUser->m_bType3Flag = FALSE;	
 
 	if (pTUser->isInParty() && !pTUser->m_bType3Flag)
@@ -2391,44 +2006,22 @@ void CMagicProcess::Type3Cancel(int magicid, short tid)
 
 void CMagicProcess::SendType4BuffRemove(short tid, BYTE buff)
 {
-	int send_index = 0; char send_buff[128];
-
 	CUser* pTUser = m_pMain->GetUserPtr(tid);  
-	if (pTUser == NULL) return;
+	if (pTUser == NULL) 
+		return;
 
-	SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-	SetByte( send_buff, MAGIC_TYPE4_END, send_index );	
-	SetByte( send_buff, buff, send_index );		
-	pTUser->Send( send_buff, send_index );
+	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
+	result << buff;
+	pTUser->Send(&result);
 }
 
 short CMagicProcess::GetWeatherDamage(short damage, short attribute)
 {
-	BOOL weather_buff = FALSE;
-
-	switch (m_pMain->m_nWeather) {
-		case WEATHER_FINE:
-			if (attribute == ATTRIBUTE_FIRE) {
-				weather_buff = TRUE;
-			}
-			break;
-
-		case WEATHER_RAIN:
-			if (attribute == ATTRIBUTE_LIGHTNING) {
-				weather_buff = TRUE;
-			}
-			break;
-
-		case WEATHER_SNOW:
-			if (attribute == ATTRIBUTE_ICE) {
-				weather_buff = TRUE;
-			}
-			break;
-	}
-
-	if (weather_buff) {
-		damage = (damage * 110) / 100 ;
-	}
+	// Give a 10% damage output boost based on weather (and skill's elemental attribute)
+	if ((m_pMain->m_nWeather == WEATHER_FINE && attribute == ATTRIBUTE_FIRE)
+		|| (m_pMain->m_nWeather == WEATHER_RAIN && attribute == ATTRIBUTE_LIGHTNING)
+		|| (m_pMain->m_nWeather == WEATHER_SNOW && attribute == ATTRIBUTE_ICE))
+		damage = (damage * 110) / 100;
 
 	return damage;
 }

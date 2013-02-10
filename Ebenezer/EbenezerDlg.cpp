@@ -837,19 +837,6 @@ void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 na
 	}
 }
 
-void CEbenezerDlg::Send_Region(char *pBuf, int len, C3DMap *pMap, int x, int z, CUser* pExceptUser)
-{
-	Send_UnitRegion( pBuf, len, pMap, x, z, pExceptUser );
-	Send_UnitRegion( pBuf, len, pMap, x-1, z-1, pExceptUser );	// NW
-	Send_UnitRegion( pBuf, len, pMap, x, z-1, pExceptUser );		// N
-	Send_UnitRegion( pBuf, len, pMap, x+1, z-1, pExceptUser );	// NE
-	Send_UnitRegion( pBuf, len, pMap, x-1, z, pExceptUser );		// W
-	Send_UnitRegion( pBuf, len, pMap, x+1, z, pExceptUser );		// E
-	Send_UnitRegion( pBuf, len, pMap, x-1, z+1, pExceptUser );	// SW
-	Send_UnitRegion( pBuf, len, pMap, x, z+1, pExceptUser );		// S
-	Send_UnitRegion( pBuf, len, pMap, x+1, z+1, pExceptUser );	// SE
-}
-
 void CEbenezerDlg::Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser)
 {
 	Send_UnitRegion(pkt, pMap, x, z, pExceptUser );
@@ -861,26 +848,6 @@ void CEbenezerDlg::Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* p
 	Send_UnitRegion(pkt, pMap, x-1, z+1, pExceptUser );	// SW
 	Send_UnitRegion(pkt, pMap, x, z+1, pExceptUser );		// S
 	Send_UnitRegion(pkt, pMap, x+1, z+1, pExceptUser );	// SE
-}
-
-void CEbenezerDlg::Send_UnitRegion(char *pBuf, int len, C3DMap *pMap, int x, int z, CUser *pExceptUser)
-{
-	if (pMap == NULL 
-		|| x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())
-		return;
-
-	EnterCriticalSection(&g_region_critical);
-	CRegion *pRegion = &pMap->m_ppRegion[x][z];
-
-	foreach_stlmap (itr, pRegion->m_RegionUserArray)
-	{
-		CUser *pUser = GetUserPtr(*itr->second);
-		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART)
-			continue;
-
-		pUser->Send(pBuf, len);
-	}
-	LeaveCriticalSection(&g_region_critical);
 }
 
 void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser *pExceptUser)

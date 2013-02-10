@@ -524,6 +524,9 @@ public:
 
 	void SendToRegion(Packet *pkt, CUser *pExceptUser = NULL);
 
+	void OnDeath();
+	void SendDeathAnimation();
+
 	// Clan system
 	void SendClanUserStatusUpdate(bool bToRegion = true);
 

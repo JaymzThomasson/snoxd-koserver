@@ -147,7 +147,7 @@ short CUser::GetDamage(short tid, int magicid)
 		pTable = m_pMain->m_MagictableArray.GetData( magicid );     // Get main magic table.
 		if( !pTable ) return -1; 
 		
-		if (pTable->bType1 == 1) {	// SKILL HIT!			                                
+		if (pTable->bType[0] == 1) {	// SKILL HIT!			                                
 			pType1 = m_pMain->m_Magictype1Array.GetData( magicid );	    // Get magic skill table type 1.
 			if( !pType1 ) return -1;     	                                
 
@@ -163,7 +163,7 @@ short CUser::GetDamage(short tid, int magicid)
 			}
 			temp_hit = (short)(temp_hit_B * (pType1->sHit / 100.0f));
 		}
-		else if (pTable->bType1 == 2) {   // ARROW HIT!
+		else if (pTable->bType[0] == 2) {   // ARROW HIT!
 			pType2 = m_pMain->m_Magictype2Array.GetData( magicid );	    // Get magic skill table type 1.
 			if( !pType2 ) return -1; 
 			
@@ -198,7 +198,7 @@ short CUser::GetDamage(short tid, int magicid)
 			if( magicid > 0 ) {	 // Skill Hit.
 				damage = (short)temp_hit;
 				random = myrand(0, damage);
-				if (pTable->bType1 == 1) {
+				if (pTable->bType[0] == 1) {
 					damage = (short)((temp_hit + 0.3f * random) + 0.99f);
 				}
 				else {

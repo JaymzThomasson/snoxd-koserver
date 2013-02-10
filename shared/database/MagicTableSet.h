@@ -35,8 +35,8 @@ public:
 		RFX_Byte(pFX, _T("[CastTime]"), m_data.bCastTime);
 		RFX_Byte(pFX, _T("[ReCastTime]"), m_data.bReCastTime);
 		RFX_Byte(pFX, _T("[SuccessRate]"), m_data.bSuccessRate);
-		RFX_Byte(pFX, _T("[Type1]"), m_data.bType1);
-		RFX_Byte(pFX, _T("[Type2]"), m_data.bType2);
+		RFX_Byte(pFX, _T("[Type1]"), m_data.bType[0]);
+		RFX_Byte(pFX, _T("[Type2]"), m_data.bType[1]);
 		RFX_Int(pFX, _T("[Range]"), m_data.sRange);
 		RFX_Byte(pFX, _T("[Etc]"), m_data.bEtc);
 	};
