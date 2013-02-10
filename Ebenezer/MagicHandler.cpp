@@ -61,7 +61,7 @@ void CUser::MagicSystem( Packet & pkt )
 	uint32 magicid;
 	time_t skill_received_time;
 	uint16 sid, tid, data1, data2, data3, data4, data5, data6, data7;
-	CUser *pUser, *pTargetUser = NULL;
+	CUser *pUser = NULL, *pTargetUser = NULL;
 	CNpc *pMon = NULL;
 
 	skill_received_time = GetTickCount(); //Retrieve the time at which the Magic packet is going for internal processing.
@@ -207,7 +207,7 @@ void CUser::MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 	if(pMagic->bType[1] > 0 && pMagic->bType[1] != 1)
 		MagicType(pMagic->bType[1]); //If the skill has a second effect, be sure to cast that one too.
 
-packet_send:
+//packet_send:
 	if (pMagic->bType[1] == 0 || pMagic->bType[1] == 1) {
 		Packet result(WIZ_MAGIC_PROCESS);
 		result << MAGIC_EFFECTING << magicid << sid << tid << data1 << data2 << data3;
@@ -220,8 +220,6 @@ packet_send:
 
 		m_pMain->Send_Region( &result, GetMap(), m_RegionX, m_RegionZ );
 	}
-
-	return;
 }
 
 void CUser::MagicType(uint16 effect_type)
