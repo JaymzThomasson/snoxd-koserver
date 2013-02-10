@@ -62,13 +62,11 @@ public:
 	unsigned short	m_sItemWeight;					// ������ �ѹ���
 	short	m_sItemHit;						// ������ ��Ÿ��ġ
 	short	m_sItemAc;						// ������ �ѹ�����
-	short	m_sItemStr;						// ������ ���� ���ʽ�
-	short	m_sItemSta;						// ������ ��ü�� ���ʽ�
-	short	m_sItemDex;						// ������ �ѹ�ø�� ���ʽ�
-	short	m_sItemIntel;					// ������ ������ ���ʽ�
-	short	m_sItemCham;					// ������ �Ѹŷº��ʽ�
 	short	m_sItemHitrate;					// ������ ��Ÿ����
 	short	m_sItemEvasionrate;				// ������ ��ȸ����
+
+	uint16	m_sStatItemBonuses[STAT_COUNT];
+	uint8	m_bStatBuffs[STAT_COUNT];
 
 	BYTE	m_bFireR;						// �� ���� ���׷�
 	BYTE	m_bColdR;						// ���� ���� ���׷�
@@ -137,11 +135,7 @@ public:
 	short	m_sMaxHPAmount;
 	BYTE	m_bHitRateAmount;
 	short	m_sAvoidRateAmount;
-	BYTE	m_bStrAmount;
-	BYTE	m_bStaAmount;
-	BYTE	m_bDexAmount;
-	BYTE	m_bIntelAmount;
-	BYTE	m_bChaAmount;
+
 	BYTE	m_bFireRAmount;
 	BYTE	m_bColdRAmount;
 	BYTE	m_bLightningRAmount;
@@ -197,34 +191,98 @@ public:
 	
 
 public:
-	__forceinline bool isBanned() { return getAuthority() == AUTHORITY_BANNED; };
-	__forceinline bool isMuted() { return getAuthority() == AUTHORITY_MUTED; };
-	__forceinline bool isAttackDisabled() { return getAuthority() == AUTHORITY_ATTACK_DISABLED; };
-	__forceinline bool isGM() { return getAuthority() == AUTHORITY_GAME_MASTER; };
-	__forceinline bool isLimitedGM() { return getAuthority() == AUTHORITY_LIMITED_GAME_MASTER; };
+	__forceinline bool isBanned() { return getAuthority() == AUTHORITY_BANNED; }
+	__forceinline bool isMuted() { return getAuthority() == AUTHORITY_MUTED; }
+	__forceinline bool isAttackDisabled() { return getAuthority() == AUTHORITY_ATTACK_DISABLED; }
+	__forceinline bool isGM() { return getAuthority() == AUTHORITY_GAME_MASTER; }
+	__forceinline bool isLimitedGM() { return getAuthority() == AUTHORITY_LIMITED_GAME_MASTER; }
 
-	__forceinline bool isDead() { return m_bResHpType == USER_DEAD || m_pUserData->m_sHp <= 0; };
-	__forceinline bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; };
+	__forceinline bool isDead() { return m_bResHpType == USER_DEAD || m_pUserData->m_sHp <= 0; }
+	__forceinline bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; }
 
-	__forceinline bool isInParty() { return m_sPartyIndex != -1; };
-	__forceinline bool isInClan() { return m_pUserData->m_bKnights > 0; };
-	__forceinline bool isClanLeader() { return isInClan() && getFame() == CHIEF; };
+	__forceinline bool isInParty() { return m_sPartyIndex != -1; }
+	__forceinline bool isInClan() { return m_pUserData->m_bKnights > 0; }
+	__forceinline bool isClanLeader() { return isInClan() && getFame() == CHIEF; }
 
-	__forceinline bool isTrading() { return m_sExchangeUser != -1; };
-	__forceinline bool isStoreOpen() { return m_bStoreOpen; };
-	__forceinline bool isMerchanting() { return m_bIsMerchanting; };
+	__forceinline bool isTrading() { return m_sExchangeUser != -1; }
+	__forceinline bool isStoreOpen() { return m_bStoreOpen; }
+	__forceinline bool isMerchanting() { return m_bIsMerchanting; }
 
-	__forceinline BYTE getNation() { return m_pUserData->m_bNation; };
-	__forceinline BYTE getLevel() { return m_pUserData->m_bLevel; };
-	__forceinline BYTE getZoneID() { return m_pUserData->m_bZone; };
-	__forceinline BYTE getAuthority() { return m_pUserData->m_bAuthority; };
-	__forceinline BYTE getFame() { return m_pUserData->m_bFame; };
+	__forceinline BYTE getNation() { return m_pUserData->m_bNation; }
+	__forceinline BYTE getLevel() { return m_pUserData->m_bLevel; }
+	__forceinline BYTE getZoneID() { return m_pUserData->m_bZone; }
+	__forceinline BYTE getAuthority() { return m_pUserData->m_bAuthority; }
+	__forceinline BYTE getFame() { return m_pUserData->m_bFame; }
 
-	__forceinline C3DMap * GetMap() { return m_pMap; };
+	__forceinline uint8 getStat(StatType type)
+	{
+		ASSERT(type < STAT_COUNT);
+		return m_pUserData->m_bStats[type];
+	}
 
-	__forceinline uint16 GetSPosX() { return uint16(m_pUserData->m_curx * 10); };
-	__forceinline uint16 GetSPosY() { return uint16(m_pUserData->m_cury * 10); };
-	__forceinline uint16 GetSPosZ() { return uint16(m_pUserData->m_curz * 10); };
+	__forceinline void setStat(StatType type, uint8 val)
+	{
+		ASSERT(type < STAT_COUNT);
+		m_pUserData->m_bStats[type] = val;
+	}
+
+	__forceinline uint32 getStatTotal() // NOTE: Shares name with another, but lack-of args should be self-explanatory
+	{
+		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
+		foreach_array (i, m_pUserData->m_bStats)
+			total += iValue;
+		return total;
+	}
+
+	__forceinline uint16 getStatItemBonus(StatType type)
+	{
+		ASSERT(type < STAT_COUNT);
+		return m_sStatItemBonuses[type];
+	}
+
+	__forceinline uint16 getStatWithItemBonus(StatType type)
+	{
+		return getStat(type) + getStatItemBonus(type);
+	}
+
+	__forceinline uint32 getStatItemBonusTotal()
+	{
+		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
+		foreach_array (i, m_sStatItemBonuses)
+			total += iValue;
+		return total;
+	}
+
+	__forceinline uint8 getStatBuff(StatType type)
+	{
+		ASSERT(type < STAT_COUNT);
+		return m_bStatBuffs[type];
+	}
+
+	__forceinline void setStatBuff(StatType type, uint8 val)
+	{
+		ASSERT(type < STAT_COUNT);
+		m_bStatBuffs[type] = val;
+	}
+
+	__forceinline uint32 getStatBuffTotal()
+	{
+		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
+		foreach_array (i, m_bStatBuffs)
+			total += iValue;
+		return total;
+	}
+
+	__forceinline uint16 getStatTotal(StatType type)
+	{
+		return getStat(type) + getStatItemBonus(type) + getStatBuff(type);
+	}
+
+	__forceinline C3DMap * GetMap() { return m_pMap; }
+
+	__forceinline uint16 GetSPosX() { return uint16(m_pUserData->m_curx * 10); }
+	__forceinline uint16 GetSPosY() { return uint16(m_pUserData->m_cury * 10); }
+	__forceinline uint16 GetSPosZ() { return uint16(m_pUserData->m_curz * 10); }
 
 	void SendLoyaltyChange(int32 nChangeAmount = 0);
 

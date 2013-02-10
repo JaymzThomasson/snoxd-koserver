@@ -63,11 +63,10 @@ void CUser::Initialize()
 	m_sItemWeight = 0;
 	m_sItemHit = 0;
 	m_sItemAc = 0;
-	m_sItemStr = 0;
-	m_sItemSta = 0;
-	m_sItemDex = 0;
-	m_sItemIntel = 0;
-	m_sItemCham = 0;
+
+	memset(m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
+	memset(m_bStatBuffs, 0, sizeof(uint8) * STAT_COUNT);
+
 	m_sItemHitrate = 100;
 	m_sItemEvasionrate = 100;
 
@@ -663,11 +662,11 @@ void CUser::SendMyInfo()
 			<< m_iMaxHp << m_pUserData->m_sHp
 			<< m_iMaxMp << m_pUserData->m_sMp
 			<< uint32(m_sMaxWeight) << uint32(m_sItemWeight)
-			<< m_pUserData->m_bStr << uint8(m_sItemStr)
-			<< m_pUserData->m_bSta << uint8(m_sItemSta)
-			<< m_pUserData->m_bDex << uint8(m_sItemDex)
-			<< m_pUserData->m_bIntel << uint8(m_sItemIntel)
-			<< m_pUserData->m_bCha << uint8(m_sItemCham)
+			<< getStat(STAT_STR) << uint8(getStatItemBonus(STAT_STR))
+			<< getStat(STAT_STA) << uint8(getStatItemBonus(STAT_STA))
+			<< getStat(STAT_DEX) << uint8(getStatItemBonus(STAT_DEX))
+			<< getStat(STAT_INT) << uint8(getStatItemBonus(STAT_INT))
+			<< getStat(STAT_CHA) << uint8(getStatItemBonus(STAT_CHA))
 			<< m_sTotalHit << m_sTotalAc
 			<< m_bFireR << m_bColdR << m_bLightningR << m_bMagicR << m_bDiseaseR << m_bPoisonR
 			<< m_pUserData->m_iGold
@@ -705,8 +704,7 @@ void CUser::SetMaxHp(int iFlag)
 	p_TableCoefficient = m_pMain->m_CoefficientArray.GetData( m_pUserData->m_sClass );
 	if( !p_TableCoefficient ) return;
 
-	int temp_sta = 0;
-	temp_sta = m_pUserData->m_bSta + m_sItemSta + m_bStaAmount;
+	int temp_sta = getStatTotal(STAT_STA);
 //	if( temp_sta > 255 ) temp_sta = 255;
 
 	if( m_pUserData->m_bZone == ZONE_SNOW_BATTLE && iFlag == 0 )	{
@@ -734,9 +732,9 @@ void CUser::SetMaxMp()
 	if( !p_TableCoefficient ) return;
 
 	int temp_intel = 0, temp_sta = 0;
-	temp_intel = m_pUserData->m_bIntel + m_sItemIntel + m_bIntelAmount + 30;
+	temp_intel = getStatTotal(STAT_INT) + 30;
 //	if( temp_intel > 255 ) temp_intel = 255;
-	temp_sta = m_pUserData->m_bSta + m_sItemSta + m_bStaAmount;
+	temp_sta = getStatTotal(STAT_STA);
 //	if( temp_sta > 255 ) temp_sta = 255;
 
 	if( p_TableCoefficient->MP != 0)
@@ -857,7 +855,7 @@ void CUser::SetDetailData()
 	}
 
 	m_iMaxExp = m_pMain->GetExpByLevel(getLevel());
-	m_sMaxWeight = (m_pUserData->m_bStr + m_sItemStr) * 50;
+	m_sMaxWeight = (getStat(STAT_STR) + getStatItemBonus(STAT_STR)) * 50;
 
 	m_pMap = m_pMain->GetZoneByID(m_pUserData->m_bZone);
 	if (m_pMap == NULL) 
@@ -1027,10 +1025,12 @@ void CUser::SetSlotItemValue()
 	_ITEM_TABLE* pTable = NULL;
 	int item_hit = 0, item_ac = 0;
 
-	m_sItemMaxHp = 0; m_sItemMaxMp = 0;
-	m_sItemHit = 0; m_sItemAc = 0; m_sItemStr = 0; m_sItemSta = 0; m_sItemDex = 0; m_sItemIntel = 0;
-	m_sItemCham = 0; m_sItemHitrate = 100; m_sItemEvasionrate = 100; m_sItemWeight = 0;	
-
+	m_sItemMaxHp = m_sItemMaxMp = 0;
+	m_sItemHit = m_sItemAc = 0; 
+	m_sItemWeight = 0;	
+	m_sItemHitrate = m_sItemEvasionrate = 100; 
+	
+	memset(m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
 	m_bFireR = 0; m_bColdR = 0; m_bLightningR = 0; m_bMagicR = 0; m_bDiseaseR = 0; m_bPoisonR = 0;
 	
 	m_sDaggerR = 0; m_sSwordR = 0; m_sAxeR = 0; m_sMaceR = 0; m_sSpearR = 0; m_sBowR = 0;
@@ -1060,11 +1060,11 @@ void CUser::SetSlotItemValue()
 		m_sItemMaxHp += pTable->m_MaxHpB;
 		m_sItemMaxMp += pTable->m_MaxMpB;
 		m_sItemAc += item_ac;
-		m_sItemStr += pTable->m_bStrB;
-		m_sItemSta += pTable->m_bStaB;
-		m_sItemDex += pTable->m_bDexB;
-		m_sItemIntel += pTable->m_bIntelB;
-		m_sItemCham += pTable->m_bChaB;
+		m_sStatItemBonuses[STAT_STR] += pTable->m_bStrB;
+		m_sStatItemBonuses[STAT_STA] += pTable->m_bStaB;
+		m_sStatItemBonuses[STAT_DEX] += pTable->m_bDexB;
+		m_sStatItemBonuses[STAT_INT] += pTable->m_bIntelB;
+		m_sStatItemBonuses[STAT_CHA] += pTable->m_bChaB;
 		m_sItemHitrate += pTable->m_sHitrate;
 		m_sItemEvasionrate += pTable->m_sEvarate;
 //		m_sItemWeight += pTable->m_sWeight;
@@ -1266,7 +1266,9 @@ void CUser::LevelChange(short level, BYTE type )
 		return;
 
 	if( type ) {
-		if( (m_pUserData->m_sPoints+m_pUserData->m_bSta+m_pUserData->m_bStr+m_pUserData->m_bDex+m_pUserData->m_bIntel+m_pUserData->m_bCha) < (300+3*(level-1)) )
+		if ((m_pUserData->m_sPoints 
+				+ getStat(STAT_STR) + getStat(STAT_STA) + getStat(STAT_DEX) + getStat(STAT_INT) + getStat(STAT_CHA)) 
+			< (300 + 3 * (level - 1)))
 			m_pUserData->m_sPoints += 3;
 		if( level > 9 && (m_pUserData->m_bstrSkill[0]+m_pUserData->m_bstrSkill[1]+m_pUserData->m_bstrSkill[2]+m_pUserData->m_bstrSkill[3]+m_pUserData->m_bstrSkill[4]
 			+m_pUserData->m_bstrSkill[5]+m_pUserData->m_bstrSkill[6]+m_pUserData->m_bstrSkill[7]+m_pUserData->m_bstrSkill[8]) < (2*(level-9)) )
@@ -1304,55 +1306,24 @@ void CUser::LevelChange(short level, BYTE type )
 void CUser::PointChange(Packet & pkt)
 {
 	uint8 type = pkt.read<uint8>();
-	uint16 value = pkt.read<uint16>();
-	if (type > 5 || value != 1
-		|| m_pUserData->m_sPoints < 1) return;
+	StatType statType = (StatType)(type - 1);
 
-	switch (type)
-	{
-	case STR: 
-		if (m_pUserData->m_bStr == 0xFF) return;
-		break;
-	case STA:
-		if (m_pUserData->m_bSta == 0xFF) return;
-		break;
-	case DEX:
-		if (m_pUserData->m_bDex == 0xFF) return;
-		break;
-	case INTEL:
-		if (m_pUserData->m_bIntel == 0xFF) return;
-		break;
-	case CHA:
-		if (m_pUserData->m_bCha == 0xFF) return;
-		break;
-	}
-
-	m_pUserData->m_sPoints--;
+	if (statType < STAT_STR || statType >= STAT_COUNT 
+		|| m_pUserData->m_sPoints < 1
+		|| getStat(statType) == STAT_MAX) 
+		return;
 
 	Packet result(WIZ_POINT_CHANGE, type);
-	switch (type)
-	{
-	case STR:
-		result << uint16(++m_pUserData->m_bStr);
+
+	m_pUserData->m_sPoints--; // remove a free point
+	result << uint16(++m_pUserData->m_bStats[statType]); // assign the free point to a stat
+
+	if (statType == STAT_STR || statType == STAT_DEX)
 		SetUserAbility();
-		break;
-	case STA:
-		result << uint16(++m_pUserData->m_bSta);
+	else if (statType == STAT_STA)
 		SetMaxHp();
+	if (statType == STAT_STA || statType == STAT_INT)
 		SetMaxMp();
-		break;
-	case DEX:
-		result << uint16(++m_pUserData->m_bDex);
-		SetUserAbility();
-		break;
-	case INTEL:
-		result << uint16(++m_pUserData->m_bIntel);
-		SetMaxMp();
-		break;
-	case CHA:
-		result << uint16(++m_pUserData->m_bCha);
-		break;
-	}
 
 	result << m_iMaxHp << m_iMaxMp << m_sTotalHit << m_sMaxWeight;
 	Send(&result);
@@ -1501,15 +1472,11 @@ void CUser::SetUserAbility()
 		}
 	}
 
-	int temp_str = 0, temp_dex = 0;
-
-	temp_str = m_pUserData->m_bStr+m_bStrAmount+m_sItemStr;
+	int temp_str = getStatTotal(STAT_STR), temp_dex = getStatTotal(STAT_DEX);
 //	if( temp_str > 255 ) temp_str = 255;
-
-	temp_dex = m_pUserData->m_bDex+m_bDexAmount+m_sItemDex;
 //	if( temp_dex > 255 ) temp_dex = 255;
 
-	m_sMaxWeight = (m_pUserData->m_bStr + m_sItemStr ) * 50;
+	m_sMaxWeight = (getStat(STAT_STR) + getStatItemBonus(STAT_STR)) * 50;
 	if( bHaveBow ) 
 		m_sTotalHit = (short)((((0.005 * pItem->m_sDamage * (temp_dex + 40)) + ( hitcoefficient * pItem->m_sDamage * getLevel() * temp_dex )) + 3));
 	else
@@ -2333,8 +2300,9 @@ void CUser::SendItemMove(bool bFail /*= false*/)
 	{
 		result	<< m_sTotalHit << m_sTotalAc
 				<< m_iMaxHp << m_iMaxMp
-				<< uint8(m_sItemStr) << uint8(m_sItemSta) << uint8(m_sItemDex) 
-				<< uint8(m_sItemIntel) << uint8(m_sItemCham)
+				<< uint8(getStatItemBonus(STAT_STA)) << uint8(getStatItemBonus(STAT_STA))
+				<< uint8(getStatItemBonus(STAT_DEX)) << uint8(getStatItemBonus(STAT_INT))
+				<< uint8(getStatItemBonus(STAT_CHA))
 				<< m_bFireR << m_bColdR << m_bLightningR << m_bMagicR << m_bDiseaseR << m_bPoisonR;
 	}
 	Send(&result);
@@ -2555,11 +2523,7 @@ void CUser::Type4Duration(float currenttime)
 		if (currenttime > (m_fStartTime7 + m_sDuration7)){
 			m_sDuration7 = 0;		
 			m_fStartTime7 = 0.0f;
-			m_bStrAmount = 0;
-			m_bStaAmount = 0;
-			m_bDexAmount = 0;
-			m_bIntelAmount = 0;
-			m_bChaAmount = 0;
+			memset(m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
 			buff_type = 7 ;
 		}
 	}
@@ -2797,11 +2761,7 @@ void CUser::InitType4()
 	m_sMaxHPAmount = 0;
 	m_bHitRateAmount = 100;
 	m_sAvoidRateAmount = 100;
-	m_bStrAmount = 0;
-	m_bStaAmount = 0;
-	m_bDexAmount = 0;
-	m_bIntelAmount = 0;
-	m_bChaAmount = 0;
+	memset(m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
 	m_bFireRAmount = 0;
 	m_bColdRAmount = 0;
 	m_bLightningRAmount = 0;
@@ -3011,9 +2971,8 @@ fail_return:
 void CUser::AllPointChange()
 {
 	Packet result(WIZ_CLASS_CHANGE, uint8(ALL_POINT_CHANGE));
-	int index = 0, total_point = 0, money = 0, classcode=0, temp_money = 0, old_money=0;
-	double dwMoney = 0;
-	BYTE type = 0x00;
+	int money, temp_money;
+	uint8 bResult = 0;
 
 	if (getLevel() > MAX_LEVEL)
 		goto fail_return;
@@ -3034,108 +2993,89 @@ void CUser::AllPointChange()
 	for (int i = 0; i < SLOT_MAX; i++)
 	{
 		if (m_pUserData->m_sItemArray[i].nNum) {
-			type = 0x04;
+			bResult = 4;
 			goto fail_return;
 		}
 	}
 	
-	switch( m_pUserData->m_bRace ) {
+	// It's 300-10 for clarity (the 10 being the stat points assigned on char creation)
+	if (getStatTotal() == 290)
+	{
+		bResult = 2; // don't need to reallocate stats, it has been done already...
+		goto fail_return;
+	}
+
+	// TO-DO: Pull this from the database.
+	switch (m_pUserData->m_bRace)
+	{
 	case KARUS_BIG:	
-		if( m_pUserData->m_bStr == 65 && m_pUserData->m_bSta == 65 && m_pUserData->m_bDex == 60 && m_pUserData->m_bIntel == 50 && m_pUserData->m_bCha == 50 )	{
-			type = 0x02;	
-			goto fail_return;
-		}
-		m_pUserData->m_bStr = 65;
-		m_pUserData->m_bSta = 65;
-		m_pUserData->m_bDex = 60;
-		m_pUserData->m_bIntel = 50;
-		m_pUserData->m_bCha = 50;
+		setStat(STAT_STR, 65);
+		setStat(STAT_STA, 65);
+		setStat(STAT_DEX, 60);
+		setStat(STAT_INT, 50);
+		setStat(STAT_CHA, 50);
 		break;
 	case KARUS_MIDDLE:
-		if( m_pUserData->m_bStr == 65 && m_pUserData->m_bSta == 65 && m_pUserData->m_bDex == 60 && m_pUserData->m_bIntel == 50 && m_pUserData->m_bCha == 50 )	{
-			type = 0x02;	
-			goto fail_return;
-		}
-		m_pUserData->m_bStr = 65;
-		m_pUserData->m_bSta = 65;
-		m_pUserData->m_bDex = 60;
-		m_pUserData->m_bIntel = 50;
-		m_pUserData->m_bCha = 50;
+		setStat(STAT_STR, 65);
+		setStat(STAT_STA, 65);
+		setStat(STAT_DEX, 60);
+		setStat(STAT_INT, 50);
+		setStat(STAT_CHA, 50);
 		break;
 	case KARUS_SMALL:
-		if( m_pUserData->m_bStr == 50 && m_pUserData->m_bSta == 50 && m_pUserData->m_bDex == 70 && m_pUserData->m_bIntel == 70 && m_pUserData->m_bCha == 50 )	{
-			type = 0x02;	
-			goto fail_return;
-		}
-		m_pUserData->m_bStr = 50;
-		m_pUserData->m_bSta = 50;
-		m_pUserData->m_bDex = 70;
-		m_pUserData->m_bIntel = 70;
-		m_pUserData->m_bCha = 50;
+		setStat(STAT_STR, 50);
+		setStat(STAT_STA, 50);
+		setStat(STAT_DEX, 70);
+		setStat(STAT_INT, 70);
+		setStat(STAT_CHA, 50);
 		break;
 	case KARUS_WOMAN:
-		if( m_pUserData->m_bStr == 50 && m_pUserData->m_bSta == 60 && m_pUserData->m_bDex == 60 && m_pUserData->m_bIntel == 70 && m_pUserData->m_bCha == 50 )	{
-			type = 0x02;	
-			goto fail_return;
-		}
-		m_pUserData->m_bStr = 50;
-		m_pUserData->m_bSta = 60;
-		m_pUserData->m_bDex = 60;
-		m_pUserData->m_bIntel = 70;
-		m_pUserData->m_bCha = 50;
+		setStat(STAT_STR, 50);
+		setStat(STAT_STA, 60);
+		setStat(STAT_DEX, 60);
+		setStat(STAT_INT, 60);
+		setStat(STAT_CHA, 50);
 		break;
 	case BABARIAN:
-		if( m_pUserData->m_bStr == 65 && m_pUserData->m_bSta == 65 && m_pUserData->m_bDex == 60 && m_pUserData->m_bIntel == 50 && m_pUserData->m_bCha == 50 )	{
-			type = 0x02;	
-			goto fail_return;
-		}
-		m_pUserData->m_bStr = 65;
-		m_pUserData->m_bSta = 65;
-		m_pUserData->m_bDex = 60;
-		m_pUserData->m_bIntel = 50;
-		m_pUserData->m_bCha = 50;
+		setStat(STAT_STR, 65);
+		setStat(STAT_STA, 65);
+		setStat(STAT_DEX, 60);
+		setStat(STAT_INT, 50);
+		setStat(STAT_CHA, 50);
 		break;
 	case ELMORAD_MAN:
-		if( m_pUserData->m_bStr == 60 && m_pUserData->m_bSta == 60 && m_pUserData->m_bDex == 70 && m_pUserData->m_bIntel == 50 && m_pUserData->m_bCha == 50 )	{
-			type = 0x02;	
-			goto fail_return;
-		}
-		m_pUserData->m_bStr = 60;
-		m_pUserData->m_bSta = 60;
-		m_pUserData->m_bDex = 70;
-		m_pUserData->m_bIntel = 50;
-		m_pUserData->m_bCha = 50;
+		setStat(STAT_STR, 60);
+		setStat(STAT_STA, 60);
+		setStat(STAT_DEX, 70);
+		setStat(STAT_INT, 50);
+		setStat(STAT_CHA, 50);
 		break;
 	case ELMORAD_WOMAN:
-		if( m_pUserData->m_bStr == 50 && m_pUserData->m_bSta == 50 && m_pUserData->m_bDex == 70 && m_pUserData->m_bIntel == 70 && m_pUserData->m_bCha == 50 )	{
-			type = 0x02;	
-			goto fail_return;
-		}
-		m_pUserData->m_bStr = 50;
-		m_pUserData->m_bSta = 50;
-		m_pUserData->m_bDex = 70;
-		m_pUserData->m_bIntel = 70;
-		m_pUserData->m_bCha = 50;
+		setStat(STAT_STR, 50);
+		setStat(STAT_STA, 50);
+		setStat(STAT_DEX, 70);
+		setStat(STAT_INT, 70);
+		setStat(STAT_CHA, 50);
 		break;
 	}
 
 	m_pUserData->m_sPoints = (getLevel() - 1) * 3 + 10;
+	ASSERT(getStatTotal() == 290);
+
 	m_pUserData->m_iGold = money;
 
 	SetUserAbility();
 	Send2AI_UserUpdateInfo();
 
-	type = 1;
-	result << type
+	result << uint8(1) // result (success)
 		<< m_pUserData->m_iGold
-		<< m_pUserData->m_bStr << m_pUserData->m_bSta << m_pUserData->m_bDex << m_pUserData->m_bIntel << m_pUserData->m_bCha
+		<< getStat(STAT_STR) << getStat(STAT_STA) << getStat(STAT_DEX) << getStat(STAT_INT) << getStat(STAT_CHA)
 		<< m_iMaxHp << m_iMaxMp << m_sTotalHit << m_sMaxWeight << m_pUserData->m_sPoints;
 	Send(&result);
 
 fail_return:
-	result << type << temp_money;
+	result << bResult << temp_money;
 	Send(&result);
-
 }
 
 void CUser::GoldChange(short tid, int gold)

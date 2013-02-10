@@ -150,6 +150,18 @@ struct _MERCH_DATA
 	uint8 bOriginalSlot;
 };
 
+enum StatType
+{
+	STAT_STR = 0,
+	STAT_STA = 1,
+	STAT_DEX = 2,
+	STAT_INT = 3, 
+	STAT_CHA = 4, // MP
+	STAT_COUNT
+};
+
+#define STAT_MAX 255
+
 struct _USER_DATA
 {
 	char	m_id[MAX_ID_SIZE+1];
@@ -175,7 +187,7 @@ struct _USER_DATA
 	int16	m_bKnights;	
 	uint8	m_bFame;
 	int16	m_sHp, m_sMp, m_sSp;
-	uint8	m_bStr, m_bSta, m_bDex, m_bIntel, m_bCha;
+	uint8	m_bStats[STAT_COUNT];
 	uint8	m_bAuthority;
 	uint16	m_sPoints;
 	uint32	m_iGold, m_iBank;

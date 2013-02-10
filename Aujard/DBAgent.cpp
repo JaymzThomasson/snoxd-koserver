@@ -266,11 +266,11 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 	dbCommand->FetchInt16(field++, pUser->m_sHp);
 	dbCommand->FetchInt16(field++, pUser->m_sMp);
 	dbCommand->FetchInt16(field++, pUser->m_sSp);
-	dbCommand->FetchByte(field++, pUser->m_bStr);
-	dbCommand->FetchByte(field++, pUser->m_bSta);
-	dbCommand->FetchByte(field++, pUser->m_bDex);
-	dbCommand->FetchByte(field++, pUser->m_bIntel);
-	dbCommand->FetchByte(field++, pUser->m_bCha);
+	dbCommand->FetchByte(field++, pUser->m_bStats[STAT_STR]);
+	dbCommand->FetchByte(field++, pUser->m_bStats[STAT_STA]);
+	dbCommand->FetchByte(field++, pUser->m_bStats[STAT_DEX]);
+	dbCommand->FetchByte(field++, pUser->m_bStats[STAT_INT]);
+	dbCommand->FetchByte(field++, pUser->m_bStats[STAT_CHA]);
 	dbCommand->FetchByte(field++, pUser->m_bAuthority);
 	dbCommand->FetchUInt16(field++, pUser->m_sPoints);
 	dbCommand->FetchUInt32(field++, pUser->m_iGold);
@@ -673,7 +673,8 @@ bool CDBAgent::UpdateUser(string & strCharID, short uid, UserUpdateType type)
 
 	if (!dbCommand->Prepare(string_format(_T("{CALL UPDATE_USER_DATA (?,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,?,?,?,?,%d,%d)}"),
 		pUser->m_bNation, pUser->m_bRace, pUser->m_sClass, pUser->m_nHair, pUser->m_bRank, pUser->m_bTitle, pUser->m_bLevel, pUser->m_iExp, pUser->m_iLoyalty, pUser->m_bFace, 
-		pUser->m_bCity,	pUser->m_bKnights, pUser->m_bFame, pUser->m_sHp, pUser->m_sMp, pUser->m_sSp, pUser->m_bStr, pUser->m_bSta, pUser->m_bDex, pUser->m_bIntel, pUser->m_bCha, 
+		pUser->m_bCity,	pUser->m_bKnights, pUser->m_bFame, pUser->m_sHp, pUser->m_sMp, pUser->m_sSp, 
+		pUser->m_bStats[STAT_STR], pUser->m_bStats[STAT_STA], pUser->m_bStats[STAT_DEX], pUser->m_bStats[STAT_INT], pUser->m_bStats[STAT_CHA], 
 		pUser->m_bAuthority, pUser->m_sPoints, pUser->m_iGold, pUser->m_bZone, pUser->m_sBind, (int)(pUser->m_curx*100), (int)(pUser->m_curz*100), (int)(pUser->m_cury*100), pUser->m_dwTime,
 		pUser->m_sQuestCount, pUser->m_iMannerPoint, pUser->m_iLoyaltyMonthly)))
 	{

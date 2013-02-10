@@ -138,13 +138,7 @@
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// USER POINT DEFINE
-#define STR					0x01
-#define STA					0x02
-#define DEX					0x03
-#define INTEL				0x04
-#define CHA					0x05
-
+// SKILL POINT DEFINE
 #define ORDER_SKILL			0x01
 #define MANNER_SKILL		0X02
 #define LANGUAGE_SKILL		0x03

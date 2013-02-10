@@ -317,8 +317,8 @@ void CMagicProcess::MagicPacket(char *pBuf)
 				SetShort( send_buff, data4, send_index );
 				SetShort( send_buff, data5, send_index );
 				SetShort( send_buff, data6, send_index );
-				short total_cha = m_pSrcUser->m_pUserData->m_bCha + m_pSrcUser->m_sItemCham;
-				SetShort( send_buff, total_cha, send_index);
+
+				SetShort( send_buff, m_pSrcUser->getStatWithItemBonus(STAT_CHA), send_index);
 
 				if( m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {	// Does the magic user have a staff?
 					_ITEM_TABLE* pRightHand = NULL;
@@ -1358,11 +1358,11 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 				break;
 
 			case 7 :
-				pTUser->m_bStrAmount = pType->bStr;
-				pTUser->m_bStaAmount = pType->bSta;
-				pTUser->m_bDexAmount = pType->bDex;
-				pTUser->m_bIntelAmount = pType->bIntel;
-				pTUser->m_bChaAmount = pType->bCha;	
+				pTUser->setStatBuff(STAT_STR, pType->bStr);
+				pTUser->setStatBuff(STAT_STA, pType->bSta);
+				pTUser->setStatBuff(STAT_DEX, pType->bDex);
+				pTUser->setStatBuff(STAT_INT, pType->bIntel);
+				pTUser->setStatBuff(STAT_CHA, pType->bCha);	
 				pTUser->m_sDuration7 = pType->sDuration;
 				pTUser->m_fStartTime7 = TimeGet();
 				break;
@@ -1596,13 +1596,9 @@ void CMagicProcess::ExecuteType5(int magicid, int sid, int tid, int data1, int d
 			if (pTUser->m_bType4Buff[6] == 1) {
 				pTUser->m_sDuration7 = 0;		
 				pTUser->m_fStartTime7 = 0.0f;
-				pTUser->m_bStrAmount = 0;
-				pTUser->m_bStaAmount = 0;
-				pTUser->m_bDexAmount = 0;
-				pTUser->m_bIntelAmount = 0;
-				pTUser->m_bChaAmount = 0;
+				// TO-DO: Implement reset.
+				memset(pTUser->m_bStatBuffs, 0, sizeof(uint8) * STAT_COUNT);
 				pTUser->m_bType4Buff[6] = 0;			
-
 				SendType4BuffRemove(tid, 7);
 			}
 
@@ -2010,7 +2006,7 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 		result = m_pSrcUser->GetHitRate( pMon->m_sHitRate / pTUser->m_sTotalEvasionrate ); 		
 	}
 	else {	// If the source is another player.
-		total_hit = total_hit * m_pSrcUser->m_pUserData->m_bCha / 170;
+		total_hit = total_hit * m_pSrcUser->getStat(STAT_CHA) / 170;
 		result = SUCCESS ;
 	}
 		
@@ -2297,15 +2293,11 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 			break;
 
 		case 7:	
-			if ((pTUser->m_bStrAmount + pTUser->m_bStaAmount + pTUser->m_bDexAmount +
-				 pTUser->m_bIntelAmount + pTUser->m_bChaAmount) > 0) {
+			if (pTUser->getStatBuffTotal() > 0) {
 				pTUser->m_sDuration7 = 0;		
 				pTUser->m_fStartTime7 = 0.0f;
-				pTUser->m_bStrAmount = 0;
-				pTUser->m_bStaAmount = 0;
-				pTUser->m_bDexAmount = 0;
-				pTUser->m_bIntelAmount = 0;
-				pTUser->m_bChaAmount = 0;
+				// TO-DO: Implement reset
+				memset(pTUser->m_bStatBuffs, 0, sizeof(uint8) * STAT_COUNT);
 				buff = TRUE;
 			}
 			break;
