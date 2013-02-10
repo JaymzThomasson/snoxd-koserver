@@ -255,7 +255,8 @@ int CIOCPSocket2::Send(Packet *result)
 		pTIBuf[1] = 0x1e;
 		memcpy(&pTIBuf[2], &m_Sen_val, 2);
 		pTIBuf[5] = result->GetOpcode();
-		memcpy(&pTIBuf[6], result->contents(), length - 1);
+		if (result->size() > 0)
+			memcpy(&pTIBuf[6], result->contents(), length - 1);
 
 		// encrypt to output buffer
 		jct.JvEncryptionFast( totalLen, pTIBuf, pTOutBuf );
