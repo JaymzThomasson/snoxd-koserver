@@ -870,6 +870,56 @@ void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUse
 	LeaveCriticalSection(&g_region_critical);
 }
 
+// TO-DO: Move the following two methods into a base CUser/CNpc class
+void CEbenezerDlg::Send_OldRegions(Packet *pkt, int old_x, int old_z, C3DMap *pMap, int x, int z, CUser* pExceptUser)
+{
+	if (old_x != 0)
+	{
+		Send_UnitRegion(pkt, pMap, x+old_x*2, z+old_z-1);
+		Send_UnitRegion(pkt, pMap, x+old_x*2, z+old_z);
+		Send_UnitRegion(pkt, pMap, x+old_x*2, z+old_z+1);
+	}
+
+	if (old_x != 0)
+	{
+		Send_UnitRegion(pkt, pMap, x+old_x, z+old_z*2);
+		if (old_x < 0)
+			Send_UnitRegion(pkt, pMap, x+old_x+1, z+old_z*2);
+		else if (old_x > 0)
+			Send_UnitRegion(pkt, pMap, x+old_x-1, z+old_z*2);
+		else
+		{
+			Send_UnitRegion(pkt, pMap, x+old_x-1, z+old_z*2);
+			Send_UnitRegion(pkt, pMap, x+old_x+1, z+old_z*2);
+		}
+	}
+}
+
+void CEbenezerDlg::Send_NewRegions(Packet *pkt, int new_x, int new_z, C3DMap *pMap, int x, int z, CUser* pExceptUser)
+{
+	if (new_x != 0)
+	{
+		Send_UnitRegion(pkt, pMap, x+new_x, z-1);
+		Send_UnitRegion(pkt, pMap, x+new_x, z);
+		Send_UnitRegion(pkt, pMap, x+new_x, z+1);
+	}
+
+	if (new_z != 0)
+	{
+		Send_UnitRegion(pkt, pMap, x, z+new_z);
+		
+		if (new_x < 0)
+			Send_UnitRegion(pkt, pMap, x+1, z+new_z);
+		else if (new_x > 0)
+			Send_UnitRegion(pkt, pMap, x-1, z+new_z);
+		else 
+		{
+			Send_UnitRegion(pkt, pMap, x-1, z+new_z);
+			Send_UnitRegion(pkt, pMap, x+1, z+new_z);
+		}
+	}
+}
+
 void CEbenezerDlg::Send_NearRegion(Packet *pkt, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser)
 {
 	int left_border = region_x * VIEW_DISTANCE, top_border = region_z * VIEW_DISTANCE;

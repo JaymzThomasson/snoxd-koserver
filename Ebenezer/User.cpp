@@ -906,27 +906,7 @@ void CUser::RemoveRegion(int del_x, int del_z)
 
 	Packet result(WIZ_USER_INOUT, uint8(USER_OUT));
 	result << uint8(0) << uint16(GetSocketID());
-
-	if (del_x != 0)
-	{
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x*2, m_RegionZ+del_z-1);
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x*2, m_RegionZ+del_z);
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x*2, m_RegionZ+del_z+1);
-	}
-
-	if (del_z != 0)
-	{
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x, m_RegionZ+del_z*2);
-		if (del_x < 0)
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x+1, m_RegionZ+del_z*2);
-		else if (del_x > 0)
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x-1, m_RegionZ+del_z*2);
-		else
-		{
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x-1, m_RegionZ+del_z*2);
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+del_x+1, m_RegionZ+del_z*2);
-		}
-	}
+	m_pMain->Send_OldRegions(&result, del_x, del_z, pMap, m_RegionX, m_RegionZ);
 }
 
 void CUser::InsertRegion(int insert_x, int insert_z)
@@ -939,28 +919,7 @@ void CUser::InsertRegion(int insert_x, int insert_z)
 
 	result << uint16(GetSocketID());
 	GetUserInfo(result);
-
-	if (insert_x != 0)
-	{
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+insert_x, m_RegionZ-1);
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+insert_x, m_RegionZ);
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+insert_x, m_RegionZ+1);
-	}
-
-	if (insert_z != 0) 
-	{
-		m_pMain->Send_UnitRegion(&result, pMap, m_RegionX, m_RegionZ+insert_z);
-		
-		if (insert_x < 0)	
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+1, m_RegionZ+insert_z);
-		else if (insert_x > 0 )
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX-1, m_RegionZ+insert_z);
-		else 
-		{
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX-1, m_RegionZ+insert_z);
-			m_pMain->Send_UnitRegion(&result, pMap, m_RegionX+1, m_RegionZ+insert_z);
-		}
-	}
+	m_pMain->Send_NewRegions(&result, insert_x, insert_z, pMap, m_RegionX, m_RegionZ);
 }
 
 void CUser::RequestUserIn(Packet & pkt)
