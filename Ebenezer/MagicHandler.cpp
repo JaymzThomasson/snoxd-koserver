@@ -321,11 +321,11 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 				break;
 
 			case 7 :
-				pTUser->m_bStrAmount = pType->bStr;
-				pTUser->m_bStaAmount = pType->bSta;
-				pTUser->m_bDexAmount = pType->bDex;
-				pTUser->m_bIntelAmount = pType->bIntel;
-				pTUser->m_bChaAmount = pType->bCha;	
+				pTUser->setStatBuff(STAT_STR, pType->bStr);
+				pTUser->setStatBuff(STAT_STA, pType->bSta);
+				pTUser->setStatBuff(STAT_DEX, pType->bDex);
+				pTUser->setStatBuff(STAT_INT, pType->bIntel);
+				pTUser->setStatBuff(STAT_CHA, pType->bCha);	
 				pTUser->m_sDuration7 = pType->sDuration;
 				pTUser->m_fStartTime7 = TimeGet();
 				break;
@@ -353,7 +353,7 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 				goto fail_return;
 		}
 
-		if ((tid != -1 && pMagic->bType1 == 4) && (sid >= 0 && sid < MAX_USER))
+		if ((tid != -1 && pMagic->bType[0] == 4) && (sid >= 0 && sid < MAX_USER))
 				MSpChange( -(pMagic->sMsp) );
 
 		if (sid >= 0 && sid < MAX_USER) {
@@ -377,7 +377,7 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 		}
 		pTUser->Send2AI_UserUpdateInfo();
 
-		if ( pMagic->bType2 == 0 || pMagic->bType2 == 4 ) {
+		if ( pMagic->bType[1] == 0 || pMagic->bType[1] == 4 ) {
 			result << MAGIC_EFFECTING << magicid << sid << uint16(*itr) << data1 << 1 //result
 				<< data3 << uint16(pType->sDuration) << uint8(0) << uint16(pType->bSpeed);
 
@@ -390,7 +390,7 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 		continue; 
 
 fail_return:
-		if ( pMagic->bType2 == 4 ) {
+		if ( pMagic->bType[1] == 4 ) {
 			result << MAGIC_EFFECTING << magicid << sid << uint16(*itr) << data1 << 0 //result(is always 0)
 				<< data3;
 
@@ -465,7 +465,7 @@ bool CUser::CanCast(uint32 magicid, uint16 sid, uint16 tid)
 	else if(tid >= NPC_BAND)
 		pMon = m_pMain->m_arNpcArray.GetData(tid);
 
-	if(pMagic->iUseItem != 0 && pMagic->bType1 != 5 && !CanUseItem(pMagic->iUseItem)) //The user does not meet the item's requirements or does not have any of said item.
+	if(pMagic->iUseItem != 0 && pMagic->bType[0] != 5 && !CanUseItem(pMagic->iUseItem)) //The user does not meet the item's requirements or does not have any of said item.
 			return false;
 
 	if((this)->m_pUserData->m_sClass != (pMagic->sSkill % 10)    //Trying to use a skill that is not meant to be casted by this character, either not mastered or totally different class' skill.
