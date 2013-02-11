@@ -1549,7 +1549,7 @@ void CUser::ItemGet(Packet & pkt)
 
 	if (itemid == ITEM_GOLD)
 	{
-		if (count == 0 || count >= 32767)
+		if (count == 0 || count >= SHRT_MAX)
 			return;
 
 		if (!isInParty())

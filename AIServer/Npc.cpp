@@ -4940,7 +4940,7 @@ void CNpc::GiveNpcHaveItem(CIOCPort* pIOCP)
 	}
 	else	{
 		m_GiveItemList[0].sSid = TYPE_MONEY_SID;
-		if( iMoney > 32767 ) {
+		if( iMoney >= SHRT_MAX ) {
 			iMoney = 32000;						// sungyong : short형이기 때문에,,
 			m_GiveItemList[0].count = iMoney;
 		}
