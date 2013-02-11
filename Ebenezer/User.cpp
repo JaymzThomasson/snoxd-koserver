@@ -2736,10 +2736,12 @@ bool CUser::GetStartPosition(short & x, short & z, BYTE bZone /*= 0 */)
 
 void CUser::ResetWindows()
 {
-/*	if (isTrading())
+	if (isTrading())
 		ExchangeCancel();
 
-	if (isUsingMerchant())
+/*
+	// TO-DO: Make the distinction between vendors and buyers...
+	if (isMerchanting())
 		MerchantClose();
 
 	if (isUsingBuyingMerchant())
