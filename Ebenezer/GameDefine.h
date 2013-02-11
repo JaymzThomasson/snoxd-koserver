@@ -295,7 +295,6 @@ struct _ITEM_TABLE
 	BYTE  m_bMPDamage;
 	BYTE  m_bMPDrain;
 	BYTE  m_bMirrorDamage;
-	BYTE  m_bDroprate;
 	int   m_bStrB;
 	int   m_bStaB;
 	int   m_bDexB;
