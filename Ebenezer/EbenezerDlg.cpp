@@ -674,14 +674,21 @@ void CEbenezerDlg::OnTimer(UINT nIDEvent)
 	case GAME_TIME:
 		UpdateGameTime();
 		{	// AIServer Socket Alive Check Routine
-			CAISocket* pAISock = NULL;
-			for(int i=0; i<MAX_AI_SOCKET; i++) {
-				pAISock = m_AISocketArray.GetData( i );
+			for (int i=0; i<MAX_AI_SOCKET; i++)
+			{
+				CAISocket *pAISock = m_AISocketArray.GetData( i );
 				if( pAISock && pAISock->GetState() == STATE_DISCONNECTED )
-					AISocketConnect( i, 1 );
+				{
+					if (!AISocketConnect( i, 1 ))
+						break;
+				}
 				else if( !pAISock )
-					AISocketConnect( i, 1 );
-				else count++;
+				{
+					if (!AISocketConnect( i, 1 ))
+						break;
+				}
+				else 
+					count++;
 			}
 
 			if(count <= 0)	{	
