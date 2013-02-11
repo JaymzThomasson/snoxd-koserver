@@ -32,7 +32,7 @@ void CUser::RecvAllCharInfoReq(Packet & pkt)
 {
 	Packet result(WIZ_ALLCHAR_INFO_REQ);
 	uint16 len = pkt.read<uint16>();
-	if (len + 2 > pkt.size())
+	if (uint16(len + 2) > pkt.size())
 		return;
 
 	result.append(pkt, len);
