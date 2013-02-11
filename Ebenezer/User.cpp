@@ -3080,7 +3080,7 @@ void CUser::SelectWarpList(Packet & pkt)
 	uint16 npcid, warpid;
 	pkt >> npcid >> warpid;
 
-	_WARP_INFO *pWarp = GetMap()->m_WarpArray.GetData(warpid);
+	_WARP_INFO *pWarp = GetMap()->GetWarp(warpid);
 	if (pWarp == NULL)
 		return;
 
@@ -3118,7 +3118,7 @@ void CUser::ServerChangeOk(Packet & pkt)
 	if (pMap == NULL)
 		return;
 
-	_WARP_INFO* pWarp = pMap->m_WarpArray.GetData(warpid);
+	_WARP_INFO* pWarp = pMap->GetWarp(warpid);
 	if (pWarp == NULL)
 		return;
 
@@ -3136,14 +3136,7 @@ BOOL CUser::GetWarpList(int warp_group)
 	C3DMap* pMap = GetMap();
 	set<_WARP_INFO*> warpList;
 
-	foreach_stlmap (itr, pMap->m_WarpArray)
-	{
-		_WARP_INFO *pWarp = itr->second;
-		if (pWarp == NULL || (pWarp->sWarpID / 10) != warp_group)
-			continue;
-		
-		warpList.insert(pWarp);
-	}
+	pMap->GetWarpList(warp_group, warpList);
 
 	result << uint16(warpList.size());
 	foreach (itr, warpList)

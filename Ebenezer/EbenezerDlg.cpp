@@ -1040,27 +1040,19 @@ BOOL CEbenezerDlg::MapFileLoad()
 
 	foreach (itr, zoneMap)
 	{
-		CFile file;
-		CString szFullPath;
-		_ZONE_INFO *pZone = itr->second;
-
 		C3DMap *pMap = new C3DMap();
-		pMap->Initialize(pZone);
-		delete pZone;
-
-		m_ZoneArray.PutData(pMap->m_nZoneNumber, pMap);
-
-		szFullPath.Format(".\\MAP\\%s", pMap->m_MapName);
-		if (!file.Open(szFullPath, CFile::modeRead)
-			|| !pMap->LoadMap((HANDLE)file.m_hFile))
+		_ZONE_INFO *pZone = itr->second;
+		if (!pMap->Initialize(pZone))
 		{
-			AfxMessageBox("Unable to load SMD - " + szFullPath);
+			AfxMessageBox("Unable to load SMD - " + (CString)pZone->m_MapName);
+			delete pZone;
+			delete pMap;
 			m_ZoneArray.DeleteAllData();
-			if (file.m_hFile != CFile::hFileNull)
-				file.Close();
-			return FALSE;
+			return false;
 		}
-		file.Close();
+
+		delete pZone;
+		m_ZoneArray.PutData(pMap->m_nZoneNumber, pMap);
 
 		EVENT * pEvent = new EVENT;
 		if (!pEvent->LoadEvent(pMap->m_nZoneNumber)

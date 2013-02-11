@@ -21,226 +21,190 @@ static char THIS_FILE[]=__FILE__;
 
 extern CRITICAL_SECTION g_region_critical;
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
+SMDFile::SMDMap SMDFile::s_loadedMaps;
 
-C3DMap::C3DMap()
+SMDFile::SMDFile() : m_ppnEvent(NULL), m_fHeight(NULL),
+	m_nXRegion(0), m_nZRegion(0), m_nMapSize(0), m_fUnitDist(0.0f)
 {
-	m_nMapSize = 0;
-	m_fUnitDist = 0.0f;
-	m_fHeight = NULL;
-
-	m_nXRegion = 0;
-	m_nZRegion = 0;
-
-	m_ppRegion = NULL;
-	m_ppnEvent = NULL;
-	
-	m_nZoneNumber = 0;
-	m_bType = 0;
-	m_wBundle = 1;
-	m_sMaxUser = 150;	// Max user in Battlezone!!!
-	m_pMain = NULL;
 }
 
-void C3DMap::Initialize(_ZONE_INFO *pZone)
+C3DMap::C3DMap() :m_smdFile(NULL), m_ppRegion(NULL),
+	m_nZoneNumber(0), m_sMaxUser(150), m_wBundle(1),
+	m_bType(0)
+{
+	m_pMain = (CEbenezerDlg*)AfxGetApp()->GetMainWnd();
+}
+
+bool C3DMap::Initialize(_ZONE_INFO *pZone)
 {
 	m_nServerNo = pZone->m_nServerNo;
 	m_nZoneNumber = pZone->m_nZoneNumber;
-	m_MapName = pZone->m_MapName;
 	m_fInitX = pZone->m_fInitX;
 	m_fInitY = pZone->m_fInitY;
-	m_fInitZ = m_fInitZ;
+	m_fInitZ = pZone->m_fInitZ;
 	m_bType = pZone->m_bType;
-}
 
-C3DMap::~C3DMap()
-{
-	if( m_ppRegion ) {
-		for(int i=0; i< m_nXRegion; i++) {
-			delete[] m_ppRegion[i];
-			m_ppRegion[i] = NULL;
-		}
-		delete[] m_ppRegion;
-		m_ppRegion = NULL;
-	}
+	m_smdFile = SMDFile::Load(pZone->m_MapName);
 
-	if( m_fHeight ){
-		delete[] m_fHeight;
-	}
-
-	if( m_ppnEvent ) {
-		for( int i=0; i<m_nMapSize; i++ ) {
-			delete[] m_ppnEvent[i];
-			m_ppnEvent[i] = NULL;
-		}
-		delete[] m_ppnEvent;
-		m_ppnEvent = NULL;
-	}
-
-}
-
-BOOL C3DMap::LoadMap(HANDLE hFile)
-{
-	m_pMain = (CEbenezerDlg*)AfxGetApp()->GetMainWnd();
-
-	LoadTerrain( hFile );
-	m_N3ShapeMgr.Create((m_nMapSize - 1)*m_fUnitDist, (m_nMapSize-1)*m_fUnitDist);
-	if( !m_N3ShapeMgr.LoadCollisionData(hFile) )
-		return FALSE;
-
-	if(	(m_nMapSize - 1) * m_fUnitDist != m_N3ShapeMgr.Width() || 
-		(m_nMapSize - 1) * m_fUnitDist != m_N3ShapeMgr.Height() )
+	if (m_smdFile != NULL)
 	{
-		return FALSE;
+		m_ppRegion = new CRegion*[m_smdFile->m_nXRegion];
+		for (int i = 0; i < m_smdFile->m_nXRegion; i++)
+			m_ppRegion[i] = new CRegion[m_smdFile->m_nZRegion];
+
+		if (!LoadEvent())
+			return false;
 	}
+
+	return (m_smdFile != NULL);
+}
+
+SMDFile *SMDFile::Load(string mapName)
+{
+#ifdef WIN32 // case insensitive filenames, allowing for database inconsistency...
+	STRTOLOWER(mapName);
+#endif
+
+	// Look to see if that SMD file has been loaded already
+	SMDMap::iterator itr = s_loadedMaps.find(mapName);
+
+	// If it's been loaded already, we don't need to do anything.
+	if (itr != s_loadedMaps.end())
+		return itr->second;
+
+	// Map hasn't already been loaded
+	string filename = ".\\MAP\\" + mapName;
+
+	// Does this file exist/can it be opened?
+	FILE *fp = fopen(filename.c_str(), "rb");
+	if (fp == NULL)
+		return NULL;
+
+	// Try to load the file now.
+	SMDFile *smd = new SMDFile();
+	smd->m_MapName = mapName.c_str();
+	if (!smd->LoadMap(fp))
+	{
+		// Problem? Make sure we clean up after ourselves.
+		delete smd;
+		smd = NULL;
+	}
+	else
+	{
+		// Loaded fine, so now add it to the map.
+		s_loadedMaps.insert(make_pair(mapName, smd));
+	}
+
+	fclose(fp);
+	return smd;
+}
+
+bool SMDFile::LoadMap(FILE *fp)
+{
+	LoadTerrain(fp);
+
+	m_N3ShapeMgr.Create((m_nMapSize - 1)*m_fUnitDist, (m_nMapSize-1)*m_fUnitDist);
+	if (!m_N3ShapeMgr.LoadCollisionData(fp)
+		|| (m_nMapSize - 1) * m_fUnitDist != m_N3ShapeMgr.Width() 
+		|| (m_nMapSize - 1) * m_fUnitDist != m_N3ShapeMgr.Height() )
+		return false;
 
 	int mapwidth = (int)m_N3ShapeMgr.Width();
 
-	m_nXRegion = (int)(mapwidth/VIEW_DISTANCE) + 1;
-	m_nZRegion = (int)(mapwidth/VIEW_DISTANCE) + 1;
+	m_nXRegion = (int)(mapwidth / VIEW_DISTANCE) + 1;
+	m_nZRegion = (int)(mapwidth / VIEW_DISTANCE) + 1;
 
-	m_ppRegion = new CRegion*[m_nXRegion];
-	for(int i=0; i<m_nXRegion; i++) {
-		m_ppRegion[i] = new CRegion[m_nZRegion];
-	}
+	LoadObjectEvent(fp);
+	LoadMapTile(fp);
+	LoadRegeneEvent(fp);	
+	LoadWarpList(fp);
 
-	LoadObjectEvent(hFile);
-	LoadMapTile(hFile);
-	LoadRegeneEvent(hFile);		// 이건 내가 추가했슴
-	LoadWarpList(hFile);
-
-	if (!LoadEvent())
-		return FALSE;
-
-	return TRUE;
+	return true;
 }
 
-void C3DMap::LoadObjectEvent(HANDLE hFile)
+void SMDFile::LoadTerrain(FILE *fp)
 {
-	int 	iEventObjectCount = 0;
-	__Vector3 vPos(0,0,0);
-	DWORD	dwNum;
-	_OBJECT_EVENT* pEvent = NULL;
-
-	BYTE regene_point_counter_karus = 0;
-	BYTE regene_point_counter_elmo = 0;
-
-	ReadFile(hFile, &iEventObjectCount, 4, &dwNum, NULL);
-
-	for( int i=0; i<iEventObjectCount; i++)
-	{
-		pEvent = new _OBJECT_EVENT;
-		ReadFile(hFile, &(pEvent->sBelong), 4, &dwNum, NULL);				// 소속 : 0 -> 무소속
-		ReadFile(hFile, &(pEvent->sIndex), 2, &dwNum, NULL);				// Event Index
-		ReadFile(hFile, &(pEvent->sType), 2, &dwNum, NULL);					// 0 : bind point, 1,2 : gate, 3 : lever, 4 : flag lever, 5 : Warp point
-		ReadFile(hFile, &(pEvent->sControlNpcID), 2, &dwNum, NULL);
-		ReadFile(hFile, &(pEvent->sStatus), 2, &dwNum, NULL);
-		ReadFile(hFile, &(pEvent->fPosX), 4, &dwNum, NULL);
-		ReadFile(hFile, &(pEvent->fPosY), 4, &dwNum, NULL);
-		ReadFile(hFile, &(pEvent->fPosZ), 4, &dwNum, NULL);
-		pEvent->byLife = 1;
-
-		if( pEvent->sIndex <= 0 ) continue;
-		if( !m_ObjectEventArray.PutData(pEvent->sIndex, pEvent) ) {
-			TRACE("Object Event PutData Fail - %d\n", pEvent->sIndex );
-			delete pEvent;
-			pEvent = NULL;
-		}
-
-//		TRACE ("성래 요청 : %d , %d , %d , %d , %d \r\n", pEvent->sBelong, pEvent->sIndex, pEvent->sType, pEvent->sControlNpcID, pEvent->sStatus);
-	}
-}
-
-void C3DMap::LoadMapTile(HANDLE hFile)
-{
-	DWORD dwNum;
-
-	m_ppnEvent = new short*[m_nMapSize];
-	for(int a=0;a<m_nMapSize;a++)
-		m_ppnEvent[a] = new short[m_nMapSize];
-	for(int x=0;x<m_nMapSize;x++)
-		ReadFile(hFile, m_ppnEvent[x], sizeof(short)*m_nMapSize, &dwNum, NULL);
-}
-
-void C3DMap::LoadRegeneEvent(HANDLE hFile)	
-{
-	int iEventObjectCount = 0;
-
-	__Vector3 vPos(0,0,0);
-	DWORD	dwNum;
-	_REGENE_EVENT* pEvent = NULL;
-
-	ReadFile(hFile, &iEventObjectCount, 4, &dwNum, NULL);
-
-	for( int i=0; i<iEventObjectCount; i++)
-	{
-		pEvent = new _REGENE_EVENT;
-
-		pEvent->sRegenePoint = i;
-		ReadFile(hFile, &(pEvent->fRegenePosX), 4, &dwNum, NULL);	// 캐릭터 나타나는 지역의 왼아래쪽 구석 좌표 X
-		ReadFile(hFile, &(pEvent->fRegenePosY), 4, &dwNum, NULL);	// 캐릭터 나타나는 지역의 왼아래쪽 구석 좌표 Y
-		ReadFile(hFile, &(pEvent->fRegenePosZ), 4, &dwNum, NULL);	// 캐릭터 나타나는 지역의 왼아래쪽 구석 좌표 Z
-		ReadFile(hFile, &(pEvent->fRegeneAreaZ), 4, &dwNum, NULL);	// 캐릭터 나타나는 지역의 Z 축 길이 
-		ReadFile(hFile, &(pEvent->fRegeneAreaX), 4, &dwNum, NULL);	// 캐릭터 나타나는 지역의 X 축 길이
-
-		if( pEvent->sRegenePoint < 0 ) continue;
-
-		if( !m_ObjectRegeneArray.PutData(pEvent->sRegenePoint, pEvent) ) {
-			TRACE("Regene Event PutData Fail - %d\n", pEvent->sRegenePoint);
-			delete pEvent;
-			pEvent = NULL;
-		}
-
-		// TRACE("Num: %d , (x, z, y) : (%f, %f, %f) , length_x : %f  length_z : %f\n", i,
-		// pEvent->fRegenePosX, pEvent->fRegenePosZ, pEvent->fRegenePosY,
-		// pEvent->fRegeneAreaX, pEvent->fRegeneAreaZ);
-	}	
-	
-	//TRACE("\n\n");
-
-//	m_pMain->m_bMaxRegenePoint = iEventObjectCount;
-}
-
-void C3DMap::LoadWarpList(HANDLE hFile)
-{
-	int WarpCount = 0;
-	DWORD	dwNum;
-	_WARP_INFO* pWarp = NULL;
-
-	ReadFile(hFile, &WarpCount, 4, &dwNum, NULL);
-
-	for(int i=0; i<WarpCount; i++) {
-		pWarp = new _WARP_INFO;
-
-		ReadFile( hFile, pWarp, sizeof(_WARP_INFO),&dwNum, NULL );
-
-		if (pWarp->sWarpID == 0)
-		{
-			delete pWarp;
-			continue;
-		}
-
-		if( !m_WarpArray.PutData( pWarp->sWarpID, pWarp ) ) {
-			TRACE("Warp list PutData Fail - %d\n", pWarp->sWarpID);
-			delete pWarp;
-			pWarp = NULL;
-		}
-	}
-}
-
-void C3DMap::LoadTerrain(HANDLE hFile)
-{
-	DWORD dwRWC;
-	ReadFile(hFile, &m_nMapSize, sizeof(int), &dwRWC, NULL);	// 가로세로 정보가 몇개씩인가?
-	ReadFile(hFile, &m_fUnitDist, sizeof(float), &dwRWC, NULL);
+	fread(&m_nMapSize, sizeof(m_nMapSize), 1, fp);
+	fread(&m_fUnitDist, sizeof(m_fUnitDist), 1, fp);
 
 	m_fHeight = new float[m_nMapSize * m_nMapSize];
-	ReadFile(hFile, m_fHeight, sizeof(float) * m_nMapSize * m_nMapSize, &dwRWC, NULL);	// 높이값 읽어오기
+	fread(m_fHeight, sizeof(float) * m_nMapSize * m_nMapSize, 1, fp);
 }
 
-float C3DMap::GetHeight(float x, float y, float z)
+void SMDFile::LoadObjectEvent(FILE *fp)
+{
+	int iEventObjectCount = 0;
+	fread(&iEventObjectCount, sizeof(int), 1, fp);
+	for (int i = 0; i < iEventObjectCount; i++)
+	{
+		_OBJECT_EVENT* pEvent = new _OBJECT_EVENT;
+
+		fread(pEvent, sizeof(_OBJECT_EVENT) - sizeof(pEvent->byLife), 1, fp);
+		pEvent->byLife = 1;
+
+		if (pEvent->sIndex <= 0
+			|| !m_ObjectEventArray.PutData(pEvent->sIndex, pEvent))
+			delete pEvent;
+	}
+}
+
+void SMDFile::LoadMapTile(FILE *fp)
+{
+	m_ppnEvent = new short[m_nMapSize * m_nMapSize];
+	fread(m_ppnEvent, sizeof(short) * m_nMapSize * m_nMapSize, 1, fp);
+}
+
+void SMDFile::LoadRegeneEvent(FILE *fp)	
+{
+	int iEventObjectCount = 0;
+	fread(&iEventObjectCount, sizeof(iEventObjectCount), 1, fp);
+	for (int i = 0; i < iEventObjectCount; i++)
+	{
+		_REGENE_EVENT *pEvent = new _REGENE_EVENT;
+		fread(pEvent, sizeof(_REGENE_EVENT) - sizeof(pEvent->sRegenePoint), 1, fp);
+		pEvent->sRegenePoint = i;
+
+		if (pEvent->sRegenePoint < 0
+			|| !m_ObjectRegeneArray.PutData(pEvent->sRegenePoint, pEvent))
+			delete pEvent;
+	}	
+}
+
+void SMDFile::LoadWarpList(FILE *fp)
+{
+	int WarpCount = 0;
+
+	fread(&WarpCount, sizeof(WarpCount), 1, fp);
+	for (int i = 0; i < WarpCount; i++)
+	{
+		_WARP_INFO *pWarp = new _WARP_INFO;
+		fread(pWarp, sizeof(_WARP_INFO), 1, fp);
+
+		if (pWarp->sWarpID == 0
+			|| !m_WarpArray.PutData(pWarp->sWarpID, pWarp))
+			delete pWarp;
+	}
+}
+
+void SMDFile::GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries)
+{
+	foreach_stlmap (itr, m_WarpArray)
+	{
+		_WARP_INFO *pWarp = itr->second;
+		if (pWarp == NULL || (pWarp->sWarpID / 10) != warpGroup)
+			continue;
+		
+		warpEntries.insert(pWarp);
+	}
+}
+
+BOOL SMDFile::IsValidPosition(float x, float z, float y)
+{
+	// TO-DO: Implement more thorough check
+	return (x < m_N3ShapeMgr.Width() && z < m_N3ShapeMgr.Height());
+}
+
+float SMDFile::GetHeight(float x, float y, float z)
 {
 	int iX, iZ;
 	iX = (int)(x/m_fUnitDist);
@@ -318,7 +282,17 @@ float C3DMap::GetHeight(float x, float y, float z)
 	else return fYTerrain;
 }
 
-BOOL C3DMap::ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2)
+int SMDFile::GetEventID(float x, float z)
+{
+	int iX = (int)(x / m_fUnitDist);
+	int iZ = (int)(z / m_fUnitDist);
+	if (iX < 0 || iX >= m_nMapSize || iZ < 0 || iZ >= m_nMapSize)
+		return 0;
+
+	return m_ppnEvent[iX * m_nMapSize + iZ];
+}
+
+BOOL SMDFile::ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2)
 {
 	__Vector3	vec1(x1, y1, z1), vec2(x2, y2, z2);
 	__Vector3	vDir = vec2 - vec1;
@@ -330,9 +304,9 @@ BOOL C3DMap::ObjectCollision(float x1, float z1, float y1, float x2, float z2, f
 
 BOOL C3DMap::RegionItemAdd( int rx, int rz, _ZONE_ITEM* pItem )
 {
-	if( rx<0 || rz<0 || rx>=m_nXRegion || rz>=m_nZRegion )
-		return FALSE;
-	if( !pItem )
+	if (rx < 0 || rz < 0 
+		|| rx >= GetXRegionMax() || rz >= GetZRegionMax()
+		|| pItem == NULL)
 		return FALSE;
 
 	EnterCriticalSection( &g_region_critical );
@@ -350,9 +324,10 @@ BOOL C3DMap::RegionItemAdd( int rx, int rz, _ZONE_ITEM* pItem )
 
 BOOL C3DMap::RegionItemRemove( int rx, int rz, int bundle_index, int itemid, int count )
 {
-	if( rx<0 || rz<0 || rx>=m_nXRegion || rz>=m_nZRegion )
+	if (rx < 0 || rz < 0 
+		|| rx >= GetXRegionMax() || rz >= GetZRegionMax())
 		return FALSE;
-
+	
 	_ZONE_ITEM* pItem = NULL;
 	CRegion	*region = NULL;
 	BOOL bFind = FALSE;
@@ -387,7 +362,8 @@ BOOL C3DMap::RegionItemRemove( int rx, int rz, int bundle_index, int itemid, int
 
 void C3DMap::RegionUserAdd(int rx, int rz, int uid)
 {
-	if( rx<0 || rz<0 || rx>=m_nXRegion || rz>=m_nZRegion )
+	if (rx < 0 || rz < 0 
+		|| rx >= GetXRegionMax() || rz >= GetZRegionMax())
 		return;
 
 	int *pInt = NULL;
@@ -405,7 +381,8 @@ void C3DMap::RegionUserAdd(int rx, int rz, int uid)
 
 BOOL C3DMap::RegionUserRemove(int rx, int rz, int uid)
 {
-	if( rx<0 || rz<0 || rx>=m_nXRegion || rz>=m_nZRegion )
+	if (rx < 0 || rz < 0 
+		|| rx >= GetXRegionMax() || rz >= GetZRegionMax())
 		return FALSE;
 
 	CRegion	*region = NULL;
@@ -425,7 +402,8 @@ BOOL C3DMap::RegionUserRemove(int rx, int rz, int uid)
 
 void C3DMap::RegionNpcAdd(int rx, int rz, int nid)
 {
-	if( rx<0 || rz<0 || rx>=m_nXRegion || rz>=m_nZRegion )
+	if (rx < 0 || rz < 0 
+		|| rx >= GetXRegionMax() || rz >= GetZRegionMax())
 		return;
 
 	int *pInt = NULL;
@@ -441,7 +419,8 @@ void C3DMap::RegionNpcAdd(int rx, int rz, int nid)
 
 BOOL C3DMap::RegionNpcRemove(int rx, int rz, int nid)
 {
-	if( rx<0 || rz<0 || rx>=m_nXRegion || rz>=m_nZRegion )
+	if (rx < 0 || rz < 0 
+		|| rx >= GetXRegionMax() || rz >= GetZRegionMax())
 		return FALSE;
 
 	CRegion	*region = NULL;
@@ -459,39 +438,30 @@ BOOL C3DMap::RegionNpcRemove(int rx, int rz, int nid)
 
 BOOL C3DMap::CheckEvent(float x, float z, CUser* pUser)
 {
-	CGameEvent* pEvent = NULL;
-	int iX, iZ, event_index = 0;
-
-	iX = (int)(x/m_fUnitDist);
-	iZ = (int)(z/m_fUnitDist);
-	if( iX < 0 || iX >= m_nMapSize || iZ < 0 || iZ >= m_nMapSize )
-		return FALSE;
-
-	event_index = m_ppnEvent[iX][iZ];
+	int event_index = m_smdFile->GetEventID(x, z);
 	if( event_index < 2 )
 		return FALSE;
 
-	pEvent = m_EventArray.GetData( event_index );
-	if( pEvent ) {
-		if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_BATTLE && m_pMain->m_byBattleOpen != NATION_BATTLE ) return FALSE;
-		if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen != SNOW_BATTLE ) return FALSE;
-		if( pUser->m_pUserData->m_bNation == KARUS && pEvent->m_iExec[0] == ZONE_BATTLE )	{
-			if( m_pMain->m_sKarusCount > MAX_BATTLE_ZONE_USERS )	{
-				TRACE("### BattleZone karus full users = %d, name=%s \n", m_pMain->m_sKarusCount, pUser->m_pUserData->m_id);
-				return FALSE;
-			}
-		}
-		else if( pUser->m_pUserData->m_bNation == ELMORAD && pEvent->m_iExec[0] == ZONE_BATTLE )	{
-			if( m_pMain->m_sElmoradCount > MAX_BATTLE_ZONE_USERS )	{
-				TRACE("### BattleZone elmorad full users = %d, name=%s \n", m_pMain->m_sElmoradCount, pUser->m_pUserData->m_id);
-				return FALSE;
-			}
-		}
-		pEvent->RunEvent( pUser );
-		return TRUE;
-	}
+	CGameEvent *pEvent = m_EventArray.GetData( event_index );
+	if (pEvent == NULL)
+		return FALSE;
 
-	return FALSE;
+	if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_BATTLE && m_pMain->m_byBattleOpen != NATION_BATTLE ) return FALSE;
+	if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen != SNOW_BATTLE ) return FALSE;
+	if( pUser->m_pUserData->m_bNation == KARUS && pEvent->m_iExec[0] == ZONE_BATTLE )	{
+		if( m_pMain->m_sKarusCount > MAX_BATTLE_ZONE_USERS )	{
+			TRACE("### BattleZone karus full users = %d, name=%s \n", m_pMain->m_sKarusCount, pUser->m_pUserData->m_id);
+			return FALSE;
+		}
+	}
+	else if( pUser->m_pUserData->m_bNation == ELMORAD && pEvent->m_iExec[0] == ZONE_BATTLE )	{
+		if( m_pMain->m_sElmoradCount > MAX_BATTLE_ZONE_USERS )	{
+			TRACE("### BattleZone elmorad full users = %d, name=%s \n", m_pMain->m_sElmoradCount, pUser->m_pUserData->m_id);
+			return FALSE;
+		}
+	}
+	pEvent->RunEvent( pUser );
+	return TRUE;
 }
 
 BOOL C3DMap::LoadEvent()
@@ -500,10 +470,29 @@ BOOL C3DMap::LoadEvent()
 	return EventSet.Read();
 }
 
-BOOL C3DMap::IsValidPosition(float x, float z, float y)
+C3DMap::~C3DMap()
 {
-	if( x >= m_N3ShapeMgr.Width() ) return FALSE;
-	if( z >= m_N3ShapeMgr.Width() ) return FALSE;
+	if (m_ppRegion != NULL)
+	{
+		for (int i = 0; i <= GetXRegionMax(); i++)
+			delete [] m_ppRegion[i];
 
-	return TRUE;
+		delete [] m_ppRegion;
+		m_ppRegion = NULL;
+	}
+}
+
+SMDFile::~SMDFile()
+{
+	if (m_ppnEvent != NULL)
+	{
+		delete [] m_ppnEvent;
+		m_ppnEvent = NULL;
+	}
+
+	if (m_fHeight != NULL)
+	{
+		delete[] m_fHeight;
+		m_fHeight = NULL;
+	}
 }
