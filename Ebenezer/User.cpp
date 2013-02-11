@@ -159,41 +159,15 @@ void CUser::Initialize()
 	CIOCPSocket2::Initialize();
 }
 
-// Cryption
 void CUser::Make_public_key()
 {
-	int out_flag = 0;
+	// because of their sucky encryption method, 0 means it effectively won't be encrypted. 
+	// We don't want that happening...
 	do
 	{
-		m_Public_key = rand();
-		m_Public_key <<= 8;
-
-		m_Public_key |= rand();
-		m_Public_key <<= 8;
-
-		m_Public_key |= rand();
-		m_Public_key <<= 8;
-
-		m_Public_key |= rand();
-		m_Public_key <<= 8;
-
-		m_Public_key |= rand();
-		m_Public_key <<= 8;
-
-		m_Public_key |= rand();
-		m_Public_key <<= 8;
-
-		m_Public_key |= rand();
-		m_Public_key <<= 8;
-
-		m_Public_key |= rand();
-
-		if (m_Public_key != 0)
-			out_flag = 1;
-
-	} while( !out_flag );
+		m_Public_key = (uint64)rand() << 32 | rand();
+	} while (m_Public_key == 0); 
 }
-///~
 
 void CUser::CloseProcess()
 {
