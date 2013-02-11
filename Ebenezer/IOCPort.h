@@ -13,7 +13,7 @@
 
 #include <list>
 
-typedef  std::list<int>  SidList;
+typedef  std::list<unsigned short>  SidList;
 
 class CIOCPSocket2;
 

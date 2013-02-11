@@ -120,7 +120,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 	pUser->m_sPartyIndex = m_sPartyIndex;
 
 	result.Initialize(WIZ_PARTY);
-	result << uint8(PARTY_PERMIT) << uint16(GetSocketID()) << m_pUserData->m_id;
+	result << uint8(PARTY_PERMIT) << GetSocketID() << m_pUserData->m_id;
 	pUser->Send(&result);
 	return;
 
@@ -196,7 +196,7 @@ void CUser::PartyInsert()
 		StateChangeServerDirect(2, 1);
 
 	result.clear();
-	result	<< uint8(PARTY_INSERT) << uint16(GetSocketID())
+	result	<< uint8(PARTY_INSERT) << GetSocketID()
 			<< m_pUserData->m_id
 			<< m_iMaxHp << m_pUserData->m_sHp
 			<< getLevel() << m_pUserData->m_sClass
@@ -204,7 +204,7 @@ void CUser::PartyInsert()
 	m_pMain->Send_PartyMember(m_sPartyIndex, &result);
 
 	result.Initialize(AG_USER_PARTY);
-	result	<< uint8(PARTY_INSERT) << pParty->wIndex << byIndex << uint16(GetSocketID());
+	result	<< uint8(PARTY_INSERT) << pParty->wIndex << byIndex << GetSocketID();
 	m_pMain->Send_AIServer(&result);
 }
 

@@ -11,7 +11,7 @@ void CUser::SelNationToAgent(Packet & pkt)
 		return;
 	}
 
-	result << uint16(GetSocketID()) << m_strAccountID << nation; 
+	result << GetSocketID() << m_strAccountID << nation; 
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
@@ -24,7 +24,7 @@ void CUser::RecvSelNation(Packet & pkt)
 void CUser::AllCharInfoToAgent()
 {
 	Packet result(WIZ_ALLCHAR_INFO_REQ);
-	result << uint16(GetSocketID()) << m_strAccountID; 
+	result << GetSocketID() << m_strAccountID; 
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
@@ -55,7 +55,7 @@ void CUser::ChangeHair(Packet & pkt)
 	pkt.SByte();
 	pkt >> bOpcode >> strUserID >> bFace >> nHair;
 
-	result << uint16(GetSocketID()) << bOpcode << m_strAccountID << strUserID << bFace << nHair;
+	result << GetSocketID() << bOpcode << m_strAccountID << strUserID << bFace << nHair;
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
@@ -103,9 +103,8 @@ void CUser::NewCharToAgent(Packet & pkt)
 		return;
 	}
 	
-	result	<< uint16(GetSocketID())
-			<< m_strAccountID
-			<< bCharIndex << strUserID << bRace << sClass << bFace << nHair
+	result	<< GetSocketID() << m_strAccountID << bCharIndex 
+			<< strUserID << bRace << sClass << bFace << nHair
 			<< str << sta << dex << intel << cha;
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
@@ -134,8 +133,7 @@ void CUser::DelCharToAgent(Packet & pkt)
 	}
 
 	// Send packet to Aujard
-	result	<< uint16(GetSocketID())
-			<< m_strAccountID << bCharIndex << strUserID << strSocNo;
+	result	<< GetSocketID() << m_strAccountID << bCharIndex << strUserID << strSocNo;
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
@@ -189,7 +187,7 @@ void CUser::SelCharToAgent(Packet & pkt)
 		return;
 	}
 
-	result << uint16(GetSocketID()) << m_strAccountID << strUserID << bInit;
+	result << GetSocketID() << m_strAccountID << strUserID << bInit;
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
@@ -260,7 +258,7 @@ void CUser::SelectCharacter(Packet & pkt)
 		else if (getZoneID() > 2)
 		{
 			result.Initialize(WIZ_KNIGHTS_PROCESS);
-			result << uint8(KNIGHTS_LIST_REQ) << uint16(GetSocketID()) << m_pUserData->m_bKnights;
+			result << uint8(KNIGHTS_LIST_REQ) << GetSocketID() << m_pUserData->m_bKnights;
 			m_pMain->m_LoggerSendQueue.PutData(&result);
 		}
 	}
@@ -295,7 +293,7 @@ void CUser::SetLogInInfoToDB(BYTE bInit)
 	strcpy_s( strClientIP, sizeof(strClientIP),inet_ntoa(addr.sin_addr) );
 
 	Packet result(WIZ_LOGIN_INFO);
-	result	<< uint16(GetSocketID()) << m_strAccountID << m_pUserData->m_id 
+	result	<< GetSocketID() << m_strAccountID << m_pUserData->m_id 
 			<< pInfo->strServerIP << uint16(_LISTEN_PORT) << strClientIP 
 			<< bInit;
 	m_pMain->m_LoggerSendQueue.PutData(&result);

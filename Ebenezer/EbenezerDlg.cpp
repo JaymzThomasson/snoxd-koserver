@@ -1354,7 +1354,7 @@ void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Pac
 			pUser->GetState() != STATE_GAMESTART)
 			continue;
 
-		pkt << uint8(0) << uint16(pUser->GetSocketID());
+		pkt << uint8(0) << pUser->GetSocketID();
 		pUser->GetUserInfo(pkt);
 		t_count++;
 	}
@@ -1378,7 +1378,7 @@ void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, int region_x, int region_z, P
 			pUser->GetState() != STATE_GAMESTART)
 			continue;
 
-		pkt << uint16(pUser->GetSocketID());
+		pkt << pUser->GetSocketID();
 		t_count++;
 	}
 
@@ -1422,7 +1422,7 @@ void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, int region_x, int regio
 			|| !pUser->isMerchanting())
 			continue;
 
-		pkt << uint16(pUser->GetSocketID())
+		pkt << pUser->GetSocketID()
 			<< uint8(0) 
 			<< uint8(0); // Type of merchant [normal - gold]
 

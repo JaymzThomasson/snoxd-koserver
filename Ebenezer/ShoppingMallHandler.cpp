@@ -42,7 +42,7 @@ void CUser::HandleStoreClose()
 {
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_CLOSE));
 	m_bStoreOpen = false;
-	result << uint16(GetSocketID());
+	result << GetSocketID();
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 

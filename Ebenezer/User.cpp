@@ -482,7 +482,7 @@ void CUser::ChangeFame(uint8 bFame)
 	Packet result(WIZ_AUTHORITY_CHANGE, uint8(COMMAND_AUTHORITY));
 
 	m_pUserData->m_bFame = CHIEF;
-	result << uint16(GetSocketID()) << getFame();
+	result << GetSocketID() << getFame();
 	SendToRegion(&result);
 }
 
@@ -515,7 +515,7 @@ void CUser::SkillDataSave(Packet & pkt)
 	if (sCount == 0 || sCount > 64)
 		return;
 
-	result	<< uint16(GetSocketID()) << uint8(SKILL_DATA_SAVE) << sCount;
+	result	<< GetSocketID() << uint8(SKILL_DATA_SAVE) << sCount;
 	for (int i = 0; i < sCount; i++)
 		result << pkt.read<uint32>();
 	
@@ -525,7 +525,7 @@ void CUser::SkillDataSave(Packet & pkt)
 void CUser::SkillDataLoad()
 {
 	Packet result(WIZ_SKILLDATA);
-	result << uint16(GetSocketID()) << uint8(SKILL_DATA_LOAD);
+	result << GetSocketID() << uint8(SKILL_DATA_LOAD);
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
@@ -559,7 +559,7 @@ void CUser::UserDataSaveToAgent()
 		return;
 
 	Packet result(WIZ_DATASAVE);
-	result << uint16(GetSocketID()) << m_pUserData->m_Accountid << m_pUserData->m_id;
+	result << GetSocketID() << m_pUserData->m_Accountid << m_pUserData->m_id;
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
@@ -579,7 +579,7 @@ void CUser::LogOut()
 		return; 
 
 	Packet result(WIZ_LOGOUT);
-	result << uint16(GetSocketID()) << m_pUserData->m_Accountid << m_pUserData->m_id;
+	result << GetSocketID() << m_pUserData->m_Accountid << m_pUserData->m_id;
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 
 	result.SetOpcode(AG_USER_LOG_OUT); // same packet, just change the opcode
@@ -608,7 +608,7 @@ void CUser::SendMyInfo()
 	result.Initialize(WIZ_MYINFO);
 
 	result.SByte(); // character name has a single byte length
-	result	<< uint16(GetSocketID())
+	result	<< GetSocketID()
 			<< m_pUserData->m_id
 			<< GetSPosX() << GetSPosZ() << GetSPosY()
 			<< getNation() 
@@ -889,7 +889,7 @@ void CUser::RemoveRegion(int del_x, int del_z)
 		return;
 
 	Packet result(WIZ_USER_INOUT, uint8(USER_OUT));
-	result << uint8(0) << uint16(GetSocketID());
+	result << uint8(0) << GetSocketID();
 	m_pMain->Send_OldRegions(&result, del_x, del_z, pMap, m_RegionX, m_RegionZ);
 }
 
@@ -901,7 +901,7 @@ void CUser::InsertRegion(int insert_x, int insert_z)
 	if (pMap == NULL)
 		return;
 
-	result << uint16(GetSocketID());
+	result << GetSocketID();
 	GetUserInfo(result);
 	m_pMain->Send_NewRegions(&result, insert_x, insert_z, pMap, m_RegionX, m_RegionZ);
 }
@@ -918,7 +918,7 @@ void CUser::RequestUserIn(Packet & pkt)
 		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART)
 			continue;
 
-		result << uint8(0) << uint16(pUser->GetSocketID());
+		result << uint8(0) << pUser->GetSocketID();
 		GetUserInfo(result);
 		online_count++;
 	}
@@ -1226,7 +1226,7 @@ void CUser::LevelChange(short level, BYTE type )
 	Send2AI_UserUpdateInfo();
 
 	Packet result(WIZ_LEVEL_CHANGE);
-	result	<< uint16(GetSocketID())
+	result	<< GetSocketID()
 			<< getLevel() << m_pUserData->m_sPoints << m_pUserData->m_bstrSkill[0]
 			<< m_iMaxExp << m_pUserData->m_iExp
 			<< m_iMaxHp << m_pUserData->m_sHp 
@@ -1238,7 +1238,7 @@ void CUser::LevelChange(short level, BYTE type )
 	{
 		// TO-DO: Move this to party specific code
 		result.Initialize(WIZ_PARTY);
-		result << uint8(PARTY_LEVELCHANGE) << uint16(GetSocketID()) << getLevel();
+		result << uint8(PARTY_LEVELCHANGE) << GetSocketID() << getLevel();
 		m_pMain->Send_PartyMember(m_sPartyIndex, &result);
 	}
 }
@@ -1286,7 +1286,7 @@ void CUser::HpChange(int amount, int type, bool attack)		// type : Received From
 	if (type == 0)
 	{
 		result.Initialize(AG_USER_SET_HP);
-		result << uint16(GetSocketID()) << uint32(m_pUserData->m_sHp);
+		result << GetSocketID() << uint32(m_pUserData->m_sHp);
 		m_pMain->Send_AIServer(&result);
 	}
 
@@ -1319,7 +1319,7 @@ void CUser::SendPartyHPUpdate()
 {
 	Packet result(WIZ_PARTY);
 	result	<< uint8(PARTY_HPCHANGE)
-			<< uint16(GetSocketID())
+			<< GetSocketID()
 			<< m_iMaxHp << m_pUserData->m_sHp
 			<< m_iMaxMp << m_pUserData->m_sMp;
 	m_pMain->Send_PartyMember(m_sPartyIndex, &result);
@@ -1329,7 +1329,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 {
 	Packet result(initialInfo ? AG_USER_INFO : AG_USER_UPDATE);
 
-	result	<< uint16(GetSocketID())
+	result	<< GetSocketID()
 			<< m_pUserData->m_id
 			<< getZoneID() << getNation() << getLevel()
 			<< m_pUserData->m_sHp << m_pUserData->m_sMp
@@ -1719,7 +1719,7 @@ void CUser::StateChange(Packet & pkt)
 	}
 
 	Packet result(WIZ_STATE_CHANGE);
-	result << uint16(GetSocketID()) << type << nBuff; /* hmm, it should probably be nBuff, not sure how transformations are to be handled so... otherwise, it's correct either way */
+	result << GetSocketID() << type << nBuff; /* hmm, it should probably be nBuff, not sure how transformations are to be handled so... otherwise, it's correct either way */
 	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
 }
 
@@ -1816,7 +1816,7 @@ void CUser::UserLookChange(int pos, int itemid, int durability)
 		return;
 
 	Packet result(WIZ_USERLOOK_CHANGE);
-	result << uint16(GetSocketID()) << uint8(pos) << itemid << uint16(durability);
+	result << GetSocketID() << uint8(pos) << itemid << uint16(durability);
 	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this);
 }
 
@@ -1885,7 +1885,7 @@ void CUser::UpdateGameWeather(Packet & pkt)
 void CUser::SendUserInfo(Packet & result)
 {
 	result.DByte(); // string is double byte
-	result	<< uint16(GetSocketID())
+	result	<< GetSocketID()
 			<< m_pUserData->m_id << getZoneID() << getNation() << getLevel()
 			<< m_pUserData->m_sHp << m_pUserData->m_sMp 
 			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
@@ -2040,7 +2040,7 @@ void CUser::LoyaltyDivide(short tid)
 void CUser::Dead()
 {
 	Packet result(WIZ_DEAD);
-	result << uint16(GetSocketID());
+	result << GetSocketID();
 	SendToRegion(&result);
 
 	m_bResHpType = USER_DEAD;
@@ -2656,9 +2656,9 @@ void CUser::Type3AreaDuration(float currenttime)
 			{
 				result.clear();
 				result	<< uint8(MAGIC_EFFECTING) << m_iAreaMagicID
-						<< uint16(GetSocketID()) << uint16(i)
+						<< GetSocketID() << uint16(i)
 						<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
-				m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
+				SendToRegion(&result);
 			}
 		}
 
@@ -2674,9 +2674,9 @@ void CUser::Type3AreaDuration(float currenttime)
 
 	result.clear();
 	result	<< uint8(MAGIC_EFFECTING) << m_iAreaMagicID
-			<< uint16(GetSocketID()) << uint16(GetSocketID())
+			<< GetSocketID() << GetSocketID()
 			<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
-	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
+	SendToRegion(&result);
 }
 
 void CUser::InitType4()
@@ -3346,12 +3346,12 @@ void CUser::BlinkTimeCheck(float currenttime)
 	StateChangeServerDirect(3, ABNORMAL_NORMAL);
 
 	Packet result(AG_USER_REGENE);
-	result	<< uint16(GetSocketID()) << m_pUserData->m_sHp;
+	result	<< GetSocketID() << m_pUserData->m_sHp;
 	m_pMain->Send_AIServer(&result);
 
 
 	result.Initialize(AG_USER_INOUT);
-	result	<< uint8(USER_REGENE) << uint16(GetSocketID())
+	result	<< uint8(USER_REGENE) << GetSocketID()
 			<< m_pUserData->m_id
 			<< m_pUserData->m_curx << m_pUserData->m_curz;
 	m_pMain->Send_AIServer(&result);
@@ -3521,7 +3521,7 @@ void CUser::OnDeath()
 void CUser::SendDeathAnimation()
 {
 	Packet result(WIZ_DEAD);
-	result << uint16(GetSocketID());
+	result << GetSocketID();
 	SendToRegion(&result);
 }
 
@@ -3529,7 +3529,7 @@ void CUser::SendDeathAnimation()
 void CUser::SendClanUserStatusUpdate(bool bToRegion /*= true*/)
 {
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MODIFY_FAME));
-	result	<< uint8(1) << uint16(GetSocketID()) 
+	result	<< uint8(1) << GetSocketID() 
 			<< m_pUserData->m_bKnights << m_pUserData->m_bFame;
 
 	// TO-DO: Make this region code user-specific to perform faster.
@@ -3545,7 +3545,7 @@ void CUser::SendPartyStatusUpdate(uint8 bStatus, uint8 bResult /*= 0*/)
 		return;
 
 	Packet result(WIZ_PARTY, uint8(PARTY_STATUSCHANGE));
-	result << uint16(GetSocketID()) << bStatus << bResult;
+	result << GetSocketID() << bStatus << bResult;
 	m_pMain->Send_PartyMember(m_sPartyIndex, &result);
 }
 
@@ -3554,6 +3554,6 @@ void CUser::HandleHelmet(Packet & pkt)
 	Packet result(WIZ_HELMET);
 	uint8 type = pkt.read<uint8>();
 	// to-do: store helmet type
-	result << type << uint16(m_Sid) << uint16(0);
+	result << type << GetSocketID() << uint16(0);
 	SendToRegion(&result);
 }

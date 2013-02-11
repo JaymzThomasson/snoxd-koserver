@@ -47,8 +47,8 @@ void CUser::ExchangeReq(Packet & pkt)
 	m_sExchangeUser = destid;
 	pUser->m_sExchangeUser = m_Sid;
 
-	result << uint8(EXCHANGE_REQ) << uint16(m_Sid);
-	pUser->Send( &result );
+	result << uint8(EXCHANGE_REQ) << GetSocketID();
+	pUser->Send(&result);
 	return;
 
 fail_return:

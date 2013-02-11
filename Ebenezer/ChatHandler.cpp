@@ -14,14 +14,13 @@ void CUser::Chat(Packet & pkt)
 	if (chatstr.empty() || chatstr.size() >= 128)
 		return;
 
-
 #if 0 // Removed this - all it seems to do is cause chat to break for GMs (is it 19xx+ only?)
 	if( isGM() && type == GENERAL_CHAT)
 		type = 0x14;
 #endif
 
 	uint8 bNation = getNation();
-	int16 sessID = int16(GetSocketID());
+	uint16 sessID = GetSocketID();
 
 	// Handle GM notice & announcement commands
 	if (type == PUBLIC_CHAT || type == ANNOUNCEMENT_CHAT)

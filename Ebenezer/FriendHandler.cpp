@@ -23,7 +23,7 @@ void CUser::FriendProcess(Packet & pkt)
 void CUser::FriendRequest()
 {
 	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REQUEST));
-	result << uint16(GetSocketID());
+	result << GetSocketID();
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
@@ -40,9 +40,9 @@ void CUser::FriendModify(Packet & pkt)
 		return;
 
 	Packet result(WIZ_FRIEND_PROCESS, opcode);
-	result << uint16(GetSocketID());
+	result << GetSocketID();
 	if (opcode == FRIEND_ADD)
-		result << uint16(pUser->GetSocketID());
+		result << pUser->GetSocketID();
 
 	result.SByte();
 	result << strUserID;

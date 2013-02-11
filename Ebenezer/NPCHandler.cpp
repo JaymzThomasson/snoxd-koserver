@@ -406,7 +406,7 @@ void CUser::ClassChange(Packet & pkt)
 	{
 		// TO-DO: Move this somewhere better.
 		result.SetOpcode(WIZ_PARTY);
-		result << uint8(PARTY_CLASSCHANGE) << uint16(GetSocketID()) << uint16(classcode);
+		result << uint8(PARTY_CLASSCHANGE) << GetSocketID() << uint16(classcode);
 		m_pMain->Send_PartyMember(m_sPartyIndex, &result);
 	}
 }

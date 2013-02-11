@@ -39,8 +39,8 @@ public:
 				 LPCTSTR lpszSocketAddress = NULL );
 	BOOL Accept( SOCKET listensocket, struct sockaddr* addr, int* len );
 
-	__forceinline int GetSocketID() { return m_Sid; };
-	__forceinline void SetSocketID(int sid) { m_Sid = sid; };
+	__forceinline uint16 GetSocketID() { return m_Sid; };
+	__forceinline void SetSocketID(uint16 sid) { m_Sid = sid; };
 	__forceinline HANDLE GetSocketHandle() { return (HANDLE)m_Socket; };
 	__forceinline BYTE GetState() { return m_State; };
 	__forceinline BYTE GetSockType() { return m_Type; };
@@ -75,7 +75,7 @@ protected:
 
 	BYTE			m_Type;
 	BYTE			m_State;
-	int			m_Sid;
+	uint16			m_Sid;
 	LPCTSTR		m_ConnectAddress;
 
 	// Cryption
