@@ -169,13 +169,4 @@ void EVENT::Parsing(char *pBuf)
 void EVENT::DeleteAll()
 {
 	m_arEvent.DeleteAllData();
-
-/*
-	for( int i = 0; i < m_arEvent.GetSize(); i++)
-	{
-		if( m_arEvent[i] ) delete m_arEvent[i];
-	}
-
-	m_arEvent.RemoveAll();
-*/
 }

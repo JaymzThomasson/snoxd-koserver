@@ -505,25 +505,6 @@ BOOL CEbenezerDlg::DestroyWindow()
 		CloseHandle(m_hMMFile);
 	}
 
-	m_AISocketArray.DeleteAllData();
-	m_arNpcArray.DeleteAllData();
-	m_ZoneArray.DeleteAllData();
-	m_ItemtableArray.DeleteAllData();
-	m_MagictableArray.DeleteAllData();
-	m_Magictype1Array.DeleteAllData();
-	m_Magictype2Array.DeleteAllData();
-	m_Magictype3Array.DeleteAllData();
-	m_Magictype4Array.DeleteAllData();
-	m_Magictype5Array.DeleteAllData();
-	m_Magictype8Array.DeleteAllData();
-	m_CoefficientArray.DeleteAllData();
-	m_PartyArray.DeleteAllData();
-	m_KnightsArray.DeleteAllData();
-	m_HomeArray.DeleteAllData();
-	m_StartPositionArray.DeleteAllData();
-	m_Event.DeleteAllData();
-	m_ServerResourceArray.DeleteAllData();
-
 	if (m_GameDB.IsOpen())
 		m_GameDB.Close();
 

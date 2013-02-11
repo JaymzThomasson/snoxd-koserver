@@ -42,7 +42,6 @@ CRoomEvent::CRoomEvent()
 
 CRoomEvent::~CRoomEvent()
 {
-	m_mapRoomNpcArray.DeleteAllData();
 }
 
 void CRoomEvent::Initialize()

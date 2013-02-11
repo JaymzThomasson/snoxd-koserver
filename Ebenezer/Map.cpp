@@ -490,10 +490,6 @@ C3DMap::~C3DMap()
 
 SMDFile::~SMDFile()
 {
-	m_ObjectEventArray.DeleteAllData();
-	m_ObjectRegeneArray.DeleteAllData();
-	m_WarpArray.DeleteAllData();
-
 	if (m_ppnEvent != NULL)
 	{
 		delete [] m_ppnEvent;
