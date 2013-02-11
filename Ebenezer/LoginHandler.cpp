@@ -16,7 +16,7 @@ void CUser::VersionCheck(Packet & pkt)
 	Send(&result);
 
 	// Enable encryption
-	m_CryptionFlag = 1;
+	m_CryptionFlag = true;
 }
 
 void CUser::LoginProcess(Packet & pkt)

@@ -21,24 +21,16 @@ void bb() {};		// nop function
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CIOCPSocket2::CIOCPSocket2() : m_remaining(0)
+CIOCPSocket2::CIOCPSocket2() : m_remaining(0), m_Socket(INVALID_SOCKET),
+	m_pIOCPort(NULL), m_Type(TYPE_ACCEPT), m_CryptionFlag(false), m_Sen_val(0), m_Rec_val(0)
 {
 	m_pBuffer = new CCircularBuffer(SOCKET_BUFF_SIZE);
-	m_Socket = INVALID_SOCKET;
-
-	m_pIOCPort = NULL;
-	m_Type = TYPE_ACCEPT;
-
-	// Cryption
-	m_CryptionFlag = 0;
-	m_Sen_val = 0;
 }
 
 CIOCPSocket2::~CIOCPSocket2()
 {
 	delete m_pBuffer;
 }
-
 
 BOOL CIOCPSocket2::Create( UINT nSocketPort, int nSocketType, long lEvent, LPCTSTR lpszSocketAddress)
 {
@@ -135,7 +127,7 @@ int CIOCPSocket2::Send(char *pBuf, long length)
 	BYTE pTIBuf[MAX_SEND_SIZE], pTOutBuf[MAX_SEND_SIZE];
 	int index = 0;
 
-	if( m_CryptionFlag )
+	if (isCryptoEnabled())
 	{
 		unsigned short len = (unsigned short)(length + sizeof(WORD)+2+1);
 
@@ -241,7 +233,7 @@ int CIOCPSocket2::Send(Packet *result)
 	int index = 0;
 	uint16 length = (uint16)result->size() + 1;
 
-	if( m_CryptionFlag )
+	if (isCryptoEnabled())
 	{
 		if (length + 5 >= MAX_SEND_SIZE) // crypto
 			return 0;
@@ -485,7 +477,7 @@ void CIOCPSocket2::ReceivedData(int length)
 		m_pBuffer->HeadIncrease(m_remaining);
 
 		// Is the packet encrypted? If so, decrypt it first.
-		if (m_CryptionFlag)
+		if (isCryptoEnabled())
 		{
 			int result = jct.JvDecryptionWithCRC32(m_remaining, in_stream, out_stream);
 			if (m_remaining < 4 // invalid packet (server packets have a checksum)
@@ -613,7 +605,7 @@ void CIOCPSocket2::Parsing(Packet & pkt)
 void CIOCPSocket2::Initialize()
 {
 	m_wPacketSerial = 0;
-	m_CryptionFlag = 0;
+	m_CryptionFlag = false;
 }
 
 void CIOCPSocket2::SendCompressingPacket(Packet *pkt)

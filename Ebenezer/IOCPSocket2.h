@@ -44,7 +44,7 @@ public:
 	__forceinline HANDLE GetSocketHandle() { return (HANDLE)m_Socket; };
 	__forceinline BYTE GetState() { return m_State; };
 	__forceinline BYTE GetSockType() { return m_Type; };
-	__forceinline bool isCryptoEnabled() { return m_CryptionFlag == TRUE; };
+	__forceinline bool isCryptoEnabled() { return m_CryptionFlag; };
 
 	virtual void CloseProcess();
 	virtual void Parsing(Packet & pkt);
@@ -80,7 +80,7 @@ protected:
 
 	// Cryption
 	CJvCryption			jct;
-	int					m_CryptionFlag;
+	bool				m_CryptionFlag;
 	T_KEY				m_Public_key;
 	DWORD				m_Sen_val;
 	uint32				m_Rec_val;

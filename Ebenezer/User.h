@@ -298,7 +298,6 @@ public:
 	void SelectMsg(EXEC* pExec);
 	void SendNpcSay(EXEC* pExec);
 	BOOL CheckClass(short class1, short class2, short class3, short class4, short class5, short class6);
-	void Make_public_key();
 	BOOL GiveItem(int itemid, short count, bool send_packet = true);
 	BOOL RobItem(int itemid, short count);
 	BOOL CheckExistItem(int itemid, short count);

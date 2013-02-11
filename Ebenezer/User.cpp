@@ -32,16 +32,20 @@ void CUser::Initialize()
 {
 	m_pMain = (CEbenezerDlg*)AfxGetApp()->GetMainWnd();
 
-	// Cryption
-	Make_public_key();
+	// because of their sucky encryption method, 0 means it effectively won't be encrypted. 
+	// We don't want that happening...
+	do
+	{
+		m_Public_key = (uint64)rand() << 32 | rand();
+	} while (m_Public_key == 0); 
+
 	jct.SetPublicKey(m_Public_key);
 	jct.SetPrivateKey(g_private_key);
 	jct.Init();
 
-	m_CryptionFlag = 0;
+	m_CryptionFlag = false;
 	m_Sen_val = 0;
 	m_Rec_val = 0;
-	///~
 
 	m_bSelectedCharacter = false;
 	m_bStoreOpen = false;
@@ -159,16 +163,6 @@ void CUser::Initialize()
 	CIOCPSocket2::Initialize();
 }
 
-void CUser::Make_public_key()
-{
-	// because of their sucky encryption method, 0 means it effectively won't be encrypted. 
-	// We don't want that happening...
-	do
-	{
-		m_Public_key = (uint64)rand() << 32 | rand();
-	} while (m_Public_key == 0); 
-}
-
 void CUser::CloseProcess()
 {
 	if (GetState() == STATE_GAMESTART)
@@ -195,7 +189,7 @@ void CUser::Parsing(Packet & pkt)
 	uint8 command = pkt.GetOpcode();
 	TRACE("[SID=%d] Packet: %X (len=%d)\n", m_Sid, command, pkt.size());
 	// If crypto's not been enabled yet, force the version packet to be sent.
-	if (!m_CryptionFlag)
+	if (!isCryptoEnabled())
 	{
 		if (command == WIZ_VERSION_CHECK)
 			VersionCheck(pkt);
