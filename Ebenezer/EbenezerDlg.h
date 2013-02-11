@@ -297,6 +297,8 @@ protected:
 	afx_msg void OnTimer(UINT nIDEvent);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+
+	friend class C3DMap;
 };
 
 //{{AFX_INSERT_LOCATION}}

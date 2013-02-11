@@ -332,14 +332,11 @@ BOOL CEbenezerDlg::OnInitDialog()
 		return FALSE;
 	}
 
-	LogFileWrite("before map file");
 	if( !MapFileLoad() )
 	{
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
-
-	LogFileWrite("after map file");
 
 	LoadNoticeData();
 	LoadBlockNameList();
@@ -367,67 +364,51 @@ BOOL CEbenezerDlg::OnInitDialog()
 
 BOOL CEbenezerDlg::LoadTables()
 {
-	LogFileWrite("before ITEM");
 	if (!LoadItemTable())
 		return FALSE;
 
-	LogFileWrite("before SERVER_RESOURCE");
 	if (!LoadServerResourceTable())
 		return FALSE;
 
-	LogFileWrite("before MAGIC");
 	if (!LoadMagicTable())
 		return FALSE;
 
-	LogFileWrite("before MAGIC_TYPE1");
 	if (!LoadMagicType1())
 		return FALSE;
 
-	LogFileWrite("before MAGIC_TYPE2");
 	if (!LoadMagicType2())
 		return FALSE;
 
-	LogFileWrite("before MAGIC_TYPE3");
 	if (!LoadMagicType3())
 		return FALSE;
 
-	LogFileWrite("before MAGIC_TYPE4");
 	if (!LoadMagicType4())
 		return FALSE;
 
-	LogFileWrite("before MAGIC_TYPE5");
 	if (!LoadMagicType5())
 		return FALSE;
 
-	LogFileWrite("before MAGIC_TYPE8");
 	if (!LoadMagicType8())
 		return FALSE;
 
-	LogFileWrite("before COEFFICIENT");
 	if (!LoadCoefficientTable())
 		return FALSE;
 
-	LogFileWrite("before LEVEL_UP");
 	if (!LoadLevelUpTable())
 		return FALSE;
 
-	LogFileWrite("before KNIGHTS");
 	if (!LoadAllKnights())
 		return FALSE;
 
-	LogFileWrite("before KNIGHTS_USER");
 	if (!LoadAllKnightsUserData())
 		return FALSE;
 
-	LogFileWrite("before HOME");
 	if (!LoadHomeTable())
 		return FALSE;
 
-	LogFileWrite("before START_POSITION");
 	if (!LoadStartPositionTable())
 		return FALSE;
 
-	LogFileWrite("before BATTLE");
 	if (!LoadBattleTable())
 		return FALSE;
 
@@ -1052,8 +1033,8 @@ BOOL CEbenezerDlg::InitializeMMF()
 BOOL CEbenezerDlg::MapFileLoad()
 {
 	map<int, _ZONE_INFO*> zoneMap;
-	CZoneInfoSet ZoneInfoSet(&zoneMap, &m_GameDB);
 
+	CZoneInfoSet ZoneInfoSet(&zoneMap, &m_GameDB);
 	if (!ZoneInfoSet.Read())
 		return FALSE;
 

@@ -496,7 +496,7 @@ BOOL C3DMap::CheckEvent(float x, float z, CUser* pUser)
 
 BOOL C3DMap::LoadEvent()
 {
-	CEventSet EventSet(&m_EventArray, (BYTE)m_nZoneNumber);
+	CEventSet EventSet(&m_EventArray, (BYTE)m_nZoneNumber, &m_pMain->m_GameDB);
 	return EventSet.Read();
 }
 
