@@ -45,3 +45,16 @@ fail_return:
 	result << uint8(-1);
 	Send(&result);
 }
+
+void CUser::RecvLoginProcess(Packet & pkt)
+{
+	Packet result(WIZ_LOGIN);
+	int8 bResult = pkt.read<int8>();
+
+	// Error? Reset the account ID.
+	if (bResult < 0)
+		m_strAccountID = "";
+
+	result << bResult;
+	Send(&result);
+}

@@ -26,64 +26,70 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 
 	while (TRUE)
 	{
-		if (pMain->m_LoggerRecvQueue.GetFrontMode() != R)
+		if (pMain->m_LoggerRecvQueue.GetFrontMode() == R)
 		{
-			Packet pkt;
-			int recvlen = pMain->m_LoggerRecvQueue.GetData(pkt);
-			if (recvlen > MAX_PKTSIZE || recvlen == 0)
-			{
-				Sleep(1);
-				continue;
-			}
+			Sleep(1);
+			continue;
+		}
 
-			switch (pkt.GetOpcode())
-			{
-			case WIZ_LOGIN:
-				pMain->AccountLogIn(pkt);
-				break;
-			case WIZ_SEL_NATION:
-				pMain->SelectNation(pkt);
-				break;
-			case WIZ_ALLCHAR_INFO_REQ:
-				pMain->AllCharInfoReq(pkt);
-				break;
-			case WIZ_NEW_CHAR:
-				pMain->CreateNewChar(pkt);
-				break;
-			case WIZ_DEL_CHAR:
-				pMain->DeleteChar(pkt);
-				break;
-			case WIZ_SEL_CHAR:
-				pMain->SelectCharacter(pkt);
-				break;
-			case WIZ_DATASAVE:
-				pMain->UserDataSave(pkt);
-				break;
-			case WIZ_KNIGHTS_PROCESS:
-				pMain->KnightsPacket(pkt);
-				break;
-			case WIZ_LOGIN_INFO:
-				pMain->SetLogInInfo(pkt);
-				break;
-			case WIZ_KICKOUT:
-				pMain->UserKickOut(pkt);
-				break;
-			case WIZ_BATTLE_EVENT:
-				pMain->BattleEventResult(pkt);
-				break;
-			case WIZ_SHOPPING_MALL:
-				pMain->ShoppingMall(pkt);
-				break;
-			case WIZ_SKILLDATA:
-				pMain->SkillDataProcess(pkt);
-				break;
-			case WIZ_FRIEND_PROCESS:
-				pMain->FriendProcess(pkt);
-				break;
-			case WIZ_LOGOUT:
-				pMain->UserLogOut(pkt);				
-				break;
-			}
+		Packet pkt;
+		int recvlen = pMain->m_LoggerRecvQueue.GetData(pkt);
+		if (recvlen > MAX_PKTSIZE || recvlen == 0)
+		{
+			Sleep(1);
+			continue;
+		}
+
+		switch (pkt.GetOpcode())
+		{
+		case WIZ_LOGIN:
+			pMain->AccountLogIn(pkt);
+			break;
+		case WIZ_SEL_NATION:
+			pMain->SelectNation(pkt);
+			break;
+		case WIZ_ALLCHAR_INFO_REQ:
+			pMain->AllCharInfoReq(pkt);
+			break;
+		case WIZ_CHANGE_HAIR:
+			pMain->ChangeHairReq(pkt);
+			break;
+		case WIZ_NEW_CHAR:
+			pMain->CreateNewChar(pkt);
+			break;
+		case WIZ_DEL_CHAR:
+			pMain->DeleteChar(pkt);
+			break;
+		case WIZ_SEL_CHAR:
+			pMain->SelectCharacter(pkt);
+			break;
+		case WIZ_DATASAVE:
+			pMain->UserDataSave(pkt);
+			break;
+		case WIZ_KNIGHTS_PROCESS:
+			pMain->KnightsPacket(pkt);
+			break;
+		case WIZ_LOGIN_INFO:
+			pMain->SetLogInInfo(pkt);
+			break;
+		case WIZ_KICKOUT:
+			pMain->UserKickOut(pkt);
+			break;
+		case WIZ_BATTLE_EVENT:
+			pMain->BattleEventResult(pkt);
+			break;
+		case WIZ_SHOPPING_MALL:
+			pMain->ShoppingMall(pkt);
+			break;
+		case WIZ_SKILLDATA:
+			pMain->SkillDataProcess(pkt);
+			break;
+		case WIZ_FRIEND_PROCESS:
+			pMain->FriendProcess(pkt);
+			break;
+		case WIZ_LOGOUT:
+			pMain->UserLogOut(pkt);				
+			break;
 		}
 	}
 }
@@ -208,6 +214,19 @@ void CAujardDlg::AllCharInfoReq(Packet & pkt)
 	result << uint16(tmp.size()) << tmp;
 
 	m_LoggerSendQueue.PutData(&result);
+}
+
+void CAujardDlg::ChangeHairReq(Packet & pkt)
+{
+	Packet result(WIZ_CHANGE_HAIR);
+	string strAccountID, strUserID;
+	uint32 nHair;
+	uint16 uid;
+	uint8 bOpcode, bFace;
+
+	pkt >> uid >> bOpcode >> strAccountID >> strUserID >> bFace >> nHair;
+	pkt.put(2, m_DBAgent.ChangeHair(strAccountID, strUserID, bOpcode, bFace, nHair));
+	m_LoggerSendQueue.PutData(&pkt);
 }
 
 void CAujardDlg::CreateNewChar(Packet & pkt)

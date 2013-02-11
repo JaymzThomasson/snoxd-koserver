@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+﻿#include "StdAfx.h"
 
 void CUser::SelNationToAgent(Packet & pkt)
 {
@@ -15,11 +15,62 @@ void CUser::SelNationToAgent(Packet & pkt)
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
+void CUser::RecvSelNation(Packet & pkt)
+{
+	Packet result(WIZ_SEL_NATION, pkt.read<uint8>());
+	Send(&result);
+}
+
 void CUser::AllCharInfoToAgent()
 {
 	Packet result(WIZ_ALLCHAR_INFO_REQ);
 	result << uint16(GetSocketID()) << m_strAccountID; 
 	m_pMain->m_LoggerSendQueue.PutData(&result);
+}
+
+void CUser::RecvAllCharInfoReq(Packet & pkt)
+{
+	Packet result(WIZ_ALLCHAR_INFO_REQ);
+	uint16 len = pkt.read<uint16>();
+	if (len + 2 > pkt.size())
+		return;
+
+	result.append(pkt, len);
+	Send(&result);
+}
+
+void CUser::ChangeHair(Packet & pkt)
+{
+	Packet result(WIZ_CHANGE_HAIR);
+	std::string strUserID;
+	uint32 nHair;
+	uint8 bOpcode, bFace;
+
+	// The opcode:
+	// 0 seems to be an in-game implementation for converting from old -> new hair data
+	// 2 seems to be used with the hair change item(?).
+
+	// Another note: there's 4 bytes at the end of the packet data that I can't account for (maybe a[nother] checksum?)
+
+	pkt.SByte();
+	pkt >> bOpcode >> strUserID >> bFace >> nHair;
+
+	result << uint16(GetSocketID()) << bOpcode << m_strAccountID << strUserID << bFace << nHair;
+	m_pMain->m_LoggerSendQueue.PutData(&result);
+}
+
+void CUser::RecvChangeHair(Packet & pkt)
+{
+	Packet result(WIZ_CHANGE_HAIR);
+	std::string strUserID;
+	uint32 nHair;
+	uint8 bOpcode, bFace;
+
+	pkt >> bOpcode >> strUserID >> bFace >> nHair;
+
+	result.SByte();
+	result << bOpcode << strUserID << bFace << nHair;
+	Send(&result);
 }
 
 void CUser::NewCharToAgent(Packet & pkt)
@@ -59,6 +110,12 @@ void CUser::NewCharToAgent(Packet & pkt)
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
+void CUser::RecvNewChar(Packet & pkt)
+{
+	Packet result(WIZ_NEW_CHAR, pkt.read<uint8>());
+	Send(&result);
+}
+
 void CUser::DelCharToAgent(Packet & pkt)
 {
 	Packet result(WIZ_DEL_CHAR);
@@ -82,23 +139,18 @@ void CUser::DelCharToAgent(Packet & pkt)
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
-void CUser::RecvDeleteChar( char* pBuf )
+void CUser::RecvDeleteChar(Packet & pkt)
 {
 	Packet result;
-	int index = 0, sKnights = 0;
-	char strCharID[MAX_ID_SIZE+1];
+	std::string strCharID;
+	int16 sKnights;
 	uint8 bResult, bCharIndex;
-
-	bResult = GetByte(pBuf, index);
-	bCharIndex = GetByte(pBuf, index);
-	sKnights = GetShort(pBuf, index);
-	if (!GetKOString(pBuf, strCharID, index, MAX_ID_SIZE))
-		return;
+	pkt >> bResult >> bCharIndex >> sKnights >> strCharID;
 
 	if (bResult == 1 && sKnights != 0)
 	{
 		// TO-DO: Synchronise this system better. Much better. This is dumb.
-		m_pMain->m_KnightsManager.RemoveKnightsUser(sKnights, strCharID);
+		m_pMain->m_KnightsManager.RemoveKnightsUser(sKnights, (char *)strCharID.c_str());
 		result.SetOpcode(UDP_KNIGHTS_PROCESS);
 		result << uint8(KNIGHTS_WITHDRAW) << sKnights << strCharID;
 		m_pMain->Send_UDP_All(&result, m_pMain->m_nServerGroup == 0 ? 0 : 1);
@@ -141,38 +193,34 @@ void CUser::SelCharToAgent(Packet & pkt)
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
-void CUser::SelectCharacter(char *pBuf)
+void CUser::SelectCharacter(Packet & pkt)
 {
 	Packet result(WIZ_SEL_CHAR);
-	int index = 0;
-	
-	BYTE bResult, bInit;
-	C3DMap* pMap = NULL;
-	_ZONE_SERVERINFO *pInfo	= NULL;
+	uint8 bResult, bInit;
 
-	bResult = GetByte( pBuf, index );
-	bInit = GetByte( pBuf, index );
+	if (isBanned())
+	{
+		Close();
+		return;
+	}
+
+	pkt >> bResult >> bInit;
 	result << bResult;
+
 	if (bResult == 0 || !getZoneID()) 
 		goto fail_return;
 
-	pMap = m_pMap = m_pMain->GetZoneByID(getZoneID());
-	if (pMap == NULL)
+	m_pMap = m_pMain->GetZoneByID(getZoneID());
+	if (GetMap() == NULL)
 		goto fail_return;
 
-	if (m_pMain->m_nServerNo != pMap->m_nServerNo)
+	if (m_pMain->m_nServerNo != GetMap()->m_nServerNo)
 	{
-		pInfo = m_pMain->m_ServerArray.GetData( pMap->m_nServerNo );
+		_ZONE_SERVERINFO *pInfo = m_pMain->m_ServerArray.GetData(GetMap()->m_nServerNo);
 		if (pInfo == NULL) 
 			goto fail_return;
 
 		SendServerChange(pInfo->strServerIP, bInit);
-		return;
-	}
-
-	if (m_pUserData->m_bAuthority == 0xff)
-	{
-		Close();
 		return;
 	}
 
@@ -251,6 +299,13 @@ void CUser::SetLogInInfoToDB(BYTE bInit)
 			<< pInfo->strServerIP << uint16(_LISTEN_PORT) << strClientIP 
 			<< bInit;
 	m_pMain->m_LoggerSendQueue.PutData(&result);
+}
+
+void CUser::RecvLoginInfo(Packet & pkt)
+{
+	int8 bResult = pkt.read<uint8>();
+	if (bResult < 0)
+		Close();
 }
 
 // This packet actually contains the char name after the opcode

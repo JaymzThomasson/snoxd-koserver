@@ -286,7 +286,6 @@ public:
 
 	void SendLoyaltyChange(int32 nChangeAmount = 0);
 
-	void RecvDeleteChar( char* pBuf );
 	BOOL ExistComEvent(int eventid);
 	void SaveComEvent(int eventid);
 	BOOL CheckItemCount(int itemid, short min, short max);
@@ -310,7 +309,6 @@ public:
 	void SendItemWeight();
 	void ItemLogToAgent(const char *srcid, const char *tarid, int type, __int64 serial, int itemid, int count, int durability);
 	void TestPacket( char* pBuf );
-	void SetLogInInfoToDB(BYTE bInit);
 	void BlinkStart();
 	void BlinkTimeCheck(float currenttime);
 	void InitType3();
@@ -343,11 +341,21 @@ public:
 	// packet handlers start here
 	void VersionCheck(Packet & pkt);
 	void LoginProcess(Packet & pkt);
+	void RecvLoginProcess(Packet & pkt); // from Aujard
 	void SelNationToAgent(Packet & pkt);
+	void RecvSelNation(Packet & pkt); // from Aujard
 	void AllCharInfoToAgent();
+	void RecvAllCharInfoReq(Packet & pkt); // from Aujard
+	void ChangeHair(Packet & pkt);
+	void RecvChangeHair(Packet & pkt); // from Aujard
 	void NewCharToAgent(Packet & pkt);
+	void RecvNewChar(Packet & pkt); // from Aujard
 	void DelCharToAgent(Packet & pkt);
+	void RecvDeleteChar(Packet & pkt); // from Aujard
 	void SelCharToAgent(Packet & pkt);
+	void SelectCharacter(Packet & pkt); // from Aujard
+	void SetLogInInfoToDB(BYTE bInit);
+	void RecvLoginInfo(Packet & pkt); // from Aujard
 
 	void SpeedHackTime(Packet & pkt);
 
@@ -356,7 +364,7 @@ public:
 	void SkillDataProcess(Packet & pkt);
 	void SkillDataSave(Packet & pkt);
 	void SkillDataLoad();
-	void RecvSkillDataLoad(char *pData);
+	void RecvSkillDataLoad(Packet & pkt); // from Aujard
 	void MoveProcess(Packet & pkt);
 	void Rotate(Packet & pkt);
 	void Attack(Packet & pkt);
@@ -448,11 +456,11 @@ public:
 	void Home();
 
 	void FriendProcess(Packet & pkt);
+	void RecvFriendProcess(Packet & pkt);
 	void FriendRequest();
 	void FriendModify(Packet & pkt);
+	void RecvFriendModify(Packet & pkt, uint8 opcode);
 	void FriendReport(Packet & pkt);
-	void RecvFriendProcess(char *pBuf);
-	void RecvFriendModify(char *pBuf);
 	BYTE GetFriendStatus(std::string & charName, int16 & sid);
 
 	void SelectWarpList(Packet & pkt);
@@ -474,12 +482,10 @@ public:
 
 	// from the client
 	void ShoppingMall(Packet & pkt);
+	void RecvStore(Packet & pkt); // from Aujard
 	void HandleStoreClose();
+	void RecvStoreClose(Packet & pkt); // from Aujard
 	void LetterSystem(Packet & pkt);
-
-	// from Aujard
-	void RecvStore(char *pData);
-	void RecvStoreClose(char *pData);
 
 	void HandleHelmet(Packet & pkt);
 
@@ -511,7 +517,6 @@ public:
 	void ExpChange(__int64 iExp);
 	void LogOut();
 	void SendMyInfo();
-	void SelectCharacter( char* pBuf );
 	void SendServerChange(char *ip, uint8 bInit);
 	void Send2AI_UserUpdateInfo(bool initialInfo = false);
 	void UserInOut( BYTE Type );

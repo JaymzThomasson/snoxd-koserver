@@ -66,119 +66,96 @@ DWORD WINAPI	ReadQueueThread(LPVOID lp);
 DWORD WINAPI ReadQueueThread(LPVOID lp)
 {
 	CEbenezerDlg* pMain = (CEbenezerDlg*)lp;
-	int recvlen = 0, index = 0, uid = -1, send_index = 0, buff_length = 0;
-	BYTE command, result;
-	char pBuf[1024], send_buff[1024];
 	CUser* pUser = NULL;
-	int currenttime = 0;
 
 	while (TRUE)
 	{
-		if (pMain->m_LoggerRecvQueue.GetFrontMode() != R)
+		if (pMain->m_LoggerRecvQueue.GetFrontMode() == R)
 		{
-			index = 0;
-			recvlen = pMain->m_LoggerRecvQueue.GetData(pBuf);
+			Sleep(1);
+			continue;
+		}
 
-			if (recvlen > MAX_PKTSIZE || recvlen == 0)
+		Packet pkt;
+		int recvlen = pMain->m_LoggerRecvQueue.GetData(pkt);
+		if (recvlen > MAX_PKTSIZE || recvlen == 0)
+		{
+			Sleep(1);
+			continue;
+		}
+
+		// clan packets are main opcode | sub opcode | uid
+		// TO-DO: Make these behave like everything else (this is dumb)
+#if 0
+		if (pkt.GetOpcode() == WIZ_KNIGHTS_PROCESS)
+		{
+			uid = *(short *)(pBuf + index + 1);
+
+			// this packet needs to be handled server-side, not per user
+			if (*(uint8 *)(pBuf + index) == KNIGHTS_ALLLIST_REQ && uid == -1)
 			{
-				Sleep(1);
+				pMain->m_KnightsManager.RecvKnightsAllList(pBuf + index + 3);
 				continue;
 			}
-
-			command = GetByte(pBuf, index);
-
-			// clan packets are main opcode | sub opcode | uid
-			if (command == WIZ_KNIGHTS_PROCESS)
-			{
-				uid = *(short *)(pBuf + index + 1);
-
-				// this packet needs to be handled server-side, not per user
-				if (*(uint8 *)(pBuf + index) == KNIGHTS_ALLLIST_REQ && uid == -1)
-				{
-					pMain->m_KnightsManager.RecvKnightsAllList(pBuf + index + 3);
-					continue;
-				}
-			}
-			// everything else is main opcode | uid
-			else
-			{
-				uid = GetShort(pBuf, index);
-			}
-
-
-			if ((pUser = pMain->GetUserPtr(uid)) == NULL)
-				goto loop_pass;
-
-			switch (command)
-			{
-				case WIZ_LOGIN:
-					result = GetByte( pBuf, index );
-					if( result == 0xFF )
-						pUser->m_strAccountID = "";
-					SetByte( send_buff, WIZ_LOGIN, send_index );
-					SetByte( send_buff, result, send_index );					// ������ ���� ����
-					pUser->Send( send_buff, send_index );
-					break;
-				case WIZ_SEL_NATION:
-					SetByte( send_buff, WIZ_SEL_NATION, send_index );
-					SetByte( send_buff, GetByte( pBuf, index ), send_index );	// ���� ����
-					pUser->Send( send_buff, send_index );
-					break;
-				case WIZ_NEW_CHAR:
-					result = GetByte( pBuf, index );
-					SetByte( send_buff, WIZ_NEW_CHAR, send_index );
-					SetByte( send_buff, result, send_index );					// ������ ���� ����
-					pUser->Send( send_buff, send_index );
-					break;
-				case WIZ_DEL_CHAR:
-					pUser->RecvDeleteChar( pBuf + index );
-					break;
-				case WIZ_SEL_CHAR:
-					pUser->SelectCharacter( pBuf + index );
-					break;
-				case WIZ_ALLCHAR_INFO_REQ:
-					buff_length = GetShort( pBuf, index );
-					if( buff_length > recvlen )
-						break;
-					SetByte( send_buff, WIZ_ALLCHAR_INFO_REQ, send_index );
-					SetString( send_buff, pBuf+index, buff_length, send_index );
-					pUser->Send( send_buff, send_index );
-					break;
-				case WIZ_SHOPPING_MALL:
-					pUser->RecvStore(pBuf+index);
-					break;
-				case WIZ_SKILLDATA:
-					{ 
-						BYTE opcode = GetByte(pBuf, index);
-						if (opcode == SKILL_DATA_LOAD)
-							pUser->RecvSkillDataLoad(pBuf+index);
-					} break;
-				case WIZ_LOGOUT:
-					if (pUser->m_pUserData->m_id[0] != 0)
-					{
-						TRACE("Logout Strange...%s\n", pUser->m_pUserData->m_id);
-						pUser->Close();
-					}
-					break;
-				case WIZ_FRIEND_PROCESS:
-					pUser->RecvFriendProcess(pBuf+index);
-					break;
-				case WIZ_KNIGHTS_PROCESS:
-					pMain->m_KnightsManager.ReceiveKnightsProcess(pUser, pBuf+index);
-					break;
-				case WIZ_LOGIN_INFO:
-					result = GetByte( pBuf, index );
-					if( result == 0x00 )
-						pUser->Close();
-					break;
-			}
 		}
-		else
+		// everything else is main opcode | uid
+#endif
+		uint16 uid;
+		pkt >> uid;
+
+
+		if ((pUser = pMain->GetUserPtr(uid)) == NULL)
 			continue;
 
-loop_pass:
-		recvlen = 0;
-		send_index = 0;
+		switch (pkt.GetOpcode())
+		{
+			case WIZ_LOGIN:
+				pUser->RecvLoginProcess(pkt);
+				break;
+			case WIZ_SEL_NATION:
+				pUser->RecvSelNation(pkt);
+				break;
+			case WIZ_NEW_CHAR:
+				pUser->RecvNewChar(pkt);
+				break;
+			case WIZ_DEL_CHAR:
+				pUser->RecvDeleteChar(pkt);
+				break;
+			case WIZ_SEL_CHAR:
+				pUser->SelectCharacter(pkt);
+				break;
+			case WIZ_ALLCHAR_INFO_REQ:
+				pUser->RecvAllCharInfoReq(pkt);
+				break;
+			case WIZ_CHANGE_HAIR:
+				pUser->RecvChangeHair(pkt);
+				break;
+			case WIZ_SHOPPING_MALL:
+				pUser->RecvStore(pkt);
+				break;
+			case WIZ_SKILLDATA:
+				{ 
+					uint8 subOpcode = pkt.read<uint8>();
+					if (subOpcode == SKILL_DATA_LOAD)
+						pUser->RecvSkillDataLoad(pkt);
+				} break;
+			case WIZ_LOGOUT:
+				if (pUser->m_pUserData->m_id[0] != 0)
+				{
+					TRACE("Logout Strange...%s\n", pUser->m_pUserData->m_id);
+					pUser->Close();
+				}
+				break;
+			case WIZ_FRIEND_PROCESS:
+				pUser->RecvFriendProcess(pkt);
+				break;
+			case WIZ_KNIGHTS_PROCESS:
+				pMain->m_KnightsManager.ReceiveKnightsProcess(pUser, (char *)(pkt.contents() + pkt.rpos())); // TO-DO: Replace this entirely.
+				break;
+			case WIZ_LOGIN_INFO:
+				pUser->RecvLoginInfo(pkt);
+				break;
+		}
 	}
 }
 

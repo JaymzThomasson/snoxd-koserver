@@ -248,6 +248,9 @@ void CUser::Parsing(Packet & pkt)
 		case WIZ_ALLCHAR_INFO_REQ:
 			AllCharInfoToAgent();
 			break;
+		case WIZ_CHANGE_HAIR:
+			ChangeHair(pkt);
+			break;
 		case WIZ_NEW_CHAR:
 			NewCharToAgent(pkt);
 			break;
@@ -260,7 +263,6 @@ void CUser::Parsing(Packet & pkt)
 		case WIZ_SPEEDHACK_CHECK:
 			SpeedHackTime(pkt);
 			break;
-
 		default:
 			TRACE("[SID=%d] Unhandled packet (%X) prior to selecting character\n", m_Sid, command);
 			break;
@@ -527,18 +529,17 @@ void CUser::SkillDataLoad()
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
-void CUser::RecvSkillDataLoad(char *pData)
+void CUser::RecvSkillDataLoad(Packet & pkt)
 {
-	int index = 0, sCount = 0;
-
-	BYTE bSuccess = GetByte(pData, index);
+	uint16 sCount = 0;
+	uint8 bSuccess = pkt.read<uint8>();
 	if (!bSuccess)
 	{
 		sCount = 0;
 	}
 	else
 	{
-		sCount = GetShort(pData, index);
+		pkt >> sCount;
 		if (sCount < 0 || sCount > 64)
 			sCount = 0;
 	}
@@ -547,10 +548,7 @@ void CUser::RecvSkillDataLoad(char *pData)
 	result << sCount;
 
 	for (int i = 0; i < sCount; i++) 
-	{
-		int nItemID = GetDWORD(pData, index);
-		result << nItemID;
-	}
+		result << pkt.read<uint32>();
 
 	Send(&result);
 }

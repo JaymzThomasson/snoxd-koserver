@@ -165,7 +165,12 @@ public:
 		memcpy(&_storage[_wpos], src, cnt);
 		_wpos += cnt;
 	}
-	void append(const ByteBuffer& buffer) { if(buffer.size() > 0) append(buffer.contents(),buffer.size()); }
+	void append(const ByteBuffer& buffer) { if (buffer.size() > 0) append(buffer.contents(), buffer.size()); }
+	void append(const ByteBuffer& buffer, size_t len)
+	{ 
+		ASSERT(buffer._rpos + len <= buffer.size());
+		append(buffer.contents() + buffer._rpos, len); 
+	}
 
 	void put(size_t pos, const uint8 *src, size_t cnt) 
 	{

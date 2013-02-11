@@ -26,6 +26,7 @@ public:
 	void AccountLogIn(Packet & pkt);
 	void SelectNation(Packet & pkt);
 	void AllCharInfoReq(Packet & pkt);
+	void ChangeHairReq(Packet & pkt);
 	void CreateNewChar(Packet & pkt);
 	void DeleteChar(Packet & pkt);
 	void SelectCharacter(Packet & pkt);

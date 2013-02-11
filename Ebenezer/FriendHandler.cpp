@@ -94,40 +94,35 @@ BYTE CUser::GetFriendStatus(std::string & charName, int16 & sid)
 }
 
 // From Aujard
-void CUser::RecvFriendProcess(char *pBuf)
+void CUser::RecvFriendProcess(Packet & pkt)
 {
-	int index = 0;
-	BYTE subcommand = GetByte(pBuf, index);
-
-	switch (subcommand)
+	uint8 opcode = pkt.read<uint8>();
+	switch (opcode)
 	{
 		case FRIEND_REQUEST:
 			//FriendReport(pkt); // Hmm, old method was redundant. Need to check this.
 			break;
 		case FRIEND_ADD:
 		case FRIEND_REMOVE:
-			RecvFriendModify(pBuf);
+			RecvFriendModify(pkt, opcode);
 			break;
 	}
 }
 
-void CUser::RecvFriendModify(char *pBuf)
+void CUser::RecvFriendModify(Packet & pkt, uint8 opcode)
 {
 	Packet result(WIZ_FRIEND_PROCESS);
-	char charName[MAX_ID_SIZE+1];
-	int index = 0;
-	uint8 opcode = GetByte(pBuf, index),
-		 bResult = GetByte(pBuf, index);
-
+	std::string strUserID;
 	int16 sid = -1;
+	uint8 bResult = pkt.read<uint8>();
+
 	if (opcode == FRIEND_ADD)
-		sid = GetShort(pBuf, index);
+		pkt >> sid;
 
-	if (!GetKOString(pBuf, charName, index, MAX_ID_SIZE, sizeof(BYTE)))
-		return;
+	pkt.SByte();
+	pkt >> strUserID;
 
-	std::string tmp = charName; // this entire method will be updated soon
-	uint8 status = GetFriendStatus(tmp, sid);
-	result << opcode << bResult << charName << sid << status;
+	uint8 status = GetFriendStatus(strUserID, sid);
+	result << opcode << bResult << strUserID << sid << status;
 	Send(&result);
 }

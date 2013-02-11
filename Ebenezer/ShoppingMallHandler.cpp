@@ -46,33 +46,31 @@ void CUser::HandleStoreClose()
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
-void CUser::RecvStore(char *pData)
+void CUser::RecvStore(Packet & pkt)
 {
-	int index = 0;
-	BYTE opcode = GetByte(pData, index);
+	uint8 opcode = pkt.read<uint8>();
 	switch (opcode)
 	{
 	case STORE_CLOSE:
-		RecvStoreClose(pData+index);
+		RecvStoreClose(pkt);
 		break;
 	}
 }
 
 // Presumably received item data back from Aujard.
-void CUser::RecvStoreClose(char *pData)
+void CUser::RecvStoreClose(Packet & pkt)
 {
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_CLOSE));
-	int index = 0;
-	uint8 bResult = GetByte(pData, index);
+	uint8 bResult = pkt.read<uint8>();
 
 	// If it was succesful, i.e. it loaded data, give it to us
 	if (bResult)
 	{
-		short count = GetShort(pData, index);
+		uint16 count = pkt.read<uint16>();
 		for (int i = 0; i < count; i++)
 		{
-			int nItemID = GetDWORD(pData, index);
-			short sCount = GetShort(pData, index);
+			uint32 nItemID; uint16 sCount;
+			pkt >> nItemID >> sCount;
 
 			// reuse the GiveItem() method for giving them the item, just don't send that particular packet.
 			GiveItem(nItemID, sCount, false); 
