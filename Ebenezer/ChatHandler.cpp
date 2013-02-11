@@ -83,6 +83,12 @@ void CUser::Chat(Packet & pkt)
 		if (m_pUserData->m_sMp < (m_iMaxMp / 5))
 			break;
 
+		// Characters under level 35 require 3,000 coins to shout.
+		if (!isGM()
+			&& getLevel() < 35
+			&& !GoldLose(SHOUT_COIN_REQUIREMENT))
+			break;
+
 		MSpChange(-(m_iMaxMp / 5));
 		m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
 		break;
