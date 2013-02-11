@@ -67,10 +67,6 @@ C3DMap::~C3DMap()
 	}
 
 	if( m_fHeight ){
-		for(int i=0; i< m_nMapSize; i++) {
-			delete[] m_fHeight[i];
-			m_fHeight[i] = NULL;
-		}
 		delete[] m_fHeight;
 	}
 
@@ -89,8 +85,6 @@ BOOL C3DMap::LoadMap(HANDLE hFile)
 {
 	m_pMain = (CEbenezerDlg*)AfxGetApp()->GetMainWnd();
 
-	LogFileWrite("load teerr\r\n");
-
 	LoadTerrain( hFile );
 	m_N3ShapeMgr.Create((m_nMapSize - 1)*m_fUnitDist, (m_nMapSize-1)*m_fUnitDist);
 	if( !m_N3ShapeMgr.LoadCollisionData(hFile) )
@@ -102,7 +96,6 @@ BOOL C3DMap::LoadMap(HANDLE hFile)
 		return FALSE;
 	}
 
-	LogFileWrite("mapfile adfasfdasdd\r\n");
 	int mapwidth = (int)m_N3ShapeMgr.Width();
 
 	m_nXRegion = (int)(mapwidth/VIEW_DISTANCE) + 1;
@@ -114,18 +107,12 @@ BOOL C3DMap::LoadMap(HANDLE hFile)
 	}
 
 	LoadObjectEvent(hFile);
-	LogFileWrite("amp tile\r\n");
 	LoadMapTile(hFile);
-	LogFileWrite("regene\r\n");
 	LoadRegeneEvent(hFile);		// 이건 내가 추가했슴
-	LogFileWrite("warplist\r\n");
 	LoadWarpList(hFile);
 
-	LogFileWrite("load event before\r\n");
-	if( !LoadEvent() ) {
-		AfxMessageBox("Event Load Fail!!");
-//		return FALSE;
-	}
+	if (!LoadEvent())
+		return FALSE;
 
 	return TRUE;
 }
@@ -249,19 +236,8 @@ void C3DMap::LoadTerrain(HANDLE hFile)
 	ReadFile(hFile, &m_nMapSize, sizeof(int), &dwRWC, NULL);	// 가로세로 정보가 몇개씩인가?
 	ReadFile(hFile, &m_fUnitDist, sizeof(float), &dwRWC, NULL);
 
-	m_fHeight = new float*[m_nMapSize];
-	for(int i=0; i<m_nMapSize; i++) {
-		m_fHeight[i] = new float[m_nMapSize];
-	}
-
-	int x, z;
-	for(z=0;z<m_nMapSize;z++)
-	{
-		for(x=0;x<m_nMapSize;x++)
-		{
-			ReadFile(hFile, &(m_fHeight[x][z]), sizeof(float), &dwRWC, NULL);	// 높이값 읽어오기
-		}
-	}
+	m_fHeight = new float[m_nMapSize * m_nMapSize];
+	ReadFile(hFile, m_fHeight, sizeof(float) * m_nMapSize * m_nMapSize, &dwRWC, NULL);	// 높이값 읽어오기
 }
 
 float C3DMap::GetHeight(float x, float y, float z)
@@ -285,9 +261,9 @@ float C3DMap::GetHeight(float x, float y, float z)
 	{
 		if ((dX+dZ) < 1.0f)
 		{
-			h1 = m_fHeight[iX][iZ+1];
-			h2 = m_fHeight[iX+1][iZ];
-			h3 = m_fHeight[iX][iZ];
+			h1 = m_fHeight[iX * m_nMapSize + iZ+1];
+			h2 = m_fHeight[iX+1 * m_nMapSize + iZ];
+			h3 = m_fHeight[iX * m_nMapSize + iZ];
 
 			//if (dX == 1.0f) return h2;
 
@@ -297,9 +273,9 @@ float C3DMap::GetHeight(float x, float y, float z)
 		}
 		else
 		{
-			h1 = m_fHeight[iX][iZ+1];
-			h2 = m_fHeight[iX+1][iZ];
-			h3 = m_fHeight[iX+1][iZ+1];
+			h1 = m_fHeight[iX * m_nMapSize + iZ+1];
+			h2 = m_fHeight[iX+1 * m_nMapSize + iZ];
+			h3 = m_fHeight[iX+1 * m_nMapSize + iZ+1];
 
 			if (dX == 0.0f) return h1;
 
@@ -312,9 +288,9 @@ float C3DMap::GetHeight(float x, float y, float z)
 	{
 		if (dZ > dX)
 		{
-			h1 = m_fHeight[iX][iZ+1];
-			h2 = m_fHeight[iX+1][iZ+1];
-			h3 = m_fHeight[iX][iZ];
+			h1 = m_fHeight[iX * m_nMapSize + iZ+1];
+			h2 = m_fHeight[iX+1 * m_nMapSize + iZ+1];
+			h3 = m_fHeight[iX * m_nMapSize + iZ];
 
 			//if (dX == 1.0f) return h2;
 
@@ -324,9 +300,9 @@ float C3DMap::GetHeight(float x, float y, float z)
 		}
 		else
 		{
-			h1 = m_fHeight[iX][iZ];
-			h2 = m_fHeight[iX+1][iZ];
-			h3 = m_fHeight[iX+1][iZ+1];
+			h1 = m_fHeight[iX * m_nMapSize + iZ];
+			h2 = m_fHeight[iX+1 * m_nMapSize + iZ];
+			h3 = m_fHeight[iX+1 * m_nMapSize + iZ+1];
 
 			if (dX == 0.0f) return h1;
 

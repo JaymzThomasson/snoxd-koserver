@@ -48,7 +48,7 @@ private:
 //	int			m_nMapSize;		// Grid Unit ex) 4m
 //	float		m_fUnitDist;	// i Grid Distance
 
-	float**		m_fHeight;
+	float*		m_fHeight;
 
 	int			m_nXRegion;
 	int			m_nZRegion;
