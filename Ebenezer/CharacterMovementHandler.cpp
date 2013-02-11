@@ -91,8 +91,9 @@ void CUser::GetUserInfo(Packet & pkt)
 		// should work out to be 11 bytes, 6-7 being cape ID.
 		pkt	<< uint32(0) << uint16(0) << uint16(-1) << uint16(0) << uint8(0);
 	}
-	else 
+	else
 	{
+		pkt.SByte();
 		pkt	<< uint8(0) // grade type
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
