@@ -45,7 +45,7 @@ void CUser::Chat(Packet & pkt)
 		CString noticeText = m_pMain->GetServerResource(IDP_ANNOUNCEMENT);
 		
 		// Format the chat string around it, so our chat data is within the notice
-		sprintf_s(finalstr, sizeof(finalstr), noticeText, chatstr);
+		sprintf_s(finalstr, sizeof(finalstr), noticeText, chatstr.c_str());
 		result.DByte();
 		result << finalstr; // now tack on the formatted message from the user
 	}
