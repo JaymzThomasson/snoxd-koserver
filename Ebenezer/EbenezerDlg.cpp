@@ -67,6 +67,7 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 {
 	CEbenezerDlg* pMain = (CEbenezerDlg*)lp;
 	CUser* pUser = NULL;
+	Packet pkt;
 
 	while (TRUE)
 	{
@@ -76,7 +77,6 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 			continue;
 		}
 
-		Packet pkt;
 		int recvlen = pMain->m_LoggerRecvQueue.GetData(pkt);
 		if (recvlen > MAX_PKTSIZE || recvlen == 0)
 		{
@@ -523,6 +523,9 @@ BOOL CEbenezerDlg::DestroyWindow()
 	m_StartPositionArray.DeleteAllData();
 	m_Event.DeleteAllData();
 	m_ServerResourceArray.DeleteAllData();
+
+	if (m_GameDB.IsOpen())
+		m_GameDB.Close();
 
 	if (m_RegionLogFile.m_hFile != CFile::hFileNull) m_RegionLogFile.Close();
 	if (m_LogFile.m_hFile != CFile::hFileNull) m_LogFile.Close();

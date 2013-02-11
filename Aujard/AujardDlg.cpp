@@ -23,6 +23,7 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 {
 	CAujardDlg* pMain = (CAujardDlg*)lp;
 	CString string;
+	Packet pkt;
 
 	while (TRUE)
 	{
@@ -32,7 +33,6 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 			continue;
 		}
 
-		Packet pkt;
 		int recvlen = pMain->m_LoggerRecvQueue.GetData(pkt);
 		if (recvlen > MAX_PKTSIZE || recvlen == 0)
 		{

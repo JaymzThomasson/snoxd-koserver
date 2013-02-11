@@ -233,7 +233,7 @@ int CSharedMemQueue::GetData(Packet & pkt)
 	if (size <= 0 || size > MAX_PKTSIZE)
 		return 0;
 
-	pkt.SetOpcode(*(char *)(pQueue + index));
+	pkt.Initialize(*(char *)(pQueue + index));
 	if (size > 1)
 		pkt.append((char *)(pQueue + index + 1), size - 1);
 
