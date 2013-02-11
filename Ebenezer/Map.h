@@ -62,6 +62,9 @@ public:
 	__forceinline int GetXRegionMax() { return m_nXRegion - 1; }
 	__forceinline int GetZRegionMax() { return m_nZRegion - 1; }
 
+	__forceinline void IncRef() { m_ref++; }
+	__forceinline void DecRef() { if (--m_ref == 0) delete this; }
+
 	__forceinline _OBJECT_EVENT * GetObjectEvent(int objectindex) { return m_ObjectEventArray.GetData(objectindex); }
 	__forceinline _REGENE_EVENT * GetRegeneEvent(int objectindex) { return m_ObjectRegeneArray.GetData(objectindex); }
 	__forceinline _WARP_INFO * GetWarp(int warpID) { return m_WarpArray.GetData(warpID); }
@@ -71,8 +74,7 @@ public:
 	virtual ~SMDFile();
 
 private:
-
-	CString m_MapName;
+	int m_ref;
 
 	short*		m_ppnEvent;
 	WarpArray	m_WarpArray;

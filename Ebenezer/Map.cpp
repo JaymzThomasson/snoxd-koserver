@@ -23,12 +23,12 @@ extern CRITICAL_SECTION g_region_critical;
 
 SMDFile::SMDMap SMDFile::s_loadedMaps;
 
-SMDFile::SMDFile() : m_ppnEvent(NULL), m_fHeight(NULL),
+SMDFile::SMDFile() : m_ref(0), m_ppnEvent(NULL), m_fHeight(NULL),
 	m_nXRegion(0), m_nZRegion(0), m_nMapSize(0), m_fUnitDist(0.0f)
 {
 }
 
-C3DMap::C3DMap() :m_smdFile(NULL), m_ppRegion(NULL),
+C3DMap::C3DMap() : m_smdFile(NULL), m_ppRegion(NULL),
 	m_nZoneNumber(0), m_sMaxUser(150), m_wBundle(1),
 	m_bType(0)
 {
@@ -54,6 +54,8 @@ bool C3DMap::Initialize(_ZONE_INFO *pZone)
 
 		if (!LoadEvent())
 			return false;
+
+		m_smdFile->IncRef();
 	}
 
 	return (m_smdFile != NULL);
@@ -82,7 +84,6 @@ SMDFile *SMDFile::Load(string mapName)
 
 	// Try to load the file now.
 	SMDFile *smd = new SMDFile();
-	smd->m_MapName = mapName.c_str();
 	if (!smd->LoadMap(fp))
 	{
 		// Problem? Make sure we clean up after ourselves.
@@ -480,6 +481,9 @@ C3DMap::~C3DMap()
 		delete [] m_ppRegion;
 		m_ppRegion = NULL;
 	}
+
+	if (m_smdFile != NULL)
+		m_smdFile->DecRef();
 }
 
 SMDFile::~SMDFile()
