@@ -473,6 +473,8 @@ BOOL C3DMap::LoadEvent()
 
 C3DMap::~C3DMap()
 {
+	m_EventArray.DeleteAllData();
+
 	if (m_ppRegion != NULL)
 	{
 		for (int i = 0; i <= GetXRegionMax(); i++)
@@ -488,6 +490,10 @@ C3DMap::~C3DMap()
 
 SMDFile::~SMDFile()
 {
+	m_ObjectEventArray.DeleteAllData();
+	m_ObjectRegeneArray.DeleteAllData();
+	m_WarpArray.DeleteAllData();
+
 	if (m_ppnEvent != NULL)
 	{
 		delete [] m_ppnEvent;

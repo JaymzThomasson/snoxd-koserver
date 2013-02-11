@@ -99,12 +99,6 @@ private:
 
 class C3DMap
 {
-private:
-	ObjectEventArray	m_ObjectEventArray;
-	ObjectRegeneArray	m_ObjectRegeneArray;
-
-	EventArray	m_EventArray;
-
 public:
 	// Passthru methods
 	__forceinline int GetXRegionMax() { return m_smdFile->GetXRegionMax(); }
@@ -130,6 +124,8 @@ public:
 	BOOL ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2);
 	float GetHeight( float x, float y, float z );
 	virtual ~C3DMap();
+
+	EventArray	m_EventArray;
 
 	int	m_nServerNo, m_nZoneNumber;
 	float m_fInitX, m_fInitZ, m_fInitY;
