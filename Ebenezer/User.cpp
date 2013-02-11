@@ -1821,38 +1821,31 @@ void CUser::UserLookChange(int pos, int itemid, int durability)
 
 void CUser::SendNotice()
 {
-	int send_index = 0, count = 0;
-	char send_buff[2048];
-
-	SetByte( send_buff, WIZ_NOTICE, send_index );
-#if __VERSION < 1453
-	char buff[1024]; int buff_index = 0;
-	for( int i=0; i<20; i++ ) {
+	Packet result(WIZ_NOTICE);
+	uint8 count = 0;
+#if __VERSION < 1453 // NOTE: This is actually still supported if we wanted to use it.
+	result.SByte(); // only old-style notices use single byte lengths
+	result << count; // placeholder the count
+	for (int i = 0; i < 20; i++)
+	{
 		if (m_pMain->m_ppNotice[i][0] == 0)
 			continue;
 
-		SetKOString(buff, m_pMain->m_ppNotice[i], buff_index, 1);
+		result << m_pMain->m_ppNotice[i];
 		count++;
 	}
-	SetByte( send_buff, count, send_index );
-	SetString( send_buff, buff, buff_index, send_index );*/
+	result.put(0, count); // replace the placeholdered line count
 #else
-	SetByte(send_buff, 2, send_index); // type 2 = new-style notices
-
-	// hardcoded temporarily
-	SetByte(send_buff, 3, send_index); // 3 boxes
-
-	SetKOString(send_buff, "Header 1", send_index);
-	SetKOString(send_buff, "Data in header 1", send_index);
-
-	SetKOString(send_buff, "Header 2", send_index);
-	SetKOString(send_buff, "Data in header 2", send_index);
-
-	SetKOString(send_buff, "Header 3", send_index);
-	SetKOString(send_buff, "Data in header 3", send_index);
+	result << uint8(2); // new-style notices (top-right of screen)
+	
+	count = 3; // hardcoded temporarily
+	result << count; // number of entries
+	result << "Header 1" << "Data in header 1";
+	result << "Header 2" << "Data in header 2";
+	result << "Header 3" << "Data in header 3";
 #endif
 	
-	Send( send_buff, send_index );
+	Send(&result);
 }
 
 void CUser::SkillPointChange(Packet & pkt)
@@ -1902,21 +1895,20 @@ void CUser::SendUserInfo(Packet & result)
 
 void CUser::CountConcurrentUser()
 {
-	if( m_pUserData->m_bAuthority != 0 )
+	if (!isGM())
 		return;
-	int usercount = 0, send_index = 0;
-	char send_buff[128];
-	CUser* pUser = NULL;
 
-	for(int i=0; i<MAX_USER; i++ ) {
-		pUser = m_pMain->GetUnsafeUserPtr(i);
+	uint16 count = 0;
+	for (int i = 0; i < MAX_USER; i++)
+	{
+		CUser *pUser = m_pMain->GetUnsafeUserPtr(i);
 		if (pUser != NULL && pUser->GetState() == STATE_GAMESTART)
-			usercount++;
+			count++;
 	}
 
-	SetByte( send_buff, WIZ_CONCURRENTUSER, send_index );
-	SetShort( send_buff, usercount, send_index );
-	Send( send_buff, send_index );
+	Packet result(WIZ_CONCURRENTUSER);
+	result << count;
+	Send(&result);
 }
 
 void CUser::LoyaltyDivide(short tid)
