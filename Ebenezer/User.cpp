@@ -1206,9 +1206,7 @@ void CUser::LevelChange(short level, BYTE type )
 		return;
 
 	if( type ) {
-		if ((m_pUserData->m_sPoints 
-				+ getStat(STAT_STR) + getStat(STAT_STA) + getStat(STAT_DEX) + getStat(STAT_INT) + getStat(STAT_CHA)) 
-			< (300 + 3 * (level - 1)))
+		if ((m_pUserData->m_sPoints + getStatTotal()) < (300 + 3 * (level - 1)))
 			m_pUserData->m_sPoints += 3;
 		if( level > 9 && (m_pUserData->m_bstrSkill[0]+m_pUserData->m_bstrSkill[1]+m_pUserData->m_bstrSkill[2]+m_pUserData->m_bstrSkill[3]+m_pUserData->m_bstrSkill[4]
 			+m_pUserData->m_bstrSkill[5]+m_pUserData->m_bstrSkill[6]+m_pUserData->m_bstrSkill[7]+m_pUserData->m_bstrSkill[8]) < (2*(level-9)) )
