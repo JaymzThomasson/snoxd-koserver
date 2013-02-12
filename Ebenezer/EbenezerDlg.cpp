@@ -150,7 +150,7 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 				pUser->RecvFriendProcess(pkt);
 				break;
 			case WIZ_KNIGHTS_PROCESS:
-				pMain->m_KnightsManager.ReceiveKnightsProcess(pUser, (char *)(pkt.contents() + pkt.rpos())); // TO-DO: Replace this entirely.
+				pMain->m_KnightsManager.ReceiveKnightsProcess(pUser, pkt);
 				break;
 			case WIZ_LOGIN_INFO:
 				pUser->RecvLoginInfo(pkt);

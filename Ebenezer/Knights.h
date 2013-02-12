@@ -40,9 +40,9 @@ public:
 	CKnights();
 	void InitializeValue();
 
-	bool AddUser(char *strUserID);
+	bool AddUser(const char *strUserID);
 	bool AddUser(CUser *pUser);
-	bool RemoveUser(char *strUserID);
+	bool RemoveUser(const char *strUserID);
 	bool RemoveUser(CUser *pUser);
 
 	void Disband(CUser *pLeader = NULL);

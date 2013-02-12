@@ -28,18 +28,20 @@ public:
 	void JoinKnightsReq(CUser* pUser, Packet & pkt);
 	void ListTop10Clans(CUser *pUser);
 
-	void RecvKnightsAllList( char* pBuf );
 	BOOL AddKnightsUser(int index, char* UserName);
 	void SetKnightsUser( int index, char* UserName );
 	BOOL RemoveKnightsUser( int index, char* UserName );
-	void RecvKnightsList( char* pBuf );
 	BOOL LoadKnightsIndex(int index);
 	BOOL LoadAllKnights();
-	void RecvDestroyKnights( CUser* pUser, char* pBuf );
-	void RecvModifyFame( CUser* pUser, char* pBuf, BYTE command );
-	void RecvJoinKnights( CUser* pUser, char* pBuf, BYTE command );
-	void RecvCreateKnights( CUser* pUser, char* pBuf );
-	void ReceiveKnightsProcess( CUser* pUser, char* pBuf);
+
+	void RecvCreateKnights(CUser* pUser, Packet & pkt);
+	void RecvJoinKnights(CUser* pUser, Packet & pkt, BYTE command);
+	void RecvModifyFame(CUser* pUser, Packet & pkt, BYTE command);
+	void RecvDestroyKnights( CUser* pUser, Packet & pkt);
+	void RecvKnightsList(Packet & pkt);
+	void RecvKnightsAllList(Packet & pkt);
+
+	void ReceiveKnightsProcess(CUser* pUser, Packet & pkt);
 
 	int GetKnightsIndex( int nation );
 	BOOL IsAvailableName( const char* strname);	
