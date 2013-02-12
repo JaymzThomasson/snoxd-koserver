@@ -111,9 +111,10 @@ void CUser::GetUserInfo(Packet & pkt)
 		<< m_pUserData->m_bAuthority
 		<< uint8(0) // is party leader (bool)
 		<< uint8(0) // visibility state (0 - visible)
-		<< m_sDirection // direction 
 		<< uint16(0) // unknown 
+		<< m_sDirection // direction 
 		<< uint8(0) // chicken flag
+		<< uint8(0)
 		<< int8(-1) << int8(-1) // NP ranks (total, monthly)
 		<< m_pUserData->m_sItemArray[BREAST].nNum << m_pUserData->m_sItemArray[BREAST].sDuration << uint8(0)
 		<< m_pUserData->m_sItemArray[LEG].nNum << m_pUserData->m_sItemArray[LEG].sDuration << uint8(0)

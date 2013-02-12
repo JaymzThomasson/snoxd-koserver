@@ -883,7 +883,8 @@ void CUser::RequestUserIn(Packet & pkt)
 			continue;
 
 		result << uint8(0) << pUser->GetSocketID();
-		GetUserInfo(result);
+		pUser->GetUserInfo(result);
+
 		online_count++;
 	}
 
