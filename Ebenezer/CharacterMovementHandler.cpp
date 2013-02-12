@@ -111,10 +111,11 @@ void CUser::GetUserInfo(Packet & pkt)
 		<< m_pUserData->m_bAuthority
 		<< uint8(0) // is party leader (bool)
 		<< uint8(0) // visibility state (0 - visible)
-		<< uint16(0) // unknown 
+		<< uint8(0) // team colour (i.e. in soccer, 0=none, 1=blue, 2=red)
+		<< uint8(0) // unknown, doesn't seem to do anything noticeable for a regular player or GM (tested with 0, 1, 2, 255)
 		<< m_sDirection // direction 
 		<< uint8(0) // chicken flag
-		<< uint8(0)
+		<< m_pUserData->m_bRank // king cape (this used to just be rank, above!?)
 		<< int8(-1) << int8(-1) // NP ranks (total, monthly)
 		<< m_pUserData->m_sItemArray[BREAST].nNum << m_pUserData->m_sItemArray[BREAST].sDuration << uint8(0)
 		<< m_pUserData->m_sItemArray[LEG].nNum << m_pUserData->m_sItemArray[LEG].sDuration << uint8(0)
