@@ -807,15 +807,8 @@ void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 na
 
 void CEbenezerDlg::Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser)
 {
-	Send_UnitRegion(pkt, pMap, x, z, pExceptUser );
-	Send_UnitRegion(pkt, pMap, x-1, z-1, pExceptUser );	// NW
-	Send_UnitRegion(pkt, pMap, x, z-1, pExceptUser );		// N
-	Send_UnitRegion(pkt, pMap, x+1, z-1, pExceptUser );	// NE
-	Send_UnitRegion(pkt, pMap, x-1, z, pExceptUser );		// W
-	Send_UnitRegion(pkt, pMap, x+1, z, pExceptUser );		// E
-	Send_UnitRegion(pkt, pMap, x-1, z+1, pExceptUser );	// SW
-	Send_UnitRegion(pkt, pMap, x, z+1, pExceptUser );		// S
-	Send_UnitRegion(pkt, pMap, x+1, z+1, pExceptUser );	// SE
+	foreach_region(rx, rz)
+		Send_UnitRegion(pkt, pMap, rx + x, rz + z, pExceptUser);
 }
 
 void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser *pExceptUser)
@@ -1279,9 +1272,6 @@ void CEbenezerDlg::SetGameTime()
 	m_Ini.SetInt( "TIMER", "HOUR", m_nHour );
 	m_Ini.SetInt( "TIMER", "WEATHER", m_nWeather );
 }
-
-#define foreach_region(x, z) for (int x = -1; x <= 1; x++) \
-	for (int z = -1; z <= 1; z++)
 
 void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 {
