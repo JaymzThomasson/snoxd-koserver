@@ -855,7 +855,6 @@ void CUser::RemoveRegion(int del_x, int del_z)
 {
 	Packet result(WIZ_USER_INOUT);
 	result << uint16(USER_OUT) << GetSocketID();
-	GetUserInfo(result);
 	m_pMain->Send_OldRegions(&result, del_x, del_z, GetMap(), m_RegionX, m_RegionZ);
 }
 

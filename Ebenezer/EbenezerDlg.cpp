@@ -841,7 +841,7 @@ void CEbenezerDlg::Send_OldRegions(Packet *pkt, int old_x, int old_z, C3DMap *pM
 		Send_UnitRegion(pkt, pMap, x+old_x*2, z+old_z+1);
 	}
 
-	if (old_x != 0)
+	if (old_z != 0)
 	{
 		Send_UnitRegion(pkt, pMap, x+old_x, z+old_z*2);
 		if (old_x < 0)
