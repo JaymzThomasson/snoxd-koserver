@@ -93,7 +93,6 @@ void CUser::GetUserInfo(Packet & pkt)
 	}
 	else
 	{
-		pkt.SByte();
 		pkt	<< uint8(0) // grade type
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
