@@ -444,7 +444,7 @@ void CAujardDlg::UserLogOut(Packet & pkt)
 	if (pUser == NULL)
 		return;
 
-	m_DBAgent.UpdateUser(strAccountID, uid, UPDATE_LOGOUT);
+	m_DBAgent.UpdateUser(strCharID, uid, UPDATE_LOGOUT);
 	m_DBAgent.UpdateWarehouseData(strAccountID, uid, UPDATE_LOGOUT);
 	
 	if (pUser->m_bLogout != 2)	// zone change logout
