@@ -11,7 +11,7 @@ void CUser::Chat(Packet & pkt)
 		return;	
 
 	pkt >> chatstr;
-	if (chatstr.empty() || chatstr.size() >= 128)
+	if (chatstr.empty() || chatstr.size() > 128)
 		return;
 
 #if 0 // Removed this - all it seems to do is cause chat to break for GMs (is it 19xx+ only?)
