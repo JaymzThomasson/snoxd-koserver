@@ -125,6 +125,7 @@ void CUser::ChatTargetSelect(Packet & pkt)
 	{
 		Packet result(WIZ_CHAT_TARGET, type);
 		std::string strUserID;
+		pkt >> strUserID;
 		if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
 			return;
 
