@@ -497,7 +497,6 @@ void CAujardDlg::OnTimer(UINT nIDEvent)
 void CAujardDlg::AllSaveRoutine()
 {
 	CTime cur = CTime::GetCurrentTime();
-	DEBUG_LOG("Server down : %02d/%02d/%04d %02d:%02d", cur.GetYear(), cur.GetMonth(), cur.GetDay(), cur.GetHour(), cur.GetMinute());
 
 	int size = m_DBAgent.m_UserDataArray.size();
 	for (int i = 0; i < size; i++)
@@ -509,11 +508,8 @@ void CAujardDlg::AllSaveRoutine()
 		string strAccountID = pUser->m_Accountid;
 		string strCharID = pUser->m_id;
 
-		m_DBAgent.AccountLogout(strAccountID);
 		m_DBAgent.UpdateWarehouseData(strAccountID, i, UPDATE_ALL_SAVE);
 		m_DBAgent.UpdateUser(strCharID, i, UPDATE_ALL_SAVE);
-
-		m_DBAgent.MUserInit(i);
 		Sleep(50);
 	}
 
