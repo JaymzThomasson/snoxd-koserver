@@ -1668,6 +1668,8 @@ void CUser::StateChange(Packet & pkt)
 		case 11: // Provoke 1-3
 		case 12:
 		case 13:
+		case 14: // additional animations randomly used when hitting spacebar
+		case 15:
 			break; // don't do anything with them (this can be handled neater, but just for testing purposes), just make sure they're allowed
 
 		default:
