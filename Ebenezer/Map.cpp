@@ -30,7 +30,7 @@ SMDFile::SMDFile() : m_ref(0), m_ppnEvent(NULL), m_fHeight(NULL),
 
 C3DMap::C3DMap() : m_smdFile(NULL), m_ppRegion(NULL),
 	m_nZoneNumber(0), m_sMaxUser(150), m_wBundle(1),
-	m_bType(0)
+	m_bType(0), m_isAttackZone(false)
 {
 	m_pMain = (CEbenezerDlg*)AfxGetApp()->GetMainWnd();
 }
@@ -43,6 +43,7 @@ bool C3DMap::Initialize(_ZONE_INFO *pZone)
 	m_fInitY = pZone->m_fInitY;
 	m_fInitZ = pZone->m_fInitZ;
 	m_bType = pZone->m_bType;
+	m_isAttackZone = pZone->isAttackZone == 1;
 
 	m_smdFile = SMDFile::Load(pZone->m_MapName);
 

@@ -10,7 +10,7 @@ public:
 		: CMyRecordSet<T>(pDatabase), m_map(pMap)
 	{
 #ifdef EBENEZER
-		m_nFields = 7;
+		m_nFields = 8;
 #else
 		m_nFields = 4;
 #endif
@@ -32,6 +32,7 @@ public:
 		RFX_Long(pFX, _T("[InitZ]"), m_InitZ);
 		RFX_Long(pFX, _T("[InitY]"), m_InitY);
 		RFX_Byte(pFX, _T("[Type]"), m_data.m_bType);
+		RFX_Byte(pFX, _T("[isAttackZone]"), m_data.isAttackZone);
 #else
 		RFX_Byte(pFX, _T("[RoomEvent]"), m_data.m_byRoomEvent);
 #endif

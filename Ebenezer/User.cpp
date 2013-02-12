@@ -3518,3 +3518,30 @@ void CUser::HandleHelmet(Packet & pkt)
 	result << type << GetSocketID() << uint16(0);
 	SendToRegion(&result);
 }
+
+bool CUser::isAttackZone()
+{
+	if(getZoneID() == 21 && (GetSPosX() > 1 && GetSPosZ() > 1)															//TO-DO : Needs the correct coordinates to allow for the outdoors arena
+		|| ((getZoneID() == 1  && m_pMain->m_byKarusOpenFlag) || (getZoneID() == 2 && m_pMain->m_byElmoradOpenFlag)) )  //Taking into account invasions
+		return true;
+
+	return GetMap()->isAttackZone();
+}
+
+bool CUser::CanUseItem(long itemid)
+{
+	_ITEM_TABLE* pItem = pItem = m_pMain->m_ItemtableArray.GetData(itemid);
+	if(!pItem)
+		return false;
+
+	if(pItem->m_bClass != 0 && pItem->m_bClass != m_pUserData->m_sClass) //Class related item check
+		return false;
+
+	if(pItem->m_bReqLevel > m_pUserData->m_bLevel) //Level related item check
+		return false;
+
+	if(!(this)->CheckItemCount(itemid, 1, 999)) //Does the character posses said item?
+		return false;
+
+	return true;
+}
