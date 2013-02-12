@@ -28,23 +28,11 @@ SMDFile::SMDFile() : m_ref(0), m_ppnEvent(NULL), m_fHeight(NULL),
 {
 }
 
-<<<<<<< HEAD
-	m_ppRegion = NULL;
-	m_ppnEvent = NULL;
-	
-	m_nZoneNumber = 0;
-	m_bType = 0;
-	m_isAttackZone = 0;
-	m_wBundle = 1;
-	m_sMaxUser = 150;	// Max user in Battlezone!!!
-	m_pMain = NULL;
-=======
 C3DMap::C3DMap() : m_smdFile(NULL), m_ppRegion(NULL),
 	m_nZoneNumber(0), m_sMaxUser(150), m_wBundle(1),
-	m_bType(0)
+	m_bType(0), m_isAttackZone(false)
 {
 	m_pMain = (CEbenezerDlg*)AfxGetApp()->GetMainWnd();
->>>>>>> 9449f638a6f43de06d8a9598851fd81a892bcc22
 }
 
 bool C3DMap::Initialize(_ZONE_INFO *pZone)
@@ -55,11 +43,7 @@ bool C3DMap::Initialize(_ZONE_INFO *pZone)
 	m_fInitY = pZone->m_fInitY;
 	m_fInitZ = pZone->m_fInitZ;
 	m_bType = pZone->m_bType;
-<<<<<<< HEAD
-	m_isAttackZone = pZone->isAttackZone;
-}
-=======
->>>>>>> 9449f638a6f43de06d8a9598851fd81a892bcc22
+	m_isAttackZone = pZone->isAttackZone == 1;
 
 	m_smdFile = SMDFile::Load(pZone->m_MapName);
 

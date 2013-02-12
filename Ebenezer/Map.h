@@ -111,6 +111,9 @@ public:
 	__forceinline _WARP_INFO * GetWarp(int warpID) { return m_smdFile->GetWarp(warpID); }
 	__forceinline void GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries) { m_smdFile->GetWarpList(warpGroup, warpEntries); }
 	
+
+	__forceinline bool isAttackZone() { return m_isAttackZone; }
+
 	C3DMap();
 	bool Initialize(_ZONE_INFO *pZone);
 	BOOL LoadEvent();
@@ -131,7 +134,7 @@ public:
 	float m_fInitX, m_fInitZ, m_fInitY;
 	BYTE	m_bType;		// Zone Type : 1 -> common zone,  2 -> battle zone, 3 -> 24 hour open battle zone
 	short	m_sMaxUser;
-	uint8 m_isAttackZone;
+	bool m_isAttackZone;
 
 	CRegion**	m_ppRegion;
 
