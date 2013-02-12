@@ -1291,7 +1291,7 @@ void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 	Packet result(WIZ_REQ_USERIN);
 	C3DMap* pMap = pSendUser->GetMap();
 	ASSERT(pMap != NULL);
-	int user_count = 0;
+	uint16 user_count = 0;
 
 	result << uint16(0); // placeholder for the user count
 
@@ -1310,18 +1310,18 @@ void CEbenezerDlg::RegionUserInOutForMe(CUser *pSendUser)
 	Packet result(WIZ_REGIONCHANGE, uint8(1));
 	C3DMap* pMap = pSendUser->GetMap();
 	ASSERT(pMap != NULL);
-	int user_count = 0;
+	uint16 user_count = 0;
 
 	result << uint16(0); // placeholder for the user count
 
 	foreach_region(x, z)
 		GetRegionUserList(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, user_count);
 
-	result.put(1, uint16(user_count));
+	result.put(1, user_count);
 	pSendUser->Send(&result); // TO-DO: Compress
 }
 
-void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, int & t_count)
+void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
 {
 	if (pMap == NULL || region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
 		return;
@@ -1345,7 +1345,7 @@ void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Pac
 	LeaveCriticalSection(&g_region_critical);
 }
 
-void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, int region_x, int region_z, Packet & pkt, int & t_count)
+void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
 {
 	if (pMap == NULL || region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
 		return;
@@ -1376,18 +1376,18 @@ void CEbenezerDlg::MerchantUserInOutForMe(CUser *pSendUser)
 	Packet result(WIZ_MERCHANT_INOUT, uint8(1));
 	C3DMap* pMap = pSendUser->GetMap();
 	ASSERT(pMap != NULL);
-	int user_count = 0;
+	uint16 user_count = 0;
 
 	result << uint16(0); // placeholder for user count
 
 	foreach_region(x, z)
 		GetRegionMerchantUserIn(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, user_count);
 
-	result.put(1, uint16(user_count));
+	result.put(1, user_count);
 	pSendUser->Send(&result); // TO-DO: Compress
 }
 
-void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, int & t_count)
+void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
 {
 	if (pMap == NULL || region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
 		return;
@@ -1426,17 +1426,17 @@ void CEbenezerDlg::NpcInOutForMe(CUser* pSendUser)
 	Packet result(WIZ_REQ_NPCIN);
 	C3DMap* pMap = pSendUser->GetMap();
 	ASSERT(pMap != NULL);
-	int npc_count = 0;
+	uint16 npc_count = 0;
 	result << uint16(0); // placeholder for NPC count
 
 	foreach_region(x, z)
 		GetRegionNpcIn(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, npc_count);
 
-	result.put(0, uint16(npc_count));
+	result.put(0, npc_count);
 	pSendUser->Send(&result); // NOTE: Compress
 }
 
-void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, int & t_count)
+void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
 {
 	if (m_bPointCheckFlag == FALSE
 		|| pMap == NULL
@@ -1451,7 +1451,7 @@ void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, int region_x, int region_z, Pack
 			|| pNpc->m_sRegion_X != region_x || pNpc->m_sRegion_Z != region_z)
 			continue;
 
-		pkt << pNpc->GetEntryID();
+		pkt << pNpc->GetID();
 		pNpc->GetNpcInfo(pkt);
 		t_count++;
 	}
@@ -1467,17 +1467,17 @@ void CEbenezerDlg::RegionNpcInfoForMe(CUser *pSendUser)
 	Packet result(WIZ_NPC_REGION);
 	C3DMap* pMap = pSendUser->GetMap();
 	ASSERT(pMap != NULL);
-	int npc_count = 0;
+	uint16 npc_count = 0;
 	result << uint16(0); // placeholder for NPC count
 
 	foreach_region(x, z)
 		GetRegionNpcList(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, npc_count);
 
-	result.put(0, uint16(npc_count));
+	result.put(0, npc_count);
 	pSendUser->Send(&result); // NOTE: Compress
 }
 
-void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, int region_x, int region_z, Packet & pkt, int & t_count)
+void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
 {
 	if (m_bPointCheckFlag == FALSE
 		|| pMap == NULL

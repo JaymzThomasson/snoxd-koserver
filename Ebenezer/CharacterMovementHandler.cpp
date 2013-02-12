@@ -54,7 +54,7 @@ void CUser::UserInOut(BYTE Type)
 		return;
 
 	Packet result(WIZ_USER_INOUT);
-	result << Type << uint8(0) << GetSocketID();
+	result << uint16(Type) << GetSocketID();
 
 	if (Type == USER_OUT)
 		GetMap()->RegionUserRemove(m_RegionX, m_RegionZ, GetSocketID());
@@ -64,9 +64,9 @@ void CUser::UserInOut(BYTE Type)
 	if (Type != USER_OUT)
 		GetUserInfo(result);
 
-	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this );
+	SendToRegion(&result, this);
 
-	if (Type == USER_OUT || !isBlinking()) 
+	if (Type == USER_OUT || !isBlinking())
 	{
 		result.Initialize(AG_USER_INOUT);
 		result.SByte();

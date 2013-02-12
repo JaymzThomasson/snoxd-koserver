@@ -853,32 +853,27 @@ void CUser::RegisterRegion()
 
 void CUser::RemoveRegion(int del_x, int del_z)
 {
-	C3DMap* pMap = GetMap();
-	if (!pMap)
-		return;
-
-	Packet result(WIZ_USER_INOUT, uint8(USER_OUT));
-	result << uint8(0) << GetSocketID();
-	m_pMain->Send_OldRegions(&result, del_x, del_z, pMap, m_RegionX, m_RegionZ);
+	Packet result(WIZ_USER_INOUT);
+	result << uint16(USER_OUT) << GetSocketID();
+	GetUserInfo(result);
+	m_pMain->Send_OldRegions(&result, del_x, del_z, GetMap(), m_RegionX, m_RegionZ);
 }
 
 void CUser::InsertRegion(int insert_x, int insert_z)
 {
-	Packet result(WIZ_USER_INOUT, uint8(USER_IN));
-	C3DMap* pMap = GetMap();
-
-	if (pMap == NULL)
-		return;
-
-	result << GetSocketID();
+	Packet result(WIZ_USER_INOUT);
+	result << uint16(USER_IN) << GetSocketID();
 	GetUserInfo(result);
-	m_pMain->Send_NewRegions(&result, insert_x, insert_z, pMap, m_RegionX, m_RegionZ);
+	m_pMain->Send_NewRegions(&result, insert_x, insert_z, GetMap(), m_RegionX, m_RegionZ);
 }
 
 void CUser::RequestUserIn(Packet & pkt)
 {
 	Packet result(WIZ_REQ_USERIN);
 	short user_count = pkt.read<uint16>(), online_count = 0;
+	if (user_count > 1000)
+		user_count = 1000;
+
 	result << uint16(0); // placeholder for user count
 
 	for (int i = 0; i < user_count; i++)
@@ -903,6 +898,9 @@ void CUser::RequestNpcIn(Packet & pkt)
 
 	Packet result(WIZ_REQ_NPCIN);
 	uint16 npc_count = pkt.read<uint16>();
+	if (npc_count > 1000)
+		npc_count = 1000;
+
 	result << uint16(0); // NPC count placeholder
 
 	for (int i = 0; i < npc_count; i++)
@@ -910,12 +908,6 @@ void CUser::RequestNpcIn(Packet & pkt)
 		uint16 nid = pkt.read<uint16>();
 		if (nid < 0 || nid > NPC_BAND+NPC_BAND)
 			continue;
-
-		if (i > 1000)
-		{
-			npc_count = 1000;
-			break;
-		}
 
 		CNpc *pNpc = m_pMain->m_arNpcArray.GetData(nid);
 		if (pNpc == NULL)
