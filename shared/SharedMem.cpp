@@ -193,57 +193,6 @@ int CSharedMemQueue::PutData(Packet *pkt)
 	return 1;
 }
 
-int CSharedMemQueue::GetData( char* pBuf )
-{
-	int index = 0, size = 0, temp_front = 0;
-	BYTE BlockMode;
-	
-	if( m_pHeader->FrontMode == R ) 
-		return SMQ_READING;
-
-	m_pHeader->FrontMode = R;
-	m_pHeader->ReadPid = _getpid();	// reading side ( agent ) is multi process ( one process -> act each single thread )
-
-	aa();	// no operation function
-	
-	if( m_pHeader->ReadPid != _getpid() ) {
-		m_pHeader->FrontMode = WR;
-		return SMQ_READING;
-	}
-
-	LONG pQueue = m_lReference + (m_pHeader->Front * m_wOffset);
-
-	index = 0;
-	BlockMode = GetByte( (char *)pQueue, index );
-	if( BlockMode == E ) {
-		m_pHeader->FrontMode = WR;
-		if( m_pHeader->Front < m_pHeader->Rear || (m_pHeader->Front > m_pHeader->Rear && m_pHeader->Front > MAX_COUNT-100) ) {
-			temp_front = (m_pHeader->Front + 1) % MAX_COUNT;
-			m_pHeader->Front = temp_front;
-			m_pHeader->nCount--;
-			char logstr[256];
-			sprintf_s( logstr, sizeof(logstr), "SMQ EMPTY Block Find - F:%d, R:%d\n", m_pHeader->Front, m_pHeader->Rear);
-			LogFileWrite( logstr );
-			TRACE(logstr);
-		}
-		return SMQ_EMPTY;
-	}
-
-	size = GetShort( (char*)pQueue, index );
-	GetString( pBuf, (char*)pQueue, size, index );
-
-	m_pHeader->nCount--;
-
-	temp_front = (m_pHeader->Front + 1) % MAX_COUNT;
-	m_pHeader->Front = temp_front;
-
-	memset( (void*)pQueue, 0x00, m_wOffset );
-
-	m_pHeader->FrontMode = WR;
-
-	return size;
-}
-
 int CSharedMemQueue::GetData(Packet & pkt)
 {
 	int index = 0, size = 0, temp_front = 0;
@@ -284,8 +233,9 @@ int CSharedMemQueue::GetData(Packet & pkt)
 	if (size <= 0 || size > MAX_PKTSIZE)
 		return 0;
 
-	pkt.SetOpcode(*(char *)(pQueue + index));
-	pkt.append((char *)(pQueue + index + 1), size - 1);
+	pkt.Initialize(*(char *)(pQueue + index));
+	if (size > 1)
+		pkt.append((char *)(pQueue + index + 1), size - 1);
 
 	m_pHeader->nCount--;
 

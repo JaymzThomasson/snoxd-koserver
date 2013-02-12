@@ -103,7 +103,7 @@ void CKnightsManager::CreateKnights(CUser* pUser, Packet & pkt)
 		uint16 knightindex = GetKnightsIndex(pUser->m_pUserData->m_bNation);
 		if (knightindex >= 0)
 		{	
-			result	<< uint16(pUser->GetSocketID()) << uint8(CLAN_TYPE) 
+			result	<< pUser->GetSocketID() << uint8(CLAN_TYPE) 
 					<< knightindex << pUser->getNation()
 					<< idname << pUser->m_pUserData->m_id;
 			m_pMain->m_LoggerSendQueue.PutData(&result);
@@ -719,7 +719,7 @@ void CKnightsManager::RecvCreateKnights(CUser *pUser, char *pBuf)
 	//TRACE("RecvCreateKnights - nid=%d, name=%s, index=%d, fame=%d, money=%d\n", pUser->GetSocketID(), pUser->m_pUserData->m_id, knightsindex, pUser->m_pUserData->m_bFame, money);
 
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_CREATE));
-	result	<< uint8(1) << uint16(pUser->GetSocketID()) 
+	result	<< uint8(1) << pUser->GetSocketID() 
 			<< knightsindex << knightsname
 			<< pKnights->m_byGrade << pKnights->m_byRanking
 			<< pUser->m_pUserData->m_iGold;
@@ -749,7 +749,7 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, char* pBuf, BYTE command)
 
 	//TRACE("RecvJoinKnights - command=%d, nid=%d, name=%s, index=%d, fame=%d\n", command, pUser->GetSocketID(), pUser->m_pUserData->m_id, pUser->m_pUserData->m_bKnights, pUser->m_pUserData->m_bFame);
 	Packet result(WIZ_KNIGHTS_PROCESS, command);
-	result	<< uint8(1) << uint16(pUser->GetSocketID())
+	result	<< uint8(1) << pUser->GetSocketID()
 			<< pUser->m_pUserData->m_bKnights << pUser->m_pUserData->m_bFame;
 
 	if (pKnights != NULL)

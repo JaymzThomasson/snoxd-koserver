@@ -201,6 +201,24 @@ int8 CDBAgent::CreateNewChar(string & strAccountID, int index, string & strCharI
 	return (int8)(nRet);
 }
 
+int8 CDBAgent::ChangeHair(std::string & strAccountID, std::string & strCharID, uint8 bOpcode, uint8 bFace, uint32 nHair)
+{
+	int8 nRet = 1; // failed
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	if (dbCommand.get() == NULL)
+		return nRet;
+
+	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strAccountID.c_str(), strAccountID.length());
+	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strCharID.c_str(), strCharID.length());
+	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
+
+	if (!dbCommand->Prepare(string_format(_T("{CALL CHANGE_HAIR (?, ?, %d, %d, %d, ?)}"), 
+		bOpcode, bFace, nHair)))
+		m_pMain->ReportSQLError(m_GameDB.GetError());
+
+	return nRet;
+}
+
 int8 CDBAgent::DeleteChar(string & strAccountID, int index, string & strCharID, string & strSocNo)
 {
 	int16 nRet = -2; // generic error

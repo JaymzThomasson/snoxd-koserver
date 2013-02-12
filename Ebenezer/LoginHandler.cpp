@@ -16,7 +16,7 @@ void CUser::VersionCheck(Packet & pkt)
 	Send(&result);
 
 	// Enable encryption
-	m_CryptionFlag = 1;
+	m_CryptionFlag = true;
 }
 
 void CUser::LoginProcess(Packet & pkt)
@@ -36,12 +36,25 @@ void CUser::LoginProcess(Packet & pkt)
 		goto fail_return;
 	}
 
-	result << uint16(GetSocketID()) << strAccountID << strPasswd;
+	result << GetSocketID() << strAccountID << strPasswd;
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 	m_strAccountID = strAccountID;
 	return;
 
 fail_return:
 	result << uint8(-1);
+	Send(&result);
+}
+
+void CUser::RecvLoginProcess(Packet & pkt)
+{
+	Packet result(WIZ_LOGIN);
+	int8 bResult = pkt.read<int8>();
+
+	// Error? Reset the account ID.
+	if (bResult < 0)
+		m_strAccountID = "";
+
+	result << bResult;
 	Send(&result);
 }

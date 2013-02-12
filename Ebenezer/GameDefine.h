@@ -295,7 +295,6 @@ struct _ITEM_TABLE
 	BYTE  m_bMPDamage;
 	BYTE  m_bMPDrain;
 	BYTE  m_bMirrorDamage;
-	BYTE  m_bDroprate;
 	int   m_bStrB;
 	int   m_bStaB;
 	int   m_bDexB;
@@ -326,9 +325,9 @@ struct	_PARTY_GROUP
 	};
 };
 
+#pragma pack(push, 1)
 struct _OBJECT_EVENT
 {
-	BYTE byLife;
 	int sBelong;
 	short sIndex;
 	short sType;
@@ -337,17 +336,41 @@ struct _OBJECT_EVENT
 	float fPosX;
 	float fPosY;
 	float fPosZ;
+	uint8 byLife;
 };
 
 struct _REGENE_EVENT
 {
-	int	  sRegenePoint;
 	float fRegenePosX;
 	float fRegenePosY;
 	float fRegenePosZ;
 	float fRegeneAreaZ;
 	float fRegeneAreaX;
+	int	  sRegenePoint;
 };
+
+struct _WARP_INFO
+{
+	short	sWarpID;
+	char	strWarpName[32];
+	char	strAnnounce[256];
+	DWORD	dwPay;
+	short	sZone;
+	short sXNan;
+	float	fX;
+	float	fY;
+	float	fZ;
+	float	fR;
+	short sNation;
+	short sX;
+
+	_WARP_INFO() {
+		sWarpID = 0; sZone = 0, sNation = 0, sX = 0, sXNan = 0;
+		fX = fZ = fY = fR = 0.0f;
+		memset( strWarpName, 0x00, 32 ); memset( strAnnounce, 0x00, 256 );
+	};
+};
+#pragma pack(pop)
 
 struct _KNIGHTS_USER
 {
@@ -468,28 +491,6 @@ struct _ZONE_SERVERINFO
 	short		sServerNo;
 	char		strServerIP[20];
 	_ZONE_SERVERINFO() {memset(strServerIP, 0x00, 20);};
-};
-
-struct _WARP_INFO
-{
-	short	sWarpID;
-	char	strWarpName[32];
-	char	strAnnounce[256];
-	DWORD	dwPay;
-	short	sZone;
-	short sXNan;
-	float	fX;
-	float	fY;
-	float	fZ;
-	float	fR;
-	short sNation;
-	short sX;
-
-	_WARP_INFO() {
-		sWarpID = 0; sZone = 0, sNation = 0, sX = 0, sXNan = 0;
-		fX = fZ = fY = fR = 0.0f;
-		memset( strWarpName, 0x00, 32 ); memset( strAnnounce, 0x00, 256 );
-	};
 };
 
 struct _HOME_INFO

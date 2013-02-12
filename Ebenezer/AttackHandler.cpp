@@ -97,7 +97,7 @@ void CUser::Attack(Packet & pkt)
 		{
 			result.SetOpcode(AG_ATTACK_REQ);
 			result	<< bType << bResult
-					<< uint16(GetSocketID()) << tid
+					<< GetSocketID() << tid
 					<< uint16(m_sTotalHit * m_bAttackAmount / 100)
 					<< uint16(m_sTotalAc + m_sACAmount)
 					<< m_sTotalHitrate /* this is actually a float. screwed up naming... */
@@ -111,7 +111,7 @@ void CUser::Attack(Packet & pkt)
 	}
 
 	result.SetOpcode(WIZ_ATTACK);
-	result << bType << bResult << uint16(GetSocketID()) << tid;
+	result << bType << bResult << GetSocketID() << tid;
 	SendToRegion(&result);
 
 	if (tid < NPC_BAND
@@ -636,7 +636,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 
 	if (m_bAbnormalType != ABNORMAL_BLINKING) {
 		result.Initialize(AG_USER_REGENE);
-		result << uint16(GetSocketID()) << m_pUserData->m_sHp;
+		result << GetSocketID() << m_pUserData->m_sHp;
 		m_pMain->Send_AIServer(&result);
 	}
 

@@ -43,7 +43,12 @@ CN3ShapeMgr::~CN3ShapeMgr()
 	m_Shapes.clear();
 #endif // end of #ifndef _3DSERVER
 
-	delete [] m_pvCollisions; m_pvCollisions = NULL;
+	if (m_pvCollisions != NULL)
+	{
+		delete [] m_pvCollisions; 
+		m_pvCollisions = NULL;
+	}
+
 	for(int z = 0; z < MAX_CELL_MAIN; z++)
 	{
 		for(int x = 0; x < MAX_CELL_MAIN; x++)
@@ -62,7 +67,13 @@ void CN3ShapeMgr::Release()
 	m_fMapWidth = 0.0f;
 	m_fMapLength = 0.0f;
 	m_nCollisionFaceCount = 0;
-	delete [] m_pvCollisions; m_pvCollisions = NULL;
+
+	if (m_pvCollisions != NULL)
+	{
+		delete [] m_pvCollisions; 
+		m_pvCollisions = NULL;
+	}
+
 	for(int z = 0; z < MAX_CELL_MAIN; z++)
 	{
 		for(int x = 0; x < MAX_CELL_MAIN; x++)
@@ -172,7 +183,13 @@ bool CN3ShapeMgr::LoadCollisionData(HANDLE hFile)
 
 	// 충돌 체크 폴리곤 데이터 읽기..
 	ReadFile(hFile, &m_nCollisionFaceCount, 4, &dwRWC, NULL);
-	delete [] m_pvCollisions; m_pvCollisions = NULL;
+
+	if (m_pvCollisions != NULL)
+	{
+		delete [] m_pvCollisions; 
+		m_pvCollisions = NULL;
+	}
+
 	if(m_nCollisionFaceCount > 0)
 	{
 		m_pvCollisions = new __Vector3[m_nCollisionFaceCount * 3];
@@ -187,13 +204,62 @@ bool CN3ShapeMgr::LoadCollisionData(HANDLE hFile)
 		int x = 0;
 		for(float fX = 0.0f; fX < m_fMapWidth;  fX += CELL_MAIN_SIZE, x++)
 		{
-			delete m_pCells[x][z]; m_pCells[x][z] = NULL;
+			if (m_pCells[x][z] != NULL)
+			{
+				delete m_pCells[x][z]; 
+				m_pCells[x][z] = NULL;
+			}
 
 			ReadFile(hFile, &bExist, 4, &dwRWC, NULL); // 데이터가 있는 셀인지 쓰고..
 			if(FALSE == bExist) continue;
 
 			m_pCells[x][z] = new __CellMain;
 			m_pCells[x][z]->Load(hFile);
+		}
+	}
+
+	return true;
+}
+
+bool CN3ShapeMgr::LoadCollisionData(FILE *fp)
+{
+	fread(&m_fMapWidth, 4, 1, fp); // Shape Count
+	fread(&m_fMapLength, 4, 1, fp); // Shape Count
+	this->Create(m_fMapWidth, m_fMapLength);
+
+	fread(&m_nCollisionFaceCount, 4, 1, fp);
+
+	if (m_pvCollisions != NULL)
+	{
+		delete [] m_pvCollisions; 
+		m_pvCollisions = NULL;
+	}
+
+	if(m_nCollisionFaceCount > 0)
+	{
+		m_pvCollisions = new __Vector3[m_nCollisionFaceCount * 3];
+		fread(m_pvCollisions, sizeof(__Vector3) * m_nCollisionFaceCount * 3, 1, fp);
+	}
+
+	// Cell Data 쓰기.
+	BOOL bExist = FALSE;
+	int z = 0;
+	for(float fZ = 0.0f; fZ < m_fMapLength; fZ += CELL_MAIN_SIZE, z++)
+	{
+		int x = 0;
+		for(float fX = 0.0f; fX < m_fMapWidth;  fX += CELL_MAIN_SIZE, x++)
+		{
+			if (m_pCells[x][z] != NULL)
+			{
+				delete m_pCells[x][z]; 
+				m_pCells[x][z] = NULL;
+			}
+
+			fread(&bExist, 4, 1, fp); // 데이터가 있는 셀인지 쓰고..
+			if(FALSE == bExist) continue;
+
+			m_pCells[x][z] = new __CellMain;
+			m_pCells[x][z]->Load(fp);
 		}
 	}
 

@@ -897,7 +897,7 @@ void CGameSocket::RecvPartyInfoAllData(char* pBuf)
 
 	sPartyIndex = GetShort(pBuf, index);
 
-	if( sPartyIndex >= 32767 || sPartyIndex < 0 )	{
+	if( sPartyIndex >= SHRT_MAX || sPartyIndex < 0 )	{
 		TRACE("#### RecvPartyInfoAllData Index Fail -  index = %d ####\n", sPartyIndex);
 		return;
 	}

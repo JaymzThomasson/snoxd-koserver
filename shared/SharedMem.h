@@ -45,7 +45,6 @@ public:
 	inline BYTE GetFrontMode() {return m_pHeader->FrontMode;};
 	inline BYTE GetRearMode() {return m_pHeader->RearMode;};
 	inline int GetCount() {return m_pHeader->nCount;};
-	int GetData( char* pBuf ); // PENDING DEPRECATION
 	int GetData(Packet & pkt);
 	int PutData( char* pBuf, int size ); // PENDING DEPRECATION
 	int PutData(Packet *pkt);

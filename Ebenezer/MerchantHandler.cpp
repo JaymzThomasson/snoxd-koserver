@@ -114,7 +114,7 @@ void CUser::MerchantClose()
 	m_bIsMerchanting = false;
 	GiveMerchantItems(); // Give back to the user that which hasn't been sold, if any.
 	Packet result(WIZ_MERCHANT, uint8(MERCHANT_CLOSE));
-	result << uint16(GetSocketID());
+	result << GetSocketID();
 	SendToRegion(&result);
 }
 
@@ -196,7 +196,7 @@ void CUser::MerchantInsert(Packet & pkt)
 	TakeMerchantItems(); // Removing the items from the user's inventory
 
 	Packet result(WIZ_MERCHANT, uint8(MERCHANT_INSERT));
-	result << uint16(1) << advertMessage << uint16(GetSocketID())
+	result << uint16(1) << advertMessage << GetSocketID()
 		<< uint8(0); // 0 is for "normal" merchant mode, 1 for "premium" merchant mode. Send "normal" until we have support for the skills.
 
 	for (int i = 0; i < MAX_MERCH_ITEMS; i++)

@@ -9,7 +9,7 @@ public:
 	CItemTableSet(MapType *stlMap, CDatabase* pDatabase = NULL)
 		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
 	{
-		m_nFields = 57;
+		m_nFields = 56;
 	}
 
 	DECLARE_DYNAMIC(CItemTableSet)
@@ -62,7 +62,6 @@ public:
 		RFX_Byte(pFX, _T("[MPDamage]"), m_data.m_bMPDamage);
 		RFX_Byte(pFX, _T("[MPDrain]"), m_data.m_bMPDrain);
 		RFX_Byte(pFX, _T("[MirrorDamage]"), m_data.m_bMirrorDamage);
-		RFX_Byte(pFX, _T("[Droprate]"), m_data.m_bDroprate);
 		RFX_Int(pFX, _T("[StrB]"), m_data.m_bStrB);
 		RFX_Int(pFX, _T("[StaB]"), m_data.m_bStaB);
 		RFX_Int(pFX, _T("[DexB]"), m_data.m_bDexB);

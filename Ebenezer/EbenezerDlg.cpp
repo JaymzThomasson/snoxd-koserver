@@ -66,119 +66,96 @@ DWORD WINAPI	ReadQueueThread(LPVOID lp);
 DWORD WINAPI ReadQueueThread(LPVOID lp)
 {
 	CEbenezerDlg* pMain = (CEbenezerDlg*)lp;
-	int recvlen = 0, index = 0, uid = -1, send_index = 0, buff_length = 0;
-	BYTE command, result;
-	char pBuf[1024], send_buff[1024];
 	CUser* pUser = NULL;
-	int currenttime = 0;
+	Packet pkt;
 
 	while (TRUE)
 	{
-		if (pMain->m_LoggerRecvQueue.GetFrontMode() != R)
+		if (pMain->m_LoggerRecvQueue.GetFrontMode() == R)
 		{
-			index = 0;
-			recvlen = pMain->m_LoggerRecvQueue.GetData(pBuf);
+			Sleep(1);
+			continue;
+		}
 
-			if (recvlen > MAX_PKTSIZE || recvlen == 0)
+		int recvlen = pMain->m_LoggerRecvQueue.GetData(pkt);
+		if (recvlen > MAX_PKTSIZE || recvlen == 0)
+		{
+			Sleep(1);
+			continue;
+		}
+
+		// clan packets are main opcode | sub opcode | uid
+		// TO-DO: Make these behave like everything else (this is dumb)
+#if 0
+		if (pkt.GetOpcode() == WIZ_KNIGHTS_PROCESS)
+		{
+			uid = *(short *)(pBuf + index + 1);
+
+			// this packet needs to be handled server-side, not per user
+			if (*(uint8 *)(pBuf + index) == KNIGHTS_ALLLIST_REQ && uid == -1)
 			{
-				Sleep(1);
+				pMain->m_KnightsManager.RecvKnightsAllList(pBuf + index + 3);
 				continue;
 			}
-
-			command = GetByte(pBuf, index);
-
-			// clan packets are main opcode | sub opcode | uid
-			if (command == WIZ_KNIGHTS_PROCESS)
-			{
-				uid = *(short *)(pBuf + index + 1);
-
-				// this packet needs to be handled server-side, not per user
-				if (*(uint8 *)(pBuf + index) == KNIGHTS_ALLLIST_REQ && uid == -1)
-				{
-					pMain->m_KnightsManager.RecvKnightsAllList(pBuf + index + 3);
-					continue;
-				}
-			}
-			// everything else is main opcode | uid
-			else
-			{
-				uid = GetShort(pBuf, index);
-			}
-
-
-			if ((pUser = pMain->GetUserPtr(uid)) == NULL)
-				goto loop_pass;
-
-			switch (command)
-			{
-				case WIZ_LOGIN:
-					result = GetByte( pBuf, index );
-					if( result == 0xFF )
-						pUser->m_strAccountID = "";
-					SetByte( send_buff, WIZ_LOGIN, send_index );
-					SetByte( send_buff, result, send_index );					// ������ ���� ����
-					pUser->Send( send_buff, send_index );
-					break;
-				case WIZ_SEL_NATION:
-					SetByte( send_buff, WIZ_SEL_NATION, send_index );
-					SetByte( send_buff, GetByte( pBuf, index ), send_index );	// ���� ����
-					pUser->Send( send_buff, send_index );
-					break;
-				case WIZ_NEW_CHAR:
-					result = GetByte( pBuf, index );
-					SetByte( send_buff, WIZ_NEW_CHAR, send_index );
-					SetByte( send_buff, result, send_index );					// ������ ���� ����
-					pUser->Send( send_buff, send_index );
-					break;
-				case WIZ_DEL_CHAR:
-					pUser->RecvDeleteChar( pBuf + index );
-					break;
-				case WIZ_SEL_CHAR:
-					pUser->SelectCharacter( pBuf + index );
-					break;
-				case WIZ_ALLCHAR_INFO_REQ:
-					buff_length = GetShort( pBuf, index );
-					if( buff_length > recvlen )
-						break;
-					SetByte( send_buff, WIZ_ALLCHAR_INFO_REQ, send_index );
-					SetString( send_buff, pBuf+index, buff_length, send_index );
-					pUser->Send( send_buff, send_index );
-					break;
-				case WIZ_SHOPPING_MALL:
-					pUser->RecvStore(pBuf+index);
-					break;
-				case WIZ_SKILLDATA:
-					{ 
-						BYTE opcode = GetByte(pBuf, index);
-						if (opcode == SKILL_DATA_LOAD)
-							pUser->RecvSkillDataLoad(pBuf+index);
-					} break;
-				case WIZ_LOGOUT:
-					if (pUser->m_pUserData->m_id[0] != 0)
-					{
-						TRACE("Logout Strange...%s\n", pUser->m_pUserData->m_id);
-						pUser->Close();
-					}
-					break;
-				case WIZ_FRIEND_PROCESS:
-					pUser->RecvFriendProcess(pBuf+index);
-					break;
-				case WIZ_KNIGHTS_PROCESS:
-					pMain->m_KnightsManager.ReceiveKnightsProcess(pUser, pBuf+index);
-					break;
-				case WIZ_LOGIN_INFO:
-					result = GetByte( pBuf, index );
-					if( result == 0x00 )
-						pUser->Close();
-					break;
-			}
 		}
-		else
+		// everything else is main opcode | uid
+#endif
+		uint16 uid;
+		pkt >> uid;
+
+
+		if ((pUser = pMain->GetUserPtr(uid)) == NULL)
 			continue;
 
-loop_pass:
-		recvlen = 0;
-		send_index = 0;
+		switch (pkt.GetOpcode())
+		{
+			case WIZ_LOGIN:
+				pUser->RecvLoginProcess(pkt);
+				break;
+			case WIZ_SEL_NATION:
+				pUser->RecvSelNation(pkt);
+				break;
+			case WIZ_NEW_CHAR:
+				pUser->RecvNewChar(pkt);
+				break;
+			case WIZ_DEL_CHAR:
+				pUser->RecvDeleteChar(pkt);
+				break;
+			case WIZ_SEL_CHAR:
+				pUser->SelectCharacter(pkt);
+				break;
+			case WIZ_ALLCHAR_INFO_REQ:
+				pUser->RecvAllCharInfoReq(pkt);
+				break;
+			case WIZ_CHANGE_HAIR:
+				pUser->RecvChangeHair(pkt);
+				break;
+			case WIZ_SHOPPING_MALL:
+				pUser->RecvStore(pkt);
+				break;
+			case WIZ_SKILLDATA:
+				{ 
+					uint8 subOpcode = pkt.read<uint8>();
+					if (subOpcode == SKILL_DATA_LOAD)
+						pUser->RecvSkillDataLoad(pkt);
+				} break;
+			case WIZ_LOGOUT:
+				if (pUser->m_pUserData->m_id[0] != 0)
+				{
+					TRACE("Logout Strange...%s\n", pUser->m_pUserData->m_id);
+					pUser->Close();
+				}
+				break;
+			case WIZ_FRIEND_PROCESS:
+				pUser->RecvFriendProcess(pkt);
+				break;
+			case WIZ_KNIGHTS_PROCESS:
+				pMain->m_KnightsManager.ReceiveKnightsProcess(pUser, (char *)(pkt.contents() + pkt.rpos())); // TO-DO: Replace this entirely.
+				break;
+			case WIZ_LOGIN_INFO:
+				pUser->RecvLoginInfo(pkt);
+				break;
+		}
 	}
 }
 
@@ -355,14 +332,11 @@ BOOL CEbenezerDlg::OnInitDialog()
 		return FALSE;
 	}
 
-	LogFileWrite("before map file");
 	if( !MapFileLoad() )
 	{
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
-
-	LogFileWrite("after map file");
 
 	LoadNoticeData();
 	LoadBlockNameList();
@@ -390,67 +364,51 @@ BOOL CEbenezerDlg::OnInitDialog()
 
 BOOL CEbenezerDlg::LoadTables()
 {
-	LogFileWrite("before ITEM");
 	if (!LoadItemTable())
 		return FALSE;
 
-	LogFileWrite("before SERVER_RESOURCE");
 	if (!LoadServerResourceTable())
 		return FALSE;
 
-	LogFileWrite("before MAGIC");
 	if (!LoadMagicTable())
 		return FALSE;
 
-	LogFileWrite("before MAGIC_TYPE1");
 	if (!LoadMagicType1())
 		return FALSE;
 
-	LogFileWrite("before MAGIC_TYPE2");
 	if (!LoadMagicType2())
 		return FALSE;
 
-	LogFileWrite("before MAGIC_TYPE3");
 	if (!LoadMagicType3())
 		return FALSE;
 
-	LogFileWrite("before MAGIC_TYPE4");
 	if (!LoadMagicType4())
 		return FALSE;
 
-	LogFileWrite("before MAGIC_TYPE5");
 	if (!LoadMagicType5())
 		return FALSE;
 
-	LogFileWrite("before MAGIC_TYPE8");
 	if (!LoadMagicType8())
 		return FALSE;
 
-	LogFileWrite("before COEFFICIENT");
 	if (!LoadCoefficientTable())
 		return FALSE;
 
-	LogFileWrite("before LEVEL_UP");
 	if (!LoadLevelUpTable())
 		return FALSE;
 
-	LogFileWrite("before KNIGHTS");
 	if (!LoadAllKnights())
 		return FALSE;
 
-	LogFileWrite("before KNIGHTS_USER");
 	if (!LoadAllKnightsUserData())
 		return FALSE;
 
-	LogFileWrite("before HOME");
 	if (!LoadHomeTable())
 		return FALSE;
 
-	LogFileWrite("before START_POSITION");
 	if (!LoadStartPositionTable())
 		return FALSE;
 
-	LogFileWrite("before BATTLE");
 	if (!LoadBattleTable())
 		return FALSE;
 
@@ -546,6 +504,9 @@ BOOL CEbenezerDlg::DestroyWindow()
 		UnmapViewOfFile(m_lpMMFile);
 		CloseHandle(m_hMMFile);
 	}
+
+	if (m_GameDB.IsOpen())
+		m_GameDB.Close();
 
 	if (m_RegionLogFile.m_hFile != CFile::hFileNull) m_RegionLogFile.Close();
 	if (m_LogFile.m_hFile != CFile::hFileNull) m_LogFile.Close();
@@ -716,14 +677,21 @@ void CEbenezerDlg::OnTimer(UINT nIDEvent)
 	case GAME_TIME:
 		UpdateGameTime();
 		{	// AIServer Socket Alive Check Routine
-			CAISocket* pAISock = NULL;
-			for(int i=0; i<MAX_AI_SOCKET; i++) {
-				pAISock = m_AISocketArray.GetData( i );
+			for (int i=0; i<MAX_AI_SOCKET; i++)
+			{
+				CAISocket *pAISock = m_AISocketArray.GetData( i );
 				if( pAISock && pAISock->GetState() == STATE_DISCONNECTED )
-					AISocketConnect( i, 1 );
+				{
+					if (!AISocketConnect( i, 1 ))
+						break;
+				}
 				else if( !pAISock )
-					AISocketConnect( i, 1 );
-				else count++;
+				{
+					if (!AISocketConnect( i, 1 ))
+						break;
+				}
+				else 
+					count++;
 			}
 
 			if(count <= 0)	{	
@@ -1075,34 +1043,26 @@ BOOL CEbenezerDlg::InitializeMMF()
 BOOL CEbenezerDlg::MapFileLoad()
 {
 	map<int, _ZONE_INFO*> zoneMap;
-	CZoneInfoSet ZoneInfoSet(&zoneMap, &m_GameDB);
 
+	CZoneInfoSet ZoneInfoSet(&zoneMap, &m_GameDB);
 	if (!ZoneInfoSet.Read())
 		return FALSE;
 
 	foreach (itr, zoneMap)
 	{
-		CFile file;
-		CString szFullPath;
-		_ZONE_INFO *pZone = itr->second;
-
 		C3DMap *pMap = new C3DMap();
-		pMap->Initialize(pZone);
-		delete pZone;
-
-		m_ZoneArray.PutData(pMap->m_nZoneNumber, pMap);
-
-		szFullPath.Format(".\\MAP\\%s", pMap->m_MapName);
-		if (!file.Open(szFullPath, CFile::modeRead)
-			|| !pMap->LoadMap((HANDLE)file.m_hFile))
+		_ZONE_INFO *pZone = itr->second;
+		if (!pMap->Initialize(pZone))
 		{
-			AfxMessageBox("Unable to load SMD - " + szFullPath);
+			AfxMessageBox("Unable to load SMD - " + (CString)pZone->m_MapName);
+			delete pZone;
+			delete pMap;
 			m_ZoneArray.DeleteAllData();
-			if (file.m_hFile != CFile::hFileNull)
-				file.Close();
-			return FALSE;
+			return false;
 		}
-		file.Close();
+
+		delete pZone;
+		m_ZoneArray.PutData(pMap->m_nZoneNumber, pMap);
 
 		EVENT * pEvent = new EVENT;
 		if (!pEvent->LoadEvent(pMap->m_nZoneNumber)
@@ -1377,7 +1337,7 @@ void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Pac
 			pUser->GetState() != STATE_GAMESTART)
 			continue;
 
-		pkt << uint8(0) << uint16(pUser->GetSocketID());
+		pkt << uint8(0) << pUser->GetSocketID();
 		pUser->GetUserInfo(pkt);
 		t_count++;
 	}
@@ -1401,7 +1361,7 @@ void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, int region_x, int region_z, P
 			pUser->GetState() != STATE_GAMESTART)
 			continue;
 
-		pkt << uint16(pUser->GetSocketID());
+		pkt << pUser->GetSocketID();
 		t_count++;
 	}
 
@@ -1445,7 +1405,7 @@ void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, int region_x, int regio
 			|| !pUser->isMerchanting())
 			continue;
 
-		pkt << uint16(pUser->GetSocketID())
+		pkt << pUser->GetSocketID()
 			<< uint8(0) 
 			<< uint8(0); // Type of merchant [normal - gold]
 

@@ -32,16 +32,20 @@ void CUser::Initialize()
 {
 	m_pMain = (CEbenezerDlg*)AfxGetApp()->GetMainWnd();
 
-	// Cryption
-	Make_public_key();
+	// because of their sucky encryption method, 0 means it effectively won't be encrypted. 
+	// We don't want that happening...
+	do
+	{
+		m_Public_key = (uint64)rand() << 32 | rand();
+	} while (m_Public_key == 0); 
+
 	jct.SetPublicKey(m_Public_key);
 	jct.SetPrivateKey(g_private_key);
 	jct.Init();
 
-	m_CryptionFlag = 0;
+	m_CryptionFlag = false;
 	m_Sen_val = 0;
 	m_Rec_val = 0;
-	///~
 
 	m_bSelectedCharacter = false;
 	m_bStoreOpen = false;
@@ -159,42 +163,6 @@ void CUser::Initialize()
 	CIOCPSocket2::Initialize();
 }
 
-// Cryption
-void CUser::Make_public_key()
-{
-	int out_flag = 0;
-	do
-	{
-		m_Public_key = rand();
-		m_Public_key <<= 8;
-
-		m_Public_key |= rand();
-		m_Public_key <<= 8;
-
-		m_Public_key |= rand();
-		m_Public_key <<= 8;
-
-		m_Public_key |= rand();
-		m_Public_key <<= 8;
-
-		m_Public_key |= rand();
-		m_Public_key <<= 8;
-
-		m_Public_key |= rand();
-		m_Public_key <<= 8;
-
-		m_Public_key |= rand();
-		m_Public_key <<= 8;
-
-		m_Public_key |= rand();
-
-		if (m_Public_key != 0)
-			out_flag = 1;
-
-	} while( !out_flag );
-}
-///~
-
 void CUser::CloseProcess()
 {
 	if (GetState() == STATE_GAMESTART)
@@ -221,7 +189,7 @@ void CUser::Parsing(Packet & pkt)
 	uint8 command = pkt.GetOpcode();
 	TRACE("[SID=%d] Packet: %X (len=%d)\n", m_Sid, command, pkt.size());
 	// If crypto's not been enabled yet, force the version packet to be sent.
-	if (!m_CryptionFlag)
+	if (!isCryptoEnabled())
 	{
 		if (command == WIZ_VERSION_CHECK)
 			VersionCheck(pkt);
@@ -248,6 +216,9 @@ void CUser::Parsing(Packet & pkt)
 		case WIZ_ALLCHAR_INFO_REQ:
 			AllCharInfoToAgent();
 			break;
+		case WIZ_CHANGE_HAIR:
+			ChangeHair(pkt);
+			break;
 		case WIZ_NEW_CHAR:
 			NewCharToAgent(pkt);
 			break;
@@ -260,7 +231,6 @@ void CUser::Parsing(Packet & pkt)
 		case WIZ_SPEEDHACK_CHECK:
 			SpeedHackTime(pkt);
 			break;
-
 		default:
 			TRACE("[SID=%d] Unhandled packet (%X) prior to selecting character\n", m_Sid, command);
 			break;
@@ -480,7 +450,7 @@ void CUser::ChangeFame(uint8 bFame)
 	Packet result(WIZ_AUTHORITY_CHANGE, uint8(COMMAND_AUTHORITY));
 
 	m_pUserData->m_bFame = CHIEF;
-	result << uint16(GetSocketID()) << getFame();
+	result << GetSocketID() << getFame();
 	SendToRegion(&result);
 }
 
@@ -513,7 +483,7 @@ void CUser::SkillDataSave(Packet & pkt)
 	if (sCount == 0 || sCount > 64)
 		return;
 
-	result	<< uint16(GetSocketID()) << uint8(SKILL_DATA_SAVE) << sCount;
+	result	<< GetSocketID() << uint8(SKILL_DATA_SAVE) << sCount;
 	for (int i = 0; i < sCount; i++)
 		result << pkt.read<uint32>();
 	
@@ -523,22 +493,21 @@ void CUser::SkillDataSave(Packet & pkt)
 void CUser::SkillDataLoad()
 {
 	Packet result(WIZ_SKILLDATA);
-	result << uint16(GetSocketID()) << uint8(SKILL_DATA_LOAD);
+	result << GetSocketID() << uint8(SKILL_DATA_LOAD);
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
-void CUser::RecvSkillDataLoad(char *pData)
+void CUser::RecvSkillDataLoad(Packet & pkt)
 {
-	int index = 0, sCount = 0;
-
-	BYTE bSuccess = GetByte(pData, index);
+	uint16 sCount = 0;
+	uint8 bSuccess = pkt.read<uint8>();
 	if (!bSuccess)
 	{
 		sCount = 0;
 	}
 	else
 	{
-		sCount = GetShort(pData, index);
+		pkt >> sCount;
 		if (sCount < 0 || sCount > 64)
 			sCount = 0;
 	}
@@ -547,10 +516,7 @@ void CUser::RecvSkillDataLoad(char *pData)
 	result << sCount;
 
 	for (int i = 0; i < sCount; i++) 
-	{
-		int nItemID = GetDWORD(pData, index);
-		result << nItemID;
-	}
+		result << pkt.read<uint32>();
 
 	Send(&result);
 }
@@ -561,7 +527,7 @@ void CUser::UserDataSaveToAgent()
 		return;
 
 	Packet result(WIZ_DATASAVE);
-	result << uint16(GetSocketID()) << m_pUserData->m_Accountid << m_pUserData->m_id;
+	result << GetSocketID() << m_pUserData->m_Accountid << m_pUserData->m_id;
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
@@ -581,7 +547,7 @@ void CUser::LogOut()
 		return; 
 
 	Packet result(WIZ_LOGOUT);
-	result << uint16(GetSocketID()) << m_pUserData->m_Accountid << m_pUserData->m_id;
+	result << GetSocketID() << m_pUserData->m_Accountid << m_pUserData->m_id;
 	m_pMain->m_LoggerSendQueue.PutData(&result);
 
 	result.SetOpcode(AG_USER_LOG_OUT); // same packet, just change the opcode
@@ -610,7 +576,7 @@ void CUser::SendMyInfo()
 	result.Initialize(WIZ_MYINFO);
 
 	result.SByte(); // character name has a single byte length
-	result	<< uint16(GetSocketID())
+	result	<< GetSocketID()
 			<< m_pUserData->m_id
 			<< GetSPosX() << GetSPosZ() << GetSPosY()
 			<< getNation() 
@@ -629,12 +595,13 @@ void CUser::SendMyInfo()
 
 	if (pKnights == NULL)
 	{
-		// should work out to be 11 bytes, 6-7 being cape ID.
 		result	<< uint32(0) << uint16(0) << uint16(-1) << uint16(0) << uint8(0);
 	}
 	else 
 	{
-		result	<< uint8(pKnights->m_byRanking) // Knights Ranking
+		// TO-DO: Figure all this out.
+		result.SByte();
+		result	<< pKnights->m_byRanking // Knights Ranking
 				<< uint8(12) // Kind of grade - 1 Normal Clan // 2 Trainin Clan // 3 -7 Acreditation // Royal 8-12
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
@@ -890,7 +857,7 @@ void CUser::RemoveRegion(int del_x, int del_z)
 		return;
 
 	Packet result(WIZ_USER_INOUT, uint8(USER_OUT));
-	result << uint8(0) << uint16(GetSocketID());
+	result << uint8(0) << GetSocketID();
 	m_pMain->Send_OldRegions(&result, del_x, del_z, pMap, m_RegionX, m_RegionZ);
 }
 
@@ -902,7 +869,7 @@ void CUser::InsertRegion(int insert_x, int insert_z)
 	if (pMap == NULL)
 		return;
 
-	result << uint16(GetSocketID());
+	result << GetSocketID();
 	GetUserInfo(result);
 	m_pMain->Send_NewRegions(&result, insert_x, insert_z, pMap, m_RegionX, m_RegionZ);
 }
@@ -919,7 +886,7 @@ void CUser::RequestUserIn(Packet & pkt)
 		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART)
 			continue;
 
-		result << uint8(0) << uint16(pUser->GetSocketID());
+		result << uint8(0) << pUser->GetSocketID();
 		GetUserInfo(result);
 		online_count++;
 	}
@@ -1207,9 +1174,7 @@ void CUser::LevelChange(short level, BYTE type )
 		return;
 
 	if( type ) {
-		if ((m_pUserData->m_sPoints 
-				+ getStat(STAT_STR) + getStat(STAT_STA) + getStat(STAT_DEX) + getStat(STAT_INT) + getStat(STAT_CHA)) 
-			< (300 + 3 * (level - 1)))
+		if ((m_pUserData->m_sPoints + getStatTotal()) < (300 + 3 * (level - 1)))
 			m_pUserData->m_sPoints += 3;
 		if( level > 9 && (m_pUserData->m_bstrSkill[0]+m_pUserData->m_bstrSkill[1]+m_pUserData->m_bstrSkill[2]+m_pUserData->m_bstrSkill[3]+m_pUserData->m_bstrSkill[4]
 			+m_pUserData->m_bstrSkill[5]+m_pUserData->m_bstrSkill[6]+m_pUserData->m_bstrSkill[7]+m_pUserData->m_bstrSkill[8]) < (2*(level-9)) )
@@ -1227,7 +1192,7 @@ void CUser::LevelChange(short level, BYTE type )
 	Send2AI_UserUpdateInfo();
 
 	Packet result(WIZ_LEVEL_CHANGE);
-	result	<< uint16(GetSocketID())
+	result	<< GetSocketID()
 			<< getLevel() << m_pUserData->m_sPoints << m_pUserData->m_bstrSkill[0]
 			<< m_iMaxExp << m_pUserData->m_iExp
 			<< m_iMaxHp << m_pUserData->m_sHp 
@@ -1239,7 +1204,7 @@ void CUser::LevelChange(short level, BYTE type )
 	{
 		// TO-DO: Move this to party specific code
 		result.Initialize(WIZ_PARTY);
-		result << uint8(PARTY_LEVELCHANGE) << uint16(GetSocketID()) << getLevel();
+		result << uint8(PARTY_LEVELCHANGE) << GetSocketID() << getLevel();
 		m_pMain->Send_PartyMember(m_sPartyIndex, &result);
 	}
 }
@@ -1287,7 +1252,7 @@ void CUser::HpChange(int amount, int type, bool attack)		// type : Received From
 	if (type == 0)
 	{
 		result.Initialize(AG_USER_SET_HP);
-		result << uint16(GetSocketID()) << uint32(m_pUserData->m_sHp);
+		result << GetSocketID() << uint32(m_pUserData->m_sHp);
 		m_pMain->Send_AIServer(&result);
 	}
 
@@ -1320,7 +1285,7 @@ void CUser::SendPartyHPUpdate()
 {
 	Packet result(WIZ_PARTY);
 	result	<< uint8(PARTY_HPCHANGE)
-			<< uint16(GetSocketID())
+			<< GetSocketID()
 			<< m_iMaxHp << m_pUserData->m_sHp
 			<< m_iMaxMp << m_pUserData->m_sMp;
 	m_pMain->Send_PartyMember(m_sPartyIndex, &result);
@@ -1330,7 +1295,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 {
 	Packet result(initialInfo ? AG_USER_INFO : AG_USER_UPDATE);
 
-	result	<< uint16(GetSocketID())
+	result	<< GetSocketID()
 			<< m_pUserData->m_id
 			<< getZoneID() << getNation() << getLevel()
 			<< m_pUserData->m_sHp << m_pUserData->m_sMp
@@ -1552,7 +1517,7 @@ void CUser::ItemGet(Packet & pkt)
 
 	if (itemid == ITEM_GOLD)
 	{
-		if (count == 0 || count >= 32767)
+		if (count == 0 || count >= SHRT_MAX)
 			return;
 
 		if (!isInParty())
@@ -1720,7 +1685,7 @@ void CUser::StateChange(Packet & pkt)
 	}
 
 	Packet result(WIZ_STATE_CHANGE);
-	result << uint16(GetSocketID()) << type << nBuff; /* hmm, it should probably be nBuff, not sure how transformations are to be handled so... otherwise, it's correct either way */
+	result << GetSocketID() << type << nBuff; /* hmm, it should probably be nBuff, not sure how transformations are to be handled so... otherwise, it's correct either way */
 	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
 }
 
@@ -1817,44 +1782,37 @@ void CUser::UserLookChange(int pos, int itemid, int durability)
 		return;
 
 	Packet result(WIZ_USERLOOK_CHANGE);
-	result << uint16(GetSocketID()) << uint8(pos) << itemid << uint16(durability);
+	result << GetSocketID() << uint8(pos) << itemid << uint16(durability);
 	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this);
 }
 
 void CUser::SendNotice()
 {
-	int send_index = 0, count = 0;
-	char send_buff[2048];
-
-	SetByte( send_buff, WIZ_NOTICE, send_index );
-#if __VERSION < 1453
-	char buff[1024]; int buff_index = 0;
-	for( int i=0; i<20; i++ ) {
+	Packet result(WIZ_NOTICE);
+	uint8 count = 0;
+#if __VERSION < 1453 // NOTE: This is actually still supported if we wanted to use it.
+	result.SByte(); // only old-style notices use single byte lengths
+	result << count; // placeholder the count
+	for (int i = 0; i < 20; i++)
+	{
 		if (m_pMain->m_ppNotice[i][0] == 0)
 			continue;
 
-		SetKOString(buff, m_pMain->m_ppNotice[i], buff_index, 1);
+		result << m_pMain->m_ppNotice[i];
 		count++;
 	}
-	SetByte( send_buff, count, send_index );
-	SetString( send_buff, buff, buff_index, send_index );*/
+	result.put(0, count); // replace the placeholdered line count
 #else
-	SetByte(send_buff, 2, send_index); // type 2 = new-style notices
-
-	// hardcoded temporarily
-	SetByte(send_buff, 3, send_index); // 3 boxes
-
-	SetKOString(send_buff, "Header 1", send_index);
-	SetKOString(send_buff, "Data in header 1", send_index);
-
-	SetKOString(send_buff, "Header 2", send_index);
-	SetKOString(send_buff, "Data in header 2", send_index);
-
-	SetKOString(send_buff, "Header 3", send_index);
-	SetKOString(send_buff, "Data in header 3", send_index);
+	result << uint8(2); // new-style notices (top-right of screen)
+	
+	count = 3; // hardcoded temporarily
+	result << count; // number of entries
+	result << "Header 1" << "Data in header 1";
+	result << "Header 2" << "Data in header 2";
+	result << "Header 3" << "Data in header 3";
 #endif
 	
-	Send( send_buff, send_index );
+	Send(&result);
 }
 
 void CUser::SkillPointChange(Packet & pkt)
@@ -1893,7 +1851,7 @@ void CUser::UpdateGameWeather(Packet & pkt)
 void CUser::SendUserInfo(Packet & result)
 {
 	result.DByte(); // string is double byte
-	result	<< uint16(GetSocketID())
+	result	<< GetSocketID()
 			<< m_pUserData->m_id << getZoneID() << getNation() << getLevel()
 			<< m_pUserData->m_sHp << m_pUserData->m_sMp 
 			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
@@ -1904,21 +1862,20 @@ void CUser::SendUserInfo(Packet & result)
 
 void CUser::CountConcurrentUser()
 {
-	if( m_pUserData->m_bAuthority != 0 )
+	if (!isGM())
 		return;
-	int usercount = 0, send_index = 0;
-	char send_buff[128];
-	CUser* pUser = NULL;
 
-	for(int i=0; i<MAX_USER; i++ ) {
-		pUser = m_pMain->GetUnsafeUserPtr(i);
+	uint16 count = 0;
+	for (int i = 0; i < MAX_USER; i++)
+	{
+		CUser *pUser = m_pMain->GetUnsafeUserPtr(i);
 		if (pUser != NULL && pUser->GetState() == STATE_GAMESTART)
-			usercount++;
+			count++;
 	}
 
-	SetByte( send_buff, WIZ_CONCURRENTUSER, send_index );
-	SetShort( send_buff, usercount, send_index );
-	Send( send_buff, send_index );
+	Packet result(WIZ_CONCURRENTUSER);
+	result << count;
+	Send(&result);
 }
 
 void CUser::LoyaltyDivide(short tid)
@@ -2049,7 +2006,7 @@ void CUser::LoyaltyDivide(short tid)
 void CUser::Dead()
 {
 	Packet result(WIZ_DEAD);
-	result << uint16(GetSocketID());
+	result << GetSocketID();
 	SendToRegion(&result);
 
 	m_bResHpType = USER_DEAD;
@@ -2665,9 +2622,9 @@ void CUser::Type3AreaDuration(float currenttime)
 			{
 				result.clear();
 				result	<< uint8(MAGIC_EFFECTING) << m_iAreaMagicID
-						<< uint16(GetSocketID()) << uint16(i)
+						<< GetSocketID() << uint16(i)
 						<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
-				m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
+				SendToRegion(&result);
 			}
 		}
 
@@ -2683,9 +2640,9 @@ void CUser::Type3AreaDuration(float currenttime)
 
 	result.clear();
 	result	<< uint8(MAGIC_EFFECTING) << m_iAreaMagicID
-			<< uint16(GetSocketID()) << uint16(GetSocketID())
+			<< GetSocketID() << GetSocketID()
 			<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
-	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
+	SendToRegion(&result);
 }
 
 void CUser::InitType4()
@@ -2779,10 +2736,12 @@ bool CUser::GetStartPosition(short & x, short & z, BYTE bZone /*= 0 */)
 
 void CUser::ResetWindows()
 {
-/*	if (isTrading())
+	if (isTrading())
 		ExchangeCancel();
 
-	if (isUsingMerchant())
+/*
+	// TO-DO: Make the distinction between vendors and buyers...
+	if (isMerchanting())
 		MerchantClose();
 
 	if (isUsingBuyingMerchant())
@@ -3089,7 +3048,7 @@ void CUser::SelectWarpList(Packet & pkt)
 	uint16 npcid, warpid;
 	pkt >> npcid >> warpid;
 
-	_WARP_INFO *pWarp = GetMap()->m_WarpArray.GetData(warpid);
+	_WARP_INFO *pWarp = GetMap()->GetWarp(warpid);
 	if (pWarp == NULL)
 		return;
 
@@ -3127,7 +3086,7 @@ void CUser::ServerChangeOk(Packet & pkt)
 	if (pMap == NULL)
 		return;
 
-	_WARP_INFO* pWarp = pMap->m_WarpArray.GetData(warpid);
+	_WARP_INFO* pWarp = pMap->GetWarp(warpid);
 	if (pWarp == NULL)
 		return;
 
@@ -3145,14 +3104,7 @@ BOOL CUser::GetWarpList(int warp_group)
 	C3DMap* pMap = GetMap();
 	set<_WARP_INFO*> warpList;
 
-	foreach_stlmap (itr, pMap->m_WarpArray)
-	{
-		_WARP_INFO *pWarp = itr->second;
-		if (pWarp == NULL || (pWarp->sWarpID / 10) != warp_group)
-			continue;
-		
-		warpList.insert(pWarp);
-	}
+	pMap->GetWarpList(warp_group, warpList);
 
 	result << uint16(warpList.size());
 	foreach (itr, warpList)
@@ -3355,12 +3307,12 @@ void CUser::BlinkTimeCheck(float currenttime)
 	StateChangeServerDirect(3, ABNORMAL_NORMAL);
 
 	Packet result(AG_USER_REGENE);
-	result	<< uint16(GetSocketID()) << m_pUserData->m_sHp;
+	result	<< GetSocketID() << m_pUserData->m_sHp;
 	m_pMain->Send_AIServer(&result);
 
 
 	result.Initialize(AG_USER_INOUT);
-	result	<< uint8(USER_REGENE) << uint16(GetSocketID())
+	result	<< uint8(USER_REGENE) << GetSocketID()
 			<< m_pUserData->m_id
 			<< m_pUserData->m_curx << m_pUserData->m_curz;
 	m_pMain->Send_AIServer(&result);
@@ -3530,7 +3482,7 @@ void CUser::OnDeath()
 void CUser::SendDeathAnimation()
 {
 	Packet result(WIZ_DEAD);
-	result << uint16(GetSocketID());
+	result << GetSocketID();
 	SendToRegion(&result);
 }
 
@@ -3538,7 +3490,7 @@ void CUser::SendDeathAnimation()
 void CUser::SendClanUserStatusUpdate(bool bToRegion /*= true*/)
 {
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MODIFY_FAME));
-	result	<< uint8(1) << uint16(GetSocketID()) 
+	result	<< uint8(1) << GetSocketID() 
 			<< m_pUserData->m_bKnights << m_pUserData->m_bFame;
 
 	// TO-DO: Make this region code user-specific to perform faster.
@@ -3554,7 +3506,7 @@ void CUser::SendPartyStatusUpdate(uint8 bStatus, uint8 bResult /*= 0*/)
 		return;
 
 	Packet result(WIZ_PARTY, uint8(PARTY_STATUSCHANGE));
-	result << uint16(GetSocketID()) << bStatus << bResult;
+	result << GetSocketID() << bStatus << bResult;
 	m_pMain->Send_PartyMember(m_sPartyIndex, &result);
 }
 
@@ -3563,7 +3515,7 @@ void CUser::HandleHelmet(Packet & pkt)
 	Packet result(WIZ_HELMET);
 	uint8 type = pkt.read<uint8>();
 	// to-do: store helmet type
-	result << type << uint16(m_Sid) << uint16(0);
+	result << type << GetSocketID() << uint16(0);
 	SendToRegion(&result);
 }
 

@@ -14,14 +14,13 @@ void CUser::Chat(Packet & pkt)
 	if (chatstr.empty() || chatstr.size() >= 128)
 		return;
 
-
 #if 0 // Removed this - all it seems to do is cause chat to break for GMs (is it 19xx+ only?)
 	if( isGM() && type == GENERAL_CHAT)
 		type = 0x14;
 #endif
 
 	uint8 bNation = getNation();
-	int16 sessID = int16(GetSocketID());
+	uint16 sessID = GetSocketID();
 
 	// Handle GM notice & announcement commands
 	if (type == PUBLIC_CHAT || type == ANNOUNCEMENT_CHAT)
@@ -45,7 +44,7 @@ void CUser::Chat(Packet & pkt)
 		CString noticeText = m_pMain->GetServerResource(IDP_ANNOUNCEMENT);
 		
 		// Format the chat string around it, so our chat data is within the notice
-		sprintf_s(finalstr, sizeof(finalstr), noticeText, chatstr);
+		sprintf_s(finalstr, sizeof(finalstr), noticeText, chatstr.c_str());
 		result.DByte();
 		result << finalstr; // now tack on the formatted message from the user
 	}
@@ -81,6 +80,12 @@ void CUser::Chat(Packet & pkt)
 
 	case SHOUT_CHAT:
 		if (m_pUserData->m_sMp < (m_iMaxMp / 5))
+			break;
+
+		// Characters under level 35 require 3,000 coins to shout.
+		if (!isGM()
+			&& getLevel() < 35
+			&& !GoldLose(SHOUT_COIN_REQUIREMENT))
 			break;
 
 		MSpChange(-(m_iMaxMp / 5));

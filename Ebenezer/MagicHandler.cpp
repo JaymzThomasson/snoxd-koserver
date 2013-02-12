@@ -69,7 +69,7 @@ void CUser::MagicSystem( Packet & pkt )
 	command = pkt.GetOpcode(); //This is actually WIZ_MAGIC_PROCESS
 	pkt >> subcommand >> magicid >> sid >> tid;
 
-	if( sid < 0 || tid < 0 || tid > INVALID_BAND || sid != (uint16)GetSocketID()) //Return if there's an invalid source or target received.
+	if( sid < 0 || tid < 0 || tid > INVALID_BAND || sid != GetSocketID()) //Return if there's an invalid source or target received.
 		return;
 
 	if( sid < MAX_USER && isDead() )

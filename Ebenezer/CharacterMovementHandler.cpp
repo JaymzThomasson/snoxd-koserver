@@ -38,13 +38,13 @@ void CUser::MoveProcess(Packet & pkt)
 	RegisterRegion();
 
 	Packet result(WIZ_MOVE);
-	result << uint16(m_Sid) << will_x << will_z << will_y << speed << echo;
-	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
+	result << GetSocketID() << will_x << will_z << will_y << speed << echo;
+	SendToRegion(&result);
 
 	GetMap()->CheckEvent(real_x, real_z, this);
 
 	result.Initialize(AG_USER_MOVE);
-	result << uint16(m_Sid) << m_fWill_x << m_fWill_z << m_fWill_y << speed;
+	result << GetSocketID() << m_fWill_x << m_fWill_z << m_fWill_y << speed;
 	m_pMain->Send_AIServer(&result);
 }
 
@@ -54,7 +54,7 @@ void CUser::UserInOut(BYTE Type)
 		return;
 
 	Packet result(WIZ_USER_INOUT);
-	result << Type << uint8(0) << uint16(GetSocketID());
+	result << Type << uint8(0) << GetSocketID();
 
 	if (Type == USER_OUT)
 		GetMap()->RegionUserRemove(m_RegionX, m_RegionZ, GetSocketID());
@@ -70,7 +70,7 @@ void CUser::UserInOut(BYTE Type)
 	{
 		result.Initialize(AG_USER_INOUT);
 		result.SByte();
-		result << Type << uint16(GetSocketID()) << m_pUserData->m_id << m_pUserData->m_curx << m_pUserData->m_curz;
+		result << Type << GetSocketID() << m_pUserData->m_id << m_pUserData->m_curx << m_pUserData->m_curz;
 		m_pMain->Send_AIServer(&result);
 	}
 }
@@ -91,8 +91,9 @@ void CUser::GetUserInfo(Packet & pkt)
 		// should work out to be 11 bytes, 6-7 being cape ID.
 		pkt	<< uint32(0) << uint16(0) << uint16(-1) << uint16(0) << uint8(0);
 	}
-	else 
+	else
 	{
+		pkt.SByte();
 		pkt	<< uint8(0) // grade type
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
@@ -129,7 +130,7 @@ void CUser::Rotate(Packet & pkt)
 {
 	Packet result(WIZ_ROTATE);
 	int16 dir = pkt.read<int16>();
-	result << uint16(GetSocketID()) << dir;
+	result << GetSocketID() << dir;
 	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
 }
 
@@ -253,7 +254,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 	}	
 
 	result.Initialize(AG_ZONE_CHANGE);
-	result << uint16(GetSocketID()) << getZoneID();
+	result << GetSocketID() << getZoneID();
 	m_pMain->Send_AIServer(&result);
 
 	m_bZoneChangeSameZone = FALSE;

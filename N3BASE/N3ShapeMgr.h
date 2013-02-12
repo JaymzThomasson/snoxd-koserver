@@ -44,19 +44,27 @@ public:
 		{
 			DWORD dwRWC = 0;
 			ReadFile(hFile, &nCCPolyCount, 4, &dwRWC, NULL);
-			if(nCCPolyCount > 0)
+			if(nCCPolyCount != 0)
 			{
 				if(pdwCCVertIndices) delete [] pdwCCVertIndices;
 				pdwCCVertIndices = new DWORD[nCCPolyCount * 3];
 				__ASSERT(pdwCCVertIndices, "New memory failed");
 				ReadFile(hFile, pdwCCVertIndices, nCCPolyCount * 3 * 4, &dwRWC, NULL);
-//#if _DEBUG				
-//				static char szTrace[256];
-//				sprintf(szTrace, "CollisionCheckPolygon : %d\n", nCCPolyCount);
-//				OutputDebugString(szTrace);
-//#endif
 			}
 		}
+
+		void Load(FILE *fp)
+		{
+			fread(&nCCPolyCount, sizeof(int), 1, fp);
+			if(nCCPolyCount != 0)
+			{
+				if(pdwCCVertIndices) delete [] pdwCCVertIndices;
+				pdwCCVertIndices = new DWORD[nCCPolyCount * 3];
+				__ASSERT(pdwCCVertIndices, "New memory failed");
+				fread(pdwCCVertIndices, nCCPolyCount * 3 * 4, 1, fp);
+			}
+		}
+
 #ifdef _N3TOOL
 		void Save(HANDLE hFile)
 		{
@@ -81,7 +89,7 @@ public:
 		{
 			DWORD dwRWC = 0;
 			ReadFile(hFile, &nShapeCount, 4, &dwRWC, NULL);
-			if(nShapeCount > 0)
+			if(nShapeCount != 0)
 			{
 				if(pwShapeIndices) delete [] pwShapeIndices;
 				pwShapeIndices = new WORD[nShapeCount];
@@ -92,6 +100,24 @@ public:
 				for(int x = 0; x < CELL_MAIN_DEVIDE; x++)
 				{
 					SubCells[x][z].Load(hFile);
+				}
+			}
+		}
+
+		void Load(FILE *fp)
+		{
+			fread(&nShapeCount, sizeof(int), 1, fp);
+			if (nShapeCount != 0)
+			{
+				if(pwShapeIndices) delete [] pwShapeIndices;
+				pwShapeIndices = new WORD[nShapeCount];
+				fread(pwShapeIndices, nShapeCount * 2, 1, fp);
+			}
+			for(int z = 0; z < CELL_MAIN_DEVIDE; z++)
+			{
+				for(int x = 0; x < CELL_MAIN_DEVIDE; x++)
+				{
+					SubCells[x][z].Load(fp);
 				}
 			}
 		}
@@ -178,6 +204,7 @@ public:
 
 	bool		Create(float fMapWidth, float fMapLength); // 맵의 너비와 높이를 미터 단위로 넣는다..
 	bool		LoadCollisionData(HANDLE hFile);
+	bool		LoadCollisionData(FILE *fp);
 
 #ifdef _N3TOOL
 	void		MakeMoveTable(short** pMoveArray);	//지형에서 shape가 있는 타일은 1, 없는 타일은 0으로 셋팅한 테이블을 만든다.

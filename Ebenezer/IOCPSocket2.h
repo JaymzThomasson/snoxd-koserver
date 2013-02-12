@@ -39,12 +39,12 @@ public:
 				 LPCTSTR lpszSocketAddress = NULL );
 	BOOL Accept( SOCKET listensocket, struct sockaddr* addr, int* len );
 
-	__forceinline int GetSocketID() { return m_Sid; };
-	__forceinline void SetSocketID(int sid) { m_Sid = sid; };
+	__forceinline uint16 GetSocketID() { return m_Sid; };
+	__forceinline void SetSocketID(uint16 sid) { m_Sid = sid; };
 	__forceinline HANDLE GetSocketHandle() { return (HANDLE)m_Socket; };
 	__forceinline BYTE GetState() { return m_State; };
 	__forceinline BYTE GetSockType() { return m_Type; };
-	__forceinline bool isCryptoEnabled() { return m_CryptionFlag == TRUE; };
+	__forceinline bool isCryptoEnabled() { return m_CryptionFlag; };
 
 	virtual void CloseProcess();
 	virtual void Parsing(Packet & pkt);
@@ -75,12 +75,12 @@ protected:
 
 	BYTE			m_Type;
 	BYTE			m_State;
-	int			m_Sid;
+	uint16			m_Sid;
 	LPCTSTR		m_ConnectAddress;
 
 	// Cryption
 	CJvCryption			jct;
-	int					m_CryptionFlag;
+	bool				m_CryptionFlag;
 	T_KEY				m_Public_key;
 	DWORD				m_Sen_val;
 	uint32				m_Rec_val;

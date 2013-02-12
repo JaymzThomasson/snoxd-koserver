@@ -69,8 +69,6 @@ CMagicProcess::~CMagicProcess()
 
 void CMagicProcess::MagicPacket(Packet & pkt)
 {
-	int index = 0;
-
 	_MAGIC_TYPE2 *pType2 = NULL;
 	_MAGIC_TYPE3 *pType3 = NULL;
 	_MAGIC_TYPE4 *pType4 = NULL;
