@@ -47,6 +47,7 @@ public:
 	SkillCooldownList	m_CoolDownList;
 
 	short	m_RegionX, m_RegionZ;
+	int16	m_sDirection;
 
 	int64	m_iMaxExp;
 	uint16	m_sMaxWeight;

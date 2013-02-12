@@ -57,6 +57,8 @@ void CUser::Initialize()
 	m_RegionX = -1;
 	m_RegionZ = -1;
 
+	m_sDirection = 0;
+
 	m_sTotalHit = 0;
 	m_sTotalAc = 0;
 	m_sTotalHitrate = 0;

@@ -80,6 +80,7 @@ void CUser::GetUserInfo(Packet & pkt)
 {
 	CKnights *pKnights = NULL;
 	pkt.SByte();
+
 	pkt		<< m_pUserData->m_id
 			<< uint16(getNation()) << m_pUserData->m_bKnights << uint16(m_pUserData->m_bFame);
 
@@ -101,14 +102,19 @@ void CUser::GetUserInfo(Packet & pkt)
 				<< uint8(0) << uint8(0) << uint8(0); // cape RGB
 	}
 
-	pkt	<< getLevel() << m_pUserData->m_bRace << m_pUserData->m_sClass
+	pkt	<< m_pUserData->m_bRank << m_pUserData->m_bTitle
+		<< getLevel() << m_pUserData->m_bRace << m_pUserData->m_sClass
 		<< GetSPosX() << GetSPosZ() << GetSPosY()
 		<< m_pUserData->m_bFace << m_pUserData->m_nHair
 		<< m_bResHpType << uint32(m_bAbnormalType)
 		<< m_bNeedParty
 		<< m_pUserData->m_bAuthority
-		<< m_pUserData->m_sItemArray[BREAST].nNum << m_pUserData->m_sItemArray[BREAST].sDuration
-		<< m_pUserData->m_sItemArray[LEG].nNum << m_pUserData->m_sItemArray[LEG].sDuration
+		<< uint8(0) // is party leader (bool)
+		<< uint8(0) // visibility state (0 - visible)
+		<< m_sDirection // direction 
+		<< uint16(0) // unknown 
+		<< uint8(0) // chicken flag
+		<< int8(-1) << int8(-1) // NP ranks (total, monthly)
 		<< m_pUserData->m_sItemArray[BREAST].nNum << m_pUserData->m_sItemArray[BREAST].sDuration << uint8(0)
 		<< m_pUserData->m_sItemArray[LEG].nNum << m_pUserData->m_sItemArray[LEG].sDuration << uint8(0)
 		<< m_pUserData->m_sItemArray[HEAD].nNum << m_pUserData->m_sItemArray[HEAD].sDuration << uint8(0)
@@ -128,9 +134,9 @@ void CUser::GetUserInfo(Packet & pkt)
 void CUser::Rotate(Packet & pkt)
 {
 	Packet result(WIZ_ROTATE);
-	int16 dir = pkt.read<int16>();
-	result << GetSocketID() << dir;
-	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
+	pkt >> m_sDirection;
+	result << GetSocketID() << m_sDirection;
+	SendToRegion(&result, this);
 }
 
 void CUser::ZoneChange(int zone, float x, float z)
