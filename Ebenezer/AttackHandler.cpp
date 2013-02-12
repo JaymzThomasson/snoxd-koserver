@@ -634,7 +634,8 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	m_sWhoKilledMe = -1;
 	m_iLostExp = 0;
 
-	if (m_bAbnormalType != ABNORMAL_BLINKING) {
+	if (!isBlinking())
+	{
 		result.Initialize(AG_USER_REGENE);
 		result << GetSocketID() << m_pUserData->m_sHp;
 		m_pMain->Send_AIServer(&result);

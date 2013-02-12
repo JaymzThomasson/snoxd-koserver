@@ -66,7 +66,7 @@ void CUser::UserInOut(BYTE Type)
 
 	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this );
 
-	if (Type == USER_OUT || m_bAbnormalType != ABNORMAL_BLINKING) 
+	if (Type == USER_OUT || !isBlinking()) 
 	{
 		result.Initialize(AG_USER_INOUT);
 		result.SByte();

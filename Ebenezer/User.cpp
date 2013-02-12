@@ -408,9 +408,8 @@ void CUser::Parsing(Packet & pkt)
 		}
 	}	
 
-	if( m_fHPLastTimeNormal != 0.0f && (currenttime - m_fHPLastTimeNormal) > m_bHPIntervalNormal && m_bAbnormalType != ABNORMAL_BLINKING) {
+	if (!isBlinking() && m_fHPLastTimeNormal != 0.0f && (currenttime - m_fHPLastTimeNormal) > m_bHPIntervalNormal)
 		HPTimeChange( currenttime );	// For Sitdown/Standup HP restoration.
-	}
 
 	if (m_bType3Flag) {     // For Type 3 HP Duration.
 		for (int i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {	
@@ -424,7 +423,7 @@ void CUser::Parsing(Packet & pkt)
 	if (m_bType4Flag)		// For Type 4 Stat Duration.
 		Type4Duration(currenttime);
 		
-	if (m_bAbnormalType == ABNORMAL_BLINKING)		// Should you stop blinking?
+	if (isBlinking())		// Should you stop blinking?
 		BlinkTimeCheck(currenttime);
 }
 
