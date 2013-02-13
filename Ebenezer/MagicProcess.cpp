@@ -1078,10 +1078,11 @@ void CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 
 	foreach (itr, casted_member)
 	{
-		uint8 bResult = 0;
+		uint8 bResult = 1;
 		CUser* pTUser = *itr;
 //
 		if (pTUser->m_bType4Buff[pType->bBuffType - 1] == 2 && m_pSkillTarget == -1) {		// Is this buff-type already casted on the player?
+			bResult = 0;
 			goto fail_return ;					
 		}
 //
