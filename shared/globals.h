@@ -245,7 +245,7 @@ inline __int64 GetInt64(char* sBuf, int& index)
 	return *(__int64*)(sBuf+index-8);
 };
 
-inline bool GetKOString(char* sBuf, char* tBuf, int& index, unsigned int maxLen, int lenSize = 2)
+inline bool GetKOString(char* tBuf, char* sBuf, int& index, unsigned int maxLen, int lenSize = 2)
 {
 	unsigned short len = 0;
 	if (lenSize == 1)
