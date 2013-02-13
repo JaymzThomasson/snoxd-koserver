@@ -33,7 +33,7 @@ public:
 		RFX_Byte(pFX, _T("[ItemGroup]"), m_data.bItemGroup);
 		RFX_Long(pFX, _T("[UseItem]"), m_data.iUseItem);
 		RFX_Byte(pFX, _T("[CastTime]"), m_data.bCastTime);
-		RFX_Byte(pFX, _T("[ReCastTime]"), m_data.bReCastTime);
+		RFX_Int(pFX, _T("[ReCastTime]"), m_data.sReCastTime);
 		RFX_Byte(pFX, _T("[SuccessRate]"), m_data.bSuccessRate);
 		RFX_Byte(pFX, _T("[Type1]"), m_data.bType[0]);
 		RFX_Byte(pFX, _T("[Type2]"), m_data.bType[1]);
