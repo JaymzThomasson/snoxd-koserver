@@ -20,7 +20,7 @@ public:
 	void CreateKnights(CUser* pUser, Packet & pkt);
 	void JoinKnights(CUser* pUser, Packet & pkt);
 	void WithdrawKnights(CUser* pUser, Packet & pkt);
-	void ModifyKnightsMember(CUser* pUser, Packet & pkt);
+	void ModifyKnightsMember(CUser* pUser, Packet & pkt, uint8 opcode);
 	void DestroyKnights(CUser* pUser);
 	void AllKnightsList(CUser* pUser, Packet & pkt);
 	void AllKnightsMember(CUser* pUser);

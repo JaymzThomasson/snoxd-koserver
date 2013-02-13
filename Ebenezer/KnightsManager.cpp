@@ -31,10 +31,11 @@ CKnightsManager::~CKnightsManager()
 // TO-DO: Move this to the CUser class.
 void CKnightsManager::PacketProcess(CUser *pUser, Packet & pkt)
 {
+	if (pUser == NULL)
+		return;
+
 	uint8 opcode = pkt.read<uint8>();
 	TRACE("Clan packet: %X\n", opcode); 
-	if( !pUser ) return;
-
 	switch (opcode)
 	{
 	case KNIGHTS_CREATE:
@@ -53,7 +54,7 @@ void CKnightsManager::PacketProcess(CUser *pUser, Packet & pkt)
 	case KNIGHTS_VICECHIEF:
 	case KNIGHTS_OFFICER:
 	case KNIGHTS_PUNISH:
-		ModifyKnightsMember(pUser, pkt);
+		ModifyKnightsMember(pUser, pkt, opcode);
 		break;
 	case KNIGHTS_DESTROY:
 		DestroyKnights(pUser);
@@ -127,7 +128,6 @@ BOOL CKnightsManager::IsAvailableName( const char *strname)
 
 int CKnightsManager::GetKnightsIndex( int nation )
 {
-	//TRACE("GetKnightsIndex = nation=%d\n", nation);
 	int knightindex = 0;
 
 	if (nation == ELMORAD)	knightindex = 15000;
@@ -289,276 +289,176 @@ void CKnightsManager::DestroyKnights( CUser* pUser )
 	}
 }
 
-void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt)
+void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 opcode)
 {
-	int send_index = 0, ret_value = 0, vicechief = 0, remove_flag = 0;
-	char send_buff[128]; 
+	if (pUser == NULL)
+		return;
+
+	Packet result(WIZ_KNIGHTS_PROCESS, opcode);
+	uint8 bResult = 1, bRemoveFlag = 0;
 	std::string strUserID;
-	CUser* pTUser = NULL;
 	
-	if( !pUser ) return;
 	pkt >> strUserID;
-	if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
+	do
 	{
-		ret_value = 2;
-		goto fail_return;
-	}
-	if( pUser->m_pUserData->m_bZone > 2 )	{	// 전쟁존에서는 기사단 처리가 안됨
-		ret_value = 12;
-		goto fail_return;
-	}
+		if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
+			bResult = 2;
+		else if (pUser->getZoneID() != pUser->getNation())
+			bResult = 12;
+		else if (_strnicmp(strUserID.c_str(), pUser->m_pUserData->m_id, strUserID.size()) == 0)
+			bResult = 9;
+		else if (((opcode == KNIGHTS_ADMIT || opcode == KNIGHTS_REJECT) && pUser->getFame() < OFFICER)
+			|| (opcode == KNIGHTS_PUNISH && pUser->getFame() < VICECHIEF))
+			bResult = 0;	
+		else if (opcode != KNIGHTS_ADMIT && opcode != KNIGHTS_REJECT && opcode != KNIGHTS_PUNISH 
+			&& pUser->getFame() != CHIEF)
+			bResult = 6;
 
-	if( _strnicmp(strUserID.c_str(), pUser->m_pUserData->m_id, strUserID.size()) == 0 ) {	// 자신은 할 수 없습니다
-		ret_value = 9;
-		goto fail_return;
-	}
+		if (bResult != 1)
+			break;
 
-	if( pkt.GetOpcode() == KNIGHTS_ADMIT || pkt.GetOpcode() == KNIGHTS_REJECT ) {	// 기사단, 멤버가입 및 멤버거절, 장교 이상이 할 수 있습니다
-		if( pUser->m_pUserData->m_bFame < OFFICER ) {
-			goto fail_return;
+		CUser *pTUser = m_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+		if (pTUser == NULL)
+		{
+			if (opcode != KNIGHTS_REMOVE)	
+				bResult = 2;
 		}
-	}
-	else if( pkt.GetOpcode() == KNIGHTS_PUNISH ){							// 징계, 부기사단장 이상이 할 수 있습니다
-		if( pUser->m_pUserData->m_bFame < VICECHIEF ) {
-			goto fail_return;
-		}
-	}
-	else {
-		if( pUser->m_pUserData->m_bFame != CHIEF ) {				// 기사단장 만이 할 수 있습니다
-			ret_value = 6;
-			goto fail_return;
-		}
-	}
+		else
+		{
+			if (pUser->getNation() != pTUser->getNation())
+				bResult = 4;
+			else if (pUser->m_pUserData->m_bKnights != pTUser->m_pUserData->m_bKnights)
+				bResult = 5;
 
-	pTUser = m_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
-	if( !pTUser )	{
-		if( pkt.GetOpcode() == KNIGHTS_REMOVE )	{			// 게임상에 없는 유저 추방시 (100)
-			remove_flag = 0;
-			SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-			SetByte( send_buff, pkt.GetOpcode(), send_index );
-			SetShort( send_buff, pUser->GetSocketID(), send_index );
-			SetShort( send_buff, pUser->m_pUserData->m_bKnights, send_index );
-			SetKOString(send_buff, (char *)strUserID.c_str(), send_index);
-			SetByte( send_buff, remove_flag, send_index );
-			m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-			return;
-		}
-		else	{
-			ret_value = 2;
-			goto fail_return;
-		}
-	}
-	
-	if( pUser->m_pUserData->m_bNation != pTUser->m_pUserData->m_bNation ) {
-		ret_value = 4;
-		goto fail_return;
-	}
-	if ( pUser->m_pUserData->m_bKnights != pTUser->m_pUserData->m_bKnights )	{
-		ret_value = 5;
-		goto fail_return;
-	}
+			if (bResult == 1 && opcode == KNIGHTS_VICECHIEF)
+			{
+				if (pTUser->getFame() == VICECHIEF)
+					bResult = 8;
+				else if (!m_pMain->m_KnightsArray.GetData(pUser->m_pUserData->m_bKnights))	
+					bResult = 7;
+			}
 
-	// 부단장이 3명이 됐는지를 판단 (클랜인 경우이다,,)
-	if( pkt.GetOpcode() == KNIGHTS_VICECHIEF ){							// 부단장 임명
-		if( pTUser->m_pUserData->m_bFame == VICECHIEF )	{		// 이미 부단장인 경우
-			ret_value = 8;
-			goto fail_return;
+			bRemoveFlag = 1;
 		}
 
-		CKnights* pKnights = NULL;
-		pKnights = m_pMain->m_KnightsArray.GetData( pUser->m_pUserData->m_bKnights );
-		if( !pKnights )		{
-			ret_value = 7;
-			goto fail_return;
-		}
+		if (bResult != 1)
+			break;
 
-	/*	if( !strcmp( pKnights->strViceChief_1, "") )	vicechief = 1;
-		else if( !strcmp( pKnights->strViceChief_2, "") )	vicechief = 2;
-		else if( !strcmp( pKnights->strViceChief_3, "") )	vicechief = 3;
-		else {
-			ret_value = 8;
-			goto fail_return;
-		}	*/
-	}
-	
-	remove_flag = 1;	// 게임상에 있는 유저 추방시 (1)
-	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-	SetByte( send_buff, pkt.GetOpcode(), send_index );
-	SetShort( send_buff, pUser->GetSocketID(), send_index );
-	SetShort( send_buff, pUser->m_pUserData->m_bKnights, send_index );
-	SetKOString( send_buff, (char *)strUserID.c_str(), send_index );
-	SetByte( send_buff, remove_flag, send_index );						
-	m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-	return;
+		result << pUser->GetSocketID() << pUser->m_pUserData->m_bKnights << strUserID << bRemoveFlag;
+		m_pMain->m_LoggerSendQueue.PutData(&result);
+		return;
+	} while (0);
 
-fail_return:
-	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-	SetByte( send_buff, pkt.GetOpcode(), send_index );
-	SetByte( send_buff, ret_value, send_index );
-	//TRACE("## ModifyKnights Fail - command=%d, nid=%d, name=%s, error_code=%d ##\n", command, pUser->GetSocketID(), pUser->m_pUserData->m_id, ret_value);
-	pUser->Send( send_buff, send_index );
+	result << bResult;
+	pUser->Send(&result);
 }
 
 void CKnightsManager::AllKnightsList(CUser *pUser, Packet & pkt)
 {
-	int send_index = 0, buff_index = 0, count = 0, index = 0, start = 0;
-	uint16 page = pkt.read<uint16>();
-	char send_buff[4096], temp_buff[4096];
+	if (pUser == NULL)
+		return;
 
-	if( !pUser ) return;
-
-	start = page * 10;			// page : 0 ~
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_ALLLIST_REQ));
+	uint16 sPage = pkt.read<uint16>(), start = sPage * 10, count = 0;
+	result << uint8(1) << sPage << count;
 
 	foreach_stlmap (itr, m_pMain->m_KnightsArray)
 	{
 		CKnights* pKnights = itr->second;
 		if (pKnights == NULL
 			|| pKnights->m_byFlag != KNIGHTS_TYPE
-			|| pKnights->m_byNation != pUser->m_pUserData->m_bNation
+			|| pKnights->m_byNation != pUser->getNation()
 			|| count++ < start) 
 			continue;
 
-		SetShort( temp_buff, pKnights->m_sIndex, buff_index );
-		SetKOString( temp_buff, pKnights->m_strName, buff_index );
-		SetShort( temp_buff, pKnights->m_sMembers, buff_index );
-		SetKOString( temp_buff, pKnights->m_strChief, buff_index );
-		SetDWORD( temp_buff, pKnights->m_nPoints, buff_index );
+		result << pKnights->m_sIndex << pKnights->m_strName << uint16(pKnights->m_sMembers) << pKnights->m_strChief << pKnights->m_nPoints;
 		if (count >= start + 10)
 			break;
 	}
-
-	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-	SetByte( send_buff, KNIGHTS_ALLLIST_REQ, send_index );
-	SetByte( send_buff, 0x01, send_index );
-	SetShort( send_buff, page, send_index );
-	SetShort( send_buff, count-start, send_index );
-	SetString( send_buff, temp_buff, buff_index, send_index );
-	pUser->Send( send_buff, send_index );
+	
+	count -= start;
+	result.put(4, count);
+	pUser->Send(&result);
 }
 
 void CKnightsManager::AllKnightsMember(CUser *pUser)
 {
-	int index = 0, send_index = 0, page = 0, ret_value = 0, temp_index = 0, count=0, pktsize = 0;
-	char send_buff[4096], temp_buff[4096]; 
-	CKnights* pKnights = NULL;
-
-	if( !pUser ) return;
-	if( pUser->m_pUserData->m_bKnights <= 0 ) {		// 기사단에 가입되어 있지 않습니다
-		ret_value = 2;
-		goto fail_return;
-	}
-
-	pKnights = m_pMain->m_KnightsArray.GetData( pUser->m_pUserData->m_bKnights );
-	if( !pKnights )	{
-		ret_value = 7;
-		goto fail_return;
-	}
-
-	// 단장 
-/*	if( pUser->m_pUserData->m_bFame == CHIEF )	{
-		SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-		SetByte( send_buff, KNIGHTS_MEMBER_REQ, send_index );
-		SetShort( send_buff, pUser->GetSocketID(), send_index );
-		SetShort( send_buff, pUser->m_pUserData->m_bKnights, send_index );
-		//SetShort( send_buff, page, send_index );
-		m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );
-		return;
-	}	*/
-
-	// 직접.. 게임서버에서 유저정보를 참조해서 불러오는 방식 (단장이 아닌 모든 사람)
-	if( pUser->m_pUserData->m_bFame == CHIEF )	{
-		count = m_pMain->GetKnightsAllMembers( pUser->m_pUserData->m_bKnights, temp_buff, temp_index, 1 );
-	}
-	else	{
-		count = m_pMain->GetKnightsAllMembers( pUser->m_pUserData->m_bKnights, temp_buff, temp_index, 0 );
-	}
-
-	pktsize = temp_index+4;
-	if (count > MAX_CLAN_USERS) 
+	if (pUser == NULL)
 		return;
 
-	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-	SetByte( send_buff, KNIGHTS_MEMBER_REQ, send_index );
-	SetByte( send_buff, 0x01, send_index );
-	SetShort( send_buff, pktsize, send_index );
-	SetShort( send_buff, count, send_index );
-	SetString( send_buff, temp_buff, temp_index, send_index );
-	pUser->Send( send_buff, send_index );
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MEMBER_REQ));
+	uint8 bResult = 1;
 
-/*	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-	SetByte( send_buff, KNIGHTS_MEMBER_REQ, send_index );
-	SetShort( send_buff, pUser->GetSocketID(), send_index );
-	SetShort( send_buff, pUser->m_pUserData->m_bKnights, send_index );
-	//SetShort( send_buff, page, send_index );
-	m_pMain->m_LoggerSendQueue.PutData( send_buff, send_index );	*/
-	return;
+	if (!pUser->isInClan())
+		bResult = 2;
+	else if (m_pMain->m_KnightsArray.GetData(pUser->m_pUserData->m_bKnights) == NULL)
+		bResult = 7;
 
-fail_return:
-	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-	SetByte( send_buff, KNIGHTS_MEMBER_REQ, send_index );
-	SetByte( send_buff, ret_value, send_index );
-	pUser->Send( send_buff, send_index );
+	result << bResult;
+	if (bResult == 1)
+	{
+		uint16 pktSize = 0, count = 0;
+		result << pktSize << count; // placeholders
+
+		count = m_pMain->GetKnightsAllMembers(pUser->m_pUserData->m_bKnights, result, pktSize, pUser->getFame() == CHIEF);
+		if (count > MAX_CLAN_USERS) 
+			return;
+
+		pktSize *= 4;
+		result.put(2, pktSize);
+		result.put(4, count);
+	}
+	pUser->Send(&result);
 }
 
 void CKnightsManager::CurrentKnightsMember(CUser *pUser, Packet & pkt)
 {
-	int index = 0, send_index = 0, buff_index = 0, count = 0, i=0, start = 0;
-	char send_buff[128], temp_buff[4096], errormsg[1024];
-	CUser* pTUser = NULL;
-	CKnights* pKnights = NULL;
+	if (pUser == NULL)
+		return;
 
-	if( !pUser ) return;
-	if( pUser->m_pUserData->m_bKnights <= 0 ) goto fail_return;
-	pKnights = m_pMain->m_KnightsArray.GetData( pUser->m_pUserData->m_bKnights);
-	if( !pKnights ) goto fail_return;
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_CURRENT_REQ));
+	CKnights *pKnights = NULL;
+	if (!pUser->isInClan()
+		|| (pKnights = m_pMain->m_KnightsArray.GetData(pUser->m_pUserData->m_bKnights)) == NULL)
+	{
+		result << uint8(0); // failed
+		result << "is this error still used?";
+		pUser->Send(&result);
+		return;
+	}
 
-	_snprintf(errormsg, sizeof(errormsg), m_pMain->GetServerResource(IDP_KNIGHT_NOT_REGISTERED));
-	
 	uint16 page = pkt.read<uint16>();
-	start = page * 10;			// page : 0 ~
+	uint16 start = page * 10;
+	uint16 count = 0;
+
+	result	<< uint8(1) // success
+			<< pKnights->m_strChief
+			<< page;
+
+	size_t pos = result.wpos();
+	result	<< count; // placeholder
 
 	for (int i = 0; i < MAX_USER; i++)
 	{
-		pTUser = m_pMain->GetUnsafeUserPtr(i);
-		if( !pTUser ) continue;
-		if( pTUser->m_pUserData->m_bKnights != pUser->m_pUserData->m_bKnights ) continue;
-		if( count < start ) {
-			count++;
+		CUser *pTUser = m_pMain->GetUnsafeUserPtr(i);
+		if (pTUser == NULL
+			|| pTUser->m_pUserData->m_bKnights != pUser->m_pUserData->m_bKnights
+			|| count++ < start)
 			continue;
-		}
-		SetKOString(temp_buff, pUser->m_pUserData->m_id, buff_index);
-		SetByte( temp_buff, pUser->m_pUserData->m_bFame, buff_index );
-		SetByte( temp_buff, pUser->getLevel(), buff_index );
-		SetShort( temp_buff, pUser->m_pUserData->m_sClass, buff_index );
-		count++;
 
+		result << pUser->m_pUserData->m_id << pUser->getFame() << pUser->getLevel() << pUser->m_pUserData->m_sClass;
 		if (count >= start + 10)
 			break;
 	}
 
-	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-	SetByte( send_buff, KNIGHTS_CURRENT_REQ, send_index );
-	SetByte( send_buff, 0x01, send_index );
-	SetKOString( send_buff, pKnights->m_strChief, send_index );
-	SetShort( send_buff, page, send_index );
-	SetShort( send_buff, count-start, send_index );
-	SetString( send_buff, temp_buff, buff_index, send_index );
-	pUser->Send( send_buff, send_index );
-
-fail_return:
-	SetByte( send_buff, WIZ_KNIGHTS_PROCESS, send_index );
-	SetByte( send_buff, KNIGHTS_CURRENT_REQ, send_index );
-	SetByte( send_buff, 0x00, send_index );
-
-	SetKOString( send_buff, errormsg, send_index ); // is this even still usead anymore
-	pUser->Send( send_buff, send_index );
+	count -= start;
+	result.put(pos, count);
+	pUser->Send(&result);
 }
 
 void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 {
-	uint8 command, bResult;
-
-	pkt >> command >> bResult;
+	uint8 command = pkt.read<uint8>(), bResult = pkt.read<uint8>();
 
 	// Surely this isn't still used...
 	if (bResult > 0) 

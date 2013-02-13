@@ -71,7 +71,7 @@ public:
 	void CheckAliveUser();
 	int GetKnightsGrade(int nPoints);
 	void WritePacketLog();
-	int  GetKnightsAllMembers( int knightsindex, char *temp_buff, int& buff_index, int type=0 );
+	uint16 GetKnightsAllMembers(uint16 sClanID, Packet & result, uint16 & pktSize, bool bClanLeader);
 	BOOL LoadAllKnightsUserData();
 	BOOL LoadAllKnights();
 	BOOL LoadHomeTable();

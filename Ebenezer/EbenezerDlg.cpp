@@ -2097,58 +2097,48 @@ BOOL CEbenezerDlg::LoadAllKnightsUserData()
 	return KnightsUserSet.Read(true);
 }
 
-int  CEbenezerDlg::GetKnightsAllMembers(int knightsindex, char *temp_buff, int& buff_index, int type )
+uint16 CEbenezerDlg::GetKnightsAllMembers(uint16 sClanID, Packet & result, uint16 & pktSize, bool bClanLeader)
 {
-	if( knightsindex <= 0 ) return 0;			
+	if (sClanID <= 0)
+		return 0;			
 
-	CUser* pUser = NULL;
-	CKnights* pKnights = NULL;
-	int count = 0, i=0;
+	uint16 count = 0;
 
-	if( type == 0 )	{
-		for( i=0; i<MAX_USER; i++ ) {
-			pUser = GetUnsafeUserPtr(i);
-			if (pUser == NULL || pUser->m_pUserData->m_bKnights != knightsindex )
+	// If we're not a clan leader, we only care about those that are only.
+	// Looping through the entire server once is preferrable to looping through the entire server for every player found.
+	// TO-DO: Remove this whole awful hackery (we shouldn't have to loop through the entire server *at all*).
+	if (!bClanLeader)
+	{
+		for (int i = 0; i < MAX_USER; i++)
+		{
+			CUser *pUser = GetUnsafeUserPtr(i);
+			if (pUser == NULL || pUser->m_pUserData->m_bKnights != sClanID)
 				continue;
 
-			SetKOString( temp_buff, pUser->m_pUserData->m_id, buff_index );
-			SetByte( temp_buff, pUser->m_pUserData->m_bFame, buff_index);
-			SetByte( temp_buff, pUser->getLevel(), buff_index);
-			SetShort( temp_buff, pUser->m_pUserData->m_sClass, buff_index);
-			SetByte( temp_buff, 1, buff_index);
+			result << pUser->m_pUserData->m_id << pUser->getFame() << pUser->getLevel() << pUser->m_pUserData->m_sClass << uint8(1);
 			count++;
-		}	
+		}
 	}
-	else if( type == 1)	{
-		pKnights = m_KnightsArray.GetData( knightsindex );
-		if( !pKnights ) return 0;
+	// If we are a clan leader, we - sadly - need the entire clan list
+	// This is just a preferential thing really, we should improve lookups so that we can provide this data for everyone.
+	else
+	{
+		CKnights *pKnights = m_KnightsArray.GetData(sClanID);
+		if (pKnights == NULL)
+			return 0;
 
-		for( i=0; i<MAX_CLAN_USERS; i++ )	{
-			if( pKnights->m_arKnightsUser[i].byUsed == 1 )	{	// 
-				pUser = GetUserPtr(pKnights->m_arKnightsUser[i].strUserName, TYPE_CHARACTER);
-				if( pUser )	{
-					if( pUser->m_pUserData->m_bKnights == knightsindex )	{
-						SetKOString( temp_buff, pUser->m_pUserData->m_id, buff_index );
-						SetByte( temp_buff, pUser->m_pUserData->m_bFame, buff_index);
-						SetByte( temp_buff, pUser->getLevel(), buff_index);
-						SetShort( temp_buff, pUser->m_pUserData->m_sClass, buff_index);
-						SetByte( temp_buff, 1, buff_index);
-						count++;
-					}
-					else {
-						m_KnightsManager.RemoveKnightsUser( knightsindex, pUser->m_pUserData->m_id );
-					}
-				}
-				else	{
-					SetShort( temp_buff, 0, buff_index );
-					SetByte( temp_buff, 0, buff_index);
-					SetByte( temp_buff, 0, buff_index);
-					SetShort( temp_buff, 0, buff_index);
-					SetByte( temp_buff, 0, buff_index);
-					count++;	
-				}
-				
-			}
+		for (int i = 0; i < MAX_CLAN_USERS; i++)
+		{
+			if (pKnights->m_arKnightsUser[i].byUsed == 0)
+				continue;
+
+			CUser *pUser = GetUserPtr(pKnights->m_arKnightsUser[i].strUserName, TYPE_CHARACTER);
+			if (pUser != NULL)
+				result << pUser->m_pUserData->m_id << pUser->getFame() << pUser->getLevel() << pUser->m_pUserData->m_sClass << uint8(1);
+			else
+				result << "" << uint8(0) << uint8(0) << uint16(0) << uint8(0);
+
+			count++;	
 		}	
 	}
 
