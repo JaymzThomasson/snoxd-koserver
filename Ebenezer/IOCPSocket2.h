@@ -29,6 +29,7 @@ public:
 	BOOL AsyncSelect( long lEvent = FD_READ | FD_WRITE | FD_OOB | FD_ACCEPT | FD_CONNECT | FD_CLOSE );
 	BOOL ShutDown( int nHow = sends );
 	void ReceivedData(int length);
+	virtual void HandlePacket(char *pBuf, int len);
 	int  Receive();
 	int  Send(char *pBuf, long length);
 	int  Send(Packet *result);
