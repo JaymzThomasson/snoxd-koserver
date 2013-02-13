@@ -355,7 +355,6 @@ BOOL CEbenezerDlg::OnInitDialog()
 
 	AIServerConnect();
 
-	LogFileWrite("success");
 	UserAcceptThread();
 
 	AddToList("Game server started : %02d/%02d/%04d %d:%02d\r\n", cur.GetDay(), cur.GetMonth(), cur.GetYear(), cur.GetHour(), cur.GetMinute());

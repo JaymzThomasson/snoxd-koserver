@@ -506,13 +506,18 @@ void CIOCPSocket2::ReceivedData(int length)
 		}
 
 		// found a packet - it's parse time!
-		Packet pkt(*in_stream, (size_t)m_remaining--);
-		if (m_remaining > 0)
-			pkt.append(in_stream + 1, m_remaining);
-		Parsing(pkt);
+		HandlePacket((char *)in_stream, m_remaining);
 		m_remaining = 0;
 	}
 	while (!m_pBuffer->isEmpty());
+}
+
+void CIOCPSocket2::HandlePacket(char *pBuf, int len)
+{
+	Packet pkt(*pBuf, (size_t)len--);
+	if (len > 0)
+		pkt.append(pBuf + 1, len);
+	Parsing(pkt);
 }
 
 BOOL CIOCPSocket2::AsyncSelect( long lEvent )

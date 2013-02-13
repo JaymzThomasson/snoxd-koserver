@@ -41,6 +41,11 @@ void CAISocket::Initialize()
 	m_MagicProcess.m_pMain = m_pMain;
 }
 
+void CAISocket::HandlePacket(char *pBuf, int len)
+{
+	Parsing(len, pBuf);
+}
+
 void CAISocket::Parsing( int len, char* pData )
 {
 	int index = 0;

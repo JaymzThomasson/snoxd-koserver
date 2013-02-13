@@ -119,7 +119,7 @@ void CNpc::NpcInOut(BYTE Type, float fx, float fz, float fy)
 void CNpc::GetNpcInfo(Packet & pkt)
 {
 	pkt << GetEntryID()
-		<< (getNation() == 0 ? 1 : 2) // Monster = 1, NPC = 2 (need to use a better flag)
+		<< uint8(getNation() == 0 ? 1 : 2) // Monster = 1, NPC = 2 (need to use a better flag)
 		<< m_sPid
 		<< m_tNpcType
 		<< m_iSellingGroup

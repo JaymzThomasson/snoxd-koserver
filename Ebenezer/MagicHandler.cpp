@@ -150,7 +150,7 @@ bool CUser::CheckSkillCooldown(uint32 magicid, time_t skill_received_time)
 	if( it == m_CoolDownList.end() ) // Incase there is no such entry in the cooldown map the skill will be off-cooldown, thus allow it to cast.
 		return true;
 
-	if((skill_received_time - m_CoolDownList.find(magicid)->second) < ((pMagic->bReCastTime + pMagic->bCastTime) * 100) )
+	if((skill_received_time - m_CoolDownList.find(magicid)->second) < ((pMagic->sReCastTime + pMagic->bCastTime) * 100) )
 	{
 		return false;
 	}

@@ -25,6 +25,7 @@ public:
 	int m_iZoneNum;
 
 	CAISocket(int zonenum);
+	virtual void HandlePacket(char *pBuf, int len);
 	virtual ~CAISocket();
 
 	void Initialize();
