@@ -3307,6 +3307,7 @@ void CUser::BlinkTimeCheck(float currenttime)
 
 
 	result.Initialize(AG_USER_INOUT);
+	result.SByte(); // TO-DO: Remove this redundant uselessness that is mgame
 	result	<< uint8(USER_REGENE) << GetSocketID()
 			<< m_pUserData->m_id
 			<< m_pUserData->m_curx << m_pUserData->m_curz;
