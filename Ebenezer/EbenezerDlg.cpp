@@ -150,7 +150,7 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 				pUser->RecvFriendProcess(pkt);
 				break;
 			case WIZ_KNIGHTS_PROCESS:
-				pMain->m_KnightsManager.ReceiveKnightsProcess(pUser, (char *)(pkt.contents() + pkt.rpos())); // TO-DO: Replace this entirely.
+				pMain->m_KnightsManager.ReceiveKnightsProcess(pUser, pkt);
 				break;
 			case WIZ_LOGIN_INFO:
 				pUser->RecvLoginInfo(pkt);
@@ -807,15 +807,8 @@ void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 na
 
 void CEbenezerDlg::Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser)
 {
-	Send_UnitRegion(pkt, pMap, x, z, pExceptUser );
-	Send_UnitRegion(pkt, pMap, x-1, z-1, pExceptUser );	// NW
-	Send_UnitRegion(pkt, pMap, x, z-1, pExceptUser );		// N
-	Send_UnitRegion(pkt, pMap, x+1, z-1, pExceptUser );	// NE
-	Send_UnitRegion(pkt, pMap, x-1, z, pExceptUser );		// W
-	Send_UnitRegion(pkt, pMap, x+1, z, pExceptUser );		// E
-	Send_UnitRegion(pkt, pMap, x-1, z+1, pExceptUser );	// SW
-	Send_UnitRegion(pkt, pMap, x, z+1, pExceptUser );		// S
-	Send_UnitRegion(pkt, pMap, x+1, z+1, pExceptUser );	// SE
+	foreach_region(rx, rz)
+		Send_UnitRegion(pkt, pMap, rx + x, rz + z, pExceptUser);
 }
 
 void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser *pExceptUser)
@@ -848,7 +841,7 @@ void CEbenezerDlg::Send_OldRegions(Packet *pkt, int old_x, int old_z, C3DMap *pM
 		Send_UnitRegion(pkt, pMap, x+old_x*2, z+old_z+1);
 	}
 
-	if (old_x != 0)
+	if (old_z != 0)
 	{
 		Send_UnitRegion(pkt, pMap, x+old_x, z+old_z*2);
 		if (old_x < 0)
@@ -1280,9 +1273,6 @@ void CEbenezerDlg::SetGameTime()
 	m_Ini.SetInt( "TIMER", "WEATHER", m_nWeather );
 }
 
-#define foreach_region(x, z) for (int x = -1; x <= 1; x++) \
-	for (int z = -1; z <= 1; z++)
-
 void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 {
 	if (pSendUser == NULL)
@@ -1291,7 +1281,7 @@ void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 	Packet result(WIZ_REQ_USERIN);
 	C3DMap* pMap = pSendUser->GetMap();
 	ASSERT(pMap != NULL);
-	int user_count = 0;
+	uint16 user_count = 0;
 
 	result << uint16(0); // placeholder for the user count
 
@@ -1310,18 +1300,18 @@ void CEbenezerDlg::RegionUserInOutForMe(CUser *pSendUser)
 	Packet result(WIZ_REGIONCHANGE, uint8(1));
 	C3DMap* pMap = pSendUser->GetMap();
 	ASSERT(pMap != NULL);
-	int user_count = 0;
+	uint16 user_count = 0;
 
 	result << uint16(0); // placeholder for the user count
 
 	foreach_region(x, z)
 		GetRegionUserList(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, user_count);
 
-	result.put(1, uint16(user_count));
+	result.put(1, user_count);
 	pSendUser->Send(&result); // TO-DO: Compress
 }
 
-void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, int & t_count)
+void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
 {
 	if (pMap == NULL || region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
 		return;
@@ -1345,7 +1335,7 @@ void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Pac
 	LeaveCriticalSection(&g_region_critical);
 }
 
-void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, int region_x, int region_z, Packet & pkt, int & t_count)
+void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
 {
 	if (pMap == NULL || region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
 		return;
@@ -1376,18 +1366,18 @@ void CEbenezerDlg::MerchantUserInOutForMe(CUser *pSendUser)
 	Packet result(WIZ_MERCHANT_INOUT, uint8(1));
 	C3DMap* pMap = pSendUser->GetMap();
 	ASSERT(pMap != NULL);
-	int user_count = 0;
+	uint16 user_count = 0;
 
 	result << uint16(0); // placeholder for user count
 
 	foreach_region(x, z)
 		GetRegionMerchantUserIn(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, user_count);
 
-	result.put(1, uint16(user_count));
+	result.put(1, user_count);
 	pSendUser->Send(&result); // TO-DO: Compress
 }
 
-void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, int & t_count)
+void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
 {
 	if (pMap == NULL || region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
 		return;
@@ -1426,17 +1416,17 @@ void CEbenezerDlg::NpcInOutForMe(CUser* pSendUser)
 	Packet result(WIZ_REQ_NPCIN);
 	C3DMap* pMap = pSendUser->GetMap();
 	ASSERT(pMap != NULL);
-	int npc_count = 0;
+	uint16 npc_count = 0;
 	result << uint16(0); // placeholder for NPC count
 
 	foreach_region(x, z)
 		GetRegionNpcIn(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, npc_count);
 
-	result.put(0, uint16(npc_count));
+	result.put(0, npc_count);
 	pSendUser->Send(&result); // NOTE: Compress
 }
 
-void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, int & t_count)
+void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
 {
 	if (m_bPointCheckFlag == FALSE
 		|| pMap == NULL
@@ -1451,7 +1441,7 @@ void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, int region_x, int region_z, Pack
 			|| pNpc->m_sRegion_X != region_x || pNpc->m_sRegion_Z != region_z)
 			continue;
 
-		pkt << pNpc->GetEntryID();
+		pkt << pNpc->GetID();
 		pNpc->GetNpcInfo(pkt);
 		t_count++;
 	}
@@ -1467,17 +1457,17 @@ void CEbenezerDlg::RegionNpcInfoForMe(CUser *pSendUser)
 	Packet result(WIZ_NPC_REGION);
 	C3DMap* pMap = pSendUser->GetMap();
 	ASSERT(pMap != NULL);
-	int npc_count = 0;
+	uint16 npc_count = 0;
 	result << uint16(0); // placeholder for NPC count
 
 	foreach_region(x, z)
 		GetRegionNpcList(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, npc_count);
 
-	result.put(0, uint16(npc_count));
+	result.put(0, npc_count);
 	pSendUser->Send(&result); // NOTE: Compress
 }
 
-void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, int region_x, int region_z, Packet & pkt, int & t_count)
+void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
 {
 	if (m_bPointCheckFlag == FALSE
 		|| pMap == NULL
@@ -2107,58 +2097,48 @@ BOOL CEbenezerDlg::LoadAllKnightsUserData()
 	return KnightsUserSet.Read(true);
 }
 
-int  CEbenezerDlg::GetKnightsAllMembers(int knightsindex, char *temp_buff, int& buff_index, int type )
+uint16 CEbenezerDlg::GetKnightsAllMembers(uint16 sClanID, Packet & result, uint16 & pktSize, bool bClanLeader)
 {
-	if( knightsindex <= 0 ) return 0;			
+	if (sClanID <= 0)
+		return 0;			
 
-	CUser* pUser = NULL;
-	CKnights* pKnights = NULL;
-	int count = 0, i=0;
+	uint16 count = 0;
 
-	if( type == 0 )	{
-		for( i=0; i<MAX_USER; i++ ) {
-			pUser = GetUnsafeUserPtr(i);
-			if (pUser == NULL || pUser->m_pUserData->m_bKnights != knightsindex )
+	// If we're not a clan leader, we only care about those that are only.
+	// Looping through the entire server once is preferrable to looping through the entire server for every player found.
+	// TO-DO: Remove this whole awful hackery (we shouldn't have to loop through the entire server *at all*).
+	if (!bClanLeader)
+	{
+		for (int i = 0; i < MAX_USER; i++)
+		{
+			CUser *pUser = GetUnsafeUserPtr(i);
+			if (pUser == NULL || pUser->m_pUserData->m_bKnights != sClanID)
 				continue;
 
-			SetKOString( temp_buff, pUser->m_pUserData->m_id, buff_index );
-			SetByte( temp_buff, pUser->m_pUserData->m_bFame, buff_index);
-			SetByte( temp_buff, pUser->getLevel(), buff_index);
-			SetShort( temp_buff, pUser->m_pUserData->m_sClass, buff_index);
-			SetByte( temp_buff, 1, buff_index);
+			result << pUser->m_pUserData->m_id << pUser->getFame() << pUser->getLevel() << pUser->m_pUserData->m_sClass << uint8(1);
 			count++;
-		}	
+		}
 	}
-	else if( type == 1)	{
-		pKnights = m_KnightsArray.GetData( knightsindex );
-		if( !pKnights ) return 0;
+	// If we are a clan leader, we - sadly - need the entire clan list
+	// This is just a preferential thing really, we should improve lookups so that we can provide this data for everyone.
+	else
+	{
+		CKnights *pKnights = m_KnightsArray.GetData(sClanID);
+		if (pKnights == NULL)
+			return 0;
 
-		for( i=0; i<MAX_CLAN_USERS; i++ )	{
-			if( pKnights->m_arKnightsUser[i].byUsed == 1 )	{	// 
-				pUser = GetUserPtr(pKnights->m_arKnightsUser[i].strUserName, TYPE_CHARACTER);
-				if( pUser )	{
-					if( pUser->m_pUserData->m_bKnights == knightsindex )	{
-						SetKOString( temp_buff, pUser->m_pUserData->m_id, buff_index );
-						SetByte( temp_buff, pUser->m_pUserData->m_bFame, buff_index);
-						SetByte( temp_buff, pUser->getLevel(), buff_index);
-						SetShort( temp_buff, pUser->m_pUserData->m_sClass, buff_index);
-						SetByte( temp_buff, 1, buff_index);
-						count++;
-					}
-					else {
-						m_KnightsManager.RemoveKnightsUser( knightsindex, pUser->m_pUserData->m_id );
-					}
-				}
-				else	{
-					SetShort( temp_buff, 0, buff_index );
-					SetByte( temp_buff, 0, buff_index);
-					SetByte( temp_buff, 0, buff_index);
-					SetShort( temp_buff, 0, buff_index);
-					SetByte( temp_buff, 0, buff_index);
-					count++;	
-				}
-				
-			}
+		for (int i = 0; i < MAX_CLAN_USERS; i++)
+		{
+			if (pKnights->m_arKnightsUser[i].byUsed == 0)
+				continue;
+
+			CUser *pUser = GetUserPtr(pKnights->m_arKnightsUser[i].strUserName, TYPE_CHARACTER);
+			if (pUser != NULL)
+				result << pUser->m_pUserData->m_id << pUser->getFame() << pUser->getLevel() << pUser->m_pUserData->m_sClass << uint8(1);
+			else
+				result << "" << uint8(0) << uint8(0) << uint16(0) << uint8(0);
+
+			count++;	
 		}	
 	}
 
@@ -2447,8 +2427,8 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 
 void CEbenezerDlg::FlySanta()
 {
-	char send_buff[] = { WIZ_SANTA };
-	Send_All(send_buff, 1);
+	Packet result(WIZ_SANTA);
+	Send_All(&result);
 } 
 
 void CEbenezerDlg::WriteEventLog( char* pBuf )

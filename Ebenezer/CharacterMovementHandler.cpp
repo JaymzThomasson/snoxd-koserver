@@ -54,7 +54,7 @@ void CUser::UserInOut(BYTE Type)
 		return;
 
 	Packet result(WIZ_USER_INOUT);
-	result << Type << uint8(0) << GetSocketID();
+	result << uint16(Type) << GetSocketID();
 
 	if (Type == USER_OUT)
 		GetMap()->RegionUserRemove(m_RegionX, m_RegionZ, GetSocketID());
@@ -64,9 +64,9 @@ void CUser::UserInOut(BYTE Type)
 	if (Type != USER_OUT)
 		GetUserInfo(result);
 
-	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this );
+	SendToRegion(&result, this);
 
-	if (Type == USER_OUT || m_bAbnormalType != ABNORMAL_BLINKING) 
+	if (Type == USER_OUT || !isBlinking())
 	{
 		result.Initialize(AG_USER_INOUT);
 		result.SByte();
@@ -80,6 +80,7 @@ void CUser::GetUserInfo(Packet & pkt)
 {
 	CKnights *pKnights = NULL;
 	pkt.SByte();
+
 	pkt		<< m_pUserData->m_id
 			<< uint16(getNation()) << m_pUserData->m_bKnights << uint16(m_pUserData->m_bFame);
 
@@ -93,7 +94,6 @@ void CUser::GetUserInfo(Packet & pkt)
 	}
 	else
 	{
-		pkt.SByte();
 		pkt	<< uint8(0) // grade type
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
@@ -102,14 +102,21 @@ void CUser::GetUserInfo(Packet & pkt)
 				<< uint8(0) << uint8(0) << uint8(0); // cape RGB
 	}
 
-	pkt	<< getLevel() << m_pUserData->m_bRace << m_pUserData->m_sClass
+	pkt	<< m_pUserData->m_bRank << m_pUserData->m_bTitle
+		<< getLevel() << m_pUserData->m_bRace << m_pUserData->m_sClass
 		<< GetSPosX() << GetSPosZ() << GetSPosY()
 		<< m_pUserData->m_bFace << m_pUserData->m_nHair
 		<< m_bResHpType << uint32(m_bAbnormalType)
 		<< m_bNeedParty
 		<< m_pUserData->m_bAuthority
-		<< m_pUserData->m_sItemArray[BREAST].nNum << m_pUserData->m_sItemArray[BREAST].sDuration
-		<< m_pUserData->m_sItemArray[LEG].nNum << m_pUserData->m_sItemArray[LEG].sDuration
+		<< uint8(0) // is party leader (bool)
+		<< uint8(0) // visibility state (0 - visible)
+		<< uint8(0) // team colour (i.e. in soccer, 0=none, 1=blue, 2=red)
+		<< uint8(0) // unknown, doesn't seem to do anything noticeable for a regular player or GM (tested with 0, 1, 2, 255)
+		<< m_sDirection // direction 
+		<< uint8(0) // chicken flag
+		<< m_pUserData->m_bRank // king cape (this used to just be rank, above!?)
+		<< int8(-1) << int8(-1) // NP ranks (total, monthly)
 		<< m_pUserData->m_sItemArray[BREAST].nNum << m_pUserData->m_sItemArray[BREAST].sDuration << uint8(0)
 		<< m_pUserData->m_sItemArray[LEG].nNum << m_pUserData->m_sItemArray[LEG].sDuration << uint8(0)
 		<< m_pUserData->m_sItemArray[HEAD].nNum << m_pUserData->m_sItemArray[HEAD].sDuration << uint8(0)
@@ -129,9 +136,9 @@ void CUser::GetUserInfo(Packet & pkt)
 void CUser::Rotate(Packet & pkt)
 {
 	Packet result(WIZ_ROTATE);
-	int16 dir = pkt.read<int16>();
-	result << GetSocketID() << dir;
-	m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
+	pkt >> m_sDirection;
+	result << GetSocketID() << m_sDirection;
+	SendToRegion(&result, this);
 }
 
 void CUser::ZoneChange(int zone, float x, float z)

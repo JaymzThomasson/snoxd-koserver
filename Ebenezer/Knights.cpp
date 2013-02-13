@@ -43,7 +43,7 @@ void CKnights::InitializeValue()
 	m_nPoints = 0;
 }
 
-bool CKnights::AddUser(char *strUserID)
+bool CKnights::AddUser(const char *strUserID)
 {
 	for (int i = 0; i < MAX_CLAN_USERS; i++)
 	{
@@ -69,7 +69,7 @@ bool CKnights::AddUser(CUser *pUser)
 	return true;
 }
 
-bool CKnights::RemoveUser(char *strUserID)
+bool CKnights::RemoveUser(const char *strUserID)
 {
 	for (int i = 0; i < MAX_CLAN_USERS; i++)
 	{

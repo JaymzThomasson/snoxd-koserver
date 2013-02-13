@@ -57,6 +57,8 @@ void CUser::Initialize()
 	m_RegionX = -1;
 	m_RegionZ = -1;
 
+	m_sDirection = 0;
+
 	m_sTotalHit = 0;
 	m_sTotalAc = 0;
 	m_sTotalHitrate = 0;
@@ -406,9 +408,8 @@ void CUser::Parsing(Packet & pkt)
 		}
 	}	
 
-	if( m_fHPLastTimeNormal != 0.0f && (currenttime - m_fHPLastTimeNormal) > m_bHPIntervalNormal && m_bAbnormalType != ABNORMAL_BLINKING) {
+	if (!isBlinking() && m_fHPLastTimeNormal != 0.0f && (currenttime - m_fHPLastTimeNormal) > m_bHPIntervalNormal)
 		HPTimeChange( currenttime );	// For Sitdown/Standup HP restoration.
-	}
 
 	if (m_bType3Flag) {     // For Type 3 HP Duration.
 		for (int i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {	
@@ -422,7 +423,7 @@ void CUser::Parsing(Packet & pkt)
 	if (m_bType4Flag)		// For Type 4 Stat Duration.
 		Type4Duration(currenttime);
 		
-	if (m_bAbnormalType == ABNORMAL_BLINKING)		// Should you stop blinking?
+	if (isBlinking())		// Should you stop blinking?
 		BlinkTimeCheck(currenttime);
 }
 
@@ -852,32 +853,26 @@ void CUser::RegisterRegion()
 
 void CUser::RemoveRegion(int del_x, int del_z)
 {
-	C3DMap* pMap = GetMap();
-	if (!pMap)
-		return;
-
-	Packet result(WIZ_USER_INOUT, uint8(USER_OUT));
-	result << uint8(0) << GetSocketID();
-	m_pMain->Send_OldRegions(&result, del_x, del_z, pMap, m_RegionX, m_RegionZ);
+	Packet result(WIZ_USER_INOUT);
+	result << uint16(USER_OUT) << GetSocketID();
+	m_pMain->Send_OldRegions(&result, del_x, del_z, GetMap(), m_RegionX, m_RegionZ);
 }
 
 void CUser::InsertRegion(int insert_x, int insert_z)
 {
-	Packet result(WIZ_USER_INOUT, uint8(USER_IN));
-	C3DMap* pMap = GetMap();
-
-	if (pMap == NULL)
-		return;
-
-	result << GetSocketID();
+	Packet result(WIZ_USER_INOUT);
+	result << uint16(USER_IN) << GetSocketID();
 	GetUserInfo(result);
-	m_pMain->Send_NewRegions(&result, insert_x, insert_z, pMap, m_RegionX, m_RegionZ);
+	m_pMain->Send_NewRegions(&result, insert_x, insert_z, GetMap(), m_RegionX, m_RegionZ);
 }
 
 void CUser::RequestUserIn(Packet & pkt)
 {
 	Packet result(WIZ_REQ_USERIN);
 	short user_count = pkt.read<uint16>(), online_count = 0;
+	if (user_count > 1000)
+		user_count = 1000;
+
 	result << uint16(0); // placeholder for user count
 
 	for (int i = 0; i < user_count; i++)
@@ -887,7 +882,8 @@ void CUser::RequestUserIn(Packet & pkt)
 			continue;
 
 		result << uint8(0) << pUser->GetSocketID();
-		GetUserInfo(result);
+		pUser->GetUserInfo(result);
+
 		online_count++;
 	}
 
@@ -902,6 +898,9 @@ void CUser::RequestNpcIn(Packet & pkt)
 
 	Packet result(WIZ_REQ_NPCIN);
 	uint16 npc_count = pkt.read<uint16>();
+	if (npc_count > 1000)
+		npc_count = 1000;
+
 	result << uint16(0); // NPC count placeholder
 
 	for (int i = 0; i < npc_count; i++)
@@ -909,12 +908,6 @@ void CUser::RequestNpcIn(Packet & pkt)
 		uint16 nid = pkt.read<uint16>();
 		if (nid < 0 || nid > NPC_BAND+NPC_BAND)
 			continue;
-
-		if (i > 1000)
-		{
-			npc_count = 1000;
-			break;
-		}
 
 		CNpc *pNpc = m_pMain->m_arNpcArray.GetData(nid);
 		if (pNpc == NULL)
@@ -1667,6 +1660,8 @@ void CUser::StateChange(Packet & pkt)
 		case 11: // Provoke 1-3
 		case 12:
 		case 13:
+		case 14: // additional animations randomly used when hitting spacebar
+		case 15:
 			break; // don't do anything with them (this can be handled neater, but just for testing purposes), just make sure they're allowed
 
 		default:

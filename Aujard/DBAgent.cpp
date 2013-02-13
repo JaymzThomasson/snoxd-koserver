@@ -689,12 +689,25 @@ bool CDBAgent::UpdateUser(string & strCharID, short uid, UserUpdateType type)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)serialBuffer.contents(), serialBuffer.size());
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)pUser->m_bstrQuest, sizeof(pUser->m_bstrQuest));
 
-	if (!dbCommand->Prepare(string_format(_T("{CALL UPDATE_USER_DATA (?,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,?,?,?,?,%d,%d)}"),
-		pUser->m_bNation, pUser->m_bRace, pUser->m_sClass, pUser->m_nHair, pUser->m_bRank, pUser->m_bTitle, pUser->m_bLevel, pUser->m_iExp, pUser->m_iLoyalty, pUser->m_bFace, 
-		pUser->m_bCity,	pUser->m_bKnights, pUser->m_bFame, pUser->m_sHp, pUser->m_sMp, pUser->m_sSp, 
+	if (!dbCommand->Prepare(string_format(_T("{CALL UPDATE_USER_DATA ("
+			"?, " // strCharID 
+			"%d, %d, %d, %d, %d, "		// nation, race, class, hair, rank
+			"%d, %d, %d, %d, %d, "		// title, level, exp, loyalty, face
+			"%d, %d, %d, "				// city, knights, fame
+			"%d, %d, %d, "				// hp, mp, sp
+			"%d, %d, %d, %d, %d, "		// str, sta, dex, int, cha
+			"%d, %d, %d, %d, %d, "		// authority, free points, gold, zone, bind
+			"%d, %d, %d, %d, %d, "		// x, z, y, dwTime, sQuestCount
+			"?, ?, ?, ?, "				// strSkill, strItem, strSerial, strQuest
+			"%d, %d)}"),				// manner points, monthly NP
+		pUser->m_bNation, pUser->m_bRace, pUser->m_sClass, pUser->m_nHair, pUser->m_bRank, 
+		pUser->m_bTitle, pUser->m_bLevel, (int32)pUser->m_iExp /* temp hack, database needs to support it */, pUser->m_iLoyalty, pUser->m_bFace, 
+		pUser->m_bCity,	pUser->m_bKnights, pUser->m_bFame, 
+		pUser->m_sHp, pUser->m_sMp, pUser->m_sSp, 
 		pUser->m_bStats[STAT_STR], pUser->m_bStats[STAT_STA], pUser->m_bStats[STAT_DEX], pUser->m_bStats[STAT_INT], pUser->m_bStats[STAT_CHA], 
-		pUser->m_bAuthority, pUser->m_sPoints, pUser->m_iGold, pUser->m_bZone, pUser->m_sBind, (int)(pUser->m_curx*100), (int)(pUser->m_curz*100), (int)(pUser->m_cury*100), pUser->m_dwTime,
-		pUser->m_sQuestCount, pUser->m_iMannerPoint, pUser->m_iLoyaltyMonthly)))
+		pUser->m_bAuthority, pUser->m_sPoints, pUser->m_iGold, pUser->m_bZone, pUser->m_sBind, 
+		(int)(pUser->m_curx*100), (int)(pUser->m_curz*100), (int)(pUser->m_cury*100), pUser->m_dwTime, pUser->m_sQuestCount, 
+		pUser->m_iMannerPoint, pUser->m_iLoyaltyMonthly)))
 	{
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 		return false;
