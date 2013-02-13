@@ -2427,8 +2427,8 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 
 void CEbenezerDlg::FlySanta()
 {
-	char send_buff[] = { WIZ_SANTA };
-	Send_All(send_buff, 1);
+	Packet result(WIZ_SANTA);
+	Send_All(&result);
 } 
 
 void CEbenezerDlg::WriteEventLog( char* pBuf )
