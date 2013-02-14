@@ -308,7 +308,6 @@ void CUser::RecvWarp(Packet & pkt)
 
 void CUser::RecvZoneChange(Packet & pkt)
 {
-	Packet result(WIZ_ZONE_CHANGE);
 	uint8 opcode = pkt.read<uint8>();
 	if (opcode == 1)
 	{
@@ -316,6 +315,7 @@ void CUser::RecvZoneChange(Packet & pkt)
 		m_pMain->NpcInOutForMe(this);
 		m_pMain->MerchantUserInOutForMe(this);
 		
+		Packet result(WIZ_ZONE_CHANGE);
 		result << uint8(2); // finalise the zone change
 		Send(&result);
 	}
