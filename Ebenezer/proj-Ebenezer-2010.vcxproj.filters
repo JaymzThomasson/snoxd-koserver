@@ -326,6 +326,15 @@
     <ClInclude Include="AIPacket.h">
       <Filter>Networking</Filter>
     </ClInclude>
+    <ClInclude Include="..\shared\database\MagicType6Set.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\MagicType7Set.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\MagicType9Set.h">
+      <Filter>Database</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Ebenezer.ico">

@@ -14,7 +14,10 @@
 #include "../shared/database/MagicType3Set.h"
 #include "../shared/database/MagicType4Set.h"
 #include "../shared/database/MagicType5Set.h"
+#include "../shared/database/MagicType6Set.h"
+#include "../shared/database/MagicType7Set.h"
 #include "../shared/database/MagicType8Set.h"
+#include "../shared/database/MagicType9Set.h"
 #include "../shared/database/ZoneInfoSet.h"
 #include "../shared/database/CoefficientSet.h"
 #include "../shared/database/LevelUpTableSet.h"
@@ -387,7 +390,16 @@ BOOL CEbenezerDlg::LoadTables()
 	if (!LoadMagicType5())
 		return FALSE;
 
+	if (!LoadMagicType6())
+		return FALSE;
+
+	if (!LoadMagicType7())
+		return FALSE;
+
 	if (!LoadMagicType8())
+		return FALSE;
+
+	if (!LoadMagicType9())
 		return FALSE;
 
 	if (!LoadCoefficientTable())
@@ -1084,44 +1096,62 @@ BOOL CEbenezerDlg::LoadServerResourceTable()
 
 BOOL CEbenezerDlg::LoadMagicTable()
 {
-	CMagicTableSet MagicTableSet(&m_MagictableArray, &m_GameDB);
-	return MagicTableSet.Read();
+	CMagicTableSet rs(&m_MagictableArray, &m_GameDB);
+	return rs.Read();
 }
 
 BOOL CEbenezerDlg::LoadMagicType1()
 {
-	CMagicType1Set MagicType1Set(&m_Magictype1Array, &m_GameDB);
-	return MagicType1Set.Read();
+	CMagicType1Set rs(&m_Magictype1Array, &m_GameDB);
+	return rs.Read();
 }
 
 BOOL CEbenezerDlg::LoadMagicType2()
 {
-	CMagicType2Set MagicType2Set(&m_Magictype2Array, &m_GameDB);
-	return MagicType2Set.Read();
+	CMagicType2Set rs(&m_Magictype2Array, &m_GameDB);
+	return rs.Read();
 }
 
 BOOL CEbenezerDlg::LoadMagicType3()
 {
-	CMagicType3Set MagicType3Set(&m_Magictype3Array, &m_GameDB);
-	return MagicType3Set.Read();
+	CMagicType3Set rs(&m_Magictype3Array, &m_GameDB);
+	return rs.Read();
 }
 
 BOOL CEbenezerDlg::LoadMagicType4()
 {
-	CMagicType4Set MagicType4Set(&m_Magictype4Array, &m_GameDB);
-	return MagicType4Set.Read();
+	CMagicType4Set rs(&m_Magictype4Array, &m_GameDB);
+	return rs.Read();
 }
 
 BOOL CEbenezerDlg::LoadMagicType5()
 {
-	CMagicType5Set MagicType5Set(&m_Magictype5Array, &m_GameDB);
-	return MagicType5Set.Read();
+	CMagicType5Set rs(&m_Magictype5Array, &m_GameDB);
+	return rs.Read();
+}
+
+BOOL CEbenezerDlg::LoadMagicType6()
+{
+	CMagicType6Set rs(&m_Magictype6Array, &m_GameDB);
+	return rs.Read();
+}
+
+BOOL CEbenezerDlg::LoadMagicType7()
+{
+	CMagicType7Set rs(&m_Magictype7Array, &m_GameDB);
+	return rs.Read();
 }
 
 BOOL CEbenezerDlg::LoadMagicType8()
 {
-	CMagicType8Set MagicType8Set(&m_Magictype8Array, &m_GameDB);
-	return MagicType8Set.Read();
+	CMagicType8Set rs(&m_Magictype8Array, &m_GameDB);
+	return rs.Read();
+}
+
+BOOL CEbenezerDlg::LoadMagicType9()
+{
+	CMagicType9Set rs(&m_Magictype9Array, &m_GameDB);
+	return rs.Read();
 }
 
 BOOL CEbenezerDlg::LoadCoefficientTable()

@@ -265,7 +265,10 @@
     <ClInclude Include="..\shared\database\MagicType3Set.h" />
     <ClInclude Include="..\shared\database\MagicType4Set.h" />
     <ClInclude Include="..\shared\database\MagicType5Set.h" />
+    <ClInclude Include="..\shared\database\MagicType6Set.h" />
+    <ClInclude Include="..\shared\database\MagicType7Set.h" />
     <ClInclude Include="..\shared\database\MagicType8Set.h" />
+    <ClInclude Include="..\shared\database\MagicType9Set.h" />
     <ClInclude Include="..\shared\database\MyRecordSet.h" />
     <ClInclude Include="..\shared\database\ServerResourceSet.h" />
     <ClInclude Include="..\shared\database\StartPositionSet.h" />

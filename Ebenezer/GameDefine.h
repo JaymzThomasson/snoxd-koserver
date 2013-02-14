@@ -406,6 +406,22 @@ struct _MAGIC_TABLE
 	BYTE	bEtc;
 };
 
+struct _MAGIC_TYPE9
+{
+	long	iNum;
+	BYTE	bValidGroup;
+	BYTE	bNationChange;
+	int		sMonsterNum;
+	BYTE	bTargetChange;
+	BYTE	bStateChange;
+	int		sRadius;
+	int		sHitRate;
+	int		sDuration;
+	int		sDamage;
+	int		sVision;
+	long	nNeedItem;
+};
+
 struct _MAGIC_TYPE8
 {
 	long    iNum;
@@ -413,6 +429,49 @@ struct _MAGIC_TYPE8
 	int		sRadius;
 	BYTE    bWarpType;
 	int		sExpRecover;
+};
+
+struct _MAGIC_TYPE7
+{
+	long	iNum;
+	BYTE	bValidGroup;
+	BYTE	bNationChange;
+	int		sMonsterNum;
+	BYTE	bTargetChange;
+	BYTE	bStateChange;
+	BYTE	bRadius;
+	int		sHitRate;
+	int		sDuration;
+	int		sDamage;
+	BYTE	bVision;
+	long	nNeedItem;
+};
+
+struct _MAGIC_TYPE6
+{
+	long	iNum;
+	int		sSize;
+	int		sTransformID;
+	int		sDuration;
+	int		sMaxHp;
+	int		sMaxMp;
+	BYTE	bSpeed;
+	int		sAttackSpeed;
+	int		sTotalHit;
+	int		sTotalAc;
+	int		sTotalHitRate;
+	int		sTotalEvasionRate;
+	int		sTotalFireR;
+	int		sTotalColdR;
+	int		sTotalLightningR;
+	int		sTotalMagicR;
+	int		sTotalDiseaseR;
+	int		sTotalPoisonR;
+	int		sClass;
+	BYTE	bUserSkillUse;
+	BYTE	bNeedItem;
+	BYTE	bSkillSuccessRate;
+	BYTE	bMonsterFriendly;
 };
 
 struct _MAGIC_TYPE5
