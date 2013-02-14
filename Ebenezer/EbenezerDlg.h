@@ -168,6 +168,8 @@ public:
 	CUser * GetUserPtr(int sid);
 	__forceinline CUser * GetUnsafeUserPtr(int sid);
 
+	__forceinline CKnights *GetClanPtr(uint16 sClanID);
+
 	_PARTY_GROUP * CreateParty(CUser *pLeader);
 	void DeleteParty(short sIndex);
 

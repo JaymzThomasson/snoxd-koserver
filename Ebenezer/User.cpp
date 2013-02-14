@@ -592,7 +592,7 @@ void CUser::SendMyInfo()
 			<< m_pUserData->m_bCity;
 
 	if (isInClan())
-		pKnights = m_pMain->m_KnightsArray.GetData(m_pUserData->m_bKnights);
+		pKnights = m_pMain->GetClanPtr(m_pUserData->m_bKnights);
 
 	if (pKnights == NULL)
 	{
@@ -2012,7 +2012,7 @@ void CUser::Dead()
 	if( m_pUserData->m_bFame == COMMAND_CAPTAIN )	{
 		ChangeFame(CHIEF);
 
-		pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
+		pKnights = m_pMain->GetClanPtr( m_pUserData->m_bKnights );
 		if( pKnights )		strcpy_s( strKnightsName, sizeof(strKnightsName), pKnights->m_strName );
 		else				strcpy_s( strKnightsName, sizeof(strKnightsName), "*" );
 		//TRACE("---> Dead Captain Deprive - %s\n", m_pUserData->m_id);

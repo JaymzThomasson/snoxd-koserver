@@ -1081,7 +1081,7 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 			pUser = m_pMain->GetUserPtr(strMaxUserName, TYPE_CHARACTER);
 			if (pUser != NULL)
 			{
-				pKnights = m_pMain->m_KnightsArray.GetData( pUser->m_pUserData->m_bKnights );
+				pKnights = m_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights);
 				if (pKnights)
 					strcpy_s(strKnightsName, sizeof(strKnightsName), pKnights->m_strName);
 

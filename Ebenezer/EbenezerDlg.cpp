@@ -609,6 +609,11 @@ CUser* CEbenezerDlg::GetUnsafeUserPtr(int sid)
 	return (CUser *)m_Iocport.m_SockArray[sid];
 }
 
+CKnights* CEbenezerDlg::GetClanPtr(uint16 sClanID)
+{
+	return m_KnightsArray.GetData(sClanID);
+}
+
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 {
 	pLeader->m_sPartyIndex = m_sPartyIndex++;
@@ -950,7 +955,7 @@ void CEbenezerDlg::Send_PartyMember(int party, Packet *result)
 
 void CEbenezerDlg::Send_KnightsMember(int index, Packet *pkt)
 {
-	CKnights* pKnights = m_KnightsArray.GetData(index);
+	CKnights* pKnights = GetClanPtr(index);
 	if (pKnights == NULL)
 		return;
 
@@ -2122,7 +2127,7 @@ uint16 CEbenezerDlg::GetKnightsAllMembers(uint16 sClanID, Packet & result, uint1
 	// This is just a preferential thing really, we should improve lookups so that we can provide this data for everyone.
 	else
 	{
-		CKnights *pKnights = m_KnightsArray.GetData(sClanID);
+		CKnights *pKnights = GetClanPtr(sClanID);
 		if (pKnights == NULL)
 			return 0;
 
@@ -2319,7 +2324,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 	while( !KRankSet.IsEOF() )	{
 		nRank = KRankSet.m_nRank;
 		nKnightsIndex = KRankSet.m_shIndex;
-		pKnights = m_KnightsArray.GetData( nKnightsIndex );
+		pKnights = GetClanPtr( nKnightsIndex );
 		strKnightsName = KRankSet.m_strName;
 		strKnightsName.TrimRight();
 		if (pKnights == NULL)
