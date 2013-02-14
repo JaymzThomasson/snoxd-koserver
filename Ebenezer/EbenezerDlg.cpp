@@ -616,16 +616,16 @@ CKnights* CEbenezerDlg::GetClanPtr(uint16 sClanID)
 
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 {
+	EnterCriticalSection(&g_region_critical);
+
 	pLeader->m_sPartyIndex = m_sPartyIndex++;
 	if (m_sPartyIndex == SHRT_MAX)
 		m_sPartyIndex = 0;
-
-	EnterCriticalSection(&g_region_critical);
 		
 	_PARTY_GROUP * pParty = new _PARTY_GROUP;
 	pParty->wIndex = pLeader->m_sPartyIndex;
 	pParty->uid[0] = pLeader->GetSocketID();
-	if (!m_PartyArray.PutData( pParty->wIndex, pParty))
+	if (!m_PartyArray.PutData(pParty->wIndex, pParty))
 	{
 		delete pParty;
 		pLeader->m_sPartyIndex = -1;
