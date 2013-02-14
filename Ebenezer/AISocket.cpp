@@ -855,7 +855,7 @@ void CAISocket::RecvNpcGiveItem(char* pBuf)
 	pItem->z = fZ;
 	pItem->y = fY;
 	for(int i=0; i<byCount; i++) {
-		if( m_pMain->m_ItemtableArray.GetData(nItemNumber[i]) ) {
+		if( m_pMain->GetItemPtr(nItemNumber[i]) ) {
 			pItem->itemid[i] = nItemNumber[i];
 			pItem->count[i] = sCount[i];
 		}

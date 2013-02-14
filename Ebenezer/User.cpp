@@ -940,7 +940,7 @@ void CUser::SetSlotItemValue()
 	for(int i=0; i<SLOT_MAX; i++)  {
 		if(m_pUserData->m_sItemArray[i].nNum <= 0)
 			continue;
-		pTable = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[i].nNum );
+		pTable = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[i].nNum );
 		if( !pTable )
 			continue;
 		if( m_pUserData->m_sItemArray[i].sDuration == 0 ) {
@@ -989,7 +989,7 @@ void CUser::SetSlotItemValue()
 	for(int i=0 ; i < HAVE_MAX+SLOT_MAX ; i++)  {
 		if(m_pUserData->m_sItemArray[i].nNum <= 0) continue;
 
-		pTable = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[i].nNum );
+		pTable = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[i].nNum );
 		if( !pTable ) continue;
 
 		if (pTable->m_bCountable == 0) {	// Non-countable items.
@@ -1005,7 +1005,7 @@ void CUser::SetSlotItemValue()
 
 	// For magical items..... by Yookozuna 2002.7.10
 	_ITEM_TABLE* pLeftHand = NULL;			// Get item info for left hand.
-	pLeftHand = m_pMain->m_ItemtableArray.GetData(m_pUserData->m_sItemArray[LEFTHAND].nNum);
+	pLeftHand = m_pMain->GetItemPtr(m_pUserData->m_sItemArray[LEFTHAND].nNum);
 	if (pLeftHand) {
 		if (pLeftHand->m_bFireDamage) {
 			m_bMagicTypeLeftHand = 1;
@@ -1049,7 +1049,7 @@ void CUser::SetSlotItemValue()
 	}
 
 	_ITEM_TABLE* pRightHand = NULL;			// Get item info for right hand.
-	pRightHand = m_pMain->m_ItemtableArray.GetData(m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+	pRightHand = m_pMain->GetItemPtr(m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 	if (pRightHand) {
 		if (pRightHand->m_bFireDamage) {
 			m_bMagicTypeRightHand = 1;
@@ -1313,7 +1313,7 @@ void CUser::SetUserAbility()
 	
 	float hitcoefficient = 0.0f;
 	if( m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {
-		pItem = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
+		pItem = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
 		if( pItem ) {
 			switch(pItem->m_bKind/10) {	// ???? �??....
 			case WEAPON_DAGGER:
@@ -1358,7 +1358,7 @@ void CUser::SetUserAbility()
 		}
 	}
 	if( m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 && hitcoefficient == 0.0f ) {
-		pItem = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[LEFTHAND].nNum );	// ??? ???? : ? ???? ???
+		pItem = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[LEFTHAND].nNum );	// ??? ???? : ? ???? ???
 		if( pItem ) {
 			switch(pItem->m_bKind/10) {
 			case WEAPON_BOW:
@@ -1496,7 +1496,7 @@ void CUser::ItemGet(Packet & pkt)
 
 	short count = pItem->count[i];
 
-	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
+	pTable = m_pMain->GetItemPtr( itemid );
 	if (pTable == NULL)
 		goto fail_return;
 
@@ -2043,7 +2043,7 @@ void CUser::ItemWoreOut(int type, int damage)
 
 	if( type == ATTACK ) {
 		if( m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {
-			pTable = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
+			pTable = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
 			if( pTable ) {
 				if( pTable->m_bSlot != 2 )	{// 2 == DEFENCE ITEM
 					if( m_pUserData->m_sItemArray[RIGHTHAND].sDuration != 0 ) {
@@ -2054,7 +2054,7 @@ void CUser::ItemWoreOut(int type, int damage)
 			}
 		}
 		if( m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 ) {
-			pTable = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[LEFTHAND].nNum );
+			pTable = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[LEFTHAND].nNum );
 			if( pTable ) {
 				if( pTable->m_bSlot != 2 ) {
 					if( m_pUserData->m_sItemArray[LEFTHAND].sDuration != 0 ) {
@@ -2067,7 +2067,7 @@ void CUser::ItemWoreOut(int type, int damage)
 	}
 	else if ( type == DEFENCE ) {
 		if( m_pUserData->m_sItemArray[HEAD].nNum != 0 ) {
-			pTable = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[HEAD].nNum );
+			pTable = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[HEAD].nNum );
 			if( pTable ) {
 				if( m_pUserData->m_sItemArray[HEAD].sDuration != 0 ) {
 					m_pUserData->m_sItemArray[HEAD].sDuration -= worerate;
@@ -2076,7 +2076,7 @@ void CUser::ItemWoreOut(int type, int damage)
 			}
 		}
 		if( m_pUserData->m_sItemArray[BREAST].nNum != 0 ) {
-			pTable = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[BREAST].nNum );
+			pTable = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[BREAST].nNum );
 			if( pTable ) {
 				if( m_pUserData->m_sItemArray[BREAST].sDuration != 0 ) {
 					m_pUserData->m_sItemArray[BREAST].sDuration -= worerate;
@@ -2085,7 +2085,7 @@ void CUser::ItemWoreOut(int type, int damage)
 			}
 		}
 		if( m_pUserData->m_sItemArray[LEG].nNum != 0 ) {
-			pTable = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[LEG].nNum );
+			pTable = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[LEG].nNum );
 			if( pTable ) {
 				if( m_pUserData->m_sItemArray[LEG].sDuration != 0 ) {
 					m_pUserData->m_sItemArray[LEG].sDuration -= worerate;
@@ -2094,7 +2094,7 @@ void CUser::ItemWoreOut(int type, int damage)
 			}
 		}
 		if( m_pUserData->m_sItemArray[GLOVE].nNum != 0 ) {
-			pTable = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[GLOVE].nNum );
+			pTable = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[GLOVE].nNum );
 			if( pTable ) {
 				if( m_pUserData->m_sItemArray[GLOVE].sDuration != 0 ) {
 					m_pUserData->m_sItemArray[GLOVE].sDuration -= worerate;
@@ -2103,7 +2103,7 @@ void CUser::ItemWoreOut(int type, int damage)
 			}
 		}
 		if( m_pUserData->m_sItemArray[FOOT].nNum != 0 ) {
-			pTable = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[FOOT].nNum );
+			pTable = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[FOOT].nNum );
 			if( pTable ) {
 				if( m_pUserData->m_sItemArray[FOOT].sDuration != 0 ) {
 					m_pUserData->m_sItemArray[FOOT].sDuration -= worerate;
@@ -2112,7 +2112,7 @@ void CUser::ItemWoreOut(int type, int damage)
 			}
 		}
 		if( m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {
-			pTable = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
+			pTable = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
 			if( pTable ) {
 				if( pTable->m_bSlot == 2 ) {	// ?????
 					if( m_pUserData->m_sItemArray[RIGHTHAND].sDuration != 0 ) {
@@ -2123,7 +2123,7 @@ void CUser::ItemWoreOut(int type, int damage)
 			}
 		}
 		if( m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 ) {
-			pTable = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[LEFTHAND].nNum );
+			pTable = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[LEFTHAND].nNum );
 			if( pTable ) {
 				if( pTable->m_bSlot == 2 ) {	// ?????
 					if( m_pUserData->m_sItemArray[LEFTHAND].sDuration != 0 ) {
@@ -2759,7 +2759,7 @@ CUser* CUser::GetItemRoutingUser(int itemid, short itemcount)
 	if(	pParty->bItemRouting > 7 ) return NULL;
 //
 	_ITEM_TABLE* pTable = NULL;
-	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
+	pTable = m_pMain->GetItemPtr( itemid );
 	if( !pTable ) return NULL;
 //
 	while(count<8) {
@@ -3526,7 +3526,7 @@ bool CUser::isAttackZone()
 
 bool CUser::CanUseItem(long itemid)
 {
-	_ITEM_TABLE* pItem = pItem = m_pMain->m_ItemtableArray.GetData(itemid);
+	_ITEM_TABLE* pItem = pItem = m_pMain->GetItemPtr(itemid);
 	if(!pItem)
 		return false;
 

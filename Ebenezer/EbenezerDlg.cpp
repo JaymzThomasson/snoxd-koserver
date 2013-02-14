@@ -608,7 +608,7 @@ CUser* CEbenezerDlg::GetUserPtr(const char *userid, NameType type)
 	return NULL;
 }
 
-CUser* CEbenezerDlg::GetUserPtr(int sid)
+CUser * CEbenezerDlg::GetUserPtr(int sid)
 {
 	if (sid < 0 || sid >= MAX_USER)
 		return NULL;
@@ -616,15 +616,9 @@ CUser* CEbenezerDlg::GetUserPtr(int sid)
 	return GetUnsafeUserPtr(sid);
 }
 
-CUser* CEbenezerDlg::GetUnsafeUserPtr(int sid)
-{
-	return (CUser *)m_Iocport.m_SockArray[sid];
-}
-
-CKnights* CEbenezerDlg::GetClanPtr(uint16 sClanID)
-{
-	return m_KnightsArray.GetData(sClanID);
-}
+CUser       * CEbenezerDlg::GetUnsafeUserPtr(int sid)  { return (CUser *)m_Iocport.m_SockArray[sid]; }
+CKnights    * CEbenezerDlg::GetClanPtr(uint16 sClanID) { return m_KnightsArray.GetData(sClanID); }
+_ITEM_TABLE * CEbenezerDlg::GetItemPtr(uint32 nItemID) { return m_ItemtableArray.GetData(nItemID); }
 
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 {

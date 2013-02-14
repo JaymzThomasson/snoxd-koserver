@@ -17,7 +17,7 @@ void CUser::ItemRepair(Packet & pkt)
 		if( slot >= HAVE_MAX ) goto fail_return;
 		if( m_pUserData->m_sItemArray[SLOT_MAX+slot].nNum != itemid ) goto fail_return;
 	}
-	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
+	pTable = m_pMain->GetItemPtr( itemid );
 	if( !pTable ) goto fail_return;
 	durability = pTable->m_sDuration;
 	if( durability == 1 ) goto fail_return;
@@ -603,7 +603,7 @@ void CUser::ItemTrade(Packet & pkt)
 
 	if (isTrading())
 		goto fail_return;
-	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
+	pTable = m_pMain->GetItemPtr( itemid );
 	if( !pTable ) {
 		result = 0x01;
 		goto fail_return;

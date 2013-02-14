@@ -17,7 +17,7 @@ void CUser::Attack(Packet & pkt)
 		|| isDead())
 		return;
 
-	_ITEM_TABLE *pTable = m_pMain->m_ItemtableArray.GetData(m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+	_ITEM_TABLE *pTable = m_pMain->GetItemPtr(m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 	if (pTable == NULL && m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0) 
 		return;
 	
@@ -333,7 +333,7 @@ short CUser::GetACDamage(int damage, short tid)
 		return damage;	
 
 	if( m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {
-		pRightHand = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
+		pRightHand = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
 		if( pRightHand ) {
 			switch(pRightHand->m_bKind/10) {		// Weapon Type Right Hand....
 				case WEAPON_DAGGER:		
@@ -359,7 +359,7 @@ short CUser::GetACDamage(int damage, short tid)
 	}
 
 	if( m_pUserData->m_sItemArray[LEFTHAND].nNum != 0) {
-		pLeftHand = m_pMain->m_ItemtableArray.GetData( m_pUserData->m_sItemArray[LEFTHAND].nNum );	
+		pLeftHand = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[LEFTHAND].nNum );	
 		if( pLeftHand ) {
 			switch(pLeftHand->m_bKind/10) {			// Weapon Type Right Hand....
 				case WEAPON_DAGGER:		

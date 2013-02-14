@@ -108,7 +108,7 @@ void CUser::ExchangeAdd(Packet & pkt)
 	}
 
 	pkt >> pos >> itemid >> count;
-	pTable = m_pMain->m_ItemtableArray.GetData( itemid );
+	pTable = m_pMain->GetItemPtr( itemid );
 	if (pTable == NULL
 		|| (itemid != ITEM_GOLD && pos >= HAVE_MAX)
 		|| m_bExchangeOK)
@@ -382,7 +382,7 @@ BOOL CUser::ExecuteExchange()
 			money = (*Iter)->count;
 		}
 		else {
-			pTable = m_pMain->m_ItemtableArray.GetData( (*Iter)->itemid );
+			pTable = m_pMain->GetItemPtr( (*Iter)->itemid );
 			if( !pTable ) continue;
 			for (i=0; i<HAVE_MAX; i++ ) {
 				if( m_MirrorItem[i].nNum == 0  && pTable->m_bCountable == 0 ) {
@@ -459,7 +459,7 @@ int CUser::ExchangeDone()
 		m_pUserData->m_sItemArray[SLOT_MAX+i].sCount = m_MirrorItem[i].sCount;
 		m_pUserData->m_sItemArray[SLOT_MAX+i].nSerialNum = m_MirrorItem[i].nSerialNum;
 
-		pTable = m_pMain->m_ItemtableArray.GetData(m_pUserData->m_sItemArray[SLOT_MAX+i].nNum);
+		pTable = m_pMain->GetItemPtr(m_pUserData->m_sItemArray[SLOT_MAX+i].nNum);
 		if( !pTable ) continue;
 		if( pTable->m_bCountable == 0 && m_pUserData->m_sItemArray[SLOT_MAX+i].nSerialNum == 0 )
 			m_pUserData->m_sItemArray[SLOT_MAX+i].nSerialNum = m_pMain->GenerateItemSerial();

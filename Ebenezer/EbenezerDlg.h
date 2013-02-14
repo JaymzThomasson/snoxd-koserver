@@ -170,11 +170,12 @@ public:
 	long GetExpByLevel(int nLevel);
 	C3DMap * GetZoneByID(int zoneID);
 
-	CUser* GetUserPtr(const char* userid, NameType type);
+	CUser * GetUserPtr(const char* userid, NameType type);
 	CUser * GetUserPtr(int sid);
 	__forceinline CUser * GetUnsafeUserPtr(int sid);
 
-	__forceinline CKnights *GetClanPtr(uint16 sClanID);
+	CKnights * GetClanPtr(uint16 sClanID);
+	_ITEM_TABLE * GetItemPtr(uint32 nItemID);
 
 	_PARTY_GROUP * CreateParty(CUser *pLeader);
 	void DeleteParty(short sIndex);
