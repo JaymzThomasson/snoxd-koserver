@@ -434,7 +434,7 @@ void CUdpSocket::RecvJoinKnights(char* pBuf, BYTE command)
 	if (!GetKOString(pBuf, charid, index, MAX_ID_SIZE))
 		return;
 
-	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(knightsindex);
+	CKnights *pKnights = m_pMain->GetClanPtr(knightsindex);
 	if (pKnights == NULL)
 		return;
 
@@ -468,7 +468,7 @@ void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 		return;
 
 	CUser *pTUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
-	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(knightsindex);
+	CKnights *pKnights = m_pMain->GetClanPtr(knightsindex);
 	if (pKnights == NULL)
 		return;
 
@@ -547,7 +547,7 @@ void CUdpSocket::RecvDestroyKnights(char* pBuf)
 {
 	int index = 0;
 	int16 knightsindex = GetShort(pBuf, index);
-	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(knightsindex);
+	CKnights *pKnights = m_pMain->GetClanPtr(knightsindex);
 	if (pKnights == NULL)
 	{
 		TRACE("UDP - ### RecvDestoryKnights  Fail == index = %d ###\n", knightsindex);

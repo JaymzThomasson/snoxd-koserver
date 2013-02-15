@@ -855,7 +855,7 @@ void CAISocket::RecvNpcGiveItem(char* pBuf)
 	pItem->z = fZ;
 	pItem->y = fY;
 	for(int i=0; i<byCount; i++) {
-		if( m_pMain->m_ItemtableArray.GetData(nItemNumber[i]) ) {
+		if( m_pMain->GetItemPtr(nItemNumber[i]) ) {
 			pItem->itemid[i] = nItemNumber[i];
 			pItem->count[i] = sCount[i];
 		}
@@ -1081,7 +1081,7 @@ void CAISocket::RecvBattleEvent(char* pBuf)
 			pUser = m_pMain->GetUserPtr(strMaxUserName, TYPE_CHARACTER);
 			if (pUser != NULL)
 			{
-				pKnights = m_pMain->m_KnightsArray.GetData( pUser->m_pUserData->m_bKnights );
+				pKnights = m_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights);
 				if (pKnights)
 					strcpy_s(strKnightsName, sizeof(strKnightsName), pKnights->m_strName);
 

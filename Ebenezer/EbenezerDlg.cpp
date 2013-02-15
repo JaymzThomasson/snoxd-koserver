@@ -14,7 +14,10 @@
 #include "../shared/database/MagicType3Set.h"
 #include "../shared/database/MagicType4Set.h"
 #include "../shared/database/MagicType5Set.h"
+#include "../shared/database/MagicType6Set.h"
+#include "../shared/database/MagicType7Set.h"
 #include "../shared/database/MagicType8Set.h"
+#include "../shared/database/MagicType9Set.h"
 #include "../shared/database/ZoneInfoSet.h"
 #include "../shared/database/CoefficientSet.h"
 #include "../shared/database/LevelUpTableSet.h"
@@ -387,7 +390,16 @@ BOOL CEbenezerDlg::LoadTables()
 	if (!LoadMagicType5())
 		return FALSE;
 
+	if (!LoadMagicType6())
+		return FALSE;
+
+	if (!LoadMagicType7())
+		return FALSE;
+
 	if (!LoadMagicType8())
+		return FALSE;
+
+	if (!LoadMagicType9())
 		return FALSE;
 
 	if (!LoadCoefficientTable())
@@ -596,7 +608,7 @@ CUser* CEbenezerDlg::GetUserPtr(const char *userid, NameType type)
 	return NULL;
 }
 
-CUser* CEbenezerDlg::GetUserPtr(int sid)
+CUser * CEbenezerDlg::GetUserPtr(int sid)
 {
 	if (sid < 0 || sid >= MAX_USER)
 		return NULL;
@@ -604,23 +616,22 @@ CUser* CEbenezerDlg::GetUserPtr(int sid)
 	return GetUnsafeUserPtr(sid);
 }
 
-CUser* CEbenezerDlg::GetUnsafeUserPtr(int sid)
-{
-	return (CUser *)m_Iocport.m_SockArray[sid];
-}
+CUser       * CEbenezerDlg::GetUnsafeUserPtr(int sid)  { return (CUser *)m_Iocport.m_SockArray[sid]; }
+CKnights    * CEbenezerDlg::GetClanPtr(uint16 sClanID) { return m_KnightsArray.GetData(sClanID); }
+_ITEM_TABLE * CEbenezerDlg::GetItemPtr(uint32 nItemID) { return m_ItemtableArray.GetData(nItemID); }
 
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 {
+	EnterCriticalSection(&g_region_critical);
+
 	pLeader->m_sPartyIndex = m_sPartyIndex++;
 	if (m_sPartyIndex == SHRT_MAX)
 		m_sPartyIndex = 0;
-
-	EnterCriticalSection(&g_region_critical);
 		
 	_PARTY_GROUP * pParty = new _PARTY_GROUP;
 	pParty->wIndex = pLeader->m_sPartyIndex;
 	pParty->uid[0] = pLeader->GetSocketID();
-	if (!m_PartyArray.PutData( pParty->wIndex, pParty))
+	if (!m_PartyArray.PutData(pParty->wIndex, pParty))
 	{
 		delete pParty;
 		pLeader->m_sPartyIndex = -1;
@@ -950,7 +961,7 @@ void CEbenezerDlg::Send_PartyMember(int party, Packet *result)
 
 void CEbenezerDlg::Send_KnightsMember(int index, Packet *pkt)
 {
-	CKnights* pKnights = m_KnightsArray.GetData(index);
+	CKnights* pKnights = GetClanPtr(index);
 	if (pKnights == NULL)
 		return;
 
@@ -1079,44 +1090,62 @@ BOOL CEbenezerDlg::LoadServerResourceTable()
 
 BOOL CEbenezerDlg::LoadMagicTable()
 {
-	CMagicTableSet MagicTableSet(&m_MagictableArray, &m_GameDB);
-	return MagicTableSet.Read();
+	CMagicTableSet rs(&m_MagictableArray, &m_GameDB);
+	return rs.Read();
 }
 
 BOOL CEbenezerDlg::LoadMagicType1()
 {
-	CMagicType1Set MagicType1Set(&m_Magictype1Array, &m_GameDB);
-	return MagicType1Set.Read();
+	CMagicType1Set rs(&m_Magictype1Array, &m_GameDB);
+	return rs.Read();
 }
 
 BOOL CEbenezerDlg::LoadMagicType2()
 {
-	CMagicType2Set MagicType2Set(&m_Magictype2Array, &m_GameDB);
-	return MagicType2Set.Read();
+	CMagicType2Set rs(&m_Magictype2Array, &m_GameDB);
+	return rs.Read();
 }
 
 BOOL CEbenezerDlg::LoadMagicType3()
 {
-	CMagicType3Set MagicType3Set(&m_Magictype3Array, &m_GameDB);
-	return MagicType3Set.Read();
+	CMagicType3Set rs(&m_Magictype3Array, &m_GameDB);
+	return rs.Read();
 }
 
 BOOL CEbenezerDlg::LoadMagicType4()
 {
-	CMagicType4Set MagicType4Set(&m_Magictype4Array, &m_GameDB);
-	return MagicType4Set.Read();
+	CMagicType4Set rs(&m_Magictype4Array, &m_GameDB);
+	return rs.Read();
 }
 
 BOOL CEbenezerDlg::LoadMagicType5()
 {
-	CMagicType5Set MagicType5Set(&m_Magictype5Array, &m_GameDB);
-	return MagicType5Set.Read();
+	CMagicType5Set rs(&m_Magictype5Array, &m_GameDB);
+	return rs.Read();
+}
+
+BOOL CEbenezerDlg::LoadMagicType6()
+{
+	CMagicType6Set rs(&m_Magictype6Array, &m_GameDB);
+	return rs.Read();
+}
+
+BOOL CEbenezerDlg::LoadMagicType7()
+{
+	CMagicType7Set rs(&m_Magictype7Array, &m_GameDB);
+	return rs.Read();
 }
 
 BOOL CEbenezerDlg::LoadMagicType8()
 {
-	CMagicType8Set MagicType8Set(&m_Magictype8Array, &m_GameDB);
-	return MagicType8Set.Read();
+	CMagicType8Set rs(&m_Magictype8Array, &m_GameDB);
+	return rs.Read();
+}
+
+BOOL CEbenezerDlg::LoadMagicType9()
+{
+	CMagicType9Set rs(&m_Magictype9Array, &m_GameDB);
+	return rs.Read();
 }
 
 BOOL CEbenezerDlg::LoadCoefficientTable()
@@ -2122,7 +2151,7 @@ uint16 CEbenezerDlg::GetKnightsAllMembers(uint16 sClanID, Packet & result, uint1
 	// This is just a preferential thing really, we should improve lookups so that we can provide this data for everyone.
 	else
 	{
-		CKnights *pKnights = m_KnightsArray.GetData(sClanID);
+		CKnights *pKnights = GetClanPtr(sClanID);
 		if (pKnights == NULL)
 			return 0;
 
@@ -2319,7 +2348,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 	while( !KRankSet.IsEOF() )	{
 		nRank = KRankSet.m_nRank;
 		nKnightsIndex = KRankSet.m_shIndex;
-		pKnights = m_KnightsArray.GetData( nKnightsIndex );
+		pKnights = GetClanPtr( nKnightsIndex );
 		strKnightsName = KRankSet.m_strName;
 		strKnightsName.TrimRight();
 		if (pKnights == NULL)

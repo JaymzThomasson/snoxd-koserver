@@ -264,7 +264,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 
 			if( m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {	// Does the magic user have a staff?
 				_ITEM_TABLE* pRightHand = NULL;
-				pRightHand = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+				pRightHand = m_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 
 				if( pRightHand && m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum == 0 && pRightHand->m_bKind / 10 == WEAPON_STAFF) {					
 //						total_magic_damage += pRightHand->m_sDamage ;
@@ -582,10 +582,10 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 
 		if (pSkill->bType[0] == 1) {	// Weapons verification in case of COMBO attack (another hacking prevention).
 			if (pSkill->sSkill == 1055 || pSkill->sSkill == 2055) {		// Weapons verification in case of DUAL ATTACK (type 1)!		
-				_ITEM_TABLE* pLeftHand = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
+				_ITEM_TABLE* pLeftHand = m_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
 				if (!pLeftHand) return false;
 
-				_ITEM_TABLE* pRightHand = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+				_ITEM_TABLE* pRightHand = m_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 				if (!pRightHand) return false;
 				
 				int left_index = pLeftHand->m_bKind / 10 ;
@@ -596,7 +596,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 					return false;
 			}
 			else if (pSkill->sSkill == 1056 || pSkill->sSkill == 2056) {	// Weapons verification in case of DOUBLE ATTACK !
-				_ITEM_TABLE* pRightHand = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+				_ITEM_TABLE* pRightHand = m_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 				if (!pRightHand) return false;
 
 				int right_index = pRightHand->m_bKind / 10 ;
@@ -630,7 +630,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 				{	
 					if (pSkill->iUseItem != 0) {
 						_ITEM_TABLE* pItem = NULL;				// This checks if such an item exists.
-						pItem = m_pMain->m_ItemtableArray.GetData(pSkill->iUseItem);
+						pItem = m_pMain->GetItemPtr(pSkill->iUseItem);
 						if( !pItem ) return false;
 						
 						if ((pItem->m_bRace != 0 && m_pSrcUser->m_pUserData->m_bRace != pItem->m_bRace)
@@ -755,9 +755,9 @@ BYTE CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 
 	_ITEM_TABLE* pTable = NULL;		// Get item info.
 	if (m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum)
-		pTable = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
+		pTable = m_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
 	else
-		pTable = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+		pTable = m_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 
 	if (pTable == NULL) 
 		return 0;
@@ -1645,7 +1645,7 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 		if ( sid >= 0 && sid < MAX_USER) {
 			if( m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {	// Does the magic user have a staff?
 				_ITEM_TABLE* pRightHand = NULL;
-				pRightHand = m_pMain->m_ItemtableArray.GetData(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+				pRightHand = m_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 
 				if( pRightHand && m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum == 0 && pRightHand->m_bKind / 10 == WEAPON_STAFF) {				
 					righthand_damage = pRightHand->m_sDamage ;

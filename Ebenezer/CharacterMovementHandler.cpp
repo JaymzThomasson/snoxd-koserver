@@ -84,9 +84,7 @@ void CUser::GetUserInfo(Packet & pkt)
 	pkt		<< m_pUserData->m_id
 			<< uint16(getNation()) << m_pUserData->m_bKnights << uint16(m_pUserData->m_bFame);
 
-	if (isInClan())
-		pKnights = m_pMain->m_KnightsArray.GetData(m_pUserData->m_bKnights);
-
+	pKnights = m_pMain->GetClanPtr(m_pUserData->m_bKnights);
 	if (pKnights == NULL)
 	{
 		// should work out to be 11 bytes, 6-7 being cape ID.
@@ -310,7 +308,6 @@ void CUser::RecvWarp(Packet & pkt)
 
 void CUser::RecvZoneChange(Packet & pkt)
 {
-	Packet result(WIZ_ZONE_CHANGE);
 	uint8 opcode = pkt.read<uint8>();
 	if (opcode == 1)
 	{
@@ -318,6 +315,7 @@ void CUser::RecvZoneChange(Packet & pkt)
 		m_pMain->NpcInOutForMe(this);
 		m_pMain->MerchantUserInOutForMe(this);
 		
+		Packet result(WIZ_ZONE_CHANGE);
 		result << uint8(2); // finalise the zone change
 		Send(&result);
 	}

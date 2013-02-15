@@ -250,7 +250,7 @@ void CUser::SelectCharacter(Packet & pkt)
 	}
 	else if (m_pUserData->m_bKnights != 0)
 	{
-		CKnights* pKnights = m_pMain->m_KnightsArray.GetData( m_pUserData->m_bKnights );
+		CKnights* pKnights = m_pMain->GetClanPtr( m_pUserData->m_bKnights );
 		if (pKnights != NULL)
 		{
 			m_pMain->m_KnightsManager.SetKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id );

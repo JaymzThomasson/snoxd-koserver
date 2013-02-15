@@ -147,7 +147,7 @@ int CKnightsManager::GetKnightsIndex( int nation )
 	knightindex++;
 	if ((nation == KARUS && (knightindex >= 15000 || knightindex < 0))
 		|| nation == ELMORAD && (knightindex < 15000 || knightindex > 30000)
-		|| m_pMain->m_KnightsArray.GetData(knightindex))
+		|| m_pMain->GetClanPtr(knightindex))
 		return -1;
 
 	return knightindex;
@@ -172,7 +172,7 @@ void CKnightsManager::JoinKnights(CUser *pUser, Packet & pkt)
 			break;
 
 		uint16 sClanID = pUser->m_pUserData->m_bKnights;
-		CKnights *pKnights = m_pMain->m_KnightsArray.GetData(sClanID);
+		CKnights *pKnights = m_pMain->GetClanPtr(sClanID);
 		if (pKnights == NULL)
 		{
 			bResult = 7;
@@ -219,7 +219,7 @@ void CKnightsManager::JoinKnightsReq(CUser *pUser, Packet & pkt)
 		bResult = 11;
 	else
 	{
-		CKnights *pKnights = m_pMain->m_KnightsArray.GetData(sClanID);
+		CKnights *pKnights = m_pMain->GetClanPtr(sClanID);
 		if (pKnights == NULL)
 			bResult = 7;
 		else if (pKnights->m_sMembers >= MAX_CLAN_USERS)
@@ -334,7 +334,7 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 opco
 			{
 				if (pTUser->getFame() == VICECHIEF)
 					bResult = 8;
-				else if (!m_pMain->m_KnightsArray.GetData(pUser->m_pUserData->m_bKnights))	
+				else if (!m_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights))	
 					bResult = 7;
 			}
 
@@ -391,7 +391,7 @@ void CKnightsManager::AllKnightsMember(CUser *pUser)
 
 	if (!pUser->isInClan())
 		bResult = 2;
-	else if (m_pMain->m_KnightsArray.GetData(pUser->m_pUserData->m_bKnights) == NULL)
+	else if (m_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights) == NULL)
 		bResult = 7;
 
 	result << bResult;
@@ -419,7 +419,7 @@ void CKnightsManager::CurrentKnightsMember(CUser *pUser, Packet & pkt)
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_CURRENT_REQ));
 	CKnights *pKnights = NULL;
 	if (!pUser->isInClan()
-		|| (pKnights = m_pMain->m_KnightsArray.GetData(pUser->m_pUserData->m_bKnights)) == NULL)
+		|| (pKnights = m_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights)) == NULL)
 	{
 		result << uint8(0); // failed
 		result << "is this error still used?";
@@ -492,7 +492,7 @@ void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 		break;
 	case KNIGHTS_MEMBER_REQ:
 		{
-			CKnights* pKnights = m_pMain->m_KnightsArray.GetData(pUser->m_pUserData->m_bKnights);
+			CKnights* pKnights = m_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights);
 			if (pKnights == NULL)
 				break;
 
@@ -555,7 +555,7 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, Packet & pkt, BYTE command)
 		return;
 
 	uint16 sClanID = pkt.read<uint16>();
-	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(sClanID);
+	CKnights *pKnights = m_pMain->GetClanPtr(sClanID);
 
 	if (command == KNIGHTS_JOIN)
 		pKnights->AddUser(pUser);
@@ -588,7 +588,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, BYTE command)
 	pkt >> sClanID >> strUserID;
 
 	CUser *pTUser = m_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
-	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(sClanID);
+	CKnights *pKnights = m_pMain->GetClanPtr(sClanID);
 
 	switch (command)
 	{
@@ -668,7 +668,7 @@ void CKnightsManager::RecvDestroyKnights(CUser *pUser, Packet & pkt)
 		return;
 	
 	uint16 sClanID = pkt.read<uint16>();
-	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(sClanID);
+	CKnights *pKnights = m_pMain->GetClanPtr(sClanID);
 	if (pKnights == NULL)
 		return;
 
@@ -690,7 +690,7 @@ void CKnightsManager::RecvKnightsList(Packet & pkt)
 	if (m_pMain->m_nServerNo != BATTLE)
 		return;
 
-	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(sClanID);
+	CKnights *pKnights = m_pMain->GetClanPtr(sClanID);
 	if (pKnights == NULL)
 	{
 		pKnights = new CKnights();
@@ -713,7 +713,7 @@ void CKnightsManager::RecvKnightsList(Packet & pkt)
 
 BOOL CKnightsManager::AddKnightsUser(int index, char* UserName)
 {
-	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(index);
+	CKnights *pKnights = m_pMain->GetClanPtr(index);
 	if (pKnights == NULL)
 		return FALSE;
 
@@ -722,7 +722,7 @@ BOOL CKnightsManager::AddKnightsUser(int index, char* UserName)
 
 BOOL CKnightsManager::RemoveKnightsUser(int index, char* UserName)
 {
-	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(index);
+	CKnights *pKnights = m_pMain->GetClanPtr(index);
 	if (pKnights == NULL)
 		return FALSE;
 
@@ -734,7 +734,7 @@ BOOL CKnightsManager::RemoveKnightsUser(int index, char* UserName)
  **/
 void CKnightsManager::SetKnightsUser(int index, char* UserName)
 {
-	CKnights *pKnights = m_pMain->m_KnightsArray.GetData(index);
+	CKnights *pKnights = m_pMain->GetClanPtr(index);
 	if (pKnights == NULL)
 		return;
 
@@ -760,7 +760,7 @@ void CKnightsManager::RecvKnightsAllList(Packet & pkt)
 		uint32 nPoints; uint16 sClanID; uint8 bRank;
 		pkt >> sClanID >> nPoints >> bRank;
 
-		CKnights *pKnights = m_pMain->m_KnightsArray.GetData(sClanID);
+		CKnights *pKnights = m_pMain->GetClanPtr(sClanID);
 		if (pKnights == NULL)
 			continue;
 
