@@ -380,7 +380,9 @@ public:
 	void ChatTargetSelect(Packet & pkt);
 
 	bool ProcessChatCommand(std::string & message);
+
 	COMMAND_HANDLER(HandleGiveItemCommand);
+	COMMAND_HANDLER(HandleZoneChangeCommand);
 
 	void RecvRegene(Packet & pkt);
 	void Regene(uint8 regene_type, uint32 magicid = 0);

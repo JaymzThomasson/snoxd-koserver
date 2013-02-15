@@ -40,6 +40,8 @@ void CUser::InitChatCommands()
 	{
 		// Command				Handler											Help message
 		{ "give_item",			&CUser::HandleGiveItemCommand,					"Gives a player an item. Arguments: character name | item ID | [optional stack size]" },
+		{ "zonechange",			&CUser::HandleZoneChangeCommand,				"Teleports you to the specified zone. Arguments: zone ID" },
+
 	};
 
 	init_command_table(CUser, commandTable, s_commandTable);
@@ -271,6 +273,20 @@ COMMAND_HANDLER(CUser::HandleGiveItemCommand)
 		// send error message saying the item couldn't be added
 	}
 
+	return true;
+}
+
+COMMAND_HANDLER(CUser::HandleZoneChangeCommand)
+{
+	if (vargs.empty())
+	{
+		// send description
+		return true;
+	}
+
+	// Behave as in official (we'll fix this later)
+	int nZoneID = atoi(vargs.front().c_str());
+	ZoneChange(nZoneID, m_pUserData->m_curx, m_pUserData->m_curz);
 	return true;
 }
 
