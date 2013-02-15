@@ -92,11 +92,11 @@ void CUser::GetUserInfo(Packet & pkt)
 	}
 	else
 	{
-		pkt	<< uint8(0) // grade type
+		pkt	<< pKnights->m_byRanking // grade type
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
-				<< uint16(0) // symbol/mark version
-				<< uint16(-1) // cape ID
+				<< uint16(pKnights->m_sMarkVersion) // symbol/mark version
+				<< uint16(pKnights->m_sCape) // cape ID
 				<< uint8(0) << uint8(0) << uint8(0); // cape RGB
 	}
 

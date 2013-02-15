@@ -582,7 +582,7 @@ void CUser::SendMyInfo()
 			<< GetSPosX() << GetSPosZ() << GetSPosY()
 			<< getNation() 
 			<< m_pUserData->m_bRace << m_pUserData->m_sClass << m_pUserData->m_bFace
-			<< uint32(m_pUserData->m_nHair)
+			<< m_pUserData->m_nHair
 			<< m_pUserData->m_bRank << m_pUserData->m_bTitle
 			<< getLevel()
 			<< m_pUserData->m_sPoints
@@ -601,13 +601,11 @@ void CUser::SendMyInfo()
 	else 
 	{
 		// TO-DO: Figure all this out.
-		result.SByte();
-		result	<< pKnights->m_byRanking // Knights Ranking
-				<< uint8(12) // Kind of grade - 1 Normal Clan // 2 Trainin Clan // 3 -7 Acreditation // Royal 8-12
+		result	<< pKnights->m_byRanking // Kind of grade - 1 Normal Clan // 2 Trainin Clan // 3 -7 Acreditation // Royal 8-12
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
-				<< uint16(0) // symbol/mark version
-				<< uint16(-1) // cape ID
+				<< uint16(pKnights->m_sMarkVersion) // symbol/mark version
+				<< uint16(pKnights->m_sCape) // cape ID
 				<< uint8(0) << uint8(0) << uint8(0); // cape RGB
 	}
 
