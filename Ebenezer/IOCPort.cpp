@@ -436,7 +436,9 @@ void CIOCPort::CreateAcceptThread()
 
 	m_hAcceptThread = ::CreateThread( NULL, 0, AcceptThread, (LPVOID)this, CREATE_SUSPENDED, &id);
 
+#ifndef DEBUG
 	::SetThreadPriority(m_hAcceptThread,THREAD_PRIORITY_ABOVE_NORMAL);
+#endif
 }
 
 void CIOCPort::CreateReceiveWorkerThread(int workernum)
@@ -447,7 +449,9 @@ void CIOCPort::CreateReceiveWorkerThread(int workernum)
 	// try to get timing more accurate... Avoid context
 	// switch that could occur when threads are released
 	//
+#ifndef DEBUG
 	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
+#endif
 
 	//
 	// Figure out how many processors we have to size the minimum
