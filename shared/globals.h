@@ -193,7 +193,7 @@ struct _USER_DATA
 	uint32	m_iGold, m_iBank;
 	int16	m_sBind;
 	
-	uint8    m_bstrSkill[9];	
+	uint8    m_bstrSkill[10];	
 	_ITEM_DATA m_sItemArray[INVENTORY_TOTAL];
 	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];
 
