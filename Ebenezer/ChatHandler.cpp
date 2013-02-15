@@ -102,7 +102,7 @@ void CUser::Chat(Packet & pkt)
 			m_pMain->Send_All(&result);
 		break;
 	case COMMAND_CHAT:
-		if( m_pUserData->m_bFame == COMMAND_CAPTAIN )
+		if (getFame() == COMMAND_CAPTAIN)
 			m_pMain->Send_CommandChat(&result, m_pUserData->m_bNation, this);
 		break;
 	case MERCHANT_CHAT:

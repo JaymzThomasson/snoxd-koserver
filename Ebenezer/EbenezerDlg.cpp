@@ -1982,7 +1982,7 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 				pTUser->GoldGain(AWARD_GOLD);	// Target is in the area.
 				pTUser->ExpChange(AWARD_EXP);
 
-				if (pTUser->m_pUserData->m_bFame == COMMAND_CAPTAIN)
+				if (pTUser->getFame() == COMMAND_CAPTAIN)
 				{
 					if(pTUser->m_pUserData->m_bRank == 1)
 						pTUser->ChangeNP(500);

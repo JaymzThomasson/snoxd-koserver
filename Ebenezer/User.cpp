@@ -588,7 +588,7 @@ void CUser::SendMyInfo()
 			<< m_pUserData->m_sPoints
 			<< m_iMaxExp << m_pUserData->m_iExp
 			<< m_pUserData->m_iLoyalty << m_pUserData->m_iLoyaltyMonthly
-			<< m_pUserData->m_bKnights << uint16(m_pUserData->m_bFame)
+			<< m_pUserData->m_bKnights << uint16(getFame())
 			<< m_pUserData->m_bCity;
 
 	if (isInClan())
@@ -2009,7 +2009,7 @@ void CUser::Dead()
 
 #if 0 // removed for now until we have a better system for it
 	send_index = 0;
-	if( m_pUserData->m_bFame == COMMAND_CAPTAIN )	{
+	if (getFame() == COMMAND_CAPTAIN)	{
 		ChangeFame(CHIEF);
 
 		pKnights = m_pMain->GetClanPtr( m_pUserData->m_bKnights );
@@ -3487,7 +3487,7 @@ void CUser::SendClanUserStatusUpdate(bool bToRegion /*= true*/)
 {
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MODIFY_FAME));
 	result	<< uint8(1) << GetSocketID() 
-			<< m_pUserData->m_bKnights << m_pUserData->m_bFame;
+			<< m_pUserData->m_bKnights << getFame();
 
 	// TO-DO: Make this region code user-specific to perform faster.
 	if (bToRegion)
