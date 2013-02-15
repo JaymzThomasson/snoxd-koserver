@@ -87,27 +87,10 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 			continue;
 		}
 
-		// clan packets are main opcode | sub opcode | uid
-		// TO-DO: Make these behave like everything else (this is dumb)
-#if 0
-		if (pkt.GetOpcode() == WIZ_KNIGHTS_PROCESS)
-		{
-			uid = *(short *)(pBuf + index + 1);
-
-			// this packet needs to be handled server-side, not per user
-			if (*(uint8 *)(pBuf + index) == KNIGHTS_ALLLIST_REQ && uid == -1)
-			{
-				pMain->m_KnightsManager.RecvKnightsAllList(pBuf + index + 3);
-				continue;
-			}
-		}
-		// everything else is main opcode | uid
-#endif
 		uint16 uid;
 		pkt >> uid;
 
-
-		if ((pUser = pMain->GetUserPtr(uid)) == NULL)
+		if ((pUser = pMain->GetUserPtr(uid)) == NULL && pkt.GetOpcode() != WIZ_KNIGHTS_PROCESS)
 			continue;
 
 		switch (pkt.GetOpcode())
