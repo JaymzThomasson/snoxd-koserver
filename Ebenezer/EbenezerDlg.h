@@ -307,23 +307,24 @@ private:
 	void CleanupServerCommands();
 
 	bool ProcessServerCommand(std::string & command);
-	bool HandleKillUserCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandleWar1OpenCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandleWar2OpenCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandleWar3OpenCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandleSnowWarOpenCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandleWarCloseCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandleShutdownCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandlePauseCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandleResumeCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandleDiscountCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandleGlobalDiscountCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandleDiscountOffCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandleCaptainCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandleSantaCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandleSantaOffCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandlePermanentChatCommand(CommandArgs & vargs, const char *args, const char *description);
-	bool HandlePermanentChatOffCommand(CommandArgs & vargs, const char *args, const char *description);
+
+	COMMAND_HANDLER(HandleKillUserCommand);
+	COMMAND_HANDLER(HandleWar1OpenCommand);
+	COMMAND_HANDLER(HandleWar2OpenCommand);
+	COMMAND_HANDLER(HandleWar3OpenCommand);
+	COMMAND_HANDLER(HandleSnowWarOpenCommand);
+	COMMAND_HANDLER(HandleWarCloseCommand);
+	COMMAND_HANDLER(HandleShutdownCommand);
+	COMMAND_HANDLER(HandlePauseCommand);
+	COMMAND_HANDLER(HandleResumeCommand);
+	COMMAND_HANDLER(HandleDiscountCommand);
+	COMMAND_HANDLER(HandleGlobalDiscountCommand);
+	COMMAND_HANDLER(HandleDiscountOffCommand);
+	COMMAND_HANDLER(HandleCaptainCommand);
+	COMMAND_HANDLER(HandleSantaCommand);
+	COMMAND_HANDLER(HandleSantaOffCommand);
+	COMMAND_HANDLER(HandlePermanentChatCommand);
+	COMMAND_HANDLER(HandlePermanentChatOffCommand);
 
 // Implementation
 protected:

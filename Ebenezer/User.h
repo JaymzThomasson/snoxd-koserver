@@ -380,7 +380,7 @@ public:
 	void ChatTargetSelect(Packet & pkt);
 
 	bool ProcessChatCommand(std::string & message);
-	bool HandleGiveItemCommand(CommandArgs & vargs, const char *args, const char *description);
+	COMMAND_HANDLER(HandleGiveItemCommand);
 
 	void RecvRegene(Packet & pkt);
 	void Regene(uint8 regene_type, uint32 magicid = 0);

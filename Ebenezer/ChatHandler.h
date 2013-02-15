@@ -1,5 +1,7 @@
 #pragma once
 
+#define COMMAND_HANDLER(name) bool name (CommandArgs & vargs, const char *args, const char *description)
+
 typedef std::list<std::string> CommandArgs;
 
 template <class T>
@@ -7,7 +9,7 @@ class Command
 {
 public:
 	const char * Name;
-	bool (T::*Handler)(CommandArgs & vargs, const char *args, const char *description);
+	COMMAND_HANDLER((T::*Handler));
 	const char * Help;
 };
 

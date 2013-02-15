@@ -233,7 +233,7 @@ bool CUser::ProcessChatCommand(std::string & message)
 	return (this->*(itr->second->Handler))(vargs, message.c_str() + command.size() + 1, itr->second->Help);
 }
 
-bool CUser::HandleGiveItemCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CUser::HandleGiveItemCommand)
 {
 	// Char name | item ID | [stack size]
 	if (vargs.size() < 2)
@@ -300,7 +300,7 @@ bool CEbenezerDlg::ProcessServerCommand(std::string & message)
 	return (this->*(itr->second->Handler))(vargs, message.c_str() + command.size() + 1, itr->second->Help);
 }
 
-bool CEbenezerDlg::HandleKillUserCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandleKillUserCommand)
 {
 	if (vargs.empty())
 	{
@@ -323,37 +323,37 @@ bool CEbenezerDlg::HandleKillUserCommand(CommandArgs & vargs, const char *args, 
 	return true;
 }
 
-bool CEbenezerDlg::HandleWar1OpenCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandleWar1OpenCommand)
 {
 	BattleZoneOpen(BATTLEZONE_OPEN, 1);
 	return true;
 }
 
-bool CEbenezerDlg::HandleWar2OpenCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandleWar2OpenCommand)
 {
 	BattleZoneOpen(BATTLEZONE_OPEN, 2);
 	return true;
 }
 
-bool CEbenezerDlg::HandleWar3OpenCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandleWar3OpenCommand)
 {
 	BattleZoneOpen(BATTLEZONE_OPEN, 3);
 	return true;
 }
 
-bool CEbenezerDlg::HandleSnowWarOpenCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandleSnowWarOpenCommand)
 {
 	BattleZoneOpen(SNOW_BATTLEZONE_OPEN);
 	return true;
 }
 
-bool CEbenezerDlg::HandleWarCloseCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandleWarCloseCommand)
 {
 	m_byBanishFlag = 1;
 	return true;
 }
 
-bool CEbenezerDlg::HandleShutdownCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandleShutdownCommand)
 {
 	g_serverdown_flag = TRUE;
 	SuspendThread(m_Iocport.m_hAcceptThread);
@@ -361,57 +361,57 @@ bool CEbenezerDlg::HandleShutdownCommand(CommandArgs & vargs, const char *args, 
 	return true;
 }
 
-bool CEbenezerDlg::HandlePauseCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandlePauseCommand)
 {
 	SuspendThread(m_Iocport.m_hAcceptThread);
 	AddToList("Server no longer accepting connections.");
 	return true;
 }
 
-bool CEbenezerDlg::HandleResumeCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandleResumeCommand)
 {
 	ResumeThread(m_Iocport.m_hAcceptThread);
 	AddToList("Server accepting connections.");
 	return true;
 }
 
-bool CEbenezerDlg::HandleDiscountCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandleDiscountCommand)
 {
 	m_sDiscount = 1;
 	return true;
 }
 
-bool CEbenezerDlg::HandleGlobalDiscountCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandleGlobalDiscountCommand)
 {
 	m_sDiscount = 2;
 	return true;
 }
 
-bool CEbenezerDlg::HandleDiscountOffCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandleDiscountOffCommand)
 {
 	m_sDiscount = 0;
 	return true;
 }
 
-bool CEbenezerDlg::HandleCaptainCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandleCaptainCommand)
 {
 	LoadKnightsRankTable();
 	return true;
 }
 
-bool CEbenezerDlg::HandleSantaCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandleSantaCommand)
 {
 	m_bSanta = TRUE;
 	return true;
 }
 
-bool CEbenezerDlg::HandleSantaOffCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandleSantaOffCommand)
 {
 	m_bSanta = FALSE;
 	return true;
 }
 
-bool CEbenezerDlg::HandlePermanentChatCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandlePermanentChatCommand)
 {
 	if (vargs.empty())
 	{
@@ -448,7 +448,7 @@ void CEbenezerDlg::SetPermanentMessage(const char * format, ...)
 	Send_All(&data);
 }
 
-bool CEbenezerDlg::HandlePermanentChatOffCommand(CommandArgs & vargs, const char *args, const char *description)
+COMMAND_HANDLER(CEbenezerDlg::HandlePermanentChatOffCommand)
 {
 	Packet data(WIZ_CHAT, uint8(END_PERMANENT_CHAT));
 
