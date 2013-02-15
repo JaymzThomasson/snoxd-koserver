@@ -50,6 +50,7 @@ void CUser::Initialize()
 	m_bSelectedCharacter = false;
 	m_bStoreOpen = false;
 	m_bIsMerchanting = false;
+	m_bPartyLeader = false;
 
 	m_MagicProcess.m_pMain = m_pMain;
 	m_MagicProcess.m_pSrcUser = this;

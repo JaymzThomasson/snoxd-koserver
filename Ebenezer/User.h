@@ -101,16 +101,17 @@ public:
 	float	m_fWill_z;
 	float	m_fWill_y;
 
-	BYTE	m_bResHpType;					// HP ȸ��Ÿ��
-	BYTE	m_bWarp;						// ���̵���...
-	BYTE	m_bNeedParty;					// ��Ƽ....���ؿ�
+	BYTE	m_bResHpType;
+	BYTE	m_bWarp;
+	BYTE	m_bNeedParty;
 
 	short	m_sPartyIndex;
-	short	m_sExchangeUser;				// ��ȯ���� ����
+	bool	m_bPartyLeader;
+	short	m_sExchangeUser;
 	BYTE	m_bExchangeOK;
 
 	ItemList	m_ExchangeItemList;
-	_ITEM_DATA	m_MirrorItem[HAVE_MAX];			// ��ȯ�� ���� ������ ����Ʈ�� ����.
+	_ITEM_DATA	m_MirrorItem[HAVE_MAX];
 
 	short	m_sPrivateChatUser;
 
