@@ -22,6 +22,10 @@
 #include "EXEC.h"     
 
 #include <list>
+#include <vector>
+
+#include "ChatHandler.h"
+
 typedef	 std::list<_EXCHANGE_ITEM*>		ItemList;
 typedef  std::list<int>					UserEventList;
 typedef	 std::map<uint32, time_t>		SkillCooldownList;
@@ -368,8 +372,16 @@ public:
 	void MoveProcess(Packet & pkt);
 	void Rotate(Packet & pkt);
 	void Attack(Packet & pkt);
+
+	static void InitChatCommands();
+	static void CleanupChatCommands();
+
 	void Chat(Packet & pkt);
 	void ChatTargetSelect(Packet & pkt);
+
+	bool ProcessChatCommand(std::string & message);
+	bool HandleGiveItemCommand(CommandArgs & vargs, const char *args, const char *description);
+
 	void RecvRegene(Packet & pkt);
 	void Regene(uint8 regene_type, uint32 magicid = 0);
 	void RequestUserIn(Packet & pkt);
@@ -555,6 +567,9 @@ public:
 	void CloseProcess();
 	CUser();
 	virtual ~CUser();
+
+private:
+	static ChatCommandTable s_commandTable;
 };
 
 #endif // !defined(AFX_USER_H__5FEC1968_ED75_4AAF_A4DB_CB48F6940B2E__INCLUDED_)

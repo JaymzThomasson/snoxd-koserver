@@ -27,6 +27,8 @@
 #include "../shared/STLMap.h"
 #include <vector>
 
+#include "ChatHandler.h"
+
 /////////////////////////////////////////////////////////////////////////////
 // CEbenezerDlg dialog
 
@@ -84,7 +86,7 @@ public:
 	void BanishLosers();
 	void BattleZoneVictoryCheck();
 	void BattleZoneOpenTimer();
-	void BattleZoneOpen( int nType );	// 0:open 1:close
+	void BattleZoneOpen(int nType, uint8 bZone = 0);	// 0:open 1:close
 	void AliveUserCheck();
 	void WithdrawUserOut();
 	BOOL LoadMagicType1();
@@ -151,6 +153,14 @@ public:
 
 	// Get list of merchants in region
 	void GetRegionMerchantUserIn(C3DMap* pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count);
+
+	__forceinline bool isPermanentMessageSet() { return m_bPermanentChatMode == TRUE; }
+	void GetPermanentMessage(Packet & result);
+	void SetPermanentMessage(const char * format, ...);
+
+
+	void SendNotice(const char *msg, uint8 bNation = NO_NATION);
+	void SendFormattedNotice(const char *msg, uint8 nation = NO_NATION, ...);
 
 	void Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
 	void Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
@@ -227,7 +237,7 @@ public:
 	short	m_sPartyIndex;
 	short	m_sZoneCount;							// AI Server 재접속시 사용
 	short	m_sSocketCount;							// AI Server 재접속시 사용
-	// sungyong 2002.05.23
+
 	short   m_sSendSocket;			
 	BOOL	m_bFirstServerFlag;		// 서버가 처음시작한 후 게임서버가 붙은 경우에는 1, 붙지 않은 경우 0
 	BOOL	m_bServerCheckFlag;
@@ -235,15 +245,14 @@ public:
 	short   m_sReSocketCount;		// GameServer와 재접시 필요
 	float   m_fReConnectStart;	// 처음 소켓이 도착한 시간
 	short   m_sErrorSocketCount;  // 이상소켓 감시용
-	// ~sungyong 2002.05.23
 
 	uint16 m_nYear, m_nMonth, m_nDate, m_nHour, m_nMin;
 	uint8 m_nWeather;
 	uint16 m_nAmount;
 	int m_nCastleCapture;
 
-	// ~Yookozuna 2002.06.12
 	BYTE    m_byBattleOpen, m_byOldBattleOpen;					// 0:전쟁중이 아님, 1:전쟁중(국가간전쟁), 2:눈싸움전쟁
+	uint8	m_byBattleZone;
 	BYTE	m_bVictory, m_byOldVictory;
 	BYTE	m_bKarusFlag, m_bElmoradFlag;
 	BYTE    m_byKarusOpenFlag, m_byElmoradOpenFlag, m_byBanishFlag, m_byBattleSave;
@@ -253,15 +262,11 @@ public:
 	char m_strKarusCaptain[MAX_ID_SIZE+1];
 	char m_strElmoradCaptain[MAX_ID_SIZE+1];
 
-	// ~Yookozuna 2002.07.17
 	BYTE	m_bMaxRegenePoint;
 
-	// ~Yookozuna 2002.11.26 - 비러머글 남는 공지 --;
 	BOOL	m_bPermanentChatMode;
-	BOOL	m_bPermanentChatFlag;
-	char	m_strPermanentChat[1024];
+	std::string	m_strPermanentChat;
 
-	// ~Yookozuna 2002.12.11 - 갓댐 산타 클로스 --;
 	BOOL	m_bSanta;
 
 	// zone server info
@@ -293,8 +298,32 @@ private:
 	CIni	m_Ini;
 	CDatabase m_GameDB;
 
+	static ServerCommandTable s_commandTable;
+
 	BOOL LoadTables();
 	BOOL ConnectToDatabase(bool reconnect = false);
+
+	void InitServerCommands();
+	void CleanupServerCommands();
+
+	bool ProcessServerCommand(std::string & command);
+	bool HandleKillUserCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandleWar1OpenCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandleWar2OpenCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandleWar3OpenCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandleSnowWarOpenCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandleWarCloseCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandleShutdownCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandlePauseCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandleResumeCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandleDiscountCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandleGlobalDiscountCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandleDiscountOffCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandleCaptainCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandleSantaCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandleSantaOffCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandlePermanentChatCommand(CommandArgs & vargs, const char *args, const char *description);
+	bool HandlePermanentChatOffCommand(CommandArgs & vargs, const char *args, const char *description);
 
 // Implementation
 protected:
