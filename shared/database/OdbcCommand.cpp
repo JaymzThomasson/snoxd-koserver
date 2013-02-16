@@ -174,15 +174,20 @@ ADD_ODBC_PARAMETER(UInt64, uint64, SQL_C_UBIGINT)
 ADD_ODBC_PARAMETER(Int64, int64, SQL_C_SBIGINT)
 #undef ADD_ODBC_PARAMETER
 
-void OdbcCommand::AddParameter(SQLSMALLINT paramType, const char *value, SQLLEN maxLength)
+void OdbcCommand::AddParameter(SQLSMALLINT paramType, const char *value, SQLLEN maxLength = 1, SQLSMALLINT sqlDataType /*= SQL_CHAR*/)
 {
-	m_params.insert(std::make_pair(m_params.size(), new OdbcParameter(paramType, SQL_C_CHAR, (SQLPOINTER)value, maxLength))); 
+	m_params.insert(std::make_pair(m_params.size(), new OdbcParameter(paramType, sqlDataType, (SQLPOINTER)value, maxLength))); 
 }
 
 bool OdbcCommand::FetchString(int pos, char *charArray, SQLLEN maxLength, SQLLEN *bufferSize)
 {
 	memset(charArray, 0x00, maxLength);
-	return SQL_SUCCEEDED(SQLGetData(m_hStmt, pos, SQL_C_CHAR, charArray, maxLength, bufferSize));
+	return SQL_SUCCEEDED(SQLGetData(m_hStmt, pos, SQL_CHAR, charArray, maxLength, bufferSize));
+}
+
+bool OdbcCommand::FetchBinary(int pos, char *charArray, SQLLEN maxLength, SQLLEN *bufferSize)
+{
+	return SQL_SUCCEEDED(SQLGetData(m_hStmt, pos, SQL_BINARY, charArray, maxLength, bufferSize));
 }
 
 bool OdbcCommand::FetchString(int pos, std::string & value)
