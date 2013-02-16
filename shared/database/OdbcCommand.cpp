@@ -251,8 +251,8 @@ void OdbcCommand::Detach()
 
 OdbcCommand::~OdbcCommand()
 {
-	ClearParameters();
 	Close();
+	ClearParameters();
 
 	if (m_odbcConnection != NULL)
 		m_odbcConnection->RemoveCommand(this);
