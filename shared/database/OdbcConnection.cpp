@@ -21,7 +21,7 @@ bool OdbcConnection::Connect()
 	if (m_szDSN.length() == 0)
 		return false;
 
-	tstring szConn = "DSN=" + m_szDSN + ";";
+	tstring szConn = _T("DSN=") + m_szDSN + _T(";");
 	// Reconnect if we need to.
 	if (isConnected())
 		Disconnect();
@@ -49,14 +49,14 @@ bool OdbcConnection::Connect()
 
 	if (m_szUser.length())
 	{
-		szConn += "UID=" + m_szUser + ";";
+		szConn += _T("UID=") + m_szUser + _T(";");
 		if (m_szPass.length())
-			szConn += "PWD=" + m_szPass + ";";
+			szConn += _T("PWD=") + m_szPass + _T(";");
 	}
 
 	// Enable multiple active result sets
 	if (m_bMarsEnabled)
-		szConn += "MARS_Connection=yes;";
+		szConn += _T("MARS_Connection=yes;");
 
 	if (!SQL_SUCCEEDED(SQLDriverConnect(m_connHandle, NULL, (SQLTCHAR *)szConn.c_str(), SQL_NTS, NULL, NULL, NULL, NULL)))
 	{
