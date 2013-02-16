@@ -54,10 +54,11 @@ bool OdbcCommand::Execute(const tstring & szSQL)
 
 	for (auto itr = m_params.begin(); itr != m_params.end(); itr++)
 	{
-		SQLINTEGER pcbValue = SQL_NTS;
 		auto param = itr->second;
 
-		if (!SQL_SUCCEEDED(SQLBindParameter(m_hStmt, itr->first + 1, param->GetParameterType(), param->GetCDataType(), param->GetDataType(), param->GetDataTypeSize(), 0, param->GetAddress(), param->GetDataTypeSize(), &pcbValue)))
+		if (!SQL_SUCCEEDED(SQLBindParameter(m_hStmt, itr->first + 1, param->GetParameterType(), 
+			param->GetCDataType(), param->GetDataType(), param->GetDataTypeSize(), 0, 
+			param->GetAddress(), param->GetDataTypeSize(), param->GetCBValue())))
 		{
 			if (m_odbcConnection != NULL)
 				m_szError = m_odbcConnection->ReportSQLError(SQL_HANDLE_STMT, m_hStmt, _T("SQLBindParameter"), _T("Failed to bind parameter."));
@@ -124,10 +125,11 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 
 	for (auto itr = m_params.begin(); itr != m_params.end(); itr++)
 	{
-		SQLINTEGER pcbValue = SQL_NTS;
 		auto param = itr->second;
 
-		if (!SQL_SUCCEEDED(SQLBindParameter(m_hStmt, itr->first + 1, param->GetParameterType(), param->GetCDataType(), param->GetDataType(), param->GetDataTypeSize(), 0, param->GetAddress(), param->GetDataTypeSize(), &pcbValue)))
+		if (!SQL_SUCCEEDED(SQLBindParameter(m_hStmt, itr->first + 1, param->GetParameterType(), 
+			param->GetCDataType(), param->GetDataType(), param->GetDataTypeSize(), 0, 
+			param->GetAddress(), param->GetDataTypeSize(), param->GetCBValue())))
 		{
 			if (m_odbcConnection != NULL)
 				m_szError = m_odbcConnection->ReportSQLError(SQL_HANDLE_STMT, m_hStmt, _T("SQLBindParameter"), _T("Failed to bind parameter."));
