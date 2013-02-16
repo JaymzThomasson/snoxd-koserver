@@ -865,7 +865,7 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 	if (bNation == 3)
 		szSQL = _T("SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Points != 0 ORDER BY Points DESC");
 	else
-		szSQL = string_format(_T("SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Nation=%d, AND Points != 0 ORDER BY Points DESC"), bNation); 
+		szSQL = string_format(_T("SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Nation=%d AND Points != 0 ORDER BY Points DESC"), bNation); 
 
 	if (!dbCommand->Execute(szSQL))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
