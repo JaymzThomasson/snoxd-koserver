@@ -2,8 +2,8 @@
 #include "OdbcConnection.h"
 
 OdbcParameter::OdbcParameter(SQLSMALLINT parameterType, SQLSMALLINT dataType, SQLPOINTER parameterAddress, SQLLEN maxLength /*= 1*/)
-	: m_parameterType(parameterType), m_cDataType(dataType), m_parameterAddress(parameterAddress),
-	m_dataTypeLength(0), m_pcbValue(SQL_NTS)
+	: m_parameterType(parameterType), m_cDataType(dataType), m_parameterAddress(parameterAddress), 
+	m_dataTypeLength(0), m_pCBValue(SQL_NTS)
 {
 	switch (m_cDataType)
 	{
@@ -13,7 +13,7 @@ OdbcParameter::OdbcParameter(SQLSMALLINT parameterType, SQLSMALLINT dataType, SQ
 		m_dataTypeLength = maxLength;
 		m_dataType = m_cDataType;
 		if (m_cDataType == SQL_BINARY)
-			m_pcbValue = m_dataTypeLength;
+			m_pCBValue = m_dataTypeLength;
 		break;
 
 	case SQL_C_STINYINT:
