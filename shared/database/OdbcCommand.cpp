@@ -182,7 +182,12 @@ void OdbcCommand::AddParameter(SQLSMALLINT paramType, const char *value, SQLLEN 
 bool OdbcCommand::FetchString(int pos, char *charArray, SQLLEN maxLength, SQLLEN *bufferSize)
 {
 	memset(charArray, 0x00, maxLength);
-	return SQL_SUCCEEDED(SQLGetData(m_hStmt, pos, SQL_C_CHAR, charArray, maxLength, bufferSize));
+	return SQL_SUCCEEDED(SQLGetData(m_hStmt, pos, SQL_CHAR, charArray, maxLength, bufferSize));
+}
+
+bool OdbcCommand::FetchBinary(int pos, char *charArray, SQLLEN maxLength, SQLLEN *bufferSize)
+{
+	return SQL_SUCCEEDED(SQLGetData(m_hStmt, pos, SQL_BINARY, charArray, maxLength, bufferSize));
 }
 
 bool OdbcCommand::FetchString(int pos, std::string & value)

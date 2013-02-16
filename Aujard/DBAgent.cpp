@@ -299,8 +299,8 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 	pUser->m_cury = (float)(dbCommand->FetchInt32(field++) / 100.0f);
 	pUser->m_dwTime = dbCommand->FetchUInt32(field++) + 1;
 	dbCommand->FetchString(field++, (char *)pUser->m_bstrSkill, sizeof(pUser->m_bstrSkill));
-	dbCommand->FetchString(field++, strItem, sizeof(strItem));
-	dbCommand->FetchString(field++, strSerial, sizeof(strSerial));
+	dbCommand->FetchBinary(field++, strItem, sizeof(strItem));
+	dbCommand->FetchBinary(field++, strSerial, sizeof(strSerial));
 	dbCommand->FetchUInt16(field++, pUser->m_sQuestCount);
 	dbCommand->FetchString(field++, (char *)pUser->m_bstrQuest, sizeof(pUser->m_bstrQuest));
 	dbCommand->FetchInt32(field++, pUser->m_iMannerPoint);
@@ -429,8 +429,8 @@ bool CDBAgent::LoadWarehouseData(string & strAccountID, short uid)
 	memset(strSerial, 0x00, sizeof(strSerial));
 
 	dbCommand->FetchUInt32(1, pUser->m_iBank);
-	dbCommand->FetchString(2, strItem, sizeof(strItem));
-	dbCommand->FetchString(3, strSerial, sizeof(strSerial));
+	dbCommand->FetchBinary(2, strItem, sizeof(strItem));
+	dbCommand->FetchBinary(3, strSerial, sizeof(strSerial));
 
 	ByteBuffer itemBuffer, serialBuffer;
 	itemBuffer.append(strItem, sizeof(strItem));
