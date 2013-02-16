@@ -448,6 +448,8 @@ public:
 	void BuyingMerchantList(Packet & pkt);
 	void BuyingMerchantBuy(Packet & pkt);
 
+	void RemoveFromMerchantLookers();
+
 	void SkillPointChange(Packet & pkt);
 
 	void ObjectEvent(Packet & pkt);
