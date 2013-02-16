@@ -11,9 +11,10 @@ public:
 	__forceinline SQLSMALLINT GetCDataType() { return m_cDataType; };
 	__forceinline SQLPOINTER GetAddress() { return m_parameterAddress; };
 	__forceinline SQLLEN GetDataTypeSize() { return m_dataTypeLength; };
+	__forceinline SQLLEN * GetPCBValue() { return &m_pcbValue; };
 
 private:
 	SQLSMALLINT m_parameterType, m_dataType, m_cDataType;
 	SQLPOINTER m_parameterAddress;
-	SQLLEN m_dataTypeLength;
+	SQLLEN m_dataTypeLength, m_pcbValue;
 };

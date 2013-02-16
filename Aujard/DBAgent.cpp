@@ -141,7 +141,7 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 	uint32 nHair = 0;
 	uint16 sClass = 0, nRet;
 	uint8 bRace = 0, bLevel = 0, bFace = 0, bZone = 0; 
-	char strItem[400];
+	char strItem[INVENTORY_TOTAL * 8];
 	ByteBuffer itemData;
 
 	if (strCharID.length() > 0)
@@ -153,7 +153,7 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 		dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strCharID.c_str(), strCharID.length());
 		dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
-		if (!dbCommand->Prepare(_T("{CALL LOAD_CHAR_INFO (?, ?)}")))
+		if (!dbCommand->Execute(_T("{CALL LOAD_CHAR_INFO (?, ?)}")))
 			m_pMain->ReportSQLError(m_GameDB.GetError());
 
 		if (dbCommand->hasData())
@@ -164,7 +164,7 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 			dbCommand->FetchByte(4, bLevel);
 			dbCommand->FetchByte(5, bFace);
 			dbCommand->FetchByte(6, bZone);
-			dbCommand->FetchString(7, strItem, sizeof(strItem));
+			dbCommand->FetchBinary(7, strItem, sizeof(strItem));
 		}
 	}
 
@@ -257,13 +257,13 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strCharID.c_str(), strCharID.length());
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
-	if (!dbCommand->Prepare(_T("{CALL LOAD_USER_DATA(?, ?, ?)}")))
+	if (!dbCommand->Execute(_T("{CALL LOAD_USER_DATA(?, ?, ?)}")))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	if (!dbCommand->hasData())
 		return false;
 
-	char strItem[400], strSerial[400];
+	char strItem[INVENTORY_TOTAL * 8], strSerial[INVENTORY_TOTAL * 8];
 	memset(strItem, 0x00, sizeof(strItem));
 	memset(strSerial, 0x00, sizeof(strSerial));
 
@@ -406,7 +406,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 bool CDBAgent::LoadWarehouseData(string & strAccountID, short uid)
 {
 	uint16 nRet = 0;
-	char strItem[1600], strSerial[1600];
+	char strItem[WAREHOUSE_MAX * 8], strSerial[WAREHOUSE_MAX * 8];
 
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
 	if (dbCommand.get() == NULL)
@@ -419,7 +419,7 @@ bool CDBAgent::LoadWarehouseData(string & strAccountID, short uid)
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strAccountID.c_str(), strAccountID.length());
 
-	if (!dbCommand->Prepare(_T("SELECT nMoney, WarehouseData, strSerial FROM WAREHOUSE WHERE strAccountID = ?")))
+	if (!dbCommand->Execute(_T("SELECT nMoney, WarehouseData, strSerial FROM WAREHOUSE WHERE strAccountID = ?")))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	if (!dbCommand->hasData())
@@ -458,7 +458,7 @@ bool CDBAgent::LoadWarehouseData(string & strAccountID, short uid)
 
 		pUser->m_sWarehouseArray[i].nNum = nItemID;
 		pUser->m_sWarehouseArray[i].sDuration = sDurability;
-		pUser->m_sWarehouseArray[i].sCount = ITEMCOUNT_MAX;
+		pUser->m_sWarehouseArray[i].sCount = sCount;
 		pUser->m_sWarehouseArray[i].nSerialNum = nSerialNum;
 	}
 
@@ -865,7 +865,7 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 	if (bNation == 3)
 		szSQL = _T("SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Points != 0 ORDER BY Points DESC");
 	else
-		szSQL = string_format(_T("SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Nation=%d, AND Points != 0 ORDER BY Points DESC"), bNation); 
+		szSQL = string_format(_T("SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Nation=%d AND Points != 0 ORDER BY Points DESC"), bNation); 
 
 	if (!dbCommand->Execute(szSQL))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
