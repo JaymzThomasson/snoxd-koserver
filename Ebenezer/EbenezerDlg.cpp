@@ -87,27 +87,10 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 			continue;
 		}
 
-		// clan packets are main opcode | sub opcode | uid
-		// TO-DO: Make these behave like everything else (this is dumb)
-#if 0
-		if (pkt.GetOpcode() == WIZ_KNIGHTS_PROCESS)
-		{
-			uid = *(short *)(pBuf + index + 1);
-
-			// this packet needs to be handled server-side, not per user
-			if (*(uint8 *)(pBuf + index) == KNIGHTS_ALLLIST_REQ && uid == -1)
-			{
-				pMain->m_KnightsManager.RecvKnightsAllList(pBuf + index + 3);
-				continue;
-			}
-		}
-		// everything else is main opcode | uid
-#endif
 		uint16 uid;
 		pkt >> uid;
 
-
-		if ((pUser = pMain->GetUserPtr(uid)) == NULL)
+		if ((pUser = pMain->GetUserPtr(uid)) == NULL && pkt.GetOpcode() != WIZ_KNIGHTS_PROCESS)
 			continue;
 
 		switch (pkt.GetOpcode())
@@ -205,6 +188,7 @@ CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
 
 	m_nBattleZoneOpenWeek=m_nBattleZoneOpenHourStart=m_nBattleZoneOpenHourEnd = 0;
 
+	m_byBattleZone = 0;
 	m_byBattleOpen = NO_BATTLE;
 	m_byOldBattleOpen = NO_BATTLE;
 	m_bFirstServerFlag = FALSE;
@@ -221,9 +205,7 @@ CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
 		memset( m_ppNotice[i], NULL, 128 );
 	memset( m_AIServerIP, NULL, 20 );
 
-	m_bPermanentChatMode = FALSE;			// �񷯸ӱ� ���� ���� --;
-	m_bPermanentChatFlag = FALSE;
-	memset(m_strPermanentChat, NULL, 1024);
+	m_bPermanentChatMode = FALSE;
 	memset( m_strKarusCaptain, 0x00, MAX_ID_SIZE+1 );
 	memset( m_strElmoradCaptain, 0x00, MAX_ID_SIZE+1 );
 
@@ -357,6 +339,10 @@ BOOL CEbenezerDlg::OnInitDialog()
 	}
 
 	AIServerConnect();
+
+	// Initialise the command tables
+	InitServerCommands();
+	CUser::InitChatCommands();
 
 	UserAcceptThread();
 
@@ -526,6 +512,9 @@ BOOL CEbenezerDlg::DestroyWindow()
 	DeleteCriticalSection(&g_LogFile_critical);
 	DeleteCriticalSection(&g_serial_critical);
 	
+	CUser::CleanupChatCommands();
+	CEbenezerDlg::CleanupServerCommands();
+
 	if (m_LevelUpArray.size())
 		m_LevelUpArray.clear();
 
@@ -1518,143 +1507,61 @@ void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, int region_x, int region_z, Pa
 
 BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg) 
 {
-	char buff[1024], chatstr[256], killstr[256];
-	int chatlen = 0, buffindex = 0;
-	_ZONE_SERVERINFO *pInfo	= NULL;
+	char chatstr[256];
 
-	std::string buff2;
-//
-	BOOL permanent_off = FALSE;
-//
-	if( pMsg->message == WM_KEYDOWN ) {
-		if( pMsg->wParam == VK_RETURN ) {
+	if (pMsg->message == WM_KEYDOWN)
+	{
+		if (pMsg->wParam == VK_ESCAPE)
+			return TRUE;
+
+		if (pMsg->wParam == VK_RETURN)
+		{
 			m_AnnounceEdit.GetWindowText( chatstr, 256 );
 			UpdateData(TRUE);
-			chatlen = strlen(chatstr);
-			if( chatlen == 0 )
+
+			std::string message = chatstr;
+			if (message.empty())
 				return TRUE;
 
 			m_AnnounceEdit.SetWindowText("");
 			UpdateData(FALSE);
 
-			if( _strnicmp( "/kill", chatstr, 5 ) == 0 ) {
-				strcpy( killstr, chatstr+6);
-				KillUser( killstr );
+			if (ProcessServerCommand(message))
 				return TRUE;
-			}
-			if( _strnicmp( "/Open", chatstr, 5 ) == 0 ) {
-				BattleZoneOpen( BATTLEZONE_OPEN );
-				return TRUE;
-			}
-			if( _strnicmp( "/snowopen", chatstr, 9 ) == 0 ) {
-				BattleZoneOpen( SNOW_BATTLEZONE_OPEN );
-				return TRUE;
-			}
-			if( _strnicmp( "/Close", chatstr, 6 ) == 0 ) {
-				m_byBanishFlag = 1;
-				//WithdrawUserOut();
-				return TRUE;
-			}
-			if( _strnicmp( "/down", chatstr, 5 ) == 0 ) {
-				g_serverdown_flag = TRUE;
-				::SuspendThread( m_Iocport.m_hAcceptThread );
-				int users = KickOutAllUsers();
-				char output[128];
-				sprintf_s(output, 128, "Server shutdown, %d users kicked out.", users);
-				m_StatusList.AddString(output);
-				return TRUE;
-			}
-			if( _strnicmp( "/pause", chatstr, 6 ) == 0 ) {
-				g_serverdown_flag = TRUE;
-				::SuspendThread( m_Iocport.m_hAcceptThread );
-				m_StatusList.AddString("Server no longer accepting connections");
-				return TRUE;
-			}
-			if( _strnicmp( "/resume", chatstr, 7 ) == 0 ) {
-				g_serverdown_flag = FALSE;
-				::ResumeThread( m_Iocport.m_hAcceptThread );
-				m_StatusList.AddString("Server accepting connections");
-				return TRUE;
-			}
-			if( _strnicmp( "/discount", chatstr, 9 ) == 0 ) {
-				m_sDiscount = 1;
-				return TRUE;
-			}
-			if( _strnicmp( "/alldiscount", chatstr, 12 ) == 0 ) {
-				m_sDiscount = 2;
-				return TRUE;
-			}
-			if( _strnicmp( "/undiscount", chatstr, 11 ) == 0 ) {
-				m_sDiscount = 0;
-				return TRUE;
-			}
-// �񷯸ӱ� ���� ���� --;
-			if( _strnicmp( "/permanent", chatstr, 10 ) == 0 ) {
-				m_bPermanentChatMode = TRUE;
-				m_bPermanentChatFlag = TRUE;
-				return TRUE;
-			}
-			if( _strnicmp( "/captain", chatstr, 8 ) == 0 ) {
-				LoadKnightsRankTable();				// captain 
-				return TRUE;
-			}
-			
-			if( _strnicmp( "/offpermanent", chatstr, 13 ) == 0 ) {
-				m_bPermanentChatMode = FALSE;
-				m_bPermanentChatFlag = FALSE;
-				permanent_off = TRUE;
-//				return TRUE;	//�̰��� ���������� TRUE�� ������
-			}			
-			if( _strnicmp( "/santa", chatstr, 6 ) == 0 ) {
-				m_bSanta = TRUE;			// Make Motherfucking Santa Claus FLY!!!
-				return TRUE;
-			}
 
-			if( _strnicmp( "/offsanta", chatstr, 9 ) == 0 ) {
-				m_bSanta = FALSE;			// SHOOT DOWN Motherfucking Santa Claus!!!
-				return TRUE;
-			}			
-
-			char finalstr[512];
-			if (m_bPermanentChatFlag)
-				_snprintf(finalstr, sizeof(finalstr), "- %s -", chatstr);
-			else
-				_snprintf(finalstr, sizeof(finalstr), GetServerResource(IDP_ANNOUNCEMENT), chatstr);
-
-			SetByte( buff, WIZ_CHAT, buffindex );
-
-			if (permanent_off)
-				SetByte( buff, END_PERMANENT_CHAT, buffindex );
-			else if (!m_bPermanentChatFlag)
-				SetByte( buff, PUBLIC_CHAT, buffindex );
-			else 
-			{
-				SetByte( buff, PERMANENT_CHAT, buffindex );
-				strcpy(m_strPermanentChat, finalstr);
-				m_bPermanentChatFlag = FALSE;
-			}
-//
-			SetByte( buff, 0x01, buffindex );		// nation
-			SetShort( buff, -1, buffindex );		// sid
-			SetKOString( buff, finalstr, buffindex );
-			Send_All( buff, buffindex );
-
-			buffindex = 0;
-			SetByte( buff, STS_CHAT, buffindex );
-			SetKOString( buff, finalstr, buffindex );
-
-			foreach_stlmap (itr, m_ServerArray)
-				if (itr->second && itr->second->sServerNo == m_nServerNo)
-					m_pUdpSocket->SendUDPPacket(itr->second->strServerIP, buff, buffindex);
-
+			if (message.size() <= 256)
+				SendNotice(message.c_str());
 			return TRUE;
 		}
-
-		if( pMsg->wParam == VK_ESCAPE )
-			return TRUE;
 	}
 	
 	return CDialog::PreTranslateMessage(pMsg);
+}
+
+void CEbenezerDlg::SendNotice(const char *msg, uint8 bNation /*= 0*/)
+{
+	Packet data(WIZ_CHAT);
+	char buffer[512];
+
+	sprintf_s(buffer, sizeof(buffer), GetServerResource(IDP_ANNOUNCEMENT), msg);
+	data  << uint8(PUBLIC_CHAT)		// chat type 
+		  << uint8(1)				// nation
+		  << int16(-1)				// session ID
+		  << uint8(0)				// character name length
+		  << buffer;				// chat message
+
+	Send_All(&data, NULL, bNation);
+}
+
+void CEbenezerDlg::SendFormattedNotice(const char *msg, uint8 nation, ...)
+{
+	char buffer[512];
+	va_list ap;
+	va_start(ap, nation);
+	vsnprintf(buffer, sizeof(buffer), msg, ap);
+	va_end(ap);
+
+	SendNotice(buffer, nation);
 }
 
 BOOL CEbenezerDlg::LoadNoticeData()
@@ -1930,7 +1837,7 @@ void CEbenezerDlg::BattleZoneOpenTimer()
 	}
 }
 
-void CEbenezerDlg::BattleZoneOpen( int nType )
+void CEbenezerDlg::BattleZoneOpen(int nType, uint8 bZone /*= 0*/)
 {
 	char strLogFile[100];
 	CTime time = CTime::GetCurrentTime();
@@ -1938,6 +1845,7 @@ void CEbenezerDlg::BattleZoneOpen( int nType )
 	if( nType == BATTLEZONE_OPEN ) {				// Open battlezone.
 		m_byBattleOpen = NATION_BATTLE;	
 		m_byOldBattleOpen = NATION_BATTLE;
+		m_byBattleZone = bZone;
 	}
 	else if( nType == SNOW_BATTLEZONE_OPEN ) {		// Open snow battlezone.
 		m_byBattleOpen = SNOW_BATTLE;	
@@ -1982,7 +1890,7 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 				pTUser->GoldGain(AWARD_GOLD);	// Target is in the area.
 				pTUser->ExpChange(AWARD_EXP);
 
-				if (pTUser->m_pUserData->m_bFame == COMMAND_CAPTAIN)
+				if (pTUser->getFame() == COMMAND_CAPTAIN)
 				{
 					if(pTUser->m_pUserData->m_bRank == 1)
 						pTUser->ChangeNP(500);

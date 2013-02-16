@@ -603,21 +603,21 @@ void CAujardDlg::KnightsPacket(Packet & pkt)
 
 void CAujardDlg::CreateKnights(Packet & pkt)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_CREATE));
+	Packet result(WIZ_KNIGHTS_PROCESS);
 	string strKnightsName, strChief;
 	uint16 uid, sClanID;
 	uint8 bCommunity, bNation;
 
 	pkt >> uid >> bCommunity >> sClanID >> bNation >> strKnightsName >> strChief;
 	int8 resultCode = m_DBAgent.CreateKnights(sClanID, bNation, strKnightsName, strChief, bCommunity);
-	result << uid << resultCode << bCommunity << sClanID << bNation << strKnightsName << strChief;
+	result << uid << uint8(KNIGHTS_CREATE) << resultCode << bCommunity << sClanID << bNation << strKnightsName << strChief;
 
 	m_LoggerSendQueue.PutData(&result);
 }
 
 void CAujardDlg::JoinKnights(Packet & pkt)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_JOIN));
+	Packet result(WIZ_KNIGHTS_PROCESS);
 	short uid, sClanID;
 
 	pkt >> uid >> sClanID;
@@ -626,60 +626,60 @@ void CAujardDlg::JoinKnights(Packet & pkt)
 		return;
 
 	string strCharID = pUser->m_id;
-	auto resultCode = m_DBAgent.UpdateKnights(KNIGHTS_JOIN, strCharID, sClanID, 0);
-	result << uid << resultCode << sClanID;
+	int8 resultCode = m_DBAgent.UpdateKnights(KNIGHTS_JOIN, strCharID, sClanID, 0);
+	result << uid << uint8(KNIGHTS_JOIN) << resultCode << sClanID;
 	m_LoggerSendQueue.PutData(&result);
 }
 
 void CAujardDlg::WithdrawKnights(Packet & pkt)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_WITHDRAW));
+	Packet result(WIZ_KNIGHTS_PROCESS);
 	short uid, sClanID;
 	pkt >> uid >> sClanID;
 
 	_USER_DATA *pUser = m_DBAgent.GetUser(uid);
 	string strCharID = pUser->m_id;
-	auto resultCode = m_DBAgent.UpdateKnights(KNIGHTS_WITHDRAW, strCharID, sClanID, 0);
+	int8 resultCode = m_DBAgent.UpdateKnights(KNIGHTS_WITHDRAW, strCharID, sClanID, 0);
 
-	result << uid << resultCode << sClanID;
+	result << uid << uint8(KNIGHTS_WITHDRAW) << resultCode << sClanID;
 	m_LoggerSendQueue.PutData(&result);
 }
 
 void CAujardDlg::ModifyKnightsMember(Packet & pkt, uint8 command)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS, command);
+	Packet result(WIZ_KNIGHTS_PROCESS);
 	string strCharID;
 	uint16 uid, sClanID;
 	uint8 bRemoveFlag;
 
 	pkt >> uid >> sClanID >> strCharID >> bRemoveFlag;
 
-	auto resultCode = m_DBAgent.UpdateKnights(command, strCharID, sClanID, bRemoveFlag);
-	result << uid << resultCode << sClanID << strCharID;
+	uint8 resultCode = m_DBAgent.UpdateKnights(command, strCharID, sClanID, bRemoveFlag);
+	result << uid << command << resultCode << sClanID << strCharID;
 
 	m_LoggerSendQueue.PutData(&result);
 }
 
 void CAujardDlg::DestroyKnights(Packet & pkt)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_DESTROY));
+	Packet result(WIZ_KNIGHTS_PROCESS);
 	uint16 uid, sClanID;
 	pkt >> uid >> sClanID;
 
-	auto resultCode = m_DBAgent.DeleteKnights(sClanID);
+	int8 resultCode = m_DBAgent.DeleteKnights(sClanID);
 
-	result << uid << resultCode << sClanID;
+	result << uid << uint8(KNIGHTS_DESTROY) << resultCode << sClanID;
 	m_LoggerSendQueue.PutData(&result);
 }
 
 void CAujardDlg::AllKnightsMember(Packet & pkt)
 {
-	Packet result(KNIGHTS_MEMBER_REQ);
+	Packet result(WIZ_KNIGHTS_PROCESS);
 	int nOffset;
 	short uid, sClanID, sCount;
 
 	pkt >> uid >> sClanID;
-	result << uid << uint8(0);
+	result << uid << uint8(KNIGHTS_MEMBER_REQ) << uint8(0);
 	nOffset = result.wpos(); // store offset
 	result << uint16(0) << uint16(0); // placeholders
 	sCount = m_DBAgent.LoadKnightsAllMembers(sClanID, result);
@@ -692,11 +692,11 @@ void CAujardDlg::AllKnightsMember(Packet & pkt)
 
 void CAujardDlg::KnightsList(Packet & pkt)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_LIST_REQ));
+	Packet result(WIZ_KNIGHTS_PROCESS);
 	uint16 uid, sClanID;
 
 	pkt >> uid >> sClanID;
-	result << uid << uint8(0);
+	result << uid << uint8(KNIGHTS_LIST_REQ) << uint8(0);
 	m_DBAgent.LoadKnightsInfo(sClanID, pkt);
 	
 	m_LoggerSendQueue.PutData(&result);

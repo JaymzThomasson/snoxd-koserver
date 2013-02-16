@@ -222,7 +222,7 @@ void CUser::SelectCharacter(Packet & pkt)
 		return;
 	}
 
-	if (m_pMain->m_byBattleOpen == NO_BATTLE && m_pUserData->m_bFame == COMMAND_CAPTAIN)
+	if (m_pMain->m_byBattleOpen == NO_BATTLE && getFame() == COMMAND_CAPTAIN)
 		m_pUserData->m_bFame = CHIEF;
 
 	if ((getZoneID() != getNation() && getZoneID() < 3 && !m_pMain->m_byBattleOpen)

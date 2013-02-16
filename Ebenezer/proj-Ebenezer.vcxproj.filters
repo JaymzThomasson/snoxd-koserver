@@ -335,6 +335,9 @@
     <ClInclude Include="..\shared\database\MagicType9Set.h">
       <Filter>Database</Filter>
     </ClInclude>
+    <ClInclude Include="ChatHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Ebenezer.ico">

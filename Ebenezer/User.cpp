@@ -50,6 +50,7 @@ void CUser::Initialize()
 	m_bSelectedCharacter = false;
 	m_bStoreOpen = false;
 	m_bIsMerchanting = false;
+	m_bPartyLeader = false;
 
 	m_MagicProcess.m_pMain = m_pMain;
 	m_MagicProcess.m_pSrcUser = this;
@@ -582,13 +583,13 @@ void CUser::SendMyInfo()
 			<< GetSPosX() << GetSPosZ() << GetSPosY()
 			<< getNation() 
 			<< m_pUserData->m_bRace << m_pUserData->m_sClass << m_pUserData->m_bFace
-			<< uint32(m_pUserData->m_nHair)
+			<< m_pUserData->m_nHair
 			<< m_pUserData->m_bRank << m_pUserData->m_bTitle
 			<< getLevel()
 			<< m_pUserData->m_sPoints
 			<< m_iMaxExp << m_pUserData->m_iExp
 			<< m_pUserData->m_iLoyalty << m_pUserData->m_iLoyaltyMonthly
-			<< m_pUserData->m_bKnights << uint16(m_pUserData->m_bFame)
+			<< m_pUserData->m_bKnights << uint16(getFame())
 			<< m_pUserData->m_bCity;
 
 	if (isInClan())
@@ -601,13 +602,11 @@ void CUser::SendMyInfo()
 	else 
 	{
 		// TO-DO: Figure all this out.
-		result.SByte();
-		result	<< pKnights->m_byRanking // Knights Ranking
-				<< uint8(12) // Kind of grade - 1 Normal Clan // 2 Trainin Clan // 3 -7 Acreditation // Royal 8-12
+		result	<< pKnights->m_byRanking // Kind of grade - 1 Normal Clan // 2 Trainin Clan // 3 -7 Acreditation // Royal 8-12
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
-				<< uint16(0) // symbol/mark version
-				<< uint16(-1) // cape ID
+				<< uint16(pKnights->m_sMarkVersion) // symbol/mark version
+				<< uint16(pKnights->m_sCape) // cape ID
 				<< uint8(0) << uint8(0) << uint8(0); // cape RGB
 	}
 
@@ -2009,7 +2008,7 @@ void CUser::Dead()
 
 #if 0 // removed for now until we have a better system for it
 	send_index = 0;
-	if( m_pUserData->m_bFame == COMMAND_CAPTAIN )	{
+	if (getFame() == COMMAND_CAPTAIN)	{
 		ChangeFame(CHIEF);
 
 		pKnights = m_pMain->GetClanPtr( m_pUserData->m_bKnights );
@@ -3487,7 +3486,7 @@ void CUser::SendClanUserStatusUpdate(bool bToRegion /*= true*/)
 {
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MODIFY_FAME));
 	result	<< uint8(1) << GetSocketID() 
-			<< m_pUserData->m_bKnights << m_pUserData->m_bFame;
+			<< m_pUserData->m_bKnights << getFame();
 
 	// TO-DO: Make this region code user-specific to perform faster.
 	if (bToRegion)

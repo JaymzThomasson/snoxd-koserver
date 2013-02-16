@@ -95,7 +95,8 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 		goto fail_return;
 	}
 
-	if( !bCreate ) {
+	if (!bCreate)
+	{
 		pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
 		if( !pParty ) goto fail_return;
 		for(i=0; i<8; i++) {
@@ -104,13 +105,14 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 		}
 		if( i==8 ) goto fail_return;	// party is full
 	}
-
-	if( bCreate ) {
+	else
+	{
 		if( isInParty() ) goto fail_return;	// can't create a party if we're already in one
 		pParty = m_pMain->CreateParty(this);
 		if (pParty == NULL)
 			goto fail_return;
 
+		m_bPartyLeader = true;
 		
 		result.Initialize(AG_USER_PARTY);
 		result << uint8(PARTY_CREATE) << pParty->wIndex << pParty->uid[0];
@@ -297,6 +299,7 @@ void CUser::PartyDelete()
 	result << uint8(PARTY_DELETE) << uint16(pParty->wIndex);
 	m_pMain->Send_AIServer(&result);
 
+	m_bPartyLeader = false;
 	m_pMain->DeleteParty(pParty->wIndex);
 }
 

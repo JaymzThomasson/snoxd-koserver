@@ -94,7 +94,9 @@ bool CUdpSocket::CreateSocket()
 
 	DWORD id;
 	m_hUdpThread = ::CreateThread( NULL, 0, RecvUDPThread, (LPVOID)this, 0, &id);
+#ifndef DEBUG
 	::SetThreadPriority(m_hUdpThread,THREAD_PRIORITY_ABOVE_NORMAL);
+#endif
 
 	TRACE("UDP Socket Create Success...\n");
 	return true;

@@ -564,7 +564,7 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, Packet & pkt, BYTE command)
 
 	Packet result(WIZ_KNIGHTS_PROCESS, command);
 	result	<< uint8(1) << pUser->GetSocketID()
-			<< pUser->m_pUserData->m_bKnights << pUser->m_pUserData->m_bFame;
+			<< pUser->m_pUserData->m_bKnights << pUser->getFame();
 
 	if (pKnights != NULL)
 		result << pKnights->m_strName << pKnights->m_byGrade << pKnights->m_byRanking;

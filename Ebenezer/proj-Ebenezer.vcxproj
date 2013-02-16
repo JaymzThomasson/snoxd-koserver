@@ -285,6 +285,7 @@
     <ClInclude Include="..\shared\SharedMem.h" />
     <ClInclude Include="AIPacket.h" />
     <ClInclude Include="AISocket.h" />
+    <ClInclude Include="ChatHandler.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Ebenezer.h" />
     <ClInclude Include="EbenezerDlg.h" />

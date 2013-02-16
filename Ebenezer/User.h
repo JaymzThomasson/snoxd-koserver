@@ -22,6 +22,10 @@
 #include "EXEC.h"     
 
 #include <list>
+#include <vector>
+
+#include "ChatHandler.h"
+
 typedef	 std::list<_EXCHANGE_ITEM*>		ItemList;
 typedef  std::list<int>					UserEventList;
 typedef	 std::map<uint32, time_t>		SkillCooldownList;
@@ -97,16 +101,17 @@ public:
 	float	m_fWill_z;
 	float	m_fWill_y;
 
-	BYTE	m_bResHpType;					// HP ȸ��Ÿ��
-	BYTE	m_bWarp;						// ���̵���...
-	BYTE	m_bNeedParty;					// ��Ƽ....���ؿ�
+	BYTE	m_bResHpType;
+	BYTE	m_bWarp;
+	BYTE	m_bNeedParty;
 
 	short	m_sPartyIndex;
-	short	m_sExchangeUser;				// ��ȯ���� ����
+	bool	m_bPartyLeader;
+	short	m_sExchangeUser;
 	BYTE	m_bExchangeOK;
 
 	ItemList	m_ExchangeItemList;
-	_ITEM_DATA	m_MirrorItem[HAVE_MAX];			// ��ȯ�� ���� ������ ����Ʈ�� ����.
+	_ITEM_DATA	m_MirrorItem[HAVE_MAX];
 
 	short	m_sPrivateChatUser;
 
@@ -368,8 +373,18 @@ public:
 	void MoveProcess(Packet & pkt);
 	void Rotate(Packet & pkt);
 	void Attack(Packet & pkt);
+
+	static void InitChatCommands();
+	static void CleanupChatCommands();
+
 	void Chat(Packet & pkt);
 	void ChatTargetSelect(Packet & pkt);
+
+	bool ProcessChatCommand(std::string & message);
+
+	COMMAND_HANDLER(HandleGiveItemCommand);
+	COMMAND_HANDLER(HandleZoneChangeCommand);
+
 	void RecvRegene(Packet & pkt);
 	void Regene(uint8 regene_type, uint32 magicid = 0);
 	void RequestUserIn(Packet & pkt);
@@ -555,6 +570,9 @@ public:
 	void CloseProcess();
 	CUser();
 	virtual ~CUser();
+
+private:
+	static ChatCommandTable s_commandTable;
 };
 
 #endif // !defined(AFX_USER_H__5FEC1968_ED75_4AAF_A4DB_CB48F6940B2E__INCLUDED_)

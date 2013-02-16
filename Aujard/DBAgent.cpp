@@ -874,7 +874,7 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 		return;
 
 	Packet result(WIZ_KNIGHTS_PROCESS);
-	result << uint16(-1); // no uid
+	result << uint16(-1) << uint8(KNIGHTS_ALLLIST_REQ); // no uid
 
 	bool bReset = true;
 	uint8 bCount = 0;

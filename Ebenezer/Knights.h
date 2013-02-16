@@ -34,7 +34,10 @@ public:
 	__int64	m_nMoney;
 	int     m_sDomination;
 	long	m_nPoints;
+	int		m_sMarkVersion, m_sMarkLen;
 	BYTE	m_Image[MAX_KNIGHTS_MARK];
+	int		m_sCape;
+
 	_KNIGHTS_USER m_arKnightsUser[MAX_CLAN_USERS];		// 클랜원의 정보
 
 	CKnights();
