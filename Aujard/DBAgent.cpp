@@ -153,7 +153,7 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 		dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strCharID.c_str(), strCharID.length());
 		dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
-		if (!dbCommand->Prepare(_T("{CALL LOAD_CHAR_INFO (?, ?)}")))
+		if (!dbCommand->Execute(_T("{CALL LOAD_CHAR_INFO (?, ?)}")))
 			m_pMain->ReportSQLError(m_GameDB.GetError());
 
 		if (dbCommand->hasData())
@@ -164,7 +164,7 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 			dbCommand->FetchByte(4, bLevel);
 			dbCommand->FetchByte(5, bFace);
 			dbCommand->FetchByte(6, bZone);
-			dbCommand->FetchString(7, strItem, sizeof(strItem));
+			dbCommand->FetchBinary(7, strItem, sizeof(strItem));
 		}
 	}
 
