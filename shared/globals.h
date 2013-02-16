@@ -76,7 +76,7 @@ const BYTE MBAG_MAX			= 12; // 12 slots per magic bag
 // Total slots in the general-purpose inventory storage
 #define INVENTORY_TOTAL		(INVENTORY_MBAG2+MBAG_MAX)
 
-const BYTE WAREHOUSE_MAX	= 196;
+const BYTE WAREHOUSE_MAX	= 192;
 const BYTE MAX_MERCH_ITEMS	= 12;
 
 #define MAX_MERCH_MESSAGE	40
