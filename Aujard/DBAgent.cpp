@@ -141,7 +141,7 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 	uint32 nHair = 0;
 	uint16 sClass = 0, nRet;
 	uint8 bRace = 0, bLevel = 0, bFace = 0, bZone = 0; 
-	char strItem[400];
+	char strItem[INVENTORY_TOTAL * 8];
 	ByteBuffer itemData;
 
 	if (strCharID.length() > 0)
@@ -263,7 +263,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 	if (!dbCommand->hasData())
 		return false;
 
-	char strItem[400], strSerial[400];
+	char strItem[INVENTORY_TOTAL * 8], strSerial[INVENTORY_TOTAL * 8];
 	memset(strItem, 0x00, sizeof(strItem));
 	memset(strSerial, 0x00, sizeof(strSerial));
 
@@ -406,7 +406,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 bool CDBAgent::LoadWarehouseData(string & strAccountID, short uid)
 {
 	uint16 nRet = 0;
-	char strItem[1600], strSerial[1600];
+	char strItem[WAREHOUSE_MAX * 8], strSerial[WAREHOUSE_MAX * 8];
 
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
 	if (dbCommand.get() == NULL)
