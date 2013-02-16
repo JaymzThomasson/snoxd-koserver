@@ -9,6 +9,7 @@ OdbcParameter::OdbcParameter(SQLSMALLINT parameterType, SQLSMALLINT dataType, SQ
 	{
 	case SQL_CHAR:
 	case SQL_VARCHAR:
+	case SQL_BINARY:
 		m_dataTypeLength = maxLength;
 		m_dataType = m_cDataType;
 		break;

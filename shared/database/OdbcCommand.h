@@ -38,7 +38,7 @@ public:
 	ADD_ODBC_PARAMETER(UInt64, uint64, SQL_C_UBIGINT)
 	ADD_ODBC_PARAMETER(Int64, int64, SQL_C_SBIGINT)
 
-	void AddParameter(SQLSMALLINT paramType, const char *value, SQLLEN maxLength);
+	void AddParameter(SQLSMALLINT paramType, const char *value, SQLLEN maxLength, SQLSMALLINT sqlDatatype = SQL_CHAR);
 
 	__forceinline bool FetchString(int pos, char *outBuffer, SQLLEN maxLength)
 	{
