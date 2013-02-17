@@ -23,8 +23,8 @@ void CUser::Attack(Packet & pkt)
 	
 	// If you're holding a weapon, do a client-based (ugh, do not trust!) delay check.
 	if (pTable 
-		&& delaytime < pTable->m_sDelay
-			|| distance > pTable->m_sRange)
+		&& (delaytime < pTable->m_sDelay
+			|| distance > pTable->m_sRange))
 		return;	
 	// Empty handed.
 	else if (delaytime < 100)
@@ -105,8 +105,7 @@ void CUser::Attack(Packet & pkt)
 					<< m_sItemAc
 					<< m_bMagicTypeLeftHand << m_bMagicTypeRightHand
 					<< m_sMagicAmountLeftHand, m_sMagicAmountRightHand;
-			m_pMain->Send_AIServer(&result);	
-			return;
+			m_pMain->Send_AIServer(&result);
 		}
 	}
 

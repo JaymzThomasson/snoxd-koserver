@@ -228,7 +228,7 @@ void CUser::MerchantInsert(Packet & pkt)
 	for (int i = 0; i < MAX_MERCH_ITEMS; i++)
 		result << uint32(m_arSellingItems[i].nNum);
 
-	Send(&result);
+	SendToRegion(&result);
 }
 
 void CUser::TakeMerchantItems()

@@ -196,7 +196,7 @@ void CUser::ChatTargetSelect(Packet & pkt)
 		else
 		{
 			m_sPrivateChatUser = pUser->GetSocketID();
-			result << int16(0) << pUser->m_pUserData->m_id;
+			result << int16(1) << pUser->m_pUserData->m_id;
 		}
 		Send(&result);
 	}
