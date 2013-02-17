@@ -104,7 +104,7 @@ uint16 CDBProcess::AccountLogin(string & id, string & pwd)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pwd.c_str(), pwd.length());
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &result);
 
-	if (!dbCommand->Prepare(_T("{CALL MAIN_LOGIN(?, ?, ?)}")))
+	if (!dbCommand->Execute(_T("{CALL MAIN_LOGIN(?, ?, ?)}")))
 		m_pMain->ReportSQLError(m_dbConnection.GetError());
 
 	return result;
