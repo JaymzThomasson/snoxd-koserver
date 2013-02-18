@@ -234,7 +234,7 @@ public:
 	{
 		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
 		foreach_array (i, m_pUserData->m_bStats)
-			total += iValue;
+			total += m_pUserData->m_bStats[i];
 		return total;
 	}
 
@@ -253,7 +253,7 @@ public:
 	{
 		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
 		foreach_array (i, m_sStatItemBonuses)
-			total += iValue;
+			total += m_sStatItemBonuses[i];
 		return total;
 	}
 
@@ -273,7 +273,7 @@ public:
 	{
 		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
 		foreach_array (i, m_bStatBuffs)
-			total += iValue;
+			total += m_bStatBuffs[i];
 		return total;
 	}
 

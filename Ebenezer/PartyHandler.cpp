@@ -151,7 +151,7 @@ void CUser::PartyInsert()
 	// kind of slow, but it works for the moment
 	foreach_array (i, pParty->uid)
 	{
-		if (iValue == GetSocketID())
+		if (pParty->uid[i] == GetSocketID())
 		{
 			m_sPartyIndex = -1;
 			return;
