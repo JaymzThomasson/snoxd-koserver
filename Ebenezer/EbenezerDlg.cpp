@@ -539,39 +539,51 @@ C3DMap * CEbenezerDlg::GetZoneByID(int zoneID)
 	return m_ZoneArray.GetData(zoneID);
 }
 
+// TO-DO: Implement hashmaps for account/character names
 CUser* CEbenezerDlg::GetUserPtr(const char *userid, NameType type)
 {
-	if (type == TYPE_ACCOUNT)
-	{					// Account id check....
-		string accountToFind = userid;
-		STRTOUPPER(accountToFind);
+	CUser *result = NULL;
 
-		for (int i = 0; i < MAX_USER; i++) 
+	string findName = userid;
+	STRTOUPPER(findName);
+
+	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	if (type == TYPE_ACCOUNT)
+	{
+		foreach (itr, sessMap)
 		{
-			CUser *pUser = GetUnsafeUserPtr(i);
-			if (pUser == NULL)
+			CUser *pUser = static_cast<CUser *>(itr->second);
+			if (pUser->GetState() != GAME_STATE_INGAME)
 				continue;
 
 			string UpperName = pUser->m_strAccountID;
 			STRTOUPPER(UpperName);
-			if (accountToFind == UpperName) 
-				return pUser;
+			if (findName == UpperName) 
+			{
+				result = pUser;
+				break;
+			}
 		}
 	}
 	else if (type == TYPE_CHARACTER)
-	{									// character id check...
-		for (int i = 0; i < MAX_USER; i++) 
+	{
+		foreach (itr, sessMap) 
 		{
-			CUser *pUser = GetUnsafeUserPtr(i);
-			if (pUser == NULL)
+			CUser *pUser = static_cast<CUser *>(itr->second);
+			if (pUser->GetState() != GAME_STATE_INGAME)
 				continue;
 
-			if (!_strnicmp(pUser->m_pUserData->m_id, userid, MAX_ID_SIZE))
-				return pUser;
+			string UpperName = pUser->m_pUserData->m_id;
+			STRTOUPPER(UpperName);
+			if (findName == UpperName) 
+			{
+				result = pUser;
+				break;
+			}
 		}
 	}
-
-	return NULL;
+	s_socketMgr.ReleaseLock();
+	return result;
 }
 
 CUser		* CEbenezerDlg::GetUserPtr(int sid) { return s_socketMgr[sid]; }
