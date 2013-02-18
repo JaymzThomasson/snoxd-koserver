@@ -888,14 +888,11 @@ void CEbenezerDlg::Send_KnightsMember(int index, Packet *pkt)
 	if (pKnights == NULL)
 		return;
 
-	for (int i = 0; i < MAX_USER; i++)
+	foreach_array (i, pKnights->m_arKnightsUser)
 	{
-		CUser *pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL
-			|| pUser->m_pUserData->m_bKnights != index) 
-			continue;
-
-		pUser->Send(pkt);
+		_KNIGHTS_USER *p = &pKnights->m_arKnightsUser[i];
+		if (p->pSession != NULL)
+			p->pSession->Send(pkt);
 	}
 }
 
@@ -1940,47 +1937,24 @@ BOOL CEbenezerDlg::LoadAllKnightsUserData()
 
 uint16 CEbenezerDlg::GetKnightsAllMembers(uint16 sClanID, Packet & result, uint16 & pktSize, bool bClanLeader)
 {
-	if (sClanID <= 0)
-		return 0;			
-
+	CKnights* pKnights = GetClanPtr(sClanID);
+	if (pKnights == NULL)
+		return 0;
+	
 	uint16 count = 0;
-
-	// If we're not a clan leader, we only care about those that are only.
-	// Looping through the entire server once is preferrable to looping through the entire server for every player found.
-	// TO-DO: Remove this whole awful hackery (we shouldn't have to loop through the entire server *at all*).
-	if (!bClanLeader)
+	foreach_array (i, pKnights->m_arKnightsUser)
 	{
-		for (int i = 0; i < MAX_USER; i++)
-		{
-			CUser *pUser = GetUnsafeUserPtr(i);
-			if (pUser == NULL || pUser->m_pUserData->m_bKnights != sClanID)
-				continue;
+		_KNIGHTS_USER *p = &pKnights->m_arKnightsUser[i];
+		if (!p->byUsed)
+			continue;
 
+		CUser *pUser = p->pSession;
+		if (pUser != NULL)
 			result << pUser->m_pUserData->m_id << pUser->getFame() << pUser->getLevel() << pUser->m_pUserData->m_sClass << uint8(1);
-			count++;
-		}
-	}
-	// If we are a clan leader, we - sadly - need the entire clan list
-	// This is just a preferential thing really, we should improve lookups so that we can provide this data for everyone.
-	else
-	{
-		CKnights *pKnights = GetClanPtr(sClanID);
-		if (pKnights == NULL)
-			return 0;
+		else // normally just clan leaders see this, but we can be generous now.
+			result << pKnights->m_arKnightsUser[i].strUserName << uint8(0) << uint8(0) << uint16(0) << uint8(0);
 
-		for (int i = 0; i < MAX_CLAN_USERS; i++)
-		{
-			if (pKnights->m_arKnightsUser[i].byUsed == 0)
-				continue;
-
-			CUser *pUser = GetUserPtr(pKnights->m_arKnightsUser[i].strUserName, TYPE_CHARACTER);
-			if (pUser != NULL)
-				result << pUser->m_pUserData->m_id << pUser->getFame() << pUser->getLevel() << pUser->m_pUserData->m_sClass << uint8(1);
-			else
-				result << "" << uint8(0) << uint8(0) << uint16(0) << uint8(0);
-
-			count++;	
-		}	
+		count++;
 	}
 
 	return count;

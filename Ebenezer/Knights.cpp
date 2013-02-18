@@ -42,6 +42,38 @@ void CKnights::InitializeValue()
 	m_nPoints = 0;
 }
 
+void CKnights::OnLogin(CUser *pUser)
+{
+	// TO-DO: Implement login notice here
+
+	// Set the active session for this user
+	foreach_array (i, m_arKnightsUser)
+	{
+		if (!m_arKnightsUser[i].byUsed
+			|| _strcmpi(m_arKnightsUser[i].strUserName, pUser->m_pUserData->m_id))
+			continue;
+
+		m_arKnightsUser[i].pSession = pUser;
+		break;
+	}
+}
+
+void CKnights::OnLogout(CUser *pUser)
+{
+	// TO-DO: Implement logout notice here
+
+	// Unset the active session for this user
+	foreach_array (i, m_arKnightsUser)
+	{
+		if (!m_arKnightsUser[i].byUsed
+			|| _strcmpi(m_arKnightsUser[i].strUserName, pUser->m_pUserData->m_id))
+			continue;
+
+		m_arKnightsUser[i].pSession = NULL;
+		break;
+	}
+}
+
 bool CKnights::AddUser(const char *strUserID)
 {
 	for (int i = 0; i < MAX_CLAN_USERS; i++)

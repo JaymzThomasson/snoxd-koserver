@@ -34,10 +34,16 @@ public:
 	BYTE	m_Image[MAX_KNIGHTS_MARK];
 	int		m_sCape;
 
-	_KNIGHTS_USER m_arKnightsUser[MAX_CLAN_USERS];		// 클랜원의 정보
+	_KNIGHTS_USER m_arKnightsUser[MAX_CLAN_USERS];
 
 	CKnights();
 	void InitializeValue();
+
+	// Attach our session to the clan's list & tell clannies we logged in.
+	void OnLogin(CUser *pUser);
+
+	// Detach our session from the clan's list & tell clannies we logged off.
+	void OnLogout(CUser *pUser);
 
 	bool AddUser(const char *strUserID);
 	bool AddUser(CUser *pUser);

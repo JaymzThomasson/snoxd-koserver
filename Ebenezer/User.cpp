@@ -160,6 +160,13 @@ void CUser::OnDisconnect()
 		if (isInParty())
 			PartyRemove(GetSocketID());
 
+		if (isInClan())
+		{
+			CKnights *pKnights = g_pMain->GetClanPtr(m_pUserData->m_bKnights);
+			if (pKnights != NULL)
+				pKnights->OnLogout(this);
+		}
+
 		if (isTrading())
 			ExchangeCancel();
 
@@ -586,6 +593,8 @@ void CUser::SendMyInfo()
 	}
 	else 
 	{
+		pKnights->OnLogin(this);
+
 		// TO-DO: Figure all this out.
 		result	<< pKnights->m_byRanking // Kind of grade - 1 Normal Clan // 2 Trainin Clan // 3 -7 Acreditation // Royal 8-12
 				<< pKnights->m_strName
