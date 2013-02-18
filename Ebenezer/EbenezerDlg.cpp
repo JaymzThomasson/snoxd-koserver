@@ -1529,20 +1529,18 @@ void CEbenezerDlg::SendAllUserInfo()
 	result << count; // placeholder for user count
 	const int tot = 20;
 
-	for (int i = 0; i < MAX_USER; i++)
+	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
 	{
-		CUser * pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL)
-			continue;
-
-		pUser->SendUserInfo(result);
+		static_cast<CUser *>(itr->second)->SendUserInfo(result);
 		if (++count == tot)	{
 			result.put(0, count);
 			Send_AIServer(&result);
 			count = 0;
 			result.clear();
 		}
-	}	
+	}
+	s_socketMgr.ReleaseLock();
 
 	if (count != 0 && count < (tot - 1))
 	{
@@ -1562,8 +1560,8 @@ void CEbenezerDlg::SendAllUserInfo()
 
 		result.Initialize(AG_PARTY_INFO_ALL);
 		result << uint16(itr->first);
-		for (int i = 0; i < 8; i++)
-			result << uint16(pParty->uid[i]);
+		for (int i = 0; i < MAX_PARTY_USERS; i++)
+			result << pParty->uid[i];
 
 		Send_AIServer(&result);
 	}
