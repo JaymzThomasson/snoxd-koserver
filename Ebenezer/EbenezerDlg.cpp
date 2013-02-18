@@ -1766,41 +1766,45 @@ void CEbenezerDlg::BattleZoneOpen(int nType, uint8 bZone /*= 0*/)
 
 void CEbenezerDlg::BattleZoneVictoryCheck()
 {	
-	if (m_bKarusFlag >= NUM_FLAG_VICTORY) {		// WINNER DECLARATION PROCEDURE !!!
-		m_bVictory = KARUS ;
-	}
-	else if (m_bElmoradFlag >= NUM_FLAG_VICTORY) {
-		m_bVictory = ELMORAD ;
-	}
-	else return;
+	if (m_bKarusFlag >= NUM_FLAG_VICTORY)
+		m_bVictory = KARUS;
+	else if (m_bElmoradFlag >= NUM_FLAG_VICTORY)
+		m_bVictory = ELMORAD;
+	else 
+		return;
 
 	Announcement(DECLARE_WINNER);
 
-	for (int i = 0 ; i < MAX_USER ; i++) {		// GOLD DISTRIBUTION PROCEDURE FOR WINNERS !!!
-		CUser* pTUser = GetUnsafeUserPtr(i);
-		if (pTUser == NULL) continue;
-		
-		if (pTUser->getNation() == m_bVictory) {
-			if ( pTUser->m_pUserData->m_bZone == pTUser->m_pUserData->m_bNation ) {		// Zone Check!
-				pTUser->GoldGain(AWARD_GOLD);	// Target is in the area.
-				pTUser->ExpChange(AWARD_EXP);
+	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	set<CUser *> winners;
+	foreach (itr, sessMap)
+	{
+		CUser* pTUser = static_cast<CUser *>(itr->second);
+		if (pTUser->GetState() == GAME_STATE_INGAME
+			&& pTUser->getZoneID() == pTUser->getNation() 
+			&& pTUser->getNation() == m_bVictory)
+			winners.insert(pTUser);
+	}	
+	s_socketMgr.ReleaseLock();
 
-				if (pTUser->getFame() == COMMAND_CAPTAIN)
-				{
-					if(pTUser->m_pUserData->m_bRank == 1)
-						pTUser->ChangeNP(500);
-					else
-						pTUser->ChangeNP(300);
-				}
-				
-				/*
-				// What's this meant to do? Make the winning nation use a victory emotion or some such? 4,12 should be provoke 2.
-				// Disabling because it currently seems pointless (and it's better off having it sent directly, rather than processed as if it were a packet)
-				pTUser->StateChangeServerDirect(4, 12);
-				*/
-			}
+	foreach (itr, winners)
+	{
+		CUser *pTUser = (*itr);
+
+		pTUser->GoldGain(AWARD_GOLD);
+		pTUser->ExpChange(AWARD_EXP);
+
+		if (pTUser->getFame() == COMMAND_CAPTAIN)
+		{
+			if (pTUser->m_pUserData->m_bRank == 1)
+				pTUser->ChangeNP(500);
+			else
+				pTUser->ChangeNP(300);
 		}
-	}		
+				
+		// Make the winning nation use a victory emotion (yay!)
+		pTUser->StateChangeServerDirect(4, 12);
+	}
 }
 
 /**
