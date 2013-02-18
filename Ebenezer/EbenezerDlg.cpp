@@ -265,7 +265,6 @@ BOOL CEbenezerDlg::OnInitDialog()
 
 	GetTimeFromIni();
 	
-	//m_Iocport.Init( MAX_USER, CLIENT_SOCKSIZE, 4 );
 	if (!s_socketMgr.Listen(_LISTEN_PORT, MAX_USER))
 	{
 		AfxMessageBox("Failed to listen on server port.");
@@ -1638,18 +1637,6 @@ CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
 	}
 
 	return NULL;
-}
-
-void CEbenezerDlg::WithdrawUserOut()
-{
-	for (int i = 0; i < MAX_USER; i++)
-	{
-		CUser *pUser = GetUnsafeUserPtr(i);
-		if (pUser != NULL && pUser->GetState() == GAME_STATE_INGAME
-			&& pUser->m_pUserData->m_bZone == pUser->m_pUserData->m_bNation
-			&& pUser->GetMap() != NULL)
-			pUser->ZoneChange(pUser->GetMap()->m_nZoneNumber, pUser->GetMap()->m_fInitX, pUser->GetMap()->m_fInitZ);
-	}
 }
 
 void CEbenezerDlg::AliveUserCheck()

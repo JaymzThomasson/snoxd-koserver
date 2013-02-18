@@ -79,7 +79,6 @@ public:
 	void BattleZoneOpenTimer();
 	void BattleZoneOpen(int nType, uint8 bZone = 0);	// 0:open 1:close
 	void AliveUserCheck();
-	void WithdrawUserOut();
 	BOOL LoadMagicType1();
 	BOOL LoadMagicType2();
 	BOOL LoadMagicType3();
