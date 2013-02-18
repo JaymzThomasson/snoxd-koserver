@@ -159,7 +159,6 @@ public:
 	void Send_NearRegion(Packet *pkt, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser=NULL );
 	void Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser* pExceptUser=NULL );
 
-	void Send_All( char* pBuf, int len, CUser* pExceptUser = NULL, int nation=0 );	// PENDING DEPRECATION
 	void Send_All(Packet *pkt, CUser* pExceptUser = NULL, uint8 nation = 0);
 	void Send_AIServer(Packet *pkt);
 

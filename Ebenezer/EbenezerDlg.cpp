@@ -722,28 +722,20 @@ void CEbenezerDlg::AIServerConnect()
 	s_aiSocketMgr.ReleaseLock();
 }
 
-void CEbenezerDlg::Send_All(char *pBuf, int len, CUser* pExceptUser, int nation )
-{
-	for (int i = 0; i < MAX_USER; i++)
-	{
-		CUser * pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != GAME_STATE_INGAME || (nation != 0 && nation != pUser->getNation()))
-			continue;
-
-		pUser->Send(pBuf, len);
-	}
-}
-
 void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 nation /*= 0*/)
 {
-	for (int i = 0; i < MAX_USER; i++)
+	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
 	{
-		CUser * pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != GAME_STATE_INGAME || (nation != 0 && nation != pUser->getNation()))
+		CUser * pUser = static_cast<CUser *>(itr->second);
+		if (pUser == pExceptUser 
+			|| pUser->GetState() != GAME_STATE_INGAME 
+			|| (nation != 0 && nation != pUser->getNation()))
 			continue;
 
 		pUser->Send(pkt);
 	}
+	s_socketMgr.ReleaseLock();
 }
 
 void CEbenezerDlg::Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser)
@@ -1865,7 +1857,7 @@ void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 {
 	int send_index = 0;
 
-	char chatstr[1024], finalstr[1024], send_buff[1024]; 
+	char chatstr[1024]; 
 
 	switch(type) {
 		case BATTLEZONE_OPEN:
@@ -1910,6 +1902,7 @@ void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 			break;
 	}
 
+#if 0
 	_snprintf(finalstr, sizeof(finalstr), GetServerResource(IDP_ANNOUNCEMENT), chatstr);
 	SetByte( send_buff, WIZ_CHAT, send_index );
 	SetByte( send_buff, chat_type, send_index );
@@ -1918,6 +1911,7 @@ void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 	SetKOString(send_buff, finalstr, send_index);
 
 	Send_All(send_buff, send_index, NULL, nation);
+#endif
 }
 
 BOOL CEbenezerDlg::LoadHomeTable()

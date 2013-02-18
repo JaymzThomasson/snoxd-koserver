@@ -742,10 +742,10 @@ void CAISocket::RecvNpcInOut(Packet & pkt)
 
 void CAISocket::RecvBattleEvent(Packet & pkt)
 {
-	int send_index, retvalue = 0;
+	int retvalue = 0;
 	std::string strMaxUserName;
 	char strKnightsName[MAX_ID_SIZE+1];
-	char chatstr[1024], finalstr[1024], send_buff[1024];
+	char chatstr[1024];
 	CUser* pUser = NULL;
 	CKnights* pKnights = NULL;
 
@@ -861,6 +861,7 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 
 		_snprintf(chatstr, sizeof(chatstr), g_pMain->GetServerResource(nResourceID), strKnightsName, strMaxUserName);
 
+#if 0
 		send_index = 0;
 		sprintf( finalstr, g_pMain->GetServerResource(IDP_ANNOUNCEMENT), chatstr );
 		SetByte( send_buff, WIZ_CHAT, send_index );
@@ -877,6 +878,7 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 		SetShort( send_buff, -1, send_index );
 		SetKOString( send_buff, finalstr, send_index );
 		g_pMain->Send_All( send_buff, send_index );
+#endif
 
 		Packet result(UDP_BATTLE_EVENT_PACKET, bType);
 		result.SByte();

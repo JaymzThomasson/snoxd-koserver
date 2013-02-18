@@ -237,7 +237,7 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 	int index = 0, send_index = 0, udp_index = 0;
 	int nType = 0, nResult = 0, nLen = 0, nKillKarus = 0, nElmoKill = 0;
 	char strMaxUserName[MAX_ID_SIZE+1], strKnightsName[MAX_ID_SIZE+1];
-	char finalstr[1024], send_buff[1024];
+	char finalstr[1024];
 
 	std::string buff;
 
@@ -319,6 +319,7 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 
 		_snprintf(finalstr, sizeof(finalstr), g_pMain->GetServerResource(nResourceID), strKnightsName, strMaxUserName);
 
+#if 0
 		SetByte( send_buff, WIZ_CHAT, send_index );
 		SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
 		SetByte( send_buff, 1, send_index );
@@ -333,6 +334,7 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 		SetShort( send_buff, -1, send_index );
 		SetKOString( send_buff, finalstr, send_index );
 		g_pMain->Send_All( send_buff, send_index );
+#endif
 	}
 	else if( nType == BATTLE_EVENT_KILL_USER )	{
 		if( nResult == 1 )	{
