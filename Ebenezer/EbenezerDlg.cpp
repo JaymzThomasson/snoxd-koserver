@@ -1813,17 +1813,31 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
  **/
 void CEbenezerDlg::BanishLosers()
 {
-	for (int i = 0; i < MAX_USER; i++)
+	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	set<CUser *> affected;
+
+	foreach (itr, sessMap)
 	{
-		CUser *pTUser = GetUnsafeUserPtr(i); 
-		if (pTUser == NULL) 
-			continue;	
+		CUser *pUser = static_cast<CUser *>(itr->second); 
+		if (pUser->GetState() == GAME_STATE_INGAME)
+			continue;
 
-		if (pTUser->getFame() == COMMAND_CAPTAIN)
-			pTUser->ChangeFame(CHIEF);
+		affected.insert(pUser);
+	}
+	s_socketMgr.ReleaseLock();
 
-		if (pTUser->getZoneID() != pTUser->getNation())
-			pTUser->KickOutZoneUser(TRUE);
+	foreach (itr, affected)
+	{
+		CUser *pUser = (*itr);
+
+		// Reset captains
+		if (pUser->getFame() == COMMAND_CAPTAIN)
+			pUser->ChangeFame(CHIEF);
+
+		// Kick out invaders
+		if (pUser->getZoneID() <= ELMORAD
+			&& pUser->getZoneID() != pUser->getNation())
+			pUser->KickOutZoneUser(TRUE);
 	}
 }
 
