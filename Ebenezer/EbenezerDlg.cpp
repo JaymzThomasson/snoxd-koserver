@@ -1640,20 +1640,30 @@ CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
 void CEbenezerDlg::AliveUserCheck()
 {
 	float currenttime = TimeGet();
+	set<CUser *> killSessions;
 
-	for (int i = 0; i < MAX_USER; i++)
+	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
 	{
-		CUser * pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME) 
+		// TO-DO: Replace this with a better, more generic check
+		// Shouldn't have to rely on skills (or being in-game)
+		CUser * pUser = static_cast<CUser *>(itr->second);
+		if (pUser->GetState() != GAME_STATE_INGAME) 
 			continue;
 
-		for ( int k = 0 ; k < MAX_TYPE3_REPEAT ; k++ ) {
-			if( (currenttime - pUser->m_fHPLastTime[k]) > 300 ) {
-				pUser->Disconnect();
+		for (int k = 0; k < MAX_TYPE3_REPEAT; k++)
+		{
+			if ((currenttime - pUser->m_fHPLastTime[k]) > 300)
+			{
+				killSessions.insert(pUser);
 				break;
 			}
 		}
 	}
+	s_socketMgr.ReleaseLock();
+
+	foreach (itr, killSessions)
+		(*itr)->Disconnect();
 }
 /////// BATTLEZONE RELATED by Yookozuna 2002.6.18 /////////////////
 void CEbenezerDlg::BattleZoneOpenTimer()
