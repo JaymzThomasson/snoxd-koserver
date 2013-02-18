@@ -7,7 +7,6 @@
 #define AI_ELMO_SOCKET_PORT			10030
 #define AI_BATTLE_SOCKET_PORT		10040
 #define CLIENT_SOCKSIZE		100
-#define MAX_AI_SOCKET		10			// sungyong~ 2002.05.22
 
 #define MAX_NPC_SIZE		30
 
@@ -26,10 +25,6 @@
 #define MAX_PARTY_USERS		8
 #define MAX_CLAN_USERS		36
 
-#define SERVER_INFO_START			0X01
-#define SERVER_INFO_END				0X02
-
-//////////////  Quest ��� Define ////////////////////////////
 #define MAX_EVENT					2000
 #define MAX_EVENT_SIZE				400
 #define MAX_EVENT_NUM				2000
@@ -268,11 +263,6 @@
 #define PACKET_START2				0X55
 #define PACKET_END1					0X55
 #define PACKET_END2					0XAA
-
-// status
-#define STATE_CONNECTED			0X01
-#define STATE_DISCONNECTED		0X02
-#define STATE_GAMESTART			0x03
 
 // Socket type
 #define TYPE_ACCEPT				0x01

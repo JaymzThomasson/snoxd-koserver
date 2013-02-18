@@ -1,18 +1,11 @@
-// stdafx.h : include file for standard system include files,
-//  or project specific include files that are used frequently, but
-//      are changed infrequently
-//
-
-#if !defined(AFX_STDAFX_H__7F6B8F8D_6B2B_47EE_A744_F49F1D4A2556__INCLUDED_)
-#define AFX_STDAFX_H__7F6B8F8D_6B2B_47EE_A744_F49F1D4A2556__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
 #define _CRT_SECURE_NO_WARNINGS
-#define WINVER 0x0600
+
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT _WIN32_WINNT_MAXVER
+#endif
 
 #include <afxwin.h>         // MFC core and standard components
 #include <afxext.h>         // MFC extensions
@@ -29,9 +22,10 @@
 #include "packet.h"			// packet 정의
 #include "global.h"			// 전역 funtion
 #include "define.h"			// define
+
+#define TRACE ATLTRACE
+
 //#include "extern.h"			// 전역 객체
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_STDAFX_H__7F6B8F8D_6B2B_47EE_A744_F49F1D4A2556__INCLUDED_)

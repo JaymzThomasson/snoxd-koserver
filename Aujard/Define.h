@@ -10,7 +10,7 @@
 // status
 #define STATE_CONNECTED			0X01
 #define STATE_DISCONNECTED		0X02
-#define STATE_GAMESTART			0x03
+#define GAME_STATE_INGAME			0x03
 
 // DEFINE MACRO PART...
 #define BufInc(x) (x)++;(x) %= SOCKET_BUF_SIZE;

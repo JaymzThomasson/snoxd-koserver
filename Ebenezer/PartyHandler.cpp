@@ -14,7 +14,7 @@ void CUser::PartyProcess(Packet & pkt)
 		if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
 			return;
 
-		pUser = m_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+		pUser = g_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
 		if (pUser == NULL)
 			return;
 
@@ -48,13 +48,13 @@ void CUser::PartyCancel()
 	if (!isInParty())
 		return;
 
-	_PARTY_GROUP *pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
+	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
 	m_sPartyIndex = -1;
 	if (pParty == NULL)
 		return;
 	
 	leader_id = pParty->uid[0];
-	CUser *pUser = m_pMain->GetUserPtr(leader_id);
+	CUser *pUser = g_pMain->GetUserPtr(leader_id);
 	if (pUser == NULL)
 		return;
 
@@ -78,7 +78,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 	int16 errorCode = -1, i=0;
 	_PARTY_GROUP* pParty = NULL;
 
-	CUser *pUser = m_pMain->GetUserPtr(memberid);
+	CUser *pUser = g_pMain->GetUserPtr(memberid);
 	if (pUser == NULL
 		|| pUser->isInParty()) goto fail_return;
 
@@ -97,7 +97,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 
 	if (!bCreate)
 	{
-		pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
+		pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
 		if( !pParty ) goto fail_return;
 		for(i=0; i<8; i++) {
 			if( pParty->uid[i] < 0 ) 
@@ -108,7 +108,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 	else
 	{
 		if( isInParty() ) goto fail_return;	// can't create a party if we're already in one
-		pParty = m_pMain->CreateParty(this);
+		pParty = g_pMain->CreateParty(this);
 		if (pParty == NULL)
 			goto fail_return;
 
@@ -116,7 +116,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 		
 		result.Initialize(AG_USER_PARTY);
 		result << uint8(PARTY_CREATE) << pParty->wIndex << pParty->uid[0];
-		m_pMain->Send_AIServer(&result);
+		g_pMain->Send_AIServer(&result);
 	}
 
 	pUser->m_sPartyIndex = m_sPartyIndex;
@@ -141,7 +141,7 @@ void CUser::PartyInsert()
 	if (!isInParty())
 		return;
 
-	pParty = m_pMain->m_PartyArray.GetData( m_sPartyIndex );
+	pParty = g_pMain->m_PartyArray.GetData( m_sPartyIndex );
 	if( !pParty ) {	
 		m_sPartyIndex = -1;
 		return;
@@ -174,7 +174,7 @@ void CUser::PartyInsert()
 		}
 
 		// For everyone else, 
-		pUser = m_pMain->GetUserPtr(pParty->uid[i]);
+		pUser = g_pMain->GetUserPtr(pParty->uid[i]);
 		if (pUser == NULL)
 			continue;
 
@@ -187,7 +187,7 @@ void CUser::PartyInsert()
 		Send(&result);
 	}
 	
-	pUser = m_pMain->GetUserPtr(pParty->uid[0]);
+	pUser = g_pMain->GetUserPtr(pParty->uid[0]);
 	if (pUser == NULL)
 		return;
 
@@ -203,11 +203,11 @@ void CUser::PartyInsert()
 			<< m_iMaxHp << m_pUserData->m_sHp
 			<< getLevel() << m_pUserData->m_sClass
 			<< m_iMaxMp << m_pUserData->m_sMp;
-	m_pMain->Send_PartyMember(m_sPartyIndex, &result);
+	g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 
 	result.Initialize(AG_USER_PARTY);
 	result	<< uint8(PARTY_INSERT) << pParty->wIndex << byIndex << GetSocketID();
-	m_pMain->Send_AIServer(&result);
+	g_pMain->Send_AIServer(&result);
 }
 
 void CUser::PartyRemove(int memberid)
@@ -215,11 +215,11 @@ void CUser::PartyRemove(int memberid)
 	if (!isInParty()) 
 		return;
 
-	CUser *pUser = m_pMain->GetUserPtr(memberid);
+	CUser *pUser = g_pMain->GetUserPtr(memberid);
 	if (pUser == NULL)
 		return;
 
-	_PARTY_GROUP *pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
+	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
 	if (pParty == NULL) 
 	{
 		m_sPartyIndex = pUser->m_sPartyIndex = -1;
@@ -262,7 +262,7 @@ void CUser::PartyRemove(int memberid)
 
 	Packet result(WIZ_PARTY, uint8(PARTY_REMOVE));
 	result << uint16(memberid);
-	m_pMain->Send_PartyMember(m_sPartyIndex, &result);
+	g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 
 	if (memberPos >= 0)
 		pUser->m_sPartyIndex = pParty->uid[memberPos] = -1;
@@ -270,7 +270,7 @@ void CUser::PartyRemove(int memberid)
 	// AI Server
 	result.Initialize(AG_USER_PARTY);
 	result << uint8(PARTY_REMOVE) << pParty->wIndex << uint16(memberid);
-	m_pMain->Send_AIServer(&result);
+	g_pMain->Send_AIServer(&result);
 }
 
 void CUser::PartyDelete()
@@ -278,7 +278,7 @@ void CUser::PartyDelete()
 	if (!isInParty())
 		return;
 
-	_PARTY_GROUP *pParty = m_pMain->m_PartyArray.GetData(m_sPartyIndex);
+	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
 	if (pParty == NULL)
 	{
 		m_sPartyIndex = -1;
@@ -287,20 +287,20 @@ void CUser::PartyDelete()
 
 	for (int i = 0; i < MAX_PARTY_USERS; i++)
 	{
-		CUser *pUser = m_pMain->GetUserPtr(pParty->uid[i]);
+		CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
 		if (pUser != NULL) 
 			pUser->m_sPartyIndex = -1;
 	}
 
 	Packet result(WIZ_PARTY, uint8(PARTY_DELETE));
-	m_pMain->Send_PartyMember(pParty->wIndex, &result);
+	g_pMain->Send_PartyMember(pParty->wIndex, &result);
 	result.Initialize(AG_USER_PARTY);
 
 	result << uint8(PARTY_DELETE) << uint16(pParty->wIndex);
-	m_pMain->Send_AIServer(&result);
+	g_pMain->Send_AIServer(&result);
 
 	m_bPartyLeader = false;
-	m_pMain->DeleteParty(pParty->wIndex);
+	g_pMain->DeleteParty(pParty->wIndex);
 }
 
 // Seeking party system
@@ -338,7 +338,7 @@ void CUser::PartyBBSRegister(Packet & pkt)
 
 	send_index = 0; // Now, let's find out which page the user is on.
 	for (i = 0 ; i < MAX_USER ; i++) {
-		pUser = m_pMain->GetUnsafeUserPtr(i);
+		pUser = g_pMain->GetUnsafeUserPtr(i);
 		if (pUser == NULL
 			|| pUser->getNation() != getNation()
 			|| pUser->m_bNeedParty == 1) 
@@ -415,7 +415,7 @@ void CUser::PartyBBSNeeded(Packet & pkt, BYTE type)
 	SetByte(send_buff, result, send_index);
 
 	for (i = 0 ; i < MAX_USER ; i++) {
-		pUser = m_pMain->GetUnsafeUserPtr(i);
+		pUser = g_pMain->GetUnsafeUserPtr(i);
 		if (pUser == NULL
 			|| pUser->getNation() != getNation()
 			|| pUser->m_bNeedParty == 1) 

@@ -19,9 +19,6 @@
     <Filter Include="Database">
       <UniqueIdentifier>{4fef33e7-0850-4a21-8150-8feb10b1693d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Networking">
-      <UniqueIdentifier>{9116a0ee-149c-43d8-a220-0dbf0675898e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StdAfx.cpp">
@@ -39,15 +36,6 @@
     <ClCompile Include="..\shared\Ini.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
-    <ClCompile Include="IOCPSocket2.cpp">
-      <Filter>Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="IOCPort.cpp">
-      <Filter>Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\CircularBuffer.cpp">
-      <Filter>Networking</Filter>
-    </ClCompile>
     <ClCompile Include="DBProcess.cpp">
       <Filter>Database</Filter>
     </ClCompile>
@@ -59,6 +47,27 @@
     </ClCompile>
     <ClCompile Include="..\shared\database\OdbcParameter.cpp">
       <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\Socket.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\SocketMgr.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\CircularBuffer.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\KOSocket.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\JvCryption.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\crc32.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\lzf.cpp">
+      <Filter>Shared</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -88,15 +97,6 @@
     <ClInclude Include="..\shared\Ini.h">
       <Filter>Shared</Filter>
     </ClInclude>
-    <ClInclude Include="IOCPort.h">
-      <Filter>Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="IOCPSocket2.h">
-      <Filter>Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\CircularBuffer.h">
-      <Filter>Networking</Filter>
-    </ClInclude>
     <ClInclude Include="DBProcess.h">
       <Filter>Database</Filter>
     </ClInclude>
@@ -111,6 +111,27 @@
     </ClInclude>
     <ClInclude Include="..\shared\database\OdbcParameter.h">
       <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\Socket.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\SocketDefines.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\SocketMgr.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\CircularBuffer.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\KOSocket.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\ListenSocket.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\KOSocketMgr.h">
+      <Filter>Shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

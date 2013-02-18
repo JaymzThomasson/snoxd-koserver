@@ -141,7 +141,6 @@ public:
 	DWORD m_wBundle;	// Zone Item Max Count
 
 	SMDFile *m_smdFile;
-	CEbenezerDlg* m_pMain;
 };
 
 #endif // !defined(AFX_3DMAP_H__986E02B6_E5A3_43CF_B1D7_A7135551933D__INCLUDED_)

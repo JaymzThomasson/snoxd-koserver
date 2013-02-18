@@ -1,16 +1,7 @@
-// ServerDlg.h : header file
-//
-
-#if !defined(AFX_SERVERDLG_H__7E2A41F8_68A3_4C94_8A6E_7C80636869D3__INCLUDED_)
-#define AFX_SERVERDLG_H__7E2A41F8_68A3_4C94_8A6E_7C80636869D3__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-
 #pragma warning(disable : 4786)
 
-#include "IOCPort.h"
+#include "../shared/KOSocketMgr.h"
 #include "GameSocket.h"
 
 #include "MAP.h"
@@ -96,8 +87,9 @@ public:
 
 	void CheckAliveTest();
 	void DeleteUserList(int uid);
-	void DeleteAllUserList(int zone);
+	void DeleteAllUserList(CGameSocket *pSock = NULL);
 	int Send(char* pData, int length);
+	void SendCompressed(char* pData, int length);
 	void SendSystemMsg( char* pMsg, int type=0, int who=0 );
 	void ResetBattleZone();
 
@@ -159,19 +151,16 @@ public:
 
 	// sungyong 2002.05.23
 	BOOL			m_bFirstServerFlag;		// 서버가 처음시작한 후 게임서버가 붙은 경우에는 1, 붙지 않은 경우 0
-	short m_sSocketCount;		// GameServer와 처음접시 필요
-	short m_sReSocketCount;		// GameServer와 재접시 필요
-	float m_fReConnectStart;	// 처음 소켓이 도착한 시간
-	short m_sErrorSocketCount;  // 이상소켓 감시용
 	// ~sungyong 2002.05.23
 	BYTE  m_byBattleEvent;				   // 전쟁 이벤트 관련 플래그( 1:전쟁중이 아님, 0:전쟁중)
 	short m_sKillKarusNpc, m_sKillElmoNpc; // 전쟁동안에 죽은 npc숫자
 
-	int m_iYear, m_iMonth, m_iDate, m_iHour, m_iMin, m_iWeather, m_iAmount;
+	uint16	m_iYear, m_iMonth, m_iDate, m_iHour, m_iMin, m_iAmount;
+	uint8 m_iWeather;
 	BYTE	m_byNight;			// 밤인지,, 낮인지를 판단... 1:낮, 2:밤
 	BYTE    m_byTestMode;
 
-	CIOCPort m_Iocport;	
+	static KOSocketMgr<CGameSocket> s_socketMgr;
 
 private:
 	BYTE				m_byZone;
@@ -189,16 +178,11 @@ protected:
 	// Generated message map functions
 	//{{AFX_MSG(CServerDlg)
 	virtual BOOL OnInitDialog();
-	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg void OnTimer(UINT nIDEvent);
 	//}}AFX_MSG
-	afx_msg void OnGameServerLogin( WPARAM wParam );
 	DECLARE_MESSAGE_MAP()
 };
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_SERVERDLG_H__7E2A41F8_68A3_4C94_8A6E_7C80636869D3__INCLUDED_)
+extern CServerDlg * g_pMain;

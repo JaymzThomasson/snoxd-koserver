@@ -1,17 +1,7 @@
-// User.h: interface for the CUser class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_USER_H__1CC8CB68_CF95_4849_8E89_134826B1FAC2__INCLUDED_)
-#define AFX_USER_H__1CC8CB68_CF95_4849_8E89_134826B1FAC2__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#include "iocport.h"
+//#include "iocport.h"
 #include "MagicProcess.h"
-class CServerDlg;
 
 #include "extern.h"
 #include "../shared/STLMap.h"
@@ -22,15 +12,12 @@ class MAP;
 class CUser  
 {
 public:
-	CServerDlg* m_pMain;
-
-	CIOCPort* m_pIocport;	
 	CMagicProcess m_MagicProcess;
 
 	UserLogList	m_UserLogList;
 
 	char m_strUserID[MAX_ID_SIZE+1];	// 캐릭터의 이름
-	int		m_iUserId;					// User의 번호
+	short	m_iUserId;					// User의 번호
 	BYTE	m_bLive;					// 죽었니? 살았니?
 
 	float			m_curx;				// 현재 X 좌표
@@ -119,5 +106,3 @@ public:
 	CUser();
 	virtual ~CUser();
 };
-
-#endif // !defined(AFX_USER_H__1CC8CB68_CF95_4849_8E89_134826B1FAC2__INCLUDED_)

@@ -35,7 +35,6 @@ CRoomEvent::CRoomEvent()
 	m_iEndMaxZ = 0;
 	m_byCheck = 0;
 	m_byRoomType = 0;
-	m_pMain = (CServerDlg*) AfxGetApp()->GetMainWnd();
 
 	Initialize();
 }
@@ -72,7 +71,7 @@ void CRoomEvent::MainRoom( float fcurtime )
 		bRunCheck = RunEvent( event_num );
 		if( bRunCheck )	{
 			//wsprintf(notify, "** 알림 : [%d]방이 클리어 되어습니다. **", m_sRoomNumber);
-			//m_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
+			//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
 			m_byStatus = 3;
 		}
 	}
@@ -149,7 +148,7 @@ BOOL  CRoomEvent::RunEvent( int event_num )
 		pNpc = GetNpcPtr( nOption_1 );
 		if( pNpc )	{
 			pNpc->m_byChangeType = 3;	// 몬스터 출현해주세여...
-			pNpc->SetLive( &m_pMain->m_Iocport );
+			pNpc->SetLive();
 		}
 		else	{
 			TRACE("### RunEvent Error : 몬스터 출현 할 수 없당 = %d, logic=%d ###\n", nOption_1, m_byLogicNumber);
@@ -171,7 +170,7 @@ BOOL  CRoomEvent::RunEvent( int event_num )
 		}
 
 		//wsprintf(notify, "** 알림 : [%d] 문이 열립니다 **", m_sRoomNumber);
-		//m_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
+		//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
 
 		if( m_byCheck == m_byLogicNumber )	{	// 방이 클리어
 			return TRUE;
@@ -190,7 +189,7 @@ BOOL  CRoomEvent::RunEvent( int event_num )
 		bRetValue = CheckMonsterCount( nOption_1, nOption_2, 2 );
 
 		//wsprintf(notify, "** 알림 : [%d, %d] 몬스터 출현 **", nOption_1, nOption_2);
-		//m_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
+		//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
 
 		if( m_byCheck == m_byLogicNumber )	{	// 방이 클리어
 			return TRUE;
@@ -239,7 +238,7 @@ CNpc* CRoomEvent::GetNpcPtr( int sid )
 	for(int i=0 ; i<nMonster; i++ ) {
 		int nMonsterid = pIDList[i];
 		if( nMonsterid < 0 )	continue;
-		CNpc *pNpc = m_pMain->m_arNpc.GetData( nMonsterid );
+		CNpc *pNpc = g_pMain->m_arNpc.GetData( nMonsterid );
 		if( !pNpc )		continue;
 		if( pNpc->m_sSid == sid )	{
 			if(pIDList)	{
@@ -277,7 +276,7 @@ BOOL  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
 	LeaveCriticalSection( &g_region_critical );
 
 	for(int i=0 ; i<nMonster; i++ ) {
-		CNpc *pNpc = m_pMain->m_arNpc.GetData(pIDList[i]);
+		CNpc *pNpc = g_pMain->m_arNpc.GetData(pIDList[i]);
 		if( !pNpc )		continue;
 		if( type == 4 )	{
 			if( pNpc->m_byRegenType == 2 )	pNpc->m_byRegenType = 0;
@@ -342,7 +341,7 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 			break;
 		}
 
-		m_pMain->SendSystemMsg( notify, WAR_SYSTEM_CHAT, SEND_ALL);
+		g_pMain->SendSystemMsg( notify, WAR_SYSTEM_CHAT, SEND_ALL);
 
 		break;
 	case 2:							// 클리어 상태에서 클라이언트에 내려줄 내용와 적국으로 갈 수 있는 이벤트 존 열어주기
@@ -353,7 +352,7 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
 			SetByte( send_buff, BATTLE_MAP_EVENT_RESULT, send_index );
 			SetByte( send_buff, KARUS_ZONE, send_index );
-			m_pMain->Send( send_buff, send_index );
+			g_pMain->Send( send_buff, send_index );
 		}
 		else if( option2 == ELMORAD_ZONE )	{
 			::_LoadStringFromResource(IDS_ELMORAD_PATHWAY, buff);
@@ -362,10 +361,10 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
 			SetByte( send_buff, BATTLE_MAP_EVENT_RESULT, send_index );
 			SetByte( send_buff, ELMORAD_ZONE, send_index );
-			m_pMain->Send( send_buff, send_index );
+			g_pMain->Send( send_buff, send_index );
 		}
 
-		m_pMain->SendSystemMsg( notify, WAR_SYSTEM_CHAT, SEND_ALL);
+		g_pMain->SendSystemMsg( notify, WAR_SYSTEM_CHAT, SEND_ALL);
 
 		break;
 	case 3:							// 클리어 상태에서 클라이언트에 내려줄 내용와 승리팀을 알려준다.
@@ -373,13 +372,13 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
 			SetByte( send_buff, BATTLE_EVENT_RESULT, send_index );
 			SetByte( send_buff, KARUS_ZONE, send_index );
-			m_pMain->Send( send_buff, send_index );
+			g_pMain->Send( send_buff, send_index );
 		}
 		else if( option2 == ELMORAD_ZONE )	{
 			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
 			SetByte( send_buff, BATTLE_EVENT_RESULT, send_index );
 			SetByte( send_buff, ELMORAD_ZONE, send_index );
-			m_pMain->Send( send_buff, send_index );
+			g_pMain->Send( send_buff, send_index );
 		}
 		break;
 	}

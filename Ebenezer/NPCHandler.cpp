@@ -17,7 +17,7 @@ void CUser::ItemRepair(Packet & pkt)
 		if( slot >= HAVE_MAX ) goto fail_return;
 		if( m_pUserData->m_sItemArray[SLOT_MAX+slot].nNum != itemid ) goto fail_return;
 	}
-	pTable = m_pMain->GetItemPtr( itemid );
+	pTable = g_pMain->GetItemPtr( itemid );
 	if( !pTable ) goto fail_return;
 	durability = pTable->m_sDuration;
 	if( durability == 1 ) goto fail_return;
@@ -47,17 +47,17 @@ fail_return:
 void CUser::ClientEvent(Packet & pkt)
 {
 	// Ensure AI's loaded
-	if (!m_pMain->m_bPointCheckFlag)
+	if (!g_pMain->m_bPointCheckFlag)
 		return;
 
 	uint16 sNpcID = pkt.read<uint16>(), sEventID = 0;
-	CNpc *pNpc = m_pMain->m_arNpcArray.GetData(sNpcID);
+	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
 	if (pNpc == NULL)
 		return;
 	m_sEventNid = sNpcID;
 
 	// Get events for this zone
-	EVENT *pEvent = m_pMain->m_Event.GetData(getZoneID());
+	EVENT *pEvent = g_pMain->m_Event.GetData(getZoneID());
 	if (pEvent == NULL)
 		return;
 
@@ -207,7 +207,7 @@ BOOL CUser::RunNpcEvent(CNpc *pNpc, EXEC *pExec)	// This part executes all the '
 			EVENT* pEvent = NULL;
 			EVENT_DATA* pEventData = NULL;				
 
-			pEvent = m_pMain->m_Event.GetData(m_pUserData->m_bZone);		if(!pEvent)	break;
+			pEvent = g_pMain->m_Event.GetData(m_pUserData->m_bZone);		if(!pEvent)	break;
 			pEventData = pEvent->m_arEvent.GetData(pExec->m_ExecInt[0]);	if(!pEventData) break;
 
 			if( !CheckEventLogic(pEventData) )	break;
@@ -268,7 +268,7 @@ BOOL CUser::RunEvent(EVENT_DATA *pEventData)
 					EVENT* pEvent = NULL;
 					EVENT_DATA* pEventData = NULL;				
 
-					pEvent = m_pMain->m_Event.GetData(m_pUserData->m_bZone);
+					pEvent = g_pMain->m_Event.GetData(m_pUserData->m_bZone);
 					if(!pEvent)	break;
 
 					pEventData = pEvent->m_arEvent.GetData(pExec->m_ExecInt[0]);
@@ -347,8 +347,8 @@ void CUser::ClassChange(Packet & pkt)
 
 		// If nation discounts are enabled (1), and this nation has won the last war, get it half price.
 		// If global discounts are enabled (2), everyone can get it for half price.
-		if ((m_pMain->m_sDiscount == 1 && m_pMain->m_byOldVictory == getNation())
-			|| m_pMain->m_sDiscount == 2)
+		if ((g_pMain->m_sDiscount == 1 && g_pMain->m_byOldVictory == getNation())
+			|| g_pMain->m_sDiscount == 2)
 			money /= 2;
 
 		result << uint8(CHANGE_MONEY_REQ) << money;
@@ -407,7 +407,7 @@ void CUser::ClassChange(Packet & pkt)
 		// TO-DO: Move this somewhere better.
 		result.SetOpcode(WIZ_PARTY);
 		result << uint8(PARTY_CLASSCHANGE) << GetSocketID() << uint16(classcode);
-		m_pMain->Send_PartyMember(m_sPartyIndex, &result);
+		g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 	}
 }
 
@@ -419,7 +419,7 @@ void CUser::RecvSelectMsg(Packet & pkt)	// Receive menu reply from client.
 
 	// Get the event number that needs to be processed next.
 	int selectedEvent = m_iSelMsgEvent[bMenuIndex];
-	EVENT *pEvent = m_pMain->m_Event.GetData(m_pUserData->m_bZone);
+	EVENT *pEvent = g_pMain->m_Event.GetData(m_pUserData->m_bZone);
 	if (pEvent == NULL)	
 		goto fail_return;
 
@@ -480,14 +480,14 @@ void CUser::SelectMsg(EXEC *pExec)
 void CUser::NpcEvent(Packet & pkt)
 {
 	// Ensure AI is loaded first
-	if (!m_pMain->m_bPointCheckFlag)
+	if (!g_pMain->m_bPointCheckFlag)
 		return;	
 
 	Packet result;
 	uint8 bUnknown = pkt.read<uint8>();
 	uint16 sNpcID = pkt.read<uint16>();
 
-	CNpc *pNpc = m_pMain->m_arNpcArray.GetData(sNpcID);
+	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
 	if (pNpc == NULL)
 		return;
 
@@ -521,7 +521,7 @@ void CUser::NpcEvent(Packet & pkt)
 
 	case NPC_OFFICER: // this HAS to go.
 		result << uint16(0); // page 0
-		m_pMain->m_KnightsManager.AllKnightsList(this, result);
+		g_pMain->m_KnightsManager.AllKnightsList(this, result);
 		break;
 
 	case NPC_WAREHOUSE:
@@ -556,7 +556,7 @@ void CUser::ItemTrade(Packet & pkt)
 
 	if (isDead())
 	{
-		TRACE("### ItemTrade Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", m_pUserData->m_id, m_Sid, m_bResHpType, m_pUserData->m_sHp, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
+		TRACE("### ItemTrade Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", m_pUserData->m_id, GetSocketID(), m_bResHpType, m_pUserData->m_sHp, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
 		result = 0x01;
 		goto fail_return;
 	}
@@ -603,7 +603,7 @@ void CUser::ItemTrade(Packet & pkt)
 
 	if (isTrading())
 		goto fail_return;
-	pTable = m_pMain->GetItemPtr( itemid );
+	pTable = g_pMain->GetItemPtr( itemid );
 	if( !pTable ) {
 		result = 0x01;
 		goto fail_return;
@@ -619,12 +619,12 @@ void CUser::ItemTrade(Packet & pkt)
 	}
 
 	if( type == 0x01 ) {	// buy sequence
-		if( m_pMain->m_bPointCheckFlag == FALSE)	{
+		if( g_pMain->m_bPointCheckFlag == FALSE)	{
 			result = 0x01;
 			goto fail_return;
 		}	
 
-		pNpc = m_pMain->m_arNpcArray.GetData(npcid);
+		pNpc = g_pMain->m_arNpcArray.GetData(npcid);
 		if( !pNpc ) {
 			result = 0x01;
 			goto fail_return;
@@ -678,7 +678,7 @@ void CUser::ItemTrade(Packet & pkt)
 		else {
 			m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = 1;
 			m_pUserData->m_iGold -= pTable->m_iBuyPrice;
-			m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum = m_pMain->GenerateItemSerial();
+			m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum = g_pMain->GenerateItemSerial();
 		}
 
 		SendItemWeight();

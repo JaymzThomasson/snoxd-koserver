@@ -77,13 +77,13 @@ void CUser::MagicSystem( Packet & pkt )
 
 	if(tid >= NPC_BAND)
 	{
-		pMon = m_pMain->m_arNpcArray.GetData(tid);
+		pMon = g_pMain->m_arNpcArray.GetData(tid);
 		if( !pMon || pMon->m_NpcState == NPC_DEAD ) 
 			return;
 	}
 	else if( tid < MAX_USER )
 	{
-		pTargetUser = m_pMain->GetUserPtr(tid);
+		pTargetUser = g_pMain->GetUserPtr(tid);
 		if ( !pTargetUser )
 			return;
 	}
@@ -128,18 +128,18 @@ echo :
 
 	if (sid < MAX_USER)
 	{
-		m_pMain->Send_Region( &result, GetMap(), m_RegionX, m_RegionZ );
+		g_pMain->Send_Region( &result, GetMap(), m_RegionX, m_RegionZ );
 	}
 	else if ( sid >= NPC_BAND)
 	{ 
-		m_pMain->Send_Region( &result, pMon->GetMap(), pMon->m_sRegion_X, pMon->m_sRegion_Z );
+		g_pMain->Send_Region( &result, pMon->GetMap(), pMon->m_sRegion_X, pMon->m_sRegion_Z );
 	}
 }
 
 bool CUser::CheckSkillCooldown(uint32 magicid, time_t skill_received_time)
 {
 	std::map<uint32, time_t>::iterator it;
-	_MAGIC_TABLE* pMagic = m_pMain->m_MagictableArray.GetData( magicid );
+	_MAGIC_TABLE* pMagic = g_pMain->m_MagictableArray.GetData( magicid );
 	if( !pMagic ) //Return before processing anything as there is no skill with this ID. (When the all-wrapping check is created this can be removed)
 		return false;
 
@@ -173,13 +173,13 @@ void CUser::MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 
 	int16 damage = 0;
 
-	_MAGIC_TABLE* pMagic = m_pMain->m_MagictableArray.GetData( magicid ); //Checking if the skill exists has already happened.
+	_MAGIC_TABLE* pMagic = g_pMain->m_MagictableArray.GetData( magicid ); //Checking if the skill exists has already happened.
 
-	_MAGIC_TYPE1* pMagic_Type1 = m_pMain->m_Magictype1Array.GetData( magicid );
+	_MAGIC_TYPE1* pMagic_Type1 = g_pMain->m_Magictype1Array.GetData( magicid );
 	if( !pMagic_Type1 ) //Shouldn't be necessary unless there's a mismatch in the database.
 		return;
 
-	CUser* pTUser = m_pMain->GetUserPtr(tid);     // Get target info.
+	CUser* pTUser = g_pMain->GetUserPtr(tid);     // Get target info.
 	if (!pTUser || pTUser->isDead())
 		return;
 
@@ -221,7 +221,7 @@ void CUser::MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 		else
 			result << uint16(0);
 
-		m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
+		g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
 	}
 	return;
 }
@@ -233,15 +233,15 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 
 	vector<int> casted_member;
 
-	_MAGIC_TABLE* pMagic = pMagic = m_pMain->m_MagictableArray.GetData( magicid );
+	_MAGIC_TABLE* pMagic = pMagic = g_pMain->m_MagictableArray.GetData( magicid );
 
-	_MAGIC_TYPE4* pType = pType = m_pMain->m_Magictype4Array.GetData( magicid );
+	_MAGIC_TYPE4* pType = pType = g_pMain->m_Magictype4Array.GetData( magicid );
 	if (!pType)
 		return;
 
 	if (tid == -1) { //Means the source is targetting his whole party.
 		for (int i = 0 ; i < MAX_USER ; i++) { //This however, what the fuck? Definitely need to remember making this better when doing the party system!
-			CUser* pTUser = (CUser*)m_pMain->m_Iocport.m_SockArray[i];
+			CUser* pTUser = g_pMain->GetUnsafeUserPtr(i);
 			if( !pTUser || pTUser->m_bResHpType == USER_DEAD || pTUser->m_bAbnormalType == ABNORMAL_BLINKING) continue ;
 
 			//if (UserRegionCheck(sid, i, magicid, pType->bRadius, data1, data3)) 
@@ -254,14 +254,14 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 				<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
 
 			if (sid >= 0 && sid < MAX_USER) {
-				m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, NULL );
+				g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, NULL );
 			}
 			return;	
 		}
 	}
 	else //Means the target is another user
 	{
-		CUser* pTUser = m_pMain->GetUserPtr(tid);
+		CUser* pTUser = g_pMain->GetUserPtr(tid);
 		if (pTUser == NULL)
 			return;
 		
@@ -270,7 +270,7 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 
 	foreach (itr, casted_member)
 	{
-		CUser* pTUser = m_pMain->GetUserPtr(*itr) ;     // Get target info.  
+		CUser* pTUser = g_pMain->GetUserPtr(*itr) ;     // Get target info.  
 		if (!pTUser || pTUser->isDead()) continue;
 
 		if (pTUser->m_bType4Buff[pType->bBuffType - 1] == 2 && tid == -1) {		// Is this buff-type already casted on the player?
@@ -373,7 +373,7 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 		if (pTUser->m_sPartyIndex != -1 && pTUser->m_bType4Buff[pType->bBuffType - 1] == 1) {
 			Packet partypacket(WIZ_PARTY);
 			partypacket << PARTY_STATUSCHANGE << tid << uint8(2) << uint8(1);
-			m_pMain->Send_PartyMember(pTUser->m_sPartyIndex, &partypacket);
+			g_pMain->Send_PartyMember(pTUser->m_sPartyIndex, &partypacket);
 		}
 		pTUser->Send2AI_UserUpdateInfo();
 
@@ -382,9 +382,9 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 				<< data3 << uint16(pType->sDuration) << uint8(0) << uint16(pType->bSpeed);
 
 			if (sid >=0 && sid < MAX_USER)
-				m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, NULL);
+				g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, NULL);
 			else
-				m_pMain->Send_Region(&result, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL);
+				g_pMain->Send_Region(&result, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL);
 		}
 		result = 1;	
 		continue; 
@@ -402,9 +402,9 @@ fail_return:
 			result << uint16(0) << uint16(pType->bSpeed);
 
 			if (sid >= 0 && sid < MAX_USER)
-				m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, NULL);
+				g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, NULL);
 			else
-				m_pMain->Send_Region(&result, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL);
+				g_pMain->Send_Region(&result, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL);
 		}
 		
 		if (sid >= 0 && sid < MAX_USER) {
@@ -456,14 +456,14 @@ bool CUser::CanCast(uint32 magicid, uint16 sid, uint16 tid)
 	CNpc *pMon = NULL;
 	_MAGIC_TABLE *pMagic = NULL;
 
-	pMagic = m_pMain->m_MagictableArray.GetData( magicid );
+	pMagic = g_pMain->m_MagictableArray.GetData( magicid );
 	if(!pMagic)
 		return false;
 
 	if(tid < MAX_USER)
-		pTargetUser = m_pMain->GetUserPtr(tid);
+		pTargetUser = g_pMain->GetUserPtr(tid);
 	else if(tid >= NPC_BAND)
-		pMon = m_pMain->m_arNpcArray.GetData(tid);
+		pMon = g_pMain->m_arNpcArray.GetData(tid);
 
 	if(pMagic->iUseItem != 0 && pMagic->bType[0] != 5 && !CanUseItem(pMagic->iUseItem)) //The user does not meet the item's requirements or does not have any of said item.
 			return false;

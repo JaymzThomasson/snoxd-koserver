@@ -1,13 +1,4 @@
-// PathFind.h: interface for the CPathFind class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_PATHFIND_H__395FDD6E_C35A_43A2_BBB2_FCDCD17E8CE8__INCLUDED_)
-#define AFX_PATHFIND_H__395FDD6E_C35A_43A2_BBB2_FCDCD17E8CE8__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 class _PathNode {
 public:
@@ -26,8 +17,6 @@ public:
     _PathNode *NodePtr;
     STACK *NextStackPtr;
 };
-
-class CServerDlg;
 
 class CPathFind  
 {
@@ -53,11 +42,6 @@ protected:
 	LONG	m_lMapUse;	
 	_PathNode *m_pOpen, *m_pClosed;
 	STACK *m_pStack;
-//	int **m_pMap;
 	int *m_pMap;
 	CSize m_vMapSize;
-
-	CServerDlg* m_pMain;
 };
-
-#endif // !defined(AFX_PATHFIND_H__395FDD6E_C35A_43A2_BBB2_FCDCD17E8CE8__INCLUDED_)

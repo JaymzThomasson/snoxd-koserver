@@ -11,12 +11,21 @@ void CUser::VersionCheck(Packet & pkt)
 		return;
 	*/
 
-	result	<< uint8(0) << uint16(__VERSION) << m_Public_key 
+	// because of their sucky encryption method, 0 means it effectively won't be encrypted. 
+	// We don't want that happening...
+	uint64 publicKey = 0;
+	do
+	{
+		publicKey = (uint64)rand() << 32 | rand();
+	} while (publicKey == 0); 
+
+	m_crypto.SetPublicKey(publicKey);
+	result	<< uint8(0) << uint16(__VERSION) << m_crypto.GetPublicKey()
 			<< uint8(0); // 0 = success, 1 = prem error
 	Send(&result);
 
 	// Enable encryption
-	m_CryptionFlag = true;
+	EnableCrypto(m_crypto.GetPublicKey());
 }
 
 void CUser::LoginProcess(Packet & pkt)
@@ -28,16 +37,16 @@ void CUser::LoginProcess(Packet & pkt)
 		|| strPasswd.empty() || strPasswd.size() > MAX_PW_SIZE)
 		goto fail_return;
 
-	CUser *pUser = m_pMain->GetUserPtr(strAccountID.c_str(), TYPE_ACCOUNT);
+	CUser *pUser = g_pMain->GetUserPtr(strAccountID.c_str(), TYPE_ACCOUNT);
 	if (pUser && (pUser->GetSocketID() != GetSocketID()))
 	{
 		pUser->UserDataSaveToAgent();
-		pUser->CloseProcess();
+		pUser->Disconnect();
 		goto fail_return;
 	}
 
 	result << GetSocketID() << strAccountID << strPasswd;
-	m_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->m_LoggerSendQueue.PutData(&result);
 	m_strAccountID = strAccountID;
 	return;
 

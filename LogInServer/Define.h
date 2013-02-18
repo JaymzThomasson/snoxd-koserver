@@ -23,7 +23,7 @@
 // status
 #define STATE_CONNECTED			0X01
 #define STATE_DISCONNECTED		0X02
-#define STATE_GAMESTART			0x03
+#define GAME_STATE_INGAME			0x03
 
 // Socket type
 #define TYPE_ACCEPT				0x01

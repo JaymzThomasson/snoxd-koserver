@@ -61,10 +61,6 @@ CUser::~CUser()
 
 void CUser::Initialize()
 {
-	m_pMain = (CServerDlg*)AfxGetApp()->GetMainWnd();
-	m_pIocport = (CIOCPort*)&m_pMain->m_Iocport;
-
-	m_MagicProcess.m_pMain = m_pMain;
 	m_MagicProcess.m_pSrcUser = this;
 
 	memset(m_strUserID, 0, MAX_ID_SIZE+1);	// 캐릭터의 이름
@@ -116,7 +112,7 @@ void CUser::Initialize()
 
 void CUser::Attack(int sid, int tid)
 {
-	CNpc* pNpc = m_pMain->m_arNpc.GetData(tid-NPC_BAND);
+	CNpc* pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(pNpc == NULL)	return;
 	if(pNpc->m_NpcState == NPC_DEAD) return;
 	if(pNpc->m_iHP == 0) return;
@@ -127,7 +123,7 @@ void CUser::Attack(int sid, int tid)
 		pNpc->m_Target.x = m_curx;
 		pNpc->m_Target.y = m_cury;
 		pNpc->m_Target.failCount = 0;
-		pNpc->Attack(m_pIocport);
+		pNpc->Attack();
 	//	return;
 	}	*/
 
@@ -137,16 +133,16 @@ void CUser::Attack(int sid, int tid)
 
 	// 명중이면 //Damage 처리 ----------------------------------------------------------------//
 	nFinalDamage = GetDamage(tid);
-	if( m_pMain->m_byTestMode )		nFinalDamage = 3000;	// sungyong test
+	if( g_pMain->m_byTestMode )		nFinalDamage = 3000;	// sungyong test
 		
 	// Calculate Target HP	 -------------------------------------------------------//
 	short sOldNpcHP = pNpc->m_iHP;
 
-	if(pNpc->SetDamage(0, nFinalDamage, m_strUserID, m_iUserId + USER_BAND, m_pIocport) == FALSE)
+	if(pNpc->SetDamage(0, nFinalDamage, m_strUserID, m_iUserId + USER_BAND) == FALSE)
 	{
 		// Npc가 죽은 경우,,
 		pNpc->SendExpToUserList(); // 경험치 분배!!
-		pNpc->SendDead(m_pIocport);
+		pNpc->SendDead();
 		SendAttackSuccess(tid, ATTACK_TARGET_DEAD, nFinalDamage, pNpc->m_iHP);
 
 	//	CheckMaxValue(m_dwXP, 1);		// 몹이 죽을때만 1 증가!	
@@ -214,29 +210,12 @@ void CUser::SendMagicAttackResult(int tuid, BYTE result, short sDamage, short sH
 }
 
 // sungyong 2002.05.22
-void CUser::SendAll(TCHAR *pBuf, int nLength)
+void CUser::SendAll(char *pBuf, int nLength)
 {
-	if(nLength <= 0 || nLength >= SOCKET_BUFF_SIZE) return;
-
-	if( m_iUserId < 0 || m_iUserId >= MAX_USER)	{
-		TRACE("#### User SendAll Fail : point fail ,, nid=%d, name=%s ####\n", m_iUserId, m_strUserID);
+	if (nLength <= 0 || nLength >= SOCKET_BUFF_SIZE) 
 		return;
-	}
 
-	if( m_pIocport == NULL) return;
-
-	SEND_DATA* pNewData = NULL;
-	pNewData = new SEND_DATA;
-	if(pNewData == NULL) return;
-
-	pNewData->sLength = nLength;
-	::CopyMemory(pNewData->pBuf, pBuf, nLength);
-
-	EnterCriticalSection( &(m_pIocport->m_critSendData) );
-	m_pIocport->m_SendDataList.push_back( pNewData );
-	LeaveCriticalSection( &(m_pIocport->m_critSendData) );
-
-	PostQueuedCompletionStatus( m_pIocport->m_hSendIOCP, 0, 0, NULL );
+	g_pMain->s_socketMgr.SendAll(pBuf, nLength);
 }
 // ~sungyong 2002.05.22
 
@@ -452,7 +431,7 @@ short CUser::GetDamage(int tid, int magicid)
 
 	if (tid < NPC_BAND || tid > INVALID_BAND)	return damage;
 	CNpc* pNpc = NULL;
-	pNpc = m_pMain->m_arNpc.GetData(tid-NPC_BAND);
+	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(pNpc == NULL)		return damage;
 	if(pNpc->m_tNpcType == NPC_ARTIFACT || pNpc->m_tNpcType == NPC_PHOENIX_GATE || pNpc->m_tNpcType == NPC_GATE_LEVER || pNpc->m_tNpcType == NPC_SPECIAL_GATE ) return damage;
 	
@@ -464,11 +443,11 @@ short CUser::GetDamage(int tid, int magicid)
 	HitB = (int)((Hit * 200) / (Ac + 240)) ;	// 새로운 공격식의 B
 
 	if( magicid > 0 )	{	 // Skill Hit.
-		pTable = m_pMain->m_MagictableArray.GetData( magicid );     // Get main magic table.
+		pTable = g_pMain->m_MagictableArray.GetData( magicid );     // Get main magic table.
 		if( !pTable ) return -1; 
 		
 		if (pTable->bType[0] == 1)	{	// SKILL HIT!
-			pType1 = m_pMain->m_Magictype1Array.GetData( magicid );	    // Get magic skill table type 1.
+			pType1 = g_pMain->m_Magictype1Array.GetData( magicid );	    // Get magic skill table type 1.
 			if( !pType1 ) return -1;     	                                
 
 			if(pType1->bHitType)	{  // Non-relative hit.
@@ -491,7 +470,7 @@ short CUser::GetDamage(int tid, int magicid)
 			Hit = (short)(HitB * (pType1->sHit / 100.0f));
 		}
 		else if (pTable->bType[0] == 2)   { // ARROW HIT!
-			pType2 = m_pMain->m_Magictype2Array.GetData( magicid );	    // Get magic skill table type 1.
+			pType2 = g_pMain->m_Magictype2Array.GetData( magicid );	    // Get magic skill table type 1.
 			if( !pType2 ) return -1; 
 			
 			if(pType2->bHitType == 1 || pType2->bHitType == 2 )   {  // Non-relative/Penetration hit.
@@ -556,7 +535,7 @@ short CUser::GetMagicDamage(int damage, short tid)
 	short temp_damage = 0;
 
 	CNpc* pNpc = NULL;
-	pNpc = m_pMain->m_arNpc.GetData(tid-NPC_BAND);
+	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(!pNpc) return damage;
 	
 	// RIGHT HAND!!! by Yookozuna
@@ -896,7 +875,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 	for(int i = 0 ; i < total_mon; i++ ) {
 		int nid = pNpcIDList[i];
 		if( nid < NPC_BAND ) continue;
-		pNpc = (CNpc*)m_pMain->m_arNpc.GetData(nid - NPC_BAND);
+		pNpc = (CNpc*)g_pMain->m_arNpc.GetData(nid - NPC_BAND);
 
 		if( pNpc != NULL && pNpc->m_NpcState != NPC_DEAD)	{
 			if( m_bNation == pNpc->m_byGroup ) continue;
@@ -904,7 +883,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 			fDis = pNpc->GetDistance(vStart, vEnd);
 
 			if(fDis <= fRadius)	{	// NPC가 반경안에 있을 경우...
-				pNpc->ChangeTarget(1004, this, m_pIocport);
+				pNpc->ChangeTarget(1004, this);
 			}	
 		}
 	}
@@ -931,7 +910,7 @@ void CUser::WriteUserLog()
 			type, (*itr)->byLevel, (*itr)->strUserID);
 
 		EnterCriticalSection( &g_LogFileWrite );
-		m_pMain->m_UserLogFile.Write(string, string.GetLength());
+		g_pMain->m_UserLogFile.Write(string, string.GetLength());
 		LeaveCriticalSection( &g_LogFileWrite );
 	}
 

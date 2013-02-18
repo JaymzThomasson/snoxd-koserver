@@ -1,5 +1,7 @@
 #pragma once
 
+#include <WinBase.h>
+
 class Mutex
 {
 public:

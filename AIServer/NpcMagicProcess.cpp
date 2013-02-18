@@ -21,7 +21,6 @@ static char THIS_FILE[]=__FILE__;
 
 CNpcMagicProcess::CNpcMagicProcess()
 {
-	m_pMain = NULL;
 	m_pSrcNpc = NULL;
 	m_bMagicState = NONE;
 }
@@ -31,7 +30,7 @@ CNpcMagicProcess::~CNpcMagicProcess()
 
 }
 
-void CNpcMagicProcess::MagicPacket(char *pBuf, int len, CIOCPort* pIOCP)
+void CNpcMagicProcess::MagicPacket(char *pBuf, int len)
 {
 	int index = 0, send_index = 0, magicid = 0, sid = -1, tid = -1, data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0;
 	char send_buff[128];
@@ -41,7 +40,7 @@ void CNpcMagicProcess::MagicPacket(char *pBuf, int len, CIOCPort* pIOCP)
 	if( command == MAGIC_FAIL ) {			    // Client indicates that magic failed. Just send back packet.
 		SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
 		SetString( send_buff, pBuf, len-1, send_index );	// len ==> include WIZ_MAGIC_PROCESS command byte. 
-		//m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
+		//g_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
 		m_bMagicState = NONE;
 		return;
 	}
@@ -133,7 +132,7 @@ void CNpcMagicProcess::MagicPacket(char *pBuf, int len, CIOCPort* pIOCP)
 	else if( command == MAGIC_CASTING ) {
 		SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
 		SetString( send_buff, pBuf, len-1, send_index );	// len ==> include WIZ_MAGIC_PROCESS command byte. 
-		m_pSrcNpc->SendAll(pIOCP, send_buff, send_index);
+		m_pSrcNpc->SendAll(send_buff, send_index);
 	}
 }
 
@@ -148,18 +147,18 @@ _MAGIC_TABLE* CNpcMagicProcess::IsAvailable(int magicid, int tid, BYTE type )
 	char send_buff[128];
 	if( !m_pSrcNpc ) return FALSE;
 
-	pTable = m_pMain->m_MagictableArray.GetData( magicid );     // Get main magic table.
+	pTable = g_pMain->m_MagictableArray.GetData( magicid );     // Get main magic table.
 	if( !pTable ) goto fail_return;            
 
 	if( tid >= 0 && tid < MAX_USER )     // Compare morals between source and target character.       
 	{
-		pUser = m_pMain->GetUserPtr(tid);
+		pUser = g_pMain->GetUserPtr(tid);
 		if( !pUser || pUser->m_bLive == USER_DEAD ) goto fail_return;
 		moral = pUser->m_bNation;
 	}
 	else if( tid >= NPC_BAND )     // Compare morals between source and target NPC.            
 	{
-		pNpc = m_pMain->m_arNpc.GetData(tid - NPC_BAND);
+		pNpc = g_pMain->m_arNpc.GetData(tid - NPC_BAND);
 		if( !pNpc || pNpc->m_NpcState == NPC_DEAD ) goto fail_return;
 		moral = pNpc->m_byGroup;
 	}
@@ -240,10 +239,10 @@ fail_return:    // In case the magic failed.
 	SetShort( send_buff, 0, send_index );
 
 /*	if( m_bMagicState == CASTING )
-		m_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
+		g_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
 	else m_pSrcUser->Send( send_buff, send_index );	*/
 
-	m_pSrcNpc->SendAll(&m_pMain->m_Iocport, send_buff, send_index);
+	m_pSrcNpc->SendAll(send_buff, send_index);
 
 	m_bMagicState = NONE;
 
@@ -269,20 +268,20 @@ void CNpcMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, 
 	int dexpoint = 0;
 
 	_MAGIC_TABLE* pMagic = NULL;
-	pMagic = m_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
+	pMagic = g_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
 	if( !pMagic ) return; 
 
 	if(tid == -1)	{	// 지역 공격,, 몬스터의 지역공격은 게임서버에서 처리한다.. 유저들을 상대로..
 		goto packet_send;
 	}
 
-	pNpc = m_pMain->m_arNpc.GetData(tid-NPC_BAND);
+	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(pNpc == NULL || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
 		result = 0;
 		goto packet_send;
 	}
 	
-	pType = m_pMain->m_Magictype3Array.GetData( magicid );      // Get magic skill table type 3.
+	pType = g_pMain->m_Magictype3Array.GetData( magicid );      // Get magic skill table type 3.
 	if( !pType ) return;
 	
 	damage = GetMagicDamage(tid, pType->sFirstDamage, pType->bAttribute, dexpoint);
@@ -293,17 +292,17 @@ void CNpcMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, 
 	if (pType->bDuration == 0)    { // Non-Durational Spells.
 		if (pType->bDirectType == 1) {    // Health Point related !
 			if(damage > 0)	{
-				result = pNpc->SetHMagicDamage(damage, &m_pMain->m_Iocport);
+				result = pNpc->SetHMagicDamage(damage);
 			}
 			else	{
 				damage = abs(damage);
 /*				if(pType->bAttribute == 3)   attack_type = 3; // 기절시키는 마법이라면.....
 				else attack_type = magicid;
 
-				if(pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_strUserID, m_pSrcUser->m_iUserId + USER_BAND, m_pSrcUser->m_pIocport) == FALSE)	{
+				if(pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_strUserID, m_pSrcUser->m_iUserId + USER_BAND) == FALSE)	{
 					// Npc가 죽은 경우,,
 					pNpc->SendExpToUserList(); // 경험치 분배!!
-					pNpc->SendDead(m_pSrcUser->m_pIocport);
+					pNpc->SendDead();
 					m_pSrcUser->SendAttackSuccess(tid, MAGIC_ATTACK_TARGET_DEAD, damage, pNpc->m_iHP, MAGIC_ATTACK);
 				}
 				else	{
@@ -330,7 +329,7 @@ packet_send:
 		SetShort( send_buff, moral, send_index );
 		SetShort( send_buff, 0, send_index );
 		SetShort( send_buff, 0, send_index );
-		m_pSrcNpc->SendAll(&m_pMain->m_Iocport, send_buff, send_index);
+		m_pSrcNpc->SendAll(send_buff, send_index);
 	}
 }
 
@@ -380,7 +379,7 @@ short CNpcMagicProcess::GetMagicDamage(int tid, int total_hit, int attribute, in
 	if( tid < NPC_BAND || tid > INVALID_BAND) return 0;     // Check if target id is valid.
 
 	CNpc* pNpc = NULL;              
-	pNpc = m_pMain->m_arNpc.GetData(tid-NPC_BAND);
+	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(pNpc == NULL || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	return 0;
 	if(pNpc->m_tNpcType == NPC_ARTIFACT || pNpc->m_tNpcType == NPC_PHOENIX_GATE || pNpc->m_tNpcType == NPC_GATE_LEVER || pNpc->m_tNpcType == NPC_SPECIAL_GATE ) return 0;
 	

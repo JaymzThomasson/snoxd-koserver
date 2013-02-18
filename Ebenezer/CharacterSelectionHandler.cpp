@@ -12,7 +12,7 @@ void CUser::SelNationToAgent(Packet & pkt)
 	}
 
 	result << GetSocketID() << m_strAccountID << nation; 
-	m_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::RecvSelNation(Packet & pkt)
@@ -25,7 +25,7 @@ void CUser::AllCharInfoToAgent()
 {
 	Packet result(WIZ_ALLCHAR_INFO_REQ);
 	result << GetSocketID() << m_strAccountID; 
-	m_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::RecvAllCharInfoReq(Packet & pkt)
@@ -56,7 +56,7 @@ void CUser::ChangeHair(Packet & pkt)
 	pkt >> bOpcode >> strUserID >> bFace >> nHair;
 
 	result << GetSocketID() << bOpcode << m_strAccountID << strUserID << bFace << nHair;
-	m_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::RecvChangeHair(Packet & pkt)
@@ -84,7 +84,7 @@ void CUser::NewCharToAgent(Packet & pkt)
 	pkt	>> bCharIndex >> strUserID >> bRace >> sClass >> bFace >> nHair
 		>> str >> sta >> dex >> intel >> cha;
 
-	_CLASS_COEFFICIENT* p_TableCoefficient = m_pMain->m_CoefficientArray.GetData(sClass);
+	_CLASS_COEFFICIENT* p_TableCoefficient = g_pMain->m_CoefficientArray.GetData(sClass);
 
 	if (!IsValidName(strUserID.c_str()))
 		errorCode = NEWCHAR_INVALID_NAME;
@@ -106,7 +106,7 @@ void CUser::NewCharToAgent(Packet & pkt)
 	result	<< GetSocketID() << m_strAccountID << bCharIndex 
 			<< strUserID << bRace << sClass << bFace << nHair
 			<< str << sta << dex << intel << cha;
-	m_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::RecvNewChar(Packet & pkt)
@@ -134,7 +134,7 @@ void CUser::DelCharToAgent(Packet & pkt)
 
 	// Send packet to Aujard
 	result	<< GetSocketID() << m_strAccountID << bCharIndex << strUserID << strSocNo;
-	m_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::RecvDeleteChar(Packet & pkt)
@@ -148,10 +148,10 @@ void CUser::RecvDeleteChar(Packet & pkt)
 	if (bResult == 1 && sKnights != 0)
 	{
 		// TO-DO: Synchronise this system better. Much better. This is dumb.
-		m_pMain->m_KnightsManager.RemoveKnightsUser(sKnights, (char *)strCharID.c_str());
+		g_pMain->m_KnightsManager.RemoveKnightsUser(sKnights, (char *)strCharID.c_str());
 		result.SetOpcode(UDP_KNIGHTS_PROCESS);
 		result << uint8(KNIGHTS_WITHDRAW) << sKnights << strCharID;
-		m_pMain->Send_UDP_All(&result, m_pMain->m_nServerGroup == 0 ? 0 : 1);
+		g_pMain->Send_UDP_All(&result, g_pMain->m_nServerGroup == 0 ? 0 : 1);
 	}
 
 
@@ -171,15 +171,15 @@ void CUser::SelCharToAgent(Packet & pkt)
 		|| strUserID.empty() || strUserID.size() > MAX_ID_SIZE
 		||strAccountID != m_strAccountID)
 	{
-		Close();
+		Disconnect();
 		return;
 	}
 
 	// Disconnect any currently logged in sessions.
-	CUser *pUser = m_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+	CUser *pUser = g_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
 	if (pUser && (pUser->GetSocketID() != GetSocketID()))
 	{
-		pUser->Close();
+		pUser->Disconnect();
 
 		// And reject the login attempt (otherwise we'll probably desync char data)
 		result << uint8(0);
@@ -188,7 +188,7 @@ void CUser::SelCharToAgent(Packet & pkt)
 	}
 
 	result << GetSocketID() << m_strAccountID << strUserID << bInit;
-	m_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::SelectCharacter(Packet & pkt)
@@ -198,7 +198,7 @@ void CUser::SelectCharacter(Packet & pkt)
 
 	if (isBanned())
 	{
-		Close();
+		Disconnect();
 		return;
 	}
 
@@ -208,13 +208,13 @@ void CUser::SelectCharacter(Packet & pkt)
 	if (bResult == 0 || !getZoneID()) 
 		goto fail_return;
 
-	m_pMap = m_pMain->GetZoneByID(getZoneID());
+	m_pMap = g_pMain->GetZoneByID(getZoneID());
 	if (GetMap() == NULL)
 		goto fail_return;
 
-	if (m_pMain->m_nServerNo != GetMap()->m_nServerNo)
+	if (g_pMain->m_nServerNo != GetMap()->m_nServerNo)
 	{
-		_ZONE_SERVERINFO *pInfo = m_pMain->m_ServerArray.GetData(GetMap()->m_nServerNo);
+		_ZONE_SERVERINFO *pInfo = g_pMain->m_ServerArray.GetData(GetMap()->m_nServerNo);
 		if (pInfo == NULL) 
 			goto fail_return;
 
@@ -222,22 +222,22 @@ void CUser::SelectCharacter(Packet & pkt)
 		return;
 	}
 
-	if (m_pMain->m_byBattleOpen == NO_BATTLE && getFame() == COMMAND_CAPTAIN)
+	if (g_pMain->m_byBattleOpen == NO_BATTLE && getFame() == COMMAND_CAPTAIN)
 		m_pUserData->m_bFame = CHIEF;
 
-	if ((getZoneID() != getNation() && getZoneID() < 3 && !m_pMain->m_byBattleOpen)
-		|| (getZoneID() == ZONE_BATTLE && (m_pMain->m_byBattleOpen != NATION_BATTLE))
-		|| (getZoneID() == ZONE_SNOW_BATTLE && (m_pMain->m_byBattleOpen != SNOW_BATTLE))
-		|| (getZoneID() == ZONE_FRONTIER && m_pMain->m_byBattleOpen))
+	if ((getZoneID() != getNation() && getZoneID() < 3 && !g_pMain->m_byBattleOpen)
+		|| (getZoneID() == ZONE_BATTLE && (g_pMain->m_byBattleOpen != NATION_BATTLE))
+		|| (getZoneID() == ZONE_SNOW_BATTLE && (g_pMain->m_byBattleOpen != SNOW_BATTLE))
+		|| (getZoneID() == ZONE_FRONTIER && g_pMain->m_byBattleOpen))
 	{
 		NativeZoneReturn();
-		Close();
+		Disconnect();
 		return;
 	}
 
 	SetLogInInfoToDB(bInit);
 
-	result << getZoneID() << GetSPosX() << GetSPosZ() << GetSPosY() << m_pMain->m_byOldVictory;
+	result << getZoneID() << GetSPosX() << GetSPosZ() << GetSPosY() << g_pMain->m_byOldVictory;
 	m_bSelectedCharacter = true;
 	Send(&result);
 
@@ -250,16 +250,16 @@ void CUser::SelectCharacter(Packet & pkt)
 	}
 	else if (m_pUserData->m_bKnights != 0)
 	{
-		CKnights* pKnights = m_pMain->GetClanPtr( m_pUserData->m_bKnights );
+		CKnights* pKnights = g_pMain->GetClanPtr( m_pUserData->m_bKnights );
 		if (pKnights != NULL)
 		{
-			m_pMain->m_KnightsManager.SetKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id );
+			g_pMain->m_KnightsManager.SetKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id );
 		}
 		else if (getZoneID() > 2)
 		{
 			result.Initialize(WIZ_KNIGHTS_PROCESS);
 			result << uint8(KNIGHTS_LIST_REQ) << GetSocketID() << m_pUserData->m_bKnights;
-			m_pMain->m_LoggerSendQueue.PutData(&result);
+			g_pMain->m_LoggerSendQueue.PutData(&result);
 		}
 	}
 	return;
@@ -271,45 +271,38 @@ fail_return:
 void CUser::SendServerChange(char *ip, uint8 bInit)
 {
 	Packet result(WIZ_SERVER_CHANGE);
-	result << ip << uint16(_LISTEN_PORT) << bInit << getZoneID() << m_pMain->m_byOldVictory;
+	result << ip << uint16(_LISTEN_PORT) << bInit << getZoneID() << g_pMain->m_byOldVictory;
 	Send(&result);
 }
 
 // happens on character selection
 void CUser::SetLogInInfoToDB(BYTE bInit)
 {
-	int addrlen = 20;
-	char strClientIP[20];
-	struct sockaddr_in addr;
-
-	_ZONE_SERVERINFO *pInfo = m_pMain->m_ServerArray.GetData(m_pMain->m_nServerNo);
+	_ZONE_SERVERINFO *pInfo = g_pMain->m_ServerArray.GetData(g_pMain->m_nServerNo);
 	if (pInfo == NULL) 
 	{
-		Close();
+		Disconnect();
 		return;
 	}
 
-	getpeername(m_Socket, (struct sockaddr*)&addr, &addrlen );
-	strcpy_s( strClientIP, sizeof(strClientIP),inet_ntoa(addr.sin_addr) );
-
 	Packet result(WIZ_LOGIN_INFO);
 	result	<< GetSocketID() << m_strAccountID << m_pUserData->m_id 
-			<< pInfo->strServerIP << uint16(_LISTEN_PORT) << strClientIP 
+			<< pInfo->strServerIP << uint16(_LISTEN_PORT) << GetRemoteIP() 
 			<< bInit;
-	m_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 void CUser::RecvLoginInfo(Packet & pkt)
 {
 	int8 bResult = pkt.read<uint8>();
 	if (bResult < 0)
-		Close();
+		Disconnect();
 }
 
 // This packet actually contains the char name after the opcode
 void CUser::GameStart(Packet & pkt)
 {
-	if (GetState() == STATE_GAMESTART)
+	if (GetState() == GAME_STATE_INGAME)
 		return;
 
 	uint8 opcode = pkt.read<uint8>();
@@ -317,9 +310,9 @@ void CUser::GameStart(Packet & pkt)
 	if (opcode == 1)
 	{
 		SendMyInfo();
-		m_pMain->UserInOutForMe(this);
-		m_pMain->MerchantUserInOutForMe(this);
-		m_pMain->NpcInOutForMe(this);
+		g_pMain->UserInOutForMe(this);
+		g_pMain->MerchantUserInOutForMe(this);
+		g_pMain->NpcInOutForMe(this);
 		SendNotice();
 		SendTimeStatus();
 
@@ -330,7 +323,7 @@ void CUser::GameStart(Packet & pkt)
 	}
 	else if (opcode == 2)
 	{
-		m_State = STATE_GAMESTART;
+		m_state = GAME_STATE_INGAME;
 		UserInOut(USER_REGENE);
 
 		if (!m_pUserData->m_bCity && m_pUserData->m_sHp <= 0)
@@ -348,7 +341,7 @@ void CUser::GameStart(Packet & pkt)
 			else if (level < 1)
 				level = 1;
 
-			m_iLostExp = (m_pMain->GetExpByLevel(level) * (m_pUserData->m_bCity % 10) / 100);
+			m_iLostExp = (g_pMain->GetExpByLevel(level) * (m_pUserData->m_bCity % 10) / 100);
 			if (((m_pUserData->m_bCity % 10) / 100) == 1)
 				m_iLostExp /= 2;
 		}

@@ -12,14 +12,10 @@
 #include "define.h"
 #include "gamedefine.h"
 
-class CEbenezerDlg;
 class CUser;
-
 class CKnights  
 {
 public:
-	CEbenezerDlg *m_pMain; // TEMPORARY. Only used for clan lookups.
-
 	int		m_sIndex;
 	BYTE    m_byFlag;			// 1 : Clan, 2 : Knights
 	BYTE	m_byNation;			// nation

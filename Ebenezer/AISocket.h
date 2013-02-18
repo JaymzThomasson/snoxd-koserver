@@ -1,60 +1,48 @@
-// AISocket.h: interface for the CAISocket class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_AISOCKET_H__DA918EB3_F688_48B4_A48B_87B773A83CA6__INCLUDED_)
-#define AFX_AISOCKET_H__DA918EB3_F688_48B4_A48B_87B773A83CA6__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#include "IOCPSocket2.h"
+#include "../shared/KOSocket.h"
 #include "MagicProcess.h"
 
-class CEbenezerDlg;
-class CAISocket  : public CIOCPSocket2  
+class CAISocket : public KOSocket 
 {
-private:
-	CEbenezerDlg* m_pMain;
-	
-	BOOL m_bAllNpcInfoRecv;
-	CMagicProcess m_MagicProcess;
-
 public:
-	int m_iZoneNum;
+	CAISocket(uint16 socketID, SocketMgr * mgr) : KOSocket(socketID, mgr, 0, 65536, 65536), m_bHasConnected(false) {}
 
-	CAISocket(int zonenum);
-	virtual void HandlePacket(char *pBuf, int len);
-	virtual ~CAISocket();
+	__forceinline bool IsReconnecting() { return m_bHasConnected; }
+
+	virtual void OnConnect();
+	virtual bool HandlePacket(Packet & pkt);
 
 	void Initialize();
-	int GetZoneNumber() { return m_iZoneNum; };
-	void Parsing( int len, char* pData );
-	void CloseProcess();
 
 	void InitEventMonster(int index);
-	// Packet recv
-	void LoginProcess( char* pBuf );
-	void RecvCheckAlive(char* pBuf);
-	void RecvServerInfo(char* pBuf);
-	void RecvNpcInfoAll(char* pBuf);
-	void RecvNpcMoveResult(char* pBuf);
-	void RecvNpcAttack(char* pBuf);
-	void RecvMagicAttackResult(char* pBuf);
-	void RecvNpcInfo(char* pBuf);
-	void RecvUserHP(char* pBuf);
-	void RecvUserExp(char* pBuf);
-	void RecvSystemMsg(char* pBuf);
-	void RecvNpcGiveItem(char* pBuf);
-	void RecvUserFail(char* pBuf);
-	void RecvGateDestory(char* pBuf);
-	void RecvNpcDead(char* pBuf);
-	void RecvNpcInOut(char* pBuf);
-	void RecvBattleEvent(char* pBuf);
-	void RecvNpcEventItem( char* pBuf );
-	void RecvGateOpen( char* pBuf );
 
+	void LoginProcess(Packet & pkt);
+	void RecvCheckAlive(Packet & pkt);
+	void RecvServerInfo(Packet & pkt);
+	void RecvNpcInfoAll(Packet & pkt);
+	void RecvNpcMoveResult(Packet & pkt);
+	void RecvNpcAttack(Packet & pkt);
+	void RecvMagicAttackResult(Packet & pkt);
+	void RecvNpcInfo(Packet & pkt);
+	void RecvUserHP(Packet & pkt);
+	void RecvUserExp(Packet & pkt);
+	void RecvSystemMsg(Packet & pkt);
+	void RecvNpcGiveItem(Packet & pkt);
+	void RecvUserFail(Packet & pkt);
+	void RecvGateDestory(Packet & pkt);
+	void RecvNpcDead(Packet & pkt);
+	void RecvNpcInOut(Packet & pkt);
+	void RecvBattleEvent(Packet & pkt);
+	void RecvNpcEventItem(Packet & pkt);
+	void RecvGateOpen(Packet & pkt);
+	void RecvCompressed(Packet & pkt);
+
+	virtual void OnDisconnect();
+	virtual ~CAISocket() {}
+
+private:
+	BOOL m_bAllNpcInfoRecv;
+	CMagicProcess m_MagicProcess;
+	bool m_bHasConnected;
 };
-
-#endif // !defined(AFX_AISOCKET_H__DA918EB3_F688_48B4_A48B_87B773A83CA6__INCLUDED_)

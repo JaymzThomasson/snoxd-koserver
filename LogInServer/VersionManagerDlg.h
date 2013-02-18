@@ -8,17 +8,18 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "define.h"
-#include "Iocport.h"
 #include "DBProcess.h"
 #include "VersionManager.h"
 #include "../shared/STLMap.h"
 #include "../shared/Ini.h"
+#include "User.h"
 
 #include <vector>
 #include <string>
 #include <algorithm>
 #include <sstream>
+
+#include "../shared/KOSocketMgr.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CVersionManagerDlg dialog
@@ -46,7 +47,7 @@ public:
 
 	afx_msg void OnBnClickedExit();
 
-	static CIOCPort	m_Iocport;
+	static KOSocketMgr<LoginSession> s_socketMgr;
 
 private:
 	void GetInfoFromIni();
@@ -88,6 +89,8 @@ private:
 public:
 	CDBProcess	m_DBProcess;
 };
+
+extern CVersionManagerDlg *g_pMain;
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.

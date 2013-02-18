@@ -1,14 +1,10 @@
-// VersionManagerDlg.cpp : implementation file
-//
-
 #include "stdafx.h"
 #include "VersionManagerDlg.h"
-#include "IOCPSocket2.h"
-#include "User.h"
 
 using namespace std;
 
-CIOCPort	CVersionManagerDlg::m_Iocport;
+KOSocketMgr<LoginSession> CVersionManagerDlg::s_socketMgr;
+CVersionManagerDlg *g_pMain = NULL;
 
 /////////////////////////////////////////////////////////////////////////////
 // CVersionManagerDlg dialog
@@ -57,17 +53,7 @@ BOOL CVersionManagerDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	
-	m_Iocport.Init( MAX_USER, CLIENT_SOCKSIZE, 1 );
-	
-	for (int i=0; i<MAX_USER; i++)
-		m_Iocport.m_SockArrayInActive[i] = new CUser;
-
-	if (!m_Iocport.Listen(_LISTEN_PORT))
-	{
-		AfxMessageBox("Failed to listen on server port.");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
+	g_pMain = this;
 
 	GetInfoFromIni();
 	
@@ -92,7 +78,15 @@ BOOL CVersionManagerDlg::OnInitDialog()
 	m_OutputList.AddString( version );
 
 	InitPacketHandlers();
-	::ResumeThread(m_Iocport.m_hAcceptThread);
+
+	if (!s_socketMgr.Listen(_LISTEN_PORT, MAX_USER))
+	{
+		AfxMessageBox("Failed to listen on server port.");
+		AfxPostQuitMessage(0);
+		return FALSE;
+	}
+
+	s_socketMgr.RunServer();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -253,10 +247,8 @@ HCURSOR CVersionManagerDlg::OnQueryDragIcon()
 
 BOOL CVersionManagerDlg::PreTranslateMessage(MSG* pMsg) 
 {
-	if( pMsg->message == WM_KEYDOWN ) {
-		if( pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE )
-			return TRUE;
-	}
+	if (pMsg->message == WM_KEYDOWN && (pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE))
+		return TRUE;
 	
 	return CDialog::PreTranslateMessage(pMsg);
 }

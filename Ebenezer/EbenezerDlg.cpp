@@ -41,30 +41,20 @@ using namespace std;
 #define AWARD_GOLD          100000
 #define AWARD_EXP			5000
 
-// Cryption
-#if __VERSION >= 1700
-T_KEY		g_private_key = 0x1207500120128966;
-#elif __VERSION >= 1298 && __VERSION < 1453
-T_KEY		g_private_key = 0x1234567890123456;
-#else
-T_KEY		g_private_key = 0x1257091582190465;
-#endif
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
 
-CRITICAL_SECTION g_serial_critical;
-CRITICAL_SECTION g_region_critical;
-CRITICAL_SECTION g_LogFile_critical;
-CIOCPort	CEbenezerDlg::m_Iocport;
+CEbenezerDlg * g_pMain = NULL;
+CRITICAL_SECTION g_serial_critical, g_region_critical, g_LogFile_critical;
+
+KOSocketMgr<CUser> CEbenezerDlg::s_socketMgr;
+ClientSocketMgr<CAISocket> CEbenezerDlg::s_aiSocketMgr;
 
 WORD	g_increase_serial = 1;
 BYTE	g_serverdown_flag = FALSE;
-
-DWORD WINAPI	ReadQueueThread(LPVOID lp);
 
 DWORD WINAPI ReadQueueThread(LPVOID lp)
 {
@@ -129,7 +119,7 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 				if (pUser->m_pUserData->m_id[0] != 0)
 				{
 					TRACE("Logout Strange...%s\n", pUser->m_pUserData->m_id);
-					pUser->Close();
+					pUser->Disconnect();
 				}
 				break;
 			case WIZ_FRIEND_PROCESS:
@@ -192,7 +182,8 @@ CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
 	m_byBattleOpen = NO_BATTLE;
 	m_byOldBattleOpen = NO_BATTLE;
 	m_bFirstServerFlag = FALSE;
-	m_bPointCheckFlag = FALSE;
+	// m_bPointCheckFlag = FALSE;
+	m_bPointCheckFlag = TRUE;
 
 	m_nServerNo = 0;
 	m_nServerGroupNo = 0;
@@ -237,15 +228,16 @@ BOOL CEbenezerDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
+	g_pMain = this;
+
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	m_sZoneCount = 0;
-	m_sSocketCount = 0;
 	m_sErrorSocketCount = 0;
-	m_KnightsManager.m_pMain = this;
+
 	// sungyong 2002.05.23
 	m_sSendSocket = 0;						
 	m_bFirstServerFlag = FALSE;	
@@ -273,26 +265,17 @@ BOOL CEbenezerDlg::OnInitDialog()
 
 	GetTimeFromIni();
 	
-	m_Iocport.Init( MAX_USER, CLIENT_SOCKSIZE, 4 );
-	
-	for(int i=0; i<MAX_USER; i++) {
-		m_Iocport.m_SockArrayInActive[i] = new CUser;
-	}
-
-	_ZONE_SERVERINFO *pInfo = NULL;
-	pInfo = m_ServerArray.GetData( m_nServerNo );
-	if( !pInfo ) {
-		AfxMessageBox("No Listen Port!!");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-
-	if (!m_Iocport.Listen(_LISTEN_PORT))
+	//m_Iocport.Init( MAX_USER, CLIENT_SOCKSIZE, 4 );
+	if (!s_socketMgr.Listen(_LISTEN_PORT, MAX_USER))
 	{
-		AfxMessageBox("FAIL TO CREATE LISTEN STATE", MB_OK);
+		AfxMessageBox("Failed to listen on server port.");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
+
+	// Bit tacky, but there's no reason we can't reuse the existing completion port for our AI socket
+	s_aiSocketMgr.SetCompletionPort(s_socketMgr.GetCompletionPort());
+	s_aiSocketMgr.InitSessions(1);
 
 	if( !InitializeMMF() ) {
 		AfxMessageBox("Main Shared Memory Initialize Fail");
@@ -331,7 +314,7 @@ BOOL CEbenezerDlg::OnInitDialog()
 	DWORD id;
 	m_hReadQueueThread = ::CreateThread( NULL, 0, ReadQueueThread, (LPVOID)this, 0, &id);
 
-	m_pUdpSocket = new CUdpSocket(this);
+	m_pUdpSocket = new CUdpSocket();
 	if( m_pUdpSocket->CreateSocket() == false ) {
 		AfxMessageBox("Udp Socket Create Fail");
 		AfxPostQuitMessage(0);
@@ -344,7 +327,7 @@ BOOL CEbenezerDlg::OnInitDialog()
 	InitServerCommands();
 	CUser::InitChatCommands();
 
-	UserAcceptThread();
+	s_socketMgr.RunServer();
 
 	AddToList("Game server started : %02d/%02d/%04d %d:%02d\r\n", cur.GetDay(), cur.GetMonth(), cur.GetYear(), cur.GetHour(), cur.GetMinute());
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -524,12 +507,6 @@ BOOL CEbenezerDlg::DestroyWindow()
 	return CDialog::DestroyWindow();
 }
 
-void CEbenezerDlg::UserAcceptThread()
-{
-	// User Socket Accept
-	::ResumeThread( m_Iocport.m_hAcceptThread );
-}
-
 CString CEbenezerDlg::GetServerResource(int nResourceID)
 {
 	_SERVER_RESOURCE *pResource = m_ServerResourceArray.GetData(nResourceID);
@@ -597,15 +574,8 @@ CUser* CEbenezerDlg::GetUserPtr(const char *userid, NameType type)
 	return NULL;
 }
 
-CUser * CEbenezerDlg::GetUserPtr(int sid)
-{
-	if (sid < 0 || sid >= MAX_USER)
-		return NULL;
-
-	return GetUnsafeUserPtr(sid);
-}
-
-CUser       * CEbenezerDlg::GetUnsafeUserPtr(int sid)  { return (CUser *)m_Iocport.m_SockArray[sid]; }
+CUser		* CEbenezerDlg::GetUserPtr(int sid) { return s_socketMgr[sid]; }
+CUser       * CEbenezerDlg::GetUnsafeUserPtr(int sid)  { return GetUserPtr(sid); }
 CKnights    * CEbenezerDlg::GetClanPtr(uint16 sClanID) { return m_KnightsArray.GetData(sClanID); }
 _ITEM_TABLE * CEbenezerDlg::GetItemPtr(uint32 nItemID) { return m_ItemtableArray.GetData(nItemID); }
 
@@ -675,29 +645,7 @@ void CEbenezerDlg::OnTimer(UINT nIDEvent)
 	switch( nIDEvent ) {
 	case GAME_TIME:
 		UpdateGameTime();
-		{	// AIServer Socket Alive Check Routine
-			for (int i=0; i<MAX_AI_SOCKET; i++)
-			{
-				CAISocket *pAISock = m_AISocketArray.GetData( i );
-				if( pAISock && pAISock->GetState() == STATE_DISCONNECTED )
-				{
-					if (!AISocketConnect( i, 1 ))
-						break;
-				}
-				else if( !pAISock )
-				{
-					if (!AISocketConnect( i, 1 ))
-						break;
-				}
-				else 
-					count++;
-			}
-
-			if(count <= 0)	{	
-				DeleteAllNpcList();
-			}
-			// sungyong~ 2002.05.23
-		}
+		// AIServerConnect();
 		break;
 	case ALIVE_TIME:
 		CheckAliveUser();
@@ -724,68 +672,50 @@ int CEbenezerDlg::GetAIServerPort()
 }
 
 // sungyong 2002.05.22
-BOOL CEbenezerDlg::AIServerConnect()
+void CEbenezerDlg::AIServerConnect()
 {
-	m_Ini.GetString("AI_SERVER", "IP", "127.0.0.1", m_AIServerIP, sizeof(m_AIServerIP));
+	// Are there any (note: we only use 1 now) idle/disconnected sessions?
+	SessionMap & sessMap = s_aiSocketMgr.GetIdleSessionMap();
 
-	for (int i = 0; i < MAX_AI_SOCKET; i++)
+	// If so, then try to reconnect them.
+	if (!sessMap.empty())
 	{
-		if( !AISocketConnect( i ) ) 
+		int port = GetAIServerPort();
+
+		// Copy the map (should only be 1 socket anyway) to avoid breaking the iterator
+		SessionMap tmp = sessMap;
+
+		// Attempt reconnecting to the server
+		foreach (itr, tmp)
 		{
-			foreach_stlmap (itr, m_AISocketArray)
-			{
-				if (itr->second == NULL)
-					continue;
+			CAISocket *pSock = static_cast<CAISocket *>(itr->second);
+			bool bReconnecting = pSock->IsReconnecting();
+			if (!pSock->Connect(m_AIServerIP, port)) // couldn't connect... let's leave you alone for now
+				continue;
 
-				itr->second->CloseProcess();
-			}
-			m_AISocketArray.DeleteAllData();
+			// Connected! Now send the connection packet.
+			Packet result(AI_SERVER_CONNECT);
+			result << bReconnecting;
+			pSock->Send(&result);
 
-			AddToList("Failed to connect to AI server (%s:%d) - %d", m_AIServerIP, GetAIServerPort(), i);
-			
-#ifndef _DEBUG
-			AfxMessageBox("AI Server Connect Fail!!");
-#endif
-			return FALSE;
+			TRACE("**** AISocket Connect Success!! , server = %s:%d ****\n", pSock->GetRemoteIP().c_str(), pSock->GetRemotePort());
 		}
-	}
 
-	return TRUE;
+		// This check seems redundant, but it isn't: AISocketConnect() should change the map.
+		// We're deliberately checking after we've attempted to reconnect.
+		// The idle session(s) should be removed, if they're still unable to connect... reset the server's NPCs.
+		if (!sessMap.empty())
+			DeleteAllNpcList();
+	}
+	s_aiSocketMgr.ReleaseLock();
 }
-
-BOOL CEbenezerDlg::AISocketConnect(int zone, int flag)
-{
-	CAISocket* pAISock = m_AISocketArray.GetData( zone );
-	if( pAISock ) {
-		if( pAISock->GetState() != STATE_DISCONNECTED )
-			return TRUE;
-		m_AISocketArray.DeleteData( zone );
-	}
-
-	pAISock = new CAISocket(zone);
-	if (!pAISock->Create()
-		|| !pAISock->Connect(&m_Iocport, m_AIServerIP, GetAIServerPort()))
-	{
-		delete pAISock;
-		return FALSE;
-	}
-
-	Packet result(AI_SERVER_CONNECT, uint8(zone));
-	result << uint8(flag == 1 ? 1 : 0);
-	pAISock->Send(&result);
-	m_AISocketArray.PutData( zone, pAISock );
-
-	TRACE("**** AISocket Connect Success!! ,, zone = %d ****\n", zone);
-	return TRUE;
-}
-// ~sungyong 2002.05.22
 
 void CEbenezerDlg::Send_All(char *pBuf, int len, CUser* pExceptUser, int nation )
 {
 	for (int i = 0; i < MAX_USER; i++)
 	{
 		CUser * pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART || (nation != 0 && nation != pUser->getNation()))
+		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != GAME_STATE_INGAME || (nation != 0 && nation != pUser->getNation()))
 			continue;
 
 		pUser->Send(pBuf, len);
@@ -797,7 +727,7 @@ void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 na
 	for (int i = 0; i < MAX_USER; i++)
 	{
 		CUser * pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART || (nation != 0 && nation != pUser->getNation()))
+		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != GAME_STATE_INGAME || (nation != 0 && nation != pUser->getNation()))
 			continue;
 
 		pUser->Send(pkt);
@@ -822,7 +752,7 @@ void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUse
 	foreach_stlmap (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr->second);
-		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART)
+		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != GAME_STATE_INGAME)
 			continue;
 
 		pUser->Send(pkt);
@@ -922,7 +852,7 @@ void CEbenezerDlg::Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z
 	foreach_stlmap (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr->second);
-		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != STATE_GAMESTART)
+		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != GAME_STATE_INGAME)
 			continue;
 
 		if (sqrt(pow((pUser->m_pUserData->m_curx - ref_x), 2) + pow((pUser->m_pUserData->m_curz - ref_z), 2)) < 32)
@@ -967,30 +897,7 @@ void CEbenezerDlg::Send_KnightsMember(int index, Packet *pkt)
 
 void CEbenezerDlg::Send_AIServer(Packet *pkt)
 {
-	int send_size = 0, old_send_socket = 0;
-
-	for (int i = 0; i < MAX_AI_SOCKET; i++)
-	{
-		CAISocket *pSocket = m_AISocketArray.GetData( i );
-		if (pSocket == NULL)
-		{
-			if (++m_sSendSocket >= MAX_AI_SOCKET)
-				m_sSendSocket = 0;
-
-			continue;
-		}
-
-		if (i == m_sSendSocket)
-		{
-			int send_size = pSocket->Send(pkt);
-			old_send_socket = m_sSendSocket;
-			if (++m_sSendSocket >= MAX_AI_SOCKET)	
-				m_sSendSocket = 0;
-
-			if (send_size != 0)
-				return;
-		}
-	}
+	s_aiSocketMgr.SendAll(pkt);
 }
 
 BOOL CEbenezerDlg::InitializeMMF()
@@ -1022,13 +929,10 @@ BOOL CEbenezerDlg::InitializeMMF()
 
 	m_bMMFCreate = bCreate;
 
-	for (int i = 0; i < MAX_USER; i++)
-	{
-		CUser* pUser = (CUser*)m_Iocport.m_SockArrayInActive[i];
-		if (pUser)
-			pUser->m_pUserData = (_USER_DATA*)(m_lpMMFile + i * sizeof(_USER_DATA));
-	}
-
+	SessionMap & sessMap = s_socketMgr.GetIdleSessionMap();
+	foreach (itr, sessMap)
+		static_cast<CUser *>(itr->second)->m_pUserData = (_USER_DATA *)(m_lpMMFile + itr->second->GetSocketID() * sizeof(_USER_DATA));
+	s_socketMgr.ReleaseLock();
 	return TRUE;
 }
 
@@ -1206,6 +1110,8 @@ void CEbenezerDlg::GetTimeFromIni()
 		}
 	}
 
+	m_Ini.GetString("AI_SERVER", "IP", "127.0.0.1", m_AIServerIP, sizeof(m_AIServerIP));
+
 	SetTimer( GAME_TIME, 6000, NULL );
 	SetTimer( ALIVE_TIME, 34000, NULL );
 }
@@ -1341,7 +1247,7 @@ void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Pac
 		CUser *pUser = GetUserPtr(*itr->second);
 		if (pUser == NULL || 
 			pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z ||
-			pUser->GetState() != STATE_GAMESTART)
+			pUser->GetState() != GAME_STATE_INGAME)
 			continue;
 
 		pkt << uint8(0) << pUser->GetSocketID();
@@ -1365,7 +1271,7 @@ void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, int region_x, int region_z, P
 		CUser *pUser = GetUserPtr(*itr->second);
 		if (pUser == NULL || 
 			pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z ||
-			pUser->GetState() != STATE_GAMESTART)
+			pUser->GetState() != GAME_STATE_INGAME)
 			continue;
 
 		pkt << pUser->GetSocketID();
@@ -1408,7 +1314,7 @@ void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, int region_x, int regio
 		CUser *pUser = GetUserPtr(*itr->second);
 		if (pUser == NULL 
 			|| pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z 
-			|| pUser->GetState() != STATE_GAMESTART
+			|| pUser->GetState() != GAME_STATE_INGAME
 			|| !pUser->isMerchanting())
 			continue;
 
@@ -1618,12 +1524,9 @@ BOOL CEbenezerDlg::LoadBlockNameList()
 
 void CEbenezerDlg::SendAllUserInfo()
 {
-	Packet result(AG_SERVER_INFO, uint8(SERVER_INFO_START));
-	uint8 count = 0;
-	Send_AIServer(&result);
-
-	result.Initialize(AG_USER_INFO_ALL);
-	result << uint8(0); // placeholder for user count
+	Packet result(AG_USER_INFO_ALL);
+	uint16 count = 0;
+	result << count; // placeholder for user count
 	const int tot = 20;
 
 	for (int i = 0; i < MAX_USER; i++)
@@ -1666,10 +1569,6 @@ void CEbenezerDlg::SendAllUserInfo()
 	}
 
 	LeaveCriticalSection( &g_region_critical );
-
-	result.Initialize(AG_SERVER_INFO);
-	result << uint8(SERVER_INFO_END);
-	Send_AIServer(&result);
 
 	TRACE("** SendAllUserInfo() **\n");
 }
@@ -1717,7 +1616,7 @@ void CEbenezerDlg::KillUser(const char *strbuff)
 
 	CUser* pUser = GetUserPtr(strbuff, TYPE_CHARACTER);
 	if (pUser != NULL)
-		pUser->Close();
+		pUser->Disconnect();
 }
 
 CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
@@ -1745,7 +1644,7 @@ void CEbenezerDlg::WithdrawUserOut()
 	for (int i = 0; i < MAX_USER; i++)
 	{
 		CUser *pUser = GetUnsafeUserPtr(i);
-		if (pUser != NULL && pUser->GetState() == STATE_GAMESTART
+		if (pUser != NULL && pUser->GetState() == GAME_STATE_INGAME
 			&& pUser->m_pUserData->m_bZone == pUser->m_pUserData->m_bNation
 			&& pUser->GetMap() != NULL)
 			pUser->ZoneChange(pUser->GetMap()->m_nZoneNumber, pUser->GetMap()->m_fInitX, pUser->GetMap()->m_fInitZ);
@@ -1759,12 +1658,12 @@ void CEbenezerDlg::AliveUserCheck()
 	for (int i = 0; i < MAX_USER; i++)
 	{
 		CUser * pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART) 
+		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME) 
 			continue;
 
 		for ( int k = 0 ; k < MAX_TYPE3_REPEAT ; k++ ) {
 			if( (currenttime - pUser->m_fHPLastTime[k]) > 300 ) {
-				pUser->Close();
+				pUser->Disconnect();
 				break;
 			}
 		}
@@ -2099,18 +1998,20 @@ int CEbenezerDlg::GetKnightsGrade(int nPoints)
 
 void CEbenezerDlg::CheckAliveUser()
 {
-	for (int i = 0; i < MAX_USER; i++)
+	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
 	{
-		CUser *pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART)
+		CUser *pUser = static_cast<CUser *>(itr->second);
+		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME)
 			continue;
 
 		if (pUser->m_sAliveCount++ > 3)
 		{
-			pUser->Close();
+			pUser->Disconnect();
 			DEBUG_LOG_FILE("User dropped due to inactivity - char=%s", pUser->m_pUserData->m_id);
 		}
 	}
+	s_socketMgr.ReleaseLock();
 }
 
 int CEbenezerDlg::KickOutAllUsers()
@@ -2121,15 +2022,15 @@ int CEbenezerDlg::KickOutAllUsers()
 	for (int i = 0; i < MAX_USER; i++)
 	{
 		pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser->GetState() == STATE_DISCONNECTED)
+		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME)
 			continue;
 
 		BYTE state = pUser->GetState();
-		pUser->CloseProcess();
+		pUser->Disconnect();
 
 		// Only delay (for saving)if they're logged in, this is awful... 
 		// but until we do away with the shared memory system, it'll overflow the queue...
-		if (state == STATE_GAMESTART)
+		if (state == GAME_STATE_INGAME)
 		{
 			count++;
 			Sleep(50);
@@ -2171,7 +2072,7 @@ void CEbenezerDlg::KickOutZoneUsers(short zone)
 	for (int i = 0; i < MAX_USER; i++)
 	{
 		CUser * pTUser = GetUnsafeUserPtr(i);     
-		if (pTUser == NULL || pTUser->GetState() != STATE_GAMESTART) 
+		if (pTUser == NULL || pTUser->GetState() != GAME_STATE_INGAME) 
 			continue;
 
 		if (pTUser->m_pUserData->m_bZone == zone) 	// Only kick out users in requested zone.
@@ -2206,7 +2107,7 @@ void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser 
 	for (int i = 0; i < MAX_USER; i++)
 	{
 		CUser * pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART || pUser == pExceptUser 
+		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME || pUser == pExceptUser 
 			|| (nation != 0 && nation != pUser->m_pUserData->m_bNation))
 			continue;
 
@@ -2318,7 +2219,7 @@ next_row:
 	for (int i = 0; i < MAX_USER; i++)
 	{
 		CUser *pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART)
+		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME)
 			continue;
 
 		if (pUser->m_pUserData->m_bNation == KARUS)
@@ -2341,7 +2242,7 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 	for (int i = 0; i < MAX_USER; i++)
 	{
 		CUser * pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART || pUser->getZoneID() != ZONE_BATTLE)
+		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME || pUser->getZoneID() != ZONE_BATTLE)
 			continue;
 
 		if (pUser->getNation() == KARUS)

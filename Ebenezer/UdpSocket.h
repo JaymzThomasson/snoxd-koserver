@@ -26,7 +26,7 @@ public:
 	int  SendUDPPacket(char* strAddress, char* pBuf, int len); // PENDING DEPRECATION
 	int SendUDPPacket(char* strAddress, Packet *pkt);
 	bool CreateSocket();
-	CUdpSocket(CEbenezerDlg* pMain=NULL);
+	CUdpSocket();
 	virtual ~CUdpSocket();
 
 	SOCKET m_hUDPSocket;
@@ -35,7 +35,6 @@ public:
 
 	HANDLE m_hUdpThread;
 	char	m_pRecvBuf[8192];
-	CEbenezerDlg* m_pMain;
 };
 
 #endif // !defined(AFX_UDPSOCKET_H__E53802D9_5A8C_47B6_9B3B_12D2DDDACD92__INCLUDED_)

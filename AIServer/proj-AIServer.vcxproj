@@ -160,7 +160,11 @@
     <ClCompile Include="..\shared\database\NpcPosSet.cpp" />
     <ClCompile Include="..\shared\database\NpcTableSet.cpp" />
     <ClCompile Include="..\shared\Ini.cpp" />
+    <ClCompile Include="..\shared\JvCryption.cpp" />
+    <ClCompile Include="..\shared\KOSocket.cpp" />
     <ClCompile Include="..\shared\lzf.cpp" />
+    <ClCompile Include="..\shared\Socket.cpp" />
+    <ClCompile Include="..\shared\SocketMgr.cpp" />
     <ClCompile Include="GameSocket.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -168,18 +172,6 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="global.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="IOCPort.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="IOCPSocket2.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -228,12 +220,6 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Party.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="PartyUser.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -298,13 +284,18 @@
     <ClInclude Include="..\shared\database\NpcTableSet.h" />
     <ClInclude Include="..\shared\database\ZoneInfoSet.h" />
     <ClInclude Include="..\shared\Ini.h" />
+    <ClInclude Include="..\shared\JvCryption.h" />
+    <ClInclude Include="..\shared\KOSocket.h" />
+    <ClInclude Include="..\shared\KOSocketMgr.h" />
+    <ClInclude Include="..\shared\ListenSocket.h" />
     <ClInclude Include="..\shared\lzf.h" />
+    <ClInclude Include="..\shared\Socket.h" />
+    <ClInclude Include="..\shared\SocketDefines.h" />
+    <ClInclude Include="..\shared\SocketMgr.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Extern.h" />
     <ClInclude Include="GameSocket.h" />
     <ClInclude Include="global.h" />
-    <ClInclude Include="IOCPort.h" />
-    <ClInclude Include="IOCPSocket2.h" />
     <ClInclude Include="MagicProcess.h" />
     <ClInclude Include="MAP.h" />
     <ClInclude Include="Npc.h" />
@@ -314,7 +305,6 @@
     <ClInclude Include="NpcThread.h" />
     <ClInclude Include="Packet.h" />
     <ClInclude Include="Party.h" />
-    <ClInclude Include="PartyUser.h" />
     <ClInclude Include="PathFind.h" />
     <ClInclude Include="Region.h" />
     <ClInclude Include="RoomEvent.h" />

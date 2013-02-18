@@ -1,15 +1,6 @@
-// Npc.h: interface for the CNpc class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_NPC_H__6077F7AF_6166_463A_AA80_FBF218781BC6__INCLUDED_)
-#define AFX_NPC_H__6077F7AF_6166_463A_AA80_FBF218781BC6__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#include "iocport.h"
+//#include "iocport.h"
 #include "../N3Base/My_3DStruct.h"
 #include "Map.h"
 #include "PathFind.h"
@@ -114,7 +105,6 @@ struct _TargetHealer
 };
 
 class MAP;
-class CServerDlg;
 
 /*
      ** Repent AI Server 작업시 참고 사항 **
@@ -125,7 +115,6 @@ class CNpc
 {
 public:
 
-	CServerDlg* m_pMain;
 	CNpcMagicProcess m_MagicProcess;
 
 	_Target	m_Target;				// 공격할 유저 저장,,
@@ -372,27 +361,27 @@ public:
 	void  FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int type=0);
 	//void  FindFriendRegion(int x, int z, MAP* pMap, int type=0);
 	BOOL IsCloseTarget(CUser *pUser, int nRange);
-	void ToTargetMove(CIOCPort* pIOCP, CUser* pUser);
-	int SendDead(CIOCPort* pIOCP, int type = 1);			// Npc Dead
+	void ToTargetMove(CUser* pUser);
+	int SendDead(int type = 1);			// Npc Dead
 	void SendExpToUserList();								// User 경험치 분배..
-	BOOL SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid, CIOCPort* pIOCP);	// Npc의 데미지 계산..
-	BOOL SetHMagicDamage(int nDamage, CIOCPort* pIOCP);	// Npc의 데미지 계산..
+	BOOL SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid);	// Npc의 데미지 계산..
+	BOOL SetHMagicDamage(int nDamage);	// Npc의 데미지 계산..
 	int GetDefense();										// Npc의 방어값..
-	void ChangeTarget(int nAttackType, CUser *pUser, CIOCPort* pIOCP);
-	void ChangeNTarget(CNpc *pNpc, CIOCPort* pIOCP);
+	void ChangeTarget(int nAttackType, CUser *pUser);
+	void ChangeNTarget(CNpc *pNpc);
 	int GetFinalDamage(CUser *pUser, int type = 1);
 	int GetNFinalDamage(CNpc *pNpc);
 	BYTE GetHitRate(float rate);
 	BOOL ResetPath();
 	BOOL GetTargetPos(float& x, float& z);
 	BOOL IsChangePath(int nStep = 1);
-	int Attack(CIOCPort* pIOCP);
-	int LongAndMagicAttack(CIOCPort* pIOCP);
-	int TracingAttack(CIOCPort* pIOCP);
+	int Attack();
+	int LongAndMagicAttack();
+	int TracingAttack();
 	int GetTargetPath(int option = 0);
 	int	GetPartyDamage(int iNumber);
 	int IsCloseTarget(int nRange, int Flag=0);
-	BOOL StepMove(int nStep, CIOCPort* pIOCP);
+	BOOL StepMove(int nStep);
 	BOOL StepNoPathMove(int nStep);
 	BOOL IsMovingEnd();
 	BOOL IsMovable(float x, float z);
@@ -405,19 +394,19 @@ public:
 	BOOL IsPathFindCheck(float fDistance);						// 패스 파인드를 할것인지를 체크하는 루틴..
 	void IsNoPathFind(float fDistance);						// 패스 파인드를 하지 않고 공격대상으로 가는 루틴..
 	BOOL IsInExpRange(CUser* pUser);
-	void GiveNpcHaveItem(CIOCPort* pIOCP);		// NPC 가 가진 아이템을 떨군다
+	void GiveNpcHaveItem();		// NPC 가 가진 아이템을 떨군다
 
-	void NpcLive(CIOCPort* pIOCP);
-	void NpcFighting(CIOCPort* pIOCP);
-	void NpcTracing(CIOCPort* pIOCP);
-	void NpcAttacking(CIOCPort* pIOCP);
-	void NpcMoving(CIOCPort* pIOCP);
-	void NpcSleeping(CIOCPort* pIOCP);
-	void NpcFainting(CIOCPort* pIOCP, float currenttime);
-	void NpcHealing(CIOCPort* pIOCP);
+	void NpcLive();
+	void NpcFighting();
+	void NpcTracing();
+	void NpcAttacking();
+	void NpcMoving();
+	void NpcSleeping();
+	void NpcFainting(float currenttime);
+	void NpcHealing();
 	void NpcStanding();
-	void NpcBack(CIOCPort* pIOCP);
-	BOOL SetLive(CIOCPort* pIOCP);
+	void NpcBack();
+	BOOL SetLive();
 
 	BOOL IsInRange(int nX, int nZ);
 	BOOL RandomMove();				//
@@ -426,14 +415,14 @@ public:
 	int GetNearPathPoint();			//
 
 	// Packet Send부분..
-	void SendAll(CIOCPort* pIOCP, TCHAR *pBuf, int nLength);
-	void SendAttackSuccess(CIOCPort* pIOCP, BYTE byResult, int tuid, short sDamage, int nHP=0, BYTE byFlag = 0, short sAttack_type=1);
+	void SendAll(char *pBuf, int nLength);
+	void SendAttackSuccess(BYTE byResult, int tuid, short sDamage, int nHP=0, BYTE byFlag = 0, short sAttack_type=1);
 	void SendNpcInfoAll(char *temp_send, int &index, int count);	// game server에 npc정보를 전부 전송...
 
 	// Inline Function
 	BOOL SetUid(float x, float z, int id);
 
-	void Dead(CIOCPort* pIOCP, int iDeadType = 0);
+	void Dead(int iDeadType = 0);
 	BOOL FindEnemy();
 	BOOL CheckFindEnermy();
 	int FindEnemyRegion();
@@ -443,7 +432,7 @@ public:
 	void NpcTrace(TCHAR *pMsg);
 
 	int GetDir(float x1, float z1, float x2, float z2);
-	void NpcMoveEnd(CIOCPort* pIOCP);
+	void NpcMoveEnd();
 
 	inline float RandomGenf(float max, float min);
 	//__Vector3 MyFunc(__Vector3 vCur, __Vector3 vDir, float fYDegree, float fDistance);
@@ -458,20 +447,18 @@ public:
 	int  PathFind(CPoint start, CPoint end, float fDistance);
 	BOOL GetUserInView();	// Npc의 가시 거리안에 User가 있는지를 판단
 	BOOL GetUserInViewRange(int x, int z);
-	void MoveAttack(CIOCPort* pIOCP);
-	void HpChange(CIOCPort* pIOCP);
+	void MoveAttack();
+	void HpChange();
 	void MSpChange(int type, int amount);
 	void ItemWoreOut( int type, int damage );
 	int	 ItemProdution(int item_number);
 	int  GetItemGrade(int item_grade);
 	int  GetItemCodeNumber(int level, int item_type);
 	int  GetWeaponItemCodeNumber(int item_type);
-	void DurationMagic_4(CIOCPort* pIOCP, float currenttime);
-	void DurationMagic_3(CIOCPort* pIOCP, float currenttime);
+	void DurationMagic_4(float currenttime);
+	void DurationMagic_3(float currenttime);
 	void ChangeMonsterInfomation(int iChangeType);
 	int  GetPartyExp( int party_level, int man, int nNpcExp );
 	void ChangeAbility(int iChangeType);
-	BOOL Teleport(CIOCPort* pIOCP);
+	BOOL Teleport();
 };
-
-#endif // !defined(AFX_NPC_H__6077F7AF_6166_463A_AA80_FBF218781BC6__INCLUDED_)

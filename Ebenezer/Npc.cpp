@@ -23,7 +23,7 @@ extern CRITICAL_SECTION g_region_critical;
 
 CNpc::CNpc()
 {
-
+	Initialize();
 }
 
 CNpc::~CNpc()
@@ -33,8 +33,6 @@ CNpc::~CNpc()
 
 void CNpc::Initialize()
 {
-	m_pMain = (CEbenezerDlg*)AfxGetApp()->GetMainWnd();
-
 	m_sNid = -1;				// NPC (서버상의)일련번호
 	m_sSid = 0;
 	m_pMap = NULL;
@@ -82,12 +80,12 @@ void CNpc::MoveResult(float xpos, float ypos, float zpos, float speed)
 	RegisterRegion();
 
 	result << GetID() << GetSPosX() << GetSPosZ() << GetSPosY() << uint16(speed * 10); 
-	m_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
+	g_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
 }
 
 void CNpc::NpcInOut(BYTE Type, float fx, float fz, float fy)
 {
-	C3DMap *pMap = m_pMain->GetZoneByID(getZoneID());
+	C3DMap *pMap = g_pMain->GetZoneByID(getZoneID());
 	if (pMap == NULL)
 		return;
 
@@ -108,12 +106,12 @@ void CNpc::NpcInOut(BYTE Type, float fx, float fz, float fy)
 
 	if (Type == NPC_OUT)
 	{
-		m_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
+		g_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
 		return;
 	}
 
 	GetNpcInfo(result);
-	m_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
+	g_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
 }
 
 void CNpc::GetNpcInfo(Packet & pkt)
@@ -162,7 +160,7 @@ void CNpc::RemoveRegion(int del_x, int del_z)
 
 	Packet result(WIZ_NPC_INOUT, uint8(NPC_OUT));
 	result << GetID();
-	m_pMain->Send_OldRegions(&result, del_x, del_z, GetMap(), m_sRegion_X, m_sRegion_Z);
+	g_pMain->Send_OldRegions(&result, del_x, del_z, GetMap(), m_sRegion_X, m_sRegion_Z);
 }
 
 void CNpc::InsertRegion(int del_x, int del_z)
@@ -172,12 +170,12 @@ void CNpc::InsertRegion(int del_x, int del_z)
 	Packet result(WIZ_NPC_INOUT, uint8(NPC_IN));
 	result << GetID();
 	GetNpcInfo(result);
-	m_pMain->Send_NewRegions(&result, del_x, del_z, GetMap(), m_sRegion_X, m_sRegion_Z);
+	g_pMain->Send_NewRegions(&result, del_x, del_z, GetMap(), m_sRegion_X, m_sRegion_Z);
 }
 
 int CNpc::GetRegionNpcList(int region_x, int region_z, char *buff, int &t_count)
 {
-	if( m_pMain->m_bPointCheckFlag == FALSE)	return 0;	// 포인터 참조하면 안됨
+	if( g_pMain->m_bPointCheckFlag == FALSE)	return 0;	// 포인터 참조하면 안됨
 
 	int buff_index = 0;
 	C3DMap* pMap = GetMap();
@@ -194,7 +192,7 @@ int CNpc::GetRegionNpcList(int region_x, int region_z, char *buff, int &t_count)
 	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
 	foreach_stlmap (itr, pRegion->m_RegionNpcArray)
 	{
-		CNpc *pNpc = m_pMain->m_arNpcArray.GetData(*itr->second);
+		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(*itr->second);
 		if (pNpc == NULL)
 			continue;
 		SetShort(buff, pNpc->m_sNid, buff_index);
@@ -216,21 +214,21 @@ void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
 
 	// Tell everyone nearby our new status.
 	result << uint8(1) << GetID() << m_byGateOpen;
-	m_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
+	g_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
 
 	// Tell the AI server our new status
 	if (bSendAI)
 	{
 		result.Initialize(AG_NPC_GATE_OPEN);
 		result << GetID() << m_byGateOpen;
-		m_pMain->Send_AIServer(&result);
+		g_pMain->Send_AIServer(&result);
 	}
 }
 
 /* NOTE: This code onwards needs to be merged with user code */
 void CNpc::SendToRegion(Packet *result)
 {
-	m_pMain->Send_Region(result, GetMap(), m_sRegion_X, m_sRegion_Z);
+	g_pMain->Send_Region(result, GetMap(), m_sRegion_X, m_sRegion_Z);
 }
 
 void CNpc::OnDeath()

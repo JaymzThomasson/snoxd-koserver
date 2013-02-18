@@ -94,7 +94,7 @@ void CUser::Chat(Packet & pkt)
 
 		// This is horrible, but we'll live with it for now.
 		// Pull the notice string (#### NOTICE : %s ####) from the database.
-		CString noticeText = m_pMain->GetServerResource(IDP_ANNOUNCEMENT);
+		CString noticeText = g_pMain->GetServerResource(IDP_ANNOUNCEMENT);
 		
 		// Format the chat string around it, so our chat data is within the notice
 		sprintf_s(finalstr, sizeof(finalstr), noticeText, chatstr.c_str());
@@ -111,7 +111,7 @@ void CUser::Chat(Packet & pkt)
 	switch (type) 
 	{
 	case GENERAL_CHAT:
-		m_pMain->Send_NearRegion(&result, GetMap(), m_RegionX, m_RegionZ, m_pUserData->m_curx, m_pUserData->m_curz);
+		g_pMain->Send_NearRegion(&result, GetMap(), m_RegionX, m_RegionZ, m_pUserData->m_curx, m_pUserData->m_curz);
 		break;
 
 	case PRIVATE_CHAT:
@@ -119,8 +119,8 @@ void CUser::Chat(Packet & pkt)
 		if (m_sPrivateChatUser == GetSocketID()) 
 			break;
 
-		CUser *pUser = m_pMain->GetUserPtr(m_sPrivateChatUser);
-		if (pUser == NULL || pUser->GetState() != STATE_GAMESTART) 
+		CUser *pUser = g_pMain->GetUserPtr(m_sPrivateChatUser);
+		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME) 
 			break;
 
 		pUser->Send(&result);
@@ -128,7 +128,7 @@ void CUser::Chat(Packet & pkt)
 
 	case PARTY_CHAT:
 		if (isInParty())
-			m_pMain->Send_PartyMember(m_sPartyIndex, &result);
+			g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 		break;
 
 	case SHOUT_CHAT:
@@ -142,28 +142,28 @@ void CUser::Chat(Packet & pkt)
 			break;
 
 		MSpChange(-(m_iMaxMp / 5));
-		m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
+		g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
 		break;
 
 	case KNIGHTS_CHAT:
 		if (isInClan())
-			m_pMain->Send_KnightsMember(m_pUserData->m_bKnights, &result);
+			g_pMain->Send_KnightsMember(m_pUserData->m_bKnights, &result);
 		break;
 	case PUBLIC_CHAT:
 	case ANNOUNCEMENT_CHAT:
 		if (isGM())
-			m_pMain->Send_All(&result);
+			g_pMain->Send_All(&result);
 		break;
 	case COMMAND_CHAT:
 		if (getFame() == COMMAND_CAPTAIN)
-			m_pMain->Send_CommandChat(&result, m_pUserData->m_bNation, this);
+			g_pMain->Send_CommandChat(&result, m_pUserData->m_bNation, this);
 		break;
 	case MERCHANT_CHAT:
 		if (isMerchanting())
-			m_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
+			g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
 	break;
 	//case WAR_SYSTEM_CHAT:
-	//	m_pMain->Send_All(&result);
+	//	g_pMain->Send_All(&result);
 	//	break;
 	}
 }
@@ -182,7 +182,7 @@ void CUser::ChatTargetSelect(Packet & pkt)
 		if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
 			return;
 
-		CUser *pUser = m_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+		CUser *pUser = g_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
 		if (pUser == NULL || pUser == this)
 		{
 			result << int16(0); 
@@ -247,7 +247,7 @@ COMMAND_HANDLER(CUser::HandleGiveItemCommand)
 	std::string strUserID = vargs.front();
 	vargs.pop_front();
 
-	CUser *pUser = m_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+	CUser *pUser = g_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
 	if (pUser == NULL)
 	{
 		// send error message saying the character does not exist or is not online
@@ -256,7 +256,7 @@ COMMAND_HANDLER(CUser::HandleGiveItemCommand)
 
 	uint32 nItemID = atoi(vargs.front().c_str());
 	vargs.pop_front();
-	_ITEM_TABLE *pItem = m_pMain->GetItemPtr(nItemID);
+	_ITEM_TABLE *pItem = g_pMain->GetItemPtr(nItemID);
 	if (pItem == NULL)
 	{
 		// send error message saying the item does not exist
@@ -333,7 +333,7 @@ COMMAND_HANDLER(CEbenezerDlg::HandleKillUserCommand)
 	}
 	
 	// Disconnect the player
-	pUser->CloseProcess();
+	pUser->Disconnect();
 
 	// send a message saying the player was disconnected
 	return true;
@@ -372,21 +372,21 @@ COMMAND_HANDLER(CEbenezerDlg::HandleWarCloseCommand)
 COMMAND_HANDLER(CEbenezerDlg::HandleShutdownCommand)
 {
 	g_serverdown_flag = TRUE;
-	SuspendThread(m_Iocport.m_hAcceptThread);
+	s_socketMgr.SuspendServer();
 	AddToList("Server shutdown, %d users kicked out.", KickOutAllUsers());
 	return true;
 }
 
 COMMAND_HANDLER(CEbenezerDlg::HandlePauseCommand)
 {
-	SuspendThread(m_Iocport.m_hAcceptThread);
+	s_socketMgr.SuspendServer();
 	AddToList("Server no longer accepting connections.");
 	return true;
 }
 
 COMMAND_HANDLER(CEbenezerDlg::HandleResumeCommand)
 {
-	ResumeThread(m_Iocport.m_hAcceptThread);
+	s_socketMgr.ResumeServer();
 	AddToList("Server accepting connections.");
 	return true;
 }

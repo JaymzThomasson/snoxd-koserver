@@ -20,7 +20,6 @@ static char THIS_FILE[]=__FILE__;
 
 CKnights::CKnights()
 {
-	m_pMain = (CEbenezerDlg*)AfxGetApp()->GetMainWnd();
 	InitializeValue();
 }
 
@@ -101,13 +100,13 @@ bool CKnights::RemoveUser(CUser *pUser)
 
 void CKnights::Disband(CUser *pLeader /*= NULL*/)
 {
-	CString clanNotice = m_pMain->GetServerResource(m_byFlag == CLAN_TYPE ? IDS_CLAN_DESTROY : IDS_KNIGHTS_DESTROY);
+	CString clanNotice = g_pMain->GetServerResource(m_byFlag == CLAN_TYPE ? IDS_CLAN_DESTROY : IDS_KNIGHTS_DESTROY);
 	SendChat(clanNotice, m_strName);
 
 	// TO-DO: Make this localised.
 	for (int i = 0; i < MAX_USER; i++)
 	{
-		CUser *pUser = m_pMain->GetUnsafeUserPtr(i);
+		CUser *pUser = g_pMain->GetUnsafeUserPtr(i);
 		if (pUser == NULL 
 			|| pUser->m_pUserData->m_bKnights != m_sIndex 
 			|| pUser == pLeader)
@@ -116,7 +115,7 @@ void CKnights::Disband(CUser *pLeader /*= NULL*/)
 		RemoveUser(pUser);
 	}
 	
-	m_pMain->m_KnightsArray.DeleteData(m_sIndex);
+	g_pMain->m_KnightsArray.DeleteData(m_sIndex);
 
 	if (pLeader == NULL)
 		return;
@@ -161,7 +160,7 @@ void CKnights::Send(Packet *pkt)
 	 * TO-DO:
 	 * Implement better internal lookups for clans, so we don't need to loop through the entire server.
 	 **/
-	m_pMain->Send_KnightsMember(m_sIndex, pkt);
+	g_pMain->Send_KnightsMember(m_sIndex, pkt);
 }
 
 CKnights::~CKnights()
