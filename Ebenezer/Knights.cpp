@@ -111,6 +111,7 @@ bool CKnights::RemoveUser(const char *strUserID)
 		{
 			m_arKnightsUser[i].byUsed = 0;
 			strcpy(m_arKnightsUser[i].strUserName, "");
+			m_arKnightsUser[i].pSession = NULL;
 			return true;
 		}
 	}
