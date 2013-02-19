@@ -2064,20 +2064,24 @@ __int64 CEbenezerDlg::GenerateItemSerial()
 
 void CEbenezerDlg::KickOutZoneUsers(short zone)
 {
-	for (int i = 0; i < MAX_USER; i++)
+	// TO-DO: Make this localised to zones.
+	set<CUser *> sessions;
+	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
 	{
-		CUser * pTUser = GetUnsafeUserPtr(i);     
-		if (pTUser == NULL || pTUser->GetState() != GAME_STATE_INGAME) 
-			continue;
+		// Only kick users from requested zone.
+		CUser * pUser = static_cast<CUser *>(itr->second);
+		if (pUser->GetState() == GAME_STATE_INGAME
+			&& pUser->getZoneID() == zone) 
+			sessions.insert(pUser);
+	}
+	s_socketMgr.ReleaseLock();
 
-		if (pTUser->m_pUserData->m_bZone == zone) 	// Only kick out users in requested zone.
-		{
-			C3DMap * pMap = GetZoneByID(pTUser->m_pUserData->m_bNation);
-			if (pMap == NULL)
-				continue;
-
-			pTUser->ZoneChange(pMap->m_nZoneNumber, pMap->m_fInitX, pMap->m_fInitZ); // Move user to native zone.
-		}
+	foreach (itr, sessions)
+	{
+		C3DMap * pMap = GetZoneByID((*itr)->getNation());
+		if (pMap != NULL)
+			(*itr)->ZoneChange(pMap->m_nZoneNumber, pMap->m_fInitX, pMap->m_fInitZ);
 	}
 }
 
