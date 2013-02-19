@@ -164,7 +164,7 @@ void CKnightsManager::JoinKnights(CUser *pUser, Packet & pkt)
 	{
 		if (pUser->getZoneID() != pUser->getNation())
 			bResult = 12;
-		else if (pUser->getFame() != CHIEF && pUser->getFame() != VICECHIEF)
+		else if (!pUser->isClanLeader() && !pUser->isClanAssistant())
 			bResult = 6;
 
 		if (bResult != 0)
@@ -248,13 +248,13 @@ void CKnightsManager::WithdrawKnights(CUser *pUser, Packet & kt)
 	{
 		if (!pUser->isInClan())
 			bResult = 10;
-		else if (pUser->getFame() == CHIEF && pUser->getZoneID() != pUser->getNation())
+		else if (pUser->isClanLeader() && pUser->getZoneID() != pUser->getNation())
 			bResult = 12;
 
 		if (bResult != 0)
 			break;
 
-		result	<< uint8(pUser->getFame() == CHIEF ? KNIGHTS_DESTROY : KNIGHTS_WITHDRAW)
+		result	<< uint8(pUser->isClanLeader() ? KNIGHTS_DESTROY : KNIGHTS_WITHDRAW)
 				<< pUser->GetSocketID() << pUser->m_pUserData->m_bKnights;
 		g_pMain->m_LoggerSendQueue.PutData(&result);
 		return;
@@ -271,7 +271,7 @@ void CKnightsManager::DestroyKnights( CUser* pUser )
 
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_DESTROY));
 	uint8 bResult = 1;
-	if (pUser->getFame() != CHIEF)
+	if (!pUser->isClanLeader())
 		bResult = 0;
 	else if (pUser->getZoneID() != pUser->getNation())
 		bResult = 12;
@@ -310,7 +310,7 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 opco
 			|| (opcode == KNIGHTS_PUNISH && pUser->getFame() < VICECHIEF))
 			bResult = 0;	
 		else if (opcode != KNIGHTS_ADMIT && opcode != KNIGHTS_REJECT && opcode != KNIGHTS_PUNISH 
-			&& pUser->getFame() != CHIEF)
+			&& !pUser->isClanLeader())
 			bResult = 6;
 
 		if (bResult != 1)
@@ -331,7 +331,7 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 opco
 
 			if (bResult == 1 && opcode == KNIGHTS_VICECHIEF)
 			{
-				if (pTUser->getFame() == VICECHIEF)
+				if (pTUser->isClanAssistant())
 					bResult = 8;
 				else if (!g_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights))	
 					bResult = 7;
@@ -399,7 +399,7 @@ void CKnightsManager::AllKnightsMember(CUser *pUser)
 		uint16 pktSize = 0, count = 0;
 		result << pktSize << count << count << count; // placeholders
 
-		count = g_pMain->GetKnightsAllMembers(pUser->m_pUserData->m_bKnights, result, pktSize, pUser->getFame() == CHIEF);
+		count = g_pMain->GetKnightsAllMembers(pUser->m_pUserData->m_bKnights, result, pktSize, pUser->isClanLeader());
 		if (count > MAX_CLAN_USERS) 
 			return;
 

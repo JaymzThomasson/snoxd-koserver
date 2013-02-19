@@ -204,11 +204,11 @@ public:
 	__forceinline bool isDead() { return m_bResHpType == USER_DEAD || m_pUserData->m_sHp <= 0; }
 	__forceinline bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; }
 
-
 	__forceinline bool isInGame() { return GetState() == GAME_STATE_INGAME; }
 	__forceinline bool isInParty() { return m_sPartyIndex != -1; }
 	__forceinline bool isInClan() { return m_pUserData->m_bKnights > 0; }
-	__forceinline bool isClanLeader() { return isInClan() && getFame() == CHIEF; }
+	__forceinline bool isClanLeader() { return getFame() == CHIEF; }
+	__forceinline bool isClanAssistant() { return getFame() == VICECHIEF; }
 
 	__forceinline bool isTrading() { return m_sExchangeUser != -1; }
 	__forceinline bool isStoreOpen() { return m_bStoreOpen; }
