@@ -553,7 +553,7 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 	pkt.SByte();
 	for (int i = 0; i < byCount; i++)
 	{
-		CUser* pUser = new CUser;
+		CUser* pUser = new CUser();
 		std::string strUserID;
 
 		pUser->Initialize();
@@ -584,9 +584,17 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 			pUser->m_iUserId, pUser->m_strUserID, pUser->m_sPartyNumber);
 
 		if (pUser->m_iUserId >= USER_BAND && pUser->m_iUserId < MAX_USER)
+		{
+			// Does a user already exist? Free them (I know, tacky...)
+			if (g_pMain->m_pUser[pUser->m_iUserId] != NULL)
+				delete g_pMain->m_pUser[pUser->m_iUserId];
+
 			g_pMain->m_pUser[pUser->m_iUserId] = pUser;
+		}
 		else
+		{
 			delete pUser;
+		}
 	}
 }
 

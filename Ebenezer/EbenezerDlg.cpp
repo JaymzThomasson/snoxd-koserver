@@ -1496,7 +1496,7 @@ BOOL CEbenezerDlg::LoadBlockNameList()
 void CEbenezerDlg::SendAllUserInfo()
 {
 	Packet result(AG_USER_INFO_ALL);
-	uint16 count = 0;
+	uint8 count = 0;
 	result << count; // placeholder for user count
 	const int tot = 20;
 
