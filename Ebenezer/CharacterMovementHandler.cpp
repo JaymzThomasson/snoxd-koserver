@@ -194,7 +194,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		}
 	}
 	else	{					// Battle zone close
-		if( pMap->m_bType == 1 && m_pUserData->m_bNation != zone && (zone < 10 || zone > 20))		// ???? ?????? ???? ????..
+		if( pMap->m_bType == 1 && m_pUserData->m_bNation != zone && (zone < 10 || zone > 21))
 			return;
 	}
 
@@ -241,7 +241,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 	m_RegionZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
 
 	Packet result(WIZ_ZONE_CHANGE, uint8(3)); // magic numbers, sigh.
-	result << getZoneID() << GetSPosX() << GetSPosZ() << GetSPosY() << g_pMain->m_byOldVictory;
+	result << uint16(getZoneID()) << GetSPosX() << GetSPosZ() << GetSPosY() << g_pMain->m_byOldVictory;
 	Send(&result);
 
 	if (!m_bZoneChangeSameZone) {
