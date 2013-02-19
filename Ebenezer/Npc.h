@@ -65,7 +65,6 @@ public:
 	void RegisterRegion();
 	void RemoveRegion(int del_x, int del_z);
 	void InsertRegion(int del_x, int del_z);
-	int GetRegionNpcList(int region_x, int region_z, char *buff, int &t_count);
 
 	void SendGateFlag(BYTE bFlag = -1, bool bSendAI = true);
 	void SendToRegion(Packet *result);

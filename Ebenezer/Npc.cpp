@@ -173,37 +173,6 @@ void CNpc::InsertRegion(int del_x, int del_z)
 	g_pMain->Send_NewRegions(&result, del_x, del_z, GetMap(), m_sRegion_X, m_sRegion_Z);
 }
 
-int CNpc::GetRegionNpcList(int region_x, int region_z, char *buff, int &t_count)
-{
-	if( g_pMain->m_bPointCheckFlag == FALSE)	return 0;	// 포인터 참조하면 안됨
-
-	int buff_index = 0;
-	C3DMap* pMap = GetMap();
-	CNpc* pNpc = NULL;
-
-	if (pMap == NULL
-		|| region_x < 0 || region_z < 0 
-		|| region_x > pMap->GetXRegionMax() 
-		|| region_z > pMap->GetZRegionMax() )
-		return 0;
-
-	EnterCriticalSection( &g_region_critical );
-
-	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
-	foreach_stlmap (itr, pRegion->m_RegionNpcArray)
-	{
-		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(*itr->second);
-		if (pNpc == NULL)
-			continue;
-		SetShort(buff, pNpc->m_sNid, buff_index);
-		t_count++;
-	}
-
-	LeaveCriticalSection( &g_region_critical );
-
-	return buff_index;
-}
-
 void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
 {
 	Packet result(WIZ_OBJECT_EVENT, uint8(OBJECT_FLAG_LEVER));
