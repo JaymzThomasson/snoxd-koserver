@@ -586,7 +586,6 @@ CUser* CEbenezerDlg::GetUserPtr(const char *userid, NameType type)
 }
 
 CUser		* CEbenezerDlg::GetUserPtr(int sid) { return s_socketMgr[sid]; }
-CUser       * CEbenezerDlg::GetUnsafeUserPtr(int sid)  { return GetUserPtr(sid); }
 CKnights    * CEbenezerDlg::GetClanPtr(uint16 sClanID) { return m_KnightsArray.GetData(sClanID); }
 _ITEM_TABLE * CEbenezerDlg::GetItemPtr(uint32 nItemID) { return m_ItemtableArray.GetData(nItemID); }
 

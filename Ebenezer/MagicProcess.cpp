@@ -840,14 +840,15 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 
 	if (m_pSkillTarget == -1) {		// If the target was the source's party....
 		// TO-DO: Make this not completely and utterly suck (i.e. kill that loop!).
-		for (int i = 0; i < MAX_USER; i++) {		// Maximum number of users in the server....
-			CUser* pTUser = g_pMain->GetUnsafeUserPtr(i);
-			if (pTUser == NULL || pTUser->isDead() || pTUser->isBlinking())
-				continue;
-			
-			if (UserRegionCheck(m_pSkillCaster, i, pSkill->iNum, pType->bRadius, m_sData1, m_sData3))
+		SessionMap & sessMap = g_pMain->s_socketMgr.GetActiveSessionMap();
+		foreach (itr, sessMap)
+		{		
+			CUser* pTUser = static_cast<CUser *>(itr->second);
+			if (!pTUser->isDead() && !pTUser->isBlinking()
+				&& UserRegionCheck(m_pSkillCaster, pTUser->GetSocketID(), pSkill->iNum, pType->bRadius, m_sData1, m_sData3))
 				casted_member.push_back(pTUser);
 		}
+		g_pMain->s_socketMgr.ReleaseLock();
 
 		if (casted_member.empty())
 		{
@@ -1047,16 +1048,15 @@ void CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 	if (m_pSkillTarget == -1)
 	{
 		// TO-DO: Localise this. This is horribly unnecessary.
-		for (int i = 0; i < MAX_USER; i++)
-		{
-			CUser* pTUser = g_pMain->GetUnsafeUserPtr(i);
-			if (pTUser == NULL 
-				|| pTUser->isDead() || pTUser->isBlinking())
-				continue;
-			
-			if (UserRegionCheck(m_pSkillCaster, i, pSkill->iNum, pType->bRadius, m_sData1, m_sData3))
+		SessionMap & sessMap = g_pMain->s_socketMgr.GetActiveSessionMap();
+		foreach (itr, sessMap)
+		{		
+			CUser* pTUser = static_cast<CUser *>(itr->second);
+			if (!pTUser->isDead() && !pTUser->isBlinking()
+				&& UserRegionCheck(m_pSkillCaster, pTUser->GetSocketID(), pSkill->iNum, pType->bRadius, m_sData1, m_sData3))
 				casted_member.push_back(pTUser);
 		}
+		g_pMain->s_socketMgr.ReleaseLock();
 
 		if (casted_member.empty())
 		{		
@@ -1419,12 +1419,14 @@ void CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 	if (m_pSkillTarget == -1)
 	{
 		// TO-DO: Localise this loop to make it not suck (the life out of the server).
-		for (int i = 0; i < MAX_USER; i++)
+		SessionMap & sessMap = g_pMain->s_socketMgr.GetActiveSessionMap();
+		foreach (itr, sessMap)
 		{		
-			CUser* pTUser = g_pMain->GetUnsafeUserPtr(i);
-			if (pTUser != NULL && UserRegionCheck(m_pSkillCaster, i, pSkill->iNum, pType->sRadius, m_sData1, m_sData3))
+			CUser* pTUser = static_cast<CUser *>(itr->second);
+			if (UserRegionCheck(m_pSkillCaster, pTUser->GetSocketID(), pSkill->iNum, pType->sRadius, m_sData1, m_sData3))
 				casted_member.push_back(pTUser);
 		}
+		g_pMain->s_socketMgr.ReleaseLock();
 
 		if (casted_member.empty()) 
 			return;	

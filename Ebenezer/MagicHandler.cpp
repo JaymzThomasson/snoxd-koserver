@@ -240,6 +240,7 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 		return;
 
 	if (tid == -1) { //Means the source is targetting his whole party.
+#if 0
 		for (int i = 0 ; i < MAX_USER ; i++) { //This however, what the fuck? Definitely need to remember making this better when doing the party system!
 			CUser* pTUser = g_pMain->GetUnsafeUserPtr(i);
 			if( !pTUser || pTUser->m_bResHpType == USER_DEAD || pTUser->m_bAbnormalType == ABNORMAL_BLINKING) continue ;
@@ -247,7 +248,7 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 			//if (UserRegionCheck(sid, i, magicid, pType->bRadius, data1, data3)) 
 			//	casted_member.push_back(i);
 		}
-
+#endif
 		if (casted_member.empty()) {
 			result << MAGIC_FAIL << magicid
 				<< sid << tid

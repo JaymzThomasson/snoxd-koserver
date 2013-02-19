@@ -169,7 +169,6 @@ public:
 
 	CUser * GetUserPtr(const char* userid, NameType type);
 	CUser * GetUserPtr(int sid);
-	__forceinline CUser * GetUnsafeUserPtr(int sid);
 
 	CKnights * GetClanPtr(uint16 sClanID);
 	_ITEM_TABLE * GetItemPtr(uint32 nItemID);
