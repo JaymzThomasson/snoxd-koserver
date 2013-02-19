@@ -239,7 +239,8 @@ void CAISocket::RecvNpcMoveResult(Packet & pkt)
 
 void CAISocket::RecvNpcAttack(Packet & pkt)
 {
-	int index = 0, send_index = 0, sid = -1, tid = -1, nHP = 0, temp_damage = 0;
+	int nHP = 0, temp_damage = 0;
+	int16 sid, tid;
 	BYTE type, bResult, byAttackType = 0;
 	float fDir=0.0f;
 	short damage = 0;
@@ -352,7 +353,6 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 				pUser->m_bResHpType = USER_DEAD;
 				DEBUG_LOG("*** User Dead, id=%s, result=%d, AI_HP=%d, GM_HP=%d, x=%d, z=%d", pUser->m_pUserData->m_id, result, nHP, pUser->m_pUserData->m_sHp, (int)pUser->m_pUserData->m_curx, (int)pUser->m_pUserData->m_curz);
 
-				send_index = 0;
 				if( pUser->m_pUserData->m_bFame == COMMAND_CAPTAIN )	{	// ���ֱ����� �ִ� ������ �״´ٸ�,, ���� ���� ��Ż
 					pUser->ChangeFame(CHIEF);
 
