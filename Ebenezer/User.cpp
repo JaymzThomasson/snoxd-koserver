@@ -35,6 +35,8 @@ void CUser::OnConnect()
 
 void CUser::Initialize()
 {
+	m_state = GAME_STATE_CONNECTED;
+
 	m_strAccountID.clear();
 	m_bSelectedCharacter = false;
 	m_bStoreOpen = false;

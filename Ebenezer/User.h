@@ -24,7 +24,6 @@ typedef	 std::map<uint32, time_t>		SkillCooldownList;
 
 enum GameState
 {
-	GAME_STATE_DISCONNECTED,
 	GAME_STATE_CONNECTED,
 	GAME_STATE_INGAME
 };
