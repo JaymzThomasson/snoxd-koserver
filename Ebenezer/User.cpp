@@ -93,7 +93,7 @@ void CUser::Initialize()
 	m_bResHpType = USER_STANDING;
 	m_bWarp = 0x00;
 
-	m_sMerchantsSocketID = MAX_USER + 1;
+	m_sMerchantsSocketID = -1;
 	m_sPartyIndex = -1;		
 	m_sExchangeUser = -1;
 	m_bExchangeOK = 0x00;

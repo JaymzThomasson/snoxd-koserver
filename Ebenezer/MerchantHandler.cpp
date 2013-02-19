@@ -179,16 +179,16 @@ void CUser::MerchantItemCancel(Packet & pkt)
 
 void CUser::MerchantItemList(Packet & pkt)
 {
-	if(m_sMerchantsSocketID <= MAX_USER)
+	if (m_sMerchantsSocketID >= 0)
 		RemoveFromMerchantLookers(); //This check should never be hit...
 	
 	uint16 uid;
 	pkt >> uid;
 
-	if(uid > MAX_USER)
+	if (uid >= MAX_USER)
 		return;
 
-	CUser *pMerchantUser = m_pMain->GetUserPtr(uid);
+	CUser *pMerchantUser = g_pMain->GetUserPtr(uid);
 	if(!pMerchantUser || !pMerchantUser->isMerchanting())
 		return;
 
@@ -251,7 +251,7 @@ void CUser::GiveMerchantItems()
 
 void CUser::CancelMerchant()
 {
-	if(m_sMerchantsSocketID > MAX_USER)
+	if (m_sMerchantsSocketID < 0)
 		return;
 
 	RemoveFromMerchantLookers();
@@ -285,7 +285,10 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 
 void CUser::RemoveFromMerchantLookers()
 {
-	CUser *pPreviousMerchantUser = m_pMain->GetUserPtr(m_sMerchantsSocketID);
+	CUser *pPreviousMerchantUser = g_pMain->GetUserPtr(m_sMerchantsSocketID);
+	if (pPreviousMerchantUser == NULL)
+		return;
+
 	pPreviousMerchantUser->m_arMerchantLookers.remove(GetSocketID());
-	m_sMerchantsSocketID = MAX_USER + 1; //We should allow socket 0 to be looked at too, right? ;)
-}
+	m_sMerchantsSocketID = -1;
+	

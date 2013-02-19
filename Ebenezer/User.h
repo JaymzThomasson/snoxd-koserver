@@ -41,7 +41,7 @@ public:
 	bool	m_bStoreOpen;
 
 	bool	m_bIsMerchanting; //Is the character merchanting already?
-	uint16	m_sMerchantsSocketID;
+	int16	m_sMerchantsSocketID;
 	std::list<uint16>	m_arMerchantLookers;
 	_MERCH_DATA	m_arSellingItems[MAX_MERCH_ITEMS]; //What is this person selling? Stored in "_MERCH_DATA" structure.
 
