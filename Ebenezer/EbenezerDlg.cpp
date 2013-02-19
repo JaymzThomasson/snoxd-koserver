@@ -2009,19 +2009,20 @@ void CEbenezerDlg::CheckAliveUser()
 
 int CEbenezerDlg::KickOutAllUsers()
 {
-	CUser* pUser = NULL;
+	set<CUser *> sessions;
 	int count = 0;
 
-	for (int i = 0; i < MAX_USER; i++)
+	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
+		sessions.insert(static_cast<CUser *>(itr->second));
+	s_socketMgr.ReleaseLock();
+
+	foreach (itr, sessions)
 	{
-		pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME)
-			continue;
+		GameState state = (*itr)->GetState();
+		(*itr)->Disconnect();
 
-		BYTE state = pUser->GetState();
-		pUser->Disconnect();
-
-		// Only delay (for saving)if they're logged in, this is awful... 
+		// Only delay (for saving) if they're logged in, this is awful... 
 		// but until we do away with the shared memory system, it'll overflow the queue...
 		if (state == GAME_STATE_INGAME)
 		{
@@ -2029,6 +2030,7 @@ int CEbenezerDlg::KickOutAllUsers()
 			Sleep(50);
 		}
 	}
+
 	return count;
 }
 
@@ -2095,17 +2097,22 @@ BOOL CEbenezerDlg::LoadBattleTable()
 	return BattleSet.Read();
 }
 
-void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser )
+void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser)
 {
-	for (int i = 0; i < MAX_USER; i++)
+	set<CUser *> sessions;
+	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
 	{
-		CUser * pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME || pUser == pExceptUser 
-			|| (nation != 0 && nation != pUser->m_pUserData->m_bNation))
-			continue;
-
-		pUser->Send(pkt);
+		CUser * pUser = static_cast<CUser *>(itr->second);
+		if (pUser->GetState() == GAME_STATE_INGAME 
+			&& pUser == pExceptUser 
+			&& (nation == 0 || nation == pUser->getNation()))
+			sessions.insert(pUser);
 	}
+	s_socketMgr.ReleaseLock();
+
+	foreach (itr, sessions)
+		(*itr)->Send(pkt);
 }
 
 void CEbenezerDlg::GetCaptainUserPtr()
