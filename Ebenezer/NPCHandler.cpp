@@ -567,7 +567,7 @@ void CUser::ItemTrade(Packet & pkt)
 	_ITEM_TABLE* pTable = NULL;
 	char send_buf[128];
 	CNpc* pNpc = NULL;
-	BYTE type, pos, destpos, result;
+	BYTE type, pos, destpos, result = 0;
 
 	if (isDead())
 	{

@@ -597,7 +597,7 @@ void CEbenezerDlg::DeleteParty(short sIndex)
 
 void CEbenezerDlg::AddToList(const char * format, ...)
 {
-	char buffer[256];
+	char buffer[256] = {0};
 
 	va_list args;
 	va_start(args, format);
@@ -613,7 +613,7 @@ void CEbenezerDlg::AddToList(const char * format, ...)
 
 void CEbenezerDlg::WriteLog(const char * format, ...)
 {
-	char buffer[256];
+	char buffer[256] = {0};
 
 	va_list args;
 	va_start(args, format);

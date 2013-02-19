@@ -40,7 +40,7 @@ BOOL EVENT::LoadEvent(int zone)
 	char		temp[1024];
 	int			index = 0;
 	int			t_index = 0;
-	int			event_num;
+	int			event_num = -1;
 
 	EVENT_DATA	*newData = NULL;
 	EVENT_DATA	*eventData = NULL;
