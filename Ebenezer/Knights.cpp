@@ -135,18 +135,13 @@ void CKnights::Disband(CUser *pLeader /*= NULL*/)
 	CString clanNotice = g_pMain->GetServerResource(m_byFlag == CLAN_TYPE ? IDS_CLAN_DESTROY : IDS_KNIGHTS_DESTROY);
 	SendChat(clanNotice, m_strName);
 
-	// TO-DO: Make this localised.
-	for (int i = 0; i < MAX_USER; i++)
+	foreach_array (i, m_arKnightsUser)
 	{
-		CUser *pUser = g_pMain->GetUnsafeUserPtr(i);
-		if (pUser == NULL 
-			|| pUser->m_pUserData->m_bKnights != m_sIndex 
-			|| pUser == pLeader)
-			continue;
-
-		RemoveUser(pUser);
+		_KNIGHTS_USER *p = &m_arKnightsUser[i];
+		if (p->byUsed && p->pSession != NULL
+			&& p->pSession != pLeader)
+			RemoveUser(p->pSession);
 	}
-	
 	g_pMain->m_KnightsArray.DeleteData(m_sIndex);
 
 	if (pLeader == NULL)
