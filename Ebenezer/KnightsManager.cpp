@@ -437,14 +437,14 @@ void CKnightsManager::CurrentKnightsMember(CUser *pUser, Packet & pkt)
 	size_t pos = result.wpos();
 	result	<< count; // placeholder
 
-	for (int i = 0; i < MAX_USER; i++)
+	foreach_array (i, pKnights->m_arKnightsUser)
 	{
-		CUser *pTUser = g_pMain->GetUnsafeUserPtr(i);
-		if (pTUser == NULL
-			|| pTUser->m_pUserData->m_bKnights != pUser->m_pUserData->m_bKnights
+		_KNIGHTS_USER *p = &pKnights->m_arKnightsUser[i];
+		if (!p->byUsed || p->pSession == NULL
 			|| count++ < start)
 			continue;
 
+		CUser *pTUser = p->pSession;
 		result << pUser->m_pUserData->m_id << pUser->getFame() << pUser->getLevel() << pUser->m_pUserData->m_sClass;
 		if (count >= start + 10)
 			break;
