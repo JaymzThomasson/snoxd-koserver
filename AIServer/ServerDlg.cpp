@@ -141,13 +141,8 @@ BOOL CServerDlg::OnInitDialog()
 		m_pUser[i] = NULL;
 
 	// Server Start
-	CString logstr;
 	CTime time = CTime::GetCurrentTime();
-	logstr.Format("[AI ServerStart - %d-%d-%d, %d:%d]", time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute() );
-	m_StatusList.AddString( logstr );
-	logstr.Format("[AI ServerStart - %d-%d-%d, %d:%d]\r\n", time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute() );
-	TRACE(logstr);
-	LogFileWrite( logstr );
+	AddToList("[AI ServerStart - %d-%d-%d, %d:%d]", time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute() );
 
 	//----------------------------------------------------------------------
 	//	Logfile initialize
@@ -1101,10 +1096,7 @@ BOOL CServerDlg::CreateNpcThread()
 	m_pZoneEventThread = AfxBeginThread(ZoneEventThreadProc, (LPVOID)(this), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
 
 	//TRACE("m_TotalNPC = %d \n", m_TotalNPC);
-	CString logstr;
-	logstr.Format("[Monster Init - %d, threads=%d]", m_TotalNPC, m_arNpcThread.size());
-	m_StatusList.AddString( logstr );
-
+	AddToList("[Monster Init - %d, threads=%d]", m_TotalNPC, m_arNpcThread.size());
 	return TRUE;
 }
 
@@ -1170,6 +1162,21 @@ BOOL CServerDlg::DestroyWindow()
 	DeleteCriticalSection( &g_LogFileWrite );
 
 	return CDialog::DestroyWindow();
+}
+
+void CServerDlg::AddToList(const char * format, ...)
+{
+	if (g_bNpcExit)
+		return;
+
+	char buffer[256];
+
+	va_list args;
+	va_start(args, format);
+	_vsnprintf(buffer, sizeof(buffer) - 1, format, args);
+	va_end(args);
+
+	m_StatusList.AddString(buffer);
 }
 
 void CServerDlg::DeleteUserList(int uid)
@@ -1373,13 +1380,10 @@ void CServerDlg::CheckAliveTest()
 
 void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 {
-	CString logstr;
-
 	// If a server disconnected, show it...
 	if (pSock != NULL)
 	{
-		logstr.Format("[GameServer disconnected = %s]", pSock->GetRemoteIP().c_str());
-		m_StatusList.AddString( logstr );
+		AddToList("[GameServer disconnected = %s]", pSock->GetRemoteIP().c_str());
 		return;
 	}
 
@@ -1419,8 +1423,7 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 	m_bFirstServerFlag = FALSE;
 	TRACE("*** DeleteAllUserList - End *** \n");
 
-	logstr.Format("[ DELETE All User List ]");
-	m_StatusList.AddString( logstr );
+	AddToList("[ DELETE All User List ]");
 }
 
 BOOL CServerDlg::PreTranslateMessage(MSG* pMsg) 

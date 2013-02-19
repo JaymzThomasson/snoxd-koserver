@@ -985,9 +985,8 @@ BOOL CNpc::SetLive()
 		TRACE("Npc - SerLive :  cur = %d\n", g_pMain->m_CurrentNPC);
 		if(g_pMain->m_TotalNPC == g_pMain->m_CurrentNPC)	// 몬스터 총 수와 초기화한 몬스터의 수가 같다면
 		{
-			CString logstr;
-			logstr.Format("Monster All Init Success - %d", g_pMain->m_CurrentNPC);
-			g_pMain->m_StatusList.AddString( logstr );
+			g_pMain->AddToList("Monster All Init Success - %d", g_pMain->m_CurrentNPC);
+
 			TRACE("Npc - SerLive : GameServerAcceptThread, cur = %d\n", g_pMain->m_CurrentNPC);
 			g_pMain->GameServerAcceptThread();				// 게임서버 Accept
 		}

@@ -84,6 +84,8 @@ public:
 	MAP * GetZoneByID(int zonenumber);
 	int GetServerNumber( int zonenumber );
 
+	void AddToList(const char * format, ...);
+
 	void CheckAliveTest();
 	void DeleteUserList(int uid);
 	void DeleteAllUserList(CGameSocket *pSock = NULL);

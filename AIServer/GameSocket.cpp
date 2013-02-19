@@ -127,10 +127,7 @@ bool CGameSocket::HandlePacket(Packet & pkt)
 void CGameSocket::RecvServerConnect(Packet & pkt)
 {
 	uint8 byReconnect = pkt.read<uint8>();
-
-	CString logstr;
-	logstr.Format("[GameServer connected - %s]", GetRemoteIP().c_str());
-	g_pMain->m_StatusList.AddString(logstr);
+	g_pMain->AddToList("[GameServer connected - %s]", GetRemoteIP().c_str());
 
 	Packet result(SERVER_CONNECT, byReconnect);
 	Send(&result);

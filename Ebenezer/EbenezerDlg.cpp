@@ -646,7 +646,7 @@ void CEbenezerDlg::AddToList(const char * format, ...)
 	_vsnprintf(buffer, sizeof(buffer) - 1, format, args);
 	va_end(args);
 
-	m_StatusList.AddString((CString)buffer);
+	m_StatusList.AddString(buffer);
 
 	EnterCriticalSection(&g_LogFile_critical);
 	m_LogFile.Write(buffer, strlen(buffer));
