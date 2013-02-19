@@ -665,36 +665,38 @@ void CEbenezerDlg::AIServerConnect()
 	// Are there any (note: we only use 1 now) idle/disconnected sessions?
 	SessionMap & sessMap = s_aiSocketMgr.GetIdleSessionMap();
 
-	// If so, then try to reconnect them.
-	if (!sessMap.empty())
+	// Copy the map (should only be 1 socket anyway) to avoid breaking the iterator
+	SessionMap idleSessions = sessMap;
+	s_aiSocketMgr.ReleaseLock();
+
+	// No idle sessions? Excellent.
+	if (idleSessions.empty())
+		return;
+
+	int port = GetAIServerPort();
+
+	// Attempt reconnecting to the server
+	foreach (itr, idleSessions)
 	{
-		int port = GetAIServerPort();
+		CAISocket *pSock = static_cast<CAISocket *>(itr->second);
+		bool bReconnecting = pSock->IsReconnecting();
+		if (!pSock->Connect(m_AIServerIP, port)) // couldn't connect... let's leave you alone for now
+			continue;
 
-		// Copy the map (should only be 1 socket anyway) to avoid breaking the iterator
-		SessionMap tmp = sessMap;
+		// Connected! Now send the connection packet.
+		Packet result(AI_SERVER_CONNECT);
+		result << bReconnecting;
+		pSock->Send(&result);
 
-		// Attempt reconnecting to the server
-		foreach (itr, tmp)
-		{
-			CAISocket *pSock = static_cast<CAISocket *>(itr->second);
-			bool bReconnecting = pSock->IsReconnecting();
-			if (!pSock->Connect(m_AIServerIP, port)) // couldn't connect... let's leave you alone for now
-				continue;
-
-			// Connected! Now send the connection packet.
-			Packet result(AI_SERVER_CONNECT);
-			result << bReconnecting;
-			pSock->Send(&result);
-
-			TRACE("**** AISocket Connect Success!! , server = %s:%d ****\n", pSock->GetRemoteIP().c_str(), pSock->GetRemotePort());
-		}
-
-		// This check seems redundant, but it isn't: AISocketConnect() should change the map.
-		// We're deliberately checking after we've attempted to reconnect.
-		// The idle session(s) should be removed, if they're still unable to connect... reset the server's NPCs.
-		if (!sessMap.empty())
-			DeleteAllNpcList();
+		TRACE("**** AISocket Connect Success!! , server = %s:%d ****\n", pSock->GetRemoteIP().c_str(), pSock->GetRemotePort());
 	}
+
+	// This check seems redundant, but it isn't: AISocketConnect() should change the map.
+	// We're deliberately checking after we've attempted to reconnect.
+	// The idle session(s) should be removed, if they're still unable to connect... reset the server's NPCs.
+	s_aiSocketMgr.AcquireLock();
+	if (!sessMap.empty())
+		DeleteAllNpcList();
 	s_aiSocketMgr.ReleaseLock();
 }
 

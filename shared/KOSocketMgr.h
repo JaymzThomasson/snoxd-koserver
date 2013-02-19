@@ -17,6 +17,7 @@ public:
 	virtual void InitSessions(uint16 sTotalSessions);
 	virtual bool Listen(uint16 sPort, uint16 sTotalSessions);
 
+	virtual void OnConnect(Socket *pSock);
 	virtual Socket *AssignSocket(SOCKET socket);
 	virtual void DisconnectCallback(Socket *pSock);
 
@@ -137,6 +138,19 @@ Socket * KOSocketMgr<T>::AssignSocket(SOCKET socket)
 	}
 	m_lock.ReleaseWriteLock();
 	return pSock;
+}
+
+template <class T>
+void KOSocketMgr<T>::OnConnect(Socket *pSock)
+{
+	m_lock.AcquireWriteLock();
+	auto itr = m_idleSessions.find(static_cast<KOSocket *>(pSock)->GetSocketID());
+	if (itr != m_idleSessions.end())
+	{
+		m_activeSessions.insert(std::make_pair(itr->first, itr->second));
+		m_idleSessions.erase(itr);
+	}
+	m_lock.ReleaseWriteLock();
 }
 
 template <class T>

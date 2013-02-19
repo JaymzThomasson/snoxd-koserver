@@ -23,6 +23,7 @@ public:
 	void ShutdownThreads();
 
 	virtual Socket *AssignSocket(SOCKET socket) = 0;
+	virtual void OnConnect(Socket *pSock) {};
 	virtual void OnDisconnect(Socket *pSock) 
 	{
 		s_disconnectionQueueLock.Acquire();

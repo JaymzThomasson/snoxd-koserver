@@ -32,6 +32,8 @@ bool Socket::Connect(const char * Address, uint32 Port)
 
 	// at this point the connection was established
 	m_completionPort = m_socketMgr->GetCompletionPort();
+	m_socketMgr->OnConnect(this);
+
 	_OnConnect();
 	return true;
 }
@@ -58,7 +60,7 @@ void Socket::_OnConnect()
 {
 	// set common parameters on the file descriptor
 	// SetBlocking(false);
-	SetBlocking(true);
+	SetBlocking(false);
 	SetBuffering(true);
 	m_connected = true;
 
