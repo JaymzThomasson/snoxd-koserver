@@ -27,7 +27,6 @@ typedef CSTLMap <CRoomEvent>		RoomEventArray;
 class CRegion;
 class CNpc;
 class CUser;
-class CServerDlg;
 //class CRoomEvent;
 
 class CMapInfo					// 각 좌표의 정보
@@ -42,7 +41,6 @@ public:
 class MAP  
 {
 public:
-	CServerDlg*	m_pMain;
 	CN3ShapeMgr m_N3ShapeMgr;
 	CMapInfo**		m_pMap;					// 타일의 정보(1셀 : 4미터)
 	CRegion**		m_ppRegion;				// 64미터의 타일정보..

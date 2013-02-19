@@ -17,11 +17,16 @@ public:
 	__forceinline bool hasData() { return m_resultCode != SQL_NO_DATA && SQL_SUCCEEDED(m_resultCode); };
 	__forceinline void SetConnectionHandle(HDBC handle) { m_connHandle = handle; };
 
+private:
+	bool BindParameters();
+
+public:
 	bool Execute(const tstring & szSQL);
+	bool Prepare(const tstring & szSQL);
+
 	bool MoveNext();
 	bool MoveNextSet();
 
-	bool Prepare(const tstring & szSQL);
 
 #define ADD_ODBC_PARAMETER(name, type, sqlType) void AddParameter(SQLSMALLINT paramType, type *value, SQLLEN maxLength = sizeof(type)); \
 	type OdbcCommand::Fetch ## name(int pos); \

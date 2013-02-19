@@ -1,13 +1,4 @@
-// RoomEvent.h: interface for the CRoomEvent class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_ROOMEVENT_H__70001CA8_64B8_422F_B0F4_ED0F2FA95E0E__INCLUDED_)
-#define AFX_ROOMEVENT_H__70001CA8_64B8_422F_B0F4_ED0F2FA95E0E__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include "../shared/STLMap.h"
 
@@ -23,7 +14,6 @@ struct _RoomEvent
 };
 
 class CNpc;
-class CServerDlg;
 
 class CRoomEvent  
 {
@@ -50,7 +40,6 @@ public:
 	float   m_fDelayTime;						// time
 
 	mapNpcArray	m_mapRoomNpcArray;				// room npc uid array
-	CServerDlg* m_pMain;
 
 private:
 	BYTE    m_byLogicNumber;	// 현재의 조건문 검사 번호 (조건번호는 1부터 시작됨) (m_byCheck와 m_byLogicNumber이 같다면 클리어 상태)
@@ -72,5 +61,3 @@ private:
 	void  EndEventSay( int option1, int option2 );
 
 };
-
-#endif // !defined(AFX_ROOMEVENT_H__70001CA8_64B8_422F_B0F4_ED0F2FA95E0E__INCLUDED_)

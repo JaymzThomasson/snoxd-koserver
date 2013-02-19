@@ -60,7 +60,6 @@ static char THIS_FILE[]=__FILE__;
 CMagicProcess::CMagicProcess()
 {
 	m_pSrcUser = NULL;
-	m_pMain = NULL;
 }
 
 CMagicProcess::~CMagicProcess()
@@ -77,7 +76,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 
 	pkt >> m_opcode >> m_nSkillID;
 
-	_MAGIC_TABLE *pMagic = m_pMain->m_MagictableArray.GetData(m_nSkillID);
+	_MAGIC_TABLE *pMagic = g_pMain->m_MagictableArray.GetData(m_nSkillID);
 	if (pMagic == NULL)
 		return;
 
@@ -104,7 +103,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 			return;
 
 		// If we're in a snow war, we're only ever allowed to use the snowball skill.
-		if (m_pSrcUser->getZoneID() == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE 
+		if (m_pSrcUser->getZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
 			&& m_nSkillID != SNOW_EVENT_SKILL)
 			return;
 	}
@@ -116,19 +115,19 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 		switch (pMagic->bType[i])
 		{
 		case 2:
-			pType2 = m_pMain->m_Magictype2Array.GetData(m_nSkillID);
+			pType2 = g_pMain->m_Magictype2Array.GetData(m_nSkillID);
 			if (pType2 == NULL)
 				return;
 			break;
 
 		case 3:
-			pType3 = m_pMain->m_Magictype3Array.GetData(m_nSkillID);
+			pType3 = g_pMain->m_Magictype3Array.GetData(m_nSkillID);
 			if (pType3 == NULL)
 				return;
 			break;  
 
 		case 4:
-			pType4 = m_pMain->m_Magictype4Array.GetData(m_nSkillID);
+			pType4 = g_pMain->m_Magictype4Array.GetData(m_nSkillID);
 			if (pType4 == NULL)
 				return;
 			break;  
@@ -143,13 +142,13 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 
 	if (m_pSkillCaster >= NPC_BAND)
 	{
-		pMon = m_pMain->m_arNpcArray.GetData(m_pSkillCaster);
+		pMon = g_pMain->m_arNpcArray.GetData(m_pSkillCaster);
 		if (pMon == NULL || pMon->isDead())
 			return;
 	}
 	else if (m_pSkillCaster >= 0)
 	{
-		pUser = m_pMain->GetUserPtr(m_pSkillCaster);
+		pUser = g_pMain->GetUserPtr(m_pSkillCaster);
 		if (pUser == NULL || pUser->isDead() || pUser->isBlinking())	
 			return;
 	}
@@ -157,7 +156,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 	if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER
 		&& pMagic->bMoral < MORAL_NPC)
 	{
-		CUser *pTUser = m_pMain->GetUserPtr(m_pSkillTarget);
+		CUser *pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
 		// revives are the only other concern here, but since we're only checking types 3 & 4 (revive is 5) there's no problem
 		if (pTUser == NULL || pTUser->isDead()) 
 			return;
@@ -190,7 +189,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 					if (pMagic->bMoral < 5 || pMagic->bMoral == MORAL_CLAN) {		
 						float currenttime = TimeGet();
 
-						CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);
+						CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
 						if (pTUser == NULL) return;
 
 						if (currenttime - pTUser->m_fLastRegeneTime < CLAN_SUMMON_TIME) {
@@ -264,7 +263,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 
 			if( m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {	// Does the magic user have a staff?
 				_ITEM_TABLE* pRightHand = NULL;
-				pRightHand = m_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+				pRightHand = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 
 				if( pRightHand && m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum == 0 && pRightHand->m_bKind / 10 == WEAPON_STAFF) {					
 //						total_magic_damage += pRightHand->m_sDamage ;
@@ -285,7 +284,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 			}
 
 			result << uint16(total_magic_damage);
-			m_pMain->Send_AIServer(&result);		
+			g_pMain->Send_AIServer(&result);		
 		}
 	}
 
@@ -400,7 +399,7 @@ void CMagicProcess::SendSkill(int16 pSkillCaster /* = -1 */, int16 pSkillTarget 
 
 	if (m_pSrcUser == NULL)
 	{
-		CNpc *pNpc = m_pMain->m_arNpcArray.GetData(pSkillCaster);
+		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(pSkillCaster);
 		if (pNpc == NULL)
 			return;
 
@@ -411,7 +410,7 @@ void CMagicProcess::SendSkill(int16 pSkillCaster /* = -1 */, int16 pSkillTarget 
 		CUser *pUser = NULL;
 		if ((pSkillCaster < 0 || pSkillCaster >= MAX_USER)
 			&& (pSkillTarget >= 0 && pSkillTarget < MAX_USER))
-			pUser = m_pMain->GetUserPtr(pSkillTarget);
+			pUser = g_pMain->GetUserPtr(pSkillTarget);
 		else
 			pUser = m_pSrcUser;
 
@@ -437,7 +436,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 	int modulator = 0, Class = 0, moral = 0, skill_mod = 0 ;
 
 	if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER) {		// Target existence check routine for player.          
-		pUser = m_pMain->GetUserPtr(m_pSkillTarget);
+		pUser = g_pMain->GetUserPtr(m_pSkillTarget);
 		if (pUser == NULL)
 			goto fail_return;
 
@@ -448,7 +447,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 		}
 		else // skill type 5 (warp/resurrection)
 		{
-			pType = m_pMain->m_Magictype5Array.GetData(pSkill->iNum);    
+			pType = g_pMain->m_Magictype5Array.GetData(pSkill->iNum);    
 			if (pType == NULL
 				|| pUser->isBlinking()
 				|| (pUser->isDead() && pType->sNeedStone == 0 && pType->bExpRecover == 0))
@@ -459,9 +458,9 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 	}
 	else if (m_pSkillTarget >= NPC_BAND)     // Target existence check routine for NPC.          	
 	{
-		if (!m_pMain->m_bPointCheckFlag)
+		if (!g_pMain->m_bPointCheckFlag)
 			goto fail_return;	
-		pNpc = m_pMain->m_arNpcArray.GetData(m_pSkillTarget);
+		pNpc = g_pMain->m_arNpcArray.GetData(m_pSkillTarget);
 		if (pNpc == NULL || pNpc->isDead())
 			goto fail_return;	//... Assuming NPCs can't be resurrected.
 
@@ -582,10 +581,10 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 
 		if (pSkill->bType[0] == 1) {	// Weapons verification in case of COMBO attack (another hacking prevention).
 			if (pSkill->sSkill == 1055 || pSkill->sSkill == 2055) {		// Weapons verification in case of DUAL ATTACK (type 1)!		
-				_ITEM_TABLE* pLeftHand = m_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
+				_ITEM_TABLE* pLeftHand = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
 				if (!pLeftHand) return false;
 
-				_ITEM_TABLE* pRightHand = m_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+				_ITEM_TABLE* pRightHand = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 				if (!pRightHand) return false;
 				
 				int left_index = pLeftHand->m_bKind / 10 ;
@@ -596,7 +595,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 					return false;
 			}
 			else if (pSkill->sSkill == 1056 || pSkill->sSkill == 2056) {	// Weapons verification in case of DOUBLE ATTACK !
-				_ITEM_TABLE* pRightHand = m_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+				_ITEM_TABLE* pRightHand = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 				if (!pRightHand) return false;
 
 				int right_index = pRightHand->m_bKind / 10 ;
@@ -630,7 +629,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 				{	
 					if (pSkill->iUseItem != 0) {
 						_ITEM_TABLE* pItem = NULL;				// This checks if such an item exists.
-						pItem = m_pMain->GetItemPtr(pSkill->iUseItem);
+						pItem = g_pMain->GetItemPtr(pSkill->iUseItem);
 						if( !pItem ) return false;
 						
 						if ((pItem->m_bRace != 0 && m_pSrcUser->m_pUserData->m_bRace != pItem->m_bRace)
@@ -645,10 +644,10 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 			if (pSkill->bType[0] == 5) {
 				if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER)	{	
 					if (pSkill->iUseItem != 0) {					
-						pType = m_pMain->m_Magictype5Array.GetData(pSkill->iNum);    
+						pType = g_pMain->m_Magictype5Array.GetData(pSkill->iNum);    
 						if (!pType) goto fail_return;
 
-						CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);    
+						CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);    
 						if (!pTUser) goto fail_return;
 
 						// No resurrections for low level users
@@ -695,14 +694,14 @@ BYTE CMagicProcess::ExecuteType1(_MAGIC_TABLE *pSkill)
 	if (pSkill == NULL)
 		return 0; 
 
-	_MAGIC_TYPE1* pType = m_pMain->m_Magictype1Array.GetData(pSkill->iNum);
+	_MAGIC_TYPE1* pType = g_pMain->m_Magictype1Array.GetData(pSkill->iNum);
 	if (pType == NULL)
 		return 0;
 
 	damage = m_pSrcUser->GetDamage(m_pSkillTarget, pSkill->iNum);  // Get damage points of enemy.
 
 	// TO-DO: See if this has already be checked?
-	CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);     // Get target info.  
+	CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);     // Get target info.  
 	if (pTUser == NULL || pTUser->isDead())
 		goto packet_send;
 
@@ -755,18 +754,18 @@ BYTE CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 
 	_ITEM_TABLE* pTable = NULL;		// Get item info.
 	if (m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum)
-		pTable = m_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
+		pTable = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
 	else
-		pTable = m_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+		pTable = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 
 	if (pTable == NULL) 
 		return 0;
 
-	_MAGIC_TYPE2* pType = m_pMain->m_Magictype2Array.GetData(pSkill->iNum);     // Get magic skill table type 2.
+	_MAGIC_TYPE2* pType = g_pMain->m_Magictype2Array.GetData(pSkill->iNum);     // Get magic skill table type 2.
 	if (pType == NULL)
 		return 0;
 
-	CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);
+	CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
 	// is this checked already?
 	if (pTUser == NULL || pTUser->isDead())
 		goto packet_send;
@@ -827,28 +826,29 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 	if (pSkill == NULL) 
 		return;
 
-	_MAGIC_TYPE3* pType = m_pMain->m_Magictype3Array.GetData(pSkill->iNum);
+	_MAGIC_TYPE3* pType = g_pMain->m_Magictype3Array.GetData(pSkill->iNum);
 	if (pType == NULL) 
 		return;
 
 	if (m_pSkillCaster >= NPC_BAND)
 	{
 		isNPC = true;
-		pMon = m_pMain->m_arNpcArray.GetData(m_pSkillCaster);
+		pMon = g_pMain->m_arNpcArray.GetData(m_pSkillCaster);
 		if (pMon == NULL || pMon->isDead())
 			return;
 	}
 
 	if (m_pSkillTarget == -1) {		// If the target was the source's party....
 		// TO-DO: Make this not completely and utterly suck (i.e. kill that loop!).
-		for (int i = 0; i < MAX_USER; i++) {		// Maximum number of users in the server....
-			CUser* pTUser = m_pMain->GetUnsafeUserPtr(i);
-			if (pTUser == NULL || pTUser->isDead() || pTUser->isBlinking())
-				continue;
-			
-			if (UserRegionCheck(m_pSkillCaster, i, pSkill->iNum, pType->bRadius, m_sData1, m_sData3))
+		SessionMap & sessMap = g_pMain->s_socketMgr.GetActiveSessionMap();
+		foreach (itr, sessMap)
+		{		
+			CUser* pTUser = static_cast<CUser *>(itr->second);
+			if (!pTUser->isDead() && !pTUser->isBlinking()
+				&& UserRegionCheck(m_pSkillCaster, pTUser->GetSocketID(), pSkill->iNum, pType->bRadius, m_sData1, m_sData3))
 				casted_member.push_back(pTUser);
 		}
+		g_pMain->s_socketMgr.ReleaseLock();
 
 		if (casted_member.empty())
 		{
@@ -858,7 +858,7 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 	}
 	else
 	{	// If the target was another single player.
-		CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);
+		CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
 		if (pTUser == NULL || pTUser->isDead() || pTUser->isBlinking()) 
 			return;		
 		
@@ -874,7 +874,7 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 		else damage = pType->sFirstDamage;
 
 		if( m_pSrcUser )	{
-			if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE )	{
+			if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )	{
 				damage = -10;		
 			}
 		}
@@ -903,17 +903,17 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 					}
 					else 
 					{	// Killed by another player.
-						if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE )	{
+						if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )	{
 							m_pSrcUser->GoldGain( SNOW_EVENT_MONEY );	// 10000���Ƹ� �ִ� �κ�,,,,,
 
-							if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE )	{
+							if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )	{
 								if (pTUser->m_pUserData->m_bNation == KARUS) {
-									m_pMain->m_sKarusDead++;
-									//TRACE("++ ExecuteType3 - ka=%d, el=%d\n", m_pMain->m_sKarusDead, m_pMain->m_sElmoradDead);
+									g_pMain->m_sKarusDead++;
+									//TRACE("++ ExecuteType3 - ka=%d, el=%d\n", g_pMain->m_sKarusDead, g_pMain->m_sElmoradDead);
 								}
 								else if (pTUser->m_pUserData->m_bNation == ELMORAD) {
-									m_pMain->m_sElmoradDead++;
-									//TRACE("++ ExecuteType3 - ka=%d, el=%d\n", m_pMain->m_sKarusDead, m_pMain->m_sElmoradDead);
+									g_pMain->m_sElmoradDead++;
+									//TRACE("++ ExecuteType3 - ka=%d, el=%d\n", g_pMain->m_sKarusDead, g_pMain->m_sElmoradDead);
 								}
 							}
 
@@ -1028,7 +1028,7 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 
 			Packet result(AG_HEAL_MAGIC);
 			result << m_pSkillCaster;
-			m_pMain->Send_AIServer(&result);
+			g_pMain->Send_AIServer(&result);
 		}
 	}
 }
@@ -1041,23 +1041,22 @@ void CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 	if (pSkill == NULL)
 		return;
 
-	_MAGIC_TYPE4* pType = m_pMain->m_Magictype4Array.GetData(pSkill->iNum);
+	_MAGIC_TYPE4* pType = g_pMain->m_Magictype4Array.GetData(pSkill->iNum);
 	if (pType == NULL)
 		return;
 
 	if (m_pSkillTarget == -1)
 	{
 		// TO-DO: Localise this. This is horribly unnecessary.
-		for (int i = 0; i < MAX_USER; i++)
-		{
-			CUser* pTUser = m_pMain->GetUnsafeUserPtr(i);
-			if (pTUser == NULL 
-				|| pTUser->isDead() || pTUser->isBlinking())
-				continue;
-			
-			if (UserRegionCheck(m_pSkillCaster, i, pSkill->iNum, pType->bRadius, m_sData1, m_sData3))
+		SessionMap & sessMap = g_pMain->s_socketMgr.GetActiveSessionMap();
+		foreach (itr, sessMap)
+		{		
+			CUser* pTUser = static_cast<CUser *>(itr->second);
+			if (!pTUser->isDead() && !pTUser->isBlinking()
+				&& UserRegionCheck(m_pSkillCaster, pTUser->GetSocketID(), pSkill->iNum, pType->bRadius, m_sData1, m_sData3))
 				casted_member.push_back(pTUser);
 		}
+		g_pMain->s_socketMgr.ReleaseLock();
 
 		if (casted_member.empty())
 		{		
@@ -1069,7 +1068,7 @@ void CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 	else 
 	{
 		// If the target was another single player.
-		CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);
+		CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
 		if (pTUser == NULL 
 			|| pTUser->isDead() || pTUser->isBlinking()) 
 			return;
@@ -1212,11 +1211,11 @@ void CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 	if (pSkill == NULL)
 		return;
 
-	_MAGIC_TYPE5* pType = m_pMain->m_Magictype5Array.GetData(pSkill->iNum);
+	_MAGIC_TYPE5* pType = g_pMain->m_Magictype5Array.GetData(pSkill->iNum);
 	if (pType == NULL)
 		return;
 
-	CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);
+	CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
 	if (pTUser == NULL 
 		|| (pTUser->isDead() && pType->bType != RESURRECTION) 
 		|| (!pTUser->isDead() && pType->bType == RESURRECTION)) 
@@ -1413,26 +1412,28 @@ void CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 		return;
 
 	vector<CUser *> casted_member;
-	_MAGIC_TYPE8* pType = m_pMain->m_Magictype8Array.GetData(pSkill->iNum);
+	_MAGIC_TYPE8* pType = g_pMain->m_Magictype8Array.GetData(pSkill->iNum);
 	if (pType == NULL)
 		return;
 
 	if (m_pSkillTarget == -1)
 	{
 		// TO-DO: Localise this loop to make it not suck (the life out of the server).
-		for (int i = 0; i < MAX_USER; i++)
+		SessionMap & sessMap = g_pMain->s_socketMgr.GetActiveSessionMap();
+		foreach (itr, sessMap)
 		{		
-			CUser* pTUser = m_pMain->GetUnsafeUserPtr(i);
-			if (pTUser != NULL && UserRegionCheck(m_pSkillCaster, i, pSkill->iNum, pType->sRadius, m_sData1, m_sData3))
+			CUser* pTUser = static_cast<CUser *>(itr->second);
+			if (UserRegionCheck(m_pSkillCaster, pTUser->GetSocketID(), pSkill->iNum, pType->sRadius, m_sData1, m_sData3))
 				casted_member.push_back(pTUser);
 		}
+		g_pMain->s_socketMgr.ReleaseLock();
 
 		if (casted_member.empty()) 
 			return;	
 	}
 	else 
 	{	// If the target was another single player.
-		CUser* pTUser = m_pMain->GetUserPtr(m_pSkillTarget);
+		CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
 		if (pTUser == NULL) 
 			return;
 		
@@ -1449,7 +1450,7 @@ void CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 		if( z < 2.5f )	z = 1.5f + z;
 
 		CUser* pTUser = *itr;
-		_HOME_INFO* pHomeInfo = m_pMain->m_HomeArray.GetData(pTUser->m_pUserData->m_bNation);
+		_HOME_INFO* pHomeInfo = g_pMain->m_HomeArray.GetData(pTUser->m_pUserData->m_bNation);
 		if (pHomeInfo == NULL)
 			return;
 
@@ -1516,7 +1517,7 @@ void CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 				
 				Packet result(AG_USER_REGENE);
 				result << uint16((*itr)->GetSocketID()) << uint16(pTUser->getZoneID());
-				m_pMain->Send_AIServer(&result);
+				g_pMain->Send_AIServer(&result);
 			} break;
 
 			case 12:	// Summon a target within the zone.	
@@ -1597,11 +1598,11 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 	int random = 0, total_r = 0 ;
 	BYTE result; 
 
-	CUser* pTUser = m_pMain->GetUserPtr(tid);  
+	CUser* pTUser = g_pMain->GetUserPtr(tid);  
 	if (pTUser == NULL || pTUser->isDead()) return 0;
 
 	if (sid >= NPC_BAND) {	// If the source is a monster.
-		pMon = m_pMain->m_arNpcArray.GetData(sid);
+		pMon = g_pMain->m_arNpcArray.GetData(sid);
 		if( !pMon || pMon->m_NpcState == NPC_DEAD ) return 0;
 
 		result = m_pSrcUser->GetHitRate( pMon->m_sHitRate / pTUser->m_sTotalEvasionrate ); 		
@@ -1645,7 +1646,7 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 		if ( sid >= 0 && sid < MAX_USER) {
 			if( m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {	// Does the magic user have a staff?
 				_ITEM_TABLE* pRightHand = NULL;
-				pRightHand = m_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+				pRightHand = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 
 				if( pRightHand && m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum == 0 && pRightHand->m_bKind / 10 == WEAPON_STAFF) {				
 					righthand_damage = pRightHand->m_sDamage ;
@@ -1689,17 +1690,17 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 	float currenttime = 0.0f;
 	BOOL bFlag = FALSE;
 
-	CUser* pTUser = m_pMain->GetUserPtr(tid);  
+	CUser* pTUser = g_pMain->GetUserPtr(tid);  
 	if (pTUser == NULL) return FALSE;
 	
 	if (sid >= NPC_BAND) {					
-		pMon = m_pMain->m_arNpcArray.GetData(sid);
+		pMon = g_pMain->m_arNpcArray.GetData(sid);
 		if( !pMon || pMon->m_NpcState == NPC_DEAD ) return FALSE;
 		bFlag = TRUE;
 	}
 
 	_MAGIC_TABLE* pMagic = NULL;
-	pMagic = m_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
+	pMagic = g_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
 	if( !pMagic ) return FALSE;
 
 	switch (pMagic->bMoral) {
@@ -1827,11 +1828,11 @@ final_test :
 
 void CMagicProcess::Type4Cancel(int magicid, short tid)
 {
-	CUser* pTUser = m_pMain->GetUserPtr(tid);  
+	CUser* pTUser = g_pMain->GetUserPtr(tid);  
 	if (pTUser == NULL) 
 		return;
 
-	_MAGIC_TYPE4* pType = m_pMain->m_Magictype4Array.GetData(magicid);
+	_MAGIC_TYPE4* pType = g_pMain->m_Magictype4Array.GetData(magicid);
 	if (pType == NULL)
 		return;
 
@@ -1950,11 +1951,11 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 
 void CMagicProcess::Type3Cancel(int magicid, short tid)
 {
-	CUser* pTUser = m_pMain->GetUserPtr(tid);  
+	CUser* pTUser = g_pMain->GetUserPtr(tid);  
 	if (pTUser == NULL) 
 		return;
 
-	_MAGIC_TYPE3* pType = m_pMain->m_Magictype3Array.GetData(magicid);
+	_MAGIC_TYPE3* pType = g_pMain->m_Magictype3Array.GetData(magicid);
 	if (pType == NULL)
 		return;
 
@@ -1985,7 +1986,7 @@ void CMagicProcess::Type3Cancel(int magicid, short tid)
 
 void CMagicProcess::SendType4BuffRemove(short tid, BYTE buff)
 {
-	CUser* pTUser = m_pMain->GetUserPtr(tid);  
+	CUser* pTUser = g_pMain->GetUserPtr(tid);  
 	if (pTUser == NULL) 
 		return;
 
@@ -1997,9 +1998,9 @@ void CMagicProcess::SendType4BuffRemove(short tid, BYTE buff)
 short CMagicProcess::GetWeatherDamage(short damage, short attribute)
 {
 	// Give a 10% damage output boost based on weather (and skill's elemental attribute)
-	if ((m_pMain->m_nWeather == WEATHER_FINE && attribute == ATTRIBUTE_FIRE)
-		|| (m_pMain->m_nWeather == WEATHER_RAIN && attribute == ATTRIBUTE_LIGHTNING)
-		|| (m_pMain->m_nWeather == WEATHER_SNOW && attribute == ATTRIBUTE_ICE))
+	if ((g_pMain->m_nWeather == WEATHER_FINE && attribute == ATTRIBUTE_FIRE)
+		|| (g_pMain->m_nWeather == WEATHER_RAIN && attribute == ATTRIBUTE_LIGHTNING)
+		|| (g_pMain->m_nWeather == WEATHER_SNOW && attribute == ATTRIBUTE_ICE))
 		damage = (damage * 110) / 100;
 
 	return damage;

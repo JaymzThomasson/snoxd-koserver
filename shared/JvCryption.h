@@ -10,19 +10,20 @@
 
 typedef unsigned char 	T_OCTET;
 typedef _int64			T_KEY;
-
+#include "crc32.h"
 
 class CJvCryption
 {
 private:
-	T_KEY m_public_key, m_private_key, m_tkey;
+	T_KEY m_public_key, m_tkey;
 
 public:
 	CJvCryption();
 	~CJvCryption();
 
+	__forceinline T_KEY GetPublicKey() { return m_public_key; }
+
 	void SetPublicKey(T_KEY pk);
-	void SetPrivateKey(T_KEY pk);
 
 	void Init();
 

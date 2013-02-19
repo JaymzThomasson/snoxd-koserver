@@ -13,6 +13,28 @@ OdbcCommand::OdbcCommand(OdbcConnection * conn)
 	m_odbcConnection->AddCommand(this);
 }
 
+bool OdbcCommand::BindParameters()
+{
+	for (auto itr = m_params.begin(); itr != m_params.end(); itr++)
+	{
+		auto param = itr->second;
+
+		if (!SQL_SUCCEEDED(SQLBindParameter(m_hStmt, itr->first + 1, param->GetParameterType(), 
+			param->GetCDataType(), param->GetDataType(), param->GetDataTypeSize(), 0, 
+			param->GetAddress(), param->GetDataTypeSize(), param->GetCBValue())))
+		{
+			if (m_odbcConnection != NULL)
+				m_szError = m_odbcConnection->ReportSQLError(SQL_HANDLE_STMT, m_hStmt, _T("SQLBindParameter"), _T("Failed to bind parameter."));
+			else
+				m_szError = OdbcConnection::GetSQLError(SQL_HANDLE_STMT, m_hStmt);
+
+			Close();
+			return false;
+		}
+	}
+	return true;
+}
+
 bool OdbcCommand::Open(bool bRetry /*= false*/)
 {
 	if (isOpen())
@@ -48,25 +70,13 @@ bool OdbcCommand::Execute(const tstring & szSQL)
 	if (!Open())
 		return false;
 
-	for (auto itr = m_params.begin(); itr != m_params.end(); itr++)
-	{
-		auto param = itr->second;
+#ifdef _DEBUG
+	OutputDebugString((szSQL + _T("\n")).c_str());
+#endif
 
-		if (!SQL_SUCCEEDED(SQLBindParameter(m_hStmt, itr->first + 1, param->GetParameterType(), 
-			param->GetCDataType(), param->GetDataType(), param->GetDataTypeSize(), 0, 
-			param->GetAddress(), param->GetDataTypeSize(), param->GetCBValue())))
-		{
-			if (m_odbcConnection != NULL)
-				m_szError = m_odbcConnection->ReportSQLError(SQL_HANDLE_STMT, m_hStmt, _T("SQLBindParameter"), _T("Failed to bind parameter."));
-			else
-				m_szError = OdbcConnection::GetSQLError(SQL_HANDLE_STMT, m_hStmt);
+	if (!BindParameters())
+		return false;
 
-			Close();
-			return false;
-		}
-	}
-
-	TRACE("[Execute] Query: %s\n", szSQL.c_str());
 	if (!SQL_SUCCEEDED(SQLExecDirect(m_hStmt, (SQLTCHAR *)szSQL.c_str(), szSQL.length())))
 	{
 		if (m_odbcConnection != NULL)
@@ -82,22 +92,6 @@ bool OdbcCommand::Execute(const tstring & szSQL)
 		MoveNextSet();
 
 	return true;
-}
-
-bool OdbcCommand::MoveNext()
-{
-	if (!isOpen())
-		return false;
-
-	return SQL_SUCCEEDED(m_resultCode = SQLFetch(m_hStmt));
-}
-
-bool OdbcCommand::MoveNextSet()
-{
-	if (!isOpen())
-		return false;
-
-	return SQL_SUCCEEDED(m_resultCode = SQLMoreResults(m_hStmt));
 }
 
 bool OdbcCommand::Prepare(const tstring & szSQL)
@@ -116,23 +110,8 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 		return false;
 	}
 
-	for (auto itr = m_params.begin(); itr != m_params.end(); itr++)
-	{
-		auto param = itr->second;
-
-		if (!SQL_SUCCEEDED(SQLBindParameter(m_hStmt, itr->first + 1, param->GetParameterType(), 
-			param->GetCDataType(), param->GetDataType(), param->GetDataTypeSize(), 0, 
-			param->GetAddress(), param->GetDataTypeSize(), param->GetCBValue())))
-		{
-			if (m_odbcConnection != NULL)
-				m_szError = m_odbcConnection->ReportSQLError(SQL_HANDLE_STMT, m_hStmt, _T("SQLBindParameter"), _T("Failed to bind parameter."));
-			else
-				m_szError = OdbcConnection::GetSQLError(SQL_HANDLE_STMT, m_hStmt);
-
-			Close();
-			return false;
-		}
-	}
+	if (!BindParameters())
+		return false;
 
 	TRACE("[Prepare] Query: %s\n", szSQL.c_str());
 	if (!SQL_SUCCEEDED(SQLExecute(m_hStmt)))
@@ -154,6 +133,21 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 	return true;
 }
 
+bool OdbcCommand::MoveNext()
+{
+	if (!isOpen())
+		return false;
+
+	return SQL_SUCCEEDED(m_resultCode = SQLFetch(m_hStmt));
+}
+
+bool OdbcCommand::MoveNextSet()
+{
+	if (!isOpen())
+		return false;
+
+	return SQL_SUCCEEDED(m_resultCode = SQLMoreResults(m_hStmt));
+}
 
 #define ADD_ODBC_PARAMETER(name, type, sqlType) void OdbcCommand::AddParameter(SQLSMALLINT paramType, type *value, SQLLEN maxLength) { m_params.insert(std::make_pair(m_params.size(), new OdbcParameter(paramType, sqlType, (SQLPOINTER)value, maxLength))); } \
 	type OdbcCommand::Fetch ## name(int pos) { type value; SQLINTEGER cb = SQL_NTS; SQLGetData(m_hStmt, pos, sqlType, &value, 0, &cb); return value; } \

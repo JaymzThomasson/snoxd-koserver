@@ -22,11 +22,11 @@
     <Filter Include="Database">
       <UniqueIdentifier>{42082f42-a5b4-4353-96b5-16b8c87bbee0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Networking">
-      <UniqueIdentifier>{073be5de-f0b1-4042-8494-5704e8177083}</UniqueIdentifier>
-    </Filter>
     <Filter Include="N3Base">
       <UniqueIdentifier>{65077a65-a242-4880-9f12-b9c7a324593b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shared\Networking">
+      <UniqueIdentifier>{073be5de-f0b1-4042-8494-5704e8177083}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -72,12 +72,6 @@
     <ClCompile Include="User.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\crc32.cpp">
-      <Filter>Shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\lzf.cpp">
-      <Filter>Shared</Filter>
-    </ClCompile>
     <ClCompile Include="LoginHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
@@ -105,15 +99,6 @@
     <ClCompile Include="FriendHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
-    <ClCompile Include="IOCPort.cpp">
-      <Filter>Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="IOCPSocket2.cpp">
-      <Filter>Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="JvCryption.cpp">
-      <Filter>Networking</Filter>
-    </ClCompile>
     <ClCompile Include="ShoppingMallHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
@@ -125,9 +110,6 @@
     </ClCompile>
     <ClCompile Include="MerchantHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\Compress.cpp">
-      <Filter>Shared</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\Ini.cpp">
       <Filter>Shared</Filter>
@@ -141,29 +123,41 @@
     <ClCompile Include="..\shared\database\KnightsRankSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>
-    <ClCompile Include="UdpSocket.cpp">
-      <Filter>Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="AISocket.cpp">
-      <Filter>Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\CircularBuffer.cpp">
-      <Filter>Networking</Filter>
-    </ClCompile>
     <ClCompile Include="CharacterMovementHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
     <ClCompile Include="MagicHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
+    <ClCompile Include="AISocket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UdpSocket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\CircularBuffer.cpp">
+      <Filter>Shared\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\JvCryption.cpp">
+      <Filter>Shared\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\KOSocket.cpp">
+      <Filter>Shared\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\SocketMgr.cpp">
+      <Filter>Shared\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\Socket.cpp">
+      <Filter>Shared\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\lzf.cpp">
+      <Filter>Shared\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\crc32.cpp">
+      <Filter>Shared\Networking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AIPacket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AISocket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Define.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -218,31 +212,7 @@
     <ClInclude Include="Resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\crc32.h">
-      <Filter>Shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\lzf.h">
-      <Filter>Shared</Filter>
-    </ClInclude>
-    <ClInclude Include="UdpSocket.h">
-      <Filter>Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="IOCPort.h">
-      <Filter>Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="IOCPSocket2.h">
-      <Filter>Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="JvCryption.h">
-      <Filter>Networking</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\globals.h">
-      <Filter>Shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\packets.h">
-      <Filter>Shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\Compress.h">
       <Filter>Shared</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\Ini.h">
@@ -323,9 +293,6 @@
     <ClInclude Include="..\shared\database\MyRecordSet.h">
       <Filter>Database</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\CircularBuffer.h">
-      <Filter>Networking</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\database\MagicType6Set.h">
       <Filter>Database</Filter>
     </ClInclude>
@@ -337,6 +304,45 @@
     </ClInclude>
     <ClInclude Include="ChatHandler.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AIPacket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AISocket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UdpSocket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\CircularBuffer.h">
+      <Filter>Shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\ClientSocketMgr.h">
+      <Filter>Shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\JvCryption.h">
+      <Filter>Shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\KOSocket.h">
+      <Filter>Shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\KOSocketMgr.h">
+      <Filter>Shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\packets.h">
+      <Filter>Shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\SocketMgr.h">
+      <Filter>Shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\Socket.h">
+      <Filter>Shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\lzf.h">
+      <Filter>Shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\crc32.h">
+      <Filter>Shared\Networking</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

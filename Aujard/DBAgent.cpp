@@ -91,7 +91,7 @@ int8 CDBAgent::AccountLogin(string & strAccountID, string & strPasswd)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strPasswd.c_str(), strPasswd.length());
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
-	if (!dbCommand->Prepare(_T("{CALL ACCOUNT_LOGIN(?, ?, ?)}")))
+	if (!dbCommand->Execute(_T("{CALL ACCOUNT_LOGIN(?, ?, ?)}")))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	return (int8)(nRet - 1);
@@ -107,7 +107,7 @@ bool CDBAgent::NationSelect(string & strAccountID, uint8 bNation)
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strAccountID.c_str(), strAccountID.length());
 
-	if (!dbCommand->Prepare(string_format(_T("{CALL NATION_SELECT(?, ?, %d)}"), bNation)))
+	if (!dbCommand->Execute(string_format(_T("{CALL NATION_SELECT(?, ?, %d)}"), bNation)))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	return (nRet > 0);
@@ -123,7 +123,7 @@ bool CDBAgent::GetAllCharID(string & strAccountID, string & strCharID1, string &
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strAccountID.c_str(), strAccountID.length());
 
-	if (!dbCommand->Prepare(_T("{? = CALL LOAD_ACCOUNT_CHARID(?)}")))
+	if (!dbCommand->Execute(_T("{? = CALL LOAD_ACCOUNT_CHARID(?)}")))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	if (dbCommand->hasData())
@@ -194,7 +194,7 @@ int8 CDBAgent::CreateNewChar(string & strAccountID, int index, string & strCharI
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strAccountID.c_str(), strAccountID.length());
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strCharID.c_str(), strCharID.length());
 
-	if (!dbCommand->Prepare(string_format(_T("{CALL CREATE_NEW_CHAR (?, ?, %d, ?, %d, %d, %d, %d, %d, %d, %d, %d, %d)}"), 
+	if (!dbCommand->Execute(string_format(_T("{CALL CREATE_NEW_CHAR (?, ?, %d, ?, %d, %d, %d, %d, %d, %d, %d, %d, %d)}"), 
 		index, bRace, sClass, nHair, bFace, bStr, bSta, bDex, bInt, bCha)))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
@@ -212,7 +212,7 @@ int8 CDBAgent::ChangeHair(std::string & strAccountID, std::string & strCharID, u
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strCharID.c_str(), strCharID.length());
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
-	if (!dbCommand->Prepare(string_format(_T("{CALL CHANGE_HAIR (?, ?, %d, %d, %d, ?)}"), 
+	if (!dbCommand->Execute(string_format(_T("{CALL CHANGE_HAIR (?, ?, %d, %d, %d, ?)}"), 
 		bOpcode, bFace, nHair)))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
@@ -231,7 +231,7 @@ int8 CDBAgent::DeleteChar(string & strAccountID, int index, string & strCharID, 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strSocNo.c_str(), strSocNo.length());
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
-	if (!dbCommand->Prepare(string_format(_T("{CALL DELETE_CHAR (?, %d, ?, ?, ?)}"), index)))
+	if (!dbCommand->Execute(string_format(_T("{CALL DELETE_CHAR (?, %d, ?, ?, ?)}"), index)))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	return (int8)(nRet);
@@ -489,7 +489,7 @@ bool CDBAgent::SetLogInInfo(string & strAccountID, string & strCharID, string & 
 		szSQL = string_format(_T("UPDATE CURRENTUSER SET nServerNo=%d, strServerIP=? WHERE strAccountID = ?"), sServerNo);
 	}
 
-	if (!dbCommand->Prepare(szSQL))
+	if (!dbCommand->Execute(szSQL))
 		m_pMain->ReportSQLError(m_AccountDB.GetError());
 	else
 		result = true;
@@ -508,7 +508,7 @@ bool CDBAgent::LoadWebItemMall(short uid, Packet & result)
 		return false;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_id, strlen(pUser->m_id));
-	if (!dbCommand->Prepare(_T("{CALL LOAD_WEB_ITEMMALL(?)}")))
+	if (!dbCommand->Execute(_T("{CALL LOAD_WEB_ITEMMALL(?)}")))
 		m_pMain->ReportSQLError(m_AccountDB.GetError());
 
 	if (!dbCommand->hasData())
@@ -549,7 +549,7 @@ bool CDBAgent::LoadSkillShortcut(short uid, Packet & result)
 	char strSkillData[260];
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_id, strlen(pUser->m_id));
-	if (!dbCommand->Prepare(_T("{CALL SKILLSHORTCUT_LOAD(?)}")))
+	if (!dbCommand->Execute(_T("{CALL SKILLSHORTCUT_LOAD(?)}")))
 	{
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 		return false;
@@ -577,7 +577,7 @@ void CDBAgent::SaveSkillShortcut(short uid, short sCount, char *buff)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_id, strlen(pUser->m_id));
 	dbCommand->AddParameter(SQL_PARAM_INPUT, buff, 260);
 
-	if (!dbCommand->Prepare(string_format(_T("{CALL SKILLSHORTCUT_SAVE(?, %d, ?)}"), sCount)))
+	if (!dbCommand->Execute(string_format(_T("{CALL SKILLSHORTCUT_SAVE(?, %d, ?)}"), sCount)))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	delete dbCommand;
@@ -594,7 +594,7 @@ void CDBAgent::RequestFriendList(short uid, vector<string> & friendList)
 		return;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_id, strlen(pUser->m_id));
-	if (!dbCommand->Prepare(_T("SELECT * FROM FRIEND_LIST WHERE strUserID=?")))
+	if (!dbCommand->Execute(_T("SELECT * FROM FRIEND_LIST WHERE strUserID=?")))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	if (!dbCommand->hasData())
@@ -625,7 +625,7 @@ FriendAddResult CDBAgent::AddFriend(short sid, short tid)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pTargetUser->m_id, strlen(pTargetUser->m_id));
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
-	if (!dbCommand->Prepare(_T("{CALL INSERT_FRIEND_LIST(?, ?, ?)")))
+	if (!dbCommand->Execute(_T("{CALL INSERT_FRIEND_LIST(?, ?, ?)")))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	if (nRet < 0 || nRet >= FRIEND_ADD_MAX)
@@ -650,7 +650,7 @@ FriendRemoveResult CDBAgent::RemoveFriend(short sid, string & strCharID)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strCharID.c_str(), strCharID.length());
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
-	if (!dbCommand->Prepare(_T("{CALL DELETE_FRIEND_LIST(?, ?, ?)")))
+	if (!dbCommand->Execute(_T("{CALL DELETE_FRIEND_LIST(?, ?, ?)")))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	if (nRet < 0 || nRet >= FRIEND_REMOVE_MAX)
@@ -689,7 +689,7 @@ bool CDBAgent::UpdateUser(string & strCharID, short uid, UserUpdateType type)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)serialBuffer.contents(), serialBuffer.size(), SQL_BINARY);
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)pUser->m_bstrQuest, sizeof(pUser->m_bstrQuest));
 
-	if (!dbCommand->Prepare(string_format(_T("{CALL UPDATE_USER_DATA ("
+	if (!dbCommand->Execute(string_format(_T("{CALL UPDATE_USER_DATA ("
 			"?, " // strCharID 
 			"%d, %d, %d, %d, %d, "		// nation, race, class, hair, rank
 			"%d, %d, %d, %d, %d, "		// title, level, exp, loyalty, face
@@ -743,7 +743,7 @@ bool CDBAgent::UpdateWarehouseData(string & strAccountID, short uid, UserUpdateT
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)itemBuffer.contents(), itemBuffer.size(), SQL_BINARY);
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)serialBuffer.contents(), serialBuffer.size(), SQL_BINARY);
 
-	if (!dbCommand->Prepare(string_format(_T("{CALL UPDATE_WAREHOUSE(?,%d,%d,?,?)}"), pUser->m_iBank, pUser->m_dwTime)))
+	if (!dbCommand->Execute(string_format(_T("{CALL UPDATE_WAREHOUSE(?,%d,%d,?,?)}"), pUser->m_iBank, pUser->m_dwTime)))
 	{
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 		return false;
@@ -763,7 +763,7 @@ int8 CDBAgent::CreateKnights(uint16 sClanID, uint8 bNation, string & strKnightsN
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strKnightsName.c_str(), strKnightsName.length());
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strChief.c_str(), strChief.length());
 
-	if (!dbCommand->Prepare(string_format(_T("{call CREATE_KNIGHTS(?,%d,%d,%d,?,?)}"), sClanID, bNation, bFlag)))
+	if (!dbCommand->Execute(string_format(_T("{call CREATE_KNIGHTS(?,%d,%d,%d,?,?)}"), sClanID, bNation, bFlag)))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	return (int8)(nRet);
@@ -780,7 +780,7 @@ int CDBAgent::UpdateKnights(uint8 bType, string & strCharID, uint16 sClanID, uin
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strCharID.c_str(), strCharID.length());
 
-	if (!dbCommand->Prepare(string_format(_T("{CALL UPDATE_KNIGHTS(?,%d,?,%d,%d)"), bType, sClanID, bDomination)))
+	if (!dbCommand->Execute(string_format(_T("{CALL UPDATE_KNIGHTS(?,%d,?,%d,%d)"), bType, sClanID, bDomination)))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	return nRet;
@@ -792,7 +792,7 @@ int CDBAgent::DeleteKnights(uint16 sClanID)
 	int16 nRet = -1;
 
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
-	if (!dbCommand->Prepare(string_format(_T("{call DELETE_KNIGHTS (?,%d)}"), sClanID)))
+	if (!dbCommand->Execute(string_format(_T("{call DELETE_KNIGHTS (?,%d)}"), sClanID)))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	return nRet;
@@ -931,7 +931,7 @@ void CDBAgent::UpdateBattleEvent(string & strCharID, uint8 bNation)
 		return;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strCharID.c_str(), strCharID.length());
-	if (!dbCommand->Prepare(string_format(_T("UPDATE BATTLE SET byNation=%d, strUserName=? WHERE sIndex=%d"), bNation, m_pMain->m_nServerNo)))
+	if (!dbCommand->Execute(string_format(_T("UPDATE BATTLE SET byNation=%d, strUserName=? WHERE sIndex=%d"), bNation, m_pMain->m_nServerNo)))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 }
 
@@ -945,7 +945,7 @@ void CDBAgent::AccountLogout(string & strAccountID)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strAccountID.c_str(), strAccountID.length());
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
-	if (!dbCommand->Prepare(_T("{CALL ACCOUNT_LOGOUT(?, ?)}")))
+	if (!dbCommand->Execute(_T("{CALL ACCOUNT_LOGOUT(?, ?)}")))
 		m_pMain->ReportSQLError(m_AccountDB.GetError());
 }
 

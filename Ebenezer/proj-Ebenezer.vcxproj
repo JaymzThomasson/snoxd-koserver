@@ -151,12 +151,15 @@
   <ItemGroup>
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp" />
     <ClCompile Include="..\shared\CircularBuffer.cpp" />
-    <ClCompile Include="..\shared\Compress.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
     <ClCompile Include="..\shared\database\KnightsRankSet.cpp" />
     <ClCompile Include="..\shared\Ini.cpp" />
+    <ClCompile Include="..\shared\JvCryption.cpp" />
+    <ClCompile Include="..\shared\KOSocket.cpp" />
     <ClCompile Include="..\shared\lzf.cpp" />
     <ClCompile Include="..\shared\SharedMem.cpp" />
+    <ClCompile Include="..\shared\Socket.cpp" />
+    <ClCompile Include="..\shared\SocketMgr.cpp" />
     <ClCompile Include="AISocket.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -190,16 +193,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="IOCPort.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="IOCPSocket2.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
     <ClCompile Include="ItemHandler.cpp" />
-    <ClCompile Include="JvCryption.cpp" />
     <ClCompile Include="Knights.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -253,7 +247,7 @@
     <ClInclude Include="..\N3BASE\N3ShapeMgr.h" />
     <ClInclude Include="..\N3BASE\StdAfxBase.h" />
     <ClInclude Include="..\shared\CircularBuffer.h" />
-    <ClInclude Include="..\shared\Compress.h" />
+    <ClInclude Include="..\shared\ClientSocketMgr.h" />
     <ClInclude Include="..\shared\crc32.h" />
     <ClInclude Include="..\shared\database\BattleSet.h" />
     <ClInclude Include="..\shared\database\CoefficientSet.h" />
@@ -280,9 +274,14 @@
     <ClInclude Include="..\shared\database\ZoneInfoSet.h" />
     <ClInclude Include="..\shared\globals.h" />
     <ClInclude Include="..\shared\Ini.h" />
+    <ClInclude Include="..\shared\JvCryption.h" />
+    <ClInclude Include="..\shared\KOSocket.h" />
+    <ClInclude Include="..\shared\KOSocketMgr.h" />
     <ClInclude Include="..\shared\lzf.h" />
     <ClInclude Include="..\shared\packets.h" />
     <ClInclude Include="..\shared\SharedMem.h" />
+    <ClInclude Include="..\shared\Socket.h" />
+    <ClInclude Include="..\shared\SocketMgr.h" />
     <ClInclude Include="AIPacket.h" />
     <ClInclude Include="AISocket.h" />
     <ClInclude Include="ChatHandler.h" />
@@ -294,9 +293,6 @@
     <ClInclude Include="EXEC.h" />
     <ClInclude Include="GameDefine.h" />
     <ClInclude Include="GameEvent.h" />
-    <ClInclude Include="IOCPort.h" />
-    <ClInclude Include="IOCPSocket2.h" />
-    <ClInclude Include="JvCryption.h" />
     <ClInclude Include="Knights.h" />
     <ClInclude Include="KnightsManager.h" />
     <ClInclude Include="LOGIC_ELSE.h" />

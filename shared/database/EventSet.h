@@ -53,7 +53,7 @@ public:
 		// TO-DO: Get rid of this (need to tweak the database to just use int fields)
 		foreach_array(i, m_Cond)
 		{
-			data->m_iCond[i] = atoi(iValue); 
+			data->m_iCond[i] = atoi(m_Cond[i]); 
 			data->m_iExec[i] = atoi(m_Exec[i]); 
 		}
 	};

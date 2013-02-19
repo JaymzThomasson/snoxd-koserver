@@ -14,7 +14,5 @@ public:
 	bool LoadUserCountList();
 
 	uint16 AccountLogin(std::string & id, std::string & pwd);
-
 	OdbcConnection m_dbConnection;
-	CVersionManagerDlg* m_pMain;
 };

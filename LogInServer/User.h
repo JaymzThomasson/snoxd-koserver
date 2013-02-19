@@ -1,22 +1,15 @@
-// User.h: interface for the CUser class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_USER_H__44B01102_A28D_4527_BCBC_1815DD57BCB0__INCLUDED_)
-#define AFX_USER_H__44B01102_A28D_4527_BCBC_1815DD57BCB0__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#include "IOCPSocket2.h"
+#include "../shared/KOSocket.h"
+#include "Define.h"
 
 class CVersionManagerDlg;
-class CUser : public CIOCPSocket2  
+class LoginSession : public KOSocket
 {
 public:
-	void Initialize();
-	void Parsing(Packet & pkt);
+	LoginSession(uint16 socketID, SocketMgr *mgr); 
+
+	virtual bool HandlePacket(Packet & pkt);
 	void HandleVersion(Packet & pkt);
 	void HandlePatches(Packet & pkt);
 	void HandleLogin(Packet & pkt);
@@ -26,11 +19,7 @@ public:
 	void HandleSetEncryptionPublicKey(Packet & pkt);
 	void HandleUnkF7(Packet & pkt);
 #endif
-
-	CVersionManagerDlg* m_pMain;
 };
 
 void InitPacketHandlers(void);
-typedef void (CUser::*LSPacketHandler)(Packet &);
-
-#endif // !defined(AFX_USER_H__44B01102_A28D_4527_BCBC_1815DD57BCB0__INCLUDED_)
+typedef void (LoginSession::*LSPacketHandler)(Packet &);

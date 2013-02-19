@@ -1,16 +1,6 @@
-// EbenezerDlg.h : header file
-//
-
-#if !defined(AFX_EBENEZERDLG_H__655A21EF_E029_42C0_890A_68DA7F542428__INCLUDED_)
-#define AFX_EBENEZERDLG_H__655A21EF_E029_42C0_890A_68DA7F542428__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-
 #pragma warning(disable : 4786)
 
-#include "Iocport.h"
 #include "Ebenezer.h"
 #include "Map.h"
 #include "Define.h"
@@ -28,6 +18,8 @@
 #include <vector>
 
 #include "ChatHandler.h"
+#include "../shared/KOSocketMgr.h"
+#include "../shared/ClientSocketMgr.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CEbenezerDlg dialog
@@ -47,7 +39,6 @@ typedef CSTLMap <_MAGIC_TYPE7>				Magictype7Array;
 typedef CSTLMap <_MAGIC_TYPE8>				Magictype8Array; 
 typedef CSTLMap <_MAGIC_TYPE9>				Magictype9Array;
 typedef CSTLMap <CNpc>						NpcArray;
-typedef CSTLMap <CAISocket>					AISocketArray;
 typedef CSTLMap <_PARTY_GROUP>				PartyArray;
 typedef CSTLMap <CKnights>					KnightsArray;
 typedef CSTLMap <_ZONE_SERVERINFO>			ServerArray;
@@ -88,7 +79,6 @@ public:
 	void BattleZoneOpenTimer();
 	void BattleZoneOpen(int nType, uint8 bZone = 0);	// 0:open 1:close
 	void AliveUserCheck();
-	void WithdrawUserOut();
 	BOOL LoadMagicType1();
 	BOOL LoadMagicType2();
 	BOOL LoadMagicType3();
@@ -102,7 +92,6 @@ public:
 	void Send_PartyMember(int party, Packet *result);
 	void Send_KnightsMember(int index, Packet *pkt);
 	int GetAIServerPort();
-	BOOL AISocketConnect( int zone, int flag = 0 );
 	BOOL LoadNoticeData();
 	BOOL LoadBlockNameList();
 	BOOL LoadLevelUpTable();
@@ -115,9 +104,8 @@ public:
 	BOOL LoadItemTable();
 	BOOL LoadServerResourceTable();
 	BOOL MapFileLoad();
-	void UserAcceptThread();
 	// sungyong 2001.11.06
-	BOOL AIServerConnect();
+	void AIServerConnect();
 	void SendAllUserInfo();
 	void DeleteAllNpcList(int flag = 0);
 	CNpc*  GetNpcPtr( int sid, int cur_zone );
@@ -170,7 +158,6 @@ public:
 	void Send_NearRegion(Packet *pkt, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser=NULL );
 	void Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser* pExceptUser=NULL );
 
-	void Send_All( char* pBuf, int len, CUser* pExceptUser = NULL, int nation=0 );	// PENDING DEPRECATION
 	void Send_All(Packet *pkt, CUser* pExceptUser = NULL, uint8 nation = 0);
 	void Send_AIServer(Packet *pkt);
 
@@ -182,7 +169,6 @@ public:
 
 	CUser * GetUserPtr(const char* userid, NameType type);
 	CUser * GetUserPtr(int sid);
-	__forceinline CUser * GetUnsafeUserPtr(int sid);
 
 	CKnights * GetClanPtr(uint16 sClanID);
 	_ITEM_TABLE * GetItemPtr(uint32 nItemID);
@@ -195,7 +181,9 @@ public:
 
 	CEbenezerDlg(CWnd* pParent = NULL);	// standard constructor
 
-	static CIOCPort	m_Iocport;
+	static KOSocketMgr<CUser> s_socketMgr;
+	static ClientSocketMgr<CAISocket> s_aiSocketMgr;
+
 
 	CSharedMemQueue	m_LoggerSendQueue, m_LoggerRecvQueue;
 
@@ -208,7 +196,6 @@ public:
 	char	m_ppNotice[20][128];
 	char	m_AIServerIP[20];
 
-	AISocketArray			m_AISocketArray;
 	NpcArray				m_arNpcArray;
 	ZoneArray				m_ZoneArray;
 	ItemtableArray			m_ItemtableArray;
@@ -236,7 +223,6 @@ public:
 
 	short	m_sPartyIndex;
 	short	m_sZoneCount;							// AI Server 재접속시 사용
-	short	m_sSocketCount;							// AI Server 재접속시 사용
 
 	short   m_sSendSocket;			
 	BOOL	m_bFirstServerFlag;		// 서버가 처음시작한 후 게임서버가 붙은 경우에는 1, 붙지 않은 경우 0
@@ -343,7 +329,4 @@ protected:
 	friend class C3DMap;
 };
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_EBENEZERDLG_H__655A21EF_E029_42C0_890A_68DA7F542428__INCLUDED_)
+extern CEbenezerDlg * g_pMain;

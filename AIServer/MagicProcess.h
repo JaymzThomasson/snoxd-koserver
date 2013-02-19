@@ -1,24 +1,15 @@
-// MagicProcess.h: interface for the CMagicProcess class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_MAGICPROCESS_H__9FE02686_F482_4C68_849A_130DE441D38D__INCLUDED_)
-#define AFX_MAGICPROCESS_H__9FE02686_F482_4C68_849A_130DE441D38D__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-class CServerDlg;
 class CUser;
 class CNpc;
+class Packet;
+
 struct _MAGIC_TABLE;
 struct _MAGIC_TYPE4;
 
 class CMagicProcess  
 {
 public:
-	CServerDlg*	m_pMain;
 	CUser*			m_pSrcUser;	
 
 	BYTE	m_bMagicState;
@@ -42,8 +33,5 @@ public:
 	void  AreaAttackDamage(int magictype, int rx, int rz, int magicid, int moral, int data1, int data2, int data3, int dexpoint, int righthand_damage);
 
 	_MAGIC_TABLE* IsAvailable( int magicid, int tid, BYTE type );
-	void MagicPacket( char* pBuf );
-
+	void MagicPacket(Packet & pkt);
 };
-
-#endif // !defined(AFX_MAGICPROCESS_H__9FE02686_F482_4C68_849A_130DE441D38D__INCLUDED_)

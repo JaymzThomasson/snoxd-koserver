@@ -25,7 +25,6 @@ CMapInfo::~CMapInfo()
 
 MAP::MAP()
 {
-	m_pMain = (CServerDlg*)AfxGetApp()->GetMainWnd();
 	m_nMapSize = 0;
 	m_fUnitDist = 0.0f;
 	m_fHeight = NULL;
@@ -423,7 +422,7 @@ void MAP::LoadObjectEvent(HANDLE hFile)
 		// 작업할것 : 맵데이터가 바뀌면 Param1이 2이면 성문인것을 판단..  3이면 레버..
 		if( pEvent->sType == 1 || pEvent->sType == 2 || pEvent->sType == 3) {
 			// sungyong test
-			m_pMain->AddObjectEventNpc(pEvent, m_nZoneNumber);
+			g_pMain->AddObjectEventNpc(pEvent, m_nZoneNumber);
 		}	
 
 		if( pEvent->sIndex <= 0 ) continue;
@@ -630,12 +629,12 @@ int MAP::IsRoomCheck(float fx, float fz)
 				room_number = i;
 				TRACE(" Room Check - number = %d, x=%d, z=%d\n", i, nX, nZ);
 				//wsprintf(notify, "** 알림 : [%d Zone][%d] 방에 들어오신것을 환영합니다 **", m_nZoneNumber, pRoom->m_sRoomNumber);
-				//m_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
+				//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
 			}
 			else if( pRoom->m_byStatus == 2 )	{		// 진행중인 상태
 				pRoom->m_byStatus = 3;					// 클리어 상태로
 				//wsprintf(notify, "** 알림 : [%d Zone][%d] 목표지점까지 도착해서 클리어 됩니다ㅇ **", m_nZoneNumber, pRoom->m_sRoomNumber);
-				//m_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
+				//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
 			}
 
 			return room_number;	

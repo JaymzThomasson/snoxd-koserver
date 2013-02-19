@@ -1,17 +1,5 @@
-// User.h: interface for the CUser class.
-// 
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_USER_H__5FEC1968_ED75_4AAF_A4DB_CB48F6940B2E__INCLUDED_)
-#define AFX_USER_H__5FEC1968_ED75_4AAF_A4DB_CB48F6940B2E__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#pragma warning(disable : 4786)
-
-#include "IOCPSocket2.h"
 #include "define.h"
 #include "GameDefine.h"
 #include "MagicProcess.h"
@@ -26,14 +14,23 @@
 
 #include "ChatHandler.h"
 
+#include "../shared/KOSocket.h"
+
 typedef	 std::list<_EXCHANGE_ITEM*>		ItemList;
 typedef  std::list<int>					UserEventList;
 typedef	 std::map<uint32, time_t>		SkillCooldownList;
 
 #define BANISH_DELAY_TIME    30
 
+enum GameState
+{
+	GAME_STATE_DISCONNECTED,
+	GAME_STATE_CONNECTED,
+	GAME_STATE_INGAME
+};
+
 class CEbenezerDlg;
-class CUser : public CIOCPSocket2  
+class CUser : public KOSocket
 {
 public:
 	_USER_DATA*	m_pUserData;
@@ -164,7 +161,6 @@ public:
 	BYTE	m_bType4Buff[MAX_TYPE4_BUFF];
 	BOOL	m_bType4Flag;
 		
-	CEbenezerDlg* m_pMain;
 	CMagicProcess m_MagicProcess;
 
 	float	m_fSpeedHackClientTime, m_fSpeedHackServerTime;
@@ -208,6 +204,8 @@ public:
 	__forceinline bool isDead() { return m_bResHpType == USER_DEAD || m_pUserData->m_sHp <= 0; }
 	__forceinline bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; }
 
+
+	__forceinline bool isInGame() { return GetState() == GAME_STATE_INGAME; }
 	__forceinline bool isInParty() { return m_sPartyIndex != -1; }
 	__forceinline bool isInClan() { return m_pUserData->m_bKnights > 0; }
 	__forceinline bool isClanLeader() { return isInClan() && getFame() == CHIEF; }
@@ -221,6 +219,8 @@ public:
 	__forceinline BYTE getZoneID() { return m_pUserData->m_bZone; }
 	__forceinline BYTE getAuthority() { return m_pUserData->m_bAuthority; }
 	__forceinline BYTE getFame() { return m_pUserData->m_bFame; }
+
+	__forceinline GameState GetState() { return m_state; }
 
 	__forceinline uint8 getStat(StatType type)
 	{
@@ -238,7 +238,7 @@ public:
 	{
 		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
 		foreach_array (i, m_pUserData->m_bStats)
-			total += iValue;
+			total += m_pUserData->m_bStats[i];
 		return total;
 	}
 
@@ -257,7 +257,7 @@ public:
 	{
 		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
 		foreach_array (i, m_sStatItemBonuses)
-			total += iValue;
+			total += m_sStatItemBonuses[i];
 		return total;
 	}
 
@@ -277,7 +277,7 @@ public:
 	{
 		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
 		foreach_array (i, m_bStatBuffs)
-			total += iValue;
+			total += m_bStatBuffs[i];
 		return total;
 	}
 
@@ -291,6 +291,12 @@ public:
 	__forceinline uint16 GetSPosX() { return uint16(m_pUserData->m_curx * 10); }
 	__forceinline uint16 GetSPosY() { return uint16(m_pUserData->m_cury * 10); }
 	__forceinline uint16 GetSPosZ() { return uint16(m_pUserData->m_curz * 10); }
+
+	CUser(uint16 socketID, SocketMgr *mgr); 
+
+	virtual void OnConnect();
+	virtual void OnDisconnect();
+	virtual bool HandlePacket(Packet & pkt);
 
 	void SendLoyaltyChange(int32 nChangeAmount = 0);
 
@@ -541,7 +547,6 @@ public:
 	void UserInOut( BYTE Type );
 	void GetUserInfo(Packet & pkt);
 	void Initialize();
-	void Parsing( Packet & pkt );
 	
 	void ChangeFame(uint8 bFame);
 	void SendServerIndex();
@@ -572,11 +577,9 @@ public:
 	void ResetWindows();
 
 	void CloseProcess();
-	CUser();
-	virtual ~CUser();
+	virtual ~CUser() {}
 
 private:
 	static ChatCommandTable s_commandTable;
+	GameState m_state;
 };
-
-#endif // !defined(AFX_USER_H__5FEC1968_ED75_4AAF_A4DB_CB48F6940B2E__INCLUDED_)

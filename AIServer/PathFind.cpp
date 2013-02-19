@@ -32,7 +32,6 @@ CPathFind::CPathFind()
 	m_pClosed = NULL;
 	m_pMap = NULL;
 	m_lMapUse = 0;
-	m_pMain = (CServerDlg*)AfxGetApp()->GetMainWnd();
 }
 
 CPathFind::~CPathFind()
@@ -372,7 +371,7 @@ BOOL CPathFind::IsBlankMap(int x, int y)
 	if(x < 0 || y < 0 || x >= m_vMapSize.cx || y >= m_vMapSize.cy) return FALSE;
 
 	BOOL bRet = TRUE;
-	//if(m_pMain->m_pMap->m_pMap[x][y].m_bMove > 0) bRet = FALSE;
+	//if(g_pMain->m_pMap->m_pMap[x][y].m_bMove > 0) bRet = FALSE;
 	//if
 	return (BOOL)!m_pMap[x*m_vMapSize.cy + y];
 	//return bRet;

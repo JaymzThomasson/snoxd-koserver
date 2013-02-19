@@ -4,9 +4,6 @@
 
 #include "stdafx.h"
 #include "versionmanagerdlg.h"
-#include "User.h"
-
-#include <set>
 
 using namespace std;
 
@@ -14,60 +11,54 @@ LSPacketHandler PacketHandlers[NUM_LS_OPCODES];
 void InitPacketHandlers(void)
 {
 	memset(&PacketHandlers, 0, sizeof(LSPacketHandler) * NUM_LS_OPCODES);
-	PacketHandlers[LS_VERSION_REQ]			= &CUser::HandleVersion;
-	PacketHandlers[LS_DOWNLOADINFO_REQ]		= &CUser::HandlePatches;
-	PacketHandlers[LS_LOGIN_REQ]			= &CUser::HandleLogin;
-	PacketHandlers[LS_SERVERLIST]			= &CUser::HandleServerlist;
-	PacketHandlers[LS_NEWS]					= &CUser::HandleNews;
+	PacketHandlers[LS_VERSION_REQ]			= &LoginSession::HandleVersion;
+	PacketHandlers[LS_DOWNLOADINFO_REQ]		= &LoginSession::HandlePatches;
+	PacketHandlers[LS_LOGIN_REQ]			= &LoginSession::HandleLogin;
+	PacketHandlers[LS_SERVERLIST]			= &LoginSession::HandleServerlist;
+	PacketHandlers[LS_NEWS]					= &LoginSession::HandleNews;
 #if __VERSION >= 1453
-	PacketHandlers[LS_CRYPTION]				= &CUser::HandleSetEncryptionPublicKey;
-	PacketHandlers[LS_UNKF7]				= &CUser::HandleUnkF7;
+	PacketHandlers[LS_CRYPTION]				= &LoginSession::HandleSetEncryptionPublicKey;
+	PacketHandlers[LS_UNKF7]				= &LoginSession::HandleUnkF7;
 #endif
 }
 
-void CUser::Initialize()
-{
-	m_pMain = (CVersionManagerDlg*)AfxGetApp()->GetMainWnd();
-	CIOCPSocket2::Initialize();
-}
+LoginSession::LoginSession(uint16 socketID, SocketMgr *mgr) : KOSocket(socketID, mgr, -1, 16384, 16384) {}
 
-void CUser::Parsing(Packet & pkt)
+bool LoginSession::HandlePacket(Packet & pkt)
 {
 	uint8 opcode = pkt.GetOpcode();
 
 	// Unknown packet
 	if (opcode >= NUM_LS_OPCODES
 		|| PacketHandlers[opcode] == NULL)
-	{
-		Close();
-		return;
-	}
+		return false;
 
 	(this->*PacketHandlers[opcode])(pkt);
+	return true;
 }
 
-void CUser::HandleVersion(Packet & pkt)
+void LoginSession::HandleVersion(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
-	result << m_pMain->GetVersion();
+	result << g_pMain->GetVersion();
 	Send(&result);
 }
 
-void CUser::HandlePatches(Packet & pkt)
+void LoginSession::HandlePatches(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
 	std::set<std::string> downloadset;
 	uint16 version;
 	pkt >> version;
 
-	foreach (itr, (*m_pMain->GetPatchList())) 
+	foreach (itr, (*g_pMain->GetPatchList())) 
 	{
 		auto pInfo = itr->second;
 		if (pInfo->sVersion > version)
 			downloadset.insert(pInfo->strFileName);
 	}
 
-	result << m_pMain->GetFTPUrl() << m_pMain->GetFTPPath();
+	result << g_pMain->GetFTPUrl() << g_pMain->GetFTPPath();
 	result << uint16(downloadset.size());
 	
 	foreach (itr, downloadset)
@@ -76,7 +67,7 @@ void CUser::HandlePatches(Packet & pkt)
 	Send(&result);
 }
 
-void CUser::HandleLogin(Packet & pkt)
+void LoginSession::HandleLogin(Packet & pkt)
 {
 	enum LoginErrorCode
 	{
@@ -98,7 +89,7 @@ void CUser::HandleLogin(Packet & pkt)
 		|| password.size() == 0 || password.size() > MAX_PW_SIZE)
 		resultCode = AUTH_NOT_FOUND; 
 	else
-		resultCode = m_pMain->m_DBProcess.AccountLogin(account, password);
+		resultCode = g_pMain->m_DBProcess.AccountLogin(account, password);
 
 	result << uint8(resultCode);
 	if (resultCode == AUTH_SUCCESS)
@@ -109,10 +100,10 @@ void CUser::HandleLogin(Packet & pkt)
 	Send(&result);
 }
 
-void CUser::HandleServerlist(Packet & pkt)
+void LoginSession::HandleServerlist(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
-	m_pMain->m_DBProcess.LoadUserCountList();
+	g_pMain->m_DBProcess.LoadUserCountList();
 
 #if __VERSION >= 1500
 	uint16 echo;
@@ -120,8 +111,8 @@ void CUser::HandleServerlist(Packet & pkt)
 	result << echo;
 #endif
 
-	result << uint8(m_pMain->GetServerList()->size());
-	foreach (itr, (*m_pMain->GetServerList())) 
+	result << uint8(g_pMain->GetServerList()->size());
+	foreach (itr, (*g_pMain->GetServerList())) 
 	{		
 		_SERVER_INFO *pServer = *itr;
 
@@ -154,10 +145,10 @@ void CUser::HandleServerlist(Packet & pkt)
 	Send(&result);
 }
 
-void CUser::HandleNews(Packet & pkt)
+void LoginSession::HandleNews(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
-	News *pNews = m_pMain->GetNews();
+	News *pNews = g_pMain->GetNews();
 
 	if (pNews->Size)
 	{
@@ -172,14 +163,14 @@ void CUser::HandleNews(Packet & pkt)
 }
 
 #if __VERSION >= 1453
-void CUser::HandleSetEncryptionPublicKey(Packet & pkt)
+void LoginSession::HandleSetEncryptionPublicKey(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
 	result << uint64(0); // set key of 0 to disable encryption
 	Send(&result);
 }
 
-void CUser::HandleUnkF7(Packet & pkt)
+void LoginSession::HandleUnkF7(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
 	result << uint16(0);

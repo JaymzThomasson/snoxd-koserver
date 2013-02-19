@@ -1,28 +1,20 @@
+#include "stdafx.h"
 #include "JvCryption.h"
-#include "../shared/crc32.h"
+#include "version.h"
 
-extern T_KEY g_private_key;
+// Cryption
+#if __VERSION >= 1700
+#define g_private_key 0x1207500120128966
+#elif __VERSION >= 1298 && __VERSION < 1453
+#define g_private_key 0x1234567890123456
+#else
+#define g_private_key 0x1257091582190465
+#endif
 
-CJvCryption::CJvCryption()
-{
-	m_public_key = 0;
-	m_private_key = g_private_key;
-}
+CJvCryption::CJvCryption() : m_public_key(0) {}
 
-void CJvCryption::SetPublicKey(T_KEY pk)
-{
-	m_public_key = pk;
-}
-
-void CJvCryption::SetPrivateKey(T_KEY pk)
-{
-	m_private_key = pk;
-}
-
-void CJvCryption::Init()
-{
-	m_tkey = m_public_key ^ m_private_key;
-}
+void CJvCryption::SetPublicKey(T_KEY pk) { m_public_key = pk; }
+void CJvCryption::Init() { m_tkey = m_public_key ^ g_private_key; }
 
 void CJvCryption::JvEncryptionFast(int len, T_OCTET *datain, T_OCTET *dataout)
 {

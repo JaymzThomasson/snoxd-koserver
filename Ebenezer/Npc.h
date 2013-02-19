@@ -17,8 +17,6 @@ class C3DMap;
 class CNpc  
 {
 public:
-	CEbenezerDlg* m_pMain;
-
 	short	m_sNid;				// NPC (서버상의)일련번호
 	short	m_sSid;				// NPC 테이블 참조번호
 	BYTE	m_bCurZone;			// Current Zone;
@@ -32,7 +30,7 @@ public:
 	short	m_sSize;			// MONSTER(NPC) Size
 	int		m_iWeapon_1;
 	int		m_iWeapon_2;
-	TCHAR	m_strName[MAX_NPC_SIZE+1];		// MONSTER(NPC) Name
+	char	m_strName[MAX_NPC_SIZE+1];		// MONSTER(NPC) Name
 	int		m_iMaxHP;			// 최대 HP
 	int		m_iHP;				// 현재 HP
 	BYTE	m_byState;			// 몬스터 (NPC) 상태

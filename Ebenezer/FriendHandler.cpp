@@ -24,7 +24,7 @@ void CUser::FriendRequest()
 {
 	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REQUEST));
 	result << GetSocketID();
-	m_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 // Add or remove a friend from your list.
@@ -36,7 +36,7 @@ void CUser::FriendModify(Packet & pkt)
 	pkt >> opcode >> strUserID;
 
 	if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE
-		|| (opcode == FRIEND_ADD && (pUser = m_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER)) == NULL))
+		|| (opcode == FRIEND_ADD && (pUser = g_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER)) == NULL))
 		return;
 
 	Packet result(WIZ_FRIEND_PROCESS, opcode);
@@ -46,7 +46,7 @@ void CUser::FriendModify(Packet & pkt)
 
 	result.SByte();
 	result << strUserID;
-	m_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->m_LoggerSendQueue.PutData(&result);
 }
 
 // Refresh the status of your friends.
@@ -80,7 +80,7 @@ BYTE CUser::GetFriendStatus(std::string & charName, int16 & sid)
 {
 	CUser *pUser;
 	if (charName.empty()
-		|| (pUser = m_pMain->GetUserPtr(charName.c_str(), TYPE_CHARACTER)) == NULL)
+		|| (pUser = g_pMain->GetUserPtr(charName.c_str(), TYPE_CHARACTER)) == NULL)
 	{
 		sid = -1;
 		return 0; // user not found

@@ -20,7 +20,6 @@ static char THIS_FILE[]=__FILE__;
 
 CKnights::CKnights()
 {
-	m_pMain = (CEbenezerDlg*)AfxGetApp()->GetMainWnd();
 	InitializeValue();
 }
 
@@ -41,6 +40,38 @@ void CKnights::InitializeValue()
 	m_nMoney = 0;
 	m_sDomination = 0;
 	m_nPoints = 0;
+}
+
+void CKnights::OnLogin(CUser *pUser)
+{
+	// TO-DO: Implement login notice here
+
+	// Set the active session for this user
+	foreach_array (i, m_arKnightsUser)
+	{
+		if (!m_arKnightsUser[i].byUsed
+			|| _strcmpi(m_arKnightsUser[i].strUserName, pUser->m_pUserData->m_id))
+			continue;
+
+		m_arKnightsUser[i].pSession = pUser;
+		break;
+	}
+}
+
+void CKnights::OnLogout(CUser *pUser)
+{
+	// TO-DO: Implement logout notice here
+
+	// Unset the active session for this user
+	foreach_array (i, m_arKnightsUser)
+	{
+		if (!m_arKnightsUser[i].byUsed
+			|| _strcmpi(m_arKnightsUser[i].strUserName, pUser->m_pUserData->m_id))
+			continue;
+
+		m_arKnightsUser[i].pSession = NULL;
+		break;
+	}
 }
 
 bool CKnights::AddUser(const char *strUserID)
@@ -80,6 +111,7 @@ bool CKnights::RemoveUser(const char *strUserID)
 		{
 			m_arKnightsUser[i].byUsed = 0;
 			strcpy(m_arKnightsUser[i].strUserName, "");
+			m_arKnightsUser[i].pSession = NULL;
 			return true;
 		}
 	}
@@ -101,22 +133,17 @@ bool CKnights::RemoveUser(CUser *pUser)
 
 void CKnights::Disband(CUser *pLeader /*= NULL*/)
 {
-	CString clanNotice = m_pMain->GetServerResource(m_byFlag == CLAN_TYPE ? IDS_CLAN_DESTROY : IDS_KNIGHTS_DESTROY);
+	CString clanNotice = g_pMain->GetServerResource(m_byFlag == CLAN_TYPE ? IDS_CLAN_DESTROY : IDS_KNIGHTS_DESTROY);
 	SendChat(clanNotice, m_strName);
 
-	// TO-DO: Make this localised.
-	for (int i = 0; i < MAX_USER; i++)
+	foreach_array (i, m_arKnightsUser)
 	{
-		CUser *pUser = m_pMain->GetUnsafeUserPtr(i);
-		if (pUser == NULL 
-			|| pUser->m_pUserData->m_bKnights != m_sIndex 
-			|| pUser == pLeader)
-			continue;
-
-		RemoveUser(pUser);
+		_KNIGHTS_USER *p = &m_arKnightsUser[i];
+		if (p->byUsed && p->pSession != NULL
+			&& p->pSession != pLeader)
+			RemoveUser(p->pSession);
 	}
-	
-	m_pMain->m_KnightsArray.DeleteData(m_sIndex);
+	g_pMain->m_KnightsArray.DeleteData(m_sIndex);
 
 	if (pLeader == NULL)
 		return;
@@ -157,11 +184,12 @@ void CKnights::SendChat(const char * format, ...)
 
 void CKnights::Send(Packet *pkt)
 {
-	/**
-	 * TO-DO:
-	 * Implement better internal lookups for clans, so we don't need to loop through the entire server.
-	 **/
-	m_pMain->Send_KnightsMember(m_sIndex, pkt);
+	foreach_array (i, m_arKnightsUser)
+	{
+		_KNIGHTS_USER *p = &m_arKnightsUser[i];
+		if (p->byUsed && p->pSession != NULL)
+			p->pSession->Send(pkt);
+	}
 }
 
 CKnights::~CKnights()

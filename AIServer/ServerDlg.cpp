@@ -33,20 +33,18 @@ using namespace std;
 static char THIS_FILE[] = __FILE__;
 #endif
 
-
 BOOL g_bNpcExit	= FALSE;
 ZoneArray			g_arZone;
+CServerDlg * g_pMain = NULL;
 
-CRITICAL_SECTION g_User_critical;
-CRITICAL_SECTION g_region_critical;
-CRITICAL_SECTION g_LogFileWrite;
+CRITICAL_SECTION g_User_critical, g_region_critical, g_LogFileWrite;
+
+KOSocketMgr<CGameSocket> CServerDlg::s_socketMgr;
+
 
 #define CHECK_ALIVE 	100		//  게임서버와 통신이 끊김여부 판단, 타이머 변수
 #define REHP_TIME		200
 #define MONSTER_SPEED	1500
-
-/////////////////////////////////////////////////////////////////////////////
-// CAboutDlg dialog used for App About
 
 /*
      ** Repent AI Server 작업시 참고 사항 **
@@ -62,47 +60,6 @@ CRITICAL_SECTION g_LogFileWrite;
 */
 
 
-class CAboutDlg : public CDialog
-{
-public:
-	CAboutDlg();
-
-// Dialog Data
-	//{{AFX_DATA(CAboutDlg)
-	enum { IDD = IDD_ABOUTBOX };
-	//}}AFX_DATA
-
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CAboutDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
-
-// Implementation
-protected:
-	//{{AFX_MSG(CAboutDlg)
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
-};
-
-CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
-{
-	//{{AFX_DATA_INIT(CAboutDlg)
-	//}}AFX_DATA_INIT
-}
-
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
-{
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CAboutDlg)
-	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
-	//{{AFX_MSG_MAP(CAboutDlg)
-		// No message handlers
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CServerDlg dialog
@@ -145,12 +102,10 @@ void CServerDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CServerDlg, CDialog)
 	//{{AFX_MSG_MAP(CServerDlg)
-	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_WM_TIMER()
 	//}}AFX_MSG_MAP
-//	ON_MESSAGE( WM_GAMESERVER_LOGIN, OnGameServerLogin )
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -162,6 +117,8 @@ END_MESSAGE_MAP()
 BOOL CServerDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
+
+	g_pMain = this;
 
 	// Default Init ...
 	DefaultInit();
@@ -175,13 +132,9 @@ BOOL CServerDlg::OnInitDialog()
 	InitializeCriticalSection( &g_region_critical );
 	InitializeCriticalSection( &g_User_critical );
 	InitializeCriticalSection( &g_LogFileWrite );
-	m_sSocketCount = 0;
-	m_sErrorSocketCount = 0;
 	m_sMapEventNpc = 0;
-	m_sReSocketCount = 0;
-	m_fReConnectStart = 0.0f;
 	m_bFirstServerFlag = FALSE;			
-	m_byTestMode = NOW_TEST_MODE;
+	// m_byTestMode = NOW_TEST_MODE;
 
 	// User Point Init
 	for(int i=0; i<MAX_USER; i++)
@@ -227,69 +180,42 @@ BOOL CServerDlg::OnInitDialog()
 	//----------------------------------------------------------------------
 	//	Communication Part Initialize ...
 	//----------------------------------------------------------------------
-	m_Iocport.Init(MAX_SOCKET,1, 1);
 
-	for(int i=0; i<MAX_SOCKET; i++) {
-		m_Iocport.m_SockArrayInActive[i] = new CGameSocket;
+	uint16 sPort = BATTLE_ZONE;
+	if (m_byZone == KARUS_ZONE || m_byZone == UNIFY_ZONE)
+		sPort = AI_KARUS_SOCKET_PORT;
+	else if (m_byZone == ELMORAD_ZONE)
+		sPort = AI_ELMO_SOCKET_PORT;
+
+	if (!s_socketMgr.Listen(sPort, MAX_SOCKET))
+	{
+		EndDialog(IDCANCEL);
+		return FALSE;
 	}
 
 	//----------------------------------------------------------------------
-	//	Load Magic Table
+	//	Load tables
 	//----------------------------------------------------------------------
-	if(!GetMagicTableData())	{
+	if (!GetMagicTableData()
+		|| !GetMagicType1Data()
+		|| !GetMagicType2Data()
+		|| !GetMagicType3Data()
+		|| !GetMagicType4Data()
+		|| !GetNpcItemTable()
+		|| !GetMakeWeaponItemTableData()
+		|| !GetMakeDefensiveItemTableData()
+		|| !GetMakeGradeItemTableData()
+		|| !GetMakeLareItemTableData())
+	{
 		EndDialog(IDCANCEL);
 		return FALSE;
 	}	
-	if(!GetMagicType1Data())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}
-	if(!GetMagicType2Data())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}
-	if(!GetMagicType3Data())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}
-	if(!GetMagicType4Data())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}	
-
-
-	//----------------------------------------------------------------------
-	//	Load NPC Item Table
-	//----------------------------------------------------------------------
-	if(!GetNpcItemTable())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}
-
-	if(!GetMakeWeaponItemTableData())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}
-
-	if(!GetMakeDefensiveItemTableData())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}
-
-	if(!GetMakeGradeItemTableData())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}
-
-	if(!GetMakeLareItemTableData())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}
 
 	//----------------------------------------------------------------------
 	//	Load Zone & Event...
 	//----------------------------------------------------------------------
-	if( !MapFileLoad() )	{
+	if (!MapFileLoad())
+	{
 		EndDialog(IDCANCEL);
 		return FALSE;
 	}
@@ -297,65 +223,21 @@ BOOL CServerDlg::OnInitDialog()
 	//----------------------------------------------------------------------
 	//	Load NPC Data & Activate NPC
 	//----------------------------------------------------------------------
-	if(!GetMonsterTableData())	{		// Monster 특성치 테이블 Load
+	if (!GetMonsterTableData()
+		|| !GetNpcTableData()
+		|| !CreateNpcThread())
+	{
 		EndDialog(IDCANCEL);
 		return FALSE;
 	}
 
-	if(!GetNpcTableData())	{			// NPC 특성치 테이블 Load
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}
-
-	if(!CreateNpcThread())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}	
-
-	//----------------------------------------------------------------------
-	//	Load NPC DN Table
-	//----------------------------------------------------------------------
-	
 	//----------------------------------------------------------------------
 	//	Start NPC THREAD
 	//----------------------------------------------------------------------
 	ResumeAI();
 
-	//----------------------------------------------------------------------
-	//	Start Accepting...
-	//----------------------------------------------------------------------
-	if( m_byZone == KARUS_ZONE || m_byZone == UNIFY_ZONE )	{
-		if ( !m_Iocport.Listen( AI_KARUS_SOCKET_PORT ) )	{
-			AfxMessageBox("FAIL TO CREATE LISTEN STATE", MB_OK);
-		}
-	}
-	else if(m_byZone == ELMORAD_ZONE)	{
-		if ( !m_Iocport.Listen( AI_ELMO_SOCKET_PORT ) )	{
-			AfxMessageBox("FAIL TO CREATE LISTEN STATE", MB_OK);
-		}
-	}
-	else if(m_byZone == BATTLE_ZONE)	{
-		if ( !m_Iocport.Listen( AI_BATTLE_SOCKET_PORT ) )	{
-			AfxMessageBox("FAIL TO CREATE LISTEN STATE", MB_OK);
-		}
-	}
-
-	//::ResumeThread( m_Iocport.m_hAcceptThread );
 	UpdateData(FALSE);	
 	return TRUE;  // return TRUE  unless you set the focus to a control
-}
-
-void CServerDlg::OnSysCommand(UINT nID, LPARAM lParam)
-{
-	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
-	{
-		CAboutDlg dlgAbout;
-		dlgAbout.DoModal();
-	}
-	else
-	{
-		CDialog::OnSysCommand(nID, lParam);
-	}
 }
 
 // If you add a minimize button to your dialog, you will need the code below
@@ -1204,7 +1086,6 @@ BOOL CServerDlg::CreateNpcThread()
 		if( step == NPC_NUM )
 		{
 			pNpcThread->m_sThreadNumber = nThreadNumber++;
-			pNpcThread->pIOCP = &m_Iocport;
 			pNpcThread->m_pThread = AfxBeginThread(NpcThreadProc, &(pNpcThread->m_ThreadInfo), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
 			m_arNpcThread.push_back( pNpcThread );
 			step = 0;
@@ -1213,7 +1094,6 @@ BOOL CServerDlg::CreateNpcThread()
 	if( step != 0 )
 	{
 		pNpcThread->m_sThreadNumber = nThreadNumber++;
-		pNpcThread->pIOCP = &m_Iocport;
 		pNpcThread->m_pThread = AfxBeginThread(NpcThreadProc, &(pNpcThread->m_ThreadInfo), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
 		m_arNpcThread.push_back( pNpcThread );
 	}
@@ -1222,7 +1102,7 @@ BOOL CServerDlg::CreateNpcThread()
 
 	//TRACE("m_TotalNPC = %d \n", m_TotalNPC);
 	CString logstr;
-	logstr.Format("[Monster Init - %d]", m_TotalNPC);
+	logstr.Format("[Monster Init - %d, threads=%d]", m_TotalNPC, m_arNpcThread.size());
 	m_StatusList.AddString( logstr );
 
 	return TRUE;
@@ -1235,8 +1115,6 @@ void CServerDlg::ResumeAI()
 	{
 		for (int j = 0; j < NPC_NUM; j++)
 			(*itr)->m_ThreadInfo.pNpc[j] = (*itr)->m_pNpc[j];
-
-		(*itr)->m_ThreadInfo.pIOCP = &m_Iocport;
 
 		ResumeThread((*itr)->m_pThread->m_hThread);
 	}
@@ -1382,23 +1260,14 @@ void CServerDlg::AllNpcInfo()
 	int nZone = 0;
 	int size = m_arNpc.GetSize();
 
-	int send_index = 0, zone_index = 0, packet_size = 0;
-	int count = 0, send_count = 0, send_tot = 0;
-	char send_buff[2048];		::ZeroMemory(send_buff, sizeof(send_buff));
+	int send_index = 0, zone_index = 0, send_count = 0, send_tot = 0;
+	BYTE count = 0; 
+	char send_buff[2048];
 
 	foreach_stlmap (itr, g_arZone)
 	{
 		nZone = itr->first;
-
-		::ZeroMemory(send_buff, sizeof(send_buff));
-		send_index = 0;
-		SetByte(send_buff, AG_SERVER_INFO, send_index );
-		SetByte(send_buff, SERVER_INFO_START, send_index );
-		SetByte(send_buff, nZone, send_index );
-		packet_size = Send(send_buff, send_index);
-
 		send_index = 2;		count = 0;	send_count = 0;
-		::ZeroMemory(send_buff, sizeof(send_buff));
 
 		TRACE("****  allNpcInfo start = %d *****\n", nZone);
 
@@ -1414,7 +1283,7 @@ void CServerDlg::AllNpcInfo()
 			pNpc->SendNpcInfoAll(send_buff, send_index, count++);
 			if(count == NPC_NUM)	{
 				SetByte(send_buff, NPC_INFO_ALL, send_count );
-				SetByte(send_buff, (BYTE)count, send_count );
+				SetByte(send_buff, count, send_count );
 
 				Send(send_buff, send_index);
 				send_index = 2;
@@ -1422,7 +1291,6 @@ void CServerDlg::AllNpcInfo()
 				count = 0;
 				send_tot++;
 				//TRACE("AllNpcInfo - send_count=%d, count=%d, zone=%d\n", send_tot, count, nZone);
-				::ZeroMemory(send_buff, sizeof(send_buff));
 			}
 		}	
 
@@ -1430,19 +1298,15 @@ void CServerDlg::AllNpcInfo()
 		if(count != 0 && count < NPC_NUM )	{
 			send_count = 0;
 			SetByte(send_buff, NPC_INFO_ALL, send_count );
-			SetByte(send_buff, (BYTE)count, send_count );
+			SetByte(send_buff, count, send_count );
 			Send(send_buff, send_index);
 			send_tot++;
 			//TRACE("AllNpcInfo - send_count=%d, count=%d, zone=%d\n", send_tot, count, nZone);
 		}
 
-		send_index = 0;
-		::ZeroMemory(send_buff, sizeof(send_buff));
-		SetByte(send_buff, AG_SERVER_INFO, send_index );
-		SetByte(send_buff, SERVER_INFO_END, send_index );
-		SetByte(send_buff, nZone, send_index );
-		SetShort(send_buff, (short)m_TotalNPC, send_index );
-		packet_size = Send(send_buff, send_index);
+		Packet result(AG_SERVER_INFO, uint8(nZone));
+		result << uint16(m_TotalNPC);
+		s_socketMgr.SendAll(&result);
 
 		TRACE("****  allNpcInfo end = %d *****\n", nZone);
 	}
@@ -1479,7 +1343,7 @@ void CServerDlg::OnTimer(UINT nIDEvent)
 {
 	switch( nIDEvent ) {
 	case CHECK_ALIVE:
-		CheckAliveTest();
+		// CheckAliveTest();
 		break;
 	case REHP_TIME:
 		//RechargeHp();
@@ -1492,230 +1356,92 @@ void CServerDlg::OnTimer(UINT nIDEvent)
 // sungyong 2002.05.23
 void CServerDlg::CheckAliveTest()
 {
-	int send_index = 0;
-	char send_buff[256];		::ZeroMemory(send_buff, sizeof(send_buff));
-	int iErrorCode = 0;
-
-	SetByte(send_buff, AG_CHECK_ALIVE_REQ, send_index);
-
-	CGameSocket* pSocket = NULL;
-	int size = 0, count = 0;
-
-	CString logstr;
-	CTime time = CTime::GetCurrentTime();
-
-	for(int i=0; i<MAX_SOCKET; i++) {
-		pSocket = (CGameSocket*)m_Iocport.m_SockArray[i];
-		if(pSocket == NULL) continue;
-		size = pSocket->Send(send_buff, send_index);
-		if(size > 0)	{
-			++m_sErrorSocketCount;
-			if(m_sErrorSocketCount == 10)	{
-				logstr.Format("*** All Socket Closed ***  %d-%d-%d, %d:%d]\r\n", time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute() );
-				//LogFileWrite( logstr );
-			}
+	Packet result(AG_CHECK_ALIVE_REQ);
+	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	uint32 count = 0, sessCount = sessMap.size();
+	foreach (itr, sessMap)
+	{
+		CGameSocket *pSocket = static_cast<CGameSocket *>(itr->second);
+		if (pSocket->Send(&result))
 			count++;
-		}
-		//TRACE("size = %d, socket_num = %d, i=%d \n", size, pSocket->m_sSocketID, i);
 	}
+	s_socketMgr.ReleaseLock();
 
-	if(count <= 0)	{
-		DeleteAllUserList(9999);
-	}
+	if (sessCount > 0 && count == 0)
+		DeleteAllUserList();
 
 	RegionCheck();
 }
 
-void CServerDlg::DeleteAllUserList(int zone)
+void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 {
-	if(zone < 0) return;
-
 	CString logstr;
 
-	if(zone == 9999 && m_bFirstServerFlag == TRUE)	{
-		TRACE("*** DeleteAllUserList - Start *** \n");
-		foreach_stlmap (itr, g_arZone)
-		{
-			MAP * pMap = itr->second;
-			if (pMap == NULL)	
-				continue;
-			for (int i=0; i<pMap->m_sizeRegion.cx; i++ ) {
-				for( int j=0; j<pMap->m_sizeRegion.cy; j++ ) {
-					pMap->m_ppRegion[i][j].m_RegionUserArray.DeleteAllData();
-				}
+	// If a server disconnected, show it...
+	if (pSock != NULL)
+	{
+		logstr.Format("[GameServer disconnected = %s]", pSock->GetRemoteIP().c_str());
+		m_StatusList.AddString( logstr );
+		return;
+	}
+
+	// Server didn't disconnect? 
+	if (!m_bFirstServerFlag)
+		return;
+
+	// If there's no servers even connected, cleanup.
+	TRACE("*** DeleteAllUserList - Start *** \n");
+	foreach_stlmap (itr, g_arZone)
+	{
+		MAP * pMap = itr->second;
+		if (pMap == NULL)	
+			continue;
+		for (int i=0; i<pMap->m_sizeRegion.cx; i++ ) {
+			for( int j=0; j<pMap->m_sizeRegion.cy; j++ ) {
+				pMap->m_ppRegion[i][j].m_RegionUserArray.DeleteAllData();
 			}
 		}
-
-		EnterCriticalSection( &g_User_critical );
-		for (int i = 0; i < MAX_USER; i++)	
-		{
-			CUser *pUser = m_pUser[i];
-			if (pUser == NULL)  
-				continue;
-
-			delete m_pUser[i];
-			m_pUser[i] = NULL;
-		}
-		LeaveCriticalSection( &g_User_critical );
-
-		// Party Array Delete 
-		m_arParty.DeleteAllData();
-
-		m_bFirstServerFlag = FALSE;
-		TRACE("*** DeleteAllUserList - End *** \n");
-
-		logstr.Format("[ DELETE All User List ]");
-		m_StatusList.AddString( logstr );
 	}
-	else	{
-		if( zone != 9999)	{
-			logstr.Format("[GameServer DisConnect - zone = %d]", zone);
-			m_StatusList.AddString( logstr );
-		}
+
+	EnterCriticalSection( &g_User_critical );
+	for (int i = 0; i < MAX_USER; i++)	
+	{
+		CUser *pUser = m_pUser[i];
+		if (pUser == NULL)  
+			continue;
+
+		delete m_pUser[i];
+		m_pUser[i] = NULL;
 	}
+	LeaveCriticalSection( &g_User_critical );
+
+	// Party Array Delete 
+	m_arParty.DeleteAllData();
+
+	m_bFirstServerFlag = FALSE;
+	TRACE("*** DeleteAllUserList - End *** \n");
+
+	logstr.Format("[ DELETE All User List ]");
+	m_StatusList.AddString( logstr );
 }
 
 BOOL CServerDlg::PreTranslateMessage(MSG* pMsg) 
 {
-	if( pMsg->message == WM_KEYDOWN ) {
-		if( pMsg->wParam == VK_RETURN )
-			return TRUE;
-		if( pMsg->wParam == VK_F9 )
-			SyncTest();
-	}
+	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN)
+		return TRUE;
 	
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
-// sungyong 2002.05.23
 int CServerDlg::Send(char* pData, int length)
 {
-	SEND_DATA* pNewData = NULL;
-	pNewData = new SEND_DATA;
-	if(pNewData == NULL) return 0;
-
-	pNewData->sLength = length;
-	::CopyMemory(pNewData->pBuf, pData, length);
-
-	EnterCriticalSection( &(m_Iocport.m_critSendData) );
-	m_Iocport.m_SendDataList.push_back( pNewData );
-	LeaveCriticalSection( &(m_Iocport.m_critSendData) );
-
-	PostQueuedCompletionStatus( m_Iocport.m_hSendIOCP, 0, 0, NULL );
-
+	s_socketMgr.SendAll(pData, length);
 	return 0;
-}
-// ~sungyong 2002.05.23
-
-void CServerDlg::OnGameServerLogin( WPARAM wParam )
-{
-/*	if( m_bNpcInfoDown ) {
-		m_ZoneNpcList.push_back(wParam);
-		return;
-	}
-
-	AllNpcInfo( wParam );	*/
 }
 
 void CServerDlg::GameServerAcceptThread()
 {
-	::ResumeThread( m_Iocport.m_hAcceptThread );
-}
-
-void CServerDlg::SyncTest()
-{
-	FILE* stream = fopen("c:\\aiserver.txt", "w");
-
-	fprintf(stream, "*****   Check ... List  *****\n");
-
-	int send_index = 0;
-	char send_buff[256];		::ZeroMemory(send_buff, sizeof(send_buff));
-	int iErrorCode = 0;
-
-	SetByte(send_buff, AG_CHECK_ALIVE_REQ, send_index);
-
-	CGameSocket* pSocket = NULL;
-	int size = 0;
-
-	for(int i=0; i<MAX_SOCKET; i++) {
-		pSocket = (CGameSocket*)m_Iocport.m_SockArray[i];
-		if(pSocket == NULL) continue;
-		size = pSocket->Send(send_buff, send_index);
-
-		fprintf(stream, " size = %d, socket_num = %d \n", size, pSocket->m_sSocketID);
-
-
-	}
-
-/*
-	int size = m_arNpc.GetSize();
-	CNpc* pNpc = NULL;
-	CUser* pUser = NULL;
-	__Vector3 vUser;
-	__Vector3 vNpc;
-	__Vector3 vDistance;
-	float fDis = 0.0f;
-	int count = 0;
-
-	fprintf(stream, "***** NPC List : %d *****\n", size);
-	for(int i=0; i<size; i++)
-	{
-		pNpc = m_arNpc.GetData(i);
-		if(pNpc == NULL)
-		{
-			TRACE("##### allNpcInfo Fail = %d\n", i);
-			continue;
-		}
-
-		fprintf(stream, "nid=(%d, %s), zone=%d, x=%.2f, z=%.2f, rx=%d, rz=%d\n", pNpc->m_sNid+NPC_BAND, pNpc->m_strName,pNpc->m_bCurZone, pNpc->m_fCurX, pNpc->m_fCurZ, pNpc->m_iRegion_X, pNpc->m_iRegion_Z);
-
-	/*	vNpc.Set(pNpc->m_fCurX, 0, pNpc->m_fCurZ);
-		if(pNpc->m_byAttackPos)	{
-			//EnterCriticalSection( &g_User_critical );
-			pUser = m_arUser.GetData(pNpc->m_Target.id);
-			if(pUser == NULL) {	
-				fprintf(stream, "## Fail ## nid=(%d, %s), att_pos=%d, x=%.2f, z=%.2f\n", pNpc->m_sNid+NPC_BAND, pNpc->m_strName, pNpc->m_byAttackPos, pNpc->m_fCurX, pNpc->m_fCurZ);
-				continue;
-			}
-			vUser.Set(pNpc->m_Target.x, 0, pNpc->m_Target.z);
-			fDis = pNpc->GetDistance(vNpc, vUser);
-			//fprintf(stream, "[ target : x=%.2f, z=%.2f ] [ user : x=%.2f, z=%.2f ] \n", pNpc->m_Target.x, pNpc->m_Target.z, pUser->m_curx, pUser->m_curz);
-			fprintf(stream, "nid=(%d, %s), att_pos=%d, dis=%.2f, x=%.2f, z=%.2f\n", pNpc->m_sNid+NPC_BAND, pNpc->m_strName, pNpc->m_byAttackPos, fDis, pNpc->m_fCurX, pNpc->m_fCurZ);
-			//LeaveCriticalSection( &g_User_critical );
-		}	*/
-	//}	
-/*
-	fprintf(stream, "*****   User List  *****\n");
-
-	for(i=0; i<MAX_USER; i++)	{
-		//pUser = m_ppUserActive[i];
-		pUser = m_pUser[i];
-		if(pUser == NULL)		continue;
-		fprintf(stream, "nid=(%d, %s), zone=%d, x=%.2f, z=%.2f, rx=%d, rz=%d\n", pUser->m_iUserId, pUser->m_strUserID, pUser->m_curZone, pUser->m_curx, pUser->m_curz, pUser->m_sRegionX, pUser->m_sRegionZ);
-	}	
-
-	fprintf(stream, "*****   Region List  *****\n");
-	int k=0, total_user = 0, total_mon=0;
-	MAP* pMap = NULL;
-
-	for(k=0; k<m_sTotalMap; k++)	{
-		pMap = g_arZone[k];
-		if(pMap == NULL)	continue;
-		for( i=0; i<pMap->m_sizeRegion.cx; i++ ) {
-			for( int j=0; j<pMap->m_sizeRegion.cy; j++ ) {
-				EnterCriticalSection( &g_User_critical );
-				total_user = pMap->m_ppRegion[i][j].m_RegionUserArray.GetSize();
-				total_mon = pMap->m_ppRegion[i][j].m_RegionNpcArray.GetSize();
-				LeaveCriticalSection( &g_User_critical );
-
-				if(total_user > 0 || total_mon > 0)	{
-					fprintf(stream, "rx=%d, rz=%d, user=%d, monster=%d\n", i, j, total_user, total_mon);
-				}
-			}
-		}
-	}	*/
-
-	fclose(stream);
+	s_socketMgr.RunServer();
 }
 
 CUser* CServerDlg::GetActiveUserPtr(int index)
@@ -1789,28 +1515,6 @@ CNpc* CServerDlg::GetEventNpcPtr()
 	return NULL;
 }
 
-int  CServerDlg::MonsterSummon(TCHAR* pNpcName, int zone, float fx, float fz)
-{
-	if (GetZoneByID(zone) == NULL)
-	{
-		TRACE("#### MonsterSummon : %s, zone=%d #####\n", pNpcName, zone);
-		return -1;
-	}
-
-	CNpc* pNpc = GetNpcPtr(pNpcName);
-	if (pNpc == NULL)	
-	{
-		TRACE("#### MonsterSummon : %s does not exist ####\n", pNpcName);
-		return  -1;
-	}
-
-	BOOL bFlag = FALSE;
-	bFlag = SetSummonNpcData(pNpc, zone, fx, fz);
-
-	return 1;
-}
-
-//	소환할 몹의 데이타값을 셋팅한다.
 BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 {
 	int  iCount = 0;

@@ -37,6 +37,8 @@ const BYTE	AG_PARTY_INFO_ALL		= 62;	// Party의 모든 정보 전송
 const BYTE	AG_HEAL_MAGIC			= 63;	// Healing magic
 const BYTE	AG_TIME_WEATHER			= 64;	// time and whether info
 const BYTE	AG_BATTLE_EVENT			= 65;	// battle event
+const BYTE  AG_COMPRESSED			= 66;
+
 		// ---------------------------------------------------------------------
 		// Battle Event Sub Packet
 		// ---------------------------------------------------------------------

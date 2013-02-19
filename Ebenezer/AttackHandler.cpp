@@ -17,7 +17,7 @@ void CUser::Attack(Packet & pkt)
 		|| isDead())
 		return;
 
-	_ITEM_TABLE *pTable = m_pMain->GetItemPtr(m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 	if (pTable == NULL && m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0) 
 		return;
 	
@@ -33,7 +33,7 @@ void CUser::Attack(Packet & pkt)
 	// We're attacking a player...
 	if (tid < NPC_BAND)
 	{
-		pTUser = m_pMain->GetUserPtr(tid);
+		pTUser = g_pMain->GetUserPtr(tid);
  
 		if (pTUser == NULL || pTUser->isDead() || pTUser->isBlinking()
 				|| (pTUser->getNation() == getNation() && getZoneID() != 48 /* TO-DO: implement better checks */)) 
@@ -41,7 +41,7 @@ void CUser::Attack(Packet & pkt)
 		else 
 		{
 			damage = GetDamage(tid, 0);
-			if (getZoneID() == ZONE_SNOW_BATTLE && m_pMain->m_byBattleOpen == SNOW_BATTLE)
+			if (getZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE)
 				damage = 0;		
 
 			if (damage <= 0)
@@ -71,11 +71,11 @@ void CUser::Attack(Packet & pkt)
 					if (pTUser->getFame() == COMMAND_CAPTAIN)
 					{
 						pTUser->ChangeFame(CHIEF);
-						if (pTUser->getNation() == KARUS)			m_pMain->Announcement( KARUS_CAPTAIN_DEPRIVE_NOTIFY, KARUS );
-						else if (pTUser->getNation() == ELMORAD)	m_pMain->Announcement( ELMORAD_CAPTAIN_DEPRIVE_NOTIFY, ELMORAD );
+						if (pTUser->getNation() == KARUS)			g_pMain->Announcement( KARUS_CAPTAIN_DEPRIVE_NOTIFY, KARUS );
+						else if (pTUser->getNation() == ELMORAD)	g_pMain->Announcement( ELMORAD_CAPTAIN_DEPRIVE_NOTIFY, ELMORAD );
 					}
 
-					pTUser->m_sWhoKilledMe = m_Sid;		// You killed me, you.....
+					pTUser->m_sWhoKilledMe = GetSocketID();		// You killed me, you.....
 
 					if( pTUser->getZoneID() != pTUser->getNation() && pTUser->m_pUserData->m_bZone <= ELMORAD)
 						pTUser->ExpChange(-(pTUser->m_iMaxExp / 100));
@@ -88,10 +88,10 @@ void CUser::Attack(Packet & pkt)
 	else if (tid >= NPC_BAND)
 	{
 		// AI hasn't loaded yet
-		if (m_pMain->m_bPointCheckFlag == FALSE)	
+		if (g_pMain->m_bPointCheckFlag == FALSE)	
 			return;	
 
-		CNpc *pNpc = m_pMain->m_arNpcArray.GetData(tid);		
+		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(tid);		
 		if (pNpc && pNpc->m_NpcState != NPC_DEAD && pNpc->m_iHP > 0 
 			&& (pNpc->getNation() == 0 || pNpc->getNation() == getNation()))
 		{
@@ -105,7 +105,8 @@ void CUser::Attack(Packet & pkt)
 					<< m_sItemAc
 					<< m_bMagicTypeLeftHand << m_bMagicTypeRightHand
 					<< m_sMagicAmountLeftHand, m_sMagicAmountRightHand;
-			m_pMain->Send_AIServer(&result);
+			g_pMain->Send_AIServer(&result);	
+			return;
 		}
 	}
 
@@ -135,7 +136,7 @@ short CUser::GetDamage(short tid, int magicid)
 
 	if( tid < 0 || tid >= MAX_USER) return -1;     // Check if target id is valid.
 
-	CUser* pTUser = m_pMain->GetUserPtr(tid);
+	CUser* pTUser = g_pMain->GetUserPtr(tid);
 	if (!pTUser || pTUser->isDead()) 
 		return -1;
 
@@ -143,11 +144,11 @@ short CUser::GetDamage(short tid, int magicid)
 	temp_hit_B = (int)( (m_sTotalHit* m_bAttackAmount * 200 / 100) / (temp_ac + 240) ) ;   // g??
 
 	if (magicid > 0) {    // Skill/Arrow hit.    
-		pTable = m_pMain->m_MagictableArray.GetData( magicid );     // Get main magic table.
+		pTable = g_pMain->m_MagictableArray.GetData( magicid );     // Get main magic table.
 		if( !pTable ) return -1; 
 		
 		if (pTable->bType[0] == 1) {	// SKILL HIT!			                                
-			pType1 = m_pMain->m_Magictype1Array.GetData( magicid );	    // Get magic skill table type 1.
+			pType1 = g_pMain->m_Magictype1Array.GetData( magicid );	    // Get magic skill table type 1.
 			if( !pType1 ) return -1;     	                                
 
 			if(pType1->bHitType) {    // Non-relative hit.
@@ -163,7 +164,7 @@ short CUser::GetDamage(short tid, int magicid)
 			temp_hit = (short)(temp_hit_B * (pType1->sHit / 100.0f));
 		}
 		else if (pTable->bType[0] == 2) {   // ARROW HIT!
-			pType2 = m_pMain->m_Magictype2Array.GetData( magicid );	    // Get magic skill table type 1.
+			pType2 = g_pMain->m_Magictype2Array.GetData( magicid );	    // Get magic skill table type 1.
 			if( !pType2 ) return -1; 
 			
 			if(pType2->bHitType == 1 || pType2->bHitType == 2 ) {    // Non-relative/Penetration hit.
@@ -229,7 +230,7 @@ short CUser::GetMagicDamage(int damage, short tid)
 	short total_r = 0;
 	short temp_damage = 0;
 
-	CUser* pTUser = m_pMain->GetUserPtr(tid);
+	CUser* pTUser = g_pMain->GetUserPtr(tid);
 	if (!pTUser || pTUser->isDead())
 		return damage;	
 
@@ -327,12 +328,12 @@ short CUser::GetACDamage(int damage, short tid)
 	_ITEM_TABLE* pLeftHand = NULL;
 	_ITEM_TABLE* pRightHand = NULL;
 
-	CUser* pTUser = m_pMain->GetUserPtr(tid);
+	CUser* pTUser = g_pMain->GetUserPtr(tid);
 	if (pTUser == NULL || pTUser->isDead())
 		return damage;	
 
 	if( m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {
-		pRightHand = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
+		pRightHand = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
 		if( pRightHand ) {
 			switch(pRightHand->m_bKind/10) {		// Weapon Type Right Hand....
 				case WEAPON_DAGGER:		
@@ -358,7 +359,7 @@ short CUser::GetACDamage(int damage, short tid)
 	}
 
 	if( m_pUserData->m_sItemArray[LEFTHAND].nNum != 0) {
-		pLeftHand = m_pMain->GetItemPtr( m_pUserData->m_sItemArray[LEFTHAND].nNum );	
+		pLeftHand = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[LEFTHAND].nNum );	
 		if( pLeftHand ) {
 			switch(pLeftHand->m_bKind/10) {			// Weapon Type Right Hand....
 				case WEAPON_DAGGER:		
@@ -529,7 +530,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 		}
 	}
 
-	pHomeInfo = m_pMain->m_HomeArray.GetData(m_pUserData->m_bNation);
+	pHomeInfo = g_pMain->m_HomeArray.GetData(m_pUserData->m_bNation);
 	if (!pHomeInfo) return;
 
 	UserInOut(USER_OUT);
@@ -608,7 +609,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	Send(&result);
 	
 	if (magicid > 0) {	// Clerical Resurrection.
-		pType = m_pMain->m_Magictype5Array.GetData(magicid);     
+		pType = g_pMain->m_Magictype5Array.GetData(magicid);     
 		if ( !pType ) return;
 
 		m_bResHpType = USER_STANDING;
@@ -637,7 +638,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	{
 		result.Initialize(AG_USER_REGENE);
 		result << GetSocketID() << m_pUserData->m_sHp;
-		m_pMain->Send_AIServer(&result);
+		g_pMain->Send_AIServer(&result);
 	}
 
 	m_RegionX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
@@ -645,8 +646,8 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 
 	UserInOut(USER_REGENE);		
 
-	m_pMain->RegionUserInOutForMe(this);
-	m_pMain->RegionNpcInfoForMe(this);
+	g_pMain->RegionUserInOutForMe(this);
+	g_pMain->RegionNpcInfoForMe(this);
 
 	BlinkStart();
 

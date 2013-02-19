@@ -372,14 +372,17 @@ struct _WARP_INFO
 };
 #pragma pack(pop)
 
+class CUser;
 struct _KNIGHTS_USER
 {
 	BYTE    byUsed;
 	char	strUserName[MAX_ID_SIZE+1];
+	CUser	*pSession;
 	_KNIGHTS_USER()
 	{
 		byUsed = 0;
 		memset(strUserName, 0x00, sizeof(strUserName));
+		pSession = NULL;
 	};
 };
 

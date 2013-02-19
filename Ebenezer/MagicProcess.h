@@ -59,7 +59,6 @@ public:
 	CMagicProcess();
 	virtual ~CMagicProcess();
 
-	CEbenezerDlg*	m_pMain;
 	CUser*			m_pSrcUser;	
 
 	// Need to make sure this data's not going to change during skill handling

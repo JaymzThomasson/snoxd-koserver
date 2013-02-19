@@ -50,11 +50,10 @@ DWORD WINAPI RecvUDPThread( LPVOID lp )
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CUdpSocket::CUdpSocket(CEbenezerDlg* pMain)
+CUdpSocket::CUdpSocket()
 {
 	m_hUDPSocket = INVALID_SOCKET;
 	memset( m_pRecvBuf, 0x00, 8192 );
-	m_pMain = pMain;
 }
 
 CUdpSocket::~CUdpSocket()
@@ -100,31 +99,6 @@ bool CUdpSocket::CreateSocket()
 
 	TRACE("UDP Socket Create Success...\n");
 	return true;
-}
-
-int CUdpSocket::SendUDPPacket(char* strAddress, char* pBuf, int len)
-{
-	int s_size = 0, index = 0;
-	
-	BYTE pTBuf[2048];
-
-	if( len > 2048 || len <= 0 )
-		return 0;
-
-	pTBuf[index++] = (BYTE)PACKET_START1;
-	pTBuf[index++] = (BYTE)PACKET_START2;
-	memcpy( pTBuf+index, &len, 2 );
-	index += 2;
-	memcpy( pTBuf+index, pBuf, len );
-	index += len;
-	pTBuf[index++] = (BYTE)PACKET_END1;
-	pTBuf[index++] = (BYTE)PACKET_END2;
-
-    m_SocketAddress.sin_addr.s_addr = inet_addr(strAddress);
-
-	s_size = sendto(m_hUDPSocket, (char*)pTBuf, index, 0, (LPSOCKADDR)&m_SocketAddress, sizeof(m_SocketAddress));
-
-	return s_size;
 }
 
 int CUdpSocket::SendUDPPacket(char* strAddress, Packet *pkt)
@@ -238,7 +212,7 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 	int index = 0, send_index = 0, udp_index = 0;
 	int nType = 0, nResult = 0, nLen = 0, nKillKarus = 0, nElmoKill = 0;
 	char strMaxUserName[MAX_ID_SIZE+1], strKnightsName[MAX_ID_SIZE+1];
-	char finalstr[1024], send_buff[1024];
+	char finalstr[1024];
 
 	std::string buff;
 
@@ -248,22 +222,22 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 	if( nType == BATTLE_EVENT_OPEN )	{
 	}
 	else if( nType == BATTLE_MAP_EVENT_RESULT )	{
-		if( m_pMain->m_byBattleOpen == NO_BATTLE )	{
-			TRACE("#### UDP RecvBattleEvent Fail : battleopen = %d, type = %d\n", m_pMain->m_byBattleOpen, nType);
+		if( g_pMain->m_byBattleOpen == NO_BATTLE )	{
+			TRACE("#### UDP RecvBattleEvent Fail : battleopen = %d, type = %d\n", g_pMain->m_byBattleOpen, nType);
 			return;
 		}
 		if( nResult == KARUS )	{
 			//TRACE("--> UDP RecvBattleEvent : 카루스 땅으로 넘어갈 수 있어\n");
-			m_pMain->m_byKarusOpenFlag = 1;		// 카루스 땅으로 넘어갈 수 있어
+			g_pMain->m_byKarusOpenFlag = 1;		// 카루스 땅으로 넘어갈 수 있어
 		}
 		else if( nResult == ELMORAD )	{
 			//TRACE("--> UDP  RecvBattleEvent : 엘모 땅으로 넘어갈 수 있어\n");
-			m_pMain->m_byElmoradOpenFlag = 1;	// 엘모 땅으로 넘어갈 수 있어
+			g_pMain->m_byElmoradOpenFlag = 1;	// 엘모 땅으로 넘어갈 수 있어
 		}
 	}
 	else if( nType == BATTLE_EVENT_RESULT )	{
-		if( m_pMain->m_byBattleOpen == NO_BATTLE )	{
-			TRACE("####  UDP  RecvBattleEvent Fail : battleopen = %d, type=%d\n", m_pMain->m_byBattleOpen, nType);
+		if( g_pMain->m_byBattleOpen == NO_BATTLE )	{
+			TRACE("####  UDP  RecvBattleEvent Fail : battleopen = %d, type=%d\n", g_pMain->m_byBattleOpen, nType);
 			return;
 		}
 		if( nResult == KARUS )	{
@@ -273,11 +247,11 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 			//TRACE("-->  UDP RecvBattleEvent : 엘모라드가 승리하였습니다.\n");
 		}
 
-		m_pMain->m_bVictory = nResult;
-		m_pMain->m_byOldVictory = nResult;
-		m_pMain->m_byKarusOpenFlag = 0;		// 카루스 땅으로 넘어갈 수 없도록
-		m_pMain->m_byElmoradOpenFlag = 0;	// 엘모 땅으로 넘어갈 수 없도록
-		m_pMain->m_byBanishFlag = 1;
+		g_pMain->m_bVictory = nResult;
+		g_pMain->m_byOldVictory = nResult;
+		g_pMain->m_byKarusOpenFlag = 0;		// 카루스 땅으로 넘어갈 수 없도록
+		g_pMain->m_byElmoradOpenFlag = 0;	// 엘모 땅으로 넘어갈 수 없도록
+		g_pMain->m_byBanishFlag = 1;
 	}
 	else if( nType == BATTLE_EVENT_MAX_USER )	{
 		nLen = GetByte(pBuf, index);
@@ -318,14 +292,15 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 			return;
 		}
 
-		_snprintf(finalstr, sizeof(finalstr), m_pMain->GetServerResource(nResourceID), strKnightsName, strMaxUserName);
+		_snprintf(finalstr, sizeof(finalstr), g_pMain->GetServerResource(nResourceID), strKnightsName, strMaxUserName);
 
+#if 0
 		SetByte( send_buff, WIZ_CHAT, send_index );
 		SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
 		SetByte( send_buff, 1, send_index );
 		SetShort( send_buff, -1, send_index );
 		SetKOString( send_buff, finalstr, send_index );
-		m_pMain->Send_All( send_buff, send_index );
+		g_pMain->Send_All( send_buff, send_index );
 
 		send_index = 0;
 		SetByte( send_buff, WIZ_CHAT, send_index );
@@ -333,28 +308,29 @@ void CUdpSocket::RecvBattleEvent(char *pBuf)
 		SetByte( send_buff, 1, send_index );
 		SetShort( send_buff, -1, send_index );
 		SetKOString( send_buff, finalstr, send_index );
-		m_pMain->Send_All( send_buff, send_index );
+		g_pMain->Send_All( send_buff, send_index );
+#endif
 	}
 	else if( nType == BATTLE_EVENT_KILL_USER )	{
 		if( nResult == 1 )	{
 			nKillKarus = GetShort( pBuf, index );
 			nElmoKill = GetShort( pBuf, index );
-			m_pMain->m_sKarusDead = m_pMain->m_sKarusDead + nKillKarus;
-			m_pMain->m_sElmoradDead = m_pMain->m_sElmoradDead + nElmoKill;
+			g_pMain->m_sKarusDead = g_pMain->m_sKarusDead + nKillKarus;
+			g_pMain->m_sElmoradDead = g_pMain->m_sElmoradDead + nElmoKill;
 
-			//TRACE("-->  UDP RecvBattleEvent type = 1 : 적국 유저 죽인수 : karus=%d->%d, elmo=%d->%d\n", nKillKarus, m_pMain->m_sKarusDead, nElmoKill, m_pMain->m_sElmoradDead);
+			//TRACE("-->  UDP RecvBattleEvent type = 1 : 적국 유저 죽인수 : karus=%d->%d, elmo=%d->%d\n", nKillKarus, g_pMain->m_sKarusDead, nElmoKill, g_pMain->m_sElmoradDead);
 			Packet result(UDP_BATTLE_EVENT_PACKET, uint8(BATTLE_EVENT_KILL_USER));
-			result << uint8(2) << m_pMain->m_sKarusDead << m_pMain->m_sElmoradDead;
-			m_pMain->Send_UDP_All(&result);
+			result << uint8(2) << g_pMain->m_sKarusDead << g_pMain->m_sElmoradDead;
+			g_pMain->Send_UDP_All(&result);
 		}
 		else if( nResult == 2 )	{
 			nKillKarus = GetShort( pBuf, index );
 			nElmoKill = GetShort( pBuf, index );
 
-			//TRACE("-->  UDP RecvBattleEvent type = 2 : 적국 유저 죽인수 : karus=%d->%d, elmo=%d->%d\n", m_pMain->m_sKarusDead, nKillKarus, m_pMain->m_sElmoradDead, nElmoKill);
+			//TRACE("-->  UDP RecvBattleEvent type = 2 : 적국 유저 죽인수 : karus=%d->%d, elmo=%d->%d\n", g_pMain->m_sKarusDead, nKillKarus, g_pMain->m_sElmoradDead, nElmoKill);
 
-			m_pMain->m_sKarusDead = nKillKarus;
-			m_pMain->m_sElmoradDead = nElmoKill;
+			g_pMain->m_sKarusDead = nKillKarus;
+			g_pMain->m_sElmoradDead = nElmoKill;
 		}
 	}
 
@@ -418,7 +394,7 @@ void CUdpSocket::RecvCreateKnights(char* pBuf)
 	strcpy(pKnights->m_strChief, chiefname);
 	pKnights->AddUser(chiefname);
 
-	m_pMain->m_KnightsArray.PutData( pKnights->m_sIndex, pKnights );
+	g_pMain->m_KnightsArray.PutData( pKnights->m_sIndex, pKnights );
 
 	//TRACE("UDP - RecvCreateKnights - knname=%s, name=%s, index=%d\n", knightsname, chiefname, knightsindex);
 }
@@ -436,19 +412,19 @@ void CUdpSocket::RecvJoinKnights(char* pBuf, BYTE command)
 	if (!GetKOString(pBuf, charid, index, MAX_ID_SIZE))
 		return;
 
-	CKnights *pKnights = m_pMain->GetClanPtr(knightsindex);
+	CKnights *pKnights = g_pMain->GetClanPtr(knightsindex);
 	if (pKnights == NULL)
 		return;
 
 	if (command == KNIGHTS_JOIN)
 	{	
-		clanNotice = m_pMain->GetServerResource(IDS_KNIGHTS_JOIN);
+		clanNotice = g_pMain->GetServerResource(IDS_KNIGHTS_JOIN);
 		pKnights->AddUser(charid);
 		TRACE("UDP - RecvJoinKnights - name=%s, index=%d\n", charid, knightsindex);
 	}
 	else 
 	{
-		clanNotice = m_pMain->GetServerResource(IDS_KNIGHTS_WITHDRAW);
+		clanNotice = g_pMain->GetServerResource(IDS_KNIGHTS_WITHDRAW);
 		pKnights->RemoveUser(charid);
 		TRACE("UDP - RecvJoinKnights - name=%s, index=%d\n", charid, knightsindex );
 	}
@@ -469,8 +445,8 @@ void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 	if (!GetKOString(pBuf, userid, index, MAX_ID_SIZE))
 		return;
 
-	CUser *pTUser = m_pMain->GetUserPtr(userid, TYPE_CHARACTER);
-	CKnights *pKnights = m_pMain->GetClanPtr(knightsindex);
+	CUser *pTUser = g_pMain->GetUserPtr(userid, TYPE_CHARACTER);
+	CKnights *pKnights = g_pMain->GetClanPtr(knightsindex);
 	if (pKnights == NULL)
 		return;
 
@@ -484,10 +460,10 @@ void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 			pTUser->m_pUserData->m_bFame = 0;
 
 			if (command == KNIGHTS_REMOVE)
-				clanNotice = m_pMain->GetServerResource(IDS_KNIGHTS_REMOVE);
+				clanNotice = g_pMain->GetServerResource(IDS_KNIGHTS_REMOVE);
 		}
 
-		m_pMain->m_KnightsManager.RemoveKnightsUser(knightsindex, userid);
+		g_pMain->m_KnightsManager.RemoveKnightsUser(knightsindex, userid);
 		break;
 
 	case KNIGHTS_ADMIT:
@@ -499,7 +475,7 @@ void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 		if (pTUser)
 		{
 			pTUser->m_pUserData->m_bFame = CHIEF;
-			clanNotice = m_pMain->GetServerResource(IDS_KNIGHTS_CHIEF);
+			clanNotice = g_pMain->GetServerResource(IDS_KNIGHTS_CHIEF);
 		}
 		break;
 
@@ -507,7 +483,7 @@ void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 		if (pTUser)
 		{
 			pTUser->m_pUserData->m_bFame = VICECHIEF;
-			clanNotice = m_pMain->GetServerResource(IDS_KNIGHTS_VICECHIEF);
+			clanNotice = g_pMain->GetServerResource(IDS_KNIGHTS_VICECHIEF);
 		}
 		break;
 
@@ -549,7 +525,7 @@ void CUdpSocket::RecvDestroyKnights(char* pBuf)
 {
 	int index = 0;
 	int16 knightsindex = GetShort(pBuf, index);
-	CKnights *pKnights = m_pMain->GetClanPtr(knightsindex);
+	CKnights *pKnights = g_pMain->GetClanPtr(knightsindex);
 	if (pKnights == NULL)
 	{
 		TRACE("UDP - ### RecvDestoryKnights  Fail == index = %d ###\n", knightsindex);
@@ -569,7 +545,7 @@ void CUdpSocket::RecvBattleZoneCurrentUsers( char* pBuf )
 	nKarusMan = GetShort( pBuf, index );
 	nElmoradMan = GetShort( pBuf, index );
 
-	m_pMain->m_sKarusCount = nKarusMan;
-	m_pMain->m_sElmoradCount = nElmoradMan;
+	g_pMain->m_sKarusCount = nKarusMan;
+	g_pMain->m_sElmoradCount = nElmoradMan;
 	//TRACE("UDP - RecvBattleZoneCurrentUsers - karus=%d, elmorad=%d\n", nKarusMan, nElmoradMan);
 }
