@@ -291,4 +291,4 @@ void CUser::RemoveFromMerchantLookers()
 
 	pPreviousMerchantUser->m_arMerchantLookers.remove(GetSocketID());
 	m_sMerchantsSocketID = -1;
-	
+}
