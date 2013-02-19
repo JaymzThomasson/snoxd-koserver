@@ -371,7 +371,6 @@ COMMAND_HANDLER(CEbenezerDlg::HandleWarCloseCommand)
 
 COMMAND_HANDLER(CEbenezerDlg::HandleShutdownCommand)
 {
-	g_serverdown_flag = TRUE;
 	s_socketMgr.SuspendServer();
 	AddToList("Server shutdown, %d users kicked out.", KickOutAllUsers());
 	return true;

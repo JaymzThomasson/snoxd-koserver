@@ -1,7 +1,5 @@
 #include "StdAfx.h"
 
-extern BYTE g_serverdown_flag;
-
 void CUser::MoveProcess(Packet & pkt)
 {
 	ASSERT(GetMap() != NULL);
@@ -146,8 +144,6 @@ void CUser::ZoneChange(int zone, float x, float z)
 	int zoneindex = 0;
 	C3DMap* pMap = NULL;
 	_ZONE_SERVERINFO *pInfo = NULL;
-
-	if( g_serverdown_flag ) return;
 
 	pMap = g_pMain->GetZoneByID(zone);
 	if (!pMap) 

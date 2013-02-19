@@ -54,7 +54,7 @@ KOSocketMgr<CUser> CEbenezerDlg::s_socketMgr;
 ClientSocketMgr<CAISocket> CEbenezerDlg::s_aiSocketMgr;
 
 WORD	g_increase_serial = 1;
-BYTE	g_serverdown_flag = FALSE;
+bool	g_bRunning = true;
 
 DWORD WINAPI ReadQueueThread(LPVOID lp)
 {
@@ -62,7 +62,7 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 	CUser* pUser = NULL;
 	Packet pkt;
 
-	while (TRUE)
+	while (g_bRunning)
 	{
 		if (pMain->m_LoggerRecvQueue.GetFrontMode() == R)
 		{
@@ -133,6 +133,7 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 				break;
 		}
 	}
+	return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -472,11 +473,7 @@ BOOL CEbenezerDlg::DestroyWindow()
 
 	KickOutAllUsers();
 
-	if (m_hReadQueueThread != NULL)
-	{
-		TerminateThread(m_hReadQueueThread, 0);
-		m_hReadQueueThread = 0;
-	}
+	g_bRunning = false;
 
 	if (m_bMMFCreate)
 	{
