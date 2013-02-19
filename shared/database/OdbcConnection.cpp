@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "OdbcConnection.h"
 
-
 OdbcConnection::OdbcConnection()
 	: m_connHandle(NULL), m_envHandle(NULL), m_bMarsEnabled(false)
 {
@@ -182,7 +181,6 @@ void OdbcConnection::Disconnect()
 	// Kill off open statements
 	if (m_commandSet.size())
 	{
-		printf("%d commands not freed yet!!\n", m_commandSet.size());
 		for (auto itr = m_commandSet.begin(); itr != m_commandSet.end(); itr++)
 		{
 			// Detach from the connection first so we don't try to remove it from the set (while we're using it!)
