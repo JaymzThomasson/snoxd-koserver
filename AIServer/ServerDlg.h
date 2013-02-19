@@ -81,7 +81,6 @@ public:
 	CNpc*  GetNpcPtr(TCHAR* pNpcName);
 	CNpc*  GetEventNpcPtr();
 	BOOL   SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz);
-	int    MonsterSummon(TCHAR* pNpcName, int zone, float fx, float fz);
 	MAP * GetZoneByID(int zonenumber);
 	int GetServerNumber( int zonenumber );
 

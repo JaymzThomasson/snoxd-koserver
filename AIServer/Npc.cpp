@@ -1660,10 +1660,6 @@ void CNpc::Dead(int iDeadType)
 	if( pMap->m_arDungeonBossMonster[m_byDungeonFamily] == 0 )	{
 		m_byRegenType = 2;				// 리젠이 안되도록.. 
 	}	*/
-
-	// 몬스터 소환 테스트
-	//if(m_sNid == 0)
-	//	g_pMain->MonsterSummon("클립토돈", m_bCurZone, 2605.0, 1375.0);
 }
 
 //	NPC 주변의 적을 찾는다.

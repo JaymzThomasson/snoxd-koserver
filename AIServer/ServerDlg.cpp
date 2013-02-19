@@ -194,34 +194,14 @@ BOOL CServerDlg::OnInitDialog()
 	}
 
 	//----------------------------------------------------------------------
-	//	Load Magic Table
+	//	Load tables
 	//----------------------------------------------------------------------
-	if(!GetMagicTableData())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}	
-	if(!GetMagicType1Data())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}
-	if(!GetMagicType2Data())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}
-	if(!GetMagicType3Data())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}
-	if(!GetMagicType4Data())	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}	
-
-
-	//----------------------------------------------------------------------
-	//	Load NPC Item Table
-	//----------------------------------------------------------------------
-	if(!GetNpcItemTable()
+	if (!GetMagicTableData()
+		|| !GetMagicType1Data()
+		|| !GetMagicType2Data()
+		|| !GetMagicType3Data()
+		|| !GetMagicType4Data()
+		|| !GetNpcItemTable()
 		|| !GetMakeWeaponItemTableData()
 		|| !GetMakeDefensiveItemTableData()
 		|| !GetMakeGradeItemTableData()
@@ -229,7 +209,7 @@ BOOL CServerDlg::OnInitDialog()
 	{
 		EndDialog(IDCANCEL);
 		return FALSE;
-	}
+	}	
 
 	//----------------------------------------------------------------------
 	//	Load Zone & Event...
@@ -1535,28 +1515,6 @@ CNpc* CServerDlg::GetEventNpcPtr()
 	return NULL;
 }
 
-int  CServerDlg::MonsterSummon(TCHAR* pNpcName, int zone, float fx, float fz)
-{
-	if (GetZoneByID(zone) == NULL)
-	{
-		TRACE("#### MonsterSummon : %s, zone=%d #####\n", pNpcName, zone);
-		return -1;
-	}
-
-	CNpc* pNpc = GetNpcPtr(pNpcName);
-	if (pNpc == NULL)	
-	{
-		TRACE("#### MonsterSummon : %s does not exist ####\n", pNpcName);
-		return  -1;
-	}
-
-	BOOL bFlag = FALSE;
-	bFlag = SetSummonNpcData(pNpc, zone, fx, fz);
-
-	return 1;
-}
-
-//	소환할 몹의 데이타값을 셋팅한다.
 BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 {
 	int  iCount = 0;
