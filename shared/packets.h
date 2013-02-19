@@ -209,6 +209,38 @@ enum MerchantOpcodes
 	MERCHANT_BUY_CLOSE		= 0x27
 };
 
+enum KingSystemOpcodes
+{
+	KING_ELECTION		= 1,
+	KING_IMPEACHMENT	= 2,
+	KING_TAX			= 3,
+	KING_EVENT			= 4,
+	KING_NPC			= 5
+};
+
+enum KingEventOpcodes
+{
+	KING_EVENT_PRIZE	= 3
+};
+
+enum KingSystemElectionOpcodes
+{
+	KING_ELECTION_SCHEDULE		= 1,
+	KING_ELECTION_NOMINATE		= 2,
+	KING_ELECTION_NOTICE_BOARD	= 3,
+	KING_ELECTION_POLL			= 4,
+	KING_ELECTION_RESIGN		= 5
+}; 
+
+enum KingSystemImpeachmentOpcodes
+{
+	KING_IMPEACHMENT_REQUEST			= 1,
+	KING_IMPEACHMENT_REQUEST_ELECT		= 2,
+	KING_IMPEACHMENT_LIST				= 3,
+	KING_IMPEACHMENT_ELECT				= 4,
+	KING_IMPEACHMENT_REQUEST_UI_OPEN	= 8,
+	KING_IMPEACHMENT_ELECTION_UI_OPEN	= 9
+};
 
 ////////////////////////////////////////////////////////////////
 // Magic Packet sub define 

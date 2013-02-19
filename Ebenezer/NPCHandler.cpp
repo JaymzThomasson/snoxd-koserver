@@ -513,6 +513,24 @@ void CUser::NpcEvent(Packet & pkt)
 		Send(&result);
 		break;
 
+	case NPC_RENTAL:
+		break;
+
+	case NPC_ELECTION:
+		result.SetOpcode(WIZ_KING);
+		result.SByte();
+		result << uint8(KING_NPC) << "king name here";
+		Send(&result);
+		break;
+	
+	case NPC_TREASURY:
+		result.SetOpcode(WIZ_KING);
+		result	<< uint8(KING_TAX) << uint8(1) // success
+				<< uint16(/*isKing() ? 1 : 2*/ 2) // 1 enables king-specific stuff (e.g. scepter), 2 is normal user stuff
+				<< uint32(1234); // amount in nation's treasury
+		Send(&result);
+		break;
+
 	case NPC_CAPTAIN:
 		result.SetOpcode(WIZ_CLASS_CHANGE);
 		result << uint8(CLASS_CHANGE_REQ);
