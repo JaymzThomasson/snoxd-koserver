@@ -1290,6 +1290,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 {
 	Packet result(initialInfo ? AG_USER_INFO : AG_USER_UPDATE);
 
+	result.SByte();
 	result	<< GetSocketID()
 			<< m_pUserData->m_id
 			<< getZoneID() << getNation() << getLevel()
@@ -1847,7 +1848,7 @@ void CUser::UpdateGameWeather(Packet & pkt)
 
 void CUser::SendUserInfo(Packet & result)
 {
-	result.DByte(); // string is double byte
+	result.SByte(); 
 	result	<< GetSocketID()
 			<< m_pUserData->m_id << getZoneID() << getNation() << getLevel()
 			<< m_pUserData->m_sHp << m_pUserData->m_sMp 
