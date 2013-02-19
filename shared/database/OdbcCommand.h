@@ -54,7 +54,6 @@ public:
 	bool FetchString(int pos, char *charArray, SQLLEN maxLength, SQLLEN *bufferSize);
 	bool FetchString(int pos, std::string & value);
 
-
 	__forceinline bool FetchBinary(int pos, char *outBuffer, SQLLEN maxLength)
 	{
 		SQLINTEGER bufferSize = 0;

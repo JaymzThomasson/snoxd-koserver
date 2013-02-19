@@ -458,7 +458,7 @@ bool CDBAgent::LoadWarehouseData(string & strAccountID, short uid)
 
 		pUser->m_sWarehouseArray[i].nNum = nItemID;
 		pUser->m_sWarehouseArray[i].sDuration = sDurability;
-		pUser->m_sWarehouseArray[i].sCount = ITEMCOUNT_MAX;
+		pUser->m_sWarehouseArray[i].sCount = sCount;
 		pUser->m_sWarehouseArray[i].nSerialNum = nSerialNum;
 	}
 

@@ -23,8 +23,8 @@ void CUser::Attack(Packet & pkt)
 	
 	// If you're holding a weapon, do a client-based (ugh, do not trust!) delay check.
 	if (pTable 
-		&& delaytime < pTable->m_sDelay
-			|| distance > pTable->m_sRange)
+		&& (delaytime < pTable->m_sDelay
+			|| distance > pTable->m_sRange))
 		return;	
 	// Empty handed.
 	else if (delaytime < 100)

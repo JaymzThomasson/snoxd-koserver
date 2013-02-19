@@ -370,7 +370,7 @@ void CKnightsManager::AllKnightsList(CUser *pUser, Packet & pkt)
 			|| count++ < start) 
 			continue;
 
-		result << pKnights->m_sIndex << pKnights->m_strName << uint16(pKnights->m_sMembers) << pKnights->m_strChief << pKnights->m_nPoints;
+		result << uint16(pKnights->m_sIndex) << pKnights->m_strName << uint16(pKnights->m_sMembers) << pKnights->m_strChief << uint32(pKnights->m_nPoints);
 		if (count >= start + 10)
 			break;
 	}
@@ -397,7 +397,7 @@ void CKnightsManager::AllKnightsMember(CUser *pUser)
 	if (bResult == 1)
 	{
 		uint16 pktSize = 0, count = 0;
-		result << pktSize << count; // placeholders
+		result << pktSize << count << count << count; // placeholders
 
 		count = g_pMain->GetKnightsAllMembers(pUser->m_pUserData->m_bKnights, result, pktSize, pUser->getFame() == CHIEF);
 		if (count > MAX_CLAN_USERS) 
@@ -446,6 +446,7 @@ void CKnightsManager::CurrentKnightsMember(CUser *pUser, Packet & pkt)
 
 		CUser *pTUser = p->pSession;
 		result << pUser->m_pUserData->m_id << pUser->getFame() << pUser->getLevel() << pUser->m_pUserData->m_sClass;
+		count++;
 		if (count >= start + 10)
 			break;
 	}

@@ -179,6 +179,32 @@ void CUser::MerchantItemCancel(Packet & pkt)
 
 void CUser::MerchantItemList(Packet & pkt)
 {
+	if(m_sMerchantsSocketID <= MAX_USER)
+		RemoveFromMerchantLookers(); //This check should never be hit...
+	
+	uint16 uid;
+	pkt >> uid;
+
+	if(uid > MAX_USER)
+		return;
+
+	CUser *pMerchantUser = m_pMain->GetUserPtr(uid);
+	if(!pMerchantUser || !pMerchantUser->isMerchanting())
+		return;
+
+	m_sMerchantsSocketID = uid;
+	pMerchantUser->m_arMerchantLookers.push_front(GetSocketID());
+
+	Packet result(WIZ_MERCHANT, uint8(MERCHANT_ITEM_LIST));
+	result << uint16(1) << uint16(uid);
+	for(int i = 0; i < MAX_MERCH_ITEMS; i++) {
+		result << pMerchantUser->m_arSellingItems[i].nNum
+		<< pMerchantUser->m_arSellingItems[i].sCount
+		<< pMerchantUser->m_arSellingItems[i].sDuration
+		<< pMerchantUser->m_arSellingItems[i].nPrice
+		<< uint32(0); //Not sure what this one is, maybe serial?
+	}
+	Send(&result);
 }
 
 void CUser::MerchantItemBuy(Packet & pkt)
@@ -202,7 +228,7 @@ void CUser::MerchantInsert(Packet & pkt)
 	for (int i = 0; i < MAX_MERCH_ITEMS; i++)
 		result << uint32(m_arSellingItems[i].nNum);
 
-	Send(&result);
+	SendToRegion(&result);
 }
 
 void CUser::TakeMerchantItems()
@@ -225,6 +251,13 @@ void CUser::GiveMerchantItems()
 
 void CUser::CancelMerchant()
 {
+	if(m_sMerchantsSocketID > MAX_USER)
+		return;
+
+	RemoveFromMerchantLookers();
+	Packet result(WIZ_MERCHANT, uint8(MERCHANT_TRADE_CANCEL));
+	result << uint16(1);
+	Send(&result);
 }
 
 /*
@@ -248,4 +281,11 @@ void CUser::BuyingMerchantList(Packet & pkt)
 
 void CUser::BuyingMerchantBuy(Packet & pkt)
 {
+}
+
+void CUser::RemoveFromMerchantLookers()
+{
+	CUser *pPreviousMerchantUser = m_pMain->GetUserPtr(m_sMerchantsSocketID);
+	pPreviousMerchantUser->m_arMerchantLookers.remove(GetSocketID());
+	m_sMerchantsSocketID = MAX_USER + 1; //We should allow socket 0 to be looked at too, right? ;)
 }

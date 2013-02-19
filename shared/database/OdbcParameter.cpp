@@ -5,7 +5,6 @@ OdbcParameter::OdbcParameter(SQLSMALLINT parameterType, SQLSMALLINT dataType, SQ
 	: m_parameterType(parameterType), m_cDataType(dataType), m_parameterAddress(parameterAddress), 
 	m_dataTypeLength(0), m_pCBValue(SQL_NTS)
 {
-	m_dataTypeLength = 0;
 	switch (m_cDataType)
 	{
 	case SQL_CHAR:
