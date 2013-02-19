@@ -1542,20 +1542,23 @@ void CEbenezerDlg::SendAllUserInfo()
 	TRACE("** SendAllUserInfo() **\n");
 }
 
-// sungyong 2002. 05. 23
 void CEbenezerDlg::DeleteAllNpcList(int flag)
 {
-	if(m_bServerCheckFlag == FALSE)	return;
-	if(m_bPointCheckFlag == TRUE)	{
-		m_bPointCheckFlag = FALSE;
-		TRACE("*** Point ���� �ϸ� �ȵǿ� *** \n");
+	if (!m_bServerCheckFlag
+		|| !m_bPointCheckFlag)
 		return;
-	}
 
 	DEBUG_LOG("[Monster Point Delete]");
 	TRACE("*** DeleteAllNpcList - Start *** \n");
 
-	// region Npc Array Delete
+	// Remove spawns from users to prevent them from getting bugged...
+	foreach_stlmap (itr, m_arNpcArray)
+	{
+		if (itr->second->isAlive())
+			itr->second->NpcInOut(NPC_OUT, 0.0f, 0.0f, 0.0f);
+	}
+
+	// Now remove all spawns from all regions
 	foreach_stlmap (itr, m_ZoneArray)
 	{
 		C3DMap *pMap = itr->second;
@@ -1564,14 +1567,13 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 
 		for (int i = 0; i < pMap->GetXRegionMax(); i++)
 		{
-			for (int j = 0; j<pMap->GetZRegionMax(); j++)
+			for (int j = 0; j < pMap->GetZRegionMax(); j++)
 				pMap->m_ppRegion[i][j].m_RegionNpcArray.DeleteAllData();
 		}
 	}
 
-	// Npc Array Delete
+	// And finally remove all the spawn data we have.
 	m_arNpcArray.DeleteAllData();
-
 	m_bServerCheckFlag = FALSE;
 
 	TRACE("*** DeleteAllNpcList - End *** \n");

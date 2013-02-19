@@ -213,6 +213,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 		}
 
 		pNpc->GetMap()->RegionNpcAdd(pNpc->m_sRegion_X, pNpc->m_sRegion_Z, pNpc->m_sNid);
+		pNpc->NpcInOut(NPC_IN, pNpc->m_fCurX, pNpc->m_fCurZ,pNpc->m_fCurY);
 	}
 }
 
