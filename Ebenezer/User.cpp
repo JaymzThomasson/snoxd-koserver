@@ -1854,12 +1854,13 @@ void CUser::CountConcurrentUser()
 		return;
 
 	uint16 count = 0;
-	for (int i = 0; i < MAX_USER; i++)
+	SessionMap & sessMap = g_pMain->s_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
 	{
-		CUser *pUser = g_pMain->GetUnsafeUserPtr(i);
-		if (pUser != NULL && pUser->GetState() == GAME_STATE_INGAME)
+		if (static_cast<CUser *>(itr->second)->GetState() == GAME_STATE_INGAME)
 			count++;
 	}
+	g_pMain->s_socketMgr.ReleaseLock();
 
 	Packet result(WIZ_CONCURRENTUSER);
 	result << count;
