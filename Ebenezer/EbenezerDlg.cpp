@@ -2120,8 +2120,7 @@ void CEbenezerDlg::GetCaptainUserPtr()
 	foreach_stlmap (itr, m_KnightsArray)
 	{
 		CKnights *pKnights = itr->second;
-		if (pKnights == NULL
-			|| pKnights->m_byRanking != 1)
+		if (pKnights->m_byRanking != 1)
 			continue;
 
 		// do something cool here
