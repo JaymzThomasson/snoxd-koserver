@@ -912,7 +912,7 @@ void CUser::RequestNpcIn(Packet & pkt)
 			continue;
 
 		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(nid);
-		if (pNpc == NULL)
+		if (pNpc == NULL || pNpc->isDead())
 			continue;
 
 		result << pNpc->GetID();

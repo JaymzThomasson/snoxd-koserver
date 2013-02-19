@@ -1332,7 +1332,8 @@ void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, int region_x, int region_z, Pack
 	{
 		CNpc *pNpc = m_arNpcArray.GetData(*itr->second);
 		if (pNpc == NULL
-			|| pNpc->m_sRegion_X != region_x || pNpc->m_sRegion_Z != region_z)
+			|| pNpc->m_sRegion_X != region_x || pNpc->m_sRegion_Z != region_z
+			|| pNpc->isDead())
 			continue;
 
 		pkt << pNpc->GetID();
@@ -1372,7 +1373,7 @@ void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, int region_x, int region_z, Pa
 	foreach_stlmap (itr, pMap->m_ppRegion[region_x][region_z].m_RegionNpcArray)
 	{
 		CNpc *pNpc = m_arNpcArray.GetData(*itr->second);
-		if (pNpc == NULL)
+		if (pNpc == NULL || pNpc->isDead())
 			continue;
 
 		pkt << pNpc->GetID();
