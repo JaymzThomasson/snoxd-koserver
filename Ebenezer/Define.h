@@ -118,107 +118,101 @@
 #define NPC_DEAD				0X00
 #define NPC_LIVE				0X01
 
-///////////////// NPC TYPE /////////////////////////////////
-#define NPC_MONSTER				00
-#define NPC_GENERAL				01		//
-#define NPC_BOSS				03		// Unique Mop
-#define NPC_PATROL_GUARD		11		// ���
-#define NPC_MERCHANT			21		// ����
-#define NPC_TINKER				22		// ��������
-#define NPC_WAREHOUSE			31		// â�����
-#define NPC_CAPTAIN				35		// ����
-#define NPC_OFFICER				36		// ���� �� NPC
-#define NPC_CLERIC				37		// ���� NPC
-#define NPC_HEALER				40		// Healer
-#define NPC_WARP				41		// Warp Npc
-#define NPC_GATE				50		// �������� NPC 
-#define NPC_PHOENIX_GATE		51		// ������ �ʴ� �� (8->51)
-#define NPC_SPECIAL_GATE		52		// ������ �ʴ� ���̸鼭 2�и��� ���ȴ� ����� �ϴ� ��
-#define NPC_GATE_LEVER			55		// ���� ����...	(9->55)	
-#define NPC_ARTIFACT			60		// ��輮 (7->60)
-#define NPC_DESTORY_ARTIFACT	61		// �ı��Ǵ� ��輮
-#define NPC_MONK_ELMORAD		71		// �񷯸ӱ� ��� >.<
-#define NPC_MONK_KARUS			72		// �񷯸ӱ� ��� >.<	
-#define NPC_DOMESTIC_ANIMAL		99		// ���� NPC
-#define NPC_COUPON				100		// �񷯸ӱ� ���� >.<
+enum NpcType
+{
+	NPC_MONSTER				= 0,
+	NPC_GENERAL				= 1,
+	NPC_BOSS				= 3,
+	NPC_DUNGEON_MONSTER		= 4,
+	NPC_TRAP_MONSTER		= 5,
+	NPC_GUARD				= 11,
+	NPC_PATROL_GUARD		= 12,
+	NPC_STORE_GUARD			= 13,
+	NPC_WAR_GUARD			= 14,
+	NPC_MERCHANT			= 21,
+	NPC_TINKER				= 22,
+	NPC_SELITH				= 23, // Selith[special store]
+	NPC_ANVIL				= 24,
 
-// SPECIAL TYPE
-#define NPC_UPGRADE				24 // Magic anvil
-#define NPC_KAISHAN				34 // [Grand merchant] kaishan
-#define NPC_SIEGE				44 // Arendil [Castle Siege Warfare]
-#define NPC_CHAOTIC				137 // Chaotic generator (137)(162)
-#define NPC_BOARD				64
-#define NPC_TOWER				63 // Guard tower
-#define NPC_RENTAL				78 // Rental NPC
-#define NPC_ELECTION			79 // Election NPC
-#define NPC_LORD				80 // Lord
-#define NPC_KISS				32 // KissMe
-#define NPC_ADVISOR				26 // Clan match advisor
-#define NPC_KJWAR				133 // duel kjwar
-#define NPC_SIEGE2				134 // Joyce[siege war event]
-//
-#define NPC_ARTIFACT1			65 // Protective Artifact 
-#define NPC_ARTIFACT2			66 // Guard Tower Artifact
-#define NPC_ARTIFACT3			67 // Guard Artifact
-#define NPC_ARTIFACT4			68 // Defense Artifact
-#define NPC_MONUMENT			122 // El Morad Monument & Asga Village Monument & Raiba Village Monument & Doda Camp Monument & Elmorad Snowman
-#define NPC_GATE2				150 // Doda Camp Gate 
-#define NPC_VICTORY_GATE		53 // Victory Gate
-#define NPC_RECON				43 // Recon Guard NPC
-#define NPC_ROYAL_GUARD			142 // Royal Guard NPC
-#define NPC_ADVISOR2			149 // Advisor NPC
-#define NPC_SPY					141 // Spy NPC
-#define NPC_ROYAL_CHEF			143 // Royal Chef NPC
-#define NPC_GATE_GUARD			148 // Gate Guard NPC
-#define NPC_ESLANT_WOMAN		144 // Eslant Woman (near gate)
-#define NPC_FARMER				145 // Farm NPC
-#define NPC_UNKNOWN1			155
-#define NPC_UNKNOWN2			156
-#define NPC_UNKNOWN3			157
-#define NPC_UNKNOWN4			158
-#define NPC_UNKNOWN5			159
-#define NPC_UNKNOWN6			160
-#define NPC_UNKNOWN7			161
-#define NPC_CRAFTSMAN			135 // Craftsman boy
+	NPC_MARK				= 25,
+	NPC_CLAN_MATCH_ADVISOR	= 26,
+	NPC_SIEGE_1				= 27,
+	NPC_OPERATOR			= 29, // not sure what Operator Moira was ever supposed to do...
+	NPC_WAREHOUSE			= 31,
+	NPC_KISS				= 32, // pretty useless.
+	NPC_ISAAC				= 33, // need to check which quests he handles
+	NPC_KAISHAN				= 34, // need to see what he actually does to name this properly
+	NPC_CAPTAIN				= 35,
+	NPC_CLAN				= 36,
+	NPC_CLERIC				= 37,
+	NPC_LADY				= 38, // Calamus lady event -- need to see what they're used for
+	NPC_ATHIAN				= 39, // Priest athian -- need to see what they're used for
+	NPC_HEALER				= 40,
+	NPC_ROOM				= 42,
+	NPC_ARENA				= 43, // also recon guards
+	NPC_SIEGE				= 44,
+	NPC_SENTINEL_PATRICK	= 47, // need to check which quests he handles (was it the beginner quests, or was that isaac?)
 
-// QUEST TYPE
-#define NPC_MOIRA				29 // Operator moira
-#define NPC_MENU				33 // Isaac event
-#define NPC_LADY				38 // Calamus lady event
-#define NPC_QUEST				47 // Sentinel patrick
-#define NPC_ENCAMPMENT			64 // Encampment
-#define NPC_BLACKMITH			77 // Blacksmith heppa
-#define NPC_HERO_STATUS1		106 // Elmorad & Karus Hero statue & 1st place clan
-#define NPC_HERO_STATUS2		107 // Elmorad & Karus Hero statue & 2st place clan
-#define NPC_HERO_STATUS3		108 // Elmorad & Karus Hero statue & 3st place clan
-#define NPC_MINERVA				131 // Learth [Forgotten Temple 3] & priest iris
-#define NPC_HUGOR				27 // Captain Hugor[maintain]
-#define NPC_ARENA				43 // Arena
-#define NPC_SABICE				25 // Sabice mantle
-#define NPC_NPC1				101
-#define NPC_NPC2				102
-#define NPC_NPC3				103
-#define NPC_NPC4				104
-#define NPC_NPC5				105
-#define NPC_KEY1				111 // Sentinel of the Key
-#define NPC_KEY2				112 // Watcher of the Key
-#define NPC_KEY3				113 // Protector of the Key
-#define NPC_KEY4				114 // Ranger of the Key
-#define NPC_KEY5				115 // Patroller of the Key
-#define NPC_KEY6				116 // Recon of the Key
-#define NPC_KEY7				117 // Keeper of the Key
-#define NPC_ADELIA				153 // Goddess Adelia[event]
-#define NPC_LAEMITH1			129 // Laemith[Forgotten Temple 1]
-#define NPC_LAEMITH2			130 // Laemith[Forgotten Temple 2]
-#define NPC_LAEMITH3			131 // Learth[Forgotten Temple 3]
-#define	NPC_ATHIAN				39 // Priest athian
-//
-#define NPC_ROBOS				118 // Robos
-#define NPC_TRANSFER			123 // lillia server transfer
-#define NPC_RANKING				124 // hardis ranking
-#define NPC_LYONI				125 // lyoni
-#define NPC_HELPER				127 // adine beginner helper
-
+	NPC_GATE				= 50,
+	NPC_PHOENIX_GATE		= 51,
+	NPC_SPECIAL_GATE		= 52,
+	NPC_VICTORY_GATE		= 53,
+	NPC_GATE_LEVER			= 55,
+	NPC_ARTIFACT			= 60,
+	NPC_DESTROYED_ARTIFACT	= 61,
+	NPC_GUARD_TOWER			= 63,
+	NPC_BOARD				= 64, // also encampment
+	NPC_ARTIFACT1			= 65, // Protective artifact
+	NPC_ARTIFACT2			= 66, // Guard Tower artifact
+	NPC_ARTIFACT3			= 67, // Guard artifact
+	NPC_ARTIFACT4			= 68,
+	NPC_MONK_ELMORAD		= 71,
+	NPC_MONK_KARUS			= 72,
+	NPC_BLACKSMITH			= 77,
+	NPC_RENTAL				= 78,
+	NPC_ELECTION			= 79, // king elections
+	NPC_TREASURY			= 80,
+	NPC_DOMESTIC_ANIMAL		= 99,
+	NPC_COUPON				= 100,
+	NPC_HERO_STATUE_1		= 106, // 1st place
+	NPC_HERO_STATUE_2		= 107, // 2nd place
+	NPC_HERO_STATUE_3		= 108, // 3rd place
+	NPC_KEY_QUEST_1			= 111, // Sentinel of the Key
+	NPC_KEY_QUEST_2			= 112, // Watcher of the Key
+	NPC_KEY_QUEST_3			= 113, // Protector of the Key
+	NPC_KEY_QUEST_4			= 114, // Ranger of the Key
+	NPC_KEY_QUEST_5			= 115, // Patroller of the Key
+	NPC_KEY_QUEST_6			= 116, // Recon of the Key
+	NPC_KEY_QUEST_7			= 117, // Keeper of the Key
+	NPC_ROBOS				= 118, // need to see what he actually does to name this properly
+	NPC_MONUMENT			= 122, // El Morad/Asga village/Raiba village/Doda camp monuments 
+	NPC_SERVER_TRANSFER		= 123,
+	NPC_RANKING				= 124,
+	NPC_LYONI				= 125, // need to see what this NPC actually does to name this properly
+	NPC_BEGINNER_HELPER		= 127,
+	NPC_FT_1				= 129,
+	NPC_FT_2				= 130,
+	NPC_FT_3				= 131, // also Priest Minerva
+	NPC_KJWAR				= 133,
+	NPC_SIEGE_2				= 134,
+	NPC_CRAFTSMAN			= 135, // Craftsman boy, not sure what he's actually used for
+	NPC_CHAOTIC_GENERATOR	= 137, // possibly 162 as well?
+	NPC_SPY					= 141,
+	NPC_ROYAL_GUARD			= 142,
+	NPC_ROYAL_CHEF			= 143,
+	NPC_ESLANT_WOMAN		= 144,
+	NPC_FARMER				= 145,
+	NPC_GATE_GUARD			= 148,
+	NPC_ROYAL_ADVISOR		= 149,
+	NPC_GATE2				= 150, // Doda camp gate
+	NPC_ADELIA				= 153, // Goddess Adelia[event]
+	NPC_KARUS_WARDER1		= 190,
+	NPC_KARUS_WARDER2		= 191,
+	NPC_ELMORAD_WARDER1		= 192,
+	NPC_ELMORAD_WARDER2		= 193,
+	NPC_KARUS_GATEKEEPER	= 198,
+	NPC_ELMORAD_GATEKEEPER	= 199
+};
 
 ///////////////// NATION ///////////////////////////////////
 #define UNIFY_NATION		0

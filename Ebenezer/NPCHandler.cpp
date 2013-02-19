@@ -507,7 +507,7 @@ void CUser::NpcEvent(Packet & pkt)
 		Send(&result);
 		break; */
 
-	case NPC_SABICE:
+	case NPC_MARK:
 		result.SetOpcode(WIZ_KNIGHTS_PROCESS);
 		result << uint8(KNIGHTS_CAPE_NPC);
 		Send(&result);
@@ -519,7 +519,7 @@ void CUser::NpcEvent(Packet & pkt)
 		Send(&result);
 		break;
 
-	case NPC_OFFICER: // this HAS to go.
+	case NPC_CLAN: // this HAS to go.
 		result << uint16(0); // page 0
 		g_pMain->m_KnightsManager.AllKnightsList(this, result);
 		break;
@@ -528,9 +528,6 @@ void CUser::NpcEvent(Packet & pkt)
 		result.SetOpcode(WIZ_WAREHOUSE);
 		result << uint8(WAREHOUSE_REQ);
 		Send(&result);
-		break;
-
-	case NPC_WARP:
 		break;
 
 	case NPC_CLERIC:
