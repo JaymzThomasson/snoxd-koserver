@@ -2200,7 +2200,7 @@ next_row:
 	SetByte( send_buff, 1, send_index );
 	SetShort( send_buff, -1, send_index );
 	SetByte( send_buff, 0x00, send_index );	
-	SetKOString(temp_buff, strKarusCaptainName, temp_index);
+	SetKOString(send_buff, strKarusCaptainName, send_index);
 
 	SetByte( temp_buff, WIZ_CHAT, temp_index );
 	SetByte( temp_buff, WAR_SYSTEM_CHAT, temp_index );
@@ -2209,15 +2209,21 @@ next_row:
 	SetByte( send_buff, 0x00, send_index );	
 	SetKOString(temp_buff, strElmoCaptainName, temp_index);
 
-	for (int i = 0; i < MAX_USER; i++)
+	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	set<CUser *> sessions;
+	foreach (itr, sessMap)
 	{
-		CUser *pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME)
-			continue;
+		CUser *pUser = static_cast<CUser *>(itr->second);
+		if (pUser->GetState() == GAME_STATE_INGAME)
+			sessions.insert(pUser);
+	}
+	s_socketMgr.ReleaseLock();
 
-		if (pUser->m_pUserData->m_bNation == KARUS)
+	foreach (itr, sessions)
+	{
+		if (pUser->getNation() == KARUS)
 			pUser->Send(send_buff, send_index);
-		else if (pUser->m_pUserData->m_bNation == ELMORAD)
+		else
 			pUser->Send(temp_buff, temp_index);
 	}
 
@@ -2230,12 +2236,12 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 	if (pMap == NULL || m_nServerNo != pMap->m_nServerNo)
 		return;
 
-	int nKarusMan = 0, nElmoradMan = 0, send_index = 0;
-
-	for (int i = 0; i < MAX_USER; i++)
+	uint16 nKarusMan = 0, nElmoradMan = 0;
+	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
 	{
-		CUser * pUser = GetUnsafeUserPtr(i);
-		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME || pUser->getZoneID() != ZONE_BATTLE)
+		CUser * pUser = static_cast<CUser *>(itr->second);
+		if (pUser->GetState() != GAME_STATE_INGAME || pUser->getZoneID() != ZONE_BATTLE)
 			continue;
 
 		if (pUser->getNation() == KARUS)
@@ -2243,6 +2249,7 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 		else
 			nElmoradMan++;
 	}
+	s_socketMgr.ReleaseLock();
 
 	m_sKarusCount = nKarusMan;
 	m_sElmoradCount = nElmoradMan;
