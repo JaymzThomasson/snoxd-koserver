@@ -195,8 +195,8 @@ void CUser::MerchantItemList(Packet & pkt)
 	m_sMerchantsSocketID = uid;
 	pMerchantUser->m_arMerchantLookers.push_front(GetSocketID());
 
-	Packet result(WIZ_MERCHANT);
-	result << uint8(5) << uint16(1) << uint16(uid);
+	Packet result(WIZ_MERCHANT, uint8(MERCHANT_ITEM_LIST));
+	result << uint16(1) << uint16(uid);
 	for(int i = 0; i < MAX_MERCH_ITEMS; i++) {
 		result << pMerchantUser->m_arSellingItems[i].nNum
 		<< pMerchantUser->m_arSellingItems[i].sCount
@@ -255,8 +255,8 @@ void CUser::CancelMerchant()
 		return;
 
 	RemoveFromMerchantLookers();
-	Packet result(WIZ_MERCHANT);
-	result << uint8(8) << uint16(1);
+	Packet result(WIZ_MERCHANT, uint8(MERCHANT_TRADE_CANCEL));
+	result << uint16(1);
 	Send(&result);
 }
 
