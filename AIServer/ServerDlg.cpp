@@ -24,6 +24,7 @@
 #include "../shared/database/MakeLareItemTableSet.h"
 #include "Region.h"
 #include "../shared/ini.h"
+#include "../shared/packets.h"
 
 using namespace std;
 
@@ -200,31 +201,17 @@ BOOL CServerDlg::OnInitDialog()
 		|| !GetMakeWeaponItemTableData()
 		|| !GetMakeDefensiveItemTableData()
 		|| !GetMakeGradeItemTableData()
-		|| !GetMakeLareItemTableData())
-	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}	
-
-	//----------------------------------------------------------------------
-	//	Load Zone & Event...
-	//----------------------------------------------------------------------
-	if (!MapFileLoad())
-	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}
-
-	//----------------------------------------------------------------------
-	//	Load NPC Data & Activate NPC
-	//----------------------------------------------------------------------
-	if (!GetMonsterTableData()
+		|| !GetMakeLareItemTableData()
+		|| !GetMonsterTableData()
 		|| !GetNpcTableData()
+		// Load maps
+		|| !MapFileLoad()
+		// Spawn NPC threads
 		|| !CreateNpcThread())
 	{
 		EndDialog(IDCANCEL);
 		return FALSE;
-	}
+	}	
 
 	//----------------------------------------------------------------------
 	//	Start NPC THREAD
@@ -1685,16 +1672,13 @@ BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number)
 	int offset = 0;
 	int nServerNum = 0;
 	nServerNum = GetServerNumber( zone_number );
-	//if(m_byZone != zone_number)	 return FALSE;
-	//if(m_byZone != UNIFY_ZONE)	{
-	//	if(m_byZone != nServerNum)	 return FALSE;
-	//}
 
-	//if( zone_number > 201 )	return FALSE;	// test
-	if (pEvent->sControlNpcID <= 0)
+	int sSid = (pEvent->sType == OBJECT_ANVIL || pEvent->sType == OBJECT_CHAOTIC_GENERATOR 
+					? pEvent->sIndex : pEvent->sControlNpcID);
+	if (sSid <= 0)
 		return FALSE;
 
-	pNpcTable = m_arNpcTable.GetData(pEvent->sControlNpcID);
+	pNpcTable = m_arNpcTable.GetData(sSid);
 	if(pNpcTable == NULL)	{
 		bFindNpcTable = FALSE;
 		// TRACE("#### AddObjectEventNpc Fail : [sid = %d], zone=%d #####\n", pEvent->sIndex, zone_number);

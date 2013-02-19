@@ -9,6 +9,7 @@
 #include "Npc.h"
 #include "User.h"
 #include "RoomEvent.h"
+#include "../shared/packets.h"
 
 using namespace std;
 
@@ -419,9 +420,11 @@ void MAP::LoadObjectEvent(HANDLE hFile)
 
 		//TRACE("Object - belong=%d, index=%d, type=%d, con=%d, sta=%d\n", pEvent->sBelong, pEvent->sIndex, pEvent->sType, pEvent->sControlNpcID, pEvent->sStatus);
 
-		// 작업할것 : 맵데이터가 바뀌면 Param1이 2이면 성문인것을 판단..  3이면 레버..
-		if( pEvent->sType == 1 || pEvent->sType == 2 || pEvent->sType == 3) {
-			// sungyong test
+	if (pEvent->sType == OBJECT_GATE
+			|| pEvent->sType == OBJECT_GATE2
+			|| pEvent->sType == OBJECT_GATE_LEVER
+			|| pEvent->sType == OBJECT_ANVIL
+			|| pEvent->sType == OBJECT_CHAOTIC_GENERATOR) {
 			g_pMain->AddObjectEventNpc(pEvent, m_nZoneNumber);
 		}	
 
