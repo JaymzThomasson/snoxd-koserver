@@ -302,7 +302,7 @@ void CUser::RecvLoginInfo(Packet & pkt)
 // This packet actually contains the char name after the opcode
 void CUser::GameStart(Packet & pkt)
 {
-	if (GetState() == GAME_STATE_INGAME)
+	if (isInGame())
 		return;
 
 	uint8 opcode = pkt.read<uint8>();

@@ -120,7 +120,7 @@ void CUser::Chat(Packet & pkt)
 			break;
 
 		CUser *pUser = g_pMain->GetUserPtr(m_sPrivateChatUser);
-		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME) 
+		if (pUser == NULL) 
 			break;
 
 		pUser->Send(&result);

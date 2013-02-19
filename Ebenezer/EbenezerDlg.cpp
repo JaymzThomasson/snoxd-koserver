@@ -552,7 +552,7 @@ CUser* CEbenezerDlg::GetUserPtr(const char *userid, NameType type)
 		foreach (itr, sessMap)
 		{
 			CUser *pUser = static_cast<CUser *>(itr->second);
-			if (pUser->GetState() != GAME_STATE_INGAME)
+			if (!pUser->isInGame())
 				continue;
 
 			string UpperName = pUser->m_strAccountID;
@@ -569,7 +569,7 @@ CUser* CEbenezerDlg::GetUserPtr(const char *userid, NameType type)
 		foreach (itr, sessMap) 
 		{
 			CUser *pUser = static_cast<CUser *>(itr->second);
-			if (pUser->GetState() != GAME_STATE_INGAME)
+			if (!pUser->isInGame())
 				continue;
 
 			string UpperName = pUser->m_pUserData->m_id;
@@ -727,7 +727,7 @@ void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 na
 	{
 		CUser * pUser = static_cast<CUser *>(itr->second);
 		if (pUser == pExceptUser 
-			|| pUser->GetState() != GAME_STATE_INGAME 
+			|| !pUser->isInGame()
 			|| (nation != 0 && nation != pUser->getNation()))
 			continue;
 
@@ -754,7 +754,9 @@ void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUse
 	foreach_stlmap (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr->second);
-		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != GAME_STATE_INGAME)
+		if (pUser == NULL 
+			|| pUser == pExceptUser 
+			|| !pUser->isInGame())
 			continue;
 
 		pUser->Send(pkt);
@@ -854,7 +856,9 @@ void CEbenezerDlg::Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z
 	foreach_stlmap (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr->second);
-		if (pUser == NULL || pUser == pExceptUser || pUser->GetState() != GAME_STATE_INGAME)
+		if (pUser == NULL 
+			|| pUser == pExceptUser 
+			|| !pUser->isInGame())
 			continue;
 
 		if (sqrt(pow((pUser->m_pUserData->m_curx - ref_x), 2) + pow((pUser->m_pUserData->m_curz - ref_z), 2)) < 32)
@@ -1239,9 +1243,9 @@ void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Pac
 	foreach_stlmap (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr->second);
-		if (pUser == NULL || 
-			pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z ||
-			pUser->GetState() != GAME_STATE_INGAME)
+		if (pUser == NULL 
+			|| pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z 
+			|| !pUser->isInGame())
 			continue;
 
 		pkt << uint8(0) << pUser->GetSocketID();
@@ -1263,9 +1267,9 @@ void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, int region_x, int region_z, P
 	foreach_stlmap (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr->second);
-		if (pUser == NULL || 
-			pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z ||
-			pUser->GetState() != GAME_STATE_INGAME)
+		if (pUser == NULL 
+			|| pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z 
+			|| !pUser->isInGame())
 			continue;
 
 		pkt << pUser->GetSocketID();
@@ -1308,7 +1312,7 @@ void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, int region_x, int regio
 		CUser *pUser = GetUserPtr(*itr->second);
 		if (pUser == NULL 
 			|| pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z 
-			|| pUser->GetState() != GAME_STATE_INGAME
+			|| !pUser->isInGame()
 			|| !pUser->isMerchanting())
 			continue;
 
@@ -1642,7 +1646,7 @@ void CEbenezerDlg::AliveUserCheck()
 		// TO-DO: Replace this with a better, more generic check
 		// Shouldn't have to rely on skills (or being in-game)
 		CUser * pUser = static_cast<CUser *>(itr->second);
-		if (pUser->GetState() != GAME_STATE_INGAME) 
+		if (!pUser->isInGame()) 
 			continue;
 
 		for (int k = 0; k < MAX_TYPE3_REPEAT; k++)
@@ -1774,7 +1778,7 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 	foreach (itr, sessMap)
 	{
 		CUser* pTUser = static_cast<CUser *>(itr->second);
-		if (pTUser->GetState() == GAME_STATE_INGAME
+		if (pTUser->isInGame()
 			&& pTUser->getZoneID() == pTUser->getNation() 
 			&& pTUser->getNation() == m_bVictory)
 			winners.insert(pTUser);
@@ -1813,10 +1817,8 @@ void CEbenezerDlg::BanishLosers()
 	foreach (itr, sessMap)
 	{
 		CUser *pUser = static_cast<CUser *>(itr->second); 
-		if (pUser->GetState() == GAME_STATE_INGAME)
-			continue;
-
-		affected.insert(pUser);
+		if (pUser->isInGame())
+			affected.insert(pUser);
 	}
 	s_socketMgr.ReleaseLock();
 
@@ -1989,7 +1991,7 @@ void CEbenezerDlg::CheckAliveUser()
 	foreach (itr, sessMap)
 	{
 		CUser *pUser = static_cast<CUser *>(itr->second);
-		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME)
+		if (!pUser->isInGame())
 			continue;
 
 		if (pUser->m_sAliveCount++ > 3)
@@ -2013,12 +2015,12 @@ int CEbenezerDlg::KickOutAllUsers()
 
 	foreach (itr, sessions)
 	{
-		GameState state = (*itr)->GetState();
+		bool bIngame = (*itr)->isInGame();
 		(*itr)->Disconnect();
 
 		// Only delay (for saving) if they're logged in, this is awful... 
 		// but until we do away with the shared memory system, it'll overflow the queue...
-		if (state == GAME_STATE_INGAME)
+		if (bIngame)
 		{
 			count++;
 			Sleep(50);
@@ -2065,7 +2067,7 @@ void CEbenezerDlg::KickOutZoneUsers(short zone)
 	{
 		// Only kick users from requested zone.
 		CUser * pUser = static_cast<CUser *>(itr->second);
-		if (pUser->GetState() == GAME_STATE_INGAME
+		if (pUser->isInGame()
 			&& pUser->getZoneID() == zone) 
 			sessions.insert(pUser);
 	}
@@ -2102,8 +2104,8 @@ void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser)
 	foreach (itr, sessMap)
 	{
 		CUser * pUser = static_cast<CUser *>(itr->second);
-		if (pUser->GetState() == GAME_STATE_INGAME 
-			&& pUser == pExceptUser 
+		if (pUser->isInGame() 
+			&& pUser != pExceptUser 
 			&& (nation == 0 || nation == pUser->getNation()))
 			sessions.insert(pUser);
 	}
@@ -2219,7 +2221,7 @@ next_row:
 	foreach (itr, sessMap)
 	{
 		CUser *pUser = static_cast<CUser *>(itr->second);
-		if (pUser->GetState() == GAME_STATE_INGAME)
+		if (pUser->isInGame())
 			sessions.insert(pUser);
 	}
 	s_socketMgr.ReleaseLock();
@@ -2246,7 +2248,7 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 	foreach (itr, sessMap)
 	{
 		CUser * pUser = static_cast<CUser *>(itr->second);
-		if (pUser->GetState() != GAME_STATE_INGAME || pUser->getZoneID() != ZONE_BATTLE)
+		if (!pUser->isInGame() || pUser->getZoneID() != ZONE_BATTLE)
 			continue;
 
 		if (pUser->getNation() == KARUS)

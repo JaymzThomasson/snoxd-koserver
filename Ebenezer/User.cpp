@@ -153,25 +153,25 @@ void CUser::Initialize()
 void CUser::OnDisconnect()
 {
 	KOSocket::OnDisconnect();
-	if (GetState() == GAME_STATE_INGAME)
+	if (!isInGame())
+		return;
+
+	UserInOut(USER_OUT);
+
+	if (isInParty())
+		PartyRemove(GetSocketID());
+
+	if (isInClan())
 	{
-		UserInOut(USER_OUT);
-
-		if (isInParty())
-			PartyRemove(GetSocketID());
-
-		if (isInClan())
-		{
-			CKnights *pKnights = g_pMain->GetClanPtr(m_pUserData->m_bKnights);
-			if (pKnights != NULL)
-				pKnights->OnLogout(this);
-		}
-
-		if (isTrading())
-			ExchangeCancel();
-
-		LogOut();
+		CKnights *pKnights = g_pMain->GetClanPtr(m_pUserData->m_bKnights);
+		if (pKnights != NULL)
+			pKnights->OnLogout(this);
 	}
+
+	if (isTrading())
+		ExchangeCancel();
+
+	LogOut();
 }
 
 bool CUser::HandlePacket(Packet & pkt)
@@ -517,7 +517,7 @@ void CUser::RecvSkillDataLoad(Packet & pkt)
 
 void CUser::UserDataSaveToAgent()
 {
-	if (GetState() != GAME_STATE_INGAME)
+	if (!isInGame())
 		return;
 
 	Packet result(WIZ_DATASAVE);
@@ -824,24 +824,25 @@ void CUser::RegisterRegion()
 	iRegX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
 	iRegZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
 
-	if( m_RegionX != iRegX || m_RegionZ != iRegZ)
-	{
-		C3DMap* pMap = GetMap();
-		if( !pMap )
-			return;
-		
-		old_region_x = m_RegionX;	old_region_z = m_RegionZ;
-		pMap->RegionUserRemove(m_RegionX, m_RegionZ, GetSocketID());
-		m_RegionX = iRegX;		m_RegionZ = iRegZ;
-		pMap->RegionUserAdd(m_RegionX, m_RegionZ, GetSocketID());
+	if (m_RegionX == iRegX && m_RegionZ == iRegZ)
+		return;
 
-		if( GetState() == GAME_STATE_INGAME ) {
-			RemoveRegion( old_region_x - m_RegionX, old_region_z - m_RegionZ );
-			InsertRegion( m_RegionX - old_region_x, m_RegionZ - old_region_z );	
-			g_pMain->RegionNpcInfoForMe(this);
-			g_pMain->RegionUserInOutForMe(this);
-		}
-	}
+	C3DMap* pMap = GetMap();
+	if (pMap == NULL)
+		return;
+		
+	old_region_x = m_RegionX;	old_region_z = m_RegionZ;
+	pMap->RegionUserRemove(m_RegionX, m_RegionZ, GetSocketID());
+	m_RegionX = iRegX;		m_RegionZ = iRegZ;
+	pMap->RegionUserAdd(m_RegionX, m_RegionZ, GetSocketID());
+
+	if (!isInGame())
+		return;
+
+	RemoveRegion( old_region_x - m_RegionX, old_region_z - m_RegionZ );
+	InsertRegion( m_RegionX - old_region_x, m_RegionZ - old_region_z );	
+	g_pMain->RegionNpcInfoForMe(this);
+	g_pMain->RegionUserInOutForMe(this);
 }
 
 void CUser::RemoveRegion(int del_x, int del_z)
@@ -871,7 +872,7 @@ void CUser::RequestUserIn(Packet & pkt)
 	for (int i = 0; i < user_count; i++)
 	{
 		CUser *pUser = g_pMain->GetUserPtr(pkt.read<uint16>());
-		if (pUser == NULL || pUser->GetState() != GAME_STATE_INGAME)
+		if (pUser == NULL || !pUser->isInGame())
 			continue;
 
 		result << uint8(0) << pUser->GetSocketID();
@@ -1753,7 +1754,7 @@ void CUser::ChangeNP(short sAmount, bool bDistributeToParty /*= true*/)
 
 void CUser::SpeedHackUser()
 {
-	if (GetState() != GAME_STATE_INGAME)
+	if (!isInGame())
 		return;
 
 	g_pMain->WriteLog("%s Speed Hack Used\r\n", m_pUserData->m_id);
@@ -1857,7 +1858,7 @@ void CUser::CountConcurrentUser()
 	SessionMap & sessMap = g_pMain->s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		if (static_cast<CUser *>(itr->second)->GetState() == GAME_STATE_INGAME)
+		if (static_cast<CUser *>(itr->second)->isInGame())
 			count++;
 	}
 	g_pMain->s_socketMgr.ReleaseLock();
