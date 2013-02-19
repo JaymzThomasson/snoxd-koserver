@@ -142,7 +142,7 @@ BOOL CServerDlg::OnInitDialog()
 
 	// Server Start
 	CTime time = CTime::GetCurrentTime();
-	AddToList("[AI ServerStart - %d-%d-%d, %d:%d]", time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute() );
+	AddToList("[AI ServerStart - %d-%d-%d, %02d:%02d]", time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute() );
 
 	//----------------------------------------------------------------------
 	//	Logfile initialize
@@ -162,10 +162,10 @@ BOOL CServerDlg::OnInitDialog()
 	//----------------------------------------------------------------------
 	GetServerInfoIni();
 
-	if(m_byZone == UNIFY_ZONE)	m_strStatus.Format("UNIFY_ZONE 서버의 현재 상태");
-	else if(m_byZone == KARUS_ZONE)	m_strStatus.Format("KARUS 서버의 현재 상태");
-	else if(m_byZone == ELMORAD_ZONE) m_strStatus.Format("ELMORAD 서버의 현재 상태");
-	else if(m_byZone == BATTLE_ZONE) m_strStatus.Format("BATTLE 서버의 현재 상태");
+	if(m_byZone == UNIFY_ZONE)	m_strStatus.Format("Server zone: ALL");
+	else if(m_byZone == KARUS_ZONE)	m_strStatus.Format("Server zone: KARUS");
+	else if(m_byZone == ELMORAD_ZONE) m_strStatus.Format("Server zone: EL MORAD");
+	else if(m_byZone == BATTLE_ZONE) m_strStatus.Format("Server zone: BATTLE");
 
 	//----------------------------------------------------------------------
 	//	DB part initialize
@@ -1832,7 +1832,7 @@ int CServerDlg::GetServerNumber( int zonenumber )
 void CServerDlg::GetServerInfoIni()
 {
 	CIni inifile("server.ini");
-	m_byZone = inifile.GetInt("SERVER", "ZONE", 1);
+	m_byZone = inifile.GetInt("SERVER", "ZONE", UNIFY_ZONE);
 }
 
 void CServerDlg::SendSystemMsg( char* pMsg, int type, int who )

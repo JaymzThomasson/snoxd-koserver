@@ -1,9 +1,8 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by Server.rc
 //
 #define IDM_ABOUTBOX                    0x0010
-#define IDD_ABOUTBOX                    100
 #define IDS_ABOUTBOX                    101
 #define IDD_SERVER_DIALOG               102
 #define IDS_KARUS_CATCH_1               102
