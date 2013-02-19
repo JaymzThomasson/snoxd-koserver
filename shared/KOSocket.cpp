@@ -180,7 +180,7 @@ bool KOSocket::Send(Packet * pkt)
 
 	BurstBegin();
 
-	if (GetWriteBuffer().GetSpace() < int32(len + 6))
+	if (GetWriteBuffer().GetSpace() < size_t(len + 6))
 	{
 		BurstEnd();
 		Disconnect();
