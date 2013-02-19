@@ -153,6 +153,9 @@ void CUser::Initialize()
 void CUser::OnDisconnect()
 {
 	KOSocket::OnDisconnect();
+
+	g_pMain->RemoveSessionNames(this);
+
 	if (!isInGame())
 		return;
 
@@ -638,6 +641,8 @@ void CUser::SendMyInfo()
 			<< m_pUserData->m_iMannerPoint;
 
 	Send(&result);
+
+	g_pMain->AddCharacterName(this);
 
 	SendPremiumInfo();
 	SetZoneAbilityChange(getZoneID());

@@ -63,6 +63,8 @@ void CUser::RecvLoginProcess(Packet & pkt)
 	// Error? Reset the account ID.
 	if (bResult < 0)
 		m_strAccountID = "";
+	else
+		g_pMain->AddAccountName(this);
 
 	result << bResult;
 	Send(&result);

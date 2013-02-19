@@ -15,14 +15,19 @@
 #include "UdpSocket.h"
 
 #include "../shared/STLMap.h"
+
 #include <vector>
+#include <hash_map>
 
 #include "ChatHandler.h"
 #include "../shared/KOSocketMgr.h"
 #include "../shared/ClientSocketMgr.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CEbenezerDlg dialog
+using stdext::hash_map;
+using std::string;
+
+class CUser;
+typedef hash_map<string, CUser *> NameMap;
 
 typedef CSTLMap <C3DMap>					ZoneArray;
 typedef std::map<int, long>					LevelUpArray;
@@ -48,7 +53,6 @@ typedef	CSTLMap	<EVENT>						QuestArray;
 typedef	CSTLMap	<_SERVER_RESOURCE>			ServerResourceArray;
 typedef std::vector <CString>				BlockNameArray;
 
-class CUser;
 class CEbenezerDlg : public CDialog
 {
 // Construction
@@ -170,6 +174,15 @@ public:
 	CUser * GetUserPtr(const char* userid, NameType type);
 	CUser * GetUserPtr(int sid);
 
+	// Adds the account name & session to a hashmap (on login)
+	void AddAccountName(CUser *pSession);
+
+	// Adds the character name & session to a hashmap (when in-game)
+	void AddCharacterName(CUser *pSession);
+
+	// Removes the account name & character names from the hashmaps (on logout)
+	void RemoveSessionNames(CUser *pSession);
+
 	CKnights * GetClanPtr(uint16 sClanID);
 	_ITEM_TABLE * GetItemPtr(uint32 nItemID);
 
@@ -183,7 +196,6 @@ public:
 
 	static KOSocketMgr<CUser> s_socketMgr;
 	static ClientSocketMgr<CAISocket> s_aiSocketMgr;
-
 
 	CSharedMemQueue	m_LoggerSendQueue, m_LoggerRecvQueue;
 
@@ -261,10 +273,15 @@ public:
 	ServerArray			m_ServerArray;
 	ServerArray			m_ServerGroupArray;
 	CUdpSocket*			m_pUdpSocket;
-	CFile m_RegionLogFile;
-	CFile m_LogFile;
-	CFile m_EvnetLogFile;
-// Dialog Data
+	CFile m_RegionLogFile, m_LogFile, m_EvnetLogFile;
+
+	NameMap		m_accountNameMap,
+				m_characterNameMap;
+
+	FastMutex	m_accountNameLock,
+				m_characterNameLock;
+	
+	// Dialog Data
 	//{{AFX_DATA(CEbenezerDlg)
 	enum { IDD = IDD_EBENEZER_DIALOG };
 	CEdit	m_AnnounceEdit;

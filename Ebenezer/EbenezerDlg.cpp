@@ -542,47 +542,67 @@ C3DMap * CEbenezerDlg::GetZoneByID(int zoneID)
 CUser* CEbenezerDlg::GetUserPtr(const char *userid, NameType type)
 {
 	CUser *result = NULL;
-
 	string findName = userid;
 	STRTOUPPER(findName);
 
-	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	NameMap::iterator itr;
 	if (type == TYPE_ACCOUNT)
 	{
-		foreach (itr, sessMap)
-		{
-			CUser *pUser = static_cast<CUser *>(itr->second);
-			if (!pUser->isInGame())
-				continue;
-
-			string UpperName = pUser->m_strAccountID;
-			STRTOUPPER(UpperName);
-			if (findName == UpperName) 
-			{
-				result = pUser;
-				break;
-			}
-		}
+		m_accountNameLock.Acquire();
+		itr = m_accountNameMap.find(findName);
+		if (itr != m_accountNameMap.end())
+			result = itr->second;
+		m_accountNameLock.Release();
 	}
 	else if (type == TYPE_CHARACTER)
 	{
-		foreach (itr, sessMap) 
-		{
-			CUser *pUser = static_cast<CUser *>(itr->second);
-			if (!pUser->isInGame())
-				continue;
-
-			string UpperName = pUser->m_pUserData->m_id;
-			STRTOUPPER(UpperName);
-			if (findName == UpperName) 
-			{
-				result = pUser;
-				break;
-			}
-		}
+		m_characterNameLock.Acquire();
+		itr = m_characterNameMap.find(findName);
+		if (itr != m_characterNameMap.end())
+			result = itr->second;
+		m_characterNameLock.Release();
 	}
-	s_socketMgr.ReleaseLock();
+
 	return result;
+}
+
+// Adds the account name & session to a hashmap (on login)
+void CEbenezerDlg::AddAccountName(CUser *pSession)
+{
+	string upperName = pSession->m_strAccountID;
+	STRTOUPPER(upperName);
+	m_accountNameLock.Acquire();
+	m_accountNameMap[upperName] = pSession;
+	m_accountNameLock.Release();
+}
+
+// Adds the character name & session to a hashmap (when in-game)
+void CEbenezerDlg::AddCharacterName(CUser *pSession)
+{
+	string upperName = pSession->m_strAccountID;
+	STRTOUPPER(upperName);
+	m_characterNameLock.Acquire();
+	m_characterNameMap[upperName] = pSession;
+	m_characterNameLock.Release();
+}
+
+// Removes the account name & character names from the hashmaps (on logout)
+void CEbenezerDlg::RemoveSessionNames(CUser *pSession)
+{
+	string upperName = pSession->m_strAccountID;
+	STRTOUPPER(upperName);
+	m_accountNameLock.Acquire();
+	m_accountNameMap.erase(upperName);
+	m_accountNameLock.Release();
+
+	if (pSession->isInGame())
+	{
+		upperName = pSession->m_pUserData->m_id;
+		STRTOUPPER(upperName);
+		m_characterNameLock.Acquire();
+		m_characterNameMap.erase(upperName);
+		m_characterNameLock.Release();
+	}
 }
 
 CUser		* CEbenezerDlg::GetUserPtr(int sid) { return s_socketMgr[sid]; }
