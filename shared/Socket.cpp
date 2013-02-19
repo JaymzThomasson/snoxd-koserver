@@ -27,6 +27,10 @@ bool Socket::Connect(const char * Address, uint32 Port)
 	memcpy(&m_client.sin_addr.s_addr, ci->h_addr_list[0], ci->h_length);
 
 	SetBlocking(true);
+
+	if (m_fd == 0)
+		m_fd = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
+
 	if (connect(m_fd, (const sockaddr*)&m_client, sizeof(m_client)) == -1)
 		return false;
 
@@ -197,6 +201,7 @@ void Socket::Disconnect()
 
 	shutdown(m_fd, SD_BOTH);
 	closesocket(m_fd);
+	m_fd = NULL;
 
 	// Call virtual ondisconnect
 	OnDisconnect();

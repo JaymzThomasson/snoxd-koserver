@@ -239,13 +239,8 @@ BOOL CEbenezerDlg::OnInitDialog()
 	m_sZoneCount = 0;
 	m_sErrorSocketCount = 0;
 
-	// sungyong 2002.05.23
-	m_sSendSocket = 0;						
 	m_bFirstServerFlag = FALSE;	
 	m_bServerCheckFlag = FALSE;
-	m_sReSocketCount = 0;
-	m_fReConnectStart = 0.0f;
-	// sungyong~ 2002.05.23
 
 	//----------------------------------------------------------------------
 	//	Logfile initialize
@@ -633,7 +628,8 @@ void CEbenezerDlg::OnTimer(UINT nIDEvent)
 	switch( nIDEvent ) {
 	case GAME_TIME:
 		UpdateGameTime();
-		// AIServerConnect();
+		if (++m_sErrorSocketCount > 3)
+			AIServerConnect();
 		break;
 	case ALIVE_TIME:
 		CheckAliveUser();
@@ -1127,9 +1123,6 @@ void CEbenezerDlg::UpdateGameTime()
 		m_nYear++;
 		m_nMonth = 1;
 	}
-
-	// ai status check packet...
-	m_sErrorSocketCount++;
 
 	Packet result(AG_TIME_WEATHER);
 	result << m_nYear << m_nMonth << m_nDate << m_nHour << m_nMin << m_nWeather << m_nAmount;
