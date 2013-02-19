@@ -153,8 +153,6 @@ CNpc::CNpc()
 	m_fHPChangeTime = TimeGet();
 	m_fFaintingTime = 0.0f;
 
-	::ZeroMemory(m_pMap, sizeof(m_pMap));// 일차원 맵으로 초기화한다.
-
 	m_iRegion_X = 0;
 	m_iRegion_Z = 0;
 	m_nLimitMinX = m_nLimitMinZ = 0;
@@ -185,8 +183,6 @@ CNpc::~CNpc()
 //
 void CNpc::ClearPathFindData()
 {
-	::ZeroMemory(m_pMap, sizeof(m_pMap));	// 일차원 맵을 위해
-
 	m_bPathFlag = FALSE;
 	m_sStepCount = 0;
 	m_iAniFrameCount = 0;
@@ -1509,7 +1505,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 	}
 
 
-	int i,j;
+	int i;
 	int min_x, max_x;
 	int min_y, max_y;
 
@@ -1520,27 +1516,9 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 
 	m_vMapSize.cx = max_x - min_x + 1;		
 	m_vMapSize.cy = max_y - min_y + 1;
-
-	for(i = 0; i < m_vMapSize.cy; i++)
-	{
-		for(j = 0; j < m_vMapSize.cx; j++)
-		{
-			if((min_x+j) < 0 || (min_y+i) < 0)	return 0;
-			if(m_pOrgMap[min_x + j][min_y + i].m_sEvent == 0 )
-			{
-				if((j*m_vMapSize.cy+i) < 0) return 0;
-				m_pMap[j*m_vMapSize.cy + i] = 1;
-			}
-			else
-			{
-				if((j*m_vMapSize.cy+i) < 0) return 0;
-				m_pMap[j*m_vMapSize.cy + i] = 0;
-			}
-		}
-	}
-
+	
 	m_pPath = NULL;
-	m_vPathFind.SetMap(m_vMapSize.cx, m_vMapSize.cy, m_pMap);
+	m_vPathFind.SetMap(m_vMapSize.cx, m_vMapSize.cy, m_pOrgMap);
 	m_pPath = m_vPathFind.FindPath(end.x, end.y, start.x, start.y);
 	int count = 0;
 

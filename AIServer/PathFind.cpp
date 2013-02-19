@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "server.h"
+#include "MAP.h"
 #include "PathFind.h"
 #include "math.h"
 #include "Serverdlg.h"
@@ -71,7 +72,7 @@ void CPathFind::ClearData()
 	}
 }
 
-void CPathFind::SetMap(int x, int y, int *pMap)
+void CPathFind::SetMap(int x, int y, CMapInfo **pMap)
 {
 	m_vMapSize.cx = x;
 	m_vMapSize.cy = y;
@@ -373,6 +374,6 @@ BOOL CPathFind::IsBlankMap(int x, int y)
 	BOOL bRet = TRUE;
 	//if(g_pMain->m_pMap->m_pMap[x][y].m_bMove > 0) bRet = FALSE;
 	//if
-	return (BOOL)!m_pMap[x*m_vMapSize.cy + y];
+	return !m_pMap[x][y].m_sEvent;
 	//return bRet;
 }

@@ -7,7 +7,6 @@
 #include "user.h"
 #include "NpcMagicProcess.h"
 
-#define MAX_MAP_SIZE		10000
 #define MAX_PATH_SIZE		100
 
 #define NPC_MAX_USER_LIST	5
@@ -163,8 +162,6 @@ public:
 	short		m_min_y;
 	short		m_max_x;
 	short		m_max_y;
-
-	int		m_pMap[MAX_MAP_SIZE];// 2차원 -> 1차원 배열로 x * sizey + y
 
 	SIZE	m_vMapSize;
 
