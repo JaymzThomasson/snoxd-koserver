@@ -11,7 +11,7 @@ class CGameSocket : public KOSocket
 public:
 	CParty		m_Party;
 
-	CGameSocket(uint16 socketID, SocketMgr *mgr) : KOSocket(socketID, mgr, -1, 65536, 65536) {}
+	CGameSocket(uint16 socketID, SocketMgr *mgr) : KOSocket(socketID, mgr, -1, 131072, 131072) {}
 
 	virtual void OnConnect();
 
