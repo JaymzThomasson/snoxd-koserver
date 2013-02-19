@@ -1485,17 +1485,30 @@ void CUser::ItemGet(Packet & pkt)
 
 	pRegion = &(pMap->m_ppRegion[m_RegionX][m_RegionZ]);
 	if (!pRegion)	goto fail_return;
+
 	pItem = (_ZONE_ITEM*)pRegion->m_RegionItemArray.GetData( bundle_index );
-	if(!pItem) goto fail_return;
+	if (!pItem) 
+		goto fail_return;
 
 	for (i = 0; i < 6; i++)
 	{
 		if (pItem->itemid[i] == itemid)
 			break;
 	}
-	if (i == 6
-		|| pMap->RegionItemRemove(m_RegionX, m_RegionZ, bundle_index, pItem->itemid[i], pItem->count[i]) == FALSE)
+
+	if (i == 6)
 		goto fail_return;
+
+	// Copy the item so we can still use it after it's freed
+	// TO-DO: Clean this up (but it works for now)
+	_ZONE_ITEM pItem2;
+	memcpy(&pItem2, pItem, sizeof(pItem2)); 
+
+	if (!pMap->RegionItemRemove(m_RegionX, m_RegionZ, bundle_index, pItem->itemid[i], pItem->count[i]))
+		goto fail_return;
+
+	// Save us from having to tweak the rest of the method (tacky, but again - works for now)
+	pItem = &pItem2; 
 
 	short count = pItem->count[i];
 
