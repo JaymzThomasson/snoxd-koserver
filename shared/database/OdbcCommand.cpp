@@ -99,6 +99,10 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 	if (!Open())
 		return false;
 
+#ifdef _DEBUG
+	OutputDebugString((szSQL + _T("\n")).c_str());
+#endif
+
 	if (!SQL_SUCCEEDED(SQLPrepare(m_hStmt, (SQLTCHAR *)szSQL.c_str(), szSQL.length())))
 	{
 		if (m_odbcConnection != NULL)
@@ -113,7 +117,6 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 	if (!BindParameters())
 		return false;
 
-	TRACE("[Prepare] Query: %s\n", szSQL.c_str());
 	if (!SQL_SUCCEEDED(SQLExecute(m_hStmt)))
 	{
 		if (m_odbcConnection != NULL)
@@ -183,7 +186,7 @@ bool OdbcCommand::FetchBinary(int pos, char *charArray, SQLLEN maxLength, SQLLEN
 bool OdbcCommand::FetchString(int pos, std::string & value)
 {
 	SQLINTEGER bufferSize = 0;
-	char buffer[256] = "";
+	char buffer[256] = _T("");
 
 	// Attempt to fetch "small" string of 256 bytes at most (should fit everything we'll need)
 	if (!FetchString(pos, buffer, sizeof(buffer), &bufferSize))
@@ -215,13 +218,13 @@ bool OdbcCommand::FetchString(int pos, std::string & value)
 
 void OdbcCommand::ClearParameters()
 {
-	if (m_params.empty())
-		return;
+	if (m_params.size())
+	{
+		for (auto itr = m_params.begin(); itr != m_params.end(); itr++)
+			delete itr->second;
 
-	for (auto itr = m_params.begin(); itr != m_params.end(); ++itr)
-		delete itr->second;
-
-	m_params.clear();
+		m_params.clear();
+	}
 }
 
 void OdbcCommand::Close()
