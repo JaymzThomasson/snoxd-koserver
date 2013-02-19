@@ -460,15 +460,6 @@ void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 {
 	uint8 command = pkt.read<uint8>(), bResult = pkt.read<uint8>();
 
-	// Surely this isn't still used...
-	if (bResult > 0) 
-	{
-		Packet result(WIZ_KNIGHTS_PROCESS, command);
-		result << bResult << "Error";
-		pUser->Send(&result);
-		return;
-	}
-
 	switch (command)
 	{
 	case KNIGHTS_CREATE:
