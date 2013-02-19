@@ -1358,16 +1358,12 @@ void CServerDlg::CheckAliveTest()
 	Packet result(AG_CHECK_ALIVE_REQ);
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	uint32 count = 0, sessCount = sessMap.size();
-	set<KOSocket *> sockets;
 	foreach (itr, sessMap)
-		sockets.insert(itr->second);
-	s_socketMgr.ReleaseLock();
-
-	foreach (itr, sockets)
 	{
-		if ((*itr)->Send(&result))
+		if (itr->second->Send(&result))
 			count++;
 	}
+	s_socketMgr.ReleaseLock();
 
 	if (sessCount > 0 && count == 0)
 		DeleteAllUserList();

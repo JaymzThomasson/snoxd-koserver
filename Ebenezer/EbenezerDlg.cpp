@@ -743,7 +743,6 @@ void CEbenezerDlg::AIServerConnect()
 void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 nation /*= 0*/)
 {
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
-	set<CUser *> sessions;
 	foreach (itr, sessMap)
 	{
 		CUser * pUser = static_cast<CUser *>(itr->second);
@@ -752,12 +751,9 @@ void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 na
 			|| (nation != 0 && nation != pUser->getNation()))
 			continue;
 
-		sessions.insert(pUser);
+		pUser->Send(pkt);
 	}
 	s_socketMgr.ReleaseLock();
-
-	foreach (itr, sessions)
-		(*itr)->Send(pkt);
 }
 
 void CEbenezerDlg::Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser)
@@ -1662,8 +1658,6 @@ CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
 void CEbenezerDlg::AliveUserCheck()
 {
 	float currenttime = TimeGet();
-	set<CUser *> killSessions;
-
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
@@ -1677,15 +1671,12 @@ void CEbenezerDlg::AliveUserCheck()
 		{
 			if ((currenttime - pUser->m_fHPLastTime[k]) > 300)
 			{
-				killSessions.insert(pUser);
+				pUser->Disconnect();
 				break;
 			}
 		}
 	}
 	s_socketMgr.ReleaseLock();
-
-	foreach (itr, killSessions)
-		(*itr)->Disconnect();
 }
 /////// BATTLEZONE RELATED by Yookozuna 2002.6.18 /////////////////
 void CEbenezerDlg::BattleZoneOpenTimer()
@@ -1798,20 +1789,13 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 	Announcement(DECLARE_WINNER);
 
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
-	set<CUser *> winners;
 	foreach (itr, sessMap)
 	{
 		CUser* pTUser = static_cast<CUser *>(itr->second);
-		if (pTUser->isInGame()
-			&& pTUser->getZoneID() == pTUser->getNation() 
-			&& pTUser->getNation() == m_bVictory)
-			winners.insert(pTUser);
-	}	
-	s_socketMgr.ReleaseLock();
-
-	foreach (itr, winners)
-	{
-		CUser *pTUser = (*itr);
+		if (!pTUser->isInGame()
+			|| pTUser->getZoneID() != pTUser->getNation() 
+			|| pTUser->getNation() != m_bVictory)
+			continue;
 
 		pTUser->GoldGain(AWARD_GOLD);
 		pTUser->ExpChange(AWARD_EXP);
@@ -1826,7 +1810,8 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 				
 		// Make the winning nation use a victory emotion (yay!)
 		pTUser->StateChangeServerDirect(4, 12);
-	}
+	}	
+	s_socketMgr.ReleaseLock();
 }
 
 /**
@@ -1836,19 +1821,11 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 void CEbenezerDlg::BanishLosers()
 {
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
-	set<CUser *> affected;
-
 	foreach (itr, sessMap)
 	{
 		CUser *pUser = static_cast<CUser *>(itr->second); 
-		if (pUser->isInGame())
-			affected.insert(pUser);
-	}
-	s_socketMgr.ReleaseLock();
-
-	foreach (itr, affected)
-	{
-		CUser *pUser = (*itr);
+		if (!pUser->isInGame())
+			continue;
 
 		// Reset captains
 		if (pUser->getFame() == COMMAND_CAPTAIN)
@@ -1859,6 +1836,7 @@ void CEbenezerDlg::BanishLosers()
 			&& pUser->getZoneID() != pUser->getNation())
 			pUser->KickOutZoneUser(TRUE);
 	}
+	s_socketMgr.ReleaseLock();
 }
 
 void CEbenezerDlg::ResetBattleZone()
@@ -2029,18 +2007,14 @@ void CEbenezerDlg::CheckAliveUser()
 
 int CEbenezerDlg::KickOutAllUsers()
 {
-	set<CUser *> sessions;
 	int count = 0;
 
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
-		sessions.insert(static_cast<CUser *>(itr->second));
-	s_socketMgr.ReleaseLock();
-
-	foreach (itr, sessions)
 	{
-		bool bIngame = (*itr)->isInGame();
-		(*itr)->Disconnect();
+		CUser *pUser = static_cast<CUser *>(itr->second);
+		bool bIngame = pUser->isInGame();
+		pUser->Disconnect();
 
 		// Only delay (for saving) if they're logged in, this is awful... 
 		// but until we do away with the shared memory system, it'll overflow the queue...
@@ -2050,7 +2024,7 @@ int CEbenezerDlg::KickOutAllUsers()
 			Sleep(50);
 		}
 	}
-
+	s_socketMgr.ReleaseLock();
 	return count;
 }
 
@@ -2085,24 +2059,25 @@ __int64 CEbenezerDlg::GenerateItemSerial()
 void CEbenezerDlg::KickOutZoneUsers(short zone)
 {
 	// TO-DO: Make this localised to zones.
-	set<CUser *> sessions;
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	C3DMap	*pKarusMap		= GetZoneByID(KARUS),
+			*pElMoradMap	= GetZoneByID(ELMORAD);	
+
+	ASSERT (pKarusMap != NULL && pElMoradMap != NULL);
+
 	foreach (itr, sessMap)
 	{
 		// Only kick users from requested zone.
 		CUser * pUser = static_cast<CUser *>(itr->second);
-		if (pUser->isInGame()
-			&& pUser->getZoneID() == zone) 
-			sessions.insert(pUser);
+		if (!pUser->isInGame()
+			|| pUser->getZoneID() != zone) 
+			continue;
+
+		C3DMap * pMap = (pUser->getNation() == KARUS ? pKarusMap : pElMoradMap);
+		pUser->ZoneChange(pMap->m_nZoneNumber, pMap->m_fInitX, pMap->m_fInitZ);
+
 	}
 	s_socketMgr.ReleaseLock();
-
-	foreach (itr, sessions)
-	{
-		C3DMap * pMap = GetZoneByID((*itr)->getNation());
-		if (pMap != NULL)
-			(*itr)->ZoneChange(pMap->m_nZoneNumber, pMap->m_fInitX, pMap->m_fInitZ);
-	}
 }
 
 void CEbenezerDlg::Send_UDP_All(Packet *pkt, int group_type /*= 0*/)
@@ -2123,7 +2098,6 @@ BOOL CEbenezerDlg::LoadBattleTable()
 
 void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser)
 {
-	set<CUser *> sessions;
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
@@ -2131,12 +2105,9 @@ void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser)
 		if (pUser->isInGame() 
 			&& pUser != pExceptUser 
 			&& (nation == 0 || nation == pUser->getNation()))
-			sessions.insert(pUser);
+			pUser->Send(pkt);
 	}
 	s_socketMgr.ReleaseLock();
-
-	foreach (itr, sessions)
-		(*itr)->Send(pkt);
 }
 
 void CEbenezerDlg::GetCaptainUserPtr()
@@ -2240,23 +2211,18 @@ next_row:
 	SetKOString(temp_buff, strElmoCaptainName, temp_index);
 
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
-	set<CUser *> sessions;
 	foreach (itr, sessMap)
 	{
 		CUser *pUser = static_cast<CUser *>(itr->second);
-		if (pUser->isInGame())
-			sessions.insert(pUser);
-	}
-	s_socketMgr.ReleaseLock();
+		if (!pUser->isInGame())
+			continue;
 
-	foreach (itr, sessions)
-	{
 		if (pUser->getNation() == KARUS)
 			pUser->Send(send_buff, send_index);
 		else
 			pUser->Send(temp_buff, temp_index);
 	}
-
+	s_socketMgr.ReleaseLock();
 	return TRUE;
 }
 
