@@ -1353,19 +1353,21 @@ void CServerDlg::OnTimer(UINT nIDEvent)
 	CDialog::OnTimer(nIDEvent);
 }
 
-// sungyong 2002.05.23
 void CServerDlg::CheckAliveTest()
 {
 	Packet result(AG_CHECK_ALIVE_REQ);
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	uint32 count = 0, sessCount = sessMap.size();
+	set<KOSocket *> sockets;
 	foreach (itr, sessMap)
+		sockets.insert(itr->second);
+	s_socketMgr.ReleaseLock();
+
+	foreach (itr, sockets)
 	{
-		CGameSocket *pSocket = static_cast<CGameSocket *>(itr->second);
-		if (pSocket->Send(&result))
+		if ((*itr)->Send(&result))
 			count++;
 	}
-	s_socketMgr.ReleaseLock();
 
 	if (sessCount > 0 && count == 0)
 		DeleteAllUserList();

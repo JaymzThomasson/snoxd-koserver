@@ -743,6 +743,7 @@ void CEbenezerDlg::AIServerConnect()
 void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 nation /*= 0*/)
 {
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	set<CUser *> sessions;
 	foreach (itr, sessMap)
 	{
 		CUser * pUser = static_cast<CUser *>(itr->second);
@@ -751,9 +752,12 @@ void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 na
 			|| (nation != 0 && nation != pUser->getNation()))
 			continue;
 
-		pUser->Send(pkt);
+		sessions.insert(pUser);
 	}
 	s_socketMgr.ReleaseLock();
+
+	foreach (itr, sessions)
+		(*itr)->Send(pkt);
 }
 
 void CEbenezerDlg::Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser)
