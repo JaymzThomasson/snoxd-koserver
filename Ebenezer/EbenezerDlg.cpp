@@ -537,7 +537,7 @@ void CEbenezerDlg::AddAccountName(CUser *pSession)
 // Adds the character name & session to a hashmap (when in-game)
 void CEbenezerDlg::AddCharacterName(CUser *pSession)
 {
-	string upperName = pSession->m_strAccountID;
+	string upperName = pSession->m_pUserData->m_id;
 	STRTOUPPER(upperName);
 	m_characterNameLock.Acquire();
 	m_characterNameMap[upperName] = pSession;
