@@ -2606,17 +2606,25 @@ void CUser::Type3AreaDuration(float currenttime)
 		if (isDead())
 			return;
 		
-		for (int i = 0; i < MAX_USER; i++)
+		// TO-DO: Make this not suck (needs to be localised)
+		SessionMap & sessMap = g_pMain->s_socketMgr.GetActiveSessionMap();
+		set<uint16> sessionIDs;
+		foreach (itr, sessMap)
 		{
-			if (m_MagicProcess.UserRegionCheck(GetSocketID(), i, m_iAreaMagicID, pType->bRadius))
-			{
-				result.clear();
-				result	<< uint8(MAGIC_EFFECTING) << m_iAreaMagicID
-						<< GetSocketID() << uint16(i)
-						<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
-				SendToRegion(&result);
-			}
+			if (m_MagicProcess.UserRegionCheck(GetSocketID(), itr->first, m_iAreaMagicID, pType->bRadius))
+				sessionIDs.insert(itr->first);
 		}
+		g_pMain->s_socketMgr.ReleaseLock();
+
+		foreach (itr, sessionIDs)
+		{
+			result.clear();
+			result	<< uint8(MAGIC_EFFECTING) << m_iAreaMagicID
+					<< GetSocketID() << (*itr)
+					<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
+			SendToRegion(&result);
+		}
+
 
 		if ( (( currenttime - m_fAreaStartTime) >= pType->bDuration))
 		{ // Did area duration end? 			

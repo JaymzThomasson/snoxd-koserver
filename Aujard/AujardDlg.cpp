@@ -549,6 +549,8 @@ void CAujardDlg::UserDataSave(Packet & pkt)
 
 _USER_DATA* CAujardDlg::GetUserPtr(const char *struserid, short &uid)
 {
+
+	// TO-DO: Replace with hashmap
 	for (int i = 0; i < MAX_USER; i++)
 	{
 		_USER_DATA *pUser = m_DBAgent.m_UserDataArray[i];
