@@ -73,63 +73,6 @@ BOOL CSharedMemQueue::InitailizeMMF(DWORD dwOffsetsize, int maxcount, LPCTSTR lp
 	return TRUE;
 }
 
-int CSharedMemQueue::PutData(char *pBuf, int size)
-{
-	char logstr[256];
-	BYTE BlockMode;
-	int index = 0, count = 0;
-
-	if( (DWORD)size > m_wOffset ) {
-		sprintf_s( logstr, sizeof(logstr), "DataSize Over.. - %d bytes\r\n", size );
-		LogFileWrite( logstr );
-		return SMQ_PKTSIZEOVER;
-	}
-
-	do {
-		if( m_pHeader->RearMode == W ) {
-			aa();
-			count++;
-			continue;
-		}
-
-		m_pHeader->RearMode = W;
-		m_pHeader->WritePid = ::GetCurrentThreadId();	// writing side (game server) is multi thread
-
-		aa();	// no operation function
-
-		if( m_pHeader->WritePid != ::GetCurrentThreadId() ) {
-			count++;
-			continue;
-		}
-
-		LONG pQueue = m_lReference + (m_pHeader->Rear * m_wOffset);
-		BlockMode = GetByte( (char*)pQueue, index );
-		if( BlockMode == WR && m_pHeader->nCount >= MAX_COUNT-1 ) {
-			m_pHeader->RearMode = WR;
-			return SMQ_FULL;
-		}
-
-		index = 0;
-		SetByte( (char*)pQueue, WR, index );	// Block Mode Set to WR	-> Data Exist
-		SetShort( (char*)pQueue, size, index );
-		SetString( (char*)pQueue, pBuf, size, index );
-
-		m_pHeader->nCount++;
-
-		m_pHeader->Rear = (m_pHeader->Rear + 1) % MAX_COUNT;
-		m_pHeader->RearMode = WR;
-		
-		break;
-
-	} while( count < 50 );
-	if( count >= 50 ) {
-		m_pHeader->RearMode = WR;
-		return SMQ_WRITING;
-	}
-
-	return 1;
-}
-
 // TO-DO: Remove this ENTIRE queue system.
 int CSharedMemQueue::PutData(Packet *pkt)
 {
