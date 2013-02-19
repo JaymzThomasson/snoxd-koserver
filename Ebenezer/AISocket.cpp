@@ -451,7 +451,7 @@ void CAISocket::RecvMagicAttackResult(Packet & pkt)
 void CAISocket::RecvNpcInfo(Packet & pkt)
 {
 	std::string strName;
-	uint8 Mode;
+	uint8 Mode, byDirection;
 	uint16 sNid;
 
 	pkt.SByte();
@@ -463,10 +463,9 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 
 	pkt >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
 		>> pNpc->m_bCurZone >> strName >> pNpc->m_byGroup >> pNpc->m_byLevel 
-		>> pNpc->m_fCurX >> pNpc->m_fCurZ >> pNpc->m_fCurY >> pNpc->m_byDirection >> pNpc->m_NpcState
+		>> pNpc->m_fCurX >> pNpc->m_fCurZ >> pNpc->m_fCurY >> byDirection >> pNpc->m_NpcState
 		>> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP >> pNpc->m_byGateOpen
 		>> pNpc->m_sHitRate >> pNpc->m_byObjectType;
-
 
 	if (strName.empty() || strName.length() > MAX_NPC_SIZE)
 	{
@@ -474,6 +473,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 		return;
 	}
 
+	pNpc->m_byDirection = byDirection;
 	strcpy(pNpc->m_strName, strName.c_str());
 
 	// Bug? Test?
