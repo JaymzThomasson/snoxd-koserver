@@ -886,12 +886,7 @@ void CEbenezerDlg::Send_KnightsMember(int index, Packet *pkt)
 	if (pKnights == NULL)
 		return;
 
-	foreach_array (i, pKnights->m_arKnightsUser)
-	{
-		_KNIGHTS_USER *p = &pKnights->m_arKnightsUser[i];
-		if (p->pSession != NULL)
-			p->pSession->Send(pkt);
-	}
+	pKnights->Send(pkt);
 }
 
 void CEbenezerDlg::Send_AIServer(Packet *pkt)
