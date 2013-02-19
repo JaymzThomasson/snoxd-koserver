@@ -333,66 +333,27 @@ BOOL CEbenezerDlg::OnInitDialog()
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
-BOOL CEbenezerDlg::LoadTables()
+bool CEbenezerDlg::LoadTables()
 {
-	if (!LoadItemTable())
-		return FALSE;
-
-	if (!LoadServerResourceTable())
-		return FALSE;
-
-	if (!LoadMagicTable())
-		return FALSE;
-
-	if (!LoadMagicType1())
-		return FALSE;
-
-	if (!LoadMagicType2())
-		return FALSE;
-
-	if (!LoadMagicType3())
-		return FALSE;
-
-	if (!LoadMagicType4())
-		return FALSE;
-
-	if (!LoadMagicType5())
-		return FALSE;
-
-	if (!LoadMagicType6())
-		return FALSE;
-
-	if (!LoadMagicType7())
-		return FALSE;
-
-	if (!LoadMagicType8())
-		return FALSE;
-
-	if (!LoadMagicType9())
-		return FALSE;
-
-	if (!LoadCoefficientTable())
-		return FALSE;
-
-	if (!LoadLevelUpTable())
-		return FALSE;
-
-	if (!LoadAllKnights())
-		return FALSE;
-
-	if (!LoadAllKnightsUserData())
-		return FALSE;
-
-	if (!LoadHomeTable())
-		return FALSE;
-
-	if (!LoadStartPositionTable())
-		return FALSE;
-
-	if (!LoadBattleTable())
-		return FALSE;
-
-	return TRUE;
+	return (LoadItemTable()
+			&& LoadServerResourceTable()
+			&& LoadMagicTable()
+			&& LoadMagicType1()
+			&& LoadMagicType2()
+			&& LoadMagicType3()
+			&& LoadMagicType4()
+			&& LoadMagicType5()
+			&& LoadMagicType6()
+			&& LoadMagicType7()
+			&& LoadMagicType8()
+			&& LoadMagicType9()
+			&& LoadCoefficientTable()
+			&& LoadLevelUpTable()
+			&& LoadAllKnights()
+			&& LoadAllKnightsUserData()
+			&& LoadHomeTable()
+			&& LoadStartPositionTable()
+			&& LoadBattleTable());
 }
 
 BOOL CEbenezerDlg::ConnectToDatabase(bool reconnect /*= false*/)

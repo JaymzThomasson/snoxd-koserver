@@ -303,7 +303,7 @@ private:
 
 	static ServerCommandTable s_commandTable;
 
-	BOOL LoadTables();
+	bool LoadTables();
 	BOOL ConnectToDatabase(bool reconnect = false);
 
 	void InitServerCommands();
