@@ -184,11 +184,12 @@ void CKnights::SendChat(const char * format, ...)
 
 void CKnights::Send(Packet *pkt)
 {
-	/**
-	 * TO-DO:
-	 * Implement better internal lookups for clans, so we don't need to loop through the entire server.
-	 **/
-	g_pMain->Send_KnightsMember(m_sIndex, pkt);
+	foreach_array (i, m_arKnightsUser)
+	{
+		_KNIGHTS_USER *p = &m_arKnightsUser[i];
+		if (p->byUsed && p->pSession != NULL)
+			p->pSession->Send(pkt);
+	}
 }
 
 CKnights::~CKnights()
