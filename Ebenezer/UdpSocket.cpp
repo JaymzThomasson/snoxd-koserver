@@ -101,31 +101,6 @@ bool CUdpSocket::CreateSocket()
 	return true;
 }
 
-int CUdpSocket::SendUDPPacket(char* strAddress, char* pBuf, int len)
-{
-	int s_size = 0, index = 0;
-	
-	BYTE pTBuf[2048];
-
-	if( len > 2048 || len <= 0 )
-		return 0;
-
-	pTBuf[index++] = (BYTE)PACKET_START1;
-	pTBuf[index++] = (BYTE)PACKET_START2;
-	memcpy( pTBuf+index, &len, 2 );
-	index += 2;
-	memcpy( pTBuf+index, pBuf, len );
-	index += len;
-	pTBuf[index++] = (BYTE)PACKET_END1;
-	pTBuf[index++] = (BYTE)PACKET_END2;
-
-    m_SocketAddress.sin_addr.s_addr = inet_addr(strAddress);
-
-	s_size = sendto(m_hUDPSocket, (char*)pTBuf, index, 0, (LPSOCKADDR)&m_SocketAddress, sizeof(m_SocketAddress));
-
-	return s_size;
-}
-
 int CUdpSocket::SendUDPPacket(char* strAddress, Packet *pkt)
 {
 	uint16 len = (uint16)pkt->size() + 1;
