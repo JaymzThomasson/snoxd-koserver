@@ -543,7 +543,7 @@ short CMagicProcess::GetMagicDamage(int tid, int total_hit, int attribute, int d
 	CNpc* pNpc = NULL;              
 	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(pNpc == NULL || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	return 0;
-	if(pNpc->m_tNpcType == NPC_ARTIFACT||pNpc->m_tNpcType == NPC_PHOENIX_GATE || pNpc->m_tNpcType == NPC_GATE_LEVER || pNpc->m_tNpcType == NPC_SPECIAL_GATE ) return 0;
+	if(pNpc->m_proto->m_tNpcType == NPC_ARTIFACT||pNpc->m_proto->m_tNpcType == NPC_PHOENIX_GATE || pNpc->m_proto->m_tNpcType == NPC_GATE_LEVER || pNpc->m_proto->m_tNpcType == NPC_SPECIAL_GATE ) return 0;
 	
 	//result = m_pSrcUser->GetHitRate(m_pSrcUser->m_fHitrate / pNpc->m_sEvadeRate ); 
 	result = SUCCESS;

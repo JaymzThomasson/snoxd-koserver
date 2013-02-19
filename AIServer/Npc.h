@@ -6,6 +6,7 @@
 #include "PathFind.h"
 #include "user.h"
 #include "NpcMagicProcess.h"
+#include "NpcTable.h"
 
 #define MAX_PATH_SIZE		100
 
@@ -115,6 +116,7 @@ class CNpc
 public:
 
 	CNpcMagicProcess m_MagicProcess;
+	CNpcTable *m_proto;
 
 	_Target	m_Target;				// 공격할 유저 저장,,
 	short		m_ItemUserLevel;		// 죽을때 매직 이상 아이템를 떨구기위해 참조해야하는 유저의레벨
@@ -191,9 +193,6 @@ public:
 	//----------------------------------------------------------------
 	//	MONSTER DB 쪽에 있는 변수들
 	//----------------------------------------------------------------
-	short	m_sSid;				// MONSTER(NPC) Serial ID
-	TCHAR	m_strName[MAX_NPC_SIZE+1];		// MONSTER(NPC) Name
-	short	m_sPid;							// MONSTER(NPC) Picture ID
 	short   m_sSize;						// 캐릭터의 비율(100 퍼센트 기준)
 	int     m_iWeapon_1;			// 착용 무기
 	int     m_iWeapon_2;			// 착용 무기
@@ -202,9 +201,6 @@ public:
 	BYTE	m_byRank;			// 작위
 	BYTE	m_byTitle;			// 지위
 	int 	m_iSellingGroup;	// 아이템 그룹(물건매매 담당 NPC의 경우만)
-	short	m_sLevel;			// level
-	int		m_iExp;				// 경험치
-	int		m_iLoyalty;			// loyalty
 	int		m_iMaxHP;			// 최대 HP
 	short	m_sMaxMP;			// 최대 MP
 	short	m_sAttack;			// 공격값(지금 사용하지 않음..)
@@ -217,9 +213,6 @@ public:
 	float   m_fSpeed_1;			// 기본 이동 타입		(1초에 갈 수 있는 거리)
 	float   m_fSpeed_2;			// 뛰는 이동 타입..		(1초에 갈 수 있는 거리)
 	short	m_sStandTime;		// 서있는 시간
-	int		m_iMagic1;			// 사용마법 1 (공격)
-	int		m_iMagic2;			// 사용마법 2 (지역)	
-	int		m_iMagic3;			// 사용마법 3 (능력치, 힐링)	
 	BYTE	m_byFireR;			// 화염 저항력
 	BYTE	m_byColdR;			// 냉기 저항력
 	BYTE	m_byLightningR;		// 전기 저항력
@@ -227,18 +220,12 @@ public:
 	BYTE	m_byDiseaseR;		// 저주 저항력
 	BYTE	m_byPoisonR;		// 독 저항력
 	BYTE	m_byLightR;			// 빛 저항력
-	float	m_fBulk;			// 몬스터의 크기 (실제 비율)
 	BYTE	m_bySearchRange;	// 적 탐지 범위
 	BYTE	m_byAttackRange;	// 사정거리
 	BYTE	m_byTracingRange;	// 추격 거리
 
 	short	m_sAI;				// 인공지능 인덱스
 	
-	BYTE	m_tNpcType;			// NPC Type
-								// 0 : Normal Monster
-								// 1 : NPC
-
-	short	m_byFamilyType;		// 몹들사이에서 가족관계를 결정한다.
 	BYTE	m_tItemPer;			// 아이템이 떨어질 확률
 	BYTE	m_tDnPer;			// 돈이 떨어질확률
 	BYTE    m_byMoneyType;		// Event몬스터일 경우 돈을 많이 주는 것, (0:루팅, 1:루팅을 하지 않고 바로 나눠갖는다)

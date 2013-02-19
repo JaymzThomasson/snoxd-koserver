@@ -64,7 +64,7 @@ BOOL CNpc::SetUid(float x, float z, int id)
 	MAP* pMap = GetMap();
 	if (pMap == NULL) 
 	{
-		TRACE("#### Npc-SetUid Zone Fail : [name=%s], zone=%d #####\n", m_strName, m_bCurZone);
+		TRACE("#### Npc-SetUid Zone Fail : [name=%s], zone=%d #####\n", m_proto->m_strName, m_bCurZone);
 		return FALSE;
 	}
 
@@ -75,7 +75,7 @@ BOOL CNpc::SetUid(float x, float z, int id)
 
 	if(x1 < 0 || z1 < 0 || x1 > pMap->m_sizeMap.cx || z1 > pMap->m_sizeMap.cy)
 	{
-		TRACE("#### SetUid Fail : [nid=%d, sid=%d], x1=%d, z1=%d #####\n", m_sNid+NPC_BAND, m_sSid, x1, z1);
+		TRACE("#### SetUid Fail : [nid=%d, sid=%d], x1=%d, z1=%d #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, x1, z1);
 		return FALSE;
 	}
 
@@ -84,7 +84,7 @@ BOOL CNpc::SetUid(float x, float z, int id)
 	// if(pMap->m_pMap[x1][z1].m_sEvent == 0) return FALSE;
 	if(nRX > pMap->GetXRegionMax() || nRY > pMap->GetZRegionMax() || nRX < 0 || nRY < 0)
 	{
-		TRACE("#### SetUid Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_sSid, nRX, nRY);
+		TRACE("#### SetUid Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, nRX, nRY);
 		return FALSE;
 	}
 
@@ -94,7 +94,7 @@ BOOL CNpc::SetUid(float x, float z, int id)
 		int nOld_RZ = m_iRegion_Z;
 		m_iRegion_X = nRX;		m_iRegion_Z = nRY;
 
-		//TRACE("++ Npc-SetUid RegionAdd : [nid=%d, name=%s], x=%.2f, z=%.2f, nRX=%d, nRZ=%d \n", m_sNid+NPC_BAND, m_strName,x,z, nRX, nRY);
+		//TRACE("++ Npc-SetUid RegionAdd : [nid=%d, name=%s], x=%.2f, z=%.2f, nRX=%d, nRZ=%d \n", m_sNid+NPC_BAND, m_proto->m_strName,x,z, nRX, nRY);
 		// 새로운 region으로 npc이동 - npc의 정보 추가..
 		CNpc* pNpc = g_pMain->m_arNpc.GetData( id-NPC_BAND );
 		if(pNpc == NULL)
@@ -103,27 +103,20 @@ BOOL CNpc::SetUid(float x, float z, int id)
 
 		// 기존의 region정보에서 npc의 정보 삭제..
 		pMap->RegionNpcRemove(nOld_RX, nOld_RZ, id);
-		//TRACE("-- Npc-SetUid RegionRemove : [nid=%d, name=%s], nRX=%d, nRZ=%d \n", m_sNid+NPC_BAND, m_strName, nOld_RX, nOld_RZ);
+		//TRACE("-- Npc-SetUid RegionRemove : [nid=%d, name=%s], nRX=%d, nRZ=%d \n", m_sNid+NPC_BAND, m_proto->m_strName, nOld_RX, nOld_RZ);
 	}
 
 	return TRUE;
 }
 
-CNpc::CNpc()
+CNpc::CNpc() : m_NpcState(NPC_LIVE), m_byGateOpen(GATE_CLOSE), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
+	m_byAttackPos(0), m_sThreadNumber(-1), m_ItemUserLevel(0), m_Delay(0), 
+	m_proto(NULL), m_pZone(NULL), m_pPath(NULL), m_pOrgMap(NULL)
 {
-	m_NpcState = NPC_LIVE;
-	m_byGateOpen = GATE_CLOSE;
-	m_byObjectType = NORMAL_OBJECT;
-	m_byPathCount = 0;
-	m_byAttackPos = 0;
-	m_sThreadNumber = -1;
 	InitTarget();
 
-	m_ItemUserLevel = 0;
-	m_Delay = 0;
 	m_fDelayTime = TimeGet();
 
-	m_pZone = NULL;
 	m_tNpcAttType = ATROCITY_ATTACK_TYPE;		// 공격 성향
 	m_tNpcOldAttType = ATROCITY_ATTACK_TYPE;		// 공격 성향
 	m_tNpcLongType = 0;		// 원거리(1), 근거리(0)
@@ -143,10 +136,6 @@ CNpc::CNpc()
 	m_sPathCount = 0;
 	m_sMaxPathCount = 0;
 	m_byMoneyType = 0;
-
-	m_pPath = NULL;
-	m_pOrgMap = NULL;
-
 
 	m_bFirstLive = TRUE;
 
@@ -249,7 +238,7 @@ void CNpc::Init()
 
 	if (GetMap() == NULL) 
 	{
-		TRACE("#### Npc-Init Zone Fail : [name=%s], zone=%d #####\n", m_strName, m_bCurZone);
+		TRACE("#### Npc-Init Zone Fail : [name=%s], zone=%d #####\n", m_proto->m_strName, m_bCurZone);
 		return;
 	}
 	m_pOrgMap = GetMap()->m_pMap;	// MapInfo 정보 셋팅
@@ -354,7 +343,7 @@ void CNpc::NpcTracing()
 
 	if(m_sStepCount != 0)	{
 		if(m_fPrevX < 0 || m_fPrevZ < 0)	{
-			TRACE("### Npc-NpcTracing  Fail : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_strName, m_fPrevX, m_fPrevZ);
+			TRACE("### Npc-NpcTracing  Fail : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fPrevX, m_fPrevZ);
 		}
 		else	{
 			m_fCurX = m_fPrevX;		m_fCurZ = m_fPrevZ; 
@@ -364,7 +353,7 @@ void CNpc::NpcTracing()
 	if(cur_test)		NpcTrace(_T("NpcTracing()"));
 
 	//  고정 경비병은 추적이 되지 않도록한다.
-	if(m_tNpcType == NPC_DOOR || m_tNpcType == NPC_ARTIFACT || m_tNpcType == NPC_PHOENIX_GATE || m_tNpcType == NPC_GATE_LEVER || m_tNpcType == NPC_DOMESTIC_ANIMAL || m_tNpcType == NPC_SPECIAL_GATE || m_tNpcType == NPC_DESTORY_ARTIFACT)
+	if (m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT)
 	{
 		InitTarget();
 		m_NpcState = NPC_STANDING;
@@ -379,7 +368,7 @@ void CNpc::NpcTracing()
 	int nFlag = IsCloseTarget(m_byAttackRange, 1);
 	if(nFlag == 1)						// 근접전을 벌일만큼 가까운 거리인가?
 	{
-		//TRACE("Npc-NpcTracing : trace->attack으로 바뀜 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_strName, m_fCurX, m_fCurZ);
+		//TRACE("Npc-NpcTracing : trace->attack으로 바뀜 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ);
 		NpcMoveEnd();	// 이동 끝..
 		m_NpcState = NPC_FIGHTING;
 		m_Delay = 0;
@@ -395,7 +384,7 @@ void CNpc::NpcTracing()
 		m_fDelayTime = TimeGet();
 		return;
 	}
-	//else if(nFlag == 2 && m_tNpcType == NPC_BOSS_MONSTER)	{
+	//else if(nFlag == 2 && m_proto->m_tNpcType == NPC_BOSS_MONSTER)	{
 	else if(nFlag == 2 && m_tNpcLongType == 2)	{
 		NpcMoveEnd();	// 이동 끝..
 		m_NpcState = NPC_FIGHTING;
@@ -432,7 +421,7 @@ void CNpc::NpcTracing()
 			m_NpcState = NPC_STANDING;
 			m_Delay = m_sStandTime;
 			m_fDelayTime = TimeGet();
-			TRACE("### NpcTracing Fail : StepMove 실패, %s, %d ### \n", m_strName, m_sNid+NPC_BAND);
+			TRACE("### NpcTracing Fail : StepMove 실패, %s, %d ### \n", m_proto->m_strName, m_sNid+NPC_BAND);
 			return;
 		}	
 	}
@@ -444,7 +433,7 @@ void CNpc::NpcTracing()
 			m_NpcState = NPC_STANDING;
 			m_Delay = m_sStandTime;
 			m_fDelayTime = TimeGet();
-			TRACE("### NpcTracing Fail : StepNoPathMove 실패, %s, %d ### \n", m_strName, m_sNid+NPC_BAND);
+			TRACE("### NpcTracing Fail : StepNoPathMove 실패, %s, %d ### \n", m_proto->m_strName, m_sNid+NPC_BAND);
 			return;
 		}	
 	}
@@ -477,11 +466,11 @@ void CNpc::NpcTracing()
 		SendAll(pBuf, index);   // thread 에서 send
 	}
 
-	if(nFlag == 2 && m_tNpcLongType == 0 && m_tNpcType != NPC_HEALER)
+	if(nFlag == 2 && m_tNpcLongType == 0 && m_proto->m_tNpcType != NPC_HEALER)
 	{
 		// Trace Attack
 		int nRet = TracingAttack();
-		//TRACE("--> Npc-NpcTracing : TracingAttack : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_strName, m_fCurX, m_fCurZ);
+		//TRACE("--> Npc-NpcTracing : TracingAttack : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ);
 		if(nRet == 0)	{
 			InitTarget();
 			NpcMoveEnd();	// 이동 끝..
@@ -506,7 +495,7 @@ void CNpc::NpcAttacking()
 		return;
 	}
 
-//	TRACE("Npc Attack - [nid=%d, sid=%d]\n", m_sNid, m_sSid);
+//	TRACE("Npc Attack - [nid=%d, sid=%d]\n", m_sNid, m_proto->m_sSid);
 	
 	int ret = IsCloseTarget(m_byAttackRange);
 	if(ret == 1)	{	// 공격할 수 있는만큼 가까운 거리인가?
@@ -516,10 +505,10 @@ void CNpc::NpcAttacking()
 		return;
 	}
 
-	//if(m_tNpcType == NPCTYPE_DOOR || m_tNpcType == NPCTYPE_ARTIFACT || m_tNpcType == NPCTYPE_PHOENIX_GATE || m_tNpcType == NPCTYPE_GATE_LEVER)		return;		// 성문 NPC는 공격처리 안하게
+	//if(m_proto->m_tNpcType == NPCTYPE_DOOR || m_proto->m_tNpcType == NPCTYPE_ARTIFACT || m_proto->m_tNpcType == NPCTYPE_PHOENIX_GATE || m_proto->m_tNpcType == NPCTYPE_GATE_LEVER)		return;		// 성문 NPC는 공격처리 안하게
 
 	// 작업 : 이 부분에서.. 경비병도 공격이 가능하게...
-	if(m_tNpcType == NPC_DOOR || m_tNpcType == NPC_ARTIFACT || m_tNpcType == NPC_PHOENIX_GATE || m_tNpcType == NPC_GATE_LEVER || m_tNpcType == NPC_DOMESTIC_ANIMAL || m_tNpcType == NPC_SPECIAL_GATE || m_tNpcType == NPC_DESTORY_ARTIFACT)
+	if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT)
 	{
 		m_NpcState = NPC_STANDING;
 		m_Delay = m_sStandTime/2;
@@ -571,7 +560,7 @@ void CNpc::NpcMoving()
 
 	if(m_sStepCount != 0)	{
 		if(m_fPrevX < 0 || m_fPrevZ < 0)	{
-			TRACE("### Npc-Moving Fail : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_strName, m_fPrevX, m_fPrevZ);
+			TRACE("### Npc-Moving Fail : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fPrevX, m_fPrevZ);
 		}
 		else	{
 			m_fCurX = m_fPrevX;		m_fCurZ = m_fPrevZ; 
@@ -579,7 +568,7 @@ void CNpc::NpcMoving()
 	}
 
 	if(FindEnemy() == TRUE)	{	// 적을 찾는다. 
-	/*	if(m_tNpcType == NPCTYPE_GUARD) 
+	/*	if(m_proto->m_tNpcType == NPCTYPE_GUARD) 
 		{ 
 			NpcMoveEnd();	// 이동 끝..
 			m_NpcState = NPC_FIGHTING; 
@@ -599,7 +588,7 @@ void CNpc::NpcMoving()
 	if(IsMovingEnd())	{				// 이동이 끝났으면
 		m_fCurX = m_fPrevX;		m_fCurZ = m_fPrevZ; 
 		if(m_fCurX < 0 || m_fCurZ < 0)	{
-			TRACE("Npc-NpcMoving-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_strName, m_fCurX, m_fCurZ);
+			TRACE("Npc-NpcMoving-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ);
 		}
 
 		int rx = (int)(m_fCurX / VIEW_DIST);
@@ -684,7 +673,7 @@ void CNpc::NpcStanding()
 	MAP* pMap = GetMap();
 	if (pMap == NULL)	
 	{
-		TRACE("### NpcStanding Zone Index Error : nid=%d, name=%s, zone=%d ###\n", m_sNid+NPC_BAND, m_strName, m_bCurZone);
+		TRACE("### NpcStanding Zone Index Error : nid=%d, name=%s, zone=%d ###\n", m_sNid+NPC_BAND, m_proto->m_strName, m_bCurZone);
 		return;
 	}
 
@@ -728,7 +717,7 @@ void CNpc::NpcStanding()
 	m_Delay = m_sStandTime;
 	m_fDelayTime = TimeGet();
 	
-	if( m_tNpcType == NPC_SPECIAL_GATE && g_pMain->m_byBattleEvent == BATTLEZONE_OPEN )	{
+	if( m_proto->m_tNpcType == NPC_SPECIAL_GATE && g_pMain->m_byBattleEvent == BATTLEZONE_OPEN )	{
 		m_byGateOpen = !m_byGateOpen;		// 
 		send_index = 0;
 		SetByte( send_buff, AG_NPC_GATE_OPEN, send_index );
@@ -771,7 +760,7 @@ void CNpc::NpcBack()
 
 	if(m_sStepCount != 0)	{
 		if(m_fPrevX < 0 || m_fPrevZ < 0)	{
-			TRACE("### Npc-NpcBack Fail-1 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_strName, m_fPrevX, m_fPrevZ);
+			TRACE("### Npc-NpcBack Fail-1 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fPrevX, m_fPrevZ);
 		}
 		else	{
 			m_fCurX = m_fPrevX;		m_fCurZ = m_fPrevZ; 
@@ -781,7 +770,7 @@ void CNpc::NpcBack()
 	if(IsMovingEnd())	{				// 이동이 끝났으면
 		m_fCurX = m_fPrevX;		m_fCurZ = m_fPrevZ; 
 		if(m_fCurX < 0 || m_fCurZ < 0)
-			TRACE("Npc-NpcBack-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_strName, m_fCurX, m_fCurZ);
+			TRACE("Npc-NpcBack-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ);
 
 		::ZeroMemory(pBuf, 1024);	index = 0;	
 		SetByte(pBuf, MOVE_RESULT, index);
@@ -902,7 +891,7 @@ BOOL CNpc::SetLive()
 	}
 
 	if(m_fCurX < 0 || m_fCurZ < 0)	{
-		TRACE("Npc-SetLive-1 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_strName, m_fCurX, m_fCurZ);
+		TRACE("Npc-SetLive-1 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ);
 	}
 
 	int dest_x = (int)m_nInitX / TILE_SIZE;
@@ -910,7 +899,7 @@ BOOL CNpc::SetLive()
 
 	BOOL bMove = pMap->IsMovable(dest_x, dest_z);
 
-	if(m_tNpcType != NPCTYPE_MONSTER || m_lEventNpc == 1)	{
+	if(m_proto->m_tNpcType != NPCTYPE_MONSTER || m_lEventNpc == 1)	{
 		m_fCurX = m_fPrevX = m_nInitX;
 		m_fCurY = m_fPrevY = m_nInitY;
 		m_fCurZ = m_fPrevZ = m_nInitZ;
@@ -958,7 +947,7 @@ BOOL CNpc::SetLive()
 			m_nInitZ = m_fPrevZ = m_fCurZ = (float)nZ;
 
 			if(m_fCurX < 0 || m_fCurZ < 0)	{
-				TRACE("Npc-SetLive-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_strName, m_fCurX, m_fCurZ);
+				TRACE("Npc-SetLive-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ);
 			}
 
 			break;
@@ -1009,14 +998,15 @@ BOOL CNpc::SetLive()
 	else if( m_bySpecialType == 5 && m_byChangeType == 3)	{		// 몬스터의 출현,,,
 	//else if( m_byChangeType == 3)	{		// 몬스터의 출현,,,
 		//char notify[50];
-		//sprintf_s( notify, sizeof(notify), "** 알림 : %s 몬스터가 출현하였습니다 **", m_strName);
+		//sprintf_s( notify, sizeof(notify), "** 알림 : %s 몬스터가 출현하였습니다 **", m_proto->m_strName);
 		//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
 	}
 
 	SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);
 	m_byDeadType = 0;
 	CTime t = CTime::GetCurrentTime();
-	TRACE("NPC Init(nid=%d, sid=%d, th_num=%d, name=%s) - %.2f %.2f, gate = %d, m_byDeadType=%d, time=%d:%d-%d\n", m_sNid+NPC_BAND, m_sSid, m_sThreadNumber, m_strName, m_fCurX, m_fCurZ, m_byGateOpen, m_byDeadType, t.GetHour(), t.GetMinute(), t.GetSecond());						
+	TRACE("NPC Init(nid=%d, sid=%d, th_num=%d, name=%s) - %.2f %.2f, gate = %d, m_byDeadType=%d, time=%d:%d-%d\n", 
+		m_sNid+NPC_BAND, m_proto->m_sSid, m_sThreadNumber, m_proto->m_strName, m_fCurX, m_fCurZ, m_byGateOpen, m_byDeadType, t.GetHour(), t.GetMinute(), t.GetSecond());						
 
 	// 유저에게 NPC 정보전송...
 	// 유저에게 NPC 정보전송...
@@ -1091,7 +1081,7 @@ BOOL CNpc::RandomMove()
 			fDestZ = vNewPos.z;
 			m_iPattenFrame = 2;
 			bPeedBack = TRUE;
-			//TRACE("&&& RandomMove 초기위치 이탈.. %d,%s ==> x=%.2f, z=%.2f,, init_x=%.2f, init_z=%.2f\n", m_sNid+NPC_BAND, m_strName, fDestX, fDestZ, m_nInitX, m_nInitZ); 
+			//TRACE("&&& RandomMove 초기위치 이탈.. %d,%s ==> x=%.2f, z=%.2f,, init_x=%.2f, init_z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, fDestX, fDestZ, m_nInitX, m_nInitZ); 
 		}
 
 //		TRACE("&&& RandomMove ==> x=%.2f, z=%.2f,, dis=%.2f, patten = %d\n", fDestX, fDestZ, fDis, m_iPattenFrame); 
@@ -1108,7 +1098,8 @@ BOOL CNpc::RandomMove()
 			// 이동할 수 없는 너무 먼거리로 npc가 이동되었을 경우,, npc를 죽이고, 다시 살리던지..
 			// npc를 초기위치로 워프 시키든지.. 한다..
 			if(nPathCount  == -1)	{
-				TRACE("##### RandomMove Fail : [nid = %d, sid=%d], path = %d/%d, 이동할 수 있는 거리에서 너무 멀어졌당,, 어케해 #####\n", m_sNid+NPC_BAND, m_sSid, m_sPathCount, m_sMaxPathCount);
+				TRACE("##### RandomMove Fail : [nid = %d, sid=%d], path = %d/%d, 이동할 수 있는 거리에서 너무 멀어졌당,, 어케해 #####\n", 
+					m_sNid+NPC_BAND, m_proto->m_sSid, m_sPathCount, m_sMaxPathCount);
 				// 무조건 0번 위치 방향으로 40m 이동하게 처리하장.. 
 				vStart.Set(m_fCurX, m_fCurY, m_fCurZ);
 				fDestX = (float)m_PathList.pPattenPos[0].x + m_fBattlePos_x;
@@ -1134,7 +1125,7 @@ BOOL CNpc::RandomMove()
 			fDestZ = (float)m_PathList.pPattenPos[m_sPathCount].z + m_fBattlePos_z;
 		}
 
-		//TRACE("RandomMove 길따라 이동 : [nid=%d, sid=%d, name=%s], path=%d/%d, nPathCount=%d, curx=%.2f, z=%.2f -> dest_X=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_sSid, m_strName, m_sPathCount, m_sMaxPathCount, nPathCount, m_fCurX, m_fCurZ, fDestX, fDestZ);
+		//TRACE("RandomMove 길따라 이동 : [nid=%d, sid=%d, name=%s], path=%d/%d, nPathCount=%d, curx=%.2f, z=%.2f -> dest_X=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_sSid, m_proto->m_strName, m_sPathCount, m_sMaxPathCount, nPathCount, m_fCurX, m_fCurZ, fDestX, fDestZ);
 		m_sPathCount++;
 	}
 	else if(m_byMoveType == 3)	{	// PathLine을 따라서 움직이는 NPC
@@ -1154,7 +1145,7 @@ BOOL CNpc::RandomMove()
 			// npc를 초기위치로 워프 시키든지.. 한다..
 			if(nPathCount  == -1)	{
 				// 무조건 0번 위치 방향으로 40m 이동하게 처리하장.. 
-				TRACE("##### RandomMove Fail : [nid = %d, sid=%d], path = %d/%d, 이동할 수 있는 거리에서 너무 멀어졌당,, 어케해 #####\n", m_sNid+NPC_BAND, m_sSid, m_sPathCount, m_sMaxPathCount);
+				TRACE("##### RandomMove Fail : [nid = %d, sid=%d], path = %d/%d, 이동할 수 있는 거리에서 너무 멀어졌당,, 어케해 #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, m_sPathCount, m_sMaxPathCount);
 				vStart.Set(m_fCurX, m_fCurY, m_fCurZ);
 				fDestX = (float)m_PathList.pPattenPos[0].x + m_fBattlePos_x;
 				fDestZ = (float)m_PathList.pPattenPos[0].z + m_fBattlePos_z;
@@ -1184,19 +1175,19 @@ BOOL CNpc::RandomMove()
 	vEnd.Set(fDestX, 0, fDestZ);
 
 	if(m_fCurX < 0 || m_fCurZ < 0 || fDestX < 0 || fDestZ < 0)	{
-		TRACE("##### RandomMove Fail : value is negative.. [nid = %d, name=%s], cur_x=%.2f, z=%.2f, dest_x=%.2f, dest_z=%.2f#####\n", m_sNid+NPC_BAND, m_strName, m_fCurX, m_fCurZ, fDestX, fDestZ);
+		TRACE("##### RandomMove Fail : value is negative.. [nid = %d, name=%s], cur_x=%.2f, z=%.2f, dest_x=%.2f, dest_z=%.2f#####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ, fDestX, fDestZ);
 		return FALSE;
 	}
 
 	int mapWidth = (int)((max_xx - 1) * GetMap()->m_fUnitDist);
 
 	if(m_fCurX > mapWidth || m_fCurZ > mapWidth || fDestX > mapWidth || fDestZ > mapWidth)	{
-		TRACE("##### RandomMove Fail : value is overflow .. [nid = %d, name=%s], cur_x=%.2f, z=%.2f, dest_x=%.2f, dest_z=%.2f#####\n", m_sNid+NPC_BAND, m_strName, m_fCurX, m_fCurZ, fDestX, fDestZ);
+		TRACE("##### RandomMove Fail : value is overflow .. [nid = %d, name=%s], cur_x=%.2f, z=%.2f, dest_x=%.2f, dest_z=%.2f#####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ, fDestX, fDestZ);
 		return FALSE;
 	}
 
 	// 작업할것 :	 던젼 몬스터의 경우 일정영역을 벗어나지 못하도록 체크하는 루틴 	
-    if ( m_tNpcType == NPC_DUNGEON_MONSTER )	{
+    if ( m_proto->m_tNpcType == NPC_DUNGEON_MONSTER )	{
 		if( IsInRange( (int)fDestX, (int)fDestZ ) == FALSE)
 			return FALSE;	
     }
@@ -1207,7 +1198,7 @@ BOOL CNpc::RandomMove()
 			m_sPathCount--;
 			if(m_sPathCount <= 0) m_sPathCount=0;
 		}
-		TRACE("##### RandomMove Fail : NPC_MAX_MOVE_RANGE overflow  .. [nid = %d, name=%s], cur_x=%.2f, z=%.2f, dest_x=%.2f, dest_z=%.2f, fDis=%.2f#####\n", m_sNid+NPC_BAND, m_strName, m_fCurX, m_fCurZ, fDestX, fDestZ, fDis);
+		TRACE("##### RandomMove Fail : NPC_MAX_MOVE_RANGE overflow  .. [nid = %d, name=%s], cur_x=%.2f, z=%.2f, dest_x=%.2f, dest_z=%.2f, fDis=%.2f#####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ, fDestX, fDestZ, fDis);
 		return FALSE;
 	}
 
@@ -1267,7 +1258,7 @@ BOOL CNpc::RandomBackMove()
 	float fDestX = -1.0f, fDestZ = -1.0f;
 	if (GetMap() == NULL) 
 	{
-		TRACE("#### Npc-RandomBackMove Zone Fail : [name=%s], zone=%d #####\n", m_strName, m_bCurZone);
+		TRACE("#### Npc-RandomBackMove Zone Fail : [name=%s], zone=%d #####\n", m_proto->m_strName, m_bCurZone);
 		return FALSE;
 	}
 
@@ -1532,7 +1523,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 	}	
 	
 	if(count <= 0 || m_pPath == NULL || count >= MAX_PATH_LINE)	{	
-		//TRACE("#### PathFind Fail : nid=%d,%s, count=%d ####\n", m_sNid+NPC_BAND, m_strName, count);
+		//TRACE("#### PathFind Fail : nid=%d,%s, count=%d ####\n", m_sNid+NPC_BAND, m_proto->m_strName, count);
 		return 0;
 	}
 
@@ -1592,16 +1583,16 @@ void CNpc::Dead(int iDeadType)
 	m_byDeadType = 100;		// 전쟁이벤트중에서 죽는 경우
 
 	if(m_iRegion_X > pMap->GetXRegionMax() || m_iRegion_Z > pMap->GetZRegionMax())	{
-		TRACE("#### Npc-Dead() Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_sSid, m_iRegion_X, m_iRegion_Z);
+		TRACE("#### Npc-Dead() Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, m_iRegion_X, m_iRegion_Z);
 		return;
 	}
 	// map에 region에서 나의 정보 삭제..
 	//pMap->m_ppRegion[m_iRegion_X][m_iRegion_Z].DeleteNpc(m_sNid);
 	pMap->RegionNpcRemove(m_iRegion_X, m_iRegion_Z, m_sNid+NPC_BAND);
 
-	//TRACE("-- Npc-Dead RegionRemove : [nid=%d, name=%s], nRX=%d, nRZ=%d \n", m_sNid+NPC_BAND, m_strName, m_iRegion_X, m_iRegion_Z);
+	//TRACE("-- Npc-Dead RegionRemove : [nid=%d, name=%s], nRX=%d, nRZ=%d \n", m_sNid+NPC_BAND, m_proto->m_strName, m_iRegion_X, m_iRegion_Z);
 	CTime t = CTime::GetCurrentTime();
-	//TRACE("****** (%s,%d) Dead regentime = %d , m_byDeadType=%d, dungeonfam=%d, time=%d:%d-%d ****************\n", m_strName, m_sNid+NPC_BAND, m_sRegenTime, m_byDeadType, m_byDungeonFamily, t.GetHour(), t.GetMinute(), t.GetSecond());
+	//TRACE("****** (%s,%d) Dead regentime = %d , m_byDeadType=%d, dungeonfam=%d, time=%d:%d-%d ****************\n", m_proto->m_strName, m_sNid+NPC_BAND, m_sRegenTime, m_byDeadType, m_byDungeonFamily, t.GetHour(), t.GetMinute(), t.GetSecond());
 
 	if(iDeadType == 1)	{	// User에 의해 죽은것이 아니기 때문에... 클라이언트에 Dead패킷전송...
 		char buff[256];			int send_index = 0;
@@ -1618,7 +1609,7 @@ void CNpc::Dead(int iDeadType)
 		}
 		else if( m_byChangeType == 2 )	{		// 대장 몬스터의 죽음 (몬스터 타입이 대장몬스터인지도 검사해야 함)
 			if( m_byDungeonFamily < 0 || m_byDungeonFamily >= MAX_DUNGEON_BOSS_MONSTER )	{
-				TRACE("#### Npc-Dead() m_byDungeonFamily Fail : [nid=%d, name=%s], m_byDungeonFamily=%d #####\n", m_sNid+NPC_BAND, m_strName, m_byDungeonFamily);
+				TRACE("#### Npc-Dead() m_byDungeonFamily Fail : [nid=%d, name=%s], m_byDungeonFamily=%d #####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_byDungeonFamily);
 				return;
 			}
 //			pMap->m_arDungeonBossMonster[m_byDungeonFamily] = 0;
@@ -1631,7 +1622,7 @@ void CNpc::Dead(int iDeadType)
 	
 /*
 	if( m_byDungeonFamily < 0 || m_byDungeonFamily >= MAX_DUNGEON_BOSS_MONSTER )	{
-		TRACE("#### Npc-Dead() m_byDungeonFamily Fail : [nid=%d, name=%s], m_byDungeonFamily=%d #####\n", m_sNid+NPC_BAND, m_strName, m_byDungeonFamily);
+		TRACE("#### Npc-Dead() m_byDungeonFamily Fail : [nid=%d, name=%s], m_byDungeonFamily=%d #####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_byDungeonFamily);
 		return;
 	}
 	if( pMap->m_arDungeonBossMonster[m_byDungeonFamily] == 0 )	{
@@ -1642,11 +1633,11 @@ void CNpc::Dead(int iDeadType)
 //	NPC 주변의 적을 찾는다.
 BOOL CNpc::FindEnemy()
 {
-	if(m_tNpcType == NPC_DOOR || m_tNpcType == NPC_ARTIFACT || m_tNpcType == NPC_PHOENIX_GATE || m_tNpcType == NPC_GATE_LEVER || m_tNpcType == NPC_DOMESTIC_ANIMAL || m_tNpcType == NPC_SPECIAL_GATE || m_tNpcType == NPC_DESTORY_ARTIFACT )		return FALSE;
+	if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT )		return FALSE;
 
 	// Healer Npc
 	int iMonsterNid = 0;
-	if( m_tNpcType == NPC_HEALER )	{		// Heal
+	if( m_proto->m_tNpcType == NPC_HEALER )	{		// Heal
 		iMonsterNid = FindFriend( 2 );
 		if( iMonsterNid != 0 )	return TRUE;
 	}
@@ -1668,7 +1659,7 @@ BOOL CNpc::FindEnemy()
 
 	// 자신의 region에 있는 UserArray을 먼저 검색하여,, 가까운 거리에 유저가 있는지를 판단..
 	if(m_iRegion_X > pMap->GetXRegionMax() || m_iRegion_Z > pMap->GetZRegionMax() || m_iRegion_X < 0 || m_iRegion_Z < 0)	{
-	//	TRACE("#### Npc-FindEnemy() Fail : [nid=%d, sid=%d, name=%s, th_num=%d, cur_x=%.2f, cur_z=%.2f], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_sSid, m_strName, m_sThreadNumber, m_fCurX, m_fCurZ, m_iRegion_X, m_iRegion_Z);
+	//	TRACE("#### Npc-FindEnemy() Fail : [nid=%d, sid=%d, name=%s, th_num=%d, cur_x=%.2f, cur_z=%.2f], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, m_proto->m_strName, m_sThreadNumber, m_fCurX, m_fCurZ, m_iRegion_X, m_iRegion_Z);
 		return FALSE;
 	}
 
@@ -1694,7 +1685,7 @@ BOOL CNpc::FindEnemy()
 	fCompareDis = 0.0f;
 
 	// 타입이 경비병인 경우에는 같은 나라의 몬스터가 아닌경우에는 몬스터를 공격하도록 한다..
-	if(m_tNpcType == NPC_GUARD || m_tNpcType == NPC_PATROL_GUARD || m_tNpcType == NPC_STORE_GUARD) // || m_tNpcType == NPCTYPE_MONSTER)	
+	if(m_proto->m_tNpcType == NPC_GUARD || m_proto->m_tNpcType == NPC_PATROL_GUARD || m_proto->m_tNpcType == NPC_STORE_GUARD) // || m_proto->m_tNpcType == NPCTYPE_MONSTER)	
 	{
 		fCompareDis = FindEnemyExpand(m_iRegion_X, m_iRegion_Z, fCompareDis, 2);
 
@@ -1907,7 +1898,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 							}
 						}
 						else	{	// 선공몹...
-							iLevelComprison = pUser->m_bLevel - m_sLevel;
+							iLevelComprison = pUser->m_bLevel - m_proto->m_sLevel;
 							// 작업할 것 : 타입에 따른 공격성향으로..
 							//if(iLevelComprison > ATTACK_LIMIT_LEVEL)	continue;
 
@@ -2085,7 +2076,7 @@ BOOL CNpc::StepMove(int nStep)
 	{
 		m_fPrevX = m_fEndPoint_X;
 		m_fPrevZ = m_fEndPoint_Y;
-		TRACE("##### Step Move Fail : [nid = %d,%s] m_iAniFrameCount=%d/%d ######\n", m_sNid+NPC_BAND, m_strName, m_iAniFrameCount, m_iAniFrameIndex);
+		TRACE("##### Step Move Fail : [nid = %d,%s] m_iAniFrameCount=%d/%d ######\n", m_sNid+NPC_BAND, m_proto->m_strName, m_iAniFrameCount, m_iAniFrameIndex);
 		SetUid(m_fPrevX, m_fPrevZ, m_sNid + NPC_BAND);
 		return FALSE;	
 	}
@@ -2157,7 +2148,7 @@ BOOL CNpc::StepMove(int nStep)
 		m_fCurX = fOldCurX;		 m_fCurZ = fOldCurZ;
 		if(m_fCurX < 0 || m_fCurZ < 0)
 		{
-			TRACE("Npc-StepMove : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_strName, m_fCurX, m_fCurZ);
+			TRACE("Npc-StepMove : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ);
 		}
 		
 		if(SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND))
@@ -2187,7 +2178,7 @@ BOOL CNpc::StepNoPathMove(int nStep)
 
 	
 	if(m_sStepCount < 0 || m_sStepCount >= m_iAniFrameIndex)	{	
-		TRACE("#### IsNoPtahfind Fail : nid=%d,%s, count=%d/%d ####\n", m_sNid+NPC_BAND, m_strName, m_sStepCount, m_iAniFrameIndex);
+		TRACE("#### IsNoPtahfind Fail : nid=%d,%s, count=%d/%d ####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_sStepCount, m_iAniFrameIndex);
 		return FALSE;
 	}
 
@@ -2197,7 +2188,7 @@ BOOL CNpc::StepNoPathMove(int nStep)
 	vEnd.Set(m_fPrevX, 0, m_fPrevZ);
 
 	if(m_fPrevX == -1 || m_fPrevZ == -1)	{
-		TRACE("##### StepNoPath Fail : nid=%d,%s, x=%.2f, z=%.2f #####\n", m_sNid+NPC_BAND, m_strName, m_fPrevX, m_fPrevZ);
+		TRACE("##### StepNoPath Fail : nid=%d,%s, x=%.2f, z=%.2f #####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fPrevX, m_fPrevZ);
 		return FALSE;
 	}
 
@@ -2209,7 +2200,7 @@ BOOL CNpc::StepNoPathMove(int nStep)
 	else	{
 		m_sStepCount++;
 		if(fOldCurX < 0 || fOldCurZ < 0)	{
-			TRACE("#### Npc-StepNoPathMove Fail : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_strName, fOldCurX, fOldCurZ);
+			TRACE("#### Npc-StepNoPathMove Fail : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, fOldCurX, fOldCurZ);
 			return FALSE;
 		}
 		else	{
@@ -2248,7 +2239,7 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 
 		vDistance = vWillUser - vNpc;
 		fWillDis = vDistance.Magnitude();	
-		fWillDis = fWillDis - m_fBulk;
+		fWillDis = fWillDis - m_proto->m_fBulk;
 		bUserType = TRUE;
 	}
 	else if(m_Target.id >= NPC_BAND && m_Target.id < INVALID_BAND)	// Target 이 mon 인 경우
@@ -2270,10 +2261,10 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 	vDistance = vUser - vNpc;
 	fDis = vDistance.Magnitude();	
 
-	fDis = fDis - m_fBulk;
+	fDis = fDis - m_proto->m_fBulk;
 
 	// 작업할것 :	 던젼 몬스터의 경우 일정영역을 벗어나지 못하도록 체크하는 루틴 	
-    if ( m_tNpcType == NPC_DUNGEON_MONSTER )	{
+    if ( m_proto->m_tNpcType == NPC_DUNGEON_MONSTER )	{
 		if( IsInRange( (int)vUser.x, (int)vUser.z ) == FALSE)
 			return -1;	
     }		
@@ -2303,22 +2294,22 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 	m_Target.x = fX;
 	m_Target.z = fZ;
 
-	//if( m_tNpcLongType && m_tNpcType != NPC_BOSS_MONSTER)	{		// 장거리 공격이 가능한것은 공격거리로 판단..
+	//if( m_tNpcLongType && m_proto->m_tNpcType != NPC_BOSS_MONSTER)	{		// 장거리 공격이 가능한것은 공격거리로 판단..
 	if( m_tNpcLongType == 1 )	{		// 장거리 공격이 가능한것은 공격거리로 판단..
 		if(fDis < LONG_ATTACK_RANGE)	return 1;
 		else if(fDis > LONG_ATTACK_RANGE && fDis <= nRange) return 2;
 	}
 	else	{					// 단거리(직접공격)
 		if( Flag == 1 )		{	// 몬스터의 이동하면서이 거리체크시
-			if(fDis < (SHORT_ATTACK_RANGE+m_fBulk) )	return 1;
-			if(fDis > (SHORT_ATTACK_RANGE+m_fBulk) && fDis <= nRange) return 2;				// 유저의 현재좌표를 기준으로
+			if(fDis < (SHORT_ATTACK_RANGE+m_proto->m_fBulk) )	return 1;
+			if(fDis > (SHORT_ATTACK_RANGE+m_proto->m_fBulk) && fDis <= nRange) return 2;				// 유저의 현재좌표를 기준으로
 			if( bUserType == TRUE )	{	// 유저일때만,, Will좌표를 기준으로 한다
-				if(fWillDis > (SHORT_ATTACK_RANGE+m_fBulk) && fWillDis <= nRange) return 2;		// 유저의 Will돠표를 기준으로
+				if(fWillDis > (SHORT_ATTACK_RANGE+m_proto->m_fBulk) && fWillDis <= nRange) return 2;		// 유저의 Will돠표를 기준으로
 			}
 		}
 		else {
-			if(fDis < (SHORT_ATTACK_RANGE+m_fBulk) )	return 1;
-			else if(fDis > (SHORT_ATTACK_RANGE+m_fBulk) && fDis <= nRange) return 2;
+			if(fDis < (SHORT_ATTACK_RANGE+m_proto->m_fBulk) )	return 1;
+			else if(fDis > (SHORT_ATTACK_RANGE+m_proto->m_fBulk) && fDis <= nRange) return 2;
 		}
 	}
 
@@ -2336,7 +2327,7 @@ int CNpc::GetTargetPath(int option)
 		nInitType = m_byInitMoveType - 100;
 	}
 	// 행동 타입 수정
-	if(m_tNpcType != 0)	{
+	if(m_proto->m_tNpcType != 0)	{
 		//if(m_byMoveType != m_byInitMoveType)
 		//	m_byMoveType = m_byInitMoveType;	// 자기 자리로 돌아갈 수 있도록..
 		if(m_byMoveType != nInitType)	m_byMoveType = nInitType;	// 자기 자리로 돌아갈 수 있도록..
@@ -2431,20 +2422,20 @@ int CNpc::GetTargetPath(int option)
 		// 이 부분에서 Npc의 공격점을 알아와서 공격하도록 한다,,
 		IsSurround(pUser);	//둘러 쌓여 있으면 무시한다.(원거리, 근거리 무시)
 
-		//vEnd22 = CalcAdaptivePosition(vNpc, vUser, 2.0+m_fBulk);
+		//vEnd22 = CalcAdaptivePosition(vNpc, vUser, 2.0+m_proto->m_fBulk);
 
 		//TRACE("Npc-GetTargetPath() : [nid=%d] t_Name=%s, AttackPos=%d\n", m_sNid, pUser->m_strUserID, m_byAttackPos);
 
 		if(m_byAttackPos > 0 && m_byAttackPos < 9)	{
 			fDegree = (float)((m_byAttackPos-1)*45);
-			fTargetDistance = 2.0f+m_fBulk;
+			fTargetDistance = 2.0f+m_proto->m_fBulk;
 			vEnd22 = ComputeDestPos(vUser, 0.0f, fDegree, fTargetDistance);
 			fSurX = vEnd22.x - vUser.x;			fSurZ = vEnd22.z - vUser.z;
 			//m_fEndPoint_X = vUser.x + surround_fx[m_byAttackPos-1];	m_fEndPoint_Y = vUser.z + surround_fz[m_byAttackPos-1];
 			m_fEndPoint_X = vUser.x + fSurX;	m_fEndPoint_Y = vUser.z + fSurZ;
 		}
 		else	{
-			vEnd22 = CalcAdaptivePosition(vNpc, vUser, 2.0f+m_fBulk);
+			vEnd22 = CalcAdaptivePosition(vNpc, vUser, 2.0f+m_proto->m_fBulk);
 			m_fEndPoint_X = vEnd22.x;	m_fEndPoint_Y = vEnd22.z;
 		}
 	}
@@ -2452,7 +2443,7 @@ int CNpc::GetTargetPath(int option)
 		// 목표점이 Search Range를 벗어나지 않는지 검사
 		CRect r = CRect(min_x, min_z, max_x+1, max_z+1);
 		if(r.PtInRect(CPoint((int)pNpc->m_fCurX/TILE_SIZE, (int)pNpc->m_fCurZ/TILE_SIZE)) == FALSE)	{
-			TRACE("### Npc-GetTargetPath() Npc Fail return -1: [nid=%d] t_Name=%s, AttackPos=%d ###\n", m_sNid+NPC_BAND, pNpc->m_strName, m_byAttackPos);
+			TRACE("### Npc-GetTargetPath() Npc Fail return -1: [nid=%d] t_Name=%s, AttackPos=%d ###\n", m_sNid+NPC_BAND, pNpc->m_proto->m_strName, m_byAttackPos);
 			return -1;
 		}
 
@@ -2461,7 +2452,7 @@ int CNpc::GetTargetPath(int option)
 		vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
 		vUser.Set(pNpc->m_fCurX, pNpc->m_fCurY, pNpc->m_fCurZ); 
 		
-		vEnd22 = CalcAdaptivePosition(vNpc, vUser, 2.0f+m_fBulk);
+		vEnd22 = CalcAdaptivePosition(vNpc, vUser, 2.0f+m_proto->m_fBulk);
 		m_fEndPoint_X = vEnd22.x;	m_fEndPoint_Y = vEnd22.z;
 	}
 
@@ -2479,12 +2470,12 @@ int CNpc::GetTargetPath(int option)
 	}
 	
 	if((int)fDis > iTempRange)	{
-		TRACE("Npc-GetTargetPath() searchrange over Fail return -1: [nid=%d,%s]\n", m_sNid+NPC_BAND, m_strName);
+		TRACE("Npc-GetTargetPath() searchrange over Fail return -1: [nid=%d,%s]\n", m_sNid+NPC_BAND, m_proto->m_strName);
 		return -1; 
 	}
 
 	
-	if( m_tNpcType != NPC_DUNGEON_MONSTER )	{		// 던젼 몬스터는 무조건 패스파인딩을 하도록..
+	if( m_proto->m_tNpcType != NPC_DUNGEON_MONSTER )	{		// 던젼 몬스터는 무조건 패스파인딩을 하도록..
 		// 공격대상이 있으면 패스파인딩을 하지 않고 바로 타겟으로 가게 한다.
 		if(m_Target.id != -1)	return 0;	
 	}
@@ -2496,7 +2487,7 @@ int CNpc::GetTargetPath(int option)
 	end.y = (int)(vEnd22.z/TILE_SIZE) - min_z;
 
 	// 작업할것 :	 던젼 몬스터의 경우 일정영역을 벗어나지 못하도록 체크하는 루틴 	
-    if ( m_tNpcType == NPC_DUNGEON_MONSTER )	{
+    if ( m_proto->m_tNpcType == NPC_DUNGEON_MONSTER )	{
 		if( IsInRange( (int)vEnd22.x, (int)vEnd22.z ) == FALSE)
 			return -1;	
     }
@@ -2524,7 +2515,7 @@ int CNpc::Attack()
 		if( bTeleport )		return m_Delay;
 	}	*/
 
-	//if( m_tNpcLongType==1 && m_tNpcType != NPC_BOSS_MONSTER )	{
+	//if( m_tNpcLongType==1 && m_proto->m_tNpcType != NPC_BOSS_MONSTER )	{
 	if( m_tNpcLongType == 1 )	{		// 장거리 공격이 가능한것은 공격거리로 판단..
 		m_Delay = LongAndMagicAttack();
 		return m_Delay;
@@ -2536,7 +2527,7 @@ int CNpc::Attack()
 	ret = IsCloseTarget(m_byAttackRange, 2);
 
 	if(ret == 0)   {
-		if(m_tNpcType == NPC_DOOR || m_tNpcType == NPC_ARTIFACT || m_tNpcType == NPC_PHOENIX_GATE || m_tNpcType == NPC_GATE_LEVER || m_tNpcType == NPC_DOMESTIC_ANIMAL || m_tNpcType == NPC_SPECIAL_GATE || m_tNpcType == NPC_DESTORY_ARTIFACT ) // 고정 경비병은 추적을 하지 않도록..
+		if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT ) // 고정 경비병은 추적을 하지 않도록..
 		{
 			m_NpcState = NPC_STANDING;
 			InitTarget();
@@ -2548,13 +2539,13 @@ int CNpc::Attack()
 		return 0;							// IsCloseTarget()에 유저 x, y값을 갱신하고 Delay = 0으로 줌
 	}	
 	else if( ret == 2 )	{
-		//if(m_tNpcType == NPC_BOSS_MONSTER)	{		// 대장 몬스터이면.....
+		//if(m_proto->m_tNpcType == NPC_BOSS_MONSTER)	{		// 대장 몬스터이면.....
 		if(m_tNpcLongType == 2)	{		// 직접, 간접(롱)공격이 가능한 몬스터 이므로 장거리 공격을 할 수 있다.
 			m_Delay = LongAndMagicAttack();
 			return m_Delay;
 		}
 		else	{
-			if(m_tNpcType == NPC_DOOR || m_tNpcType == NPC_ARTIFACT || m_tNpcType == NPC_PHOENIX_GATE || m_tNpcType == NPC_GATE_LEVER || m_tNpcType == NPC_DOMESTIC_ANIMAL || m_tNpcType == NPC_SPECIAL_GATE || m_tNpcType == NPC_DESTORY_ARTIFACT ) // 고정 경비병은 추적을 하지 않도록..
+			if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT ) // 고정 경비병은 추적을 하지 않도록..
 			{
 				m_NpcState = NPC_STANDING;
 				InitTarget();
@@ -2614,13 +2605,13 @@ int CNpc::Attack()
 			}	
 		}	*/
 
-		//if(m_tNpcType == NPC_BOSS_MONSTER)	{		// 대장 몬스터이면.....
+		//if(m_proto->m_tNpcType == NPC_BOSS_MONSTER)	{		// 대장 몬스터이면.....
 		if(m_byWhatAttackType == 4 || m_byWhatAttackType == 5)	{		// 지역 마법 사용 몬스터이면.....
 			nRandom = myrand(1, 10000);
 			if(nRandom < nPercent)	{				// 지역마법공격...
 				send_index = 0;
 				SetByte( buff, MAGIC_EFFECTING, send_index );		
-				SetDWORD( buff, m_iMagic2, send_index );				// Area Magic
+				SetDWORD( buff, m_proto->m_iMagic2, send_index );				// Area Magic
 				SetShort( buff, m_sNid+NPC_BAND, send_index );
 				SetShort( buff, -1, send_index );						// tid는 반드시 -1
 				SetShort( buff, (short)m_fCurX, send_index );		    // terget point
@@ -2631,7 +2622,7 @@ int CNpc::Attack()
 				SetShort( buff, 0, send_index );
 
 				m_MagicProcess.MagicPacket(buff, send_index);
-				//TRACE("++++ AreaMagicAttack --- sid=%d, magicid=%d\n", m_sNid+NPC_BAND, m_iMagic2);
+				//TRACE("++++ AreaMagicAttack --- sid=%d, magicid=%d\n", m_sNid+NPC_BAND, m_proto->m_iMagic2);
 				return m_sAttackDelay + 1000;	// 지역마법은 조금 시간이 걸리도록.....
 			}
 		}
@@ -2646,7 +2637,7 @@ int CNpc::Attack()
 					send_index = 0;
 					SetByte( buff, AG_MAGIC_ATTACK_RESULT, send_index );
 					SetByte( buff, MAGIC_EFFECTING, send_index );		
-					SetDWORD( buff, m_iMagic1, send_index );				// FireBall
+					SetDWORD( buff, m_proto->m_iMagic1, send_index );				// FireBall
 					SetShort( buff, m_sNid+NPC_BAND, send_index );
 					SetShort( buff, pUser->m_iUserId, send_index );	
 					SetShort( buff, 0, send_index );					// data0
@@ -2673,7 +2664,7 @@ int CNpc::Attack()
 		if(nDamage > 0) {
 			pUser->SetDamage(nDamage, m_sNid+NPC_BAND);
 			if(pUser->m_bLive != USER_DEAD)	{
-			//	TRACE("Npc-Attack Success : [npc=%d, %s]->[user=%d, %s]\n", m_sNid+NPC_BAND, m_strName, pUser->m_iUserId, pUser->m_strUserID);
+			//	TRACE("Npc-Attack Success : [npc=%d, %s]->[user=%d, %s]\n", m_sNid+NPC_BAND, m_proto->m_strName, pUser->m_iUserId, pUser->m_strUserID);
 				SendAttackSuccess(ATTACK_SUCCESS, pUser->m_iUserId, nDamage, pUser->m_sHP);
 			}
 		}
@@ -2691,7 +2682,7 @@ int CNpc::Attack()
 			return nStandingTime;
 		}
 
-		if( m_tNpcType == NPC_HEALER && pNpc->m_byGroup == m_byGroup )	{	// healer이면서 같은국가의 NPC인경우에는 힐
+		if( m_proto->m_tNpcType == NPC_HEALER && pNpc->m_byGroup == m_byGroup )	{	// healer이면서 같은국가의 NPC인경우에는 힐
 			m_NpcState = NPC_HEALING;
 			return 0;
 		}
@@ -2721,7 +2712,7 @@ int CNpc::Attack()
 		}
 		
 		if(nDamage > 0)	{
-			pNpc->SetDamage(0, nDamage, m_strName, m_sNid+NPC_BAND);
+			pNpc->SetDamage(0, nDamage, m_proto->m_strName, m_sNid+NPC_BAND);
 			//if(pNpc->m_iHP > 0)
 			SendAttackSuccess(ATTACK_SUCCESS, pNpc->m_sNid+NPC_BAND, nDamage, pNpc->m_iHP);
 		}
@@ -2748,7 +2739,7 @@ int CNpc::LongAndMagicAttack()
 		return 0;							// IsCloseTarget()에 유저 x, y값을 갱신하고 Delay = 0으로 줌
 	}	
 	else if( ret == 2 )	{
-		//if(m_tNpcType != NPC_BOSS_MONSTER)	{		// 대장 몬스터이면.....
+		//if(m_proto->m_tNpcType != NPC_BOSS_MONSTER)	{		// 대장 몬스터이면.....
 		if(m_tNpcLongType == 1)	{		// 장거리 몬스터이면.....
 			m_sStepCount = 0;
 			m_byActionFlag = ATTACK_TO_TRACE;
@@ -2807,7 +2798,7 @@ int CNpc::LongAndMagicAttack()
 
 		// 조건을 판단해서 마법 공격 사용 (지금은 마법 1만 사용토록 하자)
 		SetByte( buff, MAGIC_CASTING, send_index );		
-		SetDWORD( buff, m_iMagic1, send_index );				// FireBall
+		SetDWORD( buff, m_proto->m_iMagic1, send_index );				// FireBall
 		SetShort( buff, m_sNid+NPC_BAND, send_index );
 		SetShort( buff, pUser->m_iUserId, send_index );	
 		SetShort( buff, 0, send_index );					// data0
@@ -2883,7 +2874,7 @@ int CNpc::TracingAttack()		// 0:attack fail, 1:attack success
 		if(nDamage > 0)		{
 			pUser->SetDamage(nDamage, m_sNid+NPC_BAND);
 			if(pUser->m_bLive != USER_DEAD)	{
-			//	TRACE("Npc-Attack Success : [npc=%d, %s]->[user=%d, %s]\n", m_sNid+NPC_BAND, m_strName, pUser->m_iUserId, pUser->m_strUserID);
+			//	TRACE("Npc-Attack Success : [npc=%d, %s]->[user=%d, %s]\n", m_sNid+NPC_BAND, m_proto->m_strName, pUser->m_iUserId, pUser->m_strUserID);
 				SendAttackSuccess(ATTACK_SUCCESS, pUser->m_iUserId, nDamage, pUser->m_sHP);
 			}
 		}
@@ -2907,7 +2898,7 @@ int CNpc::TracingAttack()		// 0:attack fail, 1:attack success
 		//TRACE("Npc-Attack() : [mon: x=%.2f, z=%.2f], [user : x=%.2f, z=%.2f]\n", m_fCurX, m_fCurZ, pUser->m_curx, pUser->m_curz);
 		
 		if(nDamage > 0)		{
-			if(pNpc->SetDamage(0, nDamage, m_strName, m_sNid+NPC_BAND) == TRUE) {
+			if(pNpc->SetDamage(0, nDamage, m_proto->m_strName, m_sNid+NPC_BAND) == TRUE) {
 				SendAttackSuccess(ATTACK_SUCCESS, pNpc->m_sNid+NPC_BAND, nDamage, pNpc->m_iHP);
 			}
 			else{
@@ -2962,12 +2953,12 @@ void CNpc::MoveAttack()
 		{
 			fX = vUser.x + surround_fx[m_byAttackPos-1];	fZ = vUser.z + surround_fz[m_byAttackPos-1];
 			vEnd22.Set(fX, 0, fZ);
-			//TRACE("MoveAttack 11 - nid(%s, %d), fx=%.2f, fz=%.2f, attackpos=%d\n", m_strName, m_sNid+NPC_BAND, fX, fZ, m_byAttackPos);
+			//TRACE("MoveAttack 11 - nid(%s, %d), fx=%.2f, fz=%.2f, attackpos=%d\n", m_proto->m_strName, m_sNid+NPC_BAND, fX, fZ, m_byAttackPos);
 		}
 		else
 		{
 			fX = vEnd22.x;	fZ = vEnd22.z;
-			//TRACE("MoveAttack 22 - nid(%s, %d), fx=%.2f, fz=%.2f, attackpos=%d\n", m_strName, m_sNid+NPC_BAND, fX, fZ, m_byAttackPos);
+			//TRACE("MoveAttack 22 - nid(%s, %d), fx=%.2f, fz=%.2f, attackpos=%d\n", m_proto->m_strName, m_sNid+NPC_BAND, fX, fZ, m_byAttackPos);
 		}
 	}
 	else if(m_Target.id >= NPC_BAND && m_Target.id < INVALID_BAND)	// Target 이 mon 인 경우
@@ -3005,7 +2996,7 @@ void CNpc::MoveAttack()
 
 	if(m_fCurX < 0 || m_fCurZ < 0)
 	{
-		TRACE("Npc-MoveAttack : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_strName, m_fCurX, m_fCurZ);
+		TRACE("Npc-MoveAttack : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ);
 	}
 
 	// 이동공격.. 
@@ -3368,7 +3359,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 	if(pUser->m_bLive == USER_DEAD) return;
 	if(pUser->m_bNation == m_byGroup)	return;		// 같은 국가는 공격을 안하도록...
 	if(pUser->m_byIsOP == MANAGER_USER) return;				// 운영자는 무시...^^
-	if(m_tNpcType == NPC_DOOR || m_tNpcType == NPC_ARTIFACT || m_tNpcType == NPC_PHOENIX_GATE || m_tNpcType == NPC_GATE_LEVER || m_tNpcType == NPC_DOMESTIC_ANIMAL || m_tNpcType == NPC_SPECIAL_GATE || m_tNpcType == NPC_DESTORY_ARTIFACT )		return;		// 성문 NPC는 공격처리 안하게
+	if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT )		return;		// 성문 NPC는 공격처리 안하게
 	if(m_NpcState == NPC_FAINTING)	return;		// 기절상태이면 무시..
 
 	CUser *preUser = NULL;
@@ -3378,11 +3369,11 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 	if(pUser == preUser)	{
 		if(m_tNpcGroupType)	 {			// 가족타입이면 시야안에 같은 타입에게 목표 지정
 			m_Target.failCount = 0;
-			if(m_tNpcType == NPC_BOSS_MONSTER)	FindFriend(1);
+			if(m_proto->m_tNpcType == NPC_BOSS_MONSTER)	FindFriend(1);
 			else		FindFriend();
 		}
 		else	{
-			if(m_tNpcType == NPC_BOSS_MONSTER)	{
+			if(m_proto->m_tNpcType == NPC_BOSS_MONSTER)	{
 				m_Target.failCount = 0;
 				FindFriend(1);
 			}
@@ -3465,11 +3456,11 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 
 	if(m_tNpcGroupType)	 {			// 가족타입이면 시야안에 같은 타입에게 목표 지정
 		m_Target.failCount = 0;
-		if(m_tNpcType == NPC_BOSS_MONSTER)	FindFriend(1);
+		if(m_proto->m_tNpcType == NPC_BOSS_MONSTER)	FindFriend(1);
 		else		FindFriend();
 	}
 	else	{
-		if(m_tNpcType == NPC_BOSS_MONSTER)	{
+		if(m_proto->m_tNpcType == NPC_BOSS_MONSTER)	{
 			m_Target.failCount = 0;
 			FindFriend(1);
 		}
@@ -3633,7 +3624,7 @@ BOOL CNpc::SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid)
 			{
 				len = strlen(id);
 				if( len > MAX_ID_SIZE || len <= 0 ) {
-					TRACE("###  Npc SerDamage Fail ---> uid = %d, name=%s, len=%d, id=%s  ### \n", m_sNid+NPC_BAND, m_strName, len, id);
+					TRACE("###  Npc SerDamage Fail ---> uid = %d, name=%s, len=%d, id=%s  ### \n", m_sNid+NPC_BAND, m_proto->m_strName, len, id);
 					continue;
 				}
 				if(bFlag == TRUE)	strcpy_s(m_DamagedUserList[i].strUserID, sizeof(m_DamagedUserList[i].strUserID), strDurationID);
@@ -3709,7 +3700,7 @@ BOOL CNpc::SetHMagicDamage(int nDamage)
 	else if ( m_iHP > m_iMaxHP )
 		m_iHP = m_iMaxHP;
 
-	TRACE("Npc - SetHMagicDamage(), nid=%d,%s, oldHP=%d -> curHP=%d\n", m_sNid+NPC_BAND, m_strName, oldHP, m_iHP);
+	TRACE("Npc - SetHMagicDamage(), nid=%d,%s, oldHP=%d -> curHP=%d\n", m_sNid+NPC_BAND, m_proto->m_strName, oldHP, m_iHP);
 
 	SetByte( buff, AG_USER_SET_HP, send_index );
 	SetShort( buff, m_sNid+NPC_BAND, send_index );
@@ -3768,14 +3759,14 @@ void CNpc::SendExpToUserList()
 					}
 				}
 
-				TempValue = m_iExp * (totalDamage / m_TotalDamage);
+				TempValue = m_proto->m_iExp * (totalDamage / m_TotalDamage);
 				nPartyExp = (int)TempValue;
 				if(TempValue > nPartyExp)	nPartyExp = nPartyExp + 1;
 			}
-			if(m_iLoyalty == 0 || totalDamage == 0 || m_TotalDamage == 0)
+			if(m_proto->m_iLoyalty == 0 || totalDamage == 0 || m_TotalDamage == 0)
 				nPartyLoyalty = 0;
 			else	{
-				TempValue = m_iLoyalty * (totalDamage / m_TotalDamage);
+				TempValue = m_proto->m_iLoyalty * (totalDamage / m_TotalDamage);
 				nPartyLoyalty = (int)TempValue;
 				if(TempValue > nPartyLoyalty)	nPartyLoyalty = nPartyLoyalty + 1;
 			}
@@ -3834,7 +3825,7 @@ void CNpc::SendExpToUserList()
 										if(TempValue > nLoyalty)	nLoyalty = nLoyalty + 1;
 									}
 									//TRACE("* PartyUser Exp id=%s, damage=%d, total=%d, exp=%d, loral=%d, level=%d/%d *\n", pPartyUser->m_strUserID, (int)totalDamage, m_TotalDamage, nExp, nLoyalty, pPartyUser->m_sLevel, nTotalLevel);
-									//pPartyUser->SetExp(nExp, nLoyalty, m_sLevel);
+									//pPartyUser->SetExp(nExp, nLoyalty, m_proto->m_sLevel);
 									pPartyUser->SetPartyExp(nExp, nLoyalty, nTotalLevel, nTotalMan);
 								}
 							}
@@ -3881,7 +3872,7 @@ void CNpc::SendExpToUserList()
 									if(TempValue > nLoyalty)	nLoyalty = nLoyalty + 1;
 								}
 								//TRACE("* PartyUser Exp id=%s, damage=%d, total=%d, exp=%d, loral=%d, level=%d/%d *\n", pPartyUser->m_strUserID, (int)totalDamage, m_TotalDamage, nExp, nLoyalty, pPartyUser->m_sLevel, nTotalLevel);
-								//pPartyUser->SetExp(nExp, nLoyalty, m_sLevel);
+								//pPartyUser->SetExp(nExp, nLoyalty, m_proto->m_sLevel);
 								pPartyUser->SetPartyExp(nExp, nLoyalty, nTotalLevel, nTotalMan);
 							}
 						}
@@ -3918,19 +3909,19 @@ void CNpc::SendExpToUserList()
 					}
 				}
 
-				TempValue = m_iExp * ( totalDamage / m_TotalDamage );
+				TempValue = m_proto->m_iExp * ( totalDamage / m_TotalDamage );
 				nExp = (int)TempValue;
 				if(TempValue > nExp)	nExp = nExp + 1;
 
-				if(m_iLoyalty == 0) nLoyalty = 0;
+				if(m_proto->m_iLoyalty == 0) nLoyalty = 0;
 				else	{
-					TempValue = m_iLoyalty * ( totalDamage / m_TotalDamage );
+					TempValue = m_proto->m_iLoyalty * ( totalDamage / m_TotalDamage );
 					nLoyalty = (int)TempValue;
 					if(TempValue > nLoyalty)	nLoyalty = nLoyalty + 1;
 				}
 
 				//TRACE("* User Exp id=%s, damage=%d, total=%d, exp=%d, loral=%d *\n", pUser->m_strUserID, (int)totalDamage, m_TotalDamage, nExp, nLoyalty);
-				pUser->SetExp(nExp, nLoyalty, m_sLevel);
+				pUser->SetExp(nExp, nLoyalty, m_proto->m_sLevel);
 			}
 		}
 	}
@@ -4100,7 +4091,7 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 {
 	// 자신의 region에 있는 UserArray을 먼저 검색하여,, 가까운 거리에 유저가 있는지를 판단..
 	if(x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())	{
-		TRACE("#### Npc-FindFriendRegion() Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_sSid, x, z);
+		TRACE("#### Npc-FindFriendRegion() Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, x, z);
 		return;
 	}
 
@@ -4149,7 +4140,7 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 					}
 				}
 				else if(type == 0)	{
-					if(pNpc->m_tNpcGroupType && m_sNid != pNpc->m_sNid && pNpc->m_byFamilyType == m_byFamilyType)	{
+					if(pNpc->m_tNpcGroupType && m_sNid != pNpc->m_sNid && pNpc->m_proto->m_byFamilyType == m_proto->m_byFamilyType)	{
 						if(pNpc->m_Target.id > -1 && pNpc->m_NpcState == NPC_FIGHTING) continue;
 						pNpc->m_Target.id = m_Target.id;		// 같은 타입의 동료에게 도움을 요청한다.
 						pNpc->m_Target.x = m_Target.x;			// 같은 목표를 공격하자고...
@@ -4204,15 +4195,15 @@ void CNpc::FillNpcInfo(char *temp_send, int &index, BYTE flag)
 	else
 		SetByte(temp_send, 1, index );					// region에 등록		
 	SetShort(temp_send, m_sNid+NPC_BAND, index );
-	SetShort(temp_send, m_sSid, index);
-	SetShort(temp_send, m_sPid, index );
+	SetShort(temp_send, m_proto->m_sSid, index);
+	SetShort(temp_send, m_proto->m_sPid, index );
 	SetShort(temp_send, m_sSize, index );
 	SetInt(temp_send, m_iWeapon_1, index );
 	SetInt(temp_send, m_iWeapon_2, index );
 	SetByte(temp_send, m_bCurZone, index);
-	SetVarString(temp_send, m_strName, _tcslen(m_strName), index);
+	SetVarString(temp_send, m_proto->m_strName, _tcslen(m_proto->m_strName), index);
 	SetByte(temp_send, m_byGroup, index);
-	SetByte(temp_send, (BYTE)m_sLevel, index);
+	SetByte(temp_send, (BYTE)(m_proto->m_sLevel), index);
 	Setfloat(temp_send, m_fCurX, index);
 	Setfloat(temp_send, m_fCurZ, index);
 	Setfloat(temp_send, m_fCurY, index);
@@ -4221,7 +4212,7 @@ void CNpc::FillNpcInfo(char *temp_send, int &index, BYTE flag)
 	if(m_iHP <= 0) SetByte(temp_send, 0x00, index);
 	else SetByte(temp_send, 0x01, index);
 
-	SetByte(temp_send, m_tNpcType, index);
+	SetByte(temp_send, m_proto->m_tNpcType, index);
 	SetInt(temp_send, m_iSellingGroup, index);
 	SetDWORD(temp_send, m_iMaxHP, index);
 	SetDWORD(temp_send, m_iHP, index);
@@ -4238,20 +4229,20 @@ void CNpc::SendNpcInfoAll(char *temp_send, int &index, int count)
 	else
 		SetByte(temp_send, 1, index );					// region에 등록		
 	SetShort(temp_send, m_sNid+NPC_BAND, index );
-	SetShort(temp_send, m_sSid, index);
-	SetShort(temp_send, m_sPid, index );
+	SetShort(temp_send, m_proto->m_sSid, index);
+	SetShort(temp_send, m_proto->m_sPid, index );
 	SetShort(temp_send, m_sSize, index );
 	SetInt(temp_send, m_iWeapon_1, index );
 	SetInt(temp_send, m_iWeapon_2, index );
 	SetByte(temp_send, m_bCurZone, index);
-	SetVarString(temp_send, m_strName, _tcslen(m_strName), index);
+	SetVarString(temp_send, m_proto->m_strName, _tcslen(m_proto->m_strName), index);
 	SetByte(temp_send, m_byGroup, index);
-	SetByte(temp_send, (BYTE)m_sLevel, index);
+	SetByte(temp_send, (BYTE)(m_proto->m_sLevel), index);
 	Setfloat(temp_send, m_fCurX, index);
 	Setfloat(temp_send, m_fCurZ, index);
 	Setfloat(temp_send, m_fCurY, index);
 	SetByte(temp_send, m_byDirection, index);
-	SetByte(temp_send, m_tNpcType, index);
+	SetByte(temp_send, m_proto->m_tNpcType, index);
 	SetInt(temp_send, m_iSellingGroup, index);
 	SetDWORD(temp_send, m_iMaxHP, index);
 	SetDWORD(temp_send, m_iHP, index);
@@ -4259,7 +4250,7 @@ void CNpc::SendNpcInfoAll(char *temp_send, int &index, int count)
 	SetShort(temp_send, m_sHitRate, index);
 	SetByte(temp_send, m_byObjectType, index);
 
-	//TRACE("monster info all = %d, name=%s, count=%d \n", m_sNid+NPC_BAND, m_strName, count);
+	//TRACE("monster info all = %d, name=%s, count=%d \n", m_sNid+NPC_BAND, m_proto->m_strName, count);
 }
 
 int CNpc::GetDir(float x1, float z1, float x2, float z2)
@@ -4414,7 +4405,7 @@ void CNpc::NpcTrace(TCHAR *pMsg)
 	//if(g_bDebug == FALSE) return;
 
 	CString szMsg = _T("");
-	szMsg.Format(_T("%s : uid = %d, name = %s, xpos = %f, zpos = %f\n"), pMsg, m_sNid+NPC_BAND, m_strName, m_fCurX, m_fCurZ);
+	szMsg.Format(_T("%s : uid = %d, name = %s, xpos = %f, zpos = %f\n"), pMsg, m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ);
 	TRACE(szMsg);
 }
 
@@ -4487,7 +4478,7 @@ BOOL CNpc::GetUserInViewRange(int x, int z)
 {
 	MAP* pMap = GetMap();
 	if (pMap == NULL || x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())	{
-		TRACE("#### Npc-GetUserInViewRange() Fail : [nid=%d, sid=%d], x1=%d, z1=%d #####\n", m_sNid+NPC_BAND, m_sSid, x, z);
+		TRACE("#### Npc-GetUserInViewRange() Fail : [nid=%d, sid=%d], x1=%d, z1=%d #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, x, z);
 		return FALSE;
 	}
 
@@ -4719,12 +4710,12 @@ BYTE CNpc::GetHitRate(float rate)
 BOOL CNpc::IsLevelCheck(int iLevel)
 {
 	// 몬스터의 레벨보다 낮으면,,,  바로 공격
-	if(iLevel <= m_sLevel)
+	if(iLevel <= m_proto->m_sLevel)
 		return FALSE;
 
 	int compLevel = 0;
 
-	compLevel = iLevel - m_sLevel;
+	compLevel = iLevel - m_proto->m_sLevel;
 
 	// 레벨을 비교해서 8미만이면 바로 공격
 	if(compLevel < 8)	
@@ -4826,14 +4817,14 @@ void CNpc::IsNoPathFind(float fDistance)
 	fDis = GetDistance(vStart, vEnd);	
 	if(fDis > NPC_MAX_MOVE_RANGE)	{						// 100미터 보다 넓으면 스탠딩상태로..
 		ClearPathFindData();
-		TRACE("#### Npc-IsNoPathFind Fail : NPC_MAX_MOVE_RANGE overflow  .. [nid = %d, name=%s], cur_x=%.2f, z=%.2f, dest_x=%.2f, dest_z=%.2f, fDis=%.2f#####\n", m_sNid+NPC_BAND, m_strName, m_fStartPoint_X, m_fStartPoint_Y, m_fEndPoint_X, m_fEndPoint_Y, fDis);
+		TRACE("#### Npc-IsNoPathFind Fail : NPC_MAX_MOVE_RANGE overflow  .. [nid = %d, name=%s], cur_x=%.2f, z=%.2f, dest_x=%.2f, dest_z=%.2f, fDis=%.2f#####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fStartPoint_X, m_fStartPoint_Y, m_fEndPoint_X, m_fEndPoint_Y, fDis);
 		return;
 	}
 
 	if (GetMap() == NULL)
 	{
 		ClearPathFindData();
-		TRACE("#### Npc-IsNoPathFind No map : [nid=%d, name=%s], zone=%d #####\n", m_sNid+NPC_BAND, m_strName, m_bCurZone);
+		TRACE("#### Npc-IsNoPathFind No map : [nid=%d, name=%s], zone=%d #####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_bCurZone);
 		return;
 	}
 	MAP* pMap = GetMap();
@@ -4858,7 +4849,7 @@ void CNpc::IsNoPathFind(float fDistance)
 
 	if(count <= 0 || count >= MAX_PATH_LINE)	{	
 		ClearPathFindData();
-		TRACE("#### IsNoPtahfind Fail : nid=%d,%s, count=%d ####\n", m_sNid+NPC_BAND, m_strName, count);
+		TRACE("#### IsNoPtahfind Fail : nid=%d,%s, count=%d ####\n", m_sNid+NPC_BAND, m_proto->m_strName, count);
 		return;
 	}
 	m_iAniFrameIndex = count;
@@ -4926,7 +4917,7 @@ void CNpc::GiveNpcHaveItem()
 	}
 
 	if( m_sMaxDamageUserid < 0 || m_sMaxDamageUserid > MAX_USER )	{
-		//TRACE("### Npc-GiveNpcHaveItem() User Array Fail : [nid - %d,%s], userid=%d ###\n", m_sNid+NPC_BAND, m_strName, m_sMaxDamageUserid);
+		//TRACE("### Npc-GiveNpcHaveItem() User Array Fail : [nid - %d,%s], userid=%d ###\n", m_sNid+NPC_BAND, m_proto->m_strName, m_sMaxDamageUserid);
 		return;
 	}
 
@@ -4952,7 +4943,7 @@ void CNpc::GiveNpcHaveItem()
 			LeaveCriticalSection( &g_LogFileWrite );
 			//LogFileWrite( logfile );
 		}
-		//TRACE("Npc-GiveNpcHaveItem() : [nid - %d,%s,  giveme=%d, count=%d, num=%d], list=%d, count=%d\n", m_sNid+NPC_BAND, m_strName, m_sMaxDamageUserid, nCount, i, m_GiveItemList[i].sSid, m_GiveItemList[i].count);
+		//TRACE("Npc-GiveNpcHaveItem() : [nid - %d,%s,  giveme=%d, count=%d, num=%d], list=%d, count=%d\n", m_sNid+NPC_BAND, m_proto->m_strName, m_sMaxDamageUserid, nCount, i, m_GiveItemList[i].sSid, m_GiveItemList[i].count);
 	}
 
 	SendAll(pBuf, index);   // thread 에서 send
@@ -5091,7 +5082,7 @@ BOOL CNpc::IsInExpRange(CUser* pUser)
 BOOL CNpc::CheckFindEnermy()
 {
 	// 경비병은 몬스터도 공격하므로 제외
-	if(m_tNpcType == NPC_GUARD || m_tNpcType == NPC_PATROL_GUARD || m_tNpcType == NPC_STORE_GUARD ) // || m_tNpcType == NPCTYPE_MONSTER)
+	if(m_proto->m_tNpcType == NPC_GUARD || m_proto->m_tNpcType == NPC_PATROL_GUARD || m_proto->m_tNpcType == NPC_STORE_GUARD ) // || m_proto->m_tNpcType == NPCTYPE_MONSTER)
 		return TRUE;
 
 	MAP* pMap = GetMap();
@@ -5099,7 +5090,7 @@ BOOL CNpc::CheckFindEnermy()
 	if (pMap == NULL
 		|| m_iRegion_X > pMap->GetXRegionMax() || m_iRegion_Z > pMap->GetZRegionMax() || m_iRegion_X < 0 || m_iRegion_Z < 0)
 	{
-		//TRACE("#### CheckFindEnermy Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_sSid, m_iRegion_X, m_iRegion_Z);
+		//TRACE("#### CheckFindEnermy Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, m_iRegion_X, m_iRegion_Z);
 		return FALSE;
 	}
 
@@ -5136,11 +5127,11 @@ int	CNpc::ItemProdution(int item_number)							// 아이템 제작
 	iRandom = myrand(1, 10000);
 	//iRandom = myrand(1, 4000);
 
-	//TRACE("ItemProdution : nid=%d, sid=%d, name=%s, item_number = %d\n", m_sNid+NPC_BAND, m_sSid, m_strName, item_number);
+	//TRACE("ItemProdution : nid=%d, sid=%d, name=%s, item_number = %d\n", m_sNid+NPC_BAND, m_proto->m_sSid, m_proto->m_strName, item_number);
 	iItemGrade = GetItemGrade(item_number);
 	//TRACE("ItemProdution : GetItemGrade() = %d\n", iItemGrade);
 	if(iItemGrade == 0)		return 0;
-	iItemLevel = m_sLevel / 5;
+	iItemLevel = m_proto->m_sLevel / 5;
 
 	if( COMPARE( iRandom, 1, 4001) )	{			// 무기구 아이템
 		iDefault = 100000000;
@@ -5326,11 +5317,11 @@ int  CNpc::GetWeaponItemCodeNumber(int item_type)
 
 	iRandom = myrand(0, 1000);
 	if( item_type == 1 )	{		// 무기구
-		iItem_level = m_sLevel / 10;
+		iItem_level = m_proto->m_sLevel / 10;
 		pItemData = g_pMain->m_MakeWeaponItemArray.GetData(iItem_level); 
 	}
 	else if( item_type == 2 )	{	// 방어구
-		iItem_level = m_sLevel / 10;
+		iItem_level = m_proto->m_sLevel / 10;
 		pItemData = g_pMain->m_MakeDefensiveItemArray.GetData(iItem_level); 
 	}
 
@@ -5455,13 +5446,13 @@ void CNpc::DurationMagic_4(float currenttime)
 		CRoomEvent* pRoom = NULL;
 		//if( m_byDungeonFamily < 0 || m_byDungeonFamily >= MAX_DUNGEON_BOSS_MONSTER )	{
 		if( m_byDungeonFamily < 0 || m_byDungeonFamily > pMap->m_arRoomEventArray.GetSize()+1 )	{
-			TRACE("#### Npc-DurationMagic_4() m_byDungeonFamily Fail : [nid=%d, name=%s], m_byDungeonFamily=%d #####\n", m_sNid+NPC_BAND, m_strName, m_byDungeonFamily);
+			TRACE("#### Npc-DurationMagic_4() m_byDungeonFamily Fail : [nid=%d, name=%s], m_byDungeonFamily=%d #####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_byDungeonFamily);
 			//return;
 		}
 		else	{
 			pRoom = pMap->m_arRoomEventArray.GetData( m_byDungeonFamily );
 			if( !pRoom )	{
-				TRACE("#### Npc-DurationMagic_4() room Fail : [nid=%d, name=%s], m_byDungeonFamily=%d #####\n", m_sNid+NPC_BAND, m_strName, m_byDungeonFamily);
+				TRACE("#### Npc-DurationMagic_4() room Fail : [nid=%d, name=%s], m_byDungeonFamily=%d #####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_byDungeonFamily);
 			}
 			else	{
 				//if( pMap->m_arDungeonBossMonster[m_byDungeonFamily] == 0 )	{	// 대장 몬스터가 죽은 경우
@@ -5511,12 +5502,10 @@ void CNpc::ChangeMonsterInfomation(int iChangeType)
 	if( m_sChangeSid == 0 || m_byChangeType == 0 )	return;			// 변하지 않는 몬스터
 	if( m_NpcState != NPC_DEAD )	return;		// 죽은 상태
 	
-	CNpcTable*	pNpcTable = NULL;
+	CNpcTable*	pNpcTable = m_proto;
 	if(m_byInitMoveType >= 0 && m_byInitMoveType < 100)	{
-		if(iChangeType == 1)	// 다른 몬스터로 변환..
+		if (iChangeType == 1)	// 다른 몬스터로 변환..
 			pNpcTable = g_pMain->m_arMonTable.GetData(m_sChangeSid);
-		else if(iChangeType == 2)	// 원래의 몬스터로 변환..
-			pNpcTable = g_pMain->m_arMonTable.GetData(m_sSid);
 		if(pNpcTable == NULL)	{
 			TRACE("##### ChangeMonsterInfomation Sid Fail -- Sid = %d #####\n", m_sChangeSid);
 		}
@@ -5524,17 +5513,14 @@ void CNpc::ChangeMonsterInfomation(int iChangeType)
 	else if(m_byInitMoveType >= 100)	{
 		if(iChangeType == 1)	// 다른 몬스터로 변환..
 			pNpcTable = g_pMain->m_arNpcTable.GetData(m_sChangeSid);
-		else if(iChangeType == 2)	// 원래의 몬스터로 변환..
-			pNpcTable = g_pMain->m_arNpcTable.GetData(m_sSid);
 		if(pNpcTable == NULL)	{
 			TRACE("##### ChangeMonsterInfomation Sid Fail -- Sid = %d #####\n", m_sChangeSid);
 		}
 	}
 
 	// 정보수정......
-	_tcscpy(m_strName, pNpcTable->m_strName);	// MONSTER(NPC) Name
-	m_sPid		= pNpcTable->m_sPid;		// MONSTER(NPC) Picture ID
-	m_sSize		= pNpcTable->m_sSize;		// 캐릭터의 비율(100 퍼센트 기준)
+	m_proto = pNpcTable;
+	m_sSize			= pNpcTable->m_sSize;		// 캐릭터의 비율(100 퍼센트 기준)
 	m_iWeapon_1		= pNpcTable->m_iWeapon_1;	// 착용무기
 	m_iWeapon_2		= pNpcTable->m_iWeapon_2;	// 착용무기
 	m_byGroup		= pNpcTable->m_byGroup;		// 소속집단
@@ -5542,9 +5528,6 @@ void CNpc::ChangeMonsterInfomation(int iChangeType)
 	m_byRank		= pNpcTable->m_byRank;		// 작위
 	m_byTitle		= pNpcTable->m_byTitle;		// 지위
 	m_iSellingGroup = pNpcTable->m_iSellingGroup;
-	m_sLevel		= pNpcTable->m_sLevel;		// level
-	m_iExp			= pNpcTable->m_iExp;		// 경험치
-	m_iLoyalty		= pNpcTable->m_iLoyalty;	// loyalty
 	m_iHP			= pNpcTable->m_iMaxHP;		// 최대 HP
 	m_iMaxHP		= pNpcTable->m_iMaxHP;		// 현재 HP
 	m_sMP			= pNpcTable->m_sMaxMP;		// 최대 MP
@@ -5561,9 +5544,6 @@ void CNpc::ChangeMonsterInfomation(int iChangeType)
 	m_fOldSpeed_1	= (float)pNpcTable->m_bySpeed_1;	// 기본 이동 타입
 	m_fOldSpeed_2	= (float)pNpcTable->m_bySpeed_2;	// 뛰는 이동 타입..
 	m_sStandTime	= pNpcTable->m_sStandTime;	// 서있는 시간
-	m_iMagic1		= pNpcTable->m_iMagic1;		// 사용마법 1
-	m_iMagic2		= pNpcTable->m_iMagic2;		// 사용마법 2
-	m_iMagic3		= pNpcTable->m_iMagic3;		// 사용마법 3
 	m_byFireR		= pNpcTable->m_byFireR;		// 화염 저항력
 	m_byColdR		= pNpcTable->m_byColdR;		// 냉기 저항력
 	m_byLightningR	= pNpcTable->m_byLightningR;	// 전기 저항력
@@ -5571,13 +5551,10 @@ void CNpc::ChangeMonsterInfomation(int iChangeType)
 	m_byDiseaseR	= pNpcTable->m_byDiseaseR;	// 저주 저항력
 	m_byPoisonR		= pNpcTable->m_byPoisonR;	// 독 저항력
 	m_byLightR		= pNpcTable->m_byLightR;	// 빛 저항력
-	m_fBulk			= (float)( ((double)pNpcTable->m_sBulk / 100) * ((double)pNpcTable->m_sSize / 100) );
 	m_bySearchRange	= pNpcTable->m_bySearchRange;	// 적 탐지 범위
 	m_byAttackRange	= pNpcTable->m_byAttackRange;	// 사정거리
 	m_byTracingRange	= pNpcTable->m_byTracingRange;	// 추격거리
 	m_sAI				= pNpcTable->m_sAI;				// 인공지능 인덱스
-	m_tNpcType		= pNpcTable->m_tNpcType;		// NPC Type
-	m_byFamilyType	= pNpcTable->m_byFamilyType;		// 몹들사이에서 가족관계를 결정한다.
 	m_iMoney		= pNpcTable->m_iMoney;			// 떨어지는 돈
 	m_iItem			= pNpcTable->m_iItem;			// 떨어지는 아이템
 	m_tNpcLongType	= pNpcTable->m_byDirectAttack;	
@@ -5681,7 +5658,7 @@ void CNpc::NpcHealing()
 {
 	if(cur_test)	NpcTrace(_T("NpcHealing()"));
 
-	if( m_tNpcType != NPC_HEALER )	{
+	if( m_proto->m_tNpcType != NPC_HEALER )	{
 		InitTarget();
 		m_NpcState = NPC_STANDING;
 		m_Delay = m_sStandTime;
@@ -5703,7 +5680,7 @@ void CNpc::NpcHealing()
 	ret = IsCloseTarget(m_byAttackRange, 2);
 
 	if(ret == 0)   {
-		if(m_tNpcType == NPC_DOOR || m_tNpcType == NPC_ARTIFACT || m_tNpcType == NPC_PHOENIX_GATE || m_tNpcType == NPC_GATE_LEVER || m_tNpcType == NPC_DOMESTIC_ANIMAL || m_tNpcType == NPC_SPECIAL_GATE || m_tNpcType == NPC_DESTORY_ARTIFACT ) // 고정 경비병은 추적을 하지 않도록..
+		if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT ) // 고정 경비병은 추적을 하지 않도록..
 		{
 			m_NpcState = NPC_STANDING;
 			InitTarget();
@@ -5719,14 +5696,14 @@ void CNpc::NpcHealing()
 		return;							// IsCloseTarget()에 유저 x, y값을 갱신하고 Delay = 0으로 줌
 	}	
 	else if( ret == 2 )	{
-		//if(m_tNpcType == NPC_BOSS_MONSTER)	{		// 대장 몬스터이면.....
+		//if(m_proto->m_tNpcType == NPC_BOSS_MONSTER)	{		// 대장 몬스터이면.....
 		if(m_tNpcLongType == 2)	{		// 직접, 간접(롱)공격이 가능한 몬스터 이므로 장거리 공격을 할 수 있다.
 			m_Delay = LongAndMagicAttack();
 			m_fDelayTime = TimeGet();
 			return;
 		}
 		else	{
-			if(m_tNpcType == NPC_DOOR || m_tNpcType == NPC_ARTIFACT || m_tNpcType == NPC_PHOENIX_GATE || m_tNpcType == NPC_GATE_LEVER || m_tNpcType == NPC_DOMESTIC_ANIMAL || m_tNpcType == NPC_SPECIAL_GATE || m_tNpcType == NPC_DESTORY_ARTIFACT ) // 고정 경비병은 추적을 하지 않도록..
+			if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT ) // 고정 경비병은 추적을 하지 않도록..
 			{
 				m_NpcState = NPC_STANDING;
 				InitTarget();
@@ -5770,7 +5747,7 @@ void CNpc::NpcHealing()
 			send_index = 0;
 			//SetByte( buff, AG_MAGIC_ATTACK_RESULT, send_index );
 			SetByte( buff, MAGIC_EFFECTING, send_index );		
-			SetDWORD( buff, m_iMagic3, send_index );				// FireBall
+			SetDWORD( buff, m_proto->m_iMagic3, send_index );				// FireBall
 			SetShort( buff, m_sNid+NPC_BAND, send_index );
 			SetShort( buff, nID, send_index );	
 			SetShort( buff, 0, send_index );					// data0
@@ -5803,7 +5780,7 @@ void CNpc::NpcHealing()
 	memset( buff, 0x00, 256 );	send_index = 0;
 	//SetByte( buff, AG_MAGIC_ATTACK_RESULT, send_index );
 	SetByte( buff, MAGIC_EFFECTING, send_index );		
-	SetDWORD( buff, m_iMagic3, send_index );				// FireBall
+	SetDWORD( buff, m_proto->m_iMagic3, send_index );				// FireBall
 	SetShort( buff, m_sNid+NPC_BAND, send_index );
 	SetShort( buff, iMonsterNid, send_index );	
 	SetShort( buff, 0, send_index );					// data0
@@ -5825,9 +5802,9 @@ int CNpc::GetPartyExp( int party_level, int man, int nNpcExp )
 	int nPartyExp = 0;
 	int nLevel = party_level / man;
 	double TempValue = 0;
-	nLevel = m_sLevel - nLevel;
+	nLevel = m_proto->m_sLevel - nLevel;
 
-	//TRACE("GetPartyExp ==> party_level=%d, man=%d, exp=%d, nLevle=%d, mon=%d\n", party_level, man, nNpcExp, nLevel, m_sLevel);
+	//TRACE("GetPartyExp ==> party_level=%d, man=%d, exp=%d, nLevle=%d, mon=%d\n", party_level, man, nNpcExp, nLevel, m_proto->m_sLevel);
 
 	if(nLevel < 2)	{
 		nPartyExp = nNpcExp * 1;
@@ -5854,18 +5831,7 @@ void CNpc::ChangeAbility(int iChangeType)	// iChangeType - 0:능력치 다운, 1:능력
 	if( iChangeType > 2 )	return;			// 
 
 	int nHP = 0, nAC=0, nDamage=0, nLightR=0, nMagicR=0, nDiseaseR=0, nPoisonR=0, nLightningR=0, nFireR=0, nColdR=0;
-	CNpcTable*	pNpcTable = NULL;
-	if(m_byInitMoveType >= 0 && m_byInitMoveType < 100)	{
-		TRACE("##### ChangeAbility Fail -- nid = %d, name=%s #####\n", m_sNid+NPC_BAND, m_strName);
-		return;
-	}
-	else if(m_byInitMoveType >= 100)	{
-		pNpcTable = g_pMain->m_arNpcTable.GetData(m_sSid);
-		if(pNpcTable == NULL)	{
-			TRACE("##### ChangeAbility Sid Fail -- nid=%d, Sid = %d, name=%s #####\n", m_sNid+NPC_BAND, m_sChangeSid, m_strName);
-			return;
-		}
-	}
+	CNpcTable*	pNpcTable = m_proto;
 
 	// 정보수정......
 	if( iChangeType == BATTLEZONE_OPEN )	{		// 능력치 다운
@@ -5892,11 +5858,11 @@ void CNpc::ChangeAbility(int iChangeType)	// iChangeType - 0:능력치 다운, 1:능력
 		m_byDiseaseR	= nDiseaseR;	// 저주 저항력
 		m_byPoisonR		= nPoisonR;		// 독 저항력
 		m_byLightR		= nLightR;		// 빛 저항력
-		//TRACE("-- ChangeAbility down : nid=%d, name=%s, hp:%d->%d, damage=%d->%d\n", m_sNid+NPC_BAND, m_strName, pNpcTable->m_iMaxHP, nHP, pNpcTable->m_sDamage, nDamage); 
+		//TRACE("-- ChangeAbility down : nid=%d, name=%s, hp:%d->%d, damage=%d->%d\n", m_sNid+NPC_BAND, m_proto->m_strName, pNpcTable->m_iMaxHP, nHP, pNpcTable->m_sDamage, nDamage); 
 	}
 	else if( iChangeType == BATTLEZONE_CLOSE )	{	// 능력치 회복
 		m_iMaxHP		= pNpcTable->m_iMaxHP;		// 현재 HP
-		//TRACE("++ ChangeAbility up : nid=%d, name=%s, hp:%d->%d, damage=%d->%d\n", m_sNid+NPC_BAND, m_strName, m_iHP, m_iMaxHP, pNpcTable->m_sDamage, nDamage); 
+		//TRACE("++ ChangeAbility up : nid=%d, name=%s, hp:%d->%d, damage=%d->%d\n", m_sNid+NPC_BAND, m_proto->m_strName, m_iHP, m_iMaxHP, pNpcTable->m_sDamage, nDamage); 
 		if( m_iMaxHP > m_iHP )	{	// HP도 바꿔야 겠군,,
 			m_iHP = m_iMaxHP - 50;
 			HpChange();

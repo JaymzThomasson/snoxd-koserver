@@ -240,7 +240,7 @@ CNpc* CRoomEvent::GetNpcPtr( int sid )
 		if( nMonsterid < 0 )	continue;
 		CNpc *pNpc = g_pMain->m_arNpc.GetData( nMonsterid );
 		if( !pNpc )		continue;
-		if( pNpc->m_sSid == sid )	{
+		if( pNpc->m_proto->m_sSid == sid )	{
 			if(pIDList)	{
 				delete [] pIDList;
 				pIDList = NULL;
@@ -286,7 +286,7 @@ BOOL  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
 			if( pNpc->m_byDeadType == 100 )	nMonsterCount++;
 			if( nMonsterCount == nMonster )	bRetValue = TRUE;
 		}
-		else	if( pNpc->m_sSid == sid )	{
+		else	if( pNpc->m_proto->m_sSid == sid )	{
 			if( type == 1 )	{					// 특정 몬스터가 마리수 만큼 죽었는지를 판단
 				if( pNpc->m_byChangeType == 100 )	nMonsterCount++;
 				if( nMonsterCount == count )	bRetValue = TRUE;

@@ -55,7 +55,8 @@ public:
 	BYTE	m_byDiseaseR;		// 저주 저항력
 	BYTE	m_byPoisonR;		// 독 저항력
 	BYTE	m_byLightR;			// 빛 저항력
-	short	m_sBulk;			// 몬스터의 크기 (실제 길이 * 100)
+
+	float	m_fBulk;
 
 	BYTE	m_bySearchRange;	// 적 탐지 범위
 	BYTE	m_byAttackRange;	// 사정거리

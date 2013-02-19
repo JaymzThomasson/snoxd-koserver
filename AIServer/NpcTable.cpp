@@ -61,7 +61,6 @@ void CNpcTable::Initialize()
 	m_byMagicR = 0;			// 마법 저항력
 	m_byDiseaseR = 0;		// 저주 저항력
 	m_byPoisonR = 0;		// 독 저항력
-	m_sBulk  = 0;
 	m_bySearchRange = 0;	// 적 탐지 범위
 	m_byAttackRange = 0;	// 사정거리
 	m_byTracingRange = 0;

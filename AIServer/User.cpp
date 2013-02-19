@@ -117,7 +117,7 @@ void CUser::Attack(int sid, int tid)
 	if(pNpc->m_NpcState == NPC_DEAD) return;
 	if(pNpc->m_iHP == 0) return;
 
-/*	if(pNpc->m_tNpcType == NPCTYPE_GUARD)					// 경비병이면 타겟을 해당 유저로
+/*	if(pNpc->m_proto->m_tNpcType == NPCTYPE_GUARD)					// 경비병이면 타겟을 해당 유저로
 	{
 		pNpc->m_Target.id = m_iUserId + USER_BAND;
 		pNpc->m_Target.x = m_curx;
@@ -327,7 +327,7 @@ void CUser::SetExp(int iNpcExp, int iLoyalty, int iLevel)
 	nLevel = iLevel - m_bLevel;
 
 	if(nLevel <= -14)	{
-		//TRACE("$$ User - SetExp Level Fail : %s, exp=%d, loyalty=%d, mylevel=%d, level=%d $$\n", m_strUserID, iNpcExp, iLoyalty, m_sLevel, iLevel);
+		//TRACE("$$ User - SetExp Level Fail : %s, exp=%d, loyalty=%d, mylevel=%d, level=%d $$\n", m_strUserID, iNpcExp, iLoyalty, m_proto->m_sLevel, iLevel);
 		//return;
 		TempValue = iNpcExp * 0.2;
 		nExp = (int)TempValue;
@@ -383,7 +383,7 @@ void CUser::SetExp(int iNpcExp, int iLoyalty, int iLevel)
 		nLoyalty = iLoyalty * 2;
 	}	*/
 
-	//TRACE("$$ User - SetExp Level : %s, exp=%d->%d, loy=%d->%d, mylevel=%d, monlevel=%d $$\n", m_strUserID, iNpcExp, nExp, iLoyalty, nLoyalty, m_sLevel, iLevel);
+	//TRACE("$$ User - SetExp Level : %s, exp=%d->%d, loy=%d->%d, mylevel=%d, monlevel=%d $$\n", m_strUserID, iNpcExp, nExp, iLoyalty, nLoyalty, m_proto->m_sLevel, iLevel);
 
 	SendExp(nExp, nLoyalty);
 }
@@ -398,7 +398,7 @@ void CUser::SetPartyExp(int iNpcExp, int iLoyalty, int iPartyLevel, int iMan)
 	TempValue = (double)iPartyLevel / 100.0;
 	nExpPercent = (int)(iNpcExp * TempValue);
 
-	//TRACE("$$ User - SetPartyExp Level : %s, exp=%d->%d, loy=%d->%d, mylevel=%d, iPartyLevel=%d $$\n", m_strUserID, iNpcExp, nExpPercent, iLoyalty, nLoyalty, m_sLevel, iPartyLevel);
+	//TRACE("$$ User - SetPartyExp Level : %s, exp=%d->%d, loy=%d->%d, mylevel=%d, iPartyLevel=%d $$\n", m_strUserID, iNpcExp, nExpPercent, iLoyalty, nLoyalty, m_proto->m_sLevel, iPartyLevel);
 
 	SendExp(iNpcExp, iLoyalty);
 }
@@ -433,7 +433,7 @@ short CUser::GetDamage(int tid, int magicid)
 	CNpc* pNpc = NULL;
 	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(pNpc == NULL)		return damage;
-	if(pNpc->m_tNpcType == NPC_ARTIFACT || pNpc->m_tNpcType == NPC_PHOENIX_GATE || pNpc->m_tNpcType == NPC_GATE_LEVER || pNpc->m_tNpcType == NPC_SPECIAL_GATE ) return damage;
+	if(pNpc->m_proto->m_tNpcType == NPC_ARTIFACT || pNpc->m_proto->m_tNpcType == NPC_PHOENIX_GATE || pNpc->m_proto->m_tNpcType == NPC_GATE_LEVER || pNpc->m_proto->m_tNpcType == NPC_SPECIAL_GATE ) return damage;
 	
 	Attack = (float)m_fHitrate;			// 공격민첩
 	Avoid = (float)pNpc->m_sEvadeRate;	// 방어민첩	
