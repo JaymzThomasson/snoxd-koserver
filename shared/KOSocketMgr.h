@@ -18,7 +18,7 @@ public:
 	virtual bool Listen(uint16 sPort, uint16 sTotalSessions);
 
 	virtual Socket *AssignSocket(SOCKET socket);
-	virtual void OnDisconnect(Socket *pSock);
+	virtual void DisconnectCallback(Socket *pSock);
 
 	void RunServer()
 	{
@@ -46,7 +46,6 @@ public:
 		for (auto itr = sessMap.begin(); itr != sessMap.end(); ++itr)
 			itr->second->Send(pBuf, nLength);
 		ReleaseLock();
-
 	}
 
 	// Send a packet to all active sessions
@@ -58,6 +57,7 @@ public:
 			itr->second->Send(pkt);
 		ReleaseLock();
 	}
+
 	ListenSocket<T> * GetServer() { return m_server; }
 	__forceinline SessionMap & GetIdleSessionMap()
 	{
@@ -140,7 +140,7 @@ Socket * KOSocketMgr<T>::AssignSocket(SOCKET socket)
 }
 
 template <class T>
-void KOSocketMgr<T>::OnDisconnect(Socket *pSock)
+void KOSocketMgr<T>::DisconnectCallback(Socket *pSock)
 {
 	m_lock.AcquireWriteLock();
 	auto itr = m_activeSessions.find(static_cast<KOSocket *>(pSock)->GetSocketID());

@@ -5,6 +5,7 @@
 #include <afxwin.h>
 #endif
 
+#include <queue>
 #include <set>
 #include "Socket.h"
 #include "ListenSocket.h"
@@ -22,13 +23,24 @@ public:
 	void ShutdownThreads();
 
 	virtual Socket *AssignSocket(SOCKET socket) = 0;
-	virtual void OnDisconnect(Socket *pSock) = 0;
+	virtual void OnDisconnect(Socket *pSock) 
+	{
+		s_disconnectionQueueLock.Acquire();
+		s_disconnectionQueue.push(pSock);
+		s_disconnectionQueueLock.Release();
+	}
+	virtual void DisconnectCallback(Socket *pSock) {}
 
 	virtual ~SocketMgr();
 
-private:
+	static FastMutex SocketMgr::s_disconnectionQueueLock;
+	static std::queue<Socket *> SocketMgr::s_disconnectionQueue;
+
+protected:
 	HANDLE m_completionPort;
 	HANDLE *m_hThreads;
+	static HANDLE s_hCleanupThread;
+
 	long m_threadCount;
 
 	static void SetupWinsock();

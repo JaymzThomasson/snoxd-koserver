@@ -37,7 +37,27 @@ DWORD WINAPI SocketWorkerThread(LPVOID lpParam)
 	return 0;
 }
 
+DWORD WINAPI SocketCleanupThread(LPVOID lpParam)
+{
+	while (true)
+	{
+		SocketMgr::s_disconnectionQueueLock.Acquire();
+		while (!SocketMgr::s_disconnectionQueue.empty())
+		{
+			Socket *pSock = SocketMgr::s_disconnectionQueue.front();
+			if (pSock->GetSocketMgr())
+				pSock->GetSocketMgr()->DisconnectCallback(pSock);
+			SocketMgr::s_disconnectionQueue.pop();
+		}
+		SocketMgr::s_disconnectionQueueLock.Release();
+		Sleep(100);
+	}
+}
+
 uint32 SocketMgr::s_refs = 0;
+FastMutex SocketMgr::s_disconnectionQueueLock;
+std::queue<Socket *> SocketMgr::s_disconnectionQueue;
+HANDLE SocketMgr::s_hCleanupThread = NULL; 
 
 SocketMgr::SocketMgr() : m_hThreads(NULL), m_threadCount(0), m_completionPort(NULL)
 {
@@ -64,16 +84,15 @@ void SocketMgr::SpawnWorkerThreads()
 	SYSTEM_INFO si;
 	GetSystemInfo(&si);
 
-//#ifdef _DEBUG
-//	m_threadCount = 1;
-//#else
 	m_threadCount = si.dwNumberOfProcessors * 2;
-//#endif
 
 	TRACE("SocketMgr - spawning %u worker threads.\n", m_threadCount);
 	m_hThreads = new HANDLE[m_threadCount];
 	for (long x = 0; x < m_threadCount; x++)
 		m_hThreads[x] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&SocketWorkerThread, (LPVOID)this, 0, &id);
+
+	if (s_hCleanupThread == NULL)
+		s_hCleanupThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&SocketCleanupThread, NULL, 0, &id);
 }
 
 void HandleReadComplete(Socket * s, uint32 len)
@@ -136,5 +155,10 @@ SocketMgr::~SocketMgr()
 
 void SocketMgr::CleanupWinsock()
 {
+	if (s_hCleanupThread != NULL)
+	{
+		TerminateThread(s_hCleanupThread, 0);
+		s_hCleanupThread = NULL;
+	}
 	WSACleanup();
 }

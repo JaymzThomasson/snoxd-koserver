@@ -63,6 +63,7 @@ public:
 	__forceinline in_addr GetRemoteAddress() { return m_client.sin_addr; }
 	__forceinline uint32 GetRemotePort() { return ntohs(m_client.sin_port); }
 	__forceinline SOCKET GetFd() { return m_fd; }
+	__forceinline SocketMgr * GetSocketMgr() { return m_socketMgr; }
 	
 	void SetupReadEvent();
 	void ReadCallback(uint32 len);
