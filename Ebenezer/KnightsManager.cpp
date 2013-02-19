@@ -458,7 +458,19 @@ void CKnightsManager::CurrentKnightsMember(CUser *pUser, Packet & pkt)
 
 void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 {
-	uint8 command = pkt.read<uint8>(), bResult = pkt.read<uint8>();
+	uint8 command = pkt.read<uint8>();
+	
+	if (command != KNIGHTS_ALLLIST_REQ)
+	{
+		uint8 bResult = pkt.read<uint8>();
+		if (bResult > 0) 
+		{
+			Packet result(WIZ_KNIGHTS_PROCESS, command);
+			result << bResult << "Error";
+			pUser->Send(&result);
+			return;
+		}	
+	}
 
 	switch (command)
 	{
@@ -499,6 +511,9 @@ void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 		break;
 	case KNIGHTS_LIST_REQ:
 		RecvKnightsList(pkt);
+		break;
+	case KNIGHTS_ALLLIST_REQ:
+		RecvKnightsAllList(pkt);
 		break;
 	}
 }

@@ -874,27 +874,15 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 		return;
 
 	Packet result(WIZ_KNIGHTS_PROCESS);
-	result << uint16(-1) << uint8(KNIGHTS_ALLLIST_REQ); // no uid
-
-	bool bReset = true;
 	uint8 bCount = 0;
 	int offset;
 
 	do
 	{
-		// If we're resetting/restarting the packet...
-		if (bReset)
+		if (bCount == 0)
 		{
-			// and we actually have data in the packet (i.e. we're not throwing data in for the first time)
-			if (bCount > 0)
-			{
-				// clear our the buffer + reset the count
-				result.clear();
-				bCount = 0;
-			}
-
-			// setup the start of the packet + store the offset the count's at
-			result << uint8(KNIGHTS_ALLLIST_REQ) << uint16(-1) << uint8(0);
+			result.clear();
+			result << uint16(-1) << uint8(KNIGHTS_ALLLIST_REQ) << uint8(0);
 			offset = result.wpos() - 1;
 		}
 
@@ -909,10 +897,9 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 		if (++bCount >= 40)
 		{
 			// overwrite the count
+			result.put(offset, bCount);
 			m_pMain->m_LoggerSendQueue.PutData(&result);
-
-			// mark it for reset, if there's any more rows.
-			bReset = true;
+			bCount = 0;
 		}
 	} while (dbCommand->MoveNext());
 
