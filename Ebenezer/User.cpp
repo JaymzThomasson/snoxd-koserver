@@ -2206,11 +2206,13 @@ void CUser::SendItemMove(bool bFail /*= false*/)
 	if (!bFail)
 	{
 		result	<< m_sTotalHit << m_sTotalAc
+				<< m_sMaxWeight
 				<< m_iMaxHp << m_iMaxMp
-				<< uint8(getStatItemBonus(STAT_STA)) << uint8(getStatItemBonus(STAT_STA))
-				<< uint8(getStatItemBonus(STAT_DEX)) << uint8(getStatItemBonus(STAT_INT))
-				<< uint8(getStatItemBonus(STAT_CHA))
-				<< m_bFireR << m_bColdR << m_bLightningR << m_bMagicR << m_bDiseaseR << m_bPoisonR;
+				<< getStatBonusTotal(STAT_STR) << getStatBonusTotal(STAT_STA)
+				<< getStatBonusTotal(STAT_DEX) << getStatBonusTotal(STAT_INT)
+				<< getStatBonusTotal(STAT_CHA)
+				<< uint16(m_bFireR) << uint16(m_bColdR) << uint16(m_bLightningR) 
+				<< uint16(m_bMagicR) << uint16(m_bDiseaseR) << uint16(m_bPoisonR);
 	}
 	Send(&result);
 }

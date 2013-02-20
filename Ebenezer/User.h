@@ -260,6 +260,11 @@ public:
 		return total;
 	}
 
+	__forceinline uint16 getStatBonusTotal(StatType type)
+	{
+		return getStatBuff(type) + getStatItemBonus(type);
+	}
+
 	__forceinline uint8 getStatBuff(StatType type)
 	{
 		ASSERT(type < STAT_COUNT);
