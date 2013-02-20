@@ -391,8 +391,8 @@ void CUser::ItemMove(Packet & pkt)
 			|| !IsValidSlotPos(pTable, bDstPos))
 			goto fail_return;
 
-		pSrcItem = &m_pUserData->m_sItemArray[bSrcPos];
-		pDstItem = &m_pUserData->m_sItemArray[INVENTORY_INVENT + bDstPos];
+		pSrcItem = &m_pUserData->m_sItemArray[INVENTORY_INVENT + bSrcPos];
+		pDstItem = &m_pUserData->m_sItemArray[bDstPos];
 		break;
 
 	case ITEM_SLOT_INVEN:
