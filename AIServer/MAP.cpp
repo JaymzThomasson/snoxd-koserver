@@ -424,7 +424,7 @@ void MAP::LoadObjectEvent(HANDLE hFile)
 			|| pEvent->sType == OBJECT_GATE2
 			|| pEvent->sType == OBJECT_GATE_LEVER
 			|| pEvent->sType == OBJECT_ANVIL
-			|| pEvent->sType == OBJECT_CHAOTIC_GENERATOR) {
+			|| pEvent->sType == OBJECT_ARTIFACT) {
 			g_pMain->AddObjectEventNpc(pEvent, m_nZoneNumber);
 		}	
 

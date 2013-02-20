@@ -1648,7 +1648,7 @@ BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number)
 	int nServerNum = 0;
 	nServerNum = GetServerNumber( zone_number );
 
-	int sSid = (pEvent->sType == OBJECT_ANVIL || pEvent->sType == OBJECT_CHAOTIC_GENERATOR 
+	int sSid = (pEvent->sType == OBJECT_ANVIL || pEvent->sType == OBJECT_ARTIFACT 
 					? pEvent->sIndex : pEvent->sControlNpcID);
 	if (sSid <= 0)
 		return FALSE;
