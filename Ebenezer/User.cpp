@@ -805,7 +805,7 @@ void CUser::SetDetailData()
 	SetSlotItemValue();
 	SetUserAbility();
 
-	if (getLevel() >= MAX_LEVEL) 
+	if (getLevel() > MAX_LEVEL) 
 	{
 		Disconnect();
 		return;
