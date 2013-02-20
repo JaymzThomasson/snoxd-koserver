@@ -160,7 +160,10 @@ void CUser::OnDisconnect()
 	g_pMain->RemoveSessionNames(this);
 
 	if (!isInGame())
+	{
+		memset(m_pUserData->m_id, 0, sizeof(m_pUserData->m_id));
 		return;
+	}
 
 	UserInOut(USER_OUT);
 
