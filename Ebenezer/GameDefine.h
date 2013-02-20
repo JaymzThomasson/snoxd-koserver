@@ -46,18 +46,20 @@
 #define NORMAL					0X03		// ����
 #define	FAIL					0X04		// ���� 
 
-// Item Move Direction Define 
-#define ITEM_INVEN_SLOT				0x01
-#define ITEM_SLOT_INVEN				0x02
-#define ITEM_INVEN_INVEN			0x03
-#define ITEM_SLOT_SLOT				0x04
-#define ITEM_INVEN_ZONE				0x05
-#define ITEM_ZONE_INVEN				0x06
-#define	ITEM_INVEN_TO_COSP			0x07 //Inventory -> Cospre bag
-#define	ITEM_COSP_TO_INVEN			0x08 //Cospre bag -> Inventory
-#define	ITEM_INVEN_TO_MBAG			0x09 //Inventory -> Magic bag
-#define	ITEM_MBAG_TO_INVEN			0x0A //Magic bag -> Magic bag
-#define	ITEM_MBAG_TO_MBAG			0x0B //Magic bag -> Magic bag
+enum ItemMovementType
+{
+	ITEM_INVEN_SLOT			= 1,
+	ITEM_SLOT_INVEN			= 2,
+	ITEM_INVEN_INVEN		= 3,
+	ITEM_SLOT_SLOT			= 4,
+	ITEM_INVEN_ZONE			= 5,
+	ITEM_ZONE_INVEN			= 6,
+	ITEM_INVEN_TO_COSP		= 7,  // Inventory -> Cospre bag
+	ITEM_COSP_TO_INVEN		= 8,  // Cospre bag -> Inventory
+	ITEM_INVEN_TO_MBAG		= 9,  // Inventory -> Magic bag
+	ITEM_MBAG_TO_INVEN		= 10, //Magic bag -> Magic bag
+	ITEM_MBAG_TO_MBAG		= 11 //Magic bag -> Magic bag
+};
 
 // Item Weapon Type Define
 #define WEAPON_DAGGER			1

@@ -304,18 +304,17 @@ void CUser::ItemMove(Packet & pkt)
 
 	pkt >> dir >> nItemID >> bSrcPos >> bDstPos;
 
-	if (isTrading())
+	if (isTrading() || isMerchanting())
 		goto fail_return;
 
 	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
 	if (pTable == NULL
 		//  || dir == ITEM_INVEN_SLOT && ((pTable->m_sWeight + m_sItemWeight) > m_sMaxWeight))
 		//  || dir > ITEM_MBAG_TO_MBAG || bSrcPos >= SLOT_MAX+HAVE_MAX+COSP_MAX+MBAG_MAX || bDstPos >= SLOT_MAX+HAVE_MAX+COSP_MAX+MBAG_MAX
-			|| (dir == ITEM_INVEN_SLOT || dir == ITEM_SLOT_SLOT) && bDstPos > SLOT_MAX
+			|| ((dir == ITEM_INVEN_SLOT || dir == ITEM_SLOT_SLOT) && bDstPos > SLOT_MAX)
 			|| (dir == ITEM_SLOT_INVEN && bSrcPos > SLOT_MAX)
 			|| (dir == ITEM_INVEN_SLOT && bDstPos == RESERVED)
 			|| (dir == ITEM_SLOT_INVEN && bDstPos == RESERVED)
-			|| (dir == ITEM_INVEN_SLOT || dir == ITEM_SLOT_SLOT)
 			|| (pTable->m_bRace != 0 && pTable->m_bRace != m_pUserData->m_bRace)
 			|| !ItemEquipAvailable(pTable))
 			goto fail_return;
