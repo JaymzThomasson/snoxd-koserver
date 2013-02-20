@@ -947,12 +947,15 @@ void CAISocket::RecvCompressed(Packet & pkt)
 	if (result
 		!= originalLength)
 	{
+		delete [] decompressedBuffer;
 		return;
 	}
 
 	pkt.Initialize(*decompressedBuffer);
 	if (originalLength > 1)
 		pkt.append(decompressedBuffer + 1, originalLength - 1);
+
+	delete [] decompressedBuffer;
 
 	HandlePacket(pkt);
 }

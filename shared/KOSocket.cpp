@@ -134,8 +134,8 @@ bool KOSocket::Send(char *buff, int len)
 
 bool KOSocket::SendCompressed(char *buff, int len) 
 {
-	Packet result(*buff, (size_t)len - 1);
-	if (len > 0)
+	Packet result(*buff);
+	if (len > 1)
 		result.append(buff + 1, len - 1);
 	return SendCompressed(&result);
 }
@@ -200,15 +200,15 @@ bool KOSocket::Send(Packet * pkt)
 
 bool KOSocket::SendCompressed(Packet * pkt)
 {
-	uint32 inLength = pkt->size() + 1, outLength, crc;
-	uint8 *buffer = new uint8[inLength];
+	uint32 inLength = pkt->size() + 1, outLength = inLength + LZF_MARGIN, crc;
+	uint8 *buffer = new uint8[inLength], *outBuffer = new uint8[outLength];
 
 	*buffer = pkt->GetOpcode();
 	if (pkt->size() > 0)
 		memcpy(buffer + 1, pkt->contents(), pkt->size());
 
 	crc = (uint32)crc32(buffer, inLength);
-	outLength = lzf_compress(buffer, inLength, buffer, inLength + LZF_MARGIN);
+	outLength = lzf_compress(buffer, inLength, outBuffer, outLength);
 
 	pkt->Initialize(WIZ_COMPRESS_PACKET);
 
@@ -218,7 +218,11 @@ bool KOSocket::SendCompressed(Packet * pkt)
 	*pkt << uint16(outLength) << uint16(inLength);
 #endif
 	*pkt << uint32(crc);
-	pkt->append(buffer, outLength);
+
+	pkt->append(outBuffer, outLength);
+
+	delete [] buffer;
+	delete [] outBuffer;
 
 	return Send(pkt);
 }

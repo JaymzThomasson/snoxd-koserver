@@ -59,6 +59,15 @@ public:
 		ReleaseLock();
 	}
 
+	void SendAllCompressed(char *send_buff, int len) 
+	{
+		AcquireLock();
+		SessionMap & sessMap = m_activeSessions;
+		for (auto itr = sessMap.begin(); itr != sessMap.end(); ++itr)
+			itr->second->SendCompressed(send_buff, len);
+		ReleaseLock();
+	}
+
 	ListenSocket<T> * GetServer() { return m_server; }
 	__forceinline SessionMap & GetIdleSessionMap()
 	{

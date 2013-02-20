@@ -1267,7 +1267,7 @@ void CServerDlg::AllNpcInfo()
 				SetByte(send_buff, NPC_INFO_ALL, send_count );
 				SetByte(send_buff, count, send_count );
 
-				Send(send_buff, send_index);
+				s_socketMgr.SendAllCompressed(send_buff, send_index);
 				send_index = 2;
 				send_count = 0;
 				count = 0;
@@ -1281,7 +1281,7 @@ void CServerDlg::AllNpcInfo()
 			send_count = 0;
 			SetByte(send_buff, NPC_INFO_ALL, send_count );
 			SetByte(send_buff, count, send_count );
-			Send(send_buff, send_index);
+			s_socketMgr.SendAllCompressed(send_buff, send_index);
 			send_tot++;
 			//TRACE("AllNpcInfo - send_count=%d, count=%d, zone=%d\n", send_tot, count, nZone);
 		}
