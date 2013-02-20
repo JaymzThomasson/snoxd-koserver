@@ -145,6 +145,14 @@ public:
 	// append to the end of buffer
 	void append(const std::string& str) { append((uint8 *)str.c_str(),str.size() + 1); }
 	void append(const char *src, size_t cnt) { return append((const uint8 *)src, cnt); }
+	void append(const void * _Src, _In_ size_t _Size){
+		if(!_Size) return;
+		if (_storage.size() < _wpos + _Size)
+			_storage.resize(_wpos + _Size);
+
+		memcpy(&_storage[_wpos], _Src, _Size);
+		_wpos += _Size;
+	}
 	void append(const uint8 *src, size_t cnt) 
 	{
 		if (!cnt) return;
