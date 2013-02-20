@@ -127,7 +127,8 @@ bool CKnights::RemoveUser(CUser *pUser)
 	bool result = RemoveUser(pUser->m_pUserData->m_id);
 	pUser->m_pUserData->m_bKnights = 0;
 	pUser->m_pUserData->m_bFame = 0;
-	pUser->SendClanUserStatusUpdate();
+	if (!pUser->isClanLeader())
+		pUser->SendClanUserStatusUpdate();
 	return result;
 }
 
@@ -139,8 +140,7 @@ void CKnights::Disband(CUser *pLeader /*= NULL*/)
 	foreach_array (i, m_arKnightsUser)
 	{
 		_KNIGHTS_USER *p = &m_arKnightsUser[i];
-		if (p->byUsed && p->pSession != NULL
-			&& p->pSession != pLeader)
+		if (p->byUsed && p->pSession != NULL)
 			RemoveUser(p->pSession);
 	}
 	g_pMain->m_KnightsArray.DeleteData(m_sIndex);
