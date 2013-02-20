@@ -2570,16 +2570,27 @@ void CUser::OperatorCommand(Packet & pkt)
 	switch (opcode)
 	{
 	case OPERATOR_ARREST:
-		ZoneChange( pUser->m_pUserData->m_bZone, pUser->m_pUserData->m_curx, pUser->m_pUserData->m_curz );
+		ZoneChange(pUser->getZoneID(), pUser->m_pUserData->m_curx, pUser->m_pUserData->m_curz);
 		break;
-	case OPERATOR_KILL:
+	case OPERATOR_SUMMON:
+		pUser->ZoneChange(getZoneID(), m_pUserData->m_curx, m_pUserData->m_curz);
+		break;
+	case OPERATOR_CUTOFF:
+		pUser->Disconnect();
+		break;
+	case OPERATOR_BAN:
+	case OPERATOR_BAN_ACCOUNT: // ban account is meant to call a proc to do so
 		pUser->m_pUserData->m_bAuthority = AUTHORITY_BANNED;
 		pUser->Disconnect();
 		break;
-	case OPERATOR_NOTCHAT:
+	case OPERATOR_MUTE:
 		pUser->m_pUserData->m_bAuthority = AUTHORITY_MUTED;
 		break;
-	case OPERATOR_CHAT:
+	case OPERATOR_DISABLE_ATTACK:
+		pUser->m_pUserData->m_bAuthority = AUTHORITY_ATTACK_DISABLED;
+		break;
+	case OPERATOR_ENABLE_ATTACK:
+	case OPERATOR_UNMUTE:
 		pUser->m_pUserData->m_bAuthority = AUTHORITY_PLAYER;
 		break;
 	}

@@ -294,13 +294,18 @@ enum
 	KNIGHTS_TOP10			= 0x41
 };
 
-////////////////////////////////////////////////////////////////
-// Operator Autority Packet define
-////////////////////////////////////////////////////////////////
-#define OPERATOR_ARREST			0x01
-#define OPERATOR_KILL			0x02
-#define OPERATOR_NOTCHAT		0x03
-#define OPERATOR_CHAT			0x04
+enum OperatorCommands
+{
+	OPERATOR_ARREST			=	1,
+	OPERATOR_BAN			=	2,
+	OPERATOR_MUTE			=	3,
+	OPERATOR_UNMUTE			=	4,
+	OPERATOR_CUTOFF			=	5,
+	OPERATOR_BAN_ACCOUNT	=	6,
+	OPERATOR_SUMMON			=	7,
+	OPERATOR_DISABLE_ATTACK	=	8,
+	OPERATOR_ENABLE_ATTACK	=	9
+};
 
 ////////////////////////////////////////////////////////////////
 // WareHouse Packet sub define
