@@ -431,6 +431,23 @@ enum LetterOpcodes
 	LETTER_ITEM_CHECK	= 8 // ???
 };
 
+enum RentalOpcodes
+{
+	RENTAL_PREMIUM	= 1,
+	RENTAL_PVP		= 2,
+	RENTAL_NPC		= 3
+};
+
+enum RentalPvPOpcodes
+{
+	RENTAL_OPEN			= 0,
+	RENTAL_REGISTER		= 1,
+	RENTAL_LEND			= 2,
+	RENTAL_ITEM_CHECK	= 3,
+	RENTAL_ITEM_CANCEL	= 4,
+	RENTAL_REPORT		= 10
+};
+
 // Skillbar
 enum SkillBarOpcodes
 {

@@ -514,6 +514,11 @@ void CUser::NpcEvent(Packet & pkt)
 		break;
 
 	case NPC_RENTAL:
+		result.SetOpcode(WIZ_RENTAL);
+		result	<< uint8(RENTAL_NPC) 
+				<< uint16(1) // 1 = enabled, -1 = disabled 
+				<< pNpc->m_iSellingGroup;
+		Send(&result);
 		break;
 
 	case NPC_ELECTION:
