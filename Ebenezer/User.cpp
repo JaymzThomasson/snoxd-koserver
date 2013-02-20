@@ -3068,7 +3068,8 @@ void CUser::SelectWarpList(Packet & pkt)
 	pkt >> npcid >> warpid;
 
 	_WARP_INFO *pWarp = GetMap()->GetWarp(warpid);
-	if (pWarp == NULL)
+	if (pWarp == NULL
+		|| (pWarp->sNation != 0 && pWarp->sNation != getNation()))
 		return;
 
 	C3DMap *pMap = g_pMain->GetZoneByID(pWarp->sZone);
@@ -3234,7 +3235,12 @@ BOOL CUser::FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 
 BOOL CUser::WarpListObjectEvent(_OBJECT_EVENT *pEvent)
 {
-	if (!GetWarpList(pEvent->sControlNpcID)) 
+	// If the warp gate belongs to a nation, which isn't us...
+	if (pEvent->sBelong != 0 && pEvent->sBelong != getNation()
+		// or we're in the opposing nation's zone...
+		|| (getZoneID() != getNation() && getZoneID() <= ELMORAD)
+		// or we're unable to retrieve the warp list...
+		|| !GetWarpList(pEvent->sControlNpcID)) 
 		return FALSE;
 
 	return TRUE;
