@@ -437,18 +437,18 @@ int CUser::ExchangeDone()
 	if (pUser == NULL)
 		return 0;
 
+	// TO-DO: Clean this up. Not sure why the coin entry is the only thing being cleaned up.
+	// It's cleaned up properly in InitExchange()... it's no wonder this system's so abusable.
+	// The mirror item setup is also confusing when there's the existing exchange list.
 	foreach (itr, pUser->m_ExchangeItemList)
 	{
-		if ((*itr)->itemid == ITEM_GOLD)
-		{
-			money = (*itr)->count;
-			delete (*itr);
-			itr = pUser->m_ExchangeItemList.erase(itr);
-			itr--; // this needs checking over
+		if ((*itr)->itemid != ITEM_GOLD)
 			continue;
-		}
 
-		itr++;
+		money = (*itr)->count;
+		delete (*itr);
+		pUser->m_ExchangeItemList.erase(itr);
+		break;
 	}
 	
 	if( money > 0 ) 
