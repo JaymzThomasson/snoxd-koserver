@@ -2,6 +2,7 @@
 #include "KOSocket.h"
 #include "packets.h"
 #include "lzf.h"
+#include "version.h"
 
 KOSocket::KOSocket(uint16 socketID, SocketMgr * mgr, SOCKET fd) 
 	: Socket(fd, 16384, 16384), 
@@ -212,7 +213,7 @@ bool KOSocket::SendCompressed(Packet * pkt)
 
 	pkt->Initialize(WIZ_COMPRESS_PACKET);
 
-#if __VERSION >= 1900 // 32-bit
+#if __VERSION >= 1800 // 32-bit
 	*pkt << outLength << inLength;
 #else // 16-bit
 	*pkt << uint16(outLength) << uint16(inLength);

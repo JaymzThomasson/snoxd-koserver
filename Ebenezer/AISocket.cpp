@@ -932,7 +932,7 @@ void CAISocket::RecvGateOpen(Packet & pkt)
 
 void CAISocket::RecvCompressed(Packet & pkt)
 {
-#if __VERSION >= 1900 // 32-bit
+#if __VERSION >= 1800 // 32-bit
 	uint32 compressedLength, originalLength;
 #else
 	uint16 compressedLength, originalLength;
