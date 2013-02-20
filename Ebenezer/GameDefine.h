@@ -354,21 +354,18 @@ struct _WARP_INFO
 	short	sWarpID;
 	char	strWarpName[32];
 	char	strAnnounce[256];
+	uint16	sUnk0; // padding?
 	DWORD	dwPay;
 	short	sZone;
-	short sXNan;
+	uint16	sUnk1; // padding?
 	float	fX;
 	float	fY;
 	float	fZ;
 	float	fR;
-	short sNation;
-	short sX;
+	short	sNation;
+	uint16	sUnk2; // padding?
 
-	_WARP_INFO() {
-		sWarpID = 0; sZone = 0, sNation = 0, sX = 0, sXNan = 0;
-		fX = fZ = fY = fR = 0.0f;
-		memset( strWarpName, 0x00, 32 ); memset( strAnnounce, 0x00, 256 );
-	};
+	_WARP_INFO() { memset(this, 0, sizeof(_WARP_INFO)); };
 };
 #pragma pack(pop)
 
