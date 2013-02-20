@@ -52,7 +52,7 @@ public:
 	int16	m_sDirection;
 
 	int64	m_iMaxExp;
-	uint16	m_sMaxWeight;
+	uint32	m_sMaxWeight;
 	uint16   m_sSpeed;	// NOTE: Currently unused
 
 	short	m_sTotalHit;					// �� Ÿ�ݰ��ݷ�	
@@ -62,7 +62,7 @@ public:
 
 	short   m_sItemMaxHp;                   // ������ �� �ִ� HP Bonus
 	short   m_sItemMaxMp;                   // ������ �� �ִ� MP Bonus
-	unsigned short	m_sItemWeight;					// ������ �ѹ���
+	uint32	m_sItemWeight;					// ������ �ѹ���
 	short	m_sItemHit;						// ������ ��Ÿ��ġ
 	short	m_sItemAc;						// ������ �ѹ�����
 	short	m_sItemHitrate;					// ������ ��Ÿ����

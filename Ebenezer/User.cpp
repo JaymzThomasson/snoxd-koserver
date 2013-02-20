@@ -613,7 +613,7 @@ void CUser::SendMyInfo()
 	result	<< uint8(0) << uint8(2) << uint8(3) << uint8(4) << uint8(5) // unknown
 			<< m_iMaxHp << m_pUserData->m_sHp
 			<< m_iMaxMp << m_pUserData->m_sMp
-			<< uint32(m_sMaxWeight) << uint32(m_sItemWeight)
+			<< m_sMaxWeight << m_sItemWeight
 			<< getStat(STAT_STR) << uint8(getStatItemBonus(STAT_STR))
 			<< getStat(STAT_STA) << uint8(getStatItemBonus(STAT_STA))
 			<< getStat(STAT_DEX) << uint8(getStatItemBonus(STAT_DEX))
@@ -809,7 +809,6 @@ void CUser::SetDetailData()
 	}
 
 	m_iMaxExp = g_pMain->GetExpByLevel(getLevel());
-	m_sMaxWeight = getStatWithItemBonus(STAT_STR) * 50;
 
 	m_pMap = g_pMain->GetZoneByID(m_pUserData->m_bZone);
 	if (m_pMap == NULL) 
@@ -1378,7 +1377,7 @@ void CUser::SetUserAbility()
 //	if( temp_str > 255 ) temp_str = 255;
 //	if( temp_dex > 255 ) temp_dex = 255;
 
-	m_sMaxWeight = (getStat(STAT_STR) + getStatItemBonus(STAT_STR)) * 50;
+	m_sMaxWeight = (getStatWithItemBonus(STAT_STR) + getLevel()) * 50;
 	if( bHaveBow ) 
 		m_sTotalHit = (short)((((0.005 * pItem->m_sDamage * (temp_dex + 40)) + ( hitcoefficient * pItem->m_sDamage * getLevel() * temp_dex )) + 3));
 	else
