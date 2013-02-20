@@ -1183,7 +1183,7 @@ void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 		GetRegionUserIn(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, user_count);
 
 	result.put(0, uint16(user_count));
-	pSendUser->Send(&result); // TO-DO: Compress
+	pSendUser->SendCompressed(&result);
 }
 
 void CEbenezerDlg::RegionUserInOutForMe(CUser *pSendUser)
@@ -1202,7 +1202,7 @@ void CEbenezerDlg::RegionUserInOutForMe(CUser *pSendUser)
 		GetRegionUserList(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, user_count);
 
 	result.put(1, user_count);
-	pSendUser->Send(&result); // TO-DO: Compress
+	pSendUser->SendCompressed(&result);
 }
 
 void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
@@ -1268,7 +1268,7 @@ void CEbenezerDlg::MerchantUserInOutForMe(CUser *pSendUser)
 		GetRegionMerchantUserIn(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, user_count);
 
 	result.put(1, user_count);
-	pSendUser->Send(&result); // TO-DO: Compress
+	pSendUser->SendCompressed(&result);
 }
 
 void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
