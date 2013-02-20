@@ -20,8 +20,8 @@ void CUser::WarehouseProcess(Packet & pkt)
 	if( command == WAREHOUSE_OPEN )	{
 		result << uint8(WAREHOUSE_OPEN) << uint8(WAREHOUSE_OPEN) << uint32(m_pUserData->m_iBank);
 		for(int i=0; i<WAREHOUSE_MAX; i++ ) {
-			result << m_pUserData->m_sWarehouseArray[i].nNum << m_pUserData->m_sWarehouseArray[i].sDuration <<  m_pUserData->m_sWarehouseArray[i].sCount <<
-				uint8(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
+			result.append(&m_pUserData->m_sWarehouseArray[i], 8); // nNum(4) sDuration(2) sCount(2)
+			result << uint8(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
 		}
 		Send(&result);
 		return;
