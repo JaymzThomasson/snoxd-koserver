@@ -709,7 +709,7 @@ BYTE CMagicProcess::ExecuteType1(_MAGIC_TABLE *pSkill)
 
 	// TO-DO: Replace all of this with more abstract attack/death code 
 	// so that when we actually want to tweak behaviour, we don't have to tweak 9999999 cases where things die. Just the one...
-	pTUser->HpChange( -damage );     // Reduce target health point.
+	pTUser->HpChange( -damage, 0, false, m_pSrcUser->GetSocketID());     // Reduce target health point.
 
 	if( pTUser->m_pUserData->m_sHp == 0) {    // Check if the target is dead.
 		pTUser->m_bResHpType = USER_DEAD;     // Target status is officially dead now.
@@ -782,7 +782,7 @@ BYTE CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 	// TO-DO: Replace all of this with more abstract attack/death code 
 	// so that when we actually want to tweak behaviour, we don't have to tweak 9999999 cases where things die. Just the one...
 
-	pTUser->HpChange( -damage );     // Reduce target health point.
+	pTUser->HpChange(-damage, 0, false, m_pSrcUser->GetSocketID());     // Reduce target health point.
 
 	if( pTUser->m_pUserData->m_sHp == 0){     // Check if the target is dead.    
 		pTUser->m_bResHpType = USER_DEAD;     // Target status is officially dead now.
@@ -883,7 +883,7 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 		{     // Non-Durational Spells.
 			if (pType->bDirectType == 1)     // Health Point related !
 			{			
-				pTUser->HpChange( damage );     // Reduce target health point.
+				pTUser->HpChange(damage, 0, false, m_pSrcUser->GetSocketID());     // Reduce target health point.
 				
 				if( pTUser->m_pUserData->m_sHp == 0) {     // Check if the target is dead.		
 					pTUser->m_bResHpType = USER_DEAD;
@@ -950,7 +950,7 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 		}
 		else if (pType->bDuration != 0) {    // Durational Spells! Remember, durational spells only involve HPs.
 			if (damage != 0) {		// In case there was first damage......
-				pTUser->HpChange( damage );			// Initial damage!!!
+				pTUser->HpChange(damage, 0, false, m_pSrcUser->GetSocketID());			// Initial damage!!!
 		
 				if( pTUser->m_pUserData->m_sHp == 0) {     // Check if the target is dead.	
 					pTUser->m_bResHpType = USER_DEAD;
@@ -1512,7 +1512,7 @@ void CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 					m_opcode, m_nSkillID, m_sData1, 1, m_sData3);
 
 				pTUser->m_bResHpType = USER_STANDING;     // Target status is officially alive now.
-				pTUser->HpChange( pTUser->m_iMaxHp);	 // Refill HP.	
+				pTUser->HpChange(pTUser->m_iMaxHp, 0, false, m_pSrcUser->GetSocketID());	 // Refill HP.	
 				pTUser->ExpChange( pType->sExpRecover/100 );     // Increase target experience.
 				
 				Packet result(AG_USER_REGENE);

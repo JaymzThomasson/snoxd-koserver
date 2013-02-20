@@ -350,7 +350,7 @@ public:
 	void LoyaltyDivide( short tid );
 	void SendUserInfo(Packet & result);
 	BOOL ItemEquipAvailable( _ITEM_TABLE* pTable );
-	void HpChange(int amount, int type=0, bool attack=false);
+	void HpChange(int amount, int type = 0, bool attack = false, int16 tid = -1);
 	void MSpChange(int amount);
 	void SendPartyHPUpdate();
 	void SendAnvilRequest(int nid);

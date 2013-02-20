@@ -49,7 +49,7 @@ void CUser::Attack(Packet & pkt)
 			else 
 			{
 				// TO-DO: Move all this redundant code into appropriate event-based methods so that all the other cases don't have to copypasta (and forget stuff).
-				pTUser->HpChange(-damage, 0, true);
+				pTUser->HpChange(-damage, 0, true, GetSocketID());
 				ItemWoreOut(ATTACK, damage);
 				pTUser->ItemWoreOut(DEFENCE, damage);
 
@@ -514,6 +514,9 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	_HOME_INFO* pHomeInfo = NULL;
 	_MAGIC_TYPE5* pType = NULL;
 
+	if (!isDead())
+		return;
+
 	if (regene_type != 1 && regene_type != 2) {
 		regene_type = 1;
 	}
@@ -626,9 +629,10 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 		m_bAbnormalType = ABNORMAL_BLINKING;
 //
 		m_bResHpType = USER_STANDING;	
-//		HpChange( m_iMaxHp );
 		m_bRegeneType = REGENE_NORMAL;
 	}
+
+	HpChange(m_iMaxHp);
 
 	m_fLastRegeneTime = TimeGet();
 	m_sWhoKilledMe = -1;

@@ -334,7 +334,7 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 			if(pUser == NULL)	
 				return;
 
-			pUser->HpChange(-damage, 1, true);
+			pUser->HpChange(-damage, 1, true, sid);
 			pUser->ItemWoreOut(DEFENCE, damage);
 
 			Packet result(WIZ_ATTACK, byAttackType);

@@ -1232,7 +1232,8 @@ void CUser::PointChange(Packet & pkt)
 	Send(&result);
 }
 
-void CUser::HpChange(int amount, int type, bool attack)		// type : Received From AIServer -> 1, The Others -> 0
+void CUser::HpChange(int amount, int type, bool attack, int16 tid /* = -1*/)
+															// type : Received From AIServer -> 1, The Others -> 0
 {															// attack : Direct Attack(true) or Other Case(false)
 	Packet result(WIZ_HP_CHANGE);
 
@@ -1243,7 +1244,7 @@ void CUser::HpChange(int amount, int type, bool attack)		// type : Received From
 	else if (m_pUserData->m_sHp > m_iMaxHp)
 		m_pUserData->m_sHp = m_iMaxHp;
 
-	result << m_iMaxHp << m_pUserData->m_sHp;
+	result << m_iMaxHp << m_pUserData->m_sHp << tid;
 	Send(&result);
 
 	if (type == 0)
