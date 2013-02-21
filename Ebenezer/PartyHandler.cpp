@@ -82,7 +82,10 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 	if (pUser == NULL
 		|| pUser->isInParty()) goto fail_return;
 
-	if (getNation() != pUser->getNation())
+	// Only allow partying of the enemy nation in Moradon or FT.
+	// Also, we threw in a check to prevent them from partying from other zones.
+	if ((getNation() != pUser->getNation() && getZoneID() != 21 && getZoneID() != 55)
+		|| getZoneID() != pUser->getZoneID())
 	{
 		errorCode = -3;
 		goto fail_return;
