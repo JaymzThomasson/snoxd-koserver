@@ -487,7 +487,7 @@ public:
 	void FriendProcess(Packet & pkt);
 	void RecvFriendProcess(Packet & pkt);
 	void FriendRequest();
-	void FriendModify(Packet & pkt);
+	void FriendModify(Packet & pkt, uint8 opcode);
 	void RecvFriendModify(Packet & pkt, uint8 opcode);
 	void FriendReport(Packet & pkt);
 	BYTE GetFriendStatus(std::string & charName, int16 & sid);

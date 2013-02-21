@@ -14,7 +14,7 @@ void CUser::FriendProcess(Packet & pkt)
 			break;
 		case FRIEND_ADD:
 		case FRIEND_REMOVE:
-			FriendModify(pkt);
+			FriendModify(pkt, opcode);
 			break;
 	}
 }
@@ -28,12 +28,11 @@ void CUser::FriendRequest()
 }
 
 // Add or remove a friend from your list.
-void CUser::FriendModify(Packet & pkt)
+void CUser::FriendModify(Packet & pkt, uint8 opcode)
 {
-	uint8 opcode;
 	std::string strUserID;
 	CUser *pUser;
-	pkt >> opcode >> strUserID;
+	pkt >> strUserID;
 
 	if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE
 		|| (opcode == FRIEND_ADD && (pUser = g_pMain->GetUserPtr(strUserID.c_str(), TYPE_CHARACTER)) == NULL))

@@ -625,7 +625,7 @@ FriendAddResult CDBAgent::AddFriend(short sid, short tid)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pTargetUser->m_id, strlen(pTargetUser->m_id));
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
-	if (!dbCommand->Execute(_T("{CALL INSERT_FRIEND_LIST(?, ?, ?)")))
+	if (!dbCommand->Execute(_T("{CALL INSERT_FRIEND_LIST(?, ?, ?)}")))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
 	if (nRet < 0 || nRet >= FRIEND_ADD_MAX)

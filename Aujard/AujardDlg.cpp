@@ -411,11 +411,12 @@ void CAujardDlg::AddFriend(Packet & pkt)
 	string strCharID;
 	short sid, tid;
 
-	result.SByte();
+	pkt.SByte();
 	pkt >> sid >> tid >> strCharID;
 
 	FriendAddResult resultCode = m_DBAgent.AddFriend(sid, tid);
 
+	result.SByte();
 	result << sid << uint8(FRIEND_ADD) << tid << uint8(resultCode) << strCharID;
 	m_LoggerSendQueue.PutData(&result);
 }
