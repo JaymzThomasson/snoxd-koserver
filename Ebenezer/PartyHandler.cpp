@@ -140,7 +140,7 @@ void CUser::PartyInsert()
 	Packet result(WIZ_PARTY);
 	CUser* pUser = NULL;
 	_PARTY_GROUP* pParty = NULL;
-	BYTE byIndex = -1;
+	BYTE byIndex = 0xFF;
 	if (!isInParty())
 		return;
 
@@ -168,7 +168,7 @@ void CUser::PartyInsert()
 		if (pParty->uid[i] < 0)
 		{
 			// If we're not in the list yet, add us.
-			if (byIndex < 0)
+			if (byIndex == 0xFF)
 			{
 				pParty->uid[i] = GetSocketID();
 				byIndex = i;
@@ -183,6 +183,7 @@ void CUser::PartyInsert()
 
 		result.clear();
 		result	<< uint8(PARTY_INSERT) << pParty->uid[i]
+				<< uint8(1) // success
 				<< pUser->m_pUserData->m_id
 				<< pUser->m_iMaxHp << pUser->m_pUserData->m_sHp
 				<< pUser->getLevel() << pUser->m_pUserData->m_sClass
@@ -202,6 +203,7 @@ void CUser::PartyInsert()
 
 	result.clear();
 	result	<< uint8(PARTY_INSERT) << GetSocketID()
+			<< uint8(1) // success
 			<< m_pUserData->m_id
 			<< m_iMaxHp << m_pUserData->m_sHp
 			<< getLevel() << m_pUserData->m_sClass
