@@ -82,6 +82,7 @@ bool CKnights::AddUser(const char *strUserID)
 		{
 			m_arKnightsUser[i].byUsed = 1;
 			strcpy(m_arKnightsUser[i].strUserName, strUserID);
+			m_arKnightsUser[i].pSession = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
 			return true;
 		}
 	}

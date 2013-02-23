@@ -564,6 +564,8 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, Packet & pkt, BYTE command)
 
 	uint16 sClanID = pkt.read<uint16>();
 	CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
+	if (pKnights == NULL)
+		return;
 
 	if (command == KNIGHTS_JOIN)
 		pKnights->AddUser(pUser);
@@ -571,11 +573,15 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, Packet & pkt, BYTE command)
 		pKnights->RemoveUser(pUser);
 
 	Packet result(WIZ_KNIGHTS_PROCESS, command);
-	result	<< uint8(1) << pUser->GetSocketID()
-			<< pUser->m_pUserData->m_bKnights << pUser->getFame();
+	result	<< uint8(1) << pUser->GetSocketID() << pUser->m_pUserData->m_bKnights << pUser->getFame();
 
-	if (pKnights != NULL)
-		result << pKnights->m_strName << pKnights->m_byGrade << pKnights->m_byRanking;
+	if (command == KNIGHTS_JOIN)
+	{
+		result << pKnights->m_byRanking << int16(pKnights->m_sMarkVersion) 
+			<< uint16(pKnights->m_sCape) // cape ID
+			<< uint8(0) << uint8(0) << uint8(0) // cape RGB
+			<< pKnights->m_strName << pKnights->m_byGrade << pKnights->m_byRanking;
+	}
 
 	pUser->SendToRegion(&result);
 
