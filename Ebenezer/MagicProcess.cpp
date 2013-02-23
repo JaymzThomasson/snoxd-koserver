@@ -1936,6 +1936,7 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 		pTUser->m_bType4Buff[buff_type - 1] = 0;
 		pTUser->SetSlotItemValue();
 		pTUser->SetUserAbility();
+		pTUser->SendItemMove(2);
 		pTUser->Send2AI_UserUpdateInfo();
 
 		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
