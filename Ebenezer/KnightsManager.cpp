@@ -579,7 +579,8 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, Packet & pkt, BYTE command)
 	{
 		result << pKnights->m_byRanking << int16(pKnights->m_sMarkVersion) 
 			<< uint16(pKnights->m_sCape) // cape ID
-			<< uint8(0) << uint8(0) << uint8(0) // cape RGB
+			<< uint8(0) << uint8(0) << uint8(0) << uint8(0) // cape RGB
+			<< uint16(0) // unknown
 			<< pKnights->m_strName << pKnights->m_byGrade << pKnights->m_byRanking;
 	}
 
