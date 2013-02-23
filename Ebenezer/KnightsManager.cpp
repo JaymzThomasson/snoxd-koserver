@@ -398,14 +398,16 @@ void CKnightsManager::AllKnightsMember(CUser *pUser)
 	{
 		uint16 pktSize = 0, count = 0;
 		result << pktSize << count << count << count; // placeholders
-
+		pktSize = (uint16)result.size();
 		count = g_pMain->GetKnightsAllMembers(pUser->m_pUserData->m_bKnights, result, pktSize, pUser->isClanLeader());
 		if (count > MAX_CLAN_USERS) 
 			return;
 
-		pktSize *= 4;
+		pktSize = ((uint16)result.size() - pktSize) + 6;
 		result.put(2, pktSize);
 		result.put(4, count);
+		result.put(6, count);
+		result.put(8, count);
 	}
 	pUser->Send(&result);
 }
