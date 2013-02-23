@@ -2171,7 +2171,7 @@ void CUser::ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint
 		
 		SetSlotItemValue();
 		SetUserAbility();
-		SendItemMove(0);
+		SendItemMove(1);
 		return;
 	}
 
@@ -2203,7 +2203,7 @@ void CUser::SendItemMove(uint8 subcommand)
 	Packet result(WIZ_ITEM_MOVE, subcommand);
 
 	// If the subcommand is not error, send the stats.
-	if (subcommand != 1)
+	if (subcommand != 0)
 	{
 		result	<< m_sTotalHit << uint16(m_sTotalAc + m_sACAmount)
 				<< m_sMaxWeight
