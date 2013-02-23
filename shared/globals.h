@@ -104,7 +104,7 @@ const int ITEMCOUNT_MAX		= 999;
 
 // DEFINE Shared Memory Costumizing
 
-#define MAX_PKTSIZE		512
+#define MAX_PKTSIZE		3072
 #define MAX_COUNT		4096
 #define SMQ_LOGGERSEND	"KNIGHT_SEND"
 #define SMQ_LOGGERRECV	"KNIGHT_RECV"
