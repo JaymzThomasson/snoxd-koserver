@@ -455,7 +455,7 @@ void CUser::ItemMove(Packet & pkt)
 		SetUserAbility();
 	}
 
-	SendItemMove(0);
+	SendItemMove(1);
 	SendItemWeight();
 
 	// Update everyone else, so that they can see your shiny new items (you didn't take them off did you!? DID YOU!?)
@@ -472,7 +472,7 @@ void CUser::ItemMove(Packet & pkt)
 	return;
 
 fail_return:
-	SendItemMove(1);
+	SendItemMove(0);
 }
 
 BOOL CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)
