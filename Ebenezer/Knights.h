@@ -33,6 +33,7 @@ public:
 	int		m_sMarkVersion, m_sMarkLen;
 	BYTE	m_Image[MAX_KNIGHTS_MARK];
 	int		m_sCape;
+	int		m_sAlliance;
 
 	_KNIGHTS_USER m_arKnightsUser[MAX_CLAN_USERS];
 

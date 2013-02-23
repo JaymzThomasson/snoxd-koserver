@@ -590,22 +590,22 @@ void CUser::SendMyInfo()
 			<< m_pUserData->m_sPoints
 			<< m_iMaxExp << m_pUserData->m_iExp
 			<< m_pUserData->m_iLoyalty << m_pUserData->m_iLoyaltyMonthly
-			<< m_pUserData->m_bKnights << uint16(getFame())
-			<< m_pUserData->m_bCity;
+			<< m_pUserData->m_bKnights << getFame();
 
 	if (isInClan())
 		pKnights = g_pMain->GetClanPtr(m_pUserData->m_bKnights);
 
 	if (pKnights == NULL)
 	{
-		result	<< uint32(0) << uint16(0) << uint16(-1) << uint16(0) << uint8(0);
+		result	<< uint64(0) << uint16(-1) << uint16(0) << uint8(0);
 	}
 	else 
 	{
 		pKnights->OnLogin(this);
 
 		// TO-DO: Figure all this out.
-		result	<< pKnights->m_byRanking // Kind of grade - 1 Normal Clan // 2 Trainin Clan // 3 -7 Acreditation // Royal 8-12
+		result	<< uint16(pKnights->m_sAlliance)
+				<< pKnights->m_byRanking // Kind of grade - 1 Normal Clan // 2 Trainin Clan // 3 -7 Acreditation // Royal 8-12
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
 				<< uint16(pKnights->m_sMarkVersion) // symbol/mark version

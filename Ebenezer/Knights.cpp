@@ -40,6 +40,8 @@ void CKnights::InitializeValue()
 	m_nMoney = 0;
 	m_sDomination = 0;
 	m_nPoints = 0;
+	m_sCape = -1;
+	m_sAlliance = 0;
 }
 
 void CKnights::OnLogin(CUser *pUser)
