@@ -63,6 +63,7 @@ void CUser::MagicSystem( Packet & pkt )
 	uint16 sid, tid, data1, data2, data3, data4, data5, data6, data7;
 	CUser *pUser = NULL, *pTargetUser = NULL;
 	CNpc *pMon = NULL;
+	_MAGIC_TABLE *pMagic = NULL;
 
 	skill_received_time = GetTickCount(); //Retrieve the time at which the Magic packet is going for internal processing.
 
@@ -88,10 +89,14 @@ void CUser::MagicSystem( Packet & pkt )
 			return;
 	}
 
+	pMagic = g_pMain->m_MagictableArray.GetData( magicid );
+	if(!pMagic)
+		return;
+
 	/*
 	Do ALL required pre-liminary checks here, wrapped into CanCast()
 	*/
-	if(!CanCast(magicid, sid, tid))
+	if(!CanCast(pMagic, sid, tid))
 		return;
 
 	//if(!CheckSkillCooldown(magicid, skill_received_time)) //Check if the skill is off-cooldown.
@@ -109,7 +114,7 @@ void CUser::MagicSystem( Packet & pkt )
 	case MAGIC_FLYING:
 		break;
 	case MAGIC_EFFECTING:
-		MagicType(1, 1, magicid, sid, tid, data1, data2, data3, data4, data5, data6, data7); //First byte : subcommand, second byte : subtype
+		MagicType(pMagic->bType[0], subcommand, magicid, sid, tid, data1, data2, data3, data4, data5, data6, data7);
 		break;
 	case MAGIC_FAIL:
 		goto echo;
@@ -275,7 +280,6 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 		if (!pTUser || pTUser->isDead()) continue;
 
 		if (pTUser->m_bType4Buff[pType->bBuffType - 1] == 2 && tid == -1) {		// Is this buff-type already casted on the player?
-			result = 0 ;				// If so, fail! 
 			goto fail_return;					
 		}
 
@@ -350,7 +354,6 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 				break;	
 
 			default :
-				result = 0 ;
 				goto fail_return;
 		}
 
@@ -370,6 +373,8 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 
 		pTUser->SetSlotItemValue();
 		pTUser->SetUserAbility();
+		if(this == pTUser)
+			pTUser->SendItemMove(2);
 
 		if (pTUser->m_sPartyIndex != -1 && pTUser->m_bType4Buff[pType->bBuffType - 1] == 1) {
 			Packet partypacket(WIZ_PARTY);
@@ -379,8 +384,8 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 		pTUser->Send2AI_UserUpdateInfo();
 
 		if ( pMagic->bType[1] == 0 || pMagic->bType[1] == 4 ) {
-			result << MAGIC_EFFECTING << magicid << sid << uint16(*itr) << data1 << 1 //result
-				<< data3 << uint16(pType->sDuration) << uint8(0) << uint16(pType->bSpeed);
+			result << uint8(MAGIC_EFFECTING) << magicid << uint16(sid) << uint16(*itr) << uint16(data1) << uint16(1) //result
+				<< uint16(data3) << uint16(pType->sDuration) << uint16(0) << uint16(pType->bSpeed);
 
 			if (sid >=0 && sid < MAX_USER)
 				g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, NULL);
@@ -392,7 +397,7 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 
 fail_return:
 		if ( pMagic->bType[1] == 4 ) {
-			result << MAGIC_EFFECTING << magicid << sid << uint16(*itr) << data1 << 0 //result(is always 0)
+			result << MAGIC_EFFECTING << magicid << sid << uint16(*itr) << data1 << 0 //result(is always 0) because it failed
 				<< data3;
 
 			if( data4 != 0 )
@@ -437,6 +442,7 @@ void CUser::MagicType(uint16 effect_type, uint8 sub_type, uint32 magicid, uint16
 	case BUFF_SKILL:
 		if(sub_type == MAGIC_CANCEL || sub_type == MAGIC_CANCEL2) //Cancelling type 4 magic.
 			break;
+		MagicType4(magicid, sid, tid, data1, data2, data3, data4);
 		break;
 	case CURING_SKILL:
 		break;
@@ -451,15 +457,10 @@ void CUser::MagicType(uint16 effect_type, uint8 sub_type, uint32 magicid, uint16
 	}
 }
 
-bool CUser::CanCast(uint32 magicid, uint16 sid, uint16 tid)
+bool CUser::CanCast(_MAGIC_TABLE *pMagic, uint16 sid, uint16 tid)
 {
 	CUser *pTargetUser = NULL;
 	CNpc *pMon = NULL;
-	_MAGIC_TABLE *pMagic = NULL;
-
-	pMagic = g_pMain->m_MagictableArray.GetData( magicid );
-	if(!pMagic)
-		return false;
 
 	if(tid < MAX_USER)
 		pTargetUser = g_pMain->GetUserPtr(tid);
@@ -469,8 +470,9 @@ bool CUser::CanCast(uint32 magicid, uint16 sid, uint16 tid)
 	if(pMagic->iUseItem != 0 && pMagic->bType[0] != 5 && !CanUseItem(pMagic->iUseItem)) //The user does not meet the item's requirements or does not have any of said item.
 			return false;
 
-	if((this)->m_pUserData->m_sClass != (pMagic->sSkill % 10)    //Trying to use a skill that is not meant to be casted by this character, either not mastered or totally different class' skill.
-		|| pMagic->sSkillLevel > (this)->m_pUserData->m_bLevel)  //Skill level check.
+	uint16 pMagicModulator = pMagic->sSkill / 10;
+	if((m_pUserData->m_sClass != pMagicModulator)    //Trying to use a skill that is not meant to be casted by this character, either not mastered or totally different class' skill.
+		|| m_pUserData->m_bLevel < pMagic->sSkillLevel)  //Skill level check.
 		return false;
 
 	if(((this)->m_pUserData->m_sMp - pMagic->sMsp) < 0) //This user does not have enough mana for this skill.

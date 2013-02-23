@@ -344,7 +344,7 @@ public:
 	void HPTimeChangeType3( float currenttime );
 	void ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint16 amount);
 	void SendDurability(uint8 slot, uint16 durability);
-	void SendItemMove(bool bFail = false);
+	void SendItemMove(uint8 subcommand);
 	void ItemWoreOut( int type, int damage );
 	void Dead();
 	void LoyaltyDivide( short tid );
@@ -550,6 +550,7 @@ public:
 	void Send2AI_UserUpdateInfo(bool initialInfo = false);
 	void UserInOut( BYTE Type );
 	void GetUserInfo(Packet & pkt);
+	void SendUserStatusUpdate(uint8 type, uint8 status);
 	void Initialize();
 	
 	void ChangeFame(uint8 bFame);
@@ -572,7 +573,7 @@ public:
 	void MagicType(uint16 effect_type, uint8 sub_type, uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4, uint16 data5, uint16 data6, uint16 data7);
 	void MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4, uint16 data5, uint16 data6, uint16 data7);
 	void MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4);
-	bool CanCast(uint32 magicid, uint16 sid, uint16 tid);
+	bool CanCast(_MAGIC_TABLE *pMagic, uint16 sid, uint16 tid);
 	bool CanUseItem(long itemid); //Should place this with other item related functions
 
 	//Zone checks
