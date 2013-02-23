@@ -40,6 +40,8 @@ void CKnights::InitializeValue()
 	m_nMoney = 0;
 	m_sDomination = 0;
 	m_nPoints = 0;
+	m_sCape = -1;
+	m_sAlliance = 0;
 }
 
 void CKnights::OnLogin(CUser *pUser)
@@ -82,6 +84,7 @@ bool CKnights::AddUser(const char *strUserID)
 		{
 			m_arKnightsUser[i].byUsed = 1;
 			strcpy(m_arKnightsUser[i].strUserName, strUserID);
+			m_arKnightsUser[i].pSession = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
 			return true;
 		}
 	}

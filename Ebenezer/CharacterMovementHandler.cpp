@@ -80,17 +80,17 @@ void CUser::GetUserInfo(Packet & pkt)
 	pkt.SByte();
 
 	pkt		<< m_pUserData->m_id
-			<< uint16(getNation()) << m_pUserData->m_bKnights << uint16(getFame());
+			<< getNation() << m_pUserData->m_bKnights << getFame();
 
 	pKnights = g_pMain->GetClanPtr(m_pUserData->m_bKnights);
 	if (pKnights == NULL)
 	{
-		// should work out to be 11 bytes, 6-7 being cape ID.
-		pkt	<< uint32(0) << uint16(0) << uint16(-1) << uint16(0) << uint8(0);
+		pkt	<< uint64(0) << uint16(-1) << uint16(0) << uint8(0);
 	}
 	else
 	{
-		pkt	<< pKnights->m_byRanking // grade type
+		pkt	<< uint16(pKnights->m_sAlliance)
+				<< pKnights->m_byRanking // grade type
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
 				<< uint16(pKnights->m_sMarkVersion) // symbol/mark version
