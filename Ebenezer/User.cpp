@@ -1111,7 +1111,7 @@ void CUser::ExpChange(int64 iExp)
 
 	bool bLevel = true;
 	if (iExp < 0 
-		&& (m_pUserData->m_iExp - iExp) < 0)
+		&& (m_pUserData->m_iExp + iExp) < 0)
 		bLevel = false;
 	else
 		m_pUserData->m_iExp += iExp;
@@ -1124,7 +1124,7 @@ void CUser::ExpChange(int64 iExp)
 
 		// Get the excess XP (i.e. below 0), so that we can take it off the max XP of the previous level
 		// Remember: we're deleveling, not necessarily starting from scratch at the previous level
-		int64 diffXP = m_pUserData->m_iExp - iExp;
+		int64 diffXP = m_pUserData->m_iExp + iExp;
 
 		// Now reset our XP to max for the former level.
 		m_pUserData->m_iExp = g_pMain->GetExpByLevel(getLevel());
