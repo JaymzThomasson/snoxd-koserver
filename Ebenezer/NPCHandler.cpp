@@ -566,19 +566,20 @@ void CUser::NpcEvent(Packet & pkt)
 // NPC shops
 void CUser::ItemTrade(Packet & pkt)
 {
-	int send_index = 0, itemid = 0, money = 0, group = 0;
+	Packet result(WIZ_ITEM_TRADE);
+	uint32 transactionPrice;
+	int itemid = 0, money = 0, group = 0;
 	uint16 npcid;
 	uint16 count, real_count = 0;
 	_ITEM_TABLE* pTable = NULL;
-	char send_buf[128];
 	CNpc* pNpc = NULL;
-	BYTE type, pos, destpos, result = 0;
+	BYTE type, pos, destpos, errorCode = 1;
+	bool bSuccess = true;
 
 	if (isDead())
 	{
-		TRACE("### ItemTrade Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", m_pUserData->m_id, GetSocketID(), m_bResHpType, m_pUserData->m_sHp, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
-		result = 0x01;
-		goto fail_return;
+		errorCode = 1;
+		goto send_packet;
 	}
 
 	pkt >> type;
@@ -592,21 +593,19 @@ void CUser::ItemTrade(Packet & pkt)
 	else
 		pkt >> count;
 
-	if (itemid >= ITEM_NO_TRADE) goto fail_return;
+	if (itemid >= ITEM_NO_TRADE)
+		goto fail_return;
 
-	if( type == 0x03 ) {	// item inven to inven move
-		if( pos >= HAVE_MAX || destpos >= HAVE_MAX ) {
-			SetByte( send_buf, WIZ_ITEM_TRADE, send_index );
-			SetByte( send_buf, 0x04, send_index );
-			Send( send_buf, send_index );
-			return;
+	// Moving an item in the inventory
+	if (type == 3)
+	{
+		if (pos >= HAVE_MAX || destpos >= HAVE_MAX
+			|| itemid != m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum)
+		{
+			errorCode = 4;
+			goto send_packet;
 		}
-		if( itemid != m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum ) {
-			SetByte( send_buf, WIZ_ITEM_TRADE, send_index );
-			SetByte( send_buf, 0x04, send_index );
-			Send( send_buf, send_index );
-			return;
-		}
+
 		short duration = m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration;
 		short itemcount = m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount;
 		m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum = m_pUserData->m_sItemArray[SLOT_MAX+destpos].nNum;
@@ -615,142 +614,124 @@ void CUser::ItemTrade(Packet & pkt)
 		m_pUserData->m_sItemArray[SLOT_MAX+destpos].nNum = itemid;
 		m_pUserData->m_sItemArray[SLOT_MAX+destpos].sDuration = duration;
 		m_pUserData->m_sItemArray[SLOT_MAX+destpos].sCount = itemcount;
-		SetByte( send_buf, WIZ_ITEM_TRADE, send_index );
-		SetByte( send_buf, 0x03, send_index );
-		Send( send_buf, send_index );
+
+		result << uint8(3);
+		Send(&result);
 		return;
 	}
 
-	if (isTrading())
+	if (isTrading()
+		|| (pTable = g_pMain->GetItemPtr(itemid)) == NULL)
 		goto fail_return;
-	pTable = g_pMain->GetItemPtr( itemid );
-	if( !pTable ) {
-		result = 0x01;
-		goto fail_return;
-	}
-	if( pos >= HAVE_MAX ) {
-		result = 0x02;
-		goto fail_return;
-	}
 
-	if( count <= 0 || count > MAX_ITEM_COUNT ) {
-		result = 0x02;
+	if (pos >= HAVE_MAX
+		|| count <= 0 || count > MAX_ITEM_COUNT)
+	{
+		errorCode = 2;
 		goto fail_return;
 	}
 
-	if( type == 0x01 ) {	// buy sequence
-		if( g_pMain->m_bPointCheckFlag == FALSE)	{
-			result = 0x01;
+	// Buying from an NPC
+	if (type == 1)
+	{	
+		if (!g_pMain->m_bPointCheckFlag
+			|| (pNpc = g_pMain->m_arNpcArray.GetData(npcid)) == NULL
+			|| pNpc->m_iSellingGroup != group)
 			goto fail_return;
-		}	
 
-		pNpc = g_pMain->m_arNpcArray.GetData(npcid);
-		if( !pNpc ) {
-			result = 0x01;
-			goto fail_return;
-		}
-		if( pNpc->m_iSellingGroup != group ) {
-			result = 0x01;
-			goto fail_return;
-		}
-
-		if( m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != 0 ) {
-			if( m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum == itemid ) {
-				if( !pTable->m_bCountable || count <= 0 ) {
-					result = 0x02;
-					goto fail_return;
-				}
-
-				if( pTable->m_bCountable && (count+m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount) > MAX_ITEM_COUNT ) {
-					result = 0x04;
-					goto fail_return;				
-				}
-			}
-			else {
-				result = 0x02;
+		if (m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != 0)
+		{
+			if (m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != itemid)
+			{
+				errorCode = 2;
 				goto fail_return;
 			}
+
+			if (!pTable->m_bCountable || count <= 0)
+			{
+				errorCode = 2;
+				goto fail_return;
+			}
+
+			if (pTable->m_bCountable 
+				&& (count + m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount) > MAX_ITEM_COUNT)
+			{
+				errorCode = 4;
+				goto fail_return;				
+			}
 		}
-		if( m_pUserData->m_iGold < ((uint32)pTable->m_iBuyPrice*count) ) {
-			result = 0x03;
+
+		transactionPrice = ((uint32)pTable->m_iBuyPrice * count);
+		if (m_pUserData->m_iGold < transactionPrice)
+		{
+			errorCode = 3;
 			goto fail_return;
 		}
-//
-		if (pTable->m_bCountable) {	// Check weight of countable item.
-			if (((pTable->m_sWeight * count) + m_sItemWeight) > m_sMaxWeight) {			
-				result = 0x04;
-				goto fail_return;
-			}
+
+		if (((pTable->m_sWeight * count) + m_sItemWeight) > m_sMaxWeight)
+		{
+			errorCode = 4;
+			goto fail_return;
 		}
-		else {	// Check weight of non-countable item.
-			if ((pTable->m_sWeight + m_sItemWeight) > m_sMaxWeight) {
-				result = 0x04;
-				goto fail_return;
-			}
-		}		
-//
+
 		m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum = itemid;
 		m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;
-		if( pTable->m_bCountable && count > 0 ) {	// count ?????? ??? ??????
-			m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount += count;
-			m_pUserData->m_iGold -= (pTable->m_iBuyPrice * count);
-		}
-		else {
-			m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = 1;
-			m_pUserData->m_iGold -= pTable->m_iBuyPrice;
+		m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount += count;
+		m_pUserData->m_iGold -= transactionPrice;
+
+		if (!pTable->m_bCountable)
 			m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum = g_pMain->GenerateItemSerial();
-		}
 
 		SendItemWeight();
-		ItemLogToAgent( m_pUserData->m_id, pNpc->m_strName, ITEM_MERCHANT_BUY, m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum, itemid, count, pTable->m_sDuration );
+		ItemLogToAgent(m_pUserData->m_id, pNpc->m_strName, ITEM_MERCHANT_BUY, m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum, itemid, count, pTable->m_sDuration);
 	}
-	else {		// sell sequence
-		if( m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != itemid ) {
-			result = 0x02;
+	// Selling an item to an NPC
+	else
+	{
+		if (m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != itemid)
+		{
+			errorCode = 2;
 			goto fail_return;
 		}
-		if( m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount < count ) {
-			result = 0x03;
-			goto fail_return;
-		}
-		int durability = m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration;
 
-		if( pTable->m_bCountable && count > 0 ) {
-			m_pUserData->m_iGold += (pTable->m_iSellPrice * count);
+		if (m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount < count)
+		{
+			errorCode = 3;
+			goto fail_return;
+		}
+
+		short oldDurability = m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration;
+		if (!pTable->m_iSellPrice) // NOTE: 0 sells normally, 1 sells at full price, not sure what 2's used for...
+			transactionPrice = ((pTable->m_iBuyPrice / 6) * count); // /6 is normal, /4 for prem/discount
+		else
+			transactionPrice = (pTable->m_iBuyPrice * count);
+
+		if (m_pUserData->m_iGold + transactionPrice > COIN_MAX)
+			m_pUserData->m_iGold = COIN_MAX;
+		else
+			m_pUserData->m_iGold += transactionPrice;
+
+		if (count >= m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount)
+			memset(&m_pUserData->m_sItemArray[SLOT_MAX+pos], 0, sizeof(_ITEM_DATA));
+		else
 			m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount -= count;
-			if( m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount <= 0 ) {
-				m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum = 0;
-				m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = 0;
-				m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = 0;
-			}
-		}
-		else {
-			m_pUserData->m_iGold += pTable->m_iSellPrice;
-			m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum = 0;
-			m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = 0;
-			m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = 0;
-		}
 
 		SendItemWeight();
-		ItemLogToAgent( m_pUserData->m_id, "MERCHANT SELL", ITEM_MERCHANT_SELL, 0, itemid, count, durability );
+		ItemLogToAgent(m_pUserData->m_id, "MERCHANT SELL", ITEM_MERCHANT_SELL, 0, itemid, count, oldDurability);
 	}
 
-	SetByte( send_buf, WIZ_ITEM_TRADE, send_index );
-	SetShort( send_buf, 0x01, send_index );
-	SetDWORD( send_buf, m_pUserData->m_iGold, send_index );
-	if( type == 0x01)
-		SetDWORD( send_buf, (pTable->m_iBuyPrice * count), send_index );
-	if( type == 0x02)
-		SetDWORD( send_buf, (pTable->m_iSellPrice * count), send_index );
-	Send( send_buf, send_index );
-	return;
+	goto send_packet;
 
 fail_return:
-	send_index = 0;
-	SetByte( send_buf, WIZ_ITEM_TRADE, send_index );
-	SetByte( send_buf, 0x00, send_index );
-	SetByte( send_buf, result, send_index );
-	Send( send_buf, send_index );
+	bSuccess = false;
+
+send_packet:
+	result << bSuccess;
+	if (!bSuccess)
+		result << errorCode;
+	else 
+		result << pTable->m_bSellingGroup << m_pUserData->m_iGold << transactionPrice; // price bought or sold for
+	Send(&result);
 }
 
 // part of the EVT system
