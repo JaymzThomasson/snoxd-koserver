@@ -162,7 +162,7 @@ void CKnightsManager::JoinKnights(CUser *pUser, Packet & pkt)
 
 	do
 	{
-		if (pUser->getZoneID() != pUser->getNation())
+		if (pUser->GetMap()->m_isAttackZone)
 			bResult = 12;
 		else if (!pUser->isClanLeader() && !pUser->isClanAssistant())
 			bResult = 6;
