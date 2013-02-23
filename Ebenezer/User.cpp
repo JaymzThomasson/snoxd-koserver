@@ -481,23 +481,22 @@ void CUser::SkillDataProcess(Packet & pkt)
 
 void CUser::SkillDataSave(Packet & pkt)
 {
-	Packet result(WIZ_SKILLDATA);
+	Packet result(WIZ_SKILLDATA, uint8(SKILL_DATA_SAVE));
 	uint16 sCount = pkt.read<uint16>();
 	if (sCount == 0 || sCount > 64)
 		return;
 
-	result	<< GetSocketID() << uint8(SKILL_DATA_SAVE) << sCount;
+	result	<< sCount;
 	for (int i = 0; i < sCount; i++)
 		result << pkt.read<uint32>();
 	
-	g_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
 }
 
 void CUser::SkillDataLoad()
 {
-	Packet result(WIZ_SKILLDATA);
-	result << GetSocketID() << uint8(SKILL_DATA_LOAD);
-	g_pMain->m_LoggerSendQueue.PutData(&result);
+	Packet result(WIZ_SKILLDATA, uint8(SKILL_DATA_LOAD));
+	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
 }
 
 void CUser::RecvSkillDataLoad(Packet & pkt)
@@ -530,8 +529,8 @@ void CUser::UserDataSaveToAgent()
 		return;
 
 	Packet result(WIZ_DATASAVE);
-	result << GetSocketID() << m_pUserData->m_Accountid << m_pUserData->m_id;
-	g_pMain->m_LoggerSendQueue.PutData(&result);
+	result << m_pUserData->m_Accountid << m_pUserData->m_id;
+	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
 }
 
 void CUser::LogOut()
@@ -550,8 +549,8 @@ void CUser::LogOut()
 		return; 
 
 	Packet result(WIZ_LOGOUT);
-	result << GetSocketID() << m_pUserData->m_Accountid << m_pUserData->m_id;
-	g_pMain->m_LoggerSendQueue.PutData(&result);
+	result << m_pUserData->m_Accountid << m_pUserData->m_id;
+	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
 
 	result.SetOpcode(AG_USER_LOG_OUT); // same packet, just change the opcode
 	g_pMain->Send_AIServer(&result);

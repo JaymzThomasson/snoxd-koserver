@@ -45,8 +45,8 @@ void CUser::LoginProcess(Packet & pkt)
 		goto fail_return;
 	}
 
-	result << GetSocketID() << strAccountID << strPasswd;
-	g_pMain->m_LoggerSendQueue.PutData(&result);
+	result << strAccountID << strPasswd;
+	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
 	m_strAccountID = strAccountID;
 	return;
 

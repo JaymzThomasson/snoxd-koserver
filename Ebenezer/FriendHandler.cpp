@@ -23,8 +23,7 @@ void CUser::FriendProcess(Packet & pkt)
 void CUser::FriendRequest()
 {
 	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REQUEST));
-	result << GetSocketID();
-	g_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
 }
 
 // Add or remove a friend from your list.
@@ -39,13 +38,12 @@ void CUser::FriendModify(Packet & pkt, uint8 opcode)
 		return;
 
 	Packet result(WIZ_FRIEND_PROCESS, opcode);
-	result << GetSocketID();
 	if (opcode == FRIEND_ADD)
 		result << pUser->GetSocketID();
 
 	result.SByte();
 	result << strUserID;
-	g_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
 }
 
 // Refresh the status of your friends.
@@ -99,7 +97,7 @@ void CUser::RecvFriendProcess(Packet & pkt)
 	switch (opcode)
 	{
 		case FRIEND_REQUEST:
-			//FriendReport(pkt); // Hmm, old method was redundant. Need to check this.
+			FriendReport(pkt); // Hmm, old method was redundant. Need to check this.
 			break;
 		case FRIEND_ADD:
 		case FRIEND_REMOVE:

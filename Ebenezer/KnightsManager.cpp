@@ -103,10 +103,10 @@ void CKnightsManager::CreateKnights(CUser* pUser, Packet & pkt)
 		uint16 knightindex = GetKnightsIndex(pUser->m_pUserData->m_bNation);
 		if (knightindex >= 0)
 		{	
-			result	<< pUser->GetSocketID() << uint8(CLAN_TYPE) 
+			result	<< uint8(CLAN_TYPE) 
 					<< knightindex << pUser->getNation()
 					<< idname << pUser->m_pUserData->m_id;
-			g_pMain->m_LoggerSendQueue.PutData(&result);
+			g_pMain->m_LoggerSendQueue.PutData(&result, pUser->GetSocketID());
 			return;
 		}
 		ret_value = 6;
@@ -232,8 +232,8 @@ void CKnightsManager::JoinKnightsReq(CUser *pUser, Packet & pkt)
 	}
 	else
 	{
-		result << pUser->GetSocketID() << sClanID;
-		g_pMain->m_LoggerSendQueue.PutData(&result);
+		result << sClanID;
+		g_pMain->m_LoggerSendQueue.PutData(&result, pUser->GetSocketID());
 	}
 }
 
@@ -255,8 +255,8 @@ void CKnightsManager::WithdrawKnights(CUser *pUser, Packet & kt)
 			break;
 
 		result	<< uint8(pUser->isClanLeader() ? KNIGHTS_DESTROY : KNIGHTS_WITHDRAW)
-				<< pUser->GetSocketID() << pUser->m_pUserData->m_bKnights;
-		g_pMain->m_LoggerSendQueue.PutData(&result);
+				<< pUser->m_pUserData->m_bKnights;
+		g_pMain->m_LoggerSendQueue.PutData(&result, pUser->GetSocketID());
 		return;
 	} while (0);
 
@@ -278,8 +278,8 @@ void CKnightsManager::DestroyKnights( CUser* pUser )
 
 	if (bResult == 1)
 	{
-		result << pUser->GetSocketID() << pUser->m_pUserData->m_bKnights;
-		g_pMain->m_LoggerSendQueue.PutData(&result);
+		result << pUser->m_pUserData->m_bKnights;
+		g_pMain->m_LoggerSendQueue.PutData(&result, pUser->GetSocketID());
 	}
 	else
 	{
@@ -343,8 +343,8 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 opco
 		if (bResult != 1)
 			break;
 
-		result << pUser->GetSocketID() << pUser->m_pUserData->m_bKnights << strUserID << bRemoveFlag;
-		g_pMain->m_LoggerSendQueue.PutData(&result);
+		result << pUser->m_pUserData->m_bKnights << strUserID << bRemoveFlag;
+		g_pMain->m_LoggerSendQueue.PutData(&result, pUser->GetSocketID());
 		return;
 	} while (0);
 

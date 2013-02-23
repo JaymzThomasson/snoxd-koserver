@@ -792,7 +792,7 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 				result.SByte();
 				result << bResult << strMaxUserName;
 
-				g_pMain->m_LoggerSendQueue.PutData(&result);
+				g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
 				g_pMain->m_byBattleSave = 1;
 			}
 		}

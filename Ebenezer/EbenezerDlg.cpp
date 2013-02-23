@@ -70,15 +70,13 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 			continue;
 		}
 
-		int recvlen = pMain->m_LoggerRecvQueue.GetData(pkt);
+		int16 uid = -1;
+		int recvlen = pMain->m_LoggerRecvQueue.GetData(pkt, &uid);
 		if (recvlen > MAX_PKTSIZE || recvlen == 0)
 		{
 			Sleep(1);
 			continue;
 		}
-
-		uint16 uid;
-		pkt >> uid;
 
 		if ((pUser = pMain->GetUserPtr(uid)) == NULL && pkt.GetOpcode() != WIZ_KNIGHTS_PROCESS)
 			continue;

@@ -45,8 +45,8 @@ public:
 	inline BYTE GetFrontMode() {return m_pHeader->FrontMode;};
 	inline BYTE GetRearMode() {return m_pHeader->RearMode;};
 	inline int GetCount() {return m_pHeader->nCount;};
-	int GetData(Packet & pkt);
-	int PutData(Packet *pkt);
+	int GetData(Packet & pkt, int16 * uid);
+	int PutData(Packet *pkt, int16 uid = -1);
 	BOOL InitailizeMMF(DWORD dwOffsetsize, int maxcount, LPCTSTR lpname, BOOL bCreate = TRUE);
 	CSharedMemQueue();
 	virtual ~CSharedMemQueue();

@@ -97,7 +97,7 @@ int8 CDBAgent::AccountLogin(string & strAccountID, string & strPasswd)
 	return (int8)(nRet - 1);
 }
 
-bool CDBAgent::NationSelect(string & strAccountID, uint8 bNation)
+uint8 CDBAgent::NationSelect(string & strAccountID, uint8 bNation)
 {
 	int16 nRet = 0;
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
@@ -110,7 +110,7 @@ bool CDBAgent::NationSelect(string & strAccountID, uint8 bNation)
 	if (!dbCommand->Execute(string_format(_T("{CALL NATION_SELECT(?, ?, %d)}"), bNation)))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
 
-	return (nRet > 0);
+	return (nRet > 0 ? bNation : 0);
 }
 
 bool CDBAgent::GetAllCharID(string & strAccountID, string & strCharID1, string & strCharID2, string & strCharID3)
@@ -882,7 +882,7 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 		if (bCount == 0)
 		{
 			result.clear();
-			result << uint16(-1) << uint8(KNIGHTS_ALLLIST_REQ) << uint8(0);
+			result << uint8(KNIGHTS_ALLLIST_REQ) << uint8(0);
 			offset = result.wpos() - 1;
 		}
 

@@ -74,7 +74,7 @@ BOOL CSharedMemQueue::InitailizeMMF(DWORD dwOffsetsize, int maxcount, LPCTSTR lp
 }
 
 // TO-DO: Remove this ENTIRE queue system.
-int CSharedMemQueue::PutData(Packet *pkt)
+int CSharedMemQueue::PutData(Packet *pkt, int16 uid /*= -1*/)
 {
 	char logstr[256];
 	BYTE BlockMode;
@@ -115,8 +115,8 @@ int CSharedMemQueue::PutData(Packet *pkt)
 		index = 0;
 		char *queue = ((char *)pQueue);
 		queue[index++] = WR;	// Block Mode Set to WR	-> Data Exist
-		memcpy(queue+index, &size, 2);
-		index += 2;
+		SetShort(queue, size, index);
+		SetShort(queue, uid, index);
 		queue[index++] = pkt->GetOpcode();
 		if (pkt->size() > 0)
 			memcpy(queue+index, pkt->contents(), size);
@@ -136,7 +136,7 @@ int CSharedMemQueue::PutData(Packet *pkt)
 	return 1;
 }
 
-int CSharedMemQueue::GetData(Packet & pkt)
+int CSharedMemQueue::GetData(Packet & pkt, int16 * uid)
 {
 	int index = 0, size = 0, temp_front = 0;
 	BYTE BlockMode;
@@ -172,9 +172,11 @@ int CSharedMemQueue::GetData(Packet & pkt)
 		return SMQ_EMPTY;
 	}
 
-	size = GetShort( (char*)pQueue, index );
+	size = GetShort((char *)pQueue, index);
 	if (size <= 0 || size > MAX_PKTSIZE)
 		return 0;
+
+	*uid = GetShort((char *)pQueue, index);
 
 	pkt.Initialize(*(char *)(pQueue + index));
 	if (size > 1)

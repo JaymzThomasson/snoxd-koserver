@@ -42,8 +42,7 @@ void CUser::HandleStoreClose()
 {
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_CLOSE));
 	m_bStoreOpen = false;
-	result << GetSocketID();
-	g_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
 }
 
 void CUser::RecvStore(Packet & pkt)

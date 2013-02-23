@@ -22,7 +22,7 @@ public:
 	_USER_DATA *GetUser(uint16 uid);
 
 	int8 AccountLogin(std::string & strAccountID, std::string & strPasswd);
-	bool NationSelect(std::string & strAccountID, uint8 bNation);
+	uint8 NationSelect(std::string & strAccountID, uint8 bNation);
 	bool GetAllCharID(std::string & strAccountID, std::string & strCharID1, std::string & strCharID2, std::string & strCharID3);
 	void LoadCharInfo(std::string & strCharID, ByteBuffer & result);
 

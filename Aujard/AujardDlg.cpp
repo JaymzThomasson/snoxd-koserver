@@ -33,7 +33,8 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 			continue;
 		}
 
-		int recvlen = pMain->m_LoggerRecvQueue.GetData(pkt);
+		int16 uid = -1;
+		int recvlen = pMain->m_LoggerRecvQueue.GetData(pkt, &uid);
 		if (recvlen > MAX_PKTSIZE || recvlen == 0)
 		{
 			Sleep(1);
@@ -43,34 +44,34 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 		switch (pkt.GetOpcode())
 		{
 		case WIZ_LOGIN:
-			pMain->AccountLogIn(pkt);
+			pMain->AccountLogIn(pkt, uid);
 			break;
 		case WIZ_SEL_NATION:
-			pMain->SelectNation(pkt);
+			pMain->SelectNation(pkt, uid);
 			break;
 		case WIZ_ALLCHAR_INFO_REQ:
-			pMain->AllCharInfoReq(pkt);
+			pMain->AllCharInfoReq(pkt, uid);
 			break;
 		case WIZ_CHANGE_HAIR:
-			pMain->ChangeHairReq(pkt);
+			pMain->ChangeHairReq(pkt, uid);
 			break;
 		case WIZ_NEW_CHAR:
-			pMain->CreateNewChar(pkt);
+			pMain->CreateNewChar(pkt, uid);
 			break;
 		case WIZ_DEL_CHAR:
-			pMain->DeleteChar(pkt);
+			pMain->DeleteChar(pkt, uid);
 			break;
 		case WIZ_SEL_CHAR:
-			pMain->SelectCharacter(pkt);
+			pMain->SelectCharacter(pkt, uid);
 			break;
 		case WIZ_DATASAVE:
-			pMain->UserDataSave(pkt);
+			pMain->UserDataSave(pkt, uid);
 			break;
 		case WIZ_KNIGHTS_PROCESS:
-			pMain->KnightsPacket(pkt);
+			pMain->KnightsPacket(pkt, uid);
 			break;
 		case WIZ_LOGIN_INFO:
-			pMain->SetLogInInfo(pkt);
+			pMain->SetLogInInfo(pkt, uid);
 			break;
 		case WIZ_KICKOUT:
 			pMain->UserKickOut(pkt);
@@ -79,16 +80,16 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 			pMain->BattleEventResult(pkt);
 			break;
 		case WIZ_SHOPPING_MALL:
-			pMain->ShoppingMall(pkt);
+			pMain->ShoppingMall(pkt, uid);
 			break;
 		case WIZ_SKILLDATA:
-			pMain->SkillDataProcess(pkt);
+			pMain->SkillDataProcess(pkt, uid);
 			break;
 		case WIZ_FRIEND_PROCESS:
-			pMain->FriendProcess(pkt);
+			pMain->FriendProcess(pkt, uid);
 			break;
 		case WIZ_LOGOUT:
-			pMain->UserLogOut(pkt);				
+			pMain->UserLogOut(pkt, uid);				
 			break;
 		}
 	}
@@ -170,41 +171,35 @@ void CAujardDlg::WriteLogFile(char* pData)
 	m_LogFile.Write(strLog, strlen(strLog));
 }
 
-void CAujardDlg::AccountLogIn(Packet & pkt)
+void CAujardDlg::AccountLogIn(Packet & pkt, int16 uid)
 {
 	string strAccountID, strPasswd;
-	uint16 uid;
-
-	pkt >> uid >> strAccountID >> strPasswd;
+	pkt >> strAccountID >> strPasswd;
 	uint8 nation = m_DBAgent.AccountLogin(strAccountID, strPasswd);
 
-	Packet result(WIZ_LOGIN);
-	result << uid << nation;
-	m_LoggerSendQueue.PutData(&result);
+	Packet result(WIZ_LOGIN, nation);
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::SelectNation(Packet & pkt)
+void CAujardDlg::SelectNation(Packet & pkt, int16 uid)
 {
 	string strAccountID;
-	uint16 uid;
 	uint8 bNation;
-	pkt >> uid >> strAccountID >> bNation;
+	pkt >> strAccountID >> bNation;
 
 	Packet result(WIZ_SEL_NATION);
-	result << uid << uint8(m_DBAgent.NationSelect(strAccountID, bNation) ? bNation : 0);
-	m_LoggerSendQueue.PutData(&result);
+	uint8 bResult = m_DBAgent.NationSelect(strAccountID, bNation) ? bNation : 0;
+	result << bResult;
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::AllCharInfoReq(Packet & pkt)
+void CAujardDlg::AllCharInfoReq(Packet & pkt, int16 uid)
 {
 	Packet result(WIZ_ALLCHAR_INFO_REQ);
 	ByteBuffer tmp;
 	string strAccountID, strCharID1, strCharID2, strCharID3;
-	short uid;
 
-	pkt >> uid >> strAccountID;
-	result << uid;
-
+	pkt >> strAccountID;
 	tmp << uint8(1) 
 		/*<< uint8(1)*/; // 1.920+ flag, probably indicates whether there's any characters or not (stays 1 for 1+ characters though, so not a count :'(). Untested without.
 	m_DBAgent.GetAllCharID(strAccountID, strCharID1, strCharID2, strCharID3);
@@ -213,140 +208,113 @@ void CAujardDlg::AllCharInfoReq(Packet & pkt)
 	m_DBAgent.LoadCharInfo(strCharID3, tmp);
 	result << uint16(tmp.size()) << tmp;
 
-	m_LoggerSendQueue.PutData(&result);
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::ChangeHairReq(Packet & pkt)
+void CAujardDlg::ChangeHairReq(Packet & pkt, int16 uid)
 {
 	Packet result(WIZ_CHANGE_HAIR);
 	string strAccountID, strUserID;
 	uint32 nHair;
-	uint16 uid;
 	uint8 bOpcode, bFace;
-
-	pkt >> uid >> bOpcode >> strAccountID >> strUserID >> bFace >> nHair;
+	pkt >> bOpcode >> strAccountID >> strUserID >> bFace >> nHair;
 	pkt.put(2, m_DBAgent.ChangeHair(strAccountID, strUserID, bOpcode, bFace, nHair));
-	m_LoggerSendQueue.PutData(&pkt);
+	m_LoggerSendQueue.PutData(&pkt, uid);
 }
 
-void CAujardDlg::CreateNewChar(Packet & pkt)
+void CAujardDlg::CreateNewChar(Packet & pkt, int16 uid)
 {
 	string strAccountID, strCharID;
 	uint32 nHair;
-	uint16 uid, sClass;
+	uint16 sClass;
 	uint8 bCharIndex, bRace, bFace, bStr, bSta, bDex, bInt, bCha;
-	pkt >> uid >> strAccountID >> bCharIndex >> strCharID >> bRace >> sClass >> bFace >> nHair >> bStr >> bSta >> bDex >> bInt >> bCha;
+	pkt >> strAccountID >> bCharIndex >> strCharID >> bRace >> sClass >> bFace >> nHair >> bStr >> bSta >> bDex >> bInt >> bCha;
 
 	Packet result(WIZ_NEW_CHAR);
-	result << uid << m_DBAgent.CreateNewChar(strAccountID, bCharIndex, strCharID, bRace, sClass, nHair, bFace, bStr, bSta, bDex, bInt, bCha);
+	result << m_DBAgent.CreateNewChar(strAccountID, bCharIndex, strCharID, bRace, sClass, nHair, bFace, bStr, bSta, bDex, bInt, bCha);
 
-	m_LoggerSendQueue.PutData(&result);
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::DeleteChar(Packet & pkt)
+void CAujardDlg::DeleteChar(Packet & pkt, int16 uid)
 {
 	string strAccountID, strCharID, strSocNo;
-	uint16 uid;
 	uint8 bCharIndex;
-	pkt >> uid >> strAccountID >> bCharIndex >> strCharID >> strSocNo;
+	pkt >> strAccountID >> bCharIndex >> strCharID >> strSocNo;
 
 	Packet result(WIZ_DEL_CHAR);
 	int8 retCode = m_DBAgent.DeleteChar(strAccountID, bCharIndex, strCharID, strSocNo);
-	result << uid << retCode << uint8(retCode ? bCharIndex : -1);
-
-	m_LoggerSendQueue.PutData(&result);
+	result << retCode << uint8(retCode ? bCharIndex : -1);
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::SelectCharacter(Packet & pkt)
+void CAujardDlg::SelectCharacter(Packet & pkt, int16 uid)
 {
 	Packet result(WIZ_SEL_CHAR);
-	short uid;
+	_USER_DATA *pUser = NULL;
 	uint8 bInit;
 	string strAccountID, strCharID;
 
-	pkt >> uid >> strAccountID >> strCharID;
-	if (strAccountID.length() == 0 || strCharID.length() == 0
-		|| strAccountID.length() > MAX_ID_SIZE || strCharID.length() > MAX_ID_SIZE)
-		goto fail_return;
+	pkt >> strAccountID >> strCharID >> bInit;
+	if (strAccountID.empty() || strCharID.empty()
+		|| strAccountID.length() > MAX_ID_SIZE || strCharID.length() > MAX_ID_SIZE
+		|| !m_DBAgent.LoadUserData(strAccountID, strCharID, uid)
+		|| !m_DBAgent.LoadWarehouseData(strAccountID, uid)
+		|| (pUser = m_DBAgent.GetUser(uid)) == NULL)
+	{
+		result << uint8(0);
+	}
+	else
+	{
+		_tstrcpy(pUser->m_Accountid, strAccountID);
+		result << uint8(1) << bInit;
+	}
 
-	pkt >> bInit;
-	result << uid;
-
-	if (!m_DBAgent.LoadUserData(strAccountID, strCharID, uid)
-		|| !m_DBAgent.LoadWarehouseData(strAccountID, uid))
-		goto fail_return;
-
-	_USER_DATA *pUser = m_DBAgent.GetUser(uid);
-	if (pUser == NULL)
-		goto fail_return;
-
-	_tstrcpy(pUser->m_Accountid, strAccountID);
-
-	result << uint8(1) << bInit;
-	m_LoggerSendQueue.PutData(&result);
-	return;
-
-fail_return:
-	result << uint8(0);
-	m_LoggerSendQueue.PutData(&result);
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::ShoppingMall(Packet & pkt)
+void CAujardDlg::ShoppingMall(Packet & pkt, int16 uid)
 {
-	uint8 opcode;
-	pkt >> opcode;
-
-	switch (opcode)
+	switch (pkt.read<uint8>())
 	{
 	case STORE_CLOSE:
-		LoadWebItemMall(pkt);
+		LoadWebItemMall(pkt, uid);
 		break;
 	}
 }
 
-void CAujardDlg::LoadWebItemMall(Packet & pkt)
+void CAujardDlg::LoadWebItemMall(Packet & pkt, int16 uid)
 {
-	Packet result(WIZ_SHOPPING_MALL);
-	short uid;
+	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_CLOSE));
 
-	pkt >> uid;
-
-	result << uid << uint8(STORE_CLOSE);
 	int offset = result.wpos(); // preserve offset
 	result << uint8(0);
 
 	if (m_DBAgent.LoadWebItemMall(uid, result))
 		result.put(offset, uint8(1));
 
-	m_LoggerSendQueue.PutData(&result);
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::SkillDataProcess(Packet & pkt)
+void CAujardDlg::SkillDataProcess(Packet & pkt, int16 uid)
 {
-	uint16 uid;
-	uint8 opcode;
-	
-	pkt >> uid >> opcode;
-	if (uid >= MAX_USER)
-		return;
-
+	uint8 opcode = pkt.read<uint8>();
 	if (opcode == SKILL_DATA_LOAD)
 		SkillDataLoad(pkt, uid);
 	else if (opcode == SKILL_DATA_SAVE)
 		SkillDataSave(pkt, uid);
 }
 
-void CAujardDlg::SkillDataLoad(Packet & pkt, short uid)
+void CAujardDlg::SkillDataLoad(Packet & pkt, int16 uid)
 {
-	Packet result(WIZ_SKILLDATA);
-	result << uid << uint8(SKILL_DATA_LOAD);
+	Packet result(WIZ_SKILLDATA, uint8(SKILL_DATA_LOAD));
 	if (!m_DBAgent.LoadSkillShortcut(uid, result))
 		result << uint8(0);
 
-	m_LoggerSendQueue.PutData(&result);
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::SkillDataSave(Packet & pkt, short uid)
+void CAujardDlg::SkillDataSave(Packet & pkt, int16 uid)
 {
 	char buff[260];
 	short sCount;
@@ -368,78 +336,71 @@ void CAujardDlg::SkillDataSave(Packet & pkt, short uid)
 	m_DBAgent.SaveSkillShortcut(uid, sCount, buff);
 }
 
-void CAujardDlg::FriendProcess(Packet & pkt)
+void CAujardDlg::FriendProcess(Packet & pkt, int16 uid)
 {
-	uint8 opcode;
-	pkt >> opcode;
-
-	switch (opcode)
+	switch (pkt.read<uint8>())
 	{
 	case FRIEND_REQUEST:
-		RequestFriendList(pkt);
+		RequestFriendList(pkt, uid);
 		break;
 
 	case FRIEND_ADD:
-		AddFriend(pkt);
+		AddFriend(pkt, uid);
 		break;
 
 	case FRIEND_REMOVE:
-		RemoveFriend(pkt);
+		RemoveFriend(pkt, uid);
 		break;
 	}
 }
 
-void CAujardDlg::RequestFriendList(Packet & pkt)
+void CAujardDlg::RequestFriendList(Packet & pkt, int16 uid)
 {
-	Packet result(WIZ_FRIEND_PROCESS);
-	vector<tstring> friendList;
-	short sid;
+	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REQUEST));
+	vector<string> friendList;
 
 	result.SByte();
-	pkt >> sid;
-	m_DBAgent.RequestFriendList(sid, friendList);
+	m_DBAgent.RequestFriendList(uid, friendList);
 
-	result << sid << uint8(FRIEND_REQUEST) << uint8(friendList.size());
-
+	result << uint8(friendList.size());
 	foreach (itr, friendList)
 		result << (*itr);
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::AddFriend(Packet & pkt)
+void CAujardDlg::AddFriend(Packet & pkt, int16 uid)
 {
-	Packet result(WIZ_FRIEND_PROCESS);
+	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_ADD));
 	string strCharID;
-	short sid, tid;
+	int16 tid;
 
 	pkt.SByte();
-	pkt >> sid >> tid >> strCharID;
+	pkt >> tid >> strCharID;
 
-	FriendAddResult resultCode = m_DBAgent.AddFriend(sid, tid);
-
+	FriendAddResult resultCode = m_DBAgent.AddFriend(uid, tid);
 	result.SByte();
-	result << sid << uint8(FRIEND_ADD) << tid << uint8(resultCode) << strCharID;
-	m_LoggerSendQueue.PutData(&result);
+	result << tid << uint8(resultCode) << strCharID;
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::RemoveFriend(Packet & pkt)
+void CAujardDlg::RemoveFriend(Packet & pkt, int16 uid)
 {
-	Packet result(WIZ_FRIEND_PROCESS);
+	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REMOVE));
 	string strCharID;
-	short sid;
 
+	pkt.SByte();
+	pkt >> strCharID;
+
+	FriendRemoveResult resultCode = m_DBAgent.RemoveFriend(uid, strCharID);
 	result.SByte();
-	pkt >> sid >> strCharID;
-
-	FriendRemoveResult resultCode = m_DBAgent.RemoveFriend(sid, strCharID);
-	result << sid << uint8(FRIEND_REMOVE) << uint8(resultCode) << strCharID;
-	m_LoggerSendQueue.PutData(&result);
+	result << uint8(resultCode) << strCharID;
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::UserLogOut(Packet & pkt)
+void CAujardDlg::UserLogOut(Packet & pkt, int16 uid)
 {
 	string strAccountID, strCharID;
-	uint16 uid;
-	pkt >> uid >> strAccountID >> strCharID;
+	pkt >> strAccountID >> strCharID;
 
 	_USER_DATA *pUser = m_DBAgent.GetUser(uid);
 	if (pUser == NULL)
@@ -454,8 +415,7 @@ void CAujardDlg::UserLogOut(Packet & pkt)
 	m_DBAgent.MUserInit(uid);
 
 	Packet result(WIZ_LOGOUT);
-	result << uid;
-	m_LoggerSendQueue.PutData(&result);
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
 BOOL CAujardDlg::PreTranslateMessage(MSG* pMsg) 
@@ -534,12 +494,10 @@ void CAujardDlg::ConCurrentUserCount()
 	m_DBAgent.UpdateConCurrentUserCount(m_nServerNo, m_nZoneNo, count);
 }
 
-void CAujardDlg::UserDataSave(Packet & pkt)
+void CAujardDlg::UserDataSave(Packet & pkt, int16 uid)
 {
 	string strAccountID, strCharID;
-	short uid;
-
-	pkt >> uid >> strAccountID >> strCharID;
+	pkt >> strAccountID >> strCharID;
 	_USER_DATA * pUser = m_DBAgent.GetUser(uid);
 	if (pUser == NULL)
 		return;
@@ -565,20 +523,20 @@ _USER_DATA* CAujardDlg::GetUserPtr(const char *struserid, short &uid)
 	return NULL;
 }
 
-void CAujardDlg::KnightsPacket(Packet & pkt)
+void CAujardDlg::KnightsPacket(Packet & pkt, int16 uid)
 {
 	uint8 opcode;
 	pkt >> opcode;
 	switch (opcode)
 	{
 	case KNIGHTS_CREATE:
-		CreateKnights(pkt);
+		CreateKnights(pkt, uid);
 		break;
 	case KNIGHTS_JOIN:
-		JoinKnights(pkt);
+		JoinKnights(pkt, uid);
 		break;
 	case KNIGHTS_WITHDRAW:
-		WithdrawKnights(pkt);
+		WithdrawKnights(pkt, uid);
 		break;
 	case KNIGHTS_REMOVE:
 	case KNIGHTS_ADMIT:
@@ -587,102 +545,102 @@ void CAujardDlg::KnightsPacket(Packet & pkt)
 	case KNIGHTS_VICECHIEF:
 	case KNIGHTS_OFFICER:
 	case KNIGHTS_PUNISH:
-		ModifyKnightsMember(pkt, opcode);
+		ModifyKnightsMember(pkt, opcode, uid);
 		break;
 	case KNIGHTS_DESTROY:
-		DestroyKnights(pkt);
+		DestroyKnights(pkt, uid);
 		break;
 	case KNIGHTS_MEMBER_REQ:
-		AllKnightsMember(pkt);
+		AllKnightsMember(pkt, uid);
 		break;
 	case KNIGHTS_LIST_REQ:
-		KnightsList(pkt);
+		KnightsList(pkt, uid);
 		break;
 	case KNIGHTS_ALLLIST_REQ:
-		LoadKnightsAllList(pkt);
+		m_DBAgent.LoadKnightsAllList(pkt.read<uint8>()); // read nation
 		break;
 	}
 }
 
-void CAujardDlg::CreateKnights(Packet & pkt)
+void CAujardDlg::CreateKnights(Packet & pkt, int16 uid)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS);
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_CREATE));
 	string strKnightsName, strChief;
-	uint16 uid, sClanID;
+	uint16 sClanID;
 	uint8 bCommunity, bNation;
 
-	pkt >> uid >> bCommunity >> sClanID >> bNation >> strKnightsName >> strChief;
-	int8 resultCode = m_DBAgent.CreateKnights(sClanID, bNation, strKnightsName, strChief, bCommunity);
-	result << uid << uint8(KNIGHTS_CREATE) << resultCode << bCommunity << sClanID << bNation << strKnightsName << strChief;
+	pkt >> bCommunity >> sClanID >> bNation >> strKnightsName >> strChief;
+	result	<< m_DBAgent.CreateKnights(sClanID, bNation, strKnightsName, strChief, bCommunity)
+			<< bCommunity << sClanID << bNation << strKnightsName << strChief;
 
-	m_LoggerSendQueue.PutData(&result);
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::JoinKnights(Packet & pkt)
+void CAujardDlg::JoinKnights(Packet & pkt, int16 uid)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS);
-	short uid, sClanID;
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_JOIN));
+	uint16 sClanID;
 
-	pkt >> uid >> sClanID;
+	pkt >> sClanID;
 	_USER_DATA *pUser = m_DBAgent.GetUser(uid);
 	if (pUser == NULL)
 		return;
 
 	string strCharID = pUser->m_id;
-	int8 resultCode = m_DBAgent.UpdateKnights(KNIGHTS_JOIN, strCharID, sClanID, 0);
-	result << uid << uint8(KNIGHTS_JOIN) << resultCode << sClanID;
-	m_LoggerSendQueue.PutData(&result);
+	result	<< int8(m_DBAgent.UpdateKnights(KNIGHTS_JOIN, strCharID, sClanID, 0))
+			<< sClanID;
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::WithdrawKnights(Packet & pkt)
+void CAujardDlg::WithdrawKnights(Packet & pkt, int16 uid)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS);
-	short uid, sClanID;
-	pkt >> uid >> sClanID;
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_WITHDRAW));
+	uint16 sClanID;
+	pkt >> sClanID;
 
 	_USER_DATA *pUser = m_DBAgent.GetUser(uid);
-	string strCharID = pUser->m_id;
-	int8 resultCode = m_DBAgent.UpdateKnights(KNIGHTS_WITHDRAW, strCharID, sClanID, 0);
+	if (pUser == NULL)
+		return;
 
-	result << uid << uint8(KNIGHTS_WITHDRAW) << resultCode << sClanID;
-	m_LoggerSendQueue.PutData(&result);
+	string strCharID = pUser->m_id;
+
+	result << int8(m_DBAgent.UpdateKnights(KNIGHTS_WITHDRAW, strCharID, sClanID, 0))
+		   << sClanID;
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::ModifyKnightsMember(Packet & pkt, uint8 command)
+void CAujardDlg::ModifyKnightsMember(Packet & pkt, uint8 command, int16 uid)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS);
+	Packet result(WIZ_KNIGHTS_PROCESS, command);
 	string strCharID;
-	uint16 uid, sClanID;
+	uint16 sClanID;
 	uint8 bRemoveFlag;
 
-	pkt >> uid >> sClanID >> strCharID >> bRemoveFlag;
+	pkt >> sClanID >> strCharID >> bRemoveFlag;
 
-	uint8 resultCode = m_DBAgent.UpdateKnights(command, strCharID, sClanID, bRemoveFlag);
-	result << uid << command << resultCode << sClanID << strCharID;
+	result	<< command << int8(m_DBAgent.UpdateKnights(command, strCharID, sClanID, bRemoveFlag))
+			<< sClanID << strCharID;
 
-	m_LoggerSendQueue.PutData(&result);
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::DestroyKnights(Packet & pkt)
+void CAujardDlg::DestroyKnights(Packet & pkt, int16 uid)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS);
-	uint16 uid, sClanID;
-	pkt >> uid >> sClanID;
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_DESTROY));
+	uint16 sClanID = pkt.read<uint16>();
 
-	int8 resultCode = m_DBAgent.DeleteKnights(sClanID);
-
-	result << uid << uint8(KNIGHTS_DESTROY) << resultCode << sClanID;
-	m_LoggerSendQueue.PutData(&result);
+	result << int8(m_DBAgent.DeleteKnights(sClanID)) << sClanID;
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::AllKnightsMember(Packet & pkt)
+void CAujardDlg::AllKnightsMember(Packet & pkt, int16 uid)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS);
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MEMBER_REQ));
 	int nOffset;
-	short uid, sClanID, sCount;
+	uint16 sClanID, sCount;
 
-	pkt >> uid >> sClanID;
-	result << uid << uint8(KNIGHTS_MEMBER_REQ) << uint8(0);
+	pkt >> sClanID;
+	result << uint8(0);
 	nOffset = result.wpos(); // store offset
 	result << uint16(0) << uint16(0); // placeholders
 	sCount = m_DBAgent.LoadKnightsAllMembers(sClanID, result);
@@ -690,43 +648,33 @@ void CAujardDlg::AllKnightsMember(Packet & pkt)
 	pkt.put(nOffset, result.size() - 3);
 	pkt.put(nOffset + 2, sCount);
 
-	m_LoggerSendQueue.PutData(&result);
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::KnightsList(Packet & pkt)
+void CAujardDlg::KnightsList(Packet & pkt, int16 uid)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS);
-	uint16 uid, sClanID;
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_LIST_REQ));
+	uint16 sClanID = pkt.read<uint16>();
 
-	pkt >> uid >> sClanID;
-	result << uid << uint8(KNIGHTS_LIST_REQ) << uint8(0);
-	m_DBAgent.LoadKnightsInfo(sClanID, pkt);
+	result << uint8(0);
+	m_DBAgent.LoadKnightsInfo(sClanID, result);
 	
-	m_LoggerSendQueue.PutData(&result);
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-void CAujardDlg::LoadKnightsAllList(Packet & pkt)
-{
-	uint8 nation;
-	pkt >> nation;
-	m_DBAgent.LoadKnightsAllList(nation);
-}
-
-void CAujardDlg::SetLogInInfo(Packet & pkt)
+void CAujardDlg::SetLogInInfo(Packet & pkt, int16 uid)
 {
 	string strAccountID, strCharID, strServerIP, strClientIP;
-	uint16 uid, sServerNo;
+	uint16 sServerNo;
 	uint8 bInit;
 
-	pkt >> uid >> strAccountID >> strCharID >> strServerIP >> sServerNo >> strClientIP >> bInit;
-
+	pkt >> strAccountID >> strCharID >> strServerIP >> sServerNo >> strClientIP >> bInit;
 	if (m_DBAgent.SetLogInInfo(strAccountID, strCharID, strServerIP, sServerNo, strClientIP, bInit))
 		return;
 
 	// if there was an error inserting to CURRENTUSER...
-	Packet result(WIZ_LOGIN_INFO);
-	result << uid << uint8(0);
-	m_LoggerSendQueue.PutData(&result);
+	Packet result(WIZ_LOGIN_INFO, uint8(0));
+	m_LoggerSendQueue.PutData(&result, uid);
 }
 
 void CAujardDlg::UserKickOut(Packet & pkt)
@@ -749,7 +697,7 @@ void CAujardDlg::SaveUserData()
 		{
 			Packet result;
 			result << uint16(i) << pUser->m_Accountid << pUser->m_id;
-			UserDataSave(result);
+			UserDataSave(result, i);
 			Sleep(50);
 		}
 	}
