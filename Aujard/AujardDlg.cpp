@@ -359,10 +359,9 @@ void CAujardDlg::RequestFriendList(Packet & pkt, int16 uid)
 	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REQUEST));
 	vector<string> friendList;
 
-	result.SByte();
 	m_DBAgent.RequestFriendList(uid, friendList);
 
-	result << uint8(friendList.size());
+	result << uint16(friendList.size());
 	foreach (itr, friendList)
 		result << (*itr);
 	m_LoggerSendQueue.PutData(&result, uid);
