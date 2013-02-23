@@ -1179,6 +1179,9 @@ void CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 		pTUser->SetSlotItemValue();				// Update character stats.
 		pTUser->SetUserAbility();
 
+		if(m_pSkillCaster == m_pSkillTarget)
+			pTUser->SendItemMove(2);
+
 		if (pTUser->isInParty() && pTUser->m_bType4Buff[pType->bBuffType - 1] == 1)
 			pTUser->SendPartyStatusUpdate(2, 1);
 

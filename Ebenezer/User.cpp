@@ -2171,7 +2171,7 @@ void CUser::ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint
 		
 		SetSlotItemValue();
 		SetUserAbility();
-		SendItemMove();
+		SendItemMove(0);
 		return;
 	}
 
@@ -2198,15 +2198,14 @@ void CUser::SendDurability(uint8 slot, uint16 durability)
 	Send(&result);
 }
 
-void CUser::SendItemMove(bool bFail /*= false*/)
+void CUser::SendItemMove(uint8 subcommand)
 {
-	// NOT the boolean to produce either a 0 on failure (!(bFail = true) = false = 0), or 1 on success.
-	Packet result(WIZ_ITEM_MOVE, uint8(!bFail));
+	Packet result(WIZ_ITEM_MOVE, subcommand);
 
-	// If we're sending an error, don't send the stats as well.
-	if (!bFail)
+	// If the subcommand is not error, send the stats.
+	if (subcommand != 1)
 	{
-		result	<< m_sTotalHit << m_sTotalAc
+		result	<< m_sTotalHit << uint16(m_sTotalAc + m_sACAmount)
 				<< m_sMaxWeight
 				<< m_iMaxHp << m_iMaxMp
 				<< getStatBonusTotal(STAT_STR) << getStatBonusTotal(STAT_STA)
@@ -3587,4 +3586,22 @@ bool CUser::CanUseItem(long itemid)
 		return false;
 
 	return true;
+}
+
+void CUser::SendUserStatusUpdate(uint8 type, uint8 status)
+{
+	Packet result(WIZ_ZONEABILITY, uint8(2));
+	result << uint8(type) << uint8(status);
+	/*
+			  1				, 1 = Damage over time
+			  1				, 2 = Cure damage over time
+			  2				, 1 = poison (purple)
+			  2				, 2 = Cure poison
+			  3				, 1 = disease (green)
+			  3				, 2 = Cure disease
+			  4				, 1 = blind
+			  5				, 1 = HP is grey (not sure what this is)
+			  5				, 2 = Cure grey HP
+	*/
+	Send(&result);
 }
