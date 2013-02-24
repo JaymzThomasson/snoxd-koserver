@@ -303,6 +303,22 @@ BOOL SMDFile::ObjectCollision(float x1, float z1, float y1, float x2, float z2, 
 	return m_N3ShapeMgr.CheckCollision(vec1, vDir, fSpeed);
 }
 
+CRegion * C3DMap::GetRegion(uint16 regionX, uint16 regionZ)
+{
+	CRegion *pRegion = NULL;
+
+	if (regionX >= GetXRegionMax()
+		|| regionZ >= GetZRegionMax())
+		return pRegion;
+
+	EnterCriticalSection(&g_region_critical);
+	pRegion = &m_ppRegion[regionX][regionZ];
+	LeaveCriticalSection(&g_region_critical);
+
+	return pRegion;
+}
+
+
 BOOL C3DMap::RegionItemAdd( int rx, int rz, _ZONE_ITEM* pItem )
 {
 	if (rx < 0 || rz < 0 

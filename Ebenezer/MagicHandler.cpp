@@ -133,11 +133,11 @@ echo :
 
 	if (sid < MAX_USER)
 	{
-		g_pMain->Send_Region( &result, GetMap(), m_RegionX, m_RegionZ );
+		SendToRegion(&result);
 	}
 	else if ( sid >= NPC_BAND)
-	{ 
-		g_pMain->Send_Region( &result, pMon->GetMap(), pMon->m_sRegion_X, pMon->m_sRegion_Z );
+	{
+		pMon->SendToRegion(&result);
 	}
 }
 
@@ -226,7 +226,7 @@ void CUser::MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 		else
 			result << uint16(0);
 
-		g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
+		SendToRegion(&result);
 	}
 	return;
 }
@@ -260,7 +260,7 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 				<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
 
 			if (sid >= 0 && sid < MAX_USER) {
-				g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, NULL );
+				SendToRegion(&result);
 			}
 			return;	
 		}
@@ -388,9 +388,9 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 				<< uint16(data3) << uint16(pType->sDuration) << uint16(0) << uint16(pType->bSpeed);
 
 			if (sid >=0 && sid < MAX_USER)
-				g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, NULL);
+				SendToRegion(&result);
 			else
-				g_pMain->Send_Region(&result, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL);
+				pTUser->SendToRegion(&result);
 		}
 		// result = 1;	
 		continue; 
@@ -408,9 +408,9 @@ fail_return:
 			result << uint16(0) << uint16(pType->bSpeed);
 
 			if (sid >= 0 && sid < MAX_USER)
-				g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, NULL);
+				SendToRegion(&result);
 			else
-				g_pMain->Send_Region(&result, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL);
+				pTUser->SendToRegion(&result);
 		}
 		
 		if (sid >= 0 && sid < MAX_USER) {
@@ -475,12 +475,12 @@ bool CUser::CanCast(_MAGIC_TABLE *pMagic, uint16 sid, uint16 tid)
 		|| m_pUserData->m_bLevel < pMagic->sSkillLevel)  //Skill level check.
 		return false;
 
-	if(((this)->m_pUserData->m_sMp - pMagic->sMsp) < 0) //This user does not have enough mana for this skill.
+	if((m_pUserData->m_sMp - pMagic->sMsp) < 0) //This user does not have enough mana for this skill.
 		return false;
 
-	if( (pTargetUser != NULL && (pTargetUser->getZoneID() != (this)->getZoneID())) //The source and target aren't even in the same zone, how could they possibly interact!
+	if( (pTargetUser != NULL && (pTargetUser->GetZoneID() != GetZoneID())) //The source and target aren't even in the same zone, how could they possibly interact!
 		|| (pTargetUser != NULL && !pTargetUser->isAttackZone())				   //The target is not in an attackable zone!
-		|| (pMon != NULL && (pMon->getZoneID() != (this)->getZoneID()))) 
+		|| (pMon != NULL && (pMon->GetZoneID() != GetZoneID()))) 
 		return false;
 
 

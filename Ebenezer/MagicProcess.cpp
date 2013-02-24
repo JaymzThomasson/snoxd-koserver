@@ -150,7 +150,7 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 		return false;
 
 	// If we're in a snow war, we're only ever allowed to use the snowball skill.
-	if (m_pSrcUser->getZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
+	if (m_pSrcUser->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
 		&& m_nSkillID != SNOW_EVENT_SKILL)
 		return false;
 
@@ -166,17 +166,17 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 		{
 			if (m_pTargetUser != m_pSrcUser)
 			{
-				if (m_pTargetUser->getZoneID() != m_pSrcUser->getZoneID()
+				if (m_pTargetUser->GetZoneID() != m_pSrcUser->GetZoneID()
 					|| !m_pTargetUser->isAttackZone()
 					// Will have to add support for the outside battlefield
-					|| (m_pTargetUser->isAttackZone() && m_pTargetUser->getNation() == m_pSrcUser->getNation()))
+					|| (m_pTargetUser->isAttackZone() && m_pTargetUser->GetNation() == m_pSrcUser->GetNation()))
 					return false;
 			}
 		}
 		else if (m_pTargetMon != NULL)
 		{
-			if (m_pTargetMon->getZoneID() != m_pSrcUser->getZoneID()
-				|| m_pTargetMon->getNation() == m_pSrcUser->getNation())
+			if (m_pTargetMon->GetZoneID() != m_pSrcUser->GetZoneID()
+				|| m_pTargetMon->GetNation() == m_pSrcUser->GetNation())
 				return false;
 		}
 	}
@@ -213,13 +213,13 @@ void CMagicProcess::SendSkillToAI(_MAGIC_TABLE *pSkill)
 			if( pRightHand && m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum == 0 && pRightHand->m_bKind / 10 == WEAPON_STAFF) {					
 
 				if (pSkill->bType[0] == 3) {
-					total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 60);
+					total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->GetLevel()) / 60);
 
 					_MAGIC_TYPE3 *pType3 = g_pMain->m_Magictype3Array.GetData(m_nSkillID);
 					if (pType3 == NULL)
 						return;
 					if (m_pSrcUser->m_bMagicTypeRightHand == pType3->bAttribute ) {							
-						total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 30);
+						total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * m_pSrcUser->GetLevel()) / 30);
 					}
 					if (pType3->bAttribute == 4) {	// Remember what Sunglae told ya! (no, not really?)
 						total_magic_damage = 0;
@@ -391,7 +391,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 				goto fail_return;					
 		}
 
-		moral = pUser->getNation();
+		moral = pUser->GetNation();
 	}
 	else if (m_pSkillTarget >= NPC_BAND)     // Target existence check routine for NPC.          	
 	{
@@ -412,18 +412,18 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 		else
 		{
 			if (pSkill->bMoral == MORAL_AREA_ENEMY)
-				moral = m_pSrcUser->getNation() == KARUS ? ELMORAD : KARUS;
+				moral = m_pSrcUser->GetNation() == KARUS ? ELMORAD : KARUS;
 			else 
-				moral = m_pSrcUser->getNation();	
+				moral = m_pSrcUser->GetNation();	
 		}
 	}
 	else 
-		moral = m_pSrcUser->getNation();
+		moral = m_pSrcUser->GetNation();
 
 	switch( pSkill->bMoral ) {		// Compare morals between source and target character.
 		case MORAL_SELF:   // #1         // ( to see if spell is cast on the right target or not )
 			if(isNPC) {
-				if( m_pSkillTarget != pMon->m_sNid ) goto fail_return;
+				if( m_pSkillTarget != pMon->GetID() ) goto fail_return;
 			}
 			else {
 				if( m_pSkillTarget != m_pSrcUser->GetSocketID() ) goto fail_return;
@@ -431,13 +431,13 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 			break;
 		case MORAL_FRIEND_WITHME:	// #2
 			if ((isNPC && pMon->m_byGroup != moral)
-				|| (!isNPC && m_pSrcUser->getNation() != moral))
+				|| (!isNPC && m_pSrcUser->GetNation() != moral))
 				goto fail_return;
 			break;
 		case MORAL_FRIEND_EXCEPTME:	   // #3
 			if(isNPC) {
 				if( pMon->m_byGroup != moral ) goto fail_return;
-				if( m_pSkillTarget == pMon->m_sNid ) goto fail_return;				
+				if( m_pSkillTarget == pMon->GetID() ) goto fail_return;				
 			}
 			else {
 				if( m_pSrcUser->m_pUserData->m_bNation != moral ) goto fail_return;
@@ -464,7 +464,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 				if( pMon->m_byGroup == moral ) goto fail_return;		
 			}
 			else {
-				if( m_pSrcUser->getNation() == moral ) goto fail_return;	
+				if( m_pSrcUser->GetNation() == moral ) goto fail_return;	
 			}
 			break;	
 		case MORAL_ALL:	 // #8
@@ -485,10 +485,10 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 		case MORAL_CORPSE_FRIEND:		// #25
 			if(isNPC) {
 				if( pMon->m_byGroup != moral ) goto fail_return;
-				if( m_pSkillTarget == pMon->m_sNid ) goto fail_return;				
+				if( m_pSkillTarget == pMon->GetID() ) goto fail_return;				
 			}
 			else {
-				if( m_pSrcUser->getNation() != moral ) goto fail_return;
+				if( m_pSrcUser->GetNation() != moral ) goto fail_return;
 				if( m_pSkillTarget == m_pSrcUser->GetSocketID() ) goto fail_return;
 				if(pUser->m_bResHpType != USER_DEAD) goto fail_return; 
 			}
@@ -514,7 +514,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 			if( Class != m_pSrcUser->m_pUserData->m_sClass ) goto fail_return;
 			if( pSkill->sSkillLevel > m_pSrcUser->m_pUserData->m_bstrSkill[modulator] ) goto fail_return;
 		}
-		else if (pSkill->sSkillLevel > m_pSrcUser->getLevel()) goto fail_return;
+		else if (pSkill->sSkillLevel > m_pSrcUser->GetLevel()) goto fail_return;
 
 		if (pSkill->bType[0] == 1) {	// Weapons verification in case of COMBO attack (another hacking prevention).
 			if (pSkill->sSkill == 1055 || pSkill->sSkill == 2055) {		// Weapons verification in case of DUAL ATTACK (type 1)!		
@@ -571,7 +571,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 
 						if ((pItem->m_bRace != 0 && m_pSrcUser->m_pUserData->m_bRace != pItem->m_bRace)
 							|| (pItem->m_bClass != 0 && !m_pSrcUser->JobGroupCheck(pItem->m_bClass))
-							|| (pItem->m_bReqLevel != 0 && m_pSrcUser->getLevel() < pItem->m_bReqLevel)
+							|| (pItem->m_bReqLevel != 0 && m_pSrcUser->GetLevel() < pItem->m_bReqLevel)
 							|| (!m_pSrcUser->RobItem(pSkill->iUseItem, 1)))	
 							return false;
 					}
@@ -588,7 +588,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 						if (!pTUser) goto fail_return;
 
 						// No resurrections for low level users
-						if (pType->bType == 3 && pTUser->getLevel() <= 5)
+						if (pType->bType == 3 && pTUser->GetLevel() <= 5)
 							return false;
 
 						if (pType->bType == 3) {
@@ -1055,7 +1055,7 @@ void CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 		}
 
 		if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER) 
-			pTUser->m_bType4Buff[pType->bBuffType - 1] = (m_pSrcUser->getNation() == pTUser->getNation() ? 2 : 1);
+			pTUser->m_bType4Buff[pType->bBuffType - 1] = (m_pSrcUser->GetNation() == pTUser->GetNation() ? 2 : 1);
 		else
 			pTUser->m_bType4Buff[pType->bBuffType - 1] = 1;
 
@@ -1369,9 +1369,9 @@ void CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 					pTUser->Warp(uint16((pEvent->fPosX + x) * 10), uint16((pEvent->fPosZ + z) * 10));	
 				}
 				// TO-DO: Remove this hardcoded nonsense
-				else if(pTUser->getNation() != pTUser->getZoneID() && pTUser->getZoneID() <= ELMORAD) 
+				else if(pTUser->GetNation() != pTUser->GetZoneID() && pTUser->GetZoneID() <= ELMORAD) 
 				{	 // User is in different zone.
-					if (pTUser->getNation() == KARUS) // Land of Karus
+					if (pTUser->GetNation() == KARUS) // Land of Karus
 						pTUser->Warp(uint16((852 + x) * 10), uint16((164 + z) * 10));
 					else	// Land of Elmorad
 						pTUser->Warp(uint16((177 + x) * 10), uint16((923 + z) * 10));
@@ -1404,12 +1404,12 @@ void CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 				pTUser->ExpChange( pType->sExpRecover/100 );     // Increase target experience.
 				
 				Packet result(AG_USER_REGENE);
-				result << uint16((*itr)->GetSocketID()) << uint16(pTUser->getZoneID());
+				result << uint16((*itr)->GetSocketID()) << uint16(pTUser->GetZoneID());
 				g_pMain->Send_AIServer(&result);
 			} break;
 
 			case 12:	// Summon a target within the zone.	
-				if (m_pSrcUser->getZoneID() != pTUser->getZoneID())   // Same zone? 
+				if (m_pSrcUser->GetZoneID() != pTUser->GetZoneID())   // Same zone? 
 					goto packet_send;
 
 				pTUser->m_MagicProcess.SendSkill(m_pSkillCaster, (*itr)->GetSocketID(), 
@@ -1419,13 +1419,13 @@ void CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 				break;
 
 			case 13:	// Summon a target outside the zone.			
-				if (m_pSrcUser->getZoneID() == pTUser->getZoneID())	  // Different zone? 
+				if (m_pSrcUser->GetZoneID() == pTUser->GetZoneID())	  // Different zone? 
 					goto packet_send;
 
 				pTUser->m_MagicProcess.SendSkill(m_pSkillCaster, (*itr)->GetSocketID(), 
 					m_opcode, m_nSkillID, m_sData1, 1, m_sData3);
 
-				pTUser->ZoneChange(m_pSrcUser->getZoneID(), m_pSrcUser->m_pUserData->m_curx, m_pSrcUser->m_pUserData->m_curz) ;
+				pTUser->ZoneChange(m_pSrcUser->GetZoneID(), m_pSrcUser->m_pUserData->m_curx, m_pSrcUser->m_pUserData->m_curz) ;
 				pTUser->UserInOut( USER_REGENE );
 				//TRACE(" Summon ,, name=%s, x=%.2f, z=%.2f\n", pTUser->m_pUserData->m_id, pTUser->m_pUserData->m_curx, pTUser->m_pUserData->m_curz);
 				break;
@@ -1558,7 +1558,7 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 		}
 		else{
 			if (attribute != 4) {	// Only if the staff has an attribute.
-				damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * m_pSrcUser->getLevel()) / 60) - ((attribute_damage * 0.8f) + (attribute_damage * m_pSrcUser->getLevel()) / 30));
+				damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * m_pSrcUser->GetLevel()) / 60) - ((attribute_damage * 0.8f) + (attribute_damage * m_pSrcUser->GetLevel()) / 30));
 			}
 
 
@@ -1685,30 +1685,26 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 
 final_test :
 	if (!bFlag) {	// When players attack...
-		if ( pTUser->m_pUserData->m_bZone == m_pSrcUser->m_pUserData->m_bZone ) {		// Zone Check!
-			if ( (pTUser->m_RegionX == m_pSrcUser->m_RegionX) && (pTUser->m_RegionZ == m_pSrcUser->m_RegionZ) ) { // Region Check!
-				if (radius !=0) { 	// Radius check! ( ...in case there is one :(  )
-					float temp_x = pTUser->m_pUserData->m_curx - mousex;
-					float temp_z = pTUser->m_pUserData->m_curz - mousez;
-					float distance = pow(temp_x, 2.0f) + pow(temp_z, 2.0f);
-					if ( distance > pow((float)radius, 2.0f) ) return FALSE ;
-				}		
-				return TRUE;	// Target is in the area.
-			}
-		}	
+		if (pTUser->GetRegion() == m_pSrcUser->GetRegion()) { // Region Check!
+			if (radius !=0) { 	// Radius check! ( ...in case there is one :(  )
+				float temp_x = pTUser->GetX() - mousex;
+				float temp_z = pTUser->GetZ() - mousez;
+				float distance = pow(temp_x, 2.0f) + pow(temp_z, 2.0f);
+				if ( distance > pow((float)radius, 2.0f) ) return FALSE ;
+			}		
+			return TRUE;	// Target is in the area.
+		}
 	}
 	else {			// When monsters attack...
-		if ( pTUser->getZoneID() == pMon->getZoneID() ) {		// Zone Check!
-			if ( (pTUser->m_RegionX == pMon->m_sRegion_X) && (pTUser->m_RegionZ == pMon->m_sRegion_Z) ) { // Region Check!
-				if (radius !=0) { 	// Radius check! ( ...in case there is one :(  )
-					float temp_x = pTUser->m_pUserData->m_curx - pMon->m_fCurX;
-					float temp_z = pTUser->m_pUserData->m_curz - pMon->m_fCurZ;
-					float distance = pow(temp_x, 2.0f) + pow(temp_z, 2.0f);	
-					if ( distance > pow((float)radius, 2.0f) ) return FALSE ;
-				}		
-				return TRUE;	// Target is in the area.
-			}
-		}	
+		if (pTUser->GetRegion() == pMon->GetRegion()) { // Region Check!
+			if (radius !=0) { 	// Radius check! ( ...in case there is one :(  )
+				float temp_x = pTUser->GetX() - pMon->GetX();
+				float temp_z = pTUser->GetZ() - pMon->GetZ();
+				float distance = pow(temp_x, 2.0f) + pow(temp_z, 2.0f);	
+				if ( distance > pow((float)radius, 2.0f) ) return FALSE ;
+			}		
+			return TRUE;	// Target is in the area.
+		}
 	}
 
 	return FALSE;

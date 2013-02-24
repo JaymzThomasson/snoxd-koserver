@@ -40,8 +40,8 @@ void CUser::ExchangeReq(Packet & pkt)
 	CUser* pUser = g_pMain->GetUserPtr(destid);
 	if (pUser == NULL
 		|| pUser->isTrading()
-		|| (pUser->getNation() != getNation() && pUser->getZoneID() != 21 && getZoneID() != 21)
-		|| pUser->getZoneID() != getZoneID())
+		|| (pUser->GetNation() != GetNation() && pUser->GetZoneID() != 21 && GetZoneID() != 21)
+		|| pUser->GetZoneID() != GetZoneID())
 		goto fail_return;
 
 	m_sExchangeUser = destid;

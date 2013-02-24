@@ -57,7 +57,7 @@ void CUser::ClientEvent(Packet & pkt)
 	m_sEventNid = sNpcID;
 
 	// Get events for this zone
-	EVENT *pEvent = g_pMain->m_Event.GetData(getZoneID());
+	EVENT *pEvent = g_pMain->m_Event.GetData(GetZoneID());
 	if (pEvent == NULL)
 		return;
 
@@ -147,7 +147,7 @@ BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 
 			break;
 
 		case	LOGIC_CHECK_LEVEL:		
-			if( getLevel() >= pLE->m_LogicElseInt[0] && getLevel() <= pLE->m_LogicElseInt[1] ) {
+			if( GetLevel() >= pLE->m_LogicElseInt[0] && GetLevel() <= pLE->m_LogicElseInt[1] ) {
 				bExact = TRUE;
 			}
 			break;
@@ -338,16 +338,16 @@ void CUser::ClassChange(Packet & pkt)
 	else if (opcode == CHANGE_MONEY_REQ)	
 	{
 		uint8 sub_type = pkt.read<uint8>(); // type is irrelevant
-		uint32 money = (uint32)pow((getLevel() * 2.0f), 3.4f);
+		uint32 money = (uint32)pow((GetLevel() * 2.0f), 3.4f);
 
-		if (getLevel() < 30)	
+		if (GetLevel() < 30)	
 			money = (uint32)(money * 0.4f);
-		else if (getLevel() >= 60)
+		else if (GetLevel() >= 60)
 			money = (uint32)(money * 1.5f);
 
 		// If nation discounts are enabled (1), and this nation has won the last war, get it half price.
 		// If global discounts are enabled (2), everyone can get it for half price.
-		if ((g_pMain->m_sDiscount == 1 && g_pMain->m_byOldVictory == getNation())
+		if ((g_pMain->m_sDiscount == 1 && g_pMain->m_byOldVictory == GetNation())
 			|| g_pMain->m_sDiscount == 2)
 			money /= 2;
 

@@ -205,10 +205,10 @@ void CUser::SelectCharacter(Packet & pkt)
 	pkt >> bResult >> bInit;
 	result << bResult;
 
-	if (bResult == 0 || !getZoneID()) 
+	if (bResult == 0 || !GetZoneID()) 
 		goto fail_return;
 
-	m_pMap = g_pMain->GetZoneByID(getZoneID());
+	m_pMap = g_pMain->GetZoneByID(GetZoneID());
 	if (GetMap() == NULL)
 		goto fail_return;
 
@@ -225,10 +225,10 @@ void CUser::SelectCharacter(Packet & pkt)
 	if (g_pMain->m_byBattleOpen == NO_BATTLE && getFame() == COMMAND_CAPTAIN)
 		m_pUserData->m_bFame = CHIEF;
 
-	if ((getZoneID() != getNation() && getZoneID() < 3 && !g_pMain->m_byBattleOpen)
-		|| (getZoneID() == ZONE_BATTLE && (g_pMain->m_byBattleOpen != NATION_BATTLE))
-		|| (getZoneID() == ZONE_SNOW_BATTLE && (g_pMain->m_byBattleOpen != SNOW_BATTLE))
-		|| (getZoneID() == ZONE_FRONTIER && g_pMain->m_byBattleOpen))
+	if ((GetZoneID() != GetNation() && GetZoneID() < 3 && !g_pMain->m_byBattleOpen)
+		|| (GetZoneID() == ZONE_BATTLE && (g_pMain->m_byBattleOpen != NATION_BATTLE))
+		|| (GetZoneID() == ZONE_SNOW_BATTLE && (g_pMain->m_byBattleOpen != SNOW_BATTLE))
+		|| (GetZoneID() == ZONE_FRONTIER && g_pMain->m_byBattleOpen))
 	{
 		NativeZoneReturn();
 		Disconnect();
@@ -237,7 +237,7 @@ void CUser::SelectCharacter(Packet & pkt)
 
 	SetLogInInfoToDB(bInit);
 
-	result << getZoneID() << GetSPosX() << GetSPosZ() << GetSPosY() << g_pMain->m_byOldVictory;
+	result << GetZoneID() << GetSPosX() << GetSPosZ() << GetSPosY() << g_pMain->m_byOldVictory;
 	m_bSelectedCharacter = true;
 	Send(&result);
 
@@ -255,7 +255,7 @@ void CUser::SelectCharacter(Packet & pkt)
 		{
 			g_pMain->m_KnightsManager.SetKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id );
 		}
-		else if (getZoneID() > 2)
+		else if (GetZoneID() > 2)
 		{
 			result.Initialize(WIZ_KNIGHTS_PROCESS);
 			result << uint8(KNIGHTS_LIST_REQ) << m_pUserData->m_bKnights;
@@ -271,7 +271,7 @@ fail_return:
 void CUser::SendServerChange(char *ip, uint8 bInit)
 {
 	Packet result(WIZ_SERVER_CHANGE);
-	result << ip << uint16(_LISTEN_PORT) << bInit << getZoneID() << g_pMain->m_byOldVictory;
+	result << ip << uint16(_LISTEN_PORT) << bInit << GetZoneID() << g_pMain->m_byOldVictory;
 	Send(&result);
 }
 
@@ -331,7 +331,7 @@ void CUser::GameStart(Packet & pkt)
 
 		if (m_pUserData->m_bCity > 0)
 		{
-			int level = getLevel();
+			int level = GetLevel();
 			if (m_pUserData->m_bCity <= 100)
 				level--;
 

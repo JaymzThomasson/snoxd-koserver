@@ -283,8 +283,8 @@ void CUser::SendItemWeight()
 BOOL CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 {
 	return (pTable != NULL
-		&& getLevel() >= pTable->m_bReqLevel 
-		&& getLevel() <= pTable->m_bReqLevelMax
+		&& GetLevel() >= pTable->m_bReqLevel 
+		&& GetLevel() <= pTable->m_bReqLevelMax
 		&& m_pUserData->m_bRank >= pTable->m_bReqRank // this needs to be verified
 		&& m_pUserData->m_bTitle >= pTable->m_bReqTitle // this is unused
 		&& getStat(STAT_STR) >= pTable->m_bReqStr 

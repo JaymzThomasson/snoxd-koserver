@@ -116,6 +116,7 @@ public:
 
 	C3DMap();
 	bool Initialize(_ZONE_INFO *pZone);
+	CRegion * GetRegion(uint16 regionX, uint16 regionZ);
 	BOOL LoadEvent();
 	BOOL CheckEvent( float x, float z, CUser* pUser = NULL );
 	BOOL RegionNpcRemove( int rx, int rz, int nid );

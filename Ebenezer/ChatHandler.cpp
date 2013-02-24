@@ -72,7 +72,7 @@ void CUser::Chat(Packet & pkt)
 		type = 0x14;
 #endif
 
-	uint8 bNation = getNation();
+	uint8 bNation = GetNation();
 	uint16 sessID = GetSocketID();
 
 	// Handle GM notice & announcement commands
@@ -111,7 +111,7 @@ void CUser::Chat(Packet & pkt)
 	switch (type) 
 	{
 	case GENERAL_CHAT:
-		g_pMain->Send_NearRegion(&result, GetMap(), m_RegionX, m_RegionZ, m_pUserData->m_curx, m_pUserData->m_curz);
+		g_pMain->Send_NearRegion(&result, GetMap(), GetRegionX(), GetRegionZ(), GetX(), GetZ());
 		break;
 
 	case PRIVATE_CHAT:
@@ -137,12 +137,12 @@ void CUser::Chat(Packet & pkt)
 
 		// Characters under level 35 require 3,000 coins to shout.
 		if (!isGM()
-			&& getLevel() < 35
+			&& GetLevel() < 35
 			&& !GoldLose(SHOUT_COIN_REQUIREMENT))
 			break;
 
 		MSpChange(-(m_iMaxMp / 5));
-		g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
+		SendToRegion(&result);
 		break;
 
 	case KNIGHTS_CHAT:
@@ -160,7 +160,7 @@ void CUser::Chat(Packet & pkt)
 		break;
 	case MERCHANT_CHAT:
 		if (isMerchanting())
-			g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
+			SendToRegion(&result);
 	break;
 	//case WAR_SYSTEM_CHAT:
 	//	g_pMain->Send_All(&result);

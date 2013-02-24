@@ -33,10 +33,8 @@ CNpc::~CNpc()
 
 void CNpc::Initialize()
 {
-	m_sNid = -1;				// NPC (서버상의)일련번호
 	m_sSid = 0;
 	m_pMap = NULL;
-	m_bCurZone = -1;			// Current Zone number
 	m_fCurX = 0;			// Current X Pos;
 	m_fCurY = 0;			// Current Y Pos;
 	m_fCurZ = 0;			// Current Z Pos;
@@ -56,8 +54,6 @@ void CNpc::Initialize()
 	m_iSellingGroup = 0;
 //	m_dwStepDelay = 0;		
 
-	m_sRegion_X = 0;			// region x position
-	m_sRegion_Z = 0;			// region z position
 	m_byDirection = 0;			// npc의 방향,,
 	m_iWeapon_1 = 0;
 	m_iWeapon_2 = 0;
@@ -79,13 +75,13 @@ void CNpc::MoveResult(float xpos, float ypos, float zpos, float speed)
 
 	RegisterRegion();
 
-	result << GetID() << GetSPosX() << GetSPosZ() << GetSPosY() << uint16(speed * 10); 
-	g_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
+	result << GetID() << GetSPosX() << GetSPosZ() << GetSPosY() << uint16(speed * 10);
+	SendToRegion(&result);
 }
 
 void CNpc::NpcInOut(BYTE Type, float fx, float fz, float fy)
 {
-	C3DMap *pMap = g_pMain->GetZoneByID(getZoneID());
+	C3DMap *pMap = g_pMain->GetZoneByID(GetZoneID());
 	if (pMap == NULL)
 		return;
 
@@ -93,37 +89,33 @@ void CNpc::NpcInOut(BYTE Type, float fx, float fz, float fy)
 
 	if (Type == NPC_OUT)
 	{
-		pMap->RegionNpcRemove(m_sRegion_X, m_sRegion_Z, GetID());
+		pMap->RegionNpcRemove(GetRegionX(), GetRegionZ(), GetID());
 	}
 	else	
 	{
-		pMap->RegionNpcAdd(m_sRegion_X, m_sRegion_Z, GetID());
+		pMap->RegionNpcAdd(GetRegionX(), GetRegionZ(), GetID());
 		m_fCurX = fx;	m_fCurZ = fz;	m_fCurY = fy;
 	}
 
 	Packet result(WIZ_NPC_INOUT, Type);
 	result << GetID();
 
-	if (Type == NPC_OUT)
-	{
-		g_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
-		return;
-	}
+	if (Type != NPC_OUT)
+		GetNpcInfo(result);
 
-	GetNpcInfo(result);
-	g_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
+	SendToRegion(&result);
 }
 
 void CNpc::GetNpcInfo(Packet & pkt)
 {
 	pkt << GetEntryID()
-		<< uint8(getNation() == 0 ? 1 : 2) // Monster = 1, NPC = 2 (need to use a better flag)
+		<< uint8(GetNation() == 0 ? 1 : 2) // Monster = 1, NPC = 2 (need to use a better flag)
 		<< m_sPid
 		<< m_tNpcType
 		<< m_iSellingGroup
 		<< m_sSize
 		<< m_iWeapon_1 << m_iWeapon_2
-		<< getNation()
+		<< GetNation()
 		<< m_byLevel
 		<< GetSPosX() << GetSPosZ() << GetSPosY()
 		<< uint32(isGateOpen())
@@ -134,24 +126,25 @@ void CNpc::GetNpcInfo(Packet & pkt)
 
 void CNpc::RegisterRegion()
 {
-	int iRegX = 0, iRegZ = 0, old_region_x = 0, old_region_z = 0;
-	iRegX = (int)(m_fCurX / VIEW_DISTANCE);
-	iRegZ = (int)(m_fCurZ / VIEW_DISTANCE);
+	uint16 
+		new_region_x = GetNewRegionX(), new_region_z = GetNewRegionZ(), 
+		old_region_x = GetRegionX(),	old_region_z = GetRegionZ();
 
-	if (m_sRegion_X != iRegX || m_sRegion_Z != iRegZ)
-	{
-		C3DMap* pMap = GetMap();
-		if (pMap == NULL)
-			return;
+	if (old_region_x == new_region_x
+		&& old_region_z == new_region_z)
+		return;
+
+	C3DMap* pMap = GetMap();
+	if (pMap == NULL)
+		return;
 		
-		old_region_x = m_sRegion_X;	old_region_z = m_sRegion_Z;
-		pMap->RegionNpcRemove(m_sRegion_X, m_sRegion_Z, m_sNid);
-		m_sRegion_X = iRegX;		m_sRegion_Z = iRegZ;
-		pMap->RegionNpcAdd(m_sRegion_X, m_sRegion_Z, m_sNid);
+	pMap->RegionNpcRemove(old_region_x, old_region_z, GetID());
 
-		RemoveRegion( old_region_x - m_sRegion_X, old_region_z - m_sRegion_Z );	// delete npc 는 계산 방향이 진행방향의 반대...
-		InsertRegion( m_sRegion_X - old_region_x, m_sRegion_Z - old_region_z );	// add npc 는 계산 방향이 진행방향...
-	}
+	SetRegion(new_region_x, new_region_z);
+	pMap->RegionNpcAdd(new_region_x, new_region_z, GetID());
+
+	RemoveRegion(old_region_x - new_region_x, old_region_z - new_region_z);
+	InsertRegion(new_region_x - old_region_x, new_region_z - old_region_z);	
 }
 
 void CNpc::RemoveRegion(int del_x, int del_z)
@@ -160,7 +153,7 @@ void CNpc::RemoveRegion(int del_x, int del_z)
 
 	Packet result(WIZ_NPC_INOUT, uint8(NPC_OUT));
 	result << GetID();
-	g_pMain->Send_OldRegions(&result, del_x, del_z, GetMap(), m_sRegion_X, m_sRegion_Z);
+	g_pMain->Send_OldRegions(&result, del_x, del_z, GetMap(), GetRegionX(), GetRegionZ());
 }
 
 void CNpc::InsertRegion(int del_x, int del_z)
@@ -170,7 +163,7 @@ void CNpc::InsertRegion(int del_x, int del_z)
 	Packet result(WIZ_NPC_INOUT, uint8(NPC_IN));
 	result << GetID();
 	GetNpcInfo(result);
-	g_pMain->Send_NewRegions(&result, del_x, del_z, GetMap(), m_sRegion_X, m_sRegion_Z);
+	g_pMain->Send_NewRegions(&result, del_x, del_z, GetMap(), GetRegionX(), GetRegionZ());
 }
 
 void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
@@ -183,7 +176,7 @@ void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
 
 	// Tell everyone nearby our new status.
 	result << uint8(1) << GetID() << m_byGateOpen;
-	g_pMain->Send_Region(&result, GetMap(), m_sRegion_X, m_sRegion_Z);
+	SendToRegion(&result);
 
 	// Tell the AI server our new status
 	if (bSendAI)
@@ -197,7 +190,7 @@ void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
 /* NOTE: This code onwards needs to be merged with user code */
 void CNpc::SendToRegion(Packet *result)
 {
-	g_pMain->Send_Region(result, GetMap(), m_sRegion_X, m_sRegion_Z);
+	g_pMain->Send_Region(result, GetMap(), GetRegionX(), GetRegionZ());
 }
 
 void CNpc::OnDeath()

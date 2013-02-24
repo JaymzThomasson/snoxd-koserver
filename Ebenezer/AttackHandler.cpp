@@ -36,12 +36,12 @@ void CUser::Attack(Packet & pkt)
 		pTUser = g_pMain->GetUserPtr(tid);
  
 		if (pTUser == NULL || pTUser->isDead() || pTUser->isBlinking()
-				|| (pTUser->getNation() == getNation() && getZoneID() != 48 /* TO-DO: implement better checks */)) 
+				|| (pTUser->GetNation() == GetNation() && GetZoneID() != 48 /* TO-DO: implement better checks */)) 
 			bResult = 0;
 		else 
 		{
 			damage = GetDamage(tid, 0);
-			if (getZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE)
+			if (GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE)
 				damage = 0;		
 
 			if (damage <= 0)
@@ -71,13 +71,13 @@ void CUser::Attack(Packet & pkt)
 					if (pTUser->getFame() == COMMAND_CAPTAIN)
 					{
 						pTUser->ChangeFame(CHIEF);
-						if (pTUser->getNation() == KARUS)			g_pMain->Announcement( KARUS_CAPTAIN_DEPRIVE_NOTIFY, KARUS );
-						else if (pTUser->getNation() == ELMORAD)	g_pMain->Announcement( ELMORAD_CAPTAIN_DEPRIVE_NOTIFY, ELMORAD );
+						if (pTUser->GetNation() == KARUS)			g_pMain->Announcement( KARUS_CAPTAIN_DEPRIVE_NOTIFY, KARUS );
+						else if (pTUser->GetNation() == ELMORAD)	g_pMain->Announcement( ELMORAD_CAPTAIN_DEPRIVE_NOTIFY, ELMORAD );
 					}
 
 					pTUser->m_sWhoKilledMe = GetSocketID();		// You killed me, you.....
 
-					if( pTUser->getZoneID() != pTUser->getNation() && pTUser->m_pUserData->m_bZone <= ELMORAD)
+					if( pTUser->GetZoneID() != pTUser->GetNation() && pTUser->m_pUserData->m_bZone <= ELMORAD)
 						pTUser->ExpChange(-(pTUser->m_iMaxExp / 100));
 				}
 				SendTargetHP(0, tid, -damage);
@@ -93,7 +93,7 @@ void CUser::Attack(Packet & pkt)
 
 		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(tid);		
 		if (pNpc && pNpc->m_NpcState != NPC_DEAD && pNpc->m_iHP > 0 
-			&& (pNpc->getNation() == 0 || pNpc->getNation() == getNation()))
+			&& (pNpc->GetNation() == 0 || pNpc->GetNation() == GetNation()))
 		{
 			result.SetOpcode(AG_ATTACK_REQ);
 			result	<< bType << bResult
@@ -524,11 +524,11 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	if (regene_type == 2) {
 		magicid = 490041;	// The Stone of Ressurection magic ID
 
-		if (!RobItem(379006000, 3 * getLevel())) {
+		if (!RobItem(379006000, 3 * GetLevel())) {
 			return;	// Subtract resurrection stones.
 		}
 
-		if (getLevel() <= 5) {
+		if (GetLevel() <= 5) {
 			return;	// 5 level minimum.
 		}
 	}
@@ -548,8 +548,8 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	// TO-DO: Clean this entire thing up. Wow.
 	if (magicid == 0) {
 		if( pEvent && pEvent->byLife == 1 ) {		// Bind Point
-			m_pUserData->m_curx = m_fWill_x = pEvent->fPosX + x;
-			m_pUserData->m_curz = m_fWill_z = pEvent->fPosZ + z;
+			m_pUserData->m_curx = pEvent->fPosX + x;
+			m_pUserData->m_curz = pEvent->fPosZ + z;
 			m_pUserData->m_cury = 0;
 		}
 		else if( m_pUserData->m_bNation != m_pUserData->m_bZone) {	// Free Zone or Opposite Zone
@@ -645,8 +645,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 		g_pMain->Send_AIServer(&result);
 	}
 
-	m_RegionX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
-	m_RegionZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
+	SetRegion(GetNewRegionX(), GetNewRegionZ());
 
 	UserInOut(USER_REGENE);		
 

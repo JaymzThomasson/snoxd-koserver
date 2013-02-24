@@ -704,7 +704,7 @@ void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 na
 		CUser * pUser = static_cast<CUser *>(itr->second);
 		if (pUser == pExceptUser 
 			|| !pUser->isInGame()
-			|| (nation != 0 && nation != pUser->getNation()))
+			|| (nation != 0 && nation != pUser->GetNation()))
 			continue;
 
 		pUser->Send(pkt);
@@ -1179,8 +1179,9 @@ void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
 
 	result << uint16(0); // placeholder for the user count
 
+	int16 rx = pSendUser->GetRegionX(), rz = pSendUser->GetRegionZ();
 	foreach_region(x, z)
-		GetRegionUserIn(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, user_count);
+		GetRegionUserIn(pMap, rx + x, rz + z, result, user_count);
 
 	result.put(0, uint16(user_count));
 	pSendUser->SendCompressed(&result);
@@ -1198,8 +1199,9 @@ void CEbenezerDlg::RegionUserInOutForMe(CUser *pSendUser)
 
 	result << uint16(0); // placeholder for the user count
 
+	int16 rx = pSendUser->GetRegionX(), rz = pSendUser->GetRegionZ();
 	foreach_region(x, z)
-		GetRegionUserList(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, user_count);
+		GetRegionUserList(pMap, rx + x, rz + z, result, user_count);
 
 	result.put(1, user_count);
 	pSendUser->SendCompressed(&result);
@@ -1217,8 +1219,8 @@ void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Pac
 	{
 		CUser *pUser = GetUserPtr(*itr->second);
 		if (pUser == NULL 
-			|| pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z 
-			|| !pUser->isInGame())
+			|| !pUser->isInGame()
+			|| pUser->GetRegionX() != region_x || pUser->GetRegionZ() != region_z)
 			continue;
 
 		pkt << uint8(0) << pUser->GetSocketID();
@@ -1241,8 +1243,8 @@ void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, int region_x, int region_z, P
 	{
 		CUser *pUser = GetUserPtr(*itr->second);
 		if (pUser == NULL 
-			|| pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z 
-			|| !pUser->isInGame())
+			|| !pUser->isInGame()
+			|| pUser->GetRegionX() != region_x || pUser->GetRegionZ() != region_z)
 			continue;
 
 		pkt << pUser->GetSocketID();
@@ -1264,8 +1266,9 @@ void CEbenezerDlg::MerchantUserInOutForMe(CUser *pSendUser)
 
 	result << uint16(0); // placeholder for user count
 
+	int16 rx = pSendUser->GetRegionX(), rz = pSendUser->GetRegionZ();
 	foreach_region(x, z)
-		GetRegionMerchantUserIn(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, user_count);
+		GetRegionMerchantUserIn(pMap, rx + x, rz + z, result, user_count);
 
 	result.put(1, user_count);
 	pSendUser->SendCompressed(&result);
@@ -1284,8 +1287,8 @@ void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, int region_x, int regio
 	{
 		CUser *pUser = GetUserPtr(*itr->second);
 		if (pUser == NULL 
-			|| pUser->m_RegionX != region_x || pUser->m_RegionZ != region_z 
 			|| !pUser->isInGame()
+			|| pUser->GetRegionX() != region_x || pUser->GetRegionZ() != region_z 
 			|| !pUser->isMerchanting())
 			continue;
 
@@ -1313,11 +1316,12 @@ void CEbenezerDlg::NpcInOutForMe(CUser* pSendUser)
 	uint16 npc_count = 0;
 	result << uint16(0); // placeholder for NPC count
 
+	int16 rx = pSendUser->GetRegionX(), rz = pSendUser->GetRegionZ();
 	foreach_region(x, z)
-		GetRegionNpcIn(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, npc_count);
+		GetRegionNpcIn(pMap, rx + x, rz + z, result, npc_count);
 
 	result.put(0, npc_count);
-	pSendUser->Send(&result); // NOTE: Compress
+	pSendUser->SendCompressed(&result);
 }
 
 void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
@@ -1332,7 +1336,7 @@ void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, int region_x, int region_z, Pack
 	{
 		CNpc *pNpc = m_arNpcArray.GetData(*itr->second);
 		if (pNpc == NULL
-			|| pNpc->m_sRegion_X != region_x || pNpc->m_sRegion_Z != region_z
+			|| pNpc->GetRegionX() != region_x || pNpc->GetRegionZ() != region_z
 			|| pNpc->isDead())
 			continue;
 
@@ -1355,11 +1359,12 @@ void CEbenezerDlg::RegionNpcInfoForMe(CUser *pSendUser)
 	uint16 npc_count = 0;
 	result << uint16(0); // placeholder for NPC count
 
+	int16 rx = pSendUser->GetRegionX(), rz = pSendUser->GetRegionZ();
 	foreach_region(x, z)
-		GetRegionNpcList(pMap, pSendUser->m_RegionX + x, pSendUser->m_RegionZ + z, result, npc_count);
+		GetRegionNpcList(pMap, rx + x, rz + z, result, npc_count);
 
 	result.put(0, npc_count);
-	pSendUser->Send(&result); // NOTE: Compress
+	pSendUser->SendCompressed(&result);
 }
 
 void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
@@ -1601,7 +1606,7 @@ CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
 
 	for( int i = 0; i < nSize; i++)	{
 		pNpc = m_arNpcArray.GetData( i+NPC_BAND );
-		if (pNpc == NULL || pNpc->getZoneID() != cur_zone
+		if (pNpc == NULL || pNpc->GetZoneID() != cur_zone
 			|| pNpc->m_sPid != sid) // this isn't a typo (unless it's mgame's typo).
 			continue;
 
@@ -1749,8 +1754,8 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 	{
 		CUser* pTUser = static_cast<CUser *>(itr->second);
 		if (!pTUser->isInGame()
-			|| pTUser->getZoneID() != pTUser->getNation() 
-			|| pTUser->getNation() != m_bVictory)
+			|| pTUser->GetZoneID() != pTUser->GetNation() 
+			|| pTUser->GetNation() != m_bVictory)
 			continue;
 
 		pTUser->GoldGain(AWARD_GOLD);
@@ -1788,8 +1793,8 @@ void CEbenezerDlg::BanishLosers()
 			pUser->ChangeFame(CHIEF);
 
 		// Kick out invaders
-		if (pUser->getZoneID() <= ELMORAD
-			&& pUser->getZoneID() != pUser->getNation())
+		if (pUser->GetZoneID() <= ELMORAD
+			&& pUser->GetZoneID() != pUser->GetNation())
 			pUser->KickOutZoneUser(TRUE);
 	}
 	s_socketMgr.ReleaseLock();
@@ -1923,7 +1928,7 @@ uint16 CEbenezerDlg::GetKnightsAllMembers(uint16 sClanID, Packet & result, uint1
 
 		CUser *pUser = p->pSession;
 		if (pUser != NULL)
-			result << pUser->m_pUserData->m_id << pUser->getFame() << pUser->getLevel() << pUser->m_pUserData->m_sClass << uint8(1);
+			result << pUser->m_pUserData->m_id << pUser->getFame() << pUser->GetLevel() << pUser->m_pUserData->m_sClass << uint8(1);
 		else // normally just clan leaders see this, but we can be generous now.
 			result << pKnights->m_arKnightsUser[i].strUserName << uint8(0) << uint8(0) << uint16(0) << uint8(0);
 
@@ -2032,10 +2037,10 @@ void CEbenezerDlg::KickOutZoneUsers(short zone)
 		// Only kick users from requested zone.
 		CUser * pUser = static_cast<CUser *>(itr->second);
 		if (!pUser->isInGame()
-			|| pUser->getZoneID() != zone) 
+			|| pUser->GetZoneID() != zone) 
 			continue;
 
-		C3DMap * pMap = (pUser->getNation() == KARUS ? pKarusMap : pElMoradMap);
+		C3DMap * pMap = (pUser->GetNation() == KARUS ? pKarusMap : pElMoradMap);
 		pUser->ZoneChange(pMap->m_nZoneNumber, pMap->m_fInitX, pMap->m_fInitZ);
 
 	}
@@ -2066,7 +2071,7 @@ void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser)
 		CUser * pUser = static_cast<CUser *>(itr->second);
 		if (pUser->isInGame() 
 			&& pUser != pExceptUser 
-			&& (nation == 0 || nation == pUser->getNation()))
+			&& (nation == 0 || nation == pUser->GetNation()))
 			pUser->Send(pkt);
 	}
 	s_socketMgr.ReleaseLock();
@@ -2125,7 +2130,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 				goto next_row;
 			
 			pUser = GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
-			if (pUser == NULL || pUser->getZoneID() != ZONE_BATTLE)
+			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				goto next_row;
 
 			if( pUser->m_pUserData->m_bKnights == nKnightsIndex	)	{
@@ -2139,7 +2144,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 			if (nElmoRank == 5)
 				goto next_row;
 			pUser = GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
-			if (pUser == NULL || pUser->getZoneID() != ZONE_BATTLE)
+			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				goto next_row;
 			if( pUser->m_pUserData->m_bKnights == nKnightsIndex	)	{
 				sprintf_s( strElmoCaptain[nElmoRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData->m_id);
@@ -2179,7 +2184,7 @@ next_row:
 		if (!pUser->isInGame())
 			continue;
 
-		if (pUser->getNation() == KARUS)
+		if (pUser->GetNation() == KARUS)
 			pUser->Send(send_buff, send_index);
 		else
 			pUser->Send(temp_buff, temp_index);
@@ -2199,10 +2204,10 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 	foreach (itr, sessMap)
 	{
 		CUser * pUser = static_cast<CUser *>(itr->second);
-		if (!pUser->isInGame() || pUser->getZoneID() != ZONE_BATTLE)
+		if (!pUser->isInGame() || pUser->GetZoneID() != ZONE_BATTLE)
 			continue;
 
-		if (pUser->getNation() == KARUS)
+		if (pUser->GetNation() == KARUS)
 			nKarusMan++;
 		else
 			nElmoradMan++;

@@ -84,15 +84,15 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 
 	// Only allow partying of the enemy nation in Moradon or FT.
 	// Also, we threw in a check to prevent them from partying from other zones.
-	if ((getNation() != pUser->getNation() && getZoneID() != 21 && getZoneID() != 55)
-		|| getZoneID() != pUser->getZoneID())
+	if ((GetNation() != pUser->GetNation() && GetZoneID() != 21 && GetZoneID() != 55)
+		|| GetZoneID() != pUser->GetZoneID())
 	{
 		errorCode = -3;
 		goto fail_return;
 	}
 
-	if( !(   ( pUser->getLevel() <= (int)(getLevel() * 1.5) && pUser->getLevel() >= (int)(getLevel() * 1.5)) 
-		  || ( pUser->getLevel() <= (getLevel() + 8) && pUser->getLevel() >= ((int)(getLevel()) - 8))))
+	if( !(   ( pUser->GetLevel() <= (int)(GetLevel() * 1.5) && pUser->GetLevel() >= (int)(GetLevel() * 1.5)) 
+		  || ( pUser->GetLevel() <= (GetLevel() + 8) && pUser->GetLevel() >= ((int)(GetLevel()) - 8))))
 	{
 		errorCode = -2;
 		goto fail_return;
@@ -186,7 +186,7 @@ void CUser::PartyInsert()
 				<< uint8(1) // success
 				<< pUser->m_pUserData->m_id
 				<< pUser->m_iMaxHp << pUser->m_pUserData->m_sHp
-				<< pUser->getLevel() << pUser->m_pUserData->m_sClass
+				<< pUser->GetLevel() << pUser->m_pUserData->m_sClass
 				<< pUser->m_iMaxMp << pUser->m_pUserData->m_sMp;
 		Send(&result);
 	}
@@ -206,7 +206,7 @@ void CUser::PartyInsert()
 			<< uint8(1) // success
 			<< m_pUserData->m_id
 			<< m_iMaxHp << m_pUserData->m_sHp
-			<< getLevel() << m_pUserData->m_sClass
+			<< GetLevel() << m_pUserData->m_sClass
 			<< m_iMaxMp << m_pUserData->m_sMp;
 	g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 
@@ -345,12 +345,12 @@ void CUser::PartyBBSRegister(Packet & pkt)
 	for (i = 0 ; i < MAX_USER ; i++) {
 		pUser = g_pMain->GetUnsafeUserPtr(i);
 		if (pUser == NULL
-			|| pUser->getNation() != getNation()
+			|| pUser->GetNation() != GetNation()
 			|| pUser->m_bNeedParty == 1) 
 			continue;
 
-		if( !(   ( pUser->getLevel() <= (int)(getLevel() * 1.5) && pUser->getLevel() >= (int)(getLevel() * 1.5)) 
-			  || ( pUser->getLevel() <= (getLevel() + 8) && pUser->getLevel() >= ((int)(getLevel()) - 8))))
+		if( !(   ( pUser->GetLevel() <= (int)(GetLevel() * 1.5) && pUser->GetLevel() >= (int)(GetLevel() * 1.5)) 
+			  || ( pUser->GetLevel() <= (GetLevel() + 8) && pUser->GetLevel() >= ((int)(GetLevel()) - 8))))
 			  continue;
 
 		if (pUser->GetSocketID() == GetSocketID()) break;
@@ -422,12 +422,12 @@ void CUser::PartyBBSNeeded(Packet & pkt, BYTE type)
 	for (i = 0 ; i < MAX_USER ; i++) {
 		pUser = g_pMain->GetUnsafeUserPtr(i);
 		if (pUser == NULL
-			|| pUser->getNation() != getNation()
+			|| pUser->GetNation() != GetNation()
 			|| pUser->m_bNeedParty == 1) 
 			continue;
 
-		if( !(   ( pUser->getLevel() <= (int)(getLevel() * 1.5) && pUser->getLevel() >= (int)(getLevel() * 1.5)) 
-			  || ( pUser->getLevel() <= (getLevel() + 8) && pUser->getLevel() >= ((int)(getLevel()) - 8))))
+		if( !(   ( pUser->GetLevel() <= (int)(GetLevel() * 1.5) && pUser->GetLevel() >= (int)(GetLevel() * 1.5)) 
+			  || ( pUser->GetLevel() <= (GetLevel() + 8) && pUser->GetLevel() >= ((int)(GetLevel()) - 8))))
 			  continue;
 
 		BBS_Counter++;
@@ -436,7 +436,7 @@ void CUser::PartyBBSNeeded(Packet & pkt, BYTE type)
 		if (valid_counter >= MAX_BBS_PAGE) continue;
 
 		SetKOString(send_buff, pUser->m_pUserData->m_id, send_index);
-		SetByte(send_buff, pUser->getLevel(), send_index);
+		SetByte(send_buff, pUser->GetLevel(), send_index);
 		SetShort(send_buff, pUser->m_pUserData->m_sClass, send_index);
 
 		valid_counter++;		// Increment counters.

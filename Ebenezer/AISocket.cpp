@@ -163,8 +163,8 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 		CNpc* pNpc = new CNpc();
 		pNpc->Initialize();
 
-		pkt >> bType >> pNpc->m_sNid >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
-			>> pNpc->m_bCurZone >> strName >> pNpc->m_byGroup >> pNpc->m_byLevel >> pNpc->m_fCurX >> pNpc->m_fCurZ >> pNpc->m_fCurY
+		pkt >> bType >> pNpc->m_id >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
+			>> pNpc->m_bZoneID >> strName >> pNpc->m_byGroup >> pNpc->m_byLevel >> pNpc->m_fCurX >> pNpc->m_fCurZ >> pNpc->m_fCurY
 			>> bDirection >> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP
 			>> pNpc->m_byGateOpen >> pNpc->m_sHitRate >> pNpc->m_byObjectType;
 
@@ -177,11 +177,10 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 		//TRACE("Recv --> NpcUserInfo : uid = %d, x=%f, z=%f.. \n", nid, fPosX, fPosZ);
 		strcpy(pNpc->m_strName, strName.c_str());
 
-		pNpc->m_pMap = g_pMain->GetZoneByID(pNpc->getZoneID());
+		pNpc->m_pMap = g_pMain->GetZoneByID(pNpc->GetZoneID());
 		pNpc->m_NpcState = NPC_LIVE;
 		pNpc->m_byDirection = bDirection;
-		pNpc->m_sRegion_X = (int)pNpc->m_fCurX / VIEW_DISTANCE;
-		pNpc->m_sRegion_Z = (int)pNpc->m_fCurZ / VIEW_DISTANCE;
+		pNpc->SetRegion(pNpc->GetNewRegionX(), pNpc->GetNewRegionZ());
 
 		if (pNpc->GetMap() == NULL)
 		{
@@ -199,21 +198,21 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 
 	//	TRACE("Recv --> NpcUserInfoAll : uid=%d, sid=%d, name=%s, x=%f, z=%f. gate=%d, objecttype=%d \n", nid, sPid, szName, fPosX, fPosZ, byGateOpen, byObjectType);
 
-		if (!g_pMain->m_arNpcArray.PutData(pNpc->m_sNid, pNpc))
+		if (!g_pMain->m_arNpcArray.PutData(pNpc->GetID(), pNpc))
 		{
-			TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
+			TRACE("Npc PutData Fail - %d\n", pNpc->GetID());
 			delete pNpc;
 			continue;
 		}
 
 		if (bType == 0)
 		{
-			TRACE("Recv --> NpcUserInfoAll : nid=%d, sid=%d, name=%s\n", pNpc->m_sNid, pNpc->m_sSid, strName.c_str());
+			TRACE("Recv --> NpcUserInfoAll : nid=%d, sid=%d, name=%s\n", pNpc->GetID(), pNpc->m_sSid, strName.c_str());
 			continue;
 		}
 
-		pNpc->GetMap()->RegionNpcAdd(pNpc->m_sRegion_X, pNpc->m_sRegion_Z, pNpc->m_sNid);
-		pNpc->NpcInOut(NPC_IN, pNpc->m_fCurX, pNpc->m_fCurZ,pNpc->m_fCurY);
+		pNpc->GetMap()->RegionNpcAdd(pNpc->GetRegionX(), pNpc->GetRegionZ(), pNpc->GetID());
+		pNpc->NpcInOut(NPC_IN, pNpc->GetX(), pNpc->GetZ(), pNpc->GetY());
 	}
 }
 
@@ -309,10 +308,10 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 
 		if (bResult == 2 || bResult== 4)		// npc dead
 		{
-			pNpc->GetMap()->RegionNpcRemove(pNpc->m_sRegion_X, pNpc->m_sRegion_Z, tid);
+			pNpc->GetMap()->RegionNpcRemove(pNpc->GetRegionX(), pNpc->GetRegionZ(), tid);
 			
 //			TRACE("--- Npc Dead : Npc�� Region���� ����ó��.. ,, region_x=%d, y=%d\n", pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
-			pNpc->m_sRegion_X = 0;		pNpc->m_sRegion_Z = 0;
+			pNpc->SetRegion(0, 0);
 			pNpc->m_NpcState = NPC_DEAD;
 			if( pNpc->m_byObjectType == SPECIAL_OBJECT )	{
 				pEvent = pNpc->GetMap()->GetObjectEvent( pNpc->m_sSid );
@@ -358,8 +357,8 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 					pUser->ChangeFame(CHIEF);
 
 					TRACE("---> AISocket->RecvNpcAttack() Dead Captain Deprive - %s\n", pUser->m_pUserData->m_id);
-					if (pUser->getNation() == KARUS)		g_pMain->Announcement( KARUS_CAPTAIN_DEPRIVE_NOTIFY, KARUS );
-					else if (pUser->getNation() == ELMORAD)	g_pMain->Announcement( ELMORAD_CAPTAIN_DEPRIVE_NOTIFY, ELMORAD );
+					if (pUser->GetNation() == KARUS)		g_pMain->Announcement( KARUS_CAPTAIN_DEPRIVE_NOTIFY, KARUS );
+					else if (pUser->GetNation() == ELMORAD)	g_pMain->Announcement( ELMORAD_CAPTAIN_DEPRIVE_NOTIFY, ELMORAD );
 
 				}
 
@@ -392,9 +391,10 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 			Packet result(WIZ_ATTACK, byAttackType);
 			result << bResult << sid << tid;
 			if (bResult == 2)	{		// npc dead
-				pNpc->GetMap()->RegionNpcRemove(pMon->m_sRegion_X, pMon->m_sRegion_Z, tid);
+				pNpc->GetMap()->RegionNpcRemove(pMon->GetRegionX(), pMon->GetRegionZ(), tid);
 //				TRACE("--- Npc Dead : Npc�� Region���� ����ó��.. ,, region_x=%d, y=%d\n", pMon->m_sRegion_X, pMon->m_sRegion_Z);
-				pMon->m_sRegion_X = 0;		pMon->m_sRegion_Z = 0;
+
+				pMon->SetRegion(0, 0);
 				pMon->m_NpcState = NPC_DEAD;
 				if( pNpc->m_byObjectType == SPECIAL_OBJECT )	{
 					pEvent = pNpc->GetMap()->GetObjectEvent( pMon->m_sSid );
@@ -427,7 +427,7 @@ void CAISocket::RecvMagicAttackResult(Packet & pkt)
 		if (!pNpc)
 			return;
 
-		g_pMain->Send_Region(&pkt, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
+		pNpc->SendToRegion(&pkt);
 	}
 	else if (byCommand == MAGIC_EFFECTING)
 	{
@@ -437,7 +437,7 @@ void CAISocket::RecvMagicAttackResult(Packet & pkt)
 			if (pUser == NULL || pUser->isDead())
 				return;
 
-			g_pMain->Send_Region(&pkt, pUser->GetMap(), pUser->m_RegionX, pUser->m_RegionZ);
+			pUser->SendToRegion(&pkt);
 			return;
 		}
 
@@ -462,7 +462,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 		return;
 
 	pkt >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
-		>> pNpc->m_bCurZone >> strName >> pNpc->m_byGroup >> pNpc->m_byLevel 
+		>> pNpc->m_bZoneID >> strName >> pNpc->m_byGroup >> pNpc->m_byLevel 
 		>> pNpc->m_fCurX >> pNpc->m_fCurZ >> pNpc->m_fCurY >> byDirection >> pNpc->m_NpcState
 		>> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP >> pNpc->m_byGateOpen
 		>> pNpc->m_sHitRate >> pNpc->m_byObjectType;
@@ -484,7 +484,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 		char strLog[256]; 
 		CTime t = CTime::GetCurrentTime();
 		sprintf_s(strLog, sizeof(strLog), "## time(%d:%d-%d) npc regen check(%d) : nid=%d, name=%s, x=%d, z=%d, rx=%d, rz=%d ## \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), 
-			pNpc->m_NpcState, pNpc->m_sNid, pNpc->m_strName, (int)pNpc->m_fCurX, (int)pNpc->m_fCurZ, pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
+			pNpc->m_NpcState, pNpc->GetID(), pNpc->m_strName, (int)pNpc->m_fCurX, (int)pNpc->m_fCurZ, pNpc->GetRegionX(), pNpc->GetRegionZ());
 		EnterCriticalSection( &g_LogFile_critical );
 		g_pMain->m_RegionLogFile.Write( strLog, strlen(strLog) );
 		LeaveCriticalSection( &g_LogFile_critical );
@@ -496,8 +496,8 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 	if (pNpc->GetMap() == NULL)
 		return;
 
-	pNpc->m_sRegion_X = (int)pNpc->m_fCurX / VIEW_DISTANCE;
-	pNpc->m_sRegion_Z = (int)pNpc->m_fCurZ / VIEW_DISTANCE;
+	pNpc->InsertRegion(pNpc->GetRegionX(), pNpc->GetRegionZ());
+	pNpc->SetRegion(pNpc->GetNewRegionX(), pNpc->GetNewRegionZ());
 
 	if (pNpc->m_byObjectType == SPECIAL_OBJECT)
 	{
@@ -508,11 +508,11 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 
 	if (Mode == 0)
 	{
-		TRACE("RecvNpcInfo - dead monster nid=%d, name=%s\n", pNpc->m_sNid, pNpc->m_strName);
+		TRACE("RecvNpcInfo - dead monster nid=%d, name=%s\n", pNpc->GetID(), pNpc->m_strName);
 		return;
 	}
 
-	pNpc->NpcInOut(NPC_IN, pNpc->m_fCurX, pNpc->m_fCurZ, pNpc->m_fCurY);
+	pNpc->NpcInOut(NPC_IN, pNpc->GetX(), pNpc->GetZ(), pNpc->GetY());
 }
 
 void CAISocket::RecvUserHP(Packet & pkt)
@@ -668,10 +668,10 @@ void CAISocket::InitEventMonster(int index)
 		if(pNpc == NULL) return;
 		pNpc->Initialize();
 
-		pNpc->m_sNid = i+NPC_BAND;
+		pNpc->SetID(i+NPC_BAND);
 		//TRACE("InitEventMonster : uid = %d\n", pNpc->m_sNid);
-		if( !g_pMain->m_arNpcArray.PutData( pNpc->m_sNid, pNpc) ) {
-			TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
+		if( !g_pMain->m_arNpcArray.PutData( pNpc->GetID(), pNpc) ) {
+			TRACE("Npc PutData Fail - %d\n", pNpc->GetID());
 			delete pNpc;
 			pNpc = NULL;
 		}	
@@ -699,7 +699,7 @@ void CAISocket::RecvGateDestory(Packet & pkt)
 		return;
 
 	pNpc->m_byGateOpen = bGateStatus;
-	TRACE("RecvGateDestory - (%d,%s), gate_status=%d\n", pNpc->m_sNid, pNpc->m_strName, pNpc->m_byGateOpen);
+	TRACE("RecvGateDestory - (%d,%s), gate_status=%d\n", pNpc->GetID(), pNpc->m_strName, pNpc->m_byGateOpen);
 }
 
 void CAISocket::RecvNpcDead(Packet & pkt)
@@ -720,13 +720,12 @@ void CAISocket::RecvNpcDead(Packet & pkt)
 			pEvent->byLife = 0;
 	}
 
-	pMap->RegionNpcRemove(pNpc->m_sRegion_X, pNpc->m_sRegion_Z, nid);
+	pMap->RegionNpcRemove(pNpc->GetRegionX(), pNpc->GetRegionZ(), nid);
 
 	Packet result(WIZ_DEAD);
 	result << nid;
-	g_pMain->Send_Region(&result, pNpc->GetMap(), pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
-
-	pNpc->m_sRegion_X = pNpc->m_sRegion_Z = 0;
+	pNpc->SendToRegion(&result);
+	pNpc->SetRegion(0, 0);
 }
 
 void CAISocket::RecvNpcInOut(Packet & pkt)

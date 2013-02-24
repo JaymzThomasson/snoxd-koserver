@@ -69,9 +69,6 @@ void CUser::Initialize()
 	m_curx = 0.0f;				// 현재 X 좌표
 	m_cury = 0.0f;				// 현재 Y 좌표
 	m_curz = 0.0f;				// 현재 Z 좌표
-	m_fWill_x = 0.0f;
-	m_fWill_y = 0.0f;
-	m_fWill_z = 0.0f;
 	m_curZone = -1;				// 현재 존
 	m_pMap = NULL;
 	m_bNation = 0;						// 소속국가

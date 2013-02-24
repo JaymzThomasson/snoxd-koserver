@@ -87,9 +87,9 @@ void CUser::MerchantOpen()
 		errorCode = MERCHANT_OPEN_SHOPPING;
 	else if (isTrading())
 		errorCode = MERCHANT_OPEN_TRADING;
-	else if (getZoneID() > 21 || getZoneID() <= ELMORAD)
+	else if (GetZoneID() > 21 || GetZoneID() <= ELMORAD)
 		errorCode = MERCHANT_OPEN_INVALID_ZONE;
-	else if (getLevel() < 30)
+	else if (GetLevel() < 30)
 		errorCode = MERCHANT_OPEN_UNDERLEVELED;
 	else if (isMerchanting())
 		errorCode = MERCHANT_OPEN_MERCHANTING;

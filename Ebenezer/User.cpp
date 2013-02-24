@@ -43,9 +43,6 @@ void CUser::Initialize()
 	m_bIsMerchanting = false;
 	m_bPartyLeader = false;
 
-	m_RegionX = -1;
-	m_RegionZ = -1;
-
 	m_sDirection = 0;
 
 	m_sTotalHit = 0;
@@ -584,11 +581,11 @@ void CUser::SendMyInfo()
 	result	<< GetSocketID()
 			<< m_pUserData->m_id
 			<< GetSPosX() << GetSPosZ() << GetSPosY()
-			<< getNation() 
+			<< GetNation() 
 			<< m_pUserData->m_bRace << m_pUserData->m_sClass << m_pUserData->m_bFace
 			<< m_pUserData->m_nHair
 			<< m_pUserData->m_bRank << m_pUserData->m_bTitle
-			<< getLevel()
+			<< GetLevel()
 			<< m_pUserData->m_sPoints
 			<< m_iMaxExp << m_pUserData->m_iExp
 			<< m_pUserData->m_iLoyalty << m_pUserData->m_iLoyaltyMonthly
@@ -653,7 +650,7 @@ void CUser::SendMyInfo()
 	g_pMain->AddCharacterName(this);
 
 	SendPremiumInfo();
-	SetZoneAbilityChange(getZoneID());
+	SetZoneAbilityChange();
 	Send2AI_UserUpdateInfo(true); 
 }
 
@@ -670,8 +667,8 @@ void CUser::SetMaxHp(int iFlag)
 		m_iMaxHp = 100;
 	}
 	else	{
-		m_iMaxHp = (short)(((p_TableCoefficient->HP * getLevel() * getLevel() * temp_sta ) 
-		      + (0.1 * getLevel() * temp_sta ) + (temp_sta / 5)) + m_sMaxHPAmount + m_sItemMaxHp);
+		m_iMaxHp = (short)(((p_TableCoefficient->HP * GetLevel() * GetLevel() * temp_sta ) 
+		      + (0.1 * GetLevel() * temp_sta ) + (temp_sta / 5)) + m_sMaxHPAmount + m_sItemMaxHp);
 		if( iFlag == 1 )	m_pUserData->m_sHp = m_iMaxHp + 20;
 		else if( iFlag == 2 )	m_iMaxHp = 100;
 	}
@@ -698,15 +695,15 @@ void CUser::SetMaxMp()
 
 	if( p_TableCoefficient->MP != 0)
 	{
-		m_iMaxMp = (short)((p_TableCoefficient->MP * getLevel() * getLevel() * temp_intel)
-				  + (0.1f * getLevel() * 2 * temp_intel) + (temp_intel / 5));
+		m_iMaxMp = (short)((p_TableCoefficient->MP * GetLevel() * GetLevel() * temp_intel)
+				  + (0.1f * GetLevel() * 2 * temp_intel) + (temp_intel / 5));
 		m_iMaxMp += m_sItemMaxMp;		
 		m_iMaxMp += 20;	
 	}
 	else if( p_TableCoefficient->SP != 0)
 	{
-		m_iMaxMp = (short)((p_TableCoefficient->SP * getLevel() * getLevel() * temp_sta )
-			  + (0.1f * getLevel() * temp_sta) + (temp_sta / 5));
+		m_iMaxMp = (short)((p_TableCoefficient->SP * GetLevel() * GetLevel() * temp_sta )
+			  + (0.1f * GetLevel() * temp_sta) + (temp_sta / 5));
 		m_iMaxMp += m_sItemMaxMp;
 	}
 
@@ -737,9 +734,10 @@ void CUser::SendWeather()
 	Send(&result);
 }
 
-void CUser::SetZoneAbilityChange(BYTE zone)
+void CUser::SetZoneAbilityChange()
 {
 	Packet result(WIZ_ZONEABILITY, uint8(1));
+	uint8 zone = GetZoneID();
 
 	// Moradon or temples (but NOT FT).
 	if (zone == 21
@@ -807,13 +805,13 @@ void CUser::SetDetailData()
 	SetSlotItemValue();
 	SetUserAbility();
 
-	if (getLevel() > MAX_LEVEL) 
+	if (GetLevel() > MAX_LEVEL) 
 	{
 		Disconnect();
 		return;
 	}
 
-	m_iMaxExp = g_pMain->GetExpByLevel(getLevel());
+	m_iMaxExp = g_pMain->GetExpByLevel(GetLevel());
 
 	m_pMap = g_pMain->GetZoneByID(m_pUserData->m_bZone);
 	if (m_pMap == NULL) 
@@ -821,38 +819,33 @@ void CUser::SetDetailData()
 		Disconnect();
 		return;
 	}
-
-	m_fWill_x = m_pUserData->m_curx;
-	m_fWill_z = m_pUserData->m_curz;
-	m_fWill_y = m_pUserData->m_cury;
-
-	m_RegionX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
-	m_RegionZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
 }
 
 void CUser::RegisterRegion()
 {
-	int iRegX = 0, iRegZ = 0, old_region_x = 0, old_region_z = 0;
-	iRegX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
-	iRegZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
+	uint16 
+		new_region_x = GetNewRegionX(), new_region_z = GetNewRegionZ(), 
+		old_region_x = GetRegionX(),	old_region_z = GetRegionZ();
 
-	if (m_RegionX == iRegX && m_RegionZ == iRegZ)
+	if (old_region_x == new_region_x
+		&& old_region_z == new_region_z)
 		return;
 
 	C3DMap* pMap = GetMap();
 	if (pMap == NULL)
 		return;
 		
-	old_region_x = m_RegionX;	old_region_z = m_RegionZ;
-	pMap->RegionUserRemove(m_RegionX, m_RegionZ, GetSocketID());
-	m_RegionX = iRegX;		m_RegionZ = iRegZ;
-	pMap->RegionUserAdd(m_RegionX, m_RegionZ, GetSocketID());
+	pMap->RegionUserRemove(old_region_x, old_region_z, GetSocketID());
+
+	SetRegion(new_region_x, new_region_z);
+	pMap->RegionUserAdd(new_region_x, new_region_z, GetSocketID());
 
 	if (!isInGame())
 		return;
 
-	RemoveRegion( old_region_x - m_RegionX, old_region_z - m_RegionZ );
-	InsertRegion( m_RegionX - old_region_x, m_RegionZ - old_region_z );	
+	RemoveRegion(old_region_x - new_region_x, old_region_z - new_region_z);
+	InsertRegion(new_region_x - old_region_x, new_region_z - old_region_z);	
+
 	g_pMain->RegionNpcInfoForMe(this);
 	g_pMain->RegionUserInOutForMe(this);
 }
@@ -861,7 +854,7 @@ void CUser::RemoveRegion(int del_x, int del_z)
 {
 	Packet result(WIZ_USER_INOUT);
 	result << uint16(USER_OUT) << GetSocketID();
-	g_pMain->Send_OldRegions(&result, del_x, del_z, GetMap(), m_RegionX, m_RegionZ);
+	g_pMain->Send_OldRegions(&result, del_x, del_z, GetMap(), GetRegionX(), GetRegionZ());
 }
 
 void CUser::InsertRegion(int insert_x, int insert_z)
@@ -869,7 +862,7 @@ void CUser::InsertRegion(int insert_x, int insert_z)
 	Packet result(WIZ_USER_INOUT);
 	result << uint16(USER_IN) << GetSocketID();
 	GetUserInfo(result);
-	g_pMain->Send_NewRegions(&result, insert_x, insert_z, GetMap(), m_RegionX, m_RegionZ);
+	g_pMain->Send_NewRegions(&result, insert_x, insert_z, GetMap(), GetRegionX(), GetRegionZ());
 }
 
 void CUser::RequestUserIn(Packet & pkt)
@@ -1102,7 +1095,7 @@ void CUser::SetSlotItemValue()
 void CUser::ExpChange(int64 iExp)
 {	
 	// Stop players level 5 or under from losing XP on death.
-	if ((getLevel() < 6 && iExp < 0)
+	if ((GetLevel() < 6 && iExp < 0)
 		// Stop players in the war zone (TO-DO: Add other war zones) from losing XP on death.
 		|| (m_pUserData->m_bZone == ZONE_BATTLE && iExp < 0))
 		return;
@@ -1129,10 +1122,10 @@ void CUser::ExpChange(int64 iExp)
 		int64 diffXP = m_pUserData->m_iExp + iExp;
 
 		// Now reset our XP to max for the former level.
-		m_pUserData->m_iExp = g_pMain->GetExpByLevel(getLevel());
+		m_pUserData->m_iExp = g_pMain->GetExpByLevel(GetLevel());
 
 		// Get new stats etc.
-		LevelChange(getLevel(), FALSE);
+		LevelChange(GetLevel(), FALSE);
 
 		// Take the remainder of the XP off (and delevel again if necessary).
 		ExpChange(diffXP);
@@ -1141,7 +1134,7 @@ void CUser::ExpChange(int64 iExp)
 	// If we've exceeded our XP requirement, we've leveled.
 	else if (m_pUserData->m_iExp >= m_iMaxExp)
 	{
-		if (getLevel() < MAX_LEVEL)
+		if (GetLevel() < MAX_LEVEL)
 		{
 			// Reset our XP to 0, level us up.
 			m_pUserData->m_iExp = 0;
@@ -1192,18 +1185,18 @@ void CUser::LevelChange(short level, BYTE type )
 
 	Packet result(WIZ_LEVEL_CHANGE);
 	result	<< GetSocketID()
-			<< getLevel() << m_pUserData->m_sPoints << m_pUserData->m_bstrSkill[0]
+			<< GetLevel() << m_pUserData->m_sPoints << m_pUserData->m_bstrSkill[0]
 			<< m_iMaxExp << m_pUserData->m_iExp
 			<< m_iMaxHp << m_pUserData->m_sHp 
 			<< m_iMaxMp << m_pUserData->m_sMp
 			<< m_sMaxWeight << m_sItemWeight;
 
-	g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ);
+	g_pMain->Send_Region(&result, GetMap(), GetRegionX(), GetRegionZ());
 	if (isInParty())
 	{
 		// TO-DO: Move this to party specific code
 		result.Initialize(WIZ_PARTY);
-		result << uint8(PARTY_LEVELCHANGE) << GetSocketID() << getLevel();
+		result << uint8(PARTY_LEVELCHANGE) << GetSocketID() << GetLevel();
 		g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 	}
 }
@@ -1298,7 +1291,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 	result.SByte();
 	result	<< GetSocketID()
 			<< m_pUserData->m_id
-			<< getZoneID() << getNation() << getLevel()
+			<< GetZoneID() << GetNation() << GetLevel()
 			<< m_pUserData->m_sHp << m_pUserData->m_sMp
 			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
 			<< uint16(m_sTotalAc + m_sACAmount)
@@ -1383,16 +1376,16 @@ void CUser::SetUserAbility()
 //	if( temp_str > 255 ) temp_str = 255;
 //	if( temp_dex > 255 ) temp_dex = 255;
 
-	m_sMaxWeight = (getStatWithItemBonus(STAT_STR) + getLevel()) * 50;
+	m_sMaxWeight = (getStatWithItemBonus(STAT_STR) + GetLevel()) * 50;
 	if( bHaveBow ) 
-		m_sTotalHit = (short)((((0.005 * pItem->m_sDamage * (temp_dex + 40)) + ( hitcoefficient * pItem->m_sDamage * getLevel() * temp_dex )) + 3));
+		m_sTotalHit = (short)((((0.005 * pItem->m_sDamage * (temp_dex + 40)) + ( hitcoefficient * pItem->m_sDamage * GetLevel() * temp_dex )) + 3));
 	else
-		m_sTotalHit = (short)((((0.005f * m_sItemHit * (temp_str + 40)) + ( hitcoefficient * m_sItemHit * getLevel() * temp_str )) + 3)); 	
+		m_sTotalHit = (short)((((0.005f * m_sItemHit * (temp_str + 40)) + ( hitcoefficient * m_sItemHit * GetLevel() * temp_str )) + 3)); 	
 
-	m_sTotalAc = (short)(p_TableCoefficient->AC * (getLevel() + m_sItemAc));
-	m_sTotalHitrate = ((1 + p_TableCoefficient->Hitrate * getLevel() *  temp_dex ) * m_sItemHitrate/100 ) * (m_bHitRateAmount/100);
+	m_sTotalAc = (short)(p_TableCoefficient->AC * (GetLevel() + m_sItemAc));
+	m_sTotalHitrate = ((1 + p_TableCoefficient->Hitrate * GetLevel() *  temp_dex ) * m_sItemHitrate/100 ) * (m_bHitRateAmount/100);
 
-	m_sTotalEvasionrate = ((1 + p_TableCoefficient->Evasionrate * getLevel() * temp_dex ) * m_sItemEvasionrate/100) * (m_sAvoidRateAmount/100);
+	m_sTotalEvasionrate = ((1 + p_TableCoefficient->Evasionrate * GetLevel() * temp_dex ) * m_sItemEvasionrate/100) * (m_sAvoidRateAmount/100);
 
 	SetMaxHp();
 	SetMaxMp();
@@ -1434,15 +1427,14 @@ void CUser::BundleOpenReq(Packet & pkt)
 
 	if (pMap == NULL
 		|| bundle_index < 1 
-		|| m_RegionX < 0 || m_RegionZ < 0 
-		|| m_RegionX > pMap->GetXRegionMax() || m_RegionZ > pMap->GetZRegionMax())
+		|| GetRegionX() > pMap->GetXRegionMax() || GetRegionZ() > pMap->GetZRegionMax())
 		return;
 
-	CRegion *pRegion = &(pMap->m_ppRegion[m_RegionX][m_RegionZ]);
+	CRegion *pRegion = &(pMap->m_ppRegion[GetRegionX()][GetRegionZ()]);
 	if (pRegion == NULL)
 		return;
 
-	_ZONE_ITEM *pItem = pRegion->m_RegionItemArray.GetData( bundle_index );
+	_ZONE_ITEM *pItem = pRegion->m_RegionItemArray.GetData(bundle_index);
 	if (pItem == NULL)
 		return;
 
@@ -1474,22 +1466,17 @@ void CUser::ItemGet(Packet & pkt)
 	BYTE pos;
 	_ITEM_TABLE* pTable = NULL;
 	_ZONE_ITEM* pItem = NULL;
-	C3DMap* pMap = GetMap();
-	CRegion* pRegion = NULL;
+	C3DMap *pMap = GetMap();
+	CRegion* pRegion = GetRegion();
 	CUser* pGetUser = NULL;
 
 	ASSERT(pMap != NULL);
+	ASSERT(pRegion != NULL);
 
 	if (bundle_index < 1
-		|| isTrading())
+		|| isTrading()
+		|| pRegion == NULL)
 		goto fail_return;
-	
-	if (m_RegionX < 0 || m_RegionZ < 0 
-		|| m_RegionX > pMap->GetXRegionMax() || m_RegionZ > pMap->GetZRegionMax())
-		goto fail_return;
-
-	pRegion = &(pMap->m_ppRegion[m_RegionX][m_RegionZ]);
-	if (!pRegion)	goto fail_return;
 
 	pItem = (_ZONE_ITEM*)pRegion->m_RegionItemArray.GetData( bundle_index );
 	if (!pItem) 
@@ -1509,7 +1496,7 @@ void CUser::ItemGet(Packet & pkt)
 	_ZONE_ITEM pItem2;
 	memcpy(&pItem2, pItem, sizeof(pItem2)); 
 
-	if (!pMap->RegionItemRemove(m_RegionX, m_RegionZ, bundle_index, pItem->itemid[i], pItem->count[i]))
+	if (!pMap->RegionItemRemove(GetRegionX(), GetRegionZ(), bundle_index, pItem->itemid[i], pItem->count[i]))
 		goto fail_return;
 
 	// Save us from having to tweak the rest of the method (tacky, but again - works for now)
@@ -1553,7 +1540,7 @@ void CUser::ItemGet(Packet & pkt)
 				continue;
 
 			usercount++;
-			levelsum += pUser->getLevel();
+			levelsum += pUser->GetLevel();
 		}
 		if( usercount == 0 ) goto fail_return;
 
@@ -1563,7 +1550,7 @@ void CUser::ItemGet(Packet & pkt)
 			if (pUser == NULL) 
 				continue;
 
-			money = (int)(count * (float)(pUser->getLevel() / (float)levelsum));    
+			money = (int)(count * (float)(pUser->GetLevel() / (float)levelsum));    
 			pUser->m_pUserData->m_iGold += money;
 
 			result.clear();
@@ -1703,7 +1690,7 @@ void CUser::StateChange(Packet & pkt)
 
 	Packet result(WIZ_STATE_CHANGE);
 	result << GetSocketID() << type << nBuff; /* hmm, it should probably be nBuff, not sure how transformations are to be handled so... otherwise, it's correct either way */
-	g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ );
+	SendToRegion(&result);
 }
 
 void CUser::StateChangeServerDirect(BYTE bType, int nValue)
@@ -1725,7 +1712,7 @@ void CUser::LoyaltyChange(short tid)
 	if (pTUser == NULL) 
 		return;
 
-	if (pTUser->getNation() != getNation()) 
+	if (pTUser->GetNation() != GetNation()) 
 	{
 		if (pTUser->m_pUserData->m_iLoyalty <= 0) 
 		{
@@ -1734,7 +1721,7 @@ void CUser::LoyaltyChange(short tid)
 		}
 		// TO-DO: Rewrite this out, it'd be better to handle this in the database.
 		// Colony Zone
-		else if (pTUser->getZoneID() == 71) 
+		else if (pTUser->GetZoneID() == 71) 
 		{
 			loyalty_source = 64;
 			loyalty_target = -50;
@@ -1744,7 +1731,7 @@ void CUser::LoyaltyChange(short tid)
 			//	g_pMain->UpdateColonyZoneRankInfo();
 		}
 		// Ardream
-		else if (pTUser->getZoneID() == 72)
+		else if (pTUser->GetZoneID() == 72)
 		{
 			loyalty_source =  25; 
 			loyalty_target = -25;
@@ -1762,10 +1749,10 @@ void CUser::LoyaltyChange(short tid)
 
 	// TO-DO: Move this to a better place (death handler, preferrably)
 	// If a war's running, and we died/killed in a war zone... (this method should NOT be so tied up in specifics( 
-	if (g_pMain->m_byBattleOpen && getZoneID() / 100 == 1) 
+	if (g_pMain->m_byBattleOpen && GetZoneID() / 100 == 1) 
 	{
 		// Update the casualty count
-		if (pTUser->getNation() == KARUS)
+		if (pTUser->GetNation() == KARUS)
 			g_pMain->m_sKarusDead++;
 		else 
 			g_pMain->m_sElmoradDead++;
@@ -1800,7 +1787,7 @@ void CUser::UserLookChange(int pos, int itemid, int durability)
 
 	Packet result(WIZ_USERLOOK_CHANGE);
 	result << GetSocketID() << uint8(pos) << itemid << uint16(durability);
-	g_pMain->Send_Region(&result, GetMap(), m_RegionX, m_RegionZ, this);
+	SendToRegion(&result, this);
 }
 
 void CUser::SendNotice()
@@ -1841,7 +1828,7 @@ void CUser::SkillPointChange(Packet & pkt)
 		// not enough free skill points to allocate
 		|| m_pUserData->m_bstrSkill[0] < 1 
 		// restrict skill points per category to your level
-		|| m_pUserData->m_bstrSkill[type] + 1 > getLevel()
+		|| m_pUserData->m_bstrSkill[type] + 1 > GetLevel()
 		// we need our first job change to assign skill points
 		|| (m_pUserData->m_sClass % 100) <= 4
 		// to set points in the mastery category, we need to be mastered.
@@ -1878,7 +1865,7 @@ void CUser::SendUserInfo(Packet & result)
 {
 	result.SByte(); 
 	result	<< GetSocketID()
-			<< m_pUserData->m_id << getZoneID() << getNation() << getLevel()
+			<< m_pUserData->m_id << GetZoneID() << GetNation() << GetLevel()
 			<< m_pUserData->m_sHp << m_pUserData->m_sMp 
 			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
 			<< uint16(m_sTotalAc + m_sACAmount)
@@ -1928,7 +1915,7 @@ void CUser::LoyaltyDivide(short tid)
 		CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
 		if (pUser == NULL)
 			continue;
-		levelsum += pUser->getLevel();
+		levelsum += pUser->GetLevel();
 		total_member++;
 	}
 
@@ -1952,7 +1939,7 @@ void CUser::LoyaltyDivide(short tid)
 	}
 		
 	if (pTUser->m_pUserData->m_bNation != m_pUserData->m_bNation) {		// Different nations!!!
-		level_difference = pTUser->getLevel() - average_level;	// Calculate difference!
+		level_difference = pTUser->GetLevel() - average_level;	// Calculate difference!
 
 		if (pTUser->m_pUserData->m_iLoyalty <= 0) {	   // No cheats allowed...
 			loyalty_source = 0;
@@ -2005,7 +1992,7 @@ void CUser::LoyaltyDivide(short tid)
 			continue;
 
 		//TRACE("LoyaltyDivide 333 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
-		individualvalue = pUser->getLevel() * loyalty_source / levelsum ;
+		individualvalue = pUser->GetLevel() * loyalty_source / levelsum ;
 		pUser->m_pUserData->m_iLoyalty += individualvalue;	
 		if (pUser->m_pUserData->m_iLoyalty < 0) pUser->m_pUserData->m_iLoyalty = 0;
 
@@ -2246,18 +2233,18 @@ void CUser::HPTimeChange(float currenttime)
 	if( m_bResHpType == USER_STANDING ) {
 		if( m_pUserData->m_sHp < 1 ) return;
 		if( m_iMaxHp != m_pUserData->m_sHp )
-			HpChange( (int)((getLevel()*(1+getLevel()/60.0) + 1)*0.2)+3 );
+			HpChange( (int)((GetLevel()*(1+GetLevel()/60.0) + 1)*0.2)+3 );
 
 		if( m_iMaxMp != m_pUserData->m_sMp )
-			MSpChange( (int)((getLevel()*(1+getLevel()/60.0) + 1)*0.2)+3 );
+			MSpChange( (int)((GetLevel()*(1+GetLevel()/60.0) + 1)*0.2)+3 );
 	}
 	else if ( m_bResHpType == USER_SITDOWN ) {
 		if( m_pUserData->m_sHp < 1 ) return;
 		if( m_iMaxHp != m_pUserData->m_sHp ) {
-			HpChange( (int)(getLevel()*(1+getLevel()/30.0) ) + 3 );
+			HpChange( (int)(GetLevel()*(1+GetLevel()/30.0) ) + 3 );
 		}
 		if( m_iMaxMp != m_pUserData->m_sMp ) {
-			MSpChange((int)((m_iMaxMp * 5) / ((getLevel() - 1) + 30 )) + 3 ) ;
+			MSpChange((int)((m_iMaxMp * 5) / ((GetLevel() - 1) + 30 )) + 3 ) ;
 		}
 	}
 }
@@ -2582,10 +2569,10 @@ void CUser::OperatorCommand(Packet & pkt)
 	switch (opcode)
 	{
 	case OPERATOR_ARREST:
-		ZoneChange(pUser->getZoneID(), pUser->m_pUserData->m_curx, pUser->m_pUserData->m_curz);
+		ZoneChange(pUser->GetZoneID(), pUser->m_pUserData->m_curx, pUser->m_pUserData->m_curz);
 		break;
 	case OPERATOR_SUMMON:
-		pUser->ZoneChange(getZoneID(), m_pUserData->m_curx, m_pUserData->m_curz);
+		pUser->ZoneChange(GetZoneID(), m_pUserData->m_curx, m_pUserData->m_curz);
 		break;
 	case OPERATOR_CUTOFF:
 		pUser->Disconnect();
@@ -2742,13 +2729,13 @@ void CUser::Home()
 	short x = 0, z = 0;
 
 	// Forgotten Temple
-	if (getZoneID() == 55)
+	if (GetZoneID() == 55)
 	{
 		KickOutZoneUser(TRUE);
 		return;
 	}
 	// Prevent /town'ing in quest arenas
-	else if ((getZoneID() / 10) == 5
+	else if ((GetZoneID() / 10) == 5
 		|| !GetStartPosition(x, z))
 		return;
 
@@ -2758,7 +2745,7 @@ void CUser::Home()
 bool CUser::GetStartPosition(short & x, short & z, BYTE bZone /*= 0 */)
 {
 	// Get start position data for current zone (unless we specified a zone).
-	int nZoneID = (bZone == 0 ? getZoneID() : bZone);
+	int nZoneID = (bZone == 0 ? GetZoneID() : bZone);
 	_START_POSITION *pData = g_pMain->GetStartPosition(nZoneID);
 	if (pData == NULL)
 		return false;
@@ -2767,7 +2754,7 @@ bool CUser::GetStartPosition(short & x, short & z, BYTE bZone /*= 0 */)
 
 	// NOTE: This is how mgame does it.
 	// This only allows for positive randomisation; we should really allow for the full range...
-	if (getNation() == KARUS)
+	if (GetNation() == KARUS)
 	{
 		x = pData->sKarusX + myrand(0, pData->bRangeX);
 		z = pData->sKarusZ + myrand(0, pData->bRangeZ);
@@ -2847,7 +2834,7 @@ CUser* CUser::GetItemRoutingUser(int itemid, short itemcount)
 void CUser::ClassChangeReq()
 {
 	Packet result(WIZ_CLASS_CHANGE, uint8(CLASS_CHANGE_RESULT));
-	if (getLevel() < 10) // if we haven't got our first job change
+	if (GetLevel() < 10) // if we haven't got our first job change
 		result << uint8(2);
 	else if ((m_pUserData->m_sClass % 100) > 4) // if we've already got our job change
 		result << uint8(3);
@@ -2862,10 +2849,10 @@ void CUser::AllSkillPointChange()
 	int index = 0, skill_point = 0, money = 0, temp_value = 0, old_money = 0;
 	uint8 type = 0;
 
-	temp_value = (int)pow((getLevel() * 2.0f), 3.4f);
-	if (getLevel() < 30)		
+	temp_value = (int)pow((GetLevel() * 2.0f), 3.4f);
+	if (GetLevel() < 30)		
 		temp_value = (int)(temp_value * 0.4f);
-	else if (getLevel() >= 60)
+	else if (GetLevel() >= 60)
 		temp_value = (int)(temp_value * 1.5f);
 
 	temp_value = (int)(temp_value * 1.5f);
@@ -2879,7 +2866,7 @@ void CUser::AllSkillPointChange()
 
 	// Not enough money, or level too low.
 	if (money < 0
-		|| getLevel() < 10)
+		|| GetLevel() < 10)
 		goto fail_return;
 
 	// Get total skill points
@@ -2894,7 +2881,7 @@ void CUser::AllSkillPointChange()
 	}
 
 	// Reset skill points.
-	m_pUserData->m_bstrSkill[0] = (getLevel() - 9) * 2;
+	m_pUserData->m_bstrSkill[0] = (GetLevel() - 9) * 2;
 	for (int i = 1; i < 9; i++)	
 		m_pUserData->m_bstrSkill[i] = 0;
 
@@ -2916,16 +2903,16 @@ void CUser::AllPointChange()
 	int money, temp_money;
 	uint8 bResult = 0;
 
-	if (getLevel() > MAX_LEVEL)
+	if (GetLevel() > MAX_LEVEL)
 		goto fail_return;
 
-	temp_money = (int)pow((getLevel() * 2.0f ), 3.4f);
-	if (getLevel() < 30)
+	temp_money = (int)pow((GetLevel() * 2.0f ), 3.4f);
+	if (GetLevel() < 30)
 		temp_money = (int)(temp_money * 0.4f);
-	else if (getLevel() >= 60) 
+	else if (GetLevel() >= 60) 
 		temp_money = (int)(temp_money * 1.5f);
 
-	if ((g_pMain->m_sDiscount == 1 && g_pMain->m_byOldVictory == getNation())
+	if ((g_pMain->m_sDiscount == 1 && g_pMain->m_byOldVictory == GetNation())
 		|| g_pMain->m_sDiscount == 2)
 		temp_money /= 2;
 	
@@ -3001,7 +2988,7 @@ void CUser::AllPointChange()
 		break;
 	}
 
-	m_pUserData->m_sPoints = (getLevel() - 1) * 3 + 10;
+	m_pUserData->m_sPoints = (GetLevel() - 1) * 3 + 10;
 	ASSERT(getStatTotal() == 290);
 
 	m_pUserData->m_iGold = money;
@@ -3056,7 +3043,7 @@ void CUser::GoldChange(short tid, int gold)
 				continue;
 
 			userCount++;
-			levelSum += pUser->getLevel();
+			levelSum += pUser->GetLevel();
 		}
 
 		// No users (this should never happen! Needs to be cleaned up...), don't bother with the below loop.
@@ -3069,7 +3056,7 @@ void CUser::GoldChange(short tid, int gold)
 			if (pUser == NULL)
 				continue;
 
-			pUser->GoldGain((int)(temp_gold * (float)(pUser->getLevel() / (float)levelSum)));
+			pUser->GoldGain((int)(temp_gold * (float)(pUser->GetLevel() / (float)levelSum)));
 		}			
 		return;
 	}
@@ -3097,7 +3084,7 @@ void CUser::SelectWarpList(Packet & pkt)
 
 	_WARP_INFO *pWarp = GetMap()->GetWarp(warpid);
 	if (pWarp == NULL
-		|| (pWarp->sNation != 0 && pWarp->sNation != getNation()))
+		|| (pWarp->sNation != 0 && pWarp->sNation != GetNation()))
 		return;
 
 	C3DMap *pMap = g_pMain->GetZoneByID(pWarp->sZone);
@@ -3188,7 +3175,7 @@ void CUser::InitType3()
 
 BOOL CUser::BindObjectEvent(_OBJECT_EVENT *pEvent)
 {
-	if (pEvent->sBelong != 0 && pEvent->sBelong != getNation())
+	if (pEvent->sBelong != 0 && pEvent->sBelong != GetNation())
 		return FALSE;
 
 	Packet result(WIZ_OBJECT_EVENT, uint8(pEvent->sType));
@@ -3215,7 +3202,7 @@ BOOL CUser::GateLeverObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 		|| !pGateNpc->isGate()
 		// If the gate's closed (i.e. the lever is down), we can't open it unless the lever isn't nation-specific
 		// or we're the correct nation. Seems the other nation cannot close them.
-		|| (pNpc->isGateClosed() && pNpc->getNation() != 0 && pNpc->getNation() != getNation()))
+		|| (pNpc->isGateClosed() && pNpc->GetNation() != 0 && pNpc->GetNation() != GetNation()))
 		return FALSE;
 
 	// Move the lever (up/down).
@@ -3239,7 +3226,7 @@ BOOL CUser::FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 		// Does the corresponding flag event exist?
 		|| (pFlagEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID)) == NULL
 		// Does the corresponding flag object NPC exist?
-		|| (pFlagNpc = g_pMain->GetNpcPtr(pEvent->sControlNpcID, getZoneID())) == NULL
+		|| (pFlagNpc = g_pMain->GetNpcPtr(pEvent->sControlNpcID, GetZoneID())) == NULL
 		// Is this marked a gate? (i.e. can control)
 		|| !pFlagNpc->isGate()
 		// Is the war over or the gate closed?
@@ -3251,7 +3238,7 @@ BOOL CUser::FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 	pFlagNpc->SendGateFlag(0);
 
 	// Add flag score (not sure what this is, is this even used anymore?)
-	if (getNation() == KARUS) 
+	if (GetNation() == KARUS) 
 		g_pMain->m_bKarusFlag++;
 	else
 		g_pMain->m_bElmoradFlag++;
@@ -3264,9 +3251,9 @@ BOOL CUser::FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 BOOL CUser::WarpListObjectEvent(_OBJECT_EVENT *pEvent)
 {
 	// If the warp gate belongs to a nation, which isn't us...
-	if (pEvent->sBelong != 0 && pEvent->sBelong != getNation()
+	if (pEvent->sBelong != 0 && pEvent->sBelong != GetNation()
 		// or we're in the opposing nation's zone...
-		|| (getZoneID() != getNation() && getZoneID() <= ELMORAD)
+		|| (GetZoneID() != GetNation() && GetZoneID() <= ELMORAD)
 		// or we're unable to retrieve the warp list...
 		|| !GetWarpList(pEvent->sControlNpcID)) 
 		return FALSE;
@@ -3525,7 +3512,7 @@ BOOL CUser::CheckRandom(short percent)
 
 void CUser::SendToRegion(Packet *pkt, CUser *pExceptUser /*= NULL*/)
 {
-	g_pMain->Send_Region(pkt, GetMap(), m_RegionX, m_RegionZ, pExceptUser);
+	g_pMain->Send_Region(pkt, GetMap(), GetRegionX(), GetRegionZ(), pExceptUser);
 }
 
 void CUser::OnDeath()
@@ -3661,8 +3648,8 @@ fail_return:
 
 bool CUser::isAttackZone()
 {
-	if(getZoneID() == 21 && (GetSPosX() > 1 && GetSPosZ() > 1)															//TO-DO : Needs the correct coordinates to allow for the outdoors arena
-		|| ((getZoneID() == 1  && g_pMain->m_byKarusOpenFlag) || (getZoneID() == 2 && g_pMain->m_byElmoradOpenFlag)) )  //Taking into account invasions
+	if(GetZoneID() == 21 && (GetSPosX() > 1 && GetSPosZ() > 1)															//TO-DO : Needs the correct coordinates to allow for the outdoors arena
+		|| ((GetZoneID() == 1  && g_pMain->m_byKarusOpenFlag) || (GetZoneID() == 2 && g_pMain->m_byElmoradOpenFlag)) )  //Taking into account invasions
 		return true;
 
 	return GetMap()->isAttackZone();

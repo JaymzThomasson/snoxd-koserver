@@ -105,7 +105,7 @@ void CKnightsManager::CreateKnights(CUser* pUser, Packet & pkt)
 		ret_value = 5;
 	else if (g_pMain->m_nServerGroup == 2)
 		ret_value = 8;
-	else if (pUser->getLevel() < CLAN_LEVEL_REQUIREMENT)
+	else if (pUser->GetLevel() < CLAN_LEVEL_REQUIREMENT)
 		ret_value = 2;
 	else if (pUser->m_pUserData->m_iGold < CLAN_COIN_REQUIREMENT)
 		ret_value = 4;
@@ -116,7 +116,7 @@ void CKnightsManager::CreateKnights(CUser* pUser, Packet & pkt)
 		if (knightindex >= 0)
 		{	
 			result	<< uint8(CLAN_TYPE) 
-					<< knightindex << pUser->getNation()
+					<< knightindex << pUser->GetNation()
 					<< idname << pUser->m_pUserData->m_id;
 			g_pMain->m_LoggerSendQueue.PutData(&result, pUser->GetSocketID());
 			return;
@@ -195,7 +195,7 @@ void CKnightsManager::JoinKnights(CUser *pUser, Packet & pkt)
 			bResult = 2;
 		else if (pTUser->isDead())
 			bResult = 3;
-		else if (pTUser->getNation() != pUser->getNation())
+		else if (pTUser->GetNation() != pUser->GetNation())
 			bResult = 4;
 		else if (pTUser->m_pUserData->m_bKnights > 0)
 			bResult = 5;
@@ -260,7 +260,7 @@ void CKnightsManager::WithdrawKnights(CUser *pUser, Packet & kt)
 	{
 		if (!pUser->isInClan())
 			bResult = 10;
-		else if (pUser->isClanLeader() && pUser->getZoneID() != pUser->getNation())
+		else if (pUser->isClanLeader() && pUser->GetZoneID() != pUser->GetNation())
 			bResult = 12;
 
 		if (bResult != 0)
@@ -285,7 +285,7 @@ void CKnightsManager::DestroyKnights( CUser* pUser )
 	uint8 bResult = 1;
 	if (!pUser->isClanLeader())
 		bResult = 0;
-	else if (pUser->getZoneID() != pUser->getNation())
+	else if (pUser->GetZoneID() != pUser->GetNation())
 		bResult = 12;
 
 	if (bResult == 1)
@@ -314,7 +314,7 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 opco
 	{
 		if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
 			bResult = 2;
-		else if (pUser->getZoneID() != pUser->getNation())
+		else if (pUser->GetZoneID() != pUser->GetNation())
 			bResult = 12;
 		else if (_strnicmp(strUserID.c_str(), pUser->m_pUserData->m_id, strUserID.size()) == 0)
 			bResult = 9;
@@ -336,7 +336,7 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 opco
 		}
 		else
 		{
-			if (pUser->getNation() != pTUser->getNation())
+			if (pUser->GetNation() != pTUser->GetNation())
 				bResult = 4;
 			else if (pUser->m_pUserData->m_bKnights != pTUser->m_pUserData->m_bKnights)
 				bResult = 5;
@@ -378,7 +378,7 @@ void CKnightsManager::AllKnightsList(CUser *pUser, Packet & pkt)
 		CKnights* pKnights = itr->second;
 		if (pKnights == NULL
 			|| pKnights->m_byFlag != KNIGHTS_TYPE
-			|| pKnights->m_byNation != pUser->getNation()
+			|| pKnights->m_byNation != pUser->GetNation()
 			|| count++ < start) 
 			continue;
 
@@ -459,7 +459,7 @@ void CKnightsManager::CurrentKnightsMember(CUser *pUser, Packet & pkt)
 			continue;
 
 		CUser *pTUser = p->pSession;
-		result << pUser->m_pUserData->m_id << pUser->getFame() << pUser->getLevel() << pUser->m_pUserData->m_sClass;
+		result << pUser->m_pUserData->m_id << pUser->getFame() << pUser->GetLevel() << pUser->m_pUserData->m_sClass;
 		count++;
 		if (count >= start + 10)
 			break;
@@ -825,7 +825,7 @@ void CKnightsManager::RegisterClanSymbol(CUser* pUser, Packet & pkt)
 	if (!pUser->isClanLeader())
 		sFailCode = 11;
 	// Invalid zone (only in home zones)
-	else if (pUser->getZoneID() != pUser->getNation())
+	else if (pUser->GetZoneID() != pUser->GetNation())
 		sFailCode = 12;
 	// Invalid symbol size (or invalid packet)
 	else if (sSymbolSize == 0 
@@ -915,7 +915,7 @@ void CKnightsManager::RequestClanSymbolVersion(CUser* pUser, Packet & pkt)
 	CKnights *pKnights = g_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights);
 	if (pKnights == NULL || pKnights->m_byFlag != 2 /* not promoted */ || !pUser->isClanLeader())
 		sFailCode = 11;
-	else if (pUser->getZoneID() != pUser->getNation())
+	else if (pUser->GetZoneID() != pUser->GetNation())
 		sFailCode = 12;
 	
 	result << sFailCode;

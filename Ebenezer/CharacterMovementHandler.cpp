@@ -16,22 +16,10 @@ void CUser::MoveProcess(Packet & pkt)
 	if (GetMap()->IsValidPosition(real_x, real_z, real_y) == FALSE) 
 		return;
 
-	if (speed != 0)
-	{
-		m_pUserData->m_curx = m_fWill_x;
-		m_pUserData->m_curz = m_fWill_z;
-		m_pUserData->m_cury = m_fWill_y;
-
-		m_fWill_x = real_x;
-		m_fWill_z = real_z;
-		m_fWill_y = real_y;
-	}
-	else 
-	{
-		m_pUserData->m_curx = m_fWill_x = real_x;
-		m_pUserData->m_curz = m_fWill_z = real_z;
-		m_pUserData->m_cury = m_fWill_y = real_y;
-	}
+	// TO-DO: Ensure this is checked properly to prevent speedhacking
+	m_pUserData->m_curx = real_x;
+	m_pUserData->m_curz = real_z;
+	m_pUserData->m_cury = real_y;
 
 	RegisterRegion();
 
@@ -42,7 +30,7 @@ void CUser::MoveProcess(Packet & pkt)
 	GetMap()->CheckEvent(real_x, real_z, this);
 
 	result.Initialize(AG_USER_MOVE);
-	result << GetSocketID() << m_fWill_x << m_fWill_z << m_fWill_y << speed;
+	result << GetSocketID() << m_pUserData->m_curx << m_pUserData->m_curz << m_pUserData->m_cury << speed;
 	g_pMain->Send_AIServer(&result);
 }
 
@@ -55,9 +43,9 @@ void CUser::UserInOut(BYTE Type)
 	result << uint16(Type) << GetSocketID();
 
 	if (Type == USER_OUT)
-		GetMap()->RegionUserRemove(m_RegionX, m_RegionZ, GetSocketID());
+		GetMap()->RegionUserRemove(GetRegionX(), GetRegionZ(), GetSocketID());
 	else
-		GetMap()->RegionUserAdd(m_RegionX, m_RegionZ, GetSocketID());
+		GetMap()->RegionUserAdd(GetRegionX(), GetRegionZ(), GetSocketID());
 
 	if (Type != USER_OUT)
 		GetUserInfo(result);
@@ -80,7 +68,7 @@ void CUser::GetUserInfo(Packet & pkt)
 	pkt.SByte();
 
 	pkt		<< m_pUserData->m_id
-			<< uint16(getNation()) << m_pUserData->m_bKnights << getFame();
+			<< uint16(GetNation()) << m_pUserData->m_bKnights << getFame();
 
 	pKnights = g_pMain->GetClanPtr(m_pUserData->m_bKnights);
 	if (pKnights == NULL)
@@ -99,7 +87,7 @@ void CUser::GetUserInfo(Packet & pkt)
 	}
 
 	pkt	<< m_pUserData->m_bRank << m_pUserData->m_bTitle
-		<< getLevel() << m_pUserData->m_bRace << m_pUserData->m_sClass
+		<< GetLevel() << m_pUserData->m_bRace << m_pUserData->m_sClass
 		<< GetSPosX() << GetSPosZ() << GetSPosY()
 		<< m_pUserData->m_bFace << m_pUserData->m_nHair
 		<< m_bResHpType << uint32(m_bAbnormalType)
@@ -126,7 +114,7 @@ void CUser::GetUserInfo(Packet & pkt)
 		<< m_pUserData->m_sItemArray[CHELMET].nNum << m_pUserData->m_sItemArray[CHELMET].sDuration << uint8(0)
 		<< m_pUserData->m_sItemArray[CRIGHT].nNum << m_pUserData->m_sItemArray[CRIGHT].sDuration << uint8(0)
 		<< m_pUserData->m_sItemArray[CLEFT].nNum << m_pUserData->m_sItemArray[CLEFT].sDuration << uint8(0)
-		<< getZoneID() << uint8(-1) << uint8(-1) << uint16(0) << uint16(0) << uint16(0);
+		<< GetZoneID() << uint8(-1) << uint8(-1) << uint16(0) << uint16(0) << uint16(0);
 }
 
 void CUser::Rotate(Packet & pkt)
@@ -151,7 +139,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 	m_pMap = pMap;
 	if( pMap->m_bType == 2 ) {	// If Target zone is frontier zone.
-		if( getLevel() < 20 && g_pMain->m_byBattleOpen != SNOW_BATTLE)
+		if( GetLevel() < 20 && g_pMain->m_byBattleOpen != SNOW_BATTLE)
 			return;
 	}
 
@@ -208,8 +196,8 @@ void CUser::ZoneChange(int zone, float x, float z)
 	}
 
 	m_pUserData->m_bZone = zone;
-	m_pUserData->m_curx = m_fWill_x = x;
-	m_pUserData->m_curz = m_fWill_z = z;
+	m_pUserData->m_curx = x;
+	m_pUserData->m_curz = z;
 
 	if( m_pUserData->m_bZone == ZONE_SNOW_BATTLE )	{
 		//TRACE("ZoneChange - name=%s\n", m_pUserData->m_id);
@@ -236,12 +224,10 @@ void CUser::ZoneChange(int zone, float x, float z)
 	}
 	
 	m_pUserData->m_sBind = -1;		// Bind Point Clear...
-	
-	m_RegionX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
-	m_RegionZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
+	SetRegion(GetNewRegionX(), GetNewRegionZ());
 
 	Packet result(WIZ_ZONE_CHANGE, uint8(3)); // magic numbers, sigh.
-	result << uint16(getZoneID()) << GetSPosX() << GetSPosZ() << GetSPosY() << g_pMain->m_byOldVictory;
+	result << uint16(GetZoneID()) << GetSPosX() << GetSPosZ() << GetSPosY() << g_pMain->m_byOldVictory;
 	Send(&result);
 
 	if (!m_bZoneChangeSameZone) {
@@ -255,7 +241,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 	}	
 
 	result.Initialize(AG_ZONE_CHANGE);
-	result << GetSocketID() << getZoneID();
+	result << GetSocketID() << GetZoneID();
 	g_pMain->Send_AIServer(&result);
 
 	m_bZoneChangeSameZone = FALSE;
@@ -281,11 +267,10 @@ void CUser::Warp(uint16 sPosX, uint16 sPosZ)
 
 	UserInOut(USER_OUT);
 
-	m_pUserData->m_curx = m_fWill_x = real_x;
-	m_pUserData->m_curz = m_fWill_z = real_z;
+	m_pUserData->m_curx = real_x;
+	m_pUserData->m_curz = real_z;
 
-	m_RegionX = (int)(m_pUserData->m_curx / VIEW_DISTANCE);
-	m_RegionZ = (int)(m_pUserData->m_curz / VIEW_DISTANCE);
+	SetRegion(GetNewRegionX(), GetNewRegionZ());
 
 	UserInOut(USER_WARP);
 	g_pMain->UserInOutForMe(this);

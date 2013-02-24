@@ -29,9 +29,15 @@ enum GameState
 };
 
 class CEbenezerDlg;
-class CUser : public KOSocket
+class CUser : public Unit, public KOSocket
 {
 public:
+	virtual float GetX() { return m_pUserData->m_curx; }
+	virtual float GetY() { return m_pUserData->m_cury; }
+	virtual float GetZ() { return m_pUserData->m_curz; }
+
+	virtual const char * GetName() { return m_pUserData->m_id; }
+
 	_USER_DATA*	m_pUserData;
 
 	std::string m_strAccountID;
@@ -48,7 +54,6 @@ public:
 
 	SkillCooldownList	m_CoolDownList;
 
-	short	m_RegionX, m_RegionZ;
 	int16	m_sDirection;
 
 	int64	m_iMaxExp;
@@ -93,12 +98,6 @@ public:
 	short	m_iMaxHp;
 	short	m_iMaxMp;
 	
-	C3DMap * m_pMap;
-
-	float	m_fWill_x;
-	float	m_fWill_z;
-	float	m_fWill_y;
-
 	BYTE	m_bResHpType;
 	BYTE	m_bWarp;
 	BYTE	m_bNeedParty;
@@ -213,9 +212,10 @@ public:
 	__forceinline bool isStoreOpen() { return m_bStoreOpen; }
 	__forceinline bool isMerchanting() { return m_bIsMerchanting; }
 
-	__forceinline BYTE getNation() { return m_pUserData->m_bNation; }
-	__forceinline BYTE getLevel() { return m_pUserData->m_bLevel; }
-	__forceinline BYTE getZoneID() { return m_pUserData->m_bZone; }
+	virtual uint8 GetNation() { return m_pUserData->m_bNation; }
+	virtual uint8 GetLevel() { return m_pUserData->m_bLevel; }
+	virtual uint8 GetZoneID() { return m_pUserData->m_bZone; }
+
 	__forceinline BYTE getAuthority() { return m_pUserData->m_bAuthority; }
 	__forceinline BYTE getFame() { return m_pUserData->m_bFame; }
 
@@ -289,13 +289,6 @@ public:
 	{
 		return getStat(type) + getStatItemBonus(type) + getStatBuff(type);
 	}
-
-	__forceinline C3DMap * GetMap() { return m_pMap; }
-
-	__forceinline uint16 GetSPosX() { return uint16(m_pUserData->m_curx * 10); }
-	__forceinline uint16 GetSPosY() { return uint16(m_pUserData->m_cury * 10); }
-	__forceinline uint16 GetSPosZ() { return uint16(m_pUserData->m_curz * 10); }
-
 	CUser(uint16 socketID, SocketMgr *mgr); 
 
 	virtual void OnConnect();
@@ -541,7 +534,7 @@ public:
 	void SendTime();
 	void SendWeather();
 	void SendPremiumInfo();
-	void SetZoneAbilityChange(BYTE zone);
+	void SetZoneAbilityChange();
 	void SetMaxMp();
 	void SetMaxHp(int iFlag=0); // 0:default, 1:hp�� maxhp��ŭ ä���ֱ�
 	void ExpChange(__int64 iExp);

@@ -14,18 +14,78 @@
 class CEbenezerDlg;
 class C3DMap;
 
-class CNpc  
+/**
+ * This class is a bridge between the CNpc & CUser classes
+ * Currently it's excessively messier than it needs to be, 
+ * because of Aujard and the whole _USER_DATA setup.
+ *
+ * This will be written out eventually, so we can do this properly.
+ **/
+class Unit
 {
 public:
-	short	m_sNid;				// NPC (서버상의)일련번호
-	short	m_sSid;				// NPC 테이블 참조번호
-	BYTE	m_bCurZone;			// Current Zone;
+	Unit() : m_id(-1), m_pMap(NULL), m_pRegion(NULL), m_sRegionX(0), m_sRegionZ(0) {}
 
+	__forceinline uint16 GetID() { return m_id; }
+	__forceinline void SetID(uint16 id) { m_id = id; }
+
+	__forceinline C3DMap * GetMap() { return m_pMap; }
+
+	virtual uint8 GetZoneID() = 0;
+
+	virtual float GetX() = 0;
+	virtual float GetY() = 0;
+	virtual float GetZ() = 0;
+
+	__forceinline uint16 GetSPosX() { return uint16(GetX() * 10); };
+	__forceinline uint16 GetSPosY() { return uint16(GetY() * 10); };
+	__forceinline uint16 GetSPosZ() { return uint16(GetZ() * 10); };
+
+	__forceinline uint16 GetRegionX() { return m_sRegionX; }
+	__forceinline uint16 GetRegionZ() { return m_sRegionZ; }
+
+	__forceinline uint16 GetNewRegionX() { return (uint16)(GetX()) / VIEW_DISTANCE; }
+	__forceinline uint16 GetNewRegionZ() { return (uint16)(GetY()) / VIEW_DISTANCE; }
+
+	__forceinline CRegion * GetRegion() { return m_pRegion; }
+	__forceinline void SetRegion(uint16 x, uint16 z) 
+	{
+		m_sRegionX = x; m_sRegionZ = z; 
+		m_pRegion = m_pMap->GetRegion(x, z);
+	}
+
+	virtual const char * GetName() = 0; // this is especially fun...
+
+	virtual uint8 GetNation() = 0;
+	virtual uint8 GetLevel() = 0;
+
+// public for the moment
+// protected:
+	uint16 m_id;
 	C3DMap * m_pMap;
+	CRegion * m_pRegion;
 
-	float	m_fCurX;			// Current X Pos;
-	float	m_fCurY;			// Current Y Pos;
-	float	m_fCurZ;			// Current Z Pos;
+	uint16 m_sRegionX, m_sRegionZ; // this is probably redundant
+};
+
+class CNpc  : public Unit
+{
+public:
+	virtual uint8 GetZoneID() { return m_bZoneID; }
+
+	virtual float GetX() { return m_fCurX; }
+	virtual float GetY() { return m_fCurY; }
+	virtual float GetZ() { return m_fCurZ; }
+
+	virtual const char * GetName() { return m_strName; }
+
+	virtual uint8 GetLevel() { return m_byLevel; }
+
+	uint8	m_bZoneID;
+
+	uint16	m_sSid; // prototype ID
+
+	float	m_fCurX, m_fCurY, m_fCurZ;
 	short	m_sPid;				// MONSTER(NPC) Picture ID
 	short	m_sSize;			// MONSTER(NPC) Size
 	int		m_iWeapon_1;
@@ -44,8 +104,6 @@ public:
 	int   m_iSellingGroup;		// ItemGroup
 //	DWORD	m_dwStepDelay;		
 
-	short m_sRegion_X;			// region x position
-	short m_sRegion_Z;			// region z position
 	BYTE	m_NpcState;			// NPC의 상태 - 살았다, 죽었다, 서있다 등등...
 	BYTE	m_byGateOpen;		// Gate Npc Status -> 1 : open 0 : close
 	short   m_sHitRate;			// 공격 성공률
@@ -79,18 +137,12 @@ public:
 	__forceinline bool isGateOpen() { return m_byGateOpen == TRUE; };
 	__forceinline bool isGateClosed() { return !isGateOpen(); };
 
-	__forceinline short GetID() { return m_sNid; };
 	__forceinline short GetEntryID() { return m_sSid; };
 	__forceinline BYTE GetType() { return m_tNpcType; };
-	__forceinline BYTE getNation() { return m_byGroup; }; // NOTE: Need some consistency with naming
-	__forceinline BYTE getZoneID() { return m_bCurZone; };
+	__forceinline BYTE GetNation() { return m_byGroup; }; // NOTE: Need some consistency with naming
 
 	__forceinline BYTE GetState() { return m_byState; };
 	__forceinline C3DMap * GetMap() { return m_pMap; };
-
-	__forceinline uint16 GetSPosX() { return uint16(m_fCurX * 10); };
-	__forceinline uint16 GetSPosY() { return uint16(m_fCurY * 10); };
-	__forceinline uint16 GetSPosZ() { return uint16(m_fCurZ * 10); };
 
 	virtual ~CNpc();
 };
