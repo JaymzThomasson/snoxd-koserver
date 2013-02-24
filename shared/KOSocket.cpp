@@ -104,7 +104,7 @@ bool KOSocket::DecryptPacket(uint8 *in_stream, Packet & pkt)
 			|| ++m_sequence != *(uint32*)(out_stream)) // Invalid sequence ID
 			return false;
 
-		m_remaining -= 4; // remove the sequence ID
+		m_remaining -= 8; // remove the sequence ID & CRC checksum
 		final_packet = &out_stream[4];
 	}
 	else
