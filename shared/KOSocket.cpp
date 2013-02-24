@@ -75,13 +75,9 @@ void KOSocket::OnRead()
 		uint16 footer = 0;
 		GetReadBuffer().Read(&footer, 2);
 
-		bool footerCheck = footer != 0xaa55;
-		bool decryptCheck = !DecryptPacket(in_stream, pkt);
-		bool handlerCheck = !HandlePacket(pkt);
-
-		if (footerCheck
-			|| decryptCheck
-			|| handlerCheck)
+		if (footer != 0xaa55
+			|| !DecryptPacket(in_stream, pkt)
+			|| !HandlePacket(pkt))
 		{
 
 			TRACE("KOSocket: Footer invalid (%X), failed to decrypt or the handler for packet %X returned false\n", footer, pkt.GetOpcode());
