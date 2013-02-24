@@ -11,6 +11,8 @@
 #include <vector>
 
 #include "../tstring.h"
+#include "../Mutex.h"
+
 #include "OdbcCommand.h"
 
 struct OdbcError
@@ -27,8 +29,24 @@ class OdbcConnection
 public:
 	OdbcConnection();
 
-	__forceinline bool isConnected() { return m_connHandle != NULL; };
-	__forceinline bool isError() { return m_odbcErrors.size() > 0; };
+	__forceinline bool isConnected() 
+	{
+		bool result;
+		m_lock.Acquire();
+		result = m_connHandle != NULL; 
+		m_lock.Release();
+		return result;
+	}
+
+	__forceinline bool isError() 
+	{
+		bool result;
+		m_lock.Acquire();
+		result = m_odbcErrors.size() > 0; 
+		m_lock.Release();
+		return result;
+	}
+
 	__forceinline HDBC GetConnectionHandle() { return m_connHandle; };
 
 	bool Connect(tstring szDSN, tstring szUser, tstring szPass, bool bMarsEnabled = true);
@@ -56,6 +74,8 @@ private:
 
 	HENV m_envHandle;
 	HDBC m_connHandle;
+
+	FastMutex m_lock;
 
 	std::vector<OdbcError   *> m_odbcErrors;
 	std::set   <OdbcCommand *> m_commandSet;
