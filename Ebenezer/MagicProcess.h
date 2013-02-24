@@ -47,10 +47,10 @@ public:
 	void  ExecuteType9(_MAGIC_TABLE *pSkill);
 
 	bool IsAvailable(_MAGIC_TABLE *pSkill);
-	bool UserCanCast(_MAGIC_TABLE *pSkill, uint8 m_opcode);
+	bool UserCanCast(_MAGIC_TABLE *pSkill);
 	void MagicPacket(Packet & pkt);
 
-	uint8 ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType, uint8 m_opcode);
+	uint8 ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType);
 
 	void SendSkillFailed();
 	void SendSkill(int16 pSkillCaster = -1, int16 pSkillTarget = -1, 
