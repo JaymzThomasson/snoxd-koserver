@@ -81,7 +81,7 @@ const BYTE MAX_MERCH_ITEMS	= 12;
 
 #define MAX_MERCH_MESSAGE	40
 
-const int ITEMCOUNT_MAX		= 999;
+const int ITEMCOUNT_MAX		= 9999;
 
 //////////////////////////////////////////////////////////////////
 // DEFINE Shared Memory Queue
