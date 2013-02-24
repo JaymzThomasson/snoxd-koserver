@@ -60,6 +60,8 @@ static char THIS_FILE[]=__FILE__;
 CMagicProcess::CMagicProcess()
 {
 	m_pSrcUser = NULL;
+	m_pTargetMon = NULL;
+	m_pTargetUser = NULL;
 }
 
 CMagicProcess::~CMagicProcess()
@@ -68,235 +70,112 @@ CMagicProcess::~CMagicProcess()
 
 void CMagicProcess::MagicPacket(Packet & pkt)
 {
-	_MAGIC_TYPE2 *pType2 = NULL;
-	_MAGIC_TYPE3 *pType3 = NULL;
-	_MAGIC_TYPE4 *pType4 = NULL;
-	CUser *pUser = NULL;
-	CNpc *pMon = NULL;
-
 	pkt >> m_opcode >> m_nSkillID;
 
 	_MAGIC_TABLE *pMagic = g_pMain->m_MagictableArray.GetData(m_nSkillID);
-	if (pMagic == NULL)
+	if (!pMagic)
 		return;
-
-	if ((m_opcode == MAGIC_CANCEL
-		|| m_opcode == MAGIC_CANCEL2) && m_pSrcUser)
-	{
-		Type3Cancel(m_nSkillID, m_pSrcUser->GetSocketID());
-		Type4Cancel(m_nSkillID, m_pSrcUser->GetSocketID());
-		//Type6Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Scrolls etc.
-		//Type9Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Stealth lupine etc.
-		return;
-	}
 
 	pkt >> m_pSkillCaster >> m_pSkillTarget
 		>> m_sData1 >> m_sData2 >> m_sData3 >> m_sData4
 		>> m_sData5 >> m_sData6 >> m_sData7 >> m_sData8;
 
-	if (m_pSrcUser)
-	{
-		// We don't want the source ever being anyone other than us.
-		// Ever. Even in the case of NPCs, it's BAD. BAD!
-		// We're better than that -- we don't need to have the client tell NPCs what to do.
-		if (m_pSkillCaster != m_pSrcUser->GetSocketID()) 
-			return;
+	if (m_pSrcUser && !UserCanCast(pMagic, m_opcode))
+			SendSkillFailed();
 
-		// If we're in a snow war, we're only ever allowed to use the snowball skill.
-		if (m_pSrcUser->getZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
-			&& m_nSkillID != SNOW_EVENT_SKILL)
-			return;
-	}
+	uint8 bInitialResult = 0;
 
-	// For the types we use (all over the place), we may as well perform the one lookup, rather than look up every time we need it.
-	// NOTE: Not really implemented, but works for this method at least (also not worth it alone, so...).
-	for (int i = 0; i < 2; i++)
+	switch(m_opcode)
 	{
-		switch (pMagic->bType[i])
-		{
-		case 2:
-			pType2 = g_pMain->m_Magictype2Array.GetData(m_nSkillID);
-			if (pType2 == NULL)
-				return;
+		case MAGIC_CASTING:
+			SendSkill();
 			break;
-
-		case 3:
-			pType3 = g_pMain->m_Magictype3Array.GetData(m_nSkillID);
-			if (pType3 == NULL)
-				return;
-			break;  
-
-		case 4:
-			pType4 = g_pMain->m_Magictype4Array.GetData(m_nSkillID);
-			if (pType4 == NULL)
-				return;
-			break;  
-		}
+		case MAGIC_EFFECTING:
+			bInitialResult = ExecuteSkill(pMagic, pMagic->bType[0], m_opcode);
+			break;
+		case MAGIC_FLYING:
+		case MAGIC_FAIL:
+			SendSkill();
+			break;
+		case MAGIC_TYPE3_END: //This is also MAGIC_TYPE4_END
+			break;
+		case MAGIC_CANCEL:
+		case MAGIC_CANCEL2:
+			Type3Cancel(m_nSkillID, m_pSrcUser->GetSocketID());
+			Type4Cancel(m_nSkillID, m_pSrcUser->GetSocketID());
+			//Type6Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Scrolls etc.
+			//Type9Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Stealth lupine etc.
+			break;
 	}
-
-	// If we're using an AOE, and the target is specified... something's not right.
-	if ((pMagic->bMoral >= MORAL_AREA_ENEMY
-			&& pMagic->bMoral <= MORAL_SELF_AREA)
-		&& m_pSkillTarget != -1)
-		return;
-
-	if (m_pSkillCaster >= NPC_BAND)
-	{
-		pMon = g_pMain->m_arNpcArray.GetData(m_pSkillCaster);
-		if (pMon == NULL || pMon->isDead())
-			return;
-	}
-	else if (m_pSkillCaster >= 0)
-	{
-		pUser = g_pMain->GetUserPtr(m_pSkillCaster);
-		if (pUser == NULL || pUser->isDead() || pUser->isBlinking())	
-			return;
-	}
-
-	if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER
-		&& pMagic->bMoral < MORAL_NPC)
-	{
-		CUser *pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
-		// revives are the only other concern here, but since we're only checking types 3 & 4 (revive is 5) there's no problem
-		if (pTUser == NULL || pTUser->isDead()) 
-			return;
-
-		// Check if we're casting a skill with the same buff type
-		if  (pMagic->bType[0] == 4 && pTUser->m_bType4Buff[pType4->bBuffType - 1] > 0)
-		{
-			m_sData4 = -103; // Not sure if this is necessary.
-			SendSkillFailed(); 
-			return;
-		}
-		else if (pMagic->bType[0] == 3 && pType3->sTimeDamage > 0)
-		{
-			for (int i = 0 ; i < MAX_TYPE3_REPEAT; i++)
-			{
-				if (pTUser->m_bHPAmount[i] <= 0)
-					continue;
-
-				m_sData4 = -103; // Not sure if this is necessary.
-				SendSkillFailed();
-				return;
-			}				
-		}
-	}
-
-	if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER) {	// Make sure the source is a user!
-		if ((m_pSrcUser->m_pUserData->m_bZone / 100) == 1) {		// Make sure the zone is a battlezone!
-			if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER) {		// Make sure the target is another player.
-				if (pMagic->bType[0] == 8) {		// Is it a warp spell?
-					if (pMagic->bMoral < 5 || pMagic->bMoral == MORAL_CLAN) {		
-						float currenttime = TimeGet();
-
-						CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
-						if (pTUser == NULL) return;
-
-						if (currenttime - pTUser->m_fLastRegeneTime < CLAN_SUMMON_TIME) {
-							m_sData4 = -103; // Not sure if this is necessary.
-							SendSkillFailed();
-							return;     // Magic was a failure!	
-						}		
-					}
-				}
-			}
-		}
-	}
-
-	if (m_opcode == MAGIC_FLYING) {	// When the arrow starts flying... 
-	 	if (pMagic->bType[0] == 2) {
-			if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER)	{	// If the PLAYER shoots an arrow.
-				if (pMagic->bFlyingEffect > 0) {	// Only if Flying Effect is greater than 0.			
-					int total_hit = m_pSrcUser->m_sTotalHit + m_pSrcUser->m_sItemHit ;
-					int skill_mana = total_hit * pMagic->sMsp / 100 ;
-
-					if( skill_mana > m_pSrcUser->m_pUserData->m_sMp ) {	// Reduce Magic Point!
-						SendSkillFailed();
-						return;
-					}				
-					m_pSrcUser->MSpChange( -(skill_mana) ) ;
-				}
-
-				if (!m_pSrcUser->RobItem(pMagic->iUseItem, pType2->bNeedArrow)) { // Subtract Arrow!				
-					SendSkillFailed();
-					return;
-				}
-			}		
-		}
-	}
-
-	// Client indicates that magic failed. Just send back packet (seriously, is this even expected of us? So dumb.)
-	if (m_opcode == MAGIC_FLYING || m_opcode == MAGIC_FAIL)
-	{
-		SendSkill();
-		return;
-	}	
-	
-	if (!IsAvailable(pMagic))
-		return;
-
-	// This is so that we still have the IsAvailable() check for this packet.
-	if (m_opcode == MAGIC_CASTING)
-	{
-		SendSkill();
-		return;
-	}
-
-	// That's it for anything else!
-	if (m_opcode != MAGIC_EFFECTING)
-		return;
-
-	int initial_result = 1;
-	if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER)
-	{
-		// If the target is an NPC.
-		if (m_pSkillTarget >= NPC_BAND 
-			|| (m_pSkillTarget == -1 && (pMagic->bMoral == MORAL_AREA_ENEMY || pMagic->bMoral == MORAL_SELF_AREA)))
-		{		
-			int total_magic_damage = 0;
-
-			Packet result(AG_MAGIC_ATTACK_REQ); // this is the order it was in.
-			result	<< m_pSkillCaster << m_opcode << m_pSkillTarget << m_nSkillID 
-					<< m_sData1 << m_sData2 << m_sData3 
-					<< m_sData4 << m_sData5 << m_sData6
-					<< m_pSrcUser->getStatWithItemBonus(STAT_CHA);
-
-			if( m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {	// Does the magic user have a staff?
-				_ITEM_TABLE* pRightHand = NULL;
-				pRightHand = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
-
-				if( pRightHand && m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum == 0 && pRightHand->m_bKind / 10 == WEAPON_STAFF) {					
-//						total_magic_damage += pRightHand->m_sDamage ;
-//						total_magic_damage += ((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 60);
-
-					if (pMagic->bType[0] == 3) {
-						total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 60);
-
-						if (m_pSrcUser->m_bMagicTypeRightHand == pType3->bAttribute ) {							
-							total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 30);
-						}
-//
-						if (pType3->bAttribute == 4) {	// Remember what Sunglae told ya! (no, not really?)
-							total_magic_damage = 0;
-						}
-					}
-				}
-			}
-
-			result << uint16(total_magic_damage);
-			g_pMain->Send_AIServer(&result);		
-		}
-	}
-
-	if (m_pSkillTarget < -1 || m_pSkillTarget >= MAX_USER) return;	// Make sure the target is another player and it exists.
 
 	// NOTE: Some ROFD skills require a THIRD type.
-	uint8 bInitialResult = ExecuteSkill(pMagic, pMagic->bType[0]);
 	if (bInitialResult != 0)
-		ExecuteSkill(pMagic, pMagic->bType[1]);
+		ExecuteSkill(pMagic, pMagic->bType[1], m_opcode);
 }
 
-uint8 CMagicProcess::ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType)
+bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill, uint8 m_opcode)
+{
+	// We don't want the source ever being anyone other than us.
+	// Ever. Even in the case of NPCs, it's BAD. BAD!
+	// We're better than that -- we don't need to have the client tell NPCs what to do.
+	if (m_pSkillCaster != m_pSrcUser->GetSocketID()) 
+		return false;
+
+	if(m_opcode == MAGIC_CANCEL || m_opcode == MAGIC_CANCEL2) // We don't need to check anything as we're just canceling our buffs.
+		return true;
+
+	if(m_pSrcUser->isDead() || m_pSrcUser->isBlinking() && pSkill->bType[0] != 5) //To allow for resurrect scrolls
+		return false;
+
+	// If we're using an AOE, and the target is specified... something's not right.
+	if ((pSkill->bMoral >= MORAL_AREA_ENEMY
+			&& pSkill->bMoral <= MORAL_SELF_AREA)
+		&& m_pSkillTarget != -1)
+		return false;
+
+	if(m_pSrcUser->m_pUserData->m_sClass != (pSkill->sSkill / 10)
+		|| m_pSrcUser->m_pUserData->m_bLevel < pSkill->sSkillLevel)
+		return false;
+
+	if((m_pSrcUser->m_pUserData->m_sMp - pSkill->sMsp) < 0)
+		return false;
+
+	if(m_pSkillTarget >= NPC_BAND)
+		m_pTargetMon = g_pMain->m_arNpcArray.GetData(m_pSkillTarget);
+	else
+		m_pTargetUser = g_pMain->GetUserPtr(m_pSkillTarget);
+
+	if(m_pTargetUser != m_pSrcUser && ((m_pTargetUser->getZoneID() != m_pSrcUser->getZoneID())
+		|| !m_pTargetUser->isAttackZone()))
+		return false;
+
+	if(m_pTargetUser != m_pSrcUser && ((m_pTargetUser->isAttackZone() && (m_pTargetUser->getNation() == m_pSrcUser->getNation())))) //Will have to add support for the outside battlefield
+		return false;
+
+	// If we're in a snow war, we're only ever allowed to use the snowball skill.
+	if (m_pSrcUser->getZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
+		&& m_nSkillID != SNOW_EVENT_SKILL)
+		return false;
+
+	if(m_pTargetMon && (m_pTargetMon->getZoneID() != m_pSrcUser->getZoneID()))
+		return false;
+
+	if(m_pTargetMon && (m_pTargetMon->getNation() == m_pSrcUser->getNation()))
+		return false;
+
+	if(pSkill->iUseItem != 0 && !m_pSrcUser->CanUseItem(pSkill->iUseItem, 1)) //The user does not meet the item's requirements or does not have any of said item.
+		return false;
+
+	if(m_opcode == MAGIC_EFFECTING || m_opcode == MAGIC_CASTING && !IsAvailable(pSkill))
+		return false;
+
+	//TO-DO : Add skill cooldown checks.
+
+	//Incase we made it to here, we can cast! Hurray!
+	return true;
+}
+
+uint8 CMagicProcess::ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType, uint8 m_opcode)
 {
 	uint8 bResult = 0;
 
@@ -432,7 +311,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 	CNpc* pMon = NULL;		// When the monster is the source....
 	bool isNPC = (m_pSkillCaster >= NPC_BAND);		// Identifies source : TRUE means source is NPC.
 	_MAGIC_TYPE5* pType = NULL;		// Only for type 5 magic!
-	
+
 	int modulator = 0, Class = 0, moral = 0, skill_mod = 0 ;
 
 	if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER) {		// Target existence check routine for player.          
@@ -482,7 +361,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 	}
 	else 
 		moral = m_pSrcUser->getNation();
-	
+
 	switch( pSkill->bMoral ) {		// Compare morals between source and target character.
 		case MORAL_SELF:   // #1         // ( to see if spell is cast on the right target or not )
 			if(isNPC) {
@@ -564,7 +443,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 				if( pUser->m_pUserData->m_bKnights != m_pSrcUser->m_pUserData->m_bKnights ) goto fail_return;
 			}
 			break;
-			
+
 		case MORAL_CLAN_ALL:	// #15
 			break;
 //
@@ -586,7 +465,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 
 				_ITEM_TABLE* pRightHand = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 				if (!pRightHand) return false;
-				
+
 				int left_index = pLeftHand->m_bKind / 10 ;
 				int right_index = pRightHand->m_bKind / 10 ;
 
@@ -631,7 +510,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 						_ITEM_TABLE* pItem = NULL;				// This checks if such an item exists.
 						pItem = g_pMain->GetItemPtr(pSkill->iUseItem);
 						if( !pItem ) return false;
-						
+
 						if ((pItem->m_bRace != 0 && m_pSrcUser->m_pUserData->m_bRace != pItem->m_bRace)
 							|| (pItem->m_bClass != 0 && !m_pSrcUser->JobGroupCheck(pItem->m_bClass))
 							|| (pItem->m_bReqLevel != 0 && m_pSrcUser->getLevel() < pItem->m_bReqLevel)
@@ -640,7 +519,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 					}
 				}
 			}
-			
+
 			if (pSkill->bType[0] == 5) {
 				if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER)	{	
 					if (pSkill->iUseItem != 0) {					
