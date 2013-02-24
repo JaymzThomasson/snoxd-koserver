@@ -80,7 +80,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 		>> m_sData1 >> m_sData2 >> m_sData3 >> m_sData4
 		>> m_sData5 >> m_sData6 >> m_sData7 >> m_sData8;
 
-	if (m_pSrcUser && !UserCanCast(pMagic, m_opcode))
+	if (m_pSrcUser && !UserCanCast(pMagic))
 			SendSkillFailed();
 
 	uint8 bInitialResult = 0;
@@ -91,7 +91,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 			SendSkill();
 			break;
 		case MAGIC_EFFECTING:
-			bInitialResult = ExecuteSkill(pMagic, pMagic->bType[0], m_opcode);
+			bInitialResult = ExecuteSkill(pMagic, pMagic->bType[0]);
 			break;
 		case MAGIC_FLYING:
 		case MAGIC_FAIL:
@@ -110,7 +110,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 
 	// NOTE: Some ROFD skills require a THIRD type.
 	if (bInitialResult != 0)
-		ExecuteSkill(pMagic, pMagic->bType[1], m_opcode);
+		ExecuteSkill(pMagic, pMagic->bType[1]);
 }
 
 bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
