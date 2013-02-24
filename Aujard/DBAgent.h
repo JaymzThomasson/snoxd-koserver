@@ -53,6 +53,7 @@ public:
 	uint16 LoadKnightsAllMembers(uint16 sClanID, Packet & result);
 	void LoadKnightsInfo(uint16 sClanID, Packet & result);
 	void LoadKnightsAllList(uint8 bNation);
+	bool UpdateClanSymbol(uint16 sClanID, uint16 sSymbolSize, char *clanSymbol);
 
 	void UpdateBattleEvent(std::string & strCharID, uint8 bNation);
 	void AccountLogout(std::string & strAccountID);

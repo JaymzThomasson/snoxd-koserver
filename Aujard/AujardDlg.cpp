@@ -558,6 +558,9 @@ void CAujardDlg::KnightsPacket(Packet & pkt, int16 uid)
 	case KNIGHTS_ALLLIST_REQ:
 		m_DBAgent.LoadKnightsAllList(pkt.read<uint8>()); // read nation
 		break;
+	case KNIGHTS_MARK_REGISTER:
+		RegisterClanSymbol(pkt, uid);
+		break;
 	}
 }
 
@@ -657,6 +660,26 @@ void CAujardDlg::KnightsList(Packet & pkt, int16 uid)
 
 	result << uint8(0);
 	m_DBAgent.LoadKnightsInfo(sClanID, result);
+	
+	m_LoggerSendQueue.PutData(&result, uid);
+}
+
+void CAujardDlg::RegisterClanSymbol(Packet & pkt, int16 uid)
+{
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MARK_REGISTER));
+	char clanSymbol[MAX_KNIGHTS_MARK];
+	uint16 sClanID, sSymbolSize;
+
+	pkt >> sClanID >> sSymbolSize;
+	pkt.read(clanSymbol, sSymbolSize);
+
+	bool bResult = m_DBAgent.UpdateClanSymbol(sClanID, sSymbolSize, clanSymbol);
+	result << uint8(0) << bResult;
+	if (bResult)
+	{
+		result << sClanID << sSymbolSize;
+		result.append(clanSymbol, sSymbolSize); // ... and back again! Like ping pong!
+	}
 	
 	m_LoggerSendQueue.PutData(&result, uid);
 }

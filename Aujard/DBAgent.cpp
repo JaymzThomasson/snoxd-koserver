@@ -911,6 +911,21 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 	}
 }
 
+bool CDBAgent::UpdateClanSymbol(uint16 sClanID, uint16 sSymbolSize, char *clanSymbol)
+{
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	if (dbCommand.get() == NULL)
+		return false;
+
+	uint16 nRet = 0;
+	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
+	dbCommand->AddParameter(SQL_PARAM_INPUT, clanSymbol, MAX_KNIGHTS_MARK, SQL_BINARY);
+	if (!dbCommand->Execute(string_format(_T("{CALL UPDATE_KNIGHTS_MARK(?, %d, %d, ?)}"), sClanID, sSymbolSize)))
+		m_pMain->ReportSQLError(m_GameDB.GetError());
+
+	return (nRet == 1);
+}
+
 void CDBAgent::UpdateBattleEvent(string & strCharID, uint8 bNation)
 {
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());

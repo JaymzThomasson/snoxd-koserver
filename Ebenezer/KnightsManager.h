@@ -26,6 +26,10 @@ public:
 	void AllKnightsMember(CUser* pUser);
 	void CurrentKnightsMember(CUser* pUser, Packet & pkt);
 	void JoinKnightsReq(CUser* pUser, Packet & pkt);
+	void RegisterClanSymbol(CUser* pUser, Packet & pkt);
+	void RequestClanSymbolVersion(CUser* pUser, Packet & pkt);
+	void RequestClanSymbols(CUser* pUser, Packet & pkt);
+	void GetClanSymbol(CUser* pUser, uint16 sClanID, bool bIsManualRequest);
 	void ListTop10Clans(CUser *pUser);
 
 	BOOL AddKnightsUser(int index, char* UserName);
@@ -40,6 +44,7 @@ public:
 	void RecvDestroyKnights( CUser* pUser, Packet & pkt);
 	void RecvKnightsList(Packet & pkt);
 	void RecvKnightsAllList(Packet & pkt);
+	void RecvRegisterClanSymbol(CUser* pUser, Packet & pkt);
 
 	void ReceiveKnightsProcess(CUser* pUser, Packet & pkt);
 

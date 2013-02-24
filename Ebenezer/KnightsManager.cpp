@@ -70,6 +70,18 @@ void CKnightsManager::PacketProcess(CUser *pUser, Packet & pkt)
 	case KNIGHTS_JOIN_REQ:
 		JoinKnightsReq(pUser, pkt);
 		break;
+	case KNIGHTS_MARK_REGISTER:
+		RegisterClanSymbol(pUser, pkt);
+		break;
+	case KNIGHTS_MARK_VERSION_REQ:
+		RequestClanSymbolVersion(pUser, pkt);
+		break;
+	case KNIGHTS_MARK_REGION_REQ:
+		RequestClanSymbols(pUser, pkt);
+		break;
+	case KNIGHTS_MARK_REQ:
+		GetClanSymbol(pUser, pkt.read<uint16>(), true);
+		break;
 	case KNIGHTS_TOP10:
 		ListTop10Clans(pUser);
 		break;
@@ -517,6 +529,9 @@ void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 	case KNIGHTS_ALLLIST_REQ:
 		RecvKnightsAllList(pkt);
 		break;
+	case KNIGHTS_MARK_REGISTER:
+		RecvRegisterClanSymbol(pUser, pkt);
+		break;
 	}
 }
 
@@ -794,6 +809,176 @@ void CKnightsManager::RecvKnightsAllList(Packet & pkt)
 
 	result.put(1, send_count);
 	g_pMain->Send_All(&result);
+}
+
+void CKnightsManager::RegisterClanSymbol(CUser* pUser, Packet & pkt)
+{
+	if (pUser == NULL || !pUser->isInClan())
+		return;
+
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MARK_REGISTER));
+	CKnights *pKnights = NULL;
+	char clanSymbol[MAX_KNIGHTS_MARK];
+	uint16 sFailCode = 1, sSymbolSize = pkt.read<uint16>();
+
+	// Are they even a clan leader?
+	if (!pUser->isClanLeader())
+		sFailCode = 11;
+	// Invalid zone (only in home zones)
+	else if (pUser->getZoneID() != pUser->getNation())
+		sFailCode = 12;
+	// Invalid symbol size (or invalid packet)
+	else if (sSymbolSize == 0 
+		|| sSymbolSize > MAX_KNIGHTS_MARK
+		|| pkt.size() < sSymbolSize)
+		sFailCode = 13;
+	// User doesn't have enough coins
+	else if (pUser->m_pUserData->m_iGold < CLAN_SYMBOL_COST)
+		sFailCode = 14;
+	// Clan doesn't exist
+	else if ((pKnights = g_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights)) == NULL)
+		sFailCode = 20;
+	// Clan not promoted
+	else if (pKnights->m_byFlag != 2)
+		sFailCode = 11;
+
+	// Uh oh, did we error?
+	if (sFailCode != 1)
+	{
+		result << sFailCode;
+		pUser->Send(&result);
+		return;
+	}
+
+	// Read the clan symbol from the packet
+	pkt.read(clanSymbol, sSymbolSize);
+
+	// Nope? Let's tell Aujard to update the clan symbol.
+	result	<< pUser->m_pUserData->m_bKnights << sSymbolSize;
+	result.append(clanSymbol, sSymbolSize);
+	g_pMain->m_LoggerSendQueue.PutData(&result, pUser->GetSocketID());
+}
+
+void CKnightsManager::RecvRegisterClanSymbol(CUser* pUser, Packet & pkt)
+{
+	if (pUser == NULL)
+		return;
+
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MARK_REGISTER));
+	uint16 sClanID, sSymbolSize, sErrorCode = 0, sNewVersion = 0;
+	bool bResult; 
+
+	pkt >> bResult;
+	do
+	{
+		if (!bResult)
+			break;
+
+		pkt >> sClanID >> sSymbolSize;
+		CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
+		if (pKnights == NULL)
+		{
+			sErrorCode = 20;
+			break;
+		}
+
+		// Make sure they still have enough coins.
+		if (!pUser->GoldLose(CLAN_SYMBOL_COST))
+		{
+			sErrorCode = 14;
+			break;
+		}
+
+		sNewVersion = ++pKnights->m_sMarkVersion;
+		pKnights->m_sMarkLen = sSymbolSize;
+
+		pkt.read(pKnights->m_Image, sSymbolSize);
+
+		sErrorCode = 1;
+	} while (0);
+	
+	result << sErrorCode << sNewVersion;
+	pUser->Send(&result);
+
+	// TO-DO: Send to all servers for updating via UDP
+}
+
+void CKnightsManager::RequestClanSymbolVersion(CUser* pUser, Packet & pkt)
+{
+	if (pUser == NULL
+		|| !pUser->isInClan())
+		return;
+
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MARK_VERSION_REQ));
+	int16 sFailCode = 1;
+
+	CKnights *pKnights = g_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights);
+	if (pKnights == NULL || pKnights->m_byFlag != 2 /* not promoted */ || !pUser->isClanLeader())
+		sFailCode = 11;
+	else if (pUser->getZoneID() != pUser->getNation())
+		sFailCode = 12;
+	
+	result << sFailCode;
+
+	if (sFailCode == 1)
+		result << uint16(pKnights->m_sMarkVersion);
+
+	pUser->Send(&result);
+}
+
+/**
+ * The clan member (leader only?) tells groups of users to update the clan symbols
+ * they have for this clan. This is a horrible, horrible idea.
+ **/
+void CKnightsManager::RequestClanSymbols(CUser* pUser, Packet & pkt)
+{
+	// Should we force them to be a clan leader too? 
+	// Need to check if *any* clan member can trigger this, or if it's just leaders.
+	if (pUser == NULL
+		|| !pUser->isInClan())
+		return;
+
+	uint16 sCount = pkt.read<uint16>();
+	if (sCount > 100)
+		sCount = 100;
+
+	for (int i = 0; i < sCount; i++)
+	{
+		uint16 sid = pkt.read<uint16>();
+		CUser *pTUser = g_pMain->GetUserPtr(sid);
+		if (pTUser == NULL
+			|| !pTUser->isInGame())
+			continue;
+
+		// This is really quite scary that users can send directly to specific players like this.
+		// Quite possibly we should replace this with a completely server-side implementation.
+		GetClanSymbol(pTUser, pUser->m_pUserData->m_bKnights, false);
+	}
+}
+
+void CKnightsManager::GetClanSymbol(CUser* pUser, uint16 sClanID, bool bIsManualRequest)
+{
+	if (pUser == NULL)
+		return;
+
+	Packet result(WIZ_KNIGHTS_PROCESS);
+	CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
+
+	// Dose that clan exist?
+	if (pKnights == NULL 
+		// Are they promoted?
+		|| pKnights->m_byFlag != 2
+		// Is their symbol version set?
+		|| pKnights->m_sMarkVersion == 0
+		// The clan symbol is more than 0 bytes, right?
+		|| pKnights->m_sMarkLen <= 0)
+		return;
+
+	result	<< uint8(KNIGHTS_MARK_REQ) << uint16(1); // success
+	result	<< uint16(pKnights->m_byNation) << sClanID
+			<< uint16(pKnights->m_sMarkVersion) << uint16(pKnights->m_sMarkLen);
+	result.append(pKnights->m_Image, pKnights->m_sMarkLen);
+	pUser->SendCompressed(&result);
 }
 
 void CKnightsManager::ListTop10Clans(CUser *pUser)

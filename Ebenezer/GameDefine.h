@@ -120,9 +120,6 @@ enum ItemMovementType
 #define CLAN_COIN_REQUIREMENT	500000
 #define CLAN_LEVEL_REQUIREMENT	20
 
-#define MAX_KNIGHTS_BANK	200
-#define MAX_KNIGHTS_MARK	2400
-
 #define ITEM_GOLD			900000000	// �� ������ ��ȣ...
 #define ITEM_NO_TRADE		900000001	// �ŷ� �Ұ� �����۵�.... �񷯸ӱ� ũ�������� �̹�Ʈ >.<		
 

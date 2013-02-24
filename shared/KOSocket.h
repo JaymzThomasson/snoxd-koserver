@@ -1,6 +1,6 @@
 #pragma once
 
-#define MAX_PACKET_LEN						2048
+#define MAX_PACKET_LEN						3172
 #define MAX_SEND_LEN						16384
 
 #include "SocketMgr.h"

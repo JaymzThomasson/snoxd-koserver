@@ -40,6 +40,7 @@ public:
 	void DestroyKnights(Packet & pkt, int16 uid);
 	void AllKnightsMember(Packet & pkt, int16 uid);
 	void KnightsList(Packet & pkt, int16 uid);
+	void RegisterClanSymbol(Packet & pkt, int16 uid);
 	void SetLogInInfo(Packet & pkt, int16 uid);
 	void UserKickOut(Packet & pkt);
 	void BattleEventResult(Packet & pkt);
