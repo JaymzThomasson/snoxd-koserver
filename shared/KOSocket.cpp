@@ -85,8 +85,10 @@ void KOSocket::OnRead()
 		{
 
 			TRACE("KOSocket: Footer invalid (%X), failed to decrypt or the handler for packet %X returned false\n", footer, pkt.GetOpcode());
+#ifndef _DEBUG
 			Disconnect();
 			return;
+#endif
 		}
 
 		m_remaining = 0;
