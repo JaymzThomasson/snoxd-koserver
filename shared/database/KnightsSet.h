@@ -51,6 +51,8 @@ public:
 		TRIM_RIGHT(data->m_strViceChief_2);
 		TRIM_RIGHT(data->m_strViceChief_3);
 
+		data->m_byGrade = g_pMain->GetKnightsGrade(data->m_nPoints);
+
 		if (!m_stlMap->PutData(data->m_sIndex, data))
 			delete data;
 	};
