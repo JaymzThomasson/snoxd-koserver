@@ -561,7 +561,7 @@ bool CDBAgent::LoadSkillShortcut(short uid, Packet & result)
 	dbCommand->FetchUInt16(1, sCount);
 	dbCommand->FetchString(2, strSkillData, sizeof(strSkillData));
 
-	result << sCount;
+	result << uint8(1) << sCount;
 	result.append(strSkillData, sizeof(strSkillData));
 
 	return true;

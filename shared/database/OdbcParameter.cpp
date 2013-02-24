@@ -12,7 +12,7 @@ OdbcParameter::OdbcParameter(SQLSMALLINT parameterType, SQLSMALLINT dataType, SQ
 	case SQL_BINARY:
 		m_dataTypeLength = maxLength;
 		m_dataType = m_cDataType;
-		if (m_cDataType == SQL_BINARY)
+		if (m_cDataType == SQL_BINARY || m_cDataType == SQL_CHAR)
 			m_pCBValue = m_dataTypeLength;
 		break;
 
