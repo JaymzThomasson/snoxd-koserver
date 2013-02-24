@@ -22,7 +22,7 @@ void InitPacketHandlers(void)
 #endif
 }
 
-LoginSession::LoginSession(uint16 socketID, SocketMgr *mgr) : KOSocket(socketID, mgr, -1, 16384, 16384) {}
+LoginSession::LoginSession(uint16 socketID, SocketMgr *mgr) : KOSocket(socketID, mgr, -1, 2048, 64) {}
 
 bool LoginSession::HandlePacket(Packet & pkt)
 {
