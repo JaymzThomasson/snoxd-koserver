@@ -570,8 +570,8 @@ bool CDBAgent::LoadSkillShortcut(short uid, Packet & result)
 void CDBAgent::SaveSkillShortcut(short uid, short sCount, char *buff)
 {
 	_USER_DATA *pUser = GetUser(uid);
-	auto dbCommand = m_GameDB.CreateCommand();
-	if (dbCommand == NULL || pUser == NULL)
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	if (dbCommand.get() == NULL || pUser == NULL)
 		return;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_id, strlen(pUser->m_id));
@@ -579,8 +579,6 @@ void CDBAgent::SaveSkillShortcut(short uid, short sCount, char *buff)
 
 	if (!dbCommand->Execute(string_format(_T("{CALL SKILLSHORTCUT_SAVE(?, %d, ?)}"), sCount)))
 		m_pMain->ReportSQLError(m_GameDB.GetError());
-
-	delete dbCommand;
 }
 
 void CDBAgent::RequestFriendList(short uid, vector<string> & friendList)
