@@ -21,6 +21,7 @@
 
 class CEbenezerDlg;
 class CUser;
+class CNpc;
 class Packet;
 struct _MAGIC_TABLE;
 
@@ -46,6 +47,7 @@ public:
 	void  ExecuteType9(_MAGIC_TABLE *pSkill);
 
 	bool IsAvailable(_MAGIC_TABLE *pSkill);
+	bool UserCanCast(_MAGIC_TABLE *pSkill);
 	void MagicPacket(Packet & pkt);
 
 	uint8 ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType);
@@ -59,7 +61,9 @@ public:
 	CMagicProcess();
 	virtual ~CMagicProcess();
 
-	CUser*			m_pSrcUser;	
+	CUser*			m_pSrcUser;
+	CUser*			m_pTargetUser;
+	CNpc*			m_pTargetMon;
 
 	// Need to make sure this data's not going to change during skill handling
 	// (i.e. during multiple concurrent packets)

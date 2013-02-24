@@ -3569,7 +3569,7 @@ bool CUser::isAttackZone()
 	return GetMap()->isAttackZone();
 }
 
-bool CUser::CanUseItem(long itemid)
+bool CUser::CanUseItem(long itemid, uint16 count)
 {
 	_ITEM_TABLE* pItem = pItem = g_pMain->GetItemPtr(itemid);
 	if(!pItem)
@@ -3581,7 +3581,7 @@ bool CUser::CanUseItem(long itemid)
 	if(pItem->m_bReqLevel > m_pUserData->m_bLevel) //Level related item check
 		return false;
 
-	if(!(this)->CheckItemCount(itemid, 1, 999)) //Does the character posses said item?
+	if(!CheckExistItem(itemid, count))
 		return false;
 
 	return true;
