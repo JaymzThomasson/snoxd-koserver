@@ -1836,12 +1836,21 @@ void CUser::SkillPointChange(Packet & pkt)
 {
 	uint8 type = pkt.read<uint8>();
 	Packet result(WIZ_SKILLPT_CHANGE, type);
-	if (type > 8 // invalid type
-		|| m_pUserData->m_bstrSkill[0] < 1 // not enough free skill points to allocate
-		|| m_pUserData->m_bstrSkill[type] + 1 > getLevel()) // restrict skill points per category to your level
+	// invalid type
+	if (type < 5 || type > 8 
+		// not enough free skill points to allocate
+		|| m_pUserData->m_bstrSkill[0] < 1 
+		// restrict skill points per category to your level
+		|| m_pUserData->m_bstrSkill[type] + 1 > getLevel()
+		// we need our first job change to assign skill points
+		|| (m_pUserData->m_sClass % 100) <= 4
+		// to set points in the mastery category, we need to be mastered.
+		|| (type == 8
+			&& ((m_pUserData->m_sClass % 2) != 0 || (m_pUserData->m_sClass % 100) < 6))) 
 	{
 		result << m_pUserData->m_bstrSkill[type]; // only send the packet on failure
 		Send(&result);
+		return;
 	}
 
 	m_pUserData->m_bstrSkill[0] -= 1;
