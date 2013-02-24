@@ -80,7 +80,7 @@ void CKnightsManager::PacketProcess(CUser *pUser, Packet & pkt)
 		RequestClanSymbols(pUser, pkt);
 		break;
 	case KNIGHTS_MARK_REQ:
-		GetClanSymbol(pUser, pkt.read<uint16>(), true);
+		GetClanSymbol(pUser, pkt.read<uint16>());
 		break;
 	case KNIGHTS_TOP10:
 		ListTop10Clans(pUser);
@@ -952,11 +952,11 @@ void CKnightsManager::RequestClanSymbols(CUser* pUser, Packet & pkt)
 
 		// This is really quite scary that users can send directly to specific players like this.
 		// Quite possibly we should replace this with a completely server-side implementation.
-		GetClanSymbol(pTUser, pUser->m_pUserData->m_bKnights, false);
+		GetClanSymbol(pTUser, pUser->m_pUserData->m_bKnights);
 	}
 }
 
-void CKnightsManager::GetClanSymbol(CUser* pUser, uint16 sClanID, bool bIsManualRequest)
+void CKnightsManager::GetClanSymbol(CUser* pUser, uint16 sClanID)
 {
 	if (pUser == NULL)
 		return;

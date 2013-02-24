@@ -29,7 +29,7 @@ public:
 	void RegisterClanSymbol(CUser* pUser, Packet & pkt);
 	void RequestClanSymbolVersion(CUser* pUser, Packet & pkt);
 	void RequestClanSymbols(CUser* pUser, Packet & pkt);
-	void GetClanSymbol(CUser* pUser, uint16 sClanID, bool bIsManualRequest);
+	void GetClanSymbol(CUser* pUser, uint16 sClanID);
 	void ListTop10Clans(CUser *pUser);
 
 	BOOL AddKnightsUser(int index, char* UserName);
