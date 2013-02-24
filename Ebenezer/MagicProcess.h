@@ -48,6 +48,7 @@ public:
 
 	bool IsAvailable(_MAGIC_TABLE *pSkill);
 	bool UserCanCast(_MAGIC_TABLE *pSkill);
+	void SendSkillToAI(_MAGIC_TABLE *pSkill);
 	void MagicPacket(Packet & pkt);
 
 	uint8 ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType);

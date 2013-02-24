@@ -81,7 +81,16 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 		>> m_sData5 >> m_sData6 >> m_sData7 >> m_sData8;
 
 	if (m_pSrcUser && !UserCanCast(pMagic))
+	{
 			SendSkillFailed();
+			return;
+	}
+
+	if(m_pTargetMon != NULL)
+	{
+		SendSkillToAI(pMagic);
+		return;
+	}
 
 	uint8 bInitialResult = 0;
 
@@ -140,39 +149,88 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 	if((m_pSrcUser->m_pUserData->m_sMp - pSkill->sMsp) < 0)
 		return false;
 
-	if(m_pSkillTarget >= NPC_BAND)
-		m_pTargetMon = g_pMain->m_arNpcArray.GetData(m_pSkillTarget);
-	else
-		m_pTargetUser = g_pMain->GetUserPtr(m_pSkillTarget);
-
-	if(m_pTargetUser != m_pSrcUser && ((m_pTargetUser->getZoneID() != m_pSrcUser->getZoneID())
-		|| !m_pTargetUser->isAttackZone()))
-		return false;
-
-	if(m_pTargetUser != m_pSrcUser && ((m_pTargetUser->isAttackZone() && (m_pTargetUser->getNation() == m_pSrcUser->getNation())))) //Will have to add support for the outside battlefield
-		return false;
-
 	// If we're in a snow war, we're only ever allowed to use the snowball skill.
 	if (m_pSrcUser->getZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
 		&& m_nSkillID != SNOW_EVENT_SKILL)
 		return false;
 
-	if(m_pTargetMon && (m_pTargetMon->getZoneID() != m_pSrcUser->getZoneID()))
+
+	if (m_pSkillTarget >= 0)
+	{
+		if (m_pSkillTarget >= NPC_BAND)
+			m_pTargetMon = g_pMain->m_arNpcArray.GetData(m_pSkillTarget);
+		else
+			m_pTargetUser = g_pMain->GetUserPtr(m_pSkillTarget);
+
+		if (m_pTargetUser != NULL)
+		{
+			if (m_pTargetUser != m_pSrcUser)
+			{
+				if (m_pTargetUser->getZoneID() != m_pSrcUser->getZoneID()
+					|| !m_pTargetUser->isAttackZone()
+					// Will have to add support for the outside battlefield
+					|| (m_pTargetUser->isAttackZone() && m_pTargetUser->getNation() == m_pSrcUser->getNation()))
+					return false;
+			}
+		}
+		else if (m_pTargetMon != NULL)
+		{
+			if (m_pTargetMon->getZoneID() != m_pSrcUser->getZoneID()
+				|| m_pTargetMon->getNation() == m_pSrcUser->getNation())
+				return false;
+		}
+	}
+
+	if (pSkill->iUseItem != 0 && !m_pSrcUser->CanUseItem(pSkill->iUseItem, 1)) //The user does not meet the item's requirements or does not have any of said item.
 		return false;
 
-	if(m_pTargetMon && (m_pTargetMon->getNation() == m_pSrcUser->getNation()))
-		return false;
-
-	if(pSkill->iUseItem != 0 && !m_pSrcUser->CanUseItem(pSkill->iUseItem, 1)) //The user does not meet the item's requirements or does not have any of said item.
-		return false;
-
-	if(m_opcode == MAGIC_EFFECTING || m_opcode == MAGIC_CASTING && !IsAvailable(pSkill))
+	if ((m_opcode == MAGIC_EFFECTING || m_opcode == MAGIC_CASTING) && !IsAvailable(pSkill))
 		return false;
 
 	//TO-DO : Add skill cooldown checks.
 
 	//Incase we made it to here, we can cast! Hurray!
 	return true;
+}
+
+void CMagicProcess::SendSkillToAI(_MAGIC_TABLE *pSkill)
+{
+	if (m_pSkillTarget >= NPC_BAND 
+		|| (m_pSkillTarget == -1 && (pSkill->bMoral == MORAL_AREA_ENEMY || pSkill->bMoral == MORAL_SELF_AREA)))
+	{		
+		int total_magic_damage = 0;
+
+		Packet result(AG_MAGIC_ATTACK_REQ); // this is the order it was in.
+		result	<< m_pSkillCaster << m_opcode << m_pSkillTarget << m_nSkillID 
+				<< m_sData1 << m_sData2 << m_sData3 
+				<< m_sData4 << m_sData5 << m_sData6
+				<< m_pSrcUser->getStatWithItemBonus(STAT_CHA);
+
+		if( m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {	// Does the magic user have a staff?
+			_ITEM_TABLE* pRightHand = NULL;
+			pRightHand = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+
+			if( pRightHand && m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum == 0 && pRightHand->m_bKind / 10 == WEAPON_STAFF) {					
+
+				if (pSkill->bType[0] == 3) {
+					total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 60);
+
+					_MAGIC_TYPE3 *pType3 = g_pMain->m_Magictype3Array.GetData(m_nSkillID);
+					if (pType3 == NULL)
+						return;
+					if (m_pSrcUser->m_bMagicTypeRightHand == pType3->bAttribute ) {							
+						total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 30);
+					}
+					if (pType3->bAttribute == 4) {	// Remember what Sunglae told ya! (no, not really?)
+						total_magic_damage = 0;
+					}
+				}
+			}
+		}
+
+		result << uint16(total_magic_damage);
+		g_pMain->Send_AIServer(&result);		
+	}
 }
 
 uint8 CMagicProcess::ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType)
