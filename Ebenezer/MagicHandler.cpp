@@ -467,7 +467,7 @@ bool CUser::CanCast(_MAGIC_TABLE *pMagic, uint16 sid, uint16 tid)
 	else if(tid >= NPC_BAND)
 		pMon = g_pMain->m_arNpcArray.GetData(tid);
 
-	if(pMagic->iUseItem != 0 && pMagic->bType[0] != 5 && !CanUseItem(pMagic->iUseItem)) //The user does not meet the item's requirements or does not have any of said item.
+	if(pMagic->iUseItem != 0 && pMagic->bType[0] != 5 && !CanUseItem(pMagic->iUseItem, 1)) //The user does not meet the item's requirements or does not have any of said item.
 			return false;
 
 	uint16 pMagicModulator = pMagic->sSkill / 10;
