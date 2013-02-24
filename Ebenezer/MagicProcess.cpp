@@ -113,7 +113,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 		ExecuteSkill(pMagic, pMagic->bType[1], m_opcode);
 }
 
-bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill, uint8 m_opcode)
+bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 {
 	// We don't want the source ever being anyone other than us.
 	// Ever. Even in the case of NPCs, it's BAD. BAD!
@@ -175,7 +175,7 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill, uint8 m_opcode)
 	return true;
 }
 
-uint8 CMagicProcess::ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType, uint8 m_opcode)
+uint8 CMagicProcess::ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType)
 {
 	uint8 bResult = 0;
 
