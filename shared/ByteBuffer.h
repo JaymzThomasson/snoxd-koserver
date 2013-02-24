@@ -120,7 +120,7 @@ public:
 		return *((T*)&_storage[pos]);
 	};
 
-	void read(uint8 *dest, size_t len) 
+	void read(void *dest, size_t len) 
 	{
 		if (_rpos + len <= size()) 
 			memcpy(dest, &_storage[_rpos], len);
@@ -145,26 +145,21 @@ public:
 	// append to the end of buffer
 	void append(const std::string& str) { append((uint8 *)str.c_str(),str.size() + 1); }
 	void append(const char *src, size_t cnt) { return append((const uint8 *)src, cnt); }
-	void append(const void * _Src, _In_ size_t _Size){
-		if(!_Size) return;
-		if (_storage.size() < _wpos + _Size)
-			_storage.resize(_wpos + _Size);
-
-		memcpy(&_storage[_wpos], _Src, _Size);
-		_wpos += _Size;
-	}
-	void append(const uint8 *src, size_t cnt) 
+	void append(const void *src, size_t cnt)
 	{
-		if (!cnt) return;
+		if (!cnt)
+			return;
 
 		// 10MB is far more than you'll ever need.
 		ASSERT(size() < 10000000);
 
 		if (_storage.size() < _wpos + cnt)
 			_storage.resize(_wpos + cnt);
+
 		memcpy(&_storage[_wpos], src, cnt);
 		_wpos += cnt;
 	}
+
 	void append(const ByteBuffer& buffer) { if (buffer.size() > 0) append(buffer.contents(), buffer.size()); }
 	void append(const ByteBuffer& buffer, size_t len)
 	{ 
@@ -172,7 +167,7 @@ public:
 		append(buffer.contents() + buffer._rpos, len); 
 	}
 
-	void put(size_t pos, const uint8 *src, size_t cnt) 
+	void put(size_t pos, const void *src, size_t cnt) 
 	{
 		ASSERT(pos + cnt <= size());
 		memcpy(&_storage[pos], src, cnt);
