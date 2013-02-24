@@ -392,7 +392,7 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 			else
 				g_pMain->Send_Region(&result, pTUser->GetMap(), pTUser->m_RegionX, pTUser->m_RegionZ, NULL);
 		}
-		result = 1;	
+		// result = 1;	
 		continue; 
 
 fail_return:
@@ -419,7 +419,7 @@ fail_return:
 			Send( &result );
 		}
 
-		result = 1;	
+		// result = 1;	
 		continue;
 	}
 }
