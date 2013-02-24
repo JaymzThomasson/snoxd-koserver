@@ -311,11 +311,13 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 	CNpc* pMon = NULL;		// When the monster is the source....
 	bool isNPC = (m_pSkillCaster >= NPC_BAND);		// Identifies source : TRUE means source is NPC.
 	_MAGIC_TYPE5* pType = NULL;		// Only for type 5 magic!
-	
+
 	int modulator = 0, Class = 0, moral = 0, skill_mod = 0 ;
 
 	if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER) {		// Target existence check routine for player.          
 		pUser = g_pMain->GetUserPtr(m_pSkillTarget);
+		if (pUser == NULL)
+			goto fail_return;
 
 		if (pSkill->bType[0] != 5) // If not a Warp/Resurrection spell...
 		{
@@ -333,18 +335,41 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 
 		moral = pUser->getNation();
 	}
+	else if (m_pSkillTarget >= NPC_BAND)     // Target existence check routine for NPC.          	
+	{
+		if (!g_pMain->m_bPointCheckFlag)
+			goto fail_return;	
+		pNpc = g_pMain->m_arNpcArray.GetData(m_pSkillTarget);
+		if (pNpc == NULL || pNpc->isDead())
+			goto fail_return;	//... Assuming NPCs can't be resurrected.
+
+		moral = pNpc->m_byGroup;
+	}
 	else if (m_pSkillTarget == -1)  // AOE/Party Moral check routine.
 	{
+		if (isNPC)
+		{
+			moral = 1;
+		}
+		else
+		{
 			if (pSkill->bMoral == MORAL_AREA_ENEMY)
 				moral = m_pSrcUser->getNation() == KARUS ? ELMORAD : KARUS;
 			else 
-				moral = m_pSrcUser->getNation();
+				moral = m_pSrcUser->getNation();	
+		}
 	}
 	else 
 		moral = m_pSrcUser->getNation();
-	
+
 	switch( pSkill->bMoral ) {		// Compare morals between source and target character.
 		case MORAL_SELF:   // #1         // ( to see if spell is cast on the right target or not )
+			if(isNPC) {
+				if( m_pSkillTarget != pMon->m_sNid ) goto fail_return;
+			}
+			else {
+				if( m_pSkillTarget != m_pSrcUser->GetSocketID() ) goto fail_return;
+			}
 			break;
 		case MORAL_FRIEND_WITHME:	// #2
 			if ((isNPC && pMon->m_byGroup != moral)
@@ -418,7 +443,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 				if( pUser->m_pUserData->m_bKnights != m_pSrcUser->m_pUserData->m_bKnights ) goto fail_return;
 			}
 			break;
-			
+
 		case MORAL_CLAN_ALL:	// #15
 			break;
 //
@@ -440,7 +465,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 
 				_ITEM_TABLE* pRightHand = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 				if (!pRightHand) return false;
-				
+
 				int left_index = pLeftHand->m_bKind / 10 ;
 				int right_index = pRightHand->m_bKind / 10 ;
 
@@ -485,7 +510,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 						_ITEM_TABLE* pItem = NULL;				// This checks if such an item exists.
 						pItem = g_pMain->GetItemPtr(pSkill->iUseItem);
 						if( !pItem ) return false;
-						
+
 						if ((pItem->m_bRace != 0 && m_pSrcUser->m_pUserData->m_bRace != pItem->m_bRace)
 							|| (pItem->m_bClass != 0 && !m_pSrcUser->JobGroupCheck(pItem->m_bClass))
 							|| (pItem->m_bReqLevel != 0 && m_pSrcUser->getLevel() < pItem->m_bReqLevel)
@@ -494,7 +519,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 					}
 				}
 			}
-			
+
 			if (pSkill->bType[0] == 5) {
 				if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER)	{	
 					if (pSkill->iUseItem != 0) {					
