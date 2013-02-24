@@ -225,7 +225,6 @@ BOOL CUser::RobItem(int itemid, short count)
 		if (pItem->sCount == 0)
 			memset(&m_pUserData->m_sItemArray[i], 0, sizeof(_ITEM_DATA));
 
-		SendItemWeight();
 		SendStackChange(itemid, pItem->sCount, pItem->sDuration, i);
 		return TRUE;
 	}
@@ -263,7 +262,6 @@ BOOL CUser::GiveItem(int itemid, short count, bool send_packet /*= true*/)
 		
 	m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;
 
-	SendItemWeight();	// Change weight first -- do this regardless.
 	if (send_packet)
 		SendStackChange(itemid, m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount, m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration, pos, true);
 	return TRUE;
@@ -548,7 +546,7 @@ void CUser::SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes
 
 	result << uint16(1);
 	result << uint8(1);
-	result << uint8(bPos - SLOT_MAX);
+	result << uint8(bPos);
 	result << nItemID << nCount;
 	result << uint8(bNewItem ? 100 : 0);
 	result << sDurability;

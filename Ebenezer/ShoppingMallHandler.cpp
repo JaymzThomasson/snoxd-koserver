@@ -74,6 +74,8 @@ void CUser::RecvStoreClose(Packet & pkt)
 			// reuse the GiveItem() method for giving them the item, just don't send that particular packet.
 			GiveItem(nItemID, sCount, false); 
 		}
+
+		SendItemWeight();
 	}
 
 	// not sure if this limit's correct
