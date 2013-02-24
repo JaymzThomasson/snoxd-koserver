@@ -95,7 +95,7 @@ void CUser::GetUserInfo(Packet & pkt)
 				<< pKnights->m_byGrade << pKnights->m_byRanking
 				<< uint16(pKnights->m_sMarkVersion) // symbol/mark version
 				<< uint16(pKnights->m_sCape) // cape ID
-				<< uint8(0) << uint8(0) << uint8(0); // cape RGB
+				<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB;
 	}
 
 	pkt	<< m_pUserData->m_bRank << m_pUserData->m_bTitle

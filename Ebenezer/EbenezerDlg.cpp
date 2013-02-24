@@ -25,6 +25,7 @@
 #include "../shared/database/KnightsSet.h"
 #include "../shared/database/KnightsUserSet.h"
 #include "../shared/database/KnightsRankSet.h"
+#include "../shared/database/KnightsCapeSet.h"
 #include "../shared/database/HomeSet.h"
 #include "../shared/database/StartPositionSet.h"
 #include "../shared/database/BattleSet.h"
@@ -344,6 +345,7 @@ bool CEbenezerDlg::LoadTables()
 			&& LoadLevelUpTable()
 			&& LoadAllKnights()
 			&& LoadAllKnightsUserData()
+			&& LoadKnightsCapeTable()
 			&& LoadHomeTable()
 			&& LoadStartPositionTable()
 			&& LoadBattleTable());
@@ -1874,6 +1876,12 @@ void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 
 	Send_All(send_buff, send_index, NULL, nation);
 #endif
+}
+
+BOOL CEbenezerDlg::LoadKnightsCapeTable()
+{
+	CKnightsCapeSet KnightsCapeSet(&m_KnightsCapeArray, &m_GameDB);
+	return KnightsCapeSet.Read();
 }
 
 BOOL CEbenezerDlg::LoadHomeTable()

@@ -607,9 +607,9 @@ void CUser::SendMyInfo()
 				<< pKnights->m_byRanking // Kind of grade - 1 Normal Clan // 2 Trainin Clan // 3 -7 Acreditation // Royal 8-12
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
-				<< uint16(pKnights->m_sMarkVersion) // symbol/mark version
-				<< uint16(pKnights->m_sCape) // cape ID
-				<< uint8(0) << uint8(0) << uint8(0); // cape RGB
+				<< uint16(pKnights->m_sMarkVersion)
+				<< uint16(pKnights->m_sCape)
+				<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB;
 	}
 
 	result	<< uint8(0) << uint8(2) << uint8(3) << uint8(4) << uint8(5) // unknown

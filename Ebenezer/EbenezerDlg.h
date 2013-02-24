@@ -47,6 +47,7 @@ typedef CSTLMap <CNpc>						NpcArray;
 typedef CSTLMap <_PARTY_GROUP>				PartyArray;
 typedef CSTLMap <CKnights>					KnightsArray;
 typedef CSTLMap <_ZONE_SERVERINFO>			ServerArray;
+typedef CSTLMap <_KNIGHTS_CAPE>				KnightsCapeArray;
 typedef CSTLMap <_HOME_INFO>				HomeArray;
 typedef CSTLMap <_START_POSITION>			StartPositionArray;
 typedef	CSTLMap	<EVENT>						QuestArray;
@@ -74,6 +75,7 @@ public:
 	uint16 GetKnightsAllMembers(uint16 sClanID, Packet & result, uint16 & pktSize, bool bClanLeader);
 	BOOL LoadAllKnightsUserData();
 	BOOL LoadAllKnights();
+	BOOL LoadKnightsCapeTable();
 	BOOL LoadHomeTable();
 	BOOL LoadStartPositionTable();
 	void Announcement(BYTE type, int nation=0, int chat_type=8);
@@ -225,6 +227,7 @@ public:
 	LevelUpArray			m_LevelUpArray;
 	PartyArray				m_PartyArray;
 	KnightsArray			m_KnightsArray;
+	KnightsCapeArray		m_KnightsCapeArray;
 	HomeArray				m_HomeArray;
 	StartPositionArray		m_StartPositionArray;
 	QuestArray				m_Event;

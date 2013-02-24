@@ -9,7 +9,7 @@ public:
 	CKnightsSet(MapType *stlMap, CDatabase* pDatabase = NULL)
 		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
 	{
-		m_nFields = 18;
+		m_nFields = 21;
 	}
 
 	DECLARE_DYNAMIC(CKnightsSet)
@@ -36,6 +36,9 @@ public:
 		RFX_Int(pFX, _T("[sMarkVersion]"), m_data.m_sMarkVersion);
 		RFX_Int(pFX, _T("[sMarkLen]"), m_data.m_sMarkLen);
 		RFX_Int(pFX, _T("[sCape]"), m_data.m_sCape);
+		RFX_Byte(pFX, _T("[bCapeR]"), m_data.m_bCapeR);
+		RFX_Byte(pFX, _T("[bCapeG]"), m_data.m_bCapeG);
+		RFX_Byte(pFX, _T("[bCapeB]"), m_data.m_bCapeB);
 		RFX_Int(pFX, _T("[sAllianceKnights]"), m_data.m_sAlliance);
 	};
 

@@ -574,6 +574,14 @@ struct _HOME_INFO
 //
 };
 
+struct _KNIGHTS_CAPE
+{
+	int		sCapeIndex;
+	long	nBuyPrice;
+	long	nDuration;
+	BYTE	byGrade;
+};
+
 struct _START_POSITION
 {
 	int	ZoneID;
