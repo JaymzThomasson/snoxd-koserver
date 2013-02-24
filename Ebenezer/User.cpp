@@ -1601,6 +1601,7 @@ void CUser::ItemGet(Packet & pkt)
 	// 1 = self, 5 = party
 	// Tell the user who got the item that they actually got it.
 	result	<< uint8(pGetUser == this ? 1 : 5)
+			<< bundle_index
 			<< pos << itemid << pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount
 			<< pGetUser->m_pUserData->m_iGold;
 	pGetUser->Send(&result);

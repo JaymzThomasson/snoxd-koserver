@@ -628,28 +628,23 @@ BYTE CMagicProcess::ExecuteType1(_MAGIC_TABLE *pSkill)
 	int damage = 0;
 	uint8 bResult = 0;
 
-	if (pSkill == NULL)
-		return 0; 
-
 	_MAGIC_TYPE1* pType = g_pMain->m_Magictype1Array.GetData(pSkill->iNum);
 	if (pType == NULL)
 		return 0;
 
 	damage = m_pSrcUser->GetDamage(m_pSkillTarget, pSkill->iNum);  // Get damage points of enemy.
 
-	// TO-DO: See if this has already be checked?
-	CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);     // Get target info.  
-	if (pTUser == NULL || pTUser->isDead())
+	if (m_pTargetUser == NULL || m_pTargetUser->isDead())
 		goto packet_send;
 
 	bResult = 1;
 
 	// TO-DO: Replace all of this with more abstract attack/death code 
 	// so that when we actually want to tweak behaviour, we don't have to tweak 9999999 cases where things die. Just the one...
-	pTUser->HpChange( -damage, 0, false, m_pSrcUser->GetSocketID());     // Reduce target health point.
+	m_pTargetUser->HpChange( -damage, 0, false, m_pSrcUser->GetSocketID());     // Reduce target health point.
 
-	if( pTUser->m_pUserData->m_sHp == 0) {    // Check if the target is dead.
-		pTUser->m_bResHpType = USER_DEAD;     // Target status is officially dead now.
+	if( m_pTargetUser->m_pUserData->m_sHp == 0) {    // Check if the target is dead.
+		m_pTargetUser->m_bResHpType = USER_DEAD;     // Target status is officially dead now.
 
 		if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
 			m_pSrcUser->LoyaltyChange(m_pSkillTarget);
@@ -660,13 +655,13 @@ BYTE CMagicProcess::ExecuteType1(_MAGIC_TABLE *pSkill)
 
 		m_pSrcUser->GoldChange(m_pSkillTarget, 0);
 
-		pTUser->InitType3();	// Init Type 3.....
-		pTUser->InitType4();	// Init Type 4.....
+		m_pTargetUser->InitType3();	// Init Type 3.....
+		m_pTargetUser->InitType4();	// Init Type 4.....
 
-		if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
-			pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
+		if( m_pTargetUser->m_pUserData->m_bZone != m_pTargetUser->m_pUserData->m_bNation && m_pTargetUser->m_pUserData->m_bZone < 3) {
+			m_pTargetUser->ExpChange(-m_pTargetUser->m_iMaxExp / 100);
 		}
-		pTUser->m_sWhoKilledMe = m_pSkillCaster;		// Who the hell killed me?
+		m_pTargetUser->m_sWhoKilledMe = m_pSkillCaster;		// Who the hell killed me?
 	} 
 	m_pSrcUser->SendTargetHP( 0, m_pSkillTarget, -damage );     // Change the HP of the target.
 
@@ -755,25 +750,12 @@ packet_send:
 void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magical attack, healing, and mana restoration is done.
 {	
 	int damage = 0, duration_damage = 0;
-	bool isNPC = false;
-	CNpc* pMon = NULL;
 
 	vector<CUser *> casted_member;
-
-	if (pSkill == NULL) 
-		return;
 
 	_MAGIC_TYPE3* pType = g_pMain->m_Magictype3Array.GetData(pSkill->iNum);
 	if (pType == NULL) 
 		return;
-
-	if (m_pSkillCaster >= NPC_BAND)
-	{
-		isNPC = true;
-		pMon = g_pMain->m_arNpcArray.GetData(m_pSkillCaster);
-		if (pMon == NULL || pMon->isDead())
-			return;
-	}
 
 	if (m_pSkillTarget == -1) {		// If the target was the source's party....
 		// TO-DO: Make this not completely and utterly suck (i.e. kill that loop!).
@@ -795,11 +777,10 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 	}
 	else
 	{	// If the target was another single player.
-		CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
-		if (pTUser == NULL || pTUser->isDead() || pTUser->isBlinking()) 
+		if (m_pTargetUser == NULL || m_pTargetUser->isDead() || m_pTargetUser->isBlinking()) 
 			return;		
 		
-		casted_member.push_back(pTUser);
+		casted_member.push_back(m_pTargetUser);
 	}
 	
 	foreach (itr, casted_member)
@@ -808,7 +789,8 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1) && (pSkill->iNum < 400000)) {		// If you are casting an attack spell.
 			damage = GetMagicDamage(m_pSkillCaster, pTUser->GetSocketID(), pType->sFirstDamage, pType->bAttribute) ;	// Get Magical damage point.
 		}
-		else damage = pType->sFirstDamage;
+		else 
+			damage = pType->sFirstDamage;
 
 		if( m_pSrcUser )	{
 			if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )	{
@@ -825,32 +807,15 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 				if( pTUser->m_pUserData->m_sHp == 0) {     // Check if the target is dead.		
 					pTUser->m_bResHpType = USER_DEAD;
 
-					if (isNPC) {	// Killed by monster/NPC.
-//
-						if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
-							pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
-							//TRACE("������ 1%�� �￴�ٴϱ��� ��.��\r\n");
-						}
-						else {
-//
-							pTUser->ExpChange( -pTUser->m_iMaxExp/20 ); 					
-//
-						}
-//
-					}
-					else 
-					{	// Killed by another player.
 						if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )	{
-							m_pSrcUser->GoldGain( SNOW_EVENT_MONEY );	// 10000���Ƹ� �ִ� �κ�,,,,,
+							m_pSrcUser->GoldGain( SNOW_EVENT_MONEY );
 
 							if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )	{
 								if (pTUser->m_pUserData->m_bNation == KARUS) {
 									g_pMain->m_sKarusDead++;
-									//TRACE("++ ExecuteType3 - ka=%d, el=%d\n", g_pMain->m_sKarusDead, g_pMain->m_sElmoradDead);
 								}
 								else if (pTUser->m_pUserData->m_bNation == ELMORAD) {
 									g_pMain->m_sElmoradDead++;
-									//TRACE("++ ExecuteType3 - ka=%d, el=%d\n", g_pMain->m_sKarusDead, g_pMain->m_sElmoradDead);
 								}
 							}
 
@@ -865,7 +830,7 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 
 							m_pSrcUser->GoldChange(pTUser->GetSocketID(), 0);
 						}
-					}
+					
 
 					pTUser->InitType3();	// Init Type 3.....
 					pTUser->InitType4();	// Init Type 4.....
@@ -878,7 +843,7 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 					}
 				}
 
-				if (!isNPC) m_pSrcUser->SendTargetHP( 0, (*itr)->GetSocketID(), damage ) ;     // Change the HP of the target.			
+				m_pSrcUser->SendTargetHP( 0, (*itr)->GetSocketID(), damage ) ;     // Change the HP of the target.			
 			}
 			else if ( pType->bDirectType == 2 || pType->bDirectType == 3 )    // Magic or Skill Point related !
 				pTUser->MSpChange(damage);     // Change the SP or the MP of the target.		
@@ -892,21 +857,6 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 				if( pTUser->m_pUserData->m_sHp == 0) {     // Check if the target is dead.	
 					pTUser->m_bResHpType = USER_DEAD;
 
-					if (isNPC) {	// Killed by monster/NPC.
-//
-						if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
-							pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
-							//TRACE("������ 1%�� �￴�ٴϱ��� ��.��\r\n");
-						}
-						else {
-//
-							pTUser->ExpChange( -pTUser->m_iMaxExp / 20 );
-//
-						}
-//
-					}
-					else 
-					{	// Killed by another player.
 						if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
 							m_pSrcUser->LoyaltyChange(pTUser->GetSocketID());
 						}
@@ -915,7 +865,6 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 						}
 
 						m_pSrcUser->GoldChange(pTUser->GetSocketID(), 0);
-					}
 
 					pTUser->InitType3();	// Init Type 3.....
 					pTUser->InitType4();	// Init Type 4..... 
@@ -927,7 +876,7 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 						pTUser->m_sWhoKilledMe = m_pSkillCaster;	// Who the hell killed me?
 					}
 				}
-				if (!isNPC) m_pSrcUser->SendTargetHP( 0, pTUser->GetSocketID(), damage );     // Change the HP of the target. 
+				m_pSrcUser->SendTargetHP( 0, pTUser->GetSocketID(), damage );     // Change the HP of the target. 
 			}
 
 			if (pTUser->m_bResHpType != USER_DEAD) {	// ���⵵ ��ȣ �ڵ� �߽�...
@@ -959,7 +908,6 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 		
 		// Tell the AI server we're healing someone (so that they can choose to pick on the healer!)
 		if (pType->bDirectType == 1 && damage > 0
-			&& !isNPC
 			&& m_pSkillCaster != m_pSkillTarget)
 		{
 
