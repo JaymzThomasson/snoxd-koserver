@@ -21,6 +21,8 @@ bool OdbcConnection::Connect()
 	if (m_szDSN.length() == 0)
 		return false;
 
+	m_lock.Acquire();
+
 	tstring szConn = _T("DSN=") + m_szDSN + _T(";");
 	// Reconnect if we need to.
 	if (isConnected())
@@ -67,10 +69,12 @@ bool OdbcConnection::Connect()
 	for (auto itr = m_commandSet.begin(); itr != m_commandSet.end(); itr++)
 		(*itr)->SetConnectionHandle(m_connHandle);
 
+	m_lock.Release();
 	return true;
 
 error_handler:
 	ResetHandles();
+	m_lock.Release();
 	return false;
 }
 
@@ -85,12 +89,16 @@ OdbcCommand *OdbcConnection::CreateCommand()
 
 void OdbcConnection::AddCommand(OdbcCommand *dbCommand)
 {
+	m_lock.Acquire();
 	m_commandSet.insert(dbCommand);
+	m_lock.Release();
 }
 
 void OdbcConnection::RemoveCommand(OdbcCommand *dbCommand)
 {
+	m_lock.Acquire();
 	m_commandSet.erase(dbCommand);
+	m_lock.Release();
 }
 
 // Used to internally reset handles. Should ONLY be used in special cases, otherwise we'll break the state of the connection.
@@ -156,8 +164,10 @@ OdbcError *OdbcConnection::GetError()
 	if (!isError())
 		return NULL;
 
+	m_lock.Acquire();
 	OdbcError *pError = m_odbcErrors.back();
 	m_odbcErrors.pop_back();
+	m_lock.Release();
 
 	return pError;
 }
@@ -167,9 +177,11 @@ void OdbcConnection::ResetErrors()
 	if (!isError())
 		return;
 
+	m_lock.Acquire();
 	OdbcError *pError;
 	while ((pError = GetError()) != NULL)
 		delete pError;
+	m_lock.Release();
 }
 
 void OdbcConnection::Disconnect()
@@ -178,6 +190,7 @@ void OdbcConnection::Disconnect()
 	if (!isConnected())
 		return;
 
+	m_lock.Acquire();
 	// Kill off open statements
 	if (m_commandSet.size())
 	{
@@ -193,8 +206,9 @@ void OdbcConnection::Disconnect()
 		m_commandSet.clear();
 	}
 
-	// Close the connect ion to the server & reset our handles
+	// Close the connection to the server & reset our handles
 	Close();
+	m_lock.Release();
 }
 
 void OdbcConnection::Close()
