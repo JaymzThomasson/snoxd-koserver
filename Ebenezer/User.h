@@ -290,6 +290,18 @@ public:
 		return getStat(type) + getStatItemBonus(type) + getStatBuff(type);
 	}
 
+	__forceinline _ITEM_TABLE* hasStaffEquipped()
+	{
+		_ITEM_TABLE* pRightHand = NULL;
+		if(m_pUserData->m_sItemArray[RIGHTHAND].nNum == 0 )
+			pRightHand = g_pMain->GetItemPtr(m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+
+		if( pRightHand && m_pUserData->m_sItemArray[LEFTHAND].nNum == 0 && pRightHand->m_bKind / 10 != WEAPON_STAFF)
+			pRightHand = NULL;
+
+		return pRightHand;
+	}
+
 	__forceinline C3DMap * GetMap() { return m_pMap; }
 
 	__forceinline uint16 GetSPosX() { return uint16(m_pUserData->m_curx * 10); }

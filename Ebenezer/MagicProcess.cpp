@@ -206,28 +206,22 @@ void CMagicProcess::SendSkillToAI(_MAGIC_TABLE *pSkill)
 				<< m_sData4 << m_sData5 << m_sData6
 				<< m_pSrcUser->getStatWithItemBonus(STAT_CHA);
 
-		if( m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {	// Does the magic user have a staff?
-			_ITEM_TABLE* pRightHand = NULL;
-			pRightHand = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+		_ITEM_TABLE* pRightHand = m_pSrcUser->hasStaffEquipped();
+		if( pRightHand != NULL ) {					
+			if (pSkill->bType[0] == 3) {
+				total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 60);
 
-			if( pRightHand && m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum == 0 && pRightHand->m_bKind / 10 == WEAPON_STAFF) {					
-
-				if (pSkill->bType[0] == 3) {
-					total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 60);
-
-					_MAGIC_TYPE3 *pType3 = g_pMain->m_Magictype3Array.GetData(m_nSkillID);
-					if (pType3 == NULL)
-						return;
-					if (m_pSrcUser->m_bMagicTypeRightHand == pType3->bAttribute ) {							
-						total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 30);
-					}
-					if (pType3->bAttribute == 4) {	// Remember what Sunglae told ya! (no, not really?)
-						total_magic_damage = 0;
-					}
+				_MAGIC_TYPE3 *pType3 = g_pMain->m_Magictype3Array.GetData(m_nSkillID);
+				if (pType3 == NULL)
+					return;
+				if (m_pSrcUser->m_bMagicTypeRightHand == pType3->bAttribute ) {							
+					total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * m_pSrcUser->getLevel()) / 30);
+				}
+				if (pType3->bAttribute == 4) {	// Remember what Sunglae told ya! (no, not really?)
+					total_magic_damage = 0;
 				}
 			}
 		}
-
 		result << uint16(total_magic_damage);
 		g_pMain->Send_AIServer(&result);		
 	}
@@ -1532,11 +1526,8 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 		}
 		
 		if ( sid >= 0 && sid < MAX_USER) {
-			if( m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {	// Does the magic user have a staff?
-				_ITEM_TABLE* pRightHand = NULL;
-				pRightHand = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
-
-				if( pRightHand && m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum == 0 && pRightHand->m_bKind / 10 == WEAPON_STAFF) {				
+			_ITEM_TABLE* pRightHand = m_pSrcUser->hasStaffEquipped();
+			if( pRightHand != NULL ) {				
 					righthand_damage = pRightHand->m_sDamage ;
 					
 					if (m_pSrcUser->m_bMagicTypeRightHand == attribute) {
@@ -1546,13 +1537,12 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 				else {
 					righthand_damage = 0 ;
 				}
-			}
 		}
 
 		damage = (short)(total_hit - ((0.7 * total_hit * total_r) / 200)) ;
 		random = myrand (0, damage);
 		damage = (short)((0.7 * (total_hit - ((0.9 * total_hit * total_r) / 200))) + 0.2 * random);
-//	
+
 		if (sid >= NPC_BAND) {
 			damage -= (3 * righthand_damage) - (3 * attribute_damage);
 		}
@@ -1560,10 +1550,7 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 			if (attribute != 4) {	// Only if the staff has an attribute.
 				damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * m_pSrcUser->getLevel()) / 60) - ((attribute_damage * 0.8f) + (attribute_damage * m_pSrcUser->getLevel()) / 30));
 			}
-
-
 		}
-//
 	}
 
 	damage = damage / 3 ;	// ������ ��û 
