@@ -1,8 +1,5 @@
 #pragma once
 
-#define MAX_PACKET_LEN						3172
-#define MAX_SEND_LEN						16384
-
 #include "SocketMgr.h"
 #include "Packet.h"
 #include "JvCryption.h"
@@ -10,7 +7,6 @@
 class KOSocket : public Socket
 {
 public:
-	KOSocket(uint16 socketID, SocketMgr * mgr, SOCKET fd);
 	KOSocket(uint16 socketID, SocketMgr * mgr, SOCKET fd, uint32 sendBufferSize, uint32 recvBufferSize);
 
 	__forceinline bool isCryptoEnabled() { return m_usingCrypto; };

@@ -16,6 +16,10 @@ class CircularBuffer
 	uint8 * m_regionBPointer;
 	size_t m_regionBSize;
 
+	// allocated size
+	size_t m_bufferSize;
+
+
 	// pointer magic!
 	__forceinline size_t GetAFreeSpace()  { return (m_bufferEnd - m_regionAPointer - m_regionASize); }
 	__forceinline size_t GetSpaceBeforeA() { return (m_regionAPointer - m_buffer); }
@@ -40,6 +44,10 @@ public:
 	* @return true if was successful, otherwise false
 	*/
 	bool Write(const void * data, size_t bytes);
+
+	/** Returns the allocated size of the buffer.
+	*/
+	__forceinline size_t GetAllocatedSize() const { return m_bufferSize; }
 
 	/** Returns the number of available bytes left.
 	*/

@@ -231,6 +231,7 @@ void CircularBuffer::Allocate(size_t size)
 	m_buffer = (uint8*)malloc(size);
 	m_bufferEnd = m_buffer + size;
 	m_regionAPointer = m_buffer;		// reset A to the start
+	m_bufferSize = size;
 }
 
 /** Increments the "writen" pointer forward len bytes
