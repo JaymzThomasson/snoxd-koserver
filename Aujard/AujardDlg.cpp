@@ -88,6 +88,9 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 		case WIZ_FRIEND_PROCESS:
 			pMain->FriendProcess(pkt, uid);
 			break;
+		case WIZ_CAPE:
+			pMain->ChangeCape(pkt);
+			break;
 		case WIZ_LOGOUT:
 			pMain->UserLogOut(pkt, uid);				
 			break;
@@ -394,6 +397,15 @@ void CAujardDlg::RemoveFriend(Packet & pkt, int16 uid)
 	result.SByte();
 	result << uint8(resultCode) << strCharID;
 	m_LoggerSendQueue.PutData(&result, uid);
+}
+
+void CAujardDlg::ChangeCape(Packet & pkt)
+{
+	uint16 sClanID, sCapeID;
+	uint8 r, g, b;
+	pkt >> sClanID >> sCapeID >> r >> g >> b;
+
+	m_DBAgent.UpdateCape(sClanID, sCapeID, r, g, b);
 }
 
 void CAujardDlg::UserLogOut(Packet & pkt, int16 uid)

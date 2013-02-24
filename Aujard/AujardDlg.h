@@ -53,6 +53,7 @@ public:
 	void RequestFriendList(Packet & pkt, int16 uid);
 	void AddFriend(Packet & pkt, int16 uid);
 	void RemoveFriend(Packet & pkt, int16 uid);
+	void ChangeCape(Packet & pkt);
 
 	void SaveUserData();
 	void ConCurrentUserCount();

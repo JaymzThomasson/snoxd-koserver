@@ -517,6 +517,7 @@ public:
 	void LetterSystem(Packet & pkt);
 
 	void HandleHelmet(Packet & pkt);
+	void HandleCapeChange(Packet & pkt);
 
 	void SendNotice();
 	void UserLookChange( int pos, int itemid, int durability );

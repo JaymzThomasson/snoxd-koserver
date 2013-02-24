@@ -55,6 +55,8 @@ public:
 	void LoadKnightsAllList(uint8 bNation);
 	bool UpdateClanSymbol(uint16 sClanID, uint16 sSymbolSize, char *clanSymbol);
 
+	void UpdateCape(uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint8 b);
+
 	void UpdateBattleEvent(std::string & strCharID, uint8 bNation);
 	void AccountLogout(std::string & strAccountID);
 

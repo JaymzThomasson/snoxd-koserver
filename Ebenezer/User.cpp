@@ -392,6 +392,9 @@ bool CUser::HandlePacket(Packet & pkt)
 	case WIZ_HELMET:
 		HandleHelmet(pkt);
 		break;
+	case WIZ_CAPE:
+		HandleCapeChange(pkt);
+		break;
 
 	default:
 		TRACE("[SID=%d] Unknown packet %X\n", GetSocketID(), command);
@@ -3559,6 +3562,92 @@ void CUser::HandleHelmet(Packet & pkt)
 	// to-do: store helmet type
 	result << type << GetSocketID() << uint16(0);
 	SendToRegion(&result);
+}
+
+void CUser::HandleCapeChange(Packet & pkt)
+{
+	Packet result(WIZ_CAPE);
+	CKnights *pKnights = NULL;
+	_KNIGHTS_CAPE *pCape = NULL;
+	int16 sErrorCode = 0, sCapeID;
+	uint8 r, g, b;
+
+	pkt >> sCapeID >> r >> g >> b;
+
+	// If we're not a clan leader, what are we doing changing the cape?
+	if (!isClanLeader())
+	{
+		sErrorCode = -1;
+		goto fail_return;
+	}
+
+	// Does the clan exist?
+	if ((pKnights = g_pMain->GetClanPtr(m_pUserData->m_bKnights)) == NULL)
+	{
+		sErrorCode = -2;
+		goto fail_return;
+	}
+
+	// Make sure we're promoted
+	if (pKnights->m_byFlag != 2
+		// and that if we're in an alliance, we're the main alliance.
+		|| (pKnights->m_sAlliance != 0 && pKnights->m_sAlliance != pKnights->m_sIndex))
+	{
+		sErrorCode = -1;
+		goto fail_return;
+	}
+
+	// Does this cape type exist?
+	if ((pCape = g_pMain->m_KnightsCapeArray.GetData(sCapeID)) == NULL)
+	{
+		sErrorCode = -5;
+		goto fail_return;
+	}
+
+	// Is our clan allowed to use this cape?
+	if (pKnights->m_byGrade > pCape->byGrade)
+	{
+		sErrorCode = -6;
+		goto fail_return;
+	}
+
+	// NOTE: Error code -8 is for nDuration
+	// It applies if we do not have the required item ('nDuration', awful name).
+	// Since no capes seem to use it, we'll ignore it...
+
+	// Can we even afford this cape?
+	if (!GoldLose(pCape->nBuyPrice))
+	{
+		sErrorCode = -7;
+		goto fail_return;
+	}
+
+	pKnights->m_sCape = sCapeID;
+	pKnights->m_bCapeR = r;
+	pKnights->m_bCapeG = g;
+	pKnights->m_bCapeB = b;
+
+	result	<< uint16(1) // success
+			<< uint16(pKnights->m_sAlliance)
+			<< uint16(pKnights->m_sIndex)
+			<< sCapeID << r << g << b;
+
+	// TO-DO:
+	// When we implement alliances, this should send to the alliance
+	// if the clan is part of one.
+	pKnights->Send(&result);
+
+	// TO-DO: Send to other servers via UDP.
+
+	// Now tell Aujard to save (we don't particularly care whether it was able to do so or not).
+	result.clear();
+	result << uint16(pKnights->m_sIndex) << sCapeID << r << g << b;
+	g_pMain->m_LoggerSendQueue.PutData(&result);
+	return;
+
+fail_return:
+	result << sErrorCode;
+	Send(&result);
 }
 
 bool CUser::isAttackZone()

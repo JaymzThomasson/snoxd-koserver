@@ -924,6 +924,17 @@ bool CDBAgent::UpdateClanSymbol(uint16 sClanID, uint16 sSymbolSize, char *clanSy
 	return (nRet == 1);
 }
 
+void CDBAgent::UpdateCape(uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint8 b)
+{
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	if (dbCommand.get() == NULL)
+		return;
+	
+	if (!dbCommand->Execute(string_format(_T("UPDATE KNIGHTS SET sCape=%d, bCapeR=%d, bCapeG=%d, bCapeB=%d WHERE IDNum=%d"), 
+			sCapeID, r, g, b, sClanID)))
+		m_pMain->ReportSQLError(m_GameDB.GetError());
+}
+
 void CDBAgent::UpdateBattleEvent(string & strCharID, uint8 bNation)
 {
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
