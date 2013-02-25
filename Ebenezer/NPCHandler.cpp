@@ -2,6 +2,9 @@
 
 void CUser::ItemRepair(Packet & pkt)
 {
+	if (isDead())
+		return;
+
 	Packet result(WIZ_ITEM_REPAIR);
 	uint32 money, itemid;
 	uint16 durability, quantity;
@@ -47,7 +50,8 @@ fail_return:
 void CUser::ClientEvent(Packet & pkt)
 {
 	// Ensure AI's loaded
-	if (!g_pMain->m_bPointCheckFlag)
+	if (!g_pMain->m_bPointCheckFlag
+		|| isDead())
 		return;
 
 	uint16 sNpcID = pkt.read<uint16>(), sEventID = 0;
@@ -414,7 +418,8 @@ void CUser::ClassChange(Packet & pkt)
 void CUser::RecvSelectMsg(Packet & pkt)	// Receive menu reply from client.
 {
 	uint8 bMenuIndex = pkt.read<uint8>();
-	if (bMenuIndex >= MAX_MESSAGE_EVENT)
+	if (bMenuIndex >= MAX_MESSAGE_EVENT
+		|| isDead())
 		goto fail_return;
 
 	// Get the event number that needs to be processed next.
@@ -480,7 +485,8 @@ void CUser::SelectMsg(EXEC *pExec)
 void CUser::NpcEvent(Packet & pkt)
 {
 	// Ensure AI is loaded first
-	if (!g_pMain->m_bPointCheckFlag)
+	if (!g_pMain->m_bPointCheckFlag
+		|| isDead())
 		return;	
 
 	Packet result;

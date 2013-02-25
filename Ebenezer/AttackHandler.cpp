@@ -481,9 +481,6 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 {
 	ASSERT(GetMap() != NULL);
 
-	InitType3();
-	InitType4();
-
 	CUser* pUser = NULL;
 	_OBJECT_EVENT* pEvent = NULL;
 	_HOME_INFO* pHomeInfo = NULL;
@@ -491,6 +488,9 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 
 	if (!isDead())
 		return;
+
+	InitType3();
+	InitType4();
 
 	if (regene_type != 1 && regene_type != 2) {
 		regene_type = 1;

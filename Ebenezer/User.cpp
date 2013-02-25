@@ -1360,7 +1360,8 @@ void CUser::BundleOpenReq(Packet & pkt)
 
 	if (pMap == NULL
 		|| bundle_index < 1 
-		|| GetRegionX() > pMap->GetXRegionMax() || GetRegionZ() > pMap->GetZRegionMax())
+		|| GetRegionX() > pMap->GetXRegionMax() || GetRegionZ() > pMap->GetZRegionMax()
+		|| isDead()) // yeah, we know people abuse this. We do not care!
 		return;
 
 	CRegion *pRegion = &(pMap->m_ppRegion[GetRegionX()][GetRegionZ()]);
@@ -1408,7 +1409,8 @@ void CUser::ItemGet(Packet & pkt)
 
 	if (bundle_index < 1
 		|| isTrading()
-		|| pRegion == NULL)
+		|| pRegion == NULL
+		|| isDead()) // yeah, we know people abuse this. We do not care!
 		goto fail_return;
 
 	pItem = (_ZONE_ITEM*)pRegion->m_RegionItemArray.GetData( bundle_index );
@@ -1554,6 +1556,9 @@ fail_return:
 
 void CUser::StateChange(Packet & pkt)
 {
+	if (isDead())
+		return;
+
 	int index = 0;
 	uint8 type = pkt.read<uint8>(), buff;
 	uint32 nBuff = pkt.read<uint32>();
@@ -2590,6 +2595,9 @@ int CUser::GetEmptySlot(int itemid, int bCountable)
 
 void CUser::Home()
 {
+	if (isDead())
+		return;
+
 	// The point where you will be warped to.
 	short x = 0, z = 0;
 
@@ -2944,6 +2952,9 @@ void CUser::GoldChange(short tid, int gold)
 
 void CUser::SelectWarpList(Packet & pkt)
 {
+	if (isDead())
+		return;
+
 	uint16 npcid, warpid;
 	pkt >> npcid >> warpid;
 
@@ -3128,7 +3139,8 @@ BOOL CUser::WarpListObjectEvent(_OBJECT_EVENT *pEvent)
 
 void CUser::ObjectEvent(Packet & pkt)
 {
-	if (g_pMain->m_bPointCheckFlag == FALSE)
+	if (g_pMain->m_bPointCheckFlag == FALSE
+		|| isDead())
 		return;
 
 	BOOL bSuccess = FALSE;
@@ -3472,6 +3484,9 @@ void CUser::SendPartyStatusUpdate(uint8 bStatus, uint8 bResult /*= 0*/)
 
 void CUser::HandleHelmet(Packet & pkt)
 {
+	if (isDead())
+		return;
+
 	Packet result(WIZ_HELMET);
 	uint8 type = pkt.read<uint8>();
 	// to-do: store helmet type
@@ -3490,7 +3505,8 @@ void CUser::HandleCapeChange(Packet & pkt)
 	pkt >> sCapeID >> r >> g >> b;
 
 	// If we're not a clan leader, what are we doing changing the cape?
-	if (!isClanLeader())
+	if (!isClanLeader()
+		|| isDead())
 	{
 		sErrorCode = -1;
 		goto fail_return;

@@ -58,7 +58,8 @@ fail_return:
 
 void CUser::ExchangeAgree(Packet & pkt)
 {
-	if (!isTrading())
+	if (!isTrading()
+		|| isDead())
 		return;
 
 	uint8 bResult = pkt.read<uint8>();
@@ -69,10 +70,11 @@ void CUser::ExchangeAgree(Packet & pkt)
 		return;
 	}
 
-	if (!bResult) // declined
+	if (!bResult || pUser->isDead()) // declined
 	{
 		m_sExchangeUser = -1;
 		pUser->m_sExchangeUser = -1;
+		bResult = 0;
 	}
 	else 
 	{
@@ -101,7 +103,9 @@ void CUser::ExchangeAdd(Packet & pkt)
 	BOOL bAdd = TRUE, bGold = FALSE;
 
 	pUser = g_pMain->GetUserPtr(m_sExchangeUser);
-	if (pUser == NULL)
+	if (pUser == NULL
+		|| pUser->isDead()
+		|| isDead())
 	{
 		ExchangeCancel();
 		return;
@@ -208,7 +212,9 @@ void CUser::ExchangeDecide()
 	BOOL bSuccess = TRUE;
 
 	pUser = g_pMain->GetUserPtr(m_sExchangeUser);
-	if (pUser == NULL)
+	if (pUser == NULL
+		|| pUser->isDead()
+		|| isDead())
 	{
 		ExchangeCancel();
 		return;
@@ -305,7 +311,8 @@ void CUser::ExchangeCancel()
 	CUser* pUser = NULL;
 	BOOL bFind = TRUE;
 
-	if (!isTrading())
+	if (!isTrading()
+		|| isDead())
 		return;
 
 	pUser = g_pMain->GetUserPtr(m_sExchangeUser);

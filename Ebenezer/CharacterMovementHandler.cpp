@@ -3,7 +3,7 @@
 void CUser::MoveProcess(Packet & pkt)
 {
 	ASSERT(GetMap() != NULL);
-	if( m_bWarp ) 
+	if (m_bWarp || isDead()) 
 		return;
 		
 	uint16 will_x, will_z, will_y, speed=0;
@@ -132,6 +132,9 @@ void CUser::GetUserInfo(Packet & pkt)
 
 void CUser::Rotate(Packet & pkt)
 {
+	if (isDead())
+		return;
+
 	Packet result(WIZ_ROTATE);
 	pkt >> m_sDirection;
 	result << GetSocketID() << m_sDirection;
@@ -301,6 +304,9 @@ void CUser::RecvWarp(Packet & pkt)
 
 void CUser::RecvZoneChange(Packet & pkt)
 {
+	if (isDead()) // we also need to make sure we're actually waiting on this request...
+		return;
+
 	uint8 opcode = pkt.read<uint8>();
 	if (opcode == 1)
 	{
