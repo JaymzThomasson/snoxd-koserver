@@ -251,6 +251,7 @@ void CUser::SelectCharacter(Packet & pkt)
 	}
 
 	m_iMaxExp = g_pMain->GetExpByLevel(GetLevel());
+	SetRegion(GetNewRegionX(), GetNewRegionZ());
 
 	if (m_pUserData->m_bKnights == -1)
 	{

@@ -49,11 +49,7 @@ void CUser::GetInOut(Packet & result, uint8 bType)
 void CUser::UserInOut(uint8 bType)
 {
 	if (GetRegion() == NULL)
-	{
-		SetRegion(GetNewRegionX(), GetNewRegionZ());
-		if (GetRegion() == NULL)
-			return;
-	}
+		return;
 
 	Packet result;
 	GetInOut(result, bType);
