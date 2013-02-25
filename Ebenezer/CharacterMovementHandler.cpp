@@ -236,7 +236,6 @@ void CUser::ZoneChange(int zone, float x, float z)
 		return;
 	}
 	
-	m_pUserData->m_sBind = -1;		// Bind Point Clear...
 	SetRegion(GetNewRegionX(), GetNewRegionZ());
 
 	Packet result(WIZ_ZONE_CHANGE, uint8(3)); // magic numbers, sigh.
