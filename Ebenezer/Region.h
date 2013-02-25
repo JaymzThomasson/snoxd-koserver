@@ -1,21 +1,16 @@
-// Region.h: interface for the CRegion class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_REGION_H__98237635_8ED6_4B3A_8AB8_933055C4995F__INCLUDED_)
-#define AFX_REGION_H__98237635_8ED6_4B3A_8AB8_933055C4995F__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
+#include <set>
 #include "define.h"
 #include "GameDefine.h"
 #include "../shared/STLMap.h"
 
 typedef CSTLMap <_ZONE_ITEM>	ZoneItemArray;
-typedef CSTLMap <int>			ZoneUserArray;
-typedef CSTLMap <int>			ZoneNpcArray;
+typedef std::set<uint16>		ZoneUserArray;
+typedef std::set<uint16>		ZoneNpcArray;
+
+class CNpc;
+class CUser;
 
 class CRegion  
 {
@@ -23,6 +18,9 @@ public:
 	ZoneItemArray	m_RegionItemArray;
 	ZoneUserArray	m_RegionUserArray;
 	ZoneNpcArray	m_RegionNpcArray;
-};
 
-#endif // !defined(AFX_REGION_H__98237635_8ED6_4B3A_8AB8_933055C4995F__INCLUDED_)
+	void Add(CUser * pUser);
+	void Remove(CUser * pUser);
+	void Add(CNpc * pNpc);
+	void Remove(CNpc * pNpc);
+};

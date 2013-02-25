@@ -119,10 +119,6 @@ public:
 	CRegion * GetRegion(uint16 regionX, uint16 regionZ);
 	BOOL LoadEvent();
 	BOOL CheckEvent( float x, float z, CUser* pUser = NULL );
-	BOOL RegionNpcRemove( int rx, int rz, int nid );
-	void RegionNpcAdd( int rx, int rz, int nid );
-	BOOL RegionUserRemove( int rx, int rz, int uid );
-	void RegionUserAdd( int rx, int rz, int uid );
 	BOOL RegionItemRemove( int rx, int rz, int bundle_index, int itemid, int count );
 	BOOL RegionItemAdd( int rx, int rz, _ZONE_ITEM* pItem );
 	BOOL ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2);

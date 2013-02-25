@@ -49,37 +49,12 @@ void CUser::Attack(Packet & pkt)
 			else 
 			{
 				// TO-DO: Move all this redundant code into appropriate event-based methods so that all the other cases don't have to copypasta (and forget stuff).
-				pTUser->HpChange(-damage, 0, true, GetSocketID());
+				pTUser->HpChange(-damage, this);
+				if (pTUser->isDead())
+					bResult = 2;
+
 				ItemWoreOut(ATTACK, damage);
 				pTUser->ItemWoreOut(DEFENCE, damage);
-
-				if (pTUser->m_pUserData->m_sHp == 0)
-				{
-					bResult = 2;
-					pTUser->m_bResHpType = USER_DEAD;
-
-					if (!isInParty())
-						LoyaltyChange(tid);
-					else
-						LoyaltyDivide(tid);
-
-					GoldChange(tid, 0);
-
-					pTUser->InitType3();
-					pTUser->InitType4();
-
-					if (pTUser->getFame() == COMMAND_CAPTAIN)
-					{
-						pTUser->ChangeFame(CHIEF);
-						if (pTUser->GetNation() == KARUS)			g_pMain->Announcement( KARUS_CAPTAIN_DEPRIVE_NOTIFY, KARUS );
-						else if (pTUser->GetNation() == ELMORAD)	g_pMain->Announcement( ELMORAD_CAPTAIN_DEPRIVE_NOTIFY, ELMORAD );
-					}
-
-					pTUser->m_sWhoKilledMe = GetSocketID();		// You killed me, you.....
-
-					if( pTUser->GetZoneID() != pTUser->GetNation() && pTUser->m_pUserData->m_bZone <= ELMORAD)
-						pTUser->ExpChange(-(pTUser->m_iMaxExp / 100));
-				}
 				SendTargetHP(0, tid, -damage);
 			}
 		}
@@ -92,7 +67,7 @@ void CUser::Attack(Packet & pkt)
 			return;	
 
 		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(tid);		
-		if (pNpc && pNpc->m_NpcState != NPC_DEAD && pNpc->m_iHP > 0 
+		if (pNpc != NULL && pNpc->isAlive() 
 			&& (pNpc->GetNation() == 0 || pNpc->GetNation() == GetNation()))
 		{
 			result.SetOpcode(AG_ATTACK_REQ);
@@ -253,7 +228,7 @@ short CUser::GetMagicDamage(int damage, short tid)
 			total_r = pTUser->m_bPoisonR + pTUser->m_bPoisonRAmount;
 			break;
 		case ITEM_TYPE_HP_DRAIN :	// HP Drain		
-			HpChange(temp_damage, 0);			
+			HpChange(temp_damage);			
 			break;
 		case ITEM_TYPE_MP_DAMAGE :	// MP Damage		
 			pTUser->MSpChange(-temp_damage);
@@ -293,7 +268,7 @@ short CUser::GetMagicDamage(int damage, short tid)
 			total_r = pTUser->m_bPoisonR + pTUser->m_bPoisonRAmount;
 			break;
 		case ITEM_TYPE_HP_DRAIN :	// HP Drain		
-			HpChange(temp_damage, 0);			
+			HpChange(temp_damage);			
 			break;
 		case ITEM_TYPE_MP_DAMAGE :	// MP Damage		
 			pTUser->MSpChange(-temp_damage);
@@ -536,7 +511,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	pHomeInfo = g_pMain->m_HomeArray.GetData(m_pUserData->m_bNation);
 	if (!pHomeInfo) return;
 
-	UserInOut(USER_OUT);
+	UserInOut(INOUT_OUT);
 
 	float x = 0.0f, z = 0.0f;
 	x = (float)(myrand( 0, 400 )/100.0f);	z = (float)(myrand( 0, 400 )/100.0f);
@@ -647,7 +622,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 
 	SetRegion(GetNewRegionX(), GetNewRegionZ());
 
-	UserInOut(USER_REGENE);		
+	UserInOut(INOUT_RESPAWN);		
 
 	g_pMain->RegionUserInOutForMe(this);
 	g_pMain->RegionNpcInfoForMe(this);

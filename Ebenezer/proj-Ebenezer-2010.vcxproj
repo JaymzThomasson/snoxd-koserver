@@ -219,6 +219,7 @@
     </ClCompile>
     <ClCompile Include="NPCHandler.cpp" />
     <ClCompile Include="PartyHandler.cpp" />
+    <ClCompile Include="Region.cpp" />
     <ClCompile Include="RentalHandler.cpp" />
     <ClCompile Include="ShoppingMallHandler.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -231,6 +232,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="Unit.cpp" />
     <ClCompile Include="User.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -299,6 +301,7 @@
     <ClInclude Include="Region.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="UdpSocket.h" />
+    <ClInclude Include="Unit.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>

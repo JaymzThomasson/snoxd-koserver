@@ -727,9 +727,9 @@ void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUse
 	EnterCriticalSection(&g_region_critical);
 	CRegion *pRegion = &pMap->m_ppRegion[x][z];
 
-	foreach_stlmap (itr, pRegion->m_RegionUserArray)
+	foreach (itr, pRegion->m_RegionUserArray)
 	{
-		CUser *pUser = GetUserPtr(*itr->second);
+		CUser *pUser = GetUserPtr(*itr);
 		if (pUser == NULL 
 			|| pUser == pExceptUser 
 			|| !pUser->isInGame())
@@ -829,9 +829,9 @@ void CEbenezerDlg::Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z
 	EnterCriticalSection(&g_region_critical);
 	CRegion *pRegion = &pMap->m_ppRegion[x][z];
 
-	foreach_stlmap (itr, pRegion->m_RegionUserArray)
+	foreach (itr, pRegion->m_RegionUserArray)
 	{
-		CUser *pUser = GetUserPtr(*itr->second);
+		CUser *pUser = GetUserPtr(*itr);
 		if (pUser == NULL 
 			|| pUser == pExceptUser 
 			|| !pUser->isInGame())
@@ -1215,9 +1215,9 @@ void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Pac
 	EnterCriticalSection(&g_region_critical);
 	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
 
-	foreach_stlmap (itr, pRegion->m_RegionUserArray)
+	foreach (itr, pRegion->m_RegionUserArray)
 	{
-		CUser *pUser = GetUserPtr(*itr->second);
+		CUser *pUser = GetUserPtr(*itr);
 		if (pUser == NULL 
 			|| !pUser->isInGame()
 			|| pUser->GetRegionX() != region_x || pUser->GetRegionZ() != region_z)
@@ -1239,9 +1239,9 @@ void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, int region_x, int region_z, P
 	EnterCriticalSection(&g_region_critical);
 	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
 
-	foreach_stlmap (itr, pRegion->m_RegionUserArray)
+	foreach (itr, pRegion->m_RegionUserArray)
 	{
-		CUser *pUser = GetUserPtr(*itr->second);
+		CUser *pUser = GetUserPtr(*itr);
 		if (pUser == NULL 
 			|| !pUser->isInGame()
 			|| pUser->GetRegionX() != region_x || pUser->GetRegionZ() != region_z)
@@ -1283,9 +1283,9 @@ void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, int region_x, int regio
 
 	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
 
-	foreach_stlmap (itr, pRegion->m_RegionUserArray)
+	foreach (itr, pRegion->m_RegionUserArray)
 	{
-		CUser *pUser = GetUserPtr(*itr->second);
+		CUser *pUser = GetUserPtr(*itr);
 		if (pUser == NULL 
 			|| !pUser->isInGame()
 			|| pUser->GetRegionX() != region_x || pUser->GetRegionZ() != region_z 
@@ -1332,9 +1332,9 @@ void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, int region_x, int region_z, Pack
 		return;
 
 	EnterCriticalSection(&g_region_critical);
-	foreach_stlmap (itr, pMap->m_ppRegion[region_x][region_z].m_RegionNpcArray)
+	foreach (itr, pMap->m_ppRegion[region_x][region_z].m_RegionNpcArray)
 	{
-		CNpc *pNpc = m_arNpcArray.GetData(*itr->second);
+		CNpc *pNpc = m_arNpcArray.GetData(*itr);
 		if (pNpc == NULL
 			|| pNpc->GetRegionX() != region_x || pNpc->GetRegionZ() != region_z
 			|| pNpc->isDead())
@@ -1345,7 +1345,7 @@ void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, int region_x, int region_z, Pack
 		t_count++;
 	}
 
-	LeaveCriticalSection( &g_region_critical );
+	LeaveCriticalSection(&g_region_critical);
 }
 
 void CEbenezerDlg::RegionNpcInfoForMe(CUser *pSendUser)
@@ -1374,10 +1374,10 @@ void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, int region_x, int region_z, Pa
 		|| region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
 		return;
 
-	EnterCriticalSection( &g_region_critical );
-	foreach_stlmap (itr, pMap->m_ppRegion[region_x][region_z].m_RegionNpcArray)
+	EnterCriticalSection(&g_region_critical);
+	foreach (itr, pMap->m_ppRegion[region_x][region_z].m_RegionNpcArray)
 	{
-		CNpc *pNpc = m_arNpcArray.GetData(*itr->second);
+		CNpc *pNpc = m_arNpcArray.GetData(*itr);
 		if (pNpc == NULL || pNpc->isDead())
 			continue;
 
@@ -1385,7 +1385,7 @@ void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, int region_x, int region_z, Pa
 		t_count++;
 	}
 
-	LeaveCriticalSection( &g_region_critical );
+	LeaveCriticalSection(&g_region_critical);
 }
 
 BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg) 
@@ -1561,7 +1561,7 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 	foreach_stlmap (itr, m_arNpcArray)
 	{
 		if (itr->second->isAlive())
-			itr->second->NpcInOut(NPC_OUT, 0.0f, 0.0f, 0.0f);
+			itr->second->SendInOut(INOUT_OUT, 0.0f, 0.0f, 0.0f);
 	}
 
 	// Now remove all spawns from all regions
@@ -1574,7 +1574,7 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 		for (int i = 0; i < pMap->GetXRegionMax(); i++)
 		{
 			for (int j = 0; j < pMap->GetZRegionMax(); j++)
-				pMap->m_ppRegion[i][j].m_RegionNpcArray.DeleteAllData();
+				pMap->m_ppRegion[i][j].m_RegionNpcArray.clear();
 		}
 	}
 

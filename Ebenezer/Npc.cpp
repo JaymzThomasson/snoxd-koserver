@@ -79,30 +79,35 @@ void CNpc::MoveResult(float xpos, float ypos, float zpos, float speed)
 	SendToRegion(&result);
 }
 
-void CNpc::NpcInOut(BYTE Type, float fx, float fz, float fy)
+void CNpc::GetInOut(Packet & result, uint8 bType)
 {
-	C3DMap *pMap = g_pMain->GetZoneByID(GetZoneID());
-	if (pMap == NULL)
-		return;
+	result.Initialize(WIZ_NPC_INOUT);
+	result << bType << GetID();
+	if (bType != INOUT_OUT)
+		GetNpcInfo(result);
+}
 
-	m_pMap = pMap;
-
-	if (Type == NPC_OUT)
+void CNpc::SendInOut(uint8 bType, float fx, float fz, float fy)
+{
+	if (GetRegion() == NULL)
 	{
-		pMap->RegionNpcRemove(GetRegionX(), GetRegionZ(), GetID());
+		SetRegion(GetNewRegionX(), GetNewRegionZ());
+		if (GetRegion() == NULL)
+			return;
+	}
+
+	if (bType == INOUT_OUT)
+	{
+		GetRegion()->Remove(this);
 	}
 	else	
 	{
-		pMap->RegionNpcAdd(GetRegionX(), GetRegionZ(), GetID());
+		GetRegion()->Add(this);
 		m_fCurX = fx;	m_fCurZ = fz;	m_fCurY = fy;
 	}
 
-	Packet result(WIZ_NPC_INOUT, Type);
-	result << GetID();
-
-	if (Type != NPC_OUT)
-		GetNpcInfo(result);
-
+	Packet result;
+	GetInOut(result, bType);
 	SendToRegion(&result);
 }
 
@@ -122,48 +127,6 @@ void CNpc::GetNpcInfo(Packet & pkt)
 		<< m_byObjectType
 		<< uint16(0) << uint16(0) // unknown
 		<< int16(m_byDirection);
-}
-
-void CNpc::RegisterRegion()
-{
-	uint16 
-		new_region_x = GetNewRegionX(), new_region_z = GetNewRegionZ(), 
-		old_region_x = GetRegionX(),	old_region_z = GetRegionZ();
-
-	if (old_region_x == new_region_x
-		&& old_region_z == new_region_z)
-		return;
-
-	C3DMap* pMap = GetMap();
-	if (pMap == NULL)
-		return;
-		
-	pMap->RegionNpcRemove(old_region_x, old_region_z, GetID());
-
-	SetRegion(new_region_x, new_region_z);
-	pMap->RegionNpcAdd(new_region_x, new_region_z, GetID());
-
-	RemoveRegion(old_region_x - new_region_x, old_region_z - new_region_z);
-	InsertRegion(new_region_x - old_region_x, new_region_z - old_region_z);	
-}
-
-void CNpc::RemoveRegion(int del_x, int del_z)
-{
-	ASSERT(GetMap() != NULL);
-
-	Packet result(WIZ_NPC_INOUT, uint8(NPC_OUT));
-	result << GetID();
-	g_pMain->Send_OldRegions(&result, del_x, del_z, GetMap(), GetRegionX(), GetRegionZ());
-}
-
-void CNpc::InsertRegion(int del_x, int del_z)
-{
-	ASSERT(GetMap() != NULL);
-
-	Packet result(WIZ_NPC_INOUT, uint8(NPC_IN));
-	result << GetID();
-	GetNpcInfo(result);
-	g_pMain->Send_NewRegions(&result, del_x, del_z, GetMap(), GetRegionX(), GetRegionZ());
 }
 
 void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
@@ -187,20 +150,21 @@ void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
 	}
 }
 
-/* NOTE: This code onwards needs to be merged with user code */
-void CNpc::SendToRegion(Packet *result)
+void CNpc::OnDeath(Unit *pKiller)
 {
-	g_pMain->Send_Region(result, GetMap(), GetRegionX(), GetRegionZ());
-}
+	ASSERT(GetMap() != NULL && GetRegion() != NULL);
 
-void CNpc::OnDeath()
-{
-	SendDeathAnimation();
-}
+	GetRegion()->Remove(static_cast<CNpc *>(this));
+	SetRegion();
 
-void CNpc::SendDeathAnimation()
-{
-	Packet result(WIZ_DEAD);
-	result << GetID();
-	SendToRegion(&result);
+	m_NpcState = NPC_DEAD;
+
+	if (m_byObjectType == SPECIAL_OBJECT)
+	{
+		_OBJECT_EVENT *pEvent = GetMap()->GetObjectEvent(GetEntryID());
+		if (pEvent != NULL)
+			pEvent->byLife = 0;
+	}
+
+	Unit::OnDeath(pKiller);
 }

@@ -156,6 +156,12 @@
     <ClCompile Include="..\shared\SocketMgr.cpp">
       <Filter>Shared\Networking</Filter>
     </ClCompile>
+    <ClCompile Include="Unit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Region.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -349,6 +355,9 @@
     </ClInclude>
     <ClInclude Include="..\shared\SocketMgr.h">
       <Filter>Shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

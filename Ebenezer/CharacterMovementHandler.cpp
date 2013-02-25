@@ -21,7 +21,11 @@ void CUser::MoveProcess(Packet & pkt)
 	m_pUserData->m_curz = real_z;
 	m_pUserData->m_cury = real_y;
 
-	RegisterRegion();
+	if (RegisterRegion())
+	{
+		g_pMain->RegionNpcInfoForMe(this);
+		g_pMain->RegionUserInOutForMe(this);
+	}
 
 	Packet result(WIZ_MOVE);
 	result << GetSocketID() << will_x << will_z << will_y << speed << echo;
@@ -34,29 +38,38 @@ void CUser::MoveProcess(Packet & pkt)
 	g_pMain->Send_AIServer(&result);
 }
 
-void CUser::UserInOut(BYTE Type)
+void CUser::GetInOut(Packet & result, uint8 bType)
 {
-	if (GetMap() == NULL)
-		return;
-
-	Packet result(WIZ_USER_INOUT);
-	result << uint16(Type) << GetSocketID();
-
-	if (Type == USER_OUT)
-		GetMap()->RegionUserRemove(GetRegionX(), GetRegionZ(), GetSocketID());
-	else
-		GetMap()->RegionUserAdd(GetRegionX(), GetRegionZ(), GetSocketID());
-
-	if (Type != USER_OUT)
+	result.Initialize(WIZ_USER_INOUT);
+	result << uint16(bType) << GetID();
+	if (bType != INOUT_OUT)
 		GetUserInfo(result);
+}
+
+void CUser::UserInOut(uint8 bType)
+{
+	if (GetRegion() == NULL)
+	{
+		SetRegion(GetNewRegionX(), GetNewRegionZ());
+		if (GetRegion() == NULL)
+			return;
+	}
+
+	Packet result;
+	GetInOut(result, bType);
+
+	if (bType == INOUT_OUT)
+		GetRegion()->Remove(this);
+	else
+		GetRegion()->Add(this);
 
 	SendToRegion(&result, this);
 
-	if (Type == USER_OUT || !isBlinking())
+	if (bType == INOUT_OUT || !isBlinking())
 	{
 		result.Initialize(AG_USER_INOUT);
 		result.SByte();
-		result << Type << GetSocketID() << m_pUserData->m_id << m_pUserData->m_curx << m_pUserData->m_curz;
+		result << bType << GetSocketID() << m_pUserData->m_id << m_pUserData->m_curx << m_pUserData->m_curz;
 		g_pMain->Send_AIServer(&result);
 	}
 }
@@ -129,7 +142,6 @@ void CUser::ZoneChange(int zone, float x, float z)
 {
 	m_bZoneChangeFlag = TRUE;
 
-	int zoneindex = 0;
 	C3DMap* pMap = NULL;
 	_ZONE_SERVERINFO *pInfo = NULL;
 
@@ -137,7 +149,6 @@ void CUser::ZoneChange(int zone, float x, float z)
 	if (!pMap) 
 		return;
 
-	m_pMap = pMap;
 	if( pMap->m_bType == 2 ) {	// If Target zone is frontier zone.
 		if( GetLevel() < 20 && g_pMain->m_byBattleOpen != SNOW_BATTLE)
 			return;
@@ -188,7 +199,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 	m_bWarp = 0x01;
 
-	UserInOut( USER_OUT );
+	UserInOut(INOUT_OUT);
 
 	if( m_pUserData->m_bZone == ZONE_SNOW_BATTLE )	{
 		//TRACE("ZoneChange - name=%s\n", m_pUserData->m_id);
@@ -198,6 +209,8 @@ void CUser::ZoneChange(int zone, float x, float z)
 	m_pUserData->m_bZone = zone;
 	m_pUserData->m_curx = x;
 	m_pUserData->m_curz = z;
+
+	m_pMap = pMap;
 
 	if( m_pUserData->m_bZone == ZONE_SNOW_BATTLE )	{
 		//TRACE("ZoneChange - name=%s\n", m_pUserData->m_id);
@@ -265,14 +278,14 @@ void CUser::Warp(uint16 sPosX, uint16 sPosZ)
 	result << sPosX << sPosZ;
 	Send(&result);
 
-	UserInOut(USER_OUT);
+	UserInOut(INOUT_OUT);
 
 	m_pUserData->m_curx = real_x;
 	m_pUserData->m_curz = real_z;
 
 	SetRegion(GetNewRegionX(), GetNewRegionZ());
 
-	UserInOut(USER_WARP);
+	UserInOut(INOUT_WARP);
 	g_pMain->UserInOutForMe(this);
 	g_pMain->NpcInOutForMe(this);
 	g_pMain->MerchantUserInOutForMe(this);
@@ -296,13 +309,12 @@ void CUser::RecvZoneChange(Packet & pkt)
 		g_pMain->NpcInOutForMe(this);
 		g_pMain->MerchantUserInOutForMe(this);
 		
-		Packet result(WIZ_ZONE_CHANGE);
-		result << uint8(2); // finalise the zone change
+		Packet result(WIZ_ZONE_CHANGE, uint8(2)); // finalise the zone change
 		Send(&result);
 	}
 	else if (opcode == 2)
 	{
-		UserInOut(USER_REGENE);
+		UserInOut(INOUT_RESPAWN);
 
 		// TO-DO: Fix all this up (it's too messy/confusing)
 		if (!m_bZoneChangeSameZone)

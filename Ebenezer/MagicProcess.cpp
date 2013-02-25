@@ -634,30 +634,7 @@ BYTE CMagicProcess::ExecuteType1(_MAGIC_TABLE *pSkill)
 
 	bResult = 1;
 
-	// TO-DO: Replace all of this with more abstract attack/death code 
-	// so that when we actually want to tweak behaviour, we don't have to tweak 9999999 cases where things die. Just the one...
-	m_pTargetUser->HpChange( -damage, 0, false, m_pSrcUser->GetSocketID());     // Reduce target health point.
-
-	if( m_pTargetUser->m_pUserData->m_sHp == 0) {    // Check if the target is dead.
-		m_pTargetUser->m_bResHpType = USER_DEAD;     // Target status is officially dead now.
-
-		if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
-			m_pSrcUser->LoyaltyChange(m_pSkillTarget);
-		}
-		else {
-			m_pSrcUser->LoyaltyDivide(m_pSkillTarget);
-		}
-
-		m_pSrcUser->GoldChange(m_pSkillTarget, 0);
-
-		m_pTargetUser->InitType3();	// Init Type 3.....
-		m_pTargetUser->InitType4();	// Init Type 4.....
-
-		if( m_pTargetUser->m_pUserData->m_bZone != m_pTargetUser->m_pUserData->m_bNation && m_pTargetUser->m_pUserData->m_bZone < 3) {
-			m_pTargetUser->ExpChange(-m_pTargetUser->m_iMaxExp / 100);
-		}
-		m_pTargetUser->m_sWhoKilledMe = m_pSkillCaster;		// Who the hell killed me?
-	} 
+	m_pTargetUser->HpChange(-damage, m_pSrcUser);
 	m_pSrcUser->SendTargetHP( 0, m_pSkillTarget, -damage );     // Change the HP of the target.
 
 packet_send:
@@ -706,32 +683,7 @@ BYTE CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 	
 	damage = m_pSrcUser->GetDamage(m_pSkillTarget, pSkill->iNum);  // Get damage points of enemy.	
 
-	// TO-DO: Replace all of this with more abstract attack/death code 
-	// so that when we actually want to tweak behaviour, we don't have to tweak 9999999 cases where things die. Just the one...
-
-	pTUser->HpChange(-damage, 0, false, m_pSrcUser->GetSocketID());     // Reduce target health point.
-
-	if( pTUser->m_pUserData->m_sHp == 0){     // Check if the target is dead.    
-		pTUser->m_bResHpType = USER_DEAD;     // Target status is officially dead now.
-
-		if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
-			m_pSrcUser->LoyaltyChange(m_pSkillTarget);
-		}
-		else {
-			m_pSrcUser->LoyaltyDivide(m_pSkillTarget);
-		}
-
-		m_pSrcUser->GoldChange(m_pSkillTarget, 0);
-
-		pTUser->InitType3();	// Init Type 3.....
-		pTUser->InitType4();	// Init Type 4.....
-
-		if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
-			pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
-		}
-		pTUser->m_sWhoKilledMe = m_pSkillCaster;		// Who the hell killed me?
-	} 
-
+	pTUser->HpChange(-damage, m_pSrcUser);     // Reduce target health point.
 	m_pSrcUser->SendTargetHP( 0, m_pSkillTarget, -damage );     // Change the HP of the target.
 
 packet_send:
@@ -795,47 +747,7 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 		{     // Non-Durational Spells.
 			if (pType->bDirectType == 1)     // Health Point related !
 			{			
-				pTUser->HpChange(damage, 0, false, m_pSrcUser->GetSocketID());     // Reduce target health point.
-				
-				if( pTUser->m_pUserData->m_sHp == 0) {     // Check if the target is dead.		
-					pTUser->m_bResHpType = USER_DEAD;
-
-						if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )	{
-							m_pSrcUser->GoldGain( SNOW_EVENT_MONEY );
-
-							if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )	{
-								if (pTUser->m_pUserData->m_bNation == KARUS) {
-									g_pMain->m_sKarusDead++;
-								}
-								else if (pTUser->m_pUserData->m_bNation == ELMORAD) {
-									g_pMain->m_sElmoradDead++;
-								}
-							}
-
-						}
-						else	{
-							if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
-								m_pSrcUser->LoyaltyChange(pTUser->GetSocketID());
-							}
-							else {
-								m_pSrcUser->LoyaltyDivide(pTUser->GetSocketID());
-							}
-
-							m_pSrcUser->GoldChange(pTUser->GetSocketID(), 0);
-						}
-					
-
-					pTUser->InitType3();	// Init Type 3.....
-					pTUser->InitType4();	// Init Type 4.....
-
-					if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER) {
-						if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
-							pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
-						}
-						pTUser->m_sWhoKilledMe = m_pSkillCaster;	// Who the hell killed me?
-					}
-				}
-
+				pTUser->HpChange(damage, m_pSrcUser);     // Reduce target health point.
 				m_pSrcUser->SendTargetHP( 0, (*itr)->GetSocketID(), damage ) ;     // Change the HP of the target.			
 			}
 			else if ( pType->bDirectType == 2 || pType->bDirectType == 3 )    // Magic or Skill Point related !
@@ -845,30 +757,7 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 		}
 		else if (pType->bDuration != 0) {    // Durational Spells! Remember, durational spells only involve HPs.
 			if (damage != 0) {		// In case there was first damage......
-				pTUser->HpChange(damage, 0, false, m_pSrcUser->GetSocketID());			// Initial damage!!!
-		
-				if( pTUser->m_pUserData->m_sHp == 0) {     // Check if the target is dead.	
-					pTUser->m_bResHpType = USER_DEAD;
-
-						if( !m_pSrcUser->isInParty() ) {    // Something regarding loyalty points.
-							m_pSrcUser->LoyaltyChange(pTUser->GetSocketID());
-						}
-						else {
-							m_pSrcUser->LoyaltyDivide(pTUser->GetSocketID());
-						}
-
-						m_pSrcUser->GoldChange(pTUser->GetSocketID(), 0);
-
-					pTUser->InitType3();	// Init Type 3.....
-					pTUser->InitType4();	// Init Type 4..... 
-
-					if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER) {
-						if( pTUser->m_pUserData->m_bZone != pTUser->m_pUserData->m_bNation && pTUser->m_pUserData->m_bZone < 3) {
-							pTUser->ExpChange(-pTUser->m_iMaxExp / 100);
-						}
-						pTUser->m_sWhoKilledMe = m_pSkillCaster;	// Who the hell killed me?
-					}
-				}
+				pTUser->HpChange(damage, m_pSrcUser);			// Initial damage!!!
 				m_pSrcUser->SendTargetHP( 0, pTUser->GetSocketID(), damage );     // Change the HP of the target. 
 			}
 
@@ -1393,7 +1282,7 @@ void CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 					m_opcode, m_nSkillID, m_sData1, 1, m_sData3);
 
 				pTUser->m_bResHpType = USER_STANDING;     // Target status is officially alive now.
-				pTUser->HpChange(pTUser->m_iMaxHp, 0, false, m_pSrcUser->GetSocketID());	 // Refill HP.	
+				pTUser->HpChange(pTUser->m_iMaxHp, m_pSrcUser);	 // Refill HP.	
 				pTUser->ExpChange( pType->sExpRecover/100 );     // Increase target experience.
 				
 				Packet result(AG_USER_REGENE);
@@ -1419,7 +1308,7 @@ void CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 					m_opcode, m_nSkillID, m_sData1, 1, m_sData3);
 
 				pTUser->ZoneChange(m_pSrcUser->GetZoneID(), m_pSrcUser->m_pUserData->m_curx, m_pSrcUser->m_pUserData->m_curz) ;
-				pTUser->UserInOut( USER_REGENE );
+				pTUser->UserInOut(INOUT_RESPAWN);
 				//TRACE(" Summon ,, name=%s, x=%.2f, z=%.2f\n", pTUser->m_pUserData->m_id, pTUser->m_pUserData->m_curx, pTUser->m_pUserData->m_curz);
 				break;
 

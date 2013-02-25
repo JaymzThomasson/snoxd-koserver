@@ -156,6 +156,12 @@
     <ClCompile Include="..\shared\crc32.cpp">
       <Filter>Shared\Networking</Filter>
     </ClCompile>
+    <ClCompile Include="Unit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Region.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -343,6 +349,9 @@
     </ClInclude>
     <ClInclude Include="..\shared\crc32.h">
       <Filter>Shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

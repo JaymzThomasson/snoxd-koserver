@@ -241,7 +241,16 @@ void CUser::SelectCharacter(Packet & pkt)
 	m_bSelectedCharacter = true;
 	Send(&result);
 
-	SetDetailData();
+	SetSlotItemValue();
+	SetUserAbility();
+
+	if (GetLevel() > MAX_LEVEL) 
+	{
+		Disconnect();
+		return;
+	}
+
+	m_iMaxExp = g_pMain->GetExpByLevel(GetLevel());
 
 	if (m_pUserData->m_bKnights == -1)
 	{
@@ -324,7 +333,7 @@ void CUser::GameStart(Packet & pkt)
 	else if (opcode == 2)
 	{
 		m_state = GAME_STATE_INGAME;
-		UserInOut(USER_REGENE);
+		UserInOut(INOUT_RESPAWN);
 
 		if (!m_pUserData->m_bCity && m_pUserData->m_sHp <= 0)
 			m_pUserData->m_bCity = -1;

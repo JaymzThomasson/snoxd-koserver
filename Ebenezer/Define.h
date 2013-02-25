@@ -232,15 +232,14 @@ enum NpcType
 #define MAGIC_ATTACK		2
 #define DURATION_ATTACK		3
 
-////////////////// ETC Define //////////////////////////////
-// UserInOut //
-#define USER_IN					0X01
-#define USER_OUT				0X02
-#define USER_REGENE				0X03	// Userin�ϰ� ������ε� ȿ�� �ֱ���ؼ�.. �и�(���ӽ���, ���. ��ȯ��)
-#define USER_WARP				0X04
-#define USER_SUMMON				0X05
-#define NPC_IN					0X01
-#define NPC_OUT					0X02
+enum InOutType
+{
+	INOUT_IN		= 1,
+	INOUT_OUT		= 2,
+	INOUT_RESPAWN	= 3,
+	INOUT_WARP		= 4,
+	INOUT_SUMMON	= 5
+};
 
 ////////////////// Resurrection related ////////////////////
 #define BLINK_TIME				10

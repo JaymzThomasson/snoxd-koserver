@@ -17,7 +17,7 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-CUser::CUser(uint16 socketID, SocketMgr *mgr) : KOSocket(socketID, mgr, -1, 16384, 3172)
+CUser::CUser(uint16 socketID, SocketMgr *mgr) : KOSocket(socketID, mgr, -1, 16384, 3172), Unit(true)
 {	
 	m_MagicProcess.m_pSrcUser = this;
 }
@@ -162,7 +162,7 @@ void CUser::OnDisconnect()
 		return;
 	}
 
-	UserInOut(USER_OUT);
+	UserInOut(INOUT_OUT);
 
 	if (isInParty())
 		PartyRemove(GetSocketID());
@@ -798,73 +798,6 @@ void CUser::SendPremiumInfo()
 	Send(&result);
 }
 
-void CUser::SetDetailData()
-{
-	C3DMap* pMap = NULL;
-
-	SetSlotItemValue();
-	SetUserAbility();
-
-	if (GetLevel() > MAX_LEVEL) 
-	{
-		Disconnect();
-		return;
-	}
-
-	m_iMaxExp = g_pMain->GetExpByLevel(GetLevel());
-
-	m_pMap = g_pMain->GetZoneByID(m_pUserData->m_bZone);
-	if (m_pMap == NULL) 
-	{
-		Disconnect();
-		return;
-	}
-}
-
-void CUser::RegisterRegion()
-{
-	uint16 
-		new_region_x = GetNewRegionX(), new_region_z = GetNewRegionZ(), 
-		old_region_x = GetRegionX(),	old_region_z = GetRegionZ();
-
-	if (old_region_x == new_region_x
-		&& old_region_z == new_region_z)
-		return;
-
-	C3DMap* pMap = GetMap();
-	if (pMap == NULL)
-		return;
-		
-	pMap->RegionUserRemove(old_region_x, old_region_z, GetSocketID());
-
-	SetRegion(new_region_x, new_region_z);
-	pMap->RegionUserAdd(new_region_x, new_region_z, GetSocketID());
-
-	if (!isInGame())
-		return;
-
-	RemoveRegion(old_region_x - new_region_x, old_region_z - new_region_z);
-	InsertRegion(new_region_x - old_region_x, new_region_z - old_region_z);	
-
-	g_pMain->RegionNpcInfoForMe(this);
-	g_pMain->RegionUserInOutForMe(this);
-}
-
-void CUser::RemoveRegion(int del_x, int del_z)
-{
-	Packet result(WIZ_USER_INOUT);
-	result << uint16(USER_OUT) << GetSocketID();
-	g_pMain->Send_OldRegions(&result, del_x, del_z, GetMap(), GetRegionX(), GetRegionZ());
-}
-
-void CUser::InsertRegion(int insert_x, int insert_z)
-{
-	Packet result(WIZ_USER_INOUT);
-	result << uint16(USER_IN) << GetSocketID();
-	GetUserInfo(result);
-	g_pMain->Send_NewRegions(&result, insert_x, insert_z, GetMap(), GetRegionX(), GetRegionZ());
-}
-
 void CUser::RequestUserIn(Packet & pkt)
 {
 	Packet result(WIZ_REQ_USERIN);
@@ -1227,22 +1160,22 @@ void CUser::PointChange(Packet & pkt)
 	Send(&result);
 }
 
-void CUser::HpChange(int amount, int type, bool attack, int16 tid /* = -1*/)
-															// type : Received From AIServer -> 1, The Others -> 0
-{															// attack : Direct Attack(true) or Other Case(false)
+void CUser::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= true*/) 
+{
 	Packet result(WIZ_HP_CHANGE);
 
-	// TO-DO: Make this behave unsigned.
-	m_pUserData->m_sHp += amount;
-	if (m_pUserData->m_sHp < 0)
+	if (amount < 0 && -amount > m_pUserData->m_sHp)
 		m_pUserData->m_sHp = 0;
-	else if (m_pUserData->m_sHp > m_iMaxHp)
-		m_pUserData->m_sHp = m_iMaxHp;
+	else if (amount >= 0 && m_pUserData->m_sHp + amount > m_iMaxHp)
+		m_pUserData->m_sHp = m_iMaxMp;
+	else
+		m_pUserData->m_sHp += amount;
 
+	uint16 tid = (pAttacker != NULL ? pAttacker->GetID() : -1);
 	result << m_iMaxHp << m_pUserData->m_sHp << tid;
 	Send(&result);
 
-	if (type == 0)
+	if (bSendToAI)
 	{
 		result.Initialize(AG_USER_SET_HP);
 		result << GetSocketID() << uint32(m_pUserData->m_sHp);
@@ -1252,8 +1185,8 @@ void CUser::HpChange(int amount, int type, bool attack, int16 tid /* = -1*/)
 	if (isInParty())
 		SendPartyHPUpdate();
 
-	if (m_pUserData->m_sHp == 0 && attack == false)
-		Dead();
+	if (m_pUserData->m_sHp == 0)
+		OnDeath(pAttacker);
 }
 
 void CUser::MSpChange(int amount)
@@ -2017,43 +1950,6 @@ void CUser::LoyaltyDivide(short tid)
 	pTUser->Send( send_buff, send_index );
 }
 
-void CUser::Dead()
-{
-	Packet result(WIZ_DEAD);
-	result << GetSocketID();
-	SendToRegion(&result);
-
-	m_bResHpType = USER_DEAD;
-	DEBUG_LOG("----> User Dead ,, nid=%d, name=%s, type=%d, x=%d, z=%d ******", GetSocketID(), m_pUserData->m_id, m_bResHpType, (int)m_pUserData->m_curx, (int)m_pUserData->m_curz);
-
-#if 0 // removed for now until we have a better system for it
-	send_index = 0;
-	if (getFame() == COMMAND_CAPTAIN)	{
-		ChangeFame(CHIEF);
-
-		pKnights = g_pMain->GetClanPtr( m_pUserData->m_bKnights );
-		if( pKnights )		strcpy_s( strKnightsName, sizeof(strKnightsName), pKnights->m_strName );
-		else				strcpy_s( strKnightsName, sizeof(strKnightsName), "*" );
-		//TRACE("---> Dead Captain Deprive - %s\n", m_pUserData->m_id);
-		if( m_pUserData->m_bNation == KARUS )	{
-			sprintf( chatstr, g_pMain->GetServerResource(IDS_KARUS_CAPTAIN_DEPRIVE), strKnightsName, m_pUserData->m_id );
-		}
-		else if( m_pUserData->m_bNation == ELMORAD )	{
-			sprintf( chatstr, g_pMain->GetServerResource(IDS_ELMO_CAPTAIN_DEPRIVE), strKnightsName, m_pUserData->m_id );
-		}
-
-		send_index = 0;
-		sprintf( finalstr, g_pMain->GetServerResource(IDP_ANNOUNCEMENT), chatstr );
-		SetByte( send_buff, WIZ_CHAT, send_index );
-		SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
-		SetByte( send_buff, 1, send_index );
-		SetShort( send_buff, -1, send_index );
-		SetKOString(send_buff, finalstr, send_index);
-		g_pMain->Send_All( send_buff, send_index, NULL, m_pUserData->m_bNation );
-	}
-#endif
-}
-
 void CUser::ItemWoreOut(int type, int damage)
 {
 	_ITEM_TABLE* pTable = NULL;
@@ -2251,91 +2147,62 @@ void CUser::HPTimeChange(float currenttime)
 
 void CUser::HPTimeChangeType3(float currenttime)
 {
-	Packet result;
-	int send_index = 0;
-	char send_buff[128];
-
 	for (int g = 0 ; g < MAX_TYPE3_REPEAT ; g++) {	// Get the current time for all the last times...
 		m_fHPLastTime[g] = currenttime;
 	}
 
-	if( m_bResHpType != USER_DEAD ) {	// Make sure the user is not dead first!!!
-		for (int h = 0 ; h < MAX_TYPE3_REPEAT ; h++) {
-			HpChange(m_bHPAmount[h]);	// Reduce HP...
-			CUser* pUser = NULL;
+	if (isDead())
+		return;
 
-			if (m_sSourceID[h] >= 0 && m_sSourceID[h] < MAX_USER) {	// Send report to the source...
-				pUser = g_pMain->GetUserPtr(m_sSourceID[h]);
-				if (pUser) {
-					pUser->SendTargetHP( 0, GetSocketID(), m_bHPAmount[h] );
-				}
-			}	// ...End of : Send report to the source...
+	for (int h = 0; h < MAX_TYPE3_REPEAT; h++)
+	{
+		// Yikes. This will need cleaning up.
+		CUser *pUser = NULL;
+		CNpc *pNpc = NULL;
+		Unit *pUnit = NULL;
 
-			if ( m_pUserData->m_sHp == 0) {     // Check if the target is dead.	
-				// sungyong work : loyalty
-				m_bResHpType = USER_DEAD;	// Officially declare the user DEAD!!!!!
+		if (m_sSourceID[h] < MAX_USER) 
+		{
+			pUser = g_pMain->GetUserPtr(m_sSourceID[h]);
+			if (pUser != NULL)
+				pUser->SendTargetHP(0, GetSocketID(), m_bHPAmount[h]);
 
-				if (m_sSourceID[h] >= NPC_BAND) {	// If the killer was a NPC
-//
-					if( m_pUserData->m_bZone != m_pUserData->m_bNation && m_pUserData->m_bZone < 3) {
-						ExpChange(-m_iMaxExp / 100);
-						//TRACE("????? 1%?? ??????? ??.??\r\n");
-					}
-					else {
-//
-						ExpChange(-m_iMaxExp/20 );     // Reduce target experience.		
-//
-					}
-//
-				}
-				else {	// You got killed by another player
-					if (pUser) {	// (No more pointer mistakes....)
-						if( !pUser->isInParty() ) {     // Something regarding loyalty points.
-							pUser->LoyaltyChange(GetSocketID());
-						}
-						else {
-							pUser->LoyaltyDivide(GetSocketID());
-						}
-						
-						pUser->GoldChange(GetSocketID(), 0);
-					}
-				}				
-				// ??????? ????? ??? ???!!!
-				InitType3();	// Init Type 3.....
-				InitType4();	// Init Type 4.....
-				
-				if (m_sSourceID[h] >= 0 && m_sSourceID[h] < MAX_USER) {
-					m_sWhoKilledMe = m_sSourceID[h];	// Who the hell killed me?
-//
-					if( m_pUserData->m_bZone != m_pUserData->m_bNation && m_pUserData->m_bZone < 3) {
-						ExpChange(-m_iMaxExp / 100);
-						//TRACE("????? 1%?? ??????? ??.??\r\n");
-					}
-//
-				}
-				
-				break;	// Exit the for loop :)
-			}	// ...End of : Check if the target is dead.
+			pUnit = pUser;
+		}
+		else
+		{
+			pNpc = g_pMain->m_arNpcArray.GetData(m_sSourceID[h]);
+			pUnit = pNpc;
+		}
+
+		// Reduce the HP 
+		HpChange(m_bHPAmount[h]); // do we need to specify the source of the DOT?
+
+		// Aw, did we die? :(
+		if (m_pUserData->m_sHp == 0)
+		{
+			OnDeath(pUnit);
+			break;
 		}
 	}
-	else return;
 
-	for (int i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {	// Type 3 Cancellation Process.
-		if( m_bHPDuration[i] > 0 ) {
-			if( ((currenttime - m_fHPStartTime[i]) >= m_bHPDuration[i]) || m_bResHpType == USER_DEAD) {
-				SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-				SetByte( send_buff, MAGIC_TYPE3_END, send_index );	
+	// Type 3 cancellation process.
+	// This probably shouldn't be here.
+	for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
+	{
+		if (m_bHPDuration[i] > 0)
+		{
+			if (isDead() || ((currenttime - m_fHPStartTime[i]) >= m_bHPDuration[i]) || isDead())
+			{
+				Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
 
-				if (m_bHPAmount[i] > 0) {
-					SetByte( send_buff, 100, send_index );
-				}
-				else {
-					SetByte( send_buff, 200, send_index );
-				}
+				if (m_bHPAmount[i] > 0)
+					result << uint8(100);
+				else
+					result << uint8(200);
 
-				Send( send_buff, send_index ); 
-				send_index = 0;
-				
+				Send(&result);
+
 				m_fHPStartTime[i] = 0.0f;
 				m_fHPLastTime[i] = 0.0f;
 				m_bHPAmount[i] = 0;
@@ -2347,18 +2214,16 @@ void CUser::HPTimeChangeType3(float currenttime)
 	}
 
 	int buff_test = 0;
-	for (int j = 0 ; j < MAX_TYPE3_REPEAT ; j++) {
+	bool bType3Test = true;
+	foreach_array (j, m_bHPDuration)
+	{
 		buff_test += m_bHPDuration[j];
+		if (m_bHPAmount[j] < 0)
+			bType3Test = false;
 	}
-	if (buff_test == 0) m_bType3Flag = FALSE;
-//
-	BOOL bType3Test = TRUE;
-	for (int k = 0 ; k < MAX_TYPE3_REPEAT ; k++) {
-		if (m_bHPAmount[k] < 0) {
-			bType3Test = FALSE;
-			break;
-		}
-	}
+
+	if (buff_test == 0)
+		m_bType3Flag = FALSE;
 
 	if (isInParty() && bType3Test)
 		SendPartyStatusUpdate(1, 0);
@@ -3353,7 +3218,7 @@ void CUser::BlinkTimeCheck(float currenttime)
 
 	result.Initialize(AG_USER_INOUT);
 	result.SByte(); // TO-DO: Remove this redundant uselessness that is mgame
-	result	<< uint8(USER_REGENE) << GetSocketID()
+	result	<< uint8(INOUT_RESPAWN) << GetSocketID()
 			<< m_pUserData->m_id
 			<< m_pUserData->m_curx << m_pUserData->m_curz;
 	g_pMain->Send_AIServer(&result);
@@ -3430,14 +3295,8 @@ void CUser::TrapProcess()
 	if (ZONE_TRAP_INTERVAL < (currenttime - m_fLastTrapAreaTime)) {	// Time interval has passed :)
 		HpChange( -ZONE_TRAP_DAMAGE );     // Reduce target health point.
 
-		if( m_pUserData->m_sHp == 0) {    // Check if the target is dead.
-			m_bResHpType = USER_DEAD;     // Target status is officially dead now.
-		
-			InitType3();	// Init Type 3.....
-			InitType4();	// Init Type 4.....
-
-			m_sWhoKilledMe = -1;		// Who the hell killed me?
-		}
+		if (m_pUserData->m_sHp == 0)
+			OnDeath(this);
 	} 
 
 	m_fLastTrapAreaTime = currenttime;		// Update Last Trap Area time :)
@@ -3515,16 +3374,76 @@ void CUser::SendToRegion(Packet *pkt, CUser *pExceptUser /*= NULL*/)
 	g_pMain->Send_Region(pkt, GetMap(), GetRegionX(), GetRegionZ(), pExceptUser);
 }
 
-void CUser::OnDeath()
+void CUser::OnDeath(Unit *pKiller)
 {
-	SendDeathAnimation();
-}
+	if (m_bResHpType == USER_DEAD)
+		return;
 
-void CUser::SendDeathAnimation()
-{
-	Packet result(WIZ_DEAD);
-	result << GetSocketID();
-	SendToRegion(&result);
+	m_bResHpType = USER_DEAD;
+
+	if (getFame() == COMMAND_CAPTAIN)
+	{
+		ChangeFame(CHIEF);
+		if (GetNation() == KARUS)
+			g_pMain->Announcement(KARUS_CAPTAIN_DEPRIVE_NOTIFY, KARUS);
+		else
+			g_pMain->Announcement(ELMORAD_CAPTAIN_DEPRIVE_NOTIFY, ELMORAD);
+	}
+
+	InitType3();
+	InitType4();
+
+	if (pKiller->isNPC())
+	{
+		CNpc *pNpc = static_cast<CNpc *>(pKiller);
+		if (pNpc->GetType() == NPC_PATROL_GUARD
+			|| (GetZoneID() != GetNation() && GetZoneID() <= ELMORAD))
+			ExpChange(-m_iMaxExp / 100);
+		else
+			ExpChange(-m_iMaxExp / 20);
+	}
+	else
+	{
+		CUser *pUser = static_cast<CUser *>(pKiller);
+
+		// Looks like we died of "natural causes!" (probably residual DOT)
+		if (pUser == this)
+		{
+			m_sWhoKilledMe = -1;
+		}
+		// Someone else killed us? Need to clean this up.
+		else
+		{
+			// Did we get killed in the snow war? Handle appropriately.
+			if (GetZoneID() == ZONE_SNOW_BATTLE 
+				&& g_pMain->m_byBattleOpen == SNOW_BATTLE)
+			{
+				pUser->GoldGain(SNOW_EVENT_MONEY);
+
+				if (GetNation() == KARUS)
+					g_pMain->m_sKarusDead++;
+				else 
+					g_pMain->m_sElmoradDead++;
+			}
+			// Otherwise...
+			else
+			{
+				if (!pUser->isInParty())
+					pUser->LoyaltyChange(GetID());
+				else
+					pUser->LoyaltyDivide(GetID());
+
+				pUser->GoldChange(GetID(), 0);
+
+				if (GetZoneID() != GetNation() && GetZoneID() <= ELMORAD)
+					ExpChange(-(m_iMaxExp / 100));
+			}
+			
+			m_sWhoKilledMe = pUser->GetID();
+		}
+	}
+
+	Unit::OnDeath(pKiller);
 }
 
 // We have no clan handler, we probably won't need to implement it (but we'll see).

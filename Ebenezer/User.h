@@ -32,6 +32,8 @@ class CEbenezerDlg;
 class CUser : public Unit, public KOSocket
 {
 public:
+	virtual uint16 GetID() { return GetSocketID(); }
+
 	virtual float GetX() { return m_pUserData->m_curx; }
 	virtual float GetY() { return m_pUserData->m_cury; }
 	virtual float GetZ() { return m_pUserData->m_curz; }
@@ -350,7 +352,7 @@ public:
 	void LoyaltyDivide( short tid );
 	void SendUserInfo(Packet & result);
 	BOOL ItemEquipAvailable( _ITEM_TABLE* pTable );
-	void HpChange(int amount, int type = 0, bool attack = false, int16 tid = -1);
+	void HpChange(int amount, Unit *pAttacker = NULL, bool bSendToAI = true);
 	void MSpChange(int amount);
 	void SendPartyHPUpdate();
 	void SendAnvilRequest(int nid);
@@ -533,10 +535,6 @@ public:
 	short GetDamage(short tid, int magicid);
 	void SetSlotItemValue();
 	BYTE GetHitRate(float rate);
-	void InsertRegion(int del_x, int del_z);
-	void RemoveRegion( int del_x, int del_z );
-	void RegisterRegion();
-	void SetDetailData();
 	void SendTimeStatus(); // TO-DO: Deprecate
 	void SendTime();
 	void SendWeather();
@@ -549,7 +547,10 @@ public:
 	void SendMyInfo();
 	void SendServerChange(char *ip, uint8 bInit);
 	void Send2AI_UserUpdateInfo(bool initialInfo = false);
-	void UserInOut( BYTE Type );
+
+	virtual void GetInOut(Packet & result, uint8 bType);
+	void UserInOut(uint8 bType);
+
 	void GetUserInfo(Packet & pkt);
 	void SendUserStatusUpdate(uint8 type, uint8 status);
 	void Initialize();
@@ -559,8 +560,7 @@ public:
 
 	void SendToRegion(Packet *pkt, CUser *pExceptUser = NULL);
 
-	void OnDeath();
-	void SendDeathAnimation();
+	virtual void OnDeath(Unit *pKiller);
 
 	_ITEM_TABLE* hasStaffEquipped();
 

@@ -163,7 +163,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 		CNpc* pNpc = new CNpc();
 		pNpc->Initialize();
 
-		pkt >> bType >> pNpc->m_id >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
+		pkt >> bType >> pNpc->m_sNid >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
 			>> pNpc->m_bZoneID >> strName >> pNpc->m_byGroup >> pNpc->m_byLevel >> pNpc->m_fCurX >> pNpc->m_fCurZ >> pNpc->m_fCurY
 			>> bDirection >> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP
 			>> pNpc->m_byGateOpen >> pNpc->m_sHitRate >> pNpc->m_byObjectType;
@@ -211,8 +211,8 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 			continue;
 		}
 
-		pNpc->GetMap()->RegionNpcAdd(pNpc->GetRegionX(), pNpc->GetRegionZ(), pNpc->GetID());
-		pNpc->NpcInOut(NPC_IN, pNpc->GetX(), pNpc->GetZ(), pNpc->GetY());
+		// RegionNpcAdd() 
+		pNpc->SendInOut(INOUT_IN, pNpc->GetX(), pNpc->GetZ(), pNpc->GetY());
 	}
 }
 
@@ -260,9 +260,11 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 		if( pNpc->m_iHP < 0 )
 			pNpc->m_iHP = 0;
 
+		pUser = g_pMain->GetUserPtr(sid);
+
 		// NPC died
-		if (bResult == 4)
-			pNpc->OnDeath();
+		if (bResult == 2 || bResult == 4)
+			pNpc->OnDeath(pUser);
 		else 
 		{
 			Packet result(WIZ_ATTACK, byAttackType);
@@ -270,7 +272,6 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 			pNpc->SendToRegion(&result);
 		}
 
-		pUser = g_pMain->GetUserPtr(sid);
 		if (pUser != NULL) 
 		{
 			pUser->SendTargetHP( 0, tid, -damage ); 
@@ -282,7 +283,7 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 
 			switch (pUser->m_bMagicTypeLeftHand) {	// LEFT HAND!!!
 				case ITEM_TYPE_HP_DRAIN :	// HP Drain		
-					pUser->HpChange(temp_damage, 0);	
+					pUser->HpChange(temp_damage);	
 					break;
 				case ITEM_TYPE_MP_DRAIN :	// MP Drain		
 					pUser->MSpChange(temp_damage);
@@ -296,7 +297,7 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 
 			switch (pUser->m_bMagicTypeRightHand) {	// LEFT HAND!!!
 				case ITEM_TYPE_HP_DRAIN :	// HP Drain		
-					pUser->HpChange(temp_damage, 0);			
+					pUser->HpChange(temp_damage);			
 					break;
 				case ITEM_TYPE_MP_DRAIN :	// MP Drain		
 					pUser->MSpChange(temp_damage);
@@ -304,21 +305,6 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 				}	
 //		
 			}
-		}
-
-		if (bResult == 2 || bResult== 4)		// npc dead
-		{
-			pNpc->GetMap()->RegionNpcRemove(pNpc->GetRegionX(), pNpc->GetRegionZ(), tid);
-			
-//			TRACE("--- Npc Dead : Npc�� Region���� ����ó��.. ,, region_x=%d, y=%d\n", pNpc->m_sRegion_X, pNpc->m_sRegion_Z);
-			pNpc->SetRegion(0, 0);
-			pNpc->m_NpcState = NPC_DEAD;
-			if( pNpc->m_byObjectType == SPECIAL_OBJECT )	{
-				pEvent = pNpc->GetMap()->GetObjectEvent( pNpc->m_sSid );
-				if( pEvent )	pEvent->byLife = 0;
-			}
-			if (pNpc->m_tNpcType == 2 && pUser != NULL) // EXP 
-				pUser->GiveItem(900001000, 1);	
 		}
 	}
 	else if (type == 2)		// npc attack -> user
@@ -333,7 +319,7 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 			if(pUser == NULL)	
 				return;
 
-			pUser->HpChange(-damage, 1, true, sid);
+			pUser->HpChange(-damage, pNpc, false);
 			pUser->ItemWoreOut(DEFENCE, damage);
 
 			Packet result(WIZ_ATTACK, byAttackType);
@@ -342,45 +328,8 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 			pNpc->SendToRegion(&result);
 
 			//TRACE("RecvNpcAttack ==> sid = %d, tid = %d, result = %d\n", sid, tid, result);
-
-			// user dead
-			if (bResult == 2) 
-			{
-				if (pUser->m_bResHpType == USER_DEAD)
-					return;
-
-				pUser->OnDeath();
-				pUser->m_bResHpType = USER_DEAD;
-				DEBUG_LOG("*** User Dead, id=%s, result=%d, AI_HP=%d, GM_HP=%d, x=%d, z=%d", pUser->m_pUserData->m_id, result, nHP, pUser->m_pUserData->m_sHp, (int)pUser->m_pUserData->m_curx, (int)pUser->m_pUserData->m_curz);
-
-				if( pUser->m_pUserData->m_bFame == COMMAND_CAPTAIN )	{	// ���ֱ����� �ִ� ������ �״´ٸ�,, ���� ���� ��Ż
-					pUser->ChangeFame(CHIEF);
-
-					TRACE("---> AISocket->RecvNpcAttack() Dead Captain Deprive - %s\n", pUser->m_pUserData->m_id);
-					if (pUser->GetNation() == KARUS)		g_pMain->Announcement( KARUS_CAPTAIN_DEPRIVE_NOTIFY, KARUS );
-					else if (pUser->GetNation() == ELMORAD)	g_pMain->Announcement( ELMORAD_CAPTAIN_DEPRIVE_NOTIFY, ELMORAD );
-
-				}
-
-				if(pNpc->m_tNpcType == NPC_PATROL_GUARD)	{	// ���񺴿��� �״� ��������..
-					pUser->ExpChange( -pUser->m_iMaxExp/100 );
-					//TRACE("RecvNpcAttack : ����ġ�� 1%���� id = %s\n", pUser->m_pUserData->m_id);
-				}
-				else {
-//
-					if( pUser->m_pUserData->m_bZone != pUser->m_pUserData->m_bNation && pUser->m_pUserData->m_bZone < 3) {
-						pUser->ExpChange(-pUser->m_iMaxExp / 100);
-						//TRACE("������ 1%�� �￴�ٴϱ��� ��.��");
-					}
-//				
-					else {
-						pUser->ExpChange( -pUser->m_iMaxExp/20 );
-					}
-					//TRACE("RecvNpcAttack : ����ġ�� 5%���� id = %s\n", pUser->m_pUserData->m_id);
-				}
-			}
 		}
-		else if(tid >= NPC_BAND)		// npc attack -> monster
+		else if (tid >= NPC_BAND)		// npc attack -> monster
 		{
 			pMon = g_pMain->m_arNpcArray.GetData(tid);
 			if(!pMon)	return;
@@ -390,18 +339,10 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 
 			Packet result(WIZ_ATTACK, byAttackType);
 			result << bResult << sid << tid;
-			if (bResult == 2)	{		// npc dead
-				pNpc->GetMap()->RegionNpcRemove(pMon->GetRegionX(), pMon->GetRegionZ(), tid);
-//				TRACE("--- Npc Dead : Npc�� Region���� ����ó��.. ,, region_x=%d, y=%d\n", pMon->m_sRegion_X, pMon->m_sRegion_Z);
-
-				pMon->SetRegion(0, 0);
-				pMon->m_NpcState = NPC_DEAD;
-				if( pNpc->m_byObjectType == SPECIAL_OBJECT )	{
-					pEvent = pNpc->GetMap()->GetObjectEvent( pMon->m_sSid );
-					if( pEvent )	pEvent->byLife = 0;
-				}
-			}
 			pNpc->SendToRegion(&result);
+			if (bResult == 2)	{		// npc dead
+				pMon->OnDeath(pNpc);
+			}
 		}
 	}
 }
@@ -512,7 +453,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 		return;
 	}
 
-	pNpc->NpcInOut(NPC_IN, pNpc->GetX(), pNpc->GetZ(), pNpc->GetY());
+	pNpc->SendInOut(INOUT_IN, pNpc->GetX(), pNpc->GetZ(), pNpc->GetY());
 }
 
 void CAISocket::RecvUserHP(Packet & pkt)
@@ -644,7 +585,8 @@ void CAISocket::RecvUserFail(Packet & pkt)
 	if (pUser == NULL)
 		return;
 
-	pUser->HpChange(-10000, 1);
+	// wtf is this I don't even
+	pUser->HpChange(-10000, NULL, false);
 
 	Packet result(WIZ_ATTACK, uint8(1));
 	result << uint8(2) << sid << nid;
@@ -668,7 +610,7 @@ void CAISocket::InitEventMonster(int index)
 		if(pNpc == NULL) return;
 		pNpc->Initialize();
 
-		pNpc->SetID(i+NPC_BAND);
+		pNpc->m_sNid = i+NPC_BAND;
 		//TRACE("InitEventMonster : uid = %d\n", pNpc->m_sNid);
 		if( !g_pMain->m_arNpcArray.PutData( pNpc->GetID(), pNpc) ) {
 			TRACE("Npc PutData Fail - %d\n", pNpc->GetID());
@@ -702,6 +644,7 @@ void CAISocket::RecvGateDestory(Packet & pkt)
 	TRACE("RecvGateDestory - (%d,%s), gate_status=%d\n", pNpc->GetID(), pNpc->m_strName, pNpc->m_byGateOpen);
 }
 
+// TO-DO: Remove this. NPCs don't just randomly die, it would make sense to do this as a result of the cause, not just because.
 void CAISocket::RecvNpcDead(Packet & pkt)
 {
 	uint16 nid = pkt.read<uint16>();
@@ -713,19 +656,7 @@ void CAISocket::RecvNpcDead(Packet & pkt)
 	if (pMap == NULL)
 		return;
 
-	if (pNpc->m_byObjectType == SPECIAL_OBJECT)
-	{
-		_OBJECT_EVENT *pEvent = pMap->GetObjectEvent(pNpc->m_sSid);
-		if (pEvent)
-			pEvent->byLife = 0;
-	}
-
-	pMap->RegionNpcRemove(pNpc->GetRegionX(), pNpc->GetRegionZ(), nid);
-
-	Packet result(WIZ_DEAD);
-	result << nid;
-	pNpc->SendToRegion(&result);
-	pNpc->SetRegion(0, 0);
+	pNpc->OnDeath(NULL);
 }
 
 void CAISocket::RecvNpcInOut(Packet & pkt)
@@ -737,7 +668,7 @@ void CAISocket::RecvNpcInOut(Packet & pkt)
 	pkt >> bType >> sNid >> fX >> fZ >> fY;
 	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(sNid);
 	if (pNpc)
-		pNpc->NpcInOut(bType, fX, fZ, fY);
+		pNpc->SendInOut(bType, fX, fZ, fY);
 }
 
 void CAISocket::RecvBattleEvent(Packet & pkt)
