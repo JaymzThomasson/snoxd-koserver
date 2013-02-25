@@ -214,12 +214,13 @@ void CMagicProcess::SendSkillToAI(_MAGIC_TABLE *pSkill)
 				_MAGIC_TYPE3 *pType3 = g_pMain->m_Magictype3Array.GetData(m_nSkillID);
 				if (pType3 == NULL)
 					return;
-				if (m_pSrcUser->m_bMagicTypeRightHand == pType3->bAttribute ) {							
+				if (m_pSrcUser->m_bMagicTypeRightHand == pType3->bAttribute )					
 					total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * m_pSrcUser->GetLevel()) / 30);
-				}
-				if (pType3->bAttribute == 4) {	// Remember what Sunglae told ya! (no, not really?)
+				
+				//TO-DO : Divide damage by 3 if duration = 0
+
+				if (pType3->bAttribute == 4)
 					total_magic_damage = 0;
-				}
 			}
 		}
 		result << uint16(total_magic_damage);
@@ -780,16 +781,14 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 	foreach (itr, casted_member)
 	{
 		CUser* pTUser = *itr; // it's checked above, not much need to check it again
-		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1) && (pSkill->iNum < 400000)) {		// If you are casting an attack spell.
+		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1) && (pSkill->iNum < 400000))	// If you are casting an attack spell.
 			damage = GetMagicDamage(m_pSkillCaster, pTUser->GetSocketID(), pType->sFirstDamage, pType->bAttribute) ;	// Get Magical damage point.
-		}
 		else 
 			damage = pType->sFirstDamage;
 
 		if( m_pSrcUser )	{
-			if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )	{
+			if( m_pSrcUser->m_pUserData->m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )
 				damage = -10;		
-			}
 		}
 
 		if (pType->bDuration == 0) 
@@ -1544,11 +1543,11 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 		damage = (short)((0.7 * (total_hit - ((0.9 * total_hit * total_r) / 200))) + 0.2 * random);
 
 		if (sid >= NPC_BAND) {
-			damage -= (3 * righthand_damage) - (3 * attribute_damage);
+			damage -= ((3 * righthand_damage) + (3 * attribute_damage));
 		}
 		else{
 			if (attribute != 4) {	// Only if the staff has an attribute.
-				damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * m_pSrcUser->GetLevel()) / 60) - ((attribute_damage * 0.8f) + (attribute_damage * m_pSrcUser->GetLevel()) / 30));
+				damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * m_pSrcUser->GetLevel()) / 60) + ((attribute_damage * 0.8f) + (attribute_damage * m_pSrcUser->GetLevel()) / 30));
 			}
 		}
 	}
