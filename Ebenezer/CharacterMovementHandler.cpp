@@ -103,7 +103,7 @@ void CUser::GetUserInfo(Packet & pkt)
 		<< m_bNeedParty
 		<< m_pUserData->m_bAuthority
 		<< m_bPartyLeader // is party leader (bool)
-		<< uint8(0) // visibility state (0 - visible)
+		<< m_bIsInvisible // visibility state
 		<< uint8(0) // team colour (i.e. in soccer, 0=none, 1=blue, 2=red)
 		<< uint8(0) // unknown, doesn't seem to do anything noticeable for a regular player or GM (tested with 0, 1, 2, 255)
 		<< m_sDirection // direction 

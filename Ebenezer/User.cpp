@@ -42,6 +42,7 @@ void CUser::Initialize()
 	m_bStoreOpen = false;
 	m_bIsMerchanting = false;
 	m_bPartyLeader = false;
+	m_bIsInvisible = false;
 
 	m_sDirection = 0;
 
@@ -3193,6 +3194,14 @@ void CUser::SendAnvilRequest(int nid)
 	Send(&result);
 }
 
+void CUser::UpdateVisibility(bool bVisible)
+{
+	Packet result(AG_USER_VISIBILITY);
+	m_bIsInvisible = !bVisible;
+	result << GetID() << m_bIsInvisible;
+	g_pMain->Send_AIServer(&result);
+}
+
 void CUser::BlinkStart()
 {
 	// Don't blink in these zones
@@ -3204,8 +3213,7 @@ void CUser::BlinkStart()
 	m_fBlinkStartTime = TimeGet();
 	m_bRegeneType = REGENE_ZONECHANGE;
 	
-	// TO-DO: Tell the AI server that mobs shouldn't see/attack us
-
+	UpdateVisibility(false);
 	StateChangeServerDirect(3, ABNORMAL_BLINKING);
 }
 
@@ -3234,6 +3242,8 @@ void CUser::BlinkTimeCheck(float currenttime)
 			<< m_pUserData->m_id
 			<< m_pUserData->m_curx << m_pUserData->m_curz;
 	g_pMain->Send_AIServer(&result);
+
+	UpdateVisibility(true);
 }
 
 void CUser::GoldGain(int gold)	// 1 -> Get gold    2 -> Lose gold

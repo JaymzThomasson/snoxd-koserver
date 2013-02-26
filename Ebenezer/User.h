@@ -106,6 +106,9 @@ public:
 
 	short	m_sPartyIndex;
 	bool	m_bPartyLeader;
+
+	bool	m_bIsInvisible;
+
 	short	m_sExchangeUser;
 	BYTE	m_bExchangeOK;
 
@@ -328,6 +331,7 @@ public:
 	void SendItemWeight();
 	void ItemLogToAgent(const char *srcid, const char *tarid, int type, __int64 serial, int itemid, int count, int durability);
 	void TestPacket( char* pBuf );
+	void UpdateVisibility(bool bVisible);
 	void BlinkStart();
 	void BlinkTimeCheck(float currenttime);
 	void InitType3();
