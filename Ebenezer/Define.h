@@ -242,7 +242,7 @@ enum InOutType
 };
 
 ////////////////// Resurrection related ////////////////////
-#define BLINK_TIME				10
+#define BLINK_TIME				15
 #define CLAN_SUMMON_TIME		180
 ////////////////////////////////////////////////////////////
 
