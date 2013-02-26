@@ -34,6 +34,7 @@ public:
 	void RecvUserInfoAllData(Packet & pkt);
 	void RecvPartyInfoAllData(Packet & pkt);
 	void RecvGateOpen(Packet & pkt);
+	void RecvUserVisibility(Packet & pkt);
 	void RecvCheckAlive(Packet & pkt);
 	void RecvHealMagic(Packet & pkt);
 	void RecvTimeAndWeather(Packet & pkt);

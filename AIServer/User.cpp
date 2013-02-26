@@ -98,6 +98,7 @@ void CUser::Initialize()
 	m_byPartyTotalMan = 0;
 	m_sPartyNumber = -1;
 	m_byIsOP = 0;
+	m_bIsInvisible = false;
 	m_lUsed = 0;
 	InitNpcAttack();
 

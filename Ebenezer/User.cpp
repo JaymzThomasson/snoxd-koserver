@@ -1233,7 +1233,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 			<< m_sItemAc
 			<< m_bMagicTypeLeftHand << m_bMagicTypeRightHand
 			<< m_sMagicAmountLeftHand << m_sMagicAmountRightHand
-			<< m_pUserData->m_bAuthority;
+			<< m_pUserData->m_bAuthority << m_bIsInvisible;
 
 	g_pMain->Send_AIServer(&result);
 }
@@ -1800,7 +1800,7 @@ void CUser::UpdateGameWeather(Packet & pkt)
 	Send(&pkt); // pass the packet straight on
 }
 
-void CUser::SendUserInfo(Packet & result)
+void CUser::GetUserInfoForAI(Packet & result)
 {
 	result.SByte(); 
 	result	<< GetSocketID()
@@ -1809,7 +1809,8 @@ void CUser::SendUserInfo(Packet & result)
 			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
 			<< uint16(m_sTotalAc + m_sACAmount)
 			<< m_sTotalHitrate << m_sTotalEvasionrate
-			<< m_sPartyIndex << m_pUserData->m_bAuthority;
+			<< m_sPartyIndex << m_pUserData->m_bAuthority
+			<< m_bIsInvisible;
 }
 
 void CUser::CountConcurrentUser()

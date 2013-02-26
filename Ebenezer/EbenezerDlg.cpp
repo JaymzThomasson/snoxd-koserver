@@ -1509,7 +1509,7 @@ void CEbenezerDlg::SendAllUserInfo()
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		static_cast<CUser *>(itr->second)->SendUserInfo(result);
+		static_cast<CUser *>(itr->second)->GetUserInfoForAI(result);
 		if (++count == tot)	{
 			result.put(0, count);
 			Send_AIServer(&result);

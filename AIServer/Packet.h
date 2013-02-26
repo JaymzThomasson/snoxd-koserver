@@ -85,6 +85,7 @@ const BYTE	AG_USER_EXP			= 108;	// User의 경험치
 const BYTE	AG_USER_UPDATE		= 109;	// User의 Update Info
 const BYTE	AG_USER_FAIL		= 110;	// 잘못된 유저 처리...
 const BYTE	AG_USER_PARTY		= 111;	// 파티처리 담당
+const BYTE	AG_USER_VISIBILITY	= 112;
 
 ////////////////////////////////////////////////////////////////
 // Party Related subpacket define

@@ -354,7 +354,7 @@ public:
 	void ItemWoreOut( int type, int damage );
 	void Dead();
 	void LoyaltyDivide( short tid );
-	void SendUserInfo(Packet & result);
+	void GetUserInfoForAI(Packet & result);
 	BOOL ItemEquipAvailable( _ITEM_TABLE* pTable );
 	void HpChange(int amount, Unit *pAttacker = NULL, bool bSendToAI = true);
 	void MSpChange(int amount);

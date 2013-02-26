@@ -1875,8 +1875,10 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 			CUser *pUser = g_pMain->GetUserPtr(pIDList[i]);
 			if( pUser != NULL && pUser->m_bLive == USER_LIVE)	{
 				// 같은 국가의 유저는 공격을 하지 않도록 한다...
-				if(m_byGroup == pUser->m_bNation)	continue;
-				if(pUser->m_byIsOP == MANAGER_USER)	continue;	// 운영자 무시
+				if (m_byGroup == pUser->m_bNation
+					|| pUser->m_bIsInvisible
+					|| pUser->m_byIsOP == MANAGER_USER)
+					continue;
 
 				vUser.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz); 
 				fDis = GetDistance(vUser, vNpc);
@@ -2586,7 +2588,9 @@ int CNpc::Attack()
 			return nStandingTime;
 		}
 
-		if(pUser->m_state == STATE_DISCONNECTED)	{
+		if (pUser->m_bIsInvisible
+			|| pUser->m_state == STATE_DISCONNECTED)
+		{
 			InitTarget();
 			m_NpcState = NPC_STANDING;
 			return nStandingTime;
@@ -2775,7 +2779,9 @@ int CNpc::LongAndMagicAttack()
 			return nStandingTime;
 		}
 
-		if(pUser->m_state == STATE_DISCONNECTED)	{
+		if (pUser->m_bIsInvisible
+			|| pUser->m_state == STATE_DISCONNECTED)
+		{
 			InitTarget();
 			m_NpcState = NPC_STANDING;
 			return nStandingTime;
@@ -2864,8 +2870,11 @@ int CNpc::TracingAttack()		// 0:attack fail, 1:attack success
 			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->m_iUserId, 0, 0);
 			return 0;
 		}
-		if(pUser->m_state == STATE_DISCONNECTED)	return 0;
-		if(pUser->m_byIsOP == MANAGER_USER)		return 0;	// 운영자는 공격을 안하게..
+
+		if (pUser->m_bIsInvisible
+			|| pUser->m_state == STATE_DISCONNECTED
+			|| pUser->m_byIsOP == MANAGER_USER)
+			return 0;
 
 		// 명중이면 //Damage 처리 ----------------------------------------------------------------//
 		nDamage = GetFinalDamage(pUser);	// 최종 대미지
@@ -3355,12 +3364,17 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 	float fDistance1 = 0.0f, fDistance2 = 0.0f;
 	int iRandom = myrand(0, 100);
 
-	if(pUser == NULL) return;
-	if(pUser->m_bLive == USER_DEAD) return;
-	if(pUser->m_bNation == m_byGroup)	return;		// 같은 국가는 공격을 안하도록...
-	if(pUser->m_byIsOP == MANAGER_USER) return;				// 운영자는 무시...^^
-	if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT )		return;		// 성문 NPC는 공격처리 안하게
-	if(m_NpcState == NPC_FAINTING)	return;		// 기절상태이면 무시..
+	if (pUser == NULL
+		|| pUser->m_bLive == USER_DEAD
+		|| pUser->m_bNation == m_byGroup
+		|| pUser->m_bIsInvisible
+		|| pUser->m_byIsOP == MANAGER_USER
+		|| m_NpcState == NPC_FAINTING
+		|| m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT 
+		|| m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER 
+		|| m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE 
+		|| m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT)
+		return;
 
 	CUser *preUser = NULL;
 	if(m_Target.id >= 0 && m_Target.id < NPC_BAND)	
