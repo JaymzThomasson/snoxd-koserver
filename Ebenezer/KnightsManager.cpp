@@ -85,6 +85,15 @@ void CKnightsManager::PacketProcess(CUser *pUser, Packet & pkt)
 	case KNIGHTS_TOP10:
 		ListTop10Clans(pUser);
 		break;
+	case KNIGHTS_DONATE_POINTS:
+		break;
+	case KNIGHTS_POINT_REQ:
+		break;
+	case KNIGHTS_ALLY_LIST:
+		break;
+
+	default:
+		TRACE("Unhandled clan system opcode: %X\n", opcode);
 	}
 }
 
@@ -377,7 +386,7 @@ void CKnightsManager::AllKnightsList(CUser *pUser, Packet & pkt)
 	{
 		CKnights* pKnights = itr->second;
 		if (pKnights == NULL
-			|| pKnights->m_byFlag != KNIGHTS_TYPE
+			|| pKnights->m_byFlag < KNIGHTS_TYPE
 			|| pKnights->m_byNation != pUser->GetNation()
 			|| count++ < start) 
 			continue;
@@ -592,10 +601,10 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, Packet & pkt, BYTE command)
 
 	if (command == KNIGHTS_JOIN)
 	{
-		result << pKnights->m_byRanking 
+		result << pKnights->m_byFlag
 			<< uint16(pKnights->m_sAlliance)
 			<< uint16(pKnights->m_sCape) 
-			<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB
+			<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB << uint8(0)
 			<< int16(pKnights->m_sMarkVersion) 
 			<< pKnights->m_strName << pKnights->m_byGrade << pKnights->m_byRanking;
 	}
@@ -839,7 +848,7 @@ void CKnightsManager::RegisterClanSymbol(CUser* pUser, Packet & pkt)
 	else if ((pKnights = g_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights)) == NULL)
 		sFailCode = 20;
 	// Clan not promoted
-	else if (pKnights->m_byFlag != 2)
+	else if (pKnights->m_byFlag < KNIGHTS_TYPE)
 		sFailCode = 11;
 
 	// Uh oh, did we error?
@@ -913,7 +922,7 @@ void CKnightsManager::RequestClanSymbolVersion(CUser* pUser, Packet & pkt)
 	int16 sFailCode = 1;
 
 	CKnights *pKnights = g_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights);
-	if (pKnights == NULL || pKnights->m_byFlag != 2 /* not promoted */ || !pUser->isClanLeader())
+	if (pKnights == NULL || pKnights->m_byFlag < KNIGHTS_TYPE /* not promoted */ || !pUser->isClanLeader())
 		sFailCode = 11;
 	else if (pUser->GetZoneID() != pUser->GetNation())
 		sFailCode = 12;
@@ -967,7 +976,7 @@ void CKnightsManager::GetClanSymbol(CUser* pUser, uint16 sClanID)
 	// Dose that clan exist?
 	if (pKnights == NULL 
 		// Are they promoted?
-		|| pKnights->m_byFlag != 2
+		|| pKnights->m_byFlag < KNIGHTS_TYPE
 		// Is their symbol version set?
 		|| pKnights->m_sMarkVersion == 0
 		// The clan symbol is more than 0 bytes, right?

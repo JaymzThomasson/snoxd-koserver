@@ -70,7 +70,6 @@ void CUser::UserInOut(uint8 bType)
 	}
 }
 
-// TO-DO: Update this. It's VERY dated.
 void CUser::GetUserInfo(Packet & pkt)
 {
 	CKnights *pKnights = NULL;
@@ -82,21 +81,23 @@ void CUser::GetUserInfo(Packet & pkt)
 	pKnights = g_pMain->GetClanPtr(m_pUserData->m_bKnights);
 	if (pKnights == NULL)
 	{
-		pkt	<< uint32(0) << uint16(0) << uint8(0) << uint16(-1) << uint16(0) << uint8(0);
+		pkt	<< uint32(0) << uint16(0) << uint8(0) << uint16(-1) << uint32(0) << uint8(0);
 	}
 	else
 	{
 		pkt	<< uint16(pKnights->m_sAlliance)
-				// << pKnights->m_byRanking // grade type
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
 				<< uint16(pKnights->m_sMarkVersion) // symbol/mark version
 				<< uint16(pKnights->m_sCape) // cape ID
-				<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB;
+				<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB << uint8(0) // this is stored in 4 bytes after all.
+				// not sure what this is, but it (just?) enables the clan symbol on the cape 
+				// value in dump was 9, but everything tested seems to behave as equally well...
+				// we'll probably have to implement logic to respect requirements.
+				<< uint8(1); 
 	}
 
-	pkt	<< m_pUserData->m_bRank << m_pUserData->m_bTitle
-		<< GetLevel() << m_pUserData->m_bRace << m_pUserData->m_sClass
+	pkt	<< GetLevel() << m_pUserData->m_bRace << m_pUserData->m_sClass
 		<< GetSPosX() << GetSPosZ() << GetSPosY()
 		<< m_pUserData->m_bFace << m_pUserData->m_nHair
 		<< m_bResHpType << uint32(m_bAbnormalType)

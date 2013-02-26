@@ -597,7 +597,7 @@ void CUser::SendMyInfo()
 
 	if (pKnights == NULL)
 	{
-		result	<< uint64(0) << uint16(-1) << uint16(0) << uint8(0);
+		result	<< uint64(0) << uint16(-1) << uint32(0);
 	}
 	else 
 	{
@@ -605,15 +605,15 @@ void CUser::SendMyInfo()
 
 		// TO-DO: Figure all this out.
 		result	<< uint16(pKnights->m_sAlliance)
-				<< pKnights->m_byRanking // Kind of grade - 1 Normal Clan // 2 Trainin Clan // 3 -7 Acreditation // Royal 8-12
+				<< pKnights->m_byFlag
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
 				<< uint16(pKnights->m_sMarkVersion)
 				<< uint16(pKnights->m_sCape)
-				<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB;
+				<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB << uint8(0);
 	}
 
-	result	<< uint8(0) << uint8(2) << uint8(3) << uint8(4) << uint8(5) // unknown
+	result	<< uint8(2) << uint8(3) << uint8(4) << uint8(5) // unknown
 			<< m_iMaxHp << m_pUserData->m_sHp
 			<< m_iMaxMp << m_pUserData->m_sMp
 			<< m_sMaxWeight << m_sItemWeight
@@ -3533,7 +3533,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 	}
 
 	// Make sure we're promoted
-	if (pKnights->m_byFlag != 2
+	if (pKnights->m_byFlag < KNIGHTS_TYPE
 		// and that if we're in an alliance, we're the main alliance.
 		|| (pKnights->m_sAlliance != 0 && pKnights->m_sAlliance != pKnights->m_sIndex))
 	{
@@ -3554,7 +3554,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 		// Is our clan allowed to use this cape?
 		if ((pCape->byGrade && pKnights->m_byGrade > pCape->byGrade)
 			// not sure if this should use another error, need to confirm
-			|| pKnights->m_byRanking < pCape->byRanking)
+			|| pKnights->m_byFlag < pCape->byRanking)
 		{
 			sErrorCode = -6;
 			goto fail_return;
@@ -3581,7 +3581,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 	if (r != 0 || g != 0 || b != 0)
 	{
 		// To use paint, the clan needs to be accredited
-		if (pKnights->m_byRanking < 3)
+		if (pKnights->m_byFlag <= KNIGHTS_TYPE)
 		{
 			sErrorCode = -1; // need to find the error code for this
 			goto fail_return;
@@ -3629,7 +3629,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 	result.Initialize(WIZ_KNIGHTS_PROCESS);
 	result	<< uint8(KNIGHTS_CAPE_UPDATE)
 			<< m_pUserData->m_bKnights
-			<< pKnights->m_byRanking
+			<< pKnights->m_byFlag
 			<< uint16(pKnights->m_sCape)
 			<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB
 			<< uint8(0);
