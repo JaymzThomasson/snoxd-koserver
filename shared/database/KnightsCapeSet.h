@@ -9,7 +9,7 @@ public:
 	CKnightsCapeSet(MapType *stlMap, CDatabase* pDatabase = NULL)
 		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
 	{
-		m_nFields = 4;
+		m_nFields = 5;
 	}
 
 	DECLARE_DYNAMIC(CKnightsCapeSet)
@@ -20,14 +20,19 @@ public:
 		pFX->SetFieldType(CFieldExchange::outputColumn);
 
 		RFX_Int(pFX, _T("[sCapeIndex]"), m_data.sCapeIndex);
-		RFX_Long(pFX, _T("[nBuyPrice]"), m_data.nBuyPrice);
-		RFX_Long(pFX, _T("[nDuration]"), m_data.nDuration);
+		RFX_Long(pFX, _T("[nBuyPrice]"), m_data.nReqCoins);
+		RFX_Long(pFX, _T("[nBuyLoyalty]"), m_data.nReqClanPoints); // this is in NP form (in the TBL)
 		RFX_Byte(pFX, _T("[byGrade]"), m_data.byGrade);
+		RFX_Byte(pFX, _T("[byRanking]"), m_data.byRanking);
 	};
 
 	virtual void HandleRead()
 	{
 		T * data = COPY_ROW();
+
+		// Convert this from NP to clan points
+		data->nReqClanPoints /= MAX_CLAN_USERS;
+
 		if (!m_stlMap->PutData(data->sCapeIndex, data))
 			delete data;
 	};

@@ -577,9 +577,10 @@ struct _HOME_INFO
 struct _KNIGHTS_CAPE
 {
 	int		sCapeIndex;
-	long	nBuyPrice;
-	long	nDuration;
-	BYTE	byGrade;
+	long	nReqCoins;
+	long	nReqClanPoints;	// clan point requirement
+	BYTE	byGrade;		// clan grade requirement
+	BYTE	byRanking;		// clan rank requirement (e.g. royal, accredited, etc)
 };
 
 struct _START_POSITION

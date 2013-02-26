@@ -3538,51 +3538,110 @@ void CUser::HandleCapeChange(Packet & pkt)
 		goto fail_return;
 	}
 
-	// Does this cape type exist?
-	if ((pCape = g_pMain->m_KnightsCapeArray.GetData(sCapeID)) == NULL)
+	long nReqClanPoints = 0, nReqCoins = 0;
+	if (sCapeID >= 0)
 	{
-		sErrorCode = -5;
-		goto fail_return;
+		// Does this cape type exist?
+		if ((pCape = g_pMain->m_KnightsCapeArray.GetData(sCapeID)) == NULL)
+		{
+			sErrorCode = -5;
+			goto fail_return;
+		}
+
+		// Is our clan allowed to use this cape?
+		if ((pCape->byGrade && pKnights->m_byGrade > pCape->byGrade)
+			// not sure if this should use another error, need to confirm
+			|| pKnights->m_byRanking < pCape->byRanking)
+		{
+			sErrorCode = -6;
+			goto fail_return;
+		}
+
+		// NOTE: Error code -8 is for nDuration
+		// It applies if we do not have the required item ('nDuration', awful name).
+		// Since no capes seem to use it, we'll ignore it...
+
+		// Can we even afford this cape?
+		if (m_pUserData->m_iGold < (uint32)pCape->nReqCoins)
+		{
+			sErrorCode = -7;
+			goto fail_return;
+		}
+
+		nReqCoins = pCape->nReqCoins;
+		nReqClanPoints = pCape->nReqClanPoints;
 	}
 
-	// Is our clan allowed to use this cape?
-	if (pKnights->m_byGrade > pCape->byGrade)
+	bool bApplyingPaint = false;
+
+	// These are 0 when not used
+	if (r != 0 || g != 0 || b != 0)
 	{
-		sErrorCode = -6;
-		goto fail_return;
+		// To use paint, the clan needs to be accredited
+		if (pKnights->m_byRanking < 3)
+		{
+			sErrorCode = -1; // need to find the error code for this
+			goto fail_return;
+		}
+
+		bApplyingPaint = true;
+		nReqClanPoints += 1000; // does this need tweaking per clan rank?
 	}
 
-	// NOTE: Error code -8 is for nDuration
-	// It applies if we do not have the required item ('nDuration', awful name).
-	// Since no capes seem to use it, we'll ignore it...
-
-	// Can we even afford this cape?
-	if (!GoldLose(pCape->nBuyPrice))
+	// If this requires clan points, does our clan have enough?
+	if (pKnights->m_nPoints < nReqClanPoints)
 	{
+		// this error may not be correct
 		sErrorCode = -7;
 		goto fail_return;
 	}
 
-	pKnights->m_sCape = sCapeID;
-	pKnights->m_bCapeR = r;
-	pKnights->m_bCapeG = g;
-	pKnights->m_bCapeB = b;
+	if (nReqCoins > 0)
+		GoldLose(nReqCoins);
+
+	if (nReqClanPoints)
+		pKnights->m_nPoints -= nReqClanPoints;
+
+	// Are we changing the cape?
+	if (sCapeID >= 0)
+		pKnights->m_sCape = sCapeID;
+
+	// Are we applying paint?
+	if (bApplyingPaint)
+	{
+		pKnights->m_bCapeR = r;
+		pKnights->m_bCapeG = g;
+		pKnights->m_bCapeB = b;
+	}
 
 	result	<< uint16(1) // success
 			<< uint16(pKnights->m_sAlliance)
 			<< uint16(pKnights->m_sIndex)
-			<< sCapeID << r << g << b;
+			<< uint16(pKnights->m_sCape) 
+			<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB
+			<< uint8(0);
+
+	Send(&result);
+
+	result.Initialize(WIZ_KNIGHTS_PROCESS);
+	result	<< uint8(KNIGHTS_CAPE_UPDATE)
+			<< m_pUserData->m_bKnights
+			<< pKnights->m_byRanking
+			<< uint16(pKnights->m_sCape)
+			<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB
+			<< uint8(0);
 
 	// TO-DO:
 	// When we implement alliances, this should send to the alliance
-	// if the clan is part of one.
+	// if the clan is part of one. Also, their capes should be updated.
 	pKnights->Send(&result);
 
 	// TO-DO: Send to other servers via UDP.
 
 	// Now tell Aujard to save (we don't particularly care whether it was able to do so or not).
 	result.clear();
-	result << uint16(pKnights->m_sIndex) << sCapeID << r << g << b;
+	result	<< uint16(pKnights->m_sIndex) << uint16(pKnights->m_sCape) 
+			<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB;
 	g_pMain->m_LoggerSendQueue.PutData(&result);
 	return;
 
