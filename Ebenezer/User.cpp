@@ -3214,6 +3214,8 @@ void CUser::BlinkStart()
 	m_bRegeneType = REGENE_ZONECHANGE;
 	
 	UpdateVisibility(false);
+	m_bIsInvisible = false; // AI shouldn't see us, but players should. This is where having 2 states sucks.
+
 	StateChangeServerDirect(3, ABNORMAL_BLINKING);
 }
 
