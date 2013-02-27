@@ -100,7 +100,10 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 			SendSkill();
 			break;
 		case MAGIC_EFFECTING:
-			bInitialResult = ExecuteSkill(pMagic, pMagic->bType[0]);
+			if(pMagic->bType[0] != 0)
+				bInitialResult = ExecuteSkill(pMagic, pMagic->bType[0]);
+			else
+				SendSkill();
 			break;
 		case MAGIC_FLYING:
 		case MAGIC_FAIL:
@@ -142,7 +145,7 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 		&& m_pSkillTarget != -1)
 		return false;
 
-	if(m_pSrcUser->m_pUserData->m_sClass != (pSkill->sSkill / 10)
+	if((pSkill->sSkill != 0 && m_pSrcUser->m_pUserData->m_sClass != (pSkill->sSkill / 10))
 		|| m_pSrcUser->m_pUserData->m_bLevel < pSkill->sSkillLevel)
 		return false;
 
@@ -1170,6 +1173,25 @@ void CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 
 void CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 {
+	if(m_pSrcUser->isBlinking() || m_pSrcUser->m_bAbnormalType != ABNORMAL_NORMAL)
+		return;
+
+	_MAGIC_TYPE6* pType = g_pMain->m_Magictype6Array.GetData(pSkill->iNum);
+	if(pType == NULL)
+		return;
+
+	Packet result;
+	result << uint8(ABNORMAL_DWARF) << uint32(pSkill->iNum);
+	m_pSrcUser->StateChange(result);
+
+	//TO-DO : Save duration
+
+	result.Initialize(WIZ_MAGIC_PROCESS);
+	result	<< MAGIC_EFFECTING << m_nSkillID << m_pSrcUser->GetSocketID()
+			<< uint32(0) << uint16(1) << uint16(0) //TO-DO : Figure out these numbers
+			<< pType->sDuration << uint16(0) << uint16(0);
+
+	m_pSrcUser->SendToRegion(&result);
 }
 
 void CMagicProcess::ExecuteType7(_MAGIC_TABLE *pSkill)
