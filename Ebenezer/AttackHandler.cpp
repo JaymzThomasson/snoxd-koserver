@@ -79,7 +79,7 @@ void CUser::Attack(Packet & pkt)
 					<< m_sTotalEvasionrate /* also a float */
 					<< m_sItemAc
 					<< m_bMagicTypeLeftHand << m_bMagicTypeRightHand
-					<< m_sMagicAmountLeftHand, m_sMagicAmountRightHand;
+					<< m_sMagicAmountLeftHand << m_sMagicAmountRightHand;
 			g_pMain->Send_AIServer(&result);	
 			return;
 		}

@@ -437,7 +437,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 	if (pNpc->GetMap() == NULL)
 		return;
 
-	pNpc->InsertRegion(pNpc->GetRegionX(), pNpc->GetRegionZ());
+	pNpc->InsertRegion(pNpc->GetNewRegionX(), pNpc->GetNewRegionZ());
 	pNpc->SetRegion(pNpc->GetNewRegionX(), pNpc->GetNewRegionZ());
 
 	if (pNpc->m_byObjectType == SPECIAL_OBJECT)
