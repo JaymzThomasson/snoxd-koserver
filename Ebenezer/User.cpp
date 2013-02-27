@@ -1579,11 +1579,11 @@ void CUser::StateChange(Packet & pkt)
 		switch (buff)
 		{
 		case 1: // unview
-			m_bIsInvisible = true;
+			UpdateVisibility(INVIS_NORMAL); // hmm.
 			break;
 		case 5: // view
 			// to-do: should implement GM check, but we'll leave it off for now (for science!)
-			m_bIsInvisible = false; //Do we need to send this to the AI server aswell?
+			UpdateVisibility(INVIS_NONE); // hmm
 			break;
 
 		case ABNORMAL_BLINKING: // blinking, duh 
