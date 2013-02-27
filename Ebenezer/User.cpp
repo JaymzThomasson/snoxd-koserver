@@ -42,7 +42,7 @@ void CUser::Initialize()
 	m_bStoreOpen = false;
 	m_bIsMerchanting = false;
 	m_bPartyLeader = false;
-	m_bIsInvisible = false;
+	m_bInvisibilityType = INVIS_NONE;
 
 	m_sDirection = 0;
 
@@ -1233,7 +1233,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 			<< m_sItemAc
 			<< m_bMagicTypeLeftHand << m_bMagicTypeRightHand
 			<< m_sMagicAmountLeftHand << m_sMagicAmountRightHand
-			<< m_pUserData->m_bAuthority << m_bIsInvisible;
+			<< m_pUserData->m_bAuthority << m_bInvisibilityType;
 
 	g_pMain->Send_AIServer(&result);
 }
@@ -1806,7 +1806,7 @@ void CUser::GetUserInfoForAI(Packet & result)
 			<< uint16(m_sTotalAc + m_sACAmount)
 			<< m_sTotalHitrate << m_sTotalEvasionrate
 			<< m_sPartyIndex << m_pUserData->m_bAuthority
-			<< m_bIsInvisible;
+			<< m_bInvisibilityType;
 }
 
 void CUser::CountConcurrentUser()
@@ -3191,11 +3191,11 @@ void CUser::SendAnvilRequest(int nid)
 	Send(&result);
 }
 
-void CUser::UpdateVisibility(bool bVisible)
+void CUser::UpdateVisibility(InvisibilityType bNewType)
 {
 	Packet result(AG_USER_VISIBILITY);
-	m_bIsInvisible = !bVisible;
-	result << GetID() << m_bIsInvisible;
+	m_bInvisibilityType = (uint8)(bNewType);
+	result << GetID() << m_bInvisibilityType;
 	g_pMain->Send_AIServer(&result);
 }
 
@@ -3210,9 +3210,8 @@ void CUser::BlinkStart()
 	m_fBlinkStartTime = TimeGet();
 	m_bRegeneType = REGENE_ZONECHANGE;
 	
-	UpdateVisibility(false);
-	m_bIsInvisible = false; // AI shouldn't see us, but players should. This is where having 2 states sucks.
-
+	UpdateVisibility(INVIS_NORMAL); // AI shouldn't see us
+	m_bInvisibilityType = INVIS_NONE; // but players should. 
 	StateChangeServerDirect(3, ABNORMAL_BLINKING);
 }
 
@@ -3242,7 +3241,7 @@ void CUser::BlinkTimeCheck(float currenttime)
 			<< m_pUserData->m_curx << m_pUserData->m_curz;
 	g_pMain->Send_AIServer(&result);
 
-	UpdateVisibility(true);
+	UpdateVisibility(INVIS_NONE);
 }
 
 void CUser::GoldGain(int gold)	// 1 -> Get gold    2 -> Lose gold
