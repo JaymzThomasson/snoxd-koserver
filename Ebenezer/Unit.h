@@ -31,7 +31,7 @@ public:
 	__forceinline uint16 GetRegionZ() { return m_sRegionZ; }
 
 	__forceinline uint16 GetNewRegionX() { return (uint16)(GetX()) / VIEW_DISTANCE; }
-	__forceinline uint16 GetNewRegionZ() { return (uint16)(GetY()) / VIEW_DISTANCE; }
+	__forceinline uint16 GetNewRegionZ() { return (uint16)(GetZ()) / VIEW_DISTANCE; }
 
 	__forceinline CRegion * GetRegion() { return m_pRegion; }
 	__forceinline void SetRegion(uint16 x = -1, uint16 z = -1) 
