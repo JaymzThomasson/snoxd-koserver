@@ -1587,6 +1587,7 @@ void CUser::StateChange(Packet & pkt)
 			break;
 
 		case ABNORMAL_BLINKING: // blinking, duh 
+			m_bAbnormalType = buff; // hmm.
 			break;
 
 		default:
@@ -1595,7 +1596,6 @@ void CUser::StateChange(Packet & pkt)
 			break;
 
 		}
-		m_bAbnormalType = buff;
 		break;
 
 	case 4: // emotions
