@@ -154,9 +154,6 @@ void CNpc::OnDeath(Unit *pKiller)
 {
 	ASSERT(GetMap() != NULL && GetRegion() != NULL);
 
-	GetRegion()->Remove(static_cast<CNpc *>(this));
-	SetRegion();
-
 	m_NpcState = NPC_DEAD;
 
 	if (m_byObjectType == SPECIAL_OBJECT)
@@ -167,4 +164,7 @@ void CNpc::OnDeath(Unit *pKiller)
 	}
 
 	Unit::OnDeath(pKiller);
+
+	GetRegion()->Remove(static_cast<CNpc *>(this));
+	SetRegion();
 }
