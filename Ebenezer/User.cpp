@@ -1556,46 +1556,22 @@ void CUser::StateChange(Packet & pkt)
 	if (isDead())
 		return;
 
-	int index = 0;
-	uint8 type = pkt.read<uint8>(), buff;
+	uint8 bType = pkt.read<uint8>(), buff;
 	uint32 nBuff = pkt.read<uint32>();
-
-	if( type > 5 ) return;
-	if( type == 5 && m_pUserData->m_bAuthority != 0) return;	//  Operators only!!!
-
 	buff = *(uint8 *)&nBuff; // don't ask
 
-	switch (type)
+	switch (bType)
 	{
 	case 1:
-		m_bResHpType = buff;
-		break;
-
-	case 2:
-		m_bNeedParty = buff;
+		if (buff != USER_STANDING || buff != USER_SITDOWN)
+			return;
 		break;
 
 	case 3:
-		switch (buff)
-		{
-		case 1: // unview
-			UpdateVisibility(INVIS_NORMAL); // hmm.
-			break;
-		case 5: // view
-			// to-do: should implement GM check, but we'll leave it off for now (for science!)
-			UpdateVisibility(INVIS_NONE); // hmm
-			break;
-
-		case ABNORMAL_BLINKING: // blinking, duh 
-			m_bAbnormalType = buff; // hmm.
-			break;
-
-		default:
-			m_bAbnormalType = nBuff;
-			TRACE("[SID=%d] StateChange: %s tripped (%d,%d) somehow, HOW!?\n", GetSocketID(), m_pUserData->m_id, type, buff);
-			break;
-
-		}
+		// /unview | /view
+		if ((buff == 1 || buff == 5)
+			&& !isGM())
+			return;
 		break;
 
 	case 4: // emotions
@@ -1612,30 +1588,53 @@ void CUser::StateChange(Packet & pkt)
 			break; // don't do anything with them (this can be handled neater, but just for testing purposes), just make sure they're allowed
 
 		default:
-			TRACE("[SID=%d] StateChange: %s tripped (%d,%d) somehow, HOW!?\n", GetSocketID(), m_pUserData->m_id, type, buff);
+			TRACE("[SID=%d] StateChange: %s tripped (bType=%d, buff=%d, nBuff=%d) somehow, HOW!?\n", 
+				GetSocketID(), m_pUserData->m_id, bType, buff, nBuff);
 			break;
 		}
 		break;
 
-	case 7:
-	case 8: // beginner quest
+	default:
+		TRACE("[SID=%d] StateChange: %s tripped (bType=%d, buff=%d, nBuff=%d) somehow, HOW!?\n", 
+			GetSocketID(), m_pUserData->m_id, bType, buff, nBuff);
+		return;
+	}
+
+	StateChangeServerDirect(bType, nBuff);
+}
+
+void CUser::StateChangeServerDirect(BYTE bType, uint32 nBuff)
+{
+	uint8 buff = *(uint8 *)&nBuff; // don't ask
+	switch (bType)
+	{
+	case 1:
+		m_bResHpType = buff;
 		break;
 
-	default:
-		TRACE("[SID=%d] StateChange: %s tripped (%d,%d) somehow, HOW!?\n", GetSocketID(), m_pUserData->m_id, type, buff);
+	case 2:
+		m_bNeedParty = buff;
+		break;
+
+	case 3:
+		m_bAbnormalType = nBuff;
+		break;
+
+	case 6:
+		m_bPartyLeader = (buff != 0); 
+		break;
+
+	case 7:
+		UpdateVisibility((InvisibilityType)buff);
+		break;
+
+	case 8: // beginner quest
 		break;
 	}
 
 	Packet result(WIZ_STATE_CHANGE);
-	result << GetSocketID() << type << nBuff; /* hmm, it should probably be nBuff, not sure how transformations are to be handled so... otherwise, it's correct either way */
+	result << GetSocketID() << bType << nBuff; /* hmm, it should probably be nBuff, not sure how transformations are to be handled so... otherwise, it's correct either way */
 	SendToRegion(&result);
-}
-
-void CUser::StateChangeServerDirect(BYTE bType, int nValue)
-{
-	Packet result; // TO-DO: Make this standalone.
-	result << bType << nValue;
-	StateChange(result);
 }
 
 void CUser::LoyaltyChange(short tid)

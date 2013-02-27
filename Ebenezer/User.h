@@ -430,7 +430,7 @@ public:
 	void PointChange(Packet & pkt);
 
 	void StateChange(Packet & pkt);
-	void StateChangeServerDirect(BYTE bType, int nValue);
+	void StateChangeServerDirect(BYTE bType, uint32 nBuff);
 
 	void PartyProcess(Packet & pkt);
 	void PartyDelete();
