@@ -531,8 +531,8 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 	int nItemNumber[NPC_HAVE_ITEM_LIST];
 	short sCount[NPC_HAVE_ITEM_LIST];
 	CUser* pUser = NULL;
-
 	pkt >> sUid >> sNid >> bZone >> regionx >> regionz >> fX >> fZ >> fY >> byCount;
+
 	for (int i = 0; i < byCount; i++)
 		pkt >> nItemNumber[i] >> sCount[i];
 
@@ -548,7 +548,7 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 		pItem->itemid[i] = 0;
 		pItem->count[i] = 0;
 	}
-	pItem->bundle_index = pMap->m_wBundle;
+
 	pItem->time = TimeGet();
 	pItem->x = fX;
 	pItem->z = fZ;

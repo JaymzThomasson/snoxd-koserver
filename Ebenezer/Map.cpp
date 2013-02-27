@@ -328,10 +328,9 @@ BOOL C3DMap::RegionItemAdd( int rx, int rz, _ZONE_ITEM* pItem )
 
 	EnterCriticalSection( &g_region_critical );
 
-	m_ppRegion[rx][rz].m_RegionItemArray.PutData(pItem->bundle_index, pItem );
-
-	m_wBundle++;
-	if( m_wBundle > ZONEITEM_MAX )
+	pItem->bundle_index = m_wBundle++;
+	m_ppRegion[rx][rz].m_RegionItemArray.PutData(pItem->bundle_index, pItem);
+	if (m_wBundle > ZONEITEM_MAX)
 		m_wBundle = 1;
 
 	LeaveCriticalSection( &g_region_critical );
