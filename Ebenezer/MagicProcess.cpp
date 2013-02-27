@@ -82,11 +82,11 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 
 	if (m_pSrcUser && !UserCanCast(pMagic))
 	{
-			SendSkillFailed();
-			return;
+		SendSkillFailed();
+		return;
 	}
 
-	if(m_pTargetMon != NULL)
+	if (m_pTargetMon != NULL)
 	{
 		SendSkillToAI(pMagic);
 		return;
@@ -94,7 +94,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 
 	uint8 bInitialResult = 0;
 
-	switch(m_opcode)
+	switch (m_opcode)
 	{
 		case MAGIC_CASTING:
 			SendSkill();
@@ -130,10 +130,14 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 	if (m_pSkillCaster != m_pSrcUser->GetSocketID()) 
 		return false;
 
-	if(m_opcode == MAGIC_CANCEL || m_opcode == MAGIC_CANCEL2) // We don't need to check anything as we're just canceling our buffs.
+	// We don't need to check anything as we're just canceling our buffs.
+	if (m_opcode == MAGIC_CANCEL || m_opcode == MAGIC_CANCEL2) 
 		return true;
 
-	if(m_pSrcUser->isDead() || m_pSrcUser->isBlinking() && pSkill->bType[0] != 5) //To allow for resurrect scrolls
+	// Users who are blinking cannot use skills.
+	// Additionally, unless it's resurrection-related, dead players cannot use skills.
+	if (m_pSrcUser->isBlinking()
+		|| (m_pSrcUser->isDead() && pSkill->bType[0] != 5)) 
 		return false;
 
 	// If we're using an AOE, and the target is specified... something's not right.
@@ -142,18 +146,18 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 		&& m_pSkillTarget != -1)
 		return false;
 
-	if(m_pSrcUser->m_pUserData->m_sClass != (pSkill->sSkill / 10)
-		|| m_pSrcUser->m_pUserData->m_bLevel < pSkill->sSkillLevel)
+	if (pSkill->sSkill != 0
+		&& (m_pSrcUser->m_pUserData->m_sClass != (pSkill->sSkill / 10)
+			|| m_pSrcUser->m_pUserData->m_bLevel < pSkill->sSkillLevel))
 		return false;
 
-	if((m_pSrcUser->m_pUserData->m_sMp - pSkill->sMsp) < 0)
+	if ((m_pSrcUser->m_pUserData->m_sMp - pSkill->sMsp) < 0)
 		return false;
 
 	// If we're in a snow war, we're only ever allowed to use the snowball skill.
 	if (m_pSrcUser->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
 		&& m_nSkillID != SNOW_EVENT_SKILL)
 		return false;
-
 
 	if (m_pSkillTarget >= 0)
 	{

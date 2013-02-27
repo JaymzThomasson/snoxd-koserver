@@ -43,7 +43,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 	sid = m_pSrcUser->m_iUserId;
 
 	BYTE command = pkt.read<uint8>();
-	pkt >> tid >> magicid >> data1 >> data2 >> data3 >> data4 >> data5 >> data6 >> TotalDex, righthand_damage;
+	pkt >> tid >> magicid >> data1 >> data2 >> data3 >> data4 >> data5 >> data6 >> TotalDex >> righthand_damage;
 	//TRACE("MagicPacket - command=%d, tid=%d, magicid=%d\n", command, tid, magicid);
 
 	pTable = IsAvailable( magicid, tid, command );     // If magic was successful.......
