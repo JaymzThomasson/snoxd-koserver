@@ -1361,15 +1361,11 @@ void CUser::BundleOpenReq(Packet & pkt)
 
 	if (pMap == NULL
 		|| bundle_index < 1 
-		|| GetRegionX() > pMap->GetXRegionMax() || GetRegionZ() > pMap->GetZRegionMax()
+		|| GetRegion() == NULL
 		|| isDead()) // yeah, we know people abuse this. We do not care!
 		return;
 
-	CRegion *pRegion = &(pMap->m_ppRegion[GetRegionX()][GetRegionZ()]);
-	if (pRegion == NULL)
-		return;
-
-	_ZONE_ITEM *pItem = pRegion->m_RegionItemArray.GetData(bundle_index);
+	_ZONE_ITEM *pItem = GetRegion()->m_RegionItemArray.GetData(bundle_index);
 	if (pItem == NULL)
 		return;
 

@@ -92,6 +92,7 @@ void KOSocket::OnRead()
 	return;
 
 error_handler:
+	GetReadBuffer().Remove(GetReadBuffer().GetSize());
 	Disconnect();
 }
 

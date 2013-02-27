@@ -82,28 +82,36 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 
 	if (m_pSrcUser && !UserCanCast(pMagic))
 	{
-			SendSkillFailed();
-			return;
+		SendSkillFailed();
+		return;
 	}
 
-	if(m_pTargetMon != NULL)
+	if (m_pTargetMon != NULL)
 	{
 		SendSkillToAI(pMagic);
 		return;
 	}
 
 	uint8 bInitialResult = 0;
-
-	switch(m_opcode)
+	switch (m_opcode)
 	{
 		case MAGIC_CASTING:
 			SendSkill();
 			break;
 		case MAGIC_EFFECTING:
-			if(pMagic->bType[0] != 0)
-				bInitialResult = ExecuteSkill(pMagic, pMagic->bType[0]);
-			else
-				SendSkill();
+			// Hacky check for a transformation item (Disguise Totem, Disguise Scroll)
+			// These apply when first type's set to 0, second type's set and obviously, there's a consumable item.
+			// Need to find a better way of handling this.
+			if (pMagic->bType[0] == 0 && pMagic->bType[1] != 0
+				&& pMagic->iUseItem != 0
+				&& (m_pSrcUser != NULL 
+					&& m_pSrcUser->CheckExistItem(pMagic->iUseItem, 1)))
+			{
+				SendTransformationList(pMagic);
+				return;
+			}
+
+			bInitialResult = ExecuteSkill(pMagic, pMagic->bType[0]);
 			break;
 		case MAGIC_FLYING:
 		case MAGIC_FAIL:
@@ -133,10 +141,14 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 	if (m_pSkillCaster != m_pSrcUser->GetSocketID()) 
 		return false;
 
-	if(m_opcode == MAGIC_CANCEL || m_opcode == MAGIC_CANCEL2) // We don't need to check anything as we're just canceling our buffs.
+	// We don't need to check anything as we're just canceling our buffs.
+	if (m_opcode == MAGIC_CANCEL || m_opcode == MAGIC_CANCEL2) 
 		return true;
 
-	if(m_pSrcUser->isDead() || m_pSrcUser->isBlinking() && pSkill->bType[0] != 5) //To allow for resurrect scrolls
+	// Users who are blinking cannot use skills.
+	// Additionally, unless it's resurrection-related, dead players cannot use skills.
+	if (m_pSrcUser->isBlinking()
+		|| (m_pSrcUser->isDead() && pSkill->bType[0] != 5)) 
 		return false;
 
 	// If we're using an AOE, and the target is specified... something's not right.
@@ -145,18 +157,18 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 		&& m_pSkillTarget != -1)
 		return false;
 
-	if((pSkill->sSkill != 0 && m_pSrcUser->m_pUserData->m_sClass != (pSkill->sSkill / 10))
-		|| m_pSrcUser->m_pUserData->m_bLevel < pSkill->sSkillLevel)
+	if (pSkill->sSkill != 0
+		&& (m_pSrcUser->m_pUserData->m_sClass != (pSkill->sSkill / 10)
+			|| m_pSrcUser->m_pUserData->m_bLevel < pSkill->sSkillLevel))
 		return false;
 
-	if((m_pSrcUser->m_pUserData->m_sMp - pSkill->sMsp) < 0)
+	if ((m_pSrcUser->m_pUserData->m_sMp - pSkill->sMsp) < 0)
 		return false;
 
 	// If we're in a snow war, we're only ever allowed to use the snowball skill.
 	if (m_pSrcUser->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
 		&& m_nSkillID != SNOW_EVENT_SKILL)
 		return false;
-
 
 	if (m_pSkillTarget >= 0)
 	{
@@ -275,6 +287,17 @@ uint8 CMagicProcess::ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType)
 	}
 
 	return bResult;
+}
+
+void CMagicProcess::SendTransformationList(_MAGIC_TABLE *pSkill)
+{
+	if (m_pSrcUser == NULL)
+		return;
+
+	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TRANSFORM_LIST));
+	result << m_nSkillID;
+	m_pSrcUser->m_nTransformationItem = pSkill->iUseItem;
+	m_pSrcUser->Send(&result);
 }
 
 void CMagicProcess::SendSkillFailed()
