@@ -53,6 +53,7 @@ public:
 
 	uint8 ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType);
 
+	void SendTransformationList(_MAGIC_TABLE *pSkill);
 	void SendSkillFailed();
 	void SendSkill(int16 pSkillCaster = -1, int16 pSkillTarget = -1, 
 					int8 opcode = -1, uint32 nSkillID = 0, 

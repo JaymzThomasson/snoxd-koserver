@@ -93,13 +93,24 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 	}
 
 	uint8 bInitialResult = 0;
-
 	switch (m_opcode)
 	{
 		case MAGIC_CASTING:
 			SendSkill();
 			break;
 		case MAGIC_EFFECTING:
+			// Hacky check for a transformation item (Disguise Totem, Disguise Scroll)
+			// These apply when first type's set to 0, second type's set and obviously, there's a consumable item.
+			// Need to find a better way of handling this.
+			if (pMagic->bType[0] == 0 && pMagic->bType[1] != 0
+				&& pMagic->iUseItem != 0
+				&& (m_pSrcUser != NULL 
+					&& m_pSrcUser->CheckExistItem(pMagic->iUseItem, 1)))
+			{
+				SendTransformationList(pMagic);
+				return;
+			}
+
 			bInitialResult = ExecuteSkill(pMagic, pMagic->bType[0]);
 			break;
 		case MAGIC_FLYING:
@@ -276,6 +287,17 @@ uint8 CMagicProcess::ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType)
 	}
 
 	return bResult;
+}
+
+void CMagicProcess::SendTransformationList(_MAGIC_TABLE *pSkill)
+{
+	if (m_pSrcUser == NULL)
+		return;
+
+	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TRANSFORM_LIST));
+	result << m_nSkillID;
+	m_pSrcUser->m_nTransformationItem = pSkill->iNum;
+	m_pSrcUser->Send(&result);
 }
 
 void CMagicProcess::SendSkillFailed()
