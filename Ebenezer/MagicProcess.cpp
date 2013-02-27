@@ -296,7 +296,7 @@ void CMagicProcess::SendTransformationList(_MAGIC_TABLE *pSkill)
 
 	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TRANSFORM_LIST));
 	result << m_nSkillID;
-	m_pSrcUser->m_nTransformationItem = pSkill->iNum;
+	m_pSrcUser->m_nTransformationItem = pSkill->iUseItem;
 	m_pSrcUser->Send(&result);
 }
 
