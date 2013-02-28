@@ -89,6 +89,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 	if (m_pTargetMon != NULL)
 	{
 		SendSkillToAI(pMagic);
+		m_pTargetMon = NULL;
 		return;
 	}
 
@@ -132,6 +133,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 			// Type9Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Stealth lupine etc.
 			break;
 	}
+	m_pTargetUser = NULL;
 }
 
 bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
