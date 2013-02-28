@@ -144,6 +144,8 @@ void CUser::Initialize()
 
 	m_bZoneChangeSameZone = FALSE;
 
+	m_nTransformationItem = 0;
+
 	for (int j = 0 ; j < MAX_CURRENT_EVENT ; j++) {
 		m_sEvent[j] = -1;
 	}
@@ -3658,7 +3660,7 @@ fail_return:
 
 bool CUser::isAttackZone()
 {
-	if(GetZoneID() == 21 && (GetSPosX() > 1 && GetSPosZ() > 1)															//TO-DO : Needs the correct coordinates to allow for the outdoors arena
+	if(GetZoneID() == 21 && ((GetSPosX() < 735 && GetSPosX() > 684) && ((GetSPosZ() < 491 && GetSPosZ() > 440) || (GetSPosZ() < 411 && GetSPosZ() > 360)))
 		|| ((GetZoneID() == 1  && g_pMain->m_byKarusOpenFlag) || (GetZoneID() == 2 && g_pMain->m_byElmoradOpenFlag)) )  //Taking into account invasions
 		return true;
 

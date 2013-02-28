@@ -196,7 +196,10 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 		}
 	}
 
-	if (pSkill->iUseItem != 0 && !m_pSrcUser->CanUseItem(pSkill->iUseItem, 1)) //The user does not meet the item's requirements or does not have any of said item.
+	if ((pSkill->bType[0] != 2 //Archer skills will handle item checking in ExecuteType2()
+		&& pSkill->bType[0] != 6) //So will transformations
+		&& (pSkill->iUseItem != 0
+		&& !m_pSrcUser->CanUseItem(pSkill->iUseItem, 1))) //The user does not meet the item's requirements or does not have any of said item.
 		return false;
 
 	if ((m_opcode == MAGIC_EFFECTING || m_opcode == MAGIC_CASTING) && !IsAvailable(pSkill))
@@ -679,8 +682,13 @@ BYTE CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 	float total_range = 0.0f;	// These variables are used for range verification!
 	int sx, sz, tx, tz;
 
-	if (pSkill == NULL)
+	_MAGIC_TYPE2 *pType = g_pMain->m_Magictype2Array.GetData(pSkill->iNum);
+	if (pType == NULL)
+			return 0;
+
+	if (!m_pSrcUser->CheckExistItem(pSkill->iUseItem, pType->bNeedArrow)) //The user does not have enough arrows!
 		return 0;
+
 
 	_ITEM_TABLE* pTable = NULL;		// Get item info.
 	if (m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum)
@@ -689,10 +697,6 @@ BYTE CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 		pTable = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 
 	if (pTable == NULL) 
-		return 0;
-
-	_MAGIC_TYPE2* pType = g_pMain->m_Magictype2Array.GetData(pSkill->iNum);     // Get magic skill table type 2.
-	if (pType == NULL)
 		return 0;
 
 	CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
@@ -971,6 +975,7 @@ void CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 
 		pTUser->SetSlotItemValue();				// Update character stats.
 		pTUser->SetUserAbility();
+		TakeItems(pSkill);
 
 		if(m_pSkillCaster == m_pSkillTarget)
 			pTUser->SendItemMove(2);
@@ -1197,19 +1202,30 @@ void CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 void CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 {
 	if (m_pSrcUser->isAttackZone()
-		|| m_pSrcUser->m_bAbnormalType != ABNORMAL_NORMAL && m_pSrcUser->isTransformed())
+		|| (m_pSrcUser->m_bAbnormalType != ABNORMAL_NORMAL && m_pSrcUser->isTransformed()))
 		return;
 
+	bool UseGem = false;
+
+	if(m_pSrcUser->m_nTransformationItem == 0 && !m_pSrcUser->CanUseItem(pSkill->iUseItem, 1))
+		return;
+	else if(m_pSrcUser->m_nTransformationItem != 0)
+	{
+		if(!m_pSrcUser->CanUseItem(m_pSrcUser->m_nTransformationItem, 1))
+			return;
+		else
+			UseGem = m_pSrcUser->CanUseItem(pSkill->iUseItem, 1);
+	}
 
 	_MAGIC_TYPE6* pType = g_pMain->m_Magictype6Array.GetData(pSkill->iNum);
 	if (pType == NULL)
 		return;
 
+	//TO-DO : Save duration, and obviously end
+
 	m_pSrcUser->StateChangeServerDirect(3, pSkill->iNum);
 	m_pSrcUser->m_bIsTransformed = true;
 
-	//TO-DO : Save duration, and obviously end
-	//TO-DO : Take ALL TEH ITEMZZZ!!
 	//TO-DO : Give the users ALL TEH BONUSES!!
 
 	Packet result(WIZ_MAGIC_PROCESS);
@@ -1221,6 +1237,8 @@ void CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 
 	if(pSkill->bType[1] != 0)
 		ExecuteSkill(pSkill, pSkill->bType[1]);
+	else
+		TakeItems(pSkill, UseGem);
 }
 
 void CMagicProcess::ExecuteType7(_MAGIC_TABLE *pSkill)
@@ -1409,19 +1427,60 @@ packet_send:
 
 void CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 {
+	uint8 bResult = MAGIC_EFFECTING;
+
 	_MAGIC_TYPE9* pType = g_pMain->m_Magictype9Array.GetData(pSkill->iNum);
 	if (pType == NULL)
 		return;
 
+
+	m_sData2 = 1;
+	/*
+	if(!InTheSavedSkillList)
+	{
+		m_sData2 = 1;
+	}
+	else
+	{
+		m_sData2 = 0;
+		bResult = MAGIC_FAIL;
+		goto send_result;
+	}
+	*/
+
 	if (pType->bStateChange <= 2)
 		m_pSrcUser->StateChangeServerDirect(7, pType->bStateChange); //Update the client to be invisible
-	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4)
-	{
+	else if (pType->bStateChange == 3)
 		m_pSrcUser->m_bCanSeeStealth = true;
-		//TO-DO : StateChange 4 -> Give the whole party the ability to see stealthed users.
+	else if(pType->bStateChange == 4)
+	{
+		if(m_pSrcUser->isInParty())
+		{
+			_PARTY_GROUP* pParty = g_pMain->m_PartyArray.GetData(m_pSrcUser->m_sPartyIndex);
+			if (pParty == NULL)
+				return;
+
+			for (int i = 0; i < MAX_PARTY_USERS; i++)
+			{
+				CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
+				if (pUser == NULL)
+					continue;
+
+				pUser->m_bCanSeeStealth = true;
+			}
+		}
 	}
 
+	//TO-DO : Save the skill in the saved skill list
 
+send_result :
+	Packet result(WIZ_MAGIC_PROCESS, bResult);
+	result	<< m_nSkillID << m_pSkillCaster << m_pSkillTarget
+			<< m_sData1 << m_sData2 << m_sData3 << m_sData4 << m_sData5 << m_sData6 << m_sData7 << m_sData8;
+	if(m_pSrcUser->isInParty() && pType->bStateChange == 4)
+		g_pMain->Send_PartyMember(m_pSrcUser->m_sPartyIndex, &result);
+	else
+		m_pSrcUser->Send(&result);
 }
 
 short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribute)
@@ -1828,4 +1887,22 @@ short CMagicProcess::GetWeatherDamage(short damage, short attribute)
 		damage = (damage * 110) / 100;
 
 	return damage;
+}
+
+void CMagicProcess::TakeItems(_MAGIC_TABLE *pSkill, bool UseGem)
+{
+	if(pSkill->bType[0] != 6 && pSkill->bType[0] != 2)
+		m_pSrcUser->RobItem(pSkill->iUseItem, 1);
+	else if (pSkill->bType[0] == 2)
+	{
+		_MAGIC_TYPE2 *pType = g_pMain->m_Magictype2Array.GetData(pSkill->iNum);
+		m_pSrcUser->RobItem(pSkill->iUseItem, pType->bNeedArrow);
+	}
+	else if(pSkill->bType[0] == 6)
+	{
+		if(UseGem)
+			m_pSrcUser->RobItem(pSkill->iUseItem, 1);
+		else
+			m_pSrcUser->RobItem(m_pSrcUser->m_nTransformationItem, 1);
+	}
 }
