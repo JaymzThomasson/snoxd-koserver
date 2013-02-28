@@ -224,8 +224,8 @@ void CMagicProcess::SendSkillToAI(_MAGIC_TABLE *pSkill)
 				<< m_sData4 << m_sData5 << m_sData6
 				<< m_pSrcUser->getStatWithItemBonus(STAT_CHA);
 
-		_ITEM_TABLE* pRightHand = m_pSrcUser->hasStaffEquipped();
-		if( pRightHand != NULL ) {					
+		if( m_pSrcUser->getRightHandWeaponType() == WEAPON_STAFF && m_pSrcUser->getLeftHand() == NULL) {
+			_ITEM_TABLE* pRightHand = m_pSrcUser->getRightHand();
 			if (pSkill->bType[0] == 3) {
 				total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->GetLevel()) / 60);
 
@@ -387,45 +387,21 @@ void CMagicProcess::SendSkill(int16 pSkillCaster /* = -1 */, int16 pSkillTarget 
 
 bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 {
-	CUser* pUser = NULL;	// When the target is a player....
 	CUser* pParty = NULL;   // When the target is a party....
-	CNpc* pNpc = NULL;		// When the monster is the target....
-	CNpc* pMon = NULL;		// When the monster is the source....
 	bool isNPC = (m_pSkillCaster >= NPC_BAND);		// Identifies source : TRUE means source is NPC.
-	_MAGIC_TYPE5* pType = NULL;		// Only for type 5 magic!
 
 	int modulator = 0, Class = 0, moral = 0, skill_mod = 0 ;
 
-	if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER) {		// Target existence check routine for player.          
-		pUser = g_pMain->GetUserPtr(m_pSkillTarget);
-		if (pUser == NULL)
-			goto fail_return;
-
-		if (pSkill->bType[0] != 5) // If not a Warp/Resurrection spell...
-		{
-			if (pUser->isDead() || pUser->isBlinking())
-				goto fail_return;
-		}
-		else // skill type 5 (warp/resurrection)
-		{
-			pType = g_pMain->m_Magictype5Array.GetData(pSkill->iNum);    
-			if (pType == NULL
-				|| pUser->isBlinking()
-				|| (pUser->isDead() && pType->sNeedStone == 0 && pType->bExpRecover == 0))
-				goto fail_return;					
-		}
-
-		moral = pUser->GetNation();
-	}
+	if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER) 
+		moral = m_pTargetUser->GetNation();
 	else if (m_pSkillTarget >= NPC_BAND)     // Target existence check routine for NPC.          	
 	{
 		if (!g_pMain->m_bPointCheckFlag)
 			goto fail_return;	
-		pNpc = g_pMain->m_arNpcArray.GetData(m_pSkillTarget);
-		if (pNpc == NULL || pNpc->isDead())
+		if (m_pTargetMon == NULL || m_pTargetMon->isDead())
 			goto fail_return;	//... Assuming NPCs can't be resurrected.
 
-		moral = pNpc->m_byGroup;
+		moral = m_pTargetMon->m_byGroup;
 	}
 	else if (m_pSkillTarget == -1)  // AOE/Party Moral check routine.
 	{
@@ -447,36 +423,36 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 	switch( pSkill->bMoral ) {		// Compare morals between source and target character.
 		case MORAL_SELF:   // #1         // ( to see if spell is cast on the right target or not )
 			if(isNPC) {
-				if( m_pSkillTarget != pMon->GetID() ) goto fail_return;
+				if( m_pSkillTarget != m_pTargetMon->GetID() ) goto fail_return;
 			}
 			else {
 				if( m_pSkillTarget != m_pSrcUser->GetSocketID() ) goto fail_return;
 			}
 			break;
 		case MORAL_FRIEND_WITHME:	// #2
-			if ((isNPC && pMon->m_byGroup != moral)
+			if ((isNPC && m_pTargetMon->m_byGroup != moral)
 				|| (!isNPC && m_pSrcUser->GetNation() != moral))
 				goto fail_return;
 			break;
 		case MORAL_FRIEND_EXCEPTME:	   // #3
 			if(isNPC) {
-				if( pMon->m_byGroup != moral ) goto fail_return;
-				if( m_pSkillTarget == pMon->GetID() ) goto fail_return;				
+				if( m_pTargetMon->m_byGroup != moral ) goto fail_return;
+				if( m_pSkillTarget == m_pTargetMon->GetID() ) goto fail_return;				
 			}
 			else {
-				if( m_pSrcUser->m_pUserData->m_bNation != moral ) goto fail_return;
+				if( m_pSrcUser->GetNation() != moral ) goto fail_return;
 				if( m_pSkillTarget == m_pSrcUser->GetSocketID() ) goto fail_return;
 			}
 			break;
 		case MORAL_PARTY:	 // #4
 			if( !m_pSrcUser->isInParty() && m_pSkillCaster != m_pSkillTarget) goto fail_return;
-			if (m_pSrcUser->m_pUserData->m_bNation != moral) goto fail_return;
-			if( pUser )
-				if( pUser->m_sPartyIndex != m_pSrcUser->m_sPartyIndex ) goto fail_return;
+			if (m_pSrcUser->GetNation() != moral) goto fail_return;
+			if( m_pTargetUser )
+				if( m_pTargetUser->m_sPartyIndex != m_pSrcUser->m_sPartyIndex ) goto fail_return;
 			break;
 		case MORAL_NPC:		// #5
-			if( !pNpc ) goto fail_return;
-			if( pNpc->m_byGroup != moral ) goto fail_return;
+			if( !m_pTargetMon ) goto fail_return;
+			if( m_pTargetMon->m_byGroup != moral ) goto fail_return;
 			break;
 		case MORAL_PARTY_ALL:     // #6
 //			if ( !m_pSrcUser->isInParty() ) goto fail_return;		
@@ -485,7 +461,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 			break;
 		case MORAL_ENEMY:	// #7	
 			if(isNPC) {
-				if( pMon->m_byGroup == moral ) goto fail_return;		
+				if( m_pTargetMon->m_byGroup == moral ) goto fail_return;		
 			}
 			else {
 				if( m_pSrcUser->GetNation() == moral ) goto fail_return;	
@@ -508,21 +484,21 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 			break;
 		case MORAL_CORPSE_FRIEND:		// #25
 			if(isNPC) {
-				if( pMon->m_byGroup != moral ) goto fail_return;
-				if( m_pSkillTarget == pMon->GetID() ) goto fail_return;				
+				if( m_pTargetMon->m_byGroup != moral ) goto fail_return;
+				if( m_pSkillTarget == m_pTargetMon->GetID() ) goto fail_return;				
 			}
 			else {
 				if( m_pSrcUser->GetNation() != moral ) goto fail_return;
 				if( m_pSkillTarget == m_pSrcUser->GetSocketID() ) goto fail_return;
-				if(pUser->m_bResHpType != USER_DEAD) goto fail_return; 
+				if( !m_pTargetUser->isDead()) goto fail_return; 
 			}
 			break;
 //
 		case MORAL_CLAN:		// #14
 			if( m_pSrcUser->m_pUserData->m_bKnights == -1 && m_pSkillCaster != m_pSkillTarget ) goto fail_return;
-			if( m_pSrcUser->m_pUserData->m_bNation != moral ) goto fail_return;
-			if( pUser ) {
-				if( pUser->m_pUserData->m_bKnights != m_pSrcUser->m_pUserData->m_bKnights ) goto fail_return;
+			if( m_pSrcUser->GetNation() != moral ) goto fail_return;
+			if( m_pTargetUser ) {
+				if( m_pTargetUser->m_pUserData->m_bKnights != m_pSrcUser->m_pUserData->m_bKnights ) goto fail_return;
 			}
 			break;
 
@@ -541,28 +517,29 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 		else if (pSkill->sSkillLevel > m_pSrcUser->GetLevel()) goto fail_return;
 
 		if (pSkill->bType[0] == 1) {	// Weapons verification in case of COMBO attack (another hacking prevention).
-			if (pSkill->sSkill == 1055 || pSkill->sSkill == 2055) {		// Weapons verification in case of DUAL ATTACK (type 1)!		
-				_ITEM_TABLE* pLeftHand = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
-				if (!pLeftHand) return false;
+			if (pSkill->sSkill == 1055 || pSkill->sSkill == 2055) {		// Weapons verification in case of dual wielding attacks !		
 
-				_ITEM_TABLE* pRightHand = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
-				if (!pRightHand) return false;
+				int left_index = m_pSrcUser->getLeftHandWeaponType() ;
+				int right_index = m_pSrcUser->getRightHandWeaponType() ;
 
-				int left_index = pLeftHand->m_bKind / 10 ;
-				int right_index = pRightHand->m_bKind / 10 ;
-
-				if ((left_index != WEAPON_SWORD && left_index != WEAPON_AXE && left_index != WEAPON_MACE) 
-					&& (right_index != WEAPON_SWORD  && right_index != WEAPON_AXE && right_index != WEAPON_MACE)) 
+				if ((left_index != WEAPON_SWORD 
+					&& left_index != WEAPON_AXE 
+					&& left_index != WEAPON_MACE) 
+					&& 
+					(right_index != WEAPON_SWORD  
+					&& right_index != WEAPON_AXE 
+					&& right_index != WEAPON_MACE)) 
 					return false;
 			}
-			else if (pSkill->sSkill == 1056 || pSkill->sSkill == 2056) {	// Weapons verification in case of DOUBLE ATTACK !
-				_ITEM_TABLE* pRightHand = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
-				if (!pRightHand) return false;
+			else if (pSkill->sSkill == 1056 || pSkill->sSkill == 2056) {	// Weapons verification in case of 2 handed attacks !
 
-				int right_index = pRightHand->m_bKind / 10 ;
+				int right_index = m_pSrcUser->getRightHandWeaponType() ;
 
-				if(	(right_index != WEAPON_SWORD && right_index != WEAPON_AXE && right_index != WEAPON_MACE
-						&& right_index != WEAPON_SPEAR) || m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 )
+				if(	(right_index != WEAPON_SWORD 
+					&& right_index != WEAPON_AXE 
+					&& right_index != WEAPON_MACE
+					&& right_index != WEAPON_SPEAR) 
+					|| m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 )
 					return false;
 			}
 		}
@@ -975,7 +952,6 @@ void CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 
 		pTUser->SetSlotItemValue();				// Update character stats.
 		pTUser->SetUserAbility();
-		TakeItems(pSkill);
 
 		if(m_pSkillCaster == m_pSkillTarget)
 			pTUser->SendItemMove(2);
@@ -1537,8 +1513,8 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 		}
 		
 		if ( sid >= 0 && sid < MAX_USER) {
-			_ITEM_TABLE* pRightHand = m_pSrcUser->hasStaffEquipped();
-			if( pRightHand != NULL ) {				
+				if( m_pSrcUser->getRightHandWeaponType() == WEAPON_STAFF && m_pSrcUser->getLeftHand() == NULL) {
+					_ITEM_TABLE* pRightHand = m_pSrcUser->getRightHand();				
 					righthand_damage = pRightHand->m_sDamage ;
 					
 					if (m_pSrcUser->m_bMagicTypeRightHand == attribute) {

@@ -3698,14 +3698,18 @@ void CUser::SendUserStatusUpdate(uint8 type, uint8 status)
 	Send(&result);
 }
 
-_ITEM_TABLE* CUser::hasStaffEquipped()
+_ITEM_TABLE* CUser::getRightHand()
 {
 	_ITEM_TABLE* pRightHand = NULL;
-	if(m_pUserData->m_sItemArray[RIGHTHAND].nNum == 0 )
-		pRightHand = g_pMain->GetItemPtr(m_pUserData->m_sItemArray[RIGHTHAND].nNum);
-
-	if( pRightHand && m_pUserData->m_sItemArray[LEFTHAND].nNum == 0 && pRightHand->m_bKind / 10 != WEAPON_STAFF)
-		pRightHand = NULL;
+	pRightHand = g_pMain->GetItemPtr(m_pUserData->m_sItemArray[RIGHTHAND].nNum);
 
 	return pRightHand;
+}
+
+_ITEM_TABLE* CUser::getLeftHand()
+{
+	_ITEM_TABLE* pLeftHand = NULL;
+	pLeftHand = g_pMain->GetItemPtr(m_pUserData->m_sItemArray[LEFTHAND].nNum);
+
+	return pLeftHand;
 }

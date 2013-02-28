@@ -308,6 +308,22 @@ public:
 		return getStat(type) + getStatItemBonus(type) + getStatBuff(type);
 	}
 
+	__forceinline uint8 getLeftHandWeaponType()
+	{
+		if(getLeftHand() != NULL)
+			return getLeftHand()->m_bKind / 10;
+		else
+			return 0;
+	}
+
+	__forceinline uint8 getRightHandWeaponType()
+	{
+		if(getRightHand() != NULL)
+			return getRightHand()->m_bKind / 10;
+		else
+			return 0;
+	}
+
 	__forceinline C3DMap * GetMap() { return m_pMap; }
 
 	__forceinline uint16 GetSPosX() { return uint16(m_pUserData->m_curx * 10); }
@@ -579,7 +595,8 @@ public:
 
 	virtual void OnDeath(Unit *pKiller);
 
-	_ITEM_TABLE* hasStaffEquipped();
+	_ITEM_TABLE* getRightHand();
+	_ITEM_TABLE* getLeftHand();
 
 	// Clan system
 	void SendClanUserStatusUpdate(bool bToRegion = true);
