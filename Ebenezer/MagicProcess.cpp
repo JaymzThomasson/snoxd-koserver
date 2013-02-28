@@ -229,8 +229,11 @@ void CMagicProcess::SendSkillToAI(_MAGIC_TABLE *pSkill)
 				<< m_sData4 << m_sData5 << m_sData6
 				<< m_pSrcUser->getStatWithItemBonus(STAT_CHA);
 
-		if( m_pSrcUser->getRightHandWeaponType() == WEAPON_STAFF && m_pSrcUser->getLeftHand() == NULL) {
-			_ITEM_TABLE* pRightHand = m_pSrcUser->getRightHand();
+
+		_ITEM_TABLE* pRightHand = m_pSrcUser->GetItemPrototype(RIGHTHAND);
+		if (pRightHand != NULL && pRightHand->isStaff()
+			&& m_pSrcUser->GetItemPrototype(LEFTHAND) == NULL)
+		{
 			if (pSkill->bType[0] == 3) {
 				total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * m_pSrcUser->GetLevel()) / 60);
 
@@ -495,28 +498,20 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 
 		if (pSkill->bType[0] == 1) {	// Weapons verification in case of COMBO attack (another hacking prevention).
 			if (pSkill->sSkill == 1055 || pSkill->sSkill == 2055) {		// Weapons verification in case of dual wielding attacks !		
+				_ITEM_TABLE *pLeftHand = m_pSrcUser->GetItemPrototype(LEFTHAND),
+							*pRightHand = m_pSrcUser->GetItemPrototype(RIGHTHAND);
 
-				int left_index = m_pSrcUser->getLeftHandWeaponType() ;
-				int right_index = m_pSrcUser->getRightHandWeaponType() ;
-
-				if ((left_index != WEAPON_SWORD 
-					&& left_index != WEAPON_AXE 
-					&& left_index != WEAPON_MACE) 
-					&& 
-					(right_index != WEAPON_SWORD  
-					&& right_index != WEAPON_AXE 
-					&& right_index != WEAPON_MACE)) 
+				if ((pLeftHand != NULL && !pLeftHand->isSword() && !pLeftHand->isAxe() && !pLeftHand->isMace())
+					|| (pRightHand != NULL && !pRightHand->isSword() && !pRightHand->isAxe() && !pRightHand->isMace()))
 					return false;
 			}
 			else if (pSkill->sSkill == 1056 || pSkill->sSkill == 2056) {	// Weapons verification in case of 2 handed attacks !
+				_ITEM_TABLE	*pRightHand = m_pSrcUser->GetItemPrototype(RIGHTHAND);
 
-				int right_index = m_pSrcUser->getRightHandWeaponType() ;
-
-				if(	(right_index != WEAPON_SWORD 
-					&& right_index != WEAPON_AXE 
-					&& right_index != WEAPON_MACE
-					&& right_index != WEAPON_SPEAR) 
-					|| m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 )
+				if (m_pSrcUser->GetItem(LEFTHAND)->nNum != 0
+					|| (pRightHand != NULL 
+						&& !pRightHand->isSword() && !pRightHand->isAxe() 
+						&& !pRightHand->isMace() && !pRightHand->isSpear()))
 					return false;
 			}
 		}
@@ -613,21 +608,20 @@ bool CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 		|| !m_pSrcUser->CheckExistItem(pSkill->iUseItem, pType->bNeedArrow))
 		return false;
 
-	_ITEM_TABLE* pTable = m_pSrcUser->getLeftHand();		// Get item info.
-	uint8 m_bWeaponType = m_pSrcUser->getLeftHandWeaponType();
-	if (pTable == NULL
-		|| m_bWeaponType != WEAPON_BOW
-		|| m_bWeaponType != WEAPON_LONGBOW) //Not wearing a left-handed bow
+	_ITEM_TABLE* pTable = m_pSrcUser->GetItemPrototype(LEFTHAND);
+
+	// Not wearing a left-handed bow
+	if (pTable == NULL || !pTable->isBow())
 	{
-		pTable = m_pSrcUser->getRightHand();
-		m_bWeaponType = m_pSrcUser->getRightHandWeaponType();
+		pTable = m_pSrcUser->GetItemPrototype(RIGHTHAND);
+
+		// Not wearing a right-handed (2h) bow either!
+		if (pTable == NULL || !pTable->isBow())
+			return false;
 	}
-	if (pTable == NULL 
-		|| m_bWeaponType != WEAPON_BOW
-		|| m_bWeaponType != WEAPON_LONGBOW)  //Not wearing a right-handed (2h) bow either!
-		return false;
 
 	CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
+
 	// is this checked already?
 	if (pTUser == NULL || pTUser->isDead())
 		goto packet_send;
@@ -1507,18 +1501,21 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 				break;
 		}
 		
-		if ( sid >= 0 && sid < MAX_USER) {
-				if( m_pSrcUser->getRightHandWeaponType() == WEAPON_STAFF && m_pSrcUser->getLeftHand() == NULL) {
-					_ITEM_TABLE* pRightHand = m_pSrcUser->getRightHand();				
-					righthand_damage = pRightHand->m_sDamage ;
+		if (sid >= 0 && sid < MAX_USER) 
+		{
+			_ITEM_TABLE *pRightHand = m_pSrcUser->GetItemPrototype(RIGHTHAND);
+			if (pRightHand != NULL && pRightHand->isStaff()
+				&& m_pSrcUser->GetItemPrototype(LEFTHAND) == NULL)
+			{
+				righthand_damage = pRightHand->m_sDamage;
 					
-					if (m_pSrcUser->m_bMagicTypeRightHand == attribute) {
-						attribute_damage = pRightHand->m_sDamage ;	
-					}
-				}
-				else {
-					righthand_damage = 0 ;
-				}
+				if (m_pSrcUser->m_bMagicTypeRightHand == attribute)
+					attribute_damage = pRightHand->m_sDamage;
+			}
+			else 
+			{
+				righthand_damage = 0;
+			}
 		}
 
 		damage = (short)(total_hit - ((0.7 * total_hit * total_r) / 200)) ;
