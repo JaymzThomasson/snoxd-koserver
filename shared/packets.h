@@ -253,6 +253,7 @@ enum KingSystemImpeachmentOpcodes
 #define MAGIC_TYPE4_END			0x05	// For type 4 durational spells.
 #define MAGIC_CANCEL            0x06    // When you wanna cancel your own Type 4.
 #define MAGIC_CANCEL_TYPE6		0x07
+#define MAGIC_CANCEL_TYPE9		0x08
 #define MAGIC_TRANSFORM_LIST	0x09	// Shows the transformation list 
 #define MAGIC_CANCEL2			0x0D	// Not sure but it cancels...
 					

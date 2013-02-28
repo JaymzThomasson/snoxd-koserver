@@ -124,7 +124,9 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 			Type3Cancel(m_nSkillID, m_pSrcUser->GetSocketID());
 			Type4Cancel(m_nSkillID, m_pSrcUser->GetSocketID());
 			Type6Cancel();
-			//Type9Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Stealth lupine etc.
+			break;
+		case MAGIC_CANCEL_TYPE9:
+			// Type9Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Stealth lupine etc.
 			break;
 	}
 
