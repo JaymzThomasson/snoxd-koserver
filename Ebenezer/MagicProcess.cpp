@@ -1196,25 +1196,31 @@ void CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 
 void CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 {
-	if(m_pSrcUser->isBlinking() || m_pSrcUser->m_bAbnormalType != ABNORMAL_NORMAL)
+	if (m_pSrcUser->isAttackZone()
+		|| m_pSrcUser->m_bAbnormalType != ABNORMAL_NORMAL && m_pSrcUser->isTransformed())
 		return;
+
 
 	_MAGIC_TYPE6* pType = g_pMain->m_Magictype6Array.GetData(pSkill->iNum);
-	if(pType == NULL)
+	if (pType == NULL)
 		return;
 
-	Packet result;
-	result << uint8(ABNORMAL_DWARF) << uint32(pSkill->iNum);
-	m_pSrcUser->StateChange(result);
+	m_pSrcUser->StateChangeServerDirect(3, pSkill->iNum);
+	m_pSrcUser->m_bIsTransformed = true;
 
-	//TO-DO : Save duration
+	//TO-DO : Save duration, and obviously end
+	//TO-DO : Take ALL TEH ITEMZZZ!!
+	//TO-DO : Give the users ALL TEH BONUSES!!
 
-	result.Initialize(WIZ_MAGIC_PROCESS);
+	Packet result(WIZ_MAGIC_PROCESS);
 	result	<< MAGIC_EFFECTING << m_nSkillID << m_pSrcUser->GetSocketID()
 			<< uint32(0) << uint16(1) << uint16(0) //TO-DO : Figure out these numbers
 			<< pType->sDuration << uint16(0) << uint16(0);
 
 	m_pSrcUser->SendToRegion(&result);
+
+	if(pSkill->bType[1] != 0)
+		ExecuteSkill(pSkill, pSkill->bType[1]);
 }
 
 void CMagicProcess::ExecuteType7(_MAGIC_TABLE *pSkill)
@@ -1403,6 +1409,23 @@ packet_send:
 
 void CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 {
+	_MAGIC_TYPE9* pType = g_pMain->m_Magictype9Array.GetData(pSkill->iNum);
+	if (pType == NULL)
+		return;
+
+	if (pType->bStateChange <= 2)
+		m_pSrcUser->m_bIsInvisible = pType->bStateChange;
+	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4)
+	{
+		m_pSrcUser->m_bCanSeeStealth = true;
+		//TO-DO : StateChange 4 -> Give the whole party the ability to see stealthed users.
+	}
+
+
+	m_pSrcUser->StateChangeServerDirect(7, m_pSrcUser->m_bIsInvisible); //Update the client to be invisible
+	m_pSrcUser->UpdateVisibility(true); //Become invisible to the AI server.
+
+
 }
 
 short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribute)

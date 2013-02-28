@@ -42,7 +42,8 @@ void CUser::Initialize()
 	m_bStoreOpen = false;
 	m_bIsMerchanting = false;
 	m_bPartyLeader = false;
-	m_bIsInvisible = false;
+	m_bIsInvisible = 0;
+	m_bIsTransformed = false;
 
 	m_sDirection = 0;
 
@@ -1571,26 +1572,25 @@ void CUser::StateChange(Packet & pkt)
 		m_bResHpType = buff;
 		break;
 
-	case 2:
+/*	case 2:
 		m_bNeedParty = buff;
-		break;
+		break;*/
 
 	case 3:
 		switch (buff)
 		{
 		case 1: // unview
-			m_bIsInvisible = true;
+			m_bIsInvisible = 2;
 			break;
 		case 5: // view
 			// to-do: should implement GM check, but we'll leave it off for now (for science!)
-			m_bIsInvisible = false; //Do we need to send this to the AI server aswell?
+			m_bIsInvisible = 0; //Do we need to send this to the AI server aswell?
 			break;
 
 		case ABNORMAL_BLINKING: // blinking, duh 
 			break;
 
 		default:
-			m_bAbnormalType = nBuff;
 			TRACE("[SID=%d] StateChange: %s tripped (%d,%d) somehow, HOW!?\n", GetSocketID(), m_pUserData->m_id, type, buff);
 			break;
 
@@ -3213,7 +3213,7 @@ void CUser::BlinkStart()
 	m_fBlinkStartTime = TimeGet();
 	m_bRegeneType = REGENE_ZONECHANGE;
 	
-	UpdateVisibility(false);
+	UpdateVisibility(0);
 	m_bIsInvisible = false; // AI shouldn't see us, but players should. This is where having 2 states sucks.
 
 	StateChangeServerDirect(3, ABNORMAL_BLINKING);

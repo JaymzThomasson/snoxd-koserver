@@ -56,6 +56,8 @@ public:
 
 	SkillCooldownList	m_CoolDownList;
 
+	bool m_bIsTransformed; //Is the character in a transformed state?
+
 	int16	m_sDirection;
 
 	int64	m_iMaxExp;
@@ -107,7 +109,8 @@ public:
 	short	m_sPartyIndex;
 	bool	m_bPartyLeader;
 
-	bool	m_bIsInvisible;
+	uint8	m_bIsInvisible;
+	bool	m_bCanSeeStealth;
 
 	short	m_sExchangeUser;
 	BYTE	m_bExchangeOK;
@@ -218,6 +221,7 @@ public:
 	__forceinline bool isTrading() { return m_sExchangeUser != -1; }
 	__forceinline bool isStoreOpen() { return m_bStoreOpen; }
 	__forceinline bool isMerchanting() { return m_bIsMerchanting; }
+	__forceinline bool isTransformed() { return m_bIsTransformed; }
 
 	virtual uint8 GetNation() { return m_pUserData->m_bNation; }
 	virtual uint8 GetLevel() { return m_pUserData->m_bLevel; }

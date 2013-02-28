@@ -639,7 +639,7 @@ void CGameSocket::RecvGateOpen(Packet & pkt)
 void CGameSocket::RecvUserVisibility(Packet & pkt)
 {
 	uint16 sid;
-	bool bIsInvisible;
+	uint8 bIsInvisible;
 	pkt >> sid >> bIsInvisible;
 
 	CUser *pUser = g_pMain->GetUserPtr(sid);
