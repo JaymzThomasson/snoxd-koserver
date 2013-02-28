@@ -161,15 +161,8 @@ public:
 	BYTE	m_bDiseaseRAmount;
 	BYTE	m_bPoisonRAmount;	
 	
-	short   m_sDuration1 ;  float   m_fStartTime1 ;
-	short   m_sDuration2 ;  float   m_fStartTime2 ;
-	short   m_sDuration3 ;  float   m_fStartTime3 ;
-	short   m_sDuration4 ;  float   m_fStartTime4 ;
-	short   m_sDuration5 ;  float   m_fStartTime5 ;
-	short   m_sDuration6 ;  float   m_fStartTime6 ;
-	short   m_sDuration7 ;  float   m_fStartTime7 ;
-	short   m_sDuration8 ;  float   m_fStartTime8 ;
-	short   m_sDuration9 ;  float   m_fStartTime9 ;
+	short   m_sDuration[MAX_TYPE4_BUFF];
+	float   m_fStartTime[MAX_TYPE4_BUFF];
 
 	BYTE	m_bType4Buff[MAX_TYPE4_BUFF];
 	BOOL	m_bType4Flag;

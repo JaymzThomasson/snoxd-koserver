@@ -288,13 +288,10 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 		switch (pType->bBuffType) {	// Depending on which buff-type it is.....
 			case 1 :
 				pTUser->m_sMaxHPAmount = pType->sMaxHP;		// Get the amount that will be added/multiplied.
-				pTUser->m_sDuration1 = pType->sDuration;	// Get the duration time.
-				pTUser->m_fStartTime1 = TimeGet();			// Get the time when Type 4 spell starts.	
 				break;
+
 			case 2 :
 				pTUser->m_sACAmount = pType->sAC;
-				pTUser->m_sDuration2 = pType->sDuration;
-				pTUser->m_fStartTime2 = TimeGet();
 				break;
 
 			case 3 : 
@@ -302,27 +299,18 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 					StateChangeServerDirect(3, ABNORMAL_GIANT);
 				else if (magicid == 490035) // Rice cake
 					StateChangeServerDirect(3, ABNORMAL_DWARF);
-
-				pTUser->m_sDuration3 = pType->sDuration;
-				pTUser->m_fStartTime3 = TimeGet();
 				break;
 
 			case 4 :
 				pTUser->m_bAttackAmount = pType->bAttack;
-				pTUser->m_sDuration4 = pType->sDuration;
-				pTUser->m_fStartTime4 = TimeGet();					
 				break;
 
 			case 5 :
 				pTUser->m_bAttackSpeedAmount = pType->bAttackSpeed;
-				pTUser->m_sDuration5 = pType->sDuration;
-				pTUser->m_fStartTime5 = TimeGet();
 				break;
 
 			case 6 :
 				pTUser->m_bSpeedAmount = pType->bSpeed;
-				pTUser->m_sDuration6 = pType->sDuration;
-				pTUser->m_fStartTime6 = TimeGet();
 				break;
 
 			case 7 :
@@ -331,8 +319,6 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 				pTUser->setStatBuff(STAT_DEX, pType->bDex);
 				pTUser->setStatBuff(STAT_INT, pType->bIntel);
 				pTUser->setStatBuff(STAT_CHA, pType->bCha);	
-				pTUser->m_sDuration7 = pType->sDuration;
-				pTUser->m_fStartTime7 = TimeGet();
 				break;
 
 			case 8 :
@@ -342,20 +328,19 @@ void CUser::MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uin
 				pTUser->m_bMagicRAmount = pType->bMagicR;
 				pTUser->m_bDiseaseRAmount = pType->bDiseaseR;
 				pTUser->m_bPoisonRAmount = pType->bPoisonR;
-				pTUser->m_sDuration8 = pType->sDuration;
-				pTUser->m_fStartTime8 = TimeGet();
 				break;
 
 			case 9 :
 				pTUser->m_bHitRateAmount = pType->bHitRate;
 				pTUser->m_sAvoidRateAmount = pType->sAvoidRate;
-				pTUser->m_sDuration9 = pType->sDuration;
-				pTUser->m_fStartTime9 = TimeGet();
 				break;	
 
 			default :
 				goto fail_return;
 		}
+
+		pTUser->m_sDuration[pType->bBuffType - 1] = pType->sDuration;
+		pTUser->m_fStartTime[pType->bBuffType - 1] = TimeGet();
 
 		if ((tid != -1 && pMagic->bType[0] == 4) && (sid >= 0 && sid < MAX_USER))
 				MSpChange( -(pMagic->sMsp) );

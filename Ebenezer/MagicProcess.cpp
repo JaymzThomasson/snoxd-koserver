@@ -814,14 +814,10 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 		switch (pType->bBuffType) {	// Depending on which buff-type it is.....
 			case 1:
 				pTUser->m_sMaxHPAmount = pType->sMaxHP;		// Get the amount that will be added/multiplied.
-				pTUser->m_sDuration1 = pType->sDuration;	// Get the duration time.
-				pTUser->m_fStartTime1 = TimeGet();			// Get the time when Type 4 spell starts.	
 				break;
 
 			case 2:
 				pTUser->m_sACAmount = pType->sAC;
-				pTUser->m_sDuration2 = pType->sDuration;
-				pTUser->m_fStartTime2 = TimeGet();
 				break;
 
 			case 3:
@@ -830,27 +826,18 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 					pTUser->StateChangeServerDirect(3, ABNORMAL_GIANT); 
 				else if (pSkill->iNum == 490035)	// Rice Cake!!!
 					pTUser->StateChangeServerDirect(3, ABNORMAL_DWARF); 
-
-				pTUser->m_sDuration3 = pType->sDuration;
-				pTUser->m_fStartTime3 = TimeGet();
 				break;
 
 			case 4:
 				pTUser->m_bAttackAmount = pType->bAttack;
-				pTUser->m_sDuration4 = pType->sDuration;
-				pTUser->m_fStartTime4 = TimeGet();					
 				break;
 
 			case 5:
 				pTUser->m_bAttackSpeedAmount = pType->bAttackSpeed;
-				pTUser->m_sDuration5 = pType->sDuration;
-				pTUser->m_fStartTime5 = TimeGet();
 				break;
 
 			case 6:
 				pTUser->m_bSpeedAmount = pType->bSpeed;
-				pTUser->m_sDuration6 = pType->sDuration;
-				pTUser->m_fStartTime6 = TimeGet();
 				break;
 
 			case 7:
@@ -859,8 +846,6 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 				pTUser->setStatBuff(STAT_DEX, pType->bDex);
 				pTUser->setStatBuff(STAT_INT, pType->bIntel);
 				pTUser->setStatBuff(STAT_CHA, pType->bCha);	
-				pTUser->m_sDuration7 = pType->sDuration;
-				pTUser->m_fStartTime7 = TimeGet();
 				break;
 
 			case 8:
@@ -870,21 +855,21 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 				pTUser->m_bMagicRAmount = pType->bMagicR;
 				pTUser->m_bDiseaseRAmount = pType->bDiseaseR;
 				pTUser->m_bPoisonRAmount = pType->bPoisonR;
-				pTUser->m_sDuration8 = pType->sDuration;
-				pTUser->m_fStartTime8 = TimeGet();
 				break;
 
 			case 9:
 				pTUser->m_bHitRateAmount = pType->bHitRate;
 				pTUser->m_sAvoidRateAmount = pType->sAvoidRate;
-				pTUser->m_sDuration9 = pType->sDuration;
-				pTUser->m_fStartTime9 = TimeGet();
 				break;	
 
 			default:
 				bResult = 0;
 				goto fail_return;
 		}
+
+
+		pTUser->m_sDuration[pType->bBuffType - 1] = pType->sDuration;
+		pTUser->m_fStartTime[pType->bBuffType - 1] = TimeGet();
 
 		if (m_pSkillTarget != -1 && pSkill->bType[0] == 4)
 		{
@@ -934,7 +919,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 bool CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 {
 	int damage = 0;
-	int i = 0, j = 0, k =0; int buff_test = 0; BOOL bType3Test = TRUE, bType4Test = TRUE; 	
+	int buff_test = 0; BOOL bType3Test = TRUE, bType4Test = TRUE; 	
 
 	if (pSkill == NULL)
 		return false;
@@ -968,7 +953,7 @@ bool CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 
 	switch(pType->bType) {
 		case REMOVE_TYPE3:		// REMOVE TYPE 3!!!
-			for (i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {
+			for (int i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {
 				if (m_pTargetUser->m_bHPAmount[i] < 0) {
 					m_pTargetUser->m_fHPStartTime[i] = 0.0f;
 					m_pTargetUser->m_fHPLastTime[i] = 0.0f;   
@@ -985,12 +970,12 @@ bool CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 			}
 
 			buff_test = 0;
-			for (j = 0; j < MAX_TYPE3_REPEAT; j++)
+			for (int j = 0; j < MAX_TYPE3_REPEAT; j++)
 				buff_test += m_pTargetUser->m_bHPDuration[j];
 			if (buff_test == 0) m_pTargetUser->m_bType3Flag = FALSE;	
 
 			// Check for Type 3 Curses.
-			for (k = 0 ; k < MAX_TYPE3_REPEAT ; k++) {
+			for (int k = 0 ; k < MAX_TYPE3_REPEAT ; k++) {
 				if (m_pTargetUser->m_bHPAmount[k] < 0) {
 					bType3Test = FALSE;
 					break;
@@ -1002,82 +987,56 @@ bool CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 			break;
 
 		case REMOVE_TYPE4:		// REMOVE TYPE 4!!!
-			if (m_pTargetUser->m_bType4Buff[0] == 1) {
-				m_pTargetUser->m_sDuration1 = 0;		
-				m_pTargetUser->m_fStartTime1 = 0.0f;
-				m_pTargetUser->m_sMaxHPAmount = 0;
-				m_pTargetUser->m_bType4Buff[0] = 0;
+			for (int i = 0; i < MAX_TYPE4_BUFF; i++)
+			{
+				if (m_pTargetUser->m_bType4Buff[i] == 0)
+					continue;
 
-				SendType4BuffRemove(m_pSkillTarget, 1);
-			}
+				uint8 buff_type = i + 1;
 
-			if (m_pTargetUser->m_bType4Buff[1] == 1) {
-				m_pTargetUser->m_sDuration2 = 0;		
-				m_pTargetUser->m_fStartTime2 = 0.0f;
-				m_pTargetUser->m_sACAmount = 0;
-				m_pTargetUser->m_bType4Buff[1] = 0;
-				
-				SendType4BuffRemove(m_pSkillTarget, 2);
-			}
+				switch (buff_type)
+				{
+				case 1: 
+					m_pTargetUser->m_sMaxHPAmount = 0;
+					break;
 
-			if (m_pTargetUser->m_bType4Buff[3] == 1) {
-				m_pTargetUser->m_sDuration4 = 0;		
-				m_pTargetUser->m_fStartTime4 = 0.0f;
-				m_pTargetUser->m_bAttackAmount = 100;
-				m_pTargetUser->m_bType4Buff[3] = 0;
+				case 2:
+					m_pTargetUser->m_sACAmount = 0;
+					break;
 
-				SendType4BuffRemove(m_pSkillTarget, 4);
-			}
+				case 3:
+					m_pTargetUser->StateChangeServerDirect(3, ABNORMAL_NORMAL);
+					break;
 
-			if (m_pTargetUser->m_bType4Buff[4] == 1) {
-				m_pTargetUser->m_sDuration5 = 0;		
-				m_pTargetUser->m_fStartTime5 = 0.0f;
-				m_pTargetUser->m_bAttackSpeedAmount = 100;	
-				m_pTargetUser->m_bType4Buff[4] = 0;
+				case 4:
+					m_pTargetUser->m_bAttackAmount = 100;
+					break;
 
-				SendType4BuffRemove(m_pSkillTarget, 5);
-			}
+				case 5:
+					m_pTargetUser->m_bAttackSpeedAmount = 100;
+					break;
 
-			if (m_pTargetUser->m_bType4Buff[5] == 1) {
-				m_pTargetUser->m_sDuration6 = 0;		
-				m_pTargetUser->m_fStartTime6 = 0.0f;
-				m_pTargetUser->m_bSpeedAmount = 100;
-				m_pTargetUser->m_bType4Buff[5] = 0;				
+				case 6:
+					m_pTargetUser->m_bSpeedAmount = 100;
+					break;
 
-				SendType4BuffRemove(m_pSkillTarget, 6);
-			}
+				case 7:
+					memset(m_pTargetUser->m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
+					break;
 
-			if (m_pTargetUser->m_bType4Buff[6] == 1) {
-				m_pTargetUser->m_sDuration7 = 0;		
-				m_pTargetUser->m_fStartTime7 = 0.0f;
-				// TO-DO: Implement reset.
-				memset(m_pTargetUser->m_bStatBuffs, 0, sizeof(uint8) * STAT_COUNT);
-				m_pTargetUser->m_bType4Buff[6] = 0;			
-				SendType4BuffRemove(m_pSkillTarget, 7);
-			}
+				case 8:
+					m_pTargetUser->m_bFireRAmount = m_pTargetUser->m_bColdRAmount = m_pTargetUser->m_bLightningRAmount = 0;
+					m_pTargetUser->m_bMagicRAmount = m_pTargetUser->m_bDiseaseRAmount = m_pTargetUser->m_bPoisonRAmount = 0;
+					break;
 
-			if (m_pTargetUser->m_bType4Buff[7] == 1) {
-				m_pTargetUser->m_sDuration8 = 0;		
-				m_pTargetUser->m_fStartTime8 = 0.0f;
-				m_pTargetUser->m_bFireRAmount = 0;
-				m_pTargetUser->m_bColdRAmount = 0;
-				m_pTargetUser->m_bLightningRAmount = 0;
-				m_pTargetUser->m_bMagicRAmount = 0;
-				m_pTargetUser->m_bDiseaseRAmount = 0;
-				m_pTargetUser->m_bPoisonRAmount = 0;
-				m_pTargetUser->m_bType4Buff[7] = 0;			
+				case 9:
+					m_pTargetUser->m_bHitRateAmount = 100;
+					m_pTargetUser->m_sAvoidRateAmount = 100;
+					break;
+				}
 
-				SendType4BuffRemove(m_pSkillTarget, 8);
-			}
-
-			if (m_pTargetUser->m_bType4Buff[8] == 1) {
-				m_pTargetUser->m_sDuration9 = 0;		
-				m_pTargetUser->m_fStartTime9 = 0.0f;
-				m_pTargetUser->m_bHitRateAmount = 100;
-				m_pTargetUser->m_sAvoidRateAmount = 100;
-				m_pTargetUser->m_bType4Buff[8] = 0;			
-
-				SendType4BuffRemove(m_pSkillTarget, 9);
+				m_pTargetUser->m_bType4Buff[i] = 0;
+				SendType4BuffRemove(m_pSkillTarget, buff_type);
 			}
 
 			m_pTargetUser->SetSlotItemValue();
@@ -1085,12 +1044,12 @@ bool CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 			m_pTargetUser->Send2AI_UserUpdateInfo();
 
 			buff_test = 0;
-			for (i = 0 ; i < MAX_TYPE4_BUFF; i++)
+			for (int i = 0 ; i < MAX_TYPE4_BUFF; i++)
 				buff_test += m_pTargetUser->m_bType4Buff[i];
 			if (buff_test == 0) m_pTargetUser->m_bType4Flag = FALSE;
 
 			bType4Test = TRUE ;
-			for (j = 0; j < MAX_TYPE4_BUFF; j++) {
+			for (int j = 0; j < MAX_TYPE4_BUFF; j++) {
 				if (m_pTargetUser->m_bType4Buff[j] == 1) {
 					bType4Test = FALSE;
 					break;
@@ -1107,8 +1066,8 @@ bool CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 
 		case REMOVE_BLESS:
 			if (m_pTargetUser->m_bType4Buff[0] == 2) {
-				m_pTargetUser->m_sDuration1 = 0;		
-				m_pTargetUser->m_fStartTime1 = 0.0f;
+				m_pTargetUser->m_sDuration[0] = 0;		
+				m_pTargetUser->m_fStartTime[0] = 0.0f;
 				m_pTargetUser->m_sMaxHPAmount = 0;
 				m_pTargetUser->m_bType4Buff[0] = 0;
 
@@ -1119,13 +1078,13 @@ bool CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 				m_pTargetUser->Send2AI_UserUpdateInfo();
 			
 				buff_test = 0;
-				for (i = 0 ; i < MAX_TYPE4_BUFF ; i++) {
+				for (int i = 0 ; i < MAX_TYPE4_BUFF ; i++) {
 					buff_test += m_pTargetUser->m_bType4Buff[i];
 				}
 				if (buff_test == 0) m_pTargetUser->m_bType4Flag = FALSE;
 
 				bType4Test = TRUE ;
-				for (j = 0 ; j < MAX_TYPE4_BUFF ; j++) {
+				for (int j = 0 ; j < MAX_TYPE4_BUFF ; j++) {
 					if (m_pTargetUser->m_bType4Buff[j] == 1) {
 						bType4Test = FALSE;
 						break;
@@ -1705,8 +1664,6 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 	switch (buff_type) {		
 		case 1:
 			if (pTUser->m_sMaxHPAmount > 0) {
-				pTUser->m_sDuration1 = 0;		
-				pTUser->m_fStartTime1 = 0.0f;
 				pTUser->m_sMaxHPAmount = 0;		
 				buff = TRUE;
 			}
@@ -1714,24 +1671,18 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 
 		case 2:
 			if (pTUser->m_sACAmount > 0) {
-				pTUser->m_sDuration2 = 0;		
-				pTUser->m_fStartTime2 = 0.0f;
 				pTUser->m_sACAmount = 0;
 				buff = TRUE;
 			}
 			break;
-// 
+
 		case 3:
-			pTUser->m_sDuration3 = 0;		
-			pTUser->m_fStartTime3 = 0.0f;
 			pTUser->StateChangeServerDirect(3, ABNORMAL_NORMAL);
 			buff = TRUE;	
 			break;
-//  
+
 		case 4:
 			if (pTUser->m_bAttackAmount > 100) {
-				pTUser->m_sDuration4 = 0;		
-				pTUser->m_fStartTime4 = 0.0f;
 				pTUser->m_bAttackAmount = 100;
 				buff = TRUE;
 			}
@@ -1739,8 +1690,6 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 
 		case 5:
 			if (pTUser->m_bAttackSpeedAmount > 100) {
-				pTUser->m_sDuration5 = 0;		
-				pTUser->m_fStartTime5 = 0.0f;
 				pTUser->m_bAttackSpeedAmount = 100;	
 				buff = TRUE;
 			}
@@ -1748,8 +1697,6 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 
 		case 6:	
 			if (pTUser->m_bSpeedAmount > 100) {
-				pTUser->m_sDuration6 = 0;		
-				pTUser->m_fStartTime6 = 0.0f;
 				pTUser->m_bSpeedAmount = 100;
 				buff = TRUE;
 			}
@@ -1757,8 +1704,6 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 
 		case 7:	
 			if (pTUser->getStatBuffTotal() > 0) {
-				pTUser->m_sDuration7 = 0;		
-				pTUser->m_fStartTime7 = 0.0f;
 				// TO-DO: Implement reset
 				memset(pTUser->m_bStatBuffs, 0, sizeof(uint8) * STAT_COUNT);
 				buff = TRUE;
@@ -1768,8 +1713,6 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 		case 8:	
 			if ((pTUser->m_bFireRAmount + pTUser->m_bColdRAmount + pTUser->m_bLightningRAmount +
 				pTUser->m_bMagicRAmount + pTUser->m_bDiseaseRAmount + pTUser->m_bPoisonRAmount) > 0) {
-				pTUser->m_sDuration8 = 0;		
-				pTUser->m_fStartTime8 = 0.0f;
 				pTUser->m_bFireRAmount = 0;
 				pTUser->m_bColdRAmount = 0;
 				pTUser->m_bLightningRAmount = 0;
@@ -1782,8 +1725,6 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 
 		case 9:	
 			if ((pTUser->m_bHitRateAmount + pTUser->m_sAvoidRateAmount) > 200) {
-				pTUser->m_sDuration9 = 0;		
-				pTUser->m_fStartTime9 = 0.0f;
 				pTUser->m_bHitRateAmount = 100;
 				pTUser->m_sAvoidRateAmount = 100;
 				buff = TRUE;
@@ -1793,6 +1734,8 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 	
 	if (buff)
 	{
+		pTUser->m_sDuration[buff_type - 1] = 0;
+		pTUser->m_fStartTime[buff_type - 1] = 0.0f;
 		pTUser->m_bType4Buff[buff_type - 1] = 0;
 		pTUser->SetSlotItemValue();
 		pTUser->SetUserAbility();
