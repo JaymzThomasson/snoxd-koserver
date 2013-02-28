@@ -89,7 +89,6 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 	if (m_pTargetMon != NULL)
 	{
 		SendSkillToAI(pMagic);
-		m_pTargetMon = NULL;
 		return;
 	}
 
@@ -134,7 +133,6 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 			// Type9Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Stealth lupine etc.
 			break;
 	}
-	m_pTargetUser = NULL;
 }
 
 bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
@@ -173,6 +171,9 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 	if (m_pSrcUser->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
 		&& m_nSkillID != SNOW_EVENT_SKILL)
 		return false;
+
+	m_pTargetMon = NULL;
+	m_pTargetUser = NULL;
 
 	if (m_pSkillTarget >= 0)
 	{
