@@ -578,30 +578,6 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 					}
 				}
 			}
-
-			if (pSkill->bType[0] == 5) {
-				if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER)	{	
-					if (pSkill->iUseItem != 0) {					
-						pType = g_pMain->m_Magictype5Array.GetData(pSkill->iNum);    
-						if (!pType) goto fail_return;
-
-						CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);    
-						if (!pTUser) goto fail_return;
-
-						// No resurrections for low level users
-						if (pType->bType == 3 && pTUser->GetLevel() <= 5)
-							return false;
-
-						if (pType->bType == 3) {
-							if (!pTUser->RobItem(pSkill->iUseItem, pType->sNeedStone))
-								return false;
-						}
-						else if (!m_pSrcUser->RobItem(pSkill->iUseItem, pType->sNeedStone))
-							return false;
-					}
-				}
-			}
-//
 			if (pSkill->bType[0] == 1 || pSkill->bType[0] == 2)	// Actual deduction of Skill or Magic point.
 				m_pSrcUser->MSpChange(-(skill_mana));
 			else if (pSkill->bType[0] != 4 || (pSkill->bType[0] == 4 && m_pSkillTarget == -1))
@@ -611,7 +587,6 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 				if (pSkill->sHP > m_pSrcUser->m_pUserData->m_sHp) goto fail_return;
 				m_pSrcUser->HpChange(-pSkill->sHP);
 			}
-//
 		}
 	}
 
@@ -992,180 +967,195 @@ void CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 	if (pType == NULL)
 		return;
 
-	CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
-	if (pTUser == NULL 
-		|| (pTUser->isDead() && pType->bType != RESURRECTION) 
-		|| (!pTUser->isDead() && pType->bType == RESURRECTION)) 
+	if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER)	{	
+			if (pSkill->iUseItem != 0) {					 
+
+						// No resurrections for low level users
+			if (pType->bType == 3 && m_pTargetUser->GetLevel() <= 5)
+				return;
+
+			if (pType->bType == 3) {
+				if (!m_pTargetUser->RobItem(pSkill->iUseItem, pType->sNeedStone))
+					return;
+			}
+			else if (!m_pSrcUser->RobItem(pSkill->iUseItem, pType->sNeedStone))
+				return;
+		}
+	}
+
+	if (m_pTargetUser == NULL 
+		|| (m_pTargetUser->isDead() && pType->bType != RESURRECTION) 
+		|| (!m_pTargetUser->isDead() && pType->bType == RESURRECTION)) 
 		return;
 
 	switch(pType->bType) {
 		case REMOVE_TYPE3:		// REMOVE TYPE 3!!!
 			for (i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {
-				if (pTUser->m_bHPAmount[i] < 0) {
-					pTUser->m_fHPStartTime[i] = 0.0f;
-					pTUser->m_fHPLastTime[i] = 0.0f;   
-					pTUser->m_bHPAmount[i] = 0;
-					pTUser->m_bHPDuration[i] = 0;				
-					pTUser->m_bHPInterval[i] = 5;
-					pTUser->m_sSourceID[i] = -1;
+				if (m_pTargetUser->m_bHPAmount[i] < 0) {
+					m_pTargetUser->m_fHPStartTime[i] = 0.0f;
+					m_pTargetUser->m_fHPLastTime[i] = 0.0f;   
+					m_pTargetUser->m_bHPAmount[i] = 0;
+					m_pTargetUser->m_bHPDuration[i] = 0;				
+					m_pTargetUser->m_bHPInterval[i] = 5;
+					m_pTargetUser->m_sSourceID[i] = -1;
 
 					// TO-DO: Wrap this up (ugh, I feel so dirty)
 					Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
 					result << uint8(200); // removes all
-					pTUser->Send(&result); 
+					m_pTargetUser->Send(&result); 
 				}
 			}
 
 			buff_test = 0;
 			for (j = 0; j < MAX_TYPE3_REPEAT; j++)
-				buff_test += pTUser->m_bHPDuration[j];
-			if (buff_test == 0) pTUser->m_bType3Flag = FALSE;	
+				buff_test += m_pTargetUser->m_bHPDuration[j];
+			if (buff_test == 0) m_pTargetUser->m_bType3Flag = FALSE;	
 
 			// Check for Type 3 Curses.
 			for (k = 0 ; k < MAX_TYPE3_REPEAT ; k++) {
-				if (pTUser->m_bHPAmount[k] < 0) {
+				if (m_pTargetUser->m_bHPAmount[k] < 0) {
 					bType3Test = FALSE;
 					break;
 				}
 			}
   
-			if (pTUser->isInParty() && bType3Test)
-				pTUser->SendPartyStatusUpdate(1);
+			if (m_pTargetUser->isInParty() && bType3Test)
+				m_pTargetUser->SendPartyStatusUpdate(1);
 			break;
 
 		case REMOVE_TYPE4:		// REMOVE TYPE 4!!!
-			if (pTUser->m_bType4Buff[0] == 1) {
-				pTUser->m_sDuration1 = 0;		
-				pTUser->m_fStartTime1 = 0.0f;
-				pTUser->m_sMaxHPAmount = 0;
-				pTUser->m_bType4Buff[0] = 0;
+			if (m_pTargetUser->m_bType4Buff[0] == 1) {
+				m_pTargetUser->m_sDuration1 = 0;		
+				m_pTargetUser->m_fStartTime1 = 0.0f;
+				m_pTargetUser->m_sMaxHPAmount = 0;
+				m_pTargetUser->m_bType4Buff[0] = 0;
 
 				SendType4BuffRemove(m_pSkillTarget, 1);
 			}
 
-			if (pTUser->m_bType4Buff[1] == 1) {
-				pTUser->m_sDuration2 = 0;		
-				pTUser->m_fStartTime2 = 0.0f;
-				pTUser->m_sACAmount = 0;
-				pTUser->m_bType4Buff[1] = 0;
+			if (m_pTargetUser->m_bType4Buff[1] == 1) {
+				m_pTargetUser->m_sDuration2 = 0;		
+				m_pTargetUser->m_fStartTime2 = 0.0f;
+				m_pTargetUser->m_sACAmount = 0;
+				m_pTargetUser->m_bType4Buff[1] = 0;
 				
 				SendType4BuffRemove(m_pSkillTarget, 2);
 			}
 
-			if (pTUser->m_bType4Buff[3] == 1) {
-				pTUser->m_sDuration4 = 0;		
-				pTUser->m_fStartTime4 = 0.0f;
-				pTUser->m_bAttackAmount = 100;
-				pTUser->m_bType4Buff[3] = 0;
+			if (m_pTargetUser->m_bType4Buff[3] == 1) {
+				m_pTargetUser->m_sDuration4 = 0;		
+				m_pTargetUser->m_fStartTime4 = 0.0f;
+				m_pTargetUser->m_bAttackAmount = 100;
+				m_pTargetUser->m_bType4Buff[3] = 0;
 
 				SendType4BuffRemove(m_pSkillTarget, 4);
 			}
 
-			if (pTUser->m_bType4Buff[4] == 1) {
-				pTUser->m_sDuration5 = 0;		
-				pTUser->m_fStartTime5 = 0.0f;
-				pTUser->m_bAttackSpeedAmount = 100;	
-				pTUser->m_bType4Buff[4] = 0;
+			if (m_pTargetUser->m_bType4Buff[4] == 1) {
+				m_pTargetUser->m_sDuration5 = 0;		
+				m_pTargetUser->m_fStartTime5 = 0.0f;
+				m_pTargetUser->m_bAttackSpeedAmount = 100;	
+				m_pTargetUser->m_bType4Buff[4] = 0;
 
 				SendType4BuffRemove(m_pSkillTarget, 5);
 			}
 
-			if (pTUser->m_bType4Buff[5] == 1) {
-				pTUser->m_sDuration6 = 0;		
-				pTUser->m_fStartTime6 = 0.0f;
-				pTUser->m_bSpeedAmount = 100;
-				pTUser->m_bType4Buff[5] = 0;				
+			if (m_pTargetUser->m_bType4Buff[5] == 1) {
+				m_pTargetUser->m_sDuration6 = 0;		
+				m_pTargetUser->m_fStartTime6 = 0.0f;
+				m_pTargetUser->m_bSpeedAmount = 100;
+				m_pTargetUser->m_bType4Buff[5] = 0;				
 
 				SendType4BuffRemove(m_pSkillTarget, 6);
 			}
 
-			if (pTUser->m_bType4Buff[6] == 1) {
-				pTUser->m_sDuration7 = 0;		
-				pTUser->m_fStartTime7 = 0.0f;
+			if (m_pTargetUser->m_bType4Buff[6] == 1) {
+				m_pTargetUser->m_sDuration7 = 0;		
+				m_pTargetUser->m_fStartTime7 = 0.0f;
 				// TO-DO: Implement reset.
-				memset(pTUser->m_bStatBuffs, 0, sizeof(uint8) * STAT_COUNT);
-				pTUser->m_bType4Buff[6] = 0;			
+				memset(m_pTargetUser->m_bStatBuffs, 0, sizeof(uint8) * STAT_COUNT);
+				m_pTargetUser->m_bType4Buff[6] = 0;			
 				SendType4BuffRemove(m_pSkillTarget, 7);
 			}
 
-			if (pTUser->m_bType4Buff[7] == 1) {
-				pTUser->m_sDuration8 = 0;		
-				pTUser->m_fStartTime8 = 0.0f;
-				pTUser->m_bFireRAmount = 0;
-				pTUser->m_bColdRAmount = 0;
-				pTUser->m_bLightningRAmount = 0;
-				pTUser->m_bMagicRAmount = 0;
-				pTUser->m_bDiseaseRAmount = 0;
-				pTUser->m_bPoisonRAmount = 0;
-				pTUser->m_bType4Buff[7] = 0;			
+			if (m_pTargetUser->m_bType4Buff[7] == 1) {
+				m_pTargetUser->m_sDuration8 = 0;		
+				m_pTargetUser->m_fStartTime8 = 0.0f;
+				m_pTargetUser->m_bFireRAmount = 0;
+				m_pTargetUser->m_bColdRAmount = 0;
+				m_pTargetUser->m_bLightningRAmount = 0;
+				m_pTargetUser->m_bMagicRAmount = 0;
+				m_pTargetUser->m_bDiseaseRAmount = 0;
+				m_pTargetUser->m_bPoisonRAmount = 0;
+				m_pTargetUser->m_bType4Buff[7] = 0;			
 
 				SendType4BuffRemove(m_pSkillTarget, 8);
 			}
 
-			if (pTUser->m_bType4Buff[8] == 1) {
-				pTUser->m_sDuration9 = 0;		
-				pTUser->m_fStartTime9 = 0.0f;
-				pTUser->m_bHitRateAmount = 100;
-				pTUser->m_sAvoidRateAmount = 100;
-				pTUser->m_bType4Buff[8] = 0;			
+			if (m_pTargetUser->m_bType4Buff[8] == 1) {
+				m_pTargetUser->m_sDuration9 = 0;		
+				m_pTargetUser->m_fStartTime9 = 0.0f;
+				m_pTargetUser->m_bHitRateAmount = 100;
+				m_pTargetUser->m_sAvoidRateAmount = 100;
+				m_pTargetUser->m_bType4Buff[8] = 0;			
 
 				SendType4BuffRemove(m_pSkillTarget, 9);
 			}
 
-			pTUser->SetSlotItemValue();
-			pTUser->SetUserAbility();
-			pTUser->Send2AI_UserUpdateInfo();
+			m_pTargetUser->SetSlotItemValue();
+			m_pTargetUser->SetUserAbility();
+			m_pTargetUser->Send2AI_UserUpdateInfo();
 
 			buff_test = 0;
 			for (i = 0 ; i < MAX_TYPE4_BUFF; i++)
-				buff_test += pTUser->m_bType4Buff[i];
-			if (buff_test == 0) pTUser->m_bType4Flag = FALSE;
+				buff_test += m_pTargetUser->m_bType4Buff[i];
+			if (buff_test == 0) m_pTargetUser->m_bType4Flag = FALSE;
 
 			bType4Test = TRUE ;
 			for (j = 0; j < MAX_TYPE4_BUFF; j++) {
-				if (pTUser->m_bType4Buff[j] == 1) {
+				if (m_pTargetUser->m_bType4Buff[j] == 1) {
 					bType4Test = FALSE;
 					break;
 				}
 			}
 
-			if (pTUser->isInParty() && bType4Test)
-				pTUser->SendPartyStatusUpdate(2, 0);
+			if (m_pTargetUser->isInParty() && bType4Test)
+				m_pTargetUser->SendPartyStatusUpdate(2, 0);
 			break;
 			
 		case RESURRECTION:		// RESURRECT A DEAD PLAYER!!!
-			pTUser->Regene(1, m_nSkillID);
+			m_pTargetUser->Regene(1, m_nSkillID);
 			break;
 
 		case REMOVE_BLESS:
-			if (pTUser->m_bType4Buff[0] == 2) {
-				pTUser->m_sDuration1 = 0;		
-				pTUser->m_fStartTime1 = 0.0f;
-				pTUser->m_sMaxHPAmount = 0;
-				pTUser->m_bType4Buff[0] = 0;
+			if (m_pTargetUser->m_bType4Buff[0] == 2) {
+				m_pTargetUser->m_sDuration1 = 0;		
+				m_pTargetUser->m_fStartTime1 = 0.0f;
+				m_pTargetUser->m_sMaxHPAmount = 0;
+				m_pTargetUser->m_bType4Buff[0] = 0;
 
 				SendType4BuffRemove(m_pSkillTarget, 1);
 
-				pTUser->SetSlotItemValue();
-				pTUser->SetUserAbility();
-				pTUser->Send2AI_UserUpdateInfo();
+				m_pTargetUser->SetSlotItemValue();
+				m_pTargetUser->SetUserAbility();
+				m_pTargetUser->Send2AI_UserUpdateInfo();
 			
 				buff_test = 0;
 				for (i = 0 ; i < MAX_TYPE4_BUFF ; i++) {
-					buff_test += pTUser->m_bType4Buff[i];
+					buff_test += m_pTargetUser->m_bType4Buff[i];
 				}
-				if (buff_test == 0) pTUser->m_bType4Flag = FALSE;
+				if (buff_test == 0) m_pTargetUser->m_bType4Flag = FALSE;
 
 				bType4Test = TRUE ;
 				for (j = 0 ; j < MAX_TYPE4_BUFF ; j++) {
-					if (pTUser->m_bType4Buff[j] == 1) {
+					if (m_pTargetUser->m_bType4Buff[j] == 1) {
 						bType4Test = FALSE;
 						break;
 					}
 				}
 
-				if (pTUser->isInParty() && bType4Test) 
-					pTUser->SendPartyStatusUpdate(2, 0);
+				if (m_pTargetUser->isInParty() && bType4Test) 
+					m_pTargetUser->SendPartyStatusUpdate(2, 0);
 			}
 
 			break;
