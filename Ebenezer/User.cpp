@@ -3231,18 +3231,13 @@ void CUser::BlinkTimeCheck(float currenttime)
 		return;
 
 	m_fBlinkStartTime = 0.0f;
-	if (m_bRegeneType == REGENE_MAGIC)
-		HpChange(m_iMaxHp / 2);
-	else
-		HpChange(m_iMaxHp);	
-
 	m_bRegeneType = REGENE_NORMAL;
+
 	StateChangeServerDirect(3, ABNORMAL_NORMAL);
 
 	Packet result(AG_USER_REGENE);
 	result	<< GetSocketID() << m_pUserData->m_sHp;
 	g_pMain->Send_AIServer(&result);
-
 
 	result.Initialize(AG_USER_INOUT);
 	result.SByte(); // TO-DO: Remove this redundant uselessness that is mgame
@@ -3660,7 +3655,7 @@ fail_return:
 
 bool CUser::isAttackZone()
 {
-	if(GetZoneID() == 21 && ((GetSPosX() < 735 && GetSPosX() > 684) && ((GetSPosZ() < 491 && GetSPosZ() > 440) || (GetSPosZ() < 411 && GetSPosZ() > 360)))
+	if(GetZoneID() == 21 && (GetSPosX() > 1 && GetSPosZ() > 1)															//TO-DO : Needs the correct coordinates to allow for the outdoors arena
 		|| ((GetZoneID() == 1  && g_pMain->m_byKarusOpenFlag) || (GetZoneID() == 2 && g_pMain->m_byElmoradOpenFlag)) )  //Taking into account invasions
 		return true;
 
