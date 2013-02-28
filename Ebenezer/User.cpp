@@ -145,6 +145,8 @@ void CUser::Initialize()
 	m_bZoneChangeSameZone = FALSE;
 
 	m_nTransformationItem = 0;
+	m_fTransformationStartTime = 0.0f;
+	m_sTransformationDuration = 0;
 
 	for (int j = 0 ; j < MAX_CURRENT_EVENT ; j++) {
 		m_sEvent[j] = -1;
@@ -427,7 +429,14 @@ bool CUser::HandlePacket(Packet & pkt)
 
 	if (m_bType4Flag)		// For Type 4 Stat Duration.
 		Type4Duration(currenttime);
-		
+	
+	if (m_bIsTransformed && (currenttime - m_fTransformationStartTime) > m_sTransformationDuration)
+	{
+		// TO-DO: Cancel type 6 skills
+		m_bIsTransformed = false;
+		StateChangeServerDirect(3, ABNORMAL_NORMAL);
+	}
+
 	if (isBlinking())		// Should you stop blinking?
 		BlinkTimeCheck(currenttime);
 	return true;

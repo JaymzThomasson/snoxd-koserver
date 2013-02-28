@@ -173,8 +173,10 @@ public:
 
 	BYTE	m_bType4Buff[MAX_TYPE4_BUFF];
 	BOOL	m_bType4Flag;
-		
+
 	uint32	m_nTransformationItem; // item used for transforming (e.g. disguise scroll, totem..)
+	float	m_fTransformationStartTime;
+	uint16	m_sTransformationDuration;
 
 	CMagicProcess m_MagicProcess;
 

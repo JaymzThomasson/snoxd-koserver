@@ -41,7 +41,7 @@ public:
 	void  ExecuteType3(_MAGIC_TABLE *pSkill);
 	void  ExecuteType4(_MAGIC_TABLE *pSkill);
 	void  ExecuteType5(_MAGIC_TABLE *pSkill);
-	void  ExecuteType6(_MAGIC_TABLE *pSkill);
+	uint8 ExecuteType6(_MAGIC_TABLE *pSkill);
 	void  ExecuteType7(_MAGIC_TABLE *pSkill);
 	void  ExecuteType8(_MAGIC_TABLE *pSkill);
 	void  ExecuteType9(_MAGIC_TABLE *pSkill);

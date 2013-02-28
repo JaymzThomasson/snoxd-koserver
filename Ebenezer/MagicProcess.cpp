@@ -273,7 +273,7 @@ uint8 CMagicProcess::ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType)
 			break;
 	
 		case 6:
-			ExecuteType6(pSkill);
+			bResult = ExecuteType6(pSkill);
 			break;
 	
 		case 7:
@@ -1165,46 +1165,51 @@ void CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 		SendSkill();
 }
 
-void CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
+uint8 CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 {
-	if (m_pSrcUser->isAttackZone()
+	_MAGIC_TYPE6 * pType = g_pMain->m_Magictype6Array.GetData(pSkill->iNum);
+	if (pType == NULL
+		|| m_pSrcUser->isAttackZone()
 		|| (m_pSrcUser->m_bAbnormalType != ABNORMAL_NORMAL && m_pSrcUser->isTransformed()))
-		return;
+		return 0;
 
-	bool UseGem = false;
+	/*
+		This is going to get messy, but this wacky logic's for
+		totem vs scroll use (totems consume gems, scrolls consume scrolls)
+	*/
 
-	if(m_pSrcUser->m_nTransformationItem == 0 && !m_pSrcUser->CanUseItem(pSkill->iUseItem, 1))
-		return;
-	else if(m_pSrcUser->m_nTransformationItem != 0)
-	{
-		if(!m_pSrcUser->CanUseItem(m_pSrcUser->m_nTransformationItem, 1))
-			return;
-		else
-			UseGem = m_pSrcUser->CanUseItem(pSkill->iUseItem, 1);
-	}
+	// Let's start by looking at the item that was used for the transformation.
+	uint32 iUseItem = m_pSrcUser->m_nTransformationItem;
 
-	_MAGIC_TYPE6* pType = g_pMain->m_Magictype6Array.GetData(pSkill->iNum);
-	if (pType == NULL)
-		return;
+	// If it doesn't exist (or wasn't set) we shouldn't even be here.
+	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(iUseItem);
+	if (pTable == NULL)
+		return 0;
 
-	//TO-DO : Save duration, and obviously end
+	// If we're using a scroll, we can leave the item as it is.
+	// But if it's a totem (which is apparently a ring), then we need to override it
+	// with a gem (which are conveniently stored in the skill table!)
+	if (pTable->m_bKind == 93) // this is a ring-type item
+		iUseItem = pSkill->iUseItem;
+
+	// Attempt to take the item (no further checks, so no harm in multipurposing)
+	// If we add more checks, remember to change this check.
+	if (!m_pSrcUser->RobItem(iUseItem, 1))
+		return 0;
+
+	// TO-DO : Save duration, and obviously end
+	m_pSrcUser->m_fTransformationStartTime = TimeGet();
+	m_pSrcUser->m_sTransformationDuration = pType->sDuration;
 
 	m_pSrcUser->StateChangeServerDirect(3, pSkill->iNum);
 	m_pSrcUser->m_bIsTransformed = true;
 
 	//TO-DO : Give the users ALL TEH BONUSES!!
 
-	Packet result(WIZ_MAGIC_PROCESS);
-	result	<< MAGIC_EFFECTING << m_nSkillID << m_pSrcUser->GetSocketID()
-			<< uint32(0) << uint16(1) << uint16(0) //TO-DO : Figure out these numbers
-			<< pType->sDuration << uint16(0) << uint16(0);
+	SendSkill(m_pSkillCaster, m_pSkillTarget, m_opcode,
+		m_nSkillID, m_sData1, 1, m_sData3, 0, 0, 0, 0, 0);
 
-	m_pSrcUser->SendToRegion(&result);
-
-	if(pSkill->bType[1] != 0)
-		ExecuteSkill(pSkill, pSkill->bType[1]);
-	else
-		TakeItems(pSkill, UseGem);
+	return 1;
 }
 
 void CMagicProcess::ExecuteType7(_MAGIC_TABLE *pSkill)
