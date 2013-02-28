@@ -1594,6 +1594,11 @@ void CUser::StateChange(Packet & pkt)
 		}
 		break;
 
+	case 5:
+		if (!isGM())
+			return;
+		break;
+
 	default:
 		TRACE("[SID=%d] StateChange: %s tripped (bType=%d, buff=%d, nBuff=%d) somehow, HOW!?\n", 
 			GetSocketID(), m_pUserData->m_id, bType, buff, nBuff);
@@ -1621,7 +1626,7 @@ void CUser::StateChangeServerDirect(BYTE bType, uint32 nBuff)
 		break;
 
 	case 6:
-		m_bPartyLeader = (buff != 0); 
+		nBuff = m_bPartyLeader; // we don't set this here.
 		break;
 
 	case 7:
@@ -1633,7 +1638,7 @@ void CUser::StateChangeServerDirect(BYTE bType, uint32 nBuff)
 	}
 
 	Packet result(WIZ_STATE_CHANGE);
-	result << GetSocketID() << bType << nBuff; /* hmm, it should probably be nBuff, not sure how transformations are to be handled so... otherwise, it's correct either way */
+	result << GetSocketID() << bType << nBuff; 
 	SendToRegion(&result);
 }
 
