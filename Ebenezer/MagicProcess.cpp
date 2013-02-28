@@ -89,6 +89,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 	if (m_pTargetMon != NULL)
 	{
 		SendSkillToAI(pMagic);
+		m_pTargetMon = NULL;
 		return;
 	}
 
@@ -133,6 +134,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 			// Type9Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Stealth lupine etc.
 			break;
 	}
+	m_pTargetUser = NULL;
 }
 
 bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
@@ -610,13 +612,18 @@ bool CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 		|| !m_pSrcUser->CheckExistItem(pSkill->iUseItem, pType->bNeedArrow))
 		return false;
 
-	_ITEM_TABLE* pTable = NULL;		// Get item info.
-	if (m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum)
-		pTable = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
-	else
-		pTable = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
-
-	if (pTable == NULL) 
+	_ITEM_TABLE* pTable = m_pSrcUser->getLeftHand();		// Get item info.
+	uint8 m_bWeaponType = m_pSrcUser->getLeftHandWeaponType();
+	if (pTable == NULL
+		|| m_bWeaponType != WEAPON_BOW
+		|| m_bWeaponType != WEAPON_LONGBOW) //Not wearing a left-handed bow
+	{
+		pTable = m_pSrcUser->getRightHand();
+		m_bWeaponType = m_pSrcUser->getRightHandWeaponType();
+	}
+	if (pTable == NULL 
+		|| m_bWeaponType != WEAPON_BOW
+		|| m_bWeaponType != WEAPON_LONGBOW)  //Not wearing a right-handed (2h) bow either!
 		return false;
 
 	CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
