@@ -1414,16 +1414,12 @@ void CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 		return;
 
 	if (pType->bStateChange <= 2)
-		m_pSrcUser->m_bInvisibilityType = pType->bStateChange;
+		m_pSrcUser->StateChangeServerDirect(7, pType->bStateChange); //Update the client to be invisible
 	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4)
 	{
 		m_pSrcUser->m_bCanSeeStealth = true;
 		//TO-DO : StateChange 4 -> Give the whole party the ability to see stealthed users.
 	}
-
-
-	m_pSrcUser->StateChangeServerDirect(7, m_pSrcUser->m_bInvisibilityType); //Update the client to be invisible
-	m_pSrcUser->UpdateVisibility(INVIS_NORMAL); //Become invisible to the AI server.
 
 
 }
