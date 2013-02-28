@@ -222,6 +222,13 @@ BOOL CUser::RobItem(int itemid, short count)
 			continue;
 
 		pItem->sCount -= count;
+
+		// This is a hackfix to ensure the duration is tweaked as well as the count
+		// for those special items that use this instead.
+		// This may or may not be accurate.
+		if (pTable->m_bKind == 255)
+			pItem->sDuration = pItem->sCount;
+
 		if (pItem->sCount == 0)
 			memset(&m_pUserData->m_sItemArray[i], 0, sizeof(_ITEM_DATA));
 
@@ -244,23 +251,29 @@ BOOL CUser::GiveItem(int itemid, short count, bool send_packet /*= true*/)
 	if (pos < 0)
 		return FALSE;
 
-	if (m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != 0)
+	_ITEM_DATA *pItem = &m_pUserData->m_sItemArray[SLOT_MAX+pos];
+	if (pItem->nNum != 0)
 	{	
 		// If non-stackable item and there's an item there already... not happening.
 		if (!pTable->m_bCountable
 			// otherwise, if the item isn't what the client thinks it is, better not change anything either.
-			|| m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != itemid) 
+			|| pItem->nNum != itemid) 
 			return FALSE;
 
 		bNewItem = false;
 	}
 
-	m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum = itemid;
-	m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount += count;
-	if (m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount > MAX_ITEM_COUNT)
-		m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = MAX_ITEM_COUNT;
-		
-	m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;
+	pItem->nNum = itemid;
+	pItem->sCount += count;
+	if (pItem->sCount > MAX_ITEM_COUNT)
+		pItem->sCount = MAX_ITEM_COUNT;
+	
+	pItem->sDuration = pTable->m_sDuration;
+
+	// This is really silly, but match the count up with the duration
+	// for this special items that behave this way.
+	if (pTable->m_bKind == 255)
+		pItem->sCount = pItem->sDuration;
 
 	if (send_packet)
 		SendStackChange(itemid, m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount, m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration, pos, true);

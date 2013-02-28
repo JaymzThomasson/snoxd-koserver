@@ -11,7 +11,7 @@
 #define MAX_NPC_SIZE		30
 
 #define MAX_TYPE3_REPEAT    20
-#define MAX_TYPE4_BUFF		9
+#define MAX_TYPE4_BUFF		14
 
 #define MAX_ITEM			28
 #define VIEW_DISTANCE		48			// ���ðŸ�

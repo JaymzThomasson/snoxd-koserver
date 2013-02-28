@@ -611,17 +611,13 @@ BYTE CMagicProcess::ExecuteType1(_MAGIC_TABLE *pSkill)
 	if (pType == NULL)
 		return 0;
 
-	damage = m_pSrcUser->GetDamage(m_pSkillTarget, pSkill->iNum);  // Get damage points of enemy.
-
-	if (m_pTargetUser == NULL || m_pTargetUser->isDead())
-		goto packet_send;
-
-	bResult = 1;
-
-	m_pTargetUser->HpChange(-damage, m_pSrcUser);
-	m_pSrcUser->SendTargetHP( 0, m_pSkillTarget, -damage );     // Change the HP of the target.
-
-packet_send:
+	damage = m_pSrcUser->GetDamage(m_pSkillTarget, pSkill->iNum);
+	if (m_pTargetUser != NULL && !m_pTargetUser->isDead())
+	{
+		bResult = 1;
+		m_pTargetUser->HpChange(-damage, m_pSrcUser);
+		m_pSrcUser->SendTargetHP(0, m_pSkillTarget, -damage);
+	}
 
 	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
 	m_sData4 = (damage == 0 ? -104 : 0);
