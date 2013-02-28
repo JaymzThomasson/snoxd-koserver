@@ -3655,9 +3655,12 @@ fail_return:
 
 bool CUser::isAttackZone()
 {
-	if(GetZoneID() == 21 && (GetSPosX() > 1 && GetSPosZ() > 1)															//TO-DO : Needs the correct coordinates to allow for the outdoors arena
+	// this needs to be handled more generically (i.e. bounds loaded from the database, or their existing SMD method)
+	if (GetZoneID() == 21 
+		&& ((GetX() < 735.0f && GetX() > 684.0f) 
+		&& ((GetZ() < 491.0f && GetZ() > 440.0f) || (GetZ() < 411.0f && GetZ() > 360.0f)))
 		|| ((GetZoneID() == 1  && g_pMain->m_byKarusOpenFlag) || (GetZoneID() == 2 && g_pMain->m_byElmoradOpenFlag)) )  //Taking into account invasions
-		return true;
+	return true;
 
 	return GetMap()->isAttackZone();
 }

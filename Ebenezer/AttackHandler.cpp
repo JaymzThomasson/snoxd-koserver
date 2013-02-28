@@ -36,7 +36,8 @@ void CUser::Attack(Packet & pkt)
 		pTUser = g_pMain->GetUserPtr(tid);
  
 		if (pTUser == NULL || pTUser->isDead() || pTUser->isBlinking()
-				|| (pTUser->GetNation() == GetNation() && GetZoneID() != 48 /* TO-DO: implement better checks */)) 
+				|| (pTUser->GetNation() == GetNation() && GetZoneID() != 48 /* TO-DO: implement better checks */)
+				|| !isAttackZone()) 
 			bResult = 0;
 		else 
 		{

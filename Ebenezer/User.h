@@ -310,10 +310,6 @@ public:
 
 	__forceinline C3DMap * GetMap() { return m_pMap; }
 
-	__forceinline uint16 GetSPosX() { return uint16(m_pUserData->m_curx * 10); }
-	__forceinline uint16 GetSPosY() { return uint16(m_pUserData->m_cury * 10); }
-	__forceinline uint16 GetSPosZ() { return uint16(m_pUserData->m_curz * 10); }
-
 	CUser(uint16 socketID, SocketMgr *mgr); 
 
 	virtual void OnConnect();
