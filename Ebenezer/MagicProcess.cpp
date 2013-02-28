@@ -1169,29 +1169,42 @@ void CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 uint8 CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 {
 	_MAGIC_TYPE6 * pType = g_pMain->m_Magictype6Array.GetData(pSkill->iNum);
+	uint32 iUseItem = 0;
+
 	if (pType == NULL
 		|| m_pSrcUser->isAttackZone()
-		|| (m_pSrcUser->m_bAbnormalType != ABNORMAL_NORMAL && m_pSrcUser->isTransformed()))
+		|| m_pSrcUser->isTransformed())
+		return 0;
+
+	// Let's start by looking at the item that was used for the transformation.
+	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(m_pSrcUser->m_nTransformationItem);
+
+	// Also, for the sake of specific skills that bypass the list, let's lookup the 
+	// item attached to the skill.
+	_ITEM_TABLE *pTable2 = g_pMain->GetItemPtr(pSkill->iUseItem);
+
+	// If neither of these items exist, we have a bit of a problem...
+	if (pTable == NULL 
+		&& pTable2 == NULL)
 		return 0;
 
 	/*
-		This is going to get messy, but this wacky logic's for
-		totem vs scroll use (totems consume gems, scrolls consume scrolls)
+		If it's a totem (which is apparently a ring), then we need to override it 
+		with a gem (which are conveniently stored in the skill table!)
+
+		The same is true for special items such as the Hera transformation scroll, 
+		however we need to go by the item attached to the skill for this one as 
+		these skills bypass the transformation list and thus do not set the flag.
 	*/
 
-	// Let's start by looking at the item that was used for the transformation.
-	uint32 iUseItem = m_pSrcUser->m_nTransformationItem;
-
-	// If it doesn't exist (or wasn't set) we shouldn't even be here.
-	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(iUseItem);
-	if (pTable == NULL)
-		return 0;
-
-	// If we're using a scroll, we can leave the item as it is.
-	// But if it's a totem (which is apparently a ring), then we need to override it
-	// with a gem (which are conveniently stored in the skill table!)
-	if (pTable->m_bKind == 93) // this is a ring-type item
+	// Special items (e.g. Hera transformation scroll) use the scroll (tied to the skill)
+	if ((pTable2 != NULL && pTable2->m_bKind == 255)
+		// Totems (i.e. rings) take gems (tied to the skill)
+		|| (pTable != NULL && pTable->m_bKind == 93)) 
 		iUseItem = pSkill->iUseItem;
+	// If we're using a normal transformation scroll, we can leave the item as it is.
+	else 
+		iUseItem = m_pSrcUser->m_nTransformationItem;
 
 	// Attempt to take the item (no further checks, so no harm in multipurposing)
 	// If we add more checks, remember to change this check.
@@ -1205,13 +1218,14 @@ uint8 CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 	m_pSrcUser->StateChangeServerDirect(3, pSkill->iNum);
 	m_pSrcUser->m_bIsTransformed = true;
 
-	//TO-DO : Give the users ALL TEH BONUSES!!
+	// TO-DO : Give the users ALL TEH BONUSES!!
 
 	SendSkill(m_pSkillCaster, m_pSkillTarget, m_opcode,
 		m_nSkillID, m_sData1, 1, m_sData3, 0, 0, 0, 0, 0);
 
 	return 1;
 }
+
 
 void CMagicProcess::ExecuteType7(_MAGIC_TABLE *pSkill)
 {
