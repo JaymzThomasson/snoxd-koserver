@@ -123,7 +123,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 		case MAGIC_CANCEL2:
 			Type3Cancel(m_nSkillID, m_pSrcUser->GetSocketID());
 			Type4Cancel(m_nSkillID, m_pSrcUser->GetSocketID());
-			//Type6Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Scrolls etc.
+			Type6Cancel();
 			//Type9Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Stealth lupine etc.
 			break;
 	}
