@@ -31,8 +31,9 @@ public:
 	short GetWeatherDamage(short damage, short attribute);
 	void SendType4BuffRemove(short tid, BYTE buff);
 	void Type3Cancel(int magicid, short tid);
-	void Type4Cancel(int magicid, short  tid);
-//	BOOL UserRegionCheck(int sid, int tid, int magicid, int radius);
+	void Type4Cancel(int magicid, short tid);
+	void Type6Cancel();
+
 	BOOL UserRegionCheck(int sid, int tid, int magicid, int radius, short mousex = 0, short mousez = 0);
 	short GetMagicDamage(int sid, int tid, int total_hit, int attribute);
 

@@ -431,11 +431,7 @@ bool CUser::HandlePacket(Packet & pkt)
 		Type4Duration(currenttime);
 	
 	if (m_bIsTransformed && (currenttime - m_fTransformationStartTime) > m_sTransformationDuration)
-	{
-		// TO-DO: Cancel type 6 skills
-		m_bIsTransformed = false;
-		StateChangeServerDirect(3, ABNORMAL_NORMAL);
-	}
+		m_MagicProcess.Type6Cancel();
 
 	if (isBlinking())		// Should you stop blinking?
 		BlinkTimeCheck(currenttime);

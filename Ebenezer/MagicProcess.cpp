@@ -1679,6 +1679,19 @@ final_test :
 	return FALSE;
 }
 
+void CMagicProcess::Type6Cancel()
+{
+	if (m_pSrcUser == NULL
+		|| !m_pSrcUser->m_bIsTransformed)
+		return;
+
+	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_CANCEL_TYPE6));
+	// TO-DO: Reset stat changes, recalculate stats.
+	m_pSrcUser->m_bIsTransformed = false;
+	m_pSrcUser->Send(&result);
+	m_pSrcUser->StateChangeServerDirect(3, ABNORMAL_NORMAL); 
+}
+
 void CMagicProcess::Type4Cancel(int magicid, short tid)
 {
 	CUser* pTUser = g_pMain->GetUserPtr(tid);  
