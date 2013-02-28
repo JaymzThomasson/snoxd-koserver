@@ -285,6 +285,7 @@ BOOL CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 	return (pTable != NULL
 		&& GetLevel() >= pTable->m_bReqLevel 
 		&& GetLevel() <= pTable->m_bReqLevelMax
+		&& (pTable->m_bRace == 0 || pTable->m_bRace == m_pUserData->m_bRace)
 		&& m_pUserData->m_bRank >= pTable->m_bReqRank // this needs to be verified
 		&& m_pUserData->m_bTitle >= pTable->m_bReqTitle // this is unused
 		&& getStat(STAT_STR) >= pTable->m_bReqStr 
@@ -313,8 +314,7 @@ void CUser::ItemMove(Packet & pkt)
 				&& (bDstPos > SLOT_MAX || !ItemEquipAvailable(pTable)))
 			|| (dir == ITEM_SLOT_INVEN && bSrcPos > SLOT_MAX)
 			|| (dir == ITEM_INVEN_SLOT && bDstPos == RESERVED)
-			|| (dir == ITEM_SLOT_INVEN && bDstPos == RESERVED)
-			|| (pTable->m_bRace != 0 && pTable->m_bRace != m_pUserData->m_bRace))
+			|| (dir == ITEM_SLOT_INVEN && bDstPos == RESERVED))
 			goto fail_return;
 
 	switch (dir)
