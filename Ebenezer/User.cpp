@@ -670,6 +670,7 @@ void CUser::SetMaxHp(int iFlag)
 	else	{
 		m_iMaxHp = (short)(((p_TableCoefficient->HP * GetLevel() * GetLevel() * temp_sta ) 
 		      + (0.1 * GetLevel() * temp_sta ) + (temp_sta / 5)) + m_sMaxHPAmount + m_sItemMaxHp);
+
 		if( iFlag == 1 )	m_pUserData->m_sHp = m_iMaxHp + 20;
 		else if( iFlag == 2 )	m_iMaxHp = 100;
 	}
@@ -678,8 +679,6 @@ void CUser::SetMaxHp(int iFlag)
 		m_pUserData->m_sHp = m_iMaxHp;
 		HpChange( m_pUserData->m_sHp );
 	}
-	if( m_pUserData->m_sHp < 5 )
-		m_pUserData->m_sHp = 5;
 }
 
 void CUser::SetMaxMp()
@@ -1168,7 +1167,7 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= 
 	if (amount < 0 && -amount > m_pUserData->m_sHp)
 		m_pUserData->m_sHp = 0;
 	else if (amount >= 0 && m_pUserData->m_sHp + amount > m_iMaxHp)
-		m_pUserData->m_sHp = m_iMaxMp;
+		m_pUserData->m_sHp = m_iMaxHp;
 	else
 		m_pUserData->m_sHp += amount;
 
