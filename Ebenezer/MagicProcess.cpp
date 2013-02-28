@@ -641,14 +641,20 @@ BYTE CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 		return 0;
 
 
-	_ITEM_TABLE* pTable = NULL;		// Get item info.
-	if (m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum)
-		pTable = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
-	else
-		pTable = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
-
-	if (pTable == NULL) 
+	_ITEM_TABLE* pTable = m_pSrcUser->getLeftHand();		// Get item info.
+	uint8 m_bWeaponType = m_pSrcUser->getLeftHandWeaponType();
+	if (pTable == NULL
+		|| m_bWeaponType != WEAPON_BOW
+		|| m_bWeaponType != WEAPON_LONGBOW) //Not wearing a left-handed bow
+	{
+		pTable = m_pSrcUser->getRightHand();
+		m_bWeaponType = m_pSrcUser->getRightHandWeaponType();
+	}
+	if (pTable == NULL 
+		|| m_bWeaponType != WEAPON_BOW
+		|| m_bWeaponType != WEAPON_LONGBOW)  //Not wearing a right-handed (2h) bow either!
 		return 0;
+
 
 	CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
 	// is this checked already?
