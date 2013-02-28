@@ -112,6 +112,9 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 			}
 
 			bInitialResult = ExecuteSkill(pMagic, pMagic->bType[0]);
+			// NOTE: Some ROFD skills require a THIRD type.
+			if (bInitialResult != 0)
+				ExecuteSkill(pMagic, pMagic->bType[1]);
 			break;
 		case MAGIC_FLYING:
 		case MAGIC_FAIL:
@@ -129,10 +132,6 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 			// Type9Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Stealth lupine etc.
 			break;
 	}
-
-	// NOTE: Some ROFD skills require a THIRD type.
-	if (bInitialResult != 0)
-		ExecuteSkill(pMagic, pMagic->bType[1]);
 }
 
 bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
