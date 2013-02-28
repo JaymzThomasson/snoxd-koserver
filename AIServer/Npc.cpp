@@ -1876,7 +1876,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 			if( pUser != NULL && pUser->m_bLive == USER_LIVE)	{
 				// 같은 국가의 유저는 공격을 하지 않도록 한다...
 				if (m_byGroup == pUser->m_bNation
-					|| pUser->m_bIsInvisible
+					|| pUser->m_bInvisibilityType
 					|| pUser->m_byIsOP == MANAGER_USER)
 					continue;
 
@@ -2588,7 +2588,7 @@ int CNpc::Attack()
 			return nStandingTime;
 		}
 
-		if (pUser->m_bIsInvisible
+		if (pUser->m_bInvisibilityType
 			|| pUser->m_state == STATE_DISCONNECTED)
 		{
 			InitTarget();
@@ -2779,7 +2779,7 @@ int CNpc::LongAndMagicAttack()
 			return nStandingTime;
 		}
 
-		if (pUser->m_bIsInvisible
+		if (pUser->m_bInvisibilityType
 			|| pUser->m_state == STATE_DISCONNECTED)
 		{
 			InitTarget();
@@ -2871,7 +2871,7 @@ int CNpc::TracingAttack()		// 0:attack fail, 1:attack success
 			return 0;
 		}
 
-		if (pUser->m_bIsInvisible
+		if (pUser->m_bInvisibilityType
 			|| pUser->m_state == STATE_DISCONNECTED
 			|| pUser->m_byIsOP == MANAGER_USER)
 			return 0;
@@ -3367,7 +3367,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 	if (pUser == NULL
 		|| pUser->m_bLive == USER_DEAD
 		|| pUser->m_bNation == m_byGroup
-		|| pUser->m_bIsInvisible
+		|| pUser->m_bInvisibilityType
 		|| pUser->m_byIsOP == MANAGER_USER
 		|| m_NpcState == NPC_FAINTING
 		|| m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT 

@@ -42,8 +42,8 @@ void CUser::Initialize()
 	m_bStoreOpen = false;
 	m_bIsMerchanting = false;
 	m_bPartyLeader = false;
-	m_bIsInvisible = 0;
 	m_bIsTransformed = false;
+	m_bInvisibilityType = INVIS_NONE;
 
 	m_sDirection = 0;
 
@@ -1234,7 +1234,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 			<< m_sItemAc
 			<< m_bMagicTypeLeftHand << m_bMagicTypeRightHand
 			<< m_sMagicAmountLeftHand << m_sMagicAmountRightHand
-			<< m_pUserData->m_bAuthority << m_bIsInvisible;
+			<< m_pUserData->m_bAuthority << m_bInvisibilityType;
 
 	g_pMain->Send_AIServer(&result);
 }
@@ -1557,45 +1557,22 @@ void CUser::StateChange(Packet & pkt)
 	if (isDead())
 		return;
 
-	int index = 0;
-	uint8 type = pkt.read<uint8>(), buff;
+	uint8 bType = pkt.read<uint8>(), buff;
 	uint32 nBuff = pkt.read<uint32>();
-
-	if( type > 5 ) return;
-	if( type == 5 && m_pUserData->m_bAuthority != 0) return;	//  Operators only!!!
-
 	buff = *(uint8 *)&nBuff; // don't ask
 
-	switch (type)
+	switch (bType)
 	{
 	case 1:
-		m_bResHpType = buff;
+		if (buff != USER_STANDING || buff != USER_SITDOWN)
+			return;
 		break;
 
-/*	case 2:
-		m_bNeedParty = buff;
-		break;*/
-
 	case 3:
-		switch (buff)
-		{
-		case 1: // unview
-			m_bIsInvisible = 2;
-			break;
-		case 5: // view
-			// to-do: should implement GM check, but we'll leave it off for now (for science!)
-			m_bIsInvisible = 0; //Do we need to send this to the AI server aswell?
-			break;
-
-		case ABNORMAL_BLINKING: // blinking, duh 
-			break;
-
-		default:
-			TRACE("[SID=%d] StateChange: %s tripped (%d,%d) somehow, HOW!?\n", GetSocketID(), m_pUserData->m_id, type, buff);
-			break;
-
-		}
-		m_bAbnormalType = buff;
+		// /unview | /view
+		if ((buff == 1 || buff == 5)
+			&& !isGM())
+			return;
 		break;
 
 	case 4: // emotions
@@ -1612,30 +1589,53 @@ void CUser::StateChange(Packet & pkt)
 			break; // don't do anything with them (this can be handled neater, but just for testing purposes), just make sure they're allowed
 
 		default:
-			TRACE("[SID=%d] StateChange: %s tripped (%d,%d) somehow, HOW!?\n", GetSocketID(), m_pUserData->m_id, type, buff);
+			TRACE("[SID=%d] StateChange: %s tripped (bType=%d, buff=%d, nBuff=%d) somehow, HOW!?\n", 
+				GetSocketID(), m_pUserData->m_id, bType, buff, nBuff);
 			break;
 		}
 		break;
 
-	case 7:
-	case 8: // beginner quest
+	default:
+		TRACE("[SID=%d] StateChange: %s tripped (bType=%d, buff=%d, nBuff=%d) somehow, HOW!?\n", 
+			GetSocketID(), m_pUserData->m_id, bType, buff, nBuff);
+		return;
+	}
+
+	StateChangeServerDirect(bType, nBuff);
+}
+
+void CUser::StateChangeServerDirect(BYTE bType, uint32 nBuff)
+{
+	uint8 buff = *(uint8 *)&nBuff; // don't ask
+	switch (bType)
+	{
+	case 1:
+		m_bResHpType = buff;
 		break;
 
-	default:
-		TRACE("[SID=%d] StateChange: %s tripped (%d,%d) somehow, HOW!?\n", GetSocketID(), m_pUserData->m_id, type, buff);
+	case 2:
+		m_bNeedParty = buff;
+		break;
+
+	case 3:
+		m_bAbnormalType = nBuff;
+		break;
+
+	case 6:
+		m_bPartyLeader = (buff != 0); 
+		break;
+
+	case 7:
+		UpdateVisibility((InvisibilityType)buff);
+		break;
+
+	case 8: // beginner quest
 		break;
 	}
 
 	Packet result(WIZ_STATE_CHANGE);
-	result << GetSocketID() << type << nBuff; /* hmm, it should probably be nBuff, not sure how transformations are to be handled so... otherwise, it's correct either way */
+	result << GetSocketID() << bType << nBuff; /* hmm, it should probably be nBuff, not sure how transformations are to be handled so... otherwise, it's correct either way */
 	SendToRegion(&result);
-}
-
-void CUser::StateChangeServerDirect(BYTE bType, int nValue)
-{
-	Packet result; // TO-DO: Make this standalone.
-	result << bType << nValue;
-	StateChange(result);
 }
 
 void CUser::LoyaltyChange(short tid)
@@ -1809,7 +1809,7 @@ void CUser::GetUserInfoForAI(Packet & result)
 			<< uint16(m_sTotalAc + m_sACAmount)
 			<< m_sTotalHitrate << m_sTotalEvasionrate
 			<< m_sPartyIndex << m_pUserData->m_bAuthority
-			<< m_bIsInvisible;
+			<< m_bInvisibilityType;
 }
 
 void CUser::CountConcurrentUser()
@@ -3194,11 +3194,11 @@ void CUser::SendAnvilRequest(int nid)
 	Send(&result);
 }
 
-void CUser::UpdateVisibility(bool bVisible)
+void CUser::UpdateVisibility(InvisibilityType bNewType)
 {
 	Packet result(AG_USER_VISIBILITY);
-	m_bIsInvisible = !bVisible;
-	result << GetID() << m_bIsInvisible;
+	m_bInvisibilityType = (uint8)(bNewType);
+	result << GetID() << m_bInvisibilityType;
 	g_pMain->Send_AIServer(&result);
 }
 
@@ -3213,8 +3213,8 @@ void CUser::BlinkStart()
 	m_fBlinkStartTime = TimeGet();
 	m_bRegeneType = REGENE_ZONECHANGE;
 	
-	UpdateVisibility(0);
-	m_bIsInvisible = false; // AI shouldn't see us, but players should. This is where having 2 states sucks.
+	UpdateVisibility(INVIS_NORMAL); // AI shouldn't see us
+	m_bInvisibilityType = INVIS_NONE; // but players should. 
 
 	StateChangeServerDirect(3, ABNORMAL_BLINKING);
 }
@@ -3245,7 +3245,7 @@ void CUser::BlinkTimeCheck(float currenttime)
 			<< m_pUserData->m_curx << m_pUserData->m_curz;
 	g_pMain->Send_AIServer(&result);
 
-	UpdateVisibility(true);
+	UpdateVisibility(INVIS_NONE);
 }
 
 void CUser::GoldGain(int gold)	// 1 -> Get gold    2 -> Lose gold

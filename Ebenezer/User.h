@@ -28,6 +28,13 @@ enum GameState
 	GAME_STATE_INGAME
 };
 
+enum InvisibilityType
+{
+	INVIS_NONE				= 0,
+	INVIS_DISPEL_ON_MOVE	= 1,
+	INVIS_NORMAL			= 2
+};
+
 class CEbenezerDlg;
 class CUser : public Unit, public KOSocket
 {
@@ -109,8 +116,8 @@ public:
 	short	m_sPartyIndex;
 	bool	m_bPartyLeader;
 
-	uint8	m_bIsInvisible;
 	bool	m_bCanSeeStealth;
+	uint8	m_bInvisibilityType;
 
 	short	m_sExchangeUser;
 	BYTE	m_bExchangeOK;
@@ -337,7 +344,7 @@ public:
 	void SendItemWeight();
 	void ItemLogToAgent(const char *srcid, const char *tarid, int type, __int64 serial, int itemid, int count, int durability);
 	void TestPacket( char* pBuf );
-	void UpdateVisibility(bool bVisible);
+	void UpdateVisibility(InvisibilityType bNewType);
 	void BlinkStart();
 	void BlinkTimeCheck(float currenttime);
 	void InitType3();
@@ -427,7 +434,7 @@ public:
 	void PointChange(Packet & pkt);
 
 	void StateChange(Packet & pkt);
-	void StateChangeServerDirect(BYTE bType, int nValue);
+	void StateChangeServerDirect(BYTE bType, uint32 nBuff);
 
 	void PartyProcess(Packet & pkt);
 	void PartyDelete();

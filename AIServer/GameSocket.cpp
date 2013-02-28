@@ -157,7 +157,7 @@ void CGameSocket::RecvUserInfo(Packet & pkt)
 		>> pUser->m_sAC >> pUser->m_fHitrate >> pUser->m_fAvoidrate >> pUser->m_sItemAC 
 		>> pUser->m_bMagicTypeLeftHand >> pUser->m_bMagicTypeRightHand
 		>> pUser->m_sMagicAmountLeftHand >> pUser->m_sMagicAmountRightHand
-		>> pUser->m_byIsOP >> pUser->m_bIsInvisible;
+		>> pUser->m_byIsOP >> pUser->m_bInvisibilityType;
 
 	if (strUserID.empty() || strUserID.length() > MAX_ID_SIZE)
 	{
@@ -492,7 +492,7 @@ void CGameSocket::RecvUserUpdate(Packet & pkt)
 		>> pUser->m_sHitDamage >> pUser->m_sAC >> pUser->m_fHitrate >> pUser->m_fAvoidrate
 		>> pUser->m_sItemAC >> pUser->m_bMagicTypeLeftHand >> pUser->m_bMagicTypeRightHand
 		>> pUser->m_sMagicAmountLeftHand >> pUser->m_sMagicAmountRightHand
-		>> pUser->m_bIsInvisible;
+		>> pUser->m_bInvisibilityType;
 
 	// level up
 	if (pUser->m_bLevel > bOldLevel)
@@ -568,7 +568,7 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 			>> pUser->m_sHitDamage >> pUser->m_sAC
 			>> pUser->m_fHitrate >> pUser->m_fAvoidrate
 			>> pUser->m_sPartyNumber >> pUser->m_byIsOP
-			>> pUser->m_bIsInvisible;
+			>> pUser->m_bInvisibilityType;
 
 		if (strUserID.empty() || strUserID.length() > MAX_ID_SIZE)
 		{
@@ -646,7 +646,7 @@ void CGameSocket::RecvUserVisibility(Packet & pkt)
 	if (pUser == NULL)
 		return;
 
-	pUser->m_bIsInvisible = bIsInvisible;
+	pUser->m_bInvisibilityType = bIsInvisible;
 }
 
 void CGameSocket::RecvPartyInfoAllData(Packet & pkt)
