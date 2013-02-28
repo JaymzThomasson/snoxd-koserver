@@ -225,7 +225,7 @@ BOOL CUser::RobItem(int itemid, short count)
 		if (pItem->sCount == 0)
 			memset(&m_pUserData->m_sItemArray[i], 0, sizeof(_ITEM_DATA));
 
-		SendStackChange(itemid, pItem->sCount, pItem->sDuration, i);
+		SendStackChange(itemid, pItem->sCount, pItem->sDuration, i - SLOT_MAX);
 		return TRUE;
 	}
 	
