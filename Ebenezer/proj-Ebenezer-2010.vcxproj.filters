@@ -126,9 +126,6 @@
     <ClCompile Include="CharacterMovementHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
-    <ClCompile Include="MagicHandler.cpp">
-      <Filter>Source Files\Handlers</Filter>
-    </ClCompile>
     <ClCompile Include="AISocket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
