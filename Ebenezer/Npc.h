@@ -54,7 +54,7 @@ public:
 	CNpc();
 
 
-	void Initialize();
+	virtual void Initialize();
 	void MoveResult(float xpos, float ypos, float zpos, float speed);
 	virtual void GetInOut(Packet & result, uint8 bType);
 	void SendInOut(uint8 bType, float fx, float fz, float fy);

@@ -35,6 +35,8 @@ void CUser::OnConnect()
 
 void CUser::Initialize()
 {
+	Unit::Initialize();
+
 	m_state = GAME_STATE_CONNECTED;
 
 	m_strAccountID.clear();
@@ -46,11 +48,6 @@ void CUser::Initialize()
 	m_bInvisibilityType = INVIS_NONE;
 
 	m_sDirection = 0;
-
-	m_sTotalHit = 0;
-	m_sTotalAc = 0;
-	m_sTotalHitrate = 0.0f;
-	m_sTotalEvasionrate = 0.0f;
 
 	m_sItemMaxHp = 0;
 	m_sItemMaxMp = 0;
@@ -70,25 +67,6 @@ void CUser::Initialize()
 	m_iMaxMp = 1;
 	m_iMaxExp = 0;
 	m_sMaxWeight = 0;
-
-	m_bFireR = 0;
-	m_bColdR = 0;
-	m_bLightningR = 0;
-	m_bMagicR = 0;
-	m_bDiseaseR = 0;
-	m_bPoisonR = 0;
-
-	m_sDaggerR = 0;			
-	m_sSwordR = 0;			
-	m_sAxeR = 0;						
-	m_sMaceR = 0;						
-	m_sSpearR = 0;					
-	m_sBowR = 0;		
-	
-	m_bMagicTypeLeftHand = 0;		// For weapons and shields with special power.		
-	m_bMagicTypeRightHand = 0;		
-	m_sMagicAmountLeftHand = 0;        
-	m_sMagicAmountRightHand = 0;       
 
 	m_pMap = NULL;	
 	m_bResHpType = USER_STANDING;
@@ -122,35 +100,25 @@ void CUser::Initialize()
 	m_fBlinkStartTime = 0.0f;
 
 	m_sAliveCount = 0;
-
-	m_bAbnormalType = 1;	// User starts out in normal size.
+	m_bAbnormalType = ABNORMAL_NORMAL;	// User starts out in normal size.
 
 	m_sWhoKilledMe = -1;
 	m_iLostExp = 0;
 
 	m_fLastTrapAreaTime = 0.0f;
 
-	for (int i = 0 ; i < MAX_MESSAGE_EVENT ; i++) {
-		m_iSelMsgEvent[i] = -1;
-	}
-	
+	memset(m_iSelMsgEvent, -1,  MAX_MESSAGE_EVENT);
+	memset(m_sEvent, -1, MAX_CURRENT_EVENT);
+
 	m_sEventNid = -1;
-
 	m_bZoneChangeFlag = FALSE;
-
 	m_bRegeneType = 0;
-
 	m_fLastRegeneTime = 0.0f;
-
 	m_bZoneChangeSameZone = FALSE;
 
 	m_nTransformationItem = 0;
 	m_fTransformationStartTime = 0.0f;
 	m_sTransformationDuration = 0;
-
-	for (int j = 0 ; j < MAX_CURRENT_EVENT ; j++) {
-		m_sEvent[j] = -1;
-	}
 
 	while( !m_arUserEvent.empty() )
 	m_arUserEvent.pop_back();

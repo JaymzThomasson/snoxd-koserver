@@ -33,6 +33,8 @@ CNpc::~CNpc()
 
 void CNpc::Initialize()
 {
+	Unit::Initialize();
+
 	m_sSid = 0;
 	m_pMap = NULL;
 	m_fCurX = 0;			// Current X Pos;

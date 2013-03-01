@@ -504,7 +504,7 @@ public:
 
 	void GetUserInfo(Packet & pkt);
 	void SendUserStatusUpdate(uint8 type, uint8 status);
-	void Initialize();
+	virtual void Initialize();
 	
 	void ChangeFame(uint8 bFame);
 	void SendServerIndex();

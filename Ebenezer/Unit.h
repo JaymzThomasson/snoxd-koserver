@@ -13,6 +13,8 @@ class Unit
 public:
 	Unit(bool bPlayer = false);
 
+	virtual void Initialize();
+
 	__forceinline bool isPlayer() { return m_bPlayer; }
 	__forceinline bool isNPC() { return !isPlayer(); }
 

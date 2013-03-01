@@ -7,6 +7,33 @@ Unit::Unit(bool bPlayer /*= false*/)
 	InitType4();
 }
 
+void Unit::Initialize()
+{
+	m_sTotalHit = 0;
+	m_sTotalAc = 0;
+	m_sTotalHitrate = 0.0f;
+	m_sTotalEvasionrate = 0.0f;
+
+	m_bFireR = 0;
+	m_bColdR = 0;
+	m_bLightningR = 0;
+	m_bMagicR = 0;
+	m_bDiseaseR = 0;
+	m_bPoisonR = 0;
+
+	m_sDaggerR = 0;			
+	m_sSwordR = 0;			
+	m_sAxeR = 0;						
+	m_sMaceR = 0;						
+	m_sSpearR = 0;					
+	m_sBowR = 0;		
+	
+	m_bMagicTypeLeftHand = 0;		// For weapons and shields with special power.		
+	m_bMagicTypeRightHand = 0;		
+	m_sMagicAmountLeftHand = 0;        
+	m_sMagicAmountRightHand = 0;       
+}
+
 bool Unit::RegisterRegion()
 {
 	uint16 
