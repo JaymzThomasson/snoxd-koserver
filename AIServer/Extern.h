@@ -29,16 +29,8 @@ struct _MAKE_WEAPON
 struct _MAKE_ITEM_GRADE_CODE
 {
 	BYTE	byItemIndex;		// item grade
-	short	sGrade_1;			// ´Ü°èº° È®·ü
-	short	sGrade_2;
-	short	sGrade_3;
-	short	sGrade_4;
-	short	sGrade_5;
-	short	sGrade_6;
-	short	sGrade_7;
-	short	sGrade_8;
-	short	sGrade_9;
-};
+	short	sGrade[9];
+};	
 
 struct _MAKE_ITEM_LARE_CODE
 {

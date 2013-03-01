@@ -18,16 +18,8 @@ public:
 
 // Field/Param Data
 	//{{AFX_FIELD(CMakeGradeItemTableSet, CRecordset)
-	BYTE	m_byItemIndex;
-	int	m_byGrade_1;
-	int	m_byGrade_2;
-	int	m_byGrade_3;
-	int	m_byGrade_4;
-	int	m_byGrade_5;
-	int	m_byGrade_6;
-	int	m_byGrade_7;
-	int	m_byGrade_8;
-	int	m_byGrade_9;
+	BYTE m_byItemIndex;
+	int	 m_sGrade[9];
 	//}}AFX_FIELD
 
 

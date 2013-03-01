@@ -5281,40 +5281,34 @@ int	CNpc::ItemProdution(int item_number)							// 아이템 제작
 int  CNpc::GetItemGrade(int item_grade)
 {
 	int iPercent = 0, iRandom = 0, i=0;
-	int iItemGrade[9];
 	_MAKE_ITEM_GRADE_CODE* pItemData = NULL;
 
 	iRandom = myrand(1, 1000);
 	pItemData = g_pMain->m_MakeGradeItemArray.GetData(item_grade); 
 	if(pItemData == NULL)	return 0;
 
-	iItemGrade[0] = pItemData->sGrade_1;	iItemGrade[1] = pItemData->sGrade_2;
-	iItemGrade[2] = pItemData->sGrade_3;	iItemGrade[3] = pItemData->sGrade_4;
-	iItemGrade[4] = pItemData->sGrade_5;	iItemGrade[5] = pItemData->sGrade_6;
-	iItemGrade[6] = pItemData->sGrade_7;	iItemGrade[7] = pItemData->sGrade_8;
-	iItemGrade[8] = pItemData->sGrade_9;	
-	
+
 	for(i=0; i<9; i++)	{
 		if(i == 0)	{
-			if(iItemGrade[i] == 0)	{
-				iPercent += iItemGrade[i];
+			if(pItemData->sGrade[i] == 0)	{
+				iPercent += pItemData->sGrade[i];
 				continue;
 			}
-			if( COMPARE( iRandom, 0, iItemGrade[i]) )	return i+1;
+			if( COMPARE( iRandom, 0, pItemData->sGrade[i]) )	return i+1;
 			else	{
-				iPercent += iItemGrade[i];
+				iPercent += pItemData->sGrade[i];
 				continue;
 			}
 		}
 		else	{
-			if(iItemGrade[i] == 0)	{
-				iPercent += iItemGrade[i];
+			if(pItemData->sGrade[i] == 0)	{
+				iPercent += pItemData->sGrade[i];
 				continue;
 			}
 
-			if( COMPARE( iRandom, iPercent, iPercent+iItemGrade[i]) )	return i+1;
+			if( COMPARE( iRandom, iPercent, iPercent+pItemData->sGrade[i]) )	return i+1;
 			else	{
-				iPercent += iItemGrade[i];
+				iPercent += pItemData->sGrade[i];
 				continue;
 			}
 		}
