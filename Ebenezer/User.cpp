@@ -3706,18 +3706,11 @@ void CUser::SendUserStatusUpdate(uint8 type, uint8 status)
 	Send(&result);
 }
 
-_ITEM_TABLE* CUser::getRightHand()
+_ITEM_TABLE* CUser::GetItemPrototype(uint8 pos)
 {
-	_ITEM_TABLE* pRightHand = NULL;
-	pRightHand = g_pMain->GetItemPtr(m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+	if (pos >= INVENTORY_TOTAL)
+		return NULL;
 
-	return pRightHand;
-}
-
-_ITEM_TABLE* CUser::getLeftHand()
-{
-	_ITEM_TABLE* pLeftHand = NULL;
-	pLeftHand = g_pMain->GetItemPtr(m_pUserData->m_sItemArray[LEFTHAND].nNum);
-
-	return pLeftHand;
+	_ITEM_DATA *pItem = GetItem(pos);
+	return pItem->nNum == 0 ? NULL : g_pMain->GetItemPtr(pItem->nNum);
 }

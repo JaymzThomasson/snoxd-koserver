@@ -310,21 +310,8 @@ public:
 		return getStat(type) + getStatItemBonus(type) + getStatBuff(type);
 	}
 
-	__forceinline uint8 getLeftHandWeaponType()
-	{
-		if(getLeftHand() != NULL)
-			return getLeftHand()->m_bKind / 10;
-		else
-			return 0;
-	}
-
-	__forceinline uint8 getRightHandWeaponType()
-	{
-		if(getRightHand() != NULL)
-			return getRightHand()->m_bKind / 10;
-		else
-			return 0;
-	}
+	__forceinline _ITEM_DATA * GetItem(uint8 pos) { return &m_pUserData->m_sItemArray[pos]; }
+	_ITEM_TABLE* GetItemPrototype(uint8 pos);
 
 	__forceinline C3DMap * GetMap() { return m_pMap; }
 
@@ -592,9 +579,6 @@ public:
 	void SendToRegion(Packet *pkt, CUser *pExceptUser = NULL);
 
 	virtual void OnDeath(Unit *pKiller);
-
-	_ITEM_TABLE* getRightHand();
-	_ITEM_TABLE* getLeftHand();
 
 	// Clan system
 	void SendClanUserStatusUpdate(bool bToRegion = true);
