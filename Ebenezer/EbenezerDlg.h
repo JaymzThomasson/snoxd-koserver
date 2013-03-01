@@ -176,6 +176,8 @@ public:
 	CUser * GetUserPtr(const char* userid, NameType type);
 	CUser * GetUserPtr(int sid);
 
+	Unit * GetUnit(uint16 id);
+
 	// Adds the account name & session to a hashmap (on login)
 	void AddAccountName(CUser *pSession);
 
