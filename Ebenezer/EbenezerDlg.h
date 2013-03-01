@@ -53,6 +53,7 @@ typedef CSTLMap <_START_POSITION>			StartPositionArray;
 typedef	CSTLMap	<EVENT>						QuestArray;
 typedef	CSTLMap	<_SERVER_RESOURCE>			ServerResourceArray;
 typedef std::vector <CString>				BlockNameArray;
+typedef hash_map<string, _USER_RANK *>		UserRankMap; 
 
 class CEbenezerDlg : public CDialog
 {
@@ -75,6 +76,9 @@ public:
 	uint16 GetKnightsAllMembers(uint16 sClanID, Packet & result, uint16 & pktSize, bool bClanLeader);
 	BOOL LoadAllKnightsUserData();
 	BOOL LoadAllKnights();
+	void CleanupUserRankings();
+	BOOL LoadUserRankings();
+	void GetUserRank(CUser *pUser);
 	BOOL LoadKnightsCapeTable();
 	BOOL LoadHomeTable();
 	BOOL LoadStartPositionTable();
@@ -230,6 +234,9 @@ public:
 	PartyArray				m_PartyArray;
 	KnightsArray			m_KnightsArray;
 	KnightsCapeArray		m_KnightsCapeArray;
+	UserRankMap				m_UserPersonalRankMap;
+	UserRankMap				m_UserKnightsRankMap;
+	FastMutex				m_userRankingsLock;
 	HomeArray				m_HomeArray;
 	StartPositionArray		m_StartPositionArray;
 	QuestArray				m_Event;

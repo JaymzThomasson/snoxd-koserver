@@ -5,7 +5,6 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 #include "AiPacket.h"
-
 #include "../shared/database/MyRecordSet.h"
 #include "../shared/database/ItemTableSet.h"
 #include "../shared/database/MagicTableSet.h"
@@ -26,6 +25,8 @@
 #include "../shared/database/KnightsUserSet.h"
 #include "../shared/database/KnightsRankSet.h"
 #include "../shared/database/KnightsCapeSet.h"
+#include "../shared/database/UserPersonalRankSet.h"
+#include "../shared/database/UserKnightsRankSet.h"
 #include "../shared/database/HomeSet.h"
 #include "../shared/database/StartPositionSet.h"
 #include "../shared/database/BattleSet.h"
@@ -345,6 +346,7 @@ bool CEbenezerDlg::LoadTables()
 			&& LoadLevelUpTable()
 			&& LoadAllKnights()
 			&& LoadAllKnightsUserData()
+			&& LoadUserRankings()
 			&& LoadKnightsCapeTable()
 			&& LoadHomeTable()
 			&& LoadStartPositionTable()
@@ -449,6 +451,8 @@ BOOL CEbenezerDlg::DestroyWindow()
 	
 	CUser::CleanupChatCommands();
 	CEbenezerDlg::CleanupServerCommands();
+
+	CleanupUserRankings();
 
 	if (m_LevelUpArray.size())
 		m_LevelUpArray.clear();
@@ -1919,6 +1923,81 @@ BOOL CEbenezerDlg::LoadAllKnightsUserData()
 {
 	CKnightsUserSet KnightsUserSet(&m_KnightsManager, &m_GameDB);
 	return KnightsUserSet.Read(true);
+}
+
+void CEbenezerDlg::CleanupUserRankings()
+{
+	set<_USER_RANK *> deleteSet;
+	m_userRankingsLock.Acquire();
+
+	// Go through the personal rank map, reset the character's rank and insert
+	// the _USER_RANK struct instance into the deletion set for later.
+	foreach (itr, m_UserPersonalRankMap)
+	{
+		CUser *pUser = GetUserPtr(itr->first.c_str(), TYPE_CHARACTER);
+		if (pUser != NULL)
+			pUser->m_bPersonalRank = -1;
+
+		deleteSet.insert(itr->second);
+	}
+
+	// Go through the knights rank map, reset the character's rank and insert
+	// the _USER_RANK struct instance into the deletion set for later.
+	foreach (itr, m_UserKnightsRankMap)
+	{
+		CUser *pUser = GetUserPtr(itr->first.c_str(), TYPE_CHARACTER);
+		if (pUser != NULL)
+			pUser->m_bKnightsRank = -1;
+
+		deleteSet.insert(itr->second);
+	}
+
+	// Clear out the maps
+	m_UserPersonalRankMap.clear();
+	m_UserKnightsRankMap.clear();
+
+	// Free the memory used by the _USER_RANK structs
+	foreach (itr, deleteSet)
+		delete *itr;
+
+	m_userRankingsLock.Release();
+}
+
+BOOL CEbenezerDlg::LoadUserRankings()
+{
+	CUserPersonalRankSet UserPersonalRankSet(&m_UserPersonalRankMap, &m_GameDB);
+	CUserKnightsRankSet  UserKnightsRankSet(&m_UserKnightsRankMap, &m_GameDB);
+	BOOL result;
+
+	// Cleanup first, in the event it's already loaded (we'll have this automatically reload in-game)
+	CleanupUserRankings();
+
+	// Acquire the lock for thread safety, and load both tables.
+	m_userRankingsLock.Acquire();
+	result = UserPersonalRankSet.Read(true) && UserKnightsRankSet.Read(true);
+	m_userRankingsLock.Release();
+
+	return result;
+}
+
+void CEbenezerDlg::GetUserRank(CUser *pUser)
+{
+	// Acquire the lock for thread safety
+	m_userRankingsLock.Acquire();
+
+	// Get character's name & convert it to upper case for case insensitivity
+	string strUserID = pUser->GetName();
+	STRTOUPPER(strUserID);
+
+	// Grab the personal rank from the map, if applicable.
+	UserRankMap::iterator itr = m_UserPersonalRankMap.find(strUserID);
+	pUser->m_bPersonalRank = itr != m_UserPersonalRankMap.end() ? int8(itr->second->nRank) : -1;
+
+	// Grab the knights rank from the map, if applicable.
+	itr = m_UserKnightsRankMap.find(strUserID);
+	pUser->m_bKnightsRank = itr != m_UserKnightsRankMap.end() ? int8(itr->second->nRank) : -1;
+
+	m_userRankingsLock.Release();
 }
 
 uint16 CEbenezerDlg::GetKnightsAllMembers(uint16 sClanID, Packet & result, uint16 & pktSize, bool bClanLeader)

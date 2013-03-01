@@ -550,6 +550,9 @@ void CUser::SendMyInfo()
 
 	result.Initialize(WIZ_MYINFO);
 
+	// Load up our user rankings (for our NP symbols).
+	g_pMain->GetUserRank(this);
+
 	result.SByte(); // character name has a single byte length
 	result	<< GetSocketID()
 			<< m_pUserData->m_id
@@ -598,7 +601,7 @@ void CUser::SendMyInfo()
 			<< m_bFireR << m_bColdR << m_bLightningR << m_bMagicR << m_bDiseaseR << m_bPoisonR
 			<< m_pUserData->m_iGold
 			<< m_pUserData->m_bAuthority
-			<< uint8(-1) << uint8(-1); // national rank, leader rank
+			<< m_bPersonalRank << m_bKnightsRank; // national rank, leader rank
 
 	result.append(m_pUserData->m_bstrSkill, 9);
 

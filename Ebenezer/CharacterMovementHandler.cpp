@@ -110,7 +110,7 @@ void CUser::GetUserInfo(Packet & pkt)
 		<< m_sDirection // direction 
 		<< uint8(0) // chicken flag
 		<< m_pUserData->m_bRank // king cape (this used to just be rank, above!?)
-		<< int8(-1) << int8(-1) // NP ranks (total, monthly)
+		<< m_bPersonalRank << m_bKnightsRank // NP ranks (total, monthly)
 		<< m_pUserData->m_sItemArray[BREAST].nNum << m_pUserData->m_sItemArray[BREAST].sDuration << uint8(0)
 		<< m_pUserData->m_sItemArray[LEG].nNum << m_pUserData->m_sItemArray[LEG].sDuration << uint8(0)
 		<< m_pUserData->m_sItemArray[HEAD].nNum << m_pUserData->m_sItemArray[HEAD].sDuration << uint8(0)

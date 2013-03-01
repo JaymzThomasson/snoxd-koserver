@@ -65,6 +65,9 @@ public:
 
 	bool m_bIsTransformed; //Is the character in a transformed state?
 
+	int8	m_bPersonalRank;
+	int8	m_bKnightsRank;
+
 	int16	m_sDirection;
 
 	int64	m_iMaxExp;

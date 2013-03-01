@@ -619,6 +619,14 @@ struct _SERVER_RESOURCE
 	};
 };
 
+struct _USER_RANK
+{
+	int		nRank;  // shIndex for USER_KNIGHTS_RANK
+	char	strElmoUserID[MAX_ID_SIZE+2];  // 2 because it's typically char(21), which causes MFC to be annoying.
+	char	strKarusUserID[MAX_ID_SIZE+2];
+	long	nSalary; // nMoney for USER_KNIGHTS_RANK
+};
+
 enum AuthorityTypes
 {
 	AUTHORITY_GAME_MASTER			= 0,
