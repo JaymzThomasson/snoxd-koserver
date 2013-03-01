@@ -1,7 +1,3 @@
-// MagicProcess.cpp: implementation of the CMagicProcess class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "MagicProcess.h"
 #include "EbenezerDlg.h"
@@ -17,22 +13,20 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-#define MORAL_SELF				1		// �� �ڽ�..
-#define MORAL_FRIEND_WITHME		2		// ���� ������ �츮��(����) �� �ϳ� ..
-#define MORAL_FRIEND_EXCEPTME	3		// ���� �� �츮�� �� �ϳ� 
-#define MORAL_PARTY				4		// ���� ������ �츮��Ƽ �� �ϳ�..
-#define MORAL_NPC				5		// NPC�� �ϳ�.
-#define MORAL_PARTY_ALL			6		// ���� ȣ���� ��Ƽ ����..
-#define MORAL_ENEMY				7		// ������ ������ ���� ���� �ϳ�(NPC����)
-#define MORAL_ALL				8		// �׻��� �����ϴ� ���� ���� �ϳ�.
-#define MORAL_AREA_ENEMY		10		// ������ ���Ե� ��
-#define MORAL_AREA_FRIEND		11		// ������ ���Ե� �츮��
-#define MORAL_AREA_ALL			12		// ������ ���Ե� ����
-#define MORAL_SELF_AREA			13		// ���� �߽����� �� ����
-// �񷯸ӱ� Ŭ����ȯ
-#define MORAL_CLAN				14		// Ŭ�� �ɹ� �� �Ѹ�...
-#define MORAL_CLAN_ALL			15		// ���� ������ Ŭ�� �ɹ� ��...
-//
+#define MORAL_SELF				1
+#define MORAL_FRIEND_WITHME		2
+#define MORAL_FRIEND_EXCEPTME	3
+#define MORAL_PARTY				4
+#define MORAL_NPC				5
+#define MORAL_PARTY_ALL			6
+#define MORAL_ENEMY				7
+#define MORAL_ALL				8
+#define MORAL_AREA_ENEMY		10
+#define MORAL_AREA_FRIEND		11
+#define MORAL_AREA_ALL			12
+#define MORAL_SELF_AREA			13
+#define MORAL_CLAN				14
+#define MORAL_CLAN_ALL			15
 
 #define MORAL_UNDEAD			16		// Undead Monster
 #define MORAL_PET_WITHME		17      // My Pet
@@ -52,10 +46,6 @@ static char THIS_FILE[]=__FILE__;
 #define RESURRECTION			3
 #define	RESURRECTION_SELF		4
 #define REMOVE_BLESS			5
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 CMagicProcess::CMagicProcess()
 {
