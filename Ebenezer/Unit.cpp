@@ -32,6 +32,9 @@ void Unit::Initialize()
 	m_bMagicTypeRightHand = 0;		
 	m_sMagicAmountLeftHand = 0;        
 	m_sMagicAmountRightHand = 0;       
+
+	InitType3();	 // Initialize durational type 3 stuff :)
+	InitType4();	 // Initialize durational type 4 stuff :)
 }
 
 bool Unit::RegisterRegion()
