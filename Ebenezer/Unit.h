@@ -62,6 +62,9 @@ public:
 	short GetACDamage(int damage, Unit *pTarget);
 	uint8 GetHitRate(float rate);
 
+	virtual void HpChange(int amount, Unit *pAttacker = NULL, bool bSendToAI = true) = 0;
+	virtual void MSpChange(int amount) = 0;
+
 	void SendToRegion(Packet *result);
 
 	void InitType3();

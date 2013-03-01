@@ -62,6 +62,9 @@ public:
 
 	void SendGateFlag(BYTE bFlag = -1, bool bSendAI = true);
 
+	virtual void HpChange(int amount, Unit *pAttacker = NULL, bool bSendToAI = true); 
+	virtual void MSpChange(int amount);
+
 	virtual void OnDeath(Unit *pKiller);
 
 	virtual bool isDead() { return m_NpcState == NPC_DEAD || m_iHP <= 0; };

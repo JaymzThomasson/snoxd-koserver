@@ -305,8 +305,8 @@ public:
 	void LoyaltyDivide( short tid );
 	void GetUserInfoForAI(Packet & result);
 	BOOL ItemEquipAvailable( _ITEM_TABLE* pTable );
-	void HpChange(int amount, Unit *pAttacker = NULL, bool bSendToAI = true);
-	void MSpChange(int amount);
+	virtual void HpChange(int amount, Unit *pAttacker = NULL, bool bSendToAI = true);
+	virtual void MSpChange(int amount);
 	void SendPartyHPUpdate();
 	void SendAnvilRequest(int nid);
 

@@ -151,6 +151,42 @@ void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
 	}
 }
 
+void CNpc::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= true*/) 
+{
+	// Glorious copypasta.
+	if (amount < 0 && -amount > m_iHP)
+		m_iHP = 0;
+	else if (amount >= 0 && m_iHP + amount > m_iMaxHP)
+		m_iHP = m_iMaxHP;
+	else
+		m_iHP += amount;
+
+	if (bSendToAI)
+	{
+		// NOTE: This will handle the death notification/looting.
+		Packet result(AG_USER_SET_HP);
+		result << GetID() << m_iHP << pAttacker->GetID();
+		g_pMain->Send_AIServer(&result);
+	}
+}
+
+void CNpc::MSpChange(int amount)
+{
+#if 0 // TO-DO: Implement this
+	// Glorious copypasta.
+	// TO-DO: Make this behave unsigned.
+	m_iMP += amount;
+	if (m_iMP < 0)
+		m_iMP = 0;
+	else if (m_iMP > m_iMaxMP)
+		m_iMP = m_iMaxMP;
+
+	Packet result(AG_USER_SET_MP);
+	result << GetID() << m_iMP;
+	g_pMain->Send_AIServer(&result);
+#endif
+}
+
 void CNpc::OnDeath(Unit *pKiller)
 {
 	ASSERT(GetMap() != NULL && GetRegion() != NULL);

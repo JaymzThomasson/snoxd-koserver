@@ -92,13 +92,8 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 	if (pTarget == NULL || pTarget->isDead())
 		return -1;
 
-	// For now, we assume it's a user.
-	// This will slowly be merged to handle both users and NPCs.
-	CUser *pTUser = static_cast<CUser *>(pTarget);
-	CUser *pUser = static_cast<CUser *>(this);
-
-	temp_ac = pTUser->m_sTotalAc + pTUser->m_sACAmount; // CNpc::m_sDefense
-	temp_hit_B = (int)((pUser->m_sTotalHit * pUser->m_bAttackAmount * 200 / 100) / (temp_ac + 240) ) ;
+	temp_ac = pTarget->m_sTotalAc + pTarget->m_sACAmount;
+	temp_hit_B = (int)((m_sTotalHit * m_bAttackAmount * 200 / 100) / (temp_ac + 240));
 
     // Skill/arrow hit.    
 	if (pSkill != NULL)
@@ -118,7 +113,7 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 			// Relative hit.
 			else 
 			{
-				result = GetHitRate((pUser->m_sTotalHitrate / pTUser->m_sTotalEvasionrate) * (pType1->sHitRate / 100.0f));			
+				result = GetHitRate((m_sTotalHitrate / pTarget->m_sTotalEvasionrate) * (pType1->sHitRate / 100.0f));			
 			}
 
 			temp_hit = (short)(temp_hit_B * (pType1->sHit / 100.0f));
@@ -138,11 +133,11 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 			// Relative hit/Arc hit.
 			else   
 			{
-				result = GetHitRate((pUser->m_sTotalHitrate / pTUser->m_sTotalEvasionrate) * (pType2->sHitRate / 100.0f));
+				result = GetHitRate((m_sTotalHitrate / pTarget->m_sTotalEvasionrate) * (pType2->sHitRate / 100.0f));
 			}
 
 			if (pType2->bHitType == 1 /* || pType2->bHitType == 2 */) 
-				temp_hit = (short)(pUser->m_sTotalHit * pUser->m_bAttackAmount * (pType2->sAddDamage / 100.0f) / 100);
+				temp_hit = (short)(m_sTotalHit * m_bAttackAmount * (pType2->sAddDamage / 100.0f) / 100);
 			else
 				temp_hit = (short)(temp_hit_B * (pType2->sAddDamage / 100.0f));
 		}
@@ -150,8 +145,8 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 	// Normal hit (R attack)     
 	else 
 	{
-		temp_hit = pUser->m_sTotalHit * pUser->m_bAttackAmount / 100;
-		result = GetHitRate(pUser->m_sTotalHitrate / pTUser->m_sTotalEvasionrate);
+		temp_hit = m_sTotalHit * m_bAttackAmount / 100;
+		result = GetHitRate(m_sTotalHitrate / pTarget->m_sTotalEvasionrate);
 	}
 	
 	switch (result)
