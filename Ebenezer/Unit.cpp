@@ -30,7 +30,7 @@ bool Unit::RegisterRegion()
 	return true;
 }
 
-void Unit::RemoveRegion(uint16 del_x, uint16 del_z)
+void Unit::RemoveRegion(int16 del_x, int16 del_z)
 {
 	ASSERT(GetMap() != NULL);
 
@@ -39,7 +39,7 @@ void Unit::RemoveRegion(uint16 del_x, uint16 del_z)
 	g_pMain->Send_OldRegions(&result, del_x, del_z, GetMap(), GetRegionX(), GetRegionZ());
 }
 
-void Unit::InsertRegion(uint16 insert_x, uint16 insert_z)
+void Unit::InsertRegion(int16 insert_x, int16 insert_z)
 {
 	ASSERT(GetMap() != NULL);
 

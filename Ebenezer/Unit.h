@@ -48,8 +48,8 @@ public:
 	virtual void GetInOut(Packet & result, uint8 bType) = 0;
 
 	bool RegisterRegion();
-	void RemoveRegion(uint16 del_x, uint16 del_z);
-	void InsertRegion(uint16 insert_x, uint16 insert_z);
+	void RemoveRegion(int16 del_x, int16 del_z);
+	void InsertRegion(int16 insert_x, int16 insert_z);
 
 	void SendToRegion(Packet *result);
 
