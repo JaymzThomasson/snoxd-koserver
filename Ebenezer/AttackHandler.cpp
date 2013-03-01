@@ -190,9 +190,17 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 				}		
 				else return;
 			}
+			else
+			{
+				short sx, sz;
+				GetStartPosition(sx, sz);
 
-			//m_pUserData->m_curx = x;
-			//m_pUserData->m_curz = z;
+				x = sx;
+				z = sz;
+			}
+
+			m_pUserData->m_curx = x;
+			m_pUserData->m_curz = z;
 		}
 		else {	
 			if (m_pUserData->m_bNation == KARUS) {
