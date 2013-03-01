@@ -2248,98 +2248,61 @@ void CUser::HPTimeChangeType3(float currenttime)
 
 void CUser::Type4Duration(float currenttime)
 {
-	Packet result;
-	int send_index = 0;
-	char send_buff[128];
 	BYTE buff_type = 0;					
 
-	if (m_sDuration1 && buff_type == 0) {
-		if (currenttime > (m_fStartTime1 + m_sDuration1)) {
-			m_sDuration1 = 0;		
-			m_fStartTime1 = 0.0f;
+	for (int i = 0; i < MAX_TYPE4_BUFF; i++)
+	{
+		if (m_sDuration[i] == 0
+			|| currenttime <= (m_fStartTime[i] + m_sDuration[i]))
+			continue;
+
+		m_sDuration[i] = 0;
+		m_fStartTime[i] = 0;
+
+		buff_type = i + 1;
+
+		switch (buff_type)
+		{
+		case 1: 
 			m_sMaxHPAmount = 0;
-			buff_type = 1 ;			
-		}
-	}
+			break;
 
-	if (m_sDuration2 && buff_type == 0) {
-		if (currenttime > (m_fStartTime2 + m_sDuration2)) {
-			m_sDuration2 = 0;		
-			m_fStartTime2 = 0.0f;
+		case 2:
 			m_sACAmount = 0;
-			buff_type = 2 ;
-		}
-	}
-//
-	if (m_sDuration3 && buff_type == 0) {
-		if (currenttime > (m_fStartTime3 + m_sDuration3)) {
-			m_sDuration3 = 0;		
-			m_fStartTime3 = 0.0f;
-			buff_type = 3 ;
-			
+			break;
+
+		case 3:
 			StateChangeServerDirect(3, ABNORMAL_NORMAL);
-			send_index = 0 ;
-		}
-	}
-//
-	if (m_sDuration4 && buff_type == 0) {
-		if (currenttime > (m_fStartTime4 + m_sDuration4)){
-			m_sDuration4 = 0;		
-			m_fStartTime4 = 0.0f;
+			break;
+
+		case 4:
 			m_bAttackAmount = 100;
-			buff_type = 4 ;
-		}
-	}
+			break;
 
-	if (m_sDuration5 && buff_type == 0) {
-		if (currenttime > (m_fStartTime5 + m_sDuration5)){
-			m_sDuration5 = 0;		
-			m_fStartTime5 = 0.0f;
-			m_bAttackSpeedAmount = 100;	
-			buff_type = 5 ;
-		}
-	}
+		case 5:
+			m_bAttackSpeedAmount = 100;
+			break;
 
-	if (m_sDuration6 && buff_type == 0) {
-		if (currenttime > (m_fStartTime6 + m_sDuration6)){
-			m_sDuration6 = 0;		
-			m_fStartTime6 = 0.0f;
+		case 6:
 			m_bSpeedAmount = 100;
-			buff_type = 6 ;
-		}
-	}
+			break;
 
-	if (m_sDuration7 && buff_type == 0) {
-		if (currenttime > (m_fStartTime7 + m_sDuration7)){
-			m_sDuration7 = 0;		
-			m_fStartTime7 = 0.0f;
+		case 7:
 			memset(m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
-			buff_type = 7 ;
-		}
-	}
+			break;
 
-	if (m_sDuration8 && buff_type == 0) {
-		if (currenttime > (m_fStartTime8 + m_sDuration8)){
-			m_sDuration8 = 0;		
-			m_fStartTime8 = 0.0f;
-			m_bFireRAmount = 0;
-			m_bColdRAmount = 0;
-			m_bLightningRAmount = 0;
-			m_bMagicRAmount = 0;
-			m_bDiseaseRAmount = 0;
-			m_bPoisonRAmount = 0;
-			buff_type = 8 ;
-		}
-	}
+		case 8:
+			m_bFireRAmount = m_bColdRAmount = m_bLightningRAmount = 0;
+			m_bMagicRAmount = m_bDiseaseRAmount = m_bPoisonRAmount = 0;
+			break;
 
-	if (m_sDuration9 && buff_type == 0) {
-		if (currenttime > (m_fStartTime9 + m_sDuration9)){
-			m_sDuration9 = 0;		
-			m_fStartTime9 = 0.0f;
+		case 9:
 			m_bHitRateAmount = 100;
 			m_sAvoidRateAmount = 100;
-			buff_type = 9 ;
+			break;
 		}
+
+		break; // only ever handle one at a time with the current logic
 	}
 
 	if (buff_type) {
@@ -2347,12 +2310,11 @@ void CUser::Type4Duration(float currenttime)
 
 		SetSlotItemValue();
 		SetUserAbility();
-		Send2AI_UserUpdateInfo();	// AI Server?? ??? ????� ???....		
+		Send2AI_UserUpdateInfo();
 
-		SetByte( send_buff, WIZ_MAGIC_PROCESS, send_index );
-		SetByte( send_buff, MAGIC_TYPE4_END, send_index );	
-		SetByte( send_buff, buff_type, send_index ); 
-		Send( send_buff, send_index ); 
+		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
+		result << buff_type;
+		Send(&result);
 	}
 
 	int buff_test = 0;
@@ -2577,19 +2539,9 @@ void CUser::InitType4()
 	m_bMagicRAmount = 0;
 	m_bDiseaseRAmount = 0;
 	m_bPoisonRAmount = 0;		
-// ????? ???
-	m_bAbnormalType = 1;
-//
-	m_sDuration1 = 0 ;  m_fStartTime1 = 0.0f ;		// Used for Type 4 Durational Spells.
-	m_sDuration2 = 0 ;  m_fStartTime2 = 0.0f ;
-	m_sDuration3 = 0 ;  m_fStartTime3 = 0.0f ;
-	m_sDuration4 = 0 ;  m_fStartTime4 = 0.0f ;
-	m_sDuration5 = 0 ;  m_fStartTime5 = 0.0f ;
-	m_sDuration6 = 0 ;  m_fStartTime6 = 0.0f ;
-	m_sDuration7 = 0 ;  m_fStartTime7 = 0.0f ;
-	m_sDuration8 = 0 ;  m_fStartTime8 = 0.0f ;
-	m_sDuration9 = 0 ;  m_fStartTime9 = 0.0f ;
-
+	m_bAbnormalType = ABNORMAL_NORMAL;
+	memset(m_sDuration, 0, sizeof(uint16) * MAX_TYPE4_BUFF);
+	memset(m_fStartTime, 0, sizeof(float) * MAX_TYPE4_BUFF);
 	memset(m_bType4Buff, 0, sizeof(*m_bType4Buff) * MAX_TYPE4_BUFF);
 	m_bType4Flag = FALSE;
 }
