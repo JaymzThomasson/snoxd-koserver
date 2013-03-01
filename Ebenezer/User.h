@@ -71,11 +71,6 @@ public:
 	uint32	m_sMaxWeight;
 	uint16   m_sSpeed;	// NOTE: Currently unused
 
-	short	m_sTotalHit;					// �� Ÿ�ݰ��ݷ�	
-	short	m_sTotalAc;						// �� ������
-	float	m_sTotalHitrate;				// �� ���ݼ��� ��ø��
-	float	m_sTotalEvasionrate;			// �� ���� ��ø��
-
 	short   m_sItemMaxHp;                   // ������ �� �ִ� HP Bonus
 	short   m_sItemMaxMp;                   // ������ �� �ִ� MP Bonus
 	uint32	m_sItemWeight;					// ������ �ѹ���
@@ -87,27 +82,7 @@ public:
 	uint16	m_sStatItemBonuses[STAT_COUNT];
 	uint8	m_bStatBuffs[STAT_COUNT];
 
-	BYTE	m_bFireR;						// �� ���� ���׷�
-	BYTE	m_bColdR;						// ���� ���� ���׷�
-	BYTE	m_bLightningR;					// ���� ���� ���׷�
-	BYTE	m_bMagicR;						// ��Ÿ ���� ���׷�
-	BYTE	m_bDiseaseR;					// ���� ���� ���׷�
-	BYTE	m_bPoisonR;						// �� ���� ���׷�
-
-	BYTE    m_bMagicTypeLeftHand;			// The type of magic item in user's left hand  
-	BYTE    m_bMagicTypeRightHand;			// The type of magic item in user's right hand
-	short   m_sMagicAmountLeftHand;         // The amount of magic item in user's left hand
-	short	m_sMagicAmountRightHand;        // The amount of magic item in user's left hand
-
-	short   m_sDaggerR;						// Resistance to Dagger
-	short   m_sSwordR;						// Resistance to Sword
-	short	m_sAxeR;						// Resistance to Axe
-	short	m_sMaceR;						// Resistance to Mace
-	short	m_sSpearR;						// Resistance to Spear
-	short	m_sBowR;						// Resistance to Bow		
-
-	short	m_iMaxHp;
-	short	m_iMaxMp;
+	short	m_iMaxHp, m_iMaxMp;
 	
 	BYTE	m_bResHpType;
 	BYTE	m_bWarp;
@@ -133,39 +108,10 @@ public:
 	BYTE	m_bHPDurationNormal;
 	BYTE	m_bHPIntervalNormal;
 
-	float	m_fHPLastTime[MAX_TYPE3_REPEAT];		// For Automatic HP recovery and Type 3 durational HP recovery.
-	float	m_fHPStartTime[MAX_TYPE3_REPEAT];
-	short	m_bHPAmount[MAX_TYPE3_REPEAT];
-	BYTE	m_bHPDuration[MAX_TYPE3_REPEAT];
-	BYTE	m_bHPInterval[MAX_TYPE3_REPEAT];
-	short	m_sSourceID[MAX_TYPE3_REPEAT];
-	BOOL	m_bType3Flag;
-
 	float	m_fAreaLastTime;			// For Area Damage spells Type 3.
 	float   m_fAreaStartTime;
 	BYTE    m_bAreaInterval;
 	int     m_iAreaMagicID;
-
-	BYTE	m_bAttackSpeedAmount;		// For Character stats in Type 4 Durational Spells.
-	BYTE    m_bSpeedAmount;
-	short   m_sACAmount;
-	BYTE    m_bAttackAmount;
-	short	m_sMaxHPAmount;
-	BYTE	m_bHitRateAmount;
-	short	m_sAvoidRateAmount;
-
-	BYTE	m_bFireRAmount;
-	BYTE	m_bColdRAmount;
-	BYTE	m_bLightningRAmount;
-	BYTE	m_bMagicRAmount;
-	BYTE	m_bDiseaseRAmount;
-	BYTE	m_bPoisonRAmount;	
-	
-	short   m_sDuration[MAX_TYPE4_BUFF];
-	float   m_fStartTime[MAX_TYPE4_BUFF];
-
-	BYTE	m_bType4Buff[MAX_TYPE4_BUFF];
-	BOOL	m_bType4Flag;
 
 	uint32	m_nTransformationItem; // item used for transforming (e.g. disguise scroll, totem..)
 	float	m_fTransformationStartTime;
@@ -341,12 +287,10 @@ public:
 	void UpdateVisibility(InvisibilityType bNewType);
 	void BlinkStart();
 	void BlinkTimeCheck(float currenttime);
-	void InitType3();
 	void GoldChange(short tid, int gold);
 	CUser* GetItemRoutingUser(int itemid, short itemcount);
 	bool GetStartPosition(short & x, short & y, BYTE bZone = 0);
 	int GetEmptySlot( int itemid, int bCountable );
-	void InitType4();
 	void Type3AreaDuration( float currenttime);
 	void SendAllKnightsID();
 	void SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes, not a bug */, uint16 sDurability, uint8 bPos, bool bNewItem = false);

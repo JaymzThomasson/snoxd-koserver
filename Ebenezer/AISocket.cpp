@@ -165,8 +165,8 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 
 		pkt >> bType >> pNpc->m_sNid >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
 			>> pNpc->m_bZoneID >> strName >> pNpc->m_byGroup >> pNpc->m_byLevel >> pNpc->m_fCurX >> pNpc->m_fCurZ >> pNpc->m_fCurY
-			>> bDirection >> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP
-			>> pNpc->m_byGateOpen >> pNpc->m_sHitRate >> pNpc->m_sEvadeRate >> pNpc->m_sDefense >> pNpc->m_byObjectType;
+			>> bDirection >> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP >> pNpc->m_byGateOpen 
+			>> pNpc->m_sTotalHitrate >> pNpc->m_sTotalEvasionrate >> pNpc->m_sTotalAc >> pNpc->m_byObjectType;
 
 		if (strName.empty() || strName.length() > MAX_NPC_SIZE)
 		{
@@ -407,7 +407,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 		>> pNpc->m_bZoneID >> strName >> pNpc->m_byGroup >> pNpc->m_byLevel 
 		>> pNpc->m_fCurX >> pNpc->m_fCurZ >> pNpc->m_fCurY >> byDirection >> pNpc->m_NpcState
 		>> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP >> pNpc->m_byGateOpen
-		>> pNpc->m_sHitRate >> pNpc->m_sEvadeRate >> pNpc->m_sDefense >> pNpc->m_byObjectType;
+		>> pNpc->m_sTotalHitrate >> pNpc->m_sTotalEvasionrate >> pNpc->m_sTotalAc >> pNpc->m_byObjectType;
 
 	if (strName.empty() || strName.length() > MAX_NPC_SIZE)
 	{

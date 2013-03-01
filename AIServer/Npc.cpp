@@ -4231,8 +4231,8 @@ void CNpc::FillNpcInfo(char *temp_send, int &index, BYTE flag)
 	SetDWORD(temp_send, m_iMaxHP, index);
 	SetDWORD(temp_send, m_iHP, index);
 	SetByte(temp_send, m_byGateOpen, index);
-	SetShort(temp_send, m_sHitRate, index);
-	SetShort(temp_send, m_sEvadeRate, index);
+	Setfloat(temp_send, m_sHitRate, index);
+	Setfloat(temp_send, m_sEvadeRate, index);
 	SetShort(temp_send, m_sDefense, index);
 	SetByte(temp_send, m_byObjectType, index);
 }
@@ -4263,8 +4263,8 @@ void CNpc::SendNpcInfoAll(char *temp_send, int &index, int count)
 	SetDWORD(temp_send, m_iMaxHP, index);
 	SetDWORD(temp_send, m_iHP, index);
 	SetByte(temp_send, m_byGateOpen, index);
-	SetShort(temp_send, m_sHitRate, index);
-	SetShort(temp_send, m_sEvadeRate, index);
+	Setfloat(temp_send, m_sHitRate, index);
+	Setfloat(temp_send, m_sEvadeRate, index);
 	SetShort(temp_send, m_sDefense, index);
 	SetByte(temp_send, m_byObjectType, index);
 

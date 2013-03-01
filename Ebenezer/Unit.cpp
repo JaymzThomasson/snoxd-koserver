@@ -1,5 +1,12 @@
 #include "stdafx.h"
 
+Unit::Unit(bool bPlayer /*= false*/) 
+	: m_pMap(NULL), m_pRegion(NULL), m_sRegionX(0), m_sRegionZ(0), m_bPlayer(bPlayer)
+{
+	InitType3();
+	InitType4();
+}
+
 bool Unit::RegisterRegion()
 {
 	uint16 
@@ -63,7 +70,7 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 	CUser *pTUser = static_cast<CUser *>(pTarget);
 	CUser *pUser = static_cast<CUser *>(this);
 
-	temp_ac = pTUser->m_sTotalAc + pTUser->m_sACAmount;
+	temp_ac = pTUser->m_sTotalAc + pTUser->m_sACAmount; // CNpc::m_sDefense
 	temp_hit_B = (int)((pUser->m_sTotalHit * pUser->m_bAttackAmount * 200 / 100) / (temp_ac + 240) ) ;
 
     // Skill/arrow hit.    
@@ -396,6 +403,46 @@ uint8 Unit::GetHitRate(float rate)
 void Unit::SendToRegion(Packet *result)
 {
 	g_pMain->Send_Region(result, GetMap(), GetRegionX(), GetRegionZ());
+}
+
+void Unit::InitType3()
+{
+	for (int i = 0 ; i < MAX_TYPE3_REPEAT; i++)
+	{
+		m_fHPStartTime[i] = 0.0f;		
+		m_fHPLastTime[i] = 0.0f;
+		m_bHPAmount[i] = 0;
+		m_bHPDuration[i] = 0;
+		m_bHPInterval[i] = 5;
+		m_sSourceID[i] = -1;
+	}
+
+	m_bType3Flag = FALSE;
+}
+
+void Unit::InitType4()
+{
+	m_bAttackSpeedAmount = 100;		// this is for the duration spells Type 4
+    m_bSpeedAmount = 100;
+    m_sACAmount = 0;
+    m_bAttackAmount = 100;
+	m_sMaxHPAmount = 0;
+	m_bHitRateAmount = 100;
+	m_sAvoidRateAmount = 100;
+	m_bFireRAmount = 0;
+	m_bColdRAmount = 0;
+	m_bLightningRAmount = 0;
+	m_bMagicRAmount = 0;
+	m_bDiseaseRAmount = 0;
+	m_bPoisonRAmount = 0;		
+	memset(m_sDuration, 0, sizeof(uint16) * MAX_TYPE4_BUFF);
+	memset(m_fStartTime, 0, sizeof(float) * MAX_TYPE4_BUFF);
+	memset(m_bType4Buff, 0, sizeof(*m_bType4Buff) * MAX_TYPE4_BUFF);
+	m_bType4Flag = FALSE;
+
+	// this is going to need cleaning up
+	if (isPlayer())
+		static_cast<CUser *>(this)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
 }
 
 void Unit::OnDeath(Unit *pKiller)

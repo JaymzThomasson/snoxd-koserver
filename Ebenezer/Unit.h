@@ -11,7 +11,7 @@ struct _MAGIC_TABLE;
 class Unit
 {
 public:
-	Unit(bool bPlayer = false) : m_pMap(NULL), m_pRegion(NULL), m_sRegionX(0), m_sRegionZ(0), m_bPlayer(bPlayer) {}
+	Unit(bool bPlayer = false);
 
 	__forceinline bool isPlayer() { return m_bPlayer; }
 	__forceinline bool isNPC() { return !isPlayer(); }
@@ -62,6 +62,9 @@ public:
 
 	void SendToRegion(Packet *result);
 
+	void InitType3();
+	void InitType4();
+
 	void OnDeath(Unit *pKiller);
 	void SendDeathAnimation();
 
@@ -73,4 +76,58 @@ public:
 	uint16 m_sRegionX, m_sRegionZ; // this is probably redundant
 
 	bool m_bPlayer;
+
+	short	m_sTotalHit;
+	short	m_sTotalAc;
+	float	m_sTotalHitrate;
+	float	m_sTotalEvasionrate;
+
+	short   m_sACAmount;
+	BYTE    m_bAttackAmount;
+	short	m_sMaxHPAmount;
+	BYTE	m_bHitRateAmount;
+	short	m_sAvoidRateAmount;
+
+	BYTE	m_bAttackSpeedAmount;		// For Character stats in Type 4 Durational Spells.
+	BYTE    m_bSpeedAmount;
+
+	BYTE	m_bFireR;
+	BYTE	m_bFireRAmount;
+	BYTE	m_bColdR;
+	BYTE	m_bColdRAmount;
+	BYTE	m_bLightningR;
+	BYTE	m_bLightningRAmount;
+	BYTE	m_bMagicR;
+	BYTE	m_bMagicRAmount;
+	BYTE	m_bDiseaseR;
+	BYTE	m_bDiseaseRAmount;
+	BYTE	m_bPoisonR;
+	BYTE	m_bPoisonRAmount;	
+
+	BYTE    m_bMagicTypeLeftHand;			// The type of magic item in user's left hand  
+	BYTE    m_bMagicTypeRightHand;			// The type of magic item in user's right hand
+	short   m_sMagicAmountLeftHand;         // The amount of magic item in user's left hand
+	short	m_sMagicAmountRightHand;        // The amount of magic item in user's left hand
+
+	short   m_sDaggerR;						// Resistance to Dagger
+	short   m_sSwordR;						// Resistance to Sword
+	short	m_sAxeR;						// Resistance to Axe
+	short	m_sMaceR;						// Resistance to Mace
+	short	m_sSpearR;						// Resistance to Spear
+	short	m_sBowR;						// Resistance to Bow		
+
+
+	float	m_fHPLastTime[MAX_TYPE3_REPEAT];		// For Automatic HP recovery and Type 3 durational HP recovery.
+	float	m_fHPStartTime[MAX_TYPE3_REPEAT];
+	short	m_bHPAmount[MAX_TYPE3_REPEAT];
+	BYTE	m_bHPDuration[MAX_TYPE3_REPEAT];
+	BYTE	m_bHPInterval[MAX_TYPE3_REPEAT];
+	short	m_sSourceID[MAX_TYPE3_REPEAT];
+	BOOL	m_bType3Flag;
+
+	short   m_sDuration[MAX_TYPE4_BUFF];
+	float   m_fStartTime[MAX_TYPE4_BUFF];
+
+	BYTE	m_bType4Buff[MAX_TYPE4_BUFF];
+	BOOL	m_bType4Flag;
 };

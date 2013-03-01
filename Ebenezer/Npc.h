@@ -45,10 +45,6 @@ public:
 	BYTE	m_NpcState;			// NPC의 상태 - 살았다, 죽었다, 서있다 등등...
 	BYTE	m_byGateOpen;		// Gate Npc Status -> 1 : open 0 : close
 
-	short   m_sHitRate;			// 공격 성공률
-	short	m_sEvadeRate;
-	short	m_sDefense;
-
 	BYTE    m_byObjectType;     // 보통은 0, object타입(성문, 레버)은 1
 	int16	m_byDirection;
 

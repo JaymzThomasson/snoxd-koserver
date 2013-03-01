@@ -49,9 +49,9 @@ void CUser::Initialize()
 
 	m_sTotalHit = 0;
 	m_sTotalAc = 0;
-	m_sTotalHitrate = 0;
-	m_sTotalEvasionrate = 0;
-	
+	m_sTotalHitrate = 0.0f;
+	m_sTotalEvasionrate = 0.0f;
+
 	m_sItemMaxHp = 0;
 	m_sItemMaxMp = 0;
 	m_sItemWeight = 0;
@@ -2523,29 +2523,6 @@ void CUser::Type3AreaDuration(float currenttime)
 	SendToRegion(&result);
 }
 
-void CUser::InitType4()
-{
-	m_bAttackSpeedAmount = 100;		// this is for the duration spells Type 4
-    m_bSpeedAmount = 100;
-    m_sACAmount = 0;
-    m_bAttackAmount = 100;
-	m_sMaxHPAmount = 0;
-	m_bHitRateAmount = 100;
-	m_sAvoidRateAmount = 100;
-	memset(m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
-	m_bFireRAmount = 0;
-	m_bColdRAmount = 0;
-	m_bLightningRAmount = 0;
-	m_bMagicRAmount = 0;
-	m_bDiseaseRAmount = 0;
-	m_bPoisonRAmount = 0;		
-	m_bAbnormalType = ABNORMAL_NORMAL;
-	memset(m_sDuration, 0, sizeof(uint16) * MAX_TYPE4_BUFF);
-	memset(m_fStartTime, 0, sizeof(float) * MAX_TYPE4_BUFF);
-	memset(m_bType4Buff, 0, sizeof(*m_bType4Buff) * MAX_TYPE4_BUFF);
-	m_bType4Flag = FALSE;
-}
-
 int CUser::GetEmptySlot(int itemid, int bCountable)
 {
 	for (int i = 0; i < HAVE_MAX; i++)
@@ -2997,20 +2974,6 @@ BOOL CUser::GetWarpList(int warp_group)
 
 	Send(&result);
 	return TRUE;
-}
-
-void CUser::InitType3()
-{
-	for (int i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {     // This is for the duration spells Type 3.
-		m_fHPStartTime[i] = 0.0f;		
-		m_fHPLastTime[i] = 0.0f;
-		m_bHPAmount[i] = 0;
-		m_bHPDuration[i] = 0;
-		m_bHPInterval[i] = 5;
-		m_sSourceID[i] = -1;
-	}
-
-	m_bType3Flag = FALSE;
 }
 
 BOOL CUser::BindObjectEvent(_OBJECT_EVENT *pEvent)
