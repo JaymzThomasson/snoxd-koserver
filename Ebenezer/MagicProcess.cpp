@@ -126,8 +126,8 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 			break;
 		case MAGIC_CANCEL:
 		case MAGIC_CANCEL2:
-			Type3Cancel(m_nSkillID, m_pSrcUser->GetSocketID());
-			Type4Cancel(m_nSkillID, m_pSrcUser->GetSocketID());
+			Type3Cancel(pMagic);
+			Type4Cancel(pMagic);
 			Type6Cancel();
 			break;
 		case MAGIC_CANCEL_TYPE9:
@@ -1661,85 +1661,95 @@ void CMagicProcess::Type6Cancel()
 	m_pSrcUser->StateChangeServerDirect(3, ABNORMAL_NORMAL); 
 }
 
-void CMagicProcess::Type4Cancel(int magicid, short tid)
+void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 {
-	CUser* pTUser = g_pMain->GetUserPtr(tid);  
-	if (pTUser == NULL) 
+	if (m_pSkillTarget != m_pSkillCaster)
 		return;
 
-	_MAGIC_TYPE4* pType = g_pMain->m_Magictype4Array.GetData(magicid);
+	_MAGIC_TYPE4* pType = g_pMain->m_Magictype4Array.GetData(pSkill->iNum);
 	if (pType == NULL)
 		return;
 
 	BOOL buff = FALSE;
 	BYTE buff_type = pType->bBuffType; 
 
-	switch (buff_type) {		
+	switch (buff_type)
+	{
 		case 1:
-			if (pTUser->m_sMaxHPAmount > 0) {
-				pTUser->m_sMaxHPAmount = 0;		
+			if (m_pSkillCaster->m_sMaxHPAmount > 0)
+			{
+				m_pSkillCaster->m_sMaxHPAmount = 0;		
 				buff = TRUE;
 			}
 			break;
 
 		case 2:
-			if (pTUser->m_sACAmount > 0) {
-				pTUser->m_sACAmount = 0;
+			if (m_pSkillCaster->m_sACAmount > 0) 
+			{
+				m_pSkillCaster->m_sACAmount = 0;
 				buff = TRUE;
 			}
 			break;
 
 		case 3:
-			pTUser->StateChangeServerDirect(3, ABNORMAL_NORMAL);
-			buff = TRUE;	
+			if (m_pSkillCaster->isPlayer())
+			{
+				static_cast<CUser *>(m_pSkillCaster)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
+				buff = TRUE;
+			}
 			break;
 
 		case 4:
-			if (pTUser->m_bAttackAmount > 100) {
-				pTUser->m_bAttackAmount = 100;
+			if (m_pSkillCaster->m_bAttackAmount > 100) 
+			{
+				m_pSkillCaster->m_bAttackAmount = 100;
 				buff = TRUE;
 			}
 			break;
 
 		case 5:
-			if (pTUser->m_bAttackSpeedAmount > 100) {
-				pTUser->m_bAttackSpeedAmount = 100;	
+			if (m_pSkillCaster->m_bAttackSpeedAmount > 100) 
+			{
+				m_pSkillCaster->m_bAttackSpeedAmount = 100;	
 				buff = TRUE;
 			}
 			break;	
 
 		case 6:	
-			if (pTUser->m_bSpeedAmount > 100) {
-				pTUser->m_bSpeedAmount = 100;
+			if (m_pSkillCaster->m_bSpeedAmount > 100)
+			{
+				m_pSkillCaster->m_bSpeedAmount = 100;
 				buff = TRUE;
 			}
 			break;
 
 		case 7:	
-			if (pTUser->getStatBuffTotal() > 0) {
+			if (m_pSkillCaster->isPlayer()
+				&& static_cast<CUser *>(m_pSkillCaster)->getStatBuffTotal() > 0) {
 				// TO-DO: Implement reset
-				memset(pTUser->m_bStatBuffs, 0, sizeof(uint8) * STAT_COUNT);
+				memset(static_cast<CUser *>(m_pSkillCaster)->m_bStatBuffs, 0, sizeof(uint8) * STAT_COUNT);
 				buff = TRUE;
 			}
 			break;
 
 		case 8:	
-			if ((pTUser->m_bFireRAmount + pTUser->m_bColdRAmount + pTUser->m_bLightningRAmount +
-				pTUser->m_bMagicRAmount + pTUser->m_bDiseaseRAmount + pTUser->m_bPoisonRAmount) > 0) {
-				pTUser->m_bFireRAmount = 0;
-				pTUser->m_bColdRAmount = 0;
-				pTUser->m_bLightningRAmount = 0;
-				pTUser->m_bMagicRAmount = 0;
-				pTUser->m_bDiseaseRAmount = 0;
-				pTUser->m_bPoisonRAmount = 0;
+			if ((m_pSkillCaster->m_bFireRAmount + m_pSkillCaster->m_bColdRAmount + m_pSkillCaster->m_bLightningRAmount +
+				m_pSkillCaster->m_bMagicRAmount + m_pSkillCaster->m_bDiseaseRAmount + m_pSkillCaster->m_bPoisonRAmount) > 0) {
+				m_pSkillCaster->m_bFireRAmount = 0;
+				m_pSkillCaster->m_bColdRAmount = 0;
+				m_pSkillCaster->m_bLightningRAmount = 0;
+				m_pSkillCaster->m_bMagicRAmount = 0;
+				m_pSkillCaster->m_bDiseaseRAmount = 0;
+				m_pSkillCaster->m_bPoisonRAmount = 0;
 				buff = TRUE;
 			}
 			break;	
 
 		case 9:	
-			if ((pTUser->m_bHitRateAmount + pTUser->m_sAvoidRateAmount) > 200) {
-				pTUser->m_bHitRateAmount = 100;
-				pTUser->m_sAvoidRateAmount = 100;
+			if ((m_pSkillCaster->m_bHitRateAmount + m_pSkillCaster->m_sAvoidRateAmount) > 200)
+			{
+				m_pSkillCaster->m_bHitRateAmount = 100;
+				m_pSkillCaster->m_sAvoidRateAmount = 100;
 				buff = TRUE;
 			}
 			break;
@@ -1747,61 +1757,70 @@ void CMagicProcess::Type4Cancel(int magicid, short tid)
 	
 	if (buff)
 	{
-		pTUser->m_sDuration[buff_type - 1] = 0;
-		pTUser->m_fStartTime[buff_type - 1] = 0.0f;
-		pTUser->m_bType4Buff[buff_type - 1] = 0;
-		pTUser->SetSlotItemValue();
-		pTUser->SetUserAbility();
-		pTUser->SendItemMove(2);
-		pTUser->Send2AI_UserUpdateInfo();
+		m_pSkillCaster->m_sDuration[buff_type - 1] = 0;
+		m_pSkillCaster->m_fStartTime[buff_type - 1] = 0.0f;
+		m_pSkillCaster->m_bType4Buff[buff_type - 1] = 0;
 
-		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
-		result << buff_type;
-		pTUser->Send(&result);
+		if (m_pSkillCaster->isPlayer())
+		{
+			static_cast<CUser *>(m_pSkillCaster)->SetSlotItemValue();
+			static_cast<CUser *>(m_pSkillCaster)->SetUserAbility();
+			static_cast<CUser *>(m_pSkillCaster)->SendItemMove(2);
+			static_cast<CUser *>(m_pSkillCaster)->Send2AI_UserUpdateInfo();
+
+			Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
+			result << buff_type;
+			static_cast<CUser *>(m_pSkillCaster)->Send(&result);
+		}
 	}
 
 	int buff_test = 0;
 	for (int i = 0; i < MAX_TYPE4_BUFF; i++)
-		buff_test += pTUser->m_bType4Buff[i];
-	if (buff_test == 0) pTUser->m_bType4Flag = FALSE;	
+		buff_test += m_pSkillCaster->m_bType4Buff[i];
+	if (buff_test == 0) m_pSkillCaster->m_bType4Flag = FALSE;	
 
-	if (pTUser->isInParty() && !pTUser->m_bType4Flag)
-		pTUser->SendPartyStatusUpdate(2);
+	if (m_pSkillCaster->isPlayer() && !m_pSkillCaster->m_bType4Flag
+		&& static_cast<CUser *>(m_pSkillCaster)->isInParty())
+		static_cast<CUser *>(m_pSkillCaster)->SendPartyStatusUpdate(2);
 }
 
-void CMagicProcess::Type3Cancel(int magicid, short tid)
+void CMagicProcess::Type3Cancel(_MAGIC_TABLE *pSkill)
 {
-	CUser* pTUser = g_pMain->GetUserPtr(tid);  
-	if (pTUser == NULL) 
+	if (m_pSkillCaster != m_pSkillTarget)
 		return;
 
-	_MAGIC_TYPE3* pType = g_pMain->m_Magictype3Array.GetData(magicid);
+	// Should this take only the specified skill? I'm thinking so.
+	_MAGIC_TYPE3* pType = g_pMain->m_Magictype3Array.GetData(pSkill->iNum);
 	if (pType == NULL)
 		return;
 
-	for (int i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {
-		if (pTUser->m_bHPAmount[i] > 0) {
-			pTUser->m_fHPStartTime[i] = 0.0f;
-			pTUser->m_fHPLastTime[i] = 0.0f;   
-			pTUser->m_bHPAmount[i] = 0;
-			pTUser->m_bHPDuration[i] = 0;				
-			pTUser->m_bHPInterval[i] = 5;
-			pTUser->m_sSourceID[i] = -1;
+	for (int i = 0; i < MAX_TYPE3_REPEAT ; i++) {
+		if (m_pSkillCaster->m_bHPAmount[i] > 0) {
+			m_pSkillCaster->m_fHPStartTime[i] = 0.0f;
+			m_pSkillCaster->m_fHPLastTime[i] = 0.0f;   
+			m_pSkillCaster->m_bHPAmount[i] = 0;
+			m_pSkillCaster->m_bHPDuration[i] = 0;				
+			m_pSkillCaster->m_bHPInterval[i] = 5;
+			m_pSkillCaster->m_sSourceID[i] = -1;
 			break;
 		}
 	}
 
-	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
-	result << uint8(100);
-	pTUser->Send(&result); 
+	if (m_pSkillCaster->isPlayer())
+	{
+		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
+		result << uint8(100);
+		static_cast<CUser *>(m_pSkillCaster)->Send(&result); 
+	}
 
 	int buff_test = 0;
 	for (int j = 0; j < MAX_TYPE3_REPEAT; j++)
-		buff_test += pTUser->m_bHPDuration[j];
-	if (buff_test == 0) pTUser->m_bType3Flag = FALSE;	
+		buff_test += m_pSkillCaster->m_bHPDuration[j];
+	if (buff_test == 0) m_pSkillCaster->m_bType3Flag = FALSE;	
 
-	if (pTUser->isInParty() && !pTUser->m_bType3Flag)
-		pTUser->SendPartyStatusUpdate(1, 0);
+	if (m_pSkillCaster->isPlayer() && !m_pSkillCaster->m_bType3Flag
+		&& static_cast<CUser *>(m_pSkillCaster)->isInParty())
+		static_cast<CUser *>(m_pSkillCaster)->SendPartyStatusUpdate(1, 0);
 }
 
 void CMagicProcess::SendType4BuffRemove(short tid, BYTE buff)
