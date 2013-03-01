@@ -713,7 +713,7 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 				m_pSrcUser->SendTargetHP( 0, pTUser->GetSocketID(), damage );     // Change the HP of the target. 
 			}
 
-			if (pTUser->m_bResHpType != USER_DEAD) {	// ���⵵ ��ȣ �ڵ� �߽�...
+			if (!pTUser->isDead()) {
 				if (pType->sTimeDamage < 0) {
 					duration_damage = GetMagicDamage(m_pSkillCaster, pTUser->GetSocketID(), pType->sTimeDamage, pType->bAttribute) ;
 				}

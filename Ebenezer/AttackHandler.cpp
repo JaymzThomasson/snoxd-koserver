@@ -564,8 +564,8 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 				else return;
 			}
 
-			m_pUserData->m_curx = x;
-			m_pUserData->m_curz = z;
+			//m_pUserData->m_curx = x;
+			//m_pUserData->m_curz = z;
 		}
 		else {	
 			if (m_pUserData->m_bNation == KARUS) {
