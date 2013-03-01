@@ -1794,8 +1794,10 @@ void CMagicProcess::Type3Cancel(_MAGIC_TABLE *pSkill)
 	if (pType == NULL)
 		return;
 
-	for (int i = 0; i < MAX_TYPE3_REPEAT ; i++) {
-		if (m_pSkillCaster->m_bHPAmount[i] > 0) {
+	for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
+	{
+		if (m_pSkillCaster->m_bHPAmount[i] > 0)
+		{
 			m_pSkillCaster->m_fHPStartTime[i] = 0.0f;
 			m_pSkillCaster->m_fHPLastTime[i] = 0.0f;   
 			m_pSkillCaster->m_bHPAmount[i] = 0;
@@ -1843,22 +1845,4 @@ short CMagicProcess::GetWeatherDamage(short damage, short attribute)
 		damage = (damage * 110) / 100;
 
 	return damage;
-}
-
-void CMagicProcess::TakeItems(_MAGIC_TABLE *pSkill, bool UseGem)
-{
-	if(pSkill->bType[0] != 6 && pSkill->bType[0] != 2)
-		m_pSrcUser->RobItem(pSkill->iUseItem, 1);
-	else if (pSkill->bType[0] == 2)
-	{
-		_MAGIC_TYPE2 *pType = g_pMain->m_Magictype2Array.GetData(pSkill->iNum);
-		m_pSrcUser->RobItem(pSkill->iUseItem, pType->bNeedArrow);
-	}
-	else if(pSkill->bType[0] == 6)
-	{
-		if(UseGem)
-			m_pSrcUser->RobItem(pSkill->iUseItem, 1);
-		else
-			m_pSrcUser->RobItem(m_pSrcUser->m_nTransformationItem, 1);
-	}
 }

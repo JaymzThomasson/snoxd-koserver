@@ -40,7 +40,6 @@ public:
 	bool UserCanCast(_MAGIC_TABLE *pSkill);
 	void SendSkillToAI(_MAGIC_TABLE *pSkill);
 	void MagicPacket(Packet & pkt);
-	void TakeItems(_MAGIC_TABLE *pSkill, bool UseGem = true);
 
 	bool ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType);
 
