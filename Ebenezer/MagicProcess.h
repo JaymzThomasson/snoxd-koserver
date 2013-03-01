@@ -1,13 +1,4 @@
-// MagicProcess.h: interface for the CMagicProcess class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_MAGICPROCESS_H__C39F1966_3F41_47A9_B26A_77F311683A05__INCLUDED_)
-#define AFX_MAGICPROCESS_H__C39F1966_3F41_47A9_B26A_77F311683A05__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #define NONE_R				0	
 #define	FIRE_R				1
@@ -19,10 +10,8 @@
 #define LIGHT_R				7
 #define DARKNESS_R			8
 
-class CEbenezerDlg;
-class CUser;
-class CNpc;
 class Packet;
+class Unit;
 struct _MAGIC_TABLE;
 
 class CMagicProcess  
@@ -74,9 +63,8 @@ public:
 	// This cannot happen with the existing system, but it's a potential later worry.
 	uint8	m_opcode;
 	uint32	m_nSkillID;
-	int16	m_pSkillCaster, m_pSkillTarget; // these should be pointers to the user/mob
+	int16	m_sCasterID, m_sTargetID; 
+	Unit	*m_pSkillCaster, *m_pSkillTarget;
 	uint16	m_sData1, m_sData2, m_sData3, m_sData4, 
 			m_sData5, m_sData6, m_sData7, m_sData8;
 };
-
-#endif // !defined(AFX_MAGICPROCESS_H__C39F1966_3F41_47A9_B26A_77F311683A05__INCLUDED_)
