@@ -550,9 +550,6 @@ short CMagicProcess::GetMagicDamage(int tid, int total_hit, int attribute, int d
 		
 	if (result != FAIL) {		// In case of SUCCESS (and SUCCESS only!) .... 
 		switch (attribute) {
-			case NONE_R :
-				total_r = 0;		
-				break;
 			case FIRE_R	:
 				total_r = pNpc->m_byFireR;
 				break;
@@ -570,12 +567,6 @@ short CMagicProcess::GetMagicDamage(int tid, int total_hit, int attribute, int d
 				break;
 			case POISON_R :			
 				total_r = pNpc->m_byPoisonR ;
-				break;
-			case LIGHT_R :
-				// LATER !!!
-				break;
-			case DARKNESS_R	:
-				// LATER !!!
 				break;
 		}	
 

@@ -1426,7 +1426,7 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 		pMon = g_pMain->m_arNpcArray.GetData(sid);
 		if( !pMon || pMon->m_NpcState == NPC_DEAD ) return 0;
 
-		result = m_pSrcUser->GetHitRate( pMon->m_sHitRate / pTUser->m_sTotalEvasionrate ); 		
+		result = m_pSrcUser->GetHitRate( pMon->m_sTotalHitrate / pTUser->m_sTotalEvasionrate ); 		
 	}
 	else {	// If the source is another player.
 		total_hit = total_hit * m_pSrcUser->getStat(STAT_CHA) / 170;
@@ -1435,9 +1435,6 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 		
 	if (result != FAIL) {		// In case of SUCCESS.... 
 		switch (attribute) {
-			case NONE_R :
-				total_r = 0;		
-				break;
 			case FIRE_R	:
 				total_r = pTUser->m_bFireR + pTUser->m_bFireRAmount ;
 				break;
@@ -1455,12 +1452,6 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 				break;
 			case POISON_R :			
 				total_r = pTUser->m_bPoisonR + pTUser->m_bPoisonRAmount ;
-				break;
-			case LIGHT_R :
-				// LATER !!!
-				break;
-			case DARKNESS_R	:
-				// LATER !!!
 				break;
 		}
 		

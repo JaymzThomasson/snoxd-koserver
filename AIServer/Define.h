@@ -1,10 +1,5 @@
-#ifndef _DEFINE_H
-#define _DEFINE_H
+#pragma once
 
-/*
-     ** Repent AI Server 작업시 참고 사항 **
-	1. #define AI_SOCKET_PORT	10020 -> 11020으로 수정됨..
-*/
 
 //
 //	MAX VALUE DEFINE
@@ -391,8 +386,6 @@ const BYTE	ATTACK_MAX		=	80;
 #define MAGIC_R				4
 #define DISEASE_R			5
 #define POISON_R			6
-#define LIGHT_R				7
-#define DARKNESS_R			8
 
 ////////////////////////////////////////////////////////////////
 // Type 3 Attribute define
@@ -400,5 +393,3 @@ const BYTE	ATTACK_MAX		=	80;
 #define ATTRIBUTE_FIRE			 1
 #define ATTRIBUTE_ICE			 2
 #define ATTRIBUTE_LIGHTNING		 3
-
-#endif
