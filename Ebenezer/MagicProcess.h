@@ -37,15 +37,15 @@ public:
 	BOOL UserRegionCheck(int sid, int tid, int magicid, int radius, short mousex = 0, short mousez = 0);
 	short GetMagicDamage(int sid, int tid, int total_hit, int attribute);
 
-	uint8 ExecuteType1(_MAGIC_TABLE *pSkill);	
-	uint8 ExecuteType2(_MAGIC_TABLE *pSkill);
-	void  ExecuteType3(_MAGIC_TABLE *pSkill);
-	void  ExecuteType4(_MAGIC_TABLE *pSkill);
-	void  ExecuteType5(_MAGIC_TABLE *pSkill);
-	uint8 ExecuteType6(_MAGIC_TABLE *pSkill);
-	void  ExecuteType7(_MAGIC_TABLE *pSkill);
-	void  ExecuteType8(_MAGIC_TABLE *pSkill);
-	void  ExecuteType9(_MAGIC_TABLE *pSkill);
+	bool ExecuteType1(_MAGIC_TABLE *pSkill);	
+	bool ExecuteType2(_MAGIC_TABLE *pSkill);
+	bool ExecuteType3(_MAGIC_TABLE *pSkill);
+	bool ExecuteType4(_MAGIC_TABLE *pSkill);
+	bool ExecuteType5(_MAGIC_TABLE *pSkill);
+	bool ExecuteType6(_MAGIC_TABLE *pSkill);
+	bool ExecuteType7(_MAGIC_TABLE *pSkill);
+	bool ExecuteType8(_MAGIC_TABLE *pSkill);
+	bool ExecuteType9(_MAGIC_TABLE *pSkill);
 
 	bool IsAvailable(_MAGIC_TABLE *pSkill);
 	bool UserCanCast(_MAGIC_TABLE *pSkill);
@@ -53,7 +53,7 @@ public:
 	void MagicPacket(Packet & pkt);
 	void TakeItems(_MAGIC_TABLE *pSkill, bool UseGem = true);
 
-	uint8 ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType);
+	bool ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType);
 
 	void SendTransformationList(_MAGIC_TABLE *pSkill);
 	void SendSkillFailed();

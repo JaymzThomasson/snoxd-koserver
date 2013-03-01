@@ -93,7 +93,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 		return;
 	}
 
-	uint8 bInitialResult = 0;
+	bool bInitialResult;
 	switch (m_opcode)
 	{
 		case MAGIC_CASTING:
@@ -113,8 +113,9 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 			}
 
 			bInitialResult = ExecuteSkill(pMagic, pMagic->bType[0]);
+
 			// NOTE: Some ROFD skills require a THIRD type.
-			if (bInitialResult != 0)
+			if (bInitialResult)
 				ExecuteSkill(pMagic, pMagic->bType[1]);
 			break;
 		case MAGIC_FLYING:
@@ -249,50 +250,22 @@ void CMagicProcess::SendSkillToAI(_MAGIC_TABLE *pSkill)
 	}
 }
 
-uint8 CMagicProcess::ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType)
+bool CMagicProcess::ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType)
 {
-	uint8 bResult = 0;
-
 	switch (bType)
 	{
-		case 1:
-			bResult = ExecuteType1(pSkill);
-			break;
-
-		case 2:
-			bResult = ExecuteType2(pSkill);
-			break;
-	
-		case 3:
-			ExecuteType3(pSkill);
-			break;
-
-		case 4:
-			ExecuteType4(pSkill);
-			break;
-	
-		case 5:
-			ExecuteType5(pSkill);
-			break;
-	
-		case 6:
-			bResult = ExecuteType6(pSkill);
-			break;
-	
-		case 7:
-			ExecuteType7(pSkill);
-			break;
-	
-		case 8:
-			ExecuteType8(pSkill);
-			break;
-	
-		case 9:
-			ExecuteType9(pSkill);
-			break;
+		case 1: return ExecuteType1(pSkill);
+		case 2: return ExecuteType2(pSkill);
+		case 3: return ExecuteType3(pSkill);
+		case 4: return ExecuteType4(pSkill);
+		case 5: return ExecuteType5(pSkill);
+		case 6: return ExecuteType6(pSkill);
+		case 7: return ExecuteType7(pSkill);
+		case 8: return ExecuteType8(pSkill);
+		case 9: return ExecuteType9(pSkill);
 	}
 
-	return bResult;
+	return false;
 }
 
 void CMagicProcess::SendTransformationList(_MAGIC_TABLE *pSkill)
@@ -602,19 +575,19 @@ fail_return:    // In case of failure, send a packet(!)
 	return false;     // Magic was a failure!
 }
 
-BYTE CMagicProcess::ExecuteType1(_MAGIC_TABLE *pSkill)
+bool CMagicProcess::ExecuteType1(_MAGIC_TABLE *pSkill)
 {	
 	int damage = 0;
-	uint8 bResult = 0;
+	bool bResult = false;
 
 	_MAGIC_TYPE1* pType = g_pMain->m_Magictype1Array.GetData(pSkill->iNum);
 	if (pType == NULL)
-		return 0;
+		return false;
 
-	damage = m_pSrcUser->GetDamage(m_pSkillTarget, pSkill->iNum);
 	if (m_pTargetUser != NULL && !m_pTargetUser->isDead())
 	{
 		bResult = 1;
+		damage = m_pSrcUser->GetDamage(m_pSkillTarget, pSkill->iNum);
 		m_pTargetUser->HpChange(-damage, m_pSrcUser);
 		m_pSrcUser->SendTargetHP(0, m_pSkillTarget, -damage);
 	}
@@ -626,21 +599,20 @@ BYTE CMagicProcess::ExecuteType1(_MAGIC_TABLE *pSkill)
 	return bResult;
 }
 
-BYTE CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
+bool CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 {		
 	int damage = 0;
-	uint8 bResult = 0;
+	bool bResult = false;
 	float total_range = 0.0f;	// These variables are used for range verification!
 	int sx, sz, tx, tz;
 
 	_MAGIC_TYPE2 *pType = g_pMain->m_Magictype2Array.GetData(pSkill->iNum);
-	if (pType == NULL)
-			return 0;
+	if (pType == NULL
+		// The user does not have enough arrows! We should point them in the right direction. ;)
+		|| !m_pSrcUser->CheckExistItem(pSkill->iUseItem, pType->bNeedArrow))
+		return false;
 
-	if (!m_pSrcUser->CheckExistItem(pSkill->iUseItem, pType->bNeedArrow)) //The user does not have enough arrows!
-		return 0;
-
-
+<<<<<<< HEAD
 	_ITEM_TABLE* pTable = m_pSrcUser->getLeftHand();		// Get item info.
 	uint8 m_bWeaponType = m_pSrcUser->getLeftHandWeaponType();
 	if (pTable == NULL
@@ -654,6 +626,16 @@ BYTE CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 		|| m_bWeaponType != WEAPON_BOW
 		|| m_bWeaponType != WEAPON_LONGBOW)  //Not wearing a right-handed (2h) bow either!
 		return 0;
+=======
+	_ITEM_TABLE* pTable = NULL;		// Get item info.
+	if (m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum)
+		pTable = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[LEFTHAND].nNum);
+	else
+		pTable = g_pMain->GetItemPtr(m_pSrcUser->m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+
+	if (pTable == NULL) 
+		return false;
+>>>>>>> 96046e3f89ea5eb7ed56cdbe0e0021dea52ca74e
 
 
 	CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
@@ -662,8 +644,8 @@ BYTE CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 		goto packet_send;
 	
 	total_range = pow(((pType->sAddRange * pTable->m_sRange) / 100.0f), 2.0f) ;     // Range verification procedure.
-	sx = (int)m_pSrcUser->m_pUserData->m_curx; tx = (int)pTUser->m_pUserData->m_curx;
-	sz = (int)m_pSrcUser->m_pUserData->m_curz; tz = (int)pTUser->m_pUserData->m_curz;
+	sx = (int)m_pSrcUser->GetX(); tx = (int)pTUser->GetX();
+	sz = (int)m_pSrcUser->GetZ(); tz = (int)pTUser->GetZ();
 	
 	if ((pow((float)(sx - tx), 2.0f) + pow((float)(sz - tz), 2.0f)) > total_range)	   // Target is out of range, exit.
 		goto packet_send;
@@ -681,7 +663,7 @@ packet_send:
 	return bResult;
 }
 
-void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magical attack, healing, and mana restoration is done.
+bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magical attack, healing, and mana restoration is done.
 {	
 	int damage = 0, duration_damage = 0;
 
@@ -689,7 +671,7 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 
 	_MAGIC_TYPE3* pType = g_pMain->m_Magictype3Array.GetData(pSkill->iNum);
 	if (pType == NULL) 
-		return;
+		return false;
 
 	if (m_pSkillTarget == -1) {		// If the target was the source's party....
 		// TO-DO: Make this not completely and utterly suck (i.e. kill that loop!).
@@ -706,13 +688,13 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 		if (casted_member.empty())
 		{
 			SendSkillFailed();
-			return;			
+			return false;			
 		}
 	}
 	else
 	{	// If the target was another single player.
 		if (m_pTargetUser == NULL || m_pTargetUser->isDead() || m_pTargetUser->isBlinking()) 
-			return;		
+			return false;
 		
 		casted_member.push_back(m_pTargetUser);
 	}
@@ -785,19 +767,21 @@ void CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 			g_pMain->Send_AIServer(&result);
 		}
 	}
+
+	return true;
 }
 
-void CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
+bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 {
 	int damage = 0;
 
 	vector<CUser *> casted_member;
 	if (pSkill == NULL)
-		return;
+		return false;
 
 	_MAGIC_TYPE4* pType = g_pMain->m_Magictype4Array.GetData(pSkill->iNum);
 	if (pType == NULL)
-		return;
+		return false;
 
 	if (m_pSkillTarget == -1)
 	{
@@ -816,7 +800,8 @@ void CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 		{		
 			if (m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER) 
 				SendSkillFailed();
-			return;	
+
+			return false;
 		}
 	}
 	else 
@@ -825,7 +810,8 @@ void CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 		CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
 		if (pTUser == NULL 
 			|| pTUser->isDead() || pTUser->isBlinking()) 
-			return;
+			return false;
+
 		casted_member.push_back(pTUser);
 	}
 
@@ -956,42 +942,46 @@ void CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 		if (bResult == 0
 			&& m_pSkillCaster >= 0 && m_pSkillCaster < MAX_USER)
 			SendSkill(m_pSkillCaster, (*itr)->GetSocketID(), MAGIC_FAIL);
+
 		continue;
 	}
+	return true;
 }
 
-void CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
+bool CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 {
 	int damage = 0;
 	int i = 0, j = 0, k =0; int buff_test = 0; BOOL bType3Test = TRUE, bType4Test = TRUE; 	
 
 	if (pSkill == NULL)
-		return;
+		return false;
 
 	_MAGIC_TYPE5* pType = g_pMain->m_Magictype5Array.GetData(pSkill->iNum);
 	if (pType == NULL)
-		return;
+		return false;
 
-	if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER)	{	
-			if (pSkill->iUseItem != 0) {					 
-
-						// No resurrections for low level users
+	if (m_pSkillTarget >= 0 && m_pSkillTarget < MAX_USER)
+	{
+		if (pSkill->iUseItem != 0)
+		{
+			// No resurrections for low level users
 			if (pType->bType == 3 && m_pTargetUser->GetLevel() <= 5)
-				return;
+				return false;
 
-			if (pType->bType == 3) {
+			if (pType->bType == 3)
+			{
 				if (!m_pTargetUser->RobItem(pSkill->iUseItem, pType->sNeedStone))
-					return;
+					return false;
 			}
 			else if (!m_pSrcUser->RobItem(pSkill->iUseItem, pType->sNeedStone))
-				return;
+				return false;
 		}
 	}
 
 	if (m_pTargetUser == NULL 
 		|| (m_pTargetUser->isDead() && pType->bType != RESURRECTION) 
 		|| (!m_pTargetUser->isDead() && pType->bType == RESURRECTION)) 
-		return;
+		return false;
 
 	switch(pType->bType) {
 		case REMOVE_TYPE3:		// REMOVE TYPE 3!!!
@@ -1168,9 +1158,11 @@ void CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 
 	if (pSkill->bType[1] == 0 || pSkill->bType[1] == 5)
 		SendSkill();
+
+	return true;
 }
 
-uint8 CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
+bool CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 {
 	_MAGIC_TYPE6 * pType = g_pMain->m_Magictype6Array.GetData(pSkill->iNum);
 	uint32 iUseItem = 0;
@@ -1178,7 +1170,7 @@ uint8 CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 	if (pType == NULL
 		|| m_pSrcUser->isAttackZone()
 		|| m_pSrcUser->isTransformed())
-		return 0;
+		return false;
 
 	// Let's start by looking at the item that was used for the transformation.
 	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(m_pSrcUser->m_nTransformationItem);
@@ -1190,7 +1182,7 @@ uint8 CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 	// If neither of these items exist, we have a bit of a problem...
 	if (pTable == NULL 
 		&& pTable2 == NULL)
-		return 0;
+		return false;
 
 	/*
 		If it's a totem (which is apparently a ring), then we need to override it 
@@ -1213,7 +1205,7 @@ uint8 CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 	// Attempt to take the item (no further checks, so no harm in multipurposing)
 	// If we add more checks, remember to change this check.
 	if (!m_pSrcUser->RobItem(iUseItem, 1))
-		return 0;
+		return false;
 
 	// TO-DO : Save duration, and obviously end
 	m_pSrcUser->m_fTransformationStartTime = TimeGet();
@@ -1227,23 +1219,24 @@ uint8 CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 	SendSkill(m_pSkillCaster, m_pSkillTarget, m_opcode,
 		m_nSkillID, m_sData1, 1, m_sData3, 0, 0, 0, 0, 0);
 
-	return 1;
+	return true;
 }
 
 
-void CMagicProcess::ExecuteType7(_MAGIC_TABLE *pSkill)
+bool CMagicProcess::ExecuteType7(_MAGIC_TABLE *pSkill)
 {
+	return true;
 }
 
-void CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, and summon spells.
+bool CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, and summon spells.
 {	
 	if (pSkill == NULL)
-		return;
+		return false;
 
 	vector<CUser *> casted_member;
 	_MAGIC_TYPE8* pType = g_pMain->m_Magictype8Array.GetData(pSkill->iNum);
 	if (pType == NULL)
-		return;
+		return false;
 
 	if (m_pSkillTarget == -1)
 	{
@@ -1258,13 +1251,13 @@ void CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 		g_pMain->s_socketMgr.ReleaseLock();
 
 		if (casted_member.empty()) 
-			return;	
+			return false;	
 	}
 	else 
 	{	// If the target was another single player.
 		CUser* pTUser = g_pMain->GetUserPtr(m_pSkillTarget);
 		if (pTUser == NULL) 
-			return;
+			return false;
 		
 		casted_member.push_back(pTUser);
 	}
@@ -1279,9 +1272,9 @@ void CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 		if( z < 2.5f )	z = 1.5f + z;
 
 		CUser* pTUser = *itr;
-		_HOME_INFO* pHomeInfo = g_pMain->m_HomeArray.GetData(pTUser->m_pUserData->m_bNation);
+		_HOME_INFO* pHomeInfo = g_pMain->m_HomeArray.GetData(pTUser->GetNation());
 		if (pHomeInfo == NULL)
-			return;
+			return false;
 
 		if (pType->bWarpType != 11) 
 		{   // Warp or summon related: targets CANNOT be dead.
@@ -1413,16 +1406,14 @@ packet_send:
 		m_sData2 = bResult;
 		SendSkill(m_pSkillCaster, (*itr)->GetSocketID());
 	}
+	return true;
 }
 
-void CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
+bool CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 {
-	uint8 bResult = MAGIC_EFFECTING;
-
 	_MAGIC_TYPE9* pType = g_pMain->m_Magictype9Array.GetData(pSkill->iNum);
 	if (pType == NULL)
-		return;
-
+		return false;
 
 	m_sData2 = 1;
 	/*
@@ -1433,8 +1424,8 @@ void CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 	else
 	{
 		m_sData2 = 0;
-		bResult = MAGIC_FAIL;
-		goto send_result;
+		SendSkillFailed();
+		return false;
 	}
 	*/
 
@@ -1442,13 +1433,13 @@ void CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 		m_pSrcUser->StateChangeServerDirect(7, pType->bStateChange); //Update the client to be invisible
 	else if (pType->bStateChange == 3)
 		m_pSrcUser->m_bCanSeeStealth = true;
-	else if(pType->bStateChange == 4)
+	else if (pType->bStateChange == 4)
 	{
 		if(m_pSrcUser->isInParty())
 		{
 			_PARTY_GROUP* pParty = g_pMain->m_PartyArray.GetData(m_pSrcUser->m_sPartyIndex);
 			if (pParty == NULL)
-				return;
+				return false;
 
 			for (int i = 0; i < MAX_PARTY_USERS; i++)
 			{
@@ -1463,14 +1454,15 @@ void CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 
 	//TO-DO : Save the skill in the saved skill list
 
-send_result :
-	Packet result(WIZ_MAGIC_PROCESS, bResult);
+	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_EFFECTING));
 	result	<< m_nSkillID << m_pSkillCaster << m_pSkillTarget
 			<< m_sData1 << m_sData2 << m_sData3 << m_sData4 << m_sData5 << m_sData6 << m_sData7 << m_sData8;
 	if(m_pSrcUser->isInParty() && pType->bStateChange == 4)
 		g_pMain->Send_PartyMember(m_pSrcUser->m_sPartyIndex, &result);
 	else
 		m_pSrcUser->Send(&result);
+
+	return true;
 }
 
 short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribute)
