@@ -361,6 +361,7 @@ void CAISocket::RecvMagicAttackResult(Packet & pkt)
 	*/
 	pkt >> byCommand >> magicid >> sid >> tid;
 
+	pkt.SetOpcode(WIZ_MAGIC_PROCESS);
 	if (byCommand == MAGIC_CASTING
 		|| (byCommand == MAGIC_EFFECTING && sid >= NPC_BAND && tid >= NPC_BAND))
 	{

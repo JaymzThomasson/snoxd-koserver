@@ -562,6 +562,14 @@ CUser		* CEbenezerDlg::GetUserPtr(int sid) { return s_socketMgr[sid]; }
 CKnights    * CEbenezerDlg::GetClanPtr(uint16 sClanID) { return m_KnightsArray.GetData(sClanID); }
 _ITEM_TABLE * CEbenezerDlg::GetItemPtr(uint32 nItemID) { return m_ItemtableArray.GetData(nItemID); }
 
+Unit * CEbenezerDlg::GetUnit(uint16 id)
+{
+	if (id < NPC_BAND)
+		return GetUserPtr(id);
+
+	return m_arNpcArray.GetData(id);
+}
+
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 {
 	EnterCriticalSection(&g_region_critical);

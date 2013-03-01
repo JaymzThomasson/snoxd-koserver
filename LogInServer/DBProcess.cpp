@@ -1,10 +1,4 @@
-// DBProcess.cpp: implementation of the CDBProcess class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
-#include "define.h"
-#include "DBProcess.h"
 #include "VersionManagerDlg.h"
 
 using namespace std;

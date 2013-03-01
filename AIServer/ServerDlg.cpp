@@ -394,15 +394,8 @@ BOOL CServerDlg::GetMakeGradeItemTableData()
 		_MAKE_ITEM_GRADE_CODE* pTable = new _MAKE_ITEM_GRADE_CODE;
 				
 		pTable->byItemIndex = MakeItemTableSet.m_byItemIndex;
-		pTable->sGrade_1 = MakeItemTableSet.m_byGrade_1;
-		pTable->sGrade_2 = MakeItemTableSet.m_byGrade_2;
-		pTable->sGrade_3 = MakeItemTableSet.m_byGrade_3;
-		pTable->sGrade_4 = MakeItemTableSet.m_byGrade_4;
-		pTable->sGrade_5 = MakeItemTableSet.m_byGrade_5;
-		pTable->sGrade_6 = MakeItemTableSet.m_byGrade_6;
-		pTable->sGrade_7 = MakeItemTableSet.m_byGrade_7;
-		pTable->sGrade_8 = MakeItemTableSet.m_byGrade_8;
-		pTable->sGrade_9 = MakeItemTableSet.m_byGrade_9;
+		for (int i = 0; i < 9; i++)
+			pTable->sGrade[i] = MakeItemTableSet.m_sGrade[i];
 
 		if( !m_MakeGradeItemArray.PutData(pTable->byItemIndex, pTable) ) {
 			TRACE("MakeGradeItemTable PutData Fail - %d\n", pTable->byItemIndex );

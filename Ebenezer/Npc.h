@@ -64,8 +64,7 @@ public:
 
 	virtual void OnDeath(Unit *pKiller);
 
-	__forceinline bool isDead() { return m_NpcState == NPC_DEAD || m_iHP <= 0; };
-	__forceinline bool isAlive() { return !isDead(); };
+	virtual bool isDead() { return m_NpcState == NPC_DEAD || m_iHP <= 0; };
 
 	__forceinline bool isGate() { return GetType() == NPC_GATE || GetType() == NPC_PHOENIX_GATE || GetType() == NPC_SPECIAL_GATE || GetType() == NPC_VICTORY_GATE; };
 	__forceinline bool isGateOpen() { return m_byGateOpen == TRUE; };

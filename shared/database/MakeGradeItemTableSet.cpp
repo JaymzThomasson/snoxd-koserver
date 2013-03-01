@@ -20,15 +20,7 @@ CMakeGradeItemTableSet::CMakeGradeItemTableSet(CDatabase* pdb)
 {
 	//{{AFX_FIELD_INIT(CMakeGradeItemTableSet)
 	m_byItemIndex = 0;
-	m_byGrade_1 = 0;
-	m_byGrade_2 = 0;
-	m_byGrade_3 = 0;
-	m_byGrade_4 = 0;
-	m_byGrade_5 = 0;
-	m_byGrade_6 = 0;
-	m_byGrade_7 = 0;
-	m_byGrade_8 = 0;
-	m_byGrade_9 = 0;
+	memset(&m_sGrade, 0, 9 * sizeof(int));
 	m_nFields = 10;
 	//}}AFX_FIELD_INIT
 	m_nDefaultType = snapshot;
@@ -50,15 +42,15 @@ void CMakeGradeItemTableSet::DoFieldExchange(CFieldExchange* pFX)
 	//{{AFX_FIELD_MAP(CMakeGradeItemTableSet)
 	pFX->SetFieldType(CFieldExchange::outputColumn);
 	RFX_Byte(pFX, _T("[byItemIndex]"), m_byItemIndex);
-	RFX_Int(pFX, _T("[byGrade_1]"), m_byGrade_1);
-	RFX_Int(pFX, _T("[byGrade_2]"), m_byGrade_2);
-	RFX_Int(pFX, _T("[byGrade_3]"), m_byGrade_3);
-	RFX_Int(pFX, _T("[byGrade_4]"), m_byGrade_4);
-	RFX_Int(pFX, _T("[byGrade_5]"), m_byGrade_5);
-	RFX_Int(pFX, _T("[byGrade_6]"), m_byGrade_6);
-	RFX_Int(pFX, _T("[byGrade_7]"), m_byGrade_7);
-	RFX_Int(pFX, _T("[byGrade_8]"), m_byGrade_8);
-	RFX_Int(pFX, _T("[byGrade_9]"), m_byGrade_9);
+	RFX_Int(pFX, _T("[byGrade_1]"), m_sGrade[0]);
+	RFX_Int(pFX, _T("[byGrade_2]"), m_sGrade[1]);
+	RFX_Int(pFX, _T("[byGrade_3]"), m_sGrade[2]);
+	RFX_Int(pFX, _T("[byGrade_4]"), m_sGrade[3]);
+	RFX_Int(pFX, _T("[byGrade_5]"), m_sGrade[4]);
+	RFX_Int(pFX, _T("[byGrade_6]"), m_sGrade[5]);
+	RFX_Int(pFX, _T("[byGrade_7]"), m_sGrade[6]);
+	RFX_Int(pFX, _T("[byGrade_8]"), m_sGrade[7]);
+	RFX_Int(pFX, _T("[byGrade_9]"), m_sGrade[8]);
 	//}}AFX_FIELD_MAP
 }
 
