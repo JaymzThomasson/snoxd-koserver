@@ -282,7 +282,6 @@ short Unit::GetMagicDamage(int damage, Unit *pTarget)
 	return damage;
 }
 
-
 short Unit::GetACDamage(int damage, Unit *pTarget)
 {
 	// This isn't applicable to NPCs.

@@ -184,7 +184,7 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 					|| !static_cast<CUser *>(m_pSkillTarget)->isAttackZone()
 					// Will have to add support for the outside battlefield
 					|| (static_cast<CUser *>(m_pSkillTarget)->isAttackZone() 
-						&& static_cast<CUser *>(m_pSkillTarget)->GetNation() == m_pSkillCaster->GetNation()))
+						&& m_pSkillTarget->GetNation() == m_pSkillCaster->GetNation()))
 					return false;
 			}
 		}
@@ -592,9 +592,11 @@ bool CMagicProcess::ExecuteType1(_MAGIC_TABLE *pSkill)
 	{
 		bResult = 1;
 		damage = m_pSkillCaster->GetDamage(m_pSkillTarget, pSkill);
-		// assume player for now
-		static_cast<CUser *>(m_pSkillTarget)->HpChange(-damage, m_pSkillCaster);
-		static_cast<CUser *>(m_pSkillCaster)->SendTargetHP(0, m_sTargetID, -damage);
+		m_pSkillTarget->HpChange(-damage, m_pSkillCaster);
+
+		// This is more than a little ugly.
+		if (m_pSkillCaster->isPlayer())
+			static_cast<CUser *>(m_pSkillCaster)->SendTargetHP(0, m_sTargetID, -damage);
 	}
 
 	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
@@ -641,9 +643,11 @@ bool CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 	
 	damage = m_pSkillCaster->GetDamage(m_pSkillTarget, pSkill);  // Get damage points of enemy.	
 
-	// assume player for now
-	static_cast<CUser *>(m_pSkillTarget)->HpChange(-damage, m_pSrcUser);     // Reduce target health point.
-	static_cast<CUser *>(m_pSkillCaster)->SendTargetHP( 0, m_sTargetID, -damage );     // Change the HP of the target.
+	m_pSkillTarget->HpChange(-damage, m_pSrcUser);     // Reduce target health point.
+
+	// This is more than a little ugly.
+	if (m_pSkillCaster->isPlayer())
+		static_cast<CUser *>(m_pSkillCaster)->SendTargetHP(0, m_sTargetID, -damage);     // Change the HP of the target.
 
 packet_send:
 	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
@@ -953,47 +957,53 @@ bool CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 		|| (!m_pSkillTarget->isDead() && pType->bType == RESURRECTION)) 
 		return false;
 
-	CUser *pTUser = static_cast<CUser *>(m_pSkillTarget);
 	switch (pType->bType) 
 	{
 		case REMOVE_TYPE3:		// REMOVE TYPE 3!!!
-			for (int i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {
-				if (pTUser->m_bHPAmount[i] < 0) {
-					pTUser->m_fHPStartTime[i] = 0.0f;
-					pTUser->m_fHPLastTime[i] = 0.0f;   
-					pTUser->m_bHPAmount[i] = 0;
-					pTUser->m_bHPDuration[i] = 0;				
-					pTUser->m_bHPInterval[i] = 5;
-					pTUser->m_sSourceID[i] = -1;
+			for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
+			{
+				if (m_pSkillTarget->m_bHPAmount[i] < 0) {
+					m_pSkillTarget->m_fHPStartTime[i] = 0.0f;
+					m_pSkillTarget->m_fHPLastTime[i] = 0.0f;   
+					m_pSkillTarget->m_bHPAmount[i] = 0;
+					m_pSkillTarget->m_bHPDuration[i] = 0;				
+					m_pSkillTarget->m_bHPInterval[i] = 5;
+					m_pSkillTarget->m_sSourceID[i] = -1;
 
-					// TO-DO: Wrap this up (ugh, I feel so dirty)
-					Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
-					result << uint8(200); // removes all
-					pTUser->Send(&result); 
+					if (m_pSkillTarget->isPlayer())
+					{
+						// TO-DO: Wrap this up (ugh, I feel so dirty)
+						Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
+						result << uint8(200); // removes all
+						static_cast<CUser *>(m_pSkillTarget)->Send(&result); 
+					}
 				}
 			}
 
 			buff_test = 0;
 			for (int j = 0; j < MAX_TYPE3_REPEAT; j++)
-				buff_test += pTUser->m_bHPDuration[j];
-			if (buff_test == 0) pTUser->m_bType3Flag = FALSE;	
+				buff_test += m_pSkillTarget->m_bHPDuration[j];
+			if (buff_test == 0) m_pSkillTarget->m_bType3Flag = FALSE;	
 
 			// Check for Type 3 Curses.
-			for (int k = 0 ; k < MAX_TYPE3_REPEAT ; k++) {
-				if (pTUser->m_bHPAmount[k] < 0) {
+			for (int k = 0; k < MAX_TYPE3_REPEAT; k++)
+			{
+				if (m_pSkillTarget->m_bHPAmount[k] < 0)
+				{
 					bType3Test = FALSE;
 					break;
 				}
 			}
   
-			if (pTUser->isInParty() && bType3Test)
-				pTUser->SendPartyStatusUpdate(1);
+			if (m_pSkillTarget->isPlayer()
+				&& static_cast<CUser *>(m_pSkillTarget)->isInParty() && bType3Test)
+				static_cast<CUser *>(m_pSkillTarget)->SendPartyStatusUpdate(1);
 			break;
 
 		case REMOVE_TYPE4:		// REMOVE TYPE 4!!!
 			for (int i = 0; i < MAX_TYPE4_BUFF; i++)
 			{
-				if (pTUser->m_bType4Buff[i] == 0)
+				if (m_pSkillTarget->m_bType4Buff[i] == 0)
 					continue;
 
 				uint8 buff_type = i + 1;
@@ -1001,102 +1011,114 @@ bool CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 				switch (buff_type)
 				{
 				case 1: 
-					pTUser->m_sMaxHPAmount = 0;
+					m_pSkillTarget->m_sMaxHPAmount = 0;
 					break;
 
 				case 2:
-					pTUser->m_sACAmount = 0;
+					m_pSkillTarget->m_sACAmount = 0;
 					break;
 
 				case 3:
-					pTUser->StateChangeServerDirect(3, ABNORMAL_NORMAL);
+					if (m_pSkillTarget->isPlayer())
+						static_cast<CUser *>(m_pSkillTarget)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
 					break;
 
 				case 4:
-					pTUser->m_bAttackAmount = 100;
+					m_pSkillTarget->m_bAttackAmount = 100;
 					break;
 
 				case 5:
-					pTUser->m_bAttackSpeedAmount = 100;
+					m_pSkillTarget->m_bAttackSpeedAmount = 100;
 					break;
 
 				case 6:
-					pTUser->m_bSpeedAmount = 100;
+					m_pSkillTarget->m_bSpeedAmount = 100;
 					break;
 
 				case 7:
-					memset(pTUser->m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
+					if (m_pSkillTarget->isPlayer())
+						memset(static_cast<CUser *>(m_pSkillTarget)->m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
 					break;
 
 				case 8:
-					pTUser->m_bFireRAmount = pTUser->m_bColdRAmount = pTUser->m_bLightningRAmount = 0;
-					pTUser->m_bMagicRAmount = pTUser->m_bDiseaseRAmount = pTUser->m_bPoisonRAmount = 0;
+					m_pSkillTarget->m_bFireRAmount = m_pSkillTarget->m_bColdRAmount = m_pSkillTarget->m_bLightningRAmount = 0;
+					m_pSkillTarget->m_bMagicRAmount = m_pSkillTarget->m_bDiseaseRAmount = m_pSkillTarget->m_bPoisonRAmount = 0;
 					break;
 
 				case 9:
-					pTUser->m_bHitRateAmount = 100;
-					pTUser->m_sAvoidRateAmount = 100;
+					m_pSkillTarget->m_bHitRateAmount = 100;
+					m_pSkillTarget->m_sAvoidRateAmount = 100;
 					break;
 				}
 
-				pTUser->m_bType4Buff[i] = 0;
+				m_pSkillTarget->m_bType4Buff[i] = 0;
 				SendType4BuffRemove(m_sTargetID, buff_type);
 			}
 
-			pTUser->SetSlotItemValue();
-			pTUser->SetUserAbility();
-			pTUser->Send2AI_UserUpdateInfo();
+			if (m_pSkillTarget->isPlayer())
+			{
+				static_cast<CUser *>(m_pSkillTarget)->SetSlotItemValue();
+				static_cast<CUser *>(m_pSkillTarget)->SetUserAbility();
+				static_cast<CUser *>(m_pSkillTarget)->Send2AI_UserUpdateInfo();
+			}
 
 			buff_test = 0;
-			for (int i = 0 ; i < MAX_TYPE4_BUFF; i++)
-				buff_test += pTUser->m_bType4Buff[i];
-			if (buff_test == 0) pTUser->m_bType4Flag = FALSE;
+			for (int i = 0; i < MAX_TYPE4_BUFF; i++)
+				buff_test += m_pSkillTarget->m_bType4Buff[i];
+			if (buff_test == 0) m_pSkillTarget->m_bType4Flag = FALSE;
 
 			bType4Test = TRUE ;
-			for (int j = 0; j < MAX_TYPE4_BUFF; j++) {
-				if (pTUser->m_bType4Buff[j] == 1) {
+			for (int j = 0; j < MAX_TYPE4_BUFF; j++)
+			{
+				if (m_pSkillTarget->m_bType4Buff[j] == 1)
+				{
 					bType4Test = FALSE;
 					break;
 				}
 			}
 
-			if (pTUser->isInParty() && bType4Test)
-				pTUser->SendPartyStatusUpdate(2, 0);
+			if (m_pSkillTarget->isPlayer() && static_cast<CUser *>(m_pSkillTarget)->isInParty() && bType4Test)
+				static_cast<CUser *>(m_pSkillTarget)->SendPartyStatusUpdate(2, 0);
 			break;
 			
 		case RESURRECTION:		// RESURRECT A DEAD PLAYER!!!
-			pTUser->Regene(1, m_nSkillID);
+			if (m_pSkillTarget->isPlayer())
+				static_cast<CUser *>(m_pSkillTarget)->Regene(1, m_nSkillID);
 			break;
 
 		case REMOVE_BLESS:
-			if (pTUser->m_bType4Buff[0] == 2) {
-				pTUser->m_sDuration[0] = 0;		
-				pTUser->m_fStartTime[0] = 0.0f;
-				pTUser->m_sMaxHPAmount = 0;
-				pTUser->m_bType4Buff[0] = 0;
+			if (m_pSkillTarget->m_bType4Buff[0] == 2) {
+				m_pSkillTarget->m_sDuration[0] = 0;		
+				m_pSkillTarget->m_fStartTime[0] = 0.0f;
+				m_pSkillTarget->m_sMaxHPAmount = 0;
+				m_pSkillTarget->m_bType4Buff[0] = 0;
 
 				SendType4BuffRemove(m_sTargetID, 1);
 
-				pTUser->SetSlotItemValue();
-				pTUser->SetUserAbility();
-				pTUser->Send2AI_UserUpdateInfo();
-			
-				buff_test = 0;
-				for (int i = 0 ; i < MAX_TYPE4_BUFF ; i++) {
-					buff_test += pTUser->m_bType4Buff[i];
+				if (m_pSkillTarget->isPlayer())
+				{
+					static_cast<CUser *>(m_pSkillTarget)->SetSlotItemValue();
+					static_cast<CUser *>(m_pSkillTarget)->SetUserAbility();
+					static_cast<CUser *>(m_pSkillTarget)->Send2AI_UserUpdateInfo();
 				}
-				if (buff_test == 0) pTUser->m_bType4Flag = FALSE;
 
-				bType4Test = TRUE ;
-				for (int j = 0 ; j < MAX_TYPE4_BUFF ; j++) {
-					if (pTUser->m_bType4Buff[j] == 1) {
+				buff_test = 0;
+				for (int i = 0; i < MAX_TYPE4_BUFF; i++)
+					buff_test += m_pSkillTarget->m_bType4Buff[i];
+				if (buff_test == 0) m_pSkillTarget->m_bType4Flag = FALSE;
+
+				bType4Test = TRUE;
+				for (int j = 0; j < MAX_TYPE4_BUFF; j++)
+				{
+					if (m_pSkillTarget->m_bType4Buff[j] == 1)
+					{
 						bType4Test = FALSE;
 						break;
 					}
 				}
 
-				if (pTUser->isInParty() && bType4Test) 
-					pTUser->SendPartyStatusUpdate(2, 0);
+				if (m_pSkillTarget->isPlayer() && static_cast<CUser *>(m_pSkillTarget)->isInParty() && bType4Test) 
+					static_cast<CUser *>(m_pSkillTarget)->SendPartyStatusUpdate(2, 0);
 			}
 
 			break;
