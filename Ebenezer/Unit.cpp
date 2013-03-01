@@ -309,7 +309,7 @@ short Unit::GetACDamage(int damage, Unit *pTarget)
 			damage -= damage * pTarget->m_sBowR / 200;
 	}
 
-	_ITEM_TABLE * pLeftHand = pUser->GetItemPrototype(RIGHTHAND);
+	_ITEM_TABLE * pLeftHand = pUser->GetItemPrototype(LEFTHAND);
 	if (pLeftHand != NULL)
 	{
 		if (pLeftHand->isDagger())
