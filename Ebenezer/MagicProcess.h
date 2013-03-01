@@ -24,7 +24,7 @@ public:
 	void Type6Cancel();
 
 	BOOL UserRegionCheck(int sid, int tid, int magicid, int radius, short mousex = 0, short mousez = 0);
-	short GetMagicDamage(int sid, int tid, int total_hit, int attribute);
+	short GetMagicDamage(Unit *pTarget, int total_hit, int attribute);
 
 	bool ExecuteType1(_MAGIC_TABLE *pSkill);	
 	bool ExecuteType2(_MAGIC_TABLE *pSkill);

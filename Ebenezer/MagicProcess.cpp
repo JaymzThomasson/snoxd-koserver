@@ -702,7 +702,7 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 		// assume player for now
 		CUser* pTUser = static_cast<CUser *>(*itr); // it's checked above, not much need to check it again
 		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1) && (pSkill->iNum < 400000))	// If you are casting an attack spell.
-			damage = GetMagicDamage(m_sCasterID, pTUser->GetSocketID(), pType->sFirstDamage, pType->bAttribute) ;	// Get Magical damage point.
+			damage = GetMagicDamage(pTUser, pType->sFirstDamage, pType->bAttribute) ;	// Get Magical damage point.
 		else 
 			damage = pType->sFirstDamage;
 
@@ -726,12 +726,12 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 		else if (pType->bDuration != 0) {    // Durational Spells! Remember, durational spells only involve HPs.
 			if (damage != 0) {		// In case there was first damage......
 				pTUser->HpChange(damage, m_pSrcUser);			// Initial damage!!!
-				m_pSrcUser->SendTargetHP( 0, pTUser->GetSocketID(), damage );     // Change the HP of the target. 
+				m_pSrcUser->SendTargetHP(0, pTUser->GetSocketID(), damage );     // Change the HP of the target. 
 			}
 
 			if (pTUser->m_bResHpType != USER_DEAD) {	// ���⵵ ��ȣ �ڵ� �߽�...
 				if (pType->sTimeDamage < 0) {
-					duration_damage = GetMagicDamage(m_sCasterID, pTUser->GetSocketID(), pType->sTimeDamage, pType->bAttribute) ;
+					duration_damage = GetMagicDamage(pTUser, pType->sTimeDamage, pType->bAttribute) ;
 				}
 				else duration_damage = pType->sTimeDamage ;
 
@@ -1433,55 +1433,57 @@ bool CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 	return true;
 }
 
-short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribute)
+short CMagicProcess::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 {	
-	CNpc* pMon;
-
 	short damage = 0, temp_hit = 0, righthand_damage = 0, attribute_damage = 0 ; 
 	int random = 0, total_r = 0 ;
 	BYTE result; 
 
-	CUser* pTUser = g_pMain->GetUserPtr(tid);  
-	if (pTUser == NULL || pTUser->isDead()) return 0;
+	if (pTarget->isDead()
+		|| m_pSkillCaster->isDead())
+		return 0;
 
-	if (sid >= NPC_BAND) {	// If the source is a monster.
-		pMon = g_pMain->m_arNpcArray.GetData(sid);
-		if( !pMon || pMon->m_NpcState == NPC_DEAD ) return 0;
-
-		result = m_pSrcUser->GetHitRate( pMon->m_sTotalHitrate / pTUser->m_sTotalEvasionrate ); 		
+	if (m_pSkillCaster->isNPC())
+	{
+		result = m_pSkillCaster->GetHitRate(pTarget->m_sTotalHitrate / m_pSkillCaster->m_sTotalEvasionrate); 
 	}
-	else {	// If the source is another player.
-		total_hit = total_hit * m_pSrcUser->getStat(STAT_CHA) / 170;
+	else
+	{
+		total_hit *= static_cast<CUser *>(m_pSkillCaster)->getStat(STAT_CHA) / 170;
 		result = SUCCESS ;
 	}
 		
-	if (result != FAIL) {		// In case of SUCCESS.... 
-		switch (attribute) {
-			case FIRE_R	:
-				total_r = pTUser->m_bFireR + pTUser->m_bFireRAmount ;
+	if (result != FAIL) 
+	{
+		// In case of SUCCESS.... 
+		switch (attribute)
+		{
+			case FIRE_R: 
+				total_r = pTarget->m_bFireR + pTarget->m_bFireRAmount;
 				break;
 			case COLD_R :
-				total_r = pTUser->m_bColdR + pTUser->m_bColdRAmount ;
+				total_r = pTarget->m_bColdR + pTarget->m_bColdRAmount;
 				break;
 			case LIGHTNING_R :
-				total_r = pTUser->m_bLightningR + pTUser->m_bLightningRAmount ; 
+				total_r = pTarget->m_bLightningR + pTarget->m_bLightningRAmount; 
 				break;
 			case MAGIC_R :
-				total_r = pTUser->m_bMagicR + pTUser->m_bMagicRAmount ;
+				total_r = pTarget->m_bMagicR + pTarget->m_bMagicRAmount;
 				break;
 			case DISEASE_R :
-				total_r = pTUser->m_bDiseaseR + pTUser->m_bDiseaseRAmount ;
+				total_r = pTarget->m_bDiseaseR + pTarget->m_bDiseaseRAmount;
 				break;
 			case POISON_R :			
-				total_r = pTUser->m_bPoisonR + pTUser->m_bPoisonRAmount ;
+				total_r = pTarget->m_bPoisonR + pTarget->m_bPoisonRAmount;
 				break;
 		}
 		
-		if (sid >= 0 && sid < MAX_USER) 
+		if (m_pSkillCaster->isPlayer()) 
 		{
-			_ITEM_TABLE *pRightHand = m_pSrcUser->GetItemPrototype(RIGHTHAND);
+			CUser *pUser = static_cast<CUser *>(m_pSkillCaster);
+			_ITEM_TABLE *pRightHand = pUser->GetItemPrototype(RIGHTHAND);
 			if (pRightHand != NULL && pRightHand->isStaff()
-				&& m_pSrcUser->GetItemPrototype(LEFTHAND) == NULL)
+				&& pUser->GetItemPrototype(LEFTHAND) == NULL)
 			{
 				righthand_damage = pRightHand->m_sDamage;
 					
@@ -1498,19 +1500,13 @@ short CMagicProcess::GetMagicDamage(int sid, int tid, int total_hit, int attribu
 		random = myrand (0, damage);
 		damage = (short)((0.7 * (total_hit - ((0.9 * total_hit * total_r) / 200))) + 0.2 * random);
 
-		if (sid >= NPC_BAND) {
+		if (m_pSkillCaster->isNPC())
 			damage -= ((3 * righthand_damage) + (3 * attribute_damage));
-		}
-		else{
-			if (attribute != 4) {	// Only if the staff has an attribute.
-				damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * m_pSrcUser->GetLevel()) / 60) + ((attribute_damage * 0.8f) + (attribute_damage * m_pSrcUser->GetLevel()) / 30));
-			}
-		}
+		else if (attribute != 4)	// Only if the staff has an attribute.
+			damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * m_pSkillCaster->GetLevel()) / 60) + ((attribute_damage * 0.8f) + (attribute_damage * m_pSkillCaster->GetLevel()) / 30));
 	}
 
-	damage = damage / 3 ;	// ������ ��û 
-
-	return damage ;		
+	return damage / 3;		
 }
 
 BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, short mousex, short mousez)
