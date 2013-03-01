@@ -86,10 +86,19 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 		return;
 	}
 
-	if (m_pTargetMon != NULL)
+	// If the target is a mob/NPC *or* we're casting an AOE, tell the AI to handle it.
+	if (m_pTargetMon != NULL
+		|| (m_pSkillTarget == -1 && 
+			(pMagic->bMoral == MORAL_AREA_ENEMY 
+				|| pMagic->bMoral == MORAL_AREA_ALL 
+				|| pMagic->bMoral == MORAL_SELF_AREA)))
 	{
 		SendSkillToAI(pMagic);
-		return;
+
+		// If the target is specifically a mob, stop here. AI's got this one.
+		// Otherwise, it's an AOE -- which means it might affect players too, so we need to handle it too.
+		if (m_pTargetMon != NULL)
+			return;
 	}
 
 	bool bInitialResult;
