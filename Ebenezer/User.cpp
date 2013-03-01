@@ -68,7 +68,6 @@ void CUser::Initialize()
 	m_iMaxExp = 0;
 	m_sMaxWeight = 0;
 
-	m_pMap = NULL;	
 	m_bResHpType = USER_STANDING;
 	m_bWarp = 0x00;
 

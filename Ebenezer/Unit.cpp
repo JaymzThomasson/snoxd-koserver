@@ -3,12 +3,13 @@
 Unit::Unit(bool bPlayer /*= false*/) 
 	: m_pMap(NULL), m_pRegion(NULL), m_sRegionX(0), m_sRegionZ(0), m_bPlayer(bPlayer)
 {
-	InitType3();
-	InitType4();
+	Initialize();
 }
 
 void Unit::Initialize()
 {
+	m_pMap = NULL;
+
 	m_sTotalHit = 0;
 	m_sTotalAc = 0;
 	m_sTotalHitrate = 0.0f;

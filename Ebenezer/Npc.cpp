@@ -36,7 +36,6 @@ void CNpc::Initialize()
 	Unit::Initialize();
 
 	m_sSid = 0;
-	m_pMap = NULL;
 	m_fCurX = 0;			// Current X Pos;
 	m_fCurY = 0;			// Current Y Pos;
 	m_fCurZ = 0;			// Current Z Pos;
