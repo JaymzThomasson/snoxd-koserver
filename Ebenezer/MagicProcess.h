@@ -55,8 +55,6 @@ public:
 	virtual ~CMagicProcess();
 
 	CUser*			m_pSrcUser;
-	CUser*			m_pTargetUser;
-	CNpc*			m_pTargetMon;
 
 	// Need to make sure this data's not going to change during skill handling
 	// (i.e. during multiple concurrent packets)

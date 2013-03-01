@@ -7,6 +7,7 @@
  *
  * This will be written out eventually, so we can do this properly.
  **/
+struct _MAGIC_TABLE;
 class Unit
 {
 public:
@@ -45,11 +46,19 @@ public:
 	virtual uint8 GetNation() = 0;
 	virtual uint8 GetLevel() = 0;
 
+	virtual bool isDead() = 0;
+	virtual bool isAlive() { return !isDead(); }
+
 	virtual void GetInOut(Packet & result, uint8 bType) = 0;
 
 	bool RegisterRegion();
 	void RemoveRegion(int16 del_x, int16 del_z);
 	void InsertRegion(int16 insert_x, int16 insert_z);
+
+	short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill);
+	short GetMagicDamage(int damage, Unit *pTarget);
+	short GetACDamage(int damage, Unit *pTarget);
+	uint8 GetHitRate(float rate);
 
 	void SendToRegion(Packet *result);
 

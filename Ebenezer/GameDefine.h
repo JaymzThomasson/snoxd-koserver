@@ -311,14 +311,13 @@ struct _ITEM_TABLE
 	__forceinline uint8 GetKind() { return m_bKind; }
 	__forceinline uint8 GetItemGroup() { return m_bKind / 10; }
 
+	__forceinline bool isDagger() { return GetItemGroup() == WEAPON_SWORD; }
 	__forceinline bool isSword() { return GetItemGroup() == WEAPON_SWORD; }
 	__forceinline bool isAxe() { return GetItemGroup() == WEAPON_AXE; }
 	__forceinline bool isMace() { return GetItemGroup() == WEAPON_MACE; }
 	__forceinline bool isSpear() { return GetItemGroup() == WEAPON_SPEAR; }
 	__forceinline bool isStaff() { return GetItemGroup() == WEAPON_STAFF; }
 	__forceinline bool isBow() { return GetItemGroup() == WEAPON_BOW || GetItemGroup() == WEAPON_LONGBOW; }
-
-
 };
 
 struct	_PARTY_GROUP

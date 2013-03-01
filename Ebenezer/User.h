@@ -211,7 +211,7 @@ public:
 	__forceinline bool isGM() { return getAuthority() == AUTHORITY_GAME_MASTER; }
 	__forceinline bool isLimitedGM() { return getAuthority() == AUTHORITY_LIMITED_GAME_MASTER; }
 
-	__forceinline bool isDead() { return m_bResHpType == USER_DEAD || m_pUserData->m_sHp <= 0; }
+	virtual bool isDead() { return m_bResHpType == USER_DEAD || m_pUserData->m_sHp <= 0; }
 	__forceinline bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; }
 
 	__forceinline bool isInGame() { return GetState() == GAME_STATE_INGAME; }
@@ -347,8 +347,6 @@ public:
 	bool GetStartPosition(short & x, short & y, BYTE bZone = 0);
 	int GetEmptySlot( int itemid, int bCountable );
 	void InitType4();
-	short GetACDamage(int damage, short tid);
-	short GetMagicDamage(int damage, short tid);
 	void Type3AreaDuration( float currenttime);
 	void SendAllKnightsID();
 	void SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes, not a bug */, uint16 sDurability, uint8 bPos, bool bNewItem = false);
@@ -543,9 +541,7 @@ public:
 	BOOL IsValidSlotPos( _ITEM_TABLE* pTable, int destpos );
 	void SetUserAbility();
 	void LevelChange(short level, BYTE type=TRUE);	// type : TRUE => level up, FALSE => level down
-	short GetDamage(short tid, int magicid);
 	void SetSlotItemValue();
-	BYTE GetHitRate(float rate);
 	void SendTimeStatus(); // TO-DO: Deprecate
 	void SendTime();
 	void SendWeather();
