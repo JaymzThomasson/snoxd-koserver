@@ -917,6 +917,11 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 				m_sData1, bResult, m_sData3,
 				(bResult == 1 || m_sData4 == 0 ? pType->sDuration : 0),
 				0, pType->bSpeed);
+
+			if (pSkill->bMoral >= MORAL_ENEMY && pType->bBuffType != 6)
+				pUser->SendUserStatusUpdate(pType->bBuffType, 1); //Update the client to show the current state we are in
+			else if (pSkill->bMoral >= MORAL_ENEMY && pType->bBuffType == 6)
+				pUser->SendUserStatusUpdate(3, 1);
 		}
 		
 		if (bResult == 0
