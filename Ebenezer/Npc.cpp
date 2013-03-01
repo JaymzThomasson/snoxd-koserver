@@ -59,7 +59,6 @@ void CNpc::Initialize()
 	m_iWeapon_2 = 0;
 	m_NpcState = NPC_LIVE;
 	m_byGateOpen = 1;
-	m_sHitRate = 0;
 	m_byObjectType = NORMAL_OBJECT;
 
 	m_byEvent = -1;				//  This is for the event.
