@@ -17,8 +17,8 @@ void CUser::Attack(Packet & pkt)
 		|| isDead())
 		return;
 
-	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(m_pUserData->m_sItemArray[RIGHTHAND].nNum);
-	if (pTable == NULL && m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0) 
+	_ITEM_TABLE *pTable = GetItemPrototype(RIGHTHAND);
+	if (pTable == NULL) 
 		return;
 	
 	// If you're holding a weapon, do a client-based (ugh, do not trust!) delay check.
