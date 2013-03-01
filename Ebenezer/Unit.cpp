@@ -191,97 +191,92 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 short Unit::GetMagicDamage(int damage, Unit *pTarget)
 {
 	short total_r, temp_damage = 0;
-
-	// temporarily assume it's player->player
-	ASSERT(pTarget->isPlayer());
-	if (pTarget->isNPC() || pTarget->isDead())
+	if (pTarget->isDead())
 		return 0;
 
-	CUser	* pTUser = static_cast<CUser *>(pTarget),
-			* pUser  = static_cast<CUser *>(this);
-
 	// RIGHT HAND!!! by Yookozuna
-	if (pUser->m_bMagicTypeRightHand > 4 && pUser->m_bMagicTypeRightHand < 8)
-		temp_damage = damage * pUser->m_sMagicAmountRightHand / 100;
+	if (m_bMagicTypeRightHand > 4 && m_bMagicTypeRightHand < 8)
+		temp_damage = damage * m_sMagicAmountRightHand / 100;
 
-	switch (pUser->m_bMagicTypeRightHand)
+	switch (m_bMagicTypeRightHand)
 	{	// RIGHT HAND!!!
 		case ITEM_TYPE_FIRE :	// Fire Damage
-			total_r = pTUser->m_bFireR + pTUser->m_bFireRAmount;
+			total_r = pTarget->m_bFireR + pTarget->m_bFireRAmount;
 			break;
 		case ITEM_TYPE_COLD :	// Ice Damage
-			total_r = pTUser->m_bColdR + pTUser->m_bColdRAmount;
+			total_r = pTarget->m_bColdR + pTarget->m_bColdRAmount;
 			break;
 		case ITEM_TYPE_LIGHTNING :	// Lightning Damage
-			total_r = pTUser->m_bLightningR + pTUser->m_bLightningRAmount;
+			total_r = pTarget->m_bLightningR + pTarget->m_bLightningRAmount;
 			break;
 		case ITEM_TYPE_POISON :	// Poison Damage
-			total_r = pTUser->m_bPoisonR + pTUser->m_bPoisonRAmount;
+			total_r = pTarget->m_bPoisonR + pTarget->m_bPoisonRAmount;
 			break;
 		case ITEM_TYPE_HP_DRAIN :	// HP Drain		
-			pUser->HpChange(temp_damage);			
+			HpChange(temp_damage);			
 			break;
 		case ITEM_TYPE_MP_DAMAGE :	// MP Damage		
-			pTUser->MSpChange(-temp_damage);
+			pTarget->MSpChange(-temp_damage);
 			break;
 		case ITEM_TYPE_MP_DRAIN :	// MP Drain		
-			pUser->MSpChange(temp_damage);
+			MSpChange(temp_damage);
 			break;
 	}
 
-	if (pUser->m_bMagicTypeRightHand > 0 && pUser->m_bMagicTypeRightHand < 5)
+	if (m_bMagicTypeRightHand > 0 && m_bMagicTypeRightHand < 5)
 	{
 		if (total_r > 200) total_r = 200;
-		temp_damage = pUser->m_sMagicAmountRightHand - pUser->m_sMagicAmountRightHand * total_r / 200;
-		damage = damage + temp_damage;
+		temp_damage = m_sMagicAmountRightHand - m_sMagicAmountRightHand * total_r / 200;
+		damage += temp_damage;
 	}
 
-	total_r = 0 ;		// Reset all temporary data.
-	temp_damage = 0 ;
+	total_r = 0;		// Reset all temporary data.
+	temp_damage = 0;
 
 	// LEFT HAND!!! by Yookozuna
-	if (pUser->m_bMagicTypeLeftHand > 4 && pUser->m_bMagicTypeLeftHand < 8)
-		temp_damage = damage * pUser->m_sMagicAmountLeftHand / 100;
+	if (m_bMagicTypeLeftHand > 4 && m_bMagicTypeLeftHand < 8)
+		temp_damage = damage * m_sMagicAmountLeftHand / 100;
 
-	switch (pUser->m_bMagicTypeLeftHand)
+	switch (m_bMagicTypeLeftHand)
 	{	// LEFT HAND!!!
 		case ITEM_TYPE_FIRE :	// Fire Damage
-			total_r = pTUser->m_bFireR + pTUser->m_bFireRAmount;
+			total_r = pTarget->m_bFireR + pTarget->m_bFireRAmount;
 			break;
 		case ITEM_TYPE_COLD :	// Ice Damage
-			total_r = pTUser->m_bColdR + pTUser->m_bColdRAmount;
+			total_r = pTarget->m_bColdR + pTarget->m_bColdRAmount;
 			break;
 		case ITEM_TYPE_LIGHTNING :	// Lightning Damage
-			total_r = pTUser->m_bLightningR + pTUser->m_bLightningRAmount;
+			total_r = pTarget->m_bLightningR + pTarget->m_bLightningRAmount;
 			break;
 		case ITEM_TYPE_POISON :	// Poison Damage
-			total_r = pTUser->m_bPoisonR + pTUser->m_bPoisonRAmount;
+			total_r = pTarget->m_bPoisonR + pTarget->m_bPoisonRAmount;
 			break;
 		case ITEM_TYPE_HP_DRAIN :	// HP Drain		
-			pUser->HpChange(temp_damage);			
+			HpChange(temp_damage);			
 			break;
 		case ITEM_TYPE_MP_DAMAGE :	// MP Damage		
-			pTUser->MSpChange(-temp_damage);
+			pTarget->MSpChange(-temp_damage);
 			break;
 		case ITEM_TYPE_MP_DRAIN :	// MP Drain		
-			pUser->MSpChange(temp_damage);
+			MSpChange(temp_damage);
 			break;
 	}
 
-	if (pUser->m_bMagicTypeLeftHand > 0 && pUser->m_bMagicTypeLeftHand < 5)
+	if (m_bMagicTypeLeftHand > 0 && m_bMagicTypeLeftHand < 5)
 	{
 		if (total_r > 200) total_r = 200;
-		temp_damage = pUser->m_sMagicAmountLeftHand - pUser->m_sMagicAmountLeftHand * total_r / 200;
-		damage = damage + temp_damage;
+		temp_damage = m_sMagicAmountLeftHand - m_sMagicAmountLeftHand * total_r / 200;
+		damage += temp_damage;
 	}
 
 	total_r = 0;		// Reset all temporary data.
 	temp_damage = 0;
 
 	// Mirror Attack Check routine.
-	if (pTUser->m_bMagicTypeLeftHand == ITEM_TYPE_MIRROR_DAMAGE) {
-		temp_damage = damage * pTUser->m_sMagicAmountLeftHand / 100;
-		pUser->HpChange(-temp_damage);		// Reflective Hit.
+	if (pTarget->m_bMagicTypeLeftHand == ITEM_TYPE_MIRROR_DAMAGE)
+	{
+		temp_damage = damage * pTarget->m_sMagicAmountLeftHand / 100;
+		HpChange(-temp_damage);		// Reflective Hit.
 	}
 
 	return damage;
@@ -290,45 +285,46 @@ short Unit::GetMagicDamage(int damage, Unit *pTarget)
 
 short Unit::GetACDamage(int damage, Unit *pTarget)
 {
-	if (isNPC() || pTarget->isNPC()
-		|| pTarget->isDead())
+	// This isn't applicable to NPCs.
+	if (isNPC() || pTarget->isNPC())
+		return damage;
+
+	if (pTarget->isDead())
 		return 0;
 
-	CUser	* pUser  = static_cast<CUser *>(this),
-			* pTUser = static_cast<CUser *>(pTarget);
-
+	CUser * pUser  = static_cast<CUser *>(this);
 	_ITEM_TABLE * pRightHand = pUser->GetItemPrototype(RIGHTHAND);
 	if (pRightHand != NULL)
 	{
 		if (pRightHand->isDagger())
-			damage -= damage * pTUser->m_sDaggerR / 200;
+			damage -= damage * pTarget->m_sDaggerR / 200;
 		else if (pRightHand->isSword())
-			damage -= damage * pTUser->m_sSwordR / 200;
+			damage -= damage * pTarget->m_sSwordR / 200;
 		else if (pRightHand->isAxe())
-			damage -= damage * pTUser->m_sAxeR / 200;
+			damage -= damage * pTarget->m_sAxeR / 200;
 		else if (pRightHand->isMace())
-			damage -= damage * pTUser->m_sMaceR / 200;
+			damage -= damage * pTarget->m_sMaceR / 200;
 		else if (pRightHand->isSpear())
-			damage -= damage * pTUser->m_sSpearR / 200;
+			damage -= damage * pTarget->m_sSpearR / 200;
 		else if (pRightHand->isBow())
-			damage -= damage * pTUser->m_sBowR / 200;
+			damage -= damage * pTarget->m_sBowR / 200;
 	}
 
 	_ITEM_TABLE * pLeftHand = pUser->GetItemPrototype(RIGHTHAND);
 	if (pLeftHand != NULL)
 	{
 		if (pLeftHand->isDagger())
-			damage -= damage * pTUser->m_sDaggerR / 200;
+			damage -= damage * pTarget->m_sDaggerR / 200;
 		else if (pLeftHand->isSword())
-			damage -= damage * pTUser->m_sSwordR / 200;
+			damage -= damage * pTarget->m_sSwordR / 200;
 		else if (pLeftHand->isAxe())
-			damage -= damage * pTUser->m_sAxeR / 200;
+			damage -= damage * pTarget->m_sAxeR / 200;
 		else if (pLeftHand->isMace())
-			damage -= damage * pTUser->m_sMaceR / 200;
+			damage -= damage * pTarget->m_sMaceR / 200;
 		else if (pLeftHand->isSpear())
-			damage -= damage * pTUser->m_sSpearR / 200;
+			damage -= damage * pTarget->m_sSpearR / 200;
 		else if (pLeftHand->isBow())
-			damage -= damage * pTUser->m_sBowR / 200;
+			damage -= damage * pTarget->m_sBowR / 200;
 	}
 
 	return damage;
