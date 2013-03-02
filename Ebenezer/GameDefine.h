@@ -494,15 +494,19 @@ struct _MAGIC_TYPE5
 struct _MAGIC_TYPE4
 {
 	long    iNum;
-	int		sMSP;
 	BYTE    bBuffType;
 	BYTE    bRadius;
 	int		sDuration;
 	BYTE    bAttackSpeed;
 	BYTE    bSpeed;
 	int		sAC;
+	int		sACPct;
 	BYTE    bAttack;
+	BYTE	bMagicAttack;
 	int		sMaxHP;
+	int		sMaxHPPct;
+	int		sMaxMP;
+	int		sMaxMPPct;
 	BYTE    bHitRate;
 	int		sAvoidRate;
 	BYTE    bStr;
@@ -516,6 +520,7 @@ struct _MAGIC_TYPE4
 	BYTE    bMagicR;
 	BYTE    bDiseaseR;
 	BYTE    bPoisonR;
+	BYTE	bExpPct;
 };
 
 struct _MAGIC_TYPE3

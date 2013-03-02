@@ -9,7 +9,7 @@ public:
 	CMagicType4Set(MapType *stlMap, CDatabase* pDatabase = NULL)
 		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
 	{
-		m_nFields = 22;
+		m_nFields = 28;
 	}
 
 	DECLARE_DYNAMIC(CMagicType4Set)
@@ -26,8 +26,13 @@ public:
 		RFX_Byte(pFX, _T("[AttackSpeed]"), m_data.bAttackSpeed);
 		RFX_Byte(pFX, _T("[Speed]"), m_data.bSpeed);
 		RFX_Int(pFX, _T("[AC]"), m_data.sAC);
+		RFX_Int(pFX, _T("[ACPct]"), m_data.sACPct);
 		RFX_Byte(pFX, _T("[Attack]"), m_data.bAttack);
+		RFX_Byte(pFX, _T("[MagicAttack]"), m_data.bMagicAttack);
 		RFX_Int(pFX, _T("[MaxHP]"), m_data.sMaxHP);
+		RFX_Int(pFX, _T("[MaxHPPct]"), m_data.sMaxHPPct);
+		RFX_Int(pFX, _T("[MaxMP]"), m_data.sMaxMP);
+		RFX_Int(pFX, _T("[MaxMPPct]"), m_data.sMaxMPPct);
 		RFX_Byte(pFX, _T("[HitRate]"), m_data.bHitRate);
 		RFX_Int(pFX, _T("[AvoidRate]"), m_data.sAvoidRate);
 		RFX_Byte(pFX, _T("[Str]"), m_data.bStr);
@@ -40,7 +45,8 @@ public:
 		RFX_Byte(pFX, _T("[LightningR]"), m_data.bLightningR);
 		RFX_Byte(pFX, _T("[MagicR]"), m_data.bMagicR);
 		RFX_Byte(pFX, _T("[DiseaseR]"), m_data.bDiseaseR);
-		RFX_Byte(pFX, _T("[PoisonR]"), m_data.bPoisonR);	
+		RFX_Byte(pFX, _T("[PoisonR]"), m_data.bPoisonR);
+		RFX_Byte(pFX, _T("[ExpPct]"), m_data.bExpPct);
 	};
 
 	virtual void HandleRead()
