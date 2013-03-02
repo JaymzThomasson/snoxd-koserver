@@ -1009,6 +1009,10 @@ void CUser::ExpChange(int64 iExp)
 	// If this happens, we need to investigate why -- not sweep it under the rug.
 	ASSERT(m_pUserData->m_iExp >= 0);
 
+	// Adjust the exp gained based on the percent set by the buff
+	if (iExp > 0)
+		iExp *= m_bExpGainAmount / 100;
+
 	bool bLevel = true;
 	if (iExp < 0 
 		&& (m_pUserData->m_iExp + iExp) < 0)

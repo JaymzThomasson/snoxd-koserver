@@ -94,10 +94,12 @@ public:
 	BYTE	m_bHitRateAmount;
 	short	m_sAvoidRateAmount;
 
-	BYTE	m_bAttackSpeedAmount;		// For Character stats in Type 4 Durational Spells.
+	BYTE	m_bAttackSpeedAmount;
 	BYTE    m_bSpeedAmount;
 
-	BYTE	m_bMaxWeightAmount; // this is actually player-specific, but I don't see much of a problem with it being here.
+	// these are actually player-specific, but I don't see much of a problem with them being here.
+	BYTE	m_bExpGainAmount;
+	BYTE	m_bMaxWeightAmount; 
 
 	BYTE	m_bFireR;
 	BYTE	m_bFireRAmount;

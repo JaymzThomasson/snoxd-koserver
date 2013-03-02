@@ -895,7 +895,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 				break;
 
 			case BUFF_TYPE_EXPERIENCE:
-				// uses pType->ExpPct;
+				pTUser->m_bExpGainAmount = pType->bExpPct;
 				break;
 
 			case BUFF_TYPE_WEIGHT:
@@ -1801,7 +1801,11 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 			break;
 
 		case BUFF_TYPE_EXPERIENCE:
-			// TO-DO
+			if (m_pSkillCaster->m_bExpGainAmount > 100)
+			{
+				m_pSkillCaster->m_bExpGainAmount = 100;
+				buff = TRUE;
+			}
 			break;
 
 		case BUFF_TYPE_WEIGHT:
