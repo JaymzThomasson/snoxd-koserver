@@ -724,7 +724,11 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 				pTUser->ItemWoreOut( DEFENCE, -damage);     // Reduce Slot Item Durability
 			else if( pType->bDirectType == 9 )
 			{
-				damage = -(pTUser->m_iMaxHp * (pType->sFirstDamage / 100));
+				if (pType->sFirstDamage < 100)
+					damage = (pType->sFirstDamage * pTUser->m_pUserData->m_sHp) / -100;
+				else
+					damage = (pTUser->m_iMaxHp * (pType->sFirstDamage - 100)) / 100;
+
 				pTUser->HpChange(damage, m_pSrcUser);
 				m_pSrcUser->SendTargetHP( 0, (*itr)->GetID(), damage );
 			}
