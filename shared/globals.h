@@ -142,7 +142,7 @@ struct	_ITEM_DATA
 	int16		sDuration;
 	uint16		sCount;	
 	uint8		bFlag; // see ItemFlag
-	uint16		sRemainingRentalTime;
+	uint16		sRemainingRentalTime; // in minutes
 	uint32		nExpirationTime; // in unix time
 	uint64		nSerialNum;
 };
