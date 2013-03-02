@@ -716,12 +716,18 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 			if (pType->bDirectType == 1)     // Health Point related !
 			{			
 				pTUser->HpChange(damage, m_pSrcUser);     // Reduce target health point.
-				m_pSrcUser->SendTargetHP( 0, (*itr)->GetID(), damage ) ;     // Change the HP of the target.			
+				m_pSrcUser->SendTargetHP( 0, (*itr)->GetID(), damage );     // Change the HP of the target.			
 			}
 			else if ( pType->bDirectType == 2 || pType->bDirectType == 3 )    // Magic or Skill Point related !
 				pTUser->MSpChange(damage);     // Change the SP or the MP of the target.		
 			else if( pType->bDirectType == 4 )     // Armor Durability related.
 				pTUser->ItemWoreOut( DEFENCE, -damage);     // Reduce Slot Item Durability
+			else if( pType->bDirectType == 9 )
+			{
+				damage = -(pTUser->m_iMaxHp * (pType->sFirstDamage / 100));
+				pTUser->HpChange(damage, m_pSrcUser);
+				m_pSrcUser->SendTargetHP( 0, (*itr)->GetID(), damage );
+			}
 		}
 		else if (pType->bDuration != 0) {    // Durational Spells! Remember, durational spells only involve HPs.
 			if (damage != 0) {		// In case there was first damage......

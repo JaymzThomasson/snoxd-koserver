@@ -544,8 +544,16 @@ void CUser::SendMyInfo()
 	}
 
 	// Unlock skill data (level 70 skill quest).
-	Packet result(WIZ_QUEST, uint8(2));
-	result << uint16(0) << uint8(0); // if 50+baseclass quest ID is completed
+	Packet result(WIZ_QUEST, uint8(1));
+	uint16 Class = m_pUserData->m_sClass % 10;
+	if (Class == 1 || Class == 5 || Class == 6)
+		result << uint16(51) << uint8(2) << uint16(510) << uint8(2) << uint16(511) << uint8(2); // if 50+baseclass quest ID is completed
+	else if (Class == 2 || Class == 7 || Class == 8)
+		result << uint16(52) << uint8(2) << uint16(512) << uint8(2) << uint16(513) << uint8(2) << uint16(514) << uint8(2);
+	else if (Class == 3 || Class == 9 || Class == 0)
+		result << uint16(53) << uint8(2) << uint16(515) << uint8(2) << uint16(516) << uint8(2) << uint16(517) << uint8(2);
+	else if (Class == 4 || Class == 1 || Class == 2)
+		result << uint16(54) << uint8(2) << uint16(518) << uint8(2) << uint16(519) << uint8(2) << uint16(520) << uint8(2) << uint16(521) << uint8(2) << uint16(522) << uint8(2) << uint16(523) << uint8(2);
 	Send(&result);
 
 	result.Initialize(WIZ_MYINFO);

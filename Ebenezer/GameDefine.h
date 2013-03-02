@@ -1,7 +1,7 @@
 #pragma once
 
 //////////////////// ��� Define ////////////////////
-#define KARUWARRRIOR		101		// ī�����
+#define KARUWARRIOR		101		// ī�����
 #define KARUROGUE			102		// ī��α�
 #define KARUWIZARD			103		// ī�縶��
 #define KARUPRIEST			104		// ī����
