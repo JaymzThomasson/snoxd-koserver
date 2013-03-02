@@ -127,12 +127,24 @@ const int ITEMCOUNT_MAX		= 9999;
 #define NEWCHAR_POINTS_REMAINING			uint8(10)
 #define NEWCHAR_STAT_TOO_LOW				uint8(11)
 
+enum ItemFlag
+{
+	ITEM_FLAG_NONE		= 0,
+	ITEM_FLAG_RENTAL	= 1,
+	ITEM_FLAG_SEALED	= 4,
+	ITEM_FLAG_NONBOUND	= 7,
+	ITEM_FLAG_BOUND		= 8
+};
+
 struct	_ITEM_DATA
 {
-	int		nNum;
-	short	sDuration;
-	unsigned short	sCount;	
-	__int64	nSerialNum;
+	uint32		nNum;
+	int16		sDuration;
+	uint16		sCount;	
+	uint8		bFlag; // see ItemFlag
+	uint16		sRemainingRentalTime;
+	uint32		nExpirationTime; // in unix time
+	uint64		nSerialNum;
 };
 
 enum HairData

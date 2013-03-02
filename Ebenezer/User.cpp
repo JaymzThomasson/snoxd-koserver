@@ -607,12 +607,13 @@ void CUser::SendMyInfo()
 
 	for (int i = 0; i < INVENTORY_TOTAL; i++)
 	{
-		result	<< m_pUserData->m_sItemArray[i].nNum
-				<< m_pUserData->m_sItemArray[i].sDuration << m_pUserData->m_sItemArray[i].sCount
-				<< uint8(0)		// item type flag (e.g. rented)
-				<< uint16(0)	// remaining time
-				<< uint32(0)	// unknown 
-				<< uint32(0);	// expiration date
+		_ITEM_DATA *pItem = GetItem(i);
+		result	<< pItem->nNum
+				<< pItem->sDuration << pItem->sCount
+				<< pItem->bFlag	// item type flag (e.g. rented)
+				<< pItem->sRemainingRentalTime	// remaining time
+				<< uint32(0) // unknown
+				<< pItem->nExpirationTime; // expiration date in unix time
 	}
 
 	result	<< uint8(0)		// never worked out what this was for: possible values 0/1/2/3
