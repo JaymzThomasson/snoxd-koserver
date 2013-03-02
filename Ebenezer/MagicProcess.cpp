@@ -952,16 +952,14 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 		{
 			CUser *pUser = (m_sCasterID >= 0 && m_sCasterID < MAX_USER ? m_pSrcUser : pTUser);
 
-			pUser->m_MagicProcess.SendSkill(m_sCasterID, (*itr)->GetSocketID(),
-				m_opcode, m_nSkillID,
-				m_sData1, bResult, m_sData3,
-				(bResult == 1 || m_sData4 == 0 ? pType->sDuration : 0),
-				0, pType->bSpeed);
+			m_sTargetID = (*itr)->GetSocketID();
+			m_sData2 = bResult;
+			m_sData4 = (bResult == 1|| m_sData4 == 0 ? pType->sDuration : 0);
+			m_sData6 = pType->bSpeed;
+			pUser->m_MagicProcess.SendSkill();
 
-			if (pSkill->bMoral >= MORAL_ENEMY && pType->bBuffType != 6)
-				pUser->SendUserStatusUpdate(pType->bBuffType, 1); //Update the client to show the current state we are in
-			else if (pSkill->bMoral >= MORAL_ENEMY && pType->bBuffType == 6)
-				pUser->SendUserStatusUpdate(3, 1);
+			if (pSkill->bMoral >= MORAL_ENEMY)
+				pTUser->SendUserStatusUpdate(pType->bBuffType == BUFF_TYPE_SPEED ? 3 : 2, 1);
 		}
 		
 		if (bResult == 0
