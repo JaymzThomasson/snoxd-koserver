@@ -365,5 +365,10 @@ void CUser::GameStart(Packet & pkt)
 		// rental
 		// ItemMallMagicRecast();
 
+
+		// If we've relogged while dead, we need to make sure the client 
+		// is still given the option to revive.
+		if (isDead())
+			SendDeathAnimation();
 	}
 }
