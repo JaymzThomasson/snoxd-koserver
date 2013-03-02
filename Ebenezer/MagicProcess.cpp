@@ -891,9 +891,8 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 				break;	
 
 			case BUFF_TYPE_MAGIC_POWER:
-				// uses pType->MagicAttack;
+				pTUser->m_sMagicAttackAmount = (pType->bMagicAttack - 100) * pTUser->getStat(STAT_CHA) / 100;
 				break;
-
 
 			case BUFF_TYPE_EXPERIENCE:
 				// uses pType->ExpPct;
@@ -1794,6 +1793,13 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 			break;
 
 		case BUFF_TYPE_MAGIC_POWER:
+			if (m_pSkillCaster->m_sMagicAttackAmount > 0)
+			{
+				m_pSkillCaster->m_sMagicAttackAmount = 0;
+				buff = TRUE;
+			}
+			break;
+
 		case BUFF_TYPE_EXPERIENCE:
 		case BUFF_TYPE_WEIGHT:
 		case BUFF_TYPE_WEAPON_DAMAGE:
