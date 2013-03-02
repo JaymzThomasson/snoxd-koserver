@@ -1,5 +1,4 @@
-#ifndef _GAMEDEFINE_H
-#define _GAMEDEFINE_H
+#pragma once
 
 //////////////////// ��� Define ////////////////////
 #define KARUWARRRIOR		101		// ī�����
@@ -637,4 +636,21 @@ enum AuthorityTypes
 	AUTHORITY_BANNED				= 255
 };
 
-#endif
+enum BuffType
+{
+	BUFF_TYPE_HP			= 1,
+	BUFF_TYPE_AC			= 2,
+	BUFF_TYPE_SIZE			= 3,
+	BUFF_TYPE_DAMAGE		= 4,
+	BUFF_TYPE_ATTACK_SPEED	= 5,
+	BUFF_TYPE_SPEED			= 6,
+	BUFF_TYPE_STATS			= 7,
+	BUFF_TYPE_RESISTANCES	= 8,
+	BUFF_TYPE_ACCURACY		= 9,
+	BUFF_TYPE_MAGIC_POWER	= 10,
+	BUFF_TYPE_EXPERIENCE	= 11,
+	BUFF_TYPE_WEIGHT		= 12,
+	BUFF_TYPE_WEAPON_DAMAGE	= 13,
+	BUFF_TYPE_WEAPON_AC		= 14,
+	BUFF_TYPE_LOYALTY		= 15
+};

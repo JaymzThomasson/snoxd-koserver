@@ -827,16 +827,17 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 		//if ( data4 == -1 ) //Need to create InsertSaved Magic before enabling this.
 			//pTUser->InsertSavedMagic( magicid, pType->sDuration );
 
-		switch (pType->bBuffType) {	// Depending on which buff-type it is.....
-			case 1:
-				pTUser->m_sMaxHPAmount = pType->sMaxHP;		// Get the amount that will be added/multiplied.
+		switch (pType->bBuffType)
+		{
+			case BUFF_TYPE_HP:
+				pTUser->m_sMaxHPAmount = pType->sMaxHP;
 				break;
 
-			case 2:
+			case BUFF_TYPE_AC:
 				pTUser->m_sACAmount = pType->sAC;
 				break;
 
-			case 3:
+			case BUFF_TYPE_SIZE:
 				// These really shouldn't be hardcoded, but with mgame's implementation it doesn't seem we have a choice (as is).
 				if (pSkill->iNum == 490034)	// Bezoar!!!
 					pTUser->StateChangeServerDirect(3, ABNORMAL_GIANT); 
@@ -844,19 +845,19 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 					pTUser->StateChangeServerDirect(3, ABNORMAL_DWARF); 
 				break;
 
-			case 4:
+			case BUFF_TYPE_DAMAGE:
 				pTUser->m_bAttackAmount = pType->bAttack;
 				break;
 
-			case 5:
+			case BUFF_TYPE_ATTACK_SPEED:
 				pTUser->m_bAttackSpeedAmount = pType->bAttackSpeed;
 				break;
 
-			case 6:
+			case BUFF_TYPE_SPEED:
 				pTUser->m_bSpeedAmount = pType->bSpeed;
 				break;
 
-			case 7:
+			case BUFF_TYPE_STATS:
 				pTUser->setStatBuff(STAT_STR, pType->bStr);
 				pTUser->setStatBuff(STAT_STA, pType->bSta);
 				pTUser->setStatBuff(STAT_DEX, pType->bDex);
@@ -864,7 +865,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 				pTUser->setStatBuff(STAT_CHA, pType->bCha);	
 				break;
 
-			case 8:
+			case BUFF_TYPE_RESISTANCES:
 				pTUser->m_bFireRAmount = pType->bFireR;
 				pTUser->m_bColdRAmount = pType->bColdR;
 				pTUser->m_bLightningRAmount = pType->bLightningR;
@@ -873,10 +874,35 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 				pTUser->m_bPoisonRAmount = pType->bPoisonR;
 				break;
 
-			case 9:
+			case BUFF_TYPE_ACCURACY:
 				pTUser->m_bHitRateAmount = pType->bHitRate;
 				pTUser->m_sAvoidRateAmount = pType->sAvoidRate;
 				break;	
+
+			case BUFF_TYPE_MAGIC_POWER:
+				// uses pType->MagicAttack;
+				break;
+
+
+			case BUFF_TYPE_EXPERIENCE:
+				// uses pType->ExpPct;
+				break;
+
+			case BUFF_TYPE_WEIGHT:
+				// uses pType->ExpPct
+				break;
+
+			case BUFF_TYPE_WEAPON_DAMAGE:
+				// uses pType->Attack
+				break;
+
+			case BUFF_TYPE_WEAPON_AC:
+				// uses pType->AC if set, otherwise pType->ACPct
+				break;
+
+			case BUFF_TYPE_LOYALTY:
+				// uses pType->ExpPct
+				break;
 
 			default:
 				bResult = 0;
@@ -1671,11 +1697,9 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 		return;
 
 	BOOL buff = FALSE;
-	BYTE buff_type = pType->bBuffType; 
-
-	switch (buff_type)
+	switch (pType->bBuffType)
 	{
-		case 1:
+		case BUFF_TYPE_HP:
 			if (m_pSkillCaster->m_sMaxHPAmount > 0)
 			{
 				m_pSkillCaster->m_sMaxHPAmount = 0;		
@@ -1683,7 +1707,7 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 			}
 			break;
 
-		case 2:
+		case BUFF_TYPE_AC:
 			if (m_pSkillCaster->m_sACAmount > 0) 
 			{
 				m_pSkillCaster->m_sACAmount = 0;
@@ -1691,7 +1715,7 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 			}
 			break;
 
-		case 3:
+		case BUFF_TYPE_SIZE:
 			if (m_pSkillCaster->isPlayer())
 			{
 				static_cast<CUser *>(m_pSkillCaster)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
@@ -1699,7 +1723,7 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 			}
 			break;
 
-		case 4:
+		case BUFF_TYPE_DAMAGE:
 			if (m_pSkillCaster->m_bAttackAmount > 100) 
 			{
 				m_pSkillCaster->m_bAttackAmount = 100;
@@ -1707,7 +1731,7 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 			}
 			break;
 
-		case 5:
+		case BUFF_TYPE_ATTACK_SPEED:
 			if (m_pSkillCaster->m_bAttackSpeedAmount > 100) 
 			{
 				m_pSkillCaster->m_bAttackSpeedAmount = 100;	
@@ -1715,7 +1739,7 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 			}
 			break;	
 
-		case 6:	
+		case BUFF_TYPE_SPEED:
 			if (m_pSkillCaster->m_bSpeedAmount > 100)
 			{
 				m_pSkillCaster->m_bSpeedAmount = 100;
@@ -1723,7 +1747,7 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 			}
 			break;
 
-		case 7:	
+		case BUFF_TYPE_STATS:
 			if (m_pSkillCaster->isPlayer()
 				&& static_cast<CUser *>(m_pSkillCaster)->getStatBuffTotal() > 0) {
 				// TO-DO: Implement reset
@@ -1732,7 +1756,7 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 			}
 			break;
 
-		case 8:	
+		case BUFF_TYPE_RESISTANCES:
 			if ((m_pSkillCaster->m_bFireRAmount + m_pSkillCaster->m_bColdRAmount + m_pSkillCaster->m_bLightningRAmount +
 				m_pSkillCaster->m_bMagicRAmount + m_pSkillCaster->m_bDiseaseRAmount + m_pSkillCaster->m_bPoisonRAmount) > 0) {
 				m_pSkillCaster->m_bFireRAmount = 0;
@@ -1745,7 +1769,7 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 			}
 			break;	
 
-		case 9:	
+		case BUFF_TYPE_ACCURACY:
 			if ((m_pSkillCaster->m_bHitRateAmount + m_pSkillCaster->m_sAvoidRateAmount) > 200)
 			{
 				m_pSkillCaster->m_bHitRateAmount = 100;
@@ -1753,13 +1777,22 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 				buff = TRUE;
 			}
 			break;
+
+		case BUFF_TYPE_MAGIC_POWER:
+		case BUFF_TYPE_EXPERIENCE:
+		case BUFF_TYPE_WEIGHT:
+		case BUFF_TYPE_WEAPON_DAMAGE:
+		case BUFF_TYPE_WEAPON_AC:
+		case BUFF_TYPE_LOYALTY:
+			// TO-DO
+			break;
 	}
 	
 	if (buff)
 	{
-		m_pSkillCaster->m_sDuration[buff_type - 1] = 0;
-		m_pSkillCaster->m_fStartTime[buff_type - 1] = 0.0f;
-		m_pSkillCaster->m_bType4Buff[buff_type - 1] = 0;
+		m_pSkillCaster->m_sDuration[pType->bBuffType - 1] = 0;
+		m_pSkillCaster->m_fStartTime[pType->bBuffType - 1] = 0.0f;
+		m_pSkillCaster->m_bType4Buff[pType->bBuffType - 1] = 0;
 
 		if (m_pSkillCaster->isPlayer())
 		{
@@ -1769,7 +1802,7 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 			static_cast<CUser *>(m_pSkillCaster)->Send2AI_UserUpdateInfo();
 
 			Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
-			result << buff_type;
+			result << pType->bBuffType;
 			static_cast<CUser *>(m_pSkillCaster)->Send(&result);
 		}
 	}
