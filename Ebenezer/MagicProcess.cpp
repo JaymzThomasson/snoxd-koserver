@@ -842,7 +842,10 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 				break;
 
 			case BUFF_TYPE_AC:
-				pTUser->m_sACAmount = pType->sAC;
+				if (pType->sAC == 0)
+					pTUser->m_sACAmount = pTUser->m_sTotalAc * (pType->sACPct - 100) / 100;
+				else
+					pTUser->m_sACAmount = pType->sAC;
 				break;
 
 			case BUFF_TYPE_SIZE:
