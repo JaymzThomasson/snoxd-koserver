@@ -363,7 +363,7 @@ void CUser::ClassChange(Packet & pkt)
 	uint8 classcode = pkt.read<uint8>();
 	switch (m_pUserData->m_sClass)
 	{
-	case KARUWARRRIOR:
+	case KARUWARRIOR:
 		if( classcode == BERSERKER || classcode == GUARDIAN )
 			bSuccess = TRUE;
 		break;
