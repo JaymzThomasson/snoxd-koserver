@@ -605,7 +605,7 @@ void CUser::SendMyInfo()
 
 	result.append(m_pUserData->m_bstrSkill, 9);
 
-	for (int i = 0; i < HAVE_MAX + SLOT_MAX + COSP_MAX + MBAG_MAX; i++)
+	for (int i = 0; i < INVENTORY_TOTAL; i++)
 	{
 		result	<< m_pUserData->m_sItemArray[i].nNum
 				<< m_pUserData->m_sItemArray[i].sDuration << m_pUserData->m_sItemArray[i].sCount
