@@ -1487,14 +1487,20 @@ short CMagicProcess::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 		|| m_pSkillCaster->isDead())
 		return 0;
 
+	uint16 sMagicAmount = 0;
 	if (m_pSkillCaster->isNPC())
 	{
 		result = m_pSkillCaster->GetHitRate(pTarget->m_sTotalHitrate / m_pSkillCaster->m_sTotalEvasionrate); 
 	}
 	else
 	{
-		total_hit *= static_cast<CUser *>(m_pSkillCaster)->getStat(STAT_CHA) / 170;
-		result = SUCCESS ;
+		CUser *pUser = static_cast<CUser *>(m_pSkillCaster);
+		uint8 bCha = pUser->getStat(STAT_CHA);
+		if (bCha > 86)
+			sMagicAmount = pUser->m_sMagicAttackAmount - (bCha - 86);
+
+		total_hit *= pUser->getStat(STAT_CHA) / 186;
+		result = SUCCESS;
 	}
 		
 	if (result != FAIL) 
@@ -1540,9 +1546,9 @@ short CMagicProcess::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 			}
 		}
 
-		damage = (short)(total_hit - ((0.7 * total_hit * total_r) / 200)) ;
-		random = myrand (0, damage);
-		damage = (short)((0.7 * (total_hit - ((0.9 * total_hit * total_r) / 200))) + 0.2 * random);
+		damage = (short)(230 * total_hit / (total_r + 250));
+		random = myrand(0, damage);
+		damage = (short)(random * 0.3f + (damage * 0.85f)) - sMagicAmount;
 
 		if (m_pSkillCaster->isNPC())
 			damage -= ((3 * righthand_damage) + (3 * attribute_damage));
@@ -1591,15 +1597,8 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 			break;
 */
 
-// �񷯸ӱ� ������ ��Ƽ ��ȯ >.<
-			if( !pTUser->isInParty()) {
-				if (sid == tid) {
-					return TRUE; 
-				}
-				else {
-					return FALSE; 
-				}
-			}			
+			if (!pTUser->isInParty())
+				return (sid == tid);
 
 			if ( pTUser->m_sPartyIndex == m_pSrcUser->m_sPartyIndex && pMagic->bType[0] != 8 ) {
 				goto final_test;
