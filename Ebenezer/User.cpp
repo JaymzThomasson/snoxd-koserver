@@ -1281,7 +1281,7 @@ void CUser::SetUserAbility()
 //	if( temp_str > 255 ) temp_str = 255;
 //	if( temp_dex > 255 ) temp_dex = 255;
 
-	m_sMaxWeight = (getStatWithItemBonus(STAT_STR) + GetLevel()) * 50;
+	m_sMaxWeight = ((getStatWithItemBonus(STAT_STR) + GetLevel()) * 50) * (m_bMaxWeightAmount / 100);
 	if( bHaveBow ) 
 		m_sTotalHit = (short)((((0.005 * pItem->m_sDamage * (temp_dex + 40)) + ( hitcoefficient * pItem->m_sDamage * GetLevel() * temp_dex )) + 3));
 	else

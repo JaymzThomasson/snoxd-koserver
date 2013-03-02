@@ -458,6 +458,7 @@ void Unit::InitType4()
 	m_bMagicRAmount = 0;
 	m_bDiseaseRAmount = 0;
 	m_bPoisonRAmount = 0;		
+	m_bMaxWeightAmount = 100;
 	memset(m_sDuration, 0, sizeof(uint16) * MAX_TYPE4_BUFF);
 	memset(m_fStartTime, 0, sizeof(float) * MAX_TYPE4_BUFF);
 	memset(m_bType4Buff, 0, sizeof(*m_bType4Buff) * MAX_TYPE4_BUFF);

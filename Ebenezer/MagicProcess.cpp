@@ -899,7 +899,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 				break;
 
 			case BUFF_TYPE_WEIGHT:
-				// uses pType->ExpPct
+				pTUser->m_bMaxWeightAmount = pType->bExpPct;
 				break;
 
 			case BUFF_TYPE_WEAPON_DAMAGE:
@@ -1801,7 +1801,17 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 			break;
 
 		case BUFF_TYPE_EXPERIENCE:
+			// TO-DO
+			break;
+
 		case BUFF_TYPE_WEIGHT:
+			if (m_pSkillCaster->m_bMaxWeightAmount > 100)
+			{
+				m_pSkillCaster->m_bMaxWeightAmount = 100;
+				buff = TRUE;
+			}
+			break;
+
 		case BUFF_TYPE_WEAPON_DAMAGE:
 		case BUFF_TYPE_WEAPON_AC:
 		case BUFF_TYPE_LOYALTY:
