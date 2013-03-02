@@ -751,6 +751,8 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 
 			if (pTUser->isInParty() && pType->sTimeDamage < 0)
 				pTUser->SendPartyStatusUpdate(1, 1);
+
+			pTUser->SendUserStatusUpdate(pType->bAttribute == POISON_R ? USER_STATUS_POISON : USER_STATUS_DOT, 1);
 		} 
 	
 		if ( pSkill->bType[1] == 0 || pSkill->bType[1] == 3 )
@@ -952,16 +954,14 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 		{
 			CUser *pUser = (m_sCasterID >= 0 && m_sCasterID < MAX_USER ? m_pSrcUser : pTUser);
 
-			pUser->m_MagicProcess.SendSkill(m_sCasterID, (*itr)->GetSocketID(),
-				m_opcode, m_nSkillID,
-				m_sData1, bResult, m_sData3,
-				(bResult == 1 || m_sData4 == 0 ? pType->sDuration : 0),
-				0, pType->bSpeed);
+			m_sTargetID = (*itr)->GetSocketID();
+			m_sData2 = bResult;
+			m_sData4 = (bResult == 1|| m_sData4 == 0 ? pType->sDuration : 0);
+			m_sData6 = pType->bSpeed;
+			pUser->m_MagicProcess.SendSkill();
 
-			if (pSkill->bMoral >= MORAL_ENEMY && pType->bBuffType != 6)
-				pUser->SendUserStatusUpdate(pType->bBuffType, 1); //Update the client to show the current state we are in
-			else if (pSkill->bMoral >= MORAL_ENEMY && pType->bBuffType == 6)
-				pUser->SendUserStatusUpdate(3, 1);
+			if (pSkill->bMoral >= MORAL_ENEMY)
+				pTUser->SendUserStatusUpdate(pType->bBuffType == BUFF_TYPE_SPEED ? USER_STATUS_SPEED : USER_STATUS_POISON, 1);
 		}
 		
 		if (bResult == 0
