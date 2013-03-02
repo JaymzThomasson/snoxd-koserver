@@ -1591,15 +1591,8 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 			break;
 */
 
-// �񷯸ӱ� ������ ��Ƽ ��ȯ >.<
-			if( !pTUser->isInParty()) {
-				if (sid == tid) {
-					return TRUE; 
-				}
-				else {
-					return FALSE; 
-				}
-			}			
+			if (!pTUser->isInParty())
+				return (sid == tid);
 
 			if ( pTUser->m_sPartyIndex == m_pSrcUser->m_sPartyIndex && pMagic->bType[0] != 8 ) {
 				goto final_test;
