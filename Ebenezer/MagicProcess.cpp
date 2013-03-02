@@ -751,6 +751,8 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 
 			if (pTUser->isInParty() && pType->sTimeDamage < 0)
 				pTUser->SendPartyStatusUpdate(1, 1);
+
+			pTUser->SendUserStatusUpdate(pType->bAttribute == POISON_R ? USER_STATUS_POISON : USER_STATUS_DOT, 1);
 		} 
 	
 		if ( pSkill->bType[1] == 0 || pSkill->bType[1] == 3 )
@@ -959,7 +961,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 			pUser->m_MagicProcess.SendSkill();
 
 			if (pSkill->bMoral >= MORAL_ENEMY)
-				pTUser->SendUserStatusUpdate(pType->bBuffType == BUFF_TYPE_SPEED ? 3 : 2, 1);
+				pTUser->SendUserStatusUpdate(pType->bBuffType == BUFF_TYPE_SPEED ? USER_STATUS_SPEED : USER_STATUS_POISON, 1);
 		}
 		
 		if (bResult == 0
