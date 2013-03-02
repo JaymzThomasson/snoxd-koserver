@@ -643,7 +643,7 @@ enum AuthorityTypes
 
 enum BuffType
 {
-	BUFF_TYPE_HP			= 1,
+	BUFF_TYPE_HP_MP			= 1,
 	BUFF_TYPE_AC			= 2,
 	BUFF_TYPE_SIZE			= 3,
 	BUFF_TYPE_DAMAGE		= 4,

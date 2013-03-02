@@ -829,8 +829,16 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 
 		switch (pType->bBuffType)
 		{
-			case BUFF_TYPE_HP:
-				pTUser->m_sMaxHPAmount = pType->sMaxHP;
+			case BUFF_TYPE_HP_MP:
+				if (pType->sMaxHP == 0)
+					pTUser->m_sMaxHPAmount = (pType->sMaxHPPct - 100) * (pTUser->m_iMaxHp - pTUser->m_sMaxHPAmount) / 100;
+				else
+					pTUser->m_sMaxHPAmount = pType->sMaxHP;
+
+				if (pType->sMaxMP == 0)
+					pTUser->m_sMaxMPAmount = (pType->sMaxMPPct - 100) * (pTUser->m_iMaxMp - pTUser->m_sMaxMPAmount) / 100;
+				else
+					pTUser->m_sMaxMPAmount = pType->sMaxMP;
 				break;
 
 			case BUFF_TYPE_AC:
@@ -1038,6 +1046,7 @@ bool CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 				{
 				case 1: 
 					m_pSkillTarget->m_sMaxHPAmount = 0;
+					m_pSkillTarget->m_sMaxMPAmount = 0;
 					break;
 
 				case 2:
@@ -1117,6 +1126,7 @@ bool CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 				m_pSkillTarget->m_sDuration[0] = 0;		
 				m_pSkillTarget->m_fStartTime[0] = 0.0f;
 				m_pSkillTarget->m_sMaxHPAmount = 0;
+				m_pSkillTarget->m_sMaxMPAmount = 0;
 				m_pSkillTarget->m_bType4Buff[0] = 0;
 
 				SendType4BuffRemove(m_sTargetID, 1);
@@ -1699,10 +1709,12 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 	BOOL buff = FALSE;
 	switch (pType->bBuffType)
 	{
-		case BUFF_TYPE_HP:
-			if (m_pSkillCaster->m_sMaxHPAmount > 0)
+		case BUFF_TYPE_HP_MP:
+			if (m_pSkillCaster->m_sMaxHPAmount > 0
+				|| m_pSkillCaster->m_sMaxMPAmount > 0)
 			{
-				m_pSkillCaster->m_sMaxHPAmount = 0;		
+				m_pSkillCaster->m_sMaxHPAmount = 0;
+				m_pSkillCaster->m_sMaxMPAmount = 0;
 				buff = TRUE;
 			}
 			break;

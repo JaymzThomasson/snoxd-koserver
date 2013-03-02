@@ -671,15 +671,12 @@ void CUser::SetMaxMp()
 	if( p_TableCoefficient->MP != 0)
 	{
 		m_iMaxMp = (short)((p_TableCoefficient->MP * GetLevel() * GetLevel() * temp_intel)
-				  + (0.1f * GetLevel() * 2 * temp_intel) + (temp_intel / 5));
-		m_iMaxMp += m_sItemMaxMp;		
-		m_iMaxMp += 20;	
+			+ (0.1f * GetLevel() * 2 * temp_intel) + (temp_intel / 5) + m_sMaxMPAmount + m_sItemMaxMp + 20);
 	}
 	else if( p_TableCoefficient->SP != 0)
 	{
 		m_iMaxMp = (short)((p_TableCoefficient->SP * GetLevel() * GetLevel() * temp_sta )
-			  + (0.1f * GetLevel() * temp_sta) + (temp_sta / 5));
-		m_iMaxMp += m_sItemMaxMp;
+			  + (0.1f * GetLevel() * temp_sta) + (temp_sta / 5) + m_sMaxMPAmount + m_sItemMaxMp);
 	}
 
 	if(m_iMaxMp < m_pUserData->m_sMp) {

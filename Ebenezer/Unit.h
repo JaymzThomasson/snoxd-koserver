@@ -89,7 +89,7 @@ public:
 
 	short   m_sACAmount;
 	BYTE    m_bAttackAmount;
-	short	m_sMaxHPAmount;
+	short	m_sMaxHPAmount, m_sMaxMPAmount;
 	BYTE	m_bHitRateAmount;
 	short	m_sAvoidRateAmount;
 

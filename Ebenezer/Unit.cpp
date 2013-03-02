@@ -448,6 +448,7 @@ void Unit::InitType4()
     m_sACAmount = 0;
     m_bAttackAmount = 100;
 	m_sMaxHPAmount = 0;
+	m_sMaxMPAmount = 0;
 	m_bHitRateAmount = 100;
 	m_sAvoidRateAmount = 100;
 	m_bFireRAmount = 0;
