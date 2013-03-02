@@ -675,7 +675,7 @@ enum BuffType
 	BUFF_TYPE_IGNORE_WEAPON			= 32, //Weapon cancellation
 	BUFF_TYPE_PASSION_OF_SOUL		= 35, //Passion of the Soul
 	BUFF_TYPE_FIRM_DETERMINATION	= 36, //Firm Determination
-	BUFF_TYPE_SPEED					= 40, //Cold Wave
+	BUFF_TYPE_SPEED2				= 40, //Cold Wave
 	BUFF_TYPE_ATTACK_RANGE_ARMOR	= 43 //Inevitable Murderous
 };
 
