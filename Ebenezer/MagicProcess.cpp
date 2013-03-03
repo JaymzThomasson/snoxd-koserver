@@ -127,12 +127,13 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 			break;
 		case MAGIC_CANCEL:
 		case MAGIC_CANCEL2:
-			Type3Cancel(pMagic);
-			Type4Cancel(pMagic);
-			Type6Cancel();
+			Type3Cancel(pMagic);	//Damage over Time skills.
+			Type4Cancel(pMagic);	//Buffs
+			Type6Cancel();			//Transformations
+			Type9Cancel(pMagic);	//Stealth, lupine etc.
 			break;
-		case MAGIC_CANCEL_TYPE9:
-			// Type9Cancel(m_nSkillID, m_pSrcUser->GetSocketID());   // Stealth lupine etc.
+		case MAGIC_TYPE4_EXTEND:
+			Type4Extend(pMagic);
 			break;
 	}
 }
@@ -1491,10 +1492,10 @@ bool CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 
 	if (pType->bStateChange <= 2)
 		m_pSrcUser->StateChangeServerDirect(7, pType->bStateChange); //Update the client to be invisible
-	else if (pType->bStateChange == 3)
-		m_pSrcUser->m_bCanSeeStealth = true;
-	else if (pType->bStateChange == 4)
+	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4)
 	{
+		Packet stealth(WIZ_STEALTH);
+		stealth << uint8(1) << uint16(pType->sRadius);
 		if(m_pSrcUser->isInParty())
 		{
 			_PARTY_GROUP* pParty = g_pMain->m_PartyArray.GetData(m_pSrcUser->m_sPartyIndex);
@@ -1506,13 +1507,14 @@ bool CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 				CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
 				if (pUser == NULL)
 					continue;
-
-				pUser->m_bCanSeeStealth = true;
+				//To-do : save the skill for all the party members
+				pUser->Send(&stealth);
 			}
 		}
+		else
+			m_pSrcUser->Send(&stealth);
+		//TO-DO : Save the skill in the saved skill list
 	}
-
-	//TO-DO : Save the skill in the saved skill list
 
 	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_EFFECTING));
 	result	<< m_nSkillID << m_sCasterID << m_sTargetID
@@ -1752,6 +1754,40 @@ void CMagicProcess::Type6Cancel()
 	m_pSrcUser->StateChangeServerDirect(3, ABNORMAL_NORMAL); 
 }
 
+void CMagicProcess::Type9Cancel(_MAGIC_TABLE *pSkill)
+{
+	_MAGIC_TYPE9 *pType = g_pMain->m_Magictype9Array.GetData(pSkill->iNum);
+	if (pType == NULL)
+		return;
+
+	uint8 bResponse = 0;
+	
+	if (pType->bStateChange <= 2 || pType->bStateChange >= 5 && pType->bStateChange < 7) //Stealths
+	{
+		static_cast<CUser *>(m_pSkillCaster)->StateChangeServerDirect(7, INVIS_NONE);
+		bResponse = 91;
+	}
+	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4) //Lupine etc.
+	{
+		Packet stealth(WIZ_STEALTH);
+		stealth << uint16(0) << uint8(0);
+		static_cast<CUser *>(m_pSkillCaster)->Send(&stealth);
+		bResponse = 92;
+	}
+	else if (pType->bStateChange == 7) //Guardian pet related
+	{
+		Packet pet(WIZ_PET, uint8(1));
+		pet << uint16(1) << uint16(6);
+		static_cast<CUser *>(m_pSkillCaster)->Send(&pet);
+		bResponse = 93;
+	}
+
+
+	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
+		result << bResponse;
+	static_cast<CUser *>(m_pSkillCaster)->Send(&result);
+}
+
 void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 {
 	if (m_pSkillTarget != m_pSkillCaster)
@@ -1966,4 +2002,23 @@ short CMagicProcess::GetWeatherDamage(short damage, short attribute)
 		damage = (damage * 110) / 100;
 
 	return damage;
+}
+
+void CMagicProcess::Type4Extend(_MAGIC_TABLE *pSkill)
+{
+	_MAGIC_TYPE4 *pType = g_pMain->m_Magictype4Array.GetData(pSkill->iNum);
+	if (pType == NULL)
+		return;
+
+	CUser* pTUser = g_pMain->GetUserPtr(m_sTargetID);  
+	if (pTUser == NULL) 
+		return;
+
+	if(m_pSkillCaster->isPlayer() && pTUser->RobItem(800022000, 1))
+	{
+		pTUser->m_sDuration[pType->bBuffType -1] *= 2;
+		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_EXTEND));
+		result << uint32(pSkill->iNum);
+		pTUser->Send(&result);
+	}	
 }

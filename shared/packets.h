@@ -99,6 +99,7 @@
 #define WIZ_ITEM_UPGRADE		0x5B
 #define WIZ_ZONEABILITY			0x5E	
 #define WIZ_EVENT				0x5F
+#define WIZ_STEALTH				0x60 // stealth related.
 #define WIZ_ROOM_PACKETPROCESS	0x61 // room system
 #define WIZ_ROOM				0x62
 #define WIZ_QUEST				0x64
@@ -253,7 +254,7 @@ enum KingSystemImpeachmentOpcodes
 #define MAGIC_TYPE4_END			0x05	// For type 4 durational spells.
 #define MAGIC_CANCEL            0x06    // When you wanna cancel your own Type 4.
 #define MAGIC_CANCEL_TYPE6		0x07
-#define MAGIC_CANCEL_TYPE9		0x08
+#define MAGIC_TYPE4_EXTEND		0x08	// Extends the time of your type4 buffs by 2 times (requires "Duration Item" (PUS))
 #define MAGIC_TRANSFORM_LIST	0x09	// Shows the transformation list 
 #define MAGIC_CANCEL2			0x0D	// Not sure but it cancels...
 					

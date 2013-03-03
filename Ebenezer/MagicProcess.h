@@ -22,6 +22,8 @@ public:
 	void Type3Cancel(_MAGIC_TABLE *pSkill);
 	void Type4Cancel(_MAGIC_TABLE *pSkill);
 	void Type6Cancel();
+	void Type9Cancel(_MAGIC_TABLE *pSkill);
+	void Type4Extend(_MAGIC_TABLE *pSkill);
 
 	BOOL UserRegionCheck(int sid, int tid, int magicid, int radius, short mousex = 0, short mousez = 0);
 	short GetMagicDamage(Unit *pTarget, int total_hit, int attribute);
