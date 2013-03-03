@@ -205,7 +205,7 @@ add_fail:
 
 void CUser::ExchangeDecide()
 {
-	int send_index = 0, getmoney = 0, putmoney = 0;
+	int send_index = 0;
 	CUser* pUser = NULL;
 	_EXCHANGE_ITEM* pItem = NULL;
 	char buff[256];
@@ -249,13 +249,6 @@ void CUser::ExchangeDecide()
 			bSuccess = FALSE;
 		}
 		if( bSuccess ) {
-			getmoney = ExchangeDone();
-			putmoney = pUser->ExchangeDone();
-			if( getmoney > 0 )
-				ItemLogToAgent( m_pUserData->m_id, pUser->m_pUserData->m_id, ITEM_EXCHANGE_GET, 0, ITEM_GOLD, getmoney, 0 );
-			if( putmoney > 0 )
-				ItemLogToAgent( m_pUserData->m_id, pUser->m_pUserData->m_id, ITEM_EXCHANGE_PUT, 0, ITEM_GOLD, putmoney, 0 );
-			
 			SetByte( buff, WIZ_EXCHANGE, send_index );
 			SetByte( buff, EXCHANGE_DONE, send_index );
 			SetByte( buff, 0x01, send_index );
@@ -267,8 +260,6 @@ void CUser::ExchangeDecide()
 				SetDWORD( buff, (*itr)->itemid, send_index );
 				SetShort( buff, (*itr)->count, send_index );
 				SetShort( buff, (*itr)->duration, send_index );
-
-				ItemLogToAgent( m_pUserData->m_id, pUser->m_pUserData->m_id, ITEM_EXCHANGE_GET, (*itr)->nSerialNum, (*itr)->itemid, (*itr)->count, (*itr)->duration );
 			}
 			Send( buff, send_index );
 
@@ -284,8 +275,6 @@ void CUser::ExchangeDecide()
 				SetDWORD( buff, (*itr)->itemid, send_index );
 				SetShort( buff, (*itr)->count, send_index );
 				SetShort( buff, (*itr)->duration, send_index );
-
-				ItemLogToAgent( m_pUserData->m_id, pUser->m_pUserData->m_id, ITEM_EXCHANGE_PUT, (*itr)->nSerialNum, (*itr)->itemid, (*itr)->count, (*itr)->duration );
 			}
 			pUser->Send( buff, send_index );
 

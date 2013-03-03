@@ -158,18 +158,6 @@ enum ItemMovementType
 #define ITEM_TYPE_MIRROR_DAMAGE		0x08
 
 /////////////////////////////////////////////////////////////
-// ITEM LOG TYPE 
-#define ITEM_MERCHANT_BUY			0x01
-#define ITEM_MERCHANT_SELL			0x02
-#define ITEM_MONSTER_GET			0x03
-#define ITEM_EXCHANGE_PUT			0x04
-#define ITEM_EXCHANGE_GET			0x05
-#define ITEM_DESTROY				0x06
-#define ITEM_WAREHOUSE_PUT			0x07
-#define ITEM_WAREHOUSE_GET			0x08
-#define ITEM_UPGRADE				0x09
-
-/////////////////////////////////////////////////////////////
 // JOB GROUP TYPES
 #define GROUP_WARRIOR				1
 #define GROUP_ROGUE					2

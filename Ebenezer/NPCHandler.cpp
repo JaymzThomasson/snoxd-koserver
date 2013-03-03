@@ -689,7 +689,6 @@ void CUser::ItemTrade(Packet & pkt)
 			m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum = g_pMain->GenerateItemSerial();
 
 		SendItemWeight();
-		ItemLogToAgent(m_pUserData->m_id, pNpc->m_strName, ITEM_MERCHANT_BUY, m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum, itemid, count, pTable->m_sDuration);
 	}
 	// Selling an item to an NPC
 	else
@@ -723,7 +722,6 @@ void CUser::ItemTrade(Packet & pkt)
 			m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount -= count;
 
 		SendItemWeight();
-		ItemLogToAgent(m_pUserData->m_id, "MERCHANT SELL", ITEM_MERCHANT_SELL, 0, itemid, count, oldDurability);
 	}
 
 	goto send_packet;
