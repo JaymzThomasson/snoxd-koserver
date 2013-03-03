@@ -229,11 +229,11 @@ struct _ZONE_ITEM {		// Bundle unit
 
 struct	_EXCHANGE_ITEM
 {
-	int itemid;
-	int count;
-	short duration;
-	BYTE pos;
-	__int64	nSerialNum;
+	uint32	nItemID;
+	uint32	nCount;
+	uint16	sDurability;
+	uint8	bSrcPos;
+	uint64	nSerialNum;
 };
 
 struct _ITEM_TABLE
