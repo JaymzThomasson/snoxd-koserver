@@ -353,6 +353,9 @@ bool CUser::HandlePacket(Packet & pkt)
 	case WIZ_SELECT_MSG:
 		RecvSelectMsg(pkt);
 		break;
+	case WIZ_ITEM_UPGRADE:
+		ItemUpgradeProcess(pkt);
+		break;
 	case WIZ_SHOPPING_MALL: // letter system's used in here too
 		ShoppingMall(pkt);
 		break;
@@ -3604,3 +3607,71 @@ _ITEM_TABLE* CUser::GetItemPrototype(uint8 pos)
 	_ITEM_DATA *pItem = GetItem(pos);
 	return pItem->nNum == 0 ? NULL : g_pMain->GetItemPtr(pItem->nNum);
 }
+
+/* TO-DO: Move all these to their own handler file */
+enum
+{
+	ITEM_UPGRADE_REQ		= 1,
+	ITEM_UPGRADE			= 2,
+	ITEM_ACCESSORIES		= 3,
+	ITEM_BIFROST_EXCHANGE	= 5,
+	ITEM_UPGRADE_REBIRTH	= 7,
+	ITEM_SEAL				= 8,
+	ITEM_CHARACTER_SEAL		= 9
+};
+
+void CUser::ItemUpgradeProcess(Packet & pkt)
+{
+	uint8 opcode = pkt.read<uint8>();
+	switch (opcode)
+	{
+	case ITEM_UPGRADE:
+		ItemUpgrade(pkt);
+		break;
+
+	case ITEM_ACCESSORIES:
+		ItemUpgradeAccessories(pkt);
+		break;
+
+	case ITEM_BIFROST_EXCHANGE:
+		BifrostPieceProcess(pkt);
+		break;
+
+	case ITEM_UPGRADE_REBIRTH:
+		ItemUpgradeRebirth(pkt);
+		break;
+
+	case ITEM_SEAL:
+		ItemSealProcess(pkt);
+		break;
+
+	case ITEM_CHARACTER_SEAL:
+		CharacterSealProcess(pkt);
+		break;
+	}
+}
+
+void CUser::ItemUpgrade(Packet & pkt)
+{
+}
+
+void CUser::ItemUpgradeAccessories(Packet & pkt)
+{
+}
+
+void CUser::BifrostPieceProcess(Packet & pkt)
+{
+}
+
+void CUser::ItemUpgradeRebirth(Packet & pkt)
+{
+}
+
+void CUser::ItemSealProcess(Packet & pkt)
+{
+}
+
+void CUser::CharacterSealProcess(Packet & pkt)
+{
+}
+

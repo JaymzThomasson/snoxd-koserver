@@ -467,6 +467,14 @@ public:
 	void RecvSelectMsg(Packet & pkt);
 
 	// from the client
+	void ItemUpgradeProcess(Packet & pkt);
+	void ItemUpgrade(Packet & pkt);
+	void ItemUpgradeAccessories(Packet & pkt);
+	void BifrostPieceProcess(Packet & pkt); // originally named BeefRoastPieceProcess() -- that's not happening.
+	void ItemUpgradeRebirth(Packet & pkt);
+	void ItemSealProcess(Packet & pkt);
+	void CharacterSealProcess(Packet & pkt);
+
 	void ShoppingMall(Packet & pkt);
 	void RecvStore(Packet & pkt); // from Aujard
 	void HandleStoreClose();
