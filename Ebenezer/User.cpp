@@ -1823,7 +1823,7 @@ void CUser::CountConcurrentUser()
 	SessionMap & sessMap = g_pMain->s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		if (static_cast<CUser *>(itr->second)->isInGame())
+		if (TO_USER(itr->second)->isInGame())
 			count++;
 	}
 	g_pMain->s_socketMgr.ReleaseLock();
@@ -3330,7 +3330,7 @@ void CUser::OnDeath(Unit *pKiller)
 
 	if (pKiller->isNPC())
 	{
-		CNpc *pNpc = static_cast<CNpc *>(pKiller);
+		CNpc *pNpc = TO_NPC(pKiller);
 		if (pNpc->GetType() == NPC_PATROL_GUARD
 			|| (GetZoneID() != GetNation() && GetZoneID() <= ELMORAD))
 			ExpChange(-m_iMaxExp / 100);
@@ -3339,7 +3339,7 @@ void CUser::OnDeath(Unit *pKiller)
 	}
 	else
 	{
-		CUser *pUser = static_cast<CUser *>(pKiller);
+		CUser *pUser = TO_USER(pKiller);
 
 		// Looks like we died of "natural causes!" (probably residual DOT)
 		if (pUser == this)

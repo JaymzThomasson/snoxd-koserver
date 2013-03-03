@@ -1,5 +1,4 @@
-#ifndef _DEFINE_H
-#define _DEFINE_H
+#pragma once
 
 #define _LISTEN_PORT		15001
 #define _UDP_PORT			8888
@@ -299,6 +298,7 @@ typedef union{
 	BYTE		b[8];
 } MYINT64;
 
-#include "../shared/globals.h"
+#define TO_USER(v)	static_cast<CUser *>(v)
+#define TO_NPC(v)	static_cast<CNpc *>(v)
 
-#endif
+#include "../shared/globals.h"

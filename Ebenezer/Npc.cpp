@@ -201,6 +201,6 @@ void CNpc::OnDeath(Unit *pKiller)
 
 	Unit::OnDeath(pKiller);
 
-	GetRegion()->Remove(static_cast<CNpc *>(this));
+	GetRegion()->Remove(TO_NPC(this));
 	SetRegion();
 }

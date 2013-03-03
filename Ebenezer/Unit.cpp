@@ -51,15 +51,15 @@ bool Unit::RegisterRegion()
 	// TO-DO: Fix this up
 	if (isPlayer())
 	{
-		GetRegion()->Remove(static_cast<CUser *>(this));
+		GetRegion()->Remove(TO_USER(this));
 		SetRegion(new_region_x, new_region_z);
-		GetRegion()->Add(static_cast<CUser *>(this));
+		GetRegion()->Add(TO_USER(this));
 	}
 	else
 	{
-		GetRegion()->Remove(static_cast<CNpc *>(this));
+		GetRegion()->Remove(TO_NPC(this));
 		SetRegion(new_region_x, new_region_z);
-		GetRegion()->Add(static_cast<CNpc *>(this));
+		GetRegion()->Add(TO_NPC(this));
 	}
 
 	RemoveRegion(old_region_x - new_region_x, old_region_z - new_region_z);
@@ -295,7 +295,7 @@ short Unit::GetACDamage(int damage, Unit *pTarget)
 	if (pTarget->isDead())
 		return 0;
 
-	CUser * pUser  = static_cast<CUser *>(this);
+	CUser * pUser  = TO_USER(this);
 	_ITEM_TABLE * pRightHand = pUser->GetItemPrototype(RIGHTHAND);
 	if (pRightHand != NULL)
 	{
@@ -467,7 +467,7 @@ void Unit::InitType4()
 
 	// this is going to need cleaning up
 	if (isPlayer())
-		static_cast<CUser *>(this)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
+		TO_USER(this)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
 }
 
 void Unit::OnDeath(Unit *pKiller)

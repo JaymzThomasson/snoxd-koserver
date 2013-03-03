@@ -713,7 +713,7 @@ void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 na
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser * pUser = static_cast<CUser *>(itr->second);
+		CUser * pUser = TO_USER(itr->second);
 		if (pUser == pExceptUser 
 			|| !pUser->isInGame()
 			|| (nation != 0 && nation != pUser->GetNation()))
@@ -917,7 +917,7 @@ BOOL CEbenezerDlg::InitializeMMF()
 
 	SessionMap & sessMap = s_socketMgr.GetIdleSessionMap();
 	foreach (itr, sessMap)
-		static_cast<CUser *>(itr->second)->m_pUserData = (_USER_DATA *)(m_lpMMFile + itr->second->GetSocketID() * sizeof(_USER_DATA));
+		TO_USER(itr->second)->m_pUserData = (_USER_DATA *)(m_lpMMFile + itr->second->GetSocketID() * sizeof(_USER_DATA));
 	s_socketMgr.ReleaseLock();
 	return TRUE;
 }
@@ -1521,7 +1521,7 @@ void CEbenezerDlg::SendAllUserInfo()
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		static_cast<CUser *>(itr->second)->GetUserInfoForAI(result);
+		TO_USER(itr->second)->GetUserInfoForAI(result);
 		if (++count == tot)	{
 			result.put(0, count);
 			Send_AIServer(&result);
@@ -1636,7 +1636,7 @@ void CEbenezerDlg::AliveUserCheck()
 	{
 		// TO-DO: Replace this with a better, more generic check
 		// Shouldn't have to rely on skills (or being in-game)
-		CUser * pUser = static_cast<CUser *>(itr->second);
+		CUser * pUser = TO_USER(itr->second);
 		if (!pUser->isInGame()) 
 			continue;
 
@@ -1764,7 +1764,7 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser* pTUser = static_cast<CUser *>(itr->second);
+		CUser* pTUser = TO_USER(itr->second);
 		if (!pTUser->isInGame()
 			|| pTUser->GetZoneID() != pTUser->GetNation() 
 			|| pTUser->GetNation() != m_bVictory)
@@ -1796,7 +1796,7 @@ void CEbenezerDlg::BanishLosers()
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser *pUser = static_cast<CUser *>(itr->second); 
+		CUser *pUser = TO_USER(itr->second); 
 		if (!pUser->isInGame())
 			continue;
 
@@ -2046,7 +2046,7 @@ void CEbenezerDlg::CheckAliveUser()
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser *pUser = static_cast<CUser *>(itr->second);
+		CUser *pUser = TO_USER(itr->second);
 		if (!pUser->isInGame())
 			continue;
 
@@ -2066,7 +2066,7 @@ int CEbenezerDlg::KickOutAllUsers()
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser *pUser = static_cast<CUser *>(itr->second);
+		CUser *pUser = TO_USER(itr->second);
 		bool bIngame = pUser->isInGame();
 		pUser->Disconnect();
 
@@ -2122,7 +2122,7 @@ void CEbenezerDlg::KickOutZoneUsers(short zone)
 	foreach (itr, sessMap)
 	{
 		// Only kick users from requested zone.
-		CUser * pUser = static_cast<CUser *>(itr->second);
+		CUser * pUser = TO_USER(itr->second);
 		if (!pUser->isInGame()
 			|| pUser->GetZoneID() != zone) 
 			continue;
@@ -2155,7 +2155,7 @@ void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser)
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser * pUser = static_cast<CUser *>(itr->second);
+		CUser * pUser = TO_USER(itr->second);
 		if (pUser->isInGame() 
 			&& pUser != pExceptUser 
 			&& (nation == 0 || nation == pUser->GetNation()))
@@ -2267,7 +2267,7 @@ next_row:
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser *pUser = static_cast<CUser *>(itr->second);
+		CUser *pUser = TO_USER(itr->second);
 		if (!pUser->isInGame())
 			continue;
 
@@ -2290,7 +2290,7 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser * pUser = static_cast<CUser *>(itr->second);
+		CUser * pUser = TO_USER(itr->second);
 		if (!pUser->isInGame() || pUser->GetZoneID() != ZONE_BATTLE)
 			continue;
 
