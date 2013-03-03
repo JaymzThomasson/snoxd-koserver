@@ -43,7 +43,6 @@ void CUser::Initialize()
 	m_bSelectedCharacter = false;
 	m_bStoreOpen = false;
 	m_bIsMerchanting = false;
-	m_bRequestingChallenge = false;
 	m_bPartyLeader = false;
 	m_bIsTransformed = false;
 	m_bInvisibilityType = INVIS_NONE;
@@ -76,6 +75,8 @@ void CUser::Initialize()
 	m_sChallengeUser = -1;
 	m_sPartyIndex = -1;		
 	m_sExchangeUser = -1;
+	m_bRequestingChallenge = 0;
+	m_bChallengeRequested = 0;
 	m_bExchangeOK = 0x00;
 	m_sPrivateChatUser = -1;
 	m_bNeedParty = 0x01;
@@ -147,6 +148,12 @@ void CUser::OnDisconnect()
 
 	if (isTrading())
 		ExchangeCancel();
+
+	if (m_bRequestingChallenge)
+		HandleChallengeCancelled(m_bRequestingChallenge);
+
+	if (m_bChallengeRequested)
+		HandleChallengeRejected(m_bChallengeRequested);
 
 	LogOut();
 }
@@ -3600,12 +3607,12 @@ void CUser::HandleChallenge(Packet & pkt)
 
 	case CHALLENGE_PVP_CANCEL:
 	case CHALLENGE_CVC_CANCEL:
-		HandleChallengeCancelled(pkt, opcode);
+		HandleChallengeCancelled(opcode);
 		break;
 
 	case CHALLENGE_PVP_REJECT:
 	case CHALLENGE_CVC_REJECT:
-		HandleChallengeRejected(pkt, opcode);
+		HandleChallengeRejected(opcode);
 		break;
 	}
 }
@@ -3618,7 +3625,7 @@ void CUser::HandleChallengeRequestPVP(Packet & pkt)
 	uint8 bErrorCode = CHALLENGE_GENERIC_ERROR;
 
 	if (m_bRequestingChallenge 
-		|| m_sChallengeUser >= 0
+		|| m_bChallengeRequested
 		|| GetZoneID() == 48
 		|| isInParty()
 		|| isTrading()
@@ -3643,15 +3650,16 @@ void CUser::HandleChallengeRequestPVP(Packet & pkt)
 		|| pUser->isInParty()
 		|| pUser->isDead() 
 		|| pUser->m_bRequestingChallenge
-		|| pUser->m_sChallengeUser >= 0
+		|| pUser->m_bChallengeRequested
 		|| pUser->isMerchanting()
 		|| pUser->isTrading()
 		|| pUser->isStoreOpen()
 		|| pUser->GetZoneID() != GetZoneID())
 		goto fail_return;
 
-	m_bRequestingChallenge = true;
-	m_sChallengeUser = GetID();
+	m_bRequestingChallenge = CHALLENGE_PVP_CANCEL;
+	m_sChallengeUser = pUser->GetID();
+	pUser->m_bChallengeRequested = CHALLENGE_PVP_REJECT;
 	pUser->m_sChallengeUser = GetID();
 
 	result << uint8(CHALLENGE_PVP_REQUEST) << GetName();
@@ -3675,7 +3683,7 @@ void CUser::HandleChallengeRequestCVC(Packet & pkt)
 	uint8 bErrorCode = CHALLENGE_GENERIC_ERROR;
 
 	if (m_bRequestingChallenge 
-		|| m_sChallengeUser >= 0
+		|| m_bChallengeRequested
 		|| GetZoneID() == 48
 		|| isInParty()
 		|| isTrading()
@@ -3707,7 +3715,7 @@ void CUser::HandleChallengeRequestCVC(Packet & pkt)
 		|| pUser->isInParty()
 		|| pUser->isDead() 
 		|| pUser->m_bRequestingChallenge
-		|| pUser->m_sChallengeUser >= 0
+		|| pUser->m_bChallengeRequested
 		|| pUser->isMerchanting()
 		|| pUser->isTrading()
 		|| pUser->isStoreOpen()
@@ -3721,8 +3729,9 @@ void CUser::HandleChallengeRequestCVC(Packet & pkt)
 		goto fail_return;
 	}
 
-	m_bRequestingChallenge = true;
-	m_sChallengeUser = GetID();
+	m_bRequestingChallenge = CHALLENGE_CVC_CANCEL;
+	m_sChallengeUser = pUser->GetID();
+	pUser->m_bChallengeRequested = CHALLENGE_CVC_REJECT;
 	pUser->m_sChallengeUser = GetID();
 
 	result << uint8(CHALLENGE_CVC_REQUEST) << GetName();
@@ -3741,12 +3750,14 @@ fail_return:
 // This is sent when the challengee accepts a challenger's PVP request
 void CUser::HandleChallengeAcceptPVP(Packet & pkt)
 {
-	if (m_sChallengeUser < 0)
+	if (m_bChallengeRequested)
 		return;
 
 	CUser *pUser = g_pMain->GetUserPtr(m_sChallengeUser);
 
 	m_sChallengeUser = -1;
+	m_bChallengeRequested = 0;
+
 	if (pUser == NULL)
 	{
 		Packet result(WIZ_CHALLENGE);
@@ -3756,7 +3767,7 @@ void CUser::HandleChallengeAcceptPVP(Packet & pkt)
 	}
 
 	pUser->m_sChallengeUser = -1;
-	pUser->m_bRequestingChallenge = false;
+	pUser->m_bRequestingChallenge = 0;
 
 	// Glorious magic numbers!
 	ZoneChange(48, 135.0f, 115.0f);
@@ -3766,13 +3777,15 @@ void CUser::HandleChallengeAcceptPVP(Packet & pkt)
 // This is sent when the challengee accepts a challenger's clan vs clan request
 void CUser::HandleChallengeAcceptCVC(Packet & pkt)
 {
-	if (m_sChallengeUser < 0)
+	if (!m_bChallengeRequested)
 		return;
 
 	Packet result(WIZ_CHALLENGE, uint8(CHALLENGE_GENERIC_ERROR));
 	CUser *pUser = g_pMain->GetUserPtr(m_sChallengeUser);
 
 	m_sChallengeUser = -1;
+	m_bChallengeRequested = 0;
+
 	if (pUser == NULL)
 	{
 		Send(&result);
@@ -3780,7 +3793,7 @@ void CUser::HandleChallengeAcceptCVC(Packet & pkt)
 	}
 	
 	pUser->m_sChallengeUser = -1;
-	pUser->m_bRequestingChallenge = false;
+	pUser->m_bRequestingChallenge = 0;
 
 	CKnights *pClan1 = g_pMain->GetClanPtr(m_pUserData->m_bKnights);
 	CKnights *pClan2 = g_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights);
@@ -3828,7 +3841,7 @@ void CUser::HandleChallengeAcceptCVC(Packet & pkt)
 }
 
 // This is sent when the challenger cancels their request to the challengee.
-void CUser::HandleChallengeCancelled(Packet & pkt, uint8 opcode)
+void CUser::HandleChallengeCancelled(uint8 opcode)
 {
 	if (!m_bRequestingChallenge)
 		return;
@@ -3844,18 +3857,19 @@ void CUser::HandleChallengeCancelled(Packet & pkt, uint8 opcode)
 	else
 	{
 		pUser->m_sChallengeUser = -1;
+		pUser->m_bChallengeRequested = 0;
 		result << opcode;
 		pUser->Send(&result);
 	}
 
 	m_sChallengeUser = -1;
-	m_bRequestingChallenge = false;
+	m_bRequestingChallenge = 0;
 }
 
 // This is sent when the challengee rejects the challenger's request.
-void CUser::HandleChallengeRejected(Packet & pkt, uint8 opcode)
+void CUser::HandleChallengeRejected(uint8 opcode)
 {
-	if (m_sChallengeUser < 0)
+	if (!m_bChallengeRequested)
 		return;
 
 	Packet result(WIZ_CHALLENGE);
@@ -3868,11 +3882,12 @@ void CUser::HandleChallengeRejected(Packet & pkt, uint8 opcode)
 	else
 	{
 		pUser->m_sChallengeUser = -1;
-		pUser->m_bRequestingChallenge = false;
+		pUser->m_bRequestingChallenge = 0;
 		result << opcode;
 	}
 
 	m_sChallengeUser = -1;
+	m_bChallengeRequested = 0;
 	Send(&result);
 }
 
