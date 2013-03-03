@@ -104,6 +104,9 @@ void CUser::MerchantOpen()
 	// so we need to close our current merchant first.
 	if (errorCode == MERCHANT_OPEN_MERCHANTING)
 		MerchantClose();
+	
+	for(int i = 0; i < MAX_MERCH_ITEMS; i++)
+		memset(&m_arSellingItems[i], 0, sizeof(_MERCH_DATA));
 }
 
 void CUser::MerchantClose()
@@ -209,6 +212,69 @@ void CUser::MerchantItemList(Packet & pkt)
 
 void CUser::MerchantItemBuy(Packet & pkt)
 {
+	uint32 itemid, req_gold;
+	uint16 item_count, leftover_count;
+	uint8 item_slot, dest_slot;
+	CUser * m_MerchantUser = NULL;
+
+	if (m_sMerchantsSocketID < 0 || m_sMerchantsSocketID > MAX_USER)
+		return;
+
+	m_MerchantUser = g_pMain->GetUserPtr(m_sMerchantsSocketID);
+	if (m_MerchantUser == NULL)
+		return;
+
+	pkt >> itemid >> item_count >> item_slot >> dest_slot;
+
+	if (item_slot < 0 
+		|| item_slot > MAX_MERCH_ITEMS
+		|| item_count == 0)
+		return;
+
+	if (m_MerchantUser->m_arSellingItems[item_slot].nNum != itemid
+		||m_MerchantUser->m_arSellingItems[item_slot].sCount < item_count)
+		return;
+
+	req_gold = m_MerchantUser->m_arSellingItems[item_slot].nPrice * item_count;
+	if (m_pUserData->m_iGold < req_gold)
+		return;
+
+	if (m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].nNum != 0 && m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].nNum != itemid)
+		return;
+
+
+	
+	m_MerchantUser->GoldChange(GetSocketID(), req_gold);
+	m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].nNum = itemid;
+	m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].sCount += item_count;
+	m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].sDuration = m_MerchantUser->m_arSellingItems[item_slot].sDuration;
+	m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].nSerialNum = m_MerchantUser->m_arSellingItems[item_slot].nSerialNum;
+	//TO-DO : Proper checks for the removal of the items in the array, we're now assuming everything gets bought
+	memset(&m_MerchantUser->m_arSellingItems[item_slot], 0, sizeof(_MERCH_DATA)); //Remove the item from the arSellingItems array.
+
+	SetSlotItemValue();
+	m_MerchantUser->SetSlotItemValue();
+
+	SetUserAbility();
+	m_MerchantUser->SetUserAbility();
+
+	SendItemWeight();
+	m_MerchantUser->SendItemWeight();
+
+	leftover_count = m_MerchantUser->m_arSellingItems[item_slot].sCount - item_count;
+
+	Packet result(WIZ_MERCHANT, uint8(MERCHANT_ITEM_PURCHASED));
+	result << itemid << m_pUserData->m_id;
+	m_MerchantUser->Send(&result);
+	result.clear();
+	result	<< uint8(MERCHANT_ITEM_BUY) << uint16(1)
+			<< itemid
+			<< leftover_count
+			<< item_slot << dest_slot;
+	Send(&result);
+	result.Initialize(WIZ_MERCHANT_INOUT);
+	result << uint8(2) << m_sMerchantsSocketID << uint16(item_slot);
+	SendToRegion(&result);
 }
 
 void CUser::MerchantInsert(Packet & pkt)

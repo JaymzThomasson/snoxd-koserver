@@ -157,11 +157,11 @@ enum HairData
 
 struct _MERCH_DATA
 {
-	int nNum;
-	short sDuration;
-	unsigned short sCount;
+	uint32 nNum;
+	int16 sDuration;
+	uint16 sCount;
 	__int64 nSerialNum;
-	int nPrice;
+	uint32 nPrice;
 	uint8 bOriginalSlot;
 };
 
