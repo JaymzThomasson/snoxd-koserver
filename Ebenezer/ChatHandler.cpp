@@ -166,7 +166,7 @@ void CUser::Chat(Packet & pkt)
 			SendToRegion(&result);
 		break;
 	case WAR_SYSTEM_CHAT:
-		if (isGM() || getFame() == COMMAND_CAPTAIN)
+		if (isGM())
 			g_pMain->Send_All(&result);
 		break;
 	}
