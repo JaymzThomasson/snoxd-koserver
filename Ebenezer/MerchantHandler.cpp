@@ -104,9 +104,8 @@ void CUser::MerchantOpen()
 	// so we need to close our current merchant first.
 	if (errorCode == MERCHANT_OPEN_MERCHANTING)
 		MerchantClose();
-	
-	for(int i = 0; i < MAX_MERCH_ITEMS; i++)
-		memset(&m_arSellingItems[i], 0, sizeof(_MERCH_DATA));
+
+	memset(&m_arSellingItems, 0x00, sizeof(m_arSellingItems));
 }
 
 void CUser::MerchantClose()
