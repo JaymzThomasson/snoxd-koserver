@@ -772,7 +772,7 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 			if (pTUser->isInParty() && pType->sTimeDamage < 0)
 				pTUser->SendPartyStatusUpdate(1, 1);
 
-			pTUser->SendUserStatusUpdate(pType->bAttribute == POISON_R ? USER_STATUS_POISON : USER_STATUS_DOT, 1);
+			pTUser->SendUserStatusUpdate(pType->bAttribute == POISON_R ? USER_STATUS_POISON : USER_STATUS_DOT, USER_STATUS_INFLICT);
 		}
 
 		if (m_pSkillCaster->isPlayer() //If we're allowing monsters to be stealthed too (it'd be cool) then this check needs to be changed.
@@ -955,7 +955,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 
 			case BUFF_TYPE_BLIND:
 				// Set a variable to disable casting of skills (as we are blinded!)
-				pTUser->SendUserStatusUpdate(USER_STATUS_BLIND, 1);
+				pTUser->SendUserStatusUpdate(USER_STATUS_BLIND, USER_STATUS_INFLICT);
 				break;
 
 			default:
@@ -1003,7 +1003,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 			pUser->m_MagicProcess.SendSkill();
 
 			if (pSkill->bMoral >= MORAL_ENEMY)
-				pTUser->SendUserStatusUpdate(pType->bBuffType == BUFF_TYPE_SPEED ? USER_STATUS_SPEED : USER_STATUS_POISON, 1);
+				pTUser->SendUserStatusUpdate(pType->bBuffType == BUFF_TYPE_SPEED ? USER_STATUS_SPEED : USER_STATUS_POISON, USER_STATUS_INFLICT);
 		}
 		
 		if (bResult == 0

@@ -3593,7 +3593,7 @@ bool CUser::CanUseItem(long itemid, uint16 count)
 	return true;
 }
 
-void CUser::SendUserStatusUpdate(uint8 type, uint8 status)
+void CUser::SendUserStatusUpdate(UserStatus type, UserStatusBehaviour status)
 {
 	Packet result(WIZ_ZONEABILITY, uint8(2));
 	result << uint8(type) << uint8(status);

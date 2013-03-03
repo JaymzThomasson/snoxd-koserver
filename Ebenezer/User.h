@@ -519,7 +519,7 @@ public:
 	void UserInOut(uint8 bType);
 
 	void GetUserInfo(Packet & pkt);
-	void SendUserStatusUpdate(uint8 type, uint8 status);
+	void SendUserStatusUpdate(UserStatus type, UserStatusBehaviour status);
 	virtual void Initialize();
 	
 	void ChangeFame(uint8 bFame);

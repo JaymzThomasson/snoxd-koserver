@@ -675,3 +675,9 @@ enum UserStatus
 	USER_STATUS_BLIND = 4,
 	USER_STATUS_BLACK = 5
 };
+
+enum UserStatusBehaviour
+{
+	USER_STATUS_INFLICT	= 1,
+	USER_STATUS_CURE	= 2
+};
