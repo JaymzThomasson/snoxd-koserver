@@ -76,7 +76,6 @@ void CUser::WarehouseProcess(Packet & pkt)
 		}
 
 		SendItemWeight();
-		ItemLogToAgent( m_pUserData->m_Accountid, m_pUserData->m_id, ITEM_WAREHOUSE_PUT, 0, itemid, count, m_pUserData->m_sWarehouseArray[reference_pos+destpos].sDuration );
 		break;
 	case WAREHOUSE_OUTPUT:
 		pkt >> count;
@@ -131,7 +130,6 @@ void CUser::WarehouseProcess(Packet & pkt)
 		}
 
 		SendItemWeight();		
-		ItemLogToAgent( m_pUserData->m_id, m_pUserData->m_Accountid, ITEM_WAREHOUSE_GET, 0, itemid, count, m_pUserData->m_sItemArray[SLOT_MAX+destpos].sDuration );
 		//TRACE("WARE OUTPUT : %s %s %d %d %d %d %d", m_pUserData->m_id, m_pUserData->m_Accountid, ITEM_WAREHOUSE_GET, 0, itemid, count, m_pUserData->m_sItemArray[SLOT_MAX+destpos].sDuration );
 		break;
 	case WAREHOUSE_MOVE:
@@ -278,11 +276,6 @@ BOOL CUser::GiveItem(int itemid, short count, bool send_packet /*= true*/)
 	if (send_packet)
 		SendStackChange(itemid, m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount, m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration, pos, true);
 	return TRUE;
-}
-
-void CUser::ItemLogToAgent(const char *srcid, const char *tarid, int type, __int64 serial, int itemid, int count, int durability)
-{
-	// NOTE: item log implementation removed, keeping this method in for future reworkings
 }
 
 void CUser::SendItemWeight()

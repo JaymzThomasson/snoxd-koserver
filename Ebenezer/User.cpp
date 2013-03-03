@@ -1502,7 +1502,6 @@ void CUser::ItemGet(Packet & pkt)
 
 	pGetUser->SendItemWeight();
 	pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;
-	pGetUser->ItemLogToAgent( pGetUser->m_pUserData->m_id, "MONSTER", ITEM_MONSTER_GET, pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum, itemid, count, pTable->m_sDuration );
 	
 	// 1 = self, 5 = party
 	// Tell the user who got the item that they actually got it.
@@ -2358,7 +2357,6 @@ void CUser::ItemRemove(Packet & pkt)
 		goto fail_return;
 
 	_ITEM_DATA *pItem = &m_pUserData->m_sItemArray[bPos];
-	ItemLogToAgent(m_pUserData->m_id, "DESTROY", ITEM_DESTROY, pItem->nSerialNum, pItem->nNum, pItem->sCount, pItem->sDuration);
 	memset(pItem, 0, sizeof(_ITEM_DATA));
 
 	SendItemWeight();

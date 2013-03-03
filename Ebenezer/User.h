@@ -285,7 +285,6 @@ public:
 	BOOL GoldLose(unsigned int gold);
 	void GoldGain(int gold);
 	void SendItemWeight();
-	void ItemLogToAgent(const char *srcid, const char *tarid, int type, __int64 serial, int itemid, int count, int durability);
 	void TestPacket( char* pBuf );
 	void UpdateVisibility(InvisibilityType bNewType);
 	void BlinkStart();
