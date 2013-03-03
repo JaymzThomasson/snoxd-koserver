@@ -629,9 +629,9 @@ void CUser::SendMyInfo()
 				<< pItem->nExpirationTime; // expiration date in unix time
 	}
 
-	result	<< uint8(0)		// never worked out what this was for: possible values 0/1/2/3
-			<< uint8(0)		// premium type
-			<< uint16(0)	// premium time
+	result	<< uint8(1)		// account status (0 = none, 1 = normal prem with expiry in hours, 2 = pc room)
+			<< uint8(7)		// premium type (7 = platinum premium)
+			<< uint16(3)	// premium time
 			<< uint8(0)		// chicken flag
 			<< m_pUserData->m_iMannerPoint;
 
@@ -639,7 +639,6 @@ void CUser::SendMyInfo()
 
 	g_pMain->AddCharacterName(this);
 
-	SendPremiumInfo();
 	SetZoneAbilityChange();
 	Send2AI_UserUpdateInfo(true); 
 }
