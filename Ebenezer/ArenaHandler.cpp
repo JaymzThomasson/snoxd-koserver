@@ -321,6 +321,7 @@ void CUser::HandleChallengeRejected(uint8 opcode)
 		pUser->m_sChallengeUser = -1;
 		pUser->m_bRequestingChallenge = 0;
 		result << opcode;
+		pUser->Send(&result);
 	}
 
 	m_sChallengeUser = -1;
