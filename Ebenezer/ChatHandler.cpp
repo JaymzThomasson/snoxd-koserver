@@ -55,6 +55,7 @@ void CUser::Chat(Packet & pkt)
 	uint8 type = pkt.read<uint8>();
 	char finalstr[1024] = ""; 
 	std::string buff, chatstr;
+	bool isAnnouncement = false;
 
 	if (isMuted())
 		return;	
@@ -82,15 +83,8 @@ void CUser::Chat(Packet & pkt)
 		if (!isGM())
 			return;
 
-		bNation = KARUS; // arbitrary nation
-		sessID = -1;
-	}
-
-	result.SByte();
-	result << type << bNation << sessID;
-	if (type == PUBLIC_CHAT || type == ANNOUNCEMENT_CHAT)
-	{
-		result << uint8(0); // GM notice/announcements show no name (so specify length of 0)
+		if (type == ANNOUNCEMENT_CHAT)
+			type = WAR_SYSTEM_CHAT;
 
 		// This is horrible, but we'll live with it for now.
 		// Pull the notice string (#### NOTICE : %s ####) from the database.
@@ -98,6 +92,17 @@ void CUser::Chat(Packet & pkt)
 		
 		// Format the chat string around it, so our chat data is within the notice
 		sprintf_s(finalstr, sizeof(finalstr), noticeText, chatstr.c_str());
+
+		bNation = KARUS; // arbitrary nation
+		sessID = -1;
+		isAnnouncement = true;
+	}
+
+	result.SByte();
+	result << type << bNation << sessID;
+	if (isAnnouncement)
+	{
+		result << uint8(0); // GM notice/announcements show no name (so specify length of 0)
 		result.DByte();
 		result << finalstr; // now tack on the formatted message from the user
 	}
@@ -120,10 +125,8 @@ void CUser::Chat(Packet & pkt)
 			break;
 
 		CUser *pUser = g_pMain->GetUserPtr(m_sPrivateChatUser);
-		if (pUser == NULL) 
-			break;
-
-		pUser->Send(&result);
+		if (pUser != NULL) 
+			pUser->Send(&result);
 	} break;
 
 	case PARTY_CHAT:
@@ -161,10 +164,11 @@ void CUser::Chat(Packet & pkt)
 	case MERCHANT_CHAT:
 		if (isMerchanting())
 			SendToRegion(&result);
-	break;
-	//case WAR_SYSTEM_CHAT:
-	//	g_pMain->Send_All(&result);
-	//	break;
+		break;
+	case WAR_SYSTEM_CHAT:
+		if (isGM() || getFame() == COMMAND_CAPTAIN)
+			g_pMain->Send_All(&result);
+		break;
 	}
 }
 
