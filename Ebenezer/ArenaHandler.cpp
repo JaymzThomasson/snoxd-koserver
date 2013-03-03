@@ -187,7 +187,7 @@ fail_return:
 // This is sent when the challengee accepts a challenger's PVP request
 void CUser::HandleChallengeAcceptPVP(Packet & pkt)
 {
-	if (m_bChallengeRequested)
+	if (!m_bChallengeRequested)
 		return;
 
 	CUser *pUser = g_pMain->GetUserPtr(m_sChallengeUser);
