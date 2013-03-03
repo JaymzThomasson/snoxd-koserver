@@ -104,7 +104,6 @@ void CUser::Initialize()
 	m_fLastTrapAreaTime = 0.0f;
 
 	memset(m_iSelMsgEvent, -1,  MAX_MESSAGE_EVENT);
-	memset(m_sEvent, -1, MAX_CURRENT_EVENT);
 
 	m_sEventNid = -1;
 	m_bZoneChangeFlag = FALSE;

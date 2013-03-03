@@ -144,14 +144,10 @@ public:
 
 	BOOL	m_bZoneChangeSameZone;		// Did the server change when you warped?
 
-	// �̹�Ʈ�� ����.... ���־� �̰� ���� ��ī�� �򲲿� ^^;
-//	int					m_iSelMsgEvent[5];	// �������� ���� �޼����ڽ� �̺�Ʈ
 	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];	// �������� ���� �޼����ڽ� �̺�Ʈ
 	short				m_sEventNid;		// ���������� ������ �̺�Ʈ NPC ��ȣ
 	UserEventList		m_arUserEvent;		// ������ �̺�Ʈ ����Ʈ
 
-	short	m_sEvent[MAX_CURRENT_EVENT];				// �̹� ������ �̹�Ʈ ����Ʈ�� :)
-	
 
 public:
 	__forceinline bool isBanned() { return getAuthority() == AUTHORITY_BANNED; }
@@ -265,8 +261,6 @@ public:
 
 	void SendLoyaltyChange(int32 nChangeAmount = 0);
 
-	BOOL ExistComEvent(int eventid);
-	void SaveComEvent(int eventid);
 	BOOL CheckItemCount(int itemid, short min, short max);
 	BOOL CheckRandom(short percent);
 	void NativeZoneReturn();

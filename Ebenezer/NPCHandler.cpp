@@ -156,18 +156,6 @@ BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 
 			}
 			break;
 
-		case	LOGIC_NOEXIST_COM_EVENT:
-			if (!ExistComEvent(pLE->m_LogicElseInt[0])) {
-				bExact = TRUE;
-			}	
-			break;
-
-		case	LOGIC_EXIST_COM_EVENT:
-			if (ExistComEvent(pLE->m_LogicElseInt[0])) {
-				bExact = TRUE;
-			}	
-			break;
-
 		case	LOGIC_HOWMUCH_ITEM:
 			if ( CheckItemCount(pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1], pLE->m_LogicElseInt[2]) ) {
 				bExact = TRUE;
@@ -236,10 +224,6 @@ BOOL CUser::RunNpcEvent(CNpc *pNpc, EXEC *pExec)	// This part executes all the '
 		GoldGain(pExec->m_ExecInt[0]);
 		break;
 
-	case	EXEC_SAVE_COM_EVENT:
-		SaveComEvent(pExec->m_ExecInt[0]);
-		break;
-
 	case	EXEC_RETURN:
 		return FALSE;
 
@@ -298,10 +282,6 @@ BOOL CUser::RunEvent(EVENT_DATA *pEventData)
 
 			case	EXEC_GIVE_NOAH:
 				GoldGain(pExec->m_ExecInt[0]);
-				break;
-
-			case	EXEC_SAVE_COM_EVENT:
-				SaveComEvent(pExec->m_ExecInt[0]);
 				break;
 
 			case	EXEC_ROB_NOAH:
@@ -736,26 +716,4 @@ send_packet:
 	else 
 		result << pTable->m_bSellingGroup << m_pUserData->m_iGold << transactionPrice; // price bought or sold for
 	Send(&result);
-}
-
-// part of the EVT system
-void CUser::SaveComEvent(int eventid)
-{
-	for (int i = 0 ; i < MAX_CURRENT_EVENT ; i++) {
-		if (m_sEvent[i] != eventid) {
-			m_sEvent[i] = eventid;
-			break;
-		}
-	}
-}
-
-BOOL CUser::ExistComEvent(int eventid)
-{
-	for (int i = 0 ; i < MAX_CURRENT_EVENT ; i++) {
-		if (m_sEvent[i] == eventid) {
-			return TRUE;
-		}
-	}	
-
-	return FALSE;
 }
