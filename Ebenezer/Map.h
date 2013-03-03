@@ -111,7 +111,6 @@ public:
 	__forceinline _WARP_INFO * GetWarp(int warpID) { return m_smdFile->GetWarp(warpID); }
 	__forceinline void GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries) { m_smdFile->GetWarpList(warpGroup, warpEntries); }
 	
-
 	__forceinline bool isAttackZone() { return m_isAttackZone; }
 
 	C3DMap();
@@ -119,8 +118,8 @@ public:
 	CRegion * GetRegion(uint16 regionX, uint16 regionZ);
 	BOOL LoadEvent();
 	BOOL CheckEvent( float x, float z, CUser* pUser = NULL );
-	BOOL RegionItemRemove( int rx, int rz, int bundle_index, int itemid, int count );
-	BOOL RegionItemAdd( int rx, int rz, _ZONE_ITEM* pItem );
+	BOOL RegionItemRemove(uint16 rx, uint16 rz, int bundle_index, int itemid, int count);
+	BOOL RegionItemAdd(uint16 rx, uint16 rz, _ZONE_ITEM * pItem);
 	BOOL ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2);
 	float GetHeight( float x, float y, float z );
 	virtual ~C3DMap();

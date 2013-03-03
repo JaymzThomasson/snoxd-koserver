@@ -319,10 +319,9 @@ CRegion * C3DMap::GetRegion(uint16 regionX, uint16 regionZ)
 }
 
 
-BOOL C3DMap::RegionItemAdd( int rx, int rz, _ZONE_ITEM* pItem )
+BOOL C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _ZONE_ITEM * pItem)
 {
-	if (rx < 0 || rz < 0 
-		|| rx >= GetXRegionMax() || rz >= GetZRegionMax()
+	if (rx >= GetXRegionMax() || rz >= GetZRegionMax()
 		|| pItem == NULL)
 		return FALSE;
 
@@ -338,10 +337,9 @@ BOOL C3DMap::RegionItemAdd( int rx, int rz, _ZONE_ITEM* pItem )
 	return TRUE;
 }
 
-BOOL C3DMap::RegionItemRemove( int rx, int rz, int bundle_index, int itemid, int count )
+BOOL C3DMap::RegionItemRemove(uint16 rx, uint16 rz, int bundle_index, int itemid, int count)
 {
-	if (rx < 0 || rz < 0 
-		|| rx >= GetXRegionMax() || rz >= GetZRegionMax())
+	if (rx >= GetXRegionMax() || rz >= GetZRegionMax())
 		return FALSE;
 	
 	_ZONE_ITEM* pItem = NULL;
