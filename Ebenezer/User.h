@@ -59,6 +59,9 @@ public:
 	std::list<uint16>	m_arMerchantLookers;
 	_MERCH_DATA	m_arSellingItems[MAX_MERCH_ITEMS]; //What is this person selling? Stored in "_MERCH_DATA" structure.
 
+	bool	m_bRequestingChallenge;
+	int16	m_sChallengeUser;
+
 	//Magic System Cooldown checks
 
 	SkillCooldownList	m_CoolDownList;
@@ -477,6 +480,14 @@ public:
 
 	void HandleHelmet(Packet & pkt);
 	void HandleCapeChange(Packet & pkt);
+
+	void HandleChallenge(Packet & pkt);
+	void HandleChallengeRequestPVP(Packet & pkt);
+	void HandleChallengeRequestCVC(Packet & pkt);
+	void HandleChallengeAcceptPVP(Packet & pkt);
+	void HandleChallengeAcceptCVC(Packet & pkt);
+	void HandleChallengeCancelled(Packet & pkt, uint8 opcode);
+	void HandleChallengeRejected(Packet & pkt, uint8 opcode);
 
 	void SendNotice();
 	void UserLookChange( int pos, int itemid, int durability );
