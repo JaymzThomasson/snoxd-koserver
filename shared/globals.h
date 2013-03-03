@@ -213,7 +213,6 @@ struct _USER_DATA
 	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];
 
 	uint8	m_bLogout;
-	uint8	m_bWarehouse;
 	DWORD	m_dwTime;
 
 	// this system needs replacing

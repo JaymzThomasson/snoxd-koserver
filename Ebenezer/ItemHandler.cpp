@@ -8,6 +8,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 	uint8 page, srcpos, destpos;
 	_ITEM_TABLE* pTable = NULL;
 	uint8 command = pkt.read<uint8>();
+	bool bResult = false;
 
 	if (isDead())
 	{
@@ -166,14 +167,10 @@ void CUser::WarehouseProcess(Packet & pkt)
 		break;
 	}
 
-	m_pUserData->m_bWarehouse = 1;
-
-	result << uint8(command) << uint8(1);
-	Send(&result);
-	return;
+	bResult = true;
 
 fail_return: // hmm...
-	result << uint8(command) << uint8(0);
+	result << uint8(command) << bResult;
 	Send(&result);
 }
 
