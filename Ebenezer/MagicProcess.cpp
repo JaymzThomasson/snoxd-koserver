@@ -78,6 +78,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 		return;
 	}
 
+
 	// If the target is a mob/NPC *or* we're casting an AOE, tell the AI to handle it.
 	if (m_sTargetID >= NPC_BAND
 		|| (m_sTargetID == -1 && 
@@ -599,6 +600,9 @@ bool CMagicProcess::ExecuteType1(_MAGIC_TABLE *pSkill)
 			static_cast<CUser *>(m_pSkillCaster)->SendTargetHP(0, m_sTargetID, -damage);
 	}
 
+	if(m_pSkillCaster->isPlayer() && m_pSrcUser->m_bInvisibilityType != 0) //If we're allowing monsters to be stealthed too (it'd be cool) then this check needs to be changed.
+		m_pSrcUser->StateChangeServerDirect(7, INVIS_NONE);
+
 	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
 	m_sData4 = (damage == 0 ? -104 : 0);
 	SendSkill();	
@@ -650,6 +654,8 @@ bool CMagicProcess::ExecuteType2(_MAGIC_TABLE *pSkill)
 		static_cast<CUser *>(m_pSkillCaster)->SendTargetHP(0, m_sTargetID, -damage);     // Change the HP of the target.
 
 packet_send:
+	if(m_pSkillCaster->isPlayer() && m_pSrcUser->m_bInvisibilityType != 0) //If we're allowing monsters to be stealthed too (it'd be cool) then this check needs to be changed.
+		m_pSrcUser->StateChangeServerDirect(7, INVIS_NONE);
 	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
 	m_sData4 = (damage == 0 ? -104 : 0);
 	SendSkill();
@@ -722,7 +728,10 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 				pTUser->MSpChange(damage);     // Change the SP or the MP of the target.		
 			else if( pType->bDirectType == 4 )     // Armor Durability related.
 				pTUser->ItemWoreOut( DEFENCE, -damage);     // Reduce Slot Item Durability
-			else if( pType->bDirectType == 9 )
+			else if( pType->bDirectType == 8 ) //
+				continue;
+				//Need to absorb HP from the target user to the source user
+			else if( pType->bDirectType == 9 ) //Damage based on percentage of target's max HP
 			{
 				if (pType->sFirstDamage < 100)
 					damage = (pType->sFirstDamage * pTUser->m_pUserData->m_sHp) / -100;
@@ -763,7 +772,12 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 				pTUser->SendPartyStatusUpdate(1, 1);
 
 			pTUser->SendUserStatusUpdate(pType->bAttribute == POISON_R ? USER_STATUS_POISON : USER_STATUS_DOT, 1);
-		} 
+		}
+
+		if (m_pSkillCaster->isPlayer() //If we're allowing monsters to be stealthed too (it'd be cool) then this check needs to be changed.
+			&& m_pSrcUser->m_bInvisibilityType != 0 
+			&& damage < 0) //To allow for minor healing (as rogues)
+			m_pSrcUser->StateChangeServerDirect(7, INVIS_NONE);
 	
 		if ( pSkill->bType[1] == 0 || pSkill->bType[1] == 3 )
 			SendSkill(m_sCasterID, pTUser->GetSocketID());
@@ -924,6 +938,23 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 
 			case BUFF_TYPE_LOYALTY:
 				// uses pType->ExpPct
+				break;
+
+			case BUFF_TYPE_ATTACK_SPEED_ARMOR:
+				// 
+				break;
+
+			case BUFF_TYPE_DAMAGE_DOUBLE:
+				// Double damage output
+				break;
+
+			case BUFF_TYPE_DISABLE_TARGETING:
+				// Set a variable to disable casting of skills
+				break;
+
+			case BUFF_TYPE_BLIND:
+				// Set a variable to disable casting of skills (as we are blinded!)
+				pTUser->SendUserStatusUpdate(USER_STATUS_BLIND, 1);
 				break;
 
 			default:
@@ -1413,6 +1444,19 @@ bool CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 
 			case 21:	// Summon a monster within a zone.
 				// LATER!!! 
+				break;
+			case 25:
+				//This is used by Wild Advent (70 rogue skill) and Descent, teleport the user to the target user (Moral check to distinguish between the 2 skills)
+				float dest_x, dest_z = 0.0f;
+				if (pTUser->GetZoneID() != m_pSrcUser->GetZoneID()) //If we're not even in the same zone, I can't teleport to you!
+					return false;
+				if (pSkill->bMoral < MORAL_ENEMY && pTUser->GetNation() != m_pSrcUser->GetNation()) //I'm not the same nation as you are and thus can't t
+					return false;
+					
+				dest_x = pTUser->m_pUserData->m_curx;
+				dest_z = pTUser->m_pUserData->m_curz;
+
+				m_pSrcUser->Warp(uint16(dest_x * 10), uint16(dest_z * 10));
 				break;
 		}
 
