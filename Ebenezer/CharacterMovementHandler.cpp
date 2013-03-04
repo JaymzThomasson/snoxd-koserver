@@ -108,8 +108,8 @@ void CUser::GetUserInfo(Packet & pkt)
 		<< uint8(0) // team colour (i.e. in soccer, 0=none, 1=blue, 2=red)
 		<< uint8(0) // unknown, doesn't seem to do anything noticeable for a regular player or GM (tested with 0, 1, 2, 255)
 		<< m_sDirection // direction 
-		<< uint8(0) // chicken flag
-		<< m_pUserData->m_bRank // king cape (this used to just be rank, above!?)
+		<< m_bIsChicken // chicken/beginner flag
+		<< m_pUserData->m_bRank // king flag
 		<< m_bPersonalRank << m_bKnightsRank // NP ranks (total, monthly)
 		<< m_pUserData->m_sItemArray[BREAST].nNum << m_pUserData->m_sItemArray[BREAST].sDuration << uint8(0)
 		<< m_pUserData->m_sItemArray[LEG].nNum << m_pUserData->m_sItemArray[LEG].sDuration << uint8(0)

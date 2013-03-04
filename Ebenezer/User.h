@@ -67,7 +67,8 @@ public:
 
 	SkillCooldownList	m_CoolDownList;
 
-	bool m_bIsTransformed; //Is the character in a transformed state?
+	bool	m_bIsTransformed; // Is the character in a transformed state?
+	bool	m_bIsChicken; // Is the character taking the beginner/chicken quest?
 
 	int8	m_bPersonalRank;
 	int8	m_bKnightsRank;

@@ -45,6 +45,7 @@ void CUser::Initialize()
 	m_bIsMerchanting = false;
 	m_bPartyLeader = false;
 	m_bIsTransformed = false;
+	m_bIsChicken = false;
 	m_bInvisibilityType = INVIS_NONE;
 
 	m_sDirection = 0;
@@ -631,10 +632,11 @@ void CUser::SendMyInfo()
 				<< pItem->nExpirationTime; // expiration date in unix time
 	}
 
+	m_bIsChicken = CheckExistEvent(50, 1);
 	result	<< uint8(1)		// account status (0 = none, 1 = normal prem with expiry in hours, 2 = pc room)
 			<< uint8(7)		// premium type (7 = platinum premium)
 			<< uint16(3)	// premium time
-			<< uint8(0)		// chicken flag
+			<< m_bIsChicken		// chicken/beginner flag
 			<< m_pUserData->m_iMannerPoint;
 
 	Send(&result);
