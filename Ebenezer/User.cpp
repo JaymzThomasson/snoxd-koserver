@@ -133,6 +133,7 @@ void CUser::OnDisconnect()
 	if (!isInGame())
 	{
 		memset(m_pUserData->m_id, 0, sizeof(m_pUserData->m_id));
+		memset(m_pUserData->m_Accountid, 0, sizeof(m_pUserData->m_Accountid));
 		return;
 	}
 
