@@ -3721,7 +3721,13 @@ void CUser::ItemSealProcess(Packet & pkt)
 				|| GetItem(SLOT_MAX + bSrcPos)->nNum != nItemID) 
 				return;
 
-			// NOTE: Error code 4 is "Citizen number" error (i.e. password's wrong)
+			// NOTE: Possible error codes are:
+			// 2/6 - "This item cannot be sealed." 
+			// 4   - "Invalid Citizen Registry Number" (i.e. password's wrong)
+			// 5   - "Insufficient items to perform the seal."
+			// 8   - "Please try again. You may not repeat this function instantly."
+			// all else (we'll go with 3, but it's the default case): "Sealing the item failed."
+
 			// TO-DO: Implement Aujard packet -> stored procedure for verification + addition to the table
 		} break;
 
