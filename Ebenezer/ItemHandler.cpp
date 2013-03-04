@@ -564,6 +564,55 @@ void CUser::SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes
 	Send(&result);
 }
 
+void CUser::ItemRemove(Packet & pkt)
+{
+	Packet result(WIZ_ITEM_REMOVE);
+	uint8 bType, bPos;
+	uint32 nItemID;
+
+	pkt >> bType >> bPos >> nItemID;
+
+	// Inventory
+	if (bType == 0)
+	{
+		if (bPos >= HAVE_MAX)
+			goto fail_return;
+
+		bPos += SLOT_MAX;
+	}
+	// Equipped items
+	else if (bType == 1)
+	{
+		if (bPos >= SLOT_MAX)
+			goto fail_return;
+	}
+	else if (bType == 2)
+	{
+		if (bPos >= HAVE_MAX)
+			goto fail_return;
+		bPos += SLOT_MAX;
+	}
+
+	_ITEM_DATA *pItem = &m_pUserData->m_sItemArray[bPos];
+
+	// Make sure the item matches what the client says it is
+	if (pItem->nNum != nItemID
+		|| pItem->isSealed() 
+		|| pItem->isRented())
+		goto fail_return;
+
+	memset(pItem, 0, sizeof(_ITEM_DATA));
+
+	SendItemWeight();
+	result << uint8(1);
+	Send(&result);
+
+	return;
+fail_return:
+	result << uint8(0);
+	Send(&result);
+}
+
 /**
  * Firstly, hello there weary traveler! You've come a long way.
  * I hate to point out the obvious, but well... no, you don't need to get your 
