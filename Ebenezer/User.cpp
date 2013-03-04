@@ -382,17 +382,14 @@ bool CUser::HandlePacket(Packet & pkt)
 	default:
 		TRACE("[SID=%d] Unknown packet %X\n", GetSocketID(), command);
 		return false;
-		break;
 	}
 
 	currenttime = TimeGet();
 
-	if( command == WIZ_GAMESTART ) {
+	if (command == WIZ_GAMESTART)
+	{
 		m_fHPLastTimeNormal = currenttime;
-
-		for (int h = 0 ; h < MAX_TYPE3_REPEAT ; h++) {
-			m_fHPLastTime[h] = currenttime;
-		}
+		fill_n(m_fHPLastTime, MAX_TYPE3_REPEAT, currenttime);
 	}	
 
 	if (!isBlinking() && m_fHPLastTimeNormal != 0.0f && (currenttime - m_fHPLastTimeNormal) > m_bHPIntervalNormal)
