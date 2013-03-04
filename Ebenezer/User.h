@@ -268,7 +268,6 @@ public:
 	BOOL CheckItemCount(int itemid, short min, short max);
 	BOOL CheckRandom(short percent);
 	void NativeZoneReturn();
-	void EventMoneyItemGet( int itemid, int count );
 	void KickOutZoneUser(BOOL home = FALSE, int nZoneID = 21);
 	void TrapProcess();
 	BOOL JobGroupCheck(short jobgroupid);

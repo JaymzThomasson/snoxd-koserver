@@ -831,7 +831,7 @@ void CAISocket::RecvNpcEventItem(Packet & pkt)
 	if (pUser == NULL)
 		return;
 
-	pUser->EventMoneyItemGet(nItemID, nCount);
+	pUser->GiveItem(nItemID, nCount);
 }
 
 void CAISocket::RecvGateOpen(Packet & pkt)

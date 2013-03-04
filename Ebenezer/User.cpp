@@ -3276,10 +3276,6 @@ void CUser::KickOutZoneUser(BOOL home, int nZoneID /*= 21 */)
 	}
 }
 
-void CUser::EventMoneyItemGet( int itemid, int count )
-{
-}
-
 void CUser::NativeZoneReturn()
 {
 	_HOME_INFO* pHomeInfo = NULL;	// Send user back home in case it was the battlezone.
