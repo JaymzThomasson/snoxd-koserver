@@ -146,15 +146,7 @@ void CUser::OnDisconnect()
 			pKnights->OnLogout(this);
 	}
 
-	if (isTrading())
-		ExchangeCancel();
-
-	if (m_bRequestingChallenge)
-		HandleChallengeCancelled(m_bRequestingChallenge);
-
-	if (m_bChallengeRequested)
-		HandleChallengeRejected(m_bChallengeRequested);
-
+	ResetWindows();
 	LogOut();
 }
 
@@ -2578,12 +2570,21 @@ void CUser::ResetWindows()
 	if (isTrading())
 		ExchangeCancel();
 
-/*
-	// TO-DO: Make the distinction between vendors and buyers...
+	if (m_bRequestingChallenge)
+		HandleChallengeCancelled(m_bRequestingChallenge);
+
+	if (m_bChallengeRequested)
+		HandleChallengeRejected(m_bChallengeRequested);
+
+	// If we're a vendor, close the stall
 	if (isMerchanting())
 		MerchantClose();
 
-	if (isUsingBuyingMerchant())
+	// If we're just browsing, free up our spot so others can browse the vendor.
+	if (m_sMerchantsSocketID >= 0)
+		CancelMerchant();
+
+/*	if (isUsingBuyingMerchant())
 		BuyingMerchantClose();
 
 	if (isUsingStore())
