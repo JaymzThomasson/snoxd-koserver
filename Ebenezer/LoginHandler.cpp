@@ -30,6 +30,11 @@ void CUser::VersionCheck(Packet & pkt)
 
 void CUser::LoginProcess(Packet & pkt)
 {
+	// Enforce only one login request per session
+	// It's common for players to spam this at the server list when a response isn't received immediately.
+	if (!m_strAccountID.empty())
+		return;
+
 	Packet result(WIZ_LOGIN);
 	std::string strAccountID, strPasswd;
 	pkt >> strAccountID >> strPasswd;

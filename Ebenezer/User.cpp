@@ -174,7 +174,9 @@ bool CUser::HandlePacket(Packet & pkt)
 		return true;
 	}
 	// If we're not authed yet, forced us to before we can do anything else.
-	else if (m_strAccountID.empty())
+	// NOTE: We're checking the account ID store here because it's only set on successful auth,
+	// at which time the other account ID will be cleared out (yes, it's messy -- need to clean it up).
+	else if (m_pUserData->m_Accountid[0] == '\0')
 	{
 		if (command == WIZ_LOGIN)
 			LoginProcess(pkt);
