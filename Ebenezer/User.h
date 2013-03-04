@@ -390,6 +390,8 @@ public:
 	BOOL ExecuteExchange();
 	int ExchangeDone();
 
+	void QuestDataRequest(Packet & pkt);
+
 	// Merchant system (both types)
 	void MerchantProcess(Packet & pkt);
 	void TakeMerchantItems();
