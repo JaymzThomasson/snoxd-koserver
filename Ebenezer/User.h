@@ -170,6 +170,11 @@ public:
 	__forceinline bool isClanLeader() { return getFame() == CHIEF; }
 	__forceinline bool isClanAssistant() { return getFame() == VICECHIEF; }
 
+	__forceinline bool isWarrior() { return JobGroupCheck(1) == TRUE; }
+	__forceinline bool isRogue() { return JobGroupCheck(2) == TRUE; }
+	__forceinline bool isMage() { return JobGroupCheck(3) == TRUE; }
+	__forceinline bool isPriest() { return JobGroupCheck(4) == TRUE; }
+
 	__forceinline bool isTrading() { return m_sExchangeUser != -1; }
 	__forceinline bool isStoreOpen() { return m_bStoreOpen; }
 	__forceinline bool isMerchanting() { return m_bIsMerchanting; }
@@ -274,7 +279,7 @@ public:
 	BOOL JobGroupCheck(short jobgroupid);
 	void SelectMsg(EXEC* pExec);
 	void SendNpcSay(EXEC* pExec);
-	BOOL CheckClass(short class1, short class2, short class3, short class4, short class5, short class6);
+	BOOL CheckClass(short class1, short class2 = -1, short class3 = -1, short class4 = -1, short class5 = -1, short class6 = -1);
 	BOOL GiveItem(int itemid, short count, bool send_packet = true);
 	BOOL RobItem(int itemid, short count);
 	BOOL CheckExistItem(int itemid, short count);
