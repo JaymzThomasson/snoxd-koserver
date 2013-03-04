@@ -69,6 +69,7 @@ public:
 
 	bool	m_bIsTransformed; // Is the character in a transformed state?
 	bool	m_bIsChicken; // Is the character taking the beginner/chicken quest?
+	bool	m_bIsHidingHelmet;
 
 	int8	m_bPersonalRank;
 	int8	m_bKnightsRank;

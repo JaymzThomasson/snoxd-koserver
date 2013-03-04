@@ -46,6 +46,7 @@ void CUser::Initialize()
 	m_bPartyLeader = false;
 	m_bIsTransformed = false;
 	m_bIsChicken = false;
+	m_bIsHidingHelmet = false;
 	m_bInvisibilityType = INVIS_NONE;
 
 	m_sDirection = 0;
@@ -3487,9 +3488,8 @@ void CUser::HandleHelmet(Packet & pkt)
 		return;
 
 	Packet result(WIZ_HELMET);
-	uint8 type = pkt.read<uint8>();
-	// to-do: store helmet type
-	result << type << GetSocketID() << uint16(0);
+	pkt >> m_bIsHidingHelmet;
+	result << m_bIsHidingHelmet << GetSocketID() << uint16(0);
 	SendToRegion(&result);
 }
 
