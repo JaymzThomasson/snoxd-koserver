@@ -1289,15 +1289,24 @@ void CUser::SetUserAbility()
 		}
 	}
 
-	int temp_str = getStatTotal(STAT_STR), temp_dex = getStatTotal(STAT_DEX);
+	int temp_str = getStat(STAT_STR), temp_dex = getStatTotal(STAT_DEX);
 //	if( temp_str > 255 ) temp_str = 255;
 //	if( temp_dex > 255 ) temp_dex = 255;
 
+	uint32 baseAP = 0;
+	if (temp_str > 150)
+		baseAP = temp_str - 150;
+
+	if (temp_str == 160)
+		baseAP--;
+
+	temp_str += getStatBonusTotal(STAT_STR);
+
 	m_sMaxWeight = ((getStatWithItemBonus(STAT_STR) + GetLevel()) * 50) * (m_bMaxWeightAmount / 100);
-	if( bHaveBow ) 
+	if (isRogue() || bHaveBow)  // later check's probably unnecessary
 		m_sTotalHit = (short)((((0.005f * sItemDamage * (temp_dex + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_dex )) + 3));
 	else
-		m_sTotalHit = (short)((((0.005f * m_sItemHit * (temp_str + 40)) + ( hitcoefficient * m_sItemHit * GetLevel() * temp_str )) + 3)); 	
+		m_sTotalHit = (short)((((0.005f * m_sItemHit * (temp_str + 40)) + ( hitcoefficient * m_sItemHit * GetLevel() * temp_str )) + 3) + baseAP);	
 
 	m_sTotalAc = (short)(p_TableCoefficient->AC * (GetLevel() + m_sItemAc));
 	m_sTotalHitrate = ((1 + p_TableCoefficient->Hitrate * GetLevel() *  temp_dex ) * m_sItemHitrate/100 ) * (m_bHitRateAmount/100);
