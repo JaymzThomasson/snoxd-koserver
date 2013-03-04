@@ -506,7 +506,7 @@ public:
 	BOOL IsValidName(const char* name);
 	void SendTargetHP( BYTE echo, int tid, int damage = 0 );
 	BOOL IsValidSlotPos( _ITEM_TABLE* pTable, int destpos );
-	void SetUserAbility();
+	void SetUserAbility(bool bSendPacket = true);
 	void LevelChange(short level, BYTE type=TRUE);	// type : TRUE => level up, FALSE => level down
 	void SetSlotItemValue();
 	void SendTimeStatus(); // TO-DO: Deprecate

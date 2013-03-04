@@ -1146,14 +1146,7 @@ void CUser::PointChange(Packet & pkt)
 
 	m_pUserData->m_sPoints--; // remove a free point
 	result << uint16(++m_pUserData->m_bStats[statType]); // assign the free point to a stat
-
-	if (statType == STAT_STR || statType == STAT_DEX)
-		SetUserAbility();
-	else if (statType == STAT_STA)
-		SetMaxHp();
-	if (statType == STAT_STA || statType == STAT_INT)
-		SetMaxMp();
-
+	SetUserAbility();
 	result << m_iMaxHp << m_iMaxMp << m_sTotalHit << m_sMaxWeight;
 	Send(&result);
 }
@@ -1235,7 +1228,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 	g_pMain->Send_AIServer(&result);
 }
 
-void CUser::SetUserAbility()
+void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 {
 	BOOL bHaveBow = FALSE;
 	_CLASS_COEFFICIENT* p_TableCoefficient = g_pMain->m_CoefficientArray.GetData(m_pUserData->m_sClass);
@@ -1279,14 +1272,18 @@ void CUser::SetUserAbility()
 			sItemDamage = pRightHand->m_sDamage;
 	}
 
-	if (hitcoefficient == 0.0f)
+	_ITEM_TABLE *pLeftHand = GetItemPrototype(LEFTHAND);
+	if (pLeftHand != NULL)
 	{
-		_ITEM_TABLE *pLeftHand = GetItemPrototype(LEFTHAND);
-		if (pLeftHand != NULL && pLeftHand->isBow())
+		if (pLeftHand->isBow())
 		{
 			hitcoefficient = p_TableCoefficient->Bow;
 			bHaveBow = TRUE;
 			sItemDamage = pLeftHand->m_sDamage;
+		}
+		else
+		{
+			sItemDamage += pLeftHand->m_sDamage / 2;
 		}
 	}
 
@@ -1303,11 +1300,12 @@ void CUser::SetUserAbility()
 
 	temp_str += getStatBonusTotal(STAT_STR);
 
+	uint16 damage = (m_sItemHit + 100) / 100;
 	m_sMaxWeight = ((getStatWithItemBonus(STAT_STR) + GetLevel()) * 50) * (m_bMaxWeightAmount / 100);
 	if (isRogue() || bHaveBow)  // later check's probably unnecessary
-		m_sTotalHit = (short)((((0.005f * sItemDamage * (temp_dex + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_dex )) + 3));
+		m_sTotalHit = (short)((((0.005f * sItemDamage * (temp_dex + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_dex )) + 3) * damage);
 	else
-		m_sTotalHit = (short)((((0.005f * m_sItemHit * (temp_str + 40)) + ( hitcoefficient * m_sItemHit * GetLevel() * temp_str )) + 3) + baseAP);	
+		m_sTotalHit = (short)(((((0.005f * sItemDamage * (temp_str + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_str )) + 3) * damage) + baseAP);	
 
 	m_sTotalAc = (short)(p_TableCoefficient->AC * (GetLevel() + m_sItemAc));
 	m_sTotalHitrate = ((1 + p_TableCoefficient->Hitrate * GetLevel() *  temp_dex ) * m_sItemHitrate/100 ) * (m_bHitRateAmount/100);
@@ -1405,6 +1403,9 @@ void CUser::SetUserAbility()
 		m_bResistanceBonus += (bInt - 100) / 2;
 
 	// TO-DO: Transformation stats need to be applied here
+
+	if (bSendPacket)
+		SendItemMove(2);
 }
 
 void CUser::SendTargetHP( BYTE echo, int tid, int damage )
@@ -2156,7 +2157,7 @@ void CUser::ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint
 		SendDurability(slot, 0);
 		
 		SetSlotItemValue();
-		SetUserAbility();
+		SetUserAbility(false);
 		SendItemMove(1);
 		return;
 	}

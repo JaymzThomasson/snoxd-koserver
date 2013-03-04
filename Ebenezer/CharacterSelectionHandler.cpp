@@ -253,7 +253,7 @@ void CUser::SelectCharacter(Packet & pkt)
 	Send(&result);
 
 	SetSlotItemValue();
-	SetUserAbility();
+	SetUserAbility(false);
 
 	if (GetLevel() > MAX_LEVEL) 
 	{

@@ -459,7 +459,7 @@ void CUser::ItemMove(Packet & pkt)
 	{
 		// Re-update item stats
 		SetSlotItemValue();
-		SetUserAbility();
+		SetUserAbility(false);
 	}
 
 	SendItemMove(1);
