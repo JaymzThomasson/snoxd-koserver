@@ -666,9 +666,9 @@ void CUser::SetMaxHp(int iFlag)
 	}
 	else	{
 		m_iMaxHp = (short)(((p_TableCoefficient->HP * GetLevel() * GetLevel() * temp_sta ) 
-		      + (0.1 * GetLevel() * temp_sta ) + (temp_sta / 5)) + m_sMaxHPAmount + m_sItemMaxHp);
+		      + 0.1 * (GetLevel() * temp_sta) + (temp_sta / 5)) + m_sMaxHPAmount + m_sItemMaxHp + 20);
 
-		if( iFlag == 1 )	m_pUserData->m_sHp = m_iMaxHp + 20;
+		if( iFlag == 1 )	m_pUserData->m_sHp = m_iMaxHp;
 		else if( iFlag == 2 )	m_iMaxHp = 100;
 	}
 
