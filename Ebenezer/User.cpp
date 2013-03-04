@@ -3757,7 +3757,7 @@ bool CUser::CheckExistEvent(uint16 sQuestID, uint8 bQuestState)
 	// Unless of course, we wanted it to not exist, in which case we're right!
 	// (this is pretty annoyingly dumb, but we'd have to change existing EVT logic to fix this)
 	if (itr == m_questMap.end())
-		return bQuestState != 0;
+		return bQuestState == 0;
 
 	return itr->second == bQuestState;
 }
