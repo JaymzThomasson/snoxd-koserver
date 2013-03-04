@@ -180,6 +180,10 @@ void CAujardDlg::AccountLogIn(Packet & pkt, int16 uid)
 	pkt >> strAccountID >> strPasswd;
 	uint8 nation = m_DBAgent.AccountLogin(strAccountID, strPasswd);
 
+	_USER_DATA *pUser = m_DBAgent.GetUser(uid);
+	if (pUser != NULL && nation != 0)
+		_tstrcpy(pUser->m_Accountid, strAccountID);
+
 	Packet result(WIZ_LOGIN, nation);
 	m_LoggerSendQueue.PutData(&result, uid);
 }
@@ -269,7 +273,6 @@ void CAujardDlg::SelectCharacter(Packet & pkt, int16 uid)
 	}
 	else
 	{
-		_tstrcpy(pUser->m_Accountid, strAccountID);
 		result << uint8(1) << bInit;
 	}
 
