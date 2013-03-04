@@ -237,7 +237,7 @@ int8 CDBAgent::DeleteChar(string & strAccountID, int index, string & strCharID, 
 	return (int8)(nRet);
 }
 
-bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid)
+bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, _USER_DATA *pUser)
 {
 	uint16 nRet = 0;
 
@@ -245,7 +245,6 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 	if (dbCommand.get() == NULL)
 		return false;
 
-	_USER_DATA *pUser = GetUser(uid);
 	if (pUser == NULL 
 		|| pUser->m_bLogout
 		|| strlen(pUser->m_id) != 0
@@ -403,7 +402,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 	return true;
 }
 
-bool CDBAgent::LoadWarehouseData(string & strAccountID, short uid)
+bool CDBAgent::LoadWarehouseData(string & strAccountID, _USER_DATA *pUser)
 {
 	uint16 nRet = 0;
 	char strItem[WAREHOUSE_MAX * 8], strSerial[WAREHOUSE_MAX * 8];
@@ -412,7 +411,6 @@ bool CDBAgent::LoadWarehouseData(string & strAccountID, short uid)
 	if (dbCommand.get() == NULL)
 		return false;
 
-	_USER_DATA *pUser = GetUser(uid);
 	if (pUser == NULL 
 		|| pUser->m_bLogout)
 		return false;
@@ -461,6 +459,29 @@ bool CDBAgent::LoadWarehouseData(string & strAccountID, short uid)
 		pUser->m_sWarehouseArray[i].sCount = sCount;
 		pUser->m_sWarehouseArray[i].nSerialNum = nSerialNum;
 	}
+
+	return true;
+}
+
+bool CDBAgent::LoadPremiumServiceUser(std::string & strAccountID, _USER_DATA *pUser)
+{
+	if (pUser == NULL)
+		return false;
+
+	auto_ptr<OdbcCommand> dbCommand(m_AccountDB.CreateCommand());
+	if (dbCommand.get() == NULL)
+		return false;
+
+	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strAccountID.c_str(), strAccountID.length());
+	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &pUser->m_bPremiumType);
+	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &pUser->m_sPremiumTime);
+
+	if (!dbCommand->Execute(_T("{CALL LOAD_PREMIUM_SERVICE_USER(?, ?, ?)}")))
+		m_pMain->ReportSQLError(m_AccountDB.GetError());
+
+	// this is hardcoded because we don't really care about the other mode
+	if (pUser->m_bPremiumType != 0 && pUser->m_sPremiumTime != 0)
+		pUser->m_bAccountStatus = 1; // normal premium with expiry time
 
 	return true;
 }

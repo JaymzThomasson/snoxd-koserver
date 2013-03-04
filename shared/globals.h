@@ -223,7 +223,9 @@ struct _USER_DATA
 	uint16	m_sQuestCount;
 	char	m_bstrQuest[QUEST_ARRAY_SIZE];
 
+	uint8	m_bAccountStatus;
 	uint8	m_bPremiumType;
+	uint16	m_sPremiumTime;
 };
 
 inline void GetString(char* tBuf, char* sBuf, int len, int& index)

@@ -31,8 +31,9 @@ public:
 	int8 CreateNewChar(std::string & strAccountID, int index, std::string & strCharID, uint8 bRace, uint16 sClass, uint32 nHair, uint8 bFace, uint8 bStr, uint8 bSta, uint8 bDex, uint8 bInt, uint8 bCha);
 	int8 DeleteChar(std::string & strAccountID, int index, std::string & strCharID, std::string & strSocNo);
 
-	bool LoadUserData(std::string & strAccountID, std::string & strCharID, short uid);
-	bool LoadWarehouseData(std::string & strAccountID, short uid);
+	bool LoadUserData(std::string & strAccountID, std::string & strCharID, _USER_DATA *pUser);
+	bool LoadWarehouseData(std::string & strAccountID, _USER_DATA *pUser);
+	bool LoadPremiumServiceUser(std::string & strAccountID, _USER_DATA *pUser);
 	bool SetLogInInfo(std::string & strAccountID, std::string & strCharID, std::string & strServerIP, short sServerNo, std::string & strClientIP, uint8 bInit);
 
 	bool LoadWebItemMall(short uid, Packet & result);

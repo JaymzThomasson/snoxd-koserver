@@ -265,9 +265,10 @@ void CAujardDlg::SelectCharacter(Packet & pkt, int16 uid)
 	pkt >> strAccountID >> strCharID >> bInit;
 	if (strAccountID.empty() || strCharID.empty()
 		|| strAccountID.length() > MAX_ID_SIZE || strCharID.length() > MAX_ID_SIZE
-		|| !m_DBAgent.LoadUserData(strAccountID, strCharID, uid)
-		|| !m_DBAgent.LoadWarehouseData(strAccountID, uid)
-		|| (pUser = m_DBAgent.GetUser(uid)) == NULL)
+		|| (pUser = m_DBAgent.GetUser(uid)) == NULL
+		|| !m_DBAgent.LoadUserData(strAccountID, strCharID, pUser)
+		|| !m_DBAgent.LoadWarehouseData(strAccountID, pUser)
+		|| !m_DBAgent.LoadPremiumServiceUser(strAccountID, pUser))
 	{
 		result << uint8(0);
 	}

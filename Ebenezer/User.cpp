@@ -636,10 +636,10 @@ void CUser::SendMyInfo()
 	}
 
 	m_bIsChicken = CheckExistEvent(50, 1);
-	result	<< uint8(1)		// account status (0 = none, 1 = normal prem with expiry in hours, 2 = pc room)
-			<< uint8(7)		// premium type (7 = platinum premium)
-			<< uint16(3)	// premium time
-			<< m_bIsChicken		// chicken/beginner flag
+	result	<< m_pUserData->m_bAccountStatus	// account status (0 = none, 1 = normal prem with expiry in hours, 2 = pc room)
+			<< m_pUserData->m_bPremiumType		// premium type (7 = platinum premium)
+			<< m_pUserData->m_sPremiumTime		// premium time
+			<< m_bIsChicken						// chicken/beginner flag
 			<< m_pUserData->m_iMannerPoint;
 
 	Send(&result);
@@ -785,8 +785,8 @@ void CUser::SetZoneAbilityChange()
 
 void CUser::SendPremiumInfo()
 {
-	Packet result(WIZ_PREMIUM, uint8(1));
-	result << uint8(0) << uint32(0); // premium type, time
+	Packet result(WIZ_PREMIUM, m_pUserData->m_bAccountStatus);
+	result << m_pUserData->m_bPremiumType << uint32(m_pUserData->m_sPremiumTime); 
 	Send(&result);
 }
 
