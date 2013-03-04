@@ -15,6 +15,7 @@ void Unit::Initialize()
 	m_sTotalHitrate = 0.0f;
 	m_sTotalEvasionrate = 0.0f;
 
+	m_bResistanceBonus = 0;
 	m_bFireR = 0;
 	m_bColdR = 0;
 	m_bLightningR = 0;
@@ -227,6 +228,8 @@ short Unit::GetMagicDamage(int damage, Unit *pTarget)
 			break;
 	}
 
+	total_r += pTarget->m_bResistanceBonus;
+
 	if (m_bMagicTypeRightHand > 0 && m_bMagicTypeRightHand < 5)
 	{
 		if (total_r > 200) total_r = 200;
@@ -265,6 +268,8 @@ short Unit::GetMagicDamage(int damage, Unit *pTarget)
 			MSpChange(temp_damage);
 			break;
 	}
+
+	total_r += pTarget->m_bResistanceBonus;
 
 	if (m_bMagicTypeLeftHand > 0 && m_bMagicTypeLeftHand < 5)
 	{

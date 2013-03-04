@@ -1235,69 +1235,56 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 
 void CUser::SetUserAbility()
 {
-	_CLASS_COEFFICIENT* p_TableCoefficient = NULL;
-	_ITEM_TABLE* pItem = NULL;
 	BOOL bHaveBow = FALSE;
-	p_TableCoefficient = g_pMain->m_CoefficientArray.GetData( m_pUserData->m_sClass );
-	if( !p_TableCoefficient ) return;
+	_CLASS_COEFFICIENT* p_TableCoefficient = g_pMain->m_CoefficientArray.GetData(m_pUserData->m_sClass);
+	uint16 sItemDamage = 0;
+	if (p_TableCoefficient == NULL)
+		return;
 	
 	float hitcoefficient = 0.0f;
-	if( m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {
-		pItem = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
-		if( pItem ) {
-			switch(pItem->m_bKind/10) {	// ???? �??....
-			case WEAPON_DAGGER:
-				hitcoefficient = p_TableCoefficient->ShortSword;
-				break;
-			case WEAPON_SWORD:
-				hitcoefficient = p_TableCoefficient->Sword;
-				break;
-			case WEAPON_AXE:
-				hitcoefficient = p_TableCoefficient->Axe;
-				break;
-			case WEAPON_MACE:
-				hitcoefficient = p_TableCoefficient->Club;
-				break;
-			case WEAPON_SPEAR:
-				hitcoefficient = p_TableCoefficient->Spear;
-				break;
-			case WEAPON_SHIELD:
-				break;
-			case WEAPON_BOW:
-			case WEAPON_LONGBOW:
-			case WEAPON_LAUNCHER:
-				hitcoefficient = p_TableCoefficient->Bow;
-				bHaveBow = TRUE;
-				break;
-			case WEAPON_STAFF:
-				hitcoefficient = p_TableCoefficient->Staff;
-				break;
-			case WEAPON_ARROW:
-				break;
-			case WEAPON_JAVELIN:
-				break;
-			case WEAPON_WORRIOR_AC:
-				break;
-			case WEAPON_LOG_AC:
-				break;
-			case WEAPON_WIZARD_AC:
-				break;
-			case WEAPON_PRIEST_AC:
-				break;
-			}
+	_ITEM_TABLE * pRightHand = GetItemPrototype(RIGHTHAND);
+	if (pRightHand != NULL)
+	{
+		switch (pRightHand->m_bKind/10)
+		{
+		case WEAPON_DAGGER:
+			hitcoefficient = p_TableCoefficient->ShortSword;
+			break;
+		case WEAPON_SWORD:
+			hitcoefficient = p_TableCoefficient->Sword;
+			break;
+		case WEAPON_AXE:
+			hitcoefficient = p_TableCoefficient->Axe;
+			break;
+		case WEAPON_MACE:
+			hitcoefficient = p_TableCoefficient->Club;
+			break;
+		case WEAPON_SPEAR:
+			hitcoefficient = p_TableCoefficient->Spear;
+			break;
+		case WEAPON_BOW:
+		case WEAPON_LONGBOW:
+		case WEAPON_LAUNCHER:
+			hitcoefficient = p_TableCoefficient->Bow;
+			bHaveBow = TRUE;
+			break;
+		case WEAPON_STAFF:
+			hitcoefficient = p_TableCoefficient->Staff;
+			break;
 		}
+
+		if (hitcoefficient != 0.0f)
+			sItemDamage = pRightHand->m_sDamage;
 	}
-	if( m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 && hitcoefficient == 0.0f ) {
-		pItem = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[LEFTHAND].nNum );	// ??? ???? : ? ???? ???
-		if( pItem ) {
-			switch(pItem->m_bKind/10) {
-			case WEAPON_BOW:
-			case WEAPON_LONGBOW:
-			case WEAPON_LAUNCHER:
-				hitcoefficient = p_TableCoefficient->Bow;
-				bHaveBow = TRUE;
-				break;
-			}
+
+	if (hitcoefficient == 0.0f)
+	{
+		_ITEM_TABLE *pLeftHand = GetItemPrototype(LEFTHAND);
+		if (pLeftHand != NULL && pLeftHand->isBow())
+		{
+			hitcoefficient = p_TableCoefficient->Bow;
+			bHaveBow = TRUE;
+			sItemDamage = pLeftHand->m_sDamage;
 		}
 	}
 
@@ -1307,7 +1294,7 @@ void CUser::SetUserAbility()
 
 	m_sMaxWeight = ((getStatWithItemBonus(STAT_STR) + GetLevel()) * 50) * (m_bMaxWeightAmount / 100);
 	if( bHaveBow ) 
-		m_sTotalHit = (short)((((0.005 * pItem->m_sDamage * (temp_dex + 40)) + ( hitcoefficient * pItem->m_sDamage * GetLevel() * temp_dex )) + 3));
+		m_sTotalHit = (short)((((0.005f * sItemDamage * (temp_dex + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_dex )) + 3));
 	else
 		m_sTotalHit = (short)((((0.005f * m_sItemHit * (temp_str + 40)) + ( hitcoefficient * m_sItemHit * GetLevel() * temp_str )) + 3)); 	
 
@@ -1318,6 +1305,95 @@ void CUser::SetUserAbility()
 
 	SetMaxHp();
 	SetMaxMp();
+
+	uint8 bDefenseBonus = 0, bResistanceBonus = 0;
+
+	// Reset resistance bonus
+	m_bResistanceBonus = 0;
+
+	// Apply passive skill bonuses
+	// NOTE: This is how it's done officially (we should really clean this up)
+	// Passive bonuses do NOT stack.
+	if (isWarrior())
+	{
+		// NOTE: These may need updating (they're based on 1.298 stats)
+		if (CheckSkillPoint(PRO_SKILL2, 5, 14))
+			bDefenseBonus = 20;
+		else if (CheckSkillPoint(PRO_SKILL2, 15, 34))
+			bDefenseBonus = 30;
+		else if (CheckSkillPoint(PRO_SKILL2, 35, 54))
+			bDefenseBonus = 40;
+		else if (CheckSkillPoint(PRO_SKILL2, 55, 69))
+			bDefenseBonus = 50;
+		else if (CheckSkillPoint(PRO_SKILL2, 70, MAX_LEVEL))
+		{
+			// Level 70 skill quest
+			if (CheckExistEvent(51, 2))
+				bDefenseBonus = 60;
+			else
+				bDefenseBonus = 50;
+		}
+
+		// Resist: [Passive]Increaes all resistance by 30. If a shield is not equipped, the effect will decrease by half.
+		if (CheckSkillPoint(PRO_SKILL2, 10, 19))
+			bResistanceBonus = 30;
+		// Endure: [Passive]Increase all resistance by 60. If a shield is not equipped, the effect will decrease by half.
+		else if (CheckSkillPoint(PRO_SKILL2, 20, 39))
+			bResistanceBonus = 60;
+		// Immunity: [Passive]Increase all resistance by 90. If a shield is not equipped, the effect will decrease by half.
+		else if (CheckSkillPoint(PRO_SKILL2, 40, MAX_LEVEL))
+			bResistanceBonus = 90;
+
+		// If a shield's not equipped, bonuses are decreased by half.
+		_ITEM_TABLE *pLeftHand = GetItemPrototype(LEFTHAND);
+		if (pLeftHand == NULL || pLeftHand->isShield())
+		{
+			bResistanceBonus /= 2;
+			bDefenseBonus /= 2;
+		}
+
+		m_bResistanceBonus = bResistanceBonus;
+		m_sTotalAc += bDefenseBonus * m_sTotalAc / 100;
+		// m_sTotalAcUnk += bDefenseBonus * m_sTotalAcUnk / 100;
+	}
+	
+	// Mastered warriors / mastered priests
+	if (CheckClass(6, 12))
+	{
+		// Boldness/Daring: [Passive]Increase your defense by 20% when your HP is down to 30% or lower.
+		if (m_pUserData->m_sHp < 30 * m_iMaxHp / 100)
+		{
+			m_sTotalAc += 20 * m_sTotalAc / 100;
+			// m_sTotalAcUnk += 20 * m_sTotalAcUnk / 100;
+		}
+	}
+	else if (isRogue())
+	{
+		// Valor: [Passive]Increase your resistance by 50 when your HP is down to 30% or below.
+		if (m_pUserData->m_sHp < 30 * m_iMaxHp / 100)
+			m_bResistanceBonus += 50;
+	}
+
+#if 0
+    if (m_sAdditionalAttackDamage)
+      ++m_sTotalHit;
+
+	if (m_sAdditionalDefense > 0 || m_sAdditionalDefensePct > 100)
+      ++m_sTotalAc;
+#endif
+
+	uint8 bSta = getStat(STAT_STA);
+	if (bSta > 100)
+	{
+		m_sTotalAc += bSta - 100;
+		// m_sTotalAcUnk += (bSta - 100) / 3;
+	}
+
+	uint8 bInt = getStat(STAT_INT);
+    if (bInt > 100)
+		m_bResistanceBonus += (bInt - 100) / 2;
+
+	// TO-DO: Transformation stats need to be applied here
 }
 
 void CUser::SendTargetHP( BYTE echo, int tid, int damage )
@@ -2110,8 +2186,8 @@ void CUser::SendItemMove(uint8 subcommand)
 				<< getStatBonusTotal(STAT_STR) << getStatBonusTotal(STAT_STA)
 				<< getStatBonusTotal(STAT_DEX) << getStatBonusTotal(STAT_INT)
 				<< getStatBonusTotal(STAT_CHA)
-				<< uint16(m_bFireR) << uint16(m_bColdR) << uint16(m_bLightningR) 
-				<< uint16(m_bMagicR) << uint16(m_bDiseaseR) << uint16(m_bPoisonR);
+				<< uint16(m_bFireR + m_bResistanceBonus) << uint16(m_bColdR + m_bResistanceBonus) << uint16(m_bLightningR + m_bResistanceBonus) 
+				<< uint16(m_bMagicR + m_bResistanceBonus) << uint16(m_bDiseaseR + m_bResistanceBonus) << uint16(m_bPoisonR + m_bResistanceBonus);
 	}
 	Send(&result);
 }
