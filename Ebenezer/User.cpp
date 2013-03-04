@@ -438,7 +438,7 @@ void CUser::ChangeFame(uint8 bFame)
 {
 	Packet result(WIZ_AUTHORITY_CHANGE, uint8(COMMAND_AUTHORITY));
 
-	m_pUserData->m_bFame = CHIEF;
+	m_pUserData->m_bFame = bFame;
 	result << GetSocketID() << getFame();
 	SendToRegion(&result);
 }
