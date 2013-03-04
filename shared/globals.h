@@ -179,6 +179,7 @@ enum StatType
 };
 
 #define STAT_MAX 255
+#define QUEST_ARRAY_SIZE 600 // That's a limit of 200 quests (3 bytes per quest)
 
 struct _USER_DATA
 {
@@ -220,7 +221,7 @@ struct _USER_DATA
 
 	// this system needs replacing
 	uint16	m_sQuestCount;
-	uint8	m_bstrQuest[400];
+	char	m_bstrQuest[QUEST_ARRAY_SIZE];
 
 	uint8	m_bPremiumType;
 };

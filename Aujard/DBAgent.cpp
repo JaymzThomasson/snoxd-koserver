@@ -302,7 +302,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, short uid
 	dbCommand->FetchBinary(field++, strItem, sizeof(strItem));
 	dbCommand->FetchBinary(field++, strSerial, sizeof(strSerial));
 	dbCommand->FetchUInt16(field++, pUser->m_sQuestCount);
-	dbCommand->FetchString(field++, (char *)pUser->m_bstrQuest, sizeof(pUser->m_bstrQuest));
+	dbCommand->FetchBinary(field++, pUser->m_bstrQuest, sizeof(pUser->m_bstrQuest));
 	dbCommand->FetchInt32(field++, pUser->m_iMannerPoint);
 	dbCommand->FetchInt32(field++, pUser->m_iLoyaltyMonthly);
 
