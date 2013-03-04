@@ -1334,7 +1334,7 @@ void CUser::SetUserAbility()
 				bDefenseBonus = 50;
 		}
 
-		// Resist: [Passive]Increaes all resistance by 30. If a shield is not equipped, the effect will decrease by half.
+		// Resist: [Passive]Increase all resistance by 30. If a shield is not equipped, the effect will decrease by half.
 		if (CheckSkillPoint(PRO_SKILL2, 10, 19))
 			bResistanceBonus = 30;
 		// Endure: [Passive]Increase all resistance by 60. If a shield is not equipped, the effect will decrease by half.
@@ -1390,7 +1390,7 @@ void CUser::SetUserAbility()
 	}
 
 	uint8 bInt = getStat(STAT_INT);
-    if (bInt > 100)
+	if (bInt > 100)
 		m_bResistanceBonus += (bInt - 100) / 2;
 
 	// TO-DO: Transformation stats need to be applied here
