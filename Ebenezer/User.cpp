@@ -3680,6 +3680,61 @@ void CUser::ItemUpgradeRebirth(Packet & pkt)
 
 void CUser::ItemSealProcess(Packet & pkt)
 {
+	#define ITEM_SEAL_PRICE 1000000
+	enum
+	{
+		SEAL_TYPE_SEAL		= 1,
+		SEAL_TYPE_UNSEAL	= 2,
+		SEAL_TYPE_KROWAZ	= 3
+	};
+
+	// Seal type
+	uint8 opcode = pkt.read<uint8>();
+
+	Packet result(WIZ_ITEM_UPGRADE, uint8(ITEM_SEAL));
+	result << opcode;
+
+	switch (opcode)
+	{
+		// Used when sealing an item.
+		case SEAL_TYPE_SEAL:
+		{
+			string strPasswd;
+			uint32 nItemID; 
+			int16 unk0; // set to -1 in this case
+			uint8 bSrcPos;
+			pkt >> unk0 >> nItemID >> bSrcPos >> strPasswd;
+
+			/* 
+				Most of these checks are handled client-side, so we shouldn't need to provide error messages.
+				Also, item sealing requires certain premium types (gold, platinum, etc) - need to double-check 
+				these before implementing this check.
+			*/
+
+			// do we have enough coins?
+			if (m_pUserData->m_iGold < ITEM_SEAL_PRICE 
+				// is this a valid position? (need to check if it can be taken from new slots)
+				|| bSrcPos >= HAVE_MAX 
+				// is the password valid by client limits?
+				|| strPasswd.empty() || strPasswd.length() > 8
+				// does the item exist where the client says it does?
+				|| GetItem(SLOT_MAX + bSrcPos)->nNum != nItemID) 
+				return;
+
+			// NOTE: Error code 4 is "Citizen number" error (i.e. password's wrong)
+			// TO-DO: Implement Aujard packet -> stored procedure for verification + addition to the table
+		} break;
+
+		// Used when unsealing an item.
+		case SEAL_TYPE_UNSEAL:
+		{
+		} break;
+
+		// Used when binding a Krowaz item (presumably to take it from bound -> sealed)
+		case SEAL_TYPE_KROWAZ:
+		{
+		} break;
+	}
 }
 
 void CUser::CharacterSealProcess(Packet & pkt)
