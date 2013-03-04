@@ -391,7 +391,7 @@ void CUser::ItemMove(Packet & pkt)
 		break;
 
 	case ITEM_INVEN_SLOT:
-		if (bDstPos >= SLOT_MAX || bSrcPos >= SLOT_MAX
+		if (bDstPos >= SLOT_MAX || bSrcPos >= HAVE_MAX
 			// Make sure that the item actually exists there.
 			|| nItemID != m_pUserData->m_sItemArray[INVENTORY_INVENT + bSrcPos].nNum
 			// Ensure the item is able to be equipped in that slot
