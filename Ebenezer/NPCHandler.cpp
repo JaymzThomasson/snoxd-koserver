@@ -673,19 +673,22 @@ void CUser::ItemTrade(Packet & pkt)
 	// Selling an item to an NPC
 	else
 	{
-		if (m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != itemid)
+		_ITEM_DATA *pItem = &m_pUserData->m_sItemArray[SLOT_MAX+pos];
+		if (pItem->nNum != itemid
+			|| pItem->isSealed() // need to check the error codes for these
+			|| pItem->isRented())
 		{
 			errorCode = 2;
 			goto fail_return;
 		}
 
-		if (m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount < count)
+		if (pItem->sCount < count)
 		{
 			errorCode = 3;
 			goto fail_return;
 		}
 
-		short oldDurability = m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration;
+		short oldDurability = pItem->sDuration;
 		if (!pTable->m_iSellPrice) // NOTE: 0 sells normally, 1 sells at full price, not sure what 2's used for...
 			transactionPrice = ((pTable->m_iBuyPrice / 6) * count); // /6 is normal, /4 for prem/discount
 		else
@@ -696,10 +699,10 @@ void CUser::ItemTrade(Packet & pkt)
 		else
 			m_pUserData->m_iGold += transactionPrice;
 
-		if (count >= m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount)
-			memset(&m_pUserData->m_sItemArray[SLOT_MAX+pos], 0, sizeof(_ITEM_DATA));
+		if (count >= pItem->sCount)
+			memset(pItem, 0, sizeof(_ITEM_DATA));
 		else
-			m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount -= count;
+			pItem->sCount -= count;
 
 		SendItemWeight();
 	}

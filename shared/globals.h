@@ -130,7 +130,7 @@ const int ITEMCOUNT_MAX		= 9999;
 enum ItemFlag
 {
 	ITEM_FLAG_NONE		= 0,
-	ITEM_FLAG_RENTAL	= 1,
+	ITEM_FLAG_RENTED	= 1,
 	ITEM_FLAG_SEALED	= 4,
 	ITEM_FLAG_NONBOUND	= 7,
 	ITEM_FLAG_BOUND		= 8
@@ -145,6 +145,9 @@ struct	_ITEM_DATA
 	uint16		sRemainingRentalTime; // in minutes
 	uint32		nExpirationTime; // in unix time
 	uint64		nSerialNum;
+
+	__forceinline bool isSealed() { return bFlag == ITEM_FLAG_SEALED; }
+	__forceinline bool isRented() { return bFlag == ITEM_FLAG_RENTED; }
 };
 
 enum HairData

@@ -33,6 +33,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 	if( !pTable ) goto fail_return;
 	reference_pos = 24 * page;
 
+	// TO-DO: Clean up this entire method. It's horrendous!
 	switch( command ) {
 	case WAREHOUSE_INPUT:
 		pkt >> count;
@@ -43,6 +44,11 @@ void CUser::WarehouseProcess(Packet & pkt)
 			m_pUserData->m_iGold -= count;
 			break;
 		}
+
+		if (m_pUserData->m_sItemArray[SLOT_MAX+srcpos].isSealed()
+			|| m_pUserData->m_sItemArray[SLOT_MAX+srcpos].isRented())
+			goto fail_return;
+
 		if( m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum != itemid ) goto fail_return;
 		if( reference_pos+destpos > WAREHOUSE_MAX ) goto fail_return;
 		if( m_pUserData->m_sWarehouseArray[reference_pos+destpos].nNum && !pTable->m_bCountable ) goto fail_return;

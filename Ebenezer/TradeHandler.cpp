@@ -137,8 +137,11 @@ void CUser::ExchangeAdd(Packet & pkt)
 	}
 	else if (m_MirrorItem[pos].nNum == nItemID)
 	{
+		// TO-DO: Remove this mirrored setup, it's no doubt going to cause us grief.
 		_ITEM_DATA *pItem = &m_MirrorItem[pos];
-		if (pItem->sCount < count)
+		if (pItem->sCount < count
+			|| pItem->isRented()
+			|| pItem->isSealed())
 			goto add_fail;
 
 		if (pTable->m_bCountable)

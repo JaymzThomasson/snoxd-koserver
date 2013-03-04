@@ -130,20 +130,25 @@ void CUser::MerchantItemAdd(Packet & pkt)
 
 
 	pkt >> nItemID >> sCount >> nGold >> bSrcPos >> bDstPos >> bMode;
+
+	// TO-DO: Implement the possible error codes for these various error cases.
 	if (bSrcPos >= HAVE_MAX
 		|| bDstPos >= MAX_MERCH_ITEMS)
 		return;
 
 	bSrcPos += SLOT_MAX;
-	if (m_pUserData->m_sItemArray[bSrcPos].nNum != nItemID
-		|| m_pUserData->m_sItemArray[bSrcPos].sCount < sCount)
+	_ITEM_DATA *pSrcItem = GetItem(bSrcPos);
+	if (pSrcItem->nNum != nItemID
+		|| pSrcItem->sCount < sCount
+		|| pSrcItem->isRented()
+		|| pSrcItem->isSealed())
 		return;
 
 	m_arSellingItems[bDstPos].nNum = nItemID;
 	m_arSellingItems[bDstPos].nPrice = nGold;
 	m_arSellingItems[bDstPos].sCount = sCount;
-	m_arSellingItems[bDstPos].sDuration = m_pUserData->m_sItemArray[bSrcPos].sDuration;
-	m_arSellingItems[bDstPos].nSerialNum = m_pUserData->m_sItemArray[bSrcPos].nSerialNum; // NOTE: Stackable items will have an issue with this.
+	m_arSellingItems[bDstPos].sDuration = pSrcItem->sDuration;
+	m_arSellingItems[bDstPos].nSerialNum = pSrcItem->nSerialNum; // NOTE: Stackable items will have an issue with this.
 	m_arSellingItems[bDstPos].bOriginalSlot = bSrcPos;
 
 	Packet result(WIZ_MERCHANT, uint8(MERCHANT_ITEM_ADD));

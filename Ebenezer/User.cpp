@@ -2365,12 +2365,14 @@ void CUser::ItemRemove(Packet & pkt)
 			goto fail_return;
 	}
 
+	_ITEM_DATA *pItem = &m_pUserData->m_sItemArray[bPos];
 
 	// Make sure the item matches what the client says it is
-	if (m_pUserData->m_sItemArray[bPos].nNum != nItemID)
+	if (pItem->nNum != nItemID
+		|| pItem->isSealed() 
+		|| pItem->isRented())
 		goto fail_return;
 
-	_ITEM_DATA *pItem = &m_pUserData->m_sItemArray[bPos];
 	memset(pItem, 0, sizeof(_ITEM_DATA));
 
 	SendItemWeight();
