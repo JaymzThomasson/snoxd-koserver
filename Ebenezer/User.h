@@ -282,7 +282,6 @@ public:
 	BOOL GoldLose(unsigned int gold);
 	void GoldGain(int gold);
 	void SendItemWeight();
-	void TestPacket( char* pBuf );
 	void UpdateVisibility(InvisibilityType bNewType);
 	void BlinkStart();
 	void BlinkTimeCheck(float currenttime);
