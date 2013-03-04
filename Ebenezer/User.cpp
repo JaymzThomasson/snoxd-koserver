@@ -3297,12 +3297,9 @@ BOOL CUser::JobGroupCheck(short jobgroupid)
 
 		case GROUP_CLERIC:	
 			return (subClass == 4 || subClass == 11 || subClass == 12);
-
-		default: // for all others
-			return (subClass == jobgroupid);
 	}
 
-	return FALSE; // this will never hit
+	return (subClass == jobgroupid);
 }
 
 void CUser::TrapProcess()
