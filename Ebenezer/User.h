@@ -535,6 +535,8 @@ public:
 	//Magic System - rewrite
 	bool CanUseItem(long itemid, uint16 count); //Should place this with other item related functions
 
+	bool CheckExistEvent(uint16 sQuestID, uint8 bQuestState);
+
 	//Zone checks
 	bool isAttackZone();
 
@@ -546,4 +548,8 @@ public:
 private:
 	static ChatCommandTable s_commandTable;
 	GameState m_state;
+
+	// quest ID | quest state (need to replace with enum)
+	typedef std::map<uint16, uint8> QuestMap;
+	QuestMap m_questMap;
 };
