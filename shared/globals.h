@@ -465,34 +465,6 @@ inline void _DEBUG_LOG(bool toFile, char * format, ...)
 		LogFileWrite(buffer);
 };
 
-#ifdef SQL_NO_DATA
-inline int DisplayErrorMsg(SQLHANDLE hstmt, char *sql)
-{
-	SQLCHAR       SqlState[6], Msg[1024];
-	SQLINTEGER    NativeError;
-	SQLSMALLINT   i, MsgLen;
-	SQLRETURN     rc2;
-	char		  logstr[512];
-	memset( logstr, NULL, 512 );
-
-	i = 1;
-	while ((rc2 = SQLGetDiagRec(SQL_HANDLE_STMT, hstmt, i, SqlState, &NativeError, Msg, sizeof(Msg), &MsgLen)) != SQL_NO_DATA)
-	{
-		sprintf_s( logstr, sizeof(logstr), "*** %s, %d, %s, %d ***", SqlState,NativeError,Msg,MsgLen );
-		LogFileWrite( logstr );
-
-		LogFileWrite(sql);
-
-		i++;
-	}
-
-	if( strcmp((char *)SqlState, "08S01") == 0 )
-		return -1;
-	else
-		return 0;
-};
-#endif
-
 #if defined(EBENEZER)
 #include <mmsystem.h>
 inline float TimeGet()
