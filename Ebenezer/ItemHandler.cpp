@@ -455,7 +455,8 @@ void CUser::ItemMove(Packet & pkt)
 	// If equipping/de-equipping an item
 	if (dir == ITEM_INVEN_SLOT || dir == ITEM_SLOT_INVEN
 		// or moving an item to/from our cospre item slots
-		|| dir == ITEM_INVEN_TO_COSP || dir == ITEM_COSP_TO_INVEN)
+		|| dir == ITEM_INVEN_TO_COSP || dir == ITEM_COSP_TO_INVEN
+		|| dir == ITEM_SLOT_SLOT)
 	{
 		// Re-update item stats
 		SetSlotItemValue();
@@ -469,7 +470,12 @@ void CUser::ItemMove(Packet & pkt)
 	if (dir == ITEM_INVEN_SLOT)
 		UserLookChange(bDstPos, nItemID, pDstItem->sDuration);	
 	if (dir == ITEM_SLOT_INVEN) 
-		UserLookChange(bSrcPos, 0, 0);	
+		UserLookChange(bSrcPos, 0, 0);
+	if (dir == ITEM_SLOT_SLOT)
+	{
+		UserLookChange(bSrcPos, m_pUserData->m_sItemArray[bSrcPos].nNum, m_pUserData->m_sItemArray[bSrcPos].sDuration);
+		UserLookChange(bDstPos, m_pUserData->m_sItemArray[bDstPos].nNum, m_pUserData->m_sItemArray[bDstPos].sDuration);
+	}
 	if (dir == ITEM_INVEN_TO_COSP)
 		UserLookChange(INVENTORY_COSP + bDstPos, nItemID, pDstItem->sDuration);
 	if (dir == ITEM_COSP_TO_INVEN)
