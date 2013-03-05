@@ -1252,6 +1252,7 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 			hitcoefficient = p_TableCoefficient->Axe;
 			break;
 		case WEAPON_MACE:
+		case WEAPON_MACE2:
 			hitcoefficient = p_TableCoefficient->Club;
 			break;
 		case WEAPON_SPEAR:
