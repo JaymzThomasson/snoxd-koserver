@@ -82,7 +82,7 @@ uint16 CDBProcess::AccountLogin(string & id, string & pwd)
 	uint16 result = 2; // account not found
 	auto_ptr<OdbcCommand> dbCommand(m_dbConnection.CreateCommand());
 	if (dbCommand.get() == NULL)
-		return false;
+		return 0;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, id.c_str(), id.length());
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pwd.c_str(), pwd.length());
