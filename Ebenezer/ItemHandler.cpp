@@ -473,8 +473,8 @@ void CUser::ItemMove(Packet & pkt)
 		UserLookChange(bSrcPos, 0, 0);
 	if (dir == ITEM_SLOT_SLOT)
 	{
-		UserLookChange(bSrcPos, m_pUserData->m_sItemArray[bSrcPos].nNum, m_pUserData->m_sItemArray[bSrcPos].sDuration);
-		UserLookChange(bDstPos, m_pUserData->m_sItemArray[bDstPos].nNum, m_pUserData->m_sItemArray[bDstPos].sDuration);
+		UserLookChange(bSrcPos, pSrcItem->nNum, pSrcItem->sDuration);
+		UserLookChange(bDstPos, pDstItem->nNum, pDstItem->sDuration);
 	}
 	if (dir == ITEM_INVEN_TO_COSP)
 		UserLookChange(INVENTORY_COSP + bDstPos, nItemID, pDstItem->sDuration);
