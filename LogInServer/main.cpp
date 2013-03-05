@@ -1,0 +1,40 @@
+#include "stdafx.h"
+
+#define STR(str) #str
+#define STRINGIFY(str) STR(str)
+
+LoginServer g_pMain;
+static HANDLE s_hEvent;
+BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
+
+int main()
+{
+	SetConsoleTitle("Login server for Knight Online v" STRINGIFY(__VERSION));
+
+	// Override the console handle
+	SetConsoleCtrlHandler(_ConsoleHandler, TRUE);
+
+	// Startup server
+	if (!g_pMain.Startup())
+	{
+		system("pause"); // most users won't be running this in a 
+		return 1;
+	}
+
+	printf("\nServer started up successfully!\n");
+
+	// Create handle, wait until console's signaled as closing
+	s_hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	WaitForSingleObject(s_hEvent, INFINITE);
+
+	// Cleanup server
+	g_pMain.Cleanup();
+	return 0;
+}
+
+BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType)
+{
+	SetEvent(s_hEvent);
+	Sleep(10000); // Win7 onwards allows 10 seconds before it'll forcibly terminate
+	return TRUE;
+}

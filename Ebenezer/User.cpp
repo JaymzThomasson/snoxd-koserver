@@ -1835,7 +1835,7 @@ void CUser::SendNotice()
 	result << count; // placeholder the count
 
 	// Use first line for header, 2nd line for data, 3rd line for header... etc.
-	// It's most likely what they do officially (as usual, | is their line seperator)
+	// It's most likely what they do officially (as usual, | is their line separator)
 	for (int i = 0; i < 10; i += 2)
 	{
 		if (g_pMain->m_ppNotice[i][0] == 0)

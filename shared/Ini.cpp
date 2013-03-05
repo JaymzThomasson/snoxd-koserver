@@ -52,7 +52,7 @@ bool CIni::SetPath(const char* lpFilename)
 	char Buf[_MAX_PATH], Path[_MAX_PATH];
 	char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 
-	GetModuleFileName(AfxGetApp()->m_hInstance, Buf, _MAX_PATH);
+	GetModuleFileName(NULL, Buf, _MAX_PATH);
 	_splitpath_s(Buf, drive, _MAX_DRIVE, dir, _MAX_DIR, fname, _MAX_FNAME, ext, _MAX_EXT);
 	strcpy_s(Path, _MAX_PATH, drive);
 	strcat_s(Path, _MAX_PATH, dir);		

@@ -22,18 +22,15 @@
     <Filter Include="Shared\Networking">
       <UniqueIdentifier>{13f90d3b-2c08-432f-8d04-3085140921c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shared\Database">
+      <UniqueIdentifier>{a912f630-0b5e-43f1-9edb-8f5801e4eb65}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StdAfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="User.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VersionManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VersionManagerDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\Ini.cpp">
@@ -43,15 +40,6 @@
       <Filter>Shared\Networking</Filter>
     </ClCompile>
     <ClCompile Include="DBProcess.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcCommand.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcConnection.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcParameter.cpp">
       <Filter>Database</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\SocketMgr.cpp">
@@ -72,6 +60,21 @@
     <ClCompile Include="..\shared\lzf.cpp">
       <Filter>Shared\Networking</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcCommand.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcConnection.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcParameter.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="LoginServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VersionManager.rc">
@@ -88,15 +91,6 @@
     <ClInclude Include="StdAfx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="User.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VersionManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VersionManagerDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\Ini.h">
       <Filter>Shared</Filter>
     </ClInclude>
@@ -104,15 +98,6 @@
       <Filter>Shared\Networking</Filter>
     </ClInclude>
     <ClInclude Include="DBProcess.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\OdbcCommand.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\OdbcConnection.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\OdbcParameter.h">
       <Filter>Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\Packet.h">
@@ -144,6 +129,21 @@
     </ClInclude>
     <ClInclude Include="..\shared\lzf.h">
       <Filter>Shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcParameter.h">
+      <Filter>Shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcCommand.h">
+      <Filter>Shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcConnection.h">
+      <Filter>Shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="LoginSession.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoginServer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

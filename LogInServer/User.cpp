@@ -1,11 +1,4 @@
-// User.cpp: implementation of the CUser class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
-#include "versionmanagerdlg.h"
-
-using namespace std;
 
 LSPacketHandler PacketHandlers[NUM_LS_OPCODES];
 void InitPacketHandlers(void)
@@ -40,7 +33,7 @@ bool LoginSession::HandlePacket(Packet & pkt)
 void LoginSession::HandleVersion(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
-	result << g_pMain->GetVersion();
+	result << g_pMain.GetVersion();
 	Send(&result);
 }
 
@@ -51,14 +44,14 @@ void LoginSession::HandlePatches(Packet & pkt)
 	uint16 version;
 	pkt >> version;
 
-	foreach (itr, (*g_pMain->GetPatchList())) 
+	foreach (itr, (*g_pMain.GetPatchList())) 
 	{
 		auto pInfo = itr->second;
 		if (pInfo->sVersion > version)
 			downloadset.insert(pInfo->strFileName);
 	}
 
-	result << g_pMain->GetFTPUrl() << g_pMain->GetFTPPath();
+	result << g_pMain.GetFTPUrl() << g_pMain.GetFTPPath();
 	result << uint16(downloadset.size());
 	
 	foreach (itr, downloadset)
@@ -89,7 +82,7 @@ void LoginSession::HandleLogin(Packet & pkt)
 		|| password.size() == 0 || password.size() > MAX_PW_SIZE)
 		resultCode = AUTH_NOT_FOUND; 
 	else
-		resultCode = g_pMain->m_DBProcess.AccountLogin(account, password);
+		resultCode = g_pMain.m_DBProcess.AccountLogin(account, password);
 
 	result << uint8(resultCode);
 	if (resultCode == AUTH_SUCCESS)
@@ -103,7 +96,7 @@ void LoginSession::HandleLogin(Packet & pkt)
 void LoginSession::HandleServerlist(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
-	g_pMain->m_DBProcess.LoadUserCountList();
+	g_pMain.m_DBProcess.LoadUserCountList();
 
 #if __VERSION >= 1500
 	uint16 echo;
@@ -111,8 +104,8 @@ void LoginSession::HandleServerlist(Packet & pkt)
 	result << echo;
 #endif
 
-	result << uint8(g_pMain->GetServerList()->size());
-	foreach (itr, (*g_pMain->GetServerList())) 
+	result << uint8(g_pMain.GetServerList()->size());
+	foreach (itr, (*g_pMain.GetServerList())) 
 	{		
 		_SERVER_INFO *pServer = *itr;
 
@@ -148,7 +141,7 @@ void LoginSession::HandleServerlist(Packet & pkt)
 void LoginSession::HandleNews(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
-	News *pNews = g_pMain->GetNews();
+	News *pNews = g_pMain.GetNews();
 
 	if (pNews->Size)
 	{
