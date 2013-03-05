@@ -174,7 +174,7 @@ void LoginServer::ReportSQLError(OdbcError *pError)
 	delete pError;
 }
 
-void LoginServer::Cleanup() 
+LoginServer::~LoginServer() 
 {
 	foreach (itr, m_ServerList)
 		delete *itr;
@@ -183,4 +183,7 @@ void LoginServer::Cleanup()
 	foreach (itr, m_VersionList)
 		delete itr->second;
 	m_VersionList.clear();
+
+	if (m_fp != NULL)
+		fclose(m_fp);
 }

@@ -23,7 +23,8 @@ public:
 
 	bool Startup();
 	bool OpenLogFile();
-	void Cleanup();
+
+	~LoginServer();
 
 	static KOSocketMgr<LoginSession> s_socketMgr;
 

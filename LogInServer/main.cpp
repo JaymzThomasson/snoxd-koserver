@@ -27,8 +27,6 @@ int main()
 	s_hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	WaitForSingleObject(s_hEvent, INFINITE);
 
-	// Cleanup server
-	g_pMain.Cleanup();
 	return 0;
 }
 
