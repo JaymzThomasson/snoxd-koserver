@@ -1818,26 +1818,34 @@ void CUser::SendNotice()
 {
 	Packet result(WIZ_NOTICE);
 	uint8 count = 0;
+
 #if __VERSION < 1453 // NOTE: This is actually still supported if we wanted to use it.
-	result.SByte(); // only old-style notices use single byte lengths
 	result << count; // placeholder the count
-	for (int i = 0; i < 20; i++)
+	result.SByte(); // only old-style notices use single byte lengths
+	for (count = 0; count < 20; count++)
 	{
-		if (g_pMain->m_ppNotice[i][0] == 0)
+		if (g_pMain->m_ppNotice[count][0] == 0)
 			continue;
 
-		result << g_pMain->m_ppNotice[i];
-		count++;
+		result << g_pMain->m_ppNotice[count];
 	}
 	result.put(0, count); // replace the placeholdered line count
 #else
 	result << uint8(2); // new-style notices (top-right of screen)
-	
-	count = 3; // hardcoded temporarily
-	result << count; // number of entries
-	result << "Header 1" << "Data in header 1";
-	result << "Header 2" << "Data in header 2";
-	result << "Header 3" << "Data in header 3";
+	result << count; // placeholder the count
+
+	// Use first line for header, 2nd line for data, 3rd line for header... etc.
+	// It's most likely what they do officially (as usual, | is their line seperator)
+	for (int i = 0; i < 10; i += 2)
+	{
+		if (g_pMain->m_ppNotice[i][0] == 0)
+			continue;
+
+		// header | data
+		result << g_pMain->m_ppNotice[i] << g_pMain->m_ppNotice[i + 1];
+		count++;
+	}
+	result.put(1, count); // replace the placeholdered line count
 #endif
 	
 	Send(&result);

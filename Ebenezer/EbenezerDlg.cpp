@@ -193,8 +193,6 @@ CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
 
 	m_pUdpSocket = NULL;
 
-	for(int i=0; i<20; i++)
-		memset( m_ppNotice[i], NULL, 128 );
 	memset( m_AIServerIP, NULL, 20 );
 
 	m_bPermanentChatMode = FALSE;
@@ -1461,30 +1459,38 @@ void CEbenezerDlg::SendFormattedNotice(const char *msg, uint8 nation, ...)
 
 BOOL CEbenezerDlg::LoadNoticeData()
 {
-	CString ProgPath = GetProgPath();
-	CString NoticePath = ProgPath + "Notice.txt";
-	CString buff;
-	CStdioFile txt_file;
+	ifstream file(GetProgPath() + "Notice.txt");
+	string line;
 	int count = 0;
 
-	if (!txt_file.Open(NoticePath, CFile::modeRead)) {
+	// Clear out the notices first
+	memset(&m_ppNotice, 0, sizeof(m_ppNotice));
+
+	if (!file)
+	{
 		DEBUG_LOG("cannot open Notice.txt!!");
 		return FALSE;
 	}
 
-	while( txt_file.ReadString(buff) ) {
-		if( count > 19 )
+	while (!file.eof())
+	{
+ 		if (count > 19)
 		{
 			AfxMessageBox("Too many lines in Notice.txt");
-			txt_file.Close();
-			return FALSE;
+			break;
 		}
-		strcpy( m_ppNotice[count], (char*)(LPCTSTR)buff );
-		count++;
+
+		getline(file, line);
+		if (line.length() > 128)
+		{
+			AfxMessageBox("Notice.txt contains line that exceeds the limit of 128 characters.");
+			break;
+		}
+
+		strcpy(m_ppNotice[count++], line.c_str());
 	}
 
-	txt_file.Close();
-
+	file.close();
 	return TRUE;
 }
 

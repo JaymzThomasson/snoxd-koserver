@@ -337,6 +337,7 @@ private:
 	COMMAND_HANDLER(HandleSantaOffCommand);
 	COMMAND_HANDLER(HandlePermanentChatCommand);
 	COMMAND_HANDLER(HandlePermanentChatOffCommand);
+	COMMAND_HANDLER(HandleReloadNoticeCommand);
 
 // Implementation
 protected:

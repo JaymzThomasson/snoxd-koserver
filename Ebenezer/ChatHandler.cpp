@@ -27,6 +27,7 @@ void CEbenezerDlg::InitServerCommands()
 		{ "offsanta",			&CEbenezerDlg::HandleSantaOffCommand,			"Disables a flying Santa Claus." },
 		{ "permanent",			&CEbenezerDlg::HandlePermanentChatCommand,		"Sets the permanent chat bar to the specified text." },
 		{ "offpermanent",		&CEbenezerDlg::HandlePermanentChatOffCommand,	"Resets the permanent chat bar text." },
+		{ "reload_notice",		&CEbenezerDlg::HandleReloadNoticeCommand,		"Reloads the in-game notice list." },
 	};
 
 	init_command_table(CEbenezerDlg, commandTable, s_commandTable);
@@ -478,6 +479,26 @@ COMMAND_HANDLER(CEbenezerDlg::HandlePermanentChatOffCommand)
 
 	m_bPermanentChatMode = FALSE;
 	Send_All(&data);
+	return true;
+}
+
+COMMAND_HANDLER(CEbenezerDlg::HandleReloadNoticeCommand)
+{
+	// Reload the notice data
+	LoadNoticeData();
+
+	// and update all logged in players
+	// if we're using the new notice format that's always shown
+#if __VERSION >= 1453
+	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
+	{
+		CUser * pUser = TO_USER(itr->second);
+		if (pUser->isInGame())
+			pUser->SendNotice();
+	}
+	s_socketMgr.ReleaseLock();
+#endif
 	return true;
 }
 
