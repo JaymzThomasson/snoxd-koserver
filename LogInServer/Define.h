@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../shared/globals.h"
 #define _LISTEN_PORT		15100
 
 struct _SERVER_INFO

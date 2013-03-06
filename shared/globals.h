@@ -1,9 +1,24 @@
 ﻿#pragma once
 
+#if defined(EBENEZER) || defined(AI_SERVER)
+#define _MFC_ENABLED
+#else
+#define CString std::string
+#endif
+
 #include "version.h"
 #include "packets.h"
 #include "Packet.h"
 #include "RWLock.h"
+
+#define MAX_USER			3000
+
+#define MAX_ID_SIZE			20
+#if __VERSION >= 1453
+#define MAX_PW_SIZE			28
+#else
+#define MAX_PW_SIZE			12
+#endif
 
 #define MAX_FRIEND_COUNT	24
 #define MAX_ITEM_COUNT		9999
@@ -365,7 +380,7 @@ inline CString GetProgPath()
 	char Buf[_MAX_PATH], Path[_MAX_PATH];
 	char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 
-	::GetModuleFileName(AfxGetApp()->m_hInstance, Buf, 256);
+	GetModuleFileName(NULL, Buf, 256);
 	_splitpath_s(Buf, drive, sizeof(drive), dir, sizeof(dir), fname, sizeof(fname), ext, sizeof(ext));
 	strcpy_s(Path, sizeof(Path), drive);
 	strcat_s(Path, sizeof(Path), dir);		
@@ -395,21 +410,21 @@ inline int myrand( int min, int max )
 	return (int)( min + (int)rand_result );
 };
 
+#if defined(AI_SERVER) || defined(EBENEZER)
 inline void	TimeTrace(TCHAR* pMsg)
 {
 	CString szMsg = _T("");
 	CTime time = CTime::GetCurrentTime();
 	szMsg.Format("%s,,  time : %d-%d-%d, %d:%d]\n", pMsg, time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute());
 	TRACE(szMsg);
-};
-
+}
+#endif
 
 /*
 	Yes, this is ugly and crude.
 	I want to wrap all the existing log code into this, and slowly get rid of it... bit by bit.
 */
-
-CString GetProgPath();
+#if defined(EBENEZER) || defined(AI_SERVER)
 inline void LogFileWrite( LPCTSTR logstr )
 {
 	CString ProgPath, LogFileName;
@@ -423,10 +438,6 @@ inline void LogFileWrite( LPCTSTR logstr )
 	LogFileName.Format("%s\\Ebenezer.log", ProgPath);
 #elif defined(AI_SERVER)
 	LogFileName.Format("%s\\AIServer.log", ProgPath);
-#elif defined(AUJARD)
-	LogFileName.Format("%s\\Aujard.log", ProgPath);
-#elif defined(LOGIN_SERVER)
-	LogFileName.Format("%s\\Login.log", ProgPath);
 #endif
 
 	if (file.Open( LogFileName, CFile::modeCreate|CFile::modeNoTruncate|CFile::modeWrite ))
@@ -437,6 +448,7 @@ inline void LogFileWrite( LPCTSTR logstr )
 		file.Close();
 	}
 };
+#endif
 
 #define DEBUG_LOG(...) _DEBUG_LOG(false, __VA_ARGS__)
 #define DEBUG_LOG_FILE(...) _DEBUG_LOG(true, __VA_ARGS__)
@@ -451,8 +463,10 @@ inline void _DEBUG_LOG(bool toFile, char * format, ...)
 
 	TRACE("%s\n", buffer);
 
+#ifdef MFC_ENABLED
 	if (toFile)
 		LogFileWrite(buffer);
+#endif
 };
 
 #if defined(EBENEZER)

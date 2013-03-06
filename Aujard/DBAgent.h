@@ -1,19 +1,14 @@
 #pragma once
 
-#include "define.h"
-#include <vector>
-
 #include "../shared/database/OdbcConnection.h"
-#include "../shared/STLMap.h"
 
 typedef std::vector <_USER_DATA*>			UserDataArray;
 typedef CSTLMap <_ITEM_TABLE>		ItemtableArray;
 
-class CAujardDlg;
 class CDBAgent  
 {
 public:
-	CDBAgent();
+	CDBAgent() {}
 
 	bool Connect();
 	bool LoadItemTable();
@@ -67,6 +62,5 @@ public:
 
 private:
 	OdbcConnection m_GameDB, m_AccountDB;
-	CAujardDlg* m_pMain;
 	ItemtableArray m_itemTableArray;
 };

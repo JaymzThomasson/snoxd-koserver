@@ -1,23 +1,7 @@
-// AujardDlg.cpp : implementation file
-//
-
 #include "stdafx.h"
-#include "Aujard.h"
-#include "AujardDlg.h"
-#include "../shared/Ini.h"
 #include <process.h>
 
-using namespace std;
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
-#define PROCESS_CHECK		100
-#define CONCURRENT_CHECK	200
-#define SERIAL_TIME			300
+static DWORD s_dwProcessCheckID, s_dwConcurrentCheckID;
 
 DWORD WINAPI ReadQueueThread(LPVOID lp)
 {
@@ -98,17 +82,8 @@ DWORD WINAPI ReadQueueThread(LPVOID lp)
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// CAujardDlg dialog
-
-CAujardDlg::CAujardDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CAujardDlg::IDD, pParent)
+CAujardDlg::CAujardDlg()
 {
-	//{{AFX_DATA_INIT(CAujardDlg)
-	//}}AFX_DATA_INIT
-	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-
 	memset(m_strGameDSN, 0x00, sizeof(m_strGameDSN));
 	memset(m_strGameUID, 0x00, sizeof(m_strGameUID));
 	memset(m_strGamePWD, 0x00, sizeof(m_strGamePWD));
@@ -117,20 +92,68 @@ CAujardDlg::CAujardDlg(CWnd* pParent /*=NULL*/)
 	memset(m_strAccountPWD, 0x00, sizeof(m_strAccountPWD));
 }
 
+void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+{
+	g_pMain.OnTimer(idEvent);
+}
+
+bool CAujardDlg::Startup()
+{
+	m_fp = fopen("./Aujard.log", "a");
+	if (m_fp == NULL)
+	{
+		printf("ERROR: Unable to open log file.\n");
+		return false;
+	}
+
+	if (!m_LoggerRecvQueue.InitailizeMMF(MAX_PKTSIZE, MAX_COUNT, SMQ_LOGGERSEND, FALSE)
+		|| !m_LoggerSendQueue.InitailizeMMF(MAX_PKTSIZE, MAX_COUNT, SMQ_LOGGERRECV, FALSE)
+		|| !InitializeMMF())
+	{
+		printf("ERROR: Unable to initialize shared memory. Ensure Ebenezer is running.\n");
+		return false;
+	}
+
+	CIni ini("Aujard.ini");
+
+	ini.GetString("ODBC", "ACCOUNT_DSN", "KN_online", m_strAccountDSN, sizeof(m_strAccountDSN));
+	ini.GetString("ODBC", "ACCOUNT_UID", "knight", m_strAccountUID, sizeof(m_strAccountUID));
+	ini.GetString("ODBC", "ACCOUNT_PWD", "knight", m_strAccountPWD, sizeof(m_strAccountPWD));
+	ini.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, sizeof(m_strGameDSN));
+	ini.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, sizeof(m_strGameUID));
+	ini.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, sizeof(m_strGamePWD));
+
+	m_nServerNo = ini.GetInt("ZONE_INFO", "GROUP_INFO", 1);
+	m_nZoneNo = ini.GetInt("ZONE_INFO", "ZONE_INFO", 1);
+
+	if (!m_DBAgent.Connect()
+		|| !m_DBAgent.LoadItemTable())
+	{
+		printf("ERROR: A database error occurred.\n");
+		return false;
+	}
+
+	s_dwProcessCheckID = SetTimer(NULL, 1, 40000, &TimerProc);
+	s_dwConcurrentCheckID = SetTimer(NULL, 2, 300000, &TimerProc);
+
+	DWORD id;
+	m_hReadQueueThread = CreateThread(NULL, 0, &ReadQueueThread, (LPVOID)this, 0, &id);
+
+	return true;
+}
+
 BOOL CAujardDlg::InitializeMMF()
 {
 	DWORD filesize = MAX_USER * sizeof(_USER_DATA);
 	
-	m_hMMFile = OpenFileMapping( FILE_MAP_ALL_ACCESS, TRUE, "KNIGHT_DB" );
+	m_hMMFile = OpenFileMapping(FILE_MAP_ALL_ACCESS, TRUE, "KNIGHT_DB");
 	if (m_hMMFile == NULL)
 	{
-		m_OutputList.AddString("Shared Memory Load Fail!!");
 		m_hMMFile = INVALID_HANDLE_VALUE; 
-		return FALSE;
+		return false;
 	}
-	m_OutputList.AddString("Shared Memory Load Success!!");
 
-    m_lpMMFile = (char *)MapViewOfFile (m_hMMFile, FILE_MAP_WRITE, 0, 0, 0);
+    m_lpMMFile = (char *)MapViewOfFile(m_hMMFile, FILE_MAP_WRITE, 0, 0, 0);
 	if (!m_lpMMFile)
 		return FALSE;
 
@@ -139,7 +162,8 @@ BOOL CAujardDlg::InitializeMMF()
 	for (int i = 0; i < MAX_USER; i++)
 		m_DBAgent.m_UserDataArray.push_back((_USER_DATA*)(m_lpMMFile + i * sizeof(_USER_DATA)));
 
-	return TRUE;
+	printf("Shared memory mapped successfully.\n");
+	return true;
 }
 
 void CAujardDlg::ReportSQLError(OdbcError *pError)
@@ -148,30 +172,19 @@ void CAujardDlg::ReportSQLError(OdbcError *pError)
 		return;
 
 	// This is *very* temporary.
-	string errorMessage = string_format(_T("ODBC error occurred.\r\nSource: %s\r\nError: %s\r\nDescription: %s"),
+	string errorMessage = string_format(_T("ODBC error occurred.\r\nSource: %s\r\nError: %s\r\nDescription: %s\n"),
 		pError->Source.c_str(), pError->ExtendedErrorMessage.c_str(), pError->ErrorMessage.c_str());
 
-	LogFileWrite(errorMessage.c_str());
+	WriteLogFile(errorMessage);
 	delete pError;
 }
 
-void CAujardDlg::WriteLogFile(char* pData)
+void CAujardDlg::WriteLogFile(std::string & logMessage)
 {
-	CTime cur = CTime::GetCurrentTime();
-	char strLog[1024];
-	int nDay = cur.GetDay();
-
-	if( m_iLogFileDay != nDay )	{
-		if(m_LogFile.m_hFile != CFile::hFileNull) m_LogFile.Close();
-
-		sprintf_s(strLog, sizeof(strLog), "AujardLog-%d-%d-%d.txt", cur.GetYear(), cur.GetMonth(), cur.GetDay());
-		m_LogFile.Open( strLog, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
-		m_LogFile.SeekToEnd();
-		m_iLogFileDay = nDay;
-	}
-
-	sprintf_s(strLog, sizeof(strLog), "%d-%d-%d %d:%d, %s\r\n", cur.GetYear(), cur.GetMonth(), cur.GetDay(), cur.GetHour(), cur.GetMinute(), pData);
-	m_LogFile.Write(strLog, strlen(strLog));
+	m_lock.Acquire();
+	fwrite(logMessage.c_str(), logMessage.length(), 1, m_fp);
+	fflush(m_fp);
+	m_lock.Release();
 }
 
 void CAujardDlg::AccountLogIn(Packet & pkt, int16 uid)
@@ -433,47 +446,26 @@ void CAujardDlg::UserLogOut(Packet & pkt, int16 uid)
 	m_LoggerSendQueue.PutData(&result, uid);
 }
 
-BOOL CAujardDlg::PreTranslateMessage(MSG* pMsg) 
-{
-	if( pMsg->message == WM_KEYDOWN ) {
-		if( pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE )
-			return TRUE;
-	}
-	
-	return CDialog::PreTranslateMessage(pMsg);
-}
-
-void CAujardDlg::OnOK() 
-{
-	if (AfxMessageBox("Are you sure you wish to exit? Ebenezer must be closed - player data will be saved.", MB_YESNO) == IDYES)
-	{
-		AllSaveRoutine();
-		CDialog::OnOK();
-	}
-}
-
 void CAujardDlg::OnTimer(UINT nIDEvent) 
 {
 	HANDLE	hProcess = NULL;
 
-	switch( nIDEvent ) {
-	case PROCESS_CHECK:
-		hProcess = OpenProcess( PROCESS_ALL_ACCESS | PROCESS_VM_READ, FALSE, m_LoggerSendQueue.GetProcessId() );
-		if( hProcess == NULL )
+	if (nIDEvent == s_dwProcessCheckID)
+	{
+		HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS | PROCESS_VM_READ, FALSE, m_LoggerSendQueue.GetProcessId());
+		if (hProcess == NULL)
 			AllSaveRoutine();
-		break;
-	case CONCURRENT_CHECK:
-		ConCurrentUserCount();
-		break;
+		else
+			CloseHandle(hProcess);
 	}
-	
-	CDialog::OnTimer(nIDEvent);
+	else if (nIDEvent == s_dwConcurrentCheckID)
+	{
+		ConCurrentUserCount();
+	}
 }
 
 void CAujardDlg::AllSaveRoutine()
 {
-	CTime cur = CTime::GetCurrentTime();
-
 	int size = m_DBAgent.m_UserDataArray.size();
 	for (int i = 0; i < size; i++)
 	{
@@ -489,9 +481,7 @@ void CAujardDlg::AllSaveRoutine()
 		Sleep(50);
 	}
 
-	CString msg;
-	msg.Format("All data saved: %04d/%02d/%02d %02d:%02d", cur.GetYear(), cur.GetMonth(), cur.GetDay(), cur.GetHour(), cur.GetMinute());
-	m_OutputList.AddString(msg);
+	printf("All player data saved.\n");
 }
 
 void CAujardDlg::ConCurrentUserCount()
@@ -750,133 +740,14 @@ void CAujardDlg::BattleEventResult(Packet & pkt)
 	m_DBAgent.UpdateBattleEvent(strMaxUserName, bNation);
 }
 
-void CAujardDlg::DoDataExchange(CDataExchange* pDX)
+CAujardDlg::~CAujardDlg() 
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CAujardDlg)
-	DDX_Control(pDX, IDC_OUT_LIST, m_OutputList);
-	//}}AFX_DATA_MAP
-}
+	KillTimer(NULL, s_dwProcessCheckID);
+	KillTimer(NULL, s_dwConcurrentCheckID);
 
-BEGIN_MESSAGE_MAP(CAujardDlg, CDialog)
-	//{{AFX_MSG_MAP(CAujardDlg)
-	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()
-	ON_WM_TIMER()
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-/////////////////////////////////////////////////////////////////////////////
-// CAujardDlg message handlers
-
-BOOL CAujardDlg::OnInitDialog()
-{
-	CDialog::OnInitDialog();
-
-	// Set the icon for this dialog.  The framework does this automatically
-	//  when the application's main window is not a dialog
-	SetIcon(m_hIcon, TRUE);			// Set big icon
-	SetIcon(m_hIcon, FALSE);		// Set small icon
-
-	//----------------------------------------------------------------------
-	//	Logfile initialize
-	//----------------------------------------------------------------------
-	CTime time=CTime::GetCurrentTime();
-	char strLogFile[50];
-	sprintf_s(strLogFile, sizeof(strLogFile), "AujardLog-%d-%d-%d.txt", time.GetYear(), time.GetMonth(), time.GetDay());
-	m_LogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
-	m_LogFile.SeekToEnd();
-
-	m_iLogFileDay = time.GetDay();
-
-	if (!m_LoggerRecvQueue.InitailizeMMF(MAX_PKTSIZE, MAX_COUNT, SMQ_LOGGERSEND, FALSE)
-		|| !m_LoggerSendQueue.InitailizeMMF(MAX_PKTSIZE, MAX_COUNT, SMQ_LOGGERRECV, FALSE)
-		|| !InitializeMMF())
-	{
-		AfxMessageBox("Unable to initialize shared memory. Ensure Ebenezer is running.");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-
-	CIni ini("Aujard.ini");
-
-	ini.GetString("ODBC", "ACCOUNT_DSN", "KN_online", m_strAccountDSN, sizeof(m_strAccountDSN));
-	ini.GetString("ODBC", "ACCOUNT_UID", "knight", m_strAccountUID, sizeof(m_strAccountUID));
-	ini.GetString("ODBC", "ACCOUNT_PWD", "knight", m_strAccountPWD, sizeof(m_strAccountPWD));
-	ini.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, sizeof(m_strGameDSN));
-	ini.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, sizeof(m_strGameUID));
-	ini.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, sizeof(m_strGamePWD));
-
-	m_nServerNo = ini.GetInt("ZONE_INFO", "GROUP_INFO", 1);
-	m_nZoneNo = ini.GetInt("ZONE_INFO", "ZONE_INFO", 1);
-
-	if (!m_DBAgent.Connect()
-		|| !m_DBAgent.LoadItemTable())
-	{
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-
-	SetTimer( PROCESS_CHECK, 40000, NULL );
-	SetTimer( CONCURRENT_CHECK, 300000, NULL );
-
-	DWORD id;
-	m_hReadQueueThread = ::CreateThread( NULL, 0, ReadQueueThread, (LPVOID)this, 0, &id);
-
-	CTime cur = CTime::GetCurrentTime();
-	CString starttime;
-	starttime.Format("Aujard Start : %02d/%02d/%04d %d:%02d\r\n", cur.GetDay(), cur.GetMonth(), cur.GetYear(), cur.GetHour(), cur.GetMinute());
-	m_LogFile.Write(starttime, starttime.GetLength());
-
-	return TRUE;  // return TRUE  unless you set the focus to a control
-}
-
-// If you add a minimize button to your dialog, you will need the code below
-//  to draw the icon.  For MFC applications using the document/view model,
-//  this is automatically done for you by the framework.
-
-void CAujardDlg::OnPaint() 
-{
-	if (IsIconic())
-	{
-		CPaintDC dc(this); // device context for painting
-
-		SendMessage(WM_ICONERASEBKGND, (WPARAM) dc.GetSafeHdc(), 0);
-
-		// Center icon in client rectangle
-		int cxIcon = GetSystemMetrics(SM_CXICON);
-		int cyIcon = GetSystemMetrics(SM_CYICON);
-		CRect rect;
-		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
-
-		// Draw the icon
-		dc.DrawIcon(x, y, m_hIcon);
-	}
-	else
-	{
-		CDialog::OnPaint();
-	}
-}
-
-// The system calls this to obtain the cursor to display while the user drags
-//  the minimized window.
-HCURSOR CAujardDlg::OnQueryDragIcon()
-{
-	return (HCURSOR) m_hIcon;
-}
-
-BOOL CAujardDlg::DestroyWindow() 
-{
-	KillTimer( PROCESS_CHECK );
-	KillTimer( CONCURRENT_CHECK );
-
-	if( m_hReadQueueThread ) {
-		::TerminateThread( m_hReadQueueThread, 0 );
-	}
+	if (m_hReadQueueThread != NULL)
+		TerminateThread(m_hReadQueueThread, 0);
 	
-	if (m_LogFile.m_hFile != CFile::hFileNull) m_LogFile.Close();
-
-	return CDialog::DestroyWindow();
+	if (m_fp != NULL) 
+		fclose(m_fp);
 }

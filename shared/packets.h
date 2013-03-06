@@ -1,9 +1,4 @@
-#ifndef _PKT_DEFINE_H
-#define _PKT_DEFINE_H
-
-//////////////////////////////////////////////////////////////////////////////////////
-// USER Packet Define
-//////////////////////////////////////////////////////////////////////////////////////
+#pragma once
 
 #define WIZ_LOGIN				0x01	// Account Login
 #define WIZ_NEW_CHAR			0x02	// Create Character DB
@@ -484,5 +479,3 @@ enum ObjectType
 	OBJECT_ANVIL = 8,
 	OBJECT_ARTIFACT = 9
 };
-
-#endif

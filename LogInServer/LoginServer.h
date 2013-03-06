@@ -22,7 +22,6 @@ public:
 	__forceinline ServerInfoList* GetServerList() { return &m_ServerList; };
 
 	bool Startup();
-	bool OpenLogFile();
 
 	~LoginServer();
 
