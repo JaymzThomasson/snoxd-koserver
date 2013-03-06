@@ -159,8 +159,9 @@ void LoginSession::HandleNews(Packet & pkt)
 void LoginSession::HandleSetEncryptionPublicKey(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
-	result << uint64(0); // set key of 0 to disable encryption
+	result << m_crypto.GenerateKey();
 	Send(&result);
+	EnableCrypto();
 }
 
 void LoginSession::HandleUnkF7(Packet & pkt)

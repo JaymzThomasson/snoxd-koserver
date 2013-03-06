@@ -24,7 +24,7 @@ public:
 
 	virtual void OnDisconnect();
 
-	void EnableCrypto(uint64 key);
+	void EnableCrypto();
 
 protected:
 	CJvCryption m_crypto;
