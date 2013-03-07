@@ -745,25 +745,6 @@ int CUser::IsSurroundCheck(float fX, float fY, float fZ, int NpcID)
 	return nDir;
 }
 
-BOOL CUser::IsOpIDCheck(char* szName)
-{
-/*	int nSize = sizeof(g_pszOPID)/sizeof(char*);
-	CString szCheck = szName;
-	CString szCheck2;
-
-	szCheck.MakeLower();
-
-	for (int i=0; i< nSize; i++) 
-	{
-		szCheck2 = g_pszOPID[i];
-		szCheck2.MakeLower();
-
-		if(szCheck.Find(szCheck2) != -1) return TRUE;
-	}	*/
-
-	return FALSE;
-}
-
 void CUser::HealMagic()
 {
 	int region_x = (int)(m_curx / VIEW_DIST);

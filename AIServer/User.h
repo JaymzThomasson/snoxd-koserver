@@ -94,7 +94,6 @@ public:
 	void SendHP();												// user¿« HP
 	void SendExp(int iExp, int iLoyalty, int tType = 1);
 	void SendSystemMsg(TCHAR *pMsg, BYTE type, int nWho);
-	BOOL IsOpIDCheck(char* szName);
 
 	__forceinline MAP * GetMap() { return m_pMap; };
 

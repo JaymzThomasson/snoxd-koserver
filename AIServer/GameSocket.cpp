@@ -230,9 +230,6 @@ void CGameSocket::RecvUserInOut(Packet & pkt)
 		pUser->m_curx = pUser->m_fWill_x = fX;
 		pUser->m_curz = pUser->m_fWill_z = fZ;
 
-		//bFlag = pUser->IsOpIDCheck(strName);
-		//if(bFlag)	pUser->m_byIsOP = 1;
-
 		if(bType == 2)	{		// region out
 			// 기존의 region정보에서 User의 정보 삭제..
 			pMap->RegionUserRemove(region_x, region_z, uid);
