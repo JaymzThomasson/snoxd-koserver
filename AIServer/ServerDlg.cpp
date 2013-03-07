@@ -1156,10 +1156,14 @@ BOOL CServerDlg::PreTranslateMessage(MSG* pMsg)
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
-int CServerDlg::Send(char* pData, int length)
+void CServerDlg::Send(char* pData, int length)
 {
 	s_socketMgr.SendAll(pData, length);
-	return 0;
+}
+
+void CServerDlg::Send(Packet * pkt)
+{
+	s_socketMgr.SendAll(pkt);
 }
 
 void CServerDlg::GameServerAcceptThread()
