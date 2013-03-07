@@ -198,7 +198,7 @@ void CUdpSocket::ServerChat(char *pBuf)
 	if (!GetKOString(pBuf, chatstr, index, sizeof(chatstr)))
 		return;
 
-	DEBUG_LOG(chatstr);
+	TRACE("%s\n", chatstr);
 }
 
 void CUdpSocket::RecvBattleEvent(char *pBuf)

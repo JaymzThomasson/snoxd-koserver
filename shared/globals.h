@@ -264,12 +264,6 @@ inline float Getfloat(char* sBuf, int& index)
 	return *(float*)(sBuf+index-4);
 };
 
-inline __int64 GetInt64(char* sBuf, int& index)
-{
-	index += 8;
-	return *(__int64*)(sBuf+index-8);
-};
-
 inline bool GetKOString(char* tBuf, char* sBuf, int& index, unsigned int maxLen, int lenSize = 2)
 {
 	unsigned short len = 0;
@@ -318,25 +312,6 @@ inline void Setfloat ( char* tBuf, float sFloat, int& index )
 	index += 4;
 };
 
-inline void SetInt64 ( char* tBuf, __int64 nInt64, int& index )
-{
-	CopyMemory( tBuf+index, &nInt64, 8);
-	index += 8;
-};
-// sungyong 2001.11.06
-inline int GetVarString(TCHAR* tBuf, TCHAR* sBuf, int nSize, int& index)
-{
-	int nLen = 0;
-	
-	if(nSize == sizeof(BYTE))	nLen = GetByte(sBuf, index);
-	else nLen = GetShort(sBuf, index);
-
-	GetString(tBuf, sBuf, nLen, index);
-	*(tBuf + nLen) = 0;
-
-	return nLen;
-};
-
 inline void SetVarString(TCHAR *tBuf, TCHAR* sBuf, int len, int &index)
 {
 	*(tBuf+index) = (BYTE)len;
@@ -357,7 +332,6 @@ inline void SetKOString(char* tBuf, char* sBuf, int& index, int lenSize = 2)
 	SetString(tBuf, sBuf, len, index);
 };
 
-// ~sungyong 2001.11.06
 inline int ParseSpace( char* tBuf, char* sBuf)
 {
 	int i = 0, index = 0;
@@ -410,56 +384,7 @@ inline int myrand( int min, int max )
 	return (int)( min + (int)rand_result );
 };
 
-/*
-	Yes, this is ugly and crude.
-	I want to wrap all the existing log code into this, and slowly get rid of it... bit by bit.
-*/
 #if defined(EBENEZER) || defined(AI_SERVER)
-inline void LogFileWrite( LPCTSTR logstr )
-{
-	CString ProgPath, LogFileName;
-	CFile file;
-	int loglength;
-
-	ProgPath = GetProgPath();
-	loglength = strlen( logstr );
-
-#if defined(EBENEZER)
-	LogFileName.Format("%s\\Ebenezer.log", ProgPath);
-#elif defined(AI_SERVER)
-	LogFileName.Format("%s\\AIServer.log", ProgPath);
-#endif
-
-	if (file.Open( LogFileName, CFile::modeCreate|CFile::modeNoTruncate|CFile::modeWrite ))
-	{
-		file.SeekToEnd();
-		file.Write(logstr, loglength);
-		file.Write("\r\n", 2);
-		file.Close();
-	}
-};
-#endif
-
-#define DEBUG_LOG(...) _DEBUG_LOG(false, __VA_ARGS__)
-#define DEBUG_LOG_FILE(...) _DEBUG_LOG(true, __VA_ARGS__)
-inline void _DEBUG_LOG(bool toFile, char * format, ...)
-{
-	char buffer[256];
-
-	va_list args;
-	va_start(args, format);
-	_vsnprintf_s(buffer, sizeof(buffer) - 1, format, args);
-	va_end(args);
-
-	TRACE("%s\n", buffer);
-
-#ifdef MFC_ENABLED
-	if (toFile)
-		LogFileWrite(buffer);
-#endif
-};
-
-#if defined(EBENEZER)
 #include <mmsystem.h>
 inline float TimeGet()
 {

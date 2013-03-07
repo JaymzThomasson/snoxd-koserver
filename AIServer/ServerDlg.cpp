@@ -148,10 +148,6 @@ BOOL CServerDlg::OnInitDialog()
 	//	Logfile initialize
 	//----------------------------------------------------------------------
 	char strLogFile[50];
-	sprintf_s(strLogFile, sizeof(strLogFile), "UserLog-%d-%d-%d.txt", time.GetYear(), time.GetMonth(), time.GetDay());
-	m_UserLogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
-	m_UserLogFile.SeekToEnd();
-
 	sprintf_s(strLogFile, sizeof(strLogFile), "ItemLog-%d-%d-%d.txt", time.GetYear(), time.GetMonth(), time.GetDay());
 	m_ItemLogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
 	m_ItemLogFile.SeekToEnd();
@@ -1090,7 +1086,6 @@ BOOL CServerDlg::DestroyWindow()
 
 	g_bNpcExit = TRUE;
 
-	if(m_UserLogFile.m_hFile != CFile::hFileNull) m_UserLogFile.Close();
 	if(m_ItemLogFile.m_hFile != CFile::hFileNull) m_ItemLogFile.Close();
 
 	foreach (itr, m_arNpcThread)

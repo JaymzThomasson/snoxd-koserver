@@ -897,14 +897,14 @@ BOOL CEbenezerDlg::InitializeMMF()
 		m_hMMFile = OpenFileMapping(FILE_MAP_ALL_ACCESS, TRUE, "KNIGHT_DB");
 		if (m_hMMFile == NULL)
 		{
-			DEBUG_LOG("Shared Memory Load Fail!!");
+			TRACE("Shared Memory Load Fail!!\n");
 			m_hMMFile = INVALID_HANDLE_VALUE; 
 			return FALSE;
 		}
 		bCreate = FALSE;
 	}
 	
-	DEBUG_LOG("Shared Memory Create Success!!");
+	TRACE("Shared Memory Create Success!!\n");
 
     m_lpMMFile = (char *)MapViewOfFile(m_hMMFile, FILE_MAP_WRITE, 0, 0, 0);
 	if (!m_lpMMFile)
@@ -1470,7 +1470,7 @@ BOOL CEbenezerDlg::LoadNoticeData()
 
 	if (!file)
 	{
-		DEBUG_LOG("cannot open Notice.txt!!");
+		TRACE("Notice.txt could not be opened.\n");
 		return FALSE;
 	}
 
@@ -1478,14 +1478,14 @@ BOOL CEbenezerDlg::LoadNoticeData()
 	{
  		if (count > 19)
 		{
-			AfxMessageBox("Too many lines in Notice.txt");
+			TRACE("Too many lines in Notice.txt\n");
 			break;
 		}
 
 		getline(file, line);
 		if (line.length() > 128)
 		{
-			AfxMessageBox("Notice.txt contains line that exceeds the limit of 128 characters.");
+			TRACE("Notice.txt contains line that exceeds the limit of 128 characters.\n");
 			break;
 		}
 
@@ -1504,7 +1504,7 @@ BOOL CEbenezerDlg::LoadBlockNameList()
 
 	if (!file.Open(NoticePath, CFile::modeRead))
 	{
-		DEBUG_LOG("Cannot open BlockWord.txt!");
+		TRACE("BlockWord.txt could not be opened.\n");
 		return FALSE;
 	}
 
@@ -1574,7 +1574,7 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 		|| !m_bPointCheckFlag)
 		return;
 
-	DEBUG_LOG("[Monster Point Delete]");
+	TRACE("[Monster Point Delete]\n");
 	TRACE("*** DeleteAllNpcList - Start *** \n");
 
 	// Remove spawns from users to prevent them from getting bugged...
@@ -1659,7 +1659,7 @@ void CEbenezerDlg::AliveUserCheck()
 	}
 	s_socketMgr.ReleaseLock();
 }
-/////// BATTLEZONE RELATED by Yookozuna 2002.6.18 /////////////////
+
 void CEbenezerDlg::BattleZoneOpenTimer()
 {
 	CTime cur = CTime::GetCurrentTime();
@@ -2061,7 +2061,7 @@ void CEbenezerDlg::CheckAliveUser()
 		if (pUser->m_sAliveCount++ > 3)
 		{
 			pUser->Disconnect();
-			DEBUG_LOG_FILE("User dropped due to inactivity - char=%s", pUser->m_pUserData->m_id);
+			TRACE("User dropped due to inactivity - char=%s\n", pUser->m_pUserData->m_id);
 		}
 	}
 	s_socketMgr.ReleaseLock();

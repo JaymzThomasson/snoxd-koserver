@@ -2,7 +2,6 @@
 
 UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */);
 UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */);
-float TimeGet();
 
 class CNpc;
 

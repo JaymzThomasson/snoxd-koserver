@@ -67,7 +67,7 @@ int CSharedMemQueue::PutData(Packet *pkt, int16 uid /*= -1*/)
 
 	if ((DWORD)size > m_wOffset)
 	{
-		_DEBUG_LOG(true, "DataSize Over.. - %d bytes\r\n", pkt->size());
+		TRACE("DataSize Over.. - %d bytes\n", pkt->size());
 		return SMQ_PKTSIZEOVER;
 	}
 
@@ -147,7 +147,7 @@ int CSharedMemQueue::GetData(Packet & pkt, int16 * uid)
 			temp_front = (m_pHeader->Front + 1) % MAX_COUNT;
 			m_pHeader->Front = temp_front;
 			m_pHeader->nCount--;
-			_DEBUG_LOG(true, "SMQ EMPTY Block Find - F:%d, R:%d\n", m_pHeader->Front, m_pHeader->Rear);
+			TRACE("SMQ EMPTY Block Find - F:%d, R:%d\n", m_pHeader->Front, m_pHeader->Rear);
 		}
 		return SMQ_EMPTY;
 	}

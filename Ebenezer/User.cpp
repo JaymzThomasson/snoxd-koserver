@@ -2499,10 +2499,7 @@ void CUser::SpeedHackTime(Packet & pkt)
 		client_gap = clienttime - m_fSpeedHackClientTime;
 
 		if( client_gap - server_gap > 10.0f ) {
-			char logstr[256];
-			sprintf_s( logstr, sizeof(logstr), "%s SpeedHack User Checked By Server Time\r\n", m_pUserData->m_id);
-			LogFileWrite( logstr );
-
+			TRACE("%s SpeedHack User Checked By Server Time\n", m_pUserData->m_id);
 			Close();
 		}
 		else if( client_gap - server_gap < 0.0f ) {

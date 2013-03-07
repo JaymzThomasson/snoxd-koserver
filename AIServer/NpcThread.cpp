@@ -175,36 +175,6 @@ UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */)
 	return 0;
 }
 
-float TimeGet()
-{
-	static bool bInit = false;
-	static bool bUseHWTimer = FALSE;
-	static LARGE_INTEGER nTime, nFrequency;
-	
-	if(bInit == false)
-	{
-		if(TRUE == ::QueryPerformanceCounter(&nTime))
-		{
-			::QueryPerformanceFrequency(&nFrequency);
-			bUseHWTimer = TRUE;
-		}
-		else 
-		{
-			bUseHWTimer = FALSE;
-		}
-
-		bInit = true;
-	}
-
-	if(bUseHWTimer)
-	{
-		::QueryPerformanceCounter(&nTime);
-		return (float)((double)(nTime.QuadPart)/(double)nFrequency.QuadPart);
-	}
-
-	return (float)timeGetTime();
-}
-
 CNpcThread::CNpcThread()
 {
 //	m_pNpc =	NULL;

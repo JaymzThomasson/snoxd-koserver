@@ -115,7 +115,7 @@ void CAISocket::LoginProcess(Packet & pkt)
 {
 	uint8 bReconnect = pkt.read<uint8>();
 
-	DEBUG_LOG("AI Server Connect Success!!");
+	TRACE("Connected to the AI server\n");
 	if (bReconnect == 1)
 		TRACE("**** ReConnect - socket = %d ****\n ", GetSocketID());
 

@@ -1,5 +1,5 @@
 #pragma once
-#pragma warning(disable : 4786)
+//#pragma warning(disable : 4786)
 
 #include "../shared/KOSocketMgr.h"
 #include "GameSocket.h"
@@ -40,14 +40,6 @@ typedef CSTLMap <_MAKE_ITEM_GRADE_CODE>		MakeGradeItemTableArray;
 typedef CSTLMap <_MAKE_ITEM_LARE_CODE>		MakeLareItemTableArray;
 typedef std::list <int>						ZoneNpcInfoList;
 typedef CSTLMap <MAP>						ZoneArray;
-
-/*
-     ** Repent AI Server 작업시 참고 사항 **
-	1. 3개의 함수 추가
-		int GetSpeed(BYTE bySpeed); 
-		int GetAttackSpeed(BYTE bySpeed); 
-		int GetCatsSpeed(BYTE bySpeed); 
-*/
 
 class CServerDlg : public CDialog
 {
@@ -139,7 +131,6 @@ public:
 	// class 객체
 	CNpcItem				m_NpcItem;
 
-	CFile					m_UserLogFile;
 	CFile					m_ItemLogFile;
 
 	// 전역 객체 변수

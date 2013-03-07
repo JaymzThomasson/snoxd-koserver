@@ -95,7 +95,7 @@ void CUser::Attack(Packet & pkt)
 		&& pTUser) 
 	{
 		pTUser->Send(&result);
-		DEBUG_LOG("*** User Attack Dead, id=%s, result=%d, type=%d, HP=%d", pTUser->m_pUserData->m_id, bResult, pTUser->m_bResHpType, pTUser->m_pUserData->m_sHp);
+		TRACE("*** User Attack Dead, id=%s, result=%d, type=%d, HP=%d\n", pTUser->m_pUserData->m_id, bResult, pTUser->m_bResHpType, pTUser->m_pUserData->m_sHp);
 	}
 }
 
