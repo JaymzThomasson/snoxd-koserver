@@ -129,7 +129,6 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Debug/Server.pdb</ProgramDatabaseFile>
-      <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>.\Debug/Server.map</MapFileName>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
