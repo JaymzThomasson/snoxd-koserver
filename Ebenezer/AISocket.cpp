@@ -748,7 +748,7 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 			pUser = g_pMain->GetUserPtr(strMaxUserName.c_str(), TYPE_CHARACTER);
 			if (pUser != NULL)
 			{
-				pKnights = g_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights);
+				pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
 				if (pKnights)
 					strcpy_s(strKnightsName, sizeof(strKnightsName), pKnights->m_strName);
 

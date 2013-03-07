@@ -167,7 +167,7 @@ public:
 
 	__forceinline bool isInGame() { return GetState() == GAME_STATE_INGAME; }
 	__forceinline bool isInParty() { return m_sPartyIndex != -1; }
-	__forceinline bool isInClan() { return m_pUserData->m_bKnights > 0; }
+	__forceinline bool isInClan() { return GetClanID() > 0; }
 	__forceinline bool isClanLeader() { return getFame() == CHIEF; }
 	__forceinline bool isClanAssistant() { return getFame() == VICECHIEF; }
 
@@ -187,6 +187,9 @@ public:
 
 	__forceinline BYTE getAuthority() { return m_pUserData->m_bAuthority; }
 	__forceinline BYTE getFame() { return m_pUserData->m_bFame; }
+
+	__forceinline int16 GetClanID() { return m_pUserData->m_bKnights; }
+	__forceinline void SetClanID(int16 val) { m_pUserData->m_bKnights = val; }
 
 	__forceinline GameState GetState() { return m_state; }
 

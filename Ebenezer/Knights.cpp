@@ -101,7 +101,7 @@ bool CKnights::AddUser(CUser *pUser)
 		|| !AddUser(pUser->m_pUserData->m_id))
 		return false;
 
-	pUser->m_pUserData->m_bKnights = m_sIndex;
+	pUser->SetClanID(m_sIndex);
 	pUser->m_pUserData->m_bFame = TRAINEE;
 	return true;
 }
@@ -131,7 +131,7 @@ bool CKnights::RemoveUser(CUser *pUser)
 		return false;
 
 	bool result = RemoveUser(pUser->m_pUserData->m_id);
-	pUser->m_pUserData->m_bKnights = 0;
+	pUser->SetClanID(0);
 	pUser->m_pUserData->m_bFame = 0;
 	if (!pUser->isClanLeader())
 		pUser->SendClanUserStatusUpdate();

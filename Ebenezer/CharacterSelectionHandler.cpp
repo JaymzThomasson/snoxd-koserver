@@ -264,22 +264,23 @@ void CUser::SelectCharacter(Packet & pkt)
 	m_iMaxExp = g_pMain->GetExpByLevel(GetLevel());
 	SetRegion(GetNewRegionX(), GetNewRegionZ());
 
-	if (m_pUserData->m_bKnights == -1)
+	if (GetClanID() == -1)
 	{
-		m_pUserData->m_bKnights = m_pUserData->m_bFame = 0;
+		SetClanID(0);
+		m_pUserData->m_bFame = 0;
 		return;
 	}
-	else if (m_pUserData->m_bKnights != 0)
+	else if (GetClanID() != 0)
 	{
-		CKnights* pKnights = g_pMain->GetClanPtr( m_pUserData->m_bKnights );
+		CKnights* pKnights = g_pMain->GetClanPtr( GetClanID() );
 		if (pKnights != NULL)
 		{
-			g_pMain->m_KnightsManager.SetKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id );
+			g_pMain->m_KnightsManager.SetKnightsUser( GetClanID(), m_pUserData->m_id );
 		}
 		else if (GetZoneID() > 2)
 		{
 			result.Initialize(WIZ_KNIGHTS_PROCESS);
-			result << uint8(KNIGHTS_LIST_REQ) << m_pUserData->m_bKnights;
+			result << uint8(KNIGHTS_LIST_REQ) << GetClanID();
 			g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
 		}
 	}

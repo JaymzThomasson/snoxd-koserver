@@ -144,7 +144,7 @@ void CUser::OnDisconnect()
 
 	if (isInClan())
 	{
-		CKnights *pKnights = g_pMain->GetClanPtr(m_pUserData->m_bKnights);
+		CKnights *pKnights = g_pMain->GetClanPtr(GetClanID());
 		if (pKnights != NULL)
 			pKnights->OnLogout(this);
 	}
@@ -586,10 +586,10 @@ void CUser::SendMyInfo()
 			<< m_pUserData->m_sPoints
 			<< m_iMaxExp << m_pUserData->m_iExp
 			<< m_pUserData->m_iLoyalty << m_pUserData->m_iLoyaltyMonthly
-			<< m_pUserData->m_bKnights << getFame();
+			<< GetClanID() << getFame();
 
 	if (isInClan())
-		pKnights = g_pMain->GetClanPtr(m_pUserData->m_bKnights);
+		pKnights = g_pMain->GetClanPtr(GetClanID());
 
 	if (pKnights == NULL)
 	{
@@ -3439,7 +3439,7 @@ void CUser::SendClanUserStatusUpdate(bool bToRegion /*= true*/)
 {
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MODIFY_FAME));
 	result	<< uint8(1) << GetSocketID() 
-			<< m_pUserData->m_bKnights << getFame();
+			<< GetClanID() << getFame();
 
 	// TO-DO: Make this region code user-specific to perform faster.
 	if (bToRegion)
@@ -3488,7 +3488,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 	}
 
 	// Does the clan exist?
-	if ((pKnights = g_pMain->GetClanPtr(m_pUserData->m_bKnights)) == NULL)
+	if ((pKnights = g_pMain->GetClanPtr(GetClanID())) == NULL)
 	{
 		sErrorCode = -2;
 		goto fail_return;
@@ -3590,7 +3590,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 
 	result.Initialize(WIZ_KNIGHTS_PROCESS);
 	result	<< uint8(KNIGHTS_CAPE_UPDATE)
-			<< m_pUserData->m_bKnights
+			<< GetClanID()
 			<< pKnights->m_byFlag
 			<< uint16(pKnights->m_sCape)
 			<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB

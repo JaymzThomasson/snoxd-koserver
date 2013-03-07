@@ -2226,7 +2226,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				goto next_row;
 
-			if( pUser->m_pUserData->m_bKnights == nKnightsIndex	)	{
+			if( pUser->GetClanID() == nKnightsIndex	)	{
 				sprintf_s( strKarusCaptain[nKaursRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData->m_id);
 				nFindKarus = 1;
 				nKaursRank++;
@@ -2239,7 +2239,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 			pUser = GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
 			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				goto next_row;
-			if( pUser->m_pUserData->m_bKnights == nKnightsIndex	)	{
+			if( pUser->GetClanID() == nKnightsIndex	)	{
 				sprintf_s( strElmoCaptain[nElmoRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData->m_id);
 				nFindElmo = 1;
 				nElmoRank++;

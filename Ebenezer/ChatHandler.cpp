@@ -151,7 +151,7 @@ void CUser::Chat(Packet & pkt)
 
 	case KNIGHTS_CHAT:
 		if (isInClan())
-			g_pMain->Send_KnightsMember(m_pUserData->m_bKnights, &result);
+			g_pMain->Send_KnightsMember(GetClanID(), &result);
 		break;
 	case PUBLIC_CHAT:
 	case ANNOUNCEMENT_CHAT:

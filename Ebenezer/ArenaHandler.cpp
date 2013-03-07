@@ -232,8 +232,8 @@ void CUser::HandleChallengeAcceptCVC(Packet & pkt)
 	pUser->m_sChallengeUser = -1;
 	pUser->m_bRequestingChallenge = 0;
 
-	CKnights *pClan1 = g_pMain->GetClanPtr(m_pUserData->m_bKnights);
-	CKnights *pClan2 = g_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights);
+	CKnights *pClan1 = g_pMain->GetClanPtr(GetClanID());
+	CKnights *pClan2 = g_pMain->GetClanPtr(pUser->GetClanID());
 
 	if (pClan1 == NULL || pClan2 == NULL)
 	{

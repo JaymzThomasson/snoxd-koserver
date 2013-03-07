@@ -486,7 +486,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 				|| pCaster->GetNation() != moral
 				// If we're targeting someone, that target must be in our clan.
 				|| (m_pSkillTarget != NULL 
-					&& TO_USER(m_pSkillTarget)->m_pUserData->m_bKnights != pCaster->m_pUserData->m_bKnights))
+					&& TO_USER(m_pSkillTarget)->GetClanID() != pCaster->GetClanID()))
 				goto fail_return;
 		} break;
 
@@ -1683,7 +1683,7 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 			break;
 // �񷯸ӱ� Ŭ�� ��ȯ!!!
 		case MORAL_CLAN_ALL :
-			if( pTUser->m_pUserData->m_bKnights == -1) {
+			if( pTUser->GetClanID() == -1) {
 				if (sid == tid) {
 					return TRUE; 
 				}
@@ -1692,13 +1692,13 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 				}
 			}			
 /*
-			if ( pTUser->m_pUserData->m_bKnights == m_pSrcUser->m_pUserData->m_bKnights) 
+			if ( pTUser->GetClanID() == m_pSrcUser->GetClanID()) 
 				goto final_test;
 */
-			if ( pTUser->m_pUserData->m_bKnights == m_pSrcUser->m_pUserData->m_bKnights && pMagic->bType[0] != 8 ) {
+			if ( pTUser->GetClanID() == m_pSrcUser->GetClanID() && pMagic->bType[0] != 8 ) {
 				goto final_test;
 			}
-			else if (pTUser->m_pUserData->m_bKnights == m_pSrcUser->m_pUserData->m_bKnights && pMagic->bType[0] == 8) {
+			else if (pTUser->GetClanID() == m_pSrcUser->GetClanID() && pMagic->bType[0] == 8) {
 				currenttime = TimeGet();
 				if (pTUser->m_pUserData->m_bZone == ZONE_BATTLE && (currenttime - pTUser->m_fLastRegeneTime < CLAN_SUMMON_TIME)) {
 					return FALSE;

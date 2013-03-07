@@ -456,7 +456,7 @@ void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 	case KNIGHTS_REJECT:
 		if (pTUser)
 		{
-			pTUser->m_pUserData->m_bKnights = 0;
+			pTUser->SetClanID(0);
 			pTUser->m_pUserData->m_bFame = 0;
 
 			if (command == KNIGHTS_REMOVE)
