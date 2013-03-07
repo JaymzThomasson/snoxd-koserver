@@ -1405,17 +1405,9 @@ void CServerDlg::GetServerInfoIni()
 
 void CServerDlg::SendSystemMsg( char* pMsg, int type, int who )
 {
-	int send_index = 0;
-	char buff[256];
-	short sLength = _tcslen(pMsg);
-
-	SetByte(buff, AG_SYSTEM_MSG, send_index );
-	SetByte(buff, type, send_index );				// 채팅형식
-	SetShort(buff, who, send_index );				// 누구에게
-	SetShort(buff, sLength, send_index );
-	SetString( buff, pMsg, sLength, send_index );
-
-	Send(buff, send_index);   	
+	Packet result(AG_SYSTEM_MSG, uint8(type));
+	result << int16(who) << pMsg;
+	Send(&result);
 }
 
 void CServerDlg::ResetBattleZone()

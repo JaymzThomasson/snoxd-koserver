@@ -1919,8 +1919,7 @@ void CUser::CountConcurrentUser()
 
 void CUser::LoyaltyDivide(short tid)
 {
-	int send_index = 0, levelsum = 0, individualvalue = 0;
-	char send_buff[256];
+	int levelsum = 0, individualvalue = 0;
 	short temp_loyalty = 0, level_difference = 0, loyalty_source = 0, loyalty_target = 0, average_level = 0; 
 	BYTE total_member = 0;
 
@@ -1991,17 +1990,7 @@ void CUser::LoyaltyDivide(short tid)
 			if (pUser == NULL)
 				continue;
 
-			//TRACE("LoyaltyDivide 111 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
-			
-			pUser->m_pUserData->m_iLoyalty += individualvalue;	
-			if (pUser->m_pUserData->m_iLoyalty < 0) pUser->m_pUserData->m_iLoyalty = 0;	// Cannot be less than zero.
-
-			//TRACE("LoyaltyDivide 222 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
-
-			send_index = 0;	
-			SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );	// Send result to source.
-			SetDWORD( send_buff, pUser->m_pUserData->m_iLoyalty, send_index );
-			pUser->Send( send_buff, send_index );			
+			pUser->SendLoyaltyChange(individualvalue);
 		}
 		
 		return;
@@ -2018,28 +2007,10 @@ void CUser::LoyaltyDivide(short tid)
 
 		//TRACE("LoyaltyDivide 333 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
 		individualvalue = pUser->GetLevel() * loyalty_source / levelsum ;
-		pUser->m_pUserData->m_iLoyalty += individualvalue;	
-		if (pUser->m_pUserData->m_iLoyalty < 0) pUser->m_pUserData->m_iLoyalty = 0;
-
-		//TRACE("LoyaltyDivide 444 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
-
-		send_index = 0;	
-		SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );	// Send result to source.
-		SetDWORD( send_buff, pUser->m_pUserData->m_iLoyalty, send_index );
-		pUser->Send( send_buff, send_index );
-
-		individualvalue = 0;
+		pUser->SendLoyaltyChange(individualvalue);
 	}
 
-	pTUser->m_pUserData->m_iLoyalty += loyalty_target;	// Recalculate target loyalty.
-	if (pTUser->m_pUserData->m_iLoyalty < 0) pTUser->m_pUserData->m_iLoyalty = 0;
-
-	//TRACE("LoyaltyDivide 555 - user1=%s, %d\n", pTUser->m_pUserData->m_id, pTUser->m_pUserData->m_iLoyalty);
-	
-	send_index = 0;		// Send result to target.
-	SetByte( send_buff, WIZ_LOYALTY_CHANGE, send_index );
-	SetDWORD( send_buff, pTUser->m_pUserData->m_iLoyalty, send_index );
-	pTUser->Send( send_buff, send_index );
+	pTUser->SendLoyaltyChange(loyalty_target);
 }
 
 void CUser::ItemWoreOut(int type, int damage)

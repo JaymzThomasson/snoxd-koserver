@@ -711,9 +711,6 @@ void CNpc::NpcMoving()
 //
 void CNpc::NpcStanding()
 {
-	char send_buff[128];
-	int send_index = 0;
-
 /*	if(g_pMain->m_byNight == 2)	{	// 밤이면
 		m_NpcState = NPC_SLEEPING;
 		m_Delay = 0;
@@ -769,12 +766,10 @@ void CNpc::NpcStanding()
 	m_fDelayTime = TimeGet();
 	
 	if( m_proto->m_tNpcType == NPC_SPECIAL_GATE && g_pMain->m_byBattleEvent == BATTLEZONE_OPEN )	{
-		m_byGateOpen = !m_byGateOpen;		// 
-		send_index = 0;
-		SetByte( send_buff, AG_NPC_GATE_OPEN, send_index );
-		SetShort( send_buff, m_sNid+NPC_BAND, send_index );
-		SetByte( send_buff, m_byGateOpen, send_index );
-		g_pMain->Send(send_buff, send_index);
+		m_byGateOpen = !m_byGateOpen;
+		Packet result(AG_NPC_GATE_OPEN);
+		result << uint16(m_sNid+NPC_BAND) << m_byGateOpen;
+		g_pMain->Send(&result);
 	}
 }
 
@@ -3964,59 +3959,37 @@ void CNpc::SendExpToUserList()
 	if( g_pMain->m_byBattleEvent == BATTLEZONE_OPEN )	{	// 전쟁중
 		if( m_bySpecialType >= 90 && m_bySpecialType <= 100 )	{					// 죽었을때 데미지를 많이 입힌 유저를 기록해 주세여
 			if( strlen( strMaxDamageUser) != 0 )	{		// 몬스터에게 가장 데미지를 많이 입힌 유저의 이름을 전송
-				char send_buff[100];
-				int send_index = 0;
-				SetByte( send_buff, AG_BATTLE_EVENT, send_index );
-				SetByte( send_buff, BATTLE_EVENT_MAX_USER, send_index );
-				if( m_bySpecialType == 100 )		SetByte( send_buff, 1, send_index );
-				else if( m_bySpecialType == 90 )	{
-					SetByte( send_buff, 3, send_index );
-					g_pMain->m_sKillKarusNpc++;
-				}
-				else if( m_bySpecialType == 91 )	{
-					SetByte( send_buff, 4, send_index );
-					g_pMain->m_sKillKarusNpc++;
-				}
-				else if( m_bySpecialType == 92 )	{
-					SetByte( send_buff, 5, send_index );
-					g_pMain->m_sKillElmoNpc++;
-				}
-				else if( m_bySpecialType == 93 )	{
-					SetByte( send_buff, 6, send_index );
-					g_pMain->m_sKillElmoNpc++;
-				}
-				else if( m_bySpecialType == 98 )	{
-					SetByte( send_buff, 7, send_index );
-					g_pMain->m_sKillKarusNpc++;
-				}
-				else if( m_bySpecialType == 99 )	{
-					SetByte( send_buff, 8, send_index );
-					g_pMain->m_sKillElmoNpc++;
+				Packet result(AG_BATTLE_EVENT, uint8(BATTLE_EVENT_MAX_USER));
+
+				switch (m_bySpecialType)
+				{
+				case 100:	result << uint8(1); break;
+				case 90:	result << uint8(3); break;
+				case 91:	result << uint8(4); break;
+				case 92:	result << uint8(5);	break;
+				case 93:	result << uint8(6); break;
+				case 98:	result << uint8(7); break;
+				case 99:	result << uint8(8); break;
 				}
 
-				SetByte( send_buff, strlen(strMaxDamageUser), send_index );
-				SetString( send_buff, strMaxDamageUser, strlen(strMaxDamageUser), send_index );
-				g_pMain->Send( send_buff, send_index );
-				TRACE("@@@ MaxDamageUser - %s @@@\n", strMaxDamageUser);
+				if (m_bySpecialType == 90 || m_bySpecialType == 91 || m_bySpecialType == 98)
+					g_pMain->m_sKillKarusNpc++;
+				else if (m_bySpecialType == 92 || m_bySpecialType == 93 || m_bySpecialType == 99)
+					g_pMain->m_sKillElmoNpc++;
 
-				send_index = 0;
-				if( g_pMain->m_sKillKarusNpc == pMap->m_sKarusRoom )	{
-					SetByte( send_buff, AG_BATTLE_EVENT, send_index );
-					SetByte( send_buff, BATTLE_EVENT_RESULT, send_index );
-					SetByte( send_buff, ELMORAD_ZONE, send_index );
-					SetByte( send_buff, strlen(strMaxDamageUser), send_index );
-					SetString( send_buff, strMaxDamageUser, strlen(strMaxDamageUser), send_index );
-					g_pMain->Send( send_buff, send_index );
-					TRACE("@@@ Karus Victory - %d, %d @@@\n", g_pMain->m_sKillKarusNpc, pMap->m_sKarusRoom);
-				}
-				else if( g_pMain->m_sKillElmoNpc == pMap->m_sElmoradRoom )	{
-					SetByte( send_buff, AG_BATTLE_EVENT, send_index );
-					SetByte( send_buff, BATTLE_EVENT_RESULT, send_index );
-					SetByte( send_buff, KARUS_ZONE, send_index );
-					SetByte( send_buff, strlen(strMaxDamageUser), send_index );
-					SetString( send_buff, strMaxDamageUser, strlen(strMaxDamageUser), send_index );
-					g_pMain->Send( send_buff, send_index );
-					TRACE("@@@ Elmorad Victory - %d, %d @@@\n", g_pMain->m_sKillElmoNpc, pMap->m_sElmoradRoom);
+				result.SByte();
+				result << strMaxDamageUser;
+				g_pMain->Send(&result);
+
+				bool	bKarusComplete = (g_pMain->m_sKillKarusNpc == pMap->m_sKarusRoom),
+						bElMoradComplete = (g_pMain->m_sKillElmoNpc == pMap->m_sElmoradRoom);
+				if (bKarusComplete || bElMoradComplete)
+				{
+					result.clear();
+					result	<< uint8(BATTLE_EVENT_RESULT) 
+							<< uint8(bKarusComplete ? KARUS_ZONE : ELMORAD_ZONE)
+							<< strMaxDamageUser;
+					g_pMain->Send(&result);
 				}
 			}
 		}
@@ -5468,13 +5441,6 @@ void CNpc::DurationMagic_4(float currenttime)
 			}
 		}
 	}
-/*
-	if (buff_type) {
-		SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
-		SetByte( send_buff, MAGIC_TYPE4_END, send_index );	
-		SetByte( send_buff, buff_type, send_index ); 
-		SendAll(send_buff, send_index ); 
-	}	*/
 }
 
 // 변화되는 몬스터의 정보를 바꾸어준다...
