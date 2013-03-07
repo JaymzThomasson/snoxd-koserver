@@ -274,4 +274,10 @@ typedef union{
 #define TO_USER(v)	static_cast<CUser *>(v)
 #define TO_NPC(v)	static_cast<CNpc *>(v)
 
+// This is more than a little convulated.
+#define PARSE_ARGUMENTS(count, temp, buff, arg, id, index) for (int _i = 0; _i < count; _i++) { \
+	index += ParseSpace(temp, buff + index); \
+	arg[id++] = atoi(temp); \
+}
+
 #include "../shared/globals.h"
