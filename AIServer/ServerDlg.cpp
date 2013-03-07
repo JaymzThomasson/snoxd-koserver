@@ -153,8 +153,8 @@ BOOL CServerDlg::OnInitDialog()
 		|| !GetMakeDefensiveItemTableData()
 		|| !GetMakeGradeItemTableData()
 		|| !GetMakeLareItemTableData()
-		|| !GetNpcTableData(_T("K_MONSTER"))
-		|| !GetNpcTableData(_T("K_NPC"))
+		|| !GetNpcTableData(false)
+		|| !GetNpcTableData(true)
 		// Load maps
 		|| !MapFileLoad()
 		// Spawn NPC threads
