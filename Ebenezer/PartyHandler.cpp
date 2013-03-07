@@ -423,7 +423,7 @@ void CUser::SendPartyBBSNeeded(uint16 page_index, uint8 bType)
 		result << pUser->m_pUserData->m_id << pUser->GetLevel() << pUser->m_pUserData->m_sClass;
 		valid_counter++;
 	}
-
+	g_pMain->s_socketMgr.ReleaseLock();
 
 	// You still need to fill up ten slots.
 	if (valid_counter < MAX_BBS_PAGE)
