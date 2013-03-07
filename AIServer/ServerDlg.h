@@ -130,10 +130,7 @@ public:
 	// class 객체
 	CNpcItem				m_NpcItem;
 
-	CFile					m_ItemLogFile;
-
-	// 전역 객체 변수
-	//BOOL			m_bNpcExit;
+	// 전역 객체 변수	//BOOL			m_bNpcExit;
 	long			m_TotalNPC;			// DB에있는 총 수
 	long			m_CurrentNPCError;	// 세팅에서 실패한 수
 	long			m_CurrentNPC;		// 현재 게임상에서 실제로 셋팅된 수

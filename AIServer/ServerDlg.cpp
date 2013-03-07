@@ -38,32 +38,13 @@ BOOL g_bNpcExit	= FALSE;
 ZoneArray			g_arZone;
 CServerDlg * g_pMain = NULL;
 
-CRITICAL_SECTION g_User_critical, g_region_critical, g_LogFileWrite;
+CRITICAL_SECTION g_User_critical, g_region_critical;
 
 KOSocketMgr<CGameSocket> CServerDlg::s_socketMgr;
-
 
 #define CHECK_ALIVE 	100		//  게임서버와 통신이 끊김여부 판단, 타이머 변수
 #define REHP_TIME		200
 #define MONSTER_SPEED	1500
-
-/*
-     ** Repent AI Server 작업시 참고 사항 **
-	1. 3개의 함수 추가
-		int GetSpeed(BYTE bySpeed); 
-		int GetAttackSpeed(BYTE bySpeed); 
-		int GetCatsSpeed(BYTE bySpeed); 
-	2. Repent에  맞개 아래의 함수 수정
-		CreateNpcThread();
-		GetMonsterTableData();
-		GetNpcTableData();
-		GetNpcItemTable();
-*/
-
-
-
-/////////////////////////////////////////////////////////////////////////////
-// CServerDlg dialog
 
 CServerDlg::CServerDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CServerDlg::IDD, pParent)
@@ -88,8 +69,6 @@ CServerDlg::CServerDlg(CWnd* pParent /*=NULL*/)
 	m_sKillElmoNpc = 0;
 	m_pZoneEventThread = NULL;
 	m_byTestMode = 0;
-	//m_ppUserActive = NULL;
-	//m_ppUserInActive = NULL;
 }
 
 void CServerDlg::DoDataExchange(CDataExchange* pDX)
@@ -109,12 +88,6 @@ BEGIN_MESSAGE_MAP(CServerDlg, CDialog)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
-/////////////////////////////////////////////////////////////////////////////
-// CServerDlg message handlers
-
-///////////////////////////////////////////////////////////////////////////////
-//	각종 초기화
-//
 BOOL CServerDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
@@ -132,7 +105,6 @@ BOOL CServerDlg::OnInitDialog()
 
 	InitializeCriticalSection( &g_region_critical );
 	InitializeCriticalSection( &g_User_critical );
-	InitializeCriticalSection( &g_LogFileWrite );
 	m_sMapEventNpc = 0;
 	m_bFirstServerFlag = FALSE;			
 
@@ -143,15 +115,6 @@ BOOL CServerDlg::OnInitDialog()
 	// Server Start
 	CTime time = CTime::GetCurrentTime();
 	AddToList("[AI ServerStart - %d-%d-%d, %02d:%02d]", time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute() );
-
-	//----------------------------------------------------------------------
-	//	Logfile initialize
-	//----------------------------------------------------------------------
-	char strLogFile[50];
-	sprintf_s(strLogFile, sizeof(strLogFile), "ItemLog-%d-%d-%d.txt", time.GetYear(), time.GetMonth(), time.GetDay());
-	m_ItemLogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
-	m_ItemLogFile.SeekToEnd();
-
 
 	//----------------------------------------------------------------------
 	//	DB part initialize
@@ -1086,8 +1049,6 @@ BOOL CServerDlg::DestroyWindow()
 
 	g_bNpcExit = TRUE;
 
-	if(m_ItemLogFile.m_hFile != CFile::hFileNull) m_ItemLogFile.Close();
-
 	foreach (itr, m_arNpcThread)
 		WaitForSingleObject((*itr)->m_pThread->m_hThread, 1000);
 
@@ -1121,7 +1082,6 @@ BOOL CServerDlg::DestroyWindow()
 
 	DeleteCriticalSection( &g_region_critical );
 	DeleteCriticalSection( &g_User_critical );
-	DeleteCriticalSection( &g_LogFileWrite );
 
 	return CDialog::DestroyWindow();
 }

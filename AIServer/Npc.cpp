@@ -44,7 +44,6 @@ int cur_test = 0;	// 1 = test중 , 0이면 정상
 #define FAINTING_TIME			2
 
 extern CRITICAL_SECTION g_region_critical;
-extern CRITICAL_SECTION g_LogFileWrite;
 
 /*
      ** Repent AI Server 작업시 참고 사항 **
@@ -4938,15 +4937,6 @@ void CNpc::GiveNpcHaveItem()
 	for(i=0; i<nCount; i++)	{
 		SetDWORD(pBuf, m_GiveItemList[i].sSid, index);
 		SetShort(pBuf, m_GiveItemList[i].count, index);
-
-		if( m_GiveItemList[i].sSid != TYPE_MONEY_SID )	{
-			//sprintf( logfile, "%d\r\n", m_GiveItemList[i].sSid);
-			string.Format("%d\r\n", m_GiveItemList[i].sSid);
-			EnterCriticalSection( &g_LogFileWrite );
-			g_pMain->m_ItemLogFile.Write(string, string.GetLength());
-			LeaveCriticalSection( &g_LogFileWrite );
-			//LogFileWrite( logfile );
-		}
 		//TRACE("Npc-GiveNpcHaveItem() : [nid - %d,%s,  giveme=%d, count=%d, num=%d], list=%d, count=%d\n", m_sNid+NPC_BAND, m_proto->m_strName, m_sMaxDamageUserid, nCount, i, m_GiveItemList[i].sSid, m_GiveItemList[i].count);
 	}
 
