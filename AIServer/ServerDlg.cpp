@@ -1440,27 +1440,6 @@ CUser* CServerDlg::GetActiveUserPtr(int index)
 	return pUser;
 }
 
-CNpc*  CServerDlg::GetNpcPtr(TCHAR* pNpcName)
-{
-	CNpc* pNpc = NULL;
-
-	int nSize = m_arNpc.GetSize();
-
-	for( int i = 0; i < nSize; i++)
-	{
-		pNpc = m_arNpc.GetData( i );
-		if( !pNpc ) continue;
-
-		if( _tcscmp(pNpc->m_proto->m_strName, pNpcName) == 0)
-		{
-			return pNpc;
-		}
-	}
-
-	return NULL;
-}
-
-
 //	추가할 소환몹의 메모리를 참조하기위해 플래그가 0인 상태것만 넘긴다.
 CNpc* CServerDlg::GetEventNpcPtr()
 {

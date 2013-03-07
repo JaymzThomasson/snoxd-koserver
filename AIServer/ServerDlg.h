@@ -70,7 +70,6 @@ public:
 	void AllNpcInfo();			// ~sungyong 2002.05.23
 	CUser* GetUserPtr(int nid);
 	CUser* GetActiveUserPtr(int index);
-	CNpc*  GetNpcPtr(TCHAR* pNpcName);
 	CNpc*  GetEventNpcPtr();
 	BOOL   SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz);
 	MAP * GetZoneByID(int zonenumber);
