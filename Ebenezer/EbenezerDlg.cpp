@@ -2181,7 +2181,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 	CKnights* pKnights = NULL;
 	CString strKnightsName;
 
-	char send_buff[1024], temp_buff[1024], strKarusCaptainName[1024], strElmoCaptainName[1024];		
+	char strKarusCaptainName[1024], strElmoCaptainName[1024];		
 	char strKarusCaptain[5][50], strElmoCaptain[5][50];	
 
 	if( !KRankSet.Open() ) {
@@ -2247,19 +2247,11 @@ next_row:
 
 	TRACE("LoadKnightsRankTable Success\n");
 	
-	SetByte( send_buff, WIZ_CHAT, send_index );
-	SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
-	SetByte( send_buff, 1, send_index );
-	SetShort( send_buff, -1, send_index );
-	SetByte( send_buff, 0x00, send_index );	
-	SetKOString(send_buff, strKarusCaptainName, send_index);
+	Packet karusCaptain(WIZ_CHAT, uint8(WAR_SYSTEM_CHAT));
+	karusCaptain << int8(1) << int16(-1) << int8(0) << strKarusCaptainName;
 
-	SetByte( temp_buff, WIZ_CHAT, temp_index );
-	SetByte( temp_buff, WAR_SYSTEM_CHAT, temp_index );
-	SetByte( temp_buff, 1, temp_index );
-	SetShort( temp_buff, -1, temp_index );
-	SetByte( send_buff, 0x00, send_index );	
-	SetKOString(temp_buff, strElmoCaptainName, temp_index);
+	Packet elmoradCaptain(WIZ_CHAT, uint8(WAR_SYSTEM_CHAT));
+	elmoradCaptain << int8(1) << int16(-1) << int8(0) << strElmoCaptainName;
 
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
@@ -2269,9 +2261,9 @@ next_row:
 			continue;
 
 		if (pUser->GetNation() == KARUS)
-			pUser->Send(send_buff, send_index);
+			pUser->Send(&karusCaptain);
 		else
-			pUser->Send(temp_buff, temp_index);
+			pUser->Send(&elmoradCaptain);
 	}
 	s_socketMgr.ReleaseLock();
 	return TRUE;
