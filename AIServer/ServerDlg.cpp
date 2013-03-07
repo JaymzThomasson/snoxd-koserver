@@ -17,7 +17,6 @@
 #include "../shared/database/ZoneInfoSet.h"
 #include "../shared/database/NpcItemSet.h"
 #include "../shared/database/NpcTableSet.h"
-#include "../shared/database/MonTableSet.h"
 #include "../shared/database/MakeWeaponTableSet.h"
 #include "../shared/database/MakeDefensiveTableSet.h"
 #include "../shared/database/MakeGradeItemTableSet.h"
@@ -154,8 +153,8 @@ BOOL CServerDlg::OnInitDialog()
 		|| !GetMakeDefensiveItemTableData()
 		|| !GetMakeGradeItemTableData()
 		|| !GetMakeLareItemTableData()
-		|| !GetMonsterTableData()
-		|| !GetNpcTableData()
+		|| !GetNpcTableData(_T("K_MONSTER"))
+		|| !GetNpcTableData(_T("K_NPC"))
 		// Load maps
 		|| !MapFileLoad()
 		// Spawn NPC threads
@@ -474,17 +473,16 @@ BOOL CServerDlg::GetNpcItemTable()
 }
 
 //	Monster Table Data 를 읽는다.
-BOOL CServerDlg::GetMonsterTableData()
+BOOL CServerDlg::GetNpcTableData(bool bNpcData /*= true*/)
 {
-	CMonTableSet NpcTableSet;
-
+	CNpcTableSet NpcTableSet;
+	NpcTableArray *pMap = (bNpcData ? &m_arNpcTable : &m_arMonTable);	
+	
 	try 
 	{
-		//if(m_arMonTable.GetSize()) return FALSE;
-
 		if(NpcTableSet.IsOpen()) NpcTableSet.Close();
 		
-		if(!NpcTableSet.Open())
+		if(!NpcTableSet.Open(-1, bNpcData ? _T("K_NPC") : _T("K_MONSTER")))
 		{
 			AfxMessageBox(_T("MONSTER DB Open Fail!"));
 			return FALSE;
@@ -555,117 +553,8 @@ BOOL CServerDlg::GetMonsterTableData()
 			Npc->m_byDirectAttack = NpcTableSet.m_byDirectAttack;
 			Npc->m_byMagicAttack = NpcTableSet.m_byMagicAttack;
 			
-			if( !m_arMonTable.PutData(Npc->m_sSid, Npc) )	{
-				TRACE("GetMonsterTableData - PutData Fail - %d\n", Npc->m_sSid);
+			if (!pMap->PutData(Npc->m_sSid, Npc))
 				delete Npc;
-				Npc = NULL;
-			}
-			//m_arMonTable.Add(Npc);
-
-			NpcTableSet.MoveNext();
-		}
-
-		NpcTableSet.Close();
-	}
-	catch(CDBException* e)
-	{
-		e->ReportError();
-		e->Delete();
-
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-//	NPC Table Data 를 읽는다. (경비병 & NPC)
-BOOL CServerDlg::GetNpcTableData()
-{
-	CNpcTableSet NpcTableSet;
-
-	try 
-	{
-		//if(m_arNpcTable.GetSize()) return FALSE;
-
-		if(NpcTableSet.IsOpen()) NpcTableSet.Close();
-		
-		if(!NpcTableSet.Open())
-		{
-			AfxMessageBox(_T("NPC DB Open Fail!"));
-			return FALSE;
-		}
-		if(NpcTableSet.IsBOF()) 
-		{
-			AfxMessageBox(_T("NPC DB Empty!"));
-			return FALSE;
-		}
-
-		while(!NpcTableSet.IsEOF())
-		{
-			CNpcTable* Npc = new CNpcTable;
-			CString tmpNpcName;
-			Npc->Initialize();
-			
-			Npc->m_sSid			= NpcTableSet.m_sSid;		// MONSTER(NPC) Serial ID
-			_tcscpy(Npc->m_strName, NpcTableSet.m_strName);	// MONSTER(NPC) Name
-			Npc->m_sPid = NpcTableSet.m_sPid;				// MONSTER(NPC) Picture ID
-			Npc->m_sSize = NpcTableSet.m_sSize;				// MONSTER(NPC) 캐릭 크기 비율
-			Npc->m_iWeapon_1 = NpcTableSet.m_iWeapon1;			// 착용무기
-			Npc->m_iWeapon_2 = NpcTableSet.m_iWeapon2;			// 착용무기
-			Npc->m_byGroup = NpcTableSet.m_byGroup;			// 소속집단
-			Npc->m_byActType = NpcTableSet.m_byActType;		// 행동패턴
-			Npc->m_byRank = NpcTableSet.m_byRank;			// 작위
-			Npc->m_byTitle = NpcTableSet.m_byTitle;			// 지위
-			Npc->m_iSellingGroup = NpcTableSet.m_iSellingGroup;		// item group
-			Npc->m_sLevel = NpcTableSet.m_sLevel;			// level
-			Npc->m_iExp = NpcTableSet.m_iExp;				// 경험치
-			Npc->m_iLoyalty = NpcTableSet.m_iLoyalty;		// loyalty
-			Npc->m_iMaxHP = NpcTableSet.m_iHpPoint;	// 최대 HP
-			Npc->m_sMaxMP = NpcTableSet.m_sMpPoint;	// 최대 MP
-			Npc->m_sAttack = NpcTableSet.m_sAtk;			// 공격값
-			Npc->m_sDefense = NpcTableSet.m_sAc;			// 방어값
-			Npc->m_sHitRate = NpcTableSet.m_sHitRate;		// 타격성공률
-			Npc->m_sEvadeRate = NpcTableSet.m_sEvadeRate;	// 회피성공률
-			Npc->m_sDamage = NpcTableSet.m_sDamage;			// 기본 데미지
-			Npc->m_sAttackDelay = NpcTableSet.m_sAttackDelay;	// 공격딜레이
-			Npc->m_bySpeed_1 = NpcTableSet.m_bySpeed1;				// 이동속도	(걷기)
-			Npc->m_bySpeed_2 = NpcTableSet.m_bySpeed2;				// 이동속도	(뛰기)
-			Npc->m_sSpeed = MONSTER_SPEED;			// 이동속도	
-			Npc->m_sStandTime = NpcTableSet.m_sStandtime;		// 서있는 시간
-			Npc->m_iMagic1 = NpcTableSet.m_iMagic1;			// 사용마법 1
-			Npc->m_iMagic2 = NpcTableSet.m_iMagic2;			// 사용마법 2
-			Npc->m_iMagic3 = NpcTableSet.m_iMagic3;			// 사용마법 3	
-			Npc->m_byFireR = NpcTableSet.m_byFireR;			// 화염 저항력
-			Npc->m_byColdR = NpcTableSet.m_byColdR;			// 냉기 저항력
-			Npc->m_byLightningR = NpcTableSet.m_byLightningR;			// 전기 저항력
-			Npc->m_byMagicR = NpcTableSet.m_byMagicR;			// 마법 저항력
-			Npc->m_byDiseaseR = NpcTableSet.m_byDiseaseR;		// 저주 저항력
-			Npc->m_byPoisonR = NpcTableSet.m_byPoisonR;		// 독 저항력
-			Npc->m_byLightR = NpcTableSet.m_byLightR;		// 빛 저항력
-			Npc->m_fBulk =  (float)(((double)NpcTableSet.m_sBulk / 100) * ((double)NpcTableSet.m_sSize / 100));
-			Npc->m_bySearchRange = NpcTableSet.m_bySearchRange;	// 적 탐지 범위
-			Npc->m_byAttackRange = NpcTableSet.m_byAttackRange;	// 사정거리
-			Npc->m_byTracingRange = NpcTableSet.m_byTracingRange;	// 추격거리
-			//Npc->m_sAI = NpcTableSet.m_sAI;				// 인공지능 인덱스
-			Npc->m_tNpcType = NpcTableSet.m_byType;			// NPC Type
-								// 0 : Monster
-								// 1 : Normal NPC
-
-			Npc->m_byFamilyType = NpcTableSet.m_byFamily;		// 몹들사이에서 가족관계를 결정한다.
-			//Npc->m_tItemPer;		// 아이템이 떨어질 확률
-			//Npc->m_tDnPer;			// 돈이 떨어질확률
-
-			Npc->m_iMoney = NpcTableSet.m_iMoney;			// 떨어지는 돈
-			Npc->m_iItem = NpcTableSet.m_sItem;			// 떨어지는 아이템
-			Npc->m_byDirectAttack = NpcTableSet.m_byDirectAttack;
-			Npc->m_byMagicAttack = NpcTableSet.m_byMagicAttack;
-			
-			if( !m_arNpcTable.PutData(Npc->m_sSid, Npc) )	{
-				TRACE("GetNpcTableData - PutData Fail - %d\n", Npc->m_sSid);
-				delete Npc;
-				Npc = NULL;
-			}
-			//m_arNpcTable.Add(Npc);
 
 			NpcTableSet.MoveNext();
 		}
@@ -740,7 +629,6 @@ BOOL CServerDlg::CreateNpcThread()
 			if( m_byZone == nServerNum || m_byZone == UNIFY_ZONE)	{
 				for(j=0; j<nMonsterNumber; j++)		{
 					CNpc*		pNpc		= new CNpc();
-					pNpc->m_sNid	= nSerial++;			// 서버 내에서의 고유 번호
 
 					pNpc->m_byMoveType = NpcPosSet.m_ActType;
 					pNpc->m_byInitMoveType = NpcPosSet.m_ActType;
@@ -764,7 +652,7 @@ BOOL CServerDlg::CreateNpcThread()
 						return FALSE;
 					}
 
-					pNpc->m_proto = pNpcTable;
+					pNpc->Load(nSerial++, pNpcTable);
 					pNpc->m_byBattlePos = 0;
 
 					if(pNpc->m_byMoveType >= 2)	{
@@ -778,48 +666,6 @@ BOOL CServerDlg::CreateNpcThread()
 						bMoveNext = FALSE;
 						nNpcCount = NpcPosSet.m_NumNPC;
 					}
-					
-					pNpc->m_sSize		= pNpcTable->m_sSize;		// 캐릭터의 비율(100 퍼센트 기준)
-					pNpc->m_iWeapon_1		= pNpcTable->m_iWeapon_1;	// 착용무기
-					pNpc->m_iWeapon_2		= pNpcTable->m_iWeapon_2;	// 착용무기
-					pNpc->m_byGroup			= pNpcTable->m_byGroup;		// 소속집단
-					pNpc->m_byActType		= pNpcTable->m_byActType;	// 행동패턴
-					pNpc->m_byRank			= pNpcTable->m_byRank;		// 작위
-					pNpc->m_byTitle			= pNpcTable->m_byTitle;		// 지위
-					pNpc->m_iSellingGroup  = pNpcTable->m_iSellingGroup;
-					pNpc->m_iHP				= pNpcTable->m_iMaxHP;		// 최대 HP
-					pNpc->m_iMaxHP			= pNpcTable->m_iMaxHP;		// 현재 HP
-					pNpc->m_sMP				= pNpcTable->m_sMaxMP;		// 최대 MP
-					pNpc->m_sMaxMP			= pNpcTable->m_sMaxMP;		// 현재 MP
-					pNpc->m_sAttack			= pNpcTable->m_sAttack;		// 공격값
-					pNpc->m_sDefense		= pNpcTable->m_sDefense;	// 방어값
-					pNpc->m_sHitRate		= pNpcTable->m_sHitRate;	// 타격성공률
-					pNpc->m_sEvadeRate		= pNpcTable->m_sEvadeRate;	// 회피성공률
-					pNpc->m_sDamage			= pNpcTable->m_sDamage;		// 기본 데미지
-					pNpc->m_sAttackDelay	= pNpcTable->m_sAttackDelay;// 공격딜레이
-					pNpc->m_sSpeed			= pNpcTable->m_sSpeed;		// 이동속도
-					dbSpeed = pNpcTable->m_sSpeed;	
-					pNpc->m_fSpeed_1		= (float)(pNpcTable->m_bySpeed_1 * (dbSpeed / 1000));	// 기본 이동 타입
-					pNpc->m_fSpeed_2		= (float)(pNpcTable->m_bySpeed_2 * (dbSpeed / 1000));	// 뛰는 이동 타입..
-					pNpc->m_fOldSpeed_1		= (float)(pNpcTable->m_bySpeed_1 * (dbSpeed / 1000));	// 기본 이동 타입
-					pNpc->m_fOldSpeed_2		= (float)(pNpcTable->m_bySpeed_2 * (dbSpeed / 1000));	// 뛰는 이동 타입..
-					pNpc->m_fSecForMetor    = 4.0f;						// 초당 갈 수 있는 거리..
-					pNpc->m_sStandTime		= pNpcTable->m_sStandTime;	// 서있는 시간
-					pNpc->m_byFireR			= pNpcTable->m_byFireR;		// 화염 저항력
-					pNpc->m_byColdR			= pNpcTable->m_byColdR;		// 냉기 저항력
-					pNpc->m_byLightningR	= pNpcTable->m_byLightningR;	// 전기 저항력
-					pNpc->m_byMagicR		= pNpcTable->m_byMagicR;	// 마법 저항력
-					pNpc->m_byDiseaseR		= pNpcTable->m_byDiseaseR;	// 저주 저항력
-					pNpc->m_byPoisonR		= pNpcTable->m_byPoisonR;	// 독 저항력
-					pNpc->m_byLightR		= pNpcTable->m_byLightR;	// 빛 저항력
-					pNpc->m_bySearchRange	= pNpcTable->m_bySearchRange;	// 적 탐지 범위
-					pNpc->m_byAttackRange	= pNpcTable->m_byAttackRange;	// 사정거리
-					pNpc->m_byTracingRange	= pNpcTable->m_byTracingRange;	// 추격거리
-					pNpc->m_sAI				= pNpcTable->m_sAI;				// 인공지능 인덱스
-					pNpc->m_iMoney			= pNpcTable->m_iMoney;			// 떨어지는 돈
-					pNpc->m_iItem			= pNpcTable->m_iItem;			// 떨어지는 아이템
-					pNpc->m_tNpcLongType    = pNpcTable->m_byDirectAttack;
-					pNpc->m_byWhatAttackType = pNpcTable->m_byMagicAttack;
 
 					//////// MONSTER POS ////////////////////////////////////////
 					pNpc->m_bCurZone = NpcPosSet.m_ZoneID;
@@ -1507,103 +1353,29 @@ BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number)
 	}
 
 	CNpc *pNpc = new CNpc();
+
+	pNpc->m_bCurZone	= zone_number;
+	pNpc->m_byGateOpen	= (BYTE)pEvent->sStatus;
+	pNpc->m_fCurX		= pEvent->fPosX;
+	pNpc->m_fCurY		= pEvent->fPosY;
+	pNpc->m_fCurZ		= pEvent->fPosZ;
 	
-	pNpc->m_proto = pNpcTable;
-	pNpc->m_sNid	= m_sMapEventNpc++;				// 서버 내에서의 고유 번호
+ 	pNpc->m_nInitMinX	= (int)pEvent->fPosX-1;
+	pNpc->m_nInitMinY	= (int)pEvent->fPosZ-1;
+	pNpc->m_nInitMaxX	= (int)pEvent->fPosX+1;
+	pNpc->m_nInitMaxY	= (int)pEvent->fPosZ+1;	
 
-	pNpc->m_byMoveType = 100;
-	pNpc->m_byInitMoveType = 100;
+	pNpc->Load(m_sMapEventNpc++, pNpcTable);
 
-	pNpc->m_byMoveType = 0;
-	pNpc->m_byInitMoveType = 0;
-
-	pNpc->m_byBattlePos = 0;
-
-	_tcscpy(pNpc->m_proto->m_strName, pNpcTable->m_strName);	// MONSTER(NPC) Name
-
-	pNpc->m_sSize		= pNpcTable->m_sSize;		// 캐릭터의 비율(100 퍼센트 기준)
-	pNpc->m_iWeapon_1		= pNpcTable->m_iWeapon_1;	// 착용무기
-	pNpc->m_iWeapon_2		= pNpcTable->m_iWeapon_2;	// 착용무기
-	pNpc->m_byGroup			= pNpcTable->m_byGroup;		// 소속집단
-	pNpc->m_byActType		= pNpcTable->m_byActType;	// 행동패턴
-	pNpc->m_byRank			= pNpcTable->m_byRank;		// 작위
-	pNpc->m_byTitle			= pNpcTable->m_byTitle;		// 지위
-	pNpc->m_iSellingGroup  = pNpcTable->m_iSellingGroup;
-	pNpc->m_iHP				= pNpcTable->m_iMaxHP;		// 최대 HP
-	pNpc->m_iMaxHP			= pNpcTable->m_iMaxHP;		// 현재 HP
-	pNpc->m_sMP				= pNpcTable->m_sMaxMP;		// 최대 MP
-	pNpc->m_sMaxMP			= pNpcTable->m_sMaxMP;		// 현재 MP
-	pNpc->m_sAttack			= pNpcTable->m_sAttack;		// 공격값
-	pNpc->m_sDefense		= pNpcTable->m_sDefense;	// 방어값
-	pNpc->m_sHitRate		= pNpcTable->m_sHitRate;	// 타격성공률
-	pNpc->m_sEvadeRate		= pNpcTable->m_sEvadeRate;	// 회피성공률
-	pNpc->m_sDamage			= pNpcTable->m_sDamage;		// 기본 데미지
-	pNpc->m_sAttackDelay	= pNpcTable->m_sAttackDelay;// 공격딜레이
-	pNpc->m_sSpeed			= pNpcTable->m_sSpeed;		// 이동속도
-	pNpc->m_fSpeed_1		= (float)pNpcTable->m_bySpeed_1;	// 기본 이동 타입
-	pNpc->m_fSpeed_2		= (float)pNpcTable->m_bySpeed_2;	// 뛰는 이동 타입..
-	pNpc->m_fOldSpeed_1		= (float)pNpcTable->m_bySpeed_1;	// 기본 이동 타입
-	pNpc->m_fOldSpeed_2		= (float)pNpcTable->m_bySpeed_2;	// 뛰는 이동 타입..
-	pNpc->m_fSecForMetor    = 4.0f;						// 초당 갈 수 있는 거리..
-	pNpc->m_sStandTime		= pNpcTable->m_sStandTime;	// 서있는 시간
-	pNpc->m_byFireR			= pNpcTable->m_byFireR;		// 화염 저항력
-	pNpc->m_byColdR			= pNpcTable->m_byColdR;		// 냉기 저항력
-	pNpc->m_byLightningR	= pNpcTable->m_byLightningR;	// 전기 저항력
-	pNpc->m_byMagicR		= pNpcTable->m_byMagicR;	// 마법 저항력
-	pNpc->m_byDiseaseR		= pNpcTable->m_byDiseaseR;	// 저주 저항력
-	pNpc->m_byPoisonR		= pNpcTable->m_byPoisonR;	// 독 저항력
-	pNpc->m_byLightR		= pNpcTable->m_byLightR;	// 빛 저항력
-	pNpc->m_bySearchRange	= pNpcTable->m_bySearchRange;	// 적 탐지 범위
-	pNpc->m_byAttackRange	= pNpcTable->m_byAttackRange;	// 사정거리
-	pNpc->m_byTracingRange	= pNpcTable->m_byTracingRange;	// 추격거리
-	pNpc->m_sAI				= pNpcTable->m_sAI;				// 인공지능 인덱스
-	pNpc->m_iMoney			= pNpcTable->m_iMoney;			// 떨어지는 돈
-	pNpc->m_iItem			= pNpcTable->m_iItem;			// 떨어지는 아이템
-	pNpc->m_tNpcLongType    = pNpcTable->m_byDirectAttack;
-	pNpc->m_byWhatAttackType = pNpcTable->m_byDirectAttack;
-
-	//////// MONSTER POS ////////////////////////////////////////
-
-	pNpc->m_bCurZone = zone_number;
-
-	pNpc->m_byGateOpen = (BYTE)pEvent->sStatus;
-	pNpc->m_fCurX	= pEvent->fPosX;
-	pNpc->m_fCurY	= pEvent->fPosY;
-	pNpc->m_fCurZ	= pEvent->fPosZ;
-	
- 	pNpc->m_nInitMinX			= (int)pEvent->fPosX-1;
-	pNpc->m_nInitMinY			= (int)pEvent->fPosZ-1;
-	pNpc->m_nInitMaxX			= (int)pEvent->fPosX+1;
-	pNpc->m_nInitMaxY			= (int)pEvent->fPosZ+1;	
-
-	pNpc->m_sRegenTime		= 10000 * 1000;	// 초(DB)단위-> 밀리세컨드로
-	//pNpc->m_sRegenTime		= 30 * 1000;	// 초(DB)단위-> 밀리세컨드로
-	pNpc->m_sMaxPathCount = 0;
-	pNpc->m_tItemPer		= pNpcTable->m_tItemPer;	// NPC Type
-	pNpc->m_tDnPer			= pNpcTable->m_tDnPer;	// NPC Type
-
-	pNpc->m_pZone = GetZoneByID(zone_number);
-	pNpc->m_byObjectType = SPECIAL_OBJECT;
-	pNpc->m_bFirstLive = 1;		// 처음 살아난 경우로 해줘야 한다..
-
-	if (pNpc->GetMap() == NULL)
+	if (pNpc->GetMap() == NULL
+		|| !m_arNpc.PutData(pNpc->m_sNid, pNpc))
 	{
-		TRACE("Npc PutData Fail - %d, invalid zone: %d\n", pNpc->m_sNid, zone_number);
-		delete pNpc;
-		pNpc = NULL;
-		return FALSE;
-	}
-
-	//pNpc->Init();
-	if( !m_arNpc.PutData( pNpc->m_sNid, pNpc) )	{
 		TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
 		delete pNpc;
-		pNpc = NULL;
 		return FALSE;
 	}
 
 	m_TotalNPC = m_sMapEventNpc;
-
 	return TRUE;
 }
 

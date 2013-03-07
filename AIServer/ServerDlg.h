@@ -51,8 +51,7 @@ private:
 	BOOL GetMagicType2Data();
 	BOOL GetMagicType3Data();
 	BOOL GetMagicType4Data();
-	BOOL GetMonsterTableData();
-	BOOL GetNpcTableData();
+	BOOL GetNpcTableData(bool bNpcData = true);
 	BOOL GetNpcItemTable();
 	BOOL GetMakeWeaponItemTableData();
 	BOOL GetMakeDefensiveItemTableData();

@@ -155,7 +155,6 @@
     <ClCompile Include="..\shared\database\MakeGradeItemTableSet.cpp" />
     <ClCompile Include="..\shared\database\MakeLareItemTableSet.cpp" />
     <ClCompile Include="..\shared\database\MakeWeaponTableSet.cpp" />
-    <ClCompile Include="..\shared\database\MonTableSet.cpp" />
     <ClCompile Include="..\shared\database\NpcItemSet.cpp" />
     <ClCompile Include="..\shared\database\NpcPosSet.cpp" />
     <ClCompile Include="..\shared\database\NpcTableSet.cpp" />
@@ -272,7 +271,6 @@
     <ClInclude Include="..\shared\database\MakeGradeItemTableSet.h" />
     <ClInclude Include="..\shared\database\MakeLareItemTableSet.h" />
     <ClInclude Include="..\shared\database\MakeWeaponTableSet.h" />
-    <ClInclude Include="..\shared\database\MonTableSet.h" />
     <ClInclude Include="..\shared\database\NpcItemSet.h" />
     <ClInclude Include="..\shared\database\NpcPosSet.h" />
     <ClInclude Include="..\shared\database\NpcTableSet.h" />

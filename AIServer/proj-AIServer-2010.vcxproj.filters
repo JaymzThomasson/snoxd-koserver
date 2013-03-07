@@ -98,9 +98,6 @@
     <ClCompile Include="..\shared\database\MakeWeaponTableSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\database\MonTableSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
     <ClCompile Include="GameSocket.cpp">
       <Filter>shared\Networking</Filter>
     </ClCompile>
@@ -242,9 +239,6 @@
       <Filter>Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\database\MakeWeaponTableSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\MonTableSet.h">
       <Filter>Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\CircularBuffer.h">

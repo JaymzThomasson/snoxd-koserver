@@ -287,6 +287,68 @@ void CNpc::InitMagicValuable()
 	}
 }
 
+void CNpc::Load(uint16 sNpcID, CNpcTable * proto)
+{
+	m_sNid = sNpcID;
+	m_proto = proto;
+
+	m_byMoveType = 0;
+	m_byInitMoveType = 0;
+
+	m_byBattlePos = 0;
+
+	m_sSize				= proto->m_sSize;		// 캐릭터의 비율(100 퍼센트 기준)
+	m_iWeapon_1			= proto->m_iWeapon_1;	// 착용무기
+	m_iWeapon_2			= proto->m_iWeapon_2;	// 착용무기
+	m_byGroup			= proto->m_byGroup;		// 소속집단
+	m_byActType			= proto->m_byActType;	// 행동패턴
+	m_byRank			= proto->m_byRank;		// 작위
+	m_byTitle			= proto->m_byTitle;		// 지위
+	m_iSellingGroup		= proto->m_iSellingGroup;
+	m_iHP				= proto->m_iMaxHP;		// 최대 HP
+	m_iMaxHP			= proto->m_iMaxHP;		// 현재 HP
+	m_sMP				= proto->m_sMaxMP;		// 최대 MP
+	m_sMaxMP			= proto->m_sMaxMP;		// 현재 MP
+	m_sAttack			= proto->m_sAttack;		// 공격값
+	m_sDefense			= proto->m_sDefense;	// 방어값
+	m_sHitRate			= proto->m_sHitRate;	// 타격성공률
+	m_sEvadeRate		= proto->m_sEvadeRate;	// 회피성공률
+	m_sDamage			= proto->m_sDamage;		// 기본 데미지
+	m_sAttackDelay		= proto->m_sAttackDelay;// 공격딜레이
+	m_sSpeed			= proto->m_sSpeed;		// 이동속도
+	m_fSpeed_1			= (float)proto->m_bySpeed_1;	// 기본 이동 타입
+	m_fSpeed_2			= (float)proto->m_bySpeed_2;	// 뛰는 이동 타입..
+	m_fOldSpeed_1		= (float)proto->m_bySpeed_1;	// 기본 이동 타입
+	m_fOldSpeed_2		= (float)proto->m_bySpeed_2;	// 뛰는 이동 타입..
+	m_fSecForMetor		= 4.0f;						// 초당 갈 수 있는 거리..
+	m_sStandTime		= proto->m_sStandTime;	// 서있는 시간
+	m_byFireR			= proto->m_byFireR;		// 화염 저항력
+	m_byColdR			= proto->m_byColdR;		// 냉기 저항력
+	m_byLightningR		= proto->m_byLightningR;	// 전기 저항력
+	m_byMagicR			= proto->m_byMagicR;	// 마법 저항력
+	m_byDiseaseR		= proto->m_byDiseaseR;	// 저주 저항력
+	m_byPoisonR			= proto->m_byPoisonR;	// 독 저항력
+	m_byLightR			= proto->m_byLightR;	// 빛 저항력
+	m_bySearchRange		= proto->m_bySearchRange;	// 적 탐지 범위
+	m_byAttackRange		= proto->m_byAttackRange;	// 사정거리
+	m_byTracingRange	= proto->m_byTracingRange;	// 추격거리
+	m_sAI				= proto->m_sAI;				// 인공지능 인덱스
+	m_iMoney			= proto->m_iMoney;			// 떨어지는 돈
+	m_iItem				= proto->m_iItem;			// 떨어지는 아이템
+	m_tNpcLongType		= proto->m_byDirectAttack;
+	m_byWhatAttackType	= proto->m_byDirectAttack;
+
+
+	m_sRegenTime		= 10000 * 1000;	// 초(DB)단위-> 밀리세컨드로
+	m_sMaxPathCount		= 0;
+	m_tItemPer			= proto->m_tItemPer;	// NPC Type
+	m_tDnPer			= proto->m_tDnPer;	// NPC Type
+
+	m_pZone = g_pMain->GetZoneByID(m_bCurZone);
+	m_byObjectType = SPECIAL_OBJECT;
+	m_bFirstLive = 1;
+}
+
 // NPC 상태별로 분화한다.
 void CNpc::NpcLive()
 {

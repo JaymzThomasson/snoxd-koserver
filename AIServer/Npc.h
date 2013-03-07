@@ -329,6 +329,8 @@ public:
 	void InitPos();
 	void InitMagicValuable();
 
+	void Load(uint16 sNpcID, CNpcTable * proto);
+
 protected:
 	void ClearPathFindData(void);
 
