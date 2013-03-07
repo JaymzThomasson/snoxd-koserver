@@ -728,8 +728,6 @@ BOOL CServerDlg::CreateNpcThread()
 	CNpcTable*	pNpcTable = NULL;
 	CRoomEvent* pRoom = NULL;
 
-	// sungyong test
-	//CRNpcPosSet NpcPosSet;		// 한마리 테스트용
 	CNpcPosSet NpcPosSet;
 
 	char szPath[500];
@@ -1181,7 +1179,6 @@ BOOL CServerDlg::MapFileLoad()
 	return TRUE;
 }
 
-// sungyong 2002.05.23
 // game server에 모든 npc정보를 전송..
 void CServerDlg::AllNpcInfo()
 {
@@ -1240,7 +1237,6 @@ void CServerDlg::AllNpcInfo()
 		TRACE("****  allNpcInfo end = %d *****\n", nZone);
 	}
 }
-// ~sungyong 2002.05.23
 
 CUser* CServerDlg::GetUserPtr(int nid)
 {
@@ -1251,13 +1247,6 @@ CUser* CServerDlg::GetUserPtr(int nid)
 		return NULL;
 	}
 
-/*	if( !m_ppUserActive[nid] )
-		return NULL;
-
-	if( m_ppUserActive[nid]->m_lUsed == 1 ) return NULL;	// 포인터 사용을 허락치 않음.. (logout중)
-
-	pUser = (CUser*)m_ppUserActive[nid];
-*/
 	pUser = m_pUser[nid];
 	if(pUser == NULL)	return NULL;
 	if( pUser->m_lUsed == 1 ) return NULL;	// 포인터 사용을 허락치 않음.. (logout중)
@@ -1365,39 +1354,6 @@ int CServerDlg::Send(char* pData, int length)
 void CServerDlg::GameServerAcceptThread()
 {
 	s_socketMgr.RunServer();
-}
-
-CUser* CServerDlg::GetActiveUserPtr(int index)
-{
-	CUser* pUser = NULL;
-
-/*	if(index < 0 || index > MAX_USER)	{
-		TRACE("### Fail :: User Array Overflow[%d] ###\n", index );
-		return NULL;
-	}
-
-	EnterCriticalSection( &g_User_critical );
-
-	if ( m_ppUserActive[index] ) {
-		LeaveCriticalSection( &g_User_critical );
-		TRACE("### Fail : ActiveUser Array Invalid[%d] ###\n", index );
-		return NULL;
-	}
-	else {
-		pUser = (CUser *)m_ppUserInActive[index];
-		if( !pUser ) {
-			LeaveCriticalSection( &g_User_critical );
-			TRACE("### Fail : InActiveUser Array Invalid[%d] ###\n", index );
-			return NULL;
-		}
-	}
-
-	m_ppUserActive[index] = pUser;
-	m_ppUserInActive[index] = NULL;
-
-	LeaveCriticalSection( &g_User_critical );	*/
-
-	return pUser;
 }
 
 //	추가할 소환몹의 메모리를 참조하기위해 플래그가 0인 상태것만 넘긴다.

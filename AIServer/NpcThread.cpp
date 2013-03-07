@@ -116,7 +116,6 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 				break;
 
 			case NPC_DEAD:
-				//pNpc->NpcTrace(_T("NpcDead"));
 				pNpc->m_NpcState = NPC_LIVE;
 				break;
 			case NPC_SLEEPING:

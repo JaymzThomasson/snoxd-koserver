@@ -634,7 +634,6 @@ void CEbenezerDlg::WriteLog(const char * format, ...)
 
 void CEbenezerDlg::OnTimer(UINT nIDEvent) 
 {
-	// sungyong 2002.05.23
 	int count = 0, retval = 0;
 
 	switch( nIDEvent ) {
@@ -667,7 +666,6 @@ int CEbenezerDlg::GetAIServerPort()
 	return nPort;
 }
 
-// sungyong 2002.05.22
 void CEbenezerDlg::AIServerConnect()
 {
 	// Are there any (note: we only use 1 now) idle/disconnected sessions?
@@ -1604,7 +1602,6 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 
 	TRACE("*** DeleteAllNpcList - End *** \n");
 }
-// ~sungyong 2002. 05. 23
 
 void CEbenezerDlg::KillUser(const char *strbuff)
 {
@@ -1664,7 +1661,6 @@ void CEbenezerDlg::BattleZoneOpenTimer()
 {
 	CTime cur = CTime::GetCurrentTime();
 
-	// sungyong modify
 	int nWeek = cur.GetDayOfWeek();
 	int nTime = cur.GetHour();
 	int loser_nation = 0, snow_battle = 0;

@@ -409,8 +409,6 @@ public:
 	float FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType);
 	int GetMyField();
 
-	void NpcTrace(TCHAR *pMsg);
-
 	int GetDir(float x1, float z1, float x2, float z2);
 	void NpcMoveEnd();
 

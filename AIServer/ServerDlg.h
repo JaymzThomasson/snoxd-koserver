@@ -67,9 +67,8 @@ private:
 public:
 	void GameServerAcceptThread();
 	BOOL AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number);
-	void AllNpcInfo();			// ~sungyong 2002.05.23
+	void AllNpcInfo();
 	CUser* GetUserPtr(int nid);
-	CUser* GetActiveUserPtr(int index);
 	CNpc*  GetEventNpcPtr();
 	BOOL   SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz);
 	MAP * GetZoneByID(int zonenumber);
@@ -137,9 +136,7 @@ public:
 	short			m_sTotalMap;		// Zone 수 
 	short			m_sMapEventNpc;		// Map에서 읽어들이는 event npc 수
 
-	// sungyong 2002.05.23
 	BOOL			m_bFirstServerFlag;		// 서버가 처음시작한 후 게임서버가 붙은 경우에는 1, 붙지 않은 경우 0
-	// ~sungyong 2002.05.23
 	BYTE  m_byBattleEvent;				   // 전쟁 이벤트 관련 플래그( 1:전쟁중이 아님, 0:전쟁중)
 	short m_sKillKarusNpc, m_sKillElmoNpc; // 전쟁동안에 죽은 npc숫자
 

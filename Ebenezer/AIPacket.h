@@ -16,7 +16,7 @@ const BYTE	AG_NPC_GATE_OPEN	= 9;
 const BYTE	AG_NPC_GATE_DESTORY	= 10;	
 const BYTE	AG_NPC_INOUT		= 11;	
 const BYTE	AG_NPC_EVENT_ITEM	= 12;	
-const BYTE	AG_NPC_HP_REQ		= 13;	// sungyong tw
+const BYTE	AG_NPC_HP_REQ		= 13;
 
 // ---------------------------------------------------------------------
 // AI Server와 게임서버간의 User, Npc 공통 관련된 패킷은 50번~100번 

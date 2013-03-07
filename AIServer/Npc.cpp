@@ -13,11 +13,7 @@
 static float surround_fx[8] = {0.0f, -1.4142f, -2.0f, -1.4167f,  0.0f,  1.4117f,  2.0000f, 1.4167f};
 static float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f, -0.0035f, 1.4117f};
 
-int test_id = 1056;
-int cur_test = 0;	// 1 = test중 , 0이면 정상
-
 #include "extern.h"
-//BOOL g_bDebug = TRUE;
 
 #define ATROCITY_ATTACK_TYPE 1				// 선공
 #define TENDER_ATTACK_TYPE	 0				// 후공	
@@ -323,7 +319,6 @@ void CNpc::NpcLive()
 //
 void CNpc::NpcFighting()
 {
-	if(cur_test)		NpcTrace(_T("NpcFighting()"));
 	if(m_iHP <= 0)	{
 		Dead();
 		return;
@@ -351,8 +346,6 @@ void CNpc::NpcTracing()
 			m_fCurX = m_fPrevX;		m_fCurZ = m_fPrevZ; 
 		}
 	}
-
-	if(cur_test)		NpcTrace(_T("NpcTracing()"));
 
 	//  고정 경비병은 추적이 되지 않도록한다.
 	if (m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT)
@@ -489,9 +482,6 @@ void CNpc::NpcTracing()
 
 void CNpc::NpcAttacking()
 {
-	if(cur_test)
-		NpcTrace(_T("NpcAttacking()"));
-
 	if(m_iHP <= 0)	{	
 		Dead();		 // 바로 몬스터를 죽인다.. (경험치 배분 안함)
 		return;
@@ -549,7 +539,6 @@ void CNpc::NpcAttacking()
 //
 void CNpc::NpcMoving()
 {
-	if(cur_test)	NpcTrace(_T("NpcMoving()"));
 	char pBuf[1024];
 	::ZeroMemory(pBuf, 1024);	
 	int index = 0;
@@ -660,8 +649,6 @@ void CNpc::NpcMoving()
 //
 void CNpc::NpcStanding()
 {
-	if(cur_test)		NpcTrace(_T("NpcStanding()"));
-
 	char send_buff[128];
 	int send_index = 0;
 
@@ -1384,10 +1371,6 @@ BOOL CNpc::RandomBackMove()
 
 BOOL CNpc::IsInPathRange()
 {
-	if(m_sNid == test_id)
-	{
-		int x=0;
-	}
 	float fPathRange = 40.0f;	// 오차 패스 범위 
 	__Vector3 vStart, vEnd;
 	float fDistance = 0.0f;
@@ -2322,7 +2305,6 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 //	Target 과 NPC 간 Path Finding을 수행한다.
 int CNpc::GetTargetPath(int option)
 {
-	// sungyong 2002.06.12
 	int nInitType = m_byInitMoveType;
 	if(m_byInitMoveType >= 100)	{
 		nInitType = m_byInitMoveType - 100;
@@ -2333,7 +2315,6 @@ int CNpc::GetTargetPath(int option)
 		//	m_byMoveType = m_byInitMoveType;	// 자기 자리로 돌아갈 수 있도록..
 		if(m_byMoveType != nInitType)	m_byMoveType = nInitType;	// 자기 자리로 돌아갈 수 있도록..
 	}
-	// ~sungyong 2002.06.12
 
 	// 추격할때는 뛰는 속도로 맞추어준다...
 	m_fSecForMetor = m_fSpeed_2;
@@ -2626,9 +2607,6 @@ int CNpc::Attack()
 			if(m_byWhatAttackType == 2)	{	// 독 공격하는 몬스터라면... (10%의 공격으로)
 				nRandom = myrand(1, 10000);
 
-				// sungyong test ,, 무조건 독공격만 
-				//nRandom = 100;
-
 				if(nRandom < nPercent)	{				// 독공격...
 					send_index = 0;
 					SetByte( buff, AG_MAGIC_ATTACK_RESULT, send_index );
@@ -2654,7 +2632,7 @@ int CNpc::Attack()
 
 		// 명중이면 //Damage 처리 ----------------------------------------------------------------//
 		nDamage = GetFinalDamage(pUser);	// 최종 대미지
-		if( g_pMain->m_byTestMode )		nDamage = 10;	// sungyong test
+		if( g_pMain->m_byTestMode )		nDamage = 10;
 		//TRACE("Npc-Attack() : [mon: x=%.2f, z=%.2f], [user : x=%.2f, z=%.2f]\n", m_fCurX, m_fCurZ, pUser->m_curx, pUser->m_curz);
 		
 		if(nDamage > 0) {
@@ -2870,7 +2848,7 @@ int CNpc::TracingAttack()		// 0:attack fail, 1:attack success
 
 		// 명중이면 //Damage 처리 ----------------------------------------------------------------//
 		nDamage = GetFinalDamage(pUser);	// 최종 대미지
-		if( g_pMain->m_byTestMode )		nDamage = 1;	// sungyong test
+		if( g_pMain->m_byTestMode )		nDamage = 1;
 		
 		if(nDamage > 0)		{
 			pUser->SetDamage(nDamage, m_sNid+NPC_BAND);
@@ -3329,16 +3307,12 @@ int CNpc::GetFinalDamage(CUser *pUser, int type)
 		break;
 	}
 	
-//	TRACE ("%d\n", damage) ;
-
 	if(damage > nMaxDamage)	{
 		TRACE("#### Npc-GetFinalDamage Fail : nid=%d, result=%d, damage=%d, maxdamage=%d\n", m_sNid+NPC_BAND, result, damage, nMaxDamage);
 		damage = nMaxDamage;
 	}
 
-	// sungyong test
 	return damage;	
-	//return 1;
 }
 
 //	나를 공격한 유저를 타겟으로 삼는다.(기준 : 렙과 HP를 기준으로 선정)
@@ -4365,30 +4339,6 @@ float CNpc::RandomGenf(float max, float min)
 	return (float)((float)(k*0.01f)+min);
 }
 
-
-//////////////////////////////////////////////////////////////////////
-// 인자: 현재 위치, 방향, random각, 이동거리
-// 반환값: 최종위치
-//////////////////////////////////////////////////////////////////////
-/*__Vector3 CNpc::MyFunc(__Vector3 vCur, __Vector3 vDir, float fYDegree, float fDistance)
-{
-	float fYRandom = RandomGenf( fYDegree/2.0f, -fYDegree/2.0f);
-
-	vDir.Normalize();
-	__Matrix44 mtx; mtx.Identity();
-	__Quaternion qt;
-
-	qt.RotationAxis( 0.0f, 1.0f, 0.0f, D3DXToRadian(fYRandom) );
-	D3DXMatrixRotationQuaternion(&mtx, &qt);
-
-	vDir *= mtx;
-	vDir *= fDistance;
-
-	__Vector3 vResult;
-	vResult = vCur + vDir;
-	return vResult;
-}*/
-
 __Vector3 CNpc::GetDirection(__Vector3 vStart, __Vector3 vEnd)
 {
 	__Vector3 vDir = vEnd - vStart;
@@ -4396,20 +4346,9 @@ __Vector3 CNpc::GetDirection(__Vector3 vStart, __Vector3 vEnd)
 	return vDir;
 }
 
-// sungyong 2002.05.22
 void CNpc::SendAll(char *pBuf, int nLength)
 {
 	g_pMain->s_socketMgr.SendAll(pBuf, nLength);
-}
-// ~sungyong 2002.05.22
-
-void CNpc::NpcTrace(TCHAR *pMsg)
-{
-	//if(g_bDebug == FALSE) return;
-
-	CString szMsg = _T("");
-	szMsg.Format(_T("%s : uid = %d, name = %s, xpos = %f, zpos = %f\n"), pMsg, m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ);
-	TRACE(szMsg);
 }
 
 void CNpc::NpcMoveEnd()
@@ -4885,7 +4824,7 @@ void CNpc::GiveNpcHaveItem()
 	else	{
 		m_GiveItemList[0].sSid = TYPE_MONEY_SID;
 		if( iMoney >= SHRT_MAX ) {
-			iMoney = 32000;						// sungyong : short형이기 때문에,,
+			iMoney = 32000;	
 			m_GiveItemList[0].count = iMoney;
 		}
 		else	m_GiveItemList[0].count = iMoney;
@@ -5484,9 +5423,6 @@ void CNpc::DurationMagic_4(float currenttime)
 // 변화되는 몬스터의 정보를 바꾸어준다...
 void CNpc::ChangeMonsterInfomation(int iChangeType)
 {
-	// sungyong test
-	//m_sChangeSid = 500;		m_byChangeType = 2;
-
 	if( m_sChangeSid == 0 || m_byChangeType == 0 )	return;			// 변하지 않는 몬스터
 	if( m_NpcState != NPC_DEAD )	return;		// 죽은 상태
 	
@@ -5602,18 +5538,6 @@ void CNpc::DurationMagic_3(float currenttime)
 //
 void CNpc::NpcSleeping()
 {
-	if(cur_test)		NpcTrace(_T("NpcSleeping()"));
-
-	// sungyong test~
-	/*
-	if(m_byChangeType == 1)	{
-		Dead(1);
-		ChangeMonsterInfomation(1);
-		return;
-	}	*/
-	// ~sungyong test
-
-
 	if(g_pMain->m_byNight == 1)	{	// 낮
 		m_NpcState = NPC_STANDING;
 		m_Delay = 0;
@@ -5630,7 +5554,6 @@ void CNpc::NpcSleeping()
 // 몬스터가 기절상태로..........
 void CNpc::NpcFainting(float currenttime)
 {
-	if(cur_test)	NpcTrace(_T("NpcFainting()"));
 	// 2초동안 기절해 있다가,,  standing상태로....
 	if (currenttime > (m_fFaintingTime + FAINTING_TIME)) {
 		m_NpcState = NPC_STANDING;
@@ -5644,8 +5567,6 @@ void CNpc::NpcFainting(float currenttime)
 // 몬스터가 치료상태로..........
 void CNpc::NpcHealing()
 {
-	if(cur_test)	NpcTrace(_T("NpcHealing()"));
-
 	if( m_proto->m_tNpcType != NPC_HEALER )	{
 		InitTarget();
 		m_NpcState = NPC_STANDING;
