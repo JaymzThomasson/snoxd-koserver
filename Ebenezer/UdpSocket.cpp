@@ -1,8 +1,6 @@
-// UdpSocket.cpp: implementation of the CUdpSocket class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
+
+#if 0 // disabled pending rewrite
 #include "define.h"
 #include "UdpSocket.h"
 #include "EbenezerDlg.h"
@@ -545,3 +543,4 @@ void CUdpSocket::RecvBattleZoneCurrentUsers( char* pBuf )
 	g_pMain->m_sElmoradCount = nElmoradMan;
 	//TRACE("UDP - RecvBattleZoneCurrentUsers - karus=%d, elmorad=%d\n", nKarusMan, nElmoradMan);
 }
+#endif
