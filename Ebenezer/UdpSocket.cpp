@@ -108,9 +108,9 @@ int CUdpSocket::SendUDPPacket(char* strAddress, Packet *pkt)
 		return 0;
 
 	ByteBuffer buff(len + 6);
-	buff	<< uint8(PACKET_START1) << uint8(PACKET_START2)
+	buff	<< "\xaa\x55"
 			<< len << pkt->GetOpcode() << *pkt
-			<< uint8(PACKET_END1) << uint8(PACKET_END2);
+			<< "\x55\xaa";
 
     m_SocketAddress.sin_addr.s_addr = inet_addr(strAddress);
 	return sendto(m_hUDPSocket, (const char *)buff.contents(), buff.size(), 0, (LPSOCKADDR)&m_SocketAddress, sizeof(m_SocketAddress));
@@ -137,7 +137,7 @@ bool CUdpSocket::PacketProcess(int len)
 	{
 		if (i+2 >= len) break;
 
-		if (pTmp[i] == PACKET_START1 && pTmp[i+1] == PACKET_START2)
+		if ((const char *)&pTmp[i] == "\xaa\x55")
 		{
 			sPos = i+2;
 
@@ -153,7 +153,7 @@ bool CUdpSocket::PacketProcess(int len)
 
 			if( (ePos + 2) > len ) goto cancelRoutine;
 
-			if (pTmp[ePos] == PACKET_END1 && pTmp[ePos+1] == PACKET_END2)
+			if ((const char *)&pTmp[ePos] == "\x55\xaa")
 			{
 				Parsing( (char*)(pTmp+sPos+2), length );
 				foundCore = TRUE;
@@ -163,10 +163,6 @@ bool CUdpSocket::PacketProcess(int len)
 				goto cancelRoutine;
 		}
 	}
-
-	delete[] pTmp;
-
-	return foundCore;
 
 cancelRoutine:	
 	delete[] pTmp;

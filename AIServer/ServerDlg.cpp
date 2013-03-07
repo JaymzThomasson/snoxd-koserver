@@ -135,7 +135,6 @@ BOOL CServerDlg::OnInitDialog()
 	InitializeCriticalSection( &g_LogFileWrite );
 	m_sMapEventNpc = 0;
 	m_bFirstServerFlag = FALSE;			
-	// m_byTestMode = NOW_TEST_MODE;
 
 	// User Point Init
 	for(int i=0; i<MAX_USER; i++)

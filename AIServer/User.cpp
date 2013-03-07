@@ -186,15 +186,13 @@ void CUser::SendMagicAttackResult(int tuid, BYTE result, short sDamage, short sH
 	SendAll(buff, send_index);   // thread 에서 send
 }
 
-// sungyong 2002.05.22
 void CUser::SendAll(char *pBuf, int nLength)
 {
-	if (nLength <= 0 || nLength >= SOCKET_BUFF_SIZE) 
+	if (nLength <= 0) 
 		return;
 
 	g_pMain->s_socketMgr.SendAll(pBuf, nLength);
 }
-// ~sungyong 2002.05.22
 
 //	Damage 계산, 만약 m_sHP 가 0 이하이면 사망처리
 void CUser::SetDamage(int damage, int tid)
@@ -249,8 +247,7 @@ void CUser::Dead(int tid, int nDamage)
 	BYTE type, result;
 	char buff[256];
 
-	sprintf_s(buff, sizeof(buff), "*** User Dead = %d, %s ***", m_iUserId, m_strUserID);
-	TimeTrace(buff);
+	TRACE("*** User Dead = %d, %s ***\n", m_iUserId, m_strUserID);
 
 	float rx=0.0f, ry=0.0f, rz=0.0f;
 
@@ -868,42 +865,3 @@ void CUser::HealAreaCheck(int rx, int rz)
 	if (pNpcIDList)
 		delete [] pNpcIDList;
 }
-
-void CUser::WriteUserLog()
-{
-	foreach (itr, m_UserLogList)
-	{
-		CString type = "unknown";
-		if ((*itr)->byFlag == USER_LOGIN)
-			type = "LogIn";
-		else if ((*itr)->byFlag == USER_LOGOUT)
-			type = "LogOut";
-		else if ((*itr)->byFlag == USER_LEVEL_UP)
-			type = "LevelUp";
-
-		CString string = _T("");
-		string.Format( "%d-%d-%d %d:%d, %s, %d, %s\r\n", (*itr)->t.GetYear(), (*itr)->t.GetMonth(), (*itr)->t.GetDay(), 
-			(*itr)->t.GetHour(), (*itr)->t.GetMinute(), 
-			type, (*itr)->byLevel, (*itr)->strUserID);
-
-		EnterCriticalSection( &g_LogFileWrite );
-		g_pMain->m_UserLogFile.Write(string, string.GetLength());
-		LeaveCriticalSection( &g_LogFileWrite );
-	}
-
-	InitUserLog();
-}
-
-void CUser::InitUserLog()
-{
-	_USERLOG* pUserLog = NULL;
-
-	while(m_UserLogList.size()) {
-		pUserLog = m_UserLogList.front();
-		if( pUserLog )
-			delete pUserLog;
-		m_UserLogList.pop_front();
-	}
-	m_UserLogList.clear();
-}
-

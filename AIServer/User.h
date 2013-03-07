@@ -14,8 +14,6 @@ class CUser
 public:
 	CMagicProcess m_MagicProcess;
 
-	UserLogList	m_UserLogList;
-
 	char m_strUserID[MAX_ID_SIZE+1];	// 캐릭터의 이름
 	short	m_iUserId;					// User의 번호
 	BYTE	m_bLive;					// 죽었니? 살았니?
@@ -79,8 +77,6 @@ public:
 	short	m_sMagicAmountRightHand;        // The amount of magic item in user's left hand
 
 public:
-	void InitUserLog();
-	void WriteUserLog();
 	short GetMagicDamage(int damage, short tid);
 	void Initialize();
 	void InitNpcAttack();

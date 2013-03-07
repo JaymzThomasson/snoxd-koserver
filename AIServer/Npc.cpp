@@ -112,7 +112,7 @@ BOOL CNpc::SetUid(float x, float z, int id)
 	return TRUE;
 }
 
-CNpc::CNpc() : m_NpcState(NPC_LIVE), m_byGateOpen(GATE_CLOSE), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
+CNpc::CNpc() : m_NpcState(NPC_LIVE), m_byGateOpen(0), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
 	m_byAttackPos(0), m_sThreadNumber(-1), m_ItemUserLevel(0), m_Delay(0), 
 	m_proto(NULL), m_pZone(NULL), m_pPath(NULL), m_pOrgMap(NULL)
 {
@@ -1590,12 +1590,9 @@ void CNpc::Dead(int iDeadType)
 		return;
 	}
 	// map에 region에서 나의 정보 삭제..
-	//pMap->m_ppRegion[m_iRegion_X][m_iRegion_Z].DeleteNpc(m_sNid);
 	pMap->RegionNpcRemove(m_iRegion_X, m_iRegion_Z, m_sNid+NPC_BAND);
 
 	//TRACE("-- Npc-Dead RegionRemove : [nid=%d, name=%s], nRX=%d, nRZ=%d \n", m_sNid+NPC_BAND, m_proto->m_strName, m_iRegion_X, m_iRegion_Z);
-	CTime t = CTime::GetCurrentTime();
-	//TRACE("****** (%s,%d) Dead regentime = %d , m_byDeadType=%d, dungeonfam=%d, time=%d:%d-%d ****************\n", m_proto->m_strName, m_sNid+NPC_BAND, m_sRegenTime, m_byDeadType, m_byDungeonFamily, t.GetHour(), t.GetMinute(), t.GetSecond());
 
 	if(iDeadType == 1)	{	// User에 의해 죽은것이 아니기 때문에... 클라이언트에 Dead패킷전송...
 		char buff[256];			int send_index = 0;
@@ -2585,7 +2582,7 @@ int CNpc::Attack()
 		}
 
 		if (pUser->m_bInvisibilityType
-			|| pUser->m_state == STATE_DISCONNECTED)
+			/*|| pUser->m_state == STATE_DISCONNECTED*/)
 		{
 			InitTarget();
 			m_NpcState = NPC_STANDING;
@@ -2776,7 +2773,7 @@ int CNpc::LongAndMagicAttack()
 		}
 
 		if (pUser->m_bInvisibilityType
-			|| pUser->m_state == STATE_DISCONNECTED)
+			/*|| pUser->m_state == STATE_DISCONNECTED*/)
 		{
 			InitTarget();
 			m_NpcState = NPC_STANDING;
@@ -2868,7 +2865,7 @@ int CNpc::TracingAttack()		// 0:attack fail, 1:attack success
 		}
 
 		if (pUser->m_bInvisibilityType
-			|| pUser->m_state == STATE_DISCONNECTED
+			/*|| pUser->m_state == STATE_DISCONNECTED*/
 			|| pUser->m_byIsOP == MANAGER_USER)
 			return 0;
 

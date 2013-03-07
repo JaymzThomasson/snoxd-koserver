@@ -172,14 +172,6 @@ void CGameSocket::RecvUserInfo(Packet & pkt)
 	TRACE("****  RecvUserInfo()---> uid = %d, name=%s ******\n", 
 		pUser->m_iUserId, pUser->m_strUserID);
 
-	_USERLOG* pUserLog = NULL;
-	pUserLog = new _USERLOG;
-	pUserLog->t = CTime::GetCurrentTime();
-	pUserLog->byFlag = USER_LOGIN;
-	pUserLog->byLevel = pUser->m_bLevel;
-	strcpy(pUserLog->strUserID, pUser->m_strUserID);
-	pUser->m_UserLogList.push_back( pUserLog );
-
 	if (pUser->m_iUserId >= USER_BAND && pUser->m_iUserId < MAX_USER)
 		g_pMain->m_pUser[pUser->m_iUserId] = pUser;
 	else 
@@ -424,21 +416,6 @@ void CGameSocket::RecvUserLogOut(Packet & pkt)
 
 	pkt >> uid >> strUserID; // double byte string for once
 
-	CUser* pUser = g_pMain->GetUserPtr(uid);
-	if(pUser == NULL)
-		return;
-
-	_USERLOG* pUserLog = NULL;
-	pUserLog = new _USERLOG;
-	pUserLog->t = CTime::GetCurrentTime();
-	pUserLog->byFlag = USER_LOGOUT;
-	pUserLog->byLevel = pUser->m_bLevel;
-	strcpy( pUserLog->strUserID, pUser->m_strUserID );
-	pUser->m_UserLogList.push_back( pUserLog );
-
-	// UserLogFile write
-	pUser->WriteUserLog();
-
 	g_pMain->DeleteUserList(uid);
 	TRACE("**** User LogOut -- uid = %d, name = %s\n", uid, strUserID.c_str());
 }
@@ -455,9 +432,7 @@ void CGameSocket::RecvUserRegene(Packet & pkt)
 	pUser->m_bLive = USER_LIVE;
 	pUser->m_sHP = sHP;
 
-	char buff[256];
-	sprintf_s(buff, sizeof(buff), "**** RecvUserRegene -- uid = (%s,%d), HP = %d", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP);
-	TimeTrace(buff);
+	TRACE("**** RecvUserRegene -- uid = (%s,%d), HP = %d\n", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP);
 }
 
 void CGameSocket::RecvUserSetHP(Packet & pkt)
@@ -493,17 +468,6 @@ void CGameSocket::RecvUserUpdate(Packet & pkt)
 		>> pUser->m_sItemAC >> pUser->m_bMagicTypeLeftHand >> pUser->m_bMagicTypeRightHand
 		>> pUser->m_sMagicAmountLeftHand >> pUser->m_sMagicAmountRightHand
 		>> pUser->m_bInvisibilityType;
-
-	// level up
-	if (pUser->m_bLevel > bOldLevel)
-	{
-		_USERLOG* pUserLog = new _USERLOG;
-		pUserLog->t = CTime::GetCurrentTime();
-		pUserLog->byFlag = USER_LEVEL_UP;
-		pUserLog->byLevel = pUser->m_bLevel;
-		strcpy(pUserLog->strUserID, pUser->m_strUserID);
-		pUser->m_UserLogList.push_back(pUserLog);
-	}
 }
 
 void CGameSocket::Send_UserError(short uid, short tid)

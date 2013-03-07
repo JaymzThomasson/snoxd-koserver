@@ -1,8 +1,5 @@
 #pragma once
 
-// DEFINE MACRO PART...
-#define BufInc(x) (x)++;(x) %= SOCKET_BUF_SIZE;
-
 enum UserUpdateType
 {
 	UPDATE_LOGOUT,

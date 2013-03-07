@@ -410,16 +410,6 @@ inline int myrand( int min, int max )
 	return (int)( min + (int)rand_result );
 };
 
-#if defined(AI_SERVER) || defined(EBENEZER)
-inline void	TimeTrace(TCHAR* pMsg)
-{
-	CString szMsg = _T("");
-	CTime time = CTime::GetCurrentTime();
-	szMsg.Format("%s,,  time : %d-%d-%d, %d:%d]\n", pMsg, time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute());
-	TRACE(szMsg);
-}
-#endif
-
 /*
 	Yes, this is ugly and crude.
 	I want to wrap all the existing log code into this, and slowly get rid of it... bit by bit.

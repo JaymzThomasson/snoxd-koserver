@@ -204,28 +204,6 @@ enum InOutType
 #define CLAN_SUMMON_TIME		180
 ////////////////////////////////////////////////////////////
 
-// Socket Define
-////////////////////////////////////////////////////////////
-#define SOCKET_BUFF_SIZE	(1024*16)
-#define MAX_PACKET_SIZE		(1024*8)
-#define MAX_SEND_SIZE		(MAX_PACKET_SIZE * 2)
-#define REGION_BUFF_SIZE	(1024*16)
-
-#define PACKET_START1				0XAA
-#define PACKET_START2				0X55
-#define PACKET_END1					0X55
-#define PACKET_END2					0XAA
-
-// Socket type
-#define TYPE_ACCEPT				0x01
-#define TYPE_CONNECT			0x02
-
-// Overlapped flag
-#define OVL_RECEIVE				0X01
-#define OVL_SEND				0X02
-#define OVL_CLOSE				0X03
-////////////////////////////////////////////////////////////
-
 // ==================================================================
 //	About Map Object
 // ==================================================================
@@ -287,11 +265,6 @@ typedef union{
 	int			i;
 	BYTE		b[4];
 } MYINT;
-
-typedef union{
-	DWORD		w;
-	BYTE		b[4];
-} MYDWORD;
 
 typedef union{
 	__int64		i;

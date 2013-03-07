@@ -307,12 +307,14 @@ BOOL CEbenezerDlg::OnInitDialog()
 	DWORD id;
 	m_hReadQueueThread = ::CreateThread( NULL, 0, ReadQueueThread, (LPVOID)this, 0, &id);
 
+#if 0 // Disabled pending rewrite
 	m_pUdpSocket = new CUdpSocket();
 	if( m_pUdpSocket->CreateSocket() == false ) {
 		AfxMessageBox("Udp Socket Create Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
+#endif
 
 	AIServerConnect();
 
@@ -2142,12 +2144,14 @@ void CEbenezerDlg::KickOutZoneUsers(short zone)
 
 void CEbenezerDlg::Send_UDP_All(Packet *pkt, int group_type /*= 0*/)
 {
+#if 0 // disabled pending rewrite
 	int server_number = (group_type == 0 ? m_nServerNo : m_nServerGroupNo);
 	foreach_stlmap (itr, (group_type == 0 ? m_ServerArray : m_ServerGroupArray))
 	{
 		if (itr->second && itr->second->sServerNo == server_number)
 			m_pUdpSocket->SendUDPPacket(itr->second->strServerIP, pkt);
 	}
+#endif
 }
 
 BOOL CEbenezerDlg::LoadBattleTable()
