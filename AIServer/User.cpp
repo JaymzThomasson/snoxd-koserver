@@ -115,155 +115,62 @@ void CUser::Attack(int sid, int tid)
 	//	m_dwLastAttackTime = GetTickCount();
 }
 
-void CUser::SendAttackSuccess(int tuid, BYTE result, short sDamage, int nHP, short sAttack_type)
+void CUser::SendAttackSuccess(short tid, BYTE bResult, short sDamage, int nHP, short sAttack_type, uint8 type /*= 1*/, short sid /*= -1*/)
 {
-	int send_index = 0;
-	int sid = -1, tid = -1;
-	BYTE type, bResult;
-	char buff[256];
-	float rx=0.0f, ry=0.0f, rz=0.0f;
+	if (sid < 0)
+		sid = m_iUserId + USER_BAND;
 
-	type = 0x01;
-	bResult = result;
-	sid = m_iUserId+USER_BAND;
-	tid = tuid;
-
-	SetByte( buff, AG_ATTACK_RESULT, send_index );
-	SetByte( buff, type, send_index );
-	SetByte( buff, bResult, send_index );
-	SetShort( buff, sid, send_index );
-	SetShort( buff, tid, send_index );
-	SetShort( buff, sDamage, send_index );
-	SetDWORD( buff, nHP, send_index );
-	SetByte( buff, (BYTE)sAttack_type, send_index );
-
-	//TRACE("User - SendAttackSuccess() : [sid=%d, tid=%d, result=%d], damage=%d, hp = %d\n", sid, tid, bResult, sDamage, sHP);
-
-	g_pMain->Send(buff, send_index);   // thread 에서 send
+	Packet result(AG_ATTACK_RESULT, type);
+	result << bResult << sid << tid << sDamage << nHP << uint8(sAttack_type);
+	g_pMain->Send(&result);
 }
 
-void CUser::SendMagicAttackResult(int tuid, BYTE result, short sDamage, short sHP)
-{
-	int send_index = 0;
-	int sid = -1, tid = -1;
-	BYTE type, bResult;
-	char buff[256];
-	float rx=0.0f, ry=0.0f, rz=0.0f;
-
-	type = 0x01;				
-	bResult = result;
-	sid = m_iUserId+USER_BAND;
-	tid = tuid;
-
-	SetByte( buff, AG_MAGIC_ATTACK_RESULT, send_index );
-	SetByte( buff, type, send_index );
-	SetByte( buff, bResult, send_index );
-	SetShort( buff, sid, send_index );
-	SetShort( buff, tid, send_index );
-	SetShort( buff, sDamage, send_index );
-	SetShort( buff, sHP, send_index );
-
-	//TRACE("User - SendAttackSuccess() : [sid=%d, tid=%d, result=%d], damage=%d, hp = %d\n", sid, tid, bResult, sDamage, sHP);
-
-	g_pMain->Send(buff, send_index);   // thread 에서 send
-}
-
-//	Damage 계산, 만약 m_sHP 가 0 이하이면 사망처리
 void CUser::SetDamage(int damage, int tid)
 {
-	if(damage <= 0) return;
-	if(m_bLive == USER_DEAD) return;
+	if (damage <= 0 || m_bLive == USER_DEAD)
+		return;
 
 	short sHP = m_sHP;
-
 	m_sHP -= (short)damage;
 
-	//TRACE("User - SetDamage() : old=%d, damage=%d, curHP = %d, id=%s, uid=%d\n", sHP, damage, m_sHP, m_strUserID, m_iUserId);
-
-	if( m_sHP <= 0 )	{
+	if (m_sHP <= 0)
+	{
 		m_sHP = 0;
 		Dead(tid, damage);
 	}
-
-	//SendHP();
-	// 버디중이면 다른 버디원에게 날린다.
 }
 
 void CUser::Dead(int tid, int nDamage)
 {
-	if(m_bLive == USER_DEAD) return;
+	if (m_bLive == USER_DEAD)
+		return;
 
-	// 이 부분에서 update를 해야 함,,  게임서버에서,, 처리하도록,,,
 	m_sHP = 0;
 	m_bLive = USER_DEAD;
 
 	InitNpcAttack();
 
-	// region에서 삭제...
 	MAP* pMap = GetMap();
-	if(pMap == NULL)	{
-		TRACE("#### CUser-Dead() Fail : [nid=%d, name=%s], pMap == NULL #####\n", m_iUserId, m_strUserID);
+	if (pMap == NULL 
+		|| m_sRegionX < 0 || m_sRegionZ < 0 
+		|| m_sRegionX > pMap->GetXRegionMax() || m_sRegionZ > pMap->GetZRegionMax())
 		return;
-	}
-	// map에 region에서 나의 정보 삭제..
-	if(m_sRegionX < 0 || m_sRegionZ < 0 || m_sRegionX > pMap->GetXRegionMax() || m_sRegionZ > pMap->GetZRegionMax())	{
-		TRACE("#### CUser-Dead() Fail : [nid=%d, name=%s], x1=%d, z1=%d #####\n", m_iUserId, m_strUserID, m_sRegionX, m_sRegionZ);
-		return;
-	}
-	//pMap->m_ppRegion[m_sRegionX][m_sRegionZ].DeleteUser(m_iUserId);
+
 	pMap->RegionUserRemove(m_sRegionX, m_sRegionZ, m_iUserId);
-	//TRACE("*** User Dead()-> User(%s, %d)를 Region에 삭제,, region_x=%d, y=%d\n", m_strUserID, m_iUserId, m_sRegionX, m_sRegionZ);
-
-	m_sRegionX = -1;		m_sRegionZ = -1;
-
-	int send_index = 0;
-	int sid = -1, targid = -1;
-	BYTE type, result;
-	char buff[256];
 
 	TRACE("*** User Dead = %d, %s ***\n", m_iUserId, m_strUserID);
-
-	float rx=0.0f, ry=0.0f, rz=0.0f;
-
-	type = 0x02;
-	result = ATTACK_TARGET_DEAD;
-	sid = tid;
-	targid = m_iUserId+USER_BAND;
-
-	SetByte( buff, AG_ATTACK_RESULT, send_index );
-	SetByte( buff, type, send_index );
-	SetByte( buff, result, send_index );
-	SetShort( buff, sid, send_index );
-	SetShort( buff, targid, send_index );
-	SetShort( buff, nDamage, send_index );
-	SetDWORD( buff, m_sHP, send_index );
-	//SetShort( buff, m_sMaxHP, send_index );
-
-	//TRACE("Npc - SendAttackSuccess()-User Dead : [sid=%d, tid=%d, result=%d], damage=%d, hp = %d\n", sid, targid, result, nDamage, m_sHP);
-
-	if(tid > 0)
-		g_pMain->Send(buff, send_index);   // thread 에서 send
-
-/*	SetByte(buff, AG_DEAD, send_index );
-	SetShort(buff, m_iUserId, send_index );
-	Setfloat(buff, m_curx, send_index);
-	Setfloat(buff, m_curz, send_index);
-
-	g_pMain->Send(buff, send_index);   // thread 에서 send	*/
+	if (tid > 0)
+		SendAttackSuccess(m_iUserId+USER_BAND, ATTACK_TARGET_DEAD, nDamage, m_sHP, 1, 2, tid /*sid*/);
 }
 
 void CUser::SendHP()
 {
-	if(m_bLive == USER_DEAD) return;
-	// HP 변동량을 게임서버로...
-	int send_index = 0;
-	char buff[256];
+	if (m_bLive == USER_DEAD)
+		return;
 
-	SetByte(buff, AG_USER_SET_HP, send_index );
-	SetShort(buff, m_iUserId, send_index );
-	SetDWORD(buff, m_sHP, send_index );
-
-	g_pMain->Send(buff, send_index);   
+	Packet result(AG_USER_SET_HP);
+	result << m_iUserId << uint32(m_sHP);
+	g_pMain->Send(&result);   
 }
 
 void CUser::SetExp(int iNpcExp, int iLoyalty, int iLevel)

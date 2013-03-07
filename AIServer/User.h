@@ -89,8 +89,7 @@ public:
 	void HealMagic();
 	void HealAreaCheck(int rx, int rz);
 
-	void SendAttackSuccess(int tuid, BYTE result, short sDamage, int nHP=0, short sAttack_type=1);  // 공격 성공
-	void SendMagicAttackResult(int tuid, BYTE result, short sDamage, short sHP=0);  // 공격 성공
+	void SendAttackSuccess(short tid, BYTE result, short sDamage, int nHP=0, short sAttack_type=1, uint8 type = 1, short sid = -1);
 	void SendHP();												// user의 HP
 	void SendExp(int iExp, int iLoyalty, int tType = 1);
 	void SendSystemMsg(TCHAR *pMsg, BYTE type, int nWho);
