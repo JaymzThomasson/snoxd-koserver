@@ -118,7 +118,7 @@ void CNpcMagicProcess::MagicPacket(char *pBuf, int len)
 	else if( command == MAGIC_CASTING ) {
 		SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
 		SetString( send_buff, pBuf, len-1, send_index );	// len ==> include WIZ_MAGIC_PROCESS command byte. 
-		m_pSrcNpc->SendAll(send_buff, send_index);
+		g_pMain->Send(send_buff, send_index);
 	}
 }
 
@@ -228,7 +228,7 @@ fail_return:    // In case the magic failed.
 		g_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
 	else m_pSrcUser->Send( send_buff, send_index );	*/
 
-	m_pSrcNpc->SendAll(send_buff, send_index);
+	g_pMain->Send(send_buff, send_index);
 
 	m_bMagicState = NONE;
 
@@ -315,7 +315,7 @@ packet_send:
 		SetShort( send_buff, moral, send_index );
 		SetShort( send_buff, 0, send_index );
 		SetShort( send_buff, 0, send_index );
-		m_pSrcNpc->SendAll(send_buff, send_index);
+		g_pMain->Send(send_buff, send_index);
 	}
 }
 

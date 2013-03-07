@@ -94,7 +94,6 @@ public:
 	void SendHP();												// user의 HP
 	void SendExp(int iExp, int iLoyalty, int tType = 1);
 	void SendSystemMsg(TCHAR *pMsg, BYTE type, int nWho);
-	void SendAll(TCHAR *pBuf, int nLength);						// game server로 패킷 전송...
 	BOOL IsOpIDCheck(char* szName);
 
 	__forceinline MAP * GetMap() { return m_pMap; };

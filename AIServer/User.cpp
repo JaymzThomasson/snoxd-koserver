@@ -139,7 +139,7 @@ void CUser::SendAttackSuccess(int tuid, BYTE result, short sDamage, int nHP, sho
 
 	//TRACE("User - SendAttackSuccess() : [sid=%d, tid=%d, result=%d], damage=%d, hp = %d\n", sid, tid, bResult, sDamage, sHP);
 
-	SendAll(buff, send_index);   // thread 에서 send
+	g_pMain->Send(buff, send_index);   // thread 에서 send
 }
 
 void CUser::SendMagicAttackResult(int tuid, BYTE result, short sDamage, short sHP)
@@ -165,15 +165,7 @@ void CUser::SendMagicAttackResult(int tuid, BYTE result, short sDamage, short sH
 
 	//TRACE("User - SendAttackSuccess() : [sid=%d, tid=%d, result=%d], damage=%d, hp = %d\n", sid, tid, bResult, sDamage, sHP);
 
-	SendAll(buff, send_index);   // thread 에서 send
-}
-
-void CUser::SendAll(char *pBuf, int nLength)
-{
-	if (nLength <= 0) 
-		return;
-
-	g_pMain->s_socketMgr.SendAll(pBuf, nLength);
+	g_pMain->Send(buff, send_index);   // thread 에서 send
 }
 
 //	Damage 계산, 만약 m_sHP 가 0 이하이면 사망처리
@@ -250,14 +242,14 @@ void CUser::Dead(int tid, int nDamage)
 	//TRACE("Npc - SendAttackSuccess()-User Dead : [sid=%d, tid=%d, result=%d], damage=%d, hp = %d\n", sid, targid, result, nDamage, m_sHP);
 
 	if(tid > 0)
-		SendAll(buff, send_index);   // thread 에서 send
+		g_pMain->Send(buff, send_index);   // thread 에서 send
 
 /*	SetByte(buff, AG_DEAD, send_index );
 	SetShort(buff, m_iUserId, send_index );
 	Setfloat(buff, m_curx, send_index);
 	Setfloat(buff, m_curz, send_index);
 
-	SendAll(buff, send_index);   // thread 에서 send	*/
+	g_pMain->Send(buff, send_index);   // thread 에서 send	*/
 }
 
 void CUser::SendHP()
@@ -271,7 +263,7 @@ void CUser::SendHP()
 	SetShort(buff, m_iUserId, send_index );
 	SetDWORD(buff, m_sHP, send_index );
 
-	SendAll(buff, send_index);   
+	g_pMain->Send(buff, send_index);   
 }
 
 void CUser::SetExp(int iNpcExp, int iLoyalty, int iLevel)
@@ -372,7 +364,7 @@ void CUser::SendExp(int iExp, int iLoyalty, int tType)
 
 	//TRACE("$$ User - SendExp : %s, exp=%d, loyalty=%d $$\n", m_strUserID, iExp, iLoyalty);
 
-	SendAll(buff, send_index);   	
+	g_pMain->Send(buff, send_index);   	
 }
 
 short CUser::GetDamage(int tid, int magicid)
@@ -690,7 +682,7 @@ void CUser::SendSystemMsg(TCHAR *pMsg, BYTE type, int nWho)
 	SetShort(buff, sLength, send_index );
 	SetString( buff, pMsg, sLength, send_index );
 
-	SendAll(buff, send_index);   	
+	g_pMain->Send(buff, send_index);   	
 }
 
 void CUser::InitNpcAttack()

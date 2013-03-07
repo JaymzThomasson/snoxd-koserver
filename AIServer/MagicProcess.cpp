@@ -187,7 +187,7 @@ packet_send:
 			SetShort( send_buff, 0, send_index );
 		}
 
-		m_pSrcUser->SendAll( send_buff, send_index );	
+		g_pMain->Send( send_buff, send_index );	
 	}
 
 	return result;
