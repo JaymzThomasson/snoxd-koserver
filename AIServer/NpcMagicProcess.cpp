@@ -77,9 +77,6 @@ void CNpcMagicProcess::MagicPacket(char *pBuf, int len)
 		case 9:
 			ExecuteType9( pTable->iNum );
 			break;
-		case 10:
-			ExecuteType10( pTable->iNum );
-			break;
 		}
 
 		switch( pTable->bType[1] ) {
@@ -110,9 +107,6 @@ void CNpcMagicProcess::MagicPacket(char *pBuf, int len)
 		case 9:
 			ExecuteType9( pTable->iNum );
 			break;
-		case 10:
-			ExecuteType10( pTable->iNum );
-			break;	
 		}
 	}
 	else if( command == MAGIC_CASTING ) {
@@ -346,11 +340,6 @@ void CNpcMagicProcess::ExecuteType8(int magicid, int tid, int sid, int data1, in
 }
 
 void CNpcMagicProcess::ExecuteType9(int magicid)
-{
-	return;
-}
-
-void CNpcMagicProcess::ExecuteType10(int magicid)
 {
 	return;
 }

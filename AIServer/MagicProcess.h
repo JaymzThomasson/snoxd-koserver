@@ -18,7 +18,6 @@ public:
 	virtual ~CMagicProcess();
 
 	short GetWeatherDamage(short damage, short attribute);
-	void ExecuteType10(int magicid);
 	void ExecuteType9(int magicid);
 	void ExecuteType8(int magicid);
 	void ExecuteType7(int magicid);

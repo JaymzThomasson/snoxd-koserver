@@ -301,71 +301,49 @@ void CRoomEvent::InitializeRoom()
 
 void CRoomEvent::EndEventSay( int option1, int option2 )
 {
-	char notify[256], send_buff[128];
-	int send_index = 0;
-
+	char notify[256];
 	std::string buff;
 
-	switch( option1 )	{
-	case 1:							// 클리어 상태에서 클라이언트에 내려줄 내용
-		switch( option2 )	{
+	switch (option1)
+	{
 		case 1:
-			::_LoadStringFromResource(IDS_KARUS_CATCH_1, buff);
-			sprintf( notify, buff.c_str());
-			break;
+		{ 
+			switch (option2)
+			{
+			case 1:
+				::_LoadStringFromResource(IDS_KARUS_CATCH_1, buff);
+				sprintf( notify, buff.c_str());
+				break;
+			case 2:
+				::_LoadStringFromResource(IDS_KARUS_CATCH_2, buff);
+				sprintf( notify, buff.c_str());
+				break;
+			case 11:
+				::_LoadStringFromResource(IDS_ELMORAD_CATCH_1, buff);
+				sprintf( notify, buff.c_str());
+				break;
+			case 12:
+				::_LoadStringFromResource(IDS_ELMORAD_CATCH_2, buff);
+				sprintf( notify, buff.c_str());
+				break;
+			}
+
+			g_pMain->SendSystemMsg( notify, WAR_SYSTEM_CHAT, SEND_ALL);
+
+		} break;
+
 		case 2:
-			::_LoadStringFromResource(IDS_KARUS_CATCH_2, buff);
-			sprintf( notify, buff.c_str());
-			break;
-		case 11:
-			::_LoadStringFromResource(IDS_ELMORAD_CATCH_1, buff);
-			sprintf( notify, buff.c_str());
-			break;
-		case 12:
-			::_LoadStringFromResource(IDS_ELMORAD_CATCH_2, buff);
-			sprintf( notify, buff.c_str());
-			break;
-		}
+			_LoadStringFromResource(IDS_KARUS_PATHWAY + (option2-1), buff);
+			sprintf(notify, buff.c_str());
+			g_pMain->SendSystemMsg(notify, WAR_SYSTEM_CHAT, SEND_ALL);
 
-		g_pMain->SendSystemMsg( notify, WAR_SYSTEM_CHAT, SEND_ALL);
+			// this is normal, we need to send the following packet as well.
 
-		break;
-	case 2:							// 클리어 상태에서 클라이언트에 내려줄 내용와 적국으로 갈 수 있는 이벤트 존 열어주기
-		if( option2 == KARUS_ZONE )	{
-			::_LoadStringFromResource(IDS_KARUS_PATHWAY, buff);
-			sprintf( notify, buff.c_str());
-
-			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
-			SetByte( send_buff, BATTLE_MAP_EVENT_RESULT, send_index );
-			SetByte( send_buff, KARUS_ZONE, send_index );
-			g_pMain->Send( send_buff, send_index );
-		}
-		else if( option2 == ELMORAD_ZONE )	{
-			::_LoadStringFromResource(IDS_ELMORAD_PATHWAY, buff);
-			sprintf( notify, buff.c_str());
-
-			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
-			SetByte( send_buff, BATTLE_MAP_EVENT_RESULT, send_index );
-			SetByte( send_buff, ELMORAD_ZONE, send_index );
-			g_pMain->Send( send_buff, send_index );
-		}
-
-		g_pMain->SendSystemMsg( notify, WAR_SYSTEM_CHAT, SEND_ALL);
-
-		break;
-	case 3:							// 클리어 상태에서 클라이언트에 내려줄 내용와 승리팀을 알려준다.
-		if( option2 == KARUS_ZONE )	{
-			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
-			SetByte( send_buff, BATTLE_EVENT_RESULT, send_index );
-			SetByte( send_buff, KARUS_ZONE, send_index );
-			g_pMain->Send( send_buff, send_index );
-		}
-		else if( option2 == ELMORAD_ZONE )	{
-			SetByte( send_buff, AG_BATTLE_EVENT, send_index );
-			SetByte( send_buff, BATTLE_EVENT_RESULT, send_index );
-			SetByte( send_buff, ELMORAD_ZONE, send_index );
-			g_pMain->Send( send_buff, send_index );
-		}
-		break;
+		case 3:
+		{
+			Packet result(AG_BATTLE_EVENT, uint8(BATTLE_MAP_EVENT_RESULT));
+			result << uint8(option2);
+			g_pMain->Send(&result);
+		} break;
 	}
 }

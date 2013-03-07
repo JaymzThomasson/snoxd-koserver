@@ -15,7 +15,6 @@ public:
 	virtual ~CNpcMagicProcess();
 
 	short GetMagicDamage(int tid, int total_hit, int attribute, int dexpoint);
-	void ExecuteType10(int magicid);
 	void ExecuteType9(int magicid);
 	void ExecuteType8(int magicid, int tid, int sid, int data1, int data2, int data3);
 	void ExecuteType7(int magicid);
