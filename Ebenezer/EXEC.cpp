@@ -34,12 +34,12 @@ void EXEC::Parse(char *pBuf)
 		m_Exec = EXEC_GIVE_ITEM;
 		PARSE_ARGUMENTS(2, temp, pBuf, m_ExecInt, i, index);
 	}
-	else if (!strcmp( temp, "ROB_ITEM"))
+	else if (!strcmp(temp, "ROB_ITEM"))
 	{
 		m_Exec = EXEC_ROB_ITEM;
 		PARSE_ARGUMENTS(2, temp, pBuf, m_ExecInt, i, index);
 	}
-	else if (!strcmp( temp, "GIVE_NOAH")) 
+	else if (!strcmp(temp, "GIVE_NOAH")) 
 	{
 		m_Exec = EXEC_GIVE_NOAH;
 		PARSE_ARGUMENTS(1, temp, pBuf, m_ExecInt, i, index);

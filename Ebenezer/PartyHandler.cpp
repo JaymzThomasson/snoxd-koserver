@@ -328,24 +328,25 @@ void CUser::PartyBBS(Packet & pkt)
 
 void CUser::PartyBBSRegister(Packet & pkt)
 {
-#if 0 // temporarily disabled
-	CUser* pUser = NULL;
-	int index = 0, send_index = 0;	// Basic Initializations. 			
-	BYTE result = 0; short bbs_len = 0;
-	char send_buff[256]; 
-	int i = 0, counter = 0;
+	int counter = 0;
 
-	if (isInParty()) goto fail_return;	// You are already in a party!
-	if (m_bNeedParty == 2) goto fail_return;	// You are already on the BBS!
+	if (isInParty() // You are already in a party!
+		|| m_bNeedParty == 2) // You are already on the BBS!
+	{
+		Packet result(WIZ_PARTY_BBS, uint8(PARTY_BBS_REGISTER));
+		result << uint8(0);
+		Send(&result);
+		return;
+	}
 
-	result = 1;
 	StateChangeServerDirect(2, 2); // seeking a party
 
-	send_index = 0; // Now, let's find out which page the user is on.
-	for (i = 0 ; i < MAX_USER ; i++) {
-		pUser = g_pMain->GetUnsafeUserPtr(i);
-		if (pUser == NULL
-			|| pUser->GetNation() != GetNation()
+	// TO-DO: Make this a more localised map
+	SessionMap & sessMap = g_pMain->s_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
+	{
+		CUser *pUser = TO_USER(itr->second);
+		if (pUser->GetNation() != GetNation()
 			|| pUser->m_bNeedParty == 1) 
 			continue;
 
@@ -356,112 +357,81 @@ void CUser::PartyBBSRegister(Packet & pkt)
 		if (pUser->GetSocketID() == GetSocketID()) break;
 		counter++;		
 	}
+	g_pMain->s_socketMgr.ReleaseLock();
 
-	SetShort(send_buff, counter / MAX_BBS_PAGE, send_index);
-	PartyBBSNeeded(send_buff, PARTY_BBS_REGISTER);
-	return;
-
-fail_return:
-	SetByte(send_buff, WIZ_PARTY_BBS, send_index);
-	SetByte(send_buff, PARTY_BBS_REGISTER, send_index);
-	SetByte(send_buff, result, send_index);
-	Send(send_buff, send_index);
-	return;
-#endif
+	SendPartyBBSNeeded(counter / MAX_BBS_PAGE, PARTY_BBS_REGISTER);
 }
 
 void CUser::PartyBBSDelete(Packet & pkt)
 {
-#if 0 // temporarily disabled
-	int send_index = 0;	// Basic Initializations. 			
-	BYTE result = 0; 
-	char send_buff[256]; 
-
-	if (m_bNeedParty == 1) goto fail_return;	// You don't need anymore 
-
-	result = 1;
+	// You don't need anymore 
+	if (m_bNeedParty == 1) 
+	{
+		Packet result(WIZ_PARTY_BBS, uint8(PARTY_BBS_DELETE));
+		result << uint8(0);
+		Send(&result);
+		return;
+	}
 
 	StateChangeServerDirect(2, 1); // not looking for a party
-
-	send_index = 0; // Now, let's find out which page the user is on.
-	SetShort(send_buff, 0, send_index);
-	PartyBBSNeeded(send_buff, PARTY_BBS_DELETE);
-	return;
-
-fail_return:
-	SetByte(send_buff, WIZ_PARTY_BBS, send_index);
-	SetByte(send_buff, PARTY_BBS_DELETE, send_index);
-	SetByte(send_buff, result, send_index);
-	Send(send_buff, send_index);
-	return;	
-#endif
+	SendPartyBBSNeeded(0, PARTY_BBS_DELETE);
 }
 
 void CUser::PartyBBSNeeded(Packet & pkt, BYTE type)
 {
-#if 0 // temporarily disabled
-	CUser* pUser = NULL;	// Basic Initializations. 	
-	int index = 0, send_index = 0;				
-	BYTE result = 0; short bbs_len = 0;
-	char send_buff[256];
-	short page_index = 0; short start_counter = 0; BYTE valid_counter = 0 ;
-	int  i = 0, j = 0; short BBS_Counter = 0;
+	SendPartyBBSNeeded(pkt.read<uint16>(), type);
+}
+
+void CUser::SendPartyBBSNeeded(uint16 page_index, uint8 bType)
+{
+	Packet result(WIZ_PARTY_BBS);
+
+	short start_counter = 0; BYTE valid_counter = 0 ;
+	int  j = 0; short BBS_Counter = 0;
 	
-	page_index = GetShort(pBuf, index);
 	start_counter = page_index * MAX_BBS_PAGE;
 
-	if ( start_counter < 0 ) goto fail_return;
-	if ( start_counter > MAX_USER ) goto fail_return;
+	if (start_counter >= MAX_USER)
+	{
+		result << uint8(PARTY_BBS_NEEDED) << uint8(0);
+		Send(&result);
+		return;
+	}
 
-	result = 1;
+	result << bType << uint8(1);
 
-	SetByte(send_buff, WIZ_PARTY_BBS, send_index);
-	SetByte(send_buff, type, send_index);
-	SetByte(send_buff, result, send_index);
+	// TO-DO: Make this a more localised map
+	SessionMap & sessMap = g_pMain->s_socketMgr.GetActiveSessionMap();
+	int i = -1; // start at -1, first iteration gets us to 0.
+	foreach (itr, sessMap)
+	{
+		CUser *pUser = TO_USER(itr->second);
+		i++;
 
-	for (i = 0 ; i < MAX_USER ; i++) {
-		pUser = g_pMain->GetUnsafeUserPtr(i);
-		if (pUser == NULL
-			|| pUser->GetNation() != GetNation()
-			|| pUser->m_bNeedParty == 1) 
-			continue;
-
-		if( !(   ( pUser->GetLevel() <= (int)(GetLevel() * 1.5) && pUser->GetLevel() >= (int)(GetLevel() * 1.5)) 
-			  || ( pUser->GetLevel() <= (GetLevel() + 8) && pUser->GetLevel() >= ((int)(GetLevel()) - 8))))
+		if (pUser->GetNation() != GetNation()
+			|| pUser->m_bNeedParty == 1
+			|| !(  ( pUser->GetLevel() <= (int)(GetLevel() * 1.5) && pUser->GetLevel() >= (int)(GetLevel() * 1.5)) 
+				|| ( pUser->GetLevel() <= (GetLevel() + 8) && pUser->GetLevel() >= ((int)(GetLevel()) - 8))))
 			  continue;
 
 		BBS_Counter++;
 
-		if (i < start_counter) continue;	// Range check codes.
-		if (valid_counter >= MAX_BBS_PAGE) continue;
+		if (i < start_counter
+			|| valid_counter >= MAX_BBS_PAGE)
+			continue;
 
-		SetKOString(send_buff, pUser->m_pUserData->m_id, send_index);
-		SetByte(send_buff, pUser->GetLevel(), send_index);
-		SetShort(send_buff, pUser->m_pUserData->m_sClass, send_index);
-
-		valid_counter++;		// Increment counters.
-//		BBS_Counter++;		
+		result << pUser->m_pUserData->m_id << pUser->GetLevel() << pUser->m_pUserData->m_sClass;
+		valid_counter++;
 	}
 
-	if ( valid_counter < MAX_BBS_PAGE ) {	// You still need to fill up ten slots.
-		for (j = valid_counter ; j < MAX_BBS_PAGE ; j++) {
-			SetShort(send_buff, 0, send_index);
-			SetString(send_buff, NULL, 0, send_index);
-			SetByte(send_buff, 0, send_index);
-			SetShort(send_buff, 0, send_index);
-		}
+
+	// You still need to fill up ten slots.
+	if (valid_counter < MAX_BBS_PAGE)
+	{
+		for (int j = valid_counter; j < MAX_BBS_PAGE; j++)
+			result << uint16(0) << uint8(0) << uint16(0);
 	}
 
-	SetShort(send_buff, page_index, send_index);
-	SetShort(send_buff, BBS_Counter, send_index);
-	Send(send_buff, send_index);
-	return;
-
-fail_return:
-	SetByte(send_buff, WIZ_PARTY_BBS, send_index);
-	SetByte(send_buff, PARTY_BBS_NEEDED, send_index);
-	SetByte(send_buff, result, send_index);
-	Send(send_buff, send_index);
-	return;		
-#endif
+	result << page_index << BBS_Counter;
+	Send(&result);
 }

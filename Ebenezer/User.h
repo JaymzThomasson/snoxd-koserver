@@ -467,6 +467,8 @@ public:
 	void PartyBBSDelete(Packet & pkt);
 	void PartyBBSNeeded(Packet & pkt, BYTE type);
 
+	void SendPartyBBSNeeded(uint16 page_index, uint8 bType);
+
 	void ClientEvent(Packet & pkt);
 	BOOL CheckEventLogic(EVENT_DATA* pEventData);
 	BOOL RunNpcEvent(CNpc* pNpc, EXEC* pExec);
