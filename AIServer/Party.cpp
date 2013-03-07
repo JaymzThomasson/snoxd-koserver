@@ -1,22 +1,9 @@
-// Party.cpp: implementation of the CParty class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "server.h"
 #include "ServerDlg.h"
 #include "Party.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 extern CRITICAL_SECTION g_region_critical;
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 CParty::CParty()
 {

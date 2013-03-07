@@ -1,29 +1,13 @@
-// EXEC.cpp: implementation of the EXEC class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "Define.h"
 #include "EXEC.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
 EXEC::EXEC()
 {
-
 }
 
 EXEC::~EXEC()
 {
-
 }
 
 void EXEC::Parse(char *pBuf)

@@ -1,7 +1,3 @@
-// EVENT.cpp: implementation of the EVENT class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "Define.h"
 #include "EVENT.h"
@@ -9,19 +5,8 @@
 #include "EXEC.h"
 #include "LOGIC_ELSE.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
 EVENT::EVENT()
 {
-
 }
 
 EVENT::~EVENT()

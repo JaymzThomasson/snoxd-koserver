@@ -1,7 +1,3 @@
-// GameSocket.cpp: implementation of the CGameSocket class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "Server.h"
 #include "GameSocket.h"
@@ -11,29 +7,11 @@
 #include "region.h"
 #include "Party.h"
 #include "../shared/globals.h"
-
 #include "extern.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
 
 extern CRITICAL_SECTION g_region_critical;
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-/*
-     ** Repent AI Server 작업시 참고 사항 **
-	1. RecvUserInfo(), RecvAttackReq(), RecvUserUpdate() 수정
-*/
-
-CGameSocket::~CGameSocket()
-{
-}
+CGameSocket::~CGameSocket() {}
 
 void CGameSocket::OnConnect()
 {

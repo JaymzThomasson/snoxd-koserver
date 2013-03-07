@@ -1,7 +1,3 @@
-// PathFind.cpp: implementation of the CPathFind class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "server.h"
 #include "MAP.h"
@@ -9,22 +5,10 @@
 #include "math.h"
 #include "Serverdlg.h"
 
-//#include "Extern.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 #define LEVEL_ONE_FIND_CROSS			2
 #define LEVEL_ONE_FIND_DIAGONAL			3
 #define LEVEL_TWO_FIND_CROSS			11
 #define LEVEL_TWO_FIND_DIAGONAL			10
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 CPathFind::CPathFind()
 {

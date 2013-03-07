@@ -1,7 +1,3 @@
-// User.cpp: implementation of the CUser class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "Server.h"
 #include "User.h"
@@ -9,13 +5,6 @@
 #include "define.h"
 #include "Region.h"
 #include "GameSocket.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 #include "extern.h"
 
 #define MORAL_GOOD		0x01
@@ -28,15 +17,8 @@ static float surround_fz[8] = {1.0f,  0.7071f,  0.0f, -0.7059f, -1.0f, -0.7083f,
 extern CRITICAL_SECTION g_region_critical;
 extern CRITICAL_SECTION g_LogFileWrite;
 
-CUser::CUser()
-{
-
-}
-
-CUser::~CUser()
-{
-
-}
+CUser::CUser() {}
+CUser::~CUser() {}
 
 void CUser::Initialize()
 {

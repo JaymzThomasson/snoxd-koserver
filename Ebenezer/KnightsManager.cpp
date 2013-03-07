@@ -1,22 +1,8 @@
-// KnightsManager.cpp: implementation of the CKnightsManager class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "KnightsManager.h"
 #include "User.h"
 #include "GameDefine.h"
 #include "EbenezerDlg.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 CKnightsManager::CKnightsManager()
 {

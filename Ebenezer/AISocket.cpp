@@ -1,7 +1,3 @@
-// AISocket.cpp: implementation of the CAISocket class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "AISocket.h"
 #include "EbenezerDlg.h"
@@ -12,16 +8,6 @@
 #include "Map.h"
 #include "../shared/lzf.h"
 #include "../shared/crc32.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 extern CRITICAL_SECTION g_LogFile_critical;
 

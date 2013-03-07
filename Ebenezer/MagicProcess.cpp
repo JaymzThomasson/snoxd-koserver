@@ -7,12 +7,6 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 #define MORAL_SELF				1
 #define MORAL_FRIEND_WITHME		2
 #define MORAL_FRIEND_EXCEPTME	3

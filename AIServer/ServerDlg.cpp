@@ -28,12 +28,6 @@
 
 using namespace std;
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
 BOOL g_bNpcExit	= FALSE;
 ZoneArray			g_arZone;
 CServerDlg * g_pMain = NULL;
@@ -468,13 +462,6 @@ BOOL CServerDlg::GetNpcItemTable()
 			NpcItemSet.MoveNext();
 		}
 	}
-	catch(CMemoryException * e)
-	{
-		e->ReportError();
-		e->Delete();
-
-		return FALSE;
-	}
 	catch(CDBException* e)
 	{
 		e->ReportError();
@@ -580,13 +567,6 @@ BOOL CServerDlg::GetMonsterTableData()
 
 		NpcTableSet.Close();
 	}
-	catch(CMemoryException * e)
-	{
-		e->ReportError();
-		e->Delete();
-
-		return FALSE;
-	}
 	catch(CDBException* e)
 	{
 		e->ReportError();
@@ -691,13 +671,6 @@ BOOL CServerDlg::GetNpcTableData()
 		}
 
 		NpcTableSet.Close();
-	}
-	catch(CMemoryException * e)
-	{
-		e->ReportError();
-		e->Delete();
-
-		return FALSE;
 	}
 	catch(CDBException* e)
 	{
@@ -971,14 +944,6 @@ BOOL CServerDlg::CreateNpcThread()
 		}
 
 		NpcPosSet.Close();
-	}
-
-	catch(CMemoryException * e)
-	{
-		e->ReportError();
-		e->Delete();
-		
-		return FALSE;
 	}
 	catch(CDBException* e)
 	{

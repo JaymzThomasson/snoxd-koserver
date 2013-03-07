@@ -1,6 +1,3 @@
-// EbenezerDlg.cpp : implementation file
-//
-
 #include "stdafx.h"
 #include "EbenezerDlg.h"
 #include "User.h"
@@ -42,12 +39,6 @@ using namespace std;
 #define NUM_FLAG_VICTORY    4
 #define AWARD_GOLD          100000
 #define AWARD_EXP			5000
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
 
 CEbenezerDlg * g_pMain = NULL;
 CRITICAL_SECTION g_serial_critical, g_region_critical, g_LogFile_critical;
