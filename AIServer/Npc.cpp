@@ -6,9 +6,12 @@
 #include "Region.h"
 #include "Party.h"
 
-int surround_x[8] = {-1, -1, 0, 1, 1, 1, 0, -1};
-int surround_z[8] = {0, -1, -1, -1, 0, 1, 1, 1};
-
+// 1m
+//float surround_fx[8] = {0.0f, -0.7071f, -1.0f, -0.7083f,  0.0f,  0.7059f,  1.0000f, 0.7083f};
+//float surround_fz[8] = {1.0f,  0.7071f,  0.0f, -0.7059f, -1.0f, -0.7083f, -0.0017f, 0.7059f};
+// 2m
+static float surround_fx[8] = {0.0f, -1.4142f, -2.0f, -1.4167f,  0.0f,  1.4117f,  2.0000f, 1.4167f};
+static float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f, -0.0035f, 1.4117f};
 
 int test_id = 1056;
 int cur_test = 0;	// 1 = test중 , 0이면 정상
@@ -2346,13 +2349,6 @@ int CNpc::GetTargetPath(int option)
 	float fDegree = 0.0f, fTargetDistance = 0.0f;
 	float fSurX = 0.0f, fSurZ = 0.0f;
 
-	// 1m
-	//float surround_fx[8] = {0.0f, -0.7071f, -1.0f, -0.7083f,  0.0f,  0.7059f,  1.0000f, 0.7083f};
-	//float surround_fz[8] = {1.0f,  0.7071f,  0.0f, -0.7059f, -1.0f, -0.7083f, -0.0017f, 0.7059f};
-	// 2m
-	float surround_fx[8] = {0.0f, -1.4142f, -2.0f, -1.4167f,  0.0f,  1.4117f,  2.0000f, 1.4167f};
-	float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f, -0.0035f, 1.4117f};
-
 	if(m_Target.id >= USER_BAND && m_Target.id < NPC_BAND)	{	// Target 이 User 인 경우
 		pUser = g_pMain->GetUserPtr(m_Target.id - USER_BAND);
 		if(pUser == NULL)	{
@@ -2938,13 +2934,6 @@ void CNpc::MoveAttack()
 	float fDis = 0.0f;
 	float fX = 0.0f, fZ = 0.0f;
 	vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
-
-	// 1m
-	//float surround_fx[8] = {0.0f, -0.7071f, -1.0f, -0.7083f,  0.0f,  0.7059f,  1.0000f, 0.7083f};
-	//float surround_fz[8] = {1.0f,  0.7071f,  0.0f, -0.7059f, -1.0f, -0.7083f, -0.0017f, 0.7059f};
-	// 2m
-	float surround_fx[8] = {0.0f, -1.4142f, -2.0f, -1.4167f,  0.0f,  1.4117f,  2.0000f, 1.4167f};
-	float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f, -0.0035f, 1.4117f};
 
 	if(m_Target.id >= USER_BAND && m_Target.id < NPC_BAND)	// Target 이 User 인 경우
 	{
@@ -4212,8 +4201,8 @@ void CNpc::FillNpcInfo(char *temp_send, int &index, BYTE flag)
 	SetShort(temp_send, m_proto->m_sSid, index);
 	SetShort(temp_send, m_proto->m_sPid, index );
 	SetShort(temp_send, m_sSize, index );
-	SetInt(temp_send, m_iWeapon_1, index );
-	SetInt(temp_send, m_iWeapon_2, index );
+	SetDWORD(temp_send, m_iWeapon_1, index );
+	SetDWORD(temp_send, m_iWeapon_2, index );
 	SetByte(temp_send, m_bCurZone, index);
 	SetVarString(temp_send, m_proto->m_strName, _tcslen(m_proto->m_strName), index);
 	SetByte(temp_send, m_byGroup, index);
@@ -4227,7 +4216,7 @@ void CNpc::FillNpcInfo(char *temp_send, int &index, BYTE flag)
 	else SetByte(temp_send, 0x01, index);
 
 	SetByte(temp_send, m_proto->m_tNpcType, index);
-	SetInt(temp_send, m_iSellingGroup, index);
+	SetDWORD(temp_send, m_iSellingGroup, index);
 	SetDWORD(temp_send, m_iMaxHP, index);
 	SetDWORD(temp_send, m_iHP, index);
 	SetByte(temp_send, m_byGateOpen, index);
@@ -4248,8 +4237,8 @@ void CNpc::SendNpcInfoAll(char *temp_send, int &index, int count)
 	SetShort(temp_send, m_proto->m_sSid, index);
 	SetShort(temp_send, m_proto->m_sPid, index );
 	SetShort(temp_send, m_sSize, index );
-	SetInt(temp_send, m_iWeapon_1, index );
-	SetInt(temp_send, m_iWeapon_2, index );
+	SetDWORD(temp_send, m_iWeapon_1, index );
+	SetDWORD(temp_send, m_iWeapon_2, index );
 	SetByte(temp_send, m_bCurZone, index);
 	SetVarString(temp_send, m_proto->m_strName, _tcslen(m_proto->m_strName), index);
 	SetByte(temp_send, m_byGroup, index);
@@ -4259,7 +4248,7 @@ void CNpc::SendNpcInfoAll(char *temp_send, int &index, int count)
 	Setfloat(temp_send, m_fCurY, index);
 	SetByte(temp_send, m_byDirection, index);
 	SetByte(temp_send, m_proto->m_tNpcType, index);
-	SetInt(temp_send, m_iSellingGroup, index);
+	SetDWORD(temp_send, m_iSellingGroup, index);
 	SetDWORD(temp_send, m_iMaxHP, index);
 	SetDWORD(temp_send, m_iHP, index);
 	SetByte(temp_send, m_byGateOpen, index);
@@ -4950,7 +4939,7 @@ void CNpc::GiveNpcHaveItem()
 	Setfloat(pBuf, m_fCurY, index);
 	SetByte(pBuf, nCount, index);
 	for(i=0; i<nCount; i++)	{
-		SetInt(pBuf, m_GiveItemList[i].sSid, index);
+		SetDWORD(pBuf, m_GiveItemList[i].sSid, index);
 		SetShort(pBuf, m_GiveItemList[i].count, index);
 
 		if( m_GiveItemList[i].sSid != TYPE_MONEY_SID )	{

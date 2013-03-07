@@ -17,34 +17,13 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
 #include "extern.h"
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-/*
-     ** Repent AI Server 작업시 참고 사항 **
-	1. Initialize() 수정
-	2. SendAttackSuccess() 수정
-	3. GetDamage() 수정
-*/
 
 #define MORAL_GOOD		0x01
 #define MORAL_BAD		0x02
 #define MORAL_NEUTRAL	0x03
 
-// 운영자 아이디 넣기..
-/*const char* g_pszOPID[] = 
-{
-	//"여우야2",
-	//"난강해",
-	//"이쁜여우2"
-	//"Morpheus"
-//	"맨순",
-//	"민순"
-};*/
-
-float surround_fx[8] = {0.0f, -0.7071f, -1.0f, -0.7083f,  0.0f,  0.7059f,  1.0000f, 0.7083f};
-float surround_fz[8] = {1.0f,  0.7071f,  0.0f, -0.7059f, -1.0f, -0.7083f, -0.0017f, 0.7059f};
+static float surround_fx[8] = {0.0f, -0.7071f, -1.0f, -0.7083f,  0.0f,  0.7059f,  1.0000f, 0.7083f};
+static float surround_fz[8] = {1.0f,  0.7071f,  0.0f, -0.7059f, -1.0f, -0.7083f, -0.0017f, 0.7059f};
 
 extern CRITICAL_SECTION g_region_critical;
 extern CRITICAL_SECTION g_LogFileWrite;

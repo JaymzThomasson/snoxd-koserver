@@ -35,7 +35,7 @@ CMagicProcess::~CMagicProcess()
 
 void CMagicProcess::MagicPacket(Packet & pkt)
 {
-	int send_index = 0, magicid = 0;
+	int magicid = 0;
 	int16 sid, tid;
 	uint16 data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0, TotalDex=0, righthand_damage = 0, result = 1;
 	_MAGIC_TABLE* pTable = NULL;
