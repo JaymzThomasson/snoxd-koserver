@@ -1,9 +1,5 @@
-#ifndef _EXTERN_H_
-#define _EXTERN_H_
+#pragma once
 
-// -------------------------------------------------
-// 전역 객체 변수
-// -------------------------------------------------
 extern BOOL	g_bNpcExit;
 
 struct	_PARTY_GROUP
@@ -130,13 +126,3 @@ struct _MAGIC_TYPE1
 	int		sComboDamage;
 	int		sRange;
 };
-
-struct	_USERLOG
-{
-	CTime t;
-	BYTE  byFlag;	// 
-	BYTE  byLevel;
-	char  strUserID[MAX_ID_SIZE+1];		// 아이디(캐릭터 이름)
-};
-
-#endif

@@ -4413,6 +4413,11 @@ void CNpc::SendAll(char *pBuf, int nLength)
 	g_pMain->s_socketMgr.SendAll(pBuf, nLength);
 }
 
+void CNpc::SendAll(Packet * pkt)
+{
+	g_pMain->s_socketMgr.SendAll(pkt);
+}
+
 void CNpc::NpcMoveEnd()
 {
 	SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);

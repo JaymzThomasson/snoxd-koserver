@@ -7,7 +7,6 @@
 #include "../shared/STLMap.h"
 #include <list>
 
-typedef std::list <_USERLOG*>		UserLogList;
 class MAP;
 class CUser  
 {
@@ -70,7 +69,6 @@ public:
 
 	BOOL		m_bLogOut;				// Logout ¡ﬂ¿Œ∞°?
 
-	// 2002.7.10 - Yookozuna
 	BYTE    m_bMagicTypeLeftHand;			// The type of magic item in user's left hand  
 	BYTE    m_bMagicTypeRightHand;			// The type of magic item in user's right hand
 	short   m_sMagicAmountLeftHand;         // The amount of magic item in user's left hand

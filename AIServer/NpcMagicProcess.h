@@ -1,5 +1,4 @@
 #pragma once
-//#include "iocport.h"
 
 class CNpc;
 struct _MAGIC_TABLE;

@@ -199,7 +199,6 @@ short Unit::GetMagicDamage(int damage, Unit *pTarget)
 	if (pTarget->isDead())
 		return 0;
 
-	// RIGHT HAND!!! by Yookozuna
 	if (m_bMagicTypeRightHand > 4 && m_bMagicTypeRightHand < 8)
 		temp_damage = damage * m_sMagicAmountRightHand / 100;
 
@@ -240,7 +239,6 @@ short Unit::GetMagicDamage(int damage, Unit *pTarget)
 	total_r = 0;		// Reset all temporary data.
 	temp_damage = 0;
 
-	// LEFT HAND!!! by Yookozuna
 	if (m_bMagicTypeLeftHand > 4 && m_bMagicTypeLeftHand < 8)
 		temp_damage = damage * m_sMagicAmountLeftHand / 100;
 

@@ -264,7 +264,6 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 			if( byAttackType != MAGIC_ATTACK && byAttackType != DURATION_ATTACK) {
 				pUser->ItemWoreOut(ATTACK, damage);
 
-			// LEFT HAND!!! by Yookozuna
 			temp_damage = damage * pUser->m_bMagicTypeLeftHand / 100 ;
 
 			switch (pUser->m_bMagicTypeLeftHand) {	// LEFT HAND!!!
@@ -278,7 +277,6 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 			
 			temp_damage = 0;	// reset data;
 
-			// RIGHT HAND!!! by Yookozuna
 			temp_damage = damage * pUser->m_bMagicTypeRightHand / 100 ;
 
 			switch (pUser->m_bMagicTypeRightHand) {	// LEFT HAND!!!

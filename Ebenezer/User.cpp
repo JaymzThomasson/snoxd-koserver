@@ -923,9 +923,7 @@ void CUser::SetSlotItemValue()
 	if( m_sItemHit < 3 )
 		m_sItemHit = 3;
 
-	// For magical items..... by Yookozuna 2002.7.10
-	_ITEM_TABLE* pLeftHand = NULL;			// Get item info for left hand.
-	pLeftHand = g_pMain->GetItemPtr(m_pUserData->m_sItemArray[LEFTHAND].nNum);
+	_ITEM_TABLE* pLeftHand = GetItemPrototype(LEFTHAND);
 	if (pLeftHand) {
 		if (pLeftHand->m_bFireDamage) {
 			m_bMagicTypeLeftHand = 1;

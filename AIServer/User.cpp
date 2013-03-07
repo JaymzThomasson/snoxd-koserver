@@ -494,7 +494,6 @@ short CUser::GetMagicDamage(int damage, short tid)
 	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(!pNpc) return damage;
 	
-	// RIGHT HAND!!! by Yookozuna
 	if (m_bMagicTypeRightHand > 4 && m_bMagicTypeRightHand < 8) {
 		temp_damage = damage * m_sMagicAmountRightHand / 100;
 	}
@@ -531,7 +530,6 @@ short CUser::GetMagicDamage(int damage, short tid)
 	total_r = 0 ;		// Reset all temporary data.
 	temp_damage = 0 ;
 
-	// LEFT HAND!!! by Yookozuna
 	if (m_bMagicTypeLeftHand > 4 && m_bMagicTypeLeftHand < 8) {
 		temp_damage = damage * m_sMagicAmountLeftHand / 100;
 	}
