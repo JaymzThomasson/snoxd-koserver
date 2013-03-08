@@ -1,20 +1,26 @@
 #pragma once
 
 #include "../shared/database/OdbcConnection.h"
+#include "../shared/packets.h"
 
-typedef std::vector <_USER_DATA*>			UserDataArray;
-typedef CSTLMap <_ITEM_TABLE>		ItemtableArray;
+enum UserUpdateType
+{
+	UPDATE_LOGOUT,
+	UPDATE_ALL_SAVE,
+	UPDATE_PACKET_SAVE,
+};
 
+class Packet;
+struct _USER_DATA;
 class CDBAgent  
 {
 public:
 	CDBAgent() {}
 
+	bool Startup();
 	bool Connect();
-	bool LoadItemTable();
 
-	void MUserInit(uint16 uid);
-	_USER_DATA *GetUser(uint16 uid);
+	void ReportSQLError(OdbcError *pError);
 
 	int8 AccountLogin(std::string & strAccountID, std::string & strPasswd);
 	uint8 NationSelect(std::string & strAccountID, uint8 bNation);
@@ -31,17 +37,17 @@ public:
 	bool LoadPremiumServiceUser(std::string & strAccountID, _USER_DATA *pUser);
 	bool SetLogInInfo(std::string & strAccountID, std::string & strCharID, std::string & strServerIP, short sServerNo, std::string & strClientIP, uint8 bInit);
 
-	bool LoadWebItemMall(short uid, Packet & result);
+	bool LoadWebItemMall(Packet & result, _USER_DATA *pUser);
 
-	bool LoadSkillShortcut(short uid, Packet & result);
-	void SaveSkillShortcut(short uid, short sCount, char *buff);
+	bool LoadSkillShortcut(Packet & result, _USER_DATA *pUser);
+	void SaveSkillShortcut(short sCount, char *buff, _USER_DATA *pUser);
 
-	void RequestFriendList(short uid, std::vector<std::string> & friendList);
+	void RequestFriendList(std::vector<std::string> & friendList, _USER_DATA *pUser);
 	FriendAddResult AddFriend(short sid, short tid);
-	FriendRemoveResult RemoveFriend(short sid, std::string & strCharID);
+	FriendRemoveResult RemoveFriend(std::string & strCharID, _USER_DATA *pUser);
 
-	bool UpdateUser(std::string & strCharID, short uid, UserUpdateType type);
-	bool UpdateWarehouseData(std::string & strAccountID, short uid, UserUpdateType type);
+	bool UpdateUser(std::string & strCharID, UserUpdateType type, _USER_DATA *pUser);
+	bool UpdateWarehouseData(std::string & strAccountID, UserUpdateType type, _USER_DATA *pUser);
 
 	int8 CreateKnights(uint16 sClanID, uint8 bNation, std::string & strKnightsName, std::string & strChief, uint8 bFlag = 1);
 	int UpdateKnights(uint8 bType, std::string & strCharID, uint16 sClanID, uint8 bDomination);
@@ -58,9 +64,7 @@ public:
 
 	void UpdateConCurrentUserCount(int nServerNo, int nZoneNo, int nCount);
 
-	UserDataArray m_UserDataArray;
-
 private:
 	OdbcConnection m_GameDB, m_AccountDB;
-	ItemtableArray m_itemTableArray;
+	FastMutex m_lock;
 };
