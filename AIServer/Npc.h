@@ -220,8 +220,6 @@ public:
 	BYTE	m_byAttackRange;	// 사정거리
 	BYTE	m_byTracingRange;	// 추격 거리
 
-	short	m_sAI;				// 인공지능 인덱스
-	
 	BYTE	m_tItemPer;			// 아이템이 떨어질 확률
 	BYTE	m_tDnPer;			// 돈이 떨어질확률
 	BYTE    m_byMoneyType;		// Event몬스터일 경우 돈을 많이 주는 것, (0:루팅, 1:루팅을 하지 않고 바로 나눠갖는다)

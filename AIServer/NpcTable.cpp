@@ -36,7 +36,7 @@ void CNpcTable::Initialize()
 	m_sEvadeRate = 0;		// 회피성공률
 	m_sDamage = 0;			// 기본 데미지
 	m_sAttackDelay = 0;		// 공격딜레이
-	m_sSpeed = 0;			// 이동속도	
+	m_sSpeed = 1500;		// this needs to be handled properly
 	m_sStandTime = 0;		// 서있는 시간
 	m_iMagic1 = 0;			// 사용마법 1
 	m_iMagic2 = 0;			// 사용마법 2
@@ -50,7 +50,6 @@ void CNpcTable::Initialize()
 	m_bySearchRange = 0;	// 적 탐지 범위
 	m_byAttackRange = 0;	// 사정거리
 	m_byTracingRange = 0;
-	m_sAI = 0;				// 인공지능 인덱스
 	m_tNpcType = 0;			// NPC Type
 						// 0 : Monster
 						// 1 : Normal NPC
