@@ -409,7 +409,6 @@ public:
 
 	// Merchant system (both types)
 	void MerchantProcess(Packet & pkt);
-	void TakeMerchantItems();
 	void GiveMerchantItems();
 
 	// regular merchants
