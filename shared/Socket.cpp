@@ -193,9 +193,6 @@ void Socket::Disconnect()
 
 	m_connected = false;
 
-	// remove from mgr
-	m_socketMgr->OnDisconnect(this);
-
 	shutdown(m_fd, SD_BOTH);
 	closesocket(m_fd);
 	m_fd = NULL;
@@ -204,6 +201,9 @@ void Socket::Disconnect()
 
 	// Call virtual ondisconnect
 	OnDisconnect();
+
+	// remove from mgr
+	m_socketMgr->OnDisconnect(this);
 
 	//if (!IsDeleted())
 	//	Delete();
