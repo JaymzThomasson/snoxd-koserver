@@ -119,7 +119,7 @@ void CUser::ExchangeAdd(Packet & pkt)
 
 	if (nItemID == ITEM_GOLD)
 	{
-		if (count <= 0 || count > m_pUserData->m_iGold) 
+		if (count <= 0 || count > m_pUserData.m_iGold) 
 			goto add_fail;
 
 		foreach (itr, m_ExchangeItemList)
@@ -127,13 +127,13 @@ void CUser::ExchangeAdd(Packet & pkt)
 			if ((*itr)->nItemID == ITEM_GOLD)
 			{
 				(*itr)->nCount += count;
-				m_pUserData->m_iGold -= count;
+				m_pUserData.m_iGold -= count;
 				bAdd = FALSE;
 				break;
 			}
 		}
 		if (bAdd)
-			m_pUserData->m_iGold -= count;
+			m_pUserData.m_iGold -= count;
 	}
 	else if (m_MirrorItem[pos].nNum == nItemID)
 	{
@@ -234,7 +234,7 @@ void CUser::ExchangeDecide()
 		{
 			if ((*itr)->nItemID == ITEM_GOLD)
 			{
-				m_pUserData->m_iGold += (*itr)->nCount;
+				m_pUserData.m_iGold += (*itr)->nCount;
 				break;
 			}
 		}
@@ -243,7 +243,7 @@ void CUser::ExchangeDecide()
 		{
 			if ((*itr)->nItemID == ITEM_GOLD)
 			{
-				pUser->m_pUserData->m_iGold += (*itr)->nCount;
+				pUser->m_pUserData.m_iGold += (*itr)->nCount;
 				break;
 			}
 		}
@@ -254,7 +254,7 @@ void CUser::ExchangeDecide()
 	if (bSuccess)
 	{
 		result << uint8(EXCHANGE_DONE) << uint8(1)
-				<< m_pUserData->m_iGold
+				<< m_pUserData.m_iGold
 				<< uint16(pUser->m_ExchangeItemList.size());
 
 		foreach (itr, pUser->m_ExchangeItemList)
@@ -267,7 +267,7 @@ void CUser::ExchangeDecide()
 		result.clear();
 
 		result << uint8(EXCHANGE_DONE) << uint8(1)
-				<< pUser->m_pUserData->m_iGold
+				<< pUser->m_pUserData.m_iGold
 				<< uint16(m_ExchangeItemList.size());
 
 		foreach (itr, m_ExchangeItemList)
@@ -302,7 +302,7 @@ void CUser::ExchangeCancel()
 	{
 		if ((*itr)->nItemID == ITEM_GOLD)
 		{
-			m_pUserData->m_iGold += (*itr)->nCount;
+			m_pUserData.m_iGold += (*itr)->nCount;
 			break;
 		}
 	}
@@ -339,7 +339,7 @@ void CUser::InitExchange(BOOL bStart)
 
 	foreach_array (i, m_MirrorItem)
 	{
-		_ITEM_DATA *pItem = &m_pUserData->m_sItemArray[SLOT_MAX+i];
+		_ITEM_DATA *pItem = &m_pUserData.m_sItemArray[SLOT_MAX+i];
 		m_MirrorItem[i].nNum = pItem->nNum;
 		m_MirrorItem[i].sDuration = pItem->sDuration;
 		m_MirrorItem[i].sCount = pItem->sCount;
@@ -444,11 +444,11 @@ int CUser::ExchangeDone()
 	}
 	
 	if (money > 0) 
-		m_pUserData->m_iGold += money;
+		m_pUserData.m_iGold += money;
 
 	for (int i = 0; i < HAVE_MAX; i++)
 	{
-		_ITEM_DATA *pItem = &m_pUserData->m_sItemArray[SLOT_MAX+i];
+		_ITEM_DATA *pItem = &m_pUserData.m_sItemArray[SLOT_MAX+i];
 
 		pItem->nNum = m_MirrorItem[i].nNum;
 		pItem->sDuration = m_MirrorItem[i].sDuration;

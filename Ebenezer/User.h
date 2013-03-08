@@ -41,13 +41,13 @@ class CUser : public Unit, public KOSocket
 public:
 	virtual uint16 GetID() { return GetSocketID(); }
 
-	virtual float GetX() { return m_pUserData->m_curx; }
-	virtual float GetY() { return m_pUserData->m_cury; }
-	virtual float GetZ() { return m_pUserData->m_curz; }
+	virtual float GetX() { return m_pUserData.m_curx; }
+	virtual float GetY() { return m_pUserData.m_cury; }
+	virtual float GetZ() { return m_pUserData.m_curz; }
 
-	virtual const char * GetName() { return m_pUserData->m_id; }
+	virtual const char * GetName() { return m_pUserData.m_id; }
 
-	_USER_DATA*	m_pUserData;
+	_USER_DATA	m_pUserData;
 
 	std::string m_strAccountID;
 
@@ -162,7 +162,7 @@ public:
 	__forceinline bool isGM() { return getAuthority() == AUTHORITY_GAME_MASTER; }
 	__forceinline bool isLimitedGM() { return getAuthority() == AUTHORITY_LIMITED_GAME_MASTER; }
 
-	virtual bool isDead() { return m_bResHpType == USER_DEAD || m_pUserData->m_sHp <= 0; }
+	virtual bool isDead() { return m_bResHpType == USER_DEAD || m_pUserData.m_sHp <= 0; }
 	__forceinline bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; }
 
 	__forceinline bool isInGame() { return GetState() == GAME_STATE_INGAME; }
@@ -181,35 +181,35 @@ public:
 	__forceinline bool isMerchanting() { return m_bIsMerchanting; }
 	__forceinline bool isTransformed() { return m_bIsTransformed; }
 
-	virtual uint8 GetNation() { return m_pUserData->m_bNation; }
-	virtual uint8 GetLevel() { return m_pUserData->m_bLevel; }
-	virtual uint8 GetZoneID() { return m_pUserData->m_bZone; }
+	virtual uint8 GetNation() { return m_pUserData.m_bNation; }
+	virtual uint8 GetLevel() { return m_pUserData.m_bLevel; }
+	virtual uint8 GetZoneID() { return m_pUserData.m_bZone; }
 
-	__forceinline BYTE getAuthority() { return m_pUserData->m_bAuthority; }
-	__forceinline BYTE getFame() { return m_pUserData->m_bFame; }
+	__forceinline BYTE getAuthority() { return m_pUserData.m_bAuthority; }
+	__forceinline BYTE getFame() { return m_pUserData.m_bFame; }
 
-	__forceinline int16 GetClanID() { return m_pUserData->m_bKnights; }
-	__forceinline void SetClanID(int16 val) { m_pUserData->m_bKnights = val; }
+	__forceinline int16 GetClanID() { return m_pUserData.m_bKnights; }
+	__forceinline void SetClanID(int16 val) { m_pUserData.m_bKnights = val; }
 
 	__forceinline GameState GetState() { return m_state; }
 
 	__forceinline uint8 getStat(StatType type)
 	{
 		ASSERT(type < STAT_COUNT);
-		return m_pUserData->m_bStats[type];
+		return m_pUserData.m_bStats[type];
 	}
 
 	__forceinline void setStat(StatType type, uint8 val)
 	{
 		ASSERT(type < STAT_COUNT);
-		m_pUserData->m_bStats[type] = val;
+		m_pUserData.m_bStats[type] = val;
 	}
 
 	__forceinline uint32 getStatTotal() // NOTE: Shares name with another, but lack-of args should be self-explanatory
 	{
 		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
-		foreach_array (i, m_pUserData->m_bStats)
-			total += m_pUserData->m_bStats[i];
+		foreach_array (i, m_pUserData.m_bStats)
+			total += m_pUserData.m_bStats[i];
 		return total;
 	}
 
@@ -262,7 +262,7 @@ public:
 		return getStat(type) + getStatItemBonus(type) + getStatBuff(type);
 	}
 
-	__forceinline _ITEM_DATA * GetItem(uint8 pos) { return &m_pUserData->m_sItemArray[pos]; }
+	__forceinline _ITEM_DATA * GetItem(uint8 pos) { return &m_pUserData.m_sItemArray[pos]; }
 	_ITEM_TABLE* GetItemPrototype(uint8 pos);
 
 	__forceinline C3DMap * GetMap() { return m_pMap; }
@@ -321,17 +321,11 @@ public:
 	// packet handlers start here
 	void VersionCheck(Packet & pkt);
 	void LoginProcess(Packet & pkt);
-	void RecvLoginProcess(Packet & pkt); // from Aujard
 	void SelNationToAgent(Packet & pkt);
-	void RecvSelNation(Packet & pkt); // from Aujard
 	void AllCharInfoToAgent();
-	void RecvAllCharInfoReq(Packet & pkt); // from Aujard
 	void ChangeHair(Packet & pkt);
-	void RecvChangeHair(Packet & pkt); // from Aujard
 	void NewCharToAgent(Packet & pkt);
-	void RecvNewChar(Packet & pkt); // from Aujard
 	void DelCharToAgent(Packet & pkt);
-	void RecvDeleteChar(Packet & pkt); // from Aujard
 	void SelCharToAgent(Packet & pkt);
 	void SelectCharacter(Packet & pkt); // from Aujard
 	void SetLogInInfoToDB(BYTE bInit);
@@ -560,6 +554,31 @@ public:
 
 	void CloseProcess();
 	virtual ~CUser() {}
+
+	/* Database requests */
+	void ReqAccountLogIn(Packet & pkt);
+	void ReqSelectNation(Packet & pkt);
+	void ReqAllCharInfo(Packet & pkt);
+	void ReqChangeHair(Packet & pkt);
+	void ReqCreateNewChar(Packet & pkt);
+	void ReqDeleteChar(Packet & pkt);
+	void ReqSelectCharacter(Packet & pkt);
+	void ReqSaveCharacter();
+	void ReqUserLogOut();
+	void ReqRegisterClanSymbol(Packet & pkt);
+	void ReqSetLogInInfo(Packet & pkt);
+	void ReqUserKickOut(Packet & pkt);
+	// void BattleEventResult(Packet & pkt);
+	void ReqShoppingMall(Packet & pkt);
+	void ReqLoadWebItemMall(Packet & pkt);
+	void ReqSkillDataProcess(Packet & pkt);
+	void ReqSkillDataSave(Packet & pkt);
+	void ReqSkillDataLoad(Packet & pkt);
+	void ReqFriendProcess(Packet & pkt);
+	void ReqRequestFriendList(Packet & pkt);
+	void ReqAddFriend(Packet & pkt);
+	void ReqRemoveFriend(Packet & pkt);
+	void ReqChangeCape(Packet & pkt);
 
 private:
 	static ChatCommandTable s_commandTable;

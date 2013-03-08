@@ -28,6 +28,9 @@
     <Filter Include="Shared\Networking">
       <UniqueIdentifier>{073be5de-f0b1-4042-8494-5704e8177083}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shared\Database">
+      <UniqueIdentifier>{c8afe734-98ac-422d-8694-0c0302c5bcea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ebenezer.cpp">
@@ -161,6 +164,21 @@
     </ClCompile>
     <ClCompile Include="ArenaHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="DBAgent.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="DatabaseThread.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcParameter.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcCommand.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcConnection.cpp">
+      <Filter>Shared\Database</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -364,6 +382,21 @@
     </ClInclude>
     <ClInclude Include="..\shared\database\UserPersonalRankSet.h">
       <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="DBAgent.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseThread.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcConnection.h">
+      <Filter>Shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcParameter.h">
+      <Filter>Shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcCommand.h">
+      <Filter>Shared\Database</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

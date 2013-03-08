@@ -257,7 +257,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\N3BASE\My_3DStruct.h" />
-    <ClInclude Include="..\N3BASE\My_Macro.h" />
     <ClInclude Include="..\N3BASE\N3ShapeMgr.h" />
     <ClInclude Include="..\N3BASE\StdAfxBase.h" />
     <ClInclude Include="..\shared\CircularBuffer.h" />

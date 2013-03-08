@@ -41,27 +41,12 @@ void CUser::LoginProcess(Packet & pkt)
 		goto fail_return;
 	}
 
-	result << strAccountID << strPasswd;
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
+	result << strPasswd;
 	m_strAccountID = strAccountID;
+	g_pMain->AddDatabaseRequest(result, this);
 	return;
 
 fail_return:
 	result << uint8(-1);
-	Send(&result);
-}
-
-void CUser::RecvLoginProcess(Packet & pkt)
-{
-	Packet result(WIZ_LOGIN);
-	int8 bResult = pkt.read<int8>();
-
-	// Error? Reset the account ID.
-	if (bResult < 0)
-		m_strAccountID = "";
-	else
-		g_pMain->AddAccountName(this);
-
-	result << bResult;
 	Send(&result);
 }

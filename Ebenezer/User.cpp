@@ -19,17 +19,16 @@ CUser::CUser(uint16 socketID, SocketMgr *mgr) : KOSocket(socketID, mgr, -1, 1638
 void CUser::OnConnect()
 {
 	KOSocket::OnConnect();
-	m_remaining = 0;
-	m_usingCrypto = false;
-	m_readTries = 0;
-	m_sequence = 0;
-	// m_lastResponse = 0; 
 	Initialize();
 }
 
 void CUser::Initialize()
 {
 	Unit::Initialize();
+
+	memset(&m_pUserData, 0x00, sizeof(_USER_DATA));
+	m_pUserData.m_bAuthority = 1;
+	m_pUserData.m_sBind = -1;
 
 	m_state = GAME_STATE_CONNECTED;
 
@@ -125,11 +124,7 @@ void CUser::OnDisconnect()
 	g_pMain->RemoveSessionNames(this);
 
 	if (!isInGame())
-	{
-		memset(m_pUserData->m_id, 0, sizeof(m_pUserData->m_id));
-		memset(m_pUserData->m_Accountid, 0, sizeof(m_pUserData->m_Accountid));
 		return;
-	}
 
 	UserInOut(INOUT_OUT);
 
@@ -165,7 +160,7 @@ bool CUser::HandlePacket(Packet & pkt)
 	// If we're not authed yet, forced us to before we can do anything else.
 	// NOTE: We're checking the account ID store here because it's only set on successful auth,
 	// at which time the other account ID will be cleared out (yes, it's messy -- need to clean it up).
-	else if (m_pUserData->m_Accountid[0] == '\0')
+	else if (m_pUserData.m_Accountid[0] == '\0')
 	{
 		if (command == WIZ_LOGIN)
 			LoginProcess(pkt);
@@ -411,15 +406,15 @@ void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/)
 {
 	Packet result(WIZ_LOYALTY_CHANGE, uint8(1));
 
-	m_pUserData->m_iLoyalty += nChangeAmount;
-	m_pUserData->m_iLoyaltyMonthly += nChangeAmount;
+	m_pUserData.m_iLoyalty += nChangeAmount;
+	m_pUserData.m_iLoyaltyMonthly += nChangeAmount;
 
-	if (m_pUserData->m_iLoyalty < 0)
-		m_pUserData->m_iLoyalty = 0;
-	if (m_pUserData->m_iLoyaltyMonthly < 0)
-		m_pUserData->m_iLoyaltyMonthly = 0;
+	if (m_pUserData.m_iLoyalty < 0)
+		m_pUserData.m_iLoyalty = 0;
+	if (m_pUserData.m_iLoyaltyMonthly < 0)
+		m_pUserData.m_iLoyaltyMonthly = 0;
 
-	result	<< m_pUserData->m_iLoyalty << m_pUserData->m_iLoyaltyMonthly
+	result	<< m_pUserData.m_iLoyalty << m_pUserData.m_iLoyaltyMonthly
 			<< uint32(0) // Clan donations(? Donations made by this user? For the clan overall?)
 			<< uint32(0); // Premium NP(? Additional NP gained?)
 
@@ -430,7 +425,7 @@ void CUser::ChangeFame(uint8 bFame)
 {
 	Packet result(WIZ_AUTHORITY_CHANGE, uint8(COMMAND_AUTHORITY));
 
-	m_pUserData->m_bFame = bFame;
+	m_pUserData.m_bFame = bFame;
 	result << GetSocketID() << getFame();
 	SendToRegion(&result);
 }
@@ -468,13 +463,13 @@ void CUser::SkillDataSave(Packet & pkt)
 	for (int i = 0; i < sCount; i++)
 		result << pkt.read<uint32>();
 	
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 void CUser::SkillDataLoad()
 {
 	Packet result(WIZ_SKILLDATA, uint8(SKILL_DATA_LOAD));
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 void CUser::RecvSkillDataLoad(Packet & pkt)
@@ -507,31 +502,31 @@ void CUser::UserDataSaveToAgent()
 		return;
 
 	Packet result(WIZ_DATASAVE);
-	result << m_pUserData->m_Accountid << m_pUserData->m_id;
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
+	result << m_pUserData.m_Accountid << m_pUserData.m_id;
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 void CUser::LogOut()
 {
 	CTime t = CTime::GetCurrentTime();
-	g_pMain->WriteLog("[%s : %s Logout : %d:%d:%d]\r\n", m_pUserData->m_Accountid, m_pUserData->m_id, t.GetHour(), t.GetMinute(), t.GetSecond());
+	g_pMain->WriteLog("[%s : %s Logout : %d:%d:%d]\r\n", m_pUserData.m_Accountid, m_pUserData.m_id, t.GetHour(), t.GetMinute(), t.GetSecond());
 
-	CUser *pUser = g_pMain->GetUserPtr(m_pUserData->m_Accountid, TYPE_ACCOUNT);
+	CUser *pUser = g_pMain->GetUserPtr(m_pUserData.m_Accountid, TYPE_ACCOUNT);
 	if (pUser && (pUser->GetSocketID() != GetSocketID()))
 	{
-		TRACE("[SID=%D] %s : %s logged out\n", GetSocketID(), m_pUserData->m_Accountid, m_pUserData->m_id);
+		TRACE("[SID=%D] %s : %s logged out\n", GetSocketID(), m_pUserData.m_Accountid, m_pUserData.m_id);
 		return;
 	}
 
-	if (m_pUserData->m_id[0] == 0) 
+	if (m_pUserData.m_id[0] == 0) 
 		return; 
 
-	Packet result(WIZ_LOGOUT);
-	result << m_pUserData->m_Accountid << m_pUserData->m_id;
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
-
-	result.SetOpcode(AG_USER_LOG_OUT); // same packet, just change the opcode
+	Packet result(AG_USER_LOG_OUT);
+	result << m_strAccountID << GetName();
 	g_pMain->Send_AIServer(&result);
+
+	// synchronous request
+	ReqUserLogOut();
 }
 
 void CUser::SendMyInfo()
@@ -539,20 +534,20 @@ void CUser::SendMyInfo()
 	C3DMap* pMap = GetMap();
 	CKnights* pKnights = NULL;
 
-	if (!pMap->IsValidPosition( m_pUserData->m_curx, m_pUserData->m_curz, 0.0f))
+	if (!pMap->IsValidPosition( m_pUserData.m_curx, m_pUserData.m_curz, 0.0f))
 	{
 		short x = 0, z = 0;
 		GetStartPosition(x, z); 
 
-		m_pUserData->m_curx = (float)x;
-		m_pUserData->m_curz = (float)z;
+		m_pUserData.m_curx = (float)x;
+		m_pUserData.m_curz = (float)z;
 	}
 
 	// Unlock skill data (level 70 skill quest).
 	// NOTE: This is just temporary until we can load quest data.
 	// At which time, we'll just send a list of quest IDs & their states (as is done here, just.. hardcoded)
 	Packet result(WIZ_QUEST, uint8(1));
-	uint16 Class = m_pUserData->m_sClass % 100;
+	uint16 Class = m_pUserData.m_sClass % 100;
 	if (Class == 1 || Class == 5 || Class == 6)
 		result << uint16(3) << uint16(51) << uint8(2) << uint16(510) << uint8(2) << uint16(511) << uint8(2); // if 50+baseclass quest ID is completed
 	else if (Class == 2 || Class == 7 || Class == 8)
@@ -570,16 +565,16 @@ void CUser::SendMyInfo()
 
 	result.SByte(); // character name has a single byte length
 	result	<< GetSocketID()
-			<< m_pUserData->m_id
+			<< m_pUserData.m_id
 			<< GetSPosX() << GetSPosZ() << GetSPosY()
 			<< GetNation() 
-			<< m_pUserData->m_bRace << m_pUserData->m_sClass << m_pUserData->m_bFace
-			<< m_pUserData->m_nHair
-			<< m_pUserData->m_bRank << m_pUserData->m_bTitle
+			<< m_pUserData.m_bRace << m_pUserData.m_sClass << m_pUserData.m_bFace
+			<< m_pUserData.m_nHair
+			<< m_pUserData.m_bRank << m_pUserData.m_bTitle
 			<< GetLevel()
-			<< m_pUserData->m_sPoints
-			<< m_iMaxExp << m_pUserData->m_iExp
-			<< m_pUserData->m_iLoyalty << m_pUserData->m_iLoyaltyMonthly
+			<< m_pUserData.m_sPoints
+			<< m_iMaxExp << m_pUserData.m_iExp
+			<< m_pUserData.m_iLoyalty << m_pUserData.m_iLoyaltyMonthly
 			<< GetClanID() << getFame();
 
 	if (isInClan())
@@ -604,8 +599,8 @@ void CUser::SendMyInfo()
 	}
 
 	result	<< uint8(2) << uint8(3) << uint8(4) << uint8(5) // unknown
-			<< m_iMaxHp << m_pUserData->m_sHp
-			<< m_iMaxMp << m_pUserData->m_sMp
+			<< m_iMaxHp << m_pUserData.m_sHp
+			<< m_iMaxMp << m_pUserData.m_sMp
 			<< m_sMaxWeight << m_sItemWeight
 			<< getStat(STAT_STR) << uint8(getStatItemBonus(STAT_STR))
 			<< getStat(STAT_STA) << uint8(getStatItemBonus(STAT_STA))
@@ -614,11 +609,11 @@ void CUser::SendMyInfo()
 			<< getStat(STAT_CHA) << uint8(getStatItemBonus(STAT_CHA))
 			<< m_sTotalHit << m_sTotalAc
 			<< m_bFireR << m_bColdR << m_bLightningR << m_bMagicR << m_bDiseaseR << m_bPoisonR
-			<< m_pUserData->m_iGold
-			<< m_pUserData->m_bAuthority
+			<< m_pUserData.m_iGold
+			<< m_pUserData.m_bAuthority
 			<< m_bPersonalRank << m_bKnightsRank; // national rank, leader rank
 
-	result.append(m_pUserData->m_bstrSkill, 9);
+	result.append(m_pUserData.m_bstrSkill, 9);
 
 	for (int i = 0; i < INVENTORY_TOTAL; i++)
 	{
@@ -632,11 +627,11 @@ void CUser::SendMyInfo()
 	}
 
 	m_bIsChicken = CheckExistEvent(50, 1);
-	result	<< m_pUserData->m_bAccountStatus	// account status (0 = none, 1 = normal prem with expiry in hours, 2 = pc room)
-			<< m_pUserData->m_bPremiumType		// premium type (7 = platinum premium)
-			<< m_pUserData->m_sPremiumTime		// premium time
+	result	<< m_pUserData.m_bAccountStatus	// account status (0 = none, 1 = normal prem with expiry in hours, 2 = pc room)
+			<< m_pUserData.m_bPremiumType		// premium type (7 = platinum premium)
+			<< m_pUserData.m_sPremiumTime		// premium time
 			<< m_bIsChicken						// chicken/beginner flag
-			<< m_pUserData->m_iMannerPoint;
+			<< m_pUserData.m_iMannerPoint;
 
 	Send(&result);
 
@@ -649,33 +644,33 @@ void CUser::SendMyInfo()
 void CUser::SetMaxHp(int iFlag)
 {
 	_CLASS_COEFFICIENT* p_TableCoefficient = NULL;
-	p_TableCoefficient = g_pMain->m_CoefficientArray.GetData( m_pUserData->m_sClass );
+	p_TableCoefficient = g_pMain->m_CoefficientArray.GetData( m_pUserData.m_sClass );
 	if( !p_TableCoefficient ) return;
 
 	int temp_sta = getStatTotal(STAT_STA);
 //	if( temp_sta > 255 ) temp_sta = 255;
 
-	if( m_pUserData->m_bZone == ZONE_SNOW_BATTLE && iFlag == 0 )	{
+	if( m_pUserData.m_bZone == ZONE_SNOW_BATTLE && iFlag == 0 )	{
 		m_iMaxHp = 100;
 	}
 	else	{
 		m_iMaxHp = (short)(((p_TableCoefficient->HP * GetLevel() * GetLevel() * temp_sta ) 
 		      + 0.1 * (GetLevel() * temp_sta) + (temp_sta / 5)) + m_sMaxHPAmount + m_sItemMaxHp + 20);
 
-		if( iFlag == 1 )	m_pUserData->m_sHp = m_iMaxHp;
+		if( iFlag == 1 )	m_pUserData.m_sHp = m_iMaxHp;
 		else if( iFlag == 2 )	m_iMaxHp = 100;
 	}
 
-	if(m_iMaxHp < m_pUserData->m_sHp) {
-		m_pUserData->m_sHp = m_iMaxHp;
-		HpChange( m_pUserData->m_sHp );
+	if(m_iMaxHp < m_pUserData.m_sHp) {
+		m_pUserData.m_sHp = m_iMaxHp;
+		HpChange( m_pUserData.m_sHp );
 	}
 }
 
 void CUser::SetMaxMp()
 {
 	_CLASS_COEFFICIENT* p_TableCoefficient = NULL;
-	p_TableCoefficient = g_pMain->m_CoefficientArray.GetData( m_pUserData->m_sClass );
+	p_TableCoefficient = g_pMain->m_CoefficientArray.GetData( m_pUserData.m_sClass );
 	if( !p_TableCoefficient ) return;
 
 	int temp_intel = 0, temp_sta = 0;
@@ -695,9 +690,9 @@ void CUser::SetMaxMp()
 			  + (0.1f * GetLevel() * temp_sta) + (temp_sta / 5) + m_sMaxMPAmount + m_sItemMaxMp);
 	}
 
-	if(m_iMaxMp < m_pUserData->m_sMp) {
-		m_pUserData->m_sMp = m_iMaxMp;
-		MSpChange( m_pUserData->m_sMp );
+	if(m_iMaxMp < m_pUserData.m_sMp) {
+		m_pUserData.m_sMp = m_iMaxMp;
+		MSpChange( m_pUserData.m_sMp );
 	}
 }
 
@@ -781,8 +776,8 @@ void CUser::SetZoneAbilityChange()
 
 void CUser::SendPremiumInfo()
 {
-	Packet result(WIZ_PREMIUM, m_pUserData->m_bAccountStatus);
-	result << m_pUserData->m_bPremiumType << uint32(m_pUserData->m_sPremiumTime); 
+	Packet result(WIZ_PREMIUM, m_pUserData.m_bAccountStatus);
+	result << m_pUserData.m_bPremiumType << uint32(m_pUserData.m_sPremiumTime); 
 	Send(&result);
 }
 
@@ -858,12 +853,12 @@ void CUser::SetSlotItemValue()
 	m_bMagicTypeLeftHand = 0; m_bMagicTypeRightHand = 0; m_sMagicAmountLeftHand = 0; m_sMagicAmountRightHand = 0;       
 
 	for(int i=0; i<SLOT_MAX; i++)  {
-		if(m_pUserData->m_sItemArray[i].nNum <= 0)
+		if(m_pUserData.m_sItemArray[i].nNum <= 0)
 			continue;
-		pTable = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[i].nNum );
+		pTable = g_pMain->GetItemPtr( m_pUserData.m_sItemArray[i].nNum );
 		if( !pTable )
 			continue;
-		if( m_pUserData->m_sItemArray[i].sDuration == 0 ) {
+		if( m_pUserData.m_sItemArray[i].sDuration == 0 ) {
 			item_hit = pTable->m_sDamage / 2;
 			item_ac = pTable->m_sAc / 2;
 		}
@@ -874,7 +869,7 @@ void CUser::SetSlotItemValue()
 		if( i == RIGHTHAND ) 	// ItemHit Only Hands
 			m_sItemHit += item_hit;
 		if( i == LEFTHAND ) {
-			if( ( m_pUserData->m_sClass == BERSERKER || m_pUserData->m_sClass == BLADE ) )
+			if( ( m_pUserData.m_sClass == BERSERKER || m_pUserData.m_sClass == BLADE ) )
 				m_sItemHit += (short)(item_hit * 0.5f);
 		}
 
@@ -907,16 +902,16 @@ void CUser::SetSlotItemValue()
 
 // Also add the weight of items in the inventory....
 	for(int i=0 ; i < HAVE_MAX+SLOT_MAX ; i++)  {
-		if(m_pUserData->m_sItemArray[i].nNum <= 0) continue;
+		if(m_pUserData.m_sItemArray[i].nNum <= 0) continue;
 
-		pTable = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[i].nNum );
+		pTable = g_pMain->GetItemPtr( m_pUserData.m_sItemArray[i].nNum );
 		if( !pTable ) continue;
 
 		if (pTable->m_bCountable == 0) {	// Non-countable items.
 			m_sItemWeight += pTable->m_sWeight;
 		}
 		else {	// Countable items.
-			m_sItemWeight += pTable->m_sWeight * m_pUserData->m_sItemArray[i].sCount;
+			m_sItemWeight += pTable->m_sWeight * m_pUserData.m_sItemArray[i].sCount;
 		}
 	}
 //	
@@ -967,7 +962,7 @@ void CUser::SetSlotItemValue()
 	}
 
 	_ITEM_TABLE* pRightHand = NULL;			// Get item info for right hand.
-	pRightHand = g_pMain->GetItemPtr(m_pUserData->m_sItemArray[RIGHTHAND].nNum);
+	pRightHand = g_pMain->GetItemPtr(m_pUserData.m_sItemArray[RIGHTHAND].nNum);
 	if (pRightHand) {
 		if (pRightHand->m_bFireDamage) {
 			m_bMagicTypeRightHand = 1;
@@ -1016,12 +1011,12 @@ void CUser::ExpChange(int64 iExp)
 	// Stop players level 5 or under from losing XP on death.
 	if ((GetLevel() < 6 && iExp < 0)
 		// Stop players in the war zone (TO-DO: Add other war zones) from losing XP on death.
-		|| (m_pUserData->m_bZone == ZONE_BATTLE && iExp < 0))
+		|| (m_pUserData.m_bZone == ZONE_BATTLE && iExp < 0))
 		return;
 
 	// Despite being signed, we don't want m_iExp ever going below 0.
 	// If this happens, we need to investigate why -- not sweep it under the rug.
-	ASSERT(m_pUserData->m_iExp >= 0);
+	ASSERT(m_pUserData.m_iExp >= 0);
 
 	// Adjust the exp gained based on the percent set by the buff
 	if (iExp > 0)
@@ -1029,23 +1024,23 @@ void CUser::ExpChange(int64 iExp)
 
 	bool bLevel = true;
 	if (iExp < 0 
-		&& (m_pUserData->m_iExp + iExp) < 0)
+		&& (m_pUserData.m_iExp + iExp) < 0)
 		bLevel = false;
 	else
-		m_pUserData->m_iExp += iExp;
+		m_pUserData.m_iExp += iExp;
 
 	// If we need to delevel...
 	if (!bLevel)
 	{
 		// Drop us back a level.
-		m_pUserData->m_bLevel--;
+		m_pUserData.m_bLevel--;
 
 		// Get the excess XP (i.e. below 0), so that we can take it off the max XP of the previous level
 		// Remember: we're deleveling, not necessarily starting from scratch at the previous level
-		int64 diffXP = m_pUserData->m_iExp + iExp;
+		int64 diffXP = m_pUserData.m_iExp + iExp;
 
 		// Now reset our XP to max for the former level.
-		m_pUserData->m_iExp = g_pMain->GetExpByLevel(GetLevel());
+		m_pUserData.m_iExp = g_pMain->GetExpByLevel(GetLevel());
 
 		// Get new stats etc.
 		LevelChange(GetLevel(), FALSE);
@@ -1055,23 +1050,23 @@ void CUser::ExpChange(int64 iExp)
 		return;
 	}
 	// If we've exceeded our XP requirement, we've leveled.
-	else if (m_pUserData->m_iExp >= m_iMaxExp)
+	else if (m_pUserData.m_iExp >= m_iMaxExp)
 	{
 		if (GetLevel() < MAX_LEVEL)
 		{
 			// Reset our XP to 0, level us up.
-			m_pUserData->m_iExp = 0;
-			LevelChange(++m_pUserData->m_bLevel);
+			m_pUserData.m_iExp = 0;
+			LevelChange(++m_pUserData.m_bLevel);
 			return;
 		}
 
 		// Hit the max level? Can't level any further. Cap the XP.
-		m_pUserData->m_iExp = m_iMaxExp;
+		m_pUserData.m_iExp = m_iMaxExp;
 	}
 
 	// Tell the client our new XP
 	Packet result(WIZ_EXP_CHANGE);
-	result << uint8(0) << m_pUserData->m_iExp; // NOTE: Use proper flag
+	result << uint8(0) << m_pUserData.m_iExp; // NOTE: Use proper flag
 	Send(&result);
 
 	// If we've lost XP, save it for possible refund later.
@@ -1089,11 +1084,11 @@ void CUser::LevelChange(short level, BYTE type )
 		return;
 
 	if( type ) {
-		if ((m_pUserData->m_sPoints + getStatTotal()) < uint32(300 + 3 * (level - 1)))
-			m_pUserData->m_sPoints += 3;
-		if( level > 9 && (m_pUserData->m_bstrSkill[0]+m_pUserData->m_bstrSkill[1]+m_pUserData->m_bstrSkill[2]+m_pUserData->m_bstrSkill[3]+m_pUserData->m_bstrSkill[4]
-			+m_pUserData->m_bstrSkill[5]+m_pUserData->m_bstrSkill[6]+m_pUserData->m_bstrSkill[7]+m_pUserData->m_bstrSkill[8]) < (2*(level-9)) )
-			m_pUserData->m_bstrSkill[0] += 2;	// Skill Points up
+		if ((m_pUserData.m_sPoints + getStatTotal()) < uint32(300 + 3 * (level - 1)))
+			m_pUserData.m_sPoints += 3;
+		if( level > 9 && (m_pUserData.m_bstrSkill[0]+m_pUserData.m_bstrSkill[1]+m_pUserData.m_bstrSkill[2]+m_pUserData.m_bstrSkill[3]+m_pUserData.m_bstrSkill[4]
+			+m_pUserData.m_bstrSkill[5]+m_pUserData.m_bstrSkill[6]+m_pUserData.m_bstrSkill[7]+m_pUserData.m_bstrSkill[8]) < (2*(level-9)) )
+			m_pUserData.m_bstrSkill[0] += 2;	// Skill Points up
 	}
 
 	m_iMaxExp = g_pMain->GetExpByLevel(level);
@@ -1101,17 +1096,17 @@ void CUser::LevelChange(short level, BYTE type )
 	SetSlotItemValue();
 	SetUserAbility();
 
-	m_pUserData->m_sMp = m_iMaxMp;
+	m_pUserData.m_sMp = m_iMaxMp;
 	HpChange( m_iMaxHp );
 
 	Send2AI_UserUpdateInfo();
 
 	Packet result(WIZ_LEVEL_CHANGE);
 	result	<< GetSocketID()
-			<< GetLevel() << m_pUserData->m_sPoints << m_pUserData->m_bstrSkill[0]
-			<< m_iMaxExp << m_pUserData->m_iExp
-			<< m_iMaxHp << m_pUserData->m_sHp 
-			<< m_iMaxMp << m_pUserData->m_sMp
+			<< GetLevel() << m_pUserData.m_sPoints << m_pUserData.m_bstrSkill[0]
+			<< m_iMaxExp << m_pUserData.m_iExp
+			<< m_iMaxHp << m_pUserData.m_sHp 
+			<< m_iMaxMp << m_pUserData.m_sMp
 			<< m_sMaxWeight << m_sItemWeight;
 
 	g_pMain->Send_Region(&result, GetMap(), GetRegionX(), GetRegionZ());
@@ -1130,14 +1125,14 @@ void CUser::PointChange(Packet & pkt)
 	StatType statType = (StatType)(type - 1);
 
 	if (statType < STAT_STR || statType >= STAT_COUNT 
-		|| m_pUserData->m_sPoints < 1
+		|| m_pUserData.m_sPoints < 1
 		|| getStat(statType) == STAT_MAX) 
 		return;
 
 	Packet result(WIZ_POINT_CHANGE, type);
 
-	m_pUserData->m_sPoints--; // remove a free point
-	result << uint16(++m_pUserData->m_bStats[statType]); // assign the free point to a stat
+	m_pUserData.m_sPoints--; // remove a free point
+	result << uint16(++m_pUserData.m_bStats[statType]); // assign the free point to a stat
 	SetUserAbility();
 	result << m_iMaxHp << m_iMaxMp << m_sTotalHit << m_sMaxWeight;
 	Send(&result);
@@ -1147,28 +1142,28 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= 
 {
 	Packet result(WIZ_HP_CHANGE);
 
-	if (amount < 0 && -amount > m_pUserData->m_sHp)
-		m_pUserData->m_sHp = 0;
-	else if (amount >= 0 && m_pUserData->m_sHp + amount > m_iMaxHp)
-		m_pUserData->m_sHp = m_iMaxHp;
+	if (amount < 0 && -amount > m_pUserData.m_sHp)
+		m_pUserData.m_sHp = 0;
+	else if (amount >= 0 && m_pUserData.m_sHp + amount > m_iMaxHp)
+		m_pUserData.m_sHp = m_iMaxHp;
 	else
-		m_pUserData->m_sHp += amount;
+		m_pUserData.m_sHp += amount;
 
 	uint16 tid = (pAttacker != NULL ? pAttacker->GetID() : -1);
-	result << m_iMaxHp << m_pUserData->m_sHp << tid;
+	result << m_iMaxHp << m_pUserData.m_sHp << tid;
 	Send(&result);
 
 	if (bSendToAI)
 	{
 		result.Initialize(AG_USER_SET_HP);
-		result << GetSocketID() << uint32(m_pUserData->m_sHp);
+		result << GetSocketID() << uint32(m_pUserData.m_sHp);
 		g_pMain->Send_AIServer(&result);
 	}
 
 	if (isInParty())
 		SendPartyHPUpdate();
 
-	if (m_pUserData->m_sHp == 0)
+	if (m_pUserData.m_sHp == 0)
 		OnDeath(pAttacker);
 }
 
@@ -1177,13 +1172,13 @@ void CUser::MSpChange(int amount)
 	Packet result(WIZ_MSP_CHANGE);
 
 	// TO-DO: Make this behave unsigned.
-	m_pUserData->m_sMp += amount;
-	if (m_pUserData->m_sMp < 0)
-		m_pUserData->m_sMp = 0;
-	else if (m_pUserData->m_sMp > m_iMaxMp)
-		m_pUserData->m_sMp = m_iMaxMp;
+	m_pUserData.m_sMp += amount;
+	if (m_pUserData.m_sMp < 0)
+		m_pUserData.m_sMp = 0;
+	else if (m_pUserData.m_sMp > m_iMaxMp)
+		m_pUserData.m_sMp = m_iMaxMp;
 
-	result << m_iMaxMp << m_pUserData->m_sMp;
+	result << m_iMaxMp << m_pUserData.m_sMp;
 	Send(&result);
 
 	if (isInParty())
@@ -1195,8 +1190,8 @@ void CUser::SendPartyHPUpdate()
 	Packet result(WIZ_PARTY);
 	result	<< uint8(PARTY_HPCHANGE)
 			<< GetSocketID()
-			<< m_iMaxHp << m_pUserData->m_sHp
-			<< m_iMaxMp << m_pUserData->m_sMp;
+			<< m_iMaxHp << m_pUserData.m_sHp
+			<< m_iMaxMp << m_pUserData.m_sMp;
 	g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 }
 
@@ -1206,16 +1201,16 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 
 	result.SByte();
 	result	<< GetSocketID()
-			<< m_pUserData->m_id
+			<< m_pUserData.m_id
 			<< GetZoneID() << GetNation() << GetLevel()
-			<< m_pUserData->m_sHp << m_pUserData->m_sMp
+			<< m_pUserData.m_sHp << m_pUserData.m_sMp
 			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
 			<< uint16(m_sTotalAc + m_sACAmount)
 			<< m_sTotalHitrate << m_sTotalEvasionrate
 			<< m_sItemAc
 			<< m_bMagicTypeLeftHand << m_bMagicTypeRightHand
 			<< m_sMagicAmountLeftHand << m_sMagicAmountRightHand
-			<< m_pUserData->m_bAuthority << m_bInvisibilityType;
+			<< m_pUserData.m_bAuthority << m_bInvisibilityType;
 
 	g_pMain->Send_AIServer(&result);
 }
@@ -1223,7 +1218,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 {
 	BOOL bHaveBow = FALSE;
-	_CLASS_COEFFICIENT* p_TableCoefficient = g_pMain->m_CoefficientArray.GetData(m_pUserData->m_sClass);
+	_CLASS_COEFFICIENT* p_TableCoefficient = g_pMain->m_CoefficientArray.GetData(m_pUserData.m_sClass);
 	uint16 sItemDamage = 0;
 	if (p_TableCoefficient == NULL)
 		return;
@@ -1362,7 +1357,7 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 	if (CheckClass(6, 12))
 	{
 		// Boldness/Daring: [Passive]Increase your defense by 20% when your HP is down to 30% or lower.
-		if (m_pUserData->m_sHp < 30 * m_iMaxHp / 100)
+		if (m_pUserData.m_sHp < 30 * m_iMaxHp / 100)
 		{
 			m_sTotalAc += 20 * m_sTotalAc / 100;
 			// m_sTotalAcUnk += 20 * m_sTotalAcUnk / 100;
@@ -1371,7 +1366,7 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 	else if (isRogue())
 	{
 		// Valor: [Passive]Increase your resistance by 50 when your HP is down to 30% or below.
-		if (m_pUserData->m_sHp < 30 * m_iMaxHp / 100)
+		if (m_pUserData.m_sHp < 30 * m_iMaxHp / 100)
 			m_bResistanceBonus += 50;
 	}
 
@@ -1419,7 +1414,7 @@ void CUser::SendTargetHP( BYTE echo, int tid, int damage )
 		if (pUser == NULL || pUser->isDead()) 
 			return;
 
-		hp = pUser->m_pUserData->m_sHp;	
+		hp = pUser->m_pUserData.m_sHp;	
 		maxhp = pUser->m_iMaxHp;
 	}
 
@@ -1530,8 +1525,8 @@ void CUser::ItemGet(Packet & pkt)
 
 		if (!isInParty())
 		{
-			m_pUserData->m_iGold += count;
-			result << uint8(1) << bundle_index << uint8(-1) << itemid << count << m_pUserData->m_iGold;
+			m_pUserData.m_iGold += count;
+			result << uint8(1) << bundle_index << uint8(-1) << itemid << count << m_pUserData.m_iGold;
 			Send(&result);
 			return;
 		}
@@ -1558,10 +1553,10 @@ void CUser::ItemGet(Packet & pkt)
 				continue;
 
 			money = (int)(count * (float)(pUser->GetLevel() / (float)levelsum));    
-			pUser->m_pUserData->m_iGold += money;
+			pUser->m_pUserData.m_iGold += money;
 
 			result.clear();
-			result << uint8(2) << bundle_index << uint8(-1) << itemid << pUser->m_pUserData->m_iGold;
+			result << uint8(2) << bundle_index << uint8(-1) << itemid << pUser->m_pUserData.m_iGold;
 			pUser->Send(&result);
 		}
 		return;
@@ -1578,35 +1573,35 @@ void CUser::ItemGet(Packet & pkt)
 		return;
 	}
 
-	pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum = itemid;	// Add item to inventory. 
+	pGetUser->m_pUserData.m_sItemArray[SLOT_MAX+pos].nNum = itemid;	// Add item to inventory. 
 	if (pTable->m_bCountable)
 	{
-		pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount += count;
-		if (pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount > MAX_ITEM_COUNT)
-			pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = MAX_ITEM_COUNT;
+		pGetUser->m_pUserData.m_sItemArray[SLOT_MAX+pos].sCount += count;
+		if (pGetUser->m_pUserData.m_sItemArray[SLOT_MAX+pos].sCount > MAX_ITEM_COUNT)
+			pGetUser->m_pUserData.m_sItemArray[SLOT_MAX+pos].sCount = MAX_ITEM_COUNT;
 	}
 	else
 	{
-		pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = 1;
-		pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum = g_pMain->GenerateItemSerial();
+		pGetUser->m_pUserData.m_sItemArray[SLOT_MAX+pos].sCount = 1;
+		pGetUser->m_pUserData.m_sItemArray[SLOT_MAX+pos].nSerialNum = g_pMain->GenerateItemSerial();
 	}
 
 	pGetUser->SendItemWeight();
-	pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;
+	pGetUser->m_pUserData.m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;
 	
 	// 1 = self, 5 = party
 	// Tell the user who got the item that they actually got it.
 	result	<< uint8(pGetUser == this ? 1 : 5)
 			<< bundle_index
-			<< pos << itemid << pGetUser->m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount
-			<< pGetUser->m_pUserData->m_iGold;
+			<< pos << itemid << pGetUser->m_pUserData.m_sItemArray[SLOT_MAX+pos].sCount
+			<< pGetUser->m_pUserData.m_iGold;
 	pGetUser->Send(&result);
 
 	if (isInParty())
 	{
 		// Tell our party the item was looted
 		result.clear();
-		result << uint8(3) << bundle_index << itemid << pGetUser->m_pUserData->m_id;
+		result << uint8(3) << bundle_index << itemid << pGetUser->m_pUserData.m_id;
 		g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 
 		// Let us know the other user got the item
@@ -1663,7 +1658,7 @@ void CUser::StateChange(Packet & pkt)
 
 		default:
 			TRACE("[SID=%d] StateChange: %s tripped (bType=%d, buff=%d, nBuff=%d) somehow, HOW!?\n", 
-				GetSocketID(), m_pUserData->m_id, bType, buff, nBuff);
+				GetSocketID(), m_pUserData.m_id, bType, buff, nBuff);
 			break;
 		}
 		break;
@@ -1675,7 +1670,7 @@ void CUser::StateChange(Packet & pkt)
 
 	default:
 		TRACE("[SID=%d] StateChange: %s tripped (bType=%d, buff=%d, nBuff=%d) somehow, HOW!?\n", 
-			GetSocketID(), m_pUserData->m_id, bType, buff, nBuff);
+			GetSocketID(), m_pUserData.m_id, bType, buff, nBuff);
 		return;
 	}
 
@@ -1721,7 +1716,7 @@ void CUser::LoyaltyChange(short tid)
 	short loyalty_source = 0, loyalty_target = 0;
 
 	// TO-DO: Rewrite this out, it shouldn't handle all cases so generally like this
-	if (m_pUserData->m_bZone == 48 || m_pUserData->m_bZone == 21) 
+	if (m_pUserData.m_bZone == 48 || m_pUserData.m_bZone == 21) 
 		return;
 
 	CUser* pTUser = g_pMain->GetUserPtr(tid);  
@@ -1730,7 +1725,7 @@ void CUser::LoyaltyChange(short tid)
 
 	if (pTUser->GetNation() != GetNation()) 
 	{
-		if (pTUser->m_pUserData->m_iLoyalty <= 0) 
+		if (pTUser->m_pUserData.m_iLoyalty <= 0) 
 		{
 			loyalty_source = 0;
 			loyalty_target = 0;
@@ -1788,10 +1783,10 @@ void CUser::SpeedHackUser()
 	if (!isInGame())
 		return;
 
-	g_pMain->WriteLog("%s Speed Hack Used\r\n", m_pUserData->m_id);
+	g_pMain->WriteLog("%s Speed Hack Used\r\n", m_pUserData.m_id);
 	
-	if( m_pUserData->m_bAuthority != 0 )
-		m_pUserData->m_bAuthority = -1;
+	if( m_pUserData.m_bAuthority != 0 )
+		m_pUserData.m_bAuthority = -1;
 
 	Disconnect();
 }
@@ -1850,22 +1845,22 @@ void CUser::SkillPointChange(Packet & pkt)
 	// invalid type
 	if (type < 5 || type > 8 
 		// not enough free skill points to allocate
-		|| m_pUserData->m_bstrSkill[0] < 1 
+		|| m_pUserData.m_bstrSkill[0] < 1 
 		// restrict skill points per category to your level
-		|| m_pUserData->m_bstrSkill[type] + 1 > GetLevel()
+		|| m_pUserData.m_bstrSkill[type] + 1 > GetLevel()
 		// we need our first job change to assign skill points
-		|| (m_pUserData->m_sClass % 100) <= 4
+		|| (m_pUserData.m_sClass % 100) <= 4
 		// to set points in the mastery category, we need to be mastered.
 		|| (type == 8
-			&& ((m_pUserData->m_sClass % 2) != 0 || (m_pUserData->m_sClass % 100) < 6))) 
+			&& ((m_pUserData.m_sClass % 2) != 0 || (m_pUserData.m_sClass % 100) < 6))) 
 	{
-		result << m_pUserData->m_bstrSkill[type]; // only send the packet on failure
+		result << m_pUserData.m_bstrSkill[type]; // only send the packet on failure
 		Send(&result);
 		return;
 	}
 
-	m_pUserData->m_bstrSkill[0] -= 1;
-	m_pUserData->m_bstrSkill[type] += 1;
+	m_pUserData.m_bstrSkill[0] -= 1;
+	m_pUserData.m_bstrSkill[type] += 1;
 }
 
 void CUser::UpdateGameWeather(Packet & pkt)
@@ -1889,12 +1884,12 @@ void CUser::GetUserInfoForAI(Packet & result)
 {
 	result.SByte(); 
 	result	<< GetSocketID()
-			<< m_pUserData->m_id << GetZoneID() << GetNation() << GetLevel()
-			<< m_pUserData->m_sHp << m_pUserData->m_sMp 
+			<< m_pUserData.m_id << GetZoneID() << GetNation() << GetLevel()
+			<< m_pUserData.m_sHp << m_pUserData.m_sMp 
 			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
 			<< uint16(m_sTotalAc + m_sACAmount)
 			<< m_sTotalHitrate << m_sTotalEvasionrate
-			<< m_sPartyIndex << m_pUserData->m_bAuthority
+			<< m_sPartyIndex << m_pUserData.m_bAuthority
 			<< m_bInvisibilityType;
 }
 
@@ -1950,22 +1945,22 @@ void CUser::LoyaltyDivide(short tid)
 
 	//	This is for the Event Battle on Wednesday :(
 	if (g_pMain->m_byBattleOpen) {
-		if (m_pUserData->m_bZone == ZONE_BATTLE) {
-			if (pTUser->m_pUserData->m_bNation == KARUS) {
+		if (m_pUserData.m_bZone == ZONE_BATTLE) {
+			if (pTUser->m_pUserData.m_bNation == KARUS) {
 				g_pMain->m_sKarusDead++;
 				//TRACE("++ LoyaltyDivide - ka=%d, el=%d\n", g_pMain->m_sKarusDead, g_pMain->m_sElmoradDead);
 			}
-			else if (pTUser->m_pUserData->m_bNation == ELMORAD) {
+			else if (pTUser->m_pUserData.m_bNation == ELMORAD) {
 				g_pMain->m_sElmoradDead++;
 				//TRACE("++ LoyaltyDivide - ka=%d, el=%d\n", g_pMain->m_sKarusDead, g_pMain->m_sElmoradDead);
 			}
 		}
 	}
 		
-	if (pTUser->m_pUserData->m_bNation != m_pUserData->m_bNation) {		// Different nations!!!
+	if (pTUser->m_pUserData.m_bNation != m_pUserData.m_bNation) {		// Different nations!!!
 		level_difference = pTUser->GetLevel() - average_level;	// Calculate difference!
 
-		if (pTUser->m_pUserData->m_iLoyalty <= 0) {	   // No cheats allowed...
+		if (pTUser->m_pUserData.m_iLoyalty <= 0) {	   // No cheats allowed...
 			loyalty_source = 0;
 			loyalty_target = 0;
 		}
@@ -1996,7 +1991,7 @@ void CUser::LoyaltyDivide(short tid)
 		return;
 	}
 //
-	if (m_pUserData->m_bZone != m_pUserData->m_bNation && m_pUserData->m_bZone < 3) { 
+	if (m_pUserData.m_bZone != m_pUserData.m_bNation && m_pUserData.m_bZone < 3) { 
 		loyalty_source  = 2 * loyalty_source;
 	}
 //
@@ -2005,7 +2000,7 @@ void CUser::LoyaltyDivide(short tid)
 		if (pUser == NULL)
 			continue;
 
-		//TRACE("LoyaltyDivide 333 - user1=%s, %d\n", pUser->m_pUserData->m_id, pUser->m_pUserData->m_iLoyalty);
+		//TRACE("LoyaltyDivide 333 - user1=%s, %d\n", pUser->m_pUserData.m_id, pUser->m_pUserData.m_iLoyalty);
 		individualvalue = pUser->GetLevel() * loyalty_source / levelsum ;
 		pUser->SendLoyaltyChange(individualvalue);
 	}
@@ -2020,93 +2015,93 @@ void CUser::ItemWoreOut(int type, int damage)
 	if( worerate == 0 ) return;
 
 	if( type == ATTACK ) {
-		if( m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
+		if( m_pUserData.m_sItemArray[RIGHTHAND].nNum != 0 ) {
+			pTable = g_pMain->GetItemPtr( m_pUserData.m_sItemArray[RIGHTHAND].nNum );
 			if( pTable ) {
 				if( pTable->m_bSlot != 2 )	{// 2 == DEFENCE ITEM
-					if( m_pUserData->m_sItemArray[RIGHTHAND].sDuration != 0 ) {
-						m_pUserData->m_sItemArray[RIGHTHAND].sDuration -= worerate;
-						ItemDurationChange( RIGHTHAND, pTable->m_sDuration, m_pUserData->m_sItemArray[RIGHTHAND].sDuration, worerate );
+					if( m_pUserData.m_sItemArray[RIGHTHAND].sDuration != 0 ) {
+						m_pUserData.m_sItemArray[RIGHTHAND].sDuration -= worerate;
+						ItemDurationChange( RIGHTHAND, pTable->m_sDuration, m_pUserData.m_sItemArray[RIGHTHAND].sDuration, worerate );
 					}
 				}
 			}
 		}
-		if( m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[LEFTHAND].nNum );
+		if( m_pUserData.m_sItemArray[LEFTHAND].nNum != 0 ) {
+			pTable = g_pMain->GetItemPtr( m_pUserData.m_sItemArray[LEFTHAND].nNum );
 			if( pTable ) {
 				if( pTable->m_bSlot != 2 ) {
-					if( m_pUserData->m_sItemArray[LEFTHAND].sDuration != 0 ) {
-						m_pUserData->m_sItemArray[LEFTHAND].sDuration -= worerate;
-						ItemDurationChange( LEFTHAND, pTable->m_sDuration, m_pUserData->m_sItemArray[LEFTHAND].sDuration, worerate );
+					if( m_pUserData.m_sItemArray[LEFTHAND].sDuration != 0 ) {
+						m_pUserData.m_sItemArray[LEFTHAND].sDuration -= worerate;
+						ItemDurationChange( LEFTHAND, pTable->m_sDuration, m_pUserData.m_sItemArray[LEFTHAND].sDuration, worerate );
 					}
 				}
 			}
 		}
 	}
 	else if ( type == DEFENCE ) {
-		if( m_pUserData->m_sItemArray[HEAD].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[HEAD].nNum );
+		if( m_pUserData.m_sItemArray[HEAD].nNum != 0 ) {
+			pTable = g_pMain->GetItemPtr( m_pUserData.m_sItemArray[HEAD].nNum );
 			if( pTable ) {
-				if( m_pUserData->m_sItemArray[HEAD].sDuration != 0 ) {
-					m_pUserData->m_sItemArray[HEAD].sDuration -= worerate;
-					ItemDurationChange( HEAD, pTable->m_sDuration, m_pUserData->m_sItemArray[HEAD].sDuration, worerate );
+				if( m_pUserData.m_sItemArray[HEAD].sDuration != 0 ) {
+					m_pUserData.m_sItemArray[HEAD].sDuration -= worerate;
+					ItemDurationChange( HEAD, pTable->m_sDuration, m_pUserData.m_sItemArray[HEAD].sDuration, worerate );
 				}
 			}
 		}
-		if( m_pUserData->m_sItemArray[BREAST].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[BREAST].nNum );
+		if( m_pUserData.m_sItemArray[BREAST].nNum != 0 ) {
+			pTable = g_pMain->GetItemPtr( m_pUserData.m_sItemArray[BREAST].nNum );
 			if( pTable ) {
-				if( m_pUserData->m_sItemArray[BREAST].sDuration != 0 ) {
-					m_pUserData->m_sItemArray[BREAST].sDuration -= worerate;
-					ItemDurationChange( BREAST, pTable->m_sDuration, m_pUserData->m_sItemArray[BREAST].sDuration, worerate );
+				if( m_pUserData.m_sItemArray[BREAST].sDuration != 0 ) {
+					m_pUserData.m_sItemArray[BREAST].sDuration -= worerate;
+					ItemDurationChange( BREAST, pTable->m_sDuration, m_pUserData.m_sItemArray[BREAST].sDuration, worerate );
 				}
 			}
 		}
-		if( m_pUserData->m_sItemArray[LEG].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[LEG].nNum );
+		if( m_pUserData.m_sItemArray[LEG].nNum != 0 ) {
+			pTable = g_pMain->GetItemPtr( m_pUserData.m_sItemArray[LEG].nNum );
 			if( pTable ) {
-				if( m_pUserData->m_sItemArray[LEG].sDuration != 0 ) {
-					m_pUserData->m_sItemArray[LEG].sDuration -= worerate;
-					ItemDurationChange( LEG, pTable->m_sDuration, m_pUserData->m_sItemArray[LEG].sDuration, worerate );
+				if( m_pUserData.m_sItemArray[LEG].sDuration != 0 ) {
+					m_pUserData.m_sItemArray[LEG].sDuration -= worerate;
+					ItemDurationChange( LEG, pTable->m_sDuration, m_pUserData.m_sItemArray[LEG].sDuration, worerate );
 				}
 			}
 		}
-		if( m_pUserData->m_sItemArray[GLOVE].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[GLOVE].nNum );
+		if( m_pUserData.m_sItemArray[GLOVE].nNum != 0 ) {
+			pTable = g_pMain->GetItemPtr( m_pUserData.m_sItemArray[GLOVE].nNum );
 			if( pTable ) {
-				if( m_pUserData->m_sItemArray[GLOVE].sDuration != 0 ) {
-					m_pUserData->m_sItemArray[GLOVE].sDuration -= worerate;
-					ItemDurationChange( GLOVE, pTable->m_sDuration, m_pUserData->m_sItemArray[GLOVE].sDuration, worerate );
+				if( m_pUserData.m_sItemArray[GLOVE].sDuration != 0 ) {
+					m_pUserData.m_sItemArray[GLOVE].sDuration -= worerate;
+					ItemDurationChange( GLOVE, pTable->m_sDuration, m_pUserData.m_sItemArray[GLOVE].sDuration, worerate );
 				}
 			}
 		}
-		if( m_pUserData->m_sItemArray[FOOT].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[FOOT].nNum );
+		if( m_pUserData.m_sItemArray[FOOT].nNum != 0 ) {
+			pTable = g_pMain->GetItemPtr( m_pUserData.m_sItemArray[FOOT].nNum );
 			if( pTable ) {
-				if( m_pUserData->m_sItemArray[FOOT].sDuration != 0 ) {
-					m_pUserData->m_sItemArray[FOOT].sDuration -= worerate;
-					ItemDurationChange( FOOT, pTable->m_sDuration, m_pUserData->m_sItemArray[FOOT].sDuration, worerate );
+				if( m_pUserData.m_sItemArray[FOOT].sDuration != 0 ) {
+					m_pUserData.m_sItemArray[FOOT].sDuration -= worerate;
+					ItemDurationChange( FOOT, pTable->m_sDuration, m_pUserData.m_sItemArray[FOOT].sDuration, worerate );
 				}
 			}
 		}
-		if( m_pUserData->m_sItemArray[RIGHTHAND].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[RIGHTHAND].nNum );
+		if( m_pUserData.m_sItemArray[RIGHTHAND].nNum != 0 ) {
+			pTable = g_pMain->GetItemPtr( m_pUserData.m_sItemArray[RIGHTHAND].nNum );
 			if( pTable ) {
 				if( pTable->m_bSlot == 2 ) {	// ?????
-					if( m_pUserData->m_sItemArray[RIGHTHAND].sDuration != 0 ) {
-						m_pUserData->m_sItemArray[RIGHTHAND].sDuration -= worerate;
-						ItemDurationChange( RIGHTHAND, pTable->m_sDuration, m_pUserData->m_sItemArray[RIGHTHAND].sDuration, worerate );
+					if( m_pUserData.m_sItemArray[RIGHTHAND].sDuration != 0 ) {
+						m_pUserData.m_sItemArray[RIGHTHAND].sDuration -= worerate;
+						ItemDurationChange( RIGHTHAND, pTable->m_sDuration, m_pUserData.m_sItemArray[RIGHTHAND].sDuration, worerate );
 					}
 				}
 			}
 		}
-		if( m_pUserData->m_sItemArray[LEFTHAND].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_pUserData->m_sItemArray[LEFTHAND].nNum );
+		if( m_pUserData.m_sItemArray[LEFTHAND].nNum != 0 ) {
+			pTable = g_pMain->GetItemPtr( m_pUserData.m_sItemArray[LEFTHAND].nNum );
 			if( pTable ) {
 				if( pTable->m_bSlot == 2 ) {	// ?????
-					if( m_pUserData->m_sItemArray[LEFTHAND].sDuration != 0 ) {
-						m_pUserData->m_sItemArray[LEFTHAND].sDuration -= worerate;
-						ItemDurationChange( LEFTHAND, pTable->m_sDuration, m_pUserData->m_sItemArray[LEFTHAND].sDuration, worerate );
+					if( m_pUserData.m_sItemArray[LEFTHAND].sDuration != 0 ) {
+						m_pUserData.m_sItemArray[LEFTHAND].sDuration -= worerate;
+						ItemDurationChange( LEFTHAND, pTable->m_sDuration, m_pUserData.m_sItemArray[LEFTHAND].sDuration, worerate );
 					}
 				}
 			}
@@ -2122,9 +2117,9 @@ void CUser::ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint
 	int curpercent = 0, beforepercent = 0, curbasis = 0, beforebasis = 0;
 
 	// If the durability's now less than 0, reset it to 0.
-	if (m_pUserData->m_sItemArray[slot].sDuration <= 0)
+	if (m_pUserData.m_sItemArray[slot].sDuration <= 0)
 	{
-		m_pUserData->m_sItemArray[slot].sDuration = 0;
+		m_pUserData.m_sItemArray[slot].sDuration = 0;
 		SendDurability(slot, 0);
 		
 		SetSlotItemValue();
@@ -2145,7 +2140,7 @@ void CUser::ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint
 
 		if (curpercent >= 65 && curpercent < 70
 			|| curpercent >= 25 && curpercent < 30)
-			UserLookChange( slot, m_pUserData->m_sItemArray[slot].nNum, curValue);
+			UserLookChange( slot, m_pUserData.m_sItemArray[slot].nNum, curValue);
 	}
 }
 
@@ -2183,26 +2178,26 @@ void CUser::HPTimeChange(float currenttime)
 
 	if( m_bResHpType == USER_DEAD ) return;
 
-	if( m_pUserData->m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )	{
-		if( m_pUserData->m_sHp < 1 ) return;
+	if( m_pUserData.m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )	{
+		if( m_pUserData.m_sHp < 1 ) return;
 		HpChange( 5 );
 		return;
 	}
 
 	if( m_bResHpType == USER_STANDING ) {
-		if( m_pUserData->m_sHp < 1 ) return;
-		if( m_iMaxHp != m_pUserData->m_sHp )
+		if( m_pUserData.m_sHp < 1 ) return;
+		if( m_iMaxHp != m_pUserData.m_sHp )
 			HpChange( (int)((GetLevel()*(1+GetLevel()/60.0) + 1)*0.2)+3 );
 
-		if( m_iMaxMp != m_pUserData->m_sMp )
+		if( m_iMaxMp != m_pUserData.m_sMp )
 			MSpChange( (int)((GetLevel()*(1+GetLevel()/60.0) + 1)*0.2)+3 );
 	}
 	else if ( m_bResHpType == USER_SITDOWN ) {
-		if( m_pUserData->m_sHp < 1 ) return;
-		if( m_iMaxHp != m_pUserData->m_sHp ) {
+		if( m_pUserData.m_sHp < 1 ) return;
+		if( m_iMaxHp != m_pUserData.m_sHp ) {
 			HpChange( (int)(GetLevel()*(1+GetLevel()/30.0) ) + 3 );
 		}
-		if( m_iMaxMp != m_pUserData->m_sMp ) {
+		if( m_iMaxMp != m_pUserData.m_sMp ) {
 			MSpChange((int)((m_iMaxMp * 5) / ((GetLevel() - 1) + 30 )) + 3 ) ;
 		}
 	}
@@ -2242,7 +2237,7 @@ void CUser::HPTimeChangeType3(float currenttime)
 		HpChange(m_bHPAmount[h]); // do we need to specify the source of the DOT?
 
 		// Aw, did we die? :(
-		if (m_pUserData->m_sHp == 0)
+		if (m_pUserData.m_sHp == 0)
 		{
 			OnDeath(pUnit);
 			break;
@@ -2417,28 +2412,28 @@ void CUser::OperatorCommand(Packet & pkt)
 	switch (opcode)
 	{
 	case OPERATOR_ARREST:
-		ZoneChange(pUser->GetZoneID(), pUser->m_pUserData->m_curx, pUser->m_pUserData->m_curz);
+		ZoneChange(pUser->GetZoneID(), pUser->m_pUserData.m_curx, pUser->m_pUserData.m_curz);
 		break;
 	case OPERATOR_SUMMON:
-		pUser->ZoneChange(GetZoneID(), m_pUserData->m_curx, m_pUserData->m_curz);
+		pUser->ZoneChange(GetZoneID(), m_pUserData.m_curx, m_pUserData.m_curz);
 		break;
 	case OPERATOR_CUTOFF:
 		pUser->Disconnect();
 		break;
 	case OPERATOR_BAN:
 	case OPERATOR_BAN_ACCOUNT: // ban account is meant to call a proc to do so
-		pUser->m_pUserData->m_bAuthority = AUTHORITY_BANNED;
+		pUser->m_pUserData.m_bAuthority = AUTHORITY_BANNED;
 		pUser->Disconnect();
 		break;
 	case OPERATOR_MUTE:
-		pUser->m_pUserData->m_bAuthority = AUTHORITY_MUTED;
+		pUser->m_pUserData.m_bAuthority = AUTHORITY_MUTED;
 		break;
 	case OPERATOR_DISABLE_ATTACK:
-		pUser->m_pUserData->m_bAuthority = AUTHORITY_ATTACK_DISABLED;
+		pUser->m_pUserData.m_bAuthority = AUTHORITY_ATTACK_DISABLED;
 		break;
 	case OPERATOR_ENABLE_ATTACK:
 	case OPERATOR_UNMUTE:
-		pUser->m_pUserData->m_bAuthority = AUTHORITY_PLAYER;
+		pUser->m_pUserData.m_bAuthority = AUTHORITY_PLAYER;
 		break;
 	}
 }
@@ -2462,7 +2457,7 @@ void CUser::SpeedHackTime(Packet & pkt)
 		client_gap = clienttime - m_fSpeedHackClientTime;
 
 		if( client_gap - server_gap > 10.0f ) {
-			TRACE("%s SpeedHack User Checked By Server Time\n", m_pUserData->m_id);
+			TRACE("%s SpeedHack User Checked By Server Time\n", m_pUserData.m_id);
 			Close();
 		}
 		else if( client_gap - server_gap < 0.0f ) {
@@ -2528,7 +2523,7 @@ int CUser::GetEmptySlot(int itemid, int bCountable)
 {
 	for (int i = 0; i < HAVE_MAX; i++)
 	{
-		if (m_pUserData->m_sItemArray[SLOT_MAX+i].nNum == 0)
+		if (m_pUserData.m_sItemArray[SLOT_MAX+i].nNum == 0)
 			return i;
 	}
 
@@ -2660,7 +2655,7 @@ void CUser::ClassChangeReq()
 	Packet result(WIZ_CLASS_CHANGE, uint8(CLASS_CHANGE_RESULT));
 	if (GetLevel() < 10) // if we haven't got our first job change
 		result << uint8(2);
-	else if ((m_pUserData->m_sClass % 100) > 4) // if we've already got our job change
+	else if ((m_pUserData.m_sClass % 100) > 4) // if we've already got our job change
 		result << uint8(3);
 	else // otherwise
 		result << uint8(1);
@@ -2683,10 +2678,10 @@ void CUser::AllSkillPointChange()
 
 	// If global discounts are enabled 
 	if (g_pMain->m_sDiscount == 2 // or war discounts are enabled
-		|| (g_pMain->m_sDiscount == 1 && g_pMain->m_byOldVictory == m_pUserData->m_bNation))
+		|| (g_pMain->m_sDiscount == 1 && g_pMain->m_byOldVictory == m_pUserData.m_bNation))
 		temp_value /= 2;
 
-	money = m_pUserData->m_iGold - temp_value;
+	money = m_pUserData.m_iGold - temp_value;
 
 	// Not enough money, or level too low.
 	if (money < 0
@@ -2695,7 +2690,7 @@ void CUser::AllSkillPointChange()
 
 	// Get total skill points
 	for (int i = 1; i < 9; i++)
-		skill_point += m_pUserData->m_bstrSkill[i];
+		skill_point += m_pUserData.m_bstrSkill[i];
 
 	// If we don't have any skill points, there's no point resetting now is there.
 	if (skill_point <= 0)
@@ -2705,14 +2700,14 @@ void CUser::AllSkillPointChange()
 	}
 
 	// Reset skill points.
-	m_pUserData->m_bstrSkill[0] = (GetLevel() - 9) * 2;
+	m_pUserData.m_bstrSkill[0] = (GetLevel() - 9) * 2;
 	for (int i = 1; i < 9; i++)	
-		m_pUserData->m_bstrSkill[i] = 0;
+		m_pUserData.m_bstrSkill[i] = 0;
 
 	// Take coins.
-	m_pUserData->m_iGold = money;
+	m_pUserData.m_iGold = money;
 
-	result << uint8(1) << m_pUserData->m_iGold << m_pUserData->m_bstrSkill[0];
+	result << uint8(1) << m_pUserData.m_iGold << m_pUserData.m_bstrSkill[0];
 	Send(&result);
 	return;
 
@@ -2740,12 +2735,12 @@ void CUser::AllPointChange()
 		|| g_pMain->m_sDiscount == 2)
 		temp_money /= 2;
 	
-	money = m_pUserData->m_iGold - temp_money;
+	money = m_pUserData.m_iGold - temp_money;
 	if(money < 0)	goto fail_return;
 
 	for (int i = 0; i < SLOT_MAX; i++)
 	{
-		if (m_pUserData->m_sItemArray[i].nNum) {
+		if (m_pUserData.m_sItemArray[i].nNum) {
 			bResult = 4;
 			goto fail_return;
 		}
@@ -2759,7 +2754,7 @@ void CUser::AllPointChange()
 	}
 
 	// TO-DO: Pull this from the database.
-	switch (m_pUserData->m_bRace)
+	switch (m_pUserData.m_bRace)
 	{
 	case KARUS_BIG:	
 		setStat(STAT_STR, 65);
@@ -2812,18 +2807,18 @@ void CUser::AllPointChange()
 		break;
 	}
 
-	m_pUserData->m_sPoints = (GetLevel() - 1) * 3 + 10;
+	m_pUserData.m_sPoints = (GetLevel() - 1) * 3 + 10;
 	ASSERT(getStatTotal() == 290);
 
-	m_pUserData->m_iGold = money;
+	m_pUserData.m_iGold = money;
 
 	SetUserAbility();
 	Send2AI_UserUpdateInfo();
 
 	result << uint8(1) // result (success)
-		<< m_pUserData->m_iGold
+		<< m_pUserData.m_iGold
 		<< getStat(STAT_STR) << getStat(STAT_STA) << getStat(STAT_DEX) << getStat(STAT_INT) << getStat(STAT_CHA)
-		<< m_iMaxHp << m_iMaxMp << m_sTotalHit << m_sMaxWeight << m_pUserData->m_sPoints;
+		<< m_iMaxHp << m_iMaxMp << m_sTotalHit << m_sMaxWeight << m_pUserData.m_sPoints;
 	Send(&result);
 
 fail_return:
@@ -2833,11 +2828,11 @@ fail_return:
 
 void CUser::GoldChange(short tid, int gold)
 {
-	if (m_pUserData->m_bZone < 3) return;	// Money only changes in Frontier zone and Battle zone!!!
-	if (m_pUserData->m_bZone == ZONE_SNOW_BATTLE) return;
+	if (m_pUserData.m_bZone < 3) return;	// Money only changes in Frontier zone and Battle zone!!!
+	if (m_pUserData.m_bZone == ZONE_SNOW_BATTLE) return;
 
 	CUser* pTUser = g_pMain->GetUserPtr(tid);
-	if (pTUser == NULL || pTUser->m_pUserData->m_iGold <= 0)
+	if (pTUser == NULL || pTUser->m_pUserData.m_iGold <= 0)
 		return;
 
 	// Reward money in war zone
@@ -2846,8 +2841,8 @@ void CUser::GoldChange(short tid, int gold)
 		// If we're not in a party, we can distribute cleanly.
 		if (!isInParty())
 		{
-			GoldGain((pTUser->m_pUserData->m_iGold * 4) / 10);
-			pTUser->GoldLose(pTUser->m_pUserData->m_iGold / 2);
+			GoldGain((pTUser->m_pUserData.m_iGold * 4) / 10);
+			pTUser->GoldLose(pTUser->m_pUserData.m_iGold / 2);
 			return;
 		}
 
@@ -2856,8 +2851,8 @@ void CUser::GoldChange(short tid, int gold)
 		if (pParty == NULL)
 			return;			
 
-		int userCount = 0, levelSum = 0, temp_gold = (pTUser->m_pUserData->m_iGold * 4) / 10;	
-		pTUser->GoldLose(pTUser->m_pUserData->m_iGold / 2);		
+		int userCount = 0, levelSum = 0, temp_gold = (pTUser->m_pUserData.m_iGold * 4) / 10;	
+		pTUser->GoldLose(pTUser->m_pUserData.m_iGold / 2);		
 
 		// TO-DO: Clean up the party system. 
 		for (int i = 0; i < MAX_PARTY_USERS; i++)
@@ -2928,7 +2923,7 @@ void CUser::SelectWarpList(Packet & pkt)
 	rz = (float)myrand( 0, (int)pWarp->fR*2 );
 	if( rz < pWarp->fR ) rz = -rz;
 
-	if (m_pUserData->m_bZone == pWarp->sZone) 
+	if (m_pUserData.m_bZone == pWarp->sZone) 
 	{
 		m_bZoneChangeSameZone = TRUE;
 
@@ -2993,7 +2988,7 @@ BOOL CUser::BindObjectEvent(_OBJECT_EVENT *pEvent)
 
 	Packet result(WIZ_OBJECT_EVENT, uint8(pEvent->sType));
 
-	m_pUserData->m_sBind = pEvent->sIndex;
+	m_pUserData.m_sBind = pEvent->sIndex;
 
 	result << uint8(1);
 	Send(&result);
@@ -3141,8 +3136,8 @@ void CUser::UpdateVisibility(InvisibilityType bNewType)
 void CUser::BlinkStart()
 {
 	// Don't blink in these zones
-	if (m_pUserData->m_bZone == 201 // colony zone
-		|| (m_pUserData->m_bZone / 100) == 1) // war zone
+	if (m_pUserData.m_bZone == 201 // colony zone
+		|| (m_pUserData.m_bZone / 100) == 1) // war zone
 		return;
 
 	m_bAbnormalType = ABNORMAL_BLINKING;
@@ -3166,14 +3161,14 @@ void CUser::BlinkTimeCheck(float currenttime)
 	StateChangeServerDirect(3, ABNORMAL_NORMAL);
 
 	Packet result(AG_USER_REGENE);
-	result	<< GetSocketID() << m_pUserData->m_sHp;
+	result	<< GetSocketID() << m_pUserData.m_sHp;
 	g_pMain->Send_AIServer(&result);
 
 	result.Initialize(AG_USER_INOUT);
 	result.SByte(); // TO-DO: Remove this redundant uselessness that is mgame
 	result	<< uint8(INOUT_RESPAWN) << GetSocketID()
-			<< m_pUserData->m_id
-			<< m_pUserData->m_curx << m_pUserData->m_curz;
+			<< m_pUserData.m_id
+			<< m_pUserData.m_curx << m_pUserData.m_curz;
 	g_pMain->Send_AIServer(&result);
 
 	UpdateVisibility(INVIS_NONE);
@@ -3183,20 +3178,20 @@ void CUser::GoldGain(int gold)	// 1 -> Get gold    2 -> Lose gold
 {
 	Packet result(WIZ_GOLD_CHANGE);
 	
-	m_pUserData->m_iGold += gold;
+	m_pUserData.m_iGold += gold;
 
-	result << uint8(1) << gold << m_pUserData->m_iGold;
+	result << uint8(1) << gold << m_pUserData.m_iGold;
 	Send(&result);	
 }
 
 BOOL CUser::GoldLose(unsigned int gold)
 {
-	if (m_pUserData->m_iGold < gold) 
+	if (m_pUserData.m_iGold < gold) 
 		return FALSE;
 	
 	Packet result(WIZ_GOLD_CHANGE);
-	m_pUserData->m_iGold -= gold;
-	result << uint8(2) << gold << m_pUserData->m_iGold;
+	m_pUserData.m_iGold -= gold;
+	result << uint8(2) << gold << m_pUserData.m_iGold;
 	Send(&result);	
 	return TRUE;
 }
@@ -3206,7 +3201,7 @@ BOOL CUser::CheckSkillPoint(BYTE skillnum, BYTE min, BYTE max)
 	if (skillnum < 5 || skillnum > 8) 
 		return FALSE;
 
-	return (m_pUserData->m_bstrSkill[skillnum] >= min && m_pUserData->m_bstrSkill[skillnum] <= max);
+	return (m_pUserData.m_bstrSkill[skillnum] >= min && m_pUserData.m_bstrSkill[skillnum] <= max);
 }
 
 BOOL CUser::CheckClass(short class1, short class2, short class3, short class4, short class5, short class6)
@@ -3217,9 +3212,9 @@ BOOL CUser::CheckClass(short class1, short class2, short class3, short class4, s
 BOOL CUser::JobGroupCheck(short jobgroupid)
 {
 	if (jobgroupid > 100) 
-		return m_pUserData->m_sClass == jobgroupid;
+		return m_pUserData.m_sClass == jobgroupid;
 
-	int subClass = m_pUserData->m_sClass % 100;
+	int subClass = m_pUserData.m_sClass % 100;
 
 	switch (jobgroupid) 
 	{
@@ -3247,7 +3242,7 @@ void CUser::TrapProcess()
 	if (ZONE_TRAP_INTERVAL < (currenttime - m_fLastTrapAreaTime)) {	// Time interval has passed :)
 		HpChange( -ZONE_TRAP_DAMAGE );     // Reduce target health point.
 
-		if (m_pUserData->m_sHp == 0)
+		if (m_pUserData.m_sHp == 0)
 			OnDeath(this);
 	} 
 
@@ -3282,7 +3277,7 @@ void CUser::KickOutZoneUser(BOOL home, int nZoneID /*= 21 */)
 		ZoneChange(pMap->m_nZoneNumber, x, y);			
 	}
 	else {
-		if (m_pUserData->m_bNation == KARUS) {
+		if (m_pUserData.m_bNation == KARUS) {
 			ZoneChange( pMap->m_nZoneNumber, 1335, 83);	// Move user to native zone.
 		}
 		else {
@@ -3294,18 +3289,18 @@ void CUser::KickOutZoneUser(BOOL home, int nZoneID /*= 21 */)
 void CUser::NativeZoneReturn()
 {
 	_HOME_INFO* pHomeInfo = NULL;	// Send user back home in case it was the battlezone.
-	pHomeInfo = g_pMain->m_HomeArray.GetData(m_pUserData->m_bNation);
+	pHomeInfo = g_pMain->m_HomeArray.GetData(m_pUserData.m_bNation);
 	if (!pHomeInfo) return;
 
-	m_pUserData->m_bZone = m_pUserData->m_bNation;
+	m_pUserData.m_bZone = m_pUserData.m_bNation;
 
-	if (m_pUserData->m_bNation == KARUS) {
-		m_pUserData->m_curx = (float)(pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX));
-		m_pUserData->m_curz = (float)(pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ)); 
+	if (m_pUserData.m_bNation == KARUS) {
+		m_pUserData.m_curx = (float)(pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX));
+		m_pUserData.m_curz = (float)(pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ)); 
 	}
 	else {
-		m_pUserData->m_curx = (float)(pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX));
-		m_pUserData->m_curz = (float)(pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ)); 
+		m_pUserData.m_curx = (float)(pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX));
+		m_pUserData.m_curz = (float)(pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ)); 
 	}
 }
 
@@ -3487,7 +3482,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 		// Since no capes seem to use it, we'll ignore it...
 
 		// Can we even afford this cape?
-		if (m_pUserData->m_iGold < (uint32)pCape->nReqCoins)
+		if (m_pUserData.m_iGold < (uint32)pCape->nReqCoins)
 		{
 			sErrorCode = -7;
 			goto fail_return;
@@ -3567,7 +3562,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 	result.clear();
 	result	<< uint16(pKnights->m_sIndex) << uint16(pKnights->m_sCape) 
 			<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB;
-	g_pMain->m_LoggerSendQueue.PutData(&result);
+	g_pMain->AddDatabaseRequest(result, this);
 	return;
 
 fail_return:
@@ -3593,10 +3588,10 @@ bool CUser::CanUseItem(long itemid, uint16 count)
 	if(!pItem)
 		return false;
 
-	if(pItem->m_bClass != 0 && pItem->m_bClass != m_pUserData->m_sClass) //Class related item check
+	if(pItem->m_bClass != 0 && pItem->m_bClass != m_pUserData.m_sClass) //Class related item check
 		return false;
 
-	if(pItem->m_bReqLevel > m_pUserData->m_bLevel) //Level related item check
+	if(pItem->m_bReqLevel > m_pUserData.m_bLevel) //Level related item check
 		return false;
 
 	if(!CheckExistItem(itemid, count))
@@ -3725,7 +3720,7 @@ void CUser::ItemSealProcess(Packet & pkt)
 			*/
 
 			// do we have enough coins?
-			if (m_pUserData->m_iGold < ITEM_SEAL_PRICE 
+			if (m_pUserData.m_iGold < ITEM_SEAL_PRICE 
 				// is this a valid position? (need to check if it can be taken from new slots)
 				|| bSrcPos >= HAVE_MAX 
 				// is the password valid by client limits?
@@ -3788,7 +3783,7 @@ void CUser::QuestDataRequest(Packet & pkt)
 	// NOTE: This is just temporary until we can load quest data.
 	// At which time, we'll just send a list of quest IDs & their states (as is done here, just.. hardcoded)
 	Packet result(WIZ_QUEST, uint8(1));
-	uint16 Class = m_pUserData->m_sClass % 100;
+	uint16 Class = m_pUserData.m_sClass % 100;
 	if (Class == 1 || Class == 5 || Class == 6)
 		result << uint16(3) << uint16(51) << uint8(2) << uint16(510) << uint8(2) << uint16(511) << uint8(2); // if 50+baseclass quest ID is completed
 	else if (Class == 2 || Class == 7 || Class == 8)

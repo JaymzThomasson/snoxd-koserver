@@ -109,7 +109,7 @@ void CUser::Chat(Packet & pkt)
 	}
 	else
 	{
-		result << m_pUserData->m_id; // everything else provides a name
+		result << m_pUserData.m_id; // everything else provides a name
 		result.DByte();
 		result << chatstr; // now tack on the chat message from the user
 	}
@@ -136,7 +136,7 @@ void CUser::Chat(Packet & pkt)
 		break;
 
 	case SHOUT_CHAT:
-		if (m_pUserData->m_sMp < (m_iMaxMp / 5))
+		if (m_pUserData.m_sMp < (m_iMaxMp / 5))
 			break;
 
 		// Characters under level 35 require 3,000 coins to shout.
@@ -160,7 +160,7 @@ void CUser::Chat(Packet & pkt)
 		break;
 	case COMMAND_CHAT:
 		if (getFame() == COMMAND_CAPTAIN)
-			g_pMain->Send_CommandChat(&result, m_pUserData->m_bNation, this);
+			g_pMain->Send_CommandChat(&result, m_pUserData.m_bNation, this);
 		break;
 	case MERCHANT_CHAT:
 		if (isMerchanting())
@@ -201,7 +201,7 @@ void CUser::ChatTargetSelect(Packet & pkt)
 		else
 		{
 			m_sPrivateChatUser = pUser->GetSocketID();
-			result << int16(1) << pUser->m_pUserData->m_id;
+			result << int16(1) << pUser->m_pUserData.m_id;
 		}
 		Send(&result);
 	}
@@ -291,7 +291,7 @@ COMMAND_HANDLER(CUser::HandleZoneChangeCommand)
 
 	// Behave as in official (we'll fix this later)
 	int nZoneID = atoi(vargs.front().c_str());
-	ZoneChange(nZoneID, m_pUserData->m_curx, m_pUserData->m_curz);
+	ZoneChange(nZoneID, m_pUserData.m_curx, m_pUserData.m_curz);
 	return true;
 }
 

@@ -148,6 +148,9 @@
     <ClCompile Include="..\shared\CircularBuffer.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
     <ClCompile Include="..\shared\database\KnightsRankSet.cpp" />
+    <ClCompile Include="..\shared\database\OdbcCommand.cpp" />
+    <ClCompile Include="..\shared\database\OdbcConnection.cpp" />
+    <ClCompile Include="..\shared\database\OdbcParameter.cpp" />
     <ClCompile Include="..\shared\Ini.cpp" />
     <ClCompile Include="..\shared\JvCryption.cpp" />
     <ClCompile Include="..\shared\KOSocket.cpp" />
@@ -164,6 +167,8 @@
     <ClCompile Include="CharacterSelectionHandler.cpp" />
     <ClCompile Include="CharacterMovementHandler.cpp" />
     <ClCompile Include="ChatHandler.cpp" />
+    <ClCompile Include="DatabaseThread.cpp" />
+    <ClCompile Include="DBAgent.cpp" />
     <ClCompile Include="Ebenezer.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -266,6 +271,9 @@
     <ClInclude Include="..\shared\database\MagicType8Set.h" />
     <ClInclude Include="..\shared\database\MagicType9Set.h" />
     <ClInclude Include="..\shared\database\MyRecordSet.h" />
+    <ClInclude Include="..\shared\database\OdbcCommand.h" />
+    <ClInclude Include="..\shared\database\OdbcConnection.h" />
+    <ClInclude Include="..\shared\database\OdbcParameter.h" />
     <ClInclude Include="..\shared\database\ServerResourceSet.h" />
     <ClInclude Include="..\shared\database\StartPositionSet.h" />
     <ClInclude Include="..\shared\database\UserKnightsRankSet.h" />
@@ -286,6 +294,8 @@
     <ClInclude Include="AIPacket.h" />
     <ClInclude Include="AISocket.h" />
     <ClInclude Include="ChatHandler.h" />
+    <ClInclude Include="DatabaseThread.h" />
+    <ClInclude Include="DBAgent.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Ebenezer.h" />
     <ClInclude Include="EbenezerDlg.h" />

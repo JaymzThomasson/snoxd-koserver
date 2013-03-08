@@ -125,7 +125,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 	pUser->m_sPartyIndex = m_sPartyIndex;
 
 	result.Initialize(WIZ_PARTY);
-	result << uint8(PARTY_PERMIT) << GetSocketID() << m_pUserData->m_id;
+	result << uint8(PARTY_PERMIT) << GetSocketID() << m_pUserData.m_id;
 	pUser->Send(&result);
 	return;
 
@@ -184,10 +184,10 @@ void CUser::PartyInsert()
 		result.clear();
 		result	<< uint8(PARTY_INSERT) << pParty->uid[i]
 				<< uint8(1) // success
-				<< pUser->m_pUserData->m_id
-				<< pUser->m_iMaxHp << pUser->m_pUserData->m_sHp
-				<< pUser->GetLevel() << pUser->m_pUserData->m_sClass
-				<< pUser->m_iMaxMp << pUser->m_pUserData->m_sMp;
+				<< pUser->m_pUserData.m_id
+				<< pUser->m_iMaxHp << pUser->m_pUserData.m_sHp
+				<< pUser->GetLevel() << pUser->m_pUserData.m_sClass
+				<< pUser->m_iMaxMp << pUser->m_pUserData.m_sMp;
 		Send(&result);
 	}
 	
@@ -204,10 +204,10 @@ void CUser::PartyInsert()
 	result.clear();
 	result	<< uint8(PARTY_INSERT) << GetSocketID()
 			<< uint8(1) // success
-			<< m_pUserData->m_id
-			<< m_iMaxHp << m_pUserData->m_sHp
-			<< GetLevel() << m_pUserData->m_sClass
-			<< m_iMaxMp << m_pUserData->m_sMp;
+			<< m_pUserData.m_id
+			<< m_iMaxHp << m_pUserData.m_sHp
+			<< GetLevel() << m_pUserData.m_sClass
+			<< m_iMaxMp << m_pUserData.m_sMp;
 	g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 
 	result.Initialize(AG_USER_PARTY);
@@ -414,9 +414,9 @@ void CUser::SendPartyBBSNeeded(uint16 page_index, uint8 bType)
 	{
 		CUser *pUser = TO_USER(itr->second);
 		_PARTY_GROUP *pParty = NULL;
-		string m_WantedMessage = "";
-		uint8 m_PartyMembers = 0;
-		uint16 m_sClass = m_pUserData->m_sClass;
+		string WantedMessage = "";
+		uint8 PartyMembers = 0;
+		uint16 sClass = pUser->m_pUserData.m_sClass;
 		i++;
 
 		if ((GetNation() != pUser->GetNation() && GetZoneID() != 21 && GetZoneID() != 55 && GetZoneID() != pUser->GetZoneID())
@@ -436,20 +436,20 @@ void CUser::SendPartyBBSNeeded(uint16 page_index, uint8 bType)
 			pParty = g_pMain->m_PartyArray.GetData( m_sPartyIndex );
 			if (pParty == NULL) //Shouldn't be hit.
 				return;
-			m_WantedMessage = pParty->m_WantedMessage;
-			m_PartyMembers = GetPartyMemberAmount();
-			m_sClass = pParty->m_sWantedClass;
+			WantedMessage = pParty->WantedMessage;
+			PartyMembers = GetPartyMemberAmount();
+			sClass = pParty->sWantedClass;
 		}
 
 		result.DByte();
-		result	<< pUser->m_pUserData->m_id
-				<< m_sClass
+		result	<< pUser->GetName()
+				<< sClass
 				<< uint16(0) << pUser->GetLevel() //Not sure what that uint16 does.
 				<< uint8(pUser->m_bPartyLeader ? 3 : 2); //2 is player, 3 is party leader
 		result.SByte();
-		result	<< m_WantedMessage
+		result	<< WantedMessage
 				<< pUser->GetZoneID()
-				<< m_PartyMembers;
+				<< PartyMembers;
 		valid_counter++;
 	}
 	g_pMain->s_socketMgr.ReleaseLock();
@@ -477,7 +477,7 @@ void CUser::PartyBBSWanted(Packet & pkt)
 	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData( m_sPartyIndex );
 	if(pParty == NULL)
 		return;
-		pkt >> pParty->m_sWantedClass >> page_index >> pParty->m_WantedMessage;
+		pkt >> pParty->sWantedClass >> page_index >> pParty->WantedMessage;
 
 	SendPartyBBSNeeded(page_index, PARTY_BBS_WANTED);
 }

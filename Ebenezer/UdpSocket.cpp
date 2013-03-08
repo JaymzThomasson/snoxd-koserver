@@ -445,7 +445,7 @@ void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 		if (pTUser)
 		{
 			pTUser->SetClanID(0);
-			pTUser->m_pUserData->m_bFame = 0;
+			pTUser->m_pUserData.m_bFame = 0;
 
 			if (command == KNIGHTS_REMOVE)
 				clanNotice = g_pMain->GetServerResource(IDS_KNIGHTS_REMOVE);
@@ -456,13 +456,13 @@ void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 
 	case KNIGHTS_ADMIT:
 		if (pTUser)
-			pTUser->m_pUserData->m_bFame = KNIGHT;
+			pTUser->m_pUserData.m_bFame = KNIGHT;
 		break;
 
 	case KNIGHTS_CHIEF+0x10:
 		if (pTUser)
 		{
-			pTUser->m_pUserData->m_bFame = CHIEF;
+			pTUser->m_pUserData.m_bFame = CHIEF;
 			clanNotice = g_pMain->GetServerResource(IDS_KNIGHTS_CHIEF);
 		}
 		break;
@@ -470,19 +470,19 @@ void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 	case KNIGHTS_VICECHIEF+0x10:
 		if (pTUser)
 		{
-			pTUser->m_pUserData->m_bFame = VICECHIEF;
+			pTUser->m_pUserData.m_bFame = VICECHIEF;
 			clanNotice = g_pMain->GetServerResource(IDS_KNIGHTS_VICECHIEF);
 		}
 		break;
 
 	case KNIGHTS_OFFICER+0x10:
 		if (pTUser)
-			pTUser->m_pUserData->m_bFame = OFFICER;
+			pTUser->m_pUserData.m_bFame = OFFICER;
 		break;
 
 	case KNIGHTS_PUNISH+0x10:
 		if (pTUser)
-			pTUser->m_pUserData->m_bFame = PUNISH;
+			pTUser->m_pUserData.m_bFame = PUNISH;
 		break;
 	}
 
@@ -495,7 +495,7 @@ void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 	Packet result;
 
 	// Construct the clan system chat packet
-	pKnights->ConstructChatPacket(result, clanNotice, pTUser != NULL ? pTUser->m_pUserData->m_id : userid); 
+	pKnights->ConstructChatPacket(result, clanNotice, pTUser != NULL ? pTUser->m_pUserData.m_id : userid); 
 
 	// If we've been removed from a clan, tell the user as well (since they're no longer in the clan)
 	if (command == KNIGHTS_REMOVE && pTUser != NULL)
