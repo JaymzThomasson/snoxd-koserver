@@ -261,7 +261,11 @@ void CUser::PartyRemove(int memberid)
 
 	if (count == 1)
 	{
-		PartyDelete();
+		CUser *pPartyLeader = g_pMain->GetUserPtr(pParty->uid[0]);
+		if (pPartyLeader == NULL)
+			return;
+		else
+			pPartyLeader->PartyDelete();
 		return;
 	}
 
@@ -293,15 +297,15 @@ void CUser::PartyDelete()
 	for (int i = 0; i < MAX_PARTY_USERS; i++)
 	{
 		CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
-		if (pUser != NULL) {
+		if (pUser != NULL)
 			pUser->m_sPartyIndex = -1;
-			pUser->m_bPartyLeader = false;
-		}
 	}
 
 	Packet result(WIZ_PARTY, uint8(PARTY_DELETE));
 	g_pMain->Send_PartyMember(pParty->wIndex, &result);
 	result.Initialize(AG_USER_PARTY);
+
+	m_bPartyLeader = false;
 
 	result << uint8(PARTY_DELETE) << uint16(pParty->wIndex);
 	g_pMain->Send_AIServer(&result);
