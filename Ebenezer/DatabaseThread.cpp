@@ -598,4 +598,13 @@ void DatabaseThread::Shutdown()
 {
 	_running = false;
 	SetEvent(s_hEvent); // wake them up in case they're sleeping.
+
+	_lock.Acquire();
+	while (_queue.size())
+	{
+		Packet *p = _queue.front();
+		_queue.pop();
+		delete p;
+	}
+	_lock.Release();
 }
