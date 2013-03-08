@@ -80,13 +80,13 @@ public:
 	uint32	m_sMaxWeight;
 	uint16   m_sSpeed;	// NOTE: Currently unused
 
-	short   m_sItemMaxHp;                   // ������ �� �ִ� HP Bonus
-	short   m_sItemMaxMp;                   // ������ �� �ִ� MP Bonus
-	uint32	m_sItemWeight;					// ������ �ѹ���
-	short	m_sItemHit;						// ������ ��Ÿ��ġ
-	short	m_sItemAc;						// ������ �ѹ�����
-	short	m_sItemHitrate;					// ������ ��Ÿ����
-	short	m_sItemEvasionrate;				// ������ ��ȸ����
+	short   m_sItemMaxHp;
+	short   m_sItemMaxMp;
+	uint32	m_sItemWeight;
+	short	m_sItemHit;
+	short	m_sItemAc;
+	short	m_sItemHitrate;
+	short	m_sItemEvasionrate;
 
 	uint16	m_sStatItemBonuses[STAT_COUNT];
 	uint8	m_bStatBuffs[STAT_COUNT];
@@ -142,7 +142,7 @@ public:
 
 	float	m_fLastTrapAreaTime;		// The last moment you were in the trap area.
 
-	BOOL	m_bZoneChangeFlag;			// ���뾾 �̿�!!
+	BOOL	m_bZoneChangeFlag;
 
 	BYTE	m_bRegeneType;				// Did you die and go home or did you type '/town'?
 
@@ -150,9 +150,9 @@ public:
 
 	BOOL	m_bZoneChangeSameZone;		// Did the server change when you warped?
 
-	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];	// �������� ���� �޼����ڽ� �̺�Ʈ
-	short				m_sEventNid;		// ���������� ������ �̺�Ʈ NPC ��ȣ
-	UserEventList		m_arUserEvent;		// ������ �̺�Ʈ ����Ʈ
+	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];
+	short				m_sEventNid;
+	UserEventList		m_arUserEvent;
 
 
 public:
@@ -466,6 +466,8 @@ public:
 	void PartyBBSRegister(Packet & pkt);
 	void PartyBBSDelete(Packet & pkt);
 	void PartyBBSNeeded(Packet & pkt, BYTE type);
+	void PartyBBSWanted(Packet & pkt);
+	uint8 GetPartyMemberAmount();
 
 	void SendPartyBBSNeeded(uint16 page_index, uint8 bType);
 
@@ -520,7 +522,7 @@ public:
 	void SendPremiumInfo();
 	void SetZoneAbilityChange();
 	void SetMaxMp();
-	void SetMaxHp(int iFlag=0); // 0:default, 1:hp�� maxhp��ŭ ä���ֱ�
+	void SetMaxHp(int iFlag=0);
 	void ExpChange(__int64 iExp);
 	void LogOut();
 	void SendMyInfo();

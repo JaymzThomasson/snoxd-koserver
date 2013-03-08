@@ -374,6 +374,7 @@ enum FriendRemoveResult
 #define PARTY_BBS_DELETE		0x02
 #define PARTY_BBS_NEEDED		0x03
 #define PARTY_BBS_WANTED		0x04
+#define PARTY_BBS_LIST			0x0B
 
 ////////////////////////////////////////////////////////////////
 // Market BBS primary subpacket define
