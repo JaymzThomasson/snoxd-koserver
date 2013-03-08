@@ -53,9 +53,6 @@ public:
 	BYTE	m_byAttackRange;	// 사정거리
 	BYTE	m_byTracingRange;	// 추격거리
 
-	short	m_sAI;				// 인공지능 인덱스
-	
-	
 	BYTE	m_tItemPer;			// 아이템이 떨어질 확률
 	BYTE	m_tDnPer;			// 돈이 떨어질확률
 

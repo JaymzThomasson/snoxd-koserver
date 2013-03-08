@@ -523,7 +523,6 @@ BOOL CServerDlg::GetNpcTableData(bool bNpcData /*= true*/)
 			Npc->m_sAttackDelay = NpcTableSet.m_sAttackDelay;	// 공격딜레이
 			Npc->m_bySpeed_1 = NpcTableSet.m_bySpeed1;				// 이동속도	(걷기)
 			Npc->m_bySpeed_2 = NpcTableSet.m_bySpeed2;				// 이동속도	(뛰기)
-			Npc->m_sSpeed = MONSTER_SPEED;			// 이동속도	
 			Npc->m_sStandTime = NpcTableSet.m_sStandtime;		// 서있는 시간
 			Npc->m_iMagic1 = NpcTableSet.m_iMagic1;			// 사용마법 1
 			Npc->m_iMagic2 = NpcTableSet.m_iMagic2;			// 사용마법 2
@@ -539,14 +538,11 @@ BOOL CServerDlg::GetNpcTableData(bool bNpcData /*= true*/)
 			Npc->m_bySearchRange = NpcTableSet.m_bySearchRange;	// 적 탐지 범위
 			Npc->m_byAttackRange = NpcTableSet.m_byAttackRange;	// 사정거리
 			Npc->m_byTracingRange = NpcTableSet.m_byTracingRange;	// 추격거리
-			//Npc->m_sAI = NpcTableSet.m_sAI;				// 인공지능 인덱스
 			Npc->m_tNpcType = NpcTableSet.m_byType;			// NPC Type
 								// 0 : Monster
 								// 1 : Normal NPC
 			
 			Npc->m_byFamilyType = NpcTableSet.m_byFamily;		// 몹들사이에서 가족관계를 결정한다.
-			//Npc->m_tItemPer;		// 아이템이 떨어질 확률
-			//Npc->m_tDnPer;			// 돈이 떨어질확률
 
 			Npc->m_iMoney = NpcTableSet.m_iMoney;			// 떨어지는 돈
 			Npc->m_iItem = NpcTableSet.m_sItem;			// 떨어지는 아이템
@@ -1240,7 +1236,6 @@ BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 	pEventNpc->m_bySearchRange	= pNpc->m_bySearchRange;	// 적 탐지 범위
 	pEventNpc->m_byAttackRange	= pNpc->m_byAttackRange;	// 사정거리
 	pEventNpc->m_byTracingRange	= pNpc->m_byTracingRange;	// 추격거리
-	pEventNpc->m_sAI			= pNpc->m_sAI;				// 인공지능 인덱스
 	pEventNpc->m_iMoney			= pNpc->m_iMoney;			// 떨어지는 돈
 	pEventNpc->m_iItem			= pNpc->m_iItem;			// 떨어지는 아이템
 	pEventNpc->m_tNpcLongType    = pNpc->m_tNpcLongType;
@@ -1358,6 +1353,12 @@ BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number)
 
 	CNpc *pNpc = new CNpc();
 
+	pNpc->m_byMoveType = 0;
+	pNpc->m_byInitMoveType = 0;
+
+	pNpc->m_byBattlePos = 0;
+
+	pNpc->m_byObjectType = SPECIAL_OBJECT;
 	pNpc->m_bCurZone	= zone_number;
 	pNpc->m_byGateOpen	= (BYTE)pEvent->sStatus;
 	pNpc->m_fCurX		= pEvent->fPosX;

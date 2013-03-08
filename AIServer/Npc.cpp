@@ -292,11 +292,6 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto)
 	m_sNid = sNpcID;
 	m_proto = proto;
 
-	m_byMoveType = 0;
-	m_byInitMoveType = 0;
-
-	m_byBattlePos = 0;
-
 	m_sSize				= proto->m_sSize;		// 캐릭터의 비율(100 퍼센트 기준)
 	m_iWeapon_1			= proto->m_iWeapon_1;	// 착용무기
 	m_iWeapon_2			= proto->m_iWeapon_2;	// 착용무기
@@ -320,6 +315,11 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto)
 	m_fSpeed_2			= (float)proto->m_bySpeed_2;	// 뛰는 이동 타입..
 	m_fOldSpeed_1		= (float)proto->m_bySpeed_1;	// 기본 이동 타입
 	m_fOldSpeed_2		= (float)proto->m_bySpeed_2;	// 뛰는 이동 타입..
+	m_fSpeed_1			= (float)(proto->m_bySpeed_1 * (m_sSpeed / 1000));	// 기본 이동 타입
+	m_fSpeed_2			= (float)(proto->m_bySpeed_2 * (m_sSpeed / 1000));	// 뛰는 이동 타입..
+	m_fOldSpeed_1		= (float)(proto->m_bySpeed_1 * (m_sSpeed / 1000));	// 기본 이동 타입
+	m_fOldSpeed_2		= (float)(proto->m_bySpeed_2 * (m_sSpeed / 1000));	// 뛰는 이동 타입..
+
 	m_fSecForMetor		= 4.0f;						// 초당 갈 수 있는 거리..
 	m_sStandTime		= proto->m_sStandTime;	// 서있는 시간
 	m_byFireR			= proto->m_byFireR;		// 화염 저항력
@@ -332,7 +332,6 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto)
 	m_bySearchRange		= proto->m_bySearchRange;	// 적 탐지 범위
 	m_byAttackRange		= proto->m_byAttackRange;	// 사정거리
 	m_byTracingRange	= proto->m_byTracingRange;	// 추격거리
-	m_sAI				= proto->m_sAI;				// 인공지능 인덱스
 	m_iMoney			= proto->m_iMoney;			// 떨어지는 돈
 	m_iItem				= proto->m_iItem;			// 떨어지는 아이템
 	m_tNpcLongType		= proto->m_byDirectAttack;
@@ -345,7 +344,6 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto)
 	m_tDnPer			= proto->m_tDnPer;	// NPC Type
 
 	m_pZone = g_pMain->GetZoneByID(m_bCurZone);
-	m_byObjectType = SPECIAL_OBJECT;
 	m_bFirstLive = 1;
 }
 
@@ -5501,7 +5499,6 @@ void CNpc::ChangeMonsterInfomation(int iChangeType)
 	m_bySearchRange	= pNpcTable->m_bySearchRange;	// 적 탐지 범위
 	m_byAttackRange	= pNpcTable->m_byAttackRange;	// 사정거리
 	m_byTracingRange	= pNpcTable->m_byTracingRange;	// 추격거리
-	m_sAI				= pNpcTable->m_sAI;				// 인공지능 인덱스
 	m_iMoney		= pNpcTable->m_iMoney;			// 떨어지는 돈
 	m_iItem			= pNpcTable->m_iItem;			// 떨어지는 아이템
 	m_tNpcLongType	= pNpcTable->m_byDirectAttack;	
