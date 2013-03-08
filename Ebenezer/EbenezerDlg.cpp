@@ -41,6 +41,7 @@ using namespace std;
 #define AWARD_EXP			5000
 
 CEbenezerDlg * g_pMain = NULL;
+CDBAgent g_DBAgent;
 CRITICAL_SECTION g_serial_critical, g_region_critical, g_LogFile_critical;
 
 KOSocketMgr<CUser> CEbenezerDlg::s_socketMgr;
@@ -49,87 +50,6 @@ ClientSocketMgr<CAISocket> CEbenezerDlg::s_aiSocketMgr;
 WORD	g_increase_serial = 1;
 bool	g_bRunning = true;
 
-DWORD WINAPI ReadQueueThread(LPVOID lp)
-{
-	CEbenezerDlg* pMain = (CEbenezerDlg*)lp;
-	CUser* pUser = NULL;
-	Packet pkt;
-
-	while (g_bRunning)
-	{
-		if (pMain->m_LoggerRecvQueue.GetFrontMode() == R)
-		{
-			Sleep(1);
-			continue;
-		}
-
-		int16 uid = -1;
-		int recvlen = pMain->m_LoggerRecvQueue.GetData(pkt, &uid);
-		if (recvlen > MAX_PKTSIZE || recvlen == 0)
-		{
-			Sleep(1);
-			continue;
-		}
-
-		if ((pUser = pMain->GetUserPtr(uid)) == NULL && pkt.GetOpcode() != WIZ_KNIGHTS_PROCESS)
-			continue;
-
-		switch (pkt.GetOpcode())
-		{
-			case WIZ_LOGIN:
-				pUser->RecvLoginProcess(pkt);
-				break;
-			case WIZ_SEL_NATION:
-				pUser->RecvSelNation(pkt);
-				break;
-			case WIZ_NEW_CHAR:
-				pUser->RecvNewChar(pkt);
-				break;
-			case WIZ_DEL_CHAR:
-				pUser->RecvDeleteChar(pkt);
-				break;
-			case WIZ_SEL_CHAR:
-				pUser->SelectCharacter(pkt);
-				break;
-			case WIZ_ALLCHAR_INFO_REQ:
-				pUser->RecvAllCharInfoReq(pkt);
-				break;
-			case WIZ_CHANGE_HAIR:
-				pUser->RecvChangeHair(pkt);
-				break;
-			case WIZ_SHOPPING_MALL:
-				pUser->RecvStore(pkt);
-				break;
-			case WIZ_SKILLDATA:
-				{ 
-					uint8 subOpcode = pkt.read<uint8>();
-					if (subOpcode == SKILL_DATA_LOAD)
-						pUser->RecvSkillDataLoad(pkt);
-				} break;
-			case WIZ_LOGOUT:
-				if (pUser->m_pUserData->m_id[0] != 0)
-				{
-					TRACE("Logout Strange...%s\n", pUser->m_pUserData->m_id);
-					pUser->Disconnect();
-				}
-				break;
-			case WIZ_FRIEND_PROCESS:
-				pUser->RecvFriendProcess(pkt);
-				break;
-			case WIZ_KNIGHTS_PROCESS:
-				pMain->m_KnightsManager.ReceiveKnightsProcess(pUser, pkt);
-				break;
-			case WIZ_LOGIN_INFO:
-				pUser->RecvLoginInfo(pkt);
-				break;
-		}
-	}
-	return 0;
-}
-
-/////////////////////////////////////////////////////////////////////////////
-// CEbenezerDlg dialog
-
 CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CEbenezerDlg::IDD, pParent), m_Ini("gameserver.ini")
 {
@@ -137,9 +57,6 @@ CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-
-	m_bMMFCreate = FALSE;
-	m_hReadQueueThread = NULL;
 
 	m_nYear = 0; 
 	m_nMonth = 0;
@@ -189,6 +106,13 @@ CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
 	m_bPermanentChatMode = FALSE;
 	memset( m_strKarusCaptain, 0x00, MAX_ID_SIZE+1 );
 	memset( m_strElmoradCaptain, 0x00, MAX_ID_SIZE+1 );
+
+	memset(m_strGameDSN, 0, sizeof(m_strGameDSN));
+	memset(m_strGameUID, 0, sizeof(m_strGameUID));
+	memset(m_strGamePWD, 0, sizeof(m_strGamePWD));
+	memset(m_strAccountDSN, 0, sizeof(m_strAccountDSN));
+	memset(m_strAccountUID, 0, sizeof(m_strAccountUID));
+	memset(m_strAccountPWD, 0, sizeof(m_strAccountPWD));
 
 	m_bSanta = FALSE;		// ���� ��Ÿ!!! >.<
 }
@@ -261,32 +185,11 @@ BOOL CEbenezerDlg::OnInitDialog()
 	s_aiSocketMgr.SetCompletionPort(s_socketMgr.GetCompletionPort());
 	s_aiSocketMgr.InitSessions(1);
 
-	if( !InitializeMMF() ) {
-		AfxMessageBox("Main Shared Memory Initialize Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-
-	if( !m_LoggerSendQueue.InitailizeMMF( MAX_PKTSIZE, MAX_COUNT, SMQ_LOGGERSEND ) ) {
-		AfxMessageBox("SMQ Send Shared Memory Initialize Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-	if( !m_LoggerRecvQueue.InitailizeMMF( MAX_PKTSIZE, MAX_COUNT, SMQ_LOGGERRECV ) ) {
-		AfxMessageBox("SMQ Recv Shared Memory Initialize Fail");
-		AfxPostQuitMessage(0);
-		return FALSE;
-	}
-
-	if (!LoadTables())
+	if (!g_DBAgent.Startup()
+		|| !LoadTables()
+		|| !MapFileLoad())
 	{
 		AfxPostQuitMessage(-1);
-		return FALSE;
-	}
-
-	if( !MapFileLoad() )
-	{
-		AfxPostQuitMessage(0);
 		return FALSE;
 	}
 
@@ -294,9 +197,6 @@ BOOL CEbenezerDlg::OnInitDialog()
 	LoadBlockNameList();
 
 	srand((unsigned int)time(NULL));
-
-	DWORD id;
-	m_hReadQueueThread = ::CreateThread( NULL, 0, ReadQueueThread, (LPVOID)this, 0, &id);
 
 #if 0 // Disabled pending rewrite
 	m_pUdpSocket = new CUdpSocket();
@@ -424,14 +324,10 @@ BOOL CEbenezerDlg::DestroyWindow()
 
 	g_bRunning = false;
 
-	if (m_bMMFCreate)
-	{
-		UnmapViewOfFile(m_lpMMFile);
-		CloseHandle(m_hMMFile);
-	}
-
 	if (m_GameDB.IsOpen())
 		m_GameDB.Close();
+
+	DatabaseThread::Shutdown();
 
 	if (m_RegionLogFile.m_hFile != CFile::hFileNull) m_RegionLogFile.Close();
 	if (m_LogFile.m_hFile != CFile::hFileNull) m_LogFile.Close();
@@ -527,7 +423,7 @@ void CEbenezerDlg::AddAccountName(CUser *pSession)
 // Adds the character name & session to a hashmap (when in-game)
 void CEbenezerDlg::AddCharacterName(CUser *pSession)
 {
-	string upperName = pSession->m_pUserData->m_id;
+	string upperName = pSession->m_pUserData.m_id;
 	STRTOUPPER(upperName);
 	m_characterNameLock.Acquire();
 	m_characterNameMap[upperName] = pSession;
@@ -545,7 +441,7 @@ void CEbenezerDlg::RemoveSessionNames(CUser *pSession)
 
 	if (pSession->isInGame())
 	{
-		upperName = pSession->m_pUserData->m_id;
+		upperName = pSession->m_pUserData.m_id;
 		STRTOUPPER(upperName);
 		m_characterNameLock.Acquire();
 		m_characterNameMap.erase(upperName);
@@ -838,7 +734,7 @@ void CEbenezerDlg::Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z
 			|| !pUser->isInGame())
 			continue;
 
-		if (sqrt(pow((pUser->m_pUserData->m_curx - ref_x), 2) + pow((pUser->m_pUserData->m_curz - ref_z), 2)) < 32)
+		if (sqrt(pow((pUser->m_pUserData.m_curx - ref_x), 2) + pow((pUser->m_pUserData.m_curz - ref_z), 2)) < 32)
 			pUser->Send(pkt);
 	}
 
@@ -873,42 +769,6 @@ void CEbenezerDlg::Send_KnightsMember(int index, Packet *pkt)
 void CEbenezerDlg::Send_AIServer(Packet *pkt)
 {
 	s_aiSocketMgr.SendAll(pkt);
-}
-
-BOOL CEbenezerDlg::InitializeMMF()
-{
-	BOOL bCreate = TRUE;
-	DWORD filesize = MAX_USER * sizeof(_USER_DATA);
-	m_hMMFile = CreateFileMapping ((HANDLE)-1, NULL, PAGE_READWRITE, 0, filesize, "KNIGHT_DB");
-	
-	if (m_hMMFile != NULL && GetLastError() == ERROR_ALREADY_EXISTS) 
-	{
-		m_hMMFile = OpenFileMapping(FILE_MAP_ALL_ACCESS, TRUE, "KNIGHT_DB");
-		if (m_hMMFile == NULL)
-		{
-			TRACE("Shared Memory Load Fail!!\n");
-			m_hMMFile = INVALID_HANDLE_VALUE; 
-			return FALSE;
-		}
-		bCreate = FALSE;
-	}
-	
-	TRACE("Shared Memory Create Success!!\n");
-
-    m_lpMMFile = (char *)MapViewOfFile(m_hMMFile, FILE_MAP_WRITE, 0, 0, 0);
-	if (!m_lpMMFile)
-		return FALSE;
-
-	if (bCreate)
-		memset(m_lpMMFile, NULL, filesize);
-
-	m_bMMFCreate = bCreate;
-
-	SessionMap & sessMap = s_socketMgr.GetIdleSessionMap();
-	foreach (itr, sessMap)
-		TO_USER(itr->second)->m_pUserData = (_USER_DATA *)(m_lpMMFile + itr->second->GetSocketID() * sizeof(_USER_DATA));
-	s_socketMgr.ReleaseLock();
-	return TRUE;
 }
 
 BOOL CEbenezerDlg::MapFileLoad()
@@ -1039,6 +899,22 @@ void CEbenezerDlg::GetTimeFromIni()
 		return;
 	}
 
+	// Yeah, we're loading this twice. I don't care. The above will be replaced eventually.
+	m_Ini.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, sizeof(m_strGameDSN), false);
+	m_Ini.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, sizeof(m_strGameUID), false);
+	m_Ini.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, sizeof(m_strGamePWD), false);
+	m_bMarsEnabled = m_Ini.GetInt("ODBC", "GAME_MARS", 1) == 1;
+
+	m_Ini.GetString("ODBC", "ACCOUNT_DSN", "KN_online", m_strAccountDSN, sizeof(m_strAccountDSN), false);
+	m_Ini.GetString("ODBC", "ACCOUNT_UID", "knight", m_strAccountUID, sizeof(m_strAccountUID), false);
+	m_Ini.GetString("ODBC", "ACCOUNT_PWD", "knight", m_strAccountPWD, sizeof(m_strAccountPWD), false);
+
+	bool bMarsEnabled = m_Ini.GetInt("ODBC", "ACCOUNT_MARS", 1) == 1;
+
+	// Both need to be enabled to use MARS.
+	if (!m_bMarsEnabled || !bMarsEnabled)
+		m_bMarsEnabled = false;
+	
 	m_nYear = m_Ini.GetInt("TIMER", "YEAR", 1);
 	m_nMonth = m_Ini.GetInt("TIMER", "MONTH", 1);
 	m_nDate = m_Ini.GetInt("TIMER", "DATE", 1);
@@ -1133,7 +1009,7 @@ void CEbenezerDlg::UpdateGameTime()
 	{
 		result.Initialize(WIZ_KNIGHTS_PROCESS);
 		result << uint8(KNIGHTS_ALLLIST_REQ) << uint8(m_nServerNo);
-		m_LoggerSendQueue.PutData(&result);
+		AddDatabaseRequest(result);
 	}
 }
 
@@ -1166,6 +1042,15 @@ void CEbenezerDlg::SetGameTime()
 	m_Ini.SetInt( "TIMER", "DATE", m_nDate );
 	m_Ini.SetInt( "TIMER", "HOUR", m_nHour );
 	m_Ini.SetInt( "TIMER", "WEATHER", m_nWeather );
+}
+
+void CEbenezerDlg::AddDatabaseRequest(Packet & pkt, CUser *pUser /*= NULL*/)
+{
+	Packet *newPacket = new Packet(pkt.GetOpcode(), pkt.size() + 2);
+	*newPacket << int16(pUser == NULL ? -1 : pUser->GetSocketID());
+	if (pkt.size())
+		newPacket->append(pkt.contents(), pkt.size());
+	DatabaseThread::AddRequest(newPacket);
 }
 
 void CEbenezerDlg::UserInOutForMe(CUser *pSendUser)
@@ -1770,7 +1655,7 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 
 		if (pTUser->getFame() == COMMAND_CAPTAIN)
 		{
-			if (pTUser->m_pUserData->m_bRank == 1)
+			if (pTUser->m_pUserData.m_bRank == 1)
 				pTUser->ChangeNP(500);
 			else
 				pTUser->ChangeNP(300);
@@ -2010,7 +1895,7 @@ uint16 CEbenezerDlg::GetKnightsAllMembers(uint16 sClanID, Packet & result, uint1
 
 		CUser *pUser = p->pSession;
 		if (pUser != NULL)
-			result << pUser->m_pUserData->m_id << pUser->getFame() << pUser->GetLevel() << pUser->m_pUserData->m_sClass << uint8(1);
+			result << pUser->m_pUserData.m_id << pUser->getFame() << pUser->GetLevel() << pUser->m_pUserData.m_sClass << uint8(1);
 		else // normally just clan leaders see this, but we can be generous now.
 			result << pKnights->m_arKnightsUser[i].strUserName << uint8(0) << uint8(0) << uint16(0) << uint8(0);
 
@@ -2048,7 +1933,7 @@ void CEbenezerDlg::CheckAliveUser()
 		if (pUser->m_sAliveCount++ > 3)
 		{
 			pUser->Disconnect();
-			TRACE("User dropped due to inactivity - char=%s\n", pUser->m_pUserData->m_id);
+			TRACE("User dropped due to inactivity - char=%s\n", pUser->m_pUserData.m_id);
 		}
 	}
 	s_socketMgr.ReleaseLock();
@@ -2218,7 +2103,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 				goto next_row;
 
 			if( pUser->GetClanID() == nKnightsIndex	)	{
-				sprintf_s( strKarusCaptain[nKaursRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData->m_id);
+				sprintf_s( strKarusCaptain[nKaursRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData.m_id);
 				nFindKarus = 1;
 				nKaursRank++;
 				pUser->ChangeFame(COMMAND_CAPTAIN);
@@ -2231,7 +2116,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				goto next_row;
 			if( pUser->GetClanID() == nKnightsIndex	)	{
-				sprintf_s( strElmoCaptain[nElmoRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData->m_id);
+				sprintf_s( strElmoCaptain[nElmoRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData.m_id);
 				nFindElmo = 1;
 				nElmoRank++;
 				pUser->ChangeFame(COMMAND_CAPTAIN);

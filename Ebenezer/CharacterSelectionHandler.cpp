@@ -11,37 +11,18 @@ void CUser::SelNationToAgent(Packet & pkt)
 		return;
 	}
 
-	result << m_strAccountID << nation; 
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
-}
-
-void CUser::RecvSelNation(Packet & pkt)
-{
-	Packet result(WIZ_SEL_NATION, pkt.read<uint8>());
-	Send(&result);
+	result << nation; 
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 void CUser::AllCharInfoToAgent()
 {
 	Packet result(WIZ_ALLCHAR_INFO_REQ);
-	result << m_strAccountID; 
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
-}
-
-void CUser::RecvAllCharInfoReq(Packet & pkt)
-{
-	Packet result(WIZ_ALLCHAR_INFO_REQ);
-	uint16 len = pkt.read<uint16>();
-	if (uint16(len + 2) > pkt.size())
-		return;
-
-	result.append(pkt, len);
-	Send(&result);
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 void CUser::ChangeHair(Packet & pkt)
 {
-	Packet result(WIZ_CHANGE_HAIR);
 	std::string strUserID;
 	uint32 nHair;
 	uint8 bOpcode, bFace;
@@ -54,23 +35,11 @@ void CUser::ChangeHair(Packet & pkt)
 
 	pkt.SByte();
 	pkt >> bOpcode >> strUserID >> bFace >> nHair;
-
-	result << bOpcode << m_strAccountID << strUserID << bFace << nHair;
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
-}
-
-void CUser::RecvChangeHair(Packet & pkt)
-{
+	
 	Packet result(WIZ_CHANGE_HAIR);
-	std::string strUserID;
-	uint32 nHair;
-	uint8 bOpcode, bFace;
-
-	pkt >> bOpcode >> strUserID >> bFace >> nHair;
-
 	result.SByte();
 	result << bOpcode << strUserID << bFace << nHair;
-	Send(&result);
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 void CUser::NewCharToAgent(Packet & pkt)
@@ -103,16 +72,10 @@ void CUser::NewCharToAgent(Packet & pkt)
 		return;
 	}
 	
-	result	<< m_strAccountID << bCharIndex 
+	result	<< bCharIndex 
 			<< strUserID << bRace << sClass << bFace << nHair
 			<< str << sta << dex << intel << cha;
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
-}
-
-void CUser::RecvNewChar(Packet & pkt)
-{
-	Packet result(WIZ_NEW_CHAR, pkt.read<uint8>());
-	Send(&result);
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 void CUser::DelCharToAgent(Packet & pkt)
@@ -133,31 +96,8 @@ void CUser::DelCharToAgent(Packet & pkt)
 	}
 
 	// Send packet to Aujard
-	result	<< m_strAccountID << bCharIndex << strUserID << strSocNo;
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
-}
-
-void CUser::RecvDeleteChar(Packet & pkt)
-{
-	Packet result;
-	std::string strCharID;
-	int16 sKnights;
-	uint8 bResult, bCharIndex;
-	pkt >> bResult >> bCharIndex >> sKnights >> strCharID;
-
-	if (bResult == 1 && sKnights != 0)
-	{
-		// TO-DO: Synchronise this system better. Much better. This is dumb.
-		g_pMain->m_KnightsManager.RemoveKnightsUser(sKnights, (char *)strCharID.c_str());
-		result.SetOpcode(UDP_KNIGHTS_PROCESS);
-		result << uint8(KNIGHTS_WITHDRAW) << sKnights << strCharID;
-		g_pMain->Send_UDP_All(&result, g_pMain->m_nServerGroup == 0 ? 0 : 1);
-	}
-
-
-	result.Initialize(WIZ_DEL_CHAR);
-	result << bResult << bCharIndex;
-	Send(&result);
+	result	<< bCharIndex << strUserID << strSocNo;
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 void CUser::SelCharToAgent(Packet & pkt)
@@ -169,7 +109,7 @@ void CUser::SelCharToAgent(Packet & pkt)
 	pkt >> strAccountID >> strUserID >> bInit;
 	if (strAccountID.empty() || strAccountID.size() > MAX_ID_SIZE
 		|| strUserID.empty() || strUserID.size() > MAX_ID_SIZE
-		||strAccountID != m_strAccountID)
+		|| strAccountID != m_strAccountID)
 	{
 		Disconnect();
 		return;
@@ -187,8 +127,8 @@ void CUser::SelCharToAgent(Packet & pkt)
 		return;
 	}
 
-	result << m_strAccountID << strUserID << bInit;
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
+	result << strUserID << bInit;
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 void CUser::SelectCharacter(Packet & pkt)
@@ -215,10 +155,10 @@ void CUser::SelectCharacter(Packet & pkt)
 	// Temporarily convert the old quest storage format to the new one.
 	// This won't be necessary when Aujard's out of the picture.
 	m_questMap.clear();
-	for (int i = 0, index = 0; i < m_pUserData->m_sQuestCount; i++)
+	for (int i = 0, index = 0; i < m_pUserData.m_sQuestCount; i++)
 	{
-		uint16	sQuestID	= GetShort(m_pUserData->m_bstrQuest, index);
-		uint8	bQuestState	= GetByte(m_pUserData->m_bstrQuest, index);
+		uint16	sQuestID	= GetShort(m_pUserData.m_bstrQuest, index);
+		uint8	bQuestState	= GetByte(m_pUserData.m_bstrQuest, index);
 
 		m_questMap.insert(std::make_pair(sQuestID, bQuestState));
 	}
@@ -234,7 +174,7 @@ void CUser::SelectCharacter(Packet & pkt)
 	}
 
 	if (g_pMain->m_byBattleOpen == NO_BATTLE && getFame() == COMMAND_CAPTAIN)
-		m_pUserData->m_bFame = CHIEF;
+		m_pUserData.m_bFame = CHIEF;
 
 	if ((GetZoneID() != GetNation() && GetZoneID() < 3 && !g_pMain->m_byBattleOpen)
 		|| (GetZoneID() == ZONE_BATTLE && (g_pMain->m_byBattleOpen != NATION_BATTLE))
@@ -267,7 +207,7 @@ void CUser::SelectCharacter(Packet & pkt)
 	if (GetClanID() == -1)
 	{
 		SetClanID(0);
-		m_pUserData->m_bFame = 0;
+		m_pUserData.m_bFame = 0;
 		return;
 	}
 	else if (GetClanID() != 0)
@@ -275,13 +215,13 @@ void CUser::SelectCharacter(Packet & pkt)
 		CKnights* pKnights = g_pMain->GetClanPtr( GetClanID() );
 		if (pKnights != NULL)
 		{
-			g_pMain->m_KnightsManager.SetKnightsUser( GetClanID(), m_pUserData->m_id );
+			g_pMain->m_KnightsManager.SetKnightsUser( GetClanID(), m_pUserData.m_id );
 		}
 		else if (GetZoneID() > 2)
 		{
 			result.Initialize(WIZ_KNIGHTS_PROCESS);
 			result << uint8(KNIGHTS_LIST_REQ) << GetClanID();
-			g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
+			g_pMain->AddDatabaseRequest(result, this);
 		}
 	}
 	return;
@@ -308,10 +248,10 @@ void CUser::SetLogInInfoToDB(BYTE bInit)
 	}
 
 	Packet result(WIZ_LOGIN_INFO);
-	result	<< m_strAccountID << m_pUserData->m_id 
+	result	<< m_pUserData.m_id 
 			<< pInfo->strServerIP << uint16(_LISTEN_PORT) << GetRemoteIP() 
 			<< bInit;
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 void CUser::RecvLoginInfo(Packet & pkt)
@@ -348,13 +288,13 @@ void CUser::GameStart(Packet & pkt)
 		m_state = GAME_STATE_INGAME;
 		UserInOut(INOUT_RESPAWN);
 
-		if (!m_pUserData->m_bCity && m_pUserData->m_sHp <= 0)
-			m_pUserData->m_bCity = -1;
+		if (!m_pUserData.m_bCity && m_pUserData.m_sHp <= 0)
+			m_pUserData.m_bCity = -1;
 
-		if (m_pUserData->m_bCity > 0)
+		if (m_pUserData.m_bCity > 0)
 		{
 			int level = GetLevel();
-			if (m_pUserData->m_bCity <= 100)
+			if (m_pUserData.m_bCity <= 100)
 				level--;
 
 			// make sure we don't exceed bounds
@@ -363,8 +303,8 @@ void CUser::GameStart(Packet & pkt)
 			else if (level < 1)
 				level = 1;
 
-			m_iLostExp = (g_pMain->GetExpByLevel(level) * (m_pUserData->m_bCity % 10) / 100);
-			if (((m_pUserData->m_bCity % 10) / 100) == 1)
+			m_iLostExp = (g_pMain->GetExpByLevel(level) * (m_pUserData.m_bCity % 10) / 100);
+			if (((m_pUserData.m_bCity % 10) / 100) == 1)
 				m_iLostExp /= 2;
 		}
 		else

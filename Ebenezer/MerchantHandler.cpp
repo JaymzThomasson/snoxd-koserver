@@ -172,7 +172,7 @@ void CUser::MerchantItemCancel(Packet & pkt)
 	else if (m_arSellingItems[bSrcPos].nNum == 0)
 		result << int16(-3);
 	// Check to make sure we've got a valid stack
-	else if (m_arSellingItems[bSrcPos].sCount + m_pUserData->m_sItemArray[m_arSellingItems[bSrcPos].bOriginalSlot].sCount > HAVE_MAX) 
+	else if (m_arSellingItems[bSrcPos].sCount + m_pUserData.m_sItemArray[m_arSellingItems[bSrcPos].bOriginalSlot].sCount > HAVE_MAX) 
 		result << int16(-3); // custom error
 	else
 	{
@@ -240,18 +240,18 @@ void CUser::MerchantItemBuy(Packet & pkt)
 		return;
 
 	req_gold = m_MerchantUser->m_arSellingItems[item_slot].nPrice * item_count;
-	if (m_pUserData->m_iGold < req_gold)
+	if (m_pUserData.m_iGold < req_gold)
 		return;
 
-	if (m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].nNum != 0 && m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].nNum != itemid)
+	if (m_pUserData.m_sItemArray[SLOT_MAX+dest_slot].nNum != 0 && m_pUserData.m_sItemArray[SLOT_MAX+dest_slot].nNum != itemid)
 		return;
 
 	leftover_count = m_MerchantUser->m_arSellingItems[item_slot].sCount - item_count;
 	m_MerchantUser->GoldChange(GetSocketID(), req_gold);
-	m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].nNum = itemid;
-	m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].sCount += item_count;
-	m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].sDuration = m_MerchantUser->m_arSellingItems[item_slot].sDuration;
-	m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].nSerialNum = m_MerchantUser->m_arSellingItems[item_slot].nSerialNum;
+	m_pUserData.m_sItemArray[SLOT_MAX+dest_slot].nNum = itemid;
+	m_pUserData.m_sItemArray[SLOT_MAX+dest_slot].sCount += item_count;
+	m_pUserData.m_sItemArray[SLOT_MAX+dest_slot].sDuration = m_MerchantUser->m_arSellingItems[item_slot].sDuration;
+	m_pUserData.m_sItemArray[SLOT_MAX+dest_slot].nSerialNum = m_MerchantUser->m_arSellingItems[item_slot].nSerialNum;
 	//TO-DO : Proper checks for the removal of the items in the array, we're now assuming everything gets bought
 	if(item_count == m_MerchantUser->m_arSellingItems[item_slot].sCount)
 		memset(&m_MerchantUser->m_arSellingItems[item_slot], 0, sizeof(_MERCH_DATA)); //Remove the item from the arSellingItems array.
@@ -265,15 +265,15 @@ void CUser::MerchantItemBuy(Packet & pkt)
 	m_MerchantUser->SetUserAbility();
 
 
-	if (m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].sCount == item_count)
-		SendStackChange(itemid, m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].sCount, m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].sDuration, dest_slot, true);
+	if (m_pUserData.m_sItemArray[SLOT_MAX+dest_slot].sCount == item_count)
+		SendStackChange(itemid, m_pUserData.m_sItemArray[SLOT_MAX+dest_slot].sCount, m_pUserData.m_sItemArray[SLOT_MAX+dest_slot].sDuration, dest_slot, true);
 	else
-		SendStackChange(itemid, m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].sCount, m_pUserData->m_sItemArray[SLOT_MAX+dest_slot].sDuration, dest_slot);
+		SendStackChange(itemid, m_pUserData.m_sItemArray[SLOT_MAX+dest_slot].sCount, m_pUserData.m_sItemArray[SLOT_MAX+dest_slot].sDuration, dest_slot);
 
 	m_MerchantUser->SendStackChange(itemid, leftover_count, m_MerchantUser->m_arSellingItems[item_slot].sDuration, m_MerchantUser->m_arSellingItems[item_slot].bOriginalSlot - SLOT_MAX);
 
 	Packet result(WIZ_MERCHANT, uint8(MERCHANT_ITEM_PURCHASED));
-	result << itemid << m_pUserData->m_id;
+	result << itemid << m_pUserData.m_id;
 	m_MerchantUser->Send(&result);
 
 	result.clear();
@@ -323,7 +323,7 @@ void CUser::MerchantInsert(Packet & pkt)
 void CUser::TakeMerchantItems()
 {
 	for (int i = 0; i < MAX_MERCH_ITEMS; i++)
-		memset(&m_pUserData->m_sItemArray[m_arSellingItems[i].bOriginalSlot], 0, sizeof(_ITEM_DATA));
+		memset(&m_pUserData.m_sItemArray[m_arSellingItems[i].bOriginalSlot], 0, sizeof(_ITEM_DATA));
 }
 
 void CUser::GiveMerchantItems()
@@ -331,10 +331,10 @@ void CUser::GiveMerchantItems()
 	for (int i = 0; i < MAX_MERCH_ITEMS; i++)
 	{
 		uint8 bOriginalSlot = m_arSellingItems[i].bOriginalSlot;
-		m_pUserData->m_sItemArray[bOriginalSlot].nNum = m_arSellingItems[i].nNum;
-		m_pUserData->m_sItemArray[bOriginalSlot].nSerialNum = m_arSellingItems[i].nSerialNum;
-		m_pUserData->m_sItemArray[bOriginalSlot].sCount = m_arSellingItems[i].sCount;
-		m_pUserData->m_sItemArray[bOriginalSlot].sDuration = m_arSellingItems[i].sDuration;
+		m_pUserData.m_sItemArray[bOriginalSlot].nNum = m_arSellingItems[i].nNum;
+		m_pUserData.m_sItemArray[bOriginalSlot].nSerialNum = m_arSellingItems[i].nSerialNum;
+		m_pUserData.m_sItemArray[bOriginalSlot].sCount = m_arSellingItems[i].sCount;
+		m_pUserData.m_sItemArray[bOriginalSlot].sDuration = m_arSellingItems[i].sDuration;
 	}
 }
 

@@ -125,7 +125,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 	pUser->m_sPartyIndex = m_sPartyIndex;
 
 	result.Initialize(WIZ_PARTY);
-	result << uint8(PARTY_PERMIT) << GetSocketID() << m_pUserData->m_id;
+	result << uint8(PARTY_PERMIT) << GetSocketID() << m_pUserData.m_id;
 	pUser->Send(&result);
 	return;
 
@@ -184,10 +184,10 @@ void CUser::PartyInsert()
 		result.clear();
 		result	<< uint8(PARTY_INSERT) << pParty->uid[i]
 				<< uint8(1) // success
-				<< pUser->m_pUserData->m_id
-				<< pUser->m_iMaxHp << pUser->m_pUserData->m_sHp
-				<< pUser->GetLevel() << pUser->m_pUserData->m_sClass
-				<< pUser->m_iMaxMp << pUser->m_pUserData->m_sMp;
+				<< pUser->m_pUserData.m_id
+				<< pUser->m_iMaxHp << pUser->m_pUserData.m_sHp
+				<< pUser->GetLevel() << pUser->m_pUserData.m_sClass
+				<< pUser->m_iMaxMp << pUser->m_pUserData.m_sMp;
 		Send(&result);
 	}
 	
@@ -204,10 +204,10 @@ void CUser::PartyInsert()
 	result.clear();
 	result	<< uint8(PARTY_INSERT) << GetSocketID()
 			<< uint8(1) // success
-			<< m_pUserData->m_id
-			<< m_iMaxHp << m_pUserData->m_sHp
-			<< GetLevel() << m_pUserData->m_sClass
-			<< m_iMaxMp << m_pUserData->m_sMp;
+			<< m_pUserData.m_id
+			<< m_iMaxHp << m_pUserData.m_sHp
+			<< GetLevel() << m_pUserData.m_sClass
+			<< m_iMaxMp << m_pUserData.m_sMp;
 	g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 
 	result.Initialize(AG_USER_PARTY);
@@ -420,7 +420,7 @@ void CUser::SendPartyBBSNeeded(uint16 page_index, uint8 bType)
 			|| valid_counter >= MAX_BBS_PAGE)
 			continue;
 
-		result << pUser->m_pUserData->m_id << pUser->GetLevel() << pUser->m_pUserData->m_sClass;
+		result << pUser->m_pUserData.m_id << pUser->GetLevel() << pUser->m_pUserData.m_sClass;
 		valid_counter++;
 	}
 	g_pMain->s_socketMgr.ReleaseLock();

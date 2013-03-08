@@ -28,6 +28,9 @@
     <Filter Include="Shared\Networking">
       <UniqueIdentifier>{073be5de-f0b1-4042-8494-5704e8177083}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shared\Database">
+      <UniqueIdentifier>{ac2ab693-8d5a-4acb-b1b6-9bee43f7cdc5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ebenezer.cpp">
@@ -117,9 +120,6 @@
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp">
       <Filter>N3Base</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\SharedMem.cpp">
-      <Filter>Shared</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\database\KnightsRankSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>
@@ -161,6 +161,21 @@
     </ClCompile>
     <ClCompile Include="ArenaHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="DatabaseThread.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcCommand.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcConnection.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcParameter.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="DBAgent.cpp">
+      <Filter>Database</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -232,12 +247,6 @@
     </ClInclude>
     <ClInclude Include="..\N3BASE\My_3DStruct.h">
       <Filter>N3Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\N3BASE\My_Macro.h">
-      <Filter>N3Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\SharedMem.h">
-      <Filter>Shared</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\database\ServerResourceSet.h">
       <Filter>Database</Filter>
@@ -357,6 +366,21 @@
       <Filter>Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\database\UserKnightsRankSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseThread.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcCommand.h">
+      <Filter>Shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcConnection.h">
+      <Filter>Shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcParameter.h">
+      <Filter>Shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="DBAgent.h">
       <Filter>Database</Filter>
     </ClInclude>
   </ItemGroup>

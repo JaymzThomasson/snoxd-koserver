@@ -1,5 +1,4 @@
 #pragma once
-#pragma warning(disable : 4786)
 
 #include "Ebenezer.h"
 #include "Map.h"
@@ -7,7 +6,6 @@
 #include "GameDefine.h"
 #include "AISocket.h"
 #include "Npc.h"
-#include "../shared/SharedMem.h"
 #include "../shared/ini.h"
 #include "Knights.h"
 #include "KnightsManager.h"
@@ -57,7 +55,6 @@ typedef hash_map<string, _USER_RANK *>		UserRankMap;
 
 class CEbenezerDlg : public CDialog
 {
-// Construction
 public:	
 	void WriteEventLog( char* pBuf );
 	void FlySanta();
@@ -118,7 +115,8 @@ public:
 	void SendAllUserInfo();
 	void DeleteAllNpcList(int flag = 0);
 	CNpc*  GetNpcPtr( int sid, int cur_zone );
-	BOOL InitializeMMF();
+
+	void AddDatabaseRequest(Packet & pkt, CUser *pUser = NULL);
 
 	// Get info for NPCs in regions around user (WIZ_REQ_NPCIN)
 	void NpcInOutForMe(CUser* pSendUser);
@@ -153,7 +151,6 @@ public:
 	__forceinline bool isPermanentMessageSet() { return m_bPermanentChatMode == TRUE; }
 	void GetPermanentMessage(Packet & result);
 	void SetPermanentMessage(const char * format, ...);
-
 
 	void SendNotice(const char *msg, uint8 bNation = NO_NATION);
 	void SendFormattedNotice(const char *msg, uint8 nation = NO_NATION, ...);
@@ -202,14 +199,6 @@ public:
 
 	static KOSocketMgr<CUser> s_socketMgr;
 	static ClientSocketMgr<CAISocket> s_aiSocketMgr;
-
-	CSharedMemQueue	m_LoggerSendQueue, m_LoggerRecvQueue;
-
-	HANDLE	m_hReadQueueThread;
-	HANDLE	m_hMMFile;
-	char*	m_lpMMFile;
-	BOOL	m_bMMFCreate;
-	DWORD	m_ServerOffset;
 
 	char	m_ppNotice[20][128];
 	char	m_AIServerIP[20];
@@ -308,6 +297,11 @@ private:
 	CIni	m_Ini;
 	CDatabase m_GameDB;
 
+	char m_strGameDSN[32], m_strAccountDSN[32];
+	char m_strGameUID[32], m_strAccountUID[32];
+	char m_strGamePWD[32], m_strAccountPWD[32];
+	bool m_bMarsEnabled;
+
 	static ServerCommandTable s_commandTable;
 
 	bool LoadTables();
@@ -352,6 +346,9 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 	friend class C3DMap;
+	friend class CDBAgent;
 };
 
 extern CEbenezerDlg * g_pMain;
+extern CDBAgent g_DBAgent;
+

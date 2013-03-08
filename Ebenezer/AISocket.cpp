@@ -85,6 +85,8 @@ bool CAISocket::HandlePacket(Packet & pkt)
 
 void CAISocket::OnConnect()
 {
+	KOSocket::OnConnect();
+
 	// Set a flag to indicate whether we've ever connected before or not
 	// This is used accordingly by the AI server when we tell it what our status is.
 	// Kind of messy, and needs looking into further.
@@ -457,7 +459,7 @@ void CAISocket::RecvUserHP(Packet & pkt)
 		if (pUser == NULL)
 			return;
 
-		pUser->m_pUserData->m_sHp = nHP;
+		pUser->m_pUserData.m_sHp = nHP;
 	}
 	else if (sNid >= NPC_BAND)
 	{
@@ -577,7 +579,7 @@ void CAISocket::RecvUserFail(Packet & pkt)
 	result << uint8(2) << sid << nid;
 	pUser->SendToRegion(&result);
 
-	TRACE("### AISocket - RecvUserFail : sid=%d, tid=%d, id=%s ####\n", sid, nid, pUser->m_pUserData->m_id);
+	TRACE("### AISocket - RecvUserFail : sid=%d, tid=%d, id=%s ####\n", sid, nid, pUser->m_pUserData.m_id);
 }
 
 void CAISocket::InitEventMonster(int index)
@@ -707,7 +709,7 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 				result.SByte();
 				result << bResult << strMaxUserName;
 
-				g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
+				g_pMain->AddDatabaseRequest(result);
 				g_pMain->m_byBattleSave = 1;
 			}
 		}

@@ -47,7 +47,9 @@ public:
 		return result;
 	}
 
-	__forceinline HDBC GetConnectionHandle() { return m_connHandle; };
+	__forceinline HDBC GetConnectionHandle() { return m_connHandle; }
+	__forceinline bool isMarsEnabled() { return m_bMarsEnabled; }
+
 
 	bool Connect(tstring szDSN, tstring szUser, tstring szPass, bool bMarsEnabled = true);
 	bool Connect();

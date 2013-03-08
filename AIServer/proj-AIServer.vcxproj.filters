@@ -196,9 +196,6 @@
     <ClInclude Include="..\N3BASE\My_3DStruct.h">
       <Filter>N3Base</Filter>
     </ClInclude>
-    <ClInclude Include="..\N3BASE\My_Macro.h">
-      <Filter>N3Base</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\database\MakeWeaponTableSet.h">
       <Filter>Database</Filter>
     </ClInclude>

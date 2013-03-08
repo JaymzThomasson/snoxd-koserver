@@ -23,7 +23,7 @@ void CUser::FriendProcess(Packet & pkt)
 void CUser::FriendRequest()
 {
 	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REQUEST));
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 // Add or remove a friend from your list.
@@ -43,7 +43,7 @@ void CUser::FriendModify(Packet & pkt, uint8 opcode)
 
 	result.SByte();
 	result << strUserID;
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 // Refresh the status of your friends.

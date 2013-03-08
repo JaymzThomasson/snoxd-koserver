@@ -14,36 +14,36 @@ void CUser::ItemRepair(Packet & pkt)
 	pkt >> pos >> slot >> itemid;
 	if( pos == 1 ) {	// SLOT
 		if( slot >= SLOT_MAX ) goto fail_return;
-		if( m_pUserData->m_sItemArray[slot].nNum != itemid ) goto fail_return;
+		if( m_pUserData.m_sItemArray[slot].nNum != itemid ) goto fail_return;
 	}
 	else if ( pos == 2 ) {	// INVEN
 		if( slot >= HAVE_MAX ) goto fail_return;
-		if( m_pUserData->m_sItemArray[SLOT_MAX+slot].nNum != itemid ) goto fail_return;
+		if( m_pUserData.m_sItemArray[SLOT_MAX+slot].nNum != itemid ) goto fail_return;
 	}
 	pTable = g_pMain->GetItemPtr( itemid );
 	if( !pTable ) goto fail_return;
 	durability = pTable->m_sDuration;
 	if( durability == 1 ) goto fail_return;
 	if( pos == 1 )
-		quantity = pTable->m_sDuration - m_pUserData->m_sItemArray[slot].sDuration;
+		quantity = pTable->m_sDuration - m_pUserData.m_sItemArray[slot].sDuration;
 	else if( pos == 2 ) 
-		quantity = pTable->m_sDuration - m_pUserData->m_sItemArray[SLOT_MAX+slot].sDuration;
+		quantity = pTable->m_sDuration - m_pUserData.m_sItemArray[SLOT_MAX+slot].sDuration;
 	
 	money = (unsigned int)((((pTable->m_iBuyPrice-10) / 10000.0f) + pow((float)pTable->m_iBuyPrice, 0.75f)) * quantity / (double)durability);
-	if( money > m_pUserData->m_iGold ) goto fail_return;
+	if( money > m_pUserData.m_iGold ) goto fail_return;
 
-	m_pUserData->m_iGold -= money;
+	m_pUserData.m_iGold -= money;
 	if( pos == 1 )
-		m_pUserData->m_sItemArray[slot].sDuration = durability;
+		m_pUserData.m_sItemArray[slot].sDuration = durability;
 	else if( pos == 2 )
-		m_pUserData->m_sItemArray[SLOT_MAX+slot].sDuration = durability;
+		m_pUserData.m_sItemArray[SLOT_MAX+slot].sDuration = durability;
 
-	result << uint8(1) << m_pUserData->m_iGold;
+	result << uint8(1) << m_pUserData.m_iGold;
 	Send(&result);
 	return;
 
 fail_return:
-	result << uint8(0) << m_pUserData->m_iGold;
+	result << uint8(0) << m_pUserData.m_iGold;
 	Send(&result);
 }
 
@@ -163,7 +163,7 @@ BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 
 			break;
 
 		case	LOGIC_CHECK_NOAH:
-			if ( m_pUserData->m_iGold >= (unsigned int)pLE->m_LogicElseInt[0] && m_pUserData->m_iGold <= (unsigned int)pLE->m_LogicElseInt[1] ) {
+			if ( m_pUserData.m_iGold >= (unsigned int)pLE->m_LogicElseInt[0] && m_pUserData.m_iGold <= (unsigned int)pLE->m_LogicElseInt[1] ) {
 				bExact = TRUE;	
 			}
 			break;
@@ -199,7 +199,7 @@ BOOL CUser::RunNpcEvent(CNpc *pNpc, EXEC *pExec)	// This part executes all the '
 			EVENT* pEvent = NULL;
 			EVENT_DATA* pEventData = NULL;				
 
-			pEvent = g_pMain->m_Event.GetData(m_pUserData->m_bZone);		if(!pEvent)	break;
+			pEvent = g_pMain->m_Event.GetData(m_pUserData.m_bZone);		if(!pEvent)	break;
 			pEventData = pEvent->m_arEvent.GetData(pExec->m_ExecInt[0]);	if(!pEventData) break;
 
 			if( !CheckEventLogic(pEventData) )	break;
@@ -256,7 +256,7 @@ BOOL CUser::RunEvent(EVENT_DATA *pEventData)
 					EVENT* pEvent = NULL;
 					EVENT_DATA* pEventData = NULL;				
 
-					pEvent = g_pMain->m_Event.GetData(m_pUserData->m_bZone);
+					pEvent = g_pMain->m_Event.GetData(m_pUserData.m_bZone);
 					if(!pEvent)	break;
 
 					pEventData = pEvent->m_arEvent.GetData(pExec->m_ExecInt[0]);
@@ -341,7 +341,7 @@ void CUser::ClassChange(Packet & pkt)
 	}
 
 	uint8 classcode = pkt.read<uint8>();
-	switch (m_pUserData->m_sClass)
+	switch (m_pUserData.m_sClass)
 	{
 	case KARUWARRIOR:
 		if( classcode == BERSERKER || classcode == GUARDIAN )
@@ -385,7 +385,7 @@ void CUser::ClassChange(Packet & pkt)
 		return;
 	}
 
-	m_pUserData->m_sClass = classcode;
+	m_pUserData.m_sClass = classcode;
 	if (isInParty())
 	{
 		// TO-DO: Move this somewhere better.
@@ -404,7 +404,7 @@ void CUser::RecvSelectMsg(Packet & pkt)	// Receive menu reply from client.
 
 	// Get the event number that needs to be processed next.
 	int selectedEvent = m_iSelMsgEvent[bMenuIndex];
-	EVENT *pEvent = g_pMain->m_Event.GetData(m_pUserData->m_bZone);
+	EVENT *pEvent = g_pMain->m_Event.GetData(m_pUserData.m_bZone);
 	if (pEvent == NULL)	
 		goto fail_return;
 
@@ -586,20 +586,20 @@ void CUser::ItemTrade(Packet & pkt)
 	if (type == 3)
 	{
 		if (pos >= HAVE_MAX || destpos >= HAVE_MAX
-			|| itemid != m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum)
+			|| itemid != m_pUserData.m_sItemArray[SLOT_MAX+pos].nNum)
 		{
 			errorCode = 4;
 			goto send_packet;
 		}
 
-		short duration = m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration;
-		short itemcount = m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount;
-		m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum = m_pUserData->m_sItemArray[SLOT_MAX+destpos].nNum;
-		m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = m_pUserData->m_sItemArray[SLOT_MAX+destpos].sDuration;
-		m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount = m_pUserData->m_sItemArray[SLOT_MAX+destpos].sCount;
-		m_pUserData->m_sItemArray[SLOT_MAX+destpos].nNum = itemid;
-		m_pUserData->m_sItemArray[SLOT_MAX+destpos].sDuration = duration;
-		m_pUserData->m_sItemArray[SLOT_MAX+destpos].sCount = itemcount;
+		short duration = m_pUserData.m_sItemArray[SLOT_MAX+pos].sDuration;
+		short itemcount = m_pUserData.m_sItemArray[SLOT_MAX+pos].sCount;
+		m_pUserData.m_sItemArray[SLOT_MAX+pos].nNum = m_pUserData.m_sItemArray[SLOT_MAX+destpos].nNum;
+		m_pUserData.m_sItemArray[SLOT_MAX+pos].sDuration = m_pUserData.m_sItemArray[SLOT_MAX+destpos].sDuration;
+		m_pUserData.m_sItemArray[SLOT_MAX+pos].sCount = m_pUserData.m_sItemArray[SLOT_MAX+destpos].sCount;
+		m_pUserData.m_sItemArray[SLOT_MAX+destpos].nNum = itemid;
+		m_pUserData.m_sItemArray[SLOT_MAX+destpos].sDuration = duration;
+		m_pUserData.m_sItemArray[SLOT_MAX+destpos].sCount = itemcount;
 
 		result << uint8(3);
 		Send(&result);
@@ -625,9 +625,9 @@ void CUser::ItemTrade(Packet & pkt)
 			|| pNpc->m_iSellingGroup != group)
 			goto fail_return;
 
-		if (m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != 0)
+		if (m_pUserData.m_sItemArray[SLOT_MAX+pos].nNum != 0)
 		{
-			if (m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != itemid)
+			if (m_pUserData.m_sItemArray[SLOT_MAX+pos].nNum != itemid)
 			{
 				errorCode = 2;
 				goto fail_return;
@@ -640,7 +640,7 @@ void CUser::ItemTrade(Packet & pkt)
 			}
 
 			if (pTable->m_bCountable 
-				&& (count + m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount) > MAX_ITEM_COUNT)
+				&& (count + m_pUserData.m_sItemArray[SLOT_MAX+pos].sCount) > MAX_ITEM_COUNT)
 			{
 				errorCode = 4;
 				goto fail_return;				
@@ -648,7 +648,7 @@ void CUser::ItemTrade(Packet & pkt)
 		}
 
 		transactionPrice = ((uint32)pTable->m_iBuyPrice * count);
-		if (m_pUserData->m_iGold < transactionPrice)
+		if (m_pUserData.m_iGold < transactionPrice)
 		{
 			errorCode = 3;
 			goto fail_return;
@@ -660,20 +660,20 @@ void CUser::ItemTrade(Packet & pkt)
 			goto fail_return;
 		}
 
-		m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum = itemid;
-		m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;
-		m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount += count;
-		m_pUserData->m_iGold -= transactionPrice;
+		m_pUserData.m_sItemArray[SLOT_MAX+pos].nNum = itemid;
+		m_pUserData.m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;
+		m_pUserData.m_sItemArray[SLOT_MAX+pos].sCount += count;
+		m_pUserData.m_iGold -= transactionPrice;
 
 		if (!pTable->m_bCountable)
-			m_pUserData->m_sItemArray[SLOT_MAX+pos].nSerialNum = g_pMain->GenerateItemSerial();
+			m_pUserData.m_sItemArray[SLOT_MAX+pos].nSerialNum = g_pMain->GenerateItemSerial();
 
 		SendItemWeight();
 	}
 	// Selling an item to an NPC
 	else
 	{
-		_ITEM_DATA *pItem = &m_pUserData->m_sItemArray[SLOT_MAX+pos];
+		_ITEM_DATA *pItem = &m_pUserData.m_sItemArray[SLOT_MAX+pos];
 		if (pItem->nNum != itemid
 			|| pItem->isSealed() // need to check the error codes for these
 			|| pItem->isRented())
@@ -694,10 +694,10 @@ void CUser::ItemTrade(Packet & pkt)
 		else
 			transactionPrice = (pTable->m_iBuyPrice * count);
 
-		if (m_pUserData->m_iGold + transactionPrice > COIN_MAX)
-			m_pUserData->m_iGold = COIN_MAX;
+		if (m_pUserData.m_iGold + transactionPrice > COIN_MAX)
+			m_pUserData.m_iGold = COIN_MAX;
 		else
-			m_pUserData->m_iGold += transactionPrice;
+			m_pUserData.m_iGold += transactionPrice;
 
 		if (count >= pItem->sCount)
 			memset(pItem, 0, sizeof(_ITEM_DATA));
@@ -717,6 +717,6 @@ send_packet:
 	if (!bSuccess)
 		result << errorCode;
 	else 
-		result << pTable->m_bSellingGroup << m_pUserData->m_iGold << transactionPrice; // price bought or sold for
+		result << pTable->m_bSellingGroup << m_pUserData.m_iGold << transactionPrice; // price bought or sold for
 	Send(&result);
 }

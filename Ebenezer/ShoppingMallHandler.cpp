@@ -42,7 +42,7 @@ void CUser::HandleStoreClose()
 {
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_CLOSE));
 	m_bStoreOpen = false;
-	g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 void CUser::RecvStore(Packet & pkt)
@@ -81,9 +81,9 @@ void CUser::RecvStoreClose(Packet & pkt)
 	// not sure if this limit's correct
 	for (int i = 0; i < HAVE_MAX + SLOT_MAX + COSP_MAX + MBAG_MAX; i++)
 	{
-		result	<< m_pUserData->m_sItemArray[i].nNum
-				<< m_pUserData->m_sItemArray[i].sDuration
-				<< m_pUserData->m_sItemArray[i].sCount
+		result	<< m_pUserData.m_sItemArray[i].nNum
+				<< m_pUserData.m_sItemArray[i].sDuration
+				<< m_pUserData.m_sItemArray[i].sCount
 				<< uint8(0) // item type flag (e.g. rented)
 				<< uint16(0) // remaining time
 				<< uint32(0) // unknown

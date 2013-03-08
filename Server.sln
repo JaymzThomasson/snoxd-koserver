@@ -5,8 +5,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AIServer", "AIServer\proj-A
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ebenezer", "Ebenezer\proj-Ebenezer.vcxproj", "{99006BDF-4BBD-4687-99C3-1424F32D95FC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Aujard", "Aujard\proj-Aujard.vcxproj", "{AE4F49EA-414D-4BDD-9CB0-127CAFAA575F}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VersionManager", "LogInServer\proj-VersionManager.vcxproj", "{F68DA1BF-90B2-4166-8DDB-B82D813EA961}"
 EndProject
 Global
@@ -28,12 +26,6 @@ Global
 		{99006BDF-4BBD-4687-99C3-1424F32D95FC}.Release|Win32.Build.0 = Release|Win32
 		{99006BDF-4BBD-4687-99C3-1424F32D95FC}.Static Release|Win32.ActiveCfg = Release|Win32
 		{99006BDF-4BBD-4687-99C3-1424F32D95FC}.Static Release|Win32.Build.0 = Release|Win32
-		{AE4F49EA-414D-4BDD-9CB0-127CAFAA575F}.Debug|Win32.ActiveCfg = Debug|Win32
-		{AE4F49EA-414D-4BDD-9CB0-127CAFAA575F}.Debug|Win32.Build.0 = Debug|Win32
-		{AE4F49EA-414D-4BDD-9CB0-127CAFAA575F}.Release|Win32.ActiveCfg = Release|Win32
-		{AE4F49EA-414D-4BDD-9CB0-127CAFAA575F}.Release|Win32.Build.0 = Release|Win32
-		{AE4F49EA-414D-4BDD-9CB0-127CAFAA575F}.Static Release|Win32.ActiveCfg = Release|Win32
-		{AE4F49EA-414D-4BDD-9CB0-127CAFAA575F}.Static Release|Win32.Build.0 = Release|Win32
 		{F68DA1BF-90B2-4166-8DDB-B82D813EA961}.Debug|Win32.ActiveCfg = Debug|Win32
 		{F68DA1BF-90B2-4166-8DDB-B82D813EA961}.Debug|Win32.Build.0 = Debug|Win32
 		{F68DA1BF-90B2-4166-8DDB-B82D813EA961}.Release|Win32.ActiveCfg = Release|Win32

@@ -18,6 +18,9 @@
 #include <afxtempl.h>
 #include <afxdb.h>
 
+#include "DBAgent.h"
+#include "DatabaseThread.h"
+
 #include "EbenezerDlg.h"
 #include "User.h"
 #include "AIPacket.h"
