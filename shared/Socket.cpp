@@ -126,14 +126,11 @@ void Socket::WriteCallback()
 		m_writeEvent.Mark();
 		m_writeEvent.Reset(SOCKET_IO_EVENT_WRITE_END);
 		int r = WSASend(m_fd, &buf, 1, &w_length, flags, &m_writeEvent.m_overlap, 0);
-		if (r == SOCKET_ERROR)
+		if (r == SOCKET_ERROR && WSAGetLastError() != WSA_IO_PENDING)
 		{
-			if (WSAGetLastError() != WSA_IO_PENDING)
-			{
-				m_writeEvent.Unmark();
-				DecSendLock();
-				Disconnect();
-			}
+			m_writeEvent.Unmark();
+			DecSendLock();
+			Disconnect();
 		}
 	}
 	else
@@ -202,6 +199,8 @@ void Socket::Disconnect()
 	shutdown(m_fd, SD_BOTH);
 	closesocket(m_fd);
 	m_fd = NULL;
+
+	m_readEvent.Unmark();
 
 	// Call virtual ondisconnect
 	OnDisconnect();
