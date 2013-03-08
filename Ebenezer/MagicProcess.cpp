@@ -935,6 +935,13 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 				// uses pType->ExpPct
 				break;
 
+			case BUFF_TYPE_NOAH_BONUS:
+				break;
+
+			case BUFF_TYPE_PREMIUM_MERCHANT:
+				pTUser->m_bPremiumMerchant = true;
+				break;
+
 			case BUFF_TYPE_ATTACK_SPEED_ARMOR:
 				// 
 				break;
