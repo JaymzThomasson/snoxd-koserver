@@ -35,11 +35,13 @@ void CUser::Initialize()
 	m_strAccountID.clear();
 	m_bSelectedCharacter = false;
 	m_bStoreOpen = false;
-	m_bIsMerchanting = false;
 	m_bPartyLeader = false;
 	m_bIsTransformed = false;
 	m_bIsChicken = false;
 	m_bIsHidingHelmet = false;
+	m_bPremiumMerchant = false;
+
+	m_bMerchantState = MERCHANT_STATE_NONE;
 	m_bInvisibilityType = INVIS_NONE;
 
 	m_sDirection = 0;

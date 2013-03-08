@@ -35,6 +35,13 @@ enum InvisibilityType
 	INVIS_NORMAL			= 2
 };
 
+enum MerchantState
+{
+	MERCHANT_STATE_NONE		= -1,
+	MERCHANT_STATE_SELLING	= 0,
+	MERCHANT_STATE_BUYING	= 1
+};
+
 class CEbenezerDlg;
 class CUser : public Unit, public KOSocket
 {
@@ -54,10 +61,11 @@ public:
 	bool	m_bSelectedCharacter;
 	bool	m_bStoreOpen;
 
-	bool	m_bIsMerchanting; //Is the character merchanting already?
+	int8	m_bMerchantState;
 	int16	m_sMerchantsSocketID;
 	std::list<uint16>	m_arMerchantLookers;
-	_MERCH_DATA	m_arSellingItems[MAX_MERCH_ITEMS]; //What is this person selling? Stored in "_MERCH_DATA" structure.
+	_MERCH_DATA	m_arMerchantItems[MAX_MERCH_ITEMS]; //What is this person selling? Stored in "_MERCH_DATA" structure.
+	bool	m_bPremiumMerchant;
 
 	uint8	m_bRequestingChallenge, // opcode of challenge request being sent by challenger
 			m_bChallengeRequested;  // opcode of challenge request received by challengee
@@ -178,8 +186,12 @@ public:
 
 	__forceinline bool isTrading() { return m_sExchangeUser != -1; }
 	__forceinline bool isStoreOpen() { return m_bStoreOpen; }
-	__forceinline bool isMerchanting() { return m_bIsMerchanting; }
+	__forceinline bool isMerchanting() { return GetMerchantState() != MERCHANT_STATE_NONE; }
+	__forceinline bool isSellingMerchant() { return GetMerchantState() != MERCHANT_STATE_SELLING; }
+	__forceinline bool isBuyingMerchant() { return GetMerchantState() != MERCHANT_STATE_BUYING; }
 	__forceinline bool isTransformed() { return m_bIsTransformed; }
+
+	__forceinline int8 GetMerchantState() { return m_bMerchantState; }
 
 	virtual uint8 GetNation() { return m_pUserData.m_bNation; }
 	virtual uint8 GetLevel() { return m_pUserData.m_bLevel; }
