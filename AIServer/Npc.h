@@ -180,10 +180,6 @@ public:
 	int		m_nInitMaxX;
 	int		m_nInitMaxY;
 
-	// NPC Class, Skill
-	//_NpcSkillList	m_NpcSkill[SKILL_NUM];	// NPC 가 가지고 있는 스킬
-	//BYTE			m_tWeaponClass;			// NPC 의 무기 클래스 
-
 	// 지속 마법 관련..
 	float		m_fHPChangeTime;			// Hp 회복율
 	float       m_fFaintingTime;			// 기절해 있는 시간..
@@ -333,6 +329,8 @@ public:
 	void InitPos();
 	void InitMagicValuable();
 
+	void Load(uint16 sNpcID, CNpcTable * proto);
+
 protected:
 	void ClearPathFindData(void);
 
@@ -399,7 +397,6 @@ public:
 	int GetNearPathPoint();			//
 
 	// Packet Send부분..
-	void SendAll(char *pBuf, int nLength);
 	void SendAttackSuccess(BYTE byResult, int tuid, short sDamage, int nHP=0, BYTE byFlag = 0, short sAttack_type=1);
 	void SendNpcInfoAll(char *temp_send, int &index, int count);	// game server에 npc정보를 전부 전송...
 
@@ -412,8 +409,6 @@ public:
 	int FindEnemyRegion();
 	float FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType);
 	int GetMyField();
-
-	void NpcTrace(TCHAR *pMsg);
 
 	int GetDir(float x1, float z1, float x2, float z2);
 	void NpcMoveEnd();

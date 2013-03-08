@@ -1,7 +1,3 @@
-// Map.cpp: implementation of the CMap class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "Map.h"
 #include "Serverdlg.h"

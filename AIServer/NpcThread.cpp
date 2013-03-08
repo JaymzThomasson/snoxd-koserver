@@ -116,7 +116,6 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 				break;
 
 			case NPC_DEAD:
-				//pNpc->NpcTrace(_T("NpcDead"));
 				pNpc->m_NpcState = NPC_LIVE;
 				break;
 			case NPC_SLEEPING:
@@ -173,36 +172,6 @@ UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */)
 	}
 
 	return 0;
-}
-
-float TimeGet()
-{
-	static bool bInit = false;
-	static bool bUseHWTimer = FALSE;
-	static LARGE_INTEGER nTime, nFrequency;
-	
-	if(bInit == false)
-	{
-		if(TRUE == ::QueryPerformanceCounter(&nTime))
-		{
-			::QueryPerformanceFrequency(&nFrequency);
-			bUseHWTimer = TRUE;
-		}
-		else 
-		{
-			bUseHWTimer = FALSE;
-		}
-
-		bInit = true;
-	}
-
-	if(bUseHWTimer)
-	{
-		::QueryPerformanceCounter(&nTime);
-		return (float)((double)(nTime.QuadPart)/(double)nFrequency.QuadPart);
-	}
-
-	return (float)timeGetTime();
 }
 
 CNpcThread::CNpcThread()

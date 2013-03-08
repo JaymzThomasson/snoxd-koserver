@@ -1,15 +1,5 @@
-// UdpSocket.h: interface for the CUdpSocket class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_UDPSOCKET_H__E53802D9_5A8C_47B6_9B3B_12D2DDDACD92__INCLUDED_)
-#define AFX_UDPSOCKET_H__E53802D9_5A8C_47B6_9B3B_12D2DDDACD92__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-class CEbenezerDlg;
 class CUdpSocket  
 {
 public:
@@ -35,5 +25,3 @@ public:
 	HANDLE m_hUdpThread;
 	char	m_pRecvBuf[8192];
 };
-
-#endif // !defined(AFX_UDPSOCKET_H__E53802D9_5A8C_47B6_9B3B_12D2DDDACD92__INCLUDED_)

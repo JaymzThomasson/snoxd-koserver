@@ -1,39 +1,10 @@
-// LOGIC_ELSE.cpp: implementation of the LOGIC_ELSE class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "Define.h"
 #include "LOGIC_ELSE.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-LOGIC_ELSE::LOGIC_ELSE()
+LOGIC_ELSE::LOGIC_ELSE() : m_bAnd(TRUE)
 {
-
-}
-
-LOGIC_ELSE::~LOGIC_ELSE()
-{
-
-}
-
-void LOGIC_ELSE::Init()
-{
-	for( int i = 0; i < MAX_LOGIC_ELSE_INT; i++)
-	{
-		m_LogicElseInt[i] = -1;
-	}
-
-	m_bAnd = TRUE;
+	memset(&m_LogicElseInt, -1, sizeof(m_LogicElseInt));
 }
 
 void LOGIC_ELSE::Parse_and(char *pBuf)
@@ -41,68 +12,43 @@ void LOGIC_ELSE::Parse_and(char *pBuf)
 	int index = 0, i = 0;
 	char temp[1024];
 
-	index += ParseSpace( temp, pBuf+index );
+	index += ParseSpace(temp, pBuf+index);
 
-	if( !strcmp( temp, "CHECK_UNDER_WEIGHT" ) )
+	if (!strcmp(temp, "CHECK_UNDER_WEIGHT"))
 	{
 		m_LogicElse = LOGIC_CHECK_UNDER_WEIGHT;
-
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Weight & Empty Slot
+		PARSE_ARGUMENTS(1, temp, pBuf, m_LogicElseInt, i, index);
 	}
-	else if( !strcmp( temp, "CHECK_OVER_WEIGHT" ) )
+	else if (!strcmp(temp, "CHECK_OVER_WEIGHT"))
 	{
 		m_LogicElse = LOGIC_CHECK_OVER_WEIGHT;
-
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Weight & Empty Slot
+		PARSE_ARGUMENTS(1, temp, pBuf, m_LogicElseInt, i, index);
 	}
-	else if( !strcmp( temp, "CHECK_SKILL_POINT" ) )
+	else if (!strcmp(temp, "CHECK_SKILL_POINT"))
 	{
-		m_LogicElse = LOGIC_CHECK_SKILL_POINT;
-
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// SkillPoint
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Below
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Above
+		m_LogicElse = LOGIC_CHECK_SKILL_POINT; // Point type | Min | Max
+		PARSE_ARGUMENTS(3, temp, pBuf, m_LogicElseInt, i, index);
 	}
-	else if( !strcmp( temp, "CHECK_EXIST_ITEM" ) )
+	else if (!strcmp(temp, "CHECK_EXIST_ITEM"))
 	{
-		m_LogicElse = LOGIC_EXIST_ITEM;
-
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Item no.
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Item count
+		m_LogicElse = LOGIC_EXIST_ITEM; // Item ID | Item count
+		PARSE_ARGUMENTS(2, temp, pBuf, m_LogicElseInt, i, index);
 	}
-	else if( !strcmp( temp, "CHECK_CLASS" ) )
+	else if (!strcmp(temp, "CHECK_CLASS"))
 	{
 		m_LogicElse = LOGIC_CHECK_CLASS;
-
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Class 1
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Class 2
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Class 3
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Class 4
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Class 5
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Class 6
+		PARSE_ARGUMENTS(6, temp, pBuf, m_LogicElseInt, i, index);
 	}
-	else if( !strcmp( temp, "CHECK_WEIGHT" ) )
+	else if (!strcmp(temp, "CHECK_WEIGHT"))
 	{
 		m_LogicElse = LOGIC_CHECK_WEIGHT;
-
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Weight & Empty Slot
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Weight & Empty Slot
+		PARSE_ARGUMENTS(2, temp, pBuf, m_LogicElseInt, i, index);
 	}
-	else if( !strcmp( temp, "RAND") )
+	else if (!strcmp(temp, "RAND"))
 	{
 		m_LogicElse = LOGIC_RAND;
-
-		index += ParseSpace( temp, pBuf+index );	m_LogicElseInt[i++] = atoi( temp );		// Chances of you hitting the jackpot		
+		PARSE_ARGUMENTS(1, temp, pBuf, m_LogicElseInt, i, index);
 	}
 
 	m_bAnd = TRUE;
-}
-
-void LOGIC_ELSE::Parse_or(char *pBuf)
-{
-	int index = 0, i = 0;
-	char temp[1024];
-
-	index += ParseSpace( temp, pBuf+index );
-	m_bAnd = FALSE;
 }

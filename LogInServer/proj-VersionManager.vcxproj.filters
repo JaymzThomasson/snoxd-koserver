@@ -9,10 +9,6 @@
       <UniqueIdentifier>{82eb2836-8fa4-47d4-bcbd-fcc14a29327e}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{59287d92-c0d5-46a9-8c00-67202f38e6e6}</UniqueIdentifier>
-      <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
-    </Filter>
     <Filter Include="Shared">
       <UniqueIdentifier>{55d67395-849f-475d-b15c-6a5308cb778d}</UniqueIdentifier>
     </Filter>
@@ -22,6 +18,9 @@
     <Filter Include="Shared\Networking">
       <UniqueIdentifier>{a90f38cc-ac5e-4806-b1d6-7122ad646706}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shared\Database">
+      <UniqueIdentifier>{64e024f7-5646-4be4-88f3-fba7a7b30585}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StdAfx.cpp">
@@ -30,25 +29,10 @@
     <ClCompile Include="User.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VersionManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VersionManagerDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\Ini.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
     <ClCompile Include="DBProcess.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcCommand.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcConnection.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcParameter.cpp">
       <Filter>Database</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\crc32.cpp">
@@ -72,44 +56,33 @@
     <ClCompile Include="..\shared\SocketMgr.cpp">
       <Filter>Shared\Networking</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="VersionManager.rc">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </ResourceCompile>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcCommand.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcConnection.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcParameter.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="LoginServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="StdAfx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="User.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VersionManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VersionManagerDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\Ini.h">
       <Filter>Shared</Filter>
     </ClInclude>
     <ClInclude Include="DBProcess.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\OdbcCommand.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\OdbcConnection.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\OdbcParameter.h">
       <Filter>Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\CircularBuffer.h">
@@ -136,13 +109,31 @@
     <ClInclude Include="..\shared\SocketMgr.h">
       <Filter>Shared\Networking</Filter>
     </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcCommand.h">
+      <Filter>Shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcConnection.h">
+      <Filter>Shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcParameter.h">
+      <Filter>Shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoginServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoginSession.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\VersionManager.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\VersionManager.rc2">
-      <Filter>Resource Files</Filter>
-    </None>
+    <ResourceCompile Include="VersionManager.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Res\VersionManager.ico" />
   </ItemGroup>
 </Project>

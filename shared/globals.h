@@ -1,5 +1,11 @@
 ﻿#pragma once
 
+#if defined(EBENEZER) || defined(AI_SERVER)
+#define _MFC_ENABLED
+#else
+#define CString std::string
+#endif
+
 #include "version.h"
 #include "packets.h"
 #include "Packet.h"
@@ -15,7 +21,6 @@
 #endif
 
 #define MAX_FRIEND_COUNT	24
-
 #define MAX_ITEM_COUNT		9999
 
 enum NameType
@@ -130,9 +135,9 @@ const int ITEMCOUNT_MAX		= 9999;
 enum ItemFlag
 {
 	ITEM_FLAG_NONE		= 0,
-	ITEM_FLAG_RENTAL	= 1,
+	ITEM_FLAG_RENTED	= 1,
 	ITEM_FLAG_SEALED	= 4,
-	ITEM_FLAG_NONBOUND	= 7,
+	ITEM_FLAG_NOT_BOUND	= 7,
 	ITEM_FLAG_BOUND		= 8
 };
 
@@ -145,6 +150,9 @@ struct	_ITEM_DATA
 	uint16		sRemainingRentalTime; // in minutes
 	uint32		nExpirationTime; // in unix time
 	uint64		nSerialNum;
+
+	__forceinline bool isSealed() { return bFlag == ITEM_FLAG_SEALED; }
+	__forceinline bool isRented() { return bFlag == ITEM_FLAG_RENTED; }
 };
 
 enum HairData
@@ -176,6 +184,7 @@ enum StatType
 };
 
 #define STAT_MAX 255
+#define QUEST_ARRAY_SIZE 600 // That's a limit of 200 quests (3 bytes per quest)
 
 struct _USER_DATA
 {
@@ -213,14 +222,15 @@ struct _USER_DATA
 	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];
 
 	uint8	m_bLogout;
-	uint8	m_bWarehouse;
 	DWORD	m_dwTime;
 
 	// this system needs replacing
 	uint16	m_sQuestCount;
-	uint8	m_bstrQuest[400];
+	char	m_bstrQuest[QUEST_ARRAY_SIZE];
 
+	uint8	m_bAccountStatus;
 	uint8	m_bPremiumType;
+	uint16	m_sPremiumTime;
 };
 
 inline void GetString(char* tBuf, char* sBuf, int len, int& index)
@@ -252,12 +262,6 @@ inline float Getfloat(char* sBuf, int& index)
 {
 	index += 4;
 	return *(float*)(sBuf+index-4);
-};
-
-inline __int64 GetInt64(char* sBuf, int& index)
-{
-	index += 8;
-	return *(__int64*)(sBuf+index-8);
 };
 
 inline bool GetKOString(char* tBuf, char* sBuf, int& index, unsigned int maxLen, int lenSize = 2)
@@ -308,25 +312,6 @@ inline void Setfloat ( char* tBuf, float sFloat, int& index )
 	index += 4;
 };
 
-inline void SetInt64 ( char* tBuf, __int64 nInt64, int& index )
-{
-	CopyMemory( tBuf+index, &nInt64, 8);
-	index += 8;
-};
-// sungyong 2001.11.06
-inline int GetVarString(TCHAR* tBuf, TCHAR* sBuf, int nSize, int& index)
-{
-	int nLen = 0;
-	
-	if(nSize == sizeof(BYTE))	nLen = GetByte(sBuf, index);
-	else nLen = GetShort(sBuf, index);
-
-	GetString(tBuf, sBuf, nLen, index);
-	*(tBuf + nLen) = 0;
-
-	return nLen;
-};
-
 inline void SetVarString(TCHAR *tBuf, TCHAR* sBuf, int len, int &index)
 {
 	*(tBuf+index) = (BYTE)len;
@@ -347,7 +332,6 @@ inline void SetKOString(char* tBuf, char* sBuf, int& index, int lenSize = 2)
 	SetString(tBuf, sBuf, len, index);
 };
 
-// ~sungyong 2001.11.06
 inline int ParseSpace( char* tBuf, char* sBuf)
 {
 	int i = 0, index = 0;
@@ -370,7 +354,7 @@ inline CString GetProgPath()
 	char Buf[_MAX_PATH], Path[_MAX_PATH];
 	char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 
-	::GetModuleFileName(AfxGetApp()->m_hInstance, Buf, 256);
+	GetModuleFileName(NULL, Buf, 256);
 	_splitpath_s(Buf, drive, sizeof(drive), dir, sizeof(dir), fname, sizeof(fname), ext, sizeof(ext));
 	strcpy_s(Path, sizeof(Path), drive);
 	strcat_s(Path, sizeof(Path), dir);		
@@ -400,95 +384,7 @@ inline int myrand( int min, int max )
 	return (int)( min + (int)rand_result );
 };
 
-inline void	TimeTrace(TCHAR* pMsg)
-{
-	CString szMsg = _T("");
-	CTime time = CTime::GetCurrentTime();
-	szMsg.Format("%s,,  time : %d-%d-%d, %d:%d]\n", pMsg, time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute());
-	TRACE(szMsg);
-};
-
-
-/*
-	Yes, this is ugly and crude.
-	I want to wrap all the existing log code into this, and slowly get rid of it... bit by bit.
-*/
-
-CString GetProgPath();
-inline void LogFileWrite( LPCTSTR logstr )
-{
-	CString ProgPath, LogFileName;
-	CFile file;
-	int loglength;
-
-	ProgPath = GetProgPath();
-	loglength = strlen( logstr );
-
-#if defined(EBENEZER)
-	LogFileName.Format("%s\\Ebenezer.log", ProgPath);
-#elif defined(AI_SERVER)
-	LogFileName.Format("%s\\AIServer.log", ProgPath);
-#elif defined(AUJARD)
-	LogFileName.Format("%s\\Aujard.log", ProgPath);
-#elif defined(LOGIN_SERVER)
-	LogFileName.Format("%s\\Login.log", ProgPath);
-#endif
-
-	if (file.Open( LogFileName, CFile::modeCreate|CFile::modeNoTruncate|CFile::modeWrite ))
-	{
-		file.SeekToEnd();
-		file.Write(logstr, loglength);
-		file.Write("\r\n", 2);
-		file.Close();
-	}
-};
-
-#define DEBUG_LOG(...) _DEBUG_LOG(false, __VA_ARGS__)
-#define DEBUG_LOG_FILE(...) _DEBUG_LOG(true, __VA_ARGS__)
-inline void _DEBUG_LOG(bool toFile, char * format, ...)
-{
-	char buffer[256];
-
-	va_list args;
-	va_start(args, format);
-	_vsnprintf_s(buffer, sizeof(buffer) - 1, format, args);
-	va_end(args);
-
-	TRACE("%s\n", buffer);
-
-	if (toFile)
-		LogFileWrite(buffer);
-};
-
-#ifdef SQL_NO_DATA
-inline int DisplayErrorMsg(SQLHANDLE hstmt, char *sql)
-{
-	SQLCHAR       SqlState[6], Msg[1024];
-	SQLINTEGER    NativeError;
-	SQLSMALLINT   i, MsgLen;
-	SQLRETURN     rc2;
-	char		  logstr[512];
-	memset( logstr, NULL, 512 );
-
-	i = 1;
-	while ((rc2 = SQLGetDiagRec(SQL_HANDLE_STMT, hstmt, i, SqlState, &NativeError, Msg, sizeof(Msg), &MsgLen)) != SQL_NO_DATA)
-	{
-		sprintf_s( logstr, sizeof(logstr), "*** %s, %d, %s, %d ***", SqlState,NativeError,Msg,MsgLen );
-		LogFileWrite( logstr );
-
-		LogFileWrite(sql);
-
-		i++;
-	}
-
-	if( strcmp((char *)SqlState, "08S01") == 0 )
-		return -1;
-	else
-		return 0;
-};
-#endif
-
-#if defined(EBENEZER)
+#if defined(EBENEZER) || defined(AI_SERVER)
 #include <mmsystem.h>
 inline float TimeGet()
 {

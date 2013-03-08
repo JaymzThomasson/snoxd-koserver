@@ -15,6 +15,7 @@ void Unit::Initialize()
 	m_sTotalHitrate = 0.0f;
 	m_sTotalEvasionrate = 0.0f;
 
+	m_bResistanceBonus = 0;
 	m_bFireR = 0;
 	m_bColdR = 0;
 	m_bLightningR = 0;
@@ -51,15 +52,15 @@ bool Unit::RegisterRegion()
 	// TO-DO: Fix this up
 	if (isPlayer())
 	{
-		GetRegion()->Remove(static_cast<CUser *>(this));
+		GetRegion()->Remove(TO_USER(this));
 		SetRegion(new_region_x, new_region_z);
-		GetRegion()->Add(static_cast<CUser *>(this));
+		GetRegion()->Add(TO_USER(this));
 	}
 	else
 	{
-		GetRegion()->Remove(static_cast<CNpc *>(this));
+		GetRegion()->Remove(TO_NPC(this));
 		SetRegion(new_region_x, new_region_z);
-		GetRegion()->Add(static_cast<CNpc *>(this));
+		GetRegion()->Add(TO_NPC(this));
 	}
 
 	RemoveRegion(old_region_x - new_region_x, old_region_z - new_region_z);
@@ -198,7 +199,6 @@ short Unit::GetMagicDamage(int damage, Unit *pTarget)
 	if (pTarget->isDead())
 		return 0;
 
-	// RIGHT HAND!!! by Yookozuna
 	if (m_bMagicTypeRightHand > 4 && m_bMagicTypeRightHand < 8)
 		temp_damage = damage * m_sMagicAmountRightHand / 100;
 
@@ -227,6 +227,8 @@ short Unit::GetMagicDamage(int damage, Unit *pTarget)
 			break;
 	}
 
+	total_r += pTarget->m_bResistanceBonus;
+
 	if (m_bMagicTypeRightHand > 0 && m_bMagicTypeRightHand < 5)
 	{
 		if (total_r > 200) total_r = 200;
@@ -237,7 +239,6 @@ short Unit::GetMagicDamage(int damage, Unit *pTarget)
 	total_r = 0;		// Reset all temporary data.
 	temp_damage = 0;
 
-	// LEFT HAND!!! by Yookozuna
 	if (m_bMagicTypeLeftHand > 4 && m_bMagicTypeLeftHand < 8)
 		temp_damage = damage * m_sMagicAmountLeftHand / 100;
 
@@ -265,6 +266,8 @@ short Unit::GetMagicDamage(int damage, Unit *pTarget)
 			MSpChange(temp_damage);
 			break;
 	}
+
+	total_r += pTarget->m_bResistanceBonus;
 
 	if (m_bMagicTypeLeftHand > 0 && m_bMagicTypeLeftHand < 5)
 	{
@@ -295,7 +298,7 @@ short Unit::GetACDamage(int damage, Unit *pTarget)
 	if (pTarget->isDead())
 		return 0;
 
-	CUser * pUser  = static_cast<CUser *>(this);
+	CUser * pUser  = TO_USER(this);
 	_ITEM_TABLE * pRightHand = pUser->GetItemPrototype(RIGHTHAND);
 	if (pRightHand != NULL)
 	{
@@ -467,7 +470,7 @@ void Unit::InitType4()
 
 	// this is going to need cleaning up
 	if (isPlayer())
-		static_cast<CUser *>(this)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
+		TO_USER(this)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
 }
 
 void Unit::OnDeath(Unit *pKiller)

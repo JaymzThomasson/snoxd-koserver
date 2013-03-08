@@ -11,17 +11,25 @@
 #define g_private_key 0x1257091582190465
 #endif
 
-CJvCryption::CJvCryption() : m_public_key(0) {}
-
-void CJvCryption::SetPublicKey(T_KEY pk) { m_public_key = pk; }
 void CJvCryption::Init() { m_tkey = m_public_key ^ g_private_key; }
 
-void CJvCryption::JvEncryptionFast(int len, T_OCTET *datain, T_OCTET *dataout)
+uint64 CJvCryption::GenerateKey()
 {
-	T_OCTET *pkey, lkey, rsk;
+	// because of their sucky encryption method, 0 means it effectively won't be encrypted. 
+	// We don't want that happening...
+	do
+	{
+		m_public_key = (uint64)rand() << 32 | rand();
+	} while (!m_public_key); 
+	return m_public_key;
+}
+
+void CJvCryption::JvEncryptionFast(int len, uint8 *datain, uint8 *dataout)
+{
+	uint8 *pkey, lkey, rsk;
 	int rkey = 2157;
 
-	pkey = (T_OCTET *)&m_tkey;
+	pkey = (uint8 *)&m_tkey;
 	lkey = (len * 157) & 0xff;
 
 	for (int i = 0; i < len; i++)
@@ -32,7 +40,7 @@ void CJvCryption::JvEncryptionFast(int len, T_OCTET *datain, T_OCTET *dataout)
 	}
 }
 
-int CJvCryption::JvDecryptionWithCRC32(int len, T_OCTET *datain, T_OCTET *dataout)
+int CJvCryption::JvDecryptionWithCRC32(int len, uint8 *datain, uint8 *dataout)
 {
 	int result;
 	JvDecryptionFast(len, datain, dataout);
@@ -42,8 +50,4 @@ int CJvCryption::JvDecryptionWithCRC32(int len, T_OCTET *datain, T_OCTET *dataou
 		result = -1;
 
 	return result;
-}
-
-CJvCryption::~CJvCryption()
-{
 }

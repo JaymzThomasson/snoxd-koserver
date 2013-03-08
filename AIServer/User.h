@@ -7,14 +7,11 @@
 #include "../shared/STLMap.h"
 #include <list>
 
-typedef std::list <_USERLOG*>		UserLogList;
 class MAP;
 class CUser  
 {
 public:
 	CMagicProcess m_MagicProcess;
-
-	UserLogList	m_UserLogList;
 
 	char m_strUserID[MAX_ID_SIZE+1];	// 캐릭터의 이름
 	short	m_iUserId;					// User의 번호
@@ -72,15 +69,12 @@ public:
 
 	BOOL		m_bLogOut;				// Logout 중인가?
 
-	// 2002.7.10 - Yookozuna
 	BYTE    m_bMagicTypeLeftHand;			// The type of magic item in user's left hand  
 	BYTE    m_bMagicTypeRightHand;			// The type of magic item in user's right hand
 	short   m_sMagicAmountLeftHand;         // The amount of magic item in user's left hand
 	short	m_sMagicAmountRightHand;        // The amount of magic item in user's left hand
 
 public:
-	void InitUserLog();
-	void WriteUserLog();
 	short GetMagicDamage(int damage, short tid);
 	void Initialize();
 	void InitNpcAttack();
@@ -95,13 +89,10 @@ public:
 	void HealMagic();
 	void HealAreaCheck(int rx, int rz);
 
-	void SendAttackSuccess(int tuid, BYTE result, short sDamage, int nHP=0, short sAttack_type=1);  // 공격 성공
-	void SendMagicAttackResult(int tuid, BYTE result, short sDamage, short sHP=0);  // 공격 성공
+	void SendAttackSuccess(short tid, BYTE result, short sDamage, int nHP=0, short sAttack_type=1, uint8 type = 1, short sid = -1);
 	void SendHP();												// user의 HP
 	void SendExp(int iExp, int iLoyalty, int tType = 1);
 	void SendSystemMsg(TCHAR *pMsg, BYTE type, int nWho);
-	void SendAll(TCHAR *pBuf, int nLength);						// game server로 패킷 전송...
-	BOOL IsOpIDCheck(char* szName);
 
 	__forceinline MAP * GetMap() { return m_pMap; };
 

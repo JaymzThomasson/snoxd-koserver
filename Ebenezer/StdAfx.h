@@ -22,5 +22,8 @@
 #include "User.h"
 #include "AIPacket.h"
 
+#include <iostream>
+#include <fstream>
+
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.

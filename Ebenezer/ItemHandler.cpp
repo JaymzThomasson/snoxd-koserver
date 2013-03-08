@@ -8,6 +8,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 	uint8 page, srcpos, destpos;
 	_ITEM_TABLE* pTable = NULL;
 	uint8 command = pkt.read<uint8>();
+	bool bResult = false;
 
 	if (isDead())
 	{
@@ -32,6 +33,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 	if( !pTable ) goto fail_return;
 	reference_pos = 24 * page;
 
+	// TO-DO: Clean up this entire method. It's horrendous!
 	switch( command ) {
 	case WAREHOUSE_INPUT:
 		pkt >> count;
@@ -42,6 +44,11 @@ void CUser::WarehouseProcess(Packet & pkt)
 			m_pUserData->m_iGold -= count;
 			break;
 		}
+
+		if (m_pUserData->m_sItemArray[SLOT_MAX+srcpos].isSealed()
+			|| m_pUserData->m_sItemArray[SLOT_MAX+srcpos].isRented())
+			goto fail_return;
+
 		if( m_pUserData->m_sItemArray[SLOT_MAX+srcpos].nNum != itemid ) goto fail_return;
 		if( reference_pos+destpos > WAREHOUSE_MAX ) goto fail_return;
 		if( m_pUserData->m_sWarehouseArray[reference_pos+destpos].nNum && !pTable->m_bCountable ) goto fail_return;
@@ -166,14 +173,10 @@ void CUser::WarehouseProcess(Packet & pkt)
 		break;
 	}
 
-	m_pUserData->m_bWarehouse = 1;
-
-	result << uint8(command) << uint8(1);
-	Send(&result);
-	return;
+	bResult = true;
 
 fail_return: // hmm...
-	result << uint8(command) << uint8(0);
+	result << uint8(command) << bResult;
 	Send(&result);
 }
 
@@ -388,7 +391,7 @@ void CUser::ItemMove(Packet & pkt)
 		break;
 
 	case ITEM_INVEN_SLOT:
-		if (bDstPos >= SLOT_MAX || bSrcPos >= SLOT_MAX
+		if (bDstPos >= SLOT_MAX || bSrcPos >= HAVE_MAX
 			// Make sure that the item actually exists there.
 			|| nItemID != m_pUserData->m_sItemArray[INVENTORY_INVENT + bSrcPos].nNum
 			// Ensure the item is able to be equipped in that slot
@@ -452,11 +455,12 @@ void CUser::ItemMove(Packet & pkt)
 	// If equipping/de-equipping an item
 	if (dir == ITEM_INVEN_SLOT || dir == ITEM_SLOT_INVEN
 		// or moving an item to/from our cospre item slots
-		|| dir == ITEM_INVEN_TO_COSP || dir == ITEM_COSP_TO_INVEN)
+		|| dir == ITEM_INVEN_TO_COSP || dir == ITEM_COSP_TO_INVEN
+		|| dir == ITEM_SLOT_SLOT)
 	{
 		// Re-update item stats
 		SetSlotItemValue();
-		SetUserAbility();
+		SetUserAbility(false);
 	}
 
 	SendItemMove(1);
@@ -466,7 +470,12 @@ void CUser::ItemMove(Packet & pkt)
 	if (dir == ITEM_INVEN_SLOT)
 		UserLookChange(bDstPos, nItemID, pDstItem->sDuration);	
 	if (dir == ITEM_SLOT_INVEN) 
-		UserLookChange(bSrcPos, 0, 0);	
+		UserLookChange(bSrcPos, 0, 0);
+	if (dir == ITEM_SLOT_SLOT)
+	{
+		UserLookChange(bSrcPos, pSrcItem->nNum, pSrcItem->sDuration);
+		UserLookChange(bDstPos, pDstItem->nNum, pDstItem->sDuration);
+	}
 	if (dir == ITEM_INVEN_TO_COSP)
 		UserLookChange(INVENTORY_COSP + bDstPos, nItemID, pDstItem->sDuration);
 	if (dir == ITEM_COSP_TO_INVEN)
@@ -590,11 +599,13 @@ void CUser::ItemRemove(Packet & pkt)
 		bPos += SLOT_MAX;
 	}
 
-	// Make sure the item matches what the client says it is
-	if (m_pUserData->m_sItemArray[bPos].nNum != nItemID)
-		goto fail_return;
-
 	_ITEM_DATA *pItem = &m_pUserData->m_sItemArray[bPos];
+
+	// Make sure the item matches what the client says it is
+	if (pItem->nNum != nItemID
+		|| pItem->isSealed() 
+		|| pItem->isRented())
+		goto fail_return;
 	memset(pItem, 0, sizeof(_ITEM_DATA));
 
 	SendItemWeight();

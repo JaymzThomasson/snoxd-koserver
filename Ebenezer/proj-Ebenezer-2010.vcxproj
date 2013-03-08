@@ -159,6 +159,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="ArenaHandler.cpp" />
     <ClCompile Include="AttackHandler.cpp" />
     <ClCompile Include="CharacterSelectionHandler.cpp" />
     <ClCompile Include="CharacterMovementHandler.cpp" />

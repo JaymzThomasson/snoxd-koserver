@@ -1,7 +1,3 @@
-// AISocket.cpp: implementation of the CAISocket class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "AISocket.h"
 #include "EbenezerDlg.h"
@@ -12,16 +8,6 @@
 #include "Map.h"
 #include "../shared/lzf.h"
 #include "../shared/crc32.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 extern CRITICAL_SECTION g_LogFile_critical;
 
@@ -115,7 +101,7 @@ void CAISocket::LoginProcess(Packet & pkt)
 {
 	uint8 bReconnect = pkt.read<uint8>();
 
-	DEBUG_LOG("AI Server Connect Success!!");
+	TRACE("Connected to the AI server\n");
 	if (bReconnect == 1)
 		TRACE("**** ReConnect - socket = %d ****\n ", GetSocketID());
 
@@ -278,7 +264,6 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 			if( byAttackType != MAGIC_ATTACK && byAttackType != DURATION_ATTACK) {
 				pUser->ItemWoreOut(ATTACK, damage);
 
-			// LEFT HAND!!! by Yookozuna
 			temp_damage = damage * pUser->m_bMagicTypeLeftHand / 100 ;
 
 			switch (pUser->m_bMagicTypeLeftHand) {	// LEFT HAND!!!
@@ -292,7 +277,6 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 			
 			temp_damage = 0;	// reset data;
 
-			// RIGHT HAND!!! by Yookozuna
 			temp_damage = damage * pUser->m_bMagicTypeRightHand / 100 ;
 
 			switch (pUser->m_bMagicTypeRightHand) {	// LEFT HAND!!!
@@ -748,7 +732,7 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 			pUser = g_pMain->GetUserPtr(strMaxUserName.c_str(), TYPE_CHARACTER);
 			if (pUser != NULL)
 			{
-				pKnights = g_pMain->GetClanPtr(pUser->m_pUserData->m_bKnights);
+				pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
 				if (pKnights)
 					strcpy_s(strKnightsName, sizeof(strKnightsName), pKnights->m_strName);
 
@@ -831,7 +815,7 @@ void CAISocket::RecvNpcEventItem(Packet & pkt)
 	if (pUser == NULL)
 		return;
 
-	pUser->EventMoneyItemGet(nItemID, nCount);
+	pUser->GiveItem(nItemID, nCount);
 }
 
 void CAISocket::RecvGateOpen(Packet & pkt)

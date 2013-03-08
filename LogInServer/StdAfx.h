@@ -1,8 +1,10 @@
 #pragma once
 
-#define _WIN32_WINNT _WIN32_WINNT_MAXVER
-#define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
+#include "../shared/stdafx.h"
 
-#include <afxwin.h>         // MFC core and standard components
-#include <afxdisp.h>        // MFC Automation classes
-#include <winsock2.h>
+#include "Define.h"
+#include "DBProcess.h"
+#include "LoginServer.h"
+#include "LoginSession.h"
+
+using namespace std;

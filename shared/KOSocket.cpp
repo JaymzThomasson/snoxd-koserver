@@ -234,9 +234,8 @@ void KOSocket::OnDisconnect()
 	TRACE("Connection closed from %s:%d\n", GetRemoteIP().c_str(), GetRemotePort());
 }
 
-void KOSocket::EnableCrypto(uint64 key)
+void KOSocket::EnableCrypto()
 {
-	m_crypto.SetPublicKey(key);
 	m_crypto.Init();
 	m_usingCrypto = true;
 }

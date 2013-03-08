@@ -1,54 +1,7 @@
-#ifndef _DEFINE_H
-#define _DEFINE_H
+#pragma once
 
-#pragma warning(disable : 4786)
-
+#include "../shared/globals.h"
 #define _LISTEN_PORT		15100
-
-#define MAX_USER			3000
-#define CLIENT_SOCKSIZE		10
-
-#define MAX_ID_SIZE			20
-////////////////////////////////////////////////////////////
-// Socket Define
-////////////////////////////////////////////////////////////
-#define SOCKET_BUFF_SIZE	(1024*16)
-#define MAX_PACKET_SIZE		(1024*8)
-
-#define PACKET_START1				0XAA
-#define PACKET_START2				0X55
-#define PACKET_END1					0X55
-#define PACKET_END2					0XAA
-
-// status
-#define STATE_CONNECTED			0X01
-#define STATE_DISCONNECTED		0X02
-#define GAME_STATE_INGAME			0x03
-
-// Socket type
-#define TYPE_ACCEPT				0x01
-#define TYPE_CONNECT			0x02
-
-// Overlapped flag
-#define OVL_RECEIVE				0X01
-#define OVL_SEND				0X02
-#define OVL_CLOSE				0X03
-////////////////////////////////////////////////////////////
-
-typedef union{
-	short int	i;
-	BYTE		b[2];
-} MYSHORT;
-
-typedef union{
-	int			i;
-	BYTE		b[4];
-} MYINT;
-
-typedef union{
-	DWORD		w;
-	BYTE		b[4];
-} MYDWORD;
 
 struct _SERVER_INFO
 {
@@ -83,29 +36,9 @@ struct News
 	size_t Size;
 };
 
-// Packet Define...
-
-enum LogonOpcodes
-{
-	LS_VERSION_REQ				= 0x01,
-	LS_DOWNLOADINFO_REQ			= 0x02,
-	LS_CRYPTION					= 0xF2,
-	LS_LOGIN_REQ				= 0xF3,
-	LS_MGAME_LOGIN				= 0xF4,
-	LS_SERVERLIST				= 0xF5,
-	LS_NEWS						= 0xF6,
-	LS_UNKF7					= 0xF7,
-
-	NUM_LS_OPCODES
-};
-
-#include "../shared/globals.h"
-
 struct _VERSION_INFO
 {
 	uint16 sVersion;
 	uint16 sHistoryVersion;
 	std::string strFileName;
 };
-
-#endif

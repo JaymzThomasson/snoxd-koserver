@@ -11,25 +11,21 @@ void CUser::VersionCheck(Packet & pkt)
 		return;
 	*/
 
-	// because of their sucky encryption method, 0 means it effectively won't be encrypted. 
-	// We don't want that happening...
-	uint64 publicKey = 0;
-	do
-	{
-		publicKey = (uint64)rand() << 32 | rand();
-	} while (publicKey == 0); 
-
-	m_crypto.SetPublicKey(publicKey);
-	result	<< uint8(0) << uint16(__VERSION) << m_crypto.GetPublicKey()
+	result	<< uint8(0) << uint16(__VERSION) << m_crypto.GenerateKey()
 			<< uint8(0); // 0 = success, 1 = prem error
 	Send(&result);
 
 	// Enable encryption
-	EnableCrypto(m_crypto.GetPublicKey());
+	EnableCrypto();
 }
 
 void CUser::LoginProcess(Packet & pkt)
 {
+	// Enforce only one login request per session
+	// It's common for players to spam this at the server list when a response isn't received immediately.
+	if (!m_strAccountID.empty())
+		return;
+
 	Packet result(WIZ_LOGIN);
 	std::string strAccountID, strPasswd;
 	pkt >> strAccountID >> strPasswd;

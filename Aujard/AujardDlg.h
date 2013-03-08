@@ -1,27 +1,18 @@
-// AujardDlg.h : header file
-//
-
-#if !defined(AFX_AUJARDDLG_H__B5274041_22AE_464F_86F6_53F992C2BF54__INCLUDED_)
-#define AFX_AUJARDDLG_H__B5274041_22AE_464F_86F6_53F992C2BF54__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include "../shared/SharedMem.h"
-#include "DBAgent.h"
-#include "define.h"
 
 struct OdbcError;
-class CAujardDlg : public CDialog
+class CAujardDlg
 {
-// Construction
 public:
-	CAujardDlg(CWnd* pParent = NULL);	// standard constructor
+	CAujardDlg();
+
+	bool Startup();
 
 	BOOL InitializeMMF();
 	void ReportSQLError(OdbcError *pError);
-	void WriteLogFile( char* pData );
+	void WriteLogFile(std::string & logMessage);
 
 	void AccountLogIn(Packet & pkt, int16 uid);
 	void SelectNation(Packet & pkt, int16 uid);
@@ -58,10 +49,13 @@ public:
 	void SaveUserData();
 	void ConCurrentUserCount();
 	_USER_DATA* GetUserPtr(const char* struserid, short & uid);
+
+	void OnTimer(UINT nIDEvent);
 	void AllSaveRoutine();
 
-	CSharedMemQueue	m_LoggerSendQueue;
-	CSharedMemQueue	m_LoggerRecvQueue;
+	~CAujardDlg();
+
+	CSharedMemQueue	m_LoggerSendQueue, m_LoggerRecvQueue;
 
 	HANDLE	m_hReadQueueThread;
 	HANDLE	m_hMMFile;
@@ -74,41 +68,8 @@ public:
 	char m_strGameUID[32], m_strAccountUID[32];
 	char m_strGamePWD[32], m_strAccountPWD[32];
 
-	CFile					m_LogFile;
-
-	int m_iLogFileDay;
-
-// Dialog Data
-	//{{AFX_DATA(CAujardDlg)
-	enum { IDD = IDD_AUJARD_DIALOG };
-	CListBox	m_OutputList;
-	//}}AFX_DATA
-
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CAujardDlg)
-	public:
-	virtual BOOL DestroyWindow();
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
-	//}}AFX_VIRTUAL
-
-// Implementation
-protected:
-	HICON m_hIcon;
-
-	// Generated message map functions
-	//{{AFX_MSG(CAujardDlg)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnPaint();
-	afx_msg HCURSOR OnQueryDragIcon();
-	virtual void OnOK();
-	afx_msg void OnTimer(UINT nIDEvent);
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+	FILE * m_fp;
+	FastMutex m_lock;
 };
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_AUJARDDLG_H__B5274041_22AE_464F_86F6_53F992C2BF54__INCLUDED_)
+extern CAujardDlg g_pMain;

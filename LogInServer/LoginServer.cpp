@@ -1,97 +1,54 @@
 #include "stdafx.h"
-#include "VersionManagerDlg.h"
 
-using namespace std;
+KOSocketMgr<LoginSession> LoginServer::s_socketMgr;
 
-KOSocketMgr<LoginSession> CVersionManagerDlg::s_socketMgr;
-CVersionManagerDlg *g_pMain = NULL;
-
-/////////////////////////////////////////////////////////////////////////////
-// CVersionManagerDlg dialog
-
-CVersionManagerDlg::CVersionManagerDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CVersionManagerDlg::IDD, pParent), m_Ini("Version.ini"), m_sLastVersion(__VERSION)
+LoginServer::LoginServer() : m_Ini("Version.ini"), m_sLastVersion(__VERSION), m_fp(NULL)
 {
-	//{{AFX_DATA_INIT(CVersionManagerDlg)
-		// NOTE: the ClassWizard will add member initialization here
-	//}}AFX_DATA_INIT
-	
 	memset(m_strFtpUrl, 0, sizeof(m_strFtpUrl));
 	memset(m_strFilePath, 0, sizeof(m_strFilePath));
 	memset(m_ODBCName, 0, sizeof(m_ODBCName));
 	memset(m_ODBCLogin, 0, sizeof(m_ODBCLogin));
 	memset(m_ODBCPwd, 0, sizeof(m_ODBCPwd));
-
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
-void CVersionManagerDlg::DoDataExchange(CDataExchange* pDX)
+bool LoginServer::Startup()
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CVersionManagerDlg)
-	DDX_Control(pDX, IDC_LIST1, m_OutputList);
-	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CVersionManagerDlg, CDialog)
-	//{{AFX_MSG_MAP(CVersionManagerDlg)
-	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_EXIT, &CVersionManagerDlg::OnBnClickedExit)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-/////////////////////////////////////////////////////////////////////////////
-// CVersionManagerDlg message handlers
-
-BOOL CVersionManagerDlg::OnInitDialog()
-{
-	CDialog::OnInitDialog();
-
-	// Set the icon for this dialog.  The framework does this automatically
-	//  when the application's main window is not a dialog
-	SetIcon(m_hIcon, TRUE);			// Set big icon
-	SetIcon(m_hIcon, FALSE);		// Set small icon
-	
-	g_pMain = this;
-
 	GetInfoFromIni();
-	
+
+	m_fp = fopen("./Login.log", "a");
+	if (m_fp == NULL)
+	{
+		printf("ERROR: Unable to open log file.\n");
+		return false;
+	}
+
 	if (!m_DBProcess.Connect(m_ODBCName, m_ODBCLogin, m_ODBCPwd)) 
 	{
-		AfxMessageBox("Unable to connect to the database using the details configured.");
-		AfxPostQuitMessage(0);
-		return FALSE;
+		printf("ERROR: Unable to connect to the database using the details configured.\n");
+		return false;
 	}
 
-	m_OutputList.AddString(_T("Connected to database server."));
-
+	printf("Connected to database server.\n");
 	if (!m_DBProcess.LoadVersionList())
 	{
-		AfxMessageBox("Unable to load the version list.");
-		AfxPostQuitMessage(0);
-		return FALSE;
+		printf("ERROR: Unable to load the version list.\n");
+		return false;
 	}
 
-	CString version;
-	version.Format("Latest Version : %d", GetVersion());
-	m_OutputList.AddString( version );
-
+	printf("Latest version in database: %d\n", GetVersion());
 	InitPacketHandlers();
 
 	if (!s_socketMgr.Listen(_LISTEN_PORT, MAX_USER))
 	{
-		AfxMessageBox("Failed to listen on server port.");
-		AfxPostQuitMessage(0);
-		return FALSE;
+		printf("ERROR: Failed to listen on server port.\n");
+		return false;
 	}
 
 	s_socketMgr.RunServer();
-
-	return TRUE;  // return TRUE  unless you set the focus to a control
+	return true;
 }
 
-void CVersionManagerDlg::GetInfoFromIni()
+void LoginServer::GetInfoFromIni()
 {
 	char tmp[128];
 
@@ -158,7 +115,7 @@ void CVersionManagerDlg::GetInfoFromIni()
 	#define BOX_END BOX_START << LINE_ENDING
 
 	m_news.Size = 0;
-	stringstream ss;
+	std::stringstream ss;
 	for (int i = 0; i < 3; i++)
 	{
 		string title, message;
@@ -196,64 +153,28 @@ void CVersionManagerDlg::GetInfoFromIni()
 		memcpy(&m_news.Content, ss.str().c_str(), m_news.Size);
 }
 
-void CVersionManagerDlg::ReportSQLError(OdbcError *pError)
+void LoginServer::WriteLogFile(string & logMessage)
+{
+	m_lock.Acquire();
+	fwrite(logMessage.c_str(), logMessage.length(), 1, m_fp);
+	fflush(m_fp);
+	m_lock.Release();
+}
+
+void LoginServer::ReportSQLError(OdbcError *pError)
 {
 	if (pError == NULL)
 		return;
 
 	// This is *very* temporary.
-	string errorMessage = string_format(_T("ODBC error occurred.\r\nSource: %s\r\nError: %s\r\nDescription: %s"),
+	string errorMessage = string_format(_T("ODBC error occurred.\r\nSource: %s\r\nError: %s\r\nDescription: %s\n"),
 		pError->Source.c_str(), pError->ExtendedErrorMessage.c_str(), pError->ErrorMessage.c_str());
 
-	LogFileWrite(errorMessage.c_str());
+	WriteLogFile(errorMessage);
 	delete pError;
 }
 
-// If you add a minimize button to your dialog, you will need the code below
-//  to draw the icon.  For MFC applications using the document/view model,
-//  this is automatically done for you by the framework.
-
-void CVersionManagerDlg::OnPaint() 
-{
-	if (IsIconic())
-	{
-		CPaintDC dc(this); // device context for painting
-
-		SendMessage(WM_ICONERASEBKGND, (WPARAM) dc.GetSafeHdc(), 0);
-
-		// Center icon in client rectangle
-		int cxIcon = GetSystemMetrics(SM_CXICON);
-		int cyIcon = GetSystemMetrics(SM_CYICON);
-		CRect rect;
-		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
-
-		// Draw the icon
-		dc.DrawIcon(x, y, m_hIcon);
-	}
-	else
-	{
-		CDialog::OnPaint();
-	}
-}
-
-// The system calls this to obtain the cursor to display while the user drags
-//  the minimized window.
-HCURSOR CVersionManagerDlg::OnQueryDragIcon()
-{
-	return (HCURSOR) m_hIcon;
-}
-
-BOOL CVersionManagerDlg::PreTranslateMessage(MSG* pMsg) 
-{
-	if (pMsg->message == WM_KEYDOWN && (pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE))
-		return TRUE;
-	
-	return CDialog::PreTranslateMessage(pMsg);
-}
-
-BOOL CVersionManagerDlg::DestroyWindow() 
+LoginServer::~LoginServer() 
 {
 	foreach (itr, m_ServerList)
 		delete *itr;
@@ -263,10 +184,6 @@ BOOL CVersionManagerDlg::DestroyWindow()
 		delete itr->second;
 	m_VersionList.clear();
 
-	return CDialog::DestroyWindow();
-}
-
-void CVersionManagerDlg::OnBnClickedExit()
-{
-	CDialog::OnCancel();
+	if (m_fp != NULL)
+		fclose(m_fp);
 }

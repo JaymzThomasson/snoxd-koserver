@@ -1,22 +1,8 @@
-// Knights.cpp: implementation of the CKnights class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "Knights.h"
 #include "User.h"
 #include "GameDefine.h"
 #include "EbenezerDlg.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 CKnights::CKnights()
 {
@@ -101,7 +87,7 @@ bool CKnights::AddUser(CUser *pUser)
 		|| !AddUser(pUser->m_pUserData->m_id))
 		return false;
 
-	pUser->m_pUserData->m_bKnights = m_sIndex;
+	pUser->SetClanID(m_sIndex);
 	pUser->m_pUserData->m_bFame = TRAINEE;
 	return true;
 }
@@ -131,7 +117,7 @@ bool CKnights::RemoveUser(CUser *pUser)
 		return false;
 
 	bool result = RemoveUser(pUser->m_pUserData->m_id);
-	pUser->m_pUserData->m_bKnights = 0;
+	pUser->SetClanID(0);
 	pUser->m_pUserData->m_bFame = 0;
 	if (!pUser->isClanLeader())
 		pUser->SendClanUserStatusUpdate();

@@ -1,23 +1,9 @@
-// NpcMagicProcess.cpp: implementation of the CNpcMagicProcess class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "server.h"
 #include "NpcMagicProcess.h"
 #include "ServerDlg.h"
 #include "User.h"
 #include "Npc.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 CNpcMagicProcess::CNpcMagicProcess()
 {
@@ -91,9 +77,6 @@ void CNpcMagicProcess::MagicPacket(char *pBuf, int len)
 		case 9:
 			ExecuteType9( pTable->iNum );
 			break;
-		case 10:
-			ExecuteType10( pTable->iNum );
-			break;
 		}
 
 		switch( pTable->bType[1] ) {
@@ -124,15 +107,12 @@ void CNpcMagicProcess::MagicPacket(char *pBuf, int len)
 		case 9:
 			ExecuteType9( pTable->iNum );
 			break;
-		case 10:
-			ExecuteType10( pTable->iNum );
-			break;	
 		}
 	}
 	else if( command == MAGIC_CASTING ) {
 		SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
 		SetString( send_buff, pBuf, len-1, send_index );	// len ==> include WIZ_MAGIC_PROCESS command byte. 
-		m_pSrcNpc->SendAll(send_buff, send_index);
+		g_pMain->Send(send_buff, send_index);
 	}
 }
 
@@ -242,7 +222,7 @@ fail_return:    // In case the magic failed.
 		g_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
 	else m_pSrcUser->Send( send_buff, send_index );	*/
 
-	m_pSrcNpc->SendAll(send_buff, send_index);
+	g_pMain->Send(send_buff, send_index);
 
 	m_bMagicState = NONE;
 
@@ -329,7 +309,7 @@ packet_send:
 		SetShort( send_buff, moral, send_index );
 		SetShort( send_buff, 0, send_index );
 		SetShort( send_buff, 0, send_index );
-		m_pSrcNpc->SendAll(send_buff, send_index);
+		g_pMain->Send(send_buff, send_index);
 	}
 }
 
@@ -360,11 +340,6 @@ void CNpcMagicProcess::ExecuteType8(int magicid, int tid, int sid, int data1, in
 }
 
 void CNpcMagicProcess::ExecuteType9(int magicid)
-{
-	return;
-}
-
-void CNpcMagicProcess::ExecuteType10(int magicid)
 {
 	return;
 }

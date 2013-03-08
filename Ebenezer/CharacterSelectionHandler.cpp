@@ -212,6 +212,17 @@ void CUser::SelectCharacter(Packet & pkt)
 	if (GetMap() == NULL)
 		goto fail_return;
 
+	// Temporarily convert the old quest storage format to the new one.
+	// This won't be necessary when Aujard's out of the picture.
+	m_questMap.clear();
+	for (int i = 0, index = 0; i < m_pUserData->m_sQuestCount; i++)
+	{
+		uint16	sQuestID	= GetShort(m_pUserData->m_bstrQuest, index);
+		uint8	bQuestState	= GetByte(m_pUserData->m_bstrQuest, index);
+
+		m_questMap.insert(std::make_pair(sQuestID, bQuestState));
+	}
+
 	if (g_pMain->m_nServerNo != GetMap()->m_nServerNo)
 	{
 		_ZONE_SERVERINFO *pInfo = g_pMain->m_ServerArray.GetData(GetMap()->m_nServerNo);
@@ -242,7 +253,7 @@ void CUser::SelectCharacter(Packet & pkt)
 	Send(&result);
 
 	SetSlotItemValue();
-	SetUserAbility();
+	SetUserAbility(false);
 
 	if (GetLevel() > MAX_LEVEL) 
 	{
@@ -253,22 +264,23 @@ void CUser::SelectCharacter(Packet & pkt)
 	m_iMaxExp = g_pMain->GetExpByLevel(GetLevel());
 	SetRegion(GetNewRegionX(), GetNewRegionZ());
 
-	if (m_pUserData->m_bKnights == -1)
+	if (GetClanID() == -1)
 	{
-		m_pUserData->m_bKnights = m_pUserData->m_bFame = 0;
+		SetClanID(0);
+		m_pUserData->m_bFame = 0;
 		return;
 	}
-	else if (m_pUserData->m_bKnights != 0)
+	else if (GetClanID() != 0)
 	{
-		CKnights* pKnights = g_pMain->GetClanPtr( m_pUserData->m_bKnights );
+		CKnights* pKnights = g_pMain->GetClanPtr( GetClanID() );
 		if (pKnights != NULL)
 		{
-			g_pMain->m_KnightsManager.SetKnightsUser( m_pUserData->m_bKnights, m_pUserData->m_id );
+			g_pMain->m_KnightsManager.SetKnightsUser( GetClanID(), m_pUserData->m_id );
 		}
 		else if (GetZoneID() > 2)
 		{
 			result.Initialize(WIZ_KNIGHTS_PROCESS);
-			result << uint8(KNIGHTS_LIST_REQ) << m_pUserData->m_bKnights;
+			result << uint8(KNIGHTS_LIST_REQ) << GetClanID();
 			g_pMain->m_LoggerSendQueue.PutData(&result, GetSocketID());
 		}
 	}

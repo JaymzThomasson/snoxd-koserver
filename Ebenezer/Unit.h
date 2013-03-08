@@ -114,6 +114,8 @@ public:
 	BYTE	m_bPoisonR;
 	BYTE	m_bPoisonRAmount;	
 
+	uint8	m_bResistanceBonus;
+
 	BYTE    m_bMagicTypeLeftHand;			// The type of magic item in user's left hand  
 	BYTE    m_bMagicTypeRightHand;			// The type of magic item in user's right hand
 	short   m_sMagicAmountLeftHand;         // The amount of magic item in user's left hand

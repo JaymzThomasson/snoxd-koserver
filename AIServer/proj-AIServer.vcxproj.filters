@@ -26,9 +26,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="global.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MagicProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -83,9 +80,6 @@
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp">
       <Filter>N3Base</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\database\MonTableSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\database\NpcItemSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>
@@ -131,9 +125,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Extern.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MagicProcess.h">
@@ -211,9 +202,6 @@
     <ClInclude Include="..\shared\database\MakeWeaponTableSet.h">
       <Filter>Database</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\database\MonTableSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\database\NpcItemSet.h">
       <Filter>Database</Filter>
     </ClInclude>
@@ -276,6 +264,9 @@
     </ClInclude>
     <ClInclude Include="..\shared\SocketMgr.h">
       <Filter>shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\globals.h">
+      <Filter>shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

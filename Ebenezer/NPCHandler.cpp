@@ -156,18 +156,6 @@ BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 
 			}
 			break;
 
-		case	LOGIC_NOEXIST_COM_EVENT:
-			if (!ExistComEvent(pLE->m_LogicElseInt[0])) {
-				bExact = TRUE;
-			}	
-			break;
-
-		case	LOGIC_EXIST_COM_EVENT:
-			if (ExistComEvent(pLE->m_LogicElseInt[0])) {
-				bExact = TRUE;
-			}	
-			break;
-
 		case	LOGIC_HOWMUCH_ITEM:
 			if ( CheckItemCount(pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1], pLE->m_LogicElseInt[2]) ) {
 				bExact = TRUE;
@@ -236,10 +224,6 @@ BOOL CUser::RunNpcEvent(CNpc *pNpc, EXEC *pExec)	// This part executes all the '
 		GoldGain(pExec->m_ExecInt[0]);
 		break;
 
-	case	EXEC_SAVE_COM_EVENT:
-		SaveComEvent(pExec->m_ExecInt[0]);
-		break;
-
 	case	EXEC_RETURN:
 		return FALSE;
 
@@ -298,10 +282,6 @@ BOOL CUser::RunEvent(EVENT_DATA *pEventData)
 
 			case	EXEC_GIVE_NOAH:
 				GoldGain(pExec->m_ExecInt[0]);
-				break;
-
-			case	EXEC_SAVE_COM_EVENT:
-				SaveComEvent(pExec->m_ExecInt[0]);
 				break;
 
 			case	EXEC_ROB_NOAH:
@@ -693,19 +673,22 @@ void CUser::ItemTrade(Packet & pkt)
 	// Selling an item to an NPC
 	else
 	{
-		if (m_pUserData->m_sItemArray[SLOT_MAX+pos].nNum != itemid)
+		_ITEM_DATA *pItem = &m_pUserData->m_sItemArray[SLOT_MAX+pos];
+		if (pItem->nNum != itemid
+			|| pItem->isSealed() // need to check the error codes for these
+			|| pItem->isRented())
 		{
 			errorCode = 2;
 			goto fail_return;
 		}
 
-		if (m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount < count)
+		if (pItem->sCount < count)
 		{
 			errorCode = 3;
 			goto fail_return;
 		}
 
-		short oldDurability = m_pUserData->m_sItemArray[SLOT_MAX+pos].sDuration;
+		short oldDurability = pItem->sDuration;
 		if (!pTable->m_iSellPrice) // NOTE: 0 sells normally, 1 sells at full price, not sure what 2's used for...
 			transactionPrice = ((pTable->m_iBuyPrice / 6) * count); // /6 is normal, /4 for prem/discount
 		else
@@ -716,10 +699,10 @@ void CUser::ItemTrade(Packet & pkt)
 		else
 			m_pUserData->m_iGold += transactionPrice;
 
-		if (count >= m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount)
-			memset(&m_pUserData->m_sItemArray[SLOT_MAX+pos], 0, sizeof(_ITEM_DATA));
+		if (count >= pItem->sCount)
+			memset(pItem, 0, sizeof(_ITEM_DATA));
 		else
-			m_pUserData->m_sItemArray[SLOT_MAX+pos].sCount -= count;
+			pItem->sCount -= count;
 
 		SendItemWeight();
 	}
@@ -736,26 +719,4 @@ send_packet:
 	else 
 		result << pTable->m_bSellingGroup << m_pUserData->m_iGold << transactionPrice; // price bought or sold for
 	Send(&result);
-}
-
-// part of the EVT system
-void CUser::SaveComEvent(int eventid)
-{
-	for (int i = 0 ; i < MAX_CURRENT_EVENT ; i++) {
-		if (m_sEvent[i] != eventid) {
-			m_sEvent[i] = eventid;
-			break;
-		}
-	}
-}
-
-BOOL CUser::ExistComEvent(int eventid)
-{
-	for (int i = 0 ; i < MAX_CURRENT_EVENT ; i++) {
-		if (m_sEvent[i] == eventid) {
-			return TRUE;
-		}
-	}	
-
-	return FALSE;
 }

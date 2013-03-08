@@ -114,12 +114,10 @@ public:
 	BOOL LoadItemTable();
 	BOOL LoadServerResourceTable();
 	BOOL MapFileLoad();
-	// sungyong 2001.11.06
 	void AIServerConnect();
 	void SendAllUserInfo();
 	void DeleteAllNpcList(int flag = 0);
 	CNpc*  GetNpcPtr( int sid, int cur_zone );
-	// ~sungyong 2001.11.06
 	BOOL InitializeMMF();
 
 	// Get info for NPCs in regions around user (WIZ_REQ_NPCIN)
@@ -337,6 +335,7 @@ private:
 	COMMAND_HANDLER(HandleSantaOffCommand);
 	COMMAND_HANDLER(HandlePermanentChatCommand);
 	COMMAND_HANDLER(HandlePermanentChatOffCommand);
+	COMMAND_HANDLER(HandleReloadNoticeCommand);
 
 // Implementation
 protected:

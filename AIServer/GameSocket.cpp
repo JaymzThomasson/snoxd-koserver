@@ -1,7 +1,3 @@
-// GameSocket.cpp: implementation of the CGameSocket class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "Server.h"
 #include "GameSocket.h"
@@ -11,29 +7,11 @@
 #include "region.h"
 #include "Party.h"
 #include "../shared/globals.h"
-
 #include "extern.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
 
 extern CRITICAL_SECTION g_region_critical;
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-/*
-     ** Repent AI Server 작업시 참고 사항 **
-	1. RecvUserInfo(), RecvAttackReq(), RecvUserUpdate() 수정
-*/
-
-CGameSocket::~CGameSocket()
-{
-}
+CGameSocket::~CGameSocket() {}
 
 void CGameSocket::OnConnect()
 {
@@ -172,14 +150,6 @@ void CGameSocket::RecvUserInfo(Packet & pkt)
 	TRACE("****  RecvUserInfo()---> uid = %d, name=%s ******\n", 
 		pUser->m_iUserId, pUser->m_strUserID);
 
-	_USERLOG* pUserLog = NULL;
-	pUserLog = new _USERLOG;
-	pUserLog->t = CTime::GetCurrentTime();
-	pUserLog->byFlag = USER_LOGIN;
-	pUserLog->byLevel = pUser->m_bLevel;
-	strcpy(pUserLog->strUserID, pUser->m_strUserID);
-	pUser->m_UserLogList.push_back( pUserLog );
-
 	if (pUser->m_iUserId >= USER_BAND && pUser->m_iUserId < MAX_USER)
 		g_pMain->m_pUser[pUser->m_iUserId] = pUser;
 	else 
@@ -259,9 +229,6 @@ void CGameSocket::RecvUserInOut(Packet & pkt)
 		//strcpy(pUser->m_strUserID, strName);
 		pUser->m_curx = pUser->m_fWill_x = fX;
 		pUser->m_curz = pUser->m_fWill_z = fZ;
-
-		//bFlag = pUser->IsOpIDCheck(strName);
-		//if(bFlag)	pUser->m_byIsOP = 1;
 
 		if(bType == 2)	{		// region out
 			// 기존의 region정보에서 User의 정보 삭제..
@@ -424,21 +391,6 @@ void CGameSocket::RecvUserLogOut(Packet & pkt)
 
 	pkt >> uid >> strUserID; // double byte string for once
 
-	CUser* pUser = g_pMain->GetUserPtr(uid);
-	if(pUser == NULL)
-		return;
-
-	_USERLOG* pUserLog = NULL;
-	pUserLog = new _USERLOG;
-	pUserLog->t = CTime::GetCurrentTime();
-	pUserLog->byFlag = USER_LOGOUT;
-	pUserLog->byLevel = pUser->m_bLevel;
-	strcpy( pUserLog->strUserID, pUser->m_strUserID );
-	pUser->m_UserLogList.push_back( pUserLog );
-
-	// UserLogFile write
-	pUser->WriteUserLog();
-
 	g_pMain->DeleteUserList(uid);
 	TRACE("**** User LogOut -- uid = %d, name = %s\n", uid, strUserID.c_str());
 }
@@ -455,9 +407,7 @@ void CGameSocket::RecvUserRegene(Packet & pkt)
 	pUser->m_bLive = USER_LIVE;
 	pUser->m_sHP = sHP;
 
-	char buff[256];
-	sprintf_s(buff, sizeof(buff), "**** RecvUserRegene -- uid = (%s,%d), HP = %d", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP);
-	TimeTrace(buff);
+	TRACE("**** RecvUserRegene -- uid = (%s,%d), HP = %d\n", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP);
 }
 
 void CGameSocket::RecvUserSetHP(Packet & pkt)
@@ -493,17 +443,6 @@ void CGameSocket::RecvUserUpdate(Packet & pkt)
 		>> pUser->m_sItemAC >> pUser->m_bMagicTypeLeftHand >> pUser->m_bMagicTypeRightHand
 		>> pUser->m_sMagicAmountLeftHand >> pUser->m_sMagicAmountRightHand
 		>> pUser->m_bInvisibilityType;
-
-	// level up
-	if (pUser->m_bLevel > bOldLevel)
-	{
-		_USERLOG* pUserLog = new _USERLOG;
-		pUserLog->t = CTime::GetCurrentTime();
-		pUserLog->byFlag = USER_LEVEL_UP;
-		pUserLog->byLevel = pUser->m_bLevel;
-		strcpy(pUserLog->strUserID, pUser->m_strUserID);
-		pUser->m_UserLogList.push_back(pUserLog);
-	}
 }
 
 void CGameSocket::Send_UserError(short uid, short tid)

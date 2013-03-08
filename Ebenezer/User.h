@@ -59,11 +59,17 @@ public:
 	std::list<uint16>	m_arMerchantLookers;
 	_MERCH_DATA	m_arSellingItems[MAX_MERCH_ITEMS]; //What is this person selling? Stored in "_MERCH_DATA" structure.
 
+	uint8	m_bRequestingChallenge, // opcode of challenge request being sent by challenger
+			m_bChallengeRequested;  // opcode of challenge request received by challengee
+	int16	m_sChallengeUser;
+
 	//Magic System Cooldown checks
 
 	SkillCooldownList	m_CoolDownList;
 
-	bool m_bIsTransformed; //Is the character in a transformed state?
+	bool	m_bIsTransformed; // Is the character in a transformed state?
+	bool	m_bIsChicken; // Is the character taking the beginner/chicken quest?
+	bool	m_bIsHidingHelmet;
 
 	int8	m_bPersonalRank;
 	int8	m_bKnightsRank;
@@ -144,14 +150,10 @@ public:
 
 	BOOL	m_bZoneChangeSameZone;		// Did the server change when you warped?
 
-	// �̹�Ʈ�� ����.... ���־� �̰� ���� ��ī�� �򲲿� ^^;
-//	int					m_iSelMsgEvent[5];	// �������� ���� �޼����ڽ� �̺�Ʈ
 	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];	// �������� ���� �޼����ڽ� �̺�Ʈ
 	short				m_sEventNid;		// ���������� ������ �̺�Ʈ NPC ��ȣ
 	UserEventList		m_arUserEvent;		// ������ �̺�Ʈ ����Ʈ
 
-	short	m_sEvent[MAX_CURRENT_EVENT];				// �̹� ������ �̹�Ʈ ����Ʈ�� :)
-	
 
 public:
 	__forceinline bool isBanned() { return getAuthority() == AUTHORITY_BANNED; }
@@ -165,9 +167,14 @@ public:
 
 	__forceinline bool isInGame() { return GetState() == GAME_STATE_INGAME; }
 	__forceinline bool isInParty() { return m_sPartyIndex != -1; }
-	__forceinline bool isInClan() { return m_pUserData->m_bKnights > 0; }
+	__forceinline bool isInClan() { return GetClanID() > 0; }
 	__forceinline bool isClanLeader() { return getFame() == CHIEF; }
 	__forceinline bool isClanAssistant() { return getFame() == VICECHIEF; }
+
+	__forceinline bool isWarrior() { return JobGroupCheck(1) == TRUE; }
+	__forceinline bool isRogue() { return JobGroupCheck(2) == TRUE; }
+	__forceinline bool isMage() { return JobGroupCheck(3) == TRUE; }
+	__forceinline bool isPriest() { return JobGroupCheck(4) == TRUE; }
 
 	__forceinline bool isTrading() { return m_sExchangeUser != -1; }
 	__forceinline bool isStoreOpen() { return m_bStoreOpen; }
@@ -180,6 +187,9 @@ public:
 
 	__forceinline BYTE getAuthority() { return m_pUserData->m_bAuthority; }
 	__forceinline BYTE getFame() { return m_pUserData->m_bFame; }
+
+	__forceinline int16 GetClanID() { return m_pUserData->m_bKnights; }
+	__forceinline void SetClanID(int16 val) { m_pUserData->m_bKnights = val; }
 
 	__forceinline GameState GetState() { return m_state; }
 
@@ -265,18 +275,15 @@ public:
 
 	void SendLoyaltyChange(int32 nChangeAmount = 0);
 
-	BOOL ExistComEvent(int eventid);
-	void SaveComEvent(int eventid);
 	BOOL CheckItemCount(int itemid, short min, short max);
 	BOOL CheckRandom(short percent);
 	void NativeZoneReturn();
-	void EventMoneyItemGet( int itemid, int count );
 	void KickOutZoneUser(BOOL home = FALSE, int nZoneID = 21);
 	void TrapProcess();
 	BOOL JobGroupCheck(short jobgroupid);
 	void SelectMsg(EXEC* pExec);
 	void SendNpcSay(EXEC* pExec);
-	BOOL CheckClass(short class1, short class2, short class3, short class4, short class5, short class6);
+	BOOL CheckClass(short class1, short class2 = -1, short class3 = -1, short class4 = -1, short class5 = -1, short class6 = -1);
 	BOOL GiveItem(int itemid, short count, bool send_packet = true);
 	BOOL RobItem(int itemid, short count);
 	BOOL CheckExistItem(int itemid, short count);
@@ -285,7 +292,6 @@ public:
 	BOOL GoldLose(unsigned int gold);
 	void GoldGain(int gold);
 	void SendItemWeight();
-	void TestPacket( char* pBuf );
 	void UpdateVisibility(InvisibilityType bNewType);
 	void BlinkStart();
 	void BlinkTimeCheck(float currenttime);
@@ -393,6 +399,8 @@ public:
 	BOOL ExecuteExchange();
 	int ExchangeDone();
 
+	void QuestDataRequest(Packet & pkt);
+
 	// Merchant system (both types)
 	void MerchantProcess(Packet & pkt);
 	void TakeMerchantItems();
@@ -459,6 +467,8 @@ public:
 	void PartyBBSDelete(Packet & pkt);
 	void PartyBBSNeeded(Packet & pkt, BYTE type);
 
+	void SendPartyBBSNeeded(uint16 page_index, uint8 bType);
+
 	void ClientEvent(Packet & pkt);
 	BOOL CheckEventLogic(EVENT_DATA* pEventData);
 	BOOL RunNpcEvent(CNpc* pNpc, EXEC* pExec);
@@ -484,6 +494,14 @@ public:
 	void HandleHelmet(Packet & pkt);
 	void HandleCapeChange(Packet & pkt);
 
+	void HandleChallenge(Packet & pkt);
+	void HandleChallengeRequestPVP(Packet & pkt);
+	void HandleChallengeRequestCVC(Packet & pkt);
+	void HandleChallengeAcceptPVP(Packet & pkt);
+	void HandleChallengeAcceptCVC(Packet & pkt);
+	void HandleChallengeCancelled(uint8 opcode);
+	void HandleChallengeRejected(uint8 opcode);
+
 	void SendNotice();
 	void UserLookChange( int pos, int itemid, int durability );
 	void SpeedHackUser();
@@ -493,7 +511,7 @@ public:
 	BOOL IsValidName(const char* name);
 	void SendTargetHP( BYTE echo, int tid, int damage = 0 );
 	BOOL IsValidSlotPos( _ITEM_TABLE* pTable, int destpos );
-	void SetUserAbility();
+	void SetUserAbility(bool bSendPacket = true);
 	void LevelChange(short level, BYTE type=TRUE);	// type : TRUE => level up, FALSE => level down
 	void SetSlotItemValue();
 	void SendTimeStatus(); // TO-DO: Deprecate
@@ -513,7 +531,7 @@ public:
 	void UserInOut(uint8 bType);
 
 	void GetUserInfo(Packet & pkt);
-	void SendUserStatusUpdate(uint8 type, uint8 status);
+	void SendUserStatusUpdate(UserStatus type, UserStatusBehaviour status);
 	virtual void Initialize();
 	
 	void ChangeFame(uint8 bFame);
@@ -529,14 +547,9 @@ public:
 	void SendPartyStatusUpdate(uint8 bStatus, uint8 bResult = 0);
 
 	//Magic System - rewrite
-	void MagicSystem(Packet & pkt);
-	bool CheckSkillCooldown(uint32 magicid, time_t skill_received_time);
-	void LogSkillCooldown(uint32 magicid, time_t skill_received_time);
-	void MagicType(uint16 effect_type, uint8 sub_type, uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4, uint16 data5, uint16 data6, uint16 data7);
-	void MagicType1(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4, uint16 data5, uint16 data6, uint16 data7);
-	void MagicType4(uint32 magicid, uint16 sid, uint16 tid, uint16 data1, uint16 data2, uint16 data3, uint16 data4);
-	bool CanCast(_MAGIC_TABLE *pMagic, uint16 sid, uint16 tid);
 	bool CanUseItem(long itemid, uint16 count); //Should place this with other item related functions
+
+	bool CheckExistEvent(uint16 sQuestID, uint8 bQuestState);
 
 	//Zone checks
 	bool isAttackZone();
@@ -549,4 +562,8 @@ public:
 private:
 	static ChatCommandTable s_commandTable;
 	GameState m_state;
+
+	// quest ID | quest state (need to replace with enum)
+	typedef std::map<uint16, uint8> QuestMap;
+	QuestMap m_questMap;
 };

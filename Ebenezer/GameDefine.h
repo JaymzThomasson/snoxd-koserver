@@ -73,6 +73,7 @@ enum ItemMovementType
 #define WEAPON_STAFF			11
 #define WEAPON_ARROW			12	// ��ų ���
 #define WEAPON_JAVELIN			13	// ��ų ���
+#define WEAPON_MACE2			18
 #define WEAPON_WORRIOR_AC		21	// ��ų ���
 #define WEAPON_LOG_AC			22	// ��ų ���
 #define WEAPON_WIZARD_AC		23	// ��ų ���
@@ -229,11 +230,11 @@ struct _ZONE_ITEM {		// Bundle unit
 
 struct	_EXCHANGE_ITEM
 {
-	int itemid;
-	int count;
-	short duration;
-	BYTE pos;
-	__int64	nSerialNum;
+	uint32	nItemID;
+	uint32	nCount;
+	uint16	sDurability;
+	uint8	bSrcPos;
+	uint64	nSerialNum;
 };
 
 struct _ITEM_TABLE
@@ -298,11 +299,12 @@ struct _ITEM_TABLE
 	__forceinline uint8 GetKind() { return m_bKind; }
 	__forceinline uint8 GetItemGroup() { return m_bKind / 10; }
 
-	__forceinline bool isDagger() { return GetItemGroup() == WEAPON_SWORD; }
+	__forceinline bool isDagger() { return GetItemGroup() == WEAPON_DAGGER; }
 	__forceinline bool isSword() { return GetItemGroup() == WEAPON_SWORD; }
 	__forceinline bool isAxe() { return GetItemGroup() == WEAPON_AXE; }
-	__forceinline bool isMace() { return GetItemGroup() == WEAPON_MACE; }
+	__forceinline bool isMace() { return GetItemGroup() == WEAPON_MACE || GetItemGroup() == WEAPON_MACE2; }
 	__forceinline bool isSpear() { return GetItemGroup() == WEAPON_SPEAR; }
+	__forceinline bool isShield() { return GetItemGroup() == WEAPON_SHIELD; }
 	__forceinline bool isStaff() { return GetItemGroup() == WEAPON_STAFF; }
 	__forceinline bool isBow() { return GetItemGroup() == WEAPON_BOW || GetItemGroup() == WEAPON_LONGBOW; }
 };
@@ -674,4 +676,10 @@ enum UserStatus
 	USER_STATUS_SPEED = 3,
 	USER_STATUS_BLIND = 4,
 	USER_STATUS_BLACK = 5
+};
+
+enum UserStatusBehaviour
+{
+	USER_STATUS_INFLICT	= 1,
+	USER_STATUS_CURE	= 2
 };

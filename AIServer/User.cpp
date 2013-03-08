@@ -1,7 +1,3 @@
-// User.cpp: implementation of the CUser class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "Server.h"
 #include "User.h"
@@ -9,55 +5,20 @@
 #include "define.h"
 #include "Region.h"
 #include "GameSocket.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 #include "extern.h"
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-/*
-     ** Repent AI Server 작업시 참고 사항 **
-	1. Initialize() 수정
-	2. SendAttackSuccess() 수정
-	3. GetDamage() 수정
-*/
 
 #define MORAL_GOOD		0x01
 #define MORAL_BAD		0x02
 #define MORAL_NEUTRAL	0x03
 
-// 운영자 아이디 넣기..
-/*const char* g_pszOPID[] = 
-{
-	//"여우야2",
-	//"난강해",
-	//"이쁜여우2"
-	//"Morpheus"
-//	"맨순",
-//	"민순"
-};*/
-
-float surround_fx[8] = {0.0f, -0.7071f, -1.0f, -0.7083f,  0.0f,  0.7059f,  1.0000f, 0.7083f};
-float surround_fz[8] = {1.0f,  0.7071f,  0.0f, -0.7059f, -1.0f, -0.7083f, -0.0017f, 0.7059f};
+static float surround_fx[8] = {0.0f, -0.7071f, -1.0f, -0.7083f,  0.0f,  0.7059f,  1.0000f, 0.7083f};
+static float surround_fz[8] = {1.0f,  0.7071f,  0.0f, -0.7059f, -1.0f, -0.7083f, -0.0017f, 0.7059f};
 
 extern CRITICAL_SECTION g_region_critical;
 extern CRITICAL_SECTION g_LogFileWrite;
 
-CUser::CUser()
-{
-
-}
-
-CUser::~CUser()
-{
-
-}
+CUser::CUser() {}
+CUser::~CUser() {}
 
 void CUser::Initialize()
 {
@@ -131,7 +92,7 @@ void CUser::Attack(int sid, int tid)
 
 	// 명중이면 //Damage 처리 ----------------------------------------------------------------//
 	nFinalDamage = GetDamage(tid);
-	if( g_pMain->m_byTestMode )		nFinalDamage = 3000;	// sungyong test
+	if( g_pMain->m_byTestMode )		nFinalDamage = 3000;
 		
 	// Calculate Target HP	 -------------------------------------------------------//
 	short sOldNpcHP = pNpc->m_iHP;
@@ -154,166 +115,62 @@ void CUser::Attack(int sid, int tid)
 	//	m_dwLastAttackTime = GetTickCount();
 }
 
-void CUser::SendAttackSuccess(int tuid, BYTE result, short sDamage, int nHP, short sAttack_type)
+void CUser::SendAttackSuccess(short tid, BYTE bResult, short sDamage, int nHP, short sAttack_type, uint8 type /*= 1*/, short sid /*= -1*/)
 {
-	int send_index = 0;
-	int sid = -1, tid = -1;
-	BYTE type, bResult;
-	char buff[256];
-	float rx=0.0f, ry=0.0f, rz=0.0f;
+	if (sid < 0)
+		sid = m_iUserId + USER_BAND;
 
-	type = 0x01;
-	bResult = result;
-	sid = m_iUserId+USER_BAND;
-	tid = tuid;
-
-	SetByte( buff, AG_ATTACK_RESULT, send_index );
-	SetByte( buff, type, send_index );
-	SetByte( buff, bResult, send_index );
-	SetShort( buff, sid, send_index );
-	SetShort( buff, tid, send_index );
-	SetShort( buff, sDamage, send_index );
-	SetDWORD( buff, nHP, send_index );
-	SetByte( buff, (BYTE)sAttack_type, send_index );
-
-	//TRACE("User - SendAttackSuccess() : [sid=%d, tid=%d, result=%d], damage=%d, hp = %d\n", sid, tid, bResult, sDamage, sHP);
-
-	SendAll(buff, send_index);   // thread 에서 send
+	Packet result(AG_ATTACK_RESULT, type);
+	result << bResult << sid << tid << sDamage << nHP << uint8(sAttack_type);
+	g_pMain->Send(&result);
 }
 
-void CUser::SendMagicAttackResult(int tuid, BYTE result, short sDamage, short sHP)
-{
-	int send_index = 0;
-	int sid = -1, tid = -1;
-	BYTE type, bResult;
-	char buff[256];
-	float rx=0.0f, ry=0.0f, rz=0.0f;
-
-	type = 0x01;				
-	bResult = result;
-	sid = m_iUserId+USER_BAND;
-	tid = tuid;
-
-	SetByte( buff, AG_MAGIC_ATTACK_RESULT, send_index );
-	SetByte( buff, type, send_index );
-	SetByte( buff, bResult, send_index );
-	SetShort( buff, sid, send_index );
-	SetShort( buff, tid, send_index );
-	SetShort( buff, sDamage, send_index );
-	SetShort( buff, sHP, send_index );
-
-	//TRACE("User - SendAttackSuccess() : [sid=%d, tid=%d, result=%d], damage=%d, hp = %d\n", sid, tid, bResult, sDamage, sHP);
-
-	SendAll(buff, send_index);   // thread 에서 send
-}
-
-// sungyong 2002.05.22
-void CUser::SendAll(char *pBuf, int nLength)
-{
-	if (nLength <= 0 || nLength >= SOCKET_BUFF_SIZE) 
-		return;
-
-	g_pMain->s_socketMgr.SendAll(pBuf, nLength);
-}
-// ~sungyong 2002.05.22
-
-//	Damage 계산, 만약 m_sHP 가 0 이하이면 사망처리
 void CUser::SetDamage(int damage, int tid)
 {
-	if(damage <= 0) return;
-	if(m_bLive == USER_DEAD) return;
+	if (damage <= 0 || m_bLive == USER_DEAD)
+		return;
 
 	short sHP = m_sHP;
-
 	m_sHP -= (short)damage;
 
-	//TRACE("User - SetDamage() : old=%d, damage=%d, curHP = %d, id=%s, uid=%d\n", sHP, damage, m_sHP, m_strUserID, m_iUserId);
-
-	if( m_sHP <= 0 )	{
+	if (m_sHP <= 0)
+	{
 		m_sHP = 0;
 		Dead(tid, damage);
 	}
-
-	//SendHP();
-	// 버디중이면 다른 버디원에게 날린다.
 }
 
 void CUser::Dead(int tid, int nDamage)
 {
-	if(m_bLive == USER_DEAD) return;
+	if (m_bLive == USER_DEAD)
+		return;
 
-	// 이 부분에서 update를 해야 함,,  게임서버에서,, 처리하도록,,,
 	m_sHP = 0;
 	m_bLive = USER_DEAD;
 
 	InitNpcAttack();
 
-	// region에서 삭제...
 	MAP* pMap = GetMap();
-	if(pMap == NULL)	{
-		TRACE("#### CUser-Dead() Fail : [nid=%d, name=%s], pMap == NULL #####\n", m_iUserId, m_strUserID);
+	if (pMap == NULL 
+		|| m_sRegionX < 0 || m_sRegionZ < 0 
+		|| m_sRegionX > pMap->GetXRegionMax() || m_sRegionZ > pMap->GetZRegionMax())
 		return;
-	}
-	// map에 region에서 나의 정보 삭제..
-	if(m_sRegionX < 0 || m_sRegionZ < 0 || m_sRegionX > pMap->GetXRegionMax() || m_sRegionZ > pMap->GetZRegionMax())	{
-		TRACE("#### CUser-Dead() Fail : [nid=%d, name=%s], x1=%d, z1=%d #####\n", m_iUserId, m_strUserID, m_sRegionX, m_sRegionZ);
-		return;
-	}
-	//pMap->m_ppRegion[m_sRegionX][m_sRegionZ].DeleteUser(m_iUserId);
+
 	pMap->RegionUserRemove(m_sRegionX, m_sRegionZ, m_iUserId);
-	//TRACE("*** User Dead()-> User(%s, %d)를 Region에 삭제,, region_x=%d, y=%d\n", m_strUserID, m_iUserId, m_sRegionX, m_sRegionZ);
 
-	m_sRegionX = -1;		m_sRegionZ = -1;
-
-	int send_index = 0;
-	int sid = -1, targid = -1;
-	BYTE type, result;
-	char buff[256];
-
-	sprintf_s(buff, sizeof(buff), "*** User Dead = %d, %s ***", m_iUserId, m_strUserID);
-	TimeTrace(buff);
-
-	float rx=0.0f, ry=0.0f, rz=0.0f;
-
-	type = 0x02;
-	result = ATTACK_TARGET_DEAD;
-	sid = tid;
-	targid = m_iUserId+USER_BAND;
-
-	SetByte( buff, AG_ATTACK_RESULT, send_index );
-	SetByte( buff, type, send_index );
-	SetByte( buff, result, send_index );
-	SetShort( buff, sid, send_index );
-	SetShort( buff, targid, send_index );
-	SetShort( buff, nDamage, send_index );
-	SetDWORD( buff, m_sHP, send_index );
-	//SetShort( buff, m_sMaxHP, send_index );
-
-	//TRACE("Npc - SendAttackSuccess()-User Dead : [sid=%d, tid=%d, result=%d], damage=%d, hp = %d\n", sid, targid, result, nDamage, m_sHP);
-
-	if(tid > 0)
-		SendAll(buff, send_index);   // thread 에서 send
-
-/*	SetByte(buff, AG_DEAD, send_index );
-	SetShort(buff, m_iUserId, send_index );
-	Setfloat(buff, m_curx, send_index);
-	Setfloat(buff, m_curz, send_index);
-
-	SendAll(buff, send_index);   // thread 에서 send	*/
+	TRACE("*** User Dead = %d, %s ***\n", m_iUserId, m_strUserID);
+	if (tid > 0)
+		SendAttackSuccess(m_iUserId+USER_BAND, ATTACK_TARGET_DEAD, nDamage, m_sHP, 1, 2, tid /*sid*/);
 }
 
 void CUser::SendHP()
 {
-	if(m_bLive == USER_DEAD) return;
-	// HP 변동량을 게임서버로...
-	int send_index = 0;
-	char buff[256];
+	if (m_bLive == USER_DEAD)
+		return;
 
-	SetByte(buff, AG_USER_SET_HP, send_index );
-	SetShort(buff, m_iUserId, send_index );
-	SetDWORD(buff, m_sHP, send_index );
-
-	SendAll(buff, send_index);   
+	Packet result(AG_USER_SET_HP);
+	result << m_iUserId << uint32(m_sHP);
+	g_pMain->Send(&result);   
 }
 
 void CUser::SetExp(int iNpcExp, int iLoyalty, int iLevel)
@@ -414,7 +271,7 @@ void CUser::SendExp(int iExp, int iLoyalty, int tType)
 
 	//TRACE("$$ User - SendExp : %s, exp=%d, loyalty=%d $$\n", m_strUserID, iExp, iLoyalty);
 
-	SendAll(buff, send_index);   	
+	g_pMain->Send(buff, send_index);   	
 }
 
 short CUser::GetDamage(int tid, int magicid)
@@ -536,7 +393,6 @@ short CUser::GetMagicDamage(int damage, short tid)
 	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(!pNpc) return damage;
 	
-	// RIGHT HAND!!! by Yookozuna
 	if (m_bMagicTypeRightHand > 4 && m_bMagicTypeRightHand < 8) {
 		temp_damage = damage * m_sMagicAmountRightHand / 100;
 	}
@@ -573,7 +429,6 @@ short CUser::GetMagicDamage(int damage, short tid)
 	total_r = 0 ;		// Reset all temporary data.
 	temp_damage = 0 ;
 
-	// LEFT HAND!!! by Yookozuna
 	if (m_bMagicTypeLeftHand > 4 && m_bMagicTypeLeftHand < 8) {
 		temp_damage = damage * m_sMagicAmountLeftHand / 100;
 	}
@@ -734,7 +589,7 @@ void CUser::SendSystemMsg(TCHAR *pMsg, BYTE type, int nWho)
 	SetShort(buff, sLength, send_index );
 	SetString( buff, pMsg, sLength, send_index );
 
-	SendAll(buff, send_index);   	
+	g_pMain->Send(buff, send_index);   	
 }
 
 void CUser::InitNpcAttack()
@@ -795,25 +650,6 @@ int CUser::IsSurroundCheck(float fX, float fY, float fZ, int NpcID)
 	}
 
 	return nDir;
-}
-
-BOOL CUser::IsOpIDCheck(char* szName)
-{
-/*	int nSize = sizeof(g_pszOPID)/sizeof(char*);
-	CString szCheck = szName;
-	CString szCheck2;
-
-	szCheck.MakeLower();
-
-	for (int i=0; i< nSize; i++) 
-	{
-		szCheck2 = g_pszOPID[i];
-		szCheck2.MakeLower();
-
-		if(szCheck.Find(szCheck2) != -1) return TRUE;
-	}	*/
-
-	return FALSE;
 }
 
 void CUser::HealMagic()
@@ -889,42 +725,3 @@ void CUser::HealAreaCheck(int rx, int rz)
 	if (pNpcIDList)
 		delete [] pNpcIDList;
 }
-
-void CUser::WriteUserLog()
-{
-	foreach (itr, m_UserLogList)
-	{
-		CString type = "unknown";
-		if ((*itr)->byFlag == USER_LOGIN)
-			type = "LogIn";
-		else if ((*itr)->byFlag == USER_LOGOUT)
-			type = "LogOut";
-		else if ((*itr)->byFlag == USER_LEVEL_UP)
-			type = "LevelUp";
-
-		CString string = _T("");
-		string.Format( "%d-%d-%d %d:%d, %s, %d, %s\r\n", (*itr)->t.GetYear(), (*itr)->t.GetMonth(), (*itr)->t.GetDay(), 
-			(*itr)->t.GetHour(), (*itr)->t.GetMinute(), 
-			type, (*itr)->byLevel, (*itr)->strUserID);
-
-		EnterCriticalSection( &g_LogFileWrite );
-		g_pMain->m_UserLogFile.Write(string, string.GetLength());
-		LeaveCriticalSection( &g_LogFileWrite );
-	}
-
-	InitUserLog();
-}
-
-void CUser::InitUserLog()
-{
-	_USERLOG* pUserLog = NULL;
-
-	while(m_UserLogList.size()) {
-		pUserLog = m_UserLogList.front();
-		if( pUserLog )
-			delete pUserLog;
-		m_UserLogList.pop_front();
-	}
-	m_UserLogList.clear();
-}
-

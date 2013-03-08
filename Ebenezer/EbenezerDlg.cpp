@@ -1,6 +1,3 @@
-// EbenezerDlg.cpp : implementation file
-//
-
 #include "stdafx.h"
 #include "EbenezerDlg.h"
 #include "User.h"
@@ -42,12 +39,6 @@ using namespace std;
 #define NUM_FLAG_VICTORY    4
 #define AWARD_GOLD          100000
 #define AWARD_EXP			5000
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
 
 CEbenezerDlg * g_pMain = NULL;
 CRITICAL_SECTION g_serial_critical, g_region_critical, g_LogFile_critical;
@@ -193,8 +184,6 @@ CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
 
 	m_pUdpSocket = NULL;
 
-	for(int i=0; i<20; i++)
-		memset( m_ppNotice[i], NULL, 128 );
 	memset( m_AIServerIP, NULL, 20 );
 
 	m_bPermanentChatMode = FALSE;
@@ -309,12 +298,14 @@ BOOL CEbenezerDlg::OnInitDialog()
 	DWORD id;
 	m_hReadQueueThread = ::CreateThread( NULL, 0, ReadQueueThread, (LPVOID)this, 0, &id);
 
+#if 0 // Disabled pending rewrite
 	m_pUdpSocket = new CUdpSocket();
 	if( m_pUdpSocket->CreateSocket() == false ) {
 		AfxMessageBox("Udp Socket Create Fail");
 		AfxPostQuitMessage(0);
 		return FALSE;
 	}
+#endif
 
 	AIServerConnect();
 
@@ -634,7 +625,6 @@ void CEbenezerDlg::WriteLog(const char * format, ...)
 
 void CEbenezerDlg::OnTimer(UINT nIDEvent) 
 {
-	// sungyong 2002.05.23
 	int count = 0, retval = 0;
 
 	switch( nIDEvent ) {
@@ -667,7 +657,6 @@ int CEbenezerDlg::GetAIServerPort()
 	return nPort;
 }
 
-// sungyong 2002.05.22
 void CEbenezerDlg::AIServerConnect()
 {
 	// Are there any (note: we only use 1 now) idle/disconnected sessions?
@@ -713,7 +702,7 @@ void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 na
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser * pUser = static_cast<CUser *>(itr->second);
+		CUser * pUser = TO_USER(itr->second);
 		if (pUser == pExceptUser 
 			|| !pUser->isInGame()
 			|| (nation != 0 && nation != pUser->GetNation()))
@@ -897,14 +886,14 @@ BOOL CEbenezerDlg::InitializeMMF()
 		m_hMMFile = OpenFileMapping(FILE_MAP_ALL_ACCESS, TRUE, "KNIGHT_DB");
 		if (m_hMMFile == NULL)
 		{
-			DEBUG_LOG("Shared Memory Load Fail!!");
+			TRACE("Shared Memory Load Fail!!\n");
 			m_hMMFile = INVALID_HANDLE_VALUE; 
 			return FALSE;
 		}
 		bCreate = FALSE;
 	}
 	
-	DEBUG_LOG("Shared Memory Create Success!!");
+	TRACE("Shared Memory Create Success!!\n");
 
     m_lpMMFile = (char *)MapViewOfFile(m_hMMFile, FILE_MAP_WRITE, 0, 0, 0);
 	if (!m_lpMMFile)
@@ -917,7 +906,7 @@ BOOL CEbenezerDlg::InitializeMMF()
 
 	SessionMap & sessMap = s_socketMgr.GetIdleSessionMap();
 	foreach (itr, sessMap)
-		static_cast<CUser *>(itr->second)->m_pUserData = (_USER_DATA *)(m_lpMMFile + itr->second->GetSocketID() * sizeof(_USER_DATA));
+		TO_USER(itr->second)->m_pUserData = (_USER_DATA *)(m_lpMMFile + itr->second->GetSocketID() * sizeof(_USER_DATA));
 	s_socketMgr.ReleaseLock();
 	return TRUE;
 }
@@ -1461,30 +1450,38 @@ void CEbenezerDlg::SendFormattedNotice(const char *msg, uint8 nation, ...)
 
 BOOL CEbenezerDlg::LoadNoticeData()
 {
-	CString ProgPath = GetProgPath();
-	CString NoticePath = ProgPath + "Notice.txt";
-	CString buff;
-	CStdioFile txt_file;
+	ifstream file(GetProgPath() + "Notice.txt");
+	string line;
 	int count = 0;
 
-	if (!txt_file.Open(NoticePath, CFile::modeRead)) {
-		DEBUG_LOG("cannot open Notice.txt!!");
+	// Clear out the notices first
+	memset(&m_ppNotice, 0, sizeof(m_ppNotice));
+
+	if (!file)
+	{
+		TRACE("Notice.txt could not be opened.\n");
 		return FALSE;
 	}
 
-	while( txt_file.ReadString(buff) ) {
-		if( count > 19 )
+	while (!file.eof())
+	{
+ 		if (count > 19)
 		{
-			AfxMessageBox("Too many lines in Notice.txt");
-			txt_file.Close();
-			return FALSE;
+			TRACE("Too many lines in Notice.txt\n");
+			break;
 		}
-		strcpy( m_ppNotice[count], (char*)(LPCTSTR)buff );
-		count++;
+
+		getline(file, line);
+		if (line.length() > 128)
+		{
+			TRACE("Notice.txt contains line that exceeds the limit of 128 characters.\n");
+			break;
+		}
+
+		strcpy(m_ppNotice[count++], line.c_str());
 	}
 
-	txt_file.Close();
-
+	file.close();
 	return TRUE;
 }
 
@@ -1496,7 +1493,7 @@ BOOL CEbenezerDlg::LoadBlockNameList()
 
 	if (!file.Open(NoticePath, CFile::modeRead))
 	{
-		DEBUG_LOG("Cannot open BlockWord.txt!");
+		TRACE("BlockWord.txt could not be opened.\n");
 		return FALSE;
 	}
 
@@ -1521,7 +1518,7 @@ void CEbenezerDlg::SendAllUserInfo()
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		static_cast<CUser *>(itr->second)->GetUserInfoForAI(result);
+		TO_USER(itr->second)->GetUserInfoForAI(result);
 		if (++count == tot)	{
 			result.put(0, count);
 			Send_AIServer(&result);
@@ -1566,7 +1563,7 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 		|| !m_bPointCheckFlag)
 		return;
 
-	DEBUG_LOG("[Monster Point Delete]");
+	TRACE("[Monster Point Delete]\n");
 	TRACE("*** DeleteAllNpcList - Start *** \n");
 
 	// Remove spawns from users to prevent them from getting bugged...
@@ -1596,7 +1593,6 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 
 	TRACE("*** DeleteAllNpcList - End *** \n");
 }
-// ~sungyong 2002. 05. 23
 
 void CEbenezerDlg::KillUser(const char *strbuff)
 {
@@ -1636,7 +1632,7 @@ void CEbenezerDlg::AliveUserCheck()
 	{
 		// TO-DO: Replace this with a better, more generic check
 		// Shouldn't have to rely on skills (or being in-game)
-		CUser * pUser = static_cast<CUser *>(itr->second);
+		CUser * pUser = TO_USER(itr->second);
 		if (!pUser->isInGame()) 
 			continue;
 
@@ -1651,12 +1647,11 @@ void CEbenezerDlg::AliveUserCheck()
 	}
 	s_socketMgr.ReleaseLock();
 }
-/////// BATTLEZONE RELATED by Yookozuna 2002.6.18 /////////////////
+
 void CEbenezerDlg::BattleZoneOpenTimer()
 {
 	CTime cur = CTime::GetCurrentTime();
 
-	// sungyong modify
 	int nWeek = cur.GetDayOfWeek();
 	int nTime = cur.GetHour();
 	int loser_nation = 0, snow_battle = 0;
@@ -1764,7 +1759,7 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser* pTUser = static_cast<CUser *>(itr->second);
+		CUser* pTUser = TO_USER(itr->second);
 		if (!pTUser->isInGame()
 			|| pTUser->GetZoneID() != pTUser->GetNation() 
 			|| pTUser->GetNation() != m_bVictory)
@@ -1796,7 +1791,7 @@ void CEbenezerDlg::BanishLosers()
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser *pUser = static_cast<CUser *>(itr->second); 
+		CUser *pUser = TO_USER(itr->second); 
 		if (!pUser->isInGame())
 			continue;
 
@@ -2046,14 +2041,14 @@ void CEbenezerDlg::CheckAliveUser()
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser *pUser = static_cast<CUser *>(itr->second);
+		CUser *pUser = TO_USER(itr->second);
 		if (!pUser->isInGame())
 			continue;
 
 		if (pUser->m_sAliveCount++ > 3)
 		{
 			pUser->Disconnect();
-			DEBUG_LOG_FILE("User dropped due to inactivity - char=%s", pUser->m_pUserData->m_id);
+			TRACE("User dropped due to inactivity - char=%s\n", pUser->m_pUserData->m_id);
 		}
 	}
 	s_socketMgr.ReleaseLock();
@@ -2066,7 +2061,7 @@ int CEbenezerDlg::KickOutAllUsers()
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser *pUser = static_cast<CUser *>(itr->second);
+		CUser *pUser = TO_USER(itr->second);
 		bool bIngame = pUser->isInGame();
 		pUser->Disconnect();
 
@@ -2122,7 +2117,7 @@ void CEbenezerDlg::KickOutZoneUsers(short zone)
 	foreach (itr, sessMap)
 	{
 		// Only kick users from requested zone.
-		CUser * pUser = static_cast<CUser *>(itr->second);
+		CUser * pUser = TO_USER(itr->second);
 		if (!pUser->isInGame()
 			|| pUser->GetZoneID() != zone) 
 			continue;
@@ -2136,12 +2131,14 @@ void CEbenezerDlg::KickOutZoneUsers(short zone)
 
 void CEbenezerDlg::Send_UDP_All(Packet *pkt, int group_type /*= 0*/)
 {
+#if 0 // disabled pending rewrite
 	int server_number = (group_type == 0 ? m_nServerNo : m_nServerGroupNo);
 	foreach_stlmap (itr, (group_type == 0 ? m_ServerArray : m_ServerGroupArray))
 	{
 		if (itr->second && itr->second->sServerNo == server_number)
 			m_pUdpSocket->SendUDPPacket(itr->second->strServerIP, pkt);
 	}
+#endif
 }
 
 BOOL CEbenezerDlg::LoadBattleTable()
@@ -2155,7 +2152,7 @@ void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser)
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser * pUser = static_cast<CUser *>(itr->second);
+		CUser * pUser = TO_USER(itr->second);
 		if (pUser->isInGame() 
 			&& pUser != pExceptUser 
 			&& (nation == 0 || nation == pUser->GetNation()))
@@ -2184,7 +2181,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 	CKnights* pKnights = NULL;
 	CString strKnightsName;
 
-	char send_buff[1024], temp_buff[1024], strKarusCaptainName[1024], strElmoCaptainName[1024];		
+	char strKarusCaptainName[1024], strElmoCaptainName[1024];		
 	char strKarusCaptain[5][50], strElmoCaptain[5][50];	
 
 	if( !KRankSet.Open() ) {
@@ -2220,7 +2217,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				goto next_row;
 
-			if( pUser->m_pUserData->m_bKnights == nKnightsIndex	)	{
+			if( pUser->GetClanID() == nKnightsIndex	)	{
 				sprintf_s( strKarusCaptain[nKaursRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData->m_id);
 				nFindKarus = 1;
 				nKaursRank++;
@@ -2233,7 +2230,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 			pUser = GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
 			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				goto next_row;
-			if( pUser->m_pUserData->m_bKnights == nKnightsIndex	)	{
+			if( pUser->GetClanID() == nKnightsIndex	)	{
 				sprintf_s( strElmoCaptain[nElmoRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData->m_id);
 				nFindElmo = 1;
 				nElmoRank++;
@@ -2250,31 +2247,23 @@ next_row:
 
 	TRACE("LoadKnightsRankTable Success\n");
 	
-	SetByte( send_buff, WIZ_CHAT, send_index );
-	SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
-	SetByte( send_buff, 1, send_index );
-	SetShort( send_buff, -1, send_index );
-	SetByte( send_buff, 0x00, send_index );	
-	SetKOString(send_buff, strKarusCaptainName, send_index);
+	Packet karusCaptain(WIZ_CHAT, uint8(WAR_SYSTEM_CHAT));
+	karusCaptain << int8(1) << int16(-1) << int8(0) << strKarusCaptainName;
 
-	SetByte( temp_buff, WIZ_CHAT, temp_index );
-	SetByte( temp_buff, WAR_SYSTEM_CHAT, temp_index );
-	SetByte( temp_buff, 1, temp_index );
-	SetShort( temp_buff, -1, temp_index );
-	SetByte( send_buff, 0x00, send_index );	
-	SetKOString(temp_buff, strElmoCaptainName, temp_index);
+	Packet elmoradCaptain(WIZ_CHAT, uint8(WAR_SYSTEM_CHAT));
+	elmoradCaptain << int8(1) << int16(-1) << int8(0) << strElmoCaptainName;
 
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser *pUser = static_cast<CUser *>(itr->second);
+		CUser *pUser = TO_USER(itr->second);
 		if (!pUser->isInGame())
 			continue;
 
 		if (pUser->GetNation() == KARUS)
-			pUser->Send(send_buff, send_index);
+			pUser->Send(&karusCaptain);
 		else
-			pUser->Send(temp_buff, temp_index);
+			pUser->Send(&elmoradCaptain);
 	}
 	s_socketMgr.ReleaseLock();
 	return TRUE;
@@ -2290,7 +2279,7 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
-		CUser * pUser = static_cast<CUser *>(itr->second);
+		CUser * pUser = TO_USER(itr->second);
 		if (!pUser->isInGame() || pUser->GetZoneID() != ZONE_BATTLE)
 			continue;
 

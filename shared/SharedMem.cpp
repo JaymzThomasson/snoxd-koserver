@@ -1,22 +1,8 @@
-// SharedMem.cpp: implementation of the CSharedMemQueue class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include "SharedMem.h"
 #include <process.h>
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
 void aa() {};		// nop function
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 CSharedMemQueue::CSharedMemQueue()
 {
@@ -56,7 +42,6 @@ BOOL CSharedMemQueue::InitailizeMMF(DWORD dwOffsetsize, int maxcount, LPCTSTR lp
     m_lpMMFile = (char *)MapViewOfFile(m_hMMFile, FILE_MAP_WRITE, 0, 0, 0);
 	if( !m_lpMMFile )
 		return FALSE;
-	TRACE("%s Address : %x\n", lpname, m_lpMMFile);
 
 	m_bMMFCreate = bCreate;
 	m_pHeader = (_SMQ_HEADER *)m_lpMMFile;
@@ -76,15 +61,13 @@ BOOL CSharedMemQueue::InitailizeMMF(DWORD dwOffsetsize, int maxcount, LPCTSTR lp
 // TO-DO: Remove this ENTIRE queue system.
 int CSharedMemQueue::PutData(Packet *pkt, int16 uid /*= -1*/)
 {
-	char logstr[256];
 	BYTE BlockMode;
 	int index = 0, count = 0;
 	short size = pkt->size() + 1;
 
 	if ((DWORD)size > m_wOffset)
 	{
-		sprintf_s( logstr, sizeof(logstr), "DataSize Over.. - %d bytes\r\n", pkt->size() );
-		LogFileWrite( logstr );
+		TRACE("DataSize Over.. - %d bytes\n", pkt->size());
 		return SMQ_PKTSIZEOVER;
 	}
 
@@ -164,10 +147,7 @@ int CSharedMemQueue::GetData(Packet & pkt, int16 * uid)
 			temp_front = (m_pHeader->Front + 1) % MAX_COUNT;
 			m_pHeader->Front = temp_front;
 			m_pHeader->nCount--;
-			char logstr[256];
-			sprintf_s( logstr, sizeof(logstr), "SMQ EMPTY Block Find - F:%d, R:%d\n", m_pHeader->Front, m_pHeader->Rear);
-			LogFileWrite( logstr );
-			TRACE(logstr);
+			TRACE("SMQ EMPTY Block Find - F:%d, R:%d\n", m_pHeader->Front, m_pHeader->Rear);
 		}
 		return SMQ_EMPTY;
 	}

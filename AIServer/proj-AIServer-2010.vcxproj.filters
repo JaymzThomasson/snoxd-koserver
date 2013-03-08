@@ -26,9 +26,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="global.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MagicProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -98,9 +95,6 @@
     <ClCompile Include="..\shared\database\MakeWeaponTableSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\database\MonTableSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
     <ClCompile Include="GameSocket.cpp">
       <Filter>shared\Networking</Filter>
     </ClCompile>
@@ -134,9 +128,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameSocket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MagicProcess.h">
@@ -242,9 +233,6 @@
       <Filter>Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\database\MakeWeaponTableSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\MonTableSet.h">
       <Filter>Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\CircularBuffer.h">

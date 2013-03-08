@@ -1,17 +1,5 @@
-// NpcPosSet.cpp : implementation file
-//
-
 #include "stdafx.h"
 #include "NpcPosSet.h"
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-// CNpcPosSet
 
 IMPLEMENT_DYNAMIC(CNpcPosSet, CRecordset)
 
@@ -53,7 +41,6 @@ CString CNpcPosSet::GetDefaultConnect()
 CString CNpcPosSet::GetDefaultSQL()
 {
 	return _T("[dbo].[K_NPCPOS]");
-	//return _T("[dbo].[K_NPCPOS_BACK]");	// sungyong test
 }
 
 void CNpcPosSet::DoFieldExchange(CFieldExchange* pFX)

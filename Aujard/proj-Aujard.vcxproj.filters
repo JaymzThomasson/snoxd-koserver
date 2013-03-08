@@ -19,52 +19,44 @@
     <Filter Include="Database">
       <UniqueIdentifier>{77169356-c2bb-45e7-b362-0b2a6cbc2b66}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shared\Database">
+      <UniqueIdentifier>{c191adfd-6886-4ab8-a590-1d396325eb2f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Aujard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AujardDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StdAfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\SharedMem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\Ini.cpp">
       <Filter>Shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcCommand.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcConnection.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcParameter.cpp">
-      <Filter>Database</Filter>
     </ClCompile>
     <ClCompile Include="DBAgent.cpp">
       <Filter>Database</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Aujard.rc">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </ResourceCompile>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcCommand.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcConnection.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcParameter.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\SharedMem.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Aujard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AujardDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Define.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StdAfx.h">
@@ -73,23 +65,26 @@
     <ClInclude Include="..\shared\packets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\SharedMem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\Ini.h">
       <Filter>Shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\database\OdbcParameter.h">
+    <ClInclude Include="DBAgent.h">
       <Filter>Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\database\OdbcCommand.h">
-      <Filter>Database</Filter>
+      <Filter>Shared\Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\database\OdbcConnection.h">
-      <Filter>Database</Filter>
+      <Filter>Shared\Database</Filter>
     </ClInclude>
-    <ClInclude Include="DBAgent.h">
-      <Filter>Database</Filter>
+    <ClInclude Include="..\shared\database\OdbcParameter.h">
+      <Filter>Shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\SharedMem.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -99,5 +94,10 @@
     <None Include="res\Aujard.rc2">
       <Filter>Resource Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Aujard.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

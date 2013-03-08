@@ -1,5 +1,4 @@
-#ifndef _DEFINE_H
-#define _DEFINE_H
+#pragma once
 
 #define _LISTEN_PORT		15001
 #define _UDP_PORT			8888
@@ -32,7 +31,6 @@
 #define MAX_EXEC_INT				30
 #define MAX_LOGIC_ELSE_INT			10
 #define MAX_MESSAGE_EVENT			10
-#define MAX_CURRENT_EVENT			20
 
 #define LOGIC_CHECK_UNDER_WEIGHT	0X01
 #define LOGIC_CHECK_OVER_WEIGHT		0X02
@@ -43,33 +41,8 @@
 #define LOGIC_RAND					0x08
 #define LOGIC_HOWMUCH_ITEM			0x09 
 #define	LOGIC_CHECK_LEVEL			0x0A
-#define LOGIC_NOEXIST_COM_EVENT		0x0B
-#define LOGIC_EXIST_COM_EVENT		0x0C
 #define LOGIC_CHECK_NOAH			0x0D
 
-/*
-#define	LOGIC_CHECK_NATION			0X01
-#define	LOGIC_CHECK_LEVEL			0X02
-#define	LOGIC_NOEXIST_ITEM			0X03
-#define	LOGIC_QUEST_END				0X04
-#define	LOGIC_QUEST_LOG				0X05
-#define	LOGIC_EXIST_ITEM			0X06
-#define	LOGIC_CHECK_NOAH			0X07
-#define LOGIC_CHECK_CLASS			0x08
-#define LOGIC_CHECK_WEIGHT			0x09
-#define LOGIC_CHECK_RACE			0x0A
-#define LOGIC_CHECK_LOYALTY			0x0B
-#define LOGIC_CHECK_AUTHORITY		0x0C
-#define LOGIC_CHECK_STR				0X0D
-#define LOGIC_CHECK_STA				0x0D
-#define LOGIC_CHECK_DEX				0x0E
-#define LOGIC_CHECK_INT				0x0F
-#define LOGIC_CHECK_CHA				0x10
-#define LOGIC_CHECK_SKILLPOINT		0x11
-#define LOGIC_CHECK_DAY				0x12
-*/
-
-// ������ define
 #define EXEC_SAY					0X01
 #define EXEC_SELECT_MSG				0X02
 #define EXEC_RUN_EVENT				0X03
@@ -77,22 +50,7 @@
 #define EXEC_ROB_ITEM				0X05
 #define EXEC_RETURN					0X06
 #define EXEC_GIVE_NOAH				0x08
-#define EXEC_SAVE_COM_EVENT			0x0A
 #define EXEC_ROB_NOAH				0x0B
-
-/*
-#define EXEC_SAY					0X01
-#define EXEC_SELECT_MSG				0X02
-#define EXEC_RUN_EVENT				0X03
-#define EXEC_RETURN					0X04
-#define EXEC_ROB_ITEM				0X05
-#define EXEC_ROB_NOAH				0X06
-#define EXEC_GIVE_ITEM				0X07
-#define EXEC_GIVE_QUEST				0X08
-#define EXEC_QUEST_END				0X09
-#define EXEC_QUEST_SAVE				0X0A
-#define EXEC_GIVE_NOAH				0x0B
-*/
 
 // EVENT ���� ��ȣ�� :)
 #define EVENT_POTION				1
@@ -246,28 +204,6 @@ enum InOutType
 #define CLAN_SUMMON_TIME		180
 ////////////////////////////////////////////////////////////
 
-// Socket Define
-////////////////////////////////////////////////////////////
-#define SOCKET_BUFF_SIZE	(1024*16)
-#define MAX_PACKET_SIZE		(1024*8)
-#define MAX_SEND_SIZE		(MAX_PACKET_SIZE * 2)
-#define REGION_BUFF_SIZE	(1024*16)
-
-#define PACKET_START1				0XAA
-#define PACKET_START2				0X55
-#define PACKET_END1					0X55
-#define PACKET_END2					0XAA
-
-// Socket type
-#define TYPE_ACCEPT				0x01
-#define TYPE_CONNECT			0x02
-
-// Overlapped flag
-#define OVL_RECEIVE				0X01
-#define OVL_SEND				0X02
-#define OVL_CLOSE				0X03
-////////////////////////////////////////////////////////////
-
 // ==================================================================
 //	About Map Object
 // ==================================================================
@@ -331,15 +267,17 @@ typedef union{
 } MYINT;
 
 typedef union{
-	DWORD		w;
-	BYTE		b[4];
-} MYDWORD;
-
-typedef union{
 	__int64		i;
 	BYTE		b[8];
 } MYINT64;
 
-#include "../shared/globals.h"
+#define TO_USER(v)	static_cast<CUser *>(v)
+#define TO_NPC(v)	static_cast<CNpc *>(v)
 
-#endif
+// This is more than a little convulated.
+#define PARSE_ARGUMENTS(count, temp, buff, arg, id, index) for (int _i = 0; _i < count; _i++) { \
+	index += ParseSpace(temp, buff + index); \
+	arg[id++] = atoi(temp); \
+}
+
+#include "../shared/globals.h"

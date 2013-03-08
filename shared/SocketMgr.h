@@ -1,10 +1,5 @@
 #pragma once
 
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT _WIN32_WINNT_MAXVER
-#include <afxwin.h>
-#endif
-
 #include <queue>
 #include <set>
 #include "Socket.h"

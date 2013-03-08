@@ -1,20 +1,12 @@
-// UdpSocket.cpp: implementation of the CUdpSocket class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
+
+#if 0 // disabled pending rewrite
 #include "define.h"
 #include "UdpSocket.h"
 #include "EbenezerDlg.h"
 #include "AiPacket.h"
 #include "Knights.h"
 #include "User.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
 
 DWORD WINAPI RecvUDPThread( LPVOID lp )
 {
@@ -108,9 +100,9 @@ int CUdpSocket::SendUDPPacket(char* strAddress, Packet *pkt)
 		return 0;
 
 	ByteBuffer buff(len + 6);
-	buff	<< uint8(PACKET_START1) << uint8(PACKET_START2)
+	buff	<< "\xaa\x55"
 			<< len << pkt->GetOpcode() << *pkt
-			<< uint8(PACKET_END1) << uint8(PACKET_END2);
+			<< "\x55\xaa";
 
     m_SocketAddress.sin_addr.s_addr = inet_addr(strAddress);
 	return sendto(m_hUDPSocket, (const char *)buff.contents(), buff.size(), 0, (LPSOCKADDR)&m_SocketAddress, sizeof(m_SocketAddress));
@@ -137,7 +129,7 @@ bool CUdpSocket::PacketProcess(int len)
 	{
 		if (i+2 >= len) break;
 
-		if (pTmp[i] == PACKET_START1 && pTmp[i+1] == PACKET_START2)
+		if ((const char *)&pTmp[i] == "\xaa\x55")
 		{
 			sPos = i+2;
 
@@ -153,7 +145,7 @@ bool CUdpSocket::PacketProcess(int len)
 
 			if( (ePos + 2) > len ) goto cancelRoutine;
 
-			if (pTmp[ePos] == PACKET_END1 && pTmp[ePos+1] == PACKET_END2)
+			if ((const char *)&pTmp[ePos] == "\x55\xaa")
 			{
 				Parsing( (char*)(pTmp+sPos+2), length );
 				foundCore = TRUE;
@@ -163,10 +155,6 @@ bool CUdpSocket::PacketProcess(int len)
 				goto cancelRoutine;
 		}
 	}
-
-	delete[] pTmp;
-
-	return foundCore;
 
 cancelRoutine:	
 	delete[] pTmp;
@@ -204,7 +192,7 @@ void CUdpSocket::ServerChat(char *pBuf)
 	if (!GetKOString(pBuf, chatstr, index, sizeof(chatstr)))
 		return;
 
-	DEBUG_LOG(chatstr);
+	TRACE("%s\n", chatstr);
 }
 
 void CUdpSocket::RecvBattleEvent(char *pBuf)
@@ -456,7 +444,7 @@ void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 	case KNIGHTS_REJECT:
 		if (pTUser)
 		{
-			pTUser->m_pUserData->m_bKnights = 0;
+			pTUser->SetClanID(0);
 			pTUser->m_pUserData->m_bFame = 0;
 
 			if (command == KNIGHTS_REMOVE)
@@ -549,3 +537,4 @@ void CUdpSocket::RecvBattleZoneCurrentUsers( char* pBuf )
 	g_pMain->m_sElmoradCount = nElmoradMan;
 	//TRACE("UDP - RecvBattleZoneCurrentUsers - karus=%d, elmorad=%d\n", nKarusMan, nElmoradMan);
 }
+#endif
