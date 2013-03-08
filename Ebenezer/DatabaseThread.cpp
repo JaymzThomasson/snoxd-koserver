@@ -126,7 +126,7 @@ void CUser::ReqAccountLogIn(Packet & pkt)
 	int8 nation = g_DBAgent.AccountLogin(m_strAccountID, strPasswd);
 
 	// TO-DO: Clean up this account name nonsense
-	if (nation != 0)
+	if (nation >= 0)
 	{
 		strcpy(m_pUserData.m_Accountid, m_strAccountID.c_str());
 		g_pMain->AddAccountName(this);
