@@ -182,7 +182,11 @@ void CNpc::MSpChange(int amount)
 
 void CNpc::OnDeath(Unit *pKiller)
 {
-	ASSERT(GetMap() != NULL && GetRegion() != NULL);
+	if (m_NpcState == NPC_DEAD)
+		return;
+
+	ASSERT(GetMap() != NULL);
+	ASSERT(GetRegion() != NULL);
 
 	m_NpcState = NPC_DEAD;
 
