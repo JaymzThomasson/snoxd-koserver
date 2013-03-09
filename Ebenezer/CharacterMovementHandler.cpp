@@ -25,6 +25,7 @@ void CUser::MoveProcess(Packet & pkt)
 	{
 		g_pMain->RegionNpcInfoForMe(this);
 		g_pMain->RegionUserInOutForMe(this);
+		g_pMain->MerchantUserInOutForMe(this);
 	}
 
 	Packet result(WIZ_MOVE);

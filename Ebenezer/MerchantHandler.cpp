@@ -198,7 +198,6 @@ void CUser::MerchantItemList(Packet & pkt)
 		RemoveFromMerchantLookers(); //This check should never be hit...
 	
 	uint16 uid = pkt.read<uint16>();
-	pkt >> uid;
 
 	CUser *pMerchant = g_pMain->GetUserPtr(uid);
 	if (pMerchant == NULL
@@ -418,27 +417,69 @@ void CUser::BuyingMerchantClose()
 void CUser::BuyingMerchantInsert(Packet & pkt)
 {
 	uint8 amount_of_items;
-	uint32 itemid;
-	uint16 item_count, buying_price;
-	std::string test = "Hi";
+	uint32 itemid, buying_price;
+	uint16 item_count;
+	_ITEM_TABLE *pItem = NULL;
 
 	pkt >> amount_of_items >> itemid >> item_count >> buying_price;
+
+	pItem = g_pMain->m_ItemtableArray.GetData(itemid);
+	if (pItem == NULL)
+		return;
 
 	for ( int i = 0; i < amount_of_items; i++)
 	{
 		m_arMerchantItems[i].nNum = itemid;
 		m_arMerchantItems[i].sCount = item_count;
 		m_arMerchantItems[i].nPrice = buying_price;
+		m_arMerchantItems[i].sDuration = pItem->m_sDuration;
 	}
 
 	m_bMerchantState = MERCHANT_STATE_BUYING;
 	Packet result(WIZ_MERCHANT, uint8(MERCHANT_BUY_INSERT));
 	result << uint8(1);
 	Send(&result);
+
+	BuyingMerchantInsertRegion();
+}
+
+void CUser::BuyingMerchantInsertRegion()
+{
+	Packet result(WIZ_MERCHANT, uint8(MERCHANT_BUY_REGION_INSERT));
+	result << GetSocketID();
+
+	for (int i = 0; i < 4; i++)
+	{
+		result << m_arMerchantItems[i].nNum;
+	}
+
+	SendToRegion(&result);
 }
 
 void CUser::BuyingMerchantList(Packet & pkt)
 {
+	if (m_sMerchantsSocketID >= 0)
+		RemoveFromMerchantLookers(); //This check should never be hit...
+	
+	uint16 uid = pkt.read<uint16>();
+
+	CUser *pMerchant = g_pMain->GetUserPtr(uid);
+	if (pMerchant == NULL
+		|| !pMerchant->isMerchanting())
+		return;
+
+	m_sMerchantsSocketID = uid;
+	pMerchant->m_arMerchantLookers.push_front(GetSocketID());
+
+	Packet result(WIZ_MERCHANT, uint8(MERCHANT_BUY_LIST));
+	result << uint8(1) << uint16(uid);
+	for (int i = 0; i < MAX_MERCH_ITEMS; i++)
+	{
+		_MERCH_DATA *pMerch = &pMerchant->m_arMerchantItems[i];
+		result	<< pMerch->nNum << pMerch->sCount
+				<< pMerch->sDuration << pMerch->nPrice;
+	}
+	Send(&result);
 }
 
 void CUser::BuyingMerchantBuy(Packet & pkt)
