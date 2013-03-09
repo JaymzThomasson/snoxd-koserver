@@ -187,8 +187,8 @@ public:
 	__forceinline bool isTrading() { return m_sExchangeUser != -1; }
 	__forceinline bool isStoreOpen() { return m_bStoreOpen; }
 	__forceinline bool isMerchanting() { return GetMerchantState() != MERCHANT_STATE_NONE; }
-	__forceinline bool isSellingMerchant() { return GetMerchantState() != MERCHANT_STATE_SELLING; }
-	__forceinline bool isBuyingMerchant() { return GetMerchantState() != MERCHANT_STATE_BUYING; }
+	__forceinline bool isSellingMerchant() { return GetMerchantState() == MERCHANT_STATE_SELLING; }
+	__forceinline bool isBuyingMerchant() { return GetMerchantState() == MERCHANT_STATE_BUYING; }
 	__forceinline bool isTransformed() { return m_bIsTransformed; }
 
 	__forceinline int8 GetMerchantState() { return m_bMerchantState; }
