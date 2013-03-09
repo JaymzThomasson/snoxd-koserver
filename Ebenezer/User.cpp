@@ -3422,7 +3422,14 @@ void CUser::HandleHelmet(Packet & pkt)
 
 	Packet result(WIZ_HELMET);
 	pkt >> m_bIsHidingHelmet;
-	result << m_bIsHidingHelmet << GetSocketID() << uint16(0);
+#if __VERSION >= 1900
+	// pkt >> cospre flag
+#endif
+	result	<< m_bIsHidingHelmet 
+#if __VERSION >= 1900
+//			<< cospre flag
+#endif
+			<< uint32(GetSocketID());
 	SendToRegion(&result);
 }
 
