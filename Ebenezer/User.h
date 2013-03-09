@@ -425,6 +425,7 @@ public:
 	void BuyingMerchantOpen(Packet & pkt);
 	void BuyingMerchantClose();
 	void BuyingMerchantInsert(Packet & pkt);
+	void BuyingMerchantInsertRegion();
 	void BuyingMerchantList(Packet & pkt);
 	void BuyingMerchantBuy(Packet & pkt);
 
