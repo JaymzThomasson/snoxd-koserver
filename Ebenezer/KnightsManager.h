@@ -32,16 +32,14 @@ public:
 	// database requests go here
 	void ReqKnightsPacket(CUser* pUser, Packet & pkt);
 	void ReqCreateKnights(CUser* pUser, Packet & pkt);
-	void ReqJoinKnights(CUser* pUser, Packet & pkt);
-	void ReqWithdrawKnights(CUser* pUser, Packet & pkt);
+	void ReqUpdateKnights(CUser* pUser, Packet & pkt, uint8 opcode);
 	void ReqModifyKnightsMember(CUser* pUser, Packet & pkt, uint8 command);
 	void ReqDestroyKnights(CUser* pUser, Packet & pkt);
 	void ReqAllKnightsMember(CUser *pUser, Packet & pkt);
 	void ReqKnightsList(Packet & pkt);
 	void ReqRegisterClanSymbol(CUser *pUser, Packet & pkt);
 
-	// received from database request (this will go)
-	void RecvJoinKnights(CUser* pUser, Packet & pkt, BYTE command);
+	void RecvUpdateKnights(CUser* pUser, Packet & pkt, BYTE command);
 	void RecvModifyFame(CUser* pUser, Packet & pkt, BYTE command);
 	void RecvKnightsAllList(Packet & pkt);
 

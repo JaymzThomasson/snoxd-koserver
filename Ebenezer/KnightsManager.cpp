@@ -483,10 +483,6 @@ void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 
 	switch (command)
 	{
-	case KNIGHTS_JOIN:
-	case KNIGHTS_WITHDRAW:
-		RecvJoinKnights(pUser, pkt, command);
-		break;
 	case KNIGHTS_MEMBER_REQ:
 		{
 			CKnights* pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
@@ -509,7 +505,7 @@ void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 	}
 }
 
-void CKnightsManager::RecvJoinKnights(CUser *pUser, Packet & pkt, BYTE command)
+void CKnightsManager::RecvUpdateKnights(CUser *pUser, Packet & pkt, BYTE command)
 {
 	if (pUser == NULL) 
 		return;

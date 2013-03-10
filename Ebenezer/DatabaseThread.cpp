@@ -410,10 +410,8 @@ void CKnightsManager::ReqKnightsPacket(CUser* pUser, Packet & pkt)
 		ReqCreateKnights(pUser, pkt);
 		break;
 	case KNIGHTS_JOIN:
-		ReqJoinKnights(pUser, pkt);
-		break;
 	case KNIGHTS_WITHDRAW:
-		ReqWithdrawKnights(pUser, pkt);
+		ReqUpdateKnights(pUser, pkt, opcode);
 		break;
 	case KNIGHTS_REMOVE:
 	case KNIGHTS_ADMIT:
@@ -494,33 +492,24 @@ void CKnightsManager::ReqCreateKnights(CUser *pUser, Packet & pkt)
 	g_pMain->Send_UDP_All(&result, g_pMain->m_nServerGroup == 0 ? 0 : 1);
 }
 
-void CKnightsManager::ReqJoinKnights(CUser *pUser, Packet & pkt)
+void CKnightsManager::ReqUpdateKnights(CUser *pUser, Packet & pkt, uint8 opcode)
 {
 	if (pUser == NULL)
 		return;
 
-	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_JOIN));
+	Packet result(WIZ_KNIGHTS_PROCESS);
 	uint16 sClanID = pkt.read<uint16>();
 	string strCharID = pUser->GetName();
-	result	<< int8(g_DBAgent.UpdateKnights(KNIGHTS_JOIN, strCharID, sClanID, 0))
-			<< sClanID;
-
-	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
-}
-
-void CKnightsManager::ReqWithdrawKnights(CUser *pUser, Packet & pkt)
-{
-	if (pUser == NULL)
+	int8 bResult = int8(g_DBAgent.UpdateKnights(opcode, strCharID, sClanID, 0));
+	if (bResult < 0)
+	{
+		result << opcode << uint8(0);
+		pUser->Send(&result);
 		return;
+	}
 
-	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_WITHDRAW));
-	uint16 sClanID = pkt.read<uint16>();
-	string strCharID = pUser->GetName();
-
-	result << int8(g_DBAgent.UpdateKnights(KNIGHTS_WITHDRAW, strCharID, sClanID, 0))
-		   << sClanID;
-
-	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
+	result << sClanID;  // Hate doing this, but it's reusable.
+	RecvUpdateKnights(pUser, pkt, opcode);
 }
 
 void CKnightsManager::ReqModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 command)
