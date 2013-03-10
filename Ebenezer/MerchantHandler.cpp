@@ -554,13 +554,12 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 		pMerchantItem->sCount == sStackSize); 	// if the buying merchant only has what they wanted, it's a new item.
 												// (otherwise it was a stackable item that was merged into an existing slot)
 
-/*	Packet result(WIZ_MERCHANT, uint8(MERCHANT_ITEM_PURCHASED));
-	result << GetName();
+	Packet result(WIZ_MERCHANT, uint8(MERCHANT_BUY_BOUGHT));
+	result << bMerchantListSlot << uint16(0) << GetName();
 	pMerchant->Send(&result);
 
 	result.clear();
-
-	result	<< uint8(MERCHANT_ITEM_BUY) << uint16(1)
+	result	<< uint8(MERCHANT_BUY_SOLD) << uint16(1)
 			<< pMerchantItem->nNum << sRemainingStackSize
 			<< bMerchantListSlot;
 	Send(&result);
@@ -571,7 +570,7 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 		result << uint8(2) << m_sMerchantsSocketID << uint16(bMerchantListSlot);
 		pMerchant->SendToRegion(&result);
 	}
-*/
+
 	int nItemsRemaining = 0;
 	for (int i = 0; i < MAX_MERCH_ITEMS; i++)
 	{
