@@ -88,7 +88,7 @@ BOOL WINAPI DatabaseThread::ThreadProc(LPVOID lpParam)
 			if (pUser) pUser->ReqSaveCharacter();
 			break;
 		case WIZ_KNIGHTS_PROCESS:
-			// g_pMain->m_KnightsManager.KnightsPacket(pUser, pkt);
+			g_pMain->m_KnightsManager.ReqKnightsPacket(pUser, pkt);
 			break;
 		case WIZ_LOGIN_INFO:
 			if (pUser) pUser->ReqSetLogInInfo(pkt);
@@ -410,21 +410,20 @@ void CUser::ReqSaveCharacter()
 	g_DBAgent.UpdateWarehouseData(m_strAccountID, UPDATE_PACKET_SAVE, &m_pUserData);
 }
 
-#if 0
-void CUser::ReqKnightsPacket(Packet & pkt)
+void CKnightsManager::ReqKnightsPacket(CUser* pUser, Packet & pkt)
 {
 	uint8 opcode;
 	pkt >> opcode;
 	switch (opcode)
 	{
 	case KNIGHTS_CREATE:
-		CreateKnights(pkt, uid);
+		ReqCreateKnights(pUser, pkt);
 		break;
 	case KNIGHTS_JOIN:
-		JoinKnights(pkt, uid);
+		ReqJoinKnights(pUser, pkt);
 		break;
 	case KNIGHTS_WITHDRAW:
-		WithdrawKnights(pkt, uid);
+		ReqWithdrawKnights(pUser, pkt);
 		break;
 	case KNIGHTS_REMOVE:
 	case KNIGHTS_ADMIT:
@@ -433,27 +432,27 @@ void CUser::ReqKnightsPacket(Packet & pkt)
 	case KNIGHTS_VICECHIEF:
 	case KNIGHTS_OFFICER:
 	case KNIGHTS_PUNISH:
-		ModifyKnightsMember(pkt, opcode, uid);
+		ReqModifyKnightsMember(pUser, pkt, opcode);
 		break;
 	case KNIGHTS_DESTROY:
-		DestroyKnights(pkt, uid);
+		ReqDestroyKnights(pUser, pkt);
 		break;
 	case KNIGHTS_MEMBER_REQ:
-		AllKnightsMember(pkt, uid);
+		ReqAllKnightsMember(pUser, pkt);
 		break;
 	case KNIGHTS_LIST_REQ:
-		KnightsList(pkt, uid);
+		ReqKnightsList(pUser, pkt);
 		break;
 	case KNIGHTS_ALLLIST_REQ:
-		m_DBAgent.LoadKnightsAllList(pkt.read<uint8>()); // read nation
+		g_DBAgent.LoadKnightsAllList(pkt.read<uint8>()); // read nation
 		break;
 	case KNIGHTS_MARK_REGISTER:
-		RegisterClanSymbol(pkt, uid);
+		ReqRegisterClanSymbol(pUser, pkt);
 		break;
 	}
 }
 
-void CUser::ReqCreateKnights(Packet & pkt)
+void CKnightsManager::ReqCreateKnights(CUser *pUser, Packet & pkt)
 {
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_CREATE));
 	string strKnightsName, strChief;
@@ -461,46 +460,42 @@ void CUser::ReqCreateKnights(Packet & pkt)
 	uint8 bCommunity, bNation;
 
 	pkt >> bCommunity >> sClanID >> bNation >> strKnightsName >> strChief;
-	result	<< m_DBAgent.CreateKnights(sClanID, bNation, strKnightsName, strChief, bCommunity)
+	result	<< g_DBAgent.CreateKnights(sClanID, bNation, strKnightsName, strChief, bCommunity)
 			<< bCommunity << sClanID << bNation << strKnightsName << strChief;
 
-	m_LoggerSendQueue.PutData(&result, uid);
+	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
 }
 
-void CUser::ReqJoinKnights(Packet & pkt)
+void CKnightsManager::ReqJoinKnights(CUser *pUser, Packet & pkt)
 {
+	if (pUser == NULL)
+		return;
+
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_JOIN));
-	uint16 sClanID;
-
-	pkt >> sClanID;
-	_USER_DATA *pUser = m_DBAgent.GetUser(uid);
-	if (pUser == NULL)
-		return;
-
-	string strCharID = pUser->m_id;
-	result	<< int8(m_DBAgent.UpdateKnights(KNIGHTS_JOIN, strCharID, sClanID, 0))
+	uint16 sClanID = pkt.read<uint16>();
+	string strCharID = pUser->GetName();
+	result	<< int8(g_DBAgent.UpdateKnights(KNIGHTS_JOIN, strCharID, sClanID, 0))
 			<< sClanID;
-	m_LoggerSendQueue.PutData(&result, uid);
+
+	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
 }
 
-void CUser::ReqWithdrawKnights(Packet & pkt)
+void CKnightsManager::ReqWithdrawKnights(CUser *pUser, Packet & pkt)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_WITHDRAW));
-	uint16 sClanID;
-	pkt >> sClanID;
-
-	_USER_DATA *pUser = m_DBAgent.GetUser(uid);
 	if (pUser == NULL)
 		return;
 
-	string strCharID = pUser->m_id;
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_WITHDRAW));
+	uint16 sClanID = pkt.read<uint16>();
+	string strCharID = pUser->GetName();
 
-	result << int8(m_DBAgent.UpdateKnights(KNIGHTS_WITHDRAW, strCharID, sClanID, 0))
+	result << int8(g_DBAgent.UpdateKnights(KNIGHTS_WITHDRAW, strCharID, sClanID, 0))
 		   << sClanID;
-	m_LoggerSendQueue.PutData(&result, uid);
+
+	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
 }
 
-void CUser::ReqModifyKnightsMember(Packet & pkt, uint8 command)
+void CKnightsManager::ReqModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 command)
 {
 	Packet result(WIZ_KNIGHTS_PROCESS, command);
 	string strCharID;
@@ -509,22 +504,22 @@ void CUser::ReqModifyKnightsMember(Packet & pkt, uint8 command)
 
 	pkt >> sClanID >> strCharID >> bRemoveFlag;
 
-	result	<< command << int8(m_DBAgent.UpdateKnights(command, strCharID, sClanID, bRemoveFlag))
+	result	<< command << int8(g_DBAgent.UpdateKnights(command, strCharID, sClanID, bRemoveFlag))
 			<< sClanID << strCharID;
 
-	m_LoggerSendQueue.PutData(&result, uid);
+	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
 }
 
-void CUser::ReqDestroyKnights(Packet & pkt)
+void CKnightsManager::ReqDestroyKnights(CUser *pUser, Packet & pkt)
 {
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_DESTROY));
 	uint16 sClanID = pkt.read<uint16>();
 
-	result << int8(m_DBAgent.DeleteKnights(sClanID)) << sClanID;
-	m_LoggerSendQueue.PutData(&result, uid);
+	result << int8(g_DBAgent.DeleteKnights(sClanID)) << sClanID;
+	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
 }
 
-void CUser::ReqAllKnightsMember(Packet & pkt)
+void CKnightsManager::ReqAllKnightsMember(CUser *pUser, Packet & pkt)
 {
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MEMBER_REQ));
 	int nOffset;
@@ -534,27 +529,30 @@ void CUser::ReqAllKnightsMember(Packet & pkt)
 	result << uint8(0);
 	nOffset = result.wpos(); // store offset
 	result << uint16(0) << uint16(0); // placeholders
-	sCount = m_DBAgent.LoadKnightsAllMembers(sClanID, result);
+	sCount = g_DBAgent.LoadKnightsAllMembers(sClanID, result);
 
 	pkt.put(nOffset, result.size() - 3);
 	pkt.put(nOffset + 2, sCount);
 
-	m_LoggerSendQueue.PutData(&result, uid);
+	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
 }
 
-void CUser::ReqKnightsList(Packet & pkt)
+void CKnightsManager::ReqKnightsList(CUser *pUser, Packet & pkt)
 {
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_LIST_REQ));
 	uint16 sClanID = pkt.read<uint16>();
 
 	result << uint8(0);
-	m_DBAgent.LoadKnightsInfo(sClanID, result);
+	g_DBAgent.LoadKnightsInfo(sClanID, result);
 	
-	m_LoggerSendQueue.PutData(&result, uid);
+	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
 }
 
-void CUser::ReqRegisterClanSymbol(Packet & pkt)
+void CKnightsManager::ReqRegisterClanSymbol(CUser *pUser, Packet & pkt)
 {
+	if (pUser == NULL)
+		return;
+
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MARK_REGISTER));
 	char clanSymbol[MAX_KNIGHTS_MARK];
 	uint16 sClanID, sSymbolSize;
@@ -562,7 +560,7 @@ void CUser::ReqRegisterClanSymbol(Packet & pkt)
 	pkt >> sClanID >> sSymbolSize;
 	pkt.read(clanSymbol, sSymbolSize);
 
-	bool bResult = m_DBAgent.UpdateClanSymbol(sClanID, sSymbolSize, clanSymbol);
+	bool bResult = g_DBAgent.UpdateClanSymbol(sClanID, sSymbolSize, clanSymbol);
 	result << uint8(0) << bResult;
 	if (bResult)
 	{
@@ -570,9 +568,8 @@ void CUser::ReqRegisterClanSymbol(Packet & pkt)
 		result.append(clanSymbol, sSymbolSize); // ... and back again! Like ping pong!
 	}
 	
-	m_LoggerSendQueue.PutData(&result, uid);
+	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
 }
-#endif
 
 void CUser::ReqSetLogInInfo(Packet & pkt)
 {
