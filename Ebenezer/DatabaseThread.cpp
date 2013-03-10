@@ -271,11 +271,11 @@ void CUser::ReqSkillDataProcess(Packet & pkt)
 
 void CUser::ReqSkillDataLoad(Packet & pkt)
 {
-	Packet result(WIZ_SKILLDATA);
+	Packet result(WIZ_SKILLDATA, uint8(SKILL_DATA_LOAD));
 	if (!g_DBAgent.LoadSkillShortcut(result, this))
-		result << uint8(0);
+		result << uint16(0);
 
-	RecvSkillDataLoad(pkt); // TO-DO: Just send the data directly.
+	Send(&result);
 }
 
 void CUser::ReqSkillDataSave(Packet & pkt)

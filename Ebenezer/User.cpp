@@ -478,30 +478,6 @@ void CUser::SkillDataLoad()
 	g_pMain->AddDatabaseRequest(result, this);
 }
 
-void CUser::RecvSkillDataLoad(Packet & pkt)
-{
-	uint16 sCount = 0;
-	uint8 bSuccess = pkt.read<uint8>();
-	if (!bSuccess)
-	{
-		sCount = 0;
-	}
-	else
-	{
-		pkt >> sCount;
-		if (sCount < 0 || sCount > 64)
-			sCount = 0;
-	}
-
-	Packet result(WIZ_SKILLDATA, uint8(SKILL_DATA_LOAD));
-	result << sCount;
-
-	for (int i = 0; i < sCount; i++) 
-		result << pkt.read<uint32>();
-
-	Send(&result);
-}
-
 void CUser::UserDataSaveToAgent()
 {
 	if (!isInGame())

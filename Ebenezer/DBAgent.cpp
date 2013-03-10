@@ -559,8 +559,9 @@ bool CDBAgent::LoadSkillShortcut(Packet & result, CUser *pUser)
 	dbCommand->FetchUInt16(1, sCount);
 	dbCommand->FetchString(2, strSkillData, sizeof(strSkillData));
 
-	result << uint8(1) << sCount;
-	result.append(strSkillData, sizeof(strSkillData));
+	result << sCount;
+	for (uint32 i = 0; i < sCount; i++)
+		result << *(uint32 *)(strSkillData + (i * sizeof(uint32)));
 
 	return true;
 }

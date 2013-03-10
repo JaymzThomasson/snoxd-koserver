@@ -198,7 +198,6 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 			continue;
 		}
 
-		// RegionNpcAdd() 
 		pNpc->SendInOut(INOUT_IN, pNpc->GetX(), pNpc->GetZ(), pNpc->GetY());
 	}
 }

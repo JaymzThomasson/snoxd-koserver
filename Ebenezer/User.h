@@ -378,7 +378,6 @@ public:
 	void SkillDataProcess(Packet & pkt);
 	void SkillDataSave(Packet & pkt);
 	void SkillDataLoad();
-	void RecvSkillDataLoad(Packet & pkt); // from Aujard
 	void MoveProcess(Packet & pkt);
 	void Rotate(Packet & pkt);
 	void Attack(Packet & pkt);
