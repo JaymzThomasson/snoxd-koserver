@@ -48,13 +48,55 @@ class CUser : public Unit, public KOSocket
 public:
 	virtual uint16 GetID() { return GetSocketID(); }
 
-	virtual float GetX() { return m_pUserData.m_curx; }
-	virtual float GetY() { return m_pUserData.m_cury; }
-	virtual float GetZ() { return m_pUserData.m_curz; }
+	virtual float GetX() { return m_curx; }
+	virtual float GetY() { return m_cury; }
+	virtual float GetZ() { return m_curz; }
 
-	virtual const char * GetName() { return m_pUserData.m_id; }
+	virtual const char * GetName() { return m_id; }
 
-	_USER_DATA	m_pUserData;
+	char	m_id[MAX_ID_SIZE+1];
+	char	m_Accountid[MAX_ID_SIZE+1];
+
+	uint8	m_bZone;
+	float	m_curx, m_curz, m_cury;
+
+	uint8	m_bNation;
+	uint8	m_bRace;
+	uint16	m_sClass;
+
+	uint32	m_nHair;
+
+	uint8	m_bRank;
+	uint8	m_bTitle;
+	uint8	m_bLevel;
+	int64	m_iExp;	
+	int32	m_iLoyalty, m_iLoyaltyMonthly;
+	int32	m_iMannerPoint;
+	uint8	m_bFace;
+	uint8	m_bCity;
+	int16	m_bKnights;	
+	uint8	m_bFame;
+	int16	m_sHp, m_sMp, m_sSp;
+	uint8	m_bStats[STAT_COUNT];
+	uint8	m_bAuthority;
+	uint16	m_sPoints;
+	uint32	m_iGold, m_iBank;
+	int16	m_sBind;
+	
+	uint8    m_bstrSkill[10];	
+	_ITEM_DATA m_sItemArray[INVENTORY_TOTAL];
+	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];
+
+	uint8	m_bLogout;
+	DWORD	m_dwTime;
+
+	// this system needs replacing
+	uint16	m_sQuestCount;
+	char	m_bstrQuest[QUEST_ARRAY_SIZE];
+
+	uint8	m_bAccountStatus;
+	uint8	m_bPremiumType;
+	uint16	m_sPremiumTime;
 
 	std::string m_strAccountID;
 
@@ -170,7 +212,7 @@ public:
 	__forceinline bool isGM() { return getAuthority() == AUTHORITY_GAME_MASTER; }
 	__forceinline bool isLimitedGM() { return getAuthority() == AUTHORITY_LIMITED_GAME_MASTER; }
 
-	virtual bool isDead() { return m_bResHpType == USER_DEAD || m_pUserData.m_sHp <= 0; }
+	virtual bool isDead() { return m_bResHpType == USER_DEAD || m_sHp <= 0; }
 	__forceinline bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; }
 
 	__forceinline bool isInGame() { return GetState() == GAME_STATE_INGAME; }
@@ -193,35 +235,35 @@ public:
 
 	__forceinline int8 GetMerchantState() { return m_bMerchantState; }
 
-	virtual uint8 GetNation() { return m_pUserData.m_bNation; }
-	virtual uint8 GetLevel() { return m_pUserData.m_bLevel; }
-	virtual uint8 GetZoneID() { return m_pUserData.m_bZone; }
+	virtual uint8 GetNation() { return m_bNation; }
+	virtual uint8 GetLevel() { return m_bLevel; }
+	virtual uint8 GetZoneID() { return m_bZone; }
 
-	__forceinline BYTE getAuthority() { return m_pUserData.m_bAuthority; }
-	__forceinline BYTE getFame() { return m_pUserData.m_bFame; }
+	__forceinline BYTE getAuthority() { return m_bAuthority; }
+	__forceinline BYTE getFame() { return m_bFame; }
 
-	__forceinline int16 GetClanID() { return m_pUserData.m_bKnights; }
-	__forceinline void SetClanID(int16 val) { m_pUserData.m_bKnights = val; }
+	__forceinline int16 GetClanID() { return m_bKnights; }
+	__forceinline void SetClanID(int16 val) { m_bKnights = val; }
 
 	__forceinline GameState GetState() { return m_state; }
 
 	__forceinline uint8 getStat(StatType type)
 	{
 		ASSERT(type < STAT_COUNT);
-		return m_pUserData.m_bStats[type];
+		return m_bStats[type];
 	}
 
 	__forceinline void setStat(StatType type, uint8 val)
 	{
 		ASSERT(type < STAT_COUNT);
-		m_pUserData.m_bStats[type] = val;
+		m_bStats[type] = val;
 	}
 
 	__forceinline uint32 getStatTotal() // NOTE: Shares name with another, but lack-of args should be self-explanatory
 	{
 		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
-		foreach_array (i, m_pUserData.m_bStats)
-			total += m_pUserData.m_bStats[i];
+		foreach_array (i, m_bStats)
+			total += m_bStats[i];
 		return total;
 	}
 
@@ -274,7 +316,7 @@ public:
 		return getStat(type) + getStatItemBonus(type) + getStatBuff(type);
 	}
 
-	__forceinline _ITEM_DATA * GetItem(uint8 pos) { return &m_pUserData.m_sItemArray[pos]; }
+	__forceinline _ITEM_DATA * GetItem(uint8 pos) { return &m_sItemArray[pos]; }
 	_ITEM_TABLE* GetItemPrototype(uint8 pos);
 
 	__forceinline C3DMap * GetMap() { return m_pMap; }

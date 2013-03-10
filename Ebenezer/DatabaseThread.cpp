@@ -128,7 +128,7 @@ void CUser::ReqAccountLogIn(Packet & pkt)
 	// TO-DO: Clean up this account name nonsense
 	if (nation >= 0)
 	{
-		strcpy(m_pUserData.m_Accountid, m_strAccountID.c_str());
+		strcpy(m_Accountid, m_strAccountID.c_str());
 		g_pMain->AddAccountName(this);
 	}
 	else
@@ -224,10 +224,9 @@ void CUser::ReqSelectCharacter(Packet & pkt)
 
 	pkt >> strCharID >> bInit;
 	if (m_strAccountID.empty() || strCharID.empty()
-		|| m_strAccountID.length() > MAX_ID_SIZE || strCharID.length() > MAX_ID_SIZE
-		|| !g_DBAgent.LoadUserData(m_strAccountID, strCharID, &m_pUserData)
-		|| !g_DBAgent.LoadWarehouseData(m_strAccountID, &m_pUserData)
-		|| !g_DBAgent.LoadPremiumServiceUser(m_strAccountID, &m_pUserData))
+		|| !g_DBAgent.LoadUserData(m_strAccountID, strCharID, this)
+		|| !g_DBAgent.LoadWarehouseData(m_strAccountID, this)
+		|| !g_DBAgent.LoadPremiumServiceUser(m_strAccountID, this))
 	{
 		result << uint8(0);
 	}
@@ -256,7 +255,7 @@ void CUser::ReqLoadWebItemMall(Packet & pkt)
 	int offset = result.wpos(); // preserve offset
 	result << uint8(0);
 
-	if (g_DBAgent.LoadWebItemMall(result, &m_pUserData))
+	if (g_DBAgent.LoadWebItemMall(result, this))
 		result.put(offset, uint8(1));
 
 	RecvStore(pkt); // TO-DO: Just send the data directly.
@@ -274,7 +273,7 @@ void CUser::ReqSkillDataProcess(Packet & pkt)
 void CUser::ReqSkillDataLoad(Packet & pkt)
 {
 	Packet result(WIZ_SKILLDATA);
-	if (!g_DBAgent.LoadSkillShortcut(result, &m_pUserData))
+	if (!g_DBAgent.LoadSkillShortcut(result, this))
 		result << uint8(0);
 
 	RecvSkillDataLoad(pkt); // TO-DO: Just send the data directly.
@@ -299,7 +298,7 @@ void CUser::ReqSkillDataSave(Packet & pkt)
 	memcpy(buff, (char *)(pkt.contents() + pkt.rpos()), sCount * sizeof(uint32));
 
 	// Finally, save the skill data.
-	g_DBAgent.SaveSkillShortcut(sCount, buff, &m_pUserData);
+	g_DBAgent.SaveSkillShortcut(sCount, buff, this);
 }
 
 void CUser::ReqFriendProcess(Packet & pkt)
@@ -325,7 +324,7 @@ void CUser::ReqRequestFriendList(Packet & pkt)
 	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REQUEST));
 	std::vector<string> friendList;
 
-	g_DBAgent.RequestFriendList(friendList, &m_pUserData);
+	g_DBAgent.RequestFriendList(friendList, this);
 
 	result << uint16(friendList.size());
 	foreach (itr, friendList)
@@ -358,7 +357,7 @@ void CUser::ReqRemoveFriend(Packet & pkt)
 	pkt.SByte();
 	pkt >> strCharID;
 
-	FriendRemoveResult resultCode = g_DBAgent.RemoveFriend(strCharID, &m_pUserData);
+	FriendRemoveResult resultCode = g_DBAgent.RemoveFriend(strCharID, this);
 	result.SByte();
 	result << uint8(resultCode) << strCharID;
 
@@ -379,26 +378,18 @@ void CUser::ReqUserLogOut()
 {
 	string strCharID = GetName();
 
-	g_DBAgent.UpdateUser(strCharID, UPDATE_LOGOUT, &m_pUserData);
-	g_DBAgent.UpdateWarehouseData(m_strAccountID, UPDATE_LOGOUT, &m_pUserData);
+	g_DBAgent.UpdateUser(strCharID, UPDATE_LOGOUT, this);
+	g_DBAgent.UpdateWarehouseData(m_strAccountID, UPDATE_LOGOUT, this);
 	
-	if (m_pUserData.m_bLogout != 2)	// zone change logout
+	if (m_bLogout != 2)	// zone change logout
 		g_DBAgent.AccountLogout(m_strAccountID);
 }
 
 #if 0
 void CUser::ReqConCurrentUserCount()
 {
-	int count = 0, total = m_DBAgent.m_UserDataArray.size();
-	for (int i = 0; i < total; i++)
-	{
-		_USER_DATA * pUser = m_DBAgent.m_UserDataArray[i];
-		if (pUser == NULL || *pUser->m_id == 0)
-			continue;
-		
-		count++;
-	}
-
+	uint32 count = g_pMain->GetActiveSessionMap().size();
+	s_socketMgr.ReleaseLock();
 	m_DBAgent.UpdateConCurrentUserCount(m_nServerNo, m_nZoneNo, count);
 }
 #endif
@@ -406,8 +397,8 @@ void CUser::ReqConCurrentUserCount()
 void CUser::ReqSaveCharacter()
 {
 	std::string strUserID = GetName();
-	g_DBAgent.UpdateUser(strUserID, UPDATE_PACKET_SAVE, &m_pUserData);
-	g_DBAgent.UpdateWarehouseData(m_strAccountID, UPDATE_PACKET_SAVE, &m_pUserData);
+	g_DBAgent.UpdateUser(strUserID, UPDATE_PACKET_SAVE, this);
+	g_DBAgent.UpdateWarehouseData(m_strAccountID, UPDATE_PACKET_SAVE, this);
 }
 
 void CKnightsManager::ReqKnightsPacket(CUser* pUser, Packet & pkt)

@@ -26,7 +26,7 @@ void CNpcMagicProcess::MagicPacket(char *pBuf, int len)
 	if( command == MAGIC_FAIL ) {			    // Client indicates that magic failed. Just send back packet.
 		SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
 		SetString( send_buff, pBuf, len-1, send_index );	// len ==> include WIZ_MAGIC_PROCESS command byte. 
-		//g_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData.m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
+		//g_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
 		m_bMagicState = NONE;
 		return;
 	}
@@ -219,7 +219,7 @@ fail_return:    // In case the magic failed.
 	SetShort( send_buff, 0, send_index );
 
 /*	if( m_bMagicState == CASTING )
-		g_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_pUserData.m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
+		g_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
 	else m_pSrcUser->Send( send_buff, send_index );	*/
 
 	g_pMain->Send(send_buff, send_index);

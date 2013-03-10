@@ -423,7 +423,7 @@ void CEbenezerDlg::AddAccountName(CUser *pSession)
 // Adds the character name & session to a hashmap (when in-game)
 void CEbenezerDlg::AddCharacterName(CUser *pSession)
 {
-	string upperName = pSession->m_pUserData.m_id;
+	string upperName = pSession->m_id;
 	STRTOUPPER(upperName);
 	m_characterNameLock.Acquire();
 	m_characterNameMap[upperName] = pSession;
@@ -441,7 +441,7 @@ void CEbenezerDlg::RemoveSessionNames(CUser *pSession)
 
 	if (pSession->isInGame())
 	{
-		upperName = pSession->m_pUserData.m_id;
+		upperName = pSession->m_id;
 		STRTOUPPER(upperName);
 		m_characterNameLock.Acquire();
 		m_characterNameMap.erase(upperName);
@@ -734,7 +734,7 @@ void CEbenezerDlg::Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z
 			|| !pUser->isInGame())
 			continue;
 
-		if (sqrt(pow((pUser->m_pUserData.m_curx - ref_x), 2) + pow((pUser->m_pUserData.m_curz - ref_z), 2)) < 32)
+		if (sqrt(pow((pUser->m_curx - ref_x), 2) + pow((pUser->m_curz - ref_z), 2)) < 32)
 			pUser->Send(pkt);
 	}
 
@@ -1655,7 +1655,7 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 
 		if (pTUser->getFame() == COMMAND_CAPTAIN)
 		{
-			if (pTUser->m_pUserData.m_bRank == 1)
+			if (pTUser->m_bRank == 1)
 				pTUser->ChangeNP(500);
 			else
 				pTUser->ChangeNP(300);
@@ -1895,7 +1895,7 @@ uint16 CEbenezerDlg::GetKnightsAllMembers(uint16 sClanID, Packet & result, uint1
 
 		CUser *pUser = p->pSession;
 		if (pUser != NULL)
-			result << pUser->m_pUserData.m_id << pUser->getFame() << pUser->GetLevel() << pUser->m_pUserData.m_sClass << uint8(1);
+			result << pUser->m_id << pUser->getFame() << pUser->GetLevel() << pUser->m_sClass << uint8(1);
 		else // normally just clan leaders see this, but we can be generous now.
 			result << pKnights->m_arKnightsUser[i].strUserName << uint8(0) << uint8(0) << uint16(0) << uint8(0);
 
@@ -1933,7 +1933,7 @@ void CEbenezerDlg::CheckAliveUser()
 		if (pUser->m_sAliveCount++ > 3)
 		{
 			pUser->Disconnect();
-			TRACE("User dropped due to inactivity - char=%s\n", pUser->m_pUserData.m_id);
+			TRACE("User dropped due to inactivity - char=%s\n", pUser->m_id);
 		}
 	}
 	s_socketMgr.ReleaseLock();
@@ -2103,7 +2103,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 				goto next_row;
 
 			if( pUser->GetClanID() == nKnightsIndex	)	{
-				sprintf_s( strKarusCaptain[nKaursRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData.m_id);
+				sprintf_s( strKarusCaptain[nKaursRank], 50, "[%s][%s]", strKnightsName, pUser->m_id);
 				nFindKarus = 1;
 				nKaursRank++;
 				pUser->ChangeFame(COMMAND_CAPTAIN);
@@ -2116,7 +2116,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				goto next_row;
 			if( pUser->GetClanID() == nKnightsIndex	)	{
-				sprintf_s( strElmoCaptain[nElmoRank], 50, "[%s][%s]", strKnightsName, pUser->m_pUserData.m_id);
+				sprintf_s( strElmoCaptain[nElmoRank], 50, "[%s][%s]", strKnightsName, pUser->m_id);
 				nFindElmo = 1;
 				nElmoRank++;
 				pUser->ChangeFame(COMMAND_CAPTAIN);

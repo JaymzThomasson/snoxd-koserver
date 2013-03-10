@@ -186,53 +186,6 @@ enum StatType
 #define STAT_MAX 255
 #define QUEST_ARRAY_SIZE 600 // That's a limit of 200 quests (3 bytes per quest)
 
-struct _USER_DATA
-{
-	char	m_id[MAX_ID_SIZE+1];
-	char	m_Accountid[MAX_ID_SIZE+1];
-
-	uint8	m_bZone;
-	float	m_curx, m_curz, m_cury;
-
-	uint8	m_bNation;
-	uint8	m_bRace;
-	uint16	m_sClass;
-
-	uint32	m_nHair;
-
-	uint8	m_bRank;
-	uint8	m_bTitle;
-	uint8	m_bLevel;
-	int64	m_iExp;	
-	int32	m_iLoyalty, m_iLoyaltyMonthly;
-	int32	m_iMannerPoint;
-	uint8	m_bFace;
-	uint8	m_bCity;
-	int16	m_bKnights;	
-	uint8	m_bFame;
-	int16	m_sHp, m_sMp, m_sSp;
-	uint8	m_bStats[STAT_COUNT];
-	uint8	m_bAuthority;
-	uint16	m_sPoints;
-	uint32	m_iGold, m_iBank;
-	int16	m_sBind;
-	
-	uint8    m_bstrSkill[10];	
-	_ITEM_DATA m_sItemArray[INVENTORY_TOTAL];
-	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];
-
-	uint8	m_bLogout;
-	DWORD	m_dwTime;
-
-	// this system needs replacing
-	uint16	m_sQuestCount;
-	char	m_bstrQuest[QUEST_ARRAY_SIZE];
-
-	uint8	m_bAccountStatus;
-	uint8	m_bPremiumType;
-	uint16	m_sPremiumTime;
-};
-
 inline void GetString(char* tBuf, char* sBuf, int len, int& index)
 {
 	memcpy(tBuf, sBuf+index, len);

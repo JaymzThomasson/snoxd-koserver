@@ -102,17 +102,17 @@ void CKnightsManager::CreateKnights(CUser* pUser, Packet & pkt)
 		ret_value = 8;
 	else if (pUser->GetLevel() < CLAN_LEVEL_REQUIREMENT)
 		ret_value = 2;
-	else if (pUser->m_pUserData.m_iGold < CLAN_COIN_REQUIREMENT)
+	else if (pUser->m_iGold < CLAN_COIN_REQUIREMENT)
 		ret_value = 4;
 
 	if (ret_value == 0)
 	{
-		uint16 knightindex = GetKnightsIndex(pUser->m_pUserData.m_bNation);
+		uint16 knightindex = GetKnightsIndex(pUser->m_bNation);
 		if (knightindex >= 0)
 		{	
 			result	<< uint8(CLAN_TYPE) 
 					<< knightindex << pUser->GetNation()
-					<< idname << pUser->m_pUserData.m_id;
+					<< idname << pUser->m_id;
 			g_pMain->AddDatabaseRequest(result, pUser);
 			return;
 		}
@@ -311,7 +311,7 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 opco
 			bResult = 2;
 		else if (pUser->GetZoneID() != pUser->GetNation())
 			bResult = 12;
-		else if (_strnicmp(strUserID.c_str(), pUser->m_pUserData.m_id, strUserID.size()) == 0)
+		else if (_strnicmp(strUserID.c_str(), pUser->m_id, strUserID.size()) == 0)
 			bResult = 9;
 		else if (((opcode == KNIGHTS_ADMIT || opcode == KNIGHTS_REJECT) && pUser->getFame() < OFFICER)
 			|| (opcode == KNIGHTS_PUNISH && pUser->getFame() < VICECHIEF))
@@ -454,7 +454,7 @@ void CKnightsManager::CurrentKnightsMember(CUser *pUser, Packet & pkt)
 			continue;
 
 		CUser *pTUser = p->pSession;
-		result << pUser->m_pUserData.m_id << pUser->getFame() << pUser->GetLevel() << pUser->m_pUserData.m_sClass;
+		result << pUser->m_id << pUser->getFame() << pUser->GetLevel() << pUser->m_sClass;
 		count++;
 		if (count >= start + 10)
 			break;
@@ -545,25 +545,25 @@ void CKnightsManager::RecvCreateKnights(CUser *pUser, Packet & pkt)
 	pKnights->m_byFlag = bFlag;
 	pKnights->m_byNation = bNation;
 	strcpy(pKnights->m_strName, clanName.c_str());
-	strcpy(pKnights->m_strChief, pUser->m_pUserData.m_id);
+	strcpy(pKnights->m_strChief, pUser->m_id);
 
-	pUser->m_pUserData.m_iGold -= CLAN_COIN_REQUIREMENT;
+	pUser->m_iGold -= CLAN_COIN_REQUIREMENT;
 	g_pMain->m_KnightsArray.PutData(pKnights->m_sIndex, pKnights);
 	pKnights->AddUser(pUser);
-	pUser->m_pUserData.m_bFame = CHIEF;
+	pUser->m_bFame = CHIEF;
 
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_CREATE));
 	result	<< uint8(1) << pUser->GetSocketID() 
 			<< sClanID << clanName
 			<< pKnights->m_byGrade << pKnights->m_byRanking
-			<< pUser->m_pUserData.m_iGold;
+			<< pUser->m_iGold;
 
 	pUser->SendToRegion(&result);
 
 	result.Initialize(UDP_KNIGHTS_PROCESS);
 	result	<< uint8(KNIGHTS_CREATE)
 			<< pKnights->m_byFlag << sClanID 
-			<< bNation << clanName << pUser->m_pUserData.m_id;
+			<< bNation << clanName << pUser->m_id;
 	g_pMain->Send_UDP_All(&result, g_pMain->m_nServerGroup == 0 ? 0 : 1);
 }
 
@@ -598,7 +598,7 @@ void CKnightsManager::RecvJoinKnights(CUser *pUser, Packet & pkt, BYTE command)
 	pUser->SendToRegion(&result);
 
 	result.Initialize(UDP_KNIGHTS_PROCESS);
-	result << command << sClanID << pUser->m_pUserData.m_id;
+	result << command << sClanID << pUser->m_id;
 	g_pMain->Send_UDP_All(&result, (g_pMain->m_nServerGroup == 0 ? 0 : 1));
 }
 
@@ -631,38 +631,38 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, BYTE command)
 		break;
 	case KNIGHTS_ADMIT:
 		if (pTUser != NULL)
-			pTUser->m_pUserData.m_bFame = KNIGHT;
+			pTUser->m_bFame = KNIGHT;
 		break;
 	case KNIGHTS_REJECT:
 		if (pTUser != NULL)
 		{
 			pTUser->SetClanID(0);
-			pTUser->m_pUserData.m_bFame = 0;
+			pTUser->m_bFame = 0;
 
-			RemoveKnightsUser(sClanID, pTUser->m_pUserData.m_id);
+			RemoveKnightsUser(sClanID, pTUser->m_id);
 		}
 		break;
 	case KNIGHTS_CHIEF:
 		if (pTUser != NULL)
 		{
-			pTUser->m_pUserData.m_bFame = CHIEF;
+			pTUser->m_bFame = CHIEF;
 			clanNotice = g_pMain->GetServerResource(IDS_KNIGHTS_CHIEF);
 		}
 		break;
 	case KNIGHTS_VICECHIEF:
 		if (pTUser != NULL)
 		{
-			pTUser->m_pUserData.m_bFame = VICECHIEF;
+			pTUser->m_bFame = VICECHIEF;
 			clanNotice = g_pMain->GetServerResource(IDS_KNIGHTS_VICECHIEF);
 		}
 		break;
 	case KNIGHTS_OFFICER:
 		if (pTUser != NULL)
-			pTUser->m_pUserData.m_bFame = OFFICER;
+			pTUser->m_bFame = OFFICER;
 		break;
 	case KNIGHTS_PUNISH:
 		if (pTUser != NULL)
-			pTUser->m_pUserData.m_bFame = PUNISH;
+			pTUser->m_bFame = PUNISH;
 		break;
 	}
 
@@ -677,7 +677,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, BYTE command)
 		return;
 
 	// Construct the clan system chat packet
-	pKnights->ConstructChatPacket(result, clanNotice, pTUser != NULL ? pTUser->m_pUserData.m_id : strUserID.c_str()); 
+	pKnights->ConstructChatPacket(result, clanNotice, pTUser != NULL ? pTUser->m_id : strUserID.c_str()); 
 
 	// If we've been removed from a clan, tell the user as well (since they're no longer in the clan)
 	if (command == KNIGHTS_REMOVE && pTUser != NULL)
@@ -828,7 +828,7 @@ void CKnightsManager::RegisterClanSymbol(CUser* pUser, Packet & pkt)
 		|| pkt.size() < sSymbolSize)
 		sFailCode = 13;
 	// User doesn't have enough coins
-	else if (pUser->m_pUserData.m_iGold < CLAN_SYMBOL_COST)
+	else if (pUser->m_iGold < CLAN_SYMBOL_COST)
 		sFailCode = 14;
 	// Clan doesn't exist
 	else if ((pKnights = g_pMain->GetClanPtr(pUser->GetClanID())) == NULL)

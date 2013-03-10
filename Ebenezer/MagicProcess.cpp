@@ -166,11 +166,11 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 		return false;
 
 	if (pSkill->sSkill != 0
-		&& (m_pSrcUser->m_pUserData.m_sClass != (pSkill->sSkill / 10)
-			|| m_pSrcUser->m_pUserData.m_bLevel < pSkill->sSkillLevel))
+		&& (m_pSrcUser->m_sClass != (pSkill->sSkill / 10)
+			|| m_pSrcUser->m_bLevel < pSkill->sSkillLevel))
 		return false;
 
-	if ((m_pSrcUser->m_pUserData.m_sMp - pSkill->sMsp) < 0)
+	if ((m_pSrcUser->m_sMp - pSkill->sMsp) < 0)
 		return false;
 
 	// If we're in a snow war, we're only ever allowed to use the snowball skill.
@@ -504,8 +504,8 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 		modulator = pSkill->sSkill % 10;     // Hacking prevention!
 		if( modulator != 0 ) {	
 			Class = pSkill->sSkill / 10;
-			if( Class != m_pSrcUser->m_pUserData.m_sClass ) goto fail_return;
-			if( pSkill->sSkillLevel > m_pSrcUser->m_pUserData.m_bstrSkill[modulator] ) goto fail_return;
+			if( Class != m_pSrcUser->m_sClass ) goto fail_return;
+			if( pSkill->sSkillLevel > m_pSrcUser->m_bstrSkill[modulator] ) goto fail_return;
 		}
 		else if (pSkill->sSkillLevel > m_pSrcUser->GetLevel()) goto fail_return;
 
@@ -541,10 +541,10 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
  
 			if (pSkill->bType[0] == 1 || pSkill->bType[0] == 2)
 			{
-				if (skill_mana > m_pSrcUser->m_pUserData.m_sMp)
+				if (skill_mana > m_pSrcUser->m_sMp)
 					goto fail_return;
 			}
-			else if (pSkill->sMsp > m_pSrcUser->m_pUserData.m_sMp)
+			else if (pSkill->sMsp > m_pSrcUser->m_sMp)
 				goto fail_return;
 
 			if (pSkill->bType[0] == 3 || pSkill->bType[0] == 4) {   // If the PLAYER uses an item to cast a spell.
@@ -555,7 +555,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 						pItem = g_pMain->GetItemPtr(pSkill->iUseItem);
 						if( !pItem ) return false;
 
-						if ((pItem->m_bRace != 0 && m_pSrcUser->m_pUserData.m_bRace != pItem->m_bRace)
+						if ((pItem->m_bRace != 0 && m_pSrcUser->m_bRace != pItem->m_bRace)
 							|| (pItem->m_bClass != 0 && !m_pSrcUser->JobGroupCheck(pItem->m_bClass))
 							|| (pItem->m_bReqLevel != 0 && m_pSrcUser->GetLevel() < pItem->m_bReqLevel)
 							|| (!m_pSrcUser->RobItem(pSkill->iUseItem, 1)))	
@@ -569,7 +569,7 @@ bool CMagicProcess::IsAvailable(_MAGIC_TABLE *pSkill)
 				m_pSrcUser->MSpChange(-(pSkill->sMsp));
 
 			if (pSkill->sHP > 0 && pSkill->sMsp == 0) {			// DEDUCTION OF HPs in Magic/Skill using HPs.
-				if (pSkill->sHP > m_pSrcUser->m_pUserData.m_sHp) goto fail_return;
+				if (pSkill->sHP > m_pSrcUser->m_sHp) goto fail_return;
 				m_pSrcUser->HpChange(-pSkill->sHP);
 			}
 		}
@@ -717,7 +717,7 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 			damage = pType->sFirstDamage;
 
 		if( m_pSrcUser )	{
-			if( m_pSrcUser->m_pUserData.m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )
+			if( m_pSrcUser->m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )
 				damage = -10;		
 		}
 
@@ -738,7 +738,7 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 			else if( pType->bDirectType == 9 ) //Damage based on percentage of target's max HP
 			{
 				if (pType->sFirstDamage < 100)
-					damage = (pType->sFirstDamage * pTUser->m_pUserData.m_sHp) / -100;
+					damage = (pType->sFirstDamage * pTUser->m_sHp) / -100;
 				else
 					damage = (pTUser->m_iMaxHp * (pType->sFirstDamage - 100)) / 100;
 
@@ -1356,7 +1356,7 @@ bool CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 				if (pTUser->GetMap() == NULL)
 					continue;
 
-				pEvent = pTUser->GetMap()->GetObjectEvent(pTUser->m_pUserData.m_sBind);
+				pEvent = pTUser->GetMap()->GetObjectEvent(pTUser->m_sBind);
 
 				if( pEvent ) {
 					pTUser->Warp(uint16((pEvent->fPosX + x) * 10), uint16((pEvent->fPosZ + z) * 10));	
@@ -1369,9 +1369,9 @@ bool CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 					else	// Land of Elmorad
 						pTUser->Warp(uint16((177 + x) * 10), uint16((923 + z) * 10));
 				}
-				else if (pTUser->m_pUserData.m_bZone == ZONE_BATTLE)
+				else if (pTUser->m_bZone == ZONE_BATTLE)
 					pTUser->Warp(uint16((pHomeInfo->BattleZoneX + x) * 10), uint16((pHomeInfo->BattleZoneZ + z) * 10));	
-				else if (pTUser->m_pUserData.m_bZone == ZONE_FRONTIER)
+				else if (pTUser->m_bZone == ZONE_FRONTIER)
 					pTUser->Warp(uint16((pHomeInfo->FreeZoneX + x) * 10), uint16((pHomeInfo->FreeZoneZ + z) * 10));
 				else
 					pTUser->Warp(uint16((pTUser->GetMap()->m_fInitX + x) * 10), uint16((pTUser->GetMap()->m_fInitZ + z) * 10));	
@@ -1418,9 +1418,9 @@ bool CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 				pTUser->m_MagicProcess.SendSkill(m_sCasterID, (*itr)->GetSocketID(), 
 					m_opcode, m_nSkillID, m_sData1, 1, m_sData3);
 
-				pTUser->ZoneChange(m_pSrcUser->GetZoneID(), m_pSrcUser->m_pUserData.m_curx, m_pSrcUser->m_pUserData.m_curz) ;
+				pTUser->ZoneChange(m_pSrcUser->GetZoneID(), m_pSrcUser->m_curx, m_pSrcUser->m_curz) ;
 				pTUser->UserInOut(INOUT_RESPAWN);
-				//TRACE(" Summon ,, name=%s, x=%.2f, z=%.2f\n", pTUser->m_pUserData.m_id, pTUser->m_pUserData.m_curx, pTUser->m_pUserData.m_curz);
+				//TRACE(" Summon ,, name=%s, x=%.2f, z=%.2f\n", pTUser->m_id, pTUser->m_curx, pTUser->m_curz);
 				break;
 
 			case 20:	// Randomly teleport the source (within 20 meters)		
@@ -1430,8 +1430,8 @@ bool CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 				float warp_x, warp_z;		// Variable Initialization.
 				float temp_warp_x, temp_warp_z;
 
-				warp_x = pTUser->m_pUserData.m_curx;	// Get current locations.
-				warp_z = pTUser->m_pUserData.m_curz;
+				warp_x = pTUser->m_curx;	// Get current locations.
+				warp_z = pTUser->m_curz;
 
 				temp_warp_x = (float)myrand(0, 20) ;	// Get random positions (within 20 meters)
 				temp_warp_z = (float)myrand(0, 20) ;
@@ -1465,8 +1465,8 @@ bool CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 				if (pSkill->bMoral < MORAL_ENEMY && pTUser->GetNation() != m_pSrcUser->GetNation()) //I'm not the same nation as you are and thus can't t
 					return false;
 					
-				dest_x = pTUser->m_pUserData.m_curx;
-				dest_z = pTUser->m_pUserData.m_curz;
+				dest_x = pTUser->m_curx;
+				dest_z = pTUser->m_curz;
 
 				m_pSrcUser->Warp(uint16(dest_x * 10), uint16(dest_z * 10));
 				break;
@@ -1666,7 +1666,7 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 			}
 			else if (pTUser->m_sPartyIndex == m_pSrcUser->m_sPartyIndex && pMagic->bType[0] == 8) {
 				currenttime = TimeGet();
-				if (pTUser->m_pUserData.m_bZone == ZONE_BATTLE && (currenttime - pTUser->m_fLastRegeneTime < CLAN_SUMMON_TIME)) {
+				if (pTUser->m_bZone == ZONE_BATTLE && (currenttime - pTUser->m_fLastRegeneTime < CLAN_SUMMON_TIME)) {
 					return FALSE;
 				}
 				else {
@@ -1679,17 +1679,17 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 		case MORAL_SELF_AREA :
 		case MORAL_AREA_ENEMY :
 			if (!bFlag) {
-				if (pTUser->m_pUserData.m_bNation != m_pSrcUser->m_pUserData.m_bNation)		// Check that it's your enemy.
+				if (pTUser->m_bNation != m_pSrcUser->m_bNation)		// Check that it's your enemy.
 					goto final_test;
 			}
 			else {
-				if (pTUser->m_pUserData.m_bNation != pMon->m_byGroup)
+				if (pTUser->m_bNation != pMon->m_byGroup)
 					goto final_test;
 			}
 			break;
 
 		case MORAL_AREA_FRIEND :				
-			if (pTUser->m_pUserData.m_bNation == m_pSrcUser->m_pUserData.m_bNation) 		// Check that it's your ally.
+			if (pTUser->m_bNation == m_pSrcUser->m_bNation) 		// Check that it's your ally.
 				goto final_test;
 			break;
 // �񷯸ӱ� Ŭ�� ��ȯ!!!
@@ -1711,7 +1711,7 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 			}
 			else if (pTUser->GetClanID() == m_pSrcUser->GetClanID() && pMagic->bType[0] == 8) {
 				currenttime = TimeGet();
-				if (pTUser->m_pUserData.m_bZone == ZONE_BATTLE && (currenttime - pTUser->m_fLastRegeneTime < CLAN_SUMMON_TIME)) {
+				if (pTUser->m_bZone == ZONE_BATTLE && (currenttime - pTUser->m_fLastRegeneTime < CLAN_SUMMON_TIME)) {
 					return FALSE;
 				}
 				else {

@@ -11,7 +11,7 @@ enum UserUpdateType
 };
 
 class Packet;
-struct _USER_DATA;
+class CUser;
 class CDBAgent  
 {
 public:
@@ -32,22 +32,22 @@ public:
 	int8 CreateNewChar(std::string & strAccountID, int index, std::string & strCharID, uint8 bRace, uint16 sClass, uint32 nHair, uint8 bFace, uint8 bStr, uint8 bSta, uint8 bDex, uint8 bInt, uint8 bCha);
 	int8 DeleteChar(std::string & strAccountID, int index, std::string & strCharID, std::string & strSocNo);
 
-	bool LoadUserData(std::string & strAccountID, std::string & strCharID, _USER_DATA *pUser);
-	bool LoadWarehouseData(std::string & strAccountID, _USER_DATA *pUser);
-	bool LoadPremiumServiceUser(std::string & strAccountID, _USER_DATA *pUser);
+	bool LoadUserData(std::string & strAccountID, std::string & strCharID, CUser *pUser);
+	bool LoadWarehouseData(std::string & strAccountID, CUser *pUser);
+	bool LoadPremiumServiceUser(std::string & strAccountID, CUser *pUser);
 	bool SetLogInInfo(std::string & strAccountID, std::string & strCharID, std::string & strServerIP, short sServerNo, std::string & strClientIP, uint8 bInit);
 
-	bool LoadWebItemMall(Packet & result, _USER_DATA *pUser);
+	bool LoadWebItemMall(Packet & result, CUser *pUser);
 
-	bool LoadSkillShortcut(Packet & result, _USER_DATA *pUser);
-	void SaveSkillShortcut(short sCount, char *buff, _USER_DATA *pUser);
+	bool LoadSkillShortcut(Packet & result, CUser *pUser);
+	void SaveSkillShortcut(short sCount, char *buff, CUser *pUser);
 
-	void RequestFriendList(std::vector<std::string> & friendList, _USER_DATA *pUser);
+	void RequestFriendList(std::vector<std::string> & friendList, CUser *pUser);
 	FriendAddResult AddFriend(short sid, short tid);
-	FriendRemoveResult RemoveFriend(std::string & strCharID, _USER_DATA *pUser);
+	FriendRemoveResult RemoveFriend(std::string & strCharID, CUser *pUser);
 
-	bool UpdateUser(std::string & strCharID, UserUpdateType type, _USER_DATA *pUser);
-	bool UpdateWarehouseData(std::string & strAccountID, UserUpdateType type, _USER_DATA *pUser);
+	bool UpdateUser(std::string & strCharID, UserUpdateType type, CUser *pUser);
+	bool UpdateWarehouseData(std::string & strAccountID, UserUpdateType type, CUser *pUser);
 
 	int8 CreateKnights(uint16 sClanID, uint8 bNation, std::string & strKnightsName, std::string & strChief, uint8 bFlag = 1);
 	int UpdateKnights(uint8 bType, std::string & strCharID, uint16 sClanID, uint8 bDomination);

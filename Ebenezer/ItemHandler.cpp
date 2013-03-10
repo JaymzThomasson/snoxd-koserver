@@ -12,16 +12,16 @@ void CUser::WarehouseProcess(Packet & pkt)
 
 	if (isDead())
 	{
-		TRACE("### WarehouseProcess Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", m_pUserData.m_id, GetSocketID(), m_bResHpType, m_pUserData.m_sHp, (int)m_pUserData.m_curx, (int)m_pUserData.m_curz);
+		TRACE("### WarehouseProcess Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", m_id, GetSocketID(), m_bResHpType, m_sHp, (int)m_curx, (int)m_curz);
 		return;
 	}
 	if (isTrading())
 		goto fail_return;
 
 	if( command == WAREHOUSE_OPEN )	{
-		result << uint8(WAREHOUSE_OPEN) << uint8(WAREHOUSE_OPEN) << uint32(m_pUserData.m_iBank);
+		result << uint8(WAREHOUSE_OPEN) << uint8(WAREHOUSE_OPEN) << uint32(m_iBank);
 		for(int i=0; i<WAREHOUSE_MAX; i++ ) {
-			result.append(&m_pUserData.m_sWarehouseArray[i], 8); // nNum(4) sDuration(2) sCount(2)
+			result.append(&m_sWarehouseArray[i], 8); // nNum(4) sDuration(2) sCount(2)
 			result << uint8(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
 		}
 		Send(&result);
@@ -38,47 +38,47 @@ void CUser::WarehouseProcess(Packet & pkt)
 	case WAREHOUSE_INPUT:
 		pkt >> count;
 		if( itemid == ITEM_GOLD ) {
-			if( m_pUserData.m_iBank+count > 2100000000 ) goto fail_return;
-			if( m_pUserData.m_iGold-count < 0 ) goto fail_return;
-			m_pUserData.m_iBank += count;
-			m_pUserData.m_iGold -= count;
+			if( m_iBank+count > 2100000000 ) goto fail_return;
+			if( m_iGold-count < 0 ) goto fail_return;
+			m_iBank += count;
+			m_iGold -= count;
 			break;
 		}
 
-		if (m_pUserData.m_sItemArray[SLOT_MAX+srcpos].isSealed()
-			|| m_pUserData.m_sItemArray[SLOT_MAX+srcpos].isRented())
+		if (m_sItemArray[SLOT_MAX+srcpos].isSealed()
+			|| m_sItemArray[SLOT_MAX+srcpos].isRented())
 			goto fail_return;
 
-		if( m_pUserData.m_sItemArray[SLOT_MAX+srcpos].nNum != itemid ) goto fail_return;
+		if( m_sItemArray[SLOT_MAX+srcpos].nNum != itemid ) goto fail_return;
 		if( reference_pos+destpos > WAREHOUSE_MAX ) goto fail_return;
-		if( m_pUserData.m_sWarehouseArray[reference_pos+destpos].nNum && !pTable->m_bCountable ) goto fail_return;
-		if( m_pUserData.m_sItemArray[SLOT_MAX+srcpos].sCount < count ) goto fail_return;
-		m_pUserData.m_sWarehouseArray[reference_pos+destpos].nNum = itemid;
-		m_pUserData.m_sWarehouseArray[reference_pos+destpos].sDuration = m_pUserData.m_sItemArray[SLOT_MAX+srcpos].sDuration;
-		m_pUserData.m_sWarehouseArray[reference_pos+destpos].nSerialNum = m_pUserData.m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
-		if( pTable->m_bCountable == 0 && m_pUserData.m_sWarehouseArray[reference_pos+destpos].nSerialNum == 0 )
-			m_pUserData.m_sWarehouseArray[reference_pos+destpos].nSerialNum = g_pMain->GenerateItemSerial();
+		if( m_sWarehouseArray[reference_pos+destpos].nNum && !pTable->m_bCountable ) goto fail_return;
+		if( m_sItemArray[SLOT_MAX+srcpos].sCount < count ) goto fail_return;
+		m_sWarehouseArray[reference_pos+destpos].nNum = itemid;
+		m_sWarehouseArray[reference_pos+destpos].sDuration = m_sItemArray[SLOT_MAX+srcpos].sDuration;
+		m_sWarehouseArray[reference_pos+destpos].nSerialNum = m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
+		if( pTable->m_bCountable == 0 && m_sWarehouseArray[reference_pos+destpos].nSerialNum == 0 )
+			m_sWarehouseArray[reference_pos+destpos].nSerialNum = g_pMain->GenerateItemSerial();
 
 		if( pTable->m_bCountable ) {
-			m_pUserData.m_sWarehouseArray[reference_pos+destpos].sCount += (unsigned short)count;
+			m_sWarehouseArray[reference_pos+destpos].sCount += (unsigned short)count;
 		}
 		else {
-			m_pUserData.m_sWarehouseArray[reference_pos+destpos].sCount = m_pUserData.m_sItemArray[SLOT_MAX+srcpos].sCount;
+			m_sWarehouseArray[reference_pos+destpos].sCount = m_sItemArray[SLOT_MAX+srcpos].sCount;
 		}
 
 		if( !pTable->m_bCountable ) {
-			m_pUserData.m_sItemArray[SLOT_MAX+srcpos].nNum = 0;
-			m_pUserData.m_sItemArray[SLOT_MAX+srcpos].sDuration = 0;
-			m_pUserData.m_sItemArray[SLOT_MAX+srcpos].sCount = 0;
-			m_pUserData.m_sItemArray[SLOT_MAX+srcpos].nSerialNum = 0;
+			m_sItemArray[SLOT_MAX+srcpos].nNum = 0;
+			m_sItemArray[SLOT_MAX+srcpos].sDuration = 0;
+			m_sItemArray[SLOT_MAX+srcpos].sCount = 0;
+			m_sItemArray[SLOT_MAX+srcpos].nSerialNum = 0;
 		}
 		else {
-			m_pUserData.m_sItemArray[SLOT_MAX+srcpos].sCount -= (unsigned short)count;
-			if( m_pUserData.m_sItemArray[SLOT_MAX+srcpos].sCount <= 0 ) {
-				m_pUserData.m_sItemArray[SLOT_MAX+srcpos].nNum = 0;
-				m_pUserData.m_sItemArray[SLOT_MAX+srcpos].sDuration = 0;
-				m_pUserData.m_sItemArray[SLOT_MAX+srcpos].sCount = 0;
-				m_pUserData.m_sItemArray[SLOT_MAX+srcpos].nSerialNum = 0;
+			m_sItemArray[SLOT_MAX+srcpos].sCount -= (unsigned short)count;
+			if( m_sItemArray[SLOT_MAX+srcpos].sCount <= 0 ) {
+				m_sItemArray[SLOT_MAX+srcpos].nNum = 0;
+				m_sItemArray[SLOT_MAX+srcpos].sDuration = 0;
+				m_sItemArray[SLOT_MAX+srcpos].sCount = 0;
+				m_sItemArray[SLOT_MAX+srcpos].nSerialNum = 0;
 			}
 		}
 
@@ -88,10 +88,10 @@ void CUser::WarehouseProcess(Packet & pkt)
 		pkt >> count;
 
 		if( itemid == ITEM_GOLD ) {
-			if( m_pUserData.m_iGold+count > 2100000000 ) goto fail_return;
-			if( m_pUserData.m_iBank-count < 0 ) goto fail_return;
-			m_pUserData.m_iGold += count;
-			m_pUserData.m_iBank -= count;
+			if( m_iGold+count > 2100000000 ) goto fail_return;
+			if( m_iBank-count < 0 ) goto fail_return;
+			m_iGold += count;
+			m_iBank -= count;
 			break;
 		}
 //
@@ -107,68 +107,68 @@ void CUser::WarehouseProcess(Packet & pkt)
 		}		
 //
 		if( reference_pos+srcpos > WAREHOUSE_MAX ) goto fail_return;
-		if( m_pUserData.m_sWarehouseArray[reference_pos+srcpos].nNum != itemid ) goto fail_return;
-		if( m_pUserData.m_sItemArray[SLOT_MAX+destpos].nNum && !pTable->m_bCountable ) goto fail_return;
-		if( m_pUserData.m_sWarehouseArray[reference_pos+srcpos].sCount < count ) goto fail_return;
-		m_pUserData.m_sItemArray[SLOT_MAX+destpos].nNum = itemid;
-		m_pUserData.m_sItemArray[SLOT_MAX+destpos].sDuration = m_pUserData.m_sWarehouseArray[reference_pos+srcpos].sDuration;
-		m_pUserData.m_sItemArray[SLOT_MAX+destpos].nSerialNum = m_pUserData.m_sWarehouseArray[reference_pos+srcpos].nSerialNum;
+		if( m_sWarehouseArray[reference_pos+srcpos].nNum != itemid ) goto fail_return;
+		if( m_sItemArray[SLOT_MAX+destpos].nNum && !pTable->m_bCountable ) goto fail_return;
+		if( m_sWarehouseArray[reference_pos+srcpos].sCount < count ) goto fail_return;
+		m_sItemArray[SLOT_MAX+destpos].nNum = itemid;
+		m_sItemArray[SLOT_MAX+destpos].sDuration = m_sWarehouseArray[reference_pos+srcpos].sDuration;
+		m_sItemArray[SLOT_MAX+destpos].nSerialNum = m_sWarehouseArray[reference_pos+srcpos].nSerialNum;
 		if( pTable->m_bCountable )
-			m_pUserData.m_sItemArray[SLOT_MAX+destpos].sCount += (unsigned short)count;
+			m_sItemArray[SLOT_MAX+destpos].sCount += (unsigned short)count;
 		else {
-			if( m_pUserData.m_sItemArray[SLOT_MAX+destpos].nSerialNum == 0 )
-				m_pUserData.m_sItemArray[SLOT_MAX+destpos].nSerialNum = g_pMain->GenerateItemSerial();
-			m_pUserData.m_sItemArray[SLOT_MAX+destpos].sCount = m_pUserData.m_sWarehouseArray[reference_pos+srcpos].sCount;
+			if( m_sItemArray[SLOT_MAX+destpos].nSerialNum == 0 )
+				m_sItemArray[SLOT_MAX+destpos].nSerialNum = g_pMain->GenerateItemSerial();
+			m_sItemArray[SLOT_MAX+destpos].sCount = m_sWarehouseArray[reference_pos+srcpos].sCount;
 		}
 		if( !pTable->m_bCountable ) {
-			m_pUserData.m_sWarehouseArray[reference_pos+srcpos].nNum = 0;
-			m_pUserData.m_sWarehouseArray[reference_pos+srcpos].sDuration = 0;
-			m_pUserData.m_sWarehouseArray[reference_pos+srcpos].sCount = 0;
-			m_pUserData.m_sWarehouseArray[reference_pos+srcpos].nSerialNum = 0;
+			m_sWarehouseArray[reference_pos+srcpos].nNum = 0;
+			m_sWarehouseArray[reference_pos+srcpos].sDuration = 0;
+			m_sWarehouseArray[reference_pos+srcpos].sCount = 0;
+			m_sWarehouseArray[reference_pos+srcpos].nSerialNum = 0;
 		}
 		else {
-			m_pUserData.m_sWarehouseArray[reference_pos+srcpos].sCount -= (unsigned short)count;
-			if( m_pUserData.m_sWarehouseArray[reference_pos+srcpos].sCount <= 0 ) {
-				m_pUserData.m_sWarehouseArray[reference_pos+srcpos].nNum = 0;
-				m_pUserData.m_sWarehouseArray[reference_pos+srcpos].sDuration = 0;
-				m_pUserData.m_sWarehouseArray[reference_pos+srcpos].sCount = 0;
-				m_pUserData.m_sWarehouseArray[reference_pos+srcpos].nSerialNum = 0;
+			m_sWarehouseArray[reference_pos+srcpos].sCount -= (unsigned short)count;
+			if( m_sWarehouseArray[reference_pos+srcpos].sCount <= 0 ) {
+				m_sWarehouseArray[reference_pos+srcpos].nNum = 0;
+				m_sWarehouseArray[reference_pos+srcpos].sDuration = 0;
+				m_sWarehouseArray[reference_pos+srcpos].sCount = 0;
+				m_sWarehouseArray[reference_pos+srcpos].nSerialNum = 0;
 			}
 		}
 
 		SendItemWeight();		
-		//TRACE("WARE OUTPUT : %s %s %d %d %d %d %d", m_pUserData.m_id, m_pUserData.m_Accountid, ITEM_WAREHOUSE_GET, 0, itemid, count, m_pUserData.m_sItemArray[SLOT_MAX+destpos].sDuration );
+		//TRACE("WARE OUTPUT : %s %s %d %d %d %d %d", m_id, m_Accountid, ITEM_WAREHOUSE_GET, 0, itemid, count, m_sItemArray[SLOT_MAX+destpos].sDuration );
 		break;
 	case WAREHOUSE_MOVE:
 		if( reference_pos+srcpos > WAREHOUSE_MAX ) goto fail_return;
-		if( m_pUserData.m_sWarehouseArray[reference_pos+srcpos].nNum != itemid ) goto fail_return;
-		if( m_pUserData.m_sWarehouseArray[reference_pos+destpos].nNum ) goto fail_return;
-		m_pUserData.m_sWarehouseArray[reference_pos+destpos].nNum = itemid;
-		m_pUserData.m_sWarehouseArray[reference_pos+destpos].sDuration = m_pUserData.m_sWarehouseArray[reference_pos+srcpos].sDuration;
-		m_pUserData.m_sWarehouseArray[reference_pos+destpos].sCount = m_pUserData.m_sWarehouseArray[reference_pos+srcpos].sCount;
-		m_pUserData.m_sWarehouseArray[reference_pos+destpos].nSerialNum = m_pUserData.m_sWarehouseArray[reference_pos+srcpos].nSerialNum;
+		if( m_sWarehouseArray[reference_pos+srcpos].nNum != itemid ) goto fail_return;
+		if( m_sWarehouseArray[reference_pos+destpos].nNum ) goto fail_return;
+		m_sWarehouseArray[reference_pos+destpos].nNum = itemid;
+		m_sWarehouseArray[reference_pos+destpos].sDuration = m_sWarehouseArray[reference_pos+srcpos].sDuration;
+		m_sWarehouseArray[reference_pos+destpos].sCount = m_sWarehouseArray[reference_pos+srcpos].sCount;
+		m_sWarehouseArray[reference_pos+destpos].nSerialNum = m_sWarehouseArray[reference_pos+srcpos].nSerialNum;
 
-		m_pUserData.m_sWarehouseArray[reference_pos+srcpos].nNum = 0;
-		m_pUserData.m_sWarehouseArray[reference_pos+srcpos].sDuration = 0;
-		m_pUserData.m_sWarehouseArray[reference_pos+srcpos].sCount = 0;
-		m_pUserData.m_sWarehouseArray[reference_pos+srcpos].nSerialNum = 0;
+		m_sWarehouseArray[reference_pos+srcpos].nNum = 0;
+		m_sWarehouseArray[reference_pos+srcpos].sDuration = 0;
+		m_sWarehouseArray[reference_pos+srcpos].sCount = 0;
+		m_sWarehouseArray[reference_pos+srcpos].nSerialNum = 0;
 		break;
 	case WAREHOUSE_INVENMOVE:
-		if( itemid != m_pUserData.m_sItemArray[SLOT_MAX+srcpos].nNum )
+		if( itemid != m_sItemArray[SLOT_MAX+srcpos].nNum )
 			goto fail_return;
 		{
-			short duration = m_pUserData.m_sItemArray[SLOT_MAX+srcpos].sDuration;
-			short itemcount = m_pUserData.m_sItemArray[SLOT_MAX+srcpos].sCount;
-			__int64 serial = m_pUserData.m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
-			m_pUserData.m_sItemArray[SLOT_MAX+srcpos].nNum = m_pUserData.m_sItemArray[SLOT_MAX+destpos].nNum;
-			m_pUserData.m_sItemArray[SLOT_MAX+srcpos].sDuration = m_pUserData.m_sItemArray[SLOT_MAX+destpos].sDuration;
-			m_pUserData.m_sItemArray[SLOT_MAX+srcpos].sCount = m_pUserData.m_sItemArray[SLOT_MAX+destpos].sCount;
-			m_pUserData.m_sItemArray[SLOT_MAX+srcpos].nSerialNum = m_pUserData.m_sItemArray[SLOT_MAX+destpos].nSerialNum;
+			short duration = m_sItemArray[SLOT_MAX+srcpos].sDuration;
+			short itemcount = m_sItemArray[SLOT_MAX+srcpos].sCount;
+			__int64 serial = m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
+			m_sItemArray[SLOT_MAX+srcpos].nNum = m_sItemArray[SLOT_MAX+destpos].nNum;
+			m_sItemArray[SLOT_MAX+srcpos].sDuration = m_sItemArray[SLOT_MAX+destpos].sDuration;
+			m_sItemArray[SLOT_MAX+srcpos].sCount = m_sItemArray[SLOT_MAX+destpos].sCount;
+			m_sItemArray[SLOT_MAX+srcpos].nSerialNum = m_sItemArray[SLOT_MAX+destpos].nSerialNum;
 
-			m_pUserData.m_sItemArray[SLOT_MAX+destpos].nNum = itemid;
-			m_pUserData.m_sItemArray[SLOT_MAX+destpos].sDuration = duration;
-			m_pUserData.m_sItemArray[SLOT_MAX+destpos].sCount = itemcount;
-			m_pUserData.m_sItemArray[SLOT_MAX+destpos].nSerialNum = serial;
+			m_sItemArray[SLOT_MAX+destpos].nNum = itemid;
+			m_sItemArray[SLOT_MAX+destpos].sDuration = duration;
+			m_sItemArray[SLOT_MAX+destpos].sCount = itemcount;
+			m_sItemArray[SLOT_MAX+destpos].nSerialNum = serial;
 		}
 		break;
 	}
@@ -200,8 +200,8 @@ BOOL CUser::CheckExistItem(int itemid, short count)
 	for (int i = SLOT_MAX; i < INVENTORY_TOTAL; i++)
 	{
 		// This implementation fixes a bug where it ignored the possibility for multiple stacks.
-		if (m_pUserData.m_sItemArray[i].nNum == itemid
-				&& m_pUserData.m_sItemArray[i].sCount >= count)
+		if (m_sItemArray[i].nNum == itemid
+				&& m_sItemArray[i].sCount >= count)
 			return TRUE;
 	}
 
@@ -217,9 +217,9 @@ BOOL CUser::RobItem(int itemid, short count)
 	// Search for the existance of all items in the player's inventory storage and onwards (includes magic bags)
 	for (int i = SLOT_MAX; i < INVENTORY_TOTAL; i++)
 	{
-		_ITEM_DATA *pItem = &m_pUserData.m_sItemArray[i];
+		_ITEM_DATA *pItem = &m_sItemArray[i];
 		if (pItem->nNum != itemid
-			|| m_pUserData.m_sItemArray[i].sCount < count)
+			|| m_sItemArray[i].sCount < count)
 			continue;
 
 		pItem->sCount -= count;
@@ -231,7 +231,7 @@ BOOL CUser::RobItem(int itemid, short count)
 			pItem->sDuration = pItem->sCount;
 
 		if (pItem->sCount == 0)
-			memset(&m_pUserData.m_sItemArray[i], 0, sizeof(_ITEM_DATA));
+			memset(&m_sItemArray[i], 0, sizeof(_ITEM_DATA));
 
 		SendStackChange(itemid, pItem->sCount, pItem->sDuration, i - SLOT_MAX);
 		return TRUE;
@@ -252,7 +252,7 @@ BOOL CUser::GiveItem(int itemid, short count, bool send_packet /*= true*/)
 	if (pos < 0)
 		return FALSE;
 
-	_ITEM_DATA *pItem = &m_pUserData.m_sItemArray[SLOT_MAX+pos];
+	_ITEM_DATA *pItem = &m_sItemArray[SLOT_MAX+pos];
 	if (pItem->nNum != 0)
 		bNewItem = false;
 
@@ -269,7 +269,7 @@ BOOL CUser::GiveItem(int itemid, short count, bool send_packet /*= true*/)
 		pItem->sCount = pItem->sDuration;
 
 	if (send_packet)
-		SendStackChange(itemid, m_pUserData.m_sItemArray[SLOT_MAX+pos].sCount, m_pUserData.m_sItemArray[SLOT_MAX+pos].sDuration, pos, true);
+		SendStackChange(itemid, m_sItemArray[SLOT_MAX+pos].sCount, m_sItemArray[SLOT_MAX+pos].sDuration, pos, true);
 	return TRUE;
 }
 
@@ -286,9 +286,9 @@ BOOL CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 	return (pTable != NULL
 		&& GetLevel() >= pTable->m_bReqLevel 
 		&& GetLevel() <= pTable->m_bReqLevelMax
-		&& (pTable->m_bRace == 0 || pTable->m_bRace == m_pUserData.m_bRace)
-		&& m_pUserData.m_bRank >= pTable->m_bReqRank // this needs to be verified
-		&& m_pUserData.m_bTitle >= pTable->m_bReqTitle // this is unused
+		&& (pTable->m_bRace == 0 || pTable->m_bRace == m_bRace)
+		&& m_bRank >= pTable->m_bReqRank // this needs to be verified
+		&& m_bTitle >= pTable->m_bReqTitle // this is unused
 		&& getStat(STAT_STR) >= pTable->m_bReqStr 
 		&& getStat(STAT_STA) >= pTable->m_bReqSta 
 		&& getStat(STAT_DEX) >= pTable->m_bReqDex 
@@ -324,106 +324,106 @@ void CUser::ItemMove(Packet & pkt)
 		if (bDstPos >= MBAG_TOTAL || bSrcPos >= MBAG_TOTAL
 			// We also need to make sure that if we're setting an item in a magic bag, we need to actually
 			// have a magic back to put the item in!
-			|| (INVENTORY_MBAG+bDstPos <  INVENTORY_MBAG2 && m_pUserData.m_sItemArray[BAG1].nNum == 0)
-			|| (INVENTORY_MBAG+bDstPos >= INVENTORY_MBAG2 && m_pUserData.m_sItemArray[BAG2].nNum == 0)
+			|| (INVENTORY_MBAG+bDstPos <  INVENTORY_MBAG2 && m_sItemArray[BAG1].nNum == 0)
+			|| (INVENTORY_MBAG+bDstPos >= INVENTORY_MBAG2 && m_sItemArray[BAG2].nNum == 0)
 			// Make sure that the item actually exists there.
-			|| nItemID != m_pUserData.m_sItemArray[INVENTORY_MBAG + bSrcPos].nNum)
+			|| nItemID != m_sItemArray[INVENTORY_MBAG + bSrcPos].nNum)
 			goto fail_return;
 
-		pSrcItem = &m_pUserData.m_sItemArray[INVENTORY_MBAG + bSrcPos];
-		pDstItem = &m_pUserData.m_sItemArray[INVENTORY_MBAG + bDstPos];
+		pSrcItem = &m_sItemArray[INVENTORY_MBAG + bSrcPos];
+		pDstItem = &m_sItemArray[INVENTORY_MBAG + bDstPos];
 		break;
 
 	case ITEM_MBAG_TO_INVEN:
 		if (bDstPos >= HAVE_MAX || bSrcPos >= MBAG_TOTAL
 			// We also need to make sure that if we're taking an item from a magic bag, we need to actually
 			// have a magic back to take it from!
-			|| (INVENTORY_MBAG+bSrcPos <  INVENTORY_MBAG2 && m_pUserData.m_sItemArray[BAG1].nNum == 0)
-			|| (INVENTORY_MBAG+bSrcPos >= INVENTORY_MBAG2 && m_pUserData.m_sItemArray[BAG2].nNum == 0)
+			|| (INVENTORY_MBAG+bSrcPos <  INVENTORY_MBAG2 && m_sItemArray[BAG1].nNum == 0)
+			|| (INVENTORY_MBAG+bSrcPos >= INVENTORY_MBAG2 && m_sItemArray[BAG2].nNum == 0)
 			// Make sure that the item actually exists there.
-			|| nItemID != m_pUserData.m_sItemArray[INVENTORY_MBAG + bSrcPos].nNum)
+			|| nItemID != m_sItemArray[INVENTORY_MBAG + bSrcPos].nNum)
 			goto fail_return;
 		
-		pSrcItem = &m_pUserData.m_sItemArray[INVENTORY_MBAG + bSrcPos];
-		pDstItem = &m_pUserData.m_sItemArray[INVENTORY_INVENT + bDstPos];
+		pSrcItem = &m_sItemArray[INVENTORY_MBAG + bSrcPos];
+		pDstItem = &m_sItemArray[INVENTORY_INVENT + bDstPos];
 		break;
 
 	case ITEM_INVEN_TO_MBAG:
 		if (bDstPos >= MBAG_TOTAL || bSrcPos >= HAVE_MAX
 			// We also need to make sure that if we're adding an item to a magic bag, we need to actually
 			// have a magic back to put the item in!
-			|| (INVENTORY_MBAG + bDstPos < INVENTORY_MBAG2 && m_pUserData.m_sItemArray[BAG1].nNum == 0)
-			|| (INVENTORY_MBAG + bDstPos >= INVENTORY_MBAG2 && m_pUserData.m_sItemArray[BAG2].nNum == 0)
+			|| (INVENTORY_MBAG + bDstPos < INVENTORY_MBAG2 && m_sItemArray[BAG1].nNum == 0)
+			|| (INVENTORY_MBAG + bDstPos >= INVENTORY_MBAG2 && m_sItemArray[BAG2].nNum == 0)
 			// Make sure that the item actually exists there.
-			|| nItemID != m_pUserData.m_sItemArray[INVENTORY_INVENT + bSrcPos].nNum)
+			|| nItemID != m_sItemArray[INVENTORY_INVENT + bSrcPos].nNum)
 			goto fail_return;
 		
-		pSrcItem = &m_pUserData.m_sItemArray[INVENTORY_INVENT + bSrcPos];
-		pDstItem = &m_pUserData.m_sItemArray[INVENTORY_MBAG + bDstPos];
+		pSrcItem = &m_sItemArray[INVENTORY_INVENT + bSrcPos];
+		pDstItem = &m_sItemArray[INVENTORY_MBAG + bDstPos];
 		break;
 
 	case ITEM_COSP_TO_INVEN:
 		if (bDstPos >= HAVE_MAX || bSrcPos >= COSP_MAX
 			// Make sure that the item actually exists there.
-			|| nItemID != m_pUserData.m_sItemArray[INVENTORY_COSP + bSrcPos].nNum)
+			|| nItemID != m_sItemArray[INVENTORY_COSP + bSrcPos].nNum)
 			goto fail_return;
 		
-		pSrcItem = &m_pUserData.m_sItemArray[INVENTORY_COSP + bSrcPos];
-		pDstItem = &m_pUserData.m_sItemArray[INVENTORY_INVENT + bDstPos];
+		pSrcItem = &m_sItemArray[INVENTORY_COSP + bSrcPos];
+		pDstItem = &m_sItemArray[INVENTORY_INVENT + bDstPos];
 		break;
 
 	case ITEM_INVEN_TO_COSP: // TO-DO: Update IsValidSlotPos() for cospre items?
 		if (bDstPos >= COSP_MAX || bSrcPos >= HAVE_MAX
 			// Make sure that the item actually exists there.
-			|| nItemID != m_pUserData.m_sItemArray[INVENTORY_INVENT + bSrcPos].nNum)
+			|| nItemID != m_sItemArray[INVENTORY_INVENT + bSrcPos].nNum)
 			goto fail_return;
 		
-		pSrcItem = &m_pUserData.m_sItemArray[INVENTORY_INVENT + bSrcPos];
-		pDstItem = &m_pUserData.m_sItemArray[INVENTORY_COSP + bDstPos];
+		pSrcItem = &m_sItemArray[INVENTORY_INVENT + bSrcPos];
+		pDstItem = &m_sItemArray[INVENTORY_COSP + bDstPos];
 		break;
 
 	case ITEM_INVEN_SLOT:
 		if (bDstPos >= SLOT_MAX || bSrcPos >= HAVE_MAX
 			// Make sure that the item actually exists there.
-			|| nItemID != m_pUserData.m_sItemArray[INVENTORY_INVENT + bSrcPos].nNum
+			|| nItemID != m_sItemArray[INVENTORY_INVENT + bSrcPos].nNum
 			// Ensure the item is able to be equipped in that slot
 			|| !IsValidSlotPos(pTable, bDstPos))
 			goto fail_return;
 
-		pSrcItem = &m_pUserData.m_sItemArray[INVENTORY_INVENT + bSrcPos];
-		pDstItem = &m_pUserData.m_sItemArray[bDstPos];
+		pSrcItem = &m_sItemArray[INVENTORY_INVENT + bSrcPos];
+		pDstItem = &m_sItemArray[bDstPos];
 		break;
 
 	case ITEM_SLOT_INVEN:
 		if (bDstPos >= HAVE_MAX || bSrcPos >= SLOT_MAX
 			// Make sure that the item actually exists there.
-			|| nItemID != m_pUserData.m_sItemArray[bSrcPos].nNum)
+			|| nItemID != m_sItemArray[bSrcPos].nNum)
 			goto fail_return;
 		
-		pSrcItem = &m_pUserData.m_sItemArray[bSrcPos];
-		pDstItem = &m_pUserData.m_sItemArray[INVENTORY_INVENT + bDstPos];
+		pSrcItem = &m_sItemArray[bSrcPos];
+		pDstItem = &m_sItemArray[INVENTORY_INVENT + bDstPos];
 		break;
 
 	case ITEM_INVEN_INVEN:
 		if (bDstPos >= HAVE_MAX || bSrcPos >= HAVE_MAX
 			// Make sure that the item actually exists there.
-			|| nItemID != m_pUserData.m_sItemArray[INVENTORY_INVENT + bSrcPos].nNum)
+			|| nItemID != m_sItemArray[INVENTORY_INVENT + bSrcPos].nNum)
 			goto fail_return;
 		
-		pSrcItem = &m_pUserData.m_sItemArray[INVENTORY_INVENT + bSrcPos];
-		pDstItem = &m_pUserData.m_sItemArray[INVENTORY_INVENT + bDstPos];
+		pSrcItem = &m_sItemArray[INVENTORY_INVENT + bSrcPos];
+		pDstItem = &m_sItemArray[INVENTORY_INVENT + bDstPos];
 		break;
 
 	case ITEM_SLOT_SLOT:
 		if (bDstPos >= SLOT_MAX || bSrcPos >= SLOT_MAX
 			// Make sure that the item actually exists there.
-			|| nItemID != m_pUserData.m_sItemArray[bSrcPos].nNum
+			|| nItemID != m_sItemArray[bSrcPos].nNum
 			// Ensure the item is able to be equipped in that slot
 			|| !IsValidSlotPos(pTable, bDstPos))
 			goto fail_return;
 		
-		pSrcItem = &m_pUserData.m_sItemArray[bSrcPos];
-		pDstItem = &m_pUserData.m_sItemArray[bDstPos];
+		pSrcItem = &m_sItemArray[bSrcPos];
+		pDstItem = &m_sItemArray[bDstPos];
 		break;
 
 	default:
@@ -591,7 +591,7 @@ void CUser::ItemRemove(Packet & pkt)
 		bPos += SLOT_MAX;
 	}
 
-	_ITEM_DATA *pItem = &m_pUserData.m_sItemArray[bPos];
+	_ITEM_DATA *pItem = &m_sItemArray[bPos];
 
 	// Make sure the item matches what the client says it is
 	if (pItem->nNum != nItemID
@@ -641,10 +641,10 @@ BOOL CUser::CheckItemCount(int itemid, short min, short max)
 
 	for (int i = 0 ; i < SLOT_MAX + HAVE_MAX; i++)
 	{
-		if (m_pUserData.m_sItemArray[i].nNum != itemid)
+		if (m_sItemArray[i].nNum != itemid)
 			continue;
 
-		return (m_pUserData.m_sItemArray[i].sCount >= min && m_pUserData.m_sItemArray[i].sCount <= max);
+		return (m_sItemArray[i].sCount >= min && m_sItemArray[i].sCount <= max);
 	}
 
 	return FALSE;		

@@ -459,7 +459,7 @@ void CAISocket::RecvUserHP(Packet & pkt)
 		if (pUser == NULL)
 			return;
 
-		pUser->m_pUserData.m_sHp = nHP;
+		pUser->m_sHp = nHP;
 	}
 	else if (sNid >= NPC_BAND)
 	{
@@ -579,7 +579,7 @@ void CAISocket::RecvUserFail(Packet & pkt)
 	result << uint8(2) << sid << nid;
 	pUser->SendToRegion(&result);
 
-	TRACE("### AISocket - RecvUserFail : sid=%d, tid=%d, id=%s ####\n", sid, nid, pUser->m_pUserData.m_id);
+	TRACE("### AISocket - RecvUserFail : sid=%d, tid=%d, id=%s ####\n", sid, nid, pUser->m_id);
 }
 
 void CAISocket::InitEventMonster(int index)

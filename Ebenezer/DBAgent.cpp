@@ -220,7 +220,7 @@ int8 CDBAgent::DeleteChar(string & strAccountID, int index, string & strCharID, 
 	return (int8)(nRet);
 }
 
-bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, _USER_DATA *pUser)
+bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pUser)
 {
 	uint16 nRet = 0;
 
@@ -384,7 +384,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, _USER_DAT
 	return true;
 }
 
-bool CDBAgent::LoadWarehouseData(string & strAccountID, _USER_DATA *pUser)
+bool CDBAgent::LoadWarehouseData(string & strAccountID, CUser *pUser)
 {
 	uint16 nRet = 0;
 	char strItem[WAREHOUSE_MAX * 8], strSerial[WAREHOUSE_MAX * 8];
@@ -445,7 +445,7 @@ bool CDBAgent::LoadWarehouseData(string & strAccountID, _USER_DATA *pUser)
 	return true;
 }
 
-bool CDBAgent::LoadPremiumServiceUser(std::string & strAccountID, _USER_DATA *pUser)
+bool CDBAgent::LoadPremiumServiceUser(std::string & strAccountID, CUser *pUser)
 {
 	if (pUser == NULL)
 		return false;
@@ -500,7 +500,7 @@ bool CDBAgent::SetLogInInfo(string & strAccountID, string & strCharID, string & 
 	return result;
 }
 
-bool CDBAgent::LoadWebItemMall(Packet & result, _USER_DATA *pUser)
+bool CDBAgent::LoadWebItemMall(Packet & result, CUser *pUser)
 {
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
 	if (dbCommand.get() == NULL)
@@ -537,7 +537,7 @@ bool CDBAgent::LoadWebItemMall(Packet & result, _USER_DATA *pUser)
 	return true;
 }
 
-bool CDBAgent::LoadSkillShortcut(Packet & result, _USER_DATA *pUser)
+bool CDBAgent::LoadSkillShortcut(Packet & result, CUser *pUser)
 {
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
 	if (dbCommand.get() == NULL)
@@ -565,7 +565,7 @@ bool CDBAgent::LoadSkillShortcut(Packet & result, _USER_DATA *pUser)
 	return true;
 }
 
-void CDBAgent::SaveSkillShortcut(short sCount, char *buff, _USER_DATA *pUser)
+void CDBAgent::SaveSkillShortcut(short sCount, char *buff, CUser *pUser)
 {
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
 	if (dbCommand.get() == NULL)
@@ -578,7 +578,7 @@ void CDBAgent::SaveSkillShortcut(short sCount, char *buff, _USER_DATA *pUser)
 		ReportSQLError(m_GameDB.GetError());
 }
 
-void CDBAgent::RequestFriendList(std::vector<string> & friendList, _USER_DATA *pUser)
+void CDBAgent::RequestFriendList(std::vector<string> & friendList, CUser *pUser)
 {
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
 	if (dbCommand.get() == NULL)
@@ -625,7 +625,7 @@ FriendAddResult CDBAgent::AddFriend(short sid, short tid)
 	return (FriendAddResult)nRet;
 }
 
-FriendRemoveResult CDBAgent::RemoveFriend(string & strCharID, _USER_DATA *pUser)
+FriendRemoveResult CDBAgent::RemoveFriend(string & strCharID, CUser *pUser)
 {
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
 	if (dbCommand.get() == NULL)
@@ -646,7 +646,7 @@ FriendRemoveResult CDBAgent::RemoveFriend(string & strCharID, _USER_DATA *pUser)
 	return (FriendRemoveResult)nRet;
 }
 
-bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, _USER_DATA *pUser)
+bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, CUser *pUser)
 {
 	if (strCharID != pUser->m_id)
 		return false;
@@ -702,7 +702,7 @@ bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, _USER_DATA *p
 	return true;
 }
 
-bool CDBAgent::UpdateWarehouseData(string & strAccountID, UserUpdateType type, _USER_DATA *pUser)
+bool CDBAgent::UpdateWarehouseData(string & strAccountID, UserUpdateType type, CUser *pUser)
 {
 	if (strAccountID.length() == 0)
 		return false;

@@ -95,7 +95,7 @@ void CUser::Attack(Packet & pkt)
 		&& pTUser) 
 	{
 		pTUser->Send(&result);
-		TRACE("*** User Attack Dead, id=%s, result=%d, type=%d, HP=%d\n", pTUser->m_pUserData.m_id, bResult, pTUser->m_bResHpType, pTUser->m_pUserData.m_sHp);
+		TRACE("*** User Attack Dead, id=%s, result=%d, type=%d, HP=%d\n", pTUser->m_id, bResult, pTUser->m_bResHpType, pTUser->m_sHp);
 	}
 }
 
@@ -136,7 +136,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 		}
 	}
 
-	pHomeInfo = g_pMain->m_HomeArray.GetData(m_pUserData.m_bNation);
+	pHomeInfo = g_pMain->m_HomeArray.GetData(m_bNation);
 	if (!pHomeInfo) return;
 
 	UserInOut(INOUT_OUT);
@@ -146,22 +146,22 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	if( x < 2.5f )	x = 1.5f + x;
 	if( z < 2.5f )	z = 1.5f + z;
 
-	pEvent = GetMap()->GetObjectEvent(m_pUserData.m_sBind);	
+	pEvent = GetMap()->GetObjectEvent(m_sBind);	
 
 	// TO-DO: Clean this entire thing up. Wow.
 	if (magicid == 0) {
 		if( pEvent && pEvent->byLife == 1 ) {		// Bind Point
-			m_pUserData.m_curx = pEvent->fPosX + x;
-			m_pUserData.m_curz = pEvent->fPosZ + z;
-			m_pUserData.m_cury = 0;
+			m_curx = pEvent->fPosX + x;
+			m_curz = pEvent->fPosZ + z;
+			m_cury = 0;
 		}
-		else if( m_pUserData.m_bNation != m_pUserData.m_bZone) {	// Free Zone or Opposite Zone
-			if(m_pUserData.m_bZone > 200) {		// Frontier Zone...
+		else if( m_bNation != m_bZone) {	// Free Zone or Opposite Zone
+			if(m_bZone > 200) {		// Frontier Zone...
 				x = (float)(pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX));
 				z = (float)(pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ));
 			}
 //
-			else if(m_pUserData.m_bZone > 100 && m_pUserData.m_bZone < 200) {		// Battle Zone...
+			else if(m_bZone > 100 && m_bZone < 200) {		// Battle Zone...
 /*
 				m_bResHpType = USER_STANDING;
 				HpChange( m_iMaxHp );
@@ -170,21 +170,21 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 */
 				x = (float)(pHomeInfo->BattleZoneX + myrand(0, pHomeInfo->BattleZoneLX));
 				z = (float)(pHomeInfo->BattleZoneZ + myrand(0, pHomeInfo->BattleZoneLZ));
-				if (m_pUserData.m_bZone == ZONE_SNOW_BATTLE) {
+				if (m_bZone == ZONE_SNOW_BATTLE) {
 					x = (float)(pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX));
 					z = (float)(pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ));					
 				}
 			}
-			else if (m_pUserData.m_bZone > 10 && m_pUserData.m_bZone < 20) {
+			else if (m_bZone > 10 && m_bZone < 20) {
 				x = (float)(527 + myrand(0, 10));
 				z = (float)(543 + myrand(0, 10));
 			}
-			else if (m_pUserData.m_bZone < 3) {	// Specific Lands...
-				if (m_pUserData.m_bNation == KARUS) {
+			else if (m_bZone < 3) {	// Specific Lands...
+				if (m_bNation == KARUS) {
 					x = (float)(pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX));
 					z = (float)(pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ));			
 				}
-				else if (m_pUserData.m_bNation == ELMORAD) {
+				else if (m_bNation == ELMORAD) {
 					x = (float)(pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX));
 					z = (float)(pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ));	
 				}		
@@ -199,22 +199,22 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 				z = sz;
 			}
 
-			m_pUserData.m_curx = x;
-			m_pUserData.m_curz = z;
+			m_curx = x;
+			m_curz = z;
 		}
 		else {	
-			if (m_pUserData.m_bNation == KARUS) {
+			if (m_bNation == KARUS) {
 				x = (float)(pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX));
 				z = (float)(pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ));			
 			}
-			else if (m_pUserData.m_bNation == ELMORAD) {			
+			else if (m_bNation == ELMORAD) {			
 				x = (float)(pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX));
 				z = (float)(pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ));
 			}		
 			else return;		
 
-			m_pUserData.m_curx = x;
-			m_pUserData.m_curz = z;
+			m_curx = x;
+			m_curz = z;
 		}
 	}
 
@@ -252,7 +252,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	if (!isBlinking())
 	{
 		result.Initialize(AG_USER_REGENE);
-		result << GetSocketID() << m_pUserData.m_sHp;
+		result << GetSocketID() << m_sHp;
 		g_pMain->Send_AIServer(&result);
 	}
 

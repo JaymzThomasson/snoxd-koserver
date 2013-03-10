@@ -155,10 +155,10 @@ void CUser::SelectCharacter(Packet & pkt)
 	// Temporarily convert the old quest storage format to the new one.
 	// This won't be necessary when Aujard's out of the picture.
 	m_questMap.clear();
-	for (int i = 0, index = 0; i < m_pUserData.m_sQuestCount; i++)
+	for (int i = 0, index = 0; i < m_sQuestCount; i++)
 	{
-		uint16	sQuestID	= GetShort(m_pUserData.m_bstrQuest, index);
-		uint8	bQuestState	= GetByte(m_pUserData.m_bstrQuest, index);
+		uint16	sQuestID	= GetShort(m_bstrQuest, index);
+		uint8	bQuestState	= GetByte(m_bstrQuest, index);
 
 		m_questMap.insert(std::make_pair(sQuestID, bQuestState));
 	}
@@ -174,7 +174,7 @@ void CUser::SelectCharacter(Packet & pkt)
 	}
 
 	if (g_pMain->m_byBattleOpen == NO_BATTLE && getFame() == COMMAND_CAPTAIN)
-		m_pUserData.m_bFame = CHIEF;
+		m_bFame = CHIEF;
 
 	if ((GetZoneID() != GetNation() && GetZoneID() < 3 && !g_pMain->m_byBattleOpen)
 		|| (GetZoneID() == ZONE_BATTLE && (g_pMain->m_byBattleOpen != NATION_BATTLE))
@@ -207,7 +207,7 @@ void CUser::SelectCharacter(Packet & pkt)
 	if (GetClanID() == -1)
 	{
 		SetClanID(0);
-		m_pUserData.m_bFame = 0;
+		m_bFame = 0;
 		return;
 	}
 	else if (GetClanID() != 0)
@@ -215,7 +215,7 @@ void CUser::SelectCharacter(Packet & pkt)
 		CKnights* pKnights = g_pMain->GetClanPtr( GetClanID() );
 		if (pKnights != NULL)
 		{
-			g_pMain->m_KnightsManager.SetKnightsUser( GetClanID(), m_pUserData.m_id );
+			g_pMain->m_KnightsManager.SetKnightsUser( GetClanID(), m_id );
 		}
 		else if (GetZoneID() > 2)
 		{
@@ -248,7 +248,7 @@ void CUser::SetLogInInfoToDB(BYTE bInit)
 	}
 
 	Packet result(WIZ_LOGIN_INFO);
-	result	<< m_pUserData.m_id 
+	result	<< m_id 
 			<< pInfo->strServerIP << uint16(_LISTEN_PORT) << GetRemoteIP() 
 			<< bInit;
 	g_pMain->AddDatabaseRequest(result, this);
@@ -288,13 +288,13 @@ void CUser::GameStart(Packet & pkt)
 		m_state = GAME_STATE_INGAME;
 		UserInOut(INOUT_RESPAWN);
 
-		if (!m_pUserData.m_bCity && m_pUserData.m_sHp <= 0)
-			m_pUserData.m_bCity = -1;
+		if (!m_bCity && m_sHp <= 0)
+			m_bCity = -1;
 
-		if (m_pUserData.m_bCity > 0)
+		if (m_bCity > 0)
 		{
 			int level = GetLevel();
-			if (m_pUserData.m_bCity <= 100)
+			if (m_bCity <= 100)
 				level--;
 
 			// make sure we don't exceed bounds
@@ -303,8 +303,8 @@ void CUser::GameStart(Packet & pkt)
 			else if (level < 1)
 				level = 1;
 
-			m_iLostExp = (g_pMain->GetExpByLevel(level) * (m_pUserData.m_bCity % 10) / 100);
-			if (((m_pUserData.m_bCity % 10) / 100) == 1)
+			m_iLostExp = (g_pMain->GetExpByLevel(level) * (m_bCity % 10) / 100);
+			if (((m_bCity % 10) / 100) == 1)
 				m_iLostExp /= 2;
 		}
 		else

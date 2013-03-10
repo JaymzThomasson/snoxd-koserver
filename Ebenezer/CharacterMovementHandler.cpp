@@ -17,9 +17,9 @@ void CUser::MoveProcess(Packet & pkt)
 		return;
 
 	// TO-DO: Ensure this is checked properly to prevent speedhacking
-	m_pUserData.m_curx = real_x;
-	m_pUserData.m_curz = real_z;
-	m_pUserData.m_cury = real_y;
+	m_curx = real_x;
+	m_curz = real_z;
+	m_cury = real_y;
 
 	if (RegisterRegion())
 	{
@@ -35,7 +35,7 @@ void CUser::MoveProcess(Packet & pkt)
 	GetMap()->CheckEvent(real_x, real_z, this);
 
 	result.Initialize(AG_USER_MOVE);
-	result << GetSocketID() << m_pUserData.m_curx << m_pUserData.m_curz << m_pUserData.m_cury << speed;
+	result << GetSocketID() << m_curx << m_curz << m_cury << speed;
 	g_pMain->Send_AIServer(&result);
 }
 
@@ -66,7 +66,7 @@ void CUser::UserInOut(uint8 bType)
 	{
 		result.Initialize(AG_USER_INOUT);
 		result.SByte();
-		result << bType << GetSocketID() << m_pUserData.m_id << m_pUserData.m_curx << m_pUserData.m_curz;
+		result << bType << GetSocketID() << m_id << m_curx << m_curz;
 		g_pMain->Send_AIServer(&result);
 	}
 }
@@ -76,7 +76,7 @@ void CUser::GetUserInfo(Packet & pkt)
 	CKnights *pKnights = NULL;
 	pkt.SByte();
 
-	pkt		<< m_pUserData.m_id
+	pkt		<< m_id
 			<< uint16(GetNation()) << GetClanID() << getFame();
 
 	pKnights = g_pMain->GetClanPtr(GetClanID());
@@ -98,33 +98,33 @@ void CUser::GetUserInfo(Packet & pkt)
 				<< uint8(1); 
 	}
 
-	pkt	<< GetLevel() << m_pUserData.m_bRace << m_pUserData.m_sClass
+	pkt	<< GetLevel() << m_bRace << m_sClass
 		<< GetSPosX() << GetSPosZ() << GetSPosY()
-		<< m_pUserData.m_bFace << m_pUserData.m_nHair
+		<< m_bFace << m_nHair
 		<< m_bResHpType << uint32(m_bAbnormalType)
 		<< m_bNeedParty
-		<< m_pUserData.m_bAuthority
+		<< m_bAuthority
 		<< m_bPartyLeader // is party leader (bool)
 		<< m_bInvisibilityType // visibility state
 		<< uint8(0) // team colour (i.e. in soccer, 0=none, 1=blue, 2=red)
 		<< m_bIsHidingHelmet // either this is correct and items are super buggy, or it causes baldness. You choose.
 		<< m_sDirection // direction 
 		<< m_bIsChicken // chicken/beginner flag
-		<< m_pUserData.m_bRank // king flag
+		<< m_bRank // king flag
 		<< m_bPersonalRank << m_bKnightsRank // NP ranks (total, monthly)
-		<< m_pUserData.m_sItemArray[BREAST].nNum << m_pUserData.m_sItemArray[BREAST].sDuration << uint8(0)
-		<< m_pUserData.m_sItemArray[LEG].nNum << m_pUserData.m_sItemArray[LEG].sDuration << uint8(0)
-		<< m_pUserData.m_sItemArray[HEAD].nNum << m_pUserData.m_sItemArray[HEAD].sDuration << uint8(0)
-		<< m_pUserData.m_sItemArray[GLOVE].nNum << m_pUserData.m_sItemArray[GLOVE].sDuration << uint8(0)
-		<< m_pUserData.m_sItemArray[FOOT].nNum << m_pUserData.m_sItemArray[FOOT].sDuration << uint8(0)
-		<< m_pUserData.m_sItemArray[SHOULDER].nNum << m_pUserData.m_sItemArray[SHOULDER].sDuration << uint8(0)
-		<< m_pUserData.m_sItemArray[RIGHTHAND].nNum << m_pUserData.m_sItemArray[RIGHTHAND].sDuration << uint8(0)
-		<< m_pUserData.m_sItemArray[LEFTHAND].nNum << m_pUserData.m_sItemArray[LEFTHAND].sDuration << uint8(0)
-		<< m_pUserData.m_sItemArray[CWING].nNum << m_pUserData.m_sItemArray[CWING].sDuration << uint8(0)
-		<< m_pUserData.m_sItemArray[CTOP].nNum << m_pUserData.m_sItemArray[CTOP].sDuration << uint8(0)
-		<< m_pUserData.m_sItemArray[CHELMET].nNum << m_pUserData.m_sItemArray[CHELMET].sDuration << uint8(0)
-		<< m_pUserData.m_sItemArray[CRIGHT].nNum << m_pUserData.m_sItemArray[CRIGHT].sDuration << uint8(0)
-		<< m_pUserData.m_sItemArray[CLEFT].nNum << m_pUserData.m_sItemArray[CLEFT].sDuration << uint8(0)
+		<< m_sItemArray[BREAST].nNum << m_sItemArray[BREAST].sDuration << uint8(0)
+		<< m_sItemArray[LEG].nNum << m_sItemArray[LEG].sDuration << uint8(0)
+		<< m_sItemArray[HEAD].nNum << m_sItemArray[HEAD].sDuration << uint8(0)
+		<< m_sItemArray[GLOVE].nNum << m_sItemArray[GLOVE].sDuration << uint8(0)
+		<< m_sItemArray[FOOT].nNum << m_sItemArray[FOOT].sDuration << uint8(0)
+		<< m_sItemArray[SHOULDER].nNum << m_sItemArray[SHOULDER].sDuration << uint8(0)
+		<< m_sItemArray[RIGHTHAND].nNum << m_sItemArray[RIGHTHAND].sDuration << uint8(0)
+		<< m_sItemArray[LEFTHAND].nNum << m_sItemArray[LEFTHAND].sDuration << uint8(0)
+		<< m_sItemArray[CWING].nNum << m_sItemArray[CWING].sDuration << uint8(0)
+		<< m_sItemArray[CTOP].nNum << m_sItemArray[CTOP].sDuration << uint8(0)
+		<< m_sItemArray[CHELMET].nNum << m_sItemArray[CHELMET].sDuration << uint8(0)
+		<< m_sItemArray[CRIGHT].nNum << m_sItemArray[CRIGHT].sDuration << uint8(0)
+		<< m_sItemArray[CLEFT].nNum << m_sItemArray[CLEFT].sDuration << uint8(0)
 		<< GetZoneID() << uint8(-1) << uint8(-1) << uint16(0) << uint16(0) << uint16(0);
 }
 
@@ -156,19 +156,19 @@ void CUser::ZoneChange(int zone, float x, float z)
 	}
 
 	if( g_pMain->m_byBattleOpen == NATION_BATTLE )	{		// Battle zone open
-		if( m_pUserData.m_bZone == BATTLE_ZONE )	{
-			if( pMap->m_bType == 1 && m_pUserData.m_bNation != zone )	{	// ???? ?????? ???? ????..
-				if( m_pUserData.m_bNation == KARUS && !g_pMain->m_byElmoradOpenFlag )	{
-					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", m_pUserData.m_id, m_pUserData.m_bNation, g_pMain->m_byElmoradOpenFlag);
+		if( m_bZone == BATTLE_ZONE )	{
+			if( pMap->m_bType == 1 && m_bNation != zone )	{	// ???? ?????? ???? ????..
+				if( m_bNation == KARUS && !g_pMain->m_byElmoradOpenFlag )	{
+					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", m_id, m_bNation, g_pMain->m_byElmoradOpenFlag);
 					return;
 				}
-				else if( m_pUserData.m_bNation == ELMORAD && !g_pMain->m_byKarusOpenFlag )	{
-					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", m_pUserData.m_id, m_pUserData.m_bNation, g_pMain->m_byKarusOpenFlag);
+				else if( m_bNation == ELMORAD && !g_pMain->m_byKarusOpenFlag )	{
+					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", m_id, m_bNation, g_pMain->m_byKarusOpenFlag);
 					return;
 				}
 			}
 		}
-		else if( pMap->m_bType == 1 && m_pUserData.m_bNation != zone ) {		// ???? ?????? ???? ????..
+		else if( pMap->m_bType == 1 && m_bNation != zone ) {		// ???? ?????? ???? ????..
 			return;
 		}
 //
@@ -186,7 +186,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 //
 	}
 	else if( g_pMain->m_byBattleOpen == SNOW_BATTLE )	{					// Snow Battle zone open
-		if( pMap->m_bType == 1 && m_pUserData.m_bNation != zone ) {		// ???? ?????? ???? ????..
+		if( pMap->m_bType == 1 && m_bNation != zone ) {		// ???? ?????? ???? ????..
 			return;
 		}
 		else if( pMap->m_bType == 2 && (zone == ZONE_FRONTIER || zone == ZONE_BATTLE ) ) {			// You can't go to frontier zone when Battlezone is open.
@@ -194,7 +194,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		}
 	}
 	else	{					// Battle zone close
-		if( pMap->m_bType == 1 && m_pUserData.m_bNation != zone && (zone < 10 || zone > 21))
+		if( pMap->m_bType == 1 && m_bNation != zone && (zone < 10 || zone > 21))
 			return;
 	}
 
@@ -202,25 +202,25 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 	UserInOut(INOUT_OUT);
 
-	if( m_pUserData.m_bZone == ZONE_SNOW_BATTLE )	{
-		//TRACE("ZoneChange - name=%s\n", m_pUserData.m_id);
+	if( m_bZone == ZONE_SNOW_BATTLE )	{
+		//TRACE("ZoneChange - name=%s\n", m_id);
 		SetMaxHp( 1 );
 	}
 
-	m_pUserData.m_bZone = zone;
-	m_pUserData.m_curx = x;
-	m_pUserData.m_curz = z;
+	m_bZone = zone;
+	m_curx = x;
+	m_curz = z;
 
 	m_pMap = pMap;
 
-	if( m_pUserData.m_bZone == ZONE_SNOW_BATTLE )	{
-		//TRACE("ZoneChange - name=%s\n", m_pUserData.m_id);
+	if( m_bZone == ZONE_SNOW_BATTLE )	{
+		//TRACE("ZoneChange - name=%s\n", m_id);
 		SetMaxHp();
 	}
 
 	PartyRemove(GetSocketID());	// ??????? Z?????? ó??
 
-	//TRACE("ZoneChange ,,, id=%s, nation=%d, zone=%d, x=%.2f, z=%.2f\n", m_pUserData.m_id, m_pUserData.m_bNation, zone, x, z);
+	//TRACE("ZoneChange ,,, id=%s, nation=%d, zone=%d, x=%.2f, z=%.2f\n", m_id, m_bNation, zone, x, z);
 	
 	if( g_pMain->m_nServerNo != pMap->m_nServerNo ) {
 		pInfo = g_pMain->m_ServerArray.GetData( pMap->m_nServerNo );
@@ -230,9 +230,9 @@ void CUser::ZoneChange(int zone, float x, float z)
 		UserDataSaveToAgent();
 		
 		CTime t = CTime::GetCurrentTime();
-		g_pMain->WriteLog("[ZoneChange : %d-%d-%d] - sid=%d, acname=%s, name=%s, zone=%d, x=%d, z=%d \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), GetSocketID(), m_strAccountID, m_pUserData.m_id, zone, (int)x, (int)z);
+		g_pMain->WriteLog("[ZoneChange : %d-%d-%d] - sid=%d, acname=%s, name=%s, zone=%d, x=%d, z=%d \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), GetSocketID(), m_strAccountID, m_id, zone, (int)x, (int)z);
 
-		m_pUserData.m_bLogout = 2;	// server change flag
+		m_bLogout = 2;	// server change flag
 		SendServerChange(pInfo->strServerIP, 2);
 		return;
 	}
@@ -248,7 +248,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		m_iLostExp = 0;
 		m_bRegeneType = 0;
 		m_fLastRegeneTime = 0.0f;
-		m_pUserData.m_sBind = -1;
+		m_sBind = -1;
 		InitType3();
 		InitType4();
 	}	
@@ -280,8 +280,8 @@ void CUser::Warp(uint16 sPosX, uint16 sPosZ)
 
 	UserInOut(INOUT_OUT);
 
-	m_pUserData.m_curx = real_x;
-	m_pUserData.m_curz = real_z;
+	m_curx = real_x;
+	m_curz = real_z;
 
 	SetRegion(GetNewRegionX(), GetNewRegionZ());
 

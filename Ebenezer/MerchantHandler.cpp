@@ -177,7 +177,7 @@ void CUser::MerchantItemCancel(Packet & pkt)
 	else if ((pMerch = &m_arMerchantItems[bSrcPos])->nNum == 0)
 		result << int16(-3);
 	// Check to make sure we've got a valid stack
-	else if (pMerch->sCount + (pItem = &m_pUserData.m_sItemArray[pMerch->bOriginalSlot])->sCount > HAVE_MAX) 
+	else if (pMerch->sCount + (pItem = &m_sItemArray[pMerch->bOriginalSlot])->sCount > HAVE_MAX) 
 		result << int16(-3); // custom error
 	else
 	{
@@ -256,7 +256,7 @@ void CUser::MerchantItemBuy(Packet & pkt)
 
 	// Do we have enough coins?
 	req_gold = pMerch->nPrice * item_count;
-	if (m_pUserData.m_iGold < req_gold)
+	if (m_iGold < req_gold)
 		return;
 
 	// If the slot's not empty
@@ -292,7 +292,7 @@ void CUser::MerchantItemBuy(Packet & pkt)
 		pMerch->bOriginalSlot - SLOT_MAX);
 
 	Packet result(WIZ_MERCHANT, uint8(MERCHANT_ITEM_PURCHASED));
-	result << itemid << m_pUserData.m_id;
+	result << itemid << m_id;
 	pMerchant->Send(&result);
 
 	result.clear();
@@ -347,7 +347,7 @@ void CUser::GiveMerchantItems()
 		_MERCH_DATA *pMerch = &m_arMerchantItems[i];
 		uint8 bOriginalSlot = pMerch->bOriginalSlot;
 
-		_ITEM_DATA *pItem = &m_pUserData.m_sItemArray[bOriginalSlot];
+		_ITEM_DATA *pItem = &m_sItemArray[bOriginalSlot];
 		pItem->nNum = pMerch->nNum;
 		pItem->nSerialNum = pMerch->nSerialNum;
 		pItem->sCount = pMerch->sCount;
@@ -517,7 +517,7 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 
 	// Do they have enough coins?
 	nPrice = pWantedItem->nPrice * sStackSize;
-	if (nPrice > pMerchant->m_pUserData.m_iGold)
+	if (nPrice > pMerchant->m_iGold)
 		return;
 
 	// Now find the buyer a home for their item
