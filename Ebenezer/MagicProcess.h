@@ -66,4 +66,6 @@ public:
 	Unit	*m_pSkillCaster, *m_pSkillTarget;
 	uint16	m_sData1, m_sData2, m_sData3, m_sData4, 
 			m_sData5, m_sData6, m_sData7, m_sData8;
+
+	FastMutex m_lock; // temporary guard to prevent race conditions with AI
 };
