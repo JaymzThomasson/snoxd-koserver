@@ -41,7 +41,6 @@ public:
 	void ReqRegisterClanSymbol(CUser *pUser, Packet & pkt);
 
 	// received from database request (this will go)
-	void RecvCreateKnights(CUser* pUser, Packet & pkt);
 	void RecvJoinKnights(CUser* pUser, Packet & pkt, BYTE command);
 	void RecvModifyFame(CUser* pUser, Packet & pkt, BYTE command);
 	void RecvDestroyKnights( CUser* pUser, Packet & pkt);

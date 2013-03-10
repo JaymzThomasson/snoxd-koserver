@@ -444,16 +444,54 @@ void CKnightsManager::ReqKnightsPacket(CUser* pUser, Packet & pkt)
 
 void CKnightsManager::ReqCreateKnights(CUser *pUser, Packet & pkt)
 {
+	if (pUser == NULL)
+		return;
+
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_CREATE));
 	string strKnightsName, strChief;
 	uint16 sClanID;
-	uint8 bCommunity, bNation;
+	uint8 bFlag, bNation;
+	int8 bResult;
 
-	pkt >> bCommunity >> sClanID >> bNation >> strKnightsName >> strChief;
-	result	<< g_DBAgent.CreateKnights(sClanID, bNation, strKnightsName, strChief, bCommunity)
-			<< bCommunity << sClanID << bNation << strKnightsName << strChief;
+	pkt >> bFlag >> sClanID >> bNation >> strKnightsName >> strChief;
+	bResult = g_DBAgent.CreateKnights(sClanID, bNation, strKnightsName, strChief, bFlag);
 
-	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
+	if (bResult < 0)
+	{
+		result << bResult;
+		pUser->Send(&result);
+		return;
+	}
+
+	CKnights *pKnights = new CKnights();
+
+	pKnights->m_sIndex = sClanID;
+	pKnights->m_byFlag = bFlag;
+	pKnights->m_byNation = bNation;
+
+	strcpy(pKnights->m_strName, strKnightsName.c_str());
+	strcpy(pKnights->m_strChief, pUser->GetName());
+
+	pUser->m_iGold -= CLAN_COIN_REQUIREMENT;
+	pUser->m_bFame = CHIEF;
+
+	// TO-DO: Make this threadsafe
+	g_pMain->m_KnightsArray.PutData(pKnights->m_sIndex, pKnights);
+
+	pKnights->AddUser(pUser);
+
+	result	<< uint8(1) << pUser->GetSocketID() 
+			<< sClanID << strKnightsName
+			<< pKnights->m_byGrade << pKnights->m_byRanking
+			<< pUser->m_iGold;
+
+	pUser->SendToRegion(&result);
+
+	result.Initialize(UDP_KNIGHTS_PROCESS);
+	result	<< uint8(KNIGHTS_CREATE)
+			<< pKnights->m_byFlag << sClanID 
+			<< bNation << strKnightsName << pUser->GetName();
+	g_pMain->Send_UDP_All(&result, g_pMain->m_nServerGroup == 0 ? 0 : 1);
 }
 
 void CKnightsManager::ReqJoinKnights(CUser *pUser, Packet & pkt)

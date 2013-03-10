@@ -483,9 +483,6 @@ void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 
 	switch (command)
 	{
-	case KNIGHTS_CREATE:
-		RecvCreateKnights(pUser, pkt);
-		break;
 	case KNIGHTS_JOIN:
 	case KNIGHTS_WITHDRAW:
 		RecvJoinKnights(pUser, pkt, command);
@@ -528,43 +525,6 @@ void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 		RecvRegisterClanSymbol(pUser, pkt);
 		break;
 	}
-}
-
-void CKnightsManager::RecvCreateKnights(CUser *pUser, Packet & pkt)
-{
-	if (pUser == NULL) 
-		return;
-
-	std::string clanName;
-	uint16 sClanID;
-	uint8 bFlag, bNation;
-	pkt >> bFlag >> sClanID >> bNation >> clanName;
-
-	CKnights *pKnights = new CKnights();
-	pKnights->m_sIndex = sClanID;
-	pKnights->m_byFlag = bFlag;
-	pKnights->m_byNation = bNation;
-	strcpy(pKnights->m_strName, clanName.c_str());
-	strcpy(pKnights->m_strChief, pUser->GetName());
-
-	pUser->m_iGold -= CLAN_COIN_REQUIREMENT;
-	g_pMain->m_KnightsArray.PutData(pKnights->m_sIndex, pKnights);
-	pKnights->AddUser(pUser);
-	pUser->m_bFame = CHIEF;
-
-	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_CREATE));
-	result	<< uint8(1) << pUser->GetSocketID() 
-			<< sClanID << clanName
-			<< pKnights->m_byGrade << pKnights->m_byRanking
-			<< pUser->m_iGold;
-
-	pUser->SendToRegion(&result);
-
-	result.Initialize(UDP_KNIGHTS_PROCESS);
-	result	<< uint8(KNIGHTS_CREATE)
-			<< pKnights->m_byFlag << sClanID 
-			<< bNation << clanName << pUser->GetName();
-	g_pMain->Send_UDP_All(&result, g_pMain->m_nServerGroup == 0 ? 0 : 1);
 }
 
 void CKnightsManager::RecvJoinKnights(CUser *pUser, Packet & pkt, BYTE command)
