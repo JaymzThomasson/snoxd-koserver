@@ -81,10 +81,6 @@ public:
 	uint8	m_bLogout;
 	DWORD	m_dwTime;
 
-	// this system needs replacing
-	uint16	m_sQuestCount;
-	char	m_bstrQuest[QUEST_ARRAY_SIZE];
-
 	uint8	m_bAccountStatus;
 	uint8	m_bPremiumType;
 	uint16	m_sPremiumTime;
@@ -618,7 +614,7 @@ public:
 	void ReqRemoveFriend(Packet & pkt);
 	void ReqChangeCape(Packet & pkt);
 
-private:
+//private:
 	static ChatCommandTable s_commandTable;
 	GameState m_state;
 

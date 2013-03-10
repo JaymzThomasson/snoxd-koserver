@@ -245,7 +245,11 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 	if (!dbCommand->hasData())
 		return false;
 
-	char strItem[INVENTORY_TOTAL * 8], strSerial[INVENTORY_TOTAL * 8];
+	char	strItem[INVENTORY_TOTAL * 8], strSerial[INVENTORY_TOTAL * 8],
+			strQuest[QUEST_ARRAY_SIZE];
+
+	uint16 sQuestCount;
+
 	memset(strItem, 0x00, sizeof(strItem));
 	memset(strSerial, 0x00, sizeof(strSerial));
 
@@ -283,8 +287,8 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 	dbCommand->FetchString(field++, (char *)pUser->m_bstrSkill, sizeof(pUser->m_bstrSkill));
 	dbCommand->FetchBinary(field++, strItem, sizeof(strItem));
 	dbCommand->FetchBinary(field++, strSerial, sizeof(strSerial));
-	dbCommand->FetchUInt16(field++, pUser->m_sQuestCount);
-	dbCommand->FetchBinary(field++, pUser->m_bstrQuest, sizeof(pUser->m_bstrQuest));
+	dbCommand->FetchUInt16(field++, sQuestCount);
+	dbCommand->FetchBinary(field++, strQuest, sizeof(strQuest));
 	dbCommand->FetchInt32(field++, pUser->m_iMannerPoint);
 	dbCommand->FetchInt32(field++, pUser->m_iLoyaltyMonthly);
 
@@ -293,6 +297,16 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 		return false;
 
 	pUser->m_strUserID = strCharID;
+
+	// Convert the old quest storage format to the new one.
+	pUser->m_questMap.clear();
+	for (int i = 0, index = 0; i < sQuestCount; i++)
+	{
+		uint16	sQuestID	= GetShort(strQuest, index);
+		uint8	bQuestState	= GetByte(strQuest, index);
+
+		pUser->m_questMap.insert(std::make_pair(sQuestID, bQuestState));
+	}
 
 	ByteBuffer itemBuffer, serialBuffer;
 	itemBuffer.append(strItem, sizeof(strItem));
@@ -661,6 +675,15 @@ bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, CUser *pUser)
 	else if (type == UPDATE_LOGOUT || type == UPDATE_ALL_SAVE)
 		pUser->m_dwTime = 0;
 
+	char strQuest[QUEST_ARRAY_SIZE];
+	memset(strQuest, 0, sizeof(strQuest));
+	int index = 0;
+	foreach (itr, pUser->m_questMap)
+	{
+		SetShort(strQuest, itr->first, index);
+		SetByte(strQuest, itr->second, index);
+	}
+
 	// This *should* be padded like the database field is (unnecessarily), but I want to see how MSSQL repsponds
 	ByteBuffer itemBuffer, serialBuffer;
 	for (int i = 0; i < INVENTORY_TOTAL; i++)
@@ -674,7 +697,7 @@ bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, CUser *pUser)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)pUser->m_bstrSkill, sizeof(pUser->m_bstrSkill));
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)itemBuffer.contents(), itemBuffer.size(), SQL_BINARY);
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)serialBuffer.contents(), serialBuffer.size(), SQL_BINARY);
-	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)pUser->m_bstrQuest, sizeof(pUser->m_bstrQuest), SQL_BINARY);
+	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strQuest, sizeof(strQuest), SQL_BINARY);
 
 	if (!dbCommand->Execute(string_format(_T("{CALL UPDATE_USER_DATA ("
 			"?, " // strCharID 
@@ -693,7 +716,7 @@ bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, CUser *pUser)
 		pUser->m_sHp, pUser->m_sMp, pUser->m_sSp, 
 		pUser->m_bStats[STAT_STR], pUser->m_bStats[STAT_STA], pUser->m_bStats[STAT_DEX], pUser->m_bStats[STAT_INT], pUser->m_bStats[STAT_CHA], 
 		pUser->m_bAuthority, pUser->m_sPoints, pUser->m_iGold, pUser->m_bZone, pUser->m_sBind, 
-		(int)(pUser->m_curx*100), (int)(pUser->m_curz*100), (int)(pUser->m_cury*100), pUser->m_dwTime, pUser->m_sQuestCount, 
+		(int)(pUser->m_curx*100), (int)(pUser->m_curz*100), (int)(pUser->m_cury*100), pUser->m_dwTime, pUser->m_questMap.size(), 
 		pUser->m_iMannerPoint, pUser->m_iLoyaltyMonthly)))
 	{
 		ReportSQLError(m_GameDB.GetError());

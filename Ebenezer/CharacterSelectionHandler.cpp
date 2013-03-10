@@ -152,17 +152,6 @@ void CUser::SelectCharacter(Packet & pkt)
 	if (GetMap() == NULL)
 		goto fail_return;
 
-	// Temporarily convert the old quest storage format to the new one.
-	// This won't be necessary when Aujard's out of the picture.
-	m_questMap.clear();
-	for (int i = 0, index = 0; i < m_sQuestCount; i++)
-	{
-		uint16	sQuestID	= GetShort(m_bstrQuest, index);
-		uint8	bQuestState	= GetByte(m_bstrQuest, index);
-
-		m_questMap.insert(std::make_pair(sQuestID, bQuestState));
-	}
-
 	if (g_pMain->m_nServerNo != GetMap()->m_nServerNo)
 	{
 		_ZONE_SERVERINFO *pInfo = g_pMain->m_ServerArray.GetData(GetMap()->m_nServerNo);
