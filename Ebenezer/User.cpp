@@ -2544,13 +2544,9 @@ int CUser::FindSlotForItem(uint32 nItemID, uint16 sCount)
 
 			// Found a free slot, we'd prefer to stack it though
 			// so store the first free slot, and ignore it.
-			if (pItem->nNum == 0)
-			{
-				if (result < 0)
-					result = i;
-
-				continue;
-			}
+			if (pItem->nNum == 0
+				&& result < 0)
+				result = i;
 		}
 
 		// If we didn't find a slot countaining our stackable item, it's possible we found
