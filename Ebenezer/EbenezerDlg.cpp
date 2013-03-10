@@ -423,7 +423,7 @@ void CEbenezerDlg::AddAccountName(CUser *pSession)
 // Adds the character name & session to a hashmap (when in-game)
 void CEbenezerDlg::AddCharacterName(CUser *pSession)
 {
-	string upperName = pSession->m_id;
+	string upperName = pSession->GetName();
 	STRTOUPPER(upperName);
 	m_characterNameLock.Acquire();
 	m_characterNameMap[upperName] = pSession;
@@ -441,7 +441,7 @@ void CEbenezerDlg::RemoveSessionNames(CUser *pSession)
 
 	if (pSession->isInGame())
 	{
-		upperName = pSession->m_id;
+		upperName = pSession->GetName();
 		STRTOUPPER(upperName);
 		m_characterNameLock.Acquire();
 		m_characterNameMap.erase(upperName);
@@ -1895,7 +1895,7 @@ uint16 CEbenezerDlg::GetKnightsAllMembers(uint16 sClanID, Packet & result, uint1
 
 		CUser *pUser = p->pSession;
 		if (pUser != NULL)
-			result << pUser->m_id << pUser->getFame() << pUser->GetLevel() << pUser->m_sClass << uint8(1);
+			result << pUser->GetName() << pUser->getFame() << pUser->GetLevel() << pUser->m_sClass << uint8(1);
 		else // normally just clan leaders see this, but we can be generous now.
 			result << pKnights->m_arKnightsUser[i].strUserName << uint8(0) << uint8(0) << uint16(0) << uint8(0);
 
@@ -1933,7 +1933,7 @@ void CEbenezerDlg::CheckAliveUser()
 		if (pUser->m_sAliveCount++ > 3)
 		{
 			pUser->Disconnect();
-			TRACE("User dropped due to inactivity - char=%s\n", pUser->m_id);
+			TRACE("User dropped due to inactivity - char=%s\n", pUser->GetName());
 		}
 	}
 	s_socketMgr.ReleaseLock();
@@ -2103,7 +2103,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 				goto next_row;
 
 			if( pUser->GetClanID() == nKnightsIndex	)	{
-				sprintf_s( strKarusCaptain[nKaursRank], 50, "[%s][%s]", strKnightsName, pUser->m_id);
+				sprintf_s( strKarusCaptain[nKaursRank], 50, "[%s][%s]", strKnightsName, pUser->GetName());
 				nFindKarus = 1;
 				nKaursRank++;
 				pUser->ChangeFame(COMMAND_CAPTAIN);
@@ -2116,7 +2116,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				goto next_row;
 			if( pUser->GetClanID() == nKnightsIndex	)	{
-				sprintf_s( strElmoCaptain[nElmoRank], 50, "[%s][%s]", strKnightsName, pUser->m_id);
+				sprintf_s( strElmoCaptain[nElmoRank], 50, "[%s][%s]", strKnightsName, pUser->GetName());
 				nFindElmo = 1;
 				nElmoRank++;
 				pUser->ChangeFame(COMMAND_CAPTAIN);

@@ -1420,7 +1420,7 @@ bool CMagicProcess::ExecuteType8(_MAGIC_TABLE *pSkill)	// Warp, resurrection, an
 
 				pTUser->ZoneChange(m_pSrcUser->GetZoneID(), m_pSrcUser->m_curx, m_pSrcUser->m_curz) ;
 				pTUser->UserInOut(INOUT_RESPAWN);
-				//TRACE(" Summon ,, name=%s, x=%.2f, z=%.2f\n", pTUser->m_id, pTUser->m_curx, pTUser->m_curz);
+				//TRACE(" Summon ,, name=%s, x=%.2f, z=%.2f\n", pTUser->GetName(), pTUser->m_curx, pTUser->m_curz);
 				break;
 
 			case 20:	// Randomly teleport the source (within 20 meters)		

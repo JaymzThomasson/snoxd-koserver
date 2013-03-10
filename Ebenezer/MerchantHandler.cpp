@@ -292,7 +292,7 @@ void CUser::MerchantItemBuy(Packet & pkt)
 		pMerch->bOriginalSlot - SLOT_MAX);
 
 	Packet result(WIZ_MERCHANT, uint8(MERCHANT_ITEM_PURCHASED));
-	result << itemid << m_id;
+	result << itemid << GetName();
 	pMerchant->Send(&result);
 
 	result.clear();

@@ -12,7 +12,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 
 	if (isDead())
 	{
-		TRACE("### WarehouseProcess Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", m_id, GetSocketID(), m_bResHpType, m_sHp, (int)m_curx, (int)m_curz);
+		TRACE("### WarehouseProcess Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", GetName(), GetSocketID(), m_bResHpType, m_sHp, (int)m_curx, (int)m_curz);
 		return;
 	}
 	if (isTrading())

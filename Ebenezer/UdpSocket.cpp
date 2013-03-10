@@ -495,7 +495,7 @@ void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 	Packet result;
 
 	// Construct the clan system chat packet
-	pKnights->ConstructChatPacket(result, clanNotice, pTUser != NULL ? pTUser->m_id : userid); 
+	pKnights->ConstructChatPacket(result, clanNotice, pTUser != NULL ? pTUser->GetName() : userid); 
 
 	// If we've been removed from a clan, tell the user as well (since they're no longer in the clan)
 	if (command == KNIGHTS_REMOVE && pTUser != NULL)

@@ -230,7 +230,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 
 	if (pUser == NULL 
 		|| pUser->m_bLogout
-		|| strlen(pUser->m_id) != 0
+		|| strlen(pUser->GetName()) != 0
 		|| strCharID.length() > MAX_ID_SIZE
 		/*|| pUser->m_dwTime != 0*/)
 		return false;
@@ -292,7 +292,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 	if (nRet == 0)
 		return false;
 
-	_tstrcpy(pUser->m_id, strCharID);
+	pUser->m_strUserID = strCharID;
 
 	ByteBuffer itemBuffer, serialBuffer;
 	itemBuffer.append(strItem, sizeof(strItem));
@@ -506,7 +506,7 @@ bool CDBAgent::LoadWebItemMall(Packet & result, CUser *pUser)
 	if (dbCommand.get() == NULL)
 		return false;
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_id, strlen(pUser->m_id));
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName(), strlen(pUser->GetName()));
 	if (!dbCommand->Execute(_T("{CALL LOAD_WEB_ITEMMALL(?)}")))
 		ReportSQLError(m_AccountDB.GetError());
 
@@ -546,7 +546,7 @@ bool CDBAgent::LoadSkillShortcut(Packet & result, CUser *pUser)
 	uint16 sCount;
 	char strSkillData[260];
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_id, strlen(pUser->m_id));
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName(), strlen(pUser->GetName()));
 	if (!dbCommand->Execute(_T("{CALL SKILLSHORTCUT_LOAD(?)}")))
 	{
 		ReportSQLError(m_GameDB.GetError());
@@ -571,7 +571,7 @@ void CDBAgent::SaveSkillShortcut(short sCount, char *buff, CUser *pUser)
 	if (dbCommand.get() == NULL)
 		return;
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_id, strlen(pUser->m_id));
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName(), strlen(pUser->GetName()));
 	dbCommand->AddParameter(SQL_PARAM_INPUT, buff, 260);
 
 	if (!dbCommand->Execute(string_format(_T("{CALL SKILLSHORTCUT_SAVE(?, %d, ?)}"), sCount)))
@@ -584,7 +584,7 @@ void CDBAgent::RequestFriendList(std::vector<string> & friendList, CUser *pUser)
 	if (dbCommand.get() == NULL)
 		return;
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_id, strlen(pUser->m_id));
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName(), strlen(pUser->GetName()));
 	if (!dbCommand->Execute(_T("SELECT * FROM FRIEND_LIST WHERE strUserID=?")))
 		ReportSQLError(m_GameDB.GetError());
 
@@ -633,7 +633,7 @@ FriendRemoveResult CDBAgent::RemoveFriend(string & strCharID, CUser *pUser)
 
 	int16 nRet = (int16)FRIEND_REMOVE_ERROR;
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_id, strlen(pUser->m_id));
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName(), strlen(pUser->GetName()));
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)strCharID.c_str(), strCharID.length());
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
@@ -648,7 +648,7 @@ FriendRemoveResult CDBAgent::RemoveFriend(string & strCharID, CUser *pUser)
 
 bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, CUser *pUser)
 {
-	if (strCharID != pUser->m_id)
+	if (strCharID != pUser->GetName())
 		return false;
 
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());

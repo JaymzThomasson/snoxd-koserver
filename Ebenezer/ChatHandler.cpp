@@ -109,7 +109,7 @@ void CUser::Chat(Packet & pkt)
 	}
 	else
 	{
-		result << m_id; // everything else provides a name
+		result << GetName(); // everything else provides a name
 		result.DByte();
 		result << chatstr; // now tack on the chat message from the user
 	}
@@ -201,7 +201,7 @@ void CUser::ChatTargetSelect(Packet & pkt)
 		else
 		{
 			m_sPrivateChatUser = pUser->GetSocketID();
-			result << int16(1) << pUser->m_id;
+			result << int16(1) << pUser->GetName();
 		}
 		Send(&result);
 	}

@@ -27,7 +27,7 @@ void CUser::Initialize()
 	Unit::Initialize();
 
 	// memset(&m_pUserData, 0x00, sizeof(_USER_DATA));
-	memset(&m_id, 0, sizeof(m_id));
+	m_strUserID = "";
 	memset(&m_Accountid, 0, sizeof(m_Accountid));
 	m_bLogout = 0;
 
@@ -508,23 +508,23 @@ void CUser::UserDataSaveToAgent()
 		return;
 
 	Packet result(WIZ_DATASAVE);
-	result << m_Accountid << m_id;
+	result << m_Accountid << GetName();
 	g_pMain->AddDatabaseRequest(result, this);
 }
 
 void CUser::LogOut()
 {
 	CTime t = CTime::GetCurrentTime();
-	g_pMain->WriteLog("[%s : %s Logout : %d:%d:%d]\r\n", m_Accountid, m_id, t.GetHour(), t.GetMinute(), t.GetSecond());
+	g_pMain->WriteLog("[%s : %s Logout : %d:%d:%d]\r\n", m_Accountid, GetName(), t.GetHour(), t.GetMinute(), t.GetSecond());
 
 	CUser *pUser = g_pMain->GetUserPtr(m_Accountid, TYPE_ACCOUNT);
 	if (pUser && (pUser->GetSocketID() != GetSocketID()))
 	{
-		TRACE("[SID=%D] %s : %s logged out\n", GetSocketID(), m_Accountid, m_id);
+		TRACE("[SID=%D] %s : %s logged out\n", GetSocketID(), m_Accountid, GetName());
 		return;
 	}
 
-	if (m_id[0] == 0) 
+	if (m_strUserID.empty()) 
 		return; 
 
 	Packet result(AG_USER_LOG_OUT);
@@ -571,7 +571,7 @@ void CUser::SendMyInfo()
 
 	result.SByte(); // character name has a single byte length
 	result	<< GetSocketID()
-			<< m_id
+			<< GetName()
 			<< GetSPosX() << GetSPosZ() << GetSPosY()
 			<< GetNation() 
 			<< m_bRace << m_sClass << m_bFace
@@ -1207,7 +1207,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 
 	result.SByte();
 	result	<< GetSocketID()
-			<< m_id
+			<< GetName()
 			<< GetZoneID() << GetNation() << GetLevel()
 			<< m_sHp << m_sMp
 			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
@@ -1607,7 +1607,7 @@ void CUser::ItemGet(Packet & pkt)
 	{
 		// Tell our party the item was looted
 		result.clear();
-		result << uint8(3) << bundle_index << itemid << pGetUser->m_id;
+		result << uint8(3) << bundle_index << itemid << pGetUser->GetName();
 		g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 
 		// Let us know the other user got the item
@@ -1664,7 +1664,7 @@ void CUser::StateChange(Packet & pkt)
 
 		default:
 			TRACE("[SID=%d] StateChange: %s tripped (bType=%d, buff=%d, nBuff=%d) somehow, HOW!?\n", 
-				GetSocketID(), m_id, bType, buff, nBuff);
+				GetSocketID(), GetName(), bType, buff, nBuff);
 			break;
 		}
 		break;
@@ -1676,7 +1676,7 @@ void CUser::StateChange(Packet & pkt)
 
 	default:
 		TRACE("[SID=%d] StateChange: %s tripped (bType=%d, buff=%d, nBuff=%d) somehow, HOW!?\n", 
-			GetSocketID(), m_id, bType, buff, nBuff);
+			GetSocketID(), GetName(), bType, buff, nBuff);
 		return;
 	}
 
@@ -1789,7 +1789,7 @@ void CUser::SpeedHackUser()
 	if (!isInGame())
 		return;
 
-	g_pMain->WriteLog("%s Speed Hack Used\r\n", m_id);
+	g_pMain->WriteLog("%s Speed Hack Used\r\n", GetName());
 	
 	if( m_bAuthority != 0 )
 		m_bAuthority = -1;
@@ -1890,7 +1890,7 @@ void CUser::GetUserInfoForAI(Packet & result)
 {
 	result.SByte(); 
 	result	<< GetSocketID()
-			<< m_id << GetZoneID() << GetNation() << GetLevel()
+			<< GetName() << GetZoneID() << GetNation() << GetLevel()
 			<< m_sHp << m_sMp 
 			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
 			<< uint16(m_sTotalAc + m_sACAmount)
@@ -2006,7 +2006,7 @@ void CUser::LoyaltyDivide(short tid)
 		if (pUser == NULL)
 			continue;
 
-		//TRACE("LoyaltyDivide 333 - user1=%s, %d\n", pUser->m_id, pUser->m_iLoyalty);
+		//TRACE("LoyaltyDivide 333 - user1=%s, %d\n", pUser->GetName(), pUser->m_iLoyalty);
 		individualvalue = pUser->GetLevel() * loyalty_source / levelsum ;
 		pUser->SendLoyaltyChange(individualvalue);
 	}
@@ -3212,7 +3212,7 @@ void CUser::BlinkTimeCheck(float currenttime)
 	result.Initialize(AG_USER_INOUT);
 	result.SByte(); // TO-DO: Remove this redundant uselessness that is mgame
 	result	<< uint8(INOUT_RESPAWN) << GetSocketID()
-			<< m_id
+			<< GetName()
 			<< m_curx << m_curz;
 	g_pMain->Send_AIServer(&result);
 

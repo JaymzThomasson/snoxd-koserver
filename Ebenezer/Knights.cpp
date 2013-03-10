@@ -41,7 +41,7 @@ void CKnights::OnLogin(CUser *pUser)
 	foreach_array (i, m_arKnightsUser)
 	{
 		if (!m_arKnightsUser[i].byUsed
-			|| _strcmpi(m_arKnightsUser[i].strUserName, pUser->m_id))
+			|| _strcmpi(m_arKnightsUser[i].strUserName, pUser->GetName()))
 			continue;
 
 		m_arKnightsUser[i].pSession = pUser;
@@ -57,7 +57,7 @@ void CKnights::OnLogout(CUser *pUser)
 	foreach_array (i, m_arKnightsUser)
 	{
 		if (!m_arKnightsUser[i].byUsed
-			|| _strcmpi(m_arKnightsUser[i].strUserName, pUser->m_id))
+			|| _strcmpi(m_arKnightsUser[i].strUserName, pUser->GetName()))
 			continue;
 
 		m_arKnightsUser[i].pSession = NULL;
@@ -84,7 +84,7 @@ bool CKnights::AddUser(const char *strUserID)
 bool CKnights::AddUser(CUser *pUser)
 {
 	if (pUser == NULL
-		|| !AddUser(pUser->m_id))
+		|| !AddUser(pUser->GetName()))
 		return false;
 
 	pUser->SetClanID(m_sIndex);
@@ -116,7 +116,7 @@ bool CKnights::RemoveUser(CUser *pUser)
 	if (pUser == NULL)
 		return false;
 
-	bool result = RemoveUser(pUser->m_id);
+	bool result = RemoveUser(pUser->GetName());
 	pUser->SetClanID(0);
 	pUser->m_bFame = 0;
 	if (!pUser->isClanLeader())

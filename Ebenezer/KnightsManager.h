@@ -23,9 +23,9 @@ public:
 	void GetClanSymbol(CUser* pUser, uint16 sClanID);
 	void ListTop10Clans(CUser *pUser);
 
-	BOOL AddKnightsUser(int index, char* UserName);
-	void SetKnightsUser( int index, char* UserName );
-	BOOL RemoveKnightsUser( int index, char* UserName );
+	BOOL AddKnightsUser(int index, const char* UserName);
+	void SetKnightsUser(int index, const char* UserName);
+	BOOL RemoveKnightsUser(int index, const char* UserName);
 	BOOL LoadKnightsIndex(int index);
 	BOOL LoadAllKnights();
 

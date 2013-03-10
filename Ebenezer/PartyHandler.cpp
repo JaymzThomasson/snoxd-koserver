@@ -125,7 +125,7 @@ void CUser::PartyRequest(int memberid, BOOL bCreate)
 	pUser->m_sPartyIndex = m_sPartyIndex;
 
 	result.Initialize(WIZ_PARTY);
-	result << uint8(PARTY_PERMIT) << GetSocketID() << m_id;
+	result << uint8(PARTY_PERMIT) << GetSocketID() << GetName();
 	pUser->Send(&result);
 	return;
 
@@ -184,7 +184,7 @@ void CUser::PartyInsert()
 		result.clear();
 		result	<< uint8(PARTY_INSERT) << pParty->uid[i]
 				<< uint8(1) // success
-				<< pUser->m_id
+				<< pUser->GetName()
 				<< pUser->m_iMaxHp << pUser->m_sHp
 				<< pUser->GetLevel() << pUser->m_sClass
 				<< pUser->m_iMaxMp << pUser->m_sMp;
@@ -204,7 +204,7 @@ void CUser::PartyInsert()
 	result.clear();
 	result	<< uint8(PARTY_INSERT) << GetSocketID()
 			<< uint8(1) // success
-			<< m_id
+			<< GetName()
 			<< m_iMaxHp << m_sHp
 			<< GetLevel() << m_sClass
 			<< m_iMaxMp << m_sMp;

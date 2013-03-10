@@ -215,7 +215,7 @@ void CUser::SelectCharacter(Packet & pkt)
 		CKnights* pKnights = g_pMain->GetClanPtr( GetClanID() );
 		if (pKnights != NULL)
 		{
-			g_pMain->m_KnightsManager.SetKnightsUser( GetClanID(), m_id );
+			g_pMain->m_KnightsManager.SetKnightsUser(GetClanID(), GetName());
 		}
 		else if (GetZoneID() > 2)
 		{
@@ -248,7 +248,7 @@ void CUser::SetLogInInfoToDB(BYTE bInit)
 	}
 
 	Packet result(WIZ_LOGIN_INFO);
-	result	<< m_id 
+	result	<< GetName() 
 			<< pInfo->strServerIP << uint16(_LISTEN_PORT) << GetRemoteIP() 
 			<< bInit;
 	g_pMain->AddDatabaseRequest(result, this);

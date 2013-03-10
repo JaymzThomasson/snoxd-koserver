@@ -579,7 +579,7 @@ void CAISocket::RecvUserFail(Packet & pkt)
 	result << uint8(2) << sid << nid;
 	pUser->SendToRegion(&result);
 
-	TRACE("### AISocket - RecvUserFail : sid=%d, tid=%d, id=%s ####\n", sid, nid, pUser->m_id);
+	TRACE("### AISocket - RecvUserFail : sid=%d, tid=%d, id=%s ####\n", sid, nid, pUser->GetName());
 }
 
 void CAISocket::InitEventMonster(int index)

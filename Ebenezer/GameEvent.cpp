@@ -18,7 +18,7 @@ void CGameEvent::RunEvent(CUser *pUser)
 			pUser->ZoneChange( m_iExec[0], (float)m_iExec[1], (float)m_iExec[2] );
 			break;
 		case ZONE_TRAP_DEAD:
-		//	TRACE("&&& User - zone trap dead ,, name=%s\n", pUser->m_id);
+		//	TRACE("&&& User - zone trap dead ,, name=%s\n", pUser->GetName());
 		//	pUser->Dead();
 			break;	
 		case ZONE_TRAP_AREA:

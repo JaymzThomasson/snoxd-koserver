@@ -52,9 +52,9 @@ public:
 	virtual float GetY() { return m_cury; }
 	virtual float GetZ() { return m_curz; }
 
-	virtual const char * GetName() { return m_id; }
+	virtual const char * GetName() { return m_strUserID.c_str(); }
 
-	char	m_id[MAX_ID_SIZE+1];
+	std::string	m_strUserID;
 	char	m_Accountid[MAX_ID_SIZE+1];
 
 	uint8	m_bZone;

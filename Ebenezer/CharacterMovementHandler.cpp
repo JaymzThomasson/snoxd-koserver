@@ -66,7 +66,7 @@ void CUser::UserInOut(uint8 bType)
 	{
 		result.Initialize(AG_USER_INOUT);
 		result.SByte();
-		result << bType << GetSocketID() << m_id << m_curx << m_curz;
+		result << bType << GetSocketID() << GetName() << m_curx << m_curz;
 		g_pMain->Send_AIServer(&result);
 	}
 }
@@ -76,7 +76,7 @@ void CUser::GetUserInfo(Packet & pkt)
 	CKnights *pKnights = NULL;
 	pkt.SByte();
 
-	pkt		<< m_id
+	pkt		<< GetName()
 			<< uint16(GetNation()) << GetClanID() << getFame();
 
 	pKnights = g_pMain->GetClanPtr(GetClanID());
@@ -159,11 +159,11 @@ void CUser::ZoneChange(int zone, float x, float z)
 		if( m_bZone == BATTLE_ZONE )	{
 			if( pMap->m_bType == 1 && m_bNation != zone )	{	// ???? ?????? ???? ????..
 				if( m_bNation == KARUS && !g_pMain->m_byElmoradOpenFlag )	{
-					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", m_id, m_bNation, g_pMain->m_byElmoradOpenFlag);
+					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", GetName(), m_bNation, g_pMain->m_byElmoradOpenFlag);
 					return;
 				}
 				else if( m_bNation == ELMORAD && !g_pMain->m_byKarusOpenFlag )	{
-					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", m_id, m_bNation, g_pMain->m_byKarusOpenFlag);
+					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", GetName(), m_bNation, g_pMain->m_byKarusOpenFlag);
 					return;
 				}
 			}
@@ -214,13 +214,13 @@ void CUser::ZoneChange(int zone, float x, float z)
 	m_pMap = pMap;
 
 	if( m_bZone == ZONE_SNOW_BATTLE )	{
-		//TRACE("ZoneChange - name=%s\n", m_id);
+		//TRACE("ZoneChange - name=%s\n", GetName());
 		SetMaxHp();
 	}
 
 	PartyRemove(GetSocketID());	// ??????? Z?????? ó??
 
-	//TRACE("ZoneChange ,,, id=%s, nation=%d, zone=%d, x=%.2f, z=%.2f\n", m_id, m_bNation, zone, x, z);
+	//TRACE("ZoneChange ,,, id=%s, nation=%d, zone=%d, x=%.2f, z=%.2f\n", GetName(), m_bNation, zone, x, z);
 	
 	if( g_pMain->m_nServerNo != pMap->m_nServerNo ) {
 		pInfo = g_pMain->m_ServerArray.GetData( pMap->m_nServerNo );
@@ -230,7 +230,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		UserDataSaveToAgent();
 		
 		CTime t = CTime::GetCurrentTime();
-		g_pMain->WriteLog("[ZoneChange : %d-%d-%d] - sid=%d, acname=%s, name=%s, zone=%d, x=%d, z=%d \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), GetSocketID(), m_strAccountID, m_id, zone, (int)x, (int)z);
+		g_pMain->WriteLog("[ZoneChange : %d-%d-%d] - sid=%d, acname=%s, name=%s, zone=%d, x=%d, z=%d \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), GetSocketID(), m_strAccountID, GetName(), zone, (int)x, (int)z);
 
 		m_bLogout = 2;	// server change flag
 		SendServerChange(pInfo->strServerIP, 2);
