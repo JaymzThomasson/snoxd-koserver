@@ -488,88 +488,87 @@ void CUser::BuyingMerchantList(Packet & pkt)
 
 void CUser::BuyingMerchantBuy(Packet & pkt)
 {
-	uint32 req_gold;
-	uint16 item_count, leftover_count;
-	uint8 item_slot, merchant_slot;
-	int8 bDestPos = -1;
+	uint32 nPrice;
+	uint16 sStackSize, sRemainingStackSize;
+	uint8 bSellerSrcSlot, bMerchantListSlot;
 
 	CUser *pMerchant = g_pMain->GetUserPtr(m_sMerchantsSocketID);
 	if (pMerchant == NULL)
 		return;
 
-	pkt >> item_slot >> merchant_slot >> item_count;
+	pkt >> bSellerSrcSlot >> bMerchantListSlot >> sStackSize;
 
-	_MERCH_DATA *pMerch = &pMerchant->m_arMerchantItems[merchant_slot];
-	_ITEM_DATA *pItem = GetItem(SLOT_MAX + item_slot);
+	_MERCH_DATA *pWantedItem = &pMerchant->m_arMerchantItems[bMerchantListSlot];
+	_ITEM_DATA *pSellerItem = GetItem(SLOT_MAX + bSellerSrcSlot);
 
 	// Make sure the merchant actually has that item in that slot
 	// and that they want enough, and the selling user has enough
-	if (pMerch->nNum != pItem->nNum
-		|| pMerch->sCount < item_count
-		|| pItem->sCount < item_count)
+	if (pWantedItem->nNum != pSellerItem->nNum
+		|| pWantedItem->sCount < sStackSize
+		|| pSellerItem->sCount < sStackSize)
 		return;
 
 	// If it's not stackable, and we're specifying something other than 1
 	// we really don't care to handle this request...
-	_ITEM_TABLE *proto = g_pMain->GetItemPtr(pMerch->nNum);
+	_ITEM_TABLE *proto = g_pMain->GetItemPtr(pWantedItem->nNum);
 	if (proto == NULL
-		|| !proto->m_bCountable && item_count != 1)
+		|| !proto->m_bCountable && sStackSize != 1)
 		return;
 
 	// Do they have enough coins?
-	req_gold = pMerch->nPrice * item_count;
-	if (pMerchant->m_pUserData.m_iGold < req_gold)
+	nPrice = pWantedItem->nPrice * sStackSize;
+	if (nPrice > pMerchant->m_pUserData.m_iGold)
 		return;
 
-	_ITEM_DATA *pMerchantItem = pMerchant->GetItemByNum(pMerch->nNum);
-	if (pMerchantItem != NULL)
-	{
-		pMerchantItem->sCount += item_count;
-		bDestPos = pMerchant->GetItemSlotByNum(pMerch->nNum);
-	}
-	else
-		bDestPos = pMerchant->GetEmptySlot();
-
-	//User doesn't have a stackable item AND doesn't have any inventory space.
-	if (bDestPos == -1)
+	// Now find the buyer a home for their item
+	int8 bDstPos = pMerchant->FindSlotForItem(pWantedItem->nNum, sStackSize);
+	if (bDstPos < 0)
 		return;
 
-	leftover_count = pMerch->sCount - item_count;
-	GoldChange(pMerchant->GetSocketID(), req_gold);
-	pItem->sCount -= item_count;
-	pMerch->sCount -= item_count;
-	
+	_ITEM_DATA *pMerchantItem = pMerchant->GetItem(bDstPos);
+	// Take coins off the buying merchant
+	if (!pMerchant->GoldLose(nPrice))
+		return;
+
+	// and give them all to me, me, me!
+	GoldGain(nPrice);
+
+	// Get the remaining stack size after purchase.
+	sRemainingStackSize = pSellerItem->sCount - sStackSize;
+
+	// Now we give the buying merchant their wares.
+	pMerchantItem->nNum = pSellerItem->nNum;
+	pMerchantItem->sDuration = pSellerItem->sDuration;
+	pSellerItem->sCount -= sStackSize;
+	pMerchantItem->sCount += sStackSize;
+
+	// If the seller's all out, remove their item.
+	if (pSellerItem->sCount == 0)
+		memset(pSellerItem, 0, sizeof(_ITEM_DATA));
 
 	// TO-DO : Proper checks for the removal of the items in the array, we're now assuming everything gets bought
 
-	SetSlotItemValue();
-	pMerchant->SetSlotItemValue();
-
-	SetUserAbility();
-	pMerchant->SetUserAbility();
-
-
-	SendStackChange(pItem->nNum, pItem->sCount, pItem->sDuration, item_slot);
-	pMerchant->SendStackChange(pMerch->nNum, (pMerchantItem ? pMerchantItem->sCount : item_count), pMerch->sDuration, bDestPos, !pMerchantItem);
-
-	if (pMerch->sCount == 0)
-		memset(pMerch, 0, sizeof(_MERCH_DATA));
+	// Update players
+	SendStackChange(pSellerItem->nNum, pSellerItem->sCount, pSellerItem->sDuration, bSellerSrcSlot);
+	pMerchant->SendStackChange(pMerchantItem->nNum, pMerchantItem->sCount, pMerchantItem->sDuration, bDstPos,
+		pMerchantItem->sCount == sStackSize); 	// if the buying merchant only has what they wanted, it's a new item.
+												// (otherwise it was a stackable item that was merged into an existing slot)
 
 /*	Packet result(WIZ_MERCHANT, uint8(MERCHANT_ITEM_PURCHASED));
-	result << m_pUserData.m_id;
+	result << GetName();
 	pMerchant->Send(&result);
 
 	result.clear();
 
 	result	<< uint8(MERCHANT_ITEM_BUY) << uint16(1)
-			<< itemid << leftover_count
-			<< item_slot;
+			<< pMerchantItem->nNum << sRemainingStackSize
+			<< bMerchantListSlot;
 	Send(&result);
 
-	if (item_slot < 4 && leftover_count == 0)
+	if (bMerchantListSlot < 4 && sRemainingStackSize == 0)
 	{
 		result.Initialize(WIZ_MERCHANT_INOUT);
-		result << uint8(2) << m_sMerchantsSocketID << uint16(item_slot);
+		result << uint8(2) << m_sMerchantsSocketID << uint16(bMerchantListSlot);
 		pMerchant->SendToRegion(&result);
 	}
 */

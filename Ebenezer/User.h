@@ -277,26 +277,6 @@ public:
 	__forceinline _ITEM_DATA * GetItem(uint8 pos) { return &m_pUserData.m_sItemArray[pos]; }
 	_ITEM_TABLE* GetItemPrototype(uint8 pos);
 
-	__forceinline _ITEM_DATA * GetItemByNum(uint32 itemid)
-	{
-		for (int i = 0; i < HAVE_MAX; i++)
-		{
-			if(m_pUserData.m_sItemArray[SLOT_MAX+i].nNum == itemid && m_pUserData.m_sItemArray[SLOT_MAX+i].sCount > 0)
-				return &m_pUserData.m_sItemArray[SLOT_MAX+i];
-		}
-		return NULL;
-	}
-
-	__forceinline int8 GetItemSlotByNum(uint32 itemid)
-	{
-		for (int i = 0; i < HAVE_MAX; i++)
-		{
-			if(m_pUserData.m_sItemArray[SLOT_MAX+i].nNum = itemid)
-				return i;
-		}
-		return -1;
-	}
-
 	__forceinline C3DMap * GetMap() { return m_pMap; }
 
 	CUser(uint16 socketID, SocketMgr *mgr); 
@@ -330,6 +310,7 @@ public:
 	void GoldChange(short tid, int gold);
 	CUser* GetItemRoutingUser(int itemid, short itemcount);
 	bool GetStartPosition(short & x, short & y, BYTE bZone = 0);
+	int FindSlotForItem(uint32 nItemID, uint16 sCount);
 	int GetEmptySlot();
 	void Type3AreaDuration( float currenttime);
 	void SendAllKnightsID();

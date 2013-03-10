@@ -1564,7 +1564,7 @@ void CUser::ItemGet(Packet & pkt)
 		return;
 	}
 
-	pos = pGetUser->GetEmptySlot();
+	pos = pGetUser->FindSlotForItem(itemid, count);
 	if (pos < 0) 
 		goto fail_return;
 
@@ -2521,11 +2521,54 @@ void CUser::Type3AreaDuration(float currenttime)
 	SendToRegion(&result);
 }
 
+int CUser::FindSlotForItem(uint32 nItemID, uint16 sCount)
+{
+	int result = -1;
+	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
+	if (pTable == NULL)
+		return result;
+
+	// If the item's stackable, try to find it a home.
+	// We could do this in the same logic, but I'd prefer one initial check
+	// over the additional logic hit each loop iteration.
+	if (pTable->m_bCountable)
+	{
+		for (int i = 0; i < HAVE_MAX; i++)
+		{
+			_ITEM_DATA *pItem = GetItem(SLOT_MAX + i);
+
+			// If it's the item we're after, and there will be room to store it...
+			if (pItem->nNum == nItemID
+				&& pItem->sCount + sCount <= ITEMCOUNT_MAX)
+				return i;
+
+			// Found a free slot, we'd prefer to stack it though
+			// so store the first free slot, and ignore it.
+			if (pItem->nNum == 0)
+			{
+				if (result < 0)
+					result = i;
+
+				continue;
+			}
+		}
+
+		// If we didn't find a slot countaining our stackable item, it's possible we found
+		// an empty slot. So return that (or -1 if it none was found; no point searching again).
+		return result;
+	}
+
+	// If it's not stackable, don't need any additional logic.
+	// Just find the first free slot.
+	return GetEmptySlot();
+}
+
 int CUser::GetEmptySlot()
 {
 	for (int i = 0; i < HAVE_MAX; i++)
 	{
-		if (m_pUserData.m_sItemArray[SLOT_MAX+i].nNum == 0)
+		_ITEM_DATA *pItem = GetItem(SLOT_MAX + i);
+		if (pItem->nNum == 0)
 			return i;
 	}
 

@@ -187,7 +187,7 @@ BOOL CUser::CheckWeight(int itemid, short count)
 			// and that the weight doesn't exceed our limit
 			&& (m_sItemWeight + (pTable->m_sWeight * count)) <= m_sMaxWeight
 			// and we have room for the item.
-			&& GetEmptySlot() >= 0);
+			&& FindSlotForItem(itemid, count) >= 0);
 }
 
 BOOL CUser::CheckExistItem(int itemid, short count)
@@ -248,21 +248,13 @@ BOOL CUser::GiveItem(int itemid, short count, bool send_packet /*= true*/)
 	if (pTable == NULL)
 		return FALSE;	
 	
-	pos = GetEmptySlot();
+	pos = FindSlotForItem(itemid, count);
 	if (pos < 0)
 		return FALSE;
 
 	_ITEM_DATA *pItem = &m_pUserData.m_sItemArray[SLOT_MAX+pos];
 	if (pItem->nNum != 0)
-	{	
-		// If non-stackable item and there's an item there already... not happening.
-		if (!pTable->m_bCountable
-			// otherwise, if the item isn't what the client thinks it is, better not change anything either.
-			|| pItem->nNum != itemid) 
-			return FALSE;
-
 		bNewItem = false;
-	}
 
 	pItem->nNum = itemid;
 	pItem->sCount += count;
