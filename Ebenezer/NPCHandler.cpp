@@ -7,36 +7,46 @@ void CUser::ItemRepair(Packet & pkt)
 
 	Packet result(WIZ_ITEM_REPAIR);
 	uint32 money, itemid;
-	uint16 durability, quantity;
+	uint16 durability, quantity, sNpcID;
 	_ITEM_TABLE* pTable = NULL;
-	uint8 pos, slot;
+	CNpc *pNpc = NULL;
+	uint8 sPos, sSlot;
 
-	pkt >> pos >> slot >> itemid;
-	if( pos == 1 ) {	// SLOT
-		if( slot >= SLOT_MAX ) goto fail_return;
-		if( m_pUserData.m_sItemArray[slot].nNum != itemid ) goto fail_return;
+	pkt >> sPos >> sSlot >> sNpcID >> itemid;
+	if (sPos == 1 ) {	// SLOT
+		if (sSlot >= SLOT_MAX) goto fail_return;
+		if (m_pUserData.m_sItemArray[sSlot].nNum != itemid) goto fail_return;
 	}
-	else if ( pos == 2 ) {	// INVEN
-		if( slot >= HAVE_MAX ) goto fail_return;
-		if( m_pUserData.m_sItemArray[SLOT_MAX+slot].nNum != itemid ) goto fail_return;
+	else if (sPos == 2 ) {	// INVEN
+		if (sSlot >= HAVE_MAX) goto fail_return;
+		if (m_pUserData.m_sItemArray[SLOT_MAX+sSlot].nNum != itemid) goto fail_return;
 	}
+
+	pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
+	if (pNpc == NULL)
+		return;
+
+	if (pNpc->m_pRegion->m_RegionUserArray.find(GetSocketID()) == pNpc->m_pRegion->m_RegionUserArray.end()) //Is the user in the same region as the NPC?
+		return;
+
+
 	pTable = g_pMain->GetItemPtr( itemid );
 	if( !pTable ) goto fail_return;
 	durability = pTable->m_sDuration;
 	if( durability == 1 ) goto fail_return;
-	if( pos == 1 )
-		quantity = pTable->m_sDuration - m_pUserData.m_sItemArray[slot].sDuration;
-	else if( pos == 2 ) 
-		quantity = pTable->m_sDuration - m_pUserData.m_sItemArray[SLOT_MAX+slot].sDuration;
+	if( sPos == 1 )
+		quantity = pTable->m_sDuration - m_pUserData.m_sItemArray[sSlot].sDuration;
+	else if( sPos == 2 ) 
+		quantity = pTable->m_sDuration - m_pUserData.m_sItemArray[SLOT_MAX+sSlot].sDuration;
 	
 	money = (unsigned int)((((pTable->m_iBuyPrice-10) / 10000.0f) + pow((float)pTable->m_iBuyPrice, 0.75f)) * quantity / (double)durability);
 	if( money > m_pUserData.m_iGold ) goto fail_return;
 
 	m_pUserData.m_iGold -= money;
-	if( pos == 1 )
-		m_pUserData.m_sItemArray[slot].sDuration = durability;
-	else if( pos == 2 )
-		m_pUserData.m_sItemArray[SLOT_MAX+slot].sDuration = durability;
+	if( sPos == 1 )
+		m_pUserData.m_sItemArray[sSlot].sDuration = durability;
+	else if( sPos == 2 )
+		m_pUserData.m_sItemArray[SLOT_MAX+sSlot].sDuration = durability;
 
 	result << uint8(1) << m_pUserData.m_iGold;
 	Send(&result);

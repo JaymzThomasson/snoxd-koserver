@@ -187,7 +187,7 @@ BOOL CUser::CheckWeight(int itemid, short count)
 			// and that the weight doesn't exceed our limit
 			&& (m_sItemWeight + (pTable->m_sWeight * count)) <= m_sMaxWeight
 			// and we have room for the item.
-			&& GetEmptySlot(itemid, pTable->m_bCountable) >= 0);
+			&& GetEmptySlot() >= 0);
 }
 
 BOOL CUser::CheckExistItem(int itemid, short count)
@@ -248,7 +248,7 @@ BOOL CUser::GiveItem(int itemid, short count, bool send_packet /*= true*/)
 	if (pTable == NULL)
 		return FALSE;	
 	
-	pos = GetEmptySlot( itemid, pTable->m_bCountable );
+	pos = GetEmptySlot();
 	if (pos < 0)
 		return FALSE;
 

@@ -1564,7 +1564,7 @@ void CUser::ItemGet(Packet & pkt)
 		return;
 	}
 
-	pos = pGetUser->GetEmptySlot(itemid, pTable->m_bCountable);
+	pos = pGetUser->GetEmptySlot();
 	if (pos < 0) 
 		goto fail_return;
 
@@ -2521,7 +2521,7 @@ void CUser::Type3AreaDuration(float currenttime)
 	SendToRegion(&result);
 }
 
-int CUser::GetEmptySlot(int itemid, int bCountable)
+int CUser::GetEmptySlot()
 {
 	for (int i = 0; i < HAVE_MAX; i++)
 	{
