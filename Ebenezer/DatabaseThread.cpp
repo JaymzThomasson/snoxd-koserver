@@ -558,15 +558,24 @@ void CKnightsManager::ReqAllKnightsMember(CUser *pUser, Packet & pkt)
 	uint16 sClanID, sCount;
 
 	pkt >> sClanID;
-	result << uint8(0);
-	nOffset = result.wpos(); // store offset
-	result << uint16(0) << uint16(0); // placeholders
-	sCount = g_DBAgent.LoadKnightsAllMembers(sClanID, result);
 
-	pkt.put(nOffset, result.size() - 3);
+	CKnights* pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
+	if (pKnights == NULL)
+		return;
+
+	result << uint8(1);
+	nOffset = result.wpos(); // store offset
+	result	<< uint16(0) // placeholder for packet length 
+			<< uint16(0); // placeholder for user count
+
+	sCount = g_DBAgent.LoadKnightsAllMembers(sClanID, result);
+	if (sCount > MAX_CLAN_USERS)
+		return;
+
+	pkt.put(nOffset, uint16(result.size() - 3));
 	pkt.put(nOffset + 2, sCount);
 
-	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
+	pUser->Send(&result);
 }
 
 void CKnightsManager::ReqKnightsList(Packet & pkt)

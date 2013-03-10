@@ -43,8 +43,6 @@ public:
 	void RecvModifyFame(CUser* pUser, Packet & pkt, BYTE command);
 	void RecvKnightsAllList(Packet & pkt);
 
-	void ReceiveKnightsProcess(CUser* pUser, Packet & pkt);
-
 	int GetKnightsIndex( int nation );
 	BOOL IsAvailableName( const char* strname);	
 	void PacketProcess(CUser* pUser, Packet & pkt);	

@@ -465,43 +465,6 @@ void CKnightsManager::CurrentKnightsMember(CUser *pUser, Packet & pkt)
 	pUser->Send(&result);
 }
 
-void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
-{
-	uint8 command = pkt.read<uint8>();
-	
-	if (command != KNIGHTS_ALLLIST_REQ)
-	{
-		uint8 bResult = pkt.read<uint8>();
-		if (bResult > 0) 
-		{
-			Packet result(WIZ_KNIGHTS_PROCESS, command);
-			result << bResult << "Error";
-			pUser->Send(&result);
-			return;
-		}	
-	}
-
-	switch (command)
-	{
-	case KNIGHTS_MEMBER_REQ:
-		{
-			CKnights* pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
-			if (pKnights == NULL)
-				break;
-
-			uint16 len = pkt.read<uint16>(), count = pkt.read<uint16>();
-			if (count > MAX_CLAN_USERS) 
-				break;
-
-			Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MEMBER_REQ));
-			result << uint8(1) << len << count;
-			result.append(pkt.contents() + pkt.rpos(), len);
-			pUser->Send(&result);
-		}
-		break;
-	}
-}
-
 void CKnightsManager::RecvUpdateKnights(CUser *pUser, Packet & pkt, BYTE command)
 {
 	if (pUser == NULL) 
