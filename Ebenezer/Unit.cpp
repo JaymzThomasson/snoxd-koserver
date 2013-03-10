@@ -9,6 +9,11 @@ Unit::Unit(bool bPlayer /*= false*/)
 void Unit::Initialize()
 {
 	m_pMap = NULL;
+	m_pRegion = NULL;
+
+	SetPosition(0.0f, 0.0f, 0.0f);
+	m_bLevel = 0;
+	m_bNation = 0;
 
 	m_sTotalHit = 0;
 	m_sTotalAc = 0;

@@ -48,19 +48,11 @@ class CUser : public Unit, public KOSocket
 public:
 	virtual uint16 GetID() { return GetSocketID(); }
 
-	virtual float GetX() { return m_curx; }
-	virtual float GetY() { return m_cury; }
-	virtual float GetZ() { return m_curz; }
-
 	const char * GetAccountName() { return m_strAccountID.c_str(); }
 	virtual const char * GetName() { return m_strUserID.c_str(); }
 
 	std::string	m_strAccountID, m_strUserID;
 
-	uint8	m_bZone;
-	float	m_curx, m_curz, m_cury;
-
-	uint8	m_bNation;
 	uint8	m_bRace;
 	uint16	m_sClass;
 
@@ -68,7 +60,6 @@ public:
 
 	uint8	m_bRank;
 	uint8	m_bTitle;
-	uint8	m_bLevel;
 	int64	m_iExp;	
 	int32	m_iLoyalty, m_iLoyaltyMonthly;
 	int32	m_iMannerPoint;
@@ -232,10 +223,6 @@ public:
 	__forceinline bool isTransformed() { return m_bIsTransformed; }
 
 	__forceinline int8 GetMerchantState() { return m_bMerchantState; }
-
-	virtual uint8 GetNation() { return m_bNation; }
-	virtual uint8 GetLevel() { return m_bLevel; }
-	virtual uint8 GetZoneID() { return m_bZone; }
 
 	__forceinline BYTE getAuthority() { return m_bAuthority; }
 	__forceinline BYTE getFame() { return m_bFame; }

@@ -1620,6 +1620,7 @@ short CMagicProcess::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 	return damage / 3;		
 }
 
+// TO-DO: Clean this up (even using unit code...)
 BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, short mousex, short mousez)
 {
 	CNpc* pMon = NULL;
@@ -1679,11 +1680,11 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 		case MORAL_SELF_AREA :
 		case MORAL_AREA_ENEMY :
 			if (!bFlag) {
-				if (pTUser->m_bNation != m_pSrcUser->m_bNation)		// Check that it's your enemy.
+				if (pTUser->GetNation() != m_pSrcUser->GetNation())		// Check that it's your enemy.
 					goto final_test;
 			}
 			else {
-				if (pTUser->m_bNation != pMon->m_byGroup)
+				if (pTUser->GetNation() != pMon->GetNation())
 					goto final_test;
 			}
 			break;

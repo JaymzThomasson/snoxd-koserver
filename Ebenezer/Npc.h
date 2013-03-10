@@ -8,22 +8,11 @@ class CNpc  : public Unit
 {
 public:
 	virtual uint16 GetID() { return m_sNid; }
-	virtual uint8 GetZoneID() { return m_bZoneID; }
-
-	virtual float GetX() { return m_fCurX; }
-	virtual float GetY() { return m_fCurY; }
-	virtual float GetZ() { return m_fCurZ; }
-
 	virtual const char * GetName() { return m_strName; }
-
-	virtual uint8 GetLevel() { return m_byLevel; }
-
-	uint8	m_bZoneID;
 
 	uint16	m_sNid; // NPC ID
 	uint16	m_sSid; // prototype ID
 
-	float	m_fCurX, m_fCurY, m_fCurZ;
 	short	m_sPid;				// MONSTER(NPC) Picture ID
 	short	m_sSize;			// MONSTER(NPC) Size
 	int		m_iWeapon_1;
@@ -32,8 +21,6 @@ public:
 	int		m_iMaxHP;			// 최대 HP
 	int		m_iHP;				// 현재 HP
 	BYTE	m_byState;			// 몬스터 (NPC) 상태
-	BYTE	m_byGroup;			// 소속 집단
-	BYTE	m_byLevel;			// 레벨
 	BYTE	m_tNpcType;			// NPC Type
 								// 0 : Normal Monster
 								// 1 : NPC
@@ -75,8 +62,6 @@ public:
 
 	__forceinline short GetEntryID() { return m_sSid; };
 	__forceinline BYTE GetType() { return m_tNpcType; };
-	__forceinline BYTE GetNation() { return m_byGroup; }; // NOTE: Need some consistency with naming
-
 	__forceinline BYTE GetState() { return m_byState; };
 
 	virtual ~CNpc();

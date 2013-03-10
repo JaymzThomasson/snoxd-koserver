@@ -21,10 +21,18 @@ public:
 	__forceinline C3DMap * GetMap() { return m_pMap; }
 
 	virtual uint16 GetID() = 0;
-	virtual uint8 GetZoneID() = 0;
-	virtual float GetX() = 0;
-	virtual float GetY() = 0;
-	virtual float GetZ() = 0;
+	__forceinline uint8 GetZoneID() { return m_bZone; }
+
+	__forceinline float GetX() { return m_curx; }
+	__forceinline float GetY() { return m_cury; }
+	__forceinline float GetZ() { return m_curz; }
+
+	__forceinline void SetPosition(float fx, float fy, float fz)
+	{
+		m_curx = fx;
+		m_curz = fz;
+		m_cury = fy;
+	}
 
 	__forceinline uint16 GetSPosX() { return uint16(GetX() * 10); };
 	__forceinline uint16 GetSPosY() { return uint16(GetY() * 10); };
@@ -45,8 +53,8 @@ public:
 
 	virtual const char * GetName() = 0; // this is especially fun...
 
-	virtual uint8 GetNation() = 0;
-	virtual uint8 GetLevel() = 0;
+	__forceinline uint8 GetNation() { return m_bNation; }
+	__forceinline uint8 GetLevel() { return m_bLevel; }
 
 	virtual bool isDead() = 0;
 	virtual bool isAlive() { return !isDead(); }
@@ -75,12 +83,18 @@ public:
 
 // public for the moment
 // protected:
-	C3DMap * m_pMap;
+	C3DMap  * m_pMap;
 	CRegion * m_pRegion;
 
-	uint16 m_sRegionX, m_sRegionZ; // this is probably redundant
+	uint8	m_bZone;
+	float	m_curx, m_curz, m_cury;
 
-	bool m_bPlayer;
+	uint16	m_sRegionX, m_sRegionZ; // this is probably redundant
+
+	bool	m_bPlayer;
+
+	uint8	m_bLevel;
+	uint8	m_bNation;
 
 	short	m_sTotalHit;
 	short	m_sTotalAc;
@@ -127,7 +141,6 @@ public:
 	short	m_sMaceR;						// Resistance to Mace
 	short	m_sSpearR;						// Resistance to Spear
 	short	m_sBowR;						// Resistance to Bow		
-
 
 	float	m_fHPLastTime[MAX_TYPE3_REPEAT];		// For Automatic HP recovery and Type 3 durational HP recovery.
 	float	m_fHPStartTime[MAX_TYPE3_REPEAT];

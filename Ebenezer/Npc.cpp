@@ -30,9 +30,6 @@ void CNpc::Initialize()
 	Unit::Initialize();
 
 	m_sSid = 0;
-	m_fCurX = 0;			// Current X Pos;
-	m_fCurY = 0;			// Current Y Pos;
-	m_fCurZ = 0;			// Current Z Pos;
 	m_sPid = 0;				// MONSTER(NPC) Picture ID
 	m_sSize = 100;				// MONSTER(NPC) Size
 	memset(m_strName, 0, MAX_NPC_SIZE+1);		// MONSTER(NPC) Name
@@ -44,8 +41,6 @@ void CNpc::Initialize()
 								// 1 : NPC
 								// 2 : 각 입구,출구 NPC
 								// 3 : 경비병
-	m_byGroup = 0;
-	m_byLevel = 0;
 	m_iSellingGroup = 0;
 //	m_dwStepDelay = 0;		
 
@@ -63,10 +58,7 @@ void CNpc::MoveResult(float xpos, float ypos, float zpos, float speed)
 {
 	Packet result(WIZ_NPC_MOVE);
 
-	m_fCurX = xpos;
-	m_fCurZ = zpos;
-	m_fCurY = ypos;
-
+	SetPosition(xpos, ypos, zpos);
 	RegisterRegion();
 
 	result << GetID() << GetSPosX() << GetSPosZ() << GetSPosY() << uint16(speed * 10);
@@ -97,7 +89,7 @@ void CNpc::SendInOut(uint8 bType, float fx, float fz, float fy)
 	else	
 	{
 		GetRegion()->Add(this);
-		m_fCurX = fx;	m_fCurZ = fz;	m_fCurY = fy;
+		SetPosition(fx, fz, fy);
 	}
 
 	Packet result;
@@ -115,7 +107,7 @@ void CNpc::GetNpcInfo(Packet & pkt)
 		<< m_sSize
 		<< m_iWeapon_1 << m_iWeapon_2
 		<< GetNation()
-		<< m_byLevel
+		<< GetLevel()
 		<< GetSPosX() << GetSPosZ() << GetSPosY()
 		<< uint32(isGateOpen())
 		<< m_byObjectType

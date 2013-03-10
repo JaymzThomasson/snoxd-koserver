@@ -152,7 +152,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 		pNpc->Initialize();
 
 		pkt >> bType >> pNpc->m_sNid >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
-			>> pNpc->m_bZoneID >> strName >> pNpc->m_byGroup >> pNpc->m_byLevel >> pNpc->m_fCurX >> pNpc->m_fCurZ >> pNpc->m_fCurY
+			>> pNpc->m_bZone >> strName >> pNpc->m_bNation >> pNpc->m_bLevel >> pNpc->m_curx >> pNpc->m_curz >> pNpc->m_cury
 			>> bDirection >> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP >> pNpc->m_byGateOpen 
 			>> pNpc->m_sTotalHitrate >> pNpc->m_sTotalEvasionrate >> pNpc->m_sTotalAc >> pNpc->m_byObjectType;
 
@@ -173,7 +173,6 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 		if (pNpc->GetMap() == NULL)
 		{
 			delete pNpc;
-			pNpc = NULL;
 			continue;
 		}
 
@@ -390,8 +389,8 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 		return;
 
 	pkt >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
-		>> pNpc->m_bZoneID >> strName >> pNpc->m_byGroup >> pNpc->m_byLevel 
-		>> pNpc->m_fCurX >> pNpc->m_fCurZ >> pNpc->m_fCurY >> byDirection >> pNpc->m_NpcState
+		>> pNpc->m_bZone >> strName >> pNpc->m_bNation >> pNpc->m_bLevel
+		>> pNpc->m_curx >> pNpc->m_curz >> pNpc->m_cury >> byDirection >> pNpc->m_NpcState
 		>> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP >> pNpc->m_byGateOpen
 		>> pNpc->m_sTotalHitrate >> pNpc->m_sTotalEvasionrate >> pNpc->m_sTotalAc >> pNpc->m_byObjectType;
 
@@ -412,7 +411,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 		char strLog[256]; 
 		CTime t = CTime::GetCurrentTime();
 		sprintf_s(strLog, sizeof(strLog), "## time(%d:%d-%d) npc regen check(%d) : nid=%d, name=%s, x=%d, z=%d, rx=%d, rz=%d ## \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), 
-			pNpc->m_NpcState, pNpc->GetID(), pNpc->m_strName, (int)pNpc->m_fCurX, (int)pNpc->m_fCurZ, pNpc->GetRegionX(), pNpc->GetRegionZ());
+			pNpc->m_NpcState, pNpc->GetID(), pNpc->m_strName, (int)pNpc->GetX(), (int)pNpc->GetZ(), pNpc->GetRegionX(), pNpc->GetRegionZ());
 		EnterCriticalSection( &g_LogFile_critical );
 		g_pMain->m_RegionLogFile.Write( strLog, strlen(strLog) );
 		LeaveCriticalSection( &g_LogFile_critical );
