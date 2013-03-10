@@ -44,7 +44,6 @@ public:
 	void RecvJoinKnights(CUser* pUser, Packet & pkt, BYTE command);
 	void RecvModifyFame(CUser* pUser, Packet & pkt, BYTE command);
 	void RecvKnightsAllList(Packet & pkt);
-	void RecvRegisterClanSymbol(CUser* pUser, Packet & pkt);
 
 	void ReceiveKnightsProcess(CUser* pUser, Packet & pkt);
 

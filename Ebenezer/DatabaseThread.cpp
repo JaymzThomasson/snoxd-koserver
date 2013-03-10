@@ -615,20 +615,44 @@ void CKnightsManager::ReqRegisterClanSymbol(CUser *pUser, Packet & pkt)
 
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MARK_REGISTER));
 	char clanSymbol[MAX_KNIGHTS_MARK];
-	uint16 sClanID, sSymbolSize;
+	uint16 sClanID, sSymbolSize, sErrorCode = 0, sNewVersion = 0;
 
 	pkt >> sClanID >> sSymbolSize;
 	pkt.read(clanSymbol, sSymbolSize);
 
 	bool bResult = g_DBAgent.UpdateClanSymbol(sClanID, sSymbolSize, clanSymbol);
-	result << uint8(0) << bResult;
-	if (bResult)
+
+	do
 	{
-		result << sClanID << sSymbolSize;
-		result.append(clanSymbol, sSymbolSize); // ... and back again! Like ping pong!
-	}
+		if (!bResult)
+			break;
+
+		CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
+		if (pKnights == NULL)
+		{
+			sErrorCode = 20;
+			break;
+		}
+
+		// Make sure they still have enough coins.
+		if (!pUser->GoldLose(CLAN_SYMBOL_COST))
+		{
+			sErrorCode = 14;
+			break;
+		}
+
+		sNewVersion = ++pKnights->m_sMarkVersion;
+		pKnights->m_sMarkLen = sSymbolSize;
+
+		memcpy(pKnights->m_Image, clanSymbol, sSymbolSize);
+
+		// TO-DO: Send to all servers for updating via UDP
+
+		sErrorCode = 1;
+	} while (0);
 	
-	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
+	result << sErrorCode << sNewVersion;
+	pUser->Send(&result);
 }
 
 void CUser::ReqSetLogInInfo(Packet & pkt)

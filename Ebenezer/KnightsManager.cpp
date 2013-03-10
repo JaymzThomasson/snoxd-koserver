@@ -515,9 +515,6 @@ void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 	case KNIGHTS_ALLLIST_REQ:
 		RecvKnightsAllList(pkt);
 		break;
-	case KNIGHTS_MARK_REGISTER:
-		RecvRegisterClanSymbol(pUser, pkt);
-		break;
 	}
 }
 
@@ -757,50 +754,6 @@ void CKnightsManager::RegisterClanSymbol(CUser* pUser, Packet & pkt)
 	result	<< pUser->GetClanID() << sSymbolSize;
 	result.append(clanSymbol, sSymbolSize);
 	g_pMain->AddDatabaseRequest(result, pUser);
-}
-
-void CKnightsManager::RecvRegisterClanSymbol(CUser* pUser, Packet & pkt)
-{
-	if (pUser == NULL)
-		return;
-
-	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MARK_REGISTER));
-	uint16 sClanID, sSymbolSize, sErrorCode = 0, sNewVersion = 0;
-	bool bResult; 
-
-	pkt >> bResult;
-	do
-	{
-		if (!bResult)
-			break;
-
-		pkt >> sClanID >> sSymbolSize;
-		CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
-		if (pKnights == NULL)
-		{
-			sErrorCode = 20;
-			break;
-		}
-
-		// Make sure they still have enough coins.
-		if (!pUser->GoldLose(CLAN_SYMBOL_COST))
-		{
-			sErrorCode = 14;
-			break;
-		}
-
-		sNewVersion = ++pKnights->m_sMarkVersion;
-		pKnights->m_sMarkLen = sSymbolSize;
-
-		pkt.read(pKnights->m_Image, sSymbolSize);
-
-		sErrorCode = 1;
-	} while (0);
-	
-	result << sErrorCode << sNewVersion;
-	pUser->Send(&result);
-
-	// TO-DO: Send to all servers for updating via UDP
 }
 
 void CKnightsManager::RequestClanSymbolVersion(CUser* pUser, Packet & pkt)
