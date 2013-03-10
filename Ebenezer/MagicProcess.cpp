@@ -736,6 +736,8 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 				pTUser->HpChange(damage, m_pSrcUser);
 				m_pSrcUser->SendTargetHP( 0, (*itr)->GetID(), damage );
 			}
+			if (m_sTargetID != -1)
+				m_sData2 = 1;
 		}
 		else if (pType->bDuration != 0) {    // Durational Spells! Remember, durational spells only involve HPs.
 			if (damage != 0) {		// In case there was first damage......
@@ -776,12 +778,11 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 	
 		if ( pSkill->bType[1] == 0 || pSkill->bType[1] == 3 )
 			SendSkill(m_sCasterID, pTUser->GetSocketID());
-		
+
 		// Tell the AI server we're healing someone (so that they can choose to pick on the healer!)
 		if (pType->bDirectType == 1 && damage > 0
 			&& m_sCasterID != m_sTargetID)
 		{
-
 			Packet result(AG_HEAL_MAGIC);
 			result << m_sCasterID;
 			g_pMain->Send_AIServer(&result);
