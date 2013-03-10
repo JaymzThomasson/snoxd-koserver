@@ -259,7 +259,7 @@ void CUser::ReqLoadWebItemMall(Packet & pkt)
 	if (g_DBAgent.LoadWebItemMall(result, &m_pUserData))
 		result.put(offset, uint8(1));
 
-	// m_LoggerSendQueue.PutData(&result, uid);
+	RecvStore(pkt); // TO-DO: Just send the data directly.
 }
 
 void CUser::ReqSkillDataProcess(Packet & pkt)
@@ -273,11 +273,11 @@ void CUser::ReqSkillDataProcess(Packet & pkt)
 
 void CUser::ReqSkillDataLoad(Packet & pkt)
 {
-	Packet result(WIZ_SKILLDATA, uint8(SKILL_DATA_LOAD));
+	Packet result(WIZ_SKILLDATA);
 	if (!g_DBAgent.LoadSkillShortcut(result, &m_pUserData))
 		result << uint8(0);
 
-	// m_LoggerSendQueue.PutData(&result, uid);
+	RecvSkillDataLoad(pkt); // TO-DO: Just send the data directly.
 }
 
 void CUser::ReqSkillDataSave(Packet & pkt)
@@ -330,7 +330,8 @@ void CUser::ReqRequestFriendList(Packet & pkt)
 	result << uint16(friendList.size());
 	foreach (itr, friendList)
 		result << (*itr);
-	// m_LoggerSendQueue.PutData(&result, uid);
+
+	RecvFriendProcess(pkt); // TO-DO: Just send the data directly.
 }
 
 void CUser::ReqAddFriend(Packet & pkt)
@@ -345,7 +346,8 @@ void CUser::ReqAddFriend(Packet & pkt)
 	FriendAddResult resultCode = g_DBAgent.AddFriend(GetSocketID(), tid);
 	result.SByte();
 	result << tid << uint8(resultCode) << strCharID;
-	// m_LoggerSendQueue.PutData(&result, uid);
+
+	RecvFriendProcess(pkt); // TO-DO: Just send the data directly.
 }
 
 void CUser::ReqRemoveFriend(Packet & pkt)
@@ -359,7 +361,8 @@ void CUser::ReqRemoveFriend(Packet & pkt)
 	FriendRemoveResult resultCode = g_DBAgent.RemoveFriend(strCharID, &m_pUserData);
 	result.SByte();
 	result << uint8(resultCode) << strCharID;
-	// m_LoggerSendQueue.PutData(&result, uid);
+
+	RecvFriendProcess(pkt); // TO-DO: Just send the data directly.
 }
 
 void CUser::ReqChangeCape(Packet & pkt)
