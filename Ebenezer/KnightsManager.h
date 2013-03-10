@@ -43,7 +43,6 @@ public:
 	// received from database request (this will go)
 	void RecvJoinKnights(CUser* pUser, Packet & pkt, BYTE command);
 	void RecvModifyFame(CUser* pUser, Packet & pkt, BYTE command);
-	void RecvDestroyKnights( CUser* pUser, Packet & pkt);
 	void RecvKnightsList(Packet & pkt);
 	void RecvKnightsAllList(Packet & pkt);
 	void RecvRegisterClanSymbol(CUser* pUser, Packet & pkt);

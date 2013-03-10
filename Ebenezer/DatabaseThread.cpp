@@ -540,11 +540,17 @@ void CKnightsManager::ReqModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 c
 
 void CKnightsManager::ReqDestroyKnights(CUser *pUser, Packet & pkt)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_DESTROY));
 	uint16 sClanID = pkt.read<uint16>();
+	CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
+	if (pKnights == NULL)
+		return;
 
-	result << int8(g_DBAgent.DeleteKnights(sClanID)) << sClanID;
-	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
+	int8 bResult = int8(g_DBAgent.DeleteKnights(sClanID));
+	pKnights->Disband(pUser);
+
+	Packet result(UDP_KNIGHTS_PROCESS, uint8(KNIGHTS_DESTROY));
+	result << sClanID;
+	g_pMain->Send_UDP_All(&result, (g_pMain->m_nServerGroup == 0 ? 0 : 1));
 }
 
 void CKnightsManager::ReqAllKnightsMember(CUser *pUser, Packet & pkt)

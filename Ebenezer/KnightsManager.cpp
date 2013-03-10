@@ -496,9 +496,6 @@ void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 	case KNIGHTS_PUNISH:
 		RecvModifyFame(pUser, pkt, command);
 		break;
-	case KNIGHTS_DESTROY:
-		RecvDestroyKnights(pUser, pkt);
-		break;
 	case KNIGHTS_MEMBER_REQ:
 		{
 			CKnights* pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
@@ -646,23 +643,6 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, BYTE command)
 	// Otherwise, since we're actually in the clan, we don't need to be explicitly told what happened.
 	if (pKnights != NULL)
 		pKnights->Send(&result);
-}
-
-void CKnightsManager::RecvDestroyKnights(CUser *pUser, Packet & pkt)
-{
-	if (pUser == NULL)
-		return;
-	
-	uint16 sClanID = pkt.read<uint16>();
-	CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
-	if (pKnights == NULL)
-		return;
-
-	pKnights->Disband(pUser);
-
-	Packet result(UDP_KNIGHTS_PROCESS, uint8(KNIGHTS_DESTROY));
-	result << sClanID;
-	g_pMain->Send_UDP_All(&result, (g_pMain->m_nServerGroup == 0 ? 0 : 1));
 }
 
 void CKnightsManager::RecvKnightsList(Packet & pkt)
