@@ -108,6 +108,9 @@ BOOL WINAPI DatabaseThread::ThreadProc(LPVOID lpParam)
 		case WIZ_CAPE:
 			if (pUser) pUser->ReqChangeCape(pkt);
 			break;
+		case WIZ_LOGOUT:
+			if (pUser) pUser->ReqUserLogOut();
+			break;
 		}
 		// Free the packet.
 		delete p;
@@ -372,7 +375,6 @@ void CUser::ReqChangeCape(Packet & pkt)
 	g_DBAgent.UpdateCape(sClanID, sCapeID, r, g, b);
 }
 
-// This one's temporarily synchronous to avoid potential threading issues
 void CUser::ReqUserLogOut()
 {
 	string strCharID = GetName();
