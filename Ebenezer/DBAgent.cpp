@@ -866,8 +866,8 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 		if (bCount == 0)
 		{
 			result.clear();
-			result << uint8(KNIGHTS_ALLLIST_REQ) << uint8(0);
-			offset = result.wpos() - 1;
+			offset = result.wpos();
+			result << uint8(0);
 		}
 
 		uint32 nPoints; uint16 sClanID; uint8 bRanking;
@@ -877,21 +877,22 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 
 		result << sClanID << nPoints << bRanking;
 
-		// can only send 40-ish clans at a time (need to check actual memory limit)
-		if (++bCount >= 40)
+		// only send 100 clans at a time (no shared memory limit, yay!)
+		if (++bCount >= 100)
 		{
 			// overwrite the count
 			result.put(offset, bCount);
-			//g_pMain->m_LoggerSendQueue.PutData(&result);
+
+			g_pMain->m_KnightsManager.RecvKnightsAllList(result);
 			bCount = 0;
 		}
 	} while (dbCommand->MoveNext());
 
 	// didn't quite make it in the last batch (if any)? send the remainder.
-	if (bCount < 40)
+	if (bCount < 100)
 	{
 		result.put(offset, bCount);
-		//g_pMain->m_LoggerSendQueue.PutData(&result);
+		g_pMain->m_KnightsManager.RecvKnightsAllList(result);
 	}
 }
 

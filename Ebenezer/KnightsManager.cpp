@@ -499,9 +499,6 @@ void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 			pUser->Send(&result);
 		}
 		break;
-	case KNIGHTS_ALLLIST_REQ:
-		RecvKnightsAllList(pkt);
-		break;
 	}
 }
 
