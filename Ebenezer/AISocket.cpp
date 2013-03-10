@@ -402,23 +402,6 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 	pNpc->m_byDirection = byDirection;
 	strcpy(pNpc->m_strName, strName.c_str());
 
-	// Bug? Test?
-	// pNpc->m_NpcState = NPC_DEAD;
-
-	if (pNpc->m_NpcState == NPC_LIVE)
-	{
-		char strLog[256]; 
-		CTime t = CTime::GetCurrentTime();
-		sprintf_s(strLog, sizeof(strLog), "## time(%d:%d-%d) npc regen check(%d) : nid=%d, name=%s, x=%d, z=%d, rx=%d, rz=%d ## \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), 
-			pNpc->m_NpcState, pNpc->GetID(), pNpc->m_strName, (int)pNpc->GetX(), (int)pNpc->GetZ(), pNpc->GetRegionX(), pNpc->GetRegionZ());
-		EnterCriticalSection( &g_LogFile_critical );
-		g_pMain->m_RegionLogFile.Write( strLog, strlen(strLog) );
-		LeaveCriticalSection( &g_LogFile_critical );
-		TRACE(strLog);
-		// to-do: replace with g_pMain->WriteRegionLog(...);
-	}
-
-
 	if (pNpc->GetMap() == NULL)
 		return;
 

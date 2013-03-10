@@ -56,7 +56,6 @@ typedef hash_map<string, _USER_RANK *>		UserRankMap;
 class CEbenezerDlg : public CDialog
 {
 public:	
-	void WriteEventLog( char* pBuf );
 	void FlySanta();
 	void BattleZoneCurrentUsers();
 	BOOL LoadKnightsRankTable();
@@ -269,7 +268,7 @@ public:
 	ServerArray			m_ServerArray;
 	ServerArray			m_ServerGroupArray;
 	CUdpSocket*			m_pUdpSocket;
-	CFile m_RegionLogFile, m_LogFile, m_EvnetLogFile;
+	CFile				m_LogFile;
 
 	NameMap		m_accountNameMap,
 				m_characterNameMap;

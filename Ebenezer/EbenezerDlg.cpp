@@ -160,9 +160,6 @@ BOOL CEbenezerDlg::OnInitDialog()
 	//----------------------------------------------------------------------
 	CTime cur = CTime::GetCurrentTime();
 	char strLogFile[50];
-	sprintf_s(strLogFile, sizeof(strLogFile), "RegionLog-%d-%d-%d.txt", cur.GetYear(), cur.GetMonth(), cur.GetDay());
-	m_RegionLogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
-	m_RegionLogFile.SeekToEnd();
 
 	sprintf_s(strLogFile, sizeof(strLogFile), "PacketLog-%d-%d-%d.txt", cur.GetYear(), cur.GetMonth(), cur.GetDay());
 	m_LogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
@@ -329,7 +326,6 @@ BOOL CEbenezerDlg::DestroyWindow()
 
 	DatabaseThread::Shutdown();
 
-	if (m_RegionLogFile.m_hFile != CFile::hFileNull) m_RegionLogFile.Close();
 	if (m_LogFile.m_hFile != CFile::hFileNull) m_LogFile.Close();
 
 	DeleteCriticalSection(&g_region_critical);
@@ -1600,9 +1596,6 @@ void CEbenezerDlg::BattleZoneOpenTimer()
 
 void CEbenezerDlg::BattleZoneOpen(int nType, uint8 bZone /*= 0*/)
 {
-	char strLogFile[100];
-	CTime time = CTime::GetCurrentTime();
-
 	if( nType == BATTLEZONE_OPEN ) {				// Open battlezone.
 		m_byBattleOpen = NATION_BATTLE;	
 		m_byOldBattleOpen = NATION_BATTLE;
@@ -1611,9 +1604,6 @@ void CEbenezerDlg::BattleZoneOpen(int nType, uint8 bZone /*= 0*/)
 	else if( nType == SNOW_BATTLEZONE_OPEN ) {		// Open snow battlezone.
 		m_byBattleOpen = SNOW_BATTLE;	
 		m_byOldBattleOpen = SNOW_BATTLE;
-		sprintf_s(strLogFile, sizeof(strLogFile), "EventLog-%d-%d-%d.txt", time.GetYear(), time.GetMonth(), time.GetDay());
-		m_EvnetLogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
-		m_EvnetLogFile.SeekToEnd();
 	}
 	else if( nType == BATTLEZONE_CLOSE )	{		// battle close
 		m_byBattleOpen = NO_BATTLE;
@@ -1694,11 +1684,6 @@ void CEbenezerDlg::BanishLosers()
 
 void CEbenezerDlg::ResetBattleZone()
 {
-	if( m_byOldBattleOpen == SNOW_BATTLE )	{
-		if(m_EvnetLogFile.m_hFile != CFile::hFileNull) m_EvnetLogFile.Close();
-		TRACE("Event Log close\n");
-	}
-
 	m_bVictory = 0;
 	m_byBanishFlag = 0;
 	m_sBanishDelay = 0;
@@ -2183,7 +2168,6 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 	Packet result(UDP_BATTLEZONE_CURRENT_USERS);
 	result << m_sKarusCount << m_sElmoradCount;
 	Send_UDP_All(&result);
-
 }
 
 void CEbenezerDlg::FlySanta()
@@ -2191,13 +2175,3 @@ void CEbenezerDlg::FlySanta()
 	Packet result(WIZ_SANTA);
 	Send_All(&result);
 } 
-
-void CEbenezerDlg::WriteEventLog( char* pBuf )
-{
-	char strLog[256];
-	CTime t = CTime::GetCurrentTime();
-	sprintf_s(strLog, sizeof(strLog), "%d:%d-%d : %s \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), pBuf);
-	EnterCriticalSection( &g_LogFile_critical );
-	m_EvnetLogFile.Write( strLog, strlen(strLog) );
-	LeaveCriticalSection( &g_LogFile_critical );
-}
