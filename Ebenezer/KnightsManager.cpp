@@ -512,9 +512,6 @@ void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 			pUser->Send(&result);
 		}
 		break;
-	case KNIGHTS_LIST_REQ:
-		RecvKnightsList(pkt);
-		break;
 	case KNIGHTS_ALLLIST_REQ:
 		RecvKnightsAllList(pkt);
 		break;
@@ -643,38 +640,6 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, BYTE command)
 	// Otherwise, since we're actually in the clan, we don't need to be explicitly told what happened.
 	if (pKnights != NULL)
 		pKnights->Send(&result);
-}
-
-void CKnightsManager::RecvKnightsList(Packet & pkt)
-{
-	std::string clanName;
-	uint32 nPoints;
-	uint16 sClanID, sMembers;
-	uint8 bNation, bRank;
-	pkt >> sClanID >> bNation >> clanName >> sMembers >> nPoints >> bRank;
-
-	if (g_pMain->m_nServerNo != BATTLE)
-		return;
-
-	CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
-	if (pKnights == NULL)
-	{
-		pKnights = new CKnights();
-		if (!g_pMain->m_KnightsArray.PutData(sClanID, pKnights))
-		{
-			delete pKnights;
-			pKnights = NULL;
-			return;
-		}
-	}
-
-	pKnights->m_sIndex = sClanID;
-	pKnights->m_byNation = bNation;
-	strcpy(pKnights->m_strName, clanName.c_str());
-	pKnights->m_sMembers = sMembers;
-	pKnights->m_nPoints = nPoints;
-	pKnights->m_byGrade = g_pMain->GetKnightsGrade(nPoints);
-	pKnights->m_byRanking = bRank;
 }
 
 BOOL CKnightsManager::AddKnightsUser(int index, const char* UserName)

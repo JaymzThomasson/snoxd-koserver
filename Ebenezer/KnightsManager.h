@@ -37,13 +37,12 @@ public:
 	void ReqModifyKnightsMember(CUser* pUser, Packet & pkt, uint8 command);
 	void ReqDestroyKnights(CUser* pUser, Packet & pkt);
 	void ReqAllKnightsMember(CUser *pUser, Packet & pkt);
-	void ReqKnightsList(CUser *pUser, Packet & pkt);
+	void ReqKnightsList(Packet & pkt);
 	void ReqRegisterClanSymbol(CUser *pUser, Packet & pkt);
 
 	// received from database request (this will go)
 	void RecvJoinKnights(CUser* pUser, Packet & pkt, BYTE command);
 	void RecvModifyFame(CUser* pUser, Packet & pkt, BYTE command);
-	void RecvKnightsList(Packet & pkt);
 	void RecvKnightsAllList(Packet & pkt);
 	void RecvRegisterClanSymbol(CUser* pUser, Packet & pkt);
 

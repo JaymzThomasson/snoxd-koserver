@@ -431,7 +431,7 @@ void CKnightsManager::ReqKnightsPacket(CUser* pUser, Packet & pkt)
 		ReqAllKnightsMember(pUser, pkt);
 		break;
 	case KNIGHTS_LIST_REQ:
-		ReqKnightsList(pUser, pkt);
+		ReqKnightsList(pkt);
 		break;
 	case KNIGHTS_ALLLIST_REQ:
 		g_DBAgent.LoadKnightsAllList(pkt.read<uint8>()); // read nation
@@ -571,15 +571,41 @@ void CKnightsManager::ReqAllKnightsMember(CUser *pUser, Packet & pkt)
 	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
 }
 
-void CKnightsManager::ReqKnightsList(CUser *pUser, Packet & pkt)
+void CKnightsManager::ReqKnightsList(Packet & pkt)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_LIST_REQ));
-	uint16 sClanID = pkt.read<uint16>();
+	// Okay, this effectively makes this useless in the majority of cases.
+	if (g_pMain->m_nServerNo != BATTLE)
+		return;
 
-	result << uint8(0);
-	g_DBAgent.LoadKnightsInfo(sClanID, result);
-	
-	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
+	string strKnightsName; 
+	uint32 nPoints; 
+	uint16 sClanID = pkt.read<uint16>(), sMembers;
+	uint8 bNation, bRank;
+
+	if (!g_DBAgent.LoadKnightsInfo(sClanID, bNation, strKnightsName, sMembers, nPoints, bRank))
+		return;
+
+	CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
+	if (pKnights == NULL)
+	{
+		pKnights = new CKnights();
+
+		// TO-DO: Make this threadsafe
+		if (!g_pMain->m_KnightsArray.PutData(sClanID, pKnights))
+		{
+			delete pKnights;
+			return;
+		}
+	}
+
+	// TO-DO: Move this all to a single method, as this is done multiple times
+	pKnights->m_sIndex = sClanID;
+	pKnights->m_byNation = bNation;
+	strcpy(pKnights->m_strName, strKnightsName.c_str());
+	pKnights->m_sMembers = sMembers;
+	pKnights->m_nPoints = nPoints;
+	pKnights->m_byGrade = g_pMain->GetKnightsGrade(nPoints);
+	pKnights->m_byRanking = bRank;
 }
 
 void CKnightsManager::ReqRegisterClanSymbol(CUser *pUser, Packet & pkt)

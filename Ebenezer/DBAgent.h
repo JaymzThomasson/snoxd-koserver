@@ -53,7 +53,7 @@ public:
 	int UpdateKnights(uint8 bType, std::string & strCharID, uint16 sClanID, uint8 bDomination);
 	int DeleteKnights(uint16 sClanID);
 	uint16 LoadKnightsAllMembers(uint16 sClanID, Packet & result);
-	void LoadKnightsInfo(uint16 sClanID, Packet & result);
+	bool LoadKnightsInfo(uint16 sClanID, uint8 & bNation, std::string & strKnightsName, uint16 & sMembers, uint32 & nPoints, uint8 & bRank);
 	void LoadKnightsAllList(uint8 bNation);
 	bool UpdateClanSymbol(uint16 sClanID, uint16 sSymbolSize, char *clanSymbol);
 

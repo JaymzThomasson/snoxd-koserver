@@ -815,26 +815,26 @@ uint16 CDBAgent::LoadKnightsAllMembers(uint16 sClanID, Packet & result)
 	return count;
 }
 
-void CDBAgent::LoadKnightsInfo(uint16 sClanID, Packet & result)
+bool CDBAgent::LoadKnightsInfo(uint16 sClanID, uint8 & bNation, std::string & strKnightsName, uint16 & sMembers, uint32 & nPoints, uint8 & bRank)
 {
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
 	if (dbCommand.get() == NULL)
-		return;
+		return false;
 
-	if (!dbCommand->Execute(string_format(_T("SELECT IDNum, Nation, IDName, Members, Points FROM KNIGHTS WHERE IDNum=%d" ), sClanID)))
+	if (!dbCommand->Execute(string_format(_T("SELECT Nation, IDName, Members, Points, Ranking FROM KNIGHTS WHERE IDNum=%d" ), sClanID)))
 		ReportSQLError(m_GameDB.GetError());
 
 	if (!dbCommand->hasData())
-		return;
+		return false;
 
-	string strKnightsName; uint32 nPoints; uint16 sMembers; uint8 bNation;
-	dbCommand->FetchByte(2, bNation); // clan ID is first, but we already know that
-	dbCommand->FetchString(3, strKnightsName);
-	dbCommand->FetchUInt16(4, sMembers);
-	dbCommand->FetchUInt32(5, nPoints);
+	dbCommand->FetchByte(1, bNation);
+	dbCommand->FetchString(2, strKnightsName);
+	dbCommand->FetchUInt16(3, sMembers);
+	dbCommand->FetchUInt32(4, nPoints);
+	dbCommand->FetchByte(5, bRank);
 
 	rtrim(strKnightsName);
-	result << sClanID << bNation << strKnightsName << sMembers << nPoints;
+	return true;
 }
 
 void CDBAgent::LoadKnightsAllList(uint8 bNation)
