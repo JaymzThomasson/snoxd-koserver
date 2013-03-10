@@ -504,7 +504,7 @@ void CUser::LogOut()
 		return; 
 
 	Packet result(AG_USER_LOG_OUT);
-	result << GetAccountName() << GetName();
+	result << GetID() << GetName();
 	g_pMain->Send_AIServer(&result);
 
 	// synchronous request
