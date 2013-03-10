@@ -483,7 +483,6 @@ public:
 	void Home();
 
 	void FriendProcess(Packet & pkt);
-	void RecvFriendProcess(Packet & pkt);
 	void FriendRequest();
 	void FriendModify(Packet & pkt, uint8 opcode);
 	void RecvFriendModify(Packet & pkt, uint8 opcode);

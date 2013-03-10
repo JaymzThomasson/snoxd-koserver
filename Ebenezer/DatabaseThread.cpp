@@ -320,7 +320,7 @@ void CUser::ReqFriendProcess(Packet & pkt)
 
 void CUser::ReqRequestFriendList(Packet & pkt)
 {
-	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REQUEST));
+	Packet result(WIZ_FRIEND_PROCESS);
 	std::vector<string> friendList;
 
 	g_DBAgent.RequestFriendList(friendList, this);
@@ -329,12 +329,12 @@ void CUser::ReqRequestFriendList(Packet & pkt)
 	foreach (itr, friendList)
 		result << (*itr);
 
-	RecvFriendProcess(pkt); // TO-DO: Just send the data directly.
+	FriendReport(pkt);
 }
 
 void CUser::ReqAddFriend(Packet & pkt)
 {
-	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_ADD));
+	Packet result(WIZ_FRIEND_PROCESS);
 	string strCharID;
 	int16 tid;
 
@@ -345,12 +345,12 @@ void CUser::ReqAddFriend(Packet & pkt)
 	result.SByte();
 	result << tid << uint8(resultCode) << strCharID;
 
-	RecvFriendProcess(pkt); // TO-DO: Just send the data directly.
+	RecvFriendModify(result, FRIEND_ADD);
 }
 
 void CUser::ReqRemoveFriend(Packet & pkt)
 {
-	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REMOVE));
+	Packet result(WIZ_FRIEND_PROCESS);
 	string strCharID;
 
 	pkt.SByte();
@@ -360,7 +360,7 @@ void CUser::ReqRemoveFriend(Packet & pkt)
 	result.SByte();
 	result << uint8(resultCode) << strCharID;
 
-	RecvFriendProcess(pkt); // TO-DO: Just send the data directly.
+	RecvFriendModify(result, FRIEND_REMOVE);
 }
 
 void CUser::ReqChangeCape(Packet & pkt)

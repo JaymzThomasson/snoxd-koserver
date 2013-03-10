@@ -90,22 +90,6 @@ BYTE CUser::GetFriendStatus(std::string & charName, int16 & sid)
 	return 1; // user not in party
 }
 
-// From Aujard
-void CUser::RecvFriendProcess(Packet & pkt)
-{
-	uint8 opcode = pkt.read<uint8>();
-	switch (opcode)
-	{
-		case FRIEND_REQUEST:
-			FriendReport(pkt); // Hmm, old method was redundant. Need to check this.
-			break;
-		case FRIEND_ADD:
-		case FRIEND_REMOVE:
-			RecvFriendModify(pkt, opcode);
-			break;
-	}
-}
-
 void CUser::RecvFriendModify(Packet & pkt, uint8 opcode)
 {
 	Packet result(WIZ_FRIEND_PROCESS);
