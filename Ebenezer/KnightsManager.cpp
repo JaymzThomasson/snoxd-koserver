@@ -487,15 +487,6 @@ void CKnightsManager::ReceiveKnightsProcess(CUser* pUser, Packet & pkt)
 	case KNIGHTS_WITHDRAW:
 		RecvJoinKnights(pUser, pkt, command);
 		break;
-	case KNIGHTS_REMOVE:
-	case KNIGHTS_ADMIT:
-	case KNIGHTS_REJECT:
-	case KNIGHTS_CHIEF:
-	case KNIGHTS_VICECHIEF:
-	case KNIGHTS_OFFICER:
-	case KNIGHTS_PUNISH:
-		RecvModifyFame(pUser, pkt, command);
-		break;
 	case KNIGHTS_MEMBER_REQ:
 		{
 			CKnights* pKnights = g_pMain->GetClanPtr(pUser->GetClanID());

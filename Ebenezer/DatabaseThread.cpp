@@ -525,17 +525,26 @@ void CKnightsManager::ReqWithdrawKnights(CUser *pUser, Packet & pkt)
 
 void CKnightsManager::ReqModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 command)
 {
-	Packet result(WIZ_KNIGHTS_PROCESS, command);
+	if (pUser == NULL)
+		return;
+
+	Packet result(WIZ_KNIGHTS_PROCESS);
 	string strCharID;
 	uint16 sClanID;
-	uint8 bRemoveFlag;
+	int8 bRemoveFlag, bResult;
 
 	pkt >> sClanID >> strCharID >> bRemoveFlag;
+	bResult = int8(g_DBAgent.UpdateKnights(command, strCharID, sClanID, bRemoveFlag));
 
-	result	<< command << int8(g_DBAgent.UpdateKnights(command, strCharID, sClanID, bRemoveFlag))
-			<< sClanID << strCharID;
+	if (bResult < 0)
+	{
+		result << command << uint8(0);
+		pUser->Send(&result);
+		return;
+	}
 
-	ReceiveKnightsProcess(pUser, pkt); // TO-DO: Handle this directly.
+	result << sClanID << strCharID; // I really hate doing this, but OK...
+	RecvModifyFame(pUser, pkt, command);
 }
 
 void CKnightsManager::ReqDestroyKnights(CUser *pUser, Packet & pkt)
