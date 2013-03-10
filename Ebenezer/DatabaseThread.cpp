@@ -382,6 +382,9 @@ void CUser::ReqUserLogOut()
 	
 	if (m_bLogout != 2)	// zone change logout
 		g_DBAgent.AccountLogout(m_strAccountID);
+
+	// this session can be used again.
+	m_deleted = false;
 }
 
 #if 0

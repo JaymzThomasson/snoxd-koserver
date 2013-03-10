@@ -507,8 +507,9 @@ void CUser::LogOut()
 	result << GetID() << GetName();
 	g_pMain->Send_AIServer(&result);
 
-	// synchronous request
-	ReqUserLogOut();
+	result.Initialize(WIZ_LOGOUT);
+	m_deleted = true; // make this session unusable until the logout is complete
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 void CUser::SendMyInfo()

@@ -137,13 +137,18 @@ Socket * KOSocketMgr<T>::AssignSocket(SOCKET socket)
 	Socket *pSock = NULL;
 
 	m_lock.AcquireWriteLock();
-	auto itr = m_idleSessions.begin();
-	if (itr != m_idleSessions.end())
+	for (auto itr = m_idleSessions.begin(); itr != m_idleSessions.end(); itr++)
 	{
+		// Ignore sessions that are in the deleted state (i.e. unusable)
+		// This is a less ugly workaround than synchronous logout code.
+		if (itr->second->IsDeleted())
+			continue;
+
 		m_activeSessions.insert(std::make_pair(itr->first, itr->second));
 		pSock = itr->second;
 		m_idleSessions.erase(itr);
 		pSock->SetFd(socket);
+		break;
 	}
 	m_lock.ReleaseWriteLock();
 	return pSock;
