@@ -52,10 +52,10 @@ public:
 	virtual float GetY() { return m_cury; }
 	virtual float GetZ() { return m_curz; }
 
+	const char * GetAccountName() { return m_strAccountID.c_str(); }
 	virtual const char * GetName() { return m_strUserID.c_str(); }
 
-	std::string	m_strUserID;
-	char	m_Accountid[MAX_ID_SIZE+1];
+	std::string	m_strAccountID, m_strUserID;
 
 	uint8	m_bZone;
 	float	m_curx, m_curz, m_cury;
@@ -97,8 +97,6 @@ public:
 	uint8	m_bAccountStatus;
 	uint8	m_bPremiumType;
 	uint16	m_sPremiumTime;
-
-	std::string m_strAccountID;
 
 	bool	m_bSelectedCharacter;
 	bool	m_bStoreOpen;

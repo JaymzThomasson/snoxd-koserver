@@ -230,7 +230,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		UserDataSaveToAgent();
 		
 		CTime t = CTime::GetCurrentTime();
-		g_pMain->WriteLog("[ZoneChange : %d-%d-%d] - sid=%d, acname=%s, name=%s, zone=%d, x=%d, z=%d \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), GetSocketID(), m_strAccountID, GetName(), zone, (int)x, (int)z);
+		g_pMain->WriteLog("[ZoneChange : %d-%d-%d] - sid=%d, acname=%s, name=%s, zone=%d, x=%d, z=%d \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), GetSocketID(), GetAccountName(), GetName(), zone, (int)x, (int)z);
 
 		m_bLogout = 2;	// server change flag
 		SendServerChange(pInfo->strServerIP, 2);

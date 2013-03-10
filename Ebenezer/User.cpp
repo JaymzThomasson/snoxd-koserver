@@ -28,7 +28,7 @@ void CUser::Initialize()
 
 	// memset(&m_pUserData, 0x00, sizeof(_USER_DATA));
 	m_strUserID = "";
-	memset(&m_Accountid, 0, sizeof(m_Accountid));
+	m_strAccountID = "";
 	m_bLogout = 0;
 
 	m_bAuthority = 1;
@@ -166,7 +166,7 @@ bool CUser::HandlePacket(Packet & pkt)
 	// If we're not authed yet, forced us to before we can do anything else.
 	// NOTE: We're checking the account ID store here because it's only set on successful auth,
 	// at which time the other account ID will be cleared out (yes, it's messy -- need to clean it up).
-	else if (m_Accountid[0] == '\0')
+	else if (m_strAccountID.empty())
 	{
 		if (command == WIZ_LOGIN)
 			LoginProcess(pkt);
@@ -508,19 +508,19 @@ void CUser::UserDataSaveToAgent()
 		return;
 
 	Packet result(WIZ_DATASAVE);
-	result << m_Accountid << GetName();
+	result << GetAccountName() << GetName();
 	g_pMain->AddDatabaseRequest(result, this);
 }
 
 void CUser::LogOut()
 {
 	CTime t = CTime::GetCurrentTime();
-	g_pMain->WriteLog("[%s : %s Logout : %d:%d:%d]\r\n", m_Accountid, GetName(), t.GetHour(), t.GetMinute(), t.GetSecond());
+	g_pMain->WriteLog("[%s : %s Logout : %d:%d:%d]\r\n", GetAccountName(), GetName(), t.GetHour(), t.GetMinute(), t.GetSecond());
 
-	CUser *pUser = g_pMain->GetUserPtr(m_Accountid, TYPE_ACCOUNT);
+	CUser *pUser = g_pMain->GetUserPtr(GetAccountName(), TYPE_ACCOUNT);
 	if (pUser && (pUser->GetSocketID() != GetSocketID()))
 	{
-		TRACE("[SID=%D] %s : %s logged out\n", GetSocketID(), m_Accountid, GetName());
+		TRACE("[SID=%D] %s : %s logged out\n", GetSocketID(), GetAccountName(), GetName());
 		return;
 	}
 
@@ -528,7 +528,7 @@ void CUser::LogOut()
 		return; 
 
 	Packet result(AG_USER_LOG_OUT);
-	result << m_strAccountID << GetName();
+	result << GetAccountName() << GetName();
 	g_pMain->Send_AIServer(&result);
 
 	// synchronous request

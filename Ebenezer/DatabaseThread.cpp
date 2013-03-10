@@ -128,7 +128,6 @@ void CUser::ReqAccountLogIn(Packet & pkt)
 	// TO-DO: Clean up this account name nonsense
 	if (nation >= 0)
 	{
-		strcpy(m_Accountid, m_strAccountID.c_str());
 		g_pMain->AddAccountName(this);
 	}
 	else
