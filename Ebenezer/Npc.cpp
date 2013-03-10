@@ -89,7 +89,7 @@ void CNpc::SendInOut(uint8 bType, float fx, float fz, float fy)
 	else	
 	{
 		GetRegion()->Add(this);
-		SetPosition(fx, fz, fy);
+		SetPosition(fx, fy, fz);
 	}
 
 	Packet result;
