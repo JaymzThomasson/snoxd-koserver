@@ -518,7 +518,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 				return false;
 			}
 
-			if (!m_arNpc.PutData(sSid, pNpc))
+			if (!m_arNpc.PutData(pNpc->m_sNid, pNpc))
 			{
 				--m_TotalNPC;
 				TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
