@@ -38,9 +38,6 @@
     <ClCompile Include="Npc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NpcItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="NpcMagicProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
