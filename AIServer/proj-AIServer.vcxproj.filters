@@ -38,9 +38,6 @@
     <ClCompile Include="Npc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NpcItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="NpcMagicProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -82,9 +79,6 @@
     </ClCompile>
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp">
       <Filter>N3Base</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\NpcItemSet.cpp">
-      <Filter>Database</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\database\NpcPosSet.cpp">
       <Filter>Database</Filter>
@@ -137,9 +131,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Npc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NpcItem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NpcMagicProcess.h">

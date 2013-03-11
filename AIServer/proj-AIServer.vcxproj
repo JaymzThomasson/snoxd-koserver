@@ -151,7 +151,6 @@
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp" />
     <ClCompile Include="..\shared\CircularBuffer.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
-    <ClCompile Include="..\shared\database\NpcItemSet.cpp" />
     <ClCompile Include="..\shared\database\NpcPosSet.cpp" />
     <ClCompile Include="..\shared\database\NpcTableSet.cpp" />
     <ClCompile Include="..\shared\database\OdbcCommand.cpp" />
@@ -183,12 +182,6 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Npc.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="NpcItem.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -294,7 +287,6 @@
     <ClInclude Include="MagicProcess.h" />
     <ClInclude Include="MAP.h" />
     <ClInclude Include="Npc.h" />
-    <ClInclude Include="NpcItem.h" />
     <ClInclude Include="NpcMagicProcess.h" />
     <ClInclude Include="NpcTable.h" />
     <ClInclude Include="NpcThread.h" />

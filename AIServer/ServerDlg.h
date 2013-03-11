@@ -8,7 +8,6 @@
 
 #include "MAP.h"
 #include "NpcTable.h"
-#include "NpcItem.h"
 #include "Pathfind.h"
 #include "User.h"
 #include "Npc.h"
@@ -42,6 +41,7 @@ typedef CSTLMap <_MAKE_ITEM_GRADE_CODE>		MakeGradeItemTableArray;
 typedef CSTLMap <_MAKE_ITEM_LARE_CODE>		MakeLareItemTableArray;
 typedef std::list <int>						ZoneNpcInfoList;
 typedef CSTLMap <MAP>						ZoneArray;
+typedef CSTLMap <_K_MONSTER_ITEM>			NpcItemArray;
 
 class CServerDlg : public CDialog
 {
@@ -122,6 +122,7 @@ public:
 	MakeGradeItemTableArray  m_MakeGradeItemArray;
 	MakeLareItemTableArray  m_MakeLareItemArray;
 	ZoneArray g_arZone;
+	NpcItemArray			m_NpcItemArray;
 
 	CWinThread* m_pZoneEventThread;		// zone
 
@@ -129,9 +130,6 @@ public:
 	OdbcConnection m_GameDB;
 
 	CUser* m_pUser[MAX_USER];
-
-	// class °´Ã¼
-	CNpcItem				m_NpcItem;
 
 	// Àü¿ª °´Ã¼ º¯¼ö	//BOOL			m_bNpcExit;
 	long			m_TotalNPC;			// DB¿¡ÀÖ´Â ÃÑ ¼ö

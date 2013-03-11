@@ -4858,25 +4858,32 @@ void CNpc::GiveNpcHaveItem()
 		else	m_GiveItemList[0].count = iMoney;
 	}
 	
+	_K_MONSTER_ITEM * pItem = g_pMain->m_NpcItemArray.GetData(m_iItem);
+	if (pItem != NULL)
+	{
+		// j = iItem
+		for (int j = 0; j < 5; j++)
+		{
+			if (pItem->iItem[j] == 0
+				|| pItem->sPercent[j] == 0)
+				continue;
 
-	for(i = 0; i < g_pMain->m_NpcItem.m_nRow; i++)	{
-		if(g_pMain->m_NpcItem.m_ppItem[i][0] != m_iItem) continue;
-		for(int j=1; j<g_pMain->m_NpcItem.m_nField; j+=2)	{
-			if(g_pMain->m_NpcItem.m_ppItem[i][j] == 0) continue;
 			iRandom = myrand(1, 10000);
-			iPer = g_pMain->m_NpcItem.m_ppItem[i][j+1];
-			if(iPer == 0) continue;
-			if(iRandom <= iPer)	{				// 우선 기본테이블를 참조하기위해	
-				if(j == 1)	{					// 아이템 생성..
-					iMakeItemCode = ItemProdution(g_pMain->m_NpcItem.m_ppItem[i][j]);
-					if(iMakeItemCode == 0)	continue;
+			iPer = pItem->sPercent[j];
+			if (iRandom <= iPer)
+			{				
+				if (j == 0)
+				{
+					iMakeItemCode = ItemProdution(pItem->iItem[j]);
+					if (iMakeItemCode == 0)	continue;
 
 					m_GiveItemList[nCount].sSid = iMakeItemCode;
 					m_GiveItemList[nCount].count = 1;
 				}
-				else	{
-					m_GiveItemList[nCount].sSid = g_pMain->m_NpcItem.m_ppItem[i][j];
-					if( COMPARE(m_GiveItemList[nCount].sSid, ARROW_MIN, ARROW_MAX) )		// 화살이라면
+				else	
+				{
+					m_GiveItemList[nCount].sSid = pItem->iItem[j];
+					if (COMPARE(m_GiveItemList[nCount].sSid, ARROW_MIN, ARROW_MAX))
 						m_GiveItemList[nCount].count = 20;
 					else	
 						m_GiveItemList[nCount].count = 1;

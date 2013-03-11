@@ -291,81 +291,9 @@ BOOL CServerDlg::GetMakeLareItemTableData()
 	LOAD_TABLE(CMakeLareItemTableSet, &m_GameDB, &m_MakeLareItemArray, false);
 }
 
-/////////////////////////////////////////////////////////////////////////
-//	NPC Item Table 을 읽는다.
-//
 BOOL CServerDlg::GetNpcItemTable()
 {
-	CNpcItemSet NpcItemSet;
-	int nRowCount = 0;
-	short i;
-	int nItem = 0;
-
-	try
-	{
-		if(NpcItemSet.IsOpen()) NpcItemSet.Close();
-
-		NpcItemSet.m_strSort = _T("sIndex");
-
-		if(!NpcItemSet.Open())
-		{
-			AfxMessageBox(_T("MONSTER ITEM DB Open Fail!"));
-			return FALSE;
-		}
-
-		if(NpcItemSet.IsBOF()) 
-		{
-			AfxMessageBox(_T("MONSTER ITEM DB Empty!"));
-			return FALSE;
-		}
-
-		while(!NpcItemSet.IsEOF())
-		{
-			nRowCount++;
-			NpcItemSet.MoveNext();
-		}
-
-		m_NpcItem.m_nField = NpcItemSet.m_nFields;
-		m_NpcItem.m_nRow = nRowCount;
-
-		if(nRowCount == 0) return FALSE;
-
-		m_NpcItem.m_ppItem = new int* [m_NpcItem.m_nRow];
-		for(i = 0; i < m_NpcItem.m_nRow; i++)
-		{
-			m_NpcItem.m_ppItem[i] = new int[m_NpcItem.m_nField];
-		}
-
-		NpcItemSet.MoveFirst();
-
-		i = 0;
-		while(!NpcItemSet.IsEOF())
-		{
-			m_NpcItem.m_ppItem[i][0] = NpcItemSet.m_sIndex;
-			m_NpcItem.m_ppItem[i][1] = NpcItemSet.m_iItem01;
-			m_NpcItem.m_ppItem[i][2] = NpcItemSet.m_sPersent01;
-			m_NpcItem.m_ppItem[i][3] = NpcItemSet.m_iItem02;
-			m_NpcItem.m_ppItem[i][4] = NpcItemSet.m_sPersent02;
-			m_NpcItem.m_ppItem[i][5] = NpcItemSet.m_iItem03;
-			m_NpcItem.m_ppItem[i][6] = NpcItemSet.m_sPersent03;
-			m_NpcItem.m_ppItem[i][7] = NpcItemSet.m_iItem04;
-			m_NpcItem.m_ppItem[i][8] = NpcItemSet.m_sPersent04;
-			m_NpcItem.m_ppItem[i][9] = NpcItemSet.m_iItem05;
-			m_NpcItem.m_ppItem[i][10] = NpcItemSet.m_sPersent05;
-
-			i++;
-			NpcItemSet.MoveNext();
-		}
-	}
-	catch(CDBException* e)
-	{
-		e->ReportError();
-		e->Delete();
-
-		return FALSE;
-	}
-
-	return TRUE;
+	LOAD_TABLE(CNpcItemSet, &m_GameDB, &m_NpcItemArray, false);
 }
 
 //	Monster Table Data 를 읽는다.
@@ -759,17 +687,6 @@ BOOL CServerDlg::DestroyWindow()
 	foreach (itr, m_arNpcThread)
 		delete *itr;
 	m_arNpcThread.clear();
-
-	// Item Array Delete
-	if( m_NpcItem.m_ppItem ) {
-		for(int i=0; i< m_NpcItem.m_nRow; i++) {
-			delete[] m_NpcItem.m_ppItem[i];
-			m_NpcItem.m_ppItem[i] = NULL;
-		}
-		delete[] m_NpcItem.m_ppItem;
-		m_NpcItem.m_ppItem = NULL;
-	}
-
 
 	// User Array Delete
 	for(int i = 0; i < MAX_USER; i++)	{

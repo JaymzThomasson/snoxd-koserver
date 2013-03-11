@@ -33,4 +33,17 @@ struct _MAKE_ITEM_LARE_CODE
 	uint16	sGeneralItem;
 };
 
+struct _K_MONSTER_ITEM
+{
+	uint16 sIndex;
+	uint16 iItem[5];
+	uint16 sPercent[5];
+
+	_K_MONSTER_ITEM()
+	{
+		memset(&iItem, 0, sizeof(iItem));
+		memset(&sPercent, 0, sizeof(sPercent));
+	}
+};
+
 #include "../shared/database/structs.h"
