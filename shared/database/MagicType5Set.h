@@ -20,6 +20,8 @@ public:
 
 		if (!m_pMap->PutData(pData->iNum, pData))
 			delete pData;
+
+		return true;
 	}
 
 	Magictype5Array *m_pMap;
