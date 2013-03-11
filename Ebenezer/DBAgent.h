@@ -69,4 +69,5 @@ private:
 	FastMutex m_lock;
 
 	friend class CEbenezerDlg;
+	friend class C3DMap;
 };

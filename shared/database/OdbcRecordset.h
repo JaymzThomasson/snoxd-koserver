@@ -7,6 +7,7 @@ public:
 
 	virtual tstring GetTableName() = 0;
 	virtual tstring GetColumns() = 0;
+	virtual tstring GetWhereClause() { return _T(""); }
 
 	TCHAR * Read(bool bAllowEmptyTable = false);
 	virtual bool Fetch() = 0;

@@ -12,9 +12,18 @@ TCHAR * OdbcRecordset::Read(bool bAllowEmptyTable /*= false*/)
 {
 	// Build statement
 	tstring szSQL = _T("SELECT ");
+	tstring szWhereClause = GetWhereClause();
+
 	szSQL += GetColumns();
 	szSQL += _T(" FROM ");
 	szSQL += GetTableName();
+
+	// Do we have a where clause? Include it.
+	if (!szWhereClause.empty())
+	{
+		szSQL += _T(" WHERE ");
+		szSQL += szWhereClause;
+	}
 
 	// Attempt to execute the statement.
 	if (!_dbCommand->Execute(szSQL))
