@@ -1,51 +1,35 @@
 #pragma once
 
-#define T		_CLASS_COEFFICIENT
-#define MapType	CoefficientArray
-
-class CCoefficientSet : public CMyRecordSet<T>
+class CCoefficientSet : public OdbcRecordset
 {
 public:
-	CCoefficientSet(MapType *stlMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	CCoefficientSet(OdbcConnection * dbConnection, CoefficientArray * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+
+	virtual tstring GetSQL() { return _T("SELECT sClass, ShortSword, Sword, Axe, Club, Spear, Pole, Staff, Bow, Hp, Mp, Sp, Ac, Hitrate, Evasionrate FROM COEFFICIENT"); }
+	virtual void Fetch()
 	{
-		m_nFields = 15; 
+		_CLASS_COEFFICIENT *pData = new _CLASS_COEFFICIENT;
+
+		_dbCommand->FetchUInt16(1, pData->sClassNum);
+		_dbCommand->FetchSingle(2, pData->ShortSword);
+		_dbCommand->FetchSingle(3, pData->Sword);
+		_dbCommand->FetchSingle(4, pData->Axe);
+		_dbCommand->FetchSingle(5, pData->Club);
+		_dbCommand->FetchSingle(6, pData->Spear);
+		_dbCommand->FetchSingle(7, pData->Pole);
+		_dbCommand->FetchSingle(8, pData->Staff);
+		_dbCommand->FetchSingle(9, pData->Bow);
+		_dbCommand->FetchSingle(10, pData->HP);
+		_dbCommand->FetchSingle(11, pData->MP);
+		_dbCommand->FetchSingle(12, pData->SP);
+		_dbCommand->FetchSingle(13, pData->AC);
+		_dbCommand->FetchSingle(14, pData->Hitrate);
+		_dbCommand->FetchSingle(15, pData->Evasionrate);
+
+		if (!m_pMap->PutData(pData->sClassNum, pData))
+			delete pData;
 	}
 
-	DECLARE_DYNAMIC(CCoefficientSet)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[COEFFICIENT]"); };
-
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Int(pFX, _T("[sClass]"), m_data.sClassNum);
-		RFX_Single(pFX, _T("[ShortSword]"), m_data.ShortSword);
-		RFX_Single(pFX, _T("[Sword]"), m_data.Sword);
-		RFX_Single(pFX, _T("[Axe]"), m_data.Axe);
-		RFX_Single(pFX, _T("[Club]"), m_data.Club);
-		RFX_Single(pFX, _T("[Spear]"), m_data.Spear);
-		RFX_Single(pFX, _T("[Pole]"), m_data.Pole);
-		RFX_Single(pFX, _T("[Staff]"), m_data.Staff);
-		RFX_Single(pFX, _T("[Bow]"), m_data.Bow);
-		RFX_Single(pFX, _T("[Hp]"), m_data.HP);
-		RFX_Single(pFX, _T("[Mp]"), m_data.MP);
-		RFX_Single(pFX, _T("[Sp]"), m_data.SP);
-		RFX_Single(pFX, _T("[Ac]"), m_data.AC);
-		RFX_Single(pFX, _T("[Hitrate]"), m_data.Hitrate);
-		RFX_Single(pFX, _T("[Evasionrate]"), m_data.Evasionrate);
-	};
-
-	virtual void HandleRead()
-	{
-		T * data = COPY_ROW();
-		if (!m_stlMap->PutData(data->sClassNum, data))
-			delete data;
-	};
-
-private:
-	MapType * m_stlMap;
+	CoefficientArray *m_pMap;
 };
-#undef MapType
-#undef T
-IMPLEMENT_DYNAMIC(CCoefficientSet, CRecordset)

@@ -1,28 +1,13 @@
 #pragma once
 
-#define T DummyStorage
-class CBattleSet : public CMyRecordSet<T>
+class CBattleSet : public OdbcRecordset
 {
 public:
-	CBattleSet(BYTE *byOldVictory, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_byOldVictory(byOldVictory)
-	{
-		m_nFields = 1; 
-	}
+	CBattleSet(OdbcConnection * dbConnection, uint8 * byOldVictory) 
+		: OdbcRecordset(dbConnection), m_byOldVictory(byOldVictory) {}
 
-	DECLARE_DYNAMIC(CBattleSet)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[BATTLE]"); };
+	virtual tstring GetSQL() { return _T("SELECT byNation FROM BATTLE"); }
+	virtual void Fetch() { _dbCommand->FetchByte(1, *m_byOldVictory); }
 
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		//{{AFX_FIELD_MAP(CBattleSet)
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-		RFX_Byte(pFX, _T("[byNation]"), *m_byOldVictory);	
-		//}}AFX_FIELD_MAP
-	};
-
-private:
-	BYTE * m_byOldVictory;
+	uint8 *m_byOldVictory;
 };
-#undef T
-IMPLEMENT_DYNAMIC(CBattleSet, CRecordset)

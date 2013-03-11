@@ -14,6 +14,7 @@
 #include "../Mutex.h"
 
 #include "OdbcCommand.h"
+#include "OdbcRecordset.h"
 
 struct OdbcError
 {

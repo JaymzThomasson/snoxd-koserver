@@ -1,48 +1,32 @@
 #pragma once
 
-#define T		_MAGIC_TYPE9
-#define MapType	Magictype9Array
-
-class CMagicType9Set : public CMyRecordSet<T>
+class CMagicType9Set : public OdbcRecordset
 {
 public:
-	CMagicType9Set(MapType *stlMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	CMagicType9Set(OdbcConnection * dbConnection, Magictype9Array * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+
+	virtual tstring GetSQL() { return _T("SELECT iNum, ValidGroup, NationChange, MonsterNum, TargetChange, StateChange, Radius, Hitrate, Duration, AddDamage, Vision, NeedItem FROM MAGIC_TYPE9"); }
+	virtual void Fetch()
 	{
-		m_nFields = 12;
+		_MAGIC_TYPE9 *pData = new _MAGIC_TYPE9;
+
+		_dbCommand->FetchUInt32(1, pData->iNum);
+		_dbCommand->FetchByte(2, pData->bValidGroup);
+		_dbCommand->FetchByte(3, pData->bNationChange);
+		_dbCommand->FetchUInt16(4, pData->sMonsterNum);
+		_dbCommand->FetchByte(5, pData->bTargetChange);
+		_dbCommand->FetchByte(6, pData->bStateChange);
+		_dbCommand->FetchUInt16(7, pData->sRadius);
+		_dbCommand->FetchUInt16(8, pData->sHitRate);
+		_dbCommand->FetchUInt16(9, pData->sDuration);
+		_dbCommand->FetchUInt16(10, pData->sDamage);
+		_dbCommand->FetchUInt16(11, pData->sVision);
+		_dbCommand->FetchUInt32(12, pData->nNeedItem);
+
+		if (!m_pMap->PutData(pData->iNum, pData))
+			delete pData;
 	}
 
-	DECLARE_DYNAMIC(CMagicType9Set)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[MAGIC_TYPE9]"); };
-
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Long(pFX, _T("[iNum]"), m_data.iNum);
-		RFX_Byte(pFX, _T("[ValidGroup]"), m_data.bValidGroup);
-		RFX_Byte(pFX, _T("[NationChange]"), m_data.bNationChange);
-		RFX_Int(pFX, _T("[MonsterNum]"), m_data.sMonsterNum);
-		RFX_Byte(pFX, _T("[TargetChange]"), m_data.bTargetChange);
-		RFX_Byte(pFX, _T("[StateChange]"), m_data.bStateChange);
-		RFX_Int(pFX, _T("[Radius]"), m_data.sRadius);
-		RFX_Int(pFX, _T("[Hitrate]"), m_data.sHitRate);
-		RFX_Int(pFX, _T("[Duration]"), m_data.sDuration);
-		RFX_Int(pFX, _T("[AddDamage]"), m_data.sDamage);
-		RFX_Int(pFX, _T("[Vision]"), m_data.sVision);
-		RFX_Long(pFX, _T("[NeedItem]"), m_data.nNeedItem);
-	};
-
-	virtual void HandleRead()
-	{
-		T * data = COPY_ROW();
-		if (!m_stlMap->PutData(data->iNum, data))
-			delete data;
-	};
-
-private:
-	MapType * m_stlMap;
+	Magictype9Array *m_pMap;
 };
-#undef MapType
-#undef T
-IMPLEMENT_DYNAMIC(CMagicType9Set, CRecordset)

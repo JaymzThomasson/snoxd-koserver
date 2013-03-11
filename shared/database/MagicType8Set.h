@@ -1,41 +1,25 @@
 #pragma once
 
-#define T		_MAGIC_TYPE8
-#define MapType	Magictype8Array
-
-class CMagicType8Set : public CMyRecordSet<T>
+class CMagicType8Set : public OdbcRecordset
 {
 public:
-	CMagicType8Set(MapType *stlMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	CMagicType8Set(OdbcConnection * dbConnection, Magictype8Array * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+
+	virtual tstring GetSQL() { return _T("SELECT iNum, Target, Radius, WarpType, ExpRecover FROM MAGIC_TYPE8"); }
+	virtual void Fetch()
 	{
-		m_nFields = 5;
+		_MAGIC_TYPE8 *pData = new _MAGIC_TYPE8;
+
+		_dbCommand->FetchUInt32(1, pData->iNum);
+		_dbCommand->FetchByte(2, pData->bTarget);
+		_dbCommand->FetchUInt16(2, pData->sRadius);
+		_dbCommand->FetchByte(4, pData->bWarpType);
+		_dbCommand->FetchUInt16(5, pData->sExpRecover);
+
+		if (!m_pMap->PutData(pData->iNum, pData))
+			delete pData;
 	}
 
-	DECLARE_DYNAMIC(CMagicType8Set)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[MAGIC_TYPE8]"); };
-
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Long(pFX, _T("[iNum]"), m_data.iNum);
-		RFX_Byte(pFX, _T("[Target]"), m_data.bTarget);
-		RFX_Int(pFX, _T("[Radius]"), m_data.sRadius);
-		RFX_Byte(pFX, _T("[WarpType]"), m_data.bWarpType);
-		RFX_Int(pFX, _T("[ExpRecover]"), m_data.sExpRecover);
-	};
-
-	virtual void HandleRead()
-	{
-		T * data = COPY_ROW();
-		if (!m_stlMap->PutData(data->iNum, data))
-			delete data;
-	};
-
-private:
-	MapType * m_stlMap;
+	Magictype8Array *m_pMap;
 };
-#undef MapType
-#undef T
-IMPLEMENT_DYNAMIC(CMagicType8Set, CRecordset)

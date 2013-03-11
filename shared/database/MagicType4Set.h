@@ -1,64 +1,48 @@
 #pragma once
 
-#define T		_MAGIC_TYPE4
-#define MapType	Magictype4Array
-
-class CMagicType4Set : public CMyRecordSet<T>
+class CMagicType4Set : public OdbcRecordset
 {
 public:
-	CMagicType4Set(MapType *stlMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	CMagicType4Set(OdbcConnection * dbConnection, Magictype4Array * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+
+	virtual tstring GetSQL() { return _T("SELECT iNum, BuffType, Radius, Duration, AttackSpeed, Speed, AC, ACPct, Attack, MagicAttack, MaxHP, MaxHPPct, MaxMP, MaxMPPct, HitRate, AvoidRate, Str, Sta, Dex, Intel, Cha, FireR, ColdR, LightningR, MagicR, DiseaseR, PoisonR, ExpPct FROM MAGIC_TYPE4"); }
+	virtual void Fetch()
 	{
-		m_nFields = 28;
+		_MAGIC_TYPE4 *pData = new _MAGIC_TYPE4;
+
+		_dbCommand->FetchUInt32(1, pData->iNum);
+		_dbCommand->FetchByte(2, pData->bBuffType);
+		_dbCommand->FetchByte(3, pData->bRadius);
+		_dbCommand->FetchUInt16(4, pData->sDuration);
+		_dbCommand->FetchByte(5, pData->bAttackSpeed);
+		_dbCommand->FetchByte(6, pData->bSpeed);
+		_dbCommand->FetchUInt16(7, pData->sAC);
+		_dbCommand->FetchUInt16(8, pData->sACPct);
+		_dbCommand->FetchByte(9, pData->bAttack);
+		_dbCommand->FetchByte(10, pData->bMagicAttack);
+		_dbCommand->FetchUInt16(11, pData->sMaxHP);
+		_dbCommand->FetchUInt16(12, pData->sMaxHPPct);
+		_dbCommand->FetchUInt16(13, pData->sMaxMP);
+		_dbCommand->FetchUInt16(14, pData->sMaxMPPct);
+		_dbCommand->FetchByte(15, pData->bHitRate);
+		_dbCommand->FetchUInt16(16, pData->sAvoidRate);
+		_dbCommand->FetchByte(17, pData->bStr);
+		_dbCommand->FetchByte(18, pData->bSta);
+		_dbCommand->FetchByte(19, pData->bDex);
+		_dbCommand->FetchByte(20, pData->bIntel);
+		_dbCommand->FetchByte(21, pData->bCha);
+		_dbCommand->FetchByte(22, pData->bFireR);
+		_dbCommand->FetchByte(23, pData->bColdR);
+		_dbCommand->FetchByte(24, pData->bLightningR);
+		_dbCommand->FetchByte(25, pData->bMagicR);
+		_dbCommand->FetchByte(26, pData->bDiseaseR);
+		_dbCommand->FetchByte(27, pData->bPoisonR);
+		_dbCommand->FetchByte(28, pData->bExpPct);
+
+		if (!m_pMap->PutData(pData->iNum, pData))
+			delete pData;
 	}
 
-	DECLARE_DYNAMIC(CMagicType4Set)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[MAGIC_TYPE4]"); };
-
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Long(pFX, _T("[iNum]"), m_data.iNum);
-		RFX_Byte(pFX, _T("[BuffType]"), m_data.bBuffType);
-		RFX_Byte(pFX, _T("[Radius]"), m_data.bRadius);
-		RFX_Int(pFX, _T("[Duration]"), m_data.sDuration);
-		RFX_Byte(pFX, _T("[AttackSpeed]"), m_data.bAttackSpeed);
-		RFX_Byte(pFX, _T("[Speed]"), m_data.bSpeed);
-		RFX_Int(pFX, _T("[AC]"), m_data.sAC);
-		RFX_Int(pFX, _T("[ACPct]"), m_data.sACPct);
-		RFX_Byte(pFX, _T("[Attack]"), m_data.bAttack);
-		RFX_Byte(pFX, _T("[MagicAttack]"), m_data.bMagicAttack);
-		RFX_Int(pFX, _T("[MaxHP]"), m_data.sMaxHP);
-		RFX_Int(pFX, _T("[MaxHPPct]"), m_data.sMaxHPPct);
-		RFX_Int(pFX, _T("[MaxMP]"), m_data.sMaxMP);
-		RFX_Int(pFX, _T("[MaxMPPct]"), m_data.sMaxMPPct);
-		RFX_Byte(pFX, _T("[HitRate]"), m_data.bHitRate);
-		RFX_Int(pFX, _T("[AvoidRate]"), m_data.sAvoidRate);
-		RFX_Byte(pFX, _T("[Str]"), m_data.bStr);
-		RFX_Byte(pFX, _T("[Sta]"), m_data.bSta);
-		RFX_Byte(pFX, _T("[Dex]"), m_data.bDex);
-		RFX_Byte(pFX, _T("[Intel]"), m_data.bIntel);
-		RFX_Byte(pFX, _T("[Cha]"), m_data.bCha);
-		RFX_Byte(pFX, _T("[FireR]"), m_data.bFireR);
-		RFX_Byte(pFX, _T("[ColdR]"), m_data.bColdR);
-		RFX_Byte(pFX, _T("[LightningR]"), m_data.bLightningR);
-		RFX_Byte(pFX, _T("[MagicR]"), m_data.bMagicR);
-		RFX_Byte(pFX, _T("[DiseaseR]"), m_data.bDiseaseR);
-		RFX_Byte(pFX, _T("[PoisonR]"), m_data.bPoisonR);
-		RFX_Byte(pFX, _T("[ExpPct]"), m_data.bExpPct);
-	};
-
-	virtual void HandleRead()
-	{
-		T * data = COPY_ROW();
-		if (!m_stlMap->PutData(data->iNum, data))
-			delete data;
-	};
-
-private:
-	MapType * m_stlMap;
+	Magictype4Array *m_pMap;
 };
-#undef MapType
-#undef T
-IMPLEMENT_DYNAMIC(CMagicType4Set, CRecordset)

@@ -177,6 +177,9 @@
     <ClCompile Include="DBAgent.cpp">
       <Filter>Database</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcRecordset.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -382,6 +385,9 @@
     </ClInclude>
     <ClInclude Include="DBAgent.h">
       <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcRecordset.h">
+      <Filter>Shared\Database</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

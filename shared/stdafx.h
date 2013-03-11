@@ -32,6 +32,7 @@
 // MFC, ew.
 #else
 #	include <afxwin.h>
+#   include <afxdb.h>
 #endif
 
 #include <vector>

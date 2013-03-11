@@ -153,6 +153,10 @@
     <ClCompile Include="..\shared\database\NpcItemSet.cpp" />
     <ClCompile Include="..\shared\database\NpcPosSet.cpp" />
     <ClCompile Include="..\shared\database\NpcTableSet.cpp" />
+    <ClCompile Include="..\shared\database\OdbcCommand.cpp" />
+    <ClCompile Include="..\shared\database\OdbcConnection.cpp" />
+    <ClCompile Include="..\shared\database\OdbcParameter.cpp" />
+    <ClCompile Include="..\shared\database\OdbcRecordset.cpp" />
     <ClCompile Include="..\shared\Ini.cpp" />
     <ClCompile Include="..\shared\JvCryption.cpp" />
     <ClCompile Include="..\shared\KOSocket.cpp" />
@@ -269,6 +273,10 @@
     <ClInclude Include="..\shared\database\NpcItemSet.h" />
     <ClInclude Include="..\shared\database\NpcPosSet.h" />
     <ClInclude Include="..\shared\database\NpcTableSet.h" />
+    <ClInclude Include="..\shared\database\OdbcCommand.h" />
+    <ClInclude Include="..\shared\database\OdbcConnection.h" />
+    <ClInclude Include="..\shared\database\OdbcParameter.h" />
+    <ClInclude Include="..\shared\database\OdbcRecordset.h" />
     <ClInclude Include="..\shared\database\ZoneInfoSet.h" />
     <ClInclude Include="..\shared\Ini.h" />
     <ClInclude Include="..\shared\JvCryption.h" />

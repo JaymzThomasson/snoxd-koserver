@@ -1,59 +1,43 @@
 #pragma once
-
-#define T		_MAGIC_TYPE6
-#define MapType	Magictype6Array
-
-class CMagicType6Set : public CMyRecordSet<T>
+	
+class CMagicType6Set : public OdbcRecordset
 {
 public:
-	CMagicType6Set(MapType *stlMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	CMagicType6Set(OdbcConnection * dbConnection, Magictype6Array * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+
+	virtual tstring GetSQL() { return _T("SELECT iNum, Size, TransformID, Duration, MaxHp, MaxMp, Speed, AttackSpeed, TotalHit, TotalAc, TotalHitRate, TotalEvasionRate, TotalFireR, TotalColdR, TotalLightningR, TotalMagicR, TotalDiseaseR, TotalPoisonR, Class, UserSkillUse, NeedItem, SkillSuccessRate, MonsterFriendly FROM MAGIC_TYPE6"); }
+	virtual void Fetch()
 	{
-		m_nFields = 23;
+		_MAGIC_TYPE6 *pData = new _MAGIC_TYPE6;
+
+		_dbCommand->FetchUInt32(1, pData->iNum);
+		_dbCommand->FetchUInt16(2, pData->sSize);
+		_dbCommand->FetchUInt16(3, pData->sTransformID);
+		_dbCommand->FetchUInt16(4, pData->sDuration);
+		_dbCommand->FetchUInt16(5, pData->sMaxHp);
+		_dbCommand->FetchUInt16(6, pData->sMaxMp);
+		_dbCommand->FetchByte(7, pData->bSpeed);
+		_dbCommand->FetchUInt16(8, pData->sAttackSpeed);
+		_dbCommand->FetchUInt16(9, pData->sTotalHit);
+		_dbCommand->FetchUInt16(10, pData->sTotalAc);
+		_dbCommand->FetchUInt16(11, pData->sTotalHitRate);
+		_dbCommand->FetchUInt16(12, pData->sTotalEvasionRate);
+		_dbCommand->FetchUInt16(13, pData->sTotalFireR);
+		_dbCommand->FetchUInt16(14, pData->sTotalColdR);
+		_dbCommand->FetchUInt16(15, pData->sTotalLightningR);
+		_dbCommand->FetchUInt16(16, pData->sTotalMagicR);
+		_dbCommand->FetchUInt16(17, pData->sTotalDiseaseR);
+		_dbCommand->FetchUInt16(18, pData->sTotalPoisonR);
+		_dbCommand->FetchUInt16(19, pData->sClass);
+		_dbCommand->FetchByte(20, pData->bUserSkillUse);
+		_dbCommand->FetchByte(21, pData->bNeedItem);
+		_dbCommand->FetchByte(22, pData->bSkillSuccessRate);
+		_dbCommand->FetchByte(23, pData->bMonsterFriendly);
+
+		if (!m_pMap->PutData(pData->iNum, pData))
+			delete pData;
 	}
 
-	DECLARE_DYNAMIC(CMagicType6Set)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[MAGIC_TYPE6]"); };
-
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Long(pFX, _T("[iNum]"), m_data.iNum);
-		RFX_Int(pFX, _T("[Size]"), m_data.sSize);
-		RFX_Int(pFX, _T("[TransformID]"), m_data.sTransformID);
-		RFX_Int(pFX, _T("[Duration]"), m_data.sDuration);
-		RFX_Int(pFX, _T("[MaxHp]"), m_data.sMaxHp);
-		RFX_Int(pFX, _T("[MaxMp]"), m_data.sMaxMp);
-		RFX_Byte(pFX, _T("[Speed]"), m_data.bSpeed);
-		RFX_Int(pFX, _T("[AttackSpeed]"), m_data.sAttackSpeed);
-		RFX_Int(pFX, _T("[TotalHit]"), m_data.sTotalHit);
-		RFX_Int(pFX, _T("[TotalAc]"), m_data.sTotalAc);
-		RFX_Int(pFX, _T("[TotalHitRate]"), m_data.sTotalHitRate);
-		RFX_Int(pFX, _T("[TotalEvasionRate]"), m_data.sTotalEvasionRate);
-		RFX_Int(pFX, _T("[TotalFireR]"), m_data.sTotalFireR);
-		RFX_Int(pFX, _T("[TotalColdR]"), m_data.sTotalColdR);
-		RFX_Int(pFX, _T("[TotalLightningR]"), m_data.sTotalLightningR);
-		RFX_Int(pFX, _T("[TotalMagicR]"), m_data.sTotalMagicR);
-		RFX_Int(pFX, _T("[TotalDiseaseR]"), m_data.sTotalDiseaseR);
-		RFX_Int(pFX, _T("[TotalPoisonR]"), m_data.sTotalPoisonR);
-		RFX_Int(pFX, _T("[Class]"), m_data.sClass);
-		RFX_Byte(pFX, _T("[UserSkillUse]"), m_data.bUserSkillUse);
-		RFX_Byte(pFX, _T("[NeedItem]"), m_data.bNeedItem);
-		RFX_Byte(pFX, _T("[SkillSuccessRate]"), m_data.bSkillSuccessRate);
-		RFX_Byte(pFX, _T("[MonsterFriendly]"), m_data.bMonsterFriendly);
-	};
-
-	virtual void HandleRead()
-	{
-		T * data = COPY_ROW();
-		if (!m_stlMap->PutData(data->iNum, data))
-			delete data;
-	};
-
-private:
-	MapType * m_stlMap;
+	Magictype6Array *m_pMap;
 };
-#undef MapType
-#undef T
-IMPLEMENT_DYNAMIC(CMagicType6Set, CRecordset)

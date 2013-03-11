@@ -201,7 +201,7 @@ enum ItemMovementType
 
 struct _CLASS_COEFFICIENT
 {
-	int		sClassNum;
+	uint16	sClassNum;
 	float	ShortSword;
 	float	Sword;
 	float	Axe;
@@ -239,62 +239,62 @@ struct	_EXCHANGE_ITEM
 
 struct _ITEM_TABLE
 {
-	long  m_iNum;
-	BYTE  m_bKind;
-	BYTE  m_bSlot;
-	BYTE  m_bRace;
-	BYTE  m_bClass;
-	int   m_sDamage;
-	int   m_sDelay;
-	int   m_sRange;
-	int   m_sWeight;
-	int   m_sDuration;
-	long  m_iBuyPrice;
-	long  m_iSellPrice;
-	int   m_sAc;
-	BYTE  m_bCountable;
-	long  m_iEffect1;
-	long  m_iEffect2;
-	BYTE  m_bReqLevel;
-	BYTE  m_bReqLevelMax;
-	BYTE  m_bReqRank;
-	BYTE  m_bReqTitle;
-	BYTE  m_bReqStr;
-	BYTE  m_bReqSta;
-	BYTE  m_bReqDex;
-	BYTE  m_bReqIntel;
-	BYTE  m_bReqCha;
-	BYTE  m_bSellingGroup;
-	BYTE  m_ItemType;
-	int   m_sHitrate;
-	int   m_sEvarate;
-	int   m_sDaggerAc;
-	int   m_sSwordAc;
-	int   m_sMaceAc;
-	int   m_sAxeAc;
-	int   m_sSpearAc;
-	int   m_sBowAc;
-	BYTE  m_bFireDamage;
-	BYTE  m_bIceDamage;
-	BYTE  m_bLightningDamage;
-	BYTE  m_bPoisonDamage;
-	BYTE  m_bHPDrain;
-	BYTE  m_bMPDamage;
-	BYTE  m_bMPDrain;
-	BYTE  m_bMirrorDamage;
-	int   m_bStrB;
-	int   m_bStaB;
-	int   m_bDexB;
-	int   m_bIntelB;
-	int   m_bChaB;
-	int   m_MaxHpB;
-	int   m_MaxMpB;
-	int   m_bFireR;
-	int   m_bColdR;
-	int   m_bLightningR;
-	int   m_bMagicR;
-	int   m_bPoisonR;
-	int   m_bCurseR;
+	uint32	m_iNum;
+	uint8	m_bKind;
+	uint8	m_bSlot;
+	uint8	m_bRace;
+	uint8	m_bClass;
+	uint16	m_sDamage;
+	uint16	m_sDelay;
+	uint16	m_sRange;
+	uint16	m_sWeight;
+	uint16	m_sDuration;
+	uint32	m_iBuyPrice;
+	uint32	m_iSellPrice;
+	uint16	m_sAc;
+	uint8	m_bCountable;
+	uint32	m_iEffect1;
+	uint32	m_iEffect2;
+	uint8	m_bReqLevel;
+	uint8	m_bReqLevelMax;
+	uint8	m_bReqRank;
+	uint8	m_bReqTitle;
+	uint8	m_bReqStr;
+	uint8	m_bReqSta;
+	uint8	m_bReqDex;
+	uint8	m_bReqIntel;
+	uint8	m_bReqCha;
+	uint8	m_bSellingGroup;
+	uint8	m_ItemType;
+	uint16	m_sHitrate;
+	uint16	m_sEvarate;
+	uint16	m_sDaggerAc;
+	uint16	m_sSwordAc;
+	uint16	m_sMaceAc;
+	uint16	m_sAxeAc;
+	uint16	m_sSpearAc;
+	uint16	m_sBowAc;
+	uint8	m_bFireDamage;
+	uint8	m_bIceDamage;
+	uint8	m_bLightningDamage;
+	uint8	m_bPoisonDamage;
+	uint8	m_bHPDrain;
+	uint8	m_bMPDamage;
+	uint8	m_bMPDrain;
+	uint8	m_bMirrorDamage;
+	uint16	m_bStrB; // TO-DO: Rename these, as they're not bytes anymore.
+	uint16	m_bStaB;
+	uint16	m_bDexB;
+	uint16	m_bIntelB;
+	uint16	m_bChaB;
+	uint16	m_MaxHpB;
+	uint16	m_MaxMpB;
+	uint16	m_bFireR;
+	uint16	m_bColdR;
+	uint16	m_bLightningR;
+	uint16	m_bMagicR;
+	uint16	m_bPoisonR;
+	uint16	m_bCurseR;
 
 	__forceinline uint8 GetKind() { return m_bKind; }
 	__forceinline uint8 GetItemGroup() { return m_bKind / 10; }
@@ -326,50 +326,6 @@ struct	_PARTY_GROUP
 	};
 };
 
-#pragma pack(push, 1)
-struct _OBJECT_EVENT
-{
-	int sBelong;
-	short sIndex;
-	short sType;
-	short sControlNpcID;
-	short sStatus;
-	float fPosX;
-	float fPosY;
-	float fPosZ;
-	uint8 byLife;
-};
-
-struct _REGENE_EVENT
-{
-	float fRegenePosX;
-	float fRegenePosY;
-	float fRegenePosZ;
-	float fRegeneAreaZ;
-	float fRegeneAreaX;
-	int	  sRegenePoint;
-};
-
-struct _WARP_INFO
-{
-	short	sWarpID;
-	char	strWarpName[32];
-	char	strAnnounce[256];
-	uint16	sUnk0; // padding?
-	DWORD	dwPay;
-	short	sZone;
-	uint16	sUnk1; // padding?
-	float	fX;
-	float	fY;
-	float	fZ;
-	float	fR;
-	short	sNation;
-	uint16	sUnk2; // padding?
-
-	_WARP_INFO() { memset(this, 0, sizeof(_WARP_INFO)); };
-};
-#pragma pack(pop)
-
 class CUser;
 struct _KNIGHTS_USER
 {
@@ -384,173 +340,6 @@ struct _KNIGHTS_USER
 	};
 };
 
-struct _MAGIC_TABLE
-{
-	long	iNum;
-	BYTE	bBeforeAction;
-	BYTE	bTargetAction;
-	BYTE	bSelfEffect;
-	BYTE	bFlyingEffect;
-	int		iTargetEffect;
-	BYTE	bMoral;
-	int		sSkillLevel;	
-	int		sSkill;
-	int		sMsp;
-	int		sHP;
-	BYTE	bItemGroup;
-	long	iUseItem;
-	BYTE	bCastTime;
-	int		sReCastTime;
-	BYTE	bSuccessRate;
-	BYTE	bType[2];
-	int		sRange;
-	BYTE	bEtc;
-};
-
-struct _MAGIC_TYPE9
-{
-	long	iNum;
-	BYTE	bValidGroup;
-	BYTE	bNationChange;
-	int		sMonsterNum;
-	BYTE	bTargetChange;
-	BYTE	bStateChange;
-	int		sRadius;
-	int		sHitRate;
-	int		sDuration;
-	int		sDamage;
-	int		sVision;
-	long	nNeedItem;
-};
-
-struct _MAGIC_TYPE8
-{
-	long    iNum;
-	BYTE    bTarget;
-	int		sRadius;
-	BYTE    bWarpType;
-	int		sExpRecover;
-};
-
-struct _MAGIC_TYPE7
-{
-	long	iNum;
-	BYTE	bValidGroup;
-	BYTE	bNationChange;
-	int		sMonsterNum;
-	BYTE	bTargetChange;
-	BYTE	bStateChange;
-	BYTE	bRadius;
-	int		sHitRate;
-	int		sDuration;
-	int		sDamage;
-	BYTE	bVision;
-	long	nNeedItem;
-};
-
-struct _MAGIC_TYPE6
-{
-	long	iNum;
-	int		sSize;
-	int		sTransformID;
-	int		sDuration;
-	int		sMaxHp;
-	int		sMaxMp;
-	BYTE	bSpeed;
-	int		sAttackSpeed;
-	int		sTotalHit;
-	int		sTotalAc;
-	int		sTotalHitRate;
-	int		sTotalEvasionRate;
-	int		sTotalFireR;
-	int		sTotalColdR;
-	int		sTotalLightningR;
-	int		sTotalMagicR;
-	int		sTotalDiseaseR;
-	int		sTotalPoisonR;
-	int		sClass;
-	BYTE	bUserSkillUse;
-	BYTE	bNeedItem;
-	BYTE	bSkillSuccessRate;
-	BYTE	bMonsterFriendly;
-};
-
-struct _MAGIC_TYPE5
-{
-	long	iNum;
-	BYTE	bType;
-	BYTE	bExpRecover;
-	int		sNeedStone;
-};
-
-struct _MAGIC_TYPE4
-{
-	long    iNum;
-	BYTE    bBuffType;
-	BYTE    bRadius;
-	int		sDuration;
-	BYTE    bAttackSpeed;
-	BYTE    bSpeed;
-	int		sAC;
-	int		sACPct;
-	BYTE    bAttack;
-	BYTE	bMagicAttack;
-	int		sMaxHP;
-	int		sMaxHPPct;
-	int		sMaxMP;
-	int		sMaxMPPct;
-	BYTE    bHitRate;
-	int		sAvoidRate;
-	BYTE    bStr;
-	BYTE    bSta;
-	BYTE    bDex;
-	BYTE    bIntel;
-	BYTE    bCha;
-	BYTE    bFireR;
-	BYTE    bColdR;
-	BYTE    bLightningR;
-	BYTE    bMagicR;
-	BYTE    bDiseaseR;
-	BYTE    bPoisonR;
-	BYTE	bExpPct;
-};
-
-struct _MAGIC_TYPE3
-{
-	long	iNum;
-	BYTE	bRadius;
-	int		sAngle;
-	int		sFirstDamage;
-	int		sEndDamage;
-	int		sTimeDamage;
-	BYTE	bDirectType;
-	BYTE	bDuration;
-	BYTE	bAttribute;
-};
-
-struct _MAGIC_TYPE2
-{
-	long    iNum;
-	BYTE    bHitType;
-	int		sHitRate;
-	int		sAddDamage;
-	int		sAddRange;
-	BYTE    bNeedArrow;
-};
-
-struct _MAGIC_TYPE1
-{
-	long	iNum;
-	BYTE	bHitType;
-	int		sHitRate;
-	int		sHit;
-	BYTE	bDelay;
-	BYTE	bComboType;
-	BYTE	bComboCount;
-	int		sComboDamage;
-	int		sRange;
-};
-
 struct _ZONE_SERVERINFO
 {
 	short		sServerNo;
@@ -560,54 +349,52 @@ struct _ZONE_SERVERINFO
 
 struct _HOME_INFO
 {
-	BYTE	bNation;
-	long	ElmoZoneX;
-	long	ElmoZoneZ;
-	BYTE	ElmoZoneLX;
-	BYTE	ElmoZoneLZ;
-	long	KarusZoneX;
-	long	KarusZoneZ;
-	BYTE	KarusZoneLX;
-	BYTE	KarusZoneLZ;
-	long	FreeZoneX;
-	long	FreeZoneZ;
-	BYTE	FreeZoneLX;
-	BYTE	FreeZoneLZ;
-//
-	long	BattleZoneX;
-	long	BattleZoneZ;
-	BYTE	BattleZoneLX;
-	BYTE	BattleZoneLZ;
-//
+	uint8	bNation;
+	uint32	ElmoZoneX;
+	uint32	ElmoZoneZ;
+	uint8	ElmoZoneLX;
+	uint8	ElmoZoneLZ;
+	uint32	KarusZoneX;
+	uint32	KarusZoneZ;
+	uint8	KarusZoneLX;
+	uint8	KarusZoneLZ;
+	uint32	FreeZoneX;
+	uint32	FreeZoneZ;
+	uint8	FreeZoneLX;
+	uint8	FreeZoneLZ;
+	uint32	BattleZoneX;
+	uint32	BattleZoneZ;
+	uint8	BattleZoneLX;
+	uint8	BattleZoneLZ;
 };
 
 struct _KNIGHTS_CAPE
 {
-	int		sCapeIndex;
-	long	nReqCoins;
-	long	nReqClanPoints;	// clan point requirement
-	BYTE	byGrade;		// clan grade requirement
-	BYTE	byRanking;		// clan rank requirement (e.g. royal, accredited, etc)
+	uint16	sCapeIndex;
+	uint32	nReqCoins;
+	uint32	nReqClanPoints;	// clan point requirement
+	uint8	byGrade;		// clan grade requirement
+	uint8	byRanking;		// clan rank requirement (e.g. royal, accredited, etc)
 };
 
 struct _START_POSITION
 {
-	int	ZoneID;
-	int	sKarusX;
-	int	sKarusZ;
-	int	sElmoradX;
-	int	sElmoradZ;
-	int	sKarusGateX;
-	int	sKarusGateZ;
-	int	sElmoradGateX;
-	int	sElmoradGateZ;
-	BYTE bRangeX;
-	BYTE bRangeZ;
+	uint16	ZoneID;
+	uint16	sKarusX;
+	uint16	sKarusZ;
+	uint16	sElmoradX;
+	uint16	sElmoradZ;
+	uint16	sKarusGateX;
+	uint16	sKarusGateZ;
+	uint16	sElmoradGateX;
+	uint16	sElmoradGateZ;
+	uint8	bRangeX;
+	uint8	bRangeZ;
 };
 
 struct _SERVER_RESOURCE
 {
-	int nResourceID;
+	uint32 nResourceID;
 	char strResource[101];
 	_SERVER_RESOURCE()
 	{
@@ -687,3 +474,5 @@ enum UserStatusBehaviour
 	USER_STATUS_INFLICT	= 1,
 	USER_STATUS_CURE	= 2
 };
+
+#include "../shared/database/structs.h"

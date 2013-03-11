@@ -1,40 +1,22 @@
 #pragma once
 
-// TO-DO: Make this a simple int->CString map
-#define T		_SERVER_RESOURCE
-#define MapType	ServerResourceArray
-
-class CServerResourceSet : public CMyRecordSet<T>
+class CServerResourceSet : public OdbcRecordset
 {
 public:
-	CServerResourceSet(MapType *stlMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	CServerResourceSet(OdbcConnection * dbConnection, ServerResourceArray * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+
+	virtual tstring GetSQL() { return _T("SELECT nResourceID, strResource FROM SERVER_RESOURCE"); }
+	virtual void Fetch()
 	{
-		m_nFields = 2;
+		_SERVER_RESOURCE *pData = new _SERVER_RESOURCE;
+
+		_dbCommand->FetchUInt32(1, pData->nResourceID);
+		_dbCommand->FetchString(2, pData->strResource, sizeof(pData->strResource));
+
+		if (!m_pMap->PutData(pData->nResourceID, pData))
+			delete pData;
 	}
 
-	DECLARE_DYNAMIC(CServerResourceSet)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[SERVER_RESOURCE]"); };
-
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Int(pFX, _T("[nResourceID]"), m_data.nResourceID);
-		RFX_Text(pFX, _T("[strResource]"), m_data.strResource, sizeof(m_data.strResource));
-	};
-
-	virtual void HandleRead()
-	{
-		T * data = COPY_ROW();
-		TRIM_RIGHT(m_data.strResource);
-		if (!m_stlMap->PutData(data->nResourceID, data))
-			delete data;
-	};
-
-private:
-	MapType * m_stlMap;
+	ServerResourceArray *m_pMap;
 };
-#undef MapType
-#undef T
-IMPLEMENT_DYNAMIC(CServerResourceSet, CRecordset)

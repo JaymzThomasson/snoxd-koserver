@@ -151,6 +151,7 @@
     <ClCompile Include="..\shared\database\OdbcCommand.cpp" />
     <ClCompile Include="..\shared\database\OdbcConnection.cpp" />
     <ClCompile Include="..\shared\database\OdbcParameter.cpp" />
+    <ClCompile Include="..\shared\database\OdbcRecordset.cpp" />
     <ClCompile Include="..\shared\Ini.cpp" />
     <ClCompile Include="..\shared\JvCryption.cpp" />
     <ClCompile Include="..\shared\KOSocket.cpp" />
@@ -274,6 +275,7 @@
     <ClInclude Include="..\shared\database\OdbcCommand.h" />
     <ClInclude Include="..\shared\database\OdbcConnection.h" />
     <ClInclude Include="..\shared\database\OdbcParameter.h" />
+    <ClInclude Include="..\shared\database\OdbcRecordset.h" />
     <ClInclude Include="..\shared\database\ServerResourceSet.h" />
     <ClInclude Include="..\shared\database\StartPositionSet.h" />
     <ClInclude Include="..\shared\database\UserKnightsRankSet.h" />

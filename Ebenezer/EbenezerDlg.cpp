@@ -802,86 +802,72 @@ BOOL CEbenezerDlg::MapFileLoad()
 
 BOOL CEbenezerDlg::LoadItemTable()
 {
-	CItemTableSet ItemTableSet(&m_ItemtableArray, &m_GameDB);
-	return ItemTableSet.Read();
+	LOAD_TABLE(CItemTableSet, &g_DBAgent.m_GameDB, &m_ItemtableArray, false);
 }
 
 BOOL CEbenezerDlg::LoadServerResourceTable()
 {
-	CServerResourceSet ServerResourceSet(&m_ServerResourceArray, &m_GameDB);
-	return ServerResourceSet.Read();
+	LOAD_TABLE(CServerResourceSet, &g_DBAgent.m_GameDB, &m_ServerResourceArray, false);
 }
 
 BOOL CEbenezerDlg::LoadMagicTable()
 {
-	CMagicTableSet rs(&m_MagictableArray, &m_GameDB);
-	return rs.Read();
+	LOAD_TABLE(CMagicTableSet, &g_DBAgent.m_GameDB, &m_MagictableArray, false);
 }
 
 BOOL CEbenezerDlg::LoadMagicType1()
 {
-	CMagicType1Set rs(&m_Magictype1Array, &m_GameDB);
-	return rs.Read();
+	LOAD_TABLE(CMagicType1Set, &g_DBAgent.m_GameDB, &m_Magictype1Array, false);
 }
 
 BOOL CEbenezerDlg::LoadMagicType2()
 {
-	CMagicType2Set rs(&m_Magictype2Array, &m_GameDB);
-	return rs.Read();
+	LOAD_TABLE(CMagicType2Set, &g_DBAgent.m_GameDB, &m_Magictype2Array, false);
 }
 
 BOOL CEbenezerDlg::LoadMagicType3()
 {
-	CMagicType3Set rs(&m_Magictype3Array, &m_GameDB);
-	return rs.Read();
+	LOAD_TABLE(CMagicType3Set, &g_DBAgent.m_GameDB, &m_Magictype3Array, false);
 }
 
 BOOL CEbenezerDlg::LoadMagicType4()
 {
-	CMagicType4Set rs(&m_Magictype4Array, &m_GameDB);
-	return rs.Read();
+	LOAD_TABLE(CMagicType4Set, &g_DBAgent.m_GameDB, &m_Magictype4Array, false);
 }
 
 BOOL CEbenezerDlg::LoadMagicType5()
 {
-	CMagicType5Set rs(&m_Magictype5Array, &m_GameDB);
-	return rs.Read();
+	LOAD_TABLE(CMagicType5Set, &g_DBAgent.m_GameDB, &m_Magictype5Array, false);
 }
 
 BOOL CEbenezerDlg::LoadMagicType6()
 {
-	CMagicType6Set rs(&m_Magictype6Array, &m_GameDB);
-	return rs.Read();
+	LOAD_TABLE(CMagicType6Set, &g_DBAgent.m_GameDB, &m_Magictype6Array, false);
 }
 
 BOOL CEbenezerDlg::LoadMagicType7()
 {
-	CMagicType7Set rs(&m_Magictype7Array, &m_GameDB);
-	return rs.Read();
+	LOAD_TABLE(CMagicType7Set, &g_DBAgent.m_GameDB, &m_Magictype7Array, false);
 }
 
 BOOL CEbenezerDlg::LoadMagicType8()
 {
-	CMagicType8Set rs(&m_Magictype8Array, &m_GameDB);
-	return rs.Read();
+	LOAD_TABLE(CMagicType8Set, &g_DBAgent.m_GameDB, &m_Magictype8Array, false);
 }
 
 BOOL CEbenezerDlg::LoadMagicType9()
 {
-	CMagicType9Set rs(&m_Magictype9Array, &m_GameDB);
-	return rs.Read();
+	LOAD_TABLE(CMagicType9Set, &g_DBAgent.m_GameDB, &m_Magictype9Array, false);
 }
 
 BOOL CEbenezerDlg::LoadCoefficientTable()
 {
-	CCoefficientSet	CoefficientSet(&m_CoefficientArray, &m_GameDB);
-	return CoefficientSet.Read();
+	LOAD_TABLE(CCoefficientSet, &g_DBAgent.m_GameDB, &m_CoefficientArray, false);
 }
 
 BOOL CEbenezerDlg::LoadLevelUpTable()
 {
-	CLevelUpTableSet LevelUpTableSet(&m_LevelUpArray, &m_GameDB);
-	return LevelUpTableSet.Read();
+	LOAD_TABLE(CLevelUpTableSet, &g_DBAgent.m_GameDB, &m_LevelUpArray, false);
 }
 
 void CEbenezerDlg::GetTimeFromIni()
@@ -1762,20 +1748,17 @@ void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 
 BOOL CEbenezerDlg::LoadKnightsCapeTable()
 {
-	CKnightsCapeSet KnightsCapeSet(&m_KnightsCapeArray, &m_GameDB);
-	return KnightsCapeSet.Read();
+	LOAD_TABLE(CKnightsCapeSet, &g_DBAgent.m_GameDB, &m_KnightsCapeArray, false);
 }
 
 BOOL CEbenezerDlg::LoadHomeTable()
 {
-	CHomeSet HomeSet(&m_HomeArray, &m_GameDB);
-	return HomeSet.Read();
+	LOAD_TABLE(CHomeSet, &g_DBAgent.m_GameDB, &m_HomeArray, false);
 }
 
 BOOL CEbenezerDlg::LoadStartPositionTable()
 {
-	CStartPositionSet StartPositionSet(&m_StartPositionArray, &m_GameDB);
-	return StartPositionSet.Read();
+	LOAD_TABLE(CStartPositionSet, &g_DBAgent.m_GameDB, &m_StartPositionArray, false);
 }
 
 BOOL CEbenezerDlg::LoadAllKnights()
@@ -2013,8 +1996,7 @@ void CEbenezerDlg::Send_UDP_All(Packet *pkt, int group_type /*= 0*/)
 
 BOOL CEbenezerDlg::LoadBattleTable()
 {
-	CBattleSet BattleSet(&m_byOldVictory, &m_GameDB);
-	return BattleSet.Read();
+	LOAD_TABLE(CBattleSet, &g_DBAgent.m_GameDB, &m_byOldVictory, true);
 }
 
 void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser)

@@ -1,45 +1,28 @@
 #pragma once
 
-#define T		_MAGIC_TYPE3
-#define MapType	Magictype3Array
-
-class CMagicType3Set : public CMyRecordSet<T>
+class CMagicType3Set : public OdbcRecordset
 {
 public:
-	CMagicType3Set(MapType *stlMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	CMagicType3Set(OdbcConnection * dbConnection, Magictype3Array * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+
+	virtual tstring GetSQL() { return _T("SELECT iNum, DirectType, FirstDamage, EndDamage, TimeDamage, Duration, Attribute, Radius, Angle FROM MAGIC_TYPE3"); }
+	virtual void Fetch()
 	{
-		m_nFields = 9;
+		_MAGIC_TYPE3 *pData = new _MAGIC_TYPE3;
+
+		_dbCommand->FetchUInt32(1, pData->iNum);
+		_dbCommand->FetchByte(2, pData->bDirectType);
+		_dbCommand->FetchUInt16(3, pData->sFirstDamage);
+		_dbCommand->FetchUInt16(4, pData->sEndDamage);
+		_dbCommand->FetchUInt16(5, pData->sTimeDamage);
+		_dbCommand->FetchByte(6, pData->bRadius);
+		_dbCommand->FetchByte(7, pData->bDuration);
+		_dbCommand->FetchByte(8, pData->bAttribute);
+
+		if (!m_pMap->PutData(pData->iNum, pData))
+			delete pData;
 	}
 
-	DECLARE_DYNAMIC(CMagicType3Set)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[MAGIC_TYPE3]"); };
-
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Long(pFX, _T("[iNum]"), m_data.iNum);
-		RFX_Byte(pFX, _T("[Radius]"), m_data.bRadius);
-		RFX_Int(pFX, _T("[Angle]"), m_data.sAngle);
-		RFX_Byte(pFX, _T("[DirectType]"), m_data.bDirectType);
-		RFX_Int(pFX, _T("[FirstDamage]"), m_data.sFirstDamage);
-		RFX_Int(pFX, _T("[EndDamage]"), m_data.sEndDamage);
-		RFX_Int(pFX, _T("[TimeDamage]"), m_data.sTimeDamage);
-		RFX_Byte(pFX, _T("[Duration]"), m_data.bDuration);
-		RFX_Byte(pFX, _T("[Attribute]"), m_data.bAttribute);
-	};
-
-	virtual void HandleRead()
-	{
-		T * data = COPY_ROW();
-		if (!m_stlMap->PutData(data->iNum, data))
-			delete data;
-	};
-
-private:
-	MapType * m_stlMap;
+	Magictype3Array *m_pMap;
 };
-#undef MapType
-#undef T
-IMPLEMENT_DYNAMIC(CMagicType3Set, CRecordset)

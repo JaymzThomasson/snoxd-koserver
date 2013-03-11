@@ -1,6 +1,3 @@
-// ServerDlg.cpp : implementation file
-//
-
 #include "stdafx.h"
 #include "Server.h"
 #include "ServerDlg.h"
@@ -62,6 +59,10 @@ CServerDlg::CServerDlg(CWnd* pParent /*=NULL*/)
 	m_sKillElmoNpc = 0;
 	m_pZoneEventThread = NULL;
 	m_byTestMode = 0;
+
+	memset(m_strGameDSN, 0, sizeof(m_strGameDSN));
+	memset(m_strGameUID, 0, sizeof(m_strGameUID));
+	memset(m_strGamePWD, 0, sizeof(m_strGamePWD));
 }
 
 void CServerDlg::DoDataExchange(CDataExchange* pDX)
@@ -113,6 +114,15 @@ BOOL CServerDlg::OnInitDialog()
 	//	DB part initialize
 	//----------------------------------------------------------------------
 	GetServerInfoIni();
+
+	if (!m_GameDB.Connect(m_strGameDSN, m_strGameUID, m_strGamePWD, false))
+	{
+		OdbcError *pError = m_GameDB.GetError();
+		AfxMessageBox(pError->ErrorMessage.c_str());
+		delete pError;
+		EndDialog(IDCANCEL);
+		return FALSE;
+	}
 
 	if(m_byZone == UNIFY_ZONE)	m_strStatus.Format("Server zone: ALL");
 	else if(m_byZone == KARUS_ZONE)	m_strStatus.Format("Server zone: KARUS");
@@ -235,11 +245,30 @@ void CServerDlg::DefaultInit()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 }
 
-//	Magic Table 을 읽는다.
+
 BOOL CServerDlg::GetMagicTableData()
 {
-	CMagicTableSet MagicTableSet(&m_MagictableArray);
-	return MagicTableSet.Read();
+	LOAD_TABLE(CMagicTableSet, &m_GameDB, &m_MagictableArray, false);
+}
+
+BOOL CServerDlg::GetMagicType1Data()
+{
+	LOAD_TABLE(CMagicType1Set, &m_GameDB, &m_Magictype1Array, false);
+}
+
+BOOL CServerDlg::GetMagicType2Data()
+{
+	LOAD_TABLE(CMagicType2Set, &m_GameDB, &m_Magictype2Array, false);
+}
+
+BOOL CServerDlg::GetMagicType3Data()
+{
+	LOAD_TABLE(CMagicType3Set, &m_GameDB, &m_Magictype3Array, false);
+}
+
+BOOL CServerDlg::GetMagicType4Data()
+{
+	LOAD_TABLE(CMagicType4Set, &m_GameDB, &m_Magictype4Array, false);
 }
 
 BOOL CServerDlg::GetMakeWeaponItemTableData()
@@ -1293,30 +1322,6 @@ BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 	return TRUE;
 }
 
-BOOL CServerDlg::GetMagicType1Data()
-{
-	CMagicType1Set MagicType1Set(&m_Magictype1Array);
-	return MagicType1Set.Read();
-}
-
-BOOL CServerDlg::GetMagicType2Data()
-{
-	CMagicType2Set MagicType2Set(&m_Magictype2Array);
-	return MagicType2Set.Read();
-}
-
-BOOL CServerDlg::GetMagicType3Data()
-{
-	CMagicType3Set MagicType3Set(&m_Magictype3Array);
-	return MagicType3Set.Read();
-}
-
-BOOL CServerDlg::GetMagicType4Data()
-{
-	CMagicType4Set MagicType4Set(&m_Magictype4Array);
-	return MagicType4Set.Read();
-}
-
 void CServerDlg::RegionCheck()
 {
 	EnterCriticalSection( &g_User_critical );
@@ -1402,6 +1407,9 @@ void CServerDlg::GetServerInfoIni()
 {
 	CIni inifile("server.ini");
 	m_byZone = inifile.GetInt("SERVER", "ZONE", UNIFY_ZONE);
+	inifile.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, sizeof(m_strGameDSN), false);
+	inifile.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, sizeof(m_strGameUID), false);
+	inifile.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, sizeof(m_strGamePWD), false);
 }
 
 void CServerDlg::SendSystemMsg( char* pMsg, int type, int who )

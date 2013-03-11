@@ -2,6 +2,7 @@
 
 #include "../N3Base/N3ShapeMgr.h"
 #include "../shared/STLMap.h"
+#include "Extern.h"
 #include "RoomEvent.h"
 
 struct _ZONE_INFO

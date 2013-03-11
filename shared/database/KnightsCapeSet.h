@@ -1,45 +1,28 @@
 #pragma once
 
-#define T		_KNIGHTS_CAPE
-#define MapType	KnightsCapeArray
-
-class CKnightsCapeSet : public CMyRecordSet<T>
+class CKnightsCapeSet : public OdbcRecordset
 {
 public:
-	CKnightsCapeSet(MapType *stlMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	CKnightsCapeSet(OdbcConnection * dbConnection, KnightsCapeArray * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+
+	virtual tstring GetSQL() { return _T("SELECT sCapeIndex, nBuyPrice, byGrade, nBuyLoyalty, byRanking FROM KNIGHTS_CAPE"); }
+	virtual void Fetch()
 	{
-		m_nFields = 5;
-	}
+		_KNIGHTS_CAPE *pData = new _KNIGHTS_CAPE;
 
-	DECLARE_DYNAMIC(CKnightsCapeSet)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[KNIGHTS_CAPE]"); };
-
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Int(pFX, _T("[sCapeIndex]"), m_data.sCapeIndex);
-		RFX_Long(pFX, _T("[nBuyPrice]"), m_data.nReqCoins);
-		RFX_Long(pFX, _T("[nBuyLoyalty]"), m_data.nReqClanPoints); // this is in NP form (in the TBL)
-		RFX_Byte(pFX, _T("[byGrade]"), m_data.byGrade);
-		RFX_Byte(pFX, _T("[byRanking]"), m_data.byRanking);
-	};
-
-	virtual void HandleRead()
-	{
-		T * data = COPY_ROW();
+		_dbCommand->FetchUInt16(1, pData->sCapeIndex);
+		_dbCommand->FetchUInt32(2, pData->nReqCoins);
+		_dbCommand->FetchByte(3, pData->byGrade);
+		_dbCommand->FetchUInt32(4, pData->nReqClanPoints);
+		_dbCommand->FetchByte(3, pData->byRanking);
 
 		// Convert this from NP to clan points
-		data->nReqClanPoints /= MAX_CLAN_USERS;
+		pData->nReqClanPoints /= MAX_CLAN_USERS;
 
-		if (!m_stlMap->PutData(data->sCapeIndex, data))
-			delete data;
-	};
+		if (!m_pMap->PutData(pData->sCapeIndex, pData))
+			delete pData;
+	}
 
-private:
-	MapType * m_stlMap;
+	KnightsCapeArray *m_pMap;
 };
-#undef MapType
-#undef T
-IMPLEMENT_DYNAMIC(CKnightsCapeSet, CRecordset)

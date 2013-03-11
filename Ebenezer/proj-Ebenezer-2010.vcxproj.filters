@@ -180,6 +180,9 @@
     <ClCompile Include="..\shared\database\OdbcConnection.cpp">
       <Filter>Shared\Database</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcRecordset.cpp">
+      <Filter>Shared\Database</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -396,6 +399,9 @@
       <Filter>Shared\Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\database\OdbcCommand.h">
+      <Filter>Shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcRecordset.h">
       <Filter>Shared\Database</Filter>
     </ClInclude>
   </ItemGroup>

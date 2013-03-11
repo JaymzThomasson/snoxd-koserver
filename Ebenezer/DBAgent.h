@@ -67,4 +67,6 @@ public:
 private:
 	OdbcConnection m_GameDB, m_AccountDB;
 	FastMutex m_lock;
+
+	friend class CEbenezerDlg;
 };

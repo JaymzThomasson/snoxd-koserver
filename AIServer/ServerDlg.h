@@ -2,6 +2,8 @@
 //#pragma warning(disable : 4786)
 
 #include "../shared/KOSocketMgr.h"
+#include "../shared/database/OdbcConnection.h"
+
 #include "GameSocket.h"
 
 #include "MAP.h"
@@ -122,6 +124,9 @@ public:
 	ZoneArray g_arZone;
 
 	CWinThread* m_pZoneEventThread;		// zone
+
+	char m_strGameDSN[32], m_strGameUID[32], m_strGamePWD[32];
+	OdbcConnection m_GameDB;
 
 	CUser* m_pUser[MAX_USER];
 

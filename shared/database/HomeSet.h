@@ -1,53 +1,37 @@
 #pragma once
 
-#define T		_HOME_INFO
-#define MapType	HomeArray
-
-class CHomeSet : public CMyRecordSet<T>
+class CHomeSet : public OdbcRecordset
 {
 public:
-	CHomeSet(MapType *stlMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	CHomeSet(OdbcConnection * dbConnection, HomeArray * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+
+	virtual tstring GetSQL() { return _T("SELECT Nation, ElmoZoneX, ElmoZoneZ, ElmoZoneLX, ElmoZoneLZ, KarusZoneX, KarusZoneZ, KarusZoneLX, KarusZoneLZ, FreeZoneX, FreeZoneZ, FreeZoneLX, FreeZoneLZ, BattleZoneX, BattleZoneZ, BattleZoneLX, BattleZoneLZ, BattleZone2X, BattleZone2Z, BattleZone2LX, BattleZone2LZ FROM HOME"); }
+	virtual void Fetch()
 	{
-		m_nFields = 17;
+		_HOME_INFO *pData = new _HOME_INFO;
+
+		_dbCommand->FetchByte(1, pData->bNation);
+		_dbCommand->FetchUInt32(2, pData->ElmoZoneX);
+		_dbCommand->FetchUInt32(3, pData->ElmoZoneZ);
+		_dbCommand->FetchByte(4, pData->ElmoZoneLX);
+		_dbCommand->FetchByte(5, pData->ElmoZoneLZ);
+		_dbCommand->FetchUInt32(6, pData->KarusZoneX);
+		_dbCommand->FetchUInt32(7, pData->KarusZoneZ);
+		_dbCommand->FetchByte(8, pData->KarusZoneLX);
+		_dbCommand->FetchByte(9, pData->KarusZoneLZ);
+		_dbCommand->FetchUInt32(10, pData->FreeZoneX);
+		_dbCommand->FetchUInt32(11, pData->FreeZoneZ);
+		_dbCommand->FetchByte(12, pData->FreeZoneLX);
+		_dbCommand->FetchByte(13, pData->FreeZoneLZ);
+		_dbCommand->FetchUInt32(14, pData->BattleZoneX);
+		_dbCommand->FetchUInt32(15, pData->BattleZoneZ);
+		_dbCommand->FetchByte(16, pData->BattleZoneLX);
+		_dbCommand->FetchByte(17, pData->BattleZoneLZ);
+
+		if (!m_pMap->PutData(pData->bNation, pData))
+			delete pData;
 	}
 
-	DECLARE_DYNAMIC(CHomeSet)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[HOME]"); };
-
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Byte(pFX, _T("[Nation]"), m_data.bNation);
-		RFX_Long(pFX, _T("[ElmoZoneX]"), m_data.ElmoZoneX);
-		RFX_Long(pFX, _T("[ElmoZoneZ]"), m_data.ElmoZoneZ);
-		RFX_Byte(pFX, _T("[ElmoZoneLX]"), m_data.ElmoZoneLX);
-		RFX_Byte(pFX, _T("[ElmoZoneLZ]"), m_data.ElmoZoneLZ);
-		RFX_Long(pFX, _T("[KarusZoneX]"), m_data.KarusZoneX);
-		RFX_Long(pFX, _T("[KarusZoneZ]"), m_data.KarusZoneZ);
-		RFX_Byte(pFX, _T("[KarusZoneLX]"), m_data.KarusZoneLX);
-		RFX_Byte(pFX, _T("[KarusZoneLZ]"), m_data.KarusZoneLZ);
-		RFX_Long(pFX, _T("[FreeZoneX]"), m_data.FreeZoneX);
-		RFX_Long(pFX, _T("[FreeZoneZ]"), m_data.FreeZoneZ);
-		RFX_Byte(pFX, _T("[FreeZoneLX]"), m_data.FreeZoneLX);
-		RFX_Byte(pFX, _T("[FreeZoneLZ]"), m_data.FreeZoneLZ);
-		RFX_Long(pFX, _T("[BattleZoneX]"), m_data.BattleZoneX);
-		RFX_Long(pFX, _T("[BattleZoneZ]"), m_data.BattleZoneZ);
-		RFX_Byte(pFX, _T("[BattleZoneLX]"), m_data.BattleZoneLX);
-		RFX_Byte(pFX, _T("[BattleZoneLZ]"), m_data.BattleZoneLZ);
-	};
-
-	virtual void HandleRead()
-	{
-		T * data = COPY_ROW();
-		if (!m_stlMap->PutData(data->bNation, data))
-			delete data;
-	};
-
-private:
-	MapType * m_stlMap;
+	HomeArray *m_pMap;
 };
-#undef MapType
-#undef T
-IMPLEMENT_DYNAMIC(CHomeSet, CRecordset)

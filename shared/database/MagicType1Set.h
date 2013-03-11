@@ -1,45 +1,29 @@
 #pragma once
 
-#define T		_MAGIC_TYPE1
-#define MapType	Magictype1Array
-
-class CMagicType1Set : public CMyRecordSet<T>
+class CMagicType1Set : public OdbcRecordset
 {
 public:
-	CMagicType1Set(MapType *stlMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	CMagicType1Set(OdbcConnection * dbConnection, Magictype1Array * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+
+	virtual tstring GetSQL() { return _T("SELECT iNum, Type, HitRate, Hit, AddDamage, Delay, ComboType, ComboCount, ComboDamage, Range FROM MAGIC_TYPE1"); }
+	virtual void Fetch()
 	{
-		m_nFields = 9;
+		_MAGIC_TYPE1 *pData = new _MAGIC_TYPE1;
+
+		_dbCommand->FetchUInt32(1, pData->iNum);
+		_dbCommand->FetchByte(2, pData->bHitType);
+		_dbCommand->FetchUInt16(3, pData->sHitRate);
+		_dbCommand->FetchUInt16(4, pData->sHit);
+		_dbCommand->FetchByte(5, pData->bDelay);
+		_dbCommand->FetchByte(6, pData->bComboType);
+		_dbCommand->FetchByte(7, pData->bComboCount);
+		_dbCommand->FetchUInt16(8, pData->sComboDamage);
+		_dbCommand->FetchUInt16(9, pData->sRange);
+
+		if (!m_pMap->PutData(pData->iNum, pData))
+			delete pData;
 	}
 
-	DECLARE_DYNAMIC(CMagicType1Set)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[MAGIC_TYPE1]"); };
-
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Long(pFX, _T("[iNum]"), m_data.iNum);
-		RFX_Byte(pFX, _T("[Type]"), m_data.bHitType);
-		RFX_Int(pFX, _T("[HitRate]"), m_data.sHitRate);
-		RFX_Int(pFX, _T("[Hit]"), m_data.sHit);
-		RFX_Byte(pFX, _T("[Delay]"), m_data.bDelay);
-		RFX_Byte(pFX, _T("[ComboType]"), m_data.bComboType);
-		RFX_Byte(pFX, _T("[ComboCount]"), m_data.bComboCount);
-		RFX_Int(pFX, _T("[ComboDamage]"), m_data.sComboDamage);
-		RFX_Int(pFX, _T("[Range]"), m_data.sRange);
-	};
-
-	virtual void HandleRead()
-	{
-		T * data = COPY_ROW();
-		if (!m_stlMap->PutData(data->iNum, data))
-			delete data;
-	};
-
-private:
-	MapType * m_stlMap;
+	Magictype1Array *m_pMap;
 };
-#undef MapType
-#undef T
-IMPLEMENT_DYNAMIC(CMagicType1Set, CRecordset)

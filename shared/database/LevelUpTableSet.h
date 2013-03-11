@@ -1,37 +1,22 @@
 #pragma once
 
-typedef std::pair<BYTE, long>	LevelUpPair;
-#define T		LevelUpPair
-#define MapType	LevelUpArray
-
-class CLevelUpTableSet : public CMyRecordSet<T>
+class CLevelUpTableSet : public OdbcRecordset
 {
 public:
-	CLevelUpTableSet(MapType *pMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_map(pMap)
+	CLevelUpTableSet(OdbcConnection * dbConnection, LevelUpArray * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+
+	virtual tstring GetSQL() { return _T("SELECT [Level], [Exp] FROM LEVEL_UP"); }
+	virtual void Fetch()
 	{
-		m_nFields = 2;
+		// TO-DO: This needs to be increased to support bigint
+		std::pair<uint8, uint32> pData;
+
+		_dbCommand->FetchByte(1, pData.first);
+		_dbCommand->FetchUInt32(2, pData.second);
+
+		m_pMap->insert(pData);
 	}
 
-	DECLARE_DYNAMIC(CLevelUpTableSet)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[LEVEL_UP]"); };
-
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Byte(pFX, _T("[Level]"), m_data.first);
-		RFX_Long(pFX, _T("[Exp]"), m_data.second);
-	};
-
-	virtual void HandleRead()
-	{
-		m_map->insert(m_data);
-	};
-
-private:
-	MapType * m_map;
+	LevelUpArray *m_pMap;
 };
-#undef MapType
-#undef T
-IMPLEMENT_DYNAMIC(CLevelUpTableSet, CRecordset)

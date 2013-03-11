@@ -24,6 +24,9 @@
     <Filter Include="shared\Networking">
       <UniqueIdentifier>{c8f64b2e-056b-40ea-95a2-2f714d3268e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shared\Database">
+      <UniqueIdentifier>{8025d055-d9ac-4c94-8eab-616e4b1764e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MagicProcess.cpp">
@@ -118,6 +121,18 @@
     </ClCompile>
     <ClCompile Include="..\shared\SocketMgr.cpp">
       <Filter>shared\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcCommand.cpp">
+      <Filter>shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcConnection.cpp">
+      <Filter>shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcParameter.cpp">
+      <Filter>shared\Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\database\OdbcRecordset.cpp">
+      <Filter>shared\Database</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -264,6 +279,18 @@
     </ClInclude>
     <ClInclude Include="..\shared\SocketMgr.h">
       <Filter>shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcCommand.h">
+      <Filter>shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcConnection.h">
+      <Filter>shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcParameter.h">
+      <Filter>shared\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\OdbcRecordset.h">
+      <Filter>shared\Database</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
