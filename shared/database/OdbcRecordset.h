@@ -43,4 +43,4 @@ protected:
 	}
 
 // Cheap right trim, used for strings. We should do this better.
-#define TRIM_RIGHT(v) { std::string str = v; rtrim(str); strcpy(v, str.c_str()); }
+#define TRIM_RIGHT(v) { CString str = v; str.TrimRight(); strcpy(v, str); }
