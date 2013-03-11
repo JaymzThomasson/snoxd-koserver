@@ -1,62 +1,49 @@
 #pragma once
 
-#define T		_USER_RANK
-#define MapType	UserRankMap
-
-class CUserPersonalRankSet : public CMyRecordSet<T>
+class CUserPersonalRankSet : public OdbcRecordset
 {
 public:
-	CUserPersonalRankSet(MapType *stlMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	CUserPersonalRankSet(OdbcConnection * dbConnection, UserRankMap * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+
+	virtual tstring GetTableName() { return _T("USER_PERSONAL_RANK"); }
+	virtual tstring GetColumns() { return _T("nRank, nSalary, strElmoUserID, strKarusUserID"); }
+
+	virtual bool Fetch()
 	{
-		m_nFields = 4;
-	}
+		_USER_RANK *pData = new _USER_RANK;
 
-	DECLARE_DYNAMIC(CUserPersonalRankSet)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[USER_PERSONAL_RANK]"); };
+		_dbCommand->FetchUInt16(1, pData->nRank);
+		_dbCommand->FetchUInt32(2, pData->nSalary);
+		_dbCommand->FetchString(3, pData->strElmoUserID, sizeof(pData->strElmoUserID));
+		_dbCommand->FetchString(4, pData->strKarusUserID, sizeof(pData->strKarusUserID));
 
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Int(pFX, _T("[nRank]"), m_data.nRank);
-		RFX_Long(pFX, _T("[nSalary]"), m_data.nSalary);
-		RFX_Text(pFX, _T("[strElmoUserID]"), m_data.strElmoUserID, MAX_ID_SIZE + 1); 
-		RFX_Text(pFX, _T("[strKarusUserID]"), m_data.strKarusUserID, MAX_ID_SIZE + 1);
-	};
-
-	virtual void HandleRead()
-	{
-		T * data = COPY_ROW();
-		
 		// Trim first
-		TRIM_RIGHT(data->strElmoUserID);
-		TRIM_RIGHT(data->strKarusUserID);
+		TRIM_RIGHT(pData->strElmoUserID);
+		TRIM_RIGHT(pData->strKarusUserID);
 		
-		std::string strElmoUserID = data->strElmoUserID;
-		std::string strKarusUserID = data->strKarusUserID;
+		// Convert keys to uppercase for case insensitive lookups
+		std::string strElmoUserID = pData->strElmoUserID;
+		std::string strKarusUserID = pData->strKarusUserID;
 
-		// Convert to uppercase for case insensitive lookups
 		STRTOUPPER(strElmoUserID);
 		STRTOUPPER(strKarusUserID);
 
 		// We're not going to insert either of them, so ignore this row and avoid a mem leak.
 		if (strElmoUserID.empty() && strKarusUserID.empty())
 		{
-			delete data;
-			return;
+			delete pData;
+			return true; // this is normal.
 		}
 
 		if (!strElmoUserID.empty())
-			m_stlMap->insert(make_pair(strElmoUserID, data));
+			m_pMap->insert(make_pair(strElmoUserID, pData));
 
 		if (!strKarusUserID.empty())
-			m_stlMap->insert(make_pair(strKarusUserID, data));
-	};
+			m_pMap->insert(make_pair(strKarusUserID, pData));
 
-private:
-	MapType * m_stlMap;
+		return true;
+	}
+
+	UserRankMap *m_pMap;
 };
-#undef MapType
-#undef T
-IMPLEMENT_DYNAMIC(CUserPersonalRankSet, CRecordset)

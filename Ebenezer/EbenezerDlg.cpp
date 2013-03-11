@@ -1808,19 +1808,29 @@ void CEbenezerDlg::CleanupUserRankings()
 
 BOOL CEbenezerDlg::LoadUserRankings()
 {
-	CUserPersonalRankSet UserPersonalRankSet(&m_UserPersonalRankMap, &m_GameDB);
-	CUserKnightsRankSet  UserKnightsRankSet(&m_UserKnightsRankMap, &m_GameDB);
-	BOOL result;
+	CUserPersonalRankSet UserPersonalRankSet(&g_DBAgent.m_GameDB, &m_UserPersonalRankMap);
+	CUserKnightsRankSet  UserKnightsRankSet(&g_DBAgent.m_GameDB, &m_UserKnightsRankMap);
+	TCHAR * szError = NULL;
 
 	// Cleanup first, in the event it's already loaded (we'll have this automatically reload in-game)
 	CleanupUserRankings();
 
 	// Acquire the lock for thread safety, and load both tables.
 	m_userRankingsLock.Acquire();
-	result = UserPersonalRankSet.Read(true) && UserKnightsRankSet.Read(true);
+	szError = UserPersonalRankSet.Read(true);
+	if (szError != NULL)
+		TRACE("Failed to load personal rankings, error: %s\n", szError);
+
+	if (szError == NULL)
+	{
+		szError = UserKnightsRankSet.Read(true);
+		if (szError != NULL)
+			TRACE("Failed to load user knights rankings, error: %s\n", szError);
+	}
+
 	m_userRankingsLock.Release();
 
-	return result;
+	return (szError == NULL); // No error means success.
 }
 
 void CEbenezerDlg::GetUserRank(CUser *pUser)
