@@ -3487,7 +3487,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 		goto fail_return;
 	}
 
-	long nReqClanPoints = 0, nReqCoins = 0;
+	uint32 nReqClanPoints = 0, nReqCoins = 0;
 	if (sCapeID >= 0)
 	{
 		// Does this cape type exist?
