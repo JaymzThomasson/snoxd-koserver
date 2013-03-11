@@ -282,7 +282,6 @@
     <ClInclude Include="MagicProcess.h" />
     <ClInclude Include="MAP.h" />
     <ClInclude Include="Npc.h" />
-    <ClInclude Include="NpcItem.h" />
     <ClInclude Include="NpcMagicProcess.h" />
     <ClInclude Include="NpcTable.h" />
     <ClInclude Include="NpcThread.h" />

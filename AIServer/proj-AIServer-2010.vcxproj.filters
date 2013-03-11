@@ -136,9 +136,6 @@
     <ClInclude Include="Npc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NpcItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="NpcMagicProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
