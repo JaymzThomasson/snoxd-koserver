@@ -66,6 +66,7 @@ private:
 	void RegionCheck();		// region안에 들어오는 유저 체크 (스레드에서 FindEnermy()함수의 부하를 줄이기 위한 꽁수)
 // Construction
 public:
+	bool LoadSpawnCallback(OdbcCommand *dbCommand);
 	void GameServerAcceptThread();
 	BOOL AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number);
 	void AllNpcInfo();
@@ -132,7 +133,7 @@ public:
 	CUser* m_pUser[MAX_USER];
 
 	// 전역 객체 변수	//BOOL			m_bNpcExit;
-	long			m_TotalNPC;			// DB에있는 총 수
+	uint16			m_TotalNPC;			// DB에있는 총 수
 	long			m_CurrentNPCError;	// 세팅에서 실패한 수
 	long			m_CurrentNPC;		// 현재 게임상에서 실제로 셋팅된 수
 	short			m_sTotalMap;		// Zone 수 

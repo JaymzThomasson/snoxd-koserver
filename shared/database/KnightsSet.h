@@ -9,7 +9,7 @@ public:
 	virtual tstring GetTableName() { return _T("KNIGHTS"); }
 	virtual tstring GetColumns() { return _T("IDNum, Flag, Nation, Ranking, IDName, Members, Chief, ViceChief_1, ViceChief_2, ViceChief_3, Gold, Domination, Points, Mark, sMarkVersion, sMarkLen, sCape, bCapeR, bCapeG, bCapeB, sAllianceKnights"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		CKnights *pData = new CKnights();
 
@@ -45,6 +45,8 @@ public:
 
 		if (!m_pMap->PutData(pData->m_sIndex, pData))
 			delete pData;
+
+		return true;
 	}
 
 	KnightsArray *m_pMap;

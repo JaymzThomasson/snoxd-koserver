@@ -13,7 +13,7 @@ TCHAR * OdbcRecordset::Read(bool bAllowEmptyTable /*= false*/)
 	// Build statement
 	tstring szSQL = _T("SELECT ");
 	szSQL += GetColumns();
-	szSQL += _T("FROM ");
+	szSQL += _T(" FROM ");
 	szSQL += GetTableName();
 
 	// Attempt to execute the statement.
@@ -32,7 +32,12 @@ TCHAR * OdbcRecordset::Read(bool bAllowEmptyTable /*= false*/)
 
 	do
 	{
-		Fetch();
+		// This extra result/check potentially slows things down. 
+		// It's also not very informative, so this could really use a bit of a rewrite
+		// to better allow for this scenario.
+		if (!Fetch())
+			return _T("Could not fetch row.");
+
 	} while (_dbCommand->MoveNext());
 
 	return NULL;

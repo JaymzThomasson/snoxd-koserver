@@ -9,7 +9,7 @@ public:
 	virtual tstring GetTableName() { return _T("LEVEL_UP"); }
 	virtual tstring GetColumns() { return _T("[Level], [Exp]"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		// TO-DO: This needs to be increased to support bigint
 		std::pair<uint8, uint32> pData;
@@ -18,6 +18,8 @@ public:
 		_dbCommand->FetchUInt32(2, pData.second);
 
 		m_pMap->insert(pData);
+
+		return true;
 	}
 
 	LevelUpArray *m_pMap;

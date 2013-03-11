@@ -80,9 +80,6 @@
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp">
       <Filter>N3Base</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\database\NpcPosSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
     <ClCompile Include="GameSocket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

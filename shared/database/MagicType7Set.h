@@ -9,7 +9,7 @@ public:
 	virtual tstring GetTableName() { return _T("MAGIC_TYPE7"); }
 	virtual tstring GetColumns() { return _T("nIndex, byValidGroup, byNatoinChange, shMonsterNum, byTargetChange, byStateChange, byRadius, shHitrate, shDuration, shDamage, byVisoin, nNeedItem"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		_MAGIC_TYPE7 *pData = new _MAGIC_TYPE7;
 
@@ -28,6 +28,8 @@ public:
 
 		if (!m_pMap->PutData(pData->iNum, pData))
 			delete pData;
+
+		return true;
 	}
 
 	Magictype7Array *m_pMap;

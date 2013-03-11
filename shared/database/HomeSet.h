@@ -9,7 +9,7 @@ public:
 	virtual tstring GetTableName() { return _T("HOME"); }
 	virtual tstring GetColumns() { return _T("Nation, ElmoZoneX, ElmoZoneZ, ElmoZoneLX, ElmoZoneLZ, KarusZoneX, KarusZoneZ, KarusZoneLX, KarusZoneLZ, FreeZoneX, FreeZoneZ, FreeZoneLX, FreeZoneLZ, BattleZoneX, BattleZoneZ, BattleZoneLX, BattleZoneLZ, BattleZone2X, BattleZone2Z, BattleZone2LX, BattleZone2LZ"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		_HOME_INFO *pData = new _HOME_INFO;
 
@@ -33,6 +33,8 @@ public:
 
 		if (!m_pMap->PutData(pData->bNation, pData))
 			delete pData;
+	
+		return true;
 	}
 
 	HomeArray *m_pMap;

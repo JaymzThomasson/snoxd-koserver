@@ -9,7 +9,7 @@ public:
 	virtual tstring GetTableName() { return _T("MAKE_ITEM_LARECODE"); }
 	virtual tstring GetColumns() { return _T("byLevelGrade, sLareItem, sMagicItem, sGereralItem"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		_MAKE_ITEM_LARE_CODE *pData = new _MAKE_ITEM_LARE_CODE;
 
@@ -20,6 +20,8 @@ public:
 
 		if (!m_pMap->PutData(pData->byItemLevel, pData))
 			delete pData;
+
+		return true;
 	}
 
 	MakeLareItemTableArray *m_pMap;

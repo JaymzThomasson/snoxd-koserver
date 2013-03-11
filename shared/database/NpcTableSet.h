@@ -11,7 +11,7 @@ public:
 	virtual tstring GetTableName() { return _T("K_NPC"); }
 	virtual tstring GetColumns() { return _T("sSid, strName, sPid, sSize, iWeapon1, iWeapon2, byGroup, byActType, byType, byFamily, byRank, byTitle, iSellingGroup, sLevel, iExp, iLoyalty, iHpPoint, sMpPoint, sAtk, sAc, sHitRate, sEvadeRate, sDamage, sAttackDelay, bySpeed1, bySpeed2, sStandtime, sItem, iMagic1, iMagic2, iMagic3, sFireR, sColdR, sLightningR, sMagicR, sDiseaseR, sPoisonR, sLightR, sBulk, byAttackRange, bySearchRange, byTracingRange, iMoney, byDirectAttack, byMagicAttack"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		CNpcTable *pData = new CNpcTable();
 		uint16 sBulk;
@@ -67,6 +67,8 @@ public:
 			
 		if (!m_pMap->PutData(pData->m_sSid, pData))
 			delete pData;
+
+		return true;
 	}
 
 	NpcTableArray *m_pMap;

@@ -302,233 +302,14 @@ BOOL CServerDlg::GetNpcTableData(bool bNpcData /*= true*/)
 	else			{ LOAD_TABLE(CMonTableSet, &m_GameDB, &m_arMonTable, false); }
 }
 
-//	Npc Thread 를 만든다.
 BOOL CServerDlg::CreateNpcThread()
 {
-	BOOL	bMoveNext	= TRUE;
-	int		nSerial		= m_sMapEventNpc;
-	int		nPathSerial = 1;
-	int		nNpcCount	= 0;
-	int		i=0, j=0;
-	int nRandom = 0, nServerNum = 0;
-	double  dbSpeed = 0;
-
-	m_TotalNPC = 0;			// DB에 있는 수
+	m_TotalNPC = m_sMapEventNpc;
 	m_CurrentNPC = 0;
 	m_CurrentNPCError = 0;
 
-	CNpcTable*	pNpcTable = NULL;
-	CRoomEvent* pRoom = NULL;
-
-	CNpcPosSet NpcPosSet;
-
-	char szPath[500];
-	char szX[5];
-	char szZ[5];
-
-	float fRandom_X = 0.0f;
-	float fRandom_Z = 0.0f;
-
-	int nMonsterNumber = 0;
-	
-	try 
-	{
-		if(NpcPosSet.IsOpen()) NpcPosSet.Close();
-		if(!NpcPosSet.Open())	{
-			AfxMessageBox(_T("MONSTER_POS DB Open Fail!"));
-			return FALSE;
-		}
-		if(NpcPosSet.IsBOF())	{
-			AfxMessageBox(_T("MONSTER_POS DB Empty!"));
-			return FALSE;
-		}
-
-		NpcPosSet.MoveFirst();
-
-		while(!NpcPosSet.IsEOF())	{
-			nMonsterNumber = NpcPosSet.m_NumNPC;
-			//if( NpcPosSet.m_ZoneID == 101 )	{	// 테스트를 위해서,, 
-			//	nMonsterNumber = 1;
-				//if(nMonsterNumber > 4)	{
-				//	nMonsterNumber = nMonsterNumber / 4;
-				//}
-			//}	
-			nServerNum = 0;
-			nServerNum = GetServerNumber( NpcPosSet.m_ZoneID );
-
-			if( m_byZone == nServerNum || m_byZone == UNIFY_ZONE)	{
-				for(j=0; j<nMonsterNumber; j++)		{
-					CNpc*		pNpc		= new CNpc();
-
-					pNpc->m_byMoveType = NpcPosSet.m_ActType;
-					pNpc->m_byInitMoveType = NpcPosSet.m_ActType;
-
-					bool bMonster = (NpcPosSet.m_ActType < 100);
-					if (bMonster)
-						pNpcTable = m_arMonTable.GetData(NpcPosSet.m_NpcID);
-					else 
-					{
-						pNpc->m_byMoveType = NpcPosSet.m_ActType - 100;
-						//pNpc->m_byInitMoveType = NpcPosSet.m_ActType - 100;
-						pNpcTable = m_arNpcTable.GetData(NpcPosSet.m_NpcID);
-					}
-
-					if (pNpcTable == NULL)
-					{
-						char buff[128] = {0};
-						sprintf(buff, "NPC %d not found in %s table.", pNpc->m_sNid, bMonster ? "K_MONSTER" : "K_NPC");
-						AfxMessageBox(buff);
-						delete pNpc;
-						return FALSE;
-					}
-
-					pNpc->Load(nSerial++, pNpcTable);
-					pNpc->m_byBattlePos = 0;
-
-					if(pNpc->m_byMoveType >= 2)	{
-						pNpc->m_byBattlePos = myrand( 1, 3 );
-						pNpc->m_byPathCount = nPathSerial++;
-					}
-
-					pNpc->InitPos();
-					
-					if( bMoveNext )	{
-						bMoveNext = FALSE;
-						nNpcCount = NpcPosSet.m_NumNPC;
-					}
-
-					//////// MONSTER POS ////////////////////////////////////////
-					pNpc->m_bCurZone = NpcPosSet.m_ZoneID;
-
-					// map에 몬스터의 위치를 랜덤하게 위치시킨다.. (테스트 용 : 수정-DB에서 읽어오는데로 몬 위치 결정)
-					nRandom = abs(NpcPosSet.m_LeftX - NpcPosSet.m_RightX);
-					if(nRandom <= 1)
-						fRandom_X = (float)NpcPosSet.m_LeftX;
-					else	{
-						if(NpcPosSet.m_LeftX < NpcPosSet.m_RightX)
-							fRandom_X = (float)myrand(NpcPosSet.m_LeftX, NpcPosSet.m_RightX);
-						else
-							fRandom_X = (float)myrand(NpcPosSet.m_RightX, NpcPosSet.m_LeftX);
-					}
-					nRandom = abs(NpcPosSet.m_TopZ - NpcPosSet.m_BottomZ);
-					if(nRandom <= 1)
-						fRandom_Z = (float)NpcPosSet.m_TopZ;
-					else	{
-						if(NpcPosSet.m_TopZ < NpcPosSet.m_BottomZ)
-							fRandom_Z = (float)myrand(NpcPosSet.m_TopZ, NpcPosSet.m_BottomZ);
-						else
-							fRandom_Z = (float)myrand(NpcPosSet.m_BottomZ, NpcPosSet.m_TopZ);
-					}
-
-					pNpc->m_fCurX	= fRandom_X;
-					pNpc->m_fCurY	= 0;
-					pNpc->m_fCurZ	= fRandom_Z;
-					
-					pNpc->m_sRegenTime		= NpcPosSet.m_RegTime * 1000;	// 초(DB)단위-> 밀리세컨드로
-					pNpc->m_byDirection = NpcPosSet.m_byDirection;
-					pNpc->m_sMaxPathCount = NpcPosSet.m_DotCnt;
-
-					if( pNpc->m_byMoveType >= 2 && NpcPosSet.m_DotCnt == 0 )	{
-						pNpc->m_byMoveType = 1;
-						TRACE("##### ServerDlg:CreateNpcThread - Path type Error :  nid=%d, sid=%d, name=%s, acttype=%d, path=%d #####\n", pNpc->m_sNid+NPC_BAND, pNpc->m_proto->m_sSid, pNpc->m_proto->m_strName, pNpc->m_byMoveType, pNpc->m_sMaxPathCount);
-					}
-
-					int index = 0;
-					strcpy_s(szPath, sizeof(szPath), NpcPosSet.m_path);
-
-					if(NpcPosSet.m_DotCnt != 0)	{
-						for(int l = 0; l<NpcPosSet.m_DotCnt; l++)	{
-							memset(szX, 0x00, 5);
-							memset(szZ, 0x00, 5);
-							GetString(szX, szPath, 4, index);
-							GetString(szZ, szPath, 4, index);
-							pNpc->m_PathList.pPattenPos[l].x = atoi(szX);
-							pNpc->m_PathList.pPattenPos[l].z = atoi(szZ);
-						//	TRACE(" l=%d, x=%d, z=%d\n", l, pNpc->m_PathList.pPattenPos[l].x, pNpc->m_PathList.pPattenPos[l].z);
-						}
-					}
-
-					//pNpc->m_byType			= NpcPosSet.m_byType;
-
-					pNpc->m_tItemPer		= pNpcTable->m_tItemPer;	// NPC Type
-					pNpc->m_tDnPer			= pNpcTable->m_tDnPer;	// NPC Type
-
-					pNpc->m_nInitMinX = pNpc->m_nLimitMinX		= NpcPosSet.m_LeftX;
-					pNpc->m_nInitMinY = pNpc->m_nLimitMinZ		= NpcPosSet.m_TopZ;
-					pNpc->m_nInitMaxX = pNpc->m_nLimitMaxX		= NpcPosSet.m_RightX;
-					pNpc->m_nInitMaxY = pNpc->m_nLimitMaxZ		= NpcPosSet.m_BottomZ;
-					// dungeon work
-					pNpc->m_byDungeonFamily	= NpcPosSet.m_DungeonFamily;
-					pNpc->m_bySpecialType	= NpcPosSet.m_SpecialType;
-					pNpc->m_byRegenType		= NpcPosSet.m_RegenType;
-					pNpc->m_byTrapNumber    = NpcPosSet.m_TrapNumber;
-
-					if( pNpc->m_byDungeonFamily > 0 )	{
-						pNpc->m_nLimitMinX = NpcPosSet.m_LimitMinX;
-						pNpc->m_nLimitMinZ = NpcPosSet.m_LimitMinZ;
-						pNpc->m_nLimitMaxX = NpcPosSet.m_LimitMaxX;
-						pNpc->m_nLimitMaxZ = NpcPosSet.m_LimitMaxZ;
-					}	
+	LOAD_TABLE_ERROR_ONLY(CNpcPosSet, &m_GameDB, NULL, false);
 			
-					pNpc->m_pZone = GetZoneByID(pNpc->m_bCurZone);
-					if (pNpc->GetMap() == NULL)		{
-						AfxMessageBox("Error : CServerDlg,, Invaild zone Index!!");
-						delete pNpc;
-						return FALSE;
-					}
-
-					if( !m_arNpc.PutData( pNpc->m_sNid, pNpc) )		{
-						TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
-						delete pNpc;
-						pNpc = NULL;
-						continue;
-					}
-
-					pNpc->SetUid(pNpc->m_fCurX, pNpc->m_fCurZ, pNpc->m_sNid + NPC_BAND);
-
-					// 
-					if (pNpc->GetMap()->m_byRoomEvent > 0 && pNpc->m_byDungeonFamily > 0 )	{
-						pRoom = pNpc->GetMap()->m_arRoomEventArray.GetData( pNpc->m_byDungeonFamily );
-						if (pRoom == NULL)
-						{
-							TRACE("Error : CServerDlg,, Map Room Npc Fail!! : nid=%d, sid=%d, name=%s, fam=%d, zone=%d\n", pNpc->m_sNid+NPC_BAND, pNpc->m_proto->m_sSid, pNpc->m_proto->m_strName, pNpc->m_byDungeonFamily, pNpc->m_bCurZone);
-							AfxMessageBox("Error : CServerDlg,, Map Room Npc Fail!!");
-							delete pNpc;
-							return FALSE;
-						}
-
-						int *pInt = new int;
-						*pInt = pNpc->m_sNid;
-						if( !pRoom->m_mapRoomNpcArray.PutData( pNpc->m_sNid, pInt ) )	{
-							TRACE("### Map - Room Array MonsterNid Fail : nid=%d, sid=%d ###\n", pNpc->m_sNid, pNpc->m_proto->m_sSid);
-						}
-					}
-
-
-					m_TotalNPC = nSerial;
-
-					if(--nNpcCount > 0) continue;
-
-					bMoveNext = TRUE;
-					nNpcCount = 0;
-
-				}
-			}
-
-			nPathSerial = 1;
-			NpcPosSet.MoveNext();
-		}
-
-		NpcPosSet.Close();
-	}
-	catch(CDBException* e)
-	{
-		e->ReportError();
-		e->Delete();
-		
-		return FALSE;
-	}
-		
 	int step = 0, nThreadNumber = 0;
 	CNpcThread* pNpcThread = NULL;
 
@@ -560,10 +341,216 @@ BOOL CServerDlg::CreateNpcThread()
 
 	m_pZoneEventThread = AfxBeginThread(ZoneEventThreadProc, (LPVOID)(this), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
 
-	//TRACE("m_TotalNPC = %d \n", m_TotalNPC);
 	AddToList("[Monster Init - %d, threads=%d]", m_TotalNPC, m_arNpcThread.size());
 	return TRUE;
 }
+
+bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
+{
+	// Avoid allocating stack space for these.
+	// This method will only ever run in the same thread.
+	static int nRandom = 0;
+	static double dbSpeed = 0;
+	static CNpcTable * pNpcTable = NULL;
+	static CRoomEvent* pRoom = NULL;
+	static char szPath[500];
+	static float fRandom_X = 0.0f, fRandom_Z = 0.0f;
+
+	// Unfortunately we cannot simply read what we need directly
+	// into the CNpc instance. We have to resort to creating
+	// copies of the data to allow for the way they handle multiple spawns...
+	// Best we can do, I think, is to avoid allocating it on the stack.
+	static uint8	bNumNpc, bZoneID, bActType, bRegenType, bDungeonFamily, bSpecialType,
+					bTrapNumber, bDirection, bDotCnt;	
+	static uint16	sSid, sRegTime;
+	static uint32	nServerNum;
+	static int32	iLeftX, iTopZ, iRightX, iBottomZ,
+					iLimitMinX, iLimitMinZ, iLimitMaxX, iLimitMaxZ;
+
+	dbCommand->FetchByte(1, bZoneID);
+	dbCommand->FetchUInt16(2, sSid);
+	dbCommand->FetchByte(3, bActType);
+	dbCommand->FetchByte(4, bRegenType);
+	dbCommand->FetchByte(5, bDungeonFamily);
+	dbCommand->FetchByte(6, bSpecialType);
+	dbCommand->FetchByte(7, bTrapNumber);
+	dbCommand->FetchInt32(8, iLeftX);
+	dbCommand->FetchInt32(9, iTopZ);
+	dbCommand->FetchInt32(10, iRightX);
+	dbCommand->FetchInt32(11, iBottomZ);
+	dbCommand->FetchInt32(12, iLimitMinZ);
+	dbCommand->FetchInt32(13, iLimitMinX);
+	dbCommand->FetchInt32(14, iLimitMaxX);
+	dbCommand->FetchInt32(15, iLimitMaxZ);
+	dbCommand->FetchByte(16, bNumNpc);
+	dbCommand->FetchUInt16(17, sRegTime);
+	dbCommand->FetchByte(18, bDirection);
+	dbCommand->FetchByte(19, bDotCnt);
+	dbCommand->FetchString(20, szPath, sizeof(szPath));
+
+	nServerNum = GetServerNumber(bZoneID);
+
+	if (m_byZone == nServerNum || m_byZone == UNIFY_ZONE)
+	{
+		uint8 bPathSerial = 1;
+		for (uint8 j = 0; j < bNumNpc; j++)
+		{
+			CNpc * pNpc = new CNpc();
+
+			pNpc->m_byMoveType = bActType;
+			pNpc->m_byInitMoveType = bActType;
+
+			bool bMonster = (bActType < 100);
+			if (bMonster)
+			{
+				pNpcTable = m_arMonTable.GetData(sSid);
+			}
+			else 
+			{
+				pNpc->m_byMoveType = bActType - 100;
+				//pNpc->m_byInitMoveType = NpcPosSet.m_ActType - 100;
+				pNpcTable = m_arNpcTable.GetData(sSid);
+			}
+
+			if (pNpcTable == NULL)
+			{
+				char buff[128] = {0};
+				sprintf(buff, "NPC %d not found in %s table.", pNpc->m_sNid, bMonster ? "K_MONSTER" : "K_NPC");
+				AfxMessageBox(buff);
+				delete pNpc;
+				return false;
+			}
+
+			pNpc->Load(m_TotalNPC++, pNpcTable);
+			pNpc->m_byBattlePos = 0;
+
+			if (pNpc->m_byMoveType >= 2)
+			{
+				pNpc->m_byBattlePos = myrand(1, 3);
+				pNpc->m_byPathCount = bPathSerial++;
+			}
+
+			pNpc->InitPos();
+			
+			pNpc->m_bCurZone = bZoneID;
+
+			nRandom = abs(iLeftX - iRightX);
+			if (nRandom <= 1)
+				fRandom_X = (float)iLeftX;
+			else
+			{
+				if (iLeftX < iRightX)
+					fRandom_X = (float)myrand(iLeftX, iRightX);
+				else
+					fRandom_X = (float)myrand(iRightX, iLeftX);
+			}
+
+			nRandom = abs(iTopZ - iBottomZ);
+			if (nRandom <= 1)
+				fRandom_Z = (float)iTopZ;
+			else
+			{
+				if (iTopZ < iBottomZ)
+					fRandom_Z = (float)myrand(iTopZ, iBottomZ);
+				else
+					fRandom_Z = (float)myrand(iBottomZ, iTopZ);
+			}
+
+			pNpc->m_fCurX	= fRandom_X;
+			pNpc->m_fCurY	= 0;
+			pNpc->m_fCurZ	= fRandom_Z;
+					
+			pNpc->m_sRegenTime		= sRegTime * 1000;
+			pNpc->m_byDirection		= bDirection;
+			pNpc->m_sMaxPathCount	= bDotCnt;
+
+			if (pNpc->m_byMoveType >= 2 && bDotCnt == 0)
+			{
+				pNpc->m_byMoveType = 1;
+				TRACE("##### ServerDlg:CreateNpcThread - Path type Error :  nid=%d, sid=%d, name=%s, acttype=%d, path=%d #####\n", pNpc->m_sNid+NPC_BAND, pNpc->m_proto->m_sSid, pNpc->m_proto->m_strName, pNpc->m_byMoveType, pNpc->m_sMaxPathCount);
+			}
+
+			if (bDotCnt > 0)
+			{
+				int index = 0;
+				for (int l = 0; l < bDotCnt; l++)
+				{
+					static char szX[5], szZ[5];
+
+					memset(szX, 0, sizeof(szX));
+					memset(szZ, 0, sizeof(szZ));
+
+					GetString(szX, szPath, 4, index);
+					GetString(szZ, szPath, 4, index);
+
+					pNpc->m_PathList.pPattenPos[l].x = atoi(szX);
+					pNpc->m_PathList.pPattenPos[l].z = atoi(szZ);
+				}
+			}
+
+			pNpc->m_tItemPer		= pNpcTable->m_tItemPer;	// NPC Type
+			pNpc->m_tDnPer			= pNpcTable->m_tDnPer;	// NPC Type
+
+			pNpc->m_nInitMinX = pNpc->m_nLimitMinX		= iLeftX;
+			pNpc->m_nInitMinY = pNpc->m_nLimitMinZ		= iTopZ;
+			pNpc->m_nInitMaxX = pNpc->m_nLimitMaxX		= iRightX;
+			pNpc->m_nInitMaxY = pNpc->m_nLimitMaxZ		= iBottomZ;
+
+			// dungeon work
+			pNpc->m_byDungeonFamily	= bDungeonFamily;
+			pNpc->m_bySpecialType	= bSpecialType;
+			pNpc->m_byRegenType		= bRegenType;
+			pNpc->m_byTrapNumber    = bTrapNumber;
+
+			if (pNpc->m_byDungeonFamily > 0)
+			{
+				pNpc->m_nLimitMinX = iLimitMinX;
+				pNpc->m_nLimitMinZ = iLimitMinZ;
+				pNpc->m_nLimitMaxX = iLimitMaxX;
+				pNpc->m_nLimitMaxZ = iLimitMaxZ;
+			}	
+			
+			pNpc->m_pZone = GetZoneByID(pNpc->m_bCurZone);
+			if (pNpc->GetMap() == NULL)
+			{
+				tstring error = string_format(_T("Error: NPC %d in zone %d that does not exist."), sSid, bZoneID);
+				AfxMessageBox(error.c_str());
+				delete pNpc;
+				return false;
+			}
+
+			if (!m_arNpc.PutData(sSid, pNpc))
+			{
+				TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
+				delete pNpc;
+				continue;
+			}
+
+			pNpc->SetUid(pNpc->m_fCurX, pNpc->m_fCurZ, pNpc->m_sNid + NPC_BAND);
+
+			if (pNpc->GetMap()->m_byRoomEvent > 0 && pNpc->m_byDungeonFamily > 0)
+			{
+				pRoom = pNpc->GetMap()->m_arRoomEventArray.GetData(pNpc->m_byDungeonFamily);
+				if (pRoom == NULL)
+				{
+					AfxMessageBox("Error : CServerDlg,, Map Room Npc Fail!!");
+					delete pNpc;
+					return false;
+				}
+
+				// this is why their CSTLMap class sucks.
+				int *pInt = new int;
+				*pInt = pNpc->m_sNid;
+				if (!pRoom->m_mapRoomNpcArray.PutData(pNpc->m_sNid, pInt))
+					TRACE("### Map - Room Array MonsterNid Fail : nid=%d, sid=%d ###\n", 
+					pNpc->m_sNid, pNpc->m_proto->m_sSid);
+			}
+		}
+	}
+
+	return true;
+}
+
 
 //	NPC Thread 들을 작동시킨다.
 void CServerDlg::ResumeAI()

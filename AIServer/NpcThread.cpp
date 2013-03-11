@@ -1,13 +1,5 @@
-// NpcThread.cpp: implementation of the CNpcThread class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
-#include "server.h"
 #include "NpcThread.h"
-#include "Npc.h"
-#include "Extern.h"
-#include "Mmsystem.h"
 #include "ServerDlg.h"
 
 //////////////////////////////////////////////////////////////////////

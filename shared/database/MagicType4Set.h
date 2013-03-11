@@ -9,7 +9,7 @@ public:
 	virtual tstring GetTableName() { return _T("MAGIC_TYPE4"); }
 	virtual tstring GetColumns() { return _T("iNum, BuffType, Radius, Duration, AttackSpeed, Speed, AC, ACPct, Attack, MagicAttack, MaxHP, MaxHPPct, MaxMP, MaxMPPct, HitRate, AvoidRate, Str, Sta, Dex, Intel, Cha, FireR, ColdR, LightningR, MagicR, DiseaseR, PoisonR, ExpPct"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		_MAGIC_TYPE4 *pData = new _MAGIC_TYPE4;
 
@@ -44,6 +44,8 @@ public:
 
 		if (!m_pMap->PutData(pData->iNum, pData))
 			delete pData;
+
+		return true;
 	}
 
 	Magictype4Array *m_pMap;

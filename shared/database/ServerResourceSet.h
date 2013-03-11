@@ -9,7 +9,7 @@ public:
 	virtual tstring GetTableName() { return _T("SERVER_RESOURCE"); }
 	virtual tstring GetColumns() { return _T("nResourceID, strResource"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		_SERVER_RESOURCE *pData = new _SERVER_RESOURCE;
 
@@ -18,6 +18,8 @@ public:
 
 		if (!m_pMap->PutData(pData->nResourceID, pData))
 			delete pData;
+
+		return true;
 	}
 
 	ServerResourceArray *m_pMap;

@@ -9,7 +9,7 @@ public:
 	virtual tstring GetTableName() { return _T("MAGIC_TYPE6"); }
 	virtual tstring GetColumns() { return _T("iNum, Size, TransformID, Duration, MaxHp, MaxMp, Speed, AttackSpeed, TotalHit, TotalAc, TotalHitRate, TotalEvasionRate, TotalFireR, TotalColdR, TotalLightningR, TotalMagicR, TotalDiseaseR, TotalPoisonR, Class, UserSkillUse, NeedItem, SkillSuccessRate, MonsterFriendly"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		_MAGIC_TYPE6 *pData = new _MAGIC_TYPE6;
 
@@ -39,6 +39,8 @@ public:
 
 		if (!m_pMap->PutData(pData->iNum, pData))
 			delete pData;
+
+		return true;
 	}
 
 	Magictype6Array *m_pMap;

@@ -9,7 +9,7 @@ public:
 	virtual tstring GetTableName() { return _T("KNIGHTS_CAPE"); }
 	virtual tstring GetColumns() { return _T("sCapeIndex, nBuyPrice, byGrade, nBuyLoyalty, byRanking"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		_KNIGHTS_CAPE *pData = new _KNIGHTS_CAPE;
 
@@ -24,6 +24,8 @@ public:
 
 		if (!m_pMap->PutData(pData->sCapeIndex, pData))
 			delete pData;
+
+		return true;
 	}
 
 	KnightsCapeArray *m_pMap;

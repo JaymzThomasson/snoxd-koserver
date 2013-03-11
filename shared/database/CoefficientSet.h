@@ -9,7 +9,7 @@ public:
 	virtual tstring GetTableName() { return _T("COEFFICIENT"); }
 	virtual tstring GetColumns() { return _T("sClass, ShortSword, Sword, Axe, Club, Spear, Pole, Staff, Bow, Hp, Mp, Sp, Ac, Hitrate, Evasionrate"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		_CLASS_COEFFICIENT *pData = new _CLASS_COEFFICIENT;
 
@@ -31,6 +31,8 @@ public:
 
 		if (!m_pMap->PutData(pData->sClassNum, pData))
 			delete pData;
+
+		return true;
 	}
 
 	CoefficientArray *m_pMap;

@@ -9,7 +9,7 @@ public:
 	virtual tstring GetTableName() { return _T("MAKE_DEFENSIVE"); }
 	virtual tstring GetColumns() { return _T("byLevel, sClass_1, sClass_2, sClass_3, sClass_4, sClass_5, sClass_6, sClass_7"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		_MAKE_WEAPON *pData = new _MAKE_WEAPON;
 
@@ -20,6 +20,8 @@ public:
 
 		if (!m_pMap->PutData(pData->byIndex, pData))
 			delete pData;
+
+		return true;
 	}
 
 	MakeWeaponItemTableArray *m_pMap;

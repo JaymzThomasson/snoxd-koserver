@@ -16,7 +16,7 @@ public:
 	virtual tstring GetColumns() { return _T("ServerNo, ZoneNo, strZoneName, InitX, InitZ, InitY, Type, isAttackZone"); }
 #endif
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		_ZONE_INFO * pData = new _ZONE_INFO;
 		
@@ -44,6 +44,8 @@ public:
 			delete pData;
 		else
 			m_pMap->insert(std::make_pair(pData->m_nZoneNumber, pData));
+
+		return true;
 	}
 
 	ZoneInfoMap * m_pMap;

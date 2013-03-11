@@ -58,7 +58,7 @@ public:
 	virtual tstring GetTableName() { return _T("START_POSITION"); }
 	virtual tstring GetColumns() { return _T("ZoneID, sKarusX, sKarusZ, sElmoradX, sElmoradZ, sKarusGateX, sKarusGateZ, sElmoGateX, sElmoGateZ, bRangeX, bRangeZ"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		_START_POSITION *pData = new _START_POSITION;
 
@@ -76,6 +76,8 @@ public:
 
 		if (!m_pMap->PutData(pData->ZoneID, pData))
 			delete pData;
+
+		return true;
 	}
 
 	StartPositionArray *m_pMap;

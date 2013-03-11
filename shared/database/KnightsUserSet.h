@@ -9,7 +9,7 @@ public:
 	virtual tstring GetTableName() { return _T("KNIGHTS_USER"); }
 	virtual tstring GetColumns() { return _T("sIDNum, strUserID"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		uint16 sIDNum;
 		char strUserID[MAX_ID_SIZE+1];
@@ -20,5 +20,7 @@ public:
 		TRIM_RIGHT(strUserID);
 
 		g_pMain->m_KnightsManager.AddKnightsUser(sIDNum, strUserID);
+
+		return true;
 	}
 };

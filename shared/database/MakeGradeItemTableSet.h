@@ -9,7 +9,7 @@ public:
 	virtual tstring GetTableName() { return _T("MAKE_ITEM_GRADECODE"); }
 	virtual tstring GetColumns() { return _T("byItemIndex, byGrade_1, byGrade_2, byGrade_3, byGrade_4, byGrade_5, byGrade_6, byGrade_7, byGrade_8, byGrade_9"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		_MAKE_ITEM_GRADE_CODE *pData = new _MAKE_ITEM_GRADE_CODE;
 
@@ -20,6 +20,8 @@ public:
 
 		if (!m_pMap->PutData(pData->byItemIndex, pData))
 			delete pData;
+
+		return true;
 	}
 
 	MakeGradeItemTableArray *m_pMap;

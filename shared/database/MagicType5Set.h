@@ -9,7 +9,7 @@ public:
 	virtual tstring GetTableName() { return _T("MAGIC_TYPE5"); }
 	virtual tstring GetColumns() { return _T("iNum, Type, ExpRecover, NeedStone"); }
 
-	virtual void Fetch()
+	virtual bool Fetch()
 	{
 		_MAGIC_TYPE5 *pData = new _MAGIC_TYPE5;
 

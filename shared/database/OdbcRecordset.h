@@ -9,7 +9,7 @@ public:
 	virtual tstring GetColumns() = 0;
 
 	TCHAR * Read(bool bAllowEmptyTable = false);
-	virtual void Fetch() = 0;
+	virtual bool Fetch() = 0;
 
 	virtual ~OdbcRecordset();
 
