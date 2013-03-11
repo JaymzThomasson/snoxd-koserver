@@ -6,7 +6,9 @@ public:
 	CKnightsSet(OdbcConnection * dbConnection, KnightsArray * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT IDNum, Flag, Nation, Ranking, IDName, Members, Chief, ViceChief_1, ViceChief_2, ViceChief_3, Gold, Domination, Points, Mark, sMarkVersion, sMarkLen, sCape, bCapeR, bCapeG, bCapeB, sAllianceKnights FROM KNIGHTS"); }
+	virtual tstring GetTableName() { return _T("KNIGHTS"); }
+	virtual tstring GetColumns() { return _T("IDNum, Flag, Nation, Ranking, IDName, Members, Chief, ViceChief_1, ViceChief_2, ViceChief_3, Gold, Domination, Points, Mark, sMarkVersion, sMarkLen, sCape, bCapeR, bCapeG, bCapeB, sAllianceKnights"); }
+
 	virtual void Fetch()
 	{
 		CKnights *pData = new CKnights();

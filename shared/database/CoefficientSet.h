@@ -6,7 +6,9 @@ public:
 	CCoefficientSet(OdbcConnection * dbConnection, CoefficientArray * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT sClass, ShortSword, Sword, Axe, Club, Spear, Pole, Staff, Bow, Hp, Mp, Sp, Ac, Hitrate, Evasionrate FROM COEFFICIENT"); }
+	virtual tstring GetTableName() { return _T("COEFFICIENT"); }
+	virtual tstring GetColumns() { return _T("sClass, ShortSword, Sword, Axe, Club, Spear, Pole, Staff, Bow, Hp, Mp, Sp, Ac, Hitrate, Evasionrate"); }
+
 	virtual void Fetch()
 	{
 		_CLASS_COEFFICIENT *pData = new _CLASS_COEFFICIENT;

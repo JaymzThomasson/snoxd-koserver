@@ -55,7 +55,9 @@ public:
 	CStartPositionSet(OdbcConnection * dbConnection, StartPositionArray * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT ZoneID, sKarusX, sKarusZ, sElmoradX, sElmoradZ, sKarusGateX, sKarusGateZ, sElmoGateX, sElmoGateZ, bRangeX, bRangeZ FROM START_POSITION"); }
+	virtual tstring GetTableName() { return _T("START_POSITION"); }
+	virtual tstring GetColumns() { return _T("ZoneID, sKarusX, sKarusZ, sElmoradX, sElmoradZ, sKarusGateX, sKarusGateZ, sElmoGateX, sElmoGateZ, bRangeX, bRangeZ"); }
+
 	virtual void Fetch()
 	{
 		_START_POSITION *pData = new _START_POSITION;

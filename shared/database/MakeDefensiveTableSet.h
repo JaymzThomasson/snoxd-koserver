@@ -6,7 +6,9 @@ public:
 	CMakeDefensiveTableSet(OdbcConnection * dbConnection, MakeWeaponItemTableArray * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT byLevel, sClass_1, sClass_2, sClass_3, sClass_4, sClass_5, sClass_6, sClass_7 FROM MAKE_DEFENSIVE"); }
+	virtual tstring GetTableName() { return _T("MAKE_DEFENSIVE"); }
+	virtual tstring GetColumns() { return _T("byLevel, sClass_1, sClass_2, sClass_3, sClass_4, sClass_5, sClass_6, sClass_7"); }
+
 	virtual void Fetch()
 	{
 		_MAKE_WEAPON *pData = new _MAKE_WEAPON;

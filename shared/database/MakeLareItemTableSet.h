@@ -6,7 +6,9 @@ public:
 	CMakeLareItemTableSet(OdbcConnection * dbConnection, MakeLareItemTableArray * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT byLevelGrade, sLareItem, sMagicItem, sGereralItem FROM MAKE_ITEM_LARECODE"); }
+	virtual tstring GetTableName() { return _T("MAKE_ITEM_LARECODE"); }
+	virtual tstring GetColumns() { return _T("byLevelGrade, sLareItem, sMagicItem, sGereralItem"); }
+
 	virtual void Fetch()
 	{
 		_MAKE_ITEM_LARE_CODE *pData = new _MAKE_ITEM_LARE_CODE;

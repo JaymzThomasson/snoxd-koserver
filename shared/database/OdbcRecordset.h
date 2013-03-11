@@ -5,7 +5,9 @@ class OdbcRecordset
 public:
 	OdbcRecordset(OdbcConnection * dbConnection);
 
-	virtual tstring GetSQL() = 0;
+	virtual tstring GetTableName() = 0;
+	virtual tstring GetColumns() = 0;
+
 	TCHAR * Read(bool bAllowEmptyTable = false);
 	virtual void Fetch() = 0;
 

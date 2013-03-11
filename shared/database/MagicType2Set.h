@@ -6,7 +6,9 @@ public:
 	CMagicType2Set(OdbcConnection * dbConnection, Magictype2Array * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT iNum, HitType, HitRate, AddDamage, AddRange, NeedArrow FROM MAGIC_TYPE2"); }
+	virtual tstring GetTableName() { return _T("MAGIC_TYPE2"); }
+	virtual tstring GetColumns() { return _T("iNum, HitType, HitRate, AddDamage, AddRange, NeedArrow"); }
+
 	virtual void Fetch()
 	{
 		_MAGIC_TYPE2 *pData = new _MAGIC_TYPE2;

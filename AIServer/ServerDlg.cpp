@@ -296,100 +296,10 @@ BOOL CServerDlg::GetNpcItemTable()
 	LOAD_TABLE(CNpcItemSet, &m_GameDB, &m_NpcItemArray, false);
 }
 
-//	Monster Table Data 를 읽는다.
 BOOL CServerDlg::GetNpcTableData(bool bNpcData /*= true*/)
 {
-	CNpcTableSet NpcTableSet;
-	NpcTableArray *pMap = (bNpcData ? &m_arNpcTable : &m_arMonTable);	
-	
-	try 
-	{
-		if(NpcTableSet.IsOpen()) NpcTableSet.Close();
-		
-		if(!NpcTableSet.Open(-1, bNpcData ? _T("K_NPC") : _T("K_MONSTER")))
-		{
-			AfxMessageBox(_T("MONSTER DB Open Fail!"));
-			return FALSE;
-		}
-		if(NpcTableSet.IsBOF()) 
-		{
-			AfxMessageBox(_T("MONSTER DB Empty!"));
-			return FALSE;
-		}
-
-		while(!NpcTableSet.IsEOF())
-		{
-			CNpcTable* Npc = new CNpcTable;
-			CString tmpNpcName;
-			Npc->Initialize();
-			
-			Npc->m_sSid			= NpcTableSet.m_sSid;		// MONSTER(NPC) Serial ID
-			_tcscpy(Npc->m_strName, NpcTableSet.m_strName);	// MONSTER(NPC) Name
-			Npc->m_sPid = NpcTableSet.m_sPid;				// MONSTER(NPC) Picture ID
-			Npc->m_sSize = NpcTableSet.m_sSize;				// MONSTER(NPC) 캐릭 크기 비율
-			Npc->m_iWeapon_1 = NpcTableSet.m_iWeapon1;			// 착용무기
-			Npc->m_iWeapon_2 = NpcTableSet.m_iWeapon2;			// 착용무기
-			Npc->m_byGroup = NpcTableSet.m_byGroup;			// 소속집단
-			Npc->m_byActType = NpcTableSet.m_byActType;		// 행동패턴
-			Npc->m_byRank = NpcTableSet.m_byRank;			// 작위
-			Npc->m_byTitle = NpcTableSet.m_byTitle;			// 지위
-			Npc->m_iSellingGroup = NpcTableSet.m_iSellingGroup;		// item group
-			Npc->m_sLevel = NpcTableSet.m_sLevel;			// level
-			Npc->m_iExp = NpcTableSet.m_iExp;				// 경험치
-			Npc->m_iLoyalty = NpcTableSet.m_iLoyalty;		// loyalty
-			Npc->m_iMaxHP = NpcTableSet.m_iHpPoint;	// 최대 HP
-			Npc->m_sMaxMP = NpcTableSet.m_sMpPoint;	// 최대 MP
-			Npc->m_sAttack = NpcTableSet.m_sAtk;			// 공격값
-			Npc->m_sDefense = NpcTableSet.m_sAc;			// 방어값
-			Npc->m_sHitRate = NpcTableSet.m_sHitRate;		// 타격성공률
-			Npc->m_sEvadeRate = NpcTableSet.m_sEvadeRate;	// 회피성공률
-			Npc->m_sDamage = NpcTableSet.m_sDamage;			// 기본 데미지
-			Npc->m_sAttackDelay = NpcTableSet.m_sAttackDelay;	// 공격딜레이
-			Npc->m_bySpeed_1 = NpcTableSet.m_bySpeed1;				// 이동속도	(걷기)
-			Npc->m_bySpeed_2 = NpcTableSet.m_bySpeed2;				// 이동속도	(뛰기)
-			Npc->m_sStandTime = NpcTableSet.m_sStandtime;		// 서있는 시간
-			Npc->m_iMagic1 = NpcTableSet.m_iMagic1;			// 사용마법 1
-			Npc->m_iMagic2 = NpcTableSet.m_iMagic2;			// 사용마법 2
-			Npc->m_iMagic3 = NpcTableSet.m_iMagic3;			// 사용마법 3	
-			Npc->m_byFireR = NpcTableSet.m_byFireR;			// 화염 저항력
-			Npc->m_byColdR = NpcTableSet.m_byColdR;			// 냉기 저항력
-			Npc->m_byLightningR = NpcTableSet.m_byLightningR;			// 전기 저항력
-			Npc->m_byMagicR = NpcTableSet.m_byMagicR;			// 마법 저항력
-			Npc->m_byDiseaseR = NpcTableSet.m_byDiseaseR;		// 저주 저항력
-			Npc->m_byPoisonR = NpcTableSet.m_byPoisonR;		// 독 저항력
-			Npc->m_byLightR = NpcTableSet.m_byLightR;		// 빛 저항력
-			Npc->m_fBulk =  (float)(((double)NpcTableSet.m_sBulk / 100) * ((double)NpcTableSet.m_sSize / 100));
-			Npc->m_bySearchRange = NpcTableSet.m_bySearchRange;	// 적 탐지 범위
-			Npc->m_byAttackRange = NpcTableSet.m_byAttackRange;	// 사정거리
-			Npc->m_byTracingRange = NpcTableSet.m_byTracingRange;	// 추격거리
-			Npc->m_tNpcType = NpcTableSet.m_byType;			// NPC Type
-								// 0 : Monster
-								// 1 : Normal NPC
-			
-			Npc->m_byFamilyType = NpcTableSet.m_byFamily;		// 몹들사이에서 가족관계를 결정한다.
-
-			Npc->m_iMoney = NpcTableSet.m_iMoney;			// 떨어지는 돈
-			Npc->m_iItem = NpcTableSet.m_sItem;			// 떨어지는 아이템
-			Npc->m_byDirectAttack = NpcTableSet.m_byDirectAttack;
-			Npc->m_byMagicAttack = NpcTableSet.m_byMagicAttack;
-			
-			if (!pMap->PutData(Npc->m_sSid, Npc))
-				delete Npc;
-
-			NpcTableSet.MoveNext();
-		}
-
-		NpcTableSet.Close();
-	}
-	catch(CDBException* e)
-	{
-		e->ReportError();
-		e->Delete();
-
-		return FALSE;
-	}
-
-	return TRUE;
+	if (bNpcData)	{ LOAD_TABLE(CNpcTableSet, &m_GameDB, &m_arNpcTable, false); }
+	else			{ LOAD_TABLE(CMonTableSet, &m_GameDB, &m_arMonTable, false); }
 }
 
 //	Npc Thread 를 만든다.

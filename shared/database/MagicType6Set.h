@@ -6,7 +6,9 @@ public:
 	CMagicType6Set(OdbcConnection * dbConnection, Magictype6Array * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT iNum, Size, TransformID, Duration, MaxHp, MaxMp, Speed, AttackSpeed, TotalHit, TotalAc, TotalHitRate, TotalEvasionRate, TotalFireR, TotalColdR, TotalLightningR, TotalMagicR, TotalDiseaseR, TotalPoisonR, Class, UserSkillUse, NeedItem, SkillSuccessRate, MonsterFriendly FROM MAGIC_TYPE6"); }
+	virtual tstring GetTableName() { return _T("MAGIC_TYPE6"); }
+	virtual tstring GetColumns() { return _T("iNum, Size, TransformID, Duration, MaxHp, MaxMp, Speed, AttackSpeed, TotalHit, TotalAc, TotalHitRate, TotalEvasionRate, TotalFireR, TotalColdR, TotalLightningR, TotalMagicR, TotalDiseaseR, TotalPoisonR, Class, UserSkillUse, NeedItem, SkillSuccessRate, MonsterFriendly"); }
+
 	virtual void Fetch()
 	{
 		_MAGIC_TYPE6 *pData = new _MAGIC_TYPE6;

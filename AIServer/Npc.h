@@ -209,13 +209,13 @@ public:
 	float   m_fSpeed_1;			// 기본 이동 타입		(1초에 갈 수 있는 거리)
 	float   m_fSpeed_2;			// 뛰는 이동 타입..		(1초에 갈 수 있는 거리)
 	short	m_sStandTime;		// 서있는 시간
-	BYTE	m_byFireR;			// 화염 저항력
-	BYTE	m_byColdR;			// 냉기 저항력
-	BYTE	m_byLightningR;		// 전기 저항력
-	BYTE	m_byMagicR;			// 마법 저항력
-	BYTE	m_byDiseaseR;		// 저주 저항력
-	BYTE	m_byPoisonR;		// 독 저항력
-	BYTE	m_byLightR;			// 빛 저항력
+	uint16	m_byFireR;			// 화염 저항력
+	uint16	m_byColdR;			// 냉기 저항력
+	uint16	m_byLightningR;		// 전기 저항력
+	uint16	m_byMagicR;			// 마법 저항력
+	uint16	m_byDiseaseR;		// 저주 저항력
+	uint16	m_byPoisonR;		// 독 저항력
+	uint16	m_byLightR;			// 빛 저항력
 	BYTE	m_bySearchRange;	// 적 탐지 범위
 	BYTE	m_byAttackRange;	// 사정거리
 	BYTE	m_byTracingRange;	// 추격 거리

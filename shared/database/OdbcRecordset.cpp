@@ -10,8 +10,14 @@ OdbcRecordset::OdbcRecordset(OdbcConnection * dbConnection) : _dbConnection(dbCo
 
 TCHAR * OdbcRecordset::Read(bool bAllowEmptyTable /*= false*/)
 {
+	// Build statement
+	tstring szSQL = _T("SELECT ");
+	szSQL += GetColumns();
+	szSQL += _T("FROM ");
+	szSQL += GetTableName();
+
 	// Attempt to execute the statement.
-	if (!_dbCommand->Execute(GetSQL()))
+	if (!_dbCommand->Execute(szSQL))
 		return _dbCommand->GetError();
 
 	// Does the table have any rows?

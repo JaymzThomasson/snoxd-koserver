@@ -6,7 +6,9 @@ public:
 	CServerResourceSet(OdbcConnection * dbConnection, ServerResourceArray * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT nResourceID, strResource FROM SERVER_RESOURCE"); }
+	virtual tstring GetTableName() { return _T("SERVER_RESOURCE"); }
+	virtual tstring GetColumns() { return _T("nResourceID, strResource"); }
+
 	virtual void Fetch()
 	{
 		_SERVER_RESOURCE *pData = new _SERVER_RESOURCE;

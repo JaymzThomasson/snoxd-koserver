@@ -6,7 +6,9 @@ public:
 	CMagicType5Set(OdbcConnection * dbConnection, Magictype5Array * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT iNum, Type, ExpRecover, NeedStone FROM MAGIC_TYPE5"); }
+	virtual tstring GetTableName() { return _T("MAGIC_TYPE5"); }
+	virtual tstring GetColumns() { return _T("iNum, Type, ExpRecover, NeedStone"); }
+
 	virtual void Fetch()
 	{
 		_MAGIC_TYPE5 *pData = new _MAGIC_TYPE5;

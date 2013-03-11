@@ -6,7 +6,9 @@ public:
 	CKnightsCapeSet(OdbcConnection * dbConnection, KnightsCapeArray * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT sCapeIndex, nBuyPrice, byGrade, nBuyLoyalty, byRanking FROM KNIGHTS_CAPE"); }
+	virtual tstring GetTableName() { return _T("KNIGHTS_CAPE"); }
+	virtual tstring GetColumns() { return _T("sCapeIndex, nBuyPrice, byGrade, nBuyLoyalty, byRanking"); }
+
 	virtual void Fetch()
 	{
 		_KNIGHTS_CAPE *pData = new _KNIGHTS_CAPE;

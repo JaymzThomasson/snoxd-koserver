@@ -77,9 +77,6 @@
     <ClCompile Include="..\shared\database\NpcPosSet.cpp">
       <Filter>Database</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\database\NpcTableSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
     <ClCompile Include="GameSocket.cpp">
       <Filter>shared\Networking</Filter>
     </ClCompile>

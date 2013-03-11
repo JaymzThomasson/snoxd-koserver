@@ -6,7 +6,9 @@ public:
 	CMagicType7Set(OdbcConnection * dbConnection, Magictype7Array * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT nIndex, byValidGroup, byNatoinChange, shMonsterNum, byTargetChange, byStateChange, byRadius, shHitrate, shDuration, shDamage, byVisoin, nNeedItem FROM MAGIC_TYPE7"); }
+	virtual tstring GetTableName() { return _T("MAGIC_TYPE7"); }
+	virtual tstring GetColumns() { return _T("nIndex, byValidGroup, byNatoinChange, shMonsterNum, byTargetChange, byStateChange, byRadius, shHitrate, shDuration, shDamage, byVisoin, nNeedItem"); }
+
 	virtual void Fetch()
 	{
 		_MAGIC_TYPE7 *pData = new _MAGIC_TYPE7;

@@ -6,7 +6,9 @@ public:
 	CMagicType3Set(OdbcConnection * dbConnection, Magictype3Array * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT iNum, DirectType, FirstDamage, EndDamage, TimeDamage, Duration, Attribute, Radius, Angle FROM MAGIC_TYPE3"); }
+	virtual tstring GetTableName() { return _T("MAGIC_TYPE3"); }
+	virtual tstring GetColumns() { return _T("iNum, DirectType, FirstDamage, EndDamage, TimeDamage, Duration, Attribute, Radius, Angle"); }
+
 	virtual void Fetch()
 	{
 		_MAGIC_TYPE3 *pData = new _MAGIC_TYPE3;

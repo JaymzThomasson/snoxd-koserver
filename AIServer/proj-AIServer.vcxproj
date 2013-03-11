@@ -152,7 +152,6 @@
     <ClCompile Include="..\shared\CircularBuffer.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
     <ClCompile Include="..\shared\database\NpcPosSet.cpp" />
-    <ClCompile Include="..\shared\database\NpcTableSet.cpp" />
     <ClCompile Include="..\shared\database\OdbcCommand.cpp" />
     <ClCompile Include="..\shared\database\OdbcConnection.cpp" />
     <ClCompile Include="..\shared\database\OdbcParameter.cpp" />

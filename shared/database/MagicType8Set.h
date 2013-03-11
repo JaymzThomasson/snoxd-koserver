@@ -6,7 +6,9 @@ public:
 	CMagicType8Set(OdbcConnection * dbConnection, Magictype8Array * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT iNum, Target, Radius, WarpType, ExpRecover FROM MAGIC_TYPE8"); }
+	virtual tstring GetTableName() { return _T("MAGIC_TYPE8"); }
+	virtual tstring GetColumns() { return _T("iNum, Target, Radius, WarpType, ExpRecover"); }
+
 	virtual void Fetch()
 	{
 		_MAGIC_TYPE8 *pData = new _MAGIC_TYPE8;

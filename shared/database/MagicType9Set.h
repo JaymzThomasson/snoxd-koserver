@@ -6,7 +6,9 @@ public:
 	CMagicType9Set(OdbcConnection * dbConnection, Magictype9Array * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT iNum, ValidGroup, NationChange, MonsterNum, TargetChange, StateChange, Radius, Hitrate, Duration, AddDamage, Vision, NeedItem FROM MAGIC_TYPE9"); }
+	virtual tstring GetTableName() { return _T("MAGIC_TYPE9"); }
+	virtual tstring GetColumns() { return _T("iNum, ValidGroup, NationChange, MonsterNum, TargetChange, StateChange, Radius, Hitrate, Duration, AddDamage, Vision, NeedItem"); }
+
 	virtual void Fetch()
 	{
 		_MAGIC_TYPE9 *pData = new _MAGIC_TYPE9;

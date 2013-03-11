@@ -6,7 +6,9 @@ public:
 	CMakeGradeItemTableSet(OdbcConnection * dbConnection, MakeGradeItemTableArray * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT byItemIndex, byGrade_1, byGrade_2, byGrade_3, byGrade_4, byGrade_5, byGrade_6, byGrade_7, byGrade_8, byGrade_9 FROM MAKE_ITEM_GRADECODE"); }
+	virtual tstring GetTableName() { return _T("MAKE_ITEM_GRADECODE"); }
+	virtual tstring GetColumns() { return _T("byItemIndex, byGrade_1, byGrade_2, byGrade_3, byGrade_4, byGrade_5, byGrade_6, byGrade_7, byGrade_8, byGrade_9"); }
+
 	virtual void Fetch()
 	{
 		_MAKE_ITEM_GRADE_CODE *pData = new _MAKE_ITEM_GRADE_CODE;

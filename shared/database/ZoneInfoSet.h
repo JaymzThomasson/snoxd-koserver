@@ -8,10 +8,12 @@ public:
 	CZoneInfoSet(OdbcConnection * dbConnection, ZoneInfoMap * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
+	virtual tstring GetTableName() { return _T("ZONE_INFO"); }
+
 #if defined(AI_SERVER)
-	virtual tstring GetSQL() { return _T("SELECT ServerNo, ZoneNo, strZoneName, RoomEvent FROM ZONE_INFO"); }
+	virtual tstring GetColumns() { return _T("ServerNo, ZoneNo, strZoneName, RoomEvent"); }
 #else
-	virtual tstring GetSQL() { return _T("SELECT ServerNo, ZoneNo, strZoneName, InitX, InitZ, InitY, Type, isAttackZome FROM ZONE_INFO"); }
+	virtual tstring GetColumns() { return _T("ServerNo, ZoneNo, strZoneName, InitX, InitZ, InitY, Type, isAttackZome"); }
 #endif
 
 	virtual void Fetch()

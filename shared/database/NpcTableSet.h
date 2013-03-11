@@ -1,73 +1,84 @@
 #pragma once
 
-class CNpcTableSet : public CRecordset
+class CNpcTableSet : public OdbcRecordset
 {
 public:
-	CNpcTableSet(CDatabase* pDatabase = NULL);
-	DECLARE_DYNAMIC(CNpcTableSet)
+	CNpcTableSet(OdbcConnection * dbConnection, NpcTableArray * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) 
+	{
+	}
 
-// Field/Param Data
-	//{{AFX_FIELD(CNpcTableSet, CRecordset)
-	int		m_sSid;
-	CString	m_strName;
-	int		m_sPid;
-	int		m_sSize;
-	long	m_iWeapon1;
-	long	m_iWeapon2;
-	BYTE	m_byGroup;
-	BYTE	m_byActType;
-	BYTE	m_byType;
-	BYTE	m_byFamily;
-	BYTE	m_byRank;
-	BYTE	m_byTitle;
-	long	m_iSellingGroup;
-	int		m_sLevel;
-	long	m_iExp;
-	long	m_iLoyalty;
-	long	m_iHpPoint;
-	int		m_sMpPoint;
-	int		m_sAtk;
-	int		m_sAc;
-	int		m_sHitRate;
-	int		m_sEvadeRate;
-	int		m_sDamage;
-	int		m_sAttackDelay;
-	BYTE	m_bySpeed1;
-	BYTE	m_bySpeed2;
-	int		m_sStandtime;
-	long	m_iMagic1;
-	long	m_iMagic2;
-	long	m_iMagic3;
-	int		m_byFireR;
-	int		m_byColdR;
-	int		m_byLightningR;
-	int		m_byMagicR;
-	int		m_byDiseaseR;
-	int		m_byPoisonR;
-	int		m_byLightR;
-	int		m_sBulk;
-	BYTE	m_byAttackRange;
-	BYTE	m_bySearchRange;
-	BYTE	m_byTracingRange;
-	long	m_iMoney;
-	int		m_sItem;
-	BYTE	m_byDirectAttack;
-	BYTE	m_byMagicAttack;
-	//}}AFX_FIELD
+	virtual tstring GetTableName() { return _T("K_NPC"); }
+	virtual tstring GetColumns() { return _T("sSid, strName, sPid, sSize, iWeapon1, iWeapon2, byGroup, byActType, byType, byFamily, byRank, byTitle, iSellingGroup, sLevel, iExp, iLoyalty, iHpPoint, sMpPoint, sAtk, sAc, sHitRate, sEvadeRate, sDamage, sAttackDelay, bySpeed1, bySpeed2, sStandtime, sItem, iMagic1, iMagic2, iMagic3, sFireR, sColdR, sLightningR, sMagicR, sDiseaseR, sPoisonR, sLightR, sBulk, byAttackRange, bySearchRange, byTracingRange, iMoney, byDirectAttack, byMagicAttack"); }
 
+	virtual void Fetch()
+	{
+		CNpcTable *pData = new CNpcTable();
+		uint16 sBulk;
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CNpcTableSet)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+		int i = 1;
+		_dbCommand->FetchUInt16(i++, pData->m_sSid);
+		_dbCommand->FetchString(i++, pData->m_strName, sizeof(pData->m_strName));
+		_dbCommand->FetchUInt16(i++, pData->m_sPid);
+		_dbCommand->FetchUInt16(i++, pData->m_sSize);
+		_dbCommand->FetchUInt32(i++, pData->m_iWeapon_1);
+		_dbCommand->FetchUInt32(i++, pData->m_iWeapon_2);
+		_dbCommand->FetchByte(i++, pData->m_byGroup);
+		_dbCommand->FetchByte(i++, pData->m_byActType);
+		_dbCommand->FetchByte(i++, pData->m_tNpcType);
+		_dbCommand->FetchByte(i++, pData->m_byFamilyType);
+		_dbCommand->FetchByte(i++, pData->m_byRank);
+		_dbCommand->FetchByte(i++, pData->m_byTitle);
+		_dbCommand->FetchUInt32(i++, pData->m_iSellingGroup);
+		_dbCommand->FetchUInt16(i++, pData->m_sLevel);
+		_dbCommand->FetchUInt32(i++, pData->m_iExp);
+		_dbCommand->FetchUInt32(i++, pData->m_iLoyalty);
+		_dbCommand->FetchUInt32(i++, pData->m_iMaxHP);
+		_dbCommand->FetchUInt16(i++, pData->m_sMaxMP);
+		_dbCommand->FetchUInt16(i++, pData->m_sAttack);
+		_dbCommand->FetchUInt16(i++, pData->m_sDefense);
+		_dbCommand->FetchUInt16(i++, pData->m_sHitRate);
+		_dbCommand->FetchUInt16(i++, pData->m_sEvadeRate);
+		_dbCommand->FetchUInt16(i++, pData->m_sDamage);
+		_dbCommand->FetchUInt16(i++, pData->m_sAttackDelay);
+		_dbCommand->FetchByte(i++, pData->m_bySpeed_1);
+		_dbCommand->FetchByte(i++, pData->m_bySpeed_2);
+		_dbCommand->FetchUInt16(i++, pData->m_sStandTime);
+		_dbCommand->FetchUInt16(i++, pData->m_iItem);
+		_dbCommand->FetchUInt32(i++, pData->m_iMagic1);
+		_dbCommand->FetchUInt32(i++, pData->m_iMagic2);
+		_dbCommand->FetchUInt32(i++, pData->m_iMagic3);
+		_dbCommand->FetchUInt16(i++, pData->m_byFireR);
+		_dbCommand->FetchUInt16(i++, pData->m_byColdR);
+		_dbCommand->FetchUInt16(i++, pData->m_byLightningR);
+		_dbCommand->FetchUInt16(i++, pData->m_byMagicR);
+		_dbCommand->FetchUInt16(i++, pData->m_byDiseaseR);
+		_dbCommand->FetchUInt16(i++, pData->m_byPoisonR);
+		_dbCommand->FetchUInt16(i++, pData->m_byLightR);
+		_dbCommand->FetchUInt16(i++, sBulk);
+		_dbCommand->FetchByte(i++, pData->m_byAttackRange);
+		_dbCommand->FetchByte(i++, pData->m_bySearchRange);
+		_dbCommand->FetchByte(i++, pData->m_byTracingRange);
+		_dbCommand->FetchUInt32(i++, pData->m_iMoney);
+		_dbCommand->FetchByte(i++, pData->m_byDirectAttack);
+		_dbCommand->FetchByte(i++, pData->m_byMagicAttack);
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+		pData->m_fBulk =  (float)(((double)sBulk / 100) * ((double)pData->m_sSize / 100));
+			
+		if (!m_pMap->PutData(pData->m_sSid, pData))
+			delete pData;
+	}
+
+	NpcTableArray *m_pMap;
+};
+
+class CMonTableSet : public CNpcTableSet
+{
+public:
+	CMonTableSet(OdbcConnection * dbConnection, NpcTableArray * pMap) 
+		: CNpcTableSet(dbConnection, pMap) 
+	{
+	}
+
+	virtual tstring GetTableName() { return _T("K_MONSTER"); }
 };

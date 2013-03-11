@@ -6,7 +6,9 @@ public:
 	CMagicType4Set(OdbcConnection * dbConnection, Magictype4Array * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT iNum, BuffType, Radius, Duration, AttackSpeed, Speed, AC, ACPct, Attack, MagicAttack, MaxHP, MaxHPPct, MaxMP, MaxMPPct, HitRate, AvoidRate, Str, Sta, Dex, Intel, Cha, FireR, ColdR, LightningR, MagicR, DiseaseR, PoisonR, ExpPct FROM MAGIC_TYPE4"); }
+	virtual tstring GetTableName() { return _T("MAGIC_TYPE4"); }
+	virtual tstring GetColumns() { return _T("iNum, BuffType, Radius, Duration, AttackSpeed, Speed, AC, ACPct, Attack, MagicAttack, MaxHP, MaxHPPct, MaxMP, MaxMPPct, HitRate, AvoidRate, Str, Sta, Dex, Intel, Cha, FireR, ColdR, LightningR, MagicR, DiseaseR, PoisonR, ExpPct"); }
+
 	virtual void Fetch()
 	{
 		_MAGIC_TYPE4 *pData = new _MAGIC_TYPE4;

@@ -6,7 +6,9 @@ public:
 	CKnightsUserSet(OdbcConnection * dbConnection, void * dummy) 
 		: OdbcRecordset(dbConnection) {}
 
-	virtual tstring GetSQL() { return _T("SELECT sIDNum, strUserID FROM KNIGHTS_USER"); }
+	virtual tstring GetTableName() { return _T("KNIGHTS_USER"); }
+	virtual tstring GetColumns() { return _T("sIDNum, strUserID"); }
+
 	virtual void Fetch()
 	{
 		uint16 sIDNum;

@@ -6,7 +6,9 @@ public:
 	CMagicTableSet(OdbcConnection * dbConnection, MagictableArray * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT MagicNum, BeforeAction, TargetAction, SelfEffect, FlyingEffect, TargetEffect, Moral, SkillLevel, Skill, Msp, HP, ItemGroup, UseItem, CastTime, ReCastTime, SuccessRate, Type1, Type2, Range, Etc FROM MAGIC"); }
+	virtual tstring GetTableName() { return _T("MAGIC"); }
+	virtual tstring GetColumns() { return _T("MagicNum, BeforeAction, TargetAction, SelfEffect, FlyingEffect, TargetEffect, Moral, SkillLevel, Skill, Msp, HP, ItemGroup, UseItem, CastTime, ReCastTime, SuccessRate, Type1, Type2, Range, Etc"); }
+
 	virtual void Fetch()
 	{
 		_MAGIC_TABLE *pData = new _MAGIC_TABLE;

@@ -6,7 +6,9 @@ public:
 	CLevelUpTableSet(OdbcConnection * dbConnection, LevelUpArray * pMap) 
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-	virtual tstring GetSQL() { return _T("SELECT [Level], [Exp] FROM LEVEL_UP"); }
+	virtual tstring GetTableName() { return _T("LEVEL_UP"); }
+	virtual tstring GetColumns() { return _T("[Level], [Exp]"); }
+
 	virtual void Fetch()
 	{
 		// TO-DO: This needs to be increased to support bigint
