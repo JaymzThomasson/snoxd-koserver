@@ -340,7 +340,6 @@ BOOL CServerDlg::CreateNpcThread()
 	}
 
 	m_pZoneEventThread = AfxBeginThread(ZoneEventThreadProc, (LPVOID)(this), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-
 	AddToList("[Monster Init - %d, threads=%d]", m_TotalNPC, m_arNpcThread.size());
 	return TRUE;
 }
@@ -521,6 +520,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 
 			if (!m_arNpc.PutData(sSid, pNpc))
 			{
+				--m_TotalNPC;
 				TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
 				delete pNpc;
 				continue;
