@@ -2,7 +2,6 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 #include "AiPacket.h"
-#include "../shared/database/MyRecordSet.h"
 #include "../shared/database/ItemTableSet.h"
 #include "../shared/database/MagicTableSet.h"
 #include "../shared/database/MagicType1Set.h"

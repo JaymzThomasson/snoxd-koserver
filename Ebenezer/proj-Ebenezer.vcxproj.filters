@@ -308,9 +308,6 @@
     <ClInclude Include="..\shared\database\MagicType8Set.h">
       <Filter>Database</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\database\MyRecordSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\database\MagicType6Set.h">
       <Filter>Database</Filter>
     </ClInclude>

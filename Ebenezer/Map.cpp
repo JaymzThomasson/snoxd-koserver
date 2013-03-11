@@ -7,7 +7,6 @@
 #include "Region.h"
 #include "Define.h"
 #include "User.h"
-#include "../shared/database/MyRecordSet.h"
 #include "../shared/database/EventSet.h"
 #include "EbenezerDlg.h"
 
