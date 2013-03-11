@@ -4,7 +4,6 @@
 #include "GameSocket.h"
 #include "math.h"
 
-#include "../shared/database/MyRecordSet.h"
 #include "../shared/database/MagicTableSet.h"
 #include "../shared/database/MagicType1Set.h"
 #include "../shared/database/MagicType2Set.h"
