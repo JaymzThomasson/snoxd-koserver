@@ -211,3 +211,22 @@ struct _WARP_INFO
 	_WARP_INFO() { memset(this, 0, sizeof(_WARP_INFO)); };
 };
 #pragma pack(pop)
+
+struct _ZONE_INFO
+{
+	uint16	m_nServerNo;
+	uint16	m_nZoneNumber;
+	char	m_MapName[_MAX_PATH];
+
+#if defined(AI_SERVER)
+	uint8	m_byRoomEvent;
+#else
+	float m_fInitX, m_fInitY, m_fInitZ;
+	BYTE m_bType, isAttackZone;
+#endif
+
+	_ZONE_INFO()
+	{
+		memset(m_MapName, 0, sizeof(m_MapName));
+	};
+};

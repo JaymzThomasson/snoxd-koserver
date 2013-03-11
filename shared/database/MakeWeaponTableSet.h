@@ -1,56 +1,24 @@
-#if !defined(AFX_MAKEWEAPONTABLESET_H__F80460C1_B7D6_4B77_884F_D225DDF9E9C2__INCLUDED_)
-#define AFX_MAKEWEAPONTABLESET_H__F80460C1_B7D6_4B77_884F_D225DDF9E9C2__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// MakeWeaponTableSet.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CMakeWeaponTableSet recordset
-
-class CMakeWeaponTableSet : public CRecordset
+class CMakeWeaponTableSet : public OdbcRecordset
 {
 public:
-	CMakeWeaponTableSet(CDatabase* pDatabase = NULL);
-	DECLARE_DYNAMIC(CMakeWeaponTableSet)
+	CMakeWeaponTableSet(OdbcConnection * dbConnection, MakeWeaponItemTableArray * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-// Field/Param Data
-	//{{AFX_FIELD(CMakeWeaponTableSet, CRecordset)
-	BYTE	m_byLevel;
-	int		m_sClass_1;
-	int		m_sClass_2;
-	int		m_sClass_3;
-	int		m_sClass_4;
-	int		m_sClass_5;
-	int		m_sClass_6;
-	int		m_sClass_7;
-	int		m_sClass_8;
-	int		m_sClass_9;
-	int		m_sClass_10;
-	int		m_sClass_11;
-	int		m_sClass_12;
-	//}}AFX_FIELD
+	virtual tstring GetSQL() { return _T("SELECT byLevel, sClass_1, sClass_2, sClass_3, sClass_4, sClass_5, sClass_6, sClass_7, sClass_8, sClass_9, sClass_10, sClass_11, sClass_12 FROM MAKE_WEAPON"); }
+	virtual void Fetch()
+	{
+		_MAKE_WEAPON *pData = new _MAKE_WEAPON;
 
+		_dbCommand->FetchByte(1, pData->byIndex);
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMakeWeaponTableSet)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+		for (int i = 1; i <= 12; i++)
+			_dbCommand->FetchUInt16(i+1, pData->sClass[i-1]);
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+		if (!m_pMap->PutData(pData->byIndex, pData))
+			delete pData;
+	}
+
+	MakeWeaponItemTableArray *m_pMap;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_MAKEWEAPONTABLESET_H__F80460C1_B7D6_4B77_884F_D225DDF9E9C2__INCLUDED_)

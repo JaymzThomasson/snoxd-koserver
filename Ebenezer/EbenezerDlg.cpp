@@ -769,11 +769,8 @@ void CEbenezerDlg::Send_AIServer(Packet *pkt)
 
 BOOL CEbenezerDlg::MapFileLoad()
 {
-	map<int, _ZONE_INFO*> zoneMap;
-
-	CZoneInfoSet ZoneInfoSet(&zoneMap, &m_GameDB);
-	if (!ZoneInfoSet.Read())
-		return FALSE;
+	ZoneInfoMap zoneMap;
+	LOAD_TABLE_ERROR_ONLY(CZoneInfoSet, &g_DBAgent.m_GameDB, &zoneMap, false); 
 
 	foreach (itr, zoneMap)
 	{

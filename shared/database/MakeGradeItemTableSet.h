@@ -1,45 +1,24 @@
-#if !defined(AFX_MAKEGRADEITEMTABLESET_H__452304E2_8BD2_42BB_81C8_0F827BB85A12__INCLUDED_)
-#define AFX_MAKEGRADEITEMTABLESET_H__452304E2_8BD2_42BB_81C8_0F827BB85A12__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// MakeGradeItemTableSet.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CMakeGradeItemTableSet recordset
-
-class CMakeGradeItemTableSet : public CRecordset
+class CMakeGradeItemTableSet : public OdbcRecordset
 {
 public:
-	CMakeGradeItemTableSet(CDatabase* pDatabase = NULL);
-	DECLARE_DYNAMIC(CMakeGradeItemTableSet)
+	CMakeGradeItemTableSet(OdbcConnection * dbConnection, MakeGradeItemTableArray * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-// Field/Param Data
-	//{{AFX_FIELD(CMakeGradeItemTableSet, CRecordset)
-	BYTE m_byItemIndex;
-	int	 m_sGrade[9];
-	//}}AFX_FIELD
+	virtual tstring GetSQL() { return _T("SELECT byItemIndex, byGrade_1, byGrade_2, byGrade_3, byGrade_4, byGrade_5, byGrade_6, byGrade_7, byGrade_8, byGrade_9 FROM MAKE_ITEM_GRADECODE"); }
+	virtual void Fetch()
+	{
+		_MAKE_ITEM_GRADE_CODE *pData = new _MAKE_ITEM_GRADE_CODE;
 
+		_dbCommand->FetchByte(1, pData->byItemIndex);
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMakeGradeItemTableSet)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+		for (int i = 1; i <= 9; i++)
+			_dbCommand->FetchUInt16(i+1, pData->sGrade[i-1]);
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+		if (!m_pMap->PutData(pData->byItemIndex, pData))
+			delete pData;
+	}
+
+	MakeGradeItemTableArray *m_pMap;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_MAKEGRADEITEMTABLESET_H__452304E2_8BD2_42BB_81C8_0F827BB85A12__INCLUDED_)

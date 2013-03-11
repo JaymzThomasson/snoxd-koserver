@@ -14,26 +14,23 @@ struct	_PARTY_GROUP
 
 struct _MAKE_WEAPON
 {
-	BYTE	byIndex;		// 몹의 레벨 기준
-	short	sClass[MAX_UPGRADE_WEAPON];		// 1차무기 확률
-	_MAKE_WEAPON() {
-		for(int i=0;i<MAX_UPGRADE_WEAPON;i++)
-			sClass[i] = 0;
-	};
+	uint8	byIndex;
+	uint16	sClass[MAX_UPGRADE_WEAPON];
+	_MAKE_WEAPON() { memset(&sClass, 0, sizeof(sClass)); }
 };
 
 struct _MAKE_ITEM_GRADE_CODE
 {
-	BYTE	byItemIndex;		// item grade
-	short	sGrade[9];
+	uint8	byItemIndex;		// item grade
+	uint16	sGrade[9];
 };	
 
 struct _MAKE_ITEM_LARE_CODE
 {
-	BYTE	byItemLevel;			// item level 판단 
-	short	sLareItem;				// lareitem 나올 확률
-	short	sMagicItem;				// magicitem 나올 확률
-	short	sGereralItem;			// gereralitem 나올 확률
+	uint8	byItemLevel;
+	uint16	sLareItem;
+	uint16	sMagicItem;
+	uint16	sGeneralItem;
 };
 
 #include "../shared/database/structs.h"

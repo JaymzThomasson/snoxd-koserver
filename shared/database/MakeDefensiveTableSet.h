@@ -1,51 +1,24 @@
-#if !defined(AFX_MAKEDEFENSIVETABLESET_H__DB434CB6_7AFE_4FD3_9B74_F26C1E4D0ED4__INCLUDED_)
-#define AFX_MAKEDEFENSIVETABLESET_H__DB434CB6_7AFE_4FD3_9B74_F26C1E4D0ED4__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// MakeDefensiveTableSet.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CMakeDefensiveTableSet recordset
-
-class CMakeDefensiveTableSet : public CRecordset
+class CMakeDefensiveTableSet : public OdbcRecordset
 {
 public:
-	CMakeDefensiveTableSet(CDatabase* pDatabase = NULL);
-	DECLARE_DYNAMIC(CMakeDefensiveTableSet)
+	CMakeDefensiveTableSet(OdbcConnection * dbConnection, MakeWeaponItemTableArray * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
-// Field/Param Data
-	//{{AFX_FIELD(CMakeDefensiveTableSet, CRecordset)
-	BYTE	m_byLevel;
-	int		m_sClass_1;
-	int		m_sClass_2;
-	int		m_sClass_3;
-	int		m_sClass_4;
-	int		m_sClass_5;
-	int		m_sClass_6;
-	int		m_sClass_7;
-	//}}AFX_FIELD
+	virtual tstring GetSQL() { return _T("SELECT byLevel, sClass_1, sClass_2, sClass_3, sClass_4, sClass_5, sClass_6, sClass_7 FROM MAKE_DEFENSIVE"); }
+	virtual void Fetch()
+	{
+		_MAKE_WEAPON *pData = new _MAKE_WEAPON;
 
+		_dbCommand->FetchByte(1, pData->byIndex);
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMakeDefensiveTableSet)
-	public:
-	virtual CString GetDefaultConnect();    // Default connection string
-	virtual CString GetDefaultSQL();    // Default SQL for Recordset
-	virtual void DoFieldExchange(CFieldExchange* pFX);  // RFX support
-	//}}AFX_VIRTUAL
+		for (int i = 1; i <= 7; i++)
+			_dbCommand->FetchUInt16(i+1, pData->sClass[i-1]);
 
-// Implementation
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+		if (!m_pMap->PutData(pData->byIndex, pData))
+			delete pData;
+	}
+
+	MakeWeaponItemTableArray *m_pMap;
 };
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_MAKEDEFENSIVETABLESET_H__DB434CB6_7AFE_4FD3_9B74_F26C1E4D0ED4__INCLUDED_)

@@ -1,63 +1,48 @@
 #pragma once
 
-#define T _ZONE_INFO
-#define MapType	std::map<int, _ZONE_INFO *>
-
-class CZoneInfoSet : public CMyRecordSet<T>
+typedef std::map<uint16, _ZONE_INFO *> ZoneInfoMap;
+	
+class CZoneInfoSet : public OdbcRecordset
 {
 public:
-	CZoneInfoSet(MapType *pMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_map(pMap)
-	{
-#ifdef EBENEZER
-		m_nFields = 8;
+	CZoneInfoSet(OdbcConnection * dbConnection, ZoneInfoMap * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+
+#if defined(AI_SERVER)
+	virtual tstring GetSQL() { return _T("SELECT ServerNo, ZoneNo, strZoneName, RoomEvent FROM ZONE_INFO"); }
 #else
-		m_nFields = 4;
+	virtual tstring GetSQL() { return _T("SELECT ServerNo, ZoneNo, strZoneName, InitX, InitZ, InitY, Type, isAttackZome FROM ZONE_INFO"); }
 #endif
+
+	virtual void Fetch()
+	{
+		_ZONE_INFO * pData = new _ZONE_INFO;
+		
+		int i = 1;
+		_dbCommand->FetchUInt16(i++, pData->m_nServerNo);
+		_dbCommand->FetchUInt16(i++, pData->m_nZoneNumber);
+		_dbCommand->FetchString(i++, pData->m_MapName, sizeof(pData->m_MapName));
+
+#ifdef AI_SERVER
+		_dbCommand->FetchByte(i++, pData->m_byRoomEvent);
+#else
+		uint32 iX = 0, iY = 0, iZ = 0;
+		_dbCommand->FetchUInt32(i++, iX);
+		_dbCommand->FetchUInt32(i++, iZ);
+		_dbCommand->FetchUInt32(i++, iY);
+		_dbCommand->FetchByte(i++, pData->m_bType);
+		_dbCommand->FetchByte(i++, pData->isAttackZone);
+
+		pData->m_fInitX = (float)(iX / 100.0f);
+		pData->m_fInitY = (float)(iY / 100.0f);
+		pData->m_fInitZ = (float)(iZ / 100.0f);
+#endif
+
+		if (m_pMap->find(pData->m_nZoneNumber) != m_pMap->end())
+			delete pData;
+		else
+			m_pMap->insert(std::make_pair(pData->m_nZoneNumber, pData));
 	}
 
-	DECLARE_DYNAMIC(CZoneInfoSet)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[ZONE_INFO]"); };
-
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Int(pFX, _T("[ServerNo]"), m_data.m_nServerNo);
-		RFX_Int(pFX, _T("[ZoneNo]"), m_data.m_nZoneNumber);
-		RFX_Text(pFX, _T("[strZoneName]"), m_data.m_MapName, sizeof(m_data.m_MapName));
-
-#ifdef EBENEZER
-		RFX_Long(pFX, _T("[InitX]"), m_InitX);
-		RFX_Long(pFX, _T("[InitZ]"), m_InitZ);
-		RFX_Long(pFX, _T("[InitY]"), m_InitY);
-		RFX_Byte(pFX, _T("[Type]"), m_data.m_bType);
-		RFX_Byte(pFX, _T("[isAttackZone]"), m_data.isAttackZone);
-#else
-		RFX_Byte(pFX, _T("[RoomEvent]"), m_data.m_byRoomEvent);
-#endif
-	};
-
-	virtual void HandleRead()
-	{
-		T * data = COPY_ROW();
-
-#ifdef EBENEZER
-		data->m_fInitX = (float)(m_InitX / 100.0f);
-		data->m_fInitY = (float)(m_InitY / 100.0f);
-		data->m_fInitZ = (float)(m_InitZ / 100.0f);
-#endif
-
-		if (!m_map->insert(std::make_pair(data->m_nZoneNumber, data)).second)
-			delete data;
-	};
-
-private:
-	MapType * m_map;
-#ifdef EBENEZER
-	long m_InitX, m_InitY, m_InitZ;
-#endif
+	ZoneInfoMap * m_pMap;
 };
-#undef MapType
-#undef T
-IMPLEMENT_DYNAMIC(CZoneInfoSet, CRecordset)

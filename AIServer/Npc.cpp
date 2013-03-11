@@ -5322,7 +5322,7 @@ int  CNpc::GetItemCodeNumber(int level, int item_type)
 	if(pItemData == NULL)	return -1;
 	iItemPercent[0] = pItemData->sLareItem;
 	iItemPercent[1] = pItemData->sMagicItem;
-	iItemPercent[2] = pItemData->sGereralItem;
+	iItemPercent[2] = pItemData->sGeneralItem;
 
 	for(i=0; i<3; i++)	{
 		if(i == 0)	{

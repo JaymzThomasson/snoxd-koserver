@@ -273,155 +273,22 @@ BOOL CServerDlg::GetMagicType4Data()
 
 BOOL CServerDlg::GetMakeWeaponItemTableData()
 {
-	CMakeWeaponTableSet	MakeItemTableSet;
-
-	if( !MakeItemTableSet.Open() ) {
-		AfxMessageBox(_T("GetMakeWeaponItemTableData Open Fail!"));
-		return FALSE;
-	}
-	if(MakeItemTableSet.IsBOF() || MakeItemTableSet.IsEOF()) {
-		AfxMessageBox(_T("GetMakeWeaponItemTableData Empty!"));
-		return FALSE;
-	}
-
-	MakeItemTableSet.MoveFirst();
-
-	while( !MakeItemTableSet.IsEOF() )
-	{
-		_MAKE_WEAPON* pTable = new _MAKE_WEAPON;
-				
-		pTable->byIndex = MakeItemTableSet.m_byLevel;
-		pTable->sClass[0] = MakeItemTableSet.m_sClass_1;
-		pTable->sClass[1] = MakeItemTableSet.m_sClass_2;
-		pTable->sClass[2] = MakeItemTableSet.m_sClass_3;
-		pTable->sClass[3] = MakeItemTableSet.m_sClass_4;
-		pTable->sClass[4] = MakeItemTableSet.m_sClass_5;
-		pTable->sClass[5] = MakeItemTableSet.m_sClass_6;
-		pTable->sClass[6] = MakeItemTableSet.m_sClass_7;
-		pTable->sClass[7] = MakeItemTableSet.m_sClass_8;
-		pTable->sClass[8] = MakeItemTableSet.m_sClass_9;
-		pTable->sClass[9] = MakeItemTableSet.m_sClass_10;
-		pTable->sClass[10] = MakeItemTableSet.m_sClass_11;
-		pTable->sClass[11] = MakeItemTableSet.m_sClass_12;
-
-		if( !m_MakeWeaponItemArray.PutData(pTable->byIndex, pTable) ) {
-			TRACE("GetMakeWeaponItemTableData PutData Fail - %d\n", pTable->byIndex );
-			delete pTable;
-			pTable = NULL;
-		}
-		
-		MakeItemTableSet.MoveNext();
-	}
-	return TRUE;
+	LOAD_TABLE(CMakeWeaponTableSet, &m_GameDB, &m_MakeWeaponItemArray, true);
 }
 
 BOOL CServerDlg::GetMakeDefensiveItemTableData()
 {
-	CMakeDefensiveTableSet	MakeItemTableSet;
-
-	if( !MakeItemTableSet.Open() ) {
-		AfxMessageBox(_T("GetMakeDefensiveItemTableData Open Fail!"));
-		return FALSE;
-	}
-	if(MakeItemTableSet.IsBOF() || MakeItemTableSet.IsEOF()) {
-		AfxMessageBox(_T("GetMakeDefensiveItemTableData Empty!"));
-		return FALSE;
-	}
-
-	MakeItemTableSet.MoveFirst();
-
-	while( !MakeItemTableSet.IsEOF() )
-	{
-		_MAKE_WEAPON* pTable = new _MAKE_WEAPON;
-				
-		pTable->byIndex = MakeItemTableSet.m_byLevel;
-		pTable->sClass[0] = MakeItemTableSet.m_sClass_1;
-		pTable->sClass[1] = MakeItemTableSet.m_sClass_2;
-		pTable->sClass[2] = MakeItemTableSet.m_sClass_3;
-		pTable->sClass[3] = MakeItemTableSet.m_sClass_4;
-		pTable->sClass[4] = MakeItemTableSet.m_sClass_5;
-		pTable->sClass[5] = MakeItemTableSet.m_sClass_6;
-		pTable->sClass[6] = MakeItemTableSet.m_sClass_7;
-
-		if( !m_MakeDefensiveItemArray.PutData(pTable->byIndex, pTable) ) {
-			TRACE("GetMakeDefensiveItemTableData PutData Fail - %d\n", pTable->byIndex );
-			delete pTable;
-			pTable = NULL;
-		}
-		
-		MakeItemTableSet.MoveNext();
-	}
-	return TRUE;
+	LOAD_TABLE(CMakeDefensiveTableSet, &m_GameDB, &m_MakeDefensiveItemArray, true);
 }
 
 BOOL CServerDlg::GetMakeGradeItemTableData()
 {
-	CMakeGradeItemTableSet	MakeItemTableSet;
-
-	if( !MakeItemTableSet.Open() ) {
-		AfxMessageBox(_T("MakeGradeItemTable Open Fail!"));
-		return FALSE;
-	}
-	if(MakeItemTableSet.IsBOF() || MakeItemTableSet.IsEOF()) {
-		AfxMessageBox(_T("MakeGradeItemTable Empty!"));
-		return FALSE;
-	}
-
-	MakeItemTableSet.MoveFirst();
-
-	while( !MakeItemTableSet.IsEOF() )
-	{
-		_MAKE_ITEM_GRADE_CODE* pTable = new _MAKE_ITEM_GRADE_CODE;
-				
-		pTable->byItemIndex = MakeItemTableSet.m_byItemIndex;
-		for (int i = 0; i < 9; i++)
-			pTable->sGrade[i] = MakeItemTableSet.m_sGrade[i];
-
-		if( !m_MakeGradeItemArray.PutData(pTable->byItemIndex, pTable) ) {
-			TRACE("MakeGradeItemTable PutData Fail - %d\n", pTable->byItemIndex );
-			delete pTable;
-			pTable = NULL;
-		}
-		
-		MakeItemTableSet.MoveNext();
-	}
-	return TRUE;
+	LOAD_TABLE(CMakeGradeItemTableSet, &m_GameDB, &m_MakeGradeItemArray, false);
 }
-
 
 BOOL CServerDlg::GetMakeLareItemTableData()
 {
-	CMakeLareItemTableSet	MakeItemTableSet;
-
-	if( !MakeItemTableSet.Open() ) {
-		AfxMessageBox(_T("MakeLareItemTable Open Fail!"));
-		return FALSE;
-	}
-	if(MakeItemTableSet.IsBOF() || MakeItemTableSet.IsEOF()) {
-		AfxMessageBox(_T("MakeLareItemTable Empty!"));
-		return FALSE;
-	}
-
-	MakeItemTableSet.MoveFirst();
-
-	while( !MakeItemTableSet.IsEOF() )
-	{
-		_MAKE_ITEM_LARE_CODE* pTable = new _MAKE_ITEM_LARE_CODE;
-				
-		pTable->byItemLevel = MakeItemTableSet.m_byLevelGrade;
-		pTable->sLareItem = MakeItemTableSet.m_sLareItem;
-		pTable->sMagicItem = MakeItemTableSet.m_sMagicItem;
-		pTable->sGereralItem = MakeItemTableSet.m_sGereralItem;
-
-		if( !m_MakeLareItemArray.PutData(pTable->byItemLevel, pTable) ) {
-			TRACE("MakeItemTable PutData Fail - %d\n", pTable->byItemLevel );
-			delete pTable;
-			pTable = NULL;
-		}
-		
-		MakeItemTableSet.MoveNext();
-	}
-	return TRUE;
+	LOAD_TABLE(CMakeLareItemTableSet, &m_GameDB, &m_MakeLareItemArray, false);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -966,12 +833,10 @@ void CServerDlg::DeleteUserList(int uid)
 
 BOOL CServerDlg::MapFileLoad()
 {
-	map<int, _ZONE_INFO*> zoneMap;
-	CZoneInfoSet ZoneInfoSet(&zoneMap);
+	ZoneInfoMap zoneMap;
 
 	m_sTotalMap = 0;
-	if (!ZoneInfoSet.Read())
-		return FALSE;
+	LOAD_TABLE_ERROR_ONLY(CZoneInfoSet, &m_GameDB, &zoneMap, false); 
 
 	foreach (itr, zoneMap)
 	{

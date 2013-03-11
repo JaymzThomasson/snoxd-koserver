@@ -146,10 +146,6 @@
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp" />
     <ClCompile Include="..\shared\CircularBuffer.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
-    <ClCompile Include="..\shared\database\MakeDefensiveTableSet.cpp" />
-    <ClCompile Include="..\shared\database\MakeGradeItemTableSet.cpp" />
-    <ClCompile Include="..\shared\database\MakeLareItemTableSet.cpp" />
-    <ClCompile Include="..\shared\database\MakeWeaponTableSet.cpp" />
     <ClCompile Include="..\shared\database\NpcItemSet.cpp" />
     <ClCompile Include="..\shared\database\NpcPosSet.cpp" />
     <ClCompile Include="..\shared\database\NpcTableSet.cpp" />

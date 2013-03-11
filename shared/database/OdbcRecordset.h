@@ -22,9 +22,19 @@ protected:
 
 #define LOAD_TABLE(Set, DB, Array, AllowEmptyTable) \
 	_LOAD_TABLE(Set, DB, Array, AllowEmptyTable); \
-	HANDLE_DB_ERROR(_szError ## Set)
+	_HANDLE_DB_ERROR(_szError ## Set)
 
-#define HANDLE_DB_ERROR(err) \
+#define LOAD_TABLE_ERROR_ONLY(Set, DB, Array, AllowEmptyTable) \
+	_LOAD_TABLE(Set, DB, Array, AllowEmptyTable); \
+	_HANDLE_DB_ERROR_ONLY(_szError ## Set)
+
+#define _HANDLE_DB_ERROR(err) \
 	if (err != NULL) \
 		AfxMessageBox(err); \
 	return (err == NULL)
+
+#define _HANDLE_DB_ERROR_ONLY(err) \
+	if (err != NULL) { \
+		AfxMessageBox(err); \
+		return FALSE; \
+	}

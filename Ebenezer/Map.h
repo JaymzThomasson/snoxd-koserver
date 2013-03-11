@@ -1,34 +1,10 @@
-// Map.h: interface for the CMap class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_3DMAP_H__986E02B6_E5A3_43CF_B1D7_A7135551933D__INCLUDED_)
-#define AFX_3DMAP_H__986E02B6_E5A3_43CF_B1D7_A7135551933D__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include "..\N3Base\N3ShapeMgr.h"
 #include "Region.h"
 #include "GameEvent.h"
 #include "../shared/STLMap.h"
 #include <set>
-
-struct _ZONE_INFO
-{
-	int m_nServerNo;
-	int m_nZoneNumber;
-	char m_MapName[_MAX_PATH];
-	float m_fInitX, m_fInitY, m_fInitZ;
-	BYTE m_bType, isAttackZone;
-
-	_ZONE_INFO()
-	{
-		memset(m_MapName, 0x00, sizeof(m_MapName));
-	};
-};
-
 
 typedef CSTLMap <CGameEvent>		EventArray;
 typedef CSTLMap <_OBJECT_EVENT>		ObjectEventArray;
@@ -138,5 +114,3 @@ public:
 
 	SMDFile *m_smdFile;
 };
-
-#endif // !defined(AFX_3DMAP_H__986E02B6_E5A3_43CF_B1D7_A7135551933D__INCLUDED_)
