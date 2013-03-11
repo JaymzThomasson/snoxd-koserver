@@ -13,7 +13,7 @@ public:
 #if defined(AI_SERVER)
 	virtual tstring GetColumns() { return _T("ServerNo, ZoneNo, strZoneName, RoomEvent"); }
 #else
-	virtual tstring GetColumns() { return _T("ServerNo, ZoneNo, strZoneName, InitX, InitZ, InitY, Type, isAttackZome"); }
+	virtual tstring GetColumns() { return _T("ServerNo, ZoneNo, strZoneName, InitX, InitZ, InitY, Type, isAttackZone"); }
 #endif
 
 	virtual void Fetch()
