@@ -1,69 +1,49 @@
 #pragma once
 
-#define T		CKnights
-#define MapType	KnightsArray
-
-class CKnightsSet : public CMyRecordSet<T>
+class CKnightsSet : public OdbcRecordset
 {
 public:
-	CKnightsSet(MapType *stlMap, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_stlMap(stlMap)
+	CKnightsSet(OdbcConnection * dbConnection, KnightsArray * pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+
+	virtual tstring GetSQL() { return _T("SELECT IDNum, Flag, Nation, Ranking, IDName, Members, Chief, ViceChief_1, ViceChief_2, ViceChief_3, Gold, Domination, Points, Mark, sMarkVersion, sMarkLen, sCape, bCapeR, bCapeG, bCapeB, sAllianceKnights FROM KNIGHTS"); }
+	virtual void Fetch()
 	{
-		m_nFields = 21;
+		CKnights *pData = new CKnights();
+
+		_dbCommand->FetchUInt16(1, pData->m_sIndex);
+		_dbCommand->FetchByte(2, pData->m_byFlag);
+		_dbCommand->FetchByte(3, pData->m_byNation);
+		_dbCommand->FetchByte(4, pData->m_byRanking);
+		_dbCommand->FetchString(5, pData->m_strName, sizeof(pData->m_strName));
+		_dbCommand->FetchUInt16(6, pData->m_sMembers);
+		_dbCommand->FetchString(7, pData->m_strChief, sizeof(pData->m_strChief));
+		_dbCommand->FetchString(8, pData->m_strViceChief_1, sizeof(pData->m_strViceChief_1));
+		_dbCommand->FetchString(9, pData->m_strViceChief_2, sizeof(pData->m_strViceChief_2));
+		_dbCommand->FetchString(10, pData->m_strViceChief_3, sizeof(pData->m_strViceChief_3));
+		_dbCommand->FetchUInt64(11, pData->m_nMoney);
+		_dbCommand->FetchUInt16(12, pData->m_sDomination);
+		_dbCommand->FetchUInt32(13, pData->m_nPoints);
+		_dbCommand->FetchBinary(14, pData->m_Image, sizeof(pData->m_Image)); // should this be long binary?
+		_dbCommand->FetchUInt16(15, pData->m_sMarkVersion);
+		_dbCommand->FetchUInt16(16, pData->m_sMarkLen);
+		_dbCommand->FetchUInt16(17, pData->m_sCape);
+		_dbCommand->FetchByte(18, pData->m_bCapeR);
+		_dbCommand->FetchByte(19, pData->m_bCapeG);
+		_dbCommand->FetchByte(20, pData->m_bCapeB);
+		_dbCommand->FetchUInt16(21, pData->m_sAlliance);
+
+		TRIM_RIGHT(pData->m_strName);
+		TRIM_RIGHT(pData->m_strChief);
+		TRIM_RIGHT(pData->m_strViceChief_1);
+		TRIM_RIGHT(pData->m_strViceChief_2);
+		TRIM_RIGHT(pData->m_strViceChief_3);
+
+		pData->m_byGrade = g_pMain->GetKnightsGrade(pData->m_nPoints);
+
+		if (!m_pMap->PutData(pData->m_sIndex, pData))
+			delete pData;
 	}
 
-	DECLARE_DYNAMIC(CKnightsSet)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[KNIGHTS]"); };
-
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Int(pFX, _T("[IDNum]"), m_data.m_sIndex);
-		RFX_Byte(pFX, _T("[Flag]"), m_data.m_byFlag);
-		RFX_Byte(pFX, _T("[Nation]"), m_data.m_byNation);
-		RFX_Byte(pFX, _T("[Ranking]"), m_data.m_byRanking);
-		RFX_Text(pFX, _T("[IDName]"), m_data.m_strName, sizeof(m_data.m_strName));
-		RFX_Int(pFX, _T("[Members]"), m_data.m_sMembers);
-		RFX_Text(pFX, _T("[Chief]"), m_data.m_strChief, sizeof(m_data.m_strChief));
-		RFX_Text(pFX, _T("[ViceChief_1]"), m_data.m_strViceChief_1, sizeof(m_data.m_strViceChief_1));
-		RFX_Text(pFX, _T("[ViceChief_2]"), m_data.m_strViceChief_2, sizeof(m_data.m_strViceChief_2));
-		RFX_Text(pFX, _T("[ViceChief_3]"), m_data.m_strViceChief_3, sizeof(m_data.m_strViceChief_3));
-		RFX_BigInt(pFX, _T("[Gold]"), m_data.m_nMoney);
-		RFX_Int(pFX, _T("[Domination]"), m_data.m_sDomination);
-		RFX_Long(pFX, _T("[Points]"), m_data.m_nPoints);
-		RFX_Binary(pFX, _T("[Mark]"), m_Image, sizeof(m_data.m_Image));	
-		RFX_Int(pFX, _T("[sMarkVersion]"), m_data.m_sMarkVersion);
-		RFX_Int(pFX, _T("[sMarkLen]"), m_data.m_sMarkLen);
-		RFX_Int(pFX, _T("[sCape]"), m_data.m_sCape);
-		RFX_Byte(pFX, _T("[bCapeR]"), m_data.m_bCapeR);
-		RFX_Byte(pFX, _T("[bCapeG]"), m_data.m_bCapeG);
-		RFX_Byte(pFX, _T("[bCapeB]"), m_data.m_bCapeB);
-		RFX_Int(pFX, _T("[sAllianceKnights]"), m_data.m_sAlliance);
-	};
-
-
-	virtual void HandleRead()
-	{
-		T * data = COPY_ROW();
-		memcpy(data->m_Image, m_Image.GetData(), sizeof(data->m_Image));
-
-		TRIM_RIGHT(data->m_strName);
-		TRIM_RIGHT(data->m_strChief);
-		TRIM_RIGHT(data->m_strViceChief_1);
-		TRIM_RIGHT(data->m_strViceChief_2);
-		TRIM_RIGHT(data->m_strViceChief_3);
-
-		data->m_byGrade = g_pMain->GetKnightsGrade(data->m_nPoints);
-
-		if (!m_stlMap->PutData(data->m_sIndex, data))
-			delete data;
-	};
-
-private:
-	MapType * m_stlMap;
-	CByteArray m_Image;
+	KnightsArray *m_pMap;
 };
-#undef MapType
-#undef T
-IMPLEMENT_DYNAMIC(CKnightsSet, CRecordset)

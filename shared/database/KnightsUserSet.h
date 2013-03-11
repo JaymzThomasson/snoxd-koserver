@@ -1,36 +1,22 @@
 #pragma once
 
-#define T		_KNIGHTS_USER
-
-class CKnightsUserSet : public CMyRecordSet<T>
+class CKnightsUserSet : public OdbcRecordset
 {
 public:
-	CKnightsUserSet(CKnightsManager *pManager, CDatabase* pDatabase = NULL)
-		: CMyRecordSet<T>(pDatabase), m_KnightsManager(pManager)
+	CKnightsUserSet(OdbcConnection * dbConnection, void * dummy) 
+		: OdbcRecordset(dbConnection) {}
+
+	virtual tstring GetSQL() { return _T("SELECT sIDNum, strUserID FROM KNIGHTS_USER"); }
+	virtual void Fetch()
 	{
-		m_nFields = 2;
+		uint16 sIDNum;
+		char strUserID[MAX_ID_SIZE+1];
+
+		_dbCommand->FetchUInt16(1, sIDNum);
+		_dbCommand->FetchString(2, strUserID, sizeof(strUserID));
+
+		TRIM_RIGHT(strUserID);
+
+		g_pMain->m_KnightsManager.AddKnightsUser(sIDNum, strUserID);
 	}
-
-	DECLARE_DYNAMIC(CKnightsUserSet)
-	virtual CString GetDefaultSQL() { return _T("[dbo].[KNIGHTS_USER]"); };
-
-	virtual void DoFieldExchange(CFieldExchange* pFX)
-	{
-		pFX->SetFieldType(CFieldExchange::outputColumn);
-
-		RFX_Int(pFX, _T("[sIDNum]"), m_sIDNum);
-		RFX_Text(pFX, _T("[strUserID]"), m_data.strUserName, sizeof(m_data.strUserName));
-	};
-
-	virtual void HandleRead()
-	{
-		TRIM_RIGHT(m_data.strUserName);
-		m_KnightsManager->AddKnightsUser(m_sIDNum, m_data.strUserName);
-	};
-
-private:
-	CKnightsManager * m_KnightsManager;
-	int m_sIDNum;
 };
-#undef T
-IMPLEMENT_DYNAMIC(CKnightsUserSet, CRecordset)

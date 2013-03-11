@@ -1763,14 +1763,12 @@ BOOL CEbenezerDlg::LoadStartPositionTable()
 
 BOOL CEbenezerDlg::LoadAllKnights()
 {
-	CKnightsSet	KnightsSet(&m_KnightsArray, &m_GameDB);
-	return KnightsSet.Read(true);
+	LOAD_TABLE(CKnightsSet, &g_DBAgent.m_GameDB, &m_KnightsArray, true);
 }
 
 BOOL CEbenezerDlg::LoadAllKnightsUserData()
 {
-	CKnightsUserSet KnightsUserSet(&m_KnightsManager, &m_GameDB);
-	return KnightsUserSet.Read(true);
+	LOAD_TABLE(CKnightsUserSet, &g_DBAgent.m_GameDB, NULL, true);
 }
 
 void CEbenezerDlg::CleanupUserRankings()

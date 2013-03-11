@@ -16,25 +16,25 @@ class CUser;
 class CKnights  
 {
 public:
-	int		m_sIndex;
-	BYTE    m_byFlag;			// 1 : Clan, 2 : Knights
-	BYTE	m_byNation;			// nation
-	BYTE	m_byGrade;
-	BYTE	m_byRanking;
+	uint16	m_sIndex;
+	uint8	m_byFlag;			// 1 : Clan, 2 : Knights
+	uint8	m_byNation;			// nation
+	uint8	m_byGrade;
+	uint8	m_byRanking;
 	char	m_strName[MAX_ID_SIZE+1];
-	int		m_sMembers;
+	uint16	m_sMembers;
 	char	m_strChief[MAX_ID_SIZE+1];
 	char	m_strViceChief_1[MAX_ID_SIZE+1];
 	char	m_strViceChief_2[MAX_ID_SIZE+1];
 	char	m_strViceChief_3[MAX_ID_SIZE+1];
-	__int64	m_nMoney;
-	int     m_sDomination;
-	long	m_nPoints;
-	int		m_sMarkVersion, m_sMarkLen;
-	BYTE	m_Image[MAX_KNIGHTS_MARK];
-	int		m_sCape;
-	BYTE	m_bCapeR, m_bCapeG, m_bCapeB;
-	int		m_sAlliance;
+	uint64	m_nMoney;
+	uint16	m_sDomination;
+	uint32	m_nPoints;
+	uint16	m_sMarkVersion, m_sMarkLen;
+	char	m_Image[MAX_KNIGHTS_MARK];
+	uint16	m_sCape;
+	uint8	m_bCapeR, m_bCapeG, m_bCapeB;
+	uint16	m_sAlliance;
 
 	_KNIGHTS_USER m_arKnightsUser[MAX_CLAN_USERS];
 
