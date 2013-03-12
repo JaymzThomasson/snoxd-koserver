@@ -14,9 +14,7 @@
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
 #include <winsock2.h>
-#include <afxsock.h>		// MFC socket extensions
 #include <afxtempl.h>
-#include <afxdb.h>
 
 #include "DBAgent.h"
 #include "DatabaseThread.h"

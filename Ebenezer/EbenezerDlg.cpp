@@ -240,36 +240,6 @@ bool CEbenezerDlg::LoadTables()
 			&& LoadBattleTable());
 }
 
-BOOL CEbenezerDlg::ConnectToDatabase(bool reconnect /*= false*/)
-{
-	char dsn[32], uid[32], pwd[32];
-
-	m_Ini.GetString("ODBC", "GAME_DSN", "KN_online", dsn, sizeof(dsn), false);
-	m_Ini.GetString("ODBC", "GAME_UID", "knight", uid, sizeof(uid), false);
-	m_Ini.GetString("ODBC", "GAME_PWD", "knight", pwd, sizeof(pwd), false);
-
-	CString strConnect;
-	strConnect.Format(_T("DSN=%s;UID=%s;PWD=%s"), dsn, uid, pwd);
-
-	if (reconnect)
-		m_GameDB.Close();
-
-	try
-	{
-		m_GameDB.SetLoginTimeout(10);
-		m_GameDB.Open(_T(""), FALSE, FALSE, (LPCTSTR )strConnect, FALSE);
-	}
-	catch (CDBException* e)
-	{
-		e->Delete();
-	}
-	
-	if (!m_GameDB.IsOpen())
-		return FALSE;
-
-	return TRUE;
-}
-
 void CEbenezerDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
 	CDialog::OnSysCommand(nID, lParam);
@@ -319,9 +289,6 @@ BOOL CEbenezerDlg::DestroyWindow()
 	KickOutAllUsers();
 
 	g_bRunning = false;
-
-	if (m_GameDB.IsOpen())
-		m_GameDB.Close();
 
 	DatabaseThread::Shutdown();
 
@@ -377,7 +344,6 @@ C3DMap * CEbenezerDlg::GetZoneByID(int zoneID)
 	return m_ZoneArray.GetData(zoneID);
 }
 
-// TO-DO: Implement hashmaps for account/character names
 CUser* CEbenezerDlg::GetUserPtr(const char *userid, NameType type)
 {
 	CUser *result = NULL;
@@ -871,13 +837,6 @@ void CEbenezerDlg::GetTimeFromIni()
 	int year=0, month=0, date=0, hour=0, server_count=0, sgroup_count = 0, i=0;
 	char ipkey[20];
 
-	if (!ConnectToDatabase())
-	{
-		AfxMessageBox(_T("Couldn't connect to game database."));
-		return;
-	}
-
-	// Yeah, we're loading this twice. I don't care. The above will be replaced eventually.
 	m_Ini.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, sizeof(m_strGameDSN), false);
 	m_Ini.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, sizeof(m_strGameUID), false);
 	m_Ini.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, sizeof(m_strGamePWD), false);

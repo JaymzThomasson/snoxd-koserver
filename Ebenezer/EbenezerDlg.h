@@ -294,7 +294,6 @@ public:
 
 private:
 	CIni	m_Ini;
-	CDatabase m_GameDB;
 
 	char m_strGameDSN[32], m_strAccountDSN[32];
 	char m_strGameUID[32], m_strAccountUID[32];
@@ -304,7 +303,6 @@ private:
 	static ServerCommandTable s_commandTable;
 
 	bool LoadTables();
-	BOOL ConnectToDatabase(bool reconnect = false);
 
 	void InitServerCommands();
 	void CleanupServerCommands();
