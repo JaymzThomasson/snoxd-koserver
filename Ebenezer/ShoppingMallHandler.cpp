@@ -78,8 +78,7 @@ void CUser::RecvStoreClose(Packet & pkt)
 		SendItemWeight();
 	}
 
-	// not sure if this limit's correct
-	for (int i = 0; i < HAVE_MAX + SLOT_MAX + COSP_MAX + MBAG_MAX; i++)
+	for (int i = 0; i < INVENTORY_TOTAL; i++)
 	{
 		result	<< m_sItemArray[i].nNum
 				<< m_sItemArray[i].sDuration
