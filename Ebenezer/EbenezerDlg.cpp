@@ -190,7 +190,6 @@ BOOL CEbenezerDlg::OnInitDialog()
 	}
 
 	LoadNoticeData();
-	LoadBlockNameList();
 
 	srand((unsigned int)time(NULL));
 
@@ -1304,29 +1303,6 @@ BOOL CEbenezerDlg::LoadNoticeData()
 	}
 
 	file.close();
-	return TRUE;
-}
-
-BOOL CEbenezerDlg::LoadBlockNameList()
-{
-	CString NoticePath = GetProgPath() + "BlockWord.txt"; // we should rename this probably, but let's stick with their name for now
-	CString buff;
-	CStdioFile file;
-
-	if (!file.Open(NoticePath, CFile::modeRead))
-	{
-		TRACE("BlockWord.txt could not be opened.\n");
-		return FALSE;
-	}
-
-	while (file.ReadString(buff))
-	{
-		buff.MakeUpper();
-		m_BlockNameArray.push_back(buff);
-	}
-
-	file.Close();
-
 	return TRUE;
 }
 

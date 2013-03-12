@@ -55,9 +55,7 @@ void CUser::NewCharToAgent(Packet & pkt)
 
 	_CLASS_COEFFICIENT* p_TableCoefficient = g_pMain->m_CoefficientArray.GetData(sClass);
 
-	if (!IsValidName(strUserID.c_str()))
-		errorCode = NEWCHAR_INVALID_NAME;
-	else if (bCharIndex > 2)
+	if (bCharIndex > 2)
 		errorCode = NEWCHAR_NO_MORE;
 	else if (p_TableCoefficient == NULL
 			|| (str + sta + dex + intel + cha) > 300) 

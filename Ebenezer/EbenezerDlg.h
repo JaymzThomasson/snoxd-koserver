@@ -50,7 +50,6 @@ typedef CSTLMap <_HOME_INFO>				HomeArray;
 typedef CSTLMap <_START_POSITION>			StartPositionArray;
 typedef	CSTLMap	<EVENT>						QuestArray;
 typedef	CSTLMap	<_SERVER_RESOURCE>			ServerResourceArray;
-typedef std::vector <CString>				BlockNameArray;
 typedef hash_map<string, _USER_RANK *>		UserRankMap; 
 
 class CEbenezerDlg : public CDialog
@@ -99,7 +98,6 @@ public:
 	void Send_KnightsMember(int index, Packet *pkt);
 	int GetAIServerPort();
 	BOOL LoadNoticeData();
-	BOOL LoadBlockNameList();
 	BOOL LoadLevelUpTable();
 	void SetGameTime();
 	void UpdateWeather();
@@ -227,7 +225,6 @@ public:
 	StartPositionArray		m_StartPositionArray;
 	QuestArray				m_Event;
 	ServerResourceArray		m_ServerResourceArray;
-	BlockNameArray			m_BlockNameArray;
 
 	CKnightsManager			m_KnightsManager;
 

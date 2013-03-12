@@ -1428,21 +1428,6 @@ void CUser::BundleOpenReq(Packet & pkt)
 	Send(&result);
 }
 
-BOOL CUser::IsValidName(const char *name)
-{
-	CString upperName = name;
-	if (upperName.GetLength() == 0
-		|| upperName.GetLength() > MAX_ID_SIZE)
-		return FALSE;
-
-	upperName.MakeUpper();
-	foreach (itr, g_pMain->m_BlockNameArray)
-		if (strstr(upperName, *itr))
-			return FALSE;
-
-	return TRUE;
-}
-
 void CUser::ItemGet(Packet & pkt)
 {
 	Packet result(WIZ_ITEM_GET);

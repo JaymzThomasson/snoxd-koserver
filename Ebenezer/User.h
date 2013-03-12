@@ -538,7 +538,6 @@ public:
 	void LoyaltyChange(short tid);
 	void ChangeNP(short sAmount, bool bDistributeToParty = true);
 	void ZoneChange( int zone, float x, float z );
-	BOOL IsValidName(const char* name);
 	void SendTargetHP( BYTE echo, int tid, int damage = 0 );
 	BOOL IsValidSlotPos( _ITEM_TABLE* pTable, int destpos );
 	void SetUserAbility(bool bSendPacket = true);
