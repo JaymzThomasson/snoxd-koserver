@@ -123,9 +123,6 @@
     <ClCompile Include="..\shared\SharedMem.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\database\KnightsRankSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
     <ClCompile Include="CharacterMovementHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>

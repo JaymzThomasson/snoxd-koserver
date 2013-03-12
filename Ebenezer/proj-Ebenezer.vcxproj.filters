@@ -120,9 +120,6 @@
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp">
       <Filter>N3Base</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\database\KnightsRankSet.cpp">
-      <Filter>Database</Filter>
-    </ClCompile>
     <ClCompile Include="CharacterMovementHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>

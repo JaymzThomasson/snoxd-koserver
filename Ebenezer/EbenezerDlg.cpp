@@ -2031,97 +2031,35 @@ void CEbenezerDlg::GetCaptainUserPtr()
 
 BOOL CEbenezerDlg::LoadKnightsRankTable()
 {
-	CKnightsRankSet	KRankSet(&m_GameDB);
-	int nRank = 0, nKnightsIndex = 0, nKaursRank = 0, nElmoRank = 0, nFindKarus = 0, nFindElmo = 0, send_index = 0, temp_index = 0;
-	CUser *pUser = NULL;
-	CKnights* pKnights = NULL;
-	CString strKnightsName;
+	string strKarusCaptainNames, strElmoCaptainNames;
+	LOAD_TABLE_ERROR_ONLY(CKnightsRankSet, &g_DBAgent.m_GameDB, NULL, true);
 
-	char strKarusCaptainName[1024], strElmoCaptainName[1024];		
-	char strKarusCaptain[5][50], strElmoCaptain[5][50];	
+	CKnightsRankSet & pSet = _CKnightsRankSet; // kind ugly generic naming
 
-	if( !KRankSet.Open() ) {
-		ConnectToDatabase(true);
-		if (!KRankSet.Open())
-		{
-			TRACE("### KnightsRankTable Open Fail! ###\n");
-			return TRUE;
-		}
-	}
-	if(KRankSet.IsBOF() || KRankSet.IsEOF()) {
-		TRACE("### KnightsRankTable Empty! ###\n");
-		return TRUE;
-	}
-
-	KRankSet.MoveFirst();
-
-	while( !KRankSet.IsEOF() )	{
-		nRank = KRankSet.m_nRank;
-		nKnightsIndex = KRankSet.m_shIndex;
-		pKnights = GetClanPtr( nKnightsIndex );
-		strKnightsName = KRankSet.m_strName;
-		strKnightsName.TrimRight();
-		if (pKnights == NULL)
-			goto next_row;
-
-		if (pKnights->m_byNation == KARUS)
-		{
-			if(nKaursRank == 5)
-				goto next_row;
-			
-			pUser = GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
-			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
-				goto next_row;
-
-			if( pUser->GetClanID() == nKnightsIndex	)	{
-				sprintf_s( strKarusCaptain[nKaursRank], 50, "[%s][%s]", strKnightsName, pUser->GetName());
-				nFindKarus = 1;
-				nKaursRank++;
-				pUser->ChangeFame(COMMAND_CAPTAIN);
-			}
-		}
-		else if( pKnights->m_byNation == ELMORAD )	{
-			if (nElmoRank == 5)
-				goto next_row;
-			pUser = GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
-			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
-				goto next_row;
-			if( pUser->GetClanID() == nKnightsIndex	)	{
-				sprintf_s( strElmoCaptain[nElmoRank], 50, "[%s][%s]", strKnightsName, pUser->GetName());
-				nFindElmo = 1;
-				nElmoRank++;
-				pUser->ChangeFame(COMMAND_CAPTAIN);
-			}
-		}
-		
-next_row:
-		KRankSet.MoveNext();
-	}
-
-	_snprintf(strKarusCaptainName, sizeof(strKarusCaptainName), GetServerResource(IDS_KARUS_CAPTAIN), strKarusCaptain[0], strKarusCaptain[1], strKarusCaptain[2], strKarusCaptain[3], strKarusCaptain[4]);
-	_snprintf(strElmoCaptainName, sizeof(strElmoCaptainName), GetServerResource(IDS_ELMO_CAPTAIN), strElmoCaptain[0], strElmoCaptain[1], strElmoCaptain[2], strElmoCaptain[3], strElmoCaptain[4]);
-
-	TRACE("LoadKnightsRankTable Success\n");
-	
-	Packet karusCaptain(WIZ_CHAT, uint8(WAR_SYSTEM_CHAT));
-	karusCaptain << int8(1) << int16(-1) << int8(0) << strKarusCaptainName;
-
-	Packet elmoradCaptain(WIZ_CHAT, uint8(WAR_SYSTEM_CHAT));
-	elmoradCaptain << int8(1) << int16(-1) << int8(0) << strElmoCaptainName;
-
-	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
-	foreach (itr, sessMap)
+	if (pSet.nKarusCount > 0)
 	{
-		CUser *pUser = TO_USER(itr->second);
-		if (!pUser->isInGame())
-			continue;
+		Packet result(WIZ_CHAT, uint8(WAR_SYSTEM_CHAT));
+		strKarusCaptainNames = GetServerResource(IDS_KARUS_CAPTAIN);
+		strKarusCaptainNames = string_format(strKarusCaptainNames, 
+			pSet.strKarusCaptain[0], pSet.strKarusCaptain[1], pSet.strKarusCaptain[2], 
+			pSet.strKarusCaptain[3], pSet.strKarusCaptain[4]);
 
-		if (pUser->GetNation() == KARUS)
-			pUser->Send(&karusCaptain);
-		else
-			pUser->Send(&elmoradCaptain);
+		result << int8(1) << int16(-1) << int8(0) << strKarusCaptainNames;
+		Send_All(&result, NULL, KARUS);
 	}
-	s_socketMgr.ReleaseLock();
+
+	if (pSet.nElmoCount > 0)
+	{
+		Packet result(WIZ_CHAT, uint8(WAR_SYSTEM_CHAT));
+		strElmoCaptainNames = GetServerResource(IDS_ELMO_CAPTAIN);
+		strElmoCaptainNames = string_format(strElmoCaptainNames, 
+			pSet.strElmoCaptain[0], pSet.strElmoCaptain[1], pSet.strElmoCaptain[2], 
+			pSet.strElmoCaptain[3], pSet.strElmoCaptain[4]);
+
+		result << int8(1) << int16(-1) << int8(0) << strElmoCaptainNames;
+		Send_All(&result, NULL, ELMORAD);
+	}
+
 	return TRUE;
 }
 

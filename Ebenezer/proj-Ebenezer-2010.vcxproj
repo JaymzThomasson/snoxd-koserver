@@ -147,7 +147,6 @@
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp" />
     <ClCompile Include="..\shared\CircularBuffer.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
-    <ClCompile Include="..\shared\database\KnightsRankSet.cpp" />
     <ClCompile Include="..\shared\database\OdbcCommand.cpp" />
     <ClCompile Include="..\shared\database\OdbcConnection.cpp" />
     <ClCompile Include="..\shared\database\OdbcParameter.cpp" />
