@@ -1636,6 +1636,9 @@ void CUser::StateChange(Packet & pkt)
 			return;
 		break;
 
+	case 7: // invisibility flag, we don't want users overriding server behaviour.
+		return;
+
 	default:
 		TRACE("[SID=%d] StateChange: %s tripped (bType=%d, buff=%d, nBuff=%d) somehow, HOW!?\n", 
 			GetSocketID(), GetName(), bType, buff, nBuff);
