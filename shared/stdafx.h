@@ -39,7 +39,7 @@
 #include <algorithm>
 #include <sstream>
 
-#include "version.h"
+#include "globals.h"
 #ifndef AUJARD
 #	include "KOSocket.h"
 #	include "KOSocketMgr.h"

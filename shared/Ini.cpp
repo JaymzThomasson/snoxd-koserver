@@ -22,6 +22,11 @@ int CIni::GetInt(char* lpAppName, char* lpKeyName, int nDefault)
 	return GetPrivateProfileInt(lpAppName, lpKeyName, nDefault, m_szFileName.c_str());
 }
 
+bool CIni::GetBool(char* lpAppName, char* lpKeyName, bool bDefault)
+{
+	return GetInt(lpAppName, lpKeyName, bDefault) == 1;
+}
+
 void CIni::GetString(char* lpAppName, char* lpKeyName, char* lpDefault, char *lpOutString, int nOutLength, bool bAllowEmptyStrings /*= true */)
 {
 	

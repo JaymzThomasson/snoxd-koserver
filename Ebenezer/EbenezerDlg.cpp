@@ -839,13 +839,13 @@ void CEbenezerDlg::GetTimeFromIni()
 	m_Ini.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, sizeof(m_strGameDSN), false);
 	m_Ini.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, sizeof(m_strGameUID), false);
 	m_Ini.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, sizeof(m_strGamePWD), false);
-	m_bMarsEnabled = m_Ini.GetInt("ODBC", "GAME_MARS", 1) == 1;
+	m_bMarsEnabled = m_Ini.GetBool("ODBC", "GAME_MARS", true);
 
 	m_Ini.GetString("ODBC", "ACCOUNT_DSN", "KN_online", m_strAccountDSN, sizeof(m_strAccountDSN), false);
 	m_Ini.GetString("ODBC", "ACCOUNT_UID", "knight", m_strAccountUID, sizeof(m_strAccountUID), false);
 	m_Ini.GetString("ODBC", "ACCOUNT_PWD", "knight", m_strAccountPWD, sizeof(m_strAccountPWD), false);
 
-	bool bMarsEnabled = m_Ini.GetInt("ODBC", "ACCOUNT_MARS", 1) == 1;
+	bool bMarsEnabled = m_Ini.GetBool("ODBC", "ACCOUNT_MARS", true);
 
 	// Both need to be enabled to use MARS.
 	if (!m_bMarsEnabled || !bMarsEnabled)
@@ -1029,9 +1029,11 @@ void CEbenezerDlg::RegionUserInOutForMe(CUser *pSendUser)
 	pSendUser->SendCompressed(&result);
 }
 
-void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
+void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, uint16 region_x, uint16 region_z, Packet & pkt, uint16 & t_count)
 {
-	if (pMap == NULL || region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
+	if (pMap == NULL 
+		|| region_x > pMap->GetXRegionMax() 
+		|| region_z > pMap->GetZRegionMax())
 		return;
 
 	EnterCriticalSection(&g_region_critical);
@@ -1053,9 +1055,11 @@ void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, int region_x, int region_z, Pac
 	LeaveCriticalSection(&g_region_critical);
 }
 
-void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
+void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, uint16 region_x, uint16 region_z, Packet & pkt, uint16 & t_count)
 {
-	if (pMap == NULL || region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
+	if (pMap == NULL 
+		|| region_x > pMap->GetXRegionMax() 
+		|| region_z > pMap->GetZRegionMax())
 		return;
 
 	EnterCriticalSection(&g_region_critical);
@@ -1096,9 +1100,11 @@ void CEbenezerDlg::MerchantUserInOutForMe(CUser *pSendUser)
 	pSendUser->SendCompressed(&result);
 }
 
-void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
+void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, uint16 region_x, uint16 region_z, Packet & pkt, uint16 & t_count)
 {
-	if (pMap == NULL || region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
+	if (pMap == NULL 
+		|| region_x > pMap->GetXRegionMax() 
+		|| region_z > pMap->GetZRegionMax())
 		return;
 
 	EnterCriticalSection(&g_region_critical);
@@ -1146,11 +1152,12 @@ void CEbenezerDlg::NpcInOutForMe(CUser* pSendUser)
 	pSendUser->SendCompressed(&result);
 }
 
-void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
+void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, uint16 region_x, uint16 region_z, Packet & pkt, uint16 & t_count)
 {
-	if (m_bPointCheckFlag == FALSE
+	if (!m_bPointCheckFlag
 		|| pMap == NULL
-		|| region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
+		|| region_x > pMap->GetXRegionMax() 
+		|| region_z > pMap->GetZRegionMax())
 		return;
 
 	EnterCriticalSection(&g_region_critical);
@@ -1189,11 +1196,12 @@ void CEbenezerDlg::RegionNpcInfoForMe(CUser *pSendUser)
 	pSendUser->SendCompressed(&result);
 }
 
-void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, int region_x, int region_z, Packet & pkt, uint16 & t_count)
+void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, uint16 region_x, uint16 region_z, Packet & pkt, uint16 & t_count)
 {
-	if (m_bPointCheckFlag == FALSE
+	if (!m_bPointCheckFlag
 		|| pMap == NULL
-		|| region_x < 0 || region_z < 0 || region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
+		|| region_x > pMap->GetXRegionMax() 
+		|| region_z > pMap->GetZRegionMax())
 		return;
 
 	EnterCriticalSection(&g_region_critical);
