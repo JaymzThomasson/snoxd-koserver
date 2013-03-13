@@ -1,7 +1,6 @@
 #pragma once
-#pragma once
 
-class CIni  
+class CIni
 {
 private:
 	char m_szFileName[_MAX_PATH];

@@ -49,15 +49,7 @@ void CIni::GetString(char* lpAppName, char* lpKeyName, char* lpDefault, char *lp
 bool CIni::SetPath(const char* lpFilename)
 {
 	char IniPath[_MAX_PATH] = "";
-	char Buf[_MAX_PATH], Path[_MAX_PATH];
-	char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-
-	GetModuleFileName(NULL, Buf, _MAX_PATH);
-	_splitpath_s(Buf, drive, _MAX_DRIVE, dir, _MAX_DIR, fname, _MAX_FNAME, ext, _MAX_EXT);
-	strcpy_s(Path, _MAX_PATH, drive);
-	strcat_s(Path, _MAX_PATH, dir);		
-	strcpy_s(IniPath, _MAX_PATH, Path);
-	wsprintf(IniPath, "%s%s", IniPath, lpFilename);
+	sprintf_s(IniPath, sizeof(IniPath), "%s%s", GetProgPath(), lpFilename);
 	strcpy_s(m_szFileName, _MAX_PATH, IniPath);
 	return true;
 }
