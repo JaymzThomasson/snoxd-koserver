@@ -38,7 +38,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 	case WAREHOUSE_INPUT:
 		pkt >> count;
 		if( itemid == ITEM_GOLD ) {
-			if( m_iBank+count > 2100000000 ) goto fail_return;
+			if( m_iBank+count > COIN_MAX ) goto fail_return;
 			if( m_iGold-count < 0 ) goto fail_return;
 			m_iBank += count;
 			m_iGold -= count;
@@ -88,7 +88,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 		pkt >> count;
 
 		if( itemid == ITEM_GOLD ) {
-			if( m_iGold+count > 2100000000 ) goto fail_return;
+			if( m_iGold+count > COIN_MAX ) goto fail_return;
 			if( m_iBank-count < 0 ) goto fail_return;
 			m_iGold += count;
 			m_iBank -= count;
