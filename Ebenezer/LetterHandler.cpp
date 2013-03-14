@@ -7,34 +7,262 @@ void CUser::LetterSystem(Packet & pkt)
 	switch (opcode)
 	{
 	case LETTER_UNREAD:
-		TRACE("LETTER_UNREAD\n");
-		break;
-
 	case LETTER_LIST:
-		TRACE("LETTER_LIST\n");
-		break;
-
 	case LETTER_HISTORY:
-		TRACE("LETTER_HISTORY\n");
-		break;
-
-	case LETTER_GET_ITEM:
-		TRACE("LETTER_GET_ITEM\n");
-		break;
-
 	case LETTER_READ:
-		TRACE("LETTER_READ\n");
+	case LETTER_GET_ITEM:
+	case LETTER_SEND:
 		break;
 
 	case LETTER_DELETE:
-		TRACE("LETTER_DELETE\n");
-		break;
-
-	case LETTER_ITEM_CHECK: // not sure what this is
-		TRACE("LETTER_ITEM_CHECK\n");
-		break;
+	{
+		uint8 bCount = pkt.read<uint8>();
+		if (bCount > 5)
+		{
+			Packet result(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
+			result << uint8(LETTER_DELETE) << int8(-3);
+			Send(&result);
+			return;
+		}
+	} break;
 
 	default:
 		TRACE("Unknown letter packet: %X\n", opcode);
+		return;
 	}
+
+	g_pMain->AddDatabaseRequest(pkt, this);
+}
+
+void CUser::ReqLetterSystem(Packet & pkt)
+{
+	uint8 opcode = pkt.read<uint8>();
+	switch (opcode)
+	{
+	// Are there any letters to be read?
+	// This is for the notification at the top of the screen.
+	case LETTER_UNREAD:
+		ReqLetterUnread();
+		break;
+
+	// Lists all the new mail.
+	case LETTER_LIST:
+		ReqLetterList();
+		break;
+
+	// Lists all the old mail.
+	case LETTER_HISTORY:
+		ReqLetterList(false);
+		break;
+
+	// Opens up the letter & marks it as read.
+	case LETTER_READ:
+		ReqLetterRead(pkt);
+		break;
+
+	// Used to send a letter & any coins/items (coins are disabled though)
+	case LETTER_SEND:
+		ReqLetterSend(pkt);
+		break;
+
+	// Used to take an item from a letter. 
+	case LETTER_GET_ITEM:
+		ReqLetterGetItem(pkt);
+		break;
+
+	// Deletes up to 5 old letters at a time.
+	case LETTER_DELETE:
+		ReqLetterDelete(pkt);
+		break;
+	}
+}
+
+void CUser::ReqLetterUnread()
+{
+	// TO-DO: Force this to use cached list data (or update if stale). Calling the DB for just this is pointless.
+	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
+	result	<< uint8(LETTER_UNREAD) 
+			<< g_DBAgent.HasUnreadLetters(m_strUserID);
+	Send(&result);
+}
+
+void CUser::ReqLetterList(bool bNewLettersOnly /*= true*/)
+{
+	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
+	result	<< uint8(bNewLettersOnly ? LETTER_LIST : LETTER_HISTORY)
+			<< uint8(1); // success
+
+	uint8 count = 20;
+	result	<< uint8(count); // letter count
+
+	result.SByte();
+	for (uint32 i = 1; i <= count; i++)
+	{
+		result	<< uint32(i) // letter ID
+				<< uint8(1)  // letter status
+				<< "title"   // max: 30 
+				<< "sender"
+
+				<< uint8(2)	 // mail type: 1 (collected/no items), 2 (uncollected items)???
+
+				<< uint32(170250269) // item id
+				<< uint16(1) // stack size
+				<< uint32(1337) // coins
+
+				<< uint32(120624) // date (yy*10000 + mm*100 + dd)
+				<< uint16(i); // days
+	}
+
+	Send(&result);
+}
+
+void CUser::ReqLetterRead(Packet & pkt)
+{
+	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
+	uint32 nLetterID = pkt.read<uint32>();
+	result.SByte();
+	result	<< uint8(LETTER_READ) << uint8(1) // success
+			<< nLetterID
+			<< "hi\nI'm a message!\n\nHi!\nLine breaks are used.";
+	Send(&result);
+}
+
+void CUser::ReqLetterSend(Packet & pkt)
+{
+	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
+	string strRecipient, strSubject, strMessage;
+	_ITEM_DATA *pItem = NULL;
+	uint32 nItemID = 0, nCoins = 0, nCoinRequirement = 1000;
+	uint8 bType, bSrcPos;
+	int8 bResult = 1;
+
+	pkt.SByte();
+	pkt >> strRecipient >> strSubject >> bType;
+
+	// Invalid recipient name length
+	if (strRecipient.empty() || strRecipient.length() > MAX_ID_SIZE
+		// Invalid subject length
+		|| strSubject.empty() || strSubject.length() > 31
+		// Invalid type (as far as we're concerned)
+		|| bType == 0 || bType > 2)
+		bResult = -1;
+	else if (_stricmp(m_strUserID.c_str(), strRecipient.c_str()) == 0)
+		bResult = -6;
+
+	if (bResult != 1)
+		goto send_packet;
+
+	if (bType == 2)
+	{
+		pkt >> nItemID >> bSrcPos >> nCoins; // coins will always be 0 (it's disabled)
+		nCoinRequirement = 10000; // if coins were enabled, we'd obviously tack nCoins onto this.
+
+		_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
+
+		// Invalid item (ID doesn't exist)
+		if (pTable == NULL
+			// Invalid slot ID
+			|| bSrcPos > HAVE_MAX
+			// Item doesn't match what the server sees.
+			|| (pItem = GetItem(bSrcPos))->nNum != nItemID)
+			bResult = -1;
+		// Untradeable item
+		else if (pTable->m_bRace == 20 || nItemID >= ITEM_GOLD)
+			bResult = -32;
+	}
+
+	pkt >> strMessage;
+	
+	// Invalid message length
+	if (strMessage.empty() || strMessage.size() > 128)
+		bResult = -1;
+
+	if (bResult != 1)
+		goto send_packet;
+
+	// Ensure they have all the coins they need
+	if (m_iGold < nCoinRequirement)
+	{
+		bResult = -1;
+		goto send_packet;
+	}
+
+	// Leave the rest up to the database (does the character exist, etc?)
+	bResult = g_DBAgent.SendLetter(m_strUserID, strRecipient, strSubject, strMessage, bType, pItem);
+	if (bResult != 1)
+		goto send_packet;
+
+	// Remove the player's coins
+	GoldLose(nCoinRequirement);
+
+	// Remove the player's item
+	if (pItem != NULL)
+	{
+		memset(pItem, 0, sizeof(_ITEM_DATA));
+		SendStackChange(nItemID, pItem->sCount, pItem->sDuration, bSrcPos);
+	}
+
+	// If the other player's online, notify them.
+	CUser *pUser = g_pMain->GetUserPtr(strRecipient.c_str(), TYPE_CHARACTER);
+	if (pUser != NULL)
+	{
+		Packet notification(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
+		notification << uint8(LETTER_UNREAD) << true;
+		pUser->Send(&notification);
+	}
+
+send_packet:
+	result	<< uint8(LETTER_SEND) << uint8(bResult);
+	Send(&result);
+}
+
+void CUser::ReqLetterGetItem(Packet & pkt)
+{
+	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
+	uint32 nLetterID = pkt.read<uint32>(), nItemID = 0, nCoins = 0;
+	uint16 sCount = 0;
+	int8 bResult = g_DBAgent.GetItemFromLetter(m_strUserID, nLetterID, nItemID, sCount, nCoins);
+	
+	// If the request was successful, check requirements...
+	if (bResult == 1)
+	{
+		// If we're being given an item, do we have enough room for this item?
+		if (nItemID
+			&& (FindSlotForItem(nItemID, sCount) < 0
+				|| !CheckWeight(nItemID, sCount)))
+			bResult = -1;
+
+		// If we're being given coins, do they exceed our max?
+		if (nCoins
+			&& m_iGold + nCoins > COIN_MAX)
+			bResult = -1;
+	}
+
+	// If all of the requirements passed, we can give the items/coins.
+	// But ONLY if ALL requirements are met.
+	if (bResult == 1)
+	{
+		if (nItemID)
+			GiveItem(nItemID, sCount);
+
+		if (nCoins)
+			GoldGain(nCoins);
+	}
+
+	result << uint8(LETTER_GET_ITEM) << bResult;
+	Send(&result);
+}
+
+void CUser::ReqLetterDelete(Packet & pkt)
+{
+	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
+	uint8 bCount = pkt.read<uint8>();
+	result << uint8(LETTER_DELETE) << bCount;
+	for (uint8 i = 0; i < bCount; i++)
+	{
+		uint32 nLetterID = pkt.read<uint32>();
+		g_DBAgent.DeleteLetter(m_strUserID, nLetterID);
+		result << nLetterID;
+	}
+	Send(&result);
 }

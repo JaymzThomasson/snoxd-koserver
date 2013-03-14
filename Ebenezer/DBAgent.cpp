@@ -979,3 +979,48 @@ void CDBAgent::UpdateConCurrentUserCount(int nServerNo, int nZoneNo, int nCount)
 	if (!dbCommand->Execute(string_format(_T("UPDATE CONCURRENT SET zone%d_count = %d WHERE serverid = %d"), nZoneNo, nCount, nServerNo)))
 		ReportSQLError(m_AccountDB.GetError());
 }
+
+bool CDBAgent::HasUnreadLetters(string & strCharID)
+{
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	if (dbCommand.get() == NULL)
+		return false;
+
+	// TO-DO: Implement letter lookup code here
+
+	return true;
+}
+
+int8 CDBAgent::SendLetter(string & strUserID, string & strRecipient, string & strSubject, string & strMessage, uint8 bType, _ITEM_DATA * pItem)
+{
+	return 1;
+}
+
+int8 CDBAgent::GetItemFromLetter(string & strCharID, uint32 nLetterID, uint32 & nItemID, uint16 & sCount, uint32 & nCoins)
+{
+	// Invalid letter ID
+	if (nLetterID == 0)
+		return -4;
+
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	if (dbCommand.get() == NULL)
+		return -2; // this means the letter was not found.
+
+	// TO-DO: Implement letter/item lookup code here
+
+	nItemID = 110110150;
+	sCount = 1;
+	nCoins = 1337;
+
+	return 1;
+}
+
+void CDBAgent::DeleteLetter(string & strCharID, uint32 nLetterID)
+{
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	if (dbCommand.get() == NULL)
+		return;
+
+	// TO-DO: Implement letter deletion code here
+}
+

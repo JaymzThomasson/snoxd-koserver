@@ -12,6 +12,7 @@ enum UserUpdateType
 
 class Packet;
 class CUser;
+struct _ITEM_DATA;
 class CDBAgent  
 {
 public:
@@ -63,6 +64,11 @@ public:
 	void AccountLogout(std::string & strAccountID);
 
 	void UpdateConCurrentUserCount(int nServerNo, int nZoneNo, int nCount);
+
+	bool HasUnreadLetters(std::string & strCharID);
+	int8 SendLetter(std::string & strUserID, std::string & strRecipient, std::string & strSubject, std::string & strMessage, uint8 bType, _ITEM_DATA * pItem);
+	int8 GetItemFromLetter(std::string & strCharID, uint32 nLetterID, uint32 & nItemID, uint16 & sCount, uint32 & nCoins);
+	void DeleteLetter(std::string & strCharID, uint32 nLetterID);
 
 private:
 	OdbcConnection m_GameDB, m_AccountDB;

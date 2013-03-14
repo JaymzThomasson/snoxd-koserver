@@ -524,6 +524,14 @@ public:
 	void RecvStoreClose(Packet & pkt); // from Aujard
 	void LetterSystem(Packet & pkt);
 
+	void ReqLetterSystem(Packet & pkt);
+	void ReqLetterUnread();
+	void ReqLetterList(bool bNewLettersOnly = true);
+	void ReqLetterRead(Packet & pkt);
+	void ReqLetterSend(Packet & pkt);
+	void ReqLetterGetItem(Packet & pkt);
+	void ReqLetterDelete(Packet & pkt);
+
 	void HandleHelmet(Packet & pkt);
 	void HandleCapeChange(Packet & pkt);
 
