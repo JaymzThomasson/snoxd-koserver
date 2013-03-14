@@ -144,6 +144,7 @@ public:
 	ItemList	m_ExchangeItemList;
 	_ITEM_DATA	m_MirrorItem[HAVE_MAX];
 
+	bool	m_bBlockPrivateChat;
 	short	m_sPrivateChatUser;
 
 	float	m_fHPLastTimeNormal;					// For Automatic HP recovery. 
@@ -217,6 +218,8 @@ public:
 	__forceinline bool isSellingMerchant() { return GetMerchantState() == MERCHANT_STATE_SELLING; }
 	__forceinline bool isBuyingMerchant() { return GetMerchantState() == MERCHANT_STATE_BUYING; }
 	__forceinline bool isTransformed() { return m_bIsTransformed; }
+
+	__forceinline bool isBlockingPrivateChat() { return m_bBlockPrivateChat; }
 
 	__forceinline int8 GetMerchantState() { return m_bMerchantState; }
 

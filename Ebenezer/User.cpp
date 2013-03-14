@@ -79,6 +79,7 @@ void CUser::Initialize()
 	m_bRequestingChallenge = 0;
 	m_bChallengeRequested = 0;
 	m_bExchangeOK = 0x00;
+	m_bBlockPrivateChat = false;
 	m_sPrivateChatUser = -1;
 	m_bNeedParty = 0x01;
 

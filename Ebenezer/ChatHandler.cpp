@@ -192,12 +192,10 @@ void CUser::ChatTargetSelect(Packet & pkt)
 		{
 			result << int16(0); 
 		}
-/*		TO-DO: Implement PM blocking
-		else if (pUser->isBlockingPMs())
+		else if (pUser->isBlockingPrivateChat())
 		{
 			result << int16(-1);
 		}
-*/
 		else
 		{
 			m_sPrivateChatUser = pUser->GetSocketID();
@@ -208,7 +206,7 @@ void CUser::ChatTargetSelect(Packet & pkt)
 	// Allow/block PMs
 	else
 	{
-		// m_bAllowPrivateChat = GetByte(pBuf, index); 
+		m_bBlockPrivateChat = pkt.read<bool>(); 
 	}
 }
 
