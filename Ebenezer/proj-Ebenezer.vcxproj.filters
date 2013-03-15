@@ -383,6 +383,12 @@
     <ClInclude Include="..\shared\database\OdbcRecordset.h">
       <Filter>Shared\Database</Filter>
     </ClInclude>
+    <ClInclude Include="..\shared\database\KnightsAllianceSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\KnightsCapeSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Ebenezer.ico">

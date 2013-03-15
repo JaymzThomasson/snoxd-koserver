@@ -377,6 +377,14 @@ struct _KNIGHTS_CAPE
 	uint8	byRanking;		// clan rank requirement (e.g. royal, accredited, etc)
 };
 
+struct _KNIGHTS_ALLIANCE
+{
+	uint16	sMainAllianceKnights;
+	uint16	sSubAllianceKnights;
+	uint16	sMercenaryClan_1;
+	uint16	sMercenaryClan_2;
+};
+
 struct _START_POSITION
 {
 	uint16	ZoneID;

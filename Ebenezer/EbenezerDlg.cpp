@@ -19,6 +19,7 @@
 #include "../shared/database/ServerResourceSet.h"
 #include "../shared/database/KnightsSet.h"
 #include "../shared/database/KnightsUserSet.h"
+#include "../shared/database/KnightsAllianceSet.h"
 #include "../shared/database/KnightsRankSet.h"
 #include "../shared/database/KnightsCapeSet.h"
 #include "../shared/database/UserPersonalRankSet.h"
@@ -232,6 +233,7 @@ bool CEbenezerDlg::LoadTables()
 			&& LoadLevelUpTable()
 			&& LoadAllKnights()
 			&& LoadAllKnightsUserData()
+			&& LoadKnightsAllianceTable()
 			&& LoadUserRankings()
 			&& LoadKnightsCapeTable()
 			&& LoadHomeTable()
@@ -1708,6 +1710,11 @@ BOOL CEbenezerDlg::LoadAllKnights()
 BOOL CEbenezerDlg::LoadAllKnightsUserData()
 {
 	LOAD_TABLE(CKnightsUserSet, &g_DBAgent.m_GameDB, NULL, true);
+}
+
+BOOL CEbenezerDlg::LoadKnightsAllianceTable()
+{
+	LOAD_TABLE(CKnightsAllianceSet, &g_DBAgent.m_GameDB, &m_KnightsAllianceArray, true);
 }
 
 void CEbenezerDlg::CleanupUserRankings()

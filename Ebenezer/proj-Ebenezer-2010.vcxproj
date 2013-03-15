@@ -256,6 +256,8 @@
     <ClInclude Include="..\shared\database\EventSet.h" />
     <ClInclude Include="..\shared\database\HomeSet.h" />
     <ClInclude Include="..\shared\database\ItemTableSet.h" />
+    <ClInclude Include="..\shared\database\KnightsAllianceSet.h" />
+    <ClInclude Include="..\shared\database\KnightsCapeSet.h" />
     <ClInclude Include="..\shared\database\KnightsRankSet.h" />
     <ClInclude Include="..\shared\database\KnightsSet.h" />
     <ClInclude Include="..\shared\database\KnightsUserSet.h" />
