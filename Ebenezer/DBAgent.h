@@ -10,6 +10,25 @@ enum UserUpdateType
 	UPDATE_PACKET_SAVE,
 };
 
+
+struct _USER_RENTAL_ITEM
+{
+	std::string strUserID;
+	uint64 nSerialNum;
+	uint32 nRentalIndex, nItemID, nRentalMoney;
+	uint16 sDurability, sRentalTime;
+	int16 sMinutesRemaining;
+	uint8 byRentalType, byRegType;
+	char szTimeRental[30];
+
+	_USER_RENTAL_ITEM()
+	{
+		memset(&szTimeRental, 0, sizeof(szTimeRental));
+	}
+};
+
+typedef std::map<uint64, _USER_RENTAL_ITEM *> UserRentalMap;
+
 class Packet;
 class CUser;
 struct _ITEM_DATA;
@@ -33,6 +52,7 @@ public:
 	int8 CreateNewChar(std::string & strAccountID, int index, std::string & strCharID, uint8 bRace, uint16 sClass, uint32 nHair, uint8 bFace, uint8 bStr, uint8 bSta, uint8 bDex, uint8 bInt, uint8 bCha);
 	int8 DeleteChar(std::string & strAccountID, int index, std::string & strCharID, std::string & strSocNo);
 
+	void LoadRentalData(std::string & strAccountID, std::string & strCharID, UserRentalMap & rentalData);
 	bool LoadUserData(std::string & strAccountID, std::string & strCharID, CUser *pUser);
 	bool LoadWarehouseData(std::string & strAccountID, CUser *pUser);
 	bool LoadPremiumServiceUser(std::string & strAccountID, CUser *pUser);

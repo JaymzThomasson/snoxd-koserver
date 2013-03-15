@@ -220,6 +220,52 @@ int8 CDBAgent::DeleteChar(string & strAccountID, int index, string & strCharID, 
 	return (int8)(nRet);
 }
 
+void CDBAgent::LoadRentalData(string & strAccountID, string & strCharID, UserRentalMap & rentalData)
+{
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	if (dbCommand.get() == NULL)
+		return;
+
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strAccountID.c_str(), strAccountID.length());
+	if (!dbCommand->Execute(_T("{CALL LOAD_RENTAL_DATA(?)}")))
+	{
+		ReportSQLError(m_GameDB.GetError());
+		return;
+	}
+
+	if (!dbCommand->hasData())
+		return;
+
+	do
+	{
+		_USER_RENTAL_ITEM *pItem = new _USER_RENTAL_ITEM();
+
+		dbCommand->FetchString(1, pItem->strUserID);
+		if (_strcmpi(pItem->strUserID.c_str(), strCharID.c_str()) != 0)
+		{
+			delete pItem;
+			continue;
+		}
+
+		dbCommand->FetchByte(2, pItem->byRentalType);
+		dbCommand->FetchByte(3, pItem->byRegType);
+		dbCommand->FetchUInt32(4, pItem->nRentalIndex);
+		dbCommand->FetchUInt32(5, pItem->nItemID);
+		dbCommand->FetchUInt16(6, pItem->sDurability);
+		dbCommand->FetchUInt64(7, pItem->nSerialNum);
+		dbCommand->FetchUInt32(8, pItem->nRentalMoney);
+		dbCommand->FetchUInt16(9, pItem->sRentalTime);
+		dbCommand->FetchInt16(10, pItem->sMinutesRemaining);
+		dbCommand->FetchString(11, pItem->szTimeRental, sizeof(pItem->szTimeRental));
+
+		if (rentalData.find(pItem->nSerialNum) != rentalData.end())
+			delete pItem;
+		else
+			rentalData.insert(std::make_pair(pItem->nSerialNum, pItem));
+
+	} while (dbCommand->MoveNext());
+}
+
 bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pUser)
 {
 	uint16 nRet = 0;
@@ -314,7 +360,10 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 
 	memset(pUser->m_sItemArray, 0x00, sizeof(pUser->m_sItemArray));
 
-	for (int i = 0; i < HAVE_MAX+SLOT_MAX; i++)
+	UserRentalMap rentalData;
+	LoadRentalData(strAccountID, strCharID, rentalData); 
+
+	for (int i = 0; i < INVENTORY_TOTAL; i++)
 	{ 
 		uint64 nSerialNum;
 		uint32 nItemID;
@@ -332,12 +381,28 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 		else if (sCount > ITEMCOUNT_MAX)
 			sCount = ITEMCOUNT_MAX;
 
-		pUser->m_sItemArray[i].nNum = nItemID;
-		pUser->m_sItemArray[i].sDuration = sDurability;
-		pUser->m_sItemArray[i].sCount = sCount;
-		pUser->m_sItemArray[i].nSerialNum = nSerialNum;
+		_ITEM_DATA *pItem = pUser->GetItem(i);
+		pItem->nNum = nItemID;
+		pItem->sDuration = sDurability;
+		pItem->sCount = sCount;
+		pItem->nSerialNum = nSerialNum;
+
+		if (nSerialNum == 0)
+			continue;
+
+		// If the serial was found in the rental data, mark as rented.
+		UserRentalMap::iterator itr = rentalData.find(nSerialNum);
+		if (itr != rentalData.end())
+		{
+			pItem->bFlag = ITEM_FLAG_RENTED;
+			pItem->sRemainingRentalTime = itr->second->sMinutesRemaining;
+		}
 	}
 
+	// Clean up the rental data
+	foreach (itr, rentalData)
+		delete itr->second;
+	rentalData.clear();
 
 	// Starter items. This needs fixing eventually.
 	if (pUser->m_bLevel == 1 && pUser->m_iExp == 0 && pUser->m_iGold == 0)
