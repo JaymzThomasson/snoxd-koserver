@@ -166,6 +166,14 @@ void CUser::Chat(Packet & pkt)
 		if (isMerchanting())
 			SendToRegion(&result);
 		break;
+	case ALLIANCE_CHAT:
+		if (isInClan())
+		{
+			CKnights *pKnights = g_pMain->GetClanPtr(GetClanID());
+			if (pKnights != NULL && pKnights->m_sAlliance > 0)
+				g_pMain->Send_KnightsAlliance(pKnights->m_sAlliance, &result);
+		}
+		break;
 	case WAR_SYSTEM_CHAT:
 		if (isGM())
 			g_pMain->Send_All(&result);

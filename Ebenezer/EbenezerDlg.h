@@ -98,6 +98,7 @@ public:
 	void KillUser( const char* strbuff );
 	void Send_PartyMember(int party, Packet *result);
 	void Send_KnightsMember(int index, Packet *pkt);
+	void Send_KnightsAlliance(uint16 sAllianceID, Packet *pkt);
 	int GetAIServerPort();
 	BOOL LoadNoticeData();
 	BOOL LoadLevelUpTable();
@@ -186,6 +187,7 @@ public:
 	void RemoveSessionNames(CUser *pSession);
 
 	CKnights * GetClanPtr(uint16 sClanID);
+	_KNIGHTS_ALLIANCE * GetAlliancePtr(uint16 sAllianceID);
 	_ITEM_TABLE * GetItemPtr(uint32 nItemID);
 
 	_PARTY_GROUP * CreateParty(CUser *pLeader);

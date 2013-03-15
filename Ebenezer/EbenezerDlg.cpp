@@ -411,9 +411,10 @@ void CEbenezerDlg::RemoveSessionNames(CUser *pSession)
 	}
 }
 
-CUser		* CEbenezerDlg::GetUserPtr(int sid) { return s_socketMgr[sid]; }
-CKnights    * CEbenezerDlg::GetClanPtr(uint16 sClanID) { return m_KnightsArray.GetData(sClanID); }
-_ITEM_TABLE * CEbenezerDlg::GetItemPtr(uint32 nItemID) { return m_ItemtableArray.GetData(nItemID); }
+CUser				* CEbenezerDlg::GetUserPtr(int sid) { return s_socketMgr[sid]; }
+CKnights			* CEbenezerDlg::GetClanPtr(uint16 sClanID) { return m_KnightsArray.GetData(sClanID); }
+_KNIGHTS_ALLIANCE	* CEbenezerDlg::GetAlliancePtr(uint16 sAllianceID) { return m_KnightsAllianceArray.GetData(sAllianceID); }
+_ITEM_TABLE			* CEbenezerDlg::GetItemPtr(uint32 nItemID) { return m_ItemtableArray.GetData(nItemID); }
 
 Unit * CEbenezerDlg::GetUnit(uint16 id)
 {
@@ -726,6 +727,18 @@ void CEbenezerDlg::Send_KnightsMember(int index, Packet *pkt)
 		return;
 
 	pKnights->Send(pkt);
+}
+
+void CEbenezerDlg::Send_KnightsAlliance(uint16 sAllianceID, Packet *pkt)
+{
+	_KNIGHTS_ALLIANCE* pAlliance = GetAlliancePtr(sAllianceID);
+	if (pAlliance == NULL)
+		return;
+
+	Send_KnightsMember(pAlliance->sMainAllianceKnights, pkt);
+	Send_KnightsMember(pAlliance->sSubAllianceKnights, pkt);
+	Send_KnightsMember(pAlliance->sMercenaryClan_1, pkt);
+	Send_KnightsMember(pAlliance->sMercenaryClan_2, pkt);
 }
 
 void CEbenezerDlg::Send_AIServer(Packet *pkt)

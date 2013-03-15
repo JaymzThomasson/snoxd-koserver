@@ -147,6 +147,7 @@
 #define END_REPEAT_CHAT					0x0C
 #define COMMAND_CHAT					0x0D
 #define MERCHANT_CHAT					0x0E
+#define ALLIANCE_CHAT					0x0F
 #define ANNOUNCEMENT_CHAT				0x11
 
 ////////////////////////////////////////////////////////////////
