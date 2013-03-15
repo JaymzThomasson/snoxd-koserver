@@ -404,62 +404,6 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 		delete itr->second;
 	rentalData.clear();
 
-	// Starter items. This needs fixing eventually.
-	if (pUser->m_bLevel == 1 && pUser->m_iExp == 0 && pUser->m_iGold == 0)
-	{
-		int empty_slot = 0;
-
-		for (int j = SLOT_MAX; j < HAVE_MAX + SLOT_MAX; j++)
-		{
-			if (pUser->m_sItemArray[j].nNum == 0)
-			{
-				empty_slot = j;
-				break;
-			}
-		}
-		if (empty_slot == HAVE_MAX + SLOT_MAX)
-			return true;
-
-		switch (pUser->m_sClass)
-		{
-		case 101:
-			pUser->m_sItemArray[empty_slot].nNum = 120010000;
-			pUser->m_sItemArray[empty_slot].sDuration = 5000;
-			break;
-		case 102:
-			pUser->m_sItemArray[empty_slot].nNum = 110010000;
-			pUser->m_sItemArray[empty_slot].sDuration = 4000;
-			break;
-		case 103:
-			pUser->m_sItemArray[empty_slot].nNum = 180010000;
-			pUser->m_sItemArray[empty_slot].sDuration = 5000;
-			break;
-		case 104:
-			pUser->m_sItemArray[empty_slot].nNum = 190010000;
-			pUser->m_sItemArray[empty_slot].sDuration = 10000;
-			break;
-		case 201:
-			pUser->m_sItemArray[empty_slot].nNum = 120050000;
-			pUser->m_sItemArray[empty_slot].sDuration = 5000;
-			break;
-		case 202:
-			pUser->m_sItemArray[empty_slot].nNum = 110050000;
-			pUser->m_sItemArray[empty_slot].sDuration = 4000;
-			break;
-		case 203:
-			pUser->m_sItemArray[empty_slot].nNum = 180050000;
-			pUser->m_sItemArray[empty_slot].sDuration = 5000;
-			break;
-		case 204:
-			pUser->m_sItemArray[empty_slot].nNum = 190050000;
-			pUser->m_sItemArray[empty_slot].sDuration = 10000;
-			break;
-		}
-
-		pUser->m_sItemArray[empty_slot].sCount = 1;
-		pUser->m_sItemArray[empty_slot].nSerialNum = 0;
-	}
-
 	return true;
 }
 

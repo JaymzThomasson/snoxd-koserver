@@ -196,6 +196,51 @@ void CUser::ReqCreateNewChar(Packet & pkt)
 
 	Packet result(WIZ_NEW_CHAR);
 	result << g_DBAgent.CreateNewChar(m_strAccountID, bCharIndex, strCharID, bRace, sClass, nHair, bFace, bStr, bSta, bDex, bInt, bCha);
+
+	// Starter items. This needs fixing eventually.
+	int emptySlot = GetEmptySlot();
+	assert(emptySlot >= 0);
+
+	_ITEM_DATA *pItem = GetItem(emptySlot);
+	switch (m_sClass)
+	{
+	case 101:
+		pItem->nNum = 120010000;
+		pItem->sDuration = 5000;
+		break;
+	case 102:
+		pItem->nNum = 110010000;
+		pItem->sDuration = 4000;
+		break;
+	case 103:
+		pItem->nNum = 180010000;
+		pItem->sDuration = 5000;
+		break;
+	case 104:
+		pItem->nNum = 190010000;
+		pItem->sDuration = 10000;
+		break;
+	case 201:
+		pItem->nNum = 120050000;
+		pItem->sDuration = 5000;
+		break;
+	case 202:
+		pItem->nNum = 110050000;
+		pItem->sDuration = 4000;
+		break;
+	case 203:
+		pItem->nNum = 180050000;
+		pItem->sDuration = 5000;
+		break;
+	case 204:
+		pItem->nNum = 190050000;
+		pItem->sDuration = 10000;
+		break;
+	}
+
+	pItem->sCount = 1;
+	pItem->nSerialNum = g_pMain->GenerateItemSerial();
+
 	Send(&result);
 }
 
