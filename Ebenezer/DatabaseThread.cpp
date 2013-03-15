@@ -4,13 +4,17 @@ std::queue<Packet *> DatabaseThread::_queue;
 bool DatabaseThread::_running = true;
 FastMutex DatabaseThread::_lock;
 HANDLE DatabaseThread::s_hEvent;
+HANDLE *DatabaseThread::s_hThreads = NULL;
+DWORD DatabaseThread::s_dwThreads = 0;
 
 void DatabaseThread::Startup(DWORD dwThreads)
 {
 	DWORD id;
 	s_hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	s_hThreads = new HANDLE[dwThreads];
 	for (DWORD i = 0; i < dwThreads; i++)
-		CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&ThreadProc, (LPVOID)i, NULL, &id);
+		s_hThreads[i] = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&ThreadProc, (LPVOID)i, NULL, &id);
+	s_dwThreads = dwThreads;
 }
 
 void DatabaseThread::AddRequest(Packet * pkt)
@@ -696,7 +700,15 @@ void CUser::ReqBattleEventResult(Packet & pkt)
 void DatabaseThread::Shutdown()
 {
 	_running = false;
-	SetEvent(s_hEvent); // wake them up in case they're sleeping.
+
+	// wake them up in case they're sleeping.
+	for (DWORD i = 0; i < s_dwThreads; i++)
+	{
+		SetEvent(s_hEvent); 
+		Sleep(10);
+	}
+
+	WaitForMultipleObjects(s_dwThreads, s_hThreads, TRUE, INFINITE);
 
 	_lock.Acquire();
 	while (_queue.size())

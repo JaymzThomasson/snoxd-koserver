@@ -21,4 +21,6 @@ public:
 	static FastMutex _lock;
 	static bool _running;
 	static HANDLE s_hEvent;
+	static HANDLE *s_hThreads;
+	static DWORD s_dwThreads;
 };
