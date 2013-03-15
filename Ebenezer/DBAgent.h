@@ -65,9 +65,11 @@ public:
 
 	void UpdateConCurrentUserCount(int nServerNo, int nZoneNo, int nCount);
 
-	bool HasUnreadLetters(std::string & strCharID);
-	int8 SendLetter(std::string & strUserID, std::string & strRecipient, std::string & strSubject, std::string & strMessage, uint8 bType, _ITEM_DATA * pItem);
-	int8 GetItemFromLetter(std::string & strCharID, uint32 nLetterID, uint32 & nItemID, uint16 & sCount, uint32 & nCoins);
+	uint8 GetUnreadLetterCount(std::string & strCharID);
+	bool GetLetterList(std::string & strCharID, Packet & result, bool bNewLettersOnly = true);
+	int8 SendLetter(std::string & strSenderID, std::string & strRecipientID, std::string & strSubject, std::string & strMessage, uint8 bType, _ITEM_DATA * pItem);
+	bool ReadLetter(std::string & strCharID, uint32 nLetterID, std::string & strMessage);
+	int8 GetItemFromLetter(std::string & strCharID, uint32 nLetterID, uint32 & nItemID, uint16 & sCount, uint16 & sDurability, uint32 & nCoins, uint64 & nSerialNum);
 	void DeleteLetter(std::string & strCharID, uint32 nLetterID);
 
 private:

@@ -980,23 +980,148 @@ void CDBAgent::UpdateConCurrentUserCount(int nServerNo, int nZoneNo, int nCount)
 		ReportSQLError(m_AccountDB.GetError());
 }
 
-bool CDBAgent::HasUnreadLetters(string & strCharID)
+// This is what everything says it should do, 
+// but the client doesn't seem to care if it's over 1
+uint8 CDBAgent::GetUnreadLetterCount(string & strCharID)
+{
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	if (dbCommand.get() == NULL)
+		return 0;
+
+	uint8 bCount = 0;
+
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
+	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &bCount);
+	if (!dbCommand->Execute(_T("{CALL MAIL_BOX_CHECK_COUNT(?, ?)}")))
+	{
+		ReportSQLError(m_GameDB.GetError());
+		return 0;
+	}
+
+	return bCount;
+}
+
+bool CDBAgent::GetLetterList(string & strCharID, Packet & result, bool bNewLettersOnly /* = true*/)
 {
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
-	// TO-DO: Implement letter lookup code here
+	int8 bCount = 0;
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
+	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &bCount);
+	if (!dbCommand->Execute(string_format(_T("{CALL MAIL_BOX_REQUEST_LIST(?, %d, ?)}"), bNewLettersOnly)))
+	{
+		ReportSQLError(m_GameDB.GetError());
+		return false;
+	}
+
+	result << uint8(1);
+	int offset = result.wpos();
+	result << bCount; // placeholder for count
+
+	if (!dbCommand->hasData())
+		return true;
+
+	result.SByte();
+	do
+	{
+		string strSubject, strSender;
+		uint32 nLetterID, nItemID, nCoins, nDate;
+		uint16 sCount, sDaysRemaining;
+		uint8 bStatus, bType;
+
+		dbCommand->FetchUInt32(1, nLetterID);
+		dbCommand->FetchByte(2, bStatus);
+		dbCommand->FetchByte(3, bType);
+		dbCommand->FetchString(4, strSubject);
+		dbCommand->FetchString(5, strSender);
+		dbCommand->FetchByte(6, bType);
+		dbCommand->FetchUInt32(7, nItemID);
+		dbCommand->FetchUInt16(8, sCount);
+		dbCommand->FetchUInt32(9, nCoins);
+		dbCommand->FetchUInt32(10, nDate);
+		dbCommand->FetchUInt16(11, sDaysRemaining); 
+
+		result	<< nLetterID // letter ID
+				<< bStatus  // letter status, doesn't seem to affect anything
+				<< strSubject << strSender
+				<< bType;	
+
+		if (bType == 2)
+			result	<< nItemID << sCount << nCoins;
+
+		result	<< nDate // date (yy*10000 + mm*100 + dd)
+				<< sDaysRemaining;
+
+	} while (dbCommand->MoveNext());
+
+	result.put(offset, bCount); // set count now that the result set's been read
 
 	return true;
 }
 
-int8 CDBAgent::SendLetter(string & strUserID, string & strRecipient, string & strSubject, string & strMessage, uint8 bType, _ITEM_DATA * pItem)
+int8 CDBAgent::SendLetter(string & strSenderID, string & strRecipientID, string & strSubject, string & strMessage, uint8 bType, _ITEM_DATA * pItem)
 {
-	return 1;
+	uint64 nSerialNum = 0;
+	uint32 nItemID = 0;
+	uint16 sCount = 0, sDurability = 0;
+	int8 bRet = 0;
+
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	if (dbCommand.get() == NULL)
+		return bRet;
+
+	// This is a little bit redundant, but best to be sure.
+	if (bType == 2 
+		&& pItem != NULL)
+	{
+		nItemID = pItem->nNum;
+		sCount = pItem->sCount;
+		sDurability = pItem->sDuration;
+		nSerialNum = pItem->nSerialNum;
+	}
+
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strSenderID.c_str(), strSenderID.length());
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strRecipientID.c_str(), strRecipientID.length());
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strSubject.c_str(), strSubject.length());
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strMessage.c_str(), strMessage.length());
+
+	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &bRet);
+
+	// NOTE: %I64d is signed int64 for Microsoft compilers (all we care about right now)
+	// Also: MSSQL uses signed types.
+	if (!dbCommand->Execute(string_format(_T("{CALL MAIL_BOX_SEND(?, ?, ?, ?, %d, %d, %d, %d, %I64d, ?)}"), 
+		bType, nItemID, sCount, sDurability, nSerialNum)))
+	{
+		ReportSQLError(m_GameDB.GetError());
+		return 0;
+	}
+
+	return bRet;
 }
 
-int8 CDBAgent::GetItemFromLetter(string & strCharID, uint32 nLetterID, uint32 & nItemID, uint16 & sCount, uint32 & nCoins)
+bool CDBAgent::ReadLetter(string & strCharID, uint32 nLetterID, string & strMessage)
+{
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	if (dbCommand.get() == NULL)
+		return false;
+
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
+	if (!dbCommand->Execute(string_format(_T("{CALL MAIL_BOX_READ(?, %d)}"), nLetterID)))
+	{
+		ReportSQLError(m_GameDB.GetError());
+		return false;
+	}
+
+	if (!dbCommand->hasData())
+		return false;
+
+	dbCommand->FetchString(1, strMessage);
+	return true;
+}
+
+int8 CDBAgent::GetItemFromLetter(string & strCharID, uint32 nLetterID, uint32 & nItemID, uint16 & sCount, uint16 & sDurability, uint32 & nCoins, uint64 & nSerialNum)
 {
 	// Invalid letter ID
 	if (nLetterID == 0)
@@ -1004,13 +1129,23 @@ int8 CDBAgent::GetItemFromLetter(string & strCharID, uint32 nLetterID, uint32 & 
 
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
 	if (dbCommand.get() == NULL)
-		return -2; // this means the letter was not found.
+		return -1; // error
 
-	// TO-DO: Implement letter/item lookup code here
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
+	if (!dbCommand->Execute(string_format(_T("{CALL MAIL_BOX_GET_ITEM(?, %d)}"), nLetterID)))
+	{
+		ReportSQLError(m_GameDB.GetError());
+		return -1; // error
+	}
 
-	nItemID = 110110150;
-	sCount = 1;
-	nCoins = 1337;
+	if (!dbCommand->hasData())
+		return -2; // letter not found
+
+	dbCommand->FetchUInt32(1, nItemID);
+	dbCommand->FetchUInt16(2, sCount);
+	dbCommand->FetchUInt16(3, sDurability);
+	dbCommand->FetchUInt32(4, nCoins);
+	dbCommand->FetchUInt64(5, nSerialNum);
 
 	return 1;
 }
@@ -1021,6 +1156,9 @@ void CDBAgent::DeleteLetter(string & strCharID, uint32 nLetterID)
 	if (dbCommand.get() == NULL)
 		return;
 
-	// TO-DO: Implement letter deletion code here
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
+	// NOTE: The official implementation passes all 5 letter IDs.
+	if (!dbCommand->Execute(string_format(_T("{CALL MAIL_BOX_DELETE_LETTER(?, %d)}"), nLetterID)))
+		ReportSQLError(m_GameDB.GetError());
 }
 

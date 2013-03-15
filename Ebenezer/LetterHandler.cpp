@@ -82,36 +82,17 @@ void CUser::ReqLetterUnread()
 	// TO-DO: Force this to use cached list data (or update if stale). Calling the DB for just this is pointless.
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
 	result	<< uint8(LETTER_UNREAD) 
-			<< g_DBAgent.HasUnreadLetters(m_strUserID);
+			<< g_DBAgent.GetUnreadLetterCount(m_strUserID);
 	Send(&result);
 }
 
 void CUser::ReqLetterList(bool bNewLettersOnly /*= true*/)
 {
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
-	result	<< uint8(bNewLettersOnly ? LETTER_LIST : LETTER_HISTORY)
-			<< uint8(1); // success
+	result	<< uint8(bNewLettersOnly ? LETTER_LIST : LETTER_HISTORY);
 
-	uint8 count = 20;
-	result	<< uint8(count); // letter count
-
-	result.SByte();
-	for (uint32 i = 1; i <= count; i++)
-	{
-		result	<< uint32(i) // letter ID
-				<< uint8(1)  // letter status
-				<< "title"   // max: 30 
-				<< "sender"
-
-				<< uint8(2)	 // mail type: 1 (collected/no items), 2 (uncollected items)???
-
-				<< uint32(170250269) // item id
-				<< uint16(1) // stack size
-				<< uint32(1337) // coins
-
-				<< uint32(120624) // date (yy*10000 + mm*100 + dd)
-				<< uint16(i); // days
-	}
+	if (!g_DBAgent.GetLetterList(m_strUserID, result, bNewLettersOnly))
+		result << int8(-1);
 
 	Send(&result);
 }
@@ -120,10 +101,19 @@ void CUser::ReqLetterRead(Packet & pkt)
 {
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
 	uint32 nLetterID = pkt.read<uint32>();
-	result.SByte();
-	result	<< uint8(LETTER_READ) << uint8(1) // success
-			<< nLetterID
-			<< "hi\nI'm a message!\n\nHi!\nLine breaks are used.";
+	string strMessage;
+
+	result << uint8(LETTER_READ);
+	if (!g_DBAgent.ReadLetter(m_strUserID, nLetterID, strMessage))
+	{
+		// TO-DO: research error codes
+		result << uint8(0);
+	}
+	else
+	{
+		result.SByte();
+		result << uint8(1) << nLetterID << strMessage;
+	}
 	Send(&result);
 }
 
@@ -164,10 +154,11 @@ void CUser::ReqLetterSend(Packet & pkt)
 			// Invalid slot ID
 			|| bSrcPos > HAVE_MAX
 			// Item doesn't match what the server sees.
-			|| (pItem = GetItem(bSrcPos))->nNum != nItemID)
+			|| (pItem = GetItem(SLOT_MAX + bSrcPos))->nNum != nItemID)
 			bResult = -1;
 		// Untradeable item
-		else if (pTable->m_bRace == 20 || nItemID >= ITEM_GOLD)
+		else if (pTable->m_bRace == 20 || nItemID >= ITEM_GOLD
+			|| pItem->isSealed() || pItem->isRented())
 			bResult = -32;
 	}
 
@@ -219,16 +210,18 @@ send_packet:
 void CUser::ReqLetterGetItem(Packet & pkt)
 {
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
+	uint64 nSerialNum = 0;
 	uint32 nLetterID = pkt.read<uint32>(), nItemID = 0, nCoins = 0;
-	uint16 sCount = 0;
-	int8 bResult = g_DBAgent.GetItemFromLetter(m_strUserID, nLetterID, nItemID, sCount, nCoins);
+	uint16 sCount = 0, sDurability = 0;
+	int8 bResult = g_DBAgent.GetItemFromLetter(m_strUserID, nLetterID, nItemID, sCount, sDurability, nCoins, nSerialNum);
+	int pos = -1;
 	
 	// If the request was successful, check requirements...
 	if (bResult == 1)
 	{
 		// If we're being given an item, do we have enough room for this item?
 		if (nItemID
-			&& (FindSlotForItem(nItemID, sCount) < 0
+			&& ((pos = FindSlotForItem(nItemID, sCount)) < 0
 				|| !CheckWeight(nItemID, sCount)))
 			bResult = -1;
 
@@ -243,7 +236,16 @@ void CUser::ReqLetterGetItem(Packet & pkt)
 	if (bResult == 1)
 	{
 		if (nItemID)
-			GiveItem(nItemID, sCount);
+		{
+			_ITEM_DATA *pItem = GetItem(SLOT_MAX + pos);
+
+			pItem->nNum = nItemID;
+			pItem->sCount += sCount;
+			pItem->sDuration += sDurability;
+			pItem->nSerialNum = nSerialNum;
+
+			SendStackChange(nItemID, pItem->sCount, pItem->sDuration, pos, pItem->sCount == sCount);
+		}
 
 		if (nCoins)
 			GoldGain(nCoins);
