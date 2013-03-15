@@ -46,4 +46,10 @@ struct _K_MONSTER_ITEM
 	}
 };
 
+struct _MAKE_ITEM_GROUP
+{
+	uint32	iItemGroupNum;
+	std::vector<uint32> iItems;
+};
+
 #include "../shared/database/structs.h"

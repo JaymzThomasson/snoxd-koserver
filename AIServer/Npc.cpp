@@ -4870,26 +4870,40 @@ void CNpc::GiveNpcHaveItem()
 
 			iRandom = myrand(1, 10000);
 			iPer = pItem->sPercent[j];
-			if (iRandom <= iPer)
-			{				
-				if (j == 0)
+			if (iRandom > iPer)
+				continue;
+
+			if (j < 2)
+			{
+				if (pItem->iItem[j] < 100)
 				{
 					iMakeItemCode = ItemProdution(pItem->iItem[j]);
-					if (iMakeItemCode == 0)	continue;
-
-					m_GiveItemList[nCount].sSid = iMakeItemCode;
-					m_GiveItemList[nCount].count = 1;
 				}
-				else	
+				else 
 				{
-					m_GiveItemList[nCount].sSid = pItem->iItem[j];
-					if (COMPARE(m_GiveItemList[nCount].sSid, ARROW_MIN, ARROW_MAX))
-						m_GiveItemList[nCount].count = 20;
-					else	
-						m_GiveItemList[nCount].count = 1;
+					_MAKE_ITEM_GROUP * pGroup = g_pMain->m_MakeItemGroupArray.GetData(pItem->iItem[j]);
+					if (pGroup == NULL
+						|| pGroup->iItems.size() != 30)
+						continue;
+
+					iMakeItemCode = pGroup->iItems[myrand(1, 30) - 1];
 				}
-				nCount++;
+
+				if (iMakeItemCode == 0) 
+					continue;
+
+				m_GiveItemList[nCount].sSid = iMakeItemCode;
+				m_GiveItemList[nCount].count = 1;
 			}
+			else	
+			{
+				m_GiveItemList[nCount].sSid = pItem->iItem[j];
+				if (COMPARE(m_GiveItemList[nCount].sSid, ARROW_MIN, ARROW_MAX))
+					m_GiveItemList[nCount].count = 20;
+				else	
+					m_GiveItemList[nCount].count = 1;
+			}
+			nCount++;
 		}
 	}
 

@@ -12,6 +12,7 @@
 #include "../shared/database/NpcPosSet.h"
 #include "../shared/database/ZoneInfoSet.h"
 #include "../shared/database/NpcItemSet.h"
+#include "../shared/database/MakeItemGroupSet.h"
 #include "../shared/database/NpcTableSet.h"
 #include "../shared/database/MakeWeaponTableSet.h"
 #include "../shared/database/MakeDefensiveTableSet.h"
@@ -158,6 +159,7 @@ BOOL CServerDlg::OnInitDialog()
 		|| !GetMagicType3Data()
 		|| !GetMagicType4Data()
 		|| !GetNpcItemTable()
+		|| !GetMakeItemGroupTable()
 		|| !GetMakeWeaponItemTableData()
 		|| !GetMakeDefensiveItemTableData()
 		|| !GetMakeGradeItemTableData()
@@ -293,6 +295,11 @@ BOOL CServerDlg::GetMakeLareItemTableData()
 BOOL CServerDlg::GetNpcItemTable()
 {
 	LOAD_TABLE(CNpcItemSet, &m_GameDB, &m_NpcItemArray, false);
+}
+
+BOOL CServerDlg::GetMakeItemGroupTable()
+{
+	LOAD_TABLE(CMakeItemGroupSet, &m_GameDB, &m_MakeItemGroupArray, false);
 }
 
 BOOL CServerDlg::GetNpcTableData(bool bNpcData /*= true*/)

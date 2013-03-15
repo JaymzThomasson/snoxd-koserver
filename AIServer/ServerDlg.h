@@ -42,6 +42,7 @@ typedef CSTLMap <_MAKE_ITEM_LARE_CODE>		MakeLareItemTableArray;
 typedef std::list <int>						ZoneNpcInfoList;
 typedef CSTLMap <MAP>						ZoneArray;
 typedef CSTLMap <_K_MONSTER_ITEM>			NpcItemArray;
+typedef CSTLMap <_MAKE_ITEM_GROUP>			MakeItemGroupArray;
 
 class CServerDlg : public CDialog
 {
@@ -55,6 +56,7 @@ private:
 	BOOL GetMagicType4Data();
 	BOOL GetNpcTableData(bool bNpcData = true);
 	BOOL GetNpcItemTable();
+	BOOL GetMakeItemGroupTable();
 	BOOL GetMakeWeaponItemTableData();
 	BOOL GetMakeDefensiveItemTableData();
 	BOOL GetMakeGradeItemTableData();
@@ -120,11 +122,11 @@ public:
 	Magictype4Array		m_Magictype4Array;
 	MakeWeaponItemTableArray	m_MakeWeaponItemArray;
 	MakeWeaponItemTableArray	m_MakeDefensiveItemArray;
-	MakeGradeItemTableArray  m_MakeGradeItemArray;
-	MakeLareItemTableArray  m_MakeLareItemArray;
-	ZoneArray g_arZone;
+	MakeGradeItemTableArray	m_MakeGradeItemArray;
+	MakeLareItemTableArray	m_MakeLareItemArray;
+	ZoneArray				g_arZone;
 	NpcItemArray			m_NpcItemArray;
-
+	MakeItemGroupArray		m_MakeItemGroupArray;
 	CWinThread* m_pZoneEventThread;		// zone
 
 	char m_strGameDSN[32], m_strGameUID[32], m_strGamePWD[32];

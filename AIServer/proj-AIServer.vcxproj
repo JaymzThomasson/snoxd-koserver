@@ -259,6 +259,7 @@
     <ClInclude Include="..\shared\database\MagicType4Set.h" />
     <ClInclude Include="..\shared\database\MakeDefensiveTableSet.h" />
     <ClInclude Include="..\shared\database\MakeGradeItemTableSet.h" />
+    <ClInclude Include="..\shared\database\MakeItemGroupSet.h" />
     <ClInclude Include="..\shared\database\MakeLareItemTableSet.h" />
     <ClInclude Include="..\shared\database\MakeWeaponTableSet.h" />
     <ClInclude Include="..\shared\database\NpcItemSet.h" />
