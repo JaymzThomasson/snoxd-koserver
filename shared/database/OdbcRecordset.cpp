@@ -10,6 +10,8 @@ OdbcRecordset::OdbcRecordset(OdbcConnection * dbConnection) : _dbConnection(dbCo
 
 TCHAR * OdbcRecordset::Read(bool bAllowEmptyTable /*= false*/)
 {
+	static TCHAR szError[128] = {0};
+
 	// Build statement
 	tstring szSQL = _T("SELECT ");
 	tstring szWhereClause = GetWhereClause();
@@ -36,7 +38,8 @@ TCHAR * OdbcRecordset::Read(bool bAllowEmptyTable /*= false*/)
 		if (bAllowEmptyTable)
 			return NULL;
 
-		return _T("Table is empty.");
+		_stprintf(szError, _T("%s table is empty."), GetTableName().c_str());
+		return szError;
 	}
 
 	do
@@ -45,8 +48,10 @@ TCHAR * OdbcRecordset::Read(bool bAllowEmptyTable /*= false*/)
 		// It's also not very informative, so this could really use a bit of a rewrite
 		// to better allow for this scenario.
 		if (!Fetch())
-			return _T("Could not fetch row.");
-
+		{
+			_stprintf(szError, _T("Could not fetch row in table %s."), GetTableName().c_str());
+			return szError;
+		}
 	} while (_dbCommand->MoveNext());
 
 	return NULL;
