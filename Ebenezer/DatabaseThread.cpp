@@ -701,14 +701,18 @@ void DatabaseThread::Shutdown()
 {
 	_running = false;
 
-	// wake them up in case they're sleeping.
-	for (DWORD i = 0; i < s_dwThreads; i++)
+	if (s_hThreads != NULL)
 	{
-		SetEvent(s_hEvent); 
-		Sleep(10);
-	}
+		// wake them up in case they're sleeping.
+		for (DWORD i = 0; i < s_dwThreads; i++)
+		{
+			SetEvent(s_hEvent); 
+			Sleep(10);
+		}
 
-	WaitForMultipleObjects(s_dwThreads, s_hThreads, TRUE, INFINITE);
+		WaitForMultipleObjects(s_dwThreads, s_hThreads, TRUE, INFINITE);
+		delete [] s_hThreads;
+	}
 
 	_lock.Acquire();
 	while (_queue.size())
