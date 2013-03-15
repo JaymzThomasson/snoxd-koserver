@@ -712,6 +712,7 @@ void DatabaseThread::Shutdown()
 
 		WaitForMultipleObjects(s_dwThreads, s_hThreads, TRUE, INFINITE);
 		delete [] s_hThreads;
+		s_hThreads = NULL;
 	}
 
 	_lock.Acquire();
