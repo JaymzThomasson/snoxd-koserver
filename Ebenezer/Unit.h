@@ -155,4 +155,6 @@ public:
 
 	BYTE	m_bType4Buff[MAX_TYPE4_BUFF];
 	BOOL	m_bType4Flag;
+
+	std::map<uint32, uint32> m_savedBuffMap;
 };

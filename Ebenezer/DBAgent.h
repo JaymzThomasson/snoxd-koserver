@@ -36,6 +36,7 @@ public:
 	bool LoadUserData(std::string & strAccountID, std::string & strCharID, CUser *pUser);
 	bool LoadWarehouseData(std::string & strAccountID, CUser *pUser);
 	bool LoadPremiumServiceUser(std::string & strAccountID, CUser *pUser);
+	bool LoadSavedMagic(CUser *pUser);
 	bool SetLogInInfo(std::string & strAccountID, std::string & strCharID, std::string & strServerIP, short sServerNo, std::string & strClientIP, uint8 bInit);
 
 	bool LoadWebItemMall(Packet & result, CUser *pUser);
@@ -49,6 +50,7 @@ public:
 
 	bool UpdateUser(std::string & strCharID, UserUpdateType type, CUser *pUser);
 	bool UpdateWarehouseData(std::string & strAccountID, UserUpdateType type, CUser *pUser);
+	bool UpdateSavedMagic(CUser *pUser);
 
 	int8 CreateKnights(uint16 sClanID, uint8 bNation, std::string & strKnightsName, std::string & strChief, uint8 bFlag = 1);
 	int UpdateKnights(uint8 bType, std::string & strCharID, uint16 sClanID, uint8 bDomination);

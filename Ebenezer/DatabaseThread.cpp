@@ -232,7 +232,8 @@ void CUser::ReqSelectCharacter(Packet & pkt)
 	if (m_strAccountID.empty() || strCharID.empty()
 		|| !g_DBAgent.LoadUserData(m_strAccountID, strCharID, this)
 		|| !g_DBAgent.LoadWarehouseData(m_strAccountID, this)
-		|| !g_DBAgent.LoadPremiumServiceUser(m_strAccountID, this))
+		|| !g_DBAgent.LoadPremiumServiceUser(m_strAccountID, this)
+		|| !g_DBAgent.LoadSavedMagic(this))
 	{
 		result << uint8(0);
 	}
