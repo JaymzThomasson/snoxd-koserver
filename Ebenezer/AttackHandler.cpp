@@ -31,7 +31,7 @@ void CUser::Attack(Packet & pkt)
 		return;			
 
 	// We're attacking a player...
-	if (tid < NPC_BAND)
+	if (tid <= MAX_USER)
 	{
 		pTUser = g_pMain->GetUserPtr(tid);
  
