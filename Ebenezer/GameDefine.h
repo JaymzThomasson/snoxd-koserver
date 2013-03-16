@@ -282,13 +282,13 @@ struct _ITEM_TABLE
 	uint8	m_bMPDamage;
 	uint8	m_bMPDrain;
 	uint8	m_bMirrorDamage;
-	uint16	m_bStrB; // TO-DO: Rename these, as they're not bytes anymore.
-	uint16	m_bStaB;
-	uint16	m_bDexB;
-	uint16	m_bIntelB;
-	uint16	m_bChaB;
-	uint16	m_MaxHpB;
-	uint16	m_MaxMpB;
+	int16	m_bStrB; // TO-DO: Rename these, as they're not bytes anymore.
+	int16	m_bStaB;
+	int16	m_bDexB;
+	int16	m_bIntelB;
+	int16	m_bChaB;
+	int16	m_MaxHpB;
+	int16	m_MaxMpB;
 	uint16	m_bFireR;
 	uint16	m_bColdR;
 	uint16	m_bLightningR;

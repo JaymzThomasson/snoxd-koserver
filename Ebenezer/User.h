@@ -115,8 +115,8 @@ public:
 	uint32	m_sMaxWeight;
 	uint16   m_sSpeed;	// NOTE: Currently unused
 
-	short   m_sItemMaxHp;
-	short   m_sItemMaxMp;
+	int16	m_sItemMaxHp;
+	int16	m_sItemMaxMp;
 	uint32	m_sItemWeight;
 	short	m_sItemHit;
 	short	m_sItemAc;
