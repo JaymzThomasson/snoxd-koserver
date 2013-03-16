@@ -352,7 +352,7 @@ bool CUser::HandlePacket(Packet & pkt)
 		PartyBBS(pkt);
 		break;
 	case WIZ_CLIENT_EVENT:
-		ClientEvent(pkt);
+		ClientEvent(pkt.read<uint16>());
 		break;
 	case WIZ_SELECT_MSG:
 		RecvSelectMsg(pkt);

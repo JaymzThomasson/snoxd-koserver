@@ -53,6 +53,9 @@ typedef	CSTLMap	<EVENT>						QuestArray;
 typedef	CSTLMap	<_SERVER_RESOURCE>			ServerResourceArray;
 typedef hash_map<string, _USER_RANK *>		UserRankMap; 
 
+typedef std::pair<uint8, uint16>			NpcTrapPair;
+typedef std::map<NpcTrapPair, int32>		EventTriggerArray;
+
 class CEbenezerDlg : public CDialog
 {
 public:	
@@ -110,6 +113,7 @@ public:
 	BOOL LoadMagicTable();
 	BOOL LoadItemTable();
 	BOOL LoadServerResourceTable();
+	BOOL LoadEventTriggerTable();
 	BOOL MapFileLoad();
 	void AIServerConnect();
 	void SendAllUserInfo();
@@ -177,6 +181,8 @@ public:
 
 	Unit * GetUnit(uint16 id);
 
+	int32 GetEventTrigger(CNpc * pNpc);
+
 	// Adds the account name & session to a hashmap (on login)
 	void AddAccountName(CUser *pSession);
 
@@ -230,6 +236,7 @@ public:
 	StartPositionArray		m_StartPositionArray;
 	QuestArray				m_Event;
 	ServerResourceArray		m_ServerResourceArray;
+	EventTriggerArray		m_EventTriggerArray;
 
 	CKnightsManager			m_KnightsManager;
 

@@ -35,7 +35,7 @@ public:
 	BYTE    m_byObjectType;     // 보통은 0, object타입(성문, 레버)은 1
 	int16	m_byDirection;
 
-	short   m_byEvent;		    // This is for the quest. 
+	uint8   m_byTrapNumber;
 
 public:
 	CNpc();

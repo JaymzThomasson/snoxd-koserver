@@ -17,6 +17,7 @@
 #include "../shared/database/CoefficientSet.h"
 #include "../shared/database/LevelUpTableSet.h"
 #include "../shared/database/ServerResourceSet.h"
+#include "../shared/database/EventTriggerSet.h"
 #include "../shared/database/KnightsSet.h"
 #include "../shared/database/KnightsUserSet.h"
 #include "../shared/database/KnightsAllianceSet.h"
@@ -219,6 +220,7 @@ bool CEbenezerDlg::LoadTables()
 {
 	return (LoadItemTable()
 			&& LoadServerResourceTable()
+			&& LoadEventTriggerTable()
 			&& LoadMagicTable()
 			&& LoadMagicType1()
 			&& LoadMagicType2()
@@ -422,6 +424,16 @@ Unit * CEbenezerDlg::GetUnit(uint16 id)
 		return GetUserPtr(id);
 
 	return m_arNpcArray.GetData(id);
+}
+
+int32 CEbenezerDlg::GetEventTrigger(CNpc * pNpc)
+{
+	NpcTrapPair key(pNpc->m_byTrapNumber, pNpc->GetID());
+	EventTriggerArray::iterator itr = m_EventTriggerArray.find(key);
+	if (itr == m_EventTriggerArray.end())
+		return -1;
+
+	return itr->second;
 }
 
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
@@ -784,6 +796,11 @@ BOOL CEbenezerDlg::LoadItemTable()
 BOOL CEbenezerDlg::LoadServerResourceTable()
 {
 	LOAD_TABLE(CServerResourceSet, &g_DBAgent.m_GameDB, &m_ServerResourceArray, false);
+}
+
+BOOL CEbenezerDlg::LoadEventTriggerTable()
+{
+	LOAD_TABLE(CEventTriggerSet, &g_DBAgent.m_GameDB, &m_EventTriggerArray, true);
 }
 
 BOOL CEbenezerDlg::LoadMagicTable()

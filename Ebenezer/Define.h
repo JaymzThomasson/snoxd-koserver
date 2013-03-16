@@ -52,13 +52,6 @@
 #define EXEC_GIVE_NOAH				0x08
 #define EXEC_ROB_NOAH				0x0B
 
-// EVENT ���� ��ȣ�� :)
-#define EVENT_POTION				1
-#define EVENT_LOGOS_ELMORAD			1001
-#define EVENT_LOGOS_KARUS			2001
-#define EVENT_COUPON				3001
-
-
 ////////////////////////////////////////////////////////////
 
 ///////////////// BBS RELATED //////////////////////////////

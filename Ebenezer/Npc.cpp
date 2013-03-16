@@ -51,7 +51,7 @@ void CNpc::Initialize()
 	m_byGateOpen = 1;
 	m_byObjectType = NORMAL_OBJECT;
 
-	m_byEvent = -1;				//  This is for the event.
+	m_byTrapNumber = 0;
 }
 
 void CNpc::MoveResult(float xpos, float ypos, float zpos, float speed)

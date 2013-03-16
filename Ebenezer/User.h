@@ -502,7 +502,9 @@ public:
 
 	void SendPartyBBSNeeded(uint16 page_index, uint8 bType);
 
-	void ClientEvent(Packet & pkt);
+	void ClientEvent(uint16 sNpcID);
+	int32 GetEventIDByNPC(CNpc *pNpc);
+
 	BOOL CheckEventLogic(EVENT_DATA* pEventData);
 	BOOL RunNpcEvent(CNpc* pNpc, EXEC* pExec);
 	BOOL RunEvent(EVENT_DATA *pEventData);

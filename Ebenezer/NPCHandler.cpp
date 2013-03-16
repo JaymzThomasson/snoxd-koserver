@@ -57,14 +57,14 @@ fail_return:
 	Send(&result);
 }
 
-void CUser::ClientEvent(Packet & pkt)
+void CUser::ClientEvent(uint16 sNpcID)
 {
 	// Ensure AI's loaded
 	if (!g_pMain->m_bPointCheckFlag
 		|| isDead())
 		return;
 
-	uint16 sNpcID = pkt.read<uint16>(), sEventID = 0;
+	int32 iEventID = 0;
 	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
 	if (pNpc == NULL)
 		return;
@@ -75,37 +75,103 @@ void CUser::ClientEvent(Packet & pkt)
 	if (pEvent == NULL)
 		return;
 
-	// Get the corresponding event ID for this NPC type
-	switch (pNpc->GetType()) 
-	{
-		case NPC_CLERIC:
-			sEventID = EVENT_POTION;
-			break;
-
-		case NPC_COUPON:
-			sEventID = EVENT_COUPON;
-			break;
-
-		case NPC_MONK_ELMORAD:
-			sEventID = EVENT_LOGOS_ELMORAD;
-			break;
-
-		case NPC_MONK_KARUS:
-			sEventID = EVENT_LOGOS_KARUS;
-			break;
-	}
-
-	// No event was set
-	if (sEventID == 0)
+	// Get the corresponding event ID for this NPC
+	iEventID = GetEventIDByNPC(pNpc);
+	if (iEventID < 0)
 		return;
 
-	EVENT_DATA *pEventData = pEvent->m_arEvent.GetData(sEventID);
+	EVENT_DATA *pEventData = pEvent->m_arEvent.GetData(iEventID);
 	if (pEventData == NULL
-		|| !CheckEventLogic(pEventData)) return; // Check if all 'A's meet the requirements in Event #1
+		|| !CheckEventLogic(pEventData)) 
+		return; // Check if all 'A's meet the requirements in Event #1
 
 	foreach (itr, pEventData->m_arExec)
 		if (!RunNpcEvent(pNpc, *itr))
 			return;
+}
+
+// This is horribly dumb.
+int32 CUser::GetEventIDByNPC(CNpc *pNpc)
+{
+	switch (pNpc->GetType())
+	{
+		case 100: return 4001; // this one is based on server flag (Renold[Event]).. we'll just assume the flag's set
+		case 72: return 2001;
+		case 36:
+		case 71: return 1001;
+		case 73: return 11001;
+		case 74: return 12001;
+		case 75: return 13001;
+		case 76: return 14001;
+		case 77: return 7001;
+		case 33: return 35001;
+		case 34:
+		case 105: return 21001;
+		case 35: return 15002;
+		case 43: return 15951;
+		case 45:
+		case 102: return 20701;
+		case 111: return 15801;
+		case 112: return 15821;
+		case 113: return 15841;
+		case 114: return 15861;
+		case 115: return 15881;
+		case 116: return 15901;
+		case 117: return 15921;
+		case 46:
+		case 104: return 20901;
+		case 47:
+		case 103: return 20801;
+		case 48:
+		case 101: return 20601;
+		case 38:
+		case 49: return 20501;
+		case 23: return 30001;
+		case 26: return 31001;
+		case 29: return 35201;
+		case 28: return g_pMain->GetEventTrigger(pNpc); // or -1
+		case 106:
+		case 109: return 31101;
+		case 107: return 31131;
+		case 108: return 31161;
+		case 110: return 31171;
+		case 24: return 8030;
+		case 118: return 35480;
+		case 123: return 35541;
+		case 125: return 35553;
+		case 124: return 35560;
+		case 126: return 35563;
+		case 127: return 35594;
+		case 128: return 35615;
+		case 129: return 20;
+		case 130: return 50;
+		case 131: return 36;
+		case 132: return 35550;
+		case 133: return 35624;
+		case 37:
+		case 134: return 1;
+		case 135: return 32000;
+		case 136: return 35640;
+		case 39:
+		case 137: return 22001;
+		case 138: return 35650;
+		case 140: return 35662;
+		case 141: return 1100;
+		case 142: return 17000;
+		case 143: return 17550;
+		case 144: return 17590;
+		case 145: return 17600;
+		case 146: return 17630;
+		case 147: return 17100;
+		case 148: return 17570;
+		case 149: return 17520;
+		case 150: return 17681;
+		case 151: return 15310;
+		case 152: return 2901;
+		case 153: return 35212;
+		case 154: return 0; // it actually returns this...
+		default: return -1;
+	}
 }
 
 BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 'A' parts and checks if the 
@@ -549,13 +615,8 @@ void CUser::NpcEvent(Packet & pkt)
 		Send(&result);
 		break;
 
-	case NPC_CLERIC:
-	case NPC_COUPON:
-	case NPC_MONK_KARUS:
-	case NPC_MONK_ELMORAD:
-		result << sNpcID; // this HAS to go.
-		ClientEvent(result);
-		break;
+	default:
+		ClientEvent(sNpcID);
 	}   
 }
 
