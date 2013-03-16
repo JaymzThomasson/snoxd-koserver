@@ -70,7 +70,7 @@ public:
 	int16	m_sHp, m_sMp, m_sSp;
 	uint8	m_bStats[STAT_COUNT];
 	uint8	m_bAuthority;
-	uint16	m_sPoints;
+	int16	m_sPoints; // this is just to shut the compiler up
 	uint32	m_iGold, m_iBank;
 	int16	m_sBind;
 	
