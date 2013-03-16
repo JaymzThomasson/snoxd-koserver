@@ -123,8 +123,8 @@ public:
 	short	m_sItemHitrate;
 	short	m_sItemEvasionrate;
 
-	uint16	m_sStatItemBonuses[STAT_COUNT];
-	uint8	m_bStatBuffs[STAT_COUNT];
+	int16	m_sStatItemBonuses[STAT_COUNT];
+	int8	m_bStatBuffs[STAT_COUNT];
 
 	short	m_iMaxHp, m_iMaxMp;
 	
@@ -243,28 +243,28 @@ public:
 		m_bStats[type] = val;
 	}
 
-	__forceinline uint32 getStatTotal() // NOTE: Shares name with another, but lack-of args should be self-explanatory
+	__forceinline int32 getStatTotal() // NOTE: Shares name with another, but lack-of args should be self-explanatory
 	{
-		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
+		int32 total = 0; // NOTE: this loop should be unrolled by the compiler
 		foreach_array (i, m_bStats)
 			total += m_bStats[i];
 		return total;
 	}
 
-	__forceinline uint16 getStatItemBonus(StatType type)
+	__forceinline int16 getStatItemBonus(StatType type)
 	{
 		ASSERT(type < STAT_COUNT);
 		return m_sStatItemBonuses[type];
 	}
 
-	__forceinline uint16 getStatWithItemBonus(StatType type)
+	__forceinline int16 getStatWithItemBonus(StatType type)
 	{
 		return getStat(type) + getStatItemBonus(type);
 	}
 
-	__forceinline uint32 getStatItemBonusTotal()
+	__forceinline int32 getStatItemBonusTotal()
 	{
-		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
+		int32 total = 0; // NOTE: this loop should be unrolled by the compiler
 		foreach_array (i, m_sStatItemBonuses)
 			total += m_sStatItemBonuses[i];
 		return total;

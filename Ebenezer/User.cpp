@@ -56,8 +56,8 @@ void CUser::Initialize()
 	m_sItemHit = 0;
 	m_sItemAc = 0;
 
-	memset(m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
-	memset(m_bStatBuffs, 0, sizeof(uint8) * STAT_COUNT);
+	memset(&m_sStatItemBonuses, 0, sizeof(m_sStatItemBonuses));
+	memset(&m_bStatBuffs, 0, sizeof(m_bStatBuffs));
 
 	m_sItemHitrate = 100;
 	m_sItemEvasionrate = 100;
