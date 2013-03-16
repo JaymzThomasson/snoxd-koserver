@@ -322,7 +322,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 	dbCommand->FetchByte(field++, pUser->m_bStats[STAT_INT]);
 	dbCommand->FetchByte(field++, pUser->m_bStats[STAT_CHA]);
 	dbCommand->FetchByte(field++, pUser->m_bAuthority);
-	dbCommand->FetchUInt16(field++, pUser->m_sPoints);
+	dbCommand->FetchInt16(field++, pUser->m_sPoints);
 	dbCommand->FetchUInt32(field++, pUser->m_iGold);
 	dbCommand->FetchByte(field++, pUser->m_bZone);
 	dbCommand->FetchInt16(field++, pUser->m_sBind);
