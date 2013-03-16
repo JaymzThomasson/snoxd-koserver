@@ -1141,11 +1141,11 @@ int8 CDBAgent::SendLetter(string & strSenderID, string & strRecipientID, string 
 	uint64 nSerialNum = 0;
 	uint32 nItemID = 0;
 	uint16 sCount = 0, sDurability = 0;
-	int8 bRet = 0;
+	int16 sRet = 0;
 
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
 	if (dbCommand.get() == NULL)
-		return bRet;
+		return 0;
 
 	// This is a little bit redundant, but best to be sure.
 	if (bType == 2 
@@ -1162,7 +1162,7 @@ int8 CDBAgent::SendLetter(string & strSenderID, string & strRecipientID, string 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strSubject.c_str(), strSubject.length());
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strMessage.c_str(), strMessage.length());
 
-	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &bRet);
+	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &sRet);
 
 	// NOTE: %I64d is signed int64 for Microsoft compilers (all we care about right now)
 	// Also: MSSQL uses signed types.
@@ -1173,7 +1173,7 @@ int8 CDBAgent::SendLetter(string & strSenderID, string & strRecipientID, string 
 		return 0;
 	}
 
-	return bRet;
+	return (int8)(sRet);
 }
 
 bool CDBAgent::ReadLetter(string & strCharID, uint32 nLetterID, string & strMessage)
