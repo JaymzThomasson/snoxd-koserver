@@ -280,6 +280,8 @@
     <ClInclude Include="..\shared\database\OdbcConnection.h" />
     <ClInclude Include="..\shared\database\OdbcParameter.h" />
     <ClInclude Include="..\shared\database\OdbcRecordset.h" />
+    <ClInclude Include="..\shared\database\QuestHelperSet.h" />
+    <ClInclude Include="..\shared\database\QuestMonsterSet.h" />
     <ClInclude Include="..\shared\database\ServerResourceSet.h" />
     <ClInclude Include="..\shared\database\StartPositionSet.h" />
     <ClInclude Include="..\shared\database\UserKnightsRankSet.h" />

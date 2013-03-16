@@ -407,6 +407,12 @@
     <ClInclude Include="..\shared\database\EventTriggerSet.h">
       <Filter>Database</Filter>
     </ClInclude>
+    <ClInclude Include="..\shared\database\QuestMonsterSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\database\QuestHelperSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Ebenezer.ico">

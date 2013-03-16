@@ -51,6 +51,9 @@ typedef CSTLMap <_HOME_INFO>				HomeArray;
 typedef CSTLMap <_START_POSITION>			StartPositionArray;
 typedef	CSTLMap	<EVENT>						QuestArray;
 typedef	CSTLMap	<_SERVER_RESOURCE>			ServerResourceArray;
+typedef	CSTLMap	<_QUEST_HELPER>				QuestHelperArray;
+typedef	CSTLMap	<_QUEST_MONSTER>			QuestMonsterArray;
+
 typedef hash_map<string, _USER_RANK *>		UserRankMap; 
 
 typedef std::pair<uint8, uint16>			NpcTrapPair;
@@ -114,6 +117,8 @@ public:
 	BOOL LoadItemTable();
 	BOOL LoadServerResourceTable();
 	BOOL LoadEventTriggerTable();
+	BOOL LoadQuestHelperTable();
+	BOOL LoadQuestMonsterTable();
 	BOOL MapFileLoad();
 	void AIServerConnect();
 	void SendAllUserInfo();
@@ -237,6 +242,8 @@ public:
 	QuestArray				m_Event;
 	ServerResourceArray		m_ServerResourceArray;
 	EventTriggerArray		m_EventTriggerArray;
+	QuestHelperArray		m_QuestHelperArray;
+	QuestMonsterArray		m_QuestMonsterArray;
 
 	CKnightsManager			m_KnightsManager;
 

@@ -290,7 +290,7 @@ bool CUser::HandlePacket(Packet & pkt)
 		ExchangeProcess(pkt);
 		break;
 	case WIZ_QUEST:
-		QuestDataRequest(pkt);
+		QuestV2PacketProcess(pkt);
 		break;
 	case WIZ_MERCHANT:
 		MerchantProcess(pkt);
@@ -527,22 +527,9 @@ void CUser::SendMyInfo()
 		m_curz = (float)z;
 	}
 
-	// Unlock skill data (level 70 skill quest).
-	// NOTE: This is just temporary until we can load quest data.
-	// At which time, we'll just send a list of quest IDs & their states (as is done here, just.. hardcoded)
-	Packet result(WIZ_QUEST, uint8(1));
-	uint16 Class = m_sClass % 100;
-	if (Class == 1 || Class == 5 || Class == 6)
-		result << uint16(3) << uint16(51) << uint8(2) << uint16(510) << uint8(2) << uint16(511) << uint8(2); // if 50+baseclass quest ID is completed
-	else if (Class == 2 || Class == 7 || Class == 8)
-		result << uint16(4) << uint16(52) << uint8(2) << uint16(512) << uint8(2) << uint16(513) << uint8(2) << uint16(514) << uint8(2);
-	else if (Class == 3 || Class == 9 || Class == 10)
-		result << uint16(4) << uint16(53) << uint8(2) << uint16(515) << uint8(2) << uint16(516) << uint8(2) << uint16(517) << uint8(2);
-	else if (Class == 4 || Class == 11 || Class == 12)
-		result << uint16(7) << uint16(54) << uint8(2) << uint16(518) << uint8(2) << uint16(519) << uint8(2) << uint16(520) << uint8(2) << uint16(521) << uint8(2) << uint16(522) << uint8(2) << uint16(523) << uint8(2);
-	Send(&result);
 
-	result.Initialize(WIZ_MYINFO);
+	QuestDataRequest();
+	Packet result(WIZ_MYINFO);
 
 	// Load up our user rankings (for our NP symbols).
 	g_pMain->GetUserRank(this);
@@ -3773,21 +3760,14 @@ void CUser::CharacterSealProcess(Packet & pkt)
 {
 }
 
-void CUser::QuestDataRequest(Packet & pkt)
+void CUser::QuestDataRequest()
 {
-	uint8 opcode = pkt.read<uint8>();
-
-	// NOTE: In 1.298 the client requested opcode 1 on login. Now it requests 3, so not sure why that was changed.
-	// Other opcodes are unknown
-	if (opcode == 3)
-	{
-		// Sending this now is probably wrong, but it's cleaner than it was before.
-		Packet result(WIZ_QUEST, uint8(1));
-		result << uint16(m_questMap.size());
-		foreach (itr, m_questMap)
-			result	<< itr->first << itr->second;
-		Send(&result);
-	}
+	// Sending this now is probably wrong, but it's cleaner than it was before.
+	Packet result(WIZ_QUEST, uint8(1));
+	result << uint16(m_questMap.size());
+	foreach (itr, m_questMap)
+		result	<< itr->first << itr->second;
+	Send(&result);
 
 	// NOTE: To activate Seed/Max (the kid that gets eaten by a worm), we need to send:
 	// sub opcode  = 2
@@ -3796,22 +3776,28 @@ void CUser::QuestDataRequest(Packet & pkt)
 	// and additionally, a final byte to specify whether he's shown or not (1 - no, 2 - yes)
 	// Before this is implemented I think it best to research this updated system further.
 
-	/*	
 	// Unlock skill data (level 70 skill quest).
 	// NOTE: This is just temporary until we can load quest data.
 	// At which time, we'll just send a list of quest IDs & their states (as is done here, just.. hardcoded)
-	Packet result(WIZ_QUEST, uint8(1));
-	uint16 Class = m_sClass % 100;
-	if (Class == 1 || Class == 5 || Class == 6)
-		result << uint16(3) << uint16(51) << uint8(2) << uint16(510) << uint8(2) << uint16(511) << uint8(2); // if 50+baseclass quest ID is completed
-	else if (Class == 2 || Class == 7 || Class == 8)
-		result << uint16(4) << uint16(52) << uint8(2) << uint16(512) << uint8(2) << uint16(513) << uint8(2) << uint16(514) << uint8(2);
-	else if (Class == 3 || Class == 9 || Class == 10)
-		result << uint16(4) << uint16(53) << uint8(2) << uint16(515) << uint8(2) << uint16(516) << uint8(2) << uint16(517) << uint8(2);
-	else if (Class == 4 || Class == 11 || Class == 12)
-		result << uint16(7) << uint16(54) << uint8(2) << uint16(518) << uint8(2) << uint16(519) << uint8(2) << uint16(520) << uint8(2) << uint16(521) << uint8(2) << uint16(522) << uint8(2) << uint16(523) << uint8(2);
-	Send(&result);
-	*/
+	{
+		Packet result(WIZ_QUEST, uint8(1));
+		uint16 Class = m_sClass % 100;
+		if (Class == 1 || Class == 5 || Class == 6)
+			result << uint16(3) << uint16(51) << uint8(2) << uint16(510) << uint8(2) << uint16(511) << uint8(2); // if 50+baseclass quest ID is completed
+		else if (Class == 2 || Class == 7 || Class == 8)
+			result << uint16(4) << uint16(52) << uint8(2) << uint16(512) << uint8(2) << uint16(513) << uint8(2) << uint16(514) << uint8(2);
+		else if (Class == 3 || Class == 9 || Class == 10)
+			result << uint16(4) << uint16(53) << uint8(2) << uint16(515) << uint8(2) << uint16(516) << uint8(2) << uint16(517) << uint8(2);
+		else if (Class == 4 || Class == 11 || Class == 12)
+			result << uint16(7) << uint16(54) << uint8(2) << uint16(518) << uint8(2) << uint16(519) << uint8(2) << uint16(520) << uint8(2) << uint16(521) << uint8(2) << uint16(522) << uint8(2) << uint16(523) << uint8(2);
+		Send(&result);
+	}
+}
+
+void CUser::QuestV2PacketProcess(Packet & pkt)
+{
+	uint8 opcode = pkt.read<uint8>();
+	uint32 nQuestHelperID = pkt.read<uint32>();
 }
 
 bool CUser::CheckExistEvent(uint16 sQuestID, uint8 bQuestState)

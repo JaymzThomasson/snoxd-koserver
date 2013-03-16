@@ -431,8 +431,12 @@ public:
 	BOOL ExecuteExchange();
 	int ExchangeDone();
 
-	void QuestDataRequest(Packet & pkt);
+	// Sends the quest completion statuses
+	void QuestDataRequest();
 
+	// Handles new quest packets
+	void QuestV2PacketProcess(Packet & pkt);
+	
 	// Merchant system (both types)
 	void MerchantProcess(Packet & pkt);
 	void GiveMerchantItems();

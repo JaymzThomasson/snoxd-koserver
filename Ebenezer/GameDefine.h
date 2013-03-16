@@ -418,6 +418,41 @@ struct _USER_RANK
 	uint32	nSalary; // nMoney for USER_KNIGHTS_RANK
 };
 
+struct _QUEST_HELPER
+{
+	uint32	nIndex;
+	uint8	bMessageType;
+	uint8	bLevel;
+	uint32	nExp;
+	uint8	bClass;
+	uint8	bNation;
+	uint8	bQuestType;
+	uint8	bZone;
+	uint16	sNpcId;
+	uint16	sEventDataIndex;
+	uint8	bEventStatus;
+	uint32	nEventTriggerIndex;
+	uint32	nEventCompleteIndex;
+	uint32	nExchangeIndex;
+	uint32	nEventTalkIndex;
+	std::string strLuaFilename;
+};
+
+#define QUEST_MOB_GROUPS		4
+#define QUEST_MOBS_PER_GROUP	4
+struct _QUEST_MONSTER
+{
+	uint16	sQuestNum;
+	uint16	sNum[QUEST_MOB_GROUPS][QUEST_MOBS_PER_GROUP]; 
+	uint16	sCount[QUEST_MOB_GROUPS];
+
+	_QUEST_MONSTER()
+	{
+		memset(&sCount, 0, sizeof(sCount));
+		memset(&sNum, 0, sizeof(sNum));
+	}
+};
+
 enum AuthorityTypes
 {
 	AUTHORITY_GAME_MASTER			= 0,
