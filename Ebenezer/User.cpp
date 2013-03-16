@@ -3334,53 +3334,56 @@ void CUser::OnDeath(Unit *pKiller)
 	InitType3();
 	InitType4();
 
-	if (pKiller->isNPC())
+	if (pKiller != NULL)
 	{
-		CNpc *pNpc = TO_NPC(pKiller);
-		if (pNpc->GetType() == NPC_PATROL_GUARD
-			|| (GetZoneID() != GetNation() && GetZoneID() <= ELMORAD))
-			ExpChange(-m_iMaxExp / 100);
-		else
-			ExpChange(-m_iMaxExp / 20);
-	}
-	else
-	{
-		CUser *pUser = TO_USER(pKiller);
-
-		// Looks like we died of "natural causes!" (probably residual DOT)
-		if (pUser == this)
+		if (pKiller->isNPC())
 		{
-			m_sWhoKilledMe = -1;
+			CNpc *pNpc = TO_NPC(pKiller);
+			if (pNpc->GetType() == NPC_PATROL_GUARD
+				|| (GetZoneID() != GetNation() && GetZoneID() <= ELMORAD))
+				ExpChange(-m_iMaxExp / 100);
+			else
+				ExpChange(-m_iMaxExp / 20);
 		}
-		// Someone else killed us? Need to clean this up.
 		else
 		{
-			// Did we get killed in the snow war? Handle appropriately.
-			if (GetZoneID() == ZONE_SNOW_BATTLE 
-				&& g_pMain->m_byBattleOpen == SNOW_BATTLE)
-			{
-				pUser->GoldGain(SNOW_EVENT_MONEY);
+			CUser *pUser = TO_USER(pKiller);
 
-				if (GetNation() == KARUS)
-					g_pMain->m_sKarusDead++;
-				else 
-					g_pMain->m_sElmoradDead++;
+			// Looks like we died of "natural causes!" (probably residual DOT)
+			if (pUser == this)
+			{
+				m_sWhoKilledMe = -1;
 			}
-			// Otherwise...
+			// Someone else killed us? Need to clean this up.
 			else
 			{
-				if (!pUser->isInParty())
-					pUser->LoyaltyChange(GetID());
+				// Did we get killed in the snow war? Handle appropriately.
+				if (GetZoneID() == ZONE_SNOW_BATTLE 
+					&& g_pMain->m_byBattleOpen == SNOW_BATTLE)
+				{
+					pUser->GoldGain(SNOW_EVENT_MONEY);
+
+					if (GetNation() == KARUS)
+						g_pMain->m_sKarusDead++;
+					else 
+						g_pMain->m_sElmoradDead++;
+				}
+				// Otherwise...
 				else
-					pUser->LoyaltyDivide(GetID());
+				{
+					if (!pUser->isInParty())
+						pUser->LoyaltyChange(GetID());
+					else
+						pUser->LoyaltyDivide(GetID());
 
-				pUser->GoldChange(GetID(), 0);
+					pUser->GoldChange(GetID(), 0);
 
-				if (GetZoneID() != GetNation() && GetZoneID() <= ELMORAD)
-					ExpChange(-(m_iMaxExp / 100));
-			}
+					if (GetZoneID() != GetNation() && GetZoneID() <= ELMORAD)
+						ExpChange(-(m_iMaxExp / 100));
+				}
 			
-			m_sWhoKilledMe = pUser->GetID();
+				m_sWhoKilledMe = pUser->GetID();
+			}
 		}
 	}
 
@@ -3798,6 +3801,10 @@ void CUser::QuestV2PacketProcess(Packet & pkt)
 {
 	uint8 opcode = pkt.read<uint8>();
 	uint32 nQuestHelperID = pkt.read<uint32>();
+
+	switch (opcode)
+	{
+	}
 }
 
 bool CUser::CheckExistEvent(uint16 sQuestID, uint8 bQuestState)
