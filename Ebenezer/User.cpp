@@ -3800,11 +3800,68 @@ void CUser::QuestDataRequest()
 void CUser::QuestV2PacketProcess(Packet & pkt)
 {
 	uint8 opcode = pkt.read<uint8>();
-	uint32 nQuestHelperID = pkt.read<uint32>();
+	uint32 nQuestID = pkt.read<uint32>();
+
+	_QUEST_HELPER * pQuestHelper = g_pMain->m_QuestHelperArray.GetData(nQuestID);
+	if (pQuestHelper == NULL)
+		return;
+
+	// Is this quest for this player's nation? NOTE: 3 indicates both (why not 0, I don't know)
+	if ((pQuestHelper->bNation != 3
+		&& pQuestHelper->bNation != GetNation())
+		// Is the player's level high enough to do this quest?
+		|| (pQuestHelper->bLevel > GetLevel())
+		// Are we the correct class? NOTE: 5 indicates any class.
+		|| (pQuestHelper->bClass != 5 
+			&& !JobGroupCheck(pQuestHelper->bClass))
+		// Are we in the correct zone? NOTE: This isn't checked officially, may be for good reason.
+		|| GetZoneID() != pQuestHelper->bZone)
+		return;
+
+	// If we're the same min. level as the quest requires, 
+	// do we have the min. required XP? Seems kind of silly, but OK..
+	if (pQuestHelper->bLevel == GetLevel()
+		&& pQuestHelper->nExp > m_iExp)
+		return;
 
 	switch (opcode)
 	{
+	case 3:
+	case 7:
+		QuestV2ExecuteHelper(pQuestHelper);
+		break;
+
+	case 4:
+		QuestV2CheckFulfill(pQuestHelper);
+		break;
+
+	case 5:
+		SaveEvent(pQuestHelper->sEventDataIndex, 4);
+		/*
+		if (m_sEventDataIndex > 0 
+			&& m_sEventDataIndex == pQuestHelper->sEventDataIndex)
+		{
+			QuestV2MonsterDataDeleteAll();
+			QuestV2MonsterDataRequest();
+		}
+		 */
+		break;
+
+	case 6:
+		if (!CheckExistEvent(pQuestHelper->sEventDataIndex, 2))
+			SaveEvent(pQuestHelper->sEventDataIndex, 1);
+		break;
+
+	case 12:
+		if (!CheckExistEvent(pQuestHelper->sEventDataIndex, 3))
+			SaveEvent(pQuestHelper->sEventDataIndex, 1);
+		break;
 	}
+}
+
+void CUser::SaveEvent(uint16 sQuestID, uint8 bQuestState)
+{
+	m_questMap[sQuestID] = bQuestState;
 }
 
 bool CUser::CheckExistEvent(uint16 sQuestID, uint8 bQuestState)
@@ -3819,4 +3876,27 @@ bool CUser::CheckExistEvent(uint16 sQuestID, uint8 bQuestState)
 		return bQuestState == 0;
 
 	return itr->second == bQuestState;
+}
+
+void CUser::QuestV2ExecuteHelper(_QUEST_HELPER * pQuestHelper)
+{
+	if (pQuestHelper == NULL
+		|| !CheckExistEvent(pQuestHelper->sEventDataIndex, 2))
+		return;
+
+	QuestV2RunEvent(pQuestHelper, pQuestHelper->nEventTriggerIndex); // NOTE: Fulfill will use nEventCompleteIndex
+}
+
+void CUser::QuestV2CheckFulfill(_QUEST_HELPER * pQuestHelper)
+{
+	if (pQuestHelper == NULL
+		|| !CheckExistEvent(pQuestHelper->sEventDataIndex, 1))
+		return;
+
+	QuestV2RunEvent(pQuestHelper, pQuestHelper->nEventCompleteIndex);
+}
+
+void CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID)
+{
+	// TO-DO: Run helper's Lua script.
 }

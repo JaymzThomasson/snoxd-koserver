@@ -431,12 +431,6 @@ public:
 	BOOL ExecuteExchange();
 	int ExchangeDone();
 
-	// Sends the quest completion statuses
-	void QuestDataRequest();
-
-	// Handles new quest packets
-	void QuestV2PacketProcess(Packet & pkt);
-	
 	// Merchant system (both types)
 	void MerchantProcess(Packet & pkt);
 	void GiveMerchantItems();
@@ -595,7 +589,17 @@ public:
 	//Magic System - rewrite
 	bool CanUseItem(long itemid, uint16 count); //Should place this with other item related functions
 
+	void SaveEvent(uint16 sQuestID, uint8 bQuestState);
 	bool CheckExistEvent(uint16 sQuestID, uint8 bQuestState);
+
+	// Sends the quest completion statuses
+	void QuestDataRequest();
+
+	// Handles new quest packets
+	void QuestV2PacketProcess(Packet & pkt);
+	void QuestV2ExecuteHelper(_QUEST_HELPER * pQuestHelper);
+	void QuestV2CheckFulfill(_QUEST_HELPER * pQuestHelper);
+	void QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID);
 
 	//Zone checks
 	bool isAttackZone();
