@@ -3867,7 +3867,47 @@ void CUser::QuestV2PacketProcess(Packet & pkt)
 
 void CUser::SaveEvent(uint16 sQuestID, uint8 bQuestState)
 {
+	_QUEST_MONSTER * pQuestMonster = g_pMain->m_QuestMonsterArray.GetData(sQuestID);
+
+	if (pQuestMonster != NULL
+		&& bQuestState == 1
+		&& m_sEventDataIndex > 0)
+		return;
+
 	m_questMap[sQuestID] = bQuestState;
+
+	// Don't need to handle special/kill quests any further
+	if (sQuestID >= QUEST_KILL_GROUP1)
+		return;
+
+	Packet result(WIZ_QUEST, uint8(2));
+	result << sQuestID << bQuestState;
+	Send(&result);
+
+	if (m_sEventDataIndex == sQuestID 
+		&& bQuestState == 2)
+	{
+		QuestV2MonsterDataDeleteAll();
+		QuestV2MonsterDataRequest();
+	}
+
+	if (bQuestState == 1
+		&& pQuestMonster != NULL)
+	{
+		// TO-DO: Decipher this into more meaningful code. :p
+		int16 v11 = ((int16)((uint32)(6711 * sQuestID) >> 16) >> 10) - (sQuestID >> 15);
+		int16 v12 = ((int16)((uint32)(5243 * (int16)(sQuestID - 10000 * v11)) >> 16) >> 3)
+			- ((int16)(sQuestID - 10000 * v11) >> 15);
+
+        SaveEvent(32005, (uint16)((int16)((uint32)(6711 * sQuestID) >> 16) >> 10) 
+			- (int16)(sQuestID >> 15));
+		SaveEvent(32006, (uint8)v12);
+		SaveEvent(32007, sQuestID
+			- 100 * ((uint16)((int16)((uint32)(5243 * sQuestID) >> 16) >> 3) - (sQuestID >> 15)));
+		m_sEventDataIndex = sQuestID;
+		QuestV2MonsterDataRequest();
+	}
+
 }
 
 void CUser::DeleteEvent(uint16 sQuestID)
@@ -3911,14 +3951,13 @@ void CUser::QuestV2MonsterCountAdd(uint16 sNpcID)
 			if (pQuestMonster->sNum[group][i] != sNpcID)
 				continue;
 
-			uint8 bGroup = group + 1;
 			if (m_bKillCounts[group] + 1 > pQuestMonster->sCount[group])
 				return;
 
 			m_bKillCounts[group]++;
-			SaveEvent(32000 + bGroup, m_bKillCounts[group]);
+			SaveEvent(QUEST_KILL_GROUP1 + group, m_bKillCounts[group]);
 			Packet result(WIZ_QUEST, uint8(9));
-			result << uint8(2) << bGroup << m_bKillCounts[group];
+			result << uint8(2) << uint8(group + 1) << m_bKillCounts[group];
 			Send(&result);
 			return;
 		}
@@ -3942,7 +3981,7 @@ void CUser::QuestV2MonsterDataDeleteAll()
 	memset(&m_bKillCounts, 0, sizeof(m_bKillCounts));
 	m_sEventDataIndex = 0;
 
-	for (int i = 32001; i <= 32007; i++)
+	for (int i = QUEST_KILL_GROUP1; i <= 32007; i++)
 		DeleteEvent(i);
 }
 
