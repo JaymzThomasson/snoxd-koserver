@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "Server.h"
 #include "NpcTable.h"
 
 CNpcTable::CNpcTable()

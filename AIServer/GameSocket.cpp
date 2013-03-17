@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "Server.h"
 #include "GameSocket.h"
 #include "ServerDlg.h"
 #include "User.h"
@@ -108,7 +107,7 @@ bool CGameSocket::HandlePacket(Packet & pkt)
 void CGameSocket::RecvServerConnect(Packet & pkt)
 {
 	uint8 byReconnect = pkt.read<uint8>();
-	g_pMain->AddToList("[GameServer connected - %s]", GetRemoteIP().c_str());
+	printf("[GameServer connected - %s]\n", GetRemoteIP().c_str());
 
 	Packet result(SERVER_CONNECT, byReconnect);
 	Send(&result);

@@ -12,7 +12,6 @@
 #include "User.h"
 #include "Npc.h"
 #include "NpcThread.h"
-#include "Server.h"
 #include "Party.h"
 
 #include "extern.h"			// 전역 객체
@@ -44,7 +43,7 @@ typedef CSTLMap <MAP>						ZoneArray;
 typedef CSTLMap <_K_MONSTER_ITEM>			NpcItemArray;
 typedef CSTLMap <_MAKE_ITEM_GROUP>			MakeItemGroupArray;
 
-class CServerDlg : public CDialog
+class CServerDlg
 {
 private:
 	void ResumeAI();
@@ -68,6 +67,9 @@ private:
 	void RegionCheck();		// region안에 들어오는 유저 체크 (스레드에서 FindEnermy()함수의 부하를 줄이기 위한 꽁수)
 // Construction
 public:
+	CServerDlg();
+	bool Startup();
+
 	bool LoadSpawnCallback(OdbcCommand *dbCommand);
 	void GameServerAcceptThread();
 	BOOL AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number);
@@ -78,8 +80,6 @@ public:
 	MAP * GetZoneByID(int zonenumber);
 	int GetServerNumber( int zonenumber );
 
-	void AddToList(const char * format, ...);
-
 	void CheckAliveTest();
 	void DeleteUserList(int uid);
 	void DeleteAllUserList(CGameSocket *pSock = NULL);
@@ -88,26 +88,10 @@ public:
 	void SendSystemMsg( char* pMsg, int type=0, int who=0 );
 	void ResetBattleZone();
 
-	CServerDlg(CWnd* pParent = NULL);	// standard constructor
-
-// Dialog Data
-	//{{AFX_DATA(CServerDlg)
-	enum { IDD = IDD_SERVER_DIALOG };
-	CListBox	m_StatusList;
-	CString	m_strStatus;
-	//}}AFX_DATA
-
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CServerDlg)
-	public:
-	virtual BOOL DestroyWindow();
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
-	//}}AFX_VIRTUAL
+	void OnTimer(UINT nIDEvent);
+	~CServerDlg();
 
 public:
-//	ZoneArray			m_arZone;
 	NpcArray			m_arNpc;
 	NpcTableArray		m_arMonTable;
 	NpcTableArray		m_arNpcTable;
@@ -127,7 +111,7 @@ public:
 	ZoneArray				g_arZone;
 	NpcItemArray			m_NpcItemArray;
 	MakeItemGroupArray		m_MakeItemGroupArray;
-	CWinThread* m_pZoneEventThread;		// zone
+	HANDLE m_hZoneEventThread;		// zone
 
 	char m_strGameDSN[32], m_strGameUID[32], m_strGamePWD[32];
 	OdbcConnection m_GameDB;
@@ -154,25 +138,6 @@ public:
 
 private:
 	BYTE				m_byZone;
-	
-
-// Implementation
-protected:
-	void DefaultInit();
-
-	
-//	CGameSocket m_GameSocket;
-
-	HICON m_hIcon;
-
-	// Generated message map functions
-	//{{AFX_MSG(CServerDlg)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnPaint();
-	afx_msg HCURSOR OnQueryDragIcon();
-	afx_msg void OnTimer(UINT nIDEvent);
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
 };
 
 extern CServerDlg * g_pMain;

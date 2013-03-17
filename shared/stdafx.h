@@ -7,7 +7,7 @@
 
 // The login server & Aujard aren't using MFC anymore.
 // This can be simplified when Aujard's gone & Ebenezer/AI aren't using MFC.
-#if defined(LOGIN_SERVER) || defined(AUJARD)
+#if defined(LOGIN_SERVER) || defined(AUJARD) || defined(AI_SERVER)
 
 // Remember to include Winsock first
 #	ifndef AUJARD

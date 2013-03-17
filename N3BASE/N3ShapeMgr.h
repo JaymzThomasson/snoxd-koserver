@@ -16,19 +16,6 @@ public:
 		int 	nCCPolyCount; // Collision Check Polygon Count
 		DWORD*	pdwCCVertIndices; // Collision Check Polygon Vertex Indices - wCCPolyCount * 3 만큼 생성된다.
 
-		void Load(HANDLE hFile)
-		{
-			DWORD dwRWC = 0;
-			ReadFile(hFile, &nCCPolyCount, 4, &dwRWC, NULL);
-			if(nCCPolyCount != 0)
-			{
-				if(pdwCCVertIndices) delete [] pdwCCVertIndices;
-				pdwCCVertIndices = new DWORD[nCCPolyCount * 3];
-				__ASSERT(pdwCCVertIndices, "New memory failed");
-				ReadFile(hFile, pdwCCVertIndices, nCCPolyCount * 3 * 4, &dwRWC, NULL);
-			}
-		}
-
 		void Load(FILE *fp)
 		{
 			fread(&nCCPolyCount, sizeof(int), 1, fp);
@@ -50,25 +37,6 @@ public:
 		int		nShapeCount; // Shape Count;
 		WORD*	pwShapeIndices; // Shape Indices
 		__CellSub SubCells[CELL_MAIN_DEVIDE][CELL_MAIN_DEVIDE];
-
-		void Load(HANDLE hFile)
-		{
-			DWORD dwRWC = 0;
-			ReadFile(hFile, &nShapeCount, 4, &dwRWC, NULL);
-			if(nShapeCount != 0)
-			{
-				if(pwShapeIndices) delete [] pwShapeIndices;
-				pwShapeIndices = new WORD[nShapeCount];
-				ReadFile(hFile, pwShapeIndices, nShapeCount * 2, &dwRWC, NULL);
-			}
-			for(int z = 0; z < CELL_MAIN_DEVIDE; z++)
-			{
-				for(int x = 0; x < CELL_MAIN_DEVIDE; x++)
-				{
-					SubCells[x][z].Load(hFile);
-				}
-			}
-		}
 
 		void Load(FILE *fp)
 		{
@@ -129,7 +97,6 @@ public:
 								__Vector3* pVec = NULL);		// 충돌한 면 의 폴리곤 __Vector3[3]
 
 	bool		Create(float fMapWidth, float fMapLength); // 맵의 너비와 높이를 미터 단위로 넣는다..
-	bool		LoadCollisionData(HANDLE hFile);
 	bool		LoadCollisionData(FILE *fp);
 
 	void Release();

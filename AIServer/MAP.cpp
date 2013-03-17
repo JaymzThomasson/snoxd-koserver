@@ -6,6 +6,7 @@
 #include "User.h"
 #include "RoomEvent.h"
 #include "../shared/packets.h"
+#include <fstream>
 
 using namespace std;
 
@@ -71,12 +72,10 @@ void MAP::RemoveMapData()
 		m_ppRegion = NULL;
 	}
 
-	if( m_fHeight ){
-		for(int i=0; i< m_nMapSize; i++) {
-			delete[] m_fHeight[i];
-			m_fHeight[i] = NULL;
-		}
+	if (m_fHeight)
+	{
 		delete[] m_fHeight;
+		m_fHeight = NULL;
 	}
 	
 	if( m_pMap ) {
@@ -111,11 +110,11 @@ BOOL MAP::IsMovable(int dest_x, int dest_y)
 ///////////////////////////////////////////////////////////////////////
 //	각 서버가 담당하고 있는 zone의 Map을 로드한다.
 //
-BOOL MAP::LoadMap(HANDLE hFile)
+BOOL MAP::LoadMap(FILE * fp)
 {
-	LoadTerrain( hFile );
+	LoadTerrain(fp);
 	m_N3ShapeMgr.Create((m_nMapSize - 1)*m_fUnitDist, (m_nMapSize-1)*m_fUnitDist);
-	if( !m_N3ShapeMgr.LoadCollisionData(hFile) )
+	if( !m_N3ShapeMgr.LoadCollisionData(fp) )
 		return FALSE;
 
 	if(	(m_nMapSize - 1) * m_fUnitDist != m_N3ShapeMgr.Width() || 
@@ -138,31 +137,19 @@ BOOL MAP::LoadMap(HANDLE hFile)
 		m_ppRegion[i]->m_byMoving = 0;
 	}
 
-	LoadObjectEvent(hFile);
-	LoadMapTile(hFile);
+	LoadObjectEvent(fp);
+	LoadMapTile(fp);
 
 	return TRUE;
 }
 
-void MAP::LoadTerrain(HANDLE hFile)
+void MAP::LoadTerrain(FILE * fp)
 {
-	DWORD dwRWC;
-	ReadFile(hFile, &m_nMapSize, sizeof(int), &dwRWC, NULL);	// 가로세로 정보가 몇개씩인가?
-	ReadFile(hFile, &m_fUnitDist, sizeof(float), &dwRWC, NULL);
+	fread(&m_nMapSize, sizeof(m_nMapSize), 1, fp);
+	fread(&m_fUnitDist, sizeof(m_fUnitDist), 1, fp);
 
-	m_fHeight = new float*[m_nMapSize];
-	for(int i=0; i<m_nMapSize; i++) {
-		m_fHeight[i] = new float[m_nMapSize];
-	}
-
-	int x, z;
-	for(z=0;z<m_nMapSize;z++)
-	{
-		for(x=0;x<m_nMapSize;x++)
-		{
-			ReadFile(hFile, &(m_fHeight[x][z]), sizeof(float), &dwRWC, NULL);	// 높이값 읽어오기
-		}
-	}
+	m_fHeight = new float[m_nMapSize * m_nMapSize];
+	fread(m_fHeight, sizeof(float) * m_nMapSize * m_nMapSize, 1, fp);
 }
 
 float MAP::GetHeight(float x, float z)
@@ -186,9 +173,9 @@ float MAP::GetHeight(float x, float z)
 	{
 		if ((dX+dZ) < 1.0f)
 		{
-			h1 = m_fHeight[iX][iZ+1];
-			h2 = m_fHeight[iX+1][iZ];
-			h3 = m_fHeight[iX][iZ];
+			h1 = m_fHeight[iX * m_nMapSize + iZ+1];
+			h2 = m_fHeight[iX+1 * m_nMapSize + iZ];
+			h3 = m_fHeight[iX * m_nMapSize + iZ];
 
 			//if (dX == 1.0f) return h2;
 
@@ -198,9 +185,9 @@ float MAP::GetHeight(float x, float z)
 		}
 		else
 		{
-			h1 = m_fHeight[iX][iZ+1];
-			h2 = m_fHeight[iX+1][iZ];
-			h3 = m_fHeight[iX+1][iZ+1];
+			h1 = m_fHeight[iX * m_nMapSize + iZ+1];
+			h2 = m_fHeight[iX+1 * m_nMapSize + iZ];
+			h3 = m_fHeight[iX+1 * m_nMapSize + iZ+1];
 
 			if (dX == 0.0f) return h1;
 
@@ -213,9 +200,9 @@ float MAP::GetHeight(float x, float z)
 	{
 		if (dZ > dX)
 		{
-			h1 = m_fHeight[iX][iZ+1];
-			h2 = m_fHeight[iX+1][iZ+1];
-			h3 = m_fHeight[iX][iZ];
+			h1 = m_fHeight[iX * m_nMapSize + iZ+1];
+			h2 = m_fHeight[iX+1 * m_nMapSize + iZ+1];
+			h3 = m_fHeight[iX * m_nMapSize + iZ];
 
 			//if (dX == 1.0f) return h2;
 
@@ -225,9 +212,9 @@ float MAP::GetHeight(float x, float z)
 		}
 		else
 		{
-			h1 = m_fHeight[iX][iZ];
-			h2 = m_fHeight[iX+1][iZ];
-			h3 = m_fHeight[iX+1][iZ+1];
+			h1 = m_fHeight[iX * m_nMapSize + iZ];
+			h2 = m_fHeight[iX+1 * m_nMapSize + iZ];
+			h3 = m_fHeight[iX+1 * m_nMapSize + iZ+1];
 
 			if (dX == 0.0f) return h1;
 
@@ -317,7 +304,7 @@ BOOL MAP::RegionNpcRemove(int rx, int rz, int nid)
 	return TRUE;
 }
 
-void MAP::LoadMapTile(HANDLE hFile)
+void MAP::LoadMapTile(FILE * fp)
 {
 	//MapTile속성 읽기..
 	//	속성이 0이면 못 가는 곳.
@@ -326,14 +313,13 @@ void MAP::LoadMapTile(HANDLE hFile)
 	//
 	int x1 = m_sizeMap.cx;
 	int z1 = m_sizeMap.cy;
-	DWORD dwNum;
 	short** pEvent;
 	pEvent = new short*[m_sizeMap.cx];
 	for(int a=0;a<m_sizeMap.cx;a++)
 		pEvent[a] = new short[m_sizeMap.cx];
 	// 잠시 막아놓고..
 	for(int x=0;x<m_sizeMap.cx;x++)
-		ReadFile(hFile, pEvent[x], sizeof(short)*m_sizeMap.cy, &dwNum, NULL);
+		fread(pEvent[x], sizeof(short)*m_sizeMap.cy, 1, fp);
 	
 	m_pMap = new CMapInfo*[m_sizeMap.cx];
 
@@ -396,23 +382,22 @@ int  MAP::GetRegionNpcSize(int rx, int rz)
 	return nRet;
 }
 
-void MAP::LoadObjectEvent(HANDLE hFile)
+void MAP::LoadObjectEvent(FILE * fp)
 {
 	int 	iEventObjectCount = 0;
-	DWORD	dwNum;
 
-	ReadFile(hFile, &iEventObjectCount, 4, &dwNum, NULL);
+	fread(&iEventObjectCount, 4, 1, fp);
 	for( int i=0; i<iEventObjectCount; i++)
 	{
 		_OBJECT_EVENT* pEvent = new _OBJECT_EVENT;
-		ReadFile(hFile, &(pEvent->sBelong), 4, &dwNum, NULL);					// 소속 
-		ReadFile(hFile, &(pEvent->sIndex), 2, &dwNum, NULL);				// Event Index
-		ReadFile(hFile, &(pEvent->sType), 2, &dwNum, NULL);
-		ReadFile(hFile, &(pEvent->sControlNpcID), 2, &dwNum, NULL);
-		ReadFile(hFile, &(pEvent->sStatus), 2, &dwNum, NULL);
-		ReadFile(hFile, &(pEvent->fPosX), 4, &dwNum, NULL);
-		ReadFile(hFile, &(pEvent->fPosY), 4, &dwNum, NULL);
-		ReadFile(hFile, &(pEvent->fPosZ), 4, &dwNum, NULL);
+		fread(&(pEvent->sBelong), 4, 1, fp);					// 소속 
+		fread(&(pEvent->sIndex), 2, 1, fp);				// Event Index
+		fread(&(pEvent->sType), 2, 1, fp);
+		fread(&(pEvent->sControlNpcID), 2, 1, fp);
+		fread(&(pEvent->sStatus), 2, 1, fp);
+		fread(&(pEvent->fPosX), 4, 1, fp);
+		fread(&(pEvent->fPosY), 4, 1, fp);
+		fread(&(pEvent->fPosZ), 4, 1, fp);
 
 		//TRACE("Object - belong=%d, index=%d, type=%d, con=%d, sta=%d\n", pEvent->sBelong, pEvent->sIndex, pEvent->sType, pEvent->sControlNpcID, pEvent->sStatus);
 
@@ -434,9 +419,8 @@ void MAP::LoadObjectEvent(HANDLE hFile)
 BOOL MAP::LoadRoomEvent( int zone_number )
 {
 	DWORD		length, count;
-	CString		filename;
-	CFile		pFile;
-	BYTE		byte;
+	string	filename;
+	char		byte;
 	char		buf[4096];
 	char		first[1024];
 	char		temp[1024];
@@ -445,21 +429,28 @@ BOOL MAP::LoadRoomEvent( int zone_number )
 	int			event_num = 0, nation = 0;
 
 	CRoomEvent*	pEvent = NULL;
-	filename.Format( ".\\MAP\\%d.aievt", zone_number);
+	filename = ".\\MAP\\";
+	filename += zone_number;
+	filename += ".aievt";
 
-	if( !pFile.Open( filename, CFile::modeRead) ) return FALSE;
+	ifstream is(filename.c_str());
+	if (!is)
+		return FALSE;
 
-	length = (DWORD)pFile.GetLength();
-	CArchive in(&pFile, CArchive::load);
+	is.seekg(0, is.end);
+    length = (DWORD)is.tellg();
+    is.seekg (0, is.beg);
 
 	count = 0;
 
-	while(count < length)	{
-		in >> byte;	count ++;
+	while (count < length)
+	{
+		is.read(&byte, 1);
+		count ++;
 
-		if( (char)byte != '\r' && (char)byte != '\n' ) buf[index++] = byte;
+		if( byte != '\r' && byte != '\n' ) buf[index++] = byte;
 
-		if(((char)byte == '\n' || count == length ) && index > 1 )	{
+		if((byte == '\n' || count == length ) && index > 1 )	{
 			buf[index] = (BYTE) 0;
 			t_index = 0;
 
@@ -559,17 +550,14 @@ BOOL MAP::LoadRoomEvent( int zone_number )
 		}
 	}
 
-	in.Close();
-	pFile.Close();
+	is.close();
 
 	return TRUE;
 
 cancel_event_load:
-	CString str;
-	str.Format( "이벤트 정보 읽기 실패(%d)(%d)", zone_number, event_num );
-	AfxMessageBox( str );
-	in.Close();
-	pFile.Close();
+	printf("Unable to load AI EVT (%d.aievt), failed in or near event number %d.\n", 
+		zone_number, event_num);
+	is.close();
 //	DeleteAll();
 	return FALSE;
 	//return TRUE;

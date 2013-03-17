@@ -1,5 +1,23 @@
 #pragma once
 
+// temporary
+struct CPoint
+{
+	CPoint() {}
+	CPoint(int x, int y) : x(x), y(y) {}
+	int x, y;
+};
+
+class CRect
+{
+public:
+	CRect(int x1, int y1, int x3, int y3) 
+		: A(x1, y1), C(x3, y3) {}
+	bool PtInRect(int x, int y) { return (x >= A.x && x <= C.x && y >= A.y && y <= C.y); }
+private:
+	CPoint A, C;
+};
+
 class _PathNode {
 public:
     int f;

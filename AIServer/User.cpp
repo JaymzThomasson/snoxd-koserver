@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "Server.h"
 #include "User.h"
 #include "Serverdlg.h"
 #include "define.h"

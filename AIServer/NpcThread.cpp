@@ -18,7 +18,6 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 {
 	NPC_THREAD_INFO*	pInfo	= (NPC_THREAD_INFO*)pParam;
 	CNpc*				pNpc	= NULL;
-	CPoint				pt;
 
 	int					i			= 0;
 	DWORD				dwDiffTime	= 0;
@@ -168,14 +167,10 @@ UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */)
 
 CNpcThread::CNpcThread()
 {
-//	m_pNpc =	NULL;
-	m_pThread = NULL;
+	m_hThread = NULL;
 	m_sThreadNumber = -1;
 
-	for( int i = 0; i < NPC_NUM; i++ )
-	{
-		m_pNpc[i] = NULL;
-	}
+	memset(&m_pNpc, 0, sizeof(m_pNpc));
 }
 
 CNpcThread::~CNpcThread()

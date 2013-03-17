@@ -1011,10 +1011,9 @@ BOOL CNpc::SetLive()
 
 		InterlockedIncrement(&g_pMain->m_CurrentNPC);
 
-		TRACE("Npc - SerLive :  cur = %d\n", g_pMain->m_CurrentNPC);
 		if(g_pMain->m_TotalNPC == g_pMain->m_CurrentNPC)	// 몬스터 총 수와 초기화한 몬스터의 수가 같다면
 		{
-			g_pMain->AddToList("Monster All Init Success - %d", g_pMain->m_CurrentNPC);
+			printf("Monster All Init Success - %d\n", g_pMain->m_CurrentNPC);
 
 			TRACE("Npc - SerLive : GameServerAcceptThread, cur = %d\n", g_pMain->m_CurrentNPC);
 			g_pMain->GameServerAcceptThread();				// 게임서버 Accept
@@ -1048,9 +1047,9 @@ BOOL CNpc::SetLive()
 
 	SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);
 	m_byDeadType = 0;
-	CTime t = CTime::GetCurrentTime();
-	TRACE("NPC Init(nid=%d, sid=%d, th_num=%d, name=%s) - %.2f %.2f, gate = %d, m_byDeadType=%d, time=%d:%d-%d\n", 
-		m_sNid+NPC_BAND, m_proto->m_sSid, m_sThreadNumber, m_proto->m_strName, m_fCurX, m_fCurZ, m_byGateOpen, m_byDeadType, t.GetHour(), t.GetMinute(), t.GetSecond());						
+	//CTime t = CTime::GetCurrentTime();
+	//TRACE("NPC Init(nid=%d, sid=%d, th_num=%d, name=%s) - %.2f %.2f, gate = %d, m_byDeadType=%d, time=%d:%d-%d\n", 
+	//	m_sNid+NPC_BAND, m_proto->m_sSid, m_sThreadNumber, m_proto->m_strName, m_fCurX, m_fCurZ, m_byGateOpen, m_byDeadType, t.GetHour(), t.GetMinute(), t.GetSecond());						
 
 	// 유저에게 NPC 정보전송...
 	// 유저에게 NPC 정보전송...
@@ -2438,7 +2437,7 @@ int CNpc::GetTargetPath(int option)
 	if(m_Target.id >= USER_BAND && m_Target.id < NPC_BAND)	{	// Target 이 User 인 경우
 		// 목표점이 Search Range를 벗어나지 않는지 검사
 		CRect r = CRect(min_x, min_z, max_x+1, max_z+1);
-		if(r.PtInRect(CPoint((int)pUser->m_curx/TILE_SIZE, (int)pUser->m_curz/TILE_SIZE)) == FALSE)	{
+		if(r.PtInRect((int)pUser->m_curx/TILE_SIZE, (int)pUser->m_curz/TILE_SIZE) == FALSE)	{
 			TRACE("### Npc-GetTargetPath() User Fail return -1: [nid=%d] t_Name=%s, AttackPos=%d ###\n", m_sNid+NPC_BAND, pUser->m_strUserID, m_byAttackPos);
 			return -1;
 		}
@@ -2472,7 +2471,7 @@ int CNpc::GetTargetPath(int option)
 	else if(m_Target.id >= NPC_BAND && m_Target.id < INVALID_BAND)	{	// Target 이 mon 인 경우
 		// 목표점이 Search Range를 벗어나지 않는지 검사
 		CRect r = CRect(min_x, min_z, max_x+1, max_z+1);
-		if(r.PtInRect(CPoint((int)pNpc->m_fCurX/TILE_SIZE, (int)pNpc->m_fCurZ/TILE_SIZE)) == FALSE)	{
+		if(r.PtInRect((int)pNpc->m_fCurX/TILE_SIZE, (int)pNpc->m_fCurZ/TILE_SIZE) == FALSE)	{
 			TRACE("### Npc-GetTargetPath() Npc Fail return -1: [nid=%d] t_Name=%s, AttackPos=%d ###\n", m_sNid+NPC_BAND, pNpc->m_proto->m_strName, m_byAttackPos);
 			return -1;
 		}

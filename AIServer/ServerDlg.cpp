@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "Server.h"
 #include "ServerDlg.h"
 #include "GameSocket.h"
 #include "math.h"
@@ -36,15 +35,8 @@ KOSocketMgr<CGameSocket> CServerDlg::s_socketMgr;
 #define REHP_TIME		200
 #define MONSTER_SPEED	1500
 
-CServerDlg::CServerDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CServerDlg::IDD, pParent)
+CServerDlg::CServerDlg()
 {
-	//{{AFX_DATA_INIT(CServerDlg)
-	m_strStatus = _T("");
-	//}}AFX_DATA_INIT
-	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	
 	m_iYear = 0; 
 	m_iMonth = 0;
 	m_iDate = 0;
@@ -57,7 +49,7 @@ CServerDlg::CServerDlg(CWnd* pParent /*=NULL*/)
 	m_byBattleEvent = BATTLEZONE_CLOSE;
 	m_sKillKarusNpc = 0;
 	m_sKillElmoNpc = 0;
-	m_pZoneEventThread = NULL;
+	m_hZoneEventThread = NULL;
 	m_byTestMode = 0;
 
 	memset(m_strGameDSN, 0, sizeof(m_strGameDSN));
@@ -65,36 +57,12 @@ CServerDlg::CServerDlg(CWnd* pParent /*=NULL*/)
 	memset(m_strGamePWD, 0, sizeof(m_strGamePWD));
 }
 
-void CServerDlg::DoDataExchange(CDataExchange* pDX)
+bool CServerDlg::Startup()
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CServerDlg)
-	DDX_Control(pDX, IDC_LIST1, m_StatusList);
-	DDX_Text(pDX, IDC_STATUS, m_strStatus);
-	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CServerDlg, CDialog)
-	//{{AFX_MSG_MAP(CServerDlg)
-	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()
-	ON_WM_TIMER()
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-BOOL CServerDlg::OnInitDialog()
-{
-	CDialog::OnInitDialog();
-
-	g_pMain = this;
-
-	// Default Init ...
-	DefaultInit();
-
 	//----------------------------------------------------------------------
 	//	Sets a random number starting point.
 	//----------------------------------------------------------------------
-	SetTimer( CHECK_ALIVE, 10000, NULL );
+	// SetTimer( CHECK_ALIVE, 10000, NULL );
 	srand( (unsigned)time(NULL) );
 
 	InitializeCriticalSection( &g_region_critical );
@@ -107,8 +75,8 @@ BOOL CServerDlg::OnInitDialog()
 		m_pUser[i] = NULL;
 
 	// Server Start
-	CTime time = CTime::GetCurrentTime();
-	AddToList("[AI ServerStart - %d-%d-%d, %02d:%02d]", time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute() );
+	//CTime time = CTime::GetCurrentTime();
+	//AddToList("[AI ServerStart - %d-%d-%d, %02d:%02d]", time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute() );
 
 	//----------------------------------------------------------------------
 	//	DB part initialize
@@ -118,21 +86,24 @@ BOOL CServerDlg::OnInitDialog()
 	if (!m_GameDB.Connect(m_strGameDSN, m_strGameUID, m_strGamePWD, false))
 	{
 		OdbcError *pError = m_GameDB.GetError();
-		AfxMessageBox(pError->ErrorMessage.c_str());
+		printf("ERROR: Could not connect to the database server, received error:\n%s\n", 
+			pError->ErrorMessage.c_str());
 		delete pError;
-		EndDialog(IDCANCEL);
-		return FALSE;
+		return false;
 	}
 
-	if(m_byZone == UNIFY_ZONE)	m_strStatus.Format("Server zone: ALL");
-	else if(m_byZone == KARUS_ZONE)	m_strStatus.Format("Server zone: KARUS");
-	else if(m_byZone == ELMORAD_ZONE) m_strStatus.Format("Server zone: EL MORAD");
-	else if(m_byZone == BATTLE_ZONE) m_strStatus.Format("Server zone: BATTLE");
+	// This probably isn't really even needed.
+	if		(m_byZone == UNIFY_ZONE)	printf(" *** Server zone: ALL ***");
+	else if (m_byZone == KARUS_ZONE)	printf(" *** Server zone: KARUS ***");
+	else if (m_byZone == ELMORAD_ZONE)	printf(" *** Server zone: EL MORAD ***");
+	else if (m_byZone == BATTLE_ZONE)	printf(" *** Server zone: BATTLE ***");
+	else
+	{
+		printf("ERROR: Server zone unknown (%d).\n", m_byZone);
+		return false;
+	}
 
-	//----------------------------------------------------------------------
-	//	DB part initialize
-	//----------------------------------------------------------------------
-
+	printf("\n\n");
 
 	//----------------------------------------------------------------------
 	//	Communication Part Initialize ...
@@ -145,10 +116,7 @@ BOOL CServerDlg::OnInitDialog()
 		sPort = AI_ELMO_SOCKET_PORT;
 
 	if (!s_socketMgr.Listen(sPort, MAX_SOCKET))
-	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}
+		return false;
 
 	//----------------------------------------------------------------------
 	//	Load tables
@@ -170,82 +138,14 @@ BOOL CServerDlg::OnInitDialog()
 		|| !MapFileLoad()
 		// Spawn NPC threads
 		|| !CreateNpcThread())
-	{
-		EndDialog(IDCANCEL);
-		return FALSE;
-	}	
+		return false;
 
 	//----------------------------------------------------------------------
 	//	Start NPC THREAD
 	//----------------------------------------------------------------------
 	ResumeAI();
-
-	UpdateData(FALSE);	
-	return TRUE;  // return TRUE  unless you set the focus to a control
+	return true; 
 }
-
-// If you add a minimize button to your dialog, you will need the code below
-//  to draw the icon.  For MFC applications using the document/view model,
-//  this is automatically done for you by the framework.
-
-void CServerDlg::OnPaint() 
-{
-	if (IsIconic())
-	{
-		CPaintDC dc(this); // device context for painting
-
-		SendMessage(WM_ICONERASEBKGND, (WPARAM) dc.GetSafeHdc(), 0);
-
-		// Center icon in client rectangle
-		int cxIcon = GetSystemMetrics(SM_CXICON);
-		int cyIcon = GetSystemMetrics(SM_CYICON);
-		CRect rect;
-		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
-
-		// Draw the icon
-		dc.DrawIcon(x, y, m_hIcon);
-	}
-	else
-	{
-		CDialog::OnPaint();
-	}
-}
-
-// The system calls this to obtain the cursor to display while the user drags
-//  the minimized window.
-HCURSOR CServerDlg::OnQueryDragIcon()
-{
-	return (HCURSOR) m_hIcon;
-}
-
-void CServerDlg::DefaultInit()
-{
-	// Add "About..." menu item to system menu.
-
-	// IDM_ABOUTBOX must be in the system command range.
-	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
-	ASSERT(IDM_ABOUTBOX < 0xF000);
-
-	CMenu* pSysMenu = GetSystemMenu(FALSE);
-	if (pSysMenu != NULL)
-	{
-		CString strAboutMenu;
-		strAboutMenu.LoadString(IDS_ABOUTBOX);
-		if (!strAboutMenu.IsEmpty())
-		{
-			pSysMenu->AppendMenu(MF_SEPARATOR);
-			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
-		}
-	}
-
-	// Set the icon for this dialog.  The framework does this automatically
-	//  when the application's main window is not a dialog
-	SetIcon(m_hIcon, TRUE);			// Set big icon
-	SetIcon(m_hIcon, FALSE);		// Set small icon
-}
-
 
 BOOL CServerDlg::GetMagicTableData()
 {
@@ -318,6 +218,7 @@ BOOL CServerDlg::CreateNpcThread()
 			
 	int step = 0, nThreadNumber = 0;
 	CNpcThread* pNpcThread = NULL;
+	DWORD id;
 
 	foreach_stlmap (itr, m_arNpc)
 	{
@@ -333,7 +234,7 @@ BOOL CServerDlg::CreateNpcThread()
 		if( step == NPC_NUM )
 		{
 			pNpcThread->m_sThreadNumber = nThreadNumber++;
-			pNpcThread->m_pThread = AfxBeginThread(NpcThreadProc, &(pNpcThread->m_ThreadInfo), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+			pNpcThread->m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, &(pNpcThread->m_ThreadInfo), CREATE_SUSPENDED, &id);
 			m_arNpcThread.push_back( pNpcThread );
 			step = 0;
 		}
@@ -341,12 +242,12 @@ BOOL CServerDlg::CreateNpcThread()
 	if( step != 0 )
 	{
 		pNpcThread->m_sThreadNumber = nThreadNumber++;
-		pNpcThread->m_pThread = AfxBeginThread(NpcThreadProc, &(pNpcThread->m_ThreadInfo), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
+		pNpcThread->m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, &(pNpcThread->m_ThreadInfo), CREATE_SUSPENDED, &id);
 		m_arNpcThread.push_back( pNpcThread );
 	}
 
-	m_pZoneEventThread = AfxBeginThread(ZoneEventThreadProc, (LPVOID)(this), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-	AddToList("[Monster Init - %d, threads=%d]", m_TotalNPC, m_arNpcThread.size());
+	m_hZoneEventThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&ZoneEventThreadProc, (LPVOID)(this), CREATE_SUSPENDED, &id);
+	printf("[Monster Init - %d, threads=%d]\n", m_TotalNPC, m_arNpcThread.size());
 	return TRUE;
 }
 
@@ -419,9 +320,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 
 			if (pNpcTable == NULL)
 			{
-				char buff[128] = {0};
-				sprintf(buff, "NPC %d not found in %s table.", pNpc->m_sNid, bMonster ? "K_MONSTER" : "K_NPC");
-				AfxMessageBox(buff);
+				printf("NPC %d not found in %s table.\n", pNpc->m_sNid, bMonster ? "K_MONSTER" : "K_NPC");
 				delete pNpc;
 				return false;
 			}
@@ -518,8 +417,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 			pNpc->m_pZone = GetZoneByID(pNpc->m_bCurZone);
 			if (pNpc->GetMap() == NULL)
 			{
-				tstring error = string_format(_T("Error: NPC %d in zone %d that does not exist."), sSid, bZoneID);
-				AfxMessageBox(error.c_str());
+				printf(_T("Error: NPC %d in zone %d that does not exist."), sSid, bZoneID);
 				delete pNpc;
 				return false;
 			}
@@ -539,7 +437,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 				pRoom = pNpc->GetMap()->m_arRoomEventArray.GetData(pNpc->m_byDungeonFamily);
 				if (pRoom == NULL)
 				{
-					AfxMessageBox("Error : CServerDlg,, Map Room Npc Fail!!");
+					printf("Error : CServerDlg,, Map Room Npc Fail!!\n");
 					delete pNpc;
 					return false;
 				}
@@ -566,60 +464,10 @@ void CServerDlg::ResumeAI()
 		for (int j = 0; j < NPC_NUM; j++)
 			(*itr)->m_ThreadInfo.pNpc[j] = (*itr)->m_pNpc[j];
 
-		ResumeThread((*itr)->m_pThread->m_hThread);
+		ResumeThread((*itr)->m_hThread);
 	}
 
-	ResumeThread(m_pZoneEventThread->m_hThread);
-}
-
-//	메모리 정리
-BOOL CServerDlg::DestroyWindow() 
-{
-	// TODO: Add your specialized code here and/or call the base class
-	KillTimer( CHECK_ALIVE );
-	//KillTimer( REHP_TIME );
-
-	g_bNpcExit = TRUE;
-
-	foreach (itr, m_arNpcThread)
-		WaitForSingleObject((*itr)->m_pThread->m_hThread, 1000);
-
-	WaitForSingleObject(m_pZoneEventThread, 1000);
-
-	// NpcThread Array Delete
-	foreach (itr, m_arNpcThread)
-		delete *itr;
-	m_arNpcThread.clear();
-
-	// User Array Delete
-	for(int i = 0; i < MAX_USER; i++)	{
-		if(m_pUser[i])	{
-			delete m_pUser[i];
-			m_pUser[i] = NULL;
-		}
-	}
-
-	m_ZoneNpcList.clear();
-
-	DeleteCriticalSection( &g_region_critical );
-	DeleteCriticalSection( &g_User_critical );
-
-	return CDialog::DestroyWindow();
-}
-
-void CServerDlg::AddToList(const char * format, ...)
-{
-	if (g_bNpcExit)
-		return;
-
-	char buffer[256];
-
-	va_list args;
-	va_start(args, format);
-	_vsnprintf(buffer, sizeof(buffer) - 1, format, args);
-	va_end(args);
-
-	m_StatusList.AddString(buffer);
+	ResumeThread(m_hZoneEventThread);
 }
 
 void CServerDlg::DeleteUserList(int uid)
@@ -660,8 +508,8 @@ BOOL CServerDlg::MapFileLoad()
 
 	foreach (itr, zoneMap)
 	{
-		CFile file;
-		CString szFullPath;
+		FILE * fp = NULL;
+		string szFullPath;
 		_ZONE_INFO *pZone = itr->second;
 
 		MAP *pMap = new MAP();
@@ -670,22 +518,29 @@ BOOL CServerDlg::MapFileLoad()
 
 		g_arZone.PutData(pMap->m_nZoneNumber, pMap);
 
-		szFullPath.Format(".\\MAP\\%s", pMap->m_MapName);
-		if (!file.Open(szFullPath, CFile::modeRead)
-			|| !pMap->LoadMap((HANDLE)file.m_hFile))
+		szFullPath = _T(".\\MAP\\");
+		szFullPath += pMap->m_MapName;
+
+		fp = fopen(szFullPath.c_str(), "rb");
+		if (!fp
+			|| !pMap->LoadMap(fp))
 		{
-			AfxMessageBox("Unable to load SMD - " + szFullPath);
+			printf("ERROR: Unable to load SMD - %s\n", szFullPath.c_str());
+			if (fp)
+				fclose(fp);
+
 			g_arZone.DeleteAllData();
 			m_sTotalMap = 0;
 			return FALSE;
 		}
-		file.Close();
+		fclose(fp);
 		
 		if (pMap->m_byRoomEvent > 0)
 		{
 			if (!pMap->LoadRoomEvent(pMap->m_byRoomEvent))
 			{
-				AfxMessageBox("Unable to load room event for map - " + szFullPath);
+				printf("ERROR: Unable to load room event (%d.aievt) for map - %s\n", 
+					pMap->m_byRoomEvent, szFullPath.c_str());
 				pMap->m_byRoomEvent = 0;
 			}
 			else
@@ -788,8 +643,6 @@ void CServerDlg::OnTimer(UINT nIDEvent)
 		//RechargeHp();
 		break;
 	}
-
-	CDialog::OnTimer(nIDEvent);
 }
 
 void CServerDlg::CheckAliveTest()
@@ -815,7 +668,7 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 	// If a server disconnected, show it...
 	if (pSock != NULL)
 	{
-		AddToList("[GameServer disconnected = %s]", pSock->GetRemoteIP().c_str());
+		printf("[GameServer disconnected = %s]\n", pSock->GetRemoteIP().c_str());
 		return;
 	}
 
@@ -855,15 +708,7 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 	m_bFirstServerFlag = FALSE;
 	TRACE("*** DeleteAllUserList - End *** \n");
 
-	AddToList("[ DELETE All User List ]");
-}
-
-BOOL CServerDlg::PreTranslateMessage(MSG* pMsg) 
-{
-	if (pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN)
-		return TRUE;
-	
-	return CDialog::PreTranslateMessage(pMsg);
+	printf("[ DELETE All User List ]\n");
 }
 
 void CServerDlg::Send(char* pData, int length)
@@ -1116,4 +961,36 @@ void CServerDlg::ResetBattleZone()
 		pMap->InitializeRoom();
 	}
 	TRACE("ServerDlg - ResetBattleZone() : end \n");
+}
+
+CServerDlg::~CServerDlg() 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	// KillTimer( CHECK_ALIVE );
+	//KillTimer( REHP_TIME );
+
+	g_bNpcExit = TRUE;
+
+	foreach (itr, m_arNpcThread)
+		WaitForSingleObject((*itr)->m_hThread, 1000);
+
+	WaitForSingleObject(m_hZoneEventThread, 1000);
+
+	// NpcThread Array Delete
+	foreach (itr, m_arNpcThread)
+		delete *itr;
+	m_arNpcThread.clear();
+
+	// User Array Delete
+	for(int i = 0; i < MAX_USER; i++)	{
+		if(m_pUser[i])	{
+			delete m_pUser[i];
+			m_pUser[i] = NULL;
+		}
+	}
+
+	m_ZoneNpcList.clear();
+
+	DeleteCriticalSection( &g_region_critical );
+	DeleteCriticalSection( &g_User_critical );
 }

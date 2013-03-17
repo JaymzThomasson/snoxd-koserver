@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "server.h"
 #include "MagicProcess.h"
 #include "ServerDlg.h"
 #include "User.h"

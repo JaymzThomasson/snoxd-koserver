@@ -22,6 +22,12 @@ public:
 	virtual ~CMapInfo();
 };
 
+// temporary
+struct CSize
+{
+	int cx, cy;
+};
+
 class MAP  
 {
 public:
@@ -36,7 +42,7 @@ public:
 	CString m_MapName;
 	int			m_nMapSize;		// Grid Unit ex) 4m
 	float		m_fUnitDist;	// i Grid Distance
-	float**		m_fHeight;
+	float*		m_fHeight;
 //	short		m_arDungeonBossMonster[MAX_DUNGEON_BOSS_MONSTER];
 	BYTE		m_byRoomType;		// 방의 초기화관련( 0:자동으로 초기화, 1:전쟁이벤트 관련(특정조건이 완료시 초기화)
 	BYTE		m_byRoomEvent;		// event room(0:empty, 1:use)
@@ -53,10 +59,10 @@ public:
 
 	void Initialize(_ZONE_INFO *pZone);
 
-	BOOL LoadMap( HANDLE hFile );
-	void LoadTerrain( HANDLE hFile );
-	void LoadMapTile( HANDLE hFile );
-	void LoadObjectEvent(HANDLE hFile);
+	BOOL LoadMap(FILE * fp);
+	void LoadTerrain(FILE * fp);
+	void LoadMapTile(FILE * fp);
+	void LoadObjectEvent(FILE * fp);
 	BOOL LoadRoomEvent( int zone_number );
 	BOOL ObjectIntersect(float x1, float z1, float y1, float x2, float z2, float y2);
 	float GetHeight( float x, float z );

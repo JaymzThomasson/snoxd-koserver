@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#if defined(EBENEZER) || defined(AI_SERVER)
+#if defined(EBENEZER)
 #define _MFC_ENABLED
 #else
 #define CString std::string

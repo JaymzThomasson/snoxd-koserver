@@ -24,7 +24,7 @@ public:
 	CNpc*	m_pNpc[NPC_NUM];
 
 	NPC_THREAD_INFO		m_ThreadInfo;
-	CWinThread*			m_pThread;
+	HANDLE			m_hThread;
 	short m_sThreadNumber;					// thread number ,, test
 
 };
