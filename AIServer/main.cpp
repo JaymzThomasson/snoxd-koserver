@@ -4,8 +4,8 @@
 #define STRINGIFY(str) STR(str)
 
 CServerDlg g_pMain;
-static bool s_bRunning = true;
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
+static DWORD s_dwMainThreadID;
 
 int main()
 {
@@ -27,14 +27,14 @@ int main()
 	// we need to remember to dispatch messages
     MSG msg;
 
+	s_dwMainThreadID = GetCurrentThreadId();
+
 	// Standard mesage pump purely for OnTimer()'s sake
-	while (s_bRunning)
+	while (GetMessage(&msg, NULL, 0, 0)
+		&& msg.message != WM_QUIT)
 	{
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
 
 	return 0;
@@ -42,7 +42,7 @@ int main()
 
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType)
 {
-	s_bRunning = false;
+	PostThreadMessage(s_dwMainThreadID, WM_QUIT, 0, 0);
 	Sleep(10000); // Win7 onwards allows 10 seconds before it'll forcibly terminate
 	return TRUE;
 }
