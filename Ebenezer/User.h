@@ -602,6 +602,7 @@ public:
 	void QuestV2ExecuteHelper(_QUEST_HELPER * pQuestHelper);
 	void QuestV2CheckFulfill(_QUEST_HELPER * pQuestHelper);
 	void QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID);
+	void QuestV2ShowMap(uint32 nUnk /* zone ID? quest ID? */);
 
 	//Zone checks
 	bool isAttackZone();

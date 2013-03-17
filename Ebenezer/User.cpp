@@ -3943,3 +3943,11 @@ void CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID)
 {
 	// TO-DO: Run helper's Lua script.
 }
+
+// This is called by quest scripts.
+void CUser::QuestV2ShowMap(uint32 nUnk /* zone ID? quest ID? */)
+{
+	Packet result(WIZ_QUEST, uint8(11));
+	result << nUnk;
+	Send(&result);
+}
