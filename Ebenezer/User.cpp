@@ -3903,21 +3903,19 @@ void CUser::QuestV2MonsterCountAdd(uint16 sNpcID)
 	{
 		for (int i = 0; i < QUEST_MOBS_PER_GROUP; i++)
 		{
-			if (pQuestMonster->sNum[group][i] == sNpcID)
-			{
-				uint8 bGroup = group + 1;
-				if (++m_bKillCounts[group] > pQuestMonster->sCount[group])
-				{
-					m_bKillCounts[group] = (uint8)pQuestMonster->sCount[group];
-					return;
-				}
+			if (pQuestMonster->sNum[group][i] != sNpcID)
+				continue;
 
-				SaveEvent(32000 + bGroup, m_bKillCounts[group]);
-				Packet result(WIZ_QUEST, uint8(9));
-				result << uint8(2) << bGroup << m_bKillCounts[group];
-				Send(&result);
+			uint8 bGroup = group + 1;
+			if (m_bKillCounts[group] + 1 > pQuestMonster->sCount[group])
 				return;
-			}
+
+			m_bKillCounts[group]++;
+			SaveEvent(32000 + bGroup, m_bKillCounts[group]);
+			Packet result(WIZ_QUEST, uint8(9));
+			result << uint8(2) << bGroup << m_bKillCounts[group];
+			Send(&result);
+			return;
 		}
 	}
 }
