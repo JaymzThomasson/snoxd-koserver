@@ -23,9 +23,9 @@ void CUser::MoveProcess(Packet & pkt)
 
 	if (RegisterRegion())
 	{
-		g_pMain->RegionNpcInfoForMe(this);
-		g_pMain->RegionUserInOutForMe(this);
-		g_pMain->MerchantUserInOutForMe(this);
+		g_pMain.RegionNpcInfoForMe(this);
+		g_pMain.RegionUserInOutForMe(this);
+		g_pMain.MerchantUserInOutForMe(this);
 	}
 
 	Packet result(WIZ_MOVE);
@@ -36,7 +36,7 @@ void CUser::MoveProcess(Packet & pkt)
 
 	result.Initialize(AG_USER_MOVE);
 	result << GetSocketID() << m_curx << m_curz << m_cury << speed;
-	g_pMain->Send_AIServer(&result);
+	g_pMain.Send_AIServer(&result);
 }
 
 void CUser::GetInOut(Packet & result, uint8 bType)
@@ -67,7 +67,7 @@ void CUser::UserInOut(uint8 bType)
 		result.Initialize(AG_USER_INOUT);
 		result.SByte();
 		result << bType << GetSocketID() << GetName() << m_curx << m_curz;
-		g_pMain->Send_AIServer(&result);
+		g_pMain.Send_AIServer(&result);
 	}
 }
 
@@ -79,7 +79,7 @@ void CUser::GetUserInfo(Packet & pkt)
 	pkt		<< GetName()
 			<< uint16(GetNation()) << GetClanID() << getFame();
 
-	pKnights = g_pMain->GetClanPtr(GetClanID());
+	pKnights = g_pMain.GetClanPtr(GetClanID());
 	if (pKnights == NULL)
 	{
 		pkt	<< uint32(0) << uint16(0) << uint8(0) << uint16(-1) << uint32(0) << uint8(0);
@@ -146,24 +146,24 @@ void CUser::ZoneChange(int zone, float x, float z)
 	C3DMap* pMap = NULL;
 	_ZONE_SERVERINFO *pInfo = NULL;
 
-	pMap = g_pMain->GetZoneByID(zone);
+	pMap = g_pMain.GetZoneByID(zone);
 	if (!pMap) 
 		return;
 
 	if( pMap->m_bType == 2 ) {	// If Target zone is frontier zone.
-		if( GetLevel() < 20 && g_pMain->m_byBattleOpen != SNOW_BATTLE)
+		if( GetLevel() < 20 && g_pMain.m_byBattleOpen != SNOW_BATTLE)
 			return;
 	}
 
-	if( g_pMain->m_byBattleOpen == NATION_BATTLE )	{		// Battle zone open
+	if( g_pMain.m_byBattleOpen == NATION_BATTLE )	{		// Battle zone open
 		if( m_bZone == BATTLE_ZONE )	{
 			if( pMap->m_bType == 1 && m_bNation != zone )	{	// ???? ?????? ???? ????..
-				if( m_bNation == KARUS && !g_pMain->m_byElmoradOpenFlag )	{
-					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", GetName(), m_bNation, g_pMain->m_byElmoradOpenFlag);
+				if( m_bNation == KARUS && !g_pMain.m_byElmoradOpenFlag )	{
+					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", GetName(), m_bNation, g_pMain.m_byElmoradOpenFlag);
 					return;
 				}
-				else if( m_bNation == ELMORAD && !g_pMain->m_byKarusOpenFlag )	{
-					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", GetName(), m_bNation, g_pMain->m_byKarusOpenFlag);
+				else if( m_bNation == ELMORAD && !g_pMain.m_byKarusOpenFlag )	{
+					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", GetName(), m_bNation, g_pMain.m_byKarusOpenFlag);
 					return;
 				}
 			}
@@ -185,7 +185,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		}
 //
 	}
-	else if( g_pMain->m_byBattleOpen == SNOW_BATTLE )	{					// Snow Battle zone open
+	else if( g_pMain.m_byBattleOpen == SNOW_BATTLE )	{					// Snow Battle zone open
 		if( pMap->m_bType == 1 && m_bNation != zone ) {		// ???? ?????? ???? ????..
 			return;
 		}
@@ -222,15 +222,12 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 	//TRACE("ZoneChange ,,, id=%s, nation=%d, zone=%d, x=%.2f, z=%.2f\n", GetName(), m_bNation, zone, x, z);
 	
-	if( g_pMain->m_nServerNo != pMap->m_nServerNo ) {
-		pInfo = g_pMain->m_ServerArray.GetData( pMap->m_nServerNo );
+	if( g_pMain.m_nServerNo != pMap->m_nServerNo ) {
+		pInfo = g_pMain.m_ServerArray.GetData( pMap->m_nServerNo );
 		if( !pInfo ) 
 			return;
 
 		UserDataSaveToAgent();
-		
-		CTime t = CTime::GetCurrentTime();
-		g_pMain->WriteLog("[ZoneChange : %d-%d-%d] - sid=%d, acname=%s, name=%s, zone=%d, x=%d, z=%d \r\n", t.GetHour(), t.GetMinute(), t.GetSecond(), GetSocketID(), GetAccountName(), GetName(), zone, (int)x, (int)z);
 
 		m_bLogout = 2;	// server change flag
 		SendServerChange(pInfo->strServerIP, 2);
@@ -240,7 +237,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 	SetRegion(GetNewRegionX(), GetNewRegionZ());
 
 	Packet result(WIZ_ZONE_CHANGE, uint8(3)); // magic numbers, sigh.
-	result << uint16(GetZoneID()) << GetSPosX() << GetSPosZ() << GetSPosY() << g_pMain->m_byOldVictory;
+	result << uint16(GetZoneID()) << GetSPosX() << GetSPosZ() << GetSPosY() << g_pMain.m_byOldVictory;
 	Send(&result);
 
 	if (!m_bZoneChangeSameZone) {
@@ -255,7 +252,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 	result.Initialize(AG_ZONE_CHANGE);
 	result << GetSocketID() << GetZoneID();
-	g_pMain->Send_AIServer(&result);
+	g_pMain.Send_AIServer(&result);
 
 	m_bZoneChangeSameZone = FALSE;
 	m_bZoneChangeFlag = FALSE;
@@ -286,9 +283,9 @@ void CUser::Warp(uint16 sPosX, uint16 sPosZ)
 	SetRegion(GetNewRegionX(), GetNewRegionZ());
 
 	UserInOut(INOUT_WARP);
-	g_pMain->UserInOutForMe(this);
-	g_pMain->NpcInOutForMe(this);
-	g_pMain->MerchantUserInOutForMe(this);
+	g_pMain.UserInOutForMe(this);
+	g_pMain.NpcInOutForMe(this);
+	g_pMain.MerchantUserInOutForMe(this);
 
 	ResetWindows();
 }
@@ -308,9 +305,9 @@ void CUser::RecvZoneChange(Packet & pkt)
 	uint8 opcode = pkt.read<uint8>();
 	if (opcode == 1)
 	{
-		g_pMain->UserInOutForMe(this);
-		g_pMain->NpcInOutForMe(this);
-		g_pMain->MerchantUserInOutForMe(this);
+		g_pMain.UserInOutForMe(this);
+		g_pMain.NpcInOutForMe(this);
+		g_pMain.MerchantUserInOutForMe(this);
 		
 		Packet result(WIZ_ZONE_CHANGE, uint8(2)); // finalise the zone change
 		Send(&result);

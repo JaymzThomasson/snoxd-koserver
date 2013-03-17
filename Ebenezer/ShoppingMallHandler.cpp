@@ -42,7 +42,7 @@ void CUser::HandleStoreClose()
 {
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_CLOSE));
 	m_bStoreOpen = false;
-	g_pMain->AddDatabaseRequest(result, this);
+	g_pMain.AddDatabaseRequest(result, this);
 }
 
 void CUser::RecvStore(Packet & pkt)

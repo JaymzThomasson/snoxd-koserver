@@ -80,7 +80,7 @@ void Unit::RemoveRegion(int16 del_x, int16 del_z)
 
 	Packet result;
 	GetInOut(result, INOUT_OUT);
-	g_pMain->Send_OldRegions(&result, del_x, del_z, GetMap(), GetRegionX(), GetRegionZ());
+	g_pMain.Send_OldRegions(&result, del_x, del_z, GetMap(), GetRegionX(), GetRegionZ());
 }
 
 void Unit::InsertRegion(int16 insert_x, int16 insert_z)
@@ -89,7 +89,7 @@ void Unit::InsertRegion(int16 insert_x, int16 insert_z)
 
 	Packet result;
 	GetInOut(result, INOUT_IN);
-	g_pMain->Send_NewRegions(&result, insert_x, insert_z, GetMap(), GetRegionX(), GetRegionZ());
+	g_pMain.Send_NewRegions(&result, insert_x, insert_z, GetMap(), GetRegionX(), GetRegionZ());
 }
 
 short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
@@ -111,7 +111,7 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 		// SKILL HIT! YEAH!	                                
 		if (pSkill->bType[0] == 1)
 		{
-			_MAGIC_TYPE1 *pType1 = g_pMain->m_Magictype1Array.GetData(pSkill->iNum);
+			_MAGIC_TYPE1 *pType1 = g_pMain.m_Magictype1Array.GetData(pSkill->iNum);
 			if (pType1 == NULL)
 				return -1;     	                                
 
@@ -131,7 +131,7 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 		// ARROW HIT! YEAH!
 		else if (pSkill->bType[0] == 2)
 		{
-			_MAGIC_TYPE2 *pType2 = g_pMain->m_Magictype2Array.GetData(pSkill->iNum);
+			_MAGIC_TYPE2 *pType2 = g_pMain.m_Magictype2Array.GetData(pSkill->iNum);
 			if (pType2 == NULL)
 				return -1; 
 			
@@ -431,7 +431,7 @@ uint8 Unit::GetHitRate(float rate)
 
 void Unit::SendToRegion(Packet *result)
 {
-	g_pMain->Send_Region(result, GetMap(), GetRegionX(), GetRegionZ());
+	g_pMain.Send_Region(result, GetMap(), GetRegionX(), GetRegionZ());
 }
 
 void Unit::InitType3()

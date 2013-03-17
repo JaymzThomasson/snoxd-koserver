@@ -377,17 +377,17 @@ BOOL C3DMap::CheckEvent(float x, float z, CUser* pUser)
 	if (pEvent == NULL)
 		return FALSE;
 
-	if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_BATTLE && g_pMain->m_byBattleOpen != NATION_BATTLE ) return FALSE;
-	if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen != SNOW_BATTLE ) return FALSE;
+	if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_BATTLE && g_pMain.m_byBattleOpen != NATION_BATTLE ) return FALSE;
+	if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_SNOW_BATTLE && g_pMain.m_byBattleOpen != SNOW_BATTLE ) return FALSE;
 	if( pUser->m_bNation == KARUS && pEvent->m_iExec[0] == ZONE_BATTLE )	{
-		if( g_pMain->m_sKarusCount > MAX_BATTLE_ZONE_USERS )	{
-			TRACE("### BattleZone karus full users = %d, name=%s \n", g_pMain->m_sKarusCount, pUser->GetName());
+		if( g_pMain.m_sKarusCount > MAX_BATTLE_ZONE_USERS )	{
+			TRACE("### BattleZone karus full users = %d, name=%s \n", g_pMain.m_sKarusCount, pUser->GetName());
 			return FALSE;
 		}
 	}
 	else if( pUser->m_bNation == ELMORAD && pEvent->m_iExec[0] == ZONE_BATTLE )	{
-		if( g_pMain->m_sElmoradCount > MAX_BATTLE_ZONE_USERS )	{
-			TRACE("### BattleZone elmorad full users = %d, name=%s \n", g_pMain->m_sElmoradCount, pUser->GetName());
+		if( g_pMain.m_sElmoradCount > MAX_BATTLE_ZONE_USERS )	{
+			TRACE("### BattleZone elmorad full users = %d, name=%s \n", g_pMain.m_sElmoradCount, pUser->GetName());
 			return FALSE;
 		}
 	}

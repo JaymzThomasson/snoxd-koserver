@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Ebenezer.h"
 #include "Map.h"
 #include "Define.h"
 #include "GameDefine.h"
@@ -59,9 +58,13 @@ typedef hash_map<string, _USER_RANK *>		UserRankMap;
 typedef std::pair<uint8, uint16>			NpcTrapPair;
 typedef std::map<NpcTrapPair, int32>		EventTriggerArray;
 
-class CEbenezerDlg : public CDialog
+class CEbenezerDlg
 {
 public:	
+	CEbenezerDlg();
+	bool Startup();
+	void OnTimer(UINT nIDEvent);
+
 	void FlySanta();
 	void BattleZoneCurrentUsers();
 	BOOL LoadKnightsRankTable();
@@ -175,7 +178,7 @@ public:
 	void Send_All(Packet *pkt, CUser* pExceptUser = NULL, uint8 nation = 0);
 	void Send_AIServer(Packet *pkt);
 
-	CString GetServerResource(int nResourceID);
+	std::string GetServerResource(int nResourceID);
 	_START_POSITION *GetStartPosition(int nZoneID);
 
 	long GetExpByLevel(int nLevel);
@@ -204,10 +207,7 @@ public:
 	_PARTY_GROUP * CreateParty(CUser *pLeader);
 	void DeleteParty(short sIndex);
 
-	void AddToList(const char * format, ...);
-	void WriteLog(const char * format, ...);
-
-	CEbenezerDlg(CWnd* pParent = NULL);	// standard constructor
+	~CEbenezerDlg();
 
 	static KOSocketMgr<CUser> s_socketMgr;
 	static ClientSocketMgr<CAISocket> s_aiSocketMgr;
@@ -284,29 +284,12 @@ public:
 	ServerArray			m_ServerArray;
 	ServerArray			m_ServerGroupArray;
 	CUdpSocket*			m_pUdpSocket;
-	CFile				m_LogFile;
 
 	NameMap		m_accountNameMap,
 				m_characterNameMap;
 
 	FastMutex	m_accountNameLock,
 				m_characterNameLock;
-	
-	// Dialog Data
-	//{{AFX_DATA(CEbenezerDlg)
-	enum { IDD = IDD_EBENEZER_DIALOG };
-	CEdit	m_AnnounceEdit;
-	CListBox	m_StatusList;
-	//}}AFX_DATA
-
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CEbenezerDlg)
-	public:
-	virtual BOOL DestroyWindow();
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
-	//}}AFX_VIRTUAL
 
 private:
 	CIni	m_Ini;
@@ -344,24 +327,9 @@ private:
 	COMMAND_HANDLER(HandlePermanentChatOffCommand);
 	COMMAND_HANDLER(HandleReloadNoticeCommand);
 
-// Implementation
-protected:
-	HICON m_hIcon;
-
-	// Generated message map functions
-	//{{AFX_MSG(CEbenezerDlg)
-	virtual BOOL OnInitDialog();
-	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
-	afx_msg void OnPaint();
-	afx_msg HCURSOR OnQueryDragIcon();
-	afx_msg void OnTimer(UINT nIDEvent);
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
-
 	friend class C3DMap;
 	friend class CDBAgent;
 };
 
-extern CEbenezerDlg * g_pMain;
 extern CDBAgent g_DBAgent;
 

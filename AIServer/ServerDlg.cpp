@@ -753,8 +753,6 @@ BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 		return FALSE;
 	}
 
-	CString strMsg = _T(""); 
-
 	pEventNpc->m_proto	= pNpc->m_proto;
 	pEventNpc->m_byMoveType = 1;
 	pEventNpc->m_byInitMoveType = 1;

@@ -41,7 +41,7 @@ public:
 		TRIM_RIGHT(pData->m_strViceChief_2);
 		TRIM_RIGHT(pData->m_strViceChief_3);
 
-		pData->m_byGrade = g_pMain->GetKnightsGrade(pData->m_nPoints);
+		pData->m_byGrade = g_pMain.GetKnightsGrade(pData->m_nPoints);
 
 		if (!m_pMap->PutData(pData->m_sIndex, pData))
 			delete pData;

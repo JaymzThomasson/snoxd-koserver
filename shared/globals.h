@@ -1,11 +1,5 @@
 ﻿#pragma once
 
-#if defined(EBENEZER)
-#define _MFC_ENABLED
-#else
-#define CString std::string
-#endif
-
 #include "version.h"
 #include "packets.h"
 #include "Packet.h"
@@ -302,16 +296,16 @@ inline int ParseSpace( char* tBuf, char* sBuf)
 	return index;
 };
 
-inline CString GetProgPath()
+inline std::string GetProgPath()
 {
 	char Buf[_MAX_PATH], Path[_MAX_PATH];
 	char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
 
-	GetModuleFileName(NULL, Buf, 256);
+	GetModuleFileName(NULL, Buf, _MAX_PATH);
 	_splitpath_s(Buf, drive, sizeof(drive), dir, sizeof(dir), fname, sizeof(fname), ext, sizeof(ext));
 	strcpy_s(Path, sizeof(Path), drive);
 	strcat_s(Path, sizeof(Path), dir);		
-	return (CString)Path;
+	return std::string(Path);
 };
 
 inline int myrand( int min, int max )

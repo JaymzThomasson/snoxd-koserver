@@ -95,8 +95,7 @@ void CAISocket::OnConnect()
 
 void CAISocket::OnDisconnect()
 {
-	CTime time = CTime::GetCurrentTime();
-	TRACE("*** CloseProcess - socketID=%d...  ***  %d-%d-%d, %d:%d]\r\n", GetSocketID(), time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute() );
+	TRACE("*** CloseProcess - socketID=%d...  ***\n", GetSocketID());
 }
 
 void CAISocket::LoginProcess(Packet & pkt)
@@ -107,34 +106,34 @@ void CAISocket::LoginProcess(Packet & pkt)
 	if (bReconnect == 1)
 		TRACE("**** ReConnect - socket = %d ****\n ", GetSocketID());
 
-	g_pMain->m_bServerCheckFlag = TRUE;
-	g_pMain->SendAllUserInfo();
+	g_pMain.m_bServerCheckFlag = TRUE;
+	g_pMain.SendAllUserInfo();
 }
 
 void CAISocket::RecvServerInfo(Packet & pkt)
 {
-	int size = g_pMain->m_ZoneArray.GetSize();
+	int size = g_pMain.m_ZoneArray.GetSize();
 	uint16 sTotalMonster;
 	uint8 bZone;
 
 	pkt >> bZone >> sTotalMonster;
 
-	g_pMain->m_sZoneCount++;
+	g_pMain.m_sZoneCount++;
 
-	TRACE("RecvServerInfo....%d, total=%d, socketcount=%d\n", bZone, sTotalMonster, g_pMain->m_sZoneCount);
+	TRACE("RecvServerInfo....%d, total=%d, socketcount=%d\n", bZone, sTotalMonster, g_pMain.m_sZoneCount);
 
-	if (g_pMain->m_sZoneCount == size)
+	if (g_pMain.m_sZoneCount == size)
 	{
 #if 0
-		if (g_pMain->m_bFirstServerFlag == FALSE)
-			TRACE("+++ �������� ���� ������ �� �޾���, User AcceptThread Start ....%d, socketcount=%d\n", bZone, g_pMain->m_sZoneCount);
+		if (g_pMain.m_bFirstServerFlag == FALSE)
+			TRACE("+++ �������� ���� ������ �� �޾���, User AcceptThread Start ....%d, socketcount=%d\n", bZone, g_pMain.m_sZoneCount);
 #endif
 
-		g_pMain->m_sZoneCount = 0;
-		g_pMain->m_bFirstServerFlag = TRUE;
-		g_pMain->m_bPointCheckFlag = TRUE;
+		g_pMain.m_sZoneCount = 0;
+		g_pMain.m_bFirstServerFlag = TRUE;
+		g_pMain.m_bPointCheckFlag = TRUE;
 
-		g_pMain->AddToList("All spawn data loaded.");
+		printf("All spawn data loaded.\n");
 	}
 }
 
@@ -166,7 +165,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 		//TRACE("Recv --> NpcUserInfo : uid = %d, x=%f, z=%f.. \n", nid, fPosX, fPosZ);
 		strcpy(pNpc->m_strName, strName.c_str());
 
-		pNpc->m_pMap = g_pMain->GetZoneByID(pNpc->GetZoneID());
+		pNpc->m_pMap = g_pMain.GetZoneByID(pNpc->GetZoneID());
 		pNpc->m_NpcState = NPC_LIVE;
 		pNpc->m_byDirection = bDirection;
 		pNpc->SetRegion(pNpc->GetNewRegionX(), pNpc->GetNewRegionZ());
@@ -186,7 +185,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 
 	//	TRACE("Recv --> NpcUserInfoAll : uid=%d, sid=%d, name=%s, x=%f, z=%f. gate=%d, objecttype=%d \n", nid, sPid, szName, fPosX, fPosZ, byGateOpen, byObjectType);
 
-		if (!g_pMain->m_arNpcArray.PutData(pNpc->GetID(), pNpc))
+		if (!g_pMain.m_arNpcArray.PutData(pNpc->GetID(), pNpc))
 		{
 			TRACE("Npc PutData Fail - %d\n", pNpc->GetID());
 			delete pNpc;
@@ -210,7 +209,7 @@ void CAISocket::RecvNpcMoveResult(Packet & pkt)
 	float fX, fY, fZ, fSecForMetor;
 	pkt >> flag >> sNid >> fX >> fZ >> fY >> fSecForMetor;
 
-	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(sNid);
+	CNpc * pNpc = g_pMain.m_arNpcArray.GetData(sNid);
 	if (pNpc == NULL)
 		return;
 
@@ -241,13 +240,13 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 
 	if(type == 0x01)			// user attack -> npc
 	{
-		pNpc = g_pMain->m_arNpcArray.GetData(tid);
+		pNpc = g_pMain.m_arNpcArray.GetData(tid);
 		if(!pNpc)	return;
 		pNpc->m_iHP -= damage;
 		if( pNpc->m_iHP < 0 )
 			pNpc->m_iHP = 0;
 
-		pUser = g_pMain->GetUserPtr(sid);
+		pUser = g_pMain.GetUserPtr(sid);
 
 		// NPC died
 		if (bResult == 2 || bResult == 4)
@@ -294,13 +293,13 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 	}
 	else if (type == 2)		// npc attack -> user
 	{
-		pNpc = g_pMain->m_arNpcArray.GetData(sid);
+		pNpc = g_pMain.m_arNpcArray.GetData(sid);
 		if(!pNpc)	return;
 
 		//TRACE("CAISocket-RecvNpcAttack 222 : sid=%s, tid=%d, zone_num=%d\n", sid, tid, m_iZoneNum);
 		if( tid >= USER_BAND && tid < NPC_BAND)
 		{
-			pUser = g_pMain->GetUserPtr(tid);
+			pUser = g_pMain.GetUserPtr(tid);
 			if(pUser == NULL)	
 				return;
 
@@ -316,7 +315,7 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 		}
 		else if (tid >= NPC_BAND)		// npc attack -> monster
 		{
-			pMon = g_pMain->m_arNpcArray.GetData(tid);
+			pMon = g_pMain.m_arNpcArray.GetData(tid);
 			if(!pMon)	return;
 			pMon->m_iHP -= damage;
 			if( pMon->m_iHP < 0 )
@@ -350,7 +349,7 @@ void CAISocket::RecvMagicAttackResult(Packet & pkt)
 	if (byCommand == MAGIC_CASTING
 		|| (byCommand == MAGIC_EFFECTING && sid >= NPC_BAND && tid >= NPC_BAND))
 	{
-		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sid);
+		CNpc *pNpc = g_pMain.m_arNpcArray.GetData(sid);
 		if (!pNpc)
 			return;
 
@@ -360,7 +359,7 @@ void CAISocket::RecvMagicAttackResult(Packet & pkt)
 	{
 		if (sid >= USER_BAND && sid < NPC_BAND)
 		{
-			CUser *pUser = g_pMain->GetUserPtr(sid);
+			CUser *pUser = g_pMain.GetUserPtr(sid);
 			if (pUser == NULL || pUser->isDead())
 				return;
 
@@ -384,7 +383,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 	pkt.SByte();
 	pkt >> Mode >> sNid;
 
-	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNid);
+	CNpc *pNpc = g_pMain.m_arNpcArray.GetData(sNid);
 	if (pNpc == NULL)
 		return;
 
@@ -438,7 +437,7 @@ void CAISocket::RecvUserHP(Packet & pkt)
 	// that way the packet can be sent to the client etc...
 	if (sNid >= USER_BAND && sNid < NPC_BAND)
 	{
-		CUser * pUser = g_pMain->GetUserPtr(sNid);
+		CUser * pUser = g_pMain.GetUserPtr(sNid);
 		if (pUser == NULL)
 			return;
 
@@ -446,7 +445,7 @@ void CAISocket::RecvUserHP(Packet & pkt)
 	}
 	else if (sNid >= NPC_BAND)
 	{
-		CNpc * pNpc = g_pMain->m_arNpcArray.GetData(sNid);
+		CNpc * pNpc = g_pMain.m_arNpcArray.GetData(sNid);
 		if (pNpc == NULL)
 			return;
 
@@ -460,7 +459,7 @@ void CAISocket::RecvUserExp(Packet & pkt)
 	uint16 tid, sExp, sLoyalty;
 	pkt >> tid >> sExp >> sLoyalty;
 
-	CUser* pUser = g_pMain->GetUserPtr(tid);
+	CUser* pUser = g_pMain.GetUserPtr(tid);
 	if (pUser == NULL)
 		return;
 
@@ -486,7 +485,7 @@ void CAISocket::RecvSystemMsg(Packet & pkt)
 	{
 	case SEND_ALL:
 		result << bType << uint8(1) << int16(-1) << strSysMsg; 
-		g_pMain->Send_All(&result);
+		g_pMain.Send_All(&result);
 		break;
 	}
 	
@@ -509,7 +508,7 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 	if (sUid < 0 || sUid >= MAX_USER)
 		return;
 
-	C3DMap *pMap = g_pMain->GetZoneByID(bZone);
+	C3DMap *pMap = g_pMain.GetZoneByID(bZone);
 	if (pMap == NULL)
 		return;
 
@@ -524,7 +523,7 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 	pItem->z = fZ;
 	pItem->y = fY;
 	for(int i=0; i<byCount; i++) {
-		if( g_pMain->GetItemPtr(nItemNumber[i]) ) {
+		if( g_pMain.GetItemPtr(nItemNumber[i]) ) {
 			pItem->itemid[i] = nItemNumber[i];
 			pItem->count[i] = sCount[i];
 		}
@@ -536,7 +535,7 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 		return;
 	}
 
-	pUser = g_pMain->GetUserPtr(sUid);
+	pUser = g_pMain.GetUserPtr(sUid);
 	if (pUser == NULL) 
 		return;
 
@@ -544,14 +543,14 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 	if (!pUser->isInParty())
 		pUser->Send(&result);
 	else
-		g_pMain->Send_PartyMember(pUser->m_sPartyIndex, &result);
+		g_pMain.Send_PartyMember(pUser->m_sPartyIndex, &result);
 }
 
 void CAISocket::RecvUserFail(Packet & pkt)
 {
 	short nid, sid;
 	pkt >> nid >> sid;
-	CUser* pUser = g_pMain->GetUserPtr(nid);
+	CUser* pUser = g_pMain.GetUserPtr(nid);
 	if (pUser == NULL)
 		return;
 
@@ -582,21 +581,21 @@ void CAISocket::InitEventMonster(int index)
 
 		pNpc->m_sNid = i+NPC_BAND;
 		//TRACE("InitEventMonster : uid = %d\n", pNpc->m_sNid);
-		if( !g_pMain->m_arNpcArray.PutData( pNpc->GetID(), pNpc) ) {
+		if( !g_pMain.m_arNpcArray.PutData( pNpc->GetID(), pNpc) ) {
 			TRACE("Npc PutData Fail - %d\n", pNpc->GetID());
 			delete pNpc;
 			pNpc = NULL;
 		}	
 	}
 
-	count = g_pMain->m_arNpcArray.GetSize();
+	count = g_pMain.m_arNpcArray.GetSize();
 	TRACE("TotalMonster = %d\n", count);
 }
 
 void CAISocket::RecvCheckAlive(Packet & pkt)
 {
 	Packet result(AG_CHECK_ALIVE_REQ);		
-	g_pMain->m_sErrorSocketCount = 0;
+	g_pMain.m_sErrorSocketCount = 0;
 	Send(&result);
 }
 
@@ -606,7 +605,7 @@ void CAISocket::RecvGateDestory(Packet & pkt)
 	uint8 bGateStatus;
 	pkt >> nid >> bGateStatus >> sCurZone >> rX >> rZ;
 
-	CNpc* pNpc = g_pMain->m_arNpcArray.GetData(nid);
+	CNpc* pNpc = g_pMain.m_arNpcArray.GetData(nid);
 	if (pNpc == NULL)
 		return;
 
@@ -618,7 +617,7 @@ void CAISocket::RecvGateDestory(Packet & pkt)
 void CAISocket::RecvNpcDead(Packet & pkt)
 {
 	uint16 nid = pkt.read<uint16>();
-	CNpc* pNpc = g_pMain->m_arNpcArray.GetData(nid);
+	CNpc* pNpc = g_pMain.m_arNpcArray.GetData(nid);
 	if (pNpc == NULL)
 		return;
 
@@ -636,7 +635,7 @@ void CAISocket::RecvNpcInOut(Packet & pkt)
 	float fX, fZ, fY;
 
 	pkt >> bType >> sNid >> fX >> fZ >> fY;
-	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(sNid);
+	CNpc * pNpc = g_pMain.m_arNpcArray.GetData(sNid);
 	if (pNpc)
 		pNpc->SendInOut(bType, fX, fZ, fY);
 }
@@ -658,26 +657,26 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 	}
 	else if (bType == BATTLE_MAP_EVENT_RESULT)
 	{
-		if (g_pMain->m_byBattleOpen == NO_BATTLE)
+		if (g_pMain.m_byBattleOpen == NO_BATTLE)
 		{
-			TRACE("#### RecvBattleEvent Fail : battleopen = %d, type = %d\n", g_pMain->m_byBattleOpen, bType);
+			TRACE("#### RecvBattleEvent Fail : battleopen = %d, type = %d\n", g_pMain.m_byBattleOpen, bType);
 			return;
 		}
 
 		if (bResult == KARUS)
-			g_pMain->m_byKarusOpenFlag = 1;	
+			g_pMain.m_byKarusOpenFlag = 1;	
 		else if (bResult == ELMORAD)
-			g_pMain->m_byElmoradOpenFlag = 1;
+			g_pMain.m_byElmoradOpenFlag = 1;
 
 		Packet result(UDP_BATTLE_EVENT_PACKET, bType);
 		result << bResult;
-		g_pMain->Send_UDP_All(&result);
+		g_pMain.Send_UDP_All(&result);
 	}
 	else if (bType == BATTLE_EVENT_RESULT)
 	{
-		if (g_pMain->m_byBattleOpen == NO_BATTLE)
+		if (g_pMain.m_byBattleOpen == NO_BATTLE)
 		{
-			TRACE("#### RecvBattleEvent Fail : battleopen = %d, type=%d\n", g_pMain->m_byBattleOpen, bType);
+			TRACE("#### RecvBattleEvent Fail : battleopen = %d, type=%d\n", g_pMain.m_byBattleOpen, bType);
 			return;
 		}
 
@@ -686,26 +685,26 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 
 		if (!strMaxUserName.empty())
 		{
-			if (g_pMain->m_byBattleSave == 0)
+			if (g_pMain.m_byBattleSave == 0)
 			{
 				Packet result(WIZ_BATTLE_EVENT, bType);
 				result.SByte();
 				result << bResult << strMaxUserName;
 
-				g_pMain->AddDatabaseRequest(result);
-				g_pMain->m_byBattleSave = 1;
+				g_pMain.AddDatabaseRequest(result);
+				g_pMain.m_byBattleSave = 1;
 			}
 		}
 
-		g_pMain->m_bVictory = bResult;
-		g_pMain->m_byOldVictory = bResult;
-		g_pMain->m_byKarusOpenFlag = 0;
-		g_pMain->m_byElmoradOpenFlag = 0;
-		g_pMain->m_byBanishFlag = 1;
+		g_pMain.m_bVictory = bResult;
+		g_pMain.m_byOldVictory = bResult;
+		g_pMain.m_byKarusOpenFlag = 0;
+		g_pMain.m_byElmoradOpenFlag = 0;
+		g_pMain.m_byBanishFlag = 1;
 
 		Packet result(UDP_BATTLE_EVENT_PACKET, bType);
 		result << bResult;
-		g_pMain->Send_UDP_All(&result);
+		g_pMain.Send_UDP_All(&result);
 	}
 	else if (bType == BATTLE_EVENT_MAX_USER)
 	{
@@ -714,10 +713,10 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 
 		if (!strMaxUserName.empty())
 		{
-			pUser = g_pMain->GetUserPtr(strMaxUserName.c_str(), TYPE_CHARACTER);
+			pUser = g_pMain.GetUserPtr(strMaxUserName.c_str(), TYPE_CHARACTER);
 			if (pUser != NULL)
 			{
-				pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
+				pKnights = g_pMain.GetClanPtr(pUser->GetClanID());
 				if (pKnights)
 					strcpy_s(strKnightsName, sizeof(strKnightsName), pKnights->m_strName);
 
@@ -760,17 +759,17 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 			return;
 		}
 
-		_snprintf(chatstr, sizeof(chatstr), g_pMain->GetServerResource(nResourceID), strKnightsName, strMaxUserName);
+		_snprintf(chatstr, sizeof(chatstr), g_pMain.GetServerResource(nResourceID).c_str(), strKnightsName, strMaxUserName);
 
 #if 0
 		send_index = 0;
-		sprintf( finalstr, g_pMain->GetServerResource(IDP_ANNOUNCEMENT), chatstr );
+		sprintf( finalstr, g_pMain.GetServerResource(IDP_ANNOUNCEMENT), chatstr );
 		SetByte( send_buff, WIZ_CHAT, send_index );
 		SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
 		SetByte( send_buff, 1, send_index );
 		SetShort( send_buff, -1, send_index );
 		SetKOString( send_buff, finalstr, send_index );
-		g_pMain->Send_All( send_buff, send_index );
+		g_pMain.Send_All( send_buff, send_index );
 
 		send_index = 0;
 		SetByte( send_buff, WIZ_CHAT, send_index );
@@ -778,13 +777,13 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 		SetByte( send_buff, 1, send_index );
 		SetShort( send_buff, -1, send_index );
 		SetKOString( send_buff, finalstr, send_index );
-		g_pMain->Send_All( send_buff, send_index );
+		g_pMain.Send_All( send_buff, send_index );
 #endif
 
 		Packet result(UDP_BATTLE_EVENT_PACKET, bType);
 		result.SByte();
 		result << bResult << strKnightsName << strMaxUserName;
-		g_pMain->Send_UDP_All(&result);
+		g_pMain.Send_UDP_All(&result);
 	}
 }
 
@@ -796,7 +795,7 @@ void CAISocket::RecvNpcEventItem(Packet & pkt)
 
 	pkt >> sUid >> sNid >> nItemID >> nCount;
 
-	CUser *pUser = g_pMain->GetUserPtr(sUid);
+	CUser *pUser = g_pMain.GetUserPtr(sUid);
 	if (pUser == NULL)
 		return;
 
@@ -810,7 +809,7 @@ void CAISocket::RecvGateOpen(Packet & pkt)
 
 	pkt >> sNid >> sEventID >> bFlag;
 
-	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNid);
+	CNpc *pNpc = g_pMain.m_arNpcArray.GetData(sNid);
 	if (pNpc == NULL)	
 	{
 		TRACE("#### RecvGateOpen Npc Pointer null : nid=%d ####\n", sNid);

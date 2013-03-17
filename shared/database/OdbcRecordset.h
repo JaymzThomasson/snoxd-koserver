@@ -31,16 +31,19 @@ protected:
 	_LOAD_TABLE(Set, DB, Array, AllowEmptyTable); \
 	_HANDLE_DB_ERROR_ONLY(_szError ## Set)
 
+#define _DISPLAY_DB_ERROR(err) \
+	printf("ERROR: Could not load table, the error received was:\n%s\n", err); \
+
 #define _HANDLE_DB_ERROR(err) \
 	if (err != NULL) \
-		AfxMessageBox(err); \
+		_DISPLAY_DB_ERROR(err); \
 	return (err == NULL)
 
 #define _HANDLE_DB_ERROR_ONLY(err) \
 	if (err != NULL) { \
-		AfxMessageBox(err); \
+		_DISPLAY_DB_ERROR(err); \
 		return FALSE; \
 	}
 
 // Cheap right trim, used for strings. We should do this better.
-#define TRIM_RIGHT(v) { CString str = v; str.TrimRight(); strcpy(v, str); }
+#define TRIM_RIGHT(v) { std::string str = v; rtrim(str); strcpy(v, str.c_str()); }

@@ -19,7 +19,7 @@ public:
 
 		TRIM_RIGHT(strUserID);
 
-		g_pMain->m_KnightsManager.AddKnightsUser(sIDNum, strUserID);
+		g_pMain.m_KnightsManager.AddKnightsUser(sIDNum, strUserID);
 
 		return true;
 	}

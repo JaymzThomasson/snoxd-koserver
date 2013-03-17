@@ -29,7 +29,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 	}
 
 	pkt >> npcid >> itemid >> page >> srcpos >> destpos;
-	pTable = g_pMain->GetItemPtr( itemid );
+	pTable = g_pMain.GetItemPtr( itemid );
 	if( !pTable ) goto fail_return;
 	reference_pos = 24 * page;
 
@@ -57,7 +57,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 		m_sWarehouseArray[reference_pos+destpos].sDuration = m_sItemArray[SLOT_MAX+srcpos].sDuration;
 		m_sWarehouseArray[reference_pos+destpos].nSerialNum = m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
 		if( pTable->m_bCountable == 0 && m_sWarehouseArray[reference_pos+destpos].nSerialNum == 0 )
-			m_sWarehouseArray[reference_pos+destpos].nSerialNum = g_pMain->GenerateItemSerial();
+			m_sWarehouseArray[reference_pos+destpos].nSerialNum = g_pMain.GenerateItemSerial();
 
 		if( pTable->m_bCountable ) {
 			m_sWarehouseArray[reference_pos+destpos].sCount += (unsigned short)count;
@@ -117,7 +117,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 			m_sItemArray[SLOT_MAX+destpos].sCount += (unsigned short)count;
 		else {
 			if( m_sItemArray[SLOT_MAX+destpos].nSerialNum == 0 )
-				m_sItemArray[SLOT_MAX+destpos].nSerialNum = g_pMain->GenerateItemSerial();
+				m_sItemArray[SLOT_MAX+destpos].nSerialNum = g_pMain.GenerateItemSerial();
 			m_sItemArray[SLOT_MAX+destpos].sCount = m_sWarehouseArray[reference_pos+srcpos].sCount;
 		}
 		if( !pTable->m_bCountable ) {
@@ -182,7 +182,7 @@ fail_return: // hmm...
 
 BOOL CUser::CheckWeight(int itemid, short count)
 {
-	_ITEM_TABLE* pTable = g_pMain->GetItemPtr(itemid);
+	_ITEM_TABLE* pTable = g_pMain.GetItemPtr(itemid);
 	return (pTable != NULL // Make sure the item exists
 			// and that the weight doesn't exceed our limit
 			&& (m_sItemWeight + (pTable->m_sWeight * count)) <= m_sMaxWeight
@@ -192,7 +192,7 @@ BOOL CUser::CheckWeight(int itemid, short count)
 
 BOOL CUser::CheckExistItem(int itemid, short count)
 {
-	_ITEM_TABLE* pTable = g_pMain->GetItemPtr(itemid);
+	_ITEM_TABLE* pTable = g_pMain.GetItemPtr(itemid);
 	if (pTable == NULL)
 		return FALSE;	
 
@@ -210,7 +210,7 @@ BOOL CUser::CheckExistItem(int itemid, short count)
 
 BOOL CUser::RobItem(int itemid, short count)
 {
-	_ITEM_TABLE* pTable = g_pMain->GetItemPtr( itemid );
+	_ITEM_TABLE* pTable = g_pMain.GetItemPtr( itemid );
 	if (pTable == NULL)
 		return FALSE;
 
@@ -244,7 +244,7 @@ BOOL CUser::GiveItem(int itemid, short count, bool send_packet /*= true*/)
 {
 	uint8 pos;
 	bool bNewItem = true;
-	_ITEM_TABLE* pTable = g_pMain->GetItemPtr( itemid );
+	_ITEM_TABLE* pTable = g_pMain.GetItemPtr( itemid );
 	if (pTable == NULL)
 		return FALSE;	
 	
@@ -307,7 +307,7 @@ void CUser::ItemMove(Packet & pkt)
 	if (isTrading() || isMerchanting())
 		goto fail_return;
 
-	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
+	_ITEM_TABLE *pTable = g_pMain.GetItemPtr(nItemID);
 	if (pTable == NULL
 		//  || dir == ITEM_INVEN_SLOT && ((pTable->m_sWeight + m_sItemWeight) > m_sMaxWeight))
 		//  || dir > ITEM_MBAG_TO_MBAG || bSrcPos >= SLOT_MAX+HAVE_MAX+COSP_MAX+MBAG_MAX || bDstPos >= SLOT_MAX+HAVE_MAX+COSP_MAX+MBAG_MAX
@@ -635,7 +635,7 @@ fail_return:
  **/
 BOOL CUser::CheckItemCount(int itemid, short min, short max)
 {
-	_ITEM_TABLE* pTable = g_pMain->GetItemPtr( itemid );
+	_ITEM_TABLE* pTable = g_pMain.GetItemPtr( itemid );
 	if (pTable == NULL)
 		return FALSE;	
 

@@ -5,9 +5,6 @@
 #define WIN32_LEAN_AND_MEAN
 #define _CRT_SECURE_NO_WARNINGS
 
-// Only Ebenezer uses MFC now. This can be simplified when it doesn't.
-#ifndef EBENEZER
-
 // Remember to include Winsock first
 #	include <Winsock2.h>
 
@@ -24,11 +21,6 @@
 #else
 #		define ASSERT 
 #		define TRACE 
-#endif
-
-// MFC, ew.
-#else
-#	include <afxwin.h>
 #endif
 
 #include <vector>

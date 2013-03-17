@@ -24,10 +24,13 @@ static std::string string_format(const std::string fmt, ...)
 	return buffer;
 }
 
+template<int (&F)(int)> int safe_ctype(unsigned char c) { return F(c); } 
+static int safe_isspace(int c) { return safe_ctype<std::isspace>(c); }
+
 // trim from end
 static inline std::string & rtrim(std::string &s) 
 {
-	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(safe_isspace))).base(), s.end());
 	return s;
 }
 
@@ -54,7 +57,7 @@ static tstring string_format(const tstring fmt, ...)
 
 static inline tstring & rtrim(tstring &s) 
 {
-	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(safe_isspace))).base(), s.end());
 	return s;
 }
 

@@ -33,9 +33,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Ebenezer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="EbenezerDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -183,9 +180,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Ebenezer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EbenezerDlg.h">

@@ -43,7 +43,6 @@ using namespace std;
 #define AWARD_GOLD          100000
 #define AWARD_EXP			5000
 
-CEbenezerDlg * g_pMain = NULL;
 CDBAgent g_DBAgent;
 CRITICAL_SECTION g_serial_critical, g_region_critical, g_LogFile_critical;
 
@@ -53,14 +52,16 @@ ClientSocketMgr<CAISocket> CEbenezerDlg::s_aiSocketMgr;
 WORD	g_increase_serial = 1;
 bool	g_bRunning = true;
 
-CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CEbenezerDlg::IDD, pParent), m_Ini("gameserver.ini")
-{
-	//{{AFX_DATA_INIT(CEbenezerDlg)
-	//}}AFX_DATA_INIT
-	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+static DWORD s_dwGameTimerID, s_dwAliveTimerID;
 
+void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+{
+	g_pMain.OnTimer(idEvent);
+}
+
+CEbenezerDlg::CEbenezerDlg()
+	: m_Ini("gameserver.ini")
+{
 	m_nYear = 0; 
 	m_nMonth = 0;
 	m_nDate = 0;
@@ -120,53 +121,13 @@ CEbenezerDlg::CEbenezerDlg(CWnd* pParent /*=NULL*/)
 	m_bSanta = FALSE;		// ���� ��Ÿ!!! >.<
 }
 
-void CEbenezerDlg::DoDataExchange(CDataExchange* pDX)
+bool CEbenezerDlg::Startup()
 {
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CEbenezerDlg)
-	DDX_Control(pDX, IDC_GONGJI_EDIT, m_AnnounceEdit);
-	DDX_Control(pDX, IDC_LIST1, m_StatusList);
-	//}}AFX_DATA_MAP
-}
-
-BEGIN_MESSAGE_MAP(CEbenezerDlg, CDialog)
-	//{{AFX_MSG_MAP(CEbenezerDlg)
-	ON_WM_SYSCOMMAND()
-	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()
-	ON_WM_TIMER()
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
-
-/////////////////////////////////////////////////////////////////////////////
-// CEbenezerDlg message handlers
-
-BOOL CEbenezerDlg::OnInitDialog()
-{
-	CDialog::OnInitDialog();
-
-	g_pMain = this;
-
-	// Set the icon for this dialog.  The framework does this automatically
-	//  when the application's main window is not a dialog
-	SetIcon(m_hIcon, TRUE);			// Set big icon
-	SetIcon(m_hIcon, FALSE);		// Set small icon
-
 	m_sZoneCount = 0;
 	m_sErrorSocketCount = 0;
 
 	m_bFirstServerFlag = FALSE;	
 	m_bServerCheckFlag = FALSE;
-
-	//----------------------------------------------------------------------
-	//	Logfile initialize
-	//----------------------------------------------------------------------
-	CTime cur = CTime::GetCurrentTime();
-	char strLogFile[50];
-
-	sprintf_s(strLogFile, sizeof(strLogFile), "PacketLog-%d-%d-%d.txt", cur.GetYear(), cur.GetMonth(), cur.GetDay());
-	m_LogFile.Open( strLogFile, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate | CFile::shareDenyNone );
-	m_LogFile.SeekToEnd();
 
 	InitializeCriticalSection( &g_region_critical );
 	InitializeCriticalSection( &g_LogFile_critical );
@@ -176,9 +137,8 @@ BOOL CEbenezerDlg::OnInitDialog()
 	
 	if (!s_socketMgr.Listen(_LISTEN_PORT, MAX_USER))
 	{
-		AfxMessageBox("Failed to listen on server port.");
-		AfxPostQuitMessage(0);
-		return FALSE;
+		printf(_T("ERROR: Failed to listen on server port (%d)."), _LISTEN_PORT);
+		return false;
 	}
 
 	// Bit tacky, but there's no reason we can't reuse the existing completion port for our AI socket
@@ -188,10 +148,7 @@ BOOL CEbenezerDlg::OnInitDialog()
 	if (!g_DBAgent.Startup()
 		|| !LoadTables()
 		|| !MapFileLoad())
-	{
-		AfxPostQuitMessage(-1);
-		return FALSE;
-	}
+		return false;
 
 	LoadNoticeData();
 
@@ -199,9 +156,9 @@ BOOL CEbenezerDlg::OnInitDialog()
 
 #if 0 // Disabled pending rewrite
 	m_pUdpSocket = new CUdpSocket();
-	if( m_pUdpSocket->CreateSocket() == false ) {
-		AfxMessageBox("Udp Socket Create Fail");
-		AfxPostQuitMessage(0);
+	if (!m_pUdpSocket->CreateSocket())
+	{
+		printf("ERROR: UDP socket could not be created.\n");
 		return FALSE;
 	}
 #endif
@@ -214,8 +171,7 @@ BOOL CEbenezerDlg::OnInitDialog()
 
 	s_socketMgr.RunServer();
 
-	AddToList("Game server started : %02d/%02d/%04d %d:%02d\r\n", cur.GetDay(), cur.GetMonth(), cur.GetYear(), cur.GetHour(), cur.GetMinute());
-	return TRUE;  // return TRUE  unless you set the focus to a control
+	return true; 
 }
 
 bool CEbenezerDlg::LoadTables()
@@ -247,85 +203,14 @@ bool CEbenezerDlg::LoadTables()
 			&& LoadBattleTable());
 }
 
-void CEbenezerDlg::OnSysCommand(UINT nID, LPARAM lParam)
-{
-	CDialog::OnSysCommand(nID, lParam);
-}
-
-// If you add a minimize button to your dialog, you will need the code below
-//  to draw the icon.  For MFC applications using the document/view model,
-//  this is automatically done for you by the framework.
-
-void CEbenezerDlg::OnPaint() 
-{
-	if (IsIconic())
-	{
-		CPaintDC dc(this); // device context for painting
-
-		SendMessage(WM_ICONERASEBKGND, (WPARAM) dc.GetSafeHdc(), 0);
-
-		// Center icon in client rectangle
-		int cxIcon = GetSystemMetrics(SM_CXICON);
-		int cyIcon = GetSystemMetrics(SM_CYICON);
-		CRect rect;
-		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
-
-		// Draw the icon
-		dc.DrawIcon(x, y, m_hIcon);
-	}
-	else
-	{
-		CDialog::OnPaint();
-	}
-}
-
-// The system calls this to obtain the cursor to display while the user drags
-//  the minimized window.
-HCURSOR CEbenezerDlg::OnQueryDragIcon()
-{
-	return (HCURSOR) m_hIcon;
-}
-
-BOOL CEbenezerDlg::DestroyWindow() 
-{
-	KillTimer(GAME_TIME);
-	KillTimer(ALIVE_TIME);
-
-	KickOutAllUsers();
-
-	g_bRunning = false;
-
-	DatabaseThread::Shutdown();
-
-	if (m_LogFile.m_hFile != CFile::hFileNull) m_LogFile.Close();
-
-	DeleteCriticalSection(&g_region_critical);
-	DeleteCriticalSection(&g_LogFile_critical);
-	DeleteCriticalSection(&g_serial_critical);
-	
-	CUser::CleanupChatCommands();
-	CEbenezerDlg::CleanupServerCommands();
-
-	CleanupUserRankings();
-
-	if (m_LevelUpArray.size())
-		m_LevelUpArray.clear();
-
-	if( m_pUdpSocket )
-		delete m_pUdpSocket;
-
-	return CDialog::DestroyWindow();
-}
-
-CString CEbenezerDlg::GetServerResource(int nResourceID)
+// TO-DO: Make this string pass-by-reference
+string CEbenezerDlg::GetServerResource(int nResourceID)
 {
 	_SERVER_RESOURCE *pResource = m_ServerResourceArray.GetData(nResourceID);
-	CString result = "";
+	string result = "";
 
 	if (pResource == NULL)
-		result.Format("%d", nResourceID);	
+		result = nResourceID;	
 	else
 		result = pResource->strResource;
 
@@ -468,36 +353,6 @@ void CEbenezerDlg::DeleteParty(short sIndex)
 	LeaveCriticalSection(&g_region_critical);
 }
 
-void CEbenezerDlg::AddToList(const char * format, ...)
-{
-	char buffer[256] = {0};
-
-	va_list args;
-	va_start(args, format);
-	_vsnprintf(buffer, sizeof(buffer) - 1, format, args);
-	va_end(args);
-
-	m_StatusList.AddString(buffer);
-
-	EnterCriticalSection(&g_LogFile_critical);
-	m_LogFile.Write(buffer, strlen(buffer));
-	LeaveCriticalSection(&g_LogFile_critical);
-}
-
-void CEbenezerDlg::WriteLog(const char * format, ...)
-{
-	char buffer[256] = {0};
-
-	va_list args;
-	va_start(args, format);
-	_vsnprintf(buffer, sizeof(buffer) - 1, format, args);
-	va_end(args);
-
-	EnterCriticalSection(&g_LogFile_critical);
-	m_LogFile.Write(buffer, strlen(buffer));
-	LeaveCriticalSection(&g_LogFile_critical);
-}
-
 void CEbenezerDlg::OnTimer(UINT nIDEvent) 
 {
 	int count = 0, retval = 0;
@@ -512,8 +367,6 @@ void CEbenezerDlg::OnTimer(UINT nIDEvent)
 		CheckAliveUser();
 		break;
 	}
-
-	CDialog::OnTimer(nIDEvent);
 }
 
 int CEbenezerDlg::GetAIServerPort()
@@ -773,7 +626,7 @@ BOOL CEbenezerDlg::MapFileLoad()
 		_ZONE_INFO *pZone = itr->second;
 		if (!pMap->Initialize(pZone))
 		{
-			AfxMessageBox("Unable to load SMD - " + (CString)pZone->m_MapName);
+			printf("ERROR: Unable to load SMD - %s\n", pZone->m_MapName);
 			delete pZone;
 			delete pMap;
 			m_ZoneArray.DeleteAllData();
@@ -911,8 +764,9 @@ void CEbenezerDlg::GetTimeFromIni()
 	m_nServerNo = m_Ini.GetInt("ZONE_INFO", "MY_INFO", 1);
 	m_nServerGroup = m_Ini.GetInt("ZONE_INFO", "SERVER_NUM", 0);
 	server_count = m_Ini.GetInt("ZONE_INFO", "SERVER_COUNT", 1);
-	if( server_count < 1 ) {
-		AfxMessageBox("ServerCount Error!!");
+	if (server_count < 1)
+	{
+		printf("ERROR: Invalid SERVER_COUNT property in INI.\n");
 		return;
 	}
 
@@ -928,8 +782,9 @@ void CEbenezerDlg::GetTimeFromIni()
 	if( m_nServerGroup != 0 )	{
 		m_nServerGroupNo = m_Ini.GetInt("SG_INFO", "GMY_INFO", 1);
 		sgroup_count = m_Ini.GetInt("SG_INFO", "GSERVER_COUNT", 1);
-		if( server_count < 1 ) {
-			AfxMessageBox("ServerCount Error!!");
+		if (server_count < 1)
+		{
+			printf("ERROR: Invalid GSERVER_COUNT property in INI.\n");
 			return;
 		}
 		for( i=0; i<sgroup_count; i++ ) {
@@ -945,8 +800,8 @@ void CEbenezerDlg::GetTimeFromIni()
 
 	m_Ini.GetString("AI_SERVER", "IP", "127.0.0.1", m_AIServerIP, sizeof(m_AIServerIP));
 
-	SetTimer( GAME_TIME, 6000, NULL );
-	SetTimer( ALIVE_TIME, 34000, NULL );
+	s_dwGameTimerID = SetTimer(NULL, 1, 6000, &TimerProc);
+	s_dwAliveTimerID = SetTimer(NULL, 2, 34000, &TimerProc);
 }
 
 void CEbenezerDlg::UpdateGameTime()
@@ -1264,6 +1119,7 @@ void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, uint16 region_x, uint16 region
 	LeaveCriticalSection(&g_region_critical);
 }
 
+#if 0 // TO-DO: Reimplement as console input thread
 BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg) 
 {
 	char chatstr[256];
@@ -1275,9 +1131,6 @@ BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg)
 
 		if (pMsg->wParam == VK_RETURN)
 		{
-			m_AnnounceEdit.GetWindowText( chatstr, 256 );
-			UpdateData(TRUE);
-
 			std::string message = chatstr;
 			if (message.empty())
 				return TRUE;
@@ -1293,16 +1146,15 @@ BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg)
 			return TRUE;
 		}
 	}
-	
-	return CDialog::PreTranslateMessage(pMsg);
 }
+#endif
 
 void CEbenezerDlg::SendNotice(const char *msg, uint8 bNation /*= 0*/)
 {
 	Packet data(WIZ_CHAT);
 	char buffer[512];
 
-	sprintf_s(buffer, sizeof(buffer), GetServerResource(IDP_ANNOUNCEMENT), msg);
+	sprintf_s(buffer, sizeof(buffer), GetServerResource(IDP_ANNOUNCEMENT).c_str(), msg);
 	data  << uint8(PUBLIC_CHAT)		// chat type 
 		  << uint8(1)				// nation
 		  << int16(-1)				// session ID
@@ -1502,10 +1354,13 @@ void CEbenezerDlg::AliveUserCheck()
 
 void CEbenezerDlg::BattleZoneOpenTimer()
 {
-	CTime cur = CTime::GetCurrentTime();
+	time_t t;
+	struct tm * ptm;
+	time(&t); // TO-DO: as time() is expensive, we should update a shared structure & access that instead.
+	ptm = localtime(&t);
 
-	int nWeek = cur.GetDayOfWeek();
-	int nTime = cur.GetHour();
+	int nWeek = ptm->tm_wday;
+	int nTime = ptm->tm_hour;
 	int loser_nation = 0, snow_battle = 0;
 	CUser *pKarusUser = NULL, *pElmoUser = NULL;
 
@@ -1672,50 +1527,49 @@ void CEbenezerDlg::ResetBattleZone()
 
 void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 {
-	int send_index = 0;
-
 	char chatstr[1024]; 
 
-	switch(type) {
+	switch (type)
+	{
 		case BATTLEZONE_OPEN:
 		case SNOW_BATTLEZONE_OPEN:
-			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDP_BATTLEZONE_OPEN));
+			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDP_BATTLEZONE_OPEN).c_str());
 			break;
 
 		case DECLARE_WINNER:
 			if (m_bVictory == KARUS)
-				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDP_KARUS_VICTORY), m_sElmoradDead, m_sKarusDead);
+				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDP_KARUS_VICTORY).c_str(), m_sElmoradDead, m_sKarusDead);
 			else if (m_bVictory == ELMORAD)
-				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDP_ELMORAD_VICTORY), m_sKarusDead, m_sElmoradDead);
+				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDP_ELMORAD_VICTORY).c_str(), m_sKarusDead, m_sElmoradDead);
 			else 
 				return;
 			break;
 		case DECLARE_LOSER:
 			if (m_bVictory == KARUS)
-				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_ELMORAD_LOSER), m_sKarusDead, m_sElmoradDead);
+				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_ELMORAD_LOSER).c_str(), m_sKarusDead, m_sElmoradDead);
 			else if (m_bVictory == ELMORAD)
-				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_KARUS_LOSER), m_sElmoradDead, m_sKarusDead);
+				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_KARUS_LOSER).c_str(), m_sElmoradDead, m_sKarusDead);
 			else 
 				return;
 			break;
 
 		case DECLARE_BAN:
-			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_BANISH_USER));
+			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_BANISH_USER).c_str());
 			break;
 		case BATTLEZONE_CLOSE:
-			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_BATTLE_CLOSE));
+			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_BATTLE_CLOSE).c_str());
 			break;
 		case KARUS_CAPTAIN_NOTIFY:
-			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_KARUS_CAPTAIN), m_strKarusCaptain);
+			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_KARUS_CAPTAIN).c_str(), m_strKarusCaptain);
 			break;
 		case ELMORAD_CAPTAIN_NOTIFY:
-			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_ELMO_CAPTAIN), m_strElmoradCaptain);
+			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_ELMO_CAPTAIN).c_str(), m_strElmoradCaptain);
 			break;
 		case KARUS_CAPTAIN_DEPRIVE_NOTIFY:
-			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_KARUS_CAPTAIN_DEPRIVE), m_strKarusCaptain);
+			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_KARUS_CAPTAIN_DEPRIVE).c_str(), m_strKarusCaptain);
 			break;
 		case ELMORAD_CAPTAIN_DEPRIVE_NOTIFY:
-			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_ELMO_CAPTAIN_DEPRIVE), m_strElmoradCaptain);
+			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_ELMO_CAPTAIN_DEPRIVE).c_str(), m_strElmoradCaptain);
 			break;
 	}
 
@@ -1933,26 +1787,26 @@ __int64 CEbenezerDlg::GenerateItemSerial()
 	MYINT64 serial;
 	MYSHORT	increase;
 	serial.i = 0;
-	increase.w = 0;
 
-	CTime t = CTime::GetCurrentTime();
+	time_t t;
+	struct tm * ptm;
+	time(&t); // TO-DO: as time() is expensive, we should update a shared structure & access that instead.
+	ptm = gmtime(&t);
 
 	EnterCriticalSection( &g_serial_critical );
 
 	increase.w = g_increase_serial++;
 
-	serial.b[7] = (BYTE)m_nServerNo;
-	serial.b[6] = (BYTE)(t.GetYear()%100);
-	serial.b[5] = (BYTE)t.GetMonth();
-	serial.b[4] = (BYTE)t.GetDay();
-	serial.b[3] = (BYTE)t.GetHour();
-	serial.b[2] = (BYTE)t.GetMinute();
+	serial.b[7] = (BYTE)(m_nServerNo);
+	serial.b[6] = (BYTE)(ptm->tm_year % 100);
+	serial.b[5] = (BYTE)(ptm->tm_mon);
+	serial.b[4] = (BYTE)(ptm->tm_mday);
+	serial.b[3] = (BYTE)(ptm->tm_hour);
+	serial.b[2] = (BYTE)(ptm->tm_min);
 	serial.b[1] = increase.b[1];
 	serial.b[0] = increase.b[0];
 
 	LeaveCriticalSection( &g_serial_critical );
-	
-//	TRACE("Generate Item Serial : %I64d\n", serial.i);
 	return serial.i;
 }
 
@@ -2092,4 +1946,31 @@ void CEbenezerDlg::FlySanta()
 {
 	Packet result(WIZ_SANTA);
 	Send_All(&result);
-} 
+}
+
+CEbenezerDlg::~CEbenezerDlg() 
+{
+	KillTimer(NULL, s_dwGameTimerID);
+	KillTimer(NULL, s_dwAliveTimerID);
+
+	KickOutAllUsers();
+
+	g_bRunning = false;
+
+	DatabaseThread::Shutdown();
+
+	DeleteCriticalSection(&g_region_critical);
+	DeleteCriticalSection(&g_LogFile_critical);
+	DeleteCriticalSection(&g_serial_critical);
+	
+	CUser::CleanupChatCommands();
+	CEbenezerDlg::CleanupServerCommands();
+
+	CleanupUserRankings();
+
+	if (m_LevelUpArray.size())
+		m_LevelUpArray.clear();
+
+	if (m_pUdpSocket)
+		delete m_pUdpSocket;
+}

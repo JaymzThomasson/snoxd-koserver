@@ -7,13 +7,13 @@ bool CDBAgent::Startup()
 	if (!Connect())
 	{
 		// we should probably be a little more specific (i.e. *which* database server)
-		AfxMessageBox(_T("Failed to connect to the database server."));
+		printf(_T("ERROR: Failed to connect to the database server."));
 		return false;
 	}
 
 	// If MARS is enabled, we can use multiple database threads.
 	DWORD dwThreads = 1;
-	if (g_pMain->m_bMarsEnabled)
+	if (g_pMain.m_bMarsEnabled)
 	{
 		SYSTEM_INFO si;
 		GetSystemInfo(&si);
@@ -26,13 +26,13 @@ bool CDBAgent::Startup()
 
 bool CDBAgent::Connect()
 {
-	if (!m_AccountDB.Connect(g_pMain->m_strAccountDSN, g_pMain->m_strAccountUID, g_pMain->m_strAccountPWD, g_pMain->m_bMarsEnabled))
+	if (!m_AccountDB.Connect(g_pMain.m_strAccountDSN, g_pMain.m_strAccountUID, g_pMain.m_strAccountPWD, g_pMain.m_bMarsEnabled))
 	{
 		ReportSQLError(m_AccountDB.GetError());
 		return false;
 	}
 
-	if (!m_GameDB.Connect(g_pMain->m_strGameDSN, g_pMain->m_strGameUID, g_pMain->m_strGamePWD, g_pMain->m_bMarsEnabled))
+	if (!m_GameDB.Connect(g_pMain.m_strGameDSN, g_pMain.m_strGameUID, g_pMain.m_strGamePWD, g_pMain.m_bMarsEnabled))
 	{
 		ReportSQLError(m_GameDB.GetError());
 		return false;
@@ -372,7 +372,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 		itemBuffer >> nItemID >> sDurability >> sCount;
 		serialBuffer >> nSerialNum;
 
-		_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
+		_ITEM_TABLE *pTable = g_pMain.GetItemPtr(nItemID);
 		if (pTable == NULL || sCount <= 0)
 			continue;
 
@@ -450,7 +450,7 @@ bool CDBAgent::LoadWarehouseData(string & strAccountID, CUser *pUser)
 		itemBuffer >> nItemID >> sDurability >> sCount;
 		serialBuffer >> nSerialNum;
 
-		_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
+		_ITEM_TABLE *pTable = g_pMain.GetItemPtr(nItemID);
 		if (pTable == NULL || sCount <= 0)
 			continue;
 
@@ -692,7 +692,7 @@ void CDBAgent::RequestFriendList(std::vector<string> & friendList, CUser *pUser)
 
 FriendAddResult CDBAgent::AddFriend(short sid, short tid)
 {
-	CUser *pSrcUser = g_pMain->GetUserPtr(sid), *pTargetUser = g_pMain->GetUserPtr(tid);
+	CUser *pSrcUser = g_pMain.GetUserPtr(sid), *pTargetUser = g_pMain.GetUserPtr(tid);
 	if (pSrcUser == NULL || pTargetUser == NULL)
 		return FRIEND_ADD_ERROR;
 
@@ -906,7 +906,7 @@ uint16 CDBAgent::LoadKnightsAllMembers(uint16 sClanID, Packet & result)
 
 		result << strCharID << bFame << bLevel << sClass 
 			// check if user's logged in (i.e. grab logged in state)
-			<< uint8(g_pMain->GetUserPtr(strCharID.c_str(), TYPE_CHARACTER) == NULL ? 0 : 1);
+			<< uint8(g_pMain.GetUserPtr(strCharID.c_str(), TYPE_CHARACTER) == NULL ? 0 : 1);
 		count++;
 	} while (dbCommand->MoveNext());
 
@@ -981,7 +981,7 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 			// overwrite the count
 			result.put(offset, bCount);
 
-			g_pMain->m_KnightsManager.RecvKnightsAllList(result);
+			g_pMain.m_KnightsManager.RecvKnightsAllList(result);
 			bCount = 0;
 		}
 	} while (dbCommand->MoveNext());
@@ -990,7 +990,7 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 	if (bCount < 100)
 	{
 		result.put(offset, bCount);
-		g_pMain->m_KnightsManager.RecvKnightsAllList(result);
+		g_pMain.m_KnightsManager.RecvKnightsAllList(result);
 	}
 }
 
@@ -1027,7 +1027,7 @@ void CDBAgent::UpdateBattleEvent(string & strCharID, uint8 bNation)
 		return;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
-	if (!dbCommand->Execute(string_format(_T("UPDATE BATTLE SET byNation=%d, strUserName=? WHERE sIndex=%d"), bNation, g_pMain->m_nServerNo)))
+	if (!dbCommand->Execute(string_format(_T("UPDATE BATTLE SET byNation=%d, strUserName=? WHERE sIndex=%d"), bNation, g_pMain.m_nServerNo)))
 		ReportSQLError(m_GameDB.GetError());
 }
 

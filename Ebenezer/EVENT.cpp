@@ -4,6 +4,7 @@
 #include "EVENT_DATA.h"
 #include "EXEC.h"
 #include "LOGIC_ELSE.h"
+#include <fstream>
 
 EVENT::EVENT()
 {
@@ -17,9 +18,8 @@ EVENT::~EVENT()
 BOOL EVENT::LoadEvent(int zone)
 {
 	DWORD		length, count;
-	CString		filename;
-	CFile		pFile;
-	BYTE		byte;
+	string		filename;
+	char		byte;
 	char		buf[4096];
 	char		first[1024];
 	char		temp[1024];
@@ -30,25 +30,30 @@ BOOL EVENT::LoadEvent(int zone)
 	EVENT_DATA	*newData = NULL;
 	EVENT_DATA	*eventData = NULL;
 
-	filename.Format( ".\\MAP\\%d.evt", zone);
+	filename = ".\\MAP\\";
+	filename += zone;
+	filename += ".evt";
 
 	m_Zone = zone;
 
-	if( !pFile.Open( filename, CFile::modeRead) ) return TRUE;
+	std::ifstream is(filename);
+	if (!is)
+		return FALSE;
 
-	length = (DWORD)pFile.GetLength();
-	
-	CArchive in(&pFile, CArchive::load);
+	is.seekg(0, is.end);
+    length = (DWORD)is.tellg();
+    is.seekg (0, is.beg);
 
 	count = 0;
 
 	while(count < length)
 	{
-		in >> byte;	count ++;
+		is.read(&byte, 1);
+		count ++;
 
-		if( (char)byte != '\r' && (char)byte != '\n' ) buf[index++] = byte;
+		if( byte != '\r' && (char)byte != '\n' ) buf[index++] = byte;
 
-		if(((char)byte == '\n' || count == length ) && index > 1 )
+		if((byte == '\n' || count == length ) && index > 1 )
 		{
 			buf[index] = (BYTE) 0;
 
@@ -127,17 +132,13 @@ BOOL EVENT::LoadEvent(int zone)
 		}
 	}
 
-	in.Close();
-	pFile.Close();
-
+	is.close();
 	return TRUE;
 
 cancel_event_load:
-	CString str;
-	str.Format( "QUEST INFO READ FAIL (%d)(%d)", zone, event_num );
-	AfxMessageBox( str );
-	in.Close();
-	pFile.Close();
+	printf("Unable to load EVT (%d.evt), failed in or near event number %d.\n", 
+		zone, event_num);
+	is.close();
 	DeleteAll();
 	return FALSE;
 }

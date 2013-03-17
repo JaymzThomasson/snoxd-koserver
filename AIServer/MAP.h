@@ -39,7 +39,7 @@ public:
 	CSize			m_sizeRegion;			// ∏ ¿« resion size
 	int m_nZoneNumber;						// zone number
 	int	m_nServerNo;
-	CString m_MapName;
+	std::string m_MapName;
 	int			m_nMapSize;		// Grid Unit ex) 4m
 	float		m_fUnitDist;	// i Grid Distance
 	float*		m_fHeight;

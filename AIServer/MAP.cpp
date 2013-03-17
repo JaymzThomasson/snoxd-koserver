@@ -433,7 +433,7 @@ BOOL MAP::LoadRoomEvent( int zone_number )
 	filename += zone_number;
 	filename += ".aievt";
 
-	ifstream is(filename.c_str());
+	ifstream is(filename);
 	if (!is)
 		return FALSE;
 

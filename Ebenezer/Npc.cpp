@@ -132,7 +132,7 @@ void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
 	{
 		result.Initialize(AG_NPC_GATE_OPEN);
 		result << GetID() << m_byGateOpen;
-		g_pMain->Send_AIServer(&result);
+		g_pMain.Send_AIServer(&result);
 	}
 }
 
@@ -151,7 +151,7 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= t
 		// NOTE: This will handle the death notification/looting.
 		Packet result(AG_USER_SET_HP);
 		result << GetID() << m_iHP << pAttacker->GetID();
-		g_pMain->Send_AIServer(&result);
+		g_pMain.Send_AIServer(&result);
 	}
 }
 
@@ -168,7 +168,7 @@ void CNpc::MSpChange(int amount)
 
 	Packet result(AG_USER_SET_MP);
 	result << GetID() << m_iMP;
-	g_pMain->Send_AIServer(&result);
+	g_pMain.Send_AIServer(&result);
 #endif
 }
 

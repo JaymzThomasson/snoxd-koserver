@@ -3,13 +3,13 @@
 #define STR(str) #str
 #define STRINGIFY(str) STR(str)
 
-CServerDlg g_pMain;
+CEbenezerDlg g_pMain;
 static bool s_bRunning = true;
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
 
 int main()
 {
-	SetConsoleTitle("AI server for Knight Online v" STRINGIFY(__VERSION));
+	SetConsoleTitle("Game server for Knight Online v" STRINGIFY(__VERSION));
 
 	// Override the console handler
 	SetConsoleCtrlHandler(_ConsoleHandler, TRUE);

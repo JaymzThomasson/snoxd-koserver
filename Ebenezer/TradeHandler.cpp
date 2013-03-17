@@ -37,7 +37,7 @@ void CUser::ExchangeReq(Packet & pkt)
 	}
 
 	uint16 destid = pkt.read<uint16>();
-	CUser* pUser = g_pMain->GetUserPtr(destid);
+	CUser* pUser = g_pMain.GetUserPtr(destid);
 	if (pUser == NULL
 		|| pUser->isTrading()
 		|| (pUser->GetNation() != GetNation() && pUser->GetZoneID() != 21 && GetZoneID() != 21)
@@ -63,7 +63,7 @@ void CUser::ExchangeAgree(Packet & pkt)
 		return;
 
 	uint8 bResult = pkt.read<uint8>();
-	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
+	CUser *pUser = g_pMain.GetUserPtr(m_sExchangeUser);
 	if (pUser == NULL) 
 	{
 		m_sExchangeUser = -1;
@@ -101,7 +101,7 @@ void CUser::ExchangeAdd(Packet & pkt)
 	BYTE pos;
 	BOOL bAdd = TRUE, bGold = FALSE;
 
-	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
+	CUser *pUser = g_pMain.GetUserPtr(m_sExchangeUser);
 	if (pUser == NULL
 		|| pUser->isDead()
 		|| isDead())
@@ -111,7 +111,7 @@ void CUser::ExchangeAdd(Packet & pkt)
 	}
 
 	pkt >> pos >> nItemID >> count;
-	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
+	_ITEM_TABLE *pTable = g_pMain.GetItemPtr(nItemID);
 	if (pTable == NULL
 		|| (nItemID != ITEM_GOLD && pos >= HAVE_MAX)
 		|| m_bExchangeOK)
@@ -210,7 +210,7 @@ void CUser::ExchangeDecide()
 {
 	BOOL bSuccess = TRUE;
 
-	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
+	CUser *pUser = g_pMain.GetUserPtr(m_sExchangeUser);
 	if (pUser == NULL
 		|| pUser->isDead()
 		|| isDead())
@@ -297,7 +297,7 @@ void CUser::ExchangeCancel()
 		|| isDead())
 		return;
 
-	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
+	CUser *pUser = g_pMain.GetUserPtr(m_sExchangeUser);
 	foreach (itr, m_ExchangeItemList)
 	{
 		if ((*itr)->nItemID == ITEM_GOLD)
@@ -353,7 +353,7 @@ BOOL CUser::ExecuteExchange()
 	short weight = 0;
 	BYTE i = 0;
 
-	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
+	CUser *pUser = g_pMain.GetUserPtr(m_sExchangeUser);
 	if (pUser == NULL)
 		return FALSE;
 
@@ -369,7 +369,7 @@ BOOL CUser::ExecuteExchange()
 			continue;
 		}
 
-		_ITEM_TABLE *pTable = g_pMain->GetItemPtr((*Iter)->nItemID);
+		_ITEM_TABLE *pTable = g_pMain.GetItemPtr((*Iter)->nItemID);
 		if (pTable == NULL)
 			continue;
 
@@ -425,7 +425,7 @@ int CUser::ExchangeDone()
 	CUser* pUser = NULL;
 	_ITEM_TABLE* pTable = NULL;
 
-	pUser = g_pMain->GetUserPtr(m_sExchangeUser);
+	pUser = g_pMain.GetUserPtr(m_sExchangeUser);
 	if (pUser == NULL)
 		return 0;
 
@@ -455,12 +455,12 @@ int CUser::ExchangeDone()
 		pItem->sCount = m_MirrorItem[i].sCount;
 		pItem->nSerialNum = m_MirrorItem[i].nSerialNum;
 
-		pTable = g_pMain->GetItemPtr(pItem->nNum);
+		pTable = g_pMain.GetItemPtr(pItem->nNum);
 		if (pTable == NULL)
 			continue;
 
 		if (!pTable->m_bCountable && pItem->nSerialNum == 0)
-			pItem->nSerialNum = g_pMain->GenerateItemSerial();
+			pItem->nSerialNum = g_pMain.GenerateItemSerial();
 	}
 
 	return money;

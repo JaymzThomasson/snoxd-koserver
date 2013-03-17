@@ -33,7 +33,7 @@ void CUser::Attack(Packet & pkt)
 	// We're attacking a player...
 	if (tid < MAX_USER)
 	{
-		pTUser = g_pMain->GetUserPtr(tid);
+		pTUser = g_pMain.GetUserPtr(tid);
  
 		if (pTUser == NULL || pTUser->isDead() || pTUser->isBlinking()
 				|| (pTUser->GetNation() == GetNation() && GetZoneID() != 48 /* TO-DO: implement better checks */)
@@ -42,7 +42,7 @@ void CUser::Attack(Packet & pkt)
 		else 
 		{
 			damage = GetDamage(pTUser, NULL);
-			if (GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE)
+			if (GetZoneID() == ZONE_SNOW_BATTLE && g_pMain.m_byBattleOpen == SNOW_BATTLE)
 				damage = 0;		
 
 			if (damage <= 0)
@@ -64,10 +64,10 @@ void CUser::Attack(Packet & pkt)
 	else if (tid >= NPC_BAND)
 	{
 		// AI hasn't loaded yet
-		if (g_pMain->m_bPointCheckFlag == FALSE)	
+		if (g_pMain.m_bPointCheckFlag == FALSE)	
 			return;	
 
-		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(tid);		
+		CNpc *pNpc = g_pMain.m_arNpcArray.GetData(tid);		
 		if (pNpc != NULL && pNpc->isAlive() 
 			&& (pNpc->GetNation() == 0 || pNpc->GetNation() == GetNation()))
 		{
@@ -81,7 +81,7 @@ void CUser::Attack(Packet & pkt)
 					<< m_sItemAc
 					<< m_bMagicTypeLeftHand << m_bMagicTypeRightHand
 					<< m_sMagicAmountLeftHand << m_sMagicAmountRightHand;
-			g_pMain->Send_AIServer(&result);	
+			g_pMain.Send_AIServer(&result);	
 			return;
 		}
 	}
@@ -136,7 +136,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 		}
 	}
 
-	pHomeInfo = g_pMain->m_HomeArray.GetData(m_bNation);
+	pHomeInfo = g_pMain.m_HomeArray.GetData(m_bNation);
 	if (!pHomeInfo) return;
 
 	UserInOut(INOUT_OUT);
@@ -223,7 +223,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	Send(&result);
 	
 	if (magicid > 0) {	// Clerical Resurrection.
-		pType = g_pMain->m_Magictype5Array.GetData(magicid);     
+		pType = g_pMain.m_Magictype5Array.GetData(magicid);     
 		if ( !pType ) return;
 
 		m_bResHpType = USER_STANDING;
@@ -253,15 +253,15 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	{
 		result.Initialize(AG_USER_REGENE);
 		result << GetSocketID() << m_sHp;
-		g_pMain->Send_AIServer(&result);
+		g_pMain.Send_AIServer(&result);
 	}
 
 	SetRegion(GetNewRegionX(), GetNewRegionZ());
 
 	UserInOut(INOUT_RESPAWN);		
 
-	g_pMain->RegionUserInOutForMe(this);
-	g_pMain->RegionNpcInfoForMe(this);
+	g_pMain.RegionUserInOutForMe(this);
+	g_pMain.RegionNpcInfoForMe(this);
 
 	BlinkStart();
 

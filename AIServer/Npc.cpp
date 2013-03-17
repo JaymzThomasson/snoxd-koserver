@@ -4832,7 +4832,6 @@ void CNpc::GiveNpcHaveItem()
 {
 	char pBuf[1024];
 	int index = 0, temp = 0, iPer = 0, iMakeItemCode = 0, iMoney = 0, iRandom, nCount = 1, i =0;
-	CString string;
 
 /*	if( m_byMoneyType == 1 )	{
 		SetByte(pBuf, AG_NPC_EVENT_ITEM, index);
