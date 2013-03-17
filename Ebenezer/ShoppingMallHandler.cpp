@@ -37,7 +37,7 @@ void CUser::ShoppingMall(Packet & pkt)
 	}
 }
 
-// Tell Aujard we're closing the PUS so that we can call LOAD_WEB_ITEMMALL and load the extra items.
+// We're closing the PUS so that we can call LOAD_WEB_ITEMMALL and load the extra items.
 void CUser::HandleStoreClose()
 {
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_CLOSE));
@@ -56,7 +56,7 @@ void CUser::RecvStore(Packet & pkt)
 	}
 }
 
-// Presumably received item data back from Aujard.
+// Presumably received item data back from the database.
 void CUser::RecvStoreClose(Packet & pkt)
 {
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_CLOSE));

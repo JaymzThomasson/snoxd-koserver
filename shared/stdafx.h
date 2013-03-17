@@ -5,14 +5,11 @@
 #define WIN32_LEAN_AND_MEAN
 #define _CRT_SECURE_NO_WARNINGS
 
-// The login server & Aujard aren't using MFC anymore.
-// This can be simplified when Aujard's gone & Ebenezer/AI aren't using MFC.
-#if defined(LOGIN_SERVER) || defined(AUJARD) || defined(AI_SERVER)
+// Only Ebenezer uses MFC now. This can be simplified when it doesn't.
+#ifndef EBENEZER
 
 // Remember to include Winsock first
-#	ifndef AUJARD
-#		include <Winsock2.h>
-#	endif
+#	include <Winsock2.h>
 
 // Not using MFC, so we need to Windows.h for most things
 #	include <Windows.h>
@@ -40,9 +37,7 @@
 #include <sstream>
 
 #include "globals.h"
-#ifndef AUJARD
-#	include "KOSocket.h"
-#	include "KOSocketMgr.h"
-#endif
+#include "KOSocket.h"
+#include "KOSocketMgr.h"
 #include "STLMap.h"
 #include "Ini.h"

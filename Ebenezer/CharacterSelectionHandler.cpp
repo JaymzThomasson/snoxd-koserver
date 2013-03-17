@@ -93,7 +93,7 @@ void CUser::DelCharToAgent(Packet & pkt)
 		return;
 	}
 
-	// Send packet to Aujard
+	// Process the deletion request in the database
 	result	<< bCharIndex << strUserID << strSocNo;
 	g_pMain->AddDatabaseRequest(result, this);
 }

@@ -697,7 +697,7 @@ void CKnightsManager::RegisterClanSymbol(CUser* pUser, Packet & pkt)
 	// Read the clan symbol from the packet
 	pkt.read(clanSymbol, sSymbolSize);
 
-	// Nope? Let's tell Aujard to update the clan symbol.
+	// Nope? Let's update the clan symbol.
 	result	<< pUser->GetClanID() << sSymbolSize;
 	result.append(clanSymbol, sSymbolSize);
 	g_pMain->AddDatabaseRequest(result, pUser);

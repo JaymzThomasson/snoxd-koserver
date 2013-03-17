@@ -468,8 +468,6 @@ enum SkillBarOpcodes
 {
 	SKILL_DATA_SAVE = 1,
 	SKILL_DATA_LOAD = 2
-	// NOTE: There's a type "4" in 1.298. 
-	// This is actually just used from AUJARD, *not* the client (despite mgame allowing them to).
 };
 
 enum ObjectType

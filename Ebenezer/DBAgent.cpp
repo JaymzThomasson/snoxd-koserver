@@ -615,7 +615,7 @@ bool CDBAgent::LoadWebItemMall(Packet & result, CUser *pUser)
 
 		result << nItemID << sCount;
 
-		// don't want to crash Aujard with too many (100 = (6*100) [items] + 2 [count] + 2 [opcode/subopcode] + 1 [result] + 2 [uid] = 607)
+		// Only limitation here is now the client.
 		// NOTE: using the byte buffer this is OK, however we don't want too much in shared memory for now... so we'll keep to our limit
 		if (++count >= 100) 
 			break;

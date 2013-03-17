@@ -366,9 +366,9 @@ public:
 	void NewCharToAgent(Packet & pkt);
 	void DelCharToAgent(Packet & pkt);
 	void SelCharToAgent(Packet & pkt);
-	void SelectCharacter(Packet & pkt); // from Aujard
+	void SelectCharacter(Packet & pkt); // from the database
 	void SetLogInInfoToDB(BYTE bInit);
-	void RecvLoginInfo(Packet & pkt); // from Aujard
+	void RecvLoginInfo(Packet & pkt); // from the database
 
 	void SpeedHackTime(Packet & pkt);
 
@@ -519,9 +519,9 @@ public:
 	void CharacterSealProcess(Packet & pkt);
 
 	void ShoppingMall(Packet & pkt);
-	void RecvStore(Packet & pkt); // from Aujard
+	void RecvStore(Packet & pkt); // from the database
 	void HandleStoreClose();
-	void RecvStoreClose(Packet & pkt); // from Aujard
+	void RecvStoreClose(Packet & pkt); // from the database
 	void LetterSystem(Packet & pkt);
 
 	void ReqLetterSystem(Packet & pkt);

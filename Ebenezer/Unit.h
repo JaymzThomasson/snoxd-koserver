@@ -3,7 +3,8 @@
 /**
  * This class is a bridge between the CNpc & CUser classes
  * Currently it's excessively messier than it needs to be, 
- * because of Aujard and the whole _USER_DATA setup.
+ * because of Aujard and the whole _USER_DATA setup 
+ * (which has recently been removed)
  *
  * This will be written out eventually, so we can do this properly.
  **/
