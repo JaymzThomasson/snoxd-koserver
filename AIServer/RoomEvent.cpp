@@ -57,7 +57,7 @@ void CRoomEvent::MainRoom( float fcurtime )
 		bRunCheck = RunEvent( event_num );
 		if( bRunCheck )	{
 			//wsprintf(notify, "** 알림 : [%d]방이 클리어 되어습니다. **", m_sRoomNumber);
-			//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
+			//g_pMain.SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
 			m_byStatus = 3;
 		}
 	}
@@ -156,7 +156,7 @@ BOOL  CRoomEvent::RunEvent( int event_num )
 		}
 
 		//wsprintf(notify, "** 알림 : [%d] 문이 열립니다 **", m_sRoomNumber);
-		//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
+		//g_pMain.SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
 
 		if( m_byCheck == m_byLogicNumber )	{	// 방이 클리어
 			return TRUE;
@@ -175,7 +175,7 @@ BOOL  CRoomEvent::RunEvent( int event_num )
 		bRetValue = CheckMonsterCount( nOption_1, nOption_2, 2 );
 
 		//wsprintf(notify, "** 알림 : [%d, %d] 몬스터 출현 **", nOption_1, nOption_2);
-		//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
+		//g_pMain.SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
 
 		if( m_byCheck == m_byLogicNumber )	{	// 방이 클리어
 			return TRUE;
@@ -224,7 +224,7 @@ CNpc* CRoomEvent::GetNpcPtr( int sid )
 	for(int i=0 ; i<nMonster; i++ ) {
 		int nMonsterid = pIDList[i];
 		if( nMonsterid < 0 )	continue;
-		CNpc *pNpc = g_pMain->m_arNpc.GetData( nMonsterid );
+		CNpc *pNpc = g_pMain.m_arNpc.GetData( nMonsterid );
 		if( !pNpc )		continue;
 		if( pNpc->m_proto->m_sSid == sid )	{
 			if(pIDList)	{
@@ -262,7 +262,7 @@ BOOL  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
 	LeaveCriticalSection( &g_region_critical );
 
 	for(int i=0 ; i<nMonster; i++ ) {
-		CNpc *pNpc = g_pMain->m_arNpc.GetData(pIDList[i]);
+		CNpc *pNpc = g_pMain.m_arNpc.GetData(pIDList[i]);
 		if( !pNpc )		continue;
 		if( type == 4 )	{
 			if( pNpc->m_byRegenType == 2 )	pNpc->m_byRegenType = 0;
@@ -328,14 +328,14 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 				break;
 			}
 
-			g_pMain->SendSystemMsg( notify, WAR_SYSTEM_CHAT, SEND_ALL);
+			g_pMain.SendSystemMsg( notify, WAR_SYSTEM_CHAT, SEND_ALL);
 
 		} break;
 
 		case 2:
 			_LoadStringFromResource(IDS_KARUS_PATHWAY + (option2-1), buff);
 			sprintf(notify, buff.c_str());
-			g_pMain->SendSystemMsg(notify, WAR_SYSTEM_CHAT, SEND_ALL);
+			g_pMain.SendSystemMsg(notify, WAR_SYSTEM_CHAT, SEND_ALL);
 
 			// this is normal, we need to send the following packet as well.
 
@@ -343,7 +343,7 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 		{
 			Packet result(AG_BATTLE_EVENT, uint8(BATTLE_MAP_EVENT_RESULT));
 			result << uint8(option2);
-			g_pMain->Send(&result);
+			g_pMain.Send(&result);
 		} break;
 	}
 }

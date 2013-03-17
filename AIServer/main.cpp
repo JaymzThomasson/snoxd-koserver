@@ -3,6 +3,7 @@
 #define STR(str) #str
 #define STRINGIFY(str) STR(str)
 
+CServerDlg g_pMain;
 static bool s_bRunning = true;
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
 
@@ -14,11 +15,8 @@ int main()
 	// Override the console handler
 	SetConsoleCtrlHandler(_ConsoleHandler, TRUE);
 
-	// Hacky, we can tweak this later.
-	g_pMain = &pMain;
-
 	// Startup server
-	if (!g_pMain->Startup())
+	if (!g_pMain.Startup())
 	{
 		system("pause"); // most users won't be running this via command prompt
 		return 1;

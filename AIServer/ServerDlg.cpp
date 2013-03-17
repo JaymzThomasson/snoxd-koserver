@@ -25,7 +25,6 @@ using namespace std;
 
 BOOL g_bNpcExit	= FALSE;
 ZoneArray			g_arZone;
-CServerDlg * g_pMain = NULL;
 
 CRITICAL_SECTION g_User_critical, g_region_critical;
 

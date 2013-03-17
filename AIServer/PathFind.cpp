@@ -355,7 +355,7 @@ BOOL CPathFind::IsBlankMap(int x, int y)
 	if(x < 0 || y < 0 || x >= m_vMapSize.cx || y >= m_vMapSize.cy) return FALSE;
 
 	BOOL bRet = TRUE;
-	//if(g_pMain->m_pMap->m_pMap[x][y].m_bMove > 0) bRet = FALSE;
+	//if(g_pMain.m_pMap->m_pMap[x][y].m_bMove > 0) bRet = FALSE;
 	//if
 	return !m_pMap[x][y].m_sEvent;
 	//return bRet;

@@ -139,5 +139,3 @@ public:
 private:
 	BYTE				m_byZone;
 };
-
-extern CServerDlg * g_pMain;

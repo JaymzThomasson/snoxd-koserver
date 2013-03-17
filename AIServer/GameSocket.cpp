@@ -25,7 +25,7 @@ void CGameSocket::Initialize()
 void CGameSocket::OnDisconnect()
 {
 	TRACE("*** CloseProcess - socketID=%d ... server=%s *** \n", GetSocketID(), GetRemoteIP().c_str());
-	g_pMain->DeleteAllUserList(this);
+	g_pMain.DeleteAllUserList(this);
 	Initialize();
 }
 
@@ -117,8 +117,8 @@ void CGameSocket::RecvServerConnect(Packet & pkt)
 	else
 		TRACE("**** Connect - server=%s,  socket = %d ****\n ", GetRemoteIP().c_str(), GetSocketID());
 
-	g_pMain->m_bFirstServerFlag = TRUE;
-	g_pMain->AllNpcInfo();
+	g_pMain.m_bFirstServerFlag = TRUE;
+	g_pMain.AllNpcInfo();
 }
 
 void CGameSocket::RecvUserInfo(Packet & pkt)
@@ -143,14 +143,14 @@ void CGameSocket::RecvUserInfo(Packet & pkt)
 	}
 
 	strcpy(pUser->m_strUserID, strUserID.c_str());
-	pUser->m_pMap = g_pMain->GetZoneByID(pUser->m_curZone);
+	pUser->m_pMap = g_pMain.GetZoneByID(pUser->m_curZone);
 	pUser->m_bLive = USER_LIVE;
 
 	TRACE("****  RecvUserInfo()---> uid = %d, name=%s ******\n", 
 		pUser->m_iUserId, pUser->m_strUserID);
 
 	if (pUser->m_iUserId >= USER_BAND && pUser->m_iUserId < MAX_USER)
-		g_pMain->m_pUser[pUser->m_iUserId] = pUser;
+		g_pMain.m_pUser[pUser->m_iUserId] = pUser;
 	else 
 		delete pUser;
 }
@@ -177,9 +177,9 @@ void CGameSocket::RecvUserInOut(Packet & pkt)
 
 	// 수정할것,,, : 지금 존 번호를 0으로 했는데.. 유저의 존 정보의 번호를 읽어야,, 함,,
 	MAP* pMap = NULL;
-	//g_pMain->g_arZone[pUser->m_curZone];
+	//g_pMain.g_arZone[pUser->m_curZone];
 
-	CUser* pUser = g_pMain->GetUserPtr(uid);
+	CUser* pUser = g_pMain.GetUserPtr(uid);
 
 //	TRACE("^^& RecvUserInOut( type=%d )-> User(%s, %d),, zone=%d, index=%d, region_x=%d, y=%d\n", bType, pUser->m_strUserID, pUser->m_iUserId, pUser->m_curZone, pUser->m_sZoneIndex, region_x, region_z);
 
@@ -267,7 +267,7 @@ BOOL CGameSocket::SetUid(float x, float z, int id, int speed)
 	int nRX = (int)x / VIEW_DIST;
 	int nRZ = (int)z / VIEW_DIST;
 
-	CUser* pUser = g_pMain->GetUserPtr(id);
+	CUser* pUser = g_pMain.GetUserPtr(id);
 	if(pUser == NULL) 
 	{
 		TRACE("#### User등록 실패 sid = %d ####\n", id);
@@ -352,7 +352,7 @@ void CGameSocket::RecvAttackReq(Packet & pkt)
 	pkt >> type >> result >> sid >> tid >> sDamage >> sAC >> fHitAgi >> fAvoidAgi
 		>> sItemAC >> bTypeLeft >> bTypeRight >> sAmountLeft >> sAmountRight;
 
-	CUser* pUser = g_pMain->GetUserPtr(sid);
+	CUser* pUser = g_pMain.GetUserPtr(sid);
 	if(pUser == NULL) return;
 
 	if(pUser->m_bLive == USER_DEAD || pUser->m_sHP <= 0)
@@ -390,7 +390,7 @@ void CGameSocket::RecvUserLogOut(Packet & pkt)
 
 	pkt >> uid >> strUserID; // double byte string for once
 
-	g_pMain->DeleteUserList(uid);
+	g_pMain.DeleteUserList(uid);
 	TRACE("**** User LogOut -- uid = %d, name = %s\n", uid, strUserID.c_str());
 }
 
@@ -399,7 +399,7 @@ void CGameSocket::RecvUserRegene(Packet & pkt)
 	uint16 uid, sHP;
 	pkt >> uid >> sHP;
 
-	CUser* pUser = g_pMain->GetUserPtr(uid);
+	CUser* pUser = g_pMain.GetUserPtr(uid);
 	if(pUser == NULL)	
 		return;
 
@@ -414,7 +414,7 @@ void CGameSocket::RecvUserSetHP(Packet & pkt)
 	uint16 uid = pkt.read<uint16>();
 	uint32 nHP = pkt.read<uint32>();
 
-	CUser* pUser = g_pMain->GetUserPtr(uid);
+	CUser* pUser = g_pMain.GetUserPtr(uid);
 	if(pUser == NULL)	return;
 
 	if(pUser->m_sHP != nHP)	{
@@ -430,7 +430,7 @@ void CGameSocket::RecvUserUpdate(Packet & pkt)
 	uint16 uid = pkt.read<uint16>();
 	std::string strUserID;
 
-	CUser* pUser = g_pMain->GetUserPtr(uid);
+	CUser* pUser = g_pMain.GetUserPtr(uid);
 	if (pUser == NULL)
 		return;
 
@@ -456,11 +456,11 @@ void CGameSocket::RecvZoneChange(Packet & pkt)
 	uint16 uid = pkt.read<uint16>();
 	uint8 byZoneNumber = pkt.read<uint8>();
 
-	CUser* pUser = g_pMain->GetUserPtr(uid);
+	CUser* pUser = g_pMain.GetUserPtr(uid);
 	if (pUser == NULL)	
 		return;
 
-	pUser->m_pMap = g_pMain->GetZoneByID(byZoneNumber);
+	pUser->m_pMap = g_pMain.GetZoneByID(byZoneNumber);
 	pUser->m_curZone = byZoneNumber;
 
 	TRACE("**** RecvZoneChange -- user(%s, %d), cur_zone = %d\n", pUser->m_strUserID, pUser->m_iUserId, byZoneNumber);
@@ -469,7 +469,7 @@ void CGameSocket::RecvZoneChange(Packet & pkt)
 void CGameSocket::RecvMagicAttackReq(Packet & pkt)
 {
 	uint16 sid = pkt.read<uint16>();
-	CUser* pUser = g_pMain->GetUserPtr(sid);
+	CUser* pUser = g_pMain.GetUserPtr(sid);
 	if (pUser == NULL) return;
 	if(pUser->m_bLive == USER_DEAD || pUser->m_sHP <= 0)
 	{
@@ -518,7 +518,7 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 		}
 
 		strcpy(pUser->m_strUserID, strUserID.c_str());
-		pUser->m_pMap = g_pMain->GetZoneByID(pUser->m_curZone);
+		pUser->m_pMap = g_pMain.GetZoneByID(pUser->m_curZone);
 		pUser->m_bLive = USER_LIVE;
 		if (pUser->m_sPartyNumber != -1)
 			pUser->m_byNowParty = 1;
@@ -529,10 +529,10 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 		if (pUser->m_iUserId >= USER_BAND && pUser->m_iUserId < MAX_USER)
 		{
 			// Does a user already exist? Free them (I know, tacky...)
-			if (g_pMain->m_pUser[pUser->m_iUserId] != NULL)
-				delete g_pMain->m_pUser[pUser->m_iUserId];
+			if (g_pMain.m_pUser[pUser->m_iUserId] != NULL)
+				delete g_pMain.m_pUser[pUser->m_iUserId];
 
-			g_pMain->m_pUser[pUser->m_iUserId] = pUser;
+			g_pMain.m_pUser[pUser->m_iUserId] = pUser;
 		}
 		else
 		{
@@ -554,7 +554,7 @@ void CGameSocket::RecvGateOpen(Packet & pkt)
 	}
 
 	CNpc* pNpc = NULL;
-	pNpc = g_pMain->m_arNpc.GetData(nid);
+	pNpc = g_pMain.m_arNpc.GetData(nid);
 	if(pNpc == NULL)		return;
 
 	if(pNpc->m_proto->m_tNpcType == NPC_DOOR || pNpc->m_proto->m_tNpcType == NPC_GATE_LEVER || pNpc->m_proto->m_tNpcType == NPC_PHOENIX_GATE ) 	{
@@ -580,7 +580,7 @@ void CGameSocket::RecvUserVisibility(Packet & pkt)
 	uint8 bIsInvisible;
 	pkt >> sid >> bIsInvisible;
 
-	CUser *pUser = g_pMain->GetUserPtr(sid);
+	CUser *pUser = g_pMain.GetUserPtr(sid);
 	if (pUser == NULL)
 		return;
 
@@ -603,7 +603,7 @@ void CGameSocket::RecvPartyInfoAllData(Packet & pkt)
 		pParty->uid[i] = pkt.read<uint16>();
 
 	EnterCriticalSection( &g_region_critical );
-	if (g_pMain->m_arParty.PutData(pParty->wIndex, pParty))
+	if (g_pMain.m_arParty.PutData(pParty->wIndex, pParty))
 		TRACE("****  RecvPartyInfoAllData()---> PartyIndex = %d  ******\n", sPartyIndex);
 	LeaveCriticalSection(&g_region_critical);
 }
@@ -620,7 +620,7 @@ void CGameSocket::RecvHealMagic(Packet & pkt)
 	//TRACE("RecvHealMagic : [sid=%d] \n", sid);
 
 	CUser* pUser = NULL;
-	pUser = g_pMain->GetUserPtr(sid);
+	pUser = g_pMain.GetUserPtr(sid);
 	if(pUser == NULL) return;
 
 	if(pUser->m_bLive == USER_DEAD || pUser->m_sHP <= 0)	{
@@ -642,17 +642,17 @@ void CGameSocket::RecvHealMagic(Packet & pkt)
 
 void CGameSocket::RecvTimeAndWeather(Packet & pkt)
 {
-	pkt >> g_pMain->m_iYear >> g_pMain->m_iMonth >> g_pMain->m_iDate >> g_pMain->m_iHour >> g_pMain->m_iMin >> g_pMain->m_iWeather >> g_pMain->m_iAmount;
+	pkt >> g_pMain.m_iYear >> g_pMain.m_iMonth >> g_pMain.m_iDate >> g_pMain.m_iHour >> g_pMain.m_iMin >> g_pMain.m_iWeather >> g_pMain.m_iAmount;
 
-	if (g_pMain->m_iHour >=5 && g_pMain->m_iHour < 21)	g_pMain->m_byNight = 1;
-	else												g_pMain->m_byNight = 2;
+	if (g_pMain.m_iHour >=5 && g_pMain.m_iHour < 21)	g_pMain.m_byNight = 1;
+	else												g_pMain.m_byNight = 2;
 }
 
 void CGameSocket::RecvUserFail(Packet & pkt)
 {
 	uint16 sid, tid, sHP;
 	pkt >> sid >> tid >> sHP;
-	CUser* pUser = g_pMain->GetUserPtr(sid);
+	CUser* pUser = g_pMain.GetUserPtr(sid);
 	if (pUser == NULL) 
 		return;
 
@@ -666,16 +666,16 @@ void CGameSocket::RecvBattleEvent(Packet & pkt)
 
 	if (bEvent == BATTLEZONE_OPEN || bEvent == BATTLEZONE_CLOSE)
 	{
-		g_pMain->m_sKillKarusNpc = g_pMain->m_sKillElmoNpc = 0;
-		g_pMain->m_byBattleEvent = bEvent;
+		g_pMain.m_sKillKarusNpc = g_pMain.m_sKillElmoNpc = 0;
+		g_pMain.m_byBattleEvent = bEvent;
 		if (bEvent == BATTLEZONE_CLOSE)
-			g_pMain->ResetBattleZone();
+			g_pMain.ResetBattleZone();
 	}
 
-	int nSize = g_pMain->m_arNpc.GetSize();
+	int nSize = g_pMain.m_arNpc.GetSize();
 	for (int i = 0; i < nSize; i++)
 	{
-		CNpc *pNpc = g_pMain->m_arNpc.GetData(i);
+		CNpc *pNpc = g_pMain.m_arNpc.GetData(i);
 		if (pNpc == NULL)
 			continue;
 		if (pNpc->m_proto->m_tNpcType > 10 && (pNpc->m_byGroup == KARUS_ZONE || pNpc->m_byGroup == ELMORAD_ZONE))
