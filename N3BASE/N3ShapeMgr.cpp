@@ -317,7 +317,7 @@ void CN3ShapeMgr::SubCell(const __Vector3& vPos, __CellSub** ppSubCell)			// ÇØ´
 	int x = (int)(vPos.x / CELL_MAIN_SIZE);
 	int z = (int)(vPos.z / CELL_MAIN_SIZE);
 	
-	__ASSERT(x >= 0 && x < MAX_CELL_MAIN && z >= 0 && z < MAX_CELL_MAIN, "Invalid cell number");
+	_ASSERT(x >= 0 && x < MAX_CELL_MAIN && z >= 0 && z < MAX_CELL_MAIN);
 
 	int xx = (((int)vPos.x)%CELL_MAIN_SIZE)/CELL_SUB_SIZE;			// 2, 3, 4
 	int zz = (((int)vPos.z)%CELL_MAIN_SIZE)/CELL_SUB_SIZE;			// 1, 0, 5

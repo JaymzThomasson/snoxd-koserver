@@ -2065,7 +2065,7 @@ BOOL CNpc::IsMovable(float x, float z)
 	if (pMap == NULL
 		|| x < 0 || z < 0
 		|| x >= pMap->GetMapSize() || z >= pMap->GetMapSize()
-		|| pMap->GetEventID(x, z) == 0)
+		|| pMap->GetEventID((int)x, (int)z) == 0)
 		return FALSE;
 
 	return TRUE;

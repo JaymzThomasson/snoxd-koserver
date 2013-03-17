@@ -23,7 +23,7 @@ public:
 			{
 				if(pdwCCVertIndices) delete [] pdwCCVertIndices;
 				pdwCCVertIndices = new DWORD[nCCPolyCount * 3];
-				__ASSERT(pdwCCVertIndices, "New memory failed");
+				_ASSERT(pdwCCVertIndices);
 				fread(pdwCCVertIndices, nCCPolyCount * 3 * 4, 1, fp);
 			}
 		}
@@ -75,7 +75,7 @@ public:
 		int x = (int)(fX / CELL_MAIN_SIZE);
 		int z = (int)(fZ / CELL_MAIN_SIZE);
 		
-		__ASSERT(x >= 0 && x < MAX_CELL_MAIN && z >= 0 && z < MAX_CELL_MAIN, "Invalid cell number");
+		_ASSERT(x >= 0 && x < MAX_CELL_MAIN && z >= 0 && z < MAX_CELL_MAIN);
 		if(NULL == m_pCells[x][z]) return NULL;
 
 		int xx = (((int)fX)%CELL_MAIN_SIZE)/CELL_SUB_SIZE;
