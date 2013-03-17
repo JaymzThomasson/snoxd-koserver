@@ -4036,6 +4036,15 @@ void CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID)
 	These are called by quest scripts. 
 */
 
+void CUser::QuestV2SaveEvent(uint16 sQuestID)
+{
+	_QUEST_HELPER * pQuestHelper = g_pMain->m_QuestHelperArray.GetData(sQuestID);
+	if (pQuestHelper == NULL)
+		return;
+
+	SaveEvent(pQuestHelper->sEventDataIndex, pQuestHelper->bEventStatus);
+}
+
 void CUser::QuestV2SendNpcMsg(uint32 nQuestID, uint16 sNpcID)
 {
 	Packet result(WIZ_QUEST, uint8(7));
