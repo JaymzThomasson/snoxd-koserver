@@ -46,7 +46,7 @@ public:
 	RoomEventArray	 m_arRoomEventArray;
 	short	m_sKarusRoom;			// karusÀÇ ¼º°¹¼ö
 	short	m_sElmoradRoom;			// elmoradÀÇ ¼º°¹¼ö
-	CSize m_sizeRegion, m_sizeMap;
+
 public:
 	MAP();
 	virtual ~MAP();

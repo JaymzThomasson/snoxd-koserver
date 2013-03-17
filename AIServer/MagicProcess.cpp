@@ -539,13 +539,11 @@ short CMagicProcess::AreaAttack(int magictype, int magicid, int moral, int data1
 
 	MAP* pMap = m_pSrcUser->GetMap();
 	if(pMap == NULL) return 0;
-	int max_xx = pMap->m_sizeRegion.cx;
-	int max_zz = pMap->m_sizeRegion.cy;
 
 	int min_x = region_x - 1;	if(min_x < 0) min_x = 0;
 	int min_z = region_z - 1;	if(min_z < 0) min_z = 0;
-	int max_x = region_x + 1;	if(max_x >= max_xx) max_x = max_xx - 1;
-	int max_z = region_z + 1;	if(min_z >= max_zz) min_z = max_zz - 1;
+	int max_x = region_x + 1;	if(max_x > pMap->GetXRegionMax()) max_x = pMap->GetXRegionMax();
+	int max_z = region_z + 1;	if(min_z > pMap->GetZRegionMax()) min_z = pMap->GetZRegionMax();
 
 	int search_x = max_x - min_x + 1;		
 	int search_z = max_z - min_z + 1;	

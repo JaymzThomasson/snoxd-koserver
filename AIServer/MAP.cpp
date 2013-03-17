@@ -16,7 +16,6 @@ MAP::MAP() : m_smdFile(NULL), m_ppRegion(NULL),
 	m_fHeight(NULL), m_byRoomType(0), m_byRoomEvent(0),
 	m_byRoomStatus(1), m_byInitRoomCount(0),
 	m_nZoneNumber(0), m_nMapSize(0), m_fUnitDist(0.0f),
-	m_sizeRegion(0, 0), m_sizeMap(0, 0),
 	m_sKarusRoom(0), m_sElmoradRoom(0)
 {
 }
@@ -63,10 +62,8 @@ MAP::~MAP()
 
 void MAP::RemoveMapData()
 {
-//	int i, j, k;
-
 	if( m_ppRegion ) {
-		for(int i=0; i< m_sizeRegion.cx; i++) {
+		for(int i=0; i <= GetXRegionMax(); i++) {
 			delete[] m_ppRegion[i];
 			m_ppRegion[i] = NULL;
 		}
@@ -87,7 +84,7 @@ void MAP::RemoveMapData()
 BOOL MAP::IsMovable(int dest_x, int dest_y)
 {
 	if(dest_x < 0 || dest_y < 0 ) return FALSE;
-	if(dest_x >= m_sizeMap.cx || dest_y >= m_sizeMap.cy) return FALSE;
+	if (dest_x >= m_sizeMap.cx || dest_y >= m_sizeMap.cy) return FALSE;
 
 	return m_smdFile->GetEventID((int)dest_x, (int)dest_y) == 0;
 }
@@ -99,7 +96,7 @@ BOOL MAP::ObjectIntersect(float x1, float z1, float y1, float x2, float z2, floa
 
 void MAP::RegionUserAdd(int rx, int rz, int uid)
 {
-	if( rx<0 || rz<0 || rx>=m_sizeRegion.cx || rz>=m_sizeRegion.cy )
+	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
 		return;
 
 	int *pInt = NULL;
@@ -115,7 +112,7 @@ void MAP::RegionUserAdd(int rx, int rz, int uid)
 
 BOOL MAP::RegionUserRemove(int rx, int rz, int uid)
 {
-	if( rx<0 || rz<0 || rx>m_sizeRegion.cx || rz>m_sizeRegion.cy )
+	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
 		return FALSE;
 
 	CRegion	*region = NULL;
@@ -133,7 +130,7 @@ BOOL MAP::RegionUserRemove(int rx, int rz, int uid)
 
 void MAP::RegionNpcAdd(int rx, int rz, int nid)
 {
-	if( rx<0 || rz<0 || rx>=m_sizeRegion.cx || rz>=m_sizeRegion.cy )
+	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
 		return;
 
 	int *pInt = NULL;
@@ -149,7 +146,7 @@ void MAP::RegionNpcAdd(int rx, int rz, int nid)
 
 BOOL MAP::RegionNpcRemove(int rx, int rz, int nid)
 {
-	if( rx<0 || rz<0 || rx>m_sizeRegion.cx || rz>m_sizeRegion.cy )
+	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
 		return FALSE;
 
 	CRegion	*region = NULL;
@@ -167,7 +164,7 @@ BOOL MAP::RegionNpcRemove(int rx, int rz, int nid)
 
 int  MAP::GetRegionUserSize(int rx, int rz)
 {
-	if( rx<0 || rz<0 || rx>=m_sizeRegion.cx || rz>=m_sizeRegion.cy )
+	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
 		return 0;
 
 	EnterCriticalSection( &g_region_critical );
@@ -181,7 +178,7 @@ int  MAP::GetRegionUserSize(int rx, int rz)
 
 int  MAP::GetRegionNpcSize(int rx, int rz)
 {
-	if( rx<0 || rz<0 || rx>=m_sizeRegion.cx || rz>=m_sizeRegion.cy )
+	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
 		return 0;
 
 	EnterCriticalSection( &g_region_critical );

@@ -652,8 +652,8 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 		MAP * pMap = itr->second;
 		if (pMap == NULL)	
 			continue;
-		for (int i=0; i<pMap->m_sizeRegion.cx; i++ ) {
-			for( int j=0; j<pMap->m_sizeRegion.cy; j++ ) {
+		for (int i=0; i<=pMap->GetXRegionMax(); i++ ) {
+			for( int j=0; j<=pMap->GetZRegionMax(); j++ ) {
 				pMap->m_ppRegion[i][j].m_RegionUserArray.DeleteAllData();
 			}
 		}
@@ -828,8 +828,8 @@ void CServerDlg::RegionCheck()
 		if (pMap == NULL)
 			continue;
 
-		for (int i = 0; i < pMap->m_sizeRegion.cx; i++)
-			for (int j = 0; j < pMap->m_sizeRegion.cy; j++)
+		for (int i = 0; i <= pMap->GetXRegionMax(); i++)
+			for (int j = 0; j <= pMap->GetZRegionMax(); j++)
 				pMap->m_ppRegion[i][j].m_byMoving = (pMap->m_ppRegion[i][j].m_RegionUserArray.GetSize() > 0 ? 1 : 0);
 	}
 	LeaveCriticalSection( &g_User_critical );

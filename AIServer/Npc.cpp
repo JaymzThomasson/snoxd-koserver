@@ -4047,13 +4047,10 @@ int CNpc::FindFriend(int type)
 		if(m_Target.id == -1) return 0;
 	}
 
-	int max_xx = pMap->m_sizeRegion.cx;
-	int max_zz = pMap->m_sizeRegion.cy;
-
 	int min_x = (int)(m_fCurX - m_bySearchRange)/VIEW_DIST;	if(min_x < 0) min_x = 0;
 	int min_z = (int)(m_fCurZ - m_bySearchRange)/VIEW_DIST;	if(min_z < 0) min_z = 0;
-	int max_x = (int)(m_fCurX + m_bySearchRange)/VIEW_DIST;	if(max_x >= max_xx) max_x = max_xx - 1;
-	int max_z = (int)(m_fCurZ + m_bySearchRange)/VIEW_DIST;	if(min_z >= max_zz) min_z = max_zz - 1;
+	int max_x = (int)(m_fCurX + m_bySearchRange)/VIEW_DIST;	if(max_x > pMap->GetXRegionMax()) max_x = pMap->GetXRegionMax();
+	int max_z = (int)(m_fCurZ + m_bySearchRange)/VIEW_DIST;	if(min_z > pMap->GetZRegionMax()) min_z = pMap->GetZRegionMax();
 
 	int search_x = max_x - min_x + 1;		
 	int search_z = max_z - min_z + 1;	
@@ -4420,12 +4417,10 @@ BOOL CNpc::GetUserInView()
 	MAP* pMap = GetMap();
 	if (pMap == NULL)	return FALSE;
 	//if( m_ZoneIndex > 5 || m_ZoneIndex < 0) return FALSE;		// 임시코드 ( 2002.03.24 )
-	int max_xx = pMap->m_sizeRegion.cx;
-	int max_zz = pMap->m_sizeRegion.cy;
 	int min_x = (int)(m_fCurX - NPC_VIEW_RANGE)/VIEW_DIST;	if(min_x < 0) min_x = 0;
 	int min_z = (int)(m_fCurZ - NPC_VIEW_RANGE)/VIEW_DIST;	if(min_z < 0) min_z = 0;
-	int max_x = (int)(m_fCurX + NPC_VIEW_RANGE)/VIEW_DIST;	if(max_x >= max_xx) max_x = max_xx - 1;
-	int max_z = (int)(m_fCurZ + NPC_VIEW_RANGE)/VIEW_DIST;	if(max_z >= max_zz) max_z = max_zz - 1;
+	int max_x = (int)(m_fCurX + NPC_VIEW_RANGE)/VIEW_DIST;	if(max_x > pMap->GetXRegionMax()) max_x = pMap->GetXRegionMax();
+	int max_z = (int)(m_fCurZ + NPC_VIEW_RANGE)/VIEW_DIST;	if(max_z > pMap->GetZRegionMax()) max_z = pMap->GetZRegionMax();
 
 	int search_x = max_x - min_x + 1;		
 	int search_z = max_z - min_z + 1;	
