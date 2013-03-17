@@ -28,10 +28,13 @@ int main()
     MSG msg;
 
 	// Standard mesage pump purely for OnTimer()'s sake
-	while (s_bRunning && GetMessage(&msg, NULL, 0, 0))
+	while (s_bRunning)
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
 	}
 
 	return 0;
