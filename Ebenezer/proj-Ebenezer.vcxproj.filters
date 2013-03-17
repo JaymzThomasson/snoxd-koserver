@@ -177,6 +177,9 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\SMDFile.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -394,6 +397,9 @@
     </ClInclude>
     <ClInclude Include="..\shared\database\QuestHelperSet.h">
       <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\SMDFile.h">
+      <Filter>Shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

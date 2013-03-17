@@ -160,6 +160,7 @@
     <ClCompile Include="..\shared\JvCryption.cpp" />
     <ClCompile Include="..\shared\KOSocket.cpp" />
     <ClCompile Include="..\shared\lzf.cpp" />
+    <ClCompile Include="..\shared\SMDFile.cpp" />
     <ClCompile Include="..\shared\Socket.cpp" />
     <ClCompile Include="..\shared\SocketMgr.cpp" />
     <ClCompile Include="AISocket.cpp">
@@ -291,6 +292,7 @@
     <ClInclude Include="..\shared\KOSocketMgr.h" />
     <ClInclude Include="..\shared\lzf.h" />
     <ClInclude Include="..\shared\packets.h" />
+    <ClInclude Include="..\shared\SMDFile.h" />
     <ClInclude Include="..\shared\Socket.h" />
     <ClInclude Include="..\shared\SocketMgr.h" />
     <ClInclude Include="AIPacket.h" />

@@ -109,7 +109,7 @@ BOOL CNpc::SetUid(float x, float z, int id)
 
 CNpc::CNpc() : m_NpcState(NPC_LIVE), m_byGateOpen(0), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
 	m_byAttackPos(0), m_sThreadNumber(-1), m_ItemUserLevel(0), m_Delay(0), 
-	m_proto(NULL), m_pZone(NULL), m_pPath(NULL), m_pOrgMap(NULL)
+	m_proto(NULL), m_pZone(NULL), m_pPath(NULL)
 {
 	InitTarget();
 
@@ -239,7 +239,6 @@ void CNpc::Init()
 		TRACE("#### Npc-Init Zone Fail : [name=%s], zone=%d #####\n", m_proto->m_strName, m_bCurZone);
 		return;
 	}
-	m_pOrgMap = GetMap()->m_pMap;	// MapInfo 정보 셋팅
 }
 
 //	NPC 기본위치 정보 초기화(패스 따라 움직이는 NPC의 진형을 맞추어 준다..
@@ -978,9 +977,9 @@ BOOL CNpc::SetLive()
 			nTileZ = nZ / TILE_SIZE;
 
 			if(nTileX >= (pMap->m_sizeMap.cx-1))
-				nTileX = pMap->m_sizeMap.cx-1;
+				nTileX = (pMap->m_sizeMap.cx-1);
 			if(nTileZ >= (pMap->m_sizeMap.cy-1))
-				nTileZ = pMap->m_sizeMap.cy-1;
+				nTileZ = (pMap->m_sizeMap.cy-1);
 
 			if(nTileX < 0 || nTileZ < 0)	{
 				TRACE("#### Npc-SetLive() Fail : nTileX=%d, nTileZ=%d #####\n", nTileX, nTileZ);
@@ -1548,7 +1547,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 	m_vMapSize.cy = max_y - min_y + 1;
 	
 	m_pPath = NULL;
-	m_vPathFind.SetMap(m_vMapSize.cx, m_vMapSize.cy, m_pOrgMap);
+	m_vPathFind.SetMap(m_vMapSize.cx, m_vMapSize.cy, GetMap()->GetEventIDs());
 	m_pPath = m_vPathFind.FindPath(end.x, end.y, start.x, start.y);
 	int count = 0;
 
@@ -2064,10 +2063,9 @@ BOOL CNpc::IsMovable(float x, float z)
 {
 	MAP* pMap = GetMap();
 	if (pMap == NULL
-		|| !pMap->m_pMap
 		|| x < 0 || z < 0
 		|| x >= pMap->m_sizeMap.cx || z >= pMap->m_sizeMap.cy
-		|| pMap->m_pMap[(int)x][(int)z].m_sEvent == 0)
+		|| pMap->GetEventID(x, z) == 0)
 		return FALSE;
 
 	return TRUE;
@@ -5844,8 +5842,8 @@ BOOL CNpc::Teleport()
 		nTileX = nX / TILE_SIZE;
 		nTileZ = nZ / TILE_SIZE;
 
-		if(nTileX >= (pMap->m_sizeMap.cx-1))		nTileX = pMap->m_sizeMap.cx-1;
-		if(nTileZ >= (pMap->m_sizeMap.cy-1))		nTileZ = pMap->m_sizeMap.cy-1;
+		if(nTileX >= (pMap->m_sizeMap.cx-1))		nTileX = (pMap->m_sizeMap.cx-1);
+		if(nTileZ >= (pMap->m_sizeMap.cy-1))		nTileZ = (pMap->m_sizeMap.cy-1);
 
 		if(nTileX < 0 || nTileZ < 0)	{
 			TRACE("#### Npc-SetLive() Fail : nTileX=%d, nTileZ=%d #####\n", nTileX, nTileZ);

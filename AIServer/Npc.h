@@ -142,8 +142,6 @@ public:
 
 	short	m_sNid;				// NPC (서버상의)일련번호
 
-	CMapInfo	**m_pOrgMap;		// 원본 MapInfo 에 대한 포인터
-
 	float		m_nInitX;			// 처음 생성된 위치 X
 	float		m_nInitY;			// 처음 생성된 위치 Y
 	float		m_nInitZ;			// 처음 생성된 위치 Z

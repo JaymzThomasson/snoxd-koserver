@@ -513,47 +513,21 @@ BOOL CServerDlg::MapFileLoad()
 
 	foreach (itr, zoneMap)
 	{
-		FILE * fp = NULL;
-		string szFullPath;
 		_ZONE_INFO *pZone = itr->second;
 
 		MAP *pMap = new MAP();
-		pMap->Initialize(pZone);
-		delete pZone;
-
-		g_arZone.PutData(pMap->m_nZoneNumber, pMap);
-
-		szFullPath = _T(".\\MAP\\");
-		szFullPath += pMap->m_MapName;
-
-		fp = fopen(szFullPath.c_str(), "rb");
-		if (!fp
-			|| !pMap->LoadMap(fp))
+		if (!pMap->Initialize(pZone))
 		{
-			printf("ERROR: Unable to load SMD - %s\n", szFullPath.c_str());
-			if (fp)
-				fclose(fp);
-
+			printf("ERROR: Unable to load SMD - %s\n", pZone->m_MapName);
+			delete pZone;
+			delete pMap;
 			g_arZone.DeleteAllData();
 			m_sTotalMap = 0;
 			return FALSE;
 		}
-		fclose(fp);
-		
-		if (pMap->m_byRoomEvent > 0)
-		{
-			if (!pMap->LoadRoomEvent(pMap->m_byRoomEvent))
-			{
-				printf("ERROR: Unable to load room event (%d.aievt) for map - %s\n", 
-					pMap->m_byRoomEvent, szFullPath.c_str());
-				pMap->m_byRoomEvent = 0;
-			}
-			else
-			{
-				pMap->m_byRoomEvent = 1;
-			}
-		}
 
+		delete pZone;
+		g_arZone.PutData(pMap->m_nZoneNumber, pMap);
 		m_sTotalMap++;
 	}
 

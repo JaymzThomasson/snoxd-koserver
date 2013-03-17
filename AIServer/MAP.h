@@ -8,42 +8,36 @@
 typedef CSTLMap <_OBJECT_EVENT>		ObjectEventArray;
 typedef CSTLMap <CRoomEvent>		RoomEventArray;
 
+#include "../shared/SMDFile.h"
+
 class CRegion;
 class CNpc;
 class CUser;
-//class CRoomEvent;
-
-class CMapInfo					// 각 좌표의 정보
-{
-public:
-	short	m_sEvent;			// 현좌표의 이벤트 번호
-
-	CMapInfo();
-	virtual ~CMapInfo();
-};
 
 // temporary
 struct CSize
 {
+	CSize() : cx(0), cy(0) {}
+	CSize(int cx, int cy) : cx(cx), cy(cy) {}
 	int cx, cy;
 };
 
 class MAP  
 {
 public:
-	CN3ShapeMgr m_N3ShapeMgr;
-	CMapInfo**		m_pMap;					// 타일의 정보(1셀 : 4미터)
+	// Passthru methods
+	__forceinline int GetXRegionMax() { return m_smdFile->GetXRegionMax(); }
+	__forceinline int GetZRegionMax() { return m_smdFile->GetZRegionMax(); }
+	__forceinline short * GetEventIDs() { return m_smdFile->GetEventIDs(); }
+	__forceinline int GetEventID(float x, float z) { return m_smdFile->GetEventID(x, z); }
+
 	CRegion**		m_ppRegion;				// 64미터의 타일정보..
-	//CRoomEvent*		m_pRoomEvent;
-	CSize			m_sizeMap;				// 맵의 크기
-	CSize			m_sizeRegion;			// 맵의 resion size
 	int m_nZoneNumber;						// zone number
 	int	m_nServerNo;
 	std::string m_MapName;
 	int			m_nMapSize;		// Grid Unit ex) 4m
 	float		m_fUnitDist;	// i Grid Distance
 	float*		m_fHeight;
-//	short		m_arDungeonBossMonster[MAX_DUNGEON_BOSS_MONSTER];
 	BYTE		m_byRoomType;		// 방의 초기화관련( 0:자동으로 초기화, 1:전쟁이벤트 관련(특정조건이 완료시 초기화)
 	BYTE		m_byRoomEvent;		// event room(0:empty, 1:use)
 	BYTE		m_byRoomStatus;		// room status(1:진행중, 2:방을 초기화중, 3:방초기화 완료)
@@ -52,18 +46,14 @@ public:
 	RoomEventArray	 m_arRoomEventArray;
 	short	m_sKarusRoom;			// karus의 성갯수
 	short	m_sElmoradRoom;			// elmorad의 성갯수
-
+	CSize m_sizeRegion, m_sizeMap;
 public:
 	MAP();
 	virtual ~MAP();
 
-	void Initialize(_ZONE_INFO *pZone);
+	bool Initialize(_ZONE_INFO *pZone);
 
-	BOOL LoadMap(FILE * fp);
-	void LoadTerrain(FILE * fp);
-	void LoadMapTile(FILE * fp);
-	void LoadObjectEvent(FILE * fp);
-	BOOL LoadRoomEvent( int zone_number );
+	BOOL LoadRoomEvent();
 	BOOL ObjectIntersect(float x1, float z1, float y1, float x2, float z2, float y2);
 	float GetHeight( float x, float z );
 
@@ -76,9 +66,6 @@ public:
 	int  GetRegionUserSize(int rx, int rz);
 	int  GetRegionNpcSize(int rx, int rz);
 
-	int GetXRegionMax() {return m_sizeRegion.cx-1;};
-	int GetZRegionMax() {return m_sizeRegion.cy-1;};
-
 	int IsRoomCheck(float fx, float fz);	// 던젼에서 사용, 유저의 현재위치가 던젼의 어느 위치에 있는지를 판단
 	BOOL IsRoomStatusCheck();
 
@@ -89,4 +76,6 @@ public:
 
 protected:
 	void RemoveMapData();
+
+	SMDFile * m_smdFile;
 };

@@ -8,6 +8,7 @@ typedef CSTLMap <int>			ZoneNpcArray;
 class CRegion  
 {
 public:
+	CRegion() : m_byMoving(0) {}
 	ZoneUserArray	m_RegionUserArray;
 	ZoneNpcArray	m_RegionNpcArray;
 	BYTE	m_byMoving;			// move : 1, not moving : 0

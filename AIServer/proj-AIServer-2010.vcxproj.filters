@@ -110,6 +110,9 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\SMDFile.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -264,6 +267,9 @@
     </ClInclude>
     <ClInclude Include="..\shared\database\MakeItemGroupSet.h">
       <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\SMDFile.h">
+      <Filter>shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

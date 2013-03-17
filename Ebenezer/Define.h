@@ -13,7 +13,6 @@
 #define MAX_TYPE4_BUFF		14
 
 #define MAX_ITEM			28
-#define VIEW_DISTANCE		48			// ���ðŸ�
 
 #define NPC_HAVE_ITEM_LIST	6
 #define ZONEITEM_MAX		2100000000	// ��� ������� �ִ� �����ۼ�...

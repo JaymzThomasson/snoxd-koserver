@@ -17,6 +17,8 @@
 #define MAX_FRIEND_COUNT	24
 #define MAX_ITEM_COUNT		9999
 
+#define VIEW_DISTANCE		48
+
 enum NameType
 {
 	TYPE_ACCOUNT,

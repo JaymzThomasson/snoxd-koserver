@@ -12,46 +12,48 @@ using namespace std;
 
 extern CRITICAL_SECTION g_region_critical;
 
-CMapInfo::CMapInfo()
+MAP::MAP() : m_smdFile(NULL), m_ppRegion(NULL),
+	m_fHeight(NULL), m_byRoomType(0), m_byRoomEvent(0),
+	m_byRoomStatus(1), m_byInitRoomCount(0),
+	m_nZoneNumber(0), m_nMapSize(0), m_fUnitDist(0.0f),
+	m_sizeRegion(0, 0), m_sizeMap(0, 0),
+	m_sKarusRoom(0), m_sElmoradRoom(0)
 {
-	m_sEvent	= 0;
 }
 
-CMapInfo::~CMapInfo()
-{
-}
-
-MAP::MAP()
-{
-	m_nMapSize = 0;
-	m_fUnitDist = 0.0f;
-	m_fHeight = NULL;
-
-	m_sizeRegion.cx = 0;
-	m_sizeRegion.cy = 0;
-	m_sizeMap.cx = 0;
-	m_sizeMap.cy = 0;
-
-	m_ppRegion = NULL;
-	m_pMap = NULL;
-	//m_pRoomEvent = NULL;
-	m_nZoneNumber = 0;
-	m_byRoomType = 0;
-	m_byRoomEvent = 0;
-	m_byRoomStatus = 1;
-	m_byInitRoomCount = 0;
-	m_sKarusRoom = 0;
-	m_sElmoradRoom = 0;
-//	for(int i=0; i<MAX_DUNGEON_BOSS_MONSTER; i++)
-//		m_arDungeonBossMonster[i] = 1;
-}
-
-void MAP::Initialize(_ZONE_INFO *pZone)
+bool MAP::Initialize(_ZONE_INFO *pZone)
 {
 	m_nServerNo = pZone->m_nServerNo;
 	m_nZoneNumber = pZone->m_nZoneNumber;
 	m_MapName = pZone->m_MapName;
 	m_byRoomEvent = pZone->m_byRoomEvent;
+
+	m_smdFile = SMDFile::Load(pZone->m_MapName);
+
+	if (m_smdFile != NULL)
+	{
+		m_ppRegion = new CRegion*[m_smdFile->m_nXRegion];
+		for (int i = 0; i < m_smdFile->m_nXRegion; i++)
+			m_ppRegion[i] = new CRegion[m_smdFile->m_nZRegion]();
+
+		m_smdFile->IncRef();
+	}
+
+	if (m_byRoomEvent > 0)
+	{
+		if (!LoadRoomEvent())
+		{
+			printf("ERROR: Unable to load room event (%d.aievt) for map - %s\n", 
+				m_byRoomEvent, m_MapName.c_str());
+			m_byRoomEvent = 0;
+		}
+		else
+		{
+			m_byRoomEvent = 1;
+		}
+	}
+
+	return (m_smdFile != NULL);
 }
 
 MAP::~MAP()
@@ -78,15 +80,6 @@ void MAP::RemoveMapData()
 		m_fHeight = NULL;
 	}
 	
-	if( m_pMap ) {
-		for(int i=0; i<m_sizeMap.cx; i++) {
-			delete[] m_pMap[i];
-			m_pMap[i] = NULL;
-		}
-		delete[] m_pMap;
-		m_pMap = NULL;
-	}
-
 	m_ObjectEventArray.DeleteAllData();
 	m_arRoomEventArray.DeleteAllData();
 }
@@ -94,146 +87,14 @@ void MAP::RemoveMapData()
 BOOL MAP::IsMovable(int dest_x, int dest_y)
 {
 	if(dest_x < 0 || dest_y < 0 ) return FALSE;
-
-	if(!m_pMap) return FALSE;
 	if(dest_x >= m_sizeMap.cx || dest_y >= m_sizeMap.cy) return FALSE;
 
-	BOOL bRet = FALSE;
-	if(m_pMap[dest_x][dest_y].m_sEvent == 0)
-		bRet = TRUE;
-	else
-		bRet = FALSE;
-	return bRet;
-	//return (BOOL)m_pMap[dest_x][dest_y].m_bMove;
-}
-
-///////////////////////////////////////////////////////////////////////
-//	각 서버가 담당하고 있는 zone의 Map을 로드한다.
-//
-BOOL MAP::LoadMap(FILE * fp)
-{
-	LoadTerrain(fp);
-	m_N3ShapeMgr.Create((m_nMapSize - 1)*m_fUnitDist, (m_nMapSize-1)*m_fUnitDist);
-	if( !m_N3ShapeMgr.LoadCollisionData(fp) )
-		return FALSE;
-
-	if(	(m_nMapSize - 1) * m_fUnitDist != m_N3ShapeMgr.Width() || 
-		(m_nMapSize - 1) * m_fUnitDist != m_N3ShapeMgr.Height() )
-	{
-		return FALSE;
-	}
-
-	int mapwidth = (int)m_N3ShapeMgr.Width();
-
-	m_sizeRegion.cx = (int)(mapwidth/VIEW_DIST) + 1;
-	m_sizeRegion.cy = (int)(mapwidth/VIEW_DIST) + 1;
-
-	m_sizeMap.cx = m_nMapSize;
-	m_sizeMap.cy = m_nMapSize;
-
-	m_ppRegion = new CRegion*[m_sizeRegion.cx];
-	for(int i=0; i<m_sizeRegion.cx; i++) {
-		m_ppRegion[i] = new CRegion[m_sizeRegion.cy];
-		m_ppRegion[i]->m_byMoving = 0;
-	}
-
-	LoadObjectEvent(fp);
-	LoadMapTile(fp);
-
-	return TRUE;
-}
-
-void MAP::LoadTerrain(FILE * fp)
-{
-	fread(&m_nMapSize, sizeof(m_nMapSize), 1, fp);
-	fread(&m_fUnitDist, sizeof(m_fUnitDist), 1, fp);
-
-	m_fHeight = new float[m_nMapSize * m_nMapSize];
-	fread(m_fHeight, sizeof(float) * m_nMapSize * m_nMapSize, 1, fp);
-}
-
-float MAP::GetHeight(float x, float z)
-{
-	int iX, iZ;
-	iX = (int)(x/m_fUnitDist);
-	iZ = (int)(z/m_fUnitDist);
-	//_ASSERT( iX, iZ가 범위내에 있는 값인지 체크하기);
-
-	float y;
-	float h1, h2, h3;
-	float dX, dZ;
-	dX = (x - iX*m_fUnitDist)/m_fUnitDist;
-	dZ = (z - iZ*m_fUnitDist)/m_fUnitDist;
-
-//	_ASSERT(dX>=0.0f && dZ>=0.0f && dX<1.0f && dZ<1.0f);
-	if( !(dX>=0.0f && dZ>=0.0f && dX<1.0f && dZ<1.0f) )
-		return FLT_MIN;
-
-	if ((iX+iZ)%2==1)
-	{
-		if ((dX+dZ) < 1.0f)
-		{
-			h1 = m_fHeight[iX * m_nMapSize + iZ+1];
-			h2 = m_fHeight[iX+1 * m_nMapSize + iZ];
-			h3 = m_fHeight[iX * m_nMapSize + iZ];
-
-			//if (dX == 1.0f) return h2;
-
-			float h12 = h1+(h2-h1)*dX;	// h1과 h2사이의 높이값
-			float h32 = h3+(h2-h3)*dX;	// h3과 h2사이의 높이값
-			y = h32 + (h12-h32)*((dZ)/(1.0f-dX));	// 찾고자 하는 높이값
-		}
-		else
-		{
-			h1 = m_fHeight[iX * m_nMapSize + iZ+1];
-			h2 = m_fHeight[iX+1 * m_nMapSize + iZ];
-			h3 = m_fHeight[iX+1 * m_nMapSize + iZ+1];
-
-			if (dX == 0.0f) return h1;
-
-			float h12 = h1+(h2-h1)*dX;	// h1과 h2사이의 높이값
-			float h13 = h1+(h3-h1)*dX;	// h1과 h3사이의 높이값
-			y = h13 + (h12-h13)*((1.0f-dZ)/(dX));	// 찾고자 하는 높이값
-		}
-	}
-	else
-	{
-		if (dZ > dX)
-		{
-			h1 = m_fHeight[iX * m_nMapSize + iZ+1];
-			h2 = m_fHeight[iX+1 * m_nMapSize + iZ+1];
-			h3 = m_fHeight[iX * m_nMapSize + iZ];
-
-			//if (dX == 1.0f) return h2;
-
-			float h12 = h1+(h2-h1)*dX;	// h1과 h2사이의 높이값
-			float h32 = h3+(h2-h3)*dX;	// h3과 h2사이의 높이값
-			y = h12 + (h32-h12)*((1.0f-dZ)/(1.0f-dX));	// 찾고자 하는 높이값
-		}
-		else
-		{
-			h1 = m_fHeight[iX * m_nMapSize + iZ];
-			h2 = m_fHeight[iX+1 * m_nMapSize + iZ];
-			h3 = m_fHeight[iX+1 * m_nMapSize + iZ+1];
-
-			if (dX == 0.0f) return h1;
-
-			float h12 = h1+(h2-h1)*dX;	// h1과 h2사이의 높이값
-			float h13 = h1+(h3-h1)*dX;	// h1과 h3사이의 높이값
-			y = h12 + (h13-h12)*((dZ)/(dX));	// 찾고자 하는 높이값
-		}
-	}
-	return y;
+	return m_smdFile->GetEventID((int)dest_x, (int)dest_y) == 0;
 }
 
 BOOL MAP::ObjectIntersect(float x1, float z1, float y1, float x2, float z2, float y2)
 {
-	__Vector3	vec1(x1, y1, z1), vec2(x2, y2, z2);
-	__Vector3	vDir = vec2 - vec1;
-	float fSpeed = 	vDir.Magnitude();
-	vDir.Normalize();
-	
-	return m_N3ShapeMgr.CheckCollision(vec1, vDir, fSpeed);
+	return m_smdFile->ObjectCollision(x1, z1, y1, x2, z2, y2);
 }
 
 void MAP::RegionUserAdd(int rx, int rz, int uid)
@@ -304,56 +165,6 @@ BOOL MAP::RegionNpcRemove(int rx, int rz, int nid)
 	return TRUE;
 }
 
-void MAP::LoadMapTile(FILE * fp)
-{
-	//MapTile속성 읽기..
-	//	속성이 0이면 못 가는 곳.
-	//	1이면 그냥 가는 곳...
-	//	그외는 이벤트 ID.
-	//
-	int x1 = m_sizeMap.cx;
-	int z1 = m_sizeMap.cy;
-	short** pEvent;
-	pEvent = new short*[m_sizeMap.cx];
-	for(int a=0;a<m_sizeMap.cx;a++)
-		pEvent[a] = new short[m_sizeMap.cx];
-	// 잠시 막아놓고..
-	for(int x=0;x<m_sizeMap.cx;x++)
-		fread(pEvent[x], sizeof(short)*m_sizeMap.cy, 1, fp);
-	
-	m_pMap = new CMapInfo*[m_sizeMap.cx];
-
-	for( int i = 0; i < m_sizeMap.cx; i++)
-	{
-		m_pMap[i] = new CMapInfo[m_sizeMap.cy];
-	}
-
-	int count = 0;
-	for(int i = 0; i < m_sizeMap.cy; i++)
-	{
-		for( int j = 0; j < m_sizeMap.cx; j++)
-		{
-			m_pMap[j][i].m_sEvent	= (short)pEvent[j][i];
-			//m_pMap[j][i].m_sEvent	= (short)1;
-			if(m_pMap[j][i].m_sEvent >= 1)
-			{
-				count++;
-			}
-		//	m_pMap[j][i].m_lUser	= 0;
-		//	m_pMap[j][i].m_dwType = 0;
-		}
-	}
-
-	if( pEvent ) {
-		for(int i=0; i<m_sizeMap.cx; i++) {
-			delete[] pEvent[i];
-			pEvent[i] = NULL;
-		}
-		delete[] pEvent;
-		pEvent = NULL;
-	}
-}
-
 int  MAP::GetRegionUserSize(int rx, int rz)
 {
 	if( rx<0 || rz<0 || rx>=m_sizeRegion.cx || rz>=m_sizeRegion.cy )
@@ -382,41 +193,7 @@ int  MAP::GetRegionNpcSize(int rx, int rz)
 	return nRet;
 }
 
-void MAP::LoadObjectEvent(FILE * fp)
-{
-	int 	iEventObjectCount = 0;
-
-	fread(&iEventObjectCount, 4, 1, fp);
-	for( int i=0; i<iEventObjectCount; i++)
-	{
-		_OBJECT_EVENT* pEvent = new _OBJECT_EVENT;
-		fread(&(pEvent->sBelong), 4, 1, fp);					// 소속 
-		fread(&(pEvent->sIndex), 2, 1, fp);				// Event Index
-		fread(&(pEvent->sType), 2, 1, fp);
-		fread(&(pEvent->sControlNpcID), 2, 1, fp);
-		fread(&(pEvent->sStatus), 2, 1, fp);
-		fread(&(pEvent->fPosX), 4, 1, fp);
-		fread(&(pEvent->fPosY), 4, 1, fp);
-		fread(&(pEvent->fPosZ), 4, 1, fp);
-
-		//TRACE("Object - belong=%d, index=%d, type=%d, con=%d, sta=%d\n", pEvent->sBelong, pEvent->sIndex, pEvent->sType, pEvent->sControlNpcID, pEvent->sStatus);
-
-	if (pEvent->sType == OBJECT_GATE
-			|| pEvent->sType == OBJECT_GATE2
-			|| pEvent->sType == OBJECT_GATE_LEVER
-			|| pEvent->sType == OBJECT_ANVIL
-			|| pEvent->sType == OBJECT_ARTIFACT) {
-			g_pMain.AddObjectEventNpc(pEvent, m_nZoneNumber);
-		}	
-
-		if( pEvent->sIndex <= 0 ) continue;
-		if( !m_ObjectEventArray.PutData(pEvent->sIndex, pEvent) ) {
-			delete pEvent;
-		}
-	}
-}
-
-BOOL MAP::LoadRoomEvent( int zone_number )
+BOOL MAP::LoadRoomEvent()
 {
 	DWORD		length, count;
 	string	filename;
@@ -430,7 +207,7 @@ BOOL MAP::LoadRoomEvent( int zone_number )
 
 	CRoomEvent*	pEvent = NULL;
 	filename = ".\\MAP\\";
-	filename += zone_number;
+	filename += m_byRoomEvent;
 	filename += ".aievt";
 
 	ifstream is(filename);
@@ -556,11 +333,9 @@ BOOL MAP::LoadRoomEvent( int zone_number )
 
 cancel_event_load:
 	printf("Unable to load AI EVT (%d.aievt), failed in or near event number %d.\n", 
-		zone_number, event_num);
+		m_byRoomEvent, event_num);
 	is.close();
-//	DeleteAll();
 	return FALSE;
-	//return TRUE;
 }
 
 int MAP::IsRoomCheck(float fx, float fz)
