@@ -3844,6 +3844,10 @@ void CUser::QuestV2PacketProcess(Packet & pkt)
 			QuestV2MonsterDataDeleteAll();
 			QuestV2MonsterDataRequest();
 		}
+
+		// This really could be rewritten to make more sense.
+		if (GetZoneID() - 101 <= 99)
+			KickOutZoneUser(TRUE);
 		 */
 		break;
 
