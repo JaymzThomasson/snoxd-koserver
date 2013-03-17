@@ -3878,6 +3878,33 @@ bool CUser::CheckExistEvent(uint16 sQuestID, uint8 bQuestState)
 	return itr->second == bQuestState;
 }
 
+void CUser::QuestV2MonsterDataRequest()
+{
+	// TO-DO: Figure out the significance of these IDs.
+#if 0
+	Packet result(WIZ_QUEST, uint8(9));
+
+	// These names are complete guesswork based on the limited context.
+	// The signifance of the IDs should clarify their intent.
+	m_sMonsterCountGroup = 
+		10000	*	QuestV2CheckMonsterCount(32005) +
+		100		*	QuestV2CheckMonsterCount(32006) +
+					QuestV2CheckMonsterCount(32007);
+
+	m_bMonsterCount1 = QuestV2CheckMonsterCount(32001);
+	m_bMonsterCount2 = QuestV2CheckMonsterCount(32002);
+	m_bMonsterCount3 = QuestV2CheckMonsterCount(32003);
+	m_bMonsterCount4 = QuestV2CheckMonsterCount(32004);
+
+	result	<< uint8(1);
+			<< m_sMonsterCountGroup
+			<< m_bMonsterCount1 << m_bMonsterCount2
+			<< m_bMonsterCount3 << m_bMonsterCount4;
+
+	Send(&result);
+#endif
+}
+
 void CUser::QuestV2ExecuteHelper(_QUEST_HELPER * pQuestHelper)
 {
 	if (pQuestHelper == NULL

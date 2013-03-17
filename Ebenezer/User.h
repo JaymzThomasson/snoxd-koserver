@@ -597,6 +597,7 @@ public:
 
 	// Handles new quest packets
 	void QuestV2PacketProcess(Packet & pkt);
+	void QuestV2MonsterDataRequest();
 	void QuestV2ExecuteHelper(_QUEST_HELPER * pQuestHelper);
 	void QuestV2CheckFulfill(_QUEST_HELPER * pQuestHelper);
 	void QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID);
