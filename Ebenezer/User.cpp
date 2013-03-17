@@ -3878,6 +3878,18 @@ bool CUser::CheckExistEvent(uint16 sQuestID, uint8 bQuestState)
 	return itr->second == bQuestState;
 }
 
+uint8 CUser::QuestV2CheckMonsterCount(uint16 sQuestID)
+{
+	// Attempt to find a quest with that ID in the map
+	QuestMap::iterator itr = m_questMap.find(sQuestID);
+
+	// If it doesn't exist, it doesn't exist. 
+	if (itr == m_questMap.end())
+		return 0;
+
+	return itr->second;
+}
+
 void CUser::QuestV2MonsterDataRequest()
 {
 	// TO-DO: Figure out the significance of these IDs.

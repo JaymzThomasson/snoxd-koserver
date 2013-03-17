@@ -591,6 +591,7 @@ public:
 
 	void SaveEvent(uint16 sQuestID, uint8 bQuestState);
 	bool CheckExistEvent(uint16 sQuestID, uint8 bQuestState);
+	uint8 QuestV2CheckMonsterCount(uint16 sQuestID);
 
 	// Sends the quest completion statuses
 	void QuestDataRequest();
