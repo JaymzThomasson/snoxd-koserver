@@ -124,6 +124,7 @@ void CUser::Initialize()
 	m_arUserEvent.pop_back();
 
 	memset(&m_bKillCounts, 0, sizeof(m_bKillCounts));
+	m_sEventDataIndex = 0;
 }
 
 void CUser::OnDisconnect()
@@ -3839,7 +3840,7 @@ void CUser::QuestV2PacketProcess(Packet & pkt)
 
 	case 5:
 		SaveEvent(pQuestHelper->sEventDataIndex, 4);
-		/*
+
 		if (m_sEventDataIndex > 0 
 			&& m_sEventDataIndex == pQuestHelper->sEventDataIndex)
 		{
@@ -3850,7 +3851,6 @@ void CUser::QuestV2PacketProcess(Packet & pkt)
 		// This really could be rewritten to make more sense.
 		if (GetZoneID() - 101 <= 99)
 			KickOutZoneUser(TRUE);
-		 */
 		break;
 
 	case 6:
@@ -3891,7 +3891,7 @@ bool CUser::CheckExistEvent(uint16 sQuestID, uint8 bQuestState)
 
 void CUser::QuestV2MonsterCountAdd(uint16 sNpcID)
 {
-	if (m_sKillCountGroup == 0)
+	if (m_sEventDataIndex == 0)
 		return;
 
 	// it looks like they use an active quest ID which is kind of dumb
@@ -3940,7 +3940,7 @@ uint8 CUser::QuestV2CheckMonsterCount(uint16 sQuestID)
 void CUser::QuestV2MonsterDataDeleteAll()
 {
 	memset(&m_bKillCounts, 0, sizeof(m_bKillCounts));
-	m_sKillCountGroup = 0;
+	m_sEventDataIndex = 0;
 
 	for (int i = 32001; i <= 32007; i++)
 		DeleteEvent(i);
@@ -3950,8 +3950,8 @@ void CUser::QuestV2MonsterDataRequest()
 {
 	Packet result(WIZ_QUEST, uint8(9));
 
-	// This I'm not sure of, yet
-	m_sKillCountGroup = 
+	// Still not sure, but it's generating an ID.
+	m_sEventDataIndex = 
 		10000	*	QuestV2CheckMonsterCount(32005) +
 		100		*	QuestV2CheckMonsterCount(32006) +
 					QuestV2CheckMonsterCount(32007);
@@ -3963,7 +3963,7 @@ void CUser::QuestV2MonsterDataRequest()
 	m_bKillCounts[3] = QuestV2CheckMonsterCount(QUEST_KILL_GROUP4);
 
 	result	<< uint8(1)
-			<< m_sKillCountGroup
+			<< m_sEventDataIndex
 			<< m_bKillCounts[0] << m_bKillCounts[1]
 			<< m_bKillCounts[2] << m_bKillCounts[3];
 

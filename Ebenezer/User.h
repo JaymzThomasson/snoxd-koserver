@@ -657,5 +657,5 @@ public:
 	QuestMap m_questMap;
 
 	uint8 m_bKillCounts[QUEST_MOB_GROUPS];
-	uint16 m_sKillCountGroup; // not sure what this is exactly yet
+	uint16 m_sEventDataIndex;
 };
