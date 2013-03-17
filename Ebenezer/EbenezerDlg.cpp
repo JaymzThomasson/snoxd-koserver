@@ -1259,8 +1259,6 @@ void CEbenezerDlg::SendAllUserInfo()
 	}
 
 	LeaveCriticalSection( &g_region_critical );
-
-	TRACE("** SendAllUserInfo() **\n");
 }
 
 void CEbenezerDlg::DeleteAllNpcList(int flag)
