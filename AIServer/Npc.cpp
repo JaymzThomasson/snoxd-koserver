@@ -1522,7 +1522,6 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 		m_iAniFrameIndex = 1;
 		m_pPoint[0].fXPos = m_fEndPoint_X;
 		m_pPoint[0].fZPos = m_fEndPoint_Y;
-		TRACE("같은 영역안에서 조금 움직임.... x=%.2f, z=%.2f\n", m_pPoint[0].fXPos, m_pPoint[0].fZPos);
 		return 1;
 	}
 	
