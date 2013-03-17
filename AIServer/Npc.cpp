@@ -71,7 +71,7 @@ BOOL CNpc::SetUid(float x, float z, int id)
 	int nRX = (int)x / VIEW_DIST;
 	int nRY = (int)z / VIEW_DIST;
 
-	if(x1 < 0 || z1 < 0 || x1 > pMap->m_sizeMap.cx || z1 > pMap->m_sizeMap.cy)
+	if(x1 < 0 || z1 < 0 || x1 > pMap->GetMapSize() || z1 > pMap->GetMapSize())
 	{
 		TRACE("#### SetUid Fail : [nid=%d, sid=%d], x1=%d, z1=%d #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, x1, z1);
 		return FALSE;
@@ -976,10 +976,10 @@ BOOL CNpc::SetLive()
 			nTileX = nX / TILE_SIZE;
 			nTileZ = nZ / TILE_SIZE;
 
-			if(nTileX >= (pMap->m_sizeMap.cx-1))
-				nTileX = (pMap->m_sizeMap.cx-1);
-			if(nTileZ >= (pMap->m_sizeMap.cy-1))
-				nTileZ = (pMap->m_sizeMap.cy-1);
+			if(nTileX >= (pMap->GetMapSize()-1))
+				nTileX = (pMap->GetMapSize()-1);
+			if(nTileZ >= (pMap->GetMapSize()-1))
+				nTileZ = (pMap->GetMapSize()-1);
 
 			if(nTileX < 0 || nTileZ < 0)	{
 				TRACE("#### Npc-SetLive() Fail : nTileX=%d, nTileZ=%d #####\n", nTileX, nTileZ);
@@ -1076,8 +1076,8 @@ BOOL CNpc::RandomMove()
 		return FALSE;
 
 	float fDestX = -1.0f, fDestZ = -1.0f;
-	int max_xx = GetMap()->m_sizeMap.cx;
-	int max_zz = GetMap()->m_sizeMap.cy;
+	int max_xx = GetMap()->GetMapSize();
+	int max_zz = GetMap()->GetMapSize();
 	int x = 0, y = 0;
 
 	__Vector3 vStart, vEnd, vNewPos;
@@ -1304,8 +1304,8 @@ BOOL CNpc::RandomBackMove()
 		return FALSE;
 	}
 
-	int max_xx = GetMap()->m_sizeMap.cx;
-	int max_zz = GetMap()->m_sizeMap.cy;
+	int max_xx = GetMap()->GetMapSize();
+	int max_zz = GetMap()->GetMapSize();
 	int x = 0, y = 0;
 	float fTempRange = (float)m_bySearchRange*2;				// 일시적으로 보정한다.
 	int min_x = (int)(m_fCurX - fTempRange)/TILE_SIZE;	if(min_x < 0) min_x = 0;
@@ -2064,7 +2064,7 @@ BOOL CNpc::IsMovable(float x, float z)
 	MAP* pMap = GetMap();
 	if (pMap == NULL
 		|| x < 0 || z < 0
-		|| x >= pMap->m_sizeMap.cx || z >= pMap->m_sizeMap.cy
+		|| x >= pMap->GetMapSize() || z >= pMap->GetMapSize()
 		|| pMap->GetEventID(x, z) == 0)
 		return FALSE;
 
@@ -2424,8 +2424,8 @@ int CNpc::GetTargetPath(int option)
 	if (pMap == NULL) 
 		return -1;
 
-	int max_xx = pMap->m_sizeMap.cx;
-	int max_zz = pMap->m_sizeMap.cy;
+	int max_xx = pMap->GetMapSize();
+	int max_zz = pMap->GetMapSize();
 
 	int min_x = (int)(m_fCurX - iTempRange)/TILE_SIZE;	if(min_x < 0) min_x = 0;
 	int min_z = (int)(m_fCurZ - iTempRange)/TILE_SIZE;	if(min_z < 0) min_z = 0;
@@ -5837,8 +5837,8 @@ BOOL CNpc::Teleport()
 		nTileX = nX / TILE_SIZE;
 		nTileZ = nZ / TILE_SIZE;
 
-		if(nTileX >= (pMap->m_sizeMap.cx-1))		nTileX = (pMap->m_sizeMap.cx-1);
-		if(nTileZ >= (pMap->m_sizeMap.cy-1))		nTileZ = (pMap->m_sizeMap.cy-1);
+		if(nTileX >= (pMap->GetMapSize()-1))		nTileX = (pMap->GetMapSize()-1);
+		if(nTileZ >= (pMap->GetMapSize()-1))		nTileZ = (pMap->GetMapSize()-1);
 
 		if(nTileX < 0 || nTileZ < 0)	{
 			TRACE("#### Npc-SetLive() Fail : nTileX=%d, nTileZ=%d #####\n", nTileX, nTileZ);

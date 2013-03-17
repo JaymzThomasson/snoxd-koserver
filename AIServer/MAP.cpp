@@ -84,7 +84,7 @@ void MAP::RemoveMapData()
 BOOL MAP::IsMovable(int dest_x, int dest_y)
 {
 	if(dest_x < 0 || dest_y < 0 ) return FALSE;
-	if (dest_x >= m_sizeMap.cx || dest_y >= m_sizeMap.cy) return FALSE;
+	if (dest_x >= GetMapSize() || dest_y >= GetMapSize()) return FALSE;
 
 	return m_smdFile->GetEventID((int)dest_x, (int)dest_y) == 0;
 }

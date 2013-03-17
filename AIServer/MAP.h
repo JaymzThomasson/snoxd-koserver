@@ -26,6 +26,7 @@ class MAP
 {
 public:
 	// Passthru methods
+	__forceinline int GetMapSize() { return m_smdFile->GetMapSize(); }
 	__forceinline int GetXRegionMax() { return m_smdFile->GetXRegionMax(); }
 	__forceinline int GetZRegionMax() { return m_smdFile->GetZRegionMax(); }
 	__forceinline short * GetEventIDs() { return m_smdFile->GetEventIDs(); }

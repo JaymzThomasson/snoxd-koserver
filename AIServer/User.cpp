@@ -152,7 +152,7 @@ void CUser::Dead(int tid, int nDamage)
 	MAP* pMap = GetMap();
 	if (pMap == NULL 
 		|| m_sRegionX < 0 || m_sRegionZ < 0 
-		|| m_sRegionX > (pMap->m_sizeMap.cx-1) || m_sRegionZ > (pMap->m_sizeMap.cy-1))
+		|| m_sRegionX > (pMap->GetMapSize()-1) || m_sRegionZ > (pMap->GetMapSize()-1))
 		return;
 
 	pMap->RegionUserRemove(m_sRegionX, m_sRegionZ, m_iUserId);
@@ -658,13 +658,10 @@ void CUser::HealMagic()
 
 	MAP* pMap = GetMap();
 	if (pMap == NULL) return;
-	int max_xx = pMap->m_sizeRegion.cx;
-	int max_zz = pMap->m_sizeRegion.cy;
-
 	int min_x = region_x - 1;	if(min_x < 0) min_x = 0;
 	int min_z = region_z - 1;	if(min_z < 0) min_z = 0;
-	int max_x = region_x + 1;	if(max_x >= max_xx) max_x = max_xx - 1;
-	int max_z = region_z + 1;	if(min_z >= max_zz) min_z = max_zz - 1;
+	int max_x = region_x + 1;	if(max_x > pMap->GetXRegionMax()) max_x = pMap->GetXRegionMax();
+	int max_z = region_z + 1;	if(min_z > pMap->GetZRegionMax()) min_z = pMap->GetZRegionMax();
 
 	int search_x = max_x - min_x + 1;		
 	int search_z = max_z - min_z + 1;	
@@ -683,7 +680,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 	MAP* pMap = GetMap();
 	if (pMap == NULL) return;
 	// 자신의 region에 있는 NpcArray을 먼저 검색하여,, 가까운 거리에 Monster가 있는지를 판단..
-	if(rx < 0 || rz < 0 || rx > (pMap->m_sizeMap.cx-1) || rz > (pMap->m_sizeMap.cy-1))	{
+	if(rx < 0 || rz < 0 || rx > (pMap->GetMapSize()-1) || rz > (pMap->GetMapSize()-1))	{
 		TRACE("#### CUser-HealAreaCheck() Fail : [nid=%d, name=%s], nRX=%d, nRZ=%d #####\n", m_iUserId, m_strUserID, rx, rz);
 		return;
 	}
