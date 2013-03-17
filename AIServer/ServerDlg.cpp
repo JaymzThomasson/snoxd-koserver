@@ -967,9 +967,9 @@ CServerDlg::~CServerDlg()
 	g_bNpcExit = TRUE;
 
 	foreach (itr, m_arNpcThread)
-		WaitForSingleObject((*itr)->m_hThread, 1000);
+		WaitForSingleObject((*itr)->m_hThread, INFINITE);
 
-	WaitForSingleObject(m_hZoneEventThread, 1000);
+	WaitForSingleObject(m_hZoneEventThread, INFINITE);
 
 	// NpcThread Array Delete
 	foreach (itr, m_arNpcThread)
