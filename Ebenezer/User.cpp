@@ -4073,3 +4073,14 @@ void CUser::QuestV2ShowMap(uint32 nQuestHelperID)
 	result << nQuestHelperID;
 	Send(&result);
 }
+
+uint8 CUser::CheckMonsterCount(uint8 bGroup)
+{
+	_QUEST_MONSTER * pQuestMonster = g_pMain->m_QuestMonsterArray.GetData(m_sEventDataIndex);
+	if (pQuestMonster == NULL
+		|| bGroup == 0
+		|| bGroup > QUEST_MOB_GROUPS)
+		return 0;
+
+	return m_bKillCounts[bGroup];
+}

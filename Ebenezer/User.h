@@ -615,6 +615,7 @@ public:
 								uint32 nUnk4, uint16 sUnk4,
 								uint32 nUnk5 = 0, uint16 sUnk5 = 0);
 	void QuestV2ShowMap(uint32 nQuestHelperID);
+	uint8 CheckMonsterCount(uint8 bGroup);
 
 	//Zone checks
 	bool isAttackZone();
