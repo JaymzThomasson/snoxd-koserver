@@ -1221,7 +1221,7 @@ BOOL CNpc::RandomMove()
 		return FALSE;
 	}
 
-	int mapWidth = (int)((max_xx - 1) * GetMap()->m_fUnitDist);
+	int mapWidth = (int)((max_xx - 1) * GetMap()->GetUnitDistance());
 
 	if(m_fCurX > mapWidth || m_fCurZ > mapWidth || fDestX > mapWidth || fDestZ > mapWidth)	{
 		TRACE("##### RandomMove Fail : value is overflow .. [nid = %d, name=%s], cur_x=%.2f, z=%.2f, dest_x=%.2f, dest_z=%.2f#####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ, fDestX, fDestZ);

@@ -27,17 +27,16 @@ class MAP
 public:
 	// Passthru methods
 	__forceinline int GetMapSize() { return m_smdFile->GetMapSize(); }
+	__forceinline float GetUnitDistance() { return m_smdFile->GetUnitDistance(); }
 	__forceinline int GetXRegionMax() { return m_smdFile->GetXRegionMax(); }
 	__forceinline int GetZRegionMax() { return m_smdFile->GetZRegionMax(); }
 	__forceinline short * GetEventIDs() { return m_smdFile->GetEventIDs(); }
-	__forceinline int GetEventID(float x, float z) { return m_smdFile->GetEventID(x, z); }
+	__forceinline int GetEventID(int x, int z) { return m_smdFile->GetEventID(x, z); }
 
 	CRegion**		m_ppRegion;				// 64미터의 타일정보..
 	int m_nZoneNumber;						// zone number
 	int	m_nServerNo;
 	std::string m_MapName;
-	int			m_nMapSize;		// Grid Unit ex) 4m
-	float		m_fUnitDist;	// i Grid Distance
 	float*		m_fHeight;
 	BYTE		m_byRoomType;		// 방의 초기화관련( 0:자동으로 초기화, 1:전쟁이벤트 관련(특정조건이 완료시 초기화)
 	BYTE		m_byRoomEvent;		// event room(0:empty, 1:use)

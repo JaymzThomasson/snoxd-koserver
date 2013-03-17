@@ -235,14 +235,12 @@ float SMDFile::GetHeight(float x, float y, float z)
 	else return fYTerrain;
 }
 
-int SMDFile::GetEventID(float x, float z)
+int SMDFile::GetEventID(int x, int z)
 {
-	int iX = (int)(x / m_fUnitDist);
-	int iZ = (int)(z / m_fUnitDist);
-	if (iX < 0 || iX >= m_nMapSize || iZ < 0 || iZ >= m_nMapSize)
+	if (x < 0 || x >= m_nMapSize || z < 0 || z >= m_nMapSize)
 		return 0;
 
-	return m_ppnEvent[iX * m_nMapSize + iZ];
+	return m_ppnEvent[x * m_nMapSize + z];
 }
 
 BOOL SMDFile::ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2)

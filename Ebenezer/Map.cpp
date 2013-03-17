@@ -120,7 +120,7 @@ BOOL C3DMap::RegionItemRemove(uint16 rx, uint16 rz, int bundle_index, int itemid
 
 BOOL C3DMap::CheckEvent(float x, float z, CUser* pUser)
 {
-	int event_index = m_smdFile->GetEventID(x, z);
+	int event_index = m_smdFile->GetEventID((int)x, (int)z);
 	if( event_index < 2 )
 		return FALSE;
 

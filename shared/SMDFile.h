@@ -27,9 +27,10 @@ public:
 	BOOL ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2);
 	float GetHeight( float x, float y, float z );
 
-	int GetEventID(float x, float z);
+	int GetEventID(int x, int z);
 
 	__forceinline int GetMapSize() { return m_nMapSize; }
+	__forceinline float GetUnitDistance() { return m_fUnitDist; }
 	__forceinline int GetXRegionMax() { return m_nXRegion - 1; }
 	__forceinline int GetZRegionMax() { return m_nZRegion - 1; }
 

@@ -15,8 +15,7 @@ extern CRITICAL_SECTION g_region_critical;
 MAP::MAP() : m_smdFile(NULL), m_ppRegion(NULL),
 	m_fHeight(NULL), m_byRoomType(0), m_byRoomEvent(0),
 	m_byRoomStatus(1), m_byInitRoomCount(0),
-	m_nZoneNumber(0), m_nMapSize(0), m_fUnitDist(0.0f),
-	m_sKarusRoom(0), m_sElmoradRoom(0)
+	m_nZoneNumber(0), m_sKarusRoom(0), m_sElmoradRoom(0)
 {
 }
 
@@ -86,7 +85,7 @@ BOOL MAP::IsMovable(int dest_x, int dest_y)
 	if(dest_x < 0 || dest_y < 0 ) return FALSE;
 	if (dest_x >= GetMapSize() || dest_y >= GetMapSize()) return FALSE;
 
-	return m_smdFile->GetEventID((int)dest_x, (int)dest_y) == 0;
+	return m_smdFile->GetEventID(dest_x, dest_y) == 0;
 }
 
 BOOL MAP::ObjectIntersect(float x1, float z1, float y1, float x2, float z2, float y2)
