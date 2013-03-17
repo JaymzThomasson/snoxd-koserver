@@ -21,6 +21,7 @@ protected:
 
 #define _LOAD_TABLE(Set, DB, Array, AllowEmptyTable) \
 	Set _ ## Set(DB, Array); \
+	_tprintf(_T("Loading table `%s`...\n"), _ ## Set .GetTableName().c_str()); \
 	TCHAR * _szError ## Set = _ ## Set.Read(AllowEmptyTable);
 
 #define LOAD_TABLE(Set, DB, Array, AllowEmptyTable) \
@@ -32,7 +33,7 @@ protected:
 	_HANDLE_DB_ERROR_ONLY(_szError ## Set)
 
 #define _DISPLAY_DB_ERROR(err) \
-	printf("ERROR: Could not load table, the error received was:\n%s\n", err); \
+	_tprintf(_T("ERROR: Could not load table, the error received was:\n%s\n"), err); \
 
 #define _HANDLE_DB_ERROR(err) \
 	if (err != NULL) \
