@@ -122,6 +122,8 @@ void CUser::Initialize()
 
 	while( !m_arUserEvent.empty() )
 	m_arUserEvent.pop_back();
+
+	memset(&m_bKillCounts, 0, sizeof(m_bKillCounts));
 }
 
 void CUser::OnDisconnect()
@@ -3882,6 +3884,44 @@ bool CUser::CheckExistEvent(uint16 sQuestID, uint8 bQuestState)
 	return itr->second == bQuestState;
 }
 
+void CUser::QuestV2MonsterCountAdd(uint16 sNpcID)
+{
+	if (m_sKillCountGroup == 0)
+		return;
+
+	// it looks like they use an active quest ID which is kind of dumb
+	// we'd rather search through the player's active quests for applicable mob counts to increment
+	// but then, this system can't really handle that (static counts). More research is necessary.
+	uint16 sQuestNum = 0; // placeholder so that we can implement logic mockup
+	_QUEST_MONSTER *pQuestMonster = g_pMain->m_QuestMonsterArray.GetData(sQuestNum);
+	if (pQuestMonster == NULL)
+		return;
+
+	// TO-DO: Implement obscure zone ID logic
+
+	for (int group = 0; group < QUEST_MOB_GROUPS; group++)
+	{
+		for (int i = 0; i < QUEST_MOBS_PER_GROUP; i++)
+		{
+			if (pQuestMonster->sNum[group][i] == sNpcID)
+			{
+				uint8 bGroup = group + 1;
+				if (++m_bKillCounts[group] > pQuestMonster->sCount[group])
+				{
+					m_bKillCounts[group] = (uint8)pQuestMonster->sCount[group];
+					return;
+				}
+
+				SaveEvent(32000 + bGroup, m_bKillCounts[group]);
+				Packet result(WIZ_QUEST, uint8(9));
+				result << uint8(2) << bGroup << m_bKillCounts[group];
+				Send(&result);
+				return;
+			}
+		}
+	}
+}
+
 uint8 CUser::QuestV2CheckMonsterCount(uint16 sQuestID)
 {
 	// Attempt to find a quest with that ID in the map
@@ -3896,29 +3936,26 @@ uint8 CUser::QuestV2CheckMonsterCount(uint16 sQuestID)
 
 void CUser::QuestV2MonsterDataRequest()
 {
-	// TO-DO: Figure out the significance of these IDs.
-#if 0
 	Packet result(WIZ_QUEST, uint8(9));
 
-	// These names are complete guesswork based on the limited context.
-	// The signifance of the IDs should clarify their intent.
-	m_sMonsterCountGroup = 
+	// This I'm not sure of, yet
+	m_sKillCountGroup = 
 		10000	*	QuestV2CheckMonsterCount(32005) +
 		100		*	QuestV2CheckMonsterCount(32006) +
 					QuestV2CheckMonsterCount(32007);
 
-	m_bMonsterCount1 = QuestV2CheckMonsterCount(32001);
-	m_bMonsterCount2 = QuestV2CheckMonsterCount(32002);
-	m_bMonsterCount3 = QuestV2CheckMonsterCount(32003);
-	m_bMonsterCount4 = QuestV2CheckMonsterCount(32004);
+	// Lookup the current kill counts for each mob group in the active quest
+	m_bKillCounts[0] = QuestV2CheckMonsterCount(QUEST_KILL_GROUP1);
+	m_bKillCounts[1] = QuestV2CheckMonsterCount(QUEST_KILL_GROUP2);
+	m_bKillCounts[2] = QuestV2CheckMonsterCount(QUEST_KILL_GROUP3);
+	m_bKillCounts[3] = QuestV2CheckMonsterCount(QUEST_KILL_GROUP4);
 
-	result	<< uint8(1);
-			<< m_sMonsterCountGroup
-			<< m_bMonsterCount1 << m_bMonsterCount2
-			<< m_bMonsterCount3 << m_bMonsterCount4;
+	result	<< uint8(1)
+			<< m_sKillCountGroup
+			<< m_bKillCounts[0] << m_bKillCounts[1]
+			<< m_bKillCounts[2] << m_bKillCounts[3];
 
 	Send(&result);
-#endif
 }
 
 void CUser::QuestV2ExecuteHelper(_QUEST_HELPER * pQuestHelper)
@@ -3970,9 +4007,9 @@ void CUser::QuestV2ShowGiveItem(uint32 nUnk1, uint16 sUnk1,
 	Send(&result);
 }
 
-void CUser::QuestV2ShowMap(uint32 nUnk /* zone ID? quest ID? */)
+void CUser::QuestV2ShowMap(uint32 nQuestHelperID)
 {
 	Packet result(WIZ_QUEST, uint8(11));
-	result << nUnk;
+	result << nQuestHelperID;
 	Send(&result);
 }

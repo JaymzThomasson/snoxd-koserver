@@ -453,6 +453,14 @@ struct _QUEST_MONSTER
 	}
 };
 
+enum SpecialQuestIDs
+{
+	QUEST_KILL_GROUP1	= 32001,
+	QUEST_KILL_GROUP2	= 32002,
+	QUEST_KILL_GROUP3	= 32003,
+	QUEST_KILL_GROUP4	= 32004,
+};
+
 enum AuthorityTypes
 {
 	AUTHORITY_GAME_MASTER			= 0,

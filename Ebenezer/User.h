@@ -591,6 +591,8 @@ public:
 
 	void SaveEvent(uint16 sQuestID, uint8 bQuestState);
 	bool CheckExistEvent(uint16 sQuestID, uint8 bQuestState);
+
+	void QuestV2MonsterCountAdd(uint16 sNpcID);
 	uint8 QuestV2CheckMonsterCount(uint16 sQuestID);
 
 	// Sends the quest completion statuses
@@ -609,7 +611,7 @@ public:
 								uint32 nUnk3, uint16 sUnk3,
 								uint32 nUnk4, uint16 sUnk4,
 								uint32 nUnk5 = 0, uint16 sUnk5 = 0);
-	void QuestV2ShowMap(uint32 nUnk /* zone ID? quest ID? */);
+	void QuestV2ShowMap(uint32 nQuestHelperID);
 
 	//Zone checks
 	bool isAttackZone();
@@ -651,4 +653,7 @@ public:
 	// quest ID | quest state (need to replace with enum)
 	typedef std::map<uint16, uint8> QuestMap;
 	QuestMap m_questMap;
+
+	uint8 m_bKillCounts[4];
+	uint16 m_sKillCountGroup; // not sure what this is exactly yet
 };
