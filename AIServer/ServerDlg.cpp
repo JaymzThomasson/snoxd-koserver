@@ -30,8 +30,8 @@ CRITICAL_SECTION g_User_critical, g_region_critical;
 
 KOSocketMgr<CGameSocket> CServerDlg::s_socketMgr;
 
-#define CHECK_ALIVE 	100		//  게임서버와 통신이 끊김여부 판단, 타이머 변수
-#define REHP_TIME		200
+static DWORD s_dwCheckAliveID;
+
 #define MONSTER_SPEED	1500
 
 CServerDlg::CServerDlg()
@@ -56,12 +56,18 @@ CServerDlg::CServerDlg()
 	memset(m_strGamePWD, 0, sizeof(m_strGamePWD));
 }
 
+void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+{
+	g_pMain.OnTimer(idEvent);
+}
+
 bool CServerDlg::Startup()
 {
 	//----------------------------------------------------------------------
 	//	Sets a random number starting point.
 	//----------------------------------------------------------------------
-	// SetTimer( CHECK_ALIVE, 10000, NULL );
+	s_dwCheckAliveID = SetTimer(NULL, 1, 10000, &TimerProc);
+
 	srand( (unsigned)time(NULL) );
 
 	InitializeCriticalSection( &g_region_critical );
@@ -634,14 +640,8 @@ CUser* CServerDlg::GetUserPtr(int nid)
 
 void CServerDlg::OnTimer(UINT nIDEvent) 
 {
-	switch( nIDEvent ) {
-	case CHECK_ALIVE:
-		// CheckAliveTest();
-		break;
-	case REHP_TIME:
-		//RechargeHp();
-		break;
-	}
+//	if (nIDEvent == s_dwCheckAliveID)
+//		CheckAliveTest();
 }
 
 void CServerDlg::CheckAliveTest()
@@ -964,9 +964,7 @@ void CServerDlg::ResetBattleZone()
 
 CServerDlg::~CServerDlg() 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	// KillTimer( CHECK_ALIVE );
-	//KillTimer( REHP_TIME );
+	KillTimer(NULL, s_dwCheckAliveID);
 
 	g_bNpcExit = TRUE;
 
