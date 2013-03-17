@@ -3948,6 +3948,13 @@ void CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID)
 	These are called by quest scripts. 
 */
 
+void CUser::QuestV2SendNpcMsg(uint32 nQuestID, uint16 sNpcID)
+{
+	Packet result(WIZ_QUEST, uint8(7));
+	result << nQuestID << sNpcID;
+	Send(&result);
+}
+
 void CUser::QuestV2ShowGiveItem(uint32 nUnk1, uint16 sUnk1, 
 								uint32 nUnk2, uint16 sUnk2,
 								uint32 nUnk3, uint16 sUnk3,

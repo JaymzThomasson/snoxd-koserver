@@ -603,6 +603,7 @@ public:
 	void QuestV2CheckFulfill(_QUEST_HELPER * pQuestHelper);
 	void QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID);
 
+	void QuestV2SendNpcMsg(uint32 nQuestID, uint16 sNpcID);
 	void QuestV2ShowGiveItem(uint32 nUnk1, uint16 sUnk1, 
 								uint32 nUnk2, uint16 sUnk2,
 								uint32 nUnk3, uint16 sUnk3,
