@@ -1,4 +1,3 @@
-#include "StdAfxBase.h"
 #include "N3ShapeMgr.h"
 
 CN3ShapeMgr::CN3ShapeMgr()

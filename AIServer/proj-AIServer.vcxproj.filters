@@ -178,9 +178,6 @@
     <ClInclude Include="..\N3BASE\N3ShapeMgr.h">
       <Filter>N3Base</Filter>
     </ClInclude>
-    <ClInclude Include="..\N3BASE\StdAfxBase.h">
-      <Filter>N3Base</Filter>
-    </ClInclude>
     <ClInclude Include="..\N3BASE\My_3DStruct.h">
       <Filter>N3Base</Filter>
     </ClInclude>
