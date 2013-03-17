@@ -413,8 +413,8 @@ struct _SERVER_RESOURCE
 struct _USER_RANK
 {
 	uint16	nRank;  // shIndex for USER_KNIGHTS_RANK
-	char	strElmoUserID[MAX_ID_SIZE+1];
-	char	strKarusUserID[MAX_ID_SIZE+1];
+	std::string strElmoUserID;
+	std::string strKarusUserID;
 	uint32	nSalary; // nMoney for USER_KNIGHTS_RANK
 };
 

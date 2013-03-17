@@ -1,13 +1,4 @@
-// Knights.h: interface for the CKnights class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_KNIGHTS_H__741B63A3_F081_45B0_9918_012D2E88A8BC__INCLUDED_)
-#define AFX_KNIGHTS_H__741B63A3_F081_45B0_9918_012D2E88A8BC__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include "define.h"
 #include "gamedefine.h"
@@ -21,12 +12,14 @@ public:
 	uint8	m_byNation;			// nation
 	uint8	m_byGrade;
 	uint8	m_byRanking;
-	char	m_strName[MAX_ID_SIZE+1];
 	uint16	m_sMembers;
-	char	m_strChief[MAX_ID_SIZE+1];
-	char	m_strViceChief_1[MAX_ID_SIZE+1];
-	char	m_strViceChief_2[MAX_ID_SIZE+1];
-	char	m_strViceChief_3[MAX_ID_SIZE+1];
+
+	std::string m_strName;
+	std::string m_strChief;
+	std::string m_strViceChief_1;
+	std::string m_strViceChief_2;
+	std::string m_strViceChief_3;
+
 	uint64	m_nMoney;
 	uint16	m_sDomination;
 	uint32	m_nPoints;
@@ -39,7 +32,6 @@ public:
 	_KNIGHTS_USER m_arKnightsUser[MAX_CLAN_USERS];
 
 	CKnights();
-	void InitializeValue();
 
 	// Attach our session to the clan's list & tell clannies we logged in.
 	void OnLogin(CUser *pUser);
@@ -60,5 +52,3 @@ public:
 
 	virtual ~CKnights();
 };
-
-#endif // !defined(AFX_KNIGHTS_H__741B63A3_F081_45B0_9918_012D2E88A8BC__INCLUDED_)

@@ -15,13 +15,9 @@ public:
 
 		_dbCommand->FetchUInt16(1, pData->nRank);
 		_dbCommand->FetchUInt32(2, pData->nSalary);
-		_dbCommand->FetchString(3, pData->strElmoUserID, sizeof(pData->strElmoUserID));
-		_dbCommand->FetchString(4, pData->strKarusUserID, sizeof(pData->strKarusUserID));
+		_dbCommand->FetchString(3, pData->strElmoUserID);
+		_dbCommand->FetchString(4, pData->strKarusUserID);
 
-		// Trim first
-		TRIM_RIGHT(pData->strElmoUserID);
-		TRIM_RIGHT(pData->strKarusUserID);
-		
 		// Convert keys to uppercase for case insensitive lookups
 		std::string strElmoUserID = pData->strElmoUserID;
 		std::string strKarusUserID = pData->strKarusUserID;

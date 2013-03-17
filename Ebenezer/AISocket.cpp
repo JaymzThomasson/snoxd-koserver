@@ -641,7 +641,7 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 {
 	int retvalue = 0;
 	std::string strMaxUserName;
-	char strKnightsName[MAX_ID_SIZE+1];
+	string strKnightsName;
 	char chatstr[1024];
 	CUser* pUser = NULL;
 	CKnights* pKnights = NULL;
@@ -715,7 +715,7 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 			{
 				pKnights = g_pMain.GetClanPtr(pUser->GetClanID());
 				if (pKnights)
-					strcpy_s(strKnightsName, sizeof(strKnightsName), pKnights->m_strName);
+					strKnightsName = pKnights->m_strName;
 
 				/* War rewards */
 				// Warders

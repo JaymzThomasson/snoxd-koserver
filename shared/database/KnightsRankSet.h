@@ -38,7 +38,7 @@ public:
 			if (nKarusCount == 5)
 				return true;
 			
-			CUser *pUser = g_pMain.GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
+			CUser *pUser = g_pMain.GetUserPtr(pKnights->m_strChief.c_str(), TYPE_CHARACTER);
 			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				return true;
 
@@ -53,7 +53,7 @@ public:
 			if (nElmoCount == 5)
 				return true;
 
-			CUser *pUser = g_pMain.GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
+			CUser *pUser = g_pMain.GetUserPtr(pKnights->m_strChief.c_str(), TYPE_CHARACTER);
 			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				return true;
 			if (pUser->GetClanID() == sClanID)

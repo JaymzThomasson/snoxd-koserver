@@ -17,12 +17,12 @@ public:
 		_dbCommand->FetchByte(2, pData->m_byFlag);
 		_dbCommand->FetchByte(3, pData->m_byNation);
 		_dbCommand->FetchByte(4, pData->m_byRanking);
-		_dbCommand->FetchString(5, pData->m_strName, sizeof(pData->m_strName));
+		_dbCommand->FetchString(5, pData->m_strName);
 		_dbCommand->FetchUInt16(6, pData->m_sMembers);
-		_dbCommand->FetchString(7, pData->m_strChief, sizeof(pData->m_strChief));
-		_dbCommand->FetchString(8, pData->m_strViceChief_1, sizeof(pData->m_strViceChief_1));
-		_dbCommand->FetchString(9, pData->m_strViceChief_2, sizeof(pData->m_strViceChief_2));
-		_dbCommand->FetchString(10, pData->m_strViceChief_3, sizeof(pData->m_strViceChief_3));
+		_dbCommand->FetchString(7, pData->m_strChief);
+		_dbCommand->FetchString(8, pData->m_strViceChief_1);
+		_dbCommand->FetchString(9, pData->m_strViceChief_2);
+		_dbCommand->FetchString(10, pData->m_strViceChief_3);
 		_dbCommand->FetchUInt64(11, pData->m_nMoney);
 		_dbCommand->FetchUInt16(12, pData->m_sDomination);
 		_dbCommand->FetchUInt32(13, pData->m_nPoints);
@@ -34,12 +34,6 @@ public:
 		_dbCommand->FetchByte(19, pData->m_bCapeG);
 		_dbCommand->FetchByte(20, pData->m_bCapeB);
 		_dbCommand->FetchUInt16(21, pData->m_sAlliance);
-
-		TRIM_RIGHT(pData->m_strName);
-		TRIM_RIGHT(pData->m_strChief);
-		TRIM_RIGHT(pData->m_strViceChief_1);
-		TRIM_RIGHT(pData->m_strViceChief_2);
-		TRIM_RIGHT(pData->m_strViceChief_3);
 
 		pData->m_byGrade = g_pMain.GetKnightsGrade(pData->m_nPoints);
 

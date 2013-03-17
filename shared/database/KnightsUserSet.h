@@ -12,15 +12,12 @@ public:
 	virtual bool Fetch()
 	{
 		uint16 sIDNum;
-		char strUserID[MAX_ID_SIZE+1];
+		std::string strUserID;
 
 		_dbCommand->FetchUInt16(1, sIDNum);
-		_dbCommand->FetchString(2, strUserID, sizeof(strUserID));
+		_dbCommand->FetchString(2, strUserID);
 
-		TRIM_RIGHT(strUserID);
-
-		g_pMain.m_KnightsManager.AddKnightsUser(sIDNum, strUserID);
-
+		g_pMain.m_KnightsManager.AddKnightsUser(sIDNum, strUserID.c_str());
 		return true;
 	}
 };

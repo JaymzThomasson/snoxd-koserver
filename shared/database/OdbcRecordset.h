@@ -45,6 +45,3 @@ protected:
 		_DISPLAY_DB_ERROR(err); \
 		return FALSE; \
 	}
-
-// Cheap right trim, used for strings. We should do this better.
-#define TRIM_RIGHT(v) { std::string str = v; rtrim(str); strcpy(v, str.c_str()); }

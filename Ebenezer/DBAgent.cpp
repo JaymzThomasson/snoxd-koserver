@@ -902,8 +902,6 @@ uint16 CDBAgent::LoadKnightsAllMembers(uint16 sClanID, Packet & result)
 		dbCommand->FetchByte(3, bLevel);
 		dbCommand->FetchUInt16(4, sClass);
 
-		rtrim(strCharID);
-
 		result << strCharID << bFame << bLevel << sClass 
 			// check if user's logged in (i.e. grab logged in state)
 			<< uint8(g_pMain.GetUserPtr(strCharID.c_str(), TYPE_CHARACTER) == NULL ? 0 : 1);
@@ -931,7 +929,6 @@ bool CDBAgent::LoadKnightsInfo(uint16 sClanID, uint8 & bNation, std::string & st
 	dbCommand->FetchUInt32(4, nPoints);
 	dbCommand->FetchByte(5, bRank);
 
-	rtrim(strKnightsName);
 	return true;
 }
 

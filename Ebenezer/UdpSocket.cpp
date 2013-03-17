@@ -378,8 +378,8 @@ void CUdpSocket::RecvCreateKnights(char* pBuf)
 	pKnights->m_sIndex = knightsindex;
 	pKnights->m_byFlag = community;
 	pKnights->m_byNation = nation;
-	strcpy(pKnights->m_strName, knightsname);
-	strcpy(pKnights->m_strChief, chiefname);
+	pKnights->m_strName = knightsname;
+	pKnights->m_strChief = chiefname;
 	pKnights->AddUser(chiefname);
 
 	g_pMain.m_KnightsArray.PutData( pKnights->m_sIndex, pKnights );
@@ -394,7 +394,7 @@ void CUdpSocket::RecvJoinKnights(char* pBuf, BYTE command)
 {
 	int knightsindex = 0, index = 0;
 	char charid[MAX_ID_SIZE+1];
-	CString clanNotice;
+	string clanNotice;
 
 	knightsindex = GetShort( pBuf, index );
 	if (!GetKOString(pBuf, charid, index, MAX_ID_SIZE))
@@ -417,7 +417,7 @@ void CUdpSocket::RecvJoinKnights(char* pBuf, BYTE command)
 		TRACE("UDP - RecvJoinKnights - name=%s, index=%d\n", charid, knightsindex );
 	}
 
-	pKnights->SendChat(clanNotice, charid);
+	pKnights->SendChat(clanNotice.c_str(), charid);
 }
 
 /***
@@ -425,7 +425,7 @@ void CUdpSocket::RecvJoinKnights(char* pBuf, BYTE command)
  ***/
 void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 {
-	CString clanNotice;
+	std::string clanNotice;
 	int index = 0, knightsindex = 0, vicechief = 0;
 	char userid[MAX_ID_SIZE+1];
 
@@ -489,13 +489,13 @@ void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 	if (pTUser != NULL)
 		pTUser->SendClanUserStatusUpdate(command == KNIGHTS_REMOVE);
 
-	if (clanNotice.GetLength() == 0)
+	if (clanNotice.empty())
 		return;
 
 	Packet result;
 
 	// Construct the clan system chat packet
-	pKnights->ConstructChatPacket(result, clanNotice, pTUser != NULL ? pTUser->GetName() : userid); 
+	pKnights->ConstructChatPacket(result, clanNotice.c_str(), pTUser != NULL ? pTUser->GetName() : userid); 
 
 	// If we've been removed from a clan, tell the user as well (since they're no longer in the clan)
 	if (command == KNIGHTS_REMOVE && pTUser != NULL)

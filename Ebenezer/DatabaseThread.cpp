@@ -525,8 +525,8 @@ void CKnightsManager::ReqCreateKnights(CUser *pUser, Packet & pkt)
 	pKnights->m_byFlag = bFlag;
 	pKnights->m_byNation = bNation;
 
-	strcpy(pKnights->m_strName, strKnightsName.c_str());
-	strcpy(pKnights->m_strChief, pUser->GetName());
+	pKnights->m_strName = strKnightsName;
+	pKnights->m_strChief = pUser->GetName();
 
 	pUser->m_iGold -= CLAN_COIN_REQUIREMENT;
 	pUser->m_bFame = CHIEF;
@@ -666,7 +666,7 @@ void CKnightsManager::ReqKnightsList(Packet & pkt)
 	// TO-DO: Move this all to a single method, as this is done multiple times
 	pKnights->m_sIndex = sClanID;
 	pKnights->m_byNation = bNation;
-	strcpy(pKnights->m_strName, strKnightsName.c_str());
+	pKnights->m_strName = strKnightsName;
 	pKnights->m_sMembers = sMembers;
 	pKnights->m_nPoints = nPoints;
 	pKnights->m_byGrade = g_pMain.GetKnightsGrade(nPoints);

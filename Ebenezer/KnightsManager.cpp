@@ -126,7 +126,7 @@ void CKnightsManager::CreateKnights(CUser* pUser, Packet & pkt)
 BOOL CKnightsManager::IsAvailableName( const char *strname)
 {
 	foreach_stlmap (itr, g_pMain.m_KnightsArray)
-		if (_strnicmp(itr->second->m_strName, strname, MAX_ID_SIZE) == 0)
+		if (_strnicmp(itr->second->m_strName.c_str(), strname, MAX_ID_SIZE) == 0)
 			return FALSE;
 
 	return TRUE;
