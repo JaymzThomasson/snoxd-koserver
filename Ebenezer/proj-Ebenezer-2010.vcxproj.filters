@@ -180,6 +180,9 @@
     <ClCompile Include="..\shared\SMDFile.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
