@@ -19,5 +19,3 @@
 #include "packet.h"			// packet 정의
 #include "../shared/globals.h"			// 전역 funtion
 #include "define.h"			// define
-
-#define TRACE ATLTRACE
