@@ -236,10 +236,12 @@ C3DMap * CEbenezerDlg::GetZoneByID(int zoneID)
 	return m_ZoneArray.GetData(zoneID);
 }
 
-CUser* CEbenezerDlg::GetUserPtr(const char *userid, NameType type)
+CUser* CEbenezerDlg::GetUserPtr(string findName, NameType type)
 {
 	CUser *result = NULL;
-	string findName = userid;
+
+	// As findName is a copy of the string passed in, we can change it
+	// without worry of affecting anything.
 	STRTOUPPER(findName);
 
 	NameMap::iterator itr;
@@ -1298,16 +1300,6 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 	TRACE("*** DeleteAllNpcList - End *** \n");
 }
 
-void CEbenezerDlg::KillUser(const char *strbuff)
-{
-	if (strbuff[0] == 0 || strlen(strbuff) > MAX_ID_SIZE )
-		return;
-
-	CUser* pUser = GetUserPtr(strbuff, TYPE_CHARACTER);
-	if (pUser != NULL)
-		pUser->Disconnect();
-}
-
 CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
 {
 	if( m_bPointCheckFlag == FALSE)	return NULL;
@@ -1624,7 +1616,7 @@ void CEbenezerDlg::CleanupUserRankings()
 	// the _USER_RANK struct instance into the deletion set for later.
 	foreach (itr, m_UserPersonalRankMap)
 	{
-		CUser *pUser = GetUserPtr(itr->first.c_str(), TYPE_CHARACTER);
+		CUser *pUser = GetUserPtr(itr->first, TYPE_CHARACTER);
 		if (pUser != NULL)
 			pUser->m_bPersonalRank = -1;
 
@@ -1635,7 +1627,7 @@ void CEbenezerDlg::CleanupUserRankings()
 	// the _USER_RANK struct instance into the deletion set for later.
 	foreach (itr, m_UserKnightsRankMap)
 	{
-		CUser *pUser = GetUserPtr(itr->first.c_str(), TYPE_CHARACTER);
+		CUser *pUser = GetUserPtr(itr->first, TYPE_CHARACTER);
 		if (pUser != NULL)
 			pUser->m_bKnightsRank = -1;
 

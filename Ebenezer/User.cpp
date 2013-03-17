@@ -494,7 +494,7 @@ void CUser::UserDataSaveToAgent()
 
 void CUser::LogOut()
 {
-	CUser *pUser = g_pMain.GetUserPtr(GetAccountName(), TYPE_ACCOUNT);
+	CUser *pUser = g_pMain.GetUserPtr(m_strAccountID, TYPE_ACCOUNT);
 	if (pUser && (pUser->GetSocketID() != GetSocketID()))
 	{
 		TRACE("[SID=%D] %s : %s logged out\n", GetSocketID(), GetAccountName(), GetName());
@@ -2362,7 +2362,7 @@ void CUser::OperatorCommand(Packet & pkt)
 	if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
 		return;
 
-	CUser *pUser = g_pMain.GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+	CUser *pUser = g_pMain.GetUserPtr(strUserID, TYPE_CHARACTER);
 	if (pUser == NULL)
 		return;
 

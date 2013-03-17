@@ -81,7 +81,7 @@ void CUser::HandleChallengeRequestPVP(Packet & pkt)
 
 	pkt >> strUserID;
 
-	CUser *pUser = g_pMain.GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+	CUser *pUser = g_pMain.GetUserPtr(strUserID, TYPE_CHARACTER);
 	if (pUser == NULL
 		|| !pUser->isInGame()
 		|| pUser->isInParty()
@@ -146,7 +146,7 @@ void CUser::HandleChallengeRequestCVC(Packet & pkt)
 
 	pkt >> strUserID;
 
-	CUser *pUser = g_pMain.GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+	CUser *pUser = g_pMain.GetUserPtr(strUserID, TYPE_CHARACTER);
 	if (pUser == NULL
 		|| !pUser->isInGame()
 		|| pUser->isInParty()

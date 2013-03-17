@@ -904,7 +904,7 @@ uint16 CDBAgent::LoadKnightsAllMembers(uint16 sClanID, Packet & result)
 
 		result << strCharID << bFame << bLevel << sClass 
 			// check if user's logged in (i.e. grab logged in state)
-			<< uint8(g_pMain.GetUserPtr(strCharID.c_str(), TYPE_CHARACTER) == NULL ? 0 : 1);
+			<< uint8(g_pMain.GetUserPtr(strCharID, TYPE_CHARACTER) == NULL ? 0 : 1);
 		count++;
 	} while (dbCommand->MoveNext());
 

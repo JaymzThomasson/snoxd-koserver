@@ -710,7 +710,7 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 
 		if (!strMaxUserName.empty())
 		{
-			pUser = g_pMain.GetUserPtr(strMaxUserName.c_str(), TYPE_CHARACTER);
+			pUser = g_pMain.GetUserPtr(strMaxUserName, TYPE_CHARACTER);
 			if (pUser != NULL)
 			{
 				pKnights = g_pMain.GetClanPtr(pUser->GetClanID());

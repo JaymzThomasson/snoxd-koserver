@@ -194,7 +194,7 @@ void CUser::ReqLetterSend(Packet & pkt)
 	}
 
 	// If the other player's online, notify them.
-	CUser *pUser = g_pMain.GetUserPtr(strRecipient.c_str(), TYPE_CHARACTER);
+	CUser *pUser = g_pMain.GetUserPtr(strRecipient, TYPE_CHARACTER);
 	if (pUser != NULL)
 	{
 		Packet notification(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));

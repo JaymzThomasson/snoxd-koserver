@@ -323,7 +323,7 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 opco
 		if (bResult != 1)
 			break;
 
-		CUser *pTUser = g_pMain.GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+		CUser *pTUser = g_pMain.GetUserPtr(strUserID, TYPE_CHARACTER);
 		if (pTUser == NULL)
 		{
 			if (opcode != KNIGHTS_REMOVE)	
@@ -511,7 +511,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, BYTE command)
 
 	pkt >> sClanID >> strUserID;
 
-	CUser *pTUser = g_pMain.GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+	CUser *pTUser = g_pMain.GetUserPtr(strUserID, TYPE_CHARACTER);
 	CKnights *pKnights = g_pMain.GetClanPtr(sClanID);
 
 	switch (command)

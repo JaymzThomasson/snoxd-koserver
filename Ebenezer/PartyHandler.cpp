@@ -14,7 +14,7 @@ void CUser::PartyProcess(Packet & pkt)
 		if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
 			return;
 
-		pUser = g_pMain.GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+		pUser = g_pMain.GetUserPtr(strUserID, TYPE_CHARACTER);
 		if (pUser == NULL)
 			return;
 

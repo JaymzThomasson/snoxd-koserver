@@ -104,7 +104,6 @@ public:
 	BOOL LoadMagicType7();
 	BOOL LoadMagicType8();
 	BOOL LoadMagicType9();
-	void KillUser( const char* strbuff );
 	void Send_PartyMember(int party, Packet *result);
 	void Send_KnightsMember(int index, Packet *pkt);
 	void Send_KnightsAlliance(uint16 sAllianceID, Packet *pkt);
@@ -184,7 +183,7 @@ public:
 	long GetExpByLevel(int nLevel);
 	C3DMap * GetZoneByID(int zoneID);
 
-	CUser * GetUserPtr(const char* userid, NameType type);
+	CUser * GetUserPtr(std::string findName, NameType type);
 	CUser * GetUserPtr(int sid);
 
 	Unit * GetUnit(uint16 id);

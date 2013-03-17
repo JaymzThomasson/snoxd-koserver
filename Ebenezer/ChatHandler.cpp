@@ -195,7 +195,7 @@ void CUser::ChatTargetSelect(Packet & pkt)
 		if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
 			return;
 
-		CUser *pUser = g_pMain.GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+		CUser *pUser = g_pMain.GetUserPtr(strUserID, TYPE_CHARACTER);
 		if (pUser == NULL || pUser == this)
 		{
 			result << int16(0); 
@@ -258,7 +258,7 @@ COMMAND_HANDLER(CUser::HandleGiveItemCommand)
 	std::string strUserID = vargs.front();
 	vargs.pop_front();
 
-	CUser *pUser = g_pMain.GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+	CUser *pUser = g_pMain.GetUserPtr(strUserID, TYPE_CHARACTER);
 	if (pUser == NULL)
 	{
 		// send error message saying the character does not exist or is not online
@@ -336,7 +336,7 @@ COMMAND_HANDLER(CEbenezerDlg::HandleKillUserCommand)
 	}
 
 	std::string strUserID = vargs.front();
-	CUser *pUser = GetUserPtr(strUserID.c_str(), TYPE_CHARACTER);
+	CUser *pUser = GetUserPtr(strUserID, TYPE_CHARACTER);
 	if (pUser == NULL)
 	{
 		// send error saying that user was not found
