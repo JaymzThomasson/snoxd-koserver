@@ -7,7 +7,6 @@
 #include "Region.h"
 #include "Define.h"
 #include "User.h"
-#include "../shared/database/EventSet.h"
 #include "EbenezerDlg.h"
 
 using namespace std;
@@ -37,9 +36,6 @@ bool C3DMap::Initialize(_ZONE_INFO *pZone)
 		m_ppRegion = new CRegion*[m_smdFile->m_nXRegion];
 		for (int i = 0; i < m_smdFile->m_nXRegion; i++)
 			m_ppRegion[i] = new CRegion[m_smdFile->m_nZRegion];
-
-		if (!LoadEvent())
-			return false;
 
 		m_smdFile->IncRef();
 	}
@@ -144,11 +140,6 @@ BOOL C3DMap::CheckEvent(float x, float z, CUser* pUser)
 	}
 	pEvent->RunEvent( pUser );
 	return TRUE;
-}
-
-BOOL C3DMap::LoadEvent()
-{
-	LOAD_TABLE(CEventSet, &g_DBAgent.m_GameDB, this, true);
 }
 
 C3DMap::~C3DMap()

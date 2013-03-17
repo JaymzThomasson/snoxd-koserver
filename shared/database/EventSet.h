@@ -1,21 +1,21 @@
 #pragma once
 
-// TO-DO: This should load the entire table after maps are loaded and assign the events then.
 class CEventSet : public OdbcRecordset
 {
 public:
-	CEventSet(OdbcConnection * dbConnection, C3DMap *pMap) 
-		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
+	CEventSet(OdbcConnection * dbConnection, ZoneArray *pZoneArray) 
+		: OdbcRecordset(dbConnection), m_pZoneArray(pZoneArray) {}
 
 	virtual tstring GetTableName() { return _T("EVENT"); }
-	virtual tstring GetColumns() { return _T("EventNum, Type, Cond1, Cond2, Cond3, Cond4, Cond5, Exec1, Exec2, Exec3, Exec4, Exec5"); }
-	virtual tstring GetWhereClause() { return string_format(_T("ZoneNum = %d"), m_pMap->m_nZoneNumber); }
+	virtual tstring GetColumns() { return _T("ZoneNum, EventNum, Type, Cond1, Cond2, Cond3, Cond4, Cond5, Exec1, Exec2, Exec3, Exec4, Exec5"); }
 
 	virtual bool Fetch()
 	{
 		CGameEvent *pData = new CGameEvent();
+		uint8 bZone;
 		int i = 1;
 
+		_dbCommand->FetchByte(i++, bZone);
 		_dbCommand->FetchUInt16(i++, pData->m_sIndex);
 		_dbCommand->FetchByte(i++, pData->m_bType);
 
@@ -34,11 +34,13 @@ public:
 			pData->m_iExec[j] = atoi(tmp);
 		}
 
-		if (!m_pMap->m_EventArray.PutData(pData->m_sIndex, pData))
+		C3DMap *pZone = m_pZoneArray->GetData(bZone);
+		if (pZone == NULL
+			|| !pZone->m_EventArray.PutData(pData->m_sIndex, pData))
 			delete pData;
 
 		return true;
 	}
 
-	C3DMap * m_pMap;
+	ZoneArray * m_pZoneArray;
 };

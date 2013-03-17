@@ -14,6 +14,7 @@
 #include "../shared/database/MagicType8Set.h"
 #include "../shared/database/MagicType9Set.h"
 #include "../shared/database/ZoneInfoSet.h"
+#include "../shared/database/EventSet.h"
 #include "../shared/database/CoefficientSet.h"
 #include "../shared/database/LevelUpTableSet.h"
 #include "../shared/database/ServerResourceSet.h"
@@ -644,6 +645,7 @@ BOOL CEbenezerDlg::MapFileLoad()
 			delete pEvent;
 	}
 
+	LOAD_TABLE_ERROR_ONLY(CEventSet, &g_DBAgent.m_GameDB, &m_ZoneArray, true);
 	return TRUE;
 }
 

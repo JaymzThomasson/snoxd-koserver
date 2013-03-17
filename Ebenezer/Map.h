@@ -30,7 +30,6 @@ public:
 	C3DMap();
 	bool Initialize(_ZONE_INFO *pZone);
 	CRegion * GetRegion(uint16 regionX, uint16 regionZ);
-	BOOL LoadEvent();
 	BOOL CheckEvent( float x, float z, CUser* pUser = NULL );
 	BOOL RegionItemRemove(uint16 rx, uint16 rz, int bundle_index, int itemid, int count);
 	BOOL RegionItemAdd(uint16 rx, uint16 rz, _ZONE_ITEM * pItem);
