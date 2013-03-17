@@ -1,4 +1,12 @@
-ALTER TABLE USERDATA DROP CONSTRAINT DF_USERDATA_Gender
+DECLARE @constraint as sysname
+SELECT @constraint = b.name FROM sys.all_columns a 
+INNER JOIN
+sys.default_constraints b
+ON a.default_object_id = b.object_id
+WHERE a.object_id = OBJECT_ID('USERDATA')
+AND a.name = 'HairColor'
+IF (@constraint IS NOT NULL)
+	EXEC('ALTER TABLE USERDATA DROP CONSTRAINT ' + @name)
 GO
 ALTER TABLE USERDATA DROP COLUMN HairColor
 GO
