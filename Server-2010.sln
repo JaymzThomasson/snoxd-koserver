@@ -4,8 +4,13 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AIServer", "AIServer\proj-AIServer-2010.vcxproj", "{36A92A8F-3820-435C-AC63-E861A556C1BB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ebenezer", "Ebenezer\proj-Ebenezer-2010.vcxproj", "{99006BDF-4BBD-4687-99C3-1424F32D95FC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{476399DF-6832-45BE-86A7-DF43728B9938} = {476399DF-6832-45BE-86A7-DF43728B9938}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VersionManager", "LogInServer\proj-VersionManager-2010.vcxproj", "{F68DA1BF-90B2-4166-8DDB-B82D813EA961}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lua", "scripting\Lua\Lua-2010.vcxproj", "{476399DF-6832-45BE-86A7-DF43728B9938}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +37,12 @@ Global
 		{F68DA1BF-90B2-4166-8DDB-B82D813EA961}.Release|Win32.Build.0 = Release|Win32
 		{F68DA1BF-90B2-4166-8DDB-B82D813EA961}.Static Release|Win32.ActiveCfg = Release|Win32
 		{F68DA1BF-90B2-4166-8DDB-B82D813EA961}.Static Release|Win32.Build.0 = Release|Win32
+		{476399DF-6832-45BE-86A7-DF43728B9938}.Debug|Win32.ActiveCfg = Debug|Win32
+		{476399DF-6832-45BE-86A7-DF43728B9938}.Debug|Win32.Build.0 = Debug|Win32
+		{476399DF-6832-45BE-86A7-DF43728B9938}.Release|Win32.ActiveCfg = Release|Win32
+		{476399DF-6832-45BE-86A7-DF43728B9938}.Release|Win32.Build.0 = Release|Win32
+		{476399DF-6832-45BE-86A7-DF43728B9938}.Static Release|Win32.ActiveCfg = Release|Win32
+		{476399DF-6832-45BE-86A7-DF43728B9938}.Static Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
