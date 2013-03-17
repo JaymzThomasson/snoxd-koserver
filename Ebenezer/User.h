@@ -590,10 +590,12 @@ public:
 	bool CanUseItem(long itemid, uint16 count); //Should place this with other item related functions
 
 	void SaveEvent(uint16 sQuestID, uint8 bQuestState);
+	void DeleteEvent(uint16 sQuestID);
 	bool CheckExistEvent(uint16 sQuestID, uint8 bQuestState);
 
 	void QuestV2MonsterCountAdd(uint16 sNpcID);
 	uint8 QuestV2CheckMonsterCount(uint16 sQuestID);
+	void QuestV2MonsterDataDeleteAll();
 
 	// Sends the quest completion statuses
 	void QuestDataRequest();
@@ -654,6 +656,6 @@ public:
 	typedef std::map<uint16, uint8> QuestMap;
 	QuestMap m_questMap;
 
-	uint8 m_bKillCounts[4];
+	uint8 m_bKillCounts[QUEST_MOB_GROUPS];
 	uint16 m_sKillCountGroup; // not sure what this is exactly yet
 };

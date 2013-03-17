@@ -3870,6 +3870,11 @@ void CUser::SaveEvent(uint16 sQuestID, uint8 bQuestState)
 	m_questMap[sQuestID] = bQuestState;
 }
 
+void CUser::DeleteEvent(uint16 sQuestID)
+{
+	m_questMap.erase(sQuestID);
+}
+
 bool CUser::CheckExistEvent(uint16 sQuestID, uint8 bQuestState)
 {
 	// Attempt to find a quest with that ID in the map
@@ -3930,6 +3935,15 @@ uint8 CUser::QuestV2CheckMonsterCount(uint16 sQuestID)
 		return 0;
 
 	return itr->second;
+}
+
+void CUser::QuestV2MonsterDataDeleteAll()
+{
+	memset(&m_bKillCounts, 0, sizeof(m_bKillCounts));
+	m_sKillCountGroup = 0;
+
+	for (int i = 32001; i <= 32007; i++)
+		DeleteEvent(i);
 }
 
 void CUser::QuestV2MonsterDataRequest()
