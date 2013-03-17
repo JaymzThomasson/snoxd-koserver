@@ -576,8 +576,6 @@ void CServerDlg::AllNpcInfo()
 		nZone = itr->first;
 		send_index = 2;		count = 0;	send_count = 0;
 
-		TRACE("****  allNpcInfo start = %d *****\n", nZone);
-
 		foreach_stlmap (itr, m_arNpc)
 		{
 			CNpc *pNpc = itr->second;
@@ -614,8 +612,6 @@ void CServerDlg::AllNpcInfo()
 		Packet result(AG_SERVER_INFO, uint8(nZone));
 		result << uint16(m_TotalNPC);
 		s_socketMgr.SendAll(&result);
-
-		TRACE("****  allNpcInfo end = %d *****\n", nZone);
 	}
 }
 

@@ -13,7 +13,6 @@ extern CRITICAL_SECTION g_LogFile_critical;
 
 bool CAISocket::HandlePacket(Packet & pkt)
 {
-	TRACE("CAISocket::Parsing() - %X (%d), len=%d\n", pkt.GetOpcode(), pkt.GetOpcode(), pkt.size()); 
 	switch (pkt.GetOpcode())
 	{
 		case AG_CHECK_ALIVE_REQ:
@@ -119,8 +118,6 @@ void CAISocket::RecvServerInfo(Packet & pkt)
 	pkt >> bZone >> sTotalMonster;
 
 	g_pMain.m_sZoneCount++;
-
-	TRACE("RecvServerInfo....%d, total=%d, socketcount=%d\n", bZone, sTotalMonster, g_pMain.m_sZoneCount);
 
 	if (g_pMain.m_sZoneCount == size)
 	{

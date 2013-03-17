@@ -31,7 +31,6 @@ void CGameSocket::OnDisconnect()
 
 bool CGameSocket::HandlePacket(Packet & pkt)
 {
-	TRACE("CGameSocket::Parsing() - %X (%d), len=%d\n", pkt.GetOpcode(), pkt.GetOpcode(), pkt.size()); 
 	switch (pkt.GetOpcode())
 	{
 	case SERVER_CONNECT:
