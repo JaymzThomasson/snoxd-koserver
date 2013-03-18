@@ -23,7 +23,7 @@ public:
 		int i = 1;
 		_dbCommand->FetchUInt16(i++, pData->m_nServerNo);
 		_dbCommand->FetchUInt16(i++, pData->m_nZoneNumber);
-		_dbCommand->FetchString(i++, pData->m_MapName, sizeof(pData->m_MapName));
+		_dbCommand->FetchString(i++, pData->m_MapName);
 
 #ifdef AI_SERVER
 		_dbCommand->FetchByte(i++, pData->m_byRoomEvent);
