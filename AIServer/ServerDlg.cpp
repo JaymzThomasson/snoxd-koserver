@@ -610,8 +610,8 @@ CUser* CServerDlg::GetUserPtr(int nid)
 
 void CServerDlg::OnTimer(UINT nIDEvent) 
 {
-//	if (nIDEvent == s_dwCheckAliveID)
-//		CheckAliveTest();
+	if (nIDEvent == s_dwCheckAliveID)
+		CheckAliveTest();
 }
 
 void CServerDlg::CheckAliveTest()
