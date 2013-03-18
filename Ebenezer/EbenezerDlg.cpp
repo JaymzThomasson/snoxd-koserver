@@ -1517,49 +1517,49 @@ void CEbenezerDlg::ResetBattleZone()
 
 void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 {
-	char chatstr[1024]; 
+	string chatstr; 
 
 	switch (type)
 	{
 		case BATTLEZONE_OPEN:
 		case SNOW_BATTLEZONE_OPEN:
-			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDP_BATTLEZONE_OPEN).c_str());
+			chatstr = GetServerResource(IDP_BATTLEZONE_OPEN);
 			break;
 
 		case DECLARE_WINNER:
 			if (m_bVictory == KARUS)
-				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDP_KARUS_VICTORY).c_str(), m_sElmoradDead, m_sKarusDead);
+				chatstr = string_format(GetServerResource(IDP_KARUS_VICTORY), m_sElmoradDead, m_sKarusDead);
 			else if (m_bVictory == ELMORAD)
-				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDP_ELMORAD_VICTORY).c_str(), m_sKarusDead, m_sElmoradDead);
+				chatstr = string_format(GetServerResource(IDP_ELMORAD_VICTORY), m_sKarusDead, m_sElmoradDead);
 			else 
 				return;
 			break;
 		case DECLARE_LOSER:
 			if (m_bVictory == KARUS)
-				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_ELMORAD_LOSER).c_str(), m_sKarusDead, m_sElmoradDead);
+				chatstr = string_format(GetServerResource(IDS_ELMORAD_LOSER), m_sKarusDead, m_sElmoradDead);
 			else if (m_bVictory == ELMORAD)
-				_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_KARUS_LOSER).c_str(), m_sElmoradDead, m_sKarusDead);
+				chatstr = string_format(GetServerResource(IDS_KARUS_LOSER), m_sElmoradDead, m_sKarusDead);
 			else 
 				return;
 			break;
 
 		case DECLARE_BAN:
-			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_BANISH_USER).c_str());
+			chatstr = GetServerResource(IDS_BANISH_USER);
 			break;
 		case BATTLEZONE_CLOSE:
-			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_BATTLE_CLOSE).c_str());
+			chatstr = GetServerResource(IDS_BATTLE_CLOSE);
 			break;
 		case KARUS_CAPTAIN_NOTIFY:
-			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_KARUS_CAPTAIN).c_str(), m_strKarusCaptain);
+			chatstr = GetServerResource(IDS_KARUS_CAPTAIN);
 			break;
 		case ELMORAD_CAPTAIN_NOTIFY:
-			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_ELMO_CAPTAIN).c_str(), m_strElmoradCaptain);
+			chatstr = string_format(GetServerResource(IDS_ELMO_CAPTAIN), m_strElmoradCaptain);
 			break;
 		case KARUS_CAPTAIN_DEPRIVE_NOTIFY:
-			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_KARUS_CAPTAIN_DEPRIVE).c_str(), m_strKarusCaptain);
+			chatstr = string_format(GetServerResource(IDS_KARUS_CAPTAIN_DEPRIVE), m_strKarusCaptain);
 			break;
 		case ELMORAD_CAPTAIN_DEPRIVE_NOTIFY:
-			_snprintf(chatstr, sizeof(chatstr), GetServerResource(IDS_ELMO_CAPTAIN_DEPRIVE).c_str(), m_strElmoradCaptain);
+			chatstr = string_format(GetServerResource(IDS_ELMO_CAPTAIN_DEPRIVE), m_strElmoradCaptain);
 			break;
 	}
 
