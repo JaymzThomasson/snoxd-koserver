@@ -1538,7 +1538,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 	m_vMapSize.cy = max_y - min_y + 1;
 	
 	m_pPath = NULL;
-	m_vPathFind.SetMap(m_vMapSize.cx, m_vMapSize.cy, GetMap()->GetEventIDs());
+	m_vPathFind.SetMap(m_vMapSize.cx, m_vMapSize.cy, GetMap()->GetEventIDs(), GetMap()->GetMapSize());
 	m_pPath = m_vPathFind.FindPath(end.x, end.y, start.x, start.y);
 	int count = 0;
 

@@ -55,10 +55,11 @@ void CPathFind::ClearData()
 	}
 }
 
-void CPathFind::SetMap(int x, int y, short *pMap)
+void CPathFind::SetMap(int x, int y, short *pMap, uint32 nMapSize)
 {
 	m_vMapSize.cx = x;
 	m_vMapSize.cy = y;
+	m_nMapSize = nMapSize; // event array requires the full map size
 	m_pMap = pMap;
 
 /*	if(InterlockedCompareExchange(&m_lMapUse, (LONG)1, (LONG)0) == 0)
@@ -356,5 +357,5 @@ BOOL CPathFind::IsBlankMap(int x, int y)
 	if (x < 0 || y < 0 || x >= m_vMapSize.cx || y >= m_vMapSize.cy) 
 		return FALSE;
 
-	return !m_pMap[x * m_vMapSize.cx + y];
+	return !m_pMap[x * m_nMapSize + y];
 }
