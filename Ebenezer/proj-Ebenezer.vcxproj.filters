@@ -180,6 +180,9 @@
     <ClCompile Include="..\shared\SMDFile.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
+    <ClCompile Include="QuestHandler.cpp">
+      <Filter>Source Files\Handlers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -240,9 +243,6 @@
       <Filter>Shared</Filter>
     </ClInclude>
     <ClInclude Include="..\N3BASE\N3ShapeMgr.h">
-      <Filter>N3Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\N3BASE\StdAfxBase.h">
       <Filter>N3Base</Filter>
     </ClInclude>
     <ClInclude Include="..\N3BASE\My_3DStruct.h">

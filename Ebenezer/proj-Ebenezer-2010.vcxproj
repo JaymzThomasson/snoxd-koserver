@@ -224,6 +224,7 @@
     </ClCompile>
     <ClCompile Include="NPCHandler.cpp" />
     <ClCompile Include="PartyHandler.cpp" />
+    <ClCompile Include="QuestHandler.cpp" />
     <ClCompile Include="Region.cpp" />
     <ClCompile Include="RentalHandler.cpp" />
     <ClCompile Include="ShoppingMallHandler.cpp" />
