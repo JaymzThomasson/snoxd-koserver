@@ -31,7 +31,7 @@ CRoomEvent::~CRoomEvent()
 
 void CRoomEvent::Initialize()
 {
-	m_fDelayTime = 0.0f;
+	m_fDelayTime = 0;
 	m_byLogicNumber = 1;
 
 	for(int i=0; i<MAX_CHECK_EVENT; i++)	{
@@ -44,13 +44,13 @@ void CRoomEvent::Initialize()
 	}
 }
 
-void CRoomEvent::MainRoom( float fcurtime )
+void CRoomEvent::MainRoom(uint32 currtime)
 {
 	// 조건 검색먼저 해야 겠지..
 	BOOL bCheck = FALSE, bRunCheck = FALSE;
 	int event_num  = m_Logic[m_byLogicNumber-1].sNumber;
 
-	bCheck = CheckEvent( event_num, fcurtime );
+	bCheck = CheckEvent(event_num, currtime);
 
 	if( bCheck )	{
 		event_num = m_Exec[m_byLogicNumber-1].sNumber; 
@@ -63,7 +63,7 @@ void CRoomEvent::MainRoom( float fcurtime )
 	}
 }
 
-BOOL  CRoomEvent::CheckEvent( int event_num, float fcurtime )
+BOOL  CRoomEvent::CheckEvent(int event_num, uint32 fcurtime)
 {
 	int nMinute = 0, nOption_1 = 0, nOption_2 = 0;
 	CNpc* pNpc = NULL;
@@ -293,7 +293,7 @@ BOOL  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
 void CRoomEvent::InitializeRoom()
 {
 	m_byStatus	= 1;			
-	m_fDelayTime = 0.0f;
+	m_fDelayTime = 0;
 	m_byLogicNumber = 1;
 
 	CheckMonsterCount( 0, 0, 4);	// 몬스터의 m_byChangeType=0으로 초기화 

@@ -25,15 +25,14 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 	srand( (unsigned)time( NULL ) );
 	myrand( 1, 10000 ); myrand( 1, 10000 );
 
-	float  fTime2 = 0.0f;
-	float  fTime3 = 0.0f;
+	uint32 fTime2 = 0, fTime3 = 0;
 	int    duration_damage=0;
 
 	if(!pInfo) return 0;
 
 	while(!g_bNpcExit)
 	{
-		fTime2 = TimeGet();
+		fTime2 = getMSTime();
 
 		for(i = 0; i < NPC_NUM; i++)
 		{
@@ -136,12 +135,12 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */)
 {
 	CServerDlg* m_pMain = (CServerDlg*) pParam;
-	float  fCurrentTime = 0.0f;
+	uint32  fCurrentTime = 0;
 	int j=0;
 
 	while (!g_bNpcExit)
 	{
-		fCurrentTime = TimeGet();
+		fCurrentTime = getMSTime();
 		foreach_stlmap (itr, g_pMain.g_arZone)
 		{
 			MAP *pMap = itr->second;

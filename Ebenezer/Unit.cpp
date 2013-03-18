@@ -438,8 +438,8 @@ void Unit::InitType3()
 {
 	for (int i = 0 ; i < MAX_TYPE3_REPEAT; i++)
 	{
-		m_fHPStartTime[i] = 0.0f;		
-		m_fHPLastTime[i] = 0.0f;
+		m_fHPStartTime[i] = 0;		
+		m_fHPLastTime[i] = 0;
 		m_bHPAmount[i] = 0;
 		m_bHPDuration[i] = 0;
 		m_bHPInterval[i] = 5;

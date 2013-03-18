@@ -143,8 +143,8 @@ public:
 	short	m_sSpearR;						// Resistance to Spear
 	short	m_sBowR;						// Resistance to Bow		
 
-	float	m_fHPLastTime[MAX_TYPE3_REPEAT];		// For Automatic HP recovery and Type 3 durational HP recovery.
-	float	m_fHPStartTime[MAX_TYPE3_REPEAT];
+	uint32	m_fHPLastTime[MAX_TYPE3_REPEAT];		// For Automatic HP recovery and Type 3 durational HP recovery.
+	uint32	m_fHPStartTime[MAX_TYPE3_REPEAT];
 	short	m_bHPAmount[MAX_TYPE3_REPEAT];
 	BYTE	m_bHPDuration[MAX_TYPE3_REPEAT];
 	BYTE	m_bHPInterval[MAX_TYPE3_REPEAT];
@@ -152,7 +152,7 @@ public:
 	BOOL	m_bType3Flag;
 
 	short   m_sDuration[MAX_TYPE4_BUFF];
-	float   m_fStartTime[MAX_TYPE4_BUFF];
+	uint32   m_fStartTime[MAX_TYPE4_BUFF];
 
 	BYTE	m_bType4Buff[MAX_TYPE4_BUFF];
 	BOOL	m_bType4Flag;

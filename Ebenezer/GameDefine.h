@@ -225,7 +225,7 @@ struct _ZONE_ITEM {		// Bundle unit
 	float x;
 	float z;
 	float y;
-	float time;
+	uint32 time;
 };
 
 struct	_EXCHANGE_ITEM

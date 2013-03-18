@@ -515,7 +515,7 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 		pItem->count[i] = 0;
 	}
 
-	pItem->time = TimeGet();
+	pItem->time = getMSTime();
 	pItem->x = fX;
 	pItem->z = fZ;
 	pItem->y = fY;

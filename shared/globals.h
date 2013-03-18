@@ -333,37 +333,17 @@ inline int myrand( int min, int max )
 	return (int)( min + (int)rand_result );
 };
 
-#if defined(EBENEZER) || defined(AI_SERVER)
-#include <mmsystem.h>
-inline float TimeGet()
+__forceinline uint32 getMSTime()
 {
-	static bool bInit = false;
-	static bool bUseHWTimer = FALSE;
-	static LARGE_INTEGER nTime, nFrequency;
-	
-	if(bInit == false)
-	{
-		if(TRUE == ::QueryPerformanceCounter(&nTime))
-		{
-			::QueryPerformanceFrequency(&nFrequency);
-			bUseHWTimer = TRUE;
-		}
-		else 
-		{
-			bUseHWTimer = FALSE;
-		}
-
-		bInit = true;
-	}
-
-	if(bUseHWTimer)
-	{
-		::QueryPerformanceCounter(&nTime);
-		return (float)((double)(nTime.QuadPart)/(double)nFrequency.QuadPart);
-	}
-
-	return (float)timeGetTime();
-};
+#ifdef _WIN32
+#	pragma warning(suppress: 28159) // GetTickCount64() is only available in Vista or newer. At this time we want backwards compatibility, so... no.
+	return GetTickCount();
+#else
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+#endif
+}
 
 __forceinline void STRTOLOWER(std::string& str)
 {
@@ -376,4 +356,3 @@ __forceinline void STRTOUPPER(std::string& str)
 	for(size_t i = 0; i < str.length(); ++i)
 		str[i] = (char)toupper(str[i]);
 };
-#endif

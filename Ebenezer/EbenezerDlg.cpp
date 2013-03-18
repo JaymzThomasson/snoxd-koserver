@@ -1320,7 +1320,7 @@ CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
 
 void CEbenezerDlg::AliveUserCheck()
 {
-	float currenttime = TimeGet();
+	uint32 currenttime = getMSTime();
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{

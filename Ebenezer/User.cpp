@@ -83,22 +83,22 @@ void CUser::Initialize()
 	m_sPrivateChatUser = -1;
 	m_bNeedParty = 0x01;
 
-	m_fHPLastTimeNormal = 0.0f;		// For Automatic HP recovery. 
-	m_fHPStartTimeNormal = 0.0f;
+	m_fHPLastTimeNormal = 0;		// For Automatic HP recovery. 
+	m_fHPStartTimeNormal = 0;
 	m_bHPAmountNormal = 0;
 	m_bHPDurationNormal = 0;
 	m_bHPIntervalNormal = 5;
 
-	m_fAreaLastTime = 0.0f;		// For Area Damage spells Type 3.
-	m_fAreaStartTime = 0.0f;
+	m_fAreaLastTime = 0;		// For Area Damage spells Type 3.
+	m_fAreaStartTime = 0;
 	m_bAreaInterval = 5;
 	m_iAreaMagicID = 0;
 
-	m_fSpeedHackClientTime = 0.0f;
-	m_fSpeedHackServerTime = 0.0f;
+	m_fSpeedHackClientTime = 0;
+	m_fSpeedHackServerTime = 0;
 	m_bSpeedHackCheck = 0;
 
-	m_fBlinkStartTime = 0.0f;
+	m_fBlinkStartTime = 0;
 
 	m_sAliveCount = 0;
 	m_bAbnormalType = ABNORMAL_NORMAL;	// User starts out in normal size.
@@ -106,18 +106,18 @@ void CUser::Initialize()
 	m_sWhoKilledMe = -1;
 	m_iLostExp = 0;
 
-	m_fLastTrapAreaTime = 0.0f;
+	m_fLastTrapAreaTime = 0;
 
 	memset(m_iSelMsgEvent, -1,  MAX_MESSAGE_EVENT);
 
 	m_sEventNid = -1;
 	m_bZoneChangeFlag = FALSE;
 	m_bRegeneType = 0;
-	m_fLastRegeneTime = 0.0f;
+	m_fLastRegeneTime = 0;
 	m_bZoneChangeSameZone = FALSE;
 
 	m_nTransformationItem = 0;
-	m_fTransformationStartTime = 0.0f;
+	m_fTransformationStartTime = 0;
 	m_sTransformationDuration = 0;
 
 	while( !m_arUserEvent.empty() )
@@ -154,8 +154,7 @@ void CUser::OnDisconnect()
 
 bool CUser::HandlePacket(Packet & pkt)
 {
-	int index = 0;
-	float	currenttime = FLT_MIN;
+	uint32 currenttime = 0;
 
 	uint8 command = pkt.GetOpcode();
 	TRACE("[SID=%d] Packet: %X (len=%d)\n", GetSocketID(), command, pkt.size());
@@ -381,7 +380,7 @@ bool CUser::HandlePacket(Packet & pkt)
 		return false;
 	}
 
-	currenttime = TimeGet();
+	currenttime = getMSTime();
 
 	if (command == WIZ_GAMESTART)
 	{
@@ -2127,7 +2126,7 @@ void CUser::SendItemMove(uint8 subcommand)
 	Send(&result);
 }
 
-void CUser::HPTimeChange(float currenttime)
+void CUser::HPTimeChange(uint32 currenttime)
 {
 	BOOL bFlag = FALSE;
 
@@ -2160,7 +2159,7 @@ void CUser::HPTimeChange(float currenttime)
 	}
 }
 
-void CUser::HPTimeChangeType3(float currenttime)
+void CUser::HPTimeChangeType3(uint32 currenttime)
 {
 	for (int g = 0 ; g < MAX_TYPE3_REPEAT ; g++) {	// Get the current time for all the last times...
 		m_fHPLastTime[g] = currenttime;
@@ -2218,8 +2217,8 @@ void CUser::HPTimeChangeType3(float currenttime)
 
 				Send(&result);
 
-				m_fHPStartTime[i] = 0.0f;
-				m_fHPLastTime[i] = 0.0f;
+				m_fHPStartTime[i] = 0;
+				m_fHPLastTime[i] = 0;
 				m_bHPAmount[i] = 0;
 				m_bHPDuration[i] = 0;				
 				m_bHPInterval[i] = 5;
@@ -2244,7 +2243,7 @@ void CUser::HPTimeChangeType3(float currenttime)
 		SendPartyStatusUpdate(1, 0);
 }
 
-void CUser::Type4Duration(float currenttime)
+void CUser::Type4Duration(uint32 currenttime)
 {
 	BYTE buff_type = 0;					
 
@@ -2425,7 +2424,7 @@ void CUser::SpeedHackTime(Packet & pkt)
 #endif
 }
 
-void CUser::Type3AreaDuration(float currenttime)
+void CUser::Type3AreaDuration(uint32 currenttime)
 {
 	Packet result(WIZ_MAGIC_PROCESS);
 
@@ -2433,7 +2432,7 @@ void CUser::Type3AreaDuration(float currenttime)
 	if (pType == NULL)
 		return;
 
-	if (m_fAreaLastTime != 0.0f && (currenttime - m_fAreaLastTime) > m_bAreaInterval)
+	if (m_fAreaLastTime != 0 && (currenttime - m_fAreaLastTime) > m_bAreaInterval)
 	{
 		m_fAreaLastTime = currenttime;
 		if (isDead())
@@ -2462,8 +2461,8 @@ void CUser::Type3AreaDuration(float currenttime)
 		if ( (( currenttime - m_fAreaStartTime) >= pType->bDuration))
 		{ // Did area duration end? 			
 			m_bAreaInterval = 5;
-			m_fAreaStartTime = 0.0f;
-			m_fAreaLastTime = 0.0f;
+			m_fAreaStartTime = 0;
+			m_fAreaLastTime = 0;
 			m_iAreaMagicID = 0;
 		}
 	}	
@@ -3137,7 +3136,7 @@ void CUser::BlinkStart()
 		return;
 
 	m_bAbnormalType = ABNORMAL_BLINKING;
-	m_fBlinkStartTime = TimeGet();
+	m_fBlinkStartTime = getMSTime();
 	m_bRegeneType = REGENE_ZONECHANGE;
 	
 	UpdateVisibility(INVIS_NORMAL); // AI shouldn't see us
@@ -3146,12 +3145,12 @@ void CUser::BlinkStart()
 	StateChangeServerDirect(3, ABNORMAL_BLINKING);
 }
 
-void CUser::BlinkTimeCheck(float currenttime)
+void CUser::BlinkTimeCheck(uint32 currenttime)
 {
 	if ((currenttime - m_fBlinkStartTime) < BLINK_TIME)
 		return;
 
-	m_fBlinkStartTime = 0.0f;
+	m_fBlinkStartTime = 0;
 	m_bRegeneType = REGENE_NORMAL;
 
 	StateChangeServerDirect(3, ABNORMAL_NORMAL);
@@ -3232,8 +3231,8 @@ BOOL CUser::JobGroupCheck(short jobgroupid)
 
 void CUser::TrapProcess()
 {
-	float currenttime = 0.0f;
-	currenttime = TimeGet();
+	uint32 currenttime = 0;
+	currenttime = getMSTime();
 
 	if (ZONE_TRAP_INTERVAL < (currenttime - m_fLastTrapAreaTime)) {	// Time interval has passed :)
 		HpChange( -ZONE_TRAP_DAMAGE );     // Reduce target health point.

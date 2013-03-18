@@ -147,27 +147,27 @@ public:
 	bool	m_bBlockPrivateChat;
 	short	m_sPrivateChatUser;
 
-	float	m_fHPLastTimeNormal;					// For Automatic HP recovery. 
-	float	m_fHPStartTimeNormal;
+	uint32	m_fHPLastTimeNormal;					// For Automatic HP recovery. 
+	uint32	m_fHPStartTimeNormal;
 	short	m_bHPAmountNormal;
 	BYTE	m_bHPDurationNormal;
 	BYTE	m_bHPIntervalNormal;
 
-	float	m_fAreaLastTime;			// For Area Damage spells Type 3.
-	float   m_fAreaStartTime;
+	uint32	m_fAreaLastTime;			// For Area Damage spells Type 3.
+	uint32   m_fAreaStartTime;
 	BYTE    m_bAreaInterval;
 	int     m_iAreaMagicID;
 
 	uint32	m_nTransformationItem; // item used for transforming (e.g. disguise scroll, totem..)
-	float	m_fTransformationStartTime;
+	uint32	m_fTransformationStartTime;
 	uint16	m_sTransformationDuration;
 
 	CMagicProcess m_MagicProcess;
 
-	float	m_fSpeedHackClientTime, m_fSpeedHackServerTime;
+	uint32	m_fSpeedHackClientTime, m_fSpeedHackServerTime;
 	BYTE	m_bSpeedHackCheck;
 
-	float	m_fBlinkStartTime;			// When did you start to blink?
+	uint32	m_fBlinkStartTime;			// When did you start to blink?
 
 	short	m_sAliveCount;
 
@@ -176,13 +176,13 @@ public:
 	short	m_sWhoKilledMe;				// Who killed me???
 	__int64		m_iLostExp;					// Experience point that was lost when you died.
 
-	float	m_fLastTrapAreaTime;		// The last moment you were in the trap area.
+	uint32	m_fLastTrapAreaTime;		// The last moment you were in the trap area.
 
 	BOOL	m_bZoneChangeFlag;
 
 	BYTE	m_bRegeneType;				// Did you die and go home or did you type '/town'?
 
-	float	m_fLastRegeneTime;			// The last moment you got resurrected.
+	uint32	m_fLastRegeneTime;			// The last moment you got resurrected.
 
 	BOOL	m_bZoneChangeSameZone;		// Did the server change when you warped?
 
@@ -332,18 +332,18 @@ public:
 	void SendItemWeight();
 	void UpdateVisibility(InvisibilityType bNewType);
 	void BlinkStart();
-	void BlinkTimeCheck(float currenttime);
+	void BlinkTimeCheck(uint32 currenttime);
 	void GoldChange(short tid, int gold);
 	CUser* GetItemRoutingUser(int itemid, short itemcount);
 	bool GetStartPosition(short & x, short & y, BYTE bZone = 0);
 	int FindSlotForItem(uint32 nItemID, uint16 sCount);
 	int GetEmptySlot();
-	void Type3AreaDuration( float currenttime);
+	void Type3AreaDuration(uint32 currenttime);
 	void SendAllKnightsID();
 	void SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes, not a bug */, uint16 sDurability, uint8 bPos, bool bNewItem = false);
-	void Type4Duration(float currenttime);
-	void HPTimeChange( float currenttime );
-	void HPTimeChangeType3( float currenttime );
+	void Type4Duration(uint32 currenttime);
+	void HPTimeChange(uint32 currenttime);
+	void HPTimeChangeType3(uint32 currenttime);
 	void ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint16 amount);
 	void SendDurability(uint8 slot, uint16 durability);
 	void SendItemMove(uint8 subcommand);
