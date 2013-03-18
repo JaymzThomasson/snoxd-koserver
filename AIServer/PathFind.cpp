@@ -353,7 +353,7 @@ _PathNode *CPathFind::Pop()
 
 BOOL CPathFind::IsBlankMap(int x, int y)
 {
-	if (x < 0 || y < 0 || x > m_vMapSize.cx || y > m_vMapSize.cy) 
+	if (x < 0 || y < 0 || x >= m_vMapSize.cx || y >= m_vMapSize.cy) 
 		return FALSE;
 
 	return !m_pMap[x * m_vMapSize.cx + y];
