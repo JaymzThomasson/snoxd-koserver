@@ -358,17 +358,15 @@ void CEbenezerDlg::DeleteParty(short sIndex)
 
 void CEbenezerDlg::OnTimer(UINT nIDEvent) 
 {
-	int count = 0, retval = 0;
-
-	switch( nIDEvent ) {
-	case GAME_TIME:
+	if (nIDEvent == s_dwGameTimerID)
+	{
 		UpdateGameTime();
 		if (++m_sErrorSocketCount > 3)
 			AIServerConnect();
-		break;
-	case ALIVE_TIME:
+	}
+	else if (nIDEvent == s_dwAliveTimerID)
+	{
 		CheckAliveUser();
-		break;
 	}
 }
 
