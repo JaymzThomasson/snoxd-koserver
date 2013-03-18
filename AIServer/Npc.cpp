@@ -1551,7 +1551,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 		count++;
 	}	
 	
-	if(count <= 0 || m_pPath == NULL || count >= MAX_PATH_LINE)	{	
+	if(count <= 0 || count >= MAX_PATH_LINE)	{	
 		//TRACE("#### PathFind Fail : nid=%d,%s, count=%d ####\n", m_sNid+NPC_BAND, m_proto->m_strName, count);
 		return 0;
 	}
