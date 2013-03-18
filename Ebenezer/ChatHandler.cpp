@@ -54,8 +54,7 @@ void CUser::Chat(Packet & pkt)
 {
 	Packet result(WIZ_CHAT);
 	uint8 type = pkt.read<uint8>();
-	char finalstr[1024] = ""; 
-	std::string buff, chatstr;
+	std::string buff, chatstr, finalstr;
 	bool isAnnouncement = false;
 
 	if (isMuted())
@@ -89,10 +88,8 @@ void CUser::Chat(Packet & pkt)
 
 		// This is horrible, but we'll live with it for now.
 		// Pull the notice string (#### NOTICE : %s ####) from the database.
-		string noticeText = g_pMain.GetServerResource(IDP_ANNOUNCEMENT);
-		
 		// Format the chat string around it, so our chat data is within the notice
-		sprintf_s(finalstr, sizeof(finalstr), noticeText.c_str(), chatstr.c_str());
+		g_pMain.GetServerResource(IDP_ANNOUNCEMENT, finalstr, chatstr.c_str());
 
 		bNation = KARUS; // arbitrary nation
 		sessID = -1;

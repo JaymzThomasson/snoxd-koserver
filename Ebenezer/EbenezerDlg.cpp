@@ -204,18 +204,19 @@ bool CEbenezerDlg::LoadTables()
 			&& LoadBattleTable());
 }
 
-// TO-DO: Make this string pass-by-reference
-string CEbenezerDlg::GetServerResource(int nResourceID)
+void CEbenezerDlg::GetServerResource(int nResourceID, string & result, ...)
 {
 	_SERVER_RESOURCE *pResource = m_ServerResourceArray.GetData(nResourceID);
-	string result = "";
-
 	if (pResource == NULL)
+	{
 		result = nResourceID;	
-	else
-		result = pResource->strResource;
+		return;
+	}
 
-	return result;
+	va_list args;
+	va_start(args, result);
+	result = _string_format(pResource->strResource, args);
+	va_end(args);
 }
 
 _START_POSITION *CEbenezerDlg::GetStartPosition(int nZoneID)
@@ -1154,9 +1155,10 @@ BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg)
 void CEbenezerDlg::SendNotice(const char *msg, uint8 bNation /*= 0*/)
 {
 	Packet data(WIZ_CHAT);
-	char buffer[512];
+	string buffer;
 
-	sprintf_s(buffer, sizeof(buffer), GetServerResource(IDP_ANNOUNCEMENT).c_str(), msg);
+	
+	GetServerResource(IDP_ANNOUNCEMENT, buffer, msg);
 	data  << uint8(PUBLIC_CHAT)		// chat type 
 		  << uint8(1)				// nation
 		  << int16(-1)				// session ID
@@ -1523,43 +1525,43 @@ void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 	{
 		case BATTLEZONE_OPEN:
 		case SNOW_BATTLEZONE_OPEN:
-			chatstr = GetServerResource(IDP_BATTLEZONE_OPEN);
+			GetServerResource(IDP_BATTLEZONE_OPEN, chatstr);
 			break;
 
 		case DECLARE_WINNER:
 			if (m_bVictory == KARUS)
-				chatstr = string_format(GetServerResource(IDP_KARUS_VICTORY), m_sElmoradDead, m_sKarusDead);
+				GetServerResource(IDP_KARUS_VICTORY, chatstr, m_sElmoradDead, m_sKarusDead);
 			else if (m_bVictory == ELMORAD)
-				chatstr = string_format(GetServerResource(IDP_ELMORAD_VICTORY), m_sKarusDead, m_sElmoradDead);
+				GetServerResource(IDP_ELMORAD_VICTORY, chatstr, m_sKarusDead, m_sElmoradDead);
 			else 
 				return;
 			break;
 		case DECLARE_LOSER:
 			if (m_bVictory == KARUS)
-				chatstr = string_format(GetServerResource(IDS_ELMORAD_LOSER), m_sKarusDead, m_sElmoradDead);
+				GetServerResource(IDS_ELMORAD_LOSER, chatstr, m_sKarusDead, m_sElmoradDead);
 			else if (m_bVictory == ELMORAD)
-				chatstr = string_format(GetServerResource(IDS_KARUS_LOSER), m_sElmoradDead, m_sKarusDead);
+				GetServerResource(IDS_KARUS_LOSER, chatstr, m_sElmoradDead, m_sKarusDead);
 			else 
 				return;
 			break;
 
 		case DECLARE_BAN:
-			chatstr = GetServerResource(IDS_BANISH_USER);
+			GetServerResource(IDS_BANISH_USER, chatstr);
 			break;
 		case BATTLEZONE_CLOSE:
-			chatstr = GetServerResource(IDS_BATTLE_CLOSE);
+			GetServerResource(IDS_BATTLE_CLOSE, chatstr);
 			break;
 		case KARUS_CAPTAIN_NOTIFY:
-			chatstr = GetServerResource(IDS_KARUS_CAPTAIN);
+			GetServerResource(IDS_KARUS_CAPTAIN, chatstr);
 			break;
 		case ELMORAD_CAPTAIN_NOTIFY:
-			chatstr = string_format(GetServerResource(IDS_ELMO_CAPTAIN), m_strElmoradCaptain);
+			GetServerResource(IDS_ELMO_CAPTAIN, chatstr, m_strElmoradCaptain);
 			break;
 		case KARUS_CAPTAIN_DEPRIVE_NOTIFY:
-			chatstr = string_format(GetServerResource(IDS_KARUS_CAPTAIN_DEPRIVE), m_strKarusCaptain);
+			GetServerResource(IDS_KARUS_CAPTAIN_DEPRIVE, chatstr, m_strKarusCaptain);
 			break;
 		case ELMORAD_CAPTAIN_DEPRIVE_NOTIFY:
-			chatstr = string_format(GetServerResource(IDS_ELMO_CAPTAIN_DEPRIVE), m_strElmoradCaptain);
+			GetServerResource(IDS_ELMO_CAPTAIN_DEPRIVE, chatstr, m_strElmoradCaptain);
 			break;
 	}
 
@@ -1877,8 +1879,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 	if (pSet.nKarusCount > 0)
 	{
 		Packet result(WIZ_CHAT, uint8(WAR_SYSTEM_CHAT));
-		strKarusCaptainNames = GetServerResource(IDS_KARUS_CAPTAIN);
-		strKarusCaptainNames = string_format(strKarusCaptainNames, 
+		GetServerResource(IDS_KARUS_CAPTAIN, strKarusCaptainNames, 
 			pSet.strKarusCaptain[0], pSet.strKarusCaptain[1], pSet.strKarusCaptain[2], 
 			pSet.strKarusCaptain[3], pSet.strKarusCaptain[4]);
 
@@ -1889,8 +1890,7 @@ BOOL CEbenezerDlg::LoadKnightsRankTable()
 	if (pSet.nElmoCount > 0)
 	{
 		Packet result(WIZ_CHAT, uint8(WAR_SYSTEM_CHAT));
-		strElmoCaptainNames = GetServerResource(IDS_ELMO_CAPTAIN);
-		strElmoCaptainNames = string_format(strElmoCaptainNames, 
+		GetServerResource(IDS_ELMO_CAPTAIN, strElmoCaptainNames,
 			pSet.strElmoCaptain[0], pSet.strElmoCaptain[1], pSet.strElmoCaptain[2], 
 			pSet.strElmoCaptain[3], pSet.strElmoCaptain[4]);
 

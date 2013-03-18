@@ -12,16 +12,23 @@ typedef std::wstring tstring;
 typedef std::string tstring;
 #endif
 
-static std::string string_format(const std::string fmt, ...)
+static std::string _string_format(const std::string fmt, va_list args)
 {
 	char buffer[1024];
+	_vsnprintf_s(buffer, sizeof(buffer), sizeof(buffer), fmt.c_str(), args);
+	return buffer;
+}
+
+static std::string string_format(const std::string fmt, ...)
+{
+	std::string result;
 	va_list ap;
 
 	va_start(ap, fmt);
-	_vsnprintf_s(buffer, sizeof(buffer), sizeof(buffer), fmt.c_str(), ap);
+	result = _string_format(fmt, ap);
 	va_end(ap);
 
-	return buffer;
+	return result;
 }
 
 template<int (&F)(int)> int safe_ctype(unsigned char c) { return F(c); } 

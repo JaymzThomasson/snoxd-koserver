@@ -116,8 +116,10 @@ bool CKnights::RemoveUser(CUser *pUser)
 
 void CKnights::Disband(CUser *pLeader /*= NULL*/)
 {
-	string clanNotice = g_pMain.GetServerResource(m_byFlag == CLAN_TYPE ? IDS_CLAN_DESTROY : IDS_KNIGHTS_DESTROY);
-	SendChat(clanNotice.c_str(), m_strName);
+	string clanNotice;
+	g_pMain.GetServerResource(m_byFlag == CLAN_TYPE ? IDS_CLAN_DESTROY : IDS_KNIGHTS_DESTROY, 
+		clanNotice, m_strName.c_str());
+	SendChat(clanNotice.c_str());
 
 	foreach_array (i, m_arKnightsUser)
 	{

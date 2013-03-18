@@ -639,10 +639,7 @@ void CAISocket::RecvNpcInOut(Packet & pkt)
 
 void CAISocket::RecvBattleEvent(Packet & pkt)
 {
-	int retvalue = 0;
-	std::string strMaxUserName;
-	string strKnightsName;
-	char chatstr[1024];
+	string chatstr, strMaxUserName, strKnightsName;
 	CUser* pUser = NULL;
 	CKnights* pKnights = NULL;
 
@@ -756,7 +753,7 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 			return;
 		}
 
-		_snprintf(chatstr, sizeof(chatstr), g_pMain.GetServerResource(nResourceID).c_str(), strKnightsName, strMaxUserName);
+		g_pMain.GetServerResource(nResourceID, strKnightsName, strMaxUserName.c_str());
 
 #if 0
 		send_index = 0;

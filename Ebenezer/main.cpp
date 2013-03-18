@@ -7,6 +7,7 @@ CEbenezerDlg g_pMain;
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
 static DWORD s_dwMainThreadID;
 
+typedef std::tr1::function<void (int)> TimerCallback;
 int main()
 {
 	SetConsoleTitle("Game server for Knight Online v" STRINGIFY(__VERSION));

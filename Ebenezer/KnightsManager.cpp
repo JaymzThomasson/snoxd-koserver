@@ -519,7 +519,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, BYTE command)
 	case KNIGHTS_REMOVE:
 		if (pTUser != NULL)
 		{
-			clanNotice = g_pMain.GetServerResource(IDS_KNIGHTS_REMOVE);
+			g_pMain.GetServerResource(IDS_KNIGHTS_REMOVE, clanNotice);
 			pKnights->RemoveUser(pTUser);
 		}
 		else
@@ -544,14 +544,14 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, BYTE command)
 		if (pTUser != NULL)
 		{
 			pTUser->m_bFame = CHIEF;
-			clanNotice = g_pMain.GetServerResource(IDS_KNIGHTS_CHIEF);
+			g_pMain.GetServerResource(IDS_KNIGHTS_CHIEF, clanNotice);
 		}
 		break;
 	case KNIGHTS_VICECHIEF:
 		if (pTUser != NULL)
 		{
 			pTUser->m_bFame = VICECHIEF;
-			clanNotice = g_pMain.GetServerResource(IDS_KNIGHTS_VICECHIEF);
+			g_pMain.GetServerResource(IDS_KNIGHTS_VICECHIEF, clanNotice);
 		}
 		break;
 	case KNIGHTS_OFFICER:

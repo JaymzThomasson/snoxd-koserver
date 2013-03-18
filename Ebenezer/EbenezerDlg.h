@@ -177,7 +177,7 @@ public:
 	void Send_All(Packet *pkt, CUser* pExceptUser = NULL, uint8 nation = 0);
 	void Send_AIServer(Packet *pkt);
 
-	std::string GetServerResource(int nResourceID);
+	void GetServerResource(int nResourceID, std::string & result, ...);
 	_START_POSITION *GetStartPosition(int nZoneID);
 
 	long GetExpByLevel(int nLevel);
