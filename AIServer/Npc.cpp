@@ -274,7 +274,7 @@ void CNpc::InitMagicValuable()
 	for(int i=0; i<MAX_MAGIC_TYPE4; i++)	{
 		m_MagicType4[i].byAmount = 100;
 		m_MagicType4[i].sDurationTime = 0;
-		m_MagicType4[i].fStartTime = 0.0f;
+		m_MagicType4[i].fStartTime = 0;
 	}
 
 	for(int i=0; i<MAX_MAGIC_TYPE3; i++)	{
@@ -282,7 +282,7 @@ void CNpc::InitMagicValuable()
 		m_MagicType3[i].sHPAmount = 0;
 		m_MagicType3[i].byHPDuration = 0;
 		m_MagicType3[i].byHPInterval = 2;
-		m_MagicType3[i].fStartTime = 0.0f;
+		m_MagicType3[i].fStartTime = 0;
 	}
 }
 
@@ -5434,7 +5434,7 @@ void CNpc::DurationMagic_4(uint32 currenttime)
 		if (m_MagicType4[i].sDurationTime) {
 			if (currenttime > (m_MagicType4[i].fStartTime + m_MagicType4[i].sDurationTime)) {
 				m_MagicType4[i].sDurationTime = 0;		
-				m_MagicType4[i].fStartTime = 0.0f;
+				m_MagicType4[i].fStartTime = 0;
 				m_MagicType4[i].byAmount = 0;
 				buff_type = i+1 ;
 				if(i == 5)	{					// 속도 관련... 능력치..
@@ -5532,7 +5532,7 @@ void CNpc::DurationMagic_3(uint32 currenttime)
 						SendDead();
 						SendAttackSuccess(MAGIC_ATTACK_TARGET_DEAD, m_MagicType3[i].sHPAttackUserID, duration_damage, m_iHP, 1, DURATION_ATTACK);
 						//TRACE("&&&& Duration Magic attack .. pNpc->m_byHPInterval[%d] = %d &&&& \n", i, m_MagicType3[i].byHPInterval);
-						m_MagicType3[i].fStartTime = 0.0f;
+						m_MagicType3[i].fStartTime = 0;
 						m_MagicType3[i].byHPDuration = 0;
 						m_MagicType3[i].byHPInterval = 2;
 						m_MagicType3[i].sHPAmount = 0;
@@ -5546,7 +5546,7 @@ void CNpc::DurationMagic_3(uint32 currenttime)
 				}
 
 				if (currenttime >= (m_MagicType3[i].fStartTime + m_MagicType3[i].byHPDuration)) {	// 총 공격시간..
-					m_MagicType3[i].fStartTime = 0.0f;
+					m_MagicType3[i].fStartTime = 0;
 					m_MagicType3[i].byHPDuration = 0;
 					m_MagicType3[i].byHPInterval = 2;
 					m_MagicType3[i].sHPAmount = 0;

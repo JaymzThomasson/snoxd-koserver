@@ -1,6 +1,5 @@
 #pragma once
 
-class CVersionManagerDlg;
 class LoginSession : public KOSocket
 {
 public:
