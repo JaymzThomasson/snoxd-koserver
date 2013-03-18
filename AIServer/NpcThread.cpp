@@ -25,7 +25,7 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 	srand( (unsigned)time( NULL ) );
 	myrand( 1, 10000 ); myrand( 1, 10000 );
 
-	uint32 fTime2 = 0, fTime3 = 0;
+	uint32 fTime2 = 0;
 	int    duration_damage=0;
 
 	if(!pInfo) return 0;
@@ -42,8 +42,7 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 			//if( pNpc->m_bFirstLive ) continue;
 			if( pNpc->m_sNid < 0 ) continue;		// 잘못된 몬스터 (임시코드 2002.03.24)
 
-			fTime3 = fTime2 - pNpc->m_fDelayTime;
-			dwTickTime = (DWORD)(fTime3 * 1000);
+			dwTickTime = fTime2 - pNpc->m_fDelayTime;
 
 			//if(i==0)
 			//TRACE("thread time = %.2f, %.2f, %.2f, delay=%d, state=%d, nid=%d\n", pNpc->m_fDelayTime, fTime2, fTime3, dwTickTime, pNpc->m_NpcState, pNpc->m_sNid+NPC_BAND);
@@ -62,9 +61,7 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 				continue;
 			}	
 			
-			fTime3 = fTime2 - pNpc->m_fHPChangeTime;
-			dwTickTime = (DWORD)(fTime3 * 1000);
-
+			dwTickTime = fTime2 - pNpc->m_fHPChangeTime;
 			if( 10000 < dwTickTime )	{	// 10초마다 HP를 회복 시켜준다
 				pNpc->HpChange();
 			}
