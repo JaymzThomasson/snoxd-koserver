@@ -310,10 +310,11 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto)
 	m_sDamage			= proto->m_sDamage;		// 기본 데미지
 	m_sAttackDelay		= proto->m_sAttackDelay;// 공격딜레이
 	m_sSpeed			= proto->m_sSpeed;		// 이동속도
-	m_fSpeed_1			= (float)proto->m_bySpeed_1;	// 기본 이동 타입
-	m_fSpeed_2			= (float)proto->m_bySpeed_2;	// 뛰는 이동 타입..
-	m_fOldSpeed_1		= (float)proto->m_bySpeed_1;	// 기본 이동 타입
-	m_fOldSpeed_2		= (float)proto->m_bySpeed_2;	// 뛰는 이동 타입..
+
+	// Object NPCs should have an effective speed of 1x (not that it should matter, mind)
+	if (m_byObjectType == SPECIAL_OBJECT)
+		m_sSpeed = 1000;
+
 	m_fSpeed_1			= (float)(proto->m_bySpeed_1 * (m_sSpeed / 1000));	// 기본 이동 타입
 	m_fSpeed_2			= (float)(proto->m_bySpeed_2 * (m_sSpeed / 1000));	// 뛰는 이동 타입..
 	m_fOldSpeed_1		= (float)(proto->m_bySpeed_1 * (m_sSpeed / 1000));	// 기본 이동 타입
