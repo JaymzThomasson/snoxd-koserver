@@ -1,13 +1,4 @@
 #include "stdafx.h"
-#include "AISocket.h"
-#include "EbenezerDlg.h"
-#include "define.h"
-#include "AiPacket.h"
-#include "Npc.h"
-#include "user.h"
-#include "Map.h"
-#include "../shared/lzf.h"
-#include "../shared/crc32.h"
 
 bool CAISocket::HandlePacket(Packet & pkt)
 {

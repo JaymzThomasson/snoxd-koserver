@@ -1,13 +1,6 @@
 #include "stdafx.h"
 
 #if 0 // disabled pending rewrite
-#include "define.h"
-#include "UdpSocket.h"
-#include "EbenezerDlg.h"
-#include "AiPacket.h"
-#include "Knights.h"
-#include "User.h"
-
 DWORD WINAPI RecvUDPThread( LPVOID lp )
 {
 	CUdpSocket *pUdp = (CUdpSocket*)lp;

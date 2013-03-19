@@ -1,9 +1,4 @@
 #include "stdafx.h"
-#include "MagicProcess.h"
-#include "EbenezerDlg.h"
-#include "User.h"
-#include "Npc.h"
-#include "AiPacket.h"
 
 using namespace std;
 

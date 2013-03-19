@@ -1,9 +1,6 @@
 #pragma once
 
-#include "define.h"
-#include "GameDefine.h"
 #include "MagicProcess.h"
-#include "Npc.h"
 #include "EVENT.h"
 #include "EVENT_DATA.h"
 #include "LOGIC_ELSE.h"
@@ -13,8 +10,6 @@
 #include <vector>
 
 #include "ChatHandler.h"
-
-#include "../shared/KOSocket.h"
 
 typedef	 std::list<_EXCHANGE_ITEM*>		ItemList;
 typedef  std::list<int>					UserEventList;

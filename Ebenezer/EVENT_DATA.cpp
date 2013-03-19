@@ -1,8 +1,4 @@
 #include "stdafx.h"
-#include "Define.h"
-#include "EVENT_DATA.h"
-#include "EXEC.h"
-#include "LOGIC_ELSE.h"
 
 EVENT_DATA::EVENT_DATA()
 {

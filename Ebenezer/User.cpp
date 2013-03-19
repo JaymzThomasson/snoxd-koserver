@@ -1,12 +1,4 @@
-// User.cpp: implementation of the CUser class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
-#include "EbenezerDlg.h"
-#include "User.h"
-#include "AiPacket.h"
-#include "Map.h"
 #include <set>
 
 using namespace std;

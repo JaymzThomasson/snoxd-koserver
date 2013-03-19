@@ -1,6 +1,4 @@
 #include "stdafx.h"
-#include "User.h"
-#include "GameEvent.h"
 
 CGameEvent::CGameEvent() : m_bType(0)
 {

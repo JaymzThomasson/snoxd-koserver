@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "KOSocket.h"
 #include "packets.h"
-#include "lzf.h"
 #include "version.h"
 
 KOSocket::KOSocket(uint16 socketID, SocketMgr * mgr, SOCKET fd, uint32 sendBufferSize, uint32 recvBufferSize) 

@@ -3,6 +3,7 @@
 #include "SocketMgr.h"
 #include "Packet.h"
 #include "JvCryption.h"
+#include "lzf.h"
 
 class KOSocket : public Socket
 {

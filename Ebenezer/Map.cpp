@@ -1,13 +1,4 @@
-// Map.cpp: implementation of the CMap class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
-#include "Map.h"
-#include "Region.h"
-#include "Define.h"
-#include "User.h"
-#include "EbenezerDlg.h"
 
 using namespace std;
 

@@ -186,10 +186,8 @@ typedef const u8 *LZF_STATE[1 << (HLOG)];
 
 #if __GNUC__ >= 3
 # define expect(expr,value)         __builtin_expect ((expr),(value))
-# define inline                     inline
 #else
 # define expect(expr,value)         (expr)
-# define inline                     static
 #endif
 
 #define expect_false(expr) expect ((expr) != 0, 0)

@@ -1,6 +1,4 @@
 #include "stdafx.h"
-#include "Define.h"
-#include "LOGIC_ELSE.h"
 
 LOGIC_ELSE::LOGIC_ELSE() : m_bAnd(TRUE)
 {

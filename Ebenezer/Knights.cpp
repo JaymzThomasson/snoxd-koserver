@@ -1,8 +1,4 @@
 #include "stdafx.h"
-#include "Knights.h"
-#include "User.h"
-#include "GameDefine.h"
-#include "EbenezerDlg.h"
 
 CKnights::CKnights()
 {

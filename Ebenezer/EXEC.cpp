@@ -1,6 +1,4 @@
 #include "stdafx.h"
-#include "Define.h"
-#include "EXEC.h"
 
 EXEC::EXEC()
 {
