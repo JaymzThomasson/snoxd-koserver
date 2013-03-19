@@ -6,7 +6,7 @@ ON a.default_object_id = b.object_id
 WHERE a.object_id = OBJECT_ID('USERDATA')
 AND a.name = 'HairColor'
 IF (@constraint IS NOT NULL)
-	EXEC('ALTER TABLE USERDATA DROP CONSTRAINT ' + @name)
+	EXEC('ALTER TABLE USERDATA DROP CONSTRAINT ' + @constraint)
 GO
 ALTER TABLE USERDATA DROP COLUMN HairColor
 GO
