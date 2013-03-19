@@ -9,8 +9,6 @@
 #include "../shared/lzf.h"
 #include "../shared/crc32.h"
 
-extern CRITICAL_SECTION g_LogFile_critical;
-
 bool CAISocket::HandlePacket(Packet & pkt)
 {
 	switch (pkt.GetOpcode())

@@ -37,15 +37,12 @@
 
 using namespace std;
 
-#define GAME_TIME       	100
-#define ALIVE_TIME			400
-
 #define NUM_FLAG_VICTORY    4
 #define AWARD_GOLD          100000
 #define AWARD_EXP			5000
 
 CDBAgent g_DBAgent;
-CRITICAL_SECTION g_serial_critical, g_region_critical, g_LogFile_critical;
+CRITICAL_SECTION g_serial_critical, g_region_critical;
 
 KOSocketMgr<CUser> CEbenezerDlg::s_socketMgr;
 ClientSocketMgr<CAISocket> CEbenezerDlg::s_aiSocketMgr;
@@ -131,7 +128,6 @@ bool CEbenezerDlg::Startup()
 	m_bServerCheckFlag = FALSE;
 
 	InitializeCriticalSection( &g_region_critical );
-	InitializeCriticalSection( &g_LogFile_critical );
 	InitializeCriticalSection( &g_serial_critical );
 
 	GetTimeFromIni();
@@ -1950,7 +1946,6 @@ CEbenezerDlg::~CEbenezerDlg()
 	DatabaseThread::Shutdown();
 
 	DeleteCriticalSection(&g_region_critical);
-	DeleteCriticalSection(&g_LogFile_critical);
 	DeleteCriticalSection(&g_serial_critical);
 	
 	CUser::CleanupChatCommands();

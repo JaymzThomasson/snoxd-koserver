@@ -197,8 +197,6 @@ enum ItemMovementType
 #define ATTRIBUTE_ICE				2
 #define ATTRIBUTE_LIGHTNING			3
 
-//extern CRITICAL_SECTION g_LogFile_critical;
-
 struct _CLASS_COEFFICIENT
 {
 	uint16	sClassNum;
