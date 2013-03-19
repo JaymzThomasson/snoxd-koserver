@@ -1536,22 +1536,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 
 	for(i=0; i<count; i++)
 	{
-		if(i==1)
-		{
-			if(i==(count-1))
-			{
-				m_pPoint[i].fXPos = m_fEndPoint_X;
-				m_pPoint[i].fZPos = m_fEndPoint_Y;
-			}
-			else
-			{
-				x1 = (float)(m_pPoint[i].pPoint.x * TILE_SIZE + m_fAdd_x);
-				z1 = (float)(m_pPoint[i].pPoint.y * TILE_SIZE + m_fAdd_z);
-				m_pPoint[i].fXPos = x1;
-				m_pPoint[i].fZPos = z1;
-			}
-		}
-		else if(i==(count-1))
+		if(i==(count-1))
 		{
 			m_pPoint[i].fXPos = m_fEndPoint_X;
 			m_pPoint[i].fZPos = m_fEndPoint_Y;
