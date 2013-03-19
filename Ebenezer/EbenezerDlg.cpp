@@ -1334,7 +1334,7 @@ void CEbenezerDlg::AliveUserCheck()
 
 		for (int k = 0; k < MAX_TYPE3_REPEAT; k++)
 		{
-			if ((currenttime - pUser->m_fHPLastTime[k]) > 300)
+			if ((currenttime - pUser->m_fHPLastTime[k]) >= PLAYER_IDLE_TIME)
 			{
 				pUser->Disconnect();
 				break;

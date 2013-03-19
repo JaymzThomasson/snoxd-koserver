@@ -368,7 +368,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 			pNpc->m_fCurY	= 0;
 			pNpc->m_fCurZ	= fRandom_Z;
 					
-			pNpc->m_sRegenTime		= sRegTime * 1000;
+			pNpc->m_sRegenTime		= sRegTime * SECOND;
 			pNpc->m_byDirection		= bDirection;
 			pNpc->m_sMaxPathCount	= bDotCnt;
 

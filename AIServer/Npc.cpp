@@ -37,7 +37,7 @@ static float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f,
 #define ELMORAD_MAN				2
 
 #define ATTACK_LIMIT_LEVEL		10
-#define FAINTING_TIME			2
+#define FAINTING_TIME			(2 * SECOND)
 
 extern CRITICAL_SECTION g_region_critical;
 
@@ -338,7 +338,7 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto)
 	m_byWhatAttackType	= proto->m_byDirectAttack;
 
 
-	m_sRegenTime		= 10000 * 1000;	// 초(DB)단위-> 밀리세컨드로
+	m_sRegenTime		= 10000 * SECOND;	// 초(DB)단위-> 밀리세컨드로
 	m_sMaxPathCount		= 0;
 	m_tItemPer			= proto->m_tItemPer;	// NPC Type
 	m_tDnPer			= proto->m_tDnPer;	// NPC Type
@@ -5433,7 +5433,7 @@ void CNpc::DurationMagic_4(uint32 currenttime)
 
 	for(int i=0; i<MAX_MAGIC_TYPE4; i++)	{
 		if (m_MagicType4[i].sDurationTime) {
-			if (currenttime > (m_MagicType4[i].fStartTime + m_MagicType4[i].sDurationTime)) {
+			if (currenttime > (m_MagicType4[i].fStartTime + (m_MagicType4[i].sDurationTime * SECOND))) {
 				m_MagicType4[i].sDurationTime = 0;		
 				m_MagicType4[i].fStartTime = 0;
 				m_MagicType4[i].byAmount = 0;
@@ -5517,7 +5517,7 @@ void CNpc::DurationMagic_3(uint32 currenttime)
 
 	for(int i=0; i<MAX_MAGIC_TYPE3; i++)	{
 		if (m_MagicType3[i].byHPDuration) {
-			if (currenttime >= (m_MagicType3[i].fStartTime + m_MagicType3[i].byHPInterval)) {		// 2초간격으로
+			if (currenttime >= (m_MagicType3[i].fStartTime + (m_MagicType3[i].byHPInterval * SECOND))) {		// 2초간격으로
 				m_MagicType3[i].byHPInterval += 2;
 				//TRACE("DurationMagic_3,, [%d] curtime = %.2f, dur=%.2f, nid=%d, damage=%d\n", i, currenttime, m_MagicType3[i].fStartTime, m_sNid+NPC_BAND, m_MagicType3[i].sHPAmount);
 
@@ -5546,7 +5546,7 @@ void CNpc::DurationMagic_3(uint32 currenttime)
 					}
 				}
 
-				if (currenttime >= (m_MagicType3[i].fStartTime + m_MagicType3[i].byHPDuration)) {	// 총 공격시간..
+				if (currenttime >= (m_MagicType3[i].fStartTime + (m_MagicType3[i].byHPDuration * SECOND))) {	// 총 공격시간..
 					m_MagicType3[i].fStartTime = 0;
 					m_MagicType3[i].byHPDuration = 0;
 					m_MagicType3[i].byHPInterval = 2;

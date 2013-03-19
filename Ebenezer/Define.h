@@ -191,10 +191,9 @@ enum InOutType
 	INOUT_SUMMON	= 5
 };
 
-////////////////// Resurrection related ////////////////////
-#define BLINK_TIME				15
-#define CLAN_SUMMON_TIME		180
-////////////////////////////////////////////////////////////
+#define BLINK_TIME				(15  * SECOND)
+#define CLAN_SUMMON_TIME		(180 * SECOND)
+#define PLAYER_IDLE_TIME		(300 * SECOND)
 
 // ==================================================================
 //	About Map Object

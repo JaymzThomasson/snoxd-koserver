@@ -388,12 +388,12 @@ bool CUser::HandlePacket(Packet & pkt)
 		fill_n(m_fHPLastTime, MAX_TYPE3_REPEAT, currenttime);
 	}	
 
-	if (!isBlinking() && m_fHPLastTimeNormal != 0.0f && (currenttime - m_fHPLastTimeNormal) > m_bHPIntervalNormal)
+	if (!isBlinking() && m_fHPLastTimeNormal != 0.0f && (currenttime - m_fHPLastTimeNormal) > (m_bHPIntervalNormal * SECOND))
 		HPTimeChange( currenttime );	// For Sitdown/Standup HP restoration.
 
 	if (m_bType3Flag) {     // For Type 3 HP Duration.
 		for (int i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {	
-			if( m_fHPLastTime[i] != 0.0f && (currenttime - m_fHPLastTime[i]) > m_bHPInterval[i] ) {
+			if( m_fHPLastTime[i] != 0.0f && (currenttime - m_fHPLastTime[i]) > (m_bHPInterval[i] * SECOND) ) {
 				HPTimeChangeType3(currenttime);	
 				break;
 			}
@@ -403,7 +403,7 @@ bool CUser::HandlePacket(Packet & pkt)
 	if (m_bType4Flag)		// For Type 4 Stat Duration.
 		Type4Duration(currenttime);
 	
-	if (m_bIsTransformed && (currenttime - m_fTransformationStartTime) > m_sTransformationDuration)
+	if (m_bIsTransformed && (currenttime - m_fTransformationStartTime) > (m_sTransformationDuration * SECOND))
 		m_MagicProcess.Type6Cancel();
 
 	if (isBlinking())		// Should you stop blinking?
@@ -2206,7 +2206,7 @@ void CUser::HPTimeChangeType3(uint32 currenttime)
 	{
 		if (m_bHPDuration[i] > 0)
 		{
-			if (isDead() || ((currenttime - m_fHPStartTime[i]) >= m_bHPDuration[i]) || isDead())
+			if (isDead() || ((currenttime - m_fHPStartTime[i]) >= (m_bHPDuration[i] * SECOND)) || isDead())
 			{
 				Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
 
@@ -2250,7 +2250,7 @@ void CUser::Type4Duration(uint32 currenttime)
 	for (int i = 0; i < MAX_TYPE4_BUFF; i++)
 	{
 		if (m_sDuration[i] == 0
-			|| currenttime <= (m_fStartTime[i] + m_sDuration[i]))
+			|| currenttime <= (m_fStartTime[i] + (m_sDuration[i] * SECOND)))
 			continue;
 
 		m_sDuration[i] = 0;
@@ -2432,7 +2432,7 @@ void CUser::Type3AreaDuration(uint32 currenttime)
 	if (pType == NULL)
 		return;
 
-	if (m_fAreaLastTime != 0 && (currenttime - m_fAreaLastTime) > m_bAreaInterval)
+	if (m_fAreaLastTime != 0 && (currenttime - m_fAreaLastTime) > (m_bAreaInterval * SECOND))
 	{
 		m_fAreaLastTime = currenttime;
 		if (isDead())
@@ -2458,7 +2458,7 @@ void CUser::Type3AreaDuration(uint32 currenttime)
 		}
 
 
-		if ( (( currenttime - m_fAreaStartTime) >= pType->bDuration))
+		if ( (( currenttime - m_fAreaStartTime) >= (pType->bDuration * SECOND)))
 		{ // Did area duration end? 			
 			m_bAreaInterval = 5;
 			m_fAreaStartTime = 0;

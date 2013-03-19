@@ -19,6 +19,9 @@
 
 #define VIEW_DISTANCE		48
 
+// Define a second as 1000ms.
+#define SECOND				1000u
+
 enum NameType
 {
 	TYPE_ACCOUNT,
@@ -341,7 +344,7 @@ __forceinline uint32 getMSTime()
 #else
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
-	return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+	return (tv.tv_sec * SECOND) + (tv.tv_usec / SECOND);
 #endif
 }
 
