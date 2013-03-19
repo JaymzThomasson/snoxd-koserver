@@ -173,14 +173,9 @@ void CUser::ZoneChange(int zone, float x, float z)
 		}
 //
 		else if( pMap->m_bType == 2 && zone == ZONE_FRONTIER ) {	 // You can't go to frontier zone when Battlezone is open.
-			int temp_index = 0;
-			char temp_buff[3];
-
-			SetByte( temp_buff, WIZ_WARP_LIST, temp_index );
-			SetByte( temp_buff, 2, temp_index );
-			SetByte( temp_buff,0, temp_index );
-			Send(temp_buff, temp_index);
-//
+			Packet result(WIZ_WARP_LIST, uint8(2));
+			result << uint8(0);
+			Send(&result);
 			return;
 		}
 //

@@ -83,7 +83,6 @@ public:
 	void CheckAliveTest();
 	void DeleteUserList(int uid);
 	void DeleteAllUserList(CGameSocket *pSock = NULL);
-	void Send(char* pData, int length); // DEPRECATED
 	void Send(Packet * pkt);
 	void SendSystemMsg( char* pMsg, int type=0, int who=0 );
 	void ResetBattleZone();

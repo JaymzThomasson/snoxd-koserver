@@ -130,16 +130,17 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 	pkt.SByte();
 	for (int i = 0; i < bCount; i++)
 	{
-		uint8 bType, bDirection;
+		uint8 bDirection;
 		std::string strName;
 
 		CNpc* pNpc = new CNpc();
 		pNpc->Initialize();
 
-		pkt >> bType >> pNpc->m_sNid >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
-			>> pNpc->m_bZone >> strName >> pNpc->m_bNation >> pNpc->m_bLevel >> pNpc->m_curx >> pNpc->m_curz >> pNpc->m_cury
-			>> bDirection >> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP >> pNpc->m_byGateOpen 
-			>> pNpc->m_sTotalHitrate >> pNpc->m_sTotalEvasionrate >> pNpc->m_sTotalAc >> pNpc->m_byObjectType 
+		pkt >> pNpc->m_NpcState >> pNpc->m_sNid >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
+			>> pNpc->m_bZone >> strName >> pNpc->m_bNation >> pNpc->m_bLevel
+			>> pNpc->m_curx >> pNpc->m_curz >> pNpc->m_cury >> bDirection >> pNpc->m_NpcState
+			>> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP >> pNpc->m_byGateOpen
+			>> pNpc->m_sTotalHitrate >> pNpc->m_sTotalEvasionrate >> pNpc->m_sTotalAc >> pNpc->m_byObjectType
 			>> pNpc->m_byTrapNumber;
 
 		if (strName.empty() || strName.length() > MAX_NPC_SIZE)
@@ -152,7 +153,6 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 		strcpy(pNpc->m_strName, strName.c_str());
 
 		pNpc->m_pMap = g_pMain.GetZoneByID(pNpc->GetZoneID());
-		pNpc->m_NpcState = NPC_LIVE;
 		pNpc->m_byDirection = bDirection;
 		pNpc->SetRegion(pNpc->GetNewRegionX(), pNpc->GetNewRegionZ());
 
@@ -178,7 +178,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 			continue;
 		}
 
-		if (bType == 0)
+		if (pNpc->m_NpcState == NPC_DEAD)
 		{
 			TRACE("Recv --> NpcUserInfoAll : nid=%d, sid=%d, name=%s\n", pNpc->GetID(), pNpc->m_sSid, strName.c_str());
 			continue;

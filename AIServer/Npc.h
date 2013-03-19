@@ -332,7 +332,7 @@ protected:
 
 public:
 
-	void FillNpcInfo(char *temp_send, int &index, BYTE flag);
+	void FillNpcInfo(Packet & result);
 	void NpcStrategy(BYTE type);
 	void NpcTypeParser();
 	int  FindFriend(int type=0);
@@ -394,7 +394,6 @@ public:
 
 	// Packet Send부분..
 	void SendAttackSuccess(BYTE byResult, int tuid, short sDamage, int nHP=0, BYTE byFlag = 0, short sAttack_type=1);
-	void SendNpcInfoAll(char *temp_send, int &index, int count);	// game server에 npc정보를 전부 전송...
 
 	// Inline Function
 	BOOL SetUid(float x, float z, int id);

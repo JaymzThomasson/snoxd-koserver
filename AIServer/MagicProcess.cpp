@@ -206,8 +206,8 @@ packet_send:
 
 void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int data3, int moral, int dexpoint, int righthand_damage )   // Applied when a magical attack, healing, and mana restoration is done.
 {	
-	int damage = 0, result = 1, send_index=0, attack_type = 0; 
-	char send_buff[256];
+	int damage = 0, attack_type = 0; 
+	BOOL bResult = TRUE;
 	_MAGIC_TYPE3* pType = NULL;
 	CNpc* pNpc = NULL ;      // Pointer initialization!
 
@@ -216,7 +216,7 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 	if( !pMagic ) return; 
 
 	if(tid == -1)	{	// 지역 공격
-		result = AreaAttack(3, magicid, moral, data1, data2, data3, dexpoint, righthand_damage);
+		bResult = AreaAttack(3, magicid, moral, data1, data2, data3, dexpoint, righthand_damage);
 		//if(result == 0)		goto packet_send;
 		//else 
 			return;
@@ -224,7 +224,7 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 
 	pNpc = g_pMain.m_arNpc.GetData(tid-NPC_BAND);
 	if(pNpc == NULL || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
-		result = 0;
+		bResult = FALSE;
 		goto packet_send;
 	}
 	
@@ -246,14 +246,15 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 			//damage = pType->sFirstDamage;     // Reduce target health point
 //			if(damage >= 0)	{
 			if(damage > 0)	{
-				result = pNpc->SetHMagicDamage(damage);
+				bResult = pNpc->SetHMagicDamage(damage);
 			}
 			else	{
 				damage = abs(damage);
 				if(pType->bAttribute == 3)   attack_type = 3; // 기절시키는 마법이라면.....
 				else attack_type = magicid;
 
-				if(pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_strUserID, m_pSrcUser->m_iUserId + USER_BAND) == FALSE)	{
+				if (!pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_strUserID, m_pSrcUser->m_iUserId + USER_BAND))
+				{
 					// Npc가 죽은 경우,,
 					pNpc->SendExpToUserList(); // 경험치 분배!!
 					pNpc->SendDead();
@@ -307,39 +308,35 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 packet_send:
 	//if ( pMagic->bType[1] == 0 || pMagic->bType[1] == 3 ) 
 	{
-		SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
-		SetByte( send_buff, MAGIC_EFFECTING, send_index );
-		SetDWORD( send_buff, magicid, send_index );
-		SetShort( send_buff, m_pSrcUser->m_iUserId, send_index );
-		SetShort( send_buff, tid, send_index );
-		SetShort( send_buff, data1, send_index );	
-		SetShort( send_buff, result, send_index );	
-		SetShort( send_buff, data3, send_index );	
-		SetShort( send_buff, moral, send_index );
-		SetShort( send_buff, 0, send_index );
-		SetShort( send_buff, 0, send_index );
-		g_pMain.Send( send_buff, send_index );
+		Packet result(AG_MAGIC_ATTACK_RESULT, uint8(MAGIC_EFFECTING));
+		result	<< magicid << m_pSrcUser->m_iUserId << uint16(tid)
+				<< uint16(data1) << uint16(bResult) << uint16(data3)
+				<< uint16(moral) << uint16(0) << uint16(0);
+		g_pMain.Send(&result);
 	}
 	
 }
 
 void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int data2, int data3, int moral )
 {
-	int damage = 0, send_index = 0, result = 1;     // Variable initialization. result == 1 : success, 0 : fail
-	char send_buff[128];
+	Packet result(AG_MAGIC_ATTACK_RESULT);
+	int damage = 0;
+	BOOL bResult = TRUE;
 
 	_MAGIC_TYPE4* pType = NULL;
 	CNpc* pNpc = NULL ;      // Pointer initialization!
 
 	if(tid == -1)	{	// 지역 공격
-		result = AreaAttack(4, magicid, moral, data1, data2, data3, 0, 0);
-		if(result == 0)		goto fail_return;
-		else return;
+		bResult = AreaAttack(4, magicid, moral, data1, data2, data3, 0, 0);
+		if (bResult)
+			return;
+
+		goto fail_return;
 	}
 
 	pNpc = g_pMain.m_arNpc.GetData(tid-NPC_BAND);
 	if(pNpc == NULL || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
-		result = 0;
+		bResult = FALSE;
 		goto fail_return;
 	}
 
@@ -386,37 +383,21 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			break;	
 
 		default :
-			result = 0 ;
+			bResult = FALSE;
 			goto fail_return;
 	}
 
-	SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
-	SetByte( send_buff, MAGIC_EFFECTING, send_index );
-	SetDWORD( send_buff, magicid, send_index );
-	SetShort( send_buff, sid, send_index );
-	SetShort( send_buff, tid, send_index );
-	SetShort( send_buff, data1, send_index );	
-	SetShort( send_buff, result, send_index );	
-	SetShort( send_buff, data3, send_index );	
-	SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
-	g_pMain.Send( send_buff, send_index );
+	result	<< uint8(MAGIC_EFFECTING) << magicid << uint16(sid) << uint16(tid)
+			<< uint16(data1) << uint16(bResult) << uint16(data3)
+			<< uint16(0) << uint16(0) << uint16(0);
+	g_pMain.Send(&result);
 	return;
 
 fail_return:
-	SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
-	SetByte( send_buff, MAGIC_FAIL, send_index );
-	SetDWORD( send_buff, magicid, send_index );
-	SetShort( send_buff, sid, send_index );
-	SetShort( send_buff, tid, send_index );
-	SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
-	g_pMain.Send( send_buff, send_index );
+	result	<< uint8(MAGIC_FAIL) << magicid << uint16(sid) << uint16(tid)
+			<< uint16(0) << uint16(0) << uint16(0)
+			<< uint16(0) << uint16(0) << uint16(0);
+	g_pMain.Send(&result);
 }
 
 void CMagicProcess::ExecuteType5(int magicid)
@@ -613,9 +594,9 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 	CNpc* pNpc = NULL ;      // Pointer initialization!
 	float fDis = 0.0f;
 	vStart.Set((float)data1, (float)0, (float)data3);
-	char send_buff[256];
-	int send_index=0, result = 1, count = 0, total_mon = 0, attack_type=0;; 
+	int count = 0, total_mon = 0, attack_type=0;
 	int* pNpcIDList = NULL;
+	BOOL bResult = TRUE;
 
 	EnterCriticalSection( &g_region_critical );
 
@@ -628,116 +609,103 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 
 	LeaveCriticalSection(&g_region_critical);
 
-	for(int i = 0 ; i < total_mon; i++ ) {
+	for(int i = 0; i < total_mon; i++)
+	{
 		int nid = pNpcIDList[i];
 		if( nid < NPC_BAND ) continue;
 		pNpc = (CNpc*)g_pMain.m_arNpc.GetData(nid - NPC_BAND);
 
-		if( pNpc != NULL && pNpc->m_NpcState != NPC_DEAD)	{
-			if( m_pSrcUser->m_bNation == pNpc->m_byGroup ) continue;
-			vEnd.Set(pNpc->m_fCurX, pNpc->m_fCurY, pNpc->m_fCurZ); 
-			fDis = pNpc->GetDistance(vStart, vEnd);
+		if (pNpc == NULL || pNpc->m_NpcState == NPC_DEAD)
+			continue;
 
-			if(fDis <= fRadius)	{	// NPC가 반경안에 있을 경우...
-				if(magictype == 3)	{	// 타잎 3일 경우...
-					damage = GetMagicDamage(pNpc->m_sNid+NPC_BAND, target_damage, attribute, dexpoint, righthand_damage);
-					TRACE("Area magictype3 ,, magicid=%d, damage=%d\n", magicid, damage);
-					if(damage >= 0)	{
-						result = pNpc->SetHMagicDamage(damage);
-					}
-					else	{
-						damage = abs(damage);
-						if(pType3->bAttribute == 3)   attack_type = 3; // 기절시키는 마법이라면.....
-						else attack_type = magicid;
+		if( m_pSrcUser->m_bNation == pNpc->m_byGroup ) continue;
+		vEnd.Set(pNpc->m_fCurX, pNpc->m_fCurY, pNpc->m_fCurZ); 
+		fDis = pNpc->GetDistance(vStart, vEnd);
 
-						if(pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_strUserID, m_pSrcUser->m_iUserId + USER_BAND) == FALSE)	{
-							// Npc가 죽은 경우,,
-							pNpc->SendExpToUserList(); // 경험치 분배!!
-							pNpc->SendDead();
-							m_pSrcUser->SendAttackSuccess(pNpc->m_sNid+NPC_BAND, MAGIC_ATTACK_TARGET_DEAD, damage, pNpc->m_iHP);
-						}
-						else	{
-							m_pSrcUser->SendAttackSuccess(pNpc->m_sNid+NPC_BAND, ATTACK_SUCCESS, damage, pNpc->m_iHP);
-						}
-					}
+		if(fDis > fRadius)
+			continue;
 
-					send_index = 0;	
-					// 패킷 전송.....
-					//if ( pMagic->bType[1] == 0 || pMagic->bType[1] == 3 ) 
-					{
-						SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
-						SetByte( send_buff, MAGIC_EFFECTING, send_index );
-						SetDWORD( send_buff, magicid, send_index );
-						SetShort( send_buff, m_pSrcUser->m_iUserId, send_index );
-						SetShort( send_buff, pNpc->m_sNid+NPC_BAND, send_index );
-						SetShort( send_buff, data1, send_index );	
-						SetShort( send_buff, result, send_index );	
-						SetShort( send_buff, data3, send_index );	
-						SetShort( send_buff, moral, send_index );
-						SetShort( send_buff, 0, send_index );
-						SetShort( send_buff, 0, send_index );
+		if(magictype == 3)	{	// 타잎 3일 경우...
+			damage = GetMagicDamage(pNpc->m_sNid+NPC_BAND, target_damage, attribute, dexpoint, righthand_damage);
+			TRACE("Area magictype3 ,, magicid=%d, damage=%d\n", magicid, damage);
+			if(damage >= 0)	{
+				bResult = pNpc->SetHMagicDamage(damage);
+			}
+			else	{
+				damage = abs(damage);
+				if(pType3->bAttribute == 3)   attack_type = 3; // 기절시키는 마법이라면.....
+				else attack_type = magicid;
 
-						g_pMain.Send( send_buff, send_index );
-					}
+				if(pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_strUserID, m_pSrcUser->m_iUserId + USER_BAND) == FALSE)	{
+					// Npc가 죽은 경우,,
+					pNpc->SendExpToUserList(); // 경험치 분배!!
+					pNpc->SendDead();
+					m_pSrcUser->SendAttackSuccess(pNpc->m_sNid+NPC_BAND, MAGIC_ATTACK_TARGET_DEAD, damage, pNpc->m_iHP);
 				}
-				else if(magictype == 4)	{	// 타잎 4일 경우...
-					send_index = 0;		result = 1;
-					switch (pType4->bBuffType) {	// Depending on which buff-type it is.....
-						case 1 :				// HP 올리기..
-							break;
-
-						case 2 :				// 방어력 올리기..
-							break;
-
-						case 4 :				// 공격력 올리기..
-							break;
-
-						case 5 :				// 공격 속도 올리기..
-							break;
-
-						case 6 :				// 이동 속도 올리기..
-							//if (pNpc->m_MagicType4[pType4->bBuffType-1].sDurationTime > 0) {
-							//	result = 0 ;
-							//}
-							//else {
-								pNpc->m_MagicType4[pType4->bBuffType-1].byAmount = pType4->bSpeed;
-								pNpc->m_MagicType4[pType4->bBuffType-1].sDurationTime = pType4->sDuration;
-								pNpc->m_MagicType4[pType4->bBuffType-1].fStartTime = getMSTime();
-								pNpc->m_fSpeed_1 = (float)(pNpc->m_fOldSpeed_1 * ((double)pType4->bSpeed / 100));
-								pNpc->m_fSpeed_2 = (float)(pNpc->m_fOldSpeed_2 * ((double)pType4->bSpeed / 100));
-							//}
-							break;
-
-						case 7 :				// 능력치 올리기...
-							break;
-
-						case 8 :				// 저항력 올리기...
-							break;
-
-						case 9 :				// 공격 성공율 및 회피 성공율 올리기..
-							break;	
-
-						default :
-							result = 0 ;
-							break;
-					}
-
-					TRACE("Area magictype4 ,, magicid=%d\n", magicid);
-
-					SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
-					SetByte( send_buff, MAGIC_EFFECTING, send_index );
-					SetDWORD( send_buff, magicid, send_index );
-					SetShort( send_buff, m_pSrcUser->m_iUserId, send_index );
-					SetShort( send_buff, pNpc->m_sNid+NPC_BAND, send_index );
-					SetShort( send_buff, data1, send_index );	
-					SetShort( send_buff, result, send_index );	
-					SetShort( send_buff, data3, send_index );	
-					SetShort( send_buff, 0, send_index );
-					SetShort( send_buff, 0, send_index );
-					SetShort( send_buff, 0, send_index );
-					g_pMain.Send( send_buff, send_index );
+				else	{
+					m_pSrcUser->SendAttackSuccess(pNpc->m_sNid+NPC_BAND, ATTACK_SUCCESS, damage, pNpc->m_iHP);
 				}
-			}	
+			}
+
+			// 패킷 전송.....
+			//if ( pMagic->bType[1] == 0 || pMagic->bType[1] == 3 ) 
+			{
+				Packet result(AG_MAGIC_ATTACK_RESULT, uint8(MAGIC_EFFECTING));
+				result	<< magicid << m_pSrcUser->m_iUserId << uint16(pNpc->m_sNid+NPC_BAND)
+						<< uint16(data1) << uint16(bResult) << uint16(data3)
+						<< uint16(moral) << uint16(0) << uint16(0);
+				g_pMain.Send(&result);
+			}
+		}
+		else if(magictype == 4)	{	// 타잎 4일 경우...
+			bResult = TRUE;
+			switch (pType4->bBuffType) {	// Depending on which buff-type it is.....
+				case 1 :				// HP 올리기..
+					break;
+
+				case 2 :				// 방어력 올리기..
+					break;
+
+				case 4 :				// 공격력 올리기..
+					break;
+
+				case 5 :				// 공격 속도 올리기..
+					break;
+
+				case 6 :				// 이동 속도 올리기..
+					//if (pNpc->m_MagicType4[pType4->bBuffType-1].sDurationTime > 0) {
+					//	result = 0 ;
+					//}
+					//else {
+						pNpc->m_MagicType4[pType4->bBuffType-1].byAmount = pType4->bSpeed;
+						pNpc->m_MagicType4[pType4->bBuffType-1].sDurationTime = pType4->sDuration;
+						pNpc->m_MagicType4[pType4->bBuffType-1].fStartTime = getMSTime();
+						pNpc->m_fSpeed_1 = (float)(pNpc->m_fOldSpeed_1 * ((double)pType4->bSpeed / 100));
+						pNpc->m_fSpeed_2 = (float)(pNpc->m_fOldSpeed_2 * ((double)pType4->bSpeed / 100));
+					//}
+					break;
+
+				case 7 :				// 능력치 올리기...
+					break;
+
+				case 8 :				// 저항력 올리기...
+					break;
+
+				case 9 :				// 공격 성공율 및 회피 성공율 올리기..
+					break;	
+
+				default :
+					bResult = FALSE;
+					break;
+			}
+
+			TRACE("Area magictype4 ,, magicid=%d\n", magicid);
+
+			Packet result(AG_MAGIC_ATTACK_RESULT, uint8(MAGIC_EFFECTING));
+			result	<< magicid << m_pSrcUser->m_iUserId << uint16(pNpc->m_sNid+NPC_BAND)
+					<< uint16(data1) << uint16(bResult) << uint16(data3)
+					<< uint16(0) << uint16(0) << uint16(0);
+			g_pMain.Send(&result);
 		}
 	}
 

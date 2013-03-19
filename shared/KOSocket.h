@@ -18,8 +18,6 @@ public:
 	virtual bool DecryptPacket(uint8 *in_stream, Packet & pkt);
 	virtual bool HandlePacket(Packet & pkt) = 0;
 
-	bool Send(char *buff, int len); // DEPRECATED
-	bool SendCompressed(char *buff, int len); // DEPRECATED
 	virtual bool Send(Packet * pkt);
 	virtual bool SendCompressed(Packet * pkt);
 

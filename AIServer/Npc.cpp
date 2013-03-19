@@ -385,9 +385,6 @@ void CNpc::NpcFighting()
 //
 void CNpc::NpcTracing()
 {
-	char pBuf[1024];
-	::ZeroMemory(pBuf, 1024);	
-	int index = 0;
 	float fMoveSpeed=0.0f;
 
 	if(m_sStepCount != 0)	{
@@ -470,33 +467,15 @@ void CNpc::NpcTracing()
 		return;
 	}
 
-	if(IsMovingEnd())				// 이동이 끝났으면
-	{
-		index = 0;	
-		SetByte(pBuf, MOVE_RESULT, index);
-		SetByte(pBuf, SUCCESS, index);
-		SetShort(pBuf, m_sNid+NPC_BAND, index);
-		Setfloat(pBuf, m_fCurX, index);
-		Setfloat(pBuf, m_fCurZ, index);
-		Setfloat(pBuf, m_fCurY, index);
-		Setfloat(pBuf, 0, index);
-		//TRACE("Npc TRACE end --> nid = %d, cur=[x=%.2f, y=%.2f, metor=%d], prev=[x=%.2f, z=%.2f], frame=%d, speed = %d \n", m_sNid, m_fCurX, m_fCurZ, 0, m_fPrevX, m_fPrevZ, m_sStepCount, 0);
-		g_pMain.Send(pBuf, index);   // thread 에서 send
-	}	
+	Packet result(MOVE_RESULT, uint8(SUCCESS));
+	result << uint16(m_sNid + NPC_BAND);
+	if (IsMovingEnd())
+		result	<< m_fCurX << m_fCurZ << m_fCurY
+				<< float(0.0f);
 	else
-	{
-		SetByte(pBuf, MOVE_RESULT, index);
-		SetByte(pBuf, SUCCESS, index);
-		SetShort(pBuf, m_sNid+NPC_BAND, index);
-		Setfloat(pBuf, m_fPrevX, index);
-		Setfloat(pBuf, m_fPrevZ, index);
-		Setfloat(pBuf, m_fPrevY, index);
-		fMoveSpeed = (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
-		Setfloat(pBuf, fMoveSpeed, index);
-		//Setfloat(pBuf, m_fSecForRealMoveMetor, index);
-		//TRACE("Npc Tracing --> nid = %d, cur=[x=%.2f, z=%.2f], prev=[x=%.2f, z=%.2f, metor = %.2f], frame=%d, speed = %d \n", m_sNid, m_fCurX, m_fCurZ, m_fPrevX, m_fPrevZ, m_fSecForRealMoveMetor, m_sStepCount, m_sSpeed);
-		g_pMain.Send(pBuf, index);   // thread 에서 send
-	}
+		result	<< m_fPrevX << m_fPrevZ << m_fPrevY 
+				<< (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
+	g_pMain.Send(&result);
 
 	if(nFlag == 2 && m_tNpcLongType == 0 && m_proto->m_tNpcType != NPC_HEALER)
 	{
@@ -643,31 +622,15 @@ void CNpc::NpcMoving()
 		return;
 	}
 
-	if(IsMovingEnd())	{				// 이동이 끝났으면
-		index = 0;	
-		SetByte(pBuf, MOVE_RESULT, index);
-		SetByte(pBuf, SUCCESS, index);
-		SetShort(pBuf, m_sNid+NPC_BAND, index);
-		Setfloat(pBuf, m_fPrevX, index);
-		Setfloat(pBuf, m_fPrevZ, index);
-		Setfloat(pBuf, m_fPrevY, index);
-		Setfloat(pBuf, 0, index);
-		//TRACE("Npc Move end --> nid = %d, cur=[x=%.2f, y=%.2f, metor=%d], prev=[x=%.2f, z=%.2f], frame=%d, speed = %d \n", m_sNid+NPC_BAND, m_fCurX, m_fCurZ, 0, m_fPrevX, m_fPrevZ, m_sStepCount, 0);
-		g_pMain.Send(pBuf, index);   // thread 에서 send
-	}
-	else	{
-		SetByte(pBuf, MOVE_RESULT, index);
-		SetByte(pBuf, SUCCESS, index);
-		SetShort(pBuf, m_sNid+NPC_BAND, index);
-		Setfloat(pBuf, m_fPrevX, index);
-		Setfloat(pBuf, m_fPrevZ, index);
-		Setfloat(pBuf, m_fPrevY, index);
-		fMoveSpeed = (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
-		Setfloat(pBuf, fMoveSpeed, index);
-		//Setfloat(pBuf, m_fSecForRealMoveMetor, index);
-		//TRACE("Npc Move --> nid = %d, cur=[x=%.2f, z=%.2f], prev=[x=%.2f, z=%.2f, metor = %.2f], frame=%d, speed = %d \n", m_sNid+NPC_BAND, m_fCurX, m_fCurZ, m_fPrevX, m_fPrevZ, m_fSecForRealMoveMetor, m_sStepCount, m_sSpeed);
-		g_pMain.Send(pBuf, index);   // thread 에서 send
-	}
+	Packet result(MOVE_RESULT, uint8(SUCCESS));
+	result << uint16(m_sNid + NPC_BAND);
+	if (IsMovingEnd())
+		result	<< m_fPrevX << m_fPrevZ << m_fPrevY 
+				<< float(0.0f);
+	else
+		result	<< m_fPrevX << m_fPrevZ << m_fPrevY 
+				<< (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
+	g_pMain.Send(&result);
 
 	m_Delay = m_sSpeed;	
 	m_fDelayTime = getMSTime();
@@ -762,10 +725,6 @@ void CNpc::NpcBack()
 		}
 	}
 
-	char pBuf[1024];
-	::ZeroMemory(pBuf, 1024);	
-	int index = 0;
-
 	if(m_iHP <= 0)	{
 		Dead();
 		return;
@@ -785,16 +744,11 @@ void CNpc::NpcBack()
 		if(m_fCurX < 0 || m_fCurZ < 0)
 			TRACE("Npc-NpcBack-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ);
 
-		::ZeroMemory(pBuf, 1024);	index = 0;	
-		SetByte(pBuf, MOVE_RESULT, index);
-		SetByte(pBuf, SUCCESS, index);
-		SetShort(pBuf, m_sNid+NPC_BAND, index);
-		Setfloat(pBuf, m_fCurX, index);
-		Setfloat(pBuf, m_fCurZ, index);
-		Setfloat(pBuf, m_fCurY, index);
-		Setfloat(pBuf, 0, index);
-//		TRACE("NpcBack end --> nid = %d, cur=[x=%.2f, y=%.2f, metor=%d], prev=[x=%.2f, z=%.2f], frame=%d, speed = %d \n", m_sNid, m_fCurX, m_fCurZ, 0, m_fPrevX, m_fPrevZ, m_sStepCount, 0);
-		g_pMain.Send(pBuf, index);   // thread 에서 send
+
+
+		Packet result(MOVE_RESULT, uint8(SUCCESS));
+		result << uint16(m_sNid + NPC_BAND) << m_fCurX << m_fCurZ << m_fCurY << float(0.0f);
+		g_pMain.Send(&result);
 
 //		TRACE("** NpcBack 이동이 끝남,, stand로\n");
 		m_NpcState = NPC_STANDING;
@@ -820,22 +774,13 @@ void CNpc::NpcBack()
 		return;
 	}
 
-	float fMoveSpeed = 0.0f;
 
-	SetByte(pBuf, MOVE_RESULT, index);
-	SetByte(pBuf, SUCCESS, index);
-	SetShort(pBuf, m_sNid+NPC_BAND, index);
-	Setfloat(pBuf, m_fPrevX, index);
-	Setfloat(pBuf, m_fPrevZ, index);
-	Setfloat(pBuf, m_fPrevY, index);
-	fMoveSpeed = (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
-	Setfloat(pBuf, fMoveSpeed, index);
-	//Setfloat(pBuf, m_fSecForRealMoveMetor, index);
+	Packet result(MOVE_RESULT, uint8(SUCCESS));
+	result	<< uint16(m_sNid + NPC_BAND) << m_fPrevX << m_fPrevZ << m_fPrevY 
+			<< (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
+	g_pMain.Send(&result);
 
-//	TRACE("NpcBack --> nid = %d, cur=[x=%.2f, z=%.2f], prev=[x=%.2f, z=%.2f, metor = %.2f], frame=%d, speed = %d \n", m_sNid, m_fCurX, m_fCurZ, m_fPrevX, m_fPrevZ, m_fSecForRealMoveMetor, m_sStepCount, m_sSpeed);
-	g_pMain.Send(pBuf, index);   // thread 에서 send
-
-	m_Delay = m_sSpeed;//STEP_DELAY;	*/
+	m_Delay = m_sSpeed;
 	m_fDelayTime = getMSTime();
 }
 
@@ -1012,13 +957,11 @@ BOOL CNpc::SetLive()
 	//TRACE("NPC Init(nid=%d, sid=%d, th_num=%d, name=%s) - %.2f %.2f, gate = %d, m_byDeadType=%d, time=%d:%d-%d\n", 
 	//	m_sNid+NPC_BAND, m_proto->m_sSid, m_sThreadNumber, m_proto->m_strName, m_fCurX, m_fCurZ, m_byGateOpen, m_byDeadType, t.GetHour(), t.GetMinute(), t.GetSecond());						
 
-	// 유저에게 NPC 정보전송...
-	// 유저에게 NPC 정보전송...
-	int modify_index = 0;
-	char modify_send[2048];		::ZeroMemory(modify_send, sizeof(modify_send));
 
-	FillNpcInfo(modify_send, modify_index, INFO_MODIFY);
-	g_pMain.Send(modify_send, modify_index);   // thread 에서 send
+	Packet result(AG_NPC_INFO);
+	result.SByte();
+	FillNpcInfo(result);
+	g_pMain.Send(&result);
 
 	return TRUE;
 }
@@ -1577,10 +1520,9 @@ void CNpc::Dead(int iDeadType)
 	//TRACE("-- Npc-Dead RegionRemove : [nid=%d, name=%s], nRX=%d, nRZ=%d \n", m_sNid+NPC_BAND, m_proto->m_strName, m_iRegion_X, m_iRegion_Z);
 
 	if(iDeadType == 1)	{	// User에 의해 죽은것이 아니기 때문에... 클라이언트에 Dead패킷전송...
-		char buff[256];			int send_index = 0;
-		SetByte(buff, AG_DEAD, send_index );
-		SetShort(buff, m_sNid+NPC_BAND, send_index );
-		g_pMain.Send(buff, send_index);
+		Packet result(AG_DEAD);
+		result << uint16(m_sNid + NPC_BAND);
+		g_pMain.Send(&result);
 	}
 
 	// Dungeon Work : 변하는 몬스터의 경우 변하게 처리..
@@ -2596,21 +2538,10 @@ int CNpc::Attack()
 				nRandom = myrand(1, 10000);
 
 				if(nRandom < nPercent)	{				// 독공격...
-					send_index = 0;
-					SetByte( buff, AG_MAGIC_ATTACK_RESULT, send_index );
-					SetByte( buff, MAGIC_EFFECTING, send_index );		
-					SetDWORD( buff, m_proto->m_iMagic1, send_index );				// FireBall
-					SetShort( buff, m_sNid+NPC_BAND, send_index );
-					SetShort( buff, pUser->m_iUserId, send_index );	
-					SetShort( buff, 0, send_index );					// data0
-					SetShort( buff, 0, send_index );	
-					SetShort( buff, 0, send_index );	
-					SetShort( buff, 0, send_index );	
-					SetShort( buff, 0, send_index );	
-					SetShort( buff, 0, send_index );	
-
-					//m_MagicProcess.MagicPacket(buff, send_index);
-					g_pMain.Send(buff, send_index);
+					Packet result(AG_MAGIC_ATTACK_RESULT, uint8(MAGIC_EFFECTING));
+					result	<< m_proto->m_iMagic1 << uint16(m_sNid + NPC_BAND) << pUser->m_iUserId
+							<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
+					g_pMain.Send(&result);
 
 					//TRACE("LongAndMagicAttack --- sid=%d, tid=%d\n", m_sNid+NPC_BAND, pUser->m_iUserId);
 					return m_sAttackDelay;
@@ -2884,9 +2815,6 @@ int CNpc::TracingAttack()		// 0:attack fail, 1:attack success
 
 void CNpc::MoveAttack()
 {
-	char pBuf[1024];
-	::ZeroMemory(pBuf, 1024);	
-	int index = 0;
 	__Vector3 vUser;
 	__Vector3 vNpc;
 	__Vector3 vDistance;
@@ -2959,38 +2887,25 @@ void CNpc::MoveAttack()
 		TRACE("Npc-MoveAttack : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ);
 	}
 
-	// 이동공격.. 
-	::ZeroMemory(pBuf, 1024);	index = 0;	
-	SetByte(pBuf, MOVE_RESULT, index);
-	SetByte(pBuf, SUCCESS, index);
-	SetShort(pBuf, m_sNid+NPC_BAND, index);
-	Setfloat(pBuf, m_fCurX, index);
-	Setfloat(pBuf, m_fCurZ, index);
-	Setfloat(pBuf, m_fCurY, index);
-	Setfloat(pBuf, fDis, index);
-	//TRACE("Npc moveattack --> nid = %d, cur=[x=%.2f, y=%.2f, metor=%.2f]\n", m_sNid+NPC_BAND, m_fCurX, m_fCurZ, fDis);
-	g_pMain.Send(pBuf, index);   // thread 에서 send
 
-	// 이동 끝
-	::ZeroMemory(pBuf, 1024);	index = 0;	
-	SetByte(pBuf, MOVE_RESULT, index);
-	SetByte(pBuf, SUCCESS, index);
-	SetShort(pBuf, m_sNid+NPC_BAND, index);
-	Setfloat(pBuf, m_fCurX, index);
-	Setfloat(pBuf, m_fCurZ, index);
-	Setfloat(pBuf, m_fCurY, index);
-	Setfloat(pBuf, 0, index);
-	//TRACE("Npc moveattack end --> nid = %d, cur=[x=%.2f, y=%.2f, metor=%d]\n", m_sNid+NPC_BAND, m_fCurX, m_fCurZ, 0);
-	g_pMain.Send(pBuf, index);   // thread 에서 send
+	Packet result(MOVE_RESULT, uint8(SUCCESS));
+	result	<< uint16(m_sNid + NPC_BAND)
+			<< m_fCurX << m_fCurZ << m_fCurY;
+
+	// This seems really dumb, but for reasons unbeknownst to me
+	// we're sending the packet twice -- first with the distance/speed,
+	// second without. 
+	int wpos = result.wpos(); 
+	result << fDis;
+	g_pMain.Send(&result); // send the first packet
+
+	result.put(wpos, 0.0f); // replace the distance/speed with 0
+	g_pMain.Send(&result); // send it again
 
 	SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);
 	
-	/* 타겟의 좌표를 최신 것으로 수정하고, 마지막 포인터 좌표를 수정한다,, */
 	m_fEndPoint_X = m_fCurX;
 	m_fEndPoint_Y = m_fCurZ;
-
-	//m_Target.x = fX;
-	//m_Target.z = fZ;
 }
 
 int CNpc::GetNFinalDamage(CNpc *pNpc)
@@ -3646,13 +3561,12 @@ go_result:
 // Heal계열 마법공격
 BOOL CNpc::SetHMagicDamage(int nDamage)
 {
-	if(m_NpcState == NPC_DEAD) return FALSE;
-	if(m_iHP <= 0) return FALSE;
-	if(nDamage <= 0) return FALSE;
-	if( m_iHP < 1 )	return FALSE;	// 죽기직전일때는 회복 안됨...
+	if (m_NpcState == NPC_DEAD
+		|| m_iHP <= 0
+		|| nDamage <= 0)
+		return FALSE;
 
-	char buff[256];
-	int send_index = 0, oldHP = 0;
+	int oldHP = 0;
 
 	oldHP = m_iHP;
 	m_iHP += nDamage;
@@ -3663,10 +3577,9 @@ BOOL CNpc::SetHMagicDamage(int nDamage)
 
 	TRACE("Npc - SetHMagicDamage(), nid=%d,%s, oldHP=%d -> curHP=%d\n", m_sNid+NPC_BAND, m_proto->m_strName, oldHP, m_iHP);
 
-	SetByte( buff, AG_USER_SET_HP, send_index );
-	SetShort( buff, m_sNid+NPC_BAND, send_index );
-	SetDWORD( buff, m_iHP, send_index );
-	g_pMain.Send(buff, send_index);  
+	Packet result(AG_USER_SET_HP);
+	result << uint16(m_sNid + NPC_BAND) << m_iHP;
+	g_pMain.Send(&result);
 
 	return TRUE;
 }
@@ -4122,77 +4035,24 @@ void CNpc::NpcStrategy(BYTE type)
 	}
 }
 
-//	NPC 정보를 버퍼에 저장한다.
-void CNpc::FillNpcInfo(char *temp_send, int &index, BYTE flag)
+void CNpc::FillNpcInfo(Packet & result)
 {
-	SetByte(temp_send, AG_NPC_INFO, index );
-	if( m_bySpecialType == 5 && m_byChangeType == 0)	
-		SetByte(temp_send, 0, index );					// region에 등록하지 말아라
+	if (m_bySpecialType == 5 && m_byChangeType == 0)	
+		result << uint8(0);
 	else
-		SetByte(temp_send, 1, index );					// region에 등록		
-	SetShort(temp_send, m_sNid+NPC_BAND, index );
-	SetShort(temp_send, m_proto->m_sSid, index);
-	SetShort(temp_send, m_proto->m_sPid, index );
-	SetShort(temp_send, m_sSize, index );
-	SetDWORD(temp_send, m_iWeapon_1, index );
-	SetDWORD(temp_send, m_iWeapon_2, index );
-	SetByte(temp_send, m_bCurZone, index);
-	SetVarString(temp_send, m_proto->m_strName, _tcslen(m_proto->m_strName), index);
-	SetByte(temp_send, m_byGroup, index);
-	SetByte(temp_send, (BYTE)(m_proto->m_sLevel), index);
-	Setfloat(temp_send, m_fCurX, index);
-	Setfloat(temp_send, m_fCurZ, index);
-	Setfloat(temp_send, m_fCurY, index);
-	SetByte(temp_send, m_byDirection, index);
+		result << uint8(1);
 
-	if(m_iHP <= 0) SetByte(temp_send, 0x00, index);
-	else SetByte(temp_send, 0x01, index);
-
-	SetByte(temp_send, m_proto->m_tNpcType, index);
-	SetDWORD(temp_send, m_iSellingGroup, index);
-	SetDWORD(temp_send, m_iMaxHP, index);
-	SetDWORD(temp_send, m_iHP, index);
-	SetByte(temp_send, m_byGateOpen, index);
-	Setfloat(temp_send, m_sHitRate, index);
-	Setfloat(temp_send, m_sEvadeRate, index);
-	SetShort(temp_send, m_sDefense, index);
-	SetByte(temp_send, m_byObjectType, index);
-	SetByte(temp_send, m_byTrapNumber, index);
-}
-
-// game server에 npc정보를 전부 전송...
-void CNpc::SendNpcInfoAll(char *temp_send, int &index, int count)
-{
-	if( m_bySpecialType == 5 && m_byChangeType == 0)	
-		SetByte(temp_send, 0, index );					// region에 등록하지 말아라
-	else
-		SetByte(temp_send, 1, index );					// region에 등록		
-	SetShort(temp_send, m_sNid+NPC_BAND, index );
-	SetShort(temp_send, m_proto->m_sSid, index);
-	SetShort(temp_send, m_proto->m_sPid, index );
-	SetShort(temp_send, m_sSize, index );
-	SetDWORD(temp_send, m_iWeapon_1, index );
-	SetDWORD(temp_send, m_iWeapon_2, index );
-	SetByte(temp_send, m_bCurZone, index);
-	SetVarString(temp_send, m_proto->m_strName, _tcslen(m_proto->m_strName), index);
-	SetByte(temp_send, m_byGroup, index);
-	SetByte(temp_send, (BYTE)(m_proto->m_sLevel), index);
-	Setfloat(temp_send, m_fCurX, index);
-	Setfloat(temp_send, m_fCurZ, index);
-	Setfloat(temp_send, m_fCurY, index);
-	SetByte(temp_send, m_byDirection, index);
-	SetByte(temp_send, m_proto->m_tNpcType, index);
-	SetDWORD(temp_send, m_iSellingGroup, index);
-	SetDWORD(temp_send, m_iMaxHP, index);
-	SetDWORD(temp_send, m_iHP, index);
-	SetByte(temp_send, m_byGateOpen, index);
-	Setfloat(temp_send, m_sHitRate, index);
-	Setfloat(temp_send, m_sEvadeRate, index);
-	SetShort(temp_send, m_sDefense, index);
-	SetByte(temp_send, m_byObjectType, index);
-	SetByte(temp_send, m_byTrapNumber, index);
-
-	//TRACE("monster info all = %d, name=%s, count=%d \n", m_sNid+NPC_BAND, m_proto->m_strName, count);
+	result	<< uint16(m_sNid + NPC_BAND) << m_proto->m_sSid << m_proto->m_sPid
+			<< m_sSize << m_iWeapon_1 << m_iWeapon_2
+			<< m_bCurZone << m_proto->m_strName
+			<< m_byGroup << uint8(m_proto->m_sLevel)
+			<< m_fCurX << m_fCurZ << m_fCurY << m_byDirection
+			<< bool(m_iHP > 0) // are we alive?
+			<< m_proto->m_tNpcType
+			<< m_iSellingGroup << m_iMaxHP << m_iHP
+			<< m_byGateOpen 
+			<< float(m_sHitRate) << float(m_sEvadeRate) << m_sDefense
+			<< m_byObjectType << m_byTrapNumber;
 }
 
 int CNpc::GetDir(float x1, float z1, float x2, float z2)
@@ -4315,21 +4175,11 @@ void CNpc::NpcMoveEnd()
 {
 	SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);
 
-	char pBuf[1024];
-	::ZeroMemory(pBuf, 1024);	
-	int index = 0;
-	SetByte(pBuf, MOVE_RESULT, index);
-	SetByte(pBuf, SUCCESS, index);
-	SetShort(pBuf, m_sNid+NPC_BAND, index);
-	Setfloat(pBuf, m_fCurX, index);
-	Setfloat(pBuf, m_fCurZ, index);
-	Setfloat(pBuf, m_fCurY, index);
-	Setfloat(pBuf, 0, index);
+	Packet result(MOVE_RESULT, uint8(SUCCESS));
+	result	<< uint16(m_sNid + NPC_BAND)
+			<< m_fCurX << m_fCurZ << m_fCurY << float(0.0f);
 
-	int rx = (int)(m_fCurX / VIEW_DIST);
-	int rz = (int)(m_fCurZ / VIEW_DIST);
-	//TRACE("NpcMoveEnd() --> nid = %d, x=%f, y=%f, rx=%d,rz=%d, frame=%d, speed = %d \n", m_sNid, m_fCurX, m_fCurZ, rx,rz, m_iAniFrameCount, m_sSpeed);
-	g_pMain.Send(pBuf, index);   // thread 에서 send
+	g_pMain.Send(&result);
 }
 
 __Vector3 CNpc::GetVectorPosition(__Vector3 vOrig, __Vector3 vDest, float fDis)
@@ -4407,45 +4257,25 @@ BOOL CNpc::GetUserInViewRange(int x, int z)
 
 void CNpc::SendAttackSuccess(BYTE byResult, int tuid, short sDamage, int nHP, BYTE byFlag, short sAttack_type)
 {
-	int send_index = 0;
-	int sid = -1, tid = -1;
-	BYTE type, result=0;
-	char buff[256];
-	float rx=0.0f, ry=0.0f, rz=0.0f;
+	uint16 sid, tid;
+	uint8 type;
 
-	if( byFlag == 0 )	{
-		type = 0x02;
+	if (byFlag == 0)
+	{
+		type = 2;
 		sid = m_sNid+NPC_BAND;
 		tid = tuid;
-
-		SetByte( buff, AG_ATTACK_RESULT, send_index );
-		SetByte( buff, type, send_index );
-		SetByte( buff, byResult, send_index );
-		SetShort( buff, sid, send_index );
-		SetShort( buff, tid, send_index );
-		SetShort( buff, sDamage, send_index );
-		SetDWORD( buff, nHP, send_index );	
-		SetByte( buff, (BYTE)sAttack_type, send_index );
 	}
-	else	{
-		type = 0x01;
+	else	
+	{
+		type = 1;
 		sid = tuid;
 		tid = m_sNid+NPC_BAND;
-
-		SetByte( buff, AG_ATTACK_RESULT, send_index );
-		SetByte( buff, type, send_index );
-		SetByte( buff, byResult, send_index );
-		SetShort( buff, sid, send_index );
-		SetShort( buff, tid, send_index );
-		SetShort( buff, sDamage, send_index );
-		SetDWORD( buff, nHP, send_index );	
-		SetByte( buff, (BYTE)sAttack_type, send_index );
 	}
 
-	//TRACE("Npc - SendAttackSuccess() : [sid=%d, tid=%d, result=%d], damage=%d, hp = %d\n", sid, tid, byResult, sDamage, sHP);
-	//SetShort( buff, sMaxHP, send_index );
-
-	g_pMain.Send(buff, send_index);   // thread 에서 send
+	Packet result(AG_ATTACK_RESULT, type);
+	result << byResult << sid << tid << sDamage << nHP << uint8(sAttack_type);
+	g_pMain.Send(&result);
 }
 
 __Vector3 CNpc::CalcAdaptivePosition(__Vector3 vPosOrig, __Vector3 vPosDest, float fAttackDistance)
@@ -4759,8 +4589,7 @@ void CNpc::IsNoPathFind(float fDistance)
 //	NPC 가 가진 아이템을 떨군다.
 void CNpc::GiveNpcHaveItem()
 {
-	char pBuf[1024];
-	int index = 0, temp = 0, iPer = 0, iMakeItemCode = 0, iMoney = 0, iRandom, nCount = 1, i =0;
+	int temp = 0, iPer = 0, iMakeItemCode = 0, iMoney = 0, iRandom, nCount = 1, i =0;
 
 /*	if( m_byMoneyType == 1 )	{
 		SetByte(pBuf, AG_NPC_EVENT_ITEM, index);
@@ -4841,23 +4670,16 @@ void CNpc::GiveNpcHaveItem()
 		return;
 	}
 
-	SetByte(pBuf, AG_NPC_GIVE_ITEM, index);
-	SetShort(pBuf, m_sMaxDamageUserid, index);	
-	SetShort(pBuf, m_sNid+NPC_BAND, index);
-	SetByte(pBuf, m_bCurZone, index);
-	SetShort(pBuf, (short)m_iRegion_X, index);
-	SetShort(pBuf, (short)m_iRegion_Z, index);
-	Setfloat(pBuf, m_fCurX, index);
-	Setfloat(pBuf, m_fCurZ, index);
-	Setfloat(pBuf, m_fCurY, index);
-	SetByte(pBuf, nCount, index);
-	for(i=0; i<nCount; i++)	{
-		SetDWORD(pBuf, m_GiveItemList[i].sSid, index);
-		SetShort(pBuf, m_GiveItemList[i].count, index);
-		//TRACE("Npc-GiveNpcHaveItem() : [nid - %d,%s,  giveme=%d, count=%d, num=%d], list=%d, count=%d\n", m_sNid+NPC_BAND, m_proto->m_strName, m_sMaxDamageUserid, nCount, i, m_GiveItemList[i].sSid, m_GiveItemList[i].count);
-	}
+	Packet result(AG_NPC_GIVE_ITEM);
+	result	<< m_sMaxDamageUserid << uint16(m_sNid + NPC_BAND)
+			<< m_bCurZone << m_iRegion_X << m_iRegion_Z
+			<< m_fCurX << m_fCurZ << m_fCurY
+			<< uint8(nCount);
 
-	g_pMain.Send(pBuf, index);   // thread 에서 send
+	for (i = 0; i < nCount; i++)
+		result << m_GiveItemList[i].sSid << m_GiveItemList[i].count;
+
+	g_pMain.Send(&result);
 }
 
 
@@ -4954,21 +4776,15 @@ void CNpc::HpChange()
 	//int amount =  (int)(m_sLevel*(1+m_sLevel/60.0) + 1) ;
 	int amount =  (int)(m_iMaxHP / 20) ;
 
-	char buff[256];
-	int send_index = 0;
-
 	m_iHP += amount;
 	if( m_iHP < 0 )
 		m_iHP = 0;
 	else if ( m_iHP > m_iMaxHP )
 		m_iHP = m_iMaxHP;
 
-	SetByte( buff, AG_USER_SET_HP, send_index );
-	SetShort( buff, m_sNid+NPC_BAND, send_index );
-	SetDWORD( buff, m_iHP, send_index );
-	SetDWORD( buff, m_iMaxHP, send_index );
-
-	g_pMain.Send(buff, send_index);   // thread 에서 send
+	Packet result(AG_USER_SET_HP);
+	result << uint16(m_sNid + NPC_BAND) << m_iHP << m_iMaxHP;
+	g_pMain.Send(&result);
 }
 
 BOOL CNpc::IsInExpRange(CUser* pUser)
@@ -5758,8 +5574,7 @@ void CNpc::ChangeAbility(int iChangeType)	// iChangeType - 0:능력치 다운, 1:능력
 
 BOOL CNpc::Teleport()
 {
-	int send_index = 0, i=0;
-	char buff[256];
+	int i=0;
 	int nX=0, nZ=0, nTileX=0, nTileZ=0;
 	MAP* pMap = GetMap();
 	if (pMap == NULL)	return FALSE;
@@ -5783,26 +5598,16 @@ BOOL CNpc::Teleport()
 		break;
 	}	
 
-	SetByte( buff, AG_NPC_INOUT, send_index );
-	SetByte( buff, NPC_OUT, send_index );
-	SetShort( buff, m_sNid+NPC_BAND, send_index );
-	Setfloat(buff, m_fCurX, send_index);
-	Setfloat(buff, m_fCurZ, send_index);
-	Setfloat(buff, m_fCurY, send_index);
-	g_pMain.Send(buff, send_index);   // thread 에서 send
+	Packet result(AG_NPC_INOUT);
+	result << uint8(NPC_OUT) << uint16(m_sNid + NPC_BAND) << m_fCurX << m_fCurZ << m_fCurY;
+	g_pMain.Send(&result);
 
 	m_fCurX = (float)nX;	m_fCurZ = (float)nZ;
 
-	send_index = 0;
-	SetByte( buff, AG_NPC_INOUT, send_index );
-	SetByte( buff, NPC_IN, send_index );
-	SetShort( buff, m_sNid+NPC_BAND, send_index );
-	Setfloat(buff, m_fCurX, send_index);
-	Setfloat(buff, m_fCurZ, send_index);
-	Setfloat(buff, 0, send_index);
-	g_pMain.Send(buff, send_index);   // thread 에서 send
+	result.clear();
+	result << uint8(NPC_IN) << uint16(m_sNid + NPC_BAND) << m_fCurX << m_fCurZ << float(0.0f);
+	g_pMain.Send(&result);
 
 	SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);
-
 	return TRUE;
 }

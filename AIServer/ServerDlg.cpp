@@ -536,55 +536,42 @@ BOOL CServerDlg::MapFileLoad()
 // game server에 모든 npc정보를 전송..
 void CServerDlg::AllNpcInfo()
 {
-	// server alive check
-	int nZone = 0;
-	int size = m_arNpc.GetSize();
-
-	int send_index = 0, zone_index = 0, send_count = 0, send_tot = 0;
-	BYTE count = 0; 
-	char send_buff[2048];
-
+	Packet result(NPC_INFO_ALL);
+	result.SByte();
 	foreach_stlmap (itr, g_arZone)
 	{
-		nZone = itr->first;
-		send_index = 2;		count = 0;	send_count = 0;
+		uint32 nZone = itr->first;
+		uint8 bCount = 0;
+
+		result.clear();
+		result << bCount;
 
 		foreach_stlmap (itr, m_arNpc)
 		{
 			CNpc *pNpc = itr->second;
-			if(pNpc == NULL)	{
-				TRACE("##### allNpcInfo Fail = %d\n", itr->first);
+			if (pNpc == NULL
+				|| pNpc->m_bCurZone != nZone)	
 				continue;
-			}
-			if(pNpc->m_bCurZone != nZone)	continue;
 
-			pNpc->SendNpcInfoAll(send_buff, send_index, count++);
-			if(count == NPC_NUM)	{
-				SetByte(send_buff, NPC_INFO_ALL, send_count );
-				SetByte(send_buff, count, send_count );
-
-				s_socketMgr.SendAllCompressed(send_buff, send_index);
-				send_index = 2;
-				send_count = 0;
-				count = 0;
-				send_tot++;
-				//TRACE("AllNpcInfo - send_count=%d, count=%d, zone=%d\n", send_tot, count, nZone);
+			pNpc->FillNpcInfo(result);
+			if (++bCount == NPC_NUM)
+			{
+				result.put(0, bCount);
+				s_socketMgr.SendAllCompressed(&result);
+				bCount = 0;
+				result.clear();
 			}
 		}	
 
-		//if( count != 0 )	TRACE("--> AllNpcInfo - send_count=%d, count=%d, zone=%d\n", send_tot, count, nZone);
-		if(count != 0 && count < NPC_NUM )	{
-			send_count = 0;
-			SetByte(send_buff, NPC_INFO_ALL, send_count );
-			SetByte(send_buff, count, send_count );
-			s_socketMgr.SendAllCompressed(send_buff, send_index);
-			send_tot++;
-			//TRACE("AllNpcInfo - send_count=%d, count=%d, zone=%d\n", send_tot, count, nZone);
+		if (bCount != 0 && bCount < NPC_NUM)
+		{
+			result.put(0, bCount);
+			s_socketMgr.SendAllCompressed(&result);
 		}
 
-		Packet result(AG_SERVER_INFO, uint8(nZone));
-		result << uint16(m_TotalNPC);
-		s_socketMgr.SendAll(&result);
+		Packet serverInfo(AG_SERVER_INFO, uint8(nZone));
+		serverInfo << uint16(m_TotalNPC);
+		s_socketMgr.SendAll(&serverInfo);
 	}
 }
 
@@ -677,11 +664,6 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 	TRACE("*** DeleteAllUserList - End *** \n");
 
 	printf("[ DELETE All User List ]\n");
-}
-
-void CServerDlg::Send(char* pData, int length)
-{
-	s_socketMgr.SendAll(pData, length);
 }
 
 void CServerDlg::Send(Packet * pkt)

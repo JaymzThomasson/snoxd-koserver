@@ -133,22 +133,6 @@ bool KOSocket::DecryptPacket(uint8 *in_stream, Packet & pkt)
 	return true;
 }
 
-bool KOSocket::Send(char *buff, int len) 
-{
-	Packet result(*buff, (size_t)len - 1);
-	if (len > 0)
-		result.append(buff + 1, len - 1);
-	return Send(&result);
-}
-
-bool KOSocket::SendCompressed(char *buff, int len) 
-{
-	Packet result(*buff);
-	if (len > 1)
-		result.append(buff + 1, len - 1);
-	return SendCompressed(&result);
-}
-
 bool KOSocket::Send(Packet * pkt) 
 {
 	if (!IsConnected() || pkt->size() + 1 > GetWriteBuffer().GetAllocatedSize())

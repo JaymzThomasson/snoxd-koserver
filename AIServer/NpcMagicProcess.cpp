@@ -109,9 +109,9 @@ void CNpcMagicProcess::MagicPacket(char *pBuf, int len)
 		}
 	}
 	else if( command == MAGIC_CASTING ) {
-		SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
-		SetString( send_buff, pBuf, len-1, send_index );	// len ==> include WIZ_MAGIC_PROCESS command byte. 
-		g_pMain.Send(send_buff, send_index);
+		Packet result(AG_MAGIC_ATTACK_RESULT);
+		result.append(pBuf, len); // NOTE: used to be len-1, as apparently it "included the opcode". I don't see this behaviour anywhere.
+		g_pMain.Send(&result);
 	}
 }
 
@@ -121,9 +121,8 @@ _MAGIC_TABLE* CNpcMagicProcess::IsAvailable(int magicid, int tid, BYTE type )
 	CNpc* pNpc = NULL;
 	_MAGIC_TABLE* pTable = NULL;
 
-	int modulator = 0, Class = 0, send_index = 0, moral = 0;
+	int modulator = 0, Class = 0, moral = 0;
 
-	char send_buff[128];
 	if( !m_pSrcNpc ) return FALSE;
 
 	pTable = g_pMain.m_MagictableArray.GetData( magicid );     // Get main magic table.
@@ -180,48 +179,16 @@ _MAGIC_TABLE* CNpcMagicProcess::IsAvailable(int magicid, int tid, BYTE type )
 		break;
 	}
 
-/*	if( type == MAGIC_CASTING )     // Just ordinary spell casting.
-	{
-		//if( m_bMagicState == CASTING ) goto fail_return;
-		//if( pTable->bCastTime == 0 )  goto fail_return;
-		m_bMagicState = CASTING;
-	}
-	else
-		if( m_bMagicState == NONE /*&& pTable->bCastTime != 0*/ //) goto fail_return;
-	
-	if( type == MAGIC_EFFECTING )     // Make sure you subtract MPs (SPs) after you use spell (skill).
-	{
-		// MP만 달다록 처리한당.. Npc는 SP가 없음..
-		//if( pTable->sMsp > m_pSrcNpc->m_sMP )
-		//	goto fail_return;
-		//m_pSrcNpc->MSpChange(2, -(pTable->sMsp) );
-		//m_bMagicState = NONE;
-	} 
-
 	return pTable;      // Magic was successful! 
 
 fail_return:    // In case the magic failed. 
-	send_index = 0;
-	SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
-	SetByte( send_buff, MAGIC_FAIL, send_index );
-	SetDWORD( send_buff, magicid, send_index );
-	SetShort( send_buff, m_pSrcNpc->m_sNid+NPC_BAND, send_index );
-	SetShort( send_buff, tid, send_index );
-	if( type == MAGIC_CASTING )
-		SetShort( send_buff, -100, send_index );
-	else
-		SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
-	SetShort( send_buff, 0, send_index );
-
-/*	if( m_bMagicState == CASTING )
-		g_pMain.Send_Region( send_buff, send_index, m_pSrcUser->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-	else m_pSrcUser->Send( send_buff, send_index );	*/
-
-	g_pMain.Send(send_buff, send_index);
+	Packet result(AG_MAGIC_ATTACK_RESULT, uint8(MAGIC_FAIL));
+	result	<< magicid << uint16(m_pSrcNpc->m_sNid+NPC_BAND)
+			<< uint16(tid)
+			<< uint16(type == MAGIC_CASTING ? -100 : 0) << uint16(0)
+			<< uint16(0) << uint16(0)
+			<< uint16(0) << uint16(0);
+	g_pMain.Send(&result);
 
 	m_bMagicState = NONE;
 
@@ -240,8 +207,8 @@ void CNpcMagicProcess::ExecuteType2(int magicid, int tid, int data1, int data2, 
 
 void CNpcMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int data3, int moral )  // Applied when a magical attack, healing, and mana restoration is done.
 {	
-	int damage = 0, result = 1, send_index=0, attack_type = 0; 
-	char send_buff[256];
+	int damage = 0, attack_type = 0; 
+	BOOL bResult = 1;
 	_MAGIC_TYPE3* pType = NULL;
 	CNpc* pNpc = NULL ;      // Pointer initialization!
 	int dexpoint = 0;
@@ -256,7 +223,7 @@ void CNpcMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, 
 
 	pNpc = g_pMain.m_arNpc.GetData(tid-NPC_BAND);
 	if(pNpc == NULL || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
-		result = 0;
+		bResult = 0;
 		goto packet_send;
 	}
 	
@@ -271,7 +238,7 @@ void CNpcMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, 
 	if (pType->bDuration == 0)    { // Non-Durational Spells.
 		if (pType->bDirectType == 1) {    // Health Point related !
 			if(damage > 0)	{
-				result = pNpc->SetHMagicDamage(damage);
+				bResult = pNpc->SetHMagicDamage(damage);
 			}
 			else	{
 				damage = abs(damage);
@@ -297,18 +264,12 @@ void CNpcMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, 
 packet_send:
 	//if ( pMagic->bType[1] == 0 || pMagic->bType[1] == 3 ) 
 	{
-		SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
-		SetByte( send_buff, MAGIC_EFFECTING, send_index );
-		SetDWORD( send_buff, magicid, send_index );
-		SetShort( send_buff, m_pSrcNpc->m_sNid+NPC_BAND, send_index );
-		SetShort( send_buff, tid, send_index );
-		SetShort( send_buff, data1, send_index );	
-		SetShort( send_buff, result, send_index );	
-		SetShort( send_buff, data3, send_index );	
-		SetShort( send_buff, moral, send_index );
-		SetShort( send_buff, 0, send_index );
-		SetShort( send_buff, 0, send_index );
-		g_pMain.Send(send_buff, send_index);
+		Packet result(AG_MAGIC_ATTACK_RESULT, uint8(MAGIC_EFFECTING));
+		result	<< magicid << uint16(m_pSrcNpc->m_sNid+NPC_BAND)
+				<< uint16(tid)
+				<< uint16(data1) << uint16(bResult) << uint16(data3)
+				<< uint16(moral) << uint16(0) << uint16(0);
+		g_pMain.Send(&result);
 	}
 }
 

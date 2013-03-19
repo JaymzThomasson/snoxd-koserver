@@ -260,17 +260,9 @@ void CUser::SetPartyExp(int iNpcExp, int iLoyalty, int iPartyLevel, int iMan)
 //  경험치를 보낸다. (레벨업일때 관련 수치를 준다)
 void CUser::SendExp(int iExp, int iLoyalty, int tType)
 {
-	int send_index = 0;
-	char buff[256];
-
-	SetByte(buff, AG_USER_EXP, send_index );
-	SetShort(buff, m_iUserId, send_index );
-	SetShort(buff, iExp, send_index );
-	SetShort(buff, iLoyalty, send_index );
-
-	//TRACE("$$ User - SendExp : %s, exp=%d, loyalty=%d $$\n", m_strUserID, iExp, iLoyalty);
-
-	g_pMain.Send(buff, send_index);   	
+	Packet result(AG_USER_EXP);
+	result << m_iUserId << uint16(iExp) << uint16(iLoyalty);
+	g_pMain.Send(&result);   	
 }
 
 short CUser::GetDamage(int tid, int magicid)
@@ -575,28 +567,16 @@ BYTE CUser::GetHitRate(float rate)
 }
 
 
-void CUser::SendSystemMsg(TCHAR *pMsg, BYTE type, int nWho)
+void CUser::SendSystemMsg(char *pMsg, uint8 type, uint16 sWho)
 {
-	int send_index = 0;
-	char buff[1024];
-	short sLength = _tcslen(pMsg);
-
-	SetByte(buff, AG_SYSTEM_MSG, send_index );
-	SetByte(buff, type, send_index );				// 채팅형식
-	SetShort(buff, nWho, send_index );				// 누구에게
-	SetShort(buff, m_iUserId, send_index );
-	SetShort(buff, sLength, send_index );
-	SetString( buff, pMsg, sLength, send_index );
-
-	g_pMain.Send(buff, send_index);   	
+	Packet result(AG_SYSTEM_MSG, type);
+	result << sWho << m_iUserId << pMsg;
+	g_pMain.Send(&result); 
 }
 
 void CUser::InitNpcAttack()
 {
-	for(int i=0; i<8; i++)
-	{
-		m_sSurroundNpcNumber[i] = -1;
-	}
+	memset(&m_sSurroundNpcNumber, -1, sizeof(m_sSurroundNpcNumber));
 }
 
 int CUser::IsSurroundCheck(float fX, float fY, float fZ, int NpcID)

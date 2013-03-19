@@ -500,42 +500,30 @@ fail_return:
 
 void CUser::SendNpcSay(EXEC *pExec)
 {
-	int i, send_index = 0;
-	char send_buf[128];
+	if (pExec == NULL)
+		return;
 
-	if( !pExec ) return;
-
-	SetByte( send_buf, WIZ_NPC_SAY, send_index );
-	for( i=0; i<MAX_MESSAGE_EVENT; i++) {
-		SetDWORD( send_buf, pExec->m_ExecInt[i], send_index );
-	}
-
-	Send( send_buf, send_index );
+	Packet result(WIZ_NPC_SAY);
+	for (int i = 0; i < MAX_MESSAGE_EVENT; i++)
+		result << pExec->m_ExecInt[i];
+	Send(&result);
 }
 
 void CUser::SelectMsg(EXEC *pExec)
 {
-	int i, chat, send_index = 0;
-	char send_buf[128];
+	if (pExec == NULL)
+		return;
 
-	if( !pExec ) return;
+	Packet result(WIZ_SELECT_MSG);
+	result << m_sEventNid << pExec->m_ExecInt[1];
 
-	SetByte( send_buf, WIZ_SELECT_MSG, send_index );
-	SetShort( send_buf, m_sEventNid, send_index );
-	SetDWORD( send_buf, pExec->m_ExecInt[1], send_index );	
+	for (int off = 2, i = 0; i < MAX_MESSAGE_EVENT; i++, off += 2)
+		result << pExec->m_ExecInt[off];
 
-	chat = 2;
+	Send(&result);
 
-	for( i = 0 ; i < MAX_MESSAGE_EVENT ; i++ ) {
-		SetDWORD( send_buf, pExec->m_ExecInt[chat], send_index );
-		chat += 2;
-	}
-
-	Send( send_buf, send_index );
-
-	for (int j = 0 ; j < MAX_MESSAGE_EVENT ; j++) {
+	for (int j = 0; j < MAX_MESSAGE_EVENT; j++)
 		m_iSelMsgEvent[j] = pExec->m_ExecInt[(2 * j) + 3];
-	}
 }
 
 void CUser::NpcEvent(Packet & pkt)

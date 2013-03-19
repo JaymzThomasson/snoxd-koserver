@@ -92,7 +92,7 @@ public:
 	void SendAttackSuccess(short tid, BYTE result, short sDamage, int nHP=0, short sAttack_type=1, uint8 type = 1, short sid = -1);
 	void SendHP();												// user¿« HP
 	void SendExp(int iExp, int iLoyalty, int tType = 1);
-	void SendSystemMsg(TCHAR *pMsg, BYTE type, int nWho);
+	void SendSystemMsg(char *pMsg, uint8 type, uint16 sWho);
 
 	__forceinline MAP * GetMap() { return m_pMap; };
 

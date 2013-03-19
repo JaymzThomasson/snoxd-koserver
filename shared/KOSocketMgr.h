@@ -40,16 +40,6 @@ public:
 	}
 
 	// Send a packet to all active sessions
-	void SendAll(char *pBuf, int nLength) // pending deprecation
-	{
-		AcquireLock();
-		SessionMap & sessMap = m_activeSessions;
-		for (auto itr = sessMap.begin(); itr != sessMap.end(); ++itr)
-			itr->second->Send(pBuf, nLength);
-		ReleaseLock();
-	}
-
-	// Send a packet to all active sessions
 	void SendAll(Packet * pkt) 
 	{
 		AcquireLock();
@@ -59,12 +49,12 @@ public:
 		ReleaseLock();
 	}
 
-	void SendAllCompressed(char *send_buff, int len) 
+	void SendAllCompressed(Packet * result) 
 	{
 		AcquireLock();
 		SessionMap & sessMap = m_activeSessions;
 		for (auto itr = sessMap.begin(); itr != sessMap.end(); ++itr)
-			itr->second->SendCompressed(send_buff, len);
+			itr->second->SendCompressed(result);
 		ReleaseLock();
 	}
 
