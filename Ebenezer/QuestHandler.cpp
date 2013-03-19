@@ -133,11 +133,9 @@ void CUser::SaveEvent(uint16 sQuestID, uint8 bQuestState)
 		int16 v12 = ((int16)((uint32)(5243 * (int16)(sQuestID - 10000 * v11)) >> 16) >> 3)
 			- ((int16)(sQuestID - 10000 * v11) >> 15);
 
-        SaveEvent(32005, (uint16)((int16)((uint32)(6711 * sQuestID) >> 16) >> 10) 
-			- (int16)(sQuestID >> 15));
+		SaveEvent(32005, (uint8)v11);
 		SaveEvent(32006, (uint8)v12);
-		SaveEvent(32007, sQuestID
-			- 100 * ((uint16)((int16)((uint32)(5243 * sQuestID) >> 16) >> 3) - (sQuestID >> 15)));
+		SaveEvent(32007, sQuestID - 100 * v12);
 		m_sEventDataIndex = sQuestID;
 		QuestV2MonsterDataRequest();
 	}
