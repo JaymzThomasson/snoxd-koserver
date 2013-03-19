@@ -150,8 +150,8 @@ public:
 	uint32	m_fHPLastTimeNormal;					// For Automatic HP recovery. 
 	uint32	m_fHPStartTimeNormal;
 	short	m_bHPAmountNormal;
-	BYTE	m_bHPDurationNormal;
-	BYTE	m_bHPIntervalNormal;
+	uint8	m_bHPDurationNormal;
+	uint8	m_bHPIntervalNormal;
 
 	uint32	m_fAreaLastTime;			// For Area Damage spells Type 3.
 	uint32   m_fAreaStartTime;

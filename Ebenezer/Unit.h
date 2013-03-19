@@ -146,8 +146,8 @@ public:
 	uint32	m_fHPLastTime[MAX_TYPE3_REPEAT];		// For Automatic HP recovery and Type 3 durational HP recovery.
 	uint32	m_fHPStartTime[MAX_TYPE3_REPEAT];
 	short	m_bHPAmount[MAX_TYPE3_REPEAT];
-	BYTE	m_bHPDuration[MAX_TYPE3_REPEAT];
-	BYTE	m_bHPInterval[MAX_TYPE3_REPEAT];
+	uint8	m_bHPDuration[MAX_TYPE3_REPEAT];
+	uint8	m_bHPInterval[MAX_TYPE3_REPEAT];
 	short	m_sSourceID[MAX_TYPE3_REPEAT];
 	BOOL	m_bType3Flag;
 

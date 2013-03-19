@@ -211,7 +211,7 @@ void CGameSocket::RecvUserInOut(Packet & pkt)
 			return;
 		}
 
-		if(x1 < 0 || z1 < 0 || x1 > pMap->GetMapSize() || z1 > pMap->GetMapSize())
+		if(x1 < 0 || z1 < 0 || x1 >= pMap->GetMapSize() || z1 >= pMap->GetMapSize())
 		{
 			TRACE("#### RecvUserInOut Fail : [name=%s], x1=%d, z1=%d #####\n", pUser->m_strUserID, region_x, region_z);
 			return;
@@ -280,7 +280,7 @@ BOOL CGameSocket::SetUid(float x, float z, int id, int speed)
 		return FALSE;
 	}
 	
-	if(x1 < 0 || z1 < 0 || x1 > pMap->GetMapSize() || z1 > pMap->GetMapSize())
+	if(x1 < 0 || z1 < 0 || x1 >= pMap->GetMapSize() || z1 >= pMap->GetMapSize())
 	{
 		TRACE("#### GameSocket ,, SetUid Fail : [nid=%d, name=%s], x1=%d, z1=%d #####\n", id, pUser->m_strUserID, x1, z1);
 		return FALSE;

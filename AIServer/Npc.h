@@ -352,15 +352,15 @@ public:
 	BYTE GetHitRate(float rate);
 	BOOL ResetPath();
 	BOOL GetTargetPos(float& x, float& z);
-	BOOL IsChangePath(int nStep = 1);
+	BOOL IsChangePath();
 	int Attack();
 	int LongAndMagicAttack();
 	int TracingAttack();
 	int GetTargetPath(int option = 0);
 	int	GetPartyDamage(int iNumber);
 	int IsCloseTarget(int nRange, int Flag=0);
-	BOOL StepMove(int nStep);
-	BOOL StepNoPathMove(int nStep);
+	BOOL StepMove();
+	BOOL StepNoPathMove();
 	BOOL IsMovingEnd();
 	BOOL IsMovable(float x, float z);
 	int  IsSurround(CUser* pUser);

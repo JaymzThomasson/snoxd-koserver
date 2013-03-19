@@ -71,7 +71,7 @@ BOOL CNpc::SetUid(float x, float z, int id)
 	int nRX = (int)x / VIEW_DIST;
 	int nRY = (int)z / VIEW_DIST;
 
-	if(x1 < 0 || z1 < 0 || x1 > pMap->GetMapSize() || z1 > pMap->GetMapSize())
+	if(x1 < 0 || z1 < 0 || x1 >= pMap->GetMapSize() || z1 >= pMap->GetMapSize())
 	{
 		TRACE("#### SetUid Fail : [nid=%d, sid=%d], x1=%d, z1=%d #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, x1, z1);
 		return FALSE;
@@ -460,34 +460,19 @@ void CNpc::NpcTracing()
 		}
 	}
 
-	if(m_bPathFlag == FALSE)
+	if (  (!m_bPathFlag && !StepMove())
+		|| (m_bPathFlag && !StepNoPathMove()))
 	{
-//		TRACE("StepMove : x=%.2f, z=%.2f\n", m_fCurX, m_fCurZ);
-		if(StepMove(1) == FALSE)	// 한칸 움직임(걷는동작, 달릴때는 2칸)
-		{
-			m_NpcState = NPC_STANDING;
-			m_Delay = m_sStandTime;
-			m_fDelayTime = getMSTime();
-			TRACE("### NpcTracing Fail : StepMove 실패, %s, %d ### \n", m_proto->m_strName, m_sNid+NPC_BAND);
-			return;
-		}	
-	}
-	else if(m_bPathFlag == TRUE)
-	{
-//		TRACE("StepNoPathMove : x=%.2f, z=%.2f\n", m_fCurX, m_fCurZ);
-		if(StepNoPathMove(1) == FALSE)	// 한칸 움직임(걷는동작, 달릴때는 2칸)
-		{
-			m_NpcState = NPC_STANDING;
-			m_Delay = m_sStandTime;
-			m_fDelayTime = getMSTime();
-			TRACE("### NpcTracing Fail : StepNoPathMove 실패, %s, %d ### \n", m_proto->m_strName, m_sNid+NPC_BAND);
-			return;
-		}	
+		m_NpcState = NPC_STANDING;
+		m_Delay = m_sStandTime;
+		m_fDelayTime = getMSTime();
+		TRACE("### NpcTracing Fail : StepMove 실패, %s, %d ### \n", m_proto->m_strName, m_sNid+NPC_BAND);
+		return;
 	}
 
 	if(IsMovingEnd())				// 이동이 끝났으면
 	{
-		::ZeroMemory(pBuf, 1024);	index = 0;	
+		index = 0;	
 		SetByte(pBuf, MOVE_RESULT, index);
 		SetByte(pBuf, SUCCESS, index);
 		SetShort(pBuf, m_sNid+NPC_BAND, index);
@@ -649,25 +634,17 @@ void CNpc::NpcMoving()
 		return;
 	}
 
-	if(m_bPathFlag == FALSE)	{
-		if(StepMove(1) == FALSE)	{	// 한칸 움직임(걷는동작, 달릴때는 2칸)
-			m_NpcState = NPC_STANDING;
-			m_Delay = m_sStandTime;
-			m_fDelayTime = getMSTime();
-			return;
-		}	
-	}
-	else if(m_bPathFlag == TRUE)	{
-		if(StepNoPathMove(1) == FALSE)	{	// 한칸 움직임(걷는동작, 달릴때는 2칸)
-			m_NpcState = NPC_STANDING;
-			m_Delay = m_sStandTime;
-			m_fDelayTime = getMSTime();
-			return;
-		}	
+	if (  (!m_bPathFlag && !StepMove())
+		|| (m_bPathFlag && !StepNoPathMove()))
+	{
+		m_NpcState = NPC_STANDING;
+		m_Delay = m_sStandTime;
+		m_fDelayTime = getMSTime();
+		return;
 	}
 
 	if(IsMovingEnd())	{				// 이동이 끝났으면
-		::ZeroMemory(pBuf, 1024);	index = 0;	
+		index = 0;	
 		SetByte(pBuf, MOVE_RESULT, index);
 		SetByte(pBuf, SUCCESS, index);
 		SetShort(pBuf, m_sNid+NPC_BAND, index);
@@ -834,21 +811,13 @@ void CNpc::NpcBack()
 		return;
 	}
 
-	if(m_bPathFlag == FALSE)	{
-		if(StepMove(1) == FALSE)	{
-			m_NpcState = NPC_STANDING;
-			m_Delay = m_sStandTime;
-			m_fDelayTime = getMSTime();
-			return;
-		}	
-	}
-	else if(m_bPathFlag == TRUE)	{
-		if(StepNoPathMove(1) == FALSE)	{
-			m_NpcState = NPC_STANDING;
-			m_Delay = m_sStandTime;
-			m_fDelayTime = getMSTime();
-			return;
-		}	
+	if (  (!m_bPathFlag && !StepMove())
+		|| (m_bPathFlag && !StepNoPathMove()))
+	{
+		m_NpcState = NPC_STANDING;
+		m_Delay = m_sStandTime;
+		m_fDelayTime = getMSTime();
+		return;
 	}
 
 	float fMoveSpeed = 0.0f;
@@ -969,10 +938,10 @@ BOOL CNpc::SetLive()
 			nTileX = nX / TILE_SIZE;
 			nTileZ = nZ / TILE_SIZE;
 
-			if(nTileX >= (pMap->GetMapSize()-1))
-				nTileX = (pMap->GetMapSize()-1);
-			if(nTileZ >= (pMap->GetMapSize()-1))
-				nTileZ = (pMap->GetMapSize()-1);
+			if(nTileX >= pMap->GetMapSize())
+				nTileX = pMap->GetMapSize();
+			if(nTileZ >= pMap->GetMapSize())
+				nTileZ = pMap->GetMapSize();
 
 			if(nTileX < 0 || nTileZ < 0)	{
 				TRACE("#### Npc-SetLive() Fail : nTileX=%d, nTileZ=%d #####\n", nTileX, nTileZ);
@@ -1214,9 +1183,9 @@ BOOL CNpc::RandomMove()
 		return FALSE;
 	}
 
-	int mapWidth = (int)((max_xx - 1) * GetMap()->GetUnitDistance());
+	int mapWidth = (int)(max_xx * GetMap()->GetUnitDistance());
 
-	if(m_fCurX > mapWidth || m_fCurZ > mapWidth || fDestX > mapWidth || fDestZ > mapWidth)	{
+	if(m_fCurX >= mapWidth || m_fCurZ >= mapWidth || fDestX >= mapWidth || fDestZ >= mapWidth)	{
 		TRACE("##### RandomMove Fail : value is overflow .. [nid = %d, name=%s], cur_x=%.2f, z=%.2f, dest_x=%.2f, dest_z=%.2f#####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ, fDestX, fDestZ);
 		return FALSE;
 	}
@@ -1303,8 +1272,8 @@ BOOL CNpc::RandomBackMove()
 	float fTempRange = (float)m_bySearchRange*2;				// 일시적으로 보정한다.
 	int min_x = (int)(m_fCurX - fTempRange)/TILE_SIZE;	if(min_x < 0) min_x = 0;
 	int min_z = (int)(m_fCurZ - fTempRange)/TILE_SIZE;	if(min_z < 0) min_z = 0;
-	int max_x = (int)(m_fCurX + fTempRange)/TILE_SIZE;	if(max_x >= max_xx) max_x = max_xx - 1;
-	int max_z = (int)(m_fCurZ + fTempRange)/TILE_SIZE;	if(max_z >= max_zz) max_z = max_zz - 1;
+	int max_x = (int)(m_fCurX + fTempRange)/TILE_SIZE;	if(max_x > max_xx) max_x = max_xx;
+	int max_z = (int)(m_fCurZ + fTempRange)/TILE_SIZE;	if(max_z > max_zz) max_z = max_zz;
 
 	__Vector3 vStart, vEnd, vEnd22;
 	float fDis = 0.0f;
@@ -1539,6 +1508,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 	m_vMapSize.cy = max_y - min_y + 1;
 	
 	m_pPath = NULL;
+
 	m_vPathFind.SetMap(m_vMapSize.cx, m_vMapSize.cy, GetMap()->GetEventIDs(), GetMap()->GetMapSize());
 	m_pPath = m_vPathFind.FindPath(end.x, end.y, start.x, start.y);
 	int count = 0;
@@ -2078,7 +2048,7 @@ BOOL CNpc::IsMovingEnd()
 }
 
 //	Step 수 만큼 타켓을 향해 이동한다.
-BOOL CNpc::StepMove(int nStep)
+BOOL CNpc::StepMove()
 {
 	if(m_NpcState != NPC_MOVING && m_NpcState != NPC_TRACING && m_NpcState != NPC_BACK) return FALSE;
 	
@@ -2111,6 +2081,11 @@ BOOL CNpc::StepMove(int nStep)
 
 	fDis = GetDistance(vStart, vEnd);
 
+	// For as long as speeds are broken, this check's going to cause problems
+	// It's disabled for now, but note that the removal of this check is the reason 
+	// why mobs are going to have weird looking bursts of speed.
+	// Without, they'll just get stuck going back and forth in position. Compromises.
+#if 0
 	if(fDis >= m_fSecForMetor)
 	{
 		vDis = GetVectorPosition(vStart, vEnd, m_fSecForMetor);
@@ -2118,6 +2093,7 @@ BOOL CNpc::StepMove(int nStep)
 		m_fPrevZ = vDis.z;
 	}
 	else
+#endif
 	{
 		m_iAniFrameCount++;
 		if(m_iAniFrameCount == m_iAniFrameIndex)
@@ -2166,31 +2142,19 @@ BOOL CNpc::StepMove(int nStep)
 		TRACE("#### move fail : [nid = %d], m_fSecForMetor = %.2f\n", m_sNid+NPC_BAND, m_fSecForRealMoveMetor);
 	}
 
-	if(m_sStepCount == 0)
+	if (m_sStepCount++ > 0)
 	{
-		m_sStepCount++;
-	}
-	else
-	{
-		m_sStepCount++;
 		m_fCurX = fOldCurX;		 m_fCurZ = fOldCurZ;
 		if(m_fCurX < 0 || m_fCurZ < 0)
-		{
 			TRACE("Npc-StepMove : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ);
-		}
 		
-		if(SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND))
-		{
-			return TRUE;
-		}
-		else return FALSE;	
-		
+		return SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);
 	}
 
 	return TRUE;
 }
 
-BOOL CNpc::StepNoPathMove(int nStep)
+BOOL CNpc::StepNoPathMove()
 {
 	if(m_NpcState != NPC_MOVING && m_NpcState != NPC_TRACING && m_NpcState != NPC_BACK) return FALSE;
 	
@@ -2222,23 +2186,18 @@ BOOL CNpc::StepNoPathMove(int nStep)
 
 	m_fSecForRealMoveMetor = GetDistance(vStart, vEnd);
 	
-	if(m_sStepCount == 0)	{
-		m_sStepCount++;
-	}
-	else	{
-		m_sStepCount++;
+	if (m_sStepCount++ > 0)
+	{
 		if(fOldCurX < 0 || fOldCurZ < 0)	{
 			TRACE("#### Npc-StepNoPathMove Fail : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, fOldCurX, fOldCurZ);
 			return FALSE;
 		}
-		else	{
+		else	
+		{
 			m_fCurX = fOldCurX;	 m_fCurZ = fOldCurZ;
 		}
 		
-		if(SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND))	{
-			return TRUE;
-		}
-		else return FALSE;	
+		return (SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND));
 	}
 
 	return TRUE;
@@ -2421,8 +2380,8 @@ int CNpc::GetTargetPath(int option)
 
 	int min_x = (int)(m_fCurX - iTempRange)/TILE_SIZE;	if(min_x < 0) min_x = 0;
 	int min_z = (int)(m_fCurZ - iTempRange)/TILE_SIZE;	if(min_z < 0) min_z = 0;
-	int max_x = (int)(m_fCurX + iTempRange)/TILE_SIZE;	if(max_x >= max_xx) max_x = max_xx - 1;
-	int max_z = (int)(m_fCurZ + iTempRange)/TILE_SIZE;	if(min_z >= max_zz) min_z = max_zz - 1;
+	int max_x = (int)(m_fCurX + iTempRange)/TILE_SIZE;	if(max_x > max_xx) max_x = max_xx;
+	int max_z = (int)(m_fCurZ + iTempRange)/TILE_SIZE;	if(min_z > max_zz) min_z = max_zz;
 
 	if(m_Target.id >= USER_BAND && m_Target.id < NPC_BAND)	{	// Target 이 User 인 경우
 		// 목표점이 Search Range를 벗어나지 않는지 검사
@@ -3134,7 +3093,7 @@ BOOL CNpc::IsCompStatus(CUser* pUser)
 }
 
 //	Target 의 위치가 다시 길찾기를 할 정도로 변했는지 판단
-BOOL CNpc::IsChangePath(int nStep)
+BOOL CNpc::IsChangePath()
 {
 	// 패스파인드의 마지막 좌표를 가지고,, Target이 내 공격거리에 있는지를 판단,,
 //	if(!m_pPath) return TRUE;
@@ -5829,8 +5788,8 @@ BOOL CNpc::Teleport()
 		nTileX = nX / TILE_SIZE;
 		nTileZ = nZ / TILE_SIZE;
 
-		if(nTileX >= (pMap->GetMapSize()-1))		nTileX = (pMap->GetMapSize()-1);
-		if(nTileZ >= (pMap->GetMapSize()-1))		nTileZ = (pMap->GetMapSize()-1);
+		if(nTileX > pMap->GetMapSize())		nTileX = pMap->GetMapSize();
+		if(nTileZ > pMap->GetMapSize())		nTileZ = pMap->GetMapSize();
 
 		if(nTileX < 0 || nTileZ < 0)	{
 			TRACE("#### Npc-SetLive() Fail : nTileX=%d, nTileZ=%d #####\n", nTileX, nTileZ);

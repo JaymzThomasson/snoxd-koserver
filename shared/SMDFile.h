@@ -29,7 +29,7 @@ public:
 
 	int GetEventID(int x, int z);
 
-	__forceinline int GetMapSize() { return m_nMapSize; }
+	__forceinline int GetMapSize() { return m_nMapSize - 1; }
 	__forceinline float GetUnitDistance() { return m_fUnitDist; }
 	__forceinline int GetXRegionMax() { return m_nXRegion - 1; }
 	__forceinline int GetZRegionMax() { return m_nZRegion - 1; }
