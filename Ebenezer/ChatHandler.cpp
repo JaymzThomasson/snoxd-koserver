@@ -121,9 +121,6 @@ void CUser::Chat(Packet & pkt)
 
 	case PRIVATE_CHAT:
 	{
-		if (m_sPrivateChatUser == GetSocketID()) 
-			break;
-
 		CUser *pUser = g_pMain.GetUserPtr(m_sPrivateChatUser);
 		if (pUser != NULL) 
 			pUser->Send(&result);
