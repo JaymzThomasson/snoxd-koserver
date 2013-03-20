@@ -327,7 +327,6 @@ private:
 	COMMAND_HANDLER(HandleSantaCommand);
 	COMMAND_HANDLER(HandleSantaOffCommand);
 	COMMAND_HANDLER(HandleAngelCommand);
-	COMMAND_HANDLER(HandleAngelOffCommand);
 	COMMAND_HANDLER(HandlePermanentChatCommand);
 	COMMAND_HANDLER(HandlePermanentChatOffCommand);
 	COMMAND_HANDLER(HandleReloadNoticeCommand);
