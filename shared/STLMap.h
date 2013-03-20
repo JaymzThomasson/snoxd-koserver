@@ -50,7 +50,7 @@ public:
 		return result;
 	}
 
-	void DeleteData(long key_value)
+	void DeleteData(uint32 key_value)
 	{
 		FastGuard lock(m_lock);
 		auto itr = m_UserTypeMap.find(key_value);
@@ -73,6 +73,5 @@ public:
 		m_UserTypeMap.clear();
 	}
 
-	~CSTLMap() { DeleteAllData(); };
-
+	~CSTLMap() { DeleteAllData(); }
 };
