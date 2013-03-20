@@ -524,4 +524,11 @@ enum UserStatusBehaviour
 	USER_STATUS_CURE	= 2
 };
 
+enum FlyingSantaOrAngel
+{
+	FLYING_NONE		= 0,
+	FLYING_SANTA	= 1,
+	FLYING_ANGEL	= 2
+};
+
 #include "../shared/database/structs.h"

@@ -112,7 +112,7 @@ CEbenezerDlg::CEbenezerDlg()
 	memset(m_strAccountUID, 0, sizeof(m_strAccountUID));
 	memset(m_strAccountPWD, 0, sizeof(m_strAccountPWD));
 
-	m_bSanta = FALSE;		// ���� ��Ÿ!!! >.<
+	m_bSantaOrAngel = FLYING_NONE;
 }
 
 bool CEbenezerDlg::Startup()
@@ -820,11 +820,9 @@ void CEbenezerDlg::UpdateGameTime()
 		m_nMin = 0;
 		UpdateWeather();
 		SetGameTime();
-//  ���� ��Ÿ!! >.<
-		if (m_bSanta) {
-			FlySanta();
-		}
-//
+
+		if (m_bSantaOrAngel)
+			SendFlyingSantaOrAngel();
 	}
 	if( m_nHour == 24 ) {
 		m_nDate++;
@@ -1933,9 +1931,9 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 	Send_UDP_All(&result);
 }
 
-void CEbenezerDlg::FlySanta()
+void CEbenezerDlg::SendFlyingSantaOrAngel()
 {
-	Packet result(WIZ_SANTA);
+	Packet result(WIZ_SANTA, uint8(m_bSantaOrAngel));
 	Send_All(&result);
 }
 

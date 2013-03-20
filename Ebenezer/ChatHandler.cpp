@@ -24,7 +24,9 @@ void CEbenezerDlg::InitServerCommands()
 		{ "offdiscount",		&CEbenezerDlg::HandleDiscountOffCommand,		"Disables server discounts" },
 		{ "captain",			&CEbenezerDlg::HandleCaptainCommand,			"Sets the captains/commanders for the war" },
 		{ "santa",				&CEbenezerDlg::HandleSantaCommand,				"Enables a flying Santa Claus." },
-		{ "offsanta",			&CEbenezerDlg::HandleSantaOffCommand,			"Disables a flying Santa Claus." },
+		{ "offsanta",			&CEbenezerDlg::HandleSantaOffCommand,			"Disables a flying Santa Claus/angel." },
+		{ "angel",				&CEbenezerDlg::HandleAngelCommand,				"Enables a flying angel." },
+		{ "offangel",			&CEbenezerDlg::HandleSantaOffCommand,			"Disables a flying Santa Claus/angel." },
 		{ "permanent",			&CEbenezerDlg::HandlePermanentChatCommand,		"Sets the permanent chat bar to the specified text." },
 		{ "offpermanent",		&CEbenezerDlg::HandlePermanentChatOffCommand,	"Resets the permanent chat bar text." },
 		{ "reload_notice",		&CEbenezerDlg::HandleReloadNoticeCommand,		"Reloads the in-game notice list." },
@@ -424,13 +426,19 @@ COMMAND_HANDLER(CEbenezerDlg::HandleCaptainCommand)
 
 COMMAND_HANDLER(CEbenezerDlg::HandleSantaCommand)
 {
-	m_bSanta = TRUE;
+	m_bSantaOrAngel = FLYING_SANTA;
 	return true;
 }
 
 COMMAND_HANDLER(CEbenezerDlg::HandleSantaOffCommand)
 {
-	m_bSanta = FALSE;
+	m_bSantaOrAngel = FLYING_NONE;
+	return true;
+}
+
+COMMAND_HANDLER(CEbenezerDlg::HandleAngelCommand)
+{
+	m_bSantaOrAngel = FLYING_ANGEL;
 	return true;
 }
 

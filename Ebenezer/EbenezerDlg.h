@@ -66,7 +66,8 @@ public:
 	bool Startup();
 	void OnTimer(UINT nIDEvent);
 
-	void FlySanta();
+	void SendFlyingSantaOrAngel();
+
 	void BattleZoneCurrentUsers();
 	BOOL LoadKnightsRankTable();
 	void GetCaptainUserPtr();
@@ -278,7 +279,7 @@ public:
 	BOOL	m_bPermanentChatMode;
 	std::string	m_strPermanentChat;
 
-	BOOL	m_bSanta;
+	uint8 m_bSantaOrAngel;
 
 	// zone server info
 	int					m_nServerNo, m_nServerGroupNo;
@@ -325,6 +326,8 @@ private:
 	COMMAND_HANDLER(HandleCaptainCommand);
 	COMMAND_HANDLER(HandleSantaCommand);
 	COMMAND_HANDLER(HandleSantaOffCommand);
+	COMMAND_HANDLER(HandleAngelCommand);
+	COMMAND_HANDLER(HandleAngelOffCommand);
 	COMMAND_HANDLER(HandlePermanentChatCommand);
 	COMMAND_HANDLER(HandlePermanentChatOffCommand);
 	COMMAND_HANDLER(HandleReloadNoticeCommand);
