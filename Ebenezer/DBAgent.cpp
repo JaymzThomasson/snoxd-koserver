@@ -239,6 +239,7 @@ void CDBAgent::LoadRentalData(string & strAccountID, string & strCharID, UserRen
 	do
 	{
 		_USER_RENTAL_ITEM *pItem = new _USER_RENTAL_ITEM();
+		_RENTAL_ITEM *pRentalItem = NULL;
 
 		dbCommand->FetchString(1, pItem->strUserID);
 		if (_strcmpi(pItem->strUserID.c_str(), strCharID.c_str()) != 0)
@@ -258,7 +259,9 @@ void CDBAgent::LoadRentalData(string & strAccountID, string & strCharID, UserRen
 		dbCommand->FetchInt16(10, pItem->sMinutesRemaining);
 		dbCommand->FetchString(11, pItem->szTimeRental, sizeof(pItem->szTimeRental));
 
-		if (rentalData.find(pItem->nSerialNum) != rentalData.end())
+		pRentalItem = g_pMain.m_RentalItemArray.GetData(pItem->nRentalIndex);
+		if (pRentalItem == NULL
+			|| rentalData.find(pItem->nSerialNum) != rentalData.end())
 			delete pItem;
 		else
 			rentalData.insert(std::make_pair(pItem->nSerialNum, pItem));

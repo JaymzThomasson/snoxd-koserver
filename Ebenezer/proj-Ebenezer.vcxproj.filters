@@ -401,6 +401,9 @@
     <ClInclude Include="..\shared\SMDFile.h">
       <Filter>Shared</Filter>
     </ClInclude>
+    <ClInclude Include="..\shared\database\RentalItemSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Ebenezer.ico">
@@ -409,6 +412,7 @@
     <None Include="res\Ebenezer.rc2">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Ebenezer.rc">

@@ -52,6 +52,7 @@ typedef	CSTLMap	<EVENT>						QuestArray;
 typedef	CSTLMap	<_SERVER_RESOURCE>			ServerResourceArray;
 typedef	CSTLMap	<_QUEST_HELPER>				QuestHelperArray;
 typedef	CSTLMap	<_QUEST_MONSTER>			QuestMonsterArray;
+typedef	CSTLMap	<_RENTAL_ITEM>				RentalItemArray;
 
 typedef hash_map<string, _USER_RANK *>		UserRankMap; 
 
@@ -104,6 +105,7 @@ public:
 	BOOL LoadMagicType7();
 	BOOL LoadMagicType8();
 	BOOL LoadMagicType9();
+	BOOL LoadRentalList();
 	void Send_PartyMember(int party, Packet *result);
 	void Send_KnightsMember(int index, Packet *pkt);
 	void Send_KnightsAlliance(uint16 sAllianceID, Packet *pkt);
@@ -243,6 +245,7 @@ public:
 	EventTriggerArray		m_EventTriggerArray;
 	QuestHelperArray		m_QuestHelperArray;
 	QuestMonsterArray		m_QuestMonsterArray;
+	RentalItemArray			m_RentalItemArray;
 
 	CKnightsManager			m_KnightsManager;
 

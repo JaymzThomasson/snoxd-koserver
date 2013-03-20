@@ -280,6 +280,7 @@
     <ClInclude Include="..\shared\database\OdbcRecordset.h" />
     <ClInclude Include="..\shared\database\QuestHelperSet.h" />
     <ClInclude Include="..\shared\database\QuestMonsterSet.h" />
+    <ClInclude Include="..\shared\database\RentalItemSet.h" />
     <ClInclude Include="..\shared\database\ServerResourceSet.h" />
     <ClInclude Include="..\shared\database\StartPositionSet.h" />
     <ClInclude Include="..\shared\database\UserKnightsRankSet.h" />
@@ -321,6 +322,7 @@
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="res\Ebenezer.ico" />
     <None Include="res\Ebenezer.rc2" />
   </ItemGroup>

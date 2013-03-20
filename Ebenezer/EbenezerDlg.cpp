@@ -29,6 +29,7 @@
 #include "../shared/database/HomeSet.h"
 #include "../shared/database/StartPositionSet.h"
 #include "../shared/database/BattleSet.h"
+#include "../shared/database/RentalItemSet.h"
 
 using namespace std;
 
@@ -183,6 +184,7 @@ bool CEbenezerDlg::LoadTables()
 			&& LoadMagicType7()
 			&& LoadMagicType8()
 			&& LoadMagicType9()
+			&& LoadRentalList()
 			&& LoadCoefficientTable()
 			&& LoadLevelUpTable()
 			&& LoadAllKnights()
@@ -712,6 +714,11 @@ BOOL CEbenezerDlg::LoadMagicType8()
 BOOL CEbenezerDlg::LoadMagicType9()
 {
 	LOAD_TABLE(CMagicType9Set, &g_DBAgent.m_GameDB, &m_Magictype9Array, false);
+}
+
+BOOL CEbenezerDlg::LoadRentalList()
+{
+	LOAD_TABLE(CRentalItemSet, &g_DBAgent.m_GameDB, &m_RentalItemArray, true);
 }
 
 BOOL CEbenezerDlg::LoadCoefficientTable()

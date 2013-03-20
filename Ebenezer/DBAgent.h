@@ -10,6 +10,27 @@ enum UserUpdateType
 	UPDATE_PACKET_SAVE,
 };
 
+struct _RENTAL_ITEM
+{
+	uint32	nRentalIndex;
+	uint32	nItemID;
+	uint16	sDurability;
+	uint64	nSerialNum;
+	uint8	byRegType;
+	uint8	byItemType;
+	uint8	byClass;
+	uint16	sRentalTime;
+	uint32	nRentalMoney;
+	std::string strLenderCharID;
+	std::string strBorrowerCharID;
+};
+
+enum RentalType
+{
+	RENTAL_TYPE_IN_LIST		= 1,
+	RENTAL_TYPE_LENDER		= 2,
+	RENTAL_TYPE_BORROWER	= 3
+};
 
 struct _USER_RENTAL_ITEM
 {
@@ -53,6 +74,7 @@ public:
 	int8 DeleteChar(std::string & strAccountID, int index, std::string & strCharID, std::string & strSocNo);
 
 	void LoadRentalData(std::string & strAccountID, std::string & strCharID, UserRentalMap & rentalData);
+
 	bool LoadUserData(std::string & strAccountID, std::string & strCharID, CUser *pUser);
 	bool LoadWarehouseData(std::string & strAccountID, CUser *pUser);
 	bool LoadPremiumServiceUser(std::string & strAccountID, CUser *pUser);
