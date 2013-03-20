@@ -2328,6 +2328,8 @@ void CUser::SendAllKnightsID()
 {
 	Packet result(WIZ_KNIGHTS_LIST, uint8(1));
 	uint16 count = 0;
+
+	FastGuard lock(g_pMain.m_KnightsArray.m_lock);
 	foreach_stlmap (itr, g_pMain.m_KnightsArray)
 	{
 		CKnights *pKnights = itr->second;

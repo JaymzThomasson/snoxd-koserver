@@ -324,12 +324,13 @@ int32 CEbenezerDlg::GetEventTrigger(CNpc * pNpc)
 
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 {
+	// Protect party ID generation
 	EnterCriticalSection(&g_region_critical);
-
 	pLeader->m_sPartyIndex = m_sPartyIndex++;
 	if (m_sPartyIndex == SHRT_MAX)
 		m_sPartyIndex = 0;
-		
+	LeaveCriticalSection(&g_region_critical);
+
 	_PARTY_GROUP * pParty = new _PARTY_GROUP;
 	pParty->wIndex = pLeader->m_sPartyIndex;
 	pParty->uid[0] = pLeader->GetSocketID();
@@ -339,7 +340,7 @@ _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 		pLeader->m_sPartyIndex = -1;
 		pParty = NULL;
 	}
-	LeaveCriticalSection(&g_region_critical);
+
 	return pParty;
 }
 
@@ -1592,6 +1593,7 @@ BOOL CEbenezerDlg::LoadStartPositionTable()
 
 BOOL CEbenezerDlg::LoadAllKnights()
 {
+	FastGuard lock(m_KnightsArray.m_lock);
 	LOAD_TABLE(CKnightsSet, &g_DBAgent.m_GameDB, &m_KnightsArray, true);
 }
 
@@ -1857,6 +1859,7 @@ void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser)
 
 void CEbenezerDlg::GetCaptainUserPtr()
 {
+	FastGuard lock(m_KnightsArray.m_lock);
 	foreach_stlmap (itr, m_KnightsArray)
 	{
 		CKnights *pKnights = itr->second;

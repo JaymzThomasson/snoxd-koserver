@@ -8,46 +8,70 @@
 #define foreach_region(x, z) for (int x = -1; x <= 1; x++) \
 	for (int z = -1; z <= 1; z++)
 
-template <class T> class CSTLMap  
+template <class T> 
+class CSTLMap  
 {
 public:
-	typedef typename std::map<long, T*>::iterator Iterator;
-	std::map<long, T*> m_UserTypeMap;
-	
-	int GetSize() { return m_UserTypeMap.size(); };
-	bool IsExist(int key_value)  { return (m_UserTypeMap.find(key_value) != m_UserTypeMap.end()); };
+	typedef typename std::map<uint32, T*>::iterator Iterator;
+	std::map<uint32, T*> m_UserTypeMap;
+	FastMutex m_lock;
 
-	bool IsEmpty() { return m_UserTypeMap.empty(); };
-	bool PutData(long key_value, T* pData) { return m_UserTypeMap.insert(std::make_pair(key_value, pData)).second; };
-
-	T* GetData(long key_value)
+	int GetSize()
 	{
+		FastGuard lock(m_lock);
+		return m_UserTypeMap.size(); 
+	}
+
+	bool IsExist(uint32 key)
+	{
+		FastGuard lock(m_lock);
+		return (m_UserTypeMap.find(key) != m_UserTypeMap.end()); 
+	}
+
+	bool IsEmpty() 
+	{ 
+		FastGuard lock(m_lock);
+		return m_UserTypeMap.empty(); 
+	}
+
+	bool PutData(uint32 key_value, T* pData) 
+	{
+		FastGuard lock(m_lock);
+		return m_UserTypeMap.insert(std::make_pair(key_value, pData)).second; 
+	}
+
+	T* GetData(uint32 key_value)
+	{
+		FastGuard lock(m_lock);
 		T *result = NULL;
 		auto itr = m_UserTypeMap.find(key_value);
 		if (itr != m_UserTypeMap.end())
 			result = itr->second;
 		return result;
-	};
+	}
 
 	void DeleteData(long key_value)
 	{
+		FastGuard lock(m_lock);
 		auto itr = m_UserTypeMap.find(key_value);
 		if (itr!= m_UserTypeMap.end())
 		{
 			delete itr->second;
 			m_UserTypeMap.erase(itr);
 		}
-	};
+	}
 
 	void DeleteAllData()
 	{
-		if (IsEmpty())
+		FastGuard lock(m_lock);
+		if (m_UserTypeMap.empty())
 			return;
 
 		foreach (itr, m_UserTypeMap)
 			delete itr->second;
+
 		m_UserTypeMap.clear();
-	};
+	}
 
 	~CSTLMap() { DeleteAllData(); };
 

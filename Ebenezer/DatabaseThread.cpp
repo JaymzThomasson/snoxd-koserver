@@ -531,7 +531,6 @@ void CKnightsManager::ReqCreateKnights(CUser *pUser, Packet & pkt)
 	pUser->m_iGold -= CLAN_COIN_REQUIREMENT;
 	pUser->m_bFame = CHIEF;
 
-	// TO-DO: Make this threadsafe
 	g_pMain.m_KnightsArray.PutData(pKnights->m_sIndex, pKnights);
 
 	pKnights->AddUser(pUser);
@@ -655,7 +654,6 @@ void CKnightsManager::ReqKnightsList(Packet & pkt)
 	{
 		pKnights = new CKnights();
 
-		// TO-DO: Make this threadsafe
 		if (!g_pMain.m_KnightsArray.PutData(sClanID, pKnights))
 		{
 			delete pKnights;

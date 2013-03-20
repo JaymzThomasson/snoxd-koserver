@@ -101,3 +101,29 @@ public:
 			InterlockedExchange(&m_lock, 0);
 	}
 };
+
+template <class T>
+class Guard
+{
+public:
+	Guard(T& mutex) : target(mutex)
+	{
+		target.Acquire();
+	}
+
+	~Guard()
+	{
+		target.Release();
+	}
+
+	Guard& operator=(Guard& src)
+	{
+		this->target = src.target;
+		return *this;
+	}
+
+protected:
+	T& target;
+};
+
+typedef Guard<FastMutex> FastGuard;
