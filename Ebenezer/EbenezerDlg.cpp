@@ -233,8 +233,6 @@ C3DMap * CEbenezerDlg::GetZoneByID(int zoneID)
 
 CUser* CEbenezerDlg::GetUserPtr(string findName, NameType type)
 {
-	CUser *result = NULL;
-
 	// As findName is a copy of the string passed in, we can change it
 	// without worry of affecting anything.
 	STRTOUPPER(findName);
@@ -242,42 +240,36 @@ CUser* CEbenezerDlg::GetUserPtr(string findName, NameType type)
 	NameMap::iterator itr;
 	if (type == TYPE_ACCOUNT)
 	{
-		m_accountNameLock.Acquire();
+		FastGuard lock(m_accountNameLock);
 		itr = m_accountNameMap.find(findName);
-		if (itr != m_accountNameMap.end())
-			result = itr->second;
-		m_accountNameLock.Release();
+		return (itr != m_accountNameMap.end() ? itr->second : NULL);
 	}
 	else if (type == TYPE_CHARACTER)
 	{
-		m_characterNameLock.Acquire();
+		FastGuard lock(m_characterNameLock);
 		itr = m_characterNameMap.find(findName);
-		if (itr != m_characterNameMap.end())
-			result = itr->second;
-		m_characterNameLock.Release();
+		return (itr != m_characterNameMap.end() ? itr->second : NULL);
 	}
 
-	return result;
+	return NULL;
 }
 
 // Adds the account name & session to a hashmap (on login)
 void CEbenezerDlg::AddAccountName(CUser *pSession)
 {
+	FastGuard lock(m_accountNameLock);
 	string upperName = pSession->m_strAccountID;
 	STRTOUPPER(upperName);
-	m_accountNameLock.Acquire();
 	m_accountNameMap[upperName] = pSession;
-	m_accountNameLock.Release();
 }
 
 // Adds the character name & session to a hashmap (when in-game)
 void CEbenezerDlg::AddCharacterName(CUser *pSession)
 {
+	FastGuard lock(m_characterNameLock);
 	string upperName = pSession->GetName();
 	STRTOUPPER(upperName);
-	m_characterNameLock.Acquire();
 	m_characterNameMap[upperName] = pSession;
-	m_characterNameLock.Release();
 }
 
 // Removes the account name & character names from the hashmaps (on logout)
@@ -285,17 +277,19 @@ void CEbenezerDlg::RemoveSessionNames(CUser *pSession)
 {
 	string upperName = pSession->m_strAccountID;
 	STRTOUPPER(upperName);
-	m_accountNameLock.Acquire();
-	m_accountNameMap.erase(upperName);
-	m_accountNameLock.Release();
+
+	{ // remove account name from map (limit scope)
+		FastGuard lock(m_accountNameLock);
+		m_accountNameMap.erase(upperName);
+	}
 
 	if (pSession->isInGame())
 	{
 		upperName = pSession->GetName();
 		STRTOUPPER(upperName);
-		m_characterNameLock.Acquire();
+
+		FastMutex lock(m_characterNameLock);
 		m_characterNameMap.erase(upperName);
-		m_characterNameLock.Release();
 	}
 }
 
@@ -1608,7 +1602,7 @@ BOOL CEbenezerDlg::LoadKnightsAllianceTable()
 void CEbenezerDlg::CleanupUserRankings()
 {
 	set<_USER_RANK *> deleteSet;
-	m_userRankingsLock.Acquire();
+	FastGuard lock(m_userRankingsLock);
 
 	// Go through the personal rank map, reset the character's rank and insert
 	// the _USER_RANK struct instance into the deletion set for later.
@@ -1639,8 +1633,6 @@ void CEbenezerDlg::CleanupUserRankings()
 	// Free the memory used by the _USER_RANK structs
 	foreach (itr, deleteSet)
 		delete *itr;
-
-	m_userRankingsLock.Release();
 }
 
 BOOL CEbenezerDlg::LoadUserRankings()
@@ -1653,27 +1645,29 @@ BOOL CEbenezerDlg::LoadUserRankings()
 	CleanupUserRankings();
 
 	// Acquire the lock for thread safety, and load both tables.
-	m_userRankingsLock.Acquire();
+	FastGuard lock(m_userRankingsLock);
+
 	szError = UserPersonalRankSet.Read(true);
 	if (szError != NULL)
-		TRACE("Failed to load personal rankings, error: %s\n", szError);
-
-	if (szError == NULL)
 	{
-		szError = UserKnightsRankSet.Read(true);
-		if (szError != NULL)
-			TRACE("Failed to load user knights rankings, error: %s\n", szError);
+		TRACE("Failed to load personal rankings, error: %s\n", szError);
+		return FALSE;
 	}
 
-	m_userRankingsLock.Release();
+	szError = UserKnightsRankSet.Read(true);
+	if (szError != NULL)
+	{
+		TRACE("Failed to load user knights rankings, error: %s\n", szError);
+		return FALSE;
+	}
 
-	return (szError == NULL); // No error means success.
+	return TRUE;
 }
 
 void CEbenezerDlg::GetUserRank(CUser *pUser)
 {
 	// Acquire the lock for thread safety
-	m_userRankingsLock.Acquire();
+	FastGuard lock(m_userRankingsLock);
 
 	// Get character's name & convert it to upper case for case insensitivity
 	string strUserID = pUser->GetName();
@@ -1686,8 +1680,6 @@ void CEbenezerDlg::GetUserRank(CUser *pUser)
 	// Grab the knights rank from the map, if applicable.
 	itr = m_UserKnightsRankMap.find(strUserID);
 	pUser->m_bKnightsRank = itr != m_UserKnightsRankMap.end() ? int8(itr->second->nRank) : -1;
-
-	m_userRankingsLock.Release();
 }
 
 uint16 CEbenezerDlg::GetKnightsAllMembers(uint16 sClanID, Packet & result, uint16 & pktSize, bool bClanLeader)

@@ -50,14 +50,13 @@ void CDBAgent::ReportSQLError(OdbcError *pError)
 	string errorMessage = string_format(_T("ODBC error occurred.\r\nSource: %s\r\nError: %s\r\nDescription: %s\n"),
 		pError->Source.c_str(), pError->ExtendedErrorMessage.c_str(), pError->ErrorMessage.c_str());
 
-	m_lock.Acquire();
+	FastGuard lock(m_lock);
 	FILE *fp = fopen("./errors.log", "a");
 	if (fp != NULL)
 	{
 		fwrite(errorMessage.c_str(), errorMessage.length(), 1, fp);
 		fclose(fp);
 	}
-	m_lock.Release();
 
 	TRACE("Database error: %s\n", errorMessage.c_str());
 	delete pError;

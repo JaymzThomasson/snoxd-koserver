@@ -32,20 +32,14 @@ public:
 
 	__forceinline bool isConnected() 
 	{
-		bool result;
-		m_lock.Acquire();
-		result = m_connHandle != NULL; 
-		m_lock.Release();
-		return result;
+		FastGuard lock(m_lock);
+		return (m_connHandle != NULL);
 	}
 
 	__forceinline bool isError() 
 	{
-		bool result;
-		m_lock.Acquire();
-		result = m_odbcErrors.size() > 0; 
-		m_lock.Release();
-		return result;
+		FastGuard lock(m_lock);
+		return (m_odbcErrors.size() > 0);
 	}
 
 	__forceinline HDBC GetConnectionHandle() { return m_connHandle; }

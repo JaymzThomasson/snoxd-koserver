@@ -155,10 +155,9 @@ void LoginServer::GetInfoFromIni()
 
 void LoginServer::WriteLogFile(string & logMessage)
 {
-	m_lock.Acquire();
+	FastGuard lock(m_lock);
 	fwrite(logMessage.c_str(), logMessage.length(), 1, m_fp);
 	fflush(m_fp);
-	m_lock.Release();
 }
 
 void LoginServer::ReportSQLError(OdbcError *pError)

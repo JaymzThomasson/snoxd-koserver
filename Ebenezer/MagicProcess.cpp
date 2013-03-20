@@ -47,15 +47,12 @@ CMagicProcess::~CMagicProcess()
 
 void CMagicProcess::MagicPacket(Packet & pkt)
 {
-	m_lock.Acquire();
+	FastGuard lock(m_lock);
 	pkt >> m_opcode >> m_nSkillID;
 
 	_MAGIC_TABLE *pMagic = g_pMain.m_MagictableArray.GetData(m_nSkillID);
-	if (!pMagic)
-	{
-		m_lock.Release();
+	if (pMagic == NULL)
 		return;
-	}
 
 	pkt >> m_sCasterID >> m_sTargetID
 		>> m_sData1 >> m_sData2 >> m_sData3 >> m_sData4
@@ -68,7 +65,6 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 		|| (m_pSrcUser && !UserCanCast(pMagic)))
 	{
 		SendSkillFailed();
-		m_lock.Release();
 		return;
 	}
 
@@ -84,10 +80,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 		// If the target is specifically a mob, stop here. AI's got this one.
 		// Otherwise, it's an AOE -- which means it might affect players too, so we need to handle it too.
 		if (m_sTargetID >= NPC_BAND)
-		{
-			m_lock.Release();
 			return;
-		}
 	}
 
 	bool bInitialResult;
@@ -106,7 +99,6 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 					&& m_pSrcUser->CheckExistItem(pMagic->iUseItem, 1)))
 			{
 				SendTransformationList(pMagic);
-				m_lock.Release();
 				return;
 			}
 
@@ -133,7 +125,6 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 			Type4Extend(pMagic);
 			break;
 	}
-	m_lock.Release();
 }
 
 bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)

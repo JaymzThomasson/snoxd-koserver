@@ -112,7 +112,7 @@ void Socket::WriteCallback()
 		return;
 
 	// We don't want any writes going on while this is happening.
-	m_writeMutex.Acquire();
+	Guard<Mutex> lock(m_writeMutex);
 	if(writeBuffer.GetContiguousBytes())
 	{
 		DWORD w_length = 0;
@@ -138,7 +138,6 @@ void Socket::WriteCallback()
 		// Write operation is completed.
 		DecSendLock();
 	}
-	m_writeMutex.Release();
 }
 
 void Socket::SetupReadEvent()
@@ -146,7 +145,7 @@ void Socket::SetupReadEvent()
 	if (IsDeleted() || !IsConnected())
 		return;
 
-	m_readMutex.Acquire();
+	Guard<Mutex> lock(m_readMutex);
 	DWORD r_length = 0;
 	DWORD flags = 0;
 	WSABUF buf;
@@ -165,7 +164,6 @@ void Socket::SetupReadEvent()
 			Disconnect();
 		}
 	}
-	m_readMutex.Release();
 }
 
 void Socket::ReadCallback(uint32 len)

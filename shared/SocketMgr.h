@@ -21,9 +21,8 @@ public:
 	virtual void OnConnect(Socket *pSock) {};
 	virtual void OnDisconnect(Socket *pSock) 
 	{
-		s_disconnectionQueueLock.Acquire();
+		FastGuard lock(s_disconnectionQueueLock);
 		s_disconnectionQueue.push(pSock);
-		s_disconnectionQueueLock.Release();
 	}
 	virtual void DisconnectCallback(Socket *pSock) {}
 

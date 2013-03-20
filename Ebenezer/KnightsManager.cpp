@@ -787,7 +787,7 @@ void CKnightsManager::ListTop10Clans(CUser *pUser)
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_TOP10));
 	result << uint16(0);
 
-	// TO-DO: List top 10 clans of each nation
+	// TO-DO: List top 5 clans of each nation
 	for (int i = 0; i < 5; i++)
 	{
 		result	<< int16(-1)	// Clan ID
