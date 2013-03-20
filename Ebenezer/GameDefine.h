@@ -408,6 +408,13 @@ struct _SERVER_RESOURCE
 	};
 };
 
+struct _KNIGHTS_RATING
+{
+	uint32 nRank;
+	uint16 sClanID;
+	uint32 nPoints;
+};
+
 struct _USER_RANK
 {
 	uint16	nRank;  // shIndex for USER_KNIGHTS_RANK

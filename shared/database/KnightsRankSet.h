@@ -12,26 +12,23 @@ public:
 
 	virtual tstring GetTableName() { return _T("KNIGHTS_RATING"); }
 	virtual tstring GetColumns() { return _T("nRank, shIndex, nPoints"); }
-#if 0
-	RFX_Long(pFX, _T("[nRank]"), m_nRank);
-	RFX_Int(pFX, _T("[shIndex]"), m_shIndex);
-	RFX_Text(pFX, _T("[strName]"), m_strName);
-	RFX_Long(pFX, _T("[nPoints]"), m_nPoints);
-#endif
 
 	virtual bool Fetch()
 	{
-		uint32 nRank, nPoints;
-		uint16 sClanID;
-		string strKnightsName;
+		_KNIGHTS_RATING * pData = new _KNIGHTS_RATING;
 
-		_dbCommand->FetchUInt32(1, nRank);
-		_dbCommand->FetchUInt16(2, sClanID);
-		_dbCommand->FetchUInt32(3, nPoints);
+		_dbCommand->FetchUInt32(1, pData->nRank);
+		_dbCommand->FetchUInt16(2, pData->sClanID);
+		_dbCommand->FetchUInt32(3, pData->nPoints);
 
-		CKnights *pKnights = g_pMain.GetClanPtr(sClanID);
-		if (pKnights == NULL)
+		CKnights *pKnights = g_pMain.GetClanPtr(pData->sClanID);
+		if (pKnights == NULL 
+			|| (pKnights->m_byNation != KARUS && pKnights->m_byNation != ELMORAD)
+			|| !g_pMain.m_KnightsRatingArray[pKnights->m_byNation - 1].PutData(pData->nRank, pData))
+		{
+			delete pData;
 			return true;
+		}
 
 		if (pKnights->m_byNation == KARUS)
 		{
@@ -42,9 +39,9 @@ public:
 			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				return true;
 
-			if (pUser->GetClanID() == sClanID)
+			if (pUser->GetClanID() == pData->sClanID)
 			{
-				sprintf_s(strKarusCaptain[nKarusCount++], 50, "[%s][%s]", strKnightsName, pUser->GetName());
+				sprintf_s(strKarusCaptain[nKarusCount++], 50, "[%s][%s]", pKnights->m_strName, pUser->GetName());
 				pUser->ChangeFame(COMMAND_CAPTAIN);
 			}
 		}
@@ -56,16 +53,15 @@ public:
 			CUser *pUser = g_pMain.GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
 			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				return true;
-			if (pUser->GetClanID() == sClanID)
+			if (pUser->GetClanID() == pData->sClanID)
 			{
-				sprintf_s(strElmoCaptain[nElmoCount++], 50, "[%s][%s]", strKnightsName, pUser->GetName());
+				sprintf_s(strElmoCaptain[nElmoCount++], 50, "[%s][%s]", pKnights->m_strName, pUser->GetName());
 				pUser->ChangeFame(COMMAND_CAPTAIN);
 			}
 		}
 
 		return true;
 	}
-
 
 	char strKarusCaptain[5][50], strElmoCaptain[5][50];	
 	uint32 nKarusCount, nElmoCount;

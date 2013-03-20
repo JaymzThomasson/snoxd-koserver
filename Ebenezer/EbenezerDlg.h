@@ -43,6 +43,7 @@ typedef CSTLMap <_MAGIC_TYPE9>				Magictype9Array;
 typedef CSTLMap <CNpc>						NpcArray;
 typedef CSTLMap <_PARTY_GROUP>				PartyArray;
 typedef CSTLMap <CKnights>					KnightsArray;
+typedef CSTLMap <_KNIGHTS_RATING>			KnightsRatingArray;
 typedef CSTLMap <_KNIGHTS_ALLIANCE>			KnightsAllianceArray;
 typedef CSTLMap <_ZONE_SERVERINFO>			ServerArray;
 typedef CSTLMap <_KNIGHTS_CAPE>				KnightsCapeArray;
@@ -234,6 +235,7 @@ public:
 	LevelUpArray			m_LevelUpArray;
 	PartyArray				m_PartyArray;
 	KnightsArray			m_KnightsArray;
+	KnightsRatingArray		m_KnightsRatingArray[2]; // one for both nations
 	KnightsAllianceArray	m_KnightsAllianceArray;
 	KnightsCapeArray		m_KnightsCapeArray;
 	UserRankMap				m_UserPersonalRankMap;

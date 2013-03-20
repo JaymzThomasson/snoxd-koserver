@@ -787,21 +787,28 @@ void CKnightsManager::ListTop10Clans(CUser *pUser)
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_TOP10));
 	result << uint16(0);
 
-	// TO-DO: List top 5 clans of each nation
-	for (int i = 0; i < 5; i++)
+	// List top 5 clans of each nation
+	for (int nation = KARUS - 1; nation < ELMORAD; nation++)
 	{
-		result	<< int16(-1)	// Clan ID
-				<< ""			// Clan name
-				<< int16(-1)	// Symbol version
-				<< int16(i);	// Rank
-	}
+		for (int i = 1; i <= 5; i++)
+		{
+			_KNIGHTS_RATING * pRating = 
+				g_pMain.m_KnightsRatingArray[nation].GetData(i);
+			CKnights *pKnights = NULL;
 
-	for (int i = 0; i < 5; i++)
-	{
-		result	<< int16(-1)	// Clan ID
-				<< ""			// Clan name
-				<< int16(-1)	// Symbol version
-				<< int16(i);	// Rank
+			if (pRating == NULL
+				|| (pKnights = g_pMain.GetClanPtr(pRating->sClanID)) == NULL)
+			{
+				result	<< int16(-1)	// Clan ID
+						<< ""			// Clan name (2 byte length)
+						<< int16(-1)	// Symbol version
+						<< int16(i-1);	// Rank (0 - 4)
+			}
+			else
+			{
+				result << pKnights->m_sIndex << pKnights->m_strName << pKnights->m_sMarkVersion << int16(i-1);
+			}
+		}
 	}
 
 	pUser->Send(&result);
