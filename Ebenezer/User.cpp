@@ -237,7 +237,6 @@ bool CUser::HandlePacket(Packet & pkt)
 		break;
 	case WIZ_REQ_USERIN:
 		RequestUserIn(pkt);
-		//Request merchant characters too.
 		break;
 	case WIZ_REQ_NPCIN:
 		RequestNpcIn(pkt);
@@ -765,7 +764,7 @@ void CUser::RequestUserIn(Packet & pkt)
 	}
 
 	result.put(0, online_count); // substitute count in
-	Send(&result); // NOTE: Compress
+	SendCompressed(&result);
 }
 
 void CUser::RequestNpcIn(Packet & pkt)
@@ -795,7 +794,7 @@ void CUser::RequestNpcIn(Packet & pkt)
 	}
 
 	result.put(0, npc_count);
-	Send(&result); // NOTE: Compress
+	SendCompressed(&result);
 }
 
 void CUser::SetSlotItemValue()
@@ -845,7 +844,7 @@ void CUser::SetSlotItemValue()
 		m_sStatItemBonuses[STAT_CHA] += pTable->m_bChaB;
 		m_sItemHitrate += pTable->m_sHitrate;
 		m_sItemEvasionrate += pTable->m_sEvarate;
-//		m_sItemWeight += pTable->m_sWeight;
+		m_sItemWeight += pTable->m_sWeight;
 
 		m_bFireR += pTable->m_bFireR;
 		m_bColdR += pTable->m_bColdR;
@@ -862,22 +861,19 @@ void CUser::SetSlotItemValue()
 		m_sBowR += pTable->m_sBowAc;
 	}
 
-// Also add the weight of items in the inventory....
-	for(int i=0 ; i < HAVE_MAX+SLOT_MAX ; i++)  {
-		if(m_sItemArray[i].nNum <= 0) continue;
+	// Also add the weight of items in the inventory
+	// This will include magic bags. Should we be including those?
+	for (int i = SLOT_MAX; i < INVENTORY_TOTAL; i++) 
+	{
+		pTable = GetItemPrototype(i);
+		if (pTable == NULL)
+			continue;
 
-		pTable = g_pMain.GetItemPtr( m_sItemArray[i].nNum );
-		if( !pTable ) continue;
-
-		if (pTable->m_bCountable == 0) {	// Non-countable items.
-			m_sItemWeight += pTable->m_sWeight;
-		}
-		else {	// Countable items.
-			m_sItemWeight += pTable->m_sWeight * m_sItemArray[i].sCount;
-		}
+		// Non-stackable items should have a count of 1. If not, something's broken.
+		m_sItemWeight += pTable->m_sWeight * m_sItemArray[i].sCount;
 	}
-//	
-	if( m_sItemHit < 3 )
+
+	if (m_sItemHit < 3)
 		m_sItemHit = 3;
 
 	_ITEM_TABLE* pLeftHand = GetItemPrototype(LEFTHAND);
