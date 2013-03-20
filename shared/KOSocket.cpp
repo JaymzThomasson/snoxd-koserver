@@ -193,6 +193,7 @@ bool KOSocket::SendCompressed(Packet * pkt)
 	if (pkt->size() < 500)
 		return Send(pkt);
 
+	Packet result(WIZ_COMPRESS_PACKET);
 	uint32 inLength = pkt->size() + 1, outLength = inLength + LZF_MARGIN, crc;
 	uint8 *buffer = new uint8[inLength], *outBuffer = new uint8[outLength];
 
@@ -203,21 +204,19 @@ bool KOSocket::SendCompressed(Packet * pkt)
 	crc = (uint32)crc32(buffer, inLength);
 	outLength = lzf_compress(buffer, inLength, outBuffer, outLength);
 
-	pkt->Initialize(WIZ_COMPRESS_PACKET);
-
 #if __VERSION >= 1800 // 32-bit
-	*pkt << outLength << inLength;
+	result << outLength << inLength;
 #else // 16-bit
-	*pkt << uint16(outLength) << uint16(inLength);
+	result << uint16(outLength) << uint16(inLength);
 #endif
-	*pkt << uint32(crc);
+	result << uint32(crc);
 
-	pkt->append(outBuffer, outLength);
+	result.append(outBuffer, outLength);
 
 	delete [] buffer;
 	delete [] outBuffer;
 
-	return Send(pkt);
+	return Send(&result);
 }
 
 void KOSocket::OnDisconnect()
