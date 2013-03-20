@@ -322,7 +322,6 @@
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
     <None Include="res\Ebenezer.ico" />
     <None Include="res\Ebenezer.rc2" />
   </ItemGroup>
