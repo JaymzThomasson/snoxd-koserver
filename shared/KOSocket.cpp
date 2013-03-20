@@ -190,6 +190,9 @@ bool KOSocket::Send(Packet * pkt)
 
 bool KOSocket::SendCompressed(Packet * pkt)
 {
+	if (pkt->size() < 500)
+		return Send(pkt);
+
 	uint32 inLength = pkt->size() + 1, outLength = inLength + LZF_MARGIN, crc;
 	uint8 *buffer = new uint8[inLength], *outBuffer = new uint8[outLength];
 
