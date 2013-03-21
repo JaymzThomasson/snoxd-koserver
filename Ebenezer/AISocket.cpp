@@ -144,7 +144,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 			>> pNpc->m_byTrapNumber;
 
 		if (strName.empty())
-			strName = "<the spawn without a name>";
+			strName = "<the spawn with no name>";
 
 		if (strName.length() > MAX_NPC_SIZE)
 		{
