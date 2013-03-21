@@ -43,11 +43,8 @@ public:
 	T* GetData(uint32 key_value)
 	{
 		FastGuard lock(m_lock);
-		T *result = NULL;
 		auto itr = m_UserTypeMap.find(key_value);
-		if (itr != m_UserTypeMap.end())
-			result = itr->second;
-		return result;
+		return (itr != m_UserTypeMap.end() ? itr->second : NULL);
 	}
 
 	void DeleteData(uint32 key_value)
