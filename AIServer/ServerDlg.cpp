@@ -558,8 +558,11 @@ void CServerDlg::AllNpcInfo()
 			{
 				result.put(0, bCount);
 				s_socketMgr.SendAllCompressed(&result);
+
+				// Reset packet buffer
 				bCount = 0;
 				result.clear();
+				result << bCount;
 			}
 		}	
 
