@@ -143,7 +143,10 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 			>> pNpc->m_sTotalHitrate >> pNpc->m_sTotalEvasionrate >> pNpc->m_sTotalAc >> pNpc->m_byObjectType
 			>> pNpc->m_byTrapNumber;
 
-		if (strName.empty() || strName.length() > MAX_NPC_SIZE)
+		if (strName.empty())
+			strName = "<the spawn without a name>";
+
+		if (strName.length() > MAX_NPC_SIZE)
 		{
 			delete pNpc;
 			continue;
