@@ -3748,8 +3748,8 @@ void CUser::CheckSavedMagic()
 	set<uint32> deleteSet;
 	foreach (itr, m_savedMagicMap)
 	{
-			if (itr->second <= UNIXTIME)
-				deleteSet.insert(itr->first);
+		if (itr->second <= UNIXTIME)
+			deleteSet.insert(itr->first);
 	}
 	foreach (itr, deleteSet)
 		m_savedMagicMap.erase(*itr);
@@ -3773,8 +3773,19 @@ bool CUser::HasSavedMagic(uint32 nSkillID)
 	return m_savedMagicMap.find(nSkillID) != m_savedMagicMap.end();
 }
 
+int16 CUser::GetSavedMagicDuration(uint32 nSkillID)
+{
+	FastGuard lock(m_savedMagicLock);
+	auto itr = m_savedMagicMap.find(nSkillID);
+	if (itr == m_savedMagicMap.end())
+		return 0;
+
+	return int16(itr->second - UNIXTIME);
+}
+
 void CUser::RecastSavedMagic()
 {
+	FastGuard lock(m_savedMagicLock);
 	UserSavedMagicMap castSet;
 	foreach (itr, m_savedMagicMap)
 	{
@@ -3785,40 +3796,31 @@ void CUser::RecastSavedMagic()
 	if (castSet.empty())
 		return;
 
-	_MAGIC_TABLE *pSkill;
-
 	foreach (itr, castSet)
 	{
-		pSkill = g_pMain.m_MagictableArray.GetData(itr->first);
+		_MAGIC_TABLE *pSkill = g_pMain.m_MagictableArray.GetData(itr->first);
 		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_EFFECTING));
 		result << pSkill->iNum << GetSocketID() << GetSocketID() << uint16(0) << uint16(1) << uint16(0) << uint16(itr->second - UNIXTIME) << uint16(0) << uint16(0);
 		switch (pSkill->bType[0])
 		{
-			case 4:
-				m_MagicProcess.MagicPacket(result, true);
-				break;
-
 			case 6:
-				//Not allowing transformations in PvP zones!
-				if(isAttackZone())
+				// Not allowing transformations in PvP zones!
+				if (isAttackZone())
 				{
 					m_savedMagicMap.erase(itr->first);
 					return;
 				}
 
-				m_bAbnormalType = ABNORMAL_NORMAL;
-				StateChangeServerDirect(3, m_bAbnormalType);
+				StateChangeServerDirect(3, ABNORMAL_NORMAL);
 				UpdateVisibility(INVIS_NONE);
-				m_MagicProcess.MagicPacket(result, true);
 				break;
 
 			case 9:
 				//To-do : Add support for Guards, until then we don't need this line.
 				//_MAGIC_TYPE9 *pType = g_pMain.m_Magictype9Array.GetData(pSkill->iNum);
-				m_MagicProcess.MagicPacket(result, true);
 				break;
-
 		}
+		m_MagicProcess.MagicPacket(result, true);
 	}
 
 }

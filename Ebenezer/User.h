@@ -593,6 +593,7 @@ public:
 	void CheckSavedMagic();
 	virtual void InsertSavedMagic(uint32 nSkillID, uint16 sDuration);
 	virtual bool HasSavedMagic(uint32 nSkillID);
+	virtual int16 GetSavedMagicDuration(uint32 nSkillID);
 
 	void SaveEvent(uint16 sQuestID, uint8 bQuestState);
 	void DeleteEvent(uint16 sQuestID);

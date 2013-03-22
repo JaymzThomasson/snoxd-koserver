@@ -45,7 +45,7 @@ CMagicProcess::~CMagicProcess()
 {
 }
 
-void CMagicProcess::MagicPacket(Packet & pkt, bool isSaved)
+void CMagicProcess::MagicPacket(Packet & pkt, bool isRecastingSavedMagic)
 {
 	FastGuard lock(m_lock);
 	pkt >> m_opcode >> m_nSkillID;
@@ -61,7 +61,7 @@ void CMagicProcess::MagicPacket(Packet & pkt, bool isSaved)
 	m_pSkillCaster = g_pMain.GetUnit(m_sCasterID);
 	m_pSkillTarget = g_pMain.GetUnit(m_sTargetID);
 
-	m_isSaved = isSaved;
+	m_isRecastingSavedMagic = isRecastingSavedMagic;
 
 	if (m_pSkillCaster == NULL
 		|| (m_pSrcUser && !UserCanCast(pMagic)))
@@ -141,7 +141,7 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 	if (m_opcode == MAGIC_CANCEL || m_opcode == MAGIC_CANCEL2) 
 		return true;
 
-	if (m_isSaved == true)
+	if (m_isRecastingSavedMagic)
 		return true;
 
 	// Users who are blinking cannot use skills.
@@ -804,7 +804,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 	if (pType == NULL)
 		return false;
 
-	if (m_pSkillTarget->HasSavedMagic(pSkill->iNum) && m_isSaved == false)
+	if (!m_isRecastingSavedMagic && m_pSkillTarget->HasSavedMagic(pSkill->iNum))
 		return false;
 
 	if (m_sTargetID == -1)
@@ -833,7 +833,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 		// If the target was another single player.
 		CUser* pTUser = g_pMain.GetUserPtr(m_sTargetID);
 		if (pTUser == NULL 
-			|| pTUser->isDead() || (pTUser->isBlinking() && m_isSaved == false)) 
+			|| pTUser->isDead() || (pTUser->isBlinking() && !m_isRecastingSavedMagic)) 
 			return false;
 
 		casted_member.push_back(pTUser);
@@ -1003,7 +1003,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 
 			m_sTargetID = (*itr)->GetSocketID();
 			m_sData2 = bResult;
-			if (!m_isSaved)
+			if (!m_isRecastingSavedMagic)
 				m_sData4 = (bResult == 1 || m_sData4 == 0 ? pType->sDuration : 0);
 			m_sData6 = pType->bSpeed;
 			pUser->m_MagicProcess.SendSkill();
@@ -1220,54 +1220,73 @@ bool CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 {
 	_MAGIC_TYPE6 * pType = g_pMain.m_Magictype6Array.GetData(pSkill->iNum);
 	uint32 iUseItem = 0;
+	uint16 sDuration = 0;
 
-	
-	if (m_pSkillTarget->HasSavedMagic(pSkill->iNum) && !m_isSaved)
-		return false;
+	// We can ignore all these checks if we're just recasting on relog.
+	if (!m_isRecastingSavedMagic)
+	{
+		if (m_pSkillTarget->HasSavedMagic(pSkill->iNum))
+			return false;
 
-	if (pType == NULL
-		|| m_pSrcUser->isAttackZone()
-		|| m_pSrcUser->isTransformed())
-		return false;
+		if (pType == NULL
+			|| m_pSrcUser->isAttackZone()
+			|| m_pSrcUser->isTransformed())
+			return false;
 
-	// Let's start by looking at the item that was used for the transformation.
-	_ITEM_TABLE *pTable = g_pMain.GetItemPtr(m_pSrcUser->m_nTransformationItem);
+		// Let's start by looking at the item that was used for the transformation.
+		_ITEM_TABLE *pTable = g_pMain.GetItemPtr(m_pSrcUser->m_nTransformationItem);
 
-	// Also, for the sake of specific skills that bypass the list, let's lookup the 
-	// item attached to the skill.
-	_ITEM_TABLE *pTable2 = g_pMain.GetItemPtr(pSkill->iUseItem);
+		// Also, for the sake of specific skills that bypass the list, let's lookup the 
+		// item attached to the skill.
+		_ITEM_TABLE *pTable2 = g_pMain.GetItemPtr(pSkill->iUseItem);
 
-	// If neither of these items exist, we have a bit of a problem...
-	if (pTable == NULL 
-		&& pTable2 == NULL)
-		return false;
+		// If neither of these items exist, we have a bit of a problem...
+		if (pTable == NULL 
+			&& pTable2 == NULL)
+			return false;
 
-	/*
-		If it's a totem (which is apparently a ring), then we need to override it 
-		with a gem (which are conveniently stored in the skill table!)
+		/*
+			If it's a totem (which is apparently a ring), then we need to override it 
+			with a gem (which are conveniently stored in the skill table!)
 
-		The same is true for special items such as the Hera transformation scroll, 
-		however we need to go by the item attached to the skill for this one as 
-		these skills bypass the transformation list and thus do not set the flag.
-	*/
+			The same is true for special items such as the Hera transformation scroll, 
+			however we need to go by the item attached to the skill for this one as 
+			these skills bypass the transformation list and thus do not set the flag.
+		*/
 
-	// Special items (e.g. Hera transformation scroll) use the scroll (tied to the skill)
-	if ((pTable2 != NULL && pTable2->m_bKind == 255)
-		// Totems (i.e. rings) take gems (tied to the skill)
-		|| (pTable != NULL && pTable->m_bKind == 93)) 
-		iUseItem = pSkill->iUseItem;
-	// If we're using a normal transformation scroll, we can leave the item as it is.
+		// Special items (e.g. Hera transformation scroll) use the scroll (tied to the skill)
+		if ((pTable2 != NULL && pTable2->m_bKind == 255)
+			// Totems (i.e. rings) take gems (tied to the skill)
+			|| (pTable != NULL && pTable->m_bKind == 93)) 
+			iUseItem = pSkill->iUseItem;
+		// If we're using a normal transformation scroll, we can leave the item as it is.
+		else 
+			iUseItem = m_pSrcUser->m_nTransformationItem;
+
+		// Attempt to take the item (no further checks, so no harm in multipurposing)
+		// If we add more checks, remember to change this check.
+		if (!m_pSrcUser->RobItem(iUseItem, 1))
+			return false;
+
+		// User's casting a new skill. Use the full duration.
+		sDuration = pType->sDuration;
+	}
 	else 
-		iUseItem = m_pSrcUser->m_nTransformationItem;
+	{
+		// Server's recasting the skill (kept on relog, zone change, etc.)
+		int16 tmp = m_pSkillTarget->GetSavedMagicDuration(pSkill->iNum);
 
-	// Attempt to take the item (no further checks, so no harm in multipurposing)
-	// If we add more checks, remember to change this check.
-	if (!m_pSrcUser->RobItem(iUseItem, 1))
-		return false;
+		// Has it expired (or not been set?) -- just in case.
+		if (tmp <= 0)
+			return false;
+
+		// it's positive, so no harm here in casting.
+		sDuration = tmp;
+	}
 
 	// TO-DO : Save duration, and obviously end
 	m_pSrcUser->m_tTransformationStartTime = UNIXTIME;
-	m_pSrcUser->m_sTransformationDuration = pType->sDuration;
+	m_pSrcUser->m_sTransformationDuration = sDuration;
 
 	m_pSrcUser->StateChangeServerDirect(3, pSkill->iNum);
 	m_pSrcUser->m_bIsTransformed = true;
@@ -1277,7 +1296,7 @@ bool CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 	SendSkill(m_sCasterID, m_sTargetID, m_opcode,
 		m_nSkillID, m_sData1, 1, m_sData3, 0, 0, 0, 0, 0);
 
-	TO_USER(m_pSkillTarget)->InsertSavedMagic(pSkill->iNum, pType->sDuration);
+	m_pSkillTarget->InsertSavedMagic(pSkill->iNum, sDuration);
 
 	return true;
 }
@@ -1499,8 +1518,8 @@ bool CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 	
 	if (pType->bStateChange <= 2)
 	{
-		m_pSrcUser->StateChangeServerDirect(7, pType->bStateChange); //Update the client to be invisible
-		m_pSkillTarget->InsertSavedMagic(pSkill->iNum, pType->sDuration * SECOND);
+		m_pSrcUser->StateChangeServerDirect(7, pType->bStateChange); // Update the client to be invisible
+		m_pSkillTarget->InsertSavedMagic(pSkill->iNum, pType->sDuration);
 	}
 	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4)
 	{
