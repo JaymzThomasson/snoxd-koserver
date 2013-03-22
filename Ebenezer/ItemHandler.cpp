@@ -624,7 +624,7 @@ bool CUser::RunExchange(int nExchangeID)
 		// If they add up to more than 100%, 
 		if (nTotalPercent > 10000)
 		{
-			TRACE("Exchange %d is invalid. Rates add up to more than 100% (%d%%)", nExchangeID, nTotalPercent / 100);
+			TRACE("Exchange %d is invalid. Rates add up to more than 100%% (%d%%)", nExchangeID, nTotalPercent / 100);
 			return false;
 		}
 
