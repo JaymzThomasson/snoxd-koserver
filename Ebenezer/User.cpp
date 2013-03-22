@@ -146,7 +146,7 @@ void CUser::OnDisconnect()
 
 bool CUser::HandlePacket(Packet & pkt)
 {
-	uint32 currenttime = 0;
+	currenttime = 0;
 
 	uint8 command = pkt.GetOpcode();
 	TRACE("[SID=%d] Packet: %X (len=%d)\n", GetSocketID(), command, pkt.size());
@@ -393,12 +393,16 @@ bool CUser::HandlePacket(Packet & pkt)
 
 	if (m_bType4Flag)		// For Type 4 Stat Duration.
 		Type4Duration(currenttime);
-	
+
+	if(m_bSavedMagicFlag)
+		CheckSavedMagic(currenttime * SECOND);
+		
 	if (m_bIsTransformed && (currenttime - m_fTransformationStartTime) > (m_sTransformationDuration * SECOND))
 		m_MagicProcess.Type6Cancel();
 
 	if (isBlinking())		// Should you stop blinking?
 		BlinkTimeCheck(currenttime);
+
 	return true;
 }
 
@@ -3748,4 +3752,16 @@ void CUser::ItemSealProcess(Packet & pkt)
 
 void CUser::CharacterSealProcess(Packet & pkt)
 {
+}
+
+void CUser::CheckSavedMagic(uint32 currenttime)
+{
+	set<uint32> deleteSet;
+	foreach (itr, m_savedMagicMap)
+	{
+			if (itr->second <= currenttime)
+				deleteSet.insert(itr->first);
+	}
+	foreach (itr, deleteSet)
+		m_savedMagicMap.erase(*itr);
 }

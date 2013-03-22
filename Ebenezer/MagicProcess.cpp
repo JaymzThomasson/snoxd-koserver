@@ -799,6 +799,9 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 	if (pType == NULL)
 		return false;
 
+	if(m_pSkillTarget->m_savedMagicMap.find(pSkill->iNum) != m_pSkillTarget->m_savedMagicMap.end())
+		return false;
+
 	if (m_sTargetID == -1)
 	{
 		// TO-DO: Localise this. This is horribly unnecessary.
@@ -835,14 +838,14 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 	{
 		uint8 bResult = 1;
 		CUser* pTUser = *itr;
-//
+
 		if (pTUser->m_bType4Buff[pType->bBuffType - 1] == 2 && m_sTargetID == -1) {		// Is this buff-type already casted on the player?
 			bResult = 0;
 			goto fail_return ;					
 		}
-//
-		//if ( data4 == -1 ) //Need to create InsertSaved Magic before enabling this.
-			//pTUser->InsertSavedMagic( magicid, pType->sDuration );
+
+		if ( m_sData5 == -1 && m_pSkillTarget->isPlayer() )
+			m_pSkillTarget->InsertSavedMagic( pSkill->iNum, pType->sDuration );
 
 		switch (pType->bBuffType)
 		{
@@ -1212,6 +1215,10 @@ bool CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 	_MAGIC_TYPE6 * pType = g_pMain.m_Magictype6Array.GetData(pSkill->iNum);
 	uint32 iUseItem = 0;
 
+	
+	if(m_pSkillTarget->m_savedMagicMap.find(pSkill->iNum) != m_pSkillTarget->m_savedMagicMap.end())
+		return false;
+
 	if (pType == NULL
 		|| m_pSrcUser->isAttackZone()
 		|| m_pSrcUser->isTransformed())
@@ -1263,6 +1270,8 @@ bool CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 
 	SendSkill(m_sCasterID, m_sTargetID, m_opcode,
 		m_nSkillID, m_sData1, 1, m_sData3, 0, 0, 0, 0, 0);
+
+	m_pSkillTarget->InsertSavedMagic(pSkill->iNum, pType->sDuration);
 
 	return true;
 }
@@ -1474,21 +1483,22 @@ bool CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 		return false;
 
 	m_sData2 = 1;
-	/*
-	if(!InTheSavedSkillList)
-	{
+	
+	if(m_pSkillTarget->m_savedMagicMap.find(pSkill->iNum) == m_pSkillTarget->m_savedMagicMap.end())
 		m_sData2 = 1;
-	}
 	else
 	{
 		m_sData2 = 0;
 		SendSkillFailed();
 		return false;
 	}
-	*/
+	
 
 	if (pType->bStateChange <= 2)
+	{
 		m_pSrcUser->StateChangeServerDirect(7, pType->bStateChange); //Update the client to be invisible
+		m_pSkillTarget->InsertSavedMagic(pSkill->iNum, pType->sDuration);
+	}
 	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4)
 	{
 		Packet stealth(WIZ_STEALTH);

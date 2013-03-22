@@ -181,6 +181,8 @@ public:
 
 	BOOL	m_bZoneChangeSameZone;		// Did the server change when you warped?
 
+	uint32	currenttime;
+
 	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];
 	short				m_sEventNid;
 	UserEventList		m_arUserEvent;
@@ -351,6 +353,7 @@ public:
 	virtual void MSpChange(int amount);
 	void SendPartyHPUpdate();
 	void SendAnvilRequest(int nid);
+	void CheckSavedMagic(uint32 currenttime);
 
 	// packet handlers start here
 	void VersionCheck(Packet & pkt);
