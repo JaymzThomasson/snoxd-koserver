@@ -102,16 +102,12 @@ void CUser::Attack(int sid, int tid)
 		pNpc->SendExpToUserList(); // 경험치 분배!!
 		pNpc->SendDead();
 		SendAttackSuccess(tid, ATTACK_TARGET_DEAD, nFinalDamage, pNpc->m_iHP);
-
-	//	CheckMaxValue(m_dwXP, 1);		// 몹이 죽을때만 1 증가!	
-	//	SendXP();
 	}
 	else
 	{
 		// 공격 결과 전송
 		SendAttackSuccess(tid, ATTACK_SUCCESS, nFinalDamage, pNpc->m_iHP);
 	}
-	//	m_dwLastAttackTime = GetTickCount();
 }
 
 void CUser::SendAttackSuccess(short tid, BYTE bResult, short sDamage, int nHP, short sAttack_type, uint8 type /*= 1*/, short sid /*= -1*/)

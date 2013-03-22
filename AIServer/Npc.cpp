@@ -139,7 +139,7 @@ CNpc::CNpc() : m_NpcState(NPC_LIVE), m_byGateOpen(0), m_byObjectType(NORMAL_OBJE
 	m_bFirstLive = TRUE;
 
 	m_fHPChangeTime = getMSTime();
-	m_fFaintingTime = 0;
+	m_tFaintingTime = 0;
 
 	m_iRegion_X = 0;
 	m_iRegion_Z = 0;
@@ -846,7 +846,7 @@ BOOL CNpc::SetLive()
 
 	// 상태이상 정보 초기화
 	m_fHPChangeTime = getMSTime();
-	m_fFaintingTime = 0;
+	m_tFaintingTime = 0;
 	InitMagicValuable();
 
 	if(m_bFirstLive)	{	// NPC 가 처음 살아나는 경우
@@ -3468,7 +3468,7 @@ go_result:
 			if( COMPARE(iRandom, 0, iLightningR) )	{
 				m_NpcState = NPC_FAINTING;
 				m_Delay = 0;
-				m_fFaintingTime = getMSTime();
+				m_tFaintingTime = UNIXTIME;
 			}
 			else	ChangeTarget(nAttackType, pUser);
 		}
@@ -5261,9 +5261,9 @@ time_t CNpc::NpcSleeping()
 // 몬스터가 기절상태로..........
 time_t CNpc::NpcFainting()
 {
-	if (UNIXTIME > (m_fFaintingTime + FAINTING_TIME)) {
+	if (UNIXTIME > (m_tFaintingTime + FAINTING_TIME)) {
 		m_NpcState = NPC_STANDING;
-		m_fFaintingTime = 0;
+		m_tFaintingTime = 0;
 		return 0;
 	}
 	return -1;

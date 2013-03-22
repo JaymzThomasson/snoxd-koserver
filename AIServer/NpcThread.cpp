@@ -8,9 +8,6 @@
 
 #define DELAY				250
 
-DWORD	g_dwLastTimeCount	= GetTickCount();
-DWORD	g_dwCurrTimeCount	= GetTickCount();
-
 //////////////////////////////////////////////////////////////////////
 // NPC Thread Callback Function
 //
