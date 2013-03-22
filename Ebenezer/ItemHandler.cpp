@@ -639,12 +639,13 @@ bool CUser::RunExchange(int nExchangeID)
 		memcpy(&sExchangeCount, &pExchange->sExchangeItemCount, sizeof(pExchange->sExchangeItemCount));
 
 		// Build array of exchange item slots (0-4)
+		int offset = 0;
 		for (int n = 0, i = 0; n < 5; n++)
 		{
-			while (sExchangeCount[n] > 0)
+			if (sExchangeCount[n] > 0)
 			{
-				bRandArray[i++] = n;
-				sExchangeCount[n]--;
+				memset(&bRandArray[offset], n, sExchangeCount[n]);
+				offset += sExchangeCount[n];
 			}
 		}
 
