@@ -502,19 +502,17 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 		return;
 
 	_ZONE_ITEM *pItem = new _ZONE_ITEM;
-	for(int i=0; i<6; i++) {
-		pItem->itemid[i] = 0;
-		pItem->count[i] = 0;
-	}
+	memset(&pItem->nItemID, 0, sizeof(pItem->nItemID));
+	memset(&pItem->sCount, 0, sizeof(pItem->sCount));
 
-	pItem->time = getMSTime();
+	pItem->tDropTime = UNIXTIME;
 	pItem->x = fX;
 	pItem->z = fZ;
 	pItem->y = fY;
 	for(int i=0; i<byCount; i++) {
 		if( g_pMain.GetItemPtr(nItemNumber[i]) ) {
-			pItem->itemid[i] = nItemNumber[i];
-			pItem->count[i] = sCount[i];
+			pItem->nItemID[i] = nItemNumber[i];
+			pItem->sCount[i] = sCount[i];
 		}
 	}
 
@@ -528,7 +526,7 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 	if (pUser == NULL) 
 		return;
 
-	result << sNid << uint32(pItem->bundle_index);
+	result << sNid << pItem->nBundleID;
 	if (!pUser->isInParty())
 		pUser->Send(&result);
 	else

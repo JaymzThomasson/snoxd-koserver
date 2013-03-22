@@ -748,7 +748,7 @@ bool CMagicProcess::ExecuteType3(_MAGIC_TABLE *pSkill)  // Applied when a magica
 
 				for (int k = 0 ; k < MAX_TYPE3_REPEAT ; k++) {	// For continuous damages...
 					if (pTUser->m_bHPInterval[k] == 5) {
-						pTUser->m_fHPStartTime[k] = pTUser->m_fHPLastTime[k] = getMSTime();     // The durational magic routine.
+						pTUser->m_tHPStartTime[k] = pTUser->m_tHPLastTime[k] = UNIXTIME;     // The durational magic routine.
 						pTUser->m_bHPDuration[k] = pType->bDuration;
 						pTUser->m_bHPInterval[k] = 2;		
 						pTUser->m_bHPAmount[k] = duration_damage / ( pTUser->m_bHPDuration[k] / pTUser->m_bHPInterval[k] ) ;
@@ -965,7 +965,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 
 
 		pTUser->m_sDuration[pType->bBuffType - 1] = pType->sDuration;
-		pTUser->m_fStartTime[pType->bBuffType - 1] = getMSTime();
+		pTUser->m_tStartTime[pType->bBuffType - 1] = UNIXTIME;
 
 		if (m_sTargetID != -1 && pSkill->bType[0] == 4)
 		{
@@ -1041,8 +1041,8 @@ bool CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 			for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
 			{
 				if (m_pSkillTarget->m_bHPAmount[i] < 0) {
-					m_pSkillTarget->m_fHPStartTime[i] = 0;
-					m_pSkillTarget->m_fHPLastTime[i] = 0;   
+					m_pSkillTarget->m_tHPStartTime[i] = 0;
+					m_pSkillTarget->m_tHPLastTime[i] = 0;   
 					m_pSkillTarget->m_bHPAmount[i] = 0;
 					m_pSkillTarget->m_bHPDuration[i] = 0;				
 					m_pSkillTarget->m_bHPInterval[i] = 5;
@@ -1168,7 +1168,7 @@ bool CMagicProcess::ExecuteType5(_MAGIC_TABLE *pSkill)
 		case REMOVE_BLESS:
 			if (m_pSkillTarget->m_bType4Buff[0] == 2) {
 				m_pSkillTarget->m_sDuration[0] = 0;		
-				m_pSkillTarget->m_fStartTime[0] = 0;
+				m_pSkillTarget->m_tStartTime[0] = 0;
 				m_pSkillTarget->m_sMaxHPAmount = 0;
 				m_pSkillTarget->m_sMaxMPAmount = 0;
 				m_pSkillTarget->m_bType4Buff[0] = 0;
@@ -1260,7 +1260,7 @@ bool CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 		return false;
 
 	// TO-DO : Save duration, and obviously end
-	m_pSrcUser->m_fTransformationStartTime = getMSTime();
+	m_pSrcUser->m_tTransformationStartTime = UNIXTIME;
 	m_pSrcUser->m_sTransformationDuration = pType->sDuration;
 
 	m_pSrcUser->StateChangeServerDirect(3, pSkill->iNum);
@@ -1662,8 +1662,7 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 				goto final_test;
 			}
 			else if (pTUser->m_sPartyIndex == m_pSrcUser->m_sPartyIndex && pMagic->bType[0] == 8) {
-				currenttime = getMSTime();
-				if (pTUser->m_bZone == ZONE_BATTLE && (currenttime - pTUser->m_fLastRegeneTime < CLAN_SUMMON_TIME)) {
+				if (pTUser->m_bZone == ZONE_BATTLE && (UNIXTIME - pTUser->m_tLastRegeneTime < CLAN_SUMMON_TIME)) {
 					return FALSE;
 				}
 				else {
@@ -1707,8 +1706,7 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 				goto final_test;
 			}
 			else if (pTUser->GetClanID() == m_pSrcUser->GetClanID() && pMagic->bType[0] == 8) {
-				currenttime = getMSTime();
-				if (pTUser->m_bZone == ZONE_BATTLE && (currenttime - pTUser->m_fLastRegeneTime < CLAN_SUMMON_TIME)) {
+				if (pTUser->m_bZone == ZONE_BATTLE && (UNIXTIME - pTUser->m_tLastRegeneTime < CLAN_SUMMON_TIME)) {
 					return FALSE;
 				}
 				else {
@@ -1923,7 +1921,7 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 	if (buff)
 	{
 		m_pSkillCaster->m_sDuration[pType->bBuffType - 1] = 0;
-		m_pSkillCaster->m_fStartTime[pType->bBuffType - 1] = 0;
+		m_pSkillCaster->m_tStartTime[pType->bBuffType - 1] = 0;
 		m_pSkillCaster->m_bType4Buff[pType->bBuffType - 1] = 0;
 
 		if (m_pSkillCaster->isPlayer())
@@ -1963,8 +1961,8 @@ void CMagicProcess::Type3Cancel(_MAGIC_TABLE *pSkill)
 	{
 		if (m_pSkillCaster->m_bHPAmount[i] > 0)
 		{
-			m_pSkillCaster->m_fHPStartTime[i] = 0;
-			m_pSkillCaster->m_fHPLastTime[i] = 0;   
+			m_pSkillCaster->m_tHPStartTime[i] = 0;
+			m_pSkillCaster->m_tHPLastTime[i] = 0;   
 			m_pSkillCaster->m_bHPAmount[i] = 0;
 			m_pSkillCaster->m_bHPDuration[i] = 0;				
 			m_pSkillCaster->m_bHPInterval[i] = 5;

@@ -245,7 +245,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 
 	HpChange(m_iMaxHp);
 
-	m_fLastRegeneTime = getMSTime();
+	m_tLastRegeneTime = UNIXTIME;
 	m_sWhoKilledMe = -1;
 	m_iLostExp = 0;
 

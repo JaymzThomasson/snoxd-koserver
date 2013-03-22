@@ -75,14 +75,14 @@ void CUser::Initialize()
 	m_sPrivateChatUser = -1;
 	m_bNeedParty = 0x01;
 
-	m_fHPLastTimeNormal = 0;		// For Automatic HP recovery. 
-	m_fHPStartTimeNormal = 0;
+	m_tHPLastTimeNormal = 0;		// For Automatic HP recovery. 
+	m_tHPStartTimeNormal = 0;
 	m_bHPAmountNormal = 0;
 	m_bHPDurationNormal = 0;
 	m_bHPIntervalNormal = 5;
 
-	m_fAreaLastTime = 0;		// For Area Damage spells Type 3.
-	m_fAreaStartTime = 0;
+	m_tAreaLastTime = 0;		// For Area Damage spells Type 3.
+	m_tAreaStartTime = 0;
 	m_bAreaInterval = 5;
 	m_iAreaMagicID = 0;
 
@@ -105,11 +105,11 @@ void CUser::Initialize()
 	m_sEventNid = -1;
 	m_bZoneChangeFlag = FALSE;
 	m_bRegeneType = 0;
-	m_fLastRegeneTime = 0;
+	m_tLastRegeneTime = 0;
 	m_bZoneChangeSameZone = FALSE;
 
 	m_nTransformationItem = 0;
-	m_fTransformationStartTime = 0;
+	m_tTransformationStartTime = 0;
 	m_sTransformationDuration = 0;
 
 	while( !m_arUserEvent.empty() )
@@ -371,33 +371,32 @@ bool CUser::HandlePacket(Packet & pkt)
 		return false;
 	}
 
-	currenttime = getMSTime();
-
 	if (command == WIZ_GAMESTART)
 	{
-		m_fHPLastTimeNormal = currenttime;
-		fill_n(m_fHPLastTime, MAX_TYPE3_REPEAT, currenttime);
+		m_tHPLastTimeNormal = UNIXTIME;
+		fill_n(m_tHPLastTime, MAX_TYPE3_REPEAT, UNIXTIME);
 	}	
 
-	if (!isBlinking() && m_fHPLastTimeNormal != 0.0f && (currenttime - m_fHPLastTimeNormal) > (m_bHPIntervalNormal * SECOND))
-		HPTimeChange( currenttime );	// For Sitdown/Standup HP restoration.
+	if (!isBlinking() && m_tHPLastTimeNormal != 0 && (UNIXTIME - m_tHPLastTimeNormal) > m_bHPIntervalNormal)
+		HPTimeChange();	// For Sitdown/Standup HP restoration.
 
 	if (m_bType3Flag) {     // For Type 3 HP Duration.
 		for (int i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {	
-			if( m_fHPLastTime[i] != 0.0f && (currenttime - m_fHPLastTime[i]) > (m_bHPInterval[i] * SECOND) ) {
-				HPTimeChangeType3(currenttime);	
+			if (m_tHPLastTime[i] != 0 && (UNIXTIME - m_tHPLastTime[i]) > m_bHPInterval[i])
+			{
+				HPTimeChangeType3();	
 				break;
 			}
 		}
 	} 
 
 	if (m_bType4Flag)		// For Type 4 Stat Duration.
-		Type4Duration(currenttime);
+		Type4Duration();
 
-	if(m_bSavedMagicFlag)
-		CheckSavedMagic(currenttime * SECOND);
+	if (m_bSavedMagicFlag)
+		CheckSavedMagic();
 		
-	if (m_bIsTransformed && (currenttime - m_fTransformationStartTime) > (m_sTransformationDuration * SECOND))
+	if (m_bIsTransformed && (UNIXTIME - m_tTransformationStartTime) > m_sTransformationDuration)
 		m_MagicProcess.Type6Cancel();
 
 	if (isBlinking())		// Should you stop blinking?
@@ -1401,8 +1400,8 @@ void CUser::BundleOpenReq(Packet & pkt)
 	if (pItem == NULL)
 		return;
 
-	for (int i = 0; i < 6; i++)
-		result << pItem->itemid[i] << pItem->count[i];
+	for (int i = 0; i < LOOT_ITEMS; i++)
+		result << pItem->nItemID[i] << pItem->sCount[i];
 
 	Send(&result);
 }
@@ -1427,13 +1426,13 @@ void CUser::ItemGet(Packet & pkt)
 		|| isDead()) // yeah, we know people abuse this. We do not care!
 		goto fail_return;
 
-	pItem = (_ZONE_ITEM*)pRegion->m_RegionItemArray.GetData( bundle_index );
+	pItem = pRegion->m_RegionItemArray.GetData(bundle_index);
 	if (!pItem) 
 		goto fail_return;
 
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < LOOT_ITEMS; i++)
 	{
-		if (pItem->itemid[i] == itemid)
+		if (pItem->nItemID[i] == itemid)
 			break;
 	}
 
@@ -1445,13 +1444,13 @@ void CUser::ItemGet(Packet & pkt)
 	_ZONE_ITEM pItem2;
 	memcpy(&pItem2, pItem, sizeof(pItem2)); 
 
-	if (!pMap->RegionItemRemove(GetRegionX(), GetRegionZ(), bundle_index, pItem->itemid[i], pItem->count[i]))
+	if (!pMap->RegionItemRemove(GetRegionX(), GetRegionZ(), bundle_index, pItem->nItemID[i], pItem->sCount[i]))
 		goto fail_return;
 
 	// Save us from having to tweak the rest of the method (tacky, but again - works for now)
 	pItem = &pItem2; 
 
-	short count = pItem->count[i];
+	short count = pItem->sCount[i];
 
 	pTable = g_pMain.GetItemPtr( itemid );
 	if (pTable == NULL)
@@ -2118,11 +2117,11 @@ void CUser::SendItemMove(uint8 subcommand)
 	Send(&result);
 }
 
-void CUser::HPTimeChange(uint32 currenttime)
+void CUser::HPTimeChange()
 {
 	BOOL bFlag = FALSE;
 
-	m_fHPLastTimeNormal = currenttime;
+	m_tHPLastTimeNormal = UNIXTIME;
 
 	if( m_bResHpType == USER_DEAD ) return;
 
@@ -2151,11 +2150,9 @@ void CUser::HPTimeChange(uint32 currenttime)
 	}
 }
 
-void CUser::HPTimeChangeType3(uint32 currenttime)
+void CUser::HPTimeChangeType3()
 {
-	for (int g = 0 ; g < MAX_TYPE3_REPEAT ; g++) {	// Get the current time for all the last times...
-		m_fHPLastTime[g] = currenttime;
-	}
+	fill_n(m_tHPLastTime, MAX_TYPE3_REPEAT, UNIXTIME);
 
 	if (isDead())
 		return;
@@ -2198,7 +2195,7 @@ void CUser::HPTimeChangeType3(uint32 currenttime)
 	{
 		if (m_bHPDuration[i] > 0)
 		{
-			if (isDead() || ((currenttime - m_fHPStartTime[i]) >= (m_bHPDuration[i] * SECOND)) || isDead())
+			if ((UNIXTIME - m_tHPStartTime[i]) >= m_bHPDuration[i])
 			{
 				Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
 
@@ -2209,8 +2206,8 @@ void CUser::HPTimeChangeType3(uint32 currenttime)
 
 				Send(&result);
 
-				m_fHPStartTime[i] = 0;
-				m_fHPLastTime[i] = 0;
+				m_tHPStartTime[i] = 0;
+				m_tHPLastTime[i] = 0;
 				m_bHPAmount[i] = 0;
 				m_bHPDuration[i] = 0;				
 				m_bHPInterval[i] = 5;
@@ -2235,18 +2232,18 @@ void CUser::HPTimeChangeType3(uint32 currenttime)
 		SendPartyStatusUpdate(1, 0);
 }
 
-void CUser::Type4Duration(uint32 currenttime)
+void CUser::Type4Duration()
 {
 	BYTE buff_type = 0;					
 
 	for (int i = 0; i < MAX_TYPE4_BUFF; i++)
 	{
 		if (m_sDuration[i] == 0
-			|| currenttime <= (m_fStartTime[i] + (m_sDuration[i] * SECOND)))
+			|| UNIXTIME <= (m_tStartTime[i] + m_sDuration[i]))
 			continue;
 
 		m_sDuration[i] = 0;
-		m_fStartTime[i] = 0;
+		m_tStartTime[i] = 0;
 
 		buff_type = i + 1;
 
@@ -2418,7 +2415,7 @@ void CUser::SpeedHackTime(Packet & pkt)
 #endif
 }
 
-void CUser::Type3AreaDuration(uint32 currenttime)
+void CUser::Type3AreaDuration()
 {
 	Packet result(WIZ_MAGIC_PROCESS);
 
@@ -2426,9 +2423,9 @@ void CUser::Type3AreaDuration(uint32 currenttime)
 	if (pType == NULL)
 		return;
 
-	if (m_fAreaLastTime != 0 && (currenttime - m_fAreaLastTime) > (m_bAreaInterval * SECOND))
+	if (m_tAreaLastTime != 0 && (UNIXTIME - m_tAreaLastTime) > (m_bAreaInterval * SECOND))
 	{
-		m_fAreaLastTime = currenttime;
+		m_tAreaLastTime = UNIXTIME;
 		if (isDead())
 			return;
 		
@@ -2452,11 +2449,11 @@ void CUser::Type3AreaDuration(uint32 currenttime)
 		}
 
 
-		if ( (( currenttime - m_fAreaStartTime) >= (pType->bDuration * SECOND)))
+		if (UNIXTIME - m_tAreaStartTime >= pType->bDuration)
 		{ // Did area duration end? 			
 			m_bAreaInterval = 5;
-			m_fAreaStartTime = 0;
-			m_fAreaLastTime = 0;
+			m_tAreaStartTime = 0;
+			m_tAreaLastTime = 0;
 			m_iAreaMagicID = 0;
 		}
 	}	
@@ -3748,12 +3745,12 @@ void CUser::CharacterSealProcess(Packet & pkt)
 {
 }
 
-void CUser::CheckSavedMagic(uint32 currenttime)
+void CUser::CheckSavedMagic()
 {
 	set<uint32> deleteSet;
 	foreach (itr, m_savedMagicMap)
 	{
-			if (itr->second <= currenttime)
+			if (itr->second <= UNIXTIME)
 				deleteSet.insert(itr->first);
 	}
 	foreach (itr, deleteSet)

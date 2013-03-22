@@ -9,7 +9,7 @@
  * This will be written out eventually, so we can do this properly.
  **/
 struct _MAGIC_TABLE;
-typedef std::map<uint32, uint32> UserSavedMagicMap;
+typedef std::map<uint32, time_t> UserSavedMagicMap;
 class Unit
 {
 public:
@@ -145,8 +145,8 @@ public:
 	short	m_sSpearR;						// Resistance to Spear
 	short	m_sBowR;						// Resistance to Bow		
 
-	uint32	m_fHPLastTime[MAX_TYPE3_REPEAT];		// For Automatic HP recovery and Type 3 durational HP recovery.
-	uint32	m_fHPStartTime[MAX_TYPE3_REPEAT];
+	time_t	m_tHPLastTime[MAX_TYPE3_REPEAT];		// For Automatic HP recovery and Type 3 durational HP recovery.
+	time_t	m_tHPStartTime[MAX_TYPE3_REPEAT];
 	short	m_bHPAmount[MAX_TYPE3_REPEAT];
 	uint8	m_bHPDuration[MAX_TYPE3_REPEAT];
 	uint8	m_bHPInterval[MAX_TYPE3_REPEAT];
@@ -154,7 +154,7 @@ public:
 	BOOL	m_bType3Flag;
 
 	short   m_sDuration[MAX_TYPE4_BUFF];
-	uint32   m_fStartTime[MAX_TYPE4_BUFF];
+	time_t	m_tStartTime[MAX_TYPE4_BUFF];
 
 	BYTE	m_bType4Buff[MAX_TYPE4_BUFF];
 	BOOL	m_bType4Flag;

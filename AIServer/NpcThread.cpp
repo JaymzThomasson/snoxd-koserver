@@ -66,8 +66,8 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 				pNpc->HpChange();
 			}
 
-			pNpc->DurationMagic_4(fTime2);		// 付过 贸府...
-			pNpc->DurationMagic_3(fTime2);		// 瘤加付过..
+			pNpc->DurationMagic_4();		// 付过 贸府...
+			pNpc->DurationMagic_3();		// 瘤加付过..
 
 			switch(pNpc->m_NpcState)
 			{

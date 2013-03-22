@@ -192,8 +192,8 @@ enum InOutType
 };
 
 #define BLINK_TIME				(15) // in seconds
-#define CLAN_SUMMON_TIME		(180 * SECOND)
-#define PLAYER_IDLE_TIME		(300 * SECOND)
+#define CLAN_SUMMON_TIME		(180)
+#define PLAYER_IDLE_TIME		(300)
 
 // ==================================================================
 //	About Map Object

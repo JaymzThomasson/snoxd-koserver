@@ -142,19 +142,19 @@ public:
 	bool	m_bBlockPrivateChat;
 	short	m_sPrivateChatUser;
 
-	uint32	m_fHPLastTimeNormal;					// For Automatic HP recovery. 
-	uint32	m_fHPStartTimeNormal;
+	time_t	m_tHPLastTimeNormal;					// For Automatic HP recovery. 
+	time_t	m_tHPStartTimeNormal;
 	short	m_bHPAmountNormal;
 	uint8	m_bHPDurationNormal;
 	uint8	m_bHPIntervalNormal;
 
-	uint32	m_fAreaLastTime;			// For Area Damage spells Type 3.
-	uint32   m_fAreaStartTime;
+	time_t	m_tAreaLastTime;			// For Area Damage spells Type 3.
+	time_t	m_tAreaStartTime;
 	BYTE    m_bAreaInterval;
 	int     m_iAreaMagicID;
 
 	uint32	m_nTransformationItem; // item used for transforming (e.g. disguise scroll, totem..)
-	uint32	m_fTransformationStartTime;
+	time_t	m_tTransformationStartTime;
 	uint16	m_sTransformationDuration;
 
 	CMagicProcess m_MagicProcess;
@@ -177,7 +177,7 @@ public:
 
 	BYTE	m_bRegeneType;				// Did you die and go home or did you type '/town'?
 
-	uint32	m_fLastRegeneTime;			// The last moment you got resurrected.
+	time_t	m_tLastRegeneTime;			// The last moment you got resurrected.
 
 	BOOL	m_bZoneChangeSameZone;		// Did the server change when you warped?
 
@@ -337,12 +337,12 @@ public:
 	bool GetStartPosition(short & x, short & y, BYTE bZone = 0);
 	int FindSlotForItem(uint32 nItemID, uint16 sCount);
 	int GetEmptySlot();
-	void Type3AreaDuration(uint32 currenttime);
+	void Type3AreaDuration();
 	void SendAllKnightsID();
 	void SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes, not a bug */, uint16 sDurability, uint8 bPos, bool bNewItem = false);
-	void Type4Duration(uint32 currenttime);
-	void HPTimeChange(uint32 currenttime);
-	void HPTimeChangeType3(uint32 currenttime);
+	void Type4Duration();
+	void HPTimeChange();
+	void HPTimeChangeType3();
 	void ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint16 amount);
 	void SendDurability(uint8 slot, uint16 durability);
 	void SendItemMove(uint8 subcommand);
@@ -355,7 +355,7 @@ public:
 	virtual void MSpChange(int amount);
 	void SendPartyHPUpdate();
 	void SendAnvilRequest(int nid);
-	void CheckSavedMagic(uint32 currenttime);
+	void CheckSavedMagic();
 
 	// packet handlers start here
 	void VersionCheck(Packet & pkt);

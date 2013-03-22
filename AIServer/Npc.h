@@ -88,14 +88,14 @@ struct _MagicType3
 	short		sHPAmount;			// 지속 damage ( 지속총양 / (지속시간 / 2) )
 	BYTE		byHPDuration;		// 지속 시간
 	BYTE		byHPInterval;		// 지속 간격
-	uint32		fStartTime;			// 지속이 시작되는 시간..
+	time_t		tStartTime;	
 };
 
 struct _MagicType4
 {
-	BYTE	byAmount;			// 양
-	short	sDurationTime;		// 지속 시간
-	uint32   fStartTime;			// 지속이 시작되는 시간..
+	BYTE	byAmount;
+	short	sDurationTime;		// duration, in seconds
+	time_t	tStartTime;
 };
 
 struct _TargetHealer
@@ -429,8 +429,8 @@ public:
 	int  GetItemGrade(int item_grade);
 	int  GetItemCodeNumber(int level, int item_type);
 	int  GetWeaponItemCodeNumber(int item_type);
-	void DurationMagic_4(uint32 currenttime);
-	void DurationMagic_3(uint32 currenttime);
+	void DurationMagic_4();
+	void DurationMagic_3();
 	void ChangeMonsterInfomation(int iChangeType);
 	int  GetPartyExp( int party_level, int man, int nNpcExp );
 	void ChangeAbility(int iChangeType);

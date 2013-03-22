@@ -239,7 +239,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		m_sWhoKilledMe = -1;
 		m_iLostExp = 0;
 		m_bRegeneType = 0;
-		m_fLastRegeneTime = 0;
+		m_tLastRegeneTime = 0;
 		m_sBind = -1;
 		InitType3();
 		InitType4();

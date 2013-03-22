@@ -58,8 +58,8 @@ BOOL C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _ZONE_ITEM * pItem)
 
 	EnterCriticalSection( &g_region_critical );
 
-	pItem->bundle_index = m_wBundle++;
-	m_ppRegion[rx][rz].m_RegionItemArray.PutData(pItem->bundle_index, pItem);
+	pItem->nBundleID = m_wBundle++;
+	m_ppRegion[rx][rz].m_RegionItemArray.PutData(pItem->nBundleID, pItem);
 	if (m_wBundle > ZONEITEM_MAX)
 		m_wBundle = 1;
 
@@ -81,18 +81,18 @@ BOOL C3DMap::RegionItemRemove(uint16 rx, uint16 rz, int bundle_index, int itemid
 	EnterCriticalSection( &g_region_critical );
 	
 	region = &m_ppRegion[rx][rz];
-	pItem = (_ZONE_ITEM*)region->m_RegionItemArray.GetData( bundle_index );
+	pItem = region->m_RegionItemArray.GetData( bundle_index );
 	if( pItem ) {
-		for(int j=0; j<6; j++) {
-			if( pItem->itemid[j] == itemid && pItem->count[j] == count ) {
-				pItem->itemid[j] = 0; pItem->count[j] = 0;
+		for(int j=0; j < LOOT_ITEMS; j++) {
+			if( pItem->nItemID[j] == itemid && pItem->sCount[j] == count ) {
+				pItem->nItemID[j] = 0; pItem->sCount[j] = 0;
 				bFind = TRUE;
 				break;
 			}
 		}
 		if( bFind ) {
-			for( int j=0; j<6; j++) {
-				if( pItem->itemid[j] != 0 )
+			for( int j=0; j < LOOT_ITEMS; j++) {
+				if( pItem->nItemID[j] != 0 )
 					t_count++;
 			}
 			if( !t_count )

@@ -55,7 +55,7 @@ struct _MAGIC_TYPE3
 	uint16	sEndDamage;
 	uint16	sTimeDamage;
 	uint8	bRadius;
-	uint8	bDuration;
+	uint8	bDuration;  // duration, in seconds
 	uint8	bAttribute;
 };
 
@@ -64,7 +64,7 @@ struct _MAGIC_TYPE4
 	uint32	iNum;
 	uint8	bBuffType;
 	uint8	bRadius;
-	uint16	sDuration;
+	uint16	sDuration;  // duration, in seconds
 	uint8	bAttackSpeed;
 	uint8	bSpeed;
 	uint16	sAC;
@@ -104,7 +104,7 @@ struct _MAGIC_TYPE6
 	uint32	iNum;
 	uint16	sSize;
 	uint16	sTransformID;
-	uint16	sDuration;
+	uint16	sDuration; // duration, in seconds
 	uint16	sMaxHp;
 	uint16	sMaxMp;
 	uint8	bSpeed;

@@ -438,8 +438,8 @@ void Unit::InitType3()
 {
 	for (int i = 0 ; i < MAX_TYPE3_REPEAT; i++)
 	{
-		m_fHPStartTime[i] = 0;		
-		m_fHPLastTime[i] = 0;
+		m_tHPStartTime[i] = 0;		
+		m_tHPLastTime[i] = 0;
 		m_bHPAmount[i] = 0;
 		m_bHPDuration[i] = 0;
 		m_bHPInterval[i] = 5;
@@ -468,9 +468,9 @@ void Unit::InitType4()
 	m_bPoisonRAmount = 0;		
 	m_bMaxWeightAmount = 100;
 	m_bExpGainAmount = 100;
-	memset(m_sDuration, 0, sizeof(uint16) * MAX_TYPE4_BUFF);
-	memset(m_fStartTime, 0, sizeof(float) * MAX_TYPE4_BUFF);
-	memset(m_bType4Buff, 0, sizeof(*m_bType4Buff) * MAX_TYPE4_BUFF);
+	memset(&m_sDuration, 0, sizeof(uint16) * MAX_TYPE4_BUFF);
+	memset(&m_tStartTime, 0, sizeof(float) * MAX_TYPE4_BUFF);
+	memset(&m_bType4Buff, 0, sizeof(*m_bType4Buff) * MAX_TYPE4_BUFF);
 	m_bType4Flag = FALSE;
 
 	// this is going to need cleaning up

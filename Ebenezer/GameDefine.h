@@ -216,14 +216,15 @@ struct _CLASS_COEFFICIENT
 	float	Evasionrate;
 };
 
-struct _ZONE_ITEM {		// Bundle unit
-	DWORD bundle_index;
-	int itemid[6];
-	short count[6];
-	float x;
-	float z;
-	float y;
-	uint32 time;
+// Dropped loot/chest.
+#define LOOT_ITEMS	4
+struct _ZONE_ITEM 
+{
+	uint32 nBundleID;
+	uint32 nItemID[LOOT_ITEMS];
+	uint16 sCount[LOOT_ITEMS];
+	float x, z, y;
+	time_t tDropTime;
 };
 
 struct	_EXCHANGE_ITEM

@@ -537,20 +537,21 @@ bool CDBAgent::UpdateSavedMagic(CUser *pUser)
 	if (dbCommand.get() == NULL)
 		return false;
 	
-	uint32 nSkillID[10] = {0}, nExpiryTime[10] = {0};
+	uint32 nSkillID[10] = {0};
+	time_t tExpiryTime[10] = {0};
 	uint32 i = 0;
 	foreach (itr, pUser->m_savedMagicMap)
 	{
 		nSkillID[i]		= itr->first;
-		nExpiryTime[i]	= itr->second;
+		tExpiryTime[i]	= itr->second;
 		if (++i == 10)
 			break;
 	}
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_strUserID.c_str(), pUser->m_strUserID.length());
 	if (!dbCommand->Execute(string_format(_T("{CALL UPDATE_SAVED_MAGIC(?, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d)}"), 
-		nSkillID[0], nExpiryTime[0], nSkillID[1], nExpiryTime[1], nSkillID[2], nExpiryTime[2], nSkillID[3], nExpiryTime[3], nSkillID[4], nExpiryTime[4],
-		nSkillID[5], nExpiryTime[5], nSkillID[6], nExpiryTime[6], nSkillID[7], nExpiryTime[7], nSkillID[8], nExpiryTime[8], nSkillID[9], nExpiryTime[9])))
+		nSkillID[0], tExpiryTime[0], nSkillID[1], tExpiryTime[1], nSkillID[2], tExpiryTime[2], nSkillID[3], tExpiryTime[3], nSkillID[4], tExpiryTime[4],
+		nSkillID[5], tExpiryTime[5], nSkillID[6], tExpiryTime[6], nSkillID[7], tExpiryTime[7], nSkillID[8], tExpiryTime[8], nSkillID[9], tExpiryTime[9])))
 	{
 		ReportSQLError(m_GameDB.GetError());
 		return false;

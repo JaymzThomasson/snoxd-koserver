@@ -1452,7 +1452,6 @@ CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
 
 void CEbenezerDlg::AliveUserCheck()
 {
-	uint32 currenttime = getMSTime();
 	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
@@ -1464,7 +1463,7 @@ void CEbenezerDlg::AliveUserCheck()
 
 		for (int k = 0; k < MAX_TYPE3_REPEAT; k++)
 		{
-			if ((currenttime - pUser->m_fHPLastTime[k]) >= PLAYER_IDLE_TIME)
+			if ((UNIXTIME - pUser->m_tHPLastTime[k]) >= PLAYER_IDLE_TIME)
 			{
 				pUser->Disconnect();
 				break;
