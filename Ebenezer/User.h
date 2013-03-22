@@ -12,7 +12,6 @@
 #include "ChatHandler.h"
 
 typedef	 std::list<_EXCHANGE_ITEM*>		ItemList;
-typedef  std::list<int>					UserEventList;
 typedef	 std::map<uint32, time_t>		SkillCooldownList;
 typedef std::map<uint32, time_t>		UserSavedMagicMap;
 
@@ -184,7 +183,6 @@ public:
 
 	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];
 	short				m_sEventNid;
-	UserEventList		m_arUserEvent;
 
 
 public:

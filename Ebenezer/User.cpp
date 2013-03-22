@@ -112,9 +112,6 @@ void CUser::Initialize()
 	m_tTransformationStartTime = 0;
 	m_sTransformationDuration = 0;
 
-	while( !m_arUserEvent.empty() )
-	m_arUserEvent.pop_back();
-
 	memset(&m_bKillCounts, 0, sizeof(m_bKillCounts));
 	m_sEventDataIndex = 0;
 }
