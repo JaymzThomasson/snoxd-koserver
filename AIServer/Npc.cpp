@@ -73,7 +73,8 @@ BOOL CNpc::SetUid(float x, float z, int id)
 
 	if(x1 < 0 || z1 < 0 || x1 >= pMap->GetMapSize() || z1 >= pMap->GetMapSize())
 	{
-		TRACE("#### SetUid Fail : [nid=%d, sid=%d], x1=%d, z1=%d #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, x1, z1);
+		TRACE("#### SetUid failed : [nid=%d, sid=%d, zone=%d], coordinates out of range of map x=%d, z=%d, map size=%d #####\n", 
+			m_sNid+NPC_BAND, m_proto->m_sSid, m_bCurZone, x1, z1, pMap->GetMapSize());
 		return FALSE;
 	}
 
