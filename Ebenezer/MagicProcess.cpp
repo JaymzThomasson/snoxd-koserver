@@ -1294,7 +1294,7 @@ bool CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 	// TO-DO : Give the users ALL TEH BONUSES!!
 
 	SendSkill(m_sCasterID, m_sTargetID, m_opcode,
-		m_nSkillID, m_sData1, 1, m_sData3, 0, 0, 0, 0, 0);
+		m_nSkillID, m_sData1, 1, m_sData3, sDuration, 0, 0, 0, 0);
 
 	m_pSkillTarget->InsertSavedMagic(pSkill->iNum, sDuration);
 
