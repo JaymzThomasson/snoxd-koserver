@@ -336,11 +336,14 @@ inline int myrand( int min, int max )
 	return (int)( min + (int)rand_result );
 };
 
-__forceinline uint32 getMSTime()
+__forceinline time_t getMSTime()
 {
 #ifdef _WIN32
-#	pragma warning(suppress: 28159) // GetTickCount64() is only available in Vista or newer. At this time we want backwards compatibility, so... no.
+#if WINVER >= 0x0600
+	return GetTickCount64();
+#else
 	return GetTickCount();
+#endif
 #else
 	struct timeval tv;
 	gettimeofday(&tv, NULL);

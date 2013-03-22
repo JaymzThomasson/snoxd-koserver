@@ -383,7 +383,7 @@ int MAP::IsRoomCheck(float fx, float fz)
 		if( bFlag_1 == TRUE && bFlag_2 == TRUE )	{
 			if( pRoom->m_byStatus == 1 )	{			// 방이 초기화 상태
 				pRoom->m_byStatus = 2;	// 진행중 상태로 방상태 변환
-				pRoom->m_fDelayTime = getMSTime();
+				pRoom->m_tDelayTime = UNIXTIME;
 				room_number = i;
 				TRACE(" Room Check - number = %d, x=%d, z=%d\n", i, nX, nZ);
 				//wsprintf(notify, "** 알림 : [%d Zone][%d] 방에 들어오신것을 환영합니다 **", m_nZoneNumber, pRoom->m_sRoomNumber);

@@ -181,8 +181,6 @@ public:
 
 	BOOL	m_bZoneChangeSameZone;		// Did the server change when you warped?
 
-	uint32	currenttime;
-
 	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];
 	short				m_sEventNid;
 	UserEventList		m_arUserEvent;

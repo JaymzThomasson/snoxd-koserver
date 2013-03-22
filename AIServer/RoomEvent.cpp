@@ -31,7 +31,7 @@ CRoomEvent::~CRoomEvent()
 
 void CRoomEvent::Initialize()
 {
-	m_fDelayTime = 0;
+	m_tDelayTime = 0;
 	m_byLogicNumber = 1;
 
 	for(int i=0; i<MAX_CHECK_EVENT; i++)	{
@@ -44,13 +44,13 @@ void CRoomEvent::Initialize()
 	}
 }
 
-void CRoomEvent::MainRoom(uint32 currtime)
+void CRoomEvent::MainRoom()
 {
 	// 조건 검색먼저 해야 겠지..
 	BOOL bCheck = FALSE, bRunCheck = FALSE;
 	int event_num  = m_Logic[m_byLogicNumber-1].sNumber;
 
-	bCheck = CheckEvent(event_num, currtime);
+	bCheck = CheckEvent(event_num);
 
 	if( bCheck )	{
 		event_num = m_Exec[m_byLogicNumber-1].sNumber; 
@@ -63,7 +63,7 @@ void CRoomEvent::MainRoom(uint32 currtime)
 	}
 }
 
-BOOL  CRoomEvent::CheckEvent(int event_num, uint32 fcurtime)
+BOOL  CRoomEvent::CheckEvent(int event_num)
 {
 	int nMinute = 0, nOption_1 = 0, nOption_2 = 0;
 	CNpc* pNpc = NULL;
@@ -96,12 +96,9 @@ BOOL  CRoomEvent::CheckEvent(int event_num, uint32 fcurtime)
 	case 3:					// 몇분동안 버텨라
 		nMinute = m_Logic[ m_byLogicNumber-1 ].sOption_1;
 		nMinute = nMinute * 60;								// 분을 초로 변환
-		if( fcurtime >= m_fDelayTime + nMinute )	{		// 제한시간 종료
-			TRACE("---Check Event : curtime=%.2f, starttime=%.2f \n", fcurtime, m_fDelayTime);
-			TRACE("버티기 성공\n");
+		if (UNIXTIME >= m_tDelayTime + nMinute )	{		// 제한시간 종료
 			return TRUE;
 		}
-		//TRACE("---Check Event : curtime=%.2f, starttime=%.2f \n", fcurtime, m_fDelayTime);
 		break;
 	case 4:					// 목표지점까지 이동
 		
@@ -293,7 +290,7 @@ BOOL  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
 void CRoomEvent::InitializeRoom()
 {
 	m_byStatus	= 1;			
-	m_fDelayTime = 0;
+	m_tDelayTime = 0;
 	m_byLogicNumber = 1;
 
 	CheckMonsterCount( 0, 0, 4);	// 몬스터의 m_byChangeType=0으로 초기화 

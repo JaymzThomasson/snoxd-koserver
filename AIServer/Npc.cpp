@@ -37,7 +37,7 @@ static float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f,
 #define ELMORAD_MAN				2
 
 #define ATTACK_LIMIT_LEVEL		10
-#define FAINTING_TIME			(2 * SECOND)
+#define FAINTING_TIME			2 // in seconds
 
 extern CRITICAL_SECTION g_region_critical;
 
@@ -5336,10 +5336,9 @@ void CNpc::NpcSleeping()
 
 /////////////////////////////////////////////////////////////////////////////
 // 몬스터가 기절상태로..........
-void CNpc::NpcFainting(uint32 currenttime)
+void CNpc::NpcFainting()
 {
-	// 2초동안 기절해 있다가,,  standing상태로....
-	if (currenttime > (m_fFaintingTime + FAINTING_TIME)) {
+	if (UNIXTIME > (m_fFaintingTime + FAINTING_TIME)) {
 		m_NpcState = NPC_STANDING;
 		m_Delay = 0;
 		m_fDelayTime = getMSTime();

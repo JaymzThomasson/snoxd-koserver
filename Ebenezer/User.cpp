@@ -146,8 +146,6 @@ void CUser::OnDisconnect()
 
 bool CUser::HandlePacket(Packet & pkt)
 {
-	currenttime = 0;
-
 	uint8 command = pkt.GetOpcode();
 	TRACE("[SID=%d] Packet: %X (len=%d)\n", GetSocketID(), command, pkt.size());
 	// If crypto's not been enabled yet, force the version packet to be sent.

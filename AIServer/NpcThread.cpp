@@ -21,11 +21,11 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 
 	int					i			= 0;
 	DWORD				dwDiffTime	= 0;
-	DWORD				dwTickTime  = 0;
-	srand( (unsigned)time( NULL ) );
+	time_t				dwTickTime  = 0;
+	srand((uint32)UNIXTIME);
 	myrand( 1, 10000 ); myrand( 1, 10000 );
 
-	uint32 fTime2 = 0;
+	time_t fTime2 = 0;
 	int    duration_damage=0;
 
 	if(!pInfo) return 0;
@@ -43,9 +43,6 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 			if( pNpc->m_sNid < 0 ) continue;		// 잘못된 몬스터 (임시코드 2002.03.24)
 
 			dwTickTime = fTime2 - pNpc->m_fDelayTime;
-
-			//if(i==0)
-			//TRACE("thread time = %.2f, %.2f, %.2f, delay=%d, state=%d, nid=%d\n", pNpc->m_fDelayTime, fTime2, fTime3, dwTickTime, pNpc->m_NpcState, pNpc->m_sNid+NPC_BAND);
 
 			if(pNpc->m_Delay > (int)dwTickTime && !pNpc->m_bFirstLive && pNpc->m_Delay != 0) 
 			{
@@ -109,7 +106,7 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 				pNpc->NpcSleeping();
 				break;
 			case NPC_FAINTING:
-				pNpc->NpcFainting(fTime2);
+				pNpc->NpcFainting();
 				break;
 			case NPC_HEALING:
 				pNpc->NpcHealing();
@@ -132,12 +129,10 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */)
 {
 	CServerDlg* m_pMain = (CServerDlg*) pParam;
-	uint32  fCurrentTime = 0;
 	int j=0;
 
 	while (!g_bNpcExit)
 	{
-		fCurrentTime = getMSTime();
 		foreach_stlmap (itr, g_pMain.g_arZone)
 		{
 			MAP *pMap = itr->second;
@@ -152,7 +147,7 @@ UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */)
 				if( !pRoom ) continue;
 				if( pRoom->m_byStatus == 1 || pRoom->m_byStatus == 3 )   continue; // 1:init, 2:progress, 3:clear
 				// 여기서 처리하는 로직...
-				pRoom->MainRoom( fCurrentTime );
+				pRoom->MainRoom();
 			}
 		}
 		Sleep(1000);	// 1초당 한번
