@@ -5162,31 +5162,28 @@ void CNpc::DurationMagic_4(uint32 currenttime)
 	if (pMap == NULL)	
 		return;
 
-	if( m_byDungeonFamily > 0)	{
-
-		CRoomEvent* pRoom = NULL;
-		//if( m_byDungeonFamily < 0 || m_byDungeonFamily >= MAX_DUNGEON_BOSS_MONSTER )	{
-		if( m_byDungeonFamily < 0 || m_byDungeonFamily > pMap->m_arRoomEventArray.GetSize()+1 )	{
-			TRACE("#### Npc-DurationMagic_4() m_byDungeonFamily Fail : [nid=%d, name=%s], m_byDungeonFamily=%d #####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_byDungeonFamily);
-			//return;
+	if (m_byDungeonFamily > 0)
+	{
+		CRoomEvent* pRoom = pMap->m_arRoomEventArray.GetData(m_byDungeonFamily);
+		if (pRoom == NULL)
+		{
+			// If it doesn't exist, there's no point continually assuming it exists. Just unset it.
+			// We'll only throw the message once, so that the user knows they need to make sure the room event exists.
+			m_byDungeonFamily = 0;
+			TRACE("#### Npc-DurationMagic_4() failed: room event does not exist : [nid=%d, name=%s], m_byDungeonFamily(event)=%d #####\n", 
+				m_sNid+NPC_BAND, m_proto->m_strName, m_byDungeonFamily);
 		}
-		else	{
-			pRoom = pMap->m_arRoomEventArray.GetData( m_byDungeonFamily );
-			if( !pRoom )	{
-				TRACE("#### Npc-DurationMagic_4() room Fail : [nid=%d, name=%s], m_byDungeonFamily=%d #####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_byDungeonFamily);
-			}
-			else	{
-				//if( pMap->m_arDungeonBossMonster[m_byDungeonFamily] == 0 )	{	// 대장 몬스터가 죽은 경우
-				if( pRoom->m_byStatus == 3 )	{	// 방이 클리어 된경우
-					if( m_NpcState != NPC_DEAD )	{
-						if( m_byRegenType == 0 )	{		
-							m_byRegenType = 2;      // 리젠이 되지 않도록,,
-							Dead(1);
-							return;
-						}
+		else
+		{
+			if( pRoom->m_byStatus == 3 )	{	// 방이 클리어 된경우
+				if( m_NpcState != NPC_DEAD )	{
+					if( m_byRegenType == 0 )	{		
+						m_byRegenType = 2;      // 리젠이 되지 않도록,,
+						Dead(1);
+						return;
 					}
-					//return;
 				}
+				//return;
 			}
 		}
 	}
