@@ -26,7 +26,7 @@ public:
 		_dbCommand->FetchUInt16(i++, pData->sNpcNum);
 		_dbCommand->FetchByte(i++, pData->bRandomFlag);
 
-		for (int j = 0; j < 5; j++)
+		for (int j = 0; j < ITEMS_IN_EXCHANGE_GROUP; j++)
 		{
 			_dbCommand->FetchUInt32(i++, pData->nOriginItemNum[j]);
 			_dbCommand->FetchUInt16(i++, pData->sOriginItemCount[j]);

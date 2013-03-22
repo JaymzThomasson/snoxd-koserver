@@ -322,6 +322,8 @@ public:
 	BOOL GiveItem(int itemid, short count, bool send_packet = true);
 	BOOL RobItem(int itemid, short count);
 	BOOL CheckExistItem(int itemid, short count);
+	BOOL CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,
+		int32 nItemID3, int16 sCount3, int32 nItemID4, int16 sCount4, int32 nItemID5, int16 sCount5);
 	BOOL CheckWeight(int itemid, short count);
 	BOOL CheckSkillPoint(BYTE skillnum, BYTE min, BYTE max);
 	BOOL GoldLose(unsigned int gold);
@@ -578,6 +580,10 @@ public:
 	void SendToRegion(Packet *pkt, CUser *pExceptUser = NULL);
 
 	virtual void OnDeath(Unit *pKiller);
+
+	// Exchange system
+	bool CheckExchange(int nExchangeID);
+	bool RunExchange(int nExchangeID);
 
 	// Clan system
 	void SendClanUserStatusUpdate(bool bToRegion = true);

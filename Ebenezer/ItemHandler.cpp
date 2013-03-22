@@ -208,6 +208,33 @@ BOOL CUser::CheckExistItem(int itemid, short count)
 	return FALSE;
 }
 
+// Pretend you didn't see me. This really needs to go (just copying official)
+BOOL CUser::CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,
+		int32 nItemID3, int16 sCount3, int32 nItemID4, int16 sCount4, int32 nItemID5, int16 sCount5)
+{
+	if (nItemID1 != -1
+		&& !CheckExistItem(nItemID1, sCount1))
+		return FALSE;
+
+	if (nItemID2 != -1
+		&& !CheckExistItem(nItemID2, sCount2))
+		return FALSE;
+
+	if (nItemID3 != -1
+		&& !CheckExistItem(nItemID3, sCount3))
+		return FALSE;
+
+	if (nItemID4 != -1
+		&& !CheckExistItem(nItemID4, sCount4))
+		return FALSE;
+
+	if (nItemID5 != -1
+		&& !CheckExistItem(nItemID5, sCount5))
+		return FALSE;
+
+	return TRUE;
+}
+
 BOOL CUser::RobItem(int itemid, short count)
 {
 	_ITEM_TABLE* pTable = g_pMain.GetItemPtr( itemid );
@@ -478,6 +505,158 @@ void CUser::ItemMove(Packet & pkt)
 
 fail_return:
 	SendItemMove(0);
+}
+
+bool CUser::CheckExchange(int nExchangeID)
+{
+	// Does the exchange exist?
+	_ITEM_EXCHANGE * pExchange = g_pMain.m_ItemExchangeArray.GetData(nExchangeID);
+	if (pExchange == NULL)
+		return false;
+
+	// Find free slots in the inventory, so that we can check against this later.
+	uint8 bFreeSlots = 0;
+	for (int i = SLOT_MAX; i < SLOT_MAX+HAVE_MAX; i++)
+	{
+		if (GetItem(i)->nNum == 0
+			&& ++bFreeSlots >= ITEMS_IN_EXCHANGE_GROUP)
+			break;
+	}
+
+	// Add up the rates for this exchange to obtain a total percentage
+	int nTotalPercent = 0;
+	for (int i = 0; i < ITEMS_IN_EXCHANGE_GROUP; i++)
+		nTotalPercent += pExchange->sExchangeItemCount[i];
+
+	if (nTotalPercent > 9000)
+		return (bFreeSlots > 0);
+
+	// Can we hold all of these items? If we can't, we have a problem.
+	uint8 bReqSlots = 0;
+	uint32 nReqWeight = 0;
+	for (int i = 0; i < ITEMS_IN_EXCHANGE_GROUP; i++)
+	{
+		uint32 nItemID = pExchange->nExchangeItemNum[i];
+
+		// Does the item exist? If not, we'll ignore it (NOTE: not official behaviour).
+		_ITEM_TABLE * pTable = NULL;
+		if (nItemID == 0
+			|| (pTable = g_pMain.GetItemPtr(nItemID)) == NULL)
+			continue;
+
+		// Try to find a slot for the item.
+		// If we can't find an applicable slot with our inventory as-is,
+		// there's no point even checking further.
+		int pos;
+		if ((pos = FindSlotForItem(nItemID, 1)) < 0)
+			return false;
+
+		// Now that we have our slot, see if it's in use (i.e. if adding a stackable item)
+		// If it's in use, then we don't have to worry about requiring an extra slot for this item.
+		// The only caveat here is with having multiple of the same stackable item: 
+		// theoretically we could give them OK, but when it comes time to adding them, we'll find that
+		// there's too many of them and they can't fit in the same slot. 
+		// As this isn't an issue with real use cases, we can ignore it.
+		_ITEM_DATA *pItem = GetItem(pos);
+		if (pItem->nNum == 0)
+			bReqSlots++; // new item? new required slot.
+
+		// Also take into account weight (not official behaviour)
+		nReqWeight += pTable->m_sWeight;
+	}
+
+	// Holding too much already?
+	if (m_sItemWeight + nReqWeight > m_sMaxWeight)
+		return false;
+
+	// Do we have enough slots?
+	return (bFreeSlots >= bReqSlots);
+}
+
+bool CUser::RunExchange(int nExchangeID)
+{
+	_ITEM_EXCHANGE * pExchange = g_pMain.m_ItemExchangeArray.GetData(nExchangeID);
+
+	// Does the exchange exist?
+	if (pExchange == NULL
+		// Is it a valid exchange (do we have room?)
+		|| !CheckExchange(nExchangeID)
+		// We handle flags from 0-101 only. Anything else is broken.
+		|| pExchange->bRandomFlag > 101
+		// Do we have all of the required items?
+		|| !CheckExistItemAnd(
+			pExchange->nOriginItemNum[0], pExchange->sOriginItemCount[0], 
+			pExchange->nOriginItemNum[1], pExchange->sOriginItemCount[1], 
+			pExchange->nOriginItemNum[2], pExchange->sOriginItemCount[2], 
+			pExchange->nOriginItemNum[3], pExchange->sOriginItemCount[3], 
+			pExchange->nOriginItemNum[4], pExchange->sOriginItemCount[4])
+		// These checks are a little pointless, but remove the required items as well.
+		|| !RobItem(pExchange->nOriginItemNum[0], pExchange->sOriginItemCount[0])
+		|| !RobItem(pExchange->nOriginItemNum[1], pExchange->sOriginItemCount[1])
+		|| !RobItem(pExchange->nOriginItemNum[2], pExchange->sOriginItemCount[2])
+		|| !RobItem(pExchange->nOriginItemNum[3], pExchange->sOriginItemCount[3])
+		|| !RobItem(pExchange->nOriginItemNum[4], pExchange->sOriginItemCount[4]))
+		return false;
+		
+	// No random element? We're just exchanging x items for y items.
+	if (!pExchange->bRandomFlag)
+	{
+		for (int i = 0; i < ITEMS_IN_EXCHANGE_GROUP; i++)
+		    GiveItem(pExchange->nExchangeItemNum[i], pExchange->sExchangeItemCount[i]);
+	}
+	// For these items the rate set by bRandomFlag.
+	else if (pExchange->bRandomFlag <= 100)
+	{
+		int rand = myrand(0, 1000 * pExchange->bRandomFlag) / 1000;
+		if (rand == 5)
+			rand = 4;
+
+		if (rand <= 4)
+			GiveItem(pExchange->nExchangeItemNum[rand], pExchange->sExchangeItemCount[rand]);
+	}
+	// For 101, the rates are determined by sExchangeItemCount.
+	else if (pExchange->bRandomFlag == 101)
+	{
+		uint32 nTotalPercent = 0;
+		for (int i = 0; i < ITEMS_IN_EXCHANGE_GROUP; i++)
+			nTotalPercent += pExchange->sExchangeItemCount[i];
+
+		// If they add up to more than 100%, 
+		if (nTotalPercent > 10000)
+		{
+			TRACE("Exchange %d is invalid. Rates add up to more than 100% (%d%%)", nExchangeID, nTotalPercent / 100);
+			return false;
+		}
+
+		// Holy stack batman! We're just going ahead and copying official for now.
+		// NOTE: Officially they even use 2 bytes per element. Yikes.
+		uint8 bRandArray[10000];
+		memset(&bRandArray, 0, sizeof(bRandArray)); // default to 0 in case it's lower than 100% (in which case, first item's rate increases)
+
+		// Copy the counts, as we're going to adjust them locally.
+		uint16 sExchangeCount[ITEMS_IN_EXCHANGE_GROUP];
+
+		memcpy(&sExchangeCount, &pExchange->sExchangeItemCount, sizeof(pExchange->sExchangeItemCount));
+
+		// Build array of exchange item slots (0-4)
+		for (int n = 0, i = 0; n < 5; n++)
+		{
+			while (sExchangeCount[n] > 0)
+			{
+				bRandArray[i++] = n;
+				sExchangeCount[n]--;
+			}
+		}
+
+		// Pull our exchange item slot out of our hat (the array we generated).
+		uint8 bRandSlot = bRandArray[myrand(0, 9999)];
+		uint32 nItemID = pExchange->nExchangeItemNum[bRandSlot];
+
+		// Finally, give our item.
+		GiveItem(nItemID, 1);
+	}
+
+	return true;
 }
 
 BOOL CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)
