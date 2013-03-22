@@ -391,8 +391,8 @@ bool CUser::HandlePacket(Packet & pkt)
 	if (m_bType4Flag)		// For Type 4 Stat Duration.
 		Type4Duration();
 
-	if (m_bSavedMagicFlag)
-		CheckSavedMagic();
+	// Expire any timed out saved skills.
+	CheckSavedMagic();
 		
 	if (m_bIsTransformed && (UNIXTIME - m_tTransformationStartTime) > m_sTransformationDuration)
 		m_MagicProcess.Type6Cancel();
@@ -3745,6 +3745,10 @@ void CUser::CharacterSealProcess(Packet & pkt)
 
 void CUser::CheckSavedMagic()
 {
+	FastGuard lock(m_savedMagicLock);
+	if (m_savedMagicMap.empty())
+		return;
+
 	set<uint32> deleteSet;
 	foreach (itr, m_savedMagicMap)
 	{
@@ -3753,4 +3757,22 @@ void CUser::CheckSavedMagic()
 	}
 	foreach (itr, deleteSet)
 		m_savedMagicMap.erase(*itr);
+}
+
+void CUser::InsertSavedMagic(uint32 nSkillID, uint16 sDuration)
+{
+	FastGuard lock(m_savedMagicLock);
+	UserSavedMagicMap::iterator itr = m_savedMagicMap.find(nSkillID);
+
+	// If the buff is already in the savedBuffMap there's no need to add it again!
+	if (itr != m_savedMagicMap.end())
+		return;
+	
+	m_savedMagicMap.insert(make_pair(nSkillID, UNIXTIME + sDuration));
+}
+
+bool CUser::HasSavedMagic(uint32 nSkillID)
+{
+	FastGuard lock(m_savedMagicLock);
+	return m_savedMagicMap.find(nSkillID) != m_savedMagicMap.end();
 }

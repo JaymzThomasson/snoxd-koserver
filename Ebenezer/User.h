@@ -14,6 +14,7 @@
 typedef	 std::list<_EXCHANGE_ITEM*>		ItemList;
 typedef  std::list<int>					UserEventList;
 typedef	 std::map<uint32, time_t>		SkillCooldownList;
+typedef std::map<uint32, time_t>		UserSavedMagicMap;
 
 #define BANISH_DELAY_TIME    30
 
@@ -353,7 +354,6 @@ public:
 	virtual void MSpChange(int amount);
 	void SendPartyHPUpdate();
 	void SendAnvilRequest(int nid);
-	void CheckSavedMagic();
 
 	// packet handlers start here
 	void VersionCheck(Packet & pkt);
@@ -591,6 +591,10 @@ public:
 	//Magic System - rewrite
 	bool CanUseItem(long itemid, uint16 count); //Should place this with other item related functions
 
+	void CheckSavedMagic();
+	virtual void InsertSavedMagic(uint32 nSkillID, uint16 sDuration);
+	virtual bool HasSavedMagic(uint32 nSkillID);
+
 	void SaveEvent(uint16 sQuestID, uint8 bQuestState);
 	void DeleteEvent(uint16 sQuestID);
 	bool CheckExistEvent(uint16 sQuestID, uint8 bQuestState);
@@ -662,4 +666,7 @@ public:
 
 	uint8 m_bKillCounts[QUEST_MOB_GROUPS];
 	uint16 m_sEventDataIndex;
+
+	UserSavedMagicMap m_savedMagicMap;
+	FastMutex m_savedMagicLock;
 };

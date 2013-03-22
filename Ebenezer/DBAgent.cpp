@@ -511,6 +511,7 @@ bool CDBAgent::LoadSavedMagic(CUser *pUser)
 		return false;
 	}
 
+	FastGuard lock(pUser->m_savedMagicLock);
 	pUser->m_savedMagicMap.clear();
 	if (!dbCommand->hasData())
 		return true;
@@ -537,6 +538,7 @@ bool CDBAgent::UpdateSavedMagic(CUser *pUser)
 	if (dbCommand.get() == NULL)
 		return false;
 	
+	FastGuard lock(pUser->m_savedMagicLock);
 	uint32 nSkillID[10] = {0};
 	time_t tExpiryTime[10] = {0};
 	uint32 i = 0;

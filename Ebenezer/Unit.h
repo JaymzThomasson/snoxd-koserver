@@ -9,7 +9,6 @@
  * This will be written out eventually, so we can do this properly.
  **/
 struct _MAGIC_TABLE;
-typedef std::map<uint32, time_t> UserSavedMagicMap;
 class Unit
 {
 public:
@@ -71,7 +70,9 @@ public:
 	short GetMagicDamage(int damage, Unit *pTarget);
 	short GetACDamage(int damage, Unit *pTarget);
 	uint8 GetHitRate(float rate);
-	void InsertSavedMagic(uint32 magicid, uint32 duration);
+
+	virtual void InsertSavedMagic(uint32 nSkillID, uint16 sDuration) {}
+	virtual bool HasSavedMagic(uint32 nSkillID) { return false; }
 
 	virtual void HpChange(int amount, Unit *pAttacker = NULL, bool bSendToAI = true) = 0;
 	virtual void MSpChange(int amount) = 0;
@@ -158,7 +159,4 @@ public:
 
 	BYTE	m_bType4Buff[MAX_TYPE4_BUFF];
 	BOOL	m_bType4Flag;
-
-	bool	m_bSavedMagicFlag;
-	UserSavedMagicMap m_savedMagicMap;
 };

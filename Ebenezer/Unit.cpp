@@ -489,18 +489,3 @@ void Unit::SendDeathAnimation()
 	result << GetID();
 	SendToRegion(&result);
 }
-
-void Unit::InsertSavedMagic(uint32 magicid, uint32 duration)
-{
-	UserSavedMagicMap::iterator itr;
-	itr = m_savedMagicMap.find(magicid);
-	//If the buff is already in the savedBuffMap there's no need to add it again!
-	if (itr != m_savedMagicMap.end())
-		return;
-	
-	duration += GetCurrentTime();
-
-	m_bSavedMagicFlag = true;
-	if (isPlayer())
-		m_savedMagicMap.insert(std::pair<uint32, uint32>(magicid, duration));
-}

@@ -799,7 +799,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 	if (pType == NULL)
 		return false;
 
-	if(m_pSkillTarget->m_savedMagicMap.find(pSkill->iNum) != m_pSkillTarget->m_savedMagicMap.end())
+	if (m_pSkillTarget->HasSavedMagic(pSkill->iNum))
 		return false;
 
 	if (m_sTargetID == -1)
@@ -1216,7 +1216,7 @@ bool CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 	uint32 iUseItem = 0;
 
 	
-	if(m_pSkillTarget->m_savedMagicMap.find(pSkill->iNum) != m_pSkillTarget->m_savedMagicMap.end())
+	if (m_pSkillTarget->HasSavedMagic(pSkill->iNum))
 		return false;
 
 	if (pType == NULL
@@ -1484,16 +1484,13 @@ bool CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 
 	m_sData2 = 1;
 	
-	if(m_pSkillTarget->m_savedMagicMap.find(pSkill->iNum) == m_pSkillTarget->m_savedMagicMap.end())
-		m_sData2 = 1;
-	else
+	if (m_pSkillTarget->HasSavedMagic(pSkill->iNum))
 	{
 		m_sData2 = 0;
 		SendSkillFailed();
 		return false;
 	}
 	
-
 	if (pType->bStateChange <= 2)
 	{
 		m_pSrcUser->StateChangeServerDirect(7, pType->bStateChange); //Update the client to be invisible
