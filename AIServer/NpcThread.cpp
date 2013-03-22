@@ -66,34 +66,36 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 			pNpc->DurationMagic_4();		// 마법 처리...
 			pNpc->DurationMagic_3();		// 지속마법..
 
-			switch(pNpc->m_NpcState)
+			uint8 bState = pNpc->m_NpcState;
+			time_t tDelay = -1;
+			switch (bState)
 			{
 			case NPC_LIVE:					// 방금 살아난 경우
-				pNpc->NpcLive();
+				tDelay = pNpc->NpcLive();
 				break;
 
 			case NPC_STANDING:						// 하는 일 없이 서있는 경우
-				pNpc->NpcStanding();
+				tDelay = pNpc->NpcStanding();
 				break;
 			
 			case NPC_MOVING:
-				pNpc->NpcMoving();
+				tDelay = pNpc->NpcMoving();
 				break;
 
 			case NPC_ATTACKING:
-				pNpc->NpcAttacking();
+				tDelay = pNpc->NpcAttacking();
 				break;
 
 			case NPC_TRACING:
-				pNpc->NpcTracing();
+				tDelay = pNpc->NpcTracing();
 				break;
 
 			case NPC_FIGHTING:
-				pNpc->NpcFighting();
+				tDelay = pNpc->NpcFighting();
 				break;
 
 			case NPC_BACK:
-				pNpc->NpcBack();
+				tDelay = pNpc->NpcBack();
 				break;
 
 			case NPC_STRATEGY:
@@ -102,19 +104,27 @@ UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
 			case NPC_DEAD:
 				pNpc->m_NpcState = NPC_LIVE;
 				break;
+
 			case NPC_SLEEPING:
-				pNpc->NpcSleeping();
-				break;
-			case NPC_FAINTING:
-				pNpc->NpcFainting();
-				break;
-			case NPC_HEALING:
-				pNpc->NpcHealing();
+				tDelay = pNpc->NpcSleeping();
 				break;
 
-			default:
+			case NPC_FAINTING:
+				tDelay = pNpc->NpcFainting();
+				break;
+
+			case NPC_HEALING:
+				tDelay = pNpc->NpcHealing();
 				break;
 			}
+
+			// This may not be necessary, but it keeps behaviour identical.
+			if (bState != NPC_LIVE && bState != NPC_DEAD
+				&& pNpc->m_NpcState != NPC_DEAD)
+				pNpc->m_fDelayTime = getMSTime();
+
+			if (tDelay >= 0)
+				pNpc->m_Delay = tDelay;
 		}	
 
 		Sleep(100);

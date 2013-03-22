@@ -265,7 +265,7 @@ public:
 	//----------------------------------------------------------------
 	//	MONSTER_POS DB 쪽에 있는 변수들
 	//----------------------------------------------------------------
-	int		m_Delay;			// 다음 상태로 전이되기 까지의 시간
+	time_t	m_Delay;			// this doesn't really need to be time_t, but we'll use it (at least for now) for consistency
 	time_t	m_fDelayTime;		// Npc Thread체크 타임...
 
 	BYTE	m_byType;
@@ -374,16 +374,16 @@ public:
 	BOOL IsInExpRange(CUser* pUser);
 	void GiveNpcHaveItem();		// NPC 가 가진 아이템을 떨군다
 
-	void NpcLive();
-	void NpcFighting();
-	void NpcTracing();
-	void NpcAttacking();
-	void NpcMoving();
-	void NpcSleeping();
-	void NpcFainting();
-	void NpcHealing();
-	void NpcStanding();
-	void NpcBack();
+	time_t NpcLive();
+	time_t NpcFighting();
+	time_t NpcTracing();
+	time_t NpcAttacking();
+	time_t NpcMoving();
+	time_t NpcSleeping();
+	time_t NpcFainting();
+	time_t NpcHealing();
+	time_t NpcStanding();
+	time_t NpcBack();
 	BOOL SetLive();
 
 	BOOL IsInRange(int nX, int nZ);

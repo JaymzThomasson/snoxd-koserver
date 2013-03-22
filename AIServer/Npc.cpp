@@ -348,14 +348,12 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto)
 }
 
 // NPC 상태별로 분화한다.
-void CNpc::NpcLive()
+time_t CNpc::NpcLive()
 {
-	m_fDelayTime = getMSTime();
 	// Dungeon Work : 변하는 몬스터의 경우 변하게 처리..
 	if( m_byRegenType == 2 || (m_byRegenType==1 && m_byChangeType==100) )	{	// 리젠이 되지 못하도록,,, 
 		m_NpcState = NPC_LIVE;
-		m_Delay = m_sRegenTime;
-		return;
+		return m_sRegenTime;
 	}
 	if( m_byChangeType == 1 )	{			// 몬스터의 정보를 바꾸어 준다..
 		m_byChangeType = 2;
@@ -363,27 +361,26 @@ void CNpc::NpcLive()
 	}
 
 	m_NpcState = SetLive() ? NPC_STANDING : NPC_LIVE;
-	m_Delay = m_sStandTime;
+	return m_sStandTime;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 //	NPC가 공격하는 경우.
 //
-void CNpc::NpcFighting()
+time_t CNpc::NpcFighting()
 {
-	if(m_iHP <= 0)	{
+	if (m_iHP <= 0)	{
 		Dead();
-		return;
+		return -1;
 	}
 	
-	m_Delay = Attack();
-	m_fDelayTime = getMSTime();
+	return Attack();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 //	NPC가 유저를 추적하는 경우.
 //
-void CNpc::NpcTracing()
+time_t CNpc::NpcTracing()
 {
 	float fMoveSpeed=0.0f;
 
@@ -401,9 +398,7 @@ void CNpc::NpcTracing()
 	{
 		InitTarget();
 		m_NpcState = NPC_STANDING;
-		m_Delay = m_sStandTime;
-		m_fDelayTime = getMSTime();
-		return;
+		return m_sStandTime;
 	}	
 
 	/* 작업할것
@@ -415,26 +410,20 @@ void CNpc::NpcTracing()
 		//TRACE("Npc-NpcTracing : trace->attack으로 바뀜 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, m_proto->m_strName, m_fCurX, m_fCurZ);
 		NpcMoveEnd();	// 이동 끝..
 		m_NpcState = NPC_FIGHTING;
-		m_Delay = 0;
-		m_fDelayTime = getMSTime();
-		return;
+		return 0;
 	}
 	else if(nFlag == -1)		// 타겟이 없어짐...
 	{
 		InitTarget();
 		NpcMoveEnd();	// 이동 끝..
 		m_NpcState = NPC_STANDING;
-		m_Delay = m_sStandTime;
-		m_fDelayTime = getMSTime();
-		return;
+		return m_sStandTime;
 	}
 	//else if(nFlag == 2 && m_proto->m_tNpcType == NPC_BOSS_MONSTER)	{
 	else if(nFlag == 2 && m_tNpcLongType == 2)	{
 		NpcMoveEnd();	// 이동 끝..
 		m_NpcState = NPC_FIGHTING;
-		m_Delay = 0;
-		m_fDelayTime = getMSTime();
-		return;
+		return 0;
 	}
 
 	if(m_byActionFlag == ATTACK_TO_TRACE)
@@ -451,9 +440,7 @@ void CNpc::NpcTracing()
 			InitTarget();
 			NpcMoveEnd();	// 이동 끝..
 			m_NpcState = NPC_STANDING;
-			m_Delay = m_sStandTime;
-			m_fDelayTime = getMSTime();
-			return;
+			return m_sStandTime;
 		}
 	}
 
@@ -461,10 +448,8 @@ void CNpc::NpcTracing()
 		|| (m_bPathFlag && !StepNoPathMove()))
 	{
 		m_NpcState = NPC_STANDING;
-		m_Delay = m_sStandTime;
-		m_fDelayTime = getMSTime();
 		TRACE("### NpcTracing Fail : StepMove 실패, %s, %d ### \n", m_proto->m_strName, m_sNid+NPC_BAND);
-		return;
+		return m_sStandTime;
 	}
 
 	Packet result(MOVE_RESULT, uint8(SUCCESS));
@@ -486,21 +471,18 @@ void CNpc::NpcTracing()
 			InitTarget();
 			NpcMoveEnd();	// 이동 끝..
 			m_NpcState = NPC_STANDING;
-			m_Delay = m_sStandTime;
-			m_fDelayTime = getMSTime();
-			return;
+			return m_sStandTime;
 		}
 	}	
 
-	m_Delay = m_sSpeed;	
-	m_fDelayTime = getMSTime();
+	return m_sSpeed;	
 }
 
-void CNpc::NpcAttacking()
+time_t CNpc::NpcAttacking()
 {
-	if(m_iHP <= 0)	{	
+	if (m_iHP <= 0)	{	
 		Dead();		 // 바로 몬스터를 죽인다.. (경험치 배분 안함)
-		return;
+		return -1;
 	}
 
 //	TRACE("Npc Attack - [nid=%d, sid=%d]\n", m_sNid, m_proto->m_sSid);
@@ -508,9 +490,7 @@ void CNpc::NpcAttacking()
 	int ret = IsCloseTarget(m_byAttackRange);
 	if(ret == 1)	{	// 공격할 수 있는만큼 가까운 거리인가?
 		m_NpcState = NPC_FIGHTING;
-		m_Delay = 0;
-		m_fDelayTime = getMSTime();
-		return;
+		return 0;
 	}
 
 	//if(m_proto->m_tNpcType == NPCTYPE_DOOR || m_proto->m_tNpcType == NPCTYPE_ARTIFACT || m_proto->m_tNpcType == NPCTYPE_PHOENIX_GATE || m_proto->m_tNpcType == NPCTYPE_GATE_LEVER)		return;		// 성문 NPC는 공격처리 안하게
@@ -519,26 +499,21 @@ void CNpc::NpcAttacking()
 	if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT)
 	{
 		m_NpcState = NPC_STANDING;
-		m_Delay = m_sStandTime/2;
-		m_fDelayTime = getMSTime();
-		return;
+		return m_sStandTime/2;
 	}
 
 	int nValue = GetTargetPath();
 	if(nValue == -1)	{	// 타겟이 없어지거나,, 멀어졌음으로...
-		if(RandomMove() == FALSE)	{
+		if (!RandomMove())
+		{
 			InitTarget();
 			m_NpcState = NPC_STANDING;
-			m_Delay = m_sStandTime;
-			m_fDelayTime = getMSTime();
-			return;
+			return m_sStandTime;
 		}
 
 		InitTarget();
 		m_NpcState = NPC_MOVING;
-		m_Delay = m_sSpeed;
-		m_fDelayTime = getMSTime();
-		return;
+		return m_sSpeed;
 	}
 	else if(nValue == 0)	{
 		m_fSecForMetor = m_fSpeed_2;			// 공격일때는 뛰는 속도로... 
@@ -546,23 +521,19 @@ void CNpc::NpcAttacking()
 	}
 
 	m_NpcState = NPC_TRACING;
-	m_Delay = 0;
-	m_fDelayTime = getMSTime();
+	return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 //	NPC가 이동하는 경우.
 //
-void CNpc::NpcMoving()
+time_t CNpc::NpcMoving()
 {
-	char pBuf[1024];
-	::ZeroMemory(pBuf, 1024);	
-	int index = 0;
 	float fMoveSpeed = 0.0f;
 
 	if(m_iHP <= 0) {
 		Dead();
-		return;
+		return -1;
 	}
 
 	if(m_sStepCount != 0)	{
@@ -574,22 +545,20 @@ void CNpc::NpcMoving()
 		}
 	}
 
-	if(FindEnemy() == TRUE)	{	// 적을 찾는다. 
+	if (FindEnemy())
+	{
 	/*	if(m_proto->m_tNpcType == NPCTYPE_GUARD) 
 		{ 
 			NpcMoveEnd();	// 이동 끝..
 			m_NpcState = NPC_FIGHTING; 
-			m_Delay = 0; 
-			m_fDelayTime = getMSTime();
+			return 0; 
 		}
 		else */
 		{ 
 			NpcMoveEnd();	// 이동 끝..
 			m_NpcState = NPC_ATTACKING;
-			m_Delay = m_sSpeed;
-			m_fDelayTime = getMSTime();
+			return m_sSpeed;
 		}
-		return;
 	}	
 
 	if(IsMovingEnd())	{				// 이동이 끝났으면
@@ -602,24 +571,14 @@ void CNpc::NpcMoving()
 		int rz = (int)(m_fCurZ / VIEW_DIST);
 		//TRACE("** NpcMoving --> IsMovingEnd() 이동이 끝남,, rx=%d, rz=%d, stand로\n", rx, rz);
 		m_NpcState = NPC_STANDING;
-		m_Delay = m_sStandTime;
-		m_fDelayTime = getMSTime();
-
-		if(m_Delay < 0) {
-			m_Delay = 0;	
-			m_fDelayTime = getMSTime();
-		}
-
-		return;
+		return m_sStandTime;
 	}
 
 	if (  (!m_bPathFlag && !StepMove())
 		|| (m_bPathFlag && !StepNoPathMove()))
 	{
 		m_NpcState = NPC_STANDING;
-		m_Delay = m_sStandTime;
-		m_fDelayTime = getMSTime();
-		return;
+		return m_sStandTime;
 	}
 
 	Packet result(MOVE_RESULT, uint8(SUCCESS));
@@ -632,27 +591,24 @@ void CNpc::NpcMoving()
 				<< (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
 	g_pMain.Send(&result);
 
-	m_Delay = m_sSpeed;	
-	m_fDelayTime = getMSTime();
+	return m_sSpeed;	
 }
 
 /////////////////////////////////////////////////////////////////////////////
 //	NPC가 서있는경우.
 //
-void CNpc::NpcStanding()
+time_t CNpc::NpcStanding()
 {
 /*	if(g_pMain.m_byNight == 2)	{	// 밤이면
 		m_NpcState = NPC_SLEEPING;
-		m_Delay = 0;
-		m_fDelayTime = getMSTime();
-		return;
+		return 0;
 	}	*/
 
 	MAP* pMap = GetMap();
 	if (pMap == NULL)	
 	{
 		TRACE("### NpcStanding Zone Index Error : nid=%d, name=%s, zone=%d ###\n", m_sNid+NPC_BAND, m_proto->m_strName, m_bCurZone);
-		return;
+		return -1;
 	}
 
 /*	BOOL bCheckRange = FALSE;
@@ -677,23 +633,18 @@ void CNpc::NpcStanding()
 	if( pRoom )	{
 		if( pRoom->m_byStatus == 1 )	{	// 방의 상태가 실행되지 않았다면,, 몬스터는 standing
 			m_NpcState = NPC_STANDING;
-			m_Delay = m_sStandTime;
-			m_fDelayTime = getMSTime();
-			return;
+			return m_sStandTime;
 		}
 	}
 
-	if(RandomMove() == TRUE)	{
+	if (RandomMove())
+	{
 		m_iAniFrameCount = 0;
 		m_NpcState = NPC_MOVING;
-		m_Delay = m_sStandTime;
-		m_fDelayTime = getMSTime();
-		return;
+		return m_sStandTime;
 	}	
 
 	m_NpcState = NPC_STANDING;
-	m_Delay = m_sStandTime;
-	m_fDelayTime = getMSTime();
 	
 	if( m_proto->m_tNpcType == NPC_SPECIAL_GATE && g_pMain.m_byBattleEvent == BATTLEZONE_OPEN )	{
 		m_byGateOpen = !m_byGateOpen;
@@ -701,33 +652,31 @@ void CNpc::NpcStanding()
 		result << uint16(m_sNid+NPC_BAND) << m_byGateOpen;
 		g_pMain.Send(&result);
 	}
+
+	return m_sStandTime;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 //	타겟과의 거리를 사정거리 범위로 유지한다.(셀단위)
 //
-void CNpc::NpcBack()
+time_t CNpc::NpcBack()
 {
 	if(m_Target.id >= 0 && m_Target.id < NPC_BAND)	{
 		if(g_pMain.GetUserPtr((m_Target.id - USER_BAND)) == NULL)	{	// Target User 가 존재하는지 검사
 			m_NpcState = NPC_STANDING;
-			m_Delay = m_sSpeed;//STEP_DELAY;
-			m_fDelayTime = getMSTime();
-			return;
+			return m_sSpeed;//STEP_DELAY;
 		}
 	}
 	else if(m_Target.id >= NPC_BAND && m_Target.id < INVALID_BAND)	{
 		if(g_pMain.m_arNpc.GetData(m_Target.id-NPC_BAND) == NULL)	{
 			m_NpcState = NPC_STANDING;
-			m_Delay = m_sSpeed;
-			m_fDelayTime = getMSTime();
-			return;
+			return m_sSpeed;
 		}
 	}
 
 	if(m_iHP <= 0)	{
 		Dead();
-		return;
+		return -1;
 	}
 
 	if(m_sStepCount != 0)	{
@@ -754,34 +703,22 @@ void CNpc::NpcBack()
 		m_NpcState = NPC_STANDING;
 
 		//영역 밖에 있으면 서있는 시간을 짧게...
-		m_Delay = m_sStandTime;
-		m_fDelayTime = getMSTime();
-
-		if(m_Delay < 0)	{
-			m_Delay = 0;	
-			m_fDelayTime = getMSTime();
-		}
-
-		return;
+		return m_sStandTime;
 	}
 
 	if (  (!m_bPathFlag && !StepMove())
 		|| (m_bPathFlag && !StepNoPathMove()))
 	{
 		m_NpcState = NPC_STANDING;
-		m_Delay = m_sStandTime;
-		m_fDelayTime = getMSTime();
-		return;
+		return m_sStandTime;
 	}
-
 
 	Packet result(MOVE_RESULT, uint8(SUCCESS));
 	result	<< uint16(m_sNid + NPC_BAND) << m_fPrevX << m_fPrevZ << m_fPrevY 
 			<< (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
 	g_pMain.Send(&result);
 
-	m_Delay = m_sSpeed;
-	m_fDelayTime = getMSTime();
+	return m_sSpeed;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1506,7 +1443,6 @@ void CNpc::Dead(int iDeadType)
 	m_iHP = 0;
 	m_NpcState = NPC_DEAD;
 	m_Delay = m_sRegenTime;
-	m_fDelayTime = getMSTime();
 	m_bFirstLive = FALSE;
 	m_byDeadType = 100;		// 전쟁이벤트중에서 죽는 경우
 
@@ -2422,8 +2358,7 @@ int CNpc::Attack()
 
 	//if( m_tNpcLongType==1 && m_proto->m_tNpcType != NPC_BOSS_MONSTER )	{
 	if( m_tNpcLongType == 1 )	{		// 장거리 공격이 가능한것은 공격거리로 판단..
-		m_Delay = LongAndMagicAttack();
-		return m_Delay;
+		return LongAndMagicAttack();
 	}
 		
 	int ret = 0;
@@ -2446,8 +2381,7 @@ int CNpc::Attack()
 	else if( ret == 2 )	{
 		//if(m_proto->m_tNpcType == NPC_BOSS_MONSTER)	{		// 대장 몬스터이면.....
 		if(m_tNpcLongType == 2)	{		// 직접, 간접(롱)공격이 가능한 몬스터 이므로 장거리 공격을 할 수 있다.
-			m_Delay = LongAndMagicAttack();
-			return m_Delay;
+			return LongAndMagicAttack();
 		}
 		else	{
 			if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT ) // 고정 경비병은 추적을 하지 않도록..
@@ -3301,7 +3235,6 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 		{
 			m_NpcState = NPC_FIGHTING;
 			m_Delay = 0;
-			m_fDelayTime = getMSTime();
 		}
 		else							// 바로 도망가면 좌표를 갱신하고 추적	
 		{
@@ -3310,13 +3243,11 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 			{
 				m_NpcState = NPC_TRACING;
 				m_Delay = 0;
-				m_fDelayTime = getMSTime();
 			}
 			else if(nValue == -1)
 			{
 				m_NpcState = NPC_STANDING;
 				m_Delay = 0;
-				m_fDelayTime = getMSTime();
 			}
 			else if(nValue == 0)
 			{
@@ -3324,7 +3255,6 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 				IsNoPathFind(m_fSecForMetor);
 				m_NpcState = NPC_TRACING;
 				m_Delay = 0;
-				m_fDelayTime = getMSTime();
 			}
 		}
 	}
@@ -3395,7 +3325,6 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 		{
 			m_NpcState = NPC_FIGHTING;
 			m_Delay = 0;
-			m_fDelayTime = getMSTime();
 		}
 		else							// 바로 도망가면 좌표를 갱신하고 추적	
 		{
@@ -3404,13 +3333,11 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 			{
 				m_NpcState = NPC_TRACING;
 				m_Delay = 0;
-				m_fDelayTime = getMSTime();
 			}
 			else if(nValue == -1)
 			{
 				m_NpcState = NPC_STANDING;
 				m_Delay = 0;
-				m_fDelayTime = getMSTime();
 			}
 			else if(nValue == 0)
 			{
@@ -3418,7 +3345,6 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 				IsNoPathFind(m_fSecForMetor);
 				m_NpcState = NPC_TRACING;
 				m_Delay = 0;
-				m_fDelayTime = getMSTime();
 			}
 		}
 	}
@@ -3541,7 +3467,6 @@ go_result:
 			if( COMPARE(iRandom, 0, iLightningR) )	{
 				m_NpcState = NPC_FAINTING;
 				m_Delay = 0;
-				m_fDelayTime = getMSTime();
 				m_fFaintingTime = getMSTime();
 			}
 			else	ChangeTarget(nAttackType, pUser);
@@ -5320,42 +5245,37 @@ void CNpc::DurationMagic_3()
 /////////////////////////////////////////////////////////////////////////////
 //	NPC가 잠자는경우.
 //
-void CNpc::NpcSleeping()
+time_t CNpc::NpcSleeping()
 {
-	if(g_pMain.m_byNight == 1)	{	// 낮
+	if (g_pMain.m_byNight == 1)	{	// 낮
 		m_NpcState = NPC_STANDING;
-		m_Delay = 0;
+		return m_Delay;
 	}
-	else	{						// 밤
-		m_NpcState = NPC_SLEEPING;
-		m_Delay = m_sStandTime;
-	}
-	
-	m_fDelayTime = getMSTime();
+
+	m_NpcState = NPC_SLEEPING;
+	return m_sStandTime;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // 몬스터가 기절상태로..........
-void CNpc::NpcFainting()
+time_t CNpc::NpcFainting()
 {
 	if (UNIXTIME > (m_fFaintingTime + FAINTING_TIME)) {
 		m_NpcState = NPC_STANDING;
-		m_Delay = 0;
-		m_fDelayTime = getMSTime();
 		m_fFaintingTime = 0;
+		return 0;
 	}
+	return -1;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // 몬스터가 치료상태로..........
-void CNpc::NpcHealing()
+time_t CNpc::NpcHealing()
 {
 	if( m_proto->m_tNpcType != NPC_HEALER )	{
 		InitTarget();
 		m_NpcState = NPC_STANDING;
-		m_Delay = m_sStandTime;
-		m_fDelayTime = getMSTime();
-		return;
+		return m_sStandTime;
 	}
 
 	// 치료대상이 치료가 다 됐는지를 판단.. 
@@ -5376,47 +5296,35 @@ void CNpc::NpcHealing()
 		{
 			m_NpcState = NPC_STANDING;
 			InitTarget();
-			m_Delay = 0;
-			m_fDelayTime = getMSTime();
-			return;
+			return 0;
 		}	
 		m_sStepCount = 0;
 		m_byActionFlag = ATTACK_TO_TRACE;
 		m_NpcState = NPC_TRACING;			// 공격하고 도망가는 유저를 따라 잡기위해(반응을 좀더 빠르게) 
-		m_Delay = 0;
-		m_fDelayTime = getMSTime();
-		return;							// IsCloseTarget()에 유저 x, y값을 갱신하고 Delay = 0으로 줌
+		return 0; // IsCloseTarget()에 유저 x, y값을 갱신하고 Delay = 0으로 줌
 	}	
 	else if( ret == 2 )	{
 		//if(m_proto->m_tNpcType == NPC_BOSS_MONSTER)	{		// 대장 몬스터이면.....
 		if(m_tNpcLongType == 2)	{		// 직접, 간접(롱)공격이 가능한 몬스터 이므로 장거리 공격을 할 수 있다.
-			m_Delay = LongAndMagicAttack();
-			m_fDelayTime = getMSTime();
-			return;
+			return LongAndMagicAttack();
 		}
 		else	{
 			if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT ) // 고정 경비병은 추적을 하지 않도록..
 			{
 				m_NpcState = NPC_STANDING;
 				InitTarget();
-				m_Delay = 0;
-				m_fDelayTime = getMSTime();
-				return;
+				return 0;
 			}	
 			m_sStepCount = 0;
 			m_byActionFlag = ATTACK_TO_TRACE;
 			m_NpcState = NPC_TRACING;			// 공격하고 도망가는 유저를 따라 잡기위해(반응을 좀더 빠르게) 
-			m_Delay = 0;
-			m_fDelayTime = getMSTime();
-			return;								// IsCloseTarget()에 유저 x, y값을 갱신하고 Delay = 0으로 줌
+			return 0; // IsCloseTarget()에 유저 x, y값을 갱신하고 Delay = 0으로 줌
 		}
 	}
 	else if( ret == -1 )	{
 		m_NpcState = NPC_STANDING;
 		InitTarget();
-		m_Delay = 0;
-		m_fDelayTime = getMSTime();
-		return;
+		return 0;
 	}
 
 	if(nID >= NPC_BAND && nID < INVALID_BAND)	{
@@ -5450,9 +5358,7 @@ void CNpc::NpcHealing()
 			SetShort( buff, 0, send_index );	
 			m_MagicProcess.MagicPacket(buff, send_index);
 
-			m_Delay = m_sAttackDelay;
-			m_fDelayTime = getMSTime();
-			return;
+			return m_sAttackDelay;
 		}
 	}
 
@@ -5463,9 +5369,7 @@ void CNpc::NpcHealing()
 	if(iMonsterNid == 0)	{
 		InitTarget();
 		m_NpcState = NPC_STANDING;
-		m_Delay = m_sStandTime;
-		m_fDelayTime = getMSTime();
-		return;
+		return m_sStandTime;
 	}
 
 	memset( buff, 0x00, 256 );	send_index = 0;
@@ -5482,9 +5386,7 @@ void CNpc::NpcHealing()
 	SetShort( buff, 0, send_index );	
 
 	m_MagicProcess.MagicPacket(buff, send_index);
-
-	m_Delay = m_sAttackDelay;
-	m_fDelayTime = getMSTime();
+	return m_sAttackDelay;
 }
 
 int CNpc::GetPartyExp( int party_level, int man, int nNpcExp )
