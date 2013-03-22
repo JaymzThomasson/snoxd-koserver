@@ -113,6 +113,9 @@
     <ClCompile Include="..\shared\SMDFile.cpp">
       <Filter>shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\TimeThread.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -266,6 +269,9 @@
       <Filter>Database</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\SMDFile.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\TimerThread.h">
       <Filter>shared</Filter>
     </ClInclude>
   </ItemGroup>

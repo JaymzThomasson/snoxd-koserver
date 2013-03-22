@@ -6,13 +6,19 @@
 CServerDlg g_pMain;
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
 static DWORD s_dwMainThreadID;
+bool g_bRunning = true;
 
 int main()
 {
+	MSG msg;
 	SetConsoleTitle("AI server for Knight Online v" STRINGIFY(__VERSION));
 
 	// Override the console handler
+	s_dwMainThreadID = GetCurrentThreadId();
 	SetConsoleCtrlHandler(_ConsoleHandler, TRUE);
+
+	// Start up the time updater thread
+	StartTimeThread();
 
 	// Startup server
 	if (!g_pMain.Startup())
@@ -23,19 +29,17 @@ int main()
 
 	printf("\nServer started up successfully!\n");
 
-	// for OnTimer() (which we won't need soon enough)
-	// we need to remember to dispatch messages
-    MSG msg;
-
-	s_dwMainThreadID = GetCurrentThreadId();
-
-	// Standard mesage pump purely for OnTimer()'s sake
+	// Standard mesage pump for OnTimer() (which we won't need soon enough)
 	while (GetMessage(&msg, NULL, 0, 0)
 		&& msg.message != WM_QUIT)
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
+	// This seems redundant, but it's not. 
+	// We still have the destructor for the dialog instance, which allows time for threads to properly cleanup.
+	g_bRunning = false;
 
 	return 0;
 }

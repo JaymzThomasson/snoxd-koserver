@@ -33,3 +33,8 @@
 #include "KOSocketMgr.h"
 #include "STLMap.h"
 #include "Ini.h"
+#include "TimerThread.h"
+
+extern bool g_bRunning;
+extern time_t UNIXTIME;
+extern tm g_localTime;

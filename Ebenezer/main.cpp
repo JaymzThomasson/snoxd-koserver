@@ -5,16 +5,24 @@
 
 CEbenezerDlg g_pMain;
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
+
 static DWORD s_dwMainThreadID;
+bool g_bRunning = true;
 
 int main()
 {
+	MSG msg;
+
 	SetConsoleTitle("Game server for Knight Online v" STRINGIFY(__VERSION));
 
 	// Override the console handler
+	s_dwMainThreadID = GetCurrentThreadId();
 	SetConsoleCtrlHandler(_ConsoleHandler, TRUE);
 
-	// Startup server
+	// Start up the time updater thread
+	StartTimeThread();
+
+	// Start up server
 	if (!g_pMain.Startup())
 	{
 		system("pause"); // most users won't be running this via command prompt
@@ -23,19 +31,17 @@ int main()
 
 	printf("\nServer started up successfully!\n");
 
-	// for OnTimer() (which we won't need soon enough)
-	// we need to remember to dispatch messages
-	MSG msg;
-
-	s_dwMainThreadID = GetCurrentThreadId();
-
-	// Standard mesage pump purely for OnTimer()'s sake
+	// Standard mesage pump for OnTimer() (which we won't need soon enough)
 	while (GetMessage(&msg, NULL, 0, 0)
 		&& msg.message != WM_QUIT)
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
+	// This seems redundant, but it's not. 
+	// We still have the destructor for the dialog instance, which allows time for threads to properly cleanup.
+	g_bRunning = false; 
 
 	return 0;
 }

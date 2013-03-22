@@ -45,7 +45,6 @@ KOSocketMgr<CUser> CEbenezerDlg::s_socketMgr;
 ClientSocketMgr<CAISocket> CEbenezerDlg::s_aiSocketMgr;
 
 WORD	g_increase_serial = 1;
-bool	g_bRunning = true;
 
 static DWORD s_dwGameTimerID, s_dwAliveTimerID;
 
@@ -1477,13 +1476,8 @@ void CEbenezerDlg::AliveUserCheck()
 
 void CEbenezerDlg::BattleZoneOpenTimer()
 {
-	time_t t;
-	struct tm * ptm;
-	time(&t); // TO-DO: as time() is expensive, we should update a shared structure & access that instead.
-	ptm = localtime(&t);
-
-	int nWeek = ptm->tm_wday;
-	int nTime = ptm->tm_hour;
+	int nWeek = g_localTime.tm_wday;
+	int nTime = g_localTime.tm_hour;
 	int loser_nation = 0, snow_battle = 0;
 	CUser *pKarusUser = NULL, *pElmoUser = NULL;
 
@@ -1942,8 +1936,6 @@ CEbenezerDlg::~CEbenezerDlg()
 	KillTimer(NULL, s_dwAliveTimerID);
 
 	KickOutAllUsers();
-
-	g_bRunning = false;
 
 	DatabaseThread::Shutdown();
 
