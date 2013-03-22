@@ -302,7 +302,7 @@ void CUser::GameStart(Packet & pkt)
 		BlinkStart();
 		SetUserAbility();
 		// rental
-		// ItemMallMagicRecast();
+		RecastSavedMagic(); //ItemMallRecast
 
 
 		// If we've relogged while dead, we need to make sure the client 

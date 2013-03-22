@@ -352,6 +352,7 @@ public:
 	virtual void MSpChange(int amount);
 	void SendPartyHPUpdate();
 	void SendAnvilRequest(int nid);
+	void RecastSavedMagic();
 
 	// packet handlers start here
 	void VersionCheck(Packet & pkt);

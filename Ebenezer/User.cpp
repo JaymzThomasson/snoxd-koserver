@@ -3772,3 +3772,53 @@ bool CUser::HasSavedMagic(uint32 nSkillID)
 	FastGuard lock(m_savedMagicLock);
 	return m_savedMagicMap.find(nSkillID) != m_savedMagicMap.end();
 }
+
+void CUser::RecastSavedMagic()
+{
+	UserSavedMagicMap castSet;
+	foreach (itr, m_savedMagicMap)
+	{
+		if (itr->first != 0)
+			castSet.insert(make_pair(itr->first, itr->second));
+	}
+
+	if (castSet.empty())
+		return;
+
+	_MAGIC_TABLE *pSkill;
+
+	foreach (itr, castSet)
+	{
+		pSkill = g_pMain.m_MagictableArray.GetData(itr->first);
+		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_EFFECTING));
+		result << pSkill->iNum << GetSocketID() << GetSocketID() << uint16(0) << uint16(1) << uint16(0) << uint16(itr->second - UNIXTIME) << uint16(0) << uint16(0);
+		switch (pSkill->bType[0])
+		{
+			case 4:
+				m_MagicProcess.MagicPacket(result, true);
+				break;
+
+			case 6:
+				//Not allowing transformations in PvP zones!
+				if(isAttackZone())
+				{
+					m_savedMagicMap.erase(itr->first);
+					return;
+				}
+
+				m_bAbnormalType = ABNORMAL_NORMAL;
+				StateChangeServerDirect(3, m_bAbnormalType);
+				UpdateVisibility(INVIS_NONE);
+				m_MagicProcess.MagicPacket(result, true);
+				break;
+
+			case 9:
+				//To-do : Add support for Guards, until then we don't need this line.
+				//_MAGIC_TYPE9 *pType = g_pMain.m_Magictype9Array.GetData(pSkill->iNum);
+				m_MagicProcess.MagicPacket(result, true);
+				break;
+
+		}
+	}
+
+}

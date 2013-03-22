@@ -45,7 +45,7 @@ CMagicProcess::~CMagicProcess()
 {
 }
 
-void CMagicProcess::MagicPacket(Packet & pkt)
+void CMagicProcess::MagicPacket(Packet & pkt, bool isSaved)
 {
 	FastGuard lock(m_lock);
 	pkt >> m_opcode >> m_nSkillID;
@@ -60,6 +60,8 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 
 	m_pSkillCaster = g_pMain.GetUnit(m_sCasterID);
 	m_pSkillTarget = g_pMain.GetUnit(m_sTargetID);
+
+	m_isSaved = isSaved;
 
 	if (m_pSkillCaster == NULL
 		|| (m_pSrcUser && !UserCanCast(pMagic)))
@@ -137,6 +139,9 @@ bool CMagicProcess::UserCanCast(_MAGIC_TABLE *pSkill)
 
 	// We don't need to check anything as we're just canceling our buffs.
 	if (m_opcode == MAGIC_CANCEL || m_opcode == MAGIC_CANCEL2) 
+		return true;
+
+	if (m_isSaved == true)
 		return true;
 
 	// Users who are blinking cannot use skills.
@@ -799,7 +804,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 	if (pType == NULL)
 		return false;
 
-	if (m_pSkillTarget->HasSavedMagic(pSkill->iNum))
+	if (m_pSkillTarget->HasSavedMagic(pSkill->iNum) && m_isSaved == false)
 		return false;
 
 	if (m_sTargetID == -1)
@@ -828,7 +833,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 		// If the target was another single player.
 		CUser* pTUser = g_pMain.GetUserPtr(m_sTargetID);
 		if (pTUser == NULL 
-			|| pTUser->isDead() || pTUser->isBlinking()) 
+			|| pTUser->isDead() || (pTUser->isBlinking() && m_isSaved == false)) 
 			return false;
 
 		casted_member.push_back(pTUser);
@@ -844,7 +849,7 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 			goto fail_return ;					
 		}
 
-		if ( m_sData5 == -1 && m_pSkillTarget->isPlayer() )
+		if ( pSkill->iNum > 500000 && m_pSkillTarget->isPlayer() )
 			m_pSkillTarget->InsertSavedMagic( pSkill->iNum, pType->sDuration );
 
 		switch (pType->bBuffType)
@@ -998,7 +1003,8 @@ bool CMagicProcess::ExecuteType4(_MAGIC_TABLE *pSkill)
 
 			m_sTargetID = (*itr)->GetSocketID();
 			m_sData2 = bResult;
-			m_sData4 = (bResult == 1|| m_sData4 == 0 ? pType->sDuration : 0);
+			if (!m_isSaved)
+				m_sData4 = (bResult == 1 || m_sData4 == 0 ? pType->sDuration : 0);
 			m_sData6 = pType->bSpeed;
 			pUser->m_MagicProcess.SendSkill();
 
@@ -1216,7 +1222,7 @@ bool CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 	uint32 iUseItem = 0;
 
 	
-	if (m_pSkillTarget->HasSavedMagic(pSkill->iNum))
+	if (m_pSkillTarget->HasSavedMagic(pSkill->iNum) && !m_isSaved)
 		return false;
 
 	if (pType == NULL
@@ -1271,7 +1277,7 @@ bool CMagicProcess::ExecuteType6(_MAGIC_TABLE *pSkill)
 	SendSkill(m_sCasterID, m_sTargetID, m_opcode,
 		m_nSkillID, m_sData1, 1, m_sData3, 0, 0, 0, 0, 0);
 
-	m_pSkillTarget->InsertSavedMagic(pSkill->iNum, pType->sDuration);
+	TO_USER(m_pSkillTarget)->InsertSavedMagic(pSkill->iNum, pType->sDuration);
 
 	return true;
 }
@@ -1494,7 +1500,7 @@ bool CMagicProcess::ExecuteType9(_MAGIC_TABLE *pSkill)
 	if (pType->bStateChange <= 2)
 	{
 		m_pSrcUser->StateChangeServerDirect(7, pType->bStateChange); //Update the client to be invisible
-		m_pSkillTarget->InsertSavedMagic(pSkill->iNum, pType->sDuration);
+		m_pSkillTarget->InsertSavedMagic(pSkill->iNum, pType->sDuration * SECOND);
 	}
 	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4)
 	{
@@ -1754,7 +1760,8 @@ void CMagicProcess::Type6Cancel()
 	// TO-DO: Reset stat changes, recalculate stats.
 	m_pSrcUser->m_bIsTransformed = false;
 	m_pSrcUser->Send(&result);
-	m_pSrcUser->StateChangeServerDirect(3, ABNORMAL_NORMAL); 
+	m_pSrcUser->StateChangeServerDirect(3, ABNORMAL_NORMAL);
+	TO_USER(m_pSkillTarget)->m_savedMagicMap.erase(m_nSkillID);
 }
 
 void CMagicProcess::Type9Cancel(_MAGIC_TABLE *pSkill)
@@ -1768,6 +1775,7 @@ void CMagicProcess::Type9Cancel(_MAGIC_TABLE *pSkill)
 	if (pType->bStateChange <= 2 || pType->bStateChange >= 5 && pType->bStateChange < 7) //Stealths
 	{
 		TO_USER(m_pSkillCaster)->StateChangeServerDirect(7, INVIS_NONE);
+		TO_USER(m_pSkillCaster)->m_savedMagicMap.erase(pSkill->iNum);
 		bResponse = 91;
 	}
 	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4) //Lupine etc.
@@ -1942,6 +1950,9 @@ void CMagicProcess::Type4Cancel(_MAGIC_TABLE * pSkill)
 	if (m_pSkillCaster->isPlayer() && !m_pSkillCaster->m_bType4Flag
 		&& TO_USER(m_pSkillCaster)->isInParty())
 		TO_USER(m_pSkillCaster)->SendPartyStatusUpdate(2);
+
+	if (TO_USER(m_pSkillCaster)->m_savedMagicMap.find(pSkill->iNum) != TO_USER(m_pSkillCaster)->m_savedMagicMap.end())
+		TO_USER(m_pSkillCaster)->m_savedMagicMap.erase(pSkill->iNum);
 }
 
 void CMagicProcess::Type3Cancel(_MAGIC_TABLE *pSkill)

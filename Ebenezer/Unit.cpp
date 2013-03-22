@@ -38,7 +38,7 @@ void Unit::Initialize()
 	m_bMagicTypeLeftHand = 0;		// For weapons and shields with special power.		
 	m_bMagicTypeRightHand = 0;		
 	m_sMagicAmountLeftHand = 0;        
-	m_sMagicAmountRightHand = 0;       
+	m_sMagicAmountRightHand = 0;
 
 	InitType3();	 // Initialize durational type 3 stuff :)
 	InitType4();	 // Initialize durational type 4 stuff :)

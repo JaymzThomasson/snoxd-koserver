@@ -522,8 +522,8 @@ bool CDBAgent::LoadSavedMagic(CUser *pUser)
 		dbCommand->FetchUInt32(i, nSkillID);
 		dbCommand->FetchUInt32(i + 1, nExpiry);
 
-		if (nSkillID != 0)
-			pUser->m_savedMagicMap[nSkillID] = nExpiry;
+			if (nSkillID != 0)
+				pUser->m_savedMagicMap[nSkillID] = (nExpiry + UNIXTIME);
 	}
 
 	return true;
@@ -545,7 +545,7 @@ bool CDBAgent::UpdateSavedMagic(CUser *pUser)
 	foreach (itr, pUser->m_savedMagicMap)
 	{
 		nSkillID[i]		= itr->first;
-		tExpiryTime[i]	= itr->second;
+		tExpiryTime[i]	= (itr->second - UNIXTIME);
 		if (++i == 10)
 			break;
 	}
