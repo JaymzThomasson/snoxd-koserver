@@ -14,7 +14,7 @@ public:
 		_SERVER_RESOURCE *pData = new _SERVER_RESOURCE;
 
 		_dbCommand->FetchUInt32(1, pData->nResourceID);
-		_dbCommand->FetchString(2, pData->strResource, sizeof(pData->strResource));
+		_dbCommand->FetchString(2, pData->strResource);
 
 		if (!m_pMap->PutData(pData->nResourceID, pData))
 			delete pData;

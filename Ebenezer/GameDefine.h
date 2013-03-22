@@ -402,11 +402,7 @@ struct _START_POSITION
 struct _SERVER_RESOURCE
 {
 	uint32 nResourceID;
-	char strResource[101];
-	_SERVER_RESOURCE()
-	{
-		memset(strResource, 0x00, sizeof(strResource));
-	};
+	std::string strResource;
 };
 
 struct _KNIGHTS_RATING
