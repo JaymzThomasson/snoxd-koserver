@@ -90,7 +90,7 @@ void CUser::Initialize()
 	m_fSpeedHackServerTime = 0;
 	m_bSpeedHackCheck = 0;
 
-	m_fBlinkStartTime = 0;
+	m_tBlinkExpiryTime = 0;
 
 	m_sAliveCount = 0;
 	m_bAbnormalType = ABNORMAL_NORMAL;	// User starts out in normal size.
@@ -401,7 +401,7 @@ bool CUser::HandlePacket(Packet & pkt)
 		m_MagicProcess.Type6Cancel();
 
 	if (isBlinking())		// Should you stop blinking?
-		BlinkTimeCheck(currenttime);
+		BlinkTimeCheck();
 
 	return true;
 }
@@ -3130,7 +3130,7 @@ void CUser::BlinkStart()
 		return;
 
 	m_bAbnormalType = ABNORMAL_BLINKING;
-	m_fBlinkStartTime = getMSTime();
+	m_tBlinkExpiryTime = UNIXTIME + BLINK_TIME;
 	m_bRegeneType = REGENE_ZONECHANGE;
 	
 	UpdateVisibility(INVIS_NORMAL); // AI shouldn't see us
@@ -3139,12 +3139,11 @@ void CUser::BlinkStart()
 	StateChangeServerDirect(3, ABNORMAL_BLINKING);
 }
 
-void CUser::BlinkTimeCheck(uint32 currenttime)
+void CUser::BlinkTimeCheck()
 {
-	if ((currenttime - m_fBlinkStartTime) < BLINK_TIME)
+	if (UNIXTIME < m_tBlinkExpiryTime)
 		return;
 
-	m_fBlinkStartTime = 0;
 	m_bRegeneType = REGENE_NORMAL;
 
 	StateChangeServerDirect(3, ABNORMAL_NORMAL);

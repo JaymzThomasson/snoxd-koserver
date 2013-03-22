@@ -191,7 +191,7 @@ enum InOutType
 	INOUT_SUMMON	= 5
 };
 
-#define BLINK_TIME				(15  * SECOND)
+#define BLINK_TIME				(15) // in seconds
 #define CLAN_SUMMON_TIME		(180 * SECOND)
 #define PLAYER_IDLE_TIME		(300 * SECOND)
 

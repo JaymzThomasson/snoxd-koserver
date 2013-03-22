@@ -162,7 +162,7 @@ public:
 	uint32	m_fSpeedHackClientTime, m_fSpeedHackServerTime;
 	BYTE	m_bSpeedHackCheck;
 
-	uint32	m_fBlinkStartTime;			// When did you start to blink?
+	time_t	m_tBlinkExpiryTime;			// When you should stop blinking.
 
 	short	m_sAliveCount;
 
@@ -331,7 +331,7 @@ public:
 	void SendItemWeight();
 	void UpdateVisibility(InvisibilityType bNewType);
 	void BlinkStart();
-	void BlinkTimeCheck(uint32 currenttime);
+	void BlinkTimeCheck();
 	void GoldChange(short tid, int gold);
 	CUser* GetItemRoutingUser(int itemid, short itemcount);
 	bool GetStartPosition(short & x, short & y, BYTE bZone = 0);
