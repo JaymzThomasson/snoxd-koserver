@@ -98,7 +98,7 @@ void CUser::Initialize()
 	m_sWhoKilledMe = -1;
 	m_iLostExp = 0;
 
-	m_fLastTrapAreaTime = 0;
+	m_tLastTrapAreaTime = 0;
 
 	memset(m_iSelMsgEvent, -1,  MAX_MESSAGE_EVENT);
 
@@ -3224,17 +3224,12 @@ BOOL CUser::JobGroupCheck(short jobgroupid)
 
 void CUser::TrapProcess()
 {
-	uint32 currenttime = 0;
-	currenttime = getMSTime();
-
-	if (ZONE_TRAP_INTERVAL < (currenttime - m_fLastTrapAreaTime)) {	// Time interval has passed :)
-		HpChange( -ZONE_TRAP_DAMAGE );     // Reduce target health point.
-
-		if (m_sHp == 0)
-			OnDeath(this);
-	} 
-
-	m_fLastTrapAreaTime = currenttime;		// Update Last Trap Area time :)
+	// If the time interval has passed
+	if ((UNIXTIME - m_tLastTrapAreaTime) >= ZONE_TRAP_INTERVAL)
+	{
+		HpChange(-ZONE_TRAP_DAMAGE, this);
+		m_tLastTrapAreaTime = UNIXTIME;
+	}
 }
 
 // TO-DO: This needs updating.

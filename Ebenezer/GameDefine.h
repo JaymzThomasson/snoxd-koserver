@@ -131,7 +131,7 @@ enum ItemMovementType
 
 ////////////////////////////////////////////////////////////
 // EVENT MISCELLANOUS DATA DEFINE
-#define ZONE_TRAP_INTERVAL	   (1 * SECOND)		// Interval is one second right now.
+#define ZONE_TRAP_INTERVAL	   1		// Interval is one second (in seconds) right now.
 #define ZONE_TRAP_DAMAGE	   10		// HP Damage is 10 for now :)
 
 ////////////////////////////////////////////////////////////

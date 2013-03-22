@@ -171,7 +171,7 @@ public:
 	short	m_sWhoKilledMe;				// Who killed me???
 	__int64		m_iLostExp;					// Experience point that was lost when you died.
 
-	uint32	m_fLastTrapAreaTime;		// The last moment you were in the trap area.
+	time_t	m_tLastTrapAreaTime;		// The last moment you were in the trap area.
 
 	BOOL	m_bZoneChangeFlag;
 
