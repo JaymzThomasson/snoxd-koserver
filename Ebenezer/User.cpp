@@ -19,8 +19,8 @@ void CUser::Initialize()
 	Unit::Initialize();
 
 	// memset(&m_pUserData, 0x00, sizeof(_USER_DATA));
-	m_strUserID = "";
-	m_strAccountID = "";
+	m_strUserID.clear();
+	m_strAccountID.clear();
 	m_bLogout = 0;
 
 	m_bAuthority = 1;
@@ -28,7 +28,6 @@ void CUser::Initialize()
 
 	m_state = GAME_STATE_CONNECTED;
 
-	m_strAccountID.clear();
 	m_bSelectedCharacter = false;
 	m_bStoreOpen = false;
 	m_bPartyLeader = false;
