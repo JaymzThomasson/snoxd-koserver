@@ -423,6 +423,21 @@ struct _USER_RANK
 	uint32	nSalary; // nMoney for USER_KNIGHTS_RANK
 };
 
+// TO-DO: Rewrite this system to be less script dependent for exchange logic.
+// Coin requirements should be in the database, and exchanges should be grouped.
+struct _ITEM_EXCHANGE
+{
+	uint32	nIndex;
+	uint16	sNpcNum;
+	uint8	bRandomFlag;
+
+	uint32	nOriginItemNum[5];
+	uint16	sOriginItemCount[5];
+
+	uint32	nExchangeItemNum[5];
+	uint16	sExchangeItemCount[5];
+};
+
 struct _QUEST_HELPER
 {
 	uint32	nIndex;

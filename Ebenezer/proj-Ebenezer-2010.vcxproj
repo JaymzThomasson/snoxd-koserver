@@ -257,6 +257,7 @@
     <ClInclude Include="..\shared\database\EventSet.h" />
     <ClInclude Include="..\shared\database\EventTriggerSet.h" />
     <ClInclude Include="..\shared\database\HomeSet.h" />
+    <ClInclude Include="..\shared\database\ItemExchangeSet.h" />
     <ClInclude Include="..\shared\database\ItemTableSet.h" />
     <ClInclude Include="..\shared\database\KnightsAllianceSet.h" />
     <ClInclude Include="..\shared\database\KnightsCapeSet.h" />

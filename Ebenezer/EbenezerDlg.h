@@ -54,6 +54,7 @@ typedef	CSTLMap	<_SERVER_RESOURCE>			ServerResourceArray;
 typedef	CSTLMap	<_QUEST_HELPER>				QuestHelperArray;
 typedef	CSTLMap	<_QUEST_MONSTER>			QuestMonsterArray;
 typedef	CSTLMap	<_RENTAL_ITEM>				RentalItemArray;
+typedef CSTLMap <_ITEM_EXCHANGE>			ItemExchangeArray;
 
 typedef hash_map<string, _USER_RANK *>		UserRankMap; 
 
@@ -65,39 +66,16 @@ class CEbenezerDlg
 public:	
 	CEbenezerDlg();
 	bool Startup();
-	void OnTimer(UINT nIDEvent);
 
-	void SendFlyingSantaOrAngel();
+	void GetTimeFromIni();
 
-	void BattleZoneCurrentUsers();
-	BOOL LoadKnightsRankTable();
-	void GetCaptainUserPtr();
-	void Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser = NULL);
-	BOOL LoadBattleTable();
-	void Send_UDP_All(Packet *pkt, int group_type = 0);
-	void KickOutZoneUsers(short zone);
-	__int64 GenerateItemSerial();
-	int KickOutAllUsers();
-	void CheckAliveUser();
-	int GetKnightsGrade(int nPoints);
-	void WritePacketLog();
-	uint16 GetKnightsAllMembers(uint16 sClanID, Packet & result, uint16 & pktSize, bool bClanLeader);
-	BOOL LoadAllKnightsUserData();
-	BOOL LoadAllKnights();
-	BOOL LoadKnightsAllianceTable();
-	void CleanupUserRankings();
-	BOOL LoadUserRankings();
-	void GetUserRank(CUser *pUser);
-	BOOL LoadKnightsCapeTable();
-	BOOL LoadHomeTable();
-	BOOL LoadStartPositionTable();
-	void Announcement(BYTE type, int nation=0, int chat_type=8);
-	void ResetBattleZone();
-	void BanishLosers();
-	void BattleZoneVictoryCheck();
-	void BattleZoneOpenTimer();
-	void BattleZoneOpen(int nType, uint8 bZone = 0);	// 0:open 1:close
-	void AliveUserCheck();
+	BOOL LoadItemTable();
+	BOOL LoadItemExchangeTable();
+	BOOL LoadServerResourceTable();
+	BOOL LoadEventTriggerTable();
+	BOOL LoadQuestHelperTable();
+	BOOL LoadQuestMonsterTable();
+	BOOL LoadMagicTable();
 	BOOL LoadMagicType1();
 	BOOL LoadMagicType2();
 	BOOL LoadMagicType3();
@@ -108,25 +86,53 @@ public:
 	BOOL LoadMagicType8();
 	BOOL LoadMagicType9();
 	BOOL LoadRentalList();
+	BOOL LoadCoefficientTable();
+	BOOL LoadLevelUpTable();
+	BOOL LoadAllKnights();
+	BOOL LoadAllKnightsUserData();
+	BOOL LoadKnightsAllianceTable();
+	BOOL LoadUserRankings();
+	void CleanupUserRankings();
+	BOOL LoadKnightsCapeTable();
+	BOOL LoadKnightsRankTable();
+	BOOL LoadHomeTable();
+	BOOL LoadStartPositionTable();
+	BOOL LoadBattleTable();
+
+	BOOL MapFileLoad();
+	BOOL LoadNoticeData();
+
+	void AIServerConnect();
+
+	void OnTimer(UINT nIDEvent);
+
+	void SendFlyingSantaOrAngel();
+	void BattleZoneCurrentUsers();
+	void GetCaptainUserPtr();
+	void Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser = NULL);
+	void Send_UDP_All(Packet *pkt, int group_type = 0);
+	void KickOutZoneUsers(short zone);
+	__int64 GenerateItemSerial();
+	int KickOutAllUsers();
+	void CheckAliveUser();
+	int GetKnightsGrade(int nPoints);
+	void WritePacketLog();
+	uint16 GetKnightsAllMembers(uint16 sClanID, Packet & result, uint16 & pktSize, bool bClanLeader);
+	void GetUserRank(CUser *pUser);
+	void Announcement(BYTE type, int nation=0, int chat_type=8);
+	void ResetBattleZone();
+	void BanishLosers();
+	void BattleZoneVictoryCheck();
+	void BattleZoneOpenTimer();
+	void BattleZoneOpen(int nType, uint8 bZone = 0);	// 0:open 1:close
+	void AliveUserCheck();
 	void Send_PartyMember(int party, Packet *result);
 	void Send_KnightsMember(int index, Packet *pkt);
 	void Send_KnightsAlliance(uint16 sAllianceID, Packet *pkt);
 	int GetAIServerPort();
-	BOOL LoadNoticeData();
-	BOOL LoadLevelUpTable();
 	void SetGameTime();
 	void UpdateWeather();
 	void UpdateGameTime();
-	void GetTimeFromIni();
-	BOOL LoadCoefficientTable();
-	BOOL LoadMagicTable();
-	BOOL LoadItemTable();
-	BOOL LoadServerResourceTable();
-	BOOL LoadEventTriggerTable();
-	BOOL LoadQuestHelperTable();
-	BOOL LoadQuestMonsterTable();
-	BOOL MapFileLoad();
-	void AIServerConnect();
 	void SendAllUserInfo();
 	void DeleteAllNpcList(int flag = 0);
 	CNpc*  GetNpcPtr( int sid, int cur_zone );
@@ -249,6 +255,7 @@ public:
 	QuestHelperArray		m_QuestHelperArray;
 	QuestMonsterArray		m_QuestMonsterArray;
 	RentalItemArray			m_RentalItemArray;
+	ItemExchangeArray		m_ItemExchangeArray;
 
 	CKnightsManager			m_KnightsManager;
 
