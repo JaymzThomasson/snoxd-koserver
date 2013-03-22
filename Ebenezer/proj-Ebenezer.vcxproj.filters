@@ -410,7 +410,7 @@
     <ClInclude Include="..\shared\database\ItemExchangeSet.h">
       <Filter>Database</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\TimerThread.h">
+    <ClInclude Include="..\shared\TimeThread.h">
       <Filter>Shared</Filter>
     </ClInclude>
   </ItemGroup>

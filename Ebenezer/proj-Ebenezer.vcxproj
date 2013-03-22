@@ -298,7 +298,7 @@
     <ClInclude Include="..\shared\SMDFile.h" />
     <ClInclude Include="..\shared\Socket.h" />
     <ClInclude Include="..\shared\SocketMgr.h" />
-    <ClInclude Include="..\shared\TimerThread.h" />
+    <ClInclude Include="..\shared\TimeThread.h" />
     <ClInclude Include="AIPacket.h" />
     <ClInclude Include="AISocket.h" />
     <ClInclude Include="ChatHandler.h" />

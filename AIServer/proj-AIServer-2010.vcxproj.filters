@@ -268,7 +268,7 @@
     <ClInclude Include="..\shared\SMDFile.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\TimerThread.h">
+    <ClInclude Include="..\shared\TimeThread.h">
       <Filter>shared</Filter>
     </ClInclude>
   </ItemGroup>
