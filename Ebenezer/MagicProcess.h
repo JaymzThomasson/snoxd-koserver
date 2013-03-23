@@ -14,40 +14,53 @@ class Packet;
 class Unit;
 struct _MAGIC_TABLE;
 
+struct MagicInstance
+{
+	uint8	bOpcode;
+	uint32	nSkillID;
+	_MAGIC_TABLE * pSkill;
+	int16	sCasterID, sTargetID; 
+	Unit	*pSkillCaster, *pSkillTarget;
+	uint16	sData1, sData2, sData3, sData4, 
+			sData5, sData6, sData7, sData8;
+	bool	bIsRecastingSavedMagic;
+};
+
 class CMagicProcess  
 {
 public:
 	short GetWeatherDamage(short damage, short attribute);
 	void SendType4BuffRemove(short tid, BYTE buff);
-	void Type3Cancel(_MAGIC_TABLE *pSkill);
-	void Type4Cancel(_MAGIC_TABLE *pSkill);
+	void Type3Cancel(MagicInstance * pInstance);
+	void Type4Cancel(MagicInstance * pInstance);
 	void Type6Cancel();
-	void Type9Cancel(_MAGIC_TABLE *pSkill);
-	void Type4Extend(_MAGIC_TABLE *pSkill);
+	void Type9Cancel(MagicInstance * pInstance);
+	void Type4Extend(MagicInstance * pInstance);
 
 	BOOL UserRegionCheck(int sid, int tid, int magicid, int radius, short mousex = 0, short mousez = 0);
-	short GetMagicDamage(Unit *pTarget, int total_hit, int attribute);
+	short GetMagicDamage(MagicInstance * pInstance, Unit *pTarget, int total_hit, int attribute);
 
-	bool ExecuteType1(_MAGIC_TABLE *pSkill);	
-	bool ExecuteType2(_MAGIC_TABLE *pSkill);
-	bool ExecuteType3(_MAGIC_TABLE *pSkill);
-	bool ExecuteType4(_MAGIC_TABLE *pSkill);
-	bool ExecuteType5(_MAGIC_TABLE *pSkill);
-	bool ExecuteType6(_MAGIC_TABLE *pSkill);
-	bool ExecuteType7(_MAGIC_TABLE *pSkill);
-	bool ExecuteType8(_MAGIC_TABLE *pSkill);
-	bool ExecuteType9(_MAGIC_TABLE *pSkill);
+	bool ExecuteType1(MagicInstance * pInstance);	
+	bool ExecuteType2(MagicInstance * pInstance);
+	bool ExecuteType3(MagicInstance * pInstance);
+	bool ExecuteType4(MagicInstance * pInstance);
+	bool ExecuteType5(MagicInstance * pInstance);
+	bool ExecuteType6(MagicInstance * pInstance);
+	bool ExecuteType7(MagicInstance * pInstance);
+	bool ExecuteType8(MagicInstance * pInstance);
+	bool ExecuteType9(MagicInstance * pInstance);
 
-	bool IsAvailable(_MAGIC_TABLE *pSkill);
-	bool UserCanCast(_MAGIC_TABLE *pSkill);
-	void SendSkillToAI(_MAGIC_TABLE *pSkill);
+	bool IsAvailable(MagicInstance * pInstance);
+	bool UserCanCast(MagicInstance * pInstance);
+	void SendSkillToAI(MagicInstance * pInstance);
 	void MagicPacket(Packet & pkt, bool isRecastingSavedMagic = false);
+	void HandleMagic(MagicInstance * pInstance);
 
-	bool ExecuteSkill(_MAGIC_TABLE *pSkill, uint8 bType);
+	bool ExecuteSkill(MagicInstance * pInstance, uint8 bType);
 
-	void SendTransformationList(_MAGIC_TABLE *pSkill);
-	void SendSkillFailed();
-	void SendSkill(int16 pSkillCaster = -1, int16 pSkillTarget = -1, 
+	void SendTransformationList(MagicInstance * pInstance);
+	void SendSkillFailed(MagicInstance * pInstance);
+	void SendSkill(MagicInstance * pInstance, int16 pSkillCaster = -1, int16 pSkillTarget = -1, 
 					int8 opcode = -1, uint32 nSkillID = 0, 
 					int16 sData1 = -999, int16 sData2 = -999, int16 sData3 = -999, int16 sData4 = -999, 
 					int16 sData5 = -999, int16 sData6 = -999, int16 sData7 = -999, int16 sData8 = -999);
@@ -56,17 +69,4 @@ public:
 	virtual ~CMagicProcess();
 
 	CUser*			m_pSrcUser;
-
-	// Need to make sure this data's not going to change during skill handling
-	// (i.e. during multiple concurrent packets)
-	// This cannot happen with the existing system, but it's a potential later worry.
-	uint8	m_opcode;
-	uint32	m_nSkillID;
-	int16	m_sCasterID, m_sTargetID; 
-	Unit	*m_pSkillCaster, *m_pSkillTarget;
-	uint16	m_sData1, m_sData2, m_sData3, m_sData4, 
-			m_sData5, m_sData6, m_sData7, m_sData8;
-	bool	m_isRecastingSavedMagic;
-
-	FastMutex m_lock; // temporary guard to prevent race conditions with AI
 };
