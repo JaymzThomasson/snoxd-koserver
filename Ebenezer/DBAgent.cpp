@@ -406,6 +406,62 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 		delete itr->second;
 	rentalData.clear();
 
+	// Starter items. This needs fixing eventually.
+	if (pUser->GetLevel() == 1 && pUser->m_iExp == 0) // going back to their initial bugginess
+	{
+		uint32 nItemID = 0;
+		uint16 sDurability = 0;
+
+		switch (pUser->m_sClass)
+		{
+		case 101:
+			nItemID = 120010000;
+			sDurability = 5000;
+			break;
+		case 102:
+			nItemID = 110010000;
+			sDurability = 4000;
+			break;
+		case 103:
+			nItemID = 180010000;
+			sDurability = 5000;
+			break;
+		case 104:
+			nItemID = 190010000;
+			sDurability = 10000;
+			break;
+		case 201:
+			nItemID = 120050000;
+			sDurability = 5000;
+			break;
+		case 202:
+			nItemID = 110050000;
+			sDurability = 4000;
+			break;
+		case 203:
+			nItemID = 180050000;
+			sDurability = 5000;
+			break;
+		case 204:
+			nItemID = 190050000;
+			sDurability = 10000;
+			break;
+		}
+
+		if (nItemID && !pUser->CheckExistItem(nItemID, 1))
+		{
+			int slot = pUser->GetEmptySlot();
+			if (slot < 0)
+				return true;
+
+			_ITEM_DATA * pItem = pUser->GetItem(slot);
+			pItem->nNum = nItemID;
+			pItem->sDuration = sDurability;
+			pItem->sCount = 1;
+			pItem->nSerialNum = g_pMain.GenerateItemSerial();
+		}
+	}
+
 	return true;
 }
 
