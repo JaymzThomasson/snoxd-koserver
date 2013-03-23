@@ -340,7 +340,6 @@ private:
 	COMMAND_HANDLER(HandlePermanentChatOffCommand);
 	COMMAND_HANDLER(HandleReloadNoticeCommand);
 
-	friend class C3DMap;
 	friend class CDBAgent;
 };
 
