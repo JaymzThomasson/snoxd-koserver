@@ -63,7 +63,7 @@ bool CDBProcess::LoadUserCountList()
 	{
 		do
 		{
-			uint16 zone_1, zone_2, zone_3; uint8 serverID;
+			uint16 zone_1 = 0, zone_2 = 0, zone_3 = 0; uint8 serverID;
 			dbCommand->FetchByte(1, serverID);
 			dbCommand->FetchUInt16(2, zone_1);
 			dbCommand->FetchUInt16(3, zone_2);
