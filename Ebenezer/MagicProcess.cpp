@@ -1019,7 +1019,7 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 				break;
 
 			case BUFF_TYPE_MAGE_ARMOR:
-				pTUser->m_bReflectArmorType = (pInstance->pSkill->sSkill > 2000 ? pInstance->pSkill->sSkill % 2100 : pInstance->pSkill->sSkill % 1100);
+				pTUser->m_bReflectArmorType =  pInstance->pSkill->sSkill % 100;
 				break;
 
 			case BUFF_TYPE_PROHIBIT_INVIS:
