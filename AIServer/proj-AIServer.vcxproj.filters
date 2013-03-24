@@ -274,6 +274,9 @@
     <ClInclude Include="..\shared\TimeThread.h">
       <Filter>shared</Filter>
     </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Server.ico">
@@ -281,7 +284,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Server.rc">
+    <ResourceCompile Include="RES\AIServer.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

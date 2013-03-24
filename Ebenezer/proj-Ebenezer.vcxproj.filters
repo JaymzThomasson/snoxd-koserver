@@ -31,6 +31,9 @@
     <Filter Include="Shared\Database">
       <UniqueIdentifier>{ac2ab693-8d5a-4acb-b1b6-9bee43f7cdc5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Scripting">
+      <UniqueIdentifier>{7b685819-91d6-429e-b8e5-467471921bed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EbenezerDlg.cpp">
@@ -413,18 +416,21 @@
     <ClInclude Include="..\shared\TimeThread.h">
       <Filter>Shared</Filter>
     </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Ebenezer.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Ebenezer.rc2">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Ebenezer.rc">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>

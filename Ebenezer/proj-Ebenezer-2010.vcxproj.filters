@@ -436,9 +436,6 @@
     <None Include="res\Ebenezer.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Ebenezer.rc2">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Ebenezer.rc">
