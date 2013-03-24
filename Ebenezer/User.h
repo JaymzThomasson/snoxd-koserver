@@ -181,6 +181,10 @@ public:
 
 	BOOL	m_bZoneChangeSameZone;		// Did the server change when you warped?
 
+	bool	m_bIsBlinded;
+	bool	m_bInstantCast;
+	uint8	m_bReflectArmorType;
+
 	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];
 	short				m_sEventNid;
 
@@ -194,6 +198,9 @@ public:
 
 	virtual bool isDead() { return m_bResHpType == USER_DEAD || m_sHp <= 0; }
 	__forceinline bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; }
+	__forceinline bool isBlinded() { return m_bIsBlinded; }
+	__forceinline bool canInstantCast() { return m_bInstantCast; }
+	__forceinline bool canStealth()	{ return m_bCanStealth; }
 
 	__forceinline bool isInGame() { return GetState() == GAME_STATE_INGAME; }
 	__forceinline bool isInParty() { return m_sPartyIndex != -1; }

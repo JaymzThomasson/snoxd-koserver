@@ -40,6 +40,8 @@ void Unit::Initialize()
 	m_sMagicAmountLeftHand = 0;        
 	m_sMagicAmountRightHand = 0;
 
+	m_bCanStealth = true;
+
 	InitType3();	 // Initialize durational type 3 stuff :)
 	InitType4();	 // Initialize durational type 4 stuff :)
 }

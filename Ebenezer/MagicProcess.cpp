@@ -157,6 +157,9 @@ bool CMagicProcess::UserCanCast(MagicInstance * pInstance)
 	if (pInstance->bIsRecastingSavedMagic)
 		return true;
 
+	if (m_pSrcUser->isBlinded())
+		return false;
+
 	// Users who are blinking cannot use skills.
 	// Additionally, unless it's resurrection-related, dead players cannot use skills.
 	if (m_pSrcUser->isBlinking()
@@ -216,7 +219,11 @@ bool CMagicProcess::UserCanCast(MagicInstance * pInstance)
 		&& !IsAvailable(pInstance))
 		return false;
 
-	//TO-DO : Add skill cooldown checks.
+	if(!m_pSrcUser->canInstantCast())
+		m_pSrcUser->m_bInstantCast = false;
+	else
+		m_pSrcUser->m_bInstantCast = false;
+	
 
 	//Incase we made it to here, we can cast! Hurray!
 	return true;
@@ -958,7 +965,10 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 				break;
 
 			case BUFF_TYPE_WEAPON_AC:
-				// uses pType->AC if set, otherwise pType->ACPct
+				if(pType->sAC == 0 && pType->sACPct > 0)
+					pTUser->m_sACAmount = pTUser->m_sTotalAc * (pType->sACPct - 100) / 100;
+				else
+					pTUser->m_sACAmount = pType->sAC;
 				break;
 
 			case BUFF_TYPE_LOYALTY:
@@ -973,20 +983,47 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 				break;
 
 			case BUFF_TYPE_ATTACK_SPEED_ARMOR:
-				// 
+				pTUser->m_sACAmount -= pType->sAC;
+				pTUser->m_bAttackAmount = pType->bAttack;
 				break;
 
 			case BUFF_TYPE_DAMAGE_DOUBLE:
-				// Double damage output
+				pTUser->m_bAttackAmount = pType->bAttack;
 				break;
 
 			case BUFF_TYPE_DISABLE_TARGETING:
-				// Set a variable to disable casting of skills
+				pTUser->m_bIsBlinded = true;
 				break;
 
 			case BUFF_TYPE_BLIND:
-				// Set a variable to disable casting of skills (as we are blinded!)
+				pTUser->m_bIsBlinded = true;
 				pTUser->SendUserStatusUpdate(USER_STATUS_BLIND, USER_STATUS_INFLICT);
+				break;
+
+			case BUFF_TYPE_FREEZE:
+				//Proportianal to the target user's current HP.
+				pTUser->m_bSpeedAmount = pType->bSpeed;
+				break;
+
+			case BUFF_TYPE_INSTANT_MAGIC:
+				pTUser->m_bInstantCast = true;
+				break;
+
+			case BUFF_TYPE_DECREASE_RESIST:
+				pTUser->m_bFireRAmount		= -(pType->bFireR / 100) * (pTUser->m_bFireR - pTUser->m_bFireRAmount);
+				pTUser->m_bColdRAmount		= -(pType->bColdR / 100) * (pTUser->m_bColdR - pTUser->m_bColdRAmount);
+				pTUser->m_bLightningRAmount = -(pType->bLightningR / 100) * (pTUser->m_bLightningR - pTUser->m_bLightningRAmount);
+				pTUser->m_bMagicRAmount		= -(pType->bMagicR / 100) * (pTUser->m_bMagicR - pTUser->m_bMagicRAmount);
+				pTUser->m_bDiseaseRAmount	= -(pType->bDiseaseR / 100) * (pTUser->m_bDiseaseR - pTUser->m_bDiseaseRAmount);;
+				pTUser->m_bPoisonRAmount	= -(pType->bPoisonR / 100) * (pTUser->m_bPoisonR - pTUser->m_bPoisonRAmount);;
+				break;
+
+			case BUFF_TYPE_MAGE_ARMOR:
+				pTUser->m_bReflectArmorType = (pInstance->pSkill->sSkill > 2000 ? pInstance->pSkill->sSkill % 2100 : pInstance->pSkill->sSkill % 1100);
+				break;
+
+			case BUFF_TYPE_PROHIBIT_INVIS:
+				pTUser->m_bCanStealth = false;
 				break;
 
 			default:
@@ -1548,7 +1585,7 @@ bool CMagicProcess::ExecuteType9(MagicInstance * pInstance)
 		return false;
 	}
 	
-	if (pType->bStateChange <= 2)
+	if (pType->bStateChange <= 2 && pInstance->pSkillTarget->CanStealth())
 	{
 		m_pSrcUser->StateChangeServerDirect(7, pType->bStateChange); // Update the client to be invisible
 		pInstance->pSkillTarget->InsertSavedMagic(pInstance->nSkillID, pType->sDuration);
