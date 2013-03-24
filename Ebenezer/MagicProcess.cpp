@@ -1027,11 +1027,11 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 				break;
 
 			case BUFF_TYPE_MAGE_ARMOR:
-				pTUser->m_bReflectArmorType =  pInstance->pSkill->sSkill % 100;
+				pInstance->pSkillTarget->m_bReflectArmorType =  pInstance->pSkill->sSkill % 100;
 				break;
 
 			case BUFF_TYPE_PROHIBIT_INVIS:
-				pTUser->m_bCanStealth = false;
+				pInstance->pSkillTarget->m_bCanStealth = false;
 				break;
 
 			default:
@@ -2152,23 +2152,26 @@ void CMagicProcess::ReflectDamage(MagicInstance * pInstance, int32 damage)
 	if(damage < 0)
 		damage *= -1;
 
+	int16 total_resistance_caster = 0;
+	int32 reflect_damage = 0;
+
 	switch(pInstance->pSkillTarget->m_bReflectArmorType)
 	{
 		case FIRE_DAMAGE:
-			int16 total_resistance_caster = pInstance->pSkillCaster->m_bFireR + pInstance->pSkillCaster->m_bFireRAmount;
-			int32 reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) * 0.25;
+			total_resistance_caster = pInstance->pSkillCaster->m_bFireR + pInstance->pSkillCaster->m_bFireRAmount;
+			reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) / 100 * 25;
 			pInstance->pSkillCaster->HpChange(-damage, pInstance->pSkillTarget);
 		break;
 		
 		case ICE_DAMAGE:
-			int16 total_resistance_caster = pInstance->pSkillCaster->m_bColdR + pInstance->pSkillCaster->m_bColdRAmount;
-			int32 reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) * 0.25;
+			total_resistance_caster = pInstance->pSkillCaster->m_bColdR + pInstance->pSkillCaster->m_bColdRAmount;
+			reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) / 100 * 25;
 			pInstance->pSkillCaster->HpChange(-damage, pInstance->pSkillTarget);
 		break;
 
 		case LIGHTNING_DAMAGE:
-			int16 total_resistance_caster = pInstance->pSkillCaster->m_bLightningR + pInstance->pSkillCaster->m_bLightningRAmount;
-			int32 reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) * 0.25;
+			total_resistance_caster = pInstance->pSkillCaster->m_bLightningR + pInstance->pSkillCaster->m_bLightningRAmount;
+			reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) / 100 * 25;
 			pInstance->pSkillCaster->HpChange(-damage, pInstance->pSkillTarget);
 		break;
 	}
