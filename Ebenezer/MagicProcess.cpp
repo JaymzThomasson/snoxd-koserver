@@ -621,28 +621,7 @@ bool CMagicProcess::ExecuteType1(MagicInstance * pInstance)
 		pInstance->pSkillTarget->HpChange(-damage, pInstance->pSkillCaster);
 
 		if(pInstance->pSkillTarget->m_bReflectArmorType != 0)
-		{
-			switch(pInstance->pSkillTarget->m_bReflectArmorType)
-			{
-				case FIRE_DAMAGE:
-					int16 total_resistance_caster = pInstance->pSkillCaster->m_bFireR + pInstance->pSkillCaster->m_bFireRAmount;
-					int32 reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) * 0.25;
-					pInstance->pSkillCaster->HpChange(-damage, pInstance->pSkillTarget);
-					break;
-
-				case ICE_DAMAGE:
-					int16 total_resistance_caster = pInstance->pSkillCaster->m_bColdR + pInstance->pSkillCaster->m_bColdRAmount;
-					int32 reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) * 0.25;
-					pInstance->pSkillCaster->HpChange(-damage, pInstance->pSkillTarget);
-					break;
-
-				case LIGHTNING_DAMAGE:
-					int16 total_resistance_caster = pInstance->pSkillCaster->m_bLightningR + pInstance->pSkillCaster->m_bLightningRAmount;
-					int32 reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) * 0.25;
-					pInstance->pSkillCaster->HpChange(-damage, pInstance->pSkillTarget);
-					break;
-			}
-		}
+			ReflectDamage(pInstance, damage);
 
 		// This is more than a little ugly.
 		if (pInstance->pSkillCaster->isPlayer())
@@ -700,6 +679,9 @@ bool CMagicProcess::ExecuteType2(MagicInstance * pInstance)
 	damage = pInstance->pSkillCaster->GetDamage(pInstance->pSkillTarget, pInstance->pSkill);  // Get damage points of enemy.	
 
 	pInstance->pSkillTarget->HpChange(-damage, m_pSrcUser);     // Reduce target health point.
+
+	if(pInstance->pSkillTarget->m_bReflectArmorType != 0)
+		ReflectDamage(pInstance, damage);
 
 	// This is more than a little ugly.
 	if (pInstance->pSkillCaster->isPlayer())
@@ -775,6 +757,8 @@ bool CMagicProcess::ExecuteType3(MagicInstance * pInstance)  // Applied when a m
 			{			
 				pTUser->HpChange(damage, m_pSrcUser);     // Reduce target health point.
 				m_pSrcUser->SendTargetHP( 0, (*itr)->GetID(), damage );     // Change the HP of the target.			
+				if(pInstance->pSkillTarget->m_bReflectArmorType != 0)
+					ReflectDamage(pInstance, damage);
 			}
 			else if ( pType->bDirectType == 2 || pType->bDirectType == 3 )    // Magic or Skill Point related !
 				pTUser->MSpChange(damage);     // Change the SP or the MP of the target.		
@@ -2161,4 +2145,31 @@ void CMagicProcess::Type4Extend(MagicInstance * pInstance)
 		result << uint32(pInstance->nSkillID);
 		pTUser->Send(&result);
 	}	
+}
+
+void CMagicProcess::ReflectDamage(MagicInstance * pInstance, int32 damage)
+{
+	if(damage < 0)
+		damage *= -1;
+
+	switch(pInstance->pSkillTarget->m_bReflectArmorType)
+	{
+		case FIRE_DAMAGE:
+			int16 total_resistance_caster = pInstance->pSkillCaster->m_bFireR + pInstance->pSkillCaster->m_bFireRAmount;
+			int32 reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) * 0.25;
+			pInstance->pSkillCaster->HpChange(-damage, pInstance->pSkillTarget);
+		break;
+		
+		case ICE_DAMAGE:
+			int16 total_resistance_caster = pInstance->pSkillCaster->m_bColdR + pInstance->pSkillCaster->m_bColdRAmount;
+			int32 reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) * 0.25;
+			pInstance->pSkillCaster->HpChange(-damage, pInstance->pSkillTarget);
+		break;
+
+		case LIGHTNING_DAMAGE:
+			int16 total_resistance_caster = pInstance->pSkillCaster->m_bLightningR + pInstance->pSkillCaster->m_bLightningRAmount;
+			int32 reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) * 0.25;
+			pInstance->pSkillCaster->HpChange(-damage, pInstance->pSkillTarget);
+		break;
+	}
 }
