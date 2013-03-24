@@ -885,7 +885,7 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 		uint8 bResult = 1;
 		CUser* pTUser = *itr;
 
-		if (pTUser->m_bType4Buff[pType->bBuffType - 1] == 2 && pInstance->sTargetID == -1) {		// Is this buff-type already casted on the player?
+		if (TO_USER(pInstance->pSkillCaster)->m_bType4Buff[pType->bBuffType - 1] == 2 && pInstance->sTargetID == -1) {		// Is this buff-type already casted on the player?
 			bResult = 0;
 			goto fail_return ;					
 		}
@@ -897,12 +897,12 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 		{
 			case BUFF_TYPE_HP_MP:
 				if (pType->sMaxHP == 0 && pType->sMaxHPPct > 0)
-					pInstance->pSkillCaster->m_sMaxHPAmount = (pType->sMaxHPPct - 100) * (pTUser->m_iMaxHp - pInstance->pSkillCaster->m_sMaxHPAmount) / 100;
+					pInstance->pSkillCaster->m_sMaxHPAmount = (pType->sMaxHPPct - 100) * (TO_USER(pInstance->pSkillCaster)->m_iMaxHp - pInstance->pSkillCaster->m_sMaxHPAmount) / 100;
 				else
 					pInstance->pSkillCaster->m_sMaxHPAmount = pType->sMaxHP;
 
 				if (pType->sMaxMP == 0 && pType->sMaxMPPct > 0)
-					pInstance->pSkillCaster->m_sMaxMPAmount = (pType->sMaxMPPct - 100) * (pTUser->m_iMaxMp - pInstance->pSkillCaster->m_sMaxMPAmount) / 100;
+					pInstance->pSkillCaster->m_sMaxMPAmount = (pType->sMaxMPPct - 100) * (TO_USER(pInstance->pSkillCaster)->m_iMaxMp - pInstance->pSkillCaster->m_sMaxMPAmount) / 100;
 				else
 					pInstance->pSkillCaster->m_sMaxMPAmount = pType->sMaxMP;
 				break;
@@ -917,9 +917,9 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 			case BUFF_TYPE_SIZE:
 				// These really shouldn't be hardcoded, but with mgame's implementation it doesn't seem we have a choice (as is).
 				if (pInstance->nSkillID == 490034)	// Bezoar!!!
-					pTUser->StateChangeServerDirect(3, ABNORMAL_GIANT); 
+					TO_USER(pInstance->pSkillCaster)->StateChangeServerDirect(3, ABNORMAL_GIANT); 
 				else if (pInstance->nSkillID == 490035)	// Rice Cake!!!
-					pTUser->StateChangeServerDirect(3, ABNORMAL_DWARF); 
+					TO_USER(pInstance->pSkillCaster)->StateChangeServerDirect(3, ABNORMAL_DWARF); 
 				break;
 
 			case BUFF_TYPE_DAMAGE:
@@ -935,11 +935,11 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 				break;
 
 			case BUFF_TYPE_STATS:
-				pTUser->setStatBuff(STAT_STR, pType->bStr);
-				pTUser->setStatBuff(STAT_STA, pType->bSta);
-				pTUser->setStatBuff(STAT_DEX, pType->bDex);
-				pTUser->setStatBuff(STAT_INT, pType->bIntel);
-				pTUser->setStatBuff(STAT_CHA, pType->bCha);	
+				TO_USER(pInstance->pSkillCaster)->setStatBuff(STAT_STR, pType->bStr);
+				TO_USER(pInstance->pSkillCaster)->setStatBuff(STAT_STA, pType->bSta);
+				TO_USER(pInstance->pSkillCaster)->setStatBuff(STAT_DEX, pType->bDex);
+				TO_USER(pInstance->pSkillCaster)->setStatBuff(STAT_INT, pType->bIntel);
+				TO_USER(pInstance->pSkillCaster)->setStatBuff(STAT_CHA, pType->bCha);	
 				break;
 
 			case BUFF_TYPE_RESISTANCES:
@@ -957,7 +957,7 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 				break;	
 
 			case BUFF_TYPE_MAGIC_POWER:
-				pInstance->pSkillCaster->m_sMagicAttackAmount = (pType->bMagicAttack - 100) * pTUser->getStat(STAT_CHA) / 100;
+				pInstance->pSkillCaster->m_sMagicAttackAmount = (pType->bMagicAttack - 100) * TO_USER(pInstance->pSkillCaster)->getStat(STAT_CHA) / 100;
 				break;
 
 			case BUFF_TYPE_EXPERIENCE:
@@ -974,7 +974,7 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 
 			case BUFF_TYPE_WEAPON_AC:
 				if(pType->sAC == 0 && pType->sACPct > 0)
-					pInstance->pSkillCaster->m_sACAmount = pTUser->m_sTotalAc * (pType->sACPct - 100) / 100;
+					pInstance->pSkillCaster->m_sACAmount = TO_USER(pInstance->pSkillCaster)->m_sTotalAc * (pType->sACPct - 100) / 100;
 				else
 					pInstance->pSkillCaster->m_sACAmount = pType->sAC;
 				break;
@@ -1018,12 +1018,12 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 				break;
 
 			case BUFF_TYPE_DECREASE_RESIST:
-				pInstance->pSkillCaster->m_bFireRAmount		= -(pType->bFireR / 100) * (pTUser->m_bFireR - pTUser->m_bFireRAmount);
-				pInstance->pSkillCaster->m_bColdRAmount		= -(pType->bColdR / 100) * (pTUser->m_bColdR - pTUser->m_bColdRAmount);
-				pInstance->pSkillCaster->m_bLightningRAmount	= -(pType->bLightningR / 100) * (pTUser->m_bLightningR - pTUser->m_bLightningRAmount);
-				pInstance->pSkillCaster->m_bMagicRAmount		= -(pType->bMagicR / 100) * (pTUser->m_bMagicR - pTUser->m_bMagicRAmount);
-				pInstance->pSkillCaster->m_bDiseaseRAmount		= -(pType->bDiseaseR / 100) * (pTUser->m_bDiseaseR - pTUser->m_bDiseaseRAmount);;
-				pInstance->pSkillCaster->m_bPoisonRAmount		= -(pType->bPoisonR / 100) * (pTUser->m_bPoisonR - pTUser->m_bPoisonRAmount);;
+				pInstance->pSkillCaster->m_bFireRAmount			= -(pType->bFireR / 100)	*	(TO_USER(pInstance->pSkillCaster)->m_bFireR		- TO_USER(pInstance->pSkillCaster)->m_bFireRAmount);
+				pInstance->pSkillCaster->m_bColdRAmount			= -(pType->bColdR / 100)	*	(TO_USER(pInstance->pSkillCaster)->m_bColdR		- TO_USER(pInstance->pSkillCaster)->m_bColdRAmount);
+				pInstance->pSkillCaster->m_bLightningRAmount	= -(pType->bLightningR / 100) * (TO_USER(pInstance->pSkillCaster)->m_bLightningR - TO_USER(pInstance->pSkillCaster)->m_bLightningRAmount);
+				pInstance->pSkillCaster->m_bMagicRAmount		= -(pType->bMagicR / 100)	*	(TO_USER(pInstance->pSkillCaster)->m_bMagicR	- TO_USER(pInstance->pSkillCaster)->m_bMagicRAmount);
+				pInstance->pSkillCaster->m_bDiseaseRAmount		= -(pType->bDiseaseR / 100) *	(TO_USER(pInstance->pSkillCaster)->m_bDiseaseR	- TO_USER(pInstance->pSkillCaster)->m_bDiseaseRAmount);;
+				pInstance->pSkillCaster->m_bPoisonRAmount		= -(pType->bPoisonR / 100)	*	(TO_USER(pInstance->pSkillCaster)->m_bPoisonR	- TO_USER(pInstance->pSkillCaster)->m_bPoisonRAmount);;
 				break;
 
 			case BUFF_TYPE_MAGE_ARMOR:
@@ -1040,8 +1040,8 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 		}
 
 
-		pTUser->m_sDuration[pType->bBuffType - 1] = pType->sDuration;
-		pTUser->m_tStartTime[pType->bBuffType - 1] = UNIXTIME;
+		pInstance->pSkillCaster->m_sDuration[pType->bBuffType - 1] = pType->sDuration;
+		pInstance->pSkillCaster->m_tStartTime[pType->bBuffType - 1] = UNIXTIME;
 
 		if (pInstance->sTargetID != -1 && pInstance->pSkill->bType[0] == 4)
 		{
@@ -1050,22 +1050,22 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 		}
 
 		if (pInstance->sCasterID >= 0 && pInstance->sCasterID < MAX_USER) 
-			pTUser->m_bType4Buff[pType->bBuffType - 1] = (m_pSrcUser->GetNation() == pTUser->GetNation() ? 2 : 1);
+			pInstance->pSkillCaster->m_bType4Buff[pType->bBuffType - 1] = (m_pSrcUser->GetNation() == pInstance->pSkillCaster->GetNation() ? 2 : 1);
 		else
-			pTUser->m_bType4Buff[pType->bBuffType - 1] = 1;
+			pInstance->pSkillCaster->m_bType4Buff[pType->bBuffType - 1] = 1;
 
-		pTUser->m_bType4Flag = TRUE;
+		pInstance->pSkillCaster->m_bType4Flag = TRUE;
 
-		pTUser->SetSlotItemValue();				// Update character stats.
-		pTUser->SetUserAbility();
+		TO_USER(pInstance->pSkillCaster)->SetSlotItemValue();				// Update character stats.
+		TO_USER(pInstance->pSkillCaster)->SetUserAbility();
 
 		if(pInstance->sCasterID == pInstance->sTargetID)
-			pTUser->SendItemMove(2);
+			TO_USER(pInstance->pSkillCaster)->SendItemMove(2);
 
-		if (pTUser->isInParty() && pTUser->m_bType4Buff[pType->bBuffType - 1] == 1)
-			pTUser->SendPartyStatusUpdate(2, 1);
+		if (TO_USER(pInstance->pSkillCaster)->isInParty() && pInstance->pSkillCaster->m_bType4Buff[pType->bBuffType - 1] == 1)
+			TO_USER(pInstance->pSkillCaster)->SendPartyStatusUpdate(2, 1);
 
-		pTUser->Send2AI_UserUpdateInfo();
+		TO_USER(pInstance->pSkillCaster)->Send2AI_UserUpdateInfo();
 
 	fail_return:
 		if (pInstance->pSkill->bType[1] == 0 || pInstance->pSkill->bType[1] == 4)
@@ -1080,7 +1080,7 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 			pUser->m_MagicProcess.SendSkill(pInstance);
 
 			if (pInstance->pSkill->bMoral >= MORAL_ENEMY)
-				pTUser->SendUserStatusUpdate(pType->bBuffType == BUFF_TYPE_SPEED ? USER_STATUS_SPEED : USER_STATUS_POISON, USER_STATUS_INFLICT);
+				TO_USER(pInstance->pSkillCaster)->SendUserStatusUpdate(pType->bBuffType == BUFF_TYPE_SPEED ? USER_STATUS_SPEED : USER_STATUS_POISON, USER_STATUS_INFLICT);
 		}
 		
 		if (bResult == 0
