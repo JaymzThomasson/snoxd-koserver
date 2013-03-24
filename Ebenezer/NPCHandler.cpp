@@ -68,311 +68,49 @@ void CUser::ClientEvent(uint16 sNpcID)
 	CNpc *pNpc = g_pMain.m_arNpcArray.GetData(sNpcID);
 	if (pNpc == NULL)
 		return;
+
 	m_sEventNid = sNpcID;
 
-	// Get events for this zone
-	EVENT *pEvent = g_pMain.m_Event.GetData(GetZoneID());
-	if (pEvent == NULL)
+	// Aww.
+	if (pNpc->GetType() == NPC_KISS)
+	{
+		KissUser();
+		return;
+	}
+
+	FastGuard lock(g_pMain.m_questNpcLock);
+	QuestNpcList::iterator itr = g_pMain.m_QuestNpcList.find(pNpc->GetEntryID());
+	if (itr == g_pMain.m_QuestNpcList.end())
 		return;
 
-	// Get the corresponding event ID for this NPC
-	iEventID = GetEventIDByNPC(pNpc);
-	if (iEventID < 0)
+	// Copy it. We should really lock the list, but nevermind.
+	QuestHelperList & pList = itr->second;
+	_QUEST_HELPER * pHelper = NULL;
+	foreach(itr, pList)
+	{
+		if ((*itr) == NULL
+			|| (*itr)->sEventDataIndex
+			|| (*itr)->bEventStatus
+			|| ((*itr)->bNation != 3 && (*itr)->bNation != GetNation())
+			|| ((*itr)->bClass != 5 && !JobGroupCheck((*itr)->bClass)))
+			continue;
+
+		pHelper = (*itr);
+		break;
+	}
+
+	if (pHelper == NULL)
 		return;
 
-	EVENT_DATA *pEventData = pEvent->m_arEvent.GetData(iEventID);
-	if (pEventData == NULL
-		|| !CheckEventLogic(pEventData)) 
-		return; // Check if all 'A's meet the requirements in Event #1
-
-	foreach (itr, pEventData->m_arExec)
-		if (!RunNpcEvent(pNpc, *itr))
-			return;
+	QuestV2RunEvent(pHelper, pHelper->nEventTriggerIndex);
 }
 
-// This is horribly dumb.
-int32 CUser::GetEventIDByNPC(CNpc *pNpc)
+void CUser::KissUser()
 {
-	switch (pNpc->GetType())
-	{
-		case 100: return 4001; // this one is based on server flag (Renold[Event]).. we'll just assume the flag's set
-		case 72: return 2001;
-		case 36:
-		case 71: return 1001;
-		case 73: return 11001;
-		case 74: return 12001;
-		case 75: return 13001;
-		case 76: return 14001;
-		case 77: return 7001;
-		case 33: return 35001;
-		case 34:
-		case 105: return 21001;
-		case 35: return 15002;
-		case 43: return 15951;
-		case 45:
-		case 102: return 20701;
-		case 111: return 15801;
-		case 112: return 15821;
-		case 113: return 15841;
-		case 114: return 15861;
-		case 115: return 15881;
-		case 116: return 15901;
-		case 117: return 15921;
-		case 46:
-		case 104: return 20901;
-		case 47:
-		case 103: return 20801;
-		case 48:
-		case 101: return 20601;
-		case 38:
-		case 49: return 20501;
-		case 23: return 30001;
-		case 26: return 31001;
-		case 29: return 35201;
-		case 28: return g_pMain.GetEventTrigger(pNpc); // or -1
-		case 106:
-		case 109: return 31101;
-		case 107: return 31131;
-		case 108: return 31161;
-		case 110: return 31171;
-		case 24: return 8030;
-		case 118: return 35480;
-		case 123: return 35541;
-		case 125: return 35553;
-		case 124: return 35560;
-		case 126: return 35563;
-		case 127: return 35594;
-		case 128: return 35615;
-		case 129: return 20;
-		case 130: return 50;
-		case 131: return 36;
-		case 132: return 35550;
-		case 133: return 35624;
-		case 37:
-		case 134: return 1;
-		case 135: return 32000;
-		case 136: return 35640;
-		case 39:
-		case 137: return 22001;
-		case 138: return 35650;
-		case 140: return 35662;
-		case 141: return 1100;
-		case 142: return 17000;
-		case 143: return 17550;
-		case 144: return 17590;
-		case 145: return 17600;
-		case 146: return 17630;
-		case 147: return 17100;
-		case 148: return 17570;
-		case 149: return 17520;
-		case 150: return 17681;
-		case 151: return 15310;
-		case 152: return 2901;
-		case 153: return 35212;
-		case 154: return 0; // it actually returns this...
-		default: return -1;
-	}
-}
-
-BOOL CUser::CheckEventLogic(EVENT_DATA *pEventData) 	// This part reads all the 'A' parts and checks if the 
-{                                                       // requirements for the 'E' parts are met.
-	if( !pEventData ) return FALSE;
-
-	BOOL bExact = TRUE;
-
-	foreach (itr, pEventData->m_arLogicElse)
-	{
-		bExact = FALSE;
-
-		LOGIC_ELSE* pLE = (*itr);
-		if (pLE == NULL) return FALSE;
-
-		switch( pLE->m_LogicElse ) {
-		case	LOGIC_CHECK_UNDER_WEIGHT:
-			if( pLE->m_LogicElseInt[0]+m_sItemWeight >= m_sMaxWeight )
-				bExact = TRUE;
-			break;
-
-		case	LOGIC_CHECK_OVER_WEIGHT:
-			if( pLE->m_LogicElseInt[0]+m_sItemWeight < m_sMaxWeight )
-				bExact = TRUE;
-			break;
-
-		case	LOGIC_CHECK_SKILL_POINT:
-			if( CheckSkillPoint(pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1], pLE->m_LogicElseInt[2]) )
-				bExact = TRUE;
-			break;
-
-		case	LOGIC_EXIST_ITEM:
-			if ( CheckExistItem(pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1]) )	bExact = TRUE;
-			break;
-
-		case	LOGIC_CHECK_CLASS:		
-			if (CheckClass( pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1], pLE->m_LogicElseInt[2],
-				pLE->m_LogicElseInt[3], pLE->m_LogicElseInt[4], pLE->m_LogicElseInt[5])) {
-				bExact = TRUE;
-			}
-			break;
-
-		case	LOGIC_CHECK_WEIGHT:	
-			if (!CheckWeight( pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1])) {				
-				bExact = TRUE;
-			}
-			break;	
-
-		case	LOGIC_RAND:
-			if (CheckRandom(pLE->m_LogicElseInt[0])) {
-				bExact = TRUE;
-			}
-			break;
-
-		case	LOGIC_CHECK_LEVEL:		
-			if( GetLevel() >= pLE->m_LogicElseInt[0] && GetLevel() <= pLE->m_LogicElseInt[1] ) {
-				bExact = TRUE;
-			}
-			break;
-
-		case	LOGIC_HOWMUCH_ITEM:
-			if ( CheckItemCount(pLE->m_LogicElseInt[0], pLE->m_LogicElseInt[1], pLE->m_LogicElseInt[2]) ) {
-				bExact = TRUE;
-			}
-			break;
-
-		case	LOGIC_CHECK_NOAH:
-			if ( m_iGold >= (unsigned int)pLE->m_LogicElseInt[0] && m_iGold <= (unsigned int)pLE->m_LogicElseInt[1] ) {
-				bExact = TRUE;	
-			}
-			break;
-
-		default:
-			return FALSE;
-		}
-
-		if( !pLE->m_bAnd ) {	// OR ????? ??? bExact?? TRUE??? ??ü?? TRUE???
-			if(bExact) return TRUE;
-		}
-		else {					// AND ????? ??? bExact?? FALSE??? ??ü?? FALSE???
-			if(!bExact) return FALSE;
-		}
-	}
-
-	return bExact;
-}
-
-BOOL CUser::RunNpcEvent(CNpc *pNpc, EXEC *pExec)	// This part executes all the 'E' lines!
-{
-	switch( pExec->m_Exec ) {
-	case EXEC_SAY:
-		SendNpcSay( pExec );
-		break;
-
-	case	EXEC_SELECT_MSG:
-		SelectMsg( pExec );
-		break;
-
-	case	EXEC_RUN_EVENT:
-		{
-			EVENT* pEvent = NULL;
-			EVENT_DATA* pEventData = NULL;				
-
-			pEvent = g_pMain.m_Event.GetData(m_bZone);		if(!pEvent)	break;
-			pEventData = pEvent->m_arEvent.GetData(pExec->m_ExecInt[0]);	if(!pEventData) break;
-
-			if( !CheckEventLogic(pEventData) )	break;
-
-			foreach (itr, pEventData->m_arExec) 
-			{
-				if  (!RunNpcEvent(pNpc, *itr))
-					return FALSE;
-			}
-		}
-		break;
-
-	case	EXEC_GIVE_ITEM:
-		if ( !GiveItem(pExec->m_ExecInt[0], pExec->m_ExecInt[1]) )		return FALSE;
-		break;
-
-	case	EXEC_ROB_ITEM:
-		if ( !RobItem(pExec->m_ExecInt[0], pExec->m_ExecInt[1]) )		return FALSE;
-		break;
-
-	case	EXEC_GIVE_NOAH:
-		GoldGain(pExec->m_ExecInt[0]);
-		break;
-
-	case	EXEC_RETURN:
-		return FALSE;
-
-		default:
-			break;
-	}
-
-	return TRUE;
-}
-
-BOOL CUser::RunEvent(EVENT_DATA *pEventData)
-{
-	foreach (itr, pEventData->m_arExec) 
-	{
-		EXEC* pExec = *itr;
-		if (pExec == NULL)
-			break;
-
-		switch(pExec->m_Exec){
-			case EXEC_SAY:
-				SendNpcSay( pExec );
-				break;
-
-			case	EXEC_SELECT_MSG:
-				SelectMsg( pExec );
-				break;
-
-			case	EXEC_RUN_EVENT:
-				{
-					EVENT* pEvent = NULL;
-					EVENT_DATA* pEventData = NULL;				
-
-					pEvent = g_pMain.m_Event.GetData(m_bZone);
-					if(!pEvent)	break;
-
-					pEventData = pEvent->m_arEvent.GetData(pExec->m_ExecInt[0]);
-					if(!pEventData) break;
-
-					if( !CheckEventLogic(pEventData) )	break;
-
-					if( !RunEvent(pEventData) ){
-						return FALSE;
-					}
-				}
-				break;
-
-			case	EXEC_GIVE_ITEM:
-				if ( !GiveItem(pExec->m_ExecInt[0], pExec->m_ExecInt[1]) )
-					return FALSE;
-				break;
-
-			case	EXEC_ROB_ITEM:
-				if ( !RobItem(pExec->m_ExecInt[0], pExec->m_ExecInt[1]) )
-					return FALSE;
-				break;
-
-			case	EXEC_GIVE_NOAH:
-				GoldGain(pExec->m_ExecInt[0]);
-				break;
-
-			case	EXEC_ROB_NOAH:
-				GoldLose(pExec->m_ExecInt[0]);
-				break;
-//
-			case	EXEC_RETURN:
-				return FALSE;
-
-			default:
-				break;
-		}
-	}
-
-	return TRUE;
+	Packet result(WIZ_KISS);
+	result << uint32(GetID()) << m_sEventNid;
+	GiveItem(910014000); // aw, you got a 'Kiss'. How literal.
+	SendToRegion(&result);
 }
 
 void CUser::ClassChange(Packet & pkt)
@@ -473,57 +211,48 @@ void CUser::ClassChange(Packet & pkt)
 
 void CUser::RecvSelectMsg(Packet & pkt)	// Receive menu reply from client.
 {
-	uint8 bMenuIndex = pkt.read<uint8>();
-	if (bMenuIndex >= MAX_MESSAGE_EVENT
-		|| isDead())
-		goto fail_return;
+	uint8 bMenuID = pkt.read<uint8>();
+	if (!AttemptSelectMsg(bMenuID))
+		memset(&m_iSelMsgEvent, -1, sizeof(m_iSelMsgEvent));
+}
+
+bool CUser::AttemptSelectMsg(uint8 bMenuID)
+{
+	_QUEST_HELPER * pHelper = NULL;
+	if (bMenuID >= MAX_MESSAGE_EVENT
+		|| isDead()
+		|| m_nQuestHelperID == 0)
+		return false;
 
 	// Get the event number that needs to be processed next.
-	int selectedEvent = m_iSelMsgEvent[bMenuIndex];
-	EVENT *pEvent = g_pMain.m_Event.GetData(m_bZone);
-	if (pEvent == NULL)	
-		goto fail_return;
+	int32 selectedEvent = m_iSelMsgEvent[bMenuID];
+	if (selectedEvent < 0
+		|| (pHelper = g_pMain.m_QuestHelperArray.GetData(m_nQuestHelperID)) == NULL
+		|| !QuestV2RunEvent(pHelper, selectedEvent))
+		return false;
 
-	EVENT_DATA *pEventData = pEvent->m_arEvent.GetData(selectedEvent);
-	if (pEventData == NULL
-		|| !CheckEventLogic(pEventData)
-		|| !RunEvent(pEventData))
-		goto fail_return;
-
-	// wonderful logic, need to fix it later.
-	return;
-
-fail_return:
-	for (int i = 0 ; i < MAX_MESSAGE_EVENT; i++)
-		m_iSelMsgEvent[i] = -1;
+	return true;
 }
 
-void CUser::SendNpcSay(EXEC *pExec)
+void CUser::SelectMsg(uint8 bFlag, int32 nQuestID, int32 menuHeaderText, 
+					  int32 menuButtonText[MAX_MESSAGE_EVENT], int32 menuButtonEvents[MAX_MESSAGE_EVENT])
 {
-	if (pExec == NULL)
+	_QUEST_HELPER * pHelper = g_pMain.m_QuestHelperArray.GetData(m_nQuestHelperID);
+	if (pHelper == NULL)
 		return;
 
-	Packet result(WIZ_NPC_SAY);
-	for (int i = 0; i < MAX_MESSAGE_EVENT; i++)
-		result << pExec->m_ExecInt[i];
-	Send(&result);
-}
-
-void CUser::SelectMsg(EXEC *pExec)
-{
-	if (pExec == NULL)
-		return;
-
+	// Send the menu to the client
 	Packet result(WIZ_SELECT_MSG);
-	result << m_sEventNid << pExec->m_ExecInt[1];
+	result.SByte();
 
-	for (int off = 2, i = 0; i < MAX_MESSAGE_EVENT; i++, off += 2)
-		result << pExec->m_ExecInt[off];
-
+	result << m_sEventNid << bFlag << nQuestID << menuHeaderText;
+	foreach_array_n(i, menuButtonText, MAX_MESSAGE_EVENT)
+		result << menuButtonText[i];
+	result << pHelper->strLuaFilename;
 	Send(&result);
 
-	for (int j = 0; j < MAX_MESSAGE_EVENT; j++)
-		m_iSelMsgEvent[j] = pExec->m_ExecInt[(2 * j) + 3];
+	// and store the corresponding event IDs.
+	memcpy(&m_iSelMsgEvent, menuButtonEvents, sizeof(menuButtonEvents));
 }
 
 void CUser::NpcEvent(Packet & pkt)
@@ -536,6 +265,7 @@ void CUser::NpcEvent(Packet & pkt)
 	Packet result;
 	uint8 bUnknown = pkt.read<uint8>();
 	uint16 sNpcID = pkt.read<uint16>();
+	int32 nQuestID = pkt.read<int32>();
 
 	CNpc *pNpc = g_pMain.m_arNpcArray.GetData(sNpcID);
 	if (pNpc == NULL)

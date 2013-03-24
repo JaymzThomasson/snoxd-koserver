@@ -8,7 +8,6 @@
 #include "../shared/ini.h"
 #include "Knights.h"
 #include "KnightsManager.h"
-#include "EVENT.h"
 #include "UdpSocket.h"
 
 #include "../shared/STLMap.h"
@@ -49,7 +48,6 @@ typedef CSTLMap <_ZONE_SERVERINFO>			ServerArray;
 typedef CSTLMap <_KNIGHTS_CAPE>				KnightsCapeArray;
 typedef CSTLMap <_HOME_INFO>				HomeArray;
 typedef CSTLMap <_START_POSITION>			StartPositionArray;
-typedef	CSTLMap	<EVENT>						QuestArray;
 typedef	CSTLMap	<_SERVER_RESOURCE>			ServerResourceArray;
 typedef	CSTLMap	<_QUEST_HELPER>				QuestHelperArray;
 typedef	CSTLMap	<_QUEST_MONSTER>			QuestMonsterArray;
@@ -60,6 +58,9 @@ typedef hash_map<string, _USER_RANK *>		UserRankMap;
 
 typedef std::pair<uint8, uint16>			NpcTrapPair;
 typedef std::map<NpcTrapPair, int32>		EventTriggerArray;
+
+typedef std::vector<_QUEST_HELPER *>		QuestHelperList;
+typedef std::map<uint16, QuestHelperList>	QuestNpcList;
 
 class CEbenezerDlg
 {
@@ -249,10 +250,10 @@ public:
 	FastMutex				m_userRankingsLock;
 	HomeArray				m_HomeArray;
 	StartPositionArray		m_StartPositionArray;
-	QuestArray				m_Event;
 	ServerResourceArray		m_ServerResourceArray;
 	EventTriggerArray		m_EventTriggerArray;
 	QuestHelperArray		m_QuestHelperArray;
+	QuestNpcList			m_QuestNpcList;
 	QuestMonsterArray		m_QuestMonsterArray;
 	RentalItemArray			m_RentalItemArray;
 	ItemExchangeArray		m_ItemExchangeArray;
@@ -301,10 +302,14 @@ public:
 				m_characterNameMap;
 
 	FastMutex	m_accountNameLock,
-				m_characterNameLock;
+				m_characterNameLock,
+				m_questNpcLock;
+
+	__forceinline CLuaEngine * GetLuaEngine() { return &m_luaEngine; }
 
 private:
 	CIni	m_Ini;
+	CLuaEngine	m_luaEngine;
 
 	char m_strGameDSN[32], m_strAccountDSN[32];
 	char m_strGameUID[32], m_strAccountUID[32];

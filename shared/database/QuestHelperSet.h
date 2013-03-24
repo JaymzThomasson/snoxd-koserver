@@ -31,7 +31,23 @@ public:
 		_dbCommand->FetchString(16, pData->strLuaFilename);
 
 		if (!m_pMap->PutData(pData->nIndex, pData))
+		{
 			delete pData;
+		}
+		else
+		{
+			// Add the quest helper instance to the NPC's list
+			// so that we can perform faster searches.
+			QuestNpcList * pList = &g_pMain.m_QuestNpcList;
+			QuestNpcList::iterator itr = pList->find(pData->sNpcId);
+			if (itr == pList->end())
+			{
+				pList->insert(make_pair(pData->sNpcId, QuestHelperList()));
+				itr = pList->find(pData->sNpcId);
+			}
+
+			itr->second.push_back(pData);
+		}
 
 		return true;
 	}

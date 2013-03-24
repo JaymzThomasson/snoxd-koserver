@@ -98,6 +98,7 @@
 #define WIZ_ROOM_PACKETPROCESS	0x61 // room system
 #define WIZ_ROOM				0x62
 #define WIZ_QUEST				0x64
+#define WIZ_KISS				0x66
 #define WIZ_RECOMMEND_USER		0x67
 #define WIZ_MERCHANT			0x68
 #define WIZ_MERCHANT_INOUT		0x69

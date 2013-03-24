@@ -65,4 +65,16 @@ public:
 	__forceinline BYTE GetState() { return m_byState; };
 
 	virtual ~CNpc();
+
+	DECLARE_LUA_CLASS(CNpc);
+
+	DECLARE_LUA_GETTER(GetID);
+	DECLARE_LUA_GETTER(GetEntryID);
+	DECLARE_LUA_GETTER(GetName);
+	DECLARE_LUA_GETTER(GetNation);
+	DECLARE_LUA_GETTER(GetType);
+	DECLARE_LUA_GETTER(GetZoneID);
+	DECLARE_LUA_GETTER(GetX);
+	DECLARE_LUA_GETTER(GetY);
+	DECLARE_LUA_GETTER(GetZ);
 };

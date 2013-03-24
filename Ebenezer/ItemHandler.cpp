@@ -235,11 +235,11 @@ BOOL CUser::CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int
 	return TRUE;
 }
 
-BOOL CUser::RobItem(int itemid, short count)
+bool CUser::RobItem(uint32 itemid, uint16 count)
 {
 	_ITEM_TABLE* pTable = g_pMain.GetItemPtr( itemid );
 	if (pTable == NULL)
-		return FALSE;
+		return false;
 
 	// Search for the existance of all items in the player's inventory storage and onwards (includes magic bags)
 	for (int i = SLOT_MAX; i < INVENTORY_TOTAL; i++)
@@ -261,23 +261,23 @@ BOOL CUser::RobItem(int itemid, short count)
 			memset(&m_sItemArray[i], 0, sizeof(_ITEM_DATA));
 
 		SendStackChange(itemid, pItem->sCount, pItem->sDuration, i - SLOT_MAX);
-		return TRUE;
+		return true;
 	}
 	
-	return FALSE;
+	return false;
 }
 
-BOOL CUser::GiveItem(int itemid, short count, bool send_packet /*= true*/)
+bool CUser::GiveItem(uint32 itemid, uint16 count, bool send_packet /*= true*/)
 {
 	uint8 pos;
 	bool bNewItem = true;
 	_ITEM_TABLE* pTable = g_pMain.GetItemPtr( itemid );
 	if (pTable == NULL)
-		return FALSE;	
+		return false;	
 	
 	pos = FindSlotForItem(itemid, count);
 	if (pos < 0)
-		return FALSE;
+		return false;
 
 	_ITEM_DATA *pItem = &m_sItemArray[SLOT_MAX+pos];
 	if (pItem->nNum != 0)
@@ -297,7 +297,7 @@ BOOL CUser::GiveItem(int itemid, short count, bool send_packet /*= true*/)
 
 	if (send_packet)
 		SendStackChange(itemid, m_sItemArray[SLOT_MAX+pos].sCount, m_sItemArray[SLOT_MAX+pos].sDuration, pos, true);
-	return TRUE;
+	return true;
 }
 
 void CUser::SendItemWeight()
@@ -788,44 +788,4 @@ void CUser::ItemRemove(Packet & pkt)
 fail_return:
 	result << uint8(0);
 	Send(&result);
-}
-
-/**
- * Firstly, hello there weary traveler! You've come a long way.
- * I hate to point out the obvious, but well... no, you don't need to get your 
- * glasses/eyes checked.
- *
- * Yes, you're looking at a piece of (luckily for you) cleaned up work of mgame's
- * that seems completely out of place.
- *
- * But why, you ask? Why would we check a stack's range? There's really no reason 
- * for ever doing that, is there? 
- * Surely there's no NPC that says "I ONLY WANT 10 OF THIS ITEM, IF YOU GET 11, 
- * I'LL.. I'LL.. WELL, I'M USELESS SO I'LL JUST NOT TALK TO YOU!"
- *
- * You'd think not.
- *
- * This method still exists purely because of EVT's dependence upon it
- * to check when a required item count does NOT exist. Wait -- what?!
- *
- * This could *easily* be fixed with reverse logic in the EVT, but as we don't 
- * want to break existing EVT implementations we'll leave this method intact.
- *
- * For now.
- **/
-BOOL CUser::CheckItemCount(int itemid, short min, short max)
-{
-	_ITEM_TABLE* pTable = g_pMain.GetItemPtr( itemid );
-	if (pTable == NULL)
-		return FALSE;	
-
-	for (int i = 0 ; i < SLOT_MAX + HAVE_MAX; i++)
-	{
-		if (m_sItemArray[i].nNum != itemid)
-			continue;
-
-		return (m_sItemArray[i].sCount >= min && m_sItemArray[i].sCount <= max);
-	}
-
-	return FALSE;		
 }

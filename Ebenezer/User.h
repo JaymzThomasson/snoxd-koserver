@@ -1,10 +1,6 @@
 #pragma once
 
 #include "MagicProcess.h"
-#include "EVENT.h"
-#include "EVENT_DATA.h"
-#include "LOGIC_ELSE.h"
-#include "EXEC.h"     
 
 #include <list>
 #include <vector>
@@ -56,8 +52,8 @@ public:
 	uint8	m_bRank;
 	uint8	m_bTitle;
 	int64	m_iExp;	
-	int32	m_iLoyalty, m_iLoyaltyMonthly;
-	int32	m_iMannerPoint;
+	uint32	m_iLoyalty, m_iLoyaltyMonthly;
+	uint32	m_iMannerPoint;
 	uint8	m_bFace;
 	uint8	m_bCity;
 	int16	m_bKnights;	
@@ -183,7 +179,7 @@ public:
 
 	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];
 	short				m_sEventNid;
-
+	uint32				m_nQuestHelperID;
 
 public:
 	__forceinline bool isBanned() { return getAuthority() == AUTHORITY_BANNED; }
@@ -200,6 +196,7 @@ public:
 	__forceinline bool isInClan() { return GetClanID() > 0; }
 	__forceinline bool isClanLeader() { return getFame() == CHIEF; }
 	__forceinline bool isClanAssistant() { return getFame() == VICECHIEF; }
+	__forceinline bool isPartyLeader() { return isInParty() && m_bPartyLeader; }
 
 	__forceinline bool isWarrior() { return JobGroupCheck(1) == TRUE; }
 	__forceinline bool isRogue() { return JobGroupCheck(2) == TRUE; }
@@ -220,8 +217,23 @@ public:
 	__forceinline BYTE getAuthority() { return m_bAuthority; }
 	__forceinline BYTE getFame() { return m_bFame; }
 
+	__forceinline uint16 GetClass() { return m_sClass; }
+
 	__forceinline int16 GetClanID() { return m_bKnights; }
 	__forceinline void SetClanID(int16 val) { m_bKnights = val; }
+
+	__forceinline uint32 GetCoins() { return m_iGold; }
+	__forceinline uint32 GetInnCoins() { return m_iBank; }
+	__forceinline uint32 GetLoyalty() { return m_iLoyalty; }
+	__forceinline uint32 GetMonthlyLoyalty() { return m_iLoyaltyMonthly; }
+	__forceinline uint32 GetManner() { return m_iMannerPoint; }
+
+	// Shortcuts for lazy people
+	__forceinline bool hasCoins(uint32 amount) { return (GetCoins() >= amount); }
+	__forceinline bool hasInnCoins(uint32 amount) { return (GetInnCoins() >= amount); }
+	__forceinline bool hasLoyalty(uint32 amount) { return (GetLoyalty() >= amount); }
+	__forceinline bool hasMonthlyLoyalty(uint32 amount) { return (GetMonthlyLoyalty() >= amount); }
+	__forceinline bool hasManner(uint32 amount) { return (GetManner() >= amount); }
 
 	__forceinline GameState GetState() { return m_state; }
 
@@ -307,17 +319,15 @@ public:
 
 	void SendLoyaltyChange(int32 nChangeAmount = 0);
 
-	BOOL CheckItemCount(int itemid, short min, short max);
-	BOOL CheckRandom(short percent);
 	void NativeZoneReturn();
 	void KickOutZoneUser(BOOL home = FALSE, int nZoneID = 21);
 	void TrapProcess();
 	BOOL JobGroupCheck(short jobgroupid);
-	void SelectMsg(EXEC* pExec);
-	void SendNpcSay(EXEC* pExec);
+	void SelectMsg(uint8 bFlag, int32 nQuestID, int32 menuHeaderText, 
+		int32 menuButtonText[MAX_MESSAGE_EVENT], int32 menuButtonEvents[MAX_MESSAGE_EVENT]);
 	BOOL CheckClass(short class1, short class2 = -1, short class3 = -1, short class4 = -1, short class5 = -1, short class6 = -1);
-	BOOL GiveItem(int itemid, short count, bool send_packet = true);
-	BOOL RobItem(int itemid, short count);
+	bool GiveItem(uint32 nItemID, uint16 sCount = 1, bool send_packet = true);
+	bool RobItem(uint32 nItemID, uint16 sCount);
 	BOOL CheckExistItem(int itemid, short count);
 	BOOL CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,
 		int32 nItemID3, int16 sCount3, int32 nItemID4, int16 sCount4, int32 nItemID5, int16 sCount5);
@@ -498,13 +508,10 @@ public:
 	void SendPartyBBSNeeded(uint16 page_index, uint8 bType);
 
 	void ClientEvent(uint16 sNpcID);
-	int32 GetEventIDByNPC(CNpc *pNpc);
-
-	BOOL CheckEventLogic(EVENT_DATA* pEventData);
-	BOOL RunNpcEvent(CNpc* pNpc, EXEC* pExec);
-	BOOL RunEvent(EVENT_DATA *pEventData);
+	void KissUser();
 
 	void RecvSelectMsg(Packet & pkt);
+	bool AttemptSelectMsg(uint8 bMenuID);
 
 	// from the client
 	void ItemUpgradeProcess(Packet & pkt);
@@ -611,7 +618,7 @@ public:
 	void QuestV2MonsterDataRequest();
 	void QuestV2ExecuteHelper(_QUEST_HELPER * pQuestHelper);
 	void QuestV2CheckFulfill(_QUEST_HELPER * pQuestHelper);
-	void QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID);
+	bool QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID);
 
 	void QuestV2SaveEvent(uint16 sQuestID);
 	void QuestV2SendNpcMsg(uint32 nQuestID, uint16 sNpcID);
@@ -669,4 +676,142 @@ public:
 
 	UserSavedMagicMap m_savedMagicMap;
 	FastMutex m_savedMagicLock;
+
+public:
+	DECLARE_LUA_CLASS(CUser);
+
+	// Standard getters
+	DECLARE_LUA_GETTER(GetName);
+	DECLARE_LUA_GETTER(GetAccountName);
+	DECLARE_LUA_GETTER(GetZoneID);
+	DECLARE_LUA_GETTER(GetX);
+	DECLARE_LUA_GETTER(GetY);
+	DECLARE_LUA_GETTER(GetZ);
+	DECLARE_LUA_GETTER(GetNation);
+	DECLARE_LUA_GETTER(GetLevel);
+	DECLARE_LUA_GETTER(GetClass);
+	DECLARE_LUA_GETTER(GetCoins);
+	DECLARE_LUA_GETTER(GetInnCoins);
+	DECLARE_LUA_GETTER(GetLoyalty);
+	DECLARE_LUA_GETTER(GetMonthlyLoyalty);
+	DECLARE_LUA_GETTER(GetManner);
+	DECLARE_LUA_GETTER(isWarrior);
+	DECLARE_LUA_GETTER(isRogue);
+	DECLARE_LUA_GETTER(isMage);
+	DECLARE_LUA_GETTER(isPriest);
+	DECLARE_LUA_GETTER(isInClan);
+	DECLARE_LUA_GETTER(isClanLeader);
+	DECLARE_LUA_GETTER(isInParty);
+	DECLARE_LUA_GETTER(isPartyLeader);
+
+	// Shortcuts for lazy people
+	DECLARE_LUA_FUNCTION(hasCoins)  {
+		LUA_RETURN(LUA_GET_INSTANCE()->hasCoins(LUA_ARG(uint32, 2))); 
+	}
+
+	DECLARE_LUA_FUNCTION(hasInnCoins) {
+		LUA_RETURN(LUA_GET_INSTANCE()->hasInnCoins(LUA_ARG(uint32, 2))); 
+	}
+
+	DECLARE_LUA_FUNCTION(hasLoyalty) {
+		LUA_RETURN(LUA_GET_INSTANCE()->hasLoyalty(LUA_ARG(uint32, 2))); 
+	}
+
+	DECLARE_LUA_FUNCTION(hasMonthlyLoyalty) {
+		LUA_RETURN(LUA_GET_INSTANCE()->hasMonthlyLoyalty(LUA_ARG(uint32, 2)));
+	}
+
+	DECLARE_LUA_FUNCTION(hasManner) {
+		LUA_RETURN(LUA_GET_INSTANCE()->hasManner(LUA_ARG(uint32, 2))); 
+	}
+
+	// The useful method wrappers
+	DECLARE_LUA_FUNCTION(GiveItem) {
+		LUA_RETURN(LUA_GET_INSTANCE()->GiveItem(
+			LUA_ARG(uint32, 2), 
+			LUA_ARG_OPTIONAL(uint16, 1, 3), 
+			true /* send packet */));
+	}
+
+	DECLARE_LUA_FUNCTION(RobItem) {
+		LUA_RETURN(LUA_GET_INSTANCE()->RobItem(
+			LUA_ARG(uint32, 2), 
+			LUA_ARG_OPTIONAL(uint16, 1, 3)));
+	}
+
+	DECLARE_LUA_FUNCTION(GoldGain) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->GoldGain(LUA_ARG(int32, 2)));	
+	}
+
+	DECLARE_LUA_FUNCTION(GoldLose) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->GoldLose(LUA_ARG(uint32, 2)));	
+	}
+
+	DECLARE_LUA_FUNCTION(SaveEvent) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->SaveEvent(
+			LUA_ARG(uint16, 2),  // quest ID
+			LUA_ARG(uint8, 3))); // quest state	
+	}
+
+	//DECLARE_LUA_FUNCTION(SearchQuest) {
+	//	LUA_RETURN(LUA_GET_INSTANCE()->QuestV2SearchEligibleQuest(LUA_ARG(uint16, 2))); // NPC ID
+	//}
+
+	DECLARE_LUA_FUNCTION(ShowMap) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->QuestV2ShowMap(LUA_ARG(uint32, 2))); // quest helper ID
+	}
+
+	// This is probably going to be cleaned up, as the methodology behind these menus is kind of awful.
+	// For now, we'll just copy existing behaviour: that is, pass along a set of text IDs & button IDs.
+	DECLARE_LUA_FUNCTION(SelectMsg) {
+		CUser * pUser = LUA_GET_INSTANCE();
+		uint32 arg = 2; // start from after the user instance.
+		int32 menuButtonText[MAX_MESSAGE_EVENT], 
+			menuButtonEvents[MAX_MESSAGE_EVENT];
+		uint8 bFlag = LUA_ARG(uint8, arg++);
+		int32 nQuestID = LUA_ARG_OPTIONAL(int32, -1, arg++);
+		int32 menuHeaderText = LUA_ARG(int32, arg++);
+
+		foreach_array(i, menuButtonText)
+		{
+			menuButtonText[i] = LUA_ARG_OPTIONAL(int32, -1, arg++);
+			menuButtonEvents[i] = LUA_ARG_OPTIONAL(int32, -1, arg++);
+		}
+
+		pUser->SelectMsg(bFlag, nQuestID, menuHeaderText, menuButtonText, menuButtonEvents);
+		return 0;
+	}
+
+	DECLARE_LUA_FUNCTION(NpcSay) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->QuestV2SendNpcMsg(
+			LUA_ARG(uint32, 2),
+			LUA_ARG(uint16, 3)));
+	}
+
+	DECLARE_LUA_FUNCTION(CheckWeight) {
+		LUA_RETURN(LUA_GET_INSTANCE()->CheckWeight(
+			LUA_ARG(uint32, 2),		// item ID
+			LUA_ARG_OPTIONAL(uint16, 1, 3)));	// stack size
+	}
+
+	DECLARE_LUA_FUNCTION(CheckSkillPoint) {
+		LUA_RETURN(LUA_GET_INSTANCE()->CheckSkillPoint(
+			LUA_ARG(uint8, 2),		// skill point category
+			LUA_ARG(uint8, 3),		// min
+			LUA_ARG(uint8, 4)));	// max
+	}
+
+	DECLARE_LUA_FUNCTION(isRoomForItem) {
+		LUA_RETURN(LUA_GET_INSTANCE()->FindSlotForItem(
+			LUA_ARG(uint32, 2),					// item ID
+			LUA_ARG_OPTIONAL(uint16, 1, 3)));	// stack size
+	}
+
+	DECLARE_LUA_FUNCTION(CheckExchange) {
+		LUA_RETURN(LUA_GET_INSTANCE()->CheckExchange(LUA_ARG(uint32, 2)));	// exchange ID
+	}
+
+	DECLARE_LUA_FUNCTION(RunExchange) {
+		LUA_RETURN(LUA_GET_INSTANCE()->RunExchange(LUA_ARG(uint32, 2)));	// exchange ID
+	}
 };

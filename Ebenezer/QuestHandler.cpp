@@ -36,21 +36,26 @@ void CUser::QuestDataRequest()
 
 void CUser::QuestV2PacketProcess(Packet & pkt)
 {
+	if (m_sEventNid < 0)
+		return;
+
 	uint8 opcode = pkt.read<uint8>();
 	uint32 nQuestID = pkt.read<uint32>();
 
+	CNpc *pNpc = g_pMain.m_arNpcArray.GetData(m_sEventNid);
 	_QUEST_HELPER * pQuestHelper = g_pMain.m_QuestHelperArray.GetData(nQuestID);
-	if (pQuestHelper == NULL)
-		return;
-
-	// Is this quest for this player's nation? NOTE: 3 indicates both (why not 0, I don't know)
-	if ((pQuestHelper->bNation != 3
-		&& pQuestHelper->bNation != GetNation())
+	// Does this quest helper exist?
+	if (pQuestHelper == NULL
+		// Does the quest NPC exist, and is it alive? 
+		|| pNpc == NULL || pNpc->isDead()
+		// Are we even talking to this NPC?
+		|| pQuestHelper->sNpcId != pNpc->GetEntryID()
+		// Is this quest for this player's nation? NOTE: 3 indicates both (why not 0, I don't know)
+		|| (pQuestHelper->bNation != 3 && pQuestHelper->bNation != GetNation())
 		// Is the player's level high enough to do this quest?
 		|| (pQuestHelper->bLevel > GetLevel())
 		// Are we the correct class? NOTE: 5 indicates any class.
-		|| (pQuestHelper->bClass != 5 
-			&& !JobGroupCheck(pQuestHelper->bClass))
+		|| (pQuestHelper->bClass != 5 && !JobGroupCheck(pQuestHelper->bClass))
 		// Are we in the correct zone? NOTE: This isn't checked officially, may be for good reason.
 		|| GetZoneID() != pQuestHelper->bZone)
 		return;
@@ -259,9 +264,18 @@ void CUser::QuestV2CheckFulfill(_QUEST_HELPER * pQuestHelper)
 	QuestV2RunEvent(pQuestHelper, pQuestHelper->nEventCompleteIndex);
 }
 
-void CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID)
+bool CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID)
 {
-	// TO-DO: Run helper's Lua script.
+	// Lookup the corresponding NPC.
+	CNpc * pNpc = g_pMain.m_arNpcArray.GetData(m_sEventNid);
+
+	// Make sure the NPC exists and is not dead (we should also check if it's in range)
+	if (pNpc == NULL
+		|| pNpc->isDead())
+		return false;
+
+	m_nQuestHelperID = pQuestHelper->nIndex;
+	return g_pMain.GetLuaEngine()->ExecuteScript(this, pNpc, nEventID, pQuestHelper->strLuaFilename.c_str());
 }
 
 /* 

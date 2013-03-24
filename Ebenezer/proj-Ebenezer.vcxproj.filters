@@ -31,21 +31,12 @@
     <Filter Include="Shared\Database">
       <UniqueIdentifier>{ac2ab693-8d5a-4acb-b1b6-9bee43f7cdc5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Scripting">
+    <Filter Include="Scripting">
       <UniqueIdentifier>{7b685819-91d6-429e-b8e5-467471921bed}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EbenezerDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EVENT.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EVENT_DATA.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EXEC.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameEvent.cpp">
@@ -55,9 +46,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="KnightsManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LOGIC_ELSE.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MagicProcess.cpp">
@@ -189,21 +177,18 @@
     <ClCompile Include="..\shared\TimeThread.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
+    <ClCompile Include="LuaEngine.cpp">
+      <Filter>Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_bindings.cpp">
+      <Filter>Scripting</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EbenezerDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EVENT.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EVENT_DATA.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EXEC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameDefine.h">
@@ -216,9 +201,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="KnightsManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LOGIC_ELSE.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MagicProcess.h">
@@ -415,6 +397,15 @@
     </ClInclude>
     <ClInclude Include="..\shared\TimeThread.h">
       <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_bindings.h">
+      <Filter>Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaEngine.h">
+      <Filter>Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\scripting\lua_helpers.h">
+      <Filter>Scripting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

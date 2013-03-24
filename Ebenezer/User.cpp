@@ -102,6 +102,7 @@ void CUser::Initialize()
 	memset(m_iSelMsgEvent, -1,  MAX_MESSAGE_EVENT);
 
 	m_sEventNid = -1;
+	m_nQuestHelperID = 0;
 	m_bZoneChangeFlag = FALSE;
 	m_bRegeneType = 0;
 	m_tLastRegeneTime = 0;
@@ -3276,14 +3277,6 @@ void CUser::NativeZoneReturn()
 		m_curx = (float)(pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX));
 		m_curz = (float)(pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ)); 
 	}
-}
-
-BOOL CUser::CheckRandom(short percent)
-{
-	if (percent < 0 || percent > 1000) 
-		return FALSE;
-
-	return (percent > myrand(0, 1000));
 }
 
 void CUser::SendToRegion(Packet *pkt, CUser *pExceptUser /*= NULL*/)

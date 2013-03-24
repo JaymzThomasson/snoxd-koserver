@@ -292,7 +292,6 @@
     <ClInclude Include="Party.h" />
     <ClInclude Include="PathFind.h" />
     <ClInclude Include="Region.h" />
-    <ClInclude Include="resource1.h" />
     <ClInclude Include="RoomEvent.h" />
     <ClInclude Include="ServerDlg.h" />
     <ClInclude Include="StdAfx.h" />

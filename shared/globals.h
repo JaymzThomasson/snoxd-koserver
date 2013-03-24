@@ -336,6 +336,14 @@ inline int myrand( int min, int max )
 	return (int)( min + (int)rand_result );
 };
 
+inline bool CheckPercent(short percent)
+{
+	if (percent < 0 || percent > 1000) 
+		return false;
+
+	return (percent > myrand(0, 1000));
+}
+
 __forceinline time_t getMSTime()
 {
 #ifdef _WIN32

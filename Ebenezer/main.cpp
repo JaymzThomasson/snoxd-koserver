@@ -1,8 +1,5 @@
 #include "stdafx.h"
 
-#define STR(str) #str
-#define STRINGIFY(str) STR(str)
-
 CEbenezerDlg g_pMain;
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
 

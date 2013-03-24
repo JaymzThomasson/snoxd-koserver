@@ -5,6 +5,7 @@
 #include "DBAgent.h"
 #include "DatabaseThread.h"
 
+#include "LuaEngine.h"
 #include "EbenezerDlg.h"
 #include "User.h"
 #include "AIPacket.h"

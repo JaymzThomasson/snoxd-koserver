@@ -148,6 +148,9 @@ bool CEbenezerDlg::Startup()
 	srand((uint32)time(NULL));
 	rand(); // first value is always going to be the same, so spice things up.
 
+	if (!m_luaEngine.Initialise())
+		return false;
+
 #if 0 // Disabled pending rewrite
 	m_pUdpSocket = new CUdpSocket();
 	if (!m_pUdpSocket->CreateSocket())
@@ -295,6 +298,7 @@ BOOL CEbenezerDlg::LoadEventTriggerTable()
 
 BOOL CEbenezerDlg::LoadQuestHelperTable()
 {
+	m_QuestNpcList.clear();
 	LOAD_TABLE(CQuestHelperSet, &g_DBAgent.m_GameDB, &m_QuestHelperArray, true);
 }
 
@@ -521,11 +525,6 @@ BOOL CEbenezerDlg::MapFileLoad()
 
 		delete pZone;
 		m_ZoneArray.PutData(pMap->m_nZoneNumber, pMap);
-
-		EVENT * pEvent = new EVENT;
-		if (!pEvent->LoadEvent(pMap->m_nZoneNumber)
-			|| !m_Event.PutData(pEvent->m_Zone, pEvent))
-			delete pEvent;
 	}
 
 	LOAD_TABLE_ERROR_ONLY(CEventSet, &g_DBAgent.m_GameDB, &m_ZoneArray, true);

@@ -179,18 +179,6 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="EVENT.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="EVENT_DATA.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="EXEC.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
     <ClCompile Include="FriendHandler.cpp" />
     <ClCompile Include="GameEvent.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -206,11 +194,9 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="LetterHandler.cpp" />
-    <ClCompile Include="LOGIC_ELSE.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
     <ClCompile Include="LoginHandler.cpp" />
+    <ClCompile Include="LuaEngine.cpp" />
+    <ClCompile Include="lua_bindings.cpp" />
     <ClCompile Include="MagicProcess.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -250,6 +236,7 @@
   <ItemGroup>
     <ClInclude Include="..\N3BASE\My_3DStruct.h" />
     <ClInclude Include="..\N3BASE\N3ShapeMgr.h" />
+    <ClInclude Include="..\scripting\lua_helpers.h" />
     <ClInclude Include="..\shared\CircularBuffer.h" />
     <ClInclude Include="..\shared\ClientSocketMgr.h" />
     <ClInclude Include="..\shared\crc32.h" />
@@ -306,14 +293,12 @@
     <ClInclude Include="DBAgent.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="EbenezerDlg.h" />
-    <ClInclude Include="EVENT.h" />
-    <ClInclude Include="EVENT_DATA.h" />
-    <ClInclude Include="EXEC.h" />
     <ClInclude Include="GameDefine.h" />
     <ClInclude Include="GameEvent.h" />
     <ClInclude Include="Knights.h" />
     <ClInclude Include="KnightsManager.h" />
-    <ClInclude Include="LOGIC_ELSE.h" />
+    <ClInclude Include="LuaEngine.h" />
+    <ClInclude Include="lua_bindings.h" />
     <ClInclude Include="MagicProcess.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Npc.h" />

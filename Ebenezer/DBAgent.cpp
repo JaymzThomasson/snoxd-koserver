@@ -310,7 +310,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 	dbCommand->FetchByte(field++, pUser->m_bTitle);
 	dbCommand->FetchByte(field++, pUser->m_bLevel);
 	dbCommand->FetchInt64(field++, pUser->m_iExp);
-	dbCommand->FetchInt32(field++, pUser->m_iLoyalty);
+	dbCommand->FetchUInt32(field++, pUser->m_iLoyalty);
 	dbCommand->FetchByte(field++, pUser->m_bFace);
 	dbCommand->FetchByte(field++, pUser->m_bCity);
 	dbCommand->FetchInt16(field++, pUser->m_bKnights);
@@ -337,8 +337,8 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 	dbCommand->FetchBinary(field++, strSerial, sizeof(strSerial));
 	dbCommand->FetchUInt16(field++, sQuestCount);
 	dbCommand->FetchBinary(field++, strQuest, sizeof(strQuest));
-	dbCommand->FetchInt32(field++, pUser->m_iMannerPoint);
-	dbCommand->FetchInt32(field++, pUser->m_iLoyaltyMonthly);
+	dbCommand->FetchUInt32(field++, pUser->m_iMannerPoint);
+	dbCommand->FetchUInt32(field++, pUser->m_iLoyaltyMonthly);
 
 	// kind of unnecessary
 	if (nRet == 0)

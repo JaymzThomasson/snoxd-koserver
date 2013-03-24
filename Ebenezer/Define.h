@@ -24,34 +24,7 @@
 #define MAX_PARTY_USERS		8
 #define MAX_CLAN_USERS		36
 
-#define MAX_EVENT					2000
-#define MAX_EVENT_SIZE				400
-#define MAX_EVENT_NUM				2000
-#define MAX_EXEC_INT				30
-#define MAX_LOGIC_ELSE_INT			10
-#define MAX_MESSAGE_EVENT			10
-
-#define LOGIC_CHECK_UNDER_WEIGHT	0X01
-#define LOGIC_CHECK_OVER_WEIGHT		0X02
-#define LOGIC_CHECK_SKILL_POINT		0X03
-#define LOGIC_EXIST_ITEM			0X04
-#define LOGIC_CHECK_CLASS			0x05
-#define LOGIC_CHECK_WEIGHT			0x06
-#define LOGIC_RAND					0x08
-#define LOGIC_HOWMUCH_ITEM			0x09 
-#define	LOGIC_CHECK_LEVEL			0x0A
-#define LOGIC_CHECK_NOAH			0x0D
-
-#define EXEC_SAY					0X01
-#define EXEC_SELECT_MSG				0X02
-#define EXEC_RUN_EVENT				0X03
-#define EXEC_GIVE_ITEM				0X04
-#define EXEC_ROB_ITEM				0X05
-#define EXEC_RETURN					0X06
-#define EXEC_GIVE_NOAH				0x08
-#define EXEC_ROB_NOAH				0x0B
-
-////////////////////////////////////////////////////////////
+#define MAX_MESSAGE_EVENT			12
 
 ///////////////// BBS RELATED //////////////////////////////
 #define MAX_BBS_PAGE			23
