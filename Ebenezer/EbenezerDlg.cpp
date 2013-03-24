@@ -516,7 +516,7 @@ BOOL CEbenezerDlg::MapFileLoad()
 		_ZONE_INFO *pZone = itr->second;
 		if (!pMap->Initialize(pZone))
 		{
-			printf("ERROR: Unable to load SMD - %s\n", pZone->m_MapName);
+			printf("ERROR: Unable to load SMD - %s\n", pZone->m_MapName.c_str());
 			delete pZone;
 			delete pMap;
 			m_ZoneArray.DeleteAllData();

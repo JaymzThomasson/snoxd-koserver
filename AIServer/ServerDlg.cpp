@@ -517,7 +517,7 @@ BOOL CServerDlg::MapFileLoad()
 		MAP *pMap = new MAP();
 		if (!pMap->Initialize(pZone))
 		{
-			printf("ERROR: Unable to load SMD - %s\n", pZone->m_MapName);
+			printf("ERROR: Unable to load SMD - %s\n", pZone->m_MapName.c_str());
 			delete pZone;
 			delete pMap;
 			g_arZone.DeleteAllData();
