@@ -92,6 +92,7 @@ DEFINE_LUA_CLASS
 	// MAKE_LUA_METHOD(ZoneChangeClan)
 	// MAKE_LUA_METHOD(PromoteKnight)
 	// MAKE_LUA_METHOD(SendEffect)
+	MAKE_LUA_METHOD(KissUser)
 );
 #undef LUA_CLASS
 

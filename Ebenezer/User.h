@@ -820,4 +820,8 @@ public:
 	DECLARE_LUA_FUNCTION(RunExchange) {
 		LUA_RETURN(LUA_GET_INSTANCE()->RunExchange(LUA_ARG(uint32, 2)));	// exchange ID
 	}
+
+	DECLARE_LUA_FUNCTION(KissUser) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->KissUser());
+	}
 };
