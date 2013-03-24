@@ -344,11 +344,26 @@ inline bool CheckPercent(short percent)
 	return (percent > myrand(0, 1000));
 }
 
+__forceinline ULONGLONG WINAPI GetTickCount32() { return GetTickCount(); }
 __forceinline time_t getMSTime()
 {
 #ifdef _WIN32
 #if WINVER >= 0x0600
-	return GetTickCount64();
+	static bool checked = false;
+	typedef ULONGLONG (WINAPI *GetTickCount64_t)(void);
+	static GetTickCount64_t pGetTickCount64;
+
+	if (!checked)
+	{
+		HMODULE hModule = LoadLibraryA("KERNEL32.DLL");
+		pGetTickCount64 = (GetTickCount64_t)GetProcAddress(hModule, "GetTickCount64");
+		if (pGetTickCount64 == NULL)
+			pGetTickCount64 = GetTickCount32;
+		FreeLibrary(hModule);
+		checked = true;
+	}
+
+	return pGetTickCount64();
 #else
 	return GetTickCount();
 #endif
