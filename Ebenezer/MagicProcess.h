@@ -26,6 +26,13 @@ struct MagicInstance
 	bool	bIsRecastingSavedMagic;
 };
 
+enum MagicDamageType
+{
+	FIRE_DAMAGE			= 5,
+	ICE_DAMAGE			= 6,
+	LIGHTNING_DAMAGE	= 7
+};
+
 class CMagicProcess  
 {
 public:

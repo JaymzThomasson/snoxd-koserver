@@ -620,6 +620,30 @@ bool CMagicProcess::ExecuteType1(MagicInstance * pInstance)
 		damage = pInstance->pSkillCaster->GetDamage(pInstance->pSkillTarget, pInstance->pSkill);
 		pInstance->pSkillTarget->HpChange(-damage, pInstance->pSkillCaster);
 
+		if(pInstance->pSkillTarget->m_bReflectArmorType != 0)
+		{
+			switch(pInstance->pSkillTarget->m_bReflectArmorType)
+			{
+				case FIRE_DAMAGE:
+					int16 total_resistance_caster = pInstance->pSkillCaster->m_bFireR + pInstance->pSkillCaster->m_bFireRAmount;
+					int32 reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) * 0.25;
+					pInstance->pSkillCaster->HpChange(-damage, pInstance->pSkillTarget);
+					break;
+
+				case ICE_DAMAGE:
+					int16 total_resistance_caster = pInstance->pSkillCaster->m_bColdR + pInstance->pSkillCaster->m_bColdRAmount;
+					int32 reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) * 0.25;
+					pInstance->pSkillCaster->HpChange(-damage, pInstance->pSkillTarget);
+					break;
+
+				case LIGHTNING_DAMAGE:
+					int16 total_resistance_caster = pInstance->pSkillCaster->m_bLightningR + pInstance->pSkillCaster->m_bLightningRAmount;
+					int32 reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) * 0.25;
+					pInstance->pSkillCaster->HpChange(-damage, pInstance->pSkillTarget);
+					break;
+			}
+		}
+
 		// This is more than a little ugly.
 		if (pInstance->pSkillCaster->isPlayer())
 			TO_USER(pInstance->pSkillCaster)->SendTargetHP(0, pInstance->sTargetID, -damage);

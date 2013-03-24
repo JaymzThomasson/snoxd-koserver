@@ -183,7 +183,6 @@ public:
 
 	bool	m_bIsBlinded;
 	bool	m_bInstantCast;
-	uint8	m_bReflectArmorType;
 
 	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];
 	short				m_sEventNid;

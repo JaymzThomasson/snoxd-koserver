@@ -37,7 +37,6 @@ void CUser::Initialize()
 	m_bPremiumMerchant = false;
 	m_bIsBlinded = false;
 	m_bInstantCast = false;
-	m_bReflectArmorType = 0;
 
 	m_bMerchantState = MERCHANT_STATE_NONE;
 	m_bInvisibilityType = INVIS_NONE;

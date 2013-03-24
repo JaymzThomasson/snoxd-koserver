@@ -164,4 +164,5 @@ public:
 	BOOL	m_bType4Flag;
 
 	bool	m_bCanStealth;
+	uint8	m_bReflectArmorType;
 };
