@@ -893,7 +893,7 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 				break;
 
 			case BUFF_TYPE_AC:
-				if (pType->sAC == 0)
+				if (pType->sAC == 0 && pType->sACPct > 0)
 					pTUser->m_sACAmount = pTUser->m_sTotalAc * (pType->sACPct - 100) / 100;
 				else
 					pTUser->m_sACAmount = pType->sAC;
