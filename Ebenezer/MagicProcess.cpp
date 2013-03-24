@@ -897,21 +897,21 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 		{
 			case BUFF_TYPE_HP_MP:
 				if (pType->sMaxHP == 0 && pType->sMaxHPPct > 0)
-					pTUser->m_sMaxHPAmount = (pType->sMaxHPPct - 100) * (pTUser->m_iMaxHp - pTUser->m_sMaxHPAmount) / 100;
+					pInstance->pSkillCaster->m_sMaxHPAmount = (pType->sMaxHPPct - 100) * (pTUser->m_iMaxHp - pInstance->pSkillCaster->m_sMaxHPAmount) / 100;
 				else
-					pTUser->m_sMaxHPAmount = pType->sMaxHP;
+					pInstance->pSkillCaster->m_sMaxHPAmount = pType->sMaxHP;
 
 				if (pType->sMaxMP == 0 && pType->sMaxMPPct > 0)
-					pTUser->m_sMaxMPAmount = (pType->sMaxMPPct - 100) * (pTUser->m_iMaxMp - pTUser->m_sMaxMPAmount) / 100;
+					pInstance->pSkillCaster->m_sMaxMPAmount = (pType->sMaxMPPct - 100) * (pTUser->m_iMaxMp - pInstance->pSkillCaster->m_sMaxMPAmount) / 100;
 				else
-					pTUser->m_sMaxMPAmount = pType->sMaxMP;
+					pInstance->pSkillCaster->m_sMaxMPAmount = pType->sMaxMP;
 				break;
 
 			case BUFF_TYPE_AC:
 				if (pType->sAC == 0 && pType->sACPct > 0)
-					pTUser->m_sACAmount = pTUser->m_sTotalAc * (pType->sACPct - 100) / 100;
+					pInstance->pSkillCaster->m_sACAmount = pInstance->pSkillCaster->m_sTotalAc * (pType->sACPct - 100) / 100;
 				else
-					pTUser->m_sACAmount = pType->sAC;
+					pInstance->pSkillCaster->m_sACAmount = pType->sAC;
 				break;
 
 			case BUFF_TYPE_SIZE:
@@ -923,15 +923,15 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 				break;
 
 			case BUFF_TYPE_DAMAGE:
-				pTUser->m_bAttackAmount = pType->bAttack;
+				pInstance->pSkillCaster->m_bAttackAmount = pType->bAttack;
 				break;
 
 			case BUFF_TYPE_ATTACK_SPEED:
-				pTUser->m_bAttackSpeedAmount = pType->bAttackSpeed;
+				pInstance->pSkillCaster->m_bAttackSpeedAmount = pType->bAttackSpeed;
 				break;
 
 			case BUFF_TYPE_SPEED:
-				pTUser->m_bSpeedAmount = pType->bSpeed;
+				pInstance->pSkillCaster->m_bSpeedAmount = pType->bSpeed;
 				break;
 
 			case BUFF_TYPE_STATS:
@@ -943,29 +943,29 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 				break;
 
 			case BUFF_TYPE_RESISTANCES:
-				pTUser->m_bFireRAmount = pType->bFireR;
-				pTUser->m_bColdRAmount = pType->bColdR;
-				pTUser->m_bLightningRAmount = pType->bLightningR;
-				pTUser->m_bMagicRAmount = pType->bMagicR;
-				pTUser->m_bDiseaseRAmount = pType->bDiseaseR;
-				pTUser->m_bPoisonRAmount = pType->bPoisonR;
+				pInstance->pSkillCaster->m_bFireRAmount = pType->bFireR;
+				pInstance->pSkillCaster->m_bColdRAmount = pType->bColdR;
+				pInstance->pSkillCaster->m_bLightningRAmount = pType->bLightningR;
+				pInstance->pSkillCaster->m_bMagicRAmount = pType->bMagicR;
+				pInstance->pSkillCaster->m_bDiseaseRAmount = pType->bDiseaseR;
+				pInstance->pSkillCaster->m_bPoisonRAmount = pType->bPoisonR;
 				break;
 
 			case BUFF_TYPE_ACCURACY:
-				pTUser->m_bHitRateAmount = pType->bHitRate;
-				pTUser->m_sAvoidRateAmount = pType->sAvoidRate;
+				pInstance->pSkillCaster->m_bHitRateAmount = pType->bHitRate;
+				pInstance->pSkillCaster->m_sAvoidRateAmount = pType->sAvoidRate;
 				break;	
 
 			case BUFF_TYPE_MAGIC_POWER:
-				pTUser->m_sMagicAttackAmount = (pType->bMagicAttack - 100) * pTUser->getStat(STAT_CHA) / 100;
+				pInstance->pSkillCaster->m_sMagicAttackAmount = (pType->bMagicAttack - 100) * pTUser->getStat(STAT_CHA) / 100;
 				break;
 
 			case BUFF_TYPE_EXPERIENCE:
-				pTUser->m_bExpGainAmount = pType->bExpPct;
+				pInstance->pSkillCaster->m_bExpGainAmount = pType->bExpPct;
 				break;
 
 			case BUFF_TYPE_WEIGHT:
-				pTUser->m_bMaxWeightAmount = pType->bExpPct;
+				pInstance->pSkillCaster->m_bMaxWeightAmount = pType->bExpPct;
 				break;
 
 			case BUFF_TYPE_WEAPON_DAMAGE:
@@ -974,9 +974,9 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 
 			case BUFF_TYPE_WEAPON_AC:
 				if(pType->sAC == 0 && pType->sACPct > 0)
-					pTUser->m_sACAmount = pTUser->m_sTotalAc * (pType->sACPct - 100) / 100;
+					pInstance->pSkillCaster->m_sACAmount = pTUser->m_sTotalAc * (pType->sACPct - 100) / 100;
 				else
-					pTUser->m_sACAmount = pType->sAC;
+					pInstance->pSkillCaster->m_sACAmount = pType->sAC;
 				break;
 
 			case BUFF_TYPE_LOYALTY:
@@ -987,43 +987,43 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 				break;
 
 			case BUFF_TYPE_PREMIUM_MERCHANT:
-				pTUser->m_bPremiumMerchant = true;
+				TO_USER(pInstance->pSkillCaster)->m_bPremiumMerchant = true;
 				break;
 
 			case BUFF_TYPE_ATTACK_SPEED_ARMOR:
-				pTUser->m_sACAmount -= pType->sAC;
-				pTUser->m_bAttackAmount = pType->bAttack;
+				pInstance->pSkillCaster->m_sACAmount -= pType->sAC;
+				pInstance->pSkillCaster->m_bAttackAmount = pType->bAttack;
 				break;
 
 			case BUFF_TYPE_DAMAGE_DOUBLE:
-				pTUser->m_bAttackAmount = pType->bAttack;
+				pInstance->pSkillCaster->m_bAttackAmount = pType->bAttack;
 				break;
 
 			case BUFF_TYPE_DISABLE_TARGETING:
-				pTUser->m_bIsBlinded = true;
+				TO_USER(pInstance->pSkillCaster)->m_bIsBlinded = true;
 				break;
 
 			case BUFF_TYPE_BLIND:
-				pTUser->m_bIsBlinded = true;
-				pTUser->SendUserStatusUpdate(USER_STATUS_BLIND, USER_STATUS_INFLICT);
+				TO_USER(pInstance->pSkillCaster)->m_bIsBlinded = true;
+				TO_USER(pInstance->pSkillCaster)->SendUserStatusUpdate(USER_STATUS_BLIND, USER_STATUS_INFLICT);
 				break;
 
 			case BUFF_TYPE_FREEZE:
 				//Proportianal to the target user's current HP.
-				pTUser->m_bSpeedAmount = pType->bSpeed;
+				pInstance->pSkillCaster->m_bSpeedAmount = pType->bSpeed;
 				break;
 
 			case BUFF_TYPE_INSTANT_MAGIC:
-				pTUser->m_bInstantCast = true;
+				TO_USER(pInstance->pSkillCaster)->m_bInstantCast = true;
 				break;
 
 			case BUFF_TYPE_DECREASE_RESIST:
-				pTUser->m_bFireRAmount		= -(pType->bFireR / 100) * (pTUser->m_bFireR - pTUser->m_bFireRAmount);
-				pTUser->m_bColdRAmount		= -(pType->bColdR / 100) * (pTUser->m_bColdR - pTUser->m_bColdRAmount);
-				pTUser->m_bLightningRAmount = -(pType->bLightningR / 100) * (pTUser->m_bLightningR - pTUser->m_bLightningRAmount);
-				pTUser->m_bMagicRAmount		= -(pType->bMagicR / 100) * (pTUser->m_bMagicR - pTUser->m_bMagicRAmount);
-				pTUser->m_bDiseaseRAmount	= -(pType->bDiseaseR / 100) * (pTUser->m_bDiseaseR - pTUser->m_bDiseaseRAmount);;
-				pTUser->m_bPoisonRAmount	= -(pType->bPoisonR / 100) * (pTUser->m_bPoisonR - pTUser->m_bPoisonRAmount);;
+				pInstance->pSkillCaster->m_bFireRAmount		= -(pType->bFireR / 100) * (pTUser->m_bFireR - pTUser->m_bFireRAmount);
+				pInstance->pSkillCaster->m_bColdRAmount		= -(pType->bColdR / 100) * (pTUser->m_bColdR - pTUser->m_bColdRAmount);
+				pInstance->pSkillCaster->m_bLightningRAmount	= -(pType->bLightningR / 100) * (pTUser->m_bLightningR - pTUser->m_bLightningRAmount);
+				pInstance->pSkillCaster->m_bMagicRAmount		= -(pType->bMagicR / 100) * (pTUser->m_bMagicR - pTUser->m_bMagicRAmount);
+				pInstance->pSkillCaster->m_bDiseaseRAmount		= -(pType->bDiseaseR / 100) * (pTUser->m_bDiseaseR - pTUser->m_bDiseaseRAmount);;
+				pInstance->pSkillCaster->m_bPoisonRAmount		= -(pType->bPoisonR / 100) * (pTUser->m_bPoisonR - pTUser->m_bPoisonRAmount);;
 				break;
 
 			case BUFF_TYPE_MAGE_ARMOR:
@@ -2023,9 +2023,41 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 			break;
 
 		case BUFF_TYPE_WEAPON_DAMAGE:
+			// TO-DO
+			break;
+
 		case BUFF_TYPE_WEAPON_AC:
+			if (pInstance->pSkillCaster->m_sACAmount > 0) 
+			{
+				pInstance->pSkillCaster->m_sACAmount = 0;
+				buff = TRUE;
+			}
+			break;
 		case BUFF_TYPE_LOYALTY:
 			// TO-DO
+			break;
+		case BUFF_TYPE_PREMIUM_MERCHANT:
+			if(TO_USER(pInstance->pSkillCaster)->m_bPremiumMerchant)
+				TO_USER(pInstance->pSkillCaster)->m_bPremiumMerchant = false;
+			break;
+
+		case BUFF_TYPE_ATTACK_SPEED_ARMOR:
+			pInstance->pSkillCaster->m_sACAmount += pType->sAC;
+			pInstance->pSkillCaster->m_bAttackAmount = 100;
+			break;
+
+		case BUFF_TYPE_DAMAGE_DOUBLE:
+			pInstance->pSkillCaster->m_bAttackAmount = pType->bAttack;
+			break;
+
+		case BUFF_TYPE_INSTANT_MAGIC:
+			if(TO_USER(pInstance->pSkillCaster)->m_bInstantCast)
+				TO_USER(pInstance->pSkillCaster)->m_bInstantCast = false;
+			break;
+
+		case BUFF_TYPE_MAGE_ARMOR:
+			if(pInstance->pSkillTarget->m_bReflectArmorType > 0)
+				pInstance->pSkillTarget->m_bReflectArmorType = 0;
 			break;
 	}
 	
