@@ -145,7 +145,8 @@ bool CEbenezerDlg::Startup()
 
 	LoadNoticeData();
 
-	srand((unsigned int)time(NULL));
+	srand((uint32)time(NULL));
+	rand(); // first value is always going to be the same, so spice things up.
 
 #if 0 // Disabled pending rewrite
 	m_pUdpSocket = new CUdpSocket();
