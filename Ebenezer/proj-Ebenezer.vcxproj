@@ -318,8 +318,6 @@
     <ClInclude Include="Map.h" />
     <ClInclude Include="Npc.h" />
     <ClInclude Include="Region.h" />
-    <ClInclude Include="resource1.h" />
-    <ClInclude Include="resource2.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="UdpSocket.h" />
     <ClInclude Include="Unit.h" />
