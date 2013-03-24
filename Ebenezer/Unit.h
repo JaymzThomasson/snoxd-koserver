@@ -57,6 +57,8 @@ public:
 	__forceinline uint8 GetNation() { return m_bNation; }
 	__forceinline uint8 GetLevel() { return m_bLevel; }
 
+	__forceinline bool CanStealth() { return m_bCanStealth; }
+
 	virtual bool isDead() = 0;
 	virtual bool isAlive() { return !isDead(); }
 
@@ -160,4 +162,7 @@ public:
 
 	BYTE	m_bType4Buff[MAX_TYPE4_BUFF];
 	BOOL	m_bType4Flag;
+
+	bool	m_bCanStealth;
+	uint8	m_bReflectArmorType;
 };

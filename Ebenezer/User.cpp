@@ -35,6 +35,8 @@ void CUser::Initialize()
 	m_bIsChicken = false;
 	m_bIsHidingHelmet = false;
 	m_bPremiumMerchant = false;
+	m_bIsBlinded = false;
+	m_bInstantCast = false;
 
 	m_bMerchantState = MERCHANT_STATE_NONE;
 	m_bInvisibilityType = INVIS_NONE;

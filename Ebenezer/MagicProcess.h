@@ -26,6 +26,13 @@ struct MagicInstance
 	bool	bIsRecastingSavedMagic;
 };
 
+enum MagicDamageType
+{
+	FIRE_DAMAGE			= 5,
+	ICE_DAMAGE			= 6,
+	LIGHTNING_DAMAGE	= 7
+};
+
 class CMagicProcess  
 {
 public:
@@ -55,6 +62,7 @@ public:
 	void SendSkillToAI(MagicInstance * pInstance);
 	void MagicPacket(Packet & pkt, bool isRecastingSavedMagic = false);
 	void HandleMagic(MagicInstance * pInstance);
+	void ReflectDamage(MagicInstance * pInstance, int32 damage);
 
 	bool ExecuteSkill(MagicInstance * pInstance, uint8 bType);
 
