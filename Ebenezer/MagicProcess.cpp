@@ -881,12 +881,12 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 		switch (pType->bBuffType)
 		{
 			case BUFF_TYPE_HP_MP:
-				if (pType->sMaxHP == 0)
+				if (pType->sMaxHP == 0 && pType->sMaxHPPct >= 100)
 					pTUser->m_sMaxHPAmount = (pType->sMaxHPPct - 100) * (pTUser->m_iMaxHp - pTUser->m_sMaxHPAmount) / 100;
 				else
 					pTUser->m_sMaxHPAmount = pType->sMaxHP;
 
-				if (pType->sMaxMP == 0)
+				if (pType->sMaxMP == 0 && pType->sMaxMPPct >= 100)
 					pTUser->m_sMaxMPAmount = (pType->sMaxMPPct - 100) * (pTUser->m_iMaxMp - pTUser->m_sMaxMPAmount) / 100;
 				else
 					pTUser->m_sMaxMPAmount = pType->sMaxMP;
