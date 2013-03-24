@@ -192,7 +192,7 @@ int  MAP::GetRegionNpcSize(int rx, int rz)
 BOOL MAP::LoadRoomEvent()
 {
 	DWORD		length, count;
-	string	filename;
+	string		filename = string_format(".\\MAP\\%d.aievt", m_byRoomEvent);
 	char		byte;
 	char		buf[4096];
 	char		first[1024];
@@ -202,10 +202,6 @@ BOOL MAP::LoadRoomEvent()
 	int			event_num = 0, nation = 0;
 
 	CRoomEvent*	pEvent = NULL;
-	filename = ".\\MAP\\";
-	filename += m_byRoomEvent;
-	filename += ".aievt";
-
 	ifstream is(filename);
 	if (!is)
 		return FALSE;
