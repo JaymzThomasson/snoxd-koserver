@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+#include "Map.h"
+#include "EbenezerDlg.h"
 
 void CUser::ItemRepair(Packet & pkt)
 {
@@ -116,7 +118,7 @@ void CUser::KissUser()
 void CUser::ClassChange(Packet & pkt)
 {
 	Packet result(WIZ_CLASS_CHANGE);
-	BOOL bSuccess = FALSE;
+	bool bSuccess = false;
 	uint8 opcode = pkt.read<uint8>();
 	if (opcode == CLASS_CHANGE_REQ)	
 	{
@@ -159,35 +161,35 @@ void CUser::ClassChange(Packet & pkt)
 	{
 	case KARUWARRIOR:
 		if( classcode == BERSERKER || classcode == GUARDIAN )
-			bSuccess = TRUE;
+			bSuccess = true;
 		break;
 	case KARUROGUE:
 		if( classcode == HUNTER || classcode == PENETRATOR )
-			bSuccess = TRUE;
+			bSuccess = true;
 		break;
 	case KARUWIZARD:
 		if( classcode == SORSERER || classcode == NECROMANCER )
-			bSuccess = TRUE;
+			bSuccess = true;
 		break;
 	case KARUPRIEST:
 		if( classcode == SHAMAN || classcode == DARKPRIEST )
-			bSuccess = TRUE;
+			bSuccess = true;
 		break;
 	case ELMORWARRRIOR:
 		if( classcode == BLADE || classcode == PROTECTOR )
-			bSuccess = TRUE;
+			bSuccess = true;
 		break;
 	case ELMOROGUE:
 		if( classcode == RANGER || classcode == ASSASSIN )
-			bSuccess = TRUE;
+			bSuccess = true;
 		break;
 	case ELMOWIZARD:
 		if( classcode == MAGE || classcode == ENCHANTER )
-			bSuccess = TRUE;
+			bSuccess = true;
 		break;
 	case ELMOPRIEST:
 		if( classcode == CLERIC || classcode == DRUID )
-			bSuccess = TRUE;
+			bSuccess = true;
 		break;
 	}
 

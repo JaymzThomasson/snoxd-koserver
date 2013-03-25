@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Define.h"
+#include "../shared/KOSocketMgr.h"
 
 typedef std::map <std::string, _VERSION_INFO *> VersionInfoList;
-typedef std::vector <_SERVER_INFO *>	ServerInfoList;
+typedef std::vector<_SERVER_INFO *>	ServerInfoList;
 
 class LoginSession;
 class LoginServer
@@ -39,7 +39,6 @@ private:
 	VersionInfoList		m_VersionList;
 	ServerInfoList		m_ServerList;
 
-	CIni m_Ini;
 	News m_news;
 
 	RWLock m_serverListLock, m_patchListLock;

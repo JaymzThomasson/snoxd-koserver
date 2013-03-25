@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+#include "Map.h"
+#include "EbenezerDlg.h"
 
 void CUser::MoveProcess(Packet & pkt)
 {
@@ -13,7 +15,7 @@ void CUser::MoveProcess(Packet & pkt)
 	pkt >> will_x >> will_z >> will_y >> speed >> echo;
 	real_x = will_x/10.0f; real_z = will_z/10.0f; real_y = will_y/10.0f;
 
-	if (GetMap()->IsValidPosition(real_x, real_z, real_y) == FALSE) 
+	if (!GetMap()->IsValidPosition(real_x, real_z, real_y)) 
 		return;
 
 	// TO-DO: Ensure this is checked properly to prevent speedhacking
@@ -37,6 +39,13 @@ void CUser::MoveProcess(Packet & pkt)
 	result.Initialize(AG_USER_MOVE);
 	result << GetSocketID() << m_curx << m_curz << m_cury << speed;
 	g_pMain.Send_AIServer(&result);
+}
+
+void CUser::AddToRegion(int16 new_region_x, int16 new_region_z)
+{
+	GetRegion()->Remove(this);
+	SetRegion(new_region_x, new_region_z);
+	GetRegion()->Add(this);
 }
 
 void CUser::GetInOut(Packet & result, uint8 bType)
@@ -141,7 +150,7 @@ void CUser::Rotate(Packet & pkt)
 
 void CUser::ZoneChange(int zone, float x, float z)
 {
-	m_bZoneChangeFlag = TRUE;
+	m_bZoneChangeFlag = true;
 
 	C3DMap* pMap = NULL;
 	_ZONE_SERVERINFO *pInfo = NULL;
@@ -249,8 +258,8 @@ void CUser::ZoneChange(int zone, float x, float z)
 	result << GetSocketID() << GetZoneID();
 	g_pMain.Send_AIServer(&result);
 
-	m_bZoneChangeSameZone = FALSE;
-	m_bZoneChangeFlag = FALSE;
+	m_bZoneChangeSameZone = false;
+	m_bZoneChangeFlag = false;
 }
 
 void CUser::Warp(uint16 sPosX, uint16 sPosZ)

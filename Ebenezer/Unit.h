@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Define.h"
+
 /**
  * This class is a bridge between the CNpc & CUser classes
  * Currently it's excessively messier than it needs to be, 
@@ -9,6 +11,9 @@
  * This will be written out eventually, so we can do this properly.
  **/
 struct _MAGIC_TABLE;
+class CRegion;
+class C3DMap;
+class Packet;
 class Unit
 {
 public:
@@ -46,11 +51,7 @@ public:
 	__forceinline uint16 GetNewRegionZ() { return (uint16)(GetZ()) / VIEW_DISTANCE; }
 
 	__forceinline CRegion * GetRegion() { return m_pRegion; }
-	__forceinline void SetRegion(uint16 x = -1, uint16 z = -1) 
-	{
-		m_sRegionX = x; m_sRegionZ = z; 
-		m_pRegion = m_pMap->GetRegion(x, z); // TO-DO: Clean this up
-	}
+	void SetRegion(uint16 x = -1, uint16 z = -1);
 
 	virtual const char * GetName() = 0; // this is especially fun...
 
@@ -65,6 +66,7 @@ public:
 	virtual void GetInOut(Packet & result, uint8 bType) = 0;
 
 	bool RegisterRegion();
+	virtual void AddToRegion(int16 new_region_x, int16 new_region_z) = 0;
 	void RemoveRegion(int16 del_x, int16 del_z);
 	void InsertRegion(int16 insert_x, int16 insert_z);
 
@@ -84,6 +86,8 @@ public:
 
 	void InitType3();
 	void InitType4();
+
+	virtual void StateChangeServerDirect(uint8 bType, uint32 nBuff) {}
 
 	void OnDeath(Unit *pKiller);
 	void SendDeathAnimation();
@@ -109,36 +113,36 @@ public:
 	float	m_sTotalEvasionrate;
 
 	short   m_sACAmount;
-	BYTE    m_bAttackAmount;
+	uint8    m_bAttackAmount;
 	short	m_sMagicAttackAmount;
 	short	m_sMaxHPAmount, m_sMaxMPAmount;
-	BYTE	m_bHitRateAmount;
+	uint8	m_bHitRateAmount;
 	short	m_sAvoidRateAmount;
 
-	BYTE	m_bAttackSpeedAmount;
-	BYTE    m_bSpeedAmount;
+	uint8	m_bAttackSpeedAmount;
+	uint8   m_bSpeedAmount;
 
 	// these are actually player-specific, but I don't see much of a problem with them being here.
-	BYTE	m_bExpGainAmount;
-	BYTE	m_bMaxWeightAmount; 
+	uint8	m_bExpGainAmount;
+	uint8	m_bMaxWeightAmount; 
 
-	BYTE	m_bFireR;
-	BYTE	m_bFireRAmount;
-	BYTE	m_bColdR;
-	BYTE	m_bColdRAmount;
-	BYTE	m_bLightningR;
-	BYTE	m_bLightningRAmount;
-	BYTE	m_bMagicR;
-	BYTE	m_bMagicRAmount;
-	BYTE	m_bDiseaseR;
-	BYTE	m_bDiseaseRAmount;
-	BYTE	m_bPoisonR;
-	BYTE	m_bPoisonRAmount;	
+	uint8	m_bFireR;
+	uint8	m_bFireRAmount;
+	uint8	m_bColdR;
+	uint8	m_bColdRAmount;
+	uint8	m_bLightningR;
+	uint8	m_bLightningRAmount;
+	uint8	m_bMagicR;
+	uint8	m_bMagicRAmount;
+	uint8	m_bDiseaseR;
+	uint8	m_bDiseaseRAmount;
+	uint8	m_bPoisonR;
+	uint8	m_bPoisonRAmount;	
 
 	uint8	m_bResistanceBonus;
 
-	BYTE    m_bMagicTypeLeftHand;			// The type of magic item in user's left hand  
-	BYTE    m_bMagicTypeRightHand;			// The type of magic item in user's right hand
+	uint8   m_bMagicTypeLeftHand;			// The type of magic item in user's left hand  
+	uint8   m_bMagicTypeRightHand;			// The type of magic item in user's right hand
 	short   m_sMagicAmountLeftHand;         // The amount of magic item in user's left hand
 	short	m_sMagicAmountRightHand;        // The amount of magic item in user's left hand
 
@@ -155,13 +159,13 @@ public:
 	uint8	m_bHPDuration[MAX_TYPE3_REPEAT];
 	uint8	m_bHPInterval[MAX_TYPE3_REPEAT];
 	short	m_sSourceID[MAX_TYPE3_REPEAT];
-	BOOL	m_bType3Flag;
+	bool	m_bType3Flag;
 
 	short   m_sDuration[MAX_TYPE4_BUFF];
 	time_t	m_tStartTime[MAX_TYPE4_BUFF];
 
-	BYTE	m_bType4Buff[MAX_TYPE4_BUFF];
-	BOOL	m_bType4Flag;
+	uint8	m_bType4Buff[MAX_TYPE4_BUFF];
+	bool	m_bType4Flag;
 
 	bool	m_bCanStealth;
 	uint8	m_bReflectArmorType;

@@ -1,28 +1,12 @@
 #pragma once
 
 #include "../shared/database/OdbcConnection.h"
-#include "../shared/packets.h"
 
 enum UserUpdateType
 {
 	UPDATE_LOGOUT,
 	UPDATE_ALL_SAVE,
 	UPDATE_PACKET_SAVE,
-};
-
-struct _RENTAL_ITEM
-{
-	uint32	nRentalIndex;
-	uint32	nItemID;
-	uint16	sDurability;
-	uint64	nSerialNum;
-	uint8	byRegType;
-	uint8	byItemType;
-	uint8	byClass;
-	uint16	sRentalTime;
-	uint32	nRentalMoney;
-	std::string strLenderCharID;
-	std::string strBorrowerCharID;
 };
 
 enum RentalType
@@ -56,7 +40,7 @@ struct _ITEM_DATA;
 class CDBAgent  
 {
 public:
-	CDBAgent() {}
+	CDBAgent();
 
 	bool Startup();
 	bool Connect();
@@ -116,8 +100,10 @@ public:
 	int8 GetItemFromLetter(std::string & strCharID, uint32 nLetterID, uint32 & nItemID, uint16 & sCount, uint16 & sDurability, uint32 & nCoins, uint64 & nSerialNum);
 	void DeleteLetter(std::string & strCharID, uint32 nLetterID);
 
+	~CDBAgent();
+
 private:
-	OdbcConnection m_GameDB, m_AccountDB;
+	OdbcConnection *m_GameDB, *m_AccountDB;
 	FastMutex m_lock;
 
 	friend class CEbenezerDlg;

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "../N3Base/N3ShapeMgr.h"
+#include "STLMap.h"
 #include "database/structs.h"
 #include "SMDFile.h"
 
@@ -151,7 +152,7 @@ void SMDFile::GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries)
 	}
 }
 
-BOOL SMDFile::IsValidPosition(float x, float z, float y)
+bool SMDFile::IsValidPosition(float x, float z, float y)
 {
 	// TO-DO: Implement more thorough check
 	return (x < m_N3ShapeMgr.Width() && z < m_N3ShapeMgr.Height());
@@ -243,7 +244,7 @@ int SMDFile::GetEventID(int x, int z)
 	return m_ppnEvent[x * m_nMapSize + z];
 }
 
-BOOL SMDFile::ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2)
+bool SMDFile::ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2)
 {
 	__Vector3	vec1(x1, y1, z1), vec2(x2, y2, z2);
 	__Vector3	vDir = vec2 - vec1;

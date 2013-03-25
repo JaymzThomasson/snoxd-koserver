@@ -33,7 +33,7 @@ bool CGameSocket::HandlePacket(Packet & pkt)
 {
 	switch (pkt.GetOpcode())
 	{
-	case SERVER_CONNECT:
+	case AI_SERVER_CONNECT:
 		RecvServerConnect(pkt);
 		break;
 	case AG_USER_INFO:
@@ -108,7 +108,7 @@ void CGameSocket::RecvServerConnect(Packet & pkt)
 	uint8 byReconnect = pkt.read<uint8>();
 	printf("[GameServer connected - %s]\n", GetRemoteIP().c_str());
 
-	Packet result(SERVER_CONNECT, byReconnect);
+	Packet result(AI_SERVER_CONNECT, byReconnect);
 	Send(&result);
 
 	if (byReconnect == 1)

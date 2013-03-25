@@ -1,9 +1,12 @@
 #include "StdAfx.h"
+#include "EbenezerDlg.h"
+
+using namespace std;
 
 void CUser::PartyProcess(Packet & pkt)
 {
 	// TO-DO: Clean this entire system up.
-	std::string strUserID;
+	string strUserID;
 	CUser *pUser;
 	uint8 opcode = pkt.read<uint8>();
 	switch (opcode)
@@ -72,7 +75,7 @@ void CUser::PartyCancel()
 	pUser->Send(&result);
 }
 
-void CUser::PartyRequest(int memberid, BOOL bCreate)
+void CUser::PartyRequest(int memberid, bool bCreate)
 {
 	Packet result;
 	int16 errorCode = -1, i=0;

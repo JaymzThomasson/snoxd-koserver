@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "../WindowsHeaders.h"
 #include "OdbcConnection.h"
 
 OdbcCommand::OdbcCommand(HDBC conn)

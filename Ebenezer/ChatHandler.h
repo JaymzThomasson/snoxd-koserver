@@ -2,6 +2,7 @@
 
 #define COMMAND_HANDLER(name) bool name (CommandArgs & vargs, const char *args, const char *description)
 
+#include <list>
 typedef std::list<std::string> CommandArgs;
 
 template <class T>
@@ -54,6 +55,8 @@ static std::list<std::string> StrSplit(const std::string &src, const std::string
 	return r;
 }
 
+#include <map>
+class CEbenezerDlg;
 typedef std::map<std::string, Command<CUser> *> ChatCommandTable;
 typedef std::map<std::string, Command<CEbenezerDlg> *> ServerCommandTable;
 

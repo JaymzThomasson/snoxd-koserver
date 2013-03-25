@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "SocketMgr.h"
 
 Socket::Socket(SOCKET fd, uint32 sendbuffersize, uint32 recvbuffersize) 
 	: m_fd(fd), m_connected(false),	m_deleted(false), m_socketMgr(NULL)

@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#include "Region.h"
+#include "User.h"
+#include "Npc.h"
 
 // this should be replaced
 extern CRITICAL_SECTION g_region_critical;

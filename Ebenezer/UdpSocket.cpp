@@ -114,7 +114,7 @@ bool CUdpSocket::PacketProcess(int len)
 
 	memcpy( pTmp, m_pRecvBuf, len );
 
-	foundCore = FALSE;
+	foundCore = false;
 
 	int	sPos=0, ePos = 0;
 

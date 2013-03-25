@@ -1,4 +1,10 @@
 #include "stdafx.h"
+#include "resource.h"
+
+#include "Knights.h"
+#include "EbenezerDlg.h"
+
+using std::string;
 
 CKnights::CKnights()
 {

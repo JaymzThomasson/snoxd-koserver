@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#include "Map.h"
+
+#include "EbenezerDlg.h"
 
 void CUser::Attack(Packet & pkt)
 {
@@ -64,7 +67,7 @@ void CUser::Attack(Packet & pkt)
 	else if (tid >= NPC_BAND)
 	{
 		// AI hasn't loaded yet
-		if (g_pMain.m_bPointCheckFlag == FALSE)	
+		if (g_pMain.m_bPointCheckFlag == false)	
 			return;	
 
 		CNpc *pNpc = g_pMain.m_arNpcArray.GetData(tid);		

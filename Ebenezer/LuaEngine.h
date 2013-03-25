@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../shared/types.h"
+
 #define LUA_SCRIPT_DIRECTORY	"./quests/"
 #define LUA_SCRIPT_ENTRY_POINT	"Main"
 #define LUA_SCRIPT_GLOBAL_USER	"pUser"
@@ -16,6 +18,7 @@ extern "C" {
 
 class CUser;
 class CNpc;
+class FastMutex;
 class CLuaScript
 {
 public:
@@ -26,7 +29,7 @@ public:
 
 private:
 	lua_State * m_luaState;
-	FastMutex m_lock;
+	FastMutex * m_lock;
 };
 
 class CLuaEngine

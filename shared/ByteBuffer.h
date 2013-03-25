@@ -153,7 +153,7 @@ public:
 			return;
 
 		// 10MB is far more than you'll ever need.
-		ASSERT(size() < 10000000);
+		assert(size() < 10000000);
 
 		if (_storage.size() < _wpos + cnt)
 			_storage.resize(_wpos + cnt);
@@ -165,13 +165,13 @@ public:
 	void append(const ByteBuffer& buffer) { if (buffer.size() > 0) append(buffer.contents(), buffer.size()); }
 	void append(const ByteBuffer& buffer, size_t len)
 	{ 
-		ASSERT(buffer._rpos + len <= buffer.size());
+		assert(buffer._rpos + len <= buffer.size());
 		append(buffer.contents() + buffer._rpos, len); 
 	}
 
 	void put(size_t pos, const void *src, size_t cnt) 
 	{
-		ASSERT(pos + cnt <= size());
+		assert(pos + cnt <= size());
 		memcpy(&_storage[pos], src, cnt);
 	}
 

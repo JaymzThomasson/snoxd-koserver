@@ -1,15 +1,16 @@
 #pragma once
 
+#include "LuaEngine.h"
+#include "../shared/KOSocket.h"
+
+#include "Unit.h"
+#include "ChatHandler.h"
 #include "MagicProcess.h"
 
-#include <list>
-#include <vector>
-
-#include "ChatHandler.h"
-
-typedef	 std::list<_EXCHANGE_ITEM*>		ItemList;
-typedef	 std::map<uint32, time_t>		SkillCooldownList;
-typedef std::map<uint32, time_t>		UserSavedMagicMap;
+struct _EXCHANGE_ITEM;
+typedef	std::list<_EXCHANGE_ITEM*>		ItemList;
+typedef	std::map<uint32, time_t>		SkillCooldownList;
+typedef	std::map<uint32, time_t>		UserSavedMagicMap;
 
 #define BANISH_DELAY_TIME    30
 
@@ -32,6 +33,8 @@ enum MerchantState
 	MERCHANT_STATE_SELLING	= 0,
 	MERCHANT_STATE_BUYING	= 1
 };
+
+#include "GameDefine.h"
 
 class CEbenezerDlg;
 class CUser : public Unit, public KOSocket
@@ -169,13 +172,13 @@ public:
 
 	time_t	m_tLastTrapAreaTime;		// The last moment you were in the trap area.
 
-	BOOL	m_bZoneChangeFlag;
+	bool	m_bZoneChangeFlag;
 
 	BYTE	m_bRegeneType;				// Did you die and go home or did you type '/town'?
 
 	time_t	m_tLastRegeneTime;			// The last moment you got resurrected.
 
-	BOOL	m_bZoneChangeSameZone;		// Did the server change when you warped?
+	bool	m_bZoneChangeSameZone;		// Did the server change when you warped?
 
 	bool	m_bIsBlinded;
 	bool	m_bInstantCast;
@@ -204,10 +207,10 @@ public:
 	__forceinline bool isClanAssistant() { return getFame() == VICECHIEF; }
 	__forceinline bool isPartyLeader() { return isInParty() && m_bPartyLeader; }
 
-	__forceinline bool isWarrior() { return JobGroupCheck(1) == TRUE; }
-	__forceinline bool isRogue() { return JobGroupCheck(2) == TRUE; }
-	__forceinline bool isMage() { return JobGroupCheck(3) == TRUE; }
-	__forceinline bool isPriest() { return JobGroupCheck(4) == TRUE; }
+	__forceinline bool isWarrior() { return JobGroupCheck(1); }
+	__forceinline bool isRogue() { return JobGroupCheck(2); }
+	__forceinline bool isMage() { return JobGroupCheck(3); }
+	__forceinline bool isPriest() { return JobGroupCheck(4); }
 
 	__forceinline bool isTrading() { return m_sExchangeUser != -1; }
 	__forceinline bool isStoreOpen() { return m_bStoreOpen; }
@@ -323,23 +326,25 @@ public:
 	virtual void OnDisconnect();
 	virtual bool HandlePacket(Packet & pkt);
 
+	virtual void AddToRegion(int16 new_region_x, int16 new_region_z);
+
 	void SendLoyaltyChange(int32 nChangeAmount = 0);
 
 	void NativeZoneReturn();
-	void KickOutZoneUser(BOOL home = FALSE, int nZoneID = 21);
+	void KickOutZoneUser(bool home = false, int nZoneID = 21);
 	void TrapProcess();
-	BOOL JobGroupCheck(short jobgroupid);
+	bool JobGroupCheck(short jobgroupid);
 	void SelectMsg(uint8 bFlag, int32 nQuestID, int32 menuHeaderText, 
 		int32 menuButtonText[MAX_MESSAGE_EVENT], int32 menuButtonEvents[MAX_MESSAGE_EVENT]);
-	BOOL CheckClass(short class1, short class2 = -1, short class3 = -1, short class4 = -1, short class5 = -1, short class6 = -1);
+	bool CheckClass(short class1, short class2 = -1, short class3 = -1, short class4 = -1, short class5 = -1, short class6 = -1);
 	bool GiveItem(uint32 nItemID, uint16 sCount = 1, bool send_packet = true);
 	bool RobItem(uint32 nItemID, uint16 sCount);
-	BOOL CheckExistItem(int itemid, short count);
-	BOOL CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,
+	bool CheckExistItem(int itemid, short count);
+	bool CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,
 		int32 nItemID3, int16 sCount3, int32 nItemID4, int16 sCount4, int32 nItemID5, int16 sCount5);
-	BOOL CheckWeight(int itemid, short count);
-	BOOL CheckSkillPoint(BYTE skillnum, BYTE min, BYTE max);
-	BOOL GoldLose(unsigned int gold);
+	bool CheckWeight(int itemid, short count);
+	bool CheckSkillPoint(BYTE skillnum, BYTE min, BYTE max);
+	bool GoldLose(unsigned int gold);
 	void GoldGain(int gold);
 	void SendItemWeight();
 	void UpdateVisibility(InvisibilityType bNewType);
@@ -363,7 +368,7 @@ public:
 	void Dead();
 	void LoyaltyDivide( short tid );
 	void GetUserInfoForAI(Packet & result);
-	BOOL ItemEquipAvailable( _ITEM_TABLE* pTable );
+	bool ItemEquipAvailable( _ITEM_TABLE* pTable );
 	virtual void HpChange(int amount, Unit *pAttacker = NULL, bool bSendToAI = true);
 	virtual void MSpChange(int amount);
 	void SendPartyHPUpdate();
@@ -423,14 +428,14 @@ public:
 	void PointChange(Packet & pkt);
 
 	void StateChange(Packet & pkt);
-	void StateChangeServerDirect(BYTE bType, uint32 nBuff);
+	virtual void StateChangeServerDirect(BYTE bType, uint32 nBuff);
 
 	void PartyProcess(Packet & pkt);
 	void PartyDelete();
 	void PartyRemove( int memberid );
 	void PartyInsert();
 	void PartyCancel();
-	void PartyRequest( int memberid, BOOL bCreate );
+	void PartyRequest( int memberid, bool bCreate );
 
 	// Trade system
 	void ExchangeProcess(Packet & pkt);
@@ -440,8 +445,8 @@ public:
 	void ExchangeDecide();
 	void ExchangeCancel();
 
-	void InitExchange(BOOL bStart);
-	BOOL ExecuteExchange();
+	void InitExchange(bool bStart);
+	bool ExecuteExchange();
 	int ExchangeDone();
 
 	// Merchant system (both types)
@@ -471,10 +476,10 @@ public:
 	void SkillPointChange(Packet & pkt);
 
 	void ObjectEvent(Packet & pkt);
-	BOOL BindObjectEvent(_OBJECT_EVENT *pEvent);
-	BOOL GateLeverObjectEvent(_OBJECT_EVENT *pEvent, int nid);
-	BOOL FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid);
-	BOOL WarpListObjectEvent(_OBJECT_EVENT *pEvent);
+	bool BindObjectEvent(_OBJECT_EVENT *pEvent);
+	bool GateLeverObjectEvent(_OBJECT_EVENT *pEvent, int nid);
+	bool FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid);
+	bool WarpListObjectEvent(_OBJECT_EVENT *pEvent);
 
 	void UpdateGameWeather(Packet & pkt);
 
@@ -500,7 +505,7 @@ public:
 	BYTE GetFriendStatus(std::string & charName, int16 & sid);
 
 	void SelectWarpList(Packet & pkt);
-	BOOL GetWarpList( int warp_group );
+	bool GetWarpList( int warp_group );
 
 	void ServerChangeOk(Packet & pkt);
 
@@ -560,9 +565,9 @@ public:
 	void ChangeNP(short sAmount, bool bDistributeToParty = true);
 	void ZoneChange( int zone, float x, float z );
 	void SendTargetHP( BYTE echo, int tid, int damage = 0 );
-	BOOL IsValidSlotPos( _ITEM_TABLE* pTable, int destpos );
+	bool IsValidSlotPos( _ITEM_TABLE* pTable, int destpos );
 	void SetUserAbility(bool bSendPacket = true);
-	void LevelChange(short level, BYTE type=TRUE);	// type : TRUE => level up, FALSE => level down
+	void LevelChange(short level, bool bLevelUp = true);
 	void SetSlotItemValue();
 	void SendTimeStatus(); // TO-DO: Deprecate
 	void SendTime();

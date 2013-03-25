@@ -60,7 +60,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <PreprocessorDefinitions>WIN32;AI_SERVER;NDEBUG;_WINDOWS;_3DSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;AI_SERVER;NDEBUG;_WINDOWS;_3DSERVER;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -108,7 +108,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;AI_SERVER;_DEBUG;_WINDOWS;_3DSERVER;_REPENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;AI_SERVER;_DEBUG;_WINDOWS;_3DSERVER;_REPENT;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp" />
     <ClCompile Include="..\shared\CircularBuffer.cpp" />
+    <ClCompile Include="..\shared\Condition.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
     <ClCompile Include="..\shared\database\OdbcCommand.cpp" />
     <ClCompile Include="..\shared\database\OdbcConnection.cpp" />
@@ -156,6 +157,8 @@
     <ClCompile Include="..\shared\JvCryption.cpp" />
     <ClCompile Include="..\shared\KOSocket.cpp" />
     <ClCompile Include="..\shared\lzf.cpp" />
+    <ClCompile Include="..\shared\Mutex.cpp" />
+    <ClCompile Include="..\shared\RWLock.cpp" />
     <ClCompile Include="..\shared\SMDFile.cpp" />
     <ClCompile Include="..\shared\Socket.cpp" />
     <ClCompile Include="..\shared\SocketMgr.cpp" />
@@ -244,6 +247,7 @@
     <ClInclude Include="..\N3BASE\My_3DStruct.h" />
     <ClInclude Include="..\N3BASE\N3ShapeMgr.h" />
     <ClInclude Include="..\shared\CircularBuffer.h" />
+    <ClInclude Include="..\shared\Condition.h" />
     <ClInclude Include="..\shared\crc32.h" />
     <ClInclude Include="..\shared\database\MagicTableSet.h" />
     <ClInclude Include="..\shared\database\MagicType1Set.h" />
@@ -269,6 +273,8 @@
     <ClInclude Include="..\shared\KOSocketMgr.h" />
     <ClInclude Include="..\shared\ListenSocket.h" />
     <ClInclude Include="..\shared\lzf.h" />
+    <ClInclude Include="..\shared\Mutex.h" />
+    <ClInclude Include="..\shared\RWLock.h" />
     <ClInclude Include="..\shared\SMDFile.h" />
     <ClInclude Include="..\shared\Socket.h" />
     <ClInclude Include="..\shared\SocketDefines.h" />

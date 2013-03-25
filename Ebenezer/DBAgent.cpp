@@ -1,6 +1,21 @@
 #include "stdafx.h"
+#include "../shared/database/OdbcConnection.h"
+#include "EbenezerDlg.h"
 
+using std::string;
 using std::auto_ptr;
+
+CDBAgent::CDBAgent()
+{
+	m_GameDB = new OdbcConnection();
+	m_AccountDB = new OdbcConnection();
+}
+
+CDBAgent::~CDBAgent()
+{
+	delete m_GameDB;
+	delete m_AccountDB;
+}
 
 bool CDBAgent::Startup()
 {
@@ -26,15 +41,15 @@ bool CDBAgent::Startup()
 
 bool CDBAgent::Connect()
 {
-	if (!m_AccountDB.Connect(g_pMain.m_strAccountDSN, g_pMain.m_strAccountUID, g_pMain.m_strAccountPWD, g_pMain.m_bMarsEnabled))
+	if (!m_AccountDB->Connect(g_pMain.m_strAccountDSN, g_pMain.m_strAccountUID, g_pMain.m_strAccountPWD, g_pMain.m_bMarsEnabled))
 	{
-		ReportSQLError(m_AccountDB.GetError());
+		ReportSQLError(m_AccountDB->GetError());
 		return false;
 	}
 
-	if (!m_GameDB.Connect(g_pMain.m_strGameDSN, g_pMain.m_strGameUID, g_pMain.m_strGamePWD, g_pMain.m_bMarsEnabled))
+	if (!m_GameDB->Connect(g_pMain.m_strGameDSN, g_pMain.m_strGameUID, g_pMain.m_strGamePWD, g_pMain.m_bMarsEnabled))
 	{
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 		return false;
 	}
 
@@ -65,7 +80,7 @@ void CDBAgent::ReportSQLError(OdbcError *pError)
 int8 CDBAgent::AccountLogin(string & strAccountID, string & strPasswd)
 {
 	int16 nRet = 0;
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
@@ -74,7 +89,7 @@ int8 CDBAgent::AccountLogin(string & strAccountID, string & strPasswd)
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
 	if (!dbCommand->Execute(_T("{CALL ACCOUNT_LOGIN(?, ?, ?)}")))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	return (int8)(nRet - 1);
 }
@@ -82,7 +97,7 @@ int8 CDBAgent::AccountLogin(string & strAccountID, string & strPasswd)
 uint8 CDBAgent::NationSelect(string & strAccountID, uint8 bNation)
 {
 	int16 nRet = 0;
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
@@ -90,7 +105,7 @@ uint8 CDBAgent::NationSelect(string & strAccountID, uint8 bNation)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strAccountID.c_str(), strAccountID.length());
 
 	if (!dbCommand->Execute(string_format(_T("{CALL NATION_SELECT(?, ?, %d)}"), bNation)))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	return (nRet > 0 ? bNation : 0);
 }
@@ -98,7 +113,7 @@ uint8 CDBAgent::NationSelect(string & strAccountID, uint8 bNation)
 bool CDBAgent::GetAllCharID(string & strAccountID, string & strCharID1, string & strCharID2, string & strCharID3)
 {
 	int16 nRet = 0;
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
@@ -106,7 +121,7 @@ bool CDBAgent::GetAllCharID(string & strAccountID, string & strCharID1, string &
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strAccountID.c_str(), strAccountID.length());
 
 	if (!dbCommand->Execute(_T("{? = CALL LOAD_ACCOUNT_CHARID(?)}")))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	if (dbCommand->hasData())
 	{
@@ -128,7 +143,7 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 
 	if (strCharID.length() > 0)
 	{
-		auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+		auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 		if (dbCommand.get() == NULL)
 			return;
 
@@ -136,7 +151,7 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 		dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
 		if (!dbCommand->Execute(_T("{CALL LOAD_CHAR_INFO (?, ?)}")))
-			ReportSQLError(m_GameDB.GetError());
+			ReportSQLError(m_GameDB->GetError());
 
 		if (dbCommand->hasData())
 		{
@@ -168,7 +183,7 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 int8 CDBAgent::CreateNewChar(string & strAccountID, int index, string & strCharID, uint8 bRace, uint16 sClass, uint32 nHair, uint8 bFace, uint8 bStr, uint8 bSta, uint8 bDex, uint8 bInt, uint8 bCha)
 {
 	int16 nRet = -1;
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return (int8)(nRet);
 
@@ -178,7 +193,7 @@ int8 CDBAgent::CreateNewChar(string & strAccountID, int index, string & strCharI
 
 	if (!dbCommand->Execute(string_format(_T("{CALL CREATE_NEW_CHAR (?, ?, %d, ?, %d, %d, %d, %d, %d, %d, %d, %d, %d)}"), 
 		index, bRace, sClass, nHair, bFace, bStr, bSta, bDex, bInt, bCha)))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	return (int8)(nRet);
 }
@@ -186,7 +201,7 @@ int8 CDBAgent::CreateNewChar(string & strAccountID, int index, string & strCharI
 int8 CDBAgent::ChangeHair(std::string & strAccountID, std::string & strCharID, uint8 bOpcode, uint8 bFace, uint32 nHair)
 {
 	int8 nRet = 1; // failed
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return nRet;
 
@@ -196,7 +211,7 @@ int8 CDBAgent::ChangeHair(std::string & strAccountID, std::string & strCharID, u
 
 	if (!dbCommand->Execute(string_format(_T("{CALL CHANGE_HAIR (?, ?, %d, %d, %d, ?)}"), 
 		bOpcode, bFace, nHair)))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	return nRet;
 }
@@ -204,7 +219,7 @@ int8 CDBAgent::ChangeHair(std::string & strAccountID, std::string & strCharID, u
 int8 CDBAgent::DeleteChar(string & strAccountID, int index, string & strCharID, string & strSocNo)
 {
 	int16 nRet = -2; // generic error
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return (int8)(nRet);
 
@@ -214,21 +229,21 @@ int8 CDBAgent::DeleteChar(string & strAccountID, int index, string & strCharID, 
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
 	if (!dbCommand->Execute(string_format(_T("{CALL DELETE_CHAR (?, %d, ?, ?, ?)}"), index)))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	return (int8)(nRet);
 }
 
 void CDBAgent::LoadRentalData(string & strAccountID, string & strCharID, UserRentalMap & rentalData)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strAccountID.c_str(), strAccountID.length());
 	if (!dbCommand->Execute(_T("{CALL LOAD_RENTAL_DATA(?)}")))
 	{
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 		return;
 	}
 
@@ -272,7 +287,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 {
 	uint16 nRet = 0;
 
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
@@ -288,7 +303,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
 	if (!dbCommand->Execute(_T("{CALL LOAD_USER_DATA(?, ?, ?)}")))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	if (!dbCommand->hasData())
 		return false;
@@ -470,7 +485,7 @@ bool CDBAgent::LoadWarehouseData(string & strAccountID, CUser *pUser)
 	uint16 nRet = 0;
 	char strItem[WAREHOUSE_MAX * 8], strSerial[WAREHOUSE_MAX * 8];
 
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
@@ -481,7 +496,7 @@ bool CDBAgent::LoadWarehouseData(string & strAccountID, CUser *pUser)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strAccountID.c_str(), strAccountID.length());
 
 	if (!dbCommand->Execute(_T("SELECT nMoney, WarehouseData, strSerial FROM WAREHOUSE WHERE strAccountID = ?")))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	if (!dbCommand->hasData())
 		return false;
@@ -531,7 +546,7 @@ bool CDBAgent::LoadPremiumServiceUser(string & strAccountID, CUser *pUser)
 	if (pUser == NULL)
 		return false;
 
-	auto_ptr<OdbcCommand> dbCommand(m_AccountDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_AccountDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
@@ -540,7 +555,7 @@ bool CDBAgent::LoadPremiumServiceUser(string & strAccountID, CUser *pUser)
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &pUser->m_sPremiumTime);
 
 	if (!dbCommand->Execute(_T("{CALL LOAD_PREMIUM_SERVICE_USER(?, ?, ?)}")))
-		ReportSQLError(m_AccountDB.GetError());
+		ReportSQLError(m_AccountDB->GetError());
 
 	// this is hardcoded because we don't really care about the other mode
 	if (pUser->m_bPremiumType != 0 && pUser->m_sPremiumTime != 0)
@@ -554,7 +569,7 @@ bool CDBAgent::LoadSavedMagic(CUser *pUser)
 	if (pUser == NULL)
 		return false;
 
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
@@ -563,7 +578,7 @@ bool CDBAgent::LoadSavedMagic(CUser *pUser)
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 	if (!dbCommand->Execute(_T("{CALL LOAD_SAVED_MAGIC(?, ?)}")))
 	{
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 		return false;
 	}
 
@@ -590,7 +605,7 @@ bool CDBAgent::UpdateSavedMagic(CUser *pUser)
 	if (pUser == NULL)
 		return false;
 
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 	
@@ -613,7 +628,7 @@ bool CDBAgent::UpdateSavedMagic(CUser *pUser)
 		nSkillID[0], tExpiryTime[0], nSkillID[1], tExpiryTime[1], nSkillID[2], tExpiryTime[2], nSkillID[3], tExpiryTime[3], nSkillID[4], tExpiryTime[4],
 		nSkillID[5], tExpiryTime[5], nSkillID[6], tExpiryTime[6], nSkillID[7], tExpiryTime[7], nSkillID[8], tExpiryTime[8], nSkillID[9], tExpiryTime[9])))
 	{
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 		return false;
 	}
 	
@@ -623,7 +638,7 @@ bool CDBAgent::UpdateSavedMagic(CUser *pUser)
 bool CDBAgent::SetLogInInfo(string & strAccountID, string & strCharID, string & strServerIP, short sServerNo, string & strClientIP, uint8 bInit)
 {
 	bool result = false;
-	auto_ptr<OdbcCommand> dbCommand(m_AccountDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_AccountDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return result;
 
@@ -645,7 +660,7 @@ bool CDBAgent::SetLogInInfo(string & strAccountID, string & strCharID, string & 
 	}
 
 	if (!dbCommand->Execute(szSQL))
-		ReportSQLError(m_AccountDB.GetError());
+		ReportSQLError(m_AccountDB->GetError());
 	else
 		result = true;
 
@@ -654,13 +669,13 @@ bool CDBAgent::SetLogInInfo(string & strAccountID, string & strCharID, string & 
 
 bool CDBAgent::LoadWebItemMall(Packet & result, CUser *pUser)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName(), strlen(pUser->GetName()));
 	if (!dbCommand->Execute(_T("{CALL LOAD_WEB_ITEMMALL(?)}")))
-		ReportSQLError(m_AccountDB.GetError());
+		ReportSQLError(m_AccountDB->GetError());
 
 	if (!dbCommand->hasData())
 		return false;
@@ -691,7 +706,7 @@ bool CDBAgent::LoadWebItemMall(Packet & result, CUser *pUser)
 
 bool CDBAgent::LoadSkillShortcut(Packet & result, CUser *pUser)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
@@ -701,7 +716,7 @@ bool CDBAgent::LoadSkillShortcut(Packet & result, CUser *pUser)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName(), strlen(pUser->GetName()));
 	if (!dbCommand->Execute(_T("{CALL SKILLSHORTCUT_LOAD(?)}")))
 	{
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 		return false;
 	}
 
@@ -720,7 +735,7 @@ bool CDBAgent::LoadSkillShortcut(Packet & result, CUser *pUser)
 
 void CDBAgent::SaveSkillShortcut(short sCount, char *buff, CUser *pUser)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return;
 
@@ -728,18 +743,18 @@ void CDBAgent::SaveSkillShortcut(short sCount, char *buff, CUser *pUser)
 	dbCommand->AddParameter(SQL_PARAM_INPUT, buff, 260);
 
 	if (!dbCommand->Execute(string_format(_T("{CALL SKILLSHORTCUT_SAVE(?, %d, ?)}"), sCount)))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 }
 
 void CDBAgent::RequestFriendList(std::vector<string> & friendList, CUser *pUser)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName(), strlen(pUser->GetName()));
 	if (!dbCommand->Execute(_T("SELECT * FROM FRIEND_LIST WHERE strUserID=?")))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	if (!dbCommand->hasData())
 		return;
@@ -759,7 +774,7 @@ FriendAddResult CDBAgent::AddFriend(short sid, short tid)
 	if (pSrcUser == NULL || pTargetUser == NULL)
 		return FRIEND_ADD_ERROR;
 
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return FRIEND_ADD_ERROR;
 
@@ -770,7 +785,7 @@ FriendAddResult CDBAgent::AddFriend(short sid, short tid)
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
 	if (!dbCommand->Execute(_T("{CALL INSERT_FRIEND_LIST(?, ?, ?)}")))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	if (nRet < 0 || nRet >= FRIEND_ADD_MAX)
 		nRet = FRIEND_ADD_ERROR;
@@ -780,7 +795,7 @@ FriendAddResult CDBAgent::AddFriend(short sid, short tid)
 
 FriendRemoveResult CDBAgent::RemoveFriend(string & strCharID, CUser *pUser)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return FRIEND_REMOVE_ERROR;
 
@@ -791,7 +806,7 @@ FriendRemoveResult CDBAgent::RemoveFriend(string & strCharID, CUser *pUser)
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
 	if (!dbCommand->Execute(_T("{CALL DELETE_FRIEND_LIST(?, ?, ?)")))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	if (nRet < 0 || nRet >= FRIEND_REMOVE_MAX)
 		nRet = FRIEND_REMOVE_MAX;
@@ -804,7 +819,7 @@ bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, CUser *pUser)
 	if (strCharID != pUser->GetName())
 		return false;
 
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
@@ -857,7 +872,7 @@ bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, CUser *pUser)
 		(int)(pUser->m_curx*100), (int)(pUser->m_curz*100), (int)(pUser->m_cury*100), pUser->m_dwTime, pUser->m_questMap.size(), 
 		pUser->m_iMannerPoint, pUser->m_iLoyaltyMonthly)))
 	{
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 		return false;
 	}
 
@@ -869,7 +884,7 @@ bool CDBAgent::UpdateWarehouseData(string & strAccountID, UserUpdateType type, C
 	if (strAccountID.length() == 0)
 		return false;
 	
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
@@ -891,7 +906,7 @@ bool CDBAgent::UpdateWarehouseData(string & strAccountID, UserUpdateType type, C
 
 	if (!dbCommand->Execute(string_format(_T("{CALL UPDATE_WAREHOUSE(?,%d,%d,?,?)}"), pUser->m_iBank, pUser->m_dwTime)))
 	{
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 		return false;
 	}
 
@@ -900,7 +915,7 @@ bool CDBAgent::UpdateWarehouseData(string & strAccountID, UserUpdateType type, C
 
 int8 CDBAgent::CreateKnights(uint16 sClanID, uint8 bNation, string & strKnightsName, string & strChief, uint8 bFlag)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return (int8)(-1);
 
@@ -910,14 +925,14 @@ int8 CDBAgent::CreateKnights(uint16 sClanID, uint8 bNation, string & strKnightsN
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strChief.c_str(), strChief.length());
 
 	if (!dbCommand->Execute(string_format(_T("{call CREATE_KNIGHTS(?,%d,%d,%d,?,?)}"), sClanID, bNation, bFlag)))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	return (int8)(nRet);
 }
 
 int CDBAgent::UpdateKnights(uint8 bType, string & strCharID, uint16 sClanID, uint8 bDomination)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return -1;
 
@@ -927,31 +942,31 @@ int CDBAgent::UpdateKnights(uint8 bType, string & strCharID, uint16 sClanID, uin
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
 
 	if (!dbCommand->Execute(string_format(_T("{CALL UPDATE_KNIGHTS(?,%d,?,%d,%d)}"), bType, sClanID, bDomination)))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	return nRet;
 }
 
 int CDBAgent::DeleteKnights(uint16 sClanID)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	int16 nRet = -1;
 
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 	if (!dbCommand->Execute(string_format(_T("{call DELETE_KNIGHTS (?,%d)}"), sClanID)))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	return nRet;
 }
 
 uint16 CDBAgent::LoadKnightsAllMembers(uint16 sClanID, Packet & result)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return 0;
 
 	if (!dbCommand->Execute(string_format(_T("{CALL LOAD_KNIGHTS_MEMBERS(%d)}"), sClanID)))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	if (!dbCommand->hasData())
 		return 0;
@@ -976,12 +991,12 @@ uint16 CDBAgent::LoadKnightsAllMembers(uint16 sClanID, Packet & result)
 
 bool CDBAgent::LoadKnightsInfo(uint16 sClanID, uint8 & bNation, std::string & strKnightsName, uint16 & sMembers, uint32 & nPoints, uint8 & bRank)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
 	if (!dbCommand->Execute(string_format(_T("SELECT Nation, IDName, Members, Points, Ranking FROM KNIGHTS WHERE IDNum=%d" ), sClanID)))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	if (!dbCommand->hasData())
 		return false;
@@ -997,7 +1012,7 @@ bool CDBAgent::LoadKnightsInfo(uint16 sClanID, uint8 & bNation, std::string & st
 
 void CDBAgent::LoadKnightsAllList(uint8 bNation)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	tstring szSQL;
 
 	if (dbCommand.get() == NULL)
@@ -1010,7 +1025,7 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 		szSQL = string_format(_T("SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Nation=%d AND Points != 0 ORDER BY Points DESC"), bNation); 
 
 	if (!dbCommand->Execute(szSQL))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	if (!dbCommand->hasData())
 		return;
@@ -1056,7 +1071,7 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 
 bool CDBAgent::UpdateClanSymbol(uint16 sClanID, uint16 sSymbolSize, char *clanSymbol)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
@@ -1064,36 +1079,36 @@ bool CDBAgent::UpdateClanSymbol(uint16 sClanID, uint16 sSymbolSize, char *clanSy
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 	dbCommand->AddParameter(SQL_PARAM_INPUT, clanSymbol, MAX_KNIGHTS_MARK, SQL_BINARY);
 	if (!dbCommand->Execute(string_format(_T("{CALL UPDATE_KNIGHTS_MARK(?, %d, %d, ?)}"), sClanID, sSymbolSize)))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 
 	return (nRet == 1);
 }
 
 void CDBAgent::UpdateCape(uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint8 b)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return;
 	
 	if (!dbCommand->Execute(string_format(_T("UPDATE KNIGHTS SET sCape=%d, bCapeR=%d, bCapeG=%d, bCapeB=%d WHERE IDNum=%d"), 
 			sCapeID, r, g, b, sClanID)))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 }
 
 void CDBAgent::UpdateBattleEvent(string & strCharID, uint8 bNation)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
 	if (!dbCommand->Execute(string_format(_T("UPDATE BATTLE SET byNation=%d, strUserName=? WHERE sIndex=%d"), bNation, g_pMain.m_nServerNo)))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 }
 
 void CDBAgent::AccountLogout(string & strAccountID)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_AccountDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_AccountDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return;
 
@@ -1102,24 +1117,24 @@ void CDBAgent::AccountLogout(string & strAccountID)
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
 	if (!dbCommand->Execute(_T("{CALL ACCOUNT_LOGOUT(?, ?)}")))
-		ReportSQLError(m_AccountDB.GetError());
+		ReportSQLError(m_AccountDB->GetError());
 }
 
 void CDBAgent::UpdateConCurrentUserCount(int nServerNo, int nZoneNo, int nCount)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_AccountDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_AccountDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return;
 
 	if (!dbCommand->Execute(string_format(_T("UPDATE CONCURRENT SET zone%d_count = %d WHERE serverid = %d"), nZoneNo, nCount, nServerNo)))
-		ReportSQLError(m_AccountDB.GetError());
+		ReportSQLError(m_AccountDB->GetError());
 }
 
 // This is what everything says it should do, 
 // but the client doesn't seem to care if it's over 1
 uint8 CDBAgent::GetUnreadLetterCount(string & strCharID)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return 0;
 
@@ -1129,7 +1144,7 @@ uint8 CDBAgent::GetUnreadLetterCount(string & strCharID)
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &bCount);
 	if (!dbCommand->Execute(_T("{CALL MAIL_BOX_CHECK_COUNT(?, ?)}")))
 	{
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 		return 0;
 	}
 
@@ -1138,7 +1153,7 @@ uint8 CDBAgent::GetUnreadLetterCount(string & strCharID)
 
 bool CDBAgent::GetLetterList(string & strCharID, Packet & result, bool bNewLettersOnly /* = true*/)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
@@ -1147,7 +1162,7 @@ bool CDBAgent::GetLetterList(string & strCharID, Packet & result, bool bNewLette
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &bCount);
 	if (!dbCommand->Execute(string_format(_T("{CALL MAIL_BOX_REQUEST_LIST(?, %d, ?)}"), bNewLettersOnly)))
 	{
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 		return false;
 	}
 
@@ -1203,7 +1218,7 @@ int8 CDBAgent::SendLetter(string & strSenderID, string & strRecipientID, string 
 	uint16 sCount = 0, sDurability = 0;
 	int16 sRet = 0;
 
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return 0;
 
@@ -1229,7 +1244,7 @@ int8 CDBAgent::SendLetter(string & strSenderID, string & strRecipientID, string 
 	if (!dbCommand->Execute(string_format(_T("{CALL MAIL_BOX_SEND(?, ?, ?, ?, %d, %d, %d, %d, %I64d, ?)}"), 
 		bType, nItemID, sCount, sDurability, nSerialNum)))
 	{
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 		return 0;
 	}
 
@@ -1238,14 +1253,14 @@ int8 CDBAgent::SendLetter(string & strSenderID, string & strRecipientID, string 
 
 bool CDBAgent::ReadLetter(string & strCharID, uint32 nLetterID, string & strMessage)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return false;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
 	if (!dbCommand->Execute(string_format(_T("{CALL MAIL_BOX_READ(?, %d)}"), nLetterID)))
 	{
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 		return false;
 	}
 
@@ -1262,14 +1277,14 @@ int8 CDBAgent::GetItemFromLetter(string & strCharID, uint32 nLetterID, uint32 & 
 	if (nLetterID == 0)
 		return -4;
 
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return -1; // error
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
 	if (!dbCommand->Execute(string_format(_T("{CALL MAIL_BOX_GET_ITEM(?, %d)}"), nLetterID)))
 	{
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 		return -1; // error
 	}
 
@@ -1287,13 +1302,13 @@ int8 CDBAgent::GetItemFromLetter(string & strCharID, uint32 nLetterID, uint32 & 
 
 void CDBAgent::DeleteLetter(string & strCharID, uint32 nLetterID)
 {
-	auto_ptr<OdbcCommand> dbCommand(m_GameDB.CreateCommand());
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
 		return;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
 	// NOTE: The official implementation passes all 5 letter IDs.
 	if (!dbCommand->Execute(string_format(_T("{CALL MAIL_BOX_DELETE_LETTER(?, %d)}"), nLetterID)))
-		ReportSQLError(m_GameDB.GetError());
+		ReportSQLError(m_GameDB->GetError());
 }
 

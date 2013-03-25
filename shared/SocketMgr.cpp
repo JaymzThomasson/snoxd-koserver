@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "SocketMgr.h"
 
 DWORD WINAPI SocketWorkerThread(LPVOID lpParam)
 {

@@ -1,9 +1,21 @@
 #pragma once
 
-#include "define.h"
-#include "gamedefine.h"
+#define MAX_CLAN_USERS		36
 
 class CUser;
+struct _KNIGHTS_USER
+{
+	BYTE    byUsed;
+	char	strUserName[MAX_ID_SIZE+1];
+	CUser	*pSession;
+	_KNIGHTS_USER()
+	{
+		byUsed = 0;
+		memset(strUserName, 0, sizeof(strUserName));
+		pSession = NULL;
+	};
+};
+
 class CKnights  
 {
 public:

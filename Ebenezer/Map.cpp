@@ -1,6 +1,6 @@
 #include "stdafx.h"
-
-using namespace std;
+#include "Map.h"
+#include "EbenezerDlg.h"
 
 extern CRITICAL_SECTION g_region_critical;
 
@@ -50,11 +50,11 @@ CRegion * C3DMap::GetRegion(uint16 regionX, uint16 regionZ)
 }
 
 
-BOOL C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _ZONE_ITEM * pItem)
+bool C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _ZONE_ITEM * pItem)
 {
 	if (rx >= GetXRegionMax() || rz >= GetZRegionMax()
 		|| pItem == NULL)
-		return FALSE;
+		return false;
 
 	EnterCriticalSection( &g_region_critical );
 
@@ -65,17 +65,17 @@ BOOL C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _ZONE_ITEM * pItem)
 
 	LeaveCriticalSection( &g_region_critical );
 
-	return TRUE;
+	return true;
 }
 
-BOOL C3DMap::RegionItemRemove(uint16 rx, uint16 rz, int bundle_index, int itemid, int count)
+bool C3DMap::RegionItemRemove(uint16 rx, uint16 rz, int bundle_index, int itemid, int count)
 {
 	if (rx >= GetXRegionMax() || rz >= GetZRegionMax())
-		return FALSE;
+		return false;
 	
 	_ZONE_ITEM* pItem = NULL;
 	CRegion	*region = NULL;
-	BOOL bFind = FALSE;
+	bool bFind = false;
 	short t_count = 0;
 	
 	EnterCriticalSection( &g_region_critical );
@@ -86,7 +86,7 @@ BOOL C3DMap::RegionItemRemove(uint16 rx, uint16 rz, int bundle_index, int itemid
 		for(int j=0; j < LOOT_ITEMS; j++) {
 			if( pItem->nItemID[j] == itemid && pItem->sCount[j] == count ) {
 				pItem->nItemID[j] = 0; pItem->sCount[j] = 0;
-				bFind = TRUE;
+				bFind = true;
 				break;
 			}
 		}
@@ -105,32 +105,32 @@ BOOL C3DMap::RegionItemRemove(uint16 rx, uint16 rz, int bundle_index, int itemid
 	return bFind;
 }
 
-BOOL C3DMap::CheckEvent(float x, float z, CUser* pUser)
+bool C3DMap::CheckEvent(float x, float z, CUser* pUser)
 {
 	int event_index = m_smdFile->GetEventID((int)x, (int)z);
 	if( event_index < 2 )
-		return FALSE;
+		return false;
 
 	CGameEvent *pEvent = m_EventArray.GetData( event_index );
 	if (pEvent == NULL)
-		return FALSE;
+		return false;
 
-	if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_BATTLE && g_pMain.m_byBattleOpen != NATION_BATTLE ) return FALSE;
-	if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_SNOW_BATTLE && g_pMain.m_byBattleOpen != SNOW_BATTLE ) return FALSE;
+	if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_BATTLE && g_pMain.m_byBattleOpen != NATION_BATTLE ) return false;
+	if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_SNOW_BATTLE && g_pMain.m_byBattleOpen != SNOW_BATTLE ) return false;
 	if( pUser->m_bNation == KARUS && pEvent->m_iExec[0] == ZONE_BATTLE )	{
 		if( g_pMain.m_sKarusCount > MAX_BATTLE_ZONE_USERS )	{
 			TRACE("### BattleZone karus full users = %d, name=%s \n", g_pMain.m_sKarusCount, pUser->GetName());
-			return FALSE;
+			return false;
 		}
 	}
 	else if( pUser->m_bNation == ELMORAD && pEvent->m_iExec[0] == ZONE_BATTLE )	{
 		if( g_pMain.m_sElmoradCount > MAX_BATTLE_ZONE_USERS )	{
 			TRACE("### BattleZone elmorad full users = %d, name=%s \n", g_pMain.m_sElmoradCount, pUser->GetName());
-			return FALSE;
+			return false;
 		}
 	}
 	pEvent->RunEvent( pUser );
-	return TRUE;
+	return true;
 }
 
 C3DMap::~C3DMap()

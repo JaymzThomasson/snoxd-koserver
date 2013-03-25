@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#include "EbenezerDlg.h"
+
+using std::string;
 
 enum
 {

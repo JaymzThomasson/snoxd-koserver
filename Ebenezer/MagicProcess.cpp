@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "Map.h"
+#include "EbenezerDlg.h"
 
 using namespace std;
 
@@ -384,7 +386,7 @@ void CMagicProcess::SendSkill(MagicInstance * pInstance, int16 pSkillCaster /* =
 bool CMagicProcess::IsAvailable(MagicInstance * pInstance)
 {
 	CUser* pParty = NULL;   // When the target is a party....
-	bool isNPC = (pInstance->sCasterID >= NPC_BAND);		// Identifies source : TRUE means source is NPC.
+	bool isNPC = (pInstance->sCasterID >= NPC_BAND);		// Identifies source : true means source is NPC.
 
 	if (pInstance->pSkill == NULL)
 		goto fail_return;
@@ -803,7 +805,7 @@ bool CMagicProcess::ExecuteType3(MagicInstance * pInstance)  // Applied when a m
 					}
 				}
 
-				pTUser->m_bType3Flag = TRUE;
+				pTUser->m_bType3Flag = true;
 			}
 
 			if (pTUser->isInParty() && pType->sTimeDamage < 0)
@@ -1054,7 +1056,7 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 		else
 			pInstance->pSkillCaster->m_bType4Buff[pType->bBuffType - 1] = 1;
 
-		pInstance->pSkillCaster->m_bType4Flag = TRUE;
+		pInstance->pSkillCaster->m_bType4Flag = true;
 
 		TO_USER(pInstance->pSkillCaster)->SetSlotItemValue();				// Update character stats.
 		TO_USER(pInstance->pSkillCaster)->SetUserAbility();
@@ -1100,7 +1102,7 @@ bool CMagicProcess::ExecuteType5(MagicInstance * pInstance)
 		return false;
 
 	int damage = 0;
-	int buff_test = 0; BOOL bType3Test = TRUE, bType4Test = TRUE; 	
+	int buff_test = 0; bool bType3Test = true, bType4Test = true; 	
 
 	if (pInstance->pSkill == NULL)
 		return false;
@@ -1138,14 +1140,14 @@ bool CMagicProcess::ExecuteType5(MagicInstance * pInstance)
 			buff_test = 0;
 			for (int j = 0; j < MAX_TYPE3_REPEAT; j++)
 				buff_test += pInstance->pSkillTarget->m_bHPDuration[j];
-			if (buff_test == 0) pInstance->pSkillTarget->m_bType3Flag = FALSE;	
+			if (buff_test == 0) pInstance->pSkillTarget->m_bType3Flag = false;	
 
 			// Check for Type 3 Curses.
 			for (int k = 0; k < MAX_TYPE3_REPEAT; k++)
 			{
 				if (pInstance->pSkillTarget->m_bHPAmount[k] < 0)
 				{
-					bType3Test = FALSE;
+					bType3Test = false;
 					break;
 				}
 			}
@@ -1221,14 +1223,14 @@ bool CMagicProcess::ExecuteType5(MagicInstance * pInstance)
 			buff_test = 0;
 			for (int i = 0; i < MAX_TYPE4_BUFF; i++)
 				buff_test += pInstance->pSkillTarget->m_bType4Buff[i];
-			if (buff_test == 0) pInstance->pSkillTarget->m_bType4Flag = FALSE;
+			if (buff_test == 0) pInstance->pSkillTarget->m_bType4Flag = false;
 
-			bType4Test = TRUE ;
+			bType4Test = true ;
 			for (int j = 0; j < MAX_TYPE4_BUFF; j++)
 			{
 				if (pInstance->pSkillTarget->m_bType4Buff[j] == 1)
 				{
-					bType4Test = FALSE;
+					bType4Test = false;
 					break;
 				}
 			}
@@ -1262,14 +1264,14 @@ bool CMagicProcess::ExecuteType5(MagicInstance * pInstance)
 				buff_test = 0;
 				for (int i = 0; i < MAX_TYPE4_BUFF; i++)
 					buff_test += pInstance->pSkillTarget->m_bType4Buff[i];
-				if (buff_test == 0) pInstance->pSkillTarget->m_bType4Flag = FALSE;
+				if (buff_test == 0) pInstance->pSkillTarget->m_bType4Flag = false;
 
-				bType4Test = TRUE;
+				bType4Test = true;
 				for (int j = 0; j < MAX_TYPE4_BUFF; j++)
 				{
 					if (pInstance->pSkillTarget->m_bType4Buff[j] == 1)
 					{
-						bType4Test = FALSE;
+						bType4Test = false;
 						break;
 					}
 				}
@@ -1718,34 +1720,34 @@ short CMagicProcess::GetMagicDamage(MagicInstance * pInstance, Unit *pTarget, in
 }
 
 // TO-DO: Clean this up (even using unit code...)
-BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, short mousex, short mousez)
+bool CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, short mousex, short mousez)
 {
 	CNpc* pMon = NULL;
 
 	uint32 currenttime = 0;
-	BOOL bFlag = FALSE;
+	bool bFlag = false;
 
 	CUser* pTUser = g_pMain.GetUserPtr(tid);  
-	if (pTUser == NULL) return FALSE;
+	if (pTUser == NULL) return false;
 	
 	if (sid >= NPC_BAND) {					
 		pMon = g_pMain.m_arNpcArray.GetData(sid);
-		if( !pMon || pMon->m_NpcState == NPC_DEAD ) return FALSE;
-		bFlag = TRUE;
+		if( !pMon || pMon->m_NpcState == NPC_DEAD ) return false;
+		bFlag = true;
 	}
 
 	_MAGIC_TABLE* pMagic = g_pMain.m_MagictableArray.GetData( magicid );   // Get main magic table.
-	if( !pMagic ) return FALSE;
+	if( !pMagic ) return false;
 
 	switch (pMagic->bMoral) {
 		case MORAL_PARTY_ALL :		// Check that it's your party.
 /*
 			if( !pTUser->isInParty()) {
 				if (sid == tid) {
-					return TRUE; 
+					return true; 
 				}
 				else {
-					return FALSE; 
+					return false; 
 				}
 			}			
 
@@ -1763,7 +1765,7 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 			}
 			else if (pTUser->m_sPartyIndex == m_pSrcUser->m_sPartyIndex && pMagic->bType[0] == 8) {
 				if (pTUser->m_bZone == ZONE_BATTLE && (UNIXTIME - pTUser->m_tLastRegeneTime < CLAN_SUMMON_TIME)) {
-					return FALSE;
+					return false;
 				}
 				else {
 					goto final_test;	
@@ -1792,10 +1794,10 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 		case MORAL_CLAN_ALL :
 			if( pTUser->GetClanID() == -1) {
 				if (sid == tid) {
-					return TRUE; 
+					return true; 
 				}
 				else {
-					return FALSE; 
+					return false; 
 				}
 			}			
 /*
@@ -1807,7 +1809,7 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 			}
 			else if (pTUser->GetClanID() == m_pSrcUser->GetClanID() && pMagic->bType[0] == 8) {
 				if (pTUser->m_bZone == ZONE_BATTLE && (UNIXTIME - pTUser->m_tLastRegeneTime < CLAN_SUMMON_TIME)) {
-					return FALSE;
+					return false;
 				}
 				else {
 					goto final_test;	
@@ -1818,7 +1820,7 @@ BOOL CMagicProcess::UserRegionCheck(int sid, int tid, int magicid, int radius, s
 //
 	}
 
-	return FALSE;	
+	return false;	
 
 final_test :
 	if (!bFlag) {	// When players attack...
@@ -1827,9 +1829,9 @@ final_test :
 				float temp_x = pTUser->GetX() - mousex;
 				float temp_z = pTUser->GetZ() - mousez;
 				float distance = pow(temp_x, 2.0f) + pow(temp_z, 2.0f);
-				if ( distance > pow((float)radius, 2.0f) ) return FALSE ;
+				if ( distance > pow((float)radius, 2.0f) ) return false ;
 			}		
-			return TRUE;	// Target is in the area.
+			return true;	// Target is in the area.
 		}
 	}
 	else {			// When monsters attack...
@@ -1838,13 +1840,13 @@ final_test :
 				float temp_x = pTUser->GetX() - pMon->GetX();
 				float temp_z = pTUser->GetZ() - pMon->GetZ();
 				float distance = pow(temp_x, 2.0f) + pow(temp_z, 2.0f);	
-				if ( distance > pow((float)radius, 2.0f) ) return FALSE ;
+				if ( distance > pow((float)radius, 2.0f) ) return false ;
 			}		
-			return TRUE;	// Target is in the area.
+			return true;	// Target is in the area.
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 void CMagicProcess::Type6Cancel()
@@ -1914,7 +1916,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 	if (pType == NULL)
 		return;
 
-	BOOL buff = FALSE;
+	bool buff = false;
 	switch (pType->bBuffType)
 	{
 		case BUFF_TYPE_HP_MP:
@@ -1923,7 +1925,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 			{
 				pInstance->pSkillCaster->m_sMaxHPAmount = 0;
 				pInstance->pSkillCaster->m_sMaxMPAmount = 0;
-				buff = TRUE;
+				buff = true;
 			}
 			break;
 
@@ -1931,7 +1933,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 			if (pInstance->pSkillCaster->m_sACAmount > 0) 
 			{
 				pInstance->pSkillCaster->m_sACAmount = 0;
-				buff = TRUE;
+				buff = true;
 			}
 			break;
 
@@ -1939,7 +1941,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 			if (pInstance->pSkillCaster->isPlayer())
 			{
 				TO_USER(pInstance->pSkillCaster)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
-				buff = TRUE;
+				buff = true;
 			}
 			break;
 
@@ -1947,7 +1949,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 			if (pInstance->pSkillCaster->m_bAttackAmount > 100) 
 			{
 				pInstance->pSkillCaster->m_bAttackAmount = 100;
-				buff = TRUE;
+				buff = true;
 			}
 			break;
 
@@ -1955,7 +1957,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 			if (pInstance->pSkillCaster->m_bAttackSpeedAmount > 100) 
 			{
 				pInstance->pSkillCaster->m_bAttackSpeedAmount = 100;	
-				buff = TRUE;
+				buff = true;
 			}
 			break;	
 
@@ -1963,7 +1965,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 			if (pInstance->pSkillCaster->m_bSpeedAmount > 100)
 			{
 				pInstance->pSkillCaster->m_bSpeedAmount = 100;
-				buff = TRUE;
+				buff = true;
 			}
 			break;
 
@@ -1972,7 +1974,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 				&& TO_USER(pInstance->pSkillCaster)->getStatBuffTotal() > 0) {
 				// TO-DO: Implement reset
 				memset(TO_USER(pInstance->pSkillCaster)->m_bStatBuffs, 0, sizeof(uint8) * STAT_COUNT);
-				buff = TRUE;
+				buff = true;
 			}
 			break;
 
@@ -1985,7 +1987,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 				pInstance->pSkillCaster->m_bMagicRAmount = 0;
 				pInstance->pSkillCaster->m_bDiseaseRAmount = 0;
 				pInstance->pSkillCaster->m_bPoisonRAmount = 0;
-				buff = TRUE;
+				buff = true;
 			}
 			break;	
 
@@ -1994,7 +1996,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 			{
 				pInstance->pSkillCaster->m_bHitRateAmount = 100;
 				pInstance->pSkillCaster->m_sAvoidRateAmount = 100;
-				buff = TRUE;
+				buff = true;
 			}
 			break;
 
@@ -2002,7 +2004,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 			if (pInstance->pSkillCaster->m_sMagicAttackAmount > 0)
 			{
 				pInstance->pSkillCaster->m_sMagicAttackAmount = 0;
-				buff = TRUE;
+				buff = true;
 			}
 			break;
 
@@ -2010,7 +2012,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 			if (pInstance->pSkillCaster->m_bExpGainAmount > 100)
 			{
 				pInstance->pSkillCaster->m_bExpGainAmount = 100;
-				buff = TRUE;
+				buff = true;
 			}
 			break;
 
@@ -2018,7 +2020,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 			if (pInstance->pSkillCaster->m_bMaxWeightAmount > 100)
 			{
 				pInstance->pSkillCaster->m_bMaxWeightAmount = 100;
-				buff = TRUE;
+				buff = true;
 			}
 			break;
 
@@ -2030,7 +2032,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 			if (pInstance->pSkillCaster->m_sACAmount > 0) 
 			{
 				pInstance->pSkillCaster->m_sACAmount = 0;
-				buff = TRUE;
+				buff = true;
 			}
 			break;
 		case BUFF_TYPE_LOYALTY:
@@ -2083,7 +2085,7 @@ void CMagicProcess::Type4Cancel(MagicInstance * pInstance)
 	int buff_test = 0;
 	for (int i = 0; i < MAX_TYPE4_BUFF; i++)
 		buff_test += pInstance->pSkillCaster->m_bType4Buff[i];
-	if (buff_test == 0) pInstance->pSkillCaster->m_bType4Flag = FALSE;	
+	if (buff_test == 0) pInstance->pSkillCaster->m_bType4Flag = false;	
 
 	if (pInstance->pSkillCaster->isPlayer() && !pInstance->pSkillCaster->m_bType4Flag
 		&& TO_USER(pInstance->pSkillCaster)->isInParty())
@@ -2128,7 +2130,7 @@ void CMagicProcess::Type3Cancel(MagicInstance * pInstance)
 	int buff_test = 0;
 	for (int j = 0; j < MAX_TYPE3_REPEAT; j++)
 		buff_test += pInstance->pSkillCaster->m_bHPDuration[j];
-	if (buff_test == 0) pInstance->pSkillCaster->m_bType3Flag = FALSE;	
+	if (buff_test == 0) pInstance->pSkillCaster->m_bType3Flag = false;	
 
 	if (pInstance->pSkillCaster->isPlayer() && !pInstance->pSkillCaster->m_bType3Flag
 		&& TO_USER(pInstance->pSkillCaster)->isInParty())

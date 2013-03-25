@@ -1,15 +1,15 @@
 #include "stdafx.h"
-
-extern CRITICAL_SECTION g_region_critical;
+#include "Map.h"
+#include "EbenezerDlg.h"
 
 CNpc::CNpc()
 {
 	Initialize();
 }
 
+
 CNpc::~CNpc()
 {
-
 }
 
 void CNpc::Initialize()
@@ -39,6 +39,13 @@ void CNpc::Initialize()
 	m_byObjectType = NORMAL_OBJECT;
 
 	m_byTrapNumber = 0;
+}
+
+void CNpc::AddToRegion(int16 new_region_x, int16 new_region_z)
+{
+	GetRegion()->Remove(this);
+	SetRegion(new_region_x, new_region_z);
+	GetRegion()->Add(this);
 }
 
 void CNpc::MoveResult(float xpos, float ypos, float zpos, float speed)

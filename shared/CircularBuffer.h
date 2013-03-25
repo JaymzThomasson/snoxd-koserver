@@ -1,7 +1,5 @@
 #pragma once
 
-#include "types.h"
-
 class CircularBuffer
 {
 	// allocated whole block pointer

@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "EbenezerDlg.h"
 
 void CUser::QuestDataRequest()
 {
@@ -89,7 +90,7 @@ void CUser::QuestV2PacketProcess(Packet & pkt)
 
 		// This really could be rewritten to make more sense.
 		if (GetZoneID() - 101 <= 99)
-			KickOutZoneUser(TRUE);
+			KickOutZoneUser(true);
 		break;
 
 	case 6:

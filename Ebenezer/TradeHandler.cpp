@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "EbenezerDlg.h"
 
 using namespace std;
 
@@ -78,8 +79,8 @@ void CUser::ExchangeAgree(Packet & pkt)
 	}
 	else 
 	{
-		InitExchange(TRUE);
-		pUser->InitExchange(TRUE);
+		InitExchange(true);
+		pUser->InitExchange(true);
 	}
 
 	Packet result(WIZ_EXCHANGE, uint8(EXCHANGE_AGREE));
@@ -99,7 +100,7 @@ void CUser::ExchangeAdd(Packet & pkt)
 	_EXCHANGE_ITEM* pItem = NULL;
 	list<_EXCHANGE_ITEM*>::iterator	Iter;
 	BYTE pos;
-	BOOL bAdd = TRUE, bGold = FALSE;
+	bool bAdd = true, bGold = false;
 
 	CUser *pUser = g_pMain.GetUserPtr(m_sExchangeUser);
 	if (pUser == NULL
@@ -128,7 +129,7 @@ void CUser::ExchangeAdd(Packet & pkt)
 			{
 				(*itr)->nCount += count;
 				m_iGold -= count;
-				bAdd = FALSE;
+				bAdd = false;
 				break;
 			}
 		}
@@ -152,7 +153,7 @@ void CUser::ExchangeAdd(Packet & pkt)
 				{
 					(*itr)->nCount += count;
 					pItem->sCount -= count;
-					bAdd = FALSE;
+					bAdd = false;
 					break;
 				}
 			}
@@ -174,7 +175,7 @@ void CUser::ExchangeAdd(Packet & pkt)
 	{
 		if ((*itr)->nItemID == ITEM_GOLD)
 		{
-			bGold = TRUE;
+			bGold = true;
 			break;
 		}
 	}
@@ -208,7 +209,7 @@ add_fail:
 
 void CUser::ExchangeDecide()
 {
-	BOOL bSuccess = TRUE;
+	bool bSuccess = true;
 
 	CUser *pUser = g_pMain.GetUserPtr(m_sExchangeUser);
 	if (pUser == NULL
@@ -248,7 +249,7 @@ void CUser::ExchangeDecide()
 			}
 		}
 
-		bSuccess = FALSE;
+		bSuccess = false;
 	}
 
 	if (bSuccess)
@@ -287,8 +288,8 @@ void CUser::ExchangeDecide()
 		pUser->Send(&result);
 	}
 
-	InitExchange(FALSE);
-	pUser->InitExchange(FALSE);
+	InitExchange(false);
+	pUser->InitExchange(false);
 }
 
 void CUser::ExchangeCancel()
@@ -307,7 +308,7 @@ void CUser::ExchangeCancel()
 		}
 	}
 
-	InitExchange(FALSE);
+	InitExchange(false);
 
 	if (pUser != NULL)
 	{
@@ -318,7 +319,7 @@ void CUser::ExchangeCancel()
 	}
 }
 
-void CUser::InitExchange(BOOL bStart)
+void CUser::InitExchange(bool bStart)
 {
 	while (m_ExchangeItemList.size())
 	{
@@ -347,7 +348,7 @@ void CUser::InitExchange(BOOL bStart)
 	}
 }
 
-BOOL CUser::ExecuteExchange()
+bool CUser::ExecuteExchange()
 {
 	DWORD money = 0;
 	short weight = 0;
@@ -355,13 +356,13 @@ BOOL CUser::ExecuteExchange()
 
 	CUser *pUser = g_pMain.GetUserPtr(m_sExchangeUser);
 	if (pUser == NULL)
-		return FALSE;
+		return false;
 
 	foreach (Iter, pUser->m_ExchangeItemList)
 	{
 		// This should be checked before the item's even gone into the list...
 		if( (*Iter)->nItemID >= ITEM_NO_TRADE)
-			return FALSE;
+			return false;
 		
 		if ((*Iter)->nItemID == ITEM_GOLD)
 		{

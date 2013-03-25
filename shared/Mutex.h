@@ -9,34 +9,25 @@ public:
 
 	/** Initializes a mutex class, with InitializeCriticalSection / pthread_mutex_init
 	 */
-	Mutex() { InitializeCriticalSection(&cs); }
+	Mutex();
 
 	/** Deletes the associated critical section / mutex
 	 */
-	~Mutex() { DeleteCriticalSection(&cs); }
+	~Mutex();
 
 	/** Acquires this mutex. If it cannot be acquired immediately, it will block.
 	 */
-	__forceinline void Acquire()
-	{
-		EnterCriticalSection(&cs);
-	}
+	void Acquire();
 
 	/** Releases this mutex. No error checking performed
 	 */
-	__forceinline void Release()
-	{
-		LeaveCriticalSection(&cs);
-	}
+	void Release();
 
 	/** Attempts to acquire this mutex. If it cannot be acquired (held by another thread)
 	 * it will return false.
 	 * @return false if cannot be acquired, true if it was acquired.
 	 */
-	__forceinline bool AttemptAcquire()
-	{
-		return (TryEnterCriticalSection(&cs) == TRUE ? true : false);
-	}
+	bool AttemptAcquire();
 
 protected:
 	/** Critical section used for system calls
@@ -52,54 +43,12 @@ class FastMutex
 	DWORD m_recursiveCount;
 
 public:
-	__forceinline FastMutex() : m_lock(0), m_recursiveCount(0) {}
-	__forceinline ~FastMutex() {}
+	FastMutex() : m_lock(0), m_recursiveCount(0) {}
+	~FastMutex() {}
 
-	__forceinline void Acquire()
-	{
-		DWORD thread_id = GetCurrentThreadId(), owner;
-		if (thread_id == (DWORD)m_lock)
-		{
-			++m_recursiveCount;
-			return;
-		}
-
-		for (;;)
-		{
-			owner = InterlockedCompareExchange(&m_lock, thread_id, 0);
-			if(owner == 0)
-				break;
-
-			Sleep(0);
-		}
-
-		++m_recursiveCount;
-	}
-
-	__forceinline bool AttemptAcquire()
-	{
-		DWORD thread_id = GetCurrentThreadId();
-		if(thread_id == (DWORD)m_lock)
-		{
-			++m_recursiveCount;
-			return true;
-		}
-
-		DWORD owner = InterlockedCompareExchange(&m_lock, thread_id, 0);
-		if(owner == 0)
-		{
-			++m_recursiveCount;
-			return true;
-		}
-
-		return false;
-	}
-
-	__forceinline void Release()
-	{
-		if ((--m_recursiveCount) == 0)
-			InterlockedExchange(&m_lock, 0);
-	}
+	void Acquire();
+	bool AttemptAcquire();
+	void Release();
 };
 
 template <class T>

@@ -124,12 +124,6 @@ enum ItemMovementType
 #define ITEM_NO_TRADE		900000001	// �ŷ� �Ұ� �����۵�.... �񷯸ӱ� ũ�������� �̹�Ʈ >.<		
 
 ////////////////////////////////////////////////////////////
-// EVENT TYPE DEFINE
-#define ZONE_CHANGE			0x01
-#define ZONE_TRAP_DEAD		0x02
-#define ZONE_TRAP_AREA		0x03
-
-////////////////////////////////////////////////////////////
 // EVENT MISCELLANOUS DATA DEFINE
 #define ZONE_TRAP_INTERVAL	   1		// Interval is one second (in seconds) right now.
 #define ZONE_TRAP_DAMAGE	   10		// HP Damage is 10 for now :)
@@ -325,20 +319,6 @@ struct	_PARTY_GROUP
 	};
 };
 
-class CUser;
-struct _KNIGHTS_USER
-{
-	BYTE    byUsed;
-	char	strUserName[MAX_ID_SIZE+1];
-	CUser	*pSession;
-	_KNIGHTS_USER()
-	{
-		byUsed = 0;
-		memset(strUserName, 0x00, sizeof(strUserName));
-		pSession = NULL;
-	};
-};
-
 struct _ZONE_SERVERINFO
 {
 	short		sServerNo;
@@ -479,14 +459,19 @@ enum SpecialQuestIDs
 	QUEST_KILL_GROUP4	= 32004,
 };
 
-enum AuthorityTypes
+struct _RENTAL_ITEM
 {
-	AUTHORITY_GAME_MASTER			= 0,
-	AUTHORITY_PLAYER				= 1,
-	AUTHORITY_MUTED					= 11,
-	AUTHORITY_ATTACK_DISABLED		= 12,
-	AUTHORITY_LIMITED_GAME_MASTER	= 250,
-	AUTHORITY_BANNED				= 255
+	uint32	nRentalIndex;
+	uint32	nItemID;
+	uint16	sDurability;
+	uint64	nSerialNum;
+	uint8	byRegType;
+	uint8	byItemType;
+	uint8	byClass;
+	uint16	sRentalTime;
+	uint32	nRentalMoney;
+	std::string strLenderCharID;
+	std::string strBorrowerCharID;
 };
 
 enum BuffType
@@ -527,6 +512,16 @@ enum BuffType
 	BUFF_TYPE_FIRM_DETERMINATION	= 36, //Firm Determination
 	BUFF_TYPE_SPEED2				= 40, //Cold Wave
 	BUFF_TYPE_ATTACK_RANGE_ARMOR	= 43 //Inevitable Murderous
+};
+
+enum AuthorityTypes
+{
+	AUTHORITY_GAME_MASTER			= 0,
+	AUTHORITY_PLAYER				= 1,
+	AUTHORITY_MUTED					= 11,
+	AUTHORITY_ATTACK_DISABLED		= 12,
+	AUTHORITY_LIMITED_GAME_MASTER	= 250,
+	AUTHORITY_BANNED				= 255
 };
 
 enum UserStatus

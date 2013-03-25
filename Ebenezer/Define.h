@@ -1,5 +1,7 @@
 #pragma once
 
+#define CONF_GAME_SERVER	"gameserver.ini"
+
 #define _LISTEN_PORT		15001
 #define _UDP_PORT			8888
 #define AI_KARUS_SOCKET_PORT		10020
@@ -22,7 +24,6 @@
 #define MAX_LEVEL			83			// �ְ�...
 
 #define MAX_PARTY_USERS		8
-#define MAX_CLAN_USERS		36
 
 #define MAX_MESSAGE_EVENT			12
 
@@ -221,27 +222,16 @@ enum InOutType
 
 /////////////////////////////////////////////////////////////
 typedef union{
-	WORD		w;
-	BYTE		b[2];
+	uint16		w;
+	uint8		b[2];
 } MYSHORT;
 
 typedef union{
-	int			i;
-	BYTE		b[4];
-} MYINT;
-
-typedef union{
-	__int64		i;
-	BYTE		b[8];
+	uint64		i;
+	uint8		b[8];
 } MYINT64;
 
 #define TO_USER(v)	static_cast<CUser *>(v)
 #define TO_NPC(v)	static_cast<CNpc *>(v)
-
-// This is more than a little convulated.
-#define PARSE_ARGUMENTS(count, temp, buff, arg, id, index) for (int _i = 0; _i < count; _i++) { \
-	index += ParseSpace(temp, buff + index); \
-	arg[id++] = atoi(temp); \
-}
 
 #include "../shared/globals.h"

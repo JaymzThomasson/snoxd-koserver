@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+#include "resource.h"
+#include "EbenezerDlg.h"
 
 extern BYTE g_serverdown_flag;
 
@@ -469,7 +471,7 @@ void CEbenezerDlg::SetPermanentMessage(const char * format, ...)
 	vsnprintf(buffer, 128, format, ap);
 	va_end(ap);
 
-	m_bPermanentChatMode = TRUE;
+	m_bPermanentChatMode = true;
 	m_strPermanentChat = buffer;
 
 	GetPermanentMessage(data); 
@@ -485,7 +487,7 @@ COMMAND_HANDLER(CEbenezerDlg::HandlePermanentChatOffCommand)
 		  << uint8(0)				// character name length
 		  << uint16(0);				// chat message
 
-	m_bPermanentChatMode = FALSE;
+	m_bPermanentChatMode = false;
 	Send_All(&data);
 	return true;
 }

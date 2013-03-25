@@ -1,5 +1,6 @@
-#include "stdafx.h"
+#include "WindowsHeaders.h"
 #include <time.h>
+#include "TimeThread.h"
 
 time_t UNIXTIME; // update this routinely to avoid the expensive time() syscall!
 tm g_localTime;
@@ -25,7 +26,7 @@ DWORD WINAPI TimeThread(LPVOID lpParam)
 			g_localTime = *localtime(&t);
 		}
 
-		Sleep(SECOND);	// might need to run it twice a second 
+		Sleep(1000);	// might need to run it twice a second 
 						// to be sure it does in fact update somewhat accurately.. depends on the use cases.
 	}
 

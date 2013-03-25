@@ -5,14 +5,5 @@
 #include "DBAgent.h"
 #include "DatabaseThread.h"
 
-#include "LuaEngine.h"
-#include "EbenezerDlg.h"
-#include "User.h"
-#include "AIPacket.h"
-
-#include <iostream>
-#include <fstream>
-
-#include "resource.h"
-
+class CEbeenezerDlg;
 extern CEbenezerDlg g_pMain;

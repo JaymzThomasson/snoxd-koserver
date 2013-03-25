@@ -3,7 +3,6 @@
 #include "version.h"
 #include "packets.h"
 #include "Packet.h"
-#include "RWLock.h"
 
 #define MAX_USER			3000
 
@@ -14,7 +13,6 @@
 #define MAX_PW_SIZE			12
 #endif
 
-#define MAX_FRIEND_COUNT	24
 #define MAX_ITEM_COUNT		9999
 
 #define VIEW_DISTANCE		48
@@ -89,34 +87,6 @@ const int ITEMCOUNT_MAX		= 9999;
 
 #define MAX_KNIGHTS_MARK	2400
 #define CLAN_SYMBOL_COST	5000000
-
-//////////////////////////////////////////////////////////////////
-// DEFINE Shared Memory Queue
-//////////////////////////////////////////////////////////////////
-
-#define E	0x00
-#define R	0x01
-#define W	0x02
-#define WR	0x03
-
-// DEFINE Shared Memory Queue Return VALUE
-
-#define SMQ_BROKEN		10000
-#define SMQ_FULL		10001
-#define SMQ_EMPTY		10002
-#define SMQ_PKTSIZEOVER	10003
-#define SMQ_WRITING		10004
-#define SMQ_READING		10005
-#define SMQ_INVALID		10006
-
-// DEFINE Shared Memory Costumizing
-
-#define MAX_PKTSIZE		3072
-#define MAX_COUNT		4096
-#define SMQ_LOGGERSEND	"KNIGHT_SEND"
-#define SMQ_LOGGERRECV	"KNIGHT_RECV"
-
-#define SMQ_ITEMLOGGER	"ITEMLOG_SEND"
 
 #define NEWCHAR_SUCCESS						uint8(0)
 #define NEWCHAR_NO_MORE						uint8(1)
@@ -264,15 +234,6 @@ inline void Setfloat ( char* tBuf, float sFloat, int& index )
 	index += 4;
 };
 
-inline void SetVarString(TCHAR *tBuf, TCHAR* sBuf, int len, int &index)
-{
-	*(tBuf+index) = (BYTE)len;
-	index ++;
-
-	CopyMemory(tBuf+index, sBuf, len);
-	index += len;
-};
-
 inline void SetKOString(char* tBuf, char* sBuf, int& index, int lenSize = 2)
 {
 	short len = strlen(sBuf);
@@ -282,23 +243,6 @@ inline void SetKOString(char* tBuf, char* sBuf, int& index, int lenSize = 2)
 		SetShort(tBuf, len, index);
 
 	SetString(tBuf, sBuf, len, index);
-};
-
-inline int ParseSpace( char* tBuf, char* sBuf)
-{
-	int i = 0, index = 0;
-	BOOL flag = FALSE;
-	
-	while(sBuf[index] == ' ' || sBuf[index] == '\t')index++;
-	while(sBuf[index] !=' ' && sBuf[index] !='\t' && sBuf[index] !=(BYTE) 0){
-		tBuf[i++] = sBuf[index++];
-		flag = TRUE;
-	}
-	tBuf[i] = 0;
-
-	while(sBuf[index] == ' ' || sBuf[index] == '\t')index++;
-	if(!flag) return 0;	
-	return index;
 };
 
 inline std::string GetProgPath()
@@ -382,3 +326,11 @@ __forceinline void STRTOUPPER(std::string& str)
 	for(size_t i = 0; i < str.length(); ++i)
 		str[i] = (char)toupper(str[i]);
 };
+
+#define foreach(itr, arr) for (auto itr = arr.begin(); itr != arr.end(); itr++)
+#define foreach_stlmap(itr, arr) for (auto itr = arr.m_UserTypeMap.begin(); itr != arr.m_UserTypeMap.end(); itr++)
+#define foreach_array(itr, arr) foreach_array_n(itr, arr, sizeof(arr) / sizeof(arr[0]))
+#define foreach_array_n(itr, arr, len) for (auto itr = 0; itr < len; itr++)
+#define foreach_region(x, z) for (int x = -1; x <= 1; x++) \
+	for (int z = -1; z <= 1; z++)
+

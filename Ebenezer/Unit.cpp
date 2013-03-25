@@ -1,4 +1,7 @@
 #include "stdafx.h"
+#include "Map.h"
+#include "Unit.h"
+#include "EbenezerDlg.h"
 
 Unit::Unit(bool bPlayer /*= false*/) 
 	: m_pMap(NULL), m_pRegion(NULL), m_sRegionX(0), m_sRegionZ(0), m_bPlayer(bPlayer)
@@ -47,6 +50,12 @@ void Unit::Initialize()
 	InitType4();	 // Initialize durational type 4 stuff :)
 }
 
+void Unit::SetRegion(uint16 x /*= -1*/, uint16 z /*= -1*/) 
+{
+	m_sRegionX = x; m_sRegionZ = z; 
+	m_pRegion = m_pMap->GetRegion(x, z); // TO-DO: Clean this up
+}
+
 bool Unit::RegisterRegion()
 {
 	uint16 
@@ -57,19 +66,7 @@ bool Unit::RegisterRegion()
 		|| (old_region_x == new_region_x && old_region_z == new_region_z))
 		return false;
 
-	// TO-DO: Fix this up
-	if (isPlayer())
-	{
-		GetRegion()->Remove(TO_USER(this));
-		SetRegion(new_region_x, new_region_z);
-		GetRegion()->Add(TO_USER(this));
-	}
-	else
-	{
-		GetRegion()->Remove(TO_NPC(this));
-		SetRegion(new_region_x, new_region_z);
-		GetRegion()->Add(TO_NPC(this));
-	}
+	AddToRegion(new_region_x, new_region_z);
 
 	RemoveRegion(old_region_x - new_region_x, old_region_z - new_region_z);
 	InsertRegion(new_region_x - old_region_x, new_region_z - old_region_z);	
@@ -449,7 +446,7 @@ void Unit::InitType3()
 		m_sSourceID[i] = -1;
 	}
 
-	m_bType3Flag = FALSE;
+	m_bType3Flag = false;
 }
 
 void Unit::InitType4()
@@ -474,11 +471,9 @@ void Unit::InitType4()
 	memset(&m_sDuration, 0, sizeof(uint16) * MAX_TYPE4_BUFF);
 	memset(&m_tStartTime, 0, sizeof(float) * MAX_TYPE4_BUFF);
 	memset(&m_bType4Buff, 0, sizeof(*m_bType4Buff) * MAX_TYPE4_BUFF);
-	m_bType4Flag = FALSE;
+	m_bType4Flag = false;
 
-	// this is going to need cleaning up
-	if (isPlayer())
-		TO_USER(this)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
+	StateChangeServerDirect(3, ABNORMAL_NORMAL);
 }
 
 void Unit::OnDeath(Unit *pKiller)

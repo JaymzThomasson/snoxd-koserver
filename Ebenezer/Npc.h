@@ -1,9 +1,8 @@
 #pragma once
 
-#include "define.h"
+#include "LuaEngine.h"
 #include "Unit.h"
 
-class CEbenezerDlg;
 class CNpc  : public Unit
 {
 public:
@@ -42,6 +41,8 @@ public:
 
 
 	virtual void Initialize();
+	virtual void AddToRegion(int16 new_region_x, int16 new_region_z);
+
 	void MoveResult(float xpos, float ypos, float zpos, float speed);
 	virtual void GetInOut(Packet & result, uint8 bType);
 	void SendInOut(uint8 bType, float fx, float fz, float fy);
@@ -57,7 +58,7 @@ public:
 	virtual bool isDead() { return m_NpcState == NPC_DEAD || m_iHP <= 0; };
 
 	__forceinline bool isGate() { return GetType() == NPC_GATE || GetType() == NPC_PHOENIX_GATE || GetType() == NPC_SPECIAL_GATE || GetType() == NPC_VICTORY_GATE; };
-	__forceinline bool isGateOpen() { return m_byGateOpen == TRUE; };
+	__forceinline bool isGateOpen() { return m_byGateOpen == 1; };
 	__forceinline bool isGateClosed() { return !isGateOpen(); };
 
 	__forceinline short GetEntryID() { return m_sSid; };

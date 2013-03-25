@@ -61,7 +61,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;EBENEZER;_DEBUG;_WINDOWS;_3DSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;EBENEZER;_DEBUG;_WINDOWS;_3DSERVER;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeaderOutputFile>.\Debug/Ebenezer.pch</PrecompiledHeaderOutputFile>
@@ -111,7 +111,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <PreprocessorDefinitions>WIN32;EBENEZER;NDEBUG;_WINDOWS;_3DSERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;EBENEZER;NDEBUG;_WINDOWS;_3DSERVER;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp" />
     <ClCompile Include="..\shared\CircularBuffer.cpp" />
+    <ClCompile Include="..\shared\Condition.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
     <ClCompile Include="..\shared\database\OdbcCommand.cpp" />
     <ClCompile Include="..\shared\database\OdbcConnection.cpp" />
@@ -157,7 +158,8 @@
     <ClCompile Include="..\shared\JvCryption.cpp" />
     <ClCompile Include="..\shared\KOSocket.cpp" />
     <ClCompile Include="..\shared\lzf.cpp" />
-    <ClCompile Include="..\shared\SharedMem.cpp" />
+    <ClCompile Include="..\shared\Mutex.cpp" />
+    <ClCompile Include="..\shared\RWLock.cpp" />
     <ClCompile Include="..\shared\SMDFile.cpp" />
     <ClCompile Include="..\shared\Socket.cpp" />
     <ClCompile Include="..\shared\SocketMgr.cpp" />
@@ -192,6 +194,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="LetterHandler.cpp" />
+    <ClCompile Include="LoadServerData.cpp" />
     <ClCompile Include="LoginHandler.cpp" />
     <ClCompile Include="LuaEngine.cpp" />
     <ClCompile Include="lua_bindings.cpp" />
@@ -239,6 +242,7 @@
     <ClInclude Include="..\scripting\lua_helpers.h" />
     <ClInclude Include="..\shared\CircularBuffer.h" />
     <ClInclude Include="..\shared\ClientSocketMgr.h" />
+    <ClInclude Include="..\shared\Condition.h" />
     <ClInclude Include="..\shared\crc32.h" />
     <ClInclude Include="..\shared\database\BattleSet.h" />
     <ClInclude Include="..\shared\database\CoefficientSet.h" />
@@ -282,8 +286,9 @@
     <ClInclude Include="..\shared\KOSocketMgr.h" />
     <ClInclude Include="..\shared\ListenSocket.h" />
     <ClInclude Include="..\shared\lzf.h" />
+    <ClInclude Include="..\shared\Mutex.h" />
     <ClInclude Include="..\shared\packets.h" />
-    <ClInclude Include="..\shared\SharedMem.h" />
+    <ClInclude Include="..\shared\RWLock.h" />
     <ClInclude Include="..\shared\SMDFile.h" />
     <ClInclude Include="..\shared\Socket.h" />
     <ClInclude Include="..\shared\SocketDefines.h" />
@@ -300,6 +305,7 @@
     <ClInclude Include="GameEvent.h" />
     <ClInclude Include="Knights.h" />
     <ClInclude Include="KnightsManager.h" />
+    <ClInclude Include="LoadServerData.h" />
     <ClInclude Include="LuaEngine.h" />
     <ClInclude Include="lua_bindings.h" />
     <ClInclude Include="MagicProcess.h" />

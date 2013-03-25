@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#include "EbenezerDlg.h"
+
+using std::string;
 
 std::queue<Packet *> DatabaseThread::_queue;
 bool DatabaseThread::_running = true;
@@ -121,7 +124,7 @@ BOOL WINAPI DatabaseThread::ThreadProc(LPVOID lpParam)
 	}
 
 	TRACE("[Thread %d] Exiting...\n", lpParam);
-	return TRUE;
+	return true;
 }
 
 

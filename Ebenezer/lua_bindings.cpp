@@ -1,4 +1,7 @@
-#include "stdafx.h"
+#include "../shared/WindowsHeaders.h"
+#include "LuaEngine.h"
+#include "User.h"
+#include "Npc.h"
 
 /* 
 	Classes

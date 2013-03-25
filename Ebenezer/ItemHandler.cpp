@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "EbenezerDlg.h"
 
 void CUser::WarehouseProcess(Packet & pkt)
 {
@@ -180,7 +181,7 @@ fail_return: // hmm...
 	Send(&result);
 }
 
-BOOL CUser::CheckWeight(int itemid, short count)
+bool CUser::CheckWeight(int itemid, short count)
 {
 	_ITEM_TABLE* pTable = g_pMain.GetItemPtr(itemid);
 	return (pTable != NULL // Make sure the item exists
@@ -190,11 +191,11 @@ BOOL CUser::CheckWeight(int itemid, short count)
 			&& FindSlotForItem(itemid, count) >= 0);
 }
 
-BOOL CUser::CheckExistItem(int itemid, short count)
+bool CUser::CheckExistItem(int itemid, short count)
 {
 	_ITEM_TABLE* pTable = g_pMain.GetItemPtr(itemid);
 	if (pTable == NULL)
-		return FALSE;	
+		return false;	
 
 	// Search for the existance of all items in the player's inventory storage and onwards (includes magic bags)
 	for (int i = SLOT_MAX; i < INVENTORY_TOTAL; i++)
@@ -202,37 +203,37 @@ BOOL CUser::CheckExistItem(int itemid, short count)
 		// This implementation fixes a bug where it ignored the possibility for multiple stacks.
 		if (m_sItemArray[i].nNum == itemid
 				&& m_sItemArray[i].sCount >= count)
-			return TRUE;
+			return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 // Pretend you didn't see me. This really needs to go (just copying official)
-BOOL CUser::CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,
+bool CUser::CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,
 		int32 nItemID3, int16 sCount3, int32 nItemID4, int16 sCount4, int32 nItemID5, int16 sCount5)
 {
 	if (nItemID1 != -1
 		&& !CheckExistItem(nItemID1, sCount1))
-		return FALSE;
+		return false;
 
 	if (nItemID2 != -1
 		&& !CheckExistItem(nItemID2, sCount2))
-		return FALSE;
+		return false;
 
 	if (nItemID3 != -1
 		&& !CheckExistItem(nItemID3, sCount3))
-		return FALSE;
+		return false;
 
 	if (nItemID4 != -1
 		&& !CheckExistItem(nItemID4, sCount4))
-		return FALSE;
+		return false;
 
 	if (nItemID5 != -1
 		&& !CheckExistItem(nItemID5, sCount5))
-		return FALSE;
+		return false;
 
-	return TRUE;
+	return true;
 }
 
 bool CUser::RobItem(uint32 itemid, uint16 count)
@@ -308,7 +309,7 @@ void CUser::SendItemWeight()
 	Send(&result);
 }
 
-BOOL CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
+bool CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 {
 	return (pTable != NULL
 		&& GetLevel() >= pTable->m_bReqLevel 
@@ -660,71 +661,71 @@ bool CUser::RunExchange(int nExchangeID)
 	return true;
 }
 
-BOOL CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)
+bool CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)
 {
 	if( !pTable )
-		return FALSE;
+		return false;
 
 	switch( pTable->m_bSlot ) {
 	case 0:
 		if( destpos != RIGHTHAND && destpos != LEFTHAND )
-			return FALSE;
+			return false;
 		break;
 	case 1:
 	case 3:
 		if( destpos != RIGHTHAND )
-			return FALSE;
+			return false;
 		break;
 	case 2:
 	case 4:
 		if( destpos != LEFTHAND )
-			return FALSE;
+			return false;
 		break;
 	case 5:
 		if( destpos != BREAST )
-			return FALSE;
+			return false;
 		break;
 	case 6:
 		if( destpos != LEG )
-			return FALSE;
+			return false;
 		break;
 	case 7:
 		if( destpos != HEAD )
-			return FALSE;
+			return false;
 		break;
 	case 8:
 		if( destpos != GLOVE )
-			return FALSE;
+			return false;
 		break;
 	case 9:
 		if( destpos != FOOT )
-			return FALSE;
+			return false;
 		break;
 	case 10:
 		if( destpos != RIGHTEAR && destpos != LEFTEAR )
-			return FALSE;
+			return false;
 		break;
 	case 11:
 		if( destpos != NECK )
-			return FALSE;
+			return false;
 		break;
 	case 12:
 		if( destpos != RIGHTRING && destpos != LEFTRING )
-			return FALSE;
+			return false;
 		break;
 	case 13:
 		if( destpos != SHOULDER )
-			return FALSE;
+			return false;
 		break;
 	case 14:
 		if( destpos != WAIST )
-			return FALSE;
+			return false;
 		break;
 	default:
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 void CUser::SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes, not a bug */, uint16 sDurability, uint8 bPos, bool bNewItem /* = false */)

@@ -42,7 +42,7 @@ public:
 	virtual ~CAISocket() {}
 
 private:
-	BOOL m_bAllNpcInfoRecv;
+	bool m_bAllNpcInfoRecv;
 	CMagicProcess m_MagicProcess;
 	bool m_bHasConnected;
 };

@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "EbenezerDlg.h"
 
 CEbenezerDlg g_pMain;
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
@@ -14,7 +15,7 @@ int main()
 
 	// Override the console handler
 	s_dwMainThreadID = GetCurrentThreadId();
-	SetConsoleCtrlHandler(_ConsoleHandler, TRUE);
+	SetConsoleCtrlHandler(_ConsoleHandler, true);
 
 	// Start up the time updater thread
 	StartTimeThread();
@@ -47,5 +48,5 @@ BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType)
 {
 	PostThreadMessage(s_dwMainThreadID, WM_QUIT, 0, 0);
 	Sleep(10000); // Win7 onwards allows 10 seconds before it'll forcibly terminate
-	return TRUE;
+	return true;
 }

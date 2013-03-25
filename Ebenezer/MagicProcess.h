@@ -44,7 +44,7 @@ public:
 	void Type9Cancel(MagicInstance * pInstance);
 	void Type4Extend(MagicInstance * pInstance);
 
-	BOOL UserRegionCheck(int sid, int tid, int magicid, int radius, short mousex = 0, short mousez = 0);
+	bool UserRegionCheck(int sid, int tid, int magicid, int radius, short mousex = 0, short mousez = 0);
 	short GetMagicDamage(MagicInstance * pInstance, Unit *pTarget, int total_hit, int attribute);
 
 	bool ExecuteType1(MagicInstance * pInstance);	

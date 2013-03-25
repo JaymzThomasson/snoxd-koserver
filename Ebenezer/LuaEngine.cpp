@@ -1,4 +1,8 @@
 #include "stdafx.h"
+#include "LuaEngine.h"
+
+#include "User.h"
+#include "Npc.h"
 
 // define global functions to be called from Lua (e.g. myrand())
 DEFINE_LUA_FUNCTION_TABLE(g_globalFunctions, 
@@ -11,6 +15,7 @@ CLuaEngine::CLuaEngine()
 
 CLuaScript::CLuaScript() : m_luaState(NULL)
 {
+	m_lock = new FastMutex();
 }
 
 // Initialise Lua scripts.
@@ -22,7 +27,7 @@ bool CLuaEngine::Initialise()
 
 bool CLuaScript::Initialise()
 {
-	FastGuard lock(m_lock);
+	FastGuard lock(*m_lock);
 
 	// Lua already initialised?
 	if (m_luaState != NULL)
@@ -69,7 +74,7 @@ bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const
 bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const char * filename)
 {
 	// ensure that we wait until the last user's done executing their script.
-	FastGuard lock(m_lock);
+	FastGuard lock(*m_lock);
 
 	// This is really poor behaviour, but for now let's just load the script up each time (from disk).
 	// Note that this will overwrite existing tables, so it is technically possible to refer to previously loaded 
@@ -169,10 +174,13 @@ bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const
 
 CLuaScript::~CLuaScript()
 {
-	FastGuard lock(m_lock);
+	m_lock->Acquire();
 	if (m_luaState != NULL)
 		lua_close(m_luaState);
+	m_lock->Release();
+	delete m_lock;
 }
+
 
 CLuaEngine::~CLuaEngine()
 {

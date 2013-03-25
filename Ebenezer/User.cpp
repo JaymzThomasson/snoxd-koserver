@@ -1,5 +1,6 @@
 #include "stdafx.h"
-#include <set>
+#include "Map.h"
+#include "EbenezerDlg.h"
 
 using namespace std;
 
@@ -105,10 +106,10 @@ void CUser::Initialize()
 
 	m_sEventNid = -1;
 	m_nQuestHelperID = 0;
-	m_bZoneChangeFlag = FALSE;
+	m_bZoneChangeFlag = false;
 	m_bRegeneType = 0;
 	m_tLastRegeneTime = 0;
-	m_bZoneChangeSameZone = FALSE;
+	m_bZoneChangeSameZone = false;
 
 	m_nTransformationItem = 0;
 	m_tTransformationStartTime = 0;
@@ -769,7 +770,7 @@ void CUser::RequestUserIn(Packet & pkt)
 
 void CUser::RequestNpcIn(Packet & pkt)
 {
-	if (g_pMain.m_bPointCheckFlag == FALSE)
+	if (g_pMain.m_bPointCheckFlag == false)
 		return;
 
 	Packet result(WIZ_REQ_NPCIN);
@@ -1001,7 +1002,7 @@ void CUser::ExpChange(int64 iExp)
 		m_iExp = g_pMain.GetExpByLevel(GetLevel());
 
 		// Get new stats etc.
-		LevelChange(GetLevel(), FALSE);
+		LevelChange(GetLevel(), false);
 
 		// Take the remainder of the XP off (and delevel again if necessary).
 		ExpChange(diffXP);
@@ -1036,12 +1037,13 @@ void CUser::ExpChange(int64 iExp)
 	This method name is something of a misnomer: 
 	it's called after the level has changed (so that stats can be applied, etc), it does not change the level 
 */
-void CUser::LevelChange(short level, BYTE type )
+void CUser::LevelChange(short level, bool bLevelUp /*= true*/)
 {
 	if( level < 1 || level > MAX_LEVEL )
 		return;
 
-	if( type ) {
+	if (bLevelUp)
+	{
 		if ((m_sPoints + getStatTotal()) < int32(300 + 3 * (level - 1)))
 			m_sPoints += 3;
 		if( level > 9 && (m_bstrSkill[0]+m_bstrSkill[1]+m_bstrSkill[2]+m_bstrSkill[3]+m_bstrSkill[4]
@@ -1175,7 +1177,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 
 void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 {
-	BOOL bHaveBow = FALSE;
+	bool bHaveBow = false;
 	_CLASS_COEFFICIENT* p_TableCoefficient = g_pMain.m_CoefficientArray.GetData(m_sClass);
 	uint16 sItemDamage = 0;
 	if (p_TableCoefficient == NULL)
@@ -1207,7 +1209,7 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 		case WEAPON_LONGBOW:
 		case WEAPON_LAUNCHER:
 			hitcoefficient = p_TableCoefficient->Bow;
-			bHaveBow = TRUE;
+			bHaveBow = true;
 			break;
 		case WEAPON_STAFF:
 			hitcoefficient = p_TableCoefficient->Staff;
@@ -1224,7 +1226,7 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 		if (pLeftHand->isBow())
 		{
 			hitcoefficient = p_TableCoefficient->Bow;
-			bHaveBow = TRUE;
+			bHaveBow = true;
 			sItemDamage = pLeftHand->m_sDamage;
 		}
 		else
@@ -1359,7 +1361,7 @@ void CUser::SendTargetHP( BYTE echo, int tid, int damage )
 
 	if (tid >= NPC_BAND)
 	{
-		if (g_pMain.m_bPointCheckFlag == FALSE) return;
+		if (g_pMain.m_bPointCheckFlag == false) return;
 		CNpc *pNpc = g_pMain.m_arNpcArray.GetData(tid);
 		if (pNpc == NULL)
 			return;
@@ -2116,7 +2118,7 @@ void CUser::SendItemMove(uint8 subcommand)
 
 void CUser::HPTimeChange()
 {
-	BOOL bFlag = FALSE;
+	bool bFlag = false;
 
 	m_tHPLastTimeNormal = UNIXTIME;
 
@@ -2223,7 +2225,7 @@ void CUser::HPTimeChangeType3()
 	}
 
 	if (buff_test == 0)
-		m_bType3Flag = FALSE;
+		m_bType3Flag = false;
 
 	if (isInParty() && bType3Test)
 		SendPartyStatusUpdate(1, 0);
@@ -2304,12 +2306,12 @@ void CUser::Type4Duration()
 	for (int i = 0 ; i < MAX_TYPE4_BUFF ; i++) {
 		buff_test += m_bType4Buff[i];
 	}
-	if (buff_test == 0) m_bType4Flag = FALSE;
+	if (buff_test == 0) m_bType4Flag = false;
 
-	BOOL bType4Test = TRUE ;
+	bool bType4Test = true ;
 	for (int j = 0 ; j < MAX_TYPE4_BUFF ; j++) {
 		if (m_bType4Buff[j] == 1) {
-			bType4Test = FALSE;
+			bType4Test = false;
 			break;
 		}
 	}
@@ -2524,7 +2526,7 @@ void CUser::Home()
 	// Forgotten Temple
 	if (GetZoneID() == 55)
 	{
-		KickOutZoneUser(TRUE);
+		KickOutZoneUser(true);
 		return;
 	}
 	// Prevent /town'ing in quest arenas
@@ -2908,7 +2910,7 @@ void CUser::SelectWarpList(Packet & pkt)
 
 	if (m_bZone == pWarp->sZone) 
 	{
-		m_bZoneChangeSameZone = TRUE;
+		m_bZoneChangeSameZone = true;
 
 		Packet result(WIZ_WARP_LIST, uint8(2));
 		result << uint8(1);
@@ -2938,7 +2940,7 @@ void CUser::ServerChangeOk(Packet & pkt)
 	ZoneChange(pWarp->sZone, pWarp->fX + rx, pWarp->fZ + rz);
 }
 
-BOOL CUser::GetWarpList(int warp_group)
+bool CUser::GetWarpList(int warp_group)
 {
 	Packet result(WIZ_WARP_LIST, uint8(1));
 	C3DMap* pMap = GetMap();
@@ -2961,13 +2963,13 @@ BOOL CUser::GetWarpList(int warp_group)
 	}
 
 	Send(&result);
-	return TRUE;
+	return true;
 }
 
-BOOL CUser::BindObjectEvent(_OBJECT_EVENT *pEvent)
+bool CUser::BindObjectEvent(_OBJECT_EVENT *pEvent)
 {
 	if (pEvent->sBelong != 0 && pEvent->sBelong != GetNation())
-		return FALSE;
+		return false;
 
 	Packet result(WIZ_OBJECT_EVENT, uint8(pEvent->sType));
 
@@ -2975,10 +2977,10 @@ BOOL CUser::BindObjectEvent(_OBJECT_EVENT *pEvent)
 
 	result << uint8(1);
 	Send(&result);
-	return TRUE;
+	return true;
 }
 
-BOOL CUser::GateLeverObjectEvent(_OBJECT_EVENT *pEvent, int nid)
+bool CUser::GateLeverObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 {
 	_OBJECT_EVENT *pGateEvent;
 	CNpc* pNpc, *pGateNpc;
@@ -2994,20 +2996,20 @@ BOOL CUser::GateLeverObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 		// If the gate's closed (i.e. the lever is down), we can't open it unless the lever isn't nation-specific
 		// or we're the correct nation. Seems the other nation cannot close them.
 		|| (pNpc->isGateClosed() && pNpc->GetNation() != 0 && pNpc->GetNation() != GetNation()))
-		return FALSE;
+		return false;
 
 	// Move the lever (up/down).
 	pNpc->SendGateFlag(!pNpc->m_byGateOpen);
 
 	// Open/close the gate.
 	pGateNpc->SendGateFlag(!pGateNpc->m_byGateOpen);
-	return TRUE;
+	return true;
 }
 
 /***
  * Not sure what this is used for, so keeping logic the same just in case.
  ***/
-BOOL CUser::FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid)
+bool CUser::FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 {
 	_OBJECT_EVENT *pFlagEvent;
 	CNpc *pNpc, *pFlagNpc;
@@ -3022,7 +3024,7 @@ BOOL CUser::FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 		|| !pFlagNpc->isGate()
 		// Is the war over or the gate closed?
 		|| g_pMain.m_bVictory > 0 || pNpc->isGateClosed())
-		return FALSE;
+		return false;
 
 	// Reset objects
 	pNpc->SendGateFlag(0);
@@ -3036,10 +3038,10 @@ BOOL CUser::FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 
 	// Did one of the teams win?
 	g_pMain.BattleZoneVictoryCheck();	
-	return TRUE;
+	return true;
 }
 
-BOOL CUser::WarpListObjectEvent(_OBJECT_EVENT *pEvent)
+bool CUser::WarpListObjectEvent(_OBJECT_EVENT *pEvent)
 {
 	// If the warp gate belongs to a nation, which isn't us...
 	if (pEvent->sBelong != 0 && pEvent->sBelong != GetNation()
@@ -3047,18 +3049,18 @@ BOOL CUser::WarpListObjectEvent(_OBJECT_EVENT *pEvent)
 		|| (GetZoneID() != GetNation() && GetZoneID() <= ELMORAD)
 		// or we're unable to retrieve the warp list...
 		|| !GetWarpList(pEvent->sControlNpcID)) 
-		return FALSE;
+		return false;
 
-	return TRUE;
+	return true;
 }
 
 void CUser::ObjectEvent(Packet & pkt)
 {
-	if (g_pMain.m_bPointCheckFlag == FALSE
+	if (g_pMain.m_bPointCheckFlag == false
 		|| isDead())
 		return;
 
-	BOOL bSuccess = FALSE;
+	bool bSuccess = false;
 	uint16 objectindex, nid;
 	pkt >> objectindex >> nid;
 
@@ -3166,32 +3168,32 @@ void CUser::GoldGain(int gold)	// 1 -> Get gold    2 -> Lose gold
 	Send(&result);	
 }
 
-BOOL CUser::GoldLose(unsigned int gold)
+bool CUser::GoldLose(unsigned int gold)
 {
 	if (m_iGold < gold) 
-		return FALSE;
+		return false;
 	
 	Packet result(WIZ_GOLD_CHANGE);
 	m_iGold -= gold;
 	result << uint8(2) << gold << m_iGold;
 	Send(&result);	
-	return TRUE;
+	return true;
 }
 
-BOOL CUser::CheckSkillPoint(BYTE skillnum, BYTE min, BYTE max)
+bool CUser::CheckSkillPoint(BYTE skillnum, BYTE min, BYTE max)
 {
 	if (skillnum < 5 || skillnum > 8) 
-		return FALSE;
+		return false;
 
 	return (m_bstrSkill[skillnum] >= min && m_bstrSkill[skillnum] <= max);
 }
 
-BOOL CUser::CheckClass(short class1, short class2, short class3, short class4, short class5, short class6)
+bool CUser::CheckClass(short class1, short class2, short class3, short class4, short class5, short class6)
 {
 	return (JobGroupCheck(class1) || JobGroupCheck(class2) || JobGroupCheck(class3) || JobGroupCheck(class4) || JobGroupCheck(class5) || JobGroupCheck(class6));
 }
 
-BOOL CUser::JobGroupCheck(short jobgroupid)
+bool CUser::JobGroupCheck(short jobgroupid)
 {
 	if (jobgroupid > 100) 
 		return m_sClass == jobgroupid;
@@ -3227,7 +3229,7 @@ void CUser::TrapProcess()
 }
 
 // TO-DO: This needs updating.
-void CUser::KickOutZoneUser(BOOL home, int nZoneID /*= 21 */)
+void CUser::KickOutZoneUser(bool home, int nZoneID /*= 21 */)
 {
 	int yourmama=0, random = 0;
 	_REGENE_EVENT* pRegene = NULL;

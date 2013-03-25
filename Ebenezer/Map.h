@@ -18,7 +18,7 @@ public:
 	__forceinline int GetXRegionMax() { return m_smdFile->GetXRegionMax(); }
 	__forceinline int GetZRegionMax() { return m_smdFile->GetZRegionMax(); }
 
-	__forceinline BOOL IsValidPosition(float x, float z, float y) { return m_smdFile->IsValidPosition(x, z, y); }
+	__forceinline bool IsValidPosition(float x, float z, float y) { return m_smdFile->IsValidPosition(x, z, y); }
 	
 	__forceinline _OBJECT_EVENT * GetObjectEvent(int objectindex) { return m_smdFile->GetObjectEvent(objectindex); }
 	__forceinline _REGENE_EVENT * GetRegeneEvent(int objectindex) { return m_smdFile->GetRegeneEvent(objectindex); }
@@ -30,10 +30,10 @@ public:
 	C3DMap();
 	bool Initialize(_ZONE_INFO *pZone);
 	CRegion * GetRegion(uint16 regionX, uint16 regionZ);
-	BOOL CheckEvent( float x, float z, CUser* pUser = NULL );
-	BOOL RegionItemRemove(uint16 rx, uint16 rz, int bundle_index, int itemid, int count);
-	BOOL RegionItemAdd(uint16 rx, uint16 rz, _ZONE_ITEM * pItem);
-	BOOL ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2);
+	bool CheckEvent( float x, float z, CUser* pUser = NULL );
+	bool RegionItemRemove(uint16 rx, uint16 rz, int bundle_index, int itemid, int count);
+	bool RegionItemAdd(uint16 rx, uint16 rz, _ZONE_ITEM * pItem);
+	bool ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2);
 	float GetHeight( float x, float y, float z );
 	virtual ~C3DMap();
 

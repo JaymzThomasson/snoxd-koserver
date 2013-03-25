@@ -1,5 +1,7 @@
 #pragma once
 
+#include <set>
+
 class CGameEvent;
 class CUser;
 
@@ -22,9 +24,9 @@ public:
 	void LoadRegeneEvent(FILE *fp);
 	void LoadWarpList(FILE *fp);
 
-	BOOL IsValidPosition(float x, float z, float y);
-	BOOL CheckEvent( float x, float z, CUser* pUser = NULL );
-	BOOL ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2);
+	bool IsValidPosition(float x, float z, float y);
+	bool CheckEvent( float x, float z, CUser* pUser = NULL );
+	bool ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2);
 	float GetHeight( float x, float y, float z );
 
 	int GetEventID(int x, int z);

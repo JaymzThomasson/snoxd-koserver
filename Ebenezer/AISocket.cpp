@@ -1,4 +1,9 @@
 #include "stdafx.h"
+#include "resource.h"
+#include "Map.h"
+#include "EbenezerDlg.h"
+
+using std::string;
 
 bool CAISocket::HandlePacket(Packet & pkt)
 {
@@ -94,7 +99,7 @@ void CAISocket::LoginProcess(Packet & pkt)
 	if (bReconnect == 1)
 		TRACE("**** ReConnect - socket = %d ****\n ", GetSocketID());
 
-	g_pMain.m_bServerCheckFlag = TRUE;
+	g_pMain.m_bServerCheckFlag = true;
 	g_pMain.SendAllUserInfo();
 }
 
@@ -111,13 +116,13 @@ void CAISocket::RecvServerInfo(Packet & pkt)
 	if (g_pMain.m_sZoneCount == size)
 	{
 #if 0
-		if (g_pMain.m_bFirstServerFlag == FALSE)
+		if (g_pMain.m_bFirstServerFlag == false)
 			TRACE("+++ �������� ���� ������ �� �޾���, User AcceptThread Start ....%d, socketcount=%d\n", bZone, g_pMain.m_sZoneCount);
 #endif
 
 		g_pMain.m_sZoneCount = 0;
-		g_pMain.m_bFirstServerFlag = TRUE;
-		g_pMain.m_bPointCheckFlag = TRUE;
+		g_pMain.m_bFirstServerFlag = true;
+		g_pMain.m_bPointCheckFlag = true;
 
 		printf("All spawn data loaded.\n");
 	}

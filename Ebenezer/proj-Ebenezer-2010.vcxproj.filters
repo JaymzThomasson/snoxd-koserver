@@ -108,9 +108,6 @@
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp">
       <Filter>N3Base</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\SharedMem.cpp">
-      <Filter>Shared</Filter>
-    </ClCompile>
     <ClCompile Include="CharacterMovementHandler.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
@@ -186,6 +183,18 @@
     <ClCompile Include="lua_bindings.cpp">
       <Filter>Scripting</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\Mutex.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\RWLock.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\Condition.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadServerData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -244,9 +253,6 @@
     </ClInclude>
     <ClInclude Include="..\N3BASE\My_Macro.h">
       <Filter>N3Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\SharedMem.h">
-      <Filter>Shared</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\database\MagicType8Set.h">
       <Filter>Database</Filter>
@@ -424,6 +430,18 @@
     </ClInclude>
     <ClInclude Include="..\scripting\lua_helpers.h">
       <Filter>Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\Condition.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\RWLock.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\Mutex.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadServerData.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

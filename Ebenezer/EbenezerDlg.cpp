@@ -1,36 +1,11 @@
 #include "stdafx.h"
+#include "EbenezerDlg.h"
+#include "../shared/Ini.h"
 
-#include "../shared/database/ItemTableSet.h"
-#include "../shared/database/ItemExchangeSet.h"
-#include "../shared/database/MagicTableSet.h"
-#include "../shared/database/MagicType1Set.h"
-#include "../shared/database/MagicType2Set.h"
-#include "../shared/database/MagicType3Set.h"
-#include "../shared/database/MagicType4Set.h"
-#include "../shared/database/MagicType5Set.h"
-#include "../shared/database/MagicType6Set.h"
-#include "../shared/database/MagicType7Set.h"
-#include "../shared/database/MagicType8Set.h"
-#include "../shared/database/MagicType9Set.h"
-#include "../shared/database/ZoneInfoSet.h"
-#include "../shared/database/EventSet.h"
-#include "../shared/database/CoefficientSet.h"
-#include "../shared/database/LevelUpTableSet.h"
-#include "../shared/database/ServerResourceSet.h"
-#include "../shared/database/EventTriggerSet.h"
-#include "../shared/database/QuestHelperSet.h"
-#include "../shared/database/QuestMonsterSet.h"
-#include "../shared/database/KnightsSet.h"
-#include "../shared/database/KnightsUserSet.h"
-#include "../shared/database/KnightsAllianceSet.h"
-#include "../shared/database/KnightsRankSet.h"
-#include "../shared/database/KnightsCapeSet.h"
-#include "../shared/database/UserPersonalRankSet.h"
-#include "../shared/database/UserKnightsRankSet.h"
-#include "../shared/database/HomeSet.h"
-#include "../shared/database/StartPositionSet.h"
-#include "../shared/database/BattleSet.h"
-#include "../shared/database/RentalItemSet.h"
+#include <iostream>
+#include <fstream>
+#include "resource.h"
+#include "Map.h"
 
 using namespace std;
 
@@ -54,7 +29,6 @@ void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 }
 
 CEbenezerDlg::CEbenezerDlg()
-	: m_Ini("gameserver.ini")
 {
 	m_nYear = 0; 
 	m_nMonth = 0;
@@ -88,9 +62,9 @@ CEbenezerDlg::CEbenezerDlg()
 	m_byBattleZone = 0;
 	m_byBattleOpen = NO_BATTLE;
 	m_byOldBattleOpen = NO_BATTLE;
-	m_bFirstServerFlag = FALSE;
-	// m_bPointCheckFlag = FALSE;
-	m_bPointCheckFlag = TRUE;
+	m_bFirstServerFlag = false;
+	// m_bPointCheckFlag = false;
+	m_bPointCheckFlag = true;
 
 	m_nServerNo = 0;
 	m_nServerGroupNo = 0;
@@ -101,7 +75,7 @@ CEbenezerDlg::CEbenezerDlg()
 
 	memset( m_AIServerIP, NULL, 20 );
 
-	m_bPermanentChatMode = FALSE;
+	m_bPermanentChatMode = false;
 	memset( m_strKarusCaptain, 0x00, MAX_ID_SIZE+1 );
 	memset( m_strElmoradCaptain, 0x00, MAX_ID_SIZE+1 );
 
@@ -120,8 +94,8 @@ bool CEbenezerDlg::Startup()
 	m_sZoneCount = 0;
 	m_sErrorSocketCount = 0;
 
-	m_bFirstServerFlag = FALSE;	
-	m_bServerCheckFlag = FALSE;
+	m_bFirstServerFlag = false;	
+	m_bServerCheckFlag = false;
 
 	InitializeCriticalSection( &g_region_critical );
 	InitializeCriticalSection( &g_serial_critical );
@@ -156,7 +130,7 @@ bool CEbenezerDlg::Startup()
 	if (!m_pUdpSocket->CreateSocket())
 	{
 		printf("ERROR: UDP socket could not be created.\n");
-		return FALSE;
+		return false;
 	}
 #endif
 
@@ -173,38 +147,39 @@ bool CEbenezerDlg::Startup()
 
 void CEbenezerDlg::GetTimeFromIni()
 {
+	CIni ini(CONF_GAME_SERVER);
 	int year=0, month=0, date=0, hour=0, server_count=0, sgroup_count = 0, i=0;
 	char ipkey[20];
 
-	m_Ini.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, sizeof(m_strGameDSN), false);
-	m_Ini.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, sizeof(m_strGameUID), false);
-	m_Ini.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, sizeof(m_strGamePWD), false);
-	m_bMarsEnabled = m_Ini.GetBool("ODBC", "GAME_MARS", true);
+	ini.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, sizeof(m_strGameDSN), false);
+	ini.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, sizeof(m_strGameUID), false);
+	ini.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, sizeof(m_strGamePWD), false);
+	m_bMarsEnabled = ini.GetBool("ODBC", "GAME_MARS", true);
 
-	m_Ini.GetString("ODBC", "ACCOUNT_DSN", "KN_online", m_strAccountDSN, sizeof(m_strAccountDSN), false);
-	m_Ini.GetString("ODBC", "ACCOUNT_UID", "knight", m_strAccountUID, sizeof(m_strAccountUID), false);
-	m_Ini.GetString("ODBC", "ACCOUNT_PWD", "knight", m_strAccountPWD, sizeof(m_strAccountPWD), false);
+	ini.GetString("ODBC", "ACCOUNT_DSN", "KN_online", m_strAccountDSN, sizeof(m_strAccountDSN), false);
+	ini.GetString("ODBC", "ACCOUNT_UID", "knight", m_strAccountUID, sizeof(m_strAccountUID), false);
+	ini.GetString("ODBC", "ACCOUNT_PWD", "knight", m_strAccountPWD, sizeof(m_strAccountPWD), false);
 
-	bool bMarsEnabled = m_Ini.GetBool("ODBC", "ACCOUNT_MARS", true);
+	bool bMarsEnabled = ini.GetBool("ODBC", "ACCOUNT_MARS", true);
 
 	// Both need to be enabled to use MARS.
 	if (!m_bMarsEnabled || !bMarsEnabled)
 		m_bMarsEnabled = false;
 	
-	m_nYear = m_Ini.GetInt("TIMER", "YEAR", 1);
-	m_nMonth = m_Ini.GetInt("TIMER", "MONTH", 1);
-	m_nDate = m_Ini.GetInt("TIMER", "DATE", 1);
-	m_nHour = m_Ini.GetInt("TIMER", "HOUR", 1);
-	m_nWeather = m_Ini.GetInt("TIMER", "WEATHER", 1);
+	m_nYear = ini.GetInt("TIMER", "YEAR", 1);
+	m_nMonth = ini.GetInt("TIMER", "MONTH", 1);
+	m_nDate = ini.GetInt("TIMER", "DATE", 1);
+	m_nHour = ini.GetInt("TIMER", "HOUR", 1);
+	m_nWeather = ini.GetInt("TIMER", "WEATHER", 1);
 
-	m_nBattleZoneOpenWeek  = m_Ini.GetInt("BATTLE", "WEEK", 5);
-	m_nBattleZoneOpenHourStart  = m_Ini.GetInt("BATTLE", "START_TIME", 20);
-	m_nBattleZoneOpenHourEnd  = m_Ini.GetInt("BATTLE", "END_TIME", 0);
+	m_nBattleZoneOpenWeek  = ini.GetInt("BATTLE", "WEEK", 5);
+	m_nBattleZoneOpenHourStart  = ini.GetInt("BATTLE", "START_TIME", 20);
+	m_nBattleZoneOpenHourEnd  = ini.GetInt("BATTLE", "END_TIME", 0);
 
-	m_nCastleCapture = m_Ini.GetInt("CASTLE", "NATION", 1);
-	m_nServerNo = m_Ini.GetInt("ZONE_INFO", "MY_INFO", 1);
-	m_nServerGroup = m_Ini.GetInt("ZONE_INFO", "SERVER_NUM", 0);
-	server_count = m_Ini.GetInt("ZONE_INFO", "SERVER_COUNT", 1);
+	m_nCastleCapture = ini.GetInt("CASTLE", "NATION", 1);
+	m_nServerNo = ini.GetInt("ZONE_INFO", "MY_INFO", 1);
+	m_nServerGroup = ini.GetInt("ZONE_INFO", "SERVER_NUM", 0);
+	server_count = ini.GetInt("ZONE_INFO", "SERVER_COUNT", 1);
 	if (server_count < 1)
 	{
 		printf("ERROR: Invalid SERVER_COUNT property in INI.\n");
@@ -214,15 +189,15 @@ void CEbenezerDlg::GetTimeFromIni()
 	for( i=0; i<server_count; i++ ) {
 		_ZONE_SERVERINFO *pInfo = new _ZONE_SERVERINFO;
 		sprintf( ipkey, "SERVER_%02d", i );
-		pInfo->sServerNo = m_Ini.GetInt("ZONE_INFO", ipkey, 1);
+		pInfo->sServerNo = ini.GetInt("ZONE_INFO", ipkey, 1);
 		sprintf( ipkey, "SERVER_IP_%02d", i );
-		m_Ini.GetString("ZONE_INFO", ipkey, "127.0.0.1", pInfo->strServerIP, sizeof(pInfo->strServerIP));
+		ini.GetString("ZONE_INFO", ipkey, "127.0.0.1", pInfo->strServerIP, sizeof(pInfo->strServerIP));
 		m_ServerArray.PutData(pInfo->sServerNo, pInfo);
 	}
 
 	if( m_nServerGroup != 0 )	{
-		m_nServerGroupNo = m_Ini.GetInt("SG_INFO", "GMY_INFO", 1);
-		sgroup_count = m_Ini.GetInt("SG_INFO", "GSERVER_COUNT", 1);
+		m_nServerGroupNo = ini.GetInt("SG_INFO", "GMY_INFO", 1);
+		sgroup_count = ini.GetInt("SG_INFO", "GSERVER_COUNT", 1);
 		if (server_count < 1)
 		{
 			printf("ERROR: Invalid GSERVER_COUNT property in INI.\n");
@@ -231,304 +206,18 @@ void CEbenezerDlg::GetTimeFromIni()
 		for( i=0; i<sgroup_count; i++ ) {
 			_ZONE_SERVERINFO *pInfo = new _ZONE_SERVERINFO;
 			sprintf( ipkey, "GSERVER_%02d", i );
-			pInfo->sServerNo = m_Ini.GetInt("SG_INFO", ipkey, 1);
+			pInfo->sServerNo = ini.GetInt("SG_INFO", ipkey, 1);
 			sprintf( ipkey, "GSERVER_IP_%02d", i );
-			m_Ini.GetString("SG_INFO", ipkey, "127.0.0.1", pInfo->strServerIP, sizeof(pInfo->strServerIP));
+			ini.GetString("SG_INFO", ipkey, "127.0.0.1", pInfo->strServerIP, sizeof(pInfo->strServerIP));
 
 			m_ServerGroupArray.PutData(pInfo->sServerNo, pInfo);
 		}
 	}
 
-	m_Ini.GetString("AI_SERVER", "IP", "127.0.0.1", m_AIServerIP, sizeof(m_AIServerIP));
+	ini.GetString("AI_SERVER", "IP", "127.0.0.1", m_AIServerIP, sizeof(m_AIServerIP));
 
 	s_dwGameTimerID = SetTimer(NULL, 1, 6000, &TimerProc);
 	s_dwAliveTimerID = SetTimer(NULL, 2, 34000, &TimerProc);
-}
-
-bool CEbenezerDlg::LoadTables()
-{
-	return (LoadItemTable()
-			&& LoadItemExchangeTable()
-			&& LoadServerResourceTable()
-			&& LoadEventTriggerTable()
-			&& LoadQuestHelperTable()
-			&& LoadQuestMonsterTable()
-			&& LoadMagicTable()
-			&& LoadMagicType1()
-			&& LoadMagicType2()
-			&& LoadMagicType3()
-			&& LoadMagicType4()
-			&& LoadMagicType5()
-			&& LoadMagicType6()
-			&& LoadMagicType7()
-			&& LoadMagicType8()
-			&& LoadMagicType9()
-			&& LoadRentalList()
-			&& LoadCoefficientTable()
-			&& LoadLevelUpTable()
-			&& LoadAllKnights()
-			&& LoadAllKnightsUserData()
-			&& LoadKnightsAllianceTable()
-			&& LoadUserRankings()
-			&& LoadKnightsCapeTable()
-			&& LoadHomeTable()
-			&& LoadStartPositionTable()
-			&& LoadBattleTable());
-}
-
-BOOL CEbenezerDlg::LoadItemTable()
-{
-	LOAD_TABLE(CItemTableSet, &g_DBAgent.m_GameDB, &m_ItemtableArray, false);
-}
-
-BOOL CEbenezerDlg::LoadItemExchangeTable()
-{
-	LOAD_TABLE(CItemExchangeSet, &g_DBAgent.m_GameDB, &m_ItemExchangeArray, true);
-}
-
-BOOL CEbenezerDlg::LoadServerResourceTable()
-{
-	LOAD_TABLE(CServerResourceSet, &g_DBAgent.m_GameDB, &m_ServerResourceArray, false);
-}
-
-BOOL CEbenezerDlg::LoadEventTriggerTable()
-{
-	LOAD_TABLE(CEventTriggerSet, &g_DBAgent.m_GameDB, &m_EventTriggerArray, true);
-}
-
-BOOL CEbenezerDlg::LoadQuestHelperTable()
-{
-	m_QuestNpcList.clear();
-	LOAD_TABLE(CQuestHelperSet, &g_DBAgent.m_GameDB, &m_QuestHelperArray, true);
-}
-
-BOOL CEbenezerDlg::LoadQuestMonsterTable()
-{
-	LOAD_TABLE(CQuestMonsterSet, &g_DBAgent.m_GameDB, &m_QuestMonsterArray, true);
-}
-
-BOOL CEbenezerDlg::LoadMagicTable()
-{
-	LOAD_TABLE(CMagicTableSet, &g_DBAgent.m_GameDB, &m_MagictableArray, false);
-}
-
-BOOL CEbenezerDlg::LoadMagicType1()
-{
-	LOAD_TABLE(CMagicType1Set, &g_DBAgent.m_GameDB, &m_Magictype1Array, false);
-}
-
-BOOL CEbenezerDlg::LoadMagicType2()
-{
-	LOAD_TABLE(CMagicType2Set, &g_DBAgent.m_GameDB, &m_Magictype2Array, false);
-}
-
-BOOL CEbenezerDlg::LoadMagicType3()
-{
-	LOAD_TABLE(CMagicType3Set, &g_DBAgent.m_GameDB, &m_Magictype3Array, false);
-}
-
-BOOL CEbenezerDlg::LoadMagicType4()
-{
-	LOAD_TABLE(CMagicType4Set, &g_DBAgent.m_GameDB, &m_Magictype4Array, false);
-}
-
-BOOL CEbenezerDlg::LoadMagicType5()
-{
-	LOAD_TABLE(CMagicType5Set, &g_DBAgent.m_GameDB, &m_Magictype5Array, false);
-}
-
-BOOL CEbenezerDlg::LoadMagicType6()
-{
-	LOAD_TABLE(CMagicType6Set, &g_DBAgent.m_GameDB, &m_Magictype6Array, false);
-}
-
-BOOL CEbenezerDlg::LoadMagicType7()
-{
-	LOAD_TABLE(CMagicType7Set, &g_DBAgent.m_GameDB, &m_Magictype7Array, false);
-}
-
-BOOL CEbenezerDlg::LoadMagicType8()
-{
-	LOAD_TABLE(CMagicType8Set, &g_DBAgent.m_GameDB, &m_Magictype8Array, false);
-}
-
-BOOL CEbenezerDlg::LoadMagicType9()
-{
-	LOAD_TABLE(CMagicType9Set, &g_DBAgent.m_GameDB, &m_Magictype9Array, false);
-}
-
-BOOL CEbenezerDlg::LoadRentalList()
-{
-	LOAD_TABLE(CRentalItemSet, &g_DBAgent.m_GameDB, &m_RentalItemArray, true);
-}
-
-BOOL CEbenezerDlg::LoadCoefficientTable()
-{
-	LOAD_TABLE(CCoefficientSet, &g_DBAgent.m_GameDB, &m_CoefficientArray, false);
-}
-
-BOOL CEbenezerDlg::LoadLevelUpTable()
-{
-	LOAD_TABLE(CLevelUpTableSet, &g_DBAgent.m_GameDB, &m_LevelUpArray, false);
-}
-
-BOOL CEbenezerDlg::LoadAllKnights()
-{
-	FastGuard lock(m_KnightsArray.m_lock);
-	LOAD_TABLE(CKnightsSet, &g_DBAgent.m_GameDB, &m_KnightsArray, true);
-}
-
-BOOL CEbenezerDlg::LoadAllKnightsUserData()
-{
-	LOAD_TABLE(CKnightsUserSet, &g_DBAgent.m_GameDB, NULL, true);
-}
-
-BOOL CEbenezerDlg::LoadKnightsAllianceTable()
-{
-	LOAD_TABLE(CKnightsAllianceSet, &g_DBAgent.m_GameDB, &m_KnightsAllianceArray, true);
-}
-
-BOOL CEbenezerDlg::LoadUserRankings()
-{
-	CUserPersonalRankSet UserPersonalRankSet(&g_DBAgent.m_GameDB, &m_UserPersonalRankMap);
-	CUserKnightsRankSet  UserKnightsRankSet(&g_DBAgent.m_GameDB, &m_UserKnightsRankMap);
-	TCHAR * szError = NULL;
-
-	// Cleanup first, in the event it's already loaded (we'll have this automatically reload in-game)
-	CleanupUserRankings();
-
-	// Acquire the lock for thread safety, and load both tables.
-	FastGuard lock(m_userRankingsLock);
-
-	szError = UserPersonalRankSet.Read(true);
-	if (szError != NULL)
-	{
-		TRACE("Failed to load personal rankings, error: %s\n", szError);
-		return FALSE;
-	}
-
-	szError = UserKnightsRankSet.Read(true);
-	if (szError != NULL)
-	{
-		TRACE("Failed to load user knights rankings, error: %s\n", szError);
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-void CEbenezerDlg::CleanupUserRankings()
-{
-	set<_USER_RANK *> deleteSet;
-	FastGuard lock(m_userRankingsLock);
-
-	// Go through the personal rank map, reset the character's rank and insert
-	// the _USER_RANK struct instance into the deletion set for later.
-	foreach (itr, m_UserPersonalRankMap)
-	{
-		CUser *pUser = GetUserPtr(itr->first, TYPE_CHARACTER);
-		if (pUser != NULL)
-			pUser->m_bPersonalRank = -1;
-
-		deleteSet.insert(itr->second);
-	}
-
-	// Go through the knights rank map, reset the character's rank and insert
-	// the _USER_RANK struct instance into the deletion set for later.
-	foreach (itr, m_UserKnightsRankMap)
-	{
-		CUser *pUser = GetUserPtr(itr->first, TYPE_CHARACTER);
-		if (pUser != NULL)
-			pUser->m_bKnightsRank = -1;
-
-		deleteSet.insert(itr->second);
-	}
-
-	// Clear out the maps
-	m_UserPersonalRankMap.clear();
-	m_UserKnightsRankMap.clear();
-
-	// Free the memory used by the _USER_RANK structs
-	foreach (itr, deleteSet)
-		delete *itr;
-}
-
-BOOL CEbenezerDlg::LoadKnightsCapeTable()
-{
-	LOAD_TABLE(CKnightsCapeSet, &g_DBAgent.m_GameDB, &m_KnightsCapeArray, false);
-}
-
-BOOL CEbenezerDlg::LoadKnightsRankTable()
-{
-	string strKarusCaptainNames, strElmoCaptainNames;
-	LOAD_TABLE_ERROR_ONLY(CKnightsRankSet, &g_DBAgent.m_GameDB, NULL, true);
-
-	CKnightsRankSet & pSet = _CKnightsRankSet; // kind ugly generic naming
-
-	if (pSet.nKarusCount > 0)
-	{
-		Packet result(WIZ_CHAT, uint8(WAR_SYSTEM_CHAT));
-		GetServerResource(IDS_KARUS_CAPTAIN, strKarusCaptainNames, 
-			pSet.strKarusCaptain[0], pSet.strKarusCaptain[1], pSet.strKarusCaptain[2], 
-			pSet.strKarusCaptain[3], pSet.strKarusCaptain[4]);
-
-		result << int8(1) << int16(-1) << int8(0) << strKarusCaptainNames;
-		Send_All(&result, NULL, KARUS);
-	}
-
-	if (pSet.nElmoCount > 0)
-	{
-		Packet result(WIZ_CHAT, uint8(WAR_SYSTEM_CHAT));
-		GetServerResource(IDS_ELMO_CAPTAIN, strElmoCaptainNames,
-			pSet.strElmoCaptain[0], pSet.strElmoCaptain[1], pSet.strElmoCaptain[2], 
-			pSet.strElmoCaptain[3], pSet.strElmoCaptain[4]);
-
-		result << int8(1) << int16(-1) << int8(0) << strElmoCaptainNames;
-		Send_All(&result, NULL, ELMORAD);
-	}
-
-	return TRUE;
-}
-
-BOOL CEbenezerDlg::LoadHomeTable()
-{
-	LOAD_TABLE(CHomeSet, &g_DBAgent.m_GameDB, &m_HomeArray, false);
-}
-
-BOOL CEbenezerDlg::LoadStartPositionTable()
-{
-	LOAD_TABLE(CStartPositionSet, &g_DBAgent.m_GameDB, &m_StartPositionArray, false);
-}
-
-BOOL CEbenezerDlg::LoadBattleTable()
-{
-	LOAD_TABLE(CBattleSet, &g_DBAgent.m_GameDB, &m_byOldVictory, true);
-}
-
-BOOL CEbenezerDlg::MapFileLoad()
-{
-	ZoneInfoMap zoneMap;
-	LOAD_TABLE_ERROR_ONLY(CZoneInfoSet, &g_DBAgent.m_GameDB, &zoneMap, false); 
-
-	foreach (itr, zoneMap)
-	{
-		C3DMap *pMap = new C3DMap();
-		_ZONE_INFO *pZone = itr->second;
-		if (!pMap->Initialize(pZone))
-		{
-			printf("ERROR: Unable to load SMD - %s\n", pZone->m_MapName.c_str());
-			delete pZone;
-			delete pMap;
-			m_ZoneArray.DeleteAllData();
-			return false;
-		}
-
-		delete pZone;
-		m_ZoneArray.PutData(pMap->m_nZoneNumber, pMap);
-	}
-
-	LOAD_TABLE_ERROR_ONLY(CEventSet, &g_DBAgent.m_GameDB, &m_ZoneArray, true);
-	return TRUE;
 }
 
 void CEbenezerDlg::GetServerResource(int nResourceID, string & result, ...)
@@ -942,7 +631,7 @@ void CEbenezerDlg::Send_AIServer(Packet *pkt)
 void CEbenezerDlg::UpdateGameTime()
 {
 	CUser* pUser = NULL;
-	BOOL bKnights = FALSE;
+	bool bKnights = false;
 
 	m_nMin++;
 
@@ -960,7 +649,7 @@ void CEbenezerDlg::UpdateGameTime()
 	if( m_nHour == 24 ) {
 		m_nDate++;
 		m_nHour = 0;
-		bKnights = TRUE;
+		bKnights = true;
 	}
 	if( m_nDate == 31 ) {
 		m_nMonth++;
@@ -1007,11 +696,12 @@ void CEbenezerDlg::UpdateWeather()
 
 void CEbenezerDlg::SetGameTime()
 {
-	m_Ini.SetInt( "TIMER", "YEAR", m_nYear );
-	m_Ini.SetInt( "TIMER", "MONTH", m_nMonth );
-	m_Ini.SetInt( "TIMER", "DATE", m_nDate );
-	m_Ini.SetInt( "TIMER", "HOUR", m_nHour );
-	m_Ini.SetInt( "TIMER", "WEATHER", m_nWeather );
+	CIni ini(CONF_GAME_SERVER);
+	ini.SetInt( "TIMER", "YEAR", m_nYear );
+	ini.SetInt( "TIMER", "MONTH", m_nMonth );
+	ini.SetInt( "TIMER", "DATE", m_nDate );
+	ini.SetInt( "TIMER", "HOUR", m_nHour );
+	ini.SetInt( "TIMER", "WEATHER", m_nWeather );
 }
 
 void CEbenezerDlg::AddDatabaseRequest(Packet & pkt, CUser *pUser /*= NULL*/)
@@ -1260,23 +950,23 @@ BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg)
 	if (pMsg->message == WM_KEYDOWN)
 	{
 		if (pMsg->wParam == VK_ESCAPE)
-			return TRUE;
+			return true;
 
 		if (pMsg->wParam == VK_RETURN)
 		{
 			std::string message = chatstr;
 			if (message.empty())
-				return TRUE;
+				return true;
 
 			m_AnnounceEdit.SetWindowText("");
 			UpdateData(FALSE);
 
 			if (ProcessServerCommand(message))
-				return TRUE;
+				return true;
 
 			if (message.size() <= 256)
 				SendNotice(message.c_str());
-			return TRUE;
+			return true;
 		}
 	}
 }
@@ -1309,7 +999,7 @@ void CEbenezerDlg::SendFormattedNotice(const char *msg, uint8 nation, ...)
 	SendNotice(buffer, nation);
 }
 
-BOOL CEbenezerDlg::LoadNoticeData()
+bool CEbenezerDlg::LoadNoticeData()
 {
 	ifstream file(GetProgPath() + "Notice.txt");
 	string line;
@@ -1321,7 +1011,7 @@ BOOL CEbenezerDlg::LoadNoticeData()
 	if (!file)
 	{
 		TRACE("Notice.txt could not be opened.\n");
-		return FALSE;
+		return false;
 	}
 
 	while (!file.eof())
@@ -1343,7 +1033,7 @@ BOOL CEbenezerDlg::LoadNoticeData()
 	}
 
 	file.close();
-	return TRUE;
+	return true;
 }
 
 void CEbenezerDlg::SendAllUserInfo()
@@ -1425,14 +1115,14 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 
 	// And finally remove all the spawn data we have.
 	m_arNpcArray.DeleteAllData();
-	m_bServerCheckFlag = FALSE;
+	m_bServerCheckFlag = false;
 
 	TRACE("*** DeleteAllNpcList - End *** \n");
 }
 
 CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
 {
-	if( m_bPointCheckFlag == FALSE)	return NULL;
+	if( m_bPointCheckFlag == false)	return NULL;
 
 	CNpc* pNpc = NULL;
 
@@ -1619,7 +1309,7 @@ void CEbenezerDlg::BanishLosers()
 		// Kick out invaders
 		if (pUser->GetZoneID() <= ELMORAD
 			&& pUser->GetZoneID() != pUser->GetNation())
-			pUser->KickOutZoneUser(TRUE);
+			pUser->KickOutZoneUser(true);
 	}
 	s_socketMgr.ReleaseLock();
 }

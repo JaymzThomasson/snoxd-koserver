@@ -1,6 +1,5 @@
 #pragma once
 
-#include "types.h"
 #include "crc32.h"
 
 class CJvCryption

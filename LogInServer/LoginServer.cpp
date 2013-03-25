@@ -1,8 +1,10 @@
 #include "stdafx.h"
+#include <sstream>
+#include "../shared/Ini.h"
 
 KOSocketMgr<LoginSession> LoginServer::s_socketMgr;
 
-LoginServer::LoginServer() : m_Ini("Version.ini"), m_sLastVersion(__VERSION), m_fp(NULL)
+LoginServer::LoginServer() : m_sLastVersion(__VERSION), m_fp(NULL)
 {
 	memset(m_strFtpUrl, 0, sizeof(m_strFtpUrl));
 	memset(m_strFilePath, 0, sizeof(m_strFilePath));
@@ -50,16 +52,17 @@ bool LoginServer::Startup()
 
 void LoginServer::GetInfoFromIni()
 {
+	CIni ini(CONF_LOGIN_SERVER);
 	char tmp[128];
 
-	m_Ini.GetString("DOWNLOAD", "URL", "ftp.yoursite.net", m_strFtpUrl, sizeof(m_strFtpUrl), false);
-	m_Ini.GetString("DOWNLOAD", "PATH", "/", m_strFilePath, sizeof(m_strFilePath), false);
+	ini.GetString("DOWNLOAD", "URL", "ftp.yoursite.net", m_strFtpUrl, sizeof(m_strFtpUrl), false);
+	ini.GetString("DOWNLOAD", "PATH", "/", m_strFilePath, sizeof(m_strFilePath), false);
 
-	m_Ini.GetString("ODBC", "DSN", "KN_online", m_ODBCName, sizeof(m_ODBCName), false);
-	m_Ini.GetString("ODBC", "UID", "knight", m_ODBCLogin, sizeof(m_ODBCLogin), false);
-	m_Ini.GetString("ODBC", "PWD", "knight", m_ODBCPwd, sizeof(m_ODBCPwd), false);
+	ini.GetString("ODBC", "DSN", "KN_online", m_ODBCName, sizeof(m_ODBCName), false);
+	ini.GetString("ODBC", "UID", "knight", m_ODBCLogin, sizeof(m_ODBCLogin), false);
+	ini.GetString("ODBC", "PWD", "knight", m_ODBCPwd, sizeof(m_ODBCPwd), false);
 
-	int nServerCount = m_Ini.GetInt("SERVER_LIST", "COUNT", 1);
+	int nServerCount = ini.GetInt("SERVER_LIST", "COUNT", 1);
 	if (nServerCount <= 0) 
 		nServerCount = 1;
 	
@@ -74,37 +77,37 @@ void LoginServer::GetInfoFromIni()
 		pInfo = new _SERVER_INFO;
 
 		sprintf_s(key, sizeof(key), "SERVER_%02d", i);
-		m_Ini.GetString("SERVER_LIST", key, "127.0.0.1", pInfo->strServerIP, sizeof(pInfo->strServerIP), false);
+		ini.GetString("SERVER_LIST", key, "127.0.0.1", pInfo->strServerIP, sizeof(pInfo->strServerIP), false);
 
 		sprintf_s(key, sizeof(key), "LANIP_%02d", i);
-		m_Ini.GetString("SERVER_LIST", key, "127.0.0.1", pInfo->strLanIP, sizeof(pInfo->strLanIP), false);
+		ini.GetString("SERVER_LIST", key, "127.0.0.1", pInfo->strLanIP, sizeof(pInfo->strLanIP), false);
 
 		sprintf_s(key, sizeof(key), "NAME_%02d", i);
-		m_Ini.GetString("SERVER_LIST", key, "TEST|Server 1", pInfo->strServerName, sizeof(pInfo->strServerName), false);
+		ini.GetString("SERVER_LIST", key, "TEST|Server 1", pInfo->strServerName, sizeof(pInfo->strServerName), false);
 
 		sprintf_s(key, sizeof(key), "ID_%02d", i);
-		pInfo->sServerID = m_Ini.GetInt("SERVER_LIST", key, 1);
+		pInfo->sServerID = ini.GetInt("SERVER_LIST", key, 1);
 
 		sprintf_s(key, sizeof(key), "GROUPID_%02d", i);
-		pInfo->sGroupID = m_Ini.GetInt("SERVER_LIST", key, 1);
+		pInfo->sGroupID = ini.GetInt("SERVER_LIST", key, 1);
 
 		sprintf_s(key, sizeof(key), "PREMLIMIT_%02d", i);
-		pInfo->sPlayerCap = m_Ini.GetInt("SERVER_LIST", key, MAX_USER);
+		pInfo->sPlayerCap = ini.GetInt("SERVER_LIST", key, MAX_USER);
 
 		sprintf_s(key, sizeof(key), "FREELIMIT_%02d", i);
-		pInfo->sFreePlayerCap = m_Ini.GetInt("SERVER_LIST", key, MAX_USER);
+		pInfo->sFreePlayerCap = ini.GetInt("SERVER_LIST", key, MAX_USER);
 
 		sprintf_s(key, sizeof(key), "KING1_%02d", i);
-		m_Ini.GetString("SERVER_LIST", key, "", pInfo->strKarusKingName, sizeof(pInfo->strKarusKingName));
+		ini.GetString("SERVER_LIST", key, "", pInfo->strKarusKingName, sizeof(pInfo->strKarusKingName));
 
 		sprintf_s(key, sizeof(key), "KING2_%02d", i);
-		m_Ini.GetString("SERVER_LIST", key, "", pInfo->strElMoradKingName, sizeof(pInfo->strElMoradKingName));
+		ini.GetString("SERVER_LIST", key, "", pInfo->strElMoradKingName, sizeof(pInfo->strElMoradKingName));
 
 		sprintf_s(key, sizeof(key), "KINGMSG1_%02d", i);
-		m_Ini.GetString("SERVER_LIST", key, "", pInfo->strKarusNotice, sizeof(pInfo->strKarusNotice));
+		ini.GetString("SERVER_LIST", key, "", pInfo->strKarusNotice, sizeof(pInfo->strKarusNotice));
 
 		sprintf_s(key, sizeof(key), "KINGMSG2_%02d", i);
-		m_Ini.GetString("SERVER_LIST", key, "", pInfo->strElMoradNotice, sizeof(pInfo->strElMoradNotice));
+		ini.GetString("SERVER_LIST", key, "", pInfo->strElMoradNotice, sizeof(pInfo->strElMoradNotice));
 
 		m_ServerList.push_back(pInfo);
 	}
@@ -121,14 +124,14 @@ void LoginServer::GetInfoFromIni()
 		string title, message;
 
 		sprintf_s(key, sizeof(key), "TITLE_%02d", i);
-		m_Ini.GetString("NEWS", key, "", tmp, sizeof(tmp));
+		ini.GetString("NEWS", key, "", tmp, sizeof(tmp));
 
 		title = tmp;
 		if (title.size() == 0)
 			continue;
 		
 		sprintf_s(key, sizeof(key), "MESSAGE_%02d", i);
-		m_Ini.GetString("NEWS", key, "", tmp, sizeof(tmp));
+		ini.GetString("NEWS", key, "", tmp, sizeof(tmp));
 
 		message = tmp;
 		if (message.size() == 0)

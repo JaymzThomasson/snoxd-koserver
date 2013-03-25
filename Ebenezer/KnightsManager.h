@@ -7,7 +7,6 @@ class Packet;
 class CKnightsManager  
 {
 public:
-
 	void CreateKnights(CUser* pUser, Packet & pkt);
 	void JoinKnights(CUser* pUser, Packet & pkt);
 	void WithdrawKnights(CUser* pUser, Packet & pkt);
@@ -23,11 +22,11 @@ public:
 	void GetClanSymbol(CUser* pUser, uint16 sClanID);
 	void ListTop10Clans(CUser *pUser);
 
-	BOOL AddKnightsUser(int index, const char* UserName);
+	bool AddKnightsUser(int index, const char* UserName);
 	void SetKnightsUser(int index, const char* UserName);
-	BOOL RemoveKnightsUser(int index, const char* UserName);
-	BOOL LoadKnightsIndex(int index);
-	BOOL LoadAllKnights();
+	bool RemoveKnightsUser(int index, const char* UserName);
+	bool LoadKnightsIndex(int index);
+	bool LoadAllKnights();
 
 	// database requests go here
 	void ReqKnightsPacket(CUser* pUser, Packet & pkt);
@@ -44,13 +43,9 @@ public:
 	void RecvKnightsAllList(Packet & pkt);
 
 	int GetKnightsIndex( int nation );
-	BOOL IsAvailableName( const char* strname);	
+	bool IsAvailableName( const char* strname);	
 	void PacketProcess(CUser* pUser, Packet & pkt);	
 
 	CKnightsManager();
 	virtual ~CKnightsManager();
-
-//	CDatabase	m_KnightsDB;
-private:
-
 };

@@ -1,66 +1,26 @@
 #pragma once
 
-#include "Map.h"
+#include "LuaEngine.h"
+
 #include "Define.h"
 #include "GameDefine.h"
 #include "AISocket.h"
 #include "Npc.h"
-#include "../shared/ini.h"
-#include "Knights.h"
-#include "KnightsManager.h"
 #include "UdpSocket.h"
 
-#include "../shared/STLMap.h"
-
-#include <vector>
-#include <hash_map>
-
 #include "ChatHandler.h"
+
+#include "User.h"
+#include "../shared/KOSocket.h"
 #include "../shared/KOSocketMgr.h"
 #include "../shared/ClientSocketMgr.h"
 
-using stdext::hash_map;
-using std::string;
+class C3DMap;
+#include "LoadServerData.h"
 
-class CUser;
-typedef hash_map<string, CUser *> NameMap;
+#include "KnightsManager.h"
 
-typedef CSTLMap <C3DMap>					ZoneArray;
-typedef std::map<int, long>					LevelUpArray;
-typedef CSTLMap <_CLASS_COEFFICIENT>		CoefficientArray;
-typedef CSTLMap <_ITEM_TABLE>				ItemtableArray;
-typedef CSTLMap <_MAGIC_TABLE>				MagictableArray;
-typedef CSTLMap <_MAGIC_TYPE1>				Magictype1Array;
-typedef CSTLMap <_MAGIC_TYPE2>				Magictype2Array;
-typedef CSTLMap <_MAGIC_TYPE3>				Magictype3Array;
-typedef CSTLMap	<_MAGIC_TYPE4>				Magictype4Array;
-typedef CSTLMap <_MAGIC_TYPE5>				Magictype5Array;
-typedef CSTLMap <_MAGIC_TYPE6>				Magictype6Array;
-typedef CSTLMap <_MAGIC_TYPE7>				Magictype7Array;
-typedef CSTLMap <_MAGIC_TYPE8>				Magictype8Array; 
-typedef CSTLMap <_MAGIC_TYPE9>				Magictype9Array;
-typedef CSTLMap <CNpc>						NpcArray;
-typedef CSTLMap <_PARTY_GROUP>				PartyArray;
-typedef CSTLMap <CKnights>					KnightsArray;
-typedef CSTLMap <_KNIGHTS_RATING>			KnightsRatingArray;
-typedef CSTLMap <_KNIGHTS_ALLIANCE>			KnightsAllianceArray;
-typedef CSTLMap <_ZONE_SERVERINFO>			ServerArray;
-typedef CSTLMap <_KNIGHTS_CAPE>				KnightsCapeArray;
-typedef CSTLMap <_HOME_INFO>				HomeArray;
-typedef CSTLMap <_START_POSITION>			StartPositionArray;
-typedef	CSTLMap	<_SERVER_RESOURCE>			ServerResourceArray;
-typedef	CSTLMap	<_QUEST_HELPER>				QuestHelperArray;
-typedef	CSTLMap	<_QUEST_MONSTER>			QuestMonsterArray;
-typedef	CSTLMap	<_RENTAL_ITEM>				RentalItemArray;
-typedef CSTLMap <_ITEM_EXCHANGE>			ItemExchangeArray;
-
-typedef hash_map<string, _USER_RANK *>		UserRankMap; 
-
-typedef std::pair<uint8, uint16>			NpcTrapPair;
-typedef std::map<NpcTrapPair, int32>		EventTriggerArray;
-
-typedef std::vector<_QUEST_HELPER *>		QuestHelperList;
-typedef std::map<uint16, QuestHelperList>	QuestNpcList;
+typedef stdext::hash_map<std::string, CUser *> NameMap;
 
 class CEbenezerDlg
 {
@@ -70,38 +30,38 @@ public:
 
 	void GetTimeFromIni();
 
-	BOOL LoadItemTable();
-	BOOL LoadItemExchangeTable();
-	BOOL LoadServerResourceTable();
-	BOOL LoadEventTriggerTable();
-	BOOL LoadQuestHelperTable();
-	BOOL LoadQuestMonsterTable();
-	BOOL LoadMagicTable();
-	BOOL LoadMagicType1();
-	BOOL LoadMagicType2();
-	BOOL LoadMagicType3();
-	BOOL LoadMagicType4();
-	BOOL LoadMagicType5();
-	BOOL LoadMagicType6();
-	BOOL LoadMagicType7();
-	BOOL LoadMagicType8();
-	BOOL LoadMagicType9();
-	BOOL LoadRentalList();
-	BOOL LoadCoefficientTable();
-	BOOL LoadLevelUpTable();
-	BOOL LoadAllKnights();
-	BOOL LoadAllKnightsUserData();
-	BOOL LoadKnightsAllianceTable();
-	BOOL LoadUserRankings();
+	bool LoadItemTable();
+	bool LoadItemExchangeTable();
+	bool LoadServerResourceTable();
+	bool LoadEventTriggerTable();
+	bool LoadQuestHelperTable();
+	bool LoadQuestMonsterTable();
+	bool LoadMagicTable();
+	bool LoadMagicType1();
+	bool LoadMagicType2();
+	bool LoadMagicType3();
+	bool LoadMagicType4();
+	bool LoadMagicType5();
+	bool LoadMagicType6();
+	bool LoadMagicType7();
+	bool LoadMagicType8();
+	bool LoadMagicType9();
+	bool LoadRentalList();
+	bool LoadCoefficientTable();
+	bool LoadLevelUpTable();
+	bool LoadAllKnights();
+	bool LoadAllKnightsUserData();
+	bool LoadKnightsAllianceTable();
+	bool LoadUserRankings();
 	void CleanupUserRankings();
-	BOOL LoadKnightsCapeTable();
-	BOOL LoadKnightsRankTable();
-	BOOL LoadHomeTable();
-	BOOL LoadStartPositionTable();
-	BOOL LoadBattleTable();
+	bool LoadKnightsCapeTable();
+	bool LoadKnightsRankTable();
+	bool LoadHomeTable();
+	bool LoadStartPositionTable();
+	bool LoadBattleTable();
 
-	BOOL MapFileLoad();
-	BOOL LoadNoticeData();
+	bool MapFileLoad();
+	bool LoadNoticeData();
 
 	void AIServerConnect();
 
@@ -170,7 +130,7 @@ public:
 	// Get list of merchants in region
 	void GetRegionMerchantUserIn(C3DMap* pMap, uint16 region_x, uint16 region_z, Packet & pkt, uint16 & t_count);
 
-	__forceinline bool isPermanentMessageSet() { return m_bPermanentChatMode == TRUE; }
+	__forceinline bool isPermanentMessageSet() { return m_bPermanentChatMode; }
 	void GetPermanentMessage(Packet & result);
 	void SetPermanentMessage(const char * format, ...);
 
@@ -263,9 +223,9 @@ public:
 	short	m_sPartyIndex;
 	short	m_sZoneCount;							// AI Server 재접속시 사용
 
-	BOOL	m_bFirstServerFlag;		// 서버가 처음시작한 후 게임서버가 붙은 경우에는 1, 붙지 않은 경우 0
-	BOOL	m_bServerCheckFlag;
-	BOOL	m_bPointCheckFlag;		// AI서버와 재접전에 NPC포인터 참조막기 (TRUE:포인터 참조, FALSE:포인터 참조 못함)
+	bool	m_bFirstServerFlag;		// 서버가 처음시작한 후 게임서버가 붙은 경우에는 1, 붙지 않은 경우 0
+	bool	m_bServerCheckFlag;
+	bool	m_bPointCheckFlag;		// AI서버와 재접전에 NPC포인터 참조막기 (true:포인터 참조, false:포인터 참조 못함)
 	short   m_sErrorSocketCount;  // 이상소켓 감시용
 
 	uint16 m_nYear, m_nMonth, m_nDate, m_nHour, m_nMin;
@@ -286,7 +246,7 @@ public:
 
 	BYTE	m_bMaxRegenePoint;
 
-	BOOL	m_bPermanentChatMode;
+	bool	m_bPermanentChatMode;
 	std::string	m_strPermanentChat;
 
 	uint8 m_bSantaOrAngel;
@@ -308,7 +268,6 @@ public:
 	__forceinline CLuaEngine * GetLuaEngine() { return &m_luaEngine; }
 
 private:
-	CIni	m_Ini;
 	CLuaEngine	m_luaEngine;
 
 	char m_strGameDSN[32], m_strAccountDSN[32];

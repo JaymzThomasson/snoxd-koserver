@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#include "EbenezerDlg.h"
+
+#define MAX_FRIEND_COUNT	24
 
 // From the client
 void CUser::FriendProcess(Packet & pkt)

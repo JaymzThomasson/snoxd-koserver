@@ -1,4 +1,8 @@
 #include "stdafx.h"
+#include "resource.h"
+
+#include "Map.h"
+#include "EbenezerDlg.h"
 
 CKnightsManager::CKnightsManager()
 {
@@ -119,15 +123,15 @@ void CKnightsManager::CreateKnights(CUser* pUser, Packet & pkt)
 	pUser->Send(&result);
 }
 
-BOOL CKnightsManager::IsAvailableName( const char *strname)
+bool CKnightsManager::IsAvailableName( const char *strname)
 {
 	FastGuard lock(g_pMain.m_KnightsArray.m_lock);
 
 	foreach_stlmap (itr, g_pMain.m_KnightsArray)
 		if (_strnicmp(itr->second->m_strName.c_str(), strname, MAX_ID_SIZE) == 0)
-			return FALSE;
+			return false;
 
-	return TRUE;
+	return true;
 }
 
 int CKnightsManager::GetKnightsIndex( int nation )
@@ -587,22 +591,16 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, BYTE command)
 		pKnights->Send(&result);
 }
 
-BOOL CKnightsManager::AddKnightsUser(int index, const char* UserName)
+bool CKnightsManager::AddKnightsUser(int index, const char* UserName)
 {
 	CKnights *pKnights = g_pMain.GetClanPtr(index);
-	if (pKnights == NULL)
-		return FALSE;
-
-	return pKnights->AddUser(UserName);
+	return (pKnights == NULL ? false : pKnights->AddUser(UserName));
 }
 
-BOOL CKnightsManager::RemoveKnightsUser(int index, const char* UserName)
+bool CKnightsManager::RemoveKnightsUser(int index, const char* UserName)
 {
 	CKnights *pKnights = g_pMain.GetClanPtr(index);
-	if (pKnights == NULL)
-		return FALSE;
-
-	return pKnights->RemoveUser(UserName);
+	return (pKnights == NULL ? false : pKnights->RemoveUser(UserName));
 }
 
 /**

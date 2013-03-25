@@ -1,4 +1,6 @@
 ﻿#include "StdAfx.h"
+#include "Map.h"
+#include "EbenezerDlg.h"
 
 void CUser::SelNationToAgent(Packet & pkt)
 {

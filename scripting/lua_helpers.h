@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 // Helper macro to stringify an arg (e.g. User -> "User")
 #define STR(str) #str
 #define STRINGIFY(str) STR(str)

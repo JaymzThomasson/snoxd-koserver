@@ -8,6 +8,29 @@
 #include "../shared/packets.h"
 #include <fstream>
 
+// This is more than a little convulated.
+#define PARSE_ARGUMENTS(count, temp, buff, arg, id, index) for (int _i = 0; _i < count; _i++) { \
+	index += ParseSpace(temp, buff + index); \
+	arg[id++] = atoi(temp); \
+}
+
+inline int ParseSpace( char* tBuf, char* sBuf)
+{
+	int i = 0, index = 0;
+	BOOL flag = FALSE;
+	
+	while(sBuf[index] == ' ' || sBuf[index] == '\t')index++;
+	while(sBuf[index] !=' ' && sBuf[index] !='\t' && sBuf[index] !=(BYTE) 0){
+		tBuf[i++] = sBuf[index++];
+		flag = TRUE;
+	}
+	tBuf[i] = 0;
+
+	while(sBuf[index] == ' ' || sBuf[index] == '\t')index++;
+	if(!flag) return 0;	
+	return index;
+};
+
 using namespace std;
 
 extern CRITICAL_SECTION g_region_critical;
