@@ -5,7 +5,7 @@
 
 #include <Windows.h>
 
-#	ifdef _DEBUG
+#ifdef _DEBUG
 // and cassert for our ASSERT() replacement
 #		include <cassert>
 #		define ASSERT assert

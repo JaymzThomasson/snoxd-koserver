@@ -2,6 +2,7 @@
 #include "Map.h"
 #include "EbenezerDlg.h"
 #include "KnightsManager.h"
+#include "User.h"
 
 void CUser::SelNationToAgent(Packet & pkt)
 {

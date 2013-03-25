@@ -2,6 +2,7 @@
 #include "../shared/database/OdbcConnection.h"
 #include "EbenezerDlg.h"
 #include "KnightsManager.h"
+#include "User.h"
 
 using std::string;
 using std::auto_ptr;

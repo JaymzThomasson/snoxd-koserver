@@ -1,8 +1,10 @@
 #include "StdAfx.h"
 #include "resource.h"
 #include "EbenezerDlg.h"
+#include "User.h"
+#include "../shared/KOSocketMgr.h"
 
-extern BYTE g_serverdown_flag;
+extern KOSocketMgr<CUser> g_socketMgr;
 
 ServerCommandTable CEbenezerDlg::s_commandTable;
 ChatCommandTable CUser::s_commandTable;
@@ -380,21 +382,21 @@ COMMAND_HANDLER(CEbenezerDlg::HandleWarCloseCommand)
 
 COMMAND_HANDLER(CEbenezerDlg::HandleShutdownCommand)
 {
-	s_socketMgr.SuspendServer();
+	g_socketMgr.SuspendServer();
 	printf("Server shutdown, %d users kicked out.\n", KickOutAllUsers());
 	return true;
 }
 
 COMMAND_HANDLER(CEbenezerDlg::HandlePauseCommand)
 {
-	s_socketMgr.SuspendServer();
+	g_socketMgr.SuspendServer();
 	printf("Server no longer accepting connections.\n");
 	return true;
 }
 
 COMMAND_HANDLER(CEbenezerDlg::HandleResumeCommand)
 {
-	s_socketMgr.ResumeServer();
+	g_socketMgr.ResumeServer();
 	printf("Server accepting connections.\n");
 	return true;
 }
@@ -500,14 +502,14 @@ COMMAND_HANDLER(CEbenezerDlg::HandleReloadNoticeCommand)
 	// and update all logged in players
 	// if we're using the new notice format that's always shown
 #if __VERSION >= 1453
-	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
 		CUser * pUser = TO_USER(itr->second);
 		if (pUser->isInGame())
 			pUser->SendNotice();
 	}
-	s_socketMgr.ReleaseLock();
+	g_socketMgr.ReleaseLock();
 #endif
 	return true;
 }

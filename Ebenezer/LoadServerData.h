@@ -8,6 +8,7 @@ class C3DMap;
 #include "../shared/STLMap.h"
 #include "GameDefine.h"
 #include "Knights.h"
+#include "Npc.h"
 
 typedef CSTLMap <C3DMap>					ZoneArray;
 typedef std::map<int, long>					LevelUpArray;

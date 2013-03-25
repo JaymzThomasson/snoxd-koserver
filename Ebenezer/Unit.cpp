@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Map.h"
-#include "Unit.h"
 #include "EbenezerDlg.h"
+#include "User.h"
 
 Unit::Unit(bool bPlayer /*= false*/) 
 	: m_pMap(NULL), m_pRegion(NULL), m_sRegionX(0), m_sRegionZ(0), m_bPlayer(bPlayer)

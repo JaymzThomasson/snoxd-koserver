@@ -2,7 +2,10 @@
 #include "Map.h"
 #include "EbenezerDlg.h"
 #include "KnightsManager.h"
+#include "User.h"
+#include "../shared/KOSocketMgr.h"
 
+extern KOSocketMgr<CUser> g_socketMgr;
 using namespace std;
 
 CUser::CUser(uint16 socketID, SocketMgr *mgr) : KOSocket(socketID, mgr, -1, 16384, 3172), Unit(true)
@@ -1846,13 +1849,13 @@ void CUser::CountConcurrentUser()
 		return;
 
 	uint16 count = 0;
-	SessionMap & sessMap = g_pMain.s_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
 		if (TO_USER(itr->second)->isInGame())
 			count++;
 	}
-	g_pMain.s_socketMgr.ReleaseLock();
+	g_socketMgr.ReleaseLock();
 
 	Packet result(WIZ_CONCURRENTUSER);
 	result << count;
@@ -2430,14 +2433,14 @@ void CUser::Type3AreaDuration()
 			return;
 		
 		// TO-DO: Make this not suck (needs to be localised)
-		SessionMap & sessMap = g_pMain.s_socketMgr.GetActiveSessionMap();
+		SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 		set<uint16> sessionIDs;
 		foreach (itr, sessMap)
 		{
 			if (m_MagicProcess.UserRegionCheck(GetSocketID(), itr->first, m_iAreaMagicID, pType->bRadius))
 				sessionIDs.insert(itr->first);
 		}
-		g_pMain.s_socketMgr.ReleaseLock();
+		g_socketMgr.ReleaseLock();
 
 		foreach (itr, sessionIDs)
 		{

@@ -2,6 +2,8 @@
 #include "resource.h"
 #include "Map.h"
 #include "EbenezerDlg.h"
+#include "AISocket.h"
+#include "User.h"
 
 using std::string;
 

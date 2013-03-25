@@ -1,8 +1,13 @@
 #include "stdafx.h"
 #include "Map.h"
 #include "EbenezerDlg.h"
+#include "../shared/KOSocketMgr.h"
+#include "User.h"
 
-using namespace std;
+extern KOSocketMgr<CUser> g_socketMgr;
+
+using std::string;
+using std::vector;
 
 #define MORAL_SELF				1
 #define MORAL_FRIEND_WITHME		2
@@ -712,7 +717,7 @@ bool CMagicProcess::ExecuteType3(MagicInstance * pInstance)  // Applied when a m
 	if (pInstance->sTargetID == -1)
 	{
 		// TO-DO: Make this not completely and utterly suck (i.e. kill that loop!).
-		SessionMap & sessMap = g_pMain.s_socketMgr.GetActiveSessionMap();
+		SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 		foreach (itr, sessMap)
 		{		
 			CUser* pTUser = TO_USER(itr->second);
@@ -720,7 +725,7 @@ bool CMagicProcess::ExecuteType3(MagicInstance * pInstance)  // Applied when a m
 				&& UserRegionCheck(pInstance->sCasterID, pTUser->GetSocketID(), pInstance->nSkillID, pType->bRadius, pInstance->sData1, pInstance->sData3))
 				casted_member.push_back(pTUser);
 		}
-		g_pMain.s_socketMgr.ReleaseLock();
+		g_socketMgr.ReleaseLock();
 
 		if (casted_member.empty())
 		{
@@ -853,7 +858,7 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 	if (pInstance->sTargetID == -1)
 	{
 		// TO-DO: Localise this. This is horribly unnecessary.
-		SessionMap & sessMap = g_pMain.s_socketMgr.GetActiveSessionMap();
+		SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 		foreach (itr, sessMap)
 		{		
 			CUser* pTUser = TO_USER(itr->second);
@@ -861,7 +866,7 @@ bool CMagicProcess::ExecuteType4(MagicInstance * pInstance)
 				&& UserRegionCheck(pInstance->sCasterID, pTUser->GetSocketID(), pInstance->nSkillID, pType->bRadius, pInstance->sData1, pInstance->sData3))
 				casted_member.push_back(pTUser);
 		}
-		g_pMain.s_socketMgr.ReleaseLock();
+		g_socketMgr.ReleaseLock();
 
 		if (casted_member.empty())
 		{		
@@ -1396,14 +1401,14 @@ bool CMagicProcess::ExecuteType8(MagicInstance * pInstance)	// Warp, resurrectio
 	if (pInstance->sTargetID == -1)
 	{
 		// TO-DO: Localise this loop to make it not suck (the life out of the server).
-		SessionMap & sessMap = g_pMain.s_socketMgr.GetActiveSessionMap();
+		SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 		foreach (itr, sessMap)
 		{		
 			CUser* pTUser = TO_USER(itr->second);
 			if (UserRegionCheck(pInstance->sCasterID, pTUser->GetSocketID(), pInstance->nSkillID, pType->sRadius, pInstance->sData1, pInstance->sData3))
 				casted_member.push_back(pTUser);
 		}
-		g_pMain.s_socketMgr.ReleaseLock();
+		g_socketMgr.ReleaseLock();
 
 		if (casted_member.empty()) 
 			return false;	

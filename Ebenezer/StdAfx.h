@@ -5,5 +5,5 @@
 #include "DBAgent.h"
 #include "DatabaseThread.h"
 
-class CEbeenezerDlg;
+class CEbeeezerDlg;
 extern CEbenezerDlg g_pMain;

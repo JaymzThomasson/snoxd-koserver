@@ -4,18 +4,11 @@
 
 #include "Define.h"
 #include "GameDefine.h"
-#include "AISocket.h"
-#include "Npc.h"
-#include "UdpSocket.h"
-
 #include "ChatHandler.h"
 
-#include "User.h"
-#include "../shared/KOSocket.h"
-#include "../shared/KOSocketMgr.h"
-#include "../shared/ClientSocketMgr.h"
-
 class C3DMap;
+class CUser;
+
 #include "LoadServerData.h"
 
 typedef stdext::hash_map<std::string, CUser *> NameMap;
@@ -177,9 +170,6 @@ public:
 
 	~CEbenezerDlg();
 
-	static KOSocketMgr<CUser> s_socketMgr;
-	static ClientSocketMgr<CAISocket> s_aiSocketMgr;
-
 	char	m_ppNotice[20][128];
 	char	m_AIServerIP[20];
 
@@ -252,7 +242,6 @@ public:
 	int					m_nServerGroup;	// server의 번호(0:서버군이 없다, 1:서버1군, 2:서버2군)
 	ServerArray			m_ServerArray;
 	ServerArray			m_ServerGroupArray;
-	CUdpSocket*			m_pUdpSocket;
 
 	NameMap		m_accountNameMap,
 				m_characterNameMap;

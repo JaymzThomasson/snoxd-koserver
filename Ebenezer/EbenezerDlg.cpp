@@ -1,11 +1,16 @@
 #include "stdafx.h"
 #include "EbenezerDlg.h"
+
+#include "../shared/ClientSocketMgr.h"
 #include "../shared/Ini.h"
 
 #include <iostream>
 #include <fstream>
 #include "resource.h"
 #include "Map.h"
+
+#include "User.h"
+#include "AISocket.h"
 
 using namespace std;
 
@@ -16,8 +21,8 @@ using namespace std;
 CDBAgent g_DBAgent;
 CRITICAL_SECTION g_serial_critical, g_region_critical;
 
-KOSocketMgr<CUser> CEbenezerDlg::s_socketMgr;
-ClientSocketMgr<CAISocket> CEbenezerDlg::s_aiSocketMgr;
+KOSocketMgr<CUser> g_socketMgr;
+ClientSocketMgr<CAISocket> g_aiSocketMgr;
 
 WORD	g_increase_serial = 1;
 
@@ -70,9 +75,7 @@ CEbenezerDlg::CEbenezerDlg()
 	m_nServerGroupNo = 0;
 	m_nServerGroup = 0;
 	m_sDiscount = 0;
-
-	m_pUdpSocket = NULL;
-
+	
 	memset( m_AIServerIP, NULL, 20 );
 
 	m_bPermanentChatMode = false;
@@ -102,15 +105,15 @@ bool CEbenezerDlg::Startup()
 
 	GetTimeFromIni();
 	
-	if (!s_socketMgr.Listen(_LISTEN_PORT, MAX_USER))
+	if (!g_socketMgr.Listen(_LISTEN_PORT, MAX_USER))
 	{
 		printf(_T("ERROR: Failed to listen on server port (%d)."), _LISTEN_PORT);
 		return false;
 	}
 
 	// Bit tacky, but there's no reason we can't reuse the existing completion port for our AI socket
-	s_aiSocketMgr.SetCompletionPort(s_socketMgr.GetCompletionPort());
-	s_aiSocketMgr.InitSessions(1);
+	g_aiSocketMgr.SetCompletionPort(g_socketMgr.GetCompletionPort());
+	g_aiSocketMgr.InitSessions(1);
 
 	if (!g_DBAgent.Startup()
 		|| !LoadTables()
@@ -125,22 +128,13 @@ bool CEbenezerDlg::Startup()
 	if (!m_luaEngine.Initialise())
 		return false;
 
-#if 0 // Disabled pending rewrite
-	m_pUdpSocket = new CUdpSocket();
-	if (!m_pUdpSocket->CreateSocket())
-	{
-		printf("ERROR: UDP socket could not be created.\n");
-		return false;
-	}
-#endif
-
 	AIServerConnect();
 
 	// Initialise the command tables
 	InitServerCommands();
 	CUser::InitChatCommands();
 
-	s_socketMgr.RunServer();
+	g_socketMgr.RunServer();
 
 	return true; 
 }
@@ -316,7 +310,7 @@ void CEbenezerDlg::RemoveSessionNames(CUser *pSession)
 	}
 }
 
-CUser				* CEbenezerDlg::GetUserPtr(int sid) { return s_socketMgr[sid]; }
+CUser				* CEbenezerDlg::GetUserPtr(int sid) { return g_socketMgr[sid]; }
 CKnights			* CEbenezerDlg::GetClanPtr(uint16 sClanID) { return m_KnightsArray.GetData(sClanID); }
 _KNIGHTS_ALLIANCE	* CEbenezerDlg::GetAlliancePtr(uint16 sAllianceID) { return m_KnightsAllianceArray.GetData(sAllianceID); }
 _ITEM_TABLE			* CEbenezerDlg::GetItemPtr(uint32 nItemID) { return m_ItemtableArray.GetData(nItemID); }
@@ -401,11 +395,11 @@ int CEbenezerDlg::GetAIServerPort()
 void CEbenezerDlg::AIServerConnect()
 {
 	// Are there any (note: we only use 1 now) idle/disconnected sessions?
-	SessionMap & sessMap = s_aiSocketMgr.GetIdleSessionMap();
+	SessionMap & sessMap = g_aiSocketMgr.GetIdleSessionMap();
 
 	// Copy the map (should only be 1 socket anyway) to avoid breaking the iterator
 	SessionMap idleSessions = sessMap;
-	s_aiSocketMgr.ReleaseLock();
+	g_aiSocketMgr.ReleaseLock();
 
 	// No idle sessions? Excellent.
 	if (idleSessions.empty())
@@ -432,15 +426,15 @@ void CEbenezerDlg::AIServerConnect()
 	// This check seems redundant, but it isn't: AISocketConnect() should change the map.
 	// We're deliberately checking after we've attempted to reconnect.
 	// The idle session(s) should be removed, if they're still unable to connect... reset the server's NPCs.
-	s_aiSocketMgr.AcquireLock();
+	g_aiSocketMgr.AcquireLock();
 	if (!sessMap.empty())
 		DeleteAllNpcList();
-	s_aiSocketMgr.ReleaseLock();
+	g_aiSocketMgr.ReleaseLock();
 }
 
 void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 nation /*= 0*/)
 {
-	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
 		CUser * pUser = TO_USER(itr->second);
@@ -451,7 +445,7 @@ void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 na
 
 		pUser->Send(pkt);
 	}
-	s_socketMgr.ReleaseLock();
+	g_socketMgr.ReleaseLock();
 }
 
 void CEbenezerDlg::Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser)
@@ -625,7 +619,7 @@ void CEbenezerDlg::Send_KnightsAlliance(uint16 sAllianceID, Packet *pkt)
 
 void CEbenezerDlg::Send_AIServer(Packet *pkt)
 {
-	s_aiSocketMgr.SendAll(pkt);
+	g_aiSocketMgr.SendAll(pkt);
 }
 
 void CEbenezerDlg::UpdateGameTime()
@@ -1043,7 +1037,7 @@ void CEbenezerDlg::SendAllUserInfo()
 	result << count; // placeholder for user count
 	const int tot = 20;
 
-	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
 		TO_USER(itr->second)->GetUserInfoForAI(result);
@@ -1054,7 +1048,7 @@ void CEbenezerDlg::SendAllUserInfo()
 			result.clear();
 		}
 	}
-	s_socketMgr.ReleaseLock();
+	g_socketMgr.ReleaseLock();
 
 	if (count != 0 && count < (tot - 1))
 	{
@@ -1142,7 +1136,7 @@ CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
 
 void CEbenezerDlg::AliveUserCheck()
 {
-	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
 		// TO-DO: Replace this with a better, more generic check
@@ -1160,7 +1154,7 @@ void CEbenezerDlg::AliveUserCheck()
 			}
 		}
 	}
-	s_socketMgr.ReleaseLock();
+	g_socketMgr.ReleaseLock();
 }
 
 void CEbenezerDlg::BattleZoneOpenTimer()
@@ -1263,7 +1257,7 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 
 	Announcement(DECLARE_WINNER);
 
-	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
 		CUser* pTUser = TO_USER(itr->second);
@@ -1286,7 +1280,7 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 		// Make the winning nation use a victory emotion (yay!)
 		pTUser->StateChangeServerDirect(4, 12);
 	}	
-	s_socketMgr.ReleaseLock();
+	g_socketMgr.ReleaseLock();
 }
 
 /**
@@ -1295,7 +1289,7 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
  **/
 void CEbenezerDlg::BanishLosers()
 {
-	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
 		CUser *pUser = TO_USER(itr->second); 
@@ -1311,7 +1305,7 @@ void CEbenezerDlg::BanishLosers()
 			&& pUser->GetZoneID() != pUser->GetNation())
 			pUser->KickOutZoneUser(true);
 	}
-	s_socketMgr.ReleaseLock();
+	g_socketMgr.ReleaseLock();
 }
 
 void CEbenezerDlg::ResetBattleZone()
@@ -1452,7 +1446,7 @@ int CEbenezerDlg::GetKnightsGrade(int nPoints)
 
 void CEbenezerDlg::CheckAliveUser()
 {
-	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
 		CUser *pUser = TO_USER(itr->second);
@@ -1465,14 +1459,14 @@ void CEbenezerDlg::CheckAliveUser()
 			TRACE("User dropped due to inactivity - char=%s\n", pUser->GetName());
 		}
 	}
-	s_socketMgr.ReleaseLock();
+	g_socketMgr.ReleaseLock();
 }
 
 int CEbenezerDlg::KickOutAllUsers()
 {
 	int count = 0;
 
-	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
 		CUser *pUser = TO_USER(itr->second);
@@ -1487,7 +1481,7 @@ int CEbenezerDlg::KickOutAllUsers()
 			Sleep(50);
 		}
 	}
-	s_socketMgr.ReleaseLock();
+	g_socketMgr.ReleaseLock();
 	return count;
 }
 
@@ -1522,7 +1516,7 @@ __int64 CEbenezerDlg::GenerateItemSerial()
 void CEbenezerDlg::KickOutZoneUsers(short zone)
 {
 	// TO-DO: Make this localised to zones.
-	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 	C3DMap	*pKarusMap		= GetZoneByID(KARUS),
 			*pElMoradMap	= GetZoneByID(ELMORAD);	
 
@@ -1540,7 +1534,7 @@ void CEbenezerDlg::KickOutZoneUsers(short zone)
 		pUser->ZoneChange(pMap->m_nZoneNumber, pMap->m_fInitX, pMap->m_fInitZ);
 
 	}
-	s_socketMgr.ReleaseLock();
+	g_socketMgr.ReleaseLock();
 }
 
 void CEbenezerDlg::Send_UDP_All(Packet *pkt, int group_type /*= 0*/)
@@ -1557,7 +1551,7 @@ void CEbenezerDlg::Send_UDP_All(Packet *pkt, int group_type /*= 0*/)
 
 void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser)
 {
-	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
 		CUser * pUser = TO_USER(itr->second);
@@ -1566,7 +1560,7 @@ void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser)
 			&& (nation == 0 || nation == pUser->GetNation()))
 			pUser->Send(pkt);
 	}
-	s_socketMgr.ReleaseLock();
+	g_socketMgr.ReleaseLock();
 }
 
 void CEbenezerDlg::GetCaptainUserPtr()
@@ -1589,7 +1583,7 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 		return;
 
 	uint16 nKarusMan = 0, nElmoradMan = 0;
-	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
 		CUser * pUser = TO_USER(itr->second);
@@ -1601,7 +1595,7 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 		else
 			nElmoradMan++;
 	}
-	s_socketMgr.ReleaseLock();
+	g_socketMgr.ReleaseLock();
 
 	m_sKarusCount = nKarusMan;
 	m_sElmoradCount = nElmoradMan;
@@ -1638,7 +1632,4 @@ CEbenezerDlg::~CEbenezerDlg()
 
 	if (m_LevelUpArray.size())
 		m_LevelUpArray.clear();
-
-	if (m_pUdpSocket)
-		delete m_pUdpSocket;
 }

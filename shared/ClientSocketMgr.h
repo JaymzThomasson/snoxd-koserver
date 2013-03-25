@@ -1,8 +1,7 @@
 #pragma once
 
 #include <map>
-#include "SocketMgr.h"
-#include "KOSocket.h"
+#include "KOSocketMgr.h"
 
 typedef std::map<uint16, KOSocket *> SessionMap;
 

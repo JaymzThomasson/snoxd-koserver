@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "EbenezerDlg.h"
 #include "KnightsManager.h"
+#include "User.h"
 
 using std::string;
 
@@ -405,8 +406,8 @@ void CUser::ReqUserLogOut()
 #if 0
 void CUser::ReqConCurrentUserCount()
 {
-	uint32 count = g_pMain.GetActiveSessionMap().size();
-	s_socketMgr.ReleaseLock();
+	uint32 count = g_socketMgr.GetActiveSessionMap().size();
+	g_socketMgr.ReleaseLock();
 	m_DBAgent.UpdateConCurrentUserCount(m_nServerNo, m_nZoneNo, count);
 }
 #endif

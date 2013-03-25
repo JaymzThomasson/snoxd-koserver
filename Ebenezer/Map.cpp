@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Map.h"
 #include "EbenezerDlg.h"
+#include "User.h"
 
 extern CRITICAL_SECTION g_region_critical;
 

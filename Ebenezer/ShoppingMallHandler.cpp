@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "EbenezerDlg.h"
+#include "User.h"
 
 void CUser::ShoppingMall(Packet & pkt)
 {

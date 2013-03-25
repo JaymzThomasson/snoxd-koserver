@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "EbenezerDlg.h"
+#include "User.h"
 
 #define MAX_FRIEND_COUNT	24
 
