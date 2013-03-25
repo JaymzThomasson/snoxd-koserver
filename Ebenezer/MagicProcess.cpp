@@ -9,9 +9,12 @@ void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= NULL*/, bool is
 	MagicInstance instance;
 	pkt >> instance.bOpcode >> instance.nSkillID;
 
-	_MAGIC_TABLE * pMagic = instance.pSkill = g_pMain.m_MagictableArray.GetData(instance.nSkillID);
+	instance.pSkill = g_pMain.m_MagictableArray.GetData(instance.nSkillID);
 	if (instance.pSkill == NULL)
+	{
+		TRACE("[%s] Used skill %d but it does not exist.\n", pCaster->GetName(), instance.nSkillID);
 		return;
+	}
 
 	pkt >> instance.sCasterID >> instance.sTargetID
 		>> instance.sData1 >> instance.sData2 >> instance.sData3 >> instance.sData4
