@@ -1756,7 +1756,21 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 			damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * pSkillCaster->GetLevel()) / 60) + ((attribute_damage * 0.8f) + (attribute_damage * pSkillCaster->GetLevel()) / 30));
 	}
 
+	// Apply boost for skills matching weather type.
+	// This isn't actually used officially, but I think it's neat...
+	GetWeatherDamage(damage, attribute);
 	return damage / 3;		
+}
+
+short MagicInstance::GetWeatherDamage(short damage, int attribute)
+{
+	// Give a 10% damage output boost based on weather (and skill's elemental attribute)
+	if ((g_pMain.m_nWeather == WEATHER_FINE && attribute == ATTRIBUTE_FIRE)
+		|| (g_pMain.m_nWeather == WEATHER_RAIN && attribute == ATTRIBUTE_LIGHTNING)
+		|| (g_pMain.m_nWeather == WEATHER_SNOW && attribute == ATTRIBUTE_ICE))
+		damage = (damage * 110) / 100;
+
+	return damage;
 }
 
 // TO-DO: Clean this up (even using unit code...)
@@ -2149,17 +2163,6 @@ void CMagicProcess::SendType4BuffRemove(short tid, BYTE buff)
 	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
 	result << buff;
 	pTUser->Send(&result);
-}
-
-short CMagicProcess::GetWeatherDamage(short damage, short attribute)
-{
-	// Give a 10% damage output boost based on weather (and skill's elemental attribute)
-	if ((g_pMain.m_nWeather == WEATHER_FINE && attribute == ATTRIBUTE_FIRE)
-		|| (g_pMain.m_nWeather == WEATHER_RAIN && attribute == ATTRIBUTE_LIGHTNING)
-		|| (g_pMain.m_nWeather == WEATHER_SNOW && attribute == ATTRIBUTE_ICE))
-		damage = (damage * 110) / 100;
-
-	return damage;
 }
 
 void MagicInstance::Type4Extend()

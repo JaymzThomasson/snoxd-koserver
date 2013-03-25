@@ -27,7 +27,6 @@ enum MagicDamageType
 class CMagicProcess  
 {
 public:
-	short GetWeatherDamage(short damage, short attribute);
 	static void SendType4BuffRemove(short tid, BYTE buff);
 	static bool UserRegionCheck(Unit * pSkillCaster, Unit * pSkillTarget, _MAGIC_TABLE * pSkill, int radius, short mousex = 0, short mousez = 0);
 
@@ -75,6 +74,7 @@ public:
 	void Type4Extend();
 
 	short GetMagicDamage(Unit *pTarget, int total_hit, int attribute);
+	short GetWeatherDamage(short damage, int attribute);
 	void ReflectDamage(int32 damage);
 
 	void SendSkillToAI();
