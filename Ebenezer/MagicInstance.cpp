@@ -368,7 +368,8 @@ bool MagicInstance::IsAvailable()
 				goto fail_return;
 			break;
 		case MORAL_FRIEND_WITHME:	// #2
-			if (pSkillCaster->GetNation() != moral)
+			if (moral != 0 && 
+				pSkillCaster->GetNation() != moral)
 				goto fail_return;
 			break;
 		case MORAL_FRIEND_EXCEPTME:	   // #3
