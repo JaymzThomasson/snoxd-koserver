@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "LuaEngine.h"
+#include "../shared/RWLock.h"
 
 #include "User.h"
 #include "Npc.h"
@@ -9,13 +10,12 @@ DEFINE_LUA_FUNCTION_TABLE(g_globalFunctions,
 	MAKE_LUA_FUNCTION(myrand)
 );
 
-CLuaEngine::CLuaEngine()
+CLuaEngine::CLuaEngine() : m_lock(new RWLock())
 {
 }
 
-CLuaScript::CLuaScript() : m_luaState(NULL)
+CLuaScript::CLuaScript() : m_luaState(NULL), m_lock(new FastMutex())
 {
-	m_lock = new FastMutex();
 }
 
 // Initialise Lua scripts.
@@ -65,61 +65,121 @@ bool CLuaScript::Initialise()
 	return true;
 }
 
-bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const char * filename)
+// TO-DO: Pull an available script for use
+CLuaScript * CLuaEngine::SelectAvailableScript()
 {
-	// TO-DO: Pull an available script for use
-	return m_luaScript.ExecuteScript(pUser, pNpc, nEventID, filename);
+	return &m_luaScript;
 }
 
-bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const char * filename)
+bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const char * filename)
+{
+	ScriptBytecodeMap::iterator itr;
+	bool result = false;
+
+	m_lock->AcquireReadLock();
+	itr = m_scriptMap.find(filename);
+	if (itr == m_scriptMap.end())
+	{
+		// Build full path to script
+		char szPath[_MAX_PATH];
+		sprintf_s(szPath, sizeof(szPath), LUA_SCRIPT_DIRECTORY "%s", filename);
+
+		// Release the read lock (we're not reading anymore)
+		m_lock->ReleaseReadLock();
+
+		// Attempt to comppile 
+		BytecodeBuffer bytecode;
+		bytecode.reserve(LUA_SCRIPT_BUFFER_SIZE);
+		if (!m_luaScript.CompileScript(szPath, bytecode))
+		{
+			printf("ERROR: Could not compile Lua script `%s`.\n", szPath);
+			return false;
+		}
+
+		// Acquire the write lock (we're adding the compiled script)
+		m_lock->AcquireWriteLock();
+
+		// Add the script to our map
+		m_scriptMap[filename] = bytecode;
+
+		// Now that we have the bytecode, we can use it.
+		result = m_luaScript.ExecuteScript(pUser, pNpc, nEventID, filename, bytecode);
+
+		// Done using the lock.
+		m_lock->ReleaseWriteLock();
+	}
+	else
+	{
+		// Already have the bytecode, so now we need to use it.
+		result = m_luaScript.ExecuteScript(pUser, pNpc, nEventID, filename, itr->second);
+
+		// Done using the lock.
+		m_lock->ReleaseReadLock();
+	}
+
+	return result;
+}
+
+bool CLuaScript::CompileScript(const char * filename, BytecodeBuffer & buffer)
 {
 	// ensure that we wait until the last user's done executing their script.
 	FastGuard lock(*m_lock);
 
-	// This is really poor behaviour, but for now let's just load the script up each time (from disk).
-	// Note that this will overwrite existing tables, so it is technically possible to refer to previously loaded 
-	// scripts' functions/variables. There's no real concern so long as this behaviour isn't relied upon in scripts --
-	// any duplicate declarations will be overwritten with that from the new file.
-
-	char szPath[_MAX_PATH];
-	sprintf_s(szPath, sizeof(szPath), LUA_SCRIPT_DIRECTORY "%s", filename);
-
 	/* Attempt to load the file */
-	int err = luaL_dofile(m_luaState, szPath);
+	int err = luaL_loadfile(m_luaState, filename);
 
 	// If something bad happened, try to find an error.
 	if (err != LUA_OK)
 	{
-		switch (err)
-		{
-		case LUA_ERRFILE:
-			printf("ERROR: Unable to load Lua script `%s`.\n", szPath);
-			break;
-
-		case LUA_ERRSYNTAX:
-			printf("ERROR: There was a error with the syntax of Lua script `%s`.\n", szPath);
-			break;
-
-		case LUA_ERRMEM:
-			printf("ERROR: Unable to allocate memory for Lua script `%s`.\n", szPath);
-			break;
-
-		default:
-			printf("ERROR: An unknown error occurred while loading Lua script `%s`.\n", szPath);
-			break;
-		}
-
-		// Is there an error set? That can be more useful than our generic error.
-		if (lua_isstring(m_luaState, -1))
-		{
-			printf("ERROR: [%s] The following error was provided:\n%s\n",
-				filename, lua_to<const char *>(m_luaState, -1));
-		}
-
+		RetrieveLoadError(err, filename);
 		return false;
 	}
 
+	// Everything's OK so far, the script has been loaded, now we need to start dumping it to bytecode.
+	err = lua_dump(m_luaState, (lua_Writer)LoadBytecodeChunk, &buffer);
+	if (err
+		|| buffer.empty())
+	{
+		printf("ERROR: Failed to dump the Lua script `%s` to bytecode.\n", filename);
+		return false;
+	}
+
+	// Load up the script & revert the stack.
+	// This step's only here for cleanup purposes.
+	err = lua_pcall(m_luaState, 0, LUA_MULTRET, 0);
+	if (err != LUA_OK)
+	{
+		RetrieveLoadError(err, filename);
+		return false;
+	}
+
+	// Compiled!
+	return true;
+}
+
+// Callback for lua_dump() to read in each chunk of bytecode.
+int CLuaScript::LoadBytecodeChunk(lua_State * L, uint8 * bytes, size_t len, BytecodeBuffer * buffer)
+{
+	for (size_t i = 0; i < len; i++)
+		buffer->push_back(bytes[i]);
+
+	return 0;
+}
+
+bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const char * filename, BytecodeBuffer & bytecode)
+{
+	// Ensure that we wait until the last user's done executing their script.
+	FastGuard lock(*m_lock);
+
 	/* Attempt to run the script. */
+
+	// Load the buffer with our bytecode.
+	int err = luaL_loadbuffer(m_luaState, reinterpret_cast<const char *>(&bytecode[0]), bytecode.size(), NULL);
+	if (err != LUA_OK)
+	{
+		RetrieveLoadError(err, filename);
+		return false;
+	}
 
 	// Entry point requires 1 arguments: the event ID.
 	// The user & NPC instances are globals.
@@ -132,7 +192,7 @@ bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const
 
 	lua_tpush(m_luaState, nEventID);
 
-	// Try calling the script.
+	// Try calling the script's entry point (Main()).
 	err = lua_pcall(m_luaState, 
 		1,	// 1 arguments
 		0,	// 0 returned values
@@ -172,6 +232,35 @@ bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const
 	return false;
 }
 
+void CLuaScript::RetrieveLoadError(int err, const char * filename)
+{
+	switch (err)
+	{
+	case LUA_ERRFILE:
+		printf("ERROR: Unable to load Lua script `%s`.\n", filename);
+		break;
+
+	case LUA_ERRSYNTAX:
+		printf("ERROR: There was a error with the syntax of Lua script `%s`.\n", filename);
+		break;
+
+	case LUA_ERRMEM:
+		printf("ERROR: Unable to allocate memory for Lua script `%s`.\n", filename);
+		break;
+
+	default:
+		printf("ERROR: An unknown error occurred while loading Lua script `%s`.\n", filename);
+		break;
+	}
+
+	// Is there an error set? That can be more useful than our generic error.
+	if (lua_isstring(m_luaState, -1))
+	{
+		printf("ERROR: [%s] The following error was provided:\n%s\n",
+			filename, lua_to<const char *>(m_luaState, -1));
+	}
+}
+
 CLuaScript::~CLuaScript()
 {
 	m_lock->Acquire();
@@ -184,4 +273,5 @@ CLuaScript::~CLuaScript()
 
 CLuaEngine::~CLuaEngine()
 {
+	delete m_lock;
 }
