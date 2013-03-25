@@ -245,13 +245,7 @@
     <ClInclude Include="..\N3BASE\N3ShapeMgr.h">
       <Filter>N3Base</Filter>
     </ClInclude>
-    <ClInclude Include="..\N3BASE\StdAfxBase.h">
-      <Filter>N3Base</Filter>
-    </ClInclude>
     <ClInclude Include="..\N3BASE\My_3DStruct.h">
-      <Filter>N3Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\N3BASE\My_Macro.h">
       <Filter>N3Base</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\database\MagicType8Set.h">
@@ -321,9 +315,6 @@
       <Filter>Database</Filter>
     </ClInclude>
     <ClInclude Include="ChatHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AIPacket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AISocket.h">
