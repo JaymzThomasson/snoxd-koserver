@@ -42,8 +42,14 @@ class CDBAgent
 public:
 	CDBAgent();
 
-	bool Startup();
-	bool Connect();
+
+	bool Startup(bool bMarsEnabled, 
+					   tstring & strAccountDSN, tstring & strAccountUID, tstring & strAccountPWD,
+					   tstring & strGameDSN, tstring & strGameUID, tstring & strGamePWD);
+
+	bool Connect(bool bMarsEnabled,
+					   tstring & strAccountDSN, tstring & strAccountUID, tstring & strAccountPWD,
+					   tstring & strGameDSN, tstring & strGameUID, tstring & strGamePWD);
 
 	void ReportSQLError(OdbcError *pError);
 
@@ -108,3 +114,5 @@ private:
 
 	friend class CEbenezerDlg;
 };
+
+extern CDBAgent g_DBAgent;

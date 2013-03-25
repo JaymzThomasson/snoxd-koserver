@@ -12,13 +12,14 @@
 #include "User.h"
 #include "AISocket.h"
 
+#include "DBAgent.h"
+
 using namespace std;
 
 #define NUM_FLAG_VICTORY    4
 #define AWARD_GOLD          100000
 #define AWARD_EXP			5000
 
-CDBAgent g_DBAgent;
 CRITICAL_SECTION g_serial_critical, g_region_critical;
 
 KOSocketMgr<CUser> g_socketMgr;
@@ -82,13 +83,6 @@ CEbenezerDlg::CEbenezerDlg()
 	memset( m_strKarusCaptain, 0x00, MAX_ID_SIZE+1 );
 	memset( m_strElmoradCaptain, 0x00, MAX_ID_SIZE+1 );
 
-	memset(m_strGameDSN, 0, sizeof(m_strGameDSN));
-	memset(m_strGameUID, 0, sizeof(m_strGameUID));
-	memset(m_strGamePWD, 0, sizeof(m_strGamePWD));
-	memset(m_strAccountDSN, 0, sizeof(m_strAccountDSN));
-	memset(m_strAccountUID, 0, sizeof(m_strAccountUID));
-	memset(m_strAccountPWD, 0, sizeof(m_strAccountPWD));
-
 	m_bSantaOrAngel = FLYING_NONE;
 }
 
@@ -115,7 +109,9 @@ bool CEbenezerDlg::Startup()
 	g_aiSocketMgr.SetCompletionPort(g_socketMgr.GetCompletionPort());
 	g_aiSocketMgr.InitSessions(1);
 
-	if (!g_DBAgent.Startup()
+	if (!g_DBAgent.Startup(m_bMarsEnabled, 
+			m_strAccountDSN, m_strAccountUID, m_strAccountPWD,
+			m_strGameDSN, m_strGameUID, m_strGamePWD)
 		|| !LoadTables()
 		|| !MapFileLoad())
 		return false;
@@ -144,15 +140,24 @@ void CEbenezerDlg::GetTimeFromIni()
 	CIni ini(CONF_GAME_SERVER);
 	int year=0, month=0, date=0, hour=0, server_count=0, sgroup_count = 0, i=0;
 	char ipkey[20];
+	char temp[64];
 
-	ini.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, sizeof(m_strGameDSN), false);
-	ini.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, sizeof(m_strGameUID), false);
-	ini.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, sizeof(m_strGamePWD), false);
+	// This is so horrible.
+	ini.GetString("ODBC", "GAME_DSN", "KN_online", temp, sizeof(temp), false);
+	m_strGameDSN = temp;
+	ini.GetString("ODBC", "GAME_UID", "knight", temp, sizeof(temp), false);
+	m_strGameUID = temp;
+	ini.GetString("ODBC", "GAME_PWD", "knight", temp, sizeof(temp), false);
+	m_strGamePWD = temp;
+
 	m_bMarsEnabled = ini.GetBool("ODBC", "GAME_MARS", true);
 
-	ini.GetString("ODBC", "ACCOUNT_DSN", "KN_online", m_strAccountDSN, sizeof(m_strAccountDSN), false);
-	ini.GetString("ODBC", "ACCOUNT_UID", "knight", m_strAccountUID, sizeof(m_strAccountUID), false);
-	ini.GetString("ODBC", "ACCOUNT_PWD", "knight", m_strAccountPWD, sizeof(m_strAccountPWD), false);
+	ini.GetString("ODBC", "ACCOUNT_DSN", "KN_online", temp, sizeof(temp), false);
+	m_strAccountDSN = temp;
+	ini.GetString("ODBC", "ACCOUNT_UID", "knight", temp, sizeof(temp), false);
+	m_strAccountUID = temp;
+	ini.GetString("ODBC", "ACCOUNT_PWD", "knight", temp, sizeof(temp), false);
+	m_strAccountPWD = temp;
 
 	bool bMarsEnabled = ini.GetBool("ODBC", "ACCOUNT_MARS", true);
 

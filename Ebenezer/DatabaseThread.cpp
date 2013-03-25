@@ -2,15 +2,19 @@
 #include "EbenezerDlg.h"
 #include "KnightsManager.h"
 #include "User.h"
+#include "DBAgent.h"
+
+extern CDBAgent g_DBAgent;
 
 using std::string;
 
-std::queue<Packet *> DatabaseThread::_queue;
-bool DatabaseThread::_running = true;
-FastMutex DatabaseThread::_lock;
-HANDLE DatabaseThread::s_hEvent;
-HANDLE *DatabaseThread::s_hThreads = NULL;
-DWORD DatabaseThread::s_dwThreads = 0;
+static std::queue<Packet *> _queue;
+static bool _running = true;
+static FastMutex _lock;
+
+static HANDLE s_hEvent = NULL;
+static HANDLE *s_hThreads = NULL;
+static DWORD s_dwThreads = 0;
 
 void DatabaseThread::Startup(DWORD dwThreads)
 {

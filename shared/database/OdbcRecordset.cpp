@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "OdbcConnection.h"
 #include "OdbcRecordset.h"
 
 using std::auto_ptr;

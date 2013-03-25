@@ -16,11 +16,4 @@ public:
 
 	// Shutdown threads.
 	static void Shutdown();
-
-	static std::queue<Packet *> _queue;
-	static FastMutex _lock;
-	static bool _running;
-	static HANDLE s_hEvent;
-	static HANDLE *s_hThreads;
-	static DWORD s_dwThreads;
 };

@@ -2,7 +2,6 @@
 
 #pragma comment(lib, "odbc32.lib")
 
-#include <tchar.h>
 #include <sqlext.h>
 #include <sqltypes.h>
 #include <sql.h>

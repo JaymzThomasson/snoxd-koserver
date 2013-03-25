@@ -5,6 +5,7 @@
 #include <functional> 
 #include <cctype>
 #include <locale>
+#include <tchar.h>
 
 #ifdef UNICODE
 typedef std::wstring tstring;

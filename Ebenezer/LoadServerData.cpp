@@ -7,6 +7,7 @@
 #include "EbenezerDlg.h"
 #include "KnightsManager.h"
 #include "User.h"
+#include "DBAgent.h"
 
 #include "../shared/database/ItemTableSet.h"
 #include "../shared/database/ItemExchangeSet.h"

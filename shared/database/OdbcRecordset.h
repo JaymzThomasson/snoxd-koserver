@@ -1,5 +1,9 @@
 #pragma once
 
+#include "../tstring.h"
+class OdbcConnection;
+class OdbcCommand;
+
 class OdbcRecordset
 {
 public:

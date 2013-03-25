@@ -254,9 +254,9 @@ public:
 private:
 	CLuaEngine	m_luaEngine;
 
-	char m_strGameDSN[32], m_strAccountDSN[32];
-	char m_strGameUID[32], m_strAccountUID[32];
-	char m_strGamePWD[32], m_strAccountPWD[32];
+	std::string m_strGameDSN, m_strAccountDSN;
+	std::string m_strGameUID, m_strAccountUID;
+	std::string m_strGamePWD, m_strAccountPWD;
 	bool m_bMarsEnabled;
 
 	static ServerCommandTable s_commandTable;
@@ -287,9 +287,6 @@ private:
 	COMMAND_HANDLER(HandlePermanentChatCommand);
 	COMMAND_HANDLER(HandlePermanentChatOffCommand);
 	COMMAND_HANDLER(HandleReloadNoticeCommand);
-
-	friend class CDBAgent;
 };
 
-extern CDBAgent g_DBAgent;
-
+extern CEbenezerDlg g_pMain;

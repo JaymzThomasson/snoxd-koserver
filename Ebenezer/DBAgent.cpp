@@ -3,6 +3,9 @@
 #include "EbenezerDlg.h"
 #include "KnightsManager.h"
 #include "User.h"
+#include "DBAgent.h"
+
+CDBAgent g_DBAgent;
 
 using std::string;
 using std::auto_ptr;
@@ -19,9 +22,13 @@ CDBAgent::~CDBAgent()
 	delete m_AccountDB;
 }
 
-bool CDBAgent::Startup()
+bool CDBAgent::Startup(bool bMarsEnabled, 
+					   tstring & strAccountDSN, tstring & strAccountUID, tstring & strAccountPWD,
+					   tstring & strGameDSN, tstring & strGameUID, tstring & strGamePWD)
 {
-	if (!Connect())
+	if (!Connect(bMarsEnabled,
+			strAccountDSN, strAccountUID, strAccountPWD,
+			strGameDSN, strGameUID, strGamePWD))
 	{
 		// we should probably be a little more specific (i.e. *which* database server)
 		printf(_T("ERROR: Failed to connect to the database server."));
@@ -30,7 +37,7 @@ bool CDBAgent::Startup()
 
 	// If MARS is enabled, we can use multiple database threads.
 	DWORD dwThreads = 1;
-	if (g_pMain.m_bMarsEnabled)
+	if (bMarsEnabled)
 	{
 		SYSTEM_INFO si;
 		GetSystemInfo(&si);
@@ -41,15 +48,17 @@ bool CDBAgent::Startup()
 	return true;
 }
 
-bool CDBAgent::Connect()
+bool CDBAgent::Connect(bool bMarsEnabled,
+					   tstring & strAccountDSN, tstring & strAccountUID, tstring & strAccountPWD,
+					   tstring & strGameDSN, tstring & strGameUID, tstring & strGamePWD)
 {
-	if (!m_AccountDB->Connect(g_pMain.m_strAccountDSN, g_pMain.m_strAccountUID, g_pMain.m_strAccountPWD, g_pMain.m_bMarsEnabled))
+	if (!m_AccountDB->Connect(strAccountDSN, strAccountUID, strAccountPWD, bMarsEnabled))
 	{
 		ReportSQLError(m_AccountDB->GetError());
 		return false;
 	}
 
-	if (!m_GameDB->Connect(g_pMain.m_strGameDSN, g_pMain.m_strGameUID, g_pMain.m_strGamePWD, g_pMain.m_bMarsEnabled))
+	if (!m_GameDB->Connect(strGameDSN, strGameUID, strGamePWD, bMarsEnabled))
 	{
 		ReportSQLError(m_GameDB->GetError());
 		return false;
