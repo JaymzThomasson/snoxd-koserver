@@ -90,7 +90,7 @@ bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const
 		// Attempt to comppile 
 		BytecodeBuffer bytecode;
 		bytecode.reserve(LUA_SCRIPT_BUFFER_SIZE);
-		if (!m_luaScript.CompileScript(szPath, bytecode))
+		if (!SelectAvailableScript()->CompileScript(szPath, bytecode))
 		{
 			printf("ERROR: Could not compile Lua script `%s`.\n", szPath);
 			return false;
@@ -103,7 +103,7 @@ bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const
 		m_scriptMap[filename] = bytecode;
 
 		// Now that we have the bytecode, we can use it.
-		result = m_luaScript.ExecuteScript(pUser, pNpc, nEventID, filename, bytecode);
+		result = SelectAvailableScript()->ExecuteScript(pUser, pNpc, nEventID, filename, bytecode);
 
 		// Done using the lock.
 		m_lock->ReleaseWriteLock();
@@ -111,7 +111,7 @@ bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const
 	else
 	{
 		// Already have the bytecode, so now we need to use it.
-		result = m_luaScript.ExecuteScript(pUser, pNpc, nEventID, filename, itr->second);
+		result = SelectAvailableScript()->ExecuteScript(pUser, pNpc, nEventID, filename, itr->second);
 
 		// Done using the lock.
 		m_lock->ReleaseReadLock();
