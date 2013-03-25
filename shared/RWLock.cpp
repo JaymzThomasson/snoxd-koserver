@@ -1,4 +1,4 @@
-#include "WindowsHeaders.h"
+#include "StdAfx.h"
 #include "RWLock.h"
 
 RWLock::RWLock() : _cond(&_lock) 

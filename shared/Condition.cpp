@@ -1,4 +1,4 @@
-#include "WindowsHeaders.h"
+#include "stdafx.h"
 #include "Mutex.h"
 #include "Condition.h"
 

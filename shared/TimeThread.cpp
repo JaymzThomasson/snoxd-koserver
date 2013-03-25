@@ -1,4 +1,4 @@
-#include "WindowsHeaders.h"
+#include "StdAfx.h"
 #include <time.h>
 #include "TimeThread.h"
 

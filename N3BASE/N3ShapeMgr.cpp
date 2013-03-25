@@ -1,4 +1,5 @@
-#include "N3ShapeMgr.h"
+#include "stdafx.h"
+#include "stdafx.h"
 
 CN3ShapeMgr::CN3ShapeMgr()
 {
