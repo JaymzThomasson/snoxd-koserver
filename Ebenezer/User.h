@@ -96,7 +96,6 @@ public:
 
 	SkillCooldownList	m_CoolDownList;
 
-	bool	m_bIsTransformed; // Is the character in a transformed state?
 	bool	m_bIsChicken; // Is the character taking the beginner/chicken quest?
 	bool	m_bIsHidingHelmet;
 
@@ -152,10 +151,6 @@ public:
 	BYTE    m_bAreaInterval;
 	int     m_iAreaMagicID;
 
-	uint32	m_nTransformationItem; // item used for transforming (e.g. disguise scroll, totem..)
-	time_t	m_tTransformationStartTime;
-	uint16	m_sTransformationDuration;
-
 	CMagicProcess m_MagicProcess;
 
 	uint32	m_fSpeedHackClientTime, m_fSpeedHackServerTime;
@@ -180,9 +175,6 @@ public:
 
 	bool	m_bZoneChangeSameZone;		// Did the server change when you warped?
 
-	bool	m_bIsBlinded;
-	bool	m_bInstantCast;
-
 	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];
 	short				m_sEventNid;
 	uint32				m_nQuestHelperID;
@@ -195,10 +187,7 @@ public:
 	__forceinline bool isLimitedGM() { return getAuthority() == AUTHORITY_LIMITED_GAME_MASTER; }
 
 	virtual bool isDead() { return m_bResHpType == USER_DEAD || m_sHp <= 0; }
-	__forceinline bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; }
-	__forceinline bool isBlinded() { return m_bIsBlinded; }
-	__forceinline bool canInstantCast() { return m_bInstantCast; }
-	__forceinline bool canStealth()	{ return m_bCanStealth; }
+	virtual bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; }
 
 	__forceinline bool isInGame() { return GetState() == GAME_STATE_INGAME; }
 	__forceinline bool isInParty() { return m_sPartyIndex != -1; }
@@ -217,7 +206,6 @@ public:
 	__forceinline bool isMerchanting() { return GetMerchantState() != MERCHANT_STATE_NONE; }
 	__forceinline bool isSellingMerchant() { return GetMerchantState() == MERCHANT_STATE_SELLING; }
 	__forceinline bool isBuyingMerchant() { return GetMerchantState() == MERCHANT_STATE_BUYING; }
-	__forceinline bool isTransformed() { return m_bIsTransformed; }
 
 	__forceinline bool isBlockingPrivateChat() { return m_bBlockPrivateChat; }
 
@@ -236,6 +224,11 @@ public:
 	__forceinline uint32 GetLoyalty() { return m_iLoyalty; }
 	__forceinline uint32 GetMonthlyLoyalty() { return m_iLoyaltyMonthly; }
 	__forceinline uint32 GetManner() { return m_iMannerPoint; }
+
+	virtual int32 GetHealth() { return m_sHp; }
+	virtual int32 GetMaxHealth() { return m_iMaxHp; }
+	virtual int32 GetMana() { return m_sMp; }
+	virtual int32 GetMaxMana() { return m_iMaxMp; }
 
 	// Shortcuts for lazy people
 	__forceinline bool hasCoins(uint32 amount) { return (GetCoins() >= amount); }
@@ -605,8 +598,7 @@ public:
 
 	void SendPartyStatusUpdate(uint8 bStatus, uint8 bResult = 0);
 
-	//Magic System - rewrite
-	bool CanUseItem(long itemid, uint16 count); //Should place this with other item related functions
+	bool CanUseItem(uint32 itemid, uint16 count);
 
 	void CheckSavedMagic();
 	virtual void InsertSavedMagic(uint32 nSkillID, uint16 sDuration);

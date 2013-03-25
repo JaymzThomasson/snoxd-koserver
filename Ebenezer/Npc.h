@@ -39,7 +39,6 @@ public:
 public:
 	CNpc();
 
-
 	virtual void Initialize();
 	virtual void AddToRegion(int16 new_region_x, int16 new_region_z);
 
@@ -64,6 +63,11 @@ public:
 	__forceinline short GetEntryID() { return m_sSid; };
 	__forceinline BYTE GetType() { return m_tNpcType; };
 	__forceinline BYTE GetState() { return m_byState; };
+
+	virtual int32 GetHealth() { return m_iHP; }
+	virtual int32 GetMaxHealth() { return m_iMaxHP; }
+	virtual int32 GetMana() { return 0; }
+	virtual int32 GetMaxMana() { return 0; }
 
 	virtual ~CNpc();
 

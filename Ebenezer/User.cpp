@@ -36,7 +36,6 @@ void CUser::Initialize()
 	m_bSelectedCharacter = false;
 	m_bStoreOpen = false;
 	m_bPartyLeader = false;
-	m_bIsTransformed = false;
 	m_bIsChicken = false;
 	m_bIsHidingHelmet = false;
 	m_bPremiumMerchant = false;
@@ -398,8 +397,8 @@ bool CUser::HandlePacket(Packet & pkt)
 	// Expire any timed out saved skills.
 	CheckSavedMagic();
 		
-	if (m_bIsTransformed && (UNIXTIME - m_tTransformationStartTime) > m_sTransformationDuration)
-		m_MagicProcess.Type6Cancel();
+	if (isTransformed())
+		m_MagicProcess.CheckExpiredType6Skills();
 
 	if (isBlinking())		// Should you stop blinking?
 		BlinkTimeCheck();
@@ -2422,11 +2421,15 @@ void CUser::Type3AreaDuration()
 {
 	Packet result(WIZ_MAGIC_PROCESS);
 
-	_MAGIC_TYPE3* pType = g_pMain.m_Magictype3Array.GetData(m_iAreaMagicID);
+	_MAGIC_TABLE * pSkill = g_pMain.m_MagictableArray.GetData(m_iAreaMagicID);
+	if (pSkill == NULL)
+		return;
+
+	_MAGIC_TYPE3 * pType = g_pMain.m_Magictype3Array.GetData(m_iAreaMagicID);
 	if (pType == NULL)
 		return;
 
-	if (m_tAreaLastTime != 0 && (UNIXTIME - m_tAreaLastTime) > (m_bAreaInterval * SECOND))
+	if (m_tAreaLastTime != 0 && (UNIXTIME - m_tAreaLastTime) > m_bAreaInterval)
 	{
 		m_tAreaLastTime = UNIXTIME;
 		if (isDead())
@@ -2437,7 +2440,7 @@ void CUser::Type3AreaDuration()
 		set<uint16> sessionIDs;
 		foreach (itr, sessMap)
 		{
-			if (m_MagicProcess.UserRegionCheck(GetSocketID(), itr->first, m_iAreaMagicID, pType->bRadius))
+			if (CMagicProcess::UserRegionCheck(this, TO_USER(itr->second), pSkill, pType->bRadius))
 				sessionIDs.insert(itr->first);
 		}
 		g_socketMgr.ReleaseLock();
@@ -3567,22 +3570,15 @@ bool CUser::isAttackZone()
 	return GetMap()->isAttackZone();
 }
 
-bool CUser::CanUseItem(long itemid, uint16 count)
+bool CUser::CanUseItem(uint32 itemid, uint16 count)
 {
 	_ITEM_TABLE* pItem = pItem = g_pMain.GetItemPtr(itemid);
-	if(!pItem)
-		return false;
-
-	if(pItem->m_bClass != 0 && pItem->m_bClass != m_sClass) //Class related item check
-		return false;
-
-	if(pItem->m_bReqLevel > m_bLevel) //Level related item check
-		return false;
-
-	if(!CheckExistItem(itemid, count))
-		return false;
-
-	return true;
+	return (pItem != NULL
+		// Check the item's class requirement
+		|| (pItem->m_bClass == 0 || JobGroupCheck(pItem->m_bClass))
+		// Check the item's level requirement
+		|| (pItem->m_bReqLevel <= GetLevel() && pItem->m_bReqLevelMax >= GetLevel())
+		|| CheckExistItem(itemid, count));
 }
 
 void CUser::SendUserStatusUpdate(UserStatus type, UserStatusBehaviour status)

@@ -58,7 +58,17 @@ public:
 	__forceinline uint8 GetNation() { return m_bNation; }
 	__forceinline uint8 GetLevel() { return m_bLevel; }
 
-	__forceinline bool CanStealth() { return m_bCanStealth; }
+	virtual int32 GetHealth() = 0;
+	virtual int32 GetMaxHealth() = 0;
+	virtual int32 GetMana() = 0;
+	virtual int32 GetMaxMana() = 0;
+
+	__forceinline bool isTransformed() { return m_bIsTransformed; }
+	__forceinline bool isBlinded() { return m_bIsBlinded; }
+	__forceinline bool canInstantCast() { return m_bInstantCast; }
+	__forceinline bool canStealth()	{ return m_bCanStealth; }
+
+	virtual bool isBlinking() { return false; }
 
 	virtual bool isDead() = 0;
 	virtual bool isAlive() { return !isDead(); }
@@ -168,6 +178,15 @@ public:
 	uint8	m_bType4Buff[MAX_TYPE4_BUFF];
 	bool	m_bType4Flag;
 
+	bool	m_bIsTransformed; // Is the unit in a transformed state?
+
+	uint32	m_nTransformationItem; // item used for transforming (e.g. disguise scroll, totem..)
+	time_t	m_tTransformationStartTime;
+	uint16	m_sTransformationDuration;
+
+	bool	m_bIsBlinded;
 	bool	m_bCanStealth;
+	bool	m_bInstantCast;
+
 	uint8	m_bReflectArmorType;
 };
