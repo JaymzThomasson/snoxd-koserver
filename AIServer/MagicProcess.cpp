@@ -482,9 +482,13 @@ short CMagicProcess::GetMagicDamage(int tid, int total_hit, int attribute, int d
 	if(bSign == FALSE && damage != 0)	{
 		damage = - damage;
 	}
+
+	// Apply boost for skills matching weather type.
+	// This isn't actually used officially, but I think it's neat...
+	GetWeatherDamage(damage, attribute);
 		
 	//return 1;
-	return damage ;		
+	return damage;
 }
 
 short CMagicProcess::AreaAttack(int magictype, int magicid, int moral, int data1, int data2, int data3, int dexpoint, int righthand_damage)
@@ -717,31 +721,11 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 
 short CMagicProcess::GetWeatherDamage(short damage, short attribute)
 {
-	BOOL weather_buff = FALSE;
-
-	switch (g_pMain.m_iWeather) {
-		case WEATHER_FINE:
-			if (attribute == ATTRIBUTE_FIRE) {
-				weather_buff = TRUE;
-			}
-			break;
-
-		case WEATHER_RAIN:
-			if (attribute == ATTRIBUTE_LIGHTNING) {
-				weather_buff = TRUE;
-			}
-			break;
-
-		case WEATHER_SNOW:
-			if (attribute == ATTRIBUTE_ICE) {
-				weather_buff = TRUE;
-			}
-			break;
-	}
-
-	if (weather_buff) {
-		damage = (damage * 110) / 100 ;
-	}
+	int iWeather = g_pMain.m_iWeather;
+	if ((iWeather == WEATHER_FINE && attribute == ATTRIBUTE_FIRE)
+		|| (iWeather == WEATHER_RAIN && attribute == ATTRIBUTE_LIGHTNING)
+		|| (iWeather == WEATHER_SNOW && attribute == ATTRIBUTE_ICE))
+		damage = (damage * 110) / 100; // 10% damage output increase
 
 	return damage;
 }
