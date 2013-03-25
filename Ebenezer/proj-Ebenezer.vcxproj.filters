@@ -192,6 +192,9 @@
     <ClCompile Include="..\shared\Condition.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
+    <ClCompile Include="MagicInstance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -429,6 +432,9 @@
       <Filter>Shared</Filter>
     </ClInclude>
     <ClInclude Include="LoadServerData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MagicInstance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

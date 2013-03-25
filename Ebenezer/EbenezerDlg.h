@@ -3,7 +3,6 @@
 #include "LuaEngine.h"
 
 #include "Define.h"
-#include "GameDefine.h"
 #include "ChatHandler.h"
 
 class C3DMap;

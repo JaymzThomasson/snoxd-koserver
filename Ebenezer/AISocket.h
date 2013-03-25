@@ -43,6 +43,5 @@ public:
 
 private:
 	bool m_bAllNpcInfoRecv;
-	CMagicProcess m_MagicProcess;
 	bool m_bHasConnected;
 };

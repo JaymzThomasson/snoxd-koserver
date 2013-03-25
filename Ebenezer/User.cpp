@@ -4,13 +4,13 @@
 #include "KnightsManager.h"
 #include "User.h"
 #include "../shared/KOSocketMgr.h"
+#include "MagicProcess.h"
 
 extern KOSocketMgr<CUser> g_socketMgr;
 using namespace std;
 
 CUser::CUser(uint16 socketID, SocketMgr *mgr) : KOSocket(socketID, mgr, -1, 16384, 3172), Unit(true)
 {	
-	m_MagicProcess.m_pSrcUser = this;
 }
 
 void CUser::OnConnect()
@@ -290,7 +290,7 @@ bool CUser::HandlePacket(Packet & pkt)
 		MerchantProcess(pkt);
 		break;
 	case WIZ_MAGIC_PROCESS:
-		m_MagicProcess.MagicPacket(pkt);
+		CMagicProcess::MagicPacket(pkt, this);
 		break;
 	case WIZ_SKILLPT_CHANGE:
 		SkillPointChange(pkt);
@@ -398,7 +398,7 @@ bool CUser::HandlePacket(Packet & pkt)
 	CheckSavedMagic();
 		
 	if (isTransformed())
-		m_MagicProcess.CheckExpiredType6Skills();
+		CMagicProcess::CheckExpiredType6Skills(this);
 
 	if (isBlinking())		// Should you stop blinking?
 		BlinkTimeCheck();
@@ -3817,7 +3817,7 @@ void CUser::RecastSavedMagic()
 				//_MAGIC_TYPE9 *pType = g_pMain.m_Magictype9Array.GetData(pSkill->iNum);
 				break;
 		}
-		m_MagicProcess.MagicPacket(result, true);
+		CMagicProcess::MagicPacket(result);
 	}
 
 }

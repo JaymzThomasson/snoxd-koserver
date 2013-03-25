@@ -5,7 +5,6 @@
 
 #include "Unit.h"
 #include "ChatHandler.h"
-#include "MagicProcess.h"
 
 struct _EXCHANGE_ITEM;
 typedef	std::list<_EXCHANGE_ITEM*>		ItemList;
@@ -150,8 +149,6 @@ public:
 	time_t	m_tAreaStartTime;
 	BYTE    m_bAreaInterval;
 	int     m_iAreaMagicID;
-
-	CMagicProcess m_MagicProcess;
 
 	uint32	m_fSpeedHackClientTime, m_fSpeedHackServerTime;
 	BYTE	m_bSpeedHackCheck;

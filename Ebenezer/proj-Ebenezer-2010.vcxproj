@@ -198,6 +198,7 @@
     <ClCompile Include="LoginHandler.cpp" />
     <ClCompile Include="LuaEngine.cpp" />
     <ClCompile Include="lua_bindings.cpp" />
+    <ClCompile Include="MagicInstance.cpp" />
     <ClCompile Include="MagicProcess.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -303,6 +304,7 @@
     <ClInclude Include="LoadServerData.h" />
     <ClInclude Include="LuaEngine.h" />
     <ClInclude Include="lua_bindings.h" />
+    <ClInclude Include="MagicInstance.h" />
     <ClInclude Include="MagicProcess.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Npc.h" />
