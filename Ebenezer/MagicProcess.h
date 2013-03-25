@@ -1,14 +1,17 @@
 #pragma once
 
-#define NONE_R				0	
-#define	FIRE_R				1
-#define	COLD_R				2
-#define LIGHTNING_R			3
-#define MAGIC_R				4
-#define DISEASE_R			5
-#define POISON_R			6
-#define LIGHT_R				7
-#define DARKNESS_R			8
+enum ResistanceTypes
+{
+	NONE_R		= 0,
+	FIRE_R		= 1,
+	COLD_R		= 2,
+	LIGHTNING_R	= 3,
+	MAGIC_R		= 4,
+	DISEASE_R	= 5,
+	POISON_R	= 6,
+	LIGHT_R		= 7,
+	DARKNESS_R	= 8
+};
 
 class Packet;
 class Unit;
