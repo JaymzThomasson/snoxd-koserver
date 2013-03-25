@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Map.h"
 #include "EbenezerDlg.h"
+#include "KnightsManager.h"
 
 using namespace std;
 
@@ -312,7 +313,7 @@ bool CUser::HandlePacket(Packet & pkt)
 		ItemRepair(pkt);
 		break;
 	case WIZ_KNIGHTS_PROCESS:
-		g_pMain.m_KnightsManager.PacketProcess(this, pkt);
+		CKnightsManager::PacketProcess(this, pkt);
 		break;
 	case WIZ_ITEM_REMOVE:
 		ItemRemove(pkt);

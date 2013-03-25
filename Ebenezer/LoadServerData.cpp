@@ -5,6 +5,8 @@
 #include "GameEvent.h"
 
 #include "EbenezerDlg.h"
+#include "KnightsManager.h"
+
 #include "../shared/database/ItemTableSet.h"
 #include "../shared/database/ItemExchangeSet.h"
 #include "../shared/database/MagicTableSet.h"

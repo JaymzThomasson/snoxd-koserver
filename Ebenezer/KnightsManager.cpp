@@ -2,16 +2,8 @@
 #include "resource.h"
 
 #include "Map.h"
+#include "KnightsManager.h"
 #include "EbenezerDlg.h"
-
-CKnightsManager::CKnightsManager()
-{
-}
-
-CKnightsManager::~CKnightsManager()
-{
-
-}
 
 // TO-DO: Move this to the CUser class.
 void CKnightsManager::PacketProcess(CUser *pUser, Packet & pkt)

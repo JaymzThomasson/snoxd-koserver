@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "Map.h"
 #include "EbenezerDlg.h"
+#include "KnightsManager.h"
 
 void CUser::ItemRepair(Packet & pkt)
 {
@@ -326,7 +327,7 @@ void CUser::NpcEvent(Packet & pkt)
 
 	case NPC_CLAN: // this HAS to go.
 		result << uint16(0); // page 0
-		g_pMain.m_KnightsManager.AllKnightsList(this, result);
+		CKnightsManager::AllKnightsList(this, result);
 		break;
 
 	case NPC_WAREHOUSE:

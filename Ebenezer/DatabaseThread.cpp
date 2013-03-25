@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "EbenezerDlg.h"
+#include "KnightsManager.h"
 
 using std::string;
 
@@ -95,7 +96,7 @@ BOOL WINAPI DatabaseThread::ThreadProc(LPVOID lpParam)
 			if (pUser) pUser->ReqSaveCharacter();
 			break;
 		case WIZ_KNIGHTS_PROCESS:
-			g_pMain.m_KnightsManager.ReqKnightsPacket(pUser, pkt);
+			CKnightsManager::ReqKnightsPacket(pUser, pkt);
 			break;
 		case WIZ_LOGIN_INFO:
 			if (pUser) pUser->ReqSetLogInInfo(pkt);
@@ -218,7 +219,7 @@ void CUser::ReqDeleteChar(Packet & pkt)
 	if (retCode == 1 && sKnights != 0)
 	{
 		// TO-DO: Synchronise this system better. Much better. This is dumb.
-		g_pMain.m_KnightsManager.RemoveKnightsUser(sKnights, (char *)strCharID.c_str());
+		CKnightsManager::RemoveKnightsUser(sKnights, (char *)strCharID.c_str());
 		result.SetOpcode(UDP_KNIGHTS_PROCESS);
 		result << uint8(KNIGHTS_WITHDRAW) << sKnights << strCharID;
 		g_pMain.Send_UDP_All(&result, g_pMain.m_nServerGroup == 0 ? 0 : 1);

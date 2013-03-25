@@ -18,8 +18,6 @@
 class C3DMap;
 #include "LoadServerData.h"
 
-#include "KnightsManager.h"
-
 typedef stdext::hash_map<std::string, CUser *> NameMap;
 
 class CEbenezerDlg
@@ -217,8 +215,6 @@ public:
 	QuestMonsterArray		m_QuestMonsterArray;
 	RentalItemArray			m_RentalItemArray;
 	ItemExchangeArray		m_ItemExchangeArray;
-
-	CKnightsManager			m_KnightsManager;
 
 	short	m_sPartyIndex;
 	short	m_sZoneCount;							// AI Server 재접속시 사용

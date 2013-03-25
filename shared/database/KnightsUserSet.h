@@ -17,7 +17,7 @@ public:
 		_dbCommand->FetchUInt16(1, sIDNum);
 		_dbCommand->FetchString(2, strUserID);
 
-		g_pMain.m_KnightsManager.AddKnightsUser(sIDNum, strUserID.c_str());
+		CKnightsManager::AddKnightsUser(sIDNum, strUserID.c_str());
 		return true;
 	}
 };

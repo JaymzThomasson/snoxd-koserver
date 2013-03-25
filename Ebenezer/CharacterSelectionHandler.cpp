@@ -1,6 +1,7 @@
 ﻿#include "StdAfx.h"
 #include "Map.h"
 #include "EbenezerDlg.h"
+#include "KnightsManager.h"
 
 void CUser::SelNationToAgent(Packet & pkt)
 {
@@ -204,7 +205,7 @@ void CUser::SelectCharacter(Packet & pkt)
 		CKnights* pKnights = g_pMain.GetClanPtr( GetClanID() );
 		if (pKnights != NULL)
 		{
-			g_pMain.m_KnightsManager.SetKnightsUser(GetClanID(), GetName());
+			CKnightsManager::SetKnightsUser(GetClanID(), GetName());
 		}
 		else if (GetZoneID() > 2)
 		{

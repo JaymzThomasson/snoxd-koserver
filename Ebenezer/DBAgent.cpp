@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "../shared/database/OdbcConnection.h"
 #include "EbenezerDlg.h"
+#include "KnightsManager.h"
 
 using std::string;
 using std::auto_ptr;
@@ -1056,7 +1057,7 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 			// overwrite the count
 			result.put(offset, bCount);
 
-			g_pMain.m_KnightsManager.RecvKnightsAllList(result);
+			CKnightsManager::RecvKnightsAllList(result);
 			bCount = 0;
 		}
 	} while (dbCommand->MoveNext());
@@ -1065,7 +1066,7 @@ void CDBAgent::LoadKnightsAllList(uint8 bNation)
 	if (bCount < 100)
 	{
 		result.put(offset, bCount);
-		g_pMain.m_KnightsManager.RecvKnightsAllList(result);
+		CKnightsManager::RecvKnightsAllList(result);
 	}
 }
 

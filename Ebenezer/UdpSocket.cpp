@@ -444,7 +444,7 @@ void CUdpSocket::RecvModifyFame(char* pBuf, BYTE command)
 				clanNotice = g_pMain.GetServerResource(IDS_KNIGHTS_REMOVE);
 		}
 
-		g_pMain.m_KnightsManager.RemoveKnightsUser(knightsindex, userid);
+		CKnightsManager::RemoveKnightsUser(knightsindex, userid);
 		break;
 
 	case KNIGHTS_ADMIT:
