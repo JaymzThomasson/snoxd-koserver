@@ -434,6 +434,12 @@ void Unit::SendToRegion(Packet *result)
 	g_pMain.Send_Region(result, GetMap(), GetRegionX(), GetRegionZ());
 }
 
+// Handle it here so that we don't need to ref the class everywhere
+void Unit::Send_AIServer(Packet *result)
+{
+	g_pMain.Send_AIServer(result);
+}
+
 void Unit::InitType3()
 {
 	for (int i = 0 ; i < MAX_TYPE3_REPEAT; i++)

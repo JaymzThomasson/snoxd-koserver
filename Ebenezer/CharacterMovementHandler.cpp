@@ -38,7 +38,7 @@ void CUser::MoveProcess(Packet & pkt)
 
 	result.Initialize(AG_USER_MOVE);
 	result << GetSocketID() << m_curx << m_curz << m_cury << speed;
-	g_pMain.Send_AIServer(&result);
+	Send_AIServer(&result);
 }
 
 void CUser::AddToRegion(int16 new_region_x, int16 new_region_z)
@@ -76,7 +76,7 @@ void CUser::UserInOut(uint8 bType)
 		result.Initialize(AG_USER_INOUT);
 		result.SByte();
 		result << bType << GetSocketID() << GetName() << m_curx << m_curz;
-		g_pMain.Send_AIServer(&result);
+		Send_AIServer(&result);
 	}
 }
 
@@ -256,7 +256,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 	result.Initialize(AG_ZONE_CHANGE);
 	result << GetSocketID() << GetZoneID();
-	g_pMain.Send_AIServer(&result);
+	Send_AIServer(&result);
 
 	m_bZoneChangeSameZone = false;
 	m_bZoneChangeFlag = false;

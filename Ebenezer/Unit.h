@@ -83,6 +83,7 @@ public:
 	virtual void MSpChange(int amount) = 0;
 
 	void SendToRegion(Packet *result);
+	void Send_AIServer(Packet *result);
 
 	void InitType3();
 	void InitType4();

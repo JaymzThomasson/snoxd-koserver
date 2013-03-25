@@ -498,7 +498,7 @@ void CUser::LogOut()
 
 	Packet result(AG_USER_LOG_OUT);
 	result << GetID() << GetName();
-	g_pMain.Send_AIServer(&result);
+	Send_AIServer(&result);
 
 	result.Initialize(WIZ_LOGOUT);
 	m_deleted = true; // make this session unusable until the logout is complete
@@ -1118,7 +1118,7 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= 
 	{
 		result.Initialize(AG_USER_SET_HP);
 		result << GetSocketID() << uint32(m_sHp);
-		g_pMain.Send_AIServer(&result);
+		Send_AIServer(&result);
 	}
 
 	if (isInParty())
@@ -1173,7 +1173,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 			<< m_sMagicAmountLeftHand << m_sMagicAmountRightHand
 			<< m_bAuthority << m_bInvisibilityType;
 
-	g_pMain.Send_AIServer(&result);
+	Send_AIServer(&result);
 }
 
 void CUser::SetUserAbility(bool bSendPacket /*= true*/)
@@ -3116,7 +3116,7 @@ void CUser::UpdateVisibility(InvisibilityType bNewType)
 	Packet result(AG_USER_VISIBILITY);
 	m_bInvisibilityType = (uint8)(bNewType);
 	result << GetID() << m_bInvisibilityType;
-	g_pMain.Send_AIServer(&result);
+	Send_AIServer(&result);
 }
 
 void CUser::BlinkStart()
@@ -3147,14 +3147,14 @@ void CUser::BlinkTimeCheck()
 
 	Packet result(AG_USER_REGENE);
 	result	<< GetSocketID() << m_sHp;
-	g_pMain.Send_AIServer(&result);
+	Send_AIServer(&result);
 
 	result.Initialize(AG_USER_INOUT);
 	result.SByte(); // TO-DO: Remove this redundant uselessness that is mgame
 	result	<< uint8(INOUT_RESPAWN) << GetSocketID()
 			<< GetName()
 			<< m_curx << m_curz;
-	g_pMain.Send_AIServer(&result);
+	Send_AIServer(&result);
 
 	UpdateVisibility(INVIS_NONE);
 }

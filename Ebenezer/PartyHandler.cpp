@@ -122,7 +122,7 @@ void CUser::PartyRequest(int memberid, bool bCreate)
 		
 		result.Initialize(AG_USER_PARTY);
 		result << uint8(PARTY_CREATE) << pParty->wIndex << pParty->uid[0];
-		g_pMain.Send_AIServer(&result);
+		Send_AIServer(&result);
 	}
 
 	pUser->m_sPartyIndex = m_sPartyIndex;
@@ -215,7 +215,7 @@ void CUser::PartyInsert()
 
 	result.Initialize(AG_USER_PARTY);
 	result	<< uint8(PARTY_INSERT) << pParty->wIndex << byIndex << GetSocketID();
-	g_pMain.Send_AIServer(&result);
+	Send_AIServer(&result);
 }
 
 void CUser::PartyRemove(int memberid)
@@ -282,7 +282,7 @@ void CUser::PartyRemove(int memberid)
 	// AI Server
 	result.Initialize(AG_USER_PARTY);
 	result << uint8(PARTY_REMOVE) << pParty->wIndex << uint16(memberid);
-	g_pMain.Send_AIServer(&result);
+	Send_AIServer(&result);
 }
 
 void CUser::PartyDelete()
@@ -311,7 +311,7 @@ void CUser::PartyDelete()
 	m_bPartyLeader = false;
 
 	result << uint8(PARTY_DELETE) << uint16(pParty->wIndex);
-	g_pMain.Send_AIServer(&result);
+	Send_AIServer(&result);
 	g_pMain.DeleteParty(pParty->wIndex);
 }
 

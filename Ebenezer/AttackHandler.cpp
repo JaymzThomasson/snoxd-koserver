@@ -84,7 +84,7 @@ void CUser::Attack(Packet & pkt)
 					<< m_sItemAc
 					<< m_bMagicTypeLeftHand << m_bMagicTypeRightHand
 					<< m_sMagicAmountLeftHand << m_sMagicAmountRightHand;
-			g_pMain.Send_AIServer(&result);	
+			Send_AIServer(&result);	
 			return;
 		}
 	}
@@ -256,7 +256,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	{
 		result.Initialize(AG_USER_REGENE);
 		result << GetSocketID() << m_sHp;
-		g_pMain.Send_AIServer(&result);
+		Send_AIServer(&result);
 	}
 
 	SetRegion(GetNewRegionX(), GetNewRegionZ());
