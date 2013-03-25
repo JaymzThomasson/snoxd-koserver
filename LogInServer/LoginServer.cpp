@@ -172,6 +172,7 @@ void LoginServer::ReportSQLError(OdbcError *pError)
 	string errorMessage = string_format(_T("ODBC error occurred.\r\nSource: %s\r\nError: %s\r\nDescription: %s\n"),
 		pError->Source.c_str(), pError->ExtendedErrorMessage.c_str(), pError->ErrorMessage.c_str());
 
+	TRACE("%s", errorMessage.c_str());
 	WriteLogFile(errorMessage);
 	delete pError;
 }
