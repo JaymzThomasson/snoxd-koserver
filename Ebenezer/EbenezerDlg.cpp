@@ -231,7 +231,7 @@ void CEbenezerDlg::GetServerResource(int nResourceID, string * result, ...)
 
 	va_list args;
 	va_start(args, result);
-	_string_format(pResource->strResource.c_str(), result, args);
+	_string_format(pResource->strResource, result, args);
 	va_end(args);
 }
 
