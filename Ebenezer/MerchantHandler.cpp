@@ -136,6 +136,12 @@ void CUser::MerchantItemAdd(Packet & pkt)
 		|| bDstPos >= MAX_MERCH_ITEMS)
 		return;
 
+	_ITEM_TABLE * pTable = g_pMain.GetItemPtr(nItemID);
+	if (pTable == NULL
+		|| nItemID >= ITEM_NO_TRADE // Cannot be traded, sold or stored.
+	 	|| pTable->m_bRace == RACE_UNTRADEABLE) // Cannot be traded or sold.
+		return;
+
 	bSrcPos += SLOT_MAX;
 	_ITEM_DATA *pSrcItem = GetItem(bSrcPos);
 	if (pSrcItem->nNum != nItemID

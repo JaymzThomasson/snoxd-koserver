@@ -115,7 +115,11 @@ void CUser::ExchangeAdd(Packet & pkt)
 	pkt >> pos >> nItemID >> count;
 	_ITEM_TABLE *pTable = g_pMain.GetItemPtr(nItemID);
 	if (pTable == NULL
-		|| (nItemID != ITEM_GOLD && pos >= HAVE_MAX)
+
+		|| (nItemID != ITEM_GOLD 
+			&& (pos >= HAVE_MAX // Invalid position
+				|| nItemID >= ITEM_NO_TRADE // Cannot be traded, stored or sold.
+				|| pTable->m_bRace == RACE_UNTRADEABLE)) // Cannot be traded or sold.
 		|| m_bExchangeOK)
 		goto add_fail;
 
@@ -361,10 +365,6 @@ bool CUser::ExecuteExchange()
 
 	foreach (Iter, pUser->m_ExchangeItemList)
 	{
-		// This should be checked before the item's even gone into the list...
-		if( (*Iter)->nItemID >= ITEM_NO_TRADE)
-			return false;
-		
 		if ((*Iter)->nItemID == ITEM_GOLD)
 		{
 			money = (*Iter)->nCount;

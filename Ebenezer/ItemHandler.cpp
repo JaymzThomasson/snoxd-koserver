@@ -20,11 +20,14 @@ void CUser::WarehouseProcess(Packet & pkt)
 	if (isTrading())
 		goto fail_return;
 
-	if( command == WAREHOUSE_OPEN )	{
-		result << uint8(WAREHOUSE_OPEN) << uint8(WAREHOUSE_OPEN) << uint32(m_iBank);
-		for(int i=0; i<WAREHOUSE_MAX; i++ ) {
-			result.append(&m_sWarehouseArray[i], 8); // nNum(4) sDuration(2) sCount(2)
-			result << uint8(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
+	if (command == WAREHOUSE_OPEN)
+	{
+		result << uint8(WAREHOUSE_OPEN) << uint8(WAREHOUSE_OPEN) << GetInnCoins();
+		for (int i = 0; i < WAREHOUSE_MAX; i++)
+		{
+			_ITEM_DATA *pItem = &m_sWarehouseArray[i];
+			result	<< pItem->nNum << pItem->sDuration << pItem->sCount
+					<< uint8(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
 		}
 		Send(&result);
 		return;
@@ -42,23 +45,34 @@ void CUser::WarehouseProcess(Packet & pkt)
 	reference_pos = 24 * page;
 
 	// TO-DO: Clean up this entire method. It's horrendous!
-	switch( command ) {
+	switch (command)
+	{
+		/* stuff going into the inn */
 	case WAREHOUSE_INPUT:
 		pkt >> count;
-		if( itemid == ITEM_GOLD ) {
-			if( m_iBank+count > COIN_MAX ) goto fail_return;
-			if( m_iGold-count < 0 ) goto fail_return;
+
+		// Handle coin input.
+		if (itemid == ITEM_GOLD)
+		{
+			if (!hasCoins(count)
+				|| GetInnCoins() + count > COIN_MAX)
+				goto fail_return;
+
 			m_iBank += count;
 			m_iGold -= count;
 			break;
 		}
+
+		if (srcpos > HAVE_MAX
+			|| reference_pos + destpos > WAREHOUSE_MAX
+			|| itemid >= ITEM_NO_TRADE) // Cannot be traded, sold or stored (note: don't check the race, as these items CAN be stored).
+			goto fail_return;
 
 		if (m_sItemArray[SLOT_MAX+srcpos].isSealed()
 			|| m_sItemArray[SLOT_MAX+srcpos].isRented())
 			goto fail_return;
 
 		if( m_sItemArray[SLOT_MAX+srcpos].nNum != itemid ) goto fail_return;
-		if( reference_pos+destpos > WAREHOUSE_MAX ) goto fail_return;
 		if( m_sWarehouseArray[reference_pos+destpos].nNum && !pTable->m_bCountable ) goto fail_return;
 		if( m_sItemArray[SLOT_MAX+srcpos].sCount < count ) goto fail_return;
 		m_sWarehouseArray[reference_pos+destpos].nNum = itemid;

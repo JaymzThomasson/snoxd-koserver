@@ -121,7 +121,7 @@ enum ItemMovementType
 #define CLAN_LEVEL_REQUIREMENT	20
 
 #define ITEM_GOLD			900000000	// �� ������ ��ȣ...
-#define ITEM_NO_TRADE		900000001	// �ŷ� �Ұ� �����۵�.... �񷯸ӱ� ũ�������� �̹�Ʈ >.<		
+#define ITEM_NO_TRADE		900000001	// Cannot be traded, sold or stored.
 
 ////////////////////////////////////////////////////////////
 // EVENT MISCELLANOUS DATA DEFINE
@@ -228,6 +228,11 @@ struct	_EXCHANGE_ITEM
 	uint16	sDurability;
 	uint8	bSrcPos;
 	uint64	nSerialNum;
+};
+
+enum ItemRace
+{
+	RACE_UNTRADEABLE = 20 // Cannot be traded or sold.
 };
 
 struct _ITEM_TABLE

@@ -381,9 +381,6 @@ void CUser::ItemTrade(Packet & pkt)
 	else
 		pkt >> count;
 
-	if (itemid >= ITEM_NO_TRADE)
-		goto fail_return;
-
 	// Moving an item in the inventory
 	if (type == 3)
 	{
@@ -409,7 +406,10 @@ void CUser::ItemTrade(Packet & pkt)
 	}
 
 	if (isTrading()
-		|| (pTable = g_pMain.GetItemPtr(itemid)) == NULL)
+		|| (pTable = g_pMain.GetItemPtr(itemid)) == NULL
+		|| (type == 2 // if we're selling an item...
+				&& (itemid >= ITEM_NO_TRADE // Cannot be traded, sold or stored.
+					|| pTable->m_bRace == RACE_UNTRADEABLE))) // Cannot be traded or sold.
 		goto fail_return;
 
 	if (pos >= HAVE_MAX
