@@ -70,7 +70,7 @@ DEFINE_LUA_CLASS
 	// MAKE_LUA_METHOD(RequestReward)
 	// MAKE_LUA_METHOD(RequestPersonalRankReward)
 	MAKE_LUA_METHOD(SaveEvent)
-	// MAKE_LUA_METHOD(SearchQuest)
+	MAKE_LUA_METHOD(SearchQuest)
 	MAKE_LUA_METHOD(ShowMap)
 	MAKE_LUA_METHOD(SelectMsg)
 	MAKE_LUA_METHOD(NpcSay)

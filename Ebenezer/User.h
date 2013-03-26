@@ -627,6 +627,7 @@ public:
 								uint32 nUnk3, uint16 sUnk3,
 								uint32 nUnk4, uint16 sUnk4,
 								uint32 nUnk5 = 0, uint16 sUnk5 = 0);
+	uint16 QuestV2SearchEligibleQuest(uint16 sNpcID);
 	void QuestV2ShowMap(uint32 nQuestHelperID);
 	uint8 CheckMonsterCount(uint8 bGroup);
 
@@ -753,9 +754,9 @@ public:
 			LUA_ARG(uint8, 3))); // quest state	
 	}
 
-	//DECLARE_LUA_FUNCTION(SearchQuest) {
-	//	LUA_RETURN(LUA_GET_INSTANCE()->QuestV2SearchEligibleQuest(LUA_ARG(uint16, 2))); // NPC ID
-	//}
+	DECLARE_LUA_FUNCTION(SearchQuest) {
+		LUA_RETURN(LUA_GET_INSTANCE()->QuestV2SearchEligibleQuest(LUA_ARG(uint16, 2))); // NPC ID
+	}
 
 	DECLARE_LUA_FUNCTION(ShowMap) {
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->QuestV2ShowMap(LUA_ARG(uint32, 2))); // quest helper ID

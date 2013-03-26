@@ -23,7 +23,7 @@ public:
 		_dbCommand->FetchByte  (8, pData->bZone);
 		_dbCommand->FetchUInt16(9, pData->sNpcId);
 		_dbCommand->FetchUInt16(10, pData->sEventDataIndex);
-		_dbCommand->FetchByte  (11, pData->bEventStatus);
+		_dbCommand->FetchSByte (11, pData->bEventStatus);
 		_dbCommand->FetchUInt32(12, pData->nEventTriggerIndex);
 		_dbCommand->FetchUInt32(13, pData->nEventCompleteIndex);
 		_dbCommand->FetchUInt32(14, pData->nExchangeIndex);

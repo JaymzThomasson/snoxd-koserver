@@ -434,7 +434,7 @@ struct _QUEST_HELPER
 	uint8	bZone;
 	uint16	sNpcId;
 	uint16	sEventDataIndex;
-	uint8	bEventStatus;
+	int8	bEventStatus;
 	uint32	nEventTriggerIndex;
 	uint32	nEventCompleteIndex;
 	uint32	nExchangeIndex;
