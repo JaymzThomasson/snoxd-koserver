@@ -81,6 +81,9 @@
     <ClCompile Include="..\shared\RWLock.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
+    <ClCompile Include="StdAfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VersionManager.rc">

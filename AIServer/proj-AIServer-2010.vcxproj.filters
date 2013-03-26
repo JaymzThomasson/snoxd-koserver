@@ -122,6 +122,9 @@
     <ClCompile Include="..\shared\RWLock.cpp">
       <Filter>shared</Filter>
     </ClCompile>
+    <ClCompile Include="StdAfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">

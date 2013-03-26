@@ -77,6 +77,9 @@
     <ClCompile Include="..\shared\Condition.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
+    <ClCompile Include="StdAfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
