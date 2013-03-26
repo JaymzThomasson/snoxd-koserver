@@ -301,6 +301,7 @@ public:
 	BYTE m_byResetFlag;					// 추적공격시 패스파인딩을 다시 할것인지,, 말것인지를 판단..
 	BYTE m_byActionFlag;				// 행동변화 플래그 ( 0 : 행동변화 없음, 1 : 공격에서 추격)
 
+	bool m_bTracing;
 	float m_fTracingStartX, m_fTracingStartZ;
 
 	short m_iRegion_X;					// 현재의 region - x pos

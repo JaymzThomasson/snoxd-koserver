@@ -150,6 +150,9 @@ CNpc::CNpc() : m_NpcState(NPC_LIVE), m_byGateOpen(0), m_byObjectType(NORMAL_OBJE
 	InitUserList();
 	InitMagicValuable();
 
+	m_bTracing = false;
+	m_fTracingStartX = m_fTracingStartZ = 0.0f;
+
 	m_MagicProcess.m_pSrcNpc = this;
 
 	for(int i=0; i<NPC_MAX_PATH_LIST; i++)	{
@@ -225,6 +228,7 @@ void CNpc::InitTarget()
 	m_Target.y = 0.0;
 	m_Target.z = 0.0;
 	m_Target.failCount = 0;
+	m_bTracing = false;
 }
 
 
@@ -431,8 +435,14 @@ time_t CNpc::NpcTracing()
 	{
 		m_byActionFlag = NO_ACTION;
 		m_byResetFlag = 1;
-		m_fTracingStartX = m_fCurX;
-		m_fTracingStartZ = m_fCurZ;
+
+		// If we're not already following a user, define our start coords.
+		if (!m_bTracing)
+		{
+			m_fTracingStartX = m_fCurX;
+			m_fTracingStartZ = m_fCurZ;
+			m_bTracing = true;
+		}
 	}
 
 	if(m_byResetFlag == 1)
@@ -2223,12 +2233,15 @@ int CNpc::GetTargetPath(int option)
 			else iTempRange += 2;
 		}
 
-		float dx = m_fCurX - m_fTracingStartX;
-		float dy = m_fCurZ - m_fTracingStartZ;
-		if (pow(dx, 2.0f) + pow(dy, 2.0f) > pow(iTempRange, 2.0f))
+		if (m_bTracing)
 		{
-			InitTarget();
-			return -1;
+			float dx = m_fCurX - m_fTracingStartX;
+			float dy = m_fCurZ - m_fTracingStartZ;
+			if (pow(dx, 2.0f) + pow(dy, 2.0f) > pow(iTempRange, 2.0f))
+			{
+				InitTarget();
+				return -1;
+			}
 		}
 	}
 	else if(m_Target.id >= NPC_BAND && m_Target.id < INVALID_BAND)	{	// Target 이 mon 인 경우
