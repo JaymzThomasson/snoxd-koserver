@@ -212,18 +212,53 @@ void CUser::ZoneChange(int zone, float x, float z)
 		SetMaxHp( 1 );
 	}
 
+	bool bSameZone = (GetZoneID() == zone);
 	m_bZone = zone;
 	m_curx = x;
 	m_curz = z;
 
-	m_pMap = pMap;
+	if (!bSameZone)
+	{
+		SetZoneAbilityChange();
 
-	if( m_bZone == ZONE_SNOW_BATTLE )	{
-		//TRACE("ZoneChange - name=%s\n", GetName());
-		SetMaxHp();
+		/* 
+			Here we also send a clan packet with subopcode 0x16 (with a byte flag of 2) if war zone/Moradon
+			or subopcode 0x17 (with nWarEnemyID) for all else
+		*/
+#if 0
+		if (isInClan())
+		{
+			CKnights * pKnights = g_pMain.GetClanPtr(GetClanID());
+			if (pKnights != NULL
+					&& pKnights->bKnightsWarStarted)
+			{
+				Packet clanPacket(WIZ_KNIGHTS_PROCESS);
+				if ((GetZoneID() / 100) == 1
+					|| GetZoneID() == 21)
+					clanPacket << uint8(0x17) << uint8(2);
+				else 
+					clanPacket << uint16(0x16) << uint16(0 /*nWarEnemyID*/);
+
+				Send(&clanPacket);
+			}
+		}
+#endif
+
+
+		if (GetZoneID() == ZONE_SNOW_BATTLE)
+		{
+			//TRACE("ZoneChange - name=%s\n", GetName());
+			SetMaxHp();
+		}
+
+		if (isInParty())
+			PartyRemove(GetSocketID());
+
+		ResetWindows();
 	}
 
-	PartyRemove(GetSocketID());	// ??????? Z?????? ó??
+
+	m_pMap = pMap;
 
 	//TRACE("ZoneChange ,,, id=%s, nation=%d, zone=%d, x=%.2f, z=%.2f\n", GetName(), m_bNation, zone, x, z);
 	
@@ -245,7 +280,8 @@ void CUser::ZoneChange(int zone, float x, float z)
 	result << uint16(GetZoneID()) << GetSPosX() << GetSPosZ() << GetSPosY() << g_pMain.m_byOldVictory;
 	Send(&result);
 
-	if (!m_bZoneChangeSameZone) {
+	if (!m_bZoneChangeSameZone)
+	{
 		m_sWhoKilledMe = -1;
 		m_iLostExp = 0;
 		m_bRegeneType = 0;
@@ -253,6 +289,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		m_sBind = -1;
 		InitType3();
 		InitType4();
+		SetUserAbility();
 	}	
 
 	result.Initialize(AG_ZONE_CHANGE);
@@ -313,7 +350,7 @@ void CUser::RecvZoneChange(Packet & pkt)
 		g_pMain.UserInOutForMe(this);
 		g_pMain.NpcInOutForMe(this);
 		g_pMain.MerchantUserInOutForMe(this);
-		
+
 		Packet result(WIZ_ZONE_CHANGE, uint8(2)); // finalise the zone change
 		Send(&result);
 	}
@@ -325,7 +362,7 @@ void CUser::RecvZoneChange(Packet & pkt)
 		if (!m_bZoneChangeSameZone)
 		{
 			BlinkStart();
-			// TO-DO: 'recast' buffs (otherwise they're lost to the client on zone change)
+			RecastSavedMagic();
 		}
 
 		m_bZoneChangeFlag = 0;
