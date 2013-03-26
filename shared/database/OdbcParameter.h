@@ -1,5 +1,4 @@
 #pragma once
-#include "../ByteBuffer.h"
 
 class OdbcParameter
 {

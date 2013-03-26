@@ -27,7 +27,7 @@ bool CLuaEngine::Initialise()
 
 bool CLuaScript::Initialise()
 {
-	FastGuard lock(*m_lock);
+	FastGuard lock(m_lock);
 
 	// Lua already initialised?
 	if (m_luaState != NULL)
@@ -123,7 +123,7 @@ bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const
 bool CLuaScript::CompileScript(const char * filename, BytecodeBuffer & buffer)
 {
 	// ensure that we wait until the last user's done executing their script.
-	FastGuard lock(*m_lock);
+	FastGuard lock(m_lock);
 
 	/* Attempt to load the file */
 	int err = luaL_loadfile(m_luaState, filename);
@@ -169,7 +169,7 @@ int CLuaScript::LoadBytecodeChunk(lua_State * L, uint8 * bytes, size_t len, Byte
 bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const char * filename, BytecodeBuffer & bytecode)
 {
 	// Ensure that we wait until the last user's done executing their script.
-	FastGuard lock(*m_lock);
+	FastGuard lock(m_lock);
 
 	/* Attempt to run the script. */
 

@@ -1,9 +1,22 @@
 #include "stdafx.h"
 #include "OdbcConnection.h"
+#include "../Mutex.h"
 
 OdbcConnection::OdbcConnection()
-	: m_connHandle(NULL), m_envHandle(NULL), m_bMarsEnabled(false)
+	: m_connHandle(NULL), m_envHandle(NULL), m_bMarsEnabled(false), m_lock(new FastMutex())
 {
+}
+
+bool OdbcConnection::isConnected() 
+{
+	FastGuard lock(m_lock);
+	return (m_connHandle != NULL);
+}
+
+bool OdbcConnection::isError() 
+{
+	FastGuard lock(m_lock);
+	return (!m_odbcErrors.empty());
 }
 
 bool OdbcConnection::Connect(tstring szDSN, tstring szUser, tstring szPass, bool bMarsEnabled /*= true*/)
@@ -216,4 +229,5 @@ OdbcConnection::~OdbcConnection()
 {
 	Disconnect();
 	ResetErrors();
+	delete m_lock;
 }

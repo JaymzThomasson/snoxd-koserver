@@ -60,6 +60,11 @@ public:
 		target.Acquire();
 	}
 
+	Guard(T* mutex) : target(*mutex)
+	{
+		target.Acquire();
+	}
+
 	~Guard()
 	{
 		target.Release();

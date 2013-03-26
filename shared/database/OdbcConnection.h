@@ -3,17 +3,9 @@
 #pragma comment(lib, "odbc32.lib")
 
 #include <sqlext.h>
-#include <sqltypes.h>
-#include <sql.h>
-
 #include <set>
-#include <vector>
 
 #include "../tstring.h"
-#include "../Mutex.h"
-
-#include "OdbcCommand.h"
-#include "OdbcRecordset.h"
 
 struct OdbcError
 {
@@ -22,6 +14,9 @@ struct OdbcError
 	tstring	ExtendedErrorMessage;
 };
 
+#include "OdbcCommand.h"
+
+class FastMutex;
 class OdbcConnection
 {
 	friend class OdbcCommand;
@@ -29,17 +24,8 @@ class OdbcConnection
 public:
 	OdbcConnection();
 
-	__forceinline bool isConnected() 
-	{
-		FastGuard lock(m_lock);
-		return (m_connHandle != NULL);
-	}
-
-	__forceinline bool isError() 
-	{
-		FastGuard lock(m_lock);
-		return (m_odbcErrors.size() > 0);
-	}
+	bool isConnected();
+	bool isError();
 
 	__forceinline HDBC GetConnectionHandle() { return m_connHandle; }
 	__forceinline bool isMarsEnabled() { return m_bMarsEnabled; }
@@ -71,7 +57,7 @@ private:
 	HENV m_envHandle;
 	HDBC m_connHandle;
 
-	FastMutex m_lock;
+	FastMutex * m_lock;
 
 	std::vector<OdbcError   *> m_odbcErrors;
 	std::set   <OdbcCommand *> m_commandSet;

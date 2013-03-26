@@ -9,6 +9,7 @@
 #include "User.h"
 #include "DBAgent.h"
 
+#include "../shared/database/OdbcRecordset.h"
 #include "../shared/database/ItemTableSet.h"
 #include "../shared/database/ItemExchangeSet.h"
 #include "../shared/database/MagicTableSet.h"
