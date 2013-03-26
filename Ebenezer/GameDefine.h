@@ -232,7 +232,8 @@ struct	_EXCHANGE_ITEM
 
 enum ItemRace
 {
-	RACE_UNTRADEABLE = 20 // Cannot be traded or sold.
+	RACE_TRADEABLE_IN_48HR	= 19, // These items can't be traded until 48 hours from the time of creation
+	RACE_UNTRADEABLE		= 20  // Cannot be traded or sold.
 };
 
 struct _ITEM_TABLE
