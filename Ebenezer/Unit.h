@@ -2,6 +2,15 @@
 
 #include "Define.h"
 
+// Maximum range allowed between a player and an NPC.
+#define MAX_NPC_RANGE		(121.0f) // pow(11.0f, 2.0f), to save having to calculate it in the code.
+
+// Maximum range allowed between a unit and an object
+#define MAX_OBJECT_RANGE	(100.0f) // pow(10.0f, 20.0f)
+
+// Maximum range allowed between a player & their loot.
+#define MAX_LOOT_RANGE		(121.0f) // pow(11.0f, 2.0f)
+
 /**
  * This class is a bridge between the CNpc & CUser classes
  * Currently it's excessively messier than it needs to be, 
@@ -72,6 +81,13 @@ public:
 
 	virtual bool isDead() = 0;
 	virtual bool isAlive() { return !isDead(); }
+
+	float GetDistance(float fx, float fz);
+	float GetDistance(Unit * pTarget);
+	float isInRange(Unit * pTarget, float fSquaredRange);
+	float isInRange(float fx, float fz, float fSquaredRange);
+	float isInRangeSlow(Unit * pTarget, float fNonSquaredRange);
+	float isInRangeSlow(float fx, float fz, float fNonSquaredRange);
 
 	virtual void GetInOut(Packet & result, uint8 bType) = 0;
 

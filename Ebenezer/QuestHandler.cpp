@@ -52,6 +52,8 @@ void CUser::QuestV2PacketProcess(Packet & pkt)
 		|| pNpc == NULL || pNpc->isDead()
 		// Are we even talking to this NPC?
 		|| pQuestHelper->sNpcId != pNpc->GetEntryID()
+		// Are we in range of this NPC?
+		|| !isInRange(pNpc, MAX_NPC_RANGE)
 		// Is this quest for this player's nation? NOTE: 3 indicates both (why not 0, I don't know)
 		|| (pQuestHelper->bNation != 3 && pQuestHelper->bNation != GetNation())
 		// Is the player's level high enough to do this quest?

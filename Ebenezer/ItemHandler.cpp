@@ -31,6 +31,12 @@ void CUser::WarehouseProcess(Packet & pkt)
 	}
 
 	pkt >> npcid >> itemid >> page >> srcpos >> destpos;
+	CNpc * pNpc = g_pMain.m_arNpcArray.GetData(npcid);
+	if (pNpc == NULL
+		|| pNpc->GetType() != NPC_WAREHOUSE
+		|| !isInRange(pNpc, MAX_NPC_RANGE))
+		goto fail_return;
+
 	pTable = g_pMain.GetItemPtr( itemid );
 	if( !pTable ) goto fail_return;
 	reference_pos = 24 * page;

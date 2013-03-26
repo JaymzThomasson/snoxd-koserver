@@ -51,6 +51,54 @@ void Unit::Initialize()
 	InitType4();	 // Initialize durational type 4 stuff :)
 }
 
+/* 
+	NOTE: Due to KO messiness, we can really only calculate a 2D distance/
+	There are a lot of instances where the y (height level, in this case) coord isn't set,
+	which understandably screws things up a lot.
+*/
+// Calculate the distance between 2 2D points.
+float Unit::GetDistance(float fx, float fz)
+{
+	return pow(GetX() - fx, 2.0f) + pow(GetZ() - fz, 2.0f);
+}
+
+// Calculate the 2D distance between Units.
+float Unit::GetDistance(Unit * pTarget)
+{
+	ASSERT(pTarget != NULL);
+	return GetDistance(pTarget->GetX(), pTarget->GetZ());
+}
+
+// Check to see if the Unit is in 2D range of another Unit.
+// Range MUST be squared already.
+float Unit::isInRange(Unit * pTarget, float fSquaredRange)
+{
+	return (GetDistance(pTarget) <= fSquaredRange);
+}
+
+// Check to see if we're in the 2D range of the specified coordinates.
+// Range MUST be squared already.
+float Unit::isInRange(float fx, float fz, float fSquaredRange)
+{
+	return (GetDistance(fx, fz) <= fSquaredRange);
+}
+
+// Check to see if the Unit is in 2D range of another Unit.
+// Range must NOT be squared already.
+// This is less preferable to the more common precalculated range.
+float Unit::isInRangeSlow(Unit * pTarget, float fNonSquaredRange)
+{
+	return isInRange(pTarget, pow(fNonSquaredRange, 2.0f));
+}
+
+// Check to see if the Unit is in 2D range of the specified coordinates.
+// Range must NOT be squared already.
+// This is less preferable to the more common precalculated range.
+float Unit::isInRangeSlow(float fx, float fz, float fNonSquaredRange)
+{
+	return isInRange(fx, fz, pow(fNonSquaredRange, 2.0f));
+}
+
 void Unit::SetRegion(uint16 x /*= -1*/, uint16 z /*= -1*/) 
 {
 	m_sRegionX = x; m_sRegionZ = z; 

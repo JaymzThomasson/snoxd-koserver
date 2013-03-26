@@ -1399,7 +1399,8 @@ void CUser::BundleOpenReq(Packet & pkt)
 		return;
 
 	_ZONE_ITEM *pItem = GetRegion()->m_RegionItemArray.GetData(bundle_index);
-	if (pItem == NULL)
+	if (pItem == NULL
+		|| !isInRange(pItem->x, pItem->z, MAX_LOOT_RANGE))
 		return;
 
 	for (int i = 0; i < LOOT_ITEMS; i++)
@@ -1429,7 +1430,8 @@ void CUser::ItemGet(Packet & pkt)
 		goto fail_return;
 
 	pItem = pRegion->m_RegionItemArray.GetData(bundle_index);
-	if (!pItem) 
+	if (!pItem
+		|| !isInRange(pItem->x, pItem->z, MAX_LOOT_RANGE))
 		goto fail_return;
 
 	for (i = 0; i < LOOT_ITEMS; i++)
@@ -3072,7 +3074,8 @@ void CUser::ObjectEvent(Packet & pkt)
 	pkt >> objectindex >> nid;
 
 	_OBJECT_EVENT * pEvent = GetMap()->GetObjectEvent(objectindex);
-	if (pEvent != NULL)
+	if (pEvent != NULL
+		|| !isInRange(pEvent->fPosX, pEvent->fPosZ, MAX_OBJECT_RANGE))
 	{
 		switch (pEvent->sType)
 		{

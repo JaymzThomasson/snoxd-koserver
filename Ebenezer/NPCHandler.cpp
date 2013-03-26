@@ -27,12 +27,10 @@ void CUser::ItemRepair(Packet & pkt)
 	}
 
 	pNpc = g_pMain.m_arNpcArray.GetData(sNpcID);
-	if (pNpc == NULL)
+	if (pNpc == NULL
+		|| pNpc->GetType() != NPC_TINKER
+		|| !isInRange(pNpc, MAX_NPC_RANGE))
 		return;
-
-	if (pNpc->m_pRegion->m_RegionUserArray.find(GetSocketID()) == pNpc->m_pRegion->m_RegionUserArray.end()) //Is the user in the same region as the NPC?
-		return;
-
 
 	pTable = g_pMain.GetItemPtr( itemid );
 	if( !pTable ) goto fail_return;
@@ -70,7 +68,8 @@ void CUser::ClientEvent(uint16 sNpcID)
 
 	int32 iEventID = 0;
 	CNpc *pNpc = g_pMain.m_arNpcArray.GetData(sNpcID);
-	if (pNpc == NULL)
+	if (pNpc == NULL
+		|| !isInRange(pNpc, MAX_NPC_RANGE))
 		return;
 
 	m_sEventNid = sNpcID;
@@ -272,7 +271,8 @@ void CUser::NpcEvent(Packet & pkt)
 	int32 nQuestID = pkt.read<int32>();
 
 	CNpc *pNpc = g_pMain.m_arNpcArray.GetData(sNpcID);
-	if (pNpc == NULL)
+	if (pNpc == NULL
+		|| !isInRange(pNpc, MAX_NPC_RANGE))
 		return;
 
 	switch (pNpc->GetType())
@@ -364,7 +364,16 @@ void CUser::ItemTrade(Packet & pkt)
 	pkt >> type;
 	// Buy == 1, Sell == 2
 	if (type == 1 || type == 2)
+	{
 		pkt >> group >> npcid;
+		if (!g_pMain.m_bPointCheckFlag
+			|| (pNpc = g_pMain.m_arNpcArray.GetData(npcid)) == NULL
+			|| pNpc->GetType() != NPC_MERCHANT
+			|| pNpc->m_iSellingGroup != group
+			|| !isInRange(pNpc, MAX_NPC_RANGE))
+			goto fail_return;
+	}
+
 	pkt >> itemid >> pos;
 
 	if (type == 3) 	// Move only (this is so useless mgame -- why not just handle it with the CUser::ItemMove(). Gah.)
@@ -413,11 +422,6 @@ void CUser::ItemTrade(Packet & pkt)
 	// Buying from an NPC
 	if (type == 1)
 	{	
-		if (!g_pMain.m_bPointCheckFlag
-			|| (pNpc = g_pMain.m_arNpcArray.GetData(npcid)) == NULL
-			|| pNpc->m_iSellingGroup != group)
-			goto fail_return;
-
 		if (m_sItemArray[SLOT_MAX+pos].nNum != 0)
 		{
 			if (m_sItemArray[SLOT_MAX+pos].nNum != itemid)
