@@ -173,7 +173,7 @@ public:
 	bool	m_bZoneChangeSameZone;		// Did the server change when you warped?
 
 	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];
-	short				m_sEventNid;
+	short				m_sEventNid, m_sEventSid;
 	uint32				m_nQuestHelperID;
 
 public:
@@ -755,11 +755,13 @@ public:
 	}
 
 	DECLARE_LUA_FUNCTION(SearchQuest) {
-		LUA_RETURN(LUA_GET_INSTANCE()->QuestV2SearchEligibleQuest(LUA_ARG(uint16, 2))); // NPC ID
+		CUser * pUser = LUA_GET_INSTANCE();
+		LUA_RETURN(pUser->QuestV2SearchEligibleQuest(LUA_ARG_OPTIONAL(uint16, pUser->m_sEventSid, 2))); // NPC ID
 	}
 
 	DECLARE_LUA_FUNCTION(ShowMap) {
-		LUA_NO_RETURN(LUA_GET_INSTANCE()->QuestV2ShowMap(LUA_ARG(uint32, 2))); // quest helper ID
+		CUser * pUser = LUA_GET_INSTANCE();
+		LUA_NO_RETURN(pUser->QuestV2ShowMap(LUA_ARG_OPTIONAL(uint32, pUser->m_nQuestHelperID, 2))); // quest helper ID
 	}
 
 	// This is probably going to be cleaned up, as the methodology behind these menus is kind of awful.
@@ -779,14 +781,14 @@ public:
 			menuButtonEvents[i] = LUA_ARG_OPTIONAL(int32, -1, arg++);
 		}
 
-		pUser->SelectMsg(bFlag, nQuestID, menuHeaderText, menuButtonText, menuButtonEvents);
-		return 0;
+		LUA_NO_RETURN(pUser->SelectMsg(bFlag, nQuestID, menuHeaderText, menuButtonText, menuButtonEvents));
 	}
 
 	DECLARE_LUA_FUNCTION(NpcSay) {
-		LUA_NO_RETURN(LUA_GET_INSTANCE()->QuestV2SendNpcMsg(
+		CUser * pUser = LUA_GET_INSTANCE();
+		LUA_NO_RETURN(pUser->QuestV2SendNpcMsg(
 			LUA_ARG(uint32, 2),
-			LUA_ARG(uint16, 3)));
+			LUA_ARG_OPTIONAL(uint16, pUser->m_sEventSid, 3)));
 	}
 
 	DECLARE_LUA_FUNCTION(CheckWeight) {

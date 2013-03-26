@@ -73,6 +73,7 @@ void CUser::ClientEvent(uint16 sNpcID)
 		return;
 
 	m_sEventNid = sNpcID;
+	m_sEventSid = pNpc->GetEntryID(); // For convenience purposes with Lua scripts.
 
 	// Aww.
 	if (pNpc->GetType() == NPC_KISS)

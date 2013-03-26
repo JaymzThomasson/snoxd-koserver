@@ -107,7 +107,7 @@ void CUser::Initialize()
 
 	memset(m_iSelMsgEvent, -1,  MAX_MESSAGE_EVENT);
 
-	m_sEventNid = -1;
+	m_sEventNid = m_sEventSid = -1;
 	m_nQuestHelperID = 0;
 	m_bZoneChangeFlag = false;
 	m_bRegeneType = 0;
