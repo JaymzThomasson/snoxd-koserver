@@ -2,8 +2,19 @@
 #include "Map.h"
 #include "EbenezerDlg.h"
 #include "User.h"
+#include <set>
+#include "../shared/SMDFile.h"
 
 extern CRITICAL_SECTION g_region_critical;
+
+/* passthru methods */
+int C3DMap::GetXRegionMax() { return m_smdFile->GetXRegionMax(); }
+int C3DMap::GetZRegionMax() { return m_smdFile->GetZRegionMax(); }
+bool C3DMap::IsValidPosition(float x, float z, float y) { return m_smdFile->IsValidPosition(x, z, y); }
+_OBJECT_EVENT * C3DMap::GetObjectEvent(int objectindex) { return m_smdFile->GetObjectEvent(objectindex); }
+_REGENE_EVENT * C3DMap::GetRegeneEvent(int objectindex) { return m_smdFile->GetRegeneEvent(objectindex); }
+_WARP_INFO * C3DMap::GetWarp(int warpID) { return m_smdFile->GetWarp(warpID); }
+void C3DMap::GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries) { m_smdFile->GetWarpList(warpGroup, warpEntries); }
 
 C3DMap::C3DMap() : m_smdFile(NULL), m_ppRegion(NULL),
 	m_nZoneNumber(0), m_sMaxUser(150), m_wBundle(1),

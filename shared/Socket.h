@@ -3,7 +3,6 @@
 #include "SocketDefines.h"
 #include "CircularBuffer.h"
 #include "Mutex.h"
-#include <string>
 
 class SocketMgr;
 class Socket

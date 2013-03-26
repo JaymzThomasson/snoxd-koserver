@@ -7,6 +7,8 @@
 #include "RoomEvent.h"
 #include "../shared/packets.h"
 #include <fstream>
+#include <set>
+#include "../shared/SMDFile.h"
 
 // This is more than a little convulated.
 #define PARSE_ARGUMENTS(count, temp, buff, arg, id, index) for (int _i = 0; _i < count; _i++) { \
@@ -34,6 +36,15 @@ inline int ParseSpace( char* tBuf, char* sBuf)
 using namespace std;
 
 extern CRITICAL_SECTION g_region_critical;
+
+/* passthru methods */
+int MAP::GetMapSize() { return m_smdFile->GetMapSize(); }
+float MAP::GetUnitDistance() { return m_smdFile->GetUnitDistance(); }
+int MAP::GetXRegionMax() { return m_smdFile->GetXRegionMax(); }
+int MAP::GetZRegionMax() { return m_smdFile->GetZRegionMax(); }
+short * MAP::GetEventIDs() { return m_smdFile->GetEventIDs(); }
+int MAP::GetEventID(int x, int z) { return m_smdFile->GetEventID(x, z); }
+
 
 MAP::MAP() : m_smdFile(NULL), m_ppRegion(NULL),
 	m_fHeight(NULL), m_byRoomType(0), m_byRoomEvent(0),

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "My_3DStruct.h"
+#include <cstdio>
 
 const int CELL_MAIN_DEVIDE = 4; // 메인셀은 4 X 4 의 서브셀로 나뉜다..
 const int CELL_SUB_SIZE = 4; // 4 Meter 가 서브셀의 사이즈이다..
@@ -23,7 +24,7 @@ public:
 			{
 				if(pdwCCVertIndices) delete [] pdwCCVertIndices;
 				pdwCCVertIndices = new DWORD[nCCPolyCount * 3];
-				_ASSERT(pdwCCVertIndices);
+				// _ASSERT(pdwCCVertIndices);
 				fread(pdwCCVertIndices, nCCPolyCount * 3 * 4, 1, fp);
 			}
 		}
@@ -50,9 +51,7 @@ public:
 			for(int z = 0; z < CELL_MAIN_DEVIDE; z++)
 			{
 				for(int x = 0; x < CELL_MAIN_DEVIDE; x++)
-				{
 					SubCells[x][z].Load(fp);
-				}
 			}
 		}
 
@@ -75,7 +74,7 @@ public:
 		int x = (int)(fX / CELL_MAIN_SIZE);
 		int z = (int)(fZ / CELL_MAIN_SIZE);
 		
-		_ASSERT(x >= 0 && x < MAX_CELL_MAIN && z >= 0 && z < MAX_CELL_MAIN);
+		// _ASSERT(x >= 0 && x < MAX_CELL_MAIN && z >= 0 && z < MAX_CELL_MAIN);
 		if(NULL == m_pCells[x][z]) return NULL;
 
 		int xx = (((int)fX)%CELL_MAIN_SIZE)/CELL_SUB_SIZE;

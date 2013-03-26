@@ -4,6 +4,7 @@
 #include "../shared/ClientSocketMgr.h"
 #include "../shared/Ini.h"
 
+#include <time.h>
 #include <iostream>
 #include <fstream>
 #include "resource.h"

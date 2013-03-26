@@ -1,29 +1,26 @@
 #pragma once
 
-#include "..\N3Base\N3ShapeMgr.h"
 #include "Region.h"
 #include "GameEvent.h"
 #include "../shared/STLMap.h"
-#include <set>
 
-#include "../shared/SMDFile.h"
+class CGameEvent;
+typedef CSTLMap <CGameEvent>		EventArray;
 
 class CUser;
 class CEbenezerDlg;
-
+class SMDFile;
 class C3DMap
 {
 public:
 	// Passthru methods
-	__forceinline int GetXRegionMax() { return m_smdFile->GetXRegionMax(); }
-	__forceinline int GetZRegionMax() { return m_smdFile->GetZRegionMax(); }
-
-	__forceinline bool IsValidPosition(float x, float z, float y) { return m_smdFile->IsValidPosition(x, z, y); }
-	
-	__forceinline _OBJECT_EVENT * GetObjectEvent(int objectindex) { return m_smdFile->GetObjectEvent(objectindex); }
-	__forceinline _REGENE_EVENT * GetRegeneEvent(int objectindex) { return m_smdFile->GetRegeneEvent(objectindex); }
-	__forceinline _WARP_INFO * GetWarp(int warpID) { return m_smdFile->GetWarp(warpID); }
-	__forceinline void GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries) { m_smdFile->GetWarpList(warpGroup, warpEntries); }
+	int GetXRegionMax();
+	int GetZRegionMax(); 
+	bool IsValidPosition(float x, float z, float y);
+	_OBJECT_EVENT * GetObjectEvent(int objectindex);
+	_REGENE_EVENT * GetRegeneEvent(int objectindex);
+	_WARP_INFO * GetWarp(int warpID);
+	void GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries);
 	
 	__forceinline bool isAttackZone() { return m_isAttackZone; }
 

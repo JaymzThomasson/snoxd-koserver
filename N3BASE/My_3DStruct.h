@@ -1,10 +1,14 @@
 #pragma once
 
-#include <D3DX8.h>
-#include <string>
+#define __D3DX8CORE_H__
+#define __D3DX8TEX_H__
+#define __D3DX8MESH_H__
+#define __D3DX8SHAPES_H__
+#define __D3DX8EFFECT_H__
+
+#include <d3dx8.h>
 
 struct __Matrix44;
-
 struct __Vector3 : public D3DXVECTOR3 // 3D Vertex
 {
 public:
@@ -512,7 +516,6 @@ inline void __Matrix44::Direction(const D3DXVECTOR3& vDir)
 
 bool			_IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir , const __Vector3& v0, const __Vector3& v1, const __Vector3& v2, float& fT, float& fU, float& fV, __Vector3* pVCol = NULL);
 bool			_IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir, const __Vector3& v0, const __Vector3& v1, const __Vector3& v2);
-void			_LoadStringFromResource(DWORD dwID, std::string& szText);
 
 inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir,
 							  const __Vector3& v0, const __Vector3& v1, const __Vector3& v2,
@@ -633,11 +636,4 @@ inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir, co
 		return FALSE;
 
 	return TRUE;
-}
-
-inline void _LoadStringFromResource(DWORD dwID, std::string& szText)
-{
-	static char szBuffer[512] = {0};
-	LoadString(NULL, dwID, szBuffer, sizeof(szBuffer));
-	szText = szBuffer;
 }

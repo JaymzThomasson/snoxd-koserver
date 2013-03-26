@@ -2,12 +2,14 @@
 #include "../N3Base/N3ShapeMgr.h"
 #include "STLMap.h"
 #include "database/structs.h"
+#include <set>
 #include "SMDFile.h"
 
 SMDFile::SMDMap SMDFile::s_loadedMaps;
 
 SMDFile::SMDFile() : m_ref(0), m_ppnEvent(NULL), m_fHeight(NULL),
-	m_nXRegion(0), m_nZRegion(0), m_nMapSize(0), m_fUnitDist(0.0f)
+	m_nXRegion(0), m_nZRegion(0), m_nMapSize(0), m_fUnitDist(0.0f),
+	m_N3ShapeMgr(new CN3ShapeMgr())
 {
 }
 
@@ -54,13 +56,13 @@ bool SMDFile::LoadMap(FILE *fp)
 {
 	LoadTerrain(fp);
 
-	m_N3ShapeMgr.Create((m_nMapSize - 1)*m_fUnitDist, (m_nMapSize-1)*m_fUnitDist);
-	if (!m_N3ShapeMgr.LoadCollisionData(fp)
-		|| (m_nMapSize - 1) * m_fUnitDist != m_N3ShapeMgr.Width() 
-		|| (m_nMapSize - 1) * m_fUnitDist != m_N3ShapeMgr.Height() )
+	m_N3ShapeMgr->Create((m_nMapSize - 1)*m_fUnitDist, (m_nMapSize-1)*m_fUnitDist);
+	if (!m_N3ShapeMgr->LoadCollisionData(fp)
+		|| (m_nMapSize - 1) * m_fUnitDist != m_N3ShapeMgr->Width() 
+		|| (m_nMapSize - 1) * m_fUnitDist != m_N3ShapeMgr->Height() )
 		return false;
 
-	int mapwidth = (int)m_N3ShapeMgr.Width();
+	int mapwidth = (int)m_N3ShapeMgr->Width();
 
 	m_nXRegion = (int)(mapwidth / VIEW_DISTANCE) + 1;
 	m_nZRegion = (int)(mapwidth / VIEW_DISTANCE) + 1;
@@ -155,7 +157,7 @@ void SMDFile::GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries)
 bool SMDFile::IsValidPosition(float x, float z, float y)
 {
 	// TO-DO: Implement more thorough check
-	return (x < m_N3ShapeMgr.Width() && z < m_N3ShapeMgr.Height());
+	return (x < m_N3ShapeMgr->Width() && z < m_N3ShapeMgr->Height());
 }
 
 float SMDFile::GetHeight(float x, float y, float z)
@@ -231,7 +233,7 @@ float SMDFile::GetHeight(float x, float y, float z)
 	}
 
 	__Vector3 vPos(x, y, z);
-	float fHeight = m_N3ShapeMgr.GetHeightNearstPos(vPos); // 가장 가까운 높이값을 돌려준다..
+	float fHeight = m_N3ShapeMgr->GetHeightNearstPos(vPos); // 가장 가까운 높이값을 돌려준다..
 	if(-FLT_MAX != fHeight && fHeight > fYTerrain) return fHeight;
 	else return fYTerrain;
 }
@@ -251,7 +253,7 @@ bool SMDFile::ObjectCollision(float x1, float z1, float y1, float x2, float z2, 
 	float fSpeed = 	vDir.Magnitude();
 	vDir.Normalize();
 	
-	return m_N3ShapeMgr.CheckCollision(vec1, vDir, fSpeed);
+	return m_N3ShapeMgr->CheckCollision(vec1, vDir, fSpeed);
 }
 
 SMDFile::~SMDFile()
@@ -267,4 +269,6 @@ SMDFile::~SMDFile()
 		delete[] m_fHeight;
 		m_fHeight = NULL;
 	}
+
+	delete m_N3ShapeMgr;
 }

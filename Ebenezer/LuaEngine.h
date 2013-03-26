@@ -10,7 +10,6 @@
 #define LUA_SCRIPT_BUFFER_SIZE	10000
 
 extern "C" {
-#	include "../scripting/Lua/lua.h"
 #	include "../scripting/Lua/lualib.h"
 #	include "../scripting/Lua/lauxlib.h"
 }

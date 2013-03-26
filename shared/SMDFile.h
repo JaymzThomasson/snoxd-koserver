@@ -1,15 +1,12 @@
 #pragma once
 
-#include <set>
-
-class CGameEvent;
 class CUser;
 
-typedef CSTLMap <CGameEvent>		EventArray;
 typedef CSTLMap <_OBJECT_EVENT>		ObjectEventArray;
 typedef CSTLMap <_REGENE_EVENT>		ObjectRegeneArray;
 typedef	CSTLMap <_WARP_INFO>		WarpArray;
 
+class CN3ShapeMgr;
 class SMDFile
 {
 public:
@@ -58,7 +55,7 @@ private:
 	ObjectEventArray	m_ObjectEventArray;
 	ObjectRegeneArray	m_ObjectRegeneArray;
 
-	CN3ShapeMgr m_N3ShapeMgr;
+	CN3ShapeMgr *m_N3ShapeMgr;
 
 	float*		m_fHeight;
 

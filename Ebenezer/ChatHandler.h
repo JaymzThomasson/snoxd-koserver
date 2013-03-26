@@ -2,7 +2,6 @@
 
 #define COMMAND_HANDLER(name) bool name (CommandArgs & vargs, const char *args, const char *description)
 
-#include <list>
 typedef std::list<std::string> CommandArgs;
 
 template <class T>

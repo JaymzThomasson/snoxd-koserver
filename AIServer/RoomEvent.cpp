@@ -298,8 +298,7 @@ void CRoomEvent::InitializeRoom()
 
 void CRoomEvent::EndEventSay( int option1, int option2 )
 {
-	char notify[256];
-	std::string buff;
+	char buff[512] = {0};
 
 	switch (option1)
 	{
@@ -308,31 +307,25 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 			switch (option2)
 			{
 			case 1:
-				::_LoadStringFromResource(IDS_KARUS_CATCH_1, buff);
-				sprintf( notify, buff.c_str());
+				LoadString(NULL, IDS_KARUS_CATCH_1, buff, sizeof(buff));
 				break;
 			case 2:
-				::_LoadStringFromResource(IDS_KARUS_CATCH_2, buff);
-				sprintf( notify, buff.c_str());
+				LoadString(NULL, IDS_KARUS_CATCH_2, buff, sizeof(buff));
 				break;
 			case 11:
-				::_LoadStringFromResource(IDS_ELMORAD_CATCH_1, buff);
-				sprintf( notify, buff.c_str());
+				LoadString(NULL, IDS_ELMORAD_CATCH_1, buff, sizeof(buff));
 				break;
 			case 12:
-				::_LoadStringFromResource(IDS_ELMORAD_CATCH_2, buff);
-				sprintf( notify, buff.c_str());
+				LoadString(NULL, IDS_ELMORAD_CATCH_2, buff, sizeof(buff));
 				break;
 			}
 
-			g_pMain.SendSystemMsg( notify, WAR_SYSTEM_CHAT, SEND_ALL);
-
+			g_pMain.SendSystemMsg(buff, WAR_SYSTEM_CHAT, SEND_ALL);
 		} break;
 
 		case 2:
-			_LoadStringFromResource(IDS_KARUS_PATHWAY + (option2-1), buff);
-			sprintf(notify, buff.c_str());
-			g_pMain.SendSystemMsg(notify, WAR_SYSTEM_CHAT, SEND_ALL);
+			LoadString(NULL, IDS_KARUS_PATHWAY + (option2-1), buff, sizeof(buff));
+			g_pMain.SendSystemMsg(buff, WAR_SYSTEM_CHAT, SEND_ALL);
 
 			// this is normal, we need to send the following packet as well.
 

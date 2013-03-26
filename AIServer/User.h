@@ -5,7 +5,6 @@
 
 #include "extern.h"
 #include "../shared/STLMap.h"
-#include <list>
 
 class MAP;
 class CUser  

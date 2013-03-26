@@ -17,8 +17,6 @@
 #include "extern.h"			// Àü¿ª °´Ã¼
 
 #include "../shared/STLMap.h"
-#include <vector>
-#include <list>
 
 #include "../shared/lzf.h"
 #include "../shared/crc32.h"

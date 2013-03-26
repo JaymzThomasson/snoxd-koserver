@@ -8,8 +8,6 @@
 typedef CSTLMap <_OBJECT_EVENT>		ObjectEventArray;
 typedef CSTLMap <CRoomEvent>		RoomEventArray;
 
-#include "../shared/SMDFile.h"
-
 class CRegion;
 class CNpc;
 class CUser;
@@ -22,16 +20,17 @@ struct CSize
 	int cx, cy;
 };
 
+class SMDFile;
 class MAP  
 {
 public:
 	// Passthru methods
-	__forceinline int GetMapSize() { return m_smdFile->GetMapSize(); }
-	__forceinline float GetUnitDistance() { return m_smdFile->GetUnitDistance(); }
-	__forceinline int GetXRegionMax() { return m_smdFile->GetXRegionMax(); }
-	__forceinline int GetZRegionMax() { return m_smdFile->GetZRegionMax(); }
-	__forceinline short * GetEventIDs() { return m_smdFile->GetEventIDs(); }
-	__forceinline int GetEventID(int x, int z) { return m_smdFile->GetEventID(x, z); }
+	int GetMapSize();
+	float GetUnitDistance();
+	int GetXRegionMax();
+	int GetZRegionMax();
+	short * GetEventIDs();
+	int GetEventID(int x, int z);
 
 	CRegion**		m_ppRegion;				// 64미터의 타일정보..
 	int m_nZoneNumber;						// zone number

@@ -151,7 +151,9 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp" />
+    <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\shared\CircularBuffer.cpp" />
     <ClCompile Include="..\shared\Condition.cpp" />
     <ClCompile Include="..\shared\crc32.cpp" />
@@ -169,6 +171,9 @@
     <ClCompile Include="..\shared\Socket.cpp" />
     <ClCompile Include="..\shared\SocketMgr.cpp" />
     <ClCompile Include="..\shared\TimeThread.cpp" />
+    <ClCompile Include="..\shared\tstring.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="AISocket.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>

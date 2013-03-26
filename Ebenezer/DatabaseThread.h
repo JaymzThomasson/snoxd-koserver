@@ -1,7 +1,5 @@
 #pragma once
 
-#include <queue>
-
 class DatabaseThread
 {
 public:
