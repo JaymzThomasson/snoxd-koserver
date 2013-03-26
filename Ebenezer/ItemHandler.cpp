@@ -47,7 +47,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 	// TO-DO: Clean up this entire method. It's horrendous!
 	switch (command)
 	{
-		/* stuff going into the inn */
+	/* stuff going into the inn */
 	case WAREHOUSE_INPUT:
 		pkt >> count;
 
@@ -106,17 +106,26 @@ void CUser::WarehouseProcess(Packet & pkt)
 
 		SendItemWeight();
 		break;
+
+	/* stuff being taken out of the inn */
 	case WAREHOUSE_OUTPUT:
 		pkt >> count;
 
-		if( itemid == ITEM_GOLD ) {
-			if( m_iGold+count > COIN_MAX ) goto fail_return;
-			if( m_iBank-count < 0 ) goto fail_return;
+		if (itemid == ITEM_GOLD)
+		{
+			if (!hasInnCoins(count)
+				|| GetCoins() + count > COIN_MAX)
+				goto fail_return;
+
 			m_iGold += count;
 			m_iBank -= count;
 			break;
 		}
-//
+
+		if (reference_pos + srcpos > WAREHOUSE_MAX
+			|| destpos > HAVE_MAX)
+			goto fail_return;
+
 		if (pTable->m_bCountable) {	// Check weight of countable item.
 			if (((pTable->m_sWeight * count)   + m_sItemWeight) > m_sMaxWeight) {			
 				goto fail_return;
@@ -127,8 +136,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 				goto fail_return;
 			}
 		}		
-//
-		if( reference_pos+srcpos > WAREHOUSE_MAX ) goto fail_return;
+
 		if( m_sWarehouseArray[reference_pos+srcpos].nNum != itemid ) goto fail_return;
 		if( m_sItemArray[SLOT_MAX+destpos].nNum && !pTable->m_bCountable ) goto fail_return;
 		if( m_sWarehouseArray[reference_pos+srcpos].sCount < count ) goto fail_return;
