@@ -95,7 +95,7 @@ void CUser::Chat(Packet & pkt)
 		// This is horrible, but we'll live with it for now.
 		// Pull the notice string (#### NOTICE : %s ####) from the database.
 		// Format the chat string around it, so our chat data is within the notice
-		g_pMain.GetServerResource(IDP_ANNOUNCEMENT, finalstr, chatstr.c_str());
+		g_pMain.GetServerResource(IDP_ANNOUNCEMENT, &finalstr, chatstr.c_str());
 
 		bNation = KARUS; // arbitrary nation
 		sessID = -1;

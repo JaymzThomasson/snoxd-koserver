@@ -4,11 +4,11 @@
 #include <functional>
 #include <algorithm>
 
-std::string _string_format(const std::string fmt, va_list args)
+void _string_format(const std::string fmt, std::string * result, va_list args)
 {
 	char buffer[1024];
 	_vsnprintf_s(buffer, sizeof(buffer), sizeof(buffer), fmt.c_str(), args);
-	return buffer;
+	*result = buffer;
 }
 
 std::string string_format(const std::string fmt, ...)
@@ -17,7 +17,7 @@ std::string string_format(const std::string fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	result = _string_format(fmt, ap);
+	_string_format(fmt, &result, ap);
 	va_end(ap);
 
 	return result;

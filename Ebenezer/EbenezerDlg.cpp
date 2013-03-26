@@ -220,18 +220,18 @@ void CEbenezerDlg::GetTimeFromIni()
 	s_dwAliveTimerID = SetTimer(NULL, 2, 34000, &TimerProc);
 }
 
-void CEbenezerDlg::GetServerResource(int nResourceID, string & result, ...)
+void CEbenezerDlg::GetServerResource(int nResourceID, string * result, ...)
 {
 	_SERVER_RESOURCE *pResource = m_ServerResourceArray.GetData(nResourceID);
 	if (pResource == NULL)
 	{
-		result = nResourceID;	
+		*result = nResourceID;
 		return;
 	}
 
 	va_list args;
 	va_start(args, result);
-	result = _string_format(pResource->strResource, args);
+	_string_format(pResource->strResource.c_str(), result, args);
 	va_end(args);
 }
 
@@ -978,7 +978,7 @@ void CEbenezerDlg::SendNotice(const char *msg, uint8 bNation /*= 0*/)
 	string buffer;
 
 	
-	GetServerResource(IDP_ANNOUNCEMENT, buffer, msg);
+	GetServerResource(IDP_ANNOUNCEMENT, &buffer, msg);
 	data  << uint8(PUBLIC_CHAT)		// chat type 
 		  << uint8(1)				// nation
 		  << int16(-1)				// session ID
@@ -1339,43 +1339,43 @@ void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 	{
 		case BATTLEZONE_OPEN:
 		case SNOW_BATTLEZONE_OPEN:
-			GetServerResource(IDP_BATTLEZONE_OPEN, chatstr);
+			GetServerResource(IDP_BATTLEZONE_OPEN, &chatstr);
 			break;
 
 		case DECLARE_WINNER:
 			if (m_bVictory == KARUS)
-				GetServerResource(IDP_KARUS_VICTORY, chatstr, m_sElmoradDead, m_sKarusDead);
+				GetServerResource(IDP_KARUS_VICTORY, &chatstr, m_sElmoradDead, m_sKarusDead);
 			else if (m_bVictory == ELMORAD)
-				GetServerResource(IDP_ELMORAD_VICTORY, chatstr, m_sKarusDead, m_sElmoradDead);
+				GetServerResource(IDP_ELMORAD_VICTORY, &chatstr, m_sKarusDead, m_sElmoradDead);
 			else 
 				return;
 			break;
 		case DECLARE_LOSER:
 			if (m_bVictory == KARUS)
-				GetServerResource(IDS_ELMORAD_LOSER, chatstr, m_sKarusDead, m_sElmoradDead);
+				GetServerResource(IDS_ELMORAD_LOSER, &chatstr, m_sKarusDead, m_sElmoradDead);
 			else if (m_bVictory == ELMORAD)
-				GetServerResource(IDS_KARUS_LOSER, chatstr, m_sElmoradDead, m_sKarusDead);
+				GetServerResource(IDS_KARUS_LOSER, &chatstr, m_sElmoradDead, m_sKarusDead);
 			else 
 				return;
 			break;
 
 		case DECLARE_BAN:
-			GetServerResource(IDS_BANISH_USER, chatstr);
+			GetServerResource(IDS_BANISH_USER, &chatstr);
 			break;
 		case BATTLEZONE_CLOSE:
-			GetServerResource(IDS_BATTLE_CLOSE, chatstr);
+			GetServerResource(IDS_BATTLE_CLOSE, &chatstr);
 			break;
 		case KARUS_CAPTAIN_NOTIFY:
-			GetServerResource(IDS_KARUS_CAPTAIN, chatstr);
+			GetServerResource(IDS_KARUS_CAPTAIN, &chatstr);
 			break;
 		case ELMORAD_CAPTAIN_NOTIFY:
-			GetServerResource(IDS_ELMO_CAPTAIN, chatstr, m_strElmoradCaptain);
+			GetServerResource(IDS_ELMO_CAPTAIN, &chatstr, m_strElmoradCaptain);
 			break;
 		case KARUS_CAPTAIN_DEPRIVE_NOTIFY:
-			GetServerResource(IDS_KARUS_CAPTAIN_DEPRIVE, chatstr, m_strKarusCaptain);
+			GetServerResource(IDS_KARUS_CAPTAIN_DEPRIVE, &chatstr, m_strKarusCaptain);
 			break;
 		case ELMORAD_CAPTAIN_DEPRIVE_NOTIFY:
-			GetServerResource(IDS_ELMO_CAPTAIN_DEPRIVE, chatstr, m_strElmoradCaptain);
+			GetServerResource(IDS_ELMO_CAPTAIN_DEPRIVE, &chatstr, m_strElmoradCaptain);
 			break;
 	}
 

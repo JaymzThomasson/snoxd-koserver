@@ -750,7 +750,7 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 			return;
 		}
 
-		g_pMain.GetServerResource(nResourceID, strKnightsName, strMaxUserName.c_str());
+		g_pMain.GetServerResource(nResourceID, &strKnightsName, strMaxUserName.c_str());
 
 #if 0
 		send_index = 0;

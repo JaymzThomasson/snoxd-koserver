@@ -265,7 +265,7 @@ bool CEbenezerDlg::LoadKnightsRankTable()
 	if (pSet.nKarusCount > 0)
 	{
 		Packet result(WIZ_CHAT, uint8(WAR_SYSTEM_CHAT));
-		GetServerResource(IDS_KARUS_CAPTAIN, strKarusCaptainNames, 
+		GetServerResource(IDS_KARUS_CAPTAIN, &strKarusCaptainNames, 
 			pSet.strKarusCaptain[0], pSet.strKarusCaptain[1], pSet.strKarusCaptain[2], 
 			pSet.strKarusCaptain[3], pSet.strKarusCaptain[4]);
 
@@ -276,7 +276,7 @@ bool CEbenezerDlg::LoadKnightsRankTable()
 	if (pSet.nElmoCount > 0)
 	{
 		Packet result(WIZ_CHAT, uint8(WAR_SYSTEM_CHAT));
-		GetServerResource(IDS_ELMO_CAPTAIN, strElmoCaptainNames,
+		GetServerResource(IDS_ELMO_CAPTAIN, &strElmoCaptainNames,
 			pSet.strElmoCaptain[0], pSet.strElmoCaptain[1], pSet.strElmoCaptain[2], 
 			pSet.strElmoCaptain[3], pSet.strElmoCaptain[4]);
 
