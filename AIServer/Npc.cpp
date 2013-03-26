@@ -431,11 +431,13 @@ time_t CNpc::NpcTracing()
 	{
 		m_byActionFlag = NO_ACTION;
 		m_byResetFlag = 1;
+		m_fTracingStartX = m_fCurX;
+		m_fTracingStartZ = m_fCurZ;
 	}
 
 	if(m_byResetFlag == 1)
 	{
-		if(ResetPath() == FALSE)// && !m_tNpcTraceType)
+		if (!ResetPath())// && !m_tNpcTraceType)
 		{
 			TRACE("##### NpcTracing Fail : 패스파인드 실패 , NPC_STANDING으로 ######\n");
 			InitTarget();
@@ -2219,6 +2221,14 @@ int CNpc::GetTargetPath(int option)
 			iTempRange = (float)m_bySearchRange;				// 일시적으로 보정한다.
 			if(IsDamagedUserList(pUser)) iTempRange = (float)m_byTracingRange;	// 공격받은 상태면 찾을 범위 증가.
 			else iTempRange += 2;
+		}
+
+		float dx = m_fCurX - m_fTracingStartX;
+		float dy = m_fCurZ - m_fTracingStartZ;
+		if (pow(dx, 2.0f) + pow(dy, 2.0f) > pow(iTempRange, 2.0f))
+		{
+			InitTarget();
+			return -1;
 		}
 	}
 	else if(m_Target.id >= NPC_BAND && m_Target.id < INVALID_BAND)	{	// Target 이 mon 인 경우
