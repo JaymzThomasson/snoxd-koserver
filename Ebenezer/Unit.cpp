@@ -66,19 +66,22 @@ float Unit::GetDistance(float fx, float fz)
 float Unit::GetDistance(Unit * pTarget)
 {
 	ASSERT(pTarget != NULL);
+	if (GetZoneID() != pTarget->GetZoneID())
+		return -FLT_MAX;
+
 	return GetDistance(pTarget->GetX(), pTarget->GetZ());
 }
 
 // Check to see if the Unit is in 2D range of another Unit.
 // Range MUST be squared already.
-float Unit::isInRange(Unit * pTarget, float fSquaredRange)
+bool Unit::isInRange(Unit * pTarget, float fSquaredRange)
 {
 	return (GetDistance(pTarget) <= fSquaredRange);
 }
 
 // Check to see if we're in the 2D range of the specified coordinates.
 // Range MUST be squared already.
-float Unit::isInRange(float fx, float fz, float fSquaredRange)
+bool Unit::isInRange(float fx, float fz, float fSquaredRange)
 {
 	return (GetDistance(fx, fz) <= fSquaredRange);
 }
@@ -86,7 +89,7 @@ float Unit::isInRange(float fx, float fz, float fSquaredRange)
 // Check to see if the Unit is in 2D range of another Unit.
 // Range must NOT be squared already.
 // This is less preferable to the more common precalculated range.
-float Unit::isInRangeSlow(Unit * pTarget, float fNonSquaredRange)
+bool Unit::isInRangeSlow(Unit * pTarget, float fNonSquaredRange)
 {
 	return isInRange(pTarget, pow(fNonSquaredRange, 2.0f));
 }
@@ -94,7 +97,7 @@ float Unit::isInRangeSlow(Unit * pTarget, float fNonSquaredRange)
 // Check to see if the Unit is in 2D range of the specified coordinates.
 // Range must NOT be squared already.
 // This is less preferable to the more common precalculated range.
-float Unit::isInRangeSlow(float fx, float fz, float fNonSquaredRange)
+bool Unit::isInRangeSlow(float fx, float fz, float fNonSquaredRange)
 {
 	return isInRange(fx, fz, pow(fNonSquaredRange, 2.0f));
 }

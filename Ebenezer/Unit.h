@@ -84,10 +84,10 @@ public:
 
 	float GetDistance(float fx, float fz);
 	float GetDistance(Unit * pTarget);
-	float isInRange(Unit * pTarget, float fSquaredRange);
-	float isInRange(float fx, float fz, float fSquaredRange);
-	float isInRangeSlow(Unit * pTarget, float fNonSquaredRange);
-	float isInRangeSlow(float fx, float fz, float fNonSquaredRange);
+	bool isInRange(Unit * pTarget, float fSquaredRange);
+	bool isInRange(float fx, float fz, float fSquaredRange);
+	bool isInRangeSlow(Unit * pTarget, float fNonSquaredRange);
+	bool isInRangeSlow(float fx, float fz, float fNonSquaredRange);
 
 	virtual void GetInOut(Packet & result, uint8 bType) = 0;
 
