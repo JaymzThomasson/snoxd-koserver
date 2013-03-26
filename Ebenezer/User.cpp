@@ -3820,7 +3820,7 @@ void CUser::RecastSavedMagic()
 				//_MAGIC_TYPE9 *pType = g_pMain.m_Magictype9Array.GetData(pSkill->iNum);
 				break;
 		}
-		CMagicProcess::MagicPacket(result);
+		CMagicProcess::MagicPacket(result, this, true);
 	}
 
 }
