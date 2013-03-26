@@ -99,8 +99,10 @@ bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const
 		// Acquire the write lock (we're adding the compiled script)
 		m_lock->AcquireWriteLock();
 
+#if !defined(LUA_SCRIPT_CACHE_DISABLED)
 		// Add the script to our map
 		m_scriptMap[filename] = bytecode;
+#endif
 
 		// Now that we have the bytecode, we can use it.
 		result = SelectAvailableScript()->ExecuteScript(pUser, pNpc, nEventID, filename, bytecode);

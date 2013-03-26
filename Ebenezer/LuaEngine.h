@@ -9,6 +9,11 @@
 #define LUA_SCRIPT_GLOBAL_NPC	"pNpc"
 #define LUA_SCRIPT_BUFFER_SIZE	10000
 
+// If defined, scripts are not cached. This is for testing/development purposes only.
+#ifdef _DEBUG
+#define LUA_SCRIPT_CACHE_DISABLED
+#endif
+
 extern "C" {
 #	include "../scripting/Lua/lualib.h"
 #	include "../scripting/Lua/lauxlib.h"
