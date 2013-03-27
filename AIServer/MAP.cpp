@@ -285,9 +285,9 @@ BOOL MAP::LoadRoomEvent()
 				}
 			}
 			else if( !strcmp( first, "E" ) )	{
-				if( !pEvent )	{
+				if (!pEvent
+					|| exec >= MAX_CHECK_EVENT)
 					goto cancel_event_load;
-				}
 
 				t_index += ParseSpace( temp, buf + t_index );	pEvent->m_Exec[exec].sNumber = atoi( temp );
 				t_index += ParseSpace( temp, buf + t_index );	pEvent->m_Exec[exec].sOption_1 = atoi( temp );
@@ -295,9 +295,9 @@ BOOL MAP::LoadRoomEvent()
 				exec++;
 			}
 			else if( !strcmp( first, "A" ) )	{
-				if( !pEvent )	{
+				if (!pEvent
+					|| logic >= MAX_CHECK_EVENT)
 					goto cancel_event_load;
-				}
 
 				t_index += ParseSpace( temp, buf + t_index );	pEvent->m_Logic[logic].sNumber = atoi( temp );
 				t_index += ParseSpace( temp, buf + t_index );	pEvent->m_Logic[logic].sOption_1 = atoi( temp );

@@ -2,7 +2,7 @@
 
 #include "../shared/STLMap.h"
 
-#define MAX_CHECK_EVENT	5
+#define MAX_CHECK_EVENT	10
 
 typedef CSTLMap <int>			mapNpcArray;
 
