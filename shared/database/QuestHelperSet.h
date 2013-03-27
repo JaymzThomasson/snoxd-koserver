@@ -12,6 +12,7 @@ public:
 	virtual bool Fetch()
 	{
 		_QUEST_HELPER *pData = new _QUEST_HELPER;
+		uint8 bEventStatus = 0xff;
 
 		_dbCommand->FetchUInt32(1, pData->nIndex);
 		_dbCommand->FetchByte  (2, pData->bMessageType);
@@ -23,12 +24,15 @@ public:
 		_dbCommand->FetchByte  (8, pData->bZone);
 		_dbCommand->FetchUInt16(9, pData->sNpcId);
 		_dbCommand->FetchUInt16(10, pData->sEventDataIndex);
-		_dbCommand->FetchSByte (11, pData->bEventStatus);
+		_dbCommand->FetchByte  (11, bEventStatus);
 		_dbCommand->FetchUInt32(12, pData->nEventTriggerIndex);
 		_dbCommand->FetchUInt32(13, pData->nEventCompleteIndex);
 		_dbCommand->FetchUInt32(14, pData->nExchangeIndex);
 		_dbCommand->FetchUInt32(15, pData->nEventTalkIndex);
 		_dbCommand->FetchString(16, pData->strLuaFilename);
+
+		// Hack to workaround some silly ODBC/MSSQL behaviour.
+		pData->bEventStatus = bEventStatus;
 
 		if (!m_pMap->PutData(pData->nIndex, pData))
 		{
