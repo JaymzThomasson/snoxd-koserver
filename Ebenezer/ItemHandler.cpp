@@ -242,23 +242,23 @@ bool CUser::CheckExistItem(int itemid, short count)
 bool CUser::CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,
 		int32 nItemID3, int16 sCount3, int32 nItemID4, int16 sCount4, int32 nItemID5, int16 sCount5)
 {
-	if (nItemID1 != -1
+	if (nItemID1
 		&& !CheckExistItem(nItemID1, sCount1))
 		return false;
 
-	if (nItemID2 != -1
+	if (nItemID2
 		&& !CheckExistItem(nItemID2, sCount2))
 		return false;
 
-	if (nItemID3 != -1
+	if (nItemID3
 		&& !CheckExistItem(nItemID3, sCount3))
 		return false;
 
-	if (nItemID4 != -1
+	if (nItemID4
 		&& !CheckExistItem(nItemID4, sCount4))
 		return false;
 
-	if (nItemID5 != -1
+	if (nItemID5
 		&& !CheckExistItem(nItemID5, sCount5))
 		return false;
 
@@ -267,6 +267,10 @@ bool CUser::CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int
 
 bool CUser::RobItem(uint32 itemid, uint16 count)
 {
+	// Allow unused exchanges.
+	if (count == 0)
+		return true;
+
 	_ITEM_TABLE* pTable = g_pMain.GetItemPtr( itemid );
 	if (pTable == NULL)
 		return false;
