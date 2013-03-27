@@ -749,9 +749,8 @@ public:
 	}
 
 	DECLARE_LUA_FUNCTION(SaveEvent) {
-		LUA_NO_RETURN(LUA_GET_INSTANCE()->SaveEvent(
-			LUA_ARG(uint16, 2),  // quest ID
-			LUA_ARG(uint8, 3))); // quest state	
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->QuestV2SaveEvent(
+			LUA_ARG(uint16, 2)));  // quest ID
 	}
 
 	DECLARE_LUA_FUNCTION(SearchQuest) {
