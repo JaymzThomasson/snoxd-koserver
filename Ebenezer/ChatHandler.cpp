@@ -48,11 +48,11 @@ void CUser::InitChatCommands()
 		// Command				Handler											Help message
 		{ "give_item",			&CUser::HandleGiveItemCommand,					"Gives a player an item. Arguments: character name | item ID | [optional stack size]" },
 		{ "zonechange",			&CUser::HandleZoneChangeCommand,				"Teleports you to the specified zone. Arguments: zone ID" },
-		{ "open1",				&CUser::HandleWar1OpenCommand,			"Opens war zone 1" },
-		{ "open2",				&CUser::HandleWar2OpenCommand,			"Opens war zone 2" },
-		{ "open3",				&CUser::HandleWar3OpenCommand,			"Opens war zone 3" },
-		{ "snowopen",			&CUser::HandleSnowWarOpenCommand,		"Opens the snow war zone" },
-		{ "close",				&CUser::HandleWarCloseCommand,			"Closes the active war zone" },
+		{ "open1",				&CUser::HandleWar1OpenCommand,					"Opens war zone 1" },
+		{ "open2",				&CUser::HandleWar2OpenCommand,					"Opens war zone 2" },
+		{ "open3",				&CUser::HandleWar3OpenCommand,					"Opens war zone 3" },
+		{ "snowopen",			&CUser::HandleSnowWarOpenCommand,				"Opens the snow war zone" },
+		{ "close",				&CUser::HandleWarCloseCommand,					"Closes the active war zone" },
 
 	};
 

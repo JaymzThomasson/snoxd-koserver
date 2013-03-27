@@ -1379,16 +1379,12 @@ void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 			break;
 	}
 
-#if 0
-	_snprintf(finalstr, sizeof(finalstr), GetServerResource(IDP_ANNOUNCEMENT), chatstr);
-	SetByte( send_buff, WIZ_CHAT, send_index );
-	SetByte( send_buff, chat_type, send_index );
-	SetByte( send_buff, 1, send_index );
-	SetShort( send_buff, -1, send_index );
-	SetKOString(send_buff, finalstr, send_index);
+	Packet result(WIZ_CHAT, uint8(chat_type));
+	string finalstr;
+	GetServerResource(IDP_ANNOUNCEMENT, &finalstr, chatstr.c_str());
 
-	Send_All(send_buff, send_index, NULL, nation);
-#endif
+	result << uint8(1) << int16(-1) << uint8(0) << finalstr;
+	Send_All(&result, NULL, nation);
 }
 
 void CEbenezerDlg::GetUserRank(CUser *pUser)
