@@ -163,7 +163,7 @@ bool CUser::CheckExistEvent(uint16 sQuestID, uint8 bQuestState)
 
 	// If it doesn't exist, it doesn't exist. 
 	// Unless of course, we wanted it to not exist, in which case we're right!
-	// (this is pretty annoyingly dumb, but we'd have to change existing EVT logic to fix this)
+	// (this does seem silly, but this behaviour is STILL expected, so do not remove it.)
 	if (itr == m_questMap.end())
 		return bQuestState == 0;
 
@@ -317,11 +317,7 @@ void CUser::QuestV2ShowGiveItem(uint32 nUnk1, uint16 sUnk1,
 	Send(&result);
 }
 
-uint16 CUser::QuestV2SearchEligibleQuest(uint16 sNpcID)
-{
 	FastGuard lock(g_pMain.m_questNpcLock);
-	std::vector<_QUEST_HELPER *> pQuestList;
-
 	QuestNpcList::iterator itr = g_pMain.m_QuestNpcList.find(sNpcID);
 	if (itr == g_pMain.m_QuestNpcList.end()
 		|| itr->second.empty())
@@ -336,17 +332,11 @@ uint16 CUser::QuestV2SearchEligibleQuest(uint16 sNpcID)
 			|| (pHelper->bClass != 5 && !JobGroupCheck(pHelper->bClass))
 			|| (pHelper->bNation != 3 && pHelper->bNation != GetNation())
 			|| (pHelper->sEventDataIndex == 0)
-			|| (pHelper->bEventStatus < 0 || CheckExistEvent(pHelper->sEventDataIndex, 2)))
+			|| (pHelper->bEventStatus < 0 || CheckExistEvent(pHelper->sEventDataIndex, 2))
+			|| !CheckExistEvent(pHelper->sEventDataIndex, pHelper->bEventStatus))
 			continue;
 
-		pQuestList.push_back(pHelper);
-	}
-
-	if (pQuestList.size() >= 12)
-	{
-		_QUEST_HELPER * pHelper = pQuestList.front();
-		if (CheckExistEvent(pHelper->sEventDataIndex, pHelper->bEventStatus))
-			return pHelper->nEventTriggerIndex;
+		return pHelper->nEventTriggerIndex;
 	}
 
 	return 0;
