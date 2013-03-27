@@ -399,6 +399,11 @@ public:
 
 	COMMAND_HANDLER(HandleGiveItemCommand);
 	COMMAND_HANDLER(HandleZoneChangeCommand);
+	COMMAND_HANDLER(HandleWar1OpenCommand);
+	COMMAND_HANDLER(HandleWar2OpenCommand);
+	COMMAND_HANDLER(HandleWar3OpenCommand);
+	COMMAND_HANDLER(HandleSnowWarOpenCommand);
+	COMMAND_HANDLER(HandleWarCloseCommand);
 
 	void Regene(uint8 regene_type, uint32 magicid = 0);
 	void RequestUserIn(Packet & pkt);

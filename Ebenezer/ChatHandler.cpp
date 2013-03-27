@@ -48,6 +48,11 @@ void CUser::InitChatCommands()
 		// Command				Handler											Help message
 		{ "give_item",			&CUser::HandleGiveItemCommand,					"Gives a player an item. Arguments: character name | item ID | [optional stack size]" },
 		{ "zonechange",			&CUser::HandleZoneChangeCommand,				"Teleports you to the specified zone. Arguments: zone ID" },
+		{ "open1",				&CUser::HandleWar1OpenCommand,			"Opens war zone 1" },
+		{ "open2",				&CUser::HandleWar2OpenCommand,			"Opens war zone 2" },
+		{ "open3",				&CUser::HandleWar3OpenCommand,			"Opens war zone 3" },
+		{ "snowopen",			&CUser::HandleSnowWarOpenCommand,		"Opens the snow war zone" },
+		{ "close",				&CUser::HandleWarCloseCommand,			"Closes the active war zone" },
 
 	};
 
@@ -350,30 +355,35 @@ COMMAND_HANDLER(CEbenezerDlg::HandleKillUserCommand)
 	return true;
 }
 
+COMMAND_HANDLER(CUser::HandleWar1OpenCommand) { return g_pMain.HandleWar1OpenCommand(vargs, args, description); }
 COMMAND_HANDLER(CEbenezerDlg::HandleWar1OpenCommand)
 {
 	BattleZoneOpen(BATTLEZONE_OPEN, 1);
 	return true;
 }
 
+COMMAND_HANDLER(CUser::HandleWar2OpenCommand) { return g_pMain.HandleWar2OpenCommand(vargs, args, description); }
 COMMAND_HANDLER(CEbenezerDlg::HandleWar2OpenCommand)
 {
 	BattleZoneOpen(BATTLEZONE_OPEN, 2);
 	return true;
 }
 
+COMMAND_HANDLER(CUser::HandleWar3OpenCommand) { return g_pMain.HandleWar3OpenCommand(vargs, args, description); }
 COMMAND_HANDLER(CEbenezerDlg::HandleWar3OpenCommand)
 {
 	BattleZoneOpen(BATTLEZONE_OPEN, 3);
 	return true;
 }
 
+COMMAND_HANDLER(CUser::HandleSnowWarOpenCommand) { return g_pMain.HandleSnowWarOpenCommand(vargs, args, description); }
 COMMAND_HANDLER(CEbenezerDlg::HandleSnowWarOpenCommand)
 {
 	BattleZoneOpen(SNOW_BATTLEZONE_OPEN);
 	return true;
 }
 
+COMMAND_HANDLER(CUser::HandleWarCloseCommand) { return g_pMain.HandleWarCloseCommand(vargs, args, description); }
 COMMAND_HANDLER(CEbenezerDlg::HandleWarCloseCommand)
 {
 	m_byBanishFlag = 1;

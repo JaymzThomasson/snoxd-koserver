@@ -268,6 +268,7 @@ private:
 
 	bool ProcessServerCommand(std::string & command);
 
+public:
 	COMMAND_HANDLER(HandleKillUserCommand);
 	COMMAND_HANDLER(HandleWar1OpenCommand);
 	COMMAND_HANDLER(HandleWar2OpenCommand);
