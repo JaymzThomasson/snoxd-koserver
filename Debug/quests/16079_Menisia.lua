@@ -55,7 +55,7 @@ function Main(event)
 end
 
 function HandleNPCSelection()
-	-- Map specific quest events to functions
+	-- Lookup available quest (if none, it'll return 0)
 	local sQuest = pUser:SearchQuest()
 	
 	-- Nothing to do, user's completed everything available for them.
