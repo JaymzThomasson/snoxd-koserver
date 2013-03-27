@@ -318,6 +318,8 @@ void CUser::QuestV2ShowGiveItem(uint32 nUnk1, uint16 sUnk1,
 	Send(&result);
 }
 
+uint16 CUser::QuestV2SearchEligibleQuest(uint16 sNpcID)
+{
 	FastGuard lock(g_pMain.m_questNpcLock);
 	QuestNpcList::iterator itr = g_pMain.m_QuestNpcList.find(sNpcID);
 	if (itr == g_pMain.m_QuestNpcList.end()
