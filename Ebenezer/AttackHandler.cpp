@@ -20,15 +20,14 @@ void CUser::Attack(Packet & pkt)
 		|| isDead())
 		return;
 
-	_ITEM_TABLE *pTable = GetItemPrototype(RIGHTHAND);
-	if (pTable == NULL) 
-		return;
-	
 	// If you're holding a weapon, do a client-based (ugh, do not trust!) delay check.
-	if (pTable 
-		&& (delaytime < pTable->m_sDelay
-			|| distance > pTable->m_sRange))
-		return;	
+	_ITEM_TABLE *pTable = GetItemPrototype(RIGHTHAND);
+	if (pTable != NULL) 
+	{
+		if (delaytime < pTable->m_sDelay
+			|| distance > pTable->m_sRange)
+			return;	
+	}
 	// Empty handed.
 	else if (delaytime < 100)
 		return;			
