@@ -91,6 +91,9 @@ bool MAP::Initialize(_ZONE_INFO *pZone)
 MAP::~MAP()
 {
 	RemoveMapData();
+
+	if (m_smdFile != NULL)
+		m_smdFile->DecRef();
 }
 
 void MAP::RemoveMapData()
@@ -138,7 +141,8 @@ void MAP::RegionUserAdd(int rx, int rz, int uid)
 
 	pInt = new int;
 	*pInt = uid;
-	m_ppRegion[rx][rz].m_RegionUserArray.PutData( uid, pInt );
+	if (!m_ppRegion[rx][rz].m_RegionUserArray.PutData(uid, pInt))
+		delete pInt;
 
 	LeaveCriticalSection( &g_region_critical );
 }
@@ -172,7 +176,8 @@ void MAP::RegionNpcAdd(int rx, int rz, int nid)
 
 	pInt = new int;
 	*pInt = nid;
-	m_ppRegion[rx][rz].m_RegionNpcArray.PutData( nid, pInt );
+	if (!m_ppRegion[rx][rz].m_RegionNpcArray.PutData(nid, pInt))
+		delete pInt;
 
 	LeaveCriticalSection( &g_region_critical );
 }

@@ -451,8 +451,11 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 				int *pInt = new int;
 				*pInt = pNpc->m_sNid;
 				if (!pRoom->m_mapRoomNpcArray.PutData(pNpc->m_sNid, pInt))
+				{
+					delete pInt;
 					TRACE("### Map - Room Array MonsterNid Fail : nid=%d, sid=%d ###\n", 
 					pNpc->m_sNid, pNpc->m_proto->m_sSid);
+				}
 			}
 		}
 	}
