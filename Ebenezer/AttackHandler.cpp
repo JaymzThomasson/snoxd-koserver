@@ -71,7 +71,8 @@ void CUser::Attack(Packet & pkt)
 
 		CNpc *pNpc = g_pMain.m_arNpcArray.GetData(tid);		
 		if (pNpc != NULL && pNpc->isAlive() 
-			&& (pNpc->GetNation() == 0 || pNpc->GetNation() == GetNation()))
+			&& (pNpc->GetNation() == 0
+				|| pNpc->GetNation() != GetNation()))
 		{
 			result.SetOpcode(AG_ATTACK_REQ);
 			result	<< bType << bResult
