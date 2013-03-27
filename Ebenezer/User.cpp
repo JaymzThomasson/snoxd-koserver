@@ -2514,9 +2514,9 @@ int CUser::FindSlotForItem(uint32 nItemID, uint16 sCount)
 
 int CUser::GetEmptySlot()
 {
-	for (int i = 0; i < HAVE_MAX; i++)
+	for (int i = SLOT_MAX; i < SLOT_MAX+HAVE_MAX; i++)
 	{
-		_ITEM_DATA *pItem = GetItem(SLOT_MAX + i);
+		_ITEM_DATA *pItem = GetItem(i);
 		if (pItem->nNum == 0)
 			return i;
 	}
