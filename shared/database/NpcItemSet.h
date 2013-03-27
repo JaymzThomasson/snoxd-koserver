@@ -16,7 +16,7 @@ public:
 		_dbCommand->FetchUInt16(1, pData->sIndex);
 		for (int i = 0, j = 2; i < 5; i++)
 		{
-			_dbCommand->FetchUInt16(j++, pData->iItem[i]);
+			_dbCommand->FetchUInt32(j++, pData->iItem[i]);
 			_dbCommand->FetchUInt16(j++, pData->sPercent[i]);
 		}
 

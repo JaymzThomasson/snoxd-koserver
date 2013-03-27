@@ -36,7 +36,7 @@ struct _MAKE_ITEM_LARE_CODE
 struct _K_MONSTER_ITEM
 {
 	uint16 sIndex;
-	uint16 iItem[5];
+	uint32 iItem[5];
 	uint16 sPercent[5];
 
 	_K_MONSTER_ITEM()
