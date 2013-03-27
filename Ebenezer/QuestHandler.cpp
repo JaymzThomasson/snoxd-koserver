@@ -91,8 +91,9 @@ void CUser::QuestV2PacketProcess(Packet & pkt)
 			QuestV2MonsterDataRequest();
 		}
 
-		// This really could be rewritten to make more sense.
-		if (GetZoneID() - 101 <= 99)
+		// Kick the user out of the quest zone.
+		// Monster suppression squad is the only zone I'm aware of that this should apply to.
+		if (GetZoneID() >= 81 && GetZoneID() <= 83)
 			KickOutZoneUser(true);
 		break;
 
