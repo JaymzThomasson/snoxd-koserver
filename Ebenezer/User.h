@@ -740,6 +740,12 @@ public:
 			LUA_ARG_OPTIONAL(uint16, 1, 3)));
 	}
 
+	DECLARE_LUA_FUNCTION(CheckExistItem) {
+		LUA_RETURN(LUA_GET_INSTANCE()->CheckExistItem(
+			LUA_ARG(uint32, 2), 
+			LUA_ARG_OPTIONAL(uint16, 1, 3)));
+	}
+
 	DECLARE_LUA_FUNCTION(GoldGain) {
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->GoldGain(LUA_ARG(int32, 2)));	
 	}
@@ -783,7 +789,7 @@ public:
 		LUA_NO_RETURN(pUser->SelectMsg(bFlag, nQuestID, menuHeaderText, menuButtonText, menuButtonEvents));
 	}
 
-	DECLARE_LUA_FUNCTION(NpcSay) {
+	DECLARE_LUA_FUNCTION(NpcMsg) {
 		CUser * pUser = LUA_GET_INSTANCE();
 		LUA_NO_RETURN(pUser->QuestV2SendNpcMsg(
 			LUA_ARG(uint32, 2),

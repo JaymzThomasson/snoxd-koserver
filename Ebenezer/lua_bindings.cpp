@@ -65,6 +65,7 @@ DEFINE_LUA_CLASS
 	// Here lie the useful methods.
 	MAKE_LUA_METHOD(GiveItem)
 	MAKE_LUA_METHOD(RobItem)
+	MAKE_LUA_METHOD(CheckExistItem)
 	MAKE_LUA_METHOD(GoldGain)
 	MAKE_LUA_METHOD(GoldLose)
 	// MAKE_LUA_METHOD(RequestReward)
@@ -73,7 +74,7 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(SearchQuest)
 	MAKE_LUA_METHOD(ShowMap)
 	MAKE_LUA_METHOD(SelectMsg)
-	MAKE_LUA_METHOD(NpcSay)
+	MAKE_LUA_METHOD(NpcMsg)
 	MAKE_LUA_METHOD(CheckWeight)
 	MAKE_LUA_METHOD(CheckSkillPoint)
 	// MAKE_LUA_METHOD(CheckStatPoint)
