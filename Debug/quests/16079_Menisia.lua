@@ -23,11 +23,11 @@ function Main(event)
 		[105]					= Quest105,
 		[120]					= Quest120,
 		
-		-- Worm silk spool quest
+		-- Worm silk spool quest menu.
 		[WormSilkSpool]			= function() pUser:SelectMsg(2, 100, 150, 29, WormSilkSpoolRequest) end,
-		-- intermediary dialog before you accept the quest. 
+		-- Do you wish to accept this quest? Fancy new dialog. 
 		[WormSilkSpoolRequest]	= function() pUser:SelectMsg(4, 100, 156, 22, WormSilkSpoolAccepted, 23, 193) end, 
-		-- fancy new quest dialog to accept quests...
+		-- Accepted the worm silk spool quest..
 		[WormSilkSpoolAccepted]	= function() pUser:SaveEvent(7) end,
 
 		-- Main menu for silk bundle exchanges
