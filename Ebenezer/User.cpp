@@ -234,7 +234,7 @@ bool CUser::HandlePacket(Packet & pkt)
 		ChatTargetSelect(pkt);
 		break;
 	case WIZ_REGENE:	
-		RecvRegene(pkt);
+		Regene(pkt.read<uint8>()); // respawn type
 		break;
 	case WIZ_REQ_USERIN:
 		RequestUserIn(pkt);

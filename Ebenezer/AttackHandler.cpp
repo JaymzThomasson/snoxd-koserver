@@ -102,12 +102,6 @@ void CUser::Attack(Packet & pkt)
 	}
 }
 
-void CUser::RecvRegene(Packet & pkt)
-{
-	uint8 regene_type = pkt.read<uint8>();
-	Regene(regene_type);
-}
-
 void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 {
 	ASSERT(GetMap() != NULL);

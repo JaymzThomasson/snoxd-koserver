@@ -400,7 +400,6 @@ public:
 	COMMAND_HANDLER(HandleGiveItemCommand);
 	COMMAND_HANDLER(HandleZoneChangeCommand);
 
-	void RecvRegene(Packet & pkt);
 	void Regene(uint8 regene_type, uint32 magicid = 0);
 	void RequestUserIn(Packet & pkt);
 	void RequestNpcIn(Packet & pkt);
