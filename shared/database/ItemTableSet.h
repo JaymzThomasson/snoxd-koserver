@@ -67,6 +67,7 @@ public:
 		_dbCommand->FetchUInt16(i++, pData->m_bFireR);
 		_dbCommand->FetchUInt16(i++, pData->m_bColdR);
 		_dbCommand->FetchUInt16(i++, pData->m_bLightningR);
+		_dbCommand->FetchUInt16(i++, pData->m_bMagicR);
 		_dbCommand->FetchUInt16(i++, pData->m_bPoisonR);
 		_dbCommand->FetchUInt16(i++, pData->m_bCurseR);
 
