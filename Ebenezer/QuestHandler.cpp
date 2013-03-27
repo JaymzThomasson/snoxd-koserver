@@ -332,7 +332,7 @@ uint16 CUser::QuestV2SearchEligibleQuest(uint16 sNpcID)
 	{
 		_QUEST_HELPER * pHelper = (*itr2);
 		if (pHelper->bLevel > GetLevel()
-			|| (pHelper->nExp > m_iExp && pHelper->bLevel >= GetLevel())
+			|| (pHelper->bLevel == GetLevel() && pHelper->nExp > m_iExp)
 			|| (pHelper->bClass != 5 && !JobGroupCheck(pHelper->bClass))
 			|| (pHelper->bNation != 3 && pHelper->bNation != GetNation())
 			|| (pHelper->sEventDataIndex == 0)
