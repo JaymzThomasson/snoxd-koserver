@@ -365,6 +365,9 @@ short CUser::GetDamage(int tid, int magicid)
 			break;
 	}
 	
+	if (damage <= 0)
+		return 0;
+
 	damage = GetMagicDamage(damage,tid);	// 2. Magical item damage....
 
 	//return 3000;
