@@ -215,7 +215,7 @@ enum InOutType
 #define ZONE_ELMORAD			2
 #define ZONE_BATTLE				101
 #define ZONE_SNOW_BATTLE		102
-#define	ZONE_FRONTIER			201
+#define	ZONE_RONARK_LAND		71
 
 #define MAX_BATTLE_ZONE_USERS	150
 

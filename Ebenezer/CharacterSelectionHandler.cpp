@@ -170,7 +170,7 @@ void CUser::SelectCharacter(Packet & pkt)
 	if ((GetZoneID() != GetNation() && GetZoneID() < 3 && !g_pMain.m_byBattleOpen)
 		|| (GetZoneID() == ZONE_BATTLE && (g_pMain.m_byBattleOpen != NATION_BATTLE))
 		|| (GetZoneID() == ZONE_SNOW_BATTLE && (g_pMain.m_byBattleOpen != SNOW_BATTLE))
-		|| (GetZoneID() == ZONE_FRONTIER && g_pMain.m_byBattleOpen))
+		|| (GetZoneID() == ZONE_RONARK_LAND && g_pMain.m_byBattleOpen))
 	{
 		NativeZoneReturn();
 		Disconnect();

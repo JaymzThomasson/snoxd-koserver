@@ -366,6 +366,9 @@ bool CUser::HandlePacket(Packet & pkt)
 	case WIZ_CHALLENGE:
 		HandleChallenge(pkt);
 		break;
+	case WIZ_RANK:
+		printf("WIZ_RANK\n");
+		break;
 
 	default:
 		TRACE("[SID=%d] Unknown packet %X\n", GetSocketID(), command);
@@ -713,7 +716,7 @@ void CUser::SetZoneAbilityChange()
 				<< uint16(10);
 	}
 	// colony zone
-	else if (zone == 201)
+	else if (zone == ZONE_RONARK_LAND)
 	{
 		result	<< uint8(0) << uint8(1) << uint8(0)
 				<< uint16(20);
@@ -1685,7 +1688,7 @@ void CUser::LoyaltyChange(short tid)
 		}
 		// TO-DO: Rewrite this out, it'd be better to handle this in the database.
 		// Colony Zone
-		else if (pTUser->GetZoneID() == 71) 
+		else if (pTUser->GetZoneID() == ZONE_RONARK_LAND) 
 		{
 			loyalty_source = 64;
 			loyalty_target = -50;
@@ -3131,8 +3134,8 @@ void CUser::UpdateVisibility(InvisibilityType bNewType)
 void CUser::BlinkStart()
 {
 	// Don't blink in these zones
-	if (m_bZone == 201 // colony zone
-		|| (m_bZone / 100) == 1) // war zone
+	if (GetZoneID() == ZONE_RONARK_LAND // colony zone
+		|| (GetZoneID() / 100) == 1) // war zone
 		return;
 
 	m_bAbnormalType = ABNORMAL_BLINKING;

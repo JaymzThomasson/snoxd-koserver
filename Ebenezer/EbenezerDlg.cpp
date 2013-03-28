@@ -1245,7 +1245,7 @@ void CEbenezerDlg::BattleZoneOpen(int nType, uint8 bZone /*= 0*/)
 
 	Announcement(nType);	// Send an announcement out that the battlezone is open/closed.
 
-	KickOutZoneUsers(ZONE_FRONTIER);
+	KickOutZoneUsers(ZONE_RONARK_LAND);
 
 	Packet result(AG_BATTLE_EVENT, uint8(BATTLE_EVENT_OPEN));
 	result << uint8(nType);

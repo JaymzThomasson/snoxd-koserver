@@ -1430,7 +1430,7 @@ bool MagicInstance::ExecuteType8()
 				}
 				else if (pTUser->m_bZone == ZONE_BATTLE)
 					pTUser->Warp(uint16((pHomeInfo->BattleZoneX + x) * 10), uint16((pHomeInfo->BattleZoneZ + z) * 10));	
-				else if (pTUser->m_bZone == ZONE_FRONTIER)
+				else if (pTUser->m_bZone == ZONE_RONARK_LAND)
 					pTUser->Warp(uint16((pHomeInfo->FreeZoneX + x) * 10), uint16((pHomeInfo->FreeZoneZ + z) * 10));
 				else
 					pTUser->Warp(uint16((pTUser->GetMap()->m_fInitX + x) * 10), uint16((pTUser->GetMap()->m_fInitZ + z) * 10));	
