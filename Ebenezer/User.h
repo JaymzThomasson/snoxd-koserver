@@ -362,7 +362,7 @@ public:
 	virtual void HpChange(int amount, Unit *pAttacker = NULL, bool bSendToAI = true);
 	virtual void MSpChange(int amount);
 	void SendPartyHPUpdate();
-	void SendAnvilRequest(int nid);
+	void SendAnvilRequest(uint16 sNpcID, uint8 bType = ITEM_UPGRADE_REQ);
 	void RecastSavedMagic();
 
 	// packet handlers start here

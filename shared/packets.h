@@ -372,6 +372,19 @@ enum FriendRemoveResult
 	FRIEND_REMOVE_MAX
 };
 
+enum
+{
+	ITEM_UPGRADE_REQ		= 1,
+	ITEM_UPGRADE			= 2,
+	ITEM_ACCESSORIES		= 3,
+	ITEM_BIFROST_REQ		= 4,
+	ITEM_BIFROST_EXCHANGE	= 5,
+	ITEM_UPGRADE_REBIRTH	= 7,
+	ITEM_SEAL				= 8,
+	ITEM_CHARACTER_SEAL		= 9
+};
+
+
 ////////////////////////////////////////////////////////////////
 // Party BBS subpacket define
 ////////////////////////////////////////////////////////////////

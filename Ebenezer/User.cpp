@@ -3113,10 +3113,10 @@ void CUser::ObjectEvent(Packet & pkt)
 	}
 }
 
-void CUser::SendAnvilRequest(int nid)
+void CUser::SendAnvilRequest(uint16 sNpcID, uint8 bType /*= ITEM_UPGRADE_REQ*/)
 {
-	Packet result(WIZ_ITEM_UPGRADE, uint8(1));
-	result << nid;
+	Packet result(WIZ_ITEM_UPGRADE, uint8(bType));
+	result << sNpcID;
 	Send(&result);
 }
 
@@ -3612,17 +3612,6 @@ _ITEM_TABLE* CUser::GetItemPrototype(uint8 pos)
 }
 
 /* TO-DO: Move all these to their own handler file */
-enum
-{
-	ITEM_UPGRADE_REQ		= 1,
-	ITEM_UPGRADE			= 2,
-	ITEM_ACCESSORIES		= 3,
-	ITEM_BIFROST_EXCHANGE	= 5,
-	ITEM_UPGRADE_REBIRTH	= 7,
-	ITEM_SEAL				= 8,
-	ITEM_CHARACTER_SEAL		= 9
-};
-
 void CUser::ItemUpgradeProcess(Packet & pkt)
 {
 	uint8 opcode = pkt.read<uint8>();

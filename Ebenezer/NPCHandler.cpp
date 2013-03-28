@@ -338,9 +338,13 @@ void CUser::NpcEvent(Packet & pkt)
 		Send(&result);
 		break;
 
+	case NPC_CHAOTIC_GENERATOR:
+		SendAnvilRequest(sNpcID, ITEM_BIFROST_REQ);
+		break;
+
 	default:
 		ClientEvent(sNpcID);
-	}   
+	}
 }
 
 // NPC shops
