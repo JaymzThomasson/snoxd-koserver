@@ -152,6 +152,9 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 	char strItem[INVENTORY_TOTAL * 8];
 	ByteBuffer itemData;
 
+	// ensure it's all 0'd out initially.
+	memset(strItem, 0x00, sizeof(strItem));
+
 	if (strCharID.length() > 0)
 	{
 		auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
@@ -176,8 +179,6 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 		}
 	}
 
-	// ensure it's all 0'd out initially.
-	memset(strItem, 0x00, sizeof(strItem));
 	itemData.append(strItem, sizeof(strItem));
 
 	result	<< strCharID << bRace << sClass << bLevel << bFace << nHair << bZone;
