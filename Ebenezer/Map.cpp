@@ -119,7 +119,7 @@ bool C3DMap::RegionItemRemove(uint16 rx, uint16 rz, int bundle_index, int itemid
 
 bool C3DMap::CheckEvent(float x, float z, CUser* pUser)
 {
-	int event_index = m_smdFile->GetEventID((int)x / m_smdFile->GetUnitDistance(), (int)z / m_smdFile->GetUnitDistance());
+	int event_index = m_smdFile->GetEventID((int)(x / m_smdFile->GetUnitDistance()), (int)(z / m_smdFile->GetUnitDistance()));
 	if( event_index < 2 )
 		return false;
 
