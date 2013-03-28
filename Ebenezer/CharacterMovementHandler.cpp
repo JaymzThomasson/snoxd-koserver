@@ -167,7 +167,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 	if( g_pMain.m_byBattleOpen == NATION_BATTLE )	{		// Battle zone open
 		if( m_bZone == BATTLE_ZONE )	{
-			if( pMap->m_bType == 1 && m_bNation != zone )	{	// ???? ?????? ???? ????..
+			if( pMap->m_bType == 1 && m_bNation != zone && (zone < 10 || zone > 21))	{	// ???? ?????? ???? ????..
 				if( m_bNation == KARUS && !g_pMain.m_byElmoradOpenFlag )	{
 					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", GetName(), m_bNation, g_pMain.m_byElmoradOpenFlag);
 					return;
