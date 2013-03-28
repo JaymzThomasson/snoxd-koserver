@@ -4113,13 +4113,6 @@ float CNpc::RandomGenf(float max, float min)
 	return (float)((float)(k*0.01f)+min);
 }
 
-__Vector3 CNpc::GetDirection(__Vector3 vStart, __Vector3 vEnd)
-{
-	__Vector3 vDir = vEnd - vStart;
-	vDir.Normalize();
-	return vDir;
-}
-
 void CNpc::NpcMoveEnd()
 {
 	SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);

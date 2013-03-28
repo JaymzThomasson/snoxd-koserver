@@ -412,8 +412,6 @@ public:
 	void NpcMoveEnd();
 
 	inline float RandomGenf(float max, float min);
-	//__Vector3 MyFunc(__Vector3 vCur, __Vector3 vDir, float fYDegree, float fDistance);
-	__Vector3 GetDirection(__Vector3 vStart, __Vector3 vEnd);
 	// GetVectorPosition : vOrig->vDest방향으로 vOrig에서 fDis거리만큼 떨어진 좌표를 리턴
 	__Vector3 GetVectorPosition(__Vector3 vOrig, __Vector3 vDest, float fDis);
 	// CalcAdaptivePosition : vPosDest->vPosOrig방향으로 vPosDest에서 fDis거리만큼 떨어진 좌표를 리턴

@@ -1,21 +1,41 @@
 #pragma once
 
-#define __D3DX8CORE_H__
-#define __D3DX8TEX_H__
-#define __D3DX8MESH_H__
-#define __D3DX8SHAPES_H__
-#define __D3DX8EFFECT_H__
+#include <math.h>
 
-#include <d3dx8.h>
+/* Here follow the extremely few remaining D3D8 components we require */
+
+// NOTE: We're using this over M_PI because of the precision
+#define D3DX_PI    ((FLOAT)  3.141592654f)
+#define D3DXToRadian( degree ) ((degree) * (D3DX_PI / 180.0f))
+
+/* D3D8 structs */
+typedef struct _D3DVECTOR {
+    float x;
+    float y;
+    float z;
+} D3DVECTOR;
+
+typedef struct _D3DMATRIX {
+    union {
+        struct {
+            float        _11, _12, _13, _14;
+            float        _21, _22, _23, _24;
+            float        _31, _32, _33, _34;
+            float        _41, _42, _43, _44;
+
+        };
+        float m[4][4];
+    };
+} D3DMATRIX;
 
 struct __Matrix44;
-struct __Vector3 : public D3DXVECTOR3 // 3D Vertex
+struct __Vector3 : public D3DVECTOR // 3D Vertex
 {
 public:
 	void	Normalize();
 	float	Magnitude() const;
-	float	Dot(const D3DXVECTOR3& vec) const;
-	void	Cross(const D3DXVECTOR3& v1, const D3DXVECTOR3& v2);
+	float	Dot(const D3DVECTOR& vec) const;
+	void	Cross(const D3DVECTOR& v1, const D3DVECTOR& v2);
 	void	Absolute();
 
 	void Zero();
@@ -23,23 +43,22 @@ public:
 
 	__Vector3() {};
 	__Vector3(float fx, float fy, float fz);
-	__Vector3(const _D3DVECTOR& vec);
-	__Vector3(const D3DXVECTOR3& vec);
+	__Vector3(const D3DVECTOR& vec);
 
 	const __Vector3& operator = (const __Vector3& vec);
 
-	const __Vector3 operator * (const D3DXMATRIX& mtx) const;
+	const __Vector3 operator * (const D3DMATRIX& mtx) const;
 	void operator *= (float fDelta);
-	void operator *= (const D3DXMATRIX& mtx);
-	__Vector3 operator + (const D3DXVECTOR3& vec) const;
-	__Vector3 operator - (const D3DXVECTOR3& vec) const;
-	__Vector3 operator * (const D3DXVECTOR3& vec) const;
-	__Vector3 operator / (const D3DXVECTOR3& vec) const;
+	void operator *= (const D3DMATRIX& mtx);
+	__Vector3 operator + (const D3DVECTOR& vec) const;
+	__Vector3 operator - (const D3DVECTOR& vec) const;
+	__Vector3 operator * (const D3DVECTOR& vec) const;
+	__Vector3 operator / (const D3DVECTOR& vec) const;
 
-	void operator += (const D3DXVECTOR3& vec);
-	void operator -= (const D3DXVECTOR3& vec);
-	void operator *= (const D3DXVECTOR3& vec);
-	void operator /= (const D3DXVECTOR3& vec);
+	void operator += (const D3DVECTOR& vec);
+	void operator -= (const D3DVECTOR& vec);
+	void operator *= (const D3DVECTOR& vec);
+	void operator /= (const D3DVECTOR& vec);
 
 	__Vector3 operator + (float fDelta) const;
 	__Vector3 operator - (float fDelta) const;
@@ -47,7 +66,7 @@ public:
 	__Vector3 operator / (float fDelta) const;
 };
 
-struct __Matrix44 : public D3DXMATRIX // 4x4 Matrix
+struct __Matrix44 : public D3DMATRIX // 4x4 Matrix
 {
 public:
 	__Matrix44() {}
@@ -68,12 +87,12 @@ inline float __Vector3::Magnitude() const
 	return sqrtf(x*x + y*y + z*z);
 }
 
-inline float __Vector3::Dot(const D3DXVECTOR3& vec) const 
+inline float __Vector3::Dot(const D3DVECTOR& vec) const 
 {
 	return x*vec.x + y*vec.y + z*vec.z;
 }
 
-inline void __Vector3::Cross(const D3DXVECTOR3& v1, const D3DXVECTOR3& v2)
+inline void __Vector3::Cross(const D3DVECTOR& v1, const D3DVECTOR& v2)
 {
 	x = v1.y * v2.z - v1.z * v2.y;
 	y = v1.z * v2.x - v1.x * v2.z;
@@ -102,12 +121,7 @@ inline __Vector3::__Vector3(float fx, float fy, float fz)
 	x = fx; y = fy, z = fz;
 }
 
-inline __Vector3::__Vector3(const D3DXVECTOR3& vec)
-{
-	x = vec.x; y = vec.y; z = vec.z;
-}
-
-inline __Vector3::__Vector3(const _D3DVECTOR& vec)
+inline __Vector3::__Vector3(const D3DVECTOR& vec)
 {
 	x = vec.x; y = vec.y; z = vec.z;
 }
@@ -118,7 +132,7 @@ inline const __Vector3& __Vector3::operator = (const __Vector3& vec)
 	return *this;
 }
 
-inline const __Vector3 __Vector3::operator * (const D3DXMATRIX& mtx) const 
+inline const __Vector3 __Vector3::operator * (const D3DMATRIX& mtx) const 
 {
 	static __Vector3 vTmp;
 
@@ -136,7 +150,7 @@ inline void __Vector3::operator *= (float fDelta)
 	z *= fDelta;
 }
 
-inline void __Vector3::operator *= (const D3DXMATRIX& mtx)
+inline void __Vector3::operator *= (const D3DMATRIX& mtx)
 {
 	static __Vector3 vTmp;
 
@@ -146,7 +160,7 @@ inline void __Vector3::operator *= (const D3DXMATRIX& mtx)
 	z = vTmp.x*mtx._13 + vTmp.y*mtx._23 + vTmp.z*mtx._33 + mtx._43;
 }
 
-inline __Vector3 __Vector3::operator + (const D3DXVECTOR3& vec) const
+inline __Vector3 __Vector3::operator + (const D3DVECTOR& vec) const
 {
 	static __Vector3 vTmp;
 
@@ -156,7 +170,7 @@ inline __Vector3 __Vector3::operator + (const D3DXVECTOR3& vec) const
 	return vTmp;
 }
 
-inline __Vector3 __Vector3::operator - (const D3DXVECTOR3& vec) const 
+inline __Vector3 __Vector3::operator - (const D3DVECTOR& vec) const 
 {
 	static __Vector3 vTmp;
 
@@ -166,7 +180,7 @@ inline __Vector3 __Vector3::operator - (const D3DXVECTOR3& vec) const
 	return vTmp;
 }
 
-inline __Vector3 __Vector3::operator * (const D3DXVECTOR3& vec) const 
+inline __Vector3 __Vector3::operator * (const D3DVECTOR& vec) const 
 {
 	static __Vector3 vTmp;
 
@@ -176,7 +190,7 @@ inline __Vector3 __Vector3::operator * (const D3DXVECTOR3& vec) const
 	return vTmp;
 }
 
-inline __Vector3 __Vector3::operator / (const D3DXVECTOR3& vec) const
+inline __Vector3 __Vector3::operator / (const D3DVECTOR& vec) const
 {
 	static __Vector3 vTmp;
 
@@ -186,28 +200,28 @@ inline __Vector3 __Vector3::operator / (const D3DXVECTOR3& vec) const
 	return vTmp;
 }
 
-inline void __Vector3::operator += (const D3DXVECTOR3& vec) 
+inline void __Vector3::operator += (const D3DVECTOR& vec) 
 {
 	x += vec.x;
 	y += vec.y;
 	z += vec.z;
 }
 
-inline void __Vector3::operator -= (const D3DXVECTOR3& vec) 
+inline void __Vector3::operator -= (const D3DVECTOR& vec) 
 {
 	x -= vec.x;
 	y -= vec.y;
 	z -= vec.z;
 }
 
-inline void __Vector3::operator *= (const D3DXVECTOR3& vec) 
+inline void __Vector3::operator *= (const D3DVECTOR& vec) 
 {
 	x *= vec.x;
 	y *= vec.y;
 	z *= vec.z;
 }
 
-inline void __Vector3::operator /= (const D3DXVECTOR3& vec) 
+inline void __Vector3::operator /= (const D3DVECTOR& vec) 
 {
 	x /= vec.x;
 	y /= vec.y;
