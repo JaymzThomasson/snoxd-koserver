@@ -144,7 +144,6 @@ void CUser::OnDisconnect()
 
 		ResetWindows();
 	}
-
 	LogOut();
 }
 
@@ -492,13 +491,6 @@ void CUser::UserDataSaveToAgent()
 
 void CUser::LogOut()
 {
-	CUser *pUser = g_pMain.GetUserPtr(m_strAccountID, TYPE_ACCOUNT);
-	if (pUser && (pUser->GetSocketID() != GetSocketID()))
-	{
-		TRACE("[SID=%D] %s : %s logged out\n", GetSocketID(), GetAccountName(), GetName());
-		return;
-	}
-
 	if (m_strUserID.empty()) 
 		return; 
 
