@@ -128,22 +128,23 @@ void CUser::OnDisconnect()
 
 	g_pMain.RemoveSessionNames(this);
 
-	if (!isInGame())
-		return;
-
-	UserInOut(INOUT_OUT);
-
-	if (isInParty())
-		PartyRemove(GetSocketID());
-
-	if (isInClan())
+	if (isInGame())
 	{
-		CKnights *pKnights = g_pMain.GetClanPtr(GetClanID());
-		if (pKnights != NULL)
-			pKnights->OnLogout(this);
+		UserInOut(INOUT_OUT);
+
+		if (isInParty())
+			PartyRemove(GetSocketID());
+
+		if (isInClan())
+		{
+			CKnights *pKnights = g_pMain.GetClanPtr(GetClanID());
+			if (pKnights != NULL)
+				pKnights->OnLogout(this);
+		}
+
+		ResetWindows();
 	}
 
-	ResetWindows();
 	LogOut();
 }
 
