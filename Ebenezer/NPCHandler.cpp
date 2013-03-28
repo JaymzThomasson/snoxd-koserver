@@ -339,6 +339,7 @@ void CUser::NpcEvent(Packet & pkt)
 		break;
 
 	case NPC_CHAOTIC_GENERATOR:
+	case NPC_CHAOTIC_GENERATOR2:
 		SendAnvilRequest(sNpcID, ITEM_BIFROST_REQ);
 		break;
 

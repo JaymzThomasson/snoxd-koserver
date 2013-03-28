@@ -121,7 +121,7 @@ enum NpcType
 	NPC_KJWAR				= 133,
 	NPC_SIEGE_2				= 134,
 	NPC_CRAFTSMAN			= 135, // Craftsman boy, not sure what he's actually used for
-	NPC_CHAOTIC_GENERATOR	= 137, // possibly 162 as well?
+	NPC_CHAOTIC_GENERATOR	= 137,
 	NPC_SPY					= 141,
 	NPC_ROYAL_GUARD			= 142,
 	NPC_ROYAL_CHEF			= 143,
@@ -131,6 +131,7 @@ enum NpcType
 	NPC_ROYAL_ADVISOR		= 149,
 	NPC_GATE2				= 150, // Doda camp gate
 	NPC_ADELIA				= 153, // Goddess Adelia[event]
+	NPC_CHAOTIC_GENERATOR2	= 162, // newer type used by the Chaotic Generator
 	NPC_KARUS_WARDER1		= 190,
 	NPC_KARUS_WARDER2		= 191,
 	NPC_ELMORAD_WARDER1		= 192,
