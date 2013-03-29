@@ -14,7 +14,7 @@ using std::vector;
 void MagicInstance::Run()
 {
 	if (pSkill == NULL)
-		pSkill = g_pMain.m_MagictableArray.GetData(nSkillID);
+		pSkill = g_pMain->m_MagictableArray.GetData(nSkillID);
 
 	if (pSkill == NULL
 		|| pSkillCaster == NULL
@@ -125,7 +125,7 @@ bool MagicInstance::UserCanCast()
 		return false;
 
 	// If we're in a snow war, we're only ever allowed to use the snowball skill.
-	if (pSkillCaster->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain.m_byBattleOpen == SNOW_BATTLE 
+	if (pSkillCaster->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
 		&& nSkillID != SNOW_EVENT_SKILL)
 		return false;
 
@@ -198,7 +198,7 @@ void MagicInstance::SendSkillToAI()
 			if (pSkill->bType[0] == 3) {
 				total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * pSkillCaster->GetLevel()) / 60);
 
-				_MAGIC_TYPE3 *pType3 = g_pMain.m_Magictype3Array.GetData(nSkillID);
+				_MAGIC_TYPE3 *pType3 = g_pMain->m_Magictype3Array.GetData(nSkillID);
 				if (pType3 == NULL)
 					return;
 				if (pSkillCaster->m_bMagicTypeRightHand == pType3->bAttribute )					
@@ -211,7 +211,7 @@ void MagicInstance::SendSkillToAI()
 			}
 		}
 		result << uint16(total_magic_damage);
-		g_pMain.Send_AIServer(&result);		
+		g_pMain->Send_AIServer(&result);		
 	}
 }
 
@@ -301,7 +301,7 @@ void MagicInstance::SendSkill(int16 sSkillCaster /* = -1 */, int16 sSkillTarget 
 
 	if (pSkillCaster->isNPC())
 	{
-		CNpc *pNpc = g_pMain.m_arNpcArray.GetData(sSkillCaster);
+		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sSkillCaster);
 		if (pNpc == NULL)
 			return;
 
@@ -312,9 +312,9 @@ void MagicInstance::SendSkill(int16 sSkillCaster /* = -1 */, int16 sSkillTarget 
 		CUser *pUser = NULL;
 		if ((sSkillCaster < 0 || sSkillCaster >= MAX_USER)
 			&& (sSkillTarget >= 0 && sSkillTarget < MAX_USER))
-			pUser = g_pMain.GetUserPtr(sSkillTarget);
+			pUser = g_pMain->GetUserPtr(sSkillTarget);
 		else
-			pUser = g_pMain.GetUserPtr(sSkillCaster);
+			pUser = g_pMain->GetUserPtr(sSkillCaster);
 
 		if (pUser == NULL)
 			return;
@@ -516,7 +516,7 @@ bool MagicInstance::IsAvailable()
 				{	
 					if (pSkill->iUseItem != 0) {
 						_ITEM_TABLE* pItem = NULL;				// This checks if such an item exists.
-						pItem = g_pMain.GetItemPtr(pSkill->iUseItem);
+						pItem = g_pMain->GetItemPtr(pSkill->iUseItem);
 						if( !pItem ) return false;
 
 						if ((pItem->m_bRace != 0 && TO_USER(pSkillCaster)->m_bRace != pItem->m_bRace)
@@ -556,7 +556,7 @@ bool MagicInstance::ExecuteType1()
 	int damage = 0;
 	bool bResult = false;
 
-	_MAGIC_TYPE1* pType = g_pMain.m_Magictype1Array.GetData(nSkillID);
+	_MAGIC_TYPE1* pType = g_pMain->m_Magictype1Array.GetData(nSkillID);
 	if (pType == NULL)
 		return false;
 
@@ -595,7 +595,7 @@ bool MagicInstance::ExecuteType2()
 	float total_range = 0.0f;	// These variables are used for range verification!
 	int sx, sz, tx, tz;
 
-	_MAGIC_TYPE2 *pType = g_pMain.m_Magictype2Array.GetData(nSkillID);
+	_MAGIC_TYPE2 *pType = g_pMain->m_Magictype2Array.GetData(nSkillID);
 	if (pType == NULL
 		// The user does not have enough arrows! We should point them in the right direction. ;)
 		|| (pSkillCaster->isPlayer() 
@@ -619,7 +619,7 @@ bool MagicInstance::ExecuteType2()
 	else
 	{
 		// TO-DO: Verify this. It's more a placeholder than anything. 
-		pTable = g_pMain.GetItemPtr(TO_NPC(pSkillCaster)->m_iWeapon_1);
+		pTable = g_pMain->GetItemPtr(TO_NPC(pSkillCaster)->m_iWeapon_1);
 		if (pTable == NULL)
 			return false; 
 	}
@@ -663,7 +663,7 @@ bool MagicInstance::ExecuteType3()
 	int damage = 0, duration_damage = 0;
 	vector<Unit *> casted_member;
 
-	_MAGIC_TYPE3* pType = g_pMain.m_Magictype3Array.GetData(nSkillID);
+	_MAGIC_TYPE3* pType = g_pMain->m_Magictype3Array.GetData(nSkillID);
 	if (pType == NULL) 
 		return false;
 
@@ -709,7 +709,7 @@ bool MagicInstance::ExecuteType3()
 
 		if (pSkillCaster->isPlayer())
 		{
-			if( pSkillCaster->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain.m_byBattleOpen == SNOW_BATTLE )
+			if( pSkillCaster->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )
 				damage = -10;		
 		}
 
@@ -791,7 +791,7 @@ bool MagicInstance::ExecuteType3()
 		{
 			Packet result(AG_HEAL_MAGIC);
 			result << sCasterID;
-			g_pMain.Send_AIServer(&result);
+			g_pMain->Send_AIServer(&result);
 		}
 	}
 
@@ -806,7 +806,7 @@ bool MagicInstance::ExecuteType4()
 	if (pSkill == NULL)
 		return false;
 
-	_MAGIC_TYPE4* pType = g_pMain.m_Magictype4Array.GetData(nSkillID);
+	_MAGIC_TYPE4* pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
 	if (pType == NULL)
 		return false;
 
@@ -837,7 +837,7 @@ bool MagicInstance::ExecuteType4()
 	else 
 	{
 		// If the target was another single player.
-		CUser* pTUser = g_pMain.GetUserPtr(sTargetID);
+		CUser* pTUser = g_pMain->GetUserPtr(sTargetID);
 		if (pTUser == NULL 
 			|| pTUser->isDead() || (pTUser->isBlinking() && !bIsRecastingSavedMagic)) 
 			return false;
@@ -1068,7 +1068,7 @@ bool MagicInstance::ExecuteType5()
 	if (pSkill == NULL)
 		return false;
 
-	_MAGIC_TYPE5* pType = g_pMain.m_Magictype5Array.GetData(nSkillID);
+	_MAGIC_TYPE5* pType = g_pMain->m_Magictype5Array.GetData(nSkillID);
 	if (pType == NULL
 		|| pSkillTarget == NULL 
 		|| (pSkillTarget->isDead() && pType->bType != RESURRECTION) 
@@ -1256,7 +1256,7 @@ bool MagicInstance::ExecuteType6()
 		|| !pSkillCaster->isPlayer())
 		return false;
 
-	_MAGIC_TYPE6 * pType = g_pMain.m_Magictype6Array.GetData(nSkillID);
+	_MAGIC_TYPE6 * pType = g_pMain->m_Magictype6Array.GetData(nSkillID);
 	uint32 iUseItem = 0;
 	uint16 sDuration = 0;
 
@@ -1272,11 +1272,11 @@ bool MagicInstance::ExecuteType6()
 			return false;
 
 		// Let's start by looking at the item that was used for the transformation.
-		_ITEM_TABLE *pTable = g_pMain.GetItemPtr(pSkillCaster->m_nTransformationItem);
+		_ITEM_TABLE *pTable = g_pMain->GetItemPtr(pSkillCaster->m_nTransformationItem);
 
 		// Also, for the sake of specific skills that bypass the list, let's lookup the 
 		// item attached to the skill.
-		_ITEM_TABLE *pTable2 = g_pMain.GetItemPtr(pSkill->iUseItem);
+		_ITEM_TABLE *pTable2 = g_pMain->GetItemPtr(pSkill->iUseItem);
 
 		// If neither of these items exist, we have a bit of a problem...
 		if (pTable == NULL 
@@ -1351,7 +1351,7 @@ bool MagicInstance::ExecuteType8()
 		return false;
 
 	vector<CUser *> casted_member;
-	_MAGIC_TYPE8* pType = g_pMain.m_Magictype8Array.GetData(nSkillID);
+	_MAGIC_TYPE8* pType = g_pMain->m_Magictype8Array.GetData(nSkillID);
 	if (pType == NULL)
 		return false;
 
@@ -1372,7 +1372,7 @@ bool MagicInstance::ExecuteType8()
 	}
 	else 
 	{	// If the target was another single player.
-		CUser* pTUser = g_pMain.GetUserPtr(sTargetID);
+		CUser* pTUser = g_pMain->GetUserPtr(sTargetID);
 		if (pTUser == NULL) 
 			return false;
 		
@@ -1389,7 +1389,7 @@ bool MagicInstance::ExecuteType8()
 		if( z < 2.5f )	z = 1.5f + z;
 
 		CUser* pTUser = *itr;
-		_HOME_INFO* pHomeInfo = g_pMain.m_HomeArray.GetData(pTUser->GetNation());
+		_HOME_INFO* pHomeInfo = g_pMain->m_HomeArray.GetData(pTUser->GetNation());
 		if (pHomeInfo == NULL)
 			return false;
 
@@ -1458,7 +1458,7 @@ bool MagicInstance::ExecuteType8()
 				
 				Packet result(AG_USER_REGENE);
 				result << uint16((*itr)->GetSocketID()) << uint16(pTUser->GetZoneID());
-				g_pMain.Send_AIServer(&result);
+				g_pMain->Send_AIServer(&result);
 			} break;
 
 			case 12:	// Summon a target within the zone.	
@@ -1552,7 +1552,7 @@ bool MagicInstance::ExecuteType9()
 		|| !pSkillCaster->isPlayer())
 		return false;
 
-	_MAGIC_TYPE9* pType = g_pMain.m_Magictype9Array.GetData(nSkillID);
+	_MAGIC_TYPE9* pType = g_pMain->m_Magictype9Array.GetData(nSkillID);
 	if (pType == NULL)
 		return false;
 
@@ -1576,13 +1576,13 @@ bool MagicInstance::ExecuteType9()
 		stealth << uint8(1) << uint16(pType->sRadius);
 		if (TO_USER(pSkillCaster)->isInParty())
 		{
-			_PARTY_GROUP* pParty = g_pMain.m_PartyArray.GetData(TO_USER(pSkillCaster)->m_sPartyIndex);
+			_PARTY_GROUP* pParty = g_pMain->m_PartyArray.GetData(TO_USER(pSkillCaster)->m_sPartyIndex);
 			if (pParty == NULL)
 				return false;
 
 			for (int i = 0; i < MAX_PARTY_USERS; i++)
 			{
-				CUser *pUser = g_pMain.GetUserPtr(pParty->uid[i]);
+				CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
 				if (pUser == NULL)
 					continue;
 				//To-do : save the skill for all the party members
@@ -1601,7 +1601,7 @@ bool MagicInstance::ExecuteType9()
 	result	<< nSkillID << sCasterID << sTargetID
 			<< sData1 << sData2 << sData3 << sData4 << sData5 << sData6 << sData7 << sData8;
 	if (TO_USER(pSkillCaster)->isInParty() && pType->bStateChange == 4)
-		g_pMain.Send_PartyMember(TO_USER(pSkillCaster)->m_sPartyIndex, &result);
+		g_pMain->Send_PartyMember(TO_USER(pSkillCaster)->m_sPartyIndex, &result);
 	else
 		TO_USER(pSkillCaster)->Send(&result);
 
@@ -1698,9 +1698,9 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 short MagicInstance::GetWeatherDamage(short damage, int attribute)
 {
 	// Give a 10% damage output boost based on weather (and skill's elemental attribute)
-	if ((g_pMain.m_nWeather == WEATHER_FINE && attribute == ATTRIBUTE_FIRE)
-		|| (g_pMain.m_nWeather == WEATHER_RAIN && attribute == ATTRIBUTE_LIGHTNING)
-		|| (g_pMain.m_nWeather == WEATHER_SNOW && attribute == ATTRIBUTE_ICE))
+	if ((g_pMain->m_nWeather == WEATHER_FINE && attribute == ATTRIBUTE_FIRE)
+		|| (g_pMain->m_nWeather == WEATHER_RAIN && attribute == ATTRIBUTE_LIGHTNING)
+		|| (g_pMain->m_nWeather == WEATHER_SNOW && attribute == ATTRIBUTE_ICE))
 		damage = (damage * 110) / 100;
 
 	return damage;
@@ -1728,7 +1728,7 @@ void MagicInstance::Type9Cancel()
 	if (pSkill == NULL)
 		return;
 
-	_MAGIC_TYPE9 *pType = g_pMain.m_Magictype9Array.GetData(nSkillID);
+	_MAGIC_TYPE9 *pType = g_pMain->m_Magictype9Array.GetData(nSkillID);
 	if (pType == NULL)
 		return;
 
@@ -1769,7 +1769,7 @@ void MagicInstance::Type4Cancel()
 	if (pSkillTarget != pSkillCaster)
 		return;
 
-	_MAGIC_TYPE4* pType = g_pMain.m_Magictype4Array.GetData(nSkillID);
+	_MAGIC_TYPE4* pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
 	if (pType == NULL)
 		return;
 
@@ -1959,7 +1959,7 @@ void MagicInstance::Type3Cancel()
 		return;
 
 	// Should this take only the specified skill? I'm thinking so.
-	_MAGIC_TYPE3* pType = g_pMain.m_Magictype3Array.GetData(nSkillID);
+	_MAGIC_TYPE3* pType = g_pMain->m_Magictype3Array.GetData(nSkillID);
 	if (pType == NULL)
 		return;
 
@@ -1996,7 +1996,7 @@ void MagicInstance::Type3Cancel()
 
 void CMagicProcess::SendType4BuffRemove(short tid, BYTE buff)
 {
-	CUser* pTUser = g_pMain.GetUserPtr(tid); 
+	CUser* pTUser = g_pMain->GetUserPtr(tid); 
 	if (pTUser == NULL) 
 		return;
 
@@ -2010,11 +2010,11 @@ void MagicInstance::Type4Extend()
 	if (pSkill == NULL)
 		return;
 
-	_MAGIC_TYPE4 *pType = g_pMain.m_Magictype4Array.GetData(nSkillID);
+	_MAGIC_TYPE4 *pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
 	if (pType == NULL)
 		return;
 
-	CUser* pTUser = g_pMain.GetUserPtr(sTargetID);
+	CUser* pTUser = g_pMain->GetUserPtr(sTargetID);
 	if (pTUser == NULL) 
 		return;
 

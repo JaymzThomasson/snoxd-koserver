@@ -259,16 +259,16 @@ private:
 	std::string m_strGamePWD, m_strAccountPWD;
 	bool m_bMarsEnabled;
 
-	static ServerCommandTable s_commandTable;
-
 	bool LoadTables();
-
-	void InitServerCommands();
-	void CleanupServerCommands();
 
 	bool ProcessServerCommand(std::string & command);
 
 public:
+	void InitServerCommands();
+	void CleanupServerCommands();
+
+	static ServerCommandTable s_commandTable;
+
 	COMMAND_HANDLER(HandleKillUserCommand);
 	COMMAND_HANDLER(HandleWar1OpenCommand);
 	COMMAND_HANDLER(HandleWar2OpenCommand);
@@ -290,4 +290,4 @@ public:
 	COMMAND_HANDLER(HandleReloadNoticeCommand);
 };
 
-extern CEbenezerDlg g_pMain;
+extern CEbenezerDlg * g_pMain;

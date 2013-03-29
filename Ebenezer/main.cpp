@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "EbenezerDlg.h"
 
-CEbenezerDlg g_pMain;
+CEbenezerDlg * g_pMain;
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
 
 static DWORD s_dwMainThreadID;
@@ -9,6 +9,7 @@ bool g_bRunning = true;
 
 int main()
 {
+	CEbenezerDlg pMain;
 	MSG msg;
 
 	SetConsoleTitle("Game server for Knight Online v" STRINGIFY(__VERSION));
@@ -20,8 +21,10 @@ int main()
 	// Start up the time updater thread
 	StartTimeThread();
 
+	g_pMain = &pMain;
+
 	// Start up server
-	if (!g_pMain.Startup())
+	if (!pMain.Startup())
 	{
 		system("pause"); // most users won't be running this via command prompt
 		return 1;

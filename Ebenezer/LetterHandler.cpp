@@ -37,7 +37,7 @@ void CUser::LetterSystem(Packet & pkt)
 		return;
 	}
 
-	g_pMain.AddDatabaseRequest(pkt, this);
+	g_pMain->AddDatabaseRequest(pkt, this);
 }
 
 void CUser::ReqLetterSystem(Packet & pkt)
@@ -153,7 +153,7 @@ void CUser::ReqLetterSend(Packet & pkt)
 		pkt >> nItemID >> bSrcPos >> nCoins; // coins will always be 0 (it's disabled)
 		nCoinRequirement = 10000; // if coins were enabled, we'd obviously tack nCoins onto this.
 
-		_ITEM_TABLE *pTable = g_pMain.GetItemPtr(nItemID);
+		_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
 
 		// Invalid item (ID doesn't exist)
 		if (pTable == NULL
@@ -200,7 +200,7 @@ void CUser::ReqLetterSend(Packet & pkt)
 	}
 
 	// If the other player's online, notify them.
-	CUser *pUser = g_pMain.GetUserPtr(strRecipient, TYPE_CHARACTER);
+	CUser *pUser = g_pMain->GetUserPtr(strRecipient, TYPE_CHARACTER);
 	if (pUser != NULL)
 	{
 		Packet notification(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));

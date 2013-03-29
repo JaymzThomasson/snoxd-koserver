@@ -67,7 +67,7 @@ BOOL WINAPI DatabaseThread::ThreadProc(LPVOID lpParam)
 		CUser *pUser = NULL;
 		if (uid >= 0)
 		{
-			pUser = g_pMain.GetUserPtr(uid);
+			pUser = g_pMain->GetUserPtr(uid);
 
 			// Check to make sure they're still connected.
 			if (pUser == NULL)
@@ -107,7 +107,7 @@ BOOL WINAPI DatabaseThread::ThreadProc(LPVOID lpParam)
 			if (pUser) pUser->ReqSetLogInInfo(pkt);
 			break;
 		case WIZ_BATTLE_EVENT:
-			// g_pMain.BattleEventResult(pkt);
+			// g_pMain->BattleEventResult(pkt);
 			break;
 		case WIZ_SHOPPING_MALL:
 			if (pUser) pUser->ReqShoppingMall(pkt);
@@ -144,7 +144,7 @@ void CUser::ReqAccountLogIn(Packet & pkt)
 	// TO-DO: Clean up this account name nonsense
 	if (nation >= 0)
 	{
-		g_pMain.AddAccountName(this);
+		g_pMain->AddAccountName(this);
 	}
 	else
 	{
@@ -227,7 +227,7 @@ void CUser::ReqDeleteChar(Packet & pkt)
 		CKnightsManager::RemoveKnightsUser(sKnights, (char *)strCharID.c_str());
 		result.SetOpcode(UDP_KNIGHTS_PROCESS);
 		result << uint8(KNIGHTS_WITHDRAW) << sKnights << strCharID;
-		g_pMain.Send_UDP_All(&result, g_pMain.m_nServerGroup == 0 ? 0 : 1);
+		g_pMain->Send_UDP_All(&result, g_pMain->m_nServerGroup == 0 ? 0 : 1);
 	}
 #endif
 }
@@ -496,7 +496,7 @@ void CKnightsManager::ReqCreateKnights(CUser *pUser, Packet & pkt)
 	pUser->m_iGold -= CLAN_COIN_REQUIREMENT;
 	pUser->m_bFame = CHIEF;
 
-	g_pMain.m_KnightsArray.PutData(pKnights->m_sIndex, pKnights);
+	g_pMain->m_KnightsArray.PutData(pKnights->m_sIndex, pKnights);
 
 	pKnights->AddUser(pUser);
 
@@ -511,7 +511,7 @@ void CKnightsManager::ReqCreateKnights(CUser *pUser, Packet & pkt)
 	result	<< uint8(KNIGHTS_CREATE)
 			<< pKnights->m_byFlag << sClanID 
 			<< bNation << strKnightsName << pUser->GetName();
-	g_pMain.Send_UDP_All(&result, g_pMain.m_nServerGroup == 0 ? 0 : 1);
+	g_pMain->Send_UDP_All(&result, g_pMain->m_nServerGroup == 0 ? 0 : 1);
 }
 
 void CKnightsManager::ReqUpdateKnights(CUser *pUser, Packet & pkt, uint8 opcode)
@@ -561,7 +561,7 @@ void CKnightsManager::ReqModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 c
 void CKnightsManager::ReqDestroyKnights(CUser *pUser, Packet & pkt)
 {
 	uint16 sClanID = pkt.read<uint16>();
-	CKnights *pKnights = g_pMain.GetClanPtr(sClanID);
+	CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
 	if (pKnights == NULL)
 		return;
 
@@ -570,7 +570,7 @@ void CKnightsManager::ReqDestroyKnights(CUser *pUser, Packet & pkt)
 
 	Packet result(UDP_KNIGHTS_PROCESS, uint8(KNIGHTS_DESTROY));
 	result << sClanID;
-	g_pMain.Send_UDP_All(&result, (g_pMain.m_nServerGroup == 0 ? 0 : 1));
+	g_pMain->Send_UDP_All(&result, (g_pMain->m_nServerGroup == 0 ? 0 : 1));
 }
 
 void CKnightsManager::ReqAllKnightsMember(CUser *pUser, Packet & pkt)
@@ -581,7 +581,7 @@ void CKnightsManager::ReqAllKnightsMember(CUser *pUser, Packet & pkt)
 
 	pkt >> sClanID;
 
-	CKnights* pKnights = g_pMain.GetClanPtr(pUser->GetClanID());
+	CKnights* pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
 	if (pKnights == NULL)
 		return;
 
@@ -603,7 +603,7 @@ void CKnightsManager::ReqAllKnightsMember(CUser *pUser, Packet & pkt)
 void CKnightsManager::ReqKnightsList(Packet & pkt)
 {
 	// Okay, this effectively makes this useless in the majority of cases.
-	if (g_pMain.m_nServerNo != BATTLE)
+	if (g_pMain->m_nServerNo != BATTLE)
 		return;
 
 	string strKnightsName; 
@@ -614,12 +614,12 @@ void CKnightsManager::ReqKnightsList(Packet & pkt)
 	if (!g_DBAgent.LoadKnightsInfo(sClanID, bNation, strKnightsName, sMembers, nPoints, bRank))
 		return;
 
-	CKnights *pKnights = g_pMain.GetClanPtr(sClanID);
+	CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
 	if (pKnights == NULL)
 	{
 		pKnights = new CKnights();
 
-		if (!g_pMain.m_KnightsArray.PutData(sClanID, pKnights))
+		if (!g_pMain->m_KnightsArray.PutData(sClanID, pKnights))
 		{
 			delete pKnights;
 			return;
@@ -632,7 +632,7 @@ void CKnightsManager::ReqKnightsList(Packet & pkt)
 	pKnights->m_strName = strKnightsName;
 	pKnights->m_sMembers = sMembers;
 	pKnights->m_nPoints = nPoints;
-	pKnights->m_byGrade = g_pMain.GetKnightsGrade(nPoints);
+	pKnights->m_byGrade = g_pMain->GetKnightsGrade(nPoints);
 	pKnights->m_byRanking = bRank;
 }
 
@@ -655,7 +655,7 @@ void CKnightsManager::ReqRegisterClanSymbol(CUser *pUser, Packet & pkt)
 		if (!bResult)
 			break;
 
-		CKnights *pKnights = g_pMain.GetClanPtr(sClanID);
+		CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
 		if (pKnights == NULL)
 		{
 			sErrorCode = 20;

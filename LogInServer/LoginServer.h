@@ -49,4 +49,4 @@ public:
 	CDBProcess	m_DBProcess;
 };
 
-extern LoginServer g_pMain;
+extern LoginServer * g_pMain;

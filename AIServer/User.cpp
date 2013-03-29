@@ -69,7 +69,7 @@ void CUser::Initialize()
 
 void CUser::Attack(int sid, int tid)
 {
-	CNpc* pNpc = g_pMain.m_arNpc.GetData(tid-NPC_BAND);
+	CNpc* pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(pNpc == NULL)	return;
 	if(pNpc->m_NpcState == NPC_DEAD) return;
 	if(pNpc->m_iHP == 0) return;
@@ -90,7 +90,7 @@ void CUser::Attack(int sid, int tid)
 
 	// 명중이면 //Damage 처리 ----------------------------------------------------------------//
 	nFinalDamage = GetDamage(tid);
-	if( g_pMain.m_byTestMode )		nFinalDamage = 3000;
+	if( g_pMain->m_byTestMode )		nFinalDamage = 3000;
 		
 	// Calculate Target HP	 -------------------------------------------------------//
 	short sOldNpcHP = pNpc->m_iHP;
@@ -116,7 +116,7 @@ void CUser::SendAttackSuccess(short tid, BYTE bResult, short sDamage, int nHP, s
 
 	Packet result(AG_ATTACK_RESULT, type);
 	result << bResult << sid << tid << sDamage << nHP << uint8(sAttack_type);
-	g_pMain.Send(&result);
+	g_pMain->Send(&result);
 }
 
 void CUser::SetDamage(int damage, int tid)
@@ -164,7 +164,7 @@ void CUser::SendHP()
 
 	Packet result(AG_USER_SET_HP);
 	result << m_iUserId << uint32(m_sHP);
-	g_pMain.Send(&result);   
+	g_pMain->Send(&result);   
 }
 
 void CUser::SetExp(int iNpcExp, int iLoyalty, int iLevel)
@@ -257,7 +257,7 @@ void CUser::SendExp(int iExp, int iLoyalty, int tType)
 {
 	Packet result(AG_USER_EXP);
 	result << m_iUserId << uint16(iExp) << uint16(iLoyalty);
-	g_pMain.Send(&result);   	
+	g_pMain->Send(&result);   	
 }
 
 short CUser::GetDamage(int tid, int magicid)
@@ -272,7 +272,7 @@ short CUser::GetDamage(int tid, int magicid)
 
 	if (tid < NPC_BAND || tid > INVALID_BAND)	return damage;
 	CNpc* pNpc = NULL;
-	pNpc = g_pMain.m_arNpc.GetData(tid-NPC_BAND);
+	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(pNpc == NULL)		return damage;
 	if(pNpc->m_proto->m_tNpcType == NPC_ARTIFACT || pNpc->m_proto->m_tNpcType == NPC_PHOENIX_GATE || pNpc->m_proto->m_tNpcType == NPC_GATE_LEVER || pNpc->m_proto->m_tNpcType == NPC_SPECIAL_GATE ) return damage;
 	
@@ -284,11 +284,11 @@ short CUser::GetDamage(int tid, int magicid)
 	HitB = (int)((Hit * 200) / (Ac + 240)) ;	// 새로운 공격식의 B
 
 	if( magicid > 0 )	{	 // Skill Hit.
-		pTable = g_pMain.m_MagictableArray.GetData( magicid );     // Get main magic table.
+		pTable = g_pMain->m_MagictableArray.GetData( magicid );     // Get main magic table.
 		if( !pTable ) return -1; 
 		
 		if (pTable->bType[0] == 1)	{	// SKILL HIT!
-			pType1 = g_pMain.m_Magictype1Array.GetData( magicid );	    // Get magic skill table type 1.
+			pType1 = g_pMain->m_Magictype1Array.GetData( magicid );	    // Get magic skill table type 1.
 			if( !pType1 ) return -1;     	                                
 
 			if(pType1->bHitType)	{  // Non-relative hit.
@@ -311,7 +311,7 @@ short CUser::GetDamage(int tid, int magicid)
 			Hit = (short)(HitB * (pType1->sHit / 100.0f));
 		}
 		else if (pTable->bType[0] == 2)   { // ARROW HIT!
-			pType2 = g_pMain.m_Magictype2Array.GetData( magicid );	    // Get magic skill table type 1.
+			pType2 = g_pMain->m_Magictype2Array.GetData( magicid );	    // Get magic skill table type 1.
 			if( !pType2 ) return -1; 
 			
 			if(pType2->bHitType == 1 || pType2->bHitType == 2 )   {  // Non-relative/Penetration hit.
@@ -379,7 +379,7 @@ short CUser::GetMagicDamage(int damage, short tid)
 	short temp_damage = 0;
 
 	CNpc* pNpc = NULL;
-	pNpc = g_pMain.m_arNpc.GetData(tid-NPC_BAND);
+	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(!pNpc) return damage;
 	
 	if (m_bMagicTypeRightHand > 4 && m_bMagicTypeRightHand < 8) {
@@ -569,7 +569,7 @@ void CUser::SendSystemMsg(char *pMsg, uint8 type, uint16 sWho)
 {
 	Packet result(AG_SYSTEM_MSG, type);
 	result << sWho << m_iUserId << pMsg;
-	g_pMain.Send(&result); 
+	g_pMain->Send(&result); 
 }
 
 void CUser::InitNpcAttack()
@@ -683,7 +683,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 	for(int i = 0 ; i < total_mon; i++ ) {
 		int nid = pNpcIDList[i];
 		if( nid < NPC_BAND ) continue;
-		pNpc = (CNpc*)g_pMain.m_arNpc.GetData(nid - NPC_BAND);
+		pNpc = (CNpc*)g_pMain->m_arNpc.GetData(nid - NPC_BAND);
 
 		if( pNpc != NULL && pNpc->m_NpcState != NPC_DEAD)	{
 			if( m_bNation == pNpc->m_byGroup ) continue;

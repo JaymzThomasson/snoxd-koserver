@@ -79,7 +79,7 @@ void CUser::HandleChallengeRequestPVP(Packet & pkt)
 
 	pkt >> strUserID;
 
-	CUser *pUser = g_pMain.GetUserPtr(strUserID, TYPE_CHARACTER);
+	CUser *pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
 	if (pUser == NULL
 		|| !pUser->isInGame()
 		|| pUser->isInParty()
@@ -144,7 +144,7 @@ void CUser::HandleChallengeRequestCVC(Packet & pkt)
 
 	pkt >> strUserID;
 
-	CUser *pUser = g_pMain.GetUserPtr(strUserID, TYPE_CHARACTER);
+	CUser *pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
 	if (pUser == NULL
 		|| !pUser->isInGame()
 		|| pUser->isInParty()
@@ -188,7 +188,7 @@ void CUser::HandleChallengeAcceptPVP(Packet & pkt)
 	if (!m_bChallengeRequested)
 		return;
 
-	CUser *pUser = g_pMain.GetUserPtr(m_sChallengeUser);
+	CUser *pUser = g_pMain->GetUserPtr(m_sChallengeUser);
 
 	m_sChallengeUser = -1;
 	m_bChallengeRequested = 0;
@@ -216,7 +216,7 @@ void CUser::HandleChallengeAcceptCVC(Packet & pkt)
 		return;
 
 	Packet result(WIZ_CHALLENGE, uint8(CHALLENGE_GENERIC_ERROR));
-	CUser *pUser = g_pMain.GetUserPtr(m_sChallengeUser);
+	CUser *pUser = g_pMain->GetUserPtr(m_sChallengeUser);
 
 	m_sChallengeUser = -1;
 	m_bChallengeRequested = 0;
@@ -230,8 +230,8 @@ void CUser::HandleChallengeAcceptCVC(Packet & pkt)
 	pUser->m_sChallengeUser = -1;
 	pUser->m_bRequestingChallenge = 0;
 
-	CKnights *pClan1 = g_pMain.GetClanPtr(GetClanID());
-	CKnights *pClan2 = g_pMain.GetClanPtr(pUser->GetClanID());
+	CKnights *pClan1 = g_pMain->GetClanPtr(GetClanID());
+	CKnights *pClan2 = g_pMain->GetClanPtr(pUser->GetClanID());
 
 	if (pClan1 == NULL || pClan2 == NULL)
 	{
@@ -283,7 +283,7 @@ void CUser::HandleChallengeCancelled(uint8 opcode)
 
 	Packet result(WIZ_CHALLENGE);
 
-	CUser *pUser = g_pMain.GetUserPtr(m_sChallengeUser);
+	CUser *pUser = g_pMain->GetUserPtr(m_sChallengeUser);
 	if (pUser == NULL || pUser->m_sChallengeUser != GetID())
 	{
 		result << uint8(CHALLENGE_GENERIC_ERROR);
@@ -309,7 +309,7 @@ void CUser::HandleChallengeRejected(uint8 opcode)
 
 	Packet result(WIZ_CHALLENGE);
 
-	CUser *pUser = g_pMain.GetUserPtr(m_sChallengeUser);
+	CUser *pUser = g_pMain->GetUserPtr(m_sChallengeUser);
 	if (pUser == NULL || pUser->m_sChallengeUser != GetID())
 	{
 		result << uint8(CHALLENGE_GENERIC_ERROR);

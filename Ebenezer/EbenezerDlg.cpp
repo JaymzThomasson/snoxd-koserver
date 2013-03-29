@@ -32,7 +32,7 @@ static DWORD s_dwGameTimerID, s_dwAliveTimerID;
 
 void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-	g_pMain.OnTimer(idEvent);
+	g_pMain->OnTimer(idEvent);
 }
 
 CEbenezerDlg::CEbenezerDlg()

@@ -66,7 +66,7 @@ bool CKnights::AddUser(const char *strUserID)
 		{
 			m_arKnightsUser[i].byUsed = 1;
 			strcpy(m_arKnightsUser[i].strUserName, strUserID);
-			m_arKnightsUser[i].pSession = g_pMain.GetUserPtr(strUserID, TYPE_CHARACTER);
+			m_arKnightsUser[i].pSession = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
 			return true;
 		}
 	}
@@ -120,7 +120,7 @@ bool CKnights::RemoveUser(CUser *pUser)
 void CKnights::Disband(CUser *pLeader /*= NULL*/)
 {
 	string clanNotice;
-	g_pMain.GetServerResource(m_byFlag == CLAN_TYPE ? IDS_CLAN_DESTROY : IDS_KNIGHTS_DESTROY, 
+	g_pMain->GetServerResource(m_byFlag == CLAN_TYPE ? IDS_CLAN_DESTROY : IDS_KNIGHTS_DESTROY, 
 		&clanNotice, m_strName.c_str());
 	SendChat(clanNotice.c_str());
 
@@ -130,7 +130,7 @@ void CKnights::Disband(CUser *pLeader /*= NULL*/)
 		if (p->byUsed && p->pSession != NULL)
 			RemoveUser(p->pSession);
 	}
-	g_pMain.m_KnightsArray.DeleteData(m_sIndex);
+	g_pMain->m_KnightsArray.DeleteData(m_sIndex);
 
 	if (pLeader == NULL)
 		return;

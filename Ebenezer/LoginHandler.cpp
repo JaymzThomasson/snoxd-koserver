@@ -35,7 +35,7 @@ void CUser::LoginProcess(Packet & pkt)
 		|| strPasswd.empty() || strPasswd.size() > MAX_PW_SIZE)
 		goto fail_return;
 
-	CUser *pUser = g_pMain.GetUserPtr(strAccountID.c_str(), TYPE_ACCOUNT);
+	CUser *pUser = g_pMain->GetUserPtr(strAccountID.c_str(), TYPE_ACCOUNT);
 	if (pUser && (pUser->GetSocketID() != GetSocketID()))
 	{
 		pUser->UserDataSaveToAgent();
@@ -45,7 +45,7 @@ void CUser::LoginProcess(Packet & pkt)
 
 	result << strPasswd;
 	m_strAccountID = strAccountID;
-	g_pMain.AddDatabaseRequest(result, this);
+	g_pMain->AddDatabaseRequest(result, this);
 	return;
 
 fail_return:

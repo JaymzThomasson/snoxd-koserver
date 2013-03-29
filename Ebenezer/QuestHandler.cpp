@@ -44,8 +44,8 @@ void CUser::QuestV2PacketProcess(Packet & pkt)
 	uint8 opcode = pkt.read<uint8>();
 	uint32 nQuestID = pkt.read<uint32>();
 
-	CNpc *pNpc = g_pMain.m_arNpcArray.GetData(m_sEventNid);
-	_QUEST_HELPER * pQuestHelper = g_pMain.m_QuestHelperArray.GetData(nQuestID);
+	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(m_sEventNid);
+	_QUEST_HELPER * pQuestHelper = g_pMain->m_QuestHelperArray.GetData(nQuestID);
 	// Does this quest helper exist?
 	if (pQuestHelper == NULL
 		// Does the quest NPC exist, and is it alive? 
@@ -111,7 +111,7 @@ void CUser::QuestV2PacketProcess(Packet & pkt)
 
 void CUser::SaveEvent(uint16 sQuestID, uint8 bQuestState)
 {
-	_QUEST_MONSTER * pQuestMonster = g_pMain.m_QuestMonsterArray.GetData(sQuestID);
+	_QUEST_MONSTER * pQuestMonster = g_pMain->m_QuestMonsterArray.GetData(sQuestID);
 
 	if (pQuestMonster != NULL
 		&& bQuestState == 1
@@ -180,7 +180,7 @@ void CUser::QuestV2MonsterCountAdd(uint16 sNpcID)
 	// we'd rather search through the player's active quests for applicable mob counts to increment
 	// but then, this system can't really handle that (static counts). More research is necessary.
 	uint16 sQuestNum = 0; // placeholder so that we can implement logic mockup
-	_QUEST_MONSTER *pQuestMonster = g_pMain.m_QuestMonsterArray.GetData(sQuestNum);
+	_QUEST_MONSTER *pQuestMonster = g_pMain->m_QuestMonsterArray.GetData(sQuestNum);
 	if (pQuestMonster == NULL)
 		return;
 
@@ -272,7 +272,7 @@ void CUser::QuestV2CheckFulfill(_QUEST_HELPER * pQuestHelper)
 bool CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID)
 {
 	// Lookup the corresponding NPC.
-	CNpc * pNpc = g_pMain.m_arNpcArray.GetData(m_sEventNid);
+	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(m_sEventNid);
 
 	// Make sure the NPC exists and is not dead (we should also check if it's in range)
 	if (pNpc == NULL
@@ -280,7 +280,7 @@ bool CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID)
 		return false;
 
 	m_nQuestHelperID = pQuestHelper->nIndex;
-	return g_pMain.GetLuaEngine()->ExecuteScript(this, pNpc, nEventID, pQuestHelper->strLuaFilename.c_str());
+	return g_pMain->GetLuaEngine()->ExecuteScript(this, pNpc, nEventID, pQuestHelper->strLuaFilename.c_str());
 }
 
 /* 
@@ -289,7 +289,7 @@ bool CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID)
 
 void CUser::QuestV2SaveEvent(uint16 sQuestID)
 {
-	_QUEST_HELPER * pQuestHelper = g_pMain.m_QuestHelperArray.GetData(sQuestID);
+	_QUEST_HELPER * pQuestHelper = g_pMain->m_QuestHelperArray.GetData(sQuestID);
 	if (pQuestHelper == NULL)
 		return;
 
@@ -320,9 +320,9 @@ void CUser::QuestV2ShowGiveItem(uint32 nUnk1, uint16 sUnk1,
 
 uint16 CUser::QuestV2SearchEligibleQuest(uint16 sNpcID)
 {
-	FastGuard lock(g_pMain.m_questNpcLock);
-	QuestNpcList::iterator itr = g_pMain.m_QuestNpcList.find(sNpcID);
-	if (itr == g_pMain.m_QuestNpcList.end()
+	FastGuard lock(g_pMain->m_questNpcLock);
+	QuestNpcList::iterator itr = g_pMain->m_QuestNpcList.find(sNpcID);
+	if (itr == g_pMain->m_QuestNpcList.end()
 		|| itr->second.empty())
 		return 0;
 
@@ -354,7 +354,7 @@ void CUser::QuestV2ShowMap(uint32 nQuestHelperID)
 
 uint8 CUser::CheckMonsterCount(uint8 bGroup)
 {
-	_QUEST_MONSTER * pQuestMonster = g_pMain.m_QuestMonsterArray.GetData(m_sEventDataIndex);
+	_QUEST_MONSTER * pQuestMonster = g_pMain->m_QuestMonsterArray.GetData(m_sEventDataIndex);
 	if (pQuestMonster == NULL
 		|| bGroup == 0
 		|| bGroup >= QUEST_MOB_GROUPS)

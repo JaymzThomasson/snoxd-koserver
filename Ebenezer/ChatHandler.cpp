@@ -1,6 +1,3 @@
-ServerCommandTable CEbenezerDlg::s_commandTable;
-ChatCommandTable CUser::s_commandTable;
-
 void CEbenezerDlg::InitServerCommands()
 {
 	static Command<CEbenezerDlg> commandTable[] = 
@@ -92,7 +89,7 @@ void CUser::Chat(Packet & pkt)
 		// This is horrible, but we'll live with it for now.
 		// Pull the notice string (#### NOTICE : %s ####) from the database.
 		// Format the chat string around it, so our chat data is within the notice
-		g_pMain.GetServerResource(IDP_ANNOUNCEMENT, &finalstr, chatstr.c_str());
+		g_pMain->GetServerResource(IDP_ANNOUNCEMENT, &finalstr, chatstr.c_str());
 
 		bNation = KARUS; // arbitrary nation
 		sessID = -1;
@@ -117,19 +114,19 @@ void CUser::Chat(Packet & pkt)
 	switch (type) 
 	{
 	case GENERAL_CHAT:
-		g_pMain.Send_NearRegion(&result, GetMap(), GetRegionX(), GetRegionZ(), GetX(), GetZ());
+		g_pMain->Send_NearRegion(&result, GetMap(), GetRegionX(), GetRegionZ(), GetX(), GetZ());
 		break;
 
 	case PRIVATE_CHAT:
 	{
-		CUser *pUser = g_pMain.GetUserPtr(m_sPrivateChatUser);
+		CUser *pUser = g_pMain->GetUserPtr(m_sPrivateChatUser);
 		if (pUser != NULL) 
 			pUser->Send(&result);
 	} break;
 
 	case PARTY_CHAT:
 		if (isInParty())
-			g_pMain.Send_PartyMember(m_sPartyIndex, &result);
+			g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 		break;
 
 	case SHOUT_CHAT:
@@ -148,16 +145,16 @@ void CUser::Chat(Packet & pkt)
 
 	case KNIGHTS_CHAT:
 		if (isInClan())
-			g_pMain.Send_KnightsMember(GetClanID(), &result);
+			g_pMain->Send_KnightsMember(GetClanID(), &result);
 		break;
 	case PUBLIC_CHAT:
 	case ANNOUNCEMENT_CHAT:
 		if (isGM())
-			g_pMain.Send_All(&result);
+			g_pMain->Send_All(&result);
 		break;
 	case COMMAND_CHAT:
 		if (getFame() == COMMAND_CAPTAIN)
-			g_pMain.Send_CommandChat(&result, m_bNation, this);
+			g_pMain->Send_CommandChat(&result, m_bNation, this);
 		break;
 	case MERCHANT_CHAT:
 		if (isMerchanting())
@@ -166,14 +163,14 @@ void CUser::Chat(Packet & pkt)
 	case ALLIANCE_CHAT:
 		if (isInClan())
 		{
-			CKnights *pKnights = g_pMain.GetClanPtr(GetClanID());
+			CKnights *pKnights = g_pMain->GetClanPtr(GetClanID());
 			if (pKnights != NULL && pKnights->m_sAlliance > 0)
-				g_pMain.Send_KnightsAlliance(pKnights->m_sAlliance, &result);
+				g_pMain->Send_KnightsAlliance(pKnights->m_sAlliance, &result);
 		}
 		break;
 	case WAR_SYSTEM_CHAT:
 		if (isGM())
-			g_pMain.Send_All(&result);
+			g_pMain->Send_All(&result);
 		break;
 	}
 }
@@ -192,7 +189,7 @@ void CUser::ChatTargetSelect(Packet & pkt)
 		if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
 			return;
 
-		CUser *pUser = g_pMain.GetUserPtr(strUserID, TYPE_CHARACTER);
+		CUser *pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
 		if (pUser == NULL || pUser == this)
 		{
 			result << int16(0); 
@@ -255,7 +252,7 @@ COMMAND_HANDLER(CUser::HandleGiveItemCommand)
 	std::string strUserID = vargs.front();
 	vargs.pop_front();
 
-	CUser *pUser = g_pMain.GetUserPtr(strUserID, TYPE_CHARACTER);
+	CUser *pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
 	if (pUser == NULL)
 	{
 		// send error message saying the character does not exist or is not online
@@ -264,7 +261,7 @@ COMMAND_HANDLER(CUser::HandleGiveItemCommand)
 
 	uint32 nItemID = atoi(vargs.front().c_str());
 	vargs.pop_front();
-	_ITEM_TABLE *pItem = g_pMain.GetItemPtr(nItemID);
+	_ITEM_TABLE *pItem = g_pMain->GetItemPtr(nItemID);
 	if (pItem == NULL)
 	{
 		// send error message saying the item does not exist
@@ -347,35 +344,35 @@ COMMAND_HANDLER(CEbenezerDlg::HandleKillUserCommand)
 	return true;
 }
 
-COMMAND_HANDLER(CUser::HandleWar1OpenCommand) { return g_pMain.HandleWar1OpenCommand(vargs, args, description); }
+COMMAND_HANDLER(CUser::HandleWar1OpenCommand) { return g_pMain->HandleWar1OpenCommand(vargs, args, description); }
 COMMAND_HANDLER(CEbenezerDlg::HandleWar1OpenCommand)
 {
 	BattleZoneOpen(BATTLEZONE_OPEN, 1);
 	return true;
 }
 
-COMMAND_HANDLER(CUser::HandleWar2OpenCommand) { return g_pMain.HandleWar2OpenCommand(vargs, args, description); }
+COMMAND_HANDLER(CUser::HandleWar2OpenCommand) { return g_pMain->HandleWar2OpenCommand(vargs, args, description); }
 COMMAND_HANDLER(CEbenezerDlg::HandleWar2OpenCommand)
 {
 	BattleZoneOpen(BATTLEZONE_OPEN, 2);
 	return true;
 }
 
-COMMAND_HANDLER(CUser::HandleWar3OpenCommand) { return g_pMain.HandleWar3OpenCommand(vargs, args, description); }
+COMMAND_HANDLER(CUser::HandleWar3OpenCommand) { return g_pMain->HandleWar3OpenCommand(vargs, args, description); }
 COMMAND_HANDLER(CEbenezerDlg::HandleWar3OpenCommand)
 {
 	BattleZoneOpen(BATTLEZONE_OPEN, 3);
 	return true;
 }
 
-COMMAND_HANDLER(CUser::HandleSnowWarOpenCommand) { return g_pMain.HandleSnowWarOpenCommand(vargs, args, description); }
+COMMAND_HANDLER(CUser::HandleSnowWarOpenCommand) { return g_pMain->HandleSnowWarOpenCommand(vargs, args, description); }
 COMMAND_HANDLER(CEbenezerDlg::HandleSnowWarOpenCommand)
 {
 	BattleZoneOpen(SNOW_BATTLEZONE_OPEN);
 	return true;
 }
 
-COMMAND_HANDLER(CUser::HandleWarCloseCommand) { return g_pMain.HandleWarCloseCommand(vargs, args, description); }
+COMMAND_HANDLER(CUser::HandleWarCloseCommand) { return g_pMain->HandleWarCloseCommand(vargs, args, description); }
 COMMAND_HANDLER(CEbenezerDlg::HandleWarCloseCommand)
 {
 	m_byBanishFlag = 1;

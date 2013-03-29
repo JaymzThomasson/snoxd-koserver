@@ -136,7 +136,7 @@ void CUser::MerchantItemAdd(Packet & pkt)
 		|| bDstPos >= MAX_MERCH_ITEMS)
 		return;
 
-	_ITEM_TABLE * pTable = g_pMain.GetItemPtr(nItemID);
+	_ITEM_TABLE * pTable = g_pMain->GetItemPtr(nItemID);
 	if (pTable == NULL
 		|| nItemID >= ITEM_NO_TRADE // Cannot be traded, sold or stored.
 	 	|| pTable->m_bRace == RACE_UNTRADEABLE) // Cannot be traded or sold.
@@ -207,7 +207,7 @@ void CUser::MerchantItemList(Packet & pkt)
 	
 	uint16 uid = pkt.read<uint16>();
 
-	CUser *pMerchant = g_pMain.GetUserPtr(uid);
+	CUser *pMerchant = g_pMain->GetUserPtr(uid);
 	if (pMerchant == NULL
 		|| !pMerchant->isMerchanting())
 		return;
@@ -233,7 +233,7 @@ void CUser::MerchantItemBuy(Packet & pkt)
 	uint16 item_count, leftover_count;
 	uint8 item_slot, dest_slot;
 
-	CUser *pMerchant = g_pMain.GetUserPtr(m_sMerchantsSocketID);
+	CUser *pMerchant = g_pMain->GetUserPtr(m_sMerchantsSocketID);
 	if (pMerchant == NULL)
 		return;
 
@@ -257,7 +257,7 @@ void CUser::MerchantItemBuy(Packet & pkt)
 
 	// If it's not stackable, and we're specifying something other than 1
 	// we really don't care to handle this request...
-	_ITEM_TABLE *proto = g_pMain.GetItemPtr(itemid);
+	_ITEM_TABLE *proto = g_pMain->GetItemPtr(itemid);
 	if (proto == NULL
 		|| !proto->m_bCountable && item_count != 1)
 		return;
@@ -437,7 +437,7 @@ void CUser::BuyingMerchantInsert(Packet & pkt)
 	for (int i = 0; i < amount_of_items; i++)
 	{
 		pkt >> itemid >> item_count >> buying_price;
-		pItem = g_pMain.m_ItemtableArray.GetData(itemid);
+		pItem = g_pMain->m_ItemtableArray.GetData(itemid);
 		if (pItem == NULL)
 			return;
 
@@ -475,7 +475,7 @@ void CUser::BuyingMerchantList(Packet & pkt)
 	
 	uint16 uid = pkt.read<uint16>();
 
-	CUser *pMerchant = g_pMain.GetUserPtr(uid);
+	CUser *pMerchant = g_pMain->GetUserPtr(uid);
 	if (pMerchant == NULL
 		|| !pMerchant->isMerchanting())
 		return;
@@ -500,7 +500,7 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 	uint16 sStackSize, sRemainingStackSize;
 	uint8 bSellerSrcSlot, bMerchantListSlot;
 
-	CUser *pMerchant = g_pMain.GetUserPtr(m_sMerchantsSocketID);
+	CUser *pMerchant = g_pMain->GetUserPtr(m_sMerchantsSocketID);
 	if (pMerchant == NULL)
 		return;
 
@@ -518,7 +518,7 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 
 	// If it's not stackable, and we're specifying something other than 1
 	// we really don't care to handle this request...
-	_ITEM_TABLE *proto = g_pMain.GetItemPtr(pWantedItem->nNum);
+	_ITEM_TABLE *proto = g_pMain->GetItemPtr(pWantedItem->nNum);
 	if (proto == NULL
 		|| !proto->m_bCountable && sStackSize != 1)
 		return;
@@ -593,7 +593,7 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 
 void CUser::RemoveFromMerchantLookers()
 {
-	CUser *pPreviousMerchantUser = g_pMain.GetUserPtr(m_sMerchantsSocketID);
+	CUser *pPreviousMerchantUser = g_pMain->GetUserPtr(m_sMerchantsSocketID);
 	if (pPreviousMerchantUser == NULL)
 		return;
 

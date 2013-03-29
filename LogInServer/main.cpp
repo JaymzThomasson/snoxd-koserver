@@ -3,19 +3,22 @@
 #define STR(str) #str
 #define STRINGIFY(str) STR(str)
 
-LoginServer g_pMain;
+LoginServer * g_pMain;
 static HANDLE s_hEvent;
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
 
 int main()
 {
+	LoginServer pMain;
 	SetConsoleTitle("Login server for Knight Online v" STRINGIFY(__VERSION));
 
 	// Override the console handler
 	SetConsoleCtrlHandler(_ConsoleHandler, TRUE);
 
+	g_pMain = &pMain;
+
 	// Startup server
-	if (!g_pMain.Startup())
+	if (!g_pMain->Startup())
 	{
 		system("pause"); // most users won't be running this via command prompt
 		return 1;

@@ -18,7 +18,7 @@ public:
 		_dbCommand->FetchUInt16(3, pData->sMercenaryClan_1);
 		_dbCommand->FetchUInt16(4, pData->sMercenaryClan_2);
 
-		CKnights * pKnights = g_pMain.GetClanPtr(pData->sMainAllianceKnights);
+		CKnights * pKnights = g_pMain->GetClanPtr(pData->sMainAllianceKnights);
 		if (pKnights == NULL
 			|| !m_pMap->PutData(pData->sMainAllianceKnights, pData))
 			delete pData;

@@ -9,7 +9,7 @@ void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= NULL*/, bool is
 	MagicInstance instance;
 	pkt >> instance.bOpcode >> instance.nSkillID;
 
-	instance.pSkill = g_pMain.m_MagictableArray.GetData(instance.nSkillID);
+	instance.pSkill = g_pMain->m_MagictableArray.GetData(instance.nSkillID);
 	if (instance.pSkill == NULL)
 	{
 		TRACE("[%s] Used skill %d but it does not exist.\n", pCaster->GetName(), instance.nSkillID);
@@ -20,8 +20,8 @@ void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= NULL*/, bool is
 		>> instance.sData1 >> instance.sData2 >> instance.sData3 >> instance.sData4
 		>> instance.sData5 >> instance.sData6 >> instance.sData7 >> instance.sData8;
 
-	instance.pSkillCaster = g_pMain.GetUnit(instance.sCasterID);
-	instance.pSkillTarget = g_pMain.GetUnit(instance.sTargetID);
+	instance.pSkillCaster = g_pMain->GetUnit(instance.sCasterID);
+	instance.pSkillTarget = g_pMain->GetUnit(instance.sTargetID);
 
 	// Prevent users from faking other players or NPCs.
 	if (pCaster != NULL // if it's NULL, it's from AI.

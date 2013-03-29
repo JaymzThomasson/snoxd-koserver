@@ -42,7 +42,7 @@ public:
 		{
 			// Add the quest helper instance to the NPC's list
 			// so that we can perform faster searches.
-			QuestNpcList * pList = &g_pMain.m_QuestNpcList;
+			QuestNpcList * pList = &g_pMain->m_QuestNpcList;
 			QuestNpcList::iterator itr = pList->find(pData->sNpcId);
 			if (itr == pList->end())
 			{

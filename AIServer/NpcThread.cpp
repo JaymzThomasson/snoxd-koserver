@@ -136,7 +136,7 @@ UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */)
 
 	while (!g_bNpcExit)
 	{
-		foreach_stlmap (itr, g_pMain.g_arZone)
+		foreach_stlmap (itr, g_pMain->g_arZone)
 		{
 			MAP *pMap = itr->second;
 			if (pMap == NULL

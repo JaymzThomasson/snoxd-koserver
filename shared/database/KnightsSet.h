@@ -35,7 +35,7 @@ public:
 		_dbCommand->FetchByte(20, pData->m_bCapeB);
 		_dbCommand->FetchUInt16(21, pData->m_sAlliance);
 
-		pData->m_byGrade = g_pMain.GetKnightsGrade(pData->m_nPoints);
+		pData->m_byGrade = g_pMain->GetKnightsGrade(pData->m_nPoints);
 
 		if (!m_pMap->PutData(pData->m_sIndex, pData))
 			delete pData;

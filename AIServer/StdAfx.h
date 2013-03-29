@@ -6,5 +6,3 @@
 #include "packet.h"			// packet Á¤ÀÇ
 #include "define.h"			// define
 #include "ServerDlg.h"
-
-extern CServerDlg g_pMain;

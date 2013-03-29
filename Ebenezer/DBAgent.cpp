@@ -285,7 +285,7 @@ void CDBAgent::LoadRentalData(string & strAccountID, string & strCharID, UserRen
 		dbCommand->FetchInt16(10, pItem->sMinutesRemaining);
 		dbCommand->FetchString(11, pItem->szTimeRental, sizeof(pItem->szTimeRental));
 
-		pRentalItem = g_pMain.m_RentalItemArray.GetData(pItem->nRentalIndex);
+		pRentalItem = g_pMain->m_RentalItemArray.GetData(pItem->nRentalIndex);
 		if (pRentalItem == NULL
 			|| rentalData.find(pItem->nSerialNum) != rentalData.end())
 			delete pItem;
@@ -401,7 +401,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 		itemBuffer >> nItemID >> sDurability >> sCount;
 		serialBuffer >> nSerialNum;
 
-		_ITEM_TABLE *pTable = g_pMain.GetItemPtr(nItemID);
+		_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
 		if (pTable == NULL || sCount <= 0)
 			continue;
 
@@ -485,7 +485,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 			pItem->nNum = nItemID;
 			pItem->sDuration = sDurability;
 			pItem->sCount = 1;
-			pItem->nSerialNum = g_pMain.GenerateItemSerial();
+			pItem->nSerialNum = g_pMain->GenerateItemSerial();
 		}
 	}
 
@@ -535,7 +535,7 @@ bool CDBAgent::LoadWarehouseData(string & strAccountID, CUser *pUser)
 		itemBuffer >> nItemID >> sDurability >> sCount;
 		serialBuffer >> nSerialNum;
 
-		_ITEM_TABLE *pTable = g_pMain.GetItemPtr(nItemID);
+		_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
 		if (pTable == NULL || sCount <= 0)
 			continue;
 
@@ -782,7 +782,7 @@ void CDBAgent::RequestFriendList(std::vector<string> & friendList, CUser *pUser)
 
 FriendAddResult CDBAgent::AddFriend(short sid, short tid)
 {
-	CUser *pSrcUser = g_pMain.GetUserPtr(sid), *pTargetUser = g_pMain.GetUserPtr(tid);
+	CUser *pSrcUser = g_pMain->GetUserPtr(sid), *pTargetUser = g_pMain->GetUserPtr(tid);
 	if (pSrcUser == NULL || pTargetUser == NULL)
 		return FRIEND_ADD_ERROR;
 
@@ -994,7 +994,7 @@ uint16 CDBAgent::LoadKnightsAllMembers(uint16 sClanID, Packet & result)
 
 		result << strCharID << bFame << bLevel << sClass 
 			// check if user's logged in (i.e. grab logged in state)
-			<< uint8(g_pMain.GetUserPtr(strCharID, TYPE_CHARACTER) == NULL ? 0 : 1);
+			<< uint8(g_pMain->GetUserPtr(strCharID, TYPE_CHARACTER) == NULL ? 0 : 1);
 		count++;
 	} while (dbCommand->MoveNext());
 
@@ -1114,7 +1114,7 @@ void CDBAgent::UpdateBattleEvent(string & strCharID, uint8 bNation)
 		return;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
-	if (!dbCommand->Execute(string_format(_T("UPDATE BATTLE SET byNation=%d, strUserName=? WHERE sIndex=%d"), bNation, g_pMain.m_nServerNo)))
+	if (!dbCommand->Execute(string_format(_T("UPDATE BATTLE SET byNation=%d, strUserName=? WHERE sIndex=%d"), bNation, g_pMain->m_nServerNo)))
 		ReportSQLError(m_GameDB->GetError());
 }
 

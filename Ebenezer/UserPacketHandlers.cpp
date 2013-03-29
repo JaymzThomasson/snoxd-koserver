@@ -10,6 +10,9 @@
 extern KOSocketMgr<CUser> g_socketMgr;
 using namespace std;
 
+ServerCommandTable CEbenezerDlg::s_commandTable;
+ChatCommandTable CUser::s_commandTable;
+
 // List of user packet handlers for compilation 
 // in one combined unit.
 // Doing this speeds up compilation times considerably.

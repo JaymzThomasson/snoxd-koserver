@@ -26,13 +26,13 @@ void CUser::ItemRepair(Packet & pkt)
 		if (m_sItemArray[SLOT_MAX+sSlot].nNum != itemid) goto fail_return;
 	}
 
-	pNpc = g_pMain.m_arNpcArray.GetData(sNpcID);
+	pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
 	if (pNpc == NULL
 		|| pNpc->GetType() != NPC_TINKER
 		|| !isInRange(pNpc, MAX_NPC_RANGE))
 		return;
 
-	pTable = g_pMain.GetItemPtr( itemid );
+	pTable = g_pMain->GetItemPtr( itemid );
 	if( !pTable ) goto fail_return;
 	durability = pTable->m_sDuration;
 	if( durability == 1 ) goto fail_return;
@@ -62,12 +62,12 @@ fail_return:
 void CUser::ClientEvent(uint16 sNpcID)
 {
 	// Ensure AI's loaded
-	if (!g_pMain.m_bPointCheckFlag
+	if (!g_pMain->m_bPointCheckFlag
 		|| isDead())
 		return;
 
 	int32 iEventID = 0;
-	CNpc *pNpc = g_pMain.m_arNpcArray.GetData(sNpcID);
+	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
 	if (pNpc == NULL
 		|| !isInRange(pNpc, MAX_NPC_RANGE))
 		return;
@@ -82,9 +82,9 @@ void CUser::ClientEvent(uint16 sNpcID)
 		return;
 	}
 
-	FastGuard lock(g_pMain.m_questNpcLock);
-	QuestNpcList::iterator itr = g_pMain.m_QuestNpcList.find(pNpc->GetEntryID());
-	if (itr == g_pMain.m_QuestNpcList.end())
+	FastGuard lock(g_pMain->m_questNpcLock);
+	QuestNpcList::iterator itr = g_pMain->m_QuestNpcList.find(pNpc->GetEntryID());
+	if (itr == g_pMain->m_QuestNpcList.end())
 		return;
 
 	// Copy it. We should really lock the list, but nevermind.
@@ -149,8 +149,8 @@ void CUser::ClassChange(Packet & pkt)
 
 		// If nation discounts are enabled (1), and this nation has won the last war, get it half price.
 		// If global discounts are enabled (2), everyone can get it for half price.
-		if ((g_pMain.m_sDiscount == 1 && g_pMain.m_byOldVictory == GetNation())
-			|| g_pMain.m_sDiscount == 2)
+		if ((g_pMain->m_sDiscount == 1 && g_pMain->m_byOldVictory == GetNation())
+			|| g_pMain->m_sDiscount == 2)
 			money /= 2;
 
 		result << uint8(CHANGE_MONEY_REQ) << money;
@@ -209,7 +209,7 @@ void CUser::ClassChange(Packet & pkt)
 		// TO-DO: Move this somewhere better.
 		result.SetOpcode(WIZ_PARTY);
 		result << uint8(PARTY_CLASSCHANGE) << GetSocketID() << uint16(classcode);
-		g_pMain.Send_PartyMember(m_sPartyIndex, &result);
+		g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 	}
 }
 
@@ -231,7 +231,7 @@ bool CUser::AttemptSelectMsg(uint8 bMenuID)
 	// Get the event number that needs to be processed next.
 	int32 selectedEvent = m_iSelMsgEvent[bMenuID];
 	if (selectedEvent < 0
-		|| (pHelper = g_pMain.m_QuestHelperArray.GetData(m_nQuestHelperID)) == NULL
+		|| (pHelper = g_pMain->m_QuestHelperArray.GetData(m_nQuestHelperID)) == NULL
 		|| !QuestV2RunEvent(pHelper, selectedEvent))
 		return false;
 
@@ -241,7 +241,7 @@ bool CUser::AttemptSelectMsg(uint8 bMenuID)
 void CUser::SelectMsg(uint8 bFlag, int32 nQuestID, int32 menuHeaderText, 
 					  int32 menuButtonText[MAX_MESSAGE_EVENT], int32 menuButtonEvents[MAX_MESSAGE_EVENT])
 {
-	_QUEST_HELPER * pHelper = g_pMain.m_QuestHelperArray.GetData(m_nQuestHelperID);
+	_QUEST_HELPER * pHelper = g_pMain->m_QuestHelperArray.GetData(m_nQuestHelperID);
 	if (pHelper == NULL)
 		return;
 
@@ -262,7 +262,7 @@ void CUser::SelectMsg(uint8 bFlag, int32 nQuestID, int32 menuHeaderText,
 void CUser::NpcEvent(Packet & pkt)
 {
 	// Ensure AI is loaded first
-	if (!g_pMain.m_bPointCheckFlag
+	if (!g_pMain->m_bPointCheckFlag
 		|| isDead())
 		return;	
 
@@ -271,7 +271,7 @@ void CUser::NpcEvent(Packet & pkt)
 	uint16 sNpcID = pkt.read<uint16>();
 	int32 nQuestID = pkt.read<int32>();
 
-	CNpc *pNpc = g_pMain.m_arNpcArray.GetData(sNpcID);
+	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
 	if (pNpc == NULL
 		|| !isInRange(pNpc, MAX_NPC_RANGE))
 		return;
@@ -372,8 +372,8 @@ void CUser::ItemTrade(Packet & pkt)
 	if (type == 1 || type == 2)
 	{
 		pkt >> group >> npcid;
-		if (!g_pMain.m_bPointCheckFlag
-			|| (pNpc = g_pMain.m_arNpcArray.GetData(npcid)) == NULL
+		if (!g_pMain->m_bPointCheckFlag
+			|| (pNpc = g_pMain->m_arNpcArray.GetData(npcid)) == NULL
 			|| pNpc->GetType() != NPC_MERCHANT
 			|| pNpc->m_iSellingGroup != group
 			|| !isInRange(pNpc, MAX_NPC_RANGE))
@@ -412,7 +412,7 @@ void CUser::ItemTrade(Packet & pkt)
 	}
 
 	if (isTrading()
-		|| (pTable = g_pMain.GetItemPtr(itemid)) == NULL
+		|| (pTable = g_pMain->GetItemPtr(itemid)) == NULL
 		|| (type == 2 // if we're selling an item...
 				&& (itemid >= ITEM_NO_TRADE // Cannot be traded, sold or stored.
 					|| pTable->m_bRace == RACE_UNTRADEABLE))) // Cannot be traded or sold.
@@ -469,7 +469,7 @@ void CUser::ItemTrade(Packet & pkt)
 		m_iGold -= transactionPrice;
 
 		if (!pTable->m_bCountable)
-			m_sItemArray[SLOT_MAX+pos].nSerialNum = g_pMain.GenerateItemSerial();
+			m_sItemArray[SLOT_MAX+pos].nSerialNum = g_pMain->GenerateItemSerial();
 
 		SendItemWeight();
 	}

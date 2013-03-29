@@ -27,7 +27,7 @@ void CUser::FriendProcess(Packet & pkt)
 void CUser::FriendRequest()
 {
 	Packet result(WIZ_FRIEND_PROCESS, uint8(FRIEND_REQUEST));
-	g_pMain.AddDatabaseRequest(result, this);
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 // Add or remove a friend from your list.
@@ -38,7 +38,7 @@ void CUser::FriendModify(Packet & pkt, uint8 opcode)
 	pkt >> strUserID;
 
 	if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE
-		|| (opcode == FRIEND_ADD && (pUser = g_pMain.GetUserPtr(strUserID, TYPE_CHARACTER)) == NULL))
+		|| (opcode == FRIEND_ADD && (pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER)) == NULL))
 		return;
 
 	Packet result(WIZ_FRIEND_PROCESS, opcode);
@@ -47,7 +47,7 @@ void CUser::FriendModify(Packet & pkt, uint8 opcode)
 
 	result.SByte();
 	result << strUserID;
-	g_pMain.AddDatabaseRequest(result, this);
+	g_pMain->AddDatabaseRequest(result, this);
 }
 
 // Refresh the status of your friends.
@@ -81,7 +81,7 @@ BYTE CUser::GetFriendStatus(std::string & charName, int16 & sid)
 {
 	CUser *pUser;
 	if (charName.empty()
-		|| (pUser = g_pMain.GetUserPtr(charName, TYPE_CHARACTER)) == NULL)
+		|| (pUser = g_pMain->GetUserPtr(charName, TYPE_CHARACTER)) == NULL)
 	{
 		sid = -1;
 		return 0; // user not found

@@ -3,13 +3,14 @@
 #define STR(str) #str
 #define STRINGIFY(str) STR(str)
 
-CServerDlg g_pMain;
+CServerDlg * g_pMain;
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
 static DWORD s_dwMainThreadID;
 bool g_bRunning = true;
 
 int main()
 {
+	CServerDlg pMain;
 	MSG msg;
 	SetConsoleTitle("AI server for Knight Online v" STRINGIFY(__VERSION));
 
@@ -20,8 +21,10 @@ int main()
 	// Start up the time updater thread
 	StartTimeThread();
 
+	g_pMain = &pMain;
+
 	// Startup server
-	if (!g_pMain.Startup())
+	if (!g_pMain->Startup())
 	{
 		system("pause"); // most users won't be running this via command prompt
 		return 1;

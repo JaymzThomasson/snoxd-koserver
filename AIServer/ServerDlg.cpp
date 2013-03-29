@@ -61,7 +61,7 @@ CServerDlg::CServerDlg()
 
 void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-	g_pMain.OnTimer(idEvent);
+	g_pMain->OnTimer(idEvent);
 }
 
 bool CServerDlg::Startup()

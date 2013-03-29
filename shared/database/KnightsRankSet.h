@@ -21,10 +21,10 @@ public:
 		_dbCommand->FetchUInt16(2, pData->sClanID);
 		_dbCommand->FetchUInt32(3, pData->nPoints);
 
-		CKnights *pKnights = g_pMain.GetClanPtr(pData->sClanID);
+		CKnights *pKnights = g_pMain->GetClanPtr(pData->sClanID);
 		if (pKnights == NULL 
 			|| (pKnights->m_byNation != KARUS && pKnights->m_byNation != ELMORAD)
-			|| !g_pMain.m_KnightsRatingArray[pKnights->m_byNation - 1].PutData(pData->nRank, pData))
+			|| !g_pMain->m_KnightsRatingArray[pKnights->m_byNation - 1].PutData(pData->nRank, pData))
 		{
 			delete pData;
 			return true;
@@ -35,7 +35,7 @@ public:
 			if (nKarusCount == 5)
 				return true;
 			
-			CUser *pUser = g_pMain.GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
+			CUser *pUser = g_pMain->GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
 			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				return true;
 
@@ -50,7 +50,7 @@ public:
 			if (nElmoCount == 5)
 				return true;
 
-			CUser *pUser = g_pMain.GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
+			CUser *pUser = g_pMain->GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
 			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
 				return true;
 			if (pUser->GetClanID() == pData->sClanID)
