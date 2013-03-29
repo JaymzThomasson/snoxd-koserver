@@ -273,14 +273,23 @@ bool CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID)
 {
 	// Lookup the corresponding NPC.
 	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(m_sEventNid);
+	bool result = false;
 
 	// Make sure the NPC exists and is not dead (we should also check if it's in range)
 	if (pNpc == NULL
 		|| pNpc->isDead())
-		return false;
+		return result;
+
+	// Increase the NPC's reference count to ensure it doesn't get freed while executing a script
+	pNpc->IncRef();
 
 	m_nQuestHelperID = pQuestHelper->nIndex;
-	return g_pMain->GetLuaEngine()->ExecuteScript(this, pNpc, nEventID, pQuestHelper->strLuaFilename.c_str());
+	result = g_pMain->GetLuaEngine()->ExecuteScript(this, pNpc, nEventID, pQuestHelper->strLuaFilename.c_str());
+
+	// Decrease it now that we've finished with it + free if necessary
+	pNpc->DecRef();
+
+	return result;
 }
 
 /* 

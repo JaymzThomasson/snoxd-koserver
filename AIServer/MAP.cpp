@@ -67,8 +67,6 @@ bool MAP::Initialize(_ZONE_INFO *pZone)
 		m_ppRegion = new CRegion*[m_smdFile->m_nXRegion];
 		for (int i = 0; i < m_smdFile->m_nXRegion; i++)
 			m_ppRegion[i] = new CRegion[m_smdFile->m_nZRegion]();
-
-		m_smdFile->IncRef();
 	}
 
 	if (m_byRoomEvent > 0)

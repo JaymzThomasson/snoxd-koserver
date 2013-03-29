@@ -7,7 +7,7 @@
 
 SMDFile::SMDMap SMDFile::s_loadedMaps;
 
-SMDFile::SMDFile() : m_ref(0), m_ppnEvent(NULL), m_fHeight(NULL),
+SMDFile::SMDFile() : m_ppnEvent(NULL), m_fHeight(NULL),
 	m_nXRegion(0), m_nZRegion(0), m_nMapSize(0), m_fUnitDist(0.0f),
 	m_N3ShapeMgr(new CN3ShapeMgr())
 {
@@ -24,7 +24,11 @@ SMDFile *SMDFile::Load(std::string mapName)
 
 	// If it's been loaded already, we don't need to do anything.
 	if (itr != s_loadedMaps.end())
+	{
+		// Add another reference.
+		itr->second->IncRef();
 		return itr->second;
+	}
 
 	// Map hasn't already been loaded
 	std::string filename = ".\\MAP\\" + mapName;
@@ -39,7 +43,7 @@ SMDFile *SMDFile::Load(std::string mapName)
 	if (!smd->LoadMap(fp))
 	{
 		// Problem? Make sure we clean up after ourselves.
-		delete smd;
+		smd->DecRef(); // it's the only reference anyway
 		smd = NULL;
 	}
 	else

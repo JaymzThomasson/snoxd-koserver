@@ -204,6 +204,9 @@
     <ClCompile Include="UserPacketHandlers.cpp">
       <Filter>Source Files\Handlers</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\ReferenceObject.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -445,6 +448,9 @@
     </ClInclude>
     <ClInclude Include="MagicInstance.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\ReferenceObject.h">
+      <Filter>Shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

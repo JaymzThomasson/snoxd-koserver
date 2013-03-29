@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ReferenceObject.h"
+
 class CUser;
 
 typedef CSTLMap <_OBJECT_EVENT>		ObjectEventArray;
@@ -7,7 +9,7 @@ typedef CSTLMap <_REGENE_EVENT>		ObjectRegeneArray;
 typedef	CSTLMap <_WARP_INFO>		WarpArray;
 
 class CN3ShapeMgr;
-class SMDFile
+class SMDFile : public ReferenceObject
 {
 public:
 	SMDFile();
@@ -35,9 +37,6 @@ public:
 
 	__forceinline short * GetEventIDs() { return m_ppnEvent; }
 
-	__forceinline void IncRef() { m_ref++; }
-	__forceinline void DecRef() { if (--m_ref == 0) delete this; }
-
 	__forceinline _OBJECT_EVENT * GetObjectEvent(int objectindex) { return m_ObjectEventArray.GetData(objectindex); }
 	__forceinline _REGENE_EVENT * GetRegeneEvent(int objectindex) { return m_ObjectRegeneArray.GetData(objectindex); }
 	__forceinline _WARP_INFO * GetWarp(int warpID) { return m_WarpArray.GetData(warpID); }
@@ -47,8 +46,6 @@ public:
 	virtual ~SMDFile();
 
 private:
-	int m_ref;
-
 	short*		m_ppnEvent;
 	WarpArray	m_WarpArray;
 

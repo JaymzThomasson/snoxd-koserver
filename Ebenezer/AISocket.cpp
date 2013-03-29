@@ -157,7 +157,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 
 		if (strName.length() > MAX_NPC_SIZE)
 		{
-			delete pNpc;
+			pNpc->DecRef();
 			continue;
 		}
 
@@ -170,7 +170,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 
 		if (pNpc->GetMap() == NULL)
 		{
-			delete pNpc;
+			pNpc->DecRef();
 			continue;
 		}
 
@@ -186,7 +186,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 		if (!g_pMain->m_arNpcArray.PutData(pNpc->GetID(), pNpc))
 		{
 			TRACE("Npc PutData Fail - %d\n", pNpc->GetID());
-			delete pNpc;
+			pNpc->DecRef();
 			continue;
 		}
 
@@ -394,7 +394,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 
 	if (strName.empty() || strName.length() > MAX_NPC_SIZE)
 	{
-		delete pNpc;
+		pNpc->DecRef();
 		return;
 	}
 
@@ -570,17 +570,13 @@ void CAISocket::InitEventMonster(int index)
 
 	int max_eventmop = count+EVENT_MONSTER;
 	for( int i=count; i<max_eventmop; i++ )	{
-		CNpc* pNpc = NULL;
-		pNpc = new CNpc;
-		if(pNpc == NULL) return;
-		pNpc->Initialize();
-
+		CNpc* pNpc = new CNpc();
 		pNpc->m_sNid = i+NPC_BAND;
 		//TRACE("InitEventMonster : uid = %d\n", pNpc->m_sNid);
-		if( !g_pMain->m_arNpcArray.PutData( pNpc->GetID(), pNpc) ) {
+		if (!g_pMain->m_arNpcArray.PutData(pNpc->GetID(), pNpc))
+		{
 			TRACE("Npc PutData Fail - %d\n", pNpc->GetID());
-			delete pNpc;
-			pNpc = NULL;
+			pNpc->DecRef();
 		}	
 	}
 

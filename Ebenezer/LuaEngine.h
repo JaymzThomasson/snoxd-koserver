@@ -44,6 +44,8 @@ public:
 
 	// Handles the retrieval of error messages (same error codes used in both the compilation & execution stages)
 	void RetrieveLoadError(int err, const char * filename);
+
+	void Shutdown();
 	~CLuaScript();
 
 private:
@@ -59,6 +61,7 @@ public:
 	bool Initialise();
 	CLuaScript * SelectAvailableScript();
 	bool ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const char * filename);
+	void Shutdown();
 	~CLuaEngine();
 
 private:

@@ -41,6 +41,7 @@ protected:
 	static void SetupWinsock();
 	static void CleanupWinsock();
 
+	// TO-DO: Make this atomic.
 	__forceinline void IncRef() { if (s_refs++ == 0) SetupWinsock(); }
 	__forceinline void DecRef() { if (--s_refs == 0) CleanupWinsock(); }
 

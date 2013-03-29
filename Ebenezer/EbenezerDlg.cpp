@@ -1090,7 +1090,13 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 	{
 		if (itr->second->isAlive())
 			itr->second->SendInOut(INOUT_OUT, 0.0f, 0.0f, 0.0f);
+
+		// decrease the reference count (freeing it if nothing else is using it)
+		itr->second->DecRef();
 	}
+
+	// all the data should now be freed (if not, it will be by whatever's using it)
+	m_arNpcArray.m_UserTypeMap.clear();
 	m_arNpcArray.m_lock.Release();
 
 	// Now remove all spawns from all regions
@@ -1110,8 +1116,6 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 		}
 	}
 	LeaveCriticalSection(&g_region_critical);
-	// And finally remove all the spawn data we have.
-	m_arNpcArray.DeleteAllData();
 	m_bServerCheckFlag = false;
 
 	TRACE("*** DeleteAllNpcList - End *** \n");
@@ -1619,6 +1623,10 @@ CEbenezerDlg::~CEbenezerDlg()
 
 	KickOutAllUsers();
 
+	// Cleanup our script pool & consequently ensure all scripts 
+	// finish execution before proceeding.
+	// This prevents us from freeing data that's in use.
+	m_luaEngine.Shutdown();
 	DatabaseThread::Shutdown();
 
 	DeleteCriticalSection(&g_region_critical);

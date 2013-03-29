@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Define.h"
+#include "../shared/ReferenceObject.h"
 
 // Maximum range allowed between a player and an NPC.
 #define MAX_NPC_RANGE		(121.0f) // pow(11.0f, 2.0f), to save having to calculate it in the code.
@@ -23,7 +24,7 @@ struct _MAGIC_TABLE;
 class CRegion;
 class C3DMap;
 class Packet;
-class Unit
+class Unit : public ReferenceObject
 {
 public:
 	Unit(bool bPlayer = false);

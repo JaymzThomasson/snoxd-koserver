@@ -263,6 +263,23 @@ void CLuaScript::RetrieveLoadError(int err, const char * filename)
 	}
 }
 
+void CLuaScript::Shutdown()
+{
+	m_lock->Acquire();
+	// Seems silly right now, but it ensures we wait
+	// until a script is finished its execution before
+	// we proceed. Cleanup will continue as normal.
+	m_lock->Release();
+}
+
+void CLuaEngine::Shutdown()
+{
+	m_lock->AcquireWriteLock();
+	// TO-DO: Script pool.
+	m_luaScript.Shutdown();
+	m_lock->ReleaseWriteLock();
+}
+
 CLuaScript::~CLuaScript()
 {
 	m_lock->Acquire();
@@ -272,8 +289,8 @@ CLuaScript::~CLuaScript()
 	delete m_lock;
 }
 
-
 CLuaEngine::~CLuaEngine()
 {
+	m_scriptMap.clear();
 	delete m_lock;
 }
