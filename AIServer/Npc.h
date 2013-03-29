@@ -1,12 +1,7 @@
 #pragma once
 
-//#include "iocport.h"
-#include "../N3Base/My_3DStruct.h"
-#include "Map.h"
-#include "PathFind.h"
-#include "user.h"
-#include "NpcMagicProcess.h"
 #include "NpcTable.h"
+#include "NpcMagicProcess.h"
 
 #define MAX_PATH_SIZE		100
 
@@ -32,13 +27,11 @@
 #define MAX_MAGIC_TYPE3			20
 #define MAX_MAGIC_TYPE4			9
 
-
-
 struct  _NpcSkillList
 {
 	short	sSid;
-	BYTE	tLevel;
-	BYTE	tOnOff;
+	uint8	tLevel;
+	uint8	tOnOff;
 };
 
 struct  _NpcGiveItem
@@ -49,7 +42,7 @@ struct  _NpcGiveItem
 
 struct	_ExpUserList
 {
-	TCHAR	strUserID[MAX_ID_SIZE+1];		// 아이디(캐릭터 이름)
+	char	strUserID[MAX_ID_SIZE+1];		// 아이디(캐릭터 이름)
 	int		iUid;							// User uid
 	int		nDamage;						// 타격치 합
 	BOOL	bIs;							// 시야에 존재하는지를 판단(true:존재)
@@ -86,14 +79,14 @@ struct _MagicType3
 {
 	short		sHPAttackUserID;	// 지속 마법을 사용한 유저의 아이디 저장
 	short		sHPAmount;			// 지속 damage ( 지속총양 / (지속시간 / 2) )
-	BYTE		byHPDuration;		// 지속 시간
-	BYTE		byHPInterval;		// 지속 간격
+	uint8		byHPDuration;		// 지속 시간
+	uint8		byHPInterval;		// 지속 간격
 	time_t		tStartTime;	
 };
 
 struct _MagicType4
 {
-	BYTE	byAmount;
+	uint8	byAmount;
 	short	sDurationTime;		// duration, in seconds
 	time_t	tStartTime;
 };
@@ -106,11 +99,7 @@ struct _TargetHealer
 
 class MAP;
 
-/*
-     ** Repent AI Server 작업시 참고 사항 **
-	1. MONSTER DB 쪽에 있는 변수들 전부 수정..
-*/
-
+struct __Vector3;
 class CNpc  
 {
 public:
@@ -131,13 +120,13 @@ public:
 	//int m_iPattenNumber;		// 현재의 패턴번호
 	short m_iPattenFrame;			// 패턴의 현재 위치..
 
-	BYTE  m_byMoveType;			// NPC의 행동타입(이동관련)
-	BYTE  m_byInitMoveType;		// NPC의 초기 행동타입(이동관련)
+	uint8 m_byMoveType;			// NPC의 행동타입(이동관련)
+	uint8 m_byInitMoveType;		// NPC의 초기 행동타입(이동관련)
 	short m_sPathCount;			// NPC의 PathList Count
 	short m_sMaxPathCount;		// NPC의 PathList Max Count
 
 	BOOL	m_bFirstLive;		// NPC 가 처음 생성되는지 죽었다 살아나는지 판단.
-	BYTE	m_NpcState;			// NPC의 상태 - 살았다, 죽었다, 서있다 등등...
+	uint8	m_NpcState;			// NPC의 상태 - 살았다, 죽었다, 서있다 등등...
 	MAP *	m_pZone;
 
 	short	m_sNid;				// NPC (서버상의)일련번호
@@ -146,7 +135,7 @@ public:
 	float		m_nInitY;			// 처음 생성된 위치 Y
 	float		m_nInitZ;			// 처음 생성된 위치 Z
 
-	BYTE		m_bCurZone;			// Current Zone;
+	uint8		m_bCurZone;			// Current Zone;
 	float		m_fCurX;			// Current X Pos;
 	float		m_fCurY;			// Current Y Pos;
 	float		m_fCurZ;			// Current Z Pos;
@@ -190,10 +179,10 @@ public:
 	short   m_sSize;						// 캐릭터의 비율(100 퍼센트 기준)
 	int     m_iWeapon_1;			// 착용 무기
 	int     m_iWeapon_2;			// 착용 무기
-	BYTE	m_byGroup;			// 소속집단(국가 개념)
-	BYTE	m_byActType;		// 행동패턴
-	BYTE	m_byRank;			// 작위
-	BYTE	m_byTitle;			// 지위
+	uint8	m_byGroup;			// 소속집단(국가 개념)
+	uint8	m_byActType;		// 행동패턴
+	uint8	m_byRank;			// 작위
+	uint8	m_byTitle;			// 지위
 	int 	m_iSellingGroup;	// 아이템 그룹(물건매매 담당 NPC의 경우만)
 	int		m_iMaxHP;			// 최대 HP
 	short	m_sMaxMP;			// 최대 MP
@@ -214,13 +203,13 @@ public:
 	uint16	m_byDiseaseR;		// 저주 저항력
 	uint16	m_byPoisonR;		// 독 저항력
 	uint16	m_byLightR;			// 빛 저항력
-	BYTE	m_bySearchRange;	// 적 탐지 범위
-	BYTE	m_byAttackRange;	// 사정거리
-	BYTE	m_byTracingRange;	// 추격 거리
+	uint8	m_bySearchRange;	// 적 탐지 범위
+	uint8	m_byAttackRange;	// 사정거리
+	uint8	m_byTracingRange;	// 추격 거리
 
-	BYTE	m_tItemPer;			// 아이템이 떨어질 확률
-	BYTE	m_tDnPer;			// 돈이 떨어질확률
-	BYTE    m_byMoneyType;		// Event몬스터일 경우 돈을 많이 주는 것, (0:루팅, 1:루팅을 하지 않고 바로 나눠갖는다)
+	uint8	m_tItemPer;			// 아이템이 떨어질 확률
+	uint8	m_tDnPer;			// 돈이 떨어질확률
+	uint8	m_byMoneyType;		// Event몬스터일 경우 돈을 많이 주는 것, (0:루팅, 1:루팅을 하지 않고 바로 나눠갖는다)
 
 	int		m_iMoney;			// 떨어지는 돈
 	int		m_iItem;			// 떨어지는 아이템
@@ -234,30 +223,30 @@ public:
 	//----------------------------------------------------------------
 	//	MONSTER AI에 관련된 변수들
 	//----------------------------------------------------------------
-	BYTE	m_tNpcLongType;		// 공격 거리 : 원거리(1), 근거리(0), 직.간접(2)
-	BYTE	m_tNpcAttType;		// 공격 성향 : 선공(1), 후공(0)
-	BYTE	m_tNpcOldAttType;	// 공격 성향 : 선공(1), 후공(0) (활동영역 제어)
-	BYTE	m_tNpcGroupType;	// 군집을 형성하냐(1), 안하냐?(0)
-	BYTE	m_byNpcEndAttType;	// 마지막까지 싸우면(1), 그렇지 않으면(0)
-//	BYTE	m_tNpcTraceType;	// 끝까지 따라간다(1), 시야에서 없어지면 그만(0)
-	BYTE    m_byAttackPos;		// User의 어느 부분에서 공격하느지를 판단(8방향)
-	BYTE    m_byBattlePos;		// 어떤 진형을 선택할 것인지를 판단..
-	BYTE	m_byWhatAttackType; // 공격 타입 : Normal(0), 근.장거리마법(1), 독(2), 힐링(3), 지역마법만(4), 1+4번 마법(5)
-	BYTE	m_byGateOpen;		// 성문일 경우에.. 사용... Gate Npc Status -> 1 : open 0 : close
-	BYTE    m_byMaxDamagedNation;	// 나를 죽인 유저의 국가를 저장.. (1:카루스, 2:엘모라드)
-	BYTE    m_byObjectType;         // 보통은 0, object타입(성문, 레버)은 1
-	BYTE	m_byDungeonFamily;		// 던젼에서 같은 패밀리 묶음 (같은 방)
-	BYTE	m_bySpecialType;		// 몬스터의 형태가 변하는지를 판단(0:변하지 않음, 1:변하는 몬스터, 
+	uint8	m_tNpcLongType;		// 공격 거리 : 원거리(1), 근거리(0), 직.간접(2)
+	uint8	m_tNpcAttType;		// 공격 성향 : 선공(1), 후공(0)
+	uint8	m_tNpcOldAttType;	// 공격 성향 : 선공(1), 후공(0) (활동영역 제어)
+	uint8	m_tNpcGroupType;	// 군집을 형성하냐(1), 안하냐?(0)
+	uint8	m_byNpcEndAttType;	// 마지막까지 싸우면(1), 그렇지 않으면(0)
+//	uint8	m_tNpcTraceType;	// 끝까지 따라간다(1), 시야에서 없어지면 그만(0)
+	uint8	m_byAttackPos;		// User의 어느 부분에서 공격하느지를 판단(8방향)
+	uint8	m_byBattlePos;		// 어떤 진형을 선택할 것인지를 판단..
+	uint8	m_byWhatAttackType; // 공격 타입 : Normal(0), 근.장거리마법(1), 독(2), 힐링(3), 지역마법만(4), 1+4번 마법(5)
+	uint8	m_byGateOpen;		// 성문일 경우에.. 사용... Gate Npc Status -> 1 : open 0 : close
+	uint8	m_byMaxDamagedNation;	// 나를 죽인 유저의 국가를 저장.. (1:카루스, 2:엘모라드)
+	uint8	m_byObjectType;         // 보통은 0, object타입(성문, 레버)은 1
+	uint8	m_byDungeonFamily;		// 던젼에서 같은 패밀리 묶음 (같은 방)
+	uint8	m_bySpecialType;		// 몬스터의 형태가 변하는지를 판단(0:변하지 않음, 1:변하는 몬스터, 
 									// 2:죽는경우 조정하는 몬스터(대장몬스터 죽을경우 성문이 열림), 
 									// 3:대장몬스터의 죽음과 관련이 있는 몬스터(대장몬스터가 죽으면 관계되는 몬스터는 같이 죽도록)
 									// 4:변하면서 죽는경우 조정하는 몬스터 (m_sControlSid)
 									// 5:처음에 죽었있다가 출현하는 몬스터,,
 									// 6:일정시간이 지난 후에 행동하는 몬스터,,
 									// 100:죽었을때 데미지를 많이 입힌 유저를 기록해 주세여
-	BYTE	m_byTrapNumber;			// 던젼에서 트랩의 번호,,
-	BYTE	m_byChangeType;			// 0:정상상태, 1:변하기 위한 준비, 2:다른몬스터로 변함, 3:몬스터의 출현, 100:몬스터의 죽음
-	BYTE	m_byRegenType;			// 0:정상적으로 리젠이 됨.. , 1:한번 죽으면 리젠이 안되는 특수 몸, 2:리젠이 안됨
-	BYTE    m_byDeadType;			// 0:살아 있는 경우, 100:전쟁이벤트중 죽은 경우
+	uint8	m_byTrapNumber;			// 던젼에서 트랩의 번호,,
+	uint8	m_byChangeType;			// 0:정상상태, 1:변하기 위한 준비, 2:다른몬스터로 변함, 3:몬스터의 출현, 100:몬스터의 죽음
+	uint8	m_byRegenType;			// 0:정상적으로 리젠이 됨.. , 1:한번 죽으면 리젠이 안되는 특수 몸, 2:리젠이 안됨
+	uint8    m_byDeadType;			// 0:살아 있는 경우, 100:전쟁이벤트중 죽은 경우
 	short   m_sChangeSid;			// 변하는 몬스터의 Sid번호..
 	short   m_sControlSid;			// 조정하는 몬스터의 Sid번호..
 
@@ -268,10 +257,10 @@ public:
 	time_t	m_Delay;			// this doesn't really need to be time_t, but we'll use it (at least for now) for consistency
 	time_t	m_fDelayTime;		// Npc Thread체크 타임...
 
-	BYTE	m_byType;
+	uint8	m_byType;
 	int		m_sRegenTime;		// NPC 재생시간
 	
-	BYTE	m_byDirection;
+	uint8	m_byDirection;
 
 	int		m_nLimitMinX;		// 활동 영역
 	int		m_nLimitMinZ;
@@ -297,9 +286,9 @@ public:
 
 	short m_iAniFrameIndex;
 	short m_iAniFrameCount;
-	BYTE m_byPathCount;					// 패스를 따라 이동하는 몬스터 끼리 겹치지 않도록,, 
-	BYTE m_byResetFlag;					// 추적공격시 패스파인딩을 다시 할것인지,, 말것인지를 판단..
-	BYTE m_byActionFlag;				// 행동변화 플래그 ( 0 : 행동변화 없음, 1 : 공격에서 추격)
+	uint8 m_byPathCount;					// 패스를 따라 이동하는 몬스터 끼리 겹치지 않도록,, 
+	uint8 m_byResetFlag;					// 추적공격시 패스파인딩을 다시 할것인지,, 말것인지를 판단..
+	uint8 m_byActionFlag;				// 행동변화 플래그 ( 0 : 행동변화 없음, 1 : 공격에서 추격)
 
 	bool m_bTracing;
 	float m_fTracingStartX, m_fTracingStartZ;
@@ -412,13 +401,11 @@ public:
 	void NpcMoveEnd();
 
 	inline float RandomGenf(float max, float min);
-	// GetVectorPosition : vOrig->vDest방향으로 vOrig에서 fDis거리만큼 떨어진 좌표를 리턴
-	__Vector3 GetVectorPosition(__Vector3 vOrig, __Vector3 vDest, float fDis);
-	// CalcAdaptivePosition : vPosDest->vPosOrig방향으로 vPosDest에서 fDis거리만큼 떨어진 좌표를 리턴
-	__Vector3 CalcAdaptivePosition(__Vector3 vPosOrig, __Vector3 vPosDest, float fAttackDistance);
-	__Vector3 ComputeDestPos( __Vector3 vCur, float fDegree, float fDegreeOffset, float fDistance);
+	void GetVectorPosition(__Vector3 & vOrig, __Vector3 & vDest, float fDis, __Vector3 * vResult);
+	void CalcAdaptivePosition(__Vector3 & vPosOrig, __Vector3 & vPosDest, float fAttackDistance, __Vector3 * vResult);
+	void ComputeDestPos(__Vector3 & vCur, float fDegree, float fDegreeOffset, float fDistance, __Vector3 * vResult);
 	void Yaw2D(float fDirX, float fDirZ, float& fYawResult);
-	float GetDistance(__Vector3 vOrig, __Vector3 vDest);
+	float GetDistance(__Vector3 & vOrig, __Vector3 & vDest);
 	int  PathFind(CPoint start, CPoint end, float fDistance);
 	BOOL GetUserInView();	// Npc의 가시 거리안에 User가 있는지를 판단
 	BOOL GetUserInViewRange(int x, int z);

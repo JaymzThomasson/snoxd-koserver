@@ -1,12 +1,11 @@
 #include "stdafx.h"
 #include "GameSocket.h"
-#include "ServerDlg.h"
 #include "User.h"
 #include "Map.h"
 #include "region.h"
-#include "Party.h"
 #include "../shared/globals.h"
 #include "extern.h"
+#include "Npc.h"
 
 extern CRITICAL_SECTION g_region_critical;
 

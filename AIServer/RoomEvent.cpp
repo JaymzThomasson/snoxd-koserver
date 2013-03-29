@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "RoomEvent.h"
-#include "ServerDlg.h"
-#include "define.h"
 #include "resource.h"
+#include "Npc.h"
 
 extern CRITICAL_SECTION g_region_critical;
 

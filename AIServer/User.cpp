@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "User.h"
-#include "Serverdlg.h"
-#include "define.h"
 #include "Region.h"
 #include "GameSocket.h"
 #include "extern.h"
+#include "Npc.h"
 
 #define MORAL_GOOD		0x01
 #define MORAL_BAD		0x02

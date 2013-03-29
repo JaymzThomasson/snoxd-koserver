@@ -1,5 +1,4 @@
 #pragma once
-//#pragma warning(disable : 4786)
 
 #include "../shared/KOSocketMgr.h"
 #include "../shared/database/OdbcConnection.h"
@@ -7,22 +6,12 @@
 #include "GameSocket.h"
 
 #include "MAP.h"
-#include "NpcTable.h"
 #include "Pathfind.h"
-#include "User.h"
-#include "Npc.h"
-#include "NpcThread.h"
-#include "Party.h"
-
-#include "extern.h"			// Àü¿ª °´Ã¼
 
 #include "../shared/STLMap.h"
 
-#include "../shared/lzf.h"
-#include "../shared/crc32.h"
-
-/////////////////////////////////////////////////////////////////////////////
-// CServerDlg dialog
+class CNpcThread;
+class CNpcTable;
 
 typedef std::vector <CNpcThread*>			NpcThreadArray;
 typedef CSTLMap <CNpcTable>					NpcTableArray;

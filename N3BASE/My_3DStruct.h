@@ -32,18 +32,17 @@ struct __Matrix44;
 struct __Vector3 : public D3DVECTOR // 3D Vertex
 {
 public:
+	inline __Vector3() {}
+	inline __Vector3(float fx, float fy, float fz) { Set(fx, fy, fz); }
+
+	inline void Zero() { Set(0.0f, 0.0f, 0.0f); }
+	inline void Set(float fx, float fy, float fz) { x = fx; y = fy; z = fz; }
+
 	void	Normalize();
 	float	Magnitude() const;
 	float	Dot(const D3DVECTOR& vec) const;
 	void	Cross(const D3DVECTOR& v1, const D3DVECTOR& v2);
 	void	Absolute();
-
-	void Zero();
-	void Set(float fx, float fy, float fz);
-
-	__Vector3() {};
-	__Vector3(float fx, float fy, float fz);
-	__Vector3(const D3DVECTOR& vec);
 
 	const __Vector3& operator = (const __Vector3& vec);
 
@@ -104,26 +103,6 @@ inline void __Vector3::Absolute()
 	if(x < 0) x *= -1.0f;
 	if(y < 0) y *= -1.0f;
 	if(z < 0) z *= -1.0f;
-}
-
-inline void __Vector3::Zero()
-{
-	x = y = z = 0;
-}
-
-inline void __Vector3::Set(float fx, float fy, float fz)
-{
-	x = fx; y = fy, z = fz;
-}
-
-inline __Vector3::__Vector3(float fx, float fy, float fz)
-{
-	x = fx; y = fy, z = fz;
-}
-
-inline __Vector3::__Vector3(const D3DVECTOR& vec)
-{
-	x = vec.x; y = vec.y; z = vec.z;
 }
 
 inline const __Vector3& __Vector3::operator = (const __Vector3& vec)
@@ -280,12 +259,9 @@ inline void __Matrix44::RotationY(float fDelta)
 	_11 = cosf(fDelta); _13 = -sinf(fDelta); _31 = -_13; _33 = _11;
 }
 
-bool			_IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir , const __Vector3& v0, const __Vector3& v1, const __Vector3& v2, float& fT, float& fU, float& fV, __Vector3* pVCol = NULL);
-bool			_IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir, const __Vector3& v0, const __Vector3& v1, const __Vector3& v2);
-
 inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir,
 							  const __Vector3& v0, const __Vector3& v1, const __Vector3& v2,
-							  float& fT, float& fU, float& fV, __Vector3* pVCol)
+							  float& fT, float& fU, float& fV, __Vector3* pVCol = NULL)
 {
     // Find vectors for two edges sharing vert0
     static __Vector3 vEdge1, vEdge2;
@@ -296,20 +272,16 @@ inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir,
     // Begin calculating determinant - also used to calculate U parameter
     __Vector3 pVec;	float fDet;
 	
-//	By : Ecli666 ( On 2001-09-12 오전 10:39:01 )
-
 	pVec.Cross(vEdge1, vEdge2);
 	fDet = pVec.Dot(vDir);
 	if ( fDet > -0.0001f )
 		return FALSE;
 
-//	~(By Ecli666 On 2001-09-12 오전 10:39:01 )
-
-    pVec.Cross(vDir, vEdge2);
+	pVec.Cross(vDir, vEdge2);
 
     // If determinant is near zero, ray lies in plane of triangle
     fDet = vEdge1.Dot(pVec);
-    if( fDet < 0.0001f )		// 거의 0에 가까우면 삼각형 평면과 지나가는 선이 평행하다.
+    if( fDet < 0.0001f )
         return FALSE;
 
     // Calculate distance from vert0 to ray origin
@@ -336,19 +308,8 @@ inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir,
     fU *= fInvDet;
     fV *= fInvDet;
 
-	// t가 클수록 멀리 직선과 평면과 만나는 점이 멀다.
-	// t*dir + orig 를 구하면 만나는 점을 구할 수 있다.
-	// u와 v의 의미는 무엇일까?
-	// 추측 : v0 (0,0), v1(1,0), v2(0,1) <괄호안은 (U, V)좌표> 이런식으로 어느 점에 가깝나 나타낸 것 같음
-	//
-
-	if(pVCol) (*pVCol) = vOrig + (vDir * fT);	// 접점을 계산..
-
-	// *t < 0 이면 뒤쪽...
-	if ( fT < 0.0f )
-		return FALSE;
-
-	return TRUE;
+	if(pVCol) (*pVCol) = vOrig + (vDir * fT);
+	return (fT >= 0.0f);
 }
 
 inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir, const __Vector3& v0, const __Vector3& v1, const __Vector3& v2)
@@ -361,21 +322,16 @@ inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir, co
 	vEdge1 = v1 - v0;
     vEdge2 = v2 - v0;
 
-	
-//	By : Ecli666 ( On 2001-09-12 오전 10:39:01 )
-
 	pVec.Cross(vEdge1, vEdge2);
 	fDet = pVec.Dot(vDir);
 	if ( fDet > -0.0001f )
 		return FALSE;
 
-//	~(By Ecli666 On 2001-09-12 오전 10:39:01 )
-
-    pVec.Cross(vDir, vEdge2);
+	pVec.Cross(vDir, vEdge2);
 
     // If determinant is near zero, ray lies in plane of triangle
     fDet = vEdge1.Dot(pVec);
-    if( fDet < 0.0001f )		// 거의 0에 가까우면 삼각형 평면과 지나가는 선이 평행하다.
+    if( fDet < 0.0001f )
         return FALSE;
 
     // Calculate distance from vert0 to ray origin
@@ -396,10 +352,5 @@ inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir, co
 
     // Calculate t, scale parameters, ray intersects triangle
     fT = vEdge2.Dot(qVec) / fDet;
-
-	// *t < 0 이면 뒤쪽...
-	if ( fT < 0.0f )
-		return FALSE;
-
-	return TRUE;
+	return (fT >= 0.0f);
 }

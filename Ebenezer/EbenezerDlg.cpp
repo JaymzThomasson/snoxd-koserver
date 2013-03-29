@@ -1631,7 +1631,5 @@ CEbenezerDlg::~CEbenezerDlg()
 	CEbenezerDlg::CleanupServerCommands();
 
 	CleanupUserRankings();
-
-	if (m_LevelUpArray.size())
-		m_LevelUpArray.clear();
+	m_LevelUpArray.clear();
 }

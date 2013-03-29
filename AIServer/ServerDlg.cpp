@@ -1,7 +1,9 @@
 #include "stdafx.h"
-#include "ServerDlg.h"
-#include "GameSocket.h"
 #include <time.h>
+#include "GameSocket.h"
+#include "Npc.h"
+#include "User.h"
+#include "NpcThread.h"
 
 #include "../shared/database/OdbcRecordset.h"
 #include "../shared/database/MagicTableSet.h"

@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "ServerDlg.h"
 #include "Party.h"
+#include "User.h"
 
 extern CRITICAL_SECTION g_region_critical;
 

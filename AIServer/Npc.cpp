@@ -1,10 +1,9 @@
 #include "stdafx.h"
-#include "math.h"
-#include "Npc.h"
-#include "Serverdlg.h"
-#include "Gamesocket.h"
 #include "Region.h"
-#include "Party.h"
+#include "extern.h"
+#include "Npc.h"
+#include "User.h"
+#include "NpcThread.h"
 
 // 1m
 //float surround_fx[8] = {0.0f, -0.7071f, -1.0f, -0.7083f,  0.0f,  0.7059f,  1.0000f, 0.7083f};
@@ -12,8 +11,6 @@
 // 2m
 static float surround_fx[8] = {0.0f, -1.4142f, -2.0f, -1.4167f,  0.0f,  1.4117f,  2.0000f, 1.4167f};
 static float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f, -0.0035f, 1.4117f};
-
-#include "extern.h"
 
 #define ATROCITY_ATTACK_TYPE 1				// 선공
 #define TENDER_ATTACK_TYPE	 0				// 후공	
@@ -973,7 +970,7 @@ BOOL CNpc::RandomMove()
 		vEnd.Set(fDestX, 0, fDestZ);
 		fDis = GetDistance(vStart, vEnd);
 		if(fDis > 50)	{	// 초기유효거리 50m를 벗어난 경우
-			vNewPos = GetVectorPosition(vStart, vEnd, 40);
+			GetVectorPosition(vStart, vEnd, 40, &vNewPos);
 			fDestX = vNewPos.x;
 			fDestZ = vNewPos.z;
 			m_iPattenFrame = 2;
@@ -1002,7 +999,7 @@ BOOL CNpc::RandomMove()
 				fDestX = (float)m_PathList.pPattenPos[0].x + m_fBattlePos_x;
 				fDestZ = (float)m_PathList.pPattenPos[0].z + m_fBattlePos_z;
 				vEnd.Set(fDestX, 0, fDestZ);
-				vNewPos = GetVectorPosition(vStart, vEnd, 40);
+				GetVectorPosition(vStart, vEnd, 40, &vNewPos);
 				fDestX = vNewPos.x;
 				fDestZ = vNewPos.z;
 				//m_sPathCount++;
@@ -1047,7 +1044,7 @@ BOOL CNpc::RandomMove()
 				fDestX = (float)m_PathList.pPattenPos[0].x + m_fBattlePos_x;
 				fDestZ = (float)m_PathList.pPattenPos[0].z + m_fBattlePos_z;
 				vEnd.Set(fDestX, 0, fDestZ);
-				vNewPos = GetVectorPosition(vStart, vEnd, 40);
+				GetVectorPosition(vStart, vEnd, 40, &vNewPos);
 				fDestX = vNewPos.x;
 				fDestZ = vNewPos.z;
 				//return FALSE;	// 지금은 standing상태로..
@@ -1242,7 +1239,7 @@ BOOL CNpc::RandomBackMove()
 		fDis = GetDistance(vStart, vEnd);
 		if(fDis > 20)	// 20미터 이상이면 20미터로 맞춘다,,
 		{
-			vEnd22 = GetVectorPosition(vStart, vEnd, 20);
+			GetVectorPosition(vStart, vEnd, 20, &vEnd22);
 			fDestX = vEnd22.x;
 			fDestZ = vEnd22.z;
 		}
@@ -1979,7 +1976,7 @@ BOOL CNpc::StepMove()
 			// 마지막 좌표는 m_fSecForMetor ~ m_fSecForMetor+1 사이도 가능하게 이동
 			if(fDis > m_fSecForMetor)
 			{
-				vDis = GetVectorPosition(vStart, vEnd, m_fSecForMetor);
+				GetVectorPosition(vStart, vEnd, m_fSecForMetor, &vDis);
 				m_fPrevX = vDis.x;
 				m_fPrevZ = vDis.z;
 				m_iAniFrameCount--;
@@ -1996,7 +1993,7 @@ BOOL CNpc::StepMove()
 			fDis = GetDistance(vStart, vEnd);
 			if(fDis >= m_fSecForMetor)
 			{
-				vDis = GetVectorPosition(vStart, vEnd, m_fSecForMetor);
+				GetVectorPosition(vStart, vEnd, m_fSecForMetor, &vDis);
 				m_fPrevX = vDis.x;
 				m_fPrevZ = vDis.z;
 			}
@@ -2294,13 +2291,13 @@ int CNpc::GetTargetPath(int option)
 		if(m_byAttackPos > 0 && m_byAttackPos < 9)	{
 			fDegree = (float)((m_byAttackPos-1)*45);
 			fTargetDistance = 2.0f+m_proto->m_fBulk;
-			vEnd22 = ComputeDestPos(vUser, 0.0f, fDegree, fTargetDistance);
+			ComputeDestPos(vUser, 0.0f, fDegree, fTargetDistance, &vEnd22);
 			fSurX = vEnd22.x - vUser.x;			fSurZ = vEnd22.z - vUser.z;
-			//m_fEndPoint_X = vUser.x + surround_fx[m_byAttackPos-1];	m_fEndPoint_Y = vUser.z + surround_fz[m_byAttackPos-1];
 			m_fEndPoint_X = vUser.x + fSurX;	m_fEndPoint_Y = vUser.z + fSurZ;
 		}
-		else	{
-			vEnd22 = CalcAdaptivePosition(vNpc, vUser, 2.0f+m_proto->m_fBulk);
+		else
+		{
+			CalcAdaptivePosition(vNpc, vUser, 2.0f+m_proto->m_fBulk, &vEnd22);
 			m_fEndPoint_X = vEnd22.x;	m_fEndPoint_Y = vEnd22.z;
 		}
 	}
@@ -2317,7 +2314,7 @@ int CNpc::GetTargetPath(int option)
 		vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
 		vUser.Set(pNpc->m_fCurX, pNpc->m_fCurY, pNpc->m_fCurZ); 
 		
-		vEnd22 = CalcAdaptivePosition(vNpc, vUser, 2.0f+m_proto->m_fBulk);
+		CalcAdaptivePosition(vNpc, vUser, 2.0f+m_proto->m_fBulk, &vEnd22);
 		m_fEndPoint_X = vEnd22.x;	m_fEndPoint_Y = vEnd22.z;
 	}
 
@@ -2793,7 +2790,7 @@ void CNpc::MoveAttack()
 		}
 		vUser.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz); 
 
-		vEnd22 = CalcAdaptivePosition(vNpc, vUser, 2);
+		CalcAdaptivePosition(vNpc, vUser, 2, &vEnd22);
 
 		if(m_byAttackPos > 0 && m_byAttackPos < 9)
 		{
@@ -2818,7 +2815,7 @@ void CNpc::MoveAttack()
 		}
 		vUser.Set(pNpc->m_fCurX, pNpc->m_fCurY, pNpc->m_fCurZ); 
 
-		vEnd22 = CalcAdaptivePosition(vNpc, vUser, 2);
+		CalcAdaptivePosition(vNpc, vUser, 2, &vEnd22);
 		fX = vEnd22.x;	fZ = vEnd22.z;
 	}
 	
@@ -4124,20 +4121,18 @@ void CNpc::NpcMoveEnd()
 	g_pMain.Send(&result);
 }
 
-__Vector3 CNpc::GetVectorPosition(__Vector3 vOrig, __Vector3 vDest, float fDis)
+void CNpc::GetVectorPosition(__Vector3 & vOrig, __Vector3 & vDest, float fDis, __Vector3 * vResult)
 {
-	__Vector3 vOff;
-	vOff = vDest - vOrig;
-	float ttt = vOff.Magnitude();
-	vOff.Normalize();
-	vOff *= fDis;
-	return vOrig + vOff;
+	*vResult = vDest - vOrig;
+	vResult->Magnitude();
+	vResult->Normalize();
+	*vResult *= fDis;
+	*vResult += vOrig;
 }
 
-float CNpc::GetDistance(__Vector3 vOrig, __Vector3 vDest)
+float CNpc::GetDistance(__Vector3 & vOrig, __Vector3 & vDest)
 {
-	__Vector3 vDis = vOrig - vDest;
-	return vDis.Magnitude();
+	return (vOrig - vDest).Magnitude();
 }
 
 BOOL CNpc::GetUserInView()
@@ -4220,12 +4215,12 @@ void CNpc::SendAttackSuccess(BYTE byResult, int tuid, short sDamage, int nHP, BY
 	g_pMain.Send(&result);
 }
 
-__Vector3 CNpc::CalcAdaptivePosition(__Vector3 vPosOrig, __Vector3 vPosDest, float fAttackDistance)
+void CNpc::CalcAdaptivePosition(__Vector3 & vPosOrig, __Vector3 & vPosDest, float fAttackDistance, __Vector3 * vResult)
 {
-	__Vector3 vTemp, vReturn;
-	vTemp = vPosOrig - vPosDest;	vTemp.Normalize();	vTemp *= fAttackDistance;
-	vReturn = vPosDest + vTemp;
-	return vReturn;
+	*vResult = vPosOrig - vPosDest;	
+	vResult->Normalize();	
+	*vResult *= fAttackDistance;
+	*vResult += vPosDest;
 }
 
 //	현재 몹을 기준으로 한 화면 범위안에 있는지 판단
@@ -4439,7 +4434,7 @@ BOOL CNpc::IsPathFindCheck(float fDistance)
 	do
 	{
 		vOldDis.Set(vDis.x, 0, vDis.z);
-		vDis = GetVectorPosition(vDis, vEnd, fDistance);
+		GetVectorPosition(vDis, vEnd, fDistance, &vDis);
 		fDis = GetDistance(vOldDis, vEnd);
 
 		if(fDis > NPC_MAX_MOVE_RANGE)
@@ -4504,7 +4499,7 @@ void CNpc::IsNoPathFind(float fDistance)
 	do
 	{
 		vOldDis.Set(vDis.x, 0, vDis.z);
-		vDis = GetVectorPosition(vDis, vEnd, fDistance);
+		GetVectorPosition(vDis, vEnd, fDistance, &vDis);
 		fDis = GetDistance(vOldDis, vEnd);
 		
 		nX = (int)(vDis.x / TILE_SIZE);
@@ -4643,15 +4638,14 @@ void CNpc::Yaw2D(float fDirX, float fDirZ, float& fYawResult)
 	}
 }
   
-__Vector3 CNpc::ComputeDestPos( __Vector3 vCur, float fDegree, float fDegreeOffset, float fDistance)
+void CNpc::ComputeDestPos(__Vector3 & vCur, float fDegree, float fDegreeOffset, float fDistance, __Vector3 * vResult)
 {
-	__Vector3 vReturn, vDir;
-	vDir.Set( 0.0f, 0.0f, 1.0f );
-	__Matrix44 mtxRot; mtxRot.RotationY(D3DXToRadian(fDegree+fDegreeOffset));
-	vDir *= mtxRot;
-	vDir *= fDistance;
-	vReturn = (vCur+vDir);
-	return vReturn;
+	__Matrix44 mtxRot; 
+	vResult->Zero();
+	mtxRot.RotationY(D3DXToRadian(fDegree+fDegreeOffset));
+	*vResult *= mtxRot;
+	*vResult *= fDistance;
+	*vResult += vCur;
 }
 
 int	CNpc::GetPartyDamage(int iNumber)
