@@ -59,9 +59,6 @@
     <ClCompile Include="ServerDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="User.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\lzf.cpp">
       <Filter>shared</Filter>
     </ClCompile>
@@ -130,6 +127,9 @@
     </ClCompile>
     <ClCompile Include="..\shared\ReferenceObject.cpp">
       <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="AIUser.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

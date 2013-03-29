@@ -59,7 +59,7 @@
     <ClCompile Include="ServerDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="User.cpp">
+    <ClCompile Include="AIUser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\shared\Ini.cpp">
