@@ -84,7 +84,6 @@
       <AdditionalDependencies>ws2_32.lib;../Debug/Lua.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Debug/Ebenezer.pdb</ProgramDatabaseFile>
       <GenerateMapFile>false</GenerateMapFile>
       <MapFileName>.\Debug/Ebenezer.map</MapFileName>
       <SubSystem>NotSet</SubSystem>
