@@ -1,3 +1,6 @@
+UPDATE ZONE_INFO SET InitX = 81590, InitZ = 53079, InitY = 469 WHERE ZoneNo = 21
+GO
+
 USE [kn_online]
 GO
 
@@ -70,5 +73,3 @@ COMMIT TRAN
 SET    @nRet =  0
 
 GO
-
-UPDATE ZONE_INFO SET InitX = 81590, InitZ = 53079, InitY = 469 WHERE ZoneNo = 21
