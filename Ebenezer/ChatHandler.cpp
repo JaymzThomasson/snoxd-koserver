@@ -3,6 +3,7 @@ void CEbenezerDlg::InitServerCommands()
 	static Command<CEbenezerDlg> commandTable[] = 
 	{
 		// Command				Handler											Help message
+		{ "notice",				&CEbenezerDlg::HandleNoticeCommand,				"Sends a server-wide chat notice." },
 		{ "kill",				&CEbenezerDlg::HandleKillUserCommand,			"Disconnects the specified player" },
 		{ "open1",				&CEbenezerDlg::HandleWar1OpenCommand,			"Opens war zone 1" },
 		{ "open2",				&CEbenezerDlg::HandleWar2OpenCommand,			"Opens war zone 2" },
@@ -319,6 +320,15 @@ bool CEbenezerDlg::ProcessServerCommand(std::string & message)
 
 	// Run the command
 	return (this->*(itr->second->Handler))(vargs, message.c_str() + command.size() + 1, itr->second->Help);
+}
+
+COMMAND_HANDLER(CEbenezerDlg::HandleNoticeCommand)
+{
+	if (vargs.empty())
+		return true;
+
+	SendNotice(args);
+	return true;
 }
 
 COMMAND_HANDLER(CEbenezerDlg::HandleKillUserCommand)

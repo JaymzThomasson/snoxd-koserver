@@ -194,6 +194,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="ConsoleInputThread.cpp" />
     <ClCompile Include="DatabaseThread.cpp" />
     <ClCompile Include="DBAgent.cpp" />
     <ClCompile Include="EbenezerDlg.cpp">
@@ -352,6 +353,7 @@
     <ClInclude Include="..\shared\TimeThread.h" />
     <ClInclude Include="AISocket.h" />
     <ClInclude Include="ChatHandler.h" />
+    <ClInclude Include="ConsoleInputThread.h" />
     <ClInclude Include="DatabaseThread.h" />
     <ClInclude Include="DBAgent.h" />
     <ClInclude Include="Define.h" />

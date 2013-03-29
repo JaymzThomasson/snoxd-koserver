@@ -207,6 +207,9 @@
     <ClCompile Include="..\shared\ReferenceObject.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
+    <ClCompile Include="ConsoleInputThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -451,6 +454,9 @@
     </ClInclude>
     <ClInclude Include="..\shared\ReferenceObject.h">
       <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleInputThread.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

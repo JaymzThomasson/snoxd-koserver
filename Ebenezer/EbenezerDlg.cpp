@@ -934,35 +934,20 @@ void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, uint16 region_x, uint16 region
 	LeaveCriticalSection(&g_region_critical);
 }
 
-#if 0 // TO-DO: Reimplement as console input thread
-BOOL CEbenezerDlg::PreTranslateMessage(MSG* pMsg) 
+void CEbenezerDlg::HandleConsoleCommand(const char * msg) 
 {
-	char chatstr[256];
+	string message = msg;
+	if (message.empty())
+		return;
 
-	if (pMsg->message == WM_KEYDOWN)
+	if (ProcessServerCommand(message))
 	{
-		if (pMsg->wParam == VK_ESCAPE)
-			return true;
-
-		if (pMsg->wParam == VK_RETURN)
-		{
-			std::string message = chatstr;
-			if (message.empty())
-				return true;
-
-			m_AnnounceEdit.SetWindowText("");
-			UpdateData(FALSE);
-
-			if (ProcessServerCommand(message))
-				return true;
-
-			if (message.size() <= 256)
-				SendNotice(message.c_str());
-			return true;
-		}
+		printf("Command accepted.\n");
+		return;
 	}
+
+	printf("Invalid command. If you're trying to send a notice, please use /notice\n");
 }
-#endif
 
 void CEbenezerDlg::SendNotice(const char *msg, uint8 bNation /*= 0*/)
 {

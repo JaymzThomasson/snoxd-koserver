@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "EbenezerDlg.h"
+#include "ConsoleInputThread.h"
 
 CEbenezerDlg * g_pMain;
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
@@ -20,6 +21,9 @@ int main()
 
 	// Start up the time updater thread
 	StartTimeThread();
+
+	// Start up the console input thread
+	StartConsoleInputThread();
 
 	g_pMain = &pMain;
 

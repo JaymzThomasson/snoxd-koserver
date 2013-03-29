@@ -124,6 +124,8 @@ public:
 	void GetPermanentMessage(Packet & result);
 	void SetPermanentMessage(const char * format, ...);
 
+	void HandleConsoleCommand(const char * msg);
+
 	void SendNotice(const char *msg, uint8 bNation = NO_NATION);
 	void SendFormattedNotice(const char *msg, uint8 nation = NO_NATION, ...);
 
@@ -269,6 +271,7 @@ public:
 
 	static ServerCommandTable s_commandTable;
 
+	COMMAND_HANDLER(HandleNoticeCommand);
 	COMMAND_HANDLER(HandleKillUserCommand);
 	COMMAND_HANDLER(HandleWar1OpenCommand);
 	COMMAND_HANDLER(HandleWar2OpenCommand);
