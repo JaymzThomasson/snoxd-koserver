@@ -1,9 +1,3 @@
-#include "StdAfx.h"
-#include "EbenezerDlg.h"
-#include "User.h"
-
-using std::string;
-
 enum
 {
 	CHALLENGE_PVP_REQUEST	= 1,

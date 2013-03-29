@@ -1,8 +1,3 @@
-#include "StdAfx.h"
-#include "Map.h"
-#include "EbenezerDlg.h"
-#include "User.h"
-
 void CUser::Attack(Packet & pkt)
 {
 	Packet result;

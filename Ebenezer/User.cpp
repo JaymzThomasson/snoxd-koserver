@@ -1,16 +1,5 @@
-#include "stdafx.h"
-#include "Map.h"
-#include "EbenezerDlg.h"
-#include "KnightsManager.h"
-#include "User.h"
-#include "../shared/KOSocketMgr.h"
-#include "MagicProcess.h"
-
-extern KOSocketMgr<CUser> g_socketMgr;
-using namespace std;
-
 CUser::CUser(uint16 socketID, SocketMgr *mgr) : KOSocket(socketID, mgr, -1, 16384, 3172), Unit(true)
-{	
+{
 }
 
 void CUser::OnConnect()

@@ -1,11 +1,3 @@
-#include "StdAfx.h"
-#include "resource.h"
-#include "EbenezerDlg.h"
-#include "User.h"
-#include "../shared/KOSocketMgr.h"
-
-extern KOSocketMgr<CUser> g_socketMgr;
-
 ServerCommandTable CEbenezerDlg::s_commandTable;
 ChatCommandTable CUser::s_commandTable;
 

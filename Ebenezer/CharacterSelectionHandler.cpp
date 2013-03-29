@@ -1,10 +1,4 @@
-﻿#include "StdAfx.h"
-#include "Map.h"
-#include "EbenezerDlg.h"
-#include "KnightsManager.h"
-#include "User.h"
-
-void CUser::SelNationToAgent(Packet & pkt)
+﻿void CUser::SelNationToAgent(Packet & pkt)
 {
 	Packet result(WIZ_SEL_NATION);
 	uint8 nation = pkt.read<uint8>();
