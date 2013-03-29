@@ -159,6 +159,7 @@
     <ClCompile Include="..\shared\Mutex.cpp" />
     <ClCompile Include="..\shared\ReferenceObject.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\shared\RWLock.cpp" />
     <ClCompile Include="..\shared\SMDFile.cpp" />
