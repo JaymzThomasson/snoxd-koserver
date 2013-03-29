@@ -117,7 +117,7 @@ void CUser::KissUser()
 	SendToRegion(&result);
 }
 
-void CUser::ClassChange(Packet & pkt)
+void CUser::ClassChange(Packet & pkt, bool bFromClient /*= true */)
 {
 	Packet result(WIZ_CLASS_CHANGE);
 	bool bSuccess = false;
@@ -157,6 +157,9 @@ void CUser::ClassChange(Packet & pkt)
 		Send(&result);
 		return;
 	}
+	// If this packet was sent from the client, ignore it.
+	else if (bFromClient)
+		return;
 
 	uint8 classcode = pkt.read<uint8>();
 	switch (m_sClass)
@@ -236,6 +239,15 @@ bool CUser::AttemptSelectMsg(uint8 bMenuID)
 		return false;
 
 	return true;
+}
+
+void CUser::SendSay(int32 nTextID[8])
+{
+	Packet result(WIZ_NPC_SAY);
+	result << int32(-1) << int32(-1);
+	foreach_array_n(i, nTextID, 8)
+		result << nTextID[i];
+	Send(&result);
 }
 
 void CUser::SelectMsg(uint8 bFlag, int32 nQuestID, int32 menuHeaderText, 

@@ -371,3 +371,67 @@ uint8 CUser::CheckMonsterCount(uint8 bGroup)
 
 	return m_bKillCounts[bGroup];
 }
+
+// First job change; you're a [novice], Harry!
+bool CUser::PromoteUserNovice()
+{
+	uint8 bNewClasses[] = { 5, 7, 9, 11 };
+	uint8 bOldClass = (GetClass() % 100) - 1; // convert base class 1,2,3,4 to 0,1,2,3 to align with bNewClasses
+
+	// Make sure it's a beginner class.
+	if (bOldClass >= 4)
+		return false;
+
+	Packet result(WIZ_CLASS_CHANGE, uint8(6));
+
+	// Build the new class.
+	uint16 sNewClass = (GetNation() * 100) + bNewClasses[bOldClass];
+	result << sNewClass << GetID();
+	SendToRegion(&result);
+
+	// Change the class & update party.
+	result.clear();
+	result << uint8(2) << sNewClass;
+	ClassChange(result, false); // TO-DO: Clean this up. Shouldn't need to build a packet for this.
+
+	// Update the clan.
+	result.clear();
+	result << uint16(0);
+	CKnightsManager::CurrentKnightsMember(this, result); // TO-DO: Clean this up too.
+	return true;
+}
+
+// From novice to master.
+bool CUser::PromoteUser()
+{
+	/* unlike the official, the checks & item removal should be handled in the script, not here */
+	uint8 bOldClass = (GetClass() % 100);
+
+	// If we're not dealing with a 'novice' class (5, 7, 9, 11 -- mastered class are +1 from here).
+	if (bOldClass != 5 && bOldClass != 7 && bOldClass != 9 && bOldClass != 11)
+		return false;
+
+	Packet result(WIZ_CLASS_CHANGE, uint8(6));
+
+	// Build the new class.
+	uint16 sNewClass = (GetNation() * 100) + bOldClass + 1;
+	result << sNewClass << GetID();
+	SendToRegion(&result);
+
+	// Change the class & update party.
+	result.clear();
+	result << uint8(2) << sNewClass;
+	ClassChange(result, false); // TO-DO: Clean this up. Shouldn't need to build a packet for this.
+
+	// use integer division to get from 5/7/9/11 (novice classes) to 1/2/3/4 (base classes)
+	uint8 bBaseClass = (bOldClass / 2) - 1; 
+
+	// this should probably be moved to the script
+	SaveEvent(bBaseClass, 2); 
+
+	// Update the clan.
+	result.clear();
+	result << uint16(0);
+	CKnightsManager::CurrentKnightsMember(this, result); // TO-DO: Clean this up too.
+	return true;
+}

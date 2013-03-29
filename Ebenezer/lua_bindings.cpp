@@ -73,8 +73,9 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(SaveEvent)
 	MAKE_LUA_METHOD(SearchQuest)
 	MAKE_LUA_METHOD(ShowMap)
-	MAKE_LUA_METHOD(SelectMsg)
-	MAKE_LUA_METHOD(NpcMsg)
+	MAKE_LUA_METHOD(SelectMsg) // menu
+	MAKE_LUA_METHOD(NpcSay) // dialog
+	MAKE_LUA_METHOD(NpcMsg) // new automated quest prompt (does whatever's needed, menu, quest prompt, etc)
 	MAKE_LUA_METHOD(CheckWeight)
 	MAKE_LUA_METHOD(CheckSkillPoint)
 	// MAKE_LUA_METHOD(CheckStatPoint)
@@ -88,9 +89,8 @@ DEFINE_LUA_CLASS
 	// MAKE_LUA_METHOD(SendReskillDialog)
 	// MAKE_LUA_METHOD(ResetSkillPoints) // AllSkillPointChange(1)
 	// MAKE_LUA_METHOD(ResetStatPoints) // AllStatPointChange(1)
-	// MAKE_LUA_METHOD(CheckPromotionEligible) // (GivePromotionQuest() can just be handled in Lua)
-	// MAKE_LUA_METHOD(PromoteUser)
-	// MAKE_LUA_METHOD(PromoteUserNovice)
+	MAKE_LUA_METHOD(PromoteUserNovice)
+	MAKE_LUA_METHOD(PromoteUser)
 	// MAKE_LUA_METHOD(RobAllItemParty)
 	// MAKE_LUA_METHOD(ZoneChangeParty)
 	// MAKE_LUA_METHOD(ZoneChangeClan)

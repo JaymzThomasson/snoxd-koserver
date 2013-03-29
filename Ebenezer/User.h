@@ -324,6 +324,7 @@ public:
 	void KickOutZoneUser(bool home = false, int nZoneID = 21);
 	void TrapProcess();
 	bool JobGroupCheck(short jobgroupid);
+	void SendSay(int32 nTextID[8]);
 	void SelectMsg(uint8 bFlag, int32 nQuestID, int32 menuHeaderText, 
 		int32 menuButtonText[MAX_MESSAGE_EVENT], int32 menuButtonEvents[MAX_MESSAGE_EVENT]);
 	bool CheckClass(short class1, short class2 = -1, short class3 = -1, short class4 = -1, short class5 = -1, short class6 = -1);
@@ -477,7 +478,7 @@ public:
 
 	void UpdateGameWeather(Packet & pkt);
 
-	void ClassChange(Packet & pkt);
+	void ClassChange(Packet & pkt, bool bFromClient = true);
 	void ClassChangeReq();
 	void AllPointChange();
 	void AllSkillPointChange();
@@ -635,6 +636,9 @@ public:
 	void QuestV2ShowMap(uint32 nQuestHelperID);
 	uint8 CheckMonsterCount(uint8 bGroup);
 
+	bool PromoteUserNovice();
+	bool PromoteUser();
+
 	//Zone checks
 	bool isAttackZone();
 
@@ -773,6 +777,17 @@ public:
 		LUA_NO_RETURN(pUser->QuestV2ShowMap(LUA_ARG_OPTIONAL(uint32, pUser->m_nQuestHelperID, 2))); // quest helper ID
 	}
 
+	DECLARE_LUA_FUNCTION(NpcSay) {
+		CUser * pUser = LUA_GET_INSTANCE();
+		uint32 arg = 2; // start from after the user instance.
+		int32 nTextID[8]; 
+
+		foreach_array(i, nTextID)
+			nTextID[i] = LUA_ARG_OPTIONAL(int32, -1, arg++);
+
+		LUA_NO_RETURN(pUser->SendSay(nTextID));
+	}
+
 	// This is probably going to be cleaned up, as the methodology behind these menus is kind of awful.
 	// For now, we'll just copy existing behaviour: that is, pass along a set of text IDs & button IDs.
 	DECLARE_LUA_FUNCTION(SelectMsg) {
@@ -829,5 +844,13 @@ public:
 
 	DECLARE_LUA_FUNCTION(KissUser) {
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->KissUser());
+	}
+
+	DECLARE_LUA_FUNCTION(PromoteUserNovice) {
+		LUA_RETURN(LUA_GET_INSTANCE()->PromoteUserNovice());
+	}
+
+	DECLARE_LUA_FUNCTION(PromoteUser) {
+		LUA_RETURN(LUA_GET_INSTANCE()->PromoteUser());
 	}
 };
