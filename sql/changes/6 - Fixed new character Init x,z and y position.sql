@@ -1,16 +1,6 @@
 UPDATE ZONE_INFO SET InitX = 81590, InitZ = 53079, InitY = 469 WHERE ZoneNo = 21
 GO
 
-USE [kn_online]
-GO
-
-/****** Object:  StoredProcedure [dbo].[CREATE_NEW_CHAR]    Script Date: 03/29/2013 23:32:48 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
 ALTER PROCEDURE [dbo].[CREATE_NEW_CHAR]
 	@nRet		smallint OUTPUT, 
 	@AccountID	varchar(21), 
