@@ -91,6 +91,8 @@ void CAISocket::OnConnect()
 void CAISocket::OnDisconnect()
 {
 	TRACE("*** CloseProcess - socketID=%d...  ***\n", GetSocketID());
+	g_pMain->DeleteAllNpcList();
+	g_pMain->m_sErrorSocketCount = 3; // yup, we're definitely disconnected (magic number!)
 }
 
 void CAISocket::LoginProcess(Packet & pkt)

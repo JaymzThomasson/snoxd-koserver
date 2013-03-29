@@ -428,14 +428,6 @@ void CEbenezerDlg::AIServerConnect()
 
 		TRACE("**** AISocket Connect Success!! , server = %s:%d ****\n", pSock->GetRemoteIP().c_str(), pSock->GetRemotePort());
 	}
-
-	// This check seems redundant, but it isn't: AISocketConnect() should change the map.
-	// We're deliberately checking after we've attempted to reconnect.
-	// The idle session(s) should be removed, if they're still unable to connect... reset the server's NPCs.
-	g_aiSocketMgr.AcquireLock();
-	if (!sessMap.empty())
-		DeleteAllNpcList();
-	g_aiSocketMgr.ReleaseLock();
 }
 
 void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= NULL*/, uint8 nation /*= 0*/)
@@ -1093,13 +1085,18 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 	TRACE("*** DeleteAllNpcList - Start *** \n");
 
 	// Remove spawns from users to prevent them from getting bugged...
+	m_arNpcArray.m_lock.Acquire();
 	foreach_stlmap (itr, m_arNpcArray)
 	{
 		if (itr->second->isAlive())
 			itr->second->SendInOut(INOUT_OUT, 0.0f, 0.0f, 0.0f);
 	}
+	m_arNpcArray.m_lock.Release();
 
 	// Now remove all spawns from all regions
+	FastGuard zoneLock(m_ZoneArray.m_lock);
+
+	EnterCriticalSection(&g_region_critical);
 	foreach_stlmap (itr, m_ZoneArray)
 	{
 		C3DMap *pMap = itr->second;
@@ -1112,7 +1109,7 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 				pMap->m_ppRegion[i][j].m_RegionNpcArray.clear();
 		}
 	}
-
+	LeaveCriticalSection(&g_region_critical);
 	// And finally remove all the spawn data we have.
 	m_arNpcArray.DeleteAllData();
 	m_bServerCheckFlag = false;
