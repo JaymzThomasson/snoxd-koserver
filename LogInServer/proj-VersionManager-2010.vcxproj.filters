@@ -87,6 +87,9 @@
     <ClCompile Include="..\shared\tstring.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\DebugUtils.cpp">
+      <Filter>Shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VersionManager.rc">
@@ -164,6 +167,9 @@
       <Filter>Shared</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\RWLock.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\DebugUtils.h">
       <Filter>Shared</Filter>
     </ClInclude>
   </ItemGroup>

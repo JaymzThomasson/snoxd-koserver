@@ -8,8 +8,10 @@
 #ifdef _DEBUG
 // and cassert for our ASSERT() replacement
 #		include <cassert>
+#		include "DebugUtils.h"
+
 #		define ASSERT assert
-#		define TRACE printf
+#		define TRACE FormattedDebugString
 #else
 #		define ASSERT 
 #		define TRACE 

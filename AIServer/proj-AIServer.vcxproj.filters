@@ -131,6 +131,9 @@
     <ClCompile Include="AIUser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\DebugUtils.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -299,6 +302,9 @@
       <Filter>shared</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\ReferenceObject.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\DebugUtils.h">
       <Filter>shared</Filter>
     </ClInclude>
   </ItemGroup>
