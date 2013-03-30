@@ -57,6 +57,10 @@ void CKingSystem::KingPacketProcess(CUser * pUser, Packet & pkt)
 
 	case KING_EVENT:
 		KingSpecialEvent(pUser, pkt);
+		break;
+
+	case KING_NATION_INTRO:
+		break;
 	}
 }
 

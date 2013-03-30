@@ -216,7 +216,8 @@ enum KingSystemOpcodes
 	KING_IMPEACHMENT	= 2,
 	KING_TAX			= 3,
 	KING_EVENT			= 4,
-	KING_NPC			= 5
+	KING_NPC			= 5,
+	KING_NATION_INTRO	= 6
 };
 
 enum KingEventOpcodes
