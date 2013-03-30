@@ -86,7 +86,64 @@ void CKingSystem::ElectionSystem(CUser * pUser, Packet & pkt)
 	}
 }
 
-void CKingSystem::ElectionScheduleConfirmation(CUser * pUser, Packet & pkt) {}
+// "Check election day" button at the election NPC
+void CKingSystem::ElectionScheduleConfirmation(CUser * pUser, Packet & pkt)
+{
+	Packet result(WIZ_KING, uint8(KING_ELECTION));
+	result << uint8(KING_ELECTION_SCHEDULE);
+
+	switch (m_byImType)
+	{
+		// No impeachment, send election date.
+		case 0:
+		{
+			// Client expects month as 1,12 (tm_mon is 0,11)
+			uint8 byElectionMonth = g_localTime.tm_mon + 1;
+
+			/* When's the next election? */
+			// If we've passed the election date, we need next month's election.
+			// (NOTE: this is official behaviour; it disregards the month set in the table)
+			if (g_localTime.tm_mday > m_byDay)
+			{
+				// Next month is January? Make it so.
+				++byElectionMonth;
+				while (byElectionMonth > 12)
+					byElectionMonth -= 12;
+			}
+
+			result	<< uint8(1) // election type
+					<< byElectionMonth 
+					<< m_byDay << m_byHour << m_byMinute;
+		} break;
+
+		// Last scheduled impeachment?
+		case 1:
+		{
+			result	<< uint8(3)
+					<< m_byImMonth 
+					<< m_byImDay << m_byImHour << m_byImMinute;
+		} break;
+
+		// Next impeachment?
+		case 3:
+		{
+			// This should not be necessary, but will leave.
+			uint8 byImpeachmentMonth = m_byImMonth;
+			while (byImpeachmentMonth > 12)
+				m_byImMonth -= 12;
+
+			result	<< uint8(2)
+					<< byImpeachmentMonth
+					<< m_byImDay << m_byImHour << m_byImMinute;
+		} break;
+
+		default:
+			return;
+	}
+
+	pUser->Send(&result);
+}
+
 void CKingSystem::CandidacyRecommend(CUser * pUser, Packet & pkt) {}
 void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt) {}
 void CKingSystem::ElectionPoll(CUser * pUser, Packet & pkt) {}
