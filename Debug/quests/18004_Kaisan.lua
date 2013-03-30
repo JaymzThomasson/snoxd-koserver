@@ -37,7 +37,6 @@ end
 -- Default event when clicking on the NPC
 function HandleNPCSelection()
 	local sQuest = pUser:SearchQuest()
-	sQuest = 400
 	if (sQuest == 0) then 
 		pUser:SelectMsg(2, -1, 146, 10, 101)
 	elseif (sQuest > 1) and (sQuest < 100) then 
