@@ -319,19 +319,27 @@ void CUser::NpcEvent(Packet & pkt)
 		break;
 
 	case NPC_ELECTION:
-		result.SetOpcode(WIZ_KING);
-		result.SByte();
-		result << uint8(KING_NPC) << "king name here";
-		Send(&result);
-		break;
-	
 	case NPC_TREASURY:
+	{
+		_KING_SYSTEM * pData = g_pMain->m_KingSystemArray.GetData(GetNation());
 		result.SetOpcode(WIZ_KING);
-		result	<< uint8(KING_TAX) << uint8(1) // success
-				<< uint16(/*isKing() ? 1 : 2*/ 2) // 1 enables king-specific stuff (e.g. scepter), 2 is normal user stuff
-				<< uint32(1234); // amount in nation's treasury
+		if (pNpc->GetType() == NPC_ELECTION)
+		{
+			// Ensure this still works as per official without a row in the table.
+			string strKingName = (pData == NULL ? "" : pData->strKingName);
+			result.SByte();
+			result	<< uint8(KING_NPC) << strKingName;
+		}
+		else
+		{
+			// Ensure this still works as per official without a row in the table.
+			uint32 nTreasury = (pData == NULL ? 0 : pData->nNationalTreasury);
+			result	<< uint8(KING_TAX) << uint8(1) // success
+					<< uint16(isKing() ? 1 : 2) // 1 enables king-specific stuff (e.g. scepter), 2 is normal user stuff
+					<< nTreasury;
+		}
 		Send(&result);
-		break;
+	} break;
 
 	case NPC_CAPTAIN:
 		result.SetOpcode(WIZ_CLASS_CHANGE);

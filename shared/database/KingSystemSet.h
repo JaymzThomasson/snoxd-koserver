@@ -70,13 +70,13 @@ public:
 		_dbCommand->FetchByte(i++, pData->byExpEvent_Minute);
 		_dbCommand->FetchUInt16(i++, pData->sExpEvent_Duration);
 
-		// Money, money, money.
+		/* Money, money, money. */
 		_dbCommand->FetchUInt32(i++, pData->nTribute);
 		_dbCommand->FetchByte(i++, pData->byTerritoryTariff);
 		_dbCommand->FetchUInt32(i++, pData->nTerritoryTax);
 		_dbCommand->FetchUInt32(i++, pData->nNationalTreasury);
 
-		// Names are so hard to remember.
+		/* Names are so hard to remember. */
 		_dbCommand->FetchString(i++, pData->strKingName);
 		_dbCommand->FetchString(i++, pData->strImRequestID);
 

@@ -189,6 +189,8 @@ public:
 	__forceinline bool isInGame() { return GetState() == GAME_STATE_INGAME; }
 	__forceinline bool isInParty() { return m_sPartyIndex != -1; }
 	__forceinline bool isInClan() { return GetClanID() > 0; }
+
+	__forceinline bool isKing() { return m_bRank == 1; }
 	__forceinline bool isClanLeader() { return getFame() == CHIEF; }
 	__forceinline bool isClanAssistant() { return getFame() == VICECHIEF; }
 	__forceinline bool isPartyLeader() { return isInParty() && m_bPartyLeader; }

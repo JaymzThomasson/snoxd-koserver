@@ -513,6 +513,14 @@ void CUser::SendMyInfo()
 	// Load up our user rankings (for our NP symbols).
 	g_pMain->GetUserRank(this);
 
+	// Are we the King? Let's see, shall we?
+	_KING_SYSTEM * pData = g_pMain->m_KingSystemArray.GetData(GetNation());
+	if (pData != NULL
+		&& _strcmpi(pData->strKingName.c_str(), m_strUserID.c_str()) == 0)
+		m_bRank = 1; // We're da King, man.
+	else
+		m_bRank = 0; // totally not da King.
+
 	result.SByte(); // character name has a single byte length
 	result	<< GetSocketID()
 			<< GetName()
