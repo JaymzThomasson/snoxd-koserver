@@ -718,13 +718,19 @@ void CUser::SetZoneAbilityChange()
 	}
 	else if (zone == 1 || zone == 11)
 	{
+		_KING_SYSTEM * pData = g_pMain->m_KingSystemArray.GetData(KARUS);
+		uint16 sTariff = (pData == NULL ? 0 : pData->byTerritoryTariff);
+
 		result	<< uint8(0) << uint8(1) << uint8(0)
-				<< uint16(10); // orc-side tariff
+				<< sTariff; // orc-side tariff
 	}
 	else if (zone == 2 || zone == 12)
 	{
+		_KING_SYSTEM * pData = g_pMain->m_KingSystemArray.GetData(ELMORAD);
+		uint16 sTariff = (pData == NULL ? 0 : pData->byTerritoryTariff);
+
 		result	<< uint8(0) << uint8(1) << uint8(0)
-				<< uint16(10); // human-side tariff
+				<< sTariff; // human-side tariff
 	}
 	else 
 		return;
