@@ -11,7 +11,7 @@ public:
 
 	virtual bool Fetch()
 	{
-		_KING_SYSTEM * pData;
+		CKingSystem * pData;
 		uint8 byNation;
 		uint32 i = 1;
 
@@ -28,7 +28,7 @@ public:
 		// We don't? Create one.
 		if (pData == NULL)
 		{
-			pData = new _KING_SYSTEM;
+			pData = new CKingSystem();
 
 			// We don't need to check if it exists, because if it did
 			// we wouldn't be here...
@@ -36,49 +36,49 @@ public:
 		}
 
 		// Let's set the nation then read the rest of the data from the table.
-		pData->byNation = byNation;
+		pData->m_byNation = byNation;
 
 		/* Election */
-		_dbCommand->FetchByte(i++, pData->byType);
-		_dbCommand->FetchUInt16(i++, pData->sYear);
-		_dbCommand->FetchByte(i++, pData->byMonth);
-		_dbCommand->FetchByte(i++, pData->byDay);
-		_dbCommand->FetchByte(i++, pData->byHour);
-		_dbCommand->FetchByte(i++, pData->byMinute);
+		_dbCommand->FetchByte(i++, pData->m_byType);
+		_dbCommand->FetchUInt16(i++, pData->m_sYear);
+		_dbCommand->FetchByte(i++, pData->m_byMonth);
+		_dbCommand->FetchByte(i++, pData->m_byDay);
+		_dbCommand->FetchByte(i++, pData->m_byHour);
+		_dbCommand->FetchByte(i++, pData->m_byMinute);
 
 		/* Impeachment */
-		_dbCommand->FetchByte(i++, pData->byImType);
-		_dbCommand->FetchUInt16(i++, pData->sImYear);
-		_dbCommand->FetchByte(i++, pData->byImMonth);
-		_dbCommand->FetchByte(i++, pData->byImDay);
-		_dbCommand->FetchByte(i++, pData->byImHour);
-		_dbCommand->FetchByte(i++, pData->byImMinute);
+		_dbCommand->FetchByte(i++, pData->m_byImType);
+		_dbCommand->FetchUInt16(i++, pData->m_sImYear);
+		_dbCommand->FetchByte(i++, pData->m_byImMonth);
+		_dbCommand->FetchByte(i++, pData->m_byImDay);
+		_dbCommand->FetchByte(i++, pData->m_byImHour);
+		_dbCommand->FetchByte(i++, pData->m_byImMinute);
 
 		/* King events */
 
 		// Noah
-		_dbCommand->FetchByte(i++, pData->byNoahEvent);
-		_dbCommand->FetchByte(i++, pData->byNoahEvent_Day);
-		_dbCommand->FetchByte(i++, pData->byNoahEvent_Hour);
-		_dbCommand->FetchByte(i++, pData->byNoahEvent_Minute);
-		_dbCommand->FetchUInt16(i++, pData->sNoahEvent_Duration);
+		_dbCommand->FetchByte(i++, pData->m_byNoahEvent);
+		_dbCommand->FetchByte(i++, pData->m_byNoahEvent_Day);
+		_dbCommand->FetchByte(i++, pData->m_byNoahEvent_Hour);
+		_dbCommand->FetchByte(i++, pData->m_byNoahEvent_Minute);
+		_dbCommand->FetchUInt16(i++, pData->m_sNoahEvent_Duration);
 
 		// Experience
-		_dbCommand->FetchByte(i++, pData->byExpEvent);
-		_dbCommand->FetchByte(i++, pData->byExpEvent_Day);
-		_dbCommand->FetchByte(i++, pData->byExpEvent_Hour);
-		_dbCommand->FetchByte(i++, pData->byExpEvent_Minute);
-		_dbCommand->FetchUInt16(i++, pData->sExpEvent_Duration);
+		_dbCommand->FetchByte(i++, pData->m_byExpEvent);
+		_dbCommand->FetchByte(i++, pData->m_byExpEvent_Day);
+		_dbCommand->FetchByte(i++, pData->m_byExpEvent_Hour);
+		_dbCommand->FetchByte(i++, pData->m_byExpEvent_Minute);
+		_dbCommand->FetchUInt16(i++, pData->m_sExpEvent_Duration);
 
 		/* Money, money, money. */
-		_dbCommand->FetchUInt32(i++, pData->nTribute);
-		_dbCommand->FetchByte(i++, pData->byTerritoryTariff);
-		_dbCommand->FetchUInt32(i++, pData->nTerritoryTax);
-		_dbCommand->FetchUInt32(i++, pData->nNationalTreasury);
+		_dbCommand->FetchUInt32(i++, pData->m_nTribute);
+		_dbCommand->FetchByte(i++, pData->m_byTerritoryTariff);
+		_dbCommand->FetchUInt32(i++, pData->m_nTerritoryTax);
+		_dbCommand->FetchUInt32(i++, pData->m_nNationalTreasury);
 
 		/* Names are so hard to remember. */
-		_dbCommand->FetchString(i++, pData->strKingName);
-		_dbCommand->FetchString(i++, pData->strImRequestID);
+		_dbCommand->FetchString(i++, pData->m_strKingName);
+		_dbCommand->FetchString(i++, pData->m_strImRequestID);
 
 		return true;
 	}

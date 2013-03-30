@@ -10,6 +10,8 @@ class C3DMap;
 #include "Knights.h"
 #include "Npc.h"
 
+class CKingSystem;
+
 typedef CSTLMap <C3DMap>					ZoneArray;
 typedef std::map<int, long>					LevelUpArray;
 typedef CSTLMap <_CLASS_COEFFICIENT>		CoefficientArray;
@@ -38,7 +40,7 @@ typedef	CSTLMap	<_QUEST_HELPER>				QuestHelperArray;
 typedef	CSTLMap	<_QUEST_MONSTER>			QuestMonsterArray;
 typedef	CSTLMap	<_RENTAL_ITEM>				RentalItemArray;
 typedef CSTLMap <_ITEM_EXCHANGE>			ItemExchangeArray;
-typedef CSTLMap <_KING_SYSTEM>				KingSystemArray;
+typedef CSTLMap <CKingSystem>				KingSystemArray;
 
 typedef stdext::hash_map<std::string, _USER_RANK *>		UserRankMap; 
 

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "EbenezerDlg.h"
+#include "KingSystem.h"
 
 #include "../shared/ClientSocketMgr.h"
 #include "../shared/Ini.h"
@@ -1263,7 +1264,7 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 
 		if (pTUser->getFame() == COMMAND_CAPTAIN)
 		{
-			if (pTUser->m_bRank == 1)
+			if (pTUser->isKing())
 				pTUser->ChangeNP(500);
 			else
 				pTUser->ChangeNP(300);

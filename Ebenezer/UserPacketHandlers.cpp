@@ -4,6 +4,7 @@
 #include "Map.h"
 #include "KnightsManager.h"
 #include "MagicProcess.h"
+#include "KingSystem.h"
 #include "resource.h"
 #include "../shared/KOSocketMgr.h"
 

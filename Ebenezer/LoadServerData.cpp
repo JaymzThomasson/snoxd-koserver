@@ -8,6 +8,7 @@
 #include "KnightsManager.h"
 #include "User.h"
 #include "DBAgent.h"
+#include "KingSystem.h"
 
 #include "../shared/database/OdbcRecordset.h"
 #include "../shared/database/ItemTableSet.h"

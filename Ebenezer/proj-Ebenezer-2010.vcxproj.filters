@@ -213,6 +213,9 @@
     <ClCompile Include="..\shared\DebugUtils.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
+    <ClCompile Include="KingSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -466,6 +469,9 @@
     </ClInclude>
     <ClInclude Include="..\shared\database\KingSystemSet.h">
       <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="KingSystem.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -346,6 +346,9 @@ bool CUser::HandlePacket(Packet & pkt)
 	case WIZ_SHOPPING_MALL: // letter system's used in here too
 		ShoppingMall(pkt);
 		break;
+	case WIZ_KING:
+		CKingSystem::PacketProcess(this, pkt);
+		break;
 	case WIZ_HELMET:
 		HandleHelmet(pkt);
 		break;
@@ -514,9 +517,9 @@ void CUser::SendMyInfo()
 	g_pMain->GetUserRank(this);
 
 	// Are we the King? Let's see, shall we?
-	_KING_SYSTEM * pData = g_pMain->m_KingSystemArray.GetData(GetNation());
+	CKingSystem * pData = g_pMain->m_KingSystemArray.GetData(GetNation());
 	if (pData != NULL
-		&& _strcmpi(pData->strKingName.c_str(), m_strUserID.c_str()) == 0)
+		&& _strcmpi(pData->m_strKingName.c_str(), m_strUserID.c_str()) == 0)
 		m_bRank = 1; // We're da King, man.
 	else
 		m_bRank = 0; // totally not da King.
@@ -718,16 +721,16 @@ void CUser::SetZoneAbilityChange()
 	}
 	else if (zone == 1 || zone == 11)
 	{
-		_KING_SYSTEM * pData = g_pMain->m_KingSystemArray.GetData(KARUS);
-		uint16 sTariff = (pData == NULL ? 0 : pData->byTerritoryTariff);
+		CKingSystem * pData = g_pMain->m_KingSystemArray.GetData(KARUS);
+		uint16 sTariff = (pData == NULL ? 0 : pData->m_byTerritoryTariff);
 
 		result	<< uint8(0) << uint8(1) << uint8(0)
 				<< sTariff; // orc-side tariff
 	}
 	else if (zone == 2 || zone == 12)
 	{
-		_KING_SYSTEM * pData = g_pMain->m_KingSystemArray.GetData(ELMORAD);
-		uint16 sTariff = (pData == NULL ? 0 : pData->byTerritoryTariff);
+		CKingSystem * pData = g_pMain->m_KingSystemArray.GetData(ELMORAD);
+		uint16 sTariff = (pData == NULL ? 0 : pData->m_byTerritoryTariff);
 
 		result	<< uint8(0) << uint8(1) << uint8(0)
 				<< sTariff; // human-side tariff
