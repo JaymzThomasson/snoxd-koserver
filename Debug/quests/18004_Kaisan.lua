@@ -51,7 +51,7 @@ function Event400()
 	
 	-- If we're not a beginner class (i.e. we haven't job changed or we're mastered),
 	-- we don't need to change our job.
-	if (sClass ~= 1 and sClass ~= 2 and sClass ~= 3 and sClass ~= 4) then
+	if (sClass > 4) then
 		pUser:SelectMsg(2, 406, 4068, 10, CancelButton)
 		return
 	end
@@ -74,7 +74,7 @@ function Event403()
 	-- If we're not a beginner class (i.e. we haven't job changed or we're mastered),
 	-- we don't need to change our job.
 	local sClass = pUser:GetClass() % 100
-	if (sClass ~= 1 and sClass ~= 2 and sClass ~= 3 and sClass ~= 4) then
+	if (sClass > 4) then
 		pUser:SelectMsg(2, 406, 4068, 10, CancelButton)
 		return
 	end
