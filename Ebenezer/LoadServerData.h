@@ -38,6 +38,7 @@ typedef	CSTLMap	<_QUEST_HELPER>				QuestHelperArray;
 typedef	CSTLMap	<_QUEST_MONSTER>			QuestMonsterArray;
 typedef	CSTLMap	<_RENTAL_ITEM>				RentalItemArray;
 typedef CSTLMap <_ITEM_EXCHANGE>			ItemExchangeArray;
+typedef CSTLMap <_KING_SYSTEM>				KingSystemArray;
 
 typedef stdext::hash_map<std::string, _USER_RANK *>		UserRankMap; 
 

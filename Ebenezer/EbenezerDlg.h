@@ -49,6 +49,7 @@ public:
 	bool LoadHomeTable();
 	bool LoadStartPositionTable();
 	bool LoadBattleTable();
+	bool LoadKingSystem();
 
 	bool MapFileLoad();
 	bool LoadNoticeData();
@@ -206,6 +207,7 @@ public:
 	QuestMonsterArray		m_QuestMonsterArray;
 	RentalItemArray			m_RentalItemArray;
 	ItemExchangeArray		m_ItemExchangeArray;
+	KingSystemArray			m_KingSystemArray;
 
 	short	m_sPartyIndex;
 	short	m_sZoneCount;							// AI Server 재접속시 사용

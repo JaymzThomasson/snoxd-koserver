@@ -312,6 +312,7 @@
     <ClInclude Include="..\shared\database\HomeSet.h" />
     <ClInclude Include="..\shared\database\ItemExchangeSet.h" />
     <ClInclude Include="..\shared\database\ItemTableSet.h" />
+    <ClInclude Include="..\shared\database\KingSystemSet.h" />
     <ClInclude Include="..\shared\database\KnightsAllianceSet.h" />
     <ClInclude Include="..\shared\database\KnightsCapeSet.h" />
     <ClInclude Include="..\shared\database\KnightsRankSet.h" />

@@ -41,6 +41,7 @@
 #include "../shared/database/StartPositionSet.h"
 #include "../shared/database/BattleSet.h"
 #include "../shared/database/RentalItemSet.h"
+#include "../shared/database/KingSystemSet.h"
 
 bool CEbenezerDlg::LoadTables()
 {
@@ -70,7 +71,8 @@ bool CEbenezerDlg::LoadTables()
 			&& LoadKnightsCapeTable()
 			&& LoadHomeTable()
 			&& LoadStartPositionTable()
-			&& LoadBattleTable());
+			&& LoadBattleTable()
+			&& LoadKingSystem());
 }
 
 bool CEbenezerDlg::LoadItemTable()
@@ -300,6 +302,11 @@ bool CEbenezerDlg::LoadStartPositionTable()
 bool CEbenezerDlg::LoadBattleTable()
 {
 	LOAD_TABLE(CBattleSet, g_DBAgent.m_GameDB, &m_byOldVictory, true);
+}
+
+bool CEbenezerDlg::LoadKingSystem()
+{
+	LOAD_TABLE(CKingSystemSet, g_DBAgent.m_GameDB, &m_KingSystemArray, true);
 }
 
 bool CEbenezerDlg::MapFileLoad()

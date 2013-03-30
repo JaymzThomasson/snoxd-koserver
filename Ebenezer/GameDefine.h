@@ -480,6 +480,45 @@ struct _RENTAL_ITEM
 	std::string strBorrowerCharID;
 };
 
+struct _KING_SYSTEM
+{
+	uint8	byNation;
+
+	uint8	byType;
+	uint16	sYear;
+	uint8	byMonth;
+	uint8	byDay;
+	uint8	byHour;
+	uint8	byMinute;
+
+	uint8	byImType;
+	uint16	sImYear;
+	uint8	byImMonth;
+	uint8	byImDay;
+	uint8	byImHour;
+	uint8	byImMinute;
+
+	uint8	byNoahEvent;
+	uint8	byNoahEvent_Day;
+	uint8	byNoahEvent_Hour;
+	uint8	byNoahEvent_Minute;
+	uint16	sNoahEvent_Duration;
+
+	uint8	byExpEvent;
+	uint8	byExpEvent_Day;
+	uint8	byExpEvent_Hour;
+	uint8	byExpEvent_Minute;
+	uint16	sExpEvent_Duration;
+
+	uint32	nTribute;
+	uint8	byTerritoryTariff;
+	uint32	nTerritoryTax;
+	uint32	nNationalTreasury;
+
+	std::string strKingName;
+	std::string strImRequestID;
+};
+
 enum BuffType
 {
 	BUFF_TYPE_HP_MP					= 1,
