@@ -188,6 +188,60 @@ void CKingSystem::ImpeachmentElectionUiOpen(CUser * pUser, Packet & pkt) {}
 
 void CKingSystem::KingTaxSystem(CUser * pUser, Packet & pkt)
 {
+	Packet result(WIZ_KING, uint8(KING_TAX));
+	uint8 bOpcode = pkt.read<uint8>();
+	result << bOpcode;
+
+	// If you're not a King, you shouldn't have access to this command.
+	if (!pUser->isKing())
+	{
+		result << int16(-1);
+		pUser->Send(&result);
+		return;
+	}
+
+	switch (bOpcode)
+	{
+		// Collect King's fund
+		case 2:
+			break;
+
+		// Lookup the tariff
+		case 3:
+		{
+			result << int16(1) << m_byTerritoryTariff;
+			pUser->Send(&result);
+		} break;
+
+		// Update the tariff
+		case 4:
+		{
+			uint8 byTerritoryTariff = pkt.read<uint8>();
+
+			// Invalid tariff amount
+			if (byTerritoryTariff > 10)
+			{
+				result << int16(-2);
+				pUser->Send(&result);
+				return;
+			}
+
+			// Update the tariff
+			m_byTerritoryTariff = byTerritoryTariff;
+
+			// Let all users in your nation know.
+			result << int16(1) << byTerritoryTariff << m_byNation;
+			g_pMain->Send_All(&result, NULL, m_byNation);
+
+			// Update the database (TO-DO: Implement the request)
+			DatabaseThread::AddRequest(&result);
+		} break;
+
+		// King's sceptre
+		case 7:
+			break;
+	}
+
 }
 
 void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
