@@ -391,8 +391,11 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 					memset(szX, 0, sizeof(szX));
 					memset(szZ, 0, sizeof(szZ));
 
-					GetString(szX, szPath, 4, index);
-					GetString(szZ, szPath, 4, index);
+					memcpy(szX, szPath + index, 4);
+					index += 4;
+
+					memcpy(szZ, szPath + index, 4);
+					index += 4;
 
 					pNpc->m_PathList.pPattenPos[l].x = atoi(szX);
 					pNpc->m_PathList.pPattenPos[l].z = atoi(szZ);

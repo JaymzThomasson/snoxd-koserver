@@ -124,13 +124,6 @@ DEFINE_LUA_CLASS
 /* 
 	Global functions 
 */
-
-LUA_FUNCTION(myrand)
-{
-	LUA_RETURN(myrand(LUA_ARG(int, 1), 
-					  LUA_ARG(int, 2)));
-}
-
 LUA_FUNCTION(CheckPercent)
 {
 	LUA_RETURN(CheckPercent(LUA_ARG(int, 1)));

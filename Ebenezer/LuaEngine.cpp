@@ -7,7 +7,7 @@
 
 // define global functions to be called from Lua (e.g. myrand())
 DEFINE_LUA_FUNCTION_TABLE(g_globalFunctions, 
-	MAKE_LUA_FUNCTION(myrand)
+	MAKE_LUA_FUNCTION(CheckPercent)
 );
 
 CLuaEngine::CLuaEngine() : m_lock(new RWLock())

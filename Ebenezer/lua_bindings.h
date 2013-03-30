@@ -1,4 +1,3 @@
 #pragma once
 
-LUA_FUNCTION(myrand);
-LUA_FUNCTION(CheckRandom);
+LUA_FUNCTION(CheckPercent);

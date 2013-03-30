@@ -155,12 +155,6 @@ enum StatType
 #define STAT_MAX 255
 #define QUEST_ARRAY_SIZE 600 // That's a limit of 200 quests (3 bytes per quest)
 
-inline void GetString(char* tBuf, char* sBuf, int len, int& index)
-{
-	memcpy(tBuf, sBuf+index, len);
-	index += len;
-};
-
 inline BYTE GetByte(char* sBuf, int& index)
 {
 	int t_index = index;
@@ -178,28 +172,6 @@ inline DWORD GetDWORD(char* sBuf, int& index)
 {
 	index += 4;
 	return *(DWORD*)(sBuf+index-4);
-};
-
-inline float Getfloat(char* sBuf, int& index)
-{
-	index += 4;
-	return *(float*)(sBuf+index-4);
-};
-
-inline bool GetKOString(char* tBuf, char* sBuf, int& index, unsigned int maxLen, int lenSize = 2)
-{
-	unsigned short len = 0;
-	if (lenSize == 1)
-		len = GetByte(sBuf, index);
-	else 
-		len = GetShort(sBuf, index);
-
-	if (len > maxLen)
-		return false;
-
-	memset(tBuf, 0, maxLen + 1);
-	GetString(tBuf, sBuf, len, index);
-	return true;
 };
 
 inline void SetString(char* tBuf, char* sBuf, int len, int& index)
@@ -225,12 +197,6 @@ inline void SetShort(char* tBuf, int sShort, int& index)
 inline void SetDWORD(char* tBuf, DWORD sDWORD, int& index)
 {
 	CopyMemory( tBuf+index, &sDWORD, 4);
-	index += 4;
-};
-
-inline void Setfloat ( char* tBuf, float sFloat, int& index )
-{
-	CopyMemory( tBuf+index, &sFloat, 4);
 	index += 4;
 };
 
