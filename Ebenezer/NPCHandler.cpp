@@ -333,10 +333,11 @@ void CUser::NpcEvent(Packet & pkt)
 		else
 		{
 			// Ensure this still works as per official without a row in the table.
-			uint32 nTreasury = (pKingSystem == NULL ? 0 : pKingSystem->m_nNationalTreasury);
+			uint32 nTribute = (pKingSystem == NULL ? 0 : pKingSystem->m_nTribute + pKingSystem->m_nTerritoryTax);
+			uint32 nTreasury = (pKingSystem == NULL ? 0 : pKingSystem->m_nNationalTreasury );
 			result	<< uint8(KING_TAX) << uint8(1) // success
 					<< uint16(isKing() ? 1 : 2) // 1 enables king-specific stuff (e.g. scepter), 2 is normal user stuff
-					<< nTreasury;
+					<< nTribute << nTreasury;
 		}
 		Send(&result);
 	} break;
