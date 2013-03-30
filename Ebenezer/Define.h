@@ -1,6 +1,6 @@
 #pragma once
 
-#define CONF_GAME_SERVER	"gameserver.ini"
+#define CONF_GAME_SERVER	"./gameserver.ini"
 
 #define _LISTEN_PORT		15001
 #define _UDP_PORT			8888

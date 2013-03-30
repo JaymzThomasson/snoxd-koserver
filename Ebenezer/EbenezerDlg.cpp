@@ -978,7 +978,7 @@ void CEbenezerDlg::SendFormattedNotice(const char *msg, uint8 nation, ...)
 
 bool CEbenezerDlg::LoadNoticeData()
 {
-	ifstream file(GetProgPath() + "Notice.txt");
+	ifstream file("./Notice.txt");
 	string line;
 	int count = 0;
 

@@ -895,7 +895,7 @@ int CServerDlg::GetServerNumber( int zonenumber )
 
 void CServerDlg::GetServerInfoIni()
 {
-	CIni inifile("server.ini");
+	CIni inifile("./server.ini");
 	m_byZone = inifile.GetInt("SERVER", "ZONE", UNIFY_ZONE);
 	inifile.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, sizeof(m_strGameDSN), false);
 	inifile.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, sizeof(m_strGameUID), false);

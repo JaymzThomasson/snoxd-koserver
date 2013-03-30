@@ -2,7 +2,7 @@
 
 #include "../shared/globals.h"
 
-#define CONF_LOGIN_SERVER	"Version.ini"
+#define CONF_LOGIN_SERVER	"./Version.ini"
 #define _LISTEN_PORT		15100
 
 struct _SERVER_INFO

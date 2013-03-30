@@ -5,7 +5,7 @@
 
 CIni::CIni(const char *lpFilename)
 {
-	m_szFileName = GetProgPath() + lpFilename;
+	m_szFileName = lpFilename;
 }
 
 int CIni::GetInt(char* lpAppName, char* lpKeyName, int nDefault)

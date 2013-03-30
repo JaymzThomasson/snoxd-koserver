@@ -211,18 +211,6 @@ inline void SetKOString(char* tBuf, char* sBuf, int& index, int lenSize = 2)
 	SetString(tBuf, sBuf, len, index);
 };
 
-inline std::string GetProgPath()
-{
-	char Buf[_MAX_PATH], Path[_MAX_PATH];
-	char drive[_MAX_DRIVE], dir[_MAX_DIR], fname[_MAX_FNAME], ext[_MAX_EXT];
-
-	GetModuleFileName(NULL, Buf, _MAX_PATH);
-	_splitpath_s(Buf, drive, sizeof(drive), dir, sizeof(dir), fname, sizeof(fname), ext, sizeof(ext));
-	strcpy_s(Path, sizeof(Path), drive);
-	strcat_s(Path, sizeof(Path), dir);		
-	return std::string(Path);
-};
-
 inline int myrand( int min, int max )
 {
 	if( min == max ) return min;
