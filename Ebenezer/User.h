@@ -765,7 +765,7 @@ public:
 	}
 
 	DECLARE_LUA_FUNCTION(ExpChange) {
-		LUA_NO_RETURN(LUA_GET_INSTANCE()->ExpChange(LUA_ARG(uint32, 2)));	
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->ExpChange(LUA_ARG(int32, 2)));	
 	}
 
 	DECLARE_LUA_FUNCTION(SaveEvent) {
