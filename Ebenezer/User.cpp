@@ -2488,9 +2488,9 @@ int CUser::FindSlotForItem(uint32 nItemID, uint16 sCount)
 	// over the additional logic hit each loop iteration.
 	if (pTable->m_bCountable)
 	{
-		for (int i = 0; i < HAVE_MAX; i++)
+		for (int i = SLOT_MAX; i < SLOT_MAX+HAVE_MAX; i++)
 		{
-			_ITEM_DATA *pItem = GetItem(SLOT_MAX + i);
+			_ITEM_DATA *pItem = GetItem(i);
 
 			// If it's the item we're after, and there will be room to store it...
 			if (pItem->nNum == nItemID

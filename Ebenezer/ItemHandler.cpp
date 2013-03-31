@@ -313,7 +313,7 @@ bool CUser::GiveItem(uint32 itemid, uint16 count, bool send_packet /*= true*/)
 	if (pos < 0)
 		return false;
 
-	_ITEM_DATA *pItem = &m_sItemArray[SLOT_MAX+pos];
+	_ITEM_DATA *pItem = &m_sItemArray[pos];
 	if (pItem->nNum != 0)
 		bNewItem = false;
 
@@ -330,7 +330,7 @@ bool CUser::GiveItem(uint32 itemid, uint16 count, bool send_packet /*= true*/)
 		pItem->sCount = pItem->sDuration;
 
 	if (send_packet)
-		SendStackChange(itemid, m_sItemArray[SLOT_MAX+pos].sCount, m_sItemArray[SLOT_MAX+pos].sDuration, pos, true);
+		SendStackChange(itemid, m_sItemArray[pos].sCount, m_sItemArray[pos].sDuration, pos - SLOT_MAX, true);
 	return true;
 }
 
