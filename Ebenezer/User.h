@@ -519,7 +519,7 @@ public:
 	void KissUser();
 
 	void RecvSelectMsg(Packet & pkt);
-	bool AttemptSelectMsg(uint8 bMenuID);
+	bool AttemptSelectMsg(uint8 bMenuID, int8 bySelectedReward);
 
 	// from the client
 	void ItemUpgradeProcess(Packet & pkt);
@@ -625,7 +625,7 @@ public:
 	void QuestV2MonsterDataRequest();
 	void QuestV2ExecuteHelper(_QUEST_HELPER * pQuestHelper);
 	void QuestV2CheckFulfill(_QUEST_HELPER * pQuestHelper);
-	bool QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID);
+	bool QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID, int8 bSelectedReward = -1);
 
 	void QuestV2SaveEvent(uint16 sQuestID);
 	void QuestV2SendNpcMsg(uint32 nQuestID, uint16 sNpcID);
@@ -762,6 +762,10 @@ public:
 
 	DECLARE_LUA_FUNCTION(GoldLose) {
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->GoldLose(LUA_ARG(uint32, 2)));	
+	}
+
+	DECLARE_LUA_FUNCTION(ExpChange) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->ExpChange(LUA_ARG(uint32, 2)));	
 	}
 
 	DECLARE_LUA_FUNCTION(SaveEvent) {

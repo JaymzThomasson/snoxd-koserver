@@ -3,11 +3,12 @@
 #include "../shared/types.h"
 #include <hash_map>
 
-#define LUA_SCRIPT_DIRECTORY	"./quests/"
-#define LUA_SCRIPT_ENTRY_POINT	"Main"
-#define LUA_SCRIPT_GLOBAL_USER	"pUser"
-#define LUA_SCRIPT_GLOBAL_NPC	"pNpc"
-#define LUA_SCRIPT_BUFFER_SIZE	10000
+#define LUA_SCRIPT_DIRECTORY				"./quests/"
+#define LUA_SCRIPT_ENTRY_POINT				"Main"
+#define LUA_SCRIPT_GLOBAL_USER				"pUser"
+#define LUA_SCRIPT_GLOBAL_NPC				"pNpc"
+#define LUA_SCRIPT_GLOBAL_SELECTED_REWARD	"bSelectedReward"
+#define LUA_SCRIPT_BUFFER_SIZE				10000
 
 // If defined, scripts are not cached. This is for testing/development purposes only.
 #ifdef _DEBUG
@@ -40,7 +41,7 @@ public:
 	static int LoadBytecodeChunk(lua_State * L, uint8 * bytes, size_t len, BytecodeBuffer * buffer);
 
 	// Executes script from bytecode
-	bool ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const char * filename, BytecodeBuffer & bytecode);
+	bool ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 bSelectedReward, const char * filename, BytecodeBuffer & bytecode);
 
 	// Handles the retrieval of error messages (same error codes used in both the compilation & execution stages)
 	void RetrieveLoadError(int err, const char * filename);
@@ -60,7 +61,7 @@ public:
 	CLuaEngine();
 	bool Initialise();
 	CLuaScript * SelectAvailableScript();
-	bool ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const char * filename);
+	bool ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 bSelectedReward, const char * filename);
 	void Shutdown();
 	~CLuaEngine();
 

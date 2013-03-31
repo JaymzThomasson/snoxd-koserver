@@ -219,11 +219,16 @@ void CUser::ClassChange(Packet & pkt, bool bFromClient /*= true */)
 void CUser::RecvSelectMsg(Packet & pkt)	// Receive menu reply from client.
 {
 	uint8 bMenuID = pkt.read<uint8>();
-	if (!AttemptSelectMsg(bMenuID))
+	string szLuaFilename;
+	int8 bySelectedReward = -1;
+	pkt.SByte();
+	pkt >> szLuaFilename >> bySelectedReward;
+
+	if (!AttemptSelectMsg(bMenuID, bySelectedReward))
 		memset(&m_iSelMsgEvent, -1, sizeof(m_iSelMsgEvent));
 }
 
-bool CUser::AttemptSelectMsg(uint8 bMenuID)
+bool CUser::AttemptSelectMsg(uint8 bMenuID, int8 bySelectedReward)
 {
 	_QUEST_HELPER * pHelper = NULL;
 	if (bMenuID >= MAX_MESSAGE_EVENT
@@ -235,7 +240,7 @@ bool CUser::AttemptSelectMsg(uint8 bMenuID)
 	int32 selectedEvent = m_iSelMsgEvent[bMenuID];
 	if (selectedEvent < 0
 		|| (pHelper = g_pMain->m_QuestHelperArray.GetData(m_nQuestHelperID)) == NULL
-		|| !QuestV2RunEvent(pHelper, selectedEvent))
+		|| !QuestV2RunEvent(pHelper, selectedEvent, bySelectedReward))
 		return false;
 
 	return true;

@@ -110,6 +110,7 @@ template <> inline void lua_tpush<unsigned char>(lua_State * L, unsigned char ar
 template <> inline void lua_tpush<int>(lua_State * L, int arg) { lua_pushinteger(L, arg); }
 template <> inline void lua_tpush<short>(lua_State * L, short arg) { lua_pushinteger(L, arg); }
 template <> inline void lua_tpush<char>(lua_State * L, char arg) { lua_pushinteger(L, arg); }
+template <> inline void lua_tpush<signed char>(lua_State * L, signed char arg) { lua_pushinteger(L, arg); }
 
 // handle booleans
 template <> inline void lua_tpush<bool>(lua_State * L, bool arg) { lua_pushboolean(L, arg); }

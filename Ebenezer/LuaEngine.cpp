@@ -71,7 +71,7 @@ CLuaScript * CLuaEngine::SelectAvailableScript()
 	return &m_luaScript;
 }
 
-bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const char * filename)
+bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 bSelectedReward, const char * filename)
 {
 	ScriptBytecodeMap::iterator itr;
 	bool result = false;
@@ -105,7 +105,8 @@ bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const
 #endif
 
 		// Now that we have the bytecode, we can use it.
-		result = SelectAvailableScript()->ExecuteScript(pUser, pNpc, nEventID, filename, bytecode);
+		result = SelectAvailableScript()->ExecuteScript(pUser, pNpc, nEventID, bSelectedReward, 
+			filename, bytecode);
 
 		// Done using the lock.
 		m_lock->ReleaseWriteLock();
@@ -113,7 +114,8 @@ bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const
 	else
 	{
 		// Already have the bytecode, so now we need to use it.
-		result = SelectAvailableScript()->ExecuteScript(pUser, pNpc, nEventID, filename, itr->second);
+		result = SelectAvailableScript()->ExecuteScript(pUser, pNpc, nEventID, bSelectedReward, 
+			filename, itr->second);
 
 		// Done using the lock.
 		m_lock->ReleaseReadLock();
@@ -168,7 +170,7 @@ int CLuaScript::LoadBytecodeChunk(lua_State * L, uint8 * bytes, size_t len, Byte
 	return 0;
 }
 
-bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const char * filename, BytecodeBuffer & bytecode)
+bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 bSelectedReward, const char * filename, BytecodeBuffer & bytecode)
 {
 	// Ensure that we wait until the last user's done executing their script.
 	FastGuard lock(m_lock);
@@ -183,15 +185,15 @@ bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, const
 		return false;
 	}
 
-	// Entry point requires 1 arguments: the event ID.
-	// The user & NPC instances are globals.
-
+	// The user & NPC instances are globals. As is the selected quest reward.
 	lua_tsetglobal(m_luaState, LUA_SCRIPT_GLOBAL_USER, pUser);
 	lua_tsetglobal(m_luaState, LUA_SCRIPT_GLOBAL_NPC, pNpc);
+	lua_tsetglobal(m_luaState, LUA_SCRIPT_GLOBAL_SELECTED_REWARD, bSelectedReward);
 
 	// Find & assign script's entry point to the stack
 	lua_getglobal(m_luaState, LUA_SCRIPT_ENTRY_POINT);
 
+	// Entry point requires 1 arguments: the event ID.
 	lua_tpush(m_luaState, nEventID);
 
 	// Try calling the script's entry point (Main()).

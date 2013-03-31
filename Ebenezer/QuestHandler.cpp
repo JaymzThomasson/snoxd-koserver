@@ -269,7 +269,7 @@ void CUser::QuestV2CheckFulfill(_QUEST_HELPER * pQuestHelper)
 	QuestV2RunEvent(pQuestHelper, pQuestHelper->nEventCompleteIndex);
 }
 
-bool CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID)
+bool CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID, int8 bSelectedReward /*= -1*/)
 {
 	// Lookup the corresponding NPC.
 	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(m_sEventNid);
@@ -284,7 +284,8 @@ bool CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID)
 	pNpc->IncRef();
 
 	m_nQuestHelperID = pQuestHelper->nIndex;
-	result = g_pMain->GetLuaEngine()->ExecuteScript(this, pNpc, nEventID, pQuestHelper->strLuaFilename.c_str());
+	result = g_pMain->GetLuaEngine()->ExecuteScript(this, pNpc, nEventID, bSelectedReward, 
+		pQuestHelper->strLuaFilename.c_str());
 
 	// Decrease it now that we've finished with it + free if necessary
 	pNpc->DecRef();
