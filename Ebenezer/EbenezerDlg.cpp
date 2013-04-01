@@ -977,6 +977,44 @@ void CEbenezerDlg::SendFormattedNotice(const char *msg, uint8 nation, ...)
 	SendNotice(buffer, nation);
 }
 
+void CEbenezerDlg::SendAnnouncement(const char *msg, uint8 bNation /*= 0*/)
+{
+	Packet result;
+	string buffer;
+	GetServerResource(IDP_ANNOUNCEMENT, &buffer, msg);
+	ChatPacket::Construct(&result, WAR_SYSTEM_CHAT, &buffer);
+	Send_All(&result, NULL, bNation);
+}
+
+void CEbenezerDlg::SendFormattedAnnouncement(const char *msg, uint8 nation, ...)
+{
+	char buffer[512];
+	va_list ap;
+	va_start(ap, nation);
+	vsnprintf(buffer, sizeof(buffer), msg, ap);
+	va_end(ap);
+
+	SendAnnouncement(buffer, nation);
+}
+
+void CEbenezerDlg::SendFormattedResource(uint32 nResourceID, uint8 nation, bool bIsNotice, ...)
+{
+	_SERVER_RESOURCE *pResource = m_ServerResourceArray.GetData(nResourceID);
+	if (pResource == NULL)
+		return;
+
+	string buffer;
+	va_list ap;
+	va_start(ap, bIsNotice);
+	_string_format(pResource->strResource, &buffer, ap);
+	va_end(ap);
+
+	if (bIsNotice)
+		SendNotice(buffer.c_str(), nation);
+	else
+		SendAnnouncement(buffer.c_str(), nation);
+}
+
 bool CEbenezerDlg::LoadNoticeData()
 {
 	ifstream file("./Notice.txt");

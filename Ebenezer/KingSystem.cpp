@@ -51,14 +51,8 @@ void CKingSystem::CheckKingTimer()
 				&& bCurHour == m_byHour
 				&& bCurMinute == m_byMinute)
 			{
-				Packet result;
-				std::string buffer;
-				
 				m_byType = 1;
-
-				g_pMain->GetServerResource(IDS_KING_RECOMMEND_TIME, &buffer);
-				ChatPacket::Construct(&result, WAR_SYSTEM_CHAT);
-				g_pMain->Send_All(&result, NULL, m_byNation);
+				g_pMain->SendFormattedResource(IDS_KING_RECOMMEND_TIME, m_byNation, false);
 
 				// KingNotifyMessage(1, m_byNation, WAR_SYSTEM_CHAT);
 				// SendUDP_ElectionStatus(m_byType);
@@ -73,14 +67,8 @@ void CKingSystem::CheckKingTimer()
 					&& bCurHour == m_byHour
 					&& bCurMinute == m_byMinute)
 			{
-				Packet result;
-				std::string buffer;
-				
 				m_byType = 2;
-
-				g_pMain->GetServerResource(IDS_KING_RECOMMEND_FINISH_TIME, &buffer);
-				ChatPacket::Construct(&result, WAR_SYSTEM_CHAT);
-				g_pMain->Send_All(&result, NULL, m_byNation);
+				g_pMain->SendFormattedResource(IDS_KING_RECOMMEND_FINISH_TIME, m_byNation, false);
 
 				// CheckRecommendList();
 				// KingNotifyMessage(2, m_byNation, WAR_SYSTEM_CHAT);
@@ -89,13 +77,8 @@ void CKingSystem::CheckKingTimer()
 
 			if ((bCurMinute % 30) && !m_bSentFirstMessage)
 			{
-				Packet result;
-				std::string buffer;
-
 				m_bSentFirstMessage = true;
-				g_pMain->GetServerResource(IDS_KING_PERIOD_OF_RECOMMEND_MESSAGE, &buffer);
-				ChatPacket::Construct(&result, PUBLIC_CHAT);
-				g_pMain->Send_All(&result, NULL, m_byNation);
+				g_pMain->SendFormattedResource(IDS_KING_PERIOD_OF_RECOMMEND_MESSAGE, m_byNation, true);
 
 				// KingNotifyMessage(28, m_byNation, PUBLIC_CHAT);
 				break; // awkward, but official behaviour.
@@ -111,14 +94,8 @@ void CKingSystem::CheckKingTimer()
 					&& bCurHour == m_byHour
 					&& bCurMinute == m_byMinute)
 			{
-				Packet result;
-				std::string buffer;
-				
 				m_byType = 3;
-
-				g_pMain->GetServerResource(IDS_KING_ELECTION_TIME, &buffer);
-				ChatPacket::Construct(&result, WAR_SYSTEM_CHAT);
-				g_pMain->Send_All(&result, NULL, m_byNation);
+				g_pMain->SendFormattedResource(IDS_KING_ELECTION_TIME, m_byNation, false);
 
 				// KingNotifyMessage(3, m_byNation, WAR_SYSTEM_CHAT);
 				// SendUDP_ElectionStatus(m_byType);
@@ -139,13 +116,8 @@ void CKingSystem::CheckKingTimer()
 
 			if ((bCurMinute % 30) && !m_bSentFirstMessage)
 			{
-				Packet result;
-				std::string buffer;
-
 				m_bSentFirstMessage = true;
-				g_pMain->GetServerResource(IDS_KING_PERIOD_OF_ELECTION_MESSAGE, &buffer);
-				ChatPacket::Construct(&result, PUBLIC_CHAT);
-				g_pMain->Send_All(&result, NULL, m_byNation);
+				g_pMain->SendFormattedResource(IDS_KING_PERIOD_OF_ELECTION_MESSAGE, m_byNation, true);
 
 				// KingNotifyMessage(29, m_byNation, PUBLIC_CHAT);
 				break; // awkward, but official behaviour.
@@ -167,9 +139,6 @@ void CKingSystem::CheckKingTimer()
 // Checks to see if a special (coin/XP) event should end.
 void CKingSystem::CheckSpecialEvent()
 {
-	Packet result;
-	std::string buffer;
-
 	// Get the current time.
 	uint8	bCurDay = g_localTime.tm_mday,
 			bCurHour = g_localTime.tm_hour,
@@ -197,9 +166,7 @@ void CKingSystem::CheckSpecialEvent()
 			// TO-DO: Update the bonuses on the AI server's side (which we don't have implemented). 
 			// TO-DO: Update the KING_SYSTEM table to reset the stored event data there too.
 
-			g_pMain->GetServerResource(IDS_KING_EXP_BONUS_EVENT_STOP, &buffer);
-			ChatPacket::Construct(&result, WAR_SYSTEM_CHAT, &buffer);
-			g_pMain->Send_All(&result, NULL, m_byNation);
+			g_pMain->SendFormattedResource(IDS_KING_EXP_BONUS_EVENT_STOP, m_byNation, false);
 
 			// KingNotifyMessage(IDS_KING_EXP_BONUS_EVENT_STOP, m_byNation, WAR_SYSTEM_CHAT); 
 			// 31 translates to a resource ID of 230, other args: 0, 0, 0, 0
@@ -225,10 +192,7 @@ void CKingSystem::CheckSpecialEvent()
 			// TO-DO: Tell other servers that the event expired (i.e. via UDP)
 			// TO-DO: Update the bonuses on the AI server's side (which we don't have implemented). 
 			// TO-DO: Update the KING_SYSTEM table to reset the stored event data there too.
-
-			g_pMain->GetServerResource(IDS_KING_NOAH_BONUS_EVENT_STOP, &buffer);
-			ChatPacket::Construct(&result, WAR_SYSTEM_CHAT, &buffer);
-			g_pMain->Send_All(&result, NULL, m_byNation);
+			g_pMain->SendFormattedResource(IDS_KING_NOAH_BONUS_EVENT_STOP, m_byNation, false);
 
 			// KingNotifyMessage(IDS_KING_NOAH_BONUS_EVENT_STOP, m_byNation, WAR_SYSTEM_CHAT);
 			// 32 translates to a resource ID of 231, other args: 0, 0, 0, 0

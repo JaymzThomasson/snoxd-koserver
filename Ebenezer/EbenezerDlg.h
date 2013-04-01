@@ -129,6 +129,11 @@ public:
 	void SendNotice(const char *msg, uint8 bNation = NO_NATION);
 	void SendFormattedNotice(const char *msg, uint8 nation = NO_NATION, ...);
 
+	void SendAnnouncement(const char *msg, uint8 bNation = NO_NATION);
+	void SendFormattedAnnouncement(const char *msg, uint8 nation = NO_NATION, ...);
+
+	void SendFormattedResource(uint32 nResourceID, uint8 nation = NO_NATION, bool bIsNotice = true, ...);
+
 	void Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
 	void Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
 	void Send_OldRegions(Packet *pkt, int old_x, int old_z, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
