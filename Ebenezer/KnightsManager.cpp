@@ -5,6 +5,7 @@
 #include "KnightsManager.h"
 #include "EbenezerDlg.h"
 #include "User.h"
+#include "../shared/tstring.h"
 
 // TO-DO: Move this to the CUser class.
 void CKnightsManager::PacketProcess(CUser *pUser, Packet & pkt)
@@ -572,8 +573,8 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, BYTE command)
 		return;
 
 	// Construct the clan system chat packet
-	pKnights->ConstructChatPacket(result, clanNotice.c_str(), 
-		pTUser != NULL ? pTUser->GetName() : strUserID.c_str()); 
+	std::string strMessage = string_format(clanNotice, pTUser != NULL ? pTUser->GetName() : strUserID.c_str());
+	ChatPacket::Construct(&result, KNIGHTS_CHAT, &strMessage);
 
 	// If we've been removed from a clan, tell the user as well (since they're no longer in the clan)
 	if (command == KNIGHTS_REMOVE && pTUser != NULL)

@@ -1,5 +1,33 @@
 #pragma once
 
+class ChatPacket
+{
+public:
+	// Construct a chat packet from the data provided
+	// NOTE: Using pointers here for more flexible input (references would be nice, but implementation can be fiddly)
+	static void Construct(Packet * result, uint8 bType, std::string * strMessage = NULL, std::string * strSender = NULL, 
+		uint8 bNation = 1, int16 senderID = -1)
+	{
+		result->Initialize(WIZ_CHAT);
+		*result << bType << bNation << senderID;
+
+		result->SByte();
+		if (strSender == NULL) *result << uint8(0);
+		else *result << *strSender;
+
+		result->DByte();
+		if (strMessage == NULL) *result << uint16(0);
+		else *result << *strMessage;
+	}
+
+	static void Construct(Packet * result, uint8 bType, char * szMessage, char * szSender = "",
+		uint8 bNation = 1, int16 senderID = -1)
+	{
+		std::string strSender = szSender, strMessage = szMessage;
+		Construct(result, bType, &strMessage, &strSender, bNation, senderID);
+	}
+};
+
 #define COMMAND_HANDLER(name) bool name (CommandArgs & vargs, const char *args, const char *description)
 
 typedef std::list<std::string> CommandArgs;

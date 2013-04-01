@@ -470,8 +470,7 @@ void CAISocket::RecvUserExp(Packet & pkt)
 
 void CAISocket::RecvSystemMsg(Packet & pkt)
 {
-	Packet result(WIZ_CHAT);
-
+	Packet result;
 	std::string strSysMsg;
 	uint8 bType;
 	uint16 sWho;
@@ -482,11 +481,10 @@ void CAISocket::RecvSystemMsg(Packet & pkt)
 	switch (sWho)
 	{
 	case SEND_ALL:
-		result << bType << uint8(1) << int16(-1) << strSysMsg; 
+		ChatPacket::Construct(&result, bType, &strSysMsg);
 		g_pMain->Send_All(&result);
 		break;
 	}
-	
 }
 
 void CAISocket::RecvNpcGiveItem(Packet & pkt)
@@ -750,28 +748,19 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 
 		g_pMain->GetServerResource(nResourceID, &strKnightsName, strMaxUserName.c_str());
 
-#if 0
-		send_index = 0;
-		sprintf( finalstr, g_pMain->GetServerResource(IDP_ANNOUNCEMENT), chatstr );
-		SetByte( send_buff, WIZ_CHAT, send_index );
-		SetByte( send_buff, WAR_SYSTEM_CHAT, send_index );
-		SetByte( send_buff, 1, send_index );
-		SetShort( send_buff, -1, send_index );
-		SetKOString( send_buff, finalstr, send_index );
-		g_pMain->Send_All( send_buff, send_index );
+		Packet result;
+		string finalstr;
 
-		send_index = 0;
-		SetByte( send_buff, WIZ_CHAT, send_index );
-		SetByte( send_buff, PUBLIC_CHAT, send_index );
-		SetByte( send_buff, 1, send_index );
-		SetShort( send_buff, -1, send_index );
-		SetKOString( send_buff, finalstr, send_index );
-		g_pMain->Send_All( send_buff, send_index );
-#endif
+		g_pMain->GetServerResource(IDP_ANNOUNCEMENT, &finalstr, chatstr.c_str());
+		ChatPacket::Construct(&result, WAR_SYSTEM_CHAT, &finalstr);
+		g_pMain->Send_All(&result);
 
-		Packet result(UDP_BATTLE_EVENT_PACKET, bType);
+		ChatPacket::Construct(&result, PUBLIC_CHAT, &finalstr);
+		g_pMain->Send_All(&result);
+
+		result.Initialize(UDP_BATTLE_EVENT_PACKET);
 		result.SByte();
-		result << bResult << strKnightsName << strMaxUserName;
+		result << bType << bResult << strKnightsName << strMaxUserName;
 		g_pMain->Send_UDP_All(&result);
 	}
 }

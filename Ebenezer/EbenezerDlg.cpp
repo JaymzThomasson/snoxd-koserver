@@ -952,18 +952,11 @@ void CEbenezerDlg::HandleConsoleCommand(const char * msg)
 
 void CEbenezerDlg::SendNotice(const char *msg, uint8 bNation /*= 0*/)
 {
-	Packet data(WIZ_CHAT);
+	Packet result;
 	string buffer;
-
-	
 	GetServerResource(IDP_ANNOUNCEMENT, &buffer, msg);
-	data  << uint8(PUBLIC_CHAT)		// chat type 
-		  << uint8(1)				// nation
-		  << int16(-1)				// session ID
-		  << uint8(0)				// character name length
-		  << buffer;				// chat message
-
-	Send_All(&data, NULL, bNation);
+	ChatPacket::Construct(&result, PUBLIC_CHAT, &buffer);
+	Send_All(&result, NULL, bNation);
 }
 
 void CEbenezerDlg::SendFormattedNotice(const char *msg, uint8 nation, ...)
@@ -1366,11 +1359,10 @@ void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 			break;
 	}
 
-	Packet result(WIZ_CHAT, uint8(chat_type));
+	Packet result;
 	string finalstr;
 	GetServerResource(IDP_ANNOUNCEMENT, &finalstr, chatstr.c_str());
-
-	result << uint8(1) << int16(-1) << uint8(0) << finalstr;
+	ChatPacket::Construct(&result, (uint8) chat_type, &finalstr);
 	Send_All(&result, NULL, nation);
 }
 

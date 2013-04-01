@@ -53,9 +53,11 @@ void CUser::CleanupChatCommands() { free_command_table(s_commandTable); }
 
 void CUser::Chat(Packet & pkt)
 {
-	Packet result(WIZ_CHAT);
-	uint8 type = pkt.read<uint8>();
-	std::string buff, chatstr, finalstr;
+	Packet result;
+	uint16 sessID;
+	uint8 type = pkt.read<uint8>(), bNation;
+	string chatstr, finalstr, strSender, * strMessage;
+
 	bool isAnnouncement = false;
 
 	if (isMuted())
@@ -74,9 +76,6 @@ void CUser::Chat(Packet & pkt)
 		type = 0x14;
 #endif
 
-	uint8 bNation = GetNation();
-	uint16 sessID = GetSocketID();
-
 	// Handle GM notice & announcement commands
 	if (type == PUBLIC_CHAT || type == ANNOUNCEMENT_CHAT)
 	{
@@ -91,26 +90,26 @@ void CUser::Chat(Packet & pkt)
 		// Pull the notice string (#### NOTICE : %s ####) from the database.
 		// Format the chat string around it, so our chat data is within the notice
 		g_pMain->GetServerResource(IDP_ANNOUNCEMENT, &finalstr, chatstr.c_str());
-
-		bNation = KARUS; // arbitrary nation
-		sessID = -1;
 		isAnnouncement = true;
 	}
 
-	result.SByte();
-	result << type << bNation << sessID;
+
 	if (isAnnouncement)
 	{
-		result << uint8(0); // GM notice/announcements show no name (so specify length of 0)
-		result.DByte();
-		result << finalstr; // now tack on the formatted message from the user
+		// GM notice/announcements show no name, so don't bother setting it.
+		strMessage = &finalstr; // use the formatted message from the user
+		bNation = KARUS; // arbitrary nation
+		sessID = -1;
 	}
 	else
 	{
-		result << GetName(); // everything else provides a name
-		result.DByte();
-		result << chatstr; // now tack on the chat message from the user
+		strMessage = &chatstr; // use the raw message from the user
+		strSender = GetName(); // everything else uses a name, so set it
+		bNation = GetNation();
+		sessID = GetSocketID();
 	}
+
+	ChatPacket::Construct(&result, type, &strSender, strMessage, bNation, sessID);
 
 	switch (type) 
 	{
@@ -464,18 +463,8 @@ COMMAND_HANDLER(CEbenezerDlg::HandlePermanentChatCommand)
 	return true;
 }
 
-void CEbenezerDlg::GetPermanentMessage(Packet & result)
-{
-	result  << uint8(PERMANENT_CHAT)	 // chat type 
-			<< uint8(1)					 // nation
-			<< int16(-1)				 // session ID
-			<< uint8(0)					 // character name length
-			<< m_strPermanentChat;		 // chat message
-}
-
 void CEbenezerDlg::SetPermanentMessage(const char * format, ...)
 {
-	Packet data(WIZ_CHAT);
 	char buffer[128];
 	va_list ap;
 	va_start(ap, format);
@@ -485,21 +474,17 @@ void CEbenezerDlg::SetPermanentMessage(const char * format, ...)
 	m_bPermanentChatMode = true;
 	m_strPermanentChat = buffer;
 
-	GetPermanentMessage(data); 
-	Send_All(&data);
+	Packet result;
+	ChatPacket::Construct(&result, PERMANENT_CHAT, &m_strPermanentChat);
+	Send_All(&result);
 }
 
 COMMAND_HANDLER(CEbenezerDlg::HandlePermanentChatOffCommand)
 {
-	Packet data(WIZ_CHAT, uint8(END_PERMANENT_CHAT));
-
-	data  << uint8(1)				// nation
-		  << int16(-1)				// session ID
-		  << uint8(0)				// character name length
-		  << uint16(0);				// chat message
-
+	Packet result;
+	ChatPacket::Construct(&result, END_PERMANENT_CHAT);
 	m_bPermanentChatMode = false;
-	Send_All(&data);
+	Send_All(&result);
 	return true;
 }
 

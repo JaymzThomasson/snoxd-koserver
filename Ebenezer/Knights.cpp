@@ -140,33 +140,17 @@ void CKnights::Disband(CUser *pLeader /*= NULL*/)
 	pLeader->Send(&result);
 }
 
-void CKnights::ConstructChatPacket(Packet & data, const char * format, ...)
-{
-	char buffer[128];
-	va_list ap;
-	va_start(ap, format);
-	vsnprintf(buffer, 128, format, ap);
-	va_end(ap);
-
-	data.Initialize(WIZ_CHAT);
-	data  << uint8(KNIGHTS_CHAT)	// clan chat opcode
-		  << uint8(1)				// nation
-		  << int16(-1)				// session ID
-		  << uint8(0)				// character name length
-		  << buffer;				// chat message
-}
-
 void CKnights::SendChat(const char * format, ...)
 {
-	Packet data;
 	char buffer[128];
 	va_list ap;
 	va_start(ap, format);
 	vsnprintf(buffer, 128, format, ap);
 	va_end(ap);
 
-	ConstructChatPacket(data, "%s", buffer); // hmm, this could be done better.
-	Send(&data);
+	Packet result;
+	ChatPacket::Construct(&result, KNIGHTS_CHAT, buffer);
+	Send(&result);
 }
 
 void CKnights::Send(Packet *pkt)

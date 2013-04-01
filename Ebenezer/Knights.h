@@ -58,7 +58,6 @@ public:
 
 	void Disband(CUser *pLeader = NULL);
 
-	void ConstructChatPacket(Packet & data, const char * format, ...);
 	void SendChat(const char * format, ...);
 	void Send(Packet *pkt);
 
