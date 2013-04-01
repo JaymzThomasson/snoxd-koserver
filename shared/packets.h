@@ -134,22 +134,25 @@
 ////////////////////////////////////////////////////////////////
 // chat define
 ////////////////////////////////////////////////////////////////
-#define GENERAL_CHAT					0x01
-#define PRIVATE_CHAT					0x02
-#define PARTY_CHAT						0x03
-#define FORCE_CHAT						0x04
-#define SHOUT_CHAT						0x05
-#define KNIGHTS_CHAT					0x06
-#define PUBLIC_CHAT						0x07
-#define WAR_SYSTEM_CHAT					0x08
-#define PERMANENT_CHAT					0x09
-#define END_PERMANENT_CHAT				0x0A
-#define REPEAT_CHAT						0x0B
-#define END_REPEAT_CHAT					0x0C
-#define COMMAND_CHAT					0x0D
-#define MERCHANT_CHAT					0x0E
-#define ALLIANCE_CHAT					0x0F
-#define ANNOUNCEMENT_CHAT				0x11
+enum ChatType
+{
+	GENERAL_CHAT				= 1,
+	PRIVATE_CHAT				= 2,
+	PARTY_CHAT					= 3,
+	FORCE_CHAT					= 4,
+	SHOUT_CHAT					= 5,
+	KNIGHTS_CHAT				= 6,
+	PUBLIC_CHAT					= 7,
+	WAR_SYSTEM_CHAT				= 8,
+	PERMANENT_CHAT				= 9,
+	END_PERMANENT_CHAT			= 10,
+	REPEAT_CHAT					= 11,
+	END_REPEAT_CHAT				= 12,
+	COMMAND_CHAT				= 13,
+	MERCHANT_CHAT				= 14,
+	ALLIANCE_CHAT				= 15,
+	ANNOUNCEMENT_CHAT			= 17
+};
 
 ////////////////////////////////////////////////////////////////
 
