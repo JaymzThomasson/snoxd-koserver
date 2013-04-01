@@ -369,8 +369,90 @@ void CKingSystem::ElectionScheduleConfirmation(CUser * pUser, Packet & pkt)
 	pUser->Send(&result);
 }
 
-void CKingSystem::CandidacyRecommend(CUser * pUser, Packet & pkt) {}
-void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt) {}
+void CKingSystem::CandidacyRecommend(CUser * pUser, Packet & pkt) 
+{
+	Packet result(WIZ_KING, uint8(KING_ELECTION));
+	std::string strUserID;
+	pkt.SByte();
+	pkt >> strUserID;
+	if (strUserID.empty() || strUserID.length() > MAX_ID_SIZE)
+		return;
+
+	result << uint8(KING_ELECTION_NOMINATE);
+
+	// TO-DO: Check if user's in candidate list
+	if (1 == 2)
+	{
+		result << int16(-3);
+		pUser->Send(&result);
+		return;
+	}
+
+	if (m_byType != 1)
+	{
+		result << int16(-2);
+		pUser->Send(&result);
+		return;
+	}
+
+	// TO-DO: Send request to database.
+}
+
+void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
+{
+	Packet result(WIZ_KING, uint8(KING_ELECTION));
+	uint8 opcode = pkt.read<uint8>();
+	bool bSuccess = false;
+
+	result << uint8(KING_ELECTION_NOMINATE) << opcode;
+
+	switch (opcode)
+	{
+	case 1:
+		CandidacyNoticeBoard_Write(pUser, pkt);
+		return;
+
+	case 2:
+		CandidacyNoticeBoard_Read(pUser, pkt);
+		return;
+
+	case 4:
+		if (m_byType == 1 || m_byType == 2 || m_byType == 3)
+		{
+			// TO-DO: Find user in (candidate list?), if not found we can break out of here and error.
+			if (1 == 2)
+				break;
+
+			// 
+			bSuccess = true;
+		}
+		break;
+
+	case 5:
+		if (m_byType == 1 || m_byType == 2 || m_byType == 3)
+			bSuccess = true;
+		break;
+
+
+	default: 
+		return;
+	}
+
+	result << int16(bSuccess ? 1 : -1);
+	if (opcode == 4)
+		result << bSuccess;
+
+	pUser->Send(&result);
+}
+
+void CKingSystem::CandidacyNoticeBoard_Write(CUser * pUser, Packet & pkt)
+{
+}
+
+void CKingSystem::CandidacyNoticeBoard_Read(CUser * pUser, Packet & pkt)
+{
+}
+
 void CKingSystem::ElectionPoll(CUser * pUser, Packet & pkt) {}
 void CKingSystem::CandidacyResign(CUser * pUser, Packet & pkt) {}
 
