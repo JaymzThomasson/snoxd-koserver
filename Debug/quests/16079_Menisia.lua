@@ -161,7 +161,7 @@ local eventMap = {
 				330150075  -- Red Pearl Ring (+5 Magic Power) 
 			}
 			
-			pUser:GiveItem(nRewards[1+bSelectedReward], 1)
+			pUser:GiveItem(nRewards[1+bSelectedReward])
 			pUser:GiveItem(389034000, 3) -- 3 x Bezoar
 			pUser:ExpChange(1400)
 			pUser:GoldGain(3000)
