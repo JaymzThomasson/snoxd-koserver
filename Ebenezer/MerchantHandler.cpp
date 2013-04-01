@@ -331,9 +331,9 @@ void CUser::MerchantItemBuy(Packet & pkt)
 
 void CUser::MerchantInsert(Packet & pkt)
 {
-	std::string advertMessage; // check here maybe to make sure they're not using it otherwise?
+	string advertMessage; // check here maybe to make sure they're not using it otherwise?
 	pkt >> advertMessage;
-	if (advertMessage.empty() || advertMessage.size() >= MAX_MERCH_MESSAGE)
+	if (advertMessage.size() > MAX_MERCH_MESSAGE)
 		return;
 
 	m_bMerchantState = MERCHANT_STATE_SELLING;
@@ -343,7 +343,7 @@ void CUser::MerchantInsert(Packet & pkt)
 		<< m_bPremiumMerchant; 
 
 	for (int i = 0; i < MAX_MERCH_ITEMS; i++)
-		result << uint32(m_arMerchantItems[i].nNum);
+		result << m_arMerchantItems[i].nNum;
 
 	SendToRegion(&result);
 }
