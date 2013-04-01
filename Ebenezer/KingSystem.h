@@ -6,6 +6,13 @@ class CKingSystem
 public:
 	CKingSystem();
 
+	// Handles timed events.
+	void CheckKingTimer();
+
+	// Checks to see if a special (coin/XP) event should end.
+	void CheckSpecialEvent();
+	void KingNotifyMessage(uint32 nResourceID, int byNation, ChatType byChatType);
+
 	// Wrapper to lookup the appropriate King system instance
 	static void PacketProcess(CUser * pUser, Packet & pkt);
 
@@ -67,4 +74,7 @@ public:
 
 	std::string m_strKingName;
 	std::string m_strImRequestID;
+
+	// TO-DO: Give this a more appropriate name.
+	bool m_bSentFirstMessage;
 };

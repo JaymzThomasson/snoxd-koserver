@@ -630,6 +630,13 @@ void CEbenezerDlg::UpdateGameTime()
 
 	BattleZoneOpenTimer();	// Check if it's time for the BattleZone to open or end.
 
+	// Check timed King events.
+	{ // limited scope, lock will be release outside of scope.
+		FastGuard lock(m_KingSystemArray.m_lock);
+		foreach_stlmap (itr, m_KingSystemArray)
+			itr->second->CheckKingTimer();
+	}
+
 	if( m_nMin == 60 ) {
 		m_nHour++;
 		m_nMin = 0;
