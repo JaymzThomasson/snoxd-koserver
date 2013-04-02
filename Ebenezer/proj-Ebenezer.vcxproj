@@ -343,6 +343,7 @@
     <ClInclude Include="..\shared\database\UserKnightsRankSet.h" />
     <ClInclude Include="..\shared\database\UserPersonalRankSet.h" />
     <ClInclude Include="..\shared\database\ZoneInfoSet.h" />
+    <ClInclude Include="..\shared\DateTime.h" />
     <ClInclude Include="..\shared\DebugUtils.h" />
     <ClInclude Include="..\shared\globals.h" />
     <ClInclude Include="..\shared\Ini.h" />
