@@ -56,3 +56,6 @@
 
 # Temporary files
 *.tmp
+
+# Ignore the html docs folder
+html/
