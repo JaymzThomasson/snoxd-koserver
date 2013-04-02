@@ -1,0 +1,58 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+*.lib
+
+# Compiled Dynamic libraries
+*.so
+*.dll
+*.exe
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# Source control
+*.scc
+
+# Log files
+*.txt
+*.log
+
+# Map files
+*.smd
+
+# Debug info
+*.sbr
+*.tlog
+*.pdb
+*.ipch
+*.ncb
+*.sdf
+*.opensdf
+*.bsc
+*.idb
+
+# Misc
+*.manifest
+*.manifest.res
+*.lastbuildstate
+*.pch
+*.unsuccessfulbuild
+*.res
+*_manifest.rc
+*.ilk
+*.map
+
+# User project files
+# *.vcxproj.user
+*.suo
+
+# Config
+*.ini
+
+# Temporary files
+*.tmp
