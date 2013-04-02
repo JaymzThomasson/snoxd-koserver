@@ -123,7 +123,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keyword">typedef</span> std::map&lt;uint64, _USER_RENTAL_ITEM *&gt; UserRentalMap;</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keyword">class </span><a class="code" href="class_packet.html">Packet</a>;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keyword">class </span><a class="code" href="class_c_user.html">CUser</a>;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keyword">class </span><a class="code" href="struct_c_user.html">CUser</a>;</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keyword">struct </span><a class="code" href="struct___i_t_e_m___d_a_t_a.html">_ITEM_DATA</a>;</div>
 <div class="line"><a name="l00040"></a><span class="lineno"><a class="code" href="class_c_d_b_agent.html">   40</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_d_b_agent.html">CDBAgent</a>  </div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;{</div>
@@ -153,24 +153,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">void</span> LoadRentalData(std::string &amp; strAccountID, std::string &amp; strCharID, UserRentalMap &amp; rentalData);</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordtype">bool</span> LoadUserData(std::string &amp; strAccountID, std::string &amp; strCharID, <a class="code" href="class_c_user.html">CUser</a> *pUser);</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordtype">bool</span> LoadWarehouseData(std::string &amp; strAccountID, <a class="code" href="class_c_user.html">CUser</a> *pUser);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">bool</span> LoadPremiumServiceUser(std::string &amp; strAccountID, <a class="code" href="class_c_user.html">CUser</a> *pUser);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordtype">bool</span> LoadSavedMagic(<a class="code" href="class_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordtype">bool</span> LoadUserData(std::string &amp; strAccountID, std::string &amp; strCharID, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordtype">bool</span> LoadWarehouseData(std::string &amp; strAccountID, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">bool</span> LoadPremiumServiceUser(std::string &amp; strAccountID, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordtype">bool</span> LoadSavedMagic(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordtype">bool</span> SetLogInInfo(std::string &amp; strAccountID, std::string &amp; strCharID, std::string &amp; strServerIP, <span class="keywordtype">short</span> sServerNo, std::string &amp; strClientIP, uint8 bInit);</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">bool</span> LoadWebItemMall(<a class="code" href="class_packet.html">Packet</a> &amp; result, <a class="code" href="class_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">bool</span> LoadWebItemMall(<a class="code" href="class_packet.html">Packet</a> &amp; result, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordtype">bool</span> LoadSkillShortcut(<a class="code" href="class_packet.html">Packet</a> &amp; result, <a class="code" href="class_c_user.html">CUser</a> *pUser);</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordtype">void</span> SaveSkillShortcut(<span class="keywordtype">short</span> sCount, <span class="keywordtype">char</span> *buff, <a class="code" href="class_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordtype">bool</span> LoadSkillShortcut(<a class="code" href="class_packet.html">Packet</a> &amp; result, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordtype">void</span> SaveSkillShortcut(<span class="keywordtype">short</span> sCount, <span class="keywordtype">char</span> *buff, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordtype">void</span> RequestFriendList(std::vector&lt;std::string&gt; &amp; friendList, <a class="code" href="class_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordtype">void</span> RequestFriendList(std::vector&lt;std::string&gt; &amp; friendList, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    FriendAddResult AddFriend(<span class="keywordtype">short</span> sid, <span class="keywordtype">short</span> tid);</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    FriendRemoveResult RemoveFriend(std::string &amp; strCharID, <a class="code" href="class_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    FriendRemoveResult RemoveFriend(std::string &amp; strCharID, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">bool</span> UpdateUser(std::string &amp; strCharID, UserUpdateType type, <a class="code" href="class_c_user.html">CUser</a> *pUser);</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordtype">bool</span> UpdateWarehouseData(std::string &amp; strAccountID, UserUpdateType type, <a class="code" href="class_c_user.html">CUser</a> *pUser);</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordtype">bool</span> UpdateSavedMagic(<a class="code" href="class_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">bool</span> UpdateUser(std::string &amp; strCharID, UserUpdateType type, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordtype">bool</span> UpdateWarehouseData(std::string &amp; strAccountID, UserUpdateType type, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordtype">bool</span> UpdateSavedMagic(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    int8 CreateKnights(uint16 sClanID, uint8 bNation, std::string &amp; strKnightsName, std::string &amp; strChief, uint8 bFlag = 1);</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordtype">int</span> UpdateKnights(uint8 bType, std::string &amp; strCharID, uint16 sClanID, uint8 bDomination);</div>
@@ -207,7 +207,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 2 2013 13:54:42 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Apr 2 2013 16:13:35 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

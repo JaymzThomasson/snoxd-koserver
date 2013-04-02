@@ -211,7 +211,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>BattleZoneCurrentUser
 void&#160;</td><td class="memItemRight" valign="bottom"><b>GetCaptainUserPtr</b> ()</td></tr>
 <tr class="separator:a884f9639e0c27cbc8e346ea79291892d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab1b9f3eee02ab5bd67d5c26dbeedf73f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab1b9f3eee02ab5bd67d5c26dbeedf73f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_CommandChat</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, int nation, <a class="el" href="class_c_user.html">CUser</a> *pExceptUser=NULL)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_CommandChat</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, int nation, <a class="el" href="struct_c_user.html">CUser</a> *pExceptUser=NULL)</td></tr>
 <tr class="separator:ab1b9f3eee02ab5bd67d5c26dbeedf73f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa01fd8307e6e7a63bfe8ab0c0bb679df"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa01fd8307e6e7a63bfe8ab0c0bb679df"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_UDP_All</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, int group_type=0)</td></tr>
@@ -238,7 +238,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>WritePacketLog</b> ()
 uint16&#160;</td><td class="memItemRight" valign="bottom"><b>GetKnightsAllMembers</b> (uint16 sClanID, <a class="el" href="class_packet.html">Packet</a> &amp;result, uint16 &amp;pktSize, bool bClanLeader)</td></tr>
 <tr class="separator:ae763f4e877e38b60e4f6e43fe793580a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ca9d79b5d34747a2f5110b8199647c3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2ca9d79b5d34747a2f5110b8199647c3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>GetUserRank</b> (<a class="el" href="class_c_user.html">CUser</a> *pUser)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>GetUserRank</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
 <tr class="separator:a2ca9d79b5d34747a2f5110b8199647c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a17097ce6c4e1a2a61c78cd6a1f59fb0f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a17097ce6c4e1a2a61c78cd6a1f59fb0f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Announcement</b> (BYTE type, int nation=0, int chat_type=8)</td></tr>
@@ -288,13 +288,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>SendAllUserInfo</b> (
 void&#160;</td><td class="memItemRight" valign="bottom"><b>DeleteAllNpcList</b> (int flag=0)</td></tr>
 <tr class="separator:abcd2ffdb0eb9c986917e9f1205e1bdfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a24d11b042fa1b54b8305ef89acc735bb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a24d11b042fa1b54b8305ef89acc735bb"></a>
-<a class="el" href="class_c_npc.html">CNpc</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetNpcPtr</b> (int sid, int cur_zone)</td></tr>
+<a class="el" href="struct_c_npc.html">CNpc</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetNpcPtr</b> (int sid, int cur_zone)</td></tr>
 <tr class="separator:a24d11b042fa1b54b8305ef89acc735bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a804a5b834039d096b9438927557315d1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a804a5b834039d096b9438927557315d1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddDatabaseRequest</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt, <a class="el" href="class_c_user.html">CUser</a> *pUser=NULL)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddDatabaseRequest</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt, <a class="el" href="struct_c_user.html">CUser</a> *pUser=NULL)</td></tr>
 <tr class="separator:a804a5b834039d096b9438927557315d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aefc629ced3c5d07b266cb4acbb6037ee"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aefc629ced3c5d07b266cb4acbb6037ee"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>NpcInOutForMe</b> (<a class="el" href="class_c_user.html">CUser</a> *pSendUser)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>NpcInOutForMe</b> (<a class="el" href="struct_c_user.html">CUser</a> *pSendUser)</td></tr>
 <tr class="separator:aefc629ced3c5d07b266cb4acbb6037ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac22f71c45dfd0e1ddacdabbf076c1a0c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac22f71c45dfd0e1ddacdabbf076c1a0c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>GetRegionNpcIn</b> (<a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, uint16 region_x, uint16 region_z, <a class="el" href="class_packet.html">Packet</a> &amp;pkt, uint16 &amp;t_count)</td></tr>
@@ -303,10 +303,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>GetRegionNpcIn</b> (<
 void&#160;</td><td class="memItemRight" valign="bottom"><b>GetRegionNpcList</b> (<a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, uint16 region_x, uint16 region_z, <a class="el" href="class_packet.html">Packet</a> &amp;pkt, uint16 &amp;t_count)</td></tr>
 <tr class="separator:a17b85b81d950ca9cd5be2d5aa1ec1a1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5e614a1c0eaa7f295607da8f51b5fa4a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5e614a1c0eaa7f295607da8f51b5fa4a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>RegionNpcInfoForMe</b> (<a class="el" href="class_c_user.html">CUser</a> *pSendUser)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>RegionNpcInfoForMe</b> (<a class="el" href="struct_c_user.html">CUser</a> *pSendUser)</td></tr>
 <tr class="separator:a5e614a1c0eaa7f295607da8f51b5fa4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a305754d7e33f5d5c4e6fda275cb4295a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a305754d7e33f5d5c4e6fda275cb4295a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>UserInOutForMe</b> (<a class="el" href="class_c_user.html">CUser</a> *pSendUser)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>UserInOutForMe</b> (<a class="el" href="struct_c_user.html">CUser</a> *pSendUser)</td></tr>
 <tr class="separator:a305754d7e33f5d5c4e6fda275cb4295a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25dcdba7318cc8e2676af0c18643d38a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a25dcdba7318cc8e2676af0c18643d38a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>GetRegionUserIn</b> (<a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, uint16 region_x, uint16 region_z, <a class="el" href="class_packet.html">Packet</a> &amp;pkt, uint16 &amp;t_count)</td></tr>
@@ -315,10 +315,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>GetRegionUserIn</b> (
 void&#160;</td><td class="memItemRight" valign="bottom"><b>GetRegionUserList</b> (<a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, uint16 region_x, uint16 region_z, <a class="el" href="class_packet.html">Packet</a> &amp;pkt, uint16 &amp;t_count)</td></tr>
 <tr class="separator:a3b103fda12eb34245dd5c289530646c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6cba23eb2121b923b1ba4659db564d1a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6cba23eb2121b923b1ba4659db564d1a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>RegionUserInOutForMe</b> (<a class="el" href="class_c_user.html">CUser</a> *pSendUser)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>RegionUserInOutForMe</b> (<a class="el" href="struct_c_user.html">CUser</a> *pSendUser)</td></tr>
 <tr class="separator:a6cba23eb2121b923b1ba4659db564d1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6a71281aa3290d4ce1c99b76dd37cf66"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6a71281aa3290d4ce1c99b76dd37cf66"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>MerchantUserInOutForMe</b> (<a class="el" href="class_c_user.html">CUser</a> *pSendUser)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>MerchantUserInOutForMe</b> (<a class="el" href="struct_c_user.html">CUser</a> *pSendUser)</td></tr>
 <tr class="separator:a6a71281aa3290d4ce1c99b76dd37cf66"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac586216756677a14b8dff21b019be149"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac586216756677a14b8dff21b019be149"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>GetRegionMerchantUserIn</b> (<a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, uint16 region_x, uint16 region_z, <a class="el" href="class_packet.html">Packet</a> &amp;pkt, uint16 &amp;t_count)</td></tr>
@@ -332,41 +332,41 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>SetPermanentMessage</
 <tr class="memitem:abd0a0d983d8896d9d1942557764d3a39"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abd0a0d983d8896d9d1942557764d3a39"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>HandleConsoleCommand</b> (const char *msg)</td></tr>
 <tr class="separator:abd0a0d983d8896d9d1942557764d3a39"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0ffae8acee5fb9b856be8fd41fb3f40f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0ffae8acee5fb9b856be8fd41fb3f40f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SendNotice</b> (const char *msg, uint8 bNation=NO_NATION)</td></tr>
-<tr class="separator:a0ffae8acee5fb9b856be8fd41fb3f40f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba0dba1d9429f1c0784d1c0c64374a4c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aba0dba1d9429f1c0784d1c0c64374a4c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SendFormattedNotice</b> (const char *msg, uint8 nation=NO_NATION,...)</td></tr>
-<tr class="separator:aba0dba1d9429f1c0784d1c0c64374a4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6615740b1e86ffa1d3efc061b01d313a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6615740b1e86ffa1d3efc061b01d313a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SendAnnouncement</b> (const char *msg, uint8 bNation=NO_NATION)</td></tr>
-<tr class="separator:a6615740b1e86ffa1d3efc061b01d313a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a24ef92945d3373576bd6967603dfeb98"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a24ef92945d3373576bd6967603dfeb98"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SendFormattedAnnouncement</b> (const char *msg, uint8 nation=NO_NATION,...)</td></tr>
-<tr class="separator:a24ef92945d3373576bd6967603dfeb98"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64de4f722884344a9dbd9e9bfe8f3eb7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a64de4f722884344a9dbd9e9bfe8f3eb7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SendFormattedResource</b> (uint32 nResourceID, uint8 nation=NO_NATION, bool bIsNotice=true,...)</td></tr>
-<tr class="separator:a64de4f722884344a9dbd9e9bfe8f3eb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab79f1d238be118b5340501d6b804bca"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aab79f1d238be118b5340501d6b804bca"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SendNotice</b> (const char *msg, uint8 bNation=0)</td></tr>
+<tr class="separator:aab79f1d238be118b5340501d6b804bca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79a4eb5d246dfde30df77933004f8450"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a79a4eb5d246dfde30df77933004f8450"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SendFormattedNotice</b> (const char *msg, uint8 nation=0,...)</td></tr>
+<tr class="separator:a79a4eb5d246dfde30df77933004f8450"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39dcf3dcf0bc537599372bb8db62554a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a39dcf3dcf0bc537599372bb8db62554a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SendAnnouncement</b> (const char *msg, uint8 bNation=0)</td></tr>
+<tr class="separator:a39dcf3dcf0bc537599372bb8db62554a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a463534a3a426580e5b576363b221af9d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a463534a3a426580e5b576363b221af9d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SendFormattedAnnouncement</b> (const char *msg, uint8 nation=0,...)</td></tr>
+<tr class="separator:a463534a3a426580e5b576363b221af9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0eeb9cfce6eb6a46fb5f1dd7d927409f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0eeb9cfce6eb6a46fb5f1dd7d927409f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SendFormattedResource</b> (uint32 nResourceID, uint8 nation=0, bool bIsNotice=true,...)</td></tr>
+<tr class="separator:a0eeb9cfce6eb6a46fb5f1dd7d927409f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae1f93da3cd389351eaa1a6c7a0fb7654"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae1f93da3cd389351eaa1a6c7a0fb7654"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_Region</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, <a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, int x, int z, <a class="el" href="class_c_user.html">CUser</a> *pExceptUser=NULL)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_Region</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, <a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, int x, int z, <a class="el" href="struct_c_user.html">CUser</a> *pExceptUser=NULL)</td></tr>
 <tr class="separator:ae1f93da3cd389351eaa1a6c7a0fb7654"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add7aa34972380888b8cae0986f017011"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="add7aa34972380888b8cae0986f017011"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_UnitRegion</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, <a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, int x, int z, <a class="el" href="class_c_user.html">CUser</a> *pExceptUser=NULL)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_UnitRegion</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, <a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, int x, int z, <a class="el" href="struct_c_user.html">CUser</a> *pExceptUser=NULL)</td></tr>
 <tr class="separator:add7aa34972380888b8cae0986f017011"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2498ca38acdd95d36a07bb87a4f933ae"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2498ca38acdd95d36a07bb87a4f933ae"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_OldRegions</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, int old_x, int old_z, <a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, int x, int z, <a class="el" href="class_c_user.html">CUser</a> *pExceptUser=NULL)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_OldRegions</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, int old_x, int old_z, <a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, int x, int z, <a class="el" href="struct_c_user.html">CUser</a> *pExceptUser=NULL)</td></tr>
 <tr class="separator:a2498ca38acdd95d36a07bb87a4f933ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a682519b1240973101337cd1ba829e15f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a682519b1240973101337cd1ba829e15f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_NewRegions</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, int new_x, int new_z, <a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, int x, int z, <a class="el" href="class_c_user.html">CUser</a> *pExceptUser=NULL)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_NewRegions</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, int new_x, int new_z, <a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, int x, int z, <a class="el" href="struct_c_user.html">CUser</a> *pExceptUser=NULL)</td></tr>
 <tr class="separator:a682519b1240973101337cd1ba829e15f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9e9377770343e97a11ea9a87fe6b9174"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9e9377770343e97a11ea9a87fe6b9174"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_NearRegion</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, <a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, int region_x, int region_z, float curx, float curz, <a class="el" href="class_c_user.html">CUser</a> *pExceptUser=NULL)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_NearRegion</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, <a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, int region_x, int region_z, float curx, float curz, <a class="el" href="struct_c_user.html">CUser</a> *pExceptUser=NULL)</td></tr>
 <tr class="separator:a9e9377770343e97a11ea9a87fe6b9174"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae803a51dd95ec98bde0f200bb841297"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aae803a51dd95ec98bde0f200bb841297"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_FilterUnitRegion</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, <a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, int x, int z, float ref_x, float ref_z, <a class="el" href="class_c_user.html">CUser</a> *pExceptUser=NULL)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_FilterUnitRegion</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, <a class="el" href="class_c3_d_map.html">C3DMap</a> *pMap, int x, int z, float ref_x, float ref_z, <a class="el" href="struct_c_user.html">CUser</a> *pExceptUser=NULL)</td></tr>
 <tr class="separator:aae803a51dd95ec98bde0f200bb841297"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaadd38b89dccd2364b948ab861a535af"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaadd38b89dccd2364b948ab861a535af"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_All</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, <a class="el" href="class_c_user.html">CUser</a> *pExceptUser=NULL, uint8 nation=0)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_All</b> (<a class="el" href="class_packet.html">Packet</a> *pkt, <a class="el" href="struct_c_user.html">CUser</a> *pExceptUser=NULL, uint8 nation=0)</td></tr>
 <tr class="separator:aaadd38b89dccd2364b948ab861a535af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af297a4a5521c7c324ef98387bd5d27a7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af297a4a5521c7c324ef98387bd5d27a7"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_AIServer</b> (<a class="el" href="class_packet.html">Packet</a> *pkt)</td></tr>
@@ -384,25 +384,25 @@ long&#160;</td><td class="memItemRight" valign="bottom"><b>GetExpByLevel</b> (in
 <a class="el" href="class_c3_d_map.html">C3DMap</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetZoneByID</b> (int zoneID)</td></tr>
 <tr class="separator:a7d36ab3105ef9b2942b2ba7e4289ccc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3bc33441d6170ac79361ab64efee4781"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3bc33441d6170ac79361ab64efee4781"></a>
-<a class="el" href="class_c_user.html">CUser</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetUserPtr</b> (std::string findName, NameType type)</td></tr>
+<a class="el" href="struct_c_user.html">CUser</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetUserPtr</b> (std::string findName, NameType type)</td></tr>
 <tr class="separator:a3bc33441d6170ac79361ab64efee4781"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af9af0254a3b62527bd1a0ec414bce8a2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af9af0254a3b62527bd1a0ec414bce8a2"></a>
-<a class="el" href="class_c_user.html">CUser</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetUserPtr</b> (int sid)</td></tr>
+<a class="el" href="struct_c_user.html">CUser</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetUserPtr</b> (int sid)</td></tr>
 <tr class="separator:af9af0254a3b62527bd1a0ec414bce8a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0e66b82342162fafc6b4882420e13954"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0e66b82342162fafc6b4882420e13954"></a>
 <a class="el" href="class_unit.html">Unit</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetUnit</b> (uint16 id)</td></tr>
 <tr class="separator:a0e66b82342162fafc6b4882420e13954"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9104a6c72510428009de4d6c2b10efe2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9104a6c72510428009de4d6c2b10efe2"></a>
-int32&#160;</td><td class="memItemRight" valign="bottom"><b>GetEventTrigger</b> (<a class="el" href="class_c_npc.html">CNpc</a> *pNpc)</td></tr>
+int32&#160;</td><td class="memItemRight" valign="bottom"><b>GetEventTrigger</b> (<a class="el" href="struct_c_npc.html">CNpc</a> *pNpc)</td></tr>
 <tr class="separator:a9104a6c72510428009de4d6c2b10efe2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a504ba9793096c77e4bc09f278dfa302a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a504ba9793096c77e4bc09f278dfa302a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddAccountName</b> (<a class="el" href="class_c_user.html">CUser</a> *pSession)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddAccountName</b> (<a class="el" href="struct_c_user.html">CUser</a> *pSession)</td></tr>
 <tr class="separator:a504ba9793096c77e4bc09f278dfa302a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5cabe065a9b35d7b5ad2b36f4989fc2f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5cabe065a9b35d7b5ad2b36f4989fc2f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddCharacterName</b> (<a class="el" href="class_c_user.html">CUser</a> *pSession)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddCharacterName</b> (<a class="el" href="struct_c_user.html">CUser</a> *pSession)</td></tr>
 <tr class="separator:a5cabe065a9b35d7b5ad2b36f4989fc2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac35edc55bc8ccf94144a841571751ad2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac35edc55bc8ccf94144a841571751ad2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>RemoveSessionNames</b> (<a class="el" href="class_c_user.html">CUser</a> *pSession)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>RemoveSessionNames</b> (<a class="el" href="struct_c_user.html">CUser</a> *pSession)</td></tr>
 <tr class="separator:ac35edc55bc8ccf94144a841571751ad2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c1fbd96cf55820afc0d52d83bef8080"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3c1fbd96cf55820afc0d52d83bef8080"></a>
 <a class="el" href="class_c_knights.html">CKnights</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetClanPtr</b> (uint16 sClanID)</td></tr>
@@ -414,7 +414,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>RemoveSessionNames</b
 <a class="el" href="struct___i_t_e_m___t_a_b_l_e.html">_ITEM_TABLE</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetItemPtr</b> (uint32 nItemID)</td></tr>
 <tr class="separator:ae8c7739c70917927318297751c9171c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a075e3b82fc539f056b6109e3ca3c7b14"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a075e3b82fc539f056b6109e3ca3c7b14"></a>
-<a class="el" href="struct___p_a_r_t_y___g_r_o_u_p.html">_PARTY_GROUP</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>CreateParty</b> (<a class="el" href="class_c_user.html">CUser</a> *pLeader)</td></tr>
+<a class="el" href="struct___p_a_r_t_y___g_r_o_u_p.html">_PARTY_GROUP</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>CreateParty</b> (<a class="el" href="struct_c_user.html">CUser</a> *pLeader)</td></tr>
 <tr class="separator:a075e3b82fc539f056b6109e3ca3c7b14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adffa403b86c0c097eab4f89cdeb0108b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adffa403b86c0c097eab4f89cdeb0108b"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>DeleteParty</b> (short sIndex)</td></tr>
@@ -428,66 +428,66 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>InitServerCommands</b
 <tr class="memitem:a3538bdf77ea3229cdedeff56920fa5dd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3538bdf77ea3229cdedeff56920fa5dd"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>CleanupServerCommands</b> ()</td></tr>
 <tr class="separator:a3538bdf77ea3229cdedeff56920fa5dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3215e30492397fbdd909a678596da24e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3215e30492397fbdd909a678596da24e"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleNoticeCommand)</td></tr>
-<tr class="separator:a3215e30492397fbdd909a678596da24e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5e9a4f03169e4d1e1f1cb58517feaff3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5e9a4f03169e4d1e1f1cb58517feaff3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleKillUserCommand)</td></tr>
-<tr class="separator:a5e9a4f03169e4d1e1f1cb58517feaff3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8e47720e93b6232877f81d4963d741f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad8e47720e93b6232877f81d4963d741f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleWar1OpenCommand)</td></tr>
-<tr class="separator:ad8e47720e93b6232877f81d4963d741f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9d3bcab2b5ac7959825d376c4a350a09"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9d3bcab2b5ac7959825d376c4a350a09"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleWar2OpenCommand)</td></tr>
-<tr class="separator:a9d3bcab2b5ac7959825d376c4a350a09"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e9766ef1df238528ef98020e70867f8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7e9766ef1df238528ef98020e70867f8"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleWar3OpenCommand)</td></tr>
-<tr class="separator:a7e9766ef1df238528ef98020e70867f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:accc97c32fd8cde488ba3d8ed6176f4ce"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="accc97c32fd8cde488ba3d8ed6176f4ce"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleSnowWarOpenCommand)</td></tr>
-<tr class="separator:accc97c32fd8cde488ba3d8ed6176f4ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a91248f731d66dc86fdfb3b063e5bffc3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a91248f731d66dc86fdfb3b063e5bffc3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleWarCloseCommand)</td></tr>
-<tr class="separator:a91248f731d66dc86fdfb3b063e5bffc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5efb5ca7a6c610d5d67b6cc151de6bb5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5efb5ca7a6c610d5d67b6cc151de6bb5"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleShutdownCommand)</td></tr>
-<tr class="separator:a5efb5ca7a6c610d5d67b6cc151de6bb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a0469d77cbeebb79f23955ab1c9660f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6a0469d77cbeebb79f23955ab1c9660f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandlePauseCommand)</td></tr>
-<tr class="separator:a6a0469d77cbeebb79f23955ab1c9660f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7abf79d4ecbdd1066e4d193a69c48e60"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7abf79d4ecbdd1066e4d193a69c48e60"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleResumeCommand)</td></tr>
-<tr class="separator:a7abf79d4ecbdd1066e4d193a69c48e60"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad4a67bcb4a24d043f0d3491883d6b81d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad4a67bcb4a24d043f0d3491883d6b81d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleDiscountCommand)</td></tr>
-<tr class="separator:ad4a67bcb4a24d043f0d3491883d6b81d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a688dd6064225b186e93aba41b543776e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a688dd6064225b186e93aba41b543776e"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleGlobalDiscountCommand)</td></tr>
-<tr class="separator:a688dd6064225b186e93aba41b543776e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3de2bab146a116eb10f32220dd72c16f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3de2bab146a116eb10f32220dd72c16f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleDiscountOffCommand)</td></tr>
-<tr class="separator:a3de2bab146a116eb10f32220dd72c16f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58121466088ee065ea8298135ecceaae"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a58121466088ee065ea8298135ecceaae"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleCaptainCommand)</td></tr>
-<tr class="separator:a58121466088ee065ea8298135ecceaae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae68307085234af247ab1419843fa8fd1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae68307085234af247ab1419843fa8fd1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleSantaCommand)</td></tr>
-<tr class="separator:ae68307085234af247ab1419843fa8fd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef01690f07b240fcc6c8aa05f29c8ba9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef01690f07b240fcc6c8aa05f29c8ba9"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleSantaOffCommand)</td></tr>
-<tr class="separator:aef01690f07b240fcc6c8aa05f29c8ba9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac441a1d157f9fda0e5a9a13869676017"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac441a1d157f9fda0e5a9a13869676017"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleAngelCommand)</td></tr>
-<tr class="separator:ac441a1d157f9fda0e5a9a13869676017"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af28b9f06367f3fd25f5348a73bf9a9b7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af28b9f06367f3fd25f5348a73bf9a9b7"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandlePermanentChatCommand)</td></tr>
-<tr class="separator:af28b9f06367f3fd25f5348a73bf9a9b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aada754b1e04449d0cc607281bed5012d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aada754b1e04449d0cc607281bed5012d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandlePermanentChatOffCommand)</td></tr>
-<tr class="separator:aada754b1e04449d0cc607281bed5012d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac56edb1c35bbafa41a8763b350fbcc8f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac56edb1c35bbafa41a8763b350fbcc8f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>COMMAND_HANDLER</b> (HandleReloadNoticeCommand)</td></tr>
-<tr class="separator:ac56edb1c35bbafa41a8763b350fbcc8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a68bbabeb508643bcb427d84fa4266a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8a68bbabeb508643bcb427d84fa4266a"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleNoticeCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:a8a68bbabeb508643bcb427d84fa4266a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7824efec2fc15c7bdfe879eb0b838313"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7824efec2fc15c7bdfe879eb0b838313"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleKillUserCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:a7824efec2fc15c7bdfe879eb0b838313"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7a094374d6ae5516e9bc3d9811e0944"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af7a094374d6ae5516e9bc3d9811e0944"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleWar1OpenCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:af7a094374d6ae5516e9bc3d9811e0944"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a7d75cd36a12adccb28b159a4904f1c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9a7d75cd36a12adccb28b159a4904f1c"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleWar2OpenCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:a9a7d75cd36a12adccb28b159a4904f1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a515e61e2b5818a0df5046c436ae0fd46"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a515e61e2b5818a0df5046c436ae0fd46"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleWar3OpenCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:a515e61e2b5818a0df5046c436ae0fd46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0484c5268c48e1aabc3747a04faab0fd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0484c5268c48e1aabc3747a04faab0fd"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleSnowWarOpenCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:a0484c5268c48e1aabc3747a04faab0fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea77a613c397a12203f68ded11600abc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aea77a613c397a12203f68ded11600abc"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleWarCloseCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:aea77a613c397a12203f68ded11600abc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4d6f71ae9becbd31459f775baadd0ac"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad4d6f71ae9becbd31459f775baadd0ac"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleShutdownCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:ad4d6f71ae9becbd31459f775baadd0ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a631206f64713c60ac5ca5b5ac4bd6438"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a631206f64713c60ac5ca5b5ac4bd6438"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandlePauseCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:a631206f64713c60ac5ca5b5ac4bd6438"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8eac7b8dfe976dd2cd0a1f675032dee0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8eac7b8dfe976dd2cd0a1f675032dee0"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleResumeCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:a8eac7b8dfe976dd2cd0a1f675032dee0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2edffea98fbf63795a179fe86d0e597"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af2edffea98fbf63795a179fe86d0e597"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleDiscountCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:af2edffea98fbf63795a179fe86d0e597"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6802bc5dad065d56a46ae12ef8566593"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6802bc5dad065d56a46ae12ef8566593"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleGlobalDiscountCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:a6802bc5dad065d56a46ae12ef8566593"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa730b88504deeab9d42f60b0ceae895"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaa730b88504deeab9d42f60b0ceae895"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleDiscountOffCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:aaa730b88504deeab9d42f60b0ceae895"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18c28a28863c82267cb34f09c1570510"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a18c28a28863c82267cb34f09c1570510"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleCaptainCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:a18c28a28863c82267cb34f09c1570510"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92740a75ec1467cf9d816696f8d6ed30"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a92740a75ec1467cf9d816696f8d6ed30"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleSantaCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:a92740a75ec1467cf9d816696f8d6ed30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e510f10d8ad086bdab2b13d9e87af72"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5e510f10d8ad086bdab2b13d9e87af72"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleSantaOffCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:a5e510f10d8ad086bdab2b13d9e87af72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a932b356c9e189e78daeff7eb48d81f0e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a932b356c9e189e78daeff7eb48d81f0e"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleAngelCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:a932b356c9e189e78daeff7eb48d81f0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a794a408e4fb7dbb92f62fe07acf07c12"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a794a408e4fb7dbb92f62fe07acf07c12"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandlePermanentChatCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:a794a408e4fb7dbb92f62fe07acf07c12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adae306b09dedf5b72280d7d584b33ed8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adae306b09dedf5b72280d7d584b33ed8"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandlePermanentChatOffCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:adae306b09dedf5b72280d7d584b33ed8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e285a45e9ae861b96668a8cc4ca6d2a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0e285a45e9ae861b96668a8cc4ca6d2a"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HandleReloadNoticeCommand</b> (CommandArgs &amp;vargs, const char *args, const char *description)</td></tr>
+<tr class="separator:a0e285a45e9ae861b96668a8cc4ca6d2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -698,12 +698,12 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>m_nBattleZoneOpenHourS
 <tr class="memitem:ace1386f3ce770ff866d3261032c5aea1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ace1386f3ce770ff866d3261032c5aea1"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>m_nBattleZoneOpenHourEnd</b></td></tr>
 <tr class="separator:ace1386f3ce770ff866d3261032c5aea1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd984865541765c89599cc4793848ea3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acd984865541765c89599cc4793848ea3"></a>
-char&#160;</td><td class="memItemRight" valign="bottom"><b>m_strKarusCaptain</b> [MAX_ID_SIZE+1]</td></tr>
-<tr class="separator:acd984865541765c89599cc4793848ea3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a008a532fe7b963d6603790e33c6a58e5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a008a532fe7b963d6603790e33c6a58e5"></a>
-char&#160;</td><td class="memItemRight" valign="bottom"><b>m_strElmoradCaptain</b> [MAX_ID_SIZE+1]</td></tr>
-<tr class="separator:a008a532fe7b963d6603790e33c6a58e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4fe259c1a9c94e37988b7ef811958c80"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4fe259c1a9c94e37988b7ef811958c80"></a>
+char&#160;</td><td class="memItemRight" valign="bottom"><b>m_strKarusCaptain</b> [20+1]</td></tr>
+<tr class="separator:a4fe259c1a9c94e37988b7ef811958c80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1350c9201bfbe20e5ec791a55e11e52d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1350c9201bfbe20e5ec791a55e11e52d"></a>
+char&#160;</td><td class="memItemRight" valign="bottom"><b>m_strElmoradCaptain</b> [20+1]</td></tr>
+<tr class="separator:a1350c9201bfbe20e5ec791a55e11e52d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b12b2f88f1371407a724a8a6d20715b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b12b2f88f1371407a724a8a6d20715b"></a>
 BYTE&#160;</td><td class="memItemRight" valign="bottom"><b>m_bMaxRegenePoint</b></td></tr>
 <tr class="separator:a9b12b2f88f1371407a724a8a6d20715b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -780,7 +780,7 @@ static ServerCommandTable&#160;</td><td class="memItemRight" valign="bottom"><b>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 2 2013 13:54:43 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Apr 2 2013 16:13:36 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

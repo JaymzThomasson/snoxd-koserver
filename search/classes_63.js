@@ -48,7 +48,7 @@ var searchData=
   ['cmakelareitemtableset',['CMakeLareItemTableSet',['../class_c_make_lare_item_table_set.html',1,'']]],
   ['cmakeweapontableset',['CMakeWeaponTableSet',['../class_c_make_weapon_table_set.html',1,'']]],
   ['cmontableset',['CMonTableSet',['../class_c_mon_table_set.html',1,'']]],
-  ['cnpc',['CNpc',['../class_c_npc.html',1,'']]],
+  ['cnpc',['CNpc',['../struct_c_npc.html',1,'']]],
   ['cnpcitemset',['CNpcItemSet',['../class_c_npc_item_set.html',1,'']]],
   ['cnpcmagicprocess',['CNpcMagicProcess',['../class_c_npc_magic_process.html',1,'']]],
   ['cnpcposset',['CNpcPosSet',['../class_c_npc_pos_set.html',1,'']]],
@@ -113,7 +113,7 @@ var searchData=
   ['cstlmap_3c_20croomevent_20_3e',['CSTLMap&lt; CRoomEvent &gt;',['../class_c_s_t_l_map.html',1,'']]],
   ['cstlmap_3c_20int_20_3e',['CSTLMap&lt; int &gt;',['../class_c_s_t_l_map.html',1,'']]],
   ['cudpsocket',['CUdpSocket',['../class_c_udp_socket.html',1,'']]],
-  ['cuser',['CUser',['../class_c_user.html',1,'']]],
+  ['cuser',['CUser',['../struct_c_user.html',1,'']]],
   ['cuserknightsrankset',['CUserKnightsRankSet',['../class_c_user_knights_rank_set.html',1,'']]],
   ['cuserpersonalrankset',['CUserPersonalRankSet',['../class_c_user_personal_rank_set.html',1,'']]],
   ['czoneinfoset',['CZoneInfoSet',['../class_c_zone_info_set.html',1,'']]]

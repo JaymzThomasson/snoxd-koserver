@@ -188,7 +188,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="keyword">class </span><a class="code" href="class_m_a_p.html">MAP</a>;</div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;</div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="keyword">struct </span>__Vector3;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="keyword">class </span><a class="code" href="class_c_npc.html">CNpc</a>  </div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="keyword">class </span><a class="code" href="struct_c_npc.html">CNpc</a>  </div>
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;{</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;</div>
@@ -396,8 +396,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;    __forceinline <a class="code" href="class_m_a_p.html">MAP</a> * GetMap() { <span class="keywordflow">return</span> m_pZone; };</div>
 <div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;</div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    <a class="code" href="class_c_npc.html">CNpc</a>();</div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_c_npc.html">CNpc</a>();</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    <a class="code" href="struct_c_npc.html">CNpc</a>();</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="struct_c_npc.html">CNpc</a>();</div>
 <div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;</div>
 <div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;    <span class="keywordtype">void</span> Init();    <span class="comment">//  NPC 기본정보 초기화</span></div>
 <div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;    <span class="keywordtype">void</span> InitTarget(<span class="keywordtype">void</span>);</div>
@@ -418,17 +418,17 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;    <span class="keywordtype">int</span>  FindFriend(<span class="keywordtype">int</span> type=0);</div>
 <div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;    <span class="keywordtype">void</span>  FindFriendRegion(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> z, <a class="code" href="class_m_a_p.html">MAP</a>* pMap, <a class="code" href="struct___target_healer.html">_TargetHealer</a>* pHealer, <span class="keywordtype">int</span> type=0);</div>
 <div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;    <span class="comment">//void  FindFriendRegion(int x, int z, MAP* pMap, int type=0);</span></div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;    BOOL IsCloseTarget(<a class="code" href="class_c_user.html">CUser</a> *pUser, <span class="keywordtype">int</span> nRange);</div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;    <span class="keywordtype">void</span> ToTargetMove(<a class="code" href="class_c_user.html">CUser</a>* pUser);</div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;    BOOL IsCloseTarget(<a class="code" href="struct_c_user.html">CUser</a> *pUser, <span class="keywordtype">int</span> nRange);</div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;    <span class="keywordtype">void</span> ToTargetMove(<a class="code" href="struct_c_user.html">CUser</a>* pUser);</div>
 <div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;    <span class="keywordtype">int</span> SendDead(<span class="keywordtype">int</span> type = 1);         <span class="comment">// Npc Dead</span></div>
 <div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;    <span class="keywordtype">void</span> SendExpToUserList();                               <span class="comment">// User 경험치 분배..</span></div>
 <div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;    BOOL SetDamage(<span class="keywordtype">int</span> nAttackType, <span class="keywordtype">int</span> nDamage, TCHAR *<span class="keywordtype">id</span>, <span class="keywordtype">int</span> uid);   <span class="comment">// Npc의 데미지 계산..</span></div>
 <div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;    BOOL SetHMagicDamage(<span class="keywordtype">int</span> nDamage);  <span class="comment">// Npc의 데미지 계산..</span></div>
 <div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;    <span class="keywordtype">int</span> GetDefense();                                       <span class="comment">// Npc의 방어값..</span></div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;    <span class="keywordtype">void</span> ChangeTarget(<span class="keywordtype">int</span> nAttackType, <a class="code" href="class_c_user.html">CUser</a> *pUser);</div>
-<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;    <span class="keywordtype">void</span> ChangeNTarget(<a class="code" href="class_c_npc.html">CNpc</a> *pNpc);</div>
-<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;    <span class="keywordtype">int</span> GetFinalDamage(<a class="code" href="class_c_user.html">CUser</a> *pUser, <span class="keywordtype">int</span> type = 1);</div>
-<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;    <span class="keywordtype">int</span> GetNFinalDamage(<a class="code" href="class_c_npc.html">CNpc</a> *pNpc);</div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;    <span class="keywordtype">void</span> ChangeTarget(<span class="keywordtype">int</span> nAttackType, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;    <span class="keywordtype">void</span> ChangeNTarget(<a class="code" href="struct_c_npc.html">CNpc</a> *pNpc);</div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;    <span class="keywordtype">int</span> GetFinalDamage(<a class="code" href="struct_c_user.html">CUser</a> *pUser, <span class="keywordtype">int</span> type = 1);</div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;    <span class="keywordtype">int</span> GetNFinalDamage(<a class="code" href="struct_c_npc.html">CNpc</a> *pNpc);</div>
 <div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;    BYTE GetHitRate(<span class="keywordtype">float</span> rate);</div>
 <div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;    BOOL ResetPath();</div>
 <div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;    BOOL GetTargetPos(<span class="keywordtype">float</span>&amp; x, <span class="keywordtype">float</span>&amp; z);</div>
@@ -443,15 +443,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;    BOOL StepNoPathMove();</div>
 <div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;    BOOL IsMovingEnd();</div>
 <div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;    BOOL IsMovable(<span class="keywordtype">float</span> x, <span class="keywordtype">float</span> z);</div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;    <span class="keywordtype">int</span>  IsSurround(<a class="code" href="class_c_user.html">CUser</a>* pUser);</div>
-<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;    BOOL IsDamagedUserList(<a class="code" href="class_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;    <span class="keywordtype">int</span>  IsSurround(<a class="code" href="struct_c_user.html">CUser</a>* pUser);</div>
+<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;    BOOL IsDamagedUserList(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
 <div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;    <span class="keywordtype">void</span> IsUserInSight();</div>
 <div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;    BOOL IsLevelCheck(<span class="keywordtype">int</span> iLevel);</div>
 <div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;    BOOL IsHPCheck(<span class="keywordtype">int</span> iHP);</div>
-<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;    BOOL IsCompStatus(<a class="code" href="class_c_user.html">CUser</a>* pUser);</div>
+<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;    BOOL IsCompStatus(<a class="code" href="struct_c_user.html">CUser</a>* pUser);</div>
 <div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;    BOOL IsPathFindCheck(<span class="keywordtype">float</span> fDistance);                      <span class="comment">// 패스 파인드를 할것인지를 체크하는 루틴..</span></div>
 <div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;    <span class="keywordtype">void</span> IsNoPathFind(<span class="keywordtype">float</span> fDistance);                     <span class="comment">// 패스 파인드를 하지 않고 공격대상으로 가는 루틴..</span></div>
-<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;    BOOL IsInExpRange(<a class="code" href="class_c_user.html">CUser</a>* pUser);</div>
+<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;    BOOL IsInExpRange(<a class="code" href="struct_c_user.html">CUser</a>* pUser);</div>
 <div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;    <span class="keywordtype">void</span> GiveNpcHaveItem();     <span class="comment">// NPC 가 가진 아이템을 떨군다</span></div>
 <div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;</div>
 <div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;    time_t NpcLive();</div>
@@ -515,7 +515,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 2 2013 13:54:42 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Apr 2 2013 16:13:35 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

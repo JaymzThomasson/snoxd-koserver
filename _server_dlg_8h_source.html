@@ -149,9 +149,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">void</span> GameServerAcceptThread();</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    BOOL AddObjectEventNpc(<a class="code" href="struct___o_b_j_e_c_t___e_v_e_n_t.html">_OBJECT_EVENT</a>* pEvent, <span class="keywordtype">int</span> zone_number);</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">void</span> AllNpcInfo();</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <a class="code" href="class_c_user.html">CUser</a>* GetUserPtr(<span class="keywordtype">int</span> nid);</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <a class="code" href="class_c_npc.html">CNpc</a>*  GetEventNpcPtr();</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    BOOL   SetSummonNpcData(<a class="code" href="class_c_npc.html">CNpc</a>* pNpc, <span class="keywordtype">int</span> zone, <span class="keywordtype">float</span> fx, <span class="keywordtype">float</span> fz);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <a class="code" href="struct_c_user.html">CUser</a>* GetUserPtr(<span class="keywordtype">int</span> nid);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <a class="code" href="struct_c_npc.html">CNpc</a>*  GetEventNpcPtr();</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    BOOL   SetSummonNpcData(<a class="code" href="struct_c_npc.html">CNpc</a>* pNpc, <span class="keywordtype">int</span> zone, <span class="keywordtype">float</span> fx, <span class="keywordtype">float</span> fz);</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <a class="code" href="class_m_a_p.html">MAP</a> * GetZoneByID(<span class="keywordtype">int</span> zonenumber);</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordtype">int</span> GetServerNumber( <span class="keywordtype">int</span> zonenumber );</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
@@ -190,7 +190,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordtype">char</span> m_strGameDSN[32], m_strGameUID[32], m_strGamePWD[32];</div>
 <div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <a class="code" href="class_odbc_connection.html">OdbcConnection</a> m_GameDB;</div>
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <a class="code" href="class_c_user.html">CUser</a>* m_pUser[MAX_USER];</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <a class="code" href="struct_c_user.html">CUser</a>* m_pUser[MAX_USER];</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <span class="comment">// 전역 객체 변수   //BOOL          m_bNpcExit;</span></div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    uint16          m_TotalNPC;         <span class="comment">// DB에있는 총 수</span></div>
@@ -218,7 +218,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 2 2013 13:54:42 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Apr 2 2013 16:13:35 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>
