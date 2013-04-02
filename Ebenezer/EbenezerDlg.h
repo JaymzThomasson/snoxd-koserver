@@ -257,6 +257,12 @@ public:
 				m_characterNameLock,
 				m_questNpcLock;
 
+	// Controlled weather events set by Kings
+	uint8 m_byKingWeatherEvent;
+	uint8 m_byKingWeatherEvent_Day;
+	uint8 m_byKingWeatherEvent_Hour;
+	uint8 m_byKingWeatherEvent_Minute;
+
 	__forceinline CLuaEngine * GetLuaEngine() { return &m_luaEngine; }
 
 private:

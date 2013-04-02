@@ -3,6 +3,7 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 #include "resource.h"
+#include "../shared/DateTime.h"
 
 CKingSystem::CKingSystem()
 {
@@ -553,4 +554,137 @@ void CKingSystem::KingTaxSystem(CUser * pUser, Packet & pkt)
 
 void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 {
+	Packet result(WIZ_KING, uint8(KING_EVENT));
+	uint8 opcode = pkt.read<uint8>();
+	result << opcode;
+
+	if (!pUser->isKing())
+	{
+		result << int16(-1);
+		pUser->Send(&result);
+		return;
+	}
+
+	switch (opcode)
+	{
+	case 1: // Noah event
+		{
+			uint8 bAmount = pkt.read<uint8>();
+			if (bAmount < 1 || bAmount > 3)
+				return;
+
+			uint32 nCost = 50000000 * bAmount;
+			if (nCost > m_nNationalTreasury)
+			{
+				result << int16(-3);
+				pUser->Send(&result);
+				return;
+			}
+
+			m_nNationalTreasury -= nCost;
+
+			m_byNoahEvent = bAmount;
+			m_byNoahEvent_Day = g_localTime.tm_mday;
+			m_byNoahEvent_Hour = g_localTime.tm_hour;
+			m_byNoahEvent_Minute = g_localTime.tm_min;
+
+			m_sNoahEvent_Duration = 30; // event expires in 30 minutes
+
+			// %d%% increased coin rate 
+			g_pMain->SendFormattedResource(m_byNation == KARUS ? IDS_KING_KARUS_NOAH_BONUS_EVENT : IDS_KING_ELMO_NOAH_BONUS_EVENT,
+				m_byNation, false, bAmount);
+
+			// TO-DO: Update other servers via UDP
+			// TO-DO: Update the AI server
+			// TO-DO: Update the database
+		} break;
+		
+	case 2: // EXP event
+		{
+			uint8 bAmount = pkt.read<uint8>();
+			if (bAmount != 10 && bAmount != 30 && bAmount != 50)
+				return;
+
+			uint32 nCost = 30000000 * bAmount;
+			if (nCost > m_nNationalTreasury)
+			{
+				result << int16(-3);
+				pUser->Send(&result);
+				return;
+			}
+
+			m_nNationalTreasury -= nCost;
+
+			m_byExpEvent = bAmount;
+			m_byExpEvent_Day = g_localTime.tm_mday;
+			m_byExpEvent_Hour = g_localTime.tm_hour;
+			m_byExpEvent_Minute = g_localTime.tm_min;
+
+			m_sExpEvent_Duration = 30; // event expires in 30 minutes
+
+			// %d%% increased coin rate 
+			g_pMain->SendFormattedResource(m_byNation == KARUS ? IDS_KING_KARUS_EXP_BONUS_EVENT : IDS_KING_ELMO_EXP_BONUS_EVENT,
+				m_byNation, false, bAmount);
+
+			// TO-DO: Update other servers via UDP
+			// TO-DO: Update the AI server
+			// TO-DO: Update the database
+		} break;
+
+	case 3:
+	case 4:
+		break;
+
+	case 5: // Weather
+		{
+			uint8 bType, bAmount;
+			pkt >> bType >> bAmount;
+			if (bAmount == 0 || bAmount > 100
+				|| bType == 0 || bType > WEATHER_SNOW)
+				return;
+
+			if (m_nNationalTreasury < 100000)
+			{
+				result << int16(-3);
+				pUser->Send(&result);
+				return;
+			}
+
+			m_nNationalTreasury -= 100000;
+
+			g_pMain->m_byKingWeatherEvent = 1;
+			g_pMain->m_byKingWeatherEvent_Day = g_localTime.tm_mday;
+			g_pMain->m_byKingWeatherEvent_Hour = g_localTime.tm_hour;
+			g_pMain->m_byKingWeatherEvent_Minute = g_localTime.tm_min;
+
+			g_pMain->m_nWeather = bType;
+			g_pMain->m_nAmount = bAmount;
+
+			g_pMain->UpdateWeather();
+
+			// TO-DO: Update other servers via UDP
+
+			// Get the resource ID, which differs per nation and weather type.
+			// This works because they're sequential.
+			uint32 nResourceID = 
+				(m_byNation == KARUS 
+					? IDS_KING_KARUS_WEATHER_FINE_EVENT + (bType-1) 
+					: IDS_KING_ELMO_WEATHER_FINE_EVENT  + (bType-1));
+
+			g_pMain->SendFormattedResource(nResourceID, m_byNation, false);
+		} break;
+
+	case 6: // /royalorder command (King chat)
+		{
+			std::string strMessage;
+			pkt.SByte();
+			pkt >> strMessage;
+			if (strMessage.empty() || strMessage.length() > 256)
+				return;
+
+			result.SByte();
+			result << int16(1) << strMessage;
+			g_pMain->Send_All(&result, NULL, m_byNation);
+		} break;
+	}
 }

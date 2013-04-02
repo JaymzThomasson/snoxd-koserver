@@ -45,6 +45,10 @@ CEbenezerDlg::CEbenezerDlg()
 	m_nMin = 0;
 	m_nWeather = 0;
 	m_nAmount = 0;
+	m_byKingWeatherEvent = 0;
+	m_byKingWeatherEvent_Day = 0;
+	m_byKingWeatherEvent_Hour = 0;
+	m_byKingWeatherEvent_Minute = 0;
 	m_sPartyIndex = 0;
 
 	m_nCastleCapture = 0;
@@ -674,24 +678,64 @@ void CEbenezerDlg::UpdateGameTime()
 
 void CEbenezerDlg::UpdateWeather()
 {
-	int weather = 0, rnd = myrand( 0, 100 );
-	if (rnd < 2)		weather = WEATHER_SNOW;
-	else if (rnd < 7)	weather = WEATHER_RAIN;
-	else				weather = WEATHER_FINE;
-
-	m_nAmount = myrand(0, 100);
-	if (weather == WEATHER_FINE)
+	if (m_byKingWeatherEvent)
 	{
-		if (m_nAmount > 70)
-			m_nAmount /= 2;
+		int16 sEventExpiry;
+		if (g_localTime.tm_mday == m_byKingWeatherEvent_Day)
+			sEventExpiry = g_localTime.tm_min + 60 * (g_localTime.tm_hour - m_byKingWeatherEvent_Hour) - m_byKingWeatherEvent_Minute;
 		else
-			m_nAmount = 0;
-	}
-	m_nWeather = weather;
+			sEventExpiry = g_localTime.tm_min + 60 * (g_localTime.tm_hour - m_byKingWeatherEvent_Hour + 24) - m_byKingWeatherEvent_Minute;
 
-	Packet result(WIZ_WEATHER, m_nWeather);
-	result << m_nAmount;
-	Send_All(&result);
+		// Weather events last for 5 minutes
+		if (sEventExpiry > 5)
+		{
+			m_byKingWeatherEvent = 0;
+			m_byKingWeatherEvent_Day = 0;
+			m_byKingWeatherEvent_Hour = 0;
+			m_byKingWeatherEvent_Minute = 0;
+		}
+	}
+	else
+	{
+		int weather = 0, rnd = myrand( 0, 100 );
+		if (rnd < 2)		weather = WEATHER_SNOW;
+		else if (rnd < 7)	weather = WEATHER_RAIN;
+		else				weather = WEATHER_FINE;
+
+		m_nAmount = myrand(0, 100);
+		if (weather == WEATHER_FINE)
+		{
+			if (m_nAmount > 70)
+				m_nAmount /= 2;
+			else
+				m_nAmount = 0;
+		}
+		m_nWeather = weather;
+	}
+
+	// Real weather data for most users.
+	Packet realWeather(WIZ_WEATHER, m_nWeather);
+	realWeather << m_nAmount;
+
+	// Fake, clear weather for users in certain zones (e.g. Desp & Hell Abysses, Arena)
+	Packet fakeWeather(WIZ_WEATHER, uint8(WEATHER_FINE));
+	fakeWeather << m_nAmount;
+
+	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
+	{
+		CUser * pUser = TO_USER(itr->second);
+		if (!pUser->isInGame())
+			continue;
+
+		if (pUser->GetZoneID() == 32 
+			|| pUser->GetZoneID() == 33
+			|| pUser->GetZoneID() == 48)
+			pUser->Send(&fakeWeather);
+		else
+			pUser->Send(&realWeather);
+	}
+	g_socketMgr.ReleaseLock();
 }
 
 void CEbenezerDlg::SetGameTime()
