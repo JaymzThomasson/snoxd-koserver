@@ -1324,3 +1324,13 @@ void CDBAgent::DeleteLetter(string & strCharID, uint32 nLetterID)
 		ReportSQLError(m_GameDB->GetError());
 }
 
+void CDBAgent::UpdateNoahOrExpEvent(uint8 byType, uint8 byNation, uint8 byAmount, uint8 byDay, uint8 byHour, uint8 byMinute, uint16 sDuration)
+{
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == NULL)
+		return;
+
+	if (!dbCommand->Execute(string_format(_T("{CALL KING_UPDATE_NOAH_OR_EXP_EVENT(%d, %d, %d, %d, %d, %d, %d)}"), 
+		byType, byNation, byAmount, byDay, byHour, byMinute, sDuration)))
+		ReportSQLError(m_GameDB->GetError());
+}

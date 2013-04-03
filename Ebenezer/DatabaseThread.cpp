@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "EbenezerDlg.h"
 #include "KnightsManager.h"
+#include "KingSystem.h"
 #include "User.h"
 #include "DBAgent.h"
 
@@ -123,6 +124,9 @@ BOOL WINAPI DatabaseThread::ThreadProc(LPVOID lpParam)
 			break;
 		case WIZ_LOGOUT:
 			if (pUser) pUser->ReqUserLogOut();
+			break;
+		case WIZ_KING:
+			CKingSystem::HandleDatabaseRequest(pUser, pkt);
 			break;
 		}
 		// Free the packet.
@@ -705,6 +709,27 @@ void CUser::ReqBattleEventResult(Packet & pkt)
 	m_DBAgent.UpdateBattleEvent(strMaxUserName, bNation);
 }
 #endif
+
+void CKingSystem::HandleDatabaseRequest(CUser * pUser, Packet & pkt)
+{
+	uint8 opcode = pkt.read<uint8>();
+	switch (opcode)
+	{
+	case KING_EVENT:
+		{
+			uint8 byNation;
+			pkt >> opcode >> byNation;
+			if (opcode == 1 || opcode == 2)
+			{
+				uint8 byAmount, byDay, byHour, byMinute;
+				uint16 sDuration;
+				pkt >> byAmount >> byDay >> byHour >> byMinute >> sDuration;
+
+				g_DBAgent.UpdateNoahOrExpEvent(opcode, byNation, byAmount, byDay, byHour, byMinute, sDuration);
+			}
+		} break;
+	}
+}
 
 void DatabaseThread::Shutdown()
 {

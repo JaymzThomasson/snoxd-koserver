@@ -596,7 +596,10 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 
 			// TO-DO: Update other servers via UDP
 			// TO-DO: Update the AI server
-			// TO-DO: Update the database
+
+			// Update the database
+			result << m_byNation << bAmount << m_byNoahEvent_Day << m_byNoahEvent_Hour << m_byNoahEvent_Minute << m_sNoahEvent_Duration;
+			g_pMain->AddDatabaseRequest(result);
 		} break;
 		
 	case 2: // EXP event
@@ -628,7 +631,10 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 
 			// TO-DO: Update other servers via UDP
 			// TO-DO: Update the AI server
-			// TO-DO: Update the database
+
+			// Update the database
+			result << m_byNation << bAmount << m_byExpEvent_Day << m_byExpEvent_Hour << m_byExpEvent_Minute << m_sExpEvent_Duration;
+			g_pMain->AddDatabaseRequest(result);
 		} break;
 
 	case 3:

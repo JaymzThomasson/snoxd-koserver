@@ -106,6 +106,8 @@ public:
 	int8 GetItemFromLetter(std::string & strCharID, uint32 nLetterID, uint32 & nItemID, uint16 & sCount, uint16 & sDurability, uint32 & nCoins, uint64 & nSerialNum);
 	void DeleteLetter(std::string & strCharID, uint32 nLetterID);
 
+	void UpdateNoahOrExpEvent(uint8 byType, uint8 byNation, uint8 byAmount, uint8 byDay, uint8 byHour, uint8 byMinute, uint16 sDuration);
+
 	~CDBAgent();
 
 private:

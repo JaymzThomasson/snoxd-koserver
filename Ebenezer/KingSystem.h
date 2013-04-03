@@ -41,6 +41,8 @@ public:
 	void KingTaxSystem(CUser * pUser, Packet & pkt);
 	void KingSpecialEvent(CUser * pUser, Packet & pkt);
 
+	static void HandleDatabaseRequest(CUser * pUser, Packet & pkt);
+
 	uint8	m_byNation;
 
 	uint8	m_byType;
