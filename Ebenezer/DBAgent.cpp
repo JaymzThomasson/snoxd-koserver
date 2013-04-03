@@ -1334,3 +1334,15 @@ void CDBAgent::UpdateNoahOrExpEvent(uint8 byType, uint8 byNation, uint8 byAmount
 		byType, byNation, byAmount, byDay, byHour, byMinute, sDuration)))
 		ReportSQLError(m_GameDB->GetError());
 }
+
+void CDBAgent::InsertPrizeEvent(uint8 byType, uint8 byNation, uint32 nCoins, std::string & strCharID)
+{
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == NULL)
+		return;
+
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
+	if (!dbCommand->Execute(string_format(_T("{CALL KING_INSERT_PRIZE_EVENT(%d, %d, %d, ?)}"), 
+		byType, byNation, nCoins)))
+		ReportSQLError(m_GameDB->GetError());
+}

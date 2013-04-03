@@ -567,7 +567,7 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 
 	switch (opcode)
 	{
-	case 1: // Noah event
+	case KING_EVENT_NOAH: // Noah event
 		{
 			uint8 bAmount = pkt.read<uint8>();
 			if (bAmount < 1 || bAmount > 3)
@@ -602,7 +602,7 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 			g_pMain->AddDatabaseRequest(result);
 		} break;
 		
-	case 2: // EXP event
+	case KING_EVENT_EXP: // EXP event
 		{
 			uint8 bAmount = pkt.read<uint8>();
 			if (bAmount != 10 && bAmount != 30 && bAmount != 50)
@@ -637,11 +637,55 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 			g_pMain->AddDatabaseRequest(result);
 		} break;
 
-	case 3:
-	case 4:
+	case KING_EVENT_PRIZE:
+		{
+			uint32 nCoins;
+			std::string strUserID;
+			pkt.SByte();
+			pkt >> nCoins >> strUserID;
+			
+			// If the user submitted invalid input, chances are 
+			// the coins will end up 0. We can safely ignore it.
+			if (nCoins == 0)
+				return;
+
+			CUser * pTUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
+			if (pTUser == NULL	// this session check isn't official behaviour
+								// as they try to handle offline users -
+								// note the 'try' (it doesn't work properly)...
+				|| strUserID.empty() || strUserID.length() > MAX_ID_SIZE)
+			{
+				result << int16(-2);
+				pUser->Send(&result);
+				return;
+			}
+
+			if (nCoins > m_nNationalTreasury)
+			{
+				result << int16(-4);
+				pUser->Send(&result);
+				return;
+			}
+
+			m_nNationalTreasury -= nCoins;
+			pTUser->GoldGain(nCoins);
+
+			// (awarded %s %d coins)
+			g_pMain->SendFormattedResource(m_byNation == KARUS ? IDS_KING_KARUS_PRIZE_EVENT_MESSAGE : IDS_KING_ELMO_PRIZE_EVENT_MESSAGE,
+				m_byNation, false, pTUser->m_strUserID.c_str(), nCoins);
+				
+			// TO-DO: Update other servers via UDP
+
+			// Update the database
+			result << m_byNation << nCoins << strUserID;
+			g_pMain->AddDatabaseRequest(result);
+
+		} break;
+
+	case KING_EVENT_FUGITIVE: // not sure what this is exactly, but it seems to work pretty much the same as the /prize command
 		break;
 
-	case 5: // Weather
+	case KING_EVENT_WEATHER: // Weather
 		{
 			uint8 bType, bAmount;
 			pkt >> bType >> bAmount;
@@ -680,7 +724,7 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 			g_pMain->SendFormattedResource(nResourceID, m_byNation, false);
 		} break;
 
-	case 6: // /royalorder command (King chat)
+	case KING_EVENT_NOTICE: // /royalorder command (King chat)
 		{
 			std::string strMessage;
 			pkt.SByte();

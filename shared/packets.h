@@ -225,7 +225,12 @@ enum KingSystemOpcodes
 
 enum KingEventOpcodes
 {
-	KING_EVENT_PRIZE	= 3
+	KING_EVENT_NOAH		= 1,
+	KING_EVENT_EXP		= 2,
+	KING_EVENT_PRIZE	= 3,
+	KING_EVENT_FUGITIVE	= 4, // not sure what this is exactly
+	KING_EVENT_WEATHER	= 5,
+	KING_EVENT_NOTICE	= 6
 };
 
 enum KingSystemElectionOpcodes

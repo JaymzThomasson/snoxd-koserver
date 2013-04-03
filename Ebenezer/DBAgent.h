@@ -107,6 +107,7 @@ public:
 	void DeleteLetter(std::string & strCharID, uint32 nLetterID);
 
 	void UpdateNoahOrExpEvent(uint8 byType, uint8 byNation, uint8 byAmount, uint8 byDay, uint8 byHour, uint8 byMinute, uint16 sDuration);
+	void InsertPrizeEvent(uint8 byType, uint8 byNation, uint32 nCoins, std::string & strCharID);
 
 	~CDBAgent();
 

@@ -719,13 +719,21 @@ void CKingSystem::HandleDatabaseRequest(CUser * pUser, Packet & pkt)
 		{
 			uint8 byNation;
 			pkt >> opcode >> byNation;
-			if (opcode == 1 || opcode == 2)
+			if (opcode == KING_EVENT_NOAH || opcode == KING_EVENT_EXP)
 			{
 				uint8 byAmount, byDay, byHour, byMinute;
 				uint16 sDuration;
 				pkt >> byAmount >> byDay >> byHour >> byMinute >> sDuration;
 
 				g_DBAgent.UpdateNoahOrExpEvent(opcode, byNation, byAmount, byDay, byHour, byMinute, sDuration);
+			}
+			else if (opcode == KING_EVENT_PRIZE)
+			{
+				uint32 nCoins;
+				string strUserID;
+				pkt >> nCoins >> strUserID;
+
+				g_DBAgent.InsertPrizeEvent(opcode, byNation, nCoins, strUserID);
 			}
 		} break;
 	}
