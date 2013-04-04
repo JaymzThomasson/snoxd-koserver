@@ -34,7 +34,8 @@ CKingSystem::CKingSystem()
 void CKingSystem::CheckKingTimer()
 {
 	// Get the current time.
-	uint8	bCurDay = g_localTime.tm_mday,
+	uint8	bCurMonth = g_localTime.tm_mon + 1,
+			bCurDay = g_localTime.tm_mday,
 			bCurHour = g_localTime.tm_hour,
 			bCurMinute = g_localTime.tm_min;
 
@@ -47,7 +48,7 @@ void CKingSystem::CheckKingTimer()
 	case 0:
 	case 7:
 		{
-			if (g_localTime.tm_mon + 1 == m_byMonth
+			if (bCurMonth == m_byMonth
 				&& bCurDay == m_byDay
 				&& bCurHour == m_byHour
 				&& bCurMinute == m_byMinute)
@@ -63,10 +64,10 @@ void CKingSystem::CheckKingTimer()
 
 	case 1:
 		{
-			if (g_localTime.tm_mon + 1 == m_byMonth
-					&& bCurDay == m_byDay
-					&& bCurHour == m_byHour
-					&& bCurMinute == m_byMinute)
+			if (bCurMonth == m_byMonth
+				&& bCurDay == m_byDay
+				&& bCurHour == m_byHour
+				&& bCurMinute == m_byMinute)
 			{
 				m_byType = 2;
 				g_pMain->SendFormattedResource(IDS_KING_RECOMMEND_FINISH_TIME, m_byNation, false);
@@ -90,10 +91,10 @@ void CKingSystem::CheckKingTimer()
 
 	case 2:
 		{
-			if (g_localTime.tm_mon + 1 == m_byMonth
-					&& bCurDay == m_byDay
-					&& bCurHour == m_byHour
-					&& bCurMinute == m_byMinute)
+			if (bCurMonth == m_byMonth
+				&& bCurDay == m_byDay
+				&& bCurHour == m_byHour
+				&& bCurMinute == m_byMinute)
 			{
 				m_byType = 3;
 				g_pMain->SendFormattedResource(IDS_KING_ELECTION_TIME, m_byNation, false);
@@ -105,10 +106,10 @@ void CKingSystem::CheckKingTimer()
 
 	case 3:
 		{
-			if (g_localTime.tm_mon + 1 == m_byMonth
-					&& bCurDay == m_byDay
-					&& bCurHour == m_byHour
-					&& bCurMinute == m_byMinute)
+			if (bCurMonth == m_byMonth
+				&& bCurDay == m_byDay
+				&& bCurHour == m_byHour
+				&& bCurMinute == m_byMinute)
 			{
 				m_byType = 6;
 				// GetElectionResult();
@@ -134,10 +135,10 @@ void CKingSystem::CheckKingTimer()
 		{
 			DateTime dt(m_sImYear, m_byImMonth, m_byImDay, m_byImHour, m_byImMinute);
 			dt.AddHours(47);
-			if (g_localTime.tm_mon + 1 == dt.GetMonth()
-					&& bCurDay == dt.GetDay()
-					&& bCurHour == dt.GetHour()
-					&& bCurMinute == dt.GetMinute())
+			if (bCurMonth == dt.GetMonth()
+				&& bCurDay == dt.GetDay()
+				&& bCurHour == dt.GetHour()
+				&& bCurMinute == dt.GetMinute())
 			{
 				// GetImpeachmentRequestResult();
 			}
@@ -148,10 +149,10 @@ void CKingSystem::CheckKingTimer()
 		{
 			DateTime dt(m_sImYear, m_byImMonth, m_byImDay, m_byImHour, m_byImMinute);
 			dt.AddDays(2);
-			if (g_localTime.tm_mon + 1 == dt.GetMonth()
-					&& bCurDay == dt.GetDay()
-					&& bCurHour == dt.GetHour()
-					&& bCurMinute == dt.GetMinute())
+			if (bCurMonth == dt.GetMonth()
+				&& bCurDay == dt.GetDay()
+				&& bCurHour == dt.GetHour()
+				&& bCurMinute == dt.GetMinute())
 			{
 				m_byImType = 3;
 				g_pMain->SendFormattedResource(IDS_KING_IMPEACHMENT_ELECTION_MESSAGE, m_byNation, false);
@@ -163,10 +164,10 @@ void CKingSystem::CheckKingTimer()
 		{
 			DateTime dt(m_sImYear, m_byImMonth, m_byImDay, m_byImHour, m_byImMinute);
 			dt.AddDays(3);
-			if (g_localTime.tm_mon + 1 == dt.GetMonth()
-					&& bCurDay == dt.GetDay()
-					&& bCurHour == dt.GetHour()
-					&& bCurMinute == dt.GetMinute())
+			if (bCurMonth == dt.GetMonth()
+				&& bCurDay == dt.GetDay()
+				&& bCurHour == dt.GetHour()
+				&& bCurMinute == dt.GetMinute())
 			{
 				m_byImType = 4;
 				// GetImpeachmentElectionResult();
