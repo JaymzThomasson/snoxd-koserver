@@ -561,8 +561,21 @@ void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
 			// Update the noticeboard.
 			itr->second = strNotice;
 
+			// Preserve the write position so that we can reuse the packet
+			// without requiring junk data.
+			size_t wpos = result.wpos();
+
+			// Update the user.
+			result << int16(1);
+			pUser->Send(&result);
+
+			// Now reuse the packet for the database request; 
+			// overwrite the result sent to the client, so we don't need to send it.
+			result.put(wpos, strNotice.c_str(), strNotice.length());
+
 			// Update the database.
-			g_pMain->AddDatabaseRequest(pkt, pUser);
+			result << strNotice;
+			g_pMain->AddDatabaseRequest(result, pUser);
 		} return;
 
 	// Read from the candidacy noticeboard

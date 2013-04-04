@@ -1324,6 +1324,37 @@ void CDBAgent::DeleteLetter(string & strCharID, uint32 nLetterID)
 		ReportSQLError(m_GameDB->GetError());
 }
 
+/**
+ * @brief	Updates the candidacy notice board.
+ *
+ * @param	strCharID	Candidate's name.
+ * @param	byNation 	Candidate's nation.
+ * @param	strNotice	The notice.
+ */
+void CDBAgent::UpdateCandidacyNoticeBoard(string & strCharID, uint8 byNation, string & strNotice)
+{
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == NULL)
+		return;
+
+	// Field is 1024 bytes in the database.
+	uint8 strBinaryNotice[1024] = {0};
+	uint16 sNoticeLen = strNotice.length();
+
+	// This shouldn't happen, but... in the horribly unlikely event it does... we're ready.
+	if (sNoticeLen > sizeof(strBinaryNotice))
+		sNoticeLen = sizeof(strBinaryNotice);
+
+	memcpy(strBinaryNotice, strNotice.c_str(), sNoticeLen);
+	
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strBinaryNotice, sizeof(strBinaryNotice));
+
+	if (!dbCommand->Execute(string_format(_T("{CALL KING_CANDIDACY_NOTICE_BOARD_PROC(?, %d, %d, ?)}"), 
+		sNoticeLen, byNation)))
+		ReportSQLError(m_GameDB->GetError());
+}
+
 void CDBAgent::UpdateNoahOrExpEvent(uint8 byType, uint8 byNation, uint8 byAmount, uint8 byDay, uint8 byHour, uint8 byMinute, uint16 sDuration)
 {
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());

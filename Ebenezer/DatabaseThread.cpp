@@ -710,11 +710,42 @@ void CUser::ReqBattleEventResult(Packet & pkt)
 }
 #endif
 
+/**
+ * @brief	Handles database requests for the King system.
+ *
+ * @param	pUser	The user making the request, if applicable. 
+ * 					NULL if not.
+ * @param	pkt  	The packet.
+ */
 void CKingSystem::HandleDatabaseRequest(CUser * pUser, Packet & pkt)
 {
 	uint8 opcode = pkt.read<uint8>();
+
+	// This horrible switch will be cleaned up when we're done.
+	// For now, laziness prevails.
 	switch (opcode)
 	{
+	case KING_ELECTION:
+		{
+			pkt >> opcode;
+			switch (opcode)
+			{
+				case KING_ELECTION_NOMINATE:
+					{
+						pkt >> opcode;
+						if (pUser == NULL)
+							return;
+
+						if (opcode == KING_CANDIDACY_BOARD_WRITE)
+						{
+							string strNotice;
+							pkt >> strNotice;
+							g_DBAgent.UpdateCandidacyNoticeBoard(pUser->m_strUserID, pUser->GetNation(), strNotice);
+						}
+					} break;
+			}
+		} break;
+
 	case KING_EVENT:
 		{
 			uint8 byNation;
