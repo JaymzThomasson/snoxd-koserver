@@ -418,7 +418,8 @@ bool CUser::HandlePacket(Packet & pkt)
 }
 
 /**
- * @brief	Adjusts a player's loyalty (NP) and the corresponding packet.
+ * @brief	Adjusts a player's loyalty (NP) and sends the loyalty 
+ * 			change packet.
  *
  * @param	nChangeAmount	The amount to adjust the loyalty points by.
  */
@@ -1790,8 +1791,8 @@ void CUser::StateChange(Packet & pkt)
  * @brief	Changes a player's state directly from the server
  * 			without any checks.
  *
- * @param	bType	The type.
- * @param	nBuff	The buffer.
+ * @param	bType	State type.
+ * @param	nBuff	The buff/flag (depending on the state type).
  */
 void CUser::StateChangeServerDirect(BYTE bType, uint32 nBuff)
 {
