@@ -522,7 +522,7 @@ void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
 	uint8 opcode = pkt.read<uint8>();
 	bool bSuccess = false;
 
-	result << uint8(KING_ELECTION_NOMINATE) << opcode;
+	result << uint8(KING_ELECTION_NOTICE_BOARD) << opcode;
 
 	switch (opcode)
 	{

@@ -730,19 +730,33 @@ void CKingSystem::HandleDatabaseRequest(CUser * pUser, Packet & pkt)
 			pkt >> opcode;
 			switch (opcode)
 			{
-				case KING_ELECTION_NOMINATE:
-					{
-						pkt >> opcode;
-						if (pUser == NULL)
-							return;
+			case KING_ELECTION_NOMINATE:
+				{
+					if (pUser == NULL)
+						return;
 
-						if (opcode == KING_CANDIDACY_BOARD_WRITE)
-						{
-							string strNotice;
-							pkt >> strNotice;
-							g_DBAgent.UpdateCandidacyNoticeBoard(pUser->m_strUserID, pUser->GetNation(), strNotice);
-						}
-					} break;
+					Packet result(WIZ_KING, uint8(KING_ELECTION));
+					std::string strNominee;
+					pkt >> strNominee;
+
+					result	<< uint8(KING_ELECTION_NOMINATE) 
+							<< g_DBAgent.UpdateCandidacyRecommend(pUser->m_strUserID, strNominee, pUser->GetNation());
+					pUser->Send(&result);
+				} break;
+
+			case KING_ELECTION_NOTICE_BOARD:
+				{
+					pkt >> opcode;
+					if (pUser == NULL)
+						return;
+
+					if (opcode == KING_CANDIDACY_BOARD_WRITE)
+					{
+						string strNotice;
+						pkt >> strNotice;
+						g_DBAgent.UpdateCandidacyNoticeBoard(pUser->m_strUserID, pUser->GetNation(), strNotice);
+					}
+				} break;
 			}
 		} break;
 

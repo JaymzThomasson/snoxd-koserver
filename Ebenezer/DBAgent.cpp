@@ -1325,6 +1325,33 @@ void CDBAgent::DeleteLetter(string & strCharID, uint32 nLetterID)
 }
 
 /**
+ * @brief	Nominates/recommends strNominee as King.
+ *
+ * @param	strNominator	The nominator.
+ * @param	strNominee  	The nominee.
+ * @param	byNation		Their nation.
+ *
+ * @return	.
+ */
+int16 CDBAgent::UpdateCandidacyRecommend(std::string & strNominator, std::string & strNominee, uint8 byNation)
+{
+	int16 sRet = -1;
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == NULL)
+		return sRet;
+
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strNominee.c_str(), strNominee.length());
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strNominator.c_str(), strNominator.length());
+
+	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &sRet);
+
+	if (!dbCommand->Execute(string_format(_T("{CALL KING_CANDIDACY_RECOMMEND(?, ?, %d)}"), byNation)))
+		ReportSQLError(m_GameDB->GetError());
+
+	return sRet;
+}
+
+/**
  * @brief	Updates the candidacy notice board.
  *
  * @param	strCharID	Candidate's name.
