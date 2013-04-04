@@ -92,6 +92,12 @@ CEbenezerDlg::CEbenezerDlg()
 	m_bSantaOrAngel = FLYING_NONE;
 }
 
+/**
+ * @brief	Loads config, table data, initialises sockets and generally
+ * 			starts up the server.
+ *
+ * @return	true if it succeeds, false if it fails.
+ */
 bool CEbenezerDlg::Startup()
 {
 	m_sZoneCount = 0;
@@ -141,6 +147,9 @@ bool CEbenezerDlg::Startup()
 	return true; 
 }
 
+/**
+ * @brief	Loads the server's config from the INI file.
+ */
 void CEbenezerDlg::GetTimeFromIni()
 {
 	CIni ini(CONF_GAME_SERVER);
@@ -225,6 +234,12 @@ void CEbenezerDlg::GetTimeFromIni()
 	s_dwAliveTimerID = SetTimer(NULL, 2, 34000, &TimerProc);
 }
 
+/**
+ * @brief	Gets & formats a cached server resource (_SERVER_RESOURCE entry).
+ *
+ * @param	nResourceID	Identifier for the resource.
+ * @param	result	   	The string to store the formatted result in.
+ */
 void CEbenezerDlg::GetServerResource(int nResourceID, string * result, ...)
 {
 	_SERVER_RESOURCE *pResource = m_ServerResourceArray.GetData(nResourceID);
@@ -240,11 +255,26 @@ void CEbenezerDlg::GetServerResource(int nResourceID, string * result, ...)
 	va_end(args);
 }
 
+/**
+ * @brief	Gets the starting positions (for both nations) 
+ * 			for the specified zone.
+ *
+ * @param	nZoneID	Identifier for the zone.
+ */
 _START_POSITION *CEbenezerDlg::GetStartPosition(int nZoneID)
 {
 	return m_StartPositionArray.GetData(nZoneID);
 }
 
+/**
+ * @brief	Gets the experience points required for the 
+ * 			specified level.
+ *
+ * @param	nLevel	The level.
+ *
+ * @return	The experience points required to level up from 
+ * 			the specified level.
+ */
 long CEbenezerDlg::GetExpByLevel(int nLevel)
 {
 	LevelUpArray::iterator itr = m_LevelUpArray.find(nLevel);
@@ -254,11 +284,26 @@ long CEbenezerDlg::GetExpByLevel(int nLevel)
 	return 0;
 }
 
+/**
+ * @brief	Gets zone by its identifier.
+ *
+ * @param	zoneID	Identifier for the zone.
+ *
+ * @return	null if it fails, otherwise the zone.
+ */
 C3DMap * CEbenezerDlg::GetZoneByID(int zoneID)
 {
 	return m_ZoneArray.GetData(zoneID);
 }
 
+/**
+ * @brief	Looks up a user by name.
+ *
+ * @param	findName	The name to find.
+ * @param	type		The type of name (account, character).
+ *
+ * @return	null if it fails, else the user pointer.
+ */
 CUser* CEbenezerDlg::GetUserPtr(string findName, NameType type)
 {
 	// As findName is a copy of the string passed in, we can change it
@@ -282,7 +327,11 @@ CUser* CEbenezerDlg::GetUserPtr(string findName, NameType type)
 	return NULL;
 }
 
-// Adds the account name & session to a hashmap (on login)
+/**
+ * @brief	Adds the account name & session to a hashmap (on login)
+ *
+ * @param	pSession	The session.
+ */
 void CEbenezerDlg::AddAccountName(CUser *pSession)
 {
 	FastGuard lock(m_accountNameLock);
@@ -291,7 +340,11 @@ void CEbenezerDlg::AddAccountName(CUser *pSession)
 	m_accountNameMap[upperName] = pSession;
 }
 
-// Adds the character name & session to a hashmap (when in-game)
+/**
+ * @brief	Adds the character name & session to a hashmap (when in-game)
+ *
+ * @param	pSession	The session.
+ */
 void CEbenezerDlg::AddCharacterName(CUser *pSession)
 {
 	FastGuard lock(m_characterNameLock);
@@ -300,7 +353,11 @@ void CEbenezerDlg::AddCharacterName(CUser *pSession)
 	m_characterNameMap[upperName] = pSession;
 }
 
-// Removes the account name & character names from the hashmaps (on logout)
+/**
+ * @brief	Removes the account name & character names from the hashmaps (on logout)
+ *
+ * @param	pSession	The session.
+ */
 void CEbenezerDlg::RemoveSessionNames(CUser *pSession)
 {
 	string upperName = pSession->m_strAccountID;
@@ -1498,6 +1555,16 @@ uint16 CEbenezerDlg::GetKnightsAllMembers(uint16 sClanID, Packet & result, uint1
 	return count;
 }
 
+/**
+ * @brief	Calculates the clan grade from the specified
+ * 			loyalty points (NP).
+ *
+ * @param	nPoints	Loyalty points (NP). 
+ * 					The points will be converted to clan points 
+ * 					by this method.
+ *
+ * @return	The clan grade.
+ */
 int CEbenezerDlg::GetKnightsGrade(int nPoints)
 {
 	int nClanPoints = nPoints / MAX_CLAN_USERS;
@@ -1514,6 +1581,9 @@ int CEbenezerDlg::GetKnightsGrade(int nPoints)
 	return 5;
 }
 
+/**
+ * @brief	Checks & drops in-game users for inactivity.
+ */
 void CEbenezerDlg::CheckAliveUser()
 {
 	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
@@ -1532,6 +1602,11 @@ void CEbenezerDlg::CheckAliveUser()
 	g_socketMgr.ReleaseLock();
 }
 
+/**
+ * @brief	Disconnects all players in the server.
+ *
+ * @return	The number of users who were in-game.
+ */
 int CEbenezerDlg::KickOutAllUsers()
 {
 	int count = 0;
@@ -1555,6 +1630,9 @@ int CEbenezerDlg::KickOutAllUsers()
 	return count;
 }
 
+/**
+ * @brief	Generates a new item serial.
+ */
 __int64 CEbenezerDlg::GenerateItemSerial()
 {
 	MYINT64 serial;
@@ -1583,6 +1661,12 @@ __int64 CEbenezerDlg::GenerateItemSerial()
 	return serial.i;
 }
 
+/**
+ * @brief	Kick out all users from the specified zone
+ * 			to their home zone.
+ *
+ * @param	zone	The zone to kick users out from.
+ */
 void CEbenezerDlg::KickOutZoneUsers(short zone)
 {
 	// TO-DO: Make this localised to zones.
@@ -1646,6 +1730,10 @@ void CEbenezerDlg::GetCaptainUserPtr()
 	}
 }
 
+/**
+ * @brief	Updates the number of users currently in the war zone
+ * 			and sends the user counts to all servers in this group.
+ */
 void CEbenezerDlg::BattleZoneCurrentUsers()
 {
 	C3DMap* pMap = GetZoneByID(ZONE_BATTLE);
@@ -1677,6 +1765,9 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 	Send_UDP_All(&result);
 }
 
+/**
+ * @brief	Sends the flying santa/angel packet to all users in the server.
+ */
 void CEbenezerDlg::SendFlyingSantaOrAngel()
 {
 	Packet result(WIZ_SANTA, uint8(m_bSantaOrAngel));
