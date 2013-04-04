@@ -327,8 +327,8 @@ void CKingSystem::KingNotifyMessage(uint32 nResourceID, int byNation, ChatType c
 /**
  * @brief	Wrapper for the King system's packet handler.
  *
- * @param [in,out]	pUser	If non-null, the user sending the request.
- * @param [in,out]	pkt  	The packet.
+ * @param	pUser	The user sending the packet.
+ * @param	pkt  	The packet.
  */
 void CKingSystem::PacketProcess(CUser * pUser, Packet & pkt)
 {
@@ -344,8 +344,8 @@ void CKingSystem::PacketProcess(CUser * pUser, Packet & pkt)
 /**
  * @brief	The real packet handler for the King system.
  *
- * @param [in,out]	pUser	If non-null, the user sending the packet.
- * @param [in,out]	pkt  	The packet.
+ * @param	pUser	The user sending the packet.
+ * @param	pkt  	The packet.
  */
 void CKingSystem::KingPacketProcess(CUser * pUser, Packet & pkt)
 {
@@ -375,8 +375,8 @@ void CKingSystem::KingPacketProcess(CUser * pUser, Packet & pkt)
 /**
  * @brief	Election system.
  *
- * @param [in,out]	pUser	If non-null, the user sending the packet.
- * @param [in,out]	pkt  	The packet.
+ * @param	pUser	The user sending the packet.
+ * @param	pkt  	The packet.
  */
 void CKingSystem::ElectionSystem(CUser * pUser, Packet & pkt)
 {
@@ -407,8 +407,8 @@ void CKingSystem::ElectionSystem(CUser * pUser, Packet & pkt)
 /**
  * @brief	"Check election day" button at the election NPC
  *
- * @param [in,out]	pUser	If non-null, the user sending the packet.
- * @param [in,out]	pkt  	The packet.
+ * @param	pUser	The user sending the packet.
+ * @param	pkt  	The packet.
  */
 void CKingSystem::ElectionScheduleConfirmation(CUser * pUser, Packet & pkt)
 {
@@ -468,10 +468,11 @@ void CKingSystem::ElectionScheduleConfirmation(CUser * pUser, Packet & pkt)
 }
 
 /**
- * @brief	Handler for candidacy recommendations.
+ * @brief	Handles King candidacy recommendations by 
+ * 			leaders of top 10 clans.
  *
- * @param [in,out]	pUser	If non-null, the user sending the packet.
- * @param [in,out]	pkt  	The packet.
+ * @param	pUser	The user sending the packet.
+ * @param	pkt  	The packet.
  */
 void CKingSystem::CandidacyRecommend(CUser * pUser, Packet & pkt) 
 {
@@ -512,8 +513,8 @@ void CKingSystem::CandidacyRecommend(CUser * pUser, Packet & pkt)
 /**
  * @brief	Candidacy notice board system.
  *
- * @param [in,out]	pUser	If non-null, the user sending the packet.
- * @param [in,out]	pkt  	The packet.
+ * @param	pUser	The user sending the packet.
+ * @param	pkt  	The packet.
  */
 void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
 {
@@ -525,13 +526,103 @@ void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
 
 	switch (opcode)
 	{
+	// Write to the candidacy noticeboard
 	case 1:
-		CandidacyNoticeBoard_Write(pUser, pkt);
-		return;
+		{
+			if (m_byType != 1 && m_byType != 2 && m_byType != 3)
+			{
+				result << int16(-1);
+				pUser->Send(&result);
+				return;
+			}
 
+			std::string strNotice;
+			pkt >> strNotice;
+
+			// The official max length of invalid notices is 480 bytes.
+			// The size of the column is 1024 bytes. Possibly this limit was
+			// imposed purely for the sake of the shared memory queue?
+			if (strNotice.empty() || strNotice.length() > 480)
+			{
+				result << int16(-2);
+				pUser->Send(&result);
+				return;
+			}
+
+			// Check to make sure the user's in the candidacy list.
+			KingCandidacyNoticeBoardMap::iterator itr = m_noticeBoardMap.find(pUser->m_strUserID);
+			if (itr == m_noticeBoardMap.end())
+			{
+				result << int16(-3);
+				pUser->Send(&result);
+				return;
+			}
+
+			// Update the noticeboard.
+			itr->second = strNotice;
+
+			// Update the database.
+			g_pMain->AddDatabaseRequest(pkt, pUser);
+		} return;
+
+	// Read from the candidacy noticeboard
 	case 2:
-		CandidacyNoticeBoard_Read(pUser, pkt);
-		return;
+		{ 
+			if (m_byType != 1 && m_byType != 2 && m_byType != 3)
+			{
+				result << int16(-1);
+				pUser->Send(&result);
+				return;
+			}
+
+			pkt >> opcode;
+			result << opcode;
+
+			// List candidates
+			if (opcode == 1)
+			{
+				FastGuard lock(m_lock);
+				result	<< int16(1) // success
+						<< uint8(m_noticeBoardMap.size());
+
+				result.SByte();
+				foreach (itr, m_noticeBoardMap)
+					result << itr->first;
+			}
+			else if (opcode == 2)
+			{
+				std::string strCandidate;
+				pkt.SByte();
+				pkt >> strCandidate;
+
+				if (strCandidate.empty() || strCandidate.length() > MAX_ID_SIZE)
+					return;
+
+				// Does this candidate actually exist in the list?
+				KingCandidacyNoticeBoardMap::iterator itr = m_noticeBoardMap.find(strCandidate);
+				if (itr == m_noticeBoardMap.end()
+					// and is the message actually set?
+					|| itr->second.empty())
+				{
+					result	<< int16(-2);
+					/*
+					// Not implementing this oddity unless there's a really good 
+					// client reason to explain this.
+					result.DByte();
+					result	<< strCandidate 
+							<< <name of last user on notice board>;
+					*/
+				}
+				else
+				{
+					result.DByte();
+					result	<< int16(1) // success
+							<< strCandidate << itr->second;
+				}
+			}
+
+			pUser->Send(&result);
+		} return;
 
 	case 4:
 		if (m_byType == 1 || m_byType == 2 || m_byType == 3)
@@ -562,22 +653,14 @@ void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
 	pUser->Send(&result);
 }
 
-void CKingSystem::CandidacyNoticeBoard_Write(CUser * pUser, Packet & pkt)
-{
-}
-
-void CKingSystem::CandidacyNoticeBoard_Read(CUser * pUser, Packet & pkt)
-{
-}
-
 void CKingSystem::ElectionPoll(CUser * pUser, Packet & pkt) {}
 void CKingSystem::CandidacyResign(CUser * pUser, Packet & pkt) {}
 
 /**
  * @brief	Impeachment system.
  *
- * @param [in,out]	pUser	If non-null, the user sending the packet.
- * @param [in,out]	pkt  	The packet.
+ * @param	pUser	The user sending the packet.
+ * @param	pkt  	The packet.
  */
 void CKingSystem::ImpeachmentSystem(CUser * pUser, Packet & pkt)
 {
@@ -619,8 +702,8 @@ void CKingSystem::ImpeachmentElectionUiOpen(CUser * pUser, Packet & pkt) {}
 /**
  * @brief	King tax system.
  *
- * @param [in,out]	pUser	If non-null, the user sending the packet.
- * @param [in,out]	pkt  	The packet.
+ * @param	pUser	The user sending the packet.
+ * @param	pkt  	The packet.
  */
 void CKingSystem::KingTaxSystem(CUser * pUser, Packet & pkt)
 {
@@ -683,8 +766,8 @@ void CKingSystem::KingTaxSystem(CUser * pUser, Packet & pkt)
 /**
  * @brief	Handles commands accessible to the King.
  *
- * @param [in,out]	pUser	If non-null, the user sending the packet.
- * @param [in,out]	pkt  	The packet.
+ * @param	pUser	The user sending the packet.
+ * @param	pkt  	The packet.
  */
 void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 {

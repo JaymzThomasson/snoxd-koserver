@@ -35,8 +35,6 @@ public:
 	void ElectionScheduleConfirmation(CUser * pUser, Packet & pkt);
 	void CandidacyRecommend(CUser * pUser, Packet & pkt);
 	void CandidacyNoticeBoard(CUser * pUser, Packet & pkt);
-	void CandidacyNoticeBoard_Write(CUser * pUser, Packet & pkt);
-	void CandidacyNoticeBoard_Read(CUser * pUser, Packet & pkt);
 	void ElectionPoll(CUser * pUser, Packet & pkt);
 	void CandidacyResign(CUser * pUser, Packet & pkt);
 
