@@ -10,7 +10,7 @@ public:
 	static void AddRequest(Packet * pkt);
 
 	// Main thread procedure
-	static BOOL WINAPI ThreadProc(LPVOID lpParam);
+	static unsigned int __stdcall ThreadProc(void * lpParam);
 
 	// Shutdown threads.
 	static void Shutdown();

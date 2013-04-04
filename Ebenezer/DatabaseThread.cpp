@@ -35,7 +35,7 @@ void DatabaseThread::AddRequest(Packet * pkt)
 	SetEvent(s_hEvent);
 }
 
-BOOL WINAPI DatabaseThread::ThreadProc(LPVOID lpParam)
+unsigned int __stdcall DatabaseThread::ThreadProc(void * lpParam)
 {
 	while (_running)
 	{
@@ -134,7 +134,7 @@ BOOL WINAPI DatabaseThread::ThreadProc(LPVOID lpParam)
 	}
 
 	TRACE("[Thread %d] Exiting...\n", lpParam);
-	return true;
+	return 0;
 }
 
 
