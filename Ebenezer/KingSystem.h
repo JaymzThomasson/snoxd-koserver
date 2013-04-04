@@ -1,5 +1,8 @@
 #pragma once
 
+#include <hash_map>
+typedef stdext::hash_map<std::string, std::string>		KingCandidacyNoticeBoardMap; 
+
 class CUser;
 class CKingSystem
 {
@@ -78,6 +81,8 @@ public:
 
 	std::string m_strKingName;
 	std::string m_strImRequestID;
+
+	KingCandidacyNoticeBoardMap m_noticeBoardMap;
 
 	// TO-DO: Give this a more appropriate name.
 	bool m_bSentFirstMessage;
