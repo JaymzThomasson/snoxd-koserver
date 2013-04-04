@@ -242,6 +242,14 @@ enum KingSystemElectionOpcodes
 	KING_ELECTION_RESIGN		= 5
 }; 
 
+
+enum KingSystemCandidacyNoticeBoardOpcodes
+{
+	KING_CANDIDACY_BOARD_WRITE	= 1,
+	KING_CANDIDACY_BOARD_READ	= 2,
+	// 4, 5
+};
+
 enum KingSystemImpeachmentOpcodes
 {
 	KING_IMPEACHMENT_REQUEST			= 1,

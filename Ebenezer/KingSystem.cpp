@@ -527,7 +527,7 @@ void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
 	switch (opcode)
 	{
 	// Write to the candidacy noticeboard
-	case 1:
+	case KING_CANDIDACY_BOARD_WRITE:
 		{
 			if (m_byType != 1 && m_byType != 2 && m_byType != 3)
 			{
@@ -566,7 +566,7 @@ void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
 		} return;
 
 	// Read from the candidacy noticeboard
-	case 2:
+	case KING_CANDIDACY_BOARD_READ:
 		{ 
 			if (m_byType != 1 && m_byType != 2 && m_byType != 3)
 			{
