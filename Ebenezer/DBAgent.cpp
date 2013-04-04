@@ -155,7 +155,7 @@ void CDBAgent::LoadCharInfo(string & strCharID, ByteBuffer & result)
 	// ensure it's all 0'd out initially.
 	memset(strItem, 0x00, sizeof(strItem));
 
-	if (strCharID.length() > 0)
+	if (!strCharID.empty())
 	{
 		auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 		if (dbCommand.get() == NULL)
