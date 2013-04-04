@@ -18,13 +18,22 @@ CLuaScript::CLuaScript() : m_luaState(NULL), m_lock(new FastMutex())
 {
 }
 
-// Initialise Lua scripts.
+/**
+ * @brief	Initialise Lua scripts.
+ *
+ * @return	true if it succeeds, false if it fails.
+ */
 bool CLuaEngine::Initialise()
 {
 	// TO-DO: Initialise a pool of scripts (enough for 1 per worker thread).
 	return m_luaScript.Initialise();
 }
 
+/**
+ * @brief	Initialises a Lua script state.
+ *
+ * @return	true if it succeeds, false if it fails.
+ */
 bool CLuaScript::Initialise()
 {
 	FastGuard lock(m_lock);
@@ -65,12 +74,29 @@ bool CLuaScript::Initialise()
 	return true;
 }
 
-// TO-DO: Pull an available script for use
+/**
+ * @brief	TO-DO: Pull an available script for use.
+ *
+ * @return	null if it fails, else.
+ */
 CLuaScript * CLuaEngine::SelectAvailableScript()
 {
 	return &m_luaScript;
 }
 
+/**
+ * @brief	Attempts to executes a Lua script.
+ * 			If it has not been compiled already, it will compile the script
+ * 			and cache it in the internal script map.
+ *
+ * @param	pUser		   	The user running the script.
+ * @param	pNpc		   	The NPC attached to the script.
+ * @param	nEventID	   	Identifier for the event.
+ * @param	bSelectedReward	The reward selected, if applicable.
+ * @param	filename	   	The script's filename.
+ *
+ * @return	true if it succeeds, false if it fails.
+ */
 bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 bSelectedReward, const char * filename)
 {
 	ScriptBytecodeMap::iterator itr;
@@ -87,7 +113,7 @@ bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 
 		// Release the read lock (we're not reading anymore)
 		m_lock->ReleaseReadLock();
 
-		// Attempt to comppile 
+		// Attempt to compile 
 		BytecodeBuffer bytecode;
 		bytecode.reserve(LUA_SCRIPT_BUFFER_SIZE);
 		if (!SelectAvailableScript()->CompileScript(szPath, bytecode))
@@ -124,6 +150,14 @@ bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 
 	return result;
 }
 
+/**
+ * @brief	Attempts to compile a Lua script.
+ *
+ * @param	filename	Filename of the script.
+ * @param	buffer  	The buffer to store the script's compiled bytecode.
+ *
+ * @return	true if it succeeds, false if it fails.
+ */
 bool CLuaScript::CompileScript(const char * filename, BytecodeBuffer & buffer)
 {
 	// ensure that we wait until the last user's done executing their script.
@@ -161,7 +195,16 @@ bool CLuaScript::CompileScript(const char * filename, BytecodeBuffer & buffer)
 	return true;
 }
 
-// Callback for lua_dump() to read in each chunk of bytecode.
+/**
+ * @brief	Callback for lua_dump() to read in each chunk of bytecode.
+ *
+ * @param	L	  	The associated lua_State.
+ * @param	bytes 	The chunk of bytecode being dumped.
+ * @param	len   	The number of bytes of bytecode in this chunk.
+ * @param	buffer	The buffer to store this chunk of bytecode in.
+ *
+ * @return	The bytecode chunk.
+ */
 int CLuaScript::LoadBytecodeChunk(lua_State * L, uint8 * bytes, size_t len, BytecodeBuffer * buffer)
 {
 	for (size_t i = 0; i < len; i++)
@@ -170,6 +213,18 @@ int CLuaScript::LoadBytecodeChunk(lua_State * L, uint8 * bytes, size_t len, Byte
 	return 0;
 }
 
+/**
+ * @brief	Executes the Lua script from bytecode.
+ *
+ * @param	pUser		   	The user running the script.
+ * @param	pNpc		   	The NPC attached to the script.
+ * @param	nEventID	   	Identifier for the event.
+ * @param	bSelectedReward	The reward selected, if applicable.
+ * @param	filename	   	The script's filename for debugging purposes.
+ * @param	bytecode	   	The script's compiled bytecode.
+ *
+ * @return	true if it succeeds, false if it fails.
+ */
 bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 bSelectedReward, const char * filename, BytecodeBuffer & bytecode)
 {
 	// Ensure that we wait until the last user's done executing their script.
@@ -236,6 +291,12 @@ bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 
 	return false;
 }
 
+/**
+ * @brief	Retrieves the associated error for a script load operation.
+ *
+ * @param	err			The error.
+ * @param	filename	Filename of the file.
+ */
 void CLuaScript::RetrieveLoadError(int err, const char * filename)
 {
 	switch (err)
@@ -265,6 +326,9 @@ void CLuaScript::RetrieveLoadError(int err, const char * filename)
 	}
 }
 
+/**
+ * @brief	Waits for & shuts down the current Lua script.
+ */
 void CLuaScript::Shutdown()
 {
 	m_lock->Acquire();
@@ -274,6 +338,9 @@ void CLuaScript::Shutdown()
 	m_lock->Release();
 }
 
+/**
+ * @brief	Shuts down the Lua script pool.
+ */
 void CLuaEngine::Shutdown()
 {
 	m_lock->AcquireWriteLock();
