@@ -131,9 +131,47 @@ void CKingSystem::CheckKingTimer()
 	switch (m_byImType)
 	{
 	case 1: // 47 hours after the impeachment time, call GetImpeachmentRequestResult()
-	case 2: // 2 days (48 hours) after the impeachment time, set the impeachment type to 3 and send IDS_KING_IMPEACHMENT_ELECTION_MESSAGE as WAR_SYSTEM_CHAT
-	case 3: // 3 days (72 hours) after the impeachment time, set the impeachment type to 4 and call GetImpeachmentElectionResult()
-		break;
+		{
+			DateTime dt(m_sImYear, m_byImMonth, m_byImDay, m_byImHour, m_byImMinute);
+			dt.AddHours(47);
+			if (g_localTime.tm_mon + 1 == dt.GetMonth()
+					&& bCurDay == dt.GetDay()
+					&& bCurHour == dt.GetHour()
+					&& bCurMinute == dt.GetMinute())
+			{
+				// GetImpeachmentRequestResult();
+			}
+		} break;
+
+	case 2: // 2 days (48 hours) after the impeachment time, set the impeachment type to 3 
+			// and send IDS_KING_IMPEACHMENT_ELECTION_MESSAGE as WAR_SYSTEM_CHAT
+		{
+			DateTime dt(m_sImYear, m_byImMonth, m_byImDay, m_byImHour, m_byImMinute);
+			dt.AddDays(2);
+			if (g_localTime.tm_mon + 1 == dt.GetMonth()
+					&& bCurDay == dt.GetDay()
+					&& bCurHour == dt.GetHour()
+					&& bCurMinute == dt.GetMinute())
+			{
+				m_byImType = 3;
+				g_pMain->SendFormattedResource(IDS_KING_IMPEACHMENT_ELECTION_MESSAGE, m_byNation, false);
+			}
+		} break;
+
+	case 3: // 3 days (72 hours) after the impeachment time, set the impeachment type to 4 
+			// and call GetImpeachmentElectionResult()
+		{
+			DateTime dt(m_sImYear, m_byImMonth, m_byImDay, m_byImHour, m_byImMinute);
+			dt.AddDays(3);
+			if (g_localTime.tm_mon + 1 == dt.GetMonth()
+					&& bCurDay == dt.GetDay()
+					&& bCurHour == dt.GetHour()
+					&& bCurMinute == dt.GetMinute())
+			{
+				m_byImType = 4;
+				// GetImpeachmentElectionResult();
+			}
+		} break;
 	}
 }
 
