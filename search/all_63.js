@@ -18,6 +18,7 @@ var searchData=
   ['citemexchangeset',['CItemExchangeSet',['../class_c_item_exchange_set.html',1,'']]],
   ['citemtableset',['CItemTableSet',['../class_c_item_table_set.html',1,'']]],
   ['cjvcryption',['CJvCryption',['../class_c_jv_cryption.html',1,'']]],
+  ['ckingcandidacynoticeboardset',['CKingCandidacyNoticeBoardSet',['../class_c_king_candidacy_notice_board_set.html',1,'']]],
   ['ckingsystem',['CKingSystem',['../class_c_king_system.html',1,'']]],
   ['ckingsystemset',['CKingSystemSet',['../class_c_king_system_set.html',1,'']]],
   ['cknights',['CKnights',['../class_c_knights.html',1,'']]],

@@ -345,53 +345,59 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;                m_characterNameLock,</div>
 <div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;                m_questNpcLock;</div>
 <div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    __forceinline <a class="code" href="class_c_lua_engine.html">CLuaEngine</a> * GetLuaEngine() { <span class="keywordflow">return</span> &amp;m_luaEngine; }</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    <a class="code" href="class_c_lua_engine.html">CLuaEngine</a>  m_luaEngine;</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    std::string m_strGameDSN, m_strAccountDSN;</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    std::string m_strGameUID, m_strAccountUID;</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    std::string m_strGamePWD, m_strAccountPWD;</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    <span class="keywordtype">bool</span> m_bMarsEnabled;</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    <span class="keywordtype">bool</span> LoadTables();</div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    <span class="keywordtype">bool</span> ProcessServerCommand(std::string &amp; command);</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;</div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    <span class="keywordtype">void</span> InitServerCommands();</div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="keywordtype">void</span> CleanupServerCommands();</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <span class="comment">// Controlled weather events set by Kings</span></div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    uint8 m_byKingWeatherEvent;</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    uint8 m_byKingWeatherEvent_Day;</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    uint8 m_byKingWeatherEvent_Hour;</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    uint8 m_byKingWeatherEvent_Minute;</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    __forceinline <a class="code" href="class_c_lua_engine.html">CLuaEngine</a> * GetLuaEngine() { <span class="keywordflow">return</span> &amp;m_luaEngine; }</div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <a class="code" href="class_c_lua_engine.html">CLuaEngine</a>  m_luaEngine;</div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;    std::string m_strGameDSN, m_strAccountDSN;</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    std::string m_strGameUID, m_strAccountUID;</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    std::string m_strGamePWD, m_strAccountPWD;</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    <span class="keywordtype">bool</span> m_bMarsEnabled;</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;</div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="keywordtype">bool</span> LoadTables();</div>
 <div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="keyword">static</span> ServerCommandTable s_commandTable;</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="keywordtype">bool</span> ProcessServerCommand(std::string &amp; command);</div>
 <div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    COMMAND_HANDLER(HandleNoticeCommand);</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    COMMAND_HANDLER(HandleKillUserCommand);</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    COMMAND_HANDLER(HandleWar1OpenCommand);</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    COMMAND_HANDLER(HandleWar2OpenCommand);</div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    COMMAND_HANDLER(HandleWar3OpenCommand);</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;    COMMAND_HANDLER(HandleSnowWarOpenCommand);</div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    COMMAND_HANDLER(HandleWarCloseCommand);</div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    COMMAND_HANDLER(HandleShutdownCommand);</div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    COMMAND_HANDLER(HandlePauseCommand);</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    COMMAND_HANDLER(HandleResumeCommand);</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    COMMAND_HANDLER(HandleDiscountCommand);</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    COMMAND_HANDLER(HandleGlobalDiscountCommand);</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    COMMAND_HANDLER(HandleDiscountOffCommand);</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    COMMAND_HANDLER(HandleCaptainCommand);</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    COMMAND_HANDLER(HandleSantaCommand);</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    COMMAND_HANDLER(HandleSantaOffCommand);</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    COMMAND_HANDLER(HandleAngelCommand);</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    COMMAND_HANDLER(HandlePermanentChatCommand);</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    COMMAND_HANDLER(HandlePermanentChatOffCommand);</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    COMMAND_HANDLER(HandleReloadNoticeCommand);</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;};</div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;<span class="keyword">extern</span> <a class="code" href="class_c_ebenezer_dlg.html">CEbenezerDlg</a> * g_pMain;</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <span class="keywordtype">void</span> InitServerCommands();</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    <span class="keywordtype">void</span> CleanupServerCommands();</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    <span class="keyword">static</span> ServerCommandTable s_commandTable;</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;</div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    COMMAND_HANDLER(HandleNoticeCommand);</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    COMMAND_HANDLER(HandleKillUserCommand);</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    COMMAND_HANDLER(HandleWar1OpenCommand);</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    COMMAND_HANDLER(HandleWar2OpenCommand);</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    COMMAND_HANDLER(HandleWar3OpenCommand);</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    COMMAND_HANDLER(HandleSnowWarOpenCommand);</div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    COMMAND_HANDLER(HandleWarCloseCommand);</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    COMMAND_HANDLER(HandleShutdownCommand);</div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    COMMAND_HANDLER(HandlePauseCommand);</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    COMMAND_HANDLER(HandleResumeCommand);</div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    COMMAND_HANDLER(HandleDiscountCommand);</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    COMMAND_HANDLER(HandleGlobalDiscountCommand);</div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    COMMAND_HANDLER(HandleDiscountOffCommand);</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    COMMAND_HANDLER(HandleCaptainCommand);</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    COMMAND_HANDLER(HandleSantaCommand);</div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    COMMAND_HANDLER(HandleSantaOffCommand);</div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;    COMMAND_HANDLER(HandleAngelCommand);</div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    COMMAND_HANDLER(HandlePermanentChatCommand);</div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;    COMMAND_HANDLER(HandlePermanentChatOffCommand);</div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    COMMAND_HANDLER(HandleReloadNoticeCommand);</div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;};</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;<span class="keyword">extern</span> <a class="code" href="class_c_ebenezer_dlg.html">CEbenezerDlg</a> * g_pMain;</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 2 2013 16:13:35 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Apr 4 2013 18:07:33 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

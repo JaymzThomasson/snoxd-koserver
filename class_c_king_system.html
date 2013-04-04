@@ -99,6 +99,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>CheckKingTimer</b> ()
 <tr class="memitem:abe25bd8c70989db28455989a65edec98"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe25bd8c70989db28455989a65edec98"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>CheckSpecialEvent</b> ()</td></tr>
 <tr class="separator:abe25bd8c70989db28455989a65edec98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb5117b30c5995578b5f7614113985b4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acb5117b30c5995578b5f7614113985b4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>LoadRecommendList</b> ()</td></tr>
+<tr class="separator:acb5117b30c5995578b5f7614113985b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7132a047c7d85d388b3aac5d5fe9f509"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7132a047c7d85d388b3aac5d5fe9f509"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>KingNotifyMessage</b> (uint32 nResourceID, int byNation, ChatType byChatType)</td></tr>
 <tr class="separator:a7132a047c7d85d388b3aac5d5fe9f509"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -162,6 +165,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a51f2be1e1688172d03b5b810bca7c359"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a51f2be1e1688172d03b5b810bca7c359"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>PacketProcess</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="separator:a51f2be1e1688172d03b5b810bca7c359"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab197c050e477c9e966c82674310f1140"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab197c050e477c9e966c82674310f1140"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>HandleDatabaseRequest</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="separator:ab197c050e477c9e966c82674310f1140"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -252,18 +258,28 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>m_strKingName<
 <tr class="memitem:a74cfefb0435ce269efe0a1f7b500fa0f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a74cfefb0435ce269efe0a1f7b500fa0f"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>m_strImRequestID</b></td></tr>
 <tr class="separator:a74cfefb0435ce269efe0a1f7b500fa0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a8eb02684b903248f1e0bb7b5586a24"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3a8eb02684b903248f1e0bb7b5586a24"></a>
+<a class="el" href="class_fast_mutex.html">FastMutex</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m_lock</b></td></tr>
+<tr class="separator:a3a8eb02684b903248f1e0bb7b5586a24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf4146709ed86a6f2bf1022191c1a962"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acf4146709ed86a6f2bf1022191c1a962"></a>
+ClanIDSet&#160;</td><td class="memItemRight" valign="bottom"><b>m_top10ClanSet</b></td></tr>
+<tr class="separator:acf4146709ed86a6f2bf1022191c1a962"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79a2c32699f14e3a74f549635ab19352"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a79a2c32699f14e3a74f549635ab19352"></a>
+KingCandidacyNoticeBoardMap&#160;</td><td class="memItemRight" valign="bottom"><b>m_noticeBoardMap</b></td></tr>
+<tr class="separator:a79a2c32699f14e3a74f549635ab19352"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b6290f63a0e7e9d80b667c3a90fd539"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b6290f63a0e7e9d80b667c3a90fd539"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bSentFirstMessage</b></td></tr>
 <tr class="separator:a9b6290f63a0e7e9d80b667c3a90fd539"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>Ebenezer/<a class="el" href="_king_system_8h_source.html">KingSystem.h</a></li>
+<li>Ebenezer/DatabaseThread.cpp</li>
 <li>Ebenezer/KingSystem.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Apr 2 2013 16:13:36 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Apr 4 2013 18:07:34 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>
