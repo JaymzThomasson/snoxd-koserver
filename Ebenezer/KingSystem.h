@@ -1,7 +1,11 @@
 #pragma once
 
+#include "../shared/Mutex.h"
+#include <set>
 #include <hash_map>
-typedef stdext::hash_map<std::string, std::string>		KingCandidacyNoticeBoardMap; 
+
+typedef std::set<uint16> ClanIDSet;
+typedef stdext::hash_map<std::string, std::string> KingCandidacyNoticeBoardMap; 
 
 class CUser;
 class CKingSystem
@@ -14,6 +18,10 @@ public:
 
 	// Checks to see if a special (coin/XP) event should end.
 	void CheckSpecialEvent();
+
+	void LoadRecommendList();
+
+	// Generates a list of the top 10 clan leaders eligible to nominate a King.
 	void KingNotifyMessage(uint32 nResourceID, int byNation, ChatType byChatType);
 
 	// Wrapper to lookup the appropriate King system instance
@@ -82,6 +90,8 @@ public:
 	std::string m_strKingName;
 	std::string m_strImRequestID;
 
+	FastMutex m_lock;
+	ClanIDSet m_top10ClanSet;
 	KingCandidacyNoticeBoardMap m_noticeBoardMap;
 
 	// TO-DO: Give this a more appropriate name.

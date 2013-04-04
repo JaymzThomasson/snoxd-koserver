@@ -58,7 +58,7 @@ void CKingSystem::CheckKingTimer()
 
 				// KingNotifyMessage(1, m_byNation, WAR_SYSTEM_CHAT);
 				// SendUDP_ElectionStatus(m_byType);
-				// LoadRecommendList(m_byNation);
+				LoadRecommendList();
 			}
 		} break;
 
@@ -237,6 +237,30 @@ void CKingSystem::CheckSpecialEvent()
 			// KingNotifyMessage(IDS_KING_NOAH_BONUS_EVENT_STOP, m_byNation, WAR_SYSTEM_CHAT);
 			// 32 translates to a resource ID of 231, other args: 0, 0, 0, 0
 		}
+	}
+}
+
+// Generates a list of the top 10 clan leaders eligible to nominate a King.
+void CKingSystem::LoadRecommendList()
+{
+	FastGuard lock(m_lock);
+
+	m_top10ClanSet.clear();
+	for (int i = 1; i <= 10; i++)
+	{
+		// Lookup the clan ranking #i.
+		_KNIGHTS_RATING * pRating = 
+			g_pMain->m_KnightsRatingArray[m_byNation].GetData(i);
+		CKnights * pKnights = NULL;
+
+		// Ignore this entry if no such clan is ranked #i
+		if (pRating == NULL
+			// or for whatever reason the clan no longer exists...
+			|| (pKnights = g_pMain->GetClanPtr(pRating->sClanID)) == NULL)
+			continue;
+
+		// add to our top 10 ranked clan set.
+		m_top10ClanSet.insert(pRating->sClanID);
 	}
 }
 
@@ -420,14 +444,7 @@ void CKingSystem::CandidacyRecommend(CUser * pUser, Packet & pkt)
 
 	result << uint8(KING_ELECTION_NOMINATE);
 
-	// TO-DO: Check if user's in candidate list
-	if (1 == 2)
-	{
-		result << int16(-3);
-		pUser->Send(&result);
-		return;
-	}
-
+	// Make sure it's nomination time.
 	if (m_byType != 1)
 	{
 		result << int16(-2);
@@ -435,7 +452,21 @@ void CKingSystem::CandidacyRecommend(CUser * pUser, Packet & pkt)
 		return;
 	}
 
-	// TO-DO: Send request to database.
+	FastGuard lock(m_lock);
+
+	// Make sure the user nominating a King is a clan leader
+	if (!pUser->isClanLeader()
+		// ... of a top 10 clan.
+		|| m_top10ClanSet.find(pUser->GetClanID()) == m_top10ClanSet.end())
+	{
+		result << int16(-3);
+		pUser->Send(&result);
+		return;
+	}
+
+	// Send request to database.
+	result << strUserID;
+	g_pMain->AddDatabaseRequest(result, pUser);
 }
 
 void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
@@ -608,6 +639,8 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 	{
 	case KING_EVENT_NOAH: // Noah event
 		{
+			FastGuard lock(m_lock);
+
 			uint8 bAmount = pkt.read<uint8>();
 			if (bAmount < 1 || bAmount > 3)
 				return;
@@ -643,6 +676,8 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 		
 	case KING_EVENT_EXP: // EXP event
 		{
+			FastGuard lock(m_lock);
+
 			uint8 bAmount = pkt.read<uint8>();
 			if (bAmount != 10 && bAmount != 30 && bAmount != 50)
 				return;
@@ -678,6 +713,8 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 
 	case KING_EVENT_PRIZE:
 		{
+			FastGuard lock(m_lock);
+
 			uint32 nCoins;
 			std::string strUserID;
 			pkt.SByte();
@@ -726,6 +763,8 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 
 	case KING_EVENT_WEATHER: // Weather
 		{
+			FastGuard lock(m_lock);
+
 			uint8 bType, bAmount;
 			pkt >> bType >> bAmount;
 			if (bAmount == 0 || bAmount > 100
