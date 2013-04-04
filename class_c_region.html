@@ -92,17 +92,17 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ae66d742024d91055e0f36d37cf00e80e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae66d742024d91055e0f36d37cf00e80e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Add</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
+<tr class="memitem:ae66d742024d91055e0f36d37cf00e80e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_region.html#ae66d742024d91055e0f36d37cf00e80e">Add</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
+<tr class="memdesc:ae66d742024d91055e0f36d37cf00e80e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds user instance to the region.  <a href="#ae66d742024d91055e0f36d37cf00e80e">More...</a><br/></td></tr>
 <tr class="separator:ae66d742024d91055e0f36d37cf00e80e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9af2db9870f822463e9eacf280709085"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9af2db9870f822463e9eacf280709085"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Remove</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
+<tr class="memitem:a9af2db9870f822463e9eacf280709085"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_region.html#a9af2db9870f822463e9eacf280709085">Remove</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
+<tr class="memdesc:a9af2db9870f822463e9eacf280709085"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the given user instance from the region.  <a href="#a9af2db9870f822463e9eacf280709085">More...</a><br/></td></tr>
 <tr class="separator:a9af2db9870f822463e9eacf280709085"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6a6558e684af8e831b83397567cdf306"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6a6558e684af8e831b83397567cdf306"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Add</b> (<a class="el" href="struct_c_npc.html">CNpc</a> *pNpc)</td></tr>
+<tr class="memitem:a6a6558e684af8e831b83397567cdf306"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_region.html#a6a6558e684af8e831b83397567cdf306">Add</a> (<a class="el" href="struct_c_npc.html">CNpc</a> *pNpc)</td></tr>
+<tr class="memdesc:a6a6558e684af8e831b83397567cdf306"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds the given NPC to the region.  <a href="#a6a6558e684af8e831b83397567cdf306">More...</a><br/></td></tr>
 <tr class="separator:a6a6558e684af8e831b83397567cdf306"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a777dd45a2ba1775a4498bb88db2ed896"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a777dd45a2ba1775a4498bb88db2ed896"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Remove</b> (<a class="el" href="struct_c_npc.html">CNpc</a> *pNpc)</td></tr>
+<tr class="memitem:a777dd45a2ba1775a4498bb88db2ed896"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_region.html#a777dd45a2ba1775a4498bb88db2ed896">Remove</a> (<a class="el" href="struct_c_npc.html">CNpc</a> *pNpc)</td></tr>
+<tr class="memdesc:a777dd45a2ba1775a4498bb88db2ed896"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the given NPC from the region.  <a href="#a777dd45a2ba1775a4498bb88db2ed896">More...</a><br/></td></tr>
 <tr class="separator:a777dd45a2ba1775a4498bb88db2ed896"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
@@ -120,6 +120,103 @@ ZoneNpcArray&#160;</td><td class="memItemRight" valign="bottom"><b>m_RegionNpcAr
 BYTE&#160;</td><td class="memItemRight" valign="bottom"><b>m_byMoving</b></td></tr>
 <tr class="separator:a12f0d1a4c1e5a78e08c48b5348b60eb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="ae66d742024d91055e0f36d37cf00e80e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CRegion::Add </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Adds user instance to the region. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUser</td><td>The user to add. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a6a6558e684af8e831b83397567cdf306"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CRegion::Add </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_npc.html">CNpc</a> *&#160;</td>
+          <td class="paramname"><em>pNpc</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Adds the given NPC to the region. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pNpc</td><td>The NPC to add. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a9af2db9870f822463e9eacf280709085"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CRegion::Remove </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Removes the given user instance from the region. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUser</td><td>The user to remove. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a777dd45a2ba1775a4498bb88db2ed896"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CRegion::Remove </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_npc.html">CNpc</a> *&#160;</td>
+          <td class="paramname"><em>pNpc</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Removes the given NPC from the region. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pNpc</td><td>The NPC to remove. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>Ebenezer/<a class="el" href="_ebenezer_2_region_8h_source.html">Region.h</a></li>
 <li>AIServer/<a class="el" href="_a_i_server_2_region_8h_source.html">Region.h</a></li>
@@ -128,7 +225,7 @@ BYTE&#160;</td><td class="memItemRight" valign="bottom"><b>m_byMoving</b></td></
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Apr 4 2013 18:07:35 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Apr 4 2013 19:41:16 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>
