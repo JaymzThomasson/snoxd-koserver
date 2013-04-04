@@ -12,6 +12,9 @@ CNpc::~CNpc()
 {
 }
 
+/**
+ * @brief	Initializes this object.
+ */
 void CNpc::Initialize()
 {
 	Unit::Initialize();
@@ -41,6 +44,12 @@ void CNpc::Initialize()
 	m_byTrapNumber = 0;
 }
 
+/**
+ * @brief	Adds the NPC to the region.
+ *
+ * @param	new_region_x	The new region x coordinate.
+ * @param	new_region_z	The new region z coordinate.
+ */
 void CNpc::AddToRegion(int16 new_region_x, int16 new_region_z)
 {
 	GetRegion()->Remove(this);
@@ -48,17 +57,31 @@ void CNpc::AddToRegion(int16 new_region_x, int16 new_region_z)
 	GetRegion()->Add(this);
 }
 
-void CNpc::MoveResult(float xpos, float ypos, float zpos, float speed)
+/**
+ * @brief	Sends the movement packet for the NPC.
+ *
+ * @param	fPosX 	The position x coordinate.
+ * @param	fPosY 	The position y coordinate.
+ * @param	fPosZ 	The position z coordinate.
+ * @param	fSpeed	The speed.
+ */
+void CNpc::MoveResult(float fPosX, float fPosY, float fPosZ, float fSpeed)
 {
 	Packet result(WIZ_NPC_MOVE);
 
-	SetPosition(xpos, ypos, zpos);
+	SetPosition(fPosX, fPosY, fPosZ);
 	RegisterRegion();
 
-	result << GetID() << GetSPosX() << GetSPosZ() << GetSPosY() << uint16(speed * 10);
+	result << GetID() << GetSPosX() << GetSPosZ() << GetSPosY() << uint16(fSpeed * 10);
 	SendToRegion(&result);
 }
 
+/**
+ * @brief	Constructs an in/out packet for the NPC.
+ *
+ * @param	result	The packet buffer the constructed packet will be stored in.
+ * @param	bType 	The type (in or out).
+ */
 void CNpc::GetInOut(Packet & result, uint8 bType)
 {
 	result.Initialize(WIZ_NPC_INOUT);
@@ -67,7 +90,15 @@ void CNpc::GetInOut(Packet & result, uint8 bType)
 		GetNpcInfo(result);
 }
 
-void CNpc::SendInOut(uint8 bType, float fx, float fz, float fy)
+/**
+ * @brief	Constructs and sends an in/out packet for the NPC.
+ *
+ * @param	bType	The type (in or out).
+ * @param	fX   	The x coordinate.
+ * @param	fZ   	The z coordinate.
+ * @param	fY   	The y coordinate.
+ */
+void CNpc::SendInOut(uint8 bType, float fX, float fZ, float fY)
 {
 	if (GetRegion() == NULL)
 	{
@@ -83,7 +114,7 @@ void CNpc::SendInOut(uint8 bType, float fx, float fz, float fy)
 	else	
 	{
 		GetRegion()->Add(this);
-		SetPosition(fx, fy, fz);
+		SetPosition(fX, fY, fZ);
 	}
 
 	Packet result;
@@ -91,6 +122,11 @@ void CNpc::SendInOut(uint8 bType, float fx, float fz, float fy)
 	SendToRegion(&result);
 }
 
+/**
+ * @brief	Gets NPC information for use in various NPC packets.
+ *
+ * @param	pkt	The packet the information will be stored in.
+ */
 void CNpc::GetNpcInfo(Packet & pkt)
 {
 	pkt << GetEntryID()
@@ -109,6 +145,12 @@ void CNpc::GetNpcInfo(Packet & pkt)
 		<< int16(m_byDirection);
 }
 
+/**
+ * @brief	Sends a gate status.
+ *
+ * @param	bFlag  	The flag (open or shut).
+ * @param	bSendAI	true to update the AI server.
+ */
 void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
 {
 	Packet result(WIZ_OBJECT_EVENT, uint8(OBJECT_FLAG_LEVER));
@@ -130,6 +172,13 @@ void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
 	}
 }
 
+/**
+ * @brief	Changes an NPC's hitpoints.
+ *
+ * @param	amount   	The amount to adjust the HP by.
+ * @param	pAttacker	The attacker.
+ * @param	bSendToAI	true to update the AI server.
+ */
 void CNpc::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= true*/) 
 {
 	// Glorious copypasta.
@@ -149,6 +198,11 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= t
 	}
 }
 
+/**
+ * @brief	Changes an NPC's mana.
+ *
+ * @param	amount	The amount to adjust the mana by.
+ */
 void CNpc::MSpChange(int amount)
 {
 #if 0 // TO-DO: Implement this
@@ -166,6 +220,11 @@ void CNpc::MSpChange(int amount)
 #endif
 }
 
+/**
+ * @brief	Executes the death action.
+ *
+ * @param	pKiller	The killer.
+ */
 void CNpc::OnDeath(Unit *pKiller)
 {
 	if (m_NpcState == NPC_DEAD)

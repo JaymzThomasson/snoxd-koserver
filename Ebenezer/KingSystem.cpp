@@ -30,7 +30,9 @@ CKingSystem::CKingSystem()
 	m_bSentFirstMessage = false;
 }
 
-// Handles timed events.
+/**
+ * @brief	Handles timed events related to the King system.
+ */
 void CKingSystem::CheckKingTimer()
 {
 	// Get the current time.
@@ -176,7 +178,9 @@ void CKingSystem::CheckKingTimer()
 	}
 }
 
-// Checks to see if a special (coin/XP) event should end.
+/**
+ * @brief	Checks to see if a special (coin/XP) event should end.
+ */
 void CKingSystem::CheckSpecialEvent()
 {
 	// Get the current time.
@@ -240,7 +244,9 @@ void CKingSystem::CheckSpecialEvent()
 	}
 }
 
-// Generates a list of the top 10 clan leaders eligible to nominate a King.
+/**
+ * @brief	Generates a list of the top 10 clan leaders eligible to nominate a King.
+ */
 void CKingSystem::LoadRecommendList()
 {
 	FastGuard lock(m_lock);
@@ -264,9 +270,16 @@ void CKingSystem::LoadRecommendList()
 	}
 }
 
-// This sends the appropriate resource as a notice to the server (or to a particular user)
-// Beyond initial reversing, this doesn't need to exist -- in fact, not even going to use it.
-// It's just a temporary point of reference.
+/**
+ * @brief	This sends the appropriate resource as a notice to the server (or to a particular
+ * 			user)
+ * 			Beyond initial reversing, this doesn't need to exist -- in fact, not even going to
+ * 			use it. It's just a temporary point of reference.
+ *
+ * @param	nResourceID	Identifier for the resource found in the SERVER_RESOURCE table.
+ * @param	byNation   	The nation to send the notice/announcement to.
+ * @param	chatType   	The chat type (notice/announcement).
+ */
 void CKingSystem::KingNotifyMessage(uint32 nResourceID, int byNation, ChatType chatType)
 {
 	std::string result;
@@ -311,7 +324,12 @@ void CKingSystem::KingNotifyMessage(uint32 nResourceID, int byNation, ChatType c
 	}
 }
 
-// Wrapper to lookup the appropriate King system instance.
+/**
+ * @brief	Wrapper for the King system's packet handler.
+ *
+ * @param [in,out]	pUser	If non-null, the user sending the request.
+ * @param [in,out]	pkt  	The packet.
+ */
 void CKingSystem::PacketProcess(CUser * pUser, Packet & pkt)
 {
 	if (pUser == NULL)
@@ -323,7 +341,12 @@ void CKingSystem::PacketProcess(CUser * pUser, Packet & pkt)
 		pKingSystem->KingPacketProcess(pUser, pkt);
 }
 
-// The real method to handle packets from the client.
+/**
+ * @brief	The real packet handler for the King system.
+ *
+ * @param [in,out]	pUser	If non-null, the user sending the packet.
+ * @param [in,out]	pkt  	The packet.
+ */
 void CKingSystem::KingPacketProcess(CUser * pUser, Packet & pkt)
 {
 	switch (pkt.read<uint8>())
@@ -349,6 +372,12 @@ void CKingSystem::KingPacketProcess(CUser * pUser, Packet & pkt)
 	}
 }
 
+/**
+ * @brief	Election system.
+ *
+ * @param [in,out]	pUser	If non-null, the user sending the packet.
+ * @param [in,out]	pkt  	The packet.
+ */
 void CKingSystem::ElectionSystem(CUser * pUser, Packet & pkt)
 {
 	switch (pkt.read<uint8>())
@@ -375,7 +404,12 @@ void CKingSystem::ElectionSystem(CUser * pUser, Packet & pkt)
 	}
 }
 
-// "Check election day" button at the election NPC
+/**
+ * @brief	"Check election day" button at the election NPC
+ *
+ * @param [in,out]	pUser	If non-null, the user sending the packet.
+ * @param [in,out]	pkt  	The packet.
+ */
 void CKingSystem::ElectionScheduleConfirmation(CUser * pUser, Packet & pkt)
 {
 	Packet result(WIZ_KING, uint8(KING_ELECTION));
@@ -433,6 +467,12 @@ void CKingSystem::ElectionScheduleConfirmation(CUser * pUser, Packet & pkt)
 	pUser->Send(&result);
 }
 
+/**
+ * @brief	Handler for candidacy recommendations.
+ *
+ * @param [in,out]	pUser	If non-null, the user sending the packet.
+ * @param [in,out]	pkt  	The packet.
+ */
 void CKingSystem::CandidacyRecommend(CUser * pUser, Packet & pkt) 
 {
 	Packet result(WIZ_KING, uint8(KING_ELECTION));
@@ -469,6 +509,12 @@ void CKingSystem::CandidacyRecommend(CUser * pUser, Packet & pkt)
 	g_pMain->AddDatabaseRequest(result, pUser);
 }
 
+/**
+ * @brief	Candidacy notice board system.
+ *
+ * @param [in,out]	pUser	If non-null, the user sending the packet.
+ * @param [in,out]	pkt  	The packet.
+ */
 void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
 {
 	Packet result(WIZ_KING, uint8(KING_ELECTION));
@@ -527,6 +573,12 @@ void CKingSystem::CandidacyNoticeBoard_Read(CUser * pUser, Packet & pkt)
 void CKingSystem::ElectionPoll(CUser * pUser, Packet & pkt) {}
 void CKingSystem::CandidacyResign(CUser * pUser, Packet & pkt) {}
 
+/**
+ * @brief	Impeachment system.
+ *
+ * @param [in,out]	pUser	If non-null, the user sending the packet.
+ * @param [in,out]	pkt  	The packet.
+ */
 void CKingSystem::ImpeachmentSystem(CUser * pUser, Packet & pkt)
 {
 	switch (pkt.read<uint8>())
@@ -564,6 +616,12 @@ void CKingSystem::ImpeachmentElect(CUser * pUser, Packet & pkt) {}
 void CKingSystem::ImpeachmentRequestUiOpen(CUser * pUser, Packet & pkt) {}
 void CKingSystem::ImpeachmentElectionUiOpen(CUser * pUser, Packet & pkt) {}
 
+/**
+ * @brief	King tax system.
+ *
+ * @param [in,out]	pUser	If non-null, the user sending the packet.
+ * @param [in,out]	pkt  	The packet.
+ */
 void CKingSystem::KingTaxSystem(CUser * pUser, Packet & pkt)
 {
 	Packet result(WIZ_KING, uint8(KING_TAX));
@@ -622,6 +680,12 @@ void CKingSystem::KingTaxSystem(CUser * pUser, Packet & pkt)
 
 }
 
+/**
+ * @brief	Handles commands accessible to the King.
+ *
+ * @param [in,out]	pUser	If non-null, the user sending the packet.
+ * @param [in,out]	pkt  	The packet.
+ */
 void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 {
 	Packet result(WIZ_KING, uint8(KING_EVENT));

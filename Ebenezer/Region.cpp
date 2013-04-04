@@ -6,6 +6,11 @@
 // this should be replaced
 extern CRITICAL_SECTION g_region_critical;
 
+/**
+ * @brief	Adds user instance to the region.
+ *
+ * @param	pUser	The user to add.
+ */
 void CRegion::Add(CUser * pUser)
 {
 	EnterCriticalSection(&g_region_critical);
@@ -13,6 +18,11 @@ void CRegion::Add(CUser * pUser)
 	LeaveCriticalSection(&g_region_critical);
 }
 
+/**
+ * @brief	Removes the given user instance from the region.
+ *
+ * @param	pUser	The user to remove.
+ */
 void CRegion::Remove(CUser * pUser)
 {
 	EnterCriticalSection(&g_region_critical);
@@ -20,6 +30,11 @@ void CRegion::Remove(CUser * pUser)
 	LeaveCriticalSection(&g_region_critical);
 }
 
+/**
+ * @brief	Adds the given NPC to the region.
+ *
+ * @param	pNpc	The NPC to add.
+ */
 void CRegion::Add(CNpc * pNpc)
 {
 	EnterCriticalSection(&g_region_critical);
@@ -27,6 +42,11 @@ void CRegion::Add(CNpc * pNpc)
 	LeaveCriticalSection(&g_region_critical);
 }
 
+/**
+ * @brief	Removes the given NPC from the region.
+ *
+ * @param	pNpc	The NPC to remove.
+ */
 void CRegion::Remove(CNpc * pNpc)
 {
 	EnterCriticalSection(&g_region_critical);

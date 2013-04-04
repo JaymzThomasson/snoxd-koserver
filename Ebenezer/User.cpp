@@ -2,12 +2,18 @@ CUser::CUser(uint16 socketID, SocketMgr *mgr) : KOSocket(socketID, mgr, -1, 1638
 {
 }
 
+/**
+ * @brief	Executes the connect action.
+ */
 void CUser::OnConnect()
 {
 	KOSocket::OnConnect();
 	Initialize();
 }
 
+/**
+ * @brief	Initializes this object.
+ */
 void CUser::Initialize()
 {
 	Unit::Initialize();
@@ -111,6 +117,9 @@ void CUser::Initialize()
 	m_sEventDataIndex = 0;
 }
 
+/**
+ * @brief	Executes the disconnect action.
+ */
 void CUser::OnDisconnect()
 {
 	KOSocket::OnDisconnect();
@@ -136,6 +145,13 @@ void CUser::OnDisconnect()
 	LogOut();
 }
 
+/**
+ * @brief	Handles an incoming user packet.
+ *
+ * @param	pkt	The packet.
+ *
+ * @return	true if it succeeds, false if it fails.
+ */
 bool CUser::HandlePacket(Packet & pkt)
 {
 	uint8 command = pkt.GetOpcode();
@@ -401,6 +417,11 @@ bool CUser::HandlePacket(Packet & pkt)
 	return true;
 }
 
+/**
+ * @brief	Adjusts a player's loyalty (NP) and the corresponding packet.
+ *
+ * @param	nChangeAmount	The amount to adjust the loyalty points by.
+ */
 void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/)
 {
 	Packet result(WIZ_LOYALTY_CHANGE, uint8(1));
@@ -420,6 +441,11 @@ void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/)
 	Send(&result);
 }
 
+/**
+ * @brief	Changes a player's fame.
+ *
+ * @param	bFame	The fame.
+ */
 void CUser::ChangeFame(uint8 bFame)
 {
 	Packet result(WIZ_AUTHORITY_CHANGE, uint8(COMMAND_AUTHORITY));
@@ -429,6 +455,9 @@ void CUser::ChangeFame(uint8 bFame)
 	SendToRegion(&result);
 }
 
+/**
+ * @brief	Sends the server index.
+ */
 void CUser::SendServerIndex()
 {
 	Packet result(WIZ_SERVER_INDEX);
@@ -436,6 +465,11 @@ void CUser::SendServerIndex()
 	Send(&result);
 }
 
+/**
+ * @brief	Packet handler for skillbar requests.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::SkillDataProcess(Packet & pkt)
 {
 	uint8 opcode = pkt.read<uint8>();
@@ -451,6 +485,11 @@ void CUser::SkillDataProcess(Packet & pkt)
 	}
 }
 
+/**
+ * @brief	Packet handler for saving a skillbar.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::SkillDataSave(Packet & pkt)
 {
 	Packet result(WIZ_SKILLDATA, uint8(SKILL_DATA_SAVE));
@@ -465,12 +504,18 @@ void CUser::SkillDataSave(Packet & pkt)
 	g_pMain->AddDatabaseRequest(result, this);
 }
 
+/**
+ * @brief	Packet handler for loading a skillbar.
+ */
 void CUser::SkillDataLoad()
 {
 	Packet result(WIZ_SKILLDATA, uint8(SKILL_DATA_LOAD));
 	g_pMain->AddDatabaseRequest(result, this);
 }
 
+/**
+ * @brief	Initiates a database request to save the character's information.
+ */
 void CUser::UserDataSaveToAgent()
 {
 	if (!isInGame())
@@ -481,6 +526,9 @@ void CUser::UserDataSaveToAgent()
 	g_pMain->AddDatabaseRequest(result, this);
 }
 
+/**
+ * @brief	Logs a player out.
+ */
 void CUser::LogOut()
 {
 	if (m_strUserID.empty()) 
@@ -495,6 +543,9 @@ void CUser::LogOut()
 	g_pMain->AddDatabaseRequest(result, this);
 }
 
+/**
+ * @brief	Sends the player's information on initial login.
+ */
 void CUser::SendMyInfo()
 {
 	C3DMap* pMap = GetMap();
@@ -602,6 +653,12 @@ void CUser::SendMyInfo()
 	Send2AI_UserUpdateInfo(true); 
 }
 
+/**
+ * @brief	Calculates & sets a player's maximum HP.
+ *
+ * @param	iFlag	If set to 1, additionally resets the HP to max. 
+ * 					If set to 2, additionally resets the max HP to 100 (i.e. Snow war). 
+ */
 void CUser::SetMaxHp(int iFlag)
 {
 	_CLASS_COEFFICIENT* p_TableCoefficient = NULL;
@@ -628,6 +685,9 @@ void CUser::SetMaxHp(int iFlag)
 	}
 }
 
+/**
+ * @brief	Calculates & sets a player's maximum MP.
+ */
 void CUser::SetMaxMp()
 {
 	_CLASS_COEFFICIENT* p_TableCoefficient = NULL;
@@ -657,12 +717,18 @@ void CUser::SetMaxMp()
 	}
 }
 
+/**
+ * @brief	Sends the server time & weather.
+ */
 void CUser::SendTimeStatus()
 {
 	SendTime();
 	SendWeather();
 }
 
+/**
+ * @brief	Sends the server time.
+ */
 void CUser::SendTime()
 {
 	Packet result(WIZ_TIME);
@@ -671,6 +737,9 @@ void CUser::SendTime()
 	Send(&result);
 }
 
+/**
+ * @brief	Sends the weather status.
+ */
 void CUser::SendWeather()
 {
 	Packet result(WIZ_WEATHER);
@@ -678,6 +747,11 @@ void CUser::SendWeather()
 	Send(&result);
 }
 
+/**
+ * @brief	Sets various zone flags to control how
+ * 			the client handles other players/NPCs.
+ * 			Also sends the zone's current tax rate.
+ */
 void CUser::SetZoneAbilityChange()
 {
 	Packet result(WIZ_ZONEABILITY, uint8(1));
@@ -741,6 +815,9 @@ void CUser::SetZoneAbilityChange()
 	Send(&result);
 }
 
+/**
+ * @brief	Sends the user's premium state.
+ */
 void CUser::SendPremiumInfo()
 {
 	Packet result(WIZ_PREMIUM, m_bAccountStatus);
@@ -748,6 +825,11 @@ void CUser::SendPremiumInfo()
 	Send(&result);
 }
 
+/**
+ * @brief	Requests user info for the specified session IDs.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::RequestUserIn(Packet & pkt)
 {
 	Packet result(WIZ_REQ_USERIN);
@@ -773,6 +855,11 @@ void CUser::RequestUserIn(Packet & pkt)
 	SendCompressed(&result);
 }
 
+/**
+ * @brief	Request NPC info for the specified NPC IDs.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::RequestNpcIn(Packet & pkt)
 {
 	if (g_pMain->m_bPointCheckFlag == false)
@@ -803,6 +890,9 @@ void CUser::RequestNpcIn(Packet & pkt)
 	SendCompressed(&result);
 }
 
+/**
+ * @brief	Calculates & resets item stats/bonuses.
+ */
 void CUser::SetSlotItemValue()
 {
 	_ITEM_TABLE* pTable = NULL;
@@ -970,6 +1060,11 @@ void CUser::SetSlotItemValue()
 	}
 }
 
+/**
+ * @brief	Changes the player's experience points by iExp.
+ *
+ * @param	iExp	The amount of experience points to adjust by.
+ */
 void CUser::ExpChange(int64 iExp)
 {	
 	// Stop players level 5 or under from losing XP on death.
@@ -1038,10 +1133,13 @@ void CUser::ExpChange(int64 iExp)
 		m_iLostExp = -iExp;
 }
 
-/*
-	This method name is something of a misnomer: 
-	it's called after the level has changed (so that stats can be applied, etc), it does not change the level 
-*/
+/**
+ * @brief	Handles stat updates after a level change. 
+ * 			It does not change the level.
+ *
+ * @param	level   	The level we've changed to.
+ * @param	bLevelUp	true to level up, false for deleveling.
+ */
 void CUser::LevelChange(short level, bool bLevelUp /*= true*/)
 {
 	if( level < 1 || level > MAX_LEVEL )
@@ -1084,6 +1182,11 @@ void CUser::LevelChange(short level, bool bLevelUp /*= true*/)
 	}
 }
 
+/**
+ * @brief	Handles player stat assignment.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::PointChange(Packet & pkt)
 {
 	uint8 type = pkt.read<uint8>();
@@ -1103,6 +1206,13 @@ void CUser::PointChange(Packet & pkt)
 	Send(&result);
 }
 
+/**
+ * @brief	Changes a user's HP.
+ *
+ * @param	amount   	The amount to change by.
+ * @param	pAttacker	The attacker.
+ * @param	bSendToAI	true to update the AI server.
+ */
 void CUser::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= true*/) 
 {
 	Packet result(WIZ_HP_CHANGE);
@@ -1132,6 +1242,11 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= 
 		OnDeath(pAttacker);
 }
 
+/**
+ * @brief	Changes a user's mana points.
+ *
+ * @param	amount	The amount to adjust by.
+ */
 void CUser::MSpChange(int amount)
 {
 	Packet result(WIZ_MSP_CHANGE);
@@ -1150,6 +1265,9 @@ void CUser::MSpChange(int amount)
 		SendPartyHPUpdate(); // handles MP too
 }
 
+/**
+ * @brief	Sends a HP update to the user's party.
+ */
 void CUser::SendPartyHPUpdate()
 {
 	Packet result(WIZ_PARTY);
@@ -1160,6 +1278,12 @@ void CUser::SendPartyHPUpdate()
 	g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 }
 
+/**
+ * @brief	Sends a player's base information to the AI server.
+ *
+ * @param	initialInfo	true when initially sending a player's information
+ * 						to the server.
+ */
 void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 {
 	Packet result(initialInfo ? AG_USER_INFO : AG_USER_UPDATE);
@@ -1180,6 +1304,13 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 	Send_AIServer(&result);
 }
 
+/**
+ * @brief	Calculates and resets the player's stats/resistances.
+ *
+ * @param	bSendPacket	true to send a subsequent item movement packet
+ * 						which is almost always required in addition to
+ * 						using this method.
+ */
 void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 {
 	bool bHaveBow = false;
@@ -1360,6 +1491,14 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 		SendItemMove(2);
 }
 
+/**
+ * @brief	Sends the target's HP to the player.
+ *
+ * @param	echo  	Client-based flag that we must echo back to the client. 
+ * 					Set to 0 if not responding to the client.
+ * @param	tid   	The target's ID.
+ * @param	damage	The amount of damage taken on this request, 0 if it does not apply.
+ */
 void CUser::SendTargetHP( BYTE echo, int tid, int damage )
 {
 	int hp = 0, maxhp = 0;
@@ -1388,6 +1527,11 @@ void CUser::SendTargetHP( BYTE echo, int tid, int damage )
 	Send(&result);
 }
 
+/**
+ * @brief	Handler for opening a loot box.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::BundleOpenReq(Packet & pkt)
 {
 	Packet result(WIZ_BUNDLE_OPEN_REQ);
@@ -1411,6 +1555,11 @@ void CUser::BundleOpenReq(Packet & pkt)
 	Send(&result);
 }
 
+/**
+ * @brief	Handler for looting an item from a loot box.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::ItemGet(Packet & pkt)
 {
 	Packet result(WIZ_ITEM_GET);
@@ -1572,6 +1721,11 @@ fail_return:
 	Send(&result);
 }
 
+/**
+ * @brief	Packet handler for various player state changes.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::StateChange(Packet & pkt)
 {
 	if (isDead())
@@ -1632,6 +1786,13 @@ void CUser::StateChange(Packet & pkt)
 	StateChangeServerDirect(bType, nBuff);
 }
 
+/**
+ * @brief	Changes a player's state directly from the server
+ * 			without any checks.
+ *
+ * @param	bType	The type.
+ * @param	nBuff	The buffer.
+ */
 void CUser::StateChangeServerDirect(BYTE bType, uint32 nBuff)
 {
 	uint8 buff = *(uint8 *)&nBuff; // don't ask
@@ -1666,6 +1827,12 @@ void CUser::StateChangeServerDirect(BYTE bType, uint32 nBuff)
 	SendToRegion(&result);
 }
 
+/**
+ * @brief	Takes a target's loyalty points (NP)
+ * 			and rewards some/all to the killer (current user).
+ *
+ * @param	tid	The target's ID.
+ */
 void CUser::LoyaltyChange(short tid)
 {
 	short loyalty_source = 0, loyalty_target = 0;
@@ -1725,6 +1892,12 @@ void CUser::LoyaltyChange(short tid)
 	}
 }
 
+/**
+ * @brief	Change's a player's loyalty points (NP).
+ *
+ * @param	sAmount			  	The amount.
+ * @param	bDistributeToParty	true to distribute to party.
+ */
 void CUser::ChangeNP(short sAmount, bool bDistributeToParty /*= true*/)
 {
 	if (bDistributeToParty && isInParty()) 
@@ -3458,6 +3631,13 @@ void CUser::SendUserStatusUpdate(UserStatus type, UserStatusBehaviour status)
 	Send(&result);
 }
 
+/**
+ * @brief	Gets an item's prototype from a slot in a player's inventory.
+ *
+ * @param	pos	The position of the item in the player's inventory.
+ * @returns	NULL if an invalid position is specified, or if there's no item at that position.
+ * 			The item's prototype (_ITEM_TABLE *) otherwise.
+ */
 _ITEM_TABLE* CUser::GetItemPrototype(uint8 pos)
 {
 	if (pos >= INVENTORY_TOTAL)
@@ -3468,6 +3648,13 @@ _ITEM_TABLE* CUser::GetItemPrototype(uint8 pos)
 }
 
 /* TO-DO: Move all these to their own handler file */
+
+/**
+ * @brief	Packet handler for the assorted systems that
+ * 			were deemed to come under the 'upgrade' system.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::ItemUpgradeProcess(Packet & pkt)
 {
 	uint8 opcode = pkt.read<uint8>();
@@ -3499,22 +3686,48 @@ void CUser::ItemUpgradeProcess(Packet & pkt)
 	}
 }
 
+/**
+ * @brief	Packet handler for the standard item upgrade system.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::ItemUpgrade(Packet & pkt)
 {
 }
 
+/**
+ * @brief	Packet handler for the accessory upgrade system.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::ItemUpgradeAccessories(Packet & pkt)
 {
 }
 
+/**
+ * @brief	Packet handler for the Chaotic Generator system
+ * 			which is used to exchange Bifrost pieces/fragments.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::BifrostPieceProcess(Packet & pkt)
 {
 }
 
+/**
+ * @brief	Packet handler for the upgrading of 'rebirthed' items.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::ItemUpgradeRebirth(Packet & pkt)
 {
 }
 
+/**
+ * @brief	Packet handler for the item sealing system.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::ItemSealProcess(Packet & pkt)
 {
 	#define ITEM_SEAL_PRICE 1000000
@@ -3580,10 +3793,19 @@ void CUser::ItemSealProcess(Packet & pkt)
 	}
 }
 
+/**
+ * @brief	Packet handler for the character sealing system.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::CharacterSealProcess(Packet & pkt)
 {
 }
 
+/**
+ * @brief	Checks & removes any expired skills from
+ * 			the saved magic list.
+ */
 void CUser::CheckSavedMagic()
 {
 	FastGuard lock(m_savedMagicLock);
@@ -3600,6 +3822,13 @@ void CUser::CheckSavedMagic()
 		m_savedMagicMap.erase(*itr);
 }
 
+/**
+ * @brief	Inserts a skill to the saved magic list
+ * 			to persist across zone changes/logouts.
+ *
+ * @param	nSkillID 	Identifier for the skill.
+ * @param	sDuration	The duration.
+ */
 void CUser::InsertSavedMagic(uint32 nSkillID, uint16 sDuration)
 {
 	FastGuard lock(m_savedMagicLock);
@@ -3612,12 +3841,28 @@ void CUser::InsertSavedMagic(uint32 nSkillID, uint16 sDuration)
 	m_savedMagicMap.insert(make_pair(nSkillID, UNIXTIME + sDuration));
 }
 
+/**
+ * @brief	Checks if the given skill ID is already in our 
+ * 			saved magic list.
+ *
+ * @param	nSkillID	Identifier for the skill.
+ *
+ * @return	true if the skill exists in the saved magic list, false if not.
+ */
 bool CUser::HasSavedMagic(uint32 nSkillID)
 {
 	FastGuard lock(m_savedMagicLock);
 	return m_savedMagicMap.find(nSkillID) != m_savedMagicMap.end();
 }
 
+/**
+ * @brief	Gets the duration for a saved skill, 
+ * 			if applicable.
+ *
+ * @param	nSkillID	Identifier for the skill.
+ *
+ * @return	The saved magic duration.
+ */
 int16 CUser::GetSavedMagicDuration(uint32 nSkillID)
 {
 	FastGuard lock(m_savedMagicLock);
@@ -3628,6 +3873,9 @@ int16 CUser::GetSavedMagicDuration(uint32 nSkillID)
 	return int16(itr->second - UNIXTIME);
 }
 
+/**
+ * @brief	Recasts any saved skills on login/zone change.
+ */
 void CUser::RecastSavedMagic()
 {
 	FastGuard lock(m_savedMagicLock);
