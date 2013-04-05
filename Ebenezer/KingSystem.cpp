@@ -9,7 +9,7 @@ CKingSystem::CKingSystem()
 {
 	m_byNation = 0;
 
-	m_byType = 0;
+	m_byType = ELECTION_TYPE_NO_TERM;
 	m_sYear = 0;
 	m_byMonth = m_byDay = m_byHour = m_byMinute = 0;
 
@@ -47,35 +47,33 @@ void CKingSystem::CheckKingTimer()
 
 	switch (m_byType)
 	{
-	case 0:
-	case 7:
+	case ELECTION_TYPE_NO_TERM:
+	case ELECTION_TYPE_TERM_ENDED:
 		{
 			if (bCurMonth == m_byMonth
 				&& bCurDay == m_byDay
 				&& bCurHour == m_byHour
 				&& bCurMinute == m_byMinute)
 			{
-				m_byType = 1;
+				m_byType = ELECTION_TYPE_NOMINATION;
 				g_pMain->SendFormattedResource(IDS_KING_RECOMMEND_TIME, m_byNation, false);
 
-				// KingNotifyMessage(1, m_byNation, WAR_SYSTEM_CHAT);
 				// SendUDP_ElectionStatus(m_byType);
 				LoadRecommendList();
 			}
 		} break;
 
-	case 1:
+	case ELECTION_TYPE_NOMINATION:
 		{
 			if (bCurMonth == m_byMonth
 				&& bCurDay == m_byDay
 				&& bCurHour == m_byHour
 				&& bCurMinute == m_byMinute)
 			{
-				m_byType = 2;
+				m_byType = ELECTION_TYPE_PRE_ELECTION;
 				g_pMain->SendFormattedResource(IDS_KING_RECOMMEND_FINISH_TIME, m_byNation, false);
 
 				// CheckRecommendList();
-				// KingNotifyMessage(2, m_byNation, WAR_SYSTEM_CHAT);
 				// SendUDP_ElectionStatus(m_byType);
 			}
 
@@ -83,37 +81,33 @@ void CKingSystem::CheckKingTimer()
 			{
 				m_bSentFirstMessage = true;
 				g_pMain->SendFormattedResource(IDS_KING_PERIOD_OF_RECOMMEND_MESSAGE, m_byNation, true);
-
-				// KingNotifyMessage(28, m_byNation, PUBLIC_CHAT);
 				break; // awkward, but official behaviour.
 			}
 
 			m_bSentFirstMessage = false;
 		} break;
 
-	case 2:
+	case ELECTION_TYPE_PRE_ELECTION:
 		{
 			if (bCurMonth == m_byMonth
 				&& bCurDay == m_byDay
 				&& bCurHour == m_byHour
 				&& bCurMinute == m_byMinute)
 			{
-				m_byType = 3;
+				m_byType = ELECTION_TYPE_ELECTION;
 				g_pMain->SendFormattedResource(IDS_KING_ELECTION_TIME, m_byNation, false);
-
-				// KingNotifyMessage(3, m_byNation, WAR_SYSTEM_CHAT);
 				// SendUDP_ElectionStatus(m_byType);
 			}
 		} break;
 
-	case 3:
+	case ELECTION_TYPE_ELECTION:
 		{
 			if (bCurMonth == m_byMonth
 				&& bCurDay == m_byDay
 				&& bCurHour == m_byHour
 				&& bCurMinute == m_byMinute)
 			{
-				m_byType = 6;
+				m_byType = ELECTION_TYPE_TERM_STARTED;
 				// GetElectionResult();
 				return;
 			}
@@ -122,8 +116,6 @@ void CKingSystem::CheckKingTimer()
 			{
 				m_bSentFirstMessage = true;
 				g_pMain->SendFormattedResource(IDS_KING_PERIOD_OF_ELECTION_MESSAGE, m_byNation, true);
-
-				// KingNotifyMessage(29, m_byNation, PUBLIC_CHAT);
 				break; // awkward, but official behaviour.
 			}
 
@@ -486,7 +478,7 @@ void CKingSystem::CandidacyRecommend(CUser * pUser, Packet & pkt)
 	result << uint8(KING_ELECTION_NOMINATE);
 
 	// Make sure it's nomination time.
-	if (m_byType != 1)
+	if (m_byType != ELECTION_TYPE_NOMINATION)
 	{
 		result << int16(-2);
 		pUser->Send(&result);
@@ -529,7 +521,9 @@ void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
 	// Write to the candidacy noticeboard
 	case KING_CANDIDACY_BOARD_WRITE:
 		{
-			if (m_byType != 1 && m_byType != 2 && m_byType != 3)
+			if (m_byType != ELECTION_TYPE_NOMINATION 
+				&& m_byType != ELECTION_TYPE_PRE_ELECTION
+				&& m_byType != ELECTION_TYPE_ELECTION)
 			{
 				result << int16(-1);
 				pUser->Send(&result);
@@ -581,7 +575,9 @@ void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
 	// Read from the candidacy noticeboard
 	case KING_CANDIDACY_BOARD_READ:
 		{ 
-			if (m_byType != 1 && m_byType != 2 && m_byType != 3)
+			if (m_byType != ELECTION_TYPE_NOMINATION 
+				&& m_byType != ELECTION_TYPE_PRE_ELECTION
+				&& m_byType != ELECTION_TYPE_ELECTION)
 			{
 				result << int16(-1);
 				pUser->Send(&result);
@@ -638,7 +634,9 @@ void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
 		} return;
 
 	case 4:
-		if (m_byType == 1 || m_byType == 2 || m_byType == 3)
+		if (m_byType == ELECTION_TYPE_NOMINATION 
+			|| m_byType == ELECTION_TYPE_PRE_ELECTION
+			|| m_byType == ELECTION_TYPE_ELECTION)
 		{
 			// TO-DO: Find user in (candidate list?), if not found we can break out of here and error.
 			if (1 == 2)
@@ -650,7 +648,9 @@ void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
 		break;
 
 	case 5:
-		if (m_byType == 1 || m_byType == 2 || m_byType == 3)
+			if (m_byType == ELECTION_TYPE_NOMINATION 
+				|| m_byType == ELECTION_TYPE_PRE_ELECTION
+				|| m_byType == ELECTION_TYPE_ELECTION)
 			bSuccess = true;
 		break;
 

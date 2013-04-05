@@ -7,6 +7,22 @@
 typedef std::set<uint16> ClanIDSet;
 typedef stdext::hash_map<std::string, std::string> KingCandidacyNoticeBoardMap; 
 
+enum ElectionType
+{
+	ELECTION_TYPE_NO_TERM		= 0,
+	ELECTION_TYPE_NOMINATION	= 1,
+	ELECTION_TYPE_PRE_ELECTION	= 2, // not sure if this is accurately named
+	ELECTION_TYPE_ELECTION		= 3,
+
+	ELECTION_TYPE_TERM_STARTED	= 6, // these two probably aren't accurately named at all
+	ELECTION_TYPE_TERM_ENDED	= 7,
+
+};
+
+enum ImpeachmentType
+{
+};
+
 class CUser;
 class CKingSystem
 {
