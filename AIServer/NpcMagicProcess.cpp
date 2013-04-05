@@ -15,31 +15,27 @@ CNpcMagicProcess::~CNpcMagicProcess()
 
 }
 
-void CNpcMagicProcess::MagicPacket(char *pBuf, int len)
+void CNpcMagicProcess::MagicPacket(Packet & pkt)
 {
-	int index = 0, send_index = 0, magicid = 0, sid = -1, tid = -1, data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0;
-	char send_buff[128];
+	int send_index = 0, magicid = 0;
+	short sid = -1, tid = -1, data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0;
 	_MAGIC_TABLE* pTable = NULL;
 	
-	BYTE command = GetByte( pBuf, index );		// Get the magic status.  
+	uint8 command;
+	pkt >> command;
 	if( command == MAGIC_FAIL ) {			    // Client indicates that magic failed. Just send back packet.
+#if 0
 		SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
 		SetString( send_buff, pBuf, len-1, send_index );	// len ==> include WIZ_MAGIC_PROCESS command byte. 
 		//g_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
+#endif
 		m_bMagicState = NONE;
 		return;
 	}
 
-	magicid = GetDWORD( pBuf, index );        // Get ID of magic.
-	sid = GetShort( pBuf, index );			  // Get ID of source.
-	tid = GetShort( pBuf, index );            // Get ID of target.
-
-	data1 = GetShort( pBuf, index );          // ( Remember, you don't definately need this. )
-	data2 = GetShort( pBuf, index );		  // ( Only use it when you really feel it's needed. )
-	data3 = GetShort( pBuf, index );
-	data4 = GetShort( pBuf, index );
-	data5 = GetShort( pBuf, index );
-	data6 = GetShort( pBuf, index );          // Get data1 ~ data6 (No, I don't know what the hell 'data' is.) 
+	pkt >> magicid >> sid >> tid 
+		>> data1 >> data2 >> data3 
+		>> data4 >> data5 >> data6;
 
 	pTable = IsAvailable( magicid, tid, command );     // If magic was successful.......
 	if( !pTable ) return;
@@ -110,7 +106,7 @@ void CNpcMagicProcess::MagicPacket(char *pBuf, int len)
 	}
 	else if( command == MAGIC_CASTING ) {
 		Packet result(AG_MAGIC_ATTACK_RESULT);
-		result.append(pBuf, len); // NOTE: used to be len-1, as apparently it "included the opcode". I don't see this behaviour anywhere.
+		result.append(pkt); // NOTE: used to be len-1, as apparently it "included the opcode". I don't see this behaviour anywhere.
 		g_pMain->Send(&result);
 	}
 }

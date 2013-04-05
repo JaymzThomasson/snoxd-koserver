@@ -26,5 +26,5 @@ public:
 	void ExecuteType1(int magicid, int tid, int data1, int data2, int data3 );	// sequence => type1 or type2
 
 	_MAGIC_TABLE* IsAvailable( int magicid, int tid, BYTE type );
-	void MagicPacket(char* pBuf, int len);
+	void MagicPacket(Packet & pkt);
 };

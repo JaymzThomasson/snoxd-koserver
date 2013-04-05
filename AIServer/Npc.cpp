@@ -2367,8 +2367,6 @@ int CNpc::Attack()
 {
 	// 텔레포트 가능하게,, (렌덤으로,, )
 	int nRandom = 0, nPercent=1000;
-	int send_index = 0;
-	char buff[128];
 	BOOL bTeleport = FALSE;
 
 /*	nRandom = myrand(1, 10000);
@@ -2471,19 +2469,14 @@ int CNpc::Attack()
 		if(m_byWhatAttackType == 4 || m_byWhatAttackType == 5)	{		// 지역 마법 사용 몬스터이면.....
 			nRandom = myrand(1, 10000);
 			if(nRandom < nPercent)	{				// 지역마법공격...
-				send_index = 0;
-				SetByte( buff, MAGIC_EFFECTING, send_index );		
-				SetDWORD( buff, m_proto->m_iMagic2, send_index );				// Area Magic
-				SetShort( buff, m_sNid+NPC_BAND, send_index );
-				SetShort( buff, -1, send_index );						// tid는 반드시 -1
-				SetShort( buff, (short)m_fCurX, send_index );		    // terget point
-				SetShort( buff, (short)m_fCurY, send_index );	
-				SetShort( buff, (short)m_fCurZ, send_index );	
-				SetShort( buff, 0, send_index );	
-				SetShort( buff, 0, send_index );	
-				SetShort( buff, 0, send_index );
-
-				m_MagicProcess.MagicPacket(buff, send_index);
+				Packet result;
+				result << uint8(MAGIC_EFFECTING)
+						<< m_proto->m_iMagic2
+						<< uint16(m_sNid+NPC_BAND)
+						<< int16(-1)
+						<< int16(m_fCurX) << int16(m_fCurY) << int16(m_fCurZ) 
+						<< int16(0) << int16(0) << int16(0);
+				m_MagicProcess.MagicPacket(result);
 				//TRACE("++++ AreaMagicAttack --- sid=%d, magicid=%d\n", m_sNid+NPC_BAND, m_proto->m_iMagic2);
 				return m_sAttackDelay + 1000;	// 지역마법은 조금 시간이 걸리도록.....
 			}
@@ -2575,8 +2568,6 @@ int CNpc::LongAndMagicAttack()
 {
 	int ret = 0;
 	int nStandingTime = m_sStandTime;
-	int send_index = 0;
-	char buff[256];
 
 	ret = IsCloseTarget(m_byAttackRange, 2);
 
@@ -2646,19 +2637,14 @@ int CNpc::LongAndMagicAttack()
 			}	
 		}	*/
 
-		// 조건을 판단해서 마법 공격 사용 (지금은 마법 1만 사용토록 하자)
-		SetByte( buff, MAGIC_CASTING, send_index );		
-		SetDWORD( buff, m_proto->m_iMagic1, send_index );				// FireBall
-		SetShort( buff, m_sNid+NPC_BAND, send_index );
-		SetShort( buff, pUser->m_iUserId, send_index );	
-		SetShort( buff, 0, send_index );					// data0
-		SetShort( buff, 0, send_index );	
-		SetShort( buff, 0, send_index );	
-		SetShort( buff, 0, send_index );	
-		SetShort( buff, 0, send_index );	
-		SetShort( buff, 0, send_index );	
-
-		m_MagicProcess.MagicPacket(buff, send_index);
+		Packet result;
+		result << uint8(MAGIC_CASTING)
+				<< m_proto->m_iMagic1
+				<< uint16(m_sNid+NPC_BAND)
+				<< int16(pUser->m_iUserId)
+				<< int16(0) << int16(0) << int16(0) 
+				<< int16(0) << int16(0) << int16(0);
+		m_MagicProcess.MagicPacket(result);
 
 		//TRACE("**** LongAndMagicAttack --- sid=%d, tid=%d\n", m_sNid+NPC_BAND, pUser->m_iUserId);
 	}
@@ -5293,9 +5279,7 @@ time_t CNpc::NpcHealing()
 	CNpc* pNpc = NULL;
 	int nID = m_Target.id;
 	BOOL bFlag = FALSE;
-	char buff[256];
-	int send_index = 0, iHP = 0;
-	send_index = 0;
+	int iHP = 0;
 
 	int ret = 0;
 	int nStandingTime = m_sStandTime;
@@ -5355,20 +5339,15 @@ time_t CNpc::NpcHealing()
 			InitTarget();
 		}
 		else	{						// Heal 해주기
-			send_index = 0;
-			//SetByte( buff, AG_MAGIC_ATTACK_RESULT, send_index );
-			SetByte( buff, MAGIC_EFFECTING, send_index );		
-			SetDWORD( buff, m_proto->m_iMagic3, send_index );				// FireBall
-			SetShort( buff, m_sNid+NPC_BAND, send_index );
-			SetShort( buff, nID, send_index );	
-			SetShort( buff, 0, send_index );					// data0
-			SetShort( buff, 0, send_index );	
-			SetShort( buff, 0, send_index );	
-			SetShort( buff, 0, send_index );	
-			SetShort( buff, 0, send_index );	
-			SetShort( buff, 0, send_index );	
-			m_MagicProcess.MagicPacket(buff, send_index);
+			Packet result;
+			result << uint8(MAGIC_EFFECTING)
+					<< m_proto->m_iMagic3
+					<< uint16(m_sNid+NPC_BAND)
+					<< uint16(nID)
+					<< int16(0) << int16(0) << int16(0) 
+					<< int16(0) << int16(0) << int16(0);
 
+			m_MagicProcess.MagicPacket(result);
 			return m_sAttackDelay;
 		}
 	}
@@ -5383,20 +5362,14 @@ time_t CNpc::NpcHealing()
 		return m_sStandTime;
 	}
 
-	memset( buff, 0x00, 256 );	send_index = 0;
-	//SetByte( buff, AG_MAGIC_ATTACK_RESULT, send_index );
-	SetByte( buff, MAGIC_EFFECTING, send_index );		
-	SetDWORD( buff, m_proto->m_iMagic3, send_index );				// FireBall
-	SetShort( buff, m_sNid+NPC_BAND, send_index );
-	SetShort( buff, iMonsterNid, send_index );	
-	SetShort( buff, 0, send_index );					// data0
-	SetShort( buff, 0, send_index );	
-	SetShort( buff, 0, send_index );	
-	SetShort( buff, 0, send_index );	
-	SetShort( buff, 0, send_index );	
-	SetShort( buff, 0, send_index );	
-
-	m_MagicProcess.MagicPacket(buff, send_index);
+	Packet result;
+	result << uint8(MAGIC_EFFECTING)
+			<< m_proto->m_iMagic3
+			<< uint16(m_sNid+NPC_BAND)
+			<< int16(iMonsterNid)
+			<< int16(0) << int16(0) << int16(0) 
+			<< int16(0) << int16(0) << int16(0);
+	m_MagicProcess.MagicPacket(result);
 	return m_sAttackDelay;
 }
 
