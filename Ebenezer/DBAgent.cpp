@@ -375,11 +375,10 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 
 	// Convert the old quest storage format to the new one.
 	pUser->m_questMap.clear();
-	for (int i = 0, index = 0; i < sQuestCount; i++)
+	for (int i = 0, index = 0; i < sQuestCount; i++, index += 3)
 	{
-		uint16	sQuestID	= GetShort(strQuest, index);
-		uint8	bQuestState	= GetByte(strQuest, index);
-
+		uint16	sQuestID	= *(uint16 *)(strQuest + index);
+		uint8	bQuestState	= *(uint8  *)(strQuest + index + 2);
 		pUser->m_questMap.insert(std::make_pair(sQuestID, bQuestState));
 	}
 
@@ -845,8 +844,9 @@ bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, CUser *pUser)
 	int index = 0;
 	foreach (itr, pUser->m_questMap)
 	{
-		SetShort(strQuest, itr->first, index);
-		SetByte(strQuest, itr->second, index);
+		*(uint16 *)(strQuest + index) = itr->first;
+		*(uint8  *)(strQuest + index + 2) = itr->second;
+		index += 3;
 	}
 
 	// This *should* be padded like the database field is (unnecessarily), but I want to see how MSSQL repsponds

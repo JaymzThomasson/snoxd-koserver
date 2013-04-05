@@ -155,51 +155,6 @@ enum StatType
 #define STAT_MAX 255
 #define QUEST_ARRAY_SIZE 600 // That's a limit of 200 quests (3 bytes per quest)
 
-inline BYTE GetByte(char* sBuf, int& index)
-{
-	int t_index = index;
-	index++;
-	return (BYTE)(*(sBuf+t_index));
-};
-
-inline int GetShort(char* sBuf, int& index)
-{
-	index += 2;
-	return *(short*)(sBuf+index-2);
-};
-
-inline DWORD GetDWORD(char* sBuf, int& index)
-{
-	index += 4;
-	return *(DWORD*)(sBuf+index-4);
-};
-
-inline void SetString(char* tBuf, char* sBuf, int len, int& index)
-{
-	memcpy(tBuf+index, sBuf, len);
-	index += len;
-};
-
-inline void SetByte(char* tBuf, BYTE sByte, int& index)
-{
-	*(tBuf+index) = (char)sByte;
-	index++;
-};
-
-inline void SetShort(char* tBuf, int sShort, int& index)
-{
-	short temp = (short)sShort;
-
-	CopyMemory( tBuf+index, &temp, 2);
-	index += 2;
-};
-
-inline void SetDWORD(char* tBuf, DWORD sDWORD, int& index)
-{
-	CopyMemory( tBuf+index, &sDWORD, 4);
-	index += 4;
-};
-
 inline int myrand( int min, int max )
 {
 	if( min == max ) return min;
