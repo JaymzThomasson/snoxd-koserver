@@ -67,6 +67,9 @@ public:
 	void KingSpecialEvent(CUser * pUser, Packet & pkt);
 
 	static void HandleDatabaseRequest(CUser * pUser, Packet & pkt);
+	static void HandleDatabaseRequest_Election(CUser * pUser, Packet & pkt);
+	static void HandleDatabaseRequest_Event(CUser * pUser, Packet & pkt);
+
 
 	uint8	m_byNation;
 

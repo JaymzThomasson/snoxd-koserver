@@ -719,67 +719,93 @@ void CUser::ReqBattleEventResult(Packet & pkt)
  */
 void CKingSystem::HandleDatabaseRequest(CUser * pUser, Packet & pkt)
 {
-	uint8 opcode = pkt.read<uint8>();
-
-	// This horrible switch will be cleaned up when we're done.
-	// For now, laziness prevails.
-	switch (opcode)
+	switch (pkt.read<uint8>())
 	{
 	case KING_ELECTION:
-		{
-			pkt >> opcode;
-			switch (opcode)
-			{
-			case KING_ELECTION_NOMINATE:
-				{
-					if (pUser == NULL)
-						return;
-
-					Packet result(WIZ_KING, uint8(KING_ELECTION));
-					std::string strNominee;
-					pkt >> strNominee;
-
-					result	<< uint8(KING_ELECTION_NOMINATE) 
-							<< g_DBAgent.UpdateCandidacyRecommend(pUser->m_strUserID, strNominee, pUser->GetNation());
-					pUser->Send(&result);
-				} break;
-
-			case KING_ELECTION_NOTICE_BOARD:
-				{
-					pkt >> opcode;
-					if (pUser == NULL)
-						return;
-
-					if (opcode == KING_CANDIDACY_BOARD_WRITE)
-					{
-						string strNotice;
-						pkt >> strNotice;
-						g_DBAgent.UpdateCandidacyNoticeBoard(pUser->m_strUserID, pUser->GetNation(), strNotice);
-					}
-				} break;
-			}
-		} break;
+		HandleDatabaseRequest_Election(pUser, pkt);
+		break;
 
 	case KING_EVENT:
+		HandleDatabaseRequest_Event(pUser, pkt);
+		break;
+	}
+}
+
+/**
+ * @brief	Handles database requests for the election system.
+ *
+ * @param	pUser	The user making the request, if applicable. 
+ * 					NULL if not.
+ * @param	pkt  	The packet.
+ */
+void CKingSystem::HandleDatabaseRequest_Election(CUser * pUser, Packet & pkt)
+{
+	uint8 opcode;
+	pkt >> opcode;
+
+	switch (opcode)
+	{
+	case KING_ELECTION_NOMINATE:
 		{
-			uint8 byNation;
-			pkt >> opcode >> byNation;
-			if (opcode == KING_EVENT_NOAH || opcode == KING_EVENT_EXP)
-			{
-				uint8 byAmount, byDay, byHour, byMinute;
-				uint16 sDuration;
-				pkt >> byAmount >> byDay >> byHour >> byMinute >> sDuration;
+			if (pUser == NULL)
+				return;
 
-				g_DBAgent.UpdateNoahOrExpEvent(opcode, byNation, byAmount, byDay, byHour, byMinute, sDuration);
-			}
-			else if (opcode == KING_EVENT_PRIZE)
-			{
-				uint32 nCoins;
-				string strUserID;
-				pkt >> nCoins >> strUserID;
+			Packet result(WIZ_KING, uint8(KING_ELECTION));
+			std::string strNominee;
+			pkt >> strNominee;
 
-				g_DBAgent.InsertPrizeEvent(opcode, byNation, nCoins, strUserID);
+			result	<< opcode 
+					<< g_DBAgent.UpdateCandidacyRecommend(pUser->m_strUserID, strNominee, pUser->GetNation());
+			pUser->Send(&result);
+		} break;
+
+	case KING_ELECTION_NOTICE_BOARD:
+		{
+			pkt >> opcode;
+			if (pUser == NULL)
+				return;
+
+			if (opcode == KING_CANDIDACY_BOARD_WRITE)
+			{
+				string strNotice;
+				pkt >> strNotice;
+				g_DBAgent.UpdateCandidacyNoticeBoard(pUser->m_strUserID, pUser->GetNation(), strNotice);
 			}
+		} break;
+	}
+}
+
+/**
+ * @brief	Handles database requests for King commands.
+ *
+ * @param	pUser	The user making the request, if applicable. 
+ * 					NULL if not.
+ * @param	pkt  	The packet.
+ */
+void CKingSystem::HandleDatabaseRequest_Event(CUser * pUser, Packet & pkt)
+{
+	uint8 opcode, byNation;
+	pkt >> opcode >> byNation;
+
+	switch (opcode)
+	{
+	case KING_EVENT_NOAH:
+	case KING_EVENT_EXP:
+		{
+			uint8 byAmount, byDay, byHour, byMinute;
+			uint16 sDuration;
+			pkt >> byAmount >> byDay >> byHour >> byMinute >> sDuration;
+
+			g_DBAgent.UpdateNoahOrExpEvent(opcode, byNation, byAmount, byDay, byHour, byMinute, sDuration);
+		} break;
+
+	case KING_EVENT_PRIZE:
+		{
+			uint32 nCoins;
+			string strUserID;
+			pkt >> nCoins >> strUserID;
+
+			g_DBAgent.InsertPrizeEvent(opcode, byNation, nCoins, strUserID);
 		} break;
 	}
 }
