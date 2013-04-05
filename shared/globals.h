@@ -200,17 +200,6 @@ inline void SetDWORD(char* tBuf, DWORD sDWORD, int& index)
 	index += 4;
 };
 
-inline void SetKOString(char* tBuf, char* sBuf, int& index, int lenSize = 2)
-{
-	short len = strlen(sBuf);
-	if (lenSize == 1)
-		SetByte(tBuf, (BYTE)len, index);
-	else if (lenSize == 2)
-		SetShort(tBuf, len, index);
-
-	SetString(tBuf, sBuf, len, index);
-};
-
 inline int myrand( int min, int max )
 {
 	if( min == max ) return min;
