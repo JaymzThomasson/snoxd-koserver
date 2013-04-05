@@ -849,7 +849,6 @@ bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, CUser *pUser)
 		index += 3;
 	}
 
-	// This *should* be padded like the database field is (unnecessarily), but I want to see how MSSQL repsponds
 	ByteBuffer itemBuffer, serialBuffer;
 	for (int i = 0; i < INVENTORY_TOTAL; i++)
 	{
