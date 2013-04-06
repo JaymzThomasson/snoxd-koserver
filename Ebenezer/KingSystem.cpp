@@ -50,10 +50,14 @@ void CKingSystem::CheckKingTimer()
 	case ELECTION_TYPE_NO_TERM:
 	case ELECTION_TYPE_TERM_ENDED:
 		{
-			if (bCurMonth == m_byMonth
-				&& bCurDay == m_byDay
-				&& bCurHour == m_byHour
-				&& bCurMinute == m_byMinute)
+			DateTime dt(m_sYear, m_byMonth, m_byDay, m_byHour, m_byMinute);
+
+			// Nominations start a day before the election.
+			dt.AddDays(-1);
+			if (bCurMonth == dt.GetMonth()
+				&& bCurDay == dt.GetDay()
+				&& bCurHour == dt.GetHour()
+				&& bCurMinute == dt.GetMinute())
 			{
 				UpdateElectionStatus(ELECTION_TYPE_NOMINATION);
 
@@ -65,10 +69,14 @@ void CKingSystem::CheckKingTimer()
 
 	case ELECTION_TYPE_NOMINATION:
 		{
-			if (bCurMonth == m_byMonth
-				&& bCurDay == m_byDay
-				&& bCurHour == m_byHour
-				&& bCurMinute == m_byMinute)
+			DateTime dt(m_sYear, m_byMonth, m_byDay, m_byHour, m_byMinute);
+
+			// Nominations last until an hour before the scheduled election time.
+			dt.AddHours(-1);
+			if (bCurMonth == dt.GetMonth()
+				&& bCurDay == dt.GetDay()
+				&& bCurHour == dt.GetHour()
+				&& bCurMinute == dt.GetMinute())
 			{
 				UpdateElectionStatus(ELECTION_TYPE_PRE_ELECTION);
 
@@ -77,7 +85,7 @@ void CKingSystem::CheckKingTimer()
 				// SendUDP_ElectionStatus(m_byType);
 			}
 
-			if ((bCurMinute % 30) && !m_bSentFirstMessage)
+			if (!(bCurMinute % 30) && !m_bSentFirstMessage)
 			{
 				m_bSentFirstMessage = true;
 				g_pMain->SendFormattedResource(IDS_KING_PERIOD_OF_RECOMMEND_MESSAGE, m_byNation, true);
@@ -87,12 +95,16 @@ void CKingSystem::CheckKingTimer()
 			m_bSentFirstMessage = false;
 		} break;
 
+	// This state seems like it could be completely removed.
+	// Leaving until the system's more complete, just in case.
 	case ELECTION_TYPE_PRE_ELECTION:
 		{
-			if (bCurMonth == m_byMonth
-				&& bCurDay == m_byDay
-				&& bCurHour == m_byHour
-				&& bCurMinute == m_byMinute)
+			DateTime dt(m_sYear, m_byMonth, m_byDay, m_byHour, m_byMinute);
+
+			if (bCurMonth == dt.GetMonth()
+				&& bCurDay == dt.GetDay()
+				&& bCurHour == dt.GetHour()
+				&& bCurMinute == dt.GetMinute())
 			{
 				UpdateElectionStatus(ELECTION_TYPE_ELECTION);
 				g_pMain->SendFormattedResource(IDS_KING_ELECTION_TIME, m_byNation, false);
@@ -102,10 +114,15 @@ void CKingSystem::CheckKingTimer()
 
 	case ELECTION_TYPE_ELECTION:
 		{
-			if (bCurMonth == m_byMonth
-				&& bCurDay == m_byDay
-				&& bCurHour == m_byHour
-				&& bCurMinute == m_byMinute)
+			DateTime dt(m_sYear, m_byMonth, m_byDay, m_byHour, m_byMinute);
+
+			// Elections last for an hour.
+			dt.AddHours(1);
+
+			if (bCurMonth == dt.GetMonth()
+				&& bCurDay == dt.GetDay()
+				&& bCurHour == dt.GetHour()
+				&& bCurMinute == dt.GetMinute())
 			{
 				UpdateElectionStatus(ELECTION_TYPE_TERM_STARTED);
 				// GetElectionResult();
