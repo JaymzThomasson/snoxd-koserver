@@ -32,6 +32,9 @@ public:
 	// Handles timed events.
 	void CheckKingTimer();
 
+	// Updates the election status
+	void UpdateElectionStatus(uint8 byElectionState);
+
 	// Checks to see if a special (coin/XP) event should end.
 	void CheckSpecialEvent();
 

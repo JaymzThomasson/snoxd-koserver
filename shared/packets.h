@@ -242,6 +242,11 @@ enum KingSystemElectionOpcodes
 	KING_ELECTION_RESIGN		= 5
 }; 
 
+enum KingSystemElectionDBOpcodes
+{
+	KING_ELECTION_UPDATE_STATUS,
+	KING_ELECTION_UPDATE_LIST
+};
 
 enum KingSystemCandidacyNoticeBoardOpcodes
 {

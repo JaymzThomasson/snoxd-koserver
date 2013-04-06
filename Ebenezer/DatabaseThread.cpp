@@ -745,6 +745,35 @@ void CKingSystem::HandleDatabaseRequest_Election(CUser * pUser, Packet & pkt)
 
 	switch (opcode)
 	{
+	// Special king system/election database requests
+	case KING_ELECTION:
+		{
+			uint8 byNation, byType;
+			pkt >> opcode >> byNation >> byType;
+			switch (opcode)
+			{
+			case KING_ELECTION_UPDATE_STATUS: // 7
+				g_DBAgent.UpdateElectionStatus(byType, byNation);
+				break;
+
+			case KING_ELECTION_UPDATE_LIST: // 6
+				{
+					uint8 byDBType;
+					uint16 sKnights;
+					uint32 nAmount;
+					string strNominee;
+
+					if (byType == 4)
+						byDBType = 2;
+					else // if (byType == 3)
+						byDBType = 1;
+
+					pkt >> sKnights >> nAmount >> strNominee;
+					g_DBAgent.UpdateElectionList(byDBType, byType, byNation, sKnights, nAmount, strNominee);
+				} break;
+			}
+		} break;
+
 	case KING_ELECTION_NOMINATE:
 		{
 			if (pUser == NULL)

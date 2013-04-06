@@ -106,6 +106,8 @@ public:
 	int8 GetItemFromLetter(std::string & strCharID, uint32 nLetterID, uint32 & nItemID, uint16 & sCount, uint16 & sDurability, uint32 & nCoins, uint64 & nSerialNum);
 	void DeleteLetter(std::string & strCharID, uint32 nLetterID);
 
+	void UpdateElectionStatus(uint8 byType, uint8 byNation);
+	void UpdateElectionList(uint8 byDBType, uint8 byType, uint8 byNation, uint16 sKnights, uint32 nAmount, std::string & strNominee);
 	int16 UpdateCandidacyRecommend(std::string & strNominator, std::string & strNominee, uint8 byNation);
 	void UpdateCandidacyNoticeBoard(std::string & strCharID, uint8 byNation, std::string & strNotice);
 	void UpdateNoahOrExpEvent(uint8 byType, uint8 byNation, uint8 byAmount, uint8 byDay, uint8 byHour, uint8 byMinute, uint16 sDuration);

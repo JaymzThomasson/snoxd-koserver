@@ -1326,6 +1326,45 @@ void CDBAgent::DeleteLetter(string & strCharID, uint32 nLetterID)
 }
 
 /**
+ * @brief	Updates the election status.
+ *
+ * @param	byType  	Election status.
+ * @param	byNation	Electoral nation.
+ */
+void CDBAgent::UpdateElectionStatus(uint8 byType, uint8 byNation)
+{
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == NULL)
+		return;
+
+	if (!dbCommand->Execute(string_format(_T("{CALL KING_UPDATE_ELECTION_STATUS(%d, %d)}"), byType, byNation)))
+		ReportSQLError(m_GameDB->GetError());
+}
+
+/**
+ * @brief	Updates the election list.
+ *
+ * @param	byDBType  	Procedure-specific database action.
+ * 						If 1, insert. If 2, delete.
+ * @param	byType	  	Flag to specify what the user's in the election list for (election, impeachment, and thereof).
+ * @param	byNation  	Electoral nation.
+ * @param	sKnights  	The nominee's clan ID.
+ * @param	nAmount		Coin amount (not sure, probably impeachment related).
+ * @param	strNominee	The nominee's name.
+ */
+void CDBAgent::UpdateElectionList(uint8 byDBType, uint8 byType, uint8 byNation, uint16 sKnights, uint32 nAmount, string & strNominee)
+{
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == NULL)
+		return;
+
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strNominee.c_str(), strNominee.length());
+	if (!dbCommand->Execute(string_format(_T("{CALL KING_UPDATE_ELECTION_LIST(%d, %d, %d, %d, %d, ?)}"), 
+		byDBType, byType, byNation, sKnights, nAmount)))
+		ReportSQLError(m_GameDB->GetError());
+}
+
+/**
  * @brief	Nominates/recommends strNominee as King.
  *
  * @param	strNominator	The nominator.

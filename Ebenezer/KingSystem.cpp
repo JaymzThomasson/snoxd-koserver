@@ -55,9 +55,9 @@ void CKingSystem::CheckKingTimer()
 				&& bCurHour == m_byHour
 				&& bCurMinute == m_byMinute)
 			{
-				m_byType = ELECTION_TYPE_NOMINATION;
-				g_pMain->SendFormattedResource(IDS_KING_RECOMMEND_TIME, m_byNation, false);
+				UpdateElectionStatus(ELECTION_TYPE_NOMINATION);
 
+				g_pMain->SendFormattedResource(IDS_KING_RECOMMEND_TIME, m_byNation, false);
 				// SendUDP_ElectionStatus(m_byType);
 				LoadRecommendList();
 			}
@@ -70,9 +70,9 @@ void CKingSystem::CheckKingTimer()
 				&& bCurHour == m_byHour
 				&& bCurMinute == m_byMinute)
 			{
-				m_byType = ELECTION_TYPE_PRE_ELECTION;
-				g_pMain->SendFormattedResource(IDS_KING_RECOMMEND_FINISH_TIME, m_byNation, false);
+				UpdateElectionStatus(ELECTION_TYPE_PRE_ELECTION);
 
+				g_pMain->SendFormattedResource(IDS_KING_RECOMMEND_FINISH_TIME, m_byNation, false);
 				// CheckRecommendList();
 				// SendUDP_ElectionStatus(m_byType);
 			}
@@ -94,7 +94,7 @@ void CKingSystem::CheckKingTimer()
 				&& bCurHour == m_byHour
 				&& bCurMinute == m_byMinute)
 			{
-				m_byType = ELECTION_TYPE_ELECTION;
+				UpdateElectionStatus(ELECTION_TYPE_ELECTION);
 				g_pMain->SendFormattedResource(IDS_KING_ELECTION_TIME, m_byNation, false);
 				// SendUDP_ElectionStatus(m_byType);
 			}
@@ -107,7 +107,7 @@ void CKingSystem::CheckKingTimer()
 				&& bCurHour == m_byHour
 				&& bCurMinute == m_byMinute)
 			{
-				m_byType = ELECTION_TYPE_TERM_STARTED;
+				UpdateElectionStatus(ELECTION_TYPE_TERM_STARTED);
 				// GetElectionResult();
 				return;
 			}
@@ -168,6 +168,20 @@ void CKingSystem::CheckKingTimer()
 			}
 		} break;
 	}
+}
+
+/**
+ * @brief	Updates the election status.
+ *
+ * @param	byElectionStatus	The election status.
+ */
+void CKingSystem::UpdateElectionStatus(uint8 byElectionStatus)
+{
+	Packet result(WIZ_KING, uint8(KING_ELECTION));
+	result	<< uint8(KING_ELECTION) << uint8(KING_ELECTION_UPDATE_STATUS)
+			<< m_byNation << byElectionStatus;
+	m_byType = byElectionStatus;
+	g_pMain->AddDatabaseRequest(result);
 }
 
 /**
@@ -242,7 +256,6 @@ void CKingSystem::CheckSpecialEvent()
 void CKingSystem::LoadRecommendList()
 {
 	FastGuard lock(m_lock);
-
 	m_top10ClanSet.clear();
 	for (int i = 1; i <= 10; i++)
 	{
@@ -256,6 +269,16 @@ void CKingSystem::LoadRecommendList()
 			// or for whatever reason the clan no longer exists...
 			|| (pKnights = g_pMain->GetClanPtr(pRating->sClanID)) == NULL)
 			continue;
+
+		Packet result(WIZ_KING, uint8(KING_ELECTION));
+		result	<< uint8(KING_ELECTION) // special, looks redundant but implies these special opcodes
+				<< uint8(KING_ELECTION_UPDATE_LIST) << m_byNation 
+				<< uint8(3) // insert
+				<< pRating->sClanID
+				<< uint32(0) // coin amount
+				<< pKnights->m_strChief;
+
+		g_pMain->AddDatabaseRequest(result);
 
 		// add to our top 10 ranked clan set.
 		m_top10ClanSet.insert(pRating->sClanID);
