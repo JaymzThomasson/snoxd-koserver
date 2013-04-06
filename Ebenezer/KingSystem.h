@@ -4,8 +4,16 @@
 #include <set>
 #include <hash_map>
 
+struct _KING_ELECTION_LIST
+{
+	uint8 byType;
+	uint16 sKnights;
+	uint32 nVotes;
+};
+
 typedef std::set<uint16> ClanIDSet;
 typedef stdext::hash_map<std::string, std::string> KingCandidacyNoticeBoardMap; 
+typedef stdext::hash_map<std::string, _KING_ELECTION_LIST *> KingElectionList; 
 
 enum ElectionType
 {
@@ -34,13 +42,14 @@ public:
 
 	// Updates the election status
 	void UpdateElectionStatus(uint8 byElectionState);
+	void UpdateElectionList(uint8 byElectionListType, bool bDeleteList, uint16 sClanID, std::string & strUserID, CUser * pUser = NULL);
 
 	// Checks to see if a special (coin/XP) event should end.
 	void CheckSpecialEvent();
 
+	// Generates a list of the top 10 clan leaders eligible to nominate a King.
 	void LoadRecommendList();
 
-	// Generates a list of the top 10 clan leaders eligible to nominate a King.
 	void KingNotifyMessage(uint32 nResourceID, int byNation, ChatType byChatType);
 
 	// Wrapper to lookup the appropriate King system instance
@@ -73,6 +82,8 @@ public:
 	static void HandleDatabaseRequest_Election(CUser * pUser, Packet & pkt);
 	static void HandleDatabaseRequest_Event(CUser * pUser, Packet & pkt);
 
+	void ResetElectionLists();
+	~CKingSystem();
 
 	uint8	m_byNation;
 
@@ -112,7 +123,11 @@ public:
 
 	FastMutex m_lock;
 	ClanIDSet m_top10ClanSet;
+
 	KingCandidacyNoticeBoardMap m_noticeBoardMap;
+
+	KingElectionList m_electionCandidates,
+		m_resignedCandidates;
 
 	// TO-DO: Give this a more appropriate name.
 	bool m_bSentFirstMessage;

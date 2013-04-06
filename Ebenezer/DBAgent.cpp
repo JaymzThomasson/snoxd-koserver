@@ -1349,7 +1349,7 @@ void CDBAgent::UpdateElectionStatus(uint8 byType, uint8 byNation)
  * @param	byType	  	Flag to specify what the user's in the election list for (election, impeachment, and thereof).
  * @param	byNation  	Electoral nation.
  * @param	sKnights  	The nominee's clan ID.
- * @param	nAmount		Coin amount (not sure, probably impeachment related).
+ * @param	nAmount		Vote count.
  * @param	strNominee	The nominee's name.
  */
 void CDBAgent::UpdateElectionList(uint8 byDBType, uint8 byType, uint8 byNation, uint16 sKnights, uint32 nAmount, string & strNominee)

@@ -758,18 +758,13 @@ void CKingSystem::HandleDatabaseRequest_Election(CUser * pUser, Packet & pkt)
 
 			case KING_ELECTION_UPDATE_LIST: // 6
 				{
-					uint8 byDBType;
+					bool bDelete;
 					uint16 sKnights;
-					uint32 nAmount;
+					uint32 nVotes = 0;
 					string strNominee;
 
-					if (byType == 4)
-						byDBType = 2;
-					else // if (byType == 3)
-						byDBType = 1;
-
-					pkt >> sKnights >> nAmount >> strNominee;
-					g_DBAgent.UpdateElectionList(byDBType, byType, byNation, sKnights, nAmount, strNominee);
+					pkt >> bDelete >> sKnights >> strNominee;
+					g_DBAgent.UpdateElectionList(bDelete ? 2 : 1, byType, byNation, sKnights, nVotes, strNominee);
 				} break;
 			}
 		} break;

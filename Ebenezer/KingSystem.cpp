@@ -63,6 +63,8 @@ void CKingSystem::CheckKingTimer()
 
 				g_pMain->SendFormattedResource(IDS_KING_RECOMMEND_TIME, m_byNation, false);
 				// SendUDP_ElectionStatus(m_byType);
+
+				ResetElectionLists();
 				LoadRecommendList();
 			}
 		} break;
@@ -202,6 +204,33 @@ void CKingSystem::UpdateElectionStatus(uint8 byElectionStatus)
 }
 
 /**
+ * @brief	Updates the election list.
+ *
+ * @param	byElectionListType	Which list are we referring to?
+ * 								1 = ?  
+ * 								2 = ?
+ * 								3 = senator list
+ * 								4 = voted for king list
+ * @param	bDeleteList		  	true to delete the list.
+ * @param	sClanID			  	Identifier for the clan.
+ * @param	strUserID		  	Identifier for the user.
+ * @param	pUser				The user making the request, if applicable.
+ */
+void CKingSystem::UpdateElectionList(uint8 byElectionListType, bool bDeleteList, uint16 sClanID, std::string & strUserID, CUser * pUser /*= NULL*/)
+{
+	// byElectionListType:
+	// 3 = senator
+	Packet result(WIZ_KING, uint8(KING_ELECTION));
+
+	result	<< uint8(KING_ELECTION) // special, looks redundant but implies these special opcodes
+			<< uint8(KING_ELECTION_UPDATE_LIST) << m_byNation 
+			<< byElectionListType << bDeleteList
+			<< sClanID << strUserID;
+
+	g_pMain->AddDatabaseRequest(result, pUser);
+}
+
+/**
  * @brief	Checks to see if a special (coin/XP) event should end.
  */
 void CKingSystem::CheckSpecialEvent()
@@ -269,6 +298,7 @@ void CKingSystem::CheckSpecialEvent()
 
 /**
  * @brief	Generates a list of the top 10 clan leaders eligible to nominate a King.
+ * 			NOTE: These players are senators.
  */
 void CKingSystem::LoadRecommendList()
 {
@@ -287,15 +317,8 @@ void CKingSystem::LoadRecommendList()
 			|| (pKnights = g_pMain->GetClanPtr(pRating->sClanID)) == NULL)
 			continue;
 
-		Packet result(WIZ_KING, uint8(KING_ELECTION));
-		result	<< uint8(KING_ELECTION) // special, looks redundant but implies these special opcodes
-				<< uint8(KING_ELECTION_UPDATE_LIST) << m_byNation 
-				<< uint8(3) // insert
-				<< pRating->sClanID
-				<< uint32(0) // coin amount
-				<< pKnights->m_strChief;
-
-		g_pMain->AddDatabaseRequest(result);
+		// Add user as senator.
+		UpdateElectionList(3, false, pRating->sClanID, pKnights->m_strChief);
 
 		// add to our top 10 ranked clan set.
 		m_top10ClanSet.insert(pRating->sClanID);
@@ -530,7 +553,9 @@ void CKingSystem::CandidacyRecommend(CUser * pUser, Packet & pkt)
 	// Make sure the user nominating a King is a clan leader
 	if (!pUser->isClanLeader()
 		// ... of a top 10 clan.
-		|| m_top10ClanSet.find(pUser->GetClanID()) == m_top10ClanSet.end())
+		|| m_top10ClanSet.find(pUser->GetClanID()) == m_top10ClanSet.end()
+		// ... and they haven't resigned their candidacy.
+		|| m_resignedCandidates.find(pUser->m_strUserID) != m_resignedCandidates.end())
 	{
 		result << int16(-3);
 		pUser->Send(&result);
@@ -728,11 +753,59 @@ void CKingSystem::ElectionPoll(CUser * pUser, Packet & pkt)
 		return;
 	}
 
+	FastGuard lock(m_lock);
 	switch (opcode)
 	{
+	// Show candidate list
 	case 1:
+		{
+			uint8 count = (uint8)m_electionCandidates.size();
+			result << uint16(1) << count;
+			result.SByte();
+			foreach (itr, m_electionCandidates)
+			{
+				CKnights * pKnights = g_pMain->GetClanPtr(itr->second->sKnights);
+				result << itr->first; // candidate's name
+				if (pKnights != NULL)
+					result << pKnights->m_strName; // clan name
+				else
+					result << uint8(0); // no clan name
+			}
+			pUser->Send(&result);
+		} break;
+
+	// Vote for candidate
 	case 2:
-		break;
+		{
+			std::string strCandidate;
+			pkt.SByte();
+			pkt >> strCandidate;
+			if (strCandidate.empty() || strCandidate.length() > MAX_ID_SIZE)
+				return;
+
+			// Candidate voted for isn't in list...
+			KingElectionList::iterator itr = m_electionCandidates.find(strCandidate);
+			if (itr == m_electionCandidates.end())
+			{
+				result << int16(-2);
+				pUser->Send(&result);
+				return;
+			}
+
+			// User's level is too low to vote.
+			if (pUser->GetLevel() < 20)
+			{
+				result << int16(-4);
+				pUser->Send(&result);
+				return;
+			}
+
+			UpdateElectionList(	4,						// voted for King
+								false,					// registering our vote, not deleting.
+								itr->second->sKnights,	// clan ID
+								strCandidate,			// candidate's name
+								pUser);					// us, glorious us (so that it can let us know what happened with the request)
+		} break;
 	}
 }
 
@@ -744,6 +817,39 @@ void CKingSystem::ElectionPoll(CUser * pUser, Packet & pkt)
  */
 void CKingSystem::CandidacyResign(CUser * pUser, Packet & pkt) 
 {
+	Packet result(WIZ_KING, uint8(KING_ELECTION));
+	result << uint8(KING_ELECTION_RESIGN);
+
+	// We can only submit a resignation if we're in the nomination stage.
+	if (m_byType != ELECTION_TYPE_NOMINATION)
+	{
+		result << int16(-2);
+		pUser->Send(&result);
+		return;
+	}
+
+	FastGuard lock(m_lock);
+	KingElectionList::iterator itr = m_electionCandidates.find(pUser->m_strUserID);
+
+	// Do we even exist in the candidate list?
+	if (itr == m_electionCandidates.end())
+	{
+		result << int16(-3);
+		pUser->Send(&result);
+		return;
+	}
+
+	// Add user to our resigned candidates list so they can't be re-nominated.
+	m_resignedCandidates.insert(make_pair(pUser->m_strUserID, itr->second));
+
+	// Remove them from our main candidates list.
+	m_electionCandidates.erase(itr);
+
+	UpdateElectionList(4, // elected King
+		true, // remove ourselves from the list
+		itr->second->sKnights,
+		pUser->m_strUserID,
+		pUser);
 }
 
 /**
@@ -801,7 +907,7 @@ void CKingSystem::ImpeachmentRequestUiOpen(CUser * pUser, Packet & pkt)
 	// Not able to make an impeachment request right now.
 	if (m_byImType != 1)
 		result << int16(-1);
-	// If they're not an (advisor|senator|insert KO name here)...
+	// If they're not an senator...
 	else if (pUser->m_bRank != 2)
 		result << int16(-2);
 	// Able to make an impeachment request.
@@ -1092,4 +1198,24 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 			g_pMain->Send_All(&result, NULL, m_byNation);
 		} break;
 	}
+}
+
+/**
+ * @brief	Resets the election lists.
+ */
+void CKingSystem::ResetElectionLists()
+{
+	FastGuard lock(m_lock);
+	foreach (itr, m_electionCandidates)
+		delete itr->second;
+	m_electionCandidates.clear();
+
+	foreach (itr, m_resignedCandidates)
+		delete itr->second;
+	m_resignedCandidates.clear();
+}
+
+CKingSystem::~CKingSystem()
+{
+	ResetElectionLists();
 }

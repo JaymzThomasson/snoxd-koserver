@@ -44,6 +44,7 @@
 #include "../shared/database/RentalItemSet.h"
 #include "../shared/database/KingSystemSet.h"
 #include "../shared/database/KingCandidacyNoticeBoardSet.h"
+#include "../shared/database/KingElectionListSet.h"
 
 bool CEbenezerDlg::LoadTables()
 {
@@ -311,7 +312,8 @@ bool CEbenezerDlg::LoadBattleTable()
 bool CEbenezerDlg::LoadKingSystem()
 {
 	LOAD_TABLE_ERROR_ONLY(CKingSystemSet, g_DBAgent.m_GameDB, &m_KingSystemArray, true);
-	LOAD_TABLE(CKingCandidacyNoticeBoardSet, g_DBAgent.m_GameDB, &m_KingSystemArray, true);
+	LOAD_TABLE_ERROR_ONLY(CKingCandidacyNoticeBoardSet, g_DBAgent.m_GameDB, &m_KingSystemArray, true);
+	LOAD_TABLE(CKingElectionListSet, g_DBAgent.m_GameDB, &m_KingSystemArray, true);
 }
 
 bool CEbenezerDlg::MapFileLoad()
