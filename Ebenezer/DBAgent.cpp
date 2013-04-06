@@ -1346,7 +1346,7 @@ int16 CDBAgent::UpdateCandidacyRecommend(std::string & strNominator, std::string
 
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &sRet);
 
-	if (!dbCommand->Execute(string_format(_T("{CALL KING_CANDIDACY_RECOMMEND(?, ?, %d)}"), byNation)))
+	if (!dbCommand->Execute(string_format(_T("{CALL KING_CANDIDACY_RECOMMEND(?, ?, %d, ?)}"), byNation)))
 		ReportSQLError(m_GameDB->GetError());
 
 	return sRet;
