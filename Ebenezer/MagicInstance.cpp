@@ -1698,9 +1698,9 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 short MagicInstance::GetWeatherDamage(short damage, int attribute)
 {
 	// Give a 10% damage output boost based on weather (and skill's elemental attribute)
-	if ((g_pMain->m_nWeather == WEATHER_FINE && attribute == ATTRIBUTE_FIRE)
-		|| (g_pMain->m_nWeather == WEATHER_RAIN && attribute == ATTRIBUTE_LIGHTNING)
-		|| (g_pMain->m_nWeather == WEATHER_SNOW && attribute == ATTRIBUTE_ICE))
+	if ((g_pMain->m_byWeather == WEATHER_FINE && attribute == ATTRIBUTE_FIRE)
+		|| (g_pMain->m_byWeather == WEATHER_RAIN && attribute == ATTRIBUTE_LIGHTNING)
+		|| (g_pMain->m_byWeather == WEATHER_SNOW && attribute == ATTRIBUTE_ICE))
 		damage = (damage * 110) / 100;
 
 	return damage;

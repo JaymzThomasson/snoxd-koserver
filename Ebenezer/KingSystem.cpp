@@ -968,8 +968,8 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 			g_pMain->m_byKingWeatherEvent_Hour = g_localTime.tm_hour;
 			g_pMain->m_byKingWeatherEvent_Minute = g_localTime.tm_min;
 
-			g_pMain->m_nWeather = bType;
-			g_pMain->m_nAmount = bAmount;
+			g_pMain->m_byWeather = bType;
+			g_pMain->m_sWeatherAmount = bAmount;
 
 			g_pMain->UpdateWeather();
 

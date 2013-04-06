@@ -744,7 +744,7 @@ void CUser::SendTime()
 void CUser::SendWeather()
 {
 	Packet result(WIZ_WEATHER);
-	result << uint8(g_pMain->m_nWeather) << uint16(g_pMain->m_nAmount);
+	result << g_pMain->m_byWeather << g_pMain->m_sWeatherAmount;
 	Send(&result);
 }
 
@@ -1997,7 +1997,7 @@ void CUser::UpdateGameWeather(Packet & pkt)
 
 	if (pkt.GetOpcode() == WIZ_WEATHER)
 	{
-		pkt >> g_pMain->m_nWeather >> g_pMain->m_nAmount;
+		pkt >> g_pMain->m_byWeather >> g_pMain->m_sWeatherAmount;
 	}
 	else
 	{

@@ -43,8 +43,8 @@ CEbenezerDlg::CEbenezerDlg()
 	m_nDate = 0;
 	m_nHour = 0;
 	m_nMin = 0;
-	m_nWeather = 0;
-	m_nAmount = 0;
+	m_byWeather = 0;
+	m_sWeatherAmount = 0;
 	m_byKingWeatherEvent = 0;
 	m_byKingWeatherEvent_Day = 0;
 	m_byKingWeatherEvent_Hour = 0;
@@ -184,7 +184,7 @@ void CEbenezerDlg::GetTimeFromIni()
 	m_nMonth = ini.GetInt("TIMER", "MONTH", 1);
 	m_nDate = ini.GetInt("TIMER", "DATE", 1);
 	m_nHour = ini.GetInt("TIMER", "HOUR", 1);
-	m_nWeather = ini.GetInt("TIMER", "WEATHER", 1);
+	m_byWeather = ini.GetInt("TIMER", "WEATHER", 1);
 
 	m_nBattleZoneOpenWeek  = ini.GetInt("BATTLE", "WEEK", 5);
 	m_nBattleZoneOpenHourStart  = ini.GetInt("BATTLE", "START_TIME", 20);
@@ -722,7 +722,7 @@ void CEbenezerDlg::UpdateGameTime()
 	}
 
 	Packet result(AG_TIME_WEATHER);
-	result << m_nYear << m_nMonth << m_nDate << m_nHour << m_nMin << m_nWeather << m_nAmount;
+	result << m_nYear << m_nMonth << m_nDate << m_nHour << m_nMin << m_byWeather << m_sWeatherAmount;
 	Send_AIServer(&result);
 
 	if (bKnights)
@@ -759,24 +759,24 @@ void CEbenezerDlg::UpdateWeather()
 		else if (rnd < 7)	weather = WEATHER_RAIN;
 		else				weather = WEATHER_FINE;
 
-		m_nAmount = myrand(0, 100);
+		m_sWeatherAmount = myrand(0, 100);
 		if (weather == WEATHER_FINE)
 		{
-			if (m_nAmount > 70)
-				m_nAmount /= 2;
+			if (m_sWeatherAmount > 70)
+				m_sWeatherAmount /= 2;
 			else
-				m_nAmount = 0;
+				m_sWeatherAmount = 0;
 		}
-		m_nWeather = weather;
+		m_byWeather = weather;
 	}
 
 	// Real weather data for most users.
-	Packet realWeather(WIZ_WEATHER, m_nWeather);
-	realWeather << m_nAmount;
+	Packet realWeather(WIZ_WEATHER, m_byWeather);
+	realWeather << m_sWeatherAmount;
 
 	// Fake, clear weather for users in certain zones (e.g. Desp & Hell Abysses, Arena)
 	Packet fakeWeather(WIZ_WEATHER, uint8(WEATHER_FINE));
-	fakeWeather << m_nAmount;
+	fakeWeather << m_sWeatherAmount;
 
 	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
@@ -802,7 +802,7 @@ void CEbenezerDlg::SetGameTime()
 	ini.SetInt( "TIMER", "MONTH", m_nMonth );
 	ini.SetInt( "TIMER", "DATE", m_nDate );
 	ini.SetInt( "TIMER", "HOUR", m_nHour );
-	ini.SetInt( "TIMER", "WEATHER", m_nWeather );
+	ini.SetInt( "TIMER", "WEATHER", m_byWeather );
 }
 
 void CEbenezerDlg::AddDatabaseRequest(Packet & pkt, CUser *pUser /*= NULL*/)

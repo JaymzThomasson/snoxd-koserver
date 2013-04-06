@@ -222,8 +222,8 @@ public:
 	short   m_sErrorSocketCount;  // ÀÌ»ó¼ÒÄÏ °¨½Ã¿ë
 
 	uint16 m_nYear, m_nMonth, m_nDate, m_nHour, m_nMin;
-	uint8 m_nWeather;
-	uint16 m_nAmount;
+	uint8 m_byWeather;
+	uint16 m_sWeatherAmount;
 	int m_nCastleCapture;
 
 	BYTE    m_byBattleOpen, m_byOldBattleOpen;					// 0:ÀüÀïÁßÀÌ ¾Æ´Ô, 1:ÀüÀïÁß(±¹°¡°£ÀüÀï), 2:´«½Î¿òÀüÀï
