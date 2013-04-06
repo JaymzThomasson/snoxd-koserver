@@ -71,6 +71,7 @@ bool CEbenezerDlg::LoadTables()
 			&& LoadKnightsAllianceTable()
 			&& LoadUserRankings()
 			&& LoadKnightsCapeTable()
+			&& LoadKnightsRankTable()
 			&& LoadHomeTable()
 			&& LoadStartPositionTable()
 			&& LoadBattleTable()
@@ -259,10 +260,13 @@ bool CEbenezerDlg::LoadKnightsCapeTable()
 	LOAD_TABLE(CKnightsCapeSet, g_DBAgent.m_GameDB, &m_KnightsCapeArray, false);
 }
 
-bool CEbenezerDlg::LoadKnightsRankTable()
+bool CEbenezerDlg::LoadKnightsRankTable(bool bWarTime /*= false*/)
 {
 	std::string strKarusCaptainNames, strElmoCaptainNames;
 	LOAD_TABLE_ERROR_ONLY(CKnightsRankSet, g_DBAgent.m_GameDB, NULL, true);
+
+	if (!bWarTime)
+		return true;
 
 	CKnightsRankSet & pSet = _CKnightsRankSet; // kind ugly generic naming
 

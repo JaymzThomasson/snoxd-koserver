@@ -45,7 +45,7 @@ public:
 	bool LoadUserRankings();
 	void CleanupUserRankings();
 	bool LoadKnightsCapeTable();
-	bool LoadKnightsRankTable();
+	bool LoadKnightsRankTable(bool bWarTime = false);
 	bool LoadHomeTable();
 	bool LoadStartPositionTable();
 	bool LoadBattleTable();
