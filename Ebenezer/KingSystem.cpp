@@ -706,8 +706,45 @@ void CKingSystem::CandidacyNoticeBoard(CUser * pUser, Packet & pkt)
 	pUser->Send(&result);
 }
 
-void CKingSystem::ElectionPoll(CUser * pUser, Packet & pkt) {}
-void CKingSystem::CandidacyResign(CUser * pUser, Packet & pkt) {}
+/**
+ * @brief	Election poll.
+ *
+ * @param	pUser	The user sending the packet.
+ * @param	pkt  	The packet.
+ */
+void CKingSystem::ElectionPoll(CUser * pUser, Packet & pkt)
+{
+	Packet result(WIZ_KING, uint8(KING_ELECTION));
+	uint8 opcode = pkt.read<uint8>();
+
+	result << uint8(KING_ELECTION_POLL) << opcode;
+
+	// Make sure player's trying to vote during the
+	// election stage.
+	if (m_byType != ELECTION_TYPE_ELECTION)
+	{
+		result << int16(-1);
+		pUser->Send(&result);
+		return;
+	}
+
+	switch (opcode)
+	{
+	case 1:
+	case 2:
+		break;
+	}
+}
+
+/**
+ * @brief	Handles candidate resignations.
+ *
+ * @param	pUser	The user sending the packet.
+ * @param	pkt  	The packet.
+ */
+void CKingSystem::CandidacyResign(CUser * pUser, Packet & pkt) 
+{
+}
 
 /**
  * @brief	Impeachment system.
@@ -749,8 +786,48 @@ void CKingSystem::ImpeachmentRequest(CUser * pUser, Packet & pkt) {}
 void CKingSystem::ImpeachmentRequestElect(CUser * pUser, Packet & pkt) {}
 void CKingSystem::ImpeachmentList(CUser * pUser, Packet & pkt) {}
 void CKingSystem::ImpeachmentElect(CUser * pUser, Packet & pkt) {}
-void CKingSystem::ImpeachmentRequestUiOpen(CUser * pUser, Packet & pkt) {}
-void CKingSystem::ImpeachmentElectionUiOpen(CUser * pUser, Packet & pkt) {}
+
+/**
+ * @brief	Attempt to open the impeachment request UI.
+ *
+ * @param	pUser	The user sending the packet.
+ * @param	pkt  	The packet.
+ */
+void CKingSystem::ImpeachmentRequestUiOpen(CUser * pUser, Packet & pkt) 
+{
+	Packet result(WIZ_KING, uint8(KING_IMPEACHMENT));
+	result	<< uint8(KING_IMPEACHMENT_REQUEST_UI_OPEN);
+
+	// Not able to make an impeachment request right now.
+	if (m_byImType != 1)
+		result << int16(-1);
+	// If they're not an (advisor|senator|insert KO name here)...
+	else if (pUser->m_bRank != 2)
+		result << int16(-2);
+	// Able to make an impeachment request.
+	else
+		result << int16(1);
+
+	pUser->Send(&result);
+}
+
+/**
+ * @brief	Attempt to open the impeachment election UI.
+ *
+ * @param	pUser	The user sending the packet.
+ * @param	pkt  	The packet.
+ */
+void CKingSystem::ImpeachmentElectionUiOpen(CUser * pUser, Packet & pkt)
+{
+	Packet result(WIZ_KING, uint8(KING_IMPEACHMENT));
+
+	// If it's not the impeachment's election stage, send -1 as the error code
+	// otherwise, send 1 for success.
+	result	<< uint8(KING_IMPEACHMENT_ELECTION_UI_OPEN)
+			<< int16(m_byImType != 3 ? -1 : 1);
+
+	pUser->Send(&result);
+}
 
 /**
  * @brief	King tax system.
