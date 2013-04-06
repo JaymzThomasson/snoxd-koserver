@@ -82,13 +82,14 @@ void CUser::RecvStoreClose(Packet & pkt)
 
 	for (int i = 0; i < INVENTORY_TOTAL; i++)
 	{
-		result	<< m_sItemArray[i].nNum
-				<< m_sItemArray[i].sDuration
-				<< m_sItemArray[i].sCount
-				<< uint8(0) // item type flag (e.g. rented)
-				<< uint16(0) // remaining time
+		_ITEM_DATA * pItem = &m_sItemArray[i];
+		result	<< pItem->nNum
+				<< pItem->sDuration
+				<< pItem->sCount
+				<< pItem->bFlag // item type flag (e.g. rented)
+				<< pItem->sRemainingRentalTime // remaining time
 				<< uint32(0) // unknown
-				<< uint32(0); // expiration date
+				<< pItem->nExpirationTime; // expiration date
 	}
 
 	Send(&result);

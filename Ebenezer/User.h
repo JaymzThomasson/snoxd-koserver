@@ -664,7 +664,7 @@ public:
 	void ReqUserKickOut(Packet & pkt);
 	// void BattleEventResult(Packet & pkt);
 	void ReqShoppingMall(Packet & pkt);
-	void ReqLoadWebItemMall(Packet & pkt);
+	void ReqLoadWebItemMall();
 	void ReqSkillDataProcess(Packet & pkt);
 	void ReqSkillDataSave(Packet & pkt);
 	void ReqSkillDataLoad(Packet & pkt);

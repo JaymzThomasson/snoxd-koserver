@@ -684,17 +684,19 @@ bool CDBAgent::LoadWebItemMall(Packet & result, CUser *pUser)
 	if (dbCommand.get() == NULL)
 		return false;
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName(), strlen(pUser->GetName()));
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_strUserID.c_str(), pUser->m_strUserID.length());
+
+	// TO-DO: Add an arg for the free slot count so we only need to pull/delete what we can hold.
 	if (!dbCommand->Execute(_T("{CALL LOAD_WEB_ITEMMALL(?)}")))
 		ReportSQLError(m_AccountDB->GetError());
 
 	if (!dbCommand->hasData())
-		return false;
+		return true;
 
 	// preserve write position before we throw the count in (so we know where to overwrite)
 	int offset = result.wpos();
 	uint16 count = 0;
-	result << uint16(0); // placeholder for count
+	result << count; // placeholder
 
 	do
 	{
@@ -705,7 +707,7 @@ bool CDBAgent::LoadWebItemMall(Packet & result, CUser *pUser)
 		result << nItemID << sCount;
 
 		// Only limitation here is now the client.
-		// NOTE: using the byte buffer this is OK, however we don't want too much in shared memory for now... so we'll keep to our limit
+		// NOTE: using the byte buffer this is OK, so we'll keep to our limit
 		if (++count >= 100) 
 			break;
 

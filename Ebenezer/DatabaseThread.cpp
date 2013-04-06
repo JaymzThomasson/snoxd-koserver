@@ -264,7 +264,7 @@ void CUser::ReqShoppingMall(Packet & pkt)
 	switch (pkt.read<uint8>())
 	{
 	case STORE_CLOSE:
-		ReqLoadWebItemMall(pkt);
+		ReqLoadWebItemMall();
 		break;
 	case STORE_LETTER:
 		ReqLetterSystem(pkt);
@@ -272,7 +272,7 @@ void CUser::ReqShoppingMall(Packet & pkt)
 	}
 }
 
-void CUser::ReqLoadWebItemMall(Packet & pkt)
+void CUser::ReqLoadWebItemMall()
 {
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_CLOSE));
 
@@ -282,7 +282,7 @@ void CUser::ReqLoadWebItemMall(Packet & pkt)
 	if (g_DBAgent.LoadWebItemMall(result, this))
 		result.put(offset, uint8(1));
 
-	RecvStore(pkt); // TO-DO: Just send the data directly.
+	RecvStore(result); // TO-DO: Just send the data directly.
 }
 
 void CUser::ReqSkillDataProcess(Packet & pkt)
