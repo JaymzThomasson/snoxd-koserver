@@ -2,6 +2,7 @@ var searchData=
 [
   ['impeachmentsystem',['ImpeachmentSystem',['../class_c_king_system.html#a62073fe05d41576305d76bf413ab7c94',1,'CKingSystem']]],
   ['incrementwritten',['IncrementWritten',['../class_circular_buffer.html#a39ee660b24605847951f22e12a0352c9',1,'CircularBuffer']]],
+  ['initialise',['Initialise',['../class_c_lua_script.html#abd347c0aceab8ec3bff8ab107ccb75b5',1,'CLuaScript::Initialise()'],['../class_c_lua_engine.html#ad4f25c6ced44fd6dbcc812798306dad5',1,'CLuaEngine::Initialise()']]],
   ['initialize',['Initialize',['../struct_c_npc.html#a19cfd7547e0b4425b62735bf5e985441',1,'CNpc::Initialize()'],['../struct_c_user.html#ab01915f83b7646ca262450895772449b',1,'CUser::Initialize()'],['../class_packet.html#a1ef0f3eff4e2a0d0aa11a15888b585eb',1,'Packet::Initialize()']]],
   ['insertsavedmagic',['InsertSavedMagic',['../struct_c_user.html#a6e8ce33a46f2f5d7143be3ecfb1767a9',1,'CUser']]],
   ['itemget',['ItemGet',['../struct_c_user.html#affbdc5010a9962bc2d41a7430447d8d3',1,'CUser']]],

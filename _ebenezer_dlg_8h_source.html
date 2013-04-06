@@ -104,9 +104,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;{</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">public</span>: </div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <a class="code" href="class_c_ebenezer_dlg.html">CEbenezerDlg</a>();</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <span class="keywordtype">bool</span> Startup();</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="class_c_ebenezer_dlg.html#a301ebbf684b3c079312414f39415f268" title="Loads config, table data, initialises sockets and generally starts up the server.">Startup</a>();</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">void</span> GetTimeFromIni();</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a5a0cb33ddea6846b2c9f446c506974c2" title="Loads the server&#39;s config from the INI file.">GetTimeFromIni</a>();</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keywordtype">bool</span> LoadItemTable();</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keywordtype">bool</span> LoadItemExchangeTable();</div>
@@ -133,7 +133,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordtype">bool</span> LoadUserRankings();</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">void</span> CleanupUserRankings();</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordtype">bool</span> LoadKnightsCapeTable();</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">bool</span> LoadKnightsRankTable();</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">bool</span> LoadKnightsRankTable(<span class="keywordtype">bool</span> bWarTime = <span class="keyword">false</span>);</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordtype">bool</span> LoadHomeTable();</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">bool</span> LoadStartPositionTable();</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">bool</span> LoadBattleTable();</div>
@@ -146,16 +146,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordtype">void</span> OnTimer(UINT nIDEvent);</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">void</span> SendFlyingSantaOrAngel();</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">void</span> BattleZoneCurrentUsers();</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a93a32125b3be5323a689d02c87682281" title="Sends the flying santa/angel packet to all users in the server.">SendFlyingSantaOrAngel</a>();</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#ac109c33162d12fed0fd2a033d5b923cf" title="Updates the number of users currently in the war zone and sends the user counts to all servers in thi...">BattleZoneCurrentUsers</a>();</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">void</span> GetCaptainUserPtr();</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordtype">void</span> Send_CommandChat(<a class="code" href="class_packet.html">Packet</a> *pkt, <span class="keywordtype">int</span> nation, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = NULL);</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordtype">void</span> Send_UDP_All(<a class="code" href="class_packet.html">Packet</a> *pkt, <span class="keywordtype">int</span> group_type = 0);</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">void</span> KickOutZoneUsers(<span class="keywordtype">short</span> zone);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    __int64 GenerateItemSerial();</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordtype">int</span> KickOutAllUsers();</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordtype">void</span> CheckAliveUser();</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">int</span> GetKnightsGrade(<span class="keywordtype">int</span> nPoints);</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a432dfc52826ba329d0e05b884fe0720c" title="Kick out all users from the specified zone to their home zone.">KickOutZoneUsers</a>(<span class="keywordtype">short</span> zone);</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    __int64 <a class="code" href="class_c_ebenezer_dlg.html#a024ec682b2dcf0f0309a73db7d9001d1" title="Generates a new item serial.">GenerateItemSerial</a>();</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordtype">int</span> <a class="code" href="class_c_ebenezer_dlg.html#a660229c9711e9a4b60a515b1e7561fe7" title="Disconnects all players in the server.">KickOutAllUsers</a>();</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a4a593f279d4376519b5cfca3ac6be749" title="Checks &amp; drops in-game users for inactivity.">CheckAliveUser</a>();</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">int</span> <a class="code" href="class_c_ebenezer_dlg.html#a1a87c871e98c958e2d15a405f5f55a2a" title="Calculates the clan grade from the specified loyalty points (NP).">GetKnightsGrade</a>(<span class="keywordtype">int</span> nPoints);</div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordtype">void</span> WritePacketLog();</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    uint16 GetKnightsAllMembers(uint16 sClanID, <a class="code" href="class_packet.html">Packet</a> &amp; result, uint16 &amp; pktSize, <span class="keywordtype">bool</span> bClanLeader);</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">void</span> GetUserRank(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
@@ -233,11 +233,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    <span class="keywordtype">void</span> Send_All(<a class="code" href="class_packet.html">Packet</a> *pkt, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = NULL, uint8 nation = 0);</div>
 <div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <span class="keywordtype">void</span> Send_AIServer(<a class="code" href="class_packet.html">Packet</a> *pkt);</div>
 <div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    <span class="keywordtype">void</span> GetServerResource(<span class="keywordtype">int</span> nResourceID, std::string * result, ...);</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <a class="code" href="struct___s_t_a_r_t___p_o_s_i_t_i_o_n.html">_START_POSITION</a> *GetStartPosition(<span class="keywordtype">int</span> nZoneID);</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#aee0e1447b41503c6ae75b1e64a62bd24" title="Gets &amp; formats a cached server resource (_SERVER_RESOURCE entry).">GetServerResource</a>(<span class="keywordtype">int</span> nResourceID, std::string * result, ...);</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <a class="code" href="struct___s_t_a_r_t___p_o_s_i_t_i_o_n.html">_START_POSITION</a> *<a class="code" href="class_c_ebenezer_dlg.html#a8092ef1f9e45f3f42d27cb1cb322b5f2" title="Gets the starting positions (for both nations) for the specified zone.">GetStartPosition</a>(<span class="keywordtype">int</span> nZoneID);</div>
 <div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    <span class="keywordtype">long</span> GetExpByLevel(<span class="keywordtype">int</span> nLevel);</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <a class="code" href="class_c3_d_map.html">C3DMap</a> * GetZoneByID(<span class="keywordtype">int</span> zoneID);</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    <span class="keywordtype">long</span> <a class="code" href="class_c_ebenezer_dlg.html#aa7cfcfad20c15069660dfdf608b90ea4" title="Gets the experience points required for the specified level.">GetExpByLevel</a>(<span class="keywordtype">int</span> nLevel);</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <a class="code" href="class_c3_d_map.html">C3DMap</a> * <a class="code" href="class_c_ebenezer_dlg.html#a7d36ab3105ef9b2942b2ba7e4289ccc8" title="Gets zone by its identifier.">GetZoneByID</a>(<span class="keywordtype">int</span> zoneID);</div>
 <div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;</div>
 <div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <a class="code" href="struct_c_user.html">CUser</a> * GetUserPtr(std::string findName, NameType type);</div>
 <div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    <a class="code" href="struct_c_user.html">CUser</a> * GetUserPtr(<span class="keywordtype">int</span> sid);</div>
@@ -247,13 +247,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    int32 GetEventTrigger(<a class="code" href="struct_c_npc.html">CNpc</a> * pNpc);</div>
 <div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;</div>
 <div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    <span class="comment">// Adds the account name &amp; session to a hashmap (on login)</span></div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordtype">void</span> AddAccountName(<a class="code" href="struct_c_user.html">CUser</a> *pSession);</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a504ba9793096c77e4bc09f278dfa302a" title="Adds the account name &amp; session to a hashmap (on login)">AddAccountName</a>(<a class="code" href="struct_c_user.html">CUser</a> *pSession);</div>
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;</div>
 <div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <span class="comment">// Adds the character name &amp; session to a hashmap (when in-game)</span></div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    <span class="keywordtype">void</span> AddCharacterName(<a class="code" href="struct_c_user.html">CUser</a> *pSession);</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a5cabe065a9b35d7b5ad2b36f4989fc2f" title="Adds the character name &amp; session to a hashmap (when in-game)">AddCharacterName</a>(<a class="code" href="struct_c_user.html">CUser</a> *pSession);</div>
 <div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;</div>
 <div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    <span class="comment">// Removes the account name &amp; character names from the hashmaps (on logout)</span></div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="keywordtype">void</span> RemoveSessionNames(<a class="code" href="struct_c_user.html">CUser</a> *pSession);</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#ac35edc55bc8ccf94144a841571751ad2" title="Removes the account name &amp; character names from the hashmaps (on logout)">RemoveSessionNames</a>(<a class="code" href="struct_c_user.html">CUser</a> *pSession);</div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;</div>
 <div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <a class="code" href="class_c_knights.html">CKnights</a> * GetClanPtr(uint16 sClanID);</div>
 <div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <a class="code" href="struct___k_n_i_g_h_t_s___a_l_l_i_a_n_c_e.html">_KNIGHTS_ALLIANCE</a> * GetAlliancePtr(uint16 sAllianceID);</div>
@@ -397,7 +397,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Apr 4 2013 19:41:14 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

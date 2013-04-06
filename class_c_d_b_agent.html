@@ -218,6 +218,18 @@ int8&#160;</td><td class="memItemRight" valign="bottom"><b>GetItemFromLetter</b>
 <tr class="memitem:ab2219015c2c81d4f02dc51b484db1db7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab2219015c2c81d4f02dc51b484db1db7"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>DeleteLetter</b> (std::string &amp;strCharID, uint32 nLetterID)</td></tr>
 <tr class="separator:ab2219015c2c81d4f02dc51b484db1db7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a046f3aef6fe973c517a52ec7d20c54da"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_d_b_agent.html#a046f3aef6fe973c517a52ec7d20c54da">UpdateElectionStatus</a> (uint8 byType, uint8 byNation)</td></tr>
+<tr class="memdesc:a046f3aef6fe973c517a52ec7d20c54da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the election status.  <a href="#a046f3aef6fe973c517a52ec7d20c54da">More...</a><br/></td></tr>
+<tr class="separator:a046f3aef6fe973c517a52ec7d20c54da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70291d8cde3d630ee116c368f5c6f982"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_d_b_agent.html#a70291d8cde3d630ee116c368f5c6f982">UpdateElectionList</a> (uint8 byDBType, uint8 byType, uint8 byNation, uint16 sKnights, uint32 nAmount, std::string &amp;strNominee)</td></tr>
+<tr class="memdesc:a70291d8cde3d630ee116c368f5c6f982"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the election list.  <a href="#a70291d8cde3d630ee116c368f5c6f982">More...</a><br/></td></tr>
+<tr class="separator:a70291d8cde3d630ee116c368f5c6f982"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefe68362fc87e53b4670869f10509364"><td class="memItemLeft" align="right" valign="top">int16&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_d_b_agent.html#aefe68362fc87e53b4670869f10509364">UpdateCandidacyRecommend</a> (std::string &amp;strNominator, std::string &amp;strNominee, uint8 byNation)</td></tr>
+<tr class="memdesc:aefe68362fc87e53b4670869f10509364"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nominates/recommends strNominee as King.  <a href="#aefe68362fc87e53b4670869f10509364">More...</a><br/></td></tr>
+<tr class="separator:aefe68362fc87e53b4670869f10509364"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19a07d30b8b85f6139d1a023439c8d48"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_d_b_agent.html#a19a07d30b8b85f6139d1a023439c8d48">UpdateCandidacyNoticeBoard</a> (std::string &amp;strCharID, uint8 byNation, std::string &amp;strNotice)</td></tr>
+<tr class="memdesc:a19a07d30b8b85f6139d1a023439c8d48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the candidacy notice board.  <a href="#a19a07d30b8b85f6139d1a023439c8d48">More...</a><br/></td></tr>
+<tr class="separator:a19a07d30b8b85f6139d1a023439c8d48"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a931436ce7cf011eb2829d495dc0e8a6b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a931436ce7cf011eb2829d495dc0e8a6b"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateNoahOrExpEvent</b> (uint8 byType, uint8 byNation, uint8 byAmount, uint8 byDay, uint8 byHour, uint8 byMinute, uint16 sDuration)</td></tr>
 <tr class="separator:a931436ce7cf011eb2829d495dc0e8a6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -231,6 +243,190 @@ Friends</h2></td></tr>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>CEbenezerDlg</b></td></tr>
 <tr class="separator:a50755bcf91efd5eb8a85f83869a2155f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a19a07d30b8b85f6139d1a023439c8d48"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CDBAgent::UpdateCandidacyNoticeBoard </td>
+          <td>(</td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>strCharID</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8&#160;</td>
+          <td class="paramname"><em>byNation</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>strNotice</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Updates the candidacy notice board. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">strCharID</td><td>Candidate's name. </td></tr>
+    <tr><td class="paramname">byNation</td><td>Candidate's nation. </td></tr>
+    <tr><td class="paramname">strNotice</td><td>The notice. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="aefe68362fc87e53b4670869f10509364"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int16 CDBAgent::UpdateCandidacyRecommend </td>
+          <td>(</td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>strNominator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>strNominee</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8&#160;</td>
+          <td class="paramname"><em>byNation</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nominates/recommends strNominee as King. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">strNominator</td><td>The nominator. </td></tr>
+    <tr><td class="paramname">strNominee</td><td>The nominee. </td></tr>
+    <tr><td class="paramname">byNation</td><td>Their nation.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a70291d8cde3d630ee116c368f5c6f982"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CDBAgent::UpdateElectionList </td>
+          <td>(</td>
+          <td class="paramtype">uint8&#160;</td>
+          <td class="paramname"><em>byDBType</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8&#160;</td>
+          <td class="paramname"><em>byType</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8&#160;</td>
+          <td class="paramname"><em>byNation</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16&#160;</td>
+          <td class="paramname"><em>sKnights</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32&#160;</td>
+          <td class="paramname"><em>nAmount</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>strNominee</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Updates the election list. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">byDBType</td><td>Procedure-specific database action. If 1, insert. If 2, delete. </td></tr>
+    <tr><td class="paramname">byType</td><td>Flag to specify what the user's in the election list for (election, impeachment, and thereof). </td></tr>
+    <tr><td class="paramname">byNation</td><td>Electoral nation. </td></tr>
+    <tr><td class="paramname">sKnights</td><td>The nominee's clan ID. </td></tr>
+    <tr><td class="paramname">nAmount</td><td>Coin amount (not sure, probably impeachment related). </td></tr>
+    <tr><td class="paramname">strNominee</td><td>The nominee's name. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a046f3aef6fe973c517a52ec7d20c54da"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CDBAgent::UpdateElectionStatus </td>
+          <td>(</td>
+          <td class="paramtype">uint8&#160;</td>
+          <td class="paramname"><em>byType</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8&#160;</td>
+          <td class="paramname"><em>byNation</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Updates the election status. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">byType</td><td>Election status. </td></tr>
+    <tr><td class="paramname">byNation</td><td>Electoral nation. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>Ebenezer/<a class="el" href="_d_b_agent_8h_source.html">DBAgent.h</a></li>
 <li>Ebenezer/DBAgent.cpp</li>
@@ -238,7 +434,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>CEbenezerDlg</b></td
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Apr 4 2013 19:41:15 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

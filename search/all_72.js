@@ -5,8 +5,10 @@ var searchData=
   ['referenceobject',['ReferenceObject',['../class_reference_object.html',1,'']]],
   ['release',['Release',['../class_mutex.html#aac1f1ce8590239373e84782126711b83',1,'Mutex']]],
   ['remove',['Remove',['../class_c_region.html#a9af2db9870f822463e9eacf280709085',1,'CRegion::Remove(CUser *pUser)'],['../class_c_region.html#a777dd45a2ba1775a4498bb88db2ed896',1,'CRegion::Remove(CNpc *pNpc)'],['../class_circular_buffer.html#ac102cda706c410ddfb3b9a14c6f7ca80',1,'CircularBuffer::Remove()']]],
+  ['removesessionnames',['RemoveSessionNames',['../class_c_ebenezer_dlg.html#ac35edc55bc8ccf94144a841571751ad2',1,'CEbenezerDlg']]],
   ['requestclansymbols',['RequestClanSymbols',['../class_c_knights_manager.html#a6677d7441e9a4d04fc7487bda2c851af',1,'CKnightsManager']]],
   ['requestnpcin',['RequestNpcIn',['../struct_c_user.html#a81fa900d88c56bc6f04dd549372cc241',1,'CUser']]],
   ['requestuserin',['RequestUserIn',['../struct_c_user.html#a6748180fdbb9426e46a80f1ac193614f',1,'CUser']]],
+  ['retrieveloaderror',['RetrieveLoadError',['../class_c_lua_script.html#a9948b9779dccbd18ca7c2dc2e4a7198f',1,'CLuaScript']]],
   ['rwlock',['RWLock',['../class_r_w_lock.html',1,'']]]
 ];

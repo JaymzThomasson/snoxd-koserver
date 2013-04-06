@@ -1,6 +1,8 @@
 var searchData=
 [
+  ['selectavailablescript',['SelectAvailableScript',['../class_c_lua_engine.html#ae1b36b331c733b225fced48c805286c1',1,'CLuaEngine']]],
   ['send2ai_5fuserupdateinfo',['Send2AI_UserUpdateInfo',['../struct_c_user.html#aa3a4c6d9ea4c86fc2e4ff0eeaf2e1a2d',1,'CUser']]],
+  ['sendflyingsantaorangel',['SendFlyingSantaOrAngel',['../class_c_ebenezer_dlg.html#a93a32125b3be5323a689d02c87682281',1,'CEbenezerDlg']]],
   ['sendgateflag',['SendGateFlag',['../struct_c_npc.html#ae89e4704b0910145745061aeed1a39b7',1,'CNpc']]],
   ['sendinout',['SendInOut',['../struct_c_npc.html#a90a77486abc45f13716417c59c6ca4f2',1,'CNpc']]],
   ['sendloyaltychange',['SendLoyaltyChange',['../struct_c_user.html#a0f976787dfcec4bb70fd84a31f4d9b92',1,'CUser']]],
@@ -18,9 +20,11 @@ var searchData=
   ['setslotitemvalue',['SetSlotItemValue',['../struct_c_user.html#aac77195d935e4a3fab964c6a85f0948e',1,'CUser']]],
   ['setuserability',['SetUserAbility',['../struct_c_user.html#acb962974b77eef0c4a756efc96eec177',1,'CUser']]],
   ['setzoneabilitychange',['SetZoneAbilityChange',['../struct_c_user.html#af48c523af1ab46ac4b6181489af79712',1,'CUser']]],
+  ['shutdown',['Shutdown',['../class_c_lua_script.html#a93e91ab33c80600a32d344c3bfeacc0f',1,'CLuaScript::Shutdown()'],['../class_c_lua_engine.html#a4f281f20086730b196d59badb83fda8f',1,'CLuaEngine::Shutdown()']]],
   ['skilldataload',['SkillDataLoad',['../struct_c_user.html#a67f8bca1151d771685c05c905034bbe2',1,'CUser']]],
   ['skilldataprocess',['SkillDataProcess',['../struct_c_user.html#a80458c7ebb5f7502e9f79a0d17d15c9a',1,'CUser']]],
   ['skilldatasave',['SkillDataSave',['../struct_c_user.html#ae6add5e01360ac49afc9a7bc2c5ddb9b',1,'CUser']]],
+  ['startup',['Startup',['../class_c_ebenezer_dlg.html#a301ebbf684b3c079312414f39415f268',1,'CEbenezerDlg']]],
   ['statechange',['StateChange',['../struct_c_user.html#a8548e9374884aeb368ff59b967a312fa',1,'CUser']]],
   ['statechangeserverdirect',['StateChangeServerDirect',['../struct_c_user.html#af4668119a02b07cdd108cef2853f269e',1,'CUser']]]
 ];

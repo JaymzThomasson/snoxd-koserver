@@ -120,21 +120,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;{</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <a class="code" href="class_c_lua_script.html">CLuaScript</a>();</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordtype">bool</span> Initialise();</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="class_c_lua_script.html#abd347c0aceab8ec3bff8ab107ccb75b5" title="Initialises a Lua script state.">Initialise</a>();</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="comment">// Compiles script to bytecode</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keywordtype">bool</span> CompileScript(<span class="keyword">const</span> <span class="keywordtype">char</span> * filename, BytecodeBuffer &amp; buffer);</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="class_c_lua_script.html#afe966fa00206752390111ecc116bfa90" title="Attempts to compile a Lua script.">CompileScript</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> * filename, BytecodeBuffer &amp; buffer);</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="comment">// Loads bytecode one chunk at a time.</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">int</span> LoadBytecodeChunk(lua_State * L, uint8 * bytes, <span class="keywordtype">size_t</span> len, BytecodeBuffer * buffer);</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">int</span> <a class="code" href="class_c_lua_script.html#ae11f9224f8b278b263824f133f61443e" title="Callback for lua_dump() to read in each chunk of bytecode.">LoadBytecodeChunk</a>(lua_State * L, uint8 * bytes, <span class="keywordtype">size_t</span> len, BytecodeBuffer * buffer);</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="comment">// Executes script from bytecode</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">bool</span> ExecuteScript(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="struct_c_npc.html">CNpc</a> * pNpc, int32 nEventID, int8 bSelectedReward, <span class="keyword">const</span> <span class="keywordtype">char</span> * filename, BytecodeBuffer &amp; bytecode);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="class_c_lua_script.html#a4d2b43a156c07eecc3ec7df44276dca5" title="Executes the Lua script from bytecode.">ExecuteScript</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="struct_c_npc.html">CNpc</a> * pNpc, int32 nEventID, int8 bSelectedReward, <span class="keyword">const</span> <span class="keywordtype">char</span> * filename, BytecodeBuffer &amp; bytecode);</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="comment">// Handles the retrieval of error messages (same error codes used in both the compilation &amp; execution stages)</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordtype">void</span> RetrieveLoadError(<span class="keywordtype">int</span> err, <span class="keyword">const</span> <span class="keywordtype">char</span> * filename);</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_lua_script.html#a9948b9779dccbd18ca7c2dc2e4a7198f" title="Retrieves the associated error for a script load operation.">RetrieveLoadError</a>(<span class="keywordtype">int</span> err, <span class="keyword">const</span> <span class="keywordtype">char</span> * filename);</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordtype">void</span> Shutdown();</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_lua_script.html#a93e91ab33c80600a32d344c3bfeacc0f" title="Waits for &amp; shuts down the current Lua script.">Shutdown</a>();</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    ~<a class="code" href="class_c_lua_script.html">CLuaScript</a>();</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="keyword">private</span>:</div>
@@ -147,10 +147,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;{</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <a class="code" href="class_c_lua_engine.html">CLuaEngine</a>();</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">bool</span> Initialise();</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <a class="code" href="class_c_lua_script.html">CLuaScript</a> * SelectAvailableScript();</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordtype">bool</span> ExecuteScript(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="struct_c_npc.html">CNpc</a> * pNpc, int32 nEventID, int8 bSelectedReward, <span class="keyword">const</span> <span class="keywordtype">char</span> * filename);</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordtype">void</span> Shutdown();</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="class_c_lua_engine.html#ad4f25c6ced44fd6dbcc812798306dad5" title="Initialise Lua scripts.">Initialise</a>();</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <a class="code" href="class_c_lua_script.html">CLuaScript</a> * <a class="code" href="class_c_lua_engine.html#ae1b36b331c733b225fced48c805286c1" title="TO-DO: Pull an available script for use.">SelectAvailableScript</a>();</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="class_c_lua_engine.html#ab7eca5f6cbefb41464439210b4ec1d05" title="Attempts to executes a Lua script. If it has not been compiled already, it will compile the script an...">ExecuteScript</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="struct_c_npc.html">CNpc</a> * pNpc, int32 nEventID, int8 bSelectedReward, <span class="keyword">const</span> <span class="keywordtype">char</span> * filename);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_lua_engine.html#a4f281f20086730b196d59badb83fda8f" title="Shuts down the Lua script pool.">Shutdown</a>();</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    ~<a class="code" href="class_c_lua_engine.html">CLuaEngine</a>();</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="keyword">private</span>:</div>
@@ -165,7 +165,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Apr 4 2013 19:41:14 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

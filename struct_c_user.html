@@ -320,7 +320,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>AddToRegion</b> (int16 new_region_x, int16 new_region_z)</td></tr>
 <tr class="separator:a74e0aa3a5a72e333cf9e8056fc67ce59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f976787dfcec4bb70fd84a31f4d9b92"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_c_user.html#a0f976787dfcec4bb70fd84a31f4d9b92">SendLoyaltyChange</a> (int32 nChangeAmount=0)</td></tr>
-<tr class="memdesc:a0f976787dfcec4bb70fd84a31f4d9b92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adjusts a player's loyalty (NP) and the corresponding packet.  <a href="#a0f976787dfcec4bb70fd84a31f4d9b92">More...</a><br/></td></tr>
+<tr class="memdesc:a0f976787dfcec4bb70fd84a31f4d9b92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adjusts a player's loyalty (NP) and sends the loyalty change packet.  <a href="#a0f976787dfcec4bb70fd84a31f4d9b92">More...</a><br/></td></tr>
 <tr class="separator:a0f976787dfcec4bb70fd84a31f4d9b92"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a328b4a58b83eb31a0c52cbf754508358"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a328b4a58b83eb31a0c52cbf754508358"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>NativeZoneReturn</b> ()</td></tr>
@@ -1124,9 +1124,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ReqUserKickOut</b> (<
 <tr class="memitem:a349082ad7d3d5013987e4ab036f4c0fe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a349082ad7d3d5013987e4ab036f4c0fe"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReqShoppingMall</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="separator:a349082ad7d3d5013987e4ab036f4c0fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e7341d7e39ad5348b34fcceb62fdd46"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6e7341d7e39ad5348b34fcceb62fdd46"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ReqLoadWebItemMall</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
-<tr class="separator:a6e7341d7e39ad5348b34fcceb62fdd46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a069c8613a72a09c9be78d32c646c7cca"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a069c8613a72a09c9be78d32c646c7cca"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReqLoadWebItemMall</b> ()</td></tr>
+<tr class="separator:a069c8613a72a09c9be78d32c646c7cca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2688a7132f3fd01e10e802519f28c815"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2688a7132f3fd01e10e802519f28c815"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReqSkillDataProcess</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="separator:a2688a7132f3fd01e10e802519f28c815"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -3059,7 +3059,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_usingCrypto</b></td
       </table>
 </div><div class="memdoc">
 
-<p>Adjusts a player's loyalty (NP) and the corresponding packet. </p>
+<p>Adjusts a player's loyalty (NP) and sends the loyalty change packet. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">nChangeAmount</td><td>The amount to adjust the loyalty points by. </td></tr>
@@ -3266,8 +3266,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_usingCrypto</b></td
 <p>Changes a player's state directly from the server without any checks. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">bType</td><td>The type. </td></tr>
-    <tr><td class="paramname">nBuff</td><td>The buffer. </td></tr>
+    <tr><td class="paramname">bType</td><td>State type. </td></tr>
+    <tr><td class="paramname">nBuff</td><td>The buff/flag (depending on the state type). </td></tr>
   </table>
   </dd>
 </dl>
@@ -3302,7 +3302,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_usingCrypto</b></td
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Apr 4 2013 19:41:16 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Apr 6 2013 15:23:24 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>
