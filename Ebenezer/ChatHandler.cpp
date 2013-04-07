@@ -109,7 +109,7 @@ void CUser::Chat(Packet & pkt)
 		sessID = GetSocketID();
 	}
 
-	ChatPacket::Construct(&result, type, &strSender, strMessage, bNation, sessID);
+	ChatPacket::Construct(&result, type, strMessage, &strSender, bNation, sessID);
 
 	switch (type) 
 	{
