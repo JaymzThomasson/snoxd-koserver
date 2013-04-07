@@ -129,7 +129,7 @@ void CKingSystem::CheckKingTimer()
 				return;
 			}
 
-			if ((bCurMinute % 30) && !m_bSentFirstMessage)
+			if (!(bCurMinute % 30) && !m_bSentFirstMessage)
 			{
 				m_bSentFirstMessage = true;
 				g_pMain->SendFormattedResource(IDS_KING_PERIOD_OF_ELECTION_MESSAGE, m_byNation, true);
