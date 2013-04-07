@@ -205,6 +205,14 @@ void CUser::ChatTargetSelect(Packet & pkt)
 		}
 		Send(&result);
 	}
+	else if (type == 3)
+	{
+		//Questions
+		uint8 unk1;
+		string sMessage;
+		pkt >> unk1 >> sMessage;
+
+	}
 	// Allow/block PMs
 	else
 	{

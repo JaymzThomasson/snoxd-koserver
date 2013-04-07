@@ -51,9 +51,9 @@ struct _MAGIC_TYPE3
 	uint32	iNum;
 	uint8	bDirectType;
 	uint16	sAngle;
-	uint16	sFirstDamage;
-	uint16	sEndDamage;
-	uint16	sTimeDamage;
+	int16	sFirstDamage;
+	int16	sEndDamage;
+	int16	sTimeDamage;
 	uint8	bRadius;
 	uint8	bDuration;  // duration, in seconds
 	uint8	bAttribute;

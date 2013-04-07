@@ -566,7 +566,7 @@ bool MagicInstance::ExecuteType1()
 		damage = pSkillCaster->GetDamage(pSkillTarget, pSkill);
 		pSkillTarget->HpChange(-damage, pSkillCaster);
 
-		if(pSkillTarget->m_bReflectArmorType != 0)
+		if(pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
 			ReflectDamage(damage);
 
 		// This is more than a little ugly.
@@ -639,7 +639,7 @@ bool MagicInstance::ExecuteType2()
 
 	pSkillTarget->HpChange(-damage, pSkillCaster);     // Reduce target health point.
 
-	if(pSkillTarget->m_bReflectArmorType != 0)
+	if(pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
 		ReflectDamage(damage);
 
 	// This is more than a little ugly.
@@ -720,7 +720,7 @@ bool MagicInstance::ExecuteType3()
 				pTUser->HpChange(damage, pSkillCaster);     // Reduce target health point.
 				if (pSkillCaster->isPlayer())
 					TO_USER(pSkillCaster)->SendTargetHP( 0, (*itr)->GetID(), damage );     // Change the HP of the target.			
-				if(pSkillTarget->m_bReflectArmorType != 0)
+				if(pTUser->m_bReflectArmorType != 0 && pTUser != pSkillCaster)
 					ReflectDamage(damage);
 			}
 			else if ( pType->bDirectType == 2 || pType->bDirectType == 3 )    // Magic or Skill Point related !
@@ -762,7 +762,7 @@ bool MagicInstance::ExecuteType3()
 						pTUser->m_tHPStartTime[k] = pTUser->m_tHPLastTime[k] = UNIXTIME;     // The durational magic routine.
 						pTUser->m_bHPDuration[k] = pType->bDuration;
 						pTUser->m_bHPInterval[k] = 2;		
-						pTUser->m_bHPAmount[k] = duration_damage / ( pTUser->m_bHPDuration[k] / pTUser->m_bHPInterval[k] ) ;
+						pTUser->m_bHPAmount[k] = duration_damage / ( (float)pTUser->m_bHPDuration[k] / (float)pTUser->m_bHPInterval[k] ) ; // now to figure out which one was zero? :p, neither, that's the problem >_<
 						pTUser->m_sSourceID[k] = sCasterID;
 						break;
 					}
@@ -810,7 +810,7 @@ bool MagicInstance::ExecuteType4()
 	if (pType == NULL)
 		return false;
 
-	if (!bIsRecastingSavedMagic && pSkillTarget->HasSavedMagic(nSkillID))
+	if (!bIsRecastingSavedMagic && sTargetID > 0 && pSkillTarget->HasSavedMagic(nSkillID))
 		return false;
 
 	if (sTargetID == -1)
