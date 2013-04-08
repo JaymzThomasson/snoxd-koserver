@@ -54,7 +54,6 @@ public:
 		if (itr == pList->end())
 		{
 			_KING_ELECTION_LIST * pEntry = new _KING_ELECTION_LIST;
-			pEntry->bResigned = false;
 
 			_dbCommand->FetchUInt16(4, pEntry->sKnights);
 			_dbCommand->FetchUInt32(5, pEntry->nVotes); // probably not needed as this is all handled in the procs as far as I know

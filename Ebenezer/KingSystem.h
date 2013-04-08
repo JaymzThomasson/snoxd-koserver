@@ -8,7 +8,6 @@ struct _KING_ELECTION_LIST
 {
 	uint16 sKnights;
 	uint32 nVotes;
-	bool bResigned;
 };
 
 struct ci_compare

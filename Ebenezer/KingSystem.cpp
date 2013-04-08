@@ -638,8 +638,13 @@ void CKingSystem::InsertNominee(std::string & strNominee)
 	if (candidateItr != m_candidateList.end())
 		return;
 
-	// Point it to the same data we have stored in our senator list...
-	m_candidateList.insert(make_pair(strNominee, senatorItr->second));
+	// Copy the information we need from our senator list entry
+	// NOTE: This is fairly dumb, so we should work this out when the system's functional and 
+	// we're open to straying from official table designs.
+	_KING_ELECTION_LIST * pEntry = new _KING_ELECTION_LIST;
+	memcpy(pEntry, senatorItr->second, sizeof(_KING_ELECTION_LIST));
+
+	m_candidateList.insert(make_pair(strNominee, pEntry));
 }
 
 /**
@@ -1286,7 +1291,8 @@ void CKingSystem::ResetElectionLists()
 		delete itr->second;
 	m_senatorList.clear();
 
-	// This just refers to senator list data.
+	foreach (itr, m_candidateList)
+		delete itr->second;
 	m_candidateList.clear();
 	m_resignedCandidateList.clear();
 }
