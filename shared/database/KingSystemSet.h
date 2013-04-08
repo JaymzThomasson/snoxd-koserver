@@ -80,6 +80,8 @@ public:
 		_dbCommand->FetchString(i++, pData->m_strKingName);
 		_dbCommand->FetchString(i++, pData->m_strImRequestID);
 
+		pData->ResetElectionLists();
+
 		return true;
 	}
 
