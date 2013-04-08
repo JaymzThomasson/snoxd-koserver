@@ -37,26 +37,29 @@ public:
 
 		_dbCommand->FetchByte(2, byType);
 
-		// Only support nominated/elected Kings for now.
-		if (byType != 4)
+		// Only support senators / nominated/elected Kings for now.
+		if (byType != 3 && byType != 4)
 			return true;
 
 		std::string strUserID;
 		_dbCommand->FetchString(3, strUserID);
 
-		// Is this user added to the list already?
 		FastGuard lock(pData->m_lock);
-		KingElectionList::iterator itr = pData->m_electionCandidates.find(strUserID);
+		KingElectionList * pList = (byType == 3 ? &pData->m_senatorList : &pData->m_candidateList);
+
+		// Is this user added to the list already?
+		KingElectionList::iterator itr = pList->find(strUserID);
 
 		// Nope, let's add them.
-		if (itr == pData->m_electionCandidates.end())
+		if (itr == pList->end())
 		{
 			_KING_ELECTION_LIST * pEntry = new _KING_ELECTION_LIST;
+			pEntry->bResigned = false;
 
 			_dbCommand->FetchUInt16(4, pEntry->sKnights);
 			_dbCommand->FetchUInt32(5, pEntry->nVotes); // probably not needed as this is all handled in the procs as far as I know
 
-			pData->m_electionCandidates.insert(make_pair(strUserID, pEntry));
+			pList->insert(make_pair(strUserID, pEntry));
 		}
 
 		return true;

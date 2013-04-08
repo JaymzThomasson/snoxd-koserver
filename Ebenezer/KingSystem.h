@@ -2,18 +2,26 @@
 
 #include "../shared/Mutex.h"
 #include <set>
-#include <hash_map>
+#include <map>
 
 struct _KING_ELECTION_LIST
 {
-	uint8 byType;
 	uint16 sKnights;
 	uint32 nVotes;
+	bool bResigned;
+};
+
+struct ci_compare
+{
+	bool operator() (const std::string & str1, const std::string & str2) const {
+		return _stricmp(str1.c_str(), str2.c_str()) < 0;
+	}
 };
 
 typedef std::set<uint16> ClanIDSet;
-typedef stdext::hash_map<std::string, std::string> KingCandidacyNoticeBoardMap; 
-typedef stdext::hash_map<std::string, _KING_ELECTION_LIST *> KingElectionList; 
+typedef std::map<std::string, std::string, ci_compare> KingCandidacyNoticeBoardMap; 
+typedef std::map<std::string, _KING_ELECTION_LIST *, ci_compare> KingElectionList; 
+typedef std::set<std::string, ci_compare> ResignedCandidateList;
 
 enum ElectionType
 {
@@ -62,6 +70,7 @@ public:
 	void ElectionSystem(CUser * pUser, Packet & pkt);
 	void ElectionScheduleConfirmation(CUser * pUser, Packet & pkt);
 	void CandidacyRecommend(CUser * pUser, Packet & pkt);
+	void InsertNominee(std::string & strNominee);
 	void CandidacyNoticeBoard(CUser * pUser, Packet & pkt);
 	void ElectionPoll(CUser * pUser, Packet & pkt);
 	void CandidacyResign(CUser * pUser, Packet & pkt);
@@ -126,8 +135,24 @@ public:
 
 	KingCandidacyNoticeBoardMap m_noticeBoardMap;
 
-	KingElectionList m_electionCandidates,
-		m_resignedCandidates;
+	/**
+	 * @brief	List of senators.
+	 * 			Senators are the top 10 clan leaders and are
+	 * 			able to nominate a King or propose impeachment.
+	 */
+	KingElectionList m_senatorList;
+
+	/**
+	 * @brief	List of candidates still in the running for King.
+	 * 			Candidates for election must be senators,
+	 * 			so this data just refers to the above senator list.
+	 */
+	KingElectionList m_candidateList;
+
+	/**
+	 * @brief	List of resigned candidates.
+	 */
+	ResignedCandidateList m_resignedCandidateList;
 
 	// TO-DO: Give this a more appropriate name.
 	bool m_bSentFirstMessage;

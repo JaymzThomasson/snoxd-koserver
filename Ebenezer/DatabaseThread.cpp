@@ -776,10 +776,20 @@ void CKingSystem::HandleDatabaseRequest_Election(CUser * pUser, Packet & pkt)
 
 			Packet result(WIZ_KING, uint8(KING_ELECTION));
 			std::string strNominee;
+			int16 resultCode;
 			pkt >> strNominee;
+			resultCode = g_DBAgent.UpdateCandidacyRecommend(pUser->m_strUserID, strNominee, pUser->GetNation());
 
-			result	<< opcode 
-					<< g_DBAgent.UpdateCandidacyRecommend(pUser->m_strUserID, strNominee, pUser->GetNation());
+			// On success, we need to sync the local list.
+			if (resultCode == 1)
+			{
+				CKingSystem * pData = g_pMain->m_KingSystemArray.GetData(pUser->GetNation());
+				if (pData == NULL)
+					return;
+
+				pData->InsertNominee(strNominee);
+			}
+			result << opcode << resultCode;
 			pUser->Send(&result);
 		} break;
 

@@ -218,6 +218,7 @@ void CKingSystem::UpdateElectionStatus(uint8 byElectionStatus)
  */
 void CKingSystem::UpdateElectionList(uint8 byElectionListType, bool bDeleteList, uint16 sClanID, std::string & strUserID, CUser * pUser /*= NULL*/)
 {
+	FastGuard lock(m_lock);
 	// byElectionListType:
 	// 3 = senator
 	Packet result(WIZ_KING, uint8(KING_ELECTION));
@@ -228,6 +229,36 @@ void CKingSystem::UpdateElectionList(uint8 byElectionListType, bool bDeleteList,
 			<< sClanID << strUserID;
 
 	g_pMain->AddDatabaseRequest(result, pUser);
+
+	KingElectionList * pList = NULL;
+	switch (byElectionListType)
+	{
+	case 3: 
+		pList = &m_senatorList;
+		break;
+
+	case 4:
+		pList = &m_candidateList;
+		break;
+	}
+
+	if (pList == NULL)
+		return;
+
+#if 0
+	KingElectionList::iterator itr = pList->find(strUserID);
+	if (bDeleteList)
+	{
+		if (itr != pList->end())
+		{
+			delete itr->second;
+			pList->erase(itr);
+		}
+	}
+	else
+	{
+	}
+#endif
 }
 
 /**
@@ -319,6 +350,25 @@ void CKingSystem::LoadRecommendList()
 
 		// Add user as senator.
 		UpdateElectionList(3, false, pRating->sClanID, pKnights->m_strChief);
+
+		// If the senator's online, we can send them an announcement
+		// to tell them they can nominate a King.
+		CUser * pUser = g_pMain->GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
+		if (pUser != NULL)
+		{
+			Packet result;
+			std::string notice;
+
+			// %s can nominate a King
+			g_pMain->GetServerResource(IDS_KING_RECOMMEND_REQUEST_MESSAGE, &notice, pKnights->m_strChief.c_str());
+
+			// Wrap it in a "#### NOTICE : ####" block.
+			g_pMain->GetServerResource(IDP_ANNOUNCEMENT, &notice, notice.c_str());
+
+			// Construct & send the chat/announcement packet
+			ChatPacket::Construct(&result, WAR_SYSTEM_CHAT, &notice);
+			pUser->Send(&result);
+		}
 
 		// add to our top 10 ranked clan set.
 		m_top10ClanSet.insert(pRating->sClanID);
@@ -555,7 +605,7 @@ void CKingSystem::CandidacyRecommend(CUser * pUser, Packet & pkt)
 		// ... of a top 10 clan.
 		|| m_top10ClanSet.find(pUser->GetClanID()) == m_top10ClanSet.end()
 		// ... and they haven't resigned their candidacy.
-		|| m_resignedCandidates.find(pUser->m_strUserID) != m_resignedCandidates.end())
+		|| m_resignedCandidateList.find(pUser->m_strUserID) != m_resignedCandidateList.end())
 	{
 		result << int16(-3);
 		pUser->Send(&result);
@@ -565,6 +615,31 @@ void CKingSystem::CandidacyRecommend(CUser * pUser, Packet & pkt)
 	// Send request to database.
 	result << strUserID;
 	g_pMain->AddDatabaseRequest(result, pUser);
+}
+
+/**
+ * @brief	Inserts the nominated candidate to the election list.
+ *
+ * @param	strNominee	The nominee.
+ */
+void CKingSystem::InsertNominee(std::string & strNominee)
+{
+	FastGuard lock(m_lock);
+
+	// All nominees must be senators.
+	// No need to create duplicate data, so just find & reuse the same data.
+	KingElectionList::iterator senatorItr = m_senatorList.find(strNominee);
+	if (senatorItr == m_senatorList.end())
+		return;
+
+	// Now see if the candidate already exists in the list.
+	// If they don't, no need to do anything.
+	KingElectionList::iterator candidateItr = m_candidateList.find(strNominee);
+	if (candidateItr != m_candidateList.end())
+		return;
+
+	// Point it to the same data we have stored in our senator list...
+	m_candidateList.insert(make_pair(strNominee, senatorItr->second));
 }
 
 /**
@@ -759,10 +834,10 @@ void CKingSystem::ElectionPoll(CUser * pUser, Packet & pkt)
 	// Show candidate list
 	case 1:
 		{
-			uint8 count = (uint8)m_electionCandidates.size();
+			uint8 count = (uint8)m_candidateList.size();
 			result << uint16(1) << count;
 			result.SByte();
-			foreach (itr, m_electionCandidates)
+			foreach (itr, m_candidateList)
 			{
 				CKnights * pKnights = g_pMain->GetClanPtr(itr->second->sKnights);
 				result << itr->first; // candidate's name
@@ -784,8 +859,8 @@ void CKingSystem::ElectionPoll(CUser * pUser, Packet & pkt)
 				return;
 
 			// Candidate voted for isn't in list...
-			KingElectionList::iterator itr = m_electionCandidates.find(strCandidate);
-			if (itr == m_electionCandidates.end())
+			KingElectionList::iterator itr = m_candidateList.find(strCandidate);
+			if (itr == m_candidateList.end())
 			{
 				result << int16(-2);
 				pUser->Send(&result);
@@ -829,10 +904,10 @@ void CKingSystem::CandidacyResign(CUser * pUser, Packet & pkt)
 	}
 
 	FastGuard lock(m_lock);
-	KingElectionList::iterator itr = m_electionCandidates.find(pUser->m_strUserID);
+	KingElectionList::iterator itr = m_candidateList.find(pUser->m_strUserID);
 
 	// Do we even exist in the candidate list?
-	if (itr == m_electionCandidates.end())
+	if (itr == m_candidateList.end())
 	{
 		result << int16(-3);
 		pUser->Send(&result);
@@ -840,10 +915,10 @@ void CKingSystem::CandidacyResign(CUser * pUser, Packet & pkt)
 	}
 
 	// Add user to our resigned candidates list so they can't be re-nominated.
-	m_resignedCandidates.insert(make_pair(pUser->m_strUserID, itr->second));
+	m_resignedCandidateList.insert(pUser->m_strUserID);
 
 	// Remove them from our main candidates list.
-	m_electionCandidates.erase(itr);
+	m_candidateList.erase(itr);
 
 	UpdateElectionList(4, // elected King
 		true, // remove ourselves from the list
@@ -1206,13 +1281,14 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 void CKingSystem::ResetElectionLists()
 {
 	FastGuard lock(m_lock);
-	foreach (itr, m_electionCandidates)
-		delete itr->second;
-	m_electionCandidates.clear();
 
-	foreach (itr, m_resignedCandidates)
+	foreach (itr, m_senatorList)
 		delete itr->second;
-	m_resignedCandidates.clear();
+	m_senatorList.clear();
+
+	// This just refers to senator list data.
+	m_candidateList.clear();
+	m_resignedCandidateList.clear();
 }
 
 CKingSystem::~CKingSystem()
