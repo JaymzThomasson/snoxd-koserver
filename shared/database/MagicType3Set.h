@@ -15,9 +15,9 @@ public:
 
 		_dbCommand->FetchUInt32(1, pData->iNum);
 		_dbCommand->FetchByte(2, pData->bDirectType);
-		_dbCommand->FetchUInt16(3, pData->sFirstDamage);
-		_dbCommand->FetchUInt16(4, pData->sEndDamage);
-		_dbCommand->FetchUInt16(5, pData->sTimeDamage);
+		_dbCommand->FetchInt16(3, pData->sFirstDamage);
+		_dbCommand->FetchInt16(4, pData->sEndDamage);
+		_dbCommand->FetchInt16(5, pData->sTimeDamage);
 		_dbCommand->FetchByte(6, pData->bRadius);
 		_dbCommand->FetchByte(7, pData->bDuration);
 		_dbCommand->FetchByte(8, pData->bAttribute);

@@ -566,7 +566,7 @@ bool MagicInstance::ExecuteType1()
 		damage = pSkillCaster->GetDamage(pSkillTarget, pSkill);
 		pSkillTarget->HpChange(-damage, pSkillCaster);
 
-		if(pSkillTarget->m_bReflectArmorType != 0)
+		if(pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
 			ReflectDamage(damage);
 
 		// This is more than a little ugly.
@@ -639,7 +639,7 @@ bool MagicInstance::ExecuteType2()
 
 	pSkillTarget->HpChange(-damage, pSkillCaster);     // Reduce target health point.
 
-	if(pSkillTarget->m_bReflectArmorType != 0)
+	if(pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
 		ReflectDamage(damage);
 
 	// This is more than a little ugly.
@@ -720,7 +720,7 @@ bool MagicInstance::ExecuteType3()
 				pTUser->HpChange(damage, pSkillCaster);     // Reduce target health point.
 				if (pSkillCaster->isPlayer())
 					TO_USER(pSkillCaster)->SendTargetHP( 0, (*itr)->GetID(), damage );     // Change the HP of the target.			
-				if(pSkillTarget->m_bReflectArmorType != 0)
+				if(pTUser->m_bReflectArmorType != 0 && pTUser != pSkillCaster)
 					ReflectDamage(damage);
 			}
 			else if ( pType->bDirectType == 2 || pType->bDirectType == 3 )    // Magic or Skill Point related !
@@ -762,7 +762,7 @@ bool MagicInstance::ExecuteType3()
 						pTUser->m_tHPStartTime[k] = pTUser->m_tHPLastTime[k] = UNIXTIME;     // The durational magic routine.
 						pTUser->m_bHPDuration[k] = pType->bDuration;
 						pTUser->m_bHPInterval[k] = 2;		
-						pTUser->m_bHPAmount[k] = duration_damage / ( pTUser->m_bHPDuration[k] / pTUser->m_bHPInterval[k] ) ;
+						pTUser->m_bHPAmount[k] = (int16)(duration_damage / ( (float)pTUser->m_bHPDuration[k] / (float)pTUser->m_bHPInterval[k] )) ; // now to figure out which one was zero? :p, neither, that's the problem >_<
 						pTUser->m_sSourceID[k] = sCasterID;
 						break;
 					}
@@ -810,7 +810,7 @@ bool MagicInstance::ExecuteType4()
 	if (pType == NULL)
 		return false;
 
-	if (!bIsRecastingSavedMagic && pSkillTarget->HasSavedMagic(nSkillID))
+	if (!bIsRecastingSavedMagic && sTargetID > 0 && pSkillTarget->HasSavedMagic(nSkillID))
 		return false;
 
 	if (sTargetID == -1)
@@ -858,149 +858,8 @@ bool MagicInstance::ExecuteType4()
 		if ( nSkillID > 500000 && pTUser->isPlayer() )
 			pTUser->InsertSavedMagic(nSkillID, pType->sDuration);
 
-		switch (pType->bBuffType)
+		if(!GrantType4Buff(pType, pTUser))
 		{
-			case BUFF_TYPE_HP_MP:
-				if (pType->sMaxHP == 0 && pType->sMaxHPPct > 0)
-					pTUser->m_sMaxHPAmount = (pType->sMaxHPPct - 100) * (pTUser->GetMaxHealth() - pTUser->m_sMaxHPAmount) / 100;
-				else
-					pTUser->m_sMaxHPAmount = pType->sMaxHP;
-
-				if (pType->sMaxMP == 0 && pType->sMaxMPPct > 0)
-					pTUser->m_sMaxMPAmount = (pType->sMaxMPPct - 100) * (pTUser->m_iMaxMp - pTUser->m_sMaxMPAmount) / 100;
-				else
-					pTUser->m_sMaxMPAmount = pType->sMaxMP;
-				break;
-
-			case BUFF_TYPE_AC:
-				if (pType->sAC == 0 && pType->sACPct > 0)
-					pTUser->m_sACAmount = pTUser->m_sTotalAc * (pType->sACPct - 100) / 100;
-				else
-					pTUser->m_sACAmount = pType->sAC;
-				break;
-
-			case BUFF_TYPE_SIZE:
-				// These really shouldn't be hardcoded, but with mgame's implementation it doesn't seem we have a choice (as is).
-				if (nSkillID == 490034)	// Bezoar!!!
-					pTUser->StateChangeServerDirect(3, ABNORMAL_GIANT); 
-				else if (nSkillID == 490035)	// Rice Cake!!!
-					pTUser->StateChangeServerDirect(3, ABNORMAL_DWARF); 
-				break;
-
-			case BUFF_TYPE_DAMAGE:
-				pTUser->m_bAttackAmount = pType->bAttack;
-				break;
-
-			case BUFF_TYPE_ATTACK_SPEED:
-				pTUser->m_bAttackSpeedAmount = pType->bAttackSpeed;
-				break;
-
-			case BUFF_TYPE_SPEED:
-				pTUser->m_bSpeedAmount = pType->bSpeed;
-				break;
-
-			case BUFF_TYPE_STATS:
-				TO_USER(pTUser)->setStatBuff(STAT_STR, pType->bStr);
-				TO_USER(pTUser)->setStatBuff(STAT_STA, pType->bSta);
-				TO_USER(pTUser)->setStatBuff(STAT_DEX, pType->bDex);
-				TO_USER(pTUser)->setStatBuff(STAT_INT, pType->bIntel);
-				TO_USER(pSkillCaster)->setStatBuff(STAT_CHA, pType->bCha);	
-				break;
-
-			case BUFF_TYPE_RESISTANCES:
-				pTUser->m_bFireRAmount = pType->bFireR;
-				pTUser->m_bColdRAmount = pType->bColdR;
-				pTUser->m_bLightningRAmount = pType->bLightningR;
-				pTUser->m_bMagicRAmount = pType->bMagicR;
-				pTUser->m_bDiseaseRAmount = pType->bDiseaseR;
-				pTUser->m_bPoisonRAmount = pType->bPoisonR;
-				break;
-
-			case BUFF_TYPE_ACCURACY:
-				pTUser->m_bHitRateAmount = pType->bHitRate;
-				pTUser->m_sAvoidRateAmount = pType->sAvoidRate;
-				break;	
-
-			case BUFF_TYPE_MAGIC_POWER:
-				pTUser->m_sMagicAttackAmount = (pType->bMagicAttack - 100) * TO_USER(pTUser)->getStat(STAT_CHA) / 100;
-				break;
-
-			case BUFF_TYPE_EXPERIENCE:
-				pTUser->m_bExpGainAmount = pType->bExpPct;
-				break;
-
-			case BUFF_TYPE_WEIGHT:
-				pTUser->m_bMaxWeightAmount = pType->bExpPct;
-				break;
-
-			case BUFF_TYPE_WEAPON_DAMAGE:
-				// uses pType->Attack
-				break;
-
-			case BUFF_TYPE_WEAPON_AC:
-				if (pType->sAC == 0 && pType->sACPct > 0)
-					pTUser->m_sACAmount = pTUser->m_sTotalAc * (pType->sACPct - 100) / 100;
-				else
-					pTUser->m_sACAmount = pType->sAC;
-				break;
-
-			case BUFF_TYPE_LOYALTY:
-				// uses pType->ExpPct
-				break;
-
-			case BUFF_TYPE_NOAH_BONUS:
-				break;
-
-			case BUFF_TYPE_PREMIUM_MERCHANT:
-				TO_USER(pTUser)->m_bPremiumMerchant = true;
-				break;
-
-			case BUFF_TYPE_ATTACK_SPEED_ARMOR:
-				pTUser->m_sACAmount -= pType->sAC;
-				pTUser->m_bAttackAmount = pType->bAttack;
-				break;
-
-			case BUFF_TYPE_DAMAGE_DOUBLE:
-				pTUser->m_bAttackAmount = pType->bAttack;
-				break;
-
-			case BUFF_TYPE_DISABLE_TARGETING:
-				pTUser->m_bIsBlinded = true;
-				break;
-
-			case BUFF_TYPE_BLIND:
-				pTUser->m_bIsBlinded = true;
-				if (pTUser->isPlayer())
-					TO_USER(pTUser)->SendUserStatusUpdate(USER_STATUS_BLIND, USER_STATUS_INFLICT);
-				break;
-
-			case BUFF_TYPE_FREEZE:
-				//Proportianal to the target user's current HP.
-				pTUser->m_bSpeedAmount = pType->bSpeed;
-				break;
-
-			case BUFF_TYPE_INSTANT_MAGIC:
-				pTUser->m_bInstantCast = true;
-				break;
-
-			case BUFF_TYPE_DECREASE_RESIST:
-				pTUser->m_bFireRAmount			= -(pType->bFireR / 100)	*	(pTUser->m_bFireR		- pTUser->m_bFireRAmount);
-				pTUser->m_bColdRAmount			= -(pType->bColdR / 100)	*	(pTUser->m_bColdR		- pTUser->m_bColdRAmount);
-				pTUser->m_bLightningRAmount		= -(pType->bLightningR / 100) * (pTUser->m_bLightningR - pTUser->m_bLightningRAmount);
-				pTUser->m_bMagicRAmount			= -(pType->bMagicR / 100)	*	(pTUser->m_bMagicR		- pTUser->m_bMagicRAmount);
-				pTUser->m_bDiseaseRAmount		= -(pType->bDiseaseR / 100) *	(pTUser->m_bDiseaseR	- pTUser->m_bDiseaseRAmount);
-				pTUser->m_bPoisonRAmount		= -(pType->bPoisonR / 100)	*	(pTUser->m_bPoisonR	- pTUser->m_bPoisonRAmount);
-				break;
-
-			case BUFF_TYPE_MAGE_ARMOR:
-				pTUser->m_bReflectArmorType =  pSkill->sSkill % 100;
-				break;
-
-			case BUFF_TYPE_PROHIBIT_INVIS:
-				pTUser->m_bCanStealth = false;
-				break;
-
-			default:
 				bResult = 0;
 				goto fail_return;
 		}
@@ -1773,152 +1632,7 @@ void MagicInstance::Type4Cancel()
 	if (pType == NULL)
 		return;
 
-	bool buff = false;
-	switch (pType->bBuffType)
-	{
-		case BUFF_TYPE_HP_MP:
-			if (pSkillCaster->m_sMaxHPAmount > 0
-				|| pSkillCaster->m_sMaxMPAmount > 0)
-			{
-				pSkillCaster->m_sMaxHPAmount = 0;
-				pSkillCaster->m_sMaxMPAmount = 0;
-				buff = true;
-			}
-			break;
-
-		case BUFF_TYPE_AC:
-			if (pSkillCaster->m_sACAmount > 0) 
-			{
-				pSkillCaster->m_sACAmount = 0;
-				buff = true;
-			}
-			break;
-
-		case BUFF_TYPE_SIZE:
-			if (pSkillCaster->isPlayer())
-			{
-				TO_USER(pSkillCaster)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
-				buff = true;
-			}
-			break;
-
-		case BUFF_TYPE_DAMAGE:
-			if (pSkillCaster->m_bAttackAmount > 100) 
-			{
-				pSkillCaster->m_bAttackAmount = 100;
-				buff = true;
-			}
-			break;
-
-		case BUFF_TYPE_ATTACK_SPEED:
-			if (pSkillCaster->m_bAttackSpeedAmount > 100) 
-			{
-				pSkillCaster->m_bAttackSpeedAmount = 100;	
-				buff = true;
-			}
-			break;	
-
-		case BUFF_TYPE_SPEED:
-			if (pSkillCaster->m_bSpeedAmount > 100)
-			{
-				pSkillCaster->m_bSpeedAmount = 100;
-				buff = true;
-			}
-			break;
-
-		case BUFF_TYPE_STATS:
-			if (pSkillCaster->isPlayer()
-				&& TO_USER(pSkillCaster)->getStatBuffTotal() > 0) {
-				// TO-DO: Implement reset
-				memset(TO_USER(pSkillCaster)->m_bStatBuffs, 0, sizeof(uint8) * STAT_COUNT);
-				buff = true;
-			}
-			break;
-
-		case BUFF_TYPE_RESISTANCES:
-			if ((pSkillCaster->m_bFireRAmount + pSkillCaster->m_bColdRAmount + pSkillCaster->m_bLightningRAmount +
-				pSkillCaster->m_bMagicRAmount + pSkillCaster->m_bDiseaseRAmount + pSkillCaster->m_bPoisonRAmount) > 0) {
-				pSkillCaster->m_bFireRAmount = 0;
-				pSkillCaster->m_bColdRAmount = 0;
-				pSkillCaster->m_bLightningRAmount = 0;
-				pSkillCaster->m_bMagicRAmount = 0;
-				pSkillCaster->m_bDiseaseRAmount = 0;
-				pSkillCaster->m_bPoisonRAmount = 0;
-				buff = true;
-			}
-			break;	
-
-		case BUFF_TYPE_ACCURACY:
-			if ((pSkillCaster->m_bHitRateAmount + pSkillCaster->m_sAvoidRateAmount) > 200)
-			{
-				pSkillCaster->m_bHitRateAmount = 100;
-				pSkillCaster->m_sAvoidRateAmount = 100;
-				buff = true;
-			}
-			break;
-
-		case BUFF_TYPE_MAGIC_POWER:
-			if (pSkillCaster->m_sMagicAttackAmount > 0)
-			{
-				pSkillCaster->m_sMagicAttackAmount = 0;
-				buff = true;
-			}
-			break;
-
-		case BUFF_TYPE_EXPERIENCE:
-			if (pSkillCaster->m_bExpGainAmount > 100)
-			{
-				pSkillCaster->m_bExpGainAmount = 100;
-				buff = true;
-			}
-			break;
-
-		case BUFF_TYPE_WEIGHT:
-			if (pSkillCaster->m_bMaxWeightAmount > 100)
-			{
-				pSkillCaster->m_bMaxWeightAmount = 100;
-				buff = true;
-			}
-			break;
-
-		case BUFF_TYPE_WEAPON_DAMAGE:
-			// TO-DO
-			break;
-
-		case BUFF_TYPE_WEAPON_AC:
-			if (pSkillCaster->m_sACAmount > 0) 
-			{
-				pSkillCaster->m_sACAmount = 0;
-				buff = true;
-			}
-			break;
-		case BUFF_TYPE_LOYALTY:
-			// TO-DO
-			break;
-		case BUFF_TYPE_PREMIUM_MERCHANT:
-			if(TO_USER(pSkillCaster)->m_bPremiumMerchant)
-				TO_USER(pSkillCaster)->m_bPremiumMerchant = false;
-			break;
-
-		case BUFF_TYPE_ATTACK_SPEED_ARMOR:
-			pSkillCaster->m_sACAmount += pType->sAC;
-			pSkillCaster->m_bAttackAmount = 100;
-			break;
-
-		case BUFF_TYPE_DAMAGE_DOUBLE:
-			pSkillCaster->m_bAttackAmount = pType->bAttack;
-			break;
-
-		case BUFF_TYPE_INSTANT_MAGIC:
-			if (pSkillCaster->m_bInstantCast)
-				pSkillCaster->m_bInstantCast = false;
-			break;
-
-		case BUFF_TYPE_MAGE_ARMOR:
-			if(pSkillTarget->m_bReflectArmorType > 0)
-				pSkillTarget->m_bReflectArmorType = 0;
-			break;
-	}
+	bool buff = GrantType4Buff(pType, TO_USER(pSkillCaster), false);
 	
 	if (buff)
 	{
@@ -2055,4 +1769,213 @@ void MagicInstance::ReflectDamage(int32 damage)
 			pSkillCaster->HpChange(-damage, pSkillTarget);
 		break;
 	}
+}
+
+bool MagicInstance::GrantType4Buff(_MAGIC_TYPE4 *pType, CUser *pTarget, bool bIsBuff /* = true*/)
+{
+	bool bResult = true;
+
+	switch (pType->bBuffType)
+	{
+	case BUFF_TYPE_HP_MP:
+			if (pType->sMaxHP == 0 && pType->sMaxHPPct > 0)
+				pTarget->m_sMaxHPAmount = (pType->sMaxHPPct - 100) * (pTarget->GetMaxHealth() - pTarget->m_sMaxHPAmount) / 100;
+			else
+				pTarget->m_sMaxHPAmount = pType->sMaxHP;
+
+			pTarget->m_sMaxHPAmount *= bIsBuff; //"Anything * 0 = 0" and "Anything * 1 = Anything"
+
+			if (pType->sMaxMP == 0 && pType->sMaxMPPct > 0)
+				pTarget->m_sMaxMPAmount = (pType->sMaxMPPct - 100) * (pTarget->m_iMaxMp - pTarget->m_sMaxMPAmount) / 100;
+			else
+				pTarget->m_sMaxMPAmount = pType->sMaxMP;
+
+			pTarget->m_sMaxMPAmount *= bIsBuff; //"Anything * 0 = 0" and "Anything * 1 = Anything"
+			break;
+
+		case BUFF_TYPE_AC:
+			if (pType->sAC == 0 && pType->sACPct > 0)
+				pTarget->m_sACAmount = pTarget->m_sTotalAc * (pType->sACPct - 100) / 100;
+			else
+				pTarget->m_sACAmount = pType->sAC;
+
+			pTarget->m_sACAmount *= bIsBuff; //"Anything * 0 = 0" and "Anything * 1 = Anything"
+			break;
+
+		case BUFF_TYPE_SIZE:
+			if (pSkillCaster->isPlayer())
+				TO_USER(pSkillCaster)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
+			break;
+
+		case BUFF_TYPE_DAMAGE:
+			pTarget->m_bAttackAmount = bIsBuff ? pType->bAttack : 100;
+			break;
+
+		case BUFF_TYPE_ATTACK_SPEED:
+			pTarget->m_bAttackSpeedAmount = bIsBuff ? pType->bAttackSpeed : 100;
+			break;
+
+		case BUFF_TYPE_SPEED:
+			pTarget->m_bSpeedAmount = bIsBuff ? pType->bSpeed : 100;
+			break;
+
+		case BUFF_TYPE_STATS:										//"Anything * 0 = 0" and "Anything * 1 = Anything"
+			if (pSkillCaster->isPlayer())
+			{
+				TO_USER(pTarget)->setStatBuff(STAT_STR, pType->bStr		* bIsBuff);
+				TO_USER(pTarget)->setStatBuff(STAT_STA, pType->bSta		* bIsBuff);
+				TO_USER(pTarget)->setStatBuff(STAT_DEX, pType->bDex		* bIsBuff);
+				TO_USER(pTarget)->setStatBuff(STAT_INT, pType->bIntel	* bIsBuff);
+				TO_USER(pTarget)->setStatBuff(STAT_CHA, pType->bCha		* bIsBuff);	
+			}
+			break;
+
+		case BUFF_TYPE_RESISTANCES:								//"Anything * 0 = 0" and "Anything * 1 = Anything"
+			pTarget->m_bFireRAmount = pType->bFireR				* bIsBuff;
+			pTarget->m_bColdRAmount = pType->bColdR				* bIsBuff;
+			pTarget->m_bLightningRAmount = pType->bLightningR	* bIsBuff;
+			pTarget->m_bMagicRAmount = pType->bMagicR			* bIsBuff;
+			pTarget->m_bDiseaseRAmount = pType->bDiseaseR		* bIsBuff;
+			pTarget->m_bPoisonRAmount = pType->bPoisonR			* bIsBuff;
+			break;
+
+		case BUFF_TYPE_ACCURACY:
+			pTarget->m_bHitRateAmount = bIsBuff ? pType->bHitRate : 100;
+			pTarget->m_sAvoidRateAmount = bIsBuff ? pType->sAvoidRate: 100;
+			break;	
+
+		case BUFF_TYPE_MAGIC_POWER:
+			pTarget->m_sMagicAttackAmount = (pType->bMagicAttack - 100) * TO_USER(pTarget)->getStat(STAT_CHA) / 100;
+			pTarget->m_sMagicAttackAmount *= bIsBuff; //"Anything * 0 = 0" and "Anything * 1 = Anything"
+			break;
+
+		case BUFF_TYPE_EXPERIENCE:
+			pTarget->m_bExpGainAmount = bIsBuff ? pType->bExpPct : 100;
+			break;
+
+		case BUFF_TYPE_WEIGHT:
+			pTarget->m_bMaxWeightAmount = bIsBuff ? pType->bExpPct : 100;
+			break;
+
+		case BUFF_TYPE_WEAPON_DAMAGE:
+			// uses pType->Attack
+			break;
+
+		case BUFF_TYPE_WEAPON_AC:
+			if (pType->sAC == 0 && pType->sACPct > 0)
+				pTarget->m_sACAmount = pTarget->m_sTotalAc * (pType->sACPct - 100) / 100;
+			else
+				pTarget->m_sACAmount = pType->sAC;
+			pTarget->m_sACAmount *= bIsBuff;//"Anything * 0 = 0" and "Anything * 1 = Anything"
+			break;
+
+		case BUFF_TYPE_LOYALTY:
+			// uses pType->ExpPct
+			break;
+
+		case BUFF_TYPE_NOAH_BONUS:
+			break;
+
+		case BUFF_TYPE_PREMIUM_MERCHANT:
+			TO_USER(pTarget)->m_bPremiumMerchant = bIsBuff ? true : false;
+			break;
+
+		case BUFF_TYPE_ATTACK_SPEED_ARMOR:
+			pTarget->m_sACAmount -= (bIsBuff ? 1 : -1) * pType->sAC;
+			pTarget->m_bAttackAmount = pType->bAttack * bIsBuff; //"Anything * 0 = 0" and "Anything * 1 = Anything"
+			break;
+
+		case BUFF_TYPE_DAMAGE_DOUBLE:
+			pTarget->m_bAttackAmount = bIsBuff ? pType->bAttack : 100;
+			break;
+
+		case BUFF_TYPE_DISABLE_TARGETING:
+			pTarget->m_bIsBlinded = bIsBuff ? true : false;
+			break;
+
+		case BUFF_TYPE_BLIND:
+			pTarget->m_bIsBlinded = bIsBuff ? true : false;
+			if (pTarget->isPlayer())
+				TO_USER(pTarget)->SendUserStatusUpdate(USER_STATUS_BLIND, bIsBuff ? USER_STATUS_INFLICT : USER_STATUS_CURE);
+			break;
+
+		case BUFF_TYPE_FREEZE:
+			//Proportianal to the target user's current HP.
+			pTarget->m_bSpeedAmount = bIsBuff ? pType->bSpeed : 100;
+			break;
+
+		case BUFF_TYPE_INSTANT_MAGIC:
+			pTarget->m_bInstantCast = bIsBuff ? true : false;
+			break;
+
+		case BUFF_TYPE_DECREASE_RESIST:																								//"Anything * 0 = 0" and "Anything * 1 = Anything"
+			pTarget->m_bFireRAmount			= -(pType->bFireR / 100)	*	(pTarget->m_bFireR		- pTarget->m_bFireRAmount)		* bIsBuff;
+			pTarget->m_bColdRAmount			= -(pType->bColdR / 100)	*	(pTarget->m_bColdR		- pTarget->m_bColdRAmount)		* bIsBuff;
+			pTarget->m_bLightningRAmount	= -(pType->bLightningR / 100) * (pTarget->m_bLightningR - pTarget->m_bLightningRAmount)	* bIsBuff;
+			pTarget->m_bMagicRAmount		= -(pType->bMagicR / 100)	*	(pTarget->m_bMagicR		- pTarget->m_bMagicRAmount)		* bIsBuff;
+			pTarget->m_bDiseaseRAmount		= -(pType->bDiseaseR / 100) *	(pTarget->m_bDiseaseR	- pTarget->m_bDiseaseRAmount)	* bIsBuff;
+			pTarget->m_bPoisonRAmount		= -(pType->bPoisonR / 100)	*	(pTarget->m_bPoisonR	- pTarget->m_bPoisonRAmount)	* bIsBuff;
+			break;
+
+		case BUFF_TYPE_MAGE_ARMOR:								//"Anything * 0 = 0" and "Anything * 1 = Anything"
+			pTarget->m_bReflectArmorType =  pSkill->sSkill % 100 * bIsBuff;
+			break;
+
+		case BUFF_TYPE_PROHIBIT_INVIS:
+			pTarget->m_bCanStealth = bIsBuff ? true : false;
+			break;
+
+		case BUFF_TYPE_RESIS_AND_MAGIC_DMG: //Elysian Web
+			//Increases your magic resistance to block an additional 30% magic damage.
+			break;
+
+		case BUFF_TYPE_TRIPLEAC_HALFSPEED:	//Wall of Iron
+			pTarget->m_sACAmount += bIsBuff ? pTarget->m_sTotalAc * 2 : -(pTarget->m_sTotalAc / 3 * 2);
+			pTarget->m_bSpeedAmount = bIsBuff ? pTarget->m_bSpeedAmount / 2 : 100;
+			if (pTarget->m_bSpeedAmount = 0)
+				pTarget->m_bSpeedAmount = 1;
+			break;
+
+		case BUFF_TYPE_BLOCK_CURSE:			//Counter Curse
+			//Blocks all curses.
+			break;
+
+		case BUFF_TYPE_BLOCK_CURSE_REFLECT:	//Curse Refraction
+			//Blocks all curses and has a chance to reflect the curse back upon the caster.
+			break;
+
+		case BUFF_TYPE_MANA_ABSORB:		//Outrage / Frenzy / Mana Shield
+			//Uses mana to receive damage (for mana shield its multiplied by 4, 100 damage = 400 mana used)
+			break;
+
+		case BUFF_TYPE_IGNORE_WEAPON:		//Weapon cancellation
+			//Disarms the opponent. (rendering them unable to attack)
+			break;
+
+		case BUFF_TYPE_PASSION_OF_SOUL:		//Passion of the Soul
+			//Increase pet's HP by 120
+			break;
+
+		case BUFF_TYPE_FIRM_DETERMINATION:	//Firm Determination
+			//Increase pet's AC by 20
+			break;
+
+		case BUFF_TYPE_SPEED2:				//Cold Wave
+			pTarget->m_bSpeedAmount = bIsBuff ? (pTarget->m_bSpeedAmount / 100 * 65) : 100;
+			break;
+
+		case BUFF_TYPE_ATTACK_RANGE_ARMOR:	//Inevitable Murderous
+			pTarget->m_sACAmount += bIsBuff ? 100 : -100;
+			//Increase attack range by 1 meter.
+			break;
+
+		case BUFF_TYPE_MIRROR_DAMAGE_PARTY: //Minak's Thorn
+			//Spread's damage received across party members and mirror's part of the damage.
+			break;
+
+		default:
+			bResult = false;
+			break;
+	}
+	return bResult;
 }

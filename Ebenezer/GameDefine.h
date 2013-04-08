@@ -512,12 +512,13 @@ enum BuffType
 	BUFF_TYPE_TRIPLEAC_HALFSPEED	= 28, //Wall of Iron
 	BUFF_TYPE_BLOCK_CURSE			= 29, //Counter Curse
 	BUFF_TYPE_BLOCK_CURSE_REFLECT	= 30, //Curse Refraction
-	BUFF_TYPE_ATTACK_SPEED2			= 31, //Outrage / Frenzy
+	BUFF_TYPE_MANA_ABSORB			= 31, //Outrage / Frenzy
 	BUFF_TYPE_IGNORE_WEAPON			= 32, //Weapon cancellation
 	BUFF_TYPE_PASSION_OF_SOUL		= 35, //Passion of the Soul
 	BUFF_TYPE_FIRM_DETERMINATION	= 36, //Firm Determination
 	BUFF_TYPE_SPEED2				= 40, //Cold Wave
-	BUFF_TYPE_ATTACK_RANGE_ARMOR	= 43 //Inevitable Murderous
+	BUFF_TYPE_ATTACK_RANGE_ARMOR	= 43, //Inevitable Murderous
+	BUFF_TYPE_MIRROR_DAMAGE_PARTY	= 44  //Minak's Thorn
 };
 
 enum AuthorityTypes
