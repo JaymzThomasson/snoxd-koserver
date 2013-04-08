@@ -1925,6 +1925,54 @@ bool MagicInstance::GrantType4Buff(_MAGIC_TYPE4 *pType, CUser *pTarget, bool bIs
 			pTarget->m_bCanStealth = bIsBuff ? true : false;
 			break;
 
+		case BUFF_TYPE_RESIS_AND_MAGIC_DMG: //Elysian Web
+			//Increases your magic resistance to block an additional 30% magic damage.
+			break;
+
+		case BUFF_TYPE_TRIPLEAC_HALFSPEED:	//Wall of Iron
+			pTarget->m_sACAmount += bIsBuff ? pTarget->m_sTotalAc * 2 : -(pTarget->m_sTotalAc / 3 * 2);
+			pTarget->m_bSpeedAmount = bIsBuff ? pTarget->m_bSpeedAmount / 2 : 100;
+			if (pTarget->m_bSpeedAmount = 0)
+				pTarget->m_bSpeedAmount = 1;
+			break;
+
+		case BUFF_TYPE_BLOCK_CURSE:			//Counter Curse
+			//Blocks all curses.
+			break;
+
+		case BUFF_TYPE_BLOCK_CURSE_REFLECT:	//Curse Refraction
+			//Blocks all curses and has a chance to reflect the curse back upon the caster.
+			break;
+
+		case BUFF_TYPE_MANA_ABSORB:		//Outrage / Frenzy / Mana Shield
+			//Uses mana to receive damage (for mana shield its multiplied by 4, 100 damage = 400 mana used)
+			break;
+
+		case BUFF_TYPE_IGNORE_WEAPON:		//Weapon cancellation
+			//Disarms the opponent. (rendering them unable to attack)
+			break;
+
+		case BUFF_TYPE_PASSION_OF_SOUL:		//Passion of the Soul
+			//Increase pet's HP by 120
+			break;
+
+		case BUFF_TYPE_FIRM_DETERMINATION:	//Firm Determination
+			//Increase pet's AC by 20
+			break;
+
+		case BUFF_TYPE_SPEED2:				//Cold Wave
+			pTarget->m_bSpeedAmount = bIsBuff ? (pTarget->m_bSpeedAmount / 100 * 65) : 100;
+			break;
+
+		case BUFF_TYPE_ATTACK_RANGE_ARMOR:	//Inevitable Murderous
+			pTarget->m_sACAmount += bIsBuff ? 100 : -100;
+			//Increase attack range by 1 meter.
+			break;
+
+		case BUFF_TYPE_MIRROR_DAMAGE_PARTY: //Minak's Thorn
+			//Spread's damage received across party members and mirror's part of the damage.
+			break;
+
 		default:
 			bResult = false;
 			break;
