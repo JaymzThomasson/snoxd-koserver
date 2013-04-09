@@ -261,7 +261,8 @@ void CUser::GameStart(Packet & pkt)
 		g_pMain->MerchantUserInOutForMe(this);
 		g_pMain->NpcInOutForMe(this);
 		SendNotice();
-		SendTimeStatus();
+		SendTime();
+		SendWeather();
 
 		// SendHackToolList();
 

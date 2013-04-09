@@ -719,15 +719,6 @@ void CUser::SetMaxMp()
 }
 
 /**
- * @brief	Sends the server time & weather.
- */
-void CUser::SendTimeStatus()
-{
-	SendTime();
-	SendWeather();
-}
-
-/**
  * @brief	Sends the server time.
  */
 void CUser::SendTime()

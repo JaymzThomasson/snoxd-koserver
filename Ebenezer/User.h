@@ -563,7 +563,6 @@ public:
 	void SetUserAbility(bool bSendPacket = true);
 	void LevelChange(short level, bool bLevelUp = true);
 	void SetSlotItemValue();
-	void SendTimeStatus(); // TO-DO: Deprecate
 	void SendTime();
 	void SendWeather();
 	void SendPremiumInfo();
