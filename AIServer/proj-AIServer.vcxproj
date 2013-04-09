@@ -305,7 +305,6 @@
     <ClInclude Include="NpcMagicProcess.h" />
     <ClInclude Include="NpcTable.h" />
     <ClInclude Include="NpcThread.h" />
-    <ClInclude Include="Packet.h" />
     <ClInclude Include="Party.h" />
     <ClInclude Include="PathFind.h" />
     <ClInclude Include="Region.h" />

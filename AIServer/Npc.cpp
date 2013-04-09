@@ -38,22 +38,6 @@ static float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f,
 
 extern CRITICAL_SECTION g_region_critical;
 
-/*
-     ** Repent AI Server 작업시 참고 사항 **
-	1. m_fSpeed_1,m_fSpeed_2라는 변수가 없으므로 NPC_SECFORMETER_MOVE(4)로 수정,, 
-	        나중에 이것도 나이츠 방식으로 수정할 것 (테이블)
-	2. m_byGroup 변수 없음.. (이것 나오는 것 전부 주석..)
-	3. m_byTracingRange 변수 없음 . m_bySearchRange*2으로 대치
-	4. GetFinalDamage(), GetNFinalDamage(), GetDefense() 함수 수정..  공격치 계산식..
-	5. FillNpcInfo() 수정
-	6. SendNpcInfoAll() 수정
-	7. SendAttackSuccess() 부분 수정.. 호출하는 부분도 수정할 것...
-*/
-
-
-//////////////////////////////////////////////////////////////////////
-//	Inline Function
-//
 BOOL CNpc::SetUid(float x, float z, int id)
 {
 	MAP* pMap = GetMap();

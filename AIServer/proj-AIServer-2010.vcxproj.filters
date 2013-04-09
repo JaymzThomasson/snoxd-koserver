@@ -163,9 +163,6 @@
     <ClInclude Include="NpcThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Packet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Party.h">
       <Filter>Header Files</Filter>
     </ClInclude>
