@@ -2137,102 +2137,38 @@ void CUser::LoyaltyDivide(short tid)
 
 void CUser::ItemWoreOut(int type, int damage)
 {
-	_ITEM_TABLE* pTable = NULL;
-	int worerate = (int)sqrt(damage / 10.0f);
-	if( worerate == 0 ) return;
+	static uint8 armourTypes[] = { RIGHTHAND, LEFTHAND, HEAD, BREAST, LEG, GLOVE, FOOT };
+	uint8 totalSlots;
 
-	if( type == ATTACK ) {
-		if( m_sItemArray[RIGHTHAND].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_sItemArray[RIGHTHAND].nNum );
-			if( pTable ) {
-				if( pTable->m_bSlot != 2 )	{// 2 == DEFENCE ITEM
-					if( m_sItemArray[RIGHTHAND].sDuration != 0 ) {
-						m_sItemArray[RIGHTHAND].sDuration -= worerate;
-						ItemDurationChange( RIGHTHAND, pTable->m_sDuration, m_sItemArray[RIGHTHAND].sDuration, worerate );
-					}
-				}
-			}
-		}
-		if( m_sItemArray[LEFTHAND].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_sItemArray[LEFTHAND].nNum );
-			if( pTable ) {
-				if( pTable->m_bSlot != 2 ) {
-					if( m_sItemArray[LEFTHAND].sDuration != 0 ) {
-						m_sItemArray[LEFTHAND].sDuration -= worerate;
-						ItemDurationChange( LEFTHAND, pTable->m_sDuration, m_sItemArray[LEFTHAND].sDuration, worerate );
-					}
-				}
-			}
-		}
-	}
-	else if ( type == DEFENCE ) {
-		if( m_sItemArray[HEAD].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_sItemArray[HEAD].nNum );
-			if( pTable ) {
-				if( m_sItemArray[HEAD].sDuration != 0 ) {
-					m_sItemArray[HEAD].sDuration -= worerate;
-					ItemDurationChange( HEAD, pTable->m_sDuration, m_sItemArray[HEAD].sDuration, worerate );
-				}
-			}
-		}
-		if( m_sItemArray[BREAST].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_sItemArray[BREAST].nNum );
-			if( pTable ) {
-				if( m_sItemArray[BREAST].sDuration != 0 ) {
-					m_sItemArray[BREAST].sDuration -= worerate;
-					ItemDurationChange( BREAST, pTable->m_sDuration, m_sItemArray[BREAST].sDuration, worerate );
-				}
-			}
-		}
-		if( m_sItemArray[LEG].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_sItemArray[LEG].nNum );
-			if( pTable ) {
-				if( m_sItemArray[LEG].sDuration != 0 ) {
-					m_sItemArray[LEG].sDuration -= worerate;
-					ItemDurationChange( LEG, pTable->m_sDuration, m_sItemArray[LEG].sDuration, worerate );
-				}
-			}
-		}
-		if( m_sItemArray[GLOVE].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_sItemArray[GLOVE].nNum );
-			if( pTable ) {
-				if( m_sItemArray[GLOVE].sDuration != 0 ) {
-					m_sItemArray[GLOVE].sDuration -= worerate;
-					ItemDurationChange( GLOVE, pTable->m_sDuration, m_sItemArray[GLOVE].sDuration, worerate );
-				}
-			}
-		}
-		if( m_sItemArray[FOOT].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_sItemArray[FOOT].nNum );
-			if( pTable ) {
-				if( m_sItemArray[FOOT].sDuration != 0 ) {
-					m_sItemArray[FOOT].sDuration -= worerate;
-					ItemDurationChange( FOOT, pTable->m_sDuration, m_sItemArray[FOOT].sDuration, worerate );
-				}
-			}
-		}
-		if( m_sItemArray[RIGHTHAND].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_sItemArray[RIGHTHAND].nNum );
-			if( pTable ) {
-				if( pTable->m_bSlot == 2 ) {	// ?????
-					if( m_sItemArray[RIGHTHAND].sDuration != 0 ) {
-						m_sItemArray[RIGHTHAND].sDuration -= worerate;
-						ItemDurationChange( RIGHTHAND, pTable->m_sDuration, m_sItemArray[RIGHTHAND].sDuration, worerate );
-					}
-				}
-			}
-		}
-		if( m_sItemArray[LEFTHAND].nNum != 0 ) {
-			pTable = g_pMain->GetItemPtr( m_sItemArray[LEFTHAND].nNum );
-			if( pTable ) {
-				if( pTable->m_bSlot == 2 ) {	// ?????
-					if( m_sItemArray[LEFTHAND].sDuration != 0 ) {
-						m_sItemArray[LEFTHAND].sDuration -= worerate;
-						ItemDurationChange( LEFTHAND, pTable->m_sDuration, m_sItemArray[LEFTHAND].sDuration, worerate );
-					}
-				}
-			}
-		}
+	int worerate = (int)sqrt(damage / 10.0f);
+	if (worerate == 0) return;
+
+	ASSERT(type == ATTACK || type == DEFENCE);
+
+	// Inflict damage on equipped weapons.
+	if (type == ATTACK)
+		totalSlots = 2; // use only the first 2 slots (should be RIGHTHAND & LEFTHAND).
+	// Inflict damage on equipped armour.
+	else if (type == DEFENCE)
+		totalSlots = sizeof(armourTypes) / sizeof(*armourTypes); // use all the slots.
+
+	for (uint8 i = 0, slot = armourTypes[i]; i < totalSlots; i++)
+	{
+		_ITEM_DATA * pItem = GetItem(slot);
+		_ITEM_TABLE * pTable = NULL;
+
+		// Is a non-broken item equipped?
+		if (pItem == NULL || pItem->sDuration <= 0
+			// Does the item exist?
+			|| (pTable = g_pMain->GetItemPtr(pItem->nNum)) == NULL
+			// If it's in the left or righthand slot, is it a shield? (this doesn't apply to weapons)
+			|| ((slot == LEFTHAND || slot == RIGHTHAND)
+					&& pTable->m_bSlot != 2))
+			continue;
+
+
+		pItem->sDuration -= worerate;
+		ItemDurationChange(slot, pTable->m_sDuration, pItem->sDuration, worerate);
 	}
 }
 
