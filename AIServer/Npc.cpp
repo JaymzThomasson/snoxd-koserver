@@ -2483,7 +2483,6 @@ int CNpc::Attack()
 
 		// 명중이면 //Damage 처리 ----------------------------------------------------------------//
 		nDamage = GetFinalDamage(pUser);	// 최종 대미지
-		if( g_pMain->m_byTestMode )		nDamage = 10;
 		//TRACE("Npc-Attack() : [mon: x=%.2f, z=%.2f], [user : x=%.2f, z=%.2f]\n", m_fCurX, m_fCurZ, pUser->m_curx, pUser->m_curz);
 		
 		if(nDamage > 0) {
@@ -2692,7 +2691,6 @@ int CNpc::TracingAttack()		// 0:attack fail, 1:attack success
 
 		// 명중이면 //Damage 처리 ----------------------------------------------------------------//
 		nDamage = GetFinalDamage(pUser);	// 최종 대미지
-		if( g_pMain->m_byTestMode )		nDamage = 1;
 		
 		if(nDamage > 0)		{
 			pUser->SetDamage(nDamage, m_sNid+NPC_BAND);

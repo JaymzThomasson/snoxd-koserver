@@ -118,7 +118,6 @@ public:
 	uint16	m_iYear, m_iMonth, m_iDate, m_iHour, m_iMin, m_iAmount;
 	uint8 m_iWeather;
 	BYTE	m_byNight;			// ¹ãÀÎÁö,, ³·ÀÎÁö¸¦ ÆÇ´Ü... 1:³·, 2:¹ã
-	BYTE    m_byTestMode;
 
 	static KOSocketMgr<CGameSocket> s_socketMgr;
 

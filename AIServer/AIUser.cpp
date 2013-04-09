@@ -88,7 +88,6 @@ void CUser::Attack(int sid, int tid)
 
 	// 명중이면 //Damage 처리 ----------------------------------------------------------------//
 	nFinalDamage = GetDamage(tid);
-	if( g_pMain->m_byTestMode )		nFinalDamage = 3000;
 		
 	// Calculate Target HP	 -------------------------------------------------------//
 	short sOldNpcHP = pNpc->m_iHP;
@@ -122,7 +121,6 @@ void CUser::SetDamage(int damage, int tid)
 	if (damage <= 0 || m_bLive == USER_DEAD)
 		return;
 
-	short sHP = m_sHP;
 	m_sHP -= (short)damage;
 
 	if (m_sHP <= 0)

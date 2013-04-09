@@ -52,7 +52,6 @@ CServerDlg::CServerDlg()
 	m_sKillKarusNpc = 0;
 	m_sKillElmoNpc = 0;
 	m_hZoneEventThread = NULL;
-	m_byTestMode = 0;
 
 	memset(m_strGameDSN, 0, sizeof(m_strGameDSN));
 	memset(m_strGameUID, 0, sizeof(m_strGameUID));
