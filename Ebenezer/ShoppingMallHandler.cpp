@@ -47,38 +47,20 @@ void CUser::HandleStoreClose()
 	g_pMain->AddDatabaseRequest(result, this);
 }
 
-void CUser::RecvStore(Packet & pkt)
-{
-	uint8 opcode = pkt.read<uint8>();
-	switch (opcode)
-	{
-	case STORE_CLOSE:
-		RecvStoreClose(pkt);
-		break;
-	}
-}
-
-// Presumably received item data back from the database.
-void CUser::RecvStoreClose(Packet & pkt)
+void CUser::ReqLoadWebItemMall()
 {
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_CLOSE));
-	uint8 bResult = pkt.read<uint8>();
+	std::vector<_ITEM_DATA> itemList;
 
-	// If it was succesful, i.e. it loaded data, give it to us
-	if (bResult)
-	{
-		uint16 count = pkt.read<uint16>();
-		for (int i = 0; i < count; i++)
-		{
-			uint32 nItemID; uint16 sCount;
-			pkt >> nItemID >> sCount;
+	if (g_DBAgent.LoadWebItemMall(itemList, this))
+		return;
 
-			// reuse the GiveItem() method for giving them the item, just don't send that particular packet.
-			GiveItem(nItemID, sCount, false); 
-		}
+	// reuse the GiveItem() method for giving them the item, just don't send the packet
+	// as it's handled by STORE_CLOSE.
+	foreach (itr, itemList)
+		GiveItem(itr->nNum, itr->sCount, false); 
 
-		SendItemWeight();
-	}
+	SendItemWeight();
 
 	for (int i = 0; i < INVENTORY_TOTAL; i++)
 	{

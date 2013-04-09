@@ -531,9 +531,7 @@ public:
 	void CharacterSealProcess(Packet & pkt);
 
 	void ShoppingMall(Packet & pkt);
-	void RecvStore(Packet & pkt); // from the database
 	void HandleStoreClose();
-	void RecvStoreClose(Packet & pkt); // from the database
 	void LetterSystem(Packet & pkt);
 
 	void ReqLetterSystem(Packet & pkt);

@@ -678,7 +678,7 @@ bool CDBAgent::SetLogInInfo(string & strAccountID, string & strCharID, string & 
 	return result;
 }
 
-bool CDBAgent::LoadWebItemMall(Packet & result, CUser *pUser)
+bool CDBAgent::LoadWebItemMall(std::vector<_ITEM_DATA> & itemList, CUser *pUser)
 {
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == NULL)
@@ -690,30 +690,17 @@ bool CDBAgent::LoadWebItemMall(Packet & result, CUser *pUser)
 	if (!dbCommand->Execute(_T("{CALL LOAD_WEB_ITEMMALL(?)}")))
 		ReportSQLError(m_AccountDB->GetError());
 
-	if (!dbCommand->hasData())
-		return true;
-
-	// preserve write position before we throw the count in (so we know where to overwrite)
-	int offset = result.wpos();
-	uint16 count = 0;
-	result << count; // placeholder
-
-	do
+	if (dbCommand->hasData())
 	{
-		uint32 nItemID; uint16 sCount;
-		dbCommand->FetchUInt32(2, nItemID); // 1 is the account name, which we don't need to use unless we're logging	
-		dbCommand->FetchUInt16(3, sCount);
+		do
+		{
+			_ITEM_DATA item;
+			dbCommand->FetchUInt32(2, item.nNum); // 1 is the account name, which we don't need to use unless we're logging	
+			dbCommand->FetchUInt16(3, item.sCount);
+			itemList.push_back(item);
+		} while (dbCommand->MoveNext());
+	}
 
-		result << nItemID << sCount;
-
-		// Only limitation here is now the client.
-		// NOTE: using the byte buffer this is OK, so we'll keep to our limit
-		if (++count >= 100) 
-			break;
-
-	} while (dbCommand->MoveNext());
-
-	result.put(offset, count);
 	return true;
 }
 

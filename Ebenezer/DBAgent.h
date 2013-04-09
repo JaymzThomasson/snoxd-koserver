@@ -71,7 +71,7 @@ public:
 	bool LoadSavedMagic(CUser *pUser);
 	bool SetLogInInfo(std::string & strAccountID, std::string & strCharID, std::string & strServerIP, short sServerNo, std::string & strClientIP, uint8 bInit);
 
-	bool LoadWebItemMall(Packet & result, CUser *pUser);
+	bool LoadWebItemMall(std::vector<_ITEM_DATA> & itemList, CUser *pUser);
 
 	bool LoadSkillShortcut(Packet & result, CUser *pUser);
 	void SaveSkillShortcut(short sCount, char *buff, CUser *pUser);

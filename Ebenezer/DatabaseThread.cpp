@@ -145,15 +145,10 @@ void CUser::ReqAccountLogIn(Packet & pkt)
 
 	int8 nation = g_DBAgent.AccountLogin(m_strAccountID, strPasswd);
 
-	// TO-DO: Clean up this account name nonsense
 	if (nation >= 0)
-	{
 		g_pMain->AddAccountName(this);
-	}
 	else
-	{
 		m_strAccountID.clear();
-	}
 
 	Packet result(WIZ_LOGIN);
 	result << nation;
@@ -270,19 +265,6 @@ void CUser::ReqShoppingMall(Packet & pkt)
 		ReqLetterSystem(pkt);
 		break;
 	}
-}
-
-void CUser::ReqLoadWebItemMall()
-{
-	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_CLOSE));
-
-	int offset = result.wpos(); // preserve offset
-	result << uint8(0);
-
-	if (g_DBAgent.LoadWebItemMall(result, this))
-		result.put(offset, uint8(1));
-
-	RecvStore(result); // TO-DO: Just send the data directly.
 }
 
 void CUser::ReqSkillDataProcess(Packet & pkt)
