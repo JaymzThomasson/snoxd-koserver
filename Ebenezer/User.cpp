@@ -2166,44 +2166,34 @@ void CUser::ItemWoreOut(int type, int damage)
 					&& pTable->m_bSlot != 2))
 			continue;
 
+		int beforepercent = (int)((pItem->sDuration / (double)pTable->m_sDuration) * 100);
+		int curpercent;
 
-		pItem->sDuration -= worerate;
-		ItemDurationChange(slot, pTable->m_sDuration, pItem->sDuration, worerate);
-	}
-}
+		if (worerate > pItem->sDuration)
+			pItem->sDuration = 0;
+		else 
+			pItem->sDuration -= worerate;
 
-void CUser::ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint16 amount)
-{
-	if (slot >= SLOT_MAX)
-		return;
-
-	int curpercent = 0, beforepercent = 0, curbasis = 0, beforebasis = 0;
-
-	// If the durability's now less than 0, reset it to 0.
-	if (m_sItemArray[slot].sDuration <= 0)
-	{
-		m_sItemArray[slot].sDuration = 0;
-		SendDurability(slot, 0);
+		if (m_sItemArray[slot].sDuration == 0)
+		{
+			SendDurability(slot, 0);
 		
-		SetSlotItemValue();
-		SetUserAbility(false);
-		SendItemMove(1);
-		return;
-	}
+			SetSlotItemValue();
+			SetUserAbility(false);
+			SendItemMove(1);
+			continue;
+		}
 
-	curpercent = (int)((curValue / (double)maxValue) * 100);
-	beforepercent = (int)(((curValue + amount) / (double)maxValue ) * 100);
-	
-	curbasis = curpercent / 5;
-	beforebasis = beforepercent / 5;
+		curpercent = (int)((pItem->sDuration / (double)pTable->m_sDuration) * 100);
 
-	if (curbasis != beforebasis) 
-	{
-		SendDurability(slot, curValue);
+		if ((curpercent / 5) != (beforepercent / 5)) 
+		{
+			SendDurability(slot, pItem->sDuration);
 
-		if (curpercent >= 65 && curpercent < 70
-			|| curpercent >= 25 && curpercent < 30)
-			UserLookChange( slot, m_sItemArray[slot].nNum, curValue);
+			if (curpercent >= 65 && curpercent < 70
+				|| curpercent >= 25 && curpercent < 30)
+				UserLookChange(slot, pItem->nNum, pItem->sDuration);
+		}
 	}
 }
 

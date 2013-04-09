@@ -354,7 +354,6 @@ public:
 	void Type4Duration();
 	void HPTimeChange();
 	void HPTimeChangeType3();
-	void ItemDurationChange(uint8 slot, uint16 maxValue, int16 curValue, uint16 amount);
 	void SendDurability(uint8 slot, uint16 durability);
 	void SendItemMove(uint8 subcommand);
 	void ItemWoreOut( int type, int damage );
