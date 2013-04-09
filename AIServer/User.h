@@ -31,10 +31,8 @@ public:
 
 	short	m_sHP;							// HP
 	short	m_sMP;							// MP
-	short	m_sSP;							// SP
 	short	m_sMaxHP;						// HP
 	short	m_sMaxMP;						// MP
-	short	m_sMaxSP;						// SP
 
 	BYTE	m_state;						// User¿« ªÛ≈¬
 

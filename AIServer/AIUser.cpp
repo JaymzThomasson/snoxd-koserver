@@ -34,10 +34,8 @@ void CUser::Initialize()
 	m_bLevel = 0;						// 레벨
 	m_sHP = 0;							// HP
 	m_sMP = 0;							// MP
-	m_sSP = 0;							// SP
 	m_sMaxHP = 0;							// MaxHP
 	m_sMaxMP = 0;							// MaxMP
-	m_sMaxSP = 0;							// MaxSP
 	m_state = 0;				// User의 상태
 	m_sRegionX = 0;						// 현재 영역 X 좌표
 	m_sRegionZ = 0;						// 현재 영역 Z 좌표
