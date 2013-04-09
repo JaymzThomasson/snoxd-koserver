@@ -57,11 +57,11 @@ public:
 		_dbCommand->FetchByte(i++, pData->m_bMPDamage);
 		_dbCommand->FetchByte(i++, pData->m_bMPDrain);
 		_dbCommand->FetchByte(i++, pData->m_bMirrorDamage);
-		_dbCommand->FetchInt16(i++, pData->m_bStrB);
-		_dbCommand->FetchInt16(i++, pData->m_bStaB);
-		_dbCommand->FetchInt16(i++, pData->m_bDexB);
-		_dbCommand->FetchInt16(i++, pData->m_bIntelB);
-		_dbCommand->FetchInt16(i++, pData->m_bChaB);
+		_dbCommand->FetchInt16(i++, pData->m_sStrB);
+		_dbCommand->FetchInt16(i++, pData->m_sStaB);
+		_dbCommand->FetchInt16(i++, pData->m_sDexB);
+		_dbCommand->FetchInt16(i++, pData->m_sIntelB);
+		_dbCommand->FetchInt16(i++, pData->m_sChaB);
 		_dbCommand->FetchInt16(i++, pData->m_MaxHpB);
 		_dbCommand->FetchInt16(i++, pData->m_MaxMpB);
 		_dbCommand->FetchUInt16(i++, pData->m_bFireR);

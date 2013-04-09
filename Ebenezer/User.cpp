@@ -934,11 +934,11 @@ void CUser::SetSlotItemValue()
 		m_sItemMaxHp += pTable->m_MaxHpB;
 		m_sItemMaxMp += pTable->m_MaxMpB;
 		m_sItemAc += item_ac;
-		m_sStatItemBonuses[STAT_STR] += pTable->m_bStrB;
-		m_sStatItemBonuses[STAT_STA] += pTable->m_bStaB;
-		m_sStatItemBonuses[STAT_DEX] += pTable->m_bDexB;
-		m_sStatItemBonuses[STAT_INT] += pTable->m_bIntelB;
-		m_sStatItemBonuses[STAT_CHA] += pTable->m_bChaB;
+		m_sStatItemBonuses[STAT_STR] += pTable->m_sStrB;
+		m_sStatItemBonuses[STAT_STA] += pTable->m_sStaB;
+		m_sStatItemBonuses[STAT_DEX] += pTable->m_sDexB;
+		m_sStatItemBonuses[STAT_INT] += pTable->m_sIntelB;
+		m_sStatItemBonuses[STAT_CHA] += pTable->m_sChaB;
 		m_sItemHitrate += pTable->m_sHitrate;
 		m_sItemEvasionrate += pTable->m_sEvarate;
 		m_sItemWeight += pTable->m_sWeight;
