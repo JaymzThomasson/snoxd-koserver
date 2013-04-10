@@ -827,13 +827,8 @@ void CServerDlg::RegionCheck()
 	LeaveCriticalSection( &g_User_critical );
 }
 
-BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number)
+BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
 {
-	int i=0, j=0, objectid=0;
-	int offset = 0;
-	int nServerNum = 0;
-	nServerNum = GetServerNumber( zone_number );
-
 	int sSid = (pEvent->sType == OBJECT_ANVIL || pEvent->sType == OBJECT_ARTIFACT 
 					? pEvent->sIndex : pEvent->sControlNpcID);
 	if (sSid <= 0)
@@ -853,8 +848,9 @@ BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number)
 	pNpc->m_byBattlePos = 0;
 
 	pNpc->m_byObjectType = SPECIAL_OBJECT;
-	pNpc->m_bCurZone	= zone_number;
 	pNpc->m_byGateOpen	= (BYTE)pEvent->sStatus;
+
+	pNpc->m_bCurZone	= pMap->m_nZoneNumber;
 	pNpc->m_fCurX		= pEvent->fPosX;
 	pNpc->m_fCurY		= pEvent->fPosY;
 	pNpc->m_fCurZ		= pEvent->fPosZ;
@@ -865,10 +861,12 @@ BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number)
 	pNpc->m_nInitMaxY	= (int)pEvent->fPosZ+1;	
 
 	pNpc->Load(m_sMapEventNpc++, pNpcTable);
+	pNpc->m_pZone = pMap;
 
 	if (pNpc->GetMap() == NULL
 		|| !m_arNpc.PutData(pNpc->m_sNid, pNpc))
 	{
+		m_sMapEventNpc--;
 		TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
 		delete pNpc;
 		return FALSE;

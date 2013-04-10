@@ -63,7 +63,7 @@ bool SMDFile::LoadMap(FILE *fp)
 	m_N3ShapeMgr->Create((m_nMapSize - 1)*m_fUnitDist, (m_nMapSize-1)*m_fUnitDist);
 	if (!m_N3ShapeMgr->LoadCollisionData(fp)
 		|| (m_nMapSize - 1) * m_fUnitDist != m_N3ShapeMgr->Width() 
-		|| (m_nMapSize - 1) * m_fUnitDist != m_N3ShapeMgr->Height() )
+		|| (m_nMapSize - 1) * m_fUnitDist != m_N3ShapeMgr->Height())
 		return false;
 
 	int mapwidth = (int)m_N3ShapeMgr->Width();

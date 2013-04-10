@@ -37,6 +37,7 @@ public:
 
 	__forceinline short * GetEventIDs() { return m_ppnEvent; }
 
+	__forceinline ObjectEventArray	* GetObjectEventArray() { return &m_ObjectEventArray; }
 	__forceinline _OBJECT_EVENT * GetObjectEvent(int objectindex) { return m_ObjectEventArray.GetData(objectindex); }
 	__forceinline _REGENE_EVENT * GetRegeneEvent(int objectindex) { return m_ObjectRegeneArray.GetData(objectindex); }
 	__forceinline _WARP_INFO * GetWarp(int warpID) { return m_WarpArray.GetData(warpID); }

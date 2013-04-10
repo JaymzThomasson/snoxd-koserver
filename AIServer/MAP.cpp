@@ -64,6 +64,20 @@ bool MAP::Initialize(_ZONE_INFO *pZone)
 
 	if (m_smdFile != NULL)
 	{
+		ObjectEventArray * pEvents = m_smdFile->GetObjectEventArray();
+		FastGuard(pEvents->m_lock);
+
+		foreach_stlmap(itr, (*pEvents))
+		{
+			_OBJECT_EVENT * pEvent = itr->second;
+			if (pEvent->sType == OBJECT_GATE
+				|| pEvent->sType == OBJECT_GATE2
+				|| pEvent->sType == OBJECT_GATE_LEVER
+				|| pEvent->sType == OBJECT_ANVIL
+				|| pEvent->sType == OBJECT_ARTIFACT)
+				g_pMain->AddObjectEventNpc(pEvent, this);
+		}
+
 		m_ppRegion = new CRegion*[m_smdFile->m_nXRegion];
 		for (int i = 0; i < m_smdFile->m_nXRegion; i++)
 			m_ppRegion[i] = new CRegion[m_smdFile->m_nZRegion]();

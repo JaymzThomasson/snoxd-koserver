@@ -59,7 +59,7 @@ public:
 
 	bool LoadSpawnCallback(OdbcCommand *dbCommand);
 	void GameServerAcceptThread();
-	BOOL AddObjectEventNpc(_OBJECT_EVENT* pEvent, int zone_number);
+	BOOL AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap);
 	void AllNpcInfo();
 	CUser* GetUserPtr(int nid);
 	CNpc*  GetEventNpcPtr();
