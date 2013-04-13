@@ -2216,7 +2216,6 @@ void CUser::SendItemMove(uint8 subcommand)
 
 void CUser::HPTimeChange()
 {
-	bool bFlag = false;
 	m_tHPLastTimeNormal = UNIXTIME;
 
 	if (m_bResHpType == USER_DEAD
@@ -2248,7 +2247,7 @@ void CUser::HPTimeChange()
 		}
 		else if (m_iMaxMp != m_sMp)
 		{
-			MSpChange(((int)((GetLevel() * (1 + GetLevel() / 60.0) + 1) * 0.2) + 3) * mpPercent * 0.01);
+			MSpChange((int)(((GetLevel() * (1 + GetLevel() / 60.0) + 1) * 0.2) + 3) * mpPercent * 0.01);
 		}
 	}
 	else if (m_bResHpType == USER_SITDOWN)
@@ -2257,7 +2256,7 @@ void CUser::HPTimeChange()
 			HpChange((int)(GetLevel() * (1 + GetLevel() / 30.0)) + 3);
 
 		if (m_iMaxMp != m_sMp)
-			MSpChange(((int)((m_iMaxMp * 5) / ((GetLevel() - 1) + 30 )) + 3) * mpPercent / 100);
+			MSpChange((int)(((m_iMaxMp * 5) / ((GetLevel() - 1) + 30 )) + 3) * mpPercent / 100);
 	}
 }
 
@@ -2357,61 +2356,8 @@ void CUser::Type4Duration()
 		m_tStartTime[i] = 0;
 
 		buff_type = i + 1;
-
-		switch (buff_type)
-		{
-		case 1: 
-			m_sMaxHPAmount = 0;
-			break;
-
-		case 2:
-			m_sACAmount = 0;
-			break;
-
-		case 3:
-			StateChangeServerDirect(3, ABNORMAL_NORMAL);
-			break;
-
-		case 4:
-			m_bAttackAmount = 100;
-			break;
-
-		case 5:
-			m_bAttackSpeedAmount = 100;
-			break;
-
-		case 6:
-			m_bSpeedAmount = 100;
-			break;
-
-		case 7:
-			memset(m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
-			break;
-
-		case 8:
-			m_bFireRAmount = m_bColdRAmount = m_bLightningRAmount = 0;
-			m_bMagicRAmount = m_bDiseaseRAmount = m_bPoisonRAmount = 0;
-			break;
-
-		case 9:
-			m_bHitRateAmount = 100;
-			m_sAvoidRateAmount = 100;
-			break;
-		}
-
+		CMagicProcess::RemoveType4Buff(buff_type, this);
 		break; // only ever handle one at a time with the current logic
-	}
-
-	if (buff_type) {
-		m_bType4Buff[buff_type - 1] = 0;
-
-		SetSlotItemValue();
-		SetUserAbility();
-		Send2AI_UserUpdateInfo();
-
-		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
-		result << buff_type;
-		Send(&result);
 	}
 
 	int buff_test = 0;
