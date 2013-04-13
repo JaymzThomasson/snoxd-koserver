@@ -13,6 +13,7 @@
 #include "../shared/database/OdbcRecordset.h"
 #include "../shared/database/ItemTableSet.h"
 #include "../shared/database/ItemExchangeSet.h"
+#include "../shared/database/ItemUpgradeSet.h"
 #include "../shared/database/MagicTableSet.h"
 #include "../shared/database/MagicType1Set.h"
 #include "../shared/database/MagicType2Set.h"
@@ -50,6 +51,7 @@ bool CEbenezerDlg::LoadTables()
 {
 	return (LoadItemTable()
 			&& LoadItemExchangeTable()
+			&& LoadItemUpgradeTable()
 			&& LoadServerResourceTable()
 			&& LoadEventTriggerTable()
 			&& LoadQuestHelperTable()
@@ -87,6 +89,11 @@ bool CEbenezerDlg::LoadItemTable()
 bool CEbenezerDlg::LoadItemExchangeTable()
 {
 	LOAD_TABLE(CItemExchangeSet, g_DBAgent.m_GameDB, &m_ItemExchangeArray, true);
+}
+
+bool CEbenezerDlg::LoadItemUpgradeTable()
+{
+	LOAD_TABLE(CItemUpgradeSet, g_DBAgent.m_GameDB, &m_ItemUpgradeArray, false);
 }
 
 bool CEbenezerDlg::LoadServerResourceTable()

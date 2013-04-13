@@ -314,6 +314,7 @@
     <ClInclude Include="..\shared\database\HomeSet.h" />
     <ClInclude Include="..\shared\database\ItemExchangeSet.h" />
     <ClInclude Include="..\shared\database\ItemTableSet.h" />
+    <ClInclude Include="..\shared\database\ItemUpgradeSet.h" />
     <ClInclude Include="..\shared\database\KingCandidacyNoticeBoardSet.h" />
     <ClInclude Include="..\shared\database\KingElectionListSet.h" />
     <ClInclude Include="..\shared\database\KingSystemSet.h" />
