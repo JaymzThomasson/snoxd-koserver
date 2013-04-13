@@ -2247,7 +2247,7 @@ void CUser::HPTimeChange()
 		}
 		else if (m_iMaxMp != m_sMp)
 		{
-			MSpChange((int)(((GetLevel() * (1 + GetLevel() / 60.0) + 1) * 0.2) + 3) * mpPercent * 0.01);
+			MSpChange((int)(((GetLevel() * (1 + GetLevel() / 60.0) + 1) * 0.2) + 3) * mpPercent / 100);
 		}
 	}
 	else if (m_bResHpType == USER_SITDOWN)
@@ -2344,8 +2344,6 @@ void CUser::HPTimeChangeType3()
 
 void CUser::Type4Duration()
 {
-	BYTE buff_type = 0;					
-
 	for (int i = 0; i < MAX_TYPE4_BUFF; i++)
 	{
 		if (m_sDuration[i] == 0
@@ -2355,8 +2353,7 @@ void CUser::Type4Duration()
 		m_sDuration[i] = 0;
 		m_tStartTime[i] = 0;
 
-		buff_type = i + 1;
-		CMagicProcess::RemoveType4Buff(buff_type, this);
+		CMagicProcess::RemoveType4Buff(i + 1, this);
 		break; // only ever handle one at a time with the current logic
 	}
 
