@@ -2217,33 +2217,47 @@ void CUser::SendItemMove(uint8 subcommand)
 void CUser::HPTimeChange()
 {
 	bool bFlag = false;
-
 	m_tHPLastTimeNormal = UNIXTIME;
 
-	if( m_bResHpType == USER_DEAD ) return;
+	if (m_bResHpType == USER_DEAD
+		|| m_sHp < 1)
+		return;
 
-	if( m_bZone == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )	{
-		if( m_sHp < 1 ) return;
-		HpChange( 5 );
+	int mpPercent = 100;
+
+	if (GetZoneID() == ZONE_SNOW_BATTLE 
+		&& g_pMain->m_byBattleOpen == SNOW_BATTLE)
+	{
+		HpChange(5);
 		return;
 	}
 
-	if( m_bResHpType == USER_STANDING ) {
-		if( m_sHp < 1 ) return;
-		if( m_iMaxHp != m_sHp )
-			HpChange( (int)((GetLevel()*(1+GetLevel()/60.0) + 1)*0.2)+3 );
+	// For mages with under 30% of HP
+	if (CheckClass(110, 210)
+		&& m_sMp < (30 * m_iMaxMp / 100))
+		mpPercent = 120;
 
-		if( m_iMaxMp != m_sMp )
-			MSpChange( (int)((GetLevel()*(1+GetLevel()/60.0) + 1)*0.2)+3 );
+	if (m_bResHpType == USER_STANDING
+		/* // unknown types
+		|| m_bResHpType == 4 
+		|| m_bResHpType == 5*/)
+	{
+		if (isTransformed())
+		{
+			// TO-DO: Apply transformation rates
+		}
+		else if (m_iMaxMp != m_sMp)
+		{
+			MSpChange(((int)((GetLevel() * (1 + GetLevel() / 60.0) + 1) * 0.2) + 3) * mpPercent * 0.01);
+		}
 	}
-	else if ( m_bResHpType == USER_SITDOWN ) {
-		if( m_sHp < 1 ) return;
-		if( m_iMaxHp != m_sHp ) {
-			HpChange( (int)(GetLevel()*(1+GetLevel()/30.0) ) + 3 );
-		}
-		if( m_iMaxMp != m_sMp ) {
-			MSpChange((int)((m_iMaxMp * 5) / ((GetLevel() - 1) + 30 )) + 3 ) ;
-		}
+	else if (m_bResHpType == USER_SITDOWN)
+	{
+		if (m_iMaxHp != m_sHp)
+			HpChange((int)(GetLevel() * (1 + GetLevel() / 30.0)) + 3);
+
+		if (m_iMaxMp != m_sMp)
+			MSpChange(((int)((m_iMaxMp * 5) / ((GetLevel() - 1) + 30 )) + 3) * mpPercent / 100);
 	}
 }
 
