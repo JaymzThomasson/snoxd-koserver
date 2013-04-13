@@ -495,7 +495,6 @@ bool MagicInstance::IsAvailable()
 
 		if (bOpcode == MAGIC_EFFECTING) {    // MP/SP SUBTRACTION ROUTINE!!! ITEM AND HP TOO!!!	
 			int total_hit = pSkillCaster->m_sTotalHit ;
-			int skill_mana = (pSkill->sMsp * total_hit) / 100 ; 
 
 			if (pSkill->bType[0] == 2 && pSkill->bFlyingEffect != 0) // Type 2 related...
 				return true;		// Do not reduce MP/SP when flying effect is not 0.
@@ -503,12 +502,7 @@ bool MagicInstance::IsAvailable()
 			if (pSkill->bType[0] == 1 && sData1 > 1)
 				return true;		// Do not reduce MP/SP when combo number is higher than 0.
  
-			if (pSkill->bType[0] == 1 || pSkill->bType[0] == 2)
-			{
-				if (skill_mana > pSkillCaster->GetMana())
-					goto fail_return;
-			}
-			else if (pSkill->sMsp > pSkillCaster->GetMana())
+			if (pSkill->sMsp > pSkillCaster->GetMana())
 				goto fail_return;
 
 			if (pSkill->bType[0] == 3 || pSkill->bType[0] == 4) {   // If the PLAYER uses an item to cast a spell.
@@ -527,9 +521,7 @@ bool MagicInstance::IsAvailable()
 					}
 				}
 			}
-			if (pSkill->bType[0] == 1 || pSkill->bType[0] == 2)	// Actual deduction of Skill or Magic point.
-				pSkillCaster->MSpChange(-(skill_mana));
-			else if (pSkill->bType[0] != 4 || (pSkill->bType[0] == 4 && sTargetID == -1))
+			if (pSkill->bType[0] != 4 || (pSkill->bType[0] == 4 && sTargetID == -1))
 				pSkillCaster->MSpChange(-(pSkill->sMsp));
 
 			if (pSkill->sHP > 0 && pSkill->sMsp == 0) {			// DEDUCTION OF HPs in Magic/Skill using HPs.
