@@ -908,7 +908,9 @@ BOOL CNpc::RandomMove()
 	if (GetMap() == NULL
 		|| m_bySearchRange == 0
 		|| m_byMoveType == 0
-		|| !GetUserInView())
+		|| !GetUserInView()
+		// 4 means non-moving.
+		|| m_byMoveType == 4)
 		return FALSE;
 
 	float fDestX = -1.0f, fDestZ = -1.0f;

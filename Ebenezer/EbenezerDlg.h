@@ -22,6 +22,7 @@ public:
 
 	bool LoadItemTable();
 	bool LoadItemExchangeTable();
+	bool LoadItemUpgradeTable();
 	bool LoadServerResourceTable();
 	bool LoadEventTriggerTable();
 	bool LoadQuestHelperTable();
@@ -211,6 +212,7 @@ public:
 	QuestMonsterArray		m_QuestMonsterArray;
 	RentalItemArray			m_RentalItemArray;
 	ItemExchangeArray		m_ItemExchangeArray;
+	ItemUpgradeArray		m_ItemUpgradeArray;
 	KingSystemArray			m_KingSystemArray;
 
 	short	m_sPartyIndex;

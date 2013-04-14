@@ -422,6 +422,20 @@ struct _ITEM_EXCHANGE
 	uint16	sExchangeItemCount[ITEMS_IN_EXCHANGE_GROUP];
 };
 
+#define MAX_ITEMS_REQ_FOR_UPGRADE 9
+struct _ITEM_UPGRADE
+{
+	uint32	nIndex;
+	uint16	sNpcNum;
+	int8	bOriginType;
+	uint32	nOriginItem;
+	uint32	nReqItem[MAX_ITEMS_REQ_FOR_UPGRADE];
+	uint32	nReqNoah;
+	uint8	bRateType;
+	uint16	sGenRate;
+	int32	nGiveItem;
+};
+
 struct _QUEST_HELPER
 {
 	uint32	nIndex;

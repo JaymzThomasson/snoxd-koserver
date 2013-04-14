@@ -850,12 +850,11 @@ bool MagicInstance::ExecuteType4()
 		if ( nSkillID > 500000 && pTUser->isPlayer() )
 			pTUser->InsertSavedMagic(nSkillID, pType->sDuration);
 
-		if(!GrantType4Buff(pType, pTUser))
+		if (!CMagicProcess::GrantType4Buff(pSkill, pType, pSkillCaster, pTUser))
 		{
-				bResult = 0;
-				goto fail_return;
+			bResult = 0;
+			goto fail_return;
 		}
-
 
 		pTUser->m_sDuration[pType->bBuffType - 1] = pType->sDuration;
 		pTUser->m_tStartTime[pType->bBuffType - 1] = UNIXTIME;
@@ -975,61 +974,7 @@ bool MagicInstance::ExecuteType5()
 				if (pSkillTarget->m_bType4Buff[i] == 0)
 					continue;
 
-				uint8 buff_type = i + 1;
-
-				switch (buff_type)
-				{
-				case 1: 
-					pSkillTarget->m_sMaxHPAmount = 0;
-					pSkillTarget->m_sMaxMPAmount = 0;
-					break;
-
-				case 2:
-					pSkillTarget->m_sACAmount = 0;
-					break;
-
-				case 3:
-					if (pSkillTarget->isPlayer())
-						TO_USER(pSkillTarget)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
-					break;
-
-				case 4:
-					pSkillTarget->m_bAttackAmount = 100;
-					break;
-
-				case 5:
-					pSkillTarget->m_bAttackSpeedAmount = 100;
-					break;
-
-				case 6:
-					pSkillTarget->m_bSpeedAmount = 100;
-					break;
-
-				case 7:
-					if (pSkillTarget->isPlayer())
-						memset(TO_USER(pSkillTarget)->m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
-					break;
-
-				case 8:
-					pSkillTarget->m_bFireRAmount = pSkillTarget->m_bColdRAmount = pSkillTarget->m_bLightningRAmount = 0;
-					pSkillTarget->m_bMagicRAmount = pSkillTarget->m_bDiseaseRAmount = pSkillTarget->m_bPoisonRAmount = 0;
-					break;
-
-				case 9:
-					pSkillTarget->m_bHitRateAmount = 100;
-					pSkillTarget->m_sAvoidRateAmount = 100;
-					break;
-				}
-
-				pSkillTarget->m_bType4Buff[i] = 0;
-				CMagicProcess::SendType4BuffRemove(sTargetID, buff_type);
-			}
-
-			if (pSkillTarget->isPlayer())
-			{
-				TO_USER(pSkillTarget)->SetSlotItemValue();
-				TO_USER(pSkillTarget)->SetUserAbility();
-				TO_USER(pSkillTarget)->Send2AI_UserUpdateInfo();
+				CMagicProcess::RemoveType4Buff(i + 1, TO_USER(pSkillTarget));
 			}
 
 			buff_test = 0;
@@ -1057,21 +1002,9 @@ bool MagicInstance::ExecuteType5()
 			break;
 
 		case REMOVE_BLESS:
-			if (pSkillTarget->m_bType4Buff[0] == 2) {
-				pSkillTarget->m_sDuration[0] = 0;		
-				pSkillTarget->m_tStartTime[0] = 0;
-				pSkillTarget->m_sMaxHPAmount = 0;
-				pSkillTarget->m_sMaxMPAmount = 0;
-				pSkillTarget->m_bType4Buff[0] = 0;
-
-				CMagicProcess::SendType4BuffRemove(sTargetID, 1);
-
-				if (pSkillTarget->isPlayer())
-				{
-					TO_USER(pSkillTarget)->SetSlotItemValue();
-					TO_USER(pSkillTarget)->SetUserAbility();
-					TO_USER(pSkillTarget)->Send2AI_UserUpdateInfo();
-				}
+			if (pSkillTarget->m_bType4Buff[0] == 2) 
+			{
+				CMagicProcess::RemoveType4Buff(1, TO_USER(pSkillTarget));
 
 				buff_test = 0;
 				for (int i = 0; i < MAX_TYPE4_BUFF; i++)
@@ -1624,26 +1557,8 @@ void MagicInstance::Type4Cancel()
 	if (pType == NULL)
 		return;
 
-	bool buff = GrantType4Buff(pType, TO_USER(pSkillCaster), false);
-	
-	if (buff)
-	{
-		pSkillCaster->m_sDuration[pType->bBuffType - 1] = 0;
-		pSkillCaster->m_tStartTime[pType->bBuffType - 1] = 0;
-		pSkillCaster->m_bType4Buff[pType->bBuffType - 1] = 0;
-
-		if (pSkillCaster->isPlayer())
-		{
-			TO_USER(pSkillCaster)->SetSlotItemValue();
-			TO_USER(pSkillCaster)->SetUserAbility();
-			TO_USER(pSkillCaster)->SendItemMove(2);
-			TO_USER(pSkillCaster)->Send2AI_UserUpdateInfo();
-
-			Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
-			result << pType->bBuffType;
-			TO_USER(pSkillCaster)->Send(&result);
-		}
-	}
+	if (!CMagicProcess::RemoveType4Buff(pType->bBuffType, TO_USER(pSkillCaster)))
+		return;
 
 	int buff_test = 0;
 	for (int i = 0; i < MAX_TYPE4_BUFF; i++)
@@ -1700,17 +1615,6 @@ void MagicInstance::Type3Cancel()
 		TO_USER(pSkillCaster)->SendPartyStatusUpdate(1, 0);
 }
 
-void CMagicProcess::SendType4BuffRemove(short tid, BYTE buff)
-{
-	CUser* pTUser = g_pMain->GetUserPtr(tid); 
-	if (pTUser == NULL) 
-		return;
-
-	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
-	result << buff;
-	pTUser->Send(&result);
-}
-
 void MagicInstance::Type4Extend()
 {
 	if (pSkill == NULL)
@@ -1761,213 +1665,4 @@ void MagicInstance::ReflectDamage(int32 damage)
 			pSkillCaster->HpChange(-damage, pSkillTarget);
 		break;
 	}
-}
-
-bool MagicInstance::GrantType4Buff(_MAGIC_TYPE4 *pType, CUser *pTarget, bool bIsBuff /* = true*/)
-{
-	bool bResult = true;
-
-	switch (pType->bBuffType)
-	{
-	case BUFF_TYPE_HP_MP:
-			if (pType->sMaxHP == 0 && pType->sMaxHPPct > 0)
-				pTarget->m_sMaxHPAmount = (pType->sMaxHPPct - 100) * (pTarget->GetMaxHealth() - pTarget->m_sMaxHPAmount) / 100;
-			else
-				pTarget->m_sMaxHPAmount = pType->sMaxHP;
-
-			pTarget->m_sMaxHPAmount *= bIsBuff; //"Anything * 0 = 0" and "Anything * 1 = Anything"
-
-			if (pType->sMaxMP == 0 && pType->sMaxMPPct > 0)
-				pTarget->m_sMaxMPAmount = (pType->sMaxMPPct - 100) * (pTarget->m_iMaxMp - pTarget->m_sMaxMPAmount) / 100;
-			else
-				pTarget->m_sMaxMPAmount = pType->sMaxMP;
-
-			pTarget->m_sMaxMPAmount *= bIsBuff; //"Anything * 0 = 0" and "Anything * 1 = Anything"
-			break;
-
-		case BUFF_TYPE_AC:
-			if (pType->sAC == 0 && pType->sACPct > 0)
-				pTarget->m_sACAmount = pTarget->m_sTotalAc * (pType->sACPct - 100) / 100;
-			else
-				pTarget->m_sACAmount = pType->sAC;
-
-			pTarget->m_sACAmount *= bIsBuff; //"Anything * 0 = 0" and "Anything * 1 = Anything"
-			break;
-
-		case BUFF_TYPE_SIZE:
-			if (pSkillCaster->isPlayer())
-				TO_USER(pSkillCaster)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
-			break;
-
-		case BUFF_TYPE_DAMAGE:
-			pTarget->m_bAttackAmount = bIsBuff ? pType->bAttack : 100;
-			break;
-
-		case BUFF_TYPE_ATTACK_SPEED:
-			pTarget->m_bAttackSpeedAmount = bIsBuff ? pType->bAttackSpeed : 100;
-			break;
-
-		case BUFF_TYPE_SPEED:
-			pTarget->m_bSpeedAmount = bIsBuff ? pType->bSpeed : 100;
-			break;
-
-		case BUFF_TYPE_STATS:										//"Anything * 0 = 0" and "Anything * 1 = Anything"
-			if (pSkillCaster->isPlayer())
-			{
-				TO_USER(pTarget)->setStatBuff(STAT_STR, pType->bStr		* bIsBuff);
-				TO_USER(pTarget)->setStatBuff(STAT_STA, pType->bSta		* bIsBuff);
-				TO_USER(pTarget)->setStatBuff(STAT_DEX, pType->bDex		* bIsBuff);
-				TO_USER(pTarget)->setStatBuff(STAT_INT, pType->bIntel	* bIsBuff);
-				TO_USER(pTarget)->setStatBuff(STAT_CHA, pType->bCha		* bIsBuff);	
-			}
-			break;
-
-		case BUFF_TYPE_RESISTANCES:								//"Anything * 0 = 0" and "Anything * 1 = Anything"
-			pTarget->m_bFireRAmount = pType->bFireR				* bIsBuff;
-			pTarget->m_bColdRAmount = pType->bColdR				* bIsBuff;
-			pTarget->m_bLightningRAmount = pType->bLightningR	* bIsBuff;
-			pTarget->m_bMagicRAmount = pType->bMagicR			* bIsBuff;
-			pTarget->m_bDiseaseRAmount = pType->bDiseaseR		* bIsBuff;
-			pTarget->m_bPoisonRAmount = pType->bPoisonR			* bIsBuff;
-			break;
-
-		case BUFF_TYPE_ACCURACY:
-			pTarget->m_bHitRateAmount = bIsBuff ? pType->bHitRate : 100;
-			pTarget->m_sAvoidRateAmount = bIsBuff ? pType->sAvoidRate: 100;
-			break;	
-
-		case BUFF_TYPE_MAGIC_POWER:
-			pTarget->m_sMagicAttackAmount = (pType->bMagicAttack - 100) * TO_USER(pTarget)->getStat(STAT_CHA) / 100;
-			pTarget->m_sMagicAttackAmount *= bIsBuff; //"Anything * 0 = 0" and "Anything * 1 = Anything"
-			break;
-
-		case BUFF_TYPE_EXPERIENCE:
-			pTarget->m_bExpGainAmount = bIsBuff ? pType->bExpPct : 100;
-			break;
-
-		case BUFF_TYPE_WEIGHT:
-			pTarget->m_bMaxWeightAmount = bIsBuff ? pType->bExpPct : 100;
-			break;
-
-		case BUFF_TYPE_WEAPON_DAMAGE:
-			// uses pType->Attack
-			break;
-
-		case BUFF_TYPE_WEAPON_AC:
-			if (pType->sAC == 0 && pType->sACPct > 0)
-				pTarget->m_sACAmount = pTarget->m_sTotalAc * (pType->sACPct - 100) / 100;
-			else
-				pTarget->m_sACAmount = pType->sAC;
-			pTarget->m_sACAmount *= bIsBuff;//"Anything * 0 = 0" and "Anything * 1 = Anything"
-			break;
-
-		case BUFF_TYPE_LOYALTY:
-			// uses pType->ExpPct
-			break;
-
-		case BUFF_TYPE_NOAH_BONUS:
-			break;
-
-		case BUFF_TYPE_PREMIUM_MERCHANT:
-			TO_USER(pTarget)->m_bPremiumMerchant = bIsBuff ? true : false;
-			break;
-
-		case BUFF_TYPE_ATTACK_SPEED_ARMOR:
-			pTarget->m_sACAmount -= (bIsBuff ? 1 : -1) * pType->sAC;
-			pTarget->m_bAttackAmount = pType->bAttack * bIsBuff; //"Anything * 0 = 0" and "Anything * 1 = Anything"
-			break;
-
-		case BUFF_TYPE_DAMAGE_DOUBLE:
-			pTarget->m_bAttackAmount = bIsBuff ? pType->bAttack : 100;
-			break;
-
-		case BUFF_TYPE_DISABLE_TARGETING:
-			pTarget->m_bIsBlinded = bIsBuff ? true : false;
-			break;
-
-		case BUFF_TYPE_BLIND:
-			pTarget->m_bIsBlinded = bIsBuff ? true : false;
-			if (pTarget->isPlayer())
-				TO_USER(pTarget)->SendUserStatusUpdate(USER_STATUS_BLIND, bIsBuff ? USER_STATUS_INFLICT : USER_STATUS_CURE);
-			break;
-
-		case BUFF_TYPE_FREEZE:
-			//Proportianal to the target user's current HP.
-			pTarget->m_bSpeedAmount = bIsBuff ? pType->bSpeed : 100;
-			break;
-
-		case BUFF_TYPE_INSTANT_MAGIC:
-			pTarget->m_bInstantCast = bIsBuff ? true : false;
-			break;
-
-		case BUFF_TYPE_DECREASE_RESIST:																								//"Anything * 0 = 0" and "Anything * 1 = Anything"
-			pTarget->m_bFireRAmount			= -(pType->bFireR / 100)	*	(pTarget->m_bFireR		- pTarget->m_bFireRAmount)		* bIsBuff;
-			pTarget->m_bColdRAmount			= -(pType->bColdR / 100)	*	(pTarget->m_bColdR		- pTarget->m_bColdRAmount)		* bIsBuff;
-			pTarget->m_bLightningRAmount	= -(pType->bLightningR / 100) * (pTarget->m_bLightningR - pTarget->m_bLightningRAmount)	* bIsBuff;
-			pTarget->m_bMagicRAmount		= -(pType->bMagicR / 100)	*	(pTarget->m_bMagicR		- pTarget->m_bMagicRAmount)		* bIsBuff;
-			pTarget->m_bDiseaseRAmount		= -(pType->bDiseaseR / 100) *	(pTarget->m_bDiseaseR	- pTarget->m_bDiseaseRAmount)	* bIsBuff;
-			pTarget->m_bPoisonRAmount		= -(pType->bPoisonR / 100)	*	(pTarget->m_bPoisonR	- pTarget->m_bPoisonRAmount)	* bIsBuff;
-			break;
-
-		case BUFF_TYPE_MAGE_ARMOR:								//"Anything * 0 = 0" and "Anything * 1 = Anything"
-			pTarget->m_bReflectArmorType =  pSkill->sSkill % 100 * bIsBuff;
-			break;
-
-		case BUFF_TYPE_PROHIBIT_INVIS:
-			pTarget->m_bCanStealth = bIsBuff ? true : false;
-			break;
-
-		case BUFF_TYPE_RESIS_AND_MAGIC_DMG: //Elysian Web
-			//Increases your magic resistance to block an additional 30% magic damage.
-			break;
-
-		case BUFF_TYPE_TRIPLEAC_HALFSPEED:	//Wall of Iron
-			pTarget->m_sACAmount += bIsBuff ? pTarget->m_sTotalAc * 2 : -(pTarget->m_sTotalAc / 3 * 2);
-			pTarget->m_bSpeedAmount = bIsBuff ? pTarget->m_bSpeedAmount / 2 : 100;
-			if (pTarget->m_bSpeedAmount = 0)
-				pTarget->m_bSpeedAmount = 1;
-			break;
-
-		case BUFF_TYPE_BLOCK_CURSE:			//Counter Curse
-			//Blocks all curses.
-			break;
-
-		case BUFF_TYPE_BLOCK_CURSE_REFLECT:	//Curse Refraction
-			//Blocks all curses and has a chance to reflect the curse back upon the caster.
-			break;
-
-		case BUFF_TYPE_MANA_ABSORB:		//Outrage / Frenzy / Mana Shield
-			//Uses mana to receive damage (for mana shield its multiplied by 4, 100 damage = 400 mana used)
-			break;
-
-		case BUFF_TYPE_IGNORE_WEAPON:		//Weapon cancellation
-			//Disarms the opponent. (rendering them unable to attack)
-			break;
-
-		case BUFF_TYPE_PASSION_OF_SOUL:		//Passion of the Soul
-			//Increase pet's HP by 120
-			break;
-
-		case BUFF_TYPE_FIRM_DETERMINATION:	//Firm Determination
-			//Increase pet's AC by 20
-			break;
-
-		case BUFF_TYPE_SPEED2:				//Cold Wave
-			pTarget->m_bSpeedAmount = bIsBuff ? (pTarget->m_bSpeedAmount / 100 * 65) : 100;
-			break;
-
-		case BUFF_TYPE_ATTACK_RANGE_ARMOR:	//Inevitable Murderous
-			pTarget->m_sACAmount += bIsBuff ? 100 : -100;
-			//Increase attack range by 1 meter.
-			break;
-
-		case BUFF_TYPE_MIRROR_DAMAGE_PARTY: //Minak's Thorn
-			//Spread's damage received across party members and mirror's part of the damage.
-			break;
-
-		default:
-			bResult = false;
-			break;
-	}
-	return bResult;
 }

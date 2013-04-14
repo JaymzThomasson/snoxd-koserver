@@ -95,7 +95,6 @@ public:
 	short GetMagicDamage(Unit *pTarget, int total_hit, int attribute);
 	short GetWeatherDamage(short damage, int attribute);
 	void ReflectDamage(int32 damage);
-	bool GrantType4Buff(_MAGIC_TYPE4 *pType, CUser *pTarget, bool bGiveBuff = true);
 
 	void SendSkillToAI();
 	void SendSkill(int16 pSkillCaster = -1, int16 pSkillTarget = -1, 
