@@ -552,6 +552,8 @@ public:
 	void HandleChallengeCancelled(uint8 opcode);
 	void HandleChallengeRejected(uint8 opcode);
 
+	void HandlePlayerRankings(Packet & pkt);
+
 	void SendNotice();
 	void UserLookChange( int pos, int itemid, int durability );
 	void SpeedHackUser();

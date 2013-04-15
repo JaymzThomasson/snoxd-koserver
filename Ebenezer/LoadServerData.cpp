@@ -261,6 +261,10 @@ void CEbenezerDlg::CleanupUserRankings()
 	// Free the memory used by the _USER_RANK structs
 	foreach (itr, deleteSet)
 		delete *itr;
+
+	// These only store pointers to memory that was already freed by the primary rankings maps.
+	m_playerRankings[KARUS_ARRAY].clear();
+	m_playerRankings[ELMORAD_ARRAY].clear();
 }
 
 bool CEbenezerDlg::LoadKnightsCapeTable()

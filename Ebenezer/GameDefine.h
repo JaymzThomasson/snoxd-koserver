@@ -401,9 +401,9 @@ struct _KNIGHTS_RATING
 struct _USER_RANK
 {
 	uint16	nRank;  // shIndex for USER_KNIGHTS_RANK
-	std::string strElmoUserID;
-	std::string strKarusUserID;
+	std::string strUserID[2];
 	uint32	nSalary; // nMoney for USER_KNIGHTS_RANK
+	uint32	nLoyalty[2]; // nKarusLoyaltyMonthly/nElmoLoyaltyMonthly for USER_PERSONAL_RANK
 };
 
 // TO-DO: Rewrite this system to be less script dependent for exchange logic.

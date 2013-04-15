@@ -375,7 +375,7 @@ bool CUser::HandlePacket(Packet & pkt)
 		HandleChallenge(pkt);
 		break;
 	case WIZ_RANK:
-		printf("WIZ_RANK\n");
+		HandlePlayerRankings(pkt);
 		break;
 
 	default:
@@ -4056,4 +4056,70 @@ void CUser::RecastSavedMagic()
 		CMagicProcess::MagicPacket(result, this, true);
 	}
 
+}
+
+/**
+ * @brief	Displays the player rankings board in PK zones, 
+ * 			when left-ALT is held.
+ *
+ * @param	pkt	The packet.
+ */
+void CUser::HandlePlayerRankings(Packet & pkt)
+{
+	/* 
+		NOTE: This is a mockup. 
+		It should not be used in its current state for anything
+		other than testing.
+	*/
+	Packet result(WIZ_RANK, uint8(1));
+
+	CKnights * pKnights = g_pMain->GetClanPtr(GetClanID());
+	uint16 sClanID = 0;
+	uint16 sMarkVersion = 0;
+	std::string strClanName;
+
+	// Just testing with the active clan, 
+	// as we don't currently store the clan ID in the rankings tables.
+	if (pKnights != NULL)
+	{
+		sClanID = GetClanID();
+		sMarkVersion = pKnights->m_sMarkVersion;
+		strClanName = pKnights->m_strName;
+	}
+
+	FastGuard lock(g_pMain->m_userRankingsLock);
+
+	// List top 10 rankings for each nation
+	for (int nation = KARUS_ARRAY; nation <= ELMORAD_ARRAY; nation++)
+	{
+		uint16 sCount = 0;
+		size_t wpos = result.wpos();
+		result << sCount; // placeholder
+
+		foreach (itr, g_pMain->m_playerRankings[nation])
+		{
+			if (itr->first > 10)
+				break;
+
+			result	<< itr->second->strUserID[nation]
+					<< true // seems to be 0 or 1, not sure what it does though
+					<< sClanID // clan ID
+					<< sMarkVersion // mark/symbol version
+					<< strClanName // clan name
+					<< itr->second->nLoyalty[nation]
+					<< uint16(123); // bonus from prem NP
+
+			sCount++;
+		}
+
+		result.put(wpos, sCount);
+		wpos = result.wpos();
+	}
+
+	result	<< uint16(1) // I don't know what this is, changing it to 0 has no effect...
+			// player's own stats
+			<< GetLoyalty()
+			<< uint16(123);
+
+	Send(&result);
 }

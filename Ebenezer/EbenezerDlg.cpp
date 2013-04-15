@@ -1416,8 +1416,8 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 }
 
 /**
- * Kicks invaders out of the invaded nation after a war
- * and resets captains.
+ * @brief	Kicks invaders out of the invaded nation after a war
+ *			and resets captains.
  **/
 void CEbenezerDlg::BanishLosers()
 {
@@ -1512,6 +1512,12 @@ void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
 	Send_All(&result, NULL, nation);
 }
 
+/**
+ * @brief	Loads the specified user's NP ranks
+ * 			from the rankings tables.
+ *
+ * @param	pUser	The user.
+ */
 void CEbenezerDlg::GetUserRank(CUser *pUser)
 {
 	// Acquire the lock for thread safety
@@ -1522,7 +1528,7 @@ void CEbenezerDlg::GetUserRank(CUser *pUser)
 	STRTOUPPER(strUserID);
 
 	// Grab the personal rank from the map, if applicable.
-	UserRankMap::iterator itr = m_UserPersonalRankMap.find(strUserID);
+	UserNameRankMap::iterator itr = m_UserPersonalRankMap.find(strUserID);
 	pUser->m_bPersonalRank = itr != m_UserPersonalRankMap.end() ? int8(itr->second->nRank) : -1;
 
 	// Grab the knights rank from the map, if applicable.

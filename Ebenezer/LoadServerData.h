@@ -43,7 +43,8 @@ typedef CSTLMap <_ITEM_EXCHANGE>			ItemExchangeArray;
 typedef CSTLMap <_ITEM_UPGRADE>				ItemUpgradeArray;
 typedef CSTLMap <CKingSystem>				KingSystemArray;
 
-typedef stdext::hash_map<std::string, _USER_RANK *>		UserRankMap; 
+typedef stdext::hash_map<std::string, _USER_RANK *>		UserNameRankMap; 
+typedef std::map<uint8, _USER_RANK *>		UserRankMap;
 
 typedef std::pair<uint8, uint16>			NpcTrapPair;
 typedef std::map<NpcTrapPair, int32>		EventTriggerArray;

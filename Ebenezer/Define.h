@@ -147,6 +147,9 @@ enum NpcType
 #define ELMORAD             2
 #define BATTLE				3
 
+#define KARUS_ARRAY (KARUS - 1)
+#define ELMORAD_ARRAY (ELMORAD - 1)
+
 #define BATTLE_ZONE			101
 
 ////////////////////////////////////////////////////////////

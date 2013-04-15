@@ -200,8 +200,9 @@ public:
 	KnightsRatingArray		m_KnightsRatingArray[2]; // one for both nations
 	KnightsAllianceArray	m_KnightsAllianceArray;
 	KnightsCapeArray		m_KnightsCapeArray;
-	UserRankMap				m_UserPersonalRankMap;
-	UserRankMap				m_UserKnightsRankMap;
+	UserNameRankMap			m_UserPersonalRankMap;
+	UserNameRankMap			m_UserKnightsRankMap;
+	UserRankMap				m_playerRankings[2]; // one for both nations
 	FastMutex				m_userRankingsLock;
 	HomeArray				m_HomeArray;
 	StartPositionArray		m_StartPositionArray;
