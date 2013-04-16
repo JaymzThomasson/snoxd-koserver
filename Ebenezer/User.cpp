@@ -1141,9 +1141,8 @@ void CUser::LevelChange(short level, bool bLevelUp /*= true*/)
 	{
 		if ((m_sPoints + getStatTotal()) < int32(300 + 3 * (level - 1)))
 			m_sPoints += 3;
-		if( level > 9 && (m_bstrSkill[0]+m_bstrSkill[1]+m_bstrSkill[2]+m_bstrSkill[3]+m_bstrSkill[4]
-			+m_bstrSkill[5]+m_bstrSkill[6]+m_bstrSkill[7]+m_bstrSkill[8]) < (2*(level-9)) )
-			m_bstrSkill[0] += 2;	// Skill Points up
+		if (level >= 10 && GetTotalSkillPoints() < 2 * (level - 9))
+			m_bstrSkill[SkillPointFree] += 2;
 	}
 
 	m_iMaxExp = g_pMain->GetExpByLevel(level);
@@ -1158,7 +1157,7 @@ void CUser::LevelChange(short level, bool bLevelUp /*= true*/)
 
 	Packet result(WIZ_LEVEL_CHANGE);
 	result	<< GetSocketID()
-			<< GetLevel() << m_sPoints << m_bstrSkill[0]
+			<< GetLevel() << m_sPoints << m_bstrSkill[SkillPointFree]
 			<< m_iMaxExp << m_iExp
 			<< m_iMaxHp << m_sHp 
 			<< m_iMaxMp << m_sMp
@@ -1208,16 +1207,49 @@ void CUser::PointChange(Packet & pkt)
 void CUser::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= true*/) 
 {
 	Packet result(WIZ_HP_CHANGE);
+	uint16 tid = (pAttacker != NULL ? pAttacker->GetID() : -1);
+	int16 oldHP = m_sHp;
 
-	if (amount < 0 && -amount > m_sHp)
+	// If we're taking damage...
+	if (amount < 0)
+	{
+		// Handle mastery passives
+		if (isMastered())
+		{
+			// Matchless: [Passive]Decreases all damages received by 15%
+			if (CheckSkillPoint(SkillPointMaster, 10, MAX_LEVEL))
+				amount = (85 * amount) / 100;
+			// Absoluteness: [Passive]Decrease 10 % demage of all attacks
+			else if (CheckSkillPoint(SkillPointMaster, 5, 9))
+				amount = (90 * amount) / 100;
+		}
+    }
+
+	if (amount < 0 && -amount >= m_sHp)
 		m_sHp = 0;
 	else if (amount >= 0 && m_sHp + amount > m_iMaxHp)
 		m_sHp = m_iMaxHp;
 	else
 		m_sHp += amount;
 
-	uint16 tid = (pAttacker != NULL ? pAttacker->GetID() : -1);
 	result << m_iMaxHp << m_sHp << tid;
+
+	if (GetHealth() > 0
+		&& isMastered())
+	{
+		const uint16 hp30Percent = (30 * GetMaxHealth()) / 100;
+		if ((oldHP >= hp30Percent && m_sHp < hp30Percent)
+			|| (m_sHp > hp30Percent))
+		{
+			SetSlotItemValue();
+			SetUserAbility();
+			Send2AI_UserUpdateInfo();
+
+			if (m_sHp < hp30Percent)
+				ShowEffect(106800); // skill ID for "Boldness", shown when a player takes damage.
+		}
+	}
+
 	Send(&result);
 
 	if (bSendToAI)
@@ -1242,13 +1274,22 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= 
 void CUser::MSpChange(int amount)
 {
 	Packet result(WIZ_MSP_CHANGE);
-
+	int16 oldMP = m_sMp;
+	
 	// TO-DO: Make this behave unsigned.
 	m_sMp += amount;
 	if (m_sMp < 0)
 		m_sMp = 0;
 	else if (m_sMp > m_iMaxMp)
 		m_sMp = m_iMaxMp;
+
+	if (isMasteredMage())
+	{
+		const uint16 mp30Percent = (30 * GetMaxMana()) / 100;
+		if (oldMP >= mp30Percent
+			&& GetMana() < mp30Percent)
+			ShowEffect(106800); // skill ID for "Boldness", shown when a player loses mana.
+	}
 
 	result << m_iMaxMp << m_sMp;
 	Send(&result);
@@ -1268,6 +1309,19 @@ void CUser::SendPartyHPUpdate()
 			<< m_iMaxHp << m_sHp
 			<< m_iMaxMp << m_sMp;
 	g_pMain->Send_PartyMember(m_sPartyIndex, &result);
+}
+
+/**
+ * @brief	Shows the specified skill's effect 
+ * 			to the surrounding regions.
+ *
+ * @param	nSkillID	Skill identifier.
+ */
+void CUser::ShowEffect(uint32 nSkillID)
+{
+	Packet result(WIZ_EFFECT);
+	result << GetID() << nSkillID;
+	SendToRegion(&result);
 }
 
 /**

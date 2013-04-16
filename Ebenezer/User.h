@@ -200,6 +200,17 @@ public:
 	__forceinline bool isMage() { return JobGroupCheck(3); }
 	__forceinline bool isPriest() { return JobGroupCheck(4); }
 
+	__forceinline bool isMastered() 
+	{
+		uint16 sClass = GetClass() % 100;
+		return (sClass == 6 || sClass == 8  || sClass == 10 || sClass == 12); 
+	}
+
+	__forceinline bool isMasteredWarrior() { return (GetClass() % 100) == 6; }
+	__forceinline bool isMasteredRogue()   { return (GetClass() % 100) == 8; }
+	__forceinline bool isMasteredMage()    { return (GetClass() % 100) == 10; }
+	__forceinline bool isMasteredPriest()  { return (GetClass() % 100) == 12; }
+
 	__forceinline bool isTrading() { return m_sExchangeUser != -1; }
 	__forceinline bool isStoreOpen() { return m_bStoreOpen; }
 	__forceinline bool isMerchanting() { return GetMerchantState() != MERCHANT_STATE_NONE; }
@@ -307,6 +318,13 @@ public:
 		return getStat(type) + getStatItemBonus(type) + getStatBuff(type);
 	}
 
+	__forceinline uint16 GetTotalSkillPoints()
+	{
+		return m_bstrSkill[SkillPointFree] + m_bstrSkill[SkillPointCat1] 
+			+ m_bstrSkill[SkillPointCat2] + m_bstrSkill[SkillPointCat3] 
+			+ m_bstrSkill[SkillPointMaster];
+	}
+
 	__forceinline _ITEM_DATA * GetItem(uint8 pos) { return &m_sItemArray[pos]; }
 	_ITEM_TABLE* GetItemPrototype(uint8 pos);
 
@@ -364,6 +382,7 @@ public:
 	virtual void HpChange(int amount, Unit *pAttacker = NULL, bool bSendToAI = true);
 	virtual void MSpChange(int amount);
 	void SendPartyHPUpdate();
+	void ShowEffect(uint32 nSkillID);
 	void SendAnvilRequest(uint16 sNpcID, uint8 bType = ITEM_UPGRADE_REQ);
 	void RecastSavedMagic();
 

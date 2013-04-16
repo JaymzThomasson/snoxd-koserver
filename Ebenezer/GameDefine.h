@@ -141,6 +141,15 @@ enum ItemMovementType
 #define PRO_SKILL3			0x07
 #define PRO_SKILL4			0x08
 
+enum SkillPointCategory
+{
+	SkillPointFree		= 0,
+	SkillPointCat1		= 5,
+	SkillPointCat2		= 6,
+	SkillPointCat3		= 7,
+	SkillPointMaster	= 8
+};
+
 /////////////////////////////////////////////////////////////
 // ITEM TYPE DEFINE
 #define ITEM_TYPE_FIRE				0x01
