@@ -128,6 +128,8 @@ unsigned int __stdcall DatabaseThread::ThreadProc(void * lpParam)
 		case WIZ_KING:
 			CKingSystem::HandleDatabaseRequest(pUser, pkt);
 			break;
+		case WIZ_ITEM_UPGRADE:
+			if (pUser) pUser->ReqSealItem(pkt);
 		}
 		// Free the packet.
 		delete p;
@@ -824,6 +826,31 @@ void CKingSystem::HandleDatabaseRequest_Event(CUser * pUser, Packet & pkt)
 			g_DBAgent.InsertPrizeEvent(opcode, byNation, nCoins, strUserID);
 		} break;
 	}
+}
+
+void CUser::ReqSealItem(Packet & pkt)
+{
+	uint8 bSrcPos, bSealType, opcode1, bSealResult;
+	uint32 nItemID;
+	uint64 nItemSerial;
+	string strSealPasswd;
+	bool doSeal;
+
+	pkt >> opcode1 >> bSealType >> nItemID >> bSrcPos >> strSealPasswd >> bSealResult >> doSeal;
+	
+	nItemSerial = GetItem(SLOT_MAX+bSrcPos)->nSerialNum;
+
+	if (!bSealResult)
+		bSealResult = g_DBAgent.SealItem(strSealPasswd, nItemSerial, nItemID, bSealType, doSeal, this);
+
+	Packet result(WIZ_ITEM_UPGRADE, uint8(ITEM_SEAL));
+	result << bSealType << bSealResult << nItemID << bSrcPos;
+	Send(&result);
+
+	if (bSealResult == 1 && doSeal)
+		GetItem(SLOT_MAX+bSrcPos)->bFlag = ITEM_FLAG_SEALED;
+	else if (bSealResult == 1 && !doSeal)
+		GetItem(SLOT_MAX+bSrcPos)->bFlag = 0;
 }
 
 void DatabaseThread::Shutdown()

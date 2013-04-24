@@ -465,6 +465,13 @@ struct _QUEST_HELPER
 	std::string strLuaFilename;
 };
 
+struct _USER_SEAL_ITEM
+{
+	uint64 nSerialNum;
+	uint32 nItemID;
+	uint8 bSealType;
+};
+
 #define QUEST_MOB_GROUPS		4
 #define QUEST_MOBS_PER_GROUP	4
 struct _QUEST_MONSTER

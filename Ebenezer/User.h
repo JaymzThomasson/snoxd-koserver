@@ -7,9 +7,11 @@
 #include "ChatHandler.h"
 
 struct _EXCHANGE_ITEM;
-typedef	std::list<_EXCHANGE_ITEM*>		ItemList;
-typedef	std::map<uint32, time_t>		SkillCooldownList;
-typedef	std::map<uint32, time_t>		UserSavedMagicMap;
+struct _USER_SEAL_ITEM;
+typedef std::map<uint64, _USER_SEAL_ITEM*>	UserItemSealMap;
+typedef	std::list<_EXCHANGE_ITEM*>			ItemList;
+typedef	std::map<uint32, time_t>			SkillCooldownList;
+typedef	std::map<uint32, time_t>			UserSavedMagicMap;
 
 #define BANISH_DELAY_TIME    30
 
@@ -86,6 +88,7 @@ public:
 	std::list<uint16>	m_arMerchantLookers;
 	_MERCH_DATA	m_arMerchantItems[MAX_MERCH_ITEMS]; //What is this person selling? Stored in "_MERCH_DATA" structure.
 	bool	m_bPremiumMerchant;
+	UserItemSealMap m_sealedItemMap;
 
 	uint8	m_bRequestingChallenge, // opcode of challenge request being sent by challenger
 			m_bChallengeRequested;  // opcode of challenge request received by challengee
@@ -690,6 +693,7 @@ public:
 	void ReqAddFriend(Packet & pkt);
 	void ReqRemoveFriend(Packet & pkt);
 	void ReqChangeCape(Packet & pkt);
+	void ReqSealItem(Packet & pkt);
 
 //private:
 	static ChatCommandTable s_commandTable;

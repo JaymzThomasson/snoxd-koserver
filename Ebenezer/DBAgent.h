@@ -64,6 +64,7 @@ public:
 	int8 DeleteChar(std::string & strAccountID, int index, std::string & strCharID, std::string & strSocNo);
 
 	void LoadRentalData(std::string & strAccountID, std::string & strCharID, UserRentalMap & rentalData);
+	void LoadItemSealData(std::string & strAccountID, std::string & strCharID, UserItemSealMap & itemSealData);
 
 	bool LoadUserData(std::string & strAccountID, std::string & strCharID, CUser *pUser);
 	bool LoadWarehouseData(std::string & strAccountID, CUser *pUser);
@@ -83,6 +84,7 @@ public:
 	bool UpdateUser(std::string & strCharID, UserUpdateType type, CUser *pUser);
 	bool UpdateWarehouseData(std::string & strAccountID, UserUpdateType type, CUser *pUser);
 	bool UpdateSavedMagic(CUser *pUser);
+	uint8 SealItem(std::string strSealPasswd, uint64 nItemSerial, uint32 nItemID, uint8 bSealType, bool doSeal, CUser *pUser);
 
 	int8 CreateKnights(uint16 sClanID, uint8 bNation, std::string & strKnightsName, std::string & strChief, uint8 bFlag = 1);
 	int UpdateKnights(uint8 bType, std::string & strCharID, uint16 sClanID, uint8 bDomination);

@@ -295,6 +295,38 @@ void CDBAgent::LoadRentalData(string & strAccountID, string & strCharID, UserRen
 	} while (dbCommand->MoveNext());
 }
 
+void CDBAgent::LoadItemSealData(string & strAccountID, string & strCharID, UserItemSealMap & itemSealData)
+{
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == NULL)
+		return;
+
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strAccountID.c_str(), strAccountID.length());
+	if (!dbCommand->Execute(_T("{CALL LOAD_SEALED_ITEM_DATA(?)}")))
+	{
+		ReportSQLError(m_GameDB->GetError());
+		return;
+	}
+
+	if (!dbCommand->hasData())
+		return;
+
+	do
+	{
+		_USER_SEAL_ITEM *pItem = new _USER_SEAL_ITEM;
+
+		dbCommand->FetchUInt64(1, pItem->nSerialNum);
+		dbCommand->FetchUInt32(2, pItem->nItemID);
+		dbCommand->FetchByte(3, pItem->bSealType);
+
+		if (pItem == NULL)
+			delete pItem;
+		else
+			itemSealData.insert(std::make_pair(pItem->nSerialNum, pItem));
+
+	} while (dbCommand->MoveNext());
+}
+
 bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pUser)
 {
 	uint16 nRet = 0;
@@ -389,7 +421,8 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 	memset(pUser->m_sItemArray, 0x00, sizeof(pUser->m_sItemArray));
 
 	UserRentalMap rentalData;
-	LoadRentalData(strAccountID, strCharID, rentalData); 
+	LoadRentalData(strAccountID, strCharID, rentalData);
+	LoadItemSealData(strAccountID, strCharID, pUser->m_sealedItemMap);
 
 	for (int i = 0; i < INVENTORY_TOTAL; i++)
 	{ 
@@ -424,6 +457,12 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 		{
 			pItem->bFlag = ITEM_FLAG_RENTED;
 			pItem->sRemainingRentalTime = itr->second->sMinutesRemaining;
+		}
+
+		UserItemSealMap::iterator sealitr = pUser->m_sealedItemMap.find(nSerialNum);
+		if (sealitr != pUser->m_sealedItemMap.end())
+		{
+			pItem->bFlag = ITEM_FLAG_SEALED;
 		}
 	}
 
@@ -746,6 +785,26 @@ void CDBAgent::SaveSkillShortcut(short sCount, char *buff, CUser *pUser)
 		ReportSQLError(m_GameDB->GetError());
 }
 
+uint8 CDBAgent::SealItem(string strSealPasswd, uint64 nItemSerial, uint32 nItemID, uint8 bSealType, bool doSeal, CUser *pUser)
+{
+	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == NULL)
+		return 3;
+
+	uint8 nRet = 1;
+
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetAccountName(), strlen(pUser->GetAccountName()));
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName(), strlen(pUser->GetName()));
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strSealPasswd.c_str(), strSealPasswd.length());
+	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
+
+
+	if (!dbCommand->Execute(string_format(_T("{CALL USER_ITEM_SEAL(?, ?, ?, %I64d, %d, %d, %d, ?)}"), nItemSerial, nItemID, bSealType, doSeal)))
+		ReportSQLError(m_GameDB->GetError());
+
+	return nRet;
+}
+
 void CDBAgent::RequestFriendList(std::vector<string> & friendList, CUser *pUser)
 {
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
@@ -855,7 +914,7 @@ bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, CUser *pUser)
 	if (!dbCommand->Execute(string_format(_T("{CALL UPDATE_USER_DATA ("
 			"?, " // strCharID 
 			"%d, %d, %d, %d, %d, "		// nation, race, class, hair, rank
-			"%d, %d, %d, %d, %d, "		// title, level, exp, loyalty, face
+			"%d, %d, %I64d, %d, %d, "		// title, level, exp, loyalty, face
 			"%d, %d, %d, "				// city, knights, fame
 			"%d, %d, %d, "				// hp, mp, sp
 			"%d, %d, %d, %d, %d, "		// str, sta, dex, int, cha
@@ -864,7 +923,7 @@ bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, CUser *pUser)
 			"?, ?, ?, ?, "				// strSkill, strItem, strSerial, strQuest
 			"%d, %d)}"),				// manner points, monthly NP
 		pUser->m_bNation, pUser->m_bRace, pUser->m_sClass, pUser->m_nHair, pUser->m_bRank, 
-		pUser->m_bTitle, pUser->m_bLevel, (int32)pUser->m_iExp /* temp hack, database needs to support it */, pUser->m_iLoyalty, pUser->m_bFace, 
+		pUser->m_bTitle, pUser->m_bLevel, pUser->m_iExp /* temp hack, database needs to support it */, pUser->m_iLoyalty, pUser->m_bFace, 
 		pUser->m_bCity,	pUser->m_bKnights, pUser->m_bFame, 
 		pUser->m_sHp, pUser->m_sMp, pUser->m_sSp, 
 		pUser->m_bStats[STAT_STR], pUser->m_bStats[STAT_STA], pUser->m_bStats[STAT_DEX], pUser->m_bStats[STAT_INT], pUser->m_bStats[STAT_CHA], 
