@@ -275,7 +275,7 @@ _START_POSITION *CEbenezerDlg::GetStartPosition(int nZoneID)
  * @return	The experience points required to level up from 
  * 			the specified level.
  */
-long CEbenezerDlg::GetExpByLevel(int nLevel)
+int64 CEbenezerDlg::GetExpByLevel(int nLevel)
 {
 	LevelUpArray::iterator itr = m_LevelUpArray.find(nLevel);
 	if (itr != m_LevelUpArray.end())

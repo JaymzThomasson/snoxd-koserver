@@ -13,7 +13,7 @@ class C3DMap;
 class CKingSystem;
 
 typedef CSTLMap <C3DMap>					ZoneArray;
-typedef std::map<int, long>					LevelUpArray;
+typedef std::map<int, int64>				LevelUpArray;
 typedef CSTLMap <_CLASS_COEFFICIENT>		CoefficientArray;
 typedef CSTLMap <_ITEM_TABLE>				ItemtableArray;
 typedef CSTLMap <_MAGIC_TABLE>				MagictableArray;

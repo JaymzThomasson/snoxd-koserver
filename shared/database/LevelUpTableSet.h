@@ -12,10 +12,10 @@ public:
 	virtual bool Fetch()
 	{
 		// TO-DO: This needs to be increased to support bigint
-		std::pair<uint8, uint32> pData;
+		std::pair<uint8, int64> pData;
 
 		_dbCommand->FetchByte(1, pData.first);
-		_dbCommand->FetchUInt32(2, pData.second);
+		_dbCommand->FetchInt64(2, pData.second);
 
 		m_pMap->insert(pData);
 

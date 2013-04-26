@@ -149,7 +149,7 @@ public:
 	void GetServerResource(int nResourceID, std::string * result, ...);
 	_START_POSITION *GetStartPosition(int nZoneID);
 
-	long GetExpByLevel(int nLevel);
+	int64 GetExpByLevel(int nLevel);
 	C3DMap * GetZoneByID(int zoneID);
 
 	CUser * GetUserPtr(std::string findName, NameType type);
