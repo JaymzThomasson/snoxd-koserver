@@ -265,6 +265,34 @@ enum KingSystemImpeachmentOpcodes
 	KING_IMPEACHMENT_ELECTION_UI_OPEN	= 9
 };
 
+enum MiningSystemOpcodes
+{
+	// Starts the mining process
+	MiningStart		= 1,
+
+	// Every n seconds, calls this packet to see if they found anything.
+	MiningAttempt	= 2,
+
+	// Stops the mining process
+	MiningStop		= 3,
+
+	// Soccer handler is part of the mining handler (yuck).
+	MiningSoccer	= 16,
+};
+
+enum MiningErrors
+{
+	MiningResultError			= 0, // "Mining failed"
+	MiningResultSuccess			= 1, // nothing is displayed
+	MiningResultMiningAlready	= 2, // "Mining already"
+	MiningResultNotMiningArea	= 3, // "Not mining area"
+	MiningResultPreparing		= 4, // "Preparing mining"
+	MiningResultNotPickaxe		= 5, // "A pickaxe is not" (i.e. invalid equipped item, need a pickaxe)
+	MiningResultNothingFound	= 6, // "Nothing found"
+};
+
+#define MINING_DELAY			5 // seconds
+
 ////////////////////////////////////////////////////////////////
 // Magic Packet sub define 
 ////////////////////////////////////////////////////////////////

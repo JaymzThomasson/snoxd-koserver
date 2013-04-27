@@ -78,6 +78,8 @@ enum ItemMovementType
 #define WEAPON_LOG_AC			22	// ��ų ���
 #define WEAPON_WIZARD_AC		23	// ��ų ���
 #define WEAPON_PRIEST_AC		24	// ��ų ���
+#define WEAPON_PICKAXE			61	// Unlike the others, this is just the Kind field as-is (not / 10).
+
 ////////////////////////////////////////////////////////////
 // User Status //
 #define USER_STANDING			0X01		// �� �ִ�.
@@ -315,6 +317,7 @@ struct _ITEM_TABLE
 	__forceinline bool isShield() { return GetItemGroup() == WEAPON_SHIELD; }
 	__forceinline bool isStaff() { return GetItemGroup() == WEAPON_STAFF; }
 	__forceinline bool isBow() { return GetItemGroup() == WEAPON_BOW || GetItemGroup() == WEAPON_LONGBOW; }
+	__forceinline bool isPickaxe() { return GetKind() == WEAPON_PICKAXE; }
 };
 
 struct	_PARTY_GROUP

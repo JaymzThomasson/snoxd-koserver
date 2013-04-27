@@ -101,6 +101,9 @@ public:
 	bool	m_bIsChicken; // Is the character taking the beginner/chicken quest?
 	bool	m_bIsHidingHelmet;
 
+	bool	m_bMining;
+	time_t	m_tLastMiningAttempt;
+
 	int8	m_bPersonalRank;
 	int8	m_bKnightsRank;
 
@@ -219,6 +222,7 @@ public:
 	__forceinline bool isMerchanting() { return GetMerchantState() != MERCHANT_STATE_NONE; }
 	__forceinline bool isSellingMerchant() { return GetMerchantState() == MERCHANT_STATE_SELLING; }
 	__forceinline bool isBuyingMerchant() { return GetMerchantState() == MERCHANT_STATE_BUYING; }
+	__forceinline bool isMining() { return m_bMining; }
 
 	__forceinline bool isBlockingPrivateChat() { return m_bBlockPrivateChat; }
 
@@ -582,6 +586,13 @@ public:
 	void HandleChallengeRejected(uint8 opcode);
 
 	void HandlePlayerRankings(Packet & pkt);
+
+	void HandleMiningSystem(Packet & pkt);
+	void HandleMiningStart(Packet & pkt);
+	void HandleMiningAttempt(Packet & pkt);
+	void HandleMiningStop(Packet & pkt);
+
+	void HandleSoccer(Packet & pkt);
 
 	void SendNotice();
 	void UserLookChange( int pos, int itemid, int durability );

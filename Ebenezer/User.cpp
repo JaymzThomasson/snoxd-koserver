@@ -33,9 +33,12 @@ void CUser::Initialize()
 	m_bPartyLeader = false;
 	m_bIsChicken = false;
 	m_bIsHidingHelmet = false;
+	m_bMining = false;
 	m_bPremiumMerchant = false;
 	m_bIsBlinded = false;
 	m_bInstantCast = false;
+
+	m_tLastMiningAttempt = 0;
 
 	m_bMerchantState = MERCHANT_STATE_NONE;
 	m_bInvisibilityType = INVIS_NONE;
@@ -376,6 +379,9 @@ bool CUser::HandlePacket(Packet & pkt)
 		break;
 	case WIZ_RANK:
 		HandlePlayerRankings(pkt);
+		break;
+	case WIZ_MINING:
+		HandleMiningSystem(pkt);
 		break;
 
 	default:
@@ -4238,4 +4244,169 @@ void CUser::HandlePlayerRankings(Packet & pkt)
 			<< uint16(123);
 
 	Send(&result);
+}
+
+/**
+ * @brief	Handles packets related to the mining system.
+ * 			Also handles soccer-related packets (yuck).
+ *
+ * @param	pkt	The packet.
+ */
+void CUser::HandleMiningSystem(Packet & pkt)
+{
+	uint8 opcode;
+	pkt >> opcode;
+	
+	switch (opcode)
+	{
+	case MiningStart:
+		HandleMiningStart(pkt);
+		break;
+
+	case MiningAttempt:
+		HandleMiningAttempt(pkt);
+		break;
+
+	case MiningStop:
+		HandleMiningStop(pkt);
+		break;
+
+	case MiningSoccer:
+		HandleSoccer(pkt);
+		break;
+	}
+}
+
+/**
+ * @brief	Handles users requesting to start mining.
+ * 			NOTE: This is a mock-up, so be warned that it does not 
+ * 			handle checks such as identifying if the user is allowed
+ * 			to mine in this area.
+ *
+ * @param	pkt	The packet.
+ */
+void CUser::HandleMiningStart(Packet & pkt)
+{
+	Packet result(WIZ_MINING, uint8(MiningStart));
+	uint16 resultCode = MiningResultSuccess;
+
+	// Are we mining already?
+	if (isMining())
+		resultCode = MiningResultMiningAlready;
+
+	// Do we have a pickaxe? Is it worn?
+	_ITEM_DATA * pItem;
+	_ITEM_TABLE * pTable = GetItemPrototype(RIGHTHAND, pItem);
+	if (pItem == NULL || pTable == NULL
+		|| pItem->sDuration <= 0
+		|| !pTable->isPickaxe())
+		resultCode = MiningResultNotPickaxe;
+
+	result << resultCode;
+
+	// If nothing went wrong, allow the user to start mining.
+	// Be sure to let everyone know we're mining.
+	if (resultCode == MiningResultSuccess)
+	{
+		m_bMining = true;
+		result << GetID();
+		SendToRegion(&result);
+	}
+	else
+	{
+		Send(&result);
+	}
+}
+
+/**
+ * @brief	Handles a user's mining attempt by finding a random reward (or none at all).
+ * 			This is sent automatically by the client every MINING_DELAY (5) seconds.
+ *
+ * @param	pkt	The packet.
+ */
+void CUser::HandleMiningAttempt(Packet & pkt)
+{
+	if (!isMining())
+		return;
+
+	Packet result(WIZ_MINING, uint8(MiningAttempt));
+	uint16 resultCode = MiningResultSuccess;
+
+	// Do we have a pickaxe? Is it worn?
+	_ITEM_DATA * pItem;
+	_ITEM_TABLE * pTable = GetItemPrototype(RIGHTHAND, pItem);
+	if (pItem == NULL || pTable == NULL
+		|| pItem->sDuration <= 0 // are we supposed to wear the pickaxe on use? Need to verify.
+		|| !pTable->isPickaxe())
+		resultCode = MiningResultNotPickaxe;
+
+	// Check to make sure we're not spamming the packet...
+	if ((UNIXTIME - m_tLastMiningAttempt) < MINING_DELAY)
+		resultCode = MiningResultMiningAlready; // as close an error as we're going to get...
+
+	// Effect to show to clients
+	uint16 sEffect = 0;
+
+	// This is just a mock-up based on another codebase's implementation.
+	// Need to log official data to get a proper idea of how it behaves, rate-wise,
+	// so that we can then implement it more dynamically.
+	if (resultCode == MiningResultSuccess)
+	{
+		int rate = myrand(1, 100), random = myrand(1, 10000);
+		if (rate <= 50 && random <= 5000)
+		{
+			ExpChange(1);
+			sEffect = 13082; // "XP" effect
+		}
+		else if (rate >= 50 && rate <= 75 && random <= 7500)
+		{ 
+			GiveItem(389043000); // Sling
+			sEffect = 13081; // "Item" effect
+		}
+		else if (rate >= 75 && rate <= 100 && random <= 10000)
+		{
+			GiveItem(399210000); // Mysterious Ore
+			sEffect = 13081; // "Item" effect
+		}
+		else
+		{
+			resultCode = MiningResultNothingFound;
+		}
+
+		m_tLastMiningAttempt = UNIXTIME;
+	}
+
+	result << resultCode << GetID() << sEffect;
+	if (resultCode != MiningResultSuccess
+		&& resultCode != MiningResultNothingFound)
+	{
+		// Tell us the error first
+		Send(&result);
+
+		// and then tell the client to stop mining
+		HandleMiningStop(pkt);
+		return;
+	}
+
+	SendToRegion(&result);
+}
+
+/**
+ * @brief	Handles when a user stops mining.
+ *
+ * @param	pkt	The packet.
+ */
+void CUser::HandleMiningStop(Packet & pkt)
+{
+	if (!isMining())
+		return;
+
+	Packet result(WIZ_MINING, uint8(MiningStop));
+	result << uint16(1) << GetID();
+	m_bMining = false;
+	SendToRegion(&result);
+}
+
+void CUser::HandleSoccer(Packet & pkt)
+{
 }
