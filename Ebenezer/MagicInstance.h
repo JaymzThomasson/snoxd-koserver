@@ -66,8 +66,7 @@ public:
 	_MAGIC_TABLE * pSkill;
 	int16	sCasterID, sTargetID; 
 	Unit	*pSkillCaster, *pSkillTarget;
-	uint16	sData1, sData2, sData3, sData4, 
-			sData5, sData6, sData7, sData8;
+	int16	sData[8];
 	bool	bIsRecastingSavedMagic;
 
 	void Run();
@@ -97,10 +96,9 @@ public:
 	void ReflectDamage(int32 damage);
 
 	void SendSkillToAI();
-	void SendSkill(int16 pSkillCaster = -1, int16 pSkillTarget = -1, 
-					int8 opcode = -1, uint32 nSkillID = 0, 
-					int16 sData1 = -999, int16 sData2 = -999, int16 sData3 = -999, int16 sData4 = -999, 
-					int16 sData5 = -999, int16 sData6 = -999, int16 sData7 = -999, int16 sData8 = -999);
-	void SendSkillFailed();
+	void BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8]);
+	void BuildAndSendSkillPacket(Unit * pUnit, bool bSendToRegion, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8]);
+	void SendSkill(bool bSendToRegion = true, Unit * pUnit = NULL);
+	void SendSkillFailed(int16 sTargetID = -1);
 	void SendTransformationList();
 };

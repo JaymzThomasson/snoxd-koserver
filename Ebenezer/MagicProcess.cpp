@@ -17,8 +17,8 @@ void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= NULL*/, bool is
 	}
 
 	pkt >> instance.sCasterID >> instance.sTargetID
-		>> instance.sData1 >> instance.sData2 >> instance.sData3 >> instance.sData4
-		>> instance.sData5 >> instance.sData6 >> instance.sData7 >> instance.sData8;
+		>> instance.sData[0] >> instance.sData[1] >> instance.sData[2] >> instance.sData[3]
+		>> instance.sData[4] >> instance.sData[5] >> instance.sData[6] >> instance.sData[7];
 
 	instance.pSkillCaster = g_pMain->GetUnit(instance.sCasterID);
 	instance.pSkillTarget = g_pMain->GetUnit(instance.sTargetID);

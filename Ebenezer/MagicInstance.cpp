@@ -43,7 +43,12 @@ void MagicInstance::Run()
 	switch (bOpcode)
 	{
 		case MAGIC_CASTING:
-			SendSkill();
+		case MAGIC_FLYING:
+			SendSkill(true); // send this to the region
+			break;
+
+		case MAGIC_FAIL:
+			SendSkill(false); // don't send this to the region
 			break;
 
 		case MAGIC_EFFECTING:
@@ -65,12 +70,10 @@ void MagicInstance::Run()
 			if (bInitialResult)
 				ExecuteSkill(pSkill->bType[1]);
 			break;
-		case MAGIC_FLYING:
-		case MAGIC_FAIL:
-			SendSkill();
-			break;
+
 		case MAGIC_TYPE3_END: //This is also MAGIC_TYPE4_END
 			break;
+
 		case MAGIC_CANCEL:
 		case MAGIC_CANCEL2:
 			Type3Cancel();	//Damage over Time skills.
@@ -78,6 +81,7 @@ void MagicInstance::Run()
 			Type6Cancel();	//Transformations
 			Type9Cancel();	//Stealth, lupine etc.
 			break;
+
 		case MAGIC_TYPE4_EXTEND:
 			Type4Extend();
 			break;
@@ -186,8 +190,7 @@ void MagicInstance::SendSkillToAI()
 
 		Packet result(AG_MAGIC_ATTACK_REQ); // this is the order it was in.
 		result	<< sCasterID << bOpcode << sTargetID << nSkillID 
-				<< sData1 << sData2 << sData3 
-				<< sData4 << sData5 << sData6
+				<< sData[0] << sData[1] << sData[2] << sData[3] << sData[4] << sData[5]
 				<< TO_USER(pSkillCaster)->getStatWithItemBonus(STAT_CHA);
 
 
@@ -248,86 +251,83 @@ void MagicInstance::SendTransformationList()
 	TO_USER(pSkillCaster)->Send(&result);
 }
 
-void MagicInstance::SendSkillFailed()
+/**
+ * @brief	Sends the skill failed packet to the caster.
+ *
+ * @param	sTargetID	Target ID to override with, as some use cases 
+ * 						require.
+ */
+void MagicInstance::SendSkillFailed(int16 sTargetID /*= -1*/)
 {
-	SendSkill(sCasterID, sTargetID, MAGIC_FAIL, 
-				nSkillID, sData1, sData2, sData3, sData4, 
-				sData5, sData6, sData7, sData8);
-}
-
-void MagicInstance::SendSkill(int16 sSkillCaster /* = -1 */, int16 sSkillTarget /* = -1 */,	
-								int8 opcode /* = -1 */, uint32 nSkillID /* = 0 */, 
-								int16 sData1 /* = -999 */, int16 sData2 /* = -999 */, int16 sData3 /* = -999 */, int16 sData4 /* = -999 */, 
-								int16 sData5 /* = -999 */, int16 sData6 /* = -999 */, int16 sData7 /* = -999 */, int16 sData8 /* = -999 */)
-{
-	Packet result(WIZ_MAGIC_PROCESS);
-	int16 sid = 0, tid = 0;
-
-	// Yes, these are all default value overrides.
-	// This is completely horrible, but will suffice for now...
-
-	if (opcode == -1)
-		opcode = bOpcode;
-
-	if (opcode == MAGIC_FAIL
-		&& sSkillCaster >= NPC_BAND)
+	if (pSkillCaster == NULL
+		|| !pSkillCaster->isPlayer())
 		return;
 
-	if (sSkillCaster == -1)
-		sSkillCaster = sCasterID;
+	Packet result;
+	BuildSkillPacket(result, sCasterID, sTargetID == -1 ? this->sTargetID : sTargetID, MAGIC_FAIL, nSkillID, sData);
+	TO_USER(pSkillCaster)->Send(&result);
+}
 
-	if (sSkillTarget == -1)
-		sSkillTarget = sTargetID;
+/**
+ * @brief	Builds skill packet using the specified data.
+ *
+ * @param	result			Buffer to store the packet in.
+ * @param	sSkillCaster	Skill caster's ID.
+ * @param	sSkillTarget	Skill target's ID.
+ * @param	opcode			Skill system opcode.
+ * @param	nSkillID		Identifier for the skill.
+ * @param	sData			Array of additional misc skill data.
+ */
+void MagicInstance::BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, 
+									 uint32 nSkillID, int16 sData[8])
+{
+	result.Initialize(WIZ_MAGIC_PROCESS);
+	result	<< opcode << nSkillID << sSkillCaster << sSkillTarget
+			<< sData[0] << sData[1] << sData[2] << sData[3]
+			<< sData[4] << sData[5] << sData[6] << sData[7];
+}
 
-	if (nSkillID == 0)
-		nSkillID = this->nSkillID;
+/**
+ * @brief	Builds and sends skill packet using the specified data to pUnit.
+ *
+ * @param	pUnit			The unit to send the packet to. If an NPC is specified, 
+ * 							bSendToRegion is assumed true.
+ * @param	bSendToRegion	true to send the packet to pUser's region.
+ * @param	sSkillCaster	Skill caster's ID.
+ * @param	sSkillTarget	Skill target's ID.
+ * @param	opcode			Skill system opcode.
+ * @param	nSkillID		Identifier for the skill.
+ * @param	sData			Array of additional misc skill data.
+ */
+void MagicInstance::BuildAndSendSkillPacket(Unit * pUnit, bool bSendToRegion, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8])
+{
+	Packet result;
+	BuildSkillPacket(result, sSkillCaster, sSkillTarget, opcode, nSkillID, sData);
 
-	if (sData1 == -999)
-		sData1 = this->sData1;
-	if (sData2 == -999)
-		sData2 = this->sData2;
-	if (sData3 == -999)
-		sData3 = this->sData3;
-	if (sData4 == -999)
-		sData4 = this->sData4;
-	if (sData5 == -999)
-		sData5 = this->sData5;
-	if (sData6 == -999)
-		sData6 = this->sData6;
-	if (sData7 == -999)
-		sData7 = this->sData7;
-	if (sData8 == -999)
-		sData8 = this->sData8;
-
-	result	<< opcode << nSkillID << sSkillCaster << sSkillTarget 
-			<< sData1 << sData2 << sData3 << sData4
-			<< sData5 << sData6 << sData7 << sData8;
-
-	if (pSkillCaster->isNPC())
-	{
-		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sSkillCaster);
-		if (pNpc == NULL)
-			return;
-
-		pNpc->SendToRegion(&result);
-	}
+	if (bSendToRegion || pUnit->isNPC())
+		pUnit->SendToRegion(&result);
 	else
-	{
-		CUser *pUser = NULL;
-		if ((sSkillCaster < 0 || sSkillCaster >= MAX_USER)
-			&& (sSkillTarget >= 0 && sSkillTarget < MAX_USER))
-			pUser = g_pMain->GetUserPtr(sSkillTarget);
-		else
-			pUser = g_pMain->GetUserPtr(sSkillCaster);
+		TO_USER(pUnit)->Send(&result);
+}
 
-		if (pUser == NULL)
-			return;
+/**
+ * @brief	Sends the skill data in the current context to pUnit. 
+ * 			If pUnit is NULL, it will assume the caster.
+ *
+ * @param	bSendToRegion	true to send the packet to pUnit's region. 
+ * 							If pUnit is an NPC, this is assumed true.
+ * @param	pUser		 	The unit to send the packet to.
+ * 							If pUnit is an NPC, it will send to pUnit's region regardless.
+ */
+void MagicInstance::SendSkill(bool bSendToRegion /*= true*/, Unit * pUnit /*= NULL*/)
+{
+	// If pUnit is NULL, it will assume the caster.
+	if (pUnit == NULL)
+		pUnit = pSkillCaster;
 
-		if (opcode == MAGIC_FAIL)
-			TO_USER(pSkillCaster)->Send(&result);
-		else
-			pUser->SendToRegion(&result);
-	}
+	// Build the skill packet using the skill data in the current context.
+	BuildAndSendSkillPacket(pUnit, bSendToRegion, 
+		this->sCasterID, this->sTargetID, this->bOpcode, this->nSkillID, this->sData);
 }
 
 bool MagicInstance::IsAvailable()
@@ -503,7 +503,7 @@ bool MagicInstance::IsAvailable()
 			if (pSkill->bType[0] == 2 && pSkill->bFlyingEffect != 0) // Type 2 related...
 				return true;		// Do not reduce MP/SP when flying effect is not 0.
 
-			if (pSkill->bType[0] == 1 && sData1 > 1)
+			if (pSkill->bType[0] == 1 && sData[0] > 1)
 				return true;		// Do not reduce MP/SP when combo number is higher than 0.
  
 			if (pSkill->sMsp > pSkillCaster->GetMana())
@@ -575,8 +575,10 @@ bool MagicInstance::ExecuteType1()
 		pSkillCaster->StateChangeServerDirect(7, INVIS_NONE);
 
 	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
-	sData4 = (damage == 0 ? -104 : 0);
-	SendSkill();	
+	sData[3] = (damage == 0 ? -104 : 0);
+
+	// Send the skill data in the current context to the caster's region
+	SendSkill();
 
 	return bResult;
 }
@@ -647,7 +649,9 @@ packet_send:
 	if (pSkillCaster->isPlayer() && TO_USER(pSkillCaster)->m_bInvisibilityType != 0) 
 		pSkillCaster->StateChangeServerDirect(7, INVIS_NONE);
 	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
-	sData4 = (damage == 0 ? -104 : 0);
+	sData[3] = (damage == 0 ? -104 : 0);
+
+	// Send the skill data in the current context to the caster's region
 	SendSkill();
 
 	return bResult;
@@ -672,7 +676,7 @@ bool MagicInstance::ExecuteType3()
 		{		
 			CUser* pTUser = TO_USER(itr->second);
 			if (!pTUser->isDead() && !pTUser->isBlinking()
-				&& CMagicProcess::UserRegionCheck(pSkillCaster, pTUser, pSkill, pType->bRadius, sData1, sData3))
+				&& CMagicProcess::UserRegionCheck(pSkillCaster, pTUser, pSkill, pType->bRadius, sData[0], sData[2]))
 				casted_member.push_back(pTUser);
 		}
 		g_socketMgr.ReleaseLock();
@@ -690,7 +694,8 @@ bool MagicInstance::ExecuteType3()
 		}
 #endif
 
-		// Allow for the showing of AOE skills under any circumstance.
+		// Hack to allow for the showing of AOE skills under any circumstance.
+		// Send the skill data in the current context to the caster's region
 		if (sTargetID == -1)
 			SendSkill();
 	}
@@ -749,7 +754,7 @@ bool MagicInstance::ExecuteType3()
 					TO_USER(pSkillCaster)->SendTargetHP( 0, (*itr)->GetID(), damage );
 			}
 			if (sTargetID != -1)
-				sData2 = 1;
+				sData[1] = 1;
 		}
 		else if (pType->bDuration != 0) {    // Durational Spells! Remember, durational spells only involve HPs.
 			if (damage != 0) {		// In case there was first damage......
@@ -788,9 +793,11 @@ bool MagicInstance::ExecuteType3()
 			&& TO_USER(pSkillCaster)->m_bInvisibilityType != 0 
 			&& damage < 0) //To allow for minor healing (as rogues)
 			pSkillCaster->StateChangeServerDirect(7, INVIS_NONE);
-	
-		if ( pSkill->bType[1] == 0 || pSkill->bType[1] == 3 )
-			SendSkill(sCasterID, pTUser->GetSocketID());
+
+		// Send the skill data in the current context to the caster's region, with the target explicitly set.
+		// In the case of AOEs, this will mean the AOE will show the AOE's effect on the user (not show the AOE itself again).
+		if (pSkill->bType[1] == 0 || pSkill->bType[1] == 3)
+			BuildAndSendSkillPacket(pSkillCaster, true, sCasterID, pTUser->GetSocketID(), bOpcode, nSkillID, sData);
 
 		// Tell the AI server we're healing someone (so that they can choose to pick on the healer!)
 		if (pType->bDirectType == 1 && damage > 0
@@ -828,7 +835,7 @@ bool MagicInstance::ExecuteType4()
 		{		
 			CUser* pTUser = TO_USER(itr->second);
 			if (!pTUser->isDead() && !pTUser->isBlinking()
-				&& CMagicProcess::UserRegionCheck(pSkillCaster, pTUser, pSkill, pType->bRadius, sData1, sData3))
+				&& CMagicProcess::UserRegionCheck(pSkillCaster, pTUser, pSkill, pType->bRadius, sData[0], sData[2]))
 				casted_member.push_back(pTUser);
 		}
 		g_socketMgr.ReleaseLock();
@@ -899,13 +906,16 @@ bool MagicInstance::ExecuteType4()
 		if (pSkill->bType[1] == 0 || pSkill->bType[1] == 4)
 		{
 			CUser *pUser = (sCasterID >= 0 && sCasterID < MAX_USER ? TO_USER(pSkillCaster) : pTUser);
+			int16 sDataCopy[8] = 
+			{
+				sData[0], bResult, sData[2], sData[3],
+				sData[4], pType->bSpeed, sData[6], sData[7]
+			};
 
-			sTargetID = (*itr)->GetSocketID();
-			sData2 = bResult;
 			if (!bIsRecastingSavedMagic)
-				sData4 = (bResult == 1 || sData4 == 0 ? pType->sDuration : 0);
-			sData6 = pType->bSpeed;
-			SendSkill();
+				sData[3] = (bResult == 1 || sData[3] == 0 ? pType->sDuration : 0);
+
+			BuildAndSendSkillPacket(pUser, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sDataCopy);
 
 			if (pSkill->bMoral >= MORAL_ENEMY)
 				pTUser->SendUserStatusUpdate(pType->bBuffType == BUFF_TYPE_SPEED ? USER_STATUS_SPEED : USER_STATUS_POISON, USER_STATUS_INFLICT);
@@ -913,7 +923,7 @@ bool MagicInstance::ExecuteType4()
 		
 		if (bResult == 0
 			&& sCasterID >= 0 && sCasterID < MAX_USER)
-			SendSkill(sCasterID, (*itr)->GetSocketID(), MAGIC_FAIL);
+			SendSkillFailed((*itr)->GetID());
 
 		continue;
 	}
@@ -1130,8 +1140,9 @@ bool MagicInstance::ExecuteType6()
 
 	// TO-DO : Give the users ALL TEH BONUSES!!
 
-	SendSkill(sCasterID, sTargetID, bOpcode,
-		nSkillID, sData1, 1, sData3, sDuration, 0, 0, 0, 0);
+	sData[1] = 1;
+	sData[3] = sDuration;
+	SendSkill();
 
 	pSkillCaster->InsertSavedMagic(nSkillID, sDuration);
 	return true;
@@ -1161,7 +1172,7 @@ bool MagicInstance::ExecuteType8()
 		foreach (itr, sessMap)
 		{		
 			CUser* pTUser = TO_USER(itr->second);
-			if (CMagicProcess::UserRegionCheck(pSkillCaster, pTUser, pSkill, pType->sRadius, sData1, sData3))
+			if (CMagicProcess::UserRegionCheck(pSkillCaster, pTUser, pSkill, pType->sRadius, sData[0], sData[2]))
 				casted_member.push_back(pTUser);
 		}
 		g_socketMgr.ReleaseLock();
@@ -1207,10 +1218,9 @@ bool MagicInstance::ExecuteType8()
 
 		switch(pType->bWarpType) {	
 			case 1:		// Send source to resurrection point.
-				// here we need to send to pTUser, but SendSkill() is dumb
-				SendSkill(sCasterID, (*itr)->GetSocketID(), 
-					bOpcode, nSkillID, sData1, 1, sData3);
-
+				// Send the packet to the target.
+				sData[1] = 1;
+				BuildAndSendSkillPacket(*itr, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sData); 
 				if (pTUser->GetMap() == NULL)
 					continue;
 
@@ -1247,9 +1257,9 @@ bool MagicInstance::ExecuteType8()
 			
 			case 11:	// Resurrect a dead player.
 			{
-				// here we need to send to pTUser, but SendSkill() is dumb
-				SendSkill(sCasterID, (*itr)->GetSocketID(), 
-					bOpcode, nSkillID, sData1, 1, sData3);
+				// Send the packet to the target.
+				sData[1] = 1;
+				BuildAndSendSkillPacket(*itr, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sData); 
 
 				pTUser->m_bResHpType = USER_STANDING;     // Target status is officially alive now.
 				pTUser->HpChange(pTUser->m_iMaxHp, pSkillCaster);	 // Refill HP.	
@@ -1264,10 +1274,10 @@ bool MagicInstance::ExecuteType8()
 				if (pSkillCaster->GetZoneID() != pTUser->GetZoneID())   // Same zone? 
 					goto packet_send;
 
-				// here we need to send to pTUser, but SendSkill() is dumb
-				SendSkill(sCasterID, (*itr)->GetSocketID(), 
-					bOpcode, nSkillID, sData1, 1, sData3);
-					
+				// Send the packet to the target.
+				sData[1] = 1;
+				BuildAndSendSkillPacket(*itr, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sData); 
+				
 				pTUser->Warp(pSkillCaster->GetSPosX(), pSkillCaster->GetSPosZ());
 				break;
 
@@ -1275,9 +1285,9 @@ bool MagicInstance::ExecuteType8()
 				if (pSkillCaster->GetZoneID() == pTUser->GetZoneID())	  // Different zone? 
 					goto packet_send;
 
-				// here we need to send to pTUser, but SendSkill() is dumb
-				SendSkill(sCasterID, (*itr)->GetSocketID(), 
-					bOpcode, nSkillID, sData1, 1, sData3);
+				// Send the packet to the target.
+				sData[1] = 1;
+				BuildAndSendSkillPacket(*itr, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sData); 
 
 				pTUser->ZoneChange(pSkillCaster->GetZoneID(), pSkillCaster->GetX(), pSkillCaster->GetZ()) ;
 				pTUser->UserInOut(INOUT_RESPAWN);
@@ -1285,9 +1295,9 @@ bool MagicInstance::ExecuteType8()
 				break;
 
 			case 20:	// Randomly teleport the source (within 20 meters)		
-				// here we need to send to pTUser, but SendSkill() is dumb
-				SendSkill(sCasterID, (*itr)->GetSocketID(), 
-					bOpcode, nSkillID, sData1, 1, sData3);
+				// Send the packet to the target.
+				sData[1] = 1;
+				BuildAndSendSkillPacket(*itr, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sData); 
 
 				float warp_x, warp_z;		// Variable Initialization.
 				float temp_warp_x, temp_warp_z;
@@ -1338,9 +1348,9 @@ bool MagicInstance::ExecuteType8()
 		bResult = 1;
 		
 packet_send:
-		sData2 = bResult;
-		// send to caster
-		SendSkill(sCasterID, (*itr)->GetSocketID());
+		// Send the packet to the caster.
+		sData[1] = bResult;
+		BuildAndSendSkillPacket(pSkillCaster, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sData); 
 	}
 	return true;
 }
@@ -1355,11 +1365,11 @@ bool MagicInstance::ExecuteType9()
 	if (pType == NULL)
 		return false;
 
-	sData2 = 1;
+	sData[1] = 1;
 	
 	if (pSkillTarget->HasSavedMagic(nSkillID))
 	{
-		sData2 = 0;
+		sData[1] = 0;
 		SendSkillFailed();
 		return false;
 	}
@@ -1396,9 +1406,8 @@ bool MagicInstance::ExecuteType9()
 		//TO-DO : Save the skill in the saved skill list
 	}
 
-	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_EFFECTING));
-	result	<< nSkillID << sCasterID << sTargetID
-			<< sData1 << sData2 << sData3 << sData4 << sData5 << sData6 << sData7 << sData8;
+	Packet result;
+	BuildSkillPacket(result, sCasterID, sTargetID, bOpcode, nSkillID, sData);
 	if (TO_USER(pSkillCaster)->isInParty() && pType->bStateChange == 4)
 		g_pMain->Send_PartyMember(TO_USER(pSkillCaster)->m_sPartyIndex, &result);
 	else
