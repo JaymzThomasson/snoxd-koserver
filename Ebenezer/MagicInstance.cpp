@@ -677,11 +677,22 @@ bool MagicInstance::ExecuteType3()
 		}
 		g_socketMgr.ReleaseLock();
 
+/*
+	This may affect monsters, so we do not want to it fail here.
+	When this is merged with AI, this will see both monsters and users, 
+	so we can re-apply this check then.
+*/
+#if 0	
 		if (casted_member.empty())
 		{
 			SendSkillFailed();
 			return false;			
 		}
+#endif
+
+		// Allow for the showing of AOE skills under any circumstance.
+		if (sTargetID == -1)
+			SendSkill();
 	}
 	else
 	{	// If the target was a single unit.
