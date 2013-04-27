@@ -3932,6 +3932,17 @@ void CUser::ItemSealProcess(Packet & pkt)
 		SEAL_TYPE_KROWAZ	= 3
 	};
 
+	enum SealErrorCodes
+	{
+		SealErrorNone			= 0, // no error, success!
+		SealErrorFailed			= 2, // "Seal Failed."
+		SealErrorNeedCoins		= 3, // "Not enough coins."
+		SealErrorInvalidCode	= 4, // "Invalid Citizen Registry Number" (i.e. invalid code/password)
+		SealErrorPremiumOnly	= 5, // "Only available to premium users"
+		SealErrorFailed2		= 6, // "Seal Failed."
+		SealErrorTooSoon		= 7, // "Please try again. You may not repeat this function instantly."
+	};
+
 	// Seal type
 	uint8 opcode = pkt.read<uint8>();
 
@@ -3946,7 +3957,7 @@ void CUser::ItemSealProcess(Packet & pkt)
 			string strPasswd;
 			uint32 nItemID; 
 			int16 unk0; // set to -1 in this case
-			uint8 bSrcPos, bResponse = 0;
+			uint8 bSrcPos, bResponse = SealErrorNone;
 			pkt >> unk0 >> nItemID >> bSrcPos >> strPasswd;
 
 			/* 
@@ -3955,37 +3966,41 @@ void CUser::ItemSealProcess(Packet & pkt)
 				these before implementing this check.
 			*/
 
-				// is this a valid position? (need to check if it can be taken from new slots)
+			// is this a valid position? (need to check if it can be taken from new slots)
 			if (bSrcPos >= HAVE_MAX 
 				// does the item exist where the client says it does?
 				|| GetItem(SLOT_MAX + bSrcPos)->nNum != nItemID
 				// i ain't be allowin' no stealth items to be sealed!
 				|| GetItem(SLOT_MAX + bSrcPos)->nSerialNum == 0)
-				bResponse = 2;
-				// is the password valid by client limits?
-			if(strPasswd.empty() || strPasswd.length() > 8)
-				bResponse = 4;
-
+				bResponse = SealErrorFailed;
+			// is the password valid by client limits?
+			else if (strPasswd.empty() || strPasswd.length() > 8)
+				bResponse = SealErrorInvalidCode;
 			// do we have enough coins?
-			if (m_iGold < ITEM_SEAL_PRICE)
-				bResponse = 3;
+			else if (m_iGold < ITEM_SEAL_PRICE)
+				bResponse = SealErrorNeedCoins;
 
 			_ITEM_TABLE* pItem = g_pMain->m_ItemtableArray.GetData(nItemID);
-			//If the item's not equippable we not be lettin' you seal no moar!
-			if (pItem->m_bSlot > 14)
-				bResponse = 2;
 
-			// NOTE: Possible error codes are:
-			// 2/6 - "Seal Failed." 
-			// 3   - "Not enough coins."
-			// 4   - "Invalid Citizen Registry Number" (i.e. password's wrong)
-			// 5   - "Only available to premium users"
-			// 7   - "Please try again. You may not repeat this function instantly."
-			// all else (we'll go with 3, but it's the default case): "Sealing the item failed."
+#if 0 // this doesn't look right
+			// If the item's not equippable we not be lettin' you seal no moar!
+			if (pItem->m_bSlot >= SLOT_MAX)
+				bResponse = SealErrorFailed;
+#endif
 
-			result << nItemID << bSrcPos << strPasswd << bResponse << uint8(true);
-
-			g_pMain->AddDatabaseRequest(result, this);
+			// If no error, pass it along to the database.
+			if (bResponse == SealErrorNone)
+			{
+				g_pMain->AddDatabaseRequest(result, this);
+			}
+			// If there's an error, tell the client.
+			// From memory though, there was no need -- it handled all of these conditions itself
+			// so there was no need to differentiate (just ignore the packet). Need to check this.
+			else 
+			{
+				result << bResponse;
+				Send(&result);
+			}
 		} break;
 
 		// Used when unsealing an item.
@@ -3994,20 +4009,29 @@ void CUser::ItemSealProcess(Packet & pkt)
 			string strPasswd;
 			uint32 nItemID; 
 			int16 unk0; // set to -1 in this case
-			uint8 bSrcPos, bResponse = 0;
+			uint8 bSrcPos, bResponse = SealErrorNone;
 			pkt >> unk0 >> nItemID >> bSrcPos >> strPasswd;
 
 			if (GetItem(SLOT_MAX+bSrcPos)->bFlag != ITEM_FLAG_SEALED
 				|| GetItem(SLOT_MAX+bSrcPos)->nNum != nItemID)
-				bResponse = 2;
+				bResponse = SealErrorFailed;
+			else if (strPasswd.empty() || strPasswd.length() > 8)
+				bResponse = SealErrorInvalidCode;
 
-			if(strPasswd.empty() || strPasswd.length() > 8)
-				bResponse = 4;
-
-			result << nItemID << bSrcPos << strPasswd << bResponse << uint8(false);
-
-			g_pMain->AddDatabaseRequest(result, this);
-
+			// If no error, pass it along to the database.
+			if (bResponse == SealErrorNone)
+			{
+				result << nItemID << bSrcPos << strPasswd << bResponse << false;
+				g_pMain->AddDatabaseRequest(result, this);
+			}
+			// If there's an error, tell the client.
+			// From memory though, there was no need -- it handled all of these conditions itself
+			// so there was no need to differentiate (just ignore the packet). Need to check this.
+			else
+			{
+				result << bResponse;
+				Send(&result);
+			}
 		} break;
 
 		// Used when binding a Krowaz item (presumably to take it from bound -> sealed)
@@ -4018,7 +4042,6 @@ void CUser::ItemSealProcess(Packet & pkt)
 			uint16 unk1, unk2;
 			pkt >> unk1 >> nItemID >> bSrcPos >> unk2 >> unk3;
 
-			//This is quite... turkish, for now.
 			Packet result(WIZ_ITEM_UPGRADE, uint8(ITEM_SEAL));
 			result << uint8(3) << uint8(1) << nItemID << bSrcPos;
 			Send(&result);
