@@ -3567,12 +3567,12 @@ void CUser::SendUserStatusUpdate(UserStatus type, UserStatusBehaviour status)
  * @returns	NULL if an invalid position is specified, or if there's no item at that position.
  * 			The item's prototype (_ITEM_TABLE *) otherwise.
  */
-_ITEM_TABLE* CUser::GetItemPrototype(uint8 pos)
+_ITEM_TABLE* CUser::GetItemPrototype(uint8 pos, _ITEM_DATA *& pItem)
 {
 	if (pos >= INVENTORY_TOTAL)
 		return NULL;
 
-	_ITEM_DATA *pItem = GetItem(pos);
+	pItem = GetItem(pos);
 	return pItem->nNum == 0 ? NULL : g_pMain->GetItemPtr(pItem->nNum);
 }
 

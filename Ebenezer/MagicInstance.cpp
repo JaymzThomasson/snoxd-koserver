@@ -191,8 +191,10 @@ void MagicInstance::SendSkillToAI()
 				<< TO_USER(pSkillCaster)->getStatWithItemBonus(STAT_CHA);
 
 
-		_ITEM_TABLE* pRightHand = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND);
-		if (pRightHand != NULL && pRightHand->isStaff()
+		_ITEM_DATA * pItem;
+		_ITEM_TABLE* pRightHand = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND, pItem);
+
+		if (pItem != NULL && pRightHand != NULL && pRightHand->isStaff()
 			&& TO_USER(pSkillCaster)->GetItemPrototype(LEFTHAND) == NULL)
 		{
 			if (pSkill->bType[0] == 3) {
@@ -201,10 +203,12 @@ void MagicInstance::SendSkillToAI()
 				_MAGIC_TYPE3 *pType3 = g_pMain->m_Magictype3Array.GetData(nSkillID);
 				if (pType3 == NULL)
 					return;
+
 				if (pSkillCaster->m_bMagicTypeRightHand == pType3->bAttribute )					
 					total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * pSkillCaster->GetLevel()) / 30);
 				
-				//TO-DO : Divide damage by 3 if duration = 0
+				if (pItem->sDuration <= 0)
+					total_magic_damage /= 3;
 
 				if (pType3->bAttribute == 4)
 					total_magic_damage = 0;
