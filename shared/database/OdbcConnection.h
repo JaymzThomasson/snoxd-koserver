@@ -27,8 +27,8 @@ public:
 	bool isConnected();
 	bool isError();
 
-	__forceinline HDBC GetConnectionHandle() { return m_connHandle; }
-	__forceinline bool isMarsEnabled() { return m_bMarsEnabled; }
+	INLINE HDBC GetConnectionHandle() { return m_connHandle; }
+	INLINE bool isMarsEnabled() { return m_bMarsEnabled; }
 
 
 	bool Connect(tstring szDSN, tstring szUser, tstring szPass, bool bMarsEnabled = true);

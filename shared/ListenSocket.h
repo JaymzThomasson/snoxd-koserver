@@ -123,8 +123,8 @@ public:
 		}
 	}
 
-	__forceinline bool IsOpen() { return m_opened; }
-	__forceinline HANDLE GetCompletionPort() { return m_cp; }
+	INLINE bool IsOpen() { return m_opened; }
+	INLINE HANDLE GetCompletionPort() { return m_cp; }
 
 private:
 	bool m_threadRunning;

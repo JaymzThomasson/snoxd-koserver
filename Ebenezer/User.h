@@ -183,64 +183,64 @@ public:
 	uint32				m_nQuestHelperID;
 
 public:
-	__forceinline bool isBanned() { return getAuthority() == AUTHORITY_BANNED; }
-	__forceinline bool isMuted() { return getAuthority() == AUTHORITY_MUTED; }
-	__forceinline bool isAttackDisabled() { return getAuthority() == AUTHORITY_ATTACK_DISABLED; }
-	__forceinline bool isGM() { return getAuthority() == AUTHORITY_GAME_MASTER; }
-	__forceinline bool isLimitedGM() { return getAuthority() == AUTHORITY_LIMITED_GAME_MASTER; }
+	INLINE bool isBanned() { return getAuthority() == AUTHORITY_BANNED; }
+	INLINE bool isMuted() { return getAuthority() == AUTHORITY_MUTED; }
+	INLINE bool isAttackDisabled() { return getAuthority() == AUTHORITY_ATTACK_DISABLED; }
+	INLINE bool isGM() { return getAuthority() == AUTHORITY_GAME_MASTER; }
+	INLINE bool isLimitedGM() { return getAuthority() == AUTHORITY_LIMITED_GAME_MASTER; }
 
 	virtual bool isDead() { return m_bResHpType == USER_DEAD || m_sHp <= 0; }
 	virtual bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; }
 
-	__forceinline bool isInGame() { return GetState() == GAME_STATE_INGAME; }
-	__forceinline bool isInParty() { return m_sPartyIndex != -1; }
-	__forceinline bool isInClan() { return GetClanID() > 0; }
+	INLINE bool isInGame() { return GetState() == GAME_STATE_INGAME; }
+	INLINE bool isInParty() { return m_sPartyIndex != -1; }
+	INLINE bool isInClan() { return GetClanID() > 0; }
 
-	__forceinline bool isKing() { return m_bRank == 1; }
-	__forceinline bool isClanLeader() { return getFame() == CHIEF; }
-	__forceinline bool isClanAssistant() { return getFame() == VICECHIEF; }
-	__forceinline bool isPartyLeader() { return isInParty() && m_bPartyLeader; }
+	INLINE bool isKing() { return m_bRank == 1; }
+	INLINE bool isClanLeader() { return getFame() == CHIEF; }
+	INLINE bool isClanAssistant() { return getFame() == VICECHIEF; }
+	INLINE bool isPartyLeader() { return isInParty() && m_bPartyLeader; }
 
-	__forceinline bool isWarrior() { return JobGroupCheck(1); }
-	__forceinline bool isRogue() { return JobGroupCheck(2); }
-	__forceinline bool isMage() { return JobGroupCheck(3); }
-	__forceinline bool isPriest() { return JobGroupCheck(4); }
+	INLINE bool isWarrior() { return JobGroupCheck(1); }
+	INLINE bool isRogue() { return JobGroupCheck(2); }
+	INLINE bool isMage() { return JobGroupCheck(3); }
+	INLINE bool isPriest() { return JobGroupCheck(4); }
 
-	__forceinline bool isMastered() 
+	INLINE bool isMastered() 
 	{
 		uint16 sClass = GetClass() % 100;
 		return (sClass == 6 || sClass == 8  || sClass == 10 || sClass == 12); 
 	}
 
-	__forceinline bool isMasteredWarrior() { return (GetClass() % 100) == 6; }
-	__forceinline bool isMasteredRogue()   { return (GetClass() % 100) == 8; }
-	__forceinline bool isMasteredMage()    { return (GetClass() % 100) == 10; }
-	__forceinline bool isMasteredPriest()  { return (GetClass() % 100) == 12; }
+	INLINE bool isMasteredWarrior() { return (GetClass() % 100) == 6; }
+	INLINE bool isMasteredRogue()   { return (GetClass() % 100) == 8; }
+	INLINE bool isMasteredMage()    { return (GetClass() % 100) == 10; }
+	INLINE bool isMasteredPriest()  { return (GetClass() % 100) == 12; }
 
-	__forceinline bool isTrading() { return m_sExchangeUser != -1; }
-	__forceinline bool isStoreOpen() { return m_bStoreOpen; }
-	__forceinline bool isMerchanting() { return GetMerchantState() != MERCHANT_STATE_NONE; }
-	__forceinline bool isSellingMerchant() { return GetMerchantState() == MERCHANT_STATE_SELLING; }
-	__forceinline bool isBuyingMerchant() { return GetMerchantState() == MERCHANT_STATE_BUYING; }
-	__forceinline bool isMining() { return m_bMining; }
+	INLINE bool isTrading() { return m_sExchangeUser != -1; }
+	INLINE bool isStoreOpen() { return m_bStoreOpen; }
+	INLINE bool isMerchanting() { return GetMerchantState() != MERCHANT_STATE_NONE; }
+	INLINE bool isSellingMerchant() { return GetMerchantState() == MERCHANT_STATE_SELLING; }
+	INLINE bool isBuyingMerchant() { return GetMerchantState() == MERCHANT_STATE_BUYING; }
+	INLINE bool isMining() { return m_bMining; }
 
-	__forceinline bool isBlockingPrivateChat() { return m_bBlockPrivateChat; }
+	INLINE bool isBlockingPrivateChat() { return m_bBlockPrivateChat; }
 
-	__forceinline int8 GetMerchantState() { return m_bMerchantState; }
+	INLINE int8 GetMerchantState() { return m_bMerchantState; }
 
-	__forceinline BYTE getAuthority() { return m_bAuthority; }
-	__forceinline BYTE getFame() { return m_bFame; }
+	INLINE BYTE getAuthority() { return m_bAuthority; }
+	INLINE BYTE getFame() { return m_bFame; }
 
-	__forceinline uint16 GetClass() { return m_sClass; }
+	INLINE uint16 GetClass() { return m_sClass; }
 
-	__forceinline int16 GetClanID() { return m_bKnights; }
-	__forceinline void SetClanID(int16 val) { m_bKnights = val; }
+	INLINE int16 GetClanID() { return m_bKnights; }
+	INLINE void SetClanID(int16 val) { m_bKnights = val; }
 
-	__forceinline uint32 GetCoins() { return m_iGold; }
-	__forceinline uint32 GetInnCoins() { return m_iBank; }
-	__forceinline uint32 GetLoyalty() { return m_iLoyalty; }
-	__forceinline uint32 GetMonthlyLoyalty() { return m_iLoyaltyMonthly; }
-	__forceinline uint32 GetManner() { return m_iMannerPoint; }
+	INLINE uint32 GetCoins() { return m_iGold; }
+	INLINE uint32 GetInnCoins() { return m_iBank; }
+	INLINE uint32 GetLoyalty() { return m_iLoyalty; }
+	INLINE uint32 GetMonthlyLoyalty() { return m_iLoyaltyMonthly; }
+	INLINE uint32 GetManner() { return m_iMannerPoint; }
 
 	virtual int32 GetHealth() { return m_sHp; }
 	virtual int32 GetMaxHealth() { return m_iMaxHp; }
@@ -248,27 +248,27 @@ public:
 	virtual int32 GetMaxMana() { return m_iMaxMp; }
 
 	// Shortcuts for lazy people
-	__forceinline bool hasCoins(uint32 amount) { return (GetCoins() >= amount); }
-	__forceinline bool hasInnCoins(uint32 amount) { return (GetInnCoins() >= amount); }
-	__forceinline bool hasLoyalty(uint32 amount) { return (GetLoyalty() >= amount); }
-	__forceinline bool hasMonthlyLoyalty(uint32 amount) { return (GetMonthlyLoyalty() >= amount); }
-	__forceinline bool hasManner(uint32 amount) { return (GetManner() >= amount); }
+	INLINE bool hasCoins(uint32 amount) { return (GetCoins() >= amount); }
+	INLINE bool hasInnCoins(uint32 amount) { return (GetInnCoins() >= amount); }
+	INLINE bool hasLoyalty(uint32 amount) { return (GetLoyalty() >= amount); }
+	INLINE bool hasMonthlyLoyalty(uint32 amount) { return (GetMonthlyLoyalty() >= amount); }
+	INLINE bool hasManner(uint32 amount) { return (GetManner() >= amount); }
 
-	__forceinline GameState GetState() { return m_state; }
+	INLINE GameState GetState() { return m_state; }
 
-	__forceinline uint8 getStat(StatType type)
+	INLINE uint8 getStat(StatType type)
 	{
 		ASSERT(type < STAT_COUNT);
 		return m_bStats[type];
 	}
 
-	__forceinline void setStat(StatType type, uint8 val)
+	INLINE void setStat(StatType type, uint8 val)
 	{
 		ASSERT(type < STAT_COUNT);
 		m_bStats[type] = val;
 	}
 
-	__forceinline int32 getStatTotal() // NOTE: Shares name with another, but lack-of args should be self-explanatory
+	INLINE int32 getStatTotal() // NOTE: Shares name with another, but lack-of args should be self-explanatory
 	{
 		int32 total = 0; // NOTE: this loop should be unrolled by the compiler
 		foreach_array (i, m_bStats)
@@ -276,18 +276,18 @@ public:
 		return total;
 	}
 
-	__forceinline int16 getStatItemBonus(StatType type)
+	INLINE int16 getStatItemBonus(StatType type)
 	{
 		ASSERT(type < STAT_COUNT);
 		return m_sStatItemBonuses[type];
 	}
 
-	__forceinline int16 getStatWithItemBonus(StatType type)
+	INLINE int16 getStatWithItemBonus(StatType type)
 	{
 		return getStat(type) + getStatItemBonus(type);
 	}
 
-	__forceinline int32 getStatItemBonusTotal()
+	INLINE int32 getStatItemBonusTotal()
 	{
 		int32 total = 0; // NOTE: this loop should be unrolled by the compiler
 		foreach_array (i, m_sStatItemBonuses)
@@ -295,24 +295,24 @@ public:
 		return total;
 	}
 
-	__forceinline uint16 getStatBonusTotal(StatType type)
+	INLINE uint16 getStatBonusTotal(StatType type)
 	{
 		return getStatBuff(type) + getStatItemBonus(type);
 	}
 
-	__forceinline uint8 getStatBuff(StatType type)
+	INLINE uint8 getStatBuff(StatType type)
 	{
 		ASSERT(type < STAT_COUNT);
 		return m_bStatBuffs[type];
 	}
 
-	__forceinline void setStatBuff(StatType type, uint8 val)
+	INLINE void setStatBuff(StatType type, uint8 val)
 	{
 		ASSERT(type < STAT_COUNT);
 		m_bStatBuffs[type] = val;
 	}
 
-	__forceinline uint32 getStatBuffTotal()
+	INLINE uint32 getStatBuffTotal()
 	{
 		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
 		foreach_array (i, m_bStatBuffs)
@@ -320,21 +320,21 @@ public:
 		return total;
 	}
 
-	__forceinline uint16 getStatTotal(StatType type)
+	INLINE uint16 getStatTotal(StatType type)
 	{
 		return getStat(type) + getStatItemBonus(type) + getStatBuff(type);
 	}
 
-	__forceinline uint16 GetTotalSkillPoints()
+	INLINE uint16 GetTotalSkillPoints()
 	{
 		return m_bstrSkill[SkillPointFree] + m_bstrSkill[SkillPointCat1] 
 			+ m_bstrSkill[SkillPointCat2] + m_bstrSkill[SkillPointCat3] 
 			+ m_bstrSkill[SkillPointMaster];
 	}
 
-	__forceinline _ITEM_DATA * GetItem(uint8 pos) { return &m_sItemArray[pos]; }
+	INLINE _ITEM_DATA * GetItem(uint8 pos) { return &m_sItemArray[pos]; }
 
-	__forceinline _ITEM_TABLE * GetItemPrototype(uint8 pos) 
+	INLINE _ITEM_TABLE * GetItemPrototype(uint8 pos) 
 	{
 		_ITEM_DATA * pItem;
 		return GetItemPrototype(pos, pItem);
@@ -342,7 +342,7 @@ public:
 
 	_ITEM_TABLE * GetItemPrototype(uint8 pos, _ITEM_DATA *& pItem);
 
-	__forceinline C3DMap * GetMap() { return m_pMap; }
+	INLINE C3DMap * GetMap() { return m_pMap; }
 
 	CUser(uint16 socketID, SocketMgr *mgr); 
 

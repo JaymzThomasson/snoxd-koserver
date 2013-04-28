@@ -41,7 +41,7 @@ public:
 	const char * Help;
 };
 
-__forceinline void* allocate_and_copy(uint32 len, void * pointer)
+INLINE void* allocate_and_copy(uint32 len, void * pointer)
 {
 	void * data = (void*)malloc(len);
 	if (data == NULL)

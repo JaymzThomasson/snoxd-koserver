@@ -306,18 +306,18 @@ struct _ITEM_TABLE
 	uint16	m_bPoisonR;
 	uint16	m_bCurseR;
 
-	__forceinline uint8 GetKind() { return m_bKind; }
-	__forceinline uint8 GetItemGroup() { return m_bKind / 10; }
+	INLINE uint8 GetKind() { return m_bKind; }
+	INLINE uint8 GetItemGroup() { return m_bKind / 10; }
 
-	__forceinline bool isDagger() { return GetItemGroup() == WEAPON_DAGGER; }
-	__forceinline bool isSword() { return GetItemGroup() == WEAPON_SWORD; }
-	__forceinline bool isAxe() { return GetItemGroup() == WEAPON_AXE; }
-	__forceinline bool isMace() { return GetItemGroup() == WEAPON_MACE || GetItemGroup() == WEAPON_MACE2; }
-	__forceinline bool isSpear() { return GetItemGroup() == WEAPON_SPEAR; }
-	__forceinline bool isShield() { return GetItemGroup() == WEAPON_SHIELD; }
-	__forceinline bool isStaff() { return GetItemGroup() == WEAPON_STAFF; }
-	__forceinline bool isBow() { return GetItemGroup() == WEAPON_BOW || GetItemGroup() == WEAPON_LONGBOW; }
-	__forceinline bool isPickaxe() { return GetKind() == WEAPON_PICKAXE; }
+	INLINE bool isDagger() { return GetItemGroup() == WEAPON_DAGGER; }
+	INLINE bool isSword() { return GetItemGroup() == WEAPON_SWORD; }
+	INLINE bool isAxe() { return GetItemGroup() == WEAPON_AXE; }
+	INLINE bool isMace() { return GetItemGroup() == WEAPON_MACE || GetItemGroup() == WEAPON_MACE2; }
+	INLINE bool isSpear() { return GetItemGroup() == WEAPON_SPEAR; }
+	INLINE bool isShield() { return GetItemGroup() == WEAPON_SHIELD; }
+	INLINE bool isStaff() { return GetItemGroup() == WEAPON_STAFF; }
+	INLINE bool isBow() { return GetItemGroup() == WEAPON_BOW || GetItemGroup() == WEAPON_LONGBOW; }
+	INLINE bool isPickaxe() { return GetKind() == WEAPON_PICKAXE; }
 };
 
 struct	_PARTY_GROUP

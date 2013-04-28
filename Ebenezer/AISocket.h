@@ -8,7 +8,7 @@ class CAISocket : public KOSocket
 public:
 	CAISocket(uint16 socketID, SocketMgr * mgr) : KOSocket(socketID, mgr, 0, 65536, 65536), m_bHasConnected(false) {}
 
-	__forceinline bool IsReconnecting() { return m_bHasConnected; }
+	INLINE bool IsReconnecting() { return m_bHasConnected; }
 
 	virtual void OnConnect();
 	virtual bool HandlePacket(Packet & pkt);

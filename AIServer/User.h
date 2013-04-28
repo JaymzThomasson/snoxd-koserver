@@ -91,7 +91,7 @@ public:
 	void SendExp(int iExp, int iLoyalty, int tType = 1);
 	void SendSystemMsg(char *pMsg, uint8 type, uint16 sWho);
 
-	__forceinline MAP * GetMap() { return m_pMap; };
+	INLINE MAP * GetMap() { return m_pMap; };
 
 	CUser();
 	virtual ~CUser();

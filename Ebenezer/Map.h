@@ -22,7 +22,7 @@ public:
 	_WARP_INFO * GetWarp(int warpID);
 	void GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries);
 	
-	__forceinline bool isAttackZone() { return m_isAttackZone; }
+	INLINE bool isAttackZone() { return m_isAttackZone; }
 
 	C3DMap();
 	bool Initialize(_ZONE_INFO *pZone);
