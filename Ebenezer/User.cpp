@@ -1726,27 +1726,27 @@ void CUser::ItemGet(Packet & pkt)
 		return;
 	}
 
-	pGetUser->m_sItemArray[SLOT_MAX+pos].nNum = itemid;	// Add item to inventory. 
+	pGetUser->m_sItemArray[pos].nNum = itemid;	// Add item to inventory. 
 	if (pTable->m_bCountable)
 	{
-		pGetUser->m_sItemArray[SLOT_MAX+pos].sCount += count;
-		if (pGetUser->m_sItemArray[SLOT_MAX+pos].sCount > MAX_ITEM_COUNT)
-			pGetUser->m_sItemArray[SLOT_MAX+pos].sCount = MAX_ITEM_COUNT;
+		pGetUser->m_sItemArray[pos].sCount += count;
+		if (pGetUser->m_sItemArray[pos].sCount > MAX_ITEM_COUNT)
+			pGetUser->m_sItemArray[pos].sCount = MAX_ITEM_COUNT;
 	}
 	else
 	{
-		pGetUser->m_sItemArray[SLOT_MAX+pos].sCount = 1;
-		pGetUser->m_sItemArray[SLOT_MAX+pos].nSerialNum = g_pMain->GenerateItemSerial();
+		pGetUser->m_sItemArray[pos].sCount = 1;
+		pGetUser->m_sItemArray[pos].nSerialNum = g_pMain->GenerateItemSerial();
 	}
 
 	pGetUser->SendItemWeight();
-	pGetUser->m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;
+	pGetUser->m_sItemArray[pos].sDuration = pTable->m_sDuration;
 	
 	// 1 = self, 5 = party
 	// Tell the user who got the item that they actually got it.
 	result	<< uint8(pGetUser == this ? 1 : 5)
 			<< bundle_index
-			<< pos << itemid << pGetUser->m_sItemArray[SLOT_MAX+pos].sCount
+			<< uint8(pos-SLOT_MAX) << itemid << pGetUser->m_sItemArray[pos].sCount
 			<< pGetUser->m_iGold;
 	pGetUser->Send(&result);
 
@@ -4040,13 +4040,14 @@ void CUser::ItemSealProcess(Packet & pkt)
 			}
 		} break;
 
-		// Used when binding a Krowaz item (presumably to take it from bound -> sealed)
+		// Used when binding a Krowaz item (used to take it from not bound -> bound)
 		case SEAL_TYPE_KROWAZ:
 		{
+			string strPasswd = "1";
 			uint32 nItemID;
-			uint8 bSrcPos = 0 , unk3;
+			uint8 bSrcPos = 0 , unk3, bResponse = 1;
 			uint16 unk1, unk2;
-			pkt >> unk1 >> nItemID >> bSrcPos >> unk2 >> unk3;
+			pkt >> unk1 >> nItemID >> bSrcPos >> unk3 >> unk2;
 
 			Packet result(WIZ_ITEM_UPGRADE, uint8(ITEM_SEAL));
 			result << uint8(3) << uint8(1) << nItemID << bSrcPos;

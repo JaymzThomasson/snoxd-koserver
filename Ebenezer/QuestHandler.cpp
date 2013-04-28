@@ -254,7 +254,7 @@ void CUser::QuestV2MonsterDataRequest()
 void CUser::QuestV2ExecuteHelper(_QUEST_HELPER * pQuestHelper)
 {
 	if (pQuestHelper == NULL
-		|| !CheckExistEvent(pQuestHelper->sEventDataIndex, 2))
+		|| !CheckExistEvent(pQuestHelper->sEventDataIndex, 2) && pQuestHelper->bQuestType != 3)
 		return;
 
 	QuestV2RunEvent(pQuestHelper, pQuestHelper->nEventTriggerIndex); // NOTE: Fulfill will use nEventCompleteIndex

@@ -848,7 +848,10 @@ void CUser::ReqSealItem(Packet & pkt)
 	Send(&result);
 
 	if (bSealResult == 1 && doSeal)
+	{
 		GetItem(SLOT_MAX+bSrcPos)->bFlag = ITEM_FLAG_SEALED;
+		GoldChange(GetSocketID(), 1000000);
+	}
 	else if (bSealResult == 1 && !doSeal)
 		GetItem(SLOT_MAX+bSrcPos)->bFlag = 0;
 }

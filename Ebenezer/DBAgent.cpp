@@ -461,9 +461,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 
 		UserItemSealMap::iterator sealitr = pUser->m_sealedItemMap.find(nSerialNum);
 		if (sealitr != pUser->m_sealedItemMap.end())
-		{
 			pItem->bFlag = ITEM_FLAG_SEALED;
-		}
 	}
 
 	// Clean up the rental data
