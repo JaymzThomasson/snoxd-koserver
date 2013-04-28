@@ -317,6 +317,9 @@ bool CUser::GiveItem(uint32 itemid, uint16 count, bool send_packet /*= true*/)
 	if (pItem->nNum != 0)
 		bNewItem = false;
 
+	if (bNewItem)
+		pItem->nSerialNum = g_pMain->GenerateItemSerial();
+
 	pItem->nNum = itemid;
 	pItem->sCount += count;
 	if (pItem->sCount > MAX_ITEM_COUNT)
