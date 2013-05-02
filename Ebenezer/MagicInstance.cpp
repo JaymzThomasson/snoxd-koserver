@@ -1394,7 +1394,7 @@ bool MagicInstance::ExecuteType9()
 				CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
 				if (pUser == NULL)
 					continue;
-				//To-do : save the skill for all the party members
+				pUser->InsertSavedMagic(nSkillID, pType->sDuration);
 				pUser->Send(&stealth);
 			}
 		}
@@ -1402,8 +1402,6 @@ bool MagicInstance::ExecuteType9()
 		{
 			TO_USER(pSkillCaster)->Send(&stealth);
 		}
-
-		//TO-DO : Save the skill in the saved skill list
 	}
 
 	Packet result;
