@@ -11,7 +11,10 @@ local CancelButton				= 0 -- could be any event that doesn't exist
 local ChangeIDButton				= 200
 local SkillExpRedisButton			= 300
 local GuideBookButton				= 400
+local CaptainPremiumButton			= 500
+local PremiumPotionsButton			= 520
 local ClanNCSButton				= 600
+local VoucherKarivdisButton			= 650
 local SkillExpRedisMiddleGradeButton		= 700
 local CospreButton				= 850
 
@@ -19,13 +22,13 @@ local CospreButton				= 850
 local eventMap = {
 	-- Default event for this NPC
 	[165]						= HandleNPCSelection,
-	
 	[ChangeIDButton]				= function() print("Event: 200") end,
-	-- Cospre items.
 	[SkillExpRedisButton]				= function() print("Event: 300") end,
 	[GuideBookButton]				= function() print("Event: 400") end,
-	[520]						= function() print("Event: 520") end,
+	[CaptainPremiumButton]				= function() print("Event: 500") end,
+	[PremiumPotionsButton]				= function() print("Event: 520") end,
 	[ClanNCSButton]					= function() print("Event: 600") end,
+	[VoucherKarivdisButton]				= function() print("Event: 650") end,
 	[SkillExpRedisMiddleGradeButton]		= function() print("Event: 700") end,
 	[CospreButton]					= function() print("Event: 850") end,
 }

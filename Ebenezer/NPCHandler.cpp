@@ -400,8 +400,7 @@ void CUser::ItemTrade(Packet & pkt)
 		pkt >> group >> npcid;
 		if (!g_pMain->m_bPointCheckFlag
 			|| (pNpc = g_pMain->m_arNpcArray.GetData(npcid)) == NULL
-			|| pNpc->GetType() != NPC_MERCHANT
-			|| pNpc->GetType() != NPC_TINKER
+			|| (pNpc->GetType() != NPC_MERCHANT && pNpc->GetType() != NPC_TINKER)
 			|| pNpc->m_iSellingGroup != group
 			|| !isInRange(pNpc, MAX_NPC_RANGE))
 			goto fail_return;
