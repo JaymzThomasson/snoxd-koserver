@@ -56,13 +56,13 @@ public:
 
 	virtual bool isDead() { return m_NpcState == NPC_DEAD || m_iHP <= 0; };
 
-	__forceinline bool isGate() { return GetType() == NPC_GATE || GetType() == NPC_PHOENIX_GATE || GetType() == NPC_SPECIAL_GATE || GetType() == NPC_VICTORY_GATE; };
-	__forceinline bool isGateOpen() { return m_byGateOpen == 1; };
-	__forceinline bool isGateClosed() { return !isGateOpen(); };
+	INLINE bool isGate() { return GetType() == NPC_GATE || GetType() == NPC_PHOENIX_GATE || GetType() == NPC_SPECIAL_GATE || GetType() == NPC_VICTORY_GATE; };
+	INLINE bool isGateOpen() { return m_byGateOpen == 1; };
+	INLINE bool isGateClosed() { return !isGateOpen(); };
 
-	__forceinline short GetEntryID() { return m_sSid; };
-	__forceinline BYTE GetType() { return m_tNpcType; };
-	__forceinline BYTE GetState() { return m_byState; };
+	INLINE short GetEntryID() { return m_sSid; };
+	INLINE BYTE GetType() { return m_tNpcType; };
+	INLINE BYTE GetState() { return m_byState; };
 
 	virtual int32 GetHealth() { return m_iHP; }
 	virtual int32 GetMaxHealth() { return m_iMaxHP; }

@@ -43,7 +43,7 @@ public:
 	bool Send(const uint8 * Bytes, uint32 Size);
 
 	// Burst system - Locks the sending mutex.
-	__forceinline  void BurstBegin() { m_writeMutex.Acquire(); }
+	INLINE  void BurstBegin() { m_writeMutex.Acquire(); }
 
 	// Burst system - Adds bytes to output buffer.
 	bool BurstSend(const uint8 * Bytes, uint32 Size);
@@ -52,29 +52,29 @@ public:
 	void BurstPush();
 
 	// Burst system - Unlocks the sending mutex.
-	__forceinline void BurstEnd() { m_writeMutex.Release(); }
+	INLINE void BurstEnd() { m_writeMutex.Release(); }
 
 	/* Client Operations */
 
 	// Get the client's ip in numerical form.
 	std::string GetRemoteIP();
-	__forceinline sockaddr_in & GetRemoteStruct() { return m_client; }
-	__forceinline in_addr GetRemoteAddress() { return m_client.sin_addr; }
-	__forceinline uint32 GetRemotePort() { return ntohs(m_client.sin_port); }
-	__forceinline SOCKET GetFd() { return m_fd; }
-	__forceinline SocketMgr * GetSocketMgr() { return m_socketMgr; }
+	INLINE sockaddr_in & GetRemoteStruct() { return m_client; }
+	INLINE in_addr GetRemoteAddress() { return m_client.sin_addr; }
+	INLINE uint32 GetRemotePort() { return ntohs(m_client.sin_port); }
+	INLINE SOCKET GetFd() { return m_fd; }
+	INLINE SocketMgr * GetSocketMgr() { return m_socketMgr; }
 	
 	void SetupReadEvent();
 	void ReadCallback(uint32 len);
 	void WriteCallback();
 
-	__forceinline bool IsDeleted() { return m_deleted; }
-	__forceinline bool IsConnected() { return m_connected; }
-	__forceinline CircularBuffer& GetReadBuffer() { return readBuffer; }
-	__forceinline CircularBuffer& GetWriteBuffer() { return writeBuffer; }
+	INLINE bool IsDeleted() { return m_deleted; }
+	INLINE bool IsConnected() { return m_connected; }
+	INLINE CircularBuffer& GetReadBuffer() { return readBuffer; }
+	INLINE CircularBuffer& GetWriteBuffer() { return writeBuffer; }
 
-	__forceinline void SetFd(SOCKET fd) { m_fd = fd; }
-	__forceinline void SetSocketMgr(SocketMgr *mgr) { m_socketMgr = mgr; }
+	INLINE void SetFd(SOCKET fd) { m_fd = fd; }
+	INLINE void SetSocketMgr(SocketMgr *mgr) { m_socketMgr = mgr; }
 
 	/* Deletion */
 	void Delete();
@@ -106,12 +106,12 @@ protected:
 public:
 
 	// Set completion port that this socket will be assigned to.
-	__forceinline void SetCompletionPort(HANDLE cp) { m_completionPort = cp; }
+	INLINE void SetCompletionPort(HANDLE cp) { m_completionPort = cp; }
 	
 	// Atomic wrapper functions for increasing read/write locks
-	__forceinline void IncSendLock() { InterlockedIncrement(&m_writeLock); }
-	__forceinline void DecSendLock() { InterlockedDecrement(&m_writeLock); }
-	__forceinline bool AcquireSendLock()
+	INLINE void IncSendLock() { InterlockedIncrement(&m_writeLock); }
+	INLINE void DecSendLock() { InterlockedDecrement(&m_writeLock); }
+	INLINE bool AcquireSendLock()
 	{
 		if (m_writeLock)
 			return false;

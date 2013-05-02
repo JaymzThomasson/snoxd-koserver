@@ -306,7 +306,7 @@ public:
 
 
 public:
-	__forceinline MAP * GetMap() { return m_pZone; };
+	INLINE MAP * GetMap() { return m_pZone; };
 
 	CNpc();
 	virtual ~CNpc();

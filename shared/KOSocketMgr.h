@@ -59,20 +59,20 @@ public:
 	}
 
 	ListenSocket<T> * GetServer() { return m_server; }
-	__forceinline SessionMap & GetIdleSessionMap()
+	INLINE SessionMap & GetIdleSessionMap()
 	{
 		AcquireLock();
 		return m_idleSessions;
 	}
 
-	__forceinline SessionMap & GetActiveSessionMap()
+	INLINE SessionMap & GetActiveSessionMap()
 	{
 		AcquireLock();
 		return m_activeSessions;
 	}
 
-	__forceinline void AcquireLock() { m_lock.AcquireReadLock(); }
-	__forceinline void ReleaseLock() { m_lock.ReleaseReadLock(); }
+	INLINE void AcquireLock() { m_lock.AcquireReadLock(); }
+	INLINE void ReleaseLock() { m_lock.ReleaseReadLock(); }
 
 	T * operator[] (uint16 id)
 	{

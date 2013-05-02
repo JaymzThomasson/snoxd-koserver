@@ -31,52 +31,52 @@ public:
 
 	virtual void Initialize();
 
-	__forceinline bool isPlayer() { return m_bPlayer; }
-	__forceinline bool isNPC() { return !isPlayer(); }
+	INLINE bool isPlayer() { return m_bPlayer; }
+	INLINE bool isNPC() { return !isPlayer(); }
 
-	__forceinline C3DMap * GetMap() { return m_pMap; }
+	INLINE C3DMap * GetMap() { return m_pMap; }
 
 	virtual uint16 GetID() = 0;
-	__forceinline uint8 GetZoneID() { return m_bZone; }
+	INLINE uint8 GetZoneID() { return m_bZone; }
 
-	__forceinline float GetX() { return m_curx; }
-	__forceinline float GetY() { return m_cury; }
-	__forceinline float GetZ() { return m_curz; }
+	INLINE float GetX() { return m_curx; }
+	INLINE float GetY() { return m_cury; }
+	INLINE float GetZ() { return m_curz; }
 
-	__forceinline void SetPosition(float fx, float fy, float fz)
+	INLINE void SetPosition(float fx, float fy, float fz)
 	{
 		m_curx = fx;
 		m_curz = fz;
 		m_cury = fy;
 	}
 
-	__forceinline uint16 GetSPosX() { return uint16(GetX() * 10); };
-	__forceinline uint16 GetSPosY() { return uint16(GetY() * 10); };
-	__forceinline uint16 GetSPosZ() { return uint16(GetZ() * 10); };
+	INLINE uint16 GetSPosX() { return uint16(GetX() * 10); };
+	INLINE uint16 GetSPosY() { return uint16(GetY() * 10); };
+	INLINE uint16 GetSPosZ() { return uint16(GetZ() * 10); };
 
-	__forceinline uint16 GetRegionX() { return m_sRegionX; }
-	__forceinline uint16 GetRegionZ() { return m_sRegionZ; }
+	INLINE uint16 GetRegionX() { return m_sRegionX; }
+	INLINE uint16 GetRegionZ() { return m_sRegionZ; }
 
-	__forceinline uint16 GetNewRegionX() { return (uint16)(GetX()) / VIEW_DISTANCE; }
-	__forceinline uint16 GetNewRegionZ() { return (uint16)(GetZ()) / VIEW_DISTANCE; }
+	INLINE uint16 GetNewRegionX() { return (uint16)(GetX()) / VIEW_DISTANCE; }
+	INLINE uint16 GetNewRegionZ() { return (uint16)(GetZ()) / VIEW_DISTANCE; }
 
-	__forceinline CRegion * GetRegion() { return m_pRegion; }
+	INLINE CRegion * GetRegion() { return m_pRegion; }
 	void SetRegion(uint16 x = -1, uint16 z = -1);
 
 	virtual const char * GetName() = 0; // this is especially fun...
 
-	__forceinline uint8 GetNation() { return m_bNation; }
-	__forceinline uint8 GetLevel() { return m_bLevel; }
+	INLINE uint8 GetNation() { return m_bNation; }
+	INLINE uint8 GetLevel() { return m_bLevel; }
 
 	virtual int32 GetHealth() = 0;
 	virtual int32 GetMaxHealth() = 0;
 	virtual int32 GetMana() = 0;
 	virtual int32 GetMaxMana() = 0;
 
-	__forceinline bool isTransformed() { return m_bIsTransformed; }
-	__forceinline bool isBlinded() { return m_bIsBlinded; }
-	__forceinline bool canInstantCast() { return m_bInstantCast; }
-	__forceinline bool canStealth()	{ return m_bCanStealth; }
+	INLINE bool isTransformed() { return m_bIsTransformed; }
+	INLINE bool isBlinded() { return m_bIsBlinded; }
+	INLINE bool canInstantCast() { return m_bInstantCast; }
+	INLINE bool canStealth()	{ return m_bCanStealth; }
 
 	virtual bool isBlinking() { return false; }
 

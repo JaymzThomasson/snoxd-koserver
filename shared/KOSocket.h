@@ -10,8 +10,8 @@ class KOSocket : public Socket
 public:
 	KOSocket(uint16 socketID, SocketMgr * mgr, SOCKET fd, uint32 sendBufferSize, uint32 recvBufferSize);
 
-	__forceinline bool isCryptoEnabled() { return m_usingCrypto; };
-	__forceinline uint16 GetSocketID() { return m_socketID; };
+	INLINE bool isCryptoEnabled() { return m_usingCrypto; };
+	INLINE uint16 GetSocketID() { return m_socketID; };
 
 	virtual void OnConnect();
 	virtual void OnRead();

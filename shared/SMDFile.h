@@ -30,17 +30,17 @@ public:
 
 	int GetEventID(int x, int z);
 
-	__forceinline int GetMapSize() { return m_nMapSize - 1; }
-	__forceinline float GetUnitDistance() { return m_fUnitDist; }
-	__forceinline int GetXRegionMax() { return m_nXRegion - 1; }
-	__forceinline int GetZRegionMax() { return m_nZRegion - 1; }
+	INLINE int GetMapSize() { return m_nMapSize - 1; }
+	INLINE float GetUnitDistance() { return m_fUnitDist; }
+	INLINE int GetXRegionMax() { return m_nXRegion - 1; }
+	INLINE int GetZRegionMax() { return m_nZRegion - 1; }
 
-	__forceinline short * GetEventIDs() { return m_ppnEvent; }
+	INLINE short * GetEventIDs() { return m_ppnEvent; }
 
-	__forceinline ObjectEventArray	* GetObjectEventArray() { return &m_ObjectEventArray; }
-	__forceinline _OBJECT_EVENT * GetObjectEvent(int objectindex) { return m_ObjectEventArray.GetData(objectindex); }
-	__forceinline _REGENE_EVENT * GetRegeneEvent(int objectindex) { return m_ObjectRegeneArray.GetData(objectindex); }
-	__forceinline _WARP_INFO * GetWarp(int warpID) { return m_WarpArray.GetData(warpID); }
+	INLINE ObjectEventArray	* GetObjectEventArray() { return &m_ObjectEventArray; }
+	INLINE _OBJECT_EVENT * GetObjectEvent(int objectindex) { return m_ObjectEventArray.GetData(objectindex); }
+	INLINE _REGENE_EVENT * GetRegeneEvent(int objectindex) { return m_ObjectRegeneArray.GetData(objectindex); }
+	INLINE _WARP_INFO * GetWarp(int warpID) { return m_WarpArray.GetData(warpID); }
 
 	void GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries);
 

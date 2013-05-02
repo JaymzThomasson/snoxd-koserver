@@ -10,8 +10,8 @@ class SocketMgr
 public:
 	SocketMgr();
 
-	__forceinline HANDLE GetCompletionPort() { return m_completionPort; }
-	__forceinline void SetCompletionPort(HANDLE cp) { m_completionPort = cp; }
+	INLINE HANDLE GetCompletionPort() { return m_completionPort; }
+	INLINE void SetCompletionPort(HANDLE cp) { m_completionPort = cp; }
 
 	void CreateCompletionPort();
 	void SpawnWorkerThreads();
@@ -42,8 +42,8 @@ protected:
 	static void CleanupWinsock();
 
 	// TO-DO: Make this atomic.
-	__forceinline void IncRef() { if (s_refs++ == 0) SetupWinsock(); }
-	__forceinline void DecRef() { if (--s_refs == 0) CleanupWinsock(); }
+	INLINE void IncRef() { if (s_refs++ == 0) SetupWinsock(); }
+	INLINE void DecRef() { if (--s_refs == 0) CleanupWinsock(); }
 
 	static uint32 s_refs; // reference counter (one app can hold multiple socket manager instances)
 };

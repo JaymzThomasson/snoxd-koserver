@@ -12,10 +12,10 @@ public:
 	OdbcCommand(HDBC conn);
 	OdbcCommand(OdbcConnection * conn);
 
-	__forceinline bool isOpen() { return m_hStmt != NULL; };
-	__forceinline TCHAR * GetError() { return (TCHAR *)m_szError.c_str();  };
-	__forceinline bool hasData() { return m_resultCode != SQL_NO_DATA && SQL_SUCCEEDED(m_resultCode); };
-	__forceinline void SetConnectionHandle(HDBC handle) { m_connHandle = handle; };
+	INLINE bool isOpen() { return m_hStmt != NULL; };
+	INLINE TCHAR * GetError() { return (TCHAR *)m_szError.c_str();  };
+	INLINE bool hasData() { return m_resultCode != SQL_NO_DATA && SQL_SUCCEEDED(m_resultCode); };
+	INLINE void SetConnectionHandle(HDBC handle) { m_connHandle = handle; };
 
 private:
 	bool BindParameters();
@@ -45,7 +45,7 @@ public:
 
 	void AddParameter(SQLSMALLINT paramType, const char *value, SQLLEN maxLength, SQLSMALLINT sqlDatatype = SQL_CHAR);
 
-	__forceinline bool FetchString(int pos, char *outBuffer, SQLLEN maxLength)
+	INLINE bool FetchString(int pos, char *outBuffer, SQLLEN maxLength)
 	{
 		SQLINTEGER bufferSize = 0;
 		return FetchString(pos, outBuffer, maxLength, &bufferSize);
@@ -54,7 +54,7 @@ public:
 	bool FetchString(int pos, char *charArray, SQLLEN maxLength, SQLLEN *bufferSize);
 	bool FetchString(int pos, std::string & value);
 
-	__forceinline bool FetchBinary(int pos, char *outBuffer, SQLLEN maxLength)
+	INLINE bool FetchBinary(int pos, char *outBuffer, SQLLEN maxLength)
 	{
 		SQLINTEGER bufferSize = 0;
 		return FetchBinary(pos, outBuffer, maxLength, &bufferSize);

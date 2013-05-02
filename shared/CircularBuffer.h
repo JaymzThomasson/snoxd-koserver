@@ -19,10 +19,10 @@ class CircularBuffer
 
 
 	// pointer magic!
-	__forceinline size_t GetAFreeSpace()  { return (m_bufferEnd - m_regionAPointer - m_regionASize); }
-	__forceinline size_t GetSpaceBeforeA() { return (m_regionAPointer - m_buffer); }
-	__forceinline size_t GetSpaceAfterA() { return (m_bufferEnd - m_regionAPointer - m_regionASize); }
-	__forceinline size_t GetBFreeSpace() { if(m_regionBPointer == NULL) { return 0; } return (m_regionAPointer - m_regionBPointer - m_regionBSize); }
+	INLINE size_t GetAFreeSpace()  { return (m_bufferEnd - m_regionAPointer - m_regionASize); }
+	INLINE size_t GetSpaceBeforeA() { return (m_regionAPointer - m_buffer); }
+	INLINE size_t GetSpaceAfterA() { return (m_bufferEnd - m_regionAPointer - m_regionASize); }
+	INLINE size_t GetBFreeSpace() { if(m_regionBPointer == NULL) { return 0; } return (m_regionAPointer - m_regionBPointer - m_regionBSize); }
 
 public:
 	CircularBuffer();
@@ -45,7 +45,7 @@ public:
 
 	/** Returns the allocated size of the buffer.
 	*/
-	__forceinline size_t GetAllocatedSize() const { return m_bufferSize; }
+	INLINE size_t GetAllocatedSize() const { return m_bufferSize; }
 
 	/** Returns the number of available bytes left.
 	*/

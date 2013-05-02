@@ -1,5 +1,7 @@
 #pragma once
 
+#define INLINE __forceinline
+
 typedef signed __int64 int64;
 typedef signed __int32 int32;
 typedef signed __int16 int16;

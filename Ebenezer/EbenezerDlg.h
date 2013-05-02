@@ -122,7 +122,7 @@ public:
 	// Get list of merchants in region
 	void GetRegionMerchantUserIn(C3DMap* pMap, uint16 region_x, uint16 region_z, Packet & pkt, uint16 & t_count);
 
-	__forceinline bool isPermanentMessageSet() { return m_bPermanentChatMode; }
+	INLINE bool isPermanentMessageSet() { return m_bPermanentChatMode; }
 	void SetPermanentMessage(const char * format, ...);
 
 	void HandleConsoleCommand(const char * msg);
@@ -266,7 +266,7 @@ public:
 	uint8 m_byKingWeatherEvent_Hour;
 	uint8 m_byKingWeatherEvent_Minute;
 
-	__forceinline CLuaEngine * GetLuaEngine() { return &m_luaEngine; }
+	INLINE CLuaEngine * GetLuaEngine() { return &m_luaEngine; }
 
 private:
 	CLuaEngine	m_luaEngine;

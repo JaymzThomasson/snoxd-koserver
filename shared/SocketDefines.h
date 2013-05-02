@@ -28,7 +28,7 @@ public:
 		m_inUse = 0;
 	}
 
-	__forceinline void Reset(SocketIOEvent ev)
+	INLINE void Reset(SocketIOEvent ev)
 	{
 		memset(&m_overlap, 0, sizeof(OVERLAPPED));
 		m_event = ev;

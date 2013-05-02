@@ -120,8 +120,8 @@ struct	_ITEM_DATA
 	uint32		nExpirationTime; // in unix time
 	uint64		nSerialNum;
 
-	__forceinline bool isSealed() { return bFlag == ITEM_FLAG_SEALED; }
-	__forceinline bool isRented() { return bFlag == ITEM_FLAG_RENTED; }
+	INLINE bool isSealed() { return bFlag == ITEM_FLAG_SEALED; }
+	INLINE bool isRented() { return bFlag == ITEM_FLAG_RENTED; }
 };
 
 enum HairData
@@ -186,7 +186,7 @@ inline bool CheckPercent(short percent)
 	return (percent > myrand(0, 1000));
 }
 
-__forceinline time_t getMSTime()
+INLINE time_t getMSTime()
 {
 #ifdef _WIN32
 #if WINVER >= 0x0600
@@ -213,13 +213,13 @@ __forceinline time_t getMSTime()
 #endif
 }
 
-__forceinline void STRTOLOWER(std::string& str)
+INLINE void STRTOLOWER(std::string& str)
 {
 	for(size_t i = 0; i < str.length(); ++i)
 		str[i] = (char)tolower(str[i]);
 };
 
-__forceinline void STRTOUPPER(std::string& str)
+INLINE void STRTOUPPER(std::string& str)
 {
 	for(size_t i = 0; i < str.length(); ++i)
 		str[i] = (char)toupper(str[i]);

@@ -12,14 +12,14 @@ class LoginServer
 public:
 	LoginServer();
 
-	__forceinline short GetVersion() { return m_sLastVersion; };
-	__forceinline char * GetFTPUrl() { return m_strFtpUrl; };
-	__forceinline char * GetFTPPath() { return m_strFilePath; };
+	INLINE short GetVersion() { return m_sLastVersion; };
+	INLINE char * GetFTPUrl() { return m_strFtpUrl; };
+	INLINE char * GetFTPPath() { return m_strFilePath; };
 
-	__forceinline News * GetNews() { return &m_news; };
+	INLINE News * GetNews() { return &m_news; };
 
-	__forceinline VersionInfoList* GetPatchList() { return &m_VersionList; };
-	__forceinline ServerInfoList* GetServerList() { return &m_ServerList; };
+	INLINE VersionInfoList* GetPatchList() { return &m_VersionList; };
+	INLINE ServerInfoList* GetServerList() { return &m_ServerList; };
 
 	bool Startup();
 

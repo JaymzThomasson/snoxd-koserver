@@ -57,49 +57,49 @@ public:
 	// NOTE: If any of these overflow, they'll be handled by mktime() accordingly.
 	// This makes our life *much* easier; date/time logic is not pretty.
 
-	void __forceinline AddYears(int iYears)
+	void INLINE AddYears(int iYears)
 	{
 		_tm->tm_year += iYears;
 		Update();
 	}
 
-	void __forceinline AddMonths(int iMonths)
+	void INLINE AddMonths(int iMonths)
 	{
 		_tm->tm_mon += iMonths;
 		Update();
 	}
 
-	void __forceinline AddWeeks(int iWeeks)
+	void INLINE AddWeeks(int iWeeks)
 	{
 		AddDays(iWeeks * 7);
 	}
 
-	void __forceinline AddDays(int iDays)
+	void INLINE AddDays(int iDays)
 	{
 		_tm->tm_mday += iDays;
 		Update();
 	}
 
-	void __forceinline AddHours(int iHours)
+	void INLINE AddHours(int iHours)
 	{
 		_tm->tm_hour += iHours;
 		Update();
 	}
 
-	void __forceinline AddMinutes(int iMinutes)
+	void INLINE AddMinutes(int iMinutes)
 	{
 		_tm->tm_min += iMinutes;
 		Update();
 	}
 
-	void __forceinline AddSeconds(int iSeconds)
+	void INLINE AddSeconds(int iSeconds)
 	{
 		_tm->tm_sec += iSeconds;
 		Update();
 	}
 
 private:
-	void __forceinline Update() { mktime(_tm); }
+	void INLINE Update() { mktime(_tm); }
 
 protected:
 	struct tm * _tm;
