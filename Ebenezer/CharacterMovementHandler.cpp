@@ -26,6 +26,9 @@ void CUser::MoveProcess(Packet & pkt)
 		g_pMain->MerchantUserInOutForMe(this);
 	}
 
+	if (m_bInvisibilityType == INVIS_DISPEL_ON_MOVE)
+		StateChangeServerDirect(7, INVIS_NONE);
+
 	Packet result(WIZ_MOVE);
 	result << GetSocketID() << will_x << will_z << will_y << speed << echo;
 	SendToRegion(&result);
