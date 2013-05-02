@@ -1551,6 +1551,7 @@ void MagicInstance::Type9Cancel()
 		Packet stealth(WIZ_STEALTH);
 		stealth << uint16(0) << uint8(0);
 		TO_USER(pSkillCaster)->Send(&stealth);
+		TO_USER(pSkillCaster)->m_savedMagicMap.erase(nSkillID);
 		bResponse = 92;
 	}
 	else if (pType->bStateChange == 7) //Guardian pet related
