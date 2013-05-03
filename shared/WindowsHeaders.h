@@ -17,3 +17,6 @@
 #		define TRACE 
 #endif
 
+// Ignore the warning "nonstandard extension used: enum '<enum name>' used in qualified name"
+// Sometimes it's necessary to avoid collisions, but aside from that, specifying the enumeration helps make code intent clearer.
+#pragma warning(disable: 4482)
