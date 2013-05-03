@@ -1,6 +1,4 @@
 #include "stdafx.h"
-#include "resource.h"
-
 #include "Map.h"
 #include "KnightsManager.h"
 #include "EbenezerDlg.h"

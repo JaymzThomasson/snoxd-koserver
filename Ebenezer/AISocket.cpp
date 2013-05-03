@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "resource.h"
 #include "Map.h"
 #include "EbenezerDlg.h"
 #include "AISocket.h"

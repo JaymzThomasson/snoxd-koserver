@@ -2,7 +2,6 @@
 #include "KingSystem.h"
 #include "EbenezerDlg.h"
 #include "User.h"
-#include "resource.h"
 #include "../shared/DateTime.h"
 
 CKingSystem::CKingSystem()

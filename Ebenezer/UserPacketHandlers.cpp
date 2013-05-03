@@ -5,8 +5,8 @@
 #include "KnightsManager.h"
 #include "MagicProcess.h"
 #include "KingSystem.h"
-#include "resource.h"
 #include "../shared/KOSocketMgr.h"
+#include "../shared/tstring.h"
 
 extern KOSocketMgr<CUser> g_socketMgr;
 using namespace std;

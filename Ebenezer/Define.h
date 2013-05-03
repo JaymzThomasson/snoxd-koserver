@@ -143,8 +143,12 @@ enum NpcType
 ///////////////// NATION ///////////////////////////////////
 #define UNIFY_NATION		0
 #define NO_NATION			0
-#define KARUS               1
-#define ELMORAD             2
+enum Nation
+{
+	ALL = 0,
+	KARUS,
+	ELMORAD
+};
 #define BATTLE				3
 
 #define KARUS_ARRAY (KARUS - 1)

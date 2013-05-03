@@ -516,3 +516,20 @@ COMMAND_HANDLER(CEbenezerDlg::HandleReloadNoticeCommand)
 	return true;
 }
 
+void CEbenezerDlg::SendFormattedResource(uint32 nResourceID, uint8 byNation, bool bIsNotice, ...)
+{
+	_SERVER_RESOURCE *pResource = m_ServerResourceArray.GetData(nResourceID);
+	if (pResource == NULL)
+		return;
+
+	string buffer;
+	va_list ap;
+	va_start(ap, bIsNotice);
+	_string_format(pResource->strResource, &buffer, ap);
+	va_end(ap);
+
+	if (bIsNotice)
+		SendNotice(buffer.c_str(), byNation);
+	else
+		SendAnnouncement(buffer.c_str(), byNation);
+}

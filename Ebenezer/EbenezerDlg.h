@@ -1,5 +1,6 @@
 #pragma once
 
+#include "resource.h"
 #include "LuaEngine.h"
 
 #include "Define.h"
@@ -127,13 +128,68 @@ public:
 
 	void HandleConsoleCommand(const char * msg);
 
-	void SendNotice(const char *msg, uint8 bNation = NO_NATION);
-	void SendFormattedNotice(const char *msg, uint8 nation = NO_NATION, ...);
+	template <ChatType chatType>
+	INLINE void SendChat(const char * msg, uint8 byNation = Nation::ALL, bool bFormatNotice = false)
+	{
+		Packet result;
+		std::string buffer;
 
-	void SendAnnouncement(const char *msg, uint8 bNation = NO_NATION);
-	void SendFormattedAnnouncement(const char *msg, uint8 nation = NO_NATION, ...);
+		if (bFormatNotice)
+			GetServerResource(IDP_ANNOUNCEMENT, &buffer, msg);
+		else
+			buffer = msg;
 
-	void SendFormattedResource(uint32 nResourceID, uint8 nation = NO_NATION, bool bIsNotice = true, ...);
+		ChatPacket::Construct(&result, (uint8) chatType, &buffer);
+		Send_All(&result, NULL, byNation);
+	}
+
+	template <ChatType chatType>
+	INLINE void SendFormattedChat(const char * msg, uint8 byNation = Nation::ALL, bool bFormatNotice = false, va_list args = NULL)
+	{
+		char buffer[512];
+		vsnprintf(buffer, sizeof(buffer), msg, args);
+		SendChat<chatType>(buffer, byNation, bFormatNotice);
+		va_end(args);
+	}
+
+	template <ChatType chatType>
+	void SendFormattedChat(const char * msg, uint8 byNation = Nation::ALL, bool bFormatNotice = false, ...)
+	{
+		va_list ap;
+		va_start(ap, nation);
+		SendFormattedChat<chatType>(msg, byNation, bFormatNotice, ap);
+		va_end(ap);
+	}
+
+	/* The following are simply wrappers for more readable SendChat() calls */
+
+	INLINE void SendNotice(const char *msg, uint8 byNation = Nation::ALL) 
+	{
+		SendChat<PUBLIC_CHAT>(msg, byNation, true);
+	}
+
+	void SendFormattedNotice(const char *msg, uint8 byNation = Nation::ALL, ...)
+	{
+		va_list ap;
+		va_start(ap, byNation);
+		SendFormattedChat<PUBLIC_CHAT>(msg, byNation, true, ap);
+		va_end(ap);
+	}
+
+	INLINE void SendAnnouncement(const char *msg, uint8 byNation = Nation::ALL)
+	{
+		SendChat<WAR_SYSTEM_CHAT>(msg, byNation, true);
+	}
+
+	void SendFormattedAnnouncement(const char *msg, uint8 byNation = Nation::ALL, ...)
+	{
+		va_list ap;
+		va_start(ap, byNation);
+		SendFormattedChat<WAR_SYSTEM_CHAT>(msg, byNation, true, ap);
+		va_end(ap);
+	}
+
+	void SendFormattedResource(uint32 nResourceID, uint8 byNation = Nation::ALL, bool bIsNotice = true, ...);
 
 	void Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
 	void Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);

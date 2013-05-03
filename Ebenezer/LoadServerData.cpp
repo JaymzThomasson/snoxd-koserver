@@ -1,5 +1,4 @@
 #include "StdAfx.h"
-#include "resource.h"
 
 #include "Map.h"
 #include "GameEvent.h"
