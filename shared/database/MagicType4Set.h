@@ -29,11 +29,11 @@ public:
 		_dbCommand->FetchUInt16(14, pData->sMaxMPPct);
 		_dbCommand->FetchByte(15, pData->bHitRate);
 		_dbCommand->FetchUInt16(16, pData->sAvoidRate);
-		_dbCommand->FetchByte(17, pData->bStr);
-		_dbCommand->FetchByte(18, pData->bSta);
-		_dbCommand->FetchByte(19, pData->bDex);
-		_dbCommand->FetchByte(20, pData->bIntel);
-		_dbCommand->FetchByte(21, pData->bCha);
+		_dbCommand->FetchSByte(17, pData->bStr);
+		_dbCommand->FetchSByte(18, pData->bSta);
+		_dbCommand->FetchSByte(19, pData->bDex);
+		_dbCommand->FetchSByte(20, pData->bIntel);
+		_dbCommand->FetchSByte(21, pData->bCha);
 		_dbCommand->FetchByte(22, pData->bFireR);
 		_dbCommand->FetchByte(23, pData->bColdR);
 		_dbCommand->FetchByte(24, pData->bLightningR);
@@ -41,7 +41,7 @@ public:
 		_dbCommand->FetchByte(26, pData->bDiseaseR);
 		_dbCommand->FetchByte(27, pData->bPoisonR);
 		_dbCommand->FetchByte(28, pData->bExpPct);
-
+		
 		if (!m_pMap->PutData(pData->iNum, pData))
 			delete pData;
 

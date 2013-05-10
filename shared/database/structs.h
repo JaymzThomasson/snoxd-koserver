@@ -77,11 +77,11 @@ struct _MAGIC_TYPE4
 	uint16	sMaxMPPct;
 	uint8	bHitRate;
 	uint16	sAvoidRate;
-	uint8	bStr;
-	uint8	bSta;
-	uint8	bDex;
-	uint8	bIntel;
-	uint8	bCha;
+	int8	bStr;
+	int8	bSta;
+	int8	bDex;
+	int8	bIntel;
+	int8	bCha;
 	uint8	bFireR;
 	uint8	bColdR;
 	uint8	bLightningR;
