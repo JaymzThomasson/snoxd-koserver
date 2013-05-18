@@ -60,16 +60,16 @@ CRegion * C3DMap::GetRegion(uint16 regionX, uint16 regionZ)
 }
 
 
-bool C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _ZONE_ITEM * pItem)
+bool C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _LOOT_BUNDLE * pBundle)
 {
 	if (rx >= GetXRegionMax() || rz >= GetZRegionMax()
-		|| pItem == NULL)
+		|| pBundle == NULL)
 		return false;
 
 	EnterCriticalSection( &g_region_critical );
 
-	pItem->nBundleID = m_wBundle++;
-	m_ppRegion[rx][rz].m_RegionItemArray.PutData(pItem->nBundleID, pItem);
+	pBundle->nBundleID = m_wBundle++;
+	m_ppRegion[rx][rz].m_RegionItemArray.PutData(pBundle->nBundleID, pBundle);
 	if (m_wBundle > ZONEITEM_MAX)
 		m_wBundle = 1;
 
@@ -78,41 +78,36 @@ bool C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _ZONE_ITEM * pItem)
 	return true;
 }
 
-bool C3DMap::RegionItemRemove(uint16 rx, uint16 rz, int bundle_index, int itemid, int count)
+/**
+ * @brief	Removes an item from a region's bundle.
+ * 			If the bundle's empty, the bundle is then 
+ * 			removed from the region.
+ *
+ * @param	pRegion	The region.
+ * @param	pBundle	The bundle.
+ * @param	pItem  	The item being removed from the bundle.
+ */
+void C3DMap::RegionItemRemove(CRegion * pRegion, _LOOT_BUNDLE * pBundle, _LOOT_ITEM * pItem)
 {
-	if (rx >= GetXRegionMax() || rz >= GetZRegionMax())
-		return false;
-	
-	_ZONE_ITEM* pItem = NULL;
-	CRegion	*region = NULL;
-	bool bFind = false;
-	short t_count = 0;
-	
-	EnterCriticalSection( &g_region_critical );
-	
-	region = &m_ppRegion[rx][rz];
-	pItem = region->m_RegionItemArray.GetData( bundle_index );
-	if( pItem ) {
-		for(int j=0; j < LOOT_ITEMS; j++) {
-			if( pItem->nItemID[j] == itemid && pItem->sCount[j] == count ) {
-				pItem->nItemID[j] = 0; pItem->sCount[j] = 0;
-				bFind = true;
-				break;
-			}
-		}
-		if( bFind ) {
-			for( int j=0; j < LOOT_ITEMS; j++) {
-				if( pItem->nItemID[j] != 0 )
-					t_count++;
-			}
-			if( !t_count )
-				region->m_RegionItemArray.DeleteData( bundle_index );
+	if (pBundle == NULL)
+		return;
+
+	// If the bundle exists, and the item matches what the user's removing
+	// we can remove this item from the bundle.
+	foreach (itr, pBundle->Items)
+	{
+		if (&(*itr) == pItem)
+		{
+			pBundle->Items.erase(itr);
+
+			// If this was the last item in the bundle, remove the bundle from the region.
+			if (!pBundle->Items.empty())
+				return;
+
+			pRegion->m_RegionItemArray.DeleteData(pBundle->nBundleID);
+			return;
 		}
 	}
-
-	LeaveCriticalSection( &g_region_critical );
-
-	return bFind;
 }
 
 bool C3DMap::CheckEvent(float x, float z, CUser* pUser)

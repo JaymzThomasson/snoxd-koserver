@@ -367,7 +367,8 @@ public:
 	bool CheckExistItem(int itemid, short count);
 	bool CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,
 		int32 nItemID3, int16 sCount3, int32 nItemID4, int16 sCount4, int32 nItemID5, int16 sCount5);
-	bool CheckWeight(int itemid, short count);
+	bool CheckWeight(uint32 nItemID, uint16 sCount);
+	bool CheckWeight(_ITEM_TABLE * pTable, uint32 nItemID, uint16 sCount);
 	bool CheckSkillPoint(BYTE skillnum, BYTE min, BYTE max);
 	bool GoldLose(unsigned int gold);
 	void GoldGain(int gold);
@@ -376,7 +377,7 @@ public:
 	void BlinkStart();
 	void BlinkTimeCheck();
 	void GoldChange(short tid, int gold);
-	CUser* GetItemRoutingUser(int itemid, short itemcount);
+	CUser * GetItemRoutingUser(uint32 nItemID, uint16 sCount);
 	bool GetStartPosition(short & x, short & y, BYTE bZone = 0);
 	int FindSlotForItem(uint32 nItemID, uint16 sCount);
 	int GetEmptySlot();
@@ -452,6 +453,7 @@ public:
 
 	void BundleOpenReq(Packet & pkt);
 	void ItemGet(Packet & pkt);
+	CUser * GetLootUser(_LOOT_BUNDLE * pBundle, _LOOT_ITEM * pItem);
 
 	void RecvZoneChange(Packet & pkt);
 	void PointChange(Packet & pkt);

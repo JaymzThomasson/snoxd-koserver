@@ -28,8 +28,8 @@ public:
 	bool Initialize(_ZONE_INFO *pZone);
 	CRegion * GetRegion(uint16 regionX, uint16 regionZ);
 	bool CheckEvent( float x, float z, CUser* pUser = NULL );
-	bool RegionItemRemove(uint16 rx, uint16 rz, int bundle_index, int itemid, int count);
-	bool RegionItemAdd(uint16 rx, uint16 rz, _ZONE_ITEM * pItem);
+	void RegionItemRemove(CRegion * pRegion, _LOOT_BUNDLE * pBundle, _LOOT_ITEM * pItem);
+	bool RegionItemAdd(uint16 rx, uint16 rz, _LOOT_BUNDLE * pBundle);
 	bool ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2);
 	float GetHeight( float x, float y, float z );
 	virtual ~C3DMap();

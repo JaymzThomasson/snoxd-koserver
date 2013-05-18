@@ -1596,13 +1596,19 @@ void CUser::BundleOpenReq(Packet & pkt)
 		|| isDead()) // yeah, we know people abuse this. We do not care!
 		return;
 
-	_ZONE_ITEM *pItem = GetRegion()->m_RegionItemArray.GetData(bundle_index);
-	if (pItem == NULL
-		|| !isInRange(pItem->x, pItem->z, MAX_LOOT_RANGE))
+	_LOOT_BUNDLE *pBundle = GetRegion()->m_RegionItemArray.GetData(bundle_index);
+	if (pBundle == NULL
+		|| !isInRange(pBundle->x, pBundle->z, MAX_LOOT_RANGE))
 		return;
 
-	for (int i = 0; i < LOOT_ITEMS; i++)
-		result << pItem->nItemID[i] << pItem->sCount[i];
+	// Send all items in the bundle to the player
+	foreach (itr, pBundle->Items)
+		result << itr->nItemID << itr->sCount;
+
+	// The client expects all n items, so if there's any excess...
+	// send placeholder data for them.
+	for (uint32 i = pBundle->Items.size(); i < LOOT_ITEMS; i++)
+		result << uint32(0) << uint16(0);
 
 	Send(&result);
 }
@@ -1614,163 +1620,241 @@ void CUser::BundleOpenReq(Packet & pkt)
  */
 void CUser::ItemGet(Packet & pkt)
 {
-	Packet result(WIZ_ITEM_GET);
-	uint32 bundle_index = pkt.read<uint32>(), itemid = pkt.read<uint32>(), usercount = 0, money = 0, levelsum = 0, i = 0;
-	BYTE pos;
-	_ITEM_TABLE* pTable = NULL;
-	_ZONE_ITEM* pItem = NULL;
-	C3DMap *pMap = GetMap();
-	CRegion* pRegion = GetRegion();
-	CUser* pGetUser = NULL;
-
-	ASSERT(pMap != NULL);
-	ASSERT(pRegion != NULL);
-
-	if (bundle_index < 1
-		|| isTrading()
-		|| pRegion == NULL
-		|| isDead()) // yeah, we know people abuse this. We do not care!
-		goto fail_return;
-
-	pItem = pRegion->m_RegionItemArray.GetData(bundle_index);
-	if (!pItem
-		|| !isInRange(pItem->x, pItem->z, MAX_LOOT_RANGE))
-		goto fail_return;
-
-	for (i = 0; i < LOOT_ITEMS; i++)
+	enum LootErrorCodes
 	{
-		if (pItem->nItemID[i] == itemid)
+		LootError					= 0,
+		LootSolo					= 1,
+		LootPartyCoinDistribution	= 2,
+		LootPartyNotification		= 3,
+		LootPartyItemGivenAway		= 4,
+		LootPartyItemGivenToUs		= 5,
+		LootNoRoom					= 6
+	};
+
+	Packet result(WIZ_ITEM_GET);
+	uint32 nBundleID = pkt.read<uint32>(), nItemID = pkt.read<uint32>();
+	_LOOT_BUNDLE * pBundle = NULL;
+	_LOOT_ITEM * pItem = NULL;
+	CRegion* pRegion = GetRegion();
+	CUser * pReceiver = NULL;
+
+	// Lock the array while we process this request
+	// to prevent any race conditions between getting/removing the items...
+	FastGuard lock(pRegion->m_RegionItemArray.m_lock);
+
+	// Are we in any region?
+	if (pRegion == NULL
+		|| isTrading()
+		|| isDead()
+		// Does the bundle exist in this region's list?
+		|| (pBundle = pRegion->m_RegionItemArray.GetData(nBundleID)) == NULL
+		// Are we close enough to the bundle?
+		|| !isInRange(pBundle->x, pBundle->z, MAX_LOOT_RANGE))
+		goto fail_return;
+
+	// Does the specified item we're looting exist in the bundle?
+	foreach (itr, pBundle->Items)
+	{
+		if (itr->nItemID == nItemID)
+		{
+			pItem = &(*itr);
 			break;
+		}
 	}
 
-	if (i == 6)
+	// Attempt to loot the specified item.
+	// If looting is possible, we can then give the receiver the item.
+	if (pItem == NULL
+		|| pItem->sCount == 0
+		|| (pReceiver = GetLootUser(pBundle, pItem)) == NULL)
 		goto fail_return;
 
-	// Copy the item so we can still use it after it's freed
-	// TO-DO: Clean this up (but it works for now)
-	_ZONE_ITEM pItem2;
-	memcpy(&pItem2, pItem, sizeof(pItem2)); 
-
-	if (!pMap->RegionItemRemove(GetRegionX(), GetRegionZ(), bundle_index, pItem->nItemID[i], pItem->sCount[i]))
-		goto fail_return;
-
-	// Save us from having to tweak the rest of the method (tacky, but again - works for now)
-	pItem = &pItem2; 
-
-	short count = pItem->sCount[i];
-
-	pTable = g_pMain->GetItemPtr( itemid );
-	if (pTable == NULL)
-		goto fail_return;
-
-	if( isInParty() && itemid != ITEM_GOLD ) 
-		pGetUser = GetItemRoutingUser(itemid, count);
-	else
-		pGetUser = this;
-		
-	if (pGetUser == NULL) 
-		goto fail_return;
-
-	if (itemid == ITEM_GOLD)
+	// If we're dealing with coins, either:
+	//  - we're not in a party, in which case the coins go to us. 
+	//  - we're in a party, in which case we need to distribute the coins (proportionately, by their level). 
+	// Error handling should already have occurred in GetLootUser().
+	if (nItemID == ITEM_GOLD)
 	{
-		if (count == 0 || count >= SHRT_MAX)
-			return;
-
-		if (!isInParty())
+		_PARTY_GROUP * pParty;
+		// Not in a party, so all the coins go to us.
+		if (!isInParty()
+			|| (pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex)) == NULL)
 		{
-			m_iGold += count;
-			result << uint8(1) << bundle_index << uint8(-1) << itemid << count << m_iGold;
-			Send(&result);
-			return;
+			// NOTE: Coins have been checked already.
+			m_iGold += pItem->sCount;
+			result << uint8(LootSolo) << nBundleID << int8(-1) << nItemID << pItem->sCount << GetCoins();
+			pReceiver->Send(&result);
 		}
+		// In a party, so distribute the coins relative to their level.
+		else
+		{
+			uint16 sumOfLevels = 0, userCount = 0;
+			vector<CUser *> partyUsers;
+			for (int i = 0; i < MAX_PARTY_USERS; i++)
+			{
+				CUser * pUser = g_pMain->GetUserPtr(pParty->uid[i]);
+				if (pUser == NULL)
+					continue;
 
-		_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
-		if (!pParty)
+				sumOfLevels += pUser->GetLevel();
+				userCount++;
+				partyUsers.push_back(pUser);
+			}
+
+			if (userCount == 0)
+				goto fail_return;
+
+
+			foreach (itr, partyUsers)
+			{
+				// Calculate the number of coins to give the player
+				int coins = (int)(pItem->sCount * (float)((*itr)->GetLevel() / (float)sumOfLevels));
+
+				// Give each party member coins relative to their level.
+				// Ensure we don't overflow the coins (no need to error out like solo player looting)
+				if (((*itr)->GetCoins() + coins) > COIN_MAX)
+					(*itr)->m_iGold = COIN_MAX;
+				else
+					(*itr)->m_iGold += coins;
+
+				// Let each player know they received coins.
+				result.clear();
+				result << uint8(LootPartyCoinDistribution) << nBundleID << uint8(-1) << nItemID << (*itr)->GetCoins();
+				(*itr)->Send(&result);
+			}
+		}
+	} // end of coin distribution
+	// If the item selected is actually an item...
+	else
+	{
+		// Retrieve the position for this item.
+		int8 bDstPos = pReceiver->FindSlotForItem(pItem->nItemID, pItem->sCount);
+
+		// This should NOT happen unless their inventory changed after the check.
+		// The item won't be removed until after processing's complete, so it's OK to error out here.
+		if (bDstPos < 0)
 			goto fail_return;
 
-		for (i = 0; i < MAX_PARTY_USERS; i++)
+		// Ensure there's enough room in this user's inventory.
+		if (!pReceiver->CheckWeight(pItem->nItemID, pItem->sCount))
 		{
-			CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
-			if (pUser == NULL)
-				continue;
-
-			usercount++;
-			levelsum += pUser->GetLevel();
+			result << uint8(LootNoRoom);
+			pReceiver->Send(&result);
+			return; // don't need to remove the item, so stop here.
 		}
-		if( usercount == 0 ) goto fail_return;
 
-		for (i = 0; i < MAX_PARTY_USERS; i++)
+		// Add item to receiver's inventory
+		_ITEM_TABLE * pTable = g_pMain->GetItemPtr(nItemID); // note: already looked up in GetLootUser() so it definitely exists
+		_ITEM_DATA * pDstItem = &pReceiver->m_sItemArray[bDstPos];
+
+		pDstItem->nNum    = pItem->nItemID;
+		pDstItem->sCount += pItem->sCount;
+
+		if (pDstItem->sCount == pItem->sCount)
 		{
-			CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
-			if (pUser == NULL) 
-				continue;
+			pDstItem->nSerialNum = g_pMain->GenerateItemSerial();
 
-			money = (int)(count * (float)(pUser->GetLevel() / (float)levelsum));    
-			pUser->m_iGold += money;
-
-			result.clear();
-			result << uint8(2) << bundle_index << uint8(-1) << itemid << pUser->m_iGold;
-			pUser->Send(&result);
+			// NOTE: Obscure special items that act as if their durations are their stack sizes
+			// will be broken here, but usual cases are typically only given in the PUS.
+			// Will need to revise this logic (rather, shift it out into its own method).
+			pDstItem->sDuration  = pTable->m_sDuration; 
 		}
-		return;
-	}
 
-	pos = pGetUser->FindSlotForItem(itemid, count);
-	if (pos < 0) 
-		goto fail_return;
+		if (pDstItem->sCount > MAX_ITEM_COUNT)
+			pDstItem->sCount = MAX_ITEM_COUNT;
 
-	if (!pGetUser->CheckWeight(itemid, count))
-	{
-		result << uint8(6);
-		pGetUser->Send(&result);
-		return;
-	}
+		pReceiver->SendItemWeight();
 
-	pGetUser->m_sItemArray[pos].nNum = itemid;	// Add item to inventory. 
-	if (pTable->m_bCountable)
-	{
-		pGetUser->m_sItemArray[pos].sCount += count;
-		if (pGetUser->m_sItemArray[pos].sCount > MAX_ITEM_COUNT)
-			pGetUser->m_sItemArray[pos].sCount = MAX_ITEM_COUNT;
-	}
-	else
-	{
-		pGetUser->m_sItemArray[pos].sCount = 1;
-		pGetUser->m_sItemArray[pos].nSerialNum = g_pMain->GenerateItemSerial();
-	}
+		result	<< uint8(pReceiver == this ? LootSolo : LootPartyItemGivenToUs)
+				<< nBundleID 
+				<< uint8(bDstPos - SLOT_MAX) 
+				<< pDstItem->nNum << pDstItem->sCount
+				<< pReceiver->GetCoins();
 
-	pGetUser->SendItemWeight();
-	pGetUser->m_sItemArray[pos].sDuration = pTable->m_sDuration;
-	
-	// 1 = self, 5 = party
-	// Tell the user who got the item that they actually got it.
-	result	<< uint8(pGetUser == this ? 1 : 5)
-			<< bundle_index
-			<< uint8(pos-SLOT_MAX) << itemid << pGetUser->m_sItemArray[pos].sCount
-			<< pGetUser->m_iGold;
-	pGetUser->Send(&result);
+		pReceiver->Send(&result);
 
-	if (isInParty())
-	{
-		// Tell our party the item was looted
-		result.clear();
-		result << uint8(3) << bundle_index << itemid << pGetUser->GetName();
-		g_pMain->Send_PartyMember(m_sPartyIndex, &result);
-
-		// Let us know the other user got the item
-		if (pGetUser != this)
+		// Now notify the party that we've looted, if applicable.
+		if (isInParty())
 		{
 			result.clear();
-			result << uint8(4);
-			Send(&result);
-		}
-	} 
+			result << uint8(LootPartyNotification) << nBundleID << nItemID << pReceiver->GetName();
+			g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 
+			// If we're not the receiver, i.e. round-robin gave it to someone else
+			// we should let us know that this was done (otherwise we'll be like, "GM!!? WHERE'S MY ITEM?!?")
+			if (pReceiver != this)
+			{
+				result.clear();
+				result << uint8(LootPartyItemGivenAway);
+			}
+		}
+	}
+
+	// Everything is OK, we have a target. Now remove the item from the bundle.
+	// If there's nothing else in the bundle, remove the bundle from the region.
+	GetMap()->RegionItemRemove(pRegion, pBundle, pItem);
 	return;
 
 fail_return:
-	result << uint8(0);
+	// Generic error
+	result << uint8(LootError);
 	Send(&result);
+}
+
+/**
+ * @brief	Gets the user to give the loot to.
+ *
+ * @param	pBundle	The loot bundle.
+ * @param	pItem  	The item being looted.
+ *
+ * @return	null if it fails, else the loot user.
+ */
+CUser * CUser::GetLootUser(_LOOT_BUNDLE * pBundle, _LOOT_ITEM * pItem)
+{
+	CUser * pReceiver = NULL;
+
+	if (pBundle == NULL
+		|| pItem == NULL)
+		return NULL;
+
+	// If we're dealing with coins, either:
+	//  - we're in a party, in which case we need to distribute the coins (proportionately, by their level). 
+	//	  No checks are necessary here (the coins will be miniscule, so if there's no room we can safely ignore them)
+	//  - we're not in a party, in which case the coins go to us. 
+	//	  In this case, we MUST check to be sure we have room for the coins.
+	if (pItem->nItemID == ITEM_GOLD)
+	{
+		// NOTE: No checks are necessary if we're in a party.
+		if (!isInParty())
+		{
+			// We're not in a party, so we must check to be 
+			// sure we have enough room for the coins.
+			if ((GetCoins() + pItem->sCount) > COIN_MAX)
+				return NULL;
+		}
+
+		// The caller will perform the distribution.
+		return this; 
+	}
+
+	// If we're dealing with items:
+	//	- if we're in a party: 
+	//		distribute the item to the next player in the party in round-robin fashion, 
+	//		whilst ensuring that user can actually hold the item.
+	//  - if not in a party: 
+	//		simply ensure that we can hold the item.
+	if (isInParty())
+	{
+		// This ensures the user can hold the item.
+		return GetItemRoutingUser(pItem->nItemID, pItem->sCount);
+	}
+	else
+	{
+		// NOTE: We check to see if they can hold this item in the caller.
+		pReceiver = this;
+	}
+
+	return pReceiver;
 }
 
 /**
@@ -2708,47 +2792,30 @@ void CUser::ResetWindows()
 		m_bStoreOpen = false;*/
 }
 
-CUser* CUser::GetItemRoutingUser(int itemid, short itemcount)
+CUser * CUser::GetItemRoutingUser(uint32 nItemID, uint16 sCount)
 {
-	if( !isInParty() ) return NULL;
+	if (!isInParty())
+		return this;
 
-	CUser* pUser = NULL;
-	_PARTY_GROUP* pParty = NULL;
-	int select_user = -1, count = 0;
- 
-	pParty = g_pMain->m_PartyArray.GetData( m_sPartyIndex );
-	if( !pParty ) return NULL;
-	if(	pParty->bItemRouting > 7 ) return NULL;
-//
-	_ITEM_TABLE* pTable = NULL;
-	pTable = g_pMain->GetItemPtr( itemid );
-	if( !pTable ) return NULL;
-//
-	while(count<8) {
-		pUser = g_pMain->GetUserPtr(pParty->uid[pParty->bItemRouting]);
-		if( pUser ) {
-			if (pTable->m_bCountable) {	// Check weight of countable item.
-				if ((pTable->m_sWeight * count + pUser->m_sItemWeight) <= pUser->m_sMaxWeight) {			
-					pParty->bItemRouting++;
-					if( pParty->bItemRouting > 6 )
-						pParty->bItemRouting = 0;
-					return pUser;
-				}
-			}
-			else {	// Check weight of non-countable item.
-				if ((pTable->m_sWeight + pUser->m_sItemWeight) <= pUser->m_sMaxWeight) {
-					pParty->bItemRouting++;
-					if( pParty->bItemRouting > 6 )
-						pParty->bItemRouting = 0;
-					return pUser;
-				}
-			}
-		}
-		if( pParty->bItemRouting > 6 )
+	_ITEM_TABLE * pTable;
+	_PARTY_GROUP * pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
+	if (pParty == NULL
+		|| (pTable = g_pMain->GetItemPtr(nItemID)) == NULL
+		|| pParty->bItemRouting >= MAX_PARTY_USERS)
+		return NULL;
+
+	for (int i = 0; i < MAX_PARTY_USERS; i++)
+	{
+		CUser * pUser = g_pMain->GetUserPtr(pParty->uid[pParty->bItemRouting]);
+
+		if (pParty->bItemRouting > 6)
 			pParty->bItemRouting = 0;
 		else
 			pParty->bItemRouting++;
-		count++;
+
+		if (pUser != NULL 
+			&& pUser->CheckWeight(pTable, nItemID, sCount))
+			return pUser;
 	}
 
 	return NULL;

@@ -210,15 +210,21 @@ fail_return: // hmm...
 	Send(&result);
 }
 
-bool CUser::CheckWeight(int itemid, short count)
+bool CUser::CheckWeight(uint32 nItemID, uint16 sCount)
 {
-	_ITEM_TABLE* pTable = g_pMain->GetItemPtr(itemid);
+	_ITEM_TABLE * pTable = g_pMain->GetItemPtr(nItemID);
+	return CheckWeight(pTable, nItemID, sCount);
+}
+
+bool CUser::CheckWeight(_ITEM_TABLE * pTable, uint32 nItemID, uint16 sCount)
+{
 	return (pTable != NULL // Make sure the item exists
 			// and that the weight doesn't exceed our limit
-			&& (m_sItemWeight + (pTable->m_sWeight * count)) <= m_sMaxWeight
+			&& (m_sItemWeight + (pTable->m_sWeight * sCount)) <= m_sMaxWeight
 			// and we have room for the item.
-			&& FindSlotForItem(itemid, count) >= 0);
+			&& FindSlotForItem(nItemID, sCount) >= 0);
 }
+
 
 bool CUser::CheckExistItem(int itemid, short count)
 {

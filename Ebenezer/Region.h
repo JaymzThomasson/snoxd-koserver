@@ -5,7 +5,7 @@
 #include "GameDefine.h"
 #include "../shared/STLMap.h"
 
-typedef CSTLMap <_ZONE_ITEM>	ZoneItemArray;
+typedef CSTLMap <_LOOT_BUNDLE>	ZoneItemArray;
 typedef std::set<uint16>		ZoneUserArray;
 typedef std::set<uint16>		ZoneNpcArray;
 

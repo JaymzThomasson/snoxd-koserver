@@ -60,8 +60,6 @@ public:
 	void RegionNpcAdd( int rx, int rz, int nid );
 	BOOL RegionUserRemove( int rx, int rz, int uid );
 	void RegionUserAdd( int rx, int rz, int uid );
-	BOOL RegionItemRemove( int rx, int rz, int itemid, int count, int index );
-	void RegionItemAdd( int rx, int rz, int itemid, int count, int index );
 	int  GetRegionUserSize(int rx, int rz);
 	int  GetRegionNpcSize(int rx, int rz);
 

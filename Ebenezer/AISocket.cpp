@@ -507,24 +507,25 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 	if (pMap == NULL)
 		return;
 
-	_ZONE_ITEM *pItem = new _ZONE_ITEM;
-	memset(&pItem->nItemID, 0, sizeof(pItem->nItemID));
-	memset(&pItem->sCount, 0, sizeof(pItem->sCount));
+	_LOOT_BUNDLE * pBundle = new _LOOT_BUNDLE;
 
-	pItem->tDropTime = UNIXTIME;
-	pItem->x = fX;
-	pItem->z = fZ;
-	pItem->y = fY;
-	for(int i=0; i<byCount; i++) {
-		if( g_pMain->GetItemPtr(nItemNumber[i]) ) {
-			pItem->nItemID[i] = nItemNumber[i];
-			pItem->sCount[i] = sCount[i];
+	pBundle->tDropTime = UNIXTIME;
+	pBundle->x = fX;
+	pBundle->z = fZ;
+	pBundle->y = fY;
+
+	for (int i = 0; i < byCount; i++)
+	{
+		if (g_pMain->GetItemPtr(nItemNumber[i]))
+		{
+			_LOOT_ITEM pItem(nItemNumber[i], sCount[i]);
+			pBundle->Items.push_back(pItem); // emplace_back() would be so much more useful here, but requires C++11.
 		}
 	}
 
-	if (!pMap->RegionItemAdd(regionx, regionz, pItem ))
+	if (!pMap->RegionItemAdd(regionx, regionz, pBundle))
 	{
-		delete pItem;
+		delete pBundle;
 		return;
 	}
 
@@ -532,7 +533,7 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 	if (pUser == NULL) 
 		return;
 
-	result << sNid << pItem->nBundleID;
+	result << sNid << pBundle->nBundleID;
 	if (!pUser->isInParty())
 		pUser->Send(&result);
 	else

@@ -223,11 +223,22 @@ struct _CLASS_COEFFICIENT
 
 // Dropped loot/chest.
 #define LOOT_ITEMS	4
-struct _ZONE_ITEM 
+struct _LOOT_ITEM
+{
+	uint32 nItemID;
+	uint16 sCount;
+
+	_LOOT_ITEM(uint32 nItemID, uint32 sCount)
+	{
+		this->nItemID = nItemID;
+		this->sCount = sCount;
+	}
+};
+
+struct _LOOT_BUNDLE
 {
 	uint32 nBundleID;
-	uint32 nItemID[LOOT_ITEMS];
-	uint16 sCount[LOOT_ITEMS];
+	std::vector<_LOOT_ITEM> Items;
 	float x, z, y;
 	time_t tDropTime;
 };
