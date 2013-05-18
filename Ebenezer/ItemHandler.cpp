@@ -523,19 +523,29 @@ void CUser::ItemMove(Packet & pkt)
 	SendItemWeight();
 
 	// Update everyone else, so that they can see your shiny new items (you didn't take them off did you!? DID YOU!?)
-	if (dir == ITEM_INVEN_SLOT)
-		UserLookChange(bDstPos, nItemID, pDstItem->sDuration);	
-	if (dir == ITEM_SLOT_INVEN) 
-		UserLookChange(bSrcPos, 0, 0);
-	if (dir == ITEM_SLOT_SLOT)
+	switch (dir)
 	{
+	case ITEM_INVEN_SLOT:
+		UserLookChange(bDstPos, nItemID, pDstItem->sDuration);	
+		break;
+
+	case ITEM_SLOT_INVEN:
+		UserLookChange(bSrcPos, 0, 0);
+		break;
+
+	case ITEM_SLOT_SLOT:
 		UserLookChange(bSrcPos, pSrcItem->nNum, pSrcItem->sDuration);
 		UserLookChange(bDstPos, pDstItem->nNum, pDstItem->sDuration);
-	}
-	if (dir == ITEM_INVEN_TO_COSP)
+		break;
+
+	case ITEM_INVEN_TO_COSP:
 		UserLookChange(INVENTORY_COSP + bDstPos, nItemID, pDstItem->sDuration);
-	if (dir == ITEM_COSP_TO_INVEN)
+		break;
+
+	case ITEM_COSP_TO_INVEN:
 		UserLookChange(INVENTORY_INVENT + bSrcPos, 0, 0);
+		break;
+	}
 
 	Send2AI_UserUpdateInfo();
 	return;
