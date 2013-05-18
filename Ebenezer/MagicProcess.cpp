@@ -511,9 +511,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, CUser *pTarget)
 	pTarget->SendItemMove(2);
 	pTarget->Send2AI_UserUpdateInfo();
 
-	pTarget->m_sDuration[byBuffType - 1] = 0;
-	pTarget->m_tStartTime[byBuffType - 1] = 0;
-	pTarget->m_bType4Buff[byBuffType - 1] = 0;
+	pTarget->m_buffMap.erase(byBuffType);
 
 	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
 	result << byBuffType;

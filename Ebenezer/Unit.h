@@ -2,6 +2,7 @@
 
 #include "Define.h"
 #include "../shared/ReferenceObject.h"
+#include <map>
 
 // Maximum range allowed between a player and an NPC.
 #define MAX_NPC_RANGE		(121.0f) // pow(11.0f, 2.0f), to save having to calculate it in the code.
@@ -21,6 +22,7 @@
  * This will be written out eventually, so we can do this properly.
  **/
 struct _MAGIC_TABLE;
+struct _BUFF_TYPE4_INFO;
 class CRegion;
 class C3DMap;
 class Packet;
@@ -114,6 +116,7 @@ public:
 
 	void InitType3();
 	void InitType4();
+	void AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO pBuffInfo);
 
 	virtual void StateChangeServerDirect(uint8 bType, uint32 nBuff) {}
 
@@ -188,12 +191,9 @@ public:
 	uint8	m_bHPInterval[MAX_TYPE3_REPEAT];
 	short	m_sSourceID[MAX_TYPE3_REPEAT];
 	bool	m_bType3Flag;
-
-	short   m_sDuration[MAX_TYPE4_BUFF];
-	time_t	m_tStartTime[MAX_TYPE4_BUFF];
-
-	uint8	m_bType4Buff[MAX_TYPE4_BUFF];
 	bool	m_bType4Flag;
+
+	std::map<uint8, _BUFF_TYPE4_INFO> m_buffMap;
 
 	bool	m_bIsTransformed; // Is the unit in a transformed state?
 

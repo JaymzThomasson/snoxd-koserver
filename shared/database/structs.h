@@ -225,3 +225,9 @@ struct _ZONE_INFO
 	BYTE m_bType, isAttackZone;
 #endif
 };
+
+struct _BUFF_TYPE4_INFO
+{
+	uint8	m_bNation; //The nation of the user that has casted this buff (or debuff) on the user.
+	time_t	m_tEndTime;
+};
