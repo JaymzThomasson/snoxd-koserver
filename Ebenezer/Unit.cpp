@@ -526,9 +526,6 @@ void Unit::InitType4()
 	m_bPoisonRAmount = 0;		
 	m_bMaxWeightAmount = 100;
 	m_bExpGainAmount = 100;
-	memset(&m_sDuration, 0, sizeof(uint16) * MAX_TYPE4_BUFF);
-	memset(&m_tStartTime, 0, sizeof(float) * MAX_TYPE4_BUFF);
-	memset(&m_bType4Buff, 0, sizeof(*m_bType4Buff) * MAX_TYPE4_BUFF);
 	m_bType4Flag = false;
 
 	StateChangeServerDirect(3, ABNORMAL_NORMAL);
@@ -544,4 +541,9 @@ void Unit::SendDeathAnimation()
 	Packet result(WIZ_DEAD);
 	result << GetID();
 	SendToRegion(&result);
+}
+
+void Unit::AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO pBuffInfo)
+{
+	m_buffMap.insert(std::make_pair(bBuffType, pBuffInfo));
 }

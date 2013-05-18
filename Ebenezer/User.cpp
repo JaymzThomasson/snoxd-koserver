@@ -2488,14 +2488,12 @@ void CUser::HPTimeChangeType3()
 
 void CUser::Type4Duration()
 {
+	std::map<uint8, _BUFF_TYPE4_INFO>::iterator buffIterator;
 	for (int i = 0; i < MAX_TYPE4_BUFF; i++)
 	{
-		if (m_sDuration[i] == 0
-			|| UNIXTIME <= (m_tStartTime[i] + m_sDuration[i]))
+		buffIterator = m_buffMap.find(i + 1);
+		if (buffIterator != m_buffMap.end() && buffIterator->second.m_tEndTime <= UNIXTIME)
 			continue;
-
-		m_sDuration[i] = 0;
-		m_tStartTime[i] = 0;
 
 		CMagicProcess::RemoveType4Buff(i + 1, this);
 		break; // only ever handle one at a time with the current logic
@@ -2503,13 +2501,13 @@ void CUser::Type4Duration()
 
 	int buff_test = 0;
 	for (int i = 0 ; i < MAX_TYPE4_BUFF ; i++) {
-		buff_test += m_bType4Buff[i];
+		buff_test += (m_buffMap.find(i + 1) != m_buffMap.end()) ? 1 : 0;
 	}
 	if (buff_test == 0) m_bType4Flag = false;
 
 	bool bType4Test = true ;
 	for (int j = 0 ; j < MAX_TYPE4_BUFF ; j++) {
-		if (m_bType4Buff[j] == 1) {
+		if (m_buffMap.find(j + 1) != m_buffMap.end() && m_buffMap.find(j + 1)->second.m_bNation == 1) {
 			bType4Test = false;
 			break;
 		}

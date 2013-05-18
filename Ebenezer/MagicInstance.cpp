@@ -863,10 +863,15 @@ bool MagicInstance::ExecuteType4()
 	{
 		uint8 bResult = 1;
 		CUser* pTUser = *itr;
+		_BUFF_TYPE4_INFO pBuffInfo;
 
-		if (TO_USER(pSkillCaster)->m_bType4Buff[pType->bBuffType - 1] == 2 && sTargetID == -1) {		// Is this buff-type already casted on the player?
+		std::map<uint8, _BUFF_TYPE4_INFO>::iterator buffIterator = TO_USER(pSkillCaster)->m_buffMap.find(pType->bBuffType);
+
+		if (buffIterator != TO_USER(pSkillCaster)->m_buffMap.end() && 
+			buffIterator->second.m_bNation == 2 && sTargetID == -1)
+		{
 			bResult = 0;
-			goto fail_return ;					
+			goto fail_return ;	
 		}
 
 		if ( nSkillID > 500000 && pTUser->isPlayer() )
@@ -878,9 +883,6 @@ bool MagicInstance::ExecuteType4()
 			goto fail_return;
 		}
 
-		pTUser->m_sDuration[pType->bBuffType - 1] = pType->sDuration;
-		pTUser->m_tStartTime[pType->bBuffType - 1] = UNIXTIME;
-
 		if (sTargetID != -1 && pSkill->bType[0] == 4)
 		{
 			if (sCasterID >= 0 && sCasterID < MAX_USER)
@@ -888,16 +890,20 @@ bool MagicInstance::ExecuteType4()
 		}
 
 		if (sCasterID >= 0 && sCasterID < MAX_USER) 
-			pTUser->m_bType4Buff[pType->bBuffType - 1] = (pSkillCaster->GetNation() == pTUser->GetNation() ? 2 : 1);
+			pBuffInfo.m_bNation = (pSkillCaster->GetNation() == pTUser->GetNation() ? 2 : 1);
 		else
-			pTUser->m_bType4Buff[pType->bBuffType - 1] = 1;
+			pBuffInfo.m_bNation = 1;
 
+		pBuffInfo.m_tEndTime = UNIXTIME + pType->sDuration;
+
+		//Add the buff into the buff map.
+		pSkillTarget->AddType4Buff(pType->bBuffType, pBuffInfo);
 		pTUser->m_bType4Flag = true;
 
 		pTUser->SetSlotItemValue();				// Update character stats.
 		pTUser->SetUserAbility();
 
-		if (pTUser->isInParty() && pTUser->m_bType4Buff[pType->bBuffType - 1] == 1)
+		if (pTUser->isInParty() && pBuffInfo.m_bNation == 1)
 			pTUser->SendPartyStatusUpdate(2, 1);
 
 		pTUser->Send2AI_UserUpdateInfo();
@@ -950,6 +956,8 @@ bool MagicInstance::ExecuteType5()
 		|| (!pSkillTarget->isDead() && pType->bType == RESURRECTION)) 
 		return false;
 
+	std::map<uint8, _BUFF_TYPE4_INFO>::iterator buffIterator;
+
 	switch (pType->bType) 
 	{
 		case REMOVE_TYPE3:		// REMOVE TYPE 3!!!
@@ -996,7 +1004,8 @@ bool MagicInstance::ExecuteType5()
 		case REMOVE_TYPE4:		// REMOVE TYPE 4!!!
 			for (int i = 0; i < MAX_TYPE4_BUFF; i++)
 			{
-				if (pSkillTarget->m_bType4Buff[i] == 0)
+				buffIterator = pSkillTarget->m_buffMap.find(i);
+				if (buffIterator == pSkillTarget->m_buffMap.end())
 					continue;
 
 				CMagicProcess::RemoveType4Buff(i + 1, TO_USER(pSkillTarget));
@@ -1004,13 +1013,14 @@ bool MagicInstance::ExecuteType5()
 
 			buff_test = 0;
 			for (int i = 0; i < MAX_TYPE4_BUFF; i++)
-				buff_test += pSkillTarget->m_bType4Buff[i];
+				buff_test += (pSkillCaster->m_buffMap.find(i) != pSkillCaster->m_buffMap.end()) ? 1 : 0;
 			if (buff_test == 0) pSkillTarget->m_bType4Flag = false;
 
 			bType4Test = true ;
 			for (int j = 0; j < MAX_TYPE4_BUFF; j++)
 			{
-				if (pSkillTarget->m_bType4Buff[j] == 1)
+				buffIterator = pSkillTarget->m_buffMap.find(j);
+				if (buffIterator != pSkillTarget->m_buffMap.end() && buffIterator->second.m_bNation == 1)
 				{
 					bType4Test = false;
 					break;
@@ -1027,19 +1037,21 @@ bool MagicInstance::ExecuteType5()
 			break;
 
 		case REMOVE_BLESS:
-			if (pSkillTarget->m_bType4Buff[0] == 2) 
+			buffIterator = pSkillTarget->m_buffMap.find(0);
+			if (buffIterator != pSkillTarget->m_buffMap.end() && buffIterator->second.m_bNation == 2) 
 			{
 				CMagicProcess::RemoveType4Buff(1, TO_USER(pSkillTarget));
 
 				buff_test = 0;
 				for (int i = 0; i < MAX_TYPE4_BUFF; i++)
-					buff_test += pSkillTarget->m_bType4Buff[i];
+					buff_test += (pSkillCaster->m_buffMap.find(i) != pSkillCaster->m_buffMap.end()) ? 1 : 0;
 				if (buff_test == 0) pSkillTarget->m_bType4Flag = false;
 
 				bType4Test = true;
 				for (int j = 0; j < MAX_TYPE4_BUFF; j++)
 				{
-					if (pSkillTarget->m_bType4Buff[j] == 1)
+					buffIterator = pSkillTarget->m_buffMap.find(j);
+					if (buffIterator != pSkillTarget->m_buffMap.end() && buffIterator->second.m_bNation == 1)
 					{
 						bType4Test = false;
 						break;
@@ -1585,7 +1597,7 @@ void MagicInstance::Type4Cancel()
 
 	int buff_test = 0;
 	for (int i = 0; i < MAX_TYPE4_BUFF; i++)
-		buff_test += pSkillCaster->m_bType4Buff[i];
+		buff_test += (pSkillCaster->m_buffMap.find(pType->bBuffType) != pSkillCaster->m_buffMap.end()) ? 1 : 0;
 	if (buff_test == 0) pSkillCaster->m_bType4Flag = false;	
 
 	if (pSkillCaster->isPlayer() && !pSkillCaster->m_bType4Flag
@@ -1653,7 +1665,7 @@ void MagicInstance::Type4Extend()
 
 	if (pSkillCaster->isPlayer() && pTUser->RobItem(800022000, 1))
 	{
-		pTUser->m_sDuration[pType->bBuffType -1] *= 2;
+		pTUser->m_buffMap.find(pType->bBuffType)->second.m_tEndTime = ((pTUser->m_buffMap.find(pType->bBuffType)->second.m_tEndTime - UNIXTIME) * 2) + UNIXTIME;
 		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_EXTEND));
 		result << uint32(nSkillID);
 		pTUser->Send(&result);
