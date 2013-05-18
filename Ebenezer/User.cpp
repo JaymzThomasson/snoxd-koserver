@@ -1688,7 +1688,7 @@ void CUser::ItemGet(Packet & pkt)
 		// In a party, so distribute the coins relative to their level.
 		else
 		{
-			uint16 sumOfLevels = 0, userCount = 0;
+			uint16 sumOfLevels = 0;
 			vector<CUser *> partyUsers;
 			for (int i = 0; i < MAX_PARTY_USERS; i++)
 			{
@@ -1697,13 +1697,11 @@ void CUser::ItemGet(Packet & pkt)
 					continue;
 
 				sumOfLevels += pUser->GetLevel();
-				userCount++;
 				partyUsers.push_back(pUser);
 			}
 
-			if (userCount == 0)
+			if (partyUsers.empty())
 				goto fail_return;
-
 
 			foreach (itr, partyUsers)
 			{
