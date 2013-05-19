@@ -1784,6 +1784,7 @@ void CUser::ItemGet(Packet & pkt)
 			{
 				result.clear();
 				result << uint8(LootPartyItemGivenAway);
+				Send(&result);
 			}
 		}
 	}
