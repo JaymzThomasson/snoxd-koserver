@@ -2487,6 +2487,13 @@ void CUser::HPTimeChangeType3()
 		SendPartyStatusUpdate(1, 0);
 }
 
+void CUser::InitType4()
+{
+	Unit::InitType4();
+	m_bMaxWeightAmount = 100;
+	m_bExpGainAmount = 100;
+}
+
 void CUser::Type4Duration()
 {
 	FastGuard lock(m_buffLock);

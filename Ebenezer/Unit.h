@@ -112,8 +112,8 @@ public:
 	void SendToRegion(Packet *result);
 	void Send_AIServer(Packet *result);
 
-	void InitType3();
-	void InitType4();
+	virtual void InitType3();
+	virtual void InitType4();
 	void AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO & pBuffInfo);
 
 	virtual void StateChangeServerDirect(uint8 bType, uint32 nBuff) {}
@@ -150,10 +150,6 @@ public:
 
 	uint8	m_bAttackSpeedAmount;
 	uint8   m_bSpeedAmount;
-
-	// these are actually player-specific, but I don't see much of a problem with them being here.
-	uint8	m_bExpGainAmount;
-	uint8	m_bMaxWeightAmount; 
 
 	uint8	m_bFireR;
 	uint8	m_bFireRAmount;

@@ -524,8 +524,6 @@ void Unit::InitType4()
 	m_bMagicRAmount = 0;
 	m_bDiseaseRAmount = 0;
 	m_bPoisonRAmount = 0;		
-	m_bMaxWeightAmount = 100;
-	m_bExpGainAmount = 100;
 
 	StateChangeServerDirect(3, ABNORMAL_NORMAL);
 }

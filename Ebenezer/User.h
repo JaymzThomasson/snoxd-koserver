@@ -124,6 +124,9 @@ public:
 	int16	m_sStatItemBonuses[STAT_COUNT];
 	int8	m_bStatBuffs[STAT_COUNT];
 
+	uint8	m_bExpGainAmount;
+	uint8	m_bMaxWeightAmount; 
+
 	short	m_iMaxHp, m_iMaxMp;
 	
 	BYTE	m_bResHpType;
@@ -384,9 +387,12 @@ public:
 	void Type3AreaDuration();
 	void SendAllKnightsID();
 	void SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes, not a bug */, uint16 sDurability, uint8 bPos, bool bNewItem = false);
+
+	void InitType4();
 	void Type4Duration();
 	void HPTimeChange();
 	void HPTimeChangeType3();
+
 	void SendDurability(uint8 slot, uint16 durability);
 	void SendItemMove(uint8 subcommand);
 	void ItemWoreOut( int type, int damage );

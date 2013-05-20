@@ -193,15 +193,18 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;	
 
 	case BUFF_TYPE_MAGIC_POWER:
-		pTarget->m_sMagicAttackAmount = (pType->bMagicAttack - 100) * TO_USER(pTarget)->getStat(STAT_CHA) / 100;
+		if (pTarget->isPlayer())
+			pTarget->m_sMagicAttackAmount = (pType->bMagicAttack - 100) * TO_USER(pTarget)->getStat(STAT_CHA) / 100;
 		break;
 
 	case BUFF_TYPE_EXPERIENCE:
-		pTarget->m_bExpGainAmount = pType->bExpPct;
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bExpGainAmount = pType->bExpPct;
 		break;
 
 	case BUFF_TYPE_WEIGHT:
-		pTarget->m_bMaxWeightAmount = pType->bExpPct;
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bMaxWeightAmount = pType->bExpPct;
 		break;
 
 	case BUFF_TYPE_WEAPON_DAMAGE:
