@@ -543,7 +543,7 @@ void Unit::SendDeathAnimation()
 	SendToRegion(&result);
 }
 
-void Unit::AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO pBuffInfo)
+void Unit::AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO & pBuffInfo)
 {
 	m_buffMap.insert(std::make_pair(bBuffType, pBuffInfo));
 }

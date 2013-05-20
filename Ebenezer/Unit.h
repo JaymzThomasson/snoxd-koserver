@@ -116,7 +116,7 @@ public:
 
 	void InitType3();
 	void InitType4();
-	void AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO pBuffInfo);
+	void AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO & pBuffInfo);
 
 	virtual void StateChangeServerDirect(uint8 bType, uint32 nBuff) {}
 
