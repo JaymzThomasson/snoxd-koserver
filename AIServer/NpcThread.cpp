@@ -7,9 +7,9 @@
 //////////////////////////////////////////////////////////////////////
 // NPC Thread Callback Function
 //
-UINT NpcThreadProc(LPVOID pParam /* NPC_THREAD_INFO ptr */)
+UINT NpcThreadProc(LPVOID pParam /* CNpcThread ptr */)
 {
-	NPC_THREAD_INFO*	pInfo	= (NPC_THREAD_INFO*)pParam;
+	CNpcThread*	pInfo	= (CNpcThread *)pParam;
 	CNpc*				pNpc	= NULL;
 
 	int					i			= 0;
@@ -181,5 +181,5 @@ CNpcThread::~CNpcThread()
 
 void CNpcThread::InitThreadInfo(HWND hwnd)
 {
-	m_ThreadInfo.hWndMsg	= hwnd;
+	hWndMsg	= hwnd;
 }

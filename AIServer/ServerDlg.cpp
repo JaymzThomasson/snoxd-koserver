@@ -241,7 +241,7 @@ BOOL CServerDlg::CreateNpcThread()
 		if( step == NPC_NUM )
 		{
 			pNpcThread->m_sThreadNumber = nThreadNumber++;
-			pNpcThread->m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, &(pNpcThread->m_ThreadInfo), CREATE_SUSPENDED, &id);
+			pNpcThread->m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, pNpcThread, CREATE_SUSPENDED, &id);
 			m_arNpcThread.push_back( pNpcThread );
 			step = 0;
 		}
@@ -249,7 +249,7 @@ BOOL CServerDlg::CreateNpcThread()
 	if( step != 0 )
 	{
 		pNpcThread->m_sThreadNumber = nThreadNumber++;
-		pNpcThread->m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, &(pNpcThread->m_ThreadInfo), CREATE_SUSPENDED, &id);
+		pNpcThread->m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, pNpcThread, CREATE_SUSPENDED, &id);
 		m_arNpcThread.push_back( pNpcThread );
 	}
 
@@ -474,7 +474,7 @@ void CServerDlg::ResumeAI()
 	foreach (itr, m_arNpcThread)
 	{
 		for (int j = 0; j < NPC_NUM; j++)
-			(*itr)->m_ThreadInfo.pNpc[j] = (*itr)->m_pNpc[j];
+			(*itr)->pNpc[j] = (*itr)->m_pNpc[j];
 
 		ResumeThread((*itr)->m_hThread);
 	}
@@ -790,12 +790,12 @@ BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 	int test = 0;
 	
 	for(int i = 0; i < NPC_NUM; i++ ) {
-		test = m_arEventNpcThread[0]->m_ThreadInfo.m_byNpcUsed[i];
+		test = m_arEventNpcThread[0]->m_byNpcUsed[i];
 		TRACE("setsummon == %d, used=%d\n", i, test);
-		if( m_arEventNpcThread[0]->m_ThreadInfo.m_byNpcUsed[i] == 0 )	{
-			m_arEventNpcThread[0]->m_ThreadInfo.m_byNpcUsed[i] = 1;
+		if( m_arEventNpcThread[0]->m_byNpcUsed[i] == 0 )	{
+			m_arEventNpcThread[0]->m_byNpcUsed[i] = 1;
 			bSuccess = TRUE;
-			m_arEventNpcThread[0]->m_ThreadInfo.pNpc[i] = pEventNpc;
+			m_arEventNpcThread[0]->pNpc[i] = pEventNpc;
 			break;
 		}
 	}

@@ -747,12 +747,12 @@ BOOL CNpc::SetLive()
 	/* Event Monster가 다시 살아날 경우에는 Event Monster를 죽인다 이벤트 스레드에서도 포인터를 NULL */
 	if(m_lEventNpc == 1 && !m_bFirstLive)	{
 		for(int i = 0; i < NPC_NUM; i++)	{
-			pNpc = g_pMain->m_arEventNpcThread[0]->m_ThreadInfo.pNpc[i];
-			if(g_pMain->m_arEventNpcThread[0]->m_ThreadInfo.pNpc[i] != NULL)	{
-				if(g_pMain->m_arEventNpcThread[0]->m_ThreadInfo.pNpc[i]->m_sNid == m_sNid)	{
-					g_pMain->m_arEventNpcThread[0]->m_ThreadInfo.m_byNpcUsed[i] = 0;
+			pNpc = g_pMain->m_arEventNpcThread[0]->pNpc[i];
+			if(g_pMain->m_arEventNpcThread[0]->pNpc[i] != NULL)	{
+				if(g_pMain->m_arEventNpcThread[0]->pNpc[i]->m_sNid == m_sNid)	{
+					g_pMain->m_arEventNpcThread[0]->m_byNpcUsed[i] = 0;
 					m_lEventNpc = 0;
-					g_pMain->m_arEventNpcThread[0]->m_ThreadInfo.pNpc[i] = NULL;
+					g_pMain->m_arEventNpcThread[0]->pNpc[i] = NULL;
 					TRACE("소환 몬스터 포인터 반환 ,, thread index=%d, nid=%d\n", i, m_sNid+NPC_BAND);
 					return TRUE;
 				}
