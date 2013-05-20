@@ -18,11 +18,6 @@ public:
 	virtual ~CMagicProcess();
 
 	short GetWeatherDamage(short damage, short attribute);
-	void ExecuteType9(int magicid);
-	void ExecuteType8(int magicid);
-	void ExecuteType7(int magicid);
-	void ExecuteType6(int magicid);
-	void ExecuteType5(int magicid);
 	void ExecuteType4(int magicid, int sid, int tid, int data1, int data2, int data3, int moral );
 	void ExecuteType3(int magicid, int tid, int data1, int data2, int data3, int moral, int dexpoint, int righthand_damage);
 	BYTE ExecuteType2(int magicid, int tid, int data1, int data2, int data3);

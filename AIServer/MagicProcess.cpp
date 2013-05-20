@@ -49,21 +49,6 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 		case 4:
 			ExecuteType4( pTable->iNum, sid, tid, data1, data2, data3, pTable->bMoral );
 			break;
-		case 5:
-			ExecuteType5( pTable->iNum );
-			break;
-		case 6:
-			ExecuteType6( pTable->iNum );
-			break;
-		case 7:
-			ExecuteType7( pTable->iNum );
-			break;
-		case 8:
-			ExecuteType8( pTable->iNum );
-			break;
-		case 9:
-			ExecuteType9( pTable->iNum );
-			break;
 		}
 
 		if(result != 0)	{
@@ -79,21 +64,6 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 				break;
 			case 4:
 				ExecuteType4( pTable->iNum, sid, tid, data1, data2, data3, pTable->bMoral );
-				break;
-			case 5:
-				ExecuteType5( pTable->iNum );
-				break;
-			case 6:
-				ExecuteType6( pTable->iNum );
-				break;
-			case 7:
-				ExecuteType7( pTable->iNum );
-				break;
-			case 8:
-				ExecuteType8( pTable->iNum );
-				break;
-			case 9:
-				ExecuteType9( pTable->iNum );
 				break;
 			}
 		}
@@ -398,31 +368,6 @@ fail_return:
 			<< uint16(0) << uint16(0) << uint16(0)
 			<< uint16(0) << uint16(0) << uint16(0);
 	g_pMain->Send(&result);
-}
-
-void CMagicProcess::ExecuteType5(int magicid)
-{
-	return;
-}
-
-void CMagicProcess::ExecuteType6(int magicid)
-{
-	return;
-}
-
-void CMagicProcess::ExecuteType7(int magicid)
-{
-	return;
-}
-
-void CMagicProcess::ExecuteType8(int magicid)
-{
-	return;
-}
-
-void CMagicProcess::ExecuteType9(int magicid)
-{
-	return;
 }
 
 short CMagicProcess::GetMagicDamage(int tid, int total_hit, int attribute, int dexpoint, int righthand_damage)
