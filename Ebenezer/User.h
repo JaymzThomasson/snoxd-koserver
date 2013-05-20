@@ -154,11 +154,6 @@ public:
 	uint8	m_bHPDurationNormal;
 	uint8	m_bHPIntervalNormal;
 
-	time_t	m_tAreaLastTime;			// For Area Damage spells Type 3.
-	time_t	m_tAreaStartTime;
-	BYTE    m_bAreaInterval;
-	int     m_iAreaMagicID;
-
 	uint32	m_fSpeedHackClientTime, m_fSpeedHackServerTime;
 	BYTE	m_bSpeedHackCheck;
 
@@ -384,7 +379,6 @@ public:
 	bool GetStartPosition(short & x, short & y, BYTE bZone = 0);
 	int FindSlotForItem(uint32 nItemID, uint16 sCount);
 	int GetEmptySlot();
-	void Type3AreaDuration();
 	void SendAllKnightsID();
 	void SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes, not a bug */, uint16 sDurability, uint8 bPos, bool bNewItem = false);
 

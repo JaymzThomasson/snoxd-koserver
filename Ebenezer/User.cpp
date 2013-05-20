@@ -84,11 +84,6 @@ void CUser::Initialize()
 	m_bHPDurationNormal = 0;
 	m_bHPIntervalNormal = 5;
 
-	m_tAreaLastTime = 0;		// For Area Damage spells Type 3.
-	m_tAreaStartTime = 0;
-	m_bAreaInterval = 5;
-	m_iAreaMagicID = 0;
-
 	m_fSpeedHackClientTime = 0;
 	m_fSpeedHackServerTime = 0;
 	m_bSpeedHackCheck = 0;
@@ -2613,61 +2608,6 @@ void CUser::SpeedHackTime(Packet & pkt)
 		}
 	}
 #endif
-}
-
-void CUser::Type3AreaDuration()
-{
-	Packet result(WIZ_MAGIC_PROCESS);
-
-	_MAGIC_TABLE * pSkill = g_pMain->m_MagictableArray.GetData(m_iAreaMagicID);
-	if (pSkill == NULL)
-		return;
-
-	_MAGIC_TYPE3 * pType = g_pMain->m_Magictype3Array.GetData(m_iAreaMagicID);
-	if (pType == NULL)
-		return;
-
-	if (m_tAreaLastTime != 0 && (UNIXTIME - m_tAreaLastTime) > m_bAreaInterval)
-	{
-		m_tAreaLastTime = UNIXTIME;
-		if (isDead())
-			return;
-		
-		// TO-DO: Make this not suck (needs to be localised)
-		SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
-		set<uint16> sessionIDs;
-		foreach (itr, sessMap)
-		{
-			if (CMagicProcess::UserRegionCheck(this, TO_USER(itr->second), pSkill, pType->bRadius))
-				sessionIDs.insert(itr->first);
-		}
-		g_socketMgr.ReleaseLock();
-
-		foreach (itr, sessionIDs)
-		{
-			result.clear();
-			result	<< uint8(MAGIC_EFFECTING) << m_iAreaMagicID
-					<< GetSocketID() << (*itr)
-					<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
-			SendToRegion(&result);
-		}
-
-
-		if (UNIXTIME - m_tAreaStartTime >= pType->bDuration)
-		{ // Did area duration end? 			
-			m_bAreaInterval = 5;
-			m_tAreaStartTime = 0;
-			m_tAreaLastTime = 0;
-			m_iAreaMagicID = 0;
-		}
-	}	
-
-
-	result.clear();
-	result	<< uint8(MAGIC_EFFECTING) << m_iAreaMagicID
-			<< GetSocketID() << GetSocketID()
-			<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
-	SendToRegion(&result);
 }
 
 int CUser::FindSlotForItem(uint32 nItemID, uint16 sCount)
