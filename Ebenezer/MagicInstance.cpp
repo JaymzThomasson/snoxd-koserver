@@ -193,7 +193,6 @@ void MagicInstance::SendSkillToAI()
 				<< sData[0] << sData[1] << sData[2] << sData[3] << sData[4] << sData[5]
 				<< TO_USER(pSkillCaster)->getStatWithItemBonus(STAT_CHA);
 
-
 		_ITEM_DATA * pItem;
 		_ITEM_TABLE* pRightHand = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND, pItem);
 

@@ -168,7 +168,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_STATS:
-		if (pCaster->isPlayer())
+		if (pTarget->isPlayer())
 		{
 			TO_USER(pTarget)->setStatBuff(STAT_STR, pType->bStr);
 			TO_USER(pTarget)->setStatBuff(STAT_STA, pType->bSta);
@@ -226,7 +226,8 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_PREMIUM_MERCHANT:
-		TO_USER(pTarget)->m_bPremiumMerchant = true;
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bPremiumMerchant = true;
 		break;
 
 	case BUFF_TYPE_ATTACK_SPEED_ARMOR:
@@ -358,11 +359,14 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, CUser *pTarget)
 		break;
 
 	case BUFF_TYPE_STATS:
-		TO_USER(pTarget)->setStatBuff(STAT_STR, 0);
-		TO_USER(pTarget)->setStatBuff(STAT_STA, 0);
-		TO_USER(pTarget)->setStatBuff(STAT_DEX, 0);
-		TO_USER(pTarget)->setStatBuff(STAT_INT, 0);
-		TO_USER(pTarget)->setStatBuff(STAT_CHA, 0);	
+		if (pTarget->isPlayer())
+		{
+			TO_USER(pTarget)->setStatBuff(STAT_STR, 0);
+			TO_USER(pTarget)->setStatBuff(STAT_STA, 0);
+			TO_USER(pTarget)->setStatBuff(STAT_DEX, 0);
+			TO_USER(pTarget)->setStatBuff(STAT_INT, 0);
+			TO_USER(pTarget)->setStatBuff(STAT_CHA, 0);	
+		}
 		break;
 
 	case BUFF_TYPE_RESISTANCES:
@@ -407,7 +411,8 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, CUser *pTarget)
 		break;
 
 	case BUFF_TYPE_PREMIUM_MERCHANT:
-		TO_USER(pTarget)->m_bPremiumMerchant = false;
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bPremiumMerchant = false;
 		break;
 
 	case BUFF_TYPE_ATTACK_SPEED_ARMOR:
