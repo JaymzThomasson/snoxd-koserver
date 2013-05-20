@@ -90,26 +90,13 @@ _PathNode *CPathFind::FindPath(int start_x, int start_y, int dest_x, int dest_y)
 	t_node->x = start_x;
 	t_node->y = start_y;
 
-//	int maxtry = (X 이동폭 * 최대 X구간 ) + (Y 이동폭 * 최대 Y구간) + 1;
-	int maxtry = abs(start_x-dest_x)*m_vMapSize.cx + abs(start_y-dest_y)*m_vMapSize.cy + 1;
-	int count = 0;
-	
 	m_pOpen->NextNode = t_node;
-	while(1) {
-		if( count > maxtry * 2 )
-		{
-//			BREAKPOINT();
-			//TRACE("패스파인드 중도포기...%d\n", count);
-			return NULL;
-		}
-		count += 1;
-		r_node = (_PathNode *)ReturnBestNode();
-		if(r_node == NULL) break;
-		if(r_node->x == dest_x && r_node->y == dest_y)
-			break;
-		FindChildPath(r_node, dest_x, dest_y);
-	}
+	r_node = (_PathNode *)ReturnBestNode();
+	if(r_node == NULL) return r_node;
+	if(r_node->x == dest_x && r_node->y == dest_y)
+		return r_node;
 
+	FindChildPath(r_node, dest_x, dest_y);
 	return r_node;
 }
 
