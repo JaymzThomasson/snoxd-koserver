@@ -356,37 +356,25 @@ short Unit::GetACDamage(int damage, Unit *pTarget)
 		return 0;
 
 	CUser * pUser  = TO_USER(this);
-	_ITEM_TABLE * pRightHand = pUser->GetItemPrototype(RIGHTHAND);
-	if (pRightHand != NULL)
-	{
-		if (pRightHand->isDagger())
-			damage -= damage * pTarget->m_sDaggerR / 200;
-		else if (pRightHand->isSword())
-			damage -= damage * pTarget->m_sSwordR / 200;
-		else if (pRightHand->isAxe())
-			damage -= damage * pTarget->m_sAxeR / 200;
-		else if (pRightHand->isMace())
-			damage -= damage * pTarget->m_sMaceR / 200;
-		else if (pRightHand->isSpear())
-			damage -= damage * pTarget->m_sSpearR / 200;
-		else if (pRightHand->isBow())
-			damage -= damage * pTarget->m_sBowR / 200;
-	}
+	uint8 weaponSlots[] = { RIGHTHAND, LEFTHAND };
 
-	_ITEM_TABLE * pLeftHand = pUser->GetItemPrototype(LEFTHAND);
-	if (pLeftHand != NULL)
+	foreach_array (slot, weaponSlots)
 	{
-		if (pLeftHand->isDagger())
+		_ITEM_TABLE * pWeapon = pUser->GetItemPrototype(slot);
+		if (pWeapon == NULL)
+			continue;
+
+		if (pWeapon->isDagger())
 			damage -= damage * pTarget->m_sDaggerR / 200;
-		else if (pLeftHand->isSword())
+		else if (pWeapon->isSword())
 			damage -= damage * pTarget->m_sSwordR / 200;
-		else if (pLeftHand->isAxe())
+		else if (pWeapon->isAxe())
 			damage -= damage * pTarget->m_sAxeR / 200;
-		else if (pLeftHand->isMace())
+		else if (pWeapon->isMace())
 			damage -= damage * pTarget->m_sMaceR / 200;
-		else if (pLeftHand->isSpear())
+		else if (pWeapon->isSpear())
 			damage -= damage * pTarget->m_sSpearR / 200;
-		else if (pLeftHand->isBow())
+		else if (pWeapon->isBow())
 			damage -= damage * pTarget->m_sBowR / 200;
 	}
 
