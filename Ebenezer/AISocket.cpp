@@ -654,10 +654,6 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 			g_pMain->m_byKarusOpenFlag = 1;	
 		else if (bResult == ELMORAD)
 			g_pMain->m_byElmoradOpenFlag = 1;
-
-		Packet result(UDP_BATTLE_EVENT_PACKET, bType);
-		result << bResult;
-		g_pMain->Send_UDP_All(&result);
 	}
 	else if (bType == BATTLE_EVENT_RESULT)
 	{
@@ -688,10 +684,6 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 		g_pMain->m_byKarusOpenFlag = 0;
 		g_pMain->m_byElmoradOpenFlag = 0;
 		g_pMain->m_byBanishFlag = 1;
-
-		Packet result(UDP_BATTLE_EVENT_PACKET, bType);
-		result << bResult;
-		g_pMain->Send_UDP_All(&result);
 	}
 	else if (bType == BATTLE_EVENT_MAX_USER)
 	{
@@ -757,11 +749,6 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 
 		ChatPacket::Construct(&result, PUBLIC_CHAT, &finalstr);
 		g_pMain->Send_All(&result);
-
-		result.Initialize(UDP_BATTLE_EVENT_PACKET);
-		result.SByte();
-		result << bType << bResult << strKnightsName << strMaxUserName;
-		g_pMain->Send_UDP_All(&result);
 	}
 }
 

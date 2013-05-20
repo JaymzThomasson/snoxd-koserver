@@ -111,9 +111,6 @@
     <ClCompile Include="AISocket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UdpSocket.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\crc32.cpp">
       <Filter>Shared\Networking</Filter>
     </ClCompile>
@@ -343,9 +340,6 @@
     </ClInclude>
     <ClInclude Include="..\shared\CircularBuffer.h">
       <Filter>Shared\Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="UdpSocket.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\crc32.h">
       <Filter>Shared\Networking</Filter>

@@ -226,9 +226,6 @@ void CUser::ReqDeleteChar(Packet & pkt)
 	{
 		// TO-DO: Synchronise this system better. Much better. This is dumb.
 		CKnightsManager::RemoveKnightsUser(sKnights, (char *)strCharID.c_str());
-		result.SetOpcode(UDP_KNIGHTS_PROCESS);
-		result << uint8(KNIGHTS_WITHDRAW) << sKnights << strCharID;
-		g_pMain->Send_UDP_All(&result, g_pMain->m_nServerGroup == 0 ? 0 : 1);
 	}
 #endif
 }
@@ -494,12 +491,6 @@ void CKnightsManager::ReqCreateKnights(CUser *pUser, Packet & pkt)
 			<< pUser->m_iGold;
 
 	pUser->SendToRegion(&result);
-
-	result.Initialize(UDP_KNIGHTS_PROCESS);
-	result	<< uint8(KNIGHTS_CREATE)
-			<< pKnights->m_byFlag << sClanID 
-			<< bNation << strKnightsName << pUser->GetName();
-	g_pMain->Send_UDP_All(&result, g_pMain->m_nServerGroup == 0 ? 0 : 1);
 }
 
 void CKnightsManager::ReqUpdateKnights(CUser *pUser, Packet & pkt, uint8 opcode)
@@ -555,10 +546,6 @@ void CKnightsManager::ReqDestroyKnights(CUser *pUser, Packet & pkt)
 
 	int8 bResult = int8(g_DBAgent.DeleteKnights(sClanID));
 	pKnights->Disband(pUser);
-
-	Packet result(UDP_KNIGHTS_PROCESS, uint8(KNIGHTS_DESTROY));
-	result << sClanID;
-	g_pMain->Send_UDP_All(&result, (g_pMain->m_nServerGroup == 0 ? 0 : 1));
 }
 
 void CKnightsManager::ReqAllKnightsMember(CUser *pUser, Packet & pkt)

@@ -1243,13 +1243,6 @@ void CEbenezerDlg::BattleZoneOpenTimer()
 		if( m_sBanishDelay == 0 )	{
 			m_byBattleOpen = NO_BATTLE;
 			m_byKarusOpenFlag = m_byElmoradOpenFlag = 0;
-
-			if (m_nServerNo == KARUS)
-			{
-				Packet result(UDP_BATTLE_EVENT_PACKET, uint8(BATTLE_EVENT_KILL_USER));
-				result << uint8(1) << m_sKarusDead << m_sElmoradDead;
-				Send_UDP_All(&result);
-			}
 		}
 
 		m_sBanishDelay++;
@@ -1638,18 +1631,6 @@ void CEbenezerDlg::KickOutZoneUsers(short zone)
 	g_socketMgr.ReleaseLock();
 }
 
-void CEbenezerDlg::Send_UDP_All(Packet *pkt, int group_type /*= 0*/)
-{
-#if 0 // disabled pending rewrite
-	int server_number = (group_type == 0 ? m_nServerNo : m_nServerGroupNo);
-	foreach_stlmap (itr, (group_type == 0 ? m_ServerArray : m_ServerGroupArray))
-	{
-		if (itr->second && itr->second->sServerNo == server_number)
-			m_pUdpSocket->SendUDPPacket(itr->second->strServerIP, pkt);
-	}
-#endif
-}
-
 void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser)
 {
 	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
@@ -1704,12 +1685,6 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 
 	m_sKarusCount = nKarusMan;
 	m_sElmoradCount = nElmoradMan;
-
-	//TRACE("---> BattleZoneCurrentUsers - karus=%d, elmorad=%d\n", m_sKarusCount, m_sElmoradCount);
-
-	Packet result(UDP_BATTLEZONE_CURRENT_USERS);
-	result << m_sKarusCount << m_sElmoradCount;
-	Send_UDP_All(&result);
 }
 
 /**

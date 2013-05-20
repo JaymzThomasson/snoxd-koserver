@@ -64,7 +64,6 @@ public:
 	void BattleZoneCurrentUsers();
 	void GetCaptainUserPtr();
 	void Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser = NULL);
-	void Send_UDP_All(Packet *pkt, int group_type = 0);
 	void KickOutZoneUsers(short zone);
 	__int64 GenerateItemSerial();
 	int KickOutAllUsers();

@@ -286,10 +286,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="UdpSocket.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
     <ClCompile Include="Unit.cpp" />
     <ClCompile Include="User.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -385,7 +381,6 @@
     <ClInclude Include="Npc.h" />
     <ClInclude Include="Region.h" />
     <ClInclude Include="StdAfx.h" />
-    <ClInclude Include="UdpSocket.h" />
     <ClInclude Include="Unit.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="Resource.h" />

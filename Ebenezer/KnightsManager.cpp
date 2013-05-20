@@ -490,10 +490,6 @@ void CKnightsManager::RecvUpdateKnights(CUser *pUser, Packet & pkt, BYTE command
 	}
 
 	pUser->SendToRegion(&result);
-
-	result.Initialize(UDP_KNIGHTS_PROCESS);
-	result << command << sClanID << pUser->GetName();
-	g_pMain->Send_UDP_All(&result, (g_pMain->m_nServerGroup == 0 ? 0 : 1));
 }
 
 void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, BYTE command)
@@ -563,14 +559,11 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, BYTE command)
 	if (pTUser != NULL)
 		pTUser->SendClanUserStatusUpdate(command == KNIGHTS_REMOVE);
 
-	Packet result(UDP_KNIGHTS_PROCESS, command);
-	result << sClanID << strUserID;
-	g_pMain->Send_UDP_All(&result, (g_pMain->m_nServerGroup == 0 ? 0 : 1));
-
 	if (clanNotice.empty())
 		return;
 
 	// Construct the clan system chat packet
+	Packet result;
 	std::string strMessage = string_format(clanNotice, pTUser != NULL ? pTUser->GetName() : strUserID.c_str());
 	ChatPacket::Construct(&result, KNIGHTS_CHAT, &strMessage);
 
