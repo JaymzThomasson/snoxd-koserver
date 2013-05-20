@@ -44,29 +44,10 @@ void CNpcMagicProcess::MagicPacket(Packet & pkt)
 	{
 		//if (tid < -1 || tid >= MAX_USER) return;	
 
-		switch( pTable->bType[0] ) {
-		case 1:
-			ExecuteType1( pTable->iNum, tid, data1, data2, data3 );
-			break;
-		case 2:
-			ExecuteType2( pTable->iNum, tid, data1, data2, data3 );	
-			break;
-		case 3:
+		if (pTable->bType[0] == 3)
 			ExecuteType3( pTable->iNum, tid, data1, data2, data3, pTable->bMoral );
-			break;
-		}
-
-		switch( pTable->bType[1] ) {
-		case 1:
-			ExecuteType1( pTable->iNum, tid, data4, data5, data6 );
-			break;
-		case 2:
-			ExecuteType2( pTable->iNum, tid, data1, data2, data3 );	
-			break;
-		case 3:
+		if (pTable->bType[1] == 3)
 			ExecuteType3( pTable->iNum, tid, data1, data2, data3, pTable->bMoral );
-			break;
-		}
 	}
 	else if( command == MAGIC_CASTING ) {
 		Packet result(AG_MAGIC_ATTACK_RESULT);
@@ -153,16 +134,6 @@ fail_return:    // In case the magic failed.
 	m_bMagicState = NONE;
 
 	return NULL;     // Magic was a failure!
-}
-
-void CNpcMagicProcess::ExecuteType1(int magicid, int tid, int data1, int data2, int data3)   // Applied to an attack skill using a weapon.
-{	
-	
-}
-
-void CNpcMagicProcess::ExecuteType2(int magicid, int tid, int data1, int data2, int data3)
-{		
-
 }
 
 void CNpcMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int data3, int moral )  // Applied when a magical attack, healing, and mana restoration is done.
