@@ -140,15 +140,6 @@ enum NpcType
 	NPC_ELMORAD_GATEKEEPER	= 199
 };
 
-///////////////// NATION ///////////////////////////////////
-#define UNIFY_NATION		0
-#define NO_NATION			0
-enum Nation
-{
-	ALL = 0,
-	KARUS,
-	ELMORAD
-};
 #define BATTLE				3
 
 #define KARUS_ARRAY (KARUS - 1)

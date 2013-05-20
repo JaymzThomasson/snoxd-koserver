@@ -26,6 +26,13 @@ enum NameType
 	TYPE_CHARACTER
 };
 
+enum Nation
+{
+	ALL = 0,
+	KARUS,
+	ELMORAD
+};
+
 // ITEM_SLOT DEFINE
 const BYTE RIGHTEAR			= 0;
 const BYTE HEAD				= 1;

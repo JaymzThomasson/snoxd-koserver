@@ -22,16 +22,8 @@ static float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f,
 #define LONG_ATTACK_RANGE		30				// 장거리 공격 유효거리
 #define SHORT_ATTACK_RANGE		3				// 직접공격 유효거리
 
-// 무기 관련
-#define WEAPON_ITEM				1
-#define DEFENCR_ITEM			2
-#define ACCESSORY_ITEM			3
-
 #define ARROW_MIN				391010000
 #define ARROW_MAX				392010000
-
-#define KARUS_MAN				1
-#define ELMORAD_MAN				2
 
 #define ATTACK_LIMIT_LEVEL		10
 #define FAINTING_TIME			2 // in seconds
@@ -729,7 +721,7 @@ BOOL CNpc::SetLive()
 	m_iPattenFrame = 0;
 	m_byResetFlag = 0;
 	m_byActionFlag = NO_ACTION;
-	m_byMaxDamagedNation = KARUS_MAN;
+	m_byMaxDamagedNation = 0;
 
 	m_iRegion_X = -1;	m_iRegion_Z = -1;
 	m_fAdd_x = 0.0f;	m_fAdd_z = 0.0f;
@@ -4787,7 +4779,7 @@ int	CNpc::ItemProdution(int item_number)							// 아이템 제작
 		if( iTemp1 == 0 )	return 0;
 		iItemCode = iTemp1 * 1000000;		// 루팅분포표 참조
 
-		if( m_byMaxDamagedNation == KARUS_MAN )	{		// 종족
+		if( m_byMaxDamagedNation == KARUS )	{		// 종족
 			iRandom = myrand(0, 10000);					// 직업의 갑옷을 결정		
 			if( COMPARE( iRandom, 0, 2000) )	{		
 				iRand2 = 0;	
@@ -4808,7 +4800,7 @@ int	CNpc::ItemProdution(int item_number)							// 아이템 제작
 				else								iRand3 = 40000;	// 사제갑옷은 퓨리투아렉
 			}
 		}
-		else if( m_byMaxDamagedNation == ELMORAD_MAN )	{
+		else if( m_byMaxDamagedNation == ELMORAD )	{
 			iRandom = myrand(0, 10000);					// 직업의 갑옷을 결정		
 			if( COMPARE( iRandom, 0, 3300) )	{		
 				iRand2 = 0;	
