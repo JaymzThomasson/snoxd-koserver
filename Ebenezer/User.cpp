@@ -2495,7 +2495,7 @@ void CUser::Type4Duration()
 
 	foreach (itr, m_buffMap)
 	{
-		if (itr->second.m_tEndTime <= UNIXTIME)
+		if (itr->second.m_tEndTime > UNIXTIME)
 			continue;
 
 		CMagicProcess::RemoveType4Buff(itr->first, this);
