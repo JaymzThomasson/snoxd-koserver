@@ -189,7 +189,6 @@ public:
 	uint8	m_bHPInterval[MAX_TYPE3_REPEAT];
 	short	m_sSourceID[MAX_TYPE3_REPEAT];
 	bool	m_bType3Flag;
-	bool	m_bType4Flag;
 
 	Type4BuffMap m_buffMap;
 

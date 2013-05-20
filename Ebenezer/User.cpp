@@ -408,7 +408,7 @@ bool CUser::HandlePacket(Packet & pkt)
 		}
 	} 
 
-	if (m_bType4Flag)		// For Type 4 Stat Duration.
+	if (!m_buffMap.empty())		// For Type 4 Stat Duration.
 		Type4Duration();
 
 	// Expire any timed out saved skills.
@@ -2496,21 +2496,17 @@ void CUser::Type4Duration()
 		break; // only ever handle one at a time with the current logic
 	}
 
-	int buff_test = 0;
-	for (int i = 0 ; i < MAX_TYPE4_BUFF ; i++) {
-		buff_test += (m_buffMap.find(i + 1) != m_buffMap.end()) ? 1 : 0;
-	}
-	if (buff_test == 0) m_bType4Flag = false;
-
-	bool bType4Test = true ;
-	for (int j = 0 ; j < MAX_TYPE4_BUFF ; j++) {
-		if (m_buffMap.find(j + 1) != m_buffMap.end() && m_buffMap.find(j + 1)->second.m_bNation == 1) {
-			bType4Test = false;
+	bool bIsDebuffed = false;
+	foreach (itr, m_buffMap)
+	{
+		if (!itr->second.m_bIsBuff)
+		{
+			bIsDebuffed = true;
 			break;
 		}
 	}
 
-	if (isInParty() && bType4Test)
+	if (isInParty() && !bIsDebuffed)
 		SendPartyStatusUpdate(2);
 }
 

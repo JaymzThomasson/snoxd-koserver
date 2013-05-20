@@ -228,6 +228,6 @@ struct _ZONE_INFO
 
 struct _BUFF_TYPE4_INFO
 {
-	uint8	m_bNation; //The nation of the user that has casted this buff (or debuff) on the user.
+	bool	m_bIsBuff; // Is it a buff or a debuff?
 	time_t	m_tEndTime;
 };

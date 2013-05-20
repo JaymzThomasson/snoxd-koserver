@@ -869,7 +869,7 @@ bool MagicInstance::ExecuteType4()
 		_BUFF_TYPE4_INFO pBuffInfo;
 
 		if (bFoundBuff && 
-			(buffIterator->second.m_bNation == 2 && sTargetID == -1))
+			(buffIterator->second.m_bIsBuff && sTargetID == -1))
 		{
 			bResult = 0;
 			goto fail_return;
@@ -888,21 +888,20 @@ bool MagicInstance::ExecuteType4()
 			&& (sTargetID != -1 && pSkill->bType[0] == 4))
 			pSkillCaster->MSpChange( -(pSkill->sMsp) );
 
-		if (sCasterID >= 0 && sCasterID < MAX_USER) 
-			pBuffInfo.m_bNation = (pSkillCaster->GetNation() == pTUser->GetNation() ? 2 : 1);
+		if (pSkillCaster->isPlayer())
+			pBuffInfo.m_bIsBuff = (pSkillCaster->GetNation() == pTUser->GetNation());
 		else
-			pBuffInfo.m_bNation = 1;
+			pBuffInfo.m_bIsBuff = false;
 
 		pBuffInfo.m_tEndTime = UNIXTIME + pType->sDuration;
 
 		//Add the buff into the buff map.
 		pTUser->AddType4Buff(pType->bBuffType, pBuffInfo);
-		pTUser->m_bType4Flag = true;
 
 		pTUser->SetSlotItemValue();				// Update character stats.
 		pTUser->SetUserAbility();
 
-		if (pTUser->isInParty() && pBuffInfo.m_bNation == 1)
+		if (pTUser->isInParty() && !pBuffInfo.m_bIsBuff)
 			pTUser->SendPartyStatusUpdate(2, 1);
 
 		pTUser->Send2AI_UserUpdateInfo();
@@ -1000,33 +999,18 @@ bool MagicInstance::ExecuteType5()
 				TO_USER(pSkillTarget)->SendPartyStatusUpdate(1);
 			break;
 
-		case REMOVE_TYPE4:		// REMOVE TYPE 4!!!
-			for (int i = 0; i < MAX_TYPE4_BUFF; i++)
+		case REMOVE_TYPE4: // Remove type 4 debuffs
+			foreach (itr, pSkillTarget->m_buffMap)
 			{
-				buffIterator = pSkillTarget->m_buffMap.find(i);
-				if (buffIterator == pSkillTarget->m_buffMap.end())
-					continue;
-
-				CMagicProcess::RemoveType4Buff(i + 1, TO_USER(pSkillTarget));
+				if (!itr->second.m_bIsBuff)
+					CMagicProcess::RemoveType4Buff(itr->first, TO_USER(pSkillTarget));
 			}
 
-			buff_test = 0;
-			for (int i = 0; i < MAX_TYPE4_BUFF; i++)
-				buff_test += (pSkillCaster->m_buffMap.find(i) != pSkillCaster->m_buffMap.end()) ? 1 : 0;
-			if (buff_test == 0) pSkillTarget->m_bType4Flag = false;
-
-			bType4Test = true ;
-			for (int j = 0; j < MAX_TYPE4_BUFF; j++)
-			{
-				buffIterator = pSkillTarget->m_buffMap.find(j);
-				if (buffIterator != pSkillTarget->m_buffMap.end() && buffIterator->second.m_bNation == 1)
-				{
-					bType4Test = false;
-					break;
-				}
-			}
-
-			if (pSkillTarget->isPlayer() && TO_USER(pSkillTarget)->isInParty() && bType4Test)
+			// NOTE: This originally checked to see if there were any active debuffs.
+			// As this seems pointless (as we're removing all of them), it was removed
+			// however leaving this note in, in case this behaviour in certain conditions
+			// is required.
+			if (pSkillTarget->isPlayer() && TO_USER(pSkillTarget)->isInParty())
 				TO_USER(pSkillTarget)->SendPartyStatusUpdate(2, 0);
 			break;
 			
@@ -1036,28 +1020,23 @@ bool MagicInstance::ExecuteType5()
 			break;
 
 		case REMOVE_BLESS:
-			buffIterator = pSkillTarget->m_buffMap.find(0);
-			if (buffIterator != pSkillTarget->m_buffMap.end() && buffIterator->second.m_bNation == 2) 
+			buffIterator = pSkillTarget->m_buffMap.find(BUFF_TYPE_HP_MP);
+			if (buffIterator != pSkillTarget->m_buffMap.end() 
+				&& buffIterator->second.m_bIsBuff) 
 			{
-				CMagicProcess::RemoveType4Buff(1, TO_USER(pSkillTarget));
+				CMagicProcess::RemoveType4Buff(BUFF_TYPE_HP_MP, TO_USER(pSkillTarget));
 
-				buff_test = 0;
-				for (int i = 0; i < MAX_TYPE4_BUFF; i++)
-					buff_test += (pSkillCaster->m_buffMap.find(i) != pSkillCaster->m_buffMap.end()) ? 1 : 0;
-				if (buff_test == 0) pSkillTarget->m_bType4Flag = false;
-
-				bType4Test = true;
-				for (int j = 0; j < MAX_TYPE4_BUFF; j++)
+				bool bIsDebuffed = false;
+				foreach (itr, pSkillTarget->m_buffMap)
 				{
-					buffIterator = pSkillTarget->m_buffMap.find(j);
-					if (buffIterator != pSkillTarget->m_buffMap.end() && buffIterator->second.m_bNation == 1)
+					if (!itr->second.m_bIsBuff)
 					{
-						bType4Test = false;
+						bIsDebuffed = true;
 						break;
 					}
 				}
 
-				if (pSkillTarget->isPlayer() && TO_USER(pSkillTarget)->isInParty() && bType4Test) 
+				if (pSkillTarget->isPlayer() && TO_USER(pSkillTarget)->isInParty() && !bIsDebuffed) 
 					TO_USER(pSkillTarget)->SendPartyStatusUpdate(2, 0);
 			}
 
@@ -1581,10 +1560,8 @@ void MagicInstance::Type9Cancel()
 
 void MagicInstance::Type4Cancel()
 {
-	if (pSkill == NULL)
-		return;
-
-	if (pSkillTarget != pSkillCaster)
+	if (pSkill == NULL
+		|| pSkillTarget != pSkillCaster)
 		return;
 
 	_MAGIC_TYPE4* pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
@@ -1594,12 +1571,8 @@ void MagicInstance::Type4Cancel()
 	if (!CMagicProcess::RemoveType4Buff(pType->bBuffType, TO_USER(pSkillCaster)))
 		return;
 
-	int buff_test = 0;
-	for (int i = 0; i < MAX_TYPE4_BUFF; i++)
-		buff_test += (pSkillCaster->m_buffMap.find(pType->bBuffType) != pSkillCaster->m_buffMap.end()) ? 1 : 0;
-	if (buff_test == 0) pSkillCaster->m_bType4Flag = false;	
-
-	if (pSkillCaster->isPlayer() && !pSkillCaster->m_bType4Flag
+	if (pSkillCaster->isPlayer() 
+		&& pSkillCaster->m_buffMap.empty()
 		&& TO_USER(pSkillCaster)->isInParty())
 		TO_USER(pSkillCaster)->SendPartyStatusUpdate(2);
 

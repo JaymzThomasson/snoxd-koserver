@@ -526,7 +526,6 @@ void Unit::InitType4()
 	m_bPoisonRAmount = 0;		
 	m_bMaxWeightAmount = 100;
 	m_bExpGainAmount = 100;
-	m_bType4Flag = false;
 
 	StateChangeServerDirect(3, ABNORMAL_NORMAL);
 }
