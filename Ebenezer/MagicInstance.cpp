@@ -883,11 +883,9 @@ bool MagicInstance::ExecuteType4()
 			goto fail_return;
 		}
 
-		if (sTargetID != -1 && pSkill->bType[0] == 4)
-		{
-			if (sCasterID >= 0 && sCasterID < MAX_USER)
-				pSkillCaster->MSpChange( -(pSkill->sMsp) );
-		}
+		if (pSkillCaster->isPlayer()
+			&& (sTargetID != -1 && pSkill->bType[0] == 4))
+			pSkillCaster->MSpChange( -(pSkill->sMsp) );
 
 		if (sCasterID >= 0 && sCasterID < MAX_USER) 
 			pBuffInfo.m_bNation = (pSkillCaster->GetNation() == pTUser->GetNation() ? 2 : 1);
@@ -897,7 +895,7 @@ bool MagicInstance::ExecuteType4()
 		pBuffInfo.m_tEndTime = UNIXTIME + pType->sDuration;
 
 		//Add the buff into the buff map.
-		pSkillTarget->AddType4Buff(pType->bBuffType, pBuffInfo);
+		pTUser->AddType4Buff(pType->bBuffType, pBuffInfo);
 		pTUser->m_bType4Flag = true;
 
 		pTUser->SetSlotItemValue();				// Update character stats.
