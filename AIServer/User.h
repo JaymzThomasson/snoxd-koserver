@@ -81,7 +81,7 @@ public:
 	void SetExp(int iNpcExp, int iLoyalty, int iLevel);		// user exp
 	void SetPartyExp(int iNpcExp, int iLoyalty, int iPartyLevel, int iMan);		// user exp
 	short GetDamage(int tid, int magicid=0);
-	BYTE GetHitRate(float rate);
+	uint8 GetHitRate(float rate);
 	int IsSurroundCheck(float fX, float fY, float fZ, int NpcID);
 	void HealMagic();
 	void HealAreaCheck(int rx, int rz);

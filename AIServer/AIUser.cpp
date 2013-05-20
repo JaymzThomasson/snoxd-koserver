@@ -451,115 +451,93 @@ short CUser::GetMagicDamage(int damage, short tid)
 	return damage;
 }
 
-BYTE CUser::GetHitRate(float rate)
+uint8 CUser::GetHitRate(float rate)
 {
-	BYTE result;
-	int random = 0;
-	random = myrand(1, 10000);
-
-	if( rate >= 5.0 )
+	int random = myrand(1, 10000);
+	if (rate >= 5.0f)
 	{
-		if( random >= 1 && random <= 3500)
-			result = GREAT_SUCCESS;
-		else if( random >= 3501 && random <= 7500)
-			result = SUCCESS;
-		else if( random >= 7501 && random <= 9800)
-			result = NORMAL;
-		else
-			result = FAIL;
+		if (random >= 1 && random <= 3500)
+			return GREAT_SUCCESS;
+		else if (random >= 3501 && random <= 7500)
+			return SUCCESS;
+		else if (random >= 7501 && random <= 9800)
+			return NORMAL;
 	}
-	else if ( rate < 5.0 && rate >= 3.0)
+	else if (rate < 5.0f && rate >= 3.0f)
 	{
-		if( random >= 1 && random <= 2500)
-			result = GREAT_SUCCESS;
-		else if( random >= 2501 && random <= 6000)
-			result = SUCCESS;
-		else if( random >= 6001 && random <= 9600)
-			result = NORMAL;
-		else
-			result = FAIL;
+		if (random >= 1 && random <= 2500)
+			return GREAT_SUCCESS;
+		else if (random >= 2501 && random <= 6000)
+			return SUCCESS;
+		else if (random >= 6001 && random <= 9600)
+			return NORMAL;
 	}
-	else if ( rate < 3.0 && rate >= 2.0)
+	else if (rate < 3.0f && rate >= 2.0f)
 	{
-		if( random >= 1 && random <= 2000)
-			result = GREAT_SUCCESS;
-		else if( random >= 2001 && random <= 5000)
-			result = SUCCESS;
-		else if( random >= 5001 && random <= 9400)
-			result = NORMAL;
-		else
-			result = FAIL;
+		if (random >= 1 && random <= 2000)
+			return GREAT_SUCCESS;
+		else if (random >= 2001 && random <= 5000)
+			return SUCCESS;
+		else if (random >= 5001 && random <= 9400)
+			return NORMAL;
 	}
-	else if ( rate < 2.0 && rate >= 1.25)
+	else if (rate < 2.0f && rate >= 1.25f)
 	{
-		if( random >= 1 && random <= 1500)
-			result = GREAT_SUCCESS;
-		else if( random >= 1501 && random <= 4000)
-			result = SUCCESS;
-		else if( random >= 4001 && random <= 9200)
-			result = NORMAL;
-		else
-			result = FAIL;
+		if (random >= 1 && random <= 1500)
+			return GREAT_SUCCESS;
+		else if (random >= 1501 && random <= 4000)
+			return SUCCESS;
+		else if (random >= 4001 && random <= 9200)
+			return NORMAL;
 	}
-	else if ( rate < 1.25 && rate >= 0.8)
+	else if (rate < 1.25f && rate >= 0.8f)
 	{
-		if( random >= 1 && random <= 1000)
-			result = GREAT_SUCCESS;
-		else if( random >= 1001 && random <= 3000)
-			result = SUCCESS;
-		else if( random >= 3001 && random <= 9000)
-			result = NORMAL;
-		else
-			result = FAIL;
+		if (random >= 1 && random <= 1000)
+			return GREAT_SUCCESS;
+		else if (random >= 1001 && random <= 3000)
+			return SUCCESS;
+		else if (random >= 3001 && random <= 9000)
+			return NORMAL;
 	}	
-	else if ( rate < 0.8 && rate >= 0.5)
+	else if (rate < 0.8f && rate >= 0.5f)
 	{
-		if( random >= 1 && random <= 800)
-			result = GREAT_SUCCESS;
-		else if( random >= 801 && random <= 2500)
-			result = SUCCESS;
-		else if( random >= 2501 && random <= 8000)
-			result = NORMAL;
-		else
-			result = FAIL;
+		if (random >= 1 && random <= 800)
+			return GREAT_SUCCESS;
+		else if (random >= 801 && random <= 2500)
+			return SUCCESS;
+		else if (random >= 2501 && random <= 8000)
+			return NORMAL;
 	}
-	else if ( rate < 0.5 && rate >= 0.33)
+	else if (rate < 0.5f && rate >= 0.33f)
 	{
-		if( random >= 1 && random <= 600)
-			result = GREAT_SUCCESS;
-		else if( random >= 601 && random <= 2000)
-			result = SUCCESS;
-		else if( random >= 2001 && random <= 7000)
-			result = NORMAL;
-		else
-			result = FAIL;
+		if (random >= 1 && random <= 600)
+			return GREAT_SUCCESS;
+		else if (random >= 601 && random <= 2000)
+			return SUCCESS;
+		else if (random >= 2001 && random <= 7000)
+			return NORMAL;
 	}
-	else if ( rate < 0.33 && rate >= 0.2)
+	else if (rate < 0.33f && rate >= 0.2f)
 	{
-		if( random >= 1 && random <= 400)
-			result = GREAT_SUCCESS;
-		else if( random >= 401 && random <= 1500)
-			result = SUCCESS;
-		else if( random >= 1501 && random <= 6000)
-			result = NORMAL;
-		else
-			result = FAIL;
+		if (random >= 1 && random <= 400)
+			return GREAT_SUCCESS;
+		else if (random >= 401 && random <= 1500)
+			return SUCCESS;
+		else if (random >= 1501 && random <= 6000)
+			return NORMAL;
 	}
 	else
 	{
-		if( random >= 1 && random <= 200)
-			result = GREAT_SUCCESS;
-		else if( random >= 201 && random <= 1000)
-			result = SUCCESS;
-		else if( random >= 1001 && random <= 5000)
-			result = NORMAL;
-		else
-			result = FAIL;
+		if (random >= 1 && random <= 200)
+			return GREAT_SUCCESS;
+		else if (random >= 201 && random <= 1000)
+			return SUCCESS;
+		else if (random >= 1001 && random <= 5000)
+			return NORMAL;
 	}
 	
-	return result;
+	return FAIL;
 }
-
 
 void CUser::SendSystemMsg(char *pMsg, uint8 type, uint16 sWho)
 {
