@@ -859,8 +859,11 @@ bool MagicInstance::ExecuteType4()
 		casted_member.push_back(pTUser);
 	}
 
-	Type4BuffMap::iterator buffIterator = pSkillCaster->m_buffMap.find(pType->bBuffType);
-	bool bFoundBuff = (buffIterator != pSkillCaster->m_buffMap.end());
+	pSkillCaster->m_buffLock.Acquire();
+	Type4BuffMap::iterator buffItr = pSkillCaster->m_buffMap.find(pType->bBuffType);
+	bool bFoundBuff = (buffItr != pSkillCaster->m_buffMap.end());
+	bool bIsBuff = (bFoundBuff && buffItr->second.isBuff());
+	pSkillCaster->m_buffLock.Release();
 
 	foreach (itr, casted_member)
 	{
@@ -869,7 +872,7 @@ bool MagicInstance::ExecuteType4()
 		_BUFF_TYPE4_INFO pBuffInfo;
 
 		if (bFoundBuff && 
-			(buffIterator->second.isBuff() && sTargetID == -1))
+			(bIsBuff && sTargetID == -1))
 		{
 			bResult = 0;
 			goto fail_return;
@@ -893,6 +896,7 @@ bool MagicInstance::ExecuteType4()
 		else
 			pBuffInfo.m_bIsBuff = false;
 
+		pBuffInfo.m_bDurationExtended = false;
 		pBuffInfo.m_tEndTime = UNIXTIME + pType->sDuration;
 
 		//Add the buff into the buff map.
@@ -1000,11 +1004,13 @@ bool MagicInstance::ExecuteType5()
 			break;
 
 		case REMOVE_TYPE4: // Remove type 4 debuffs
+			pSkillTarget->m_buffLock.Acquire();
 			foreach (itr, pSkillTarget->m_buffMap)
 			{
 				if (itr->second.isDebuff())
 					CMagicProcess::RemoveType4Buff(itr->first, TO_USER(pSkillTarget));
 			}
+			pSkillTarget->m_buffLock.Release();
 
 			// NOTE: This originally checked to see if there were any active debuffs.
 			// As this seems pointless (as we're removing all of them), it was removed
@@ -1020,6 +1026,7 @@ bool MagicInstance::ExecuteType5()
 			break;
 
 		case REMOVE_BLESS:
+			pSkillTarget->m_buffLock.Acquire();
 			buffIterator = pSkillTarget->m_buffMap.find(BUFF_TYPE_HP_MP);
 			if (buffIterator != pSkillTarget->m_buffMap.end() 
 				&& buffIterator->second.isBuff()) 
@@ -1039,7 +1046,7 @@ bool MagicInstance::ExecuteType5()
 				if (pSkillTarget->isPlayer() && TO_USER(pSkillTarget)->isInParty() && !bIsDebuffed) 
 					TO_USER(pSkillTarget)->SendPartyStatusUpdate(2, 0);
 			}
-
+			pSkillTarget->m_buffLock.Release();
 			break;
 	}
 
@@ -1571,10 +1578,13 @@ void MagicInstance::Type4Cancel()
 	if (!CMagicProcess::RemoveType4Buff(pType->bBuffType, TO_USER(pSkillCaster)))
 		return;
 
-	if (pSkillCaster->isPlayer() 
-		&& pSkillCaster->m_buffMap.empty()
-		&& TO_USER(pSkillCaster)->isInParty())
-		TO_USER(pSkillCaster)->SendPartyStatusUpdate(2);
+	if (pSkillCaster->isPlayer())
+	{
+		FastGuard bufffLock(pSkillCaster->m_buffLock);
+		if (pSkillCaster->m_buffMap.empty()
+			&& TO_USER(pSkillCaster)->isInParty())
+			TO_USER(pSkillCaster)->SendPartyStatusUpdate(2);
+	}
 
 	if (TO_USER(pSkillCaster)->m_savedMagicMap.find(nSkillID) != TO_USER(pSkillCaster)->m_savedMagicMap.end())
 		TO_USER(pSkillCaster)->m_savedMagicMap.erase(nSkillID);
@@ -1631,17 +1641,28 @@ void MagicInstance::Type4Extend()
 	if (pType == NULL)
 		return;
 
-	CUser* pTUser = g_pMain->GetUserPtr(sTargetID);
-	if (pTUser == NULL) 
+	FastGuard lock(pSkillTarget->m_buffLock);
+	Type4BuffMap::iterator itr = pSkillTarget->m_buffMap.find(pType->bBuffType);
+
+	// Can't extend a buff that hasn't been started.
+	if (itr == pSkillTarget->m_buffMap.end()
+		// Can't extend a buff that's already been extended.
+		|| itr->second.m_bDurationExtended
+		// Only players can extend buffs.
+		|| !pSkillCaster->isPlayer() 
+		// Require the "Duration Item" for buff duration extension.
+		|| !TO_USER(pSkillTarget)->RobItem(800022000, 1))
 		return;
 
-	if (pSkillCaster->isPlayer() && pTUser->RobItem(800022000, 1))
-	{
-		pTUser->m_buffMap.find(pType->bBuffType)->second.m_tEndTime = ((pTUser->m_buffMap.find(pType->bBuffType)->second.m_tEndTime - UNIXTIME) * 2) + UNIXTIME;
-		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_EXTEND));
-		result << uint32(nSkillID);
-		pTUser->Send(&result);
-	}	
+	// Extend the duration of a buff.
+	itr->second.m_tEndTime += pType->sDuration;
+
+	// Mark the buff as extended (we cannot extend it more than once).
+	itr->second.m_bDurationExtended = true;
+
+	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_EXTEND));
+	result << uint32(nSkillID);
+	TO_USER(pSkillTarget)->Send(&result);
 }
 
 void MagicInstance::ReflectDamage(int32 damage)

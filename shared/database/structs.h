@@ -229,6 +229,7 @@ struct _ZONE_INFO
 struct _BUFF_TYPE4_INFO
 {
 	bool	m_bIsBuff; // Is it a buff or a debuff?
+	bool	m_bDurationExtended;
 	time_t	m_tEndTime;
 
 	INLINE bool isBuff() { return m_bIsBuff; }

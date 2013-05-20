@@ -264,7 +264,9 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 		if (!m_bType3Flag)
 			SendPartyStatusUpdate(1);
  
+		m_buffLock.Acquire();
 		if (m_buffMap.empty())
 			SendPartyStatusUpdate(2);
+		m_buffLock.Release();
 	}
 }

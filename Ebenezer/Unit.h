@@ -191,6 +191,7 @@ public:
 	bool	m_bType3Flag;
 
 	Type4BuffMap m_buffMap;
+	FastMutex	m_buffLock;
 
 	bool	m_bIsTransformed; // Is the unit in a transformed state?
 

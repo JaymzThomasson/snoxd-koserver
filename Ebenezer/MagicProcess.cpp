@@ -511,7 +511,9 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, CUser *pTarget)
 	pTarget->SendItemMove(2);
 	pTarget->Send2AI_UserUpdateInfo();
 
+	pTarget->m_buffLock.Acquire();
 	pTarget->m_buffMap.erase(byBuffType);
+	pTarget->m_buffLock.Release();
 
 	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
 	result << byBuffType;

@@ -408,8 +408,10 @@ bool CUser::HandlePacket(Packet & pkt)
 		}
 	} 
 
+	m_buffLock.Acquire();
 	if (!m_buffMap.empty())		// For Type 4 Stat Duration.
 		Type4Duration();
+	m_buffLock.Release();
 
 	// Expire any timed out saved skills.
 	CheckSavedMagic();
@@ -2487,6 +2489,8 @@ void CUser::HPTimeChangeType3()
 
 void CUser::Type4Duration()
 {
+	FastGuard lock(m_buffLock);
+
 	foreach (itr, m_buffMap)
 	{
 		if (itr->second.m_tEndTime <= UNIXTIME)
