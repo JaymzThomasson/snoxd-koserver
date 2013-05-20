@@ -47,7 +47,6 @@ public:
 	uint16	m_byMagicR;			// 마법 저항력
 	uint16	m_byDiseaseR;		// 저주 저항력
 	uint16	m_byPoisonR;		// 독 저항력
-	uint16	m_byLightR;			// 빛 저항력
 
 	float	m_fBulk;
 

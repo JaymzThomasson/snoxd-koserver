@@ -306,7 +306,6 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto)
 	m_byMagicR			= proto->m_byMagicR;	// 마법 저항력
 	m_byDiseaseR		= proto->m_byDiseaseR;	// 저주 저항력
 	m_byPoisonR			= proto->m_byPoisonR;	// 독 저항력
-	m_byLightR			= proto->m_byLightR;	// 빛 저항력
 	m_bySearchRange		= proto->m_bySearchRange;	// 적 탐지 범위
 	m_byAttackRange		= proto->m_byAttackRange;	// 사정거리
 	m_byTracingRange	= proto->m_byTracingRange;	// 추격거리
@@ -5135,7 +5134,6 @@ void CNpc::ChangeMonsterInfomation(int iChangeType)
 	m_byMagicR		= pNpcTable->m_byMagicR;	// 마법 저항력
 	m_byDiseaseR	= pNpcTable->m_byDiseaseR;	// 저주 저항력
 	m_byPoisonR		= pNpcTable->m_byPoisonR;	// 독 저항력
-	m_byLightR		= pNpcTable->m_byLightR;	// 빛 저항력
 	m_bySearchRange	= pNpcTable->m_bySearchRange;	// 적 탐지 범위
 	m_byAttackRange	= pNpcTable->m_byAttackRange;	// 사정거리
 	m_byTracingRange	= pNpcTable->m_byTracingRange;	// 추격거리
@@ -5345,7 +5343,7 @@ void CNpc::ChangeAbility(int iChangeType)	// iChangeType - 0:능력치 다운, 1:능력
 {
 	if( iChangeType > 2 )	return;			// 
 
-	int nHP = 0, nAC=0, nDamage=0, nLightR=0, nMagicR=0, nDiseaseR=0, nPoisonR=0, nLightningR=0, nFireR=0, nColdR=0;
+	int nHP = 0, nAC=0, nDamage=0, nMagicR=0, nDiseaseR=0, nPoisonR=0, nLightningR=0, nFireR=0, nColdR=0;
 	CNpcTable*	pNpcTable = m_proto;
 
 	// 정보수정......
@@ -5353,7 +5351,6 @@ void CNpc::ChangeAbility(int iChangeType)	// iChangeType - 0:능력치 다운, 1:능력
 		nHP = (int)(pNpcTable->m_iMaxHP / 2);
 		nAC = (int)(pNpcTable->m_sDefense * 0.2);
 		nDamage = (int)(pNpcTable->m_sDamage * 0.3);
-		nLightR = (int)(pNpcTable->m_byLightR / 2);
 		nMagicR = (int)(pNpcTable->m_byMagicR / 2);
 		nDiseaseR = (int)(pNpcTable->m_byDiseaseR / 2);
 		nPoisonR = (int)(pNpcTable->m_byPoisonR / 2);
@@ -5372,7 +5369,6 @@ void CNpc::ChangeAbility(int iChangeType)	// iChangeType - 0:능력치 다운, 1:능력
 		m_byMagicR		= nMagicR;		// 마법 저항력
 		m_byDiseaseR	= nDiseaseR;	// 저주 저항력
 		m_byPoisonR		= nPoisonR;		// 독 저항력
-		m_byLightR		= nLightR;		// 빛 저항력
 		//TRACE("-- ChangeAbility down : nid=%d, name=%s, hp:%d->%d, damage=%d->%d\n", m_sNid+NPC_BAND, m_proto->m_strName, pNpcTable->m_iMaxHP, nHP, pNpcTable->m_sDamage, nDamage); 
 	}
 	else if( iChangeType == BATTLEZONE_CLOSE )	{	// 능력치 회복
@@ -5390,7 +5386,6 @@ void CNpc::ChangeAbility(int iChangeType)	// iChangeType - 0:능력치 다운, 1:능력
 		m_byMagicR		= pNpcTable->m_byMagicR;	// 마법 저항력
 		m_byDiseaseR	= pNpcTable->m_byDiseaseR;	// 저주 저항력
 		m_byPoisonR		= pNpcTable->m_byPoisonR;	// 독 저항력
-		m_byLightR		= pNpcTable->m_byLightR;	// 빛 저항력
 	}
 }
 

@@ -202,7 +202,6 @@ public:
 	uint16	m_byMagicR;			// 마법 저항력
 	uint16	m_byDiseaseR;		// 저주 저항력
 	uint16	m_byPoisonR;		// 독 저항력
-	uint16	m_byLightR;			// 빛 저항력
 	uint8	m_bySearchRange;	// 적 탐지 범위
 	uint8	m_byAttackRange;	// 사정거리
 	uint8	m_byTracingRange;	// 추격 거리

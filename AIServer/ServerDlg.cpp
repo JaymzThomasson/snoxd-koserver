@@ -748,7 +748,6 @@ BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 	pEventNpc->m_byMagicR		= pNpc->m_byMagicR;		// 마법 저항력
 	pEventNpc->m_byDiseaseR		= pNpc->m_byDiseaseR;	// 저주 저항력
 	pEventNpc->m_byPoisonR		= pNpc->m_byPoisonR;	// 독 저항력
-	pEventNpc->m_byLightR		= pNpc->m_byLightR;		// 빛 저항력
 	pEventNpc->m_bySearchRange	= pNpc->m_bySearchRange;	// 적 탐지 범위
 	pEventNpc->m_byAttackRange	= pNpc->m_byAttackRange;	// 사정거리
 	pEventNpc->m_byTracingRange	= pNpc->m_byTracingRange;	// 추격거리
