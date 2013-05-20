@@ -869,7 +869,7 @@ bool MagicInstance::ExecuteType4()
 		_BUFF_TYPE4_INFO pBuffInfo;
 
 		if (bFoundBuff && 
-			(buffIterator->second.m_bIsBuff && sTargetID == -1))
+			(buffIterator->second.isBuff() && sTargetID == -1))
 		{
 			bResult = 0;
 			goto fail_return;
@@ -901,7 +901,7 @@ bool MagicInstance::ExecuteType4()
 		pTUser->SetSlotItemValue();				// Update character stats.
 		pTUser->SetUserAbility();
 
-		if (pTUser->isInParty() && !pBuffInfo.m_bIsBuff)
+		if (pTUser->isInParty() && pBuffInfo.isDebuff())
 			pTUser->SendPartyStatusUpdate(2, 1);
 
 		pTUser->Send2AI_UserUpdateInfo();
@@ -1002,7 +1002,7 @@ bool MagicInstance::ExecuteType5()
 		case REMOVE_TYPE4: // Remove type 4 debuffs
 			foreach (itr, pSkillTarget->m_buffMap)
 			{
-				if (!itr->second.m_bIsBuff)
+				if (itr->second.isDebuff())
 					CMagicProcess::RemoveType4Buff(itr->first, TO_USER(pSkillTarget));
 			}
 
@@ -1022,14 +1022,14 @@ bool MagicInstance::ExecuteType5()
 		case REMOVE_BLESS:
 			buffIterator = pSkillTarget->m_buffMap.find(BUFF_TYPE_HP_MP);
 			if (buffIterator != pSkillTarget->m_buffMap.end() 
-				&& buffIterator->second.m_bIsBuff) 
+				&& buffIterator->second.isBuff()) 
 			{
 				CMagicProcess::RemoveType4Buff(BUFF_TYPE_HP_MP, TO_USER(pSkillTarget));
 
 				bool bIsDebuffed = false;
 				foreach (itr, pSkillTarget->m_buffMap)
 				{
-					if (!itr->second.m_bIsBuff)
+					if (itr->second.isDebuff())
 					{
 						bIsDebuffed = true;
 						break;

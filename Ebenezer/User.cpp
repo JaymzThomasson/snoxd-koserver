@@ -2499,7 +2499,7 @@ void CUser::Type4Duration()
 	bool bIsDebuffed = false;
 	foreach (itr, m_buffMap)
 	{
-		if (!itr->second.m_bIsBuff)
+		if (itr->second.isDebuff())
 		{
 			bIsDebuffed = true;
 			break;

@@ -230,4 +230,7 @@ struct _BUFF_TYPE4_INFO
 {
 	bool	m_bIsBuff; // Is it a buff or a debuff?
 	time_t	m_tEndTime;
+
+	INLINE bool isBuff() { return m_bIsBuff; }
+	INLINE bool isDebuff() { return !m_bIsBuff; }
 };
