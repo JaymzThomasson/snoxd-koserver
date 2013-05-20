@@ -15,43 +15,35 @@ CNpcMagicProcess::~CNpcMagicProcess()
 
 }
 
-void CNpcMagicProcess::MagicPacket(Packet & pkt)
+void CNpcMagicProcess::MagicPacket(uint8 opcode, uint32 nSkillID, int16 sCasterID, int16 sTargetID, int16 sData1, int16 sData2, int16 sData3)
 {
-	int send_index = 0, magicid = 0;
-	short sid = -1, tid = -1, data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0;
-	_MAGIC_TABLE* pTable = NULL;
-	
-	uint8 command;
-	pkt >> command;
-	if( command == MAGIC_FAIL ) {			    // Client indicates that magic failed. Just send back packet.
-#if 0
-		SetByte( send_buff, AG_MAGIC_ATTACK_RESULT, send_index );
-		SetString( send_buff, pBuf, len-1, send_index );	// len ==> include WIZ_MAGIC_PROCESS command byte. 
-		//g_pMain->Send_Region( send_buff, send_index, m_pSrcUser->m_bZone, m_pSrcUser->m_RegionX, m_pSrcUser->m_RegionZ );
-#endif
+	// Skill failed.
+	if (opcode == MAGIC_FAIL)
+	{
 		m_bMagicState = NONE;
 		return;
 	}
 
-	pkt >> magicid >> sid >> tid 
-		>> data1 >> data2 >> data3 
-		>> data4 >> data5 >> data6;
+	// If magic was successful...
+	_MAGIC_TABLE * pTable = IsAvailable(nSkillID, sTargetID, opcode);
+	if (pTable == NULL)
+		return;
 
-	pTable = IsAvailable( magicid, tid, command );     // If magic was successful.......
-	if( !pTable ) return;
-
-	if( command == MAGIC_EFFECTING )     // Is target another player? 
+	if (opcode == MAGIC_EFFECTING)     // Is target another player? 
 	{
 		//if (tid < -1 || tid >= MAX_USER) return;	
 
 		if (pTable->bType[0] == 3)
-			ExecuteType3( pTable->iNum, tid, data1, data2, data3, pTable->bMoral );
+			ExecuteType3(nSkillID, sTargetID, sData1, sData2, sData3, pTable->bMoral);
 		if (pTable->bType[1] == 3)
-			ExecuteType3( pTable->iNum, tid, data1, data2, data3, pTable->bMoral );
+			ExecuteType3(nSkillID, sTargetID, sData1, sData2, sData3, pTable->bMoral);
 	}
-	else if( command == MAGIC_CASTING ) {
+	else if (opcode == MAGIC_CASTING)
+	{
 		Packet result(AG_MAGIC_ATTACK_RESULT);
-		result.append(pkt); // NOTE: used to be len-1, as apparently it "included the opcode". I don't see this behaviour anywhere.
+		result	<< opcode << nSkillID << sCasterID << sTargetID 
+				<< sData1 << sData2 << sData3
+				<< int16(0) << int16(0) << int16(0);
 		g_pMain->Send(&result);
 	}
 }

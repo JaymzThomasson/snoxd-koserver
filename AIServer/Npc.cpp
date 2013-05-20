@@ -2455,14 +2455,7 @@ int CNpc::Attack()
 		if(m_byWhatAttackType == 4 || m_byWhatAttackType == 5)	{		// 지역 마법 사용 몬스터이면.....
 			nRandom = myrand(1, 10000);
 			if(nRandom < nPercent)	{				// 지역마법공격...
-				Packet result;
-				result << uint8(MAGIC_EFFECTING)
-						<< m_proto->m_iMagic2
-						<< uint16(m_sNid+NPC_BAND)
-						<< int16(-1)
-						<< int16(m_fCurX) << int16(m_fCurY) << int16(m_fCurZ) 
-						<< int16(0) << int16(0) << int16(0);
-				m_MagicProcess.MagicPacket(result);
+				m_MagicProcess.MagicPacket(MAGIC_EFFECTING, m_proto->m_iMagic2, m_sNid + NPC_BAND, -1, int16(m_fCurX), int16(m_fCurY), int16(m_fCurZ));
 				//TRACE("++++ AreaMagicAttack --- sid=%d, magicid=%d\n", m_sNid+NPC_BAND, m_proto->m_iMagic2);
 				return m_sAttackDelay + 1000;	// 지역마법은 조금 시간이 걸리도록.....
 			}
@@ -2622,15 +2615,7 @@ int CNpc::LongAndMagicAttack()
 			}	
 		}	*/
 
-		Packet result;
-		result << uint8(MAGIC_CASTING)
-				<< m_proto->m_iMagic1
-				<< uint16(m_sNid+NPC_BAND)
-				<< int16(pUser->m_iUserId)
-				<< int16(0) << int16(0) << int16(0) 
-				<< int16(0) << int16(0) << int16(0);
-		m_MagicProcess.MagicPacket(result);
-
+		m_MagicProcess.MagicPacket(MAGIC_CASTING, m_proto->m_iMagic1, m_sNid + NPC_BAND, pUser->m_iUserId);
 		//TRACE("**** LongAndMagicAttack --- sid=%d, tid=%d\n", m_sNid+NPC_BAND, pUser->m_iUserId);
 	}
 	else if(nID >= NPC_BAND && m_Target.id < INVALID_BAND)	{
@@ -2656,13 +2641,6 @@ int CNpc::LongAndMagicAttack()
 			m_NpcState = NPC_BACK;
 			return 0;
 		}	*/
-
-		/*
-		SetByte( buff, AG_LONG_MAGIC_ATTACK, send_index );
-		SetByte( buff, type, send_index );
-		SetDWORD( buff, magicid, send_index );
-		SetShort( buff, m_sNid+NPC_BAND, send_index );
-		SetShort( buff, pNpc->m_sNid+NPC_BAND, send_index );	*/
 	}
 
 	return m_sAttackDelay;
@@ -5323,15 +5301,7 @@ time_t CNpc::NpcHealing()
 			InitTarget();
 		}
 		else	{						// Heal 해주기
-			Packet result;
-			result << uint8(MAGIC_EFFECTING)
-					<< m_proto->m_iMagic3
-					<< uint16(m_sNid+NPC_BAND)
-					<< uint16(nID)
-					<< int16(0) << int16(0) << int16(0) 
-					<< int16(0) << int16(0) << int16(0);
-
-			m_MagicProcess.MagicPacket(result);
+			m_MagicProcess.MagicPacket(MAGIC_EFFECTING, m_proto->m_iMagic3, m_sNid + NPC_BAND, nID);
 			return m_sAttackDelay;
 		}
 	}
@@ -5346,14 +5316,7 @@ time_t CNpc::NpcHealing()
 		return m_sStandTime;
 	}
 
-	Packet result;
-	result << uint8(MAGIC_EFFECTING)
-			<< m_proto->m_iMagic3
-			<< uint16(m_sNid+NPC_BAND)
-			<< int16(iMonsterNid)
-			<< int16(0) << int16(0) << int16(0) 
-			<< int16(0) << int16(0) << int16(0);
-	m_MagicProcess.MagicPacket(result);
+	m_MagicProcess.MagicPacket(MAGIC_EFFECTING, m_proto->m_iMagic3, m_sNid + NPC_BAND, iMonsterNid);
 	return m_sAttackDelay;
 }
 

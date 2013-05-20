@@ -18,5 +18,6 @@ public:
 	void ExecuteType3(int magicid, int tid, int data1, int data2, int data3, int moral);
 
 	_MAGIC_TABLE* IsAvailable( int magicid, int tid, BYTE type );
-	void MagicPacket(Packet & pkt);
+	void MagicPacket(uint8 opcode, uint32 nSkillID, int16 sCasterID, int16 sTargetID, 
+		int16 sData1 = 0, int16 sData2 = 0, int16 sData3 = 0);
 };
