@@ -192,7 +192,7 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= t
 	if (bSendToAI)
 	{
 		// NOTE: This will handle the death notification/looting.
-		Packet result(AG_USER_SET_HP);
+		Packet result(AG_NPC_SET_HP);
 		result << GetID() << m_iHP << pAttacker->GetID();
 		Send_AIServer(&result);
 	}

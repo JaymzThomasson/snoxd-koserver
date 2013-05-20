@@ -3,6 +3,7 @@
 #include "EbenezerDlg.h"
 #include "AISocket.h"
 #include "User.h"
+#include "MagicProcess.h"
 
 using std::string;
 
@@ -30,6 +31,12 @@ bool CAISocket::HandlePacket(Packet & pkt)
 		case AG_ATTACK_RESULT:
 			RecvNpcAttack(pkt);
 			break;
+		// The AI server should send magic system requests to us.
+		// It shouldn't have to duplicate all the processing code.
+		case AG_MAGIC_ATTACK_REQ:
+			CMagicProcess::MagicPacket(pkt);
+			break;
+		// This will probably need to be removed eventually.
 		case AG_MAGIC_ATTACK_RESULT:
 			RecvMagicAttackResult(pkt);
 			break;

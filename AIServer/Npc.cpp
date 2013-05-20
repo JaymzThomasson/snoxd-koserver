@@ -126,8 +126,6 @@ CNpc::CNpc() : m_NpcState(NPC_LIVE), m_byGateOpen(0), m_byObjectType(NORMAL_OBJE
 	m_bTracing = false;
 	m_fTracingStartX = m_fTracingStartZ = 0.0f;
 
-	m_MagicProcess.m_pSrcNpc = this;
-
 	for(int i=0; i<NPC_MAX_PATH_LIST; i++)	{
 		m_PathList.pPattenPos[i].x = -1;
 		m_PathList.pPattenPos[i].z = -1;
@@ -2443,7 +2441,7 @@ int CNpc::Attack()
 		if(m_byWhatAttackType == 4 || m_byWhatAttackType == 5)	{		// 지역 마법 사용 몬스터이면.....
 			nRandom = myrand(1, 10000);
 			if(nRandom < nPercent)	{				// 지역마법공격...
-				m_MagicProcess.MagicPacket(MAGIC_EFFECTING, m_proto->m_iMagic2, m_sNid + NPC_BAND, -1, int16(m_fCurX), int16(m_fCurY), int16(m_fCurZ));
+				CNpcMagicProcess::MagicPacket(MAGIC_EFFECTING, m_proto->m_iMagic2, m_sNid + NPC_BAND, -1, int16(m_fCurX), int16(m_fCurY), int16(m_fCurZ));
 				//TRACE("++++ AreaMagicAttack --- sid=%d, magicid=%d\n", m_sNid+NPC_BAND, m_proto->m_iMagic2);
 				return m_sAttackDelay + 1000;	// 지역마법은 조금 시간이 걸리도록.....
 			}
@@ -2603,7 +2601,7 @@ int CNpc::LongAndMagicAttack()
 			}	
 		}	*/
 
-		m_MagicProcess.MagicPacket(MAGIC_CASTING, m_proto->m_iMagic1, m_sNid + NPC_BAND, pUser->m_iUserId);
+		CNpcMagicProcess::MagicPacket(MAGIC_CASTING, m_proto->m_iMagic1, m_sNid + NPC_BAND, pUser->m_iUserId);
 		//TRACE("**** LongAndMagicAttack --- sid=%d, tid=%d\n", m_sNid+NPC_BAND, pUser->m_iUserId);
 	}
 	else if(nID >= NPC_BAND && m_Target.id < INVALID_BAND)	{
@@ -5288,7 +5286,7 @@ time_t CNpc::NpcHealing()
 			InitTarget();
 		}
 		else	{						// Heal 해주기
-			m_MagicProcess.MagicPacket(MAGIC_EFFECTING, m_proto->m_iMagic3, m_sNid + NPC_BAND, nID);
+			CNpcMagicProcess::MagicPacket(MAGIC_EFFECTING, m_proto->m_iMagic3, m_sNid + NPC_BAND, nID);
 			return m_sAttackDelay;
 		}
 	}
@@ -5303,7 +5301,7 @@ time_t CNpc::NpcHealing()
 		return m_sStandTime;
 	}
 
-	m_MagicProcess.MagicPacket(MAGIC_EFFECTING, m_proto->m_iMagic3, m_sNid + NPC_BAND, iMonsterNid);
+	CNpcMagicProcess::MagicPacket(MAGIC_EFFECTING, m_proto->m_iMagic3, m_sNid + NPC_BAND, iMonsterNid);
 	return m_sAttackDelay;
 }
 

@@ -103,8 +103,6 @@ struct __Vector3;
 class CNpc  
 {
 public:
-
-	CNpcMagicProcess m_MagicProcess;
 	CNpcTable *m_proto;
 
 	_Target	m_Target;				// 공격할 유저 저장,,

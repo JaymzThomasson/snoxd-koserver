@@ -24,6 +24,7 @@ void MagicInstance::Run()
 		return;
 	}
 
+#if 0
 	// If the target is a mob/NPC *or* we're casting an AOE, tell the AI to handle it.
 	if (sTargetID >= NPC_BAND
 		|| (sTargetID == -1 && 
@@ -38,6 +39,7 @@ void MagicInstance::Run()
 		if (sTargetID >= NPC_BAND)
 			return;
 	}
+#endif
 
 	bool bInitialResult;
 	switch (bOpcode)

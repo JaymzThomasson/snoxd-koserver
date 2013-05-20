@@ -609,4 +609,5 @@ const uint8	AG_USER_EXP			= 108;	// User의 경험치
 const uint8	AG_USER_UPDATE		= 109;	// User의 Update Info
 const uint8	AG_USER_FAIL		= 110;	// 잘못된 유저 처리...
 const uint8	AG_USER_PARTY		= 111;	// 파티처리 담당
-const uint8	AG_USER_VISIBILITY  = 112; // updates invisibility status
+const uint8	AG_USER_VISIBILITY  = 112;	// updates invisibility status
+const uint8	AG_NPC_SET_HP		= 113;	// updates an NPC's HP

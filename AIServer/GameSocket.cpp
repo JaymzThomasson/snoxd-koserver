@@ -59,6 +59,9 @@ bool CGameSocket::HandlePacket(Packet & pkt)
 	case AG_USER_SET_HP:
 		RecvUserSetHP(pkt);
 		break;
+	case AG_NPC_SET_HP:
+		RecvNpcSetHP(pkt);
+		break;
 	case AG_USER_UPDATE:
 		RecvUserUpdate(pkt);
 		break;
@@ -67,9 +70,6 @@ bool CGameSocket::HandlePacket(Packet & pkt)
 		break;
 	case AG_USER_PARTY:
 		m_Party.PartyProcess(pkt);
-		break;
-	case AG_MAGIC_ATTACK_REQ:
-		RecvMagicAttackReq(pkt);
 		break;
 	case AG_USER_INFO_ALL:
 		RecvUserInfoAllData(pkt);
@@ -423,6 +423,26 @@ void CGameSocket::RecvUserSetHP(Packet & pkt)
 	}
 }
 
+void CGameSocket::RecvNpcSetHP(Packet & pkt)
+{
+	uint16 nid = pkt.read<uint16>();
+	int32 nHP = pkt.read<int32>();
+
+	CNpc* pNpc = g_pMain->m_arNpc.GetData(nid);
+	if (pNpc == NULL)
+		return;
+
+	if (pNpc->m_iHP != nHP)
+	{
+		pNpc->m_iHP = nHP;
+		if (nHP <= 0)
+		{
+			pNpc->SendExpToUserList();
+			pNpc->GiveNpcHaveItem();
+		}
+	}
+}
+
 void CGameSocket::RecvUserUpdate(Packet & pkt)
 {
 	uint16 uid = pkt.read<uint16>();
@@ -462,29 +482,6 @@ void CGameSocket::RecvZoneChange(Packet & pkt)
 	pUser->m_curZone = byZoneNumber;
 
 	TRACE("**** RecvZoneChange -- user(%s, %d), cur_zone = %d\n", pUser->m_strUserID, pUser->m_iUserId, byZoneNumber);
-}
-
-void CGameSocket::RecvMagicAttackReq(Packet & pkt)
-{
-	uint16 sid = pkt.read<uint16>();
-	CUser* pUser = g_pMain->GetUserPtr(sid);
-	if (pUser == NULL) return;
-	if(pUser->m_bLive == USER_DEAD || pUser->m_sHP <= 0)
-	{
-		if(pUser->m_sHP > 0)
-		{
-			pUser->m_bLive = USER_LIVE;
-			TRACE("##### CGameSocket-Magic Attack Fail : User가 Heal된 경우.. [id=%s, bLive=%d, hp=%d] ######\n", pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
-		}		
-		else
-		{
-			TRACE("##### CGameSocket-Magic Attack Fail : UserDead  [id=%s, bLive=%d, hp=%d] ######\n", pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
-			Send_UserError(sid, -1);
-			return;
-		}
-	}
-
-	pUser->m_MagicProcess.MagicPacket(pkt);
 }
 
 void CGameSocket::RecvUserInfoAllData(Packet & pkt)
