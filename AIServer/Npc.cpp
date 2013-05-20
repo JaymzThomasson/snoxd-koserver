@@ -1372,8 +1372,9 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 	
 	m_pPath = NULL;
 
-	m_vPathFind.SetMap(m_vMapSize.cx, m_vMapSize.cy, GetMap()->GetEventIDs(), GetMap()->GetMapSize());
+	m_vPathFind.SetMap(m_vMapSize.cx, m_vMapSize.cy, GetMap()->GetEventIDs(), GetMap()->GetMapSize(), min_x, min_y);
 	m_pPath = m_vPathFind.FindPath(end.x, end.y, start.x, start.y);
+
 	int count = 0;
 
 	while(m_pPath)
@@ -1931,15 +1932,15 @@ BOOL CNpc::StepMove()
 	// It's disabled for now, but note that the removal of this check is the reason 
 	// why mobs are going to have weird looking bursts of speed.
 	// Without, they'll just get stuck going back and forth in position. Compromises.
-#if 0
+//#if 0
 	if(fDis >= m_fSecForMetor)
 	{
-		vDis = GetVectorPosition(vStart, vEnd, m_fSecForMetor);
+		GetVectorPosition(vStart, vEnd, m_fSecForMetor, &vDis);
 		m_fPrevX = vDis.x;
 		m_fPrevZ = vDis.z;
 	}
 	else
-#endif
+//#endif
 	{
 		m_iAniFrameCount++;
 		if(m_iAniFrameCount == m_iAniFrameIndex)

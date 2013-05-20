@@ -55,12 +55,14 @@ void CPathFind::ClearData()
 	}
 }
 
-void CPathFind::SetMap(int x, int y, short *pMap, uint32 nMapSize)
+void CPathFind::SetMap(int x, int y, short *pMap, uint32 nMapSize, int16 min_x, int16 min_y)
 {
 	m_vMapSize.cx = x;
 	m_vMapSize.cy = y;
 	m_nMapSize = nMapSize; // event array requires the full map size
 	m_pMap = pMap;
+	this->min_x = min_x;
+	this->min_y = min_y;
 
 /*	if(InterlockedCompareExchange(&m_lMapUse, (LONG)1, (LONG)0) == 0)
 	{
@@ -212,19 +214,13 @@ void CPathFind::FindChildPathSub(_PathNode *node, int x, int y, int dx, int dy, 
 
 _PathNode *CPathFind::CheckOpen(int x, int y)
 {
-	_PathNode *tmp;
-	
-	tmp = m_pOpen->NextNode;
-	while(tmp != NULL)
+	_PathNode *tmp = m_pOpen->NextNode;
+	while (tmp != NULL)
 	{
-		if(tmp->x == x && tmp->y == y)
-		{
+		if (tmp->x == x && tmp->y == y)
 			return tmp;
-		}
-		else
-		{
-			tmp = tmp->NextNode;
-		}
+
+		tmp = tmp->NextNode;
 	}
 
 	return NULL;
@@ -344,5 +340,8 @@ BOOL CPathFind::IsBlankMap(int x, int y)
 	if (x < 0 || y < 0 || x >= m_vMapSize.cx || y >= m_vMapSize.cy) 
 		return FALSE;
 
-	return !m_pMap[x * m_nMapSize + y];
+	if ((min_x + x) < 0 || (min_y + y) < 0)
+		return FALSE;
+
+	return !m_pMap[(min_x + x) * m_nMapSize + (min_y + y)];
 }
