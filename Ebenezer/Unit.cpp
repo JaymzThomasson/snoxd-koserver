@@ -46,6 +46,8 @@ void Unit::Initialize()
 	m_bCanStealth = true;
 	m_bReflectArmorType = 0;
 	m_bIsTransformed = false;
+	m_bIsBlinded = false;
+	m_bInstantCast = false;
 
 	InitType3();	 // Initialize durational type 3 stuff :)
 	InitType4();	 // Initialize durational type 4 stuff :)
