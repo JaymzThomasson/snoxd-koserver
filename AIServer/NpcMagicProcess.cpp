@@ -54,24 +54,6 @@ void CNpcMagicProcess::MagicPacket(Packet & pkt)
 		case 3:
 			ExecuteType3( pTable->iNum, tid, data1, data2, data3, pTable->bMoral );
 			break;
-		case 4:
-			ExecuteType4( pTable->iNum, tid );
-			break;
-		case 5:
-			ExecuteType5( pTable->iNum );
-			break;
-		case 6:
-			ExecuteType6( pTable->iNum );
-			break;
-		case 7:
-			ExecuteType7( pTable->iNum );
-			break;
-		case 8:
-			ExecuteType8( pTable->iNum, tid, sid, data1, data2, data3 );
-			break;
-		case 9:
-			ExecuteType9( pTable->iNum );
-			break;
 		}
 
 		switch( pTable->bType[1] ) {
@@ -83,24 +65,6 @@ void CNpcMagicProcess::MagicPacket(Packet & pkt)
 			break;
 		case 3:
 			ExecuteType3( pTable->iNum, tid, data1, data2, data3, pTable->bMoral );
-			break;
-		case 4:
-			ExecuteType4( pTable->iNum, tid );
-			break;
-		case 5:
-			ExecuteType5( pTable->iNum );
-			break;
-		case 6:
-			ExecuteType6( pTable->iNum );
-			break;
-		case 7:
-			ExecuteType7( pTable->iNum );
-			break;
-		case 8:
-			ExecuteType8( pTable->iNum, tid, sid, data1, data2, data3 );
-			break;
-		case 9:
-			ExecuteType9( pTable->iNum );
 			break;
 		}
 	}
@@ -267,37 +231,6 @@ packet_send:
 				<< uint16(moral) << uint16(0) << uint16(0);
 		g_pMain->Send(&result);
 	}
-}
-
-void CNpcMagicProcess::ExecuteType4(int magicid, int tid)
-{
-	
-	return;
-}
-
-void CNpcMagicProcess::ExecuteType5(int magicid)
-{
-	return;
-}
-
-void CNpcMagicProcess::ExecuteType6(int magicid)
-{
-	return;
-}
-
-void CNpcMagicProcess::ExecuteType7(int magicid)
-{
-	return;
-}
-
-void CNpcMagicProcess::ExecuteType8(int magicid, int tid, int sid, int data1, int data2, int data3 )	// Warp, resurrection, and summon spells.
-{	
-	
-}
-
-void CNpcMagicProcess::ExecuteType9(int magicid)
-{
-	return;
 }
 
 short CNpcMagicProcess::GetMagicDamage(int tid, int total_hit, int attribute, int dexpoint)

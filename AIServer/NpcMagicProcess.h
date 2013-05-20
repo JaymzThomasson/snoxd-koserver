@@ -15,12 +15,6 @@ public:
 	virtual ~CNpcMagicProcess();
 
 	short GetMagicDamage(int tid, int total_hit, int attribute, int dexpoint);
-	void ExecuteType9(int magicid);
-	void ExecuteType8(int magicid, int tid, int sid, int data1, int data2, int data3);
-	void ExecuteType7(int magicid);
-	void ExecuteType6(int magicid);
-	void ExecuteType5(int magicid);
-	void ExecuteType4(int magicid, int tid);
 	void ExecuteType3(int magicid, int tid, int data1, int data2, int data3, int moral);
 	void ExecuteType2(int magicid, int tid, int data1, int data2, int data3 );
 	void ExecuteType1(int magicid, int tid, int data1, int data2, int data3 );	// sequence => type1 or type2
