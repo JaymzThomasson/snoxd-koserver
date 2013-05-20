@@ -508,20 +508,20 @@ bool MagicInstance::IsAvailable()
 			if (pSkill->sMsp > pSkillCaster->GetMana())
 				goto fail_return;
 
-			if (pSkill->bType[0] == 3 || pSkill->bType[0] == 4) {   // If the PLAYER uses an item to cast a spell.
-				if (sCasterID >= 0 && sCasterID < MAX_USER)
-				{	
-					if (pSkill->iUseItem != 0) {
-						_ITEM_TABLE* pItem = NULL;				// This checks if such an item exists.
-						pItem = g_pMain->GetItemPtr(pSkill->iUseItem);
-						if( !pItem ) return false;
+			// If the PLAYER uses an item to cast a spell.
+ 			if (pSkillCaster->isPlayer()
+				&& (pSkill->bType[0] == 3 || pSkill->bType[0] == 4))
+			{
+				if (pSkill->iUseItem != 0) {
+					_ITEM_TABLE* pItem = NULL;				// This checks if such an item exists.
+					pItem = g_pMain->GetItemPtr(pSkill->iUseItem);
+					if( !pItem ) return false;
 
-						if ((pItem->m_bRace != 0 && TO_USER(pSkillCaster)->m_bRace != pItem->m_bRace)
-							|| (pItem->m_bClass != 0 && !TO_USER(pSkillCaster)->JobGroupCheck(pItem->m_bClass))
-							|| (pItem->m_bReqLevel != 0 && TO_USER(pSkillCaster)->GetLevel() < pItem->m_bReqLevel)
-							|| (!TO_USER(pSkillCaster)->RobItem(pSkill->iUseItem, 1)))	
-							return false;
-					}
+					if ((pItem->m_bRace != 0 && TO_USER(pSkillCaster)->m_bRace != pItem->m_bRace)
+						|| (pItem->m_bClass != 0 && !TO_USER(pSkillCaster)->JobGroupCheck(pItem->m_bClass))
+						|| (pItem->m_bReqLevel != 0 && TO_USER(pSkillCaster)->GetLevel() < pItem->m_bReqLevel)
+						|| (!TO_USER(pSkillCaster)->RobItem(pSkill->iUseItem, 1)))	
+						return false;
 				}
 			}
 			if (pSkill->bType[0] != 4 || (pSkill->bType[0] == 4 && sTargetID == -1))
@@ -841,7 +841,7 @@ bool MagicInstance::ExecuteType4()
 
 		if (casted_member.empty())
 		{		
-			if (sCasterID >= 0 && sCasterID < MAX_USER) 
+			if (pSkillCaster->isPlayer())
 				SendSkillFailed();
 
 			return false;
@@ -912,7 +912,7 @@ bool MagicInstance::ExecuteType4()
 	fail_return:
 		if (pSkill->bType[1] == 0 || pSkill->bType[1] == 4)
 		{
-			CUser *pUser = (sCasterID >= 0 && sCasterID < MAX_USER ? TO_USER(pSkillCaster) : pTUser);
+			CUser *pUser = (pSkillCaster->isPlayer() ? TO_USER(pSkillCaster) : pTUser);
 			int16 sDataCopy[8] = 
 			{
 				sData[0], bResult, sData[2], sData[3],
@@ -929,7 +929,7 @@ bool MagicInstance::ExecuteType4()
 		}
 		
 		if (bResult == 0
-			&& sCasterID >= 0 && sCasterID < MAX_USER)
+			&& pSkillCaster->isPlayer())
 			SendSkillFailed((*itr)->GetID());
 
 		continue;
