@@ -3,6 +3,8 @@
 UINT NpcThreadProc(LPVOID pParam /* CNpcThread ptr */);
 UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */);
 
+typedef std::set<CNpc *> NpcSet;
+
 class CNpc;
 class CNpcThread  
 {
@@ -12,10 +14,8 @@ public:
 
 public:
 	void InitThreadInfo(HWND hwnd);
-	CNpc*	m_pNpc[NPC_NUM];
+	NpcSet m_pNpcs;
 
-	CNpc*	pNpc[NPC_NUM];
-	BYTE	m_byNpcUsed[NPC_NUM];
 	HWND	hWndMsg;
 
 	HANDLE			m_hThread;

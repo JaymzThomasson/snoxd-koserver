@@ -300,10 +300,6 @@ public:
 	float   m_fOldSpeed_1;			// 기본 이동 타입		(1초에 갈 수 있는 거리)
 	float   m_fOldSpeed_2;			// 뛰는 이동 타입..		(1초에 갈 수 있는 거리)
 
-	// test
-	short m_sThreadNumber;				// 자신이 속한 스레드의 번호
-
-
 public:
 	INLINE MAP * GetMap() { return m_pZone; };
 

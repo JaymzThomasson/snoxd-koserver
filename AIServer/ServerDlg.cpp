@@ -221,34 +221,25 @@ BOOL CServerDlg::CreateNpcThread()
 
 	LOAD_TABLE_ERROR_ONLY(CNpcPosSet, &m_GameDB, NULL, false);
 			
-	int step = 0, nThreadNumber = 0;
-	CNpcThread* pNpcThread = NULL;
+	int nThreadNumber = 0;
 	DWORD id;
 
-	foreach_stlmap (itr, m_arNpc)
+	foreach_stlmap (itr, g_arZone)
 	{
-		if (step == 0)
-			pNpcThread = new CNpcThread;
-
-		CNpc *pNpc = pNpcThread->m_pNpc[step] = itr->second;
-		pNpc->m_sThreadNumber = nThreadNumber;
-		pNpc->Init();
-		
-		++step;
-		
-		if( step == NPC_NUM )
-		{
-			pNpcThread->m_sThreadNumber = nThreadNumber++;
-			pNpcThread->m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, pNpcThread, CREATE_SUSPENDED, &id);
-			m_arNpcThread.push_back( pNpcThread );
-			step = 0;
-		}
-	}
-	if( step != 0 )
-	{
+		CNpcThread * pNpcThread = new CNpcThread;
 		pNpcThread->m_sThreadNumber = nThreadNumber++;
 		pNpcThread->m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, pNpcThread, CREATE_SUSPENDED, &id);
-		m_arNpcThread.push_back( pNpcThread );
+		m_arNpcThread.push_back(pNpcThread);
+
+		foreach_stlmap (npcItr, m_arNpc)
+		{
+			if (npcItr->second->m_bCurZone != itr->first)
+				continue;
+
+			CNpc * pNpc = npcItr->second;
+			pNpc->Init();
+			pNpcThread->m_pNpcs.insert(pNpc);
+		}
 	}
 
 	m_hZoneEventThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&ZoneEventThreadProc, (LPVOID)(this), CREATE_SUSPENDED, &id);
@@ -470,12 +461,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 void CServerDlg::ResumeAI()
 {
 	foreach (itr, m_arNpcThread)
-	{
-		for (int j = 0; j < NPC_NUM; j++)
-			(*itr)->pNpc[j] = (*itr)->m_pNpc[j];
-
 		ResumeThread((*itr)->m_hThread);
-	}
 
 	ResumeThread(m_hZoneEventThread);
 }
@@ -781,27 +767,7 @@ BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 	}
 
 	pEventNpc->Init();
-
-	BOOL bSuccess = FALSE;
-
-	int test = 0;
-	
-	for(int i = 0; i < NPC_NUM; i++ ) {
-		test = m_arEventNpcThread[0]->m_byNpcUsed[i];
-		TRACE("setsummon == %d, used=%d\n", i, test);
-		if( m_arEventNpcThread[0]->m_byNpcUsed[i] == 0 )	{
-			m_arEventNpcThread[0]->m_byNpcUsed[i] = 1;
-			bSuccess = TRUE;
-			m_arEventNpcThread[0]->pNpc[i] = pEventNpc;
-			break;
-		}
-	}
-
-	if(!bSuccess)	{
-		pEventNpc->m_lEventNpc = 0;
-		TRACE("### 소환에 실패했습니다. ###\n");
-		return FALSE;
-	}
+	m_arEventNpcThread[0]->m_pNpcs.insert(pEventNpc);
 
 	TRACE("*** %d, %s 를 소환하였습니다. state = %d ***\n", pEventNpc->m_sNid+NPC_BAND, pEventNpc->m_proto->m_strName, pEventNpc->m_NpcState);
 

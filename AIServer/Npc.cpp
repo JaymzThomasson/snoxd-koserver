@@ -82,7 +82,7 @@ BOOL CNpc::SetUid(float x, float z, int id)
 }
 
 CNpc::CNpc() : m_NpcState(NPC_LIVE), m_byGateOpen(0), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
-	m_byAttackPos(0), m_sThreadNumber(-1), m_ItemUserLevel(0), m_Delay(0), 
+	m_byAttackPos(0), m_ItemUserLevel(0), m_Delay(0), 
 	m_proto(NULL), m_pZone(NULL), m_pPath(NULL)
 {
 	InitTarget();
@@ -736,18 +736,14 @@ BOOL CNpc::SetLive()
 	CNpc* pNpc = NULL;
 
 	/* Event Monster가 다시 살아날 경우에는 Event Monster를 죽인다 이벤트 스레드에서도 포인터를 NULL */
-	if(m_lEventNpc == 1 && !m_bFirstLive)	{
-		for(int i = 0; i < NPC_NUM; i++)	{
-			pNpc = g_pMain->m_arEventNpcThread[0]->pNpc[i];
-			if(g_pMain->m_arEventNpcThread[0]->pNpc[i] != NULL)	{
-				if(g_pMain->m_arEventNpcThread[0]->pNpc[i]->m_sNid == m_sNid)	{
-					g_pMain->m_arEventNpcThread[0]->m_byNpcUsed[i] = 0;
-					m_lEventNpc = 0;
-					g_pMain->m_arEventNpcThread[0]->pNpc[i] = NULL;
-					TRACE("소환 몬스터 포인터 반환 ,, thread index=%d, nid=%d\n", i, m_sNid+NPC_BAND);
-					return TRUE;
-				}
-			}
+	if (m_lEventNpc == 1 && !m_bFirstLive)
+	{
+		NpcSet::iterator itr = g_pMain->m_arEventNpcThread[0]->m_pNpcs.find(this);
+		if (itr != g_pMain->m_arEventNpcThread[0]->m_pNpcs.end())
+		{
+			m_lEventNpc = 0;
+			g_pMain->m_arEventNpcThread[0]->m_pNpcs.erase(itr);
+			TRACE("소환 몬스터 포인터 반환 ,, thread index=%d, nid=%d\n", i, m_sNid+NPC_BAND);
 		}
 		return TRUE;
 	}

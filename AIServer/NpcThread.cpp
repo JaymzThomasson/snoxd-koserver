@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "NpcThread.h"
 #include "Npc.h"
-
 #define DELAY				250
 
 //////////////////////////////////////////////////////////////////////
@@ -27,10 +26,10 @@ UINT NpcThreadProc(LPVOID pParam /* CNpcThread ptr */)
 	{
 		fTime2 = getMSTime();
 
-		for(i = 0; i < NPC_NUM; i++)
+		foreach (itr, pInfo->m_pNpcs)
 		{
-			pNpc = pInfo->pNpc[i];
-			if( !pNpc ) continue;
+			pNpc = *itr;
+
 			//if((pNpc->m_proto->m_tNpcType == NPCTYPE_DOOR || pNpc->m_proto->m_tNpcType == NPCTYPE_ARTIFACT || pNpc->m_proto->m_tNpcType == NPCTYPE_PHOENIX_GATE || pNpc->m_proto->m_tNpcType == NPCTYPE_GATE_LEVER) && !pNpc->m_bFirstLive) continue;
 			//if( pNpc->m_bFirstLive ) continue;
 			if( pNpc->m_sNid < 0 ) continue;		// 잘못된 몬스터 (임시코드 2002.03.24)
@@ -163,20 +162,14 @@ CNpcThread::CNpcThread()
 {
 	m_hThread = NULL;
 	m_sThreadNumber = -1;
-
-	memset(&m_pNpc, 0, sizeof(m_pNpc));
 }
 
 CNpcThread::~CNpcThread()
 {
-/*	for( int i = 0; i < NPC_NUM; i++ )
-	{
-		if(m_pNpc[i])
-		{
-			delete m_pNpc[i];
-			m_pNpc[i] = NULL;
-		}
-	}	*/
+	foreach (itr, m_pNpcs)
+		delete *itr;
+
+	m_pNpcs.clear();
 }
 
 void CNpcThread::InitThreadInfo(HWND hwnd)
