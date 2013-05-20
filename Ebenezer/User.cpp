@@ -2487,14 +2487,12 @@ void CUser::HPTimeChangeType3()
 
 void CUser::Type4Duration()
 {
-	std::map<uint8, _BUFF_TYPE4_INFO>::iterator buffIterator;
-	for (int i = 0; i < MAX_TYPE4_BUFF; i++)
+	foreach (itr, m_buffMap)
 	{
-		buffIterator = m_buffMap.find(i + 1);
-		if (buffIterator != m_buffMap.end() && buffIterator->second.m_tEndTime <= UNIXTIME)
+		if (itr->second.m_tEndTime <= UNIXTIME)
 			continue;
 
-		CMagicProcess::RemoveType4Buff(i + 1, this);
+		CMagicProcess::RemoveType4Buff(itr->first, this);
 		break; // only ever handle one at a time with the current logic
 	}
 

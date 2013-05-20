@@ -859,19 +859,20 @@ bool MagicInstance::ExecuteType4()
 		casted_member.push_back(pTUser);
 	}
 
+	Type4BuffMap::iterator buffIterator = pSkillCaster->m_buffMap.find(pType->bBuffType);
+	bool bFoundBuff = (buffIterator != pSkillCaster->m_buffMap.end());
+
 	foreach (itr, casted_member)
 	{
 		uint8 bResult = 1;
 		CUser* pTUser = *itr;
 		_BUFF_TYPE4_INFO pBuffInfo;
 
-		std::map<uint8, _BUFF_TYPE4_INFO>::iterator buffIterator = TO_USER(pSkillCaster)->m_buffMap.find(pType->bBuffType);
-
-		if (buffIterator != TO_USER(pSkillCaster)->m_buffMap.end() && 
-			buffIterator->second.m_bNation == 2 && sTargetID == -1)
+		if (bFoundBuff && 
+			(buffIterator->second.m_bNation == 2 && sTargetID == -1))
 		{
 			bResult = 0;
-			goto fail_return ;	
+			goto fail_return;
 		}
 
 		if ( nSkillID > 500000 && pTUser->isPlayer() )
@@ -954,7 +955,7 @@ bool MagicInstance::ExecuteType5()
 		|| (!pSkillTarget->isDead() && pType->bType == RESURRECTION)) 
 		return false;
 
-	std::map<uint8, _BUFF_TYPE4_INFO>::iterator buffIterator;
+	Type4BuffMap::iterator buffIterator;
 
 	switch (pType->bType) 
 	{

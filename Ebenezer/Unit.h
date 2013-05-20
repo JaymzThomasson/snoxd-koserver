@@ -13,19 +13,17 @@
 // Maximum range allowed between a player & their loot.
 #define MAX_LOOT_RANGE		(121.0f) // pow(11.0f, 2.0f)
 
-/**
- * This class is a bridge between the CNpc & CUser classes
- * Currently it's excessively messier than it needs to be, 
- * because of Aujard and the whole _USER_DATA setup 
- * (which has recently been removed)
- *
- * This will be written out eventually, so we can do this properly.
- **/
 struct _MAGIC_TABLE;
 struct _BUFF_TYPE4_INFO;
 class CRegion;
 class C3DMap;
 class Packet;
+
+typedef std::map<uint8, _BUFF_TYPE4_INFO> Type4BuffMap;
+
+/**
+ * This class is a bridge between the CNpc & CUser classes
+ **/
 class Unit : public ReferenceObject
 {
 public:
@@ -193,7 +191,7 @@ public:
 	bool	m_bType3Flag;
 	bool	m_bType4Flag;
 
-	std::map<uint8, _BUFF_TYPE4_INFO> m_buffMap;
+	Type4BuffMap m_buffMap;
 
 	bool	m_bIsTransformed; // Is the unit in a transformed state?
 
