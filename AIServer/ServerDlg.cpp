@@ -35,8 +35,6 @@ KOSocketMgr<CGameSocket> CServerDlg::s_socketMgr;
 
 static DWORD s_dwCheckAliveID;
 
-#define MONSTER_SPEED	1500
-
 CServerDlg::CServerDlg()
 {
 	m_iYear = 0; 

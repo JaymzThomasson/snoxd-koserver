@@ -41,9 +41,6 @@
     <ClCompile Include="NpcMagicProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NpcTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="NpcThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
