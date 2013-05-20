@@ -960,6 +960,7 @@ bool MagicInstance::ExecuteType5()
 		return false;
 
 	Type4BuffMap::iterator buffIterator;
+	UserSavedMagicMap::iterator savedBuffIterator;
 
 	switch (pType->bType) 
 	{
@@ -1008,8 +1009,11 @@ bool MagicInstance::ExecuteType5()
 			pSkillTarget->m_buffLock.Acquire();
 			foreach (itr, pSkillTarget->m_buffMap)
 			{
+				savedBuffIterator = TO_USER(pSkillTarget)->m_savedMagicMap.find(itr->first);
 				if (itr->second.isDebuff())
 					CMagicProcess::RemoveType4Buff(itr->first, TO_USER(pSkillTarget));
+				if (savedBuffIterator != TO_USER(pSkillTarget)->m_savedMagicMap.end())
+					TO_USER(pSkillTarget)->RecastSavedMagic();
 			}
 			pSkillTarget->m_buffLock.Release();
 
