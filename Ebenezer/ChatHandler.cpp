@@ -36,6 +36,7 @@ void CUser::InitChatCommands()
 	static Command<CUser> commandTable[] = 
 	{
 		// Command				Handler											Help message
+		{ "test",				&CUser::HandleTestCommand,						"Test command" },
 		{ "give_item",			&CUser::HandleGiveItemCommand,					"Gives a player an item. Arguments: character name | item ID | [optional stack size]" },
 		{ "zonechange",			&CUser::HandleZoneChangeCommand,				"Teleports you to the specified zone. Arguments: zone ID" },
 		{ "open1",				&CUser::HandleWar1OpenCommand,					"Opens war zone 1" },
@@ -246,6 +247,11 @@ bool CUser::ProcessChatCommand(std::string & message)
 
 	// Run the command
 	return (this->*(itr->second->Handler))(vargs, message.c_str() + command.size() + 1, itr->second->Help);
+}
+
+COMMAND_HANDLER(CUser::HandleTestCommand)
+{
+	return true;
 }
 
 COMMAND_HANDLER(CUser::HandleGiveItemCommand)

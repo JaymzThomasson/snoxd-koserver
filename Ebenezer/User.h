@@ -433,6 +433,7 @@ public:
 
 	bool ProcessChatCommand(std::string & message);
 
+	COMMAND_HANDLER(HandleTestCommand);
 	COMMAND_HANDLER(HandleGiveItemCommand);
 	COMMAND_HANDLER(HandleZoneChangeCommand);
 	COMMAND_HANDLER(HandleWar1OpenCommand);
