@@ -646,6 +646,7 @@ public:
 
 	void CheckSavedMagic();
 	virtual void InsertSavedMagic(uint32 nSkillID, uint16 sDuration);
+	virtual void RemoveSavedMagic(uint32 nSkillID);
 	virtual bool HasSavedMagic(uint32 nSkillID);
 	virtual int16 GetSavedMagicDuration(uint32 nSkillID);
 

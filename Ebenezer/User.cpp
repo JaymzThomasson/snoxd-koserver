@@ -4112,6 +4112,17 @@ void CUser::InsertSavedMagic(uint32 nSkillID, uint16 sDuration)
 }
 
 /**
+ * @brief	Removes the specified skill from the saved magic list.
+ *
+ * @param	nSkillID	Identifier for the skill.
+ */
+void CUser::RemoveSavedMagic(uint32 nSkillID)
+{
+	FastGuard lock(m_savedMagicLock);
+	m_savedMagicMap.erase(nSkillID);
+}
+
+/**
  * @brief	Checks if the given skill ID is already in our 
  * 			saved magic list.
  *
@@ -4170,7 +4181,7 @@ void CUser::RecastSavedMagic()
 				// Not allowing transformations in PvP zones!
 				if (isAttackZone())
 				{
-					m_savedMagicMap.erase(itr->first);
+					RemoveSavedMagic(itr->first);
 					return;
 				}
 

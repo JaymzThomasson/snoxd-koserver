@@ -960,9 +960,8 @@ bool MagicInstance::ExecuteType5()
 		return false;
 
 	Type4BuffMap::iterator buffIterator;
-	UserSavedMagicMap::iterator savedBuffIterator;
 
-	switch (pType->bType) 
+	switch (pType->bType)
 	{
 		case REMOVE_TYPE3:		// REMOVE TYPE 3!!!
 			for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
@@ -1009,10 +1008,10 @@ bool MagicInstance::ExecuteType5()
 			pSkillTarget->m_buffLock.Acquire();
 			foreach (itr, pSkillTarget->m_buffMap)
 			{
-				savedBuffIterator = TO_USER(pSkillTarget)->m_savedMagicMap.find(itr->first);
 				if (itr->second.isDebuff())
 					CMagicProcess::RemoveType4Buff(itr->first, TO_USER(pSkillTarget));
-				if (savedBuffIterator != TO_USER(pSkillTarget)->m_savedMagicMap.end())
+
+				if (pSkillTarget->HasSavedMagic(itr->first))
 					TO_USER(pSkillTarget)->RecastSavedMagic();
 			}
 			pSkillTarget->m_buffLock.Release();
@@ -1520,15 +1519,15 @@ void MagicInstance::Type6Cancel()
 		|| !pSkillCaster->isTransformed())
 		return;
 
+	CUser * pUser = TO_USER(pSkillCaster);
 	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_CANCEL_TYPE6));
-	uint32 nSkillID = TO_USER(pSkillCaster)->m_bAbnormalType;
 
 	// TO-DO: Reset stat changes, recalculate stats.
-	TO_USER(pSkillCaster)->m_bIsTransformed = false;
-	TO_USER(pSkillCaster)->Send(&result);
+	pUser->m_bIsTransformed = false;
+	pUser->Send(&result);
 
-	pSkillCaster->StateChangeServerDirect(3, ABNORMAL_NORMAL);
-	TO_USER(pSkillCaster)->m_savedMagicMap.erase(nSkillID);
+	pUser->StateChangeServerDirect(3, ABNORMAL_NORMAL);
+	pUser->RemoveSavedMagic(pUser->m_bAbnormalType);
 }
 
 void MagicInstance::Type9Cancel()
@@ -1545,7 +1544,7 @@ void MagicInstance::Type9Cancel()
 	if (pType->bStateChange <= 2 || pType->bStateChange >= 5 && pType->bStateChange < 7) //Stealths
 	{
 		TO_USER(pSkillCaster)->StateChangeServerDirect(7, INVIS_NONE);
-		TO_USER(pSkillCaster)->m_savedMagicMap.erase(nSkillID);
+		TO_USER(pSkillCaster)->RemoveSavedMagic(nSkillID);
 		bResponse = 91;
 	}
 	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4) //Lupine etc.
@@ -1553,7 +1552,7 @@ void MagicInstance::Type9Cancel()
 		Packet stealth(WIZ_STEALTH);
 		stealth << uint16(0) << uint8(0);
 		TO_USER(pSkillCaster)->Send(&stealth);
-		TO_USER(pSkillCaster)->m_savedMagicMap.erase(nSkillID);
+		TO_USER(pSkillCaster)->RemoveSavedMagic(nSkillID);
 		bResponse = 92;
 	}
 	else if (pType->bStateChange == 7) //Guardian pet related
@@ -1591,8 +1590,7 @@ void MagicInstance::Type4Cancel()
 			TO_USER(pSkillCaster)->SendPartyStatusUpdate(2);
 	}
 
-	if (TO_USER(pSkillCaster)->m_savedMagicMap.find(nSkillID) != TO_USER(pSkillCaster)->m_savedMagicMap.end())
-		TO_USER(pSkillCaster)->m_savedMagicMap.erase(nSkillID);
+	TO_USER(pSkillCaster)->RemoveSavedMagic(nSkillID);
 }
 
 void MagicInstance::Type3Cancel()
