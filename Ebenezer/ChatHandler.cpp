@@ -221,6 +221,31 @@ void CUser::ChatTargetSelect(Packet & pkt)
 	}
 }
 
+/**
+ * @brief	Sends a notice to all users in the current zone
+ * 			upon death.
+ *
+ * @param	pKiller	The killer.
+ */
+void CUser::SendDeathNotice(CUser * pKiller, DeathNoticeType noticeType)
+{
+	if (pKiller == NULL)
+		return;
+
+	Packet result(WIZ_CHAT, uint8(DEATH_NOTICE));
+
+	result.SByte();
+	result	<< GetNation()
+			<< uint8(noticeType)
+			<< pKiller->GetID() // session ID?
+			<< pKiller->GetName()
+			<< GetID() // session ID?
+			<< GetName()
+			<< uint16(GetX()) << uint16(GetZ());
+
+	SendToRegion(&result); // TO-DO: Should send to all users in a zone.
+}
+
 bool CUser::ProcessChatCommand(std::string & message)
 {
 	// Commands require at least 2 characters

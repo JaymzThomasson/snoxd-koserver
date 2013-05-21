@@ -151,7 +151,15 @@ enum ChatType
 	COMMAND_CHAT				= 13,
 	MERCHANT_CHAT				= 14,
 	ALLIANCE_CHAT				= 15,
-	ANNOUNCEMENT_CHAT			= 17
+	ANNOUNCEMENT_CHAT			= 17,
+	DEATH_NOTICE				= 26
+};
+
+enum DeathNoticeType
+{
+	DeathNoticeCoordinates	= 0, // - %s defeat %s ( %d, %d ) -
+	DeathNotice				= 1, // - %s has been defeated by %s -
+	DeathNoticeRival		= 2, // - %s has avenged %s -
 };
 
 ////////////////////////////////////////////////////////////////

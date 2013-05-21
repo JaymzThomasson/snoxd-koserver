@@ -430,6 +430,7 @@ public:
 
 	void Chat(Packet & pkt);
 	void ChatTargetSelect(Packet & pkt);
+	void SendDeathNotice(CUser * pKiller, DeathNoticeType noticeType);
 
 	bool ProcessChatCommand(std::string & message);
 
