@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['_5fbuff_5ftype4_5finfo',['_BUFF_TYPE4_INFO',['../struct___b_u_f_f___t_y_p_e4___i_n_f_o.html',1,'']]],
   ['_5fclass_5fcoefficient',['_CLASS_COEFFICIENT',['../struct___c_l_a_s_s___c_o_e_f_f_i_c_i_e_n_t.html',1,'']]],
   ['_5fexchange_5fitem',['_EXCHANGE_ITEM',['../struct___e_x_c_h_a_n_g_e___i_t_e_m.html',1,'']]],
   ['_5fexpuserlist',['_ExpUserList',['../struct___exp_user_list.html',1,'']]],
@@ -7,11 +8,15 @@ var searchData=
   ['_5fitem_5fdata',['_ITEM_DATA',['../struct___i_t_e_m___d_a_t_a.html',1,'']]],
   ['_5fitem_5fexchange',['_ITEM_EXCHANGE',['../struct___i_t_e_m___e_x_c_h_a_n_g_e.html',1,'']]],
   ['_5fitem_5ftable',['_ITEM_TABLE',['../struct___i_t_e_m___t_a_b_l_e.html',1,'']]],
+  ['_5fitem_5fupgrade',['_ITEM_UPGRADE',['../struct___i_t_e_m___u_p_g_r_a_d_e.html',1,'']]],
   ['_5fk_5fmonster_5fitem',['_K_MONSTER_ITEM',['../struct___k___m_o_n_s_t_e_r___i_t_e_m.html',1,'']]],
+  ['_5fking_5felection_5flist',['_KING_ELECTION_LIST',['../struct___k_i_n_g___e_l_e_c_t_i_o_n___l_i_s_t.html',1,'']]],
   ['_5fknights_5falliance',['_KNIGHTS_ALLIANCE',['../struct___k_n_i_g_h_t_s___a_l_l_i_a_n_c_e.html',1,'']]],
   ['_5fknights_5fcape',['_KNIGHTS_CAPE',['../struct___k_n_i_g_h_t_s___c_a_p_e.html',1,'']]],
   ['_5fknights_5frating',['_KNIGHTS_RATING',['../struct___k_n_i_g_h_t_s___r_a_t_i_n_g.html',1,'']]],
   ['_5fknights_5fuser',['_KNIGHTS_USER',['../struct___k_n_i_g_h_t_s___u_s_e_r.html',1,'']]],
+  ['_5floot_5fbundle',['_LOOT_BUNDLE',['../struct___l_o_o_t___b_u_n_d_l_e.html',1,'']]],
+  ['_5floot_5fitem',['_LOOT_ITEM',['../struct___l_o_o_t___i_t_e_m.html',1,'']]],
   ['_5fmagic_5ftable',['_MAGIC_TABLE',['../struct___m_a_g_i_c___t_a_b_l_e.html',1,'']]],
   ['_5fmagic_5ftype1',['_MAGIC_TYPE1',['../struct___m_a_g_i_c___t_y_p_e1.html',1,'']]],
   ['_5fmagic_5ftype2',['_MAGIC_TYPE2',['../struct___m_a_g_i_c___t_y_p_e2.html',1,'']]],
@@ -29,7 +34,6 @@ var searchData=
   ['_5fmake_5fitem_5flare_5fcode',['_MAKE_ITEM_LARE_CODE',['../struct___m_a_k_e___i_t_e_m___l_a_r_e___c_o_d_e.html',1,'']]],
   ['_5fmake_5fweapon',['_MAKE_WEAPON',['../struct___m_a_k_e___w_e_a_p_o_n.html',1,'']]],
   ['_5fmerch_5fdata',['_MERCH_DATA',['../struct___m_e_r_c_h___d_a_t_a.html',1,'']]],
-  ['_5fnpc_5fthread_5finfo',['_NPC_THREAD_INFO',['../struct___n_p_c___t_h_r_e_a_d___i_n_f_o.html',1,'']]],
   ['_5fnpcgiveitem',['_NpcGiveItem',['../struct___npc_give_item.html',1,'']]],
   ['_5fnpcposition',['_NpcPosition',['../struct___npc_position.html',1,'']]],
   ['_5fnpcskilllist',['_NpcSkillList',['../struct___npc_skill_list.html',1,'']]],
@@ -51,9 +55,9 @@ var searchData=
   ['_5ftargethealer',['_TargetHealer',['../struct___target_healer.html',1,'']]],
   ['_5fuser_5frank',['_USER_RANK',['../struct___u_s_e_r___r_a_n_k.html',1,'']]],
   ['_5fuser_5frental_5fitem',['_USER_RENTAL_ITEM',['../struct___u_s_e_r___r_e_n_t_a_l___i_t_e_m.html',1,'']]],
+  ['_5fuser_5fseal_5fitem',['_USER_SEAL_ITEM',['../struct___u_s_e_r___s_e_a_l___i_t_e_m.html',1,'']]],
   ['_5fversion_5finfo',['_VERSION_INFO',['../struct___v_e_r_s_i_o_n___i_n_f_o.html',1,'']]],
   ['_5fwarp_5finfo',['_WARP_INFO',['../struct___w_a_r_p___i_n_f_o.html',1,'']]],
   ['_5fzone_5finfo',['_ZONE_INFO',['../struct___z_o_n_e___i_n_f_o.html',1,'']]],
-  ['_5fzone_5fitem',['_ZONE_ITEM',['../struct___z_o_n_e___i_t_e_m.html',1,'']]],
   ['_5fzone_5fserverinfo',['_ZONE_SERVERINFO',['../struct___z_o_n_e___s_e_r_v_e_r_i_n_f_o.html',1,'']]]
 ];

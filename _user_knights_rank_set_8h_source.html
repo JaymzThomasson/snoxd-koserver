@@ -91,16 +91,31 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00003"></a><span class="lineno"><a class="code" href="class_c_user_knights_rank_set.html">    3</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_user_knights_rank_set.html">CUserKnightsRankSet</a> : <span class="keyword">public</span> <a class="code" href="class_c_user_personal_rank_set.html">CUserPersonalRankSet</a></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;{</div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;    <a class="code" href="class_c_user_knights_rank_set.html">CUserKnightsRankSet</a>(<a class="code" href="class_odbc_connection.html">OdbcConnection</a> * dbConnection, UserRankMap * pMap) </div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;    <a class="code" href="class_c_user_knights_rank_set.html">CUserKnightsRankSet</a>(<a class="code" href="class_odbc_connection.html">OdbcConnection</a> * dbConnection, UserNameRankMap * pMap) </div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;        : <a class="code" href="class_c_user_personal_rank_set.html">CUserPersonalRankSet</a>(dbConnection, pMap) {}</div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    <span class="keyword">virtual</span> tstring GetTableName() { <span class="keywordflow">return</span> _T(<span class="stringliteral">&quot;USER_KNIGHTS_RANK&quot;</span>); }</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    <span class="keyword">virtual</span> tstring GetColumns() { <span class="keywordflow">return</span> _T(<span class="stringliteral">&quot;shIndex, nMoney, strElmoUserID, strKarusUserID&quot;</span>); }</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;};</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    <span class="keyword">virtual</span> tstring GetColumns() { <span class="keywordflow">return</span> _T(<span class="stringliteral">&quot;shIndex, nMoney, strElmoUserID, strKarusUserID, nElmoLoyalty, nKarusLoyalty&quot;</span>); }</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> InsertToMap(std::string &amp; strKarusUserID, std::string &amp; strElmoUserID, <a class="code" href="struct___u_s_e_r___r_a_n_k.html">_USER_RANK</a> * pData) </div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    {</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;        <span class="keywordflow">if</span> (!strElmoUserID.empty())</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;        {</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;            m_pMap-&gt;insert(make_pair(strElmoUserID, pData));</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;            g_pMain-&gt;m_playerRankings[ELMORAD_ARRAY].insert(std::make_pair((uint8)pData-&gt;nRank, pData));</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        }</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        <span class="keywordflow">if</span> (!strKarusUserID.empty())</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        {</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;            m_pMap-&gt;insert(make_pair(strKarusUserID, pData));</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;            g_pMain-&gt;m_playerRankings[KARUS_ARRAY].insert(std::make_pair((uint8)pData-&gt;nRank, pData));</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;        }</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    }</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

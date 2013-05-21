@@ -93,12 +93,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;    <a class="code" href="class_odbc_parameter.html">OdbcParameter</a>(SQLSMALLINT parameterType, SQLSMALLINT dataType, SQLPOINTER parameterAddress, SQLLEN maxLength = 1);</div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    __forceinline SQLSMALLINT GetParameterType() { <span class="keywordflow">return</span> m_parameterType; };</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    __forceinline SQLSMALLINT GetDataType() { <span class="keywordflow">return</span> m_dataType; };</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    __forceinline SQLSMALLINT GetCDataType() { <span class="keywordflow">return</span> m_cDataType; };</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    __forceinline SQLPOINTER GetAddress() { <span class="keywordflow">return</span> m_parameterAddress; };</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    __forceinline SQLLEN GetDataTypeSize() { <span class="keywordflow">return</span> m_dataTypeLength; };</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    __forceinline SQLLEN *GetCBValue() { <span class="keywordflow">return</span> &amp;m_pCBValue; };</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    INLINE SQLSMALLINT GetParameterType() { <span class="keywordflow">return</span> m_parameterType; };</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    INLINE SQLSMALLINT GetDataType() { <span class="keywordflow">return</span> m_dataType; };</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    INLINE SQLSMALLINT GetCDataType() { <span class="keywordflow">return</span> m_cDataType; };</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    INLINE SQLPOINTER GetAddress() { <span class="keywordflow">return</span> m_parameterAddress; };</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    INLINE SQLLEN GetDataTypeSize() { <span class="keywordflow">return</span> m_dataTypeLength; };</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    INLINE SQLLEN *GetCBValue() { <span class="keywordflow">return</span> &amp;m_pCBValue; };</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">private</span>:</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    SQLSMALLINT m_parameterType, m_dataType, m_cDataType;</div>
@@ -108,7 +108,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

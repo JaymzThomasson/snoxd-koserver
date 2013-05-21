@@ -100,10 +100,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <a class="code" href="class_odbc_command.html">OdbcCommand</a>(HDBC conn);</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    <a class="code" href="class_odbc_command.html">OdbcCommand</a>(<a class="code" href="class_odbc_connection.html">OdbcConnection</a> * conn);</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    __forceinline <span class="keywordtype">bool</span> isOpen() { <span class="keywordflow">return</span> m_hStmt != NULL; };</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    __forceinline TCHAR * GetError() { <span class="keywordflow">return</span> (TCHAR *)m_szError.c_str();  };</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    __forceinline <span class="keywordtype">bool</span> hasData() { <span class="keywordflow">return</span> m_resultCode != SQL_NO_DATA &amp;&amp; SQL_SUCCEEDED(m_resultCode); };</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    __forceinline <span class="keywordtype">void</span> SetConnectionHandle(HDBC handle) { m_connHandle = handle; };</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    INLINE <span class="keywordtype">bool</span> isOpen() { <span class="keywordflow">return</span> m_hStmt != NULL; };</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    INLINE TCHAR * GetError() { <span class="keywordflow">return</span> (TCHAR *)m_szError.c_str();  };</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    INLINE <span class="keywordtype">bool</span> hasData() { <span class="keywordflow">return</span> m_resultCode != SQL_NO_DATA &amp;&amp; SQL_SUCCEEDED(m_resultCode); };</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    INLINE <span class="keywordtype">void</span> SetConnectionHandle(HDBC handle) { m_connHandle = handle; };</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">private</span>:</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">bool</span> BindParameters();</div>
@@ -133,7 +133,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">void</span> AddParameter(SQLSMALLINT paramType, <span class="keyword">const</span> <span class="keywordtype">char</span> *value, SQLLEN maxLength, SQLSMALLINT sqlDatatype = SQL_CHAR);</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    __forceinline <span class="keywordtype">bool</span> FetchString(<span class="keywordtype">int</span> pos, <span class="keywordtype">char</span> *outBuffer, SQLLEN maxLength)</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    INLINE <span class="keywordtype">bool</span> FetchString(<span class="keywordtype">int</span> pos, <span class="keywordtype">char</span> *outBuffer, SQLLEN maxLength)</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    {</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        SQLINTEGER bufferSize = 0;</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        <span class="keywordflow">return</span> FetchString(pos, outBuffer, maxLength, &amp;bufferSize);</div>
@@ -142,7 +142,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">bool</span> FetchString(<span class="keywordtype">int</span> pos, <span class="keywordtype">char</span> *charArray, SQLLEN maxLength, SQLLEN *bufferSize);</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">bool</span> FetchString(<span class="keywordtype">int</span> pos, std::string &amp; value);</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    __forceinline <span class="keywordtype">bool</span> FetchBinary(<span class="keywordtype">int</span> pos, <span class="keywordtype">char</span> *outBuffer, SQLLEN maxLength)</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    INLINE <span class="keywordtype">bool</span> FetchBinary(<span class="keywordtype">int</span> pos, <span class="keywordtype">char</span> *outBuffer, SQLLEN maxLength)</div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    {</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        SQLINTEGER bufferSize = 0;</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        <span class="keywordflow">return</span> FetchBinary(pos, outBuffer, maxLength, &amp;bufferSize);</div>
@@ -172,7 +172,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

@@ -131,7 +131,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">bool</span> Send(<span class="keyword">const</span> uint8 * Bytes, uint32 Size);</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="comment">// Burst system - Locks the sending mutex.</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    __forceinline  <span class="keywordtype">void</span> BurstBegin() { m_writeMutex.<a class="code" href="class_mutex.html#a3bc8e7b9fbaabcf179c58e5aed329f70">Acquire</a>(); }</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    INLINE  <span class="keywordtype">void</span> BurstBegin() { m_writeMutex.<a class="code" href="class_mutex.html#a3bc8e7b9fbaabcf179c58e5aed329f70">Acquire</a>(); }</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="comment">// Burst system - Adds bytes to output buffer.</span></div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordtype">bool</span> BurstSend(<span class="keyword">const</span> uint8 * Bytes, uint32 Size);</div>
@@ -140,29 +140,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">void</span> BurstPush();</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="comment">// Burst system - Unlocks the sending mutex.</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    __forceinline <span class="keywordtype">void</span> BurstEnd() { m_writeMutex.<a class="code" href="class_mutex.html#aac1f1ce8590239373e84782126711b83">Release</a>(); }</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    INLINE <span class="keywordtype">void</span> BurstEnd() { m_writeMutex.<a class="code" href="class_mutex.html#aac1f1ce8590239373e84782126711b83">Release</a>(); }</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="comment">/* Client Operations */</span></div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="comment">// Get the client&#39;s ip in numerical form.</span></div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    std::string GetRemoteIP();</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    __forceinline sockaddr_in &amp; GetRemoteStruct() { <span class="keywordflow">return</span> m_client; }</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    __forceinline in_addr GetRemoteAddress() { <span class="keywordflow">return</span> m_client.sin_addr; }</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    __forceinline uint32 GetRemotePort() { <span class="keywordflow">return</span> ntohs(m_client.sin_port); }</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    __forceinline SOCKET GetFd() { <span class="keywordflow">return</span> m_fd; }</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    __forceinline <a class="code" href="class_socket_mgr.html">SocketMgr</a> * GetSocketMgr() { <span class="keywordflow">return</span> m_socketMgr; }</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    INLINE sockaddr_in &amp; GetRemoteStruct() { <span class="keywordflow">return</span> m_client; }</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    INLINE in_addr GetRemoteAddress() { <span class="keywordflow">return</span> m_client.sin_addr; }</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    INLINE uint32 GetRemotePort() { <span class="keywordflow">return</span> ntohs(m_client.sin_port); }</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    INLINE SOCKET GetFd() { <span class="keywordflow">return</span> m_fd; }</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    INLINE <a class="code" href="class_socket_mgr.html">SocketMgr</a> * GetSocketMgr() { <span class="keywordflow">return</span> m_socketMgr; }</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    </div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordtype">void</span> SetupReadEvent();</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordtype">void</span> ReadCallback(uint32 len);</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordtype">void</span> WriteCallback();</div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    __forceinline <span class="keywordtype">bool</span> IsDeleted() { <span class="keywordflow">return</span> m_deleted; }</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    __forceinline <span class="keywordtype">bool</span> IsConnected() { <span class="keywordflow">return</span> m_connected; }</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    __forceinline <a class="code" href="class_circular_buffer.html">CircularBuffer</a>&amp; GetReadBuffer() { <span class="keywordflow">return</span> readBuffer; }</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    __forceinline <a class="code" href="class_circular_buffer.html">CircularBuffer</a>&amp; GetWriteBuffer() { <span class="keywordflow">return</span> writeBuffer; }</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    INLINE <span class="keywordtype">bool</span> IsDeleted() { <span class="keywordflow">return</span> m_deleted; }</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    INLINE <span class="keywordtype">bool</span> IsConnected() { <span class="keywordflow">return</span> m_connected; }</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    INLINE <a class="code" href="class_circular_buffer.html">CircularBuffer</a>&amp; GetReadBuffer() { <span class="keywordflow">return</span> readBuffer; }</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    INLINE <a class="code" href="class_circular_buffer.html">CircularBuffer</a>&amp; GetWriteBuffer() { <span class="keywordflow">return</span> writeBuffer; }</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    __forceinline <span class="keywordtype">void</span> SetFd(SOCKET fd) { m_fd = fd; }</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    __forceinline <span class="keywordtype">void</span> SetSocketMgr(<a class="code" href="class_socket_mgr.html">SocketMgr</a> *mgr) { m_socketMgr = mgr; }</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    INLINE <span class="keywordtype">void</span> SetFd(SOCKET fd) { m_fd = fd; }</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    INLINE <span class="keywordtype">void</span> SetSocketMgr(<a class="code" href="class_socket_mgr.html">SocketMgr</a> *mgr) { m_socketMgr = mgr; }</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="comment">/* Deletion */</span></div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordtype">void</span> Delete();</div>
@@ -194,12 +194,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    <span class="comment">// Set completion port that this socket will be assigned to.</span></div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    __forceinline <span class="keywordtype">void</span> SetCompletionPort(HANDLE cp) { m_completionPort = cp; }</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    INLINE <span class="keywordtype">void</span> SetCompletionPort(HANDLE cp) { m_completionPort = cp; }</div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    </div>
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="comment">// Atomic wrapper functions for increasing read/write locks</span></div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    __forceinline <span class="keywordtype">void</span> IncSendLock() { InterlockedIncrement(&amp;m_writeLock); }</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    __forceinline <span class="keywordtype">void</span> DecSendLock() { InterlockedDecrement(&amp;m_writeLock); }</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    __forceinline <span class="keywordtype">bool</span> AcquireSendLock()</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    INLINE <span class="keywordtype">void</span> IncSendLock() { InterlockedIncrement(&amp;m_writeLock); }</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    INLINE <span class="keywordtype">void</span> DecSendLock() { InterlockedDecrement(&amp;m_writeLock); }</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    INLINE <span class="keywordtype">bool</span> AcquireSendLock()</div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    {</div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;        <span class="keywordflow">if</span> (m_writeLock)</div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;            <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
@@ -223,7 +223,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

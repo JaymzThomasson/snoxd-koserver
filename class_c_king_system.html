@@ -100,13 +100,16 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:ae4b38d9e8c0cbe60555b1df385e400c7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#ae4b38d9e8c0cbe60555b1df385e400c7">UpdateElectionStatus</a> (uint8 byElectionState)</td></tr>
 <tr class="memdesc:ae4b38d9e8c0cbe60555b1df385e400c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the election status.  <a href="#ae4b38d9e8c0cbe60555b1df385e400c7">More...</a><br/></td></tr>
 <tr class="separator:ae4b38d9e8c0cbe60555b1df385e400c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a248477a419bc780a8380a8a6e28f74ad"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#a248477a419bc780a8380a8a6e28f74ad">UpdateElectionList</a> (uint8 byElectionListType, bool bDeleteList, uint16 sClanID, std::string &amp;strUserID, <a class="el" href="struct_c_user.html">CUser</a> *pUser=NULL)</td></tr>
+<tr class="memdesc:a248477a419bc780a8380a8a6e28f74ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the election list.  <a href="#a248477a419bc780a8380a8a6e28f74ad">More...</a><br/></td></tr>
+<tr class="separator:a248477a419bc780a8380a8a6e28f74ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abe25bd8c70989db28455989a65edec98"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe25bd8c70989db28455989a65edec98"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#abe25bd8c70989db28455989a65edec98">CheckSpecialEvent</a> ()</td></tr>
 <tr class="memdesc:abe25bd8c70989db28455989a65edec98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks to see if a special (coin/XP) event should end. <br/></td></tr>
 <tr class="separator:abe25bd8c70989db28455989a65edec98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acb5117b30c5995578b5f7614113985b4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acb5117b30c5995578b5f7614113985b4"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#acb5117b30c5995578b5f7614113985b4">LoadRecommendList</a> ()</td></tr>
-<tr class="memdesc:acb5117b30c5995578b5f7614113985b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a list of the top 10 clan leaders eligible to nominate a King. <br/></td></tr>
+<tr class="memdesc:acb5117b30c5995578b5f7614113985b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a list of the top 10 clan leaders eligible to nominate a King. NOTE: These players are senators. <br/></td></tr>
 <tr class="separator:acb5117b30c5995578b5f7614113985b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7132a047c7d85d388b3aac5d5fe9f509"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#a7132a047c7d85d388b3aac5d5fe9f509">KingNotifyMessage</a> (uint32 nResourceID, int byNation, ChatType byChatType)</td></tr>
 <tr class="memdesc:a7132a047c7d85d388b3aac5d5fe9f509"><td class="mdescLeft">&#160;</td><td class="mdescRight">This sends the appropriate resource as a notice to the server (or to a particular user) Beyond initial reversing, this doesn't need to exist &ndash; in fact, not even going to use it. It's just a temporary point of reference.  <a href="#a7132a047c7d85d388b3aac5d5fe9f509">More...</a><br/></td></tr>
@@ -123,14 +126,17 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a98b99d228c6897a21c1e792506a13fb0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#a98b99d228c6897a21c1e792506a13fb0">CandidacyRecommend</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="memdesc:a98b99d228c6897a21c1e792506a13fb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles King candidacy recommendations by leaders of top 10 clans.  <a href="#a98b99d228c6897a21c1e792506a13fb0">More...</a><br/></td></tr>
 <tr class="separator:a98b99d228c6897a21c1e792506a13fb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76da63fa76fcea1038cecffc5f902a73"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#a76da63fa76fcea1038cecffc5f902a73">InsertNominee</a> (std::string &amp;strNominee)</td></tr>
+<tr class="memdesc:a76da63fa76fcea1038cecffc5f902a73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inserts the nominated candidate to the election list.  <a href="#a76da63fa76fcea1038cecffc5f902a73">More...</a><br/></td></tr>
+<tr class="separator:a76da63fa76fcea1038cecffc5f902a73"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa5ac433222cd009cd8ca35f30fa2a0b4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#aa5ac433222cd009cd8ca35f30fa2a0b4">CandidacyNoticeBoard</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="memdesc:aa5ac433222cd009cd8ca35f30fa2a0b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Candidacy notice board system.  <a href="#aa5ac433222cd009cd8ca35f30fa2a0b4">More...</a><br/></td></tr>
 <tr class="separator:aa5ac433222cd009cd8ca35f30fa2a0b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae6d75354dc808261d9dc0a4e17330e49"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae6d75354dc808261d9dc0a4e17330e49"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ElectionPoll</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memitem:ae6d75354dc808261d9dc0a4e17330e49"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#ae6d75354dc808261d9dc0a4e17330e49">ElectionPoll</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memdesc:ae6d75354dc808261d9dc0a4e17330e49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Election poll.  <a href="#ae6d75354dc808261d9dc0a4e17330e49">More...</a><br/></td></tr>
 <tr class="separator:ae6d75354dc808261d9dc0a4e17330e49"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66924b8489c245c82bbe232499f6b5a7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a66924b8489c245c82bbe232499f6b5a7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>CandidacyResign</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memitem:a66924b8489c245c82bbe232499f6b5a7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#a66924b8489c245c82bbe232499f6b5a7">CandidacyResign</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memdesc:a66924b8489c245c82bbe232499f6b5a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles candidate resignations.  <a href="#a66924b8489c245c82bbe232499f6b5a7">More...</a><br/></td></tr>
 <tr class="separator:a66924b8489c245c82bbe232499f6b5a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62073fe05d41576305d76bf413ab7c94"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#a62073fe05d41576305d76bf413ab7c94">ImpeachmentSystem</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="memdesc:a62073fe05d41576305d76bf413ab7c94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Impeachment system.  <a href="#a62073fe05d41576305d76bf413ab7c94">More...</a><br/></td></tr>
@@ -147,11 +153,11 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ImpeachmentList</b> (
 <tr class="memitem:a90854e122035bef7bcc26ab32261d2f6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a90854e122035bef7bcc26ab32261d2f6"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ImpeachmentElect</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="separator:a90854e122035bef7bcc26ab32261d2f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afda0201d40d4f71a44cbf943ed9c880b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afda0201d40d4f71a44cbf943ed9c880b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ImpeachmentRequestUiOpen</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memitem:afda0201d40d4f71a44cbf943ed9c880b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#afda0201d40d4f71a44cbf943ed9c880b">ImpeachmentRequestUiOpen</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memdesc:afda0201d40d4f71a44cbf943ed9c880b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempt to open the impeachment request UI.  <a href="#afda0201d40d4f71a44cbf943ed9c880b">More...</a><br/></td></tr>
 <tr class="separator:afda0201d40d4f71a44cbf943ed9c880b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab2468e55de709dc4c31f77e91a8e462d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab2468e55de709dc4c31f77e91a8e462d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ImpeachmentElectionUiOpen</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memitem:ab2468e55de709dc4c31f77e91a8e462d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#ab2468e55de709dc4c31f77e91a8e462d">ImpeachmentElectionUiOpen</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memdesc:ab2468e55de709dc4c31f77e91a8e462d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempt to open the impeachment election UI.  <a href="#ab2468e55de709dc4c31f77e91a8e462d">More...</a><br/></td></tr>
 <tr class="separator:ab2468e55de709dc4c31f77e91a8e462d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b970993aa388ddb35fc9b406b44bfa8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#a6b970993aa388ddb35fc9b406b44bfa8">KingTaxSystem</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="memdesc:a6b970993aa388ddb35fc9b406b44bfa8"><td class="mdescLeft">&#160;</td><td class="mdescRight">King tax system.  <a href="#a6b970993aa388ddb35fc9b406b44bfa8">More...</a><br/></td></tr>
@@ -159,6 +165,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ImpeachmentElectionUi
 <tr class="memitem:a289a9fcaad7def5929f874e11c4a6cfa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#a289a9fcaad7def5929f874e11c4a6cfa">KingSpecialEvent</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="memdesc:a289a9fcaad7def5929f874e11c4a6cfa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles commands accessible to the King.  <a href="#a289a9fcaad7def5929f874e11c4a6cfa">More...</a><br/></td></tr>
 <tr class="separator:a289a9fcaad7def5929f874e11c4a6cfa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6202a5b2139cefc7c366ea31bc81c434"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6202a5b2139cefc7c366ea31bc81c434"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#a6202a5b2139cefc7c366ea31bc81c434">ResetElectionLists</a> ()</td></tr>
+<tr class="memdesc:a6202a5b2139cefc7c366ea31bc81c434"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the election lists. <br/></td></tr>
+<tr class="separator:a6202a5b2139cefc7c366ea31bc81c434"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -273,6 +283,18 @@ ClanIDSet&#160;</td><td class="memItemRight" valign="bottom"><b>m_top10ClanSet</
 <tr class="memitem:a79a2c32699f14e3a74f549635ab19352"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a79a2c32699f14e3a74f549635ab19352"></a>
 KingCandidacyNoticeBoardMap&#160;</td><td class="memItemRight" valign="bottom"><b>m_noticeBoardMap</b></td></tr>
 <tr class="separator:a79a2c32699f14e3a74f549635ab19352"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abead17aed054a81cd3d31605c6e0f715"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abead17aed054a81cd3d31605c6e0f715"></a>
+KingElectionList&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#abead17aed054a81cd3d31605c6e0f715">m_senatorList</a></td></tr>
+<tr class="memdesc:abead17aed054a81cd3d31605c6e0f715"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of senators. Senators are the top 10 clan leaders and are able to nominate a King or propose impeachment. <br/></td></tr>
+<tr class="separator:abead17aed054a81cd3d31605c6e0f715"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01ea8acaa5e1b8b4ffb7da3df607eacd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a01ea8acaa5e1b8b4ffb7da3df607eacd"></a>
+KingElectionList&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#a01ea8acaa5e1b8b4ffb7da3df607eacd">m_candidateList</a></td></tr>
+<tr class="memdesc:a01ea8acaa5e1b8b4ffb7da3df607eacd"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of candidates still in the running for King. Candidates for election must be senators, so this data just refers to the above senator list. <br/></td></tr>
+<tr class="separator:a01ea8acaa5e1b8b4ffb7da3df607eacd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5269b9cc7b4a1ece77c49492649526ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5269b9cc7b4a1ece77c49492649526ba"></a>
+ResignedCandidateList&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#a5269b9cc7b4a1ece77c49492649526ba">m_resignedCandidateList</a></td></tr>
+<tr class="memdesc:a5269b9cc7b4a1ece77c49492649526ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of resigned candidates. <br/></td></tr>
+<tr class="separator:a5269b9cc7b4a1ece77c49492649526ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b6290f63a0e7e9d80b667c3a90fd539"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b6290f63a0e7e9d80b667c3a90fd539"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bSentFirstMessage</b></td></tr>
 <tr class="separator:a9b6290f63a0e7e9d80b667c3a90fd539"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -338,6 +360,76 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bSentFirstMessage</
 </div><div class="memdoc">
 
 <p>Handles King candidacy recommendations by leaders of top 10 clans. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUser</td><td>The user sending the packet. </td></tr>
+    <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a66924b8489c245c82bbe232499f6b5a7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKingSystem::CandidacyResign </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_packet.html">Packet</a> &amp;&#160;</td>
+          <td class="paramname"><em>pkt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handles candidate resignations. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUser</td><td>The user sending the packet. </td></tr>
+    <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ae6d75354dc808261d9dc0a4e17330e49"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKingSystem::ElectionPoll </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_packet.html">Packet</a> &amp;&#160;</td>
+          <td class="paramname"><em>pkt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Election poll. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">pUser</td><td>The user sending the packet. </td></tr>
@@ -547,6 +639,76 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bSentFirstMessage</
 
 </div>
 </div>
+<a class="anchor" id="ab2468e55de709dc4c31f77e91a8e462d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKingSystem::ImpeachmentElectionUiOpen </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_packet.html">Packet</a> &amp;&#160;</td>
+          <td class="paramname"><em>pkt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Attempt to open the impeachment election UI. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUser</td><td>The user sending the packet. </td></tr>
+    <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="afda0201d40d4f71a44cbf943ed9c880b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKingSystem::ImpeachmentRequestUiOpen </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_packet.html">Packet</a> &amp;&#160;</td>
+          <td class="paramname"><em>pkt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Attempt to open the impeachment request UI. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUser</td><td>The user sending the packet. </td></tr>
+    <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="a62073fe05d41576305d76bf413ab7c94"></a>
 <div class="memitem">
 <div class="memproto">
@@ -576,6 +738,30 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bSentFirstMessage</
   <table class="params">
     <tr><td class="paramname">pUser</td><td>The user sending the packet. </td></tr>
     <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a76da63fa76fcea1038cecffc5f902a73"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKingSystem::InsertNominee </td>
+          <td>(</td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>strNominee</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inserts the nominated candidate to the election list. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">strNominee</td><td>The nominee. </td></tr>
   </table>
   </dd>
 </dl>
@@ -772,6 +958,62 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bSentFirstMessage</
 
 </div>
 </div>
+<a class="anchor" id="a248477a419bc780a8380a8a6e28f74ad"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKingSystem::UpdateElectionList </td>
+          <td>(</td>
+          <td class="paramtype">uint8&#160;</td>
+          <td class="paramname"><em>byElectionListType</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>bDeleteList</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16&#160;</td>
+          <td class="paramname"><em>sClanID</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>strUserID</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em> = <code>NULL</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Updates the election list. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">byElectionListType</td><td>Which list are we referring to? 1 = ? 2 = ? 3 = senator list 4 = voted for king list </td></tr>
+    <tr><td class="paramname">bDeleteList</td><td>true to delete the list. </td></tr>
+    <tr><td class="paramname">sClanID</td><td>Identifier for the clan. </td></tr>
+    <tr><td class="paramname">strUserID</td><td>Identifier for the user. </td></tr>
+    <tr><td class="paramname">pUser</td><td>The user making the request, if applicable. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="ae4b38d9e8c0cbe60555b1df385e400c7"></a>
 <div class="memitem">
 <div class="memproto">
@@ -804,7 +1046,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bSentFirstMessage</
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:23 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

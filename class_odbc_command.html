@@ -105,18 +105,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa22678632918ee58160ed0d28eb2dc40"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa22678632918ee58160ed0d28eb2dc40"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OdbcCommand</b> (<a class="el" href="class_odbc_connection.html">OdbcConnection</a> *conn)</td></tr>
 <tr class="separator:aa22678632918ee58160ed0d28eb2dc40"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acf29457e3a31c0f54fc38c3047cfffff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acf29457e3a31c0f54fc38c3047cfffff"></a>
-__forceinline bool&#160;</td><td class="memItemRight" valign="bottom"><b>isOpen</b> ()</td></tr>
-<tr class="separator:acf29457e3a31c0f54fc38c3047cfffff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e053409f4580f3442d9ac8ee0ba9cd1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3e053409f4580f3442d9ac8ee0ba9cd1"></a>
-__forceinline TCHAR *&#160;</td><td class="memItemRight" valign="bottom"><b>GetError</b> ()</td></tr>
-<tr class="separator:a3e053409f4580f3442d9ac8ee0ba9cd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa6a1d002f2630203b190e7847deec31d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa6a1d002f2630203b190e7847deec31d"></a>
-__forceinline bool&#160;</td><td class="memItemRight" valign="bottom"><b>hasData</b> ()</td></tr>
-<tr class="separator:aa6a1d002f2630203b190e7847deec31d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66771816cc9126ea51456cd88b9e1e9e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a66771816cc9126ea51456cd88b9e1e9e"></a>
-__forceinline void&#160;</td><td class="memItemRight" valign="bottom"><b>SetConnectionHandle</b> (HDBC handle)</td></tr>
-<tr class="separator:a66771816cc9126ea51456cd88b9e1e9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4cb066408cc0a96b34998a1834fcd25f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4cb066408cc0a96b34998a1834fcd25f"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isOpen</b> ()</td></tr>
+<tr class="separator:a4cb066408cc0a96b34998a1834fcd25f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a248c158e2424d0583cd6ca55c51a5e01"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a248c158e2424d0583cd6ca55c51a5e01"></a>
+INLINE TCHAR *&#160;</td><td class="memItemRight" valign="bottom"><b>GetError</b> ()</td></tr>
+<tr class="separator:a248c158e2424d0583cd6ca55c51a5e01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe643b89a7b65596ff2b073436d5248b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe643b89a7b65596ff2b073436d5248b"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>hasData</b> ()</td></tr>
+<tr class="separator:abe643b89a7b65596ff2b073436d5248b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1726204d97fe79b7d8716a1a36b6413e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1726204d97fe79b7d8716a1a36b6413e"></a>
+INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>SetConnectionHandle</b> (HDBC handle)</td></tr>
+<tr class="separator:a1726204d97fe79b7d8716a1a36b6413e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec5d8a2c83ceb16f75d3753165cdf5e8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aec5d8a2c83ceb16f75d3753165cdf5e8"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Execute</b> (const tstring &amp;szSQL)</td></tr>
 <tr class="separator:aec5d8a2c83ceb16f75d3753165cdf5e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -222,18 +222,18 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>FetchInt64</b> (int p
 <tr class="memitem:af9642f8819023c48c077dcf7e15db157"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af9642f8819023c48c077dcf7e15db157"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AddParameter</b> (SQLSMALLINT paramType, const char *value, SQLLEN maxLength, SQLSMALLINT sqlDatatype=SQL_CHAR)</td></tr>
 <tr class="separator:af9642f8819023c48c077dcf7e15db157"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a51f1015ea41795cd9c296b345fa785ca"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a51f1015ea41795cd9c296b345fa785ca"></a>
-__forceinline bool&#160;</td><td class="memItemRight" valign="bottom"><b>FetchString</b> (int pos, char *outBuffer, SQLLEN maxLength)</td></tr>
-<tr class="separator:a51f1015ea41795cd9c296b345fa785ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac86ffdaba2490dd20b8e41a3217d104b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac86ffdaba2490dd20b8e41a3217d104b"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>FetchString</b> (int pos, char *outBuffer, SQLLEN maxLength)</td></tr>
+<tr class="separator:ac86ffdaba2490dd20b8e41a3217d104b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9022d24b0a4a30e482d419ef606230c5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9022d24b0a4a30e482d419ef606230c5"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>FetchString</b> (int pos, char *charArray, SQLLEN maxLength, SQLLEN *bufferSize)</td></tr>
 <tr class="separator:a9022d24b0a4a30e482d419ef606230c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada4aca2e635a0a54eadd6e8daa1d3f44"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ada4aca2e635a0a54eadd6e8daa1d3f44"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>FetchString</b> (int pos, std::string &amp;value)</td></tr>
 <tr class="separator:ada4aca2e635a0a54eadd6e8daa1d3f44"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0b92a3ba10c93ea9fbb51b09e5934c35"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b92a3ba10c93ea9fbb51b09e5934c35"></a>
-__forceinline bool&#160;</td><td class="memItemRight" valign="bottom"><b>FetchBinary</b> (int pos, char *outBuffer, SQLLEN maxLength)</td></tr>
-<tr class="separator:a0b92a3ba10c93ea9fbb51b09e5934c35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed7ab2fd3973a8977ba9bb02bd7aaeba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed7ab2fd3973a8977ba9bb02bd7aaeba"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>FetchBinary</b> (int pos, char *outBuffer, SQLLEN maxLength)</td></tr>
+<tr class="separator:aed7ab2fd3973a8977ba9bb02bd7aaeba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a33ebf0dab4ce41187090b8f01af43c72"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a33ebf0dab4ce41187090b8f01af43c72"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>FetchBinary</b> (int pos, char *charArray, SQLLEN maxLength, SQLLEN *bufferSize)</td></tr>
 <tr class="separator:a33ebf0dab4ce41187090b8f01af43c72"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -251,7 +251,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Close</b> ()</td></tr
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:24 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:13 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

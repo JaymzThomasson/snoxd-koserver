@@ -148,28 +148,26 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordtype">void</span> RegionNpcAdd( <span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz, <span class="keywordtype">int</span> nid );</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    BOOL RegionUserRemove( <span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz, <span class="keywordtype">int</span> uid );</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">void</span> RegionUserAdd( <span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz, <span class="keywordtype">int</span> uid );</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    BOOL RegionItemRemove( <span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz, <span class="keywordtype">int</span> itemid, <span class="keywordtype">int</span> count, <span class="keywordtype">int</span> index );</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordtype">void</span> RegionItemAdd( <span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz, <span class="keywordtype">int</span> itemid, <span class="keywordtype">int</span> count, <span class="keywordtype">int</span> index );</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordtype">int</span>  GetRegionUserSize(<span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz);</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">int</span>  GetRegionNpcSize(<span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordtype">int</span> IsRoomCheck(<span class="keywordtype">float</span> fx, <span class="keywordtype">float</span> fz);    <span class="comment">// 던젼에서 사용, 유저의 현재위치가 던젼의 어느 위치에 있는지를 판단</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    BOOL IsRoomStatusCheck();</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    BOOL IsMovable(<span class="keywordtype">int</span> dest_x, <span class="keywordtype">int</span> dest_y);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordtype">void</span> InitializeRoom();</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">int</span>  GetRegionUserSize(<span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordtype">int</span>  GetRegionNpcSize(<span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">int</span> IsRoomCheck(<span class="keywordtype">float</span> fx, <span class="keywordtype">float</span> fz);    <span class="comment">// 던젼에서 사용, 유저의 현재위치가 던젼의 어느 위치에 있는지를 판단</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    BOOL IsRoomStatusCheck();</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    BOOL IsMovable(<span class="keywordtype">int</span> dest_x, <span class="keywordtype">int</span> dest_y);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">void</span> InitializeRoom();</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <a class="code" href="class_c_room_event.html">CRoomEvent</a>* SetRoomEvent( <span class="keywordtype">int</span> number );</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <a class="code" href="class_c_room_event.html">CRoomEvent</a>* SetRoomEvent( <span class="keywordtype">int</span> number );</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordtype">void</span> RemoveMapData();</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <a class="code" href="class_s_m_d_file.html">SMDFile</a> * m_smdFile;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;};</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordtype">void</span> RemoveMapData();</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <a class="code" href="class_s_m_d_file.html">SMDFile</a> * m_smdFile;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

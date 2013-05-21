@@ -88,38 +88,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="contents">
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="keyword">class </span><a class="code" href="struct_c_npc.html">CNpc</a>;</div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="keyword">struct </span><a class="code" href="struct___m_a_g_i_c___t_a_b_l_e.html">_MAGIC_TABLE</a>;</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;</div>
-<div class="line"><a name="l00006"></a><span class="lineno"><a class="code" href="class_c_npc_magic_process.html">    6</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_npc_magic_process.html">CNpcMagicProcess</a>  </div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;{</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    <a class="code" href="struct_c_npc.html">CNpc</a>*           m_pSrcNpc;  </div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    BYTE    m_bMagicState;</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    <a class="code" href="class_c_npc_magic_process.html">CNpcMagicProcess</a>();</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_c_npc_magic_process.html">CNpcMagicProcess</a>();</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <span class="keywordtype">short</span> GetMagicDamage(<span class="keywordtype">int</span> tid, <span class="keywordtype">int</span> total_hit, <span class="keywordtype">int</span> attribute, <span class="keywordtype">int</span> dexpoint);</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keywordtype">void</span> ExecuteType9(<span class="keywordtype">int</span> magicid);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <span class="keywordtype">void</span> ExecuteType8(<span class="keywordtype">int</span> magicid, <span class="keywordtype">int</span> tid, <span class="keywordtype">int</span> sid, <span class="keywordtype">int</span> data1, <span class="keywordtype">int</span> data2, <span class="keywordtype">int</span> data3);</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="keywordtype">void</span> ExecuteType7(<span class="keywordtype">int</span> magicid);</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">void</span> ExecuteType6(<span class="keywordtype">int</span> magicid);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keywordtype">void</span> ExecuteType5(<span class="keywordtype">int</span> magicid);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keywordtype">void</span> ExecuteType4(<span class="keywordtype">int</span> magicid, <span class="keywordtype">int</span> tid);</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keywordtype">void</span> ExecuteType3(<span class="keywordtype">int</span> magicid, <span class="keywordtype">int</span> tid, <span class="keywordtype">int</span> data1, <span class="keywordtype">int</span> data2, <span class="keywordtype">int</span> data3, <span class="keywordtype">int</span> moral);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordtype">void</span> ExecuteType2(<span class="keywordtype">int</span> magicid, <span class="keywordtype">int</span> tid, <span class="keywordtype">int</span> data1, <span class="keywordtype">int</span> data2, <span class="keywordtype">int</span> data3 );</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keywordtype">void</span> ExecuteType1(<span class="keywordtype">int</span> magicid, <span class="keywordtype">int</span> tid, <span class="keywordtype">int</span> data1, <span class="keywordtype">int</span> data2, <span class="keywordtype">int</span> data3 );  <span class="comment">// sequence =&gt; type1 or type2</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <a class="code" href="struct___m_a_g_i_c___t_a_b_l_e.html">_MAGIC_TABLE</a>* IsAvailable( <span class="keywordtype">int</span> magicid, <span class="keywordtype">int</span> tid, BYTE type );</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="keywordtype">void</span> MagicPacket(<a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;};</div>
+<div class="line"><a name="l00003"></a><span class="lineno"><a class="code" href="class_c_npc_magic_process.html">    3</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_npc_magic_process.html">CNpcMagicProcess</a>  </div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;{</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> MagicPacket(uint8 opcode, uint32 nSkillID, int16 sCasterID, int16 sTargetID, </div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;        int16 sData1 = 0, int16 sData2 = 0, int16 sData3 = 0);</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

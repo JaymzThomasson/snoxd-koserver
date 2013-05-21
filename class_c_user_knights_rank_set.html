@@ -101,19 +101,22 @@ Inheritance diagram for CUserKnightsRankSet:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a51623bc55a8ae2196b2c6f69558a6817"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a51623bc55a8ae2196b2c6f69558a6817"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>CUserKnightsRankSet</b> (<a class="el" href="class_odbc_connection.html">OdbcConnection</a> *dbConnection, UserRankMap *pMap)</td></tr>
-<tr class="separator:a51623bc55a8ae2196b2c6f69558a6817"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6eb3ca54c85dbc15ed8f01f1c2bef0e9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6eb3ca54c85dbc15ed8f01f1c2bef0e9"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CUserKnightsRankSet</b> (<a class="el" href="class_odbc_connection.html">OdbcConnection</a> *dbConnection, UserNameRankMap *pMap)</td></tr>
+<tr class="separator:a6eb3ca54c85dbc15ed8f01f1c2bef0e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1282c7b90abe8a524cb587660d5cd3f7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1282c7b90abe8a524cb587660d5cd3f7"></a>
 virtual tstring&#160;</td><td class="memItemRight" valign="bottom"><b>GetTableName</b> ()</td></tr>
 <tr class="separator:a1282c7b90abe8a524cb587660d5cd3f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a39d054bf5584a099150b05ba124f96b2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a39d054bf5584a099150b05ba124f96b2"></a>
 virtual tstring&#160;</td><td class="memItemRight" valign="bottom"><b>GetColumns</b> ()</td></tr>
 <tr class="separator:a39d054bf5584a099150b05ba124f96b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94b659155c53dafa1e6dd851289f8570"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a94b659155c53dafa1e6dd851289f8570"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>InsertToMap</b> (std::string &amp;strKarusUserID, std::string &amp;strElmoUserID, <a class="el" href="struct___u_s_e_r___r_a_n_k.html">_USER_RANK</a> *pData)</td></tr>
+<tr class="separator:a94b659155c53dafa1e6dd851289f8570"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_c_user_personal_rank_set"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_c_user_personal_rank_set')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_c_user_personal_rank_set.html">CUserPersonalRankSet</a></td></tr>
-<tr class="memitem:ad3daf64d372ee192fa9cadc7d3bf9fbb inherit pub_methods_class_c_user_personal_rank_set"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad3daf64d372ee192fa9cadc7d3bf9fbb"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>CUserPersonalRankSet</b> (<a class="el" href="class_odbc_connection.html">OdbcConnection</a> *dbConnection, UserRankMap *pMap)</td></tr>
-<tr class="separator:ad3daf64d372ee192fa9cadc7d3bf9fbb inherit pub_methods_class_c_user_personal_rank_set"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeab31c6b6b5d6a418216bfce85ceb970 inherit pub_methods_class_c_user_personal_rank_set"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aeab31c6b6b5d6a418216bfce85ceb970"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CUserPersonalRankSet</b> (<a class="el" href="class_odbc_connection.html">OdbcConnection</a> *dbConnection, UserNameRankMap *pMap)</td></tr>
+<tr class="separator:aeab31c6b6b5d6a418216bfce85ceb970 inherit pub_methods_class_c_user_personal_rank_set"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3c04dd08effbcad7757c39708d3a885 inherit pub_methods_class_c_user_personal_rank_set"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae3c04dd08effbcad7757c39708d3a885"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>Fetch</b> ()</td></tr>
 <tr class="separator:ae3c04dd08effbcad7757c39708d3a885 inherit pub_methods_class_c_user_personal_rank_set"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -131,9 +134,9 @@ TCHAR *&#160;</td><td class="memItemRight" valign="bottom"><b>Read</b> (bool bAl
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pub_attribs_class_c_user_personal_rank_set"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_class_c_user_personal_rank_set')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="class_c_user_personal_rank_set.html">CUserPersonalRankSet</a></td></tr>
-<tr class="memitem:ab351ec88ec54fe628f19765717970f2a inherit pub_attribs_class_c_user_personal_rank_set"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab351ec88ec54fe628f19765717970f2a"></a>
-UserRankMap *&#160;</td><td class="memItemRight" valign="bottom"><b>m_pMap</b></td></tr>
-<tr class="separator:ab351ec88ec54fe628f19765717970f2a inherit pub_attribs_class_c_user_personal_rank_set"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affb951114f2f98a560f2153207bdfe0d inherit pub_attribs_class_c_user_personal_rank_set"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="affb951114f2f98a560f2153207bdfe0d"></a>
+UserNameRankMap *&#160;</td><td class="memItemRight" valign="bottom"><b>m_pMap</b></td></tr>
+<tr class="separator:affb951114f2f98a560f2153207bdfe0d inherit pub_attribs_class_c_user_personal_rank_set"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_class_odbc_recordset"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_class_odbc_recordset')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="class_odbc_recordset.html">OdbcRecordset</a></td></tr>
 <tr class="memitem:ae9923153cc0bc4052598adf185ba274c inherit pro_attribs_class_odbc_recordset"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae9923153cc0bc4052598adf185ba274c"></a>
 <a class="el" href="class_odbc_connection.html">OdbcConnection</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>_dbConnection</b></td></tr>
@@ -148,7 +151,7 @@ UserRankMap *&#160;</td><td class="memItemRight" valign="bottom"><b>m_pMap</b></
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:24 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:13 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

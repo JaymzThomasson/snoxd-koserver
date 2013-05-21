@@ -147,7 +147,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordtype">bool</span> LoadSpawnCallback(<a class="code" href="class_odbc_command.html">OdbcCommand</a> *dbCommand);</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">void</span> GameServerAcceptThread();</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    BOOL AddObjectEventNpc(<a class="code" href="struct___o_b_j_e_c_t___e_v_e_n_t.html">_OBJECT_EVENT</a>* pEvent, <span class="keywordtype">int</span> zone_number);</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    BOOL AddObjectEventNpc(<a class="code" href="struct___o_b_j_e_c_t___e_v_e_n_t.html">_OBJECT_EVENT</a>* pEvent, <a class="code" href="class_m_a_p.html">MAP</a> * pMap);</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">void</span> AllNpcInfo();</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <a class="code" href="struct_c_user.html">CUser</a>* GetUserPtr(<span class="keywordtype">int</span> nid);</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <a class="code" href="struct_c_npc.html">CNpc</a>*  GetEventNpcPtr();</div>
@@ -206,19 +206,18 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    uint16  m_iYear, m_iMonth, m_iDate, m_iHour, m_iMin, m_iAmount;</div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    uint8 m_iWeather;</div>
 <div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    BYTE    m_byNight;          <span class="comment">// π„¿Œ¡ˆ,, ≥∑¿Œ¡ˆ∏¶ ∆«¥‹... 1:≥∑, 2:π„</span></div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    BYTE    m_byTestMode;</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    <span class="keyword">static</span> <a class="code" href="class_k_o_socket_mgr.html">KOSocketMgr&lt;CGameSocket&gt;</a> s_socketMgr;</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    BYTE                m_byZone;</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;};</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="keyword">extern</span> <a class="code" href="class_c_server_dlg.html">CServerDlg</a> * g_pMain;</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <span class="keyword">static</span> <a class="code" href="class_k_o_socket_mgr.html">KOSocketMgr&lt;CGameSocket&gt;</a> s_socketMgr;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    BYTE                m_byZone;</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;};</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="keyword">extern</span> <a class="code" href="class_c_server_dlg.html">CServerDlg</a> * g_pMain;</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

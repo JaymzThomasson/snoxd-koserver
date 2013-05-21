@@ -119,77 +119,75 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordtype">short</span>   m_sHP;                          <span class="comment">// HP</span></div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordtype">short</span>   m_sMP;                          <span class="comment">// MP</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordtype">short</span>   m_sSP;                          <span class="comment">// SP</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordtype">short</span>   m_sMaxHP;                       <span class="comment">// HP</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="keywordtype">short</span>   m_sMaxMP;                       <span class="comment">// MP</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordtype">short</span>   m_sMaxSP;                       <span class="comment">// SP</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordtype">short</span>   m_sMaxHP;                       <span class="comment">// HP</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordtype">short</span>   m_sMaxMP;                       <span class="comment">// MP</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    BYTE    m_state;                        <span class="comment">// User의 상태</span></div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    BYTE    m_state;                        <span class="comment">// User의 상태</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">short</span>   m_sRegionX;                     <span class="comment">// 현재 영역 X 좌표</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordtype">short</span>   m_sRegionZ;                     <span class="comment">// 현재 영역 Z 좌표</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">short</span>   m_sOldRegionX;                  <span class="comment">// 이전 영역 X 좌표</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">short</span>   m_sOldRegionZ;                  <span class="comment">// 이전 영역 Z 좌표</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    BYTE    m_bResHp;                       <span class="comment">// 회복량</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    BYTE    m_bResMp;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    BYTE    m_bResSta;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    BYTE    m_byNowParty;               <span class="comment">// 파티중이면 1, 부대중이면 2, 둘다 아니면 0</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    BYTE    m_byPartyTotalMan;          <span class="comment">// 파티 맺은 총 구성 인원수 </span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">short</span>   m_sPartyTotalLevel;         <span class="comment">// 파티 맺은 사람의 총 레벨</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">short</span>   m_sPartyNumber;             <span class="comment">// 파티 번호</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">short</span>   m_sHitDamage;               <span class="comment">// Hit</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">float</span>   m_fHitrate;                 <span class="comment">// 공격 민첩률</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">float</span>   m_fAvoidrate;               <span class="comment">// 방어 민첩률</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordtype">short</span>   m_sAC;                      <span class="comment">// 방어율</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordtype">short</span>   m_sItemAC;                  <span class="comment">// 아이템 방어률</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    </div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordtype">short</span>   m_sRegionX;                     <span class="comment">// 현재 영역 X 좌표</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordtype">short</span>   m_sRegionZ;                     <span class="comment">// 현재 영역 Z 좌표</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">short</span>   m_sOldRegionX;                  <span class="comment">// 이전 영역 X 좌표</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordtype">short</span>   m_sOldRegionZ;                  <span class="comment">// 이전 영역 Z 좌표</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    BYTE    m_bResHp;                       <span class="comment">// 회복량</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    BYTE    m_bResMp;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    BYTE    m_bResSta;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    BYTE    m_byNowParty;               <span class="comment">// 파티중이면 1, 부대중이면 2, 둘다 아니면 0</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    BYTE    m_byPartyTotalMan;          <span class="comment">// 파티 맺은 총 구성 인원수 </span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">short</span>   m_sPartyTotalLevel;         <span class="comment">// 파티 맺은 사람의 총 레벨</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">short</span>   m_sPartyNumber;             <span class="comment">// 파티 번호</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">short</span>   m_sHitDamage;               <span class="comment">// Hit</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">float</span>   m_fHitrate;                 <span class="comment">// 공격 민첩률</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">float</span>   m_fAvoidrate;               <span class="comment">// 방어 민첩률</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">short</span>   m_sAC;                      <span class="comment">// 방어율</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">short</span>   m_sItemAC;                  <span class="comment">// 아이템 방어률</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    </div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordtype">short</span>  m_sSurroundNpcNumber[8];     <span class="comment">// Npc 다굴~</span></div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">short</span>  m_sSurroundNpcNumber[8];     <span class="comment">// Npc 다굴~</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    BYTE   m_byIsOP;                    <span class="comment">// 운영자인지를 판단..</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    BYTE    m_bInvisibilityType;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    BYTE   m_byIsOP;                    <span class="comment">// 운영자인지를 판단..</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    BYTE    m_bInvisibilityType;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordtype">long</span>   m_lUsed;                     <span class="comment">// 포인터 사용유무.. (1:사용중.. 접근 허락치 않음. 0:사용해도 무방)</span></div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordtype">long</span>   m_lUsed;                     <span class="comment">// 포인터 사용유무.. (1:사용중.. 접근 허락치 않음. 0:사용해도 무방)</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    BOOL        m_bLogOut;              <span class="comment">// Logout 중인가?</span></div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    BOOL        m_bLogOut;              <span class="comment">// Logout 중인가?</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    BYTE    m_bMagicTypeLeftHand;           <span class="comment">// The type of magic item in user&#39;s left hand  </span></div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    BYTE    m_bMagicTypeRightHand;          <span class="comment">// The type of magic item in user&#39;s right hand</span></div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">short</span>   m_sMagicAmountLeftHand;         <span class="comment">// The amount of magic item in user&#39;s left hand</span></div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">short</span>   m_sMagicAmountRightHand;        <span class="comment">// The amount of magic item in user&#39;s left hand</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordtype">short</span> GetMagicDamage(<span class="keywordtype">int</span> damage, <span class="keywordtype">short</span> tid);</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="struct_c_user.html#ab01915f83b7646ca262450895772449b" title="Initializes this object.">Initialize</a>();</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordtype">void</span> InitNpcAttack();</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordtype">void</span> Attack(<span class="keywordtype">int</span> sid, <span class="keywordtype">int</span> tid);  <span class="comment">// ATTACK</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">void</span> SetDamage(<span class="keywordtype">int</span> damage, <span class="keywordtype">int</span> tid);                <span class="comment">// user damage</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordtype">void</span> Dead(<span class="keywordtype">int</span> tid, <span class="keywordtype">int</span> nDamage);                    <span class="comment">// user dead</span></div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">void</span> SetExp(<span class="keywordtype">int</span> iNpcExp, <span class="keywordtype">int</span> iLoyalty, <span class="keywordtype">int</span> iLevel);     <span class="comment">// user exp</span></div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordtype">void</span> SetPartyExp(<span class="keywordtype">int</span> iNpcExp, <span class="keywordtype">int</span> iLoyalty, <span class="keywordtype">int</span> iPartyLevel, <span class="keywordtype">int</span> iMan);     <span class="comment">// user exp</span></div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordtype">short</span> GetDamage(<span class="keywordtype">int</span> tid, <span class="keywordtype">int</span> magicid=0);</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    BYTE GetHitRate(<span class="keywordtype">float</span> rate);</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">int</span> IsSurroundCheck(<span class="keywordtype">float</span> fX, <span class="keywordtype">float</span> fY, <span class="keywordtype">float</span> fZ, <span class="keywordtype">int</span> NpcID);</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordtype">void</span> HealMagic();</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordtype">void</span> HealAreaCheck(<span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz);</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordtype">void</span> SendAttackSuccess(<span class="keywordtype">short</span> tid, BYTE result, <span class="keywordtype">short</span> sDamage, <span class="keywordtype">int</span> nHP=0, <span class="keywordtype">short</span> sAttack_type=1, uint8 type = 1, <span class="keywordtype">short</span> sid = -1);</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordtype">void</span> SendHP();                                              <span class="comment">// user의 HP</span></div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">void</span> SendExp(<span class="keywordtype">int</span> iExp, <span class="keywordtype">int</span> iLoyalty, <span class="keywordtype">int</span> tType = 1);</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keywordtype">void</span> SendSystemMsg(<span class="keywordtype">char</span> *pMsg, uint8 type, uint16 sWho);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    BYTE    m_bMagicTypeLeftHand;           <span class="comment">// The type of magic item in user&#39;s left hand  </span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    BYTE    m_bMagicTypeRightHand;          <span class="comment">// The type of magic item in user&#39;s right hand</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordtype">short</span>   m_sMagicAmountLeftHand;         <span class="comment">// The amount of magic item in user&#39;s left hand</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordtype">short</span>   m_sMagicAmountRightHand;        <span class="comment">// The amount of magic item in user&#39;s left hand</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordtype">short</span> GetMagicDamage(<span class="keywordtype">int</span> damage, <span class="keywordtype">short</span> tid);</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="struct_c_user.html#ab01915f83b7646ca262450895772449b" title="Initializes this object.">Initialize</a>();</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordtype">void</span> InitNpcAttack();</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keywordtype">void</span> Attack(<span class="keywordtype">int</span> sid, <span class="keywordtype">int</span> tid);  <span class="comment">// ATTACK</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordtype">void</span> SetDamage(<span class="keywordtype">int</span> damage, <span class="keywordtype">int</span> tid);                <span class="comment">// user damage</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordtype">void</span> Dead(<span class="keywordtype">int</span> tid, <span class="keywordtype">int</span> nDamage);                    <span class="comment">// user dead</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">void</span> SetExp(<span class="keywordtype">int</span> iNpcExp, <span class="keywordtype">int</span> iLoyalty, <span class="keywordtype">int</span> iLevel);     <span class="comment">// user exp</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordtype">void</span> SetPartyExp(<span class="keywordtype">int</span> iNpcExp, <span class="keywordtype">int</span> iLoyalty, <span class="keywordtype">int</span> iPartyLevel, <span class="keywordtype">int</span> iMan);     <span class="comment">// user exp</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">short</span> GetDamage(<span class="keywordtype">int</span> tid, <span class="keywordtype">int</span> magicid=0);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    uint8 GetHitRate(<span class="keywordtype">float</span> rate);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordtype">int</span> IsSurroundCheck(<span class="keywordtype">float</span> fX, <span class="keywordtype">float</span> fY, <span class="keywordtype">float</span> fZ, <span class="keywordtype">int</span> NpcID);</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordtype">void</span> HealMagic();</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">void</span> HealAreaCheck(<span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordtype">void</span> SendAttackSuccess(<span class="keywordtype">short</span> tid, BYTE result, <span class="keywordtype">short</span> sDamage, <span class="keywordtype">int</span> nHP=0, <span class="keywordtype">short</span> sAttack_type=1, uint8 type = 1, <span class="keywordtype">short</span> sid = -1);</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">void</span> SendHP();                                              <span class="comment">// user의 HP</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordtype">void</span> SendExp(<span class="keywordtype">int</span> iExp, <span class="keywordtype">int</span> iLoyalty, <span class="keywordtype">int</span> tType = 1);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordtype">void</span> SendSystemMsg(<span class="keywordtype">char</span> *pMsg, uint8 type, uint16 sWho);</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    INLINE <a class="code" href="class_m_a_p.html">MAP</a> * GetMap() { <span class="keywordflow">return</span> m_pMap; };</div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    __forceinline <a class="code" href="class_m_a_p.html">MAP</a> * GetMap() { <span class="keywordflow">return</span> m_pMap; };</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <a class="code" href="struct_c_user.html">CUser</a>();</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="struct_c_user.html">CUser</a>();</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;};</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <a class="code" href="struct_c_user.html">CUser</a>();</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="struct_c_user.html">CUser</a>();</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

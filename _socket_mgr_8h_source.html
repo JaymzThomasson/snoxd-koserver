@@ -98,8 +98,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    <a class="code" href="class_socket_mgr.html">SocketMgr</a>();</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    __forceinline HANDLE GetCompletionPort() { <span class="keywordflow">return</span> m_completionPort; }</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    __forceinline <span class="keywordtype">void</span> SetCompletionPort(HANDLE cp) { m_completionPort = cp; }</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    INLINE HANDLE GetCompletionPort() { <span class="keywordflow">return</span> m_completionPort; }</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    INLINE <span class="keywordtype">void</span> SetCompletionPort(HANDLE cp) { m_completionPort = cp; }</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <span class="keywordtype">void</span> CreateCompletionPort();</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <span class="keywordtype">void</span> SpawnWorkerThreads();</div>
@@ -130,8 +130,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> CleanupWinsock();</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="comment">// TO-DO: Make this atomic.</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    __forceinline <span class="keywordtype">void</span> IncRef() { <span class="keywordflow">if</span> (s_refs++ == 0) SetupWinsock(); }</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    __forceinline <span class="keywordtype">void</span> DecRef() { <span class="keywordflow">if</span> (--s_refs == 0) CleanupWinsock(); }</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    INLINE <span class="keywordtype">void</span> IncRef() { <span class="keywordflow">if</span> (s_refs++ == 0) SetupWinsock(); }</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    INLINE <span class="keywordtype">void</span> DecRef() { <span class="keywordflow">if</span> (--s_refs == 0) CleanupWinsock(); }</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keyword">static</span> uint32 s_refs; <span class="comment">// reference counter (one app can hold multiple socket manager instances)</span></div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;};</div>
@@ -153,7 +153,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

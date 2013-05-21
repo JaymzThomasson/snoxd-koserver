@@ -96,7 +96,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> Construct(<a class="code" href="class_packet.html">Packet</a> * result, uint8 bType, std::string * strMessage = NULL, std::string * strSender = NULL, </div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;        uint8 bNation = 1, int16 senderID = -1)</div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    {</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;        result-&gt;<a class="code" href="class_packet.html#a1ef0f3eff4e2a0d0aa11a15888b585eb" title="Clear packet and set opcode all in one mighty blow.">Initialize</a>(WIZ_CHAT);</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;        result-&gt;<a class="code" href="class_packet.html#acb572128c50ec139bc2da318d10fd27e" title="Clear packet and set opcode all in one mighty blow.">Initialize</a>(WIZ_CHAT);</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;        *result &lt;&lt; bType &lt;&lt; bNation &lt;&lt; senderID;</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;        result-&gt;SByte();</div>
@@ -129,7 +129,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">char</span> * Help;</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;};</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;__forceinline <span class="keywordtype">void</span>* allocate_and_copy(uint32 len, <span class="keywordtype">void</span> * pointer)</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;INLINE <span class="keywordtype">void</span>* allocate_and_copy(uint32 len, <span class="keywordtype">void</span> * pointer)</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;{</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">void</span> * data = (<span class="keywordtype">void</span>*)malloc(len);</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordflow">if</span> (data == NULL)</div>
@@ -180,7 +180,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

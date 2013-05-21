@@ -95,14 +95,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;{</div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> MagicPacket(<a class="code" href="class_packet.html">Packet</a> &amp; pkt, <a class="code" href="class_unit.html">Unit</a> * pCaster = NULL, <span class="keywordtype">bool</span> isRecastingSavedMagic = <span class="keyword">false</span>);</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> SendType4BuffRemove(<span class="keywordtype">short</span> tid, BYTE buff);</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> CheckExpiredType6Skills(<a class="code" href="class_unit.html">Unit</a> * pTarget);</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">bool</span> UserRegionCheck(<a class="code" href="class_unit.html">Unit</a> * pSkillCaster, <a class="code" href="class_unit.html">Unit</a> * pSkillTarget, <a class="code" href="struct___m_a_g_i_c___t_a_b_l_e.html">_MAGIC_TABLE</a> * pSkill, <span class="keywordtype">int</span> radius, <span class="keywordtype">short</span> mousex = 0, <span class="keywordtype">short</span> mousez = 0);</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;};</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> CheckExpiredType6Skills(<a class="code" href="class_unit.html">Unit</a> * pTarget);</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">bool</span> UserRegionCheck(<a class="code" href="class_unit.html">Unit</a> * pSkillCaster, <a class="code" href="class_unit.html">Unit</a> * pSkillTarget, <a class="code" href="struct___m_a_g_i_c___t_a_b_l_e.html">_MAGIC_TABLE</a> * pSkill, <span class="keywordtype">int</span> radius, <span class="keywordtype">short</span> mousex = 0, <span class="keywordtype">short</span> mousez = 0);</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">bool</span> GrantType4Buff(<a class="code" href="struct___m_a_g_i_c___t_a_b_l_e.html">_MAGIC_TABLE</a> * pSkill, <a class="code" href="struct___m_a_g_i_c___t_y_p_e4.html">_MAGIC_TYPE4</a> *pType, <a class="code" href="class_unit.html">Unit</a> * pCaster, <a class="code" href="struct_c_user.html">CUser</a> *pTarget);</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">bool</span> RemoveType4Buff(uint8 byBuffType, <a class="code" href="struct_c_user.html">CUser</a> *pTarget);</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

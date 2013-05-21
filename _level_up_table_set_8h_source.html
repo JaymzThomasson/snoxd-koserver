@@ -100,10 +100,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> Fetch()</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    {</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;        <span class="comment">// TO-DO: This needs to be increased to support bigint</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;        std::pair&lt;uint8, uint32&gt; pData;</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;        std::pair&lt;uint8, int64&gt; pData;</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;        _dbCommand-&gt;FetchByte(1, pData.first);</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        _dbCommand-&gt;FetchUInt32(2, pData.second);</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        _dbCommand-&gt;FetchInt64(2, pData.second);</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        m_pMap-&gt;insert(pData);</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
@@ -115,7 +115,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

@@ -128,7 +128,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;{</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    BOOL IsBlankMap(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y);</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">void</span> SetMap(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y, <span class="keywordtype">short</span> *pMap, uint32 nMapSize);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">void</span> SetMap(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y, <span class="keywordtype">short</span> *pMap, uint32 nMapSize, int16 min_x, int16 min_y);</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">void</span> PropagateDown(<a class="code" href="class___path_node.html">_PathNode</a> *old);</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordtype">void</span> Insert(<a class="code" href="class___path_node.html">_PathNode</a> *node);</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <a class="code" href="class___path_node.html">_PathNode</a> *CheckOpen(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y);</div>
@@ -149,13 +149,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <a class="code" href="class___path_node.html">_PathNode</a> *m_pOpen, *m_pClosed;</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <a class="code" href="class_s_t_a_c_k.html">STACK</a> *m_pStack;</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">short</span> *m_pMap;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <a class="code" href="struct_c_size.html">CSize</a> m_vMapSize;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    uint32 m_nMapSize;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;};</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    int16 min_x, min_y;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <a class="code" href="struct_c_size.html">CSize</a> m_vMapSize;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    uint32 m_nMapSize;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

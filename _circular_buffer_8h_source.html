@@ -107,10 +107,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="comment">// pointer magic!</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    __forceinline <span class="keywordtype">size_t</span> GetAFreeSpace()  { <span class="keywordflow">return</span> (m_bufferEnd - m_regionAPointer - m_regionASize); }</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    __forceinline <span class="keywordtype">size_t</span> GetSpaceBeforeA() { <span class="keywordflow">return</span> (m_regionAPointer - m_buffer); }</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    __forceinline <span class="keywordtype">size_t</span> GetSpaceAfterA() { <span class="keywordflow">return</span> (m_bufferEnd - m_regionAPointer - m_regionASize); }</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    __forceinline <span class="keywordtype">size_t</span> GetBFreeSpace() { <span class="keywordflow">if</span>(m_regionBPointer == NULL) { <span class="keywordflow">return</span> 0; } <span class="keywordflow">return</span> (m_regionAPointer - m_regionBPointer - m_regionBSize); }</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    INLINE <span class="keywordtype">size_t</span> GetAFreeSpace()  { <span class="keywordflow">return</span> (m_bufferEnd - m_regionAPointer - m_regionASize); }</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    INLINE <span class="keywordtype">size_t</span> GetSpaceBeforeA() { <span class="keywordflow">return</span> (m_regionAPointer - m_buffer); }</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    INLINE <span class="keywordtype">size_t</span> GetSpaceAfterA() { <span class="keywordflow">return</span> (m_bufferEnd - m_regionAPointer - m_regionASize); }</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    INLINE <span class="keywordtype">size_t</span> GetBFreeSpace() { <span class="keywordflow">if</span>(m_regionBPointer == NULL) { <span class="keywordflow">return</span> 0; } <span class="keywordflow">return</span> (m_regionAPointer - m_regionBPointer - m_regionBSize); }</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <a class="code" href="class_circular_buffer.html#a8c5de0e610bb50bac684f4707e23431c">CircularBuffer</a>();</div>
@@ -121,7 +121,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="class_circular_buffer.html#a200a74ba910181da4520d2862d1d9ac2">Write</a>(<span class="keyword">const</span> <span class="keywordtype">void</span> * data, <span class="keywordtype">size_t</span> bytes);</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
-<div class="line"><a name="l00048"></a><span class="lineno"><a class="code" href="class_circular_buffer.html#a5d2fd5f51a622aae989f10a2ddbd0d04">   48</a></span>&#160;    __forceinline <span class="keywordtype">size_t</span> <a class="code" href="class_circular_buffer.html#a5d2fd5f51a622aae989f10a2ddbd0d04">GetAllocatedSize</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_bufferSize; }</div>
+<div class="line"><a name="l00048"></a><span class="lineno"><a class="code" href="class_circular_buffer.html#ad0edd58360f8b48efa9cd51f60709829">   48</a></span>&#160;    INLINE <span class="keywordtype">size_t</span> <a class="code" href="class_circular_buffer.html#ad0edd58360f8b48efa9cd51f60709829">GetAllocatedSize</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> m_bufferSize; }</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">size_t</span> <a class="code" href="class_circular_buffer.html#a79b4745d457b6b7ebe474ac159622961">GetSpace</a>();</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
@@ -142,7 +142,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

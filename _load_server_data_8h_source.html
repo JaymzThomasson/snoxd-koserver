@@ -101,7 +101,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">class </span><a class="code" href="class_c_king_system.html">CKingSystem</a>;</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">typedef</span> <a class="code" href="class_c_s_t_l_map.html">CSTLMap &lt;C3DMap&gt;</a>                    <a class="code" href="class_c_s_t_l_map.html">ZoneArray</a>;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="keyword">typedef</span> std::map&lt;int, long&gt;                 LevelUpArray;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="keyword">typedef</span> std::map&lt;int, int64&gt;                LevelUpArray;</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">typedef</span> <a class="code" href="class_c_s_t_l_map.html">CSTLMap &lt;_CLASS_COEFFICIENT&gt;</a>        <a class="code" href="class_c_s_t_l_map.html">CoefficientArray</a>;</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">typedef</span> <a class="code" href="class_c_s_t_l_map.html">CSTLMap &lt;_ITEM_TABLE&gt;</a>               <a class="code" href="class_c_s_t_l_map.html">ItemtableArray</a>;</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keyword">typedef</span> <a class="code" href="class_c_s_t_l_map.html">CSTLMap &lt;_MAGIC_TABLE&gt;</a>              <a class="code" href="class_c_s_t_l_map.html">MagictableArray</a>;</div>
@@ -128,19 +128,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="keyword">typedef</span> <a class="code" href="class_c_s_t_l_map.html">CSTLMap	&lt;_QUEST_MONSTER&gt;</a>            <a class="code" href="class_c_s_t_l_map.html">QuestMonsterArray</a>;</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keyword">typedef</span> <a class="code" href="class_c_s_t_l_map.html">CSTLMap	&lt;_RENTAL_ITEM&gt;</a>              <a class="code" href="class_c_s_t_l_map.html">RentalItemArray</a>;</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keyword">typedef</span> <a class="code" href="class_c_s_t_l_map.html">CSTLMap &lt;_ITEM_EXCHANGE&gt;</a>            <a class="code" href="class_c_s_t_l_map.html">ItemExchangeArray</a>;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keyword">typedef</span> <a class="code" href="class_c_s_t_l_map.html">CSTLMap &lt;CKingSystem&gt;</a>               <a class="code" href="class_c_s_t_l_map.html">KingSystemArray</a>;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="keyword">typedef</span> stdext::hash_map&lt;std::string, _USER_RANK *&gt;     UserRankMap; </div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="keyword">typedef</span> std::pair&lt;uint8, uint16&gt;            NpcTrapPair;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">typedef</span> std::map&lt;NpcTrapPair, int32&gt;        EventTriggerArray;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="keyword">typedef</span> std::vector&lt;_QUEST_HELPER *&gt;        QuestHelperList;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="keyword">typedef</span> std::map&lt;uint16, QuestHelperList&gt;   QuestNpcList;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keyword">typedef</span> <a class="code" href="class_c_s_t_l_map.html">CSTLMap &lt;_ITEM_UPGRADE&gt;</a>             <a class="code" href="class_c_s_t_l_map.html">ItemUpgradeArray</a>;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">typedef</span> <a class="code" href="class_c_s_t_l_map.html">CSTLMap &lt;CKingSystem&gt;</a>               <a class="code" href="class_c_s_t_l_map.html">KingSystemArray</a>;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keyword">typedef</span> stdext::hash_map&lt;std::string, _USER_RANK *&gt;     UserNameRankMap; </div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="keyword">typedef</span> std::map&lt;uint8, _USER_RANK *&gt;       UserRankMap;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keyword">typedef</span> std::pair&lt;uint8, uint16&gt;            NpcTrapPair;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="keyword">typedef</span> std::map&lt;NpcTrapPair, int32&gt;        EventTriggerArray;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="keyword">typedef</span> std::vector&lt;_QUEST_HELPER *&gt;        QuestHelperList;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="keyword">typedef</span> std::map&lt;uint16, QuestHelperList&gt;   QuestNpcList;</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

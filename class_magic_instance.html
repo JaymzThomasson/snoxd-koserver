@@ -158,12 +158,18 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ReflectDamage</b> (in
 <tr class="memitem:ae552b8b473681c5a0f72a3e635ac378d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae552b8b473681c5a0f72a3e635ac378d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SendSkillToAI</b> ()</td></tr>
 <tr class="separator:ae552b8b473681c5a0f72a3e635ac378d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0d1b7d868a5982b9c3bc31d67b38af95"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0d1b7d868a5982b9c3bc31d67b38af95"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SendSkill</b> (int16 pSkillCaster=-1, int16 pSkillTarget=-1, int8 opcode=-1, uint32 nSkillID=0, int16 sData1=-999, int16 sData2=-999, int16 sData3=-999, int16 sData4=-999, int16 sData5=-999, int16 sData6=-999, int16 sData7=-999, int16 sData8=-999)</td></tr>
-<tr class="separator:a0d1b7d868a5982b9c3bc31d67b38af95"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a101ba31418b9a3ac52331336a2fa3263"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a101ba31418b9a3ac52331336a2fa3263"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SendSkillFailed</b> ()</td></tr>
-<tr class="separator:a101ba31418b9a3ac52331336a2fa3263"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a0974db0d729e937116f525c7cb87c2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_magic_instance.html#a2a0974db0d729e937116f525c7cb87c2">BuildSkillPacket</a> (<a class="el" href="class_packet.html">Packet</a> &amp;result, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8])</td></tr>
+<tr class="memdesc:a2a0974db0d729e937116f525c7cb87c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds skill packet using the specified data.  <a href="#a2a0974db0d729e937116f525c7cb87c2">More...</a><br/></td></tr>
+<tr class="separator:a2a0974db0d729e937116f525c7cb87c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06036134e209bfe14a9d59edd22f8a7a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_magic_instance.html#a06036134e209bfe14a9d59edd22f8a7a">BuildAndSendSkillPacket</a> (<a class="el" href="class_unit.html">Unit</a> *pUnit, bool bSendToRegion, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8])</td></tr>
+<tr class="memdesc:a06036134e209bfe14a9d59edd22f8a7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds and sends skill packet using the specified data to pUnit.  <a href="#a06036134e209bfe14a9d59edd22f8a7a">More...</a><br/></td></tr>
+<tr class="separator:a06036134e209bfe14a9d59edd22f8a7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa331d96dd40065371f08e18c059794b5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_magic_instance.html#aa331d96dd40065371f08e18c059794b5">SendSkill</a> (bool bSendToRegion=true, <a class="el" href="class_unit.html">Unit</a> *pUnit=NULL)</td></tr>
+<tr class="memdesc:aa331d96dd40065371f08e18c059794b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends the skill data in the current context to pUnit. If pUnit is NULL, it will assume the caster.  <a href="#aa331d96dd40065371f08e18c059794b5">More...</a><br/></td></tr>
+<tr class="separator:aa331d96dd40065371f08e18c059794b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6985815c81f7bb253e482fc4ce776201"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_magic_instance.html#a6985815c81f7bb253e482fc4ce776201">SendSkillFailed</a> (int16 sTargetID=-1)</td></tr>
+<tr class="memdesc:a6985815c81f7bb253e482fc4ce776201"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends the skill failed packet to the caster.  <a href="#a6985815c81f7bb253e482fc4ce776201">More...</a><br/></td></tr>
+<tr class="separator:a6985815c81f7bb253e482fc4ce776201"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e49d0eb5fccc7ef673c44d9ffa059d2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4e49d0eb5fccc7ef673c44d9ffa059d2"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SendTransformationList</b> ()</td></tr>
 <tr class="separator:a4e49d0eb5fccc7ef673c44d9ffa059d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -191,34 +197,206 @@ int16&#160;</td><td class="memItemRight" valign="bottom"><b>sTargetID</b></td></
 <tr class="memitem:a2f1f18d22c1f757d8b98fcbe5065ab19"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2f1f18d22c1f757d8b98fcbe5065ab19"></a>
 <a class="el" href="class_unit.html">Unit</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>pSkillTarget</b></td></tr>
 <tr class="separator:a2f1f18d22c1f757d8b98fcbe5065ab19"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a74f5c942d0670bc8a0cd484ffe38f0c8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a74f5c942d0670bc8a0cd484ffe38f0c8"></a>
-uint16&#160;</td><td class="memItemRight" valign="bottom"><b>sData1</b></td></tr>
-<tr class="separator:a74f5c942d0670bc8a0cd484ffe38f0c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a15210a884802a158d726ae3bf2c7dc46"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a15210a884802a158d726ae3bf2c7dc46"></a>
-uint16&#160;</td><td class="memItemRight" valign="bottom"><b>sData2</b></td></tr>
-<tr class="separator:a15210a884802a158d726ae3bf2c7dc46"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a989281e44527be8c2e25d0a485ac4bb9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a989281e44527be8c2e25d0a485ac4bb9"></a>
-uint16&#160;</td><td class="memItemRight" valign="bottom"><b>sData3</b></td></tr>
-<tr class="separator:a989281e44527be8c2e25d0a485ac4bb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afaff4cb3de5436485f979c089475702d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afaff4cb3de5436485f979c089475702d"></a>
-uint16&#160;</td><td class="memItemRight" valign="bottom"><b>sData4</b></td></tr>
-<tr class="separator:afaff4cb3de5436485f979c089475702d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9f6c12876d970915f6e3cf5fa448b61e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9f6c12876d970915f6e3cf5fa448b61e"></a>
-uint16&#160;</td><td class="memItemRight" valign="bottom"><b>sData5</b></td></tr>
-<tr class="separator:a9f6c12876d970915f6e3cf5fa448b61e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8bda873c8e3e0019a5d7f11dba9dd4db"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8bda873c8e3e0019a5d7f11dba9dd4db"></a>
-uint16&#160;</td><td class="memItemRight" valign="bottom"><b>sData6</b></td></tr>
-<tr class="separator:a8bda873c8e3e0019a5d7f11dba9dd4db"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3dcad6144927cee712433fe14f245e3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad3dcad6144927cee712433fe14f245e3"></a>
-uint16&#160;</td><td class="memItemRight" valign="bottom"><b>sData7</b></td></tr>
-<tr class="separator:ad3dcad6144927cee712433fe14f245e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a481223bb0dd15345f98d6e00c7c89aea"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a481223bb0dd15345f98d6e00c7c89aea"></a>
-uint16&#160;</td><td class="memItemRight" valign="bottom"><b>sData8</b></td></tr>
-<tr class="separator:a481223bb0dd15345f98d6e00c7c89aea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b263a370679e348e2aacf681019008d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7b263a370679e348e2aacf681019008d"></a>
+int16&#160;</td><td class="memItemRight" valign="bottom"><b>sData</b> [8]</td></tr>
+<tr class="separator:a7b263a370679e348e2aacf681019008d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9f09a4cfc58496f4592c9034a6cdb34"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa9f09a4cfc58496f4592c9034a6cdb34"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>bIsRecastingSavedMagic</b></td></tr>
 <tr class="separator:aa9f09a4cfc58496f4592c9034a6cdb34"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a06036134e209bfe14a9d59edd22f8a7a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MagicInstance::BuildAndSendSkillPacket </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_unit.html">Unit</a> *&#160;</td>
+          <td class="paramname"><em>pUnit</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>bSendToRegion</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int16&#160;</td>
+          <td class="paramname"><em>sSkillCaster</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int16&#160;</td>
+          <td class="paramname"><em>sSkillTarget</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int8&#160;</td>
+          <td class="paramname"><em>opcode</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32&#160;</td>
+          <td class="paramname"><em>nSkillID</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int16&#160;</td>
+          <td class="paramname"><em>sData</em>[8]&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Builds and sends skill packet using the specified data to pUnit. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUnit</td><td>The unit to send the packet to. If an NPC is specified, bSendToRegion is assumed true. </td></tr>
+    <tr><td class="paramname">bSendToRegion</td><td>true to send the packet to pUser's region. </td></tr>
+    <tr><td class="paramname">sSkillCaster</td><td>Skill caster's ID. </td></tr>
+    <tr><td class="paramname">sSkillTarget</td><td>Skill target's ID. </td></tr>
+    <tr><td class="paramname">opcode</td><td>Skill system opcode. </td></tr>
+    <tr><td class="paramname">nSkillID</td><td>Identifier for the skill. </td></tr>
+    <tr><td class="paramname">sData</td><td>Array of additional misc skill data. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a2a0974db0d729e937116f525c7cb87c2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MagicInstance::BuildSkillPacket </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_packet.html">Packet</a> &amp;&#160;</td>
+          <td class="paramname"><em>result</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int16&#160;</td>
+          <td class="paramname"><em>sSkillCaster</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int16&#160;</td>
+          <td class="paramname"><em>sSkillTarget</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int8&#160;</td>
+          <td class="paramname"><em>opcode</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32&#160;</td>
+          <td class="paramname"><em>nSkillID</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int16&#160;</td>
+          <td class="paramname"><em>sData</em>[8]&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Builds skill packet using the specified data. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">result</td><td>Buffer to store the packet in. </td></tr>
+    <tr><td class="paramname">sSkillCaster</td><td>Skill caster's ID. </td></tr>
+    <tr><td class="paramname">sSkillTarget</td><td>Skill target's ID. </td></tr>
+    <tr><td class="paramname">opcode</td><td>Skill system opcode. </td></tr>
+    <tr><td class="paramname">nSkillID</td><td>Identifier for the skill. </td></tr>
+    <tr><td class="paramname">sData</td><td>Array of additional misc skill data. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="aa331d96dd40065371f08e18c059794b5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MagicInstance::SendSkill </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>bSendToRegion</em> = <code>true</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_unit.html">Unit</a> *&#160;</td>
+          <td class="paramname"><em>pUnit</em> = <code>NULL</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sends the skill data in the current context to pUnit. If pUnit is NULL, it will assume the caster. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bSendToRegion</td><td>true to send the packet to pUnit's region. If pUnit is an NPC, this is assumed true. </td></tr>
+    <tr><td class="paramname">pUser</td><td>The unit to send the packet to. If pUnit is an NPC, it will send to pUnit's region regardless. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a6985815c81f7bb253e482fc4ce776201"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MagicInstance::SendSkillFailed </td>
+          <td>(</td>
+          <td class="paramtype">int16&#160;</td>
+          <td class="paramname"><em>sTargetID</em> = <code>-1</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sends the skill failed packet to the caster. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sTargetID</td><td>Target ID to override with, as some use cases require. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>Ebenezer/<a class="el" href="_magic_instance_8h_source.html">MagicInstance.h</a></li>
 <li>Ebenezer/MagicInstance.cpp</li>
@@ -226,7 +404,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>bIsRecastingSavedMagi
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:24 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:13 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

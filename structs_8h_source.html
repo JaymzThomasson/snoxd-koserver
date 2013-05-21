@@ -139,9 +139,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    uint32  iNum;</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    uint8   bDirectType;</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    uint16  sAngle;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    uint16  sFirstDamage;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    uint16  sEndDamage;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    uint16  sTimeDamage;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    int16   sFirstDamage;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    int16   sEndDamage;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    int16   sTimeDamage;</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    uint8   bRadius;</div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    uint8   bDuration;  <span class="comment">// duration, in seconds</span></div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    uint8   bAttribute;</div>
@@ -165,11 +165,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    uint16  sMaxMPPct;</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    uint8   bHitRate;</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    uint16  sAvoidRate;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    uint8   bStr;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    uint8   bSta;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    uint8   bDex;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    uint8   bIntel;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    uint8   bCha;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    int8    bStr;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    int8    bSta;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    int8    bDex;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    int8    bIntel;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    int8    bCha;</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    uint8   bFireR;</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    uint8   bColdR;</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    uint8   bLightningR;</div>
@@ -313,10 +313,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    BYTE m_bType, isAttackZone;</div>
 <div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;<span class="preprocessor"></span>};</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;</div>
+<div class="line"><a name="l00229"></a><span class="lineno"><a class="code" href="struct___b_u_f_f___t_y_p_e4___i_n_f_o.html">  229</a></span>&#160;<span class="keyword">struct </span><a class="code" href="struct___b_u_f_f___t_y_p_e4___i_n_f_o.html">_BUFF_TYPE4_INFO</a></div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;{</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    <span class="keywordtype">bool</span>    m_bIsBuff; <span class="comment">// Is it a buff or a debuff?</span></div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    <span class="keywordtype">bool</span>    m_bDurationExtended;</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    time_t  m_tEndTime;</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    INLINE <span class="keywordtype">bool</span> isBuff() { <span class="keywordflow">return</span> m_bIsBuff; }</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    INLINE <span class="keywordtype">bool</span> isDebuff() { <span class="keywordflow">return</span> !m_bIsBuff; }</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

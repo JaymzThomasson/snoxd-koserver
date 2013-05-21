@@ -97,7 +97,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    }</div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    <span class="keyword">virtual</span> tstring GetTableName() { <span class="keywordflow">return</span> _T(<span class="stringliteral">&quot;K_NPC&quot;</span>); }</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <span class="keyword">virtual</span> tstring GetColumns() { <span class="keywordflow">return</span> _T(<span class="stringliteral">&quot;sSid, strName, sPid, sSize, iWeapon1, iWeapon2, byGroup, byActType, byType, byFamily, byRank, byTitle, iSellingGroup, sLevel, iExp, iLoyalty, iHpPoint, sMpPoint, sAtk, sAc, sHitRate, sEvadeRate, sDamage, sAttackDelay, bySpeed1, bySpeed2, sStandtime, sItem, iMagic1, iMagic2, iMagic3, sFireR, sColdR, sLightningR, sMagicR, sDiseaseR, sPoisonR, sLightR, sBulk, byAttackRange, bySearchRange, byTracingRange, iMoney, byDirectAttack, byMagicAttack&quot;</span>); }</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <span class="keyword">virtual</span> tstring GetColumns() { <span class="keywordflow">return</span> _T(<span class="stringliteral">&quot;sSid, strName, sPid, sSize, iWeapon1, iWeapon2, byGroup, byActType, byType, byFamily, byRank, byTitle, iSellingGroup, sLevel, iExp, iLoyalty, iHpPoint, sMpPoint, sAtk, sAc, sHitRate, sEvadeRate, sDamage, sAttackDelay, bySpeed1, bySpeed2, sStandtime, sItem, iMagic1, iMagic2, iMagic3, sFireR, sColdR, sLightningR, sMagicR, sDiseaseR, sPoisonR, sBulk, byAttackRange, bySearchRange, byTracingRange, iMoney, byDirectAttack, byMagicAttack&quot;</span>); }</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> Fetch()</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    {</div>
@@ -142,40 +142,39 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;        _dbCommand-&gt;FetchUInt16(i++, pData-&gt;m_byMagicR);</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        _dbCommand-&gt;FetchUInt16(i++, pData-&gt;m_byDiseaseR);</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;        _dbCommand-&gt;FetchUInt16(i++, pData-&gt;m_byPoisonR);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        _dbCommand-&gt;FetchUInt16(i++, pData-&gt;m_byLightR);</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;        _dbCommand-&gt;FetchUInt16(i++, sBulk);</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        _dbCommand-&gt;FetchByte(i++, pData-&gt;m_byAttackRange);</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        _dbCommand-&gt;FetchByte(i++, pData-&gt;m_bySearchRange);</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        _dbCommand-&gt;FetchByte(i++, pData-&gt;m_byTracingRange);</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        _dbCommand-&gt;FetchUInt32(i++, pData-&gt;m_iMoney);</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        _dbCommand-&gt;FetchByte(i++, pData-&gt;m_byDirectAttack);</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        _dbCommand-&gt;FetchByte(i++, pData-&gt;m_byMagicAttack);</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        pData-&gt;m_fBulk =  (float)(((<span class="keywordtype">double</span>)sBulk / 100) * ((double)pData-&gt;m_sSize / 100));</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;            </div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        <span class="keywordflow">if</span> (!m_pMap-&gt;PutData(pData-&gt;m_sSid, pData))</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;            <span class="keyword">delete</span> pData;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    }</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">NpcTableArray</a> *m_pMap;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;};</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
-<div class="line"><a name="l00077"></a><span class="lineno"><a class="code" href="class_c_mon_table_set.html">   77</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_mon_table_set.html">CMonTableSet</a> : <span class="keyword">public</span> <a class="code" href="class_c_npc_table_set.html">CNpcTableSet</a></div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;{</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <a class="code" href="class_c_mon_table_set.html">CMonTableSet</a>(<a class="code" href="class_odbc_connection.html">OdbcConnection</a> * dbConnection, <a class="code" href="class_c_s_t_l_map.html">NpcTableArray</a> * pMap) </div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;        : <a class="code" href="class_c_npc_table_set.html">CNpcTableSet</a>(dbConnection, pMap) </div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    {</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    }</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keyword">virtual</span> tstring GetTableName() { <span class="keywordflow">return</span> _T(<span class="stringliteral">&quot;K_MONSTER&quot;</span>); }</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;};</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        _dbCommand-&gt;FetchUInt16(i++, sBulk);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;        _dbCommand-&gt;FetchByte(i++, pData-&gt;m_byAttackRange);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        _dbCommand-&gt;FetchByte(i++, pData-&gt;m_bySearchRange);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        _dbCommand-&gt;FetchByte(i++, pData-&gt;m_byTracingRange);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        _dbCommand-&gt;FetchUInt32(i++, pData-&gt;m_iMoney);</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        _dbCommand-&gt;FetchByte(i++, pData-&gt;m_byDirectAttack);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        _dbCommand-&gt;FetchByte(i++, pData-&gt;m_byMagicAttack);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        pData-&gt;m_fBulk =  (float)(((<span class="keywordtype">double</span>)sBulk / 100) * ((double)pData-&gt;m_sSize / 100));</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;            </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        <span class="keywordflow">if</span> (!m_pMap-&gt;PutData(pData-&gt;m_sSid, pData))</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;            <span class="keyword">delete</span> pData;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    }</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">NpcTableArray</a> *m_pMap;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;};</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
+<div class="line"><a name="l00076"></a><span class="lineno"><a class="code" href="class_c_mon_table_set.html">   76</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_mon_table_set.html">CMonTableSet</a> : <span class="keyword">public</span> <a class="code" href="class_c_npc_table_set.html">CNpcTableSet</a></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;{</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <a class="code" href="class_c_mon_table_set.html">CMonTableSet</a>(<a class="code" href="class_odbc_connection.html">OdbcConnection</a> * dbConnection, <a class="code" href="class_c_s_t_l_map.html">NpcTableArray</a> * pMap) </div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;        : <a class="code" href="class_c_npc_table_set.html">CNpcTableSet</a>(dbConnection, pMap) </div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    {</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    }</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keyword">virtual</span> tstring GetTableName() { <span class="keywordflow">return</span> _T(<span class="stringliteral">&quot;K_MONSTER&quot;</span>); }</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

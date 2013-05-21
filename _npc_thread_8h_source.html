@@ -88,38 +88,32 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="contents">
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;UINT NpcThreadProc(LPVOID pParam <span class="comment">/* NPC_THREAD_INFO ptr */</span>);</div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;UINT NpcThreadProc(LPVOID pParam <span class="comment">/* CNpcThread ptr */</span>);</div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;UINT ZoneEventThreadProc(LPVOID pParam <span class="comment">/* = NULL */</span>);</div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">class </span><a class="code" href="struct_c_npc.html">CNpc</a>;</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">typedef</span> std::set&lt;CNpc *&gt; NpcSet;</div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div>
-<div class="line"><a name="l00008"></a><span class="lineno"><a class="code" href="struct___n_p_c___t_h_r_e_a_d___i_n_f_o.html">    8</a></span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="struct___n_p_c___t_h_r_e_a_d___i_n_f_o.html">_NPC_THREAD_INFO</a></div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;{</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    <a class="code" href="struct_c_npc.html">CNpc</a>*   pNpc[NPC_NUM];</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    BYTE    m_byNpcUsed[NPC_NUM];</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    HWND    hWndMsg;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;} <a class="code" href="struct___n_p_c___t_h_r_e_a_d___i_n_f_o.html">NPC_THREAD_INFO</a>;</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">class </span><a class="code" href="struct_c_npc.html">CNpc</a>;</div>
+<div class="line"><a name="l00009"></a><span class="lineno"><a class="code" href="class_c_npc_thread.html">    9</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_npc_thread.html">CNpcThread</a>  </div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;{</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <a class="code" href="class_c_npc_thread.html">CNpcThread</a>();</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_c_npc_thread.html">CNpcThread</a>();</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;</div>
-<div class="line"><a name="l00016"></a><span class="lineno"><a class="code" href="class_c_npc_thread.html">   16</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_npc_thread.html">CNpcThread</a>  </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;{</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <a class="code" href="class_c_npc_thread.html">CNpcThread</a>();</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_c_npc_thread.html">CNpcThread</a>();</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keywordtype">void</span> InitThreadInfo(HWND hwnd);</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="struct_c_npc.html">CNpc</a>*   m_pNpc[NPC_NUM];</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <a class="code" href="struct___n_p_c___t_h_r_e_a_d___i_n_f_o.html">NPC_THREAD_INFO</a>     m_ThreadInfo;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    HANDLE          m_hThread;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordtype">short</span> m_sThreadNumber;                  <span class="comment">// thread number ,, test</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;};</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <span class="keywordtype">void</span> InitThreadInfo(HWND hwnd);</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    NpcSet m_pNpcs;</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    HWND    hWndMsg;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    HANDLE          m_hThread;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keywordtype">short</span> m_sThreadNumber;                  <span class="comment">// thread number ,, test</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

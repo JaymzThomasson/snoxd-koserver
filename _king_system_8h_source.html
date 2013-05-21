@@ -90,125 +90,151 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;../shared/Mutex.h&quot;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;set&gt;</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;hash_map&gt;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;map&gt;</span></div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">typedef</span> std::set&lt;uint16&gt; ClanIDSet;</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">typedef</span> stdext::hash_map&lt;std::string, std::string&gt; KingCandidacyNoticeBoardMap; </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">enum</span> ElectionType</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;{</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    ELECTION_TYPE_NO_TERM       = 0,</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    ELECTION_TYPE_NOMINATION    = 1,</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    ELECTION_TYPE_PRE_ELECTION  = 2, <span class="comment">// not sure if this is accurately named</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    ELECTION_TYPE_ELECTION      = 3,</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    ELECTION_TYPE_TERM_STARTED  = 6, <span class="comment">// these two probably aren&#39;t accurately named at all</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    ELECTION_TYPE_TERM_ENDED    = 7,</div>
+<div class="line"><a name="l00007"></a><span class="lineno"><a class="code" href="struct___k_i_n_g___e_l_e_c_t_i_o_n___l_i_s_t.html">    7</a></span>&#160;<span class="keyword">struct </span><a class="code" href="struct___k_i_n_g___e_l_e_c_t_i_o_n___l_i_s_t.html">_KING_ELECTION_LIST</a></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;{</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    uint16 sKnights;</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    uint32 nVotes;</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;};</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div>
+<div class="line"><a name="l00013"></a><span class="lineno"><a class="code" href="structci__compare.html">   13</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structci__compare.html">ci_compare</a></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;{</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="keywordtype">bool</span> operator() (<span class="keyword">const</span> std::string &amp; str1, <span class="keyword">const</span> std::string &amp; str2)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;        <span class="keywordflow">return</span> _stricmp(str1.c_str(), str2.c_str()) &lt; 0;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    }</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;};</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;};</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">enum</span> ImpeachmentType</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;{</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;};</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keyword">class </span><a class="code" href="struct_c_user.html">CUser</a>;</div>
-<div class="line"><a name="l00027"></a><span class="lineno"><a class="code" href="class_c_king_system.html">   27</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_king_system.html">CKingSystem</a></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;{</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <a class="code" href="class_c_king_system.html">CKingSystem</a>();</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">typedef</span> std::set&lt;uint16&gt; ClanIDSet;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keyword">typedef</span> std::map&lt;std::string, std::string, ci_compare&gt; KingCandidacyNoticeBoardMap; </div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">typedef</span> std::map&lt;std::string, _KING_ELECTION_LIST *, ci_compare&gt; KingElectionList; </div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">typedef</span> std::set&lt;std::string, ci_compare&gt; ResignedCandidateList;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">enum</span> ElectionType</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;{</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    ELECTION_TYPE_NO_TERM       = 0,</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    ELECTION_TYPE_NOMINATION    = 1,</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    ELECTION_TYPE_PRE_ELECTION  = 2, <span class="comment">// not sure if this is accurately named</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    ELECTION_TYPE_ELECTION      = 3,</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="comment">// Handles timed events.</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a65755ea73605e49c330c4423964c5c20" title="Handles timed events related to the King system.">CheckKingTimer</a>();</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    ELECTION_TYPE_TERM_STARTED  = 6, <span class="comment">// these two probably aren&#39;t accurately named at all</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    ELECTION_TYPE_TERM_ENDED    = 7,</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="comment">// Updates the election status</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#ae4b38d9e8c0cbe60555b1df385e400c7" title="Updates the election status.">UpdateElectionStatus</a>(uint8 byElectionState);</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="comment">// Checks to see if a special (coin/XP) event should end.</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#abe25bd8c70989db28455989a65edec98" title="Checks to see if a special (coin/XP) event should end.">CheckSpecialEvent</a>();</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;};</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keyword">enum</span> ImpeachmentType</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;{</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;};</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#acb5117b30c5995578b5f7614113985b4" title="Generates a list of the top 10 clan leaders eligible to nominate a King.">LoadRecommendList</a>();</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="comment">// Generates a list of the top 10 clan leaders eligible to nominate a King.</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a7132a047c7d85d388b3aac5d5fe9f509" title="This sends the appropriate resource as a notice to the server (or to a particular user) Beyond initia...">KingNotifyMessage</a>(uint32 nResourceID, <span class="keywordtype">int</span> byNation, ChatType byChatType);</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="comment">// Wrapper to lookup the appropriate King system instance</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a51f2be1e1688172d03b5b810bca7c359" title="Wrapper for the King system&#39;s packet handler.">PacketProcess</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="comment">// The real method to handle packets from the client.</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a26b306842579182ce1e2647847219ebd" title="The real packet handler for the King system.">KingPacketProcess</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="comment">/* Election system */</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#aa4595af6a444298d20413101808284c6" title="Election system.">ElectionSystem</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a2cddec72e1b8f7ac93a816912b253ffa" title="&quot;Check election day&quot; button at the election NPC">ElectionScheduleConfirmation</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a98b99d228c6897a21c1e792506a13fb0" title="Handles King candidacy recommendations by leaders of top 10 clans.">CandidacyRecommend</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#aa5ac433222cd009cd8ca35f30fa2a0b4" title="Candidacy notice board system.">CandidacyNoticeBoard</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">void</span> ElectionPoll(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordtype">void</span> CandidacyResign(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keyword">class </span><a class="code" href="struct_c_user.html">CUser</a>;</div>
+<div class="line"><a name="l00042"></a><span class="lineno"><a class="code" href="class_c_king_system.html">   42</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_king_system.html">CKingSystem</a></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;{</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <a class="code" href="class_c_king_system.html">CKingSystem</a>();</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="comment">// Handles timed events.</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a65755ea73605e49c330c4423964c5c20" title="Handles timed events related to the King system.">CheckKingTimer</a>();</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="comment">// Updates the election status</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#ae4b38d9e8c0cbe60555b1df385e400c7" title="Updates the election status.">UpdateElectionStatus</a>(uint8 byElectionState);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a248477a419bc780a8380a8a6e28f74ad" title="Updates the election list.">UpdateElectionList</a>(uint8 byElectionListType, <span class="keywordtype">bool</span> bDeleteList, uint16 sClanID, std::string &amp; strUserID, <a class="code" href="struct_c_user.html">CUser</a> * pUser = NULL);</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="comment">// Checks to see if a special (coin/XP) event should end.</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#abe25bd8c70989db28455989a65edec98" title="Checks to see if a special (coin/XP) event should end.">CheckSpecialEvent</a>();</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="comment">// Generates a list of the top 10 clan leaders eligible to nominate a King.</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#acb5117b30c5995578b5f7614113985b4" title="Generates a list of the top 10 clan leaders eligible to nominate a King. NOTE: These players are sena...">LoadRecommendList</a>();</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="comment">/* Impeachment system */</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a62073fe05d41576305d76bf413ab7c94" title="Impeachment system.">ImpeachmentSystem</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">void</span> ImpeachmentRequest(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">void</span> ImpeachmentRequestElect(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordtype">void</span> ImpeachmentList(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordtype">void</span> ImpeachmentElect(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">void</span> ImpeachmentRequestUiOpen(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordtype">void</span> ImpeachmentElectionUiOpen(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a6b970993aa388ddb35fc9b406b44bfa8" title="King tax system.">KingTaxSystem</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a289a9fcaad7def5929f874e11c4a6cfa" title="Handles commands accessible to the King.">KingSpecialEvent</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#ab197c050e477c9e966c82674310f1140" title="Handles database requests for the King system.">HandleDatabaseRequest</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a6b5bb15a596034886dc25779797832ab" title="Handles database requests for the election system.">HandleDatabaseRequest_Election</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a5121ff5f3b8da354da30532183403e0f" title="Handles database requests for King commands.">HandleDatabaseRequest_Event</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a7132a047c7d85d388b3aac5d5fe9f509" title="This sends the appropriate resource as a notice to the server (or to a particular user) Beyond initia...">KingNotifyMessage</a>(uint32 nResourceID, <span class="keywordtype">int</span> byNation, ChatType byChatType);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="comment">// Wrapper to lookup the appropriate King system instance</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a51f2be1e1688172d03b5b810bca7c359" title="Wrapper for the King system&#39;s packet handler.">PacketProcess</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="comment">// The real method to handle packets from the client.</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a26b306842579182ce1e2647847219ebd" title="The real packet handler for the King system.">KingPacketProcess</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="comment">/* Election system */</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#aa4595af6a444298d20413101808284c6" title="Election system.">ElectionSystem</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a2cddec72e1b8f7ac93a816912b253ffa" title="&quot;Check election day&quot; button at the election NPC">ElectionScheduleConfirmation</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a98b99d228c6897a21c1e792506a13fb0" title="Handles King candidacy recommendations by leaders of top 10 clans.">CandidacyRecommend</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a76da63fa76fcea1038cecffc5f902a73" title="Inserts the nominated candidate to the election list.">InsertNominee</a>(std::string &amp; strNominee);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#aa5ac433222cd009cd8ca35f30fa2a0b4" title="Candidacy notice board system.">CandidacyNoticeBoard</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#ae6d75354dc808261d9dc0a4e17330e49" title="Election poll.">ElectionPoll</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a66924b8489c245c82bbe232499f6b5a7" title="Handles candidate resignations.">CandidacyResign</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    uint8   m_byNation;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    uint8   m_byType;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    uint16  m_sYear;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    uint8   m_byMonth;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    uint8   m_byDay;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    uint8   m_byHour;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    uint8   m_byMinute;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="comment">/* Impeachment system */</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a62073fe05d41576305d76bf413ab7c94" title="Impeachment system.">ImpeachmentSystem</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordtype">void</span> ImpeachmentRequest(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordtype">void</span> ImpeachmentRequestElect(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">void</span> ImpeachmentList(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordtype">void</span> ImpeachmentElect(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#afda0201d40d4f71a44cbf943ed9c880b" title="Attempt to open the impeachment request UI.">ImpeachmentRequestUiOpen</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#ab2468e55de709dc4c31f77e91a8e462d" title="Attempt to open the impeachment election UI.">ImpeachmentElectionUiOpen</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    uint8   m_byImType;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    uint16  m_sImYear;</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    uint8   m_byImMonth;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    uint8   m_byImDay;</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    uint8   m_byImHour;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    uint8   m_byImMinute;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a6b970993aa388ddb35fc9b406b44bfa8" title="King tax system.">KingTaxSystem</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a289a9fcaad7def5929f874e11c4a6cfa" title="Handles commands accessible to the King.">KingSpecialEvent</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#ab197c050e477c9e966c82674310f1140" title="Handles database requests for the King system.">HandleDatabaseRequest</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a6b5bb15a596034886dc25779797832ab" title="Handles database requests for the election system.">HandleDatabaseRequest_Election</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a5121ff5f3b8da354da30532183403e0f" title="Handles database requests for King commands.">HandleDatabaseRequest_Event</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    uint8   m_byNoahEvent;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    uint8   m_byNoahEvent_Day;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    uint8   m_byNoahEvent_Hour;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    uint8   m_byNoahEvent_Minute;</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    uint16  m_sNoahEvent_Duration;</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    uint8   m_byExpEvent;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    uint8   m_byExpEvent_Day;</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    uint8   m_byExpEvent_Hour;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    uint8   m_byExpEvent_Minute;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    uint16  m_sExpEvent_Duration;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a6202a5b2139cefc7c366ea31bc81c434" title="Resets the election lists.">ResetElectionLists</a>();</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    ~<a class="code" href="class_c_king_system.html">CKingSystem</a>();</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    uint8   m_byNation;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    uint8   m_byType;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    uint16  m_sYear;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    uint8   m_byMonth;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    uint8   m_byDay;</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    uint8   m_byHour;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    uint8   m_byMinute;</div>
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    uint32  m_nTribute;</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    uint8   m_byTerritoryTariff;</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    uint32  m_nTerritoryTax;</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    uint32  m_nNationalTreasury;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    std::string m_strKingName;</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    std::string m_strImRequestID;</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <a class="code" href="class_fast_mutex.html">FastMutex</a> m_lock;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    ClanIDSet m_top10ClanSet;</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    KingCandidacyNoticeBoardMap m_noticeBoardMap;</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="comment">// TO-DO: Give this a more appropriate name.</span></div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="keywordtype">bool</span> m_bSentFirstMessage;</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;};</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    uint8   m_byImType;</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    uint16  m_sImYear;</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    uint8   m_byImMonth;</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    uint8   m_byImDay;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    uint8   m_byImHour;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    uint8   m_byImMinute;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    uint8   m_byNoahEvent;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    uint8   m_byNoahEvent_Day;</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    uint8   m_byNoahEvent_Hour;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    uint8   m_byNoahEvent_Minute;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    uint16  m_sNoahEvent_Duration;</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    uint8   m_byExpEvent;</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    uint8   m_byExpEvent_Day;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    uint8   m_byExpEvent_Hour;</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    uint8   m_byExpEvent_Minute;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    uint16  m_sExpEvent_Duration;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    uint32  m_nTribute;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    uint8   m_byTerritoryTariff;</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    uint32  m_nTerritoryTax;</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    uint32  m_nNationalTreasury;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    std::string m_strKingName;</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    std::string m_strImRequestID;</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <a class="code" href="class_fast_mutex.html">FastMutex</a> m_lock;</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    ClanIDSet m_top10ClanSet;</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;    KingCandidacyNoticeBoardMap m_noticeBoardMap;</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;</div>
+<div class="line"><a name="l00142"></a><span class="lineno"><a class="code" href="class_c_king_system.html#abead17aed054a81cd3d31605c6e0f715">  142</a></span>&#160;    KingElectionList <a class="code" href="class_c_king_system.html#abead17aed054a81cd3d31605c6e0f715" title="List of senators. Senators are the top 10 clan leaders and are able to nominate a King or propose imp...">m_senatorList</a>;</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;</div>
+<div class="line"><a name="l00149"></a><span class="lineno"><a class="code" href="class_c_king_system.html#a01ea8acaa5e1b8b4ffb7da3df607eacd">  149</a></span>&#160;    KingElectionList <a class="code" href="class_c_king_system.html#a01ea8acaa5e1b8b4ffb7da3df607eacd" title="List of candidates still in the running for King. Candidates for election must be senators...">m_candidateList</a>;</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;</div>
+<div class="line"><a name="l00154"></a><span class="lineno"><a class="code" href="class_c_king_system.html#a5269b9cc7b4a1ece77c49492649526ba">  154</a></span>&#160;    ResignedCandidateList <a class="code" href="class_c_king_system.html#a5269b9cc7b4a1ece77c49492649526ba" title="List of resigned candidates.">m_resignedCandidateList</a>;</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    <span class="comment">// TO-DO: Give this a more appropriate name.</span></div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    <span class="keywordtype">bool</span> m_bSentFirstMessage;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

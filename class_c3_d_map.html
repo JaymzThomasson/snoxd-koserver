@@ -113,9 +113,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsValidPosition</b> (
 <tr class="memitem:a321f1d11e05ceb41d6e7a3e51b1d6329"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a321f1d11e05ceb41d6e7a3e51b1d6329"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>GetWarpList</b> (int warpGroup, std::set&lt; <a class="el" href="struct___w_a_r_p___i_n_f_o.html">_WARP_INFO</a> * &gt; &amp;warpEntries)</td></tr>
 <tr class="separator:a321f1d11e05ceb41d6e7a3e51b1d6329"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0db8149c7047c3b51492a1cab790407b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0db8149c7047c3b51492a1cab790407b"></a>
-__forceinline bool&#160;</td><td class="memItemRight" valign="bottom"><b>isAttackZone</b> ()</td></tr>
-<tr class="separator:a0db8149c7047c3b51492a1cab790407b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7bd8a160eeb48fb129d74d2eeb09171f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7bd8a160eeb48fb129d74d2eeb09171f"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isAttackZone</b> ()</td></tr>
+<tr class="separator:a7bd8a160eeb48fb129d74d2eeb09171f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0cf6e753dbb04bed24f7b528cb3f35b7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0cf6e753dbb04bed24f7b528cb3f35b7"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Initialize</b> (<a class="el" href="struct___z_o_n_e___i_n_f_o.html">_ZONE_INFO</a> *pZone)</td></tr>
 <tr class="separator:a0cf6e753dbb04bed24f7b528cb3f35b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -125,12 +125,12 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>Initialize</b> (<a cl
 <tr class="memitem:a7552ce21f74cb2922b3c29f78df9ffc2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7552ce21f74cb2922b3c29f78df9ffc2"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>CheckEvent</b> (float x, float z, <a class="el" href="struct_c_user.html">CUser</a> *pUser=NULL)</td></tr>
 <tr class="separator:a7552ce21f74cb2922b3c29f78df9ffc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a233077105a01cd440c65d5540cb6732a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a233077105a01cd440c65d5540cb6732a"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>RegionItemRemove</b> (uint16 rx, uint16 rz, int bundle_index, int itemid, int count)</td></tr>
-<tr class="separator:a233077105a01cd440c65d5540cb6732a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b01b8c572d597cd83ac0ba6dfe73819"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2b01b8c572d597cd83ac0ba6dfe73819"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>RegionItemAdd</b> (uint16 rx, uint16 rz, <a class="el" href="struct___z_o_n_e___i_t_e_m.html">_ZONE_ITEM</a> *pItem)</td></tr>
-<tr class="separator:a2b01b8c572d597cd83ac0ba6dfe73819"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79c44c20d4797c32f9978a2c4ba70859"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c3_d_map.html#a79c44c20d4797c32f9978a2c4ba70859">RegionItemRemove</a> (<a class="el" href="class_c_region.html">CRegion</a> *pRegion, <a class="el" href="struct___l_o_o_t___b_u_n_d_l_e.html">_LOOT_BUNDLE</a> *pBundle, <a class="el" href="struct___l_o_o_t___i_t_e_m.html">_LOOT_ITEM</a> *pItem)</td></tr>
+<tr class="memdesc:a79c44c20d4797c32f9978a2c4ba70859"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes an item from a region's bundle. If the bundle's empty, the bundle is then removed from the region.  <a href="#a79c44c20d4797c32f9978a2c4ba70859">More...</a><br/></td></tr>
+<tr class="separator:a79c44c20d4797c32f9978a2c4ba70859"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae27bf42c61a0c259dffafaf7d3f570c8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae27bf42c61a0c259dffafaf7d3f570c8"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>RegionItemAdd</b> (uint16 rx, uint16 rz, <a class="el" href="struct___l_o_o_t___b_u_n_d_l_e.html">_LOOT_BUNDLE</a> *pBundle)</td></tr>
+<tr class="separator:ae27bf42c61a0c259dffafaf7d3f570c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a781c4766a3df373d677e6ae8f3dea9f3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a781c4766a3df373d677e6ae8f3dea9f3"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>ObjectCollision</b> (float x1, float z1, float y1, float x2, float z2, float y2)</td></tr>
 <tr class="separator:a781c4766a3df373d677e6ae8f3dea9f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -177,6 +177,49 @@ DWORD&#160;</td><td class="memItemRight" valign="bottom"><b>m_wBundle</b></td></
 <a class="el" href="class_s_m_d_file.html">SMDFile</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>m_smdFile</b></td></tr>
 <tr class="separator:aa184d808f6a08074d76e694cb199f284"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a79c44c20d4797c32f9978a2c4ba70859"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void C3DMap::RegionItemRemove </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_c_region.html">CRegion</a> *&#160;</td>
+          <td class="paramname"><em>pRegion</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct___l_o_o_t___b_u_n_d_l_e.html">_LOOT_BUNDLE</a> *&#160;</td>
+          <td class="paramname"><em>pBundle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="struct___l_o_o_t___i_t_e_m.html">_LOOT_ITEM</a> *&#160;</td>
+          <td class="paramname"><em>pItem</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Removes an item from a region's bundle. If the bundle's empty, the bundle is then removed from the region. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pRegion</td><td>The region. </td></tr>
+    <tr><td class="paramname">pBundle</td><td>The bundle. </td></tr>
+    <tr><td class="paramname">pItem</td><td>The item being removed from the bundle. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>Ebenezer/<a class="el" href="_ebenezer_2_map_8h_source.html">Map.h</a></li>
 <li>Ebenezer/Map.cpp</li>
@@ -184,7 +227,7 @@ DWORD&#160;</td><td class="memItemRight" valign="bottom"><b>m_wBundle</b></td></
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

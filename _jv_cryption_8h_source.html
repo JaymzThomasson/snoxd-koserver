@@ -98,20 +98,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    <a class="code" href="class_c_jv_cryption.html">CJvCryption</a>() : m_public_key(0) {}</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    __forceinline uint64 GetPublicKey() { <span class="keywordflow">return</span> m_public_key; }</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    INLINE uint64 GetPublicKey() { <span class="keywordflow">return</span> m_public_key; }</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    uint64 GenerateKey();</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <span class="keywordtype">void</span> Init();</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keywordtype">void</span> JvEncryptionFast(<span class="keywordtype">int</span> len, uint8 *datain, uint8 *dataout);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    __forceinline <span class="keywordtype">void</span> JvDecryptionFast(<span class="keywordtype">int</span> len, uint8 *datain, uint8 *dataout) { JvEncryptionFast(len, datain, dataout); };</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    INLINE <span class="keywordtype">void</span> JvDecryptionFast(<span class="keywordtype">int</span> len, uint8 *datain, uint8 *dataout) { JvEncryptionFast(len, datain, dataout); };</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    </div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">int</span> JvDecryptionWithCRC32(<span class="keywordtype">int</span> len, uint8 *datain, uint8 *dataout);</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

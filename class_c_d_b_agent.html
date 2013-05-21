@@ -125,6 +125,9 @@ int8&#160;</td><td class="memItemRight" valign="bottom"><b>DeleteChar</b> (std::
 <tr class="memitem:a122f363254f2c533b842205d6938090f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a122f363254f2c533b842205d6938090f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>LoadRentalData</b> (std::string &amp;strAccountID, std::string &amp;strCharID, UserRentalMap &amp;rentalData)</td></tr>
 <tr class="separator:a122f363254f2c533b842205d6938090f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5f45f0e0f4c501afd78dc1c622b092a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab5f45f0e0f4c501afd78dc1c622b092a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>LoadItemSealData</b> (std::string &amp;strAccountID, std::string &amp;strCharID, UserItemSealMap &amp;itemSealData)</td></tr>
+<tr class="separator:ab5f45f0e0f4c501afd78dc1c622b092a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a63ae8b0db92df2eb0c11eb9036890a24"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a63ae8b0db92df2eb0c11eb9036890a24"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>LoadUserData</b> (std::string &amp;strAccountID, std::string &amp;strCharID, <a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
 <tr class="separator:a63ae8b0db92df2eb0c11eb9036890a24"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -140,9 +143,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>LoadSavedMagic</b> (<
 <tr class="memitem:aa5831f95dc6560561da78c47c59edb3e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa5831f95dc6560561da78c47c59edb3e"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>SetLogInInfo</b> (std::string &amp;strAccountID, std::string &amp;strCharID, std::string &amp;strServerIP, short sServerNo, std::string &amp;strClientIP, uint8 bInit)</td></tr>
 <tr class="separator:aa5831f95dc6560561da78c47c59edb3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a69f15f9cba7dce76fdd650d2c0f48602"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a69f15f9cba7dce76fdd650d2c0f48602"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>LoadWebItemMall</b> (<a class="el" href="class_packet.html">Packet</a> &amp;result, <a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
-<tr class="separator:a69f15f9cba7dce76fdd650d2c0f48602"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d911e759a9a619701cc4a4877eadbff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2d911e759a9a619701cc4a4877eadbff"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>LoadWebItemMall</b> (std::vector&lt; <a class="el" href="struct___i_t_e_m___d_a_t_a.html">_ITEM_DATA</a> &gt; &amp;itemList, <a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
+<tr class="separator:a2d911e759a9a619701cc4a4877eadbff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5791a0d6f70ed4abaa18595dd8923dda"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5791a0d6f70ed4abaa18595dd8923dda"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>LoadSkillShortcut</b> (<a class="el" href="class_packet.html">Packet</a> &amp;result, <a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
 <tr class="separator:a5791a0d6f70ed4abaa18595dd8923dda"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -167,6 +170,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateWarehouseData</
 <tr class="memitem:a96cbb5ebbd324ce31366b36d2d47088f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a96cbb5ebbd324ce31366b36d2d47088f"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateSavedMagic</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
 <tr class="separator:a96cbb5ebbd324ce31366b36d2d47088f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacd8f62930a70f10689f882715a2182e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aacd8f62930a70f10689f882715a2182e"></a>
+uint8&#160;</td><td class="memItemRight" valign="bottom"><b>SealItem</b> (std::string strSealPasswd, uint64 nItemSerial, uint32 nItemID, uint8 bSealType, bool doSeal, <a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
+<tr class="separator:aacd8f62930a70f10689f882715a2182e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af6e433a4a8b9ed4a5606d634b0bc9897"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af6e433a4a8b9ed4a5606d634b0bc9897"></a>
 int8&#160;</td><td class="memItemRight" valign="bottom"><b>CreateKnights</b> (uint16 sClanID, uint8 bNation, std::string &amp;strKnightsName, std::string &amp;strChief, uint8 bFlag=1)</td></tr>
 <tr class="separator:af6e433a4a8b9ed4a5606d634b0bc9897"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -384,7 +390,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>CEbenezerDlg</b></td
     <tr><td class="paramname">byType</td><td>Flag to specify what the user's in the election list for (election, impeachment, and thereof). </td></tr>
     <tr><td class="paramname">byNation</td><td>Electoral nation. </td></tr>
     <tr><td class="paramname">sKnights</td><td>The nominee's clan ID. </td></tr>
-    <tr><td class="paramname">nAmount</td><td>Coin amount (not sure, probably impeachment related). </td></tr>
+    <tr><td class="paramname">nAmount</td><td>Vote count. </td></tr>
     <tr><td class="paramname">strNominee</td><td>The nominee's name. </td></tr>
   </table>
   </dd>
@@ -434,7 +440,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>CEbenezerDlg</b></td
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Apr 6 2013 15:23:22 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>
