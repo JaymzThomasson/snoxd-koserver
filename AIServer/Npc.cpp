@@ -864,7 +864,7 @@ BOOL CNpc::SetLive()
 	//else if( m_byChangeType == 3)	{		// 몬스터의 출현,,,
 		//char notify[50];
 		//sprintf_s( notify, sizeof(notify), "** 알림 : %s 몬스터가 출현하였습니다 **", m_proto->m_strName);
-		//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
+		//g_pMain->SendSystemMsg(notify, PUBLIC_CHAT);
 	}
 
 	SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);

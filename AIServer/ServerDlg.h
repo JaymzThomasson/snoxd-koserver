@@ -71,7 +71,7 @@ public:
 	void DeleteUserList(int uid);
 	void DeleteAllUserList(CGameSocket *pSock = NULL);
 	void Send(Packet * pkt);
-	void SendSystemMsg( char* pMsg, int type=0, int who=0 );
+	void SendSystemMsg(char* pMsg, int type=0);
 	void ResetBattleZone();
 
 	void OnTimer(UINT nIDEvent);

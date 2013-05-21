@@ -539,13 +539,6 @@ uint8 CUser::GetHitRate(float rate)
 	return FAIL;
 }
 
-void CUser::SendSystemMsg(char *pMsg, uint8 type, uint16 sWho)
-{
-	Packet result(AG_SYSTEM_MSG, type);
-	result << sWho << m_iUserId << pMsg;
-	g_pMain->Send(&result); 
-}
-
 void CUser::InitNpcAttack()
 {
 	memset(&m_sSurroundNpcNumber, -1, sizeof(m_sSurroundNpcNumber));

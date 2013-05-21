@@ -184,13 +184,6 @@ enum InOutType
 // Users under level 35 require 3,000 coins to shout.
 #define SHOUT_COIN_REQUIREMENT	3000
 
-// Reply packet define...
-
-#define SEND_ME					0x01
-#define SEND_REGION				0x02
-#define SEND_ALL				0x03
-#define SEND_ZONE				0x04
-
 // Battlezone Announcement
 #define BATTLEZONE_OPEN					0x00
 #define BATTLEZONE_CLOSE				0x01           

@@ -862,10 +862,10 @@ void CServerDlg::GetServerInfoIni()
 	inifile.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, sizeof(m_strGamePWD), false);
 }
 
-void CServerDlg::SendSystemMsg( char* pMsg, int type, int who )
+void CServerDlg::SendSystemMsg(char* pMsg, int type)
 {
 	Packet result(AG_SYSTEM_MSG, uint8(type));
-	result << int16(who) << pMsg;
+	result << pMsg;
 	Send(&result);
 }
 

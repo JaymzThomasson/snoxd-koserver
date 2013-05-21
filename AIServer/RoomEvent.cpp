@@ -56,7 +56,7 @@ void CRoomEvent::MainRoom()
 		bRunCheck = RunEvent( event_num );
 		if( bRunCheck )	{
 			//wsprintf(notify, "** 알림 : [%d]방이 클리어 되어습니다. **", m_sRoomNumber);
-			//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
+			//g_pMain->SendSystemMsg(notify, PUBLIC_CHAT);
 			m_byStatus = 3;
 		}
 	}
@@ -152,7 +152,7 @@ BOOL  CRoomEvent::RunEvent( int event_num )
 		}
 
 		//wsprintf(notify, "** 알림 : [%d] 문이 열립니다 **", m_sRoomNumber);
-		//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
+		//g_pMain->SendSystemMsg(notify, PUBLIC_CHAT);
 
 		if( m_byCheck == m_byLogicNumber )	{	// 방이 클리어
 			return TRUE;
@@ -171,7 +171,7 @@ BOOL  CRoomEvent::RunEvent( int event_num )
 		bRetValue = CheckMonsterCount( nOption_1, nOption_2, 2 );
 
 		//wsprintf(notify, "** 알림 : [%d, %d] 몬스터 출현 **", nOption_1, nOption_2);
-		//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
+		//g_pMain->SendSystemMsg(notify, PUBLIC_CHAT);
 
 		if( m_byCheck == m_byLogicNumber )	{	// 방이 클리어
 			return TRUE;
@@ -319,12 +319,12 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 				break;
 			}
 
-			g_pMain->SendSystemMsg(buff, WAR_SYSTEM_CHAT, SEND_ALL);
+			g_pMain->SendSystemMsg(buff, WAR_SYSTEM_CHAT);
 		} break;
 
 		case 2:
 			LoadString(NULL, IDS_KARUS_PATHWAY + (option2-1), buff, sizeof(buff));
-			g_pMain->SendSystemMsg(buff, WAR_SYSTEM_CHAT, SEND_ALL);
+			g_pMain->SendSystemMsg(buff, WAR_SYSTEM_CHAT);
 
 			// this is normal, we need to send the following packet as well.
 

@@ -434,12 +434,12 @@ int MAP::IsRoomCheck(float fx, float fz)
 				room_number = i;
 				TRACE(" Room Check - number = %d, x=%d, z=%d\n", i, nX, nZ);
 				//wsprintf(notify, "** 알림 : [%d Zone][%d] 방에 들어오신것을 환영합니다 **", m_nZoneNumber, pRoom->m_sRoomNumber);
-				//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
+				//g_pMain->SendSystemMsg(notify, PUBLIC_CHAT);
 			}
 			else if( pRoom->m_byStatus == 2 )	{		// 진행중인 상태
 				pRoom->m_byStatus = 3;					// 클리어 상태로
 				//wsprintf(notify, "** 알림 : [%d Zone][%d] 목표지점까지 도착해서 클리어 됩니다ㅇ **", m_nZoneNumber, pRoom->m_sRoomNumber);
-				//g_pMain->SendSystemMsg( notify, PUBLIC_CHAT, SEND_ALL);
+				//g_pMain->SendSystemMsg(notify, PUBLIC_CHAT);
 			}
 
 			return room_number;	

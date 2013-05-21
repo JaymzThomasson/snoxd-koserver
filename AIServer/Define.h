@@ -94,10 +94,6 @@ struct _NpcPosition
 #define NPC_BAND				10000		// Map 위에 NPC(몹포함)가 있다.
 #define INVALID_BAND			30000		// 잘못된 ID BAND
 
-#define SEND_ME					0x01
-#define SEND_REGION				0x02
-#define SEND_ALL				0x03
-#define SEND_ZONE				0x04
 //
 //  Item
 //

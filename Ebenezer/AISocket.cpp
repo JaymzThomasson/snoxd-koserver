@@ -479,18 +479,11 @@ void CAISocket::RecvSystemMsg(Packet & pkt)
 	Packet result;
 	std::string strSysMsg;
 	uint8 bType;
-	uint16 sWho;
 
-	pkt >> bType >> sWho >> strSysMsg;
+	pkt >> bType >> strSysMsg;
 
-	//TRACE("RecvSystemMsg - type=%d, who=%d, len=%d, msg=%s\n", bType, sWho, sLength, strSysMsg);
-	switch (sWho)
-	{
-	case SEND_ALL:
-		ChatPacket::Construct(&result, bType, &strSysMsg);
-		g_pMain->Send_All(&result);
-		break;
-	}
+	ChatPacket::Construct(&result, bType, &strSysMsg);
+	g_pMain->Send_All(&result);
 }
 
 void CAISocket::RecvNpcGiveItem(Packet & pkt)
