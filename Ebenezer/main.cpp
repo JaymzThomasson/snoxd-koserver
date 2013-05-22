@@ -30,7 +30,7 @@ int main()
 
 	// Start up the console input thread
 	StartConsoleInputThread();
-
+	
 	g_pMain = &pMain;
 
 	// Start up server
@@ -44,6 +44,8 @@ int main()
 
 	// Wait until console's signaled as closing
 	s_hEvent.Wait();
+
+	printf("Server shutting down, please wait...\n");
 
 	// This seems redundant, but it's not. 
 	// We still have the destructor for the dialog instance, which allows time for threads to properly cleanup.

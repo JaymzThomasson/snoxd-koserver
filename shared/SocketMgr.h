@@ -25,13 +25,14 @@ public:
 		s_disconnectionQueue.push(pSock);
 	}
 	virtual void DisconnectCallback(Socket *pSock) {}
-
+	virtual void Shutdown();
 	virtual ~SocketMgr();
 
 	static FastMutex SocketMgr::s_disconnectionQueueLock;
 	static std::queue<Socket *> SocketMgr::s_disconnectionQueue;
 
 protected:
+	bool m_bShutdown;
 	HANDLE m_completionPort;
 #ifdef USE_STD_THREAD
 	std::vector<std::thread> m_hThreads;

@@ -33,6 +33,8 @@ int main()
 
 	// Wait until console's signaled as closing
 	s_hEvent.Wait();
+	
+	printf("Server shutting down, please wait...\n");
 
 	return 0;
 }

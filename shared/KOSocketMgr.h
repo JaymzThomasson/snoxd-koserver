@@ -87,6 +87,7 @@ public:
 		return result;
 	}
 
+	void Shutdown();
 	virtual ~KOSocketMgr();
 
 protected:
@@ -171,12 +172,14 @@ void KOSocketMgr<T>::DisconnectCallback(Socket *pSock)
 }
 
 template <class T>
-KOSocketMgr<T>::~KOSocketMgr()
+void KOSocketMgr<T>::Shutdown()
 {
-	SessionMap killMap;
+	if (m_bShutdown)
+		return;
+
 	m_lock.AcquireWriteLock();
 
-	killMap = m_activeSessions; // copy active session map (don't want to break the iterator)
+	auto killMap = m_activeSessions; // copy active session map (don't want to break the iterator)
 	for (auto itr = killMap.begin(); itr != killMap.end(); ++itr)
 		itr->second->Disconnect();
 
@@ -188,4 +191,12 @@ KOSocketMgr<T>::~KOSocketMgr()
 
 	if (m_server != NULL)
 		delete m_server;
+
+	SocketMgr::Shutdown();
+}
+
+template <class T>
+KOSocketMgr<T>::~KOSocketMgr()
+{
+	Shutdown();
 }

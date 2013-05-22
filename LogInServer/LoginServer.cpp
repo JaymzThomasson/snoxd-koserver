@@ -189,4 +189,6 @@ LoginServer::~LoginServer()
 
 	if (m_fp != NULL)
 		fclose(m_fp);
+
+	s_socketMgr.Shutdown();
 }

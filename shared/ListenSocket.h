@@ -64,6 +64,7 @@ public:
 			return false;
 
 		m_hThread = std::thread(ListenSocketThread<T>, this);
+		m_hThread.detach();
 		return true;
 #else
 		if (m_hThread != NULL)
@@ -146,7 +147,7 @@ public:
 
 #ifdef USE_STD_THREAD
 		if (m_hThread.joinable())
-			m_hThread.join();
+			m_hThread.join(); 
 #else
 		WaitForSingleObject(m_hThread, INFINITE);
 #endif

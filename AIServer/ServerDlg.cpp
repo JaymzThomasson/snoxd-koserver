@@ -937,4 +937,6 @@ CServerDlg::~CServerDlg()
 
 	DeleteCriticalSection( &g_region_critical );
 	DeleteCriticalSection( &g_User_critical );
+
+	s_socketMgr.Shutdown();
 }

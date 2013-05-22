@@ -1721,6 +1721,9 @@ CEbenezerDlg::~CEbenezerDlg()
 
 	KickOutAllUsers();
 
+	g_aiSocketMgr.Shutdown();
+	g_socketMgr.Shutdown();
+
 	// Cleanup our script pool & consequently ensure all scripts 
 	// finish execution before proceeding.
 	// This prevents us from freeing data that's in use.

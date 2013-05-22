@@ -68,7 +68,7 @@ std::thread SocketMgr::s_hCleanupThread;
 HANDLE SocketMgr::s_hCleanupThread = NULL; 
 #endif
 
-SocketMgr::SocketMgr() : m_threadCount(0), m_completionPort(NULL)
+SocketMgr::SocketMgr() : m_threadCount(0), m_completionPort(NULL), m_bShutdown(false)
 {
 	IncRef();
 }
@@ -159,8 +159,11 @@ void SocketMgr::ShutdownThreads()
 	}
 }
 
-SocketMgr::~SocketMgr()
+void SocketMgr::Shutdown()
 {
+	if (m_bShutdown)
+		return;
+
 	ShutdownThreads();
 
 #ifdef USE_STD_THREAD
@@ -172,6 +175,12 @@ SocketMgr::~SocketMgr()
 #endif
 
 	DecRef();
+	m_bShutdown = true;
+}
+
+SocketMgr::~SocketMgr()
+{
+	Shutdown();
 }
 
 void SocketMgr::CleanupWinsock()
@@ -189,5 +198,6 @@ void SocketMgr::CleanupWinsock()
 		s_hCleanupThread = NULL;
 	}
 #endif
+
 	WSACleanup();
 }
