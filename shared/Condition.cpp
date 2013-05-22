@@ -96,15 +96,8 @@ uint32 Condition::Wait(time_t timeout)
 uint32 Condition::Wait()
 {
 #ifdef USE_STD_CONDITION_VARIABLE
-	try
-	{
-		std::unique_lock<std::mutex> lock(m_lock);
-		m_condition.wait(lock);
-	}
-	catch (std::exception & ex)
-	{
-		printf("exception: %s\n", ex.what());
-	}
+	std::unique_lock<std::mutex> lock(m_lock);
+	m_condition.wait(lock);
 	return 0;
 #else
 	DWORD dwMillisecondsTimeout = INFINITE;
@@ -270,12 +263,14 @@ bool Condition::LockHeldByCallingThread()
 	if (!m_lock.AttemptAcquire())
 		return false;
 
+#if 0
 	// If we got the lock, but the lock count is zero, then nobody had it.
 	if (0 == m_nLockCount)
 	{
 		m_lock.Release();
 		return false;
 	}
+#endif
 
 	// Release lock once. NOTE: we still have it after this release.
 	// Win32 allows no error checking here.
