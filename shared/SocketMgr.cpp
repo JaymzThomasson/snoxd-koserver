@@ -52,7 +52,7 @@ unsigned int __stdcall SocketCleanupThread(void * lpParam)
 			SocketMgr::s_disconnectionQueue.pop();
 		}
 		SocketMgr::s_disconnectionQueueLock.Release();
-		Sleep(100);
+		sleep(100);
 	}
 
 	return 0;

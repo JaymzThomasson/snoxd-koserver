@@ -119,7 +119,7 @@ UINT NpcThreadProc(LPVOID pParam /* CNpcThread ptr */)
 				pNpc->m_Delay = tDelay;
 		}	
 
-		Sleep(100);
+		sleep(100);
 	}
 
 	return 0;
@@ -152,7 +152,7 @@ UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */)
 				pRoom->MainRoom();
 			}
 		}
-		Sleep(1000);	// 1초당 한번
+		sleep(1000);	// 1초당 한번
 	}
 
 	return 0;

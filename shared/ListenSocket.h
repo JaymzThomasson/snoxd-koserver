@@ -110,7 +110,7 @@ public:
 			SOCKET aSocket = WSAAccept(m_socket, (sockaddr*)&m_tempAddress, (socklen_t*)&len, NULL, NULL);
 			if (aSocket == INVALID_SOCKET)
 			{
-				//Sleep(10); // Don't kill the CPU!
+				//sleep(10); // Don't kill the CPU!
 				continue;
 			}
 

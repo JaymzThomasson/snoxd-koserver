@@ -1563,7 +1563,7 @@ int CEbenezerDlg::KickOutAllUsers()
 		if (bIngame)
 		{
 			count++;
-			Sleep(50);
+			sleep(50);
 		}
 	}
 	g_socketMgr.ReleaseLock();

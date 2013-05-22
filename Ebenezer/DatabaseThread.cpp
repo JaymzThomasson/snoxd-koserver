@@ -862,7 +862,7 @@ void DatabaseThread::Shutdown()
 		for (DWORD i = 0; i < s_dwThreads; i++)
 		{
 			SetEvent(s_hEvent); 
-			Sleep(10);
+			sleep(10);
 		}
 
 #ifdef USE_STD_THREAD

@@ -54,6 +54,6 @@ int main()
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType)
 {
 	PostThreadMessage(s_dwMainThreadID, WM_QUIT, 0, 0);
-	Sleep(10000); // Win7 onwards allows 10 seconds before it'll forcibly terminate
+	sleep(10000); // Win7 onwards allows 10 seconds before it'll forcibly terminate
 	return true;
 }

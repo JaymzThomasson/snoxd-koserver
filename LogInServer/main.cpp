@@ -36,6 +36,6 @@ int main()
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType)
 {
 	SetEvent(s_hEvent);
-	Sleep(10000); // Win7 onwards allows 10 seconds before it'll forcibly terminate
+	sleep(10000); // Win7 onwards allows 10 seconds before it'll forcibly terminate
 	return TRUE;
 }

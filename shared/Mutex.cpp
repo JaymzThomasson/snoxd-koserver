@@ -22,7 +22,7 @@ void FastMutex::Acquire()
 		if(owner == 0)
 			break;
 
-		Sleep(0);
+		sleep(0);
 	}
 
 	++m_recursiveCount;

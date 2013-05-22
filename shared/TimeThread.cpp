@@ -35,7 +35,7 @@ DWORD WINAPI TimeThread(LPVOID lpParam)
 			g_localTime = *localtime(&t);
 		}
 
-		Sleep(1000);	// might need to run it twice a second 
+		sleep(1000);	// might need to run it twice a second 
 						// to be sure it does in fact update somewhat accurately.. depends on the use cases.
 	}
 
