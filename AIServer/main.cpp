@@ -1,8 +1,5 @@
 #include "stdafx.h"
 
-#define STR(str) #str
-#define STRINGIFY(str) STR(str)
-
 CServerDlg * g_pMain;
 
 #ifdef WIN32

@@ -1,8 +1,5 @@
 #include "stdafx.h"
 
-#define STR(str) #str
-#define STRINGIFY(str) STR(str)
-
 LoginServer * g_pMain;
 static HANDLE s_hEvent;
 
