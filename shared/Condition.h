@@ -2,11 +2,12 @@
 
 #ifdef USE_STD_CONDITION_VARIABLE
 #	include <condition_variable>
+#else
+#	include "Mutex.h"
 #endif
 
 #include <deque>
 
-class Mutex;
 class Condition
 {
 public:

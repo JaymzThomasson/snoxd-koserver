@@ -43,13 +43,17 @@ int main()
 	// We still have the destructor for the dialog instance, which allows time for threads to properly cleanup.
 	g_bRunning = false;
 
+	CleanupTimeThread();
+
 	return 0;
 }
 
 #ifdef WIN32
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType)
 {
+	s_hEvent.BeginSynchronized();
 	s_hEvent.Signal();
+	s_hEvent.EndSynchronized();
 	sleep(10000); // Win7 onwards allows 10 seconds before it'll forcibly terminate
 	return TRUE;
 }

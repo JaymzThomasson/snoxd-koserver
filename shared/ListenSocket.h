@@ -70,7 +70,7 @@ public:
 			return false;
 
 		DWORD id;
-		m_hThread = CreateThread(NULL, 0, ListenSocketThread<T>, this, NULL, &id);
+		m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&ListenSocketThread<T>, this, NULL, &id);
 		return m_hThread != NULL;
 #endif
 	}
@@ -141,6 +141,15 @@ public:
 			shutdown(m_socket, SD_BOTH);
 			closesocket(m_socket);
 		}
+
+		m_threadRunning = false;
+
+#ifdef USE_STD_THREAD
+		if (m_hThread.joinable())
+			m_hThread.join();
+#else
+		WaitForSingleObject(m_hThread, INFINITE);
+#endif
 	}
 
 	INLINE bool IsOpen() { return m_opened; }

@@ -18,6 +18,14 @@ void StartConsoleInputThread()
 #endif
 }
 
+void CleanupConsoleInputThread()
+{
+#ifdef USE_STD_THREAD
+	s_hConsoleInputThread.join();
+#else
+	WaitForSingleObject(s_hConsoleInputThread, INFINITE);
+#endif
+}
 unsigned int __stdcall ConsoleInputThread(void * lpParam)
 {
 	size_t i = 0;
@@ -43,10 +51,6 @@ unsigned int __stdcall ConsoleInputThread(void * lpParam)
 
 		g_pMain->HandleConsoleCommand(cmd);
 	}
-
-#ifndef USE_STD_THREAD
-	CloseHandle(s_hConsoleInputThread);
-#endif
 
 	return 0;
 }

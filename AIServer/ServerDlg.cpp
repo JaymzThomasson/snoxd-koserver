@@ -73,6 +73,7 @@ bool CServerDlg::Startup()
 #ifdef USE_STD_THREAD
 	g_hTimerThreads.push_back(std::thread(Timer_CheckAliveTest, (void *)NULL));
 #else
+	DWORD dwThreadId;
 	g_hTimerThreads.push_back(CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Timer_CheckAliveTest, NULL, NULL, &dwThreadId));
 #endif
 
@@ -916,10 +917,7 @@ CServerDlg::~CServerDlg()
 	WaitForSingleObject(m_hZoneEventThread, INFINITE);
 
 	foreach (itr, g_hTimerThreads)
-	{
 		WaitForSingleObject(*itr, INFINITE);
-		CloseHandle(*itr);
-	}
 #endif
 
 	// NpcThread Array Delete

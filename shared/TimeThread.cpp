@@ -20,7 +20,16 @@ void StartTimeThread()
 	s_hTimeThread = std::thread(TimeThread, static_cast<void *>(NULL));
 #else
 	DWORD dwThreadId;
-	s_hTimeThread = CreateThread(NULL, NULL, &TimeThread, NULL, NULL, &dwThreadId);
+	s_hTimeThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&TimeThread, NULL, NULL, &dwThreadId);
+#endif
+}
+
+void CleanupTimeThread()
+{
+#ifdef USE_STD_THREAD
+	s_hTimeThread.join();
+#else
+	WaitForSingleObject(s_hTimeThread, INFINITE);
 #endif
 }
 
@@ -38,10 +47,6 @@ uint32 __stdcall TimeThread(void * lpParam)
 		sleep(1000);	// might need to run it twice a second 
 						// to be sure it does in fact update somewhat accurately.. depends on the use cases.
 	}
-
-#ifndef USE_STD_THREAD
-	CloseHandle(s_hTimeThread);
-#endif
 
 	return 0;
 }

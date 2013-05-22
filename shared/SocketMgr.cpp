@@ -168,7 +168,7 @@ SocketMgr::~SocketMgr()
 		(*itr).join();
 #else
 	foreach (itr, m_hThreads)
-		CloseHandle(*itr);
+		WaitForSingleObject(*itr, INFINITE);
 #endif
 
 	DecRef();

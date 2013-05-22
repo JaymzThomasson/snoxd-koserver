@@ -40,7 +40,9 @@ int main()
 #ifdef WIN32
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType)
 {
+	s_hEvent.BeginSynchronized();
 	s_hEvent.Signal();
+	s_hEvent.EndSynchronized();
 	sleep(10000); // Win7 onwards allows 10 seconds before it'll forcibly terminate
 	return TRUE;
 }

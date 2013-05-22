@@ -50,7 +50,7 @@ uint32 Condition::Wait(time_t timeout)
 	// Win32 allows no error checking here.
 	for( int i=0; i<nThisThreadsLockCount; ++i)
 	{
-		m_externalMutex->Release();
+		m_lock.Release();
 	}
 
 	// NOTE: Conceptually, releasing the lock and entering the wait
@@ -76,7 +76,7 @@ uint32 Condition::Wait(time_t timeout)
 	// Win32 allows no error checking here.
 	for( int j=0; j<nThisThreadsLockCount; ++j)
 	{
-		m_externalMutex->Acquire();
+		m_lock.Acquire();
 	}
 
 	// Restore lock count.
@@ -96,8 +96,15 @@ uint32 Condition::Wait(time_t timeout)
 uint32 Condition::Wait()
 {
 #ifdef USE_STD_CONDITION_VARIABLE
-	std::unique_lock<std::mutex> lock(m_lock);
-	m_condition.wait(lock);
+	try
+	{
+		std::unique_lock<std::mutex> lock(m_lock);
+		m_condition.wait(lock);
+	}
+	catch (std::exception & ex)
+	{
+		printf("exception: %s\n", ex.what());
+	}
 	return 0;
 #else
 	DWORD dwMillisecondsTimeout = INFINITE;
@@ -117,7 +124,7 @@ uint32 Condition::Wait()
 	// Win32 allows no error checking here.
 	for( int i=0; i<nThisThreadsLockCount; ++i)
 	{
-		m_externalMutex->Release();
+		m_lock.Release();
 	}
 
 	// NOTE: Conceptually, releasing the lock and entering the wait
@@ -147,7 +154,7 @@ uint32 Condition::Wait()
 	// Win32 allows no error checking here.
 	for( int j=0; j<nThisThreadsLockCount; ++j)
 	{
-		m_externalMutex->Acquire();
+		m_lock.Acquire();
 	}
 
 	// Restore lock count.

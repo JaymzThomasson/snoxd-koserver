@@ -866,10 +866,7 @@ void DatabaseThread::Shutdown()
 			(*itr).join();
 #else
 		foreach (itr, s_hThreads)
-		{
 			WaitForSingleObject(*itr, INFINITE);
-			CloseHandle(*itr);
-		}
 #endif
 
 		s_hThreads.clear();

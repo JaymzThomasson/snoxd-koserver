@@ -232,6 +232,7 @@ void CEbenezerDlg::GetTimeFromIni()
 	g_hTimerThreads.push_back(std::thread(&CEbenezerDlg::Timer_UpdateGameTime, (void *)NULL));
 	g_hTimerThreads.push_back(std::thread(&CEbenezerDlg::Timer_CheckAliveUser, (void *)NULL));
 #else
+	DWORD dwThreadId;
 	g_hTimerThreads.push_back(CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Timer_UpdateGameTime, NULL, NULL, &dwThreadId));
 	g_hTimerThreads.push_back(CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Timer_CheckAliveUser, NULL, NULL, &dwThreadId));
 #endif
@@ -1715,10 +1716,7 @@ CEbenezerDlg::~CEbenezerDlg()
 		(*itr).join();
 #else
 	foreach (itr, g_hTimerThreads)
-	{
 		WaitForSingleObject(*itr, INFINITE);
-		CloseHandle(*itr);
-	}
 #endif
 
 	KickOutAllUsers();
