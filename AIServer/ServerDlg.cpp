@@ -33,7 +33,11 @@ CRITICAL_SECTION g_User_critical, g_region_critical;
 
 KOSocketMgr<CGameSocket> CServerDlg::s_socketMgr;
 
-static DWORD s_dwCheckAliveID;
+#ifdef USE_STD_THREAD
+std::vector<std::thread> g_hTimerThreads;
+#else
+std::vector<HANDLE> g_hTimerThreads;
+#endif
 
 CServerDlg::CServerDlg()
 {
@@ -59,19 +63,18 @@ CServerDlg::CServerDlg()
 	memset(m_strGamePWD, 0, sizeof(m_strGamePWD));
 }
 
-void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
-{
-	g_pMain->OnTimer(idEvent);
-}
-
 bool CServerDlg::Startup()
 {
 	//----------------------------------------------------------------------
 	//	Sets a random number starting point.
 	//----------------------------------------------------------------------
-	s_dwCheckAliveID = SetTimer(NULL, 1, 10000, &TimerProc);
-
 	srand( (unsigned)time(NULL) );
+
+#ifdef USE_STD_THREAD
+	g_hTimerThreads.push_back(std::thread(Timer_CheckAliveTest, (void *)NULL));
+#else
+	g_hTimerThreads.push_back(CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Timer_CheckAliveTest, NULL, NULL, &dwThreadId));
+#endif
 
 	InitializeCriticalSection( &g_region_critical );
 	InitializeCriticalSection( &g_User_critical );
@@ -596,10 +599,14 @@ CUser* CServerDlg::GetUserPtr(int nid)
 	return NULL;
 }
 
-void CServerDlg::OnTimer(UINT nIDEvent) 
+uint32 CServerDlg::Timer_CheckAliveTest(void * lpParam)
 {
-	if (nIDEvent == s_dwCheckAliveID)
-		CheckAliveTest();
+	while (g_bRunning)
+	{
+		g_pMain->CheckAliveTest();
+		sleep(10000);
+	}
+	return 0;
 }
 
 void CServerDlg::CheckAliveTest()
@@ -892,8 +899,6 @@ void CServerDlg::ResetBattleZone()
 
 CServerDlg::~CServerDlg() 
 {
-	KillTimer(NULL, s_dwCheckAliveID);
-
 	g_bNpcExit = true;
 
 #ifdef USE_STD_THREAD
@@ -901,11 +906,20 @@ CServerDlg::~CServerDlg()
 		(*itr)->m_hThread.join();
 
 	m_hZoneEventThread.join();
+
+	foreach (itr, g_hTimerThreads)
+		(*itr).join();
 #else
 	foreach (itr, m_arNpcThread)
 		WaitForSingleObject((*itr)->m_hThread, INFINITE);
 
 	WaitForSingleObject(m_hZoneEventThread, INFINITE);
+
+	foreach (itr, g_hTimerThreads)
+	{
+		WaitForSingleObject(*itr, INFINITE);
+		CloseHandle(*itr);
+	}
 #endif
 
 	// NpcThread Array Delete

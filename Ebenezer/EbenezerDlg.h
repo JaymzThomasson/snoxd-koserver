@@ -58,7 +58,8 @@ public:
 
 	void AIServerConnect();
 
-	void OnTimer(UINT nIDEvent);
+	static uint32 __stdcall Timer_UpdateGameTime(void * lpParam);
+	static uint32 __stdcall Timer_CheckAliveUser(void * lpParam);
 
 	void SendFlyingSantaOrAngel();
 	void BattleZoneCurrentUsers();

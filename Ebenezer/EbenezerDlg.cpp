@@ -26,14 +26,13 @@ CRITICAL_SECTION g_serial_critical, g_region_critical;
 KOSocketMgr<CUser> g_socketMgr;
 ClientSocketMgr<CAISocket> g_aiSocketMgr;
 
+#ifdef USE_STD_THREAD
+std::vector<std::thread> g_hTimerThreads;
+#else
+std::vector<HANDLE> g_hTimerThreads;
+#endif
+
 WORD	g_increase_serial = 1;
-
-static DWORD s_dwGameTimerID, s_dwAliveTimerID;
-
-void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
-{
-	g_pMain->OnTimer(idEvent);
-}
 
 CEbenezerDlg::CEbenezerDlg()
 {
@@ -229,8 +228,13 @@ void CEbenezerDlg::GetTimeFromIni()
 
 	ini.GetString("AI_SERVER", "IP", "127.0.0.1", m_AIServerIP, sizeof(m_AIServerIP));
 
-	s_dwGameTimerID = SetTimer(NULL, 1, 6000, &TimerProc);
-	s_dwAliveTimerID = SetTimer(NULL, 2, 34000, &TimerProc);
+#ifdef USE_STD_THREAD
+	g_hTimerThreads.push_back(std::thread(&CEbenezerDlg::Timer_UpdateGameTime, (void *)NULL));
+	g_hTimerThreads.push_back(std::thread(&CEbenezerDlg::Timer_CheckAliveUser, (void *)NULL));
+#else
+	g_hTimerThreads.push_back(CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Timer_UpdateGameTime, NULL, NULL, &dwThreadId));
+	g_hTimerThreads.push_back(CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Timer_CheckAliveUser, NULL, NULL, &dwThreadId));
+#endif
 }
 
 /**
@@ -429,18 +433,26 @@ void CEbenezerDlg::DeleteParty(short sIndex)
 	LeaveCriticalSection(&g_region_critical);
 }
 
-void CEbenezerDlg::OnTimer(UINT nIDEvent) 
+uint32 CEbenezerDlg::Timer_UpdateGameTime(void * lpParam)
 {
-	if (nIDEvent == s_dwGameTimerID)
+	while (g_bRunning)
 	{
-		UpdateGameTime();
-		if (++m_sErrorSocketCount > 3)
-			AIServerConnect();
+		g_pMain->UpdateGameTime();
+		if (++g_pMain->m_sErrorSocketCount > 3)
+			g_pMain->AIServerConnect();
+		sleep(6000);
 	}
-	else if (nIDEvent == s_dwAliveTimerID)
+	return 0;
+}
+
+uint32 CEbenezerDlg::Timer_CheckAliveUser(void * lpParam)
+{
+	while (g_bRunning)
 	{
-		CheckAliveUser();
+		g_pMain->CheckAliveUser();
+		sleep(30000);
 	}
+	return 0;
 }
 
 int CEbenezerDlg::GetAIServerPort()
@@ -1698,8 +1710,16 @@ void CEbenezerDlg::SendFlyingSantaOrAngel()
 
 CEbenezerDlg::~CEbenezerDlg() 
 {
-	KillTimer(NULL, s_dwGameTimerID);
-	KillTimer(NULL, s_dwAliveTimerID);
+#ifdef USE_STD_THREAD
+	foreach (itr, g_hTimerThreads)
+		(*itr).join();
+#else
+	foreach (itr, g_hTimerThreads)
+	{
+		WaitForSingleObject(*itr, INFINITE);
+		CloseHandle(*itr);
+	}
+#endif
 
 	KickOutAllUsers();
 
