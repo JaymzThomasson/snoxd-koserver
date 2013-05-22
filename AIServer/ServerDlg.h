@@ -123,6 +123,8 @@ public:
 	uint8 m_iWeather;
 	uint8	m_byNight;			// ¹ãÀÎÁö,, ³·ÀÎÁö¸¦ ÆÇ´Ü... 1:³·, 2:¹ã
 
+	FastMutex m_userLock, m_partyLock;
+
 	static KOSocketMgr<CGameSocket> s_socketMgr;
 
 private:

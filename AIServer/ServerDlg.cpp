@@ -29,8 +29,6 @@ using namespace std;
 bool g_bNpcExit	= false;
 ZoneArray			g_arZone;
 
-CRITICAL_SECTION g_User_critical, g_region_critical;
-
 KOSocketMgr<CGameSocket> CServerDlg::s_socketMgr;
 
 #ifdef USE_STD_THREAD
@@ -77,8 +75,6 @@ bool CServerDlg::Startup()
 	g_hTimerThreads.push_back(CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Timer_CheckAliveTest, NULL, NULL, &dwThreadId));
 #endif
 
-	InitializeCriticalSection( &g_region_critical );
-	InitializeCriticalSection( &g_User_critical );
 	m_sMapEventNpc = 0;
 	m_bFirstServerFlag = false;			
 
@@ -484,12 +480,10 @@ void CServerDlg::DeleteUserList(int uid)
 		return;
 	}
 
-	EnterCriticalSection( &g_User_critical );
+	FastGuard lock(m_userLock);
 
-	CUser* pUser = NULL;
-	pUser = m_pUser[uid];
+	CUser* pUser = m_pUser[uid];
 	if( !pUser )	{
-		LeaveCriticalSection( &g_User_critical );
 		TRACE("#### ServerDlg:DeleteUserList UserPtr Fail : uid=%d\n", uid);
 		return;
 	}
@@ -502,8 +496,6 @@ void CServerDlg::DeleteUserList(int uid)
 	}
 	else
 		TRACE("#### ServerDlg:DeleteUserList Not Uid Fail : uid=%d\n", uid);
-
-	LeaveCriticalSection( &g_User_critical );
 }
 
 bool CServerDlg::MapFileLoad()
@@ -655,7 +647,7 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 		}
 	}
 
-	EnterCriticalSection( &g_User_critical );
+	FastGuard lock(m_userLock);
 	for (int i = 0; i < MAX_USER; i++)	
 	{
 		CUser *pUser = m_pUser[i];
@@ -665,9 +657,9 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 		delete m_pUser[i];
 		m_pUser[i] = NULL;
 	}
-	LeaveCriticalSection( &g_User_critical );
 
 	// Party Array Delete 
+	FastGuard lock2(m_partyLock);
 	m_arParty.DeleteAllData();
 
 	m_bFirstServerFlag = false;
@@ -791,7 +783,7 @@ bool CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 
 void CServerDlg::RegionCheck()
 {
-	EnterCriticalSection( &g_User_critical );
+	FastGuard lock(m_userLock);
 	foreach_stlmap(itr, g_arZone)	
 	{
 		MAP *pMap = itr->second;
@@ -802,7 +794,6 @@ void CServerDlg::RegionCheck()
 			for (int j = 0; j <= pMap->GetZRegionMax(); j++)
 				pMap->m_ppRegion[i][j].m_byMoving = (pMap->m_ppRegion[i][j].m_RegionUserArray.GetSize() > 0 ? 1 : 0);
 	}
-	LeaveCriticalSection( &g_User_critical );
 }
 
 bool CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
@@ -934,9 +925,5 @@ CServerDlg::~CServerDlg()
 	}
 
 	m_ZoneNpcList.clear();
-
-	DeleteCriticalSection( &g_region_critical );
-	DeleteCriticalSection( &g_User_critical );
-
 	s_socketMgr.Shutdown();
 }

@@ -3,8 +3,6 @@
 #include "resource.h"
 #include "Npc.h"
 
-extern CRITICAL_SECTION g_region_critical;
-
 CRoomEvent::CRoomEvent()
 {
 	m_iZoneNumber = 0;
@@ -203,19 +201,16 @@ CNpc* CRoomEvent::GetNpcPtr( int sid )
 {
 	int count = 0;
 	
-	EnterCriticalSection( &g_region_critical );
 	int nMonster = m_mapRoomNpcArray.GetSize();
 	if( nMonster == 0 )	{
 		TRACE("### RoomEvent-GetNpcPtr() : monster empty ###\n");
-		LeaveCriticalSection( &g_region_critical );
 		return NULL;
 	}
 
+	FastGuard lock(m_mapRoomNpcArray.m_lock);
 	int *pIDList = new int[nMonster];
 	foreach_stlmap (itr, m_mapRoomNpcArray)
 		pIDList[count++] = *itr->second;
-
-	LeaveCriticalSection( &g_region_critical );
 
 	for(int i=0 ; i<nMonster; i++ ) {
 		int nMonsterid = pIDList[i];
@@ -242,20 +237,17 @@ bool  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
 	int nMonsterCount = 0, nTotalMonster = 0;
 	bool bRetValue = false;
 	
-	EnterCriticalSection( &g_region_critical );
-
 	int nMonster = m_mapRoomNpcArray.GetSize();
 	if( nMonster == 0 )	{
 		TRACE("### RoomEvent-GetNpcPtr() : monster empty ###\n");
-		LeaveCriticalSection( &g_region_critical );
 		return NULL;
 	}
 	
+	m_mapRoomNpcArray.m_lock.Acquire();
 	int *pIDList = new int[nMonster];
 	foreach_stlmap (itr, m_mapRoomNpcArray)
 		pIDList[nTotalMonster++] = *itr->second;
-
-	LeaveCriticalSection( &g_region_critical );
+	m_mapRoomNpcArray.m_lock.Release();
 
 	for(int i=0 ; i<nMonster; i++ ) {
 		CNpc *pNpc = g_pMain->m_arNpc.GetData(pIDList[i]);

@@ -35,8 +35,6 @@ inline int ParseSpace( char* tBuf, char* sBuf)
 
 using namespace std;
 
-extern CRITICAL_SECTION g_region_critical;
-
 /* passthru methods */
 int MAP::GetMapSize() { return m_smdFile->GetMapSize(); }
 float MAP::GetUnitDistance() { return m_smdFile->GetUnitDistance(); }
@@ -147,16 +145,11 @@ void MAP::RegionUserAdd(int rx, int rz, int uid)
 	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
 		return;
 
-	int *pInt = NULL;
-
-	EnterCriticalSection( &g_region_critical );
-
-	pInt = new int;
+	FastGuard lock(m_lock);
+	int *pInt = new int;
 	*pInt = uid;
 	if (!m_ppRegion[rx][rz].m_RegionUserArray.PutData(uid, pInt))
 		delete pInt;
-
-	LeaveCriticalSection( &g_region_critical );
 }
 
 bool MAP::RegionUserRemove(int rx, int rz, int uid)
@@ -164,16 +157,8 @@ bool MAP::RegionUserRemove(int rx, int rz, int uid)
 	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
 		return false;
 
-	CRegion	*region = NULL;
-	map < int, int* >::iterator		Iter;
-	
-	EnterCriticalSection( &g_region_critical );
-	
-	region = &m_ppRegion[rx][rz];
-	region->m_RegionUserArray.DeleteData( uid );
-
-	LeaveCriticalSection( &g_region_critical );
-
+	FastGuard lock(m_lock);
+	m_ppRegion[rx][rz].m_RegionUserArray.DeleteData( uid );
 	return true;
 }
 
@@ -182,16 +167,11 @@ void MAP::RegionNpcAdd(int rx, int rz, int nid)
 	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
 		return;
 
-	int *pInt = NULL;
-	
-	EnterCriticalSection( &g_region_critical );
-
-	pInt = new int;
+	FastGuard lock(m_lock);
+	int *pInt = new int;
 	*pInt = nid;
 	if (!m_ppRegion[rx][rz].m_RegionNpcArray.PutData(nid, pInt))
 		delete pInt;
-
-	LeaveCriticalSection( &g_region_critical );
 }
 
 bool MAP::RegionNpcRemove(int rx, int rz, int nid)
@@ -199,16 +179,8 @@ bool MAP::RegionNpcRemove(int rx, int rz, int nid)
 	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
 		return false;
 
-	CRegion	*region = NULL;
-	map < int, int* >::iterator		Iter;
-	
-	EnterCriticalSection( &g_region_critical );
-
-	region = &m_ppRegion[rx][rz];
-	region->m_RegionNpcArray.DeleteData( nid );
-
-	LeaveCriticalSection( &g_region_critical );
-
+	FastGuard lock(m_lock);
+	m_ppRegion[rx][rz].m_RegionNpcArray.DeleteData( nid );
 	return true;
 }
 
@@ -217,13 +189,8 @@ int  MAP::GetRegionUserSize(int rx, int rz)
 	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
 		return 0;
 
-	EnterCriticalSection( &g_region_critical );
-	CRegion	*region = NULL;
-	region = &m_ppRegion[rx][rz];
-	int nRet = region->m_RegionUserArray.GetSize();
-	LeaveCriticalSection( &g_region_critical );
-
-	return nRet;
+	FastGuard lock(m_lock);
+	return m_ppRegion[rx][rz].m_RegionUserArray.GetSize();
 }
 
 int  MAP::GetRegionNpcSize(int rx, int rz)
@@ -231,13 +198,8 @@ int  MAP::GetRegionNpcSize(int rx, int rz)
 	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
 		return 0;
 
-	EnterCriticalSection( &g_region_critical );
-	CRegion	*region = NULL;
-	region = &m_ppRegion[rx][rz];
-	int nRet = region->m_RegionNpcArray.GetSize();
-	LeaveCriticalSection( &g_region_critical );
-
-	return nRet;
+	FastGuard lock(m_lock);
+	return m_ppRegion[rx][rz].m_RegionNpcArray.GetSize();
 }
 
 bool MAP::LoadRoomEvent()

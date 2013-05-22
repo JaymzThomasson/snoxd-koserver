@@ -5,8 +5,6 @@
 #include "Npc.h"
 #include "Region.h"
 
-extern CRITICAL_SECTION g_region_critical;
-
 CMagicProcess::CMagicProcess()
 {
 	m_pSrcUser = NULL;
@@ -547,16 +545,14 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 	int* pNpcIDList = NULL;
 	bool bResult = true;
 
-	EnterCriticalSection( &g_region_critical );
-
+	pMap->m_lock.Acquire();
 	CRegion *pRegion = &pMap->m_ppRegion[rx][rz];
 	total_mon = pRegion->m_RegionNpcArray.GetSize();
 	pNpcIDList = new int[total_mon];
 
 	foreach_stlmap (itr, pRegion->m_RegionNpcArray)
 		pNpcIDList[count++] = *itr->second;
-
-	LeaveCriticalSection(&g_region_critical);
+	pMap->m_lock.Release();
 
 	for(int i = 0; i < total_mon; i++)
 	{

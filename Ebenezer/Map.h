@@ -47,4 +47,5 @@ public:
 	uint32	m_wBundle;	// Zone Item Max Count
 
 	SMDFile *m_smdFile;
+	FastMutex m_lock;
 };

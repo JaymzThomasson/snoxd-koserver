@@ -28,8 +28,6 @@ static float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f,
 #define ATTACK_LIMIT_LEVEL		10
 #define FAINTING_TIME			2 // in seconds
 
-extern CRITICAL_SECTION g_region_critical;
-
 bool CNpc::SetUid(float x, float z, int id)
 {
 	MAP* pMap = GetMap();
@@ -1690,20 +1688,17 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 	int iLevelComprison = 0;
 	
 	if(nType == 1)	{		// user을 타겟으로 잡는 경우
-		EnterCriticalSection( &g_region_critical );
+		FastGuard lock(pMap->m_lock);
 		CRegion *pRegion = &pMap->m_ppRegion[nRX][nRZ];
 		int nUser = pRegion->m_RegionUserArray.GetSize(), count = 0;
 
 		//TRACE("FindEnemyExpand type1,, region_x=%d, region_z=%d, user=%d, mon=%d\n", nRX, nRZ, nUser, nMonster);
-		if( nUser == 0 )	{
-			LeaveCriticalSection( &g_region_critical );
+		if( nUser == 0 )
 			return 0.0f;
-		}
 
 		pIDList = new int[nUser];
 		foreach_stlmap (itr, pRegion->m_RegionUserArray)
 			pIDList[count++] = *itr->second;
-		LeaveCriticalSection( &g_region_critical );
 
 		for(int i=0 ; i<nUser; i++ ) {
 			CUser *pUser = g_pMain->GetUserPtr(pIDList[i]);
@@ -1751,20 +1746,17 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 		}
 	}
 	else if(nType == 2)		{		// 경비병이 몬스터를 타겟으로 잡는 경우
-		EnterCriticalSection( &g_region_critical );
+		FastGuard lock(pMap->m_lock);
 		CRegion *pRegion = &pMap->m_ppRegion[nRX][nRZ];
 		int nMonster = pRegion->m_RegionNpcArray.GetSize(), count = 0;
 	
 		//TRACE("FindEnemyExpand type1,, region_x=%d, region_z=%d, user=%d, mon=%d\n", nRX, nRZ, nUser, nMonster);
-		if( nMonster == 0 )	{
-			LeaveCriticalSection( &g_region_critical );
+		if( nMonster == 0 )
 			return 0.0f;
-		}
 
 		pIDList = new int[nMonster];
 		foreach_stlmap (itr, pRegion->m_RegionNpcArray)
 			pIDList[count++] = *itr->second;
-		LeaveCriticalSection( &g_region_critical );
 
 		//TRACE("FindEnemyExpand type2,, region_x=%d, region_z=%d, user=%d, mon=%d\n", nRX, nRZ, nUser, nMonster);
 
@@ -3818,15 +3810,14 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 
 	int* pNpcIDList = NULL, total_mon, count = 0;
 
-	EnterCriticalSection( &g_region_critical );
-
+	pMap->m_lock.Acquire();
 	CRegion *pRegion = &pMap->m_ppRegion[x][z];
 	total_mon = pRegion->m_RegionNpcArray.GetSize();
 	pNpcIDList = new int[total_mon];
 
 	foreach_stlmap (itr, pRegion->m_RegionNpcArray)
 		pNpcIDList[count++] = *itr->second;
-	LeaveCriticalSection( &g_region_critical );
+	pMap->m_lock.Release();
 
 	CNpc* pNpc = NULL;
 	__Vector3 vStart, vEnd;
@@ -4095,7 +4086,7 @@ bool CNpc::GetUserInViewRange(int x, int z)
 		return false;
 	}
 
-	EnterCriticalSection( &g_region_critical );
+	FastGuard lock(pMap->m_lock);
 	__Vector3 vStart, vEnd;
 	vStart.Set(m_fCurX, 0, m_fCurZ);
 	float fDis = 0.0f; 
@@ -4108,13 +4099,10 @@ bool CNpc::GetUserInViewRange(int x, int z)
 
 		vEnd.Set(pUser->m_curx, 0, pUser->m_curz);
 		fDis = GetDistance(vStart, vEnd);
-		if(fDis <= NPC_VIEW_RANGE)	{
-			LeaveCriticalSection( &g_region_critical );
+		if(fDis <= NPC_VIEW_RANGE)
 			return true;		
-		}
 	}
 	
-	LeaveCriticalSection( &g_region_critical );
 	return false;
 }
 

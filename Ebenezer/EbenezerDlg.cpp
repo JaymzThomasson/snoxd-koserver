@@ -21,8 +21,6 @@ using namespace std;
 #define AWARD_GOLD          100000
 #define AWARD_EXP			5000
 
-CRITICAL_SECTION g_serial_critical, g_region_critical;
-
 KOSocketMgr<CUser> g_socketMgr;
 ClientSocketMgr<CAISocket> g_aiSocketMgr;
 
@@ -103,9 +101,6 @@ bool CEbenezerDlg::Startup()
 
 	m_bFirstServerFlag = false;	
 	m_bServerCheckFlag = false;
-
-	InitializeCriticalSection( &g_region_critical );
-	InitializeCriticalSection( &g_serial_critical );
 
 	GetTimeFromIni();
 	
@@ -408,11 +403,11 @@ int32 CEbenezerDlg::GetEventTrigger(CNpc * pNpc)
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 {
 	// Protect party ID generation
-	EnterCriticalSection(&g_region_critical);
+	m_partyLock.Acquire();
 	pLeader->m_sPartyIndex = m_sPartyIndex++;
 	if (m_sPartyIndex == SHRT_MAX)
 		m_sPartyIndex = 0;
-	LeaveCriticalSection(&g_region_critical);
+	m_partyLock.Release();
 
 	_PARTY_GROUP * pParty = new _PARTY_GROUP;
 	pParty->wIndex = pLeader->m_sPartyIndex;
@@ -429,9 +424,8 @@ _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 
 void CEbenezerDlg::DeleteParty(short sIndex)
 {
-	EnterCriticalSection(&g_region_critical);
+	FastGuard lock(m_partyLock);
 	m_PartyArray.DeleteData(sIndex);
-	LeaveCriticalSection(&g_region_critical);
 }
 
 uint32 CEbenezerDlg::Timer_UpdateGameTime(void * lpParam)
@@ -532,9 +526,9 @@ void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUse
 		|| x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())
 		return;
 
-	EnterCriticalSection(&g_region_critical);
-	CRegion *pRegion = &pMap->m_ppRegion[x][z];
+	FastGuard lock(pMap->m_lock);
 
+	CRegion *pRegion = &pMap->m_ppRegion[x][z];
 	foreach (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr);
@@ -545,7 +539,6 @@ void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUse
 
 		pUser->Send(pkt);
 	}
-	LeaveCriticalSection(&g_region_critical);
 }
 
 // TO-DO: Move the following two methods into a base CUser/CNpc class
@@ -634,7 +627,7 @@ void CEbenezerDlg::Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z
 		|| x < 0 || z < 0 || x > pMap->GetXRegionMax() || z>pMap->GetZRegionMax())
 		return;
 
-	EnterCriticalSection(&g_region_critical);
+	FastGuard lock(pMap->m_lock);
 	CRegion *pRegion = &pMap->m_ppRegion[x][z];
 
 	foreach (itr, pRegion->m_RegionUserArray)
@@ -648,8 +641,6 @@ void CEbenezerDlg::Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z
 		if (sqrt(pow((pUser->m_curx - ref_x), 2) + pow((pUser->m_curz - ref_z), 2)) < 32)
 			pUser->Send(pkt);
 	}
-
-	LeaveCriticalSection( &g_region_critical );
 }
 
 void CEbenezerDlg::Send_PartyMember(int party, Packet *result)
@@ -873,7 +864,7 @@ void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, uint16 region_x, uint16 region_
 		|| region_z > pMap->GetZRegionMax())
 		return;
 
-	EnterCriticalSection(&g_region_critical);
+	FastGuard lock(pMap->m_lock);
 	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
 
 	foreach (itr, pRegion->m_RegionUserArray)
@@ -888,8 +879,6 @@ void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, uint16 region_x, uint16 region_
 		pUser->GetUserInfo(pkt);
 		t_count++;
 	}
-
-	LeaveCriticalSection(&g_region_critical);
 }
 
 void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, uint16 region_x, uint16 region_z, Packet & pkt, uint16 & t_count)
@@ -899,7 +888,7 @@ void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, uint16 region_x, uint16 regio
 		|| region_z > pMap->GetZRegionMax())
 		return;
 
-	EnterCriticalSection(&g_region_critical);
+	FastGuard lock(pMap->m_lock);
 	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
 
 	foreach (itr, pRegion->m_RegionUserArray)
@@ -913,8 +902,6 @@ void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, uint16 region_x, uint16 regio
 		pkt << pUser->GetSocketID();
 		t_count++;
 	}
-
-	LeaveCriticalSection(&g_region_critical);
 }
 
 void CEbenezerDlg::MerchantUserInOutForMe(CUser *pSendUser)
@@ -944,8 +931,7 @@ void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, uint16 region_x, uint16
 		|| region_z > pMap->GetZRegionMax())
 		return;
 
-	EnterCriticalSection(&g_region_critical);
-
+	FastGuard lock(pMap->m_lock);
 	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
 
 	foreach (itr, pRegion->m_RegionUserArray)
@@ -966,8 +952,6 @@ void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, uint16 region_x, uint16
 
 		t_count++;
 	}
-
-	LeaveCriticalSection(&g_region_critical);
 }
 
 void CEbenezerDlg::NpcInOutForMe(CUser* pSendUser)
@@ -997,7 +981,7 @@ void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, uint16 region_x, uint16 region_z
 		|| region_z > pMap->GetZRegionMax())
 		return;
 
-	EnterCriticalSection(&g_region_critical);
+	FastGuard lock(pMap->m_lock);
 	foreach (itr, pMap->m_ppRegion[region_x][region_z].m_RegionNpcArray)
 	{
 		CNpc *pNpc = m_arNpcArray.GetData(*itr);
@@ -1010,8 +994,6 @@ void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, uint16 region_x, uint16 region_z
 		pNpc->GetNpcInfo(pkt);
 		t_count++;
 	}
-
-	LeaveCriticalSection(&g_region_critical);
 }
 
 void CEbenezerDlg::RegionNpcInfoForMe(CUser *pSendUser)
@@ -1041,7 +1023,7 @@ void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, uint16 region_x, uint16 region
 		|| region_z > pMap->GetZRegionMax())
 		return;
 
-	EnterCriticalSection(&g_region_critical);
+	FastGuard lock(pMap->m_lock);
 	foreach (itr, pMap->m_ppRegion[region_x][region_z].m_RegionNpcArray)
 	{
 		CNpc *pNpc = m_arNpcArray.GetData(*itr);
@@ -1051,8 +1033,6 @@ void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, uint16 region_x, uint16 region
 		pkt << pNpc->GetID();
 		t_count++;
 	}
-
-	LeaveCriticalSection(&g_region_critical);
 }
 
 void CEbenezerDlg::HandleConsoleCommand(const char * msg) 
@@ -1135,8 +1115,7 @@ void CEbenezerDlg::SendAllUserInfo()
 		result.clear();
 	}
 
-	EnterCriticalSection( &g_region_critical );
-
+	FastGuard lock(m_partyLock);
 	foreach_stlmap (itr, m_PartyArray)
 	{
 		_PARTY_GROUP *pParty = itr->second;
@@ -1150,8 +1129,6 @@ void CEbenezerDlg::SendAllUserInfo()
 
 		Send_AIServer(&result);
 	}
-
-	LeaveCriticalSection( &g_region_critical );
 }
 
 void CEbenezerDlg::DeleteAllNpcList(int flag)
@@ -1180,21 +1157,19 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 
 	// Now remove all spawns from all regions
 	FastGuard zoneLock(m_ZoneArray.m_lock);
-
-	EnterCriticalSection(&g_region_critical);
 	foreach_stlmap (itr, m_ZoneArray)
 	{
 		C3DMap *pMap = itr->second;
 		if (pMap == NULL)
 			continue;
 
+		FastGuard lock(pMap->m_lock);
 		for (int i = 0; i < pMap->GetXRegionMax(); i++)
 		{
 			for (int j = 0; j < pMap->GetZRegionMax(); j++)
 				pMap->m_ppRegion[i][j].m_RegionNpcArray.clear();
 		}
 	}
-	LeaveCriticalSection(&g_region_critical);
 	m_bServerCheckFlag = false;
 
 	TRACE("*** DeleteAllNpcList - End *** \n");
@@ -1588,17 +1563,17 @@ int CEbenezerDlg::KickOutAllUsers()
  */
 __int64 CEbenezerDlg::GenerateItemSerial()
 {
+	static FastMutex _mutex;
+
 	MYINT64 serial;
 	MYSHORT	increase;
 	serial.i = 0;
 
-	time_t t;
+	time_t t = UNIXTIME;
 	struct tm * ptm;
-	time(&t); // TO-DO: as time() is expensive, we should update a shared structure & access that instead.
 	ptm = gmtime(&t);
 
-	EnterCriticalSection( &g_serial_critical );
-
+	FastGuard lock(_mutex);
 	increase.w = g_increase_serial++;
 
 	serial.b[7] = (uint8)(m_nServerNo);
@@ -1610,7 +1585,6 @@ __int64 CEbenezerDlg::GenerateItemSerial()
 	serial.b[1] = increase.b[1];
 	serial.b[0] = increase.b[0];
 
-	LeaveCriticalSection( &g_serial_critical );
 	return serial.i;
 }
 
@@ -1730,9 +1704,6 @@ CEbenezerDlg::~CEbenezerDlg()
 	m_luaEngine.Shutdown();
 	DatabaseThread::Shutdown();
 
-	DeleteCriticalSection(&g_region_critical);
-	DeleteCriticalSection(&g_serial_critical);
-	
 	CUser::CleanupChatCommands();
 	CEbenezerDlg::CleanupServerCommands();
 

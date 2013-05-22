@@ -4,6 +4,7 @@
 #include "GameSocket.h"
 #include "extern.h"
 #include "Npc.h"
+#include "MAP.h"
 
 #define MORAL_GOOD		0x01
 #define MORAL_BAD		0x02
@@ -11,9 +12,6 @@
 
 static float surround_fx[8] = {0.0f, -0.7071f, -1.0f, -0.7083f,  0.0f,  0.7059f,  1.0000f, 0.7083f};
 static float surround_fz[8] = {1.0f,  0.7071f,  0.0f, -0.7059f, -1.0f, -0.7083f, -0.0017f, 0.7059f};
-
-extern CRITICAL_SECTION g_region_critical;
-extern CRITICAL_SECTION g_LogFileWrite;
 
 CUser::CUser() {}
 CUser::~CUser() {}
@@ -638,14 +636,13 @@ void CUser::HealAreaCheck(int rx, int rz)
 	vStart.Set(m_curx, (float)0, m_curz);
 	int send_index=0, result = 1, count = 0; 
 
-	EnterCriticalSection( &g_region_critical );
+	pMap->m_lock.Acquire();
 	CRegion *pRegion = &pMap->m_ppRegion[rx][rz];
 	int total_mon = pRegion->m_RegionNpcArray.GetSize();
 	int *pNpcIDList = new int[total_mon];
 	foreach_stlmap (itr, pRegion->m_RegionNpcArray)
 		pNpcIDList[count++] = *itr->second;
-
-	LeaveCriticalSection( &g_region_critical );
+	pMap->m_lock.Release();
 
 	for(int i = 0 ; i < total_mon; i++ ) {
 		int nid = pNpcIDList[i];

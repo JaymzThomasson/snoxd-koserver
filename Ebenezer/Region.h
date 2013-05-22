@@ -15,6 +15,7 @@ class CUser;
 class CRegion  
 {
 public:
+	FastMutex		m_lock;
 	ZoneItemArray	m_RegionItemArray;
 	ZoneUserArray	m_RegionUserArray;
 	ZoneNpcArray	m_RegionNpcArray;

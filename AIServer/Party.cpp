@@ -2,8 +2,6 @@
 #include "Party.h"
 #include "User.h"
 
-extern CRITICAL_SECTION g_region_critical;
-
 CParty::CParty()
 {
 }
@@ -51,16 +49,15 @@ void CParty::PartyCreate(Packet & pkt)
 		pUser->m_sPartyNumber = sPartyIndex;
 	}
 
-	EnterCriticalSection( &g_region_critical );
-
 	pParty = new _PARTY_GROUP;
 	pParty->wIndex = sPartyIndex;
 	pParty->uid[0] = sUid;
 
+	g_pMain->m_partyLock.Acquire();
 	if( g_pMain->m_arParty.PutData( pParty->wIndex, pParty ) ) {
 		TRACE("Party - Create() : Party »ý¼º  number = %d, uid=%d, %d \n", sPartyIndex, pParty->uid[0], pParty->uid[1]);
 	}
-	LeaveCriticalSection( &g_region_critical );
+	g_pMain->m_partyLock.Release();
 }
 
 void CParty::PartyInsert(Packet & pkt)
@@ -133,7 +130,7 @@ void CParty::PartyDelete(Packet & pkt)
 		}
 	}
 
-	EnterCriticalSection( &g_region_critical );
+	g_pMain->m_partyLock.Acquire();
 	g_pMain->m_arParty.DeleteData( pParty->wIndex );
-	LeaveCriticalSection( &g_region_critical );
+	g_pMain->m_partyLock.Release();
 }

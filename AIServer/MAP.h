@@ -46,6 +46,8 @@ public:
 	short	m_sKarusRoom;			// karusÀÇ ¼º°¹¼ö
 	short	m_sElmoradRoom;			// elmoradÀÇ ¼º°¹¼ö
 
+	FastMutex m_lock;
+
 public:
 	MAP();
 	virtual ~MAP();

@@ -5,8 +5,6 @@
 #include <set>
 #include "../shared/SMDFile.h"
 
-extern CRITICAL_SECTION g_region_critical;
-
 /* passthru methods */
 int C3DMap::GetXRegionMax() { return m_smdFile->GetXRegionMax(); }
 int C3DMap::GetZRegionMax() { return m_smdFile->GetZRegionMax(); }
@@ -46,17 +44,12 @@ bool C3DMap::Initialize(_ZONE_INFO *pZone)
 
 CRegion * C3DMap::GetRegion(uint16 regionX, uint16 regionZ)
 {
-	CRegion *pRegion = NULL;
-
 	if (regionX >= GetXRegionMax()
 		|| regionZ >= GetZRegionMax())
-		return pRegion;
+		return NULL;
 
-	EnterCriticalSection(&g_region_critical);
-	pRegion = &m_ppRegion[regionX][regionZ];
-	LeaveCriticalSection(&g_region_critical);
-
-	return pRegion;
+	FastGuard lock(m_lock);
+	return &m_ppRegion[regionX][regionZ];
 }
 
 
@@ -66,14 +59,12 @@ bool C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _LOOT_BUNDLE * pBundle)
 		|| pBundle == NULL)
 		return false;
 
-	EnterCriticalSection( &g_region_critical );
+	FastGuard lock(m_lock);
 
 	pBundle->nBundleID = m_wBundle++;
 	m_ppRegion[rx][rz].m_RegionItemArray.PutData(pBundle->nBundleID, pBundle);
 	if (m_wBundle > ZONEITEM_MAX)
 		m_wBundle = 1;
-
-	LeaveCriticalSection( &g_region_critical );
 
 	return true;
 }
