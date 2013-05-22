@@ -11,8 +11,12 @@ template<class T>
 class ListenSocket
 {
 public:
-	ListenSocket(SocketMgr *socketMgr, const char * ListenAddress, uint32 Port) : m_threadRunning(false), m_hThread(NULL)
+	ListenSocket(SocketMgr *socketMgr, const char * ListenAddress, uint32 Port) : m_threadRunning(false)
 	{
+#ifndef USE_STD_THREAD
+		m_hThread = NULL;
+#endif
+
 		m_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 
 		// Enable blocking on the socket
@@ -55,24 +59,40 @@ public:
 
 	bool run()
 	{
+#ifdef USE_STD_THREAD
+		if (m_hThread.joinable())
+			return false;
+
+		m_hThread = std::thread(ListenSocketThread<T>, this);
+		return true;
+#else
 		if (m_hThread != NULL)
 			return false;
 
 		DWORD id;
 		m_hThread = CreateThread(NULL, 0, ListenSocketThread<T>, this, NULL, &id);
 		return m_hThread != NULL;
+#endif
 	}
 
 	void suspend()
 	{
+#ifndef USE_STD_THREAD
 		if (m_hThread != NULL)
 			SuspendThread(m_hThread);
+#else
+		SuspendThread(m_hThread.native_handle());
+#endif
 	}
 
 	void resume()
 	{
+#ifndef USE_STD_THREAD
 		if (m_hThread != NULL)
 			ResumeThread(m_hThread);
+#else
+		ResumeThread(m_hThread.native_handle());
+#endif
 	}
 
 	bool runnable()
@@ -128,7 +148,14 @@ public:
 
 private:
 	bool m_threadRunning;
-	HANDLE m_hThread, m_cp;
+
+#ifdef USE_STD_THREAD
+	std::thread m_hThread;
+#else
+	HANDLE m_hThread;
+#endif
+
+	HANDLE m_cp;
 	SocketMgr *m_socketMgr;
 	SOCKET m_socket;
 	struct sockaddr_in m_address;

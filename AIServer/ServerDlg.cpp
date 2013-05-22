@@ -49,7 +49,10 @@ CServerDlg::CServerDlg()
 	m_byBattleEvent = BATTLEZONE_CLOSE;
 	m_sKillKarusNpc = 0;
 	m_sKillElmoNpc = 0;
+
+#ifndef USE_STD_THREAD
 	m_hZoneEventThread = NULL;
+#endif
 
 	memset(m_strGameDSN, 0, sizeof(m_strGameDSN));
 	memset(m_strGameUID, 0, sizeof(m_strGameUID));
@@ -222,13 +225,10 @@ BOOL CServerDlg::CreateNpcThread()
 	LOAD_TABLE_ERROR_ONLY(CNpcPosSet, &m_GameDB, NULL, false);
 			
 	int nThreadNumber = 0;
-	DWORD id;
-
 	foreach_stlmap (itr, g_arZone)
 	{
 		CNpcThread * pNpcThread = new CNpcThread;
 		pNpcThread->m_sThreadNumber = nThreadNumber++;
-		pNpcThread->m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, pNpcThread, CREATE_SUSPENDED, &id);
 		m_arNpcThread.push_back(pNpcThread);
 
 		foreach_stlmap (npcItr, m_arNpc)
@@ -242,7 +242,6 @@ BOOL CServerDlg::CreateNpcThread()
 		}
 	}
 
-	m_hZoneEventThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&ZoneEventThreadProc, (LPVOID)(this), CREATE_SUSPENDED, &id);
 	printf("[Monster Init - %d, threads=%d]\n", m_TotalNPC, m_arNpcThread.size());
 	return TRUE;
 }
@@ -460,10 +459,18 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 //	NPC Thread 들을 작동시킨다.
 void CServerDlg::ResumeAI()
 {
+#ifdef USE_STD_THREAD
 	foreach (itr, m_arNpcThread)
-		ResumeThread((*itr)->m_hThread);
+		(*itr)->m_hThread = std::thread(NpcThreadProc, static_cast<void *>(*itr));
 
-	ResumeThread(m_hZoneEventThread);
+	m_hZoneEventThread = std::thread(ZoneEventThreadProc, this);
+#else
+	DWORD id;
+	foreach (itr, m_arNpcThread)
+		(*itr)->m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, *itr, NULL, &id);
+
+	m_hZoneEventThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&ZoneEventThreadProc, this, NULL, &id);
+#endif
 }
 
 void CServerDlg::DeleteUserList(int uid)
@@ -889,10 +896,17 @@ CServerDlg::~CServerDlg()
 
 	g_bNpcExit = TRUE;
 
+#ifdef USE_STD_THREAD
+	foreach (itr, m_arNpcThread)
+		(*itr)->m_hThread.join();
+
+	m_hZoneEventThread.join();
+#else
 	foreach (itr, m_arNpcThread)
 		WaitForSingleObject((*itr)->m_hThread, INFINITE);
 
 	WaitForSingleObject(m_hZoneEventThread, INFINITE);
+#endif
 
 	// NpcThread Array Delete
 	foreach (itr, m_arNpcThread)

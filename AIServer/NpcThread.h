@@ -18,7 +18,11 @@ public:
 
 	HWND	hWndMsg;
 
-	HANDLE			m_hThread;
-	short m_sThreadNumber;					// thread number ,, test
+#ifdef USE_STD_THREAD
+	std::thread m_hThread;
+#else
+	HANDLE m_hThread;
+#endif
 
+	short m_sThreadNumber;					// thread number ,, test
 };

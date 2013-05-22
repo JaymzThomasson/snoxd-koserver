@@ -38,9 +38,10 @@ DWORD WINAPI SocketWorkerThread(LPVOID lpParam)
 	return 0;
 }
 
-DWORD WINAPI SocketCleanupThread(LPVOID lpParam)
+static bool s_bRunningCleanupThread = true;
+unsigned int __stdcall SocketCleanupThread(void * lpParam)
 {
-	while (true)
+	while (s_bRunningCleanupThread)
 	{
 		SocketMgr::s_disconnectionQueueLock.Acquire();
 		while (!SocketMgr::s_disconnectionQueue.empty())
@@ -53,14 +54,21 @@ DWORD WINAPI SocketCleanupThread(LPVOID lpParam)
 		SocketMgr::s_disconnectionQueueLock.Release();
 		Sleep(100);
 	}
+
+	return 0;
 }
 
 uint32 SocketMgr::s_refs = 0;
 FastMutex SocketMgr::s_disconnectionQueueLock;
 std::queue<Socket *> SocketMgr::s_disconnectionQueue;
-HANDLE SocketMgr::s_hCleanupThread = NULL; 
 
-SocketMgr::SocketMgr() : m_hThreads(NULL), m_threadCount(0), m_completionPort(NULL)
+#ifdef USE_STD_THREAD
+std::thread SocketMgr::s_hCleanupThread; 
+#else
+HANDLE SocketMgr::s_hCleanupThread = NULL; 
+#endif
+
+SocketMgr::SocketMgr() : m_threadCount(0), m_completionPort(NULL)
 {
 	IncRef();
 }
@@ -78,22 +86,29 @@ void SocketMgr::SetupWinsock()
 
 void SocketMgr::SpawnWorkerThreads()
 {
-	if (m_hThreads != NULL)
+	if (!m_hThreads.empty())
 		return;
 
-	DWORD id;
 	SYSTEM_INFO si;
 	GetSystemInfo(&si);
 
 	m_threadCount = si.dwNumberOfProcessors * 2;
 
 	TRACE("SocketMgr - spawning %u worker threads.\n", m_threadCount);
-	m_hThreads = new HANDLE[m_threadCount];
+#ifdef USE_STD_THREAD
 	for (long x = 0; x < m_threadCount; x++)
-		m_hThreads[x] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&SocketWorkerThread, (LPVOID)this, 0, &id);
+		m_hThreads.push_back(std::thread(SocketWorkerThread, this));
+
+	if (!s_hCleanupThread.joinable())
+		s_hCleanupThread = std::thread(SocketCleanupThread, static_cast<void *>(NULL));
+#else
+	DWORD id;
+	for (long x = 0; x < m_threadCount; x++)
+		m_hThreads.push_back(CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&SocketWorkerThread, (LPVOID)this, 0, &id));
 
 	if (s_hCleanupThread == NULL)
 		s_hCleanupThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&SocketCleanupThread, NULL, 0, &id);
+#endif
 }
 
 void HandleReadComplete(Socket * s, uint32 len)
@@ -148,18 +163,31 @@ SocketMgr::~SocketMgr()
 {
 	ShutdownThreads();
 
-	if (m_hThreads != NULL)
-		delete [] m_hThreads;
+#ifdef USE_STD_THREAD
+	foreach (itr, m_hThreads)
+		(*itr).join();
+#else
+	foreach (itr, m_hThreads)
+		CloseHandle(*itr);
+#endif
 
 	DecRef();
 }
 
 void SocketMgr::CleanupWinsock()
 {
+#ifdef USE_STD_THREAD
+	if (s_hCleanupThread.joinable())
+	{
+		s_bRunningCleanupThread = false;
+		s_hCleanupThread.join();
+	}
+#else
 	if (s_hCleanupThread != NULL)
 	{
-		TerminateThread(s_hCleanupThread, 0);
+		s_bRunningCleanupThread = false;
 		s_hCleanupThread = NULL;
 	}
+#endif
 	WSACleanup();
 }

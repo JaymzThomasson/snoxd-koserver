@@ -158,10 +158,11 @@ UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */)
 	return 0;
 }
 
-CNpcThread::CNpcThread()
+CNpcThread::CNpcThread() : m_sThreadNumber(-1)
 {
+#ifndef USE_STD_THREAD
 	m_hThread = NULL;
-	m_sThreadNumber = -1;
+#endif
 }
 
 CNpcThread::~CNpcThread()

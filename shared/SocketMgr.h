@@ -33,8 +33,13 @@ public:
 
 protected:
 	HANDLE m_completionPort;
-	HANDLE *m_hThreads;
+#ifdef USE_STD_THREAD
+	std::vector<std::thread> m_hThreads;
+	static std::thread s_hCleanupThread;
+#else
+	std::vector<HANDLE> m_hThreads;
 	static HANDLE s_hCleanupThread;
+#endif
 
 	long m_threadCount;
 

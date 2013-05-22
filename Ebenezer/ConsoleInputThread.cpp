@@ -2,10 +2,20 @@
 #include "EbenezerDlg.h"
 #include "ConsoleInputThread.h"
 
+#ifdef USE_STD_THREAD
+static std::thread s_hConsoleInputThread;
+#else
+static HANDLE s_hConsoleInputThread = NULL;
+#endif
+
 void StartConsoleInputThread()
 {
+#ifdef USE_STD_THREAD
+	s_hConsoleInputThread = std::thread(ConsoleInputThread, static_cast<void *>(NULL));
+#else
 	DWORD dwThread;
-	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&ConsoleInputThread, NULL, NULL, &dwThread);
+	s_hConsoleInputThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&ConsoleInputThread, NULL, NULL, &dwThread);
+#endif
 }
 
 unsigned int __stdcall ConsoleInputThread(void * lpParam)
@@ -33,6 +43,10 @@ unsigned int __stdcall ConsoleInputThread(void * lpParam)
 
 		g_pMain->HandleConsoleCommand(cmd);
 	}
+
+#ifndef USE_STD_THREAD
+	CloseHandle(s_hConsoleInputThread);
+#endif
 
 	return 0;
 }
