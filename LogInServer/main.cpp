@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 LoginServer * g_pMain;
-static HANDLE s_hEvent;
+static Condition s_hEvent;
 
 #ifdef WIN32
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
@@ -31,9 +31,8 @@ int main()
 
 	printf("\nServer started up successfully!\n");
 
-	// Create handle, wait until console's signaled as closing
-	s_hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-	WaitForSingleObject(s_hEvent, INFINITE);
+	// Wait until console's signaled as closing
+	s_hEvent.Wait();
 
 	return 0;
 }
@@ -41,7 +40,7 @@ int main()
 #ifdef WIN32
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType)
 {
-	SetEvent(s_hEvent);
+	s_hEvent.Signal();
 	sleep(10000); // Win7 onwards allows 10 seconds before it'll forcibly terminate
 	return TRUE;
 }

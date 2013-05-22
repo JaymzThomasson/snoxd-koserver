@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "../shared/Condition.h"
 #include "EbenezerDlg.h"
 #include "KnightsManager.h"
 #include "KingSystem.h"
@@ -13,7 +14,7 @@ static std::queue<Packet *> _queue;
 static bool _running = true;
 static FastMutex _lock;
 
-static HANDLE s_hEvent = NULL;
+static Condition s_hEvent;
 
 #ifdef USE_STD_THREAD
 static std::vector<std::thread> s_hThreads;
@@ -24,7 +25,6 @@ static uint32 s_dwThreads = 0;
 
 void DatabaseThread::Startup(uint32 dwThreads)
 {
-	s_hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 #ifdef USE_STD_THREAD
 	for (uint32 i = 0; i < dwThreads; i++)
 		s_hThreads.push_back(std::thread(ThreadProc, (void *)i));
@@ -41,7 +41,7 @@ void DatabaseThread::AddRequest(Packet * pkt)
 	_lock.Acquire();
 	_queue.push(pkt);
 	_lock.Release();
-	SetEvent(s_hEvent);
+	s_hEvent.Signal();
 }
 
 unsigned int __stdcall DatabaseThread::ThreadProc(void * lpParam)
@@ -62,7 +62,7 @@ unsigned int __stdcall DatabaseThread::ThreadProc(void * lpParam)
 		// If there's no more packets to handle, wait until there are.
 		if (p == NULL)
 		{
-			WaitForSingleObject(s_hEvent, INFINITE);
+			s_hEvent.Wait();
 			continue;
 		}
 
@@ -858,12 +858,8 @@ void DatabaseThread::Shutdown()
 
 	if (!s_hThreads.empty())
 	{
-		// wake them up in case they're sleeping.
-		for (DWORD i = 0; i < s_dwThreads; i++)
-		{
-			SetEvent(s_hEvent); 
-			sleep(10);
-		}
+		// Wake them up in case they're sleeping.
+		s_hEvent.Broadcast();
 
 #ifdef USE_STD_THREAD
 		foreach (itr, s_hThreads)
@@ -876,7 +872,7 @@ void DatabaseThread::Shutdown()
 		}
 #endif
 
-		s_hThreads.empty();
+		s_hThreads.clear();
 	}
 
 	_lock.Acquire();
