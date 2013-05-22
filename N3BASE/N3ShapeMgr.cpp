@@ -70,7 +70,6 @@ bool CN3ShapeMgr::LoadCollisionData(FILE *fp)
 	}
 
 	// Cell Data 쓰기.
-	bool bExist = false;
 	int z = 0;
 	for(float fZ = 0.0f; fZ < m_fMapLength; fZ += CELL_MAIN_SIZE, z++)
 	{
@@ -83,8 +82,9 @@ bool CN3ShapeMgr::LoadCollisionData(FILE *fp)
 				m_pCells[x][z] = NULL;
 			}
 
+			uint32 bExist;
 			fread(&bExist, 4, 1, fp); // 데이터가 있는 셀인지 쓰고..
-			if(false == bExist) continue;
+			if (!bExist) continue;
 
 			m_pCells[x][z] = new __CellMain;
 			m_pCells[x][z]->Load(fp);
