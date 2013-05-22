@@ -5,7 +5,7 @@
 /* Here follow the extremely few remaining D3D8 components we require */
 
 // NOTE: We're using this over M_PI because of the precision
-#define D3DX_PI    ((FLOAT)  3.141592654f)
+#define D3DX_PI    ((float)  3.141592654f)
 #define D3DXToRadian( degree ) ((degree) * (D3DX_PI / 180.0f))
 
 /* D3D8 structs */
