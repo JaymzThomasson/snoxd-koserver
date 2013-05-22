@@ -35,7 +35,7 @@ public:
 
 protected:
 #ifdef USE_STD_MUTEX
-	std::mutex lock;
+	std::recursive_mutex lock;
 #else
 	/** Critical section used for system calls
 	 */

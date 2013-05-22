@@ -13,6 +13,9 @@
 // Use new portable C++11 functionality.
 #	define USE_STD_THREAD
 #	define USE_STD_MUTEX
+#	ifdef USE_STD_MUTEX
+#		define USE_STD_CONDITION_VARIABLE
+#	endif
 
 // Portable C++11 thread sleep call.
 #	define sleep(ms) std::this_thread::sleep_for(std::chrono::milliseconds(ms))

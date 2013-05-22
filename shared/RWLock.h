@@ -13,7 +13,6 @@ public:
 	void ReleaseWriteLock();
   
 private:
-	Mutex _lock;
 	Condition _cond;
 	volatile unsigned int _readers;
 	volatile unsigned int _writers;

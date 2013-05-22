@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "RWLock.h"
 
-RWLock::RWLock() : _cond(&_lock) 
+RWLock::RWLock()
 { 
 	_readers = _writers = 0; 
 }

@@ -2,26 +2,38 @@
 #include "Mutex.h"
 #include "Condition.h"
 
-Condition::Condition(Mutex * mutex) : m_nLockCount(0), m_externalMutex(mutex)
+Condition::Condition() : m_nLockCount(0)
 {
-	InitializeCriticalSection(&m_critsecWaitSetProtection);
 }
 
 void Condition::BeginSynchronized()
 {
-	m_externalMutex->Acquire();
+#ifdef USE_STD_CONDITION_VARIABLE
+	m_lock.lock();
+#else
+	m_lock.Acquire();
+#endif
 	++m_nLockCount;
 }
 
 void Condition::EndSynchronized()
 {
 	--m_nLockCount;
-	m_externalMutex->Release();
+#ifdef USE_STD_CONDITION_VARIABLE
+	m_lock.unlock();
+#else
+	m_lock.Release();
+#endif
 }
 
-DWORD Condition::Wait(time_t timeout)
+uint32 Condition::Wait(time_t timeout)
 {
-	DWORD dwMillisecondsTimeout = (DWORD)timeout * 1000;
+#ifdef USE_STD_CONDITION_VARIABLE
+	std::unique_lock<std::mutex> lock(m_lock);
+	m_condition.wait_for(lock, std::chrono::milliseconds(timeout));
+	return 0;
+#else
+	uint32 dwMillisecondsTimeout = (uint32)timeout * 1000;
 	BOOL bAlertable = FALSE;
 	ASSERT(LockHeldByCallingThread());
 
@@ -38,7 +50,6 @@ DWORD Condition::Wait(time_t timeout)
 	// Win32 allows no error checking here.
 	for( int i=0; i<nThisThreadsLockCount; ++i)
 	{
-		//::LeaveCriticalSection(&m_critsecSynchronized);
 		m_externalMutex->Release();
 	}
 
@@ -53,11 +64,7 @@ DWORD Condition::Wait(time_t timeout)
 	// will find the event signalled.
 
 	// Wait for the event to become signalled.
-	DWORD dwWaitResult = ::WaitForSingleObjectEx(
-		hWaitEvent,
-		dwMillisecondsTimeout,
-		bAlertable
-		);
+	DWORD dwWaitResult = WaitForSingleObjectEx(hWaitEvent, dwMillisecondsTimeout, bAlertable);
 
 	// If the wait failed, store the last error because it will get
 	// overwritten when acquiring the lock.
@@ -69,7 +76,6 @@ DWORD Condition::Wait(time_t timeout)
 	// Win32 allows no error checking here.
 	for( int j=0; j<nThisThreadsLockCount; ++j)
 	{
-		//::EnterCriticalSection(&m_critsecSynchronized);
 		m_externalMutex->Acquire();
 	}
 
@@ -84,10 +90,16 @@ DWORD Condition::Wait(time_t timeout)
 		::SetLastError(dwLastError);
 
 	return dwWaitResult;
+#endif
 }
 
-DWORD Condition::Wait()
+uint32 Condition::Wait()
 {
+#ifdef USE_STD_CONDITION_VARIABLE
+	std::unique_lock<std::mutex> lock(m_lock);
+	m_condition.wait(lock);
+	return 0;
+#else
 	DWORD dwMillisecondsTimeout = INFINITE;
 	BOOL bAlertable = FALSE;
 	ASSERT(LockHeldByCallingThread());
@@ -105,7 +117,6 @@ DWORD Condition::Wait()
 	// Win32 allows no error checking here.
 	for( int i=0; i<nThisThreadsLockCount; ++i)
 	{
-		//::LeaveCriticalSection(&m_critsecSynchronized);
 		m_externalMutex->Release();
 	}
 
@@ -136,7 +147,6 @@ DWORD Condition::Wait()
 	// Win32 allows no error checking here.
 	for( int j=0; j<nThisThreadsLockCount; ++j)
 	{
-		//::EnterCriticalSection(&m_critsecSynchronized);
 		m_externalMutex->Acquire();
 	}
 
@@ -151,11 +161,14 @@ DWORD Condition::Wait()
 		::SetLastError(dwLastError);
 
 	return dwWaitResult;
-
+#endif
 }
 
 void Condition::Signal()
 {
+#ifdef USE_STD_CONDITION_VARIABLE
+	m_condition.notify_one();
+#else
 	// Pop the first handle, if any, off the wait set.
 	HANDLE hWaitEvent = Pop();
 
@@ -165,14 +178,17 @@ void Condition::Signal()
 
 	// Signal the event.
 	SetEvent(hWaitEvent);
+#endif
 }
 
 void Condition::Broadcast()
 {
+#ifdef USE_STD_CONDITION_VARIABLE
+	m_condition.notify_all();
+#else
 	// Signal all events on the deque, then clear it. Win32 allows no
 	// error checking on entering and leaving the critical section.
-	//
-	EnterCriticalSection(&m_critsecWaitSetProtection);
+	Guard<Mutex> lock(m_critsecWaitSetProtection);
 	std::deque<HANDLE>::const_iterator it_run = m_deqWaitSet.begin();
 	std::deque<HANDLE>::const_iterator it_end = m_deqWaitSet.end();
 	for( ; it_run < it_end; ++it_run )
@@ -181,9 +197,10 @@ void Condition::Broadcast()
 			return;
 	}
 	m_deqWaitSet.clear();
-	LeaveCriticalSection(&m_critsecWaitSetProtection);
+#endif
 }
 
+#ifndef USE_STD_CONDITION_VARIABLE
 HANDLE Condition::Push()
 {
 	// Create the new event.
@@ -199,9 +216,9 @@ HANDLE Condition::Push()
 	}
 
 	// Push the handle on the deque.
-	EnterCriticalSection(&m_critsecWaitSetProtection);
+	m_critsecWaitSetProtection.Acquire();
 	m_deqWaitSet.push_back(hWaitEvent);
-	LeaveCriticalSection(&m_critsecWaitSetProtection);
+	m_critsecWaitSetProtection.Release();
 
 	return hWaitEvent;
 }
@@ -210,45 +227,56 @@ HANDLE Condition::Pop()
 {
 	// Pop the first handle off the deque.
 	//
-	EnterCriticalSection(&m_critsecWaitSetProtection);
+	m_critsecWaitSetProtection.Acquire();
 	HANDLE hWaitEvent = NULL; 
 	if( 0 != m_deqWaitSet.size() )
 	{
 		hWaitEvent = m_deqWaitSet.front();
 		m_deqWaitSet.pop_front();
 	}
-	LeaveCriticalSection(&m_critsecWaitSetProtection);
+	m_critsecWaitSetProtection.Release();
 
 	return hWaitEvent;
 }
+#endif
 
-BOOL Condition::LockHeldByCallingThread()
+bool Condition::LockHeldByCallingThread()
 {
-	BOOL bTryLockResult = m_externalMutex->AttemptAcquire();
-
+#ifdef USE_STD_CONDITION_VARIABLE
 	// If we didn't get the lock, someone else has it.
-	//
-	if( ! bTryLockResult )
-	{
-		return FALSE;
-	}
+	if (!m_lock.try_lock())
+		return false;
 
 	// If we got the lock, but the lock count is zero, then nobody had it.
-	//
-	if( 0 == m_nLockCount )
+	if (0 == m_nLockCount)
 	{
-		m_externalMutex->Release();
-		return FALSE;
+		m_lock.unlock();
+		return false;
 	}
 
 	// Release lock once. NOTE: we still have it after this release.
 	// Win32 allows no error checking here.
-	m_externalMutex->Release();
-
+	m_lock.unlock();
 	return true;
+#else
+	// If we didn't get the lock, someone else has it.
+	if (!m_lock.AttemptAcquire())
+		return false;
+
+	// If we got the lock, but the lock count is zero, then nobody had it.
+	if (0 == m_nLockCount)
+	{
+		m_lock.Release();
+		return false;
+	}
+
+	// Release lock once. NOTE: we still have it after this release.
+	// Win32 allows no error checking here.
+	m_lock.Release();
+	return true;
+#endif
 }
 
 Condition::~Condition()
 {
-	DeleteCriticalSection(&m_critsecWaitSetProtection);
 }
