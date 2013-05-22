@@ -10,8 +10,9 @@
 #	include <thread>
 #	include <chrono>
 
-// Use new portable C++11 std::thread functionality.
+// Use new portable C++11 functionality.
 #	define USE_STD_THREAD
+#	define USE_STD_MUTEX
 
 // Portable C++11 thread sleep call.
 #	define sleep(ms) std::this_thread::sleep_for(std::chrono::milliseconds(ms))

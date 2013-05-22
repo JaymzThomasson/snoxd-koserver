@@ -1,6 +1,10 @@
 #pragma once
 
-#include <WinBase.h>
+#ifdef USE_STD_MUTEX
+#	include <mutex>
+#else // if not using std::mutex, we're limited to Windows code.
+#	include <WinBase.h>
+#endif
 
 class Mutex
 {
@@ -30,11 +34,16 @@ public:
 	bool AttemptAcquire();
 
 protected:
+#ifdef USE_STD_MUTEX
+	std::mutex lock;
+#else
 	/** Critical section used for system calls
 	 */
 	CRITICAL_SECTION cs;
+#endif
 };
 
+#ifdef WIN32
 class FastMutex
 {
 #pragma pack(push,8)
@@ -50,6 +59,10 @@ public:
 	bool AttemptAcquire();
 	void Release();
 };
+#else // Windows functionality can provide a slightly faster lock.
+	  // For all other OS', the default Mutex implementation is sufficient.
+#	define FastMutex Mutex
+#endif
 
 template <class T>
 class Guard

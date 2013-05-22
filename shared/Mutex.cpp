@@ -1,12 +1,21 @@
 #include "stdafx.h"
 #include "Mutex.h"
 
+#ifdef USE_STD_MUTEX
+Mutex::Mutex() {}
+Mutex::~Mutex() {}
+void Mutex::Acquire() { lock.lock(); }
+void Mutex::Release() { lock.unlock(); }
+bool Mutex::AttemptAcquire() { return lock.try_lock(); }
+#else
 Mutex::Mutex() { InitializeCriticalSection(&cs); }
 Mutex::~Mutex() { DeleteCriticalSection(&cs); }
 void Mutex::Acquire() { EnterCriticalSection(&cs); }
 void Mutex::Release() { LeaveCriticalSection(&cs); }
 bool Mutex::AttemptAcquire() { return (TryEnterCriticalSection(&cs) == TRUE ? true : false); }
+#endif
 
+#ifdef WIN32
 void FastMutex::Acquire()
 {
 	DWORD thread_id = GetCurrentThreadId(), owner;
@@ -52,5 +61,4 @@ void FastMutex::Release()
 	if ((--m_recursiveCount) == 0)
 		InterlockedExchange(&m_lock, 0);
 }
-
-
+#endif
