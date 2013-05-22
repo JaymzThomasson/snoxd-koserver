@@ -167,9 +167,6 @@ CNpcThread::CNpcThread() : m_sThreadNumber(-1)
 
 CNpcThread::~CNpcThread()
 {
-	foreach (itr, m_pNpcs)
-		delete *itr;
-
 	m_pNpcs.clear();
 }
 
