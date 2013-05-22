@@ -27,7 +27,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 
 	sid = m_pSrcUser->m_iUserId;
 
-	BYTE command = pkt.read<uint8>();
+	uint8 command = pkt.read<uint8>();
 	pkt >> tid >> magicid >> data1 >> data2 >> data3 >> data4 >> data5 >> data6 >> TotalDex >> righthand_damage;
 	//TRACE("MagicPacket - command=%d, tid=%d, magicid=%d\n", command, tid, magicid);
 
@@ -70,7 +70,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 	}
 }
 
-_MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, BYTE type )
+_MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, uint8 type )
 {
 	if (m_pSrcUser == NULL)
 		return NULL;
@@ -82,10 +82,10 @@ _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, BYTE type )
 	return pTable;
 }
 
-BYTE CMagicProcess::ExecuteType1(int magicid, int tid, int data1, int data2, int data3, BYTE sequence)   // Applied to an attack skill using a weapon.
+uint8 CMagicProcess::ExecuteType1(int magicid, int tid, int data1, int data2, int data3, uint8 sequence)   // Applied to an attack skill using a weapon.
 {	
 	int damage = 0;
-	BYTE bResult = 1;     // Variable initialization. result == 1 : success, 0 : fail
+	uint8 bResult = 1;     // Variable initialization. result == 1 : success, 0 : fail
 	_MAGIC_TABLE* pMagic = g_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
 	if( !pMagic ) return 0; 
 
@@ -101,7 +101,7 @@ BYTE CMagicProcess::ExecuteType1(int magicid, int tid, int data1, int data2, int
 			goto packet_send;
 		}
 
-		if(pNpc->SetDamage(magicid, damage, m_pSrcUser->m_strUserID, m_pSrcUser->m_iUserId + USER_BAND) == FALSE)	{
+		if(pNpc->SetDamage(magicid, damage, m_pSrcUser->m_strUserID, m_pSrcUser->m_iUserId + USER_BAND) == false)	{
 			// Npc가 죽은 경우,,
 			pNpc->SendExpToUserList(); // 경험치 분배!!
 			pNpc->SendDead();
@@ -128,11 +128,11 @@ packet_send:
 	return bResult;
 }
 
-BYTE CMagicProcess::ExecuteType2(int magicid, int tid, int data1, int data2, int data3)
+uint8 CMagicProcess::ExecuteType2(int magicid, int tid, int data1, int data2, int data3)
 {
 	Packet result(AG_MAGIC_ATTACK_RESULT, uint8(MAGIC_EFFECTING));
 	int damage = m_pSrcUser->GetDamage(tid, magicid);;
-	BYTE bResult = 1;
+	uint8 bResult = 1;
 	
 	result << magicid << m_pSrcUser->m_iUserId << tid << data1;
 
@@ -177,7 +177,7 @@ packet_send:
 void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int data3, int moral, int dexpoint, int righthand_damage )   // Applied when a magical attack, healing, and mana restoration is done.
 {	
 	int damage = 0, attack_type = 0; 
-	BOOL bResult = TRUE;
+	bool bResult = true;
 	_MAGIC_TYPE3* pType = NULL;
 	CNpc* pNpc = NULL ;      // Pointer initialization!
 
@@ -186,7 +186,7 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 	if( !pMagic ) return; 
 
 	if(tid == -1)	{	// 지역 공격
-		bResult = AreaAttack(3, magicid, moral, data1, data2, data3, dexpoint, righthand_damage);
+		/*bResult =*/ AreaAttack(3, magicid, moral, data1, data2, data3, dexpoint, righthand_damage);
 		//if(result == 0)		goto packet_send;
 		//else 
 			return;
@@ -194,7 +194,7 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 
 	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(pNpc == NULL || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
-		bResult = FALSE;
+		bResult = false;
 		goto packet_send;
 	}
 	
@@ -249,7 +249,7 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 			if(pType->bAttribute == 3)   attack_type = 3; // 기절시키는 마법이라면.....
 			else attack_type = magicid;
 				
-			if(pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_strUserID, m_pSrcUser->m_iUserId + USER_BAND) == FALSE)	{
+			if(pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_strUserID, m_pSrcUser->m_iUserId + USER_BAND) == false)	{
 				// Npc가 죽은 경우,,
 				pNpc->SendExpToUserList(); // 경험치 분배!!
 				pNpc->SendDead();
@@ -291,14 +291,14 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 {
 	Packet result(AG_MAGIC_ATTACK_RESULT);
 	int damage = 0;
-	BOOL bResult = TRUE;
+	uint16 sResult = 1;
 
 	_MAGIC_TYPE4* pType = NULL;
 	CNpc* pNpc = NULL ;      // Pointer initialization!
 
 	if(tid == -1)	{	// 지역 공격
-		bResult = AreaAttack(4, magicid, moral, data1, data2, data3, 0, 0);
-		if (bResult)
+		sResult = AreaAttack(4, magicid, moral, data1, data2, data3, 0, 0);
+		if (sResult)
 			return;
 
 		goto fail_return;
@@ -306,7 +306,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 
 	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(pNpc == NULL || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
-		bResult = FALSE;
+		sResult = 0;
 		goto fail_return;
 	}
 
@@ -353,12 +353,12 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 			break;	
 
 		default :
-			bResult = FALSE;
+			sResult = 0;
 			goto fail_return;
 	}
 
 	result	<< uint8(MAGIC_EFFECTING) << magicid << uint16(sid) << uint16(tid)
-			<< uint16(data1) << uint16(bResult) << uint16(data3)
+			<< uint16(data1) << uint16(sResult) << uint16(data3)
 			<< uint16(0) << uint16(0) << uint16(0);
 	g_pMain->Send(&result);
 	return;
@@ -374,8 +374,8 @@ short CMagicProcess::GetMagicDamage(int tid, int total_hit, int attribute, int d
 {
 	short damage = 0, temp_hit = 0 ; 
 	int random = 0, total_r = 0 ;
-	BYTE result;
-	BOOL bSign = TRUE;			// FALSE이면 -, TRUE이면 +
+	uint8 result;
+	bool bSign = true;
 
 	if( tid < NPC_BAND || tid > INVALID_BAND) return 0;     // Check if target id is valid.
 
@@ -413,7 +413,7 @@ short CMagicProcess::GetMagicDamage(int tid, int total_hit, int attribute, int d
 
 		if(total_hit < 0)	{
 			total_hit = abs(total_hit);
-			bSign = FALSE;
+			bSign = false;
 		}
 		
 		damage = (short)(total_hit - (0.7f * total_hit * total_r / 200)) ;
@@ -424,8 +424,8 @@ short CMagicProcess::GetMagicDamage(int tid, int total_hit, int attribute, int d
 	}
 	else damage = 0 ;
 
-	if(bSign == FALSE && damage != 0)	{
-		damage = - damage;
+	if (!bSign && damage != 0)	{
+		damage = -damage;
 	}
 
 	// Apply boost for skills matching weather type.
@@ -545,7 +545,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 	vStart.Set((float)data1, (float)0, (float)data3);
 	int count = 0, total_mon = 0, attack_type=0;
 	int* pNpcIDList = NULL;
-	BOOL bResult = TRUE;
+	bool bResult = true;
 
 	EnterCriticalSection( &g_region_critical );
 
@@ -585,7 +585,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 				if(pType3->bAttribute == 3)   attack_type = 3; // 기절시키는 마법이라면.....
 				else attack_type = magicid;
 
-				if(pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_strUserID, m_pSrcUser->m_iUserId + USER_BAND) == FALSE)	{
+				if(pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_strUserID, m_pSrcUser->m_iUserId + USER_BAND) == false)	{
 					// Npc가 죽은 경우,,
 					pNpc->SendExpToUserList(); // 경험치 분배!!
 					pNpc->SendDead();
@@ -607,7 +607,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 			}
 		}
 		else if(magictype == 4)	{	// 타잎 4일 경우...
-			bResult = TRUE;
+			bResult = true;
 			switch (pType4->bBuffType) {	// Depending on which buff-type it is.....
 				case 1 :				// HP 올리기..
 					break;
@@ -644,7 +644,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 					break;	
 
 				default :
-					bResult = FALSE;
+					bResult = false;
 					break;
 			}
 

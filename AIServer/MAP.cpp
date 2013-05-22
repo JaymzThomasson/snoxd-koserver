@@ -19,12 +19,12 @@
 inline int ParseSpace( char* tBuf, char* sBuf)
 {
 	int i = 0, index = 0;
-	BOOL flag = FALSE;
+	bool flag = false;
 	
 	while(sBuf[index] == ' ' || sBuf[index] == '\t')index++;
-	while(sBuf[index] !=' ' && sBuf[index] !='\t' && sBuf[index] !=(BYTE) 0){
+	while(sBuf[index] !=' ' && sBuf[index] !='\t' && sBuf[index] !=(uint8) 0){
 		tBuf[i++] = sBuf[index++];
-		flag = TRUE;
+		flag = true;
 	}
 	tBuf[i] = 0;
 
@@ -129,15 +129,15 @@ void MAP::RemoveMapData()
 	m_arRoomEventArray.DeleteAllData();
 }
 
-BOOL MAP::IsMovable(int dest_x, int dest_y)
+bool MAP::IsMovable(int dest_x, int dest_y)
 {
-	if(dest_x < 0 || dest_y < 0 ) return FALSE;
-	if (dest_x >= GetMapSize() || dest_y >= GetMapSize()) return FALSE;
+	if(dest_x < 0 || dest_y < 0 ) return false;
+	if (dest_x >= GetMapSize() || dest_y >= GetMapSize()) return false;
 
 	return m_smdFile->GetEventID(dest_x, dest_y) == 0;
 }
 
-BOOL MAP::ObjectIntersect(float x1, float z1, float y1, float x2, float z2, float y2)
+bool MAP::ObjectIntersect(float x1, float z1, float y1, float x2, float z2, float y2)
 {
 	return m_smdFile->ObjectCollision(x1, z1, y1, x2, z2, y2);
 }
@@ -159,10 +159,10 @@ void MAP::RegionUserAdd(int rx, int rz, int uid)
 	LeaveCriticalSection( &g_region_critical );
 }
 
-BOOL MAP::RegionUserRemove(int rx, int rz, int uid)
+bool MAP::RegionUserRemove(int rx, int rz, int uid)
 {
 	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
-		return FALSE;
+		return false;
 
 	CRegion	*region = NULL;
 	map < int, int* >::iterator		Iter;
@@ -174,7 +174,7 @@ BOOL MAP::RegionUserRemove(int rx, int rz, int uid)
 
 	LeaveCriticalSection( &g_region_critical );
 
-	return TRUE;
+	return true;
 }
 
 void MAP::RegionNpcAdd(int rx, int rz, int nid)
@@ -194,10 +194,10 @@ void MAP::RegionNpcAdd(int rx, int rz, int nid)
 	LeaveCriticalSection( &g_region_critical );
 }
 
-BOOL MAP::RegionNpcRemove(int rx, int rz, int nid)
+bool MAP::RegionNpcRemove(int rx, int rz, int nid)
 {
 	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
-		return FALSE;
+		return false;
 
 	CRegion	*region = NULL;
 	map < int, int* >::iterator		Iter;
@@ -209,7 +209,7 @@ BOOL MAP::RegionNpcRemove(int rx, int rz, int nid)
 
 	LeaveCriticalSection( &g_region_critical );
 
-	return TRUE;
+	return true;
 }
 
 int  MAP::GetRegionUserSize(int rx, int rz)
@@ -240,9 +240,9 @@ int  MAP::GetRegionNpcSize(int rx, int rz)
 	return nRet;
 }
 
-BOOL MAP::LoadRoomEvent()
+bool MAP::LoadRoomEvent()
 {
-	DWORD		length, count;
+	uint32		length, count;
 	string		filename = string_format(".\\MAP\\%d.aievt", m_byRoomEvent);
 	char		byte;
 	char		buf[4096];
@@ -255,10 +255,10 @@ BOOL MAP::LoadRoomEvent()
 	CRoomEvent*	pEvent = NULL;
 	ifstream is(filename);
 	if (!is)
-		return FALSE;
+		return false;
 
 	is.seekg(0, is.end);
-    length = (DWORD)is.tellg();
+    length = (uint32)is.tellg();
     is.seekg (0, is.beg);
 
 	count = 0;
@@ -271,7 +271,7 @@ BOOL MAP::LoadRoomEvent()
 		if( byte != '\r' && byte != '\n' ) buf[index++] = byte;
 
 		if((byte == '\n' || count == length ) && index > 1 )	{
-			buf[index] = (BYTE) 0;
+			buf[index] = (uint8) 0;
 			t_index = 0;
 
 			if( buf[t_index] == ';' || buf[t_index] == '/' )	{		// 주석에 대한 처리
@@ -372,13 +372,13 @@ BOOL MAP::LoadRoomEvent()
 
 	is.close();
 
-	return TRUE;
+	return true;
 
 cancel_event_load:
 	printf("Unable to load AI EVT (%d.aievt), failed in or near event number %d.\n", 
 		m_byRoomEvent, event_num);
 	is.close();
-	return FALSE;
+	return false;
 }
 
 int MAP::IsRoomCheck(float fx, float fz)
@@ -394,14 +394,14 @@ int MAP::IsRoomCheck(float fx, float fz)
 	int minX=0, minZ=0, maxX=0, maxZ=0;
 	int room_number = 0;
 
-	BOOL bFlag_1 = FALSE, bFlag_2 = FALSE;
+	bool bFlag_1 = false, bFlag_2 = false;
 
 	for( int i = 1; i < nSize+1; i++)		{
 		pRoom = m_arRoomEventArray.GetData( i );
 		if( !pRoom ) continue;
 		if( pRoom->m_byStatus == 3 )	continue;	// 방이 실행중이거나 깬(clear) 상태라면 검색하지 않음
 
-		bFlag_1 = FALSE; bFlag_2 = FALSE;
+		bFlag_1 = false; bFlag_2 = false;
 
 		if( pRoom->m_byStatus == 1 )	{			// 방이 초기화 상태
 			minX = pRoom->m_iInitMinX;		minZ = pRoom->m_iInitMinZ;
@@ -414,20 +414,20 @@ int MAP::IsRoomCheck(float fx, float fz)
 		}
 	
 		if( minX < maxX )	{
-			if( COMPARE(nX, minX, maxX) )		bFlag_1 = TRUE;
+			if( COMPARE(nX, minX, maxX) )		bFlag_1 = true;
 		}
 		else	{
-			if( COMPARE(nX, maxX, minX) )		bFlag_1 = TRUE;
+			if( COMPARE(nX, maxX, minX) )		bFlag_1 = true;
 		}
 
 		if( minZ < maxZ )	{
-			if( COMPARE(nZ, minZ, maxZ) )		bFlag_2 = TRUE;
+			if( COMPARE(nZ, minZ, maxZ) )		bFlag_2 = true;
 		}
 		else	{
-			if( COMPARE(nZ, maxZ, minZ) )		bFlag_2 = TRUE;
+			if( COMPARE(nZ, maxZ, minZ) )		bFlag_2 = true;
 		}
 
-		if( bFlag_1 == TRUE && bFlag_2 == TRUE )	{
+		if( bFlag_1 == true && bFlag_2 == true )	{
 			if( pRoom->m_byStatus == 1 )	{			// 방이 초기화 상태
 				pRoom->m_byStatus = 2;	// 진행중 상태로 방상태 변환
 				pRoom->m_tDelayTime = UNIXTIME;
@@ -469,7 +469,7 @@ CRoomEvent* MAP::SetRoomEvent( int number )
 	return pEvent;
 }
 
-BOOL MAP::IsRoomStatusCheck()
+bool MAP::IsRoomStatusCheck()
 {
 	int nClearRoom = 1;
 	int nTotalRoom = m_arRoomEventArray.GetSize() + 1;
@@ -493,7 +493,7 @@ BOOL MAP::IsRoomStatusCheck()
 				if( nTotalRoom == nClearRoom )	{		// 방이 다 클리어 되었어여.. 초기화 해줘여,,
 					m_byRoomStatus = 2;
 					TRACE("방이 다 클리어 되었어여.. 초기화 해줘여,, zone=%d, type=%d, status=%d\n", m_nZoneNumber, m_byRoomType, m_byRoomStatus);
-					return TRUE;
+					return true;
 				}
 			}
 		}
@@ -504,7 +504,7 @@ BOOL MAP::IsRoomStatusCheck()
 				if( nTotalRoom == nClearRoom )	{		// 방이 초기화 되었어여.. 
 					m_byRoomStatus = 3;
 					TRACE("방이 초기화 되었어여..  status=%d\n", m_byRoomStatus);
-					return TRUE;
+					return true;
 				}
 			}
 		}
@@ -512,10 +512,10 @@ BOOL MAP::IsRoomStatusCheck()
 			m_byRoomStatus = 1;
 			m_byInitRoomCount = 0;
 			TRACE("방이 다시 시작되었군여..  status=%d\n", m_byRoomStatus);
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 void MAP::InitializeRoom()

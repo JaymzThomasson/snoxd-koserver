@@ -147,7 +147,7 @@ void CUser::PartyInsert()
 	Packet result(WIZ_PARTY);
 	CUser* pUser = NULL;
 	_PARTY_GROUP* pParty = NULL;
-	BYTE byIndex = 0xFF;
+	uint8 byIndex = 0xFF;
 	if (!isInParty())
 		return;
 
@@ -394,7 +394,7 @@ void CUser::PartyBBSDelete(Packet & pkt)
 	SendPartyBBSNeeded(0, PARTY_BBS_DELETE);
 }
 
-void CUser::PartyBBSNeeded(Packet & pkt, BYTE type)
+void CUser::PartyBBSNeeded(Packet & pkt, uint8 type)
 {
 	SendPartyBBSNeeded(pkt.read<uint16>(), type);
 }

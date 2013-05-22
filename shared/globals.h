@@ -34,35 +34,35 @@ enum Nation
 };
 
 // ITEM_SLOT DEFINE
-const BYTE RIGHTEAR			= 0;
-const BYTE HEAD				= 1;
-const BYTE LEFTEAR			= 2;
-const BYTE NECK				= 3;
-const BYTE BREAST			= 4;
-const BYTE SHOULDER			= 5;
-const BYTE RIGHTHAND		= 6;
-const BYTE WAIST			= 7;
-const BYTE LEFTHAND			= 8;
-const BYTE RIGHTRING		= 9;
-const BYTE LEG				= 10;
-const BYTE LEFTRING			= 11;
-const BYTE GLOVE			= 12;
-const BYTE FOOT				= 13;
-const BYTE RESERVED			= 14;
+const uint8 RIGHTEAR			= 0;
+const uint8 HEAD				= 1;
+const uint8 LEFTEAR				= 2;
+const uint8 NECK				= 3;
+const uint8 BREAST				= 4;
+const uint8 SHOULDER			= 5;
+const uint8 RIGHTHAND			= 6;
+const uint8 WAIST				= 7;
+const uint8 LEFTHAND			= 8;
+const uint8 RIGHTRING			= 9;
+const uint8 LEG					= 10;
+const uint8 LEFTRING			= 11;
+const uint8 GLOVE				= 12;
+const uint8 FOOT				= 13;
+const uint8 RESERVED			= 14;
 
-const BYTE CWING			= 42;
-const BYTE CHELMET			= 43;
-const BYTE CLEFT			= 44;
-const BYTE CRIGHT			= 45;
-const BYTE CTOP				= 46;
-const BYTE BAG1				= 47;
-const BYTE BAG2				= 48;
+const uint8 CWING				= 42;
+const uint8 CHELMET				= 43;
+const uint8 CLEFT				= 44;
+const uint8 CRIGHT				= 45;
+const uint8 CTOP				= 46;
+const uint8 BAG1				= 47;
+const uint8 BAG2				= 48;
 
-const BYTE SLOT_MAX			= 14; // 14 equipped item slots
-const BYTE HAVE_MAX			= 28; // 28 inventory slots
-const BYTE COSP_MAX			= 5; // 5 cospre slots
-const BYTE MBAG_COUNT		= 2; // 2 magic bag slots
-const BYTE MBAG_MAX			= 12; // 12 slots per magic bag
+const uint8 SLOT_MAX			= 14; // 14 equipped item slots
+const uint8 HAVE_MAX			= 28; // 28 inventory slots
+const uint8 COSP_MAX			= 5; // 5 cospre slots
+const uint8 MBAG_COUNT			= 2; // 2 magic bag slots
+const uint8 MBAG_MAX			= 12; // 12 slots per magic bag
 
 // Total number of magic bag slots
 #define MBAG_TOTAL			(MBAG_MAX * MBAG_COUNT)
@@ -85,8 +85,8 @@ const BYTE MBAG_MAX			= 12; // 12 slots per magic bag
 // Total slots in the general-purpose inventory storage
 #define INVENTORY_TOTAL		(INVENTORY_MBAG2+MBAG_MAX)
 
-const BYTE WAREHOUSE_MAX	= 192;
-const BYTE MAX_MERCH_ITEMS	= 12;
+const uint8 WAREHOUSE_MAX	= 192;
+const uint8 MAX_MERCH_ITEMS	= 12;
 
 #define MAX_MERCH_MESSAGE	40
 

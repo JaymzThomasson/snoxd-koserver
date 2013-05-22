@@ -46,7 +46,7 @@ void CRoomEvent::Initialize()
 void CRoomEvent::MainRoom()
 {
 	// 조건 검색먼저 해야 겠지..
-	BOOL bCheck = FALSE, bRunCheck = FALSE;
+	bool bCheck = false, bRunCheck = false;
 	int event_num  = m_Logic[m_byLogicNumber-1].sNumber;
 
 	bCheck = CheckEvent(event_num);
@@ -62,15 +62,15 @@ void CRoomEvent::MainRoom()
 	}
 }
 
-BOOL  CRoomEvent::CheckEvent(int event_num)
+bool CRoomEvent::CheckEvent(int event_num)
 {
 	int nMinute = 0, nOption_1 = 0, nOption_2 = 0;
 	CNpc* pNpc = NULL;
-	BOOL bRetValue = FALSE;
+	bool bRetValue = false;
 
 	if( m_byLogicNumber == 0 || m_byLogicNumber > MAX_CHECK_EVENT )	{
 		TRACE("### Check Event Fail :: array overflow = %d ###\n", m_byLogicNumber);
-		return FALSE;
+		return false;
 	}
 
 	switch( event_num )	{
@@ -78,7 +78,7 @@ BOOL  CRoomEvent::CheckEvent(int event_num)
 		nOption_1 = m_Logic[ m_byLogicNumber-1 ].sOption_1;
 		pNpc = GetNpcPtr( nOption_1 );
 		if( pNpc )	{
-			if( pNpc->m_byChangeType == 100 )	return TRUE;
+			if( pNpc->m_byChangeType == 100 )	return true;
 		}
 		else	{
 			TRACE("### CheckEvent Error : monster nid = %d, logic=%d ###\n", nOption_1, m_byLogicNumber);
@@ -89,14 +89,14 @@ BOOL  CRoomEvent::CheckEvent(int event_num)
 		bRetValue = CheckMonsterCount( 0, 0, 3 );
 		if( bRetValue )	{
 			TRACE("모든 몬스터를 죽여라 죽임\n");
-			return TRUE;
+			return true;
 		}
 		break;
 	case 3:					// 몇분동안 버텨라
 		nMinute = m_Logic[ m_byLogicNumber-1 ].sOption_1;
 		nMinute = nMinute * 60;								// 분을 초로 변환
 		if (UNIXTIME >= m_tDelayTime + nMinute )	{		// 제한시간 종료
-			return TRUE;
+			return true;
 		}
 		break;
 	case 4:					// 목표지점까지 이동
@@ -108,7 +108,7 @@ BOOL  CRoomEvent::CheckEvent(int event_num)
 		bRetValue = CheckMonsterCount( nOption_1, nOption_2, 1 );
 		if( bRetValue )	{
 			TRACE("특정몬스터(%d)를 %d마리 죽임\n", nOption_1, nOption_2);
-			return TRUE;
+			return true;
 		}
 		break;
 	default:
@@ -116,14 +116,14 @@ BOOL  CRoomEvent::CheckEvent(int event_num)
 		break;
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL  CRoomEvent::RunEvent( int event_num )
+bool CRoomEvent::RunEvent( int event_num )
 {
 	CNpc* pNpc = NULL;
 	int nOption_1 = 0, nOption_2 = 0;
-	BOOL bRetValue = FALSE;
+	bool bRetValue = false;
 	switch( event_num )	{
 	case 1:					// 다른 몬스터의 출현
 		nOption_1 = m_Exec[ m_byLogicNumber-1 ].sOption_1;
@@ -136,7 +136,7 @@ BOOL  CRoomEvent::RunEvent( int event_num )
 			TRACE("### RunEvent Error : 몬스터 출현 할 수 없당 = %d, logic=%d ###\n", nOption_1, m_byLogicNumber);
 		}
 		if( m_byCheck == m_byLogicNumber )	{	// 방이 클리어
-			return TRUE;
+			return true;
 		}
 		else		m_byLogicNumber++;
 
@@ -155,14 +155,14 @@ BOOL  CRoomEvent::RunEvent( int event_num )
 		//g_pMain->SendSystemMsg(notify, PUBLIC_CHAT);
 
 		if( m_byCheck == m_byLogicNumber )	{	// 방이 클리어
-			return TRUE;
+			return true;
 		}
 		else		m_byLogicNumber++;
 
 		break;
 	case 3:					// 다른 몬스터로 변환
 		if( m_byCheck == m_byLogicNumber )	{	// 방이 클리어
-			return TRUE;
+			return true;
 		}
 		break;
 	case 4:					// 특정몬스터 옵션2의 마리수만큼 출현
@@ -174,7 +174,7 @@ BOOL  CRoomEvent::RunEvent( int event_num )
 		//g_pMain->SendSystemMsg(notify, PUBLIC_CHAT);
 
 		if( m_byCheck == m_byLogicNumber )	{	// 방이 클리어
-			return TRUE;
+			return true;
 		}
 		else		m_byLogicNumber++;
 		break;
@@ -187,7 +187,7 @@ BOOL  CRoomEvent::RunEvent( int event_num )
 			EndEventSay( nOption_1, nOption_2 );
 		}
 		if( m_byCheck == m_byLogicNumber )	{	// 방이 클리어
-			return TRUE;
+			return true;
 		}
 		else		m_byLogicNumber++;
 		break;
@@ -196,7 +196,7 @@ BOOL  CRoomEvent::RunEvent( int event_num )
 		break;
 	}
 
-	return FALSE;
+	return false;
 }
 
 CNpc* CRoomEvent::GetNpcPtr( int sid )
@@ -237,10 +237,10 @@ CNpc* CRoomEvent::GetNpcPtr( int sid )
 	return NULL;
 }
 
-BOOL  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
+bool  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
 {
 	int nMonsterCount = 0, nTotalMonster = 0;
-	BOOL bRetValue = FALSE;
+	bool bRetValue = false;
 	
 	EnterCriticalSection( &g_region_critical );
 
@@ -266,16 +266,16 @@ BOOL  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
 		}
 		else if( type == 3 )	{				// 모든 몬스터를 죽었는지를 판단
 			if( pNpc->m_byDeadType == 100 )	nMonsterCount++;
-			if( nMonsterCount == nMonster )	bRetValue = TRUE;
+			if( nMonsterCount == nMonster )	bRetValue = true;
 		}
 		else	if( pNpc->m_proto->m_sSid == sid )	{
 			if( type == 1 )	{					// 특정 몬스터가 마리수 만큼 죽었는지를 판단
 				if( pNpc->m_byChangeType == 100 )	nMonsterCount++;
-				if( nMonsterCount == count )	bRetValue = TRUE;
+				if( nMonsterCount == count )	bRetValue = true;
 			}
 			else if( type == 2 )	{			// 특정 몬스터를 마리수 만큼 출현 시켜라,,
 				pNpc->m_byChangeType = 3;	nMonsterCount++;
-				if( nMonsterCount == count )	bRetValue = TRUE;
+				if( nMonsterCount == count )	bRetValue = true;
 			}
 		}
 	}

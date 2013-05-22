@@ -37,10 +37,10 @@ public:
 	int	m_nServerNo;
 	std::string m_MapName;
 	float*		m_fHeight;
-	BYTE		m_byRoomType;		// 방의 초기화관련( 0:자동으로 초기화, 1:전쟁이벤트 관련(특정조건이 완료시 초기화)
-	BYTE		m_byRoomEvent;		// event room(0:empty, 1:use)
-	BYTE		m_byRoomStatus;		// room status(1:진행중, 2:방을 초기화중, 3:방초기화 완료)
-	BYTE		m_byInitRoomCount;	// room 초기화 시간을 제어(몬스터와 동기화를 맞추기 위해)
+	uint8		m_byRoomType;		// 방의 초기화관련( 0:자동으로 초기화, 1:전쟁이벤트 관련(특정조건이 완료시 초기화)
+	uint8		m_byRoomEvent;		// event room(0:empty, 1:use)
+	uint8		m_byRoomStatus;		// room status(1:진행중, 2:방을 초기화중, 3:방초기화 완료)
+	uint8		m_byInitRoomCount;	// room 초기화 시간을 제어(몬스터와 동기화를 맞추기 위해)
 	ObjectEventArray m_ObjectEventArray;
 	RoomEventArray	 m_arRoomEventArray;
 	short	m_sKarusRoom;			// karus의 성갯수
@@ -52,21 +52,21 @@ public:
 
 	bool Initialize(_ZONE_INFO *pZone);
 
-	BOOL LoadRoomEvent();
-	BOOL ObjectIntersect(float x1, float z1, float y1, float x2, float z2, float y2);
+	bool LoadRoomEvent();
+	bool ObjectIntersect(float x1, float z1, float y1, float x2, float z2, float y2);
 	float GetHeight( float x, float z );
 
-	BOOL RegionNpcRemove( int rx, int rz, int nid );
+	bool RegionNpcRemove( int rx, int rz, int nid );
 	void RegionNpcAdd( int rx, int rz, int nid );
-	BOOL RegionUserRemove( int rx, int rz, int uid );
+	bool RegionUserRemove( int rx, int rz, int uid );
 	void RegionUserAdd( int rx, int rz, int uid );
 	int  GetRegionUserSize(int rx, int rz);
 	int  GetRegionNpcSize(int rx, int rz);
 
 	int IsRoomCheck(float fx, float fz);	// 던젼에서 사용, 유저의 현재위치가 던젼의 어느 위치에 있는지를 판단
-	BOOL IsRoomStatusCheck();
+	bool IsRoomStatusCheck();
 
-	BOOL IsMovable(int dest_x, int dest_y);
+	bool IsMovable(int dest_x, int dest_y);
 	void InitializeRoom();
 
 	CRoomEvent* SetRoomEvent( int number );

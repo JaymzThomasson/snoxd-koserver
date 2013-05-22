@@ -36,7 +36,7 @@ bool CDBAgent::Startup(bool bMarsEnabled,
 	}
 
 	// If MARS is enabled, we can use multiple database threads.
-	DWORD dwThreads = 1;
+	uint32 dwThreads = 1;
 	if (bMarsEnabled)
 	{
 		SYSTEM_INFO si;

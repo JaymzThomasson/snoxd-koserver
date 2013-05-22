@@ -15,7 +15,7 @@ public:
 	struct __CellSub // 하위 셀 데이터
 	{
 		int 	nCCPolyCount; // Collision Check Polygon Count
-		DWORD*	pdwCCVertIndices; // Collision Check Polygon Vertex Indices - wCCPolyCount * 3 만큼 생성된다.
+		uint32*	pdwCCVertIndices; // Collision Check Polygon Vertex Indices - wCCPolyCount * 3 만큼 생성된다.
 
 		void Load(FILE *fp)
 		{
@@ -23,7 +23,7 @@ public:
 			if(nCCPolyCount != 0)
 			{
 				if(pdwCCVertIndices) delete [] pdwCCVertIndices;
-				pdwCCVertIndices = new DWORD[nCCPolyCount * 3];
+				pdwCCVertIndices = new uint32[nCCPolyCount * 3];
 				// _ASSERT(pdwCCVertIndices);
 				fread(pdwCCVertIndices, nCCPolyCount * 3 * 4, 1, fp);
 			}

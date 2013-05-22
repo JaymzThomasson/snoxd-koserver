@@ -3,9 +3,12 @@
 #include "ConsoleInputThread.h"
 
 CEbenezerDlg * g_pMain;
-BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
 
+#ifdef WIN32
+BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
 static DWORD s_dwMainThreadID;
+#endif
+
 bool g_bRunning = true;
 
 int main()
@@ -15,9 +18,13 @@ int main()
 
 	SetConsoleTitle("Game server for Knight Online v" STRINGIFY(__VERSION));
 
+#ifdef WIN32
 	// Override the console handler
 	s_dwMainThreadID = GetCurrentThreadId();
 	SetConsoleCtrlHandler(_ConsoleHandler, true);
+#else
+	/* TO-DO: Signals */
+#endif
 
 	// Start up the time updater thread
 	StartTimeThread();
@@ -51,9 +58,11 @@ int main()
 	return 0;
 }
 
+#ifdef WIN32
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType)
 {
 	PostThreadMessage(s_dwMainThreadID, WM_QUIT, 0, 0);
 	sleep(10000); // Win7 onwards allows 10 seconds before it'll forcibly terminate
-	return true;
+	return TRUE;
 }
+#endif

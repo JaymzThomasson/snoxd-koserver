@@ -49,7 +49,7 @@ void CUser::Initialize()
 	m_sItemAC = 0;
 	m_fHitrate = 0.0f;					// 타격 성공률
 	m_fAvoidrate = 0;					// 회피 성공률
-	m_bLogOut = FALSE;				// Logout 중인가?
+	m_bLogOut = false;				// Logout 중인가?
 	m_byNowParty = 0;
 	m_sPartyTotalLevel = 0;
 	m_byPartyTotalMan = 0;
@@ -92,7 +92,7 @@ void CUser::Attack(int sid, int tid)
 	// Calculate Target HP	 -------------------------------------------------------//
 	short sOldNpcHP = pNpc->m_iHP;
 
-	if(pNpc->SetDamage(0, nFinalDamage, m_strUserID, m_iUserId + USER_BAND) == FALSE)
+	if(pNpc->SetDamage(0, nFinalDamage, m_strUserID, m_iUserId + USER_BAND) == false)
 	{
 		// Npc가 죽은 경우,,
 		pNpc->SendExpToUserList(); // 경험치 분배!!
@@ -106,7 +106,7 @@ void CUser::Attack(int sid, int tid)
 	}
 }
 
-void CUser::SendAttackSuccess(short tid, BYTE bResult, short sDamage, int nHP, short sAttack_type, uint8 type /*= 1*/, short sid /*= -1*/)
+void CUser::SendAttackSuccess(short tid, uint8 bResult, short sDamage, int nHP, short sAttack_type, uint8 type /*= 1*/, short sid /*= -1*/)
 {
 	if (sid < 0)
 		sid = m_iUserId + USER_BAND;
@@ -260,7 +260,7 @@ short CUser::GetDamage(int tid, int magicid)
 {
 	short damage = 0;	float Attack = 0;	float Avoid = 0;
 	short Hit = 0;	short HitB = 0;
-	short Ac = 0; int random = 0;	BYTE result;
+	short Ac = 0; int random = 0;	uint8 result;
 
 	_MAGIC_TABLE* pTable = NULL;
 	_MAGIC_TYPE1* pType1 = NULL; 
@@ -551,24 +551,24 @@ int CUser::IsSurroundCheck(float fX, float fY, float fZ, int NpcID)
 	vNpc.Set(fX, fY, fZ);
 	float fDX, fDZ;
 	float fDis = 0.0f, fCurDis=1000.0f;
-	BOOL bFlag = FALSE;
+	bool bFlag = false;
 	for(int i=0; i<8; i++)
 	{
 		//if(m_sSurroundNpcNumber[i] != -1) continue;
 		if(m_sSurroundNpcNumber[i] == NpcID)
 		{
-			if(bFlag == TRUE)
+			if (bFlag)
 				m_sSurroundNpcNumber[i] = -1;
 			else
 			{
 				m_sSurroundNpcNumber[i] = NpcID;
 				nDir = i+1;
-				bFlag = TRUE;
+				bFlag = true;
 			}
 			//return nDir;
 		}
 
-		if(m_sSurroundNpcNumber[i] == -1 && bFlag==FALSE)
+		if(m_sSurroundNpcNumber[i] == -1 && bFlag==false)
 		{
 			fDX = m_curx + surround_fx[i]; 
 			fDZ = m_curz + surround_fz[i]; 

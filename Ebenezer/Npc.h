@@ -19,19 +19,18 @@ public:
 	char	m_strName[MAX_NPC_SIZE+1];		// MONSTER(NPC) Name
 	int		m_iMaxHP;			// 최대 HP
 	int		m_iHP;				// 현재 HP
-	BYTE	m_byState;			// 몬스터 (NPC) 상태
-	BYTE	m_tNpcType;			// NPC Type
+	uint8	m_byState;			// 몬스터 (NPC) 상태
+	uint8	m_tNpcType;			// NPC Type
 								// 0 : Normal Monster
 								// 1 : NPC
 								// 2 : 각 입구,출구 NPC
 								// 3 : 경비병
 	int   m_iSellingGroup;		// ItemGroup
-//	DWORD	m_dwStepDelay;		
 
-	BYTE	m_NpcState;			// NPC의 상태 - 살았다, 죽었다, 서있다 등등...
-	BYTE	m_byGateOpen;		// Gate Npc Status -> 1 : open 0 : close
+	uint8	m_NpcState;			// NPC의 상태 - 살았다, 죽었다, 서있다 등등...
+	uint8	m_byGateOpen;		// Gate Npc Status -> 1 : open 0 : close
 
-	BYTE    m_byObjectType;     // 보통은 0, object타입(성문, 레버)은 1
+	uint8    m_byObjectType;     // 보통은 0, object타입(성문, 레버)은 1
 	int16	m_byDirection;
 
 	uint8   m_byTrapNumber;
@@ -47,7 +46,7 @@ public:
 	void SendInOut(uint8 bType, float fx, float fz, float fy);
 	void GetNpcInfo(Packet & pkt);
 
-	void SendGateFlag(BYTE bFlag = -1, bool bSendAI = true);
+	void SendGateFlag(uint8 bFlag = -1, bool bSendAI = true);
 
 	virtual void HpChange(int amount, Unit *pAttacker = NULL, bool bSendToAI = true); 
 	virtual void MSpChange(int amount);
@@ -61,8 +60,8 @@ public:
 	INLINE bool isGateClosed() { return !isGateOpen(); };
 
 	INLINE short GetEntryID() { return m_sSid; };
-	INLINE BYTE GetType() { return m_tNpcType; };
-	INLINE BYTE GetState() { return m_byState; };
+	INLINE uint8 GetType() { return m_tNpcType; };
+	INLINE uint8 GetState() { return m_byState; };
 
 	virtual int32 GetHealth() { return m_iHP; }
 	virtual int32 GetMaxHealth() { return m_iMaxHP; }

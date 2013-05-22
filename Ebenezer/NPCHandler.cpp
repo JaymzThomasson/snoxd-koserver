@@ -384,7 +384,7 @@ void CUser::ItemTrade(Packet & pkt)
 	uint16 count, real_count = 0;
 	_ITEM_TABLE* pTable = NULL;
 	CNpc* pNpc = NULL;
-	BYTE type, pos, destpos, errorCode = 1;
+	uint8 type, pos, destpos, errorCode = 1;
 	bool bSuccess = true;
 
 	if (isDead())

@@ -45,8 +45,8 @@ struct	_ExpUserList
 	char	strUserID[MAX_ID_SIZE+1];		// 아이디(캐릭터 이름)
 	int		iUid;							// User uid
 	int		nDamage;						// 타격치 합
-	BOOL	bIs;							// 시야에 존재하는지를 판단(true:존재)
-	//BOOL	bSameParty;						// 같은 파티 소속이 있다면 TRUE, 그렇지 않으면 FALSE
+	bool	bIs;							// 시야에 존재하는지를 판단(true:존재)
+	//bool	bSameParty;						
 };
 
 struct _Target
@@ -123,7 +123,7 @@ public:
 	short m_sPathCount;			// NPC의 PathList Count
 	short m_sMaxPathCount;		// NPC의 PathList Max Count
 
-	BOOL	m_bFirstLive;		// NPC 가 처음 생성되는지 죽었다 살아나는지 판단.
+	bool	m_bFirstLive;		// NPC 가 처음 생성되는지 죽었다 살아나는지 판단.
 	uint8	m_NpcState;			// NPC의 상태 - 살았다, 죽었다, 서있다 등등...
 	MAP *	m_pZone;
 
@@ -210,7 +210,6 @@ public:
 
 	int		m_iMoney;			// 떨어지는 돈
 	int		m_iItem;			// 떨어지는 아이템
-	//BYTE	m_byMemory;			// 공격 타입 
 
 	int			m_iHP;				// 현재 HP
 	short		m_sMP;				// 현재 MP
@@ -274,7 +273,7 @@ public:
 
 	float m_fSecForRealMoveMetor;		// 초당 갈 수 있는 거리..(실제 클라이언트에 보내주는 거리)
 
-	BOOL m_bPathFlag;					// 패스 파인드 실행여부 체크 변수..
+	bool m_bPathFlag;					// 패스 파인드 실행여부 체크 변수..
 
 	//----------------------------------------------------------------
 	//	NPC 이동 관련
@@ -318,45 +317,45 @@ protected:
 public:
 
 	void FillNpcInfo(Packet & result);
-	void NpcStrategy(BYTE type);
+	void NpcStrategy(uint8 type);
 	void NpcTypeParser();
 	int  FindFriend(int type=0);
 	void  FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int type=0);
 	//void  FindFriendRegion(int x, int z, MAP* pMap, int type=0);
-	BOOL IsCloseTarget(CUser *pUser, int nRange);
+	bool IsCloseTarget(CUser *pUser, int nRange);
 	void ToTargetMove(CUser* pUser);
 	int SendDead(int type = 1);			// Npc Dead
 	void SendExpToUserList();								// User 경험치 분배..
-	BOOL SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid);	// Npc의 데미지 계산..
-	BOOL SetHMagicDamage(int nDamage);	// Npc의 데미지 계산..
+	bool SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid);	// Npc의 데미지 계산..
+	bool SetHMagicDamage(int nDamage);	// Npc의 데미지 계산..
 	int GetDefense();										// Npc의 방어값..
 	void ChangeTarget(int nAttackType, CUser *pUser);
 	void ChangeNTarget(CNpc *pNpc);
 	int GetFinalDamage(CUser *pUser, int type = 1);
 	int GetNFinalDamage(CNpc *pNpc);
-	BYTE GetHitRate(float rate);
-	BOOL ResetPath();
-	BOOL GetTargetPos(float& x, float& z);
-	BOOL IsChangePath();
+	uint8 GetHitRate(float rate);
+	bool ResetPath();
+	bool GetTargetPos(float& x, float& z);
+	bool IsChangePath();
 	int Attack();
 	int LongAndMagicAttack();
 	int TracingAttack();
 	int GetTargetPath(int option = 0);
 	int	GetPartyDamage(int iNumber);
 	int IsCloseTarget(int nRange, int Flag=0);
-	BOOL StepMove();
-	BOOL StepNoPathMove();
-	BOOL IsMovingEnd();
-	BOOL IsMovable(float x, float z);
+	bool StepMove();
+	bool StepNoPathMove();
+	bool IsMovingEnd();
+	bool IsMovable(float x, float z);
 	int  IsSurround(CUser* pUser);
-	BOOL IsDamagedUserList(CUser *pUser);
+	bool IsDamagedUserList(CUser *pUser);
 	void IsUserInSight();
-	BOOL IsLevelCheck(int iLevel);
-	BOOL IsHPCheck(int iHP);
-	BOOL IsCompStatus(CUser* pUser);
-	BOOL IsPathFindCheck(float fDistance);						// 패스 파인드를 할것인지를 체크하는 루틴..
+	bool IsLevelCheck(int iLevel);
+	bool IsHPCheck(int iHP);
+	bool IsCompStatus(CUser* pUser);
+	bool IsPathFindCheck(float fDistance);						// 패스 파인드를 할것인지를 체크하는 루틴..
 	void IsNoPathFind(float fDistance);						// 패스 파인드를 하지 않고 공격대상으로 가는 루틴..
-	BOOL IsInExpRange(CUser* pUser);
+	bool IsInExpRange(CUser* pUser);
 	void GiveNpcHaveItem();		// NPC 가 가진 아이템을 떨군다
 
 	time_t NpcLive();
@@ -369,23 +368,23 @@ public:
 	time_t NpcHealing();
 	time_t NpcStanding();
 	time_t NpcBack();
-	BOOL SetLive();
+	bool SetLive();
 
-	BOOL IsInRange(int nX, int nZ);
-	BOOL RandomMove();				//
-	BOOL RandomBackMove();				//
-	BOOL IsInPathRange();			//
+	bool IsInRange(int nX, int nZ);
+	bool RandomMove();				//
+	bool RandomBackMove();				//
+	bool IsInPathRange();			//
 	int GetNearPathPoint();			//
 
 	// Packet Send부분..
-	void SendAttackSuccess(BYTE byResult, int tuid, short sDamage, int nHP=0, BYTE byFlag = 0, short sAttack_type=1);
+	void SendAttackSuccess(uint8 byResult, int tuid, short sDamage, int nHP=0, uint8 byFlag = 0, short sAttack_type=1);
 
 	// Inline Function
-	BOOL SetUid(float x, float z, int id);
+	bool SetUid(float x, float z, int id);
 
 	void Dead(int iDeadType = 0);
-	BOOL FindEnemy();
-	BOOL CheckFindEnermy();
+	bool FindEnemy();
+	bool CheckFindEnermy();
 	int FindEnemyRegion();
 	float FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType);
 	int GetMyField();
@@ -400,8 +399,8 @@ public:
 	void Yaw2D(float fDirX, float fDirZ, float& fYawResult);
 	float GetDistance(__Vector3 & vOrig, __Vector3 & vDest);
 	int  PathFind(CPoint start, CPoint end, float fDistance);
-	BOOL GetUserInView();	// Npc의 가시 거리안에 User가 있는지를 판단
-	BOOL GetUserInViewRange(int x, int z);
+	bool GetUserInView();	// Npc의 가시 거리안에 User가 있는지를 판단
+	bool GetUserInViewRange(int x, int z);
 	void MoveAttack();
 	void HpChange();
 	void MSpChange(int type, int amount);
@@ -415,5 +414,5 @@ public:
 	void ChangeMonsterInfomation(int iChangeType);
 	int  GetPartyExp( int party_level, int man, int nNpcExp );
 	void ChangeAbility(int iChangeType);
-	BOOL Teleport();
+	bool Teleport();
 };

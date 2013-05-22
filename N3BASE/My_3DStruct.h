@@ -275,14 +275,14 @@ inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir,
 	pVec.Cross(vEdge1, vEdge2);
 	fDet = pVec.Dot(vDir);
 	if ( fDet > -0.0001f )
-		return FALSE;
+		return false;
 
 	pVec.Cross(vDir, vEdge2);
 
     // If determinant is near zero, ray lies in plane of triangle
     fDet = vEdge1.Dot(pVec);
     if( fDet < 0.0001f )
-        return FALSE;
+        return false;
 
     // Calculate distance from vert0 to ray origin
     __Vector3 tVec = vOrig - v0;
@@ -290,7 +290,7 @@ inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir,
     // Calculate U parameter and test bounds
     fU = tVec.Dot(pVec);
     if( fU < 0.0f || fU > fDet )
-        return FALSE;
+        return false;
 
     // Prepare to test V parameter
     __Vector3 qVec;
@@ -299,7 +299,7 @@ inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir,
     // Calculate V parameter and test bounds
     fV = vDir.Dot(qVec);
     if( fV < 0.0f || fU + fV > fDet )
-        return FALSE;
+        return false;
 
     // Calculate t, scale parameters, ray intersects triangle
 	fT = vEdge2.Dot(qVec);
@@ -325,14 +325,14 @@ inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir, co
 	pVec.Cross(vEdge1, vEdge2);
 	fDet = pVec.Dot(vDir);
 	if ( fDet > -0.0001f )
-		return FALSE;
+		return false;
 
 	pVec.Cross(vDir, vEdge2);
 
     // If determinant is near zero, ray lies in plane of triangle
     fDet = vEdge1.Dot(pVec);
     if( fDet < 0.0001f )
-        return FALSE;
+        return false;
 
     // Calculate distance from vert0 to ray origin
     tVec = vOrig - v0;
@@ -340,7 +340,7 @@ inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir, co
     // Calculate U parameter and test bounds
     fU = tVec.Dot(pVec);
     if( fU < 0.0f || fU > fDet )
-        return FALSE;
+        return false;
 
     // Prepare to test V parameter
     qVec.Cross(tVec, vEdge1);
@@ -348,7 +348,7 @@ inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir, co
     // Calculate V parameter and test bounds
 	fV = vDir.Dot(qVec);
     if( fV < 0.0f || fU + fV > fDet )
-        return FALSE;
+        return false;
 
     // Calculate t, scale parameters, ray intersects triangle
     fT = vEdge2.Dot(qVec) / fDet;

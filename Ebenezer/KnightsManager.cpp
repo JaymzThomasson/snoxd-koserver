@@ -461,7 +461,7 @@ void CKnightsManager::CurrentKnightsMember(CUser *pUser, Packet & pkt)
 	pUser->Send(&result);
 }
 
-void CKnightsManager::RecvUpdateKnights(CUser *pUser, Packet & pkt, BYTE command)
+void CKnightsManager::RecvUpdateKnights(CUser *pUser, Packet & pkt, uint8 command)
 {
 	if (pUser == NULL) 
 		return;
@@ -492,7 +492,7 @@ void CKnightsManager::RecvUpdateKnights(CUser *pUser, Packet & pkt, BYTE command
 	pUser->SendToRegion(&result);
 }
 
-void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, BYTE command)
+void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, uint8 command)
 {
 	if (pUser == NULL) 
 		return;

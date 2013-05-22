@@ -77,7 +77,7 @@ void CUser::FriendReport(Packet & pkt)
 }
 
 // Retrieves the status (and socket ID) of a character.
-BYTE CUser::GetFriendStatus(std::string & charName, int16 & sid)
+uint8 CUser::GetFriendStatus(std::string & charName, int16 & sid)
 {
 	CUser *pUser;
 	if (charName.empty()

@@ -151,7 +151,7 @@ void CNpc::GetNpcInfo(Packet & pkt)
  * @param	bFlag  	The flag (open or shut).
  * @param	bSendAI	true to update the AI server.
  */
-void CNpc::SendGateFlag(BYTE bFlag /*= -1*/, bool bSendAI /*= true*/)
+void CNpc::SendGateFlag(uint8 bFlag /*= -1*/, bool bSendAI /*= true*/)
 {
 	Packet result(WIZ_OBJECT_EVENT, uint8(OBJECT_FLAG_LEVER));
 

@@ -34,20 +34,20 @@ class CServerDlg
 {
 private:
 	void ResumeAI();
-	BOOL CreateNpcThread();
-	BOOL GetMagicTableData();
-	BOOL GetMagicType1Data();
-	BOOL GetMagicType2Data();
-	BOOL GetMagicType3Data();
-	BOOL GetMagicType4Data();
-	BOOL GetNpcTableData(bool bNpcData = true);
-	BOOL GetNpcItemTable();
-	BOOL GetMakeItemGroupTable();
-	BOOL GetMakeWeaponItemTableData();
-	BOOL GetMakeDefensiveItemTableData();
-	BOOL GetMakeGradeItemTableData();
-	BOOL GetMakeLareItemTableData();
-	BOOL MapFileLoad();
+	bool CreateNpcThread();
+	bool GetMagicTableData();
+	bool GetMagicType1Data();
+	bool GetMagicType2Data();
+	bool GetMagicType3Data();
+	bool GetMagicType4Data();
+	bool GetNpcTableData(bool bNpcData = true);
+	bool GetNpcItemTable();
+	bool GetMakeItemGroupTable();
+	bool GetMakeWeaponItemTableData();
+	bool GetMakeDefensiveItemTableData();
+	bool GetMakeGradeItemTableData();
+	bool GetMakeLareItemTableData();
+	bool MapFileLoad();
 	void GetServerInfoIni();
 	
 	void SyncTest();
@@ -59,11 +59,11 @@ public:
 
 	bool LoadSpawnCallback(OdbcCommand *dbCommand);
 	void GameServerAcceptThread();
-	BOOL AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap);
+	bool AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap);
 	void AllNpcInfo();
 	CUser* GetUserPtr(int nid);
 	CNpc*  GetEventNpcPtr();
-	BOOL   SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz);
+	bool   SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz);
 	MAP * GetZoneByID(int zonenumber);
 	int GetServerNumber( int zonenumber );
 
@@ -109,25 +109,24 @@ public:
 
 	CUser* m_pUser[MAX_USER];
 
-	// 전역 객체 변수	//BOOL			m_bNpcExit;
 	uint16			m_TotalNPC;			// DB에있는 총 수
 	long			m_CurrentNPCError;	// 세팅에서 실패한 수
 	long			m_CurrentNPC;		// 현재 게임상에서 실제로 셋팅된 수
 	short			m_sTotalMap;		// Zone 수 
 	short			m_sMapEventNpc;		// Map에서 읽어들이는 event npc 수
 
-	BOOL			m_bFirstServerFlag;		// 서버가 처음시작한 후 게임서버가 붙은 경우에는 1, 붙지 않은 경우 0
-	BYTE  m_byBattleEvent;				   // 전쟁 이벤트 관련 플래그( 1:전쟁중이 아님, 0:전쟁중)
+	bool			m_bFirstServerFlag;		// 서버가 처음시작한 후 게임서버가 붙은 경우에는 1, 붙지 않은 경우 0
+	uint8  m_byBattleEvent;				   // 전쟁 이벤트 관련 플래그( 1:전쟁중이 아님, 0:전쟁중)
 	short m_sKillKarusNpc, m_sKillElmoNpc; // 전쟁동안에 죽은 npc숫자
 
 	uint16	m_iYear, m_iMonth, m_iDate, m_iHour, m_iMin, m_iAmount;
 	uint8 m_iWeather;
-	BYTE	m_byNight;			// 밤인지,, 낮인지를 판단... 1:낮, 2:밤
+	uint8	m_byNight;			// 밤인지,, 낮인지를 판단... 1:낮, 2:밤
 
 	static KOSocketMgr<CGameSocket> s_socketMgr;
 
 private:
-	BYTE				m_byZone;
+	uint8				m_byZone;
 };
 
 extern CServerDlg * g_pMain;

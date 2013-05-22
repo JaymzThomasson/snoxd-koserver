@@ -1391,7 +1391,7 @@ void CEbenezerDlg::ResetBattleZone()
 	// REMEMBER TO MAKE ALL FLAGS AND LEVERS NEUTRAL AGAIN!!!!!!!!!!
 }
 
-void CEbenezerDlg::Announcement(BYTE type, int nation, int chat_type)
+void CEbenezerDlg::Announcement(uint8 type, int nation, int chat_type)
 {
 	string chatstr; 
 
@@ -1588,12 +1588,12 @@ __int64 CEbenezerDlg::GenerateItemSerial()
 
 	increase.w = g_increase_serial++;
 
-	serial.b[7] = (BYTE)(m_nServerNo);
-	serial.b[6] = (BYTE)(ptm->tm_year % 100);
-	serial.b[5] = (BYTE)(ptm->tm_mon);
-	serial.b[4] = (BYTE)(ptm->tm_mday);
-	serial.b[3] = (BYTE)(ptm->tm_hour);
-	serial.b[2] = (BYTE)(ptm->tm_min);
+	serial.b[7] = (uint8)(m_nServerNo);
+	serial.b[6] = (uint8)(ptm->tm_year % 100);
+	serial.b[5] = (uint8)(ptm->tm_mon);
+	serial.b[4] = (uint8)(ptm->tm_mday);
+	serial.b[3] = (uint8)(ptm->tm_hour);
+	serial.b[2] = (uint8)(ptm->tm_min);
 	serial.b[1] = increase.b[1];
 	serial.b[0] = increase.b[0];
 

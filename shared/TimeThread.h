@@ -1,7 +1,7 @@
 #pragma once
 
 void StartTimeThread();
-DWORD WINAPI TimeThread(LPVOID lpParam);
+uint32 __stdcall TimeThread(void * lpParam);
 
 extern bool g_bRunning;
 extern time_t UNIXTIME;

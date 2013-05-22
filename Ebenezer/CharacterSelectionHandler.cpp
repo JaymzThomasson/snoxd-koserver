@@ -223,7 +223,7 @@ void CUser::SendServerChange(char *ip, uint8 bInit)
 }
 
 // happens on character selection
-void CUser::SetLogInInfoToDB(BYTE bInit)
+void CUser::SetLogInInfoToDB(uint8 bInit)
 {
 	_ZONE_SERVERINFO *pInfo = g_pMain->m_ServerArray.GetData(g_pMain->m_nServerNo);
 	if (pInfo == NULL) 

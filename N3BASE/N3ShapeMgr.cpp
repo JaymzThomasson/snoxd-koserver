@@ -70,7 +70,7 @@ bool CN3ShapeMgr::LoadCollisionData(FILE *fp)
 	}
 
 	// Cell Data 쓰기.
-	BOOL bExist = FALSE;
+	bool bExist = false;
 	int z = 0;
 	for(float fZ = 0.0f; fZ < m_fMapLength; fZ += CELL_MAIN_SIZE, z++)
 	{
@@ -84,7 +84,7 @@ bool CN3ShapeMgr::LoadCollisionData(FILE *fp)
 			}
 
 			fread(&bExist, 4, 1, fp); // 데이터가 있는 셀인지 쓰고..
-			if(FALSE == bExist) continue;
+			if(false == bExist) continue;
 
 			m_pCells[x][z] = new __CellMain;
 			m_pCells[x][z]->Load(fp);
@@ -194,7 +194,7 @@ int CN3ShapeMgr::SubCellPathThru(const __Vector3& vFrom, const __Vector3& vAt, _
 			fXMax = (float)((x+1) * CELL_SUB_SIZE);
 
 			// Cohen thuderland algorythm
-			DWORD dwOC0 = 0, dwOC1 = 0; // OutCode 0, 1
+			uint32 dwOC0 = 0, dwOC1 = 0; // OutCode 0, 1
 			if(vFrom.z > fZMax) dwOC0 |= 0xf000;
 			if(vFrom.z < fZMin) dwOC0 |= 0x0f00;
 			if(vFrom.x > fXMax) dwOC0 |= 0x00f0;

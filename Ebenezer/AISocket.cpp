@@ -231,7 +231,7 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 {
 	int nHP = 0, temp_damage = 0;
 	int16 sid, tid;
-	BYTE type, bResult, byAttackType = 0;
+	uint8 type, bResult, byAttackType = 0;
 	float fDir=0.0f;
 	short damage = 0;
 	CNpc* pNpc = NULL, *pMon = NULL;
@@ -491,7 +491,7 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 	Packet result(WIZ_ITEM_DROP);
 	short sUid, sNid, regionx, regionz;
 	float fX, fZ, fY;
-	BYTE byCount, bZone;
+	uint8 byCount, bZone;
 	int nItemNumber[NPC_HAVE_ITEM_LIST];
 	short sCount[NPC_HAVE_ITEM_LIST];
 	CUser* pUser = NULL;

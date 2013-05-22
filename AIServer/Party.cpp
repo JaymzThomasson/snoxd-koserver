@@ -41,7 +41,7 @@ void CParty::PartyCreate(Packet & pkt)
 {
 	uint16 sPartyIndex = pkt.read<uint16>(), sUid = pkt.read<uint16>();
 	short sHP = 0, sClass = 0;
-	BYTE  byLevel= 0;
+	uint8  byLevel= 0;
 	_PARTY_GROUP* pParty = NULL;
 	CUser* pUser = NULL;
 
@@ -68,7 +68,7 @@ void CParty::PartyInsert(Packet & pkt)
 	uint16 sPartyIndex = pkt.read<uint16>();
 	uint8 byIndex = pkt.read<uint8>();
 	uint16 sUid = pkt.read<uint16>(), sHP = 0, sClass = 0;
-	BYTE  byLevel= 0;
+	uint8  byLevel= 0;
 	_PARTY_GROUP* pParty = NULL;
 	CUser* pUser = NULL;
 

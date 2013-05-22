@@ -55,7 +55,7 @@ protected:
 
 typedef void(*OperationHandler)(Socket * s, uint32 len);
 
-DWORD WINAPI SocketWorkerThread(LPVOID lp);
+uint32 __stdcall SocketWorkerThread(void * lp);
 
 void HandleReadComplete(Socket * s, uint32 len);
 void HandleWriteComplete(Socket * s, uint32 len);

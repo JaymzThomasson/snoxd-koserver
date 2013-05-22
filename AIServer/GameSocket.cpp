@@ -115,7 +115,7 @@ void CGameSocket::RecvServerConnect(Packet & pkt)
 	else
 		TRACE("**** Connect - server=%s,  socket = %d ****\n ", GetRemoteIP().c_str(), GetSocketID());
 
-	g_pMain->m_bFirstServerFlag = TRUE;
+	g_pMain->m_bFirstServerFlag = true;
 	g_pMain->AllNpcInfo();
 }
 
@@ -184,13 +184,12 @@ void CGameSocket::RecvUserInOut(Packet & pkt)
 	if(pUser != NULL)
 	{
 	//	TRACE("##### Fail : ^^& RecvUserInOut() [name = %s]. state=%d, hp=%d\n", pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
-		BOOL bFlag = FALSE;
 		
 		if(pUser->m_bLive == USER_DEAD || pUser->m_sHP <= 0)
 		{
 			if(pUser->m_sHP > 0)
 			{
-				pUser->m_bLive = TRUE;
+				pUser->m_bLive = true;
 				TRACE("##### CGameSocket-RecvUserInOut Fail : UserHeal  [id=%s, bLive=%d, hp=%d], fX=%.2f, fZ=%.2f ######\n", pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP, fX, fZ);
 			}
 			else
@@ -258,7 +257,7 @@ void CGameSocket::RecvUserMoveEdge(Packet & pkt)
 	SetUid(fX, fZ, uid, 0);
 }
 
-BOOL CGameSocket::SetUid(float x, float z, int id, int speed)
+bool CGameSocket::SetUid(float x, float z, int id, int speed)
 {
 	int x1 = (int)x / TILE_SIZE;
 	int z1 = (int)z / TILE_SIZE;
@@ -269,28 +268,28 @@ BOOL CGameSocket::SetUid(float x, float z, int id, int speed)
 	if(pUser == NULL) 
 	{
 		TRACE("#### User등록 실패 sid = %d ####\n", id);
-		return FALSE;
+		return false;
 	}
 
 	MAP* pMap = pUser->GetMap();
 	if (pMap == NULL)
 	{
 		TRACE("#### User not in valid zone, sid = %d ####\n", id);
-		return FALSE;
+		return false;
 	}
 	
 	if(x1 < 0 || z1 < 0 || x1 >= pMap->GetMapSize() || z1 >= pMap->GetMapSize())
 	{
 		TRACE("#### GameSocket ,, SetUid Fail : [nid=%d, name=%s], x1=%d, z1=%d #####\n", id, pUser->m_strUserID, x1, z1);
-		return FALSE;
+		return false;
 	}
 	if(nRX > pMap->GetXRegionMax() || nRZ > pMap->GetZRegionMax())
 	{
 		TRACE("#### GameSocket , SetUid Fail : [nid=%d, name=%s], nRX=%d, nRZ=%d #####\n", id, pUser->m_strUserID, nRX, nRZ);
-		return FALSE;
+		return false;
 	}
 	// map 이동이 불가능이면 User등록 실패..
-	// if(pMap->m_pMap[x1][z1].m_sEvent == 0) return FALSE;
+	// if(pMap->m_pMap[x1][z1].m_sEvent == 0) return false;
 
 	if(pUser != NULL)
 	{
@@ -305,7 +304,7 @@ BOOL CGameSocket::SetUid(float x, float z, int id, int speed)
 			{
 				TRACE("##### CGameSocket-SetUid Fail : UserDead  [id=%s, bLive=%d, hp=%d] ######\n", pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
 				//Send_UserError(id);
-				return FALSE;
+				return false;
 			}
 		}
 		
@@ -337,7 +336,7 @@ BOOL CGameSocket::SetUid(float x, float z, int id, int speed)
 	// if( pUser->m_curZone == 던젼 ) 
 	int room = pMap->IsRoomCheck( x, z );
 
-	return TRUE;
+	return true;
 }
 
 void CGameSocket::RecvAttackReq(Packet & pkt)
@@ -345,7 +344,7 @@ void CGameSocket::RecvAttackReq(Packet & pkt)
 	uint16 sid, tid;
 	float rx=0.0f, ry=0.0f, rz=0.0f, fDir = 0.0f, fHitAgi, fAvoidAgi;
 	short sDamage, sAC, sItemAC, sAmountLeft, sAmountRight;
-	BYTE type, result, bTypeLeft, bTypeRight;
+	uint8 type, result, bTypeLeft, bTypeRight;
 
 	pkt >> type >> result >> sid >> tid >> sDamage >> sAC >> fHitAgi >> fAvoidAgi
 		>> sItemAC >> bTypeLeft >> bTypeRight >> sAmountLeft >> sAmountRight;

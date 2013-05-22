@@ -34,7 +34,7 @@ struct _SERVER_INFO
 
 struct News
 {
-	BYTE Content[4096];
+	uint8 Content[4096];
 	size_t Size;
 };
 

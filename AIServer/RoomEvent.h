@@ -20,9 +20,9 @@ class CRoomEvent
 public:
 	int     m_iZoneNumber;		// zone number
 	short	m_sRoomNumber;		// room number (0:empty room)
-	BYTE	m_byStatus;			// room status (1:init, 2:progress, 3:clear)
-	BYTE	m_byCheck;			// 조건문의 갯수
-	BYTE	m_byRoomType;		// 방의 타입(0:일반, 1:함정방, 2:,,,,)
+	uint8	m_byStatus;			// room status (1:init, 2:progress, 3:clear)
+	uint8	m_byCheck;			// 조건문의 갯수
+	uint8	m_byRoomType;		// 방의 타입(0:일반, 1:함정방, 2:,,,,)
 
 	int		m_iInitMinX;		// room region x
 	int		m_iInitMinZ;
@@ -42,7 +42,7 @@ public:
 	mapNpcArray	m_mapRoomNpcArray;				// room npc uid array
 
 private:
-	BYTE    m_byLogicNumber;	// 현재의 조건문 검사 번호 (조건번호는 1부터 시작됨) (m_byCheck와 m_byLogicNumber이 같다면 클리어 상태)
+	uint8    m_byLogicNumber;	// 현재의 조건문 검사 번호 (조건번호는 1부터 시작됨) (m_byCheck와 m_byLogicNumber이 같다면 클리어 상태)
 
 
 public:
@@ -54,9 +54,9 @@ public:
 
 private:
 	void Initialize();
-	BOOL  CheckEvent(int event_num);
-	BOOL  RunEvent( int event_num );
-	BOOL  CheckMonsterCount( int sid, int count, int type );
+	bool  CheckEvent(int event_num);
+	bool  RunEvent( int event_num );
+	bool  CheckMonsterCount( int sid, int count, int type );
 	CNpc* GetNpcPtr( int sid );
 	void  EndEventSay( int option1, int option2 );
 

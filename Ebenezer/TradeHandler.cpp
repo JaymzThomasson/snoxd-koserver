@@ -100,7 +100,7 @@ void CUser::ExchangeAdd(Packet & pkt)
 	uint16 duration = 0;
 	_EXCHANGE_ITEM* pItem = NULL;
 	list<_EXCHANGE_ITEM*>::iterator	Iter;
-	BYTE pos;
+	uint8 pos;
 	bool bAdd = true, bGold = false;
 
 	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
@@ -355,9 +355,9 @@ void CUser::InitExchange(bool bStart)
 
 bool CUser::ExecuteExchange()
 {
-	DWORD money = 0;
+	uint32 money = 0;
 	short weight = 0;
-	BYTE i = 0;
+	uint8 i = 0;
 
 	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
 	if (pUser == NULL)

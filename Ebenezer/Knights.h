@@ -5,7 +5,7 @@
 class CUser;
 struct _KNIGHTS_USER
 {
-	BYTE    byUsed;
+	uint8    byUsed;
 	char	strUserName[MAX_ID_SIZE+1];
 	CUser	*pSession;
 	_KNIGHTS_USER()

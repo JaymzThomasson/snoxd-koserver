@@ -72,7 +72,7 @@ public:
 	void WritePacketLog();
 	uint16 GetKnightsAllMembers(uint16 sClanID, Packet & result, uint16 & pktSize, bool bClanLeader);
 	void GetUserRank(CUser *pUser);
-	void Announcement(BYTE type, int nation=0, int chat_type=8);
+	void Announcement(uint8 type, int nation=0, int chat_type=8);
 	void ResetBattleZone();
 	void BanishLosers();
 	void BattleZoneVictoryCheck();
@@ -284,18 +284,18 @@ public:
 	uint16 m_sWeatherAmount;
 	int m_nCastleCapture;
 
-	BYTE    m_byBattleOpen, m_byOldBattleOpen;					// 0:ÀüÀïÁßÀÌ ¾Æ´Ô, 1:ÀüÀïÁß(±¹°¡°£ÀüÀï), 2:´«½Î¿òÀüÀï
+	uint8    m_byBattleOpen, m_byOldBattleOpen;					// 0:ÀüÀïÁßÀÌ ¾Æ´Ô, 1:ÀüÀïÁß(±¹°¡°£ÀüÀï), 2:´«½Î¿òÀüÀï
 	uint8	m_byBattleZone;
 	uint8	m_bVictory, m_byOldVictory;
-	BYTE	m_bKarusFlag, m_bElmoradFlag;
-	BYTE    m_byKarusOpenFlag, m_byElmoradOpenFlag, m_byBanishFlag, m_byBattleSave;
+	uint8	m_bKarusFlag, m_bElmoradFlag;
+	uint8    m_byKarusOpenFlag, m_byElmoradOpenFlag, m_byBanishFlag, m_byBattleSave;
 	short   m_sDiscount;	// ´É·ÂÄ¡¿Í Æ÷ÀÎÆ® ÃÊ±âÈ­ ÇÒÀÎ (0:ÇÒÀÎ¾øÀ½, 1:ÇÒÀÎ(50%) )
 	short	m_sKarusDead, m_sElmoradDead, m_sBanishDelay, m_sKarusCount, m_sElmoradCount;
 	int m_nBattleZoneOpenWeek, m_nBattleZoneOpenHourStart, m_nBattleZoneOpenHourEnd;
 	char m_strKarusCaptain[MAX_ID_SIZE+1];
 	char m_strElmoradCaptain[MAX_ID_SIZE+1];
 
-	BYTE	m_bMaxRegenePoint;
+	uint8	m_bMaxRegenePoint;
 
 	bool	m_bPermanentChatMode;
 	std::string	m_strPermanentChat;

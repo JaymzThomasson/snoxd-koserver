@@ -335,13 +335,13 @@ _PathNode *CPathFind::Pop()
 	return t_node;
 }
 
-BOOL CPathFind::IsBlankMap(int x, int y)
+bool CPathFind::IsBlankMap(int x, int y)
 {
 	if (x < 0 || y < 0 || x >= m_vMapSize.cx || y >= m_vMapSize.cy) 
-		return FALSE;
+		return false;
 
 	if ((min_x + x) < 0 || (min_y + y) < 0)
-		return FALSE;
+		return false;
 
 	return !m_pMap[(min_x + x) * m_nMapSize + (min_y + y)];
 }

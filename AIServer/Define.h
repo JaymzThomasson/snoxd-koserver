@@ -42,8 +42,8 @@
 
 struct _NpcPosition
 {
-	BYTE	byType;			// type
-	BYTE	bySpeed;		// speed
+	uint8	byType;			// type
+	uint8	bySpeed;		// speed
 	POINT	pPoint;			// position
 	float fXPos;
 	float fZPos;
@@ -110,11 +110,11 @@ struct _NpcPosition
 //	Attack
 //
 
-const BYTE	ATTACK_FAIL		=	0;
-const BYTE	ATTACK_SUCCESS	=	1;
-const BYTE	ATTACK_TARGET_DEAD	= 2;
-const BYTE	ATTACK_TARGET_DEAD_OK = 3;
-const BYTE	MAGIC_ATTACK_TARGET_DEAD	= 4;
+const uint8	ATTACK_FAIL		=	0;
+const uint8	ATTACK_SUCCESS	=	1;
+const uint8	ATTACK_TARGET_DEAD	= 2;
+const uint8	ATTACK_TARGET_DEAD_OK = 3;
+const uint8	MAGIC_ATTACK_TARGET_DEAD	= 4;
 
 #define GREAT_SUCCESS			0X01		// 대성공
 #define SUCCESS					0X02		// 성공

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SocketMgr.h"
 
-DWORD WINAPI SocketWorkerThread(LPVOID lpParam)
+uint32 __stdcall SocketWorkerThread(void * lpParam)
 {
 	SocketMgr *socketMgr = (SocketMgr *)lpParam;
 	HANDLE cp = socketMgr->GetCompletionPort();

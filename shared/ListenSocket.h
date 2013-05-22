@@ -1,7 +1,7 @@
 #pragma once
 
 template <class T>
-DWORD WINAPI ListenSocketThread(LPVOID lpParam)
+uint32 __stdcall ListenSocketThread(void * lpParam)
 {
 	ListenSocket<T> * ls = (ListenSocket<T> *)lpParam;
 	return ls->runnable() ? 0 : 1;

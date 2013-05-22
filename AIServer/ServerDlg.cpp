@@ -26,7 +26,7 @@
 
 using namespace std;
 
-BOOL g_bNpcExit	= FALSE;
+bool g_bNpcExit	= false;
 ZoneArray			g_arZone;
 
 CRITICAL_SECTION g_User_critical, g_region_critical;
@@ -76,7 +76,7 @@ bool CServerDlg::Startup()
 	InitializeCriticalSection( &g_region_critical );
 	InitializeCriticalSection( &g_User_critical );
 	m_sMapEventNpc = 0;
-	m_bFirstServerFlag = FALSE;			
+	m_bFirstServerFlag = false;			
 
 	// User Point Init
 	for(int i=0; i<MAX_USER; i++)
@@ -155,68 +155,68 @@ bool CServerDlg::Startup()
 	return true; 
 }
 
-BOOL CServerDlg::GetMagicTableData()
+bool CServerDlg::GetMagicTableData()
 {
 	LOAD_TABLE(CMagicTableSet, &m_GameDB, &m_MagictableArray, false);
 }
 
-BOOL CServerDlg::GetMagicType1Data()
+bool CServerDlg::GetMagicType1Data()
 {
 	LOAD_TABLE(CMagicType1Set, &m_GameDB, &m_Magictype1Array, false);
 }
 
-BOOL CServerDlg::GetMagicType2Data()
+bool CServerDlg::GetMagicType2Data()
 {
 	LOAD_TABLE(CMagicType2Set, &m_GameDB, &m_Magictype2Array, false);
 }
 
-BOOL CServerDlg::GetMagicType3Data()
+bool CServerDlg::GetMagicType3Data()
 {
 	LOAD_TABLE(CMagicType3Set, &m_GameDB, &m_Magictype3Array, false);
 }
 
-BOOL CServerDlg::GetMagicType4Data()
+bool CServerDlg::GetMagicType4Data()
 {
 	LOAD_TABLE(CMagicType4Set, &m_GameDB, &m_Magictype4Array, false);
 }
 
-BOOL CServerDlg::GetMakeWeaponItemTableData()
+bool CServerDlg::GetMakeWeaponItemTableData()
 {
 	LOAD_TABLE(CMakeWeaponTableSet, &m_GameDB, &m_MakeWeaponItemArray, true);
 }
 
-BOOL CServerDlg::GetMakeDefensiveItemTableData()
+bool CServerDlg::GetMakeDefensiveItemTableData()
 {
 	LOAD_TABLE(CMakeDefensiveTableSet, &m_GameDB, &m_MakeDefensiveItemArray, true);
 }
 
-BOOL CServerDlg::GetMakeGradeItemTableData()
+bool CServerDlg::GetMakeGradeItemTableData()
 {
 	LOAD_TABLE(CMakeGradeItemTableSet, &m_GameDB, &m_MakeGradeItemArray, false);
 }
 
-BOOL CServerDlg::GetMakeLareItemTableData()
+bool CServerDlg::GetMakeLareItemTableData()
 {
 	LOAD_TABLE(CMakeLareItemTableSet, &m_GameDB, &m_MakeLareItemArray, false);
 }
 
-BOOL CServerDlg::GetNpcItemTable()
+bool CServerDlg::GetNpcItemTable()
 {
 	LOAD_TABLE(CNpcItemSet, &m_GameDB, &m_NpcItemArray, false);
 }
 
-BOOL CServerDlg::GetMakeItemGroupTable()
+bool CServerDlg::GetMakeItemGroupTable()
 {
 	LOAD_TABLE(CMakeItemGroupSet, &m_GameDB, &m_MakeItemGroupArray, false);
 }
 
-BOOL CServerDlg::GetNpcTableData(bool bNpcData /*= true*/)
+bool CServerDlg::GetNpcTableData(bool bNpcData /*= true*/)
 {
 	if (bNpcData)	{ LOAD_TABLE(CNpcTableSet, &m_GameDB, &m_arNpcTable, false); }
 	else			{ LOAD_TABLE(CMonTableSet, &m_GameDB, &m_arMonTable, false); }
 }
 
-BOOL CServerDlg::CreateNpcThread()
+bool CServerDlg::CreateNpcThread()
 {
 	m_TotalNPC = m_sMapEventNpc;
 	m_CurrentNPC = 0;
@@ -243,7 +243,7 @@ BOOL CServerDlg::CreateNpcThread()
 	}
 
 	printf("[Monster Init - %d, threads=%d]\n", m_TotalNPC, m_arNpcThread.size());
-	return TRUE;
+	return true;
 }
 
 bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
@@ -502,7 +502,7 @@ void CServerDlg::DeleteUserList(int uid)
 	LeaveCriticalSection( &g_User_critical );
 }
 
-BOOL CServerDlg::MapFileLoad()
+bool CServerDlg::MapFileLoad()
 {
 	ZoneInfoMap zoneMap;
 
@@ -521,7 +521,7 @@ BOOL CServerDlg::MapFileLoad()
 			delete pMap;
 			g_arZone.DeleteAllData();
 			m_sTotalMap = 0;
-			return FALSE;
+			return false;
 		}
 
 		delete pZone;
@@ -529,7 +529,7 @@ BOOL CServerDlg::MapFileLoad()
 		m_sTotalMap++;
 	}
 
-	return TRUE;
+	return true;
 }
 
 // game server에 모든 npc정보를 전송..
@@ -662,7 +662,7 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 	// Party Array Delete 
 	m_arParty.DeleteAllData();
 
-	m_bFirstServerFlag = FALSE;
+	m_bFirstServerFlag = false;
 	TRACE("*** DeleteAllUserList - End *** \n");
 
 	printf("[ DELETE All User List ]\n");
@@ -695,7 +695,7 @@ CNpc* CServerDlg::GetEventNpcPtr()
 	return NULL;
 }
 
-BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
+bool CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 {
 	int  iCount = 0;
 	CNpc* pEventNpc	= GetEventNpcPtr();
@@ -703,7 +703,7 @@ BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 	if(pEventNpc == NULL)
 	{
 		TRACE("소환할수 있는 몹은 최대 20마리입니다.\n");
-		return FALSE;
+		return false;
 	}
 
 	pEventNpc->m_proto	= pNpc->m_proto;
@@ -770,7 +770,7 @@ BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 	if (pEventNpc->GetMap() == NULL)
 	{
 		TRACE("Zone %d doesn't exist (NPC=%d)\n", zone, pNpc->m_proto->m_sSid);
-		return FALSE;
+		return false;
 	}
 
 	pEventNpc->Init();
@@ -778,7 +778,7 @@ BOOL CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 
 	TRACE("*** %d, %s 를 소환하였습니다. state = %d ***\n", pEventNpc->m_sNid+NPC_BAND, pEventNpc->m_proto->m_strName, pEventNpc->m_NpcState);
 
-	return TRUE;
+	return true;
 }
 
 void CServerDlg::RegionCheck()
@@ -797,17 +797,17 @@ void CServerDlg::RegionCheck()
 	LeaveCriticalSection( &g_User_critical );
 }
 
-BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
+bool CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
 {
 	int sSid = (pEvent->sType == OBJECT_ANVIL || pEvent->sType == OBJECT_ARTIFACT 
 					? pEvent->sIndex : pEvent->sControlNpcID);
 	if (sSid <= 0)
-		return FALSE;
+		return false;
 
 	CNpcTable * pNpcTable = m_arNpcTable.GetData(sSid);
 	if(pNpcTable == NULL)	{
 		// TRACE("#### AddObjectEventNpc Fail : [sid = %d], zone=%d #####\n", pEvent->sIndex, zone_number);
-		return FALSE;
+		return false;
 	}
 
 	CNpc *pNpc = new CNpc();
@@ -818,7 +818,7 @@ BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
 	pNpc->m_byBattlePos = 0;
 
 	pNpc->m_byObjectType = SPECIAL_OBJECT;
-	pNpc->m_byGateOpen	= (BYTE)pEvent->sStatus;
+	pNpc->m_byGateOpen	= (uint8)pEvent->sStatus;
 
 	pNpc->m_bCurZone	= pMap->m_nZoneNumber;
 	pNpc->m_fCurX		= pEvent->fPosX;
@@ -839,11 +839,11 @@ BOOL CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
 		m_sMapEventNpc--;
 		TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
 		delete pNpc;
-		return FALSE;
+		return false;
 	}
 
 	m_TotalNPC = m_sMapEventNpc;
-	return TRUE;
+	return true;
 }
 
 MAP * CServerDlg::GetZoneByID(int zonenumber)
@@ -884,7 +884,7 @@ void CServerDlg::ResetBattleZone()
 		MAP *pMap = itr->second;
 		if (pMap == NULL || pMap->m_byRoomEvent == 0) 
 			continue;
-		//if( pMap->IsRoomStatusCheck() == TRUE )	continue;	// 전체방이 클리어 되었다면
+		//if( pMap->IsRoomStatusCheck() == true )	continue;	// 전체방이 클리어 되었다면
 		pMap->InitializeRoom();
 	}
 	TRACE("ServerDlg - ResetBattleZone() : end \n");
@@ -894,7 +894,7 @@ CServerDlg::~CServerDlg()
 {
 	KillTimer(NULL, s_dwCheckAliveID);
 
-	g_bNpcExit = TRUE;
+	g_bNpcExit = true;
 
 #ifdef USE_STD_THREAD
 	foreach (itr, m_arNpcThread)

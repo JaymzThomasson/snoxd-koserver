@@ -47,5 +47,5 @@ protected:
 #define _HANDLE_DB_ERROR_ONLY(err) \
 	if (err != NULL) { \
 		_DISPLAY_DB_ERROR(err); \
-		return FALSE; \
+		return false; \
 	}

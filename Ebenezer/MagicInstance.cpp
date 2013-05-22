@@ -1419,7 +1419,7 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 {	
 	short damage = 0, temp_hit = 0, righthand_damage = 0, attribute_damage = 0 ; 
 	int random = 0, total_r = 0 ;
-	BYTE result; 
+	uint8 result; 
 
 	if (pTarget == NULL
 		|| pSkillCaster == NULL

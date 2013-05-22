@@ -113,8 +113,8 @@ void LoginServer::GetInfoFromIni()
 	}
 
 	// Read news from INI (max 3 blocks)
-	#define BOX_START '#' << BYTE(0) << '\n'
-	#define LINE_ENDING BYTE(0) << '\n'
+	#define BOX_START '#' << uint8(0) << '\n'
+	#define LINE_ENDING uint8(0) << '\n'
 	#define BOX_END BOX_START << LINE_ENDING
 
 	m_news.Size = 0;

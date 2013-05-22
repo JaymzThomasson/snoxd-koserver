@@ -5,7 +5,10 @@
 
 LoginServer * g_pMain;
 static HANDLE s_hEvent;
+
+#ifdef WIN32
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
+#endif
 
 int main()
 {
@@ -33,9 +36,11 @@ int main()
 	return 0;
 }
 
+#ifdef WIN32
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType)
 {
 	SetEvent(s_hEvent);
 	sleep(10000); // Win7 onwards allows 10 seconds before it'll forcibly terminate
 	return TRUE;
 }
+#endif

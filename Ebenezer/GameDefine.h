@@ -335,7 +335,7 @@ struct	_PARTY_GROUP
 {
 	WORD	wIndex;
 	short	uid		[MAX_PARTY_USERS];
-	BYTE	bItemRouting;
+	uint8	bItemRouting;
 	std::string	WantedMessage;
 	uint16	sWantedClass;
 

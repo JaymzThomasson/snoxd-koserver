@@ -12,7 +12,7 @@ UINT NpcThreadProc(LPVOID pParam /* CNpcThread ptr */)
 	CNpc*				pNpc	= NULL;
 
 	int					i			= 0;
-	DWORD				dwDiffTime	= 0;
+	time_t				dwDiffTime	= 0;
 	time_t				dwTickTime  = 0;
 	srand((uint32)UNIXTIME);
 	myrand( 1, 10000 ); myrand( 1, 10000 );

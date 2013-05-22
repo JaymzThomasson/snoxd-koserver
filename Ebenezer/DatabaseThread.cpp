@@ -20,17 +20,17 @@ static std::vector<std::thread> s_hThreads;
 #else
 static std::vector<HANDLE> s_hThreads;
 #endif
-static DWORD s_dwThreads = 0;
+static uint32 s_dwThreads = 0;
 
-void DatabaseThread::Startup(DWORD dwThreads)
+void DatabaseThread::Startup(uint32 dwThreads)
 {
 	s_hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 #ifdef USE_STD_THREAD
-	for (DWORD i = 0; i < dwThreads; i++)
+	for (uint32 i = 0; i < dwThreads; i++)
 		s_hThreads.push_back(std::thread(ThreadProc, (void *)i));
 #else
 	DWORD id;
-	for (DWORD i = 0; i < dwThreads; i++)
+	for (uint32 i = 0; i < dwThreads; i++)
 		s_hThreads.push_back(CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&ThreadProc, (LPVOID)i, NULL, &id));
 #endif
 	s_dwThreads = dwThreads;

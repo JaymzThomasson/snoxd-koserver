@@ -74,7 +74,7 @@ public:
 	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];
 
 	uint8	m_bLogout;
-	DWORD	m_dwTime;
+	uint32	m_dwTime;
 
 	uint8	m_bAccountStatus;
 	uint8	m_bPremiumType;
@@ -129,9 +129,9 @@ public:
 
 	short	m_iMaxHp, m_iMaxMp;
 	
-	BYTE	m_bResHpType;
-	BYTE	m_bWarp;
-	BYTE	m_bNeedParty;
+	uint8	m_bResHpType;
+	uint8	m_bWarp;
+	uint8	m_bNeedParty;
 
 	short	m_sPartyIndex;
 	bool	m_bPartyLeader;
@@ -140,7 +140,7 @@ public:
 	uint8	m_bInvisibilityType;
 
 	short	m_sExchangeUser;
-	BYTE	m_bExchangeOK;
+	uint8	m_bExchangeOK;
 
 	ItemList	m_ExchangeItemList;
 	_ITEM_DATA	m_MirrorItem[HAVE_MAX];
@@ -155,13 +155,13 @@ public:
 	uint8	m_bHPIntervalNormal;
 
 	uint32	m_fSpeedHackClientTime, m_fSpeedHackServerTime;
-	BYTE	m_bSpeedHackCheck;
+	uint8	m_bSpeedHackCheck;
 
 	time_t	m_tBlinkExpiryTime;			// When you should stop blinking.
 
 	short	m_sAliveCount;
 
-	DWORD	m_bAbnormalType;			// Is the player normal,a giant, or a dwarf?
+	uint32	m_bAbnormalType;			// Is the player normal,a giant, or a dwarf?
 
 	short	m_sWhoKilledMe;				// Who killed me???
 	__int64		m_iLostExp;					// Experience point that was lost when you died.
@@ -170,7 +170,7 @@ public:
 
 	bool	m_bZoneChangeFlag;
 
-	BYTE	m_bRegeneType;				// Did you die and go home or did you type '/town'?
+	uint8	m_bRegeneType;				// Did you die and go home or did you type '/town'?
 
 	time_t	m_tLastRegeneTime;			// The last moment you got resurrected.
 
@@ -226,8 +226,8 @@ public:
 
 	INLINE int8 GetMerchantState() { return m_bMerchantState; }
 
-	INLINE BYTE getAuthority() { return m_bAuthority; }
-	INLINE BYTE getFame() { return m_bFame; }
+	INLINE uint8 getAuthority() { return m_bAuthority; }
+	INLINE uint8 getFame() { return m_bFame; }
 
 	INLINE uint16 GetClass() { return m_sClass; }
 
@@ -367,7 +367,7 @@ public:
 		int32 nItemID3, int16 sCount3, int32 nItemID4, int16 sCount4, int32 nItemID5, int16 sCount5);
 	bool CheckWeight(uint32 nItemID, uint16 sCount);
 	bool CheckWeight(_ITEM_TABLE * pTable, uint32 nItemID, uint16 sCount);
-	bool CheckSkillPoint(BYTE skillnum, BYTE min, BYTE max);
+	bool CheckSkillPoint(uint8 skillnum, uint8 min, uint8 max);
 	bool GoldLose(unsigned int gold);
 	void GoldGain(int gold);
 	void SendItemWeight();
@@ -376,7 +376,7 @@ public:
 	void BlinkTimeCheck();
 	void GoldChange(short tid, int gold);
 	CUser * GetItemRoutingUser(uint32 nItemID, uint16 sCount);
-	bool GetStartPosition(short & x, short & y, BYTE bZone = 0);
+	bool GetStartPosition(short & x, short & y, uint8 bZone = 0);
 	int FindSlotForItem(uint32 nItemID, uint16 sCount);
 	int GetEmptySlot();
 	void SendAllKnightsID();
@@ -411,7 +411,7 @@ public:
 	void DelCharToAgent(Packet & pkt);
 	void SelCharToAgent(Packet & pkt);
 	void SelectCharacter(Packet & pkt); // from the database
-	void SetLogInInfoToDB(BYTE bInit);
+	void SetLogInInfoToDB(uint8 bInit);
 	void RecvLoginInfo(Packet & pkt); // from the database
 
 	void SpeedHackTime(Packet & pkt);
@@ -461,7 +461,7 @@ public:
 	void PointChange(Packet & pkt);
 
 	void StateChange(Packet & pkt);
-	virtual void StateChangeServerDirect(BYTE bType, uint32 nBuff);
+	virtual void StateChangeServerDirect(uint8 bType, uint32 nBuff);
 
 	void PartyProcess(Packet & pkt);
 	void PartyDelete();
@@ -535,7 +535,7 @@ public:
 	void FriendModify(Packet & pkt, uint8 opcode);
 	void RecvFriendModify(Packet & pkt, uint8 opcode);
 	void FriendReport(Packet & pkt);
-	BYTE GetFriendStatus(std::string & charName, int16 & sid);
+	uint8 GetFriendStatus(std::string & charName, int16 & sid);
 
 	void SelectWarpList(Packet & pkt);
 	bool GetWarpList( int warp_group );
@@ -545,7 +545,7 @@ public:
 	void PartyBBS(Packet & pkt);
 	void PartyBBSRegister(Packet & pkt);
 	void PartyBBSDelete(Packet & pkt);
-	void PartyBBSNeeded(Packet & pkt, BYTE type);
+	void PartyBBSNeeded(Packet & pkt, uint8 type);
 	void PartyBBSWanted(Packet & pkt);
 	uint8 GetPartyMemberAmount();
 
@@ -604,7 +604,7 @@ public:
 	void LoyaltyChange(short tid);
 	void ChangeNP(short sAmount, bool bDistributeToParty = true);
 	void ZoneChange( int zone, float x, float z );
-	void SendTargetHP( BYTE echo, int tid, int damage = 0 );
+	void SendTargetHP( uint8 echo, int tid, int damage = 0 );
 	bool IsValidSlotPos( _ITEM_TABLE* pTable, int destpos );
 	void SetUserAbility(bool bSendPacket = true);
 	void LevelChange(short level, bool bLevelUp = true);

@@ -1,6 +1,6 @@
 #pragma once
 
-extern BOOL	g_bNpcExit;
+extern bool	g_bNpcExit;
 
 struct	_PARTY_GROUP
 {

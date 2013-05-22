@@ -24,7 +24,7 @@ void StartTimeThread()
 #endif
 }
 
-DWORD WINAPI TimeThread(LPVOID lpParam)
+uint32 __stdcall TimeThread(void * lpParam)
 {
 	while (g_bRunning)
 	{

@@ -42,7 +42,7 @@ public:
 	void Send_UserError(short uid, short tid = 10000);
 	void RecvBattleEvent(Packet & pkt);
 
-	BOOL SetUid(float x, float z, int id, int speed);
+	bool SetUid(float x, float z, int id, int speed);
 
 	virtual ~CGameSocket();
 };

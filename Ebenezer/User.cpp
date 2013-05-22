@@ -1546,7 +1546,7 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
  * @param	tid   	The target's ID.
  * @param	damage	The amount of damage taken on this request, 0 if it does not apply.
  */
-void CUser::SendTargetHP( BYTE echo, int tid, int damage )
+void CUser::SendTargetHP( uint8 echo, int tid, int damage )
 {
 	int hp = 0, maxhp = 0;
 
@@ -1923,7 +1923,7 @@ void CUser::StateChange(Packet & pkt)
  * @param	bType	State type.
  * @param	nBuff	The buff/flag (depending on the state type).
  */
-void CUser::StateChangeServerDirect(BYTE bType, uint32 nBuff)
+void CUser::StateChangeServerDirect(uint8 bType, uint32 nBuff)
 {
 	uint8 buff = *(uint8 *)&nBuff; // don't ask
 	switch (bType)
@@ -2172,7 +2172,7 @@ void CUser::LoyaltyDivide(short tid)
 {
 	int levelsum = 0, individualvalue = 0;
 	short temp_loyalty = 0, level_difference = 0, loyalty_source = 0, loyalty_target = 0, average_level = 0; 
-	BYTE total_member = 0;
+	uint8 total_member = 0;
 
 	if (!isInParty())
 		return;
@@ -2581,7 +2581,7 @@ void CUser::OperatorCommand(Packet & pkt)
 void CUser::SpeedHackTime(Packet & pkt)
 {
 #if 0 // temporarily disabled
-	BYTE b_first;
+	uint8 b_first;
 	float servertime = 0.0f, clienttime = 0.0f, client_gap = 0.0f, server_gap = 0.0f;
 
 	pkt >> b_first >> clienttime;
@@ -2680,7 +2680,7 @@ void CUser::Home()
 	Warp(x * 10, z * 10);
 }
 
-bool CUser::GetStartPosition(short & x, short & z, BYTE bZone /*= 0 */)
+bool CUser::GetStartPosition(short & x, short & z, uint8 bZone /*= 0 */)
 {
 	// Get start position data for current zone (unless we specified a zone).
 	int nZoneID = (bZone == 0 ? GetZoneID() : bZone);
@@ -3307,7 +3307,7 @@ bool CUser::GoldLose(unsigned int gold)
 	return true;
 }
 
-bool CUser::CheckSkillPoint(BYTE skillnum, BYTE min, BYTE max)
+bool CUser::CheckSkillPoint(uint8 skillnum, uint8 min, uint8 max)
 {
 	if (skillnum < 5 || skillnum > 8) 
 		return false;

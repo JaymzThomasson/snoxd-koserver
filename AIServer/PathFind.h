@@ -39,7 +39,7 @@ public:
 class CPathFind  
 {
 public:
-	BOOL IsBlankMap(int x, int y);
+	bool IsBlankMap(int x, int y);
 	void SetMap(int x, int y, short *pMap, uint32 nMapSize, int16 min_x, int16 min_y);
 	void PropagateDown(_PathNode *old);
 	void Insert(_PathNode *node);

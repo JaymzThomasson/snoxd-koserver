@@ -4,8 +4,12 @@
 #define STRINGIFY(str) STR(str)
 
 CServerDlg * g_pMain;
+
+#ifdef WIN32
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
 static DWORD s_dwMainThreadID;
+#endif
+
 bool g_bRunning = true;
 
 int main()
@@ -14,9 +18,13 @@ int main()
 	MSG msg;
 	SetConsoleTitle("AI server for Knight Online v" STRINGIFY(__VERSION));
 
+#ifdef WIN32
 	// Override the console handler
 	s_dwMainThreadID = GetCurrentThreadId();
 	SetConsoleCtrlHandler(_ConsoleHandler, TRUE);
+#else
+	/* TO-DO: Signals */
+#endif
 
 	// Start up the time updater thread
 	StartTimeThread();
@@ -47,9 +55,11 @@ int main()
 	return 0;
 }
 
+#ifdef WIN32
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType)
 {
 	PostThreadMessage(s_dwMainThreadID, WM_QUIT, 0, 0);
 	sleep(10000); // Win7 onwards allows 10 seconds before it'll forcibly terminate
 	return TRUE;
 }
+#endif
