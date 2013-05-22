@@ -38,6 +38,10 @@
 #	define sleep(ms) Sleep(ms)
 #endif
 
+#ifndef WIN32
+#	define SetConsoleTitle(title) /* unsupported & unnecessary */
+#endif
+
 #include "types.h"
 #include "globals.h"
 #include "TimeThread.h"
