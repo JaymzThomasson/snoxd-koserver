@@ -10,10 +10,15 @@ BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
 int main()
 {
 	LoginServer pMain;
+
 	SetConsoleTitle("Login server for Knight Online v" STRINGIFY(__VERSION));
 
+#ifdef WIN32
 	// Override the console handler
 	SetConsoleCtrlHandler(_ConsoleHandler, TRUE);
+#else
+	/* TO-DO: Signals */
+#endif
 
 	g_pMain = &pMain;
 

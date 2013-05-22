@@ -21,7 +21,7 @@ int main()
 #ifdef WIN32
 	// Override the console handler
 	s_dwMainThreadID = GetCurrentThreadId();
-	SetConsoleCtrlHandler(_ConsoleHandler, true);
+	SetConsoleCtrlHandler(_ConsoleHandler, TRUE);
 #else
 	/* TO-DO: Signals */
 #endif
