@@ -12,7 +12,7 @@ struct _KNIGHTS_USER
 	{
 		byUsed = 0;
 		memset(strUserName, 0, sizeof(strUserName));
-		pSession = NULL;
+		pSession = nullptr;
 	};
 };
 
@@ -56,7 +56,7 @@ public:
 	bool RemoveUser(const char *strUserID);
 	bool RemoveUser(CUser *pUser);
 
-	void Disband(CUser *pLeader = NULL);
+	void Disband(CUser *pLeader = nullptr);
 
 	void SendChat(const char * format, ...);
 	void Send(Packet *pkt);

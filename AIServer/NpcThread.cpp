@@ -9,7 +9,7 @@
 UINT NpcThreadProc(LPVOID pParam /* CNpcThread ptr */)
 {
 	CNpcThread*	pInfo	= (CNpcThread *)pParam;
-	CNpc*				pNpc	= NULL;
+	CNpc*				pNpc	= nullptr;
 
 	int					i			= 0;
 	time_t				dwDiffTime	= 0;
@@ -128,7 +128,7 @@ UINT NpcThreadProc(LPVOID pParam /* CNpcThread ptr */)
 //////////////////////////////////////////////////////////////////////
 // NPC Thread Callback Function
 //
-UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */)
+UINT ZoneEventThreadProc(LPVOID pParam /* = nullptr */)
 {
 	CServerDlg* m_pMain = (CServerDlg*) pParam;
 	int j=0;
@@ -138,7 +138,7 @@ UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */)
 		foreach_stlmap (itr, g_pMain->g_arZone)
 		{
 			MAP *pMap = itr->second;
-			if (pMap == NULL
+			if (pMap == nullptr
 				|| pMap->m_byRoomEvent == 0
 				|| pMap->IsRoomStatusCheck()) 
 				continue;
@@ -161,7 +161,7 @@ UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */)
 CNpcThread::CNpcThread() : m_sThreadNumber(-1)
 {
 #ifndef USE_STD_THREAD
-	m_hThread = NULL;
+	m_hThread = nullptr;
 #endif
 }
 

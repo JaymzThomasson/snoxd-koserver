@@ -38,7 +38,7 @@ void CUser::FriendModify(Packet & pkt, uint8 opcode)
 	pkt >> strUserID;
 
 	if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE
-		|| (opcode == FRIEND_ADD && (pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER)) == NULL))
+		|| (opcode == FRIEND_ADD && (pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER)) == nullptr))
 		return;
 
 	Packet result(WIZ_FRIEND_PROCESS, opcode);
@@ -81,7 +81,7 @@ uint8 CUser::GetFriendStatus(std::string & charName, int16 & sid)
 {
 	CUser *pUser;
 	if (charName.empty()
-		|| (pUser = g_pMain->GetUserPtr(charName, TYPE_CHARACTER)) == NULL)
+		|| (pUser = g_pMain->GetUserPtr(charName, TYPE_CHARACTER)) == nullptr)
 	{
 		sid = -1;
 		return 0; // user not found

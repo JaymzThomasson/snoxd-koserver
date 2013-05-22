@@ -100,10 +100,10 @@ void CNpc::GetInOut(Packet & result, uint8 bType)
  */
 void CNpc::SendInOut(uint8 bType, float fX, float fZ, float fY)
 {
-	if (GetRegion() == NULL)
+	if (GetRegion() == nullptr)
 	{
 		SetRegion(GetNewRegionX(), GetNewRegionZ());
-		if (GetRegion() == NULL)
+		if (GetRegion() == nullptr)
 			return;
 	}
 
@@ -179,7 +179,7 @@ void CNpc::SendGateFlag(uint8 bFlag /*= -1*/, bool bSendAI /*= true*/)
  * @param	pAttacker	The attacker.
  * @param	bSendToAI	true to update the AI server.
  */
-void CNpc::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= true*/) 
+void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /*= true*/) 
 {
 	// Glorious copypasta.
 	if (amount < 0 && -amount > m_iHP)
@@ -230,15 +230,15 @@ void CNpc::OnDeath(Unit *pKiller)
 	if (m_NpcState == NPC_DEAD)
 		return;
 
-	ASSERT(GetMap() != NULL);
-	ASSERT(GetRegion() != NULL);
+	ASSERT(GetMap() != nullptr);
+	ASSERT(GetRegion() != nullptr);
 
 	m_NpcState = NPC_DEAD;
 
 	if (m_byObjectType == SPECIAL_OBJECT)
 	{
 		_OBJECT_EVENT *pEvent = GetMap()->GetObjectEvent(GetEntryID());
-		if (pEvent != NULL)
+		if (pEvent != nullptr)
 			pEvent->byLife = 0;
 	}
 

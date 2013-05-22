@@ -215,7 +215,7 @@ void CKingSystem::UpdateElectionStatus(uint8 byElectionStatus)
  * @param	strUserID		  	Identifier for the user.
  * @param	pUser				The user making the request, if applicable.
  */
-void CKingSystem::UpdateElectionList(uint8 byElectionListType, bool bDeleteList, uint16 sClanID, std::string & strUserID, CUser * pUser /*= NULL*/)
+void CKingSystem::UpdateElectionList(uint8 byElectionListType, bool bDeleteList, uint16 sClanID, std::string & strUserID, CUser * pUser /*= nullptr*/)
 {
 	FastGuard lock(m_lock);
 	// byElectionListType:
@@ -229,7 +229,7 @@ void CKingSystem::UpdateElectionList(uint8 byElectionListType, bool bDeleteList,
 
 	g_pMain->AddDatabaseRequest(result, pUser);
 
-	KingElectionList * pList = NULL;
+	KingElectionList * pList = nullptr;
 	switch (byElectionListType)
 	{
 	case 3: 
@@ -241,7 +241,7 @@ void CKingSystem::UpdateElectionList(uint8 byElectionListType, bool bDeleteList,
 		break;
 	}
 
-	if (pList == NULL)
+	if (pList == nullptr)
 		return;
 
 #if 0
@@ -339,12 +339,12 @@ void CKingSystem::LoadRecommendList()
 		// Lookup the clan ranking #i.
 		_KNIGHTS_RATING * pRating = 
 			g_pMain->m_KnightsRatingArray[m_byNation].GetData(i);
-		CKnights * pKnights = NULL;
+		CKnights * pKnights = nullptr;
 
 		// Ignore this entry if no such clan is ranked #i
-		if (pRating == NULL
+		if (pRating == nullptr
 			// or for whatever reason the clan no longer exists...
-			|| (pKnights = g_pMain->GetClanPtr(pRating->sClanID)) == NULL)
+			|| (pKnights = g_pMain->GetClanPtr(pRating->sClanID)) == nullptr)
 			continue;
 
 		// Add user as senator.
@@ -353,7 +353,7 @@ void CKingSystem::LoadRecommendList()
 		// If the senator's online, we can send them an announcement
 		// to tell them they can nominate a King.
 		CUser * pUser = g_pMain->GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
-		if (pUser != NULL)
+		if (pUser != nullptr)
 		{
 			Packet result;
 			std::string notice;
@@ -436,12 +436,12 @@ void CKingSystem::KingNotifyMessage(uint32 nResourceID, int byNation, ChatType c
  */
 void CKingSystem::PacketProcess(CUser * pUser, Packet & pkt)
 {
-	if (pUser == NULL)
+	if (pUser == nullptr)
 		return;
 
 	// ... onwards, to official-like code.
 	CKingSystem * pKingSystem = g_pMain->m_KingSystemArray.GetData(pUser->GetNation());
-	if (pKingSystem != NULL)
+	if (pKingSystem != nullptr)
 		pKingSystem->KingPacketProcess(pUser, pkt);
 }
 
@@ -845,7 +845,7 @@ void CKingSystem::ElectionPoll(CUser * pUser, Packet & pkt)
 			{
 				CKnights * pKnights = g_pMain->GetClanPtr(itr->second->sKnights);
 				result << itr->first; // candidate's name
-				if (pKnights != NULL)
+				if (pKnights != nullptr)
 					result << pKnights->m_strName; // clan name
 				else
 					result << uint8(0); // no clan name
@@ -1065,7 +1065,7 @@ void CKingSystem::KingTaxSystem(CUser * pUser, Packet & pkt)
 
 			// Let all users in your nation know.
 			result << int16(1) << byTerritoryTariff << m_byNation;
-			g_pMain->Send_All(&result, NULL, m_byNation);
+			g_pMain->Send_All(&result, nullptr, m_byNation);
 
 			// Update the database (TO-DO: Implement the request)
 			DatabaseThread::AddRequest(&result);
@@ -1188,7 +1188,7 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 				return;
 
 			CUser * pTUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
-			if (pTUser == NULL	// this session check isn't official behaviour
+			if (pTUser == nullptr	// this session check isn't official behaviour
 								// as they try to handle offline users -
 								// note the 'try' (it doesn't work properly)...
 				|| strUserID.empty() || strUserID.length() > MAX_ID_SIZE)
@@ -1274,7 +1274,7 @@ void CKingSystem::KingSpecialEvent(CUser * pUser, Packet & pkt)
 
 			result.SByte();
 			result << int16(1) << strMessage;
-			g_pMain->Send_All(&result, NULL, m_byNation);
+			g_pMain->Send_All(&result, nullptr, m_byNation);
 		} break;
 	}
 }

@@ -13,11 +13,11 @@ using std::vector;
 
 void MagicInstance::Run()
 {
-	if (pSkill == NULL)
+	if (pSkill == nullptr)
 		pSkill = g_pMain->m_MagictableArray.GetData(nSkillID);
 
-	if (pSkill == NULL
-		|| pSkillCaster == NULL
+	if (pSkill == nullptr
+		|| pSkillCaster == nullptr
 		|| !UserCanCast())
 	{
 		SendSkillFailed();
@@ -92,7 +92,7 @@ void MagicInstance::Run()
 
 bool MagicInstance::UserCanCast()
 {
-	if (pSkill == NULL)
+	if (pSkill == nullptr)
 		return false;
 	
 	// We don't need to check anything as we're just canceling our buffs.
@@ -135,7 +135,7 @@ bool MagicInstance::UserCanCast()
 		&& nSkillID != SNOW_EVENT_SKILL)
 		return false;
 
-	if (pSkillTarget != NULL)
+	if (pSkillTarget != nullptr)
 	{
 		// Players require a little more rigorous checking
 		if (pSkillTarget->isPlayer())
@@ -182,7 +182,7 @@ bool MagicInstance::UserCanCast()
 
 void MagicInstance::SendSkillToAI()
 {
-	if (pSkill == NULL)
+	if (pSkill == nullptr)
 		return;
 
 	if (sTargetID >= NPC_BAND 
@@ -198,14 +198,14 @@ void MagicInstance::SendSkillToAI()
 		_ITEM_DATA * pItem;
 		_ITEM_TABLE* pRightHand = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND, pItem);
 
-		if (pItem != NULL && pRightHand != NULL && pRightHand->isStaff()
-			&& TO_USER(pSkillCaster)->GetItemPrototype(LEFTHAND) == NULL)
+		if (pItem != nullptr && pRightHand != nullptr && pRightHand->isStaff()
+			&& TO_USER(pSkillCaster)->GetItemPrototype(LEFTHAND) == nullptr)
 		{
 			if (pSkill->bType[0] == 3) {
 				total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * pSkillCaster->GetLevel()) / 60);
 
 				_MAGIC_TYPE3 *pType3 = g_pMain->m_Magictype3Array.GetData(nSkillID);
-				if (pType3 == NULL)
+				if (pType3 == nullptr)
 					return;
 
 				if (pSkillCaster->m_bMagicTypeRightHand == pType3->bAttribute )					
@@ -260,7 +260,7 @@ void MagicInstance::SendTransformationList()
  */
 void MagicInstance::SendSkillFailed(int16 sTargetID /*= -1*/)
 {
-	if (pSkillCaster == NULL
+	if (pSkillCaster == nullptr
 		|| !pSkillCaster->isPlayer())
 		return;
 
@@ -313,17 +313,17 @@ void MagicInstance::BuildAndSendSkillPacket(Unit * pUnit, bool bSendToRegion, in
 
 /**
  * @brief	Sends the skill data in the current context to pUnit. 
- * 			If pUnit is NULL, it will assume the caster.
+ * 			If pUnit is nullptr, it will assume the caster.
  *
  * @param	bSendToRegion	true to send the packet to pUnit's region. 
  * 							If pUnit is an NPC, this is assumed true.
  * @param	pUser		 	The unit to send the packet to.
  * 							If pUnit is an NPC, it will send to pUnit's region regardless.
  */
-void MagicInstance::SendSkill(bool bSendToRegion /*= true*/, Unit * pUnit /*= NULL*/)
+void MagicInstance::SendSkill(bool bSendToRegion /*= true*/, Unit * pUnit /*= nullptr*/)
 {
-	// If pUnit is NULL, it will assume the caster.
-	if (pUnit == NULL)
+	// If pUnit is nullptr, it will assume the caster.
+	if (pUnit == nullptr)
 		pUnit = pSkillCaster;
 
 	// Build the skill packet using the skill data in the current context.
@@ -333,10 +333,10 @@ void MagicInstance::SendSkill(bool bSendToRegion /*= true*/, Unit * pUnit /*= NU
 
 bool MagicInstance::IsAvailable()
 {
-	CUser* pParty = NULL;   // When the target is a party....
+	CUser* pParty = nullptr;   // When the target is a party....
 	bool isNPC = (sCasterID >= NPC_BAND);		// Identifies source : true means source is NPC.
 
-	if (pSkill == NULL)
+	if (pSkill == nullptr)
 		goto fail_return;
 
 	int modulator = 0, Class = 0, moral = 0, skill_mod = 0 ;
@@ -345,7 +345,7 @@ bool MagicInstance::IsAvailable()
 		moral = pSkillTarget->GetNation();
 	else if (sTargetID >= NPC_BAND)     // Target existence check routine for NPC.          	
 	{
-		if (pSkillTarget == NULL || pSkillTarget->isDead())
+		if (pSkillTarget == nullptr || pSkillTarget->isDead())
 			goto fail_return;	//... Assuming NPCs can't be resurrected.
 
 		moral = pSkillTarget->GetNation();
@@ -386,7 +386,7 @@ bool MagicInstance::IsAvailable()
 		{
 			// NPCs can't *be* in parties.
 			if (pSkillCaster->isNPC()
-				|| (pSkillTarget != NULL && pSkillTarget->isNPC()))
+				|| (pSkillTarget != nullptr && pSkillTarget->isNPC()))
 				goto fail_return;
 
 			// We're definitely a user, so...
@@ -397,12 +397,12 @@ bool MagicInstance::IsAvailable()
 				// Verify that the nation matches the intended moral
 				|| pCaster->GetNation() != moral
 				// and that if there is a target, they're in the same party.
-				|| (pSkillTarget != NULL && 
+				|| (pSkillTarget != nullptr && 
 					TO_USER(pSkillTarget)->m_sPartyIndex != pCaster->m_sPartyIndex))
 				goto fail_return;
 		} break;
 		case MORAL_NPC:		// #5
-			if (pSkillTarget == NULL
+			if (pSkillTarget == nullptr
 				|| !pSkillTarget->isNPC()
 				|| pSkillTarget->GetNation() != moral)
 				goto fail_return;
@@ -435,7 +435,7 @@ bool MagicInstance::IsAvailable()
 		case MORAL_CORPSE_FRIEND:		// #25
 			if (pSkillCaster->GetNation() != moral
 				// We need to revive *something*.
-				|| pSkillTarget == NULL
+				|| pSkillTarget == nullptr
 				// We cannot revive ourselves.
 				|| pSkillCaster == pSkillTarget
 				// We can't revive living targets.
@@ -446,7 +446,7 @@ bool MagicInstance::IsAvailable()
 		{
 			// NPCs cannot be in clans.
 			if (pSkillCaster->isNPC()
-				|| (pSkillTarget != NULL && pSkillTarget->isNPC()))
+				|| (pSkillTarget != nullptr && pSkillTarget->isNPC()))
 				goto fail_return;
 
 			// We're definitely a user, so....
@@ -457,7 +457,7 @@ bool MagicInstance::IsAvailable()
 				// Verify the intended moral
 				|| pCaster->GetNation() != moral
 				// If we're targeting someone, that target must be in our clan.
-				|| (pSkillTarget != NULL 
+				|| (pSkillTarget != nullptr 
 					&& TO_USER(pSkillTarget)->GetClanID() != pCaster->GetClanID()))
 				goto fail_return;
 		} break;
@@ -483,15 +483,15 @@ bool MagicInstance::IsAvailable()
 				_ITEM_TABLE *pLeftHand = TO_USER(pSkillCaster)->GetItemPrototype(LEFTHAND),
 							*pRightHand = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND);
 
-				if ((pLeftHand != NULL && !pLeftHand->isSword() && !pLeftHand->isAxe() && !pLeftHand->isMace())
-					|| (pRightHand != NULL && !pRightHand->isSword() && !pRightHand->isAxe() && !pRightHand->isMace()))
+				if ((pLeftHand != nullptr && !pLeftHand->isSword() && !pLeftHand->isAxe() && !pLeftHand->isMace())
+					|| (pRightHand != nullptr && !pRightHand->isSword() && !pRightHand->isAxe() && !pRightHand->isMace()))
 					return false;
 			}
 			else if (pSkill->sSkill == 1056 || pSkill->sSkill == 2056) {	// Weapons verification in case of 2 handed attacks !
 				_ITEM_TABLE	*pRightHand = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND);
 
 				if (TO_USER(pSkillCaster)->GetItem(LEFTHAND)->nNum != 0
-					|| (pRightHand != NULL 
+					|| (pRightHand != nullptr 
 						&& !pRightHand->isSword() && !pRightHand->isAxe() 
 						&& !pRightHand->isMace() && !pRightHand->isSpear()))
 					return false;
@@ -515,7 +515,7 @@ bool MagicInstance::IsAvailable()
 				&& (pSkill->bType[0] == 3 || pSkill->bType[0] == 4))
 			{
 				if (pSkill->iUseItem != 0) {
-					_ITEM_TABLE* pItem = NULL;				// This checks if such an item exists.
+					_ITEM_TABLE* pItem = nullptr;				// This checks if such an item exists.
 					pItem = g_pMain->GetItemPtr(pSkill->iUseItem);
 					if( !pItem ) return false;
 
@@ -547,17 +547,17 @@ fail_return:    // In case of failure, send a packet(!)
 
 bool MagicInstance::ExecuteType1()
 {	
-	if (pSkill == NULL)
+	if (pSkill == nullptr)
 		return false;
 
 	int damage = 0;
 	bool bResult = false;
 
 	_MAGIC_TYPE1* pType = g_pMain->m_Magictype1Array.GetData(nSkillID);
-	if (pType == NULL)
+	if (pType == nullptr)
 		return false;
 
-	if (pSkillTarget != NULL && !pSkillTarget->isDead())
+	if (pSkillTarget != nullptr && !pSkillTarget->isDead())
 	{
 		bResult = 1;
 		damage = pSkillCaster->GetDamage(pSkillTarget, pSkill);
@@ -586,7 +586,7 @@ bool MagicInstance::ExecuteType1()
 
 bool MagicInstance::ExecuteType2()
 {
-	if (pSkill == NULL)
+	if (pSkill == nullptr)
 		return false;
 
 	int damage = 0;
@@ -595,23 +595,23 @@ bool MagicInstance::ExecuteType2()
 	int sx, sz, tx, tz;
 
 	_MAGIC_TYPE2 *pType = g_pMain->m_Magictype2Array.GetData(nSkillID);
-	if (pType == NULL
+	if (pType == nullptr
 		// The user does not have enough arrows! We should point them in the right direction. ;)
 		|| (pSkillCaster->isPlayer() 
 			&& !TO_USER(pSkillCaster)->CheckExistItem(pSkill->iUseItem, pType->bNeedArrow)))
 		return false;
 
-	_ITEM_TABLE* pTable = NULL;
+	_ITEM_TABLE* pTable = nullptr;
 	if (pSkillCaster->isPlayer())
 	{
 		// Not wearing a left-handed bow
 		pTable = TO_USER(pSkillCaster)->GetItemPrototype(LEFTHAND);
-		if (pTable == NULL || !pTable->isBow())
+		if (pTable == nullptr || !pTable->isBow())
 		{
 			pTable = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND);
 
 			// Not wearing a right-handed (2h) bow either!
-			if (pTable == NULL || !pTable->isBow())
+			if (pTable == nullptr || !pTable->isBow())
 				return false;
 		}
 	}
@@ -619,12 +619,12 @@ bool MagicInstance::ExecuteType2()
 	{
 		// TO-DO: Verify this. It's more a placeholder than anything. 
 		pTable = g_pMain->GetItemPtr(TO_NPC(pSkillCaster)->m_iWeapon_1);
-		if (pTable == NULL)
+		if (pTable == nullptr)
 			return false; 
 	}
 
 	// is this checked already?
-	if (pSkillTarget == NULL || pSkillTarget->isDead())
+	if (pSkillTarget == nullptr || pSkillTarget->isDead())
 		goto packet_send;
 	
 	total_range = pow(((pType->sAddRange * pTable->m_sRange) / 100.0f), 2.0f) ;     // Range verification procedure.
@@ -665,7 +665,7 @@ bool MagicInstance::ExecuteType3()
 	vector<Unit *> casted_member;
 
 	_MAGIC_TYPE3* pType = g_pMain->m_Magictype3Array.GetData(nSkillID);
-	if (pType == NULL) 
+	if (pType == nullptr) 
 		return false;
 
 	// If the target's a group of people...
@@ -702,7 +702,7 @@ bool MagicInstance::ExecuteType3()
 	}
 	else
 	{	// If the target was a single unit.
-		if (pSkillTarget == NULL 
+		if (pSkillTarget == nullptr 
 			|| pSkillTarget->isDead() 
 			|| (pSkillTarget->isPlayer() 
 				&& TO_USER(pSkillTarget)->isBlinking())) 
@@ -818,11 +818,11 @@ bool MagicInstance::ExecuteType4()
 	int damage = 0;
 
 	vector<CUser *> casted_member;
-	if (pSkill == NULL)
+	if (pSkill == nullptr)
 		return false;
 
 	_MAGIC_TYPE4* pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
-	if (pType == NULL)
+	if (pType == nullptr)
 		return false;
 
 	if (!bIsRecastingSavedMagic && sTargetID > 0 && pSkillTarget->HasSavedMagic(nSkillID))
@@ -853,7 +853,7 @@ bool MagicInstance::ExecuteType4()
 	{
 		// If the target was another single player.
 		CUser* pTUser = g_pMain->GetUserPtr(sTargetID);
-		if (pTUser == NULL 
+		if (pTUser == nullptr 
 			|| pTUser->isDead() || (pTUser->isBlinking() && !bIsRecastingSavedMagic)) 
 			return false;
 
@@ -943,18 +943,18 @@ bool MagicInstance::ExecuteType5()
 {
 	// Disallow NPCs (for now?).
 	if (pSkillCaster->isNPC()
-		|| (pSkillTarget != NULL && pSkillTarget->isNPC()))
+		|| (pSkillTarget != nullptr && pSkillTarget->isNPC()))
 		return false;
 
 	int damage = 0;
 	int buff_test = 0; bool bType3Test = true, bType4Test = true; 	
 
-	if (pSkill == NULL)
+	if (pSkill == nullptr)
 		return false;
 
 	_MAGIC_TYPE5* pType = g_pMain->m_Magictype5Array.GetData(nSkillID);
-	if (pType == NULL
-		|| pSkillTarget == NULL 
+	if (pType == nullptr
+		|| pSkillTarget == nullptr 
 		|| (pSkillTarget->isDead() && pType->bType != RESURRECTION) 
 		|| (!pSkillTarget->isDead() && pType->bType == RESURRECTION)) 
 		return false;
@@ -1062,7 +1062,7 @@ bool MagicInstance::ExecuteType5()
 
 bool MagicInstance::ExecuteType6()
 {
-	if (pSkill == NULL
+	if (pSkill == nullptr
 		|| !pSkillCaster->isPlayer())
 		return false;
 
@@ -1076,7 +1076,7 @@ bool MagicInstance::ExecuteType6()
 		if (pSkillTarget->HasSavedMagic(nSkillID))
 			return false;
 
-		if (pType == NULL
+		if (pType == nullptr
 			|| TO_USER(pSkillCaster)->isAttackZone()
 			|| pSkillCaster->isTransformed())
 			return false;
@@ -1089,8 +1089,8 @@ bool MagicInstance::ExecuteType6()
 		_ITEM_TABLE *pTable2 = g_pMain->GetItemPtr(pSkill->iUseItem);
 
 		// If neither of these items exist, we have a bit of a problem...
-		if (pTable == NULL 
-			&& pTable2 == NULL)
+		if (pTable == nullptr 
+			&& pTable2 == nullptr)
 			return false;
 
 		/*
@@ -1103,9 +1103,9 @@ bool MagicInstance::ExecuteType6()
 		*/
 
 		// Special items (e.g. Hera transformation scroll) use the scroll (tied to the skill)
-		if ((pTable2 != NULL && pTable2->m_bKind == 255)
+		if ((pTable2 != nullptr && pTable2->m_bKind == 255)
 			// Totems (i.e. rings) take gems (tied to the skill)
-			|| (pTable != NULL && pTable->m_bKind == 93)) 
+			|| (pTable != nullptr && pTable->m_bKind == 93)) 
 			iUseItem = pSkill->iUseItem;
 		// If we're using a normal transformation scroll, we can leave the item as it is.
 		else 
@@ -1158,12 +1158,12 @@ bool MagicInstance::ExecuteType7()
 // Warp, resurrection, and summon spells.
 bool MagicInstance::ExecuteType8()
 {	
-	if (pSkill == NULL)
+	if (pSkill == nullptr)
 		return false;
 
 	vector<CUser *> casted_member;
 	_MAGIC_TYPE8* pType = g_pMain->m_Magictype8Array.GetData(nSkillID);
-	if (pType == NULL)
+	if (pType == nullptr)
 		return false;
 
 	if (sTargetID == -1)
@@ -1184,7 +1184,7 @@ bool MagicInstance::ExecuteType8()
 	else 
 	{	// If the target was another single player.
 		CUser* pTUser = g_pMain->GetUserPtr(sTargetID);
-		if (pTUser == NULL) 
+		if (pTUser == nullptr) 
 			return false;
 		
 		casted_member.push_back(pTUser);
@@ -1193,7 +1193,7 @@ bool MagicInstance::ExecuteType8()
 	foreach (itr, casted_member)
 	{
 		uint8 bResult = 0;
-		_OBJECT_EVENT* pEvent = NULL;
+		_OBJECT_EVENT* pEvent = nullptr;
 		float x = 0.0f, z = 0.0f;
 		x = (float)(myrand( 0, 400 )/100.0f);	z = (float)(myrand( 0, 400 )/100.0f);
 		if( x < 2.5f )	x = 1.5f + x;
@@ -1201,7 +1201,7 @@ bool MagicInstance::ExecuteType8()
 
 		CUser* pTUser = *itr;
 		_HOME_INFO* pHomeInfo = g_pMain->m_HomeArray.GetData(pTUser->GetNation());
-		if (pHomeInfo == NULL)
+		if (pHomeInfo == nullptr)
 			return false;
 
 		if (pType->bWarpType != 11) 
@@ -1222,7 +1222,7 @@ bool MagicInstance::ExecuteType8()
 				// Send the packet to the target.
 				sData[1] = 1;
 				BuildAndSendSkillPacket(*itr, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sData); 
-				if (pTUser->GetMap() == NULL)
+				if (pTUser->GetMap() == nullptr)
 					continue;
 
 				pEvent = pTUser->GetMap()->GetObjectEvent(pTUser->m_sBind);
@@ -1358,12 +1358,12 @@ packet_send:
 
 bool MagicInstance::ExecuteType9()
 {
-	if (pSkill == NULL
+	if (pSkill == nullptr
 		|| !pSkillCaster->isPlayer())
 		return false;
 
 	_MAGIC_TYPE9* pType = g_pMain->m_Magictype9Array.GetData(nSkillID);
-	if (pType == NULL)
+	if (pType == nullptr)
 		return false;
 
 	sData[1] = 1;
@@ -1387,13 +1387,13 @@ bool MagicInstance::ExecuteType9()
 		if (TO_USER(pSkillCaster)->isInParty())
 		{
 			_PARTY_GROUP* pParty = g_pMain->m_PartyArray.GetData(TO_USER(pSkillCaster)->m_sPartyIndex);
-			if (pParty == NULL)
+			if (pParty == nullptr)
 				return false;
 
 			for (int i = 0; i < MAX_PARTY_USERS; i++)
 			{
 				CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
-				if (pUser == NULL)
+				if (pUser == nullptr)
 					continue;
 				pUser->InsertSavedMagic(nSkillID, pType->sDuration);
 				pUser->Send(&stealth);
@@ -1421,8 +1421,8 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 	int random = 0, total_r = 0 ;
 	uint8 result; 
 
-	if (pTarget == NULL
-		|| pSkillCaster == NULL
+	if (pTarget == nullptr
+		|| pSkillCaster == nullptr
 		|| pTarget->isDead()
 		|| pSkillCaster->isDead())
 		return 0;
@@ -1472,8 +1472,8 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 		{
 			CUser *pUser = TO_USER(pSkillCaster);
 			_ITEM_TABLE *pRightHand = pUser->GetItemPrototype(RIGHTHAND);
-			if (pRightHand != NULL && pRightHand->isStaff()
-				&& pUser->GetItemPrototype(LEFTHAND) == NULL)
+			if (pRightHand != nullptr && pRightHand->isStaff()
+				&& pUser->GetItemPrototype(LEFTHAND) == nullptr)
 			{
 				righthand_damage = pRightHand->m_sDamage;
 					
@@ -1532,11 +1532,11 @@ void MagicInstance::Type6Cancel()
 
 void MagicInstance::Type9Cancel()
 {
-	if (pSkill == NULL)
+	if (pSkill == nullptr)
 		return;
 
 	_MAGIC_TYPE9 *pType = g_pMain->m_Magictype9Array.GetData(nSkillID);
-	if (pType == NULL)
+	if (pType == nullptr)
 		return;
 
 	uint8 bResponse = 0;
@@ -1571,12 +1571,12 @@ void MagicInstance::Type9Cancel()
 
 void MagicInstance::Type4Cancel()
 {
-	if (pSkill == NULL
+	if (pSkill == nullptr
 		|| pSkillTarget != pSkillCaster)
 		return;
 
 	_MAGIC_TYPE4* pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
-	if (pType == NULL)
+	if (pType == nullptr)
 		return;
 
 	if (!CMagicProcess::RemoveType4Buff(pType->bBuffType, TO_USER(pSkillCaster)))
@@ -1595,13 +1595,13 @@ void MagicInstance::Type4Cancel()
 
 void MagicInstance::Type3Cancel()
 {
-	if (pSkill == NULL
+	if (pSkill == nullptr
 		|| pSkillCaster != pSkillTarget)
 		return;
 
 	// Should this take only the specified skill? I'm thinking so.
 	_MAGIC_TYPE3* pType = g_pMain->m_Magictype3Array.GetData(nSkillID);
-	if (pType == NULL)
+	if (pType == nullptr)
 		return;
 
 	for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
@@ -1637,11 +1637,11 @@ void MagicInstance::Type3Cancel()
 
 void MagicInstance::Type4Extend()
 {
-	if (pSkill == NULL)
+	if (pSkill == nullptr)
 		return;
 
 	_MAGIC_TYPE4 *pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
-	if (pType == NULL)
+	if (pType == nullptr)
 		return;
 
 	FastGuard lock(pSkillTarget->m_buffLock);

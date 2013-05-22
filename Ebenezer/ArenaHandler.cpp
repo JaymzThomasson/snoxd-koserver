@@ -80,7 +80,7 @@ void CUser::HandleChallengeRequestPVP(Packet & pkt)
 	pkt >> strUserID;
 
 	CUser *pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
-	if (pUser == NULL
+	if (pUser == nullptr
 		|| !pUser->isInGame()
 		|| pUser->isInParty()
 		|| pUser->isDead() 
@@ -145,7 +145,7 @@ void CUser::HandleChallengeRequestCVC(Packet & pkt)
 	pkt >> strUserID;
 
 	CUser *pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
-	if (pUser == NULL
+	if (pUser == nullptr
 		|| !pUser->isInGame()
 		|| pUser->isInParty()
 		|| pUser->isDead() 
@@ -193,7 +193,7 @@ void CUser::HandleChallengeAcceptPVP(Packet & pkt)
 	m_sChallengeUser = -1;
 	m_bChallengeRequested = 0;
 
-	if (pUser == NULL)
+	if (pUser == nullptr)
 	{
 		Packet result(WIZ_CHALLENGE);
 		result << uint8(CHALLENGE_GENERIC_ERROR);
@@ -221,7 +221,7 @@ void CUser::HandleChallengeAcceptCVC(Packet & pkt)
 	m_sChallengeUser = -1;
 	m_bChallengeRequested = 0;
 
-	if (pUser == NULL)
+	if (pUser == nullptr)
 	{
 		Send(&result);
 		return;
@@ -233,7 +233,7 @@ void CUser::HandleChallengeAcceptCVC(Packet & pkt)
 	CKnights *pClan1 = g_pMain->GetClanPtr(GetClanID());
 	CKnights *pClan2 = g_pMain->GetClanPtr(pUser->GetClanID());
 
-	if (pClan1 == NULL || pClan2 == NULL)
+	if (pClan1 == nullptr || pClan2 == nullptr)
 	{
 		Send(&result);
 		pUser->Send(&result);
@@ -243,7 +243,7 @@ void CUser::HandleChallengeAcceptCVC(Packet & pkt)
 	foreach_array (i, pClan1->m_arKnightsUser)
 	{
 		_KNIGHTS_USER *p = &pClan1->m_arKnightsUser[i];
-		if (!p->byUsed || p->pSession == NULL)
+		if (!p->byUsed || p->pSession == nullptr)
 			continue;
 
 		CUser *pClanMember = p->pSession;
@@ -260,7 +260,7 @@ void CUser::HandleChallengeAcceptCVC(Packet & pkt)
 	foreach_array (i, pClan2->m_arKnightsUser)
 	{
 		_KNIGHTS_USER *p = &pClan2->m_arKnightsUser[i];
-		if (!p->byUsed || p->pSession == NULL)
+		if (!p->byUsed || p->pSession == nullptr)
 			continue;
 
 		CUser *pClanMember = p->pSession;
@@ -284,7 +284,7 @@ void CUser::HandleChallengeCancelled(uint8 opcode)
 	Packet result(WIZ_CHALLENGE);
 
 	CUser *pUser = g_pMain->GetUserPtr(m_sChallengeUser);
-	if (pUser == NULL || pUser->m_sChallengeUser != GetID())
+	if (pUser == nullptr || pUser->m_sChallengeUser != GetID())
 	{
 		result << uint8(CHALLENGE_GENERIC_ERROR);
 		Send(&result);
@@ -310,7 +310,7 @@ void CUser::HandleChallengeRejected(uint8 opcode)
 	Packet result(WIZ_CHALLENGE);
 
 	CUser *pUser = g_pMain->GetUserPtr(m_sChallengeUser);
-	if (pUser == NULL || pUser->m_sChallengeUser != GetID())
+	if (pUser == nullptr || pUser->m_sChallengeUser != GetID())
 	{
 		result << uint8(CHALLENGE_GENERIC_ERROR);
 	}

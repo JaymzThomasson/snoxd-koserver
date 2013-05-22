@@ -8,19 +8,19 @@ tm g_localTime;
 #ifdef USE_STD_THREAD
 static std::thread s_hTimeThread;
 #else
-static HANDLE s_hTimeThread = NULL;
+static HANDLE s_hTimeThread = nullptr;
 #endif
 
 void StartTimeThread()
 {
-	UNIXTIME = time(NULL); // update it first, just to ensure it's set when we need to use it.
+	UNIXTIME = time(nullptr); // update it first, just to ensure it's set when we need to use it.
 	g_localTime = *localtime(&UNIXTIME);
 
 #ifdef USE_STD_THREAD
-	s_hTimeThread = std::thread(TimeThread, static_cast<void *>(NULL));
+	s_hTimeThread = std::thread(TimeThread, static_cast<void *>(nullptr));
 #else
 	DWORD dwThreadId;
-	s_hTimeThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&TimeThread, NULL, NULL, &dwThreadId);
+	s_hTimeThread = CreateThread(nullptr, nullptr, (LPTHREAD_START_ROUTINE)&TimeThread, nullptr, nullptr, &dwThreadId);
 #endif
 }
 
@@ -37,7 +37,7 @@ uint32 __stdcall TimeThread(void * lpParam)
 {
 	while (g_bRunning)
 	{
-		time_t t = time(NULL);
+		time_t t = time(nullptr);
 		if (UNIXTIME != t)
 		{
 			UNIXTIME = t;

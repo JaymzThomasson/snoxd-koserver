@@ -198,7 +198,7 @@ INLINE time_t getMSTime()
 #ifdef _WIN32
 #if WINVER >= 0x0600
 	typedef ULONGLONG (WINAPI *GetTickCount64_t)(void);
-	static GetTickCount64_t pGetTickCount64 = NULL;
+	static GetTickCount64_t pGetTickCount64 = nullptr;
 
 	if (!pGetTickCount64)
 	{
@@ -215,7 +215,7 @@ INLINE time_t getMSTime()
 #endif
 #else
 	struct timeval tv;
-	gettimeofday(&tv, NULL);
+	gettimeofday(&tv, nullptr);
 	return (tv.tv_sec * SECOND) + (tv.tv_usec / SECOND);
 #endif
 }

@@ -31,7 +31,7 @@ void DatabaseThread::Startup(uint32 dwThreads)
 #else
 	DWORD id;
 	for (uint32 i = 0; i < dwThreads; i++)
-		s_hThreads.push_back(CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&ThreadProc, (LPVOID)i, NULL, &id));
+		s_hThreads.push_back(CreateThread(nullptr, nullptr, (LPTHREAD_START_ROUTINE)&ThreadProc, (LPVOID)i, nullptr, &id));
 #endif
 	s_dwThreads = dwThreads;
 }
@@ -48,7 +48,7 @@ unsigned int __stdcall DatabaseThread::ThreadProc(void * lpParam)
 {
 	while (_running)
 	{
-		Packet *p = NULL;
+		Packet *p = nullptr;
 
 		// Pull the next packet from the shared queue
 		_lock.Acquire();
@@ -60,7 +60,7 @@ unsigned int __stdcall DatabaseThread::ThreadProc(void * lpParam)
 		_lock.Release();
 
 		// If there's no more packets to handle, wait until there are.
-		if (p == NULL)
+		if (p == nullptr)
 		{
 			s_hEvent.Wait();
 			continue;
@@ -74,13 +74,13 @@ unsigned int __stdcall DatabaseThread::ThreadProc(void * lpParam)
 		int16 uid = pkt.read<int16>();
 
 		// Attempt to lookup the user if necessary
-		CUser *pUser = NULL;
+		CUser *pUser = nullptr;
 		if (uid >= 0)
 		{
 			pUser = g_pMain->GetUserPtr(uid);
 
 			// Check to make sure they're still connected.
-			if (pUser == NULL)
+			if (pUser == nullptr)
 				continue;
 		}
 
@@ -459,7 +459,7 @@ void CKnightsManager::ReqKnightsPacket(CUser* pUser, Packet & pkt)
 
 void CKnightsManager::ReqCreateKnights(CUser *pUser, Packet & pkt)
 {
-	if (pUser == NULL)
+	if (pUser == nullptr)
 		return;
 
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_CREATE));
@@ -504,7 +504,7 @@ void CKnightsManager::ReqCreateKnights(CUser *pUser, Packet & pkt)
 
 void CKnightsManager::ReqUpdateKnights(CUser *pUser, Packet & pkt, uint8 opcode)
 {
-	if (pUser == NULL)
+	if (pUser == nullptr)
 		return;
 
 	Packet result(WIZ_KNIGHTS_PROCESS);
@@ -524,7 +524,7 @@ void CKnightsManager::ReqUpdateKnights(CUser *pUser, Packet & pkt, uint8 opcode)
 
 void CKnightsManager::ReqModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 command)
 {
-	if (pUser == NULL)
+	if (pUser == nullptr)
 		return;
 
 	Packet result(WIZ_KNIGHTS_PROCESS);
@@ -550,7 +550,7 @@ void CKnightsManager::ReqDestroyKnights(CUser *pUser, Packet & pkt)
 {
 	uint16 sClanID = pkt.read<uint16>();
 	CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
-	if (pKnights == NULL)
+	if (pKnights == nullptr)
 		return;
 
 	int8 bResult = int8(g_DBAgent.DeleteKnights(sClanID));
@@ -566,7 +566,7 @@ void CKnightsManager::ReqAllKnightsMember(CUser *pUser, Packet & pkt)
 	pkt >> sClanID;
 
 	CKnights* pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
-	if (pKnights == NULL)
+	if (pKnights == nullptr)
 		return;
 
 	result << uint8(1);
@@ -599,7 +599,7 @@ void CKnightsManager::ReqKnightsList(Packet & pkt)
 		return;
 
 	CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
-	if (pKnights == NULL)
+	if (pKnights == nullptr)
 	{
 		pKnights = new CKnights();
 
@@ -622,7 +622,7 @@ void CKnightsManager::ReqKnightsList(Packet & pkt)
 
 void CKnightsManager::ReqRegisterClanSymbol(CUser *pUser, Packet & pkt)
 {
-	if (pUser == NULL)
+	if (pUser == nullptr)
 		return;
 
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MARK_REGISTER));
@@ -640,7 +640,7 @@ void CKnightsManager::ReqRegisterClanSymbol(CUser *pUser, Packet & pkt)
 			break;
 
 		CKnights *pKnights = g_pMain->GetClanPtr(sClanID);
-		if (pKnights == NULL)
+		if (pKnights == nullptr)
 		{
 			sErrorCode = 20;
 			break;
@@ -694,7 +694,7 @@ void CUser::ReqBattleEventResult(Packet & pkt)
  * @brief	Handles database requests for the King system.
  *
  * @param	pUser	The user making the request, if applicable. 
- * 					NULL if not.
+ * 					nullptr if not.
  * @param	pkt  	The packet.
  */
 void CKingSystem::HandleDatabaseRequest(CUser * pUser, Packet & pkt)
@@ -715,7 +715,7 @@ void CKingSystem::HandleDatabaseRequest(CUser * pUser, Packet & pkt)
  * @brief	Handles database requests for the election system.
  *
  * @param	pUser	The user making the request, if applicable. 
- * 					NULL if not.
+ * 					nullptr if not.
  * @param	pkt  	The packet.
  */
 void CKingSystem::HandleDatabaseRequest_Election(CUser * pUser, Packet & pkt)
@@ -751,7 +751,7 @@ void CKingSystem::HandleDatabaseRequest_Election(CUser * pUser, Packet & pkt)
 
 	case KING_ELECTION_NOMINATE:
 		{
-			if (pUser == NULL)
+			if (pUser == nullptr)
 				return;
 
 			Packet result(WIZ_KING, uint8(KING_ELECTION));
@@ -764,7 +764,7 @@ void CKingSystem::HandleDatabaseRequest_Election(CUser * pUser, Packet & pkt)
 			if (resultCode == 1)
 			{
 				CKingSystem * pData = g_pMain->m_KingSystemArray.GetData(pUser->GetNation());
-				if (pData == NULL)
+				if (pData == nullptr)
 					return;
 
 				pData->InsertNominee(strNominee);
@@ -776,7 +776,7 @@ void CKingSystem::HandleDatabaseRequest_Election(CUser * pUser, Packet & pkt)
 	case KING_ELECTION_NOTICE_BOARD:
 		{
 			pkt >> opcode;
-			if (pUser == NULL)
+			if (pUser == nullptr)
 				return;
 
 			if (opcode == KING_CANDIDACY_BOARD_WRITE)
@@ -793,7 +793,7 @@ void CKingSystem::HandleDatabaseRequest_Election(CUser * pUser, Packet & pkt)
  * @brief	Handles database requests for King commands.
  *
  * @param	pUser	The user making the request, if applicable. 
- * 					NULL if not.
+ * 					nullptr if not.
  * @param	pkt  	The packet.
  */
 void CKingSystem::HandleDatabaseRequest_Event(CUser * pUser, Packet & pkt)

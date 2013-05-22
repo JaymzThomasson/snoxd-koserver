@@ -63,7 +63,7 @@ void CRoomEvent::MainRoom()
 bool CRoomEvent::CheckEvent(int event_num)
 {
 	int nMinute = 0, nOption_1 = 0, nOption_2 = 0;
-	CNpc* pNpc = NULL;
+	CNpc* pNpc = nullptr;
 	bool bRetValue = false;
 
 	if( m_byLogicNumber == 0 || m_byLogicNumber > MAX_CHECK_EVENT )	{
@@ -119,7 +119,7 @@ bool CRoomEvent::CheckEvent(int event_num)
 
 bool CRoomEvent::RunEvent( int event_num )
 {
-	CNpc* pNpc = NULL;
+	CNpc* pNpc = nullptr;
 	int nOption_1 = 0, nOption_2 = 0;
 	bool bRetValue = false;
 	switch( event_num )	{
@@ -204,7 +204,7 @@ CNpc* CRoomEvent::GetNpcPtr( int sid )
 	int nMonster = m_mapRoomNpcArray.GetSize();
 	if( nMonster == 0 )	{
 		TRACE("### RoomEvent-GetNpcPtr() : monster empty ###\n");
-		return NULL;
+		return nullptr;
 	}
 
 	FastGuard lock(m_mapRoomNpcArray.m_lock);
@@ -220,7 +220,7 @@ CNpc* CRoomEvent::GetNpcPtr( int sid )
 		if( pNpc->m_proto->m_sSid == sid )	{
 			if(pIDList)	{
 				delete [] pIDList;
-				pIDList = NULL;
+				pIDList = nullptr;
 			}
 			return pNpc;
 		}
@@ -229,7 +229,7 @@ CNpc* CRoomEvent::GetNpcPtr( int sid )
 	if (pIDList)
 		delete [] pIDList;
 
-	return NULL;
+	return nullptr;
 }
 
 bool  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
@@ -240,7 +240,7 @@ bool  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
 	int nMonster = m_mapRoomNpcArray.GetSize();
 	if( nMonster == 0 )	{
 		TRACE("### RoomEvent-GetNpcPtr() : monster empty ###\n");
-		return NULL;
+		return nullptr;
 	}
 	
 	m_mapRoomNpcArray.m_lock.Acquire();
@@ -298,16 +298,16 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 			switch (option2)
 			{
 			case 1:
-				LoadString(NULL, IDS_KARUS_CATCH_1, buff, sizeof(buff));
+				LoadString(nullptr, IDS_KARUS_CATCH_1, buff, sizeof(buff));
 				break;
 			case 2:
-				LoadString(NULL, IDS_KARUS_CATCH_2, buff, sizeof(buff));
+				LoadString(nullptr, IDS_KARUS_CATCH_2, buff, sizeof(buff));
 				break;
 			case 11:
-				LoadString(NULL, IDS_ELMORAD_CATCH_1, buff, sizeof(buff));
+				LoadString(nullptr, IDS_ELMORAD_CATCH_1, buff, sizeof(buff));
 				break;
 			case 12:
-				LoadString(NULL, IDS_ELMORAD_CATCH_2, buff, sizeof(buff));
+				LoadString(nullptr, IDS_ELMORAD_CATCH_2, buff, sizeof(buff));
 				break;
 			}
 
@@ -315,7 +315,7 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 		} break;
 
 		case 2:
-			LoadString(NULL, IDS_KARUS_PATHWAY + (option2-1), buff, sizeof(buff));
+			LoadString(nullptr, IDS_KARUS_PATHWAY + (option2-1), buff, sizeof(buff));
 			g_pMain->SendSystemMsg(buff, WAR_SYSTEM_CHAT);
 
 			// this is normal, we need to send the following packet as well.

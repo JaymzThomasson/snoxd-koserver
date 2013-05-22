@@ -5,18 +5,18 @@ class ChatPacket
 public:
 	// Construct a chat packet from the data provided
 	// NOTE: Using pointers here for more flexible input (references would be nice, but implementation can be fiddly)
-	static void Construct(Packet * result, uint8 bType, std::string * strMessage = NULL, std::string * strSender = NULL, 
+	static void Construct(Packet * result, uint8 bType, std::string * strMessage = nullptr, std::string * strSender = nullptr, 
 		uint8 bNation = 1, int16 senderID = -1)
 	{
 		result->Initialize(WIZ_CHAT);
 		*result << bType << bNation << senderID;
 
 		result->SByte();
-		if (strSender == NULL) *result << uint8(0);
+		if (strSender == nullptr) *result << uint8(0);
 		else *result << *strSender;
 
 		result->DByte();
-		if (strMessage == NULL) *result << uint16(0);
+		if (strMessage == nullptr) *result << uint16(0);
 		else *result << *strMessage;
 	}
 
@@ -44,7 +44,7 @@ public:
 INLINE void* allocate_and_copy(uint32 len, void * pointer)
 {
 	void * data = (void*)malloc(len);
-	if (data == NULL)
+	if (data == nullptr)
 		return data;
 
 	memcpy(data, pointer, len);

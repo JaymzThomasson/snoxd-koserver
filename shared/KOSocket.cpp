@@ -102,7 +102,7 @@ error_handler:
 
 bool KOSocket::DecryptPacket(uint8 *in_stream, Packet & pkt)
 {
-	uint8* final_packet = NULL;
+	uint8* final_packet = nullptr;
 
 	if (isCryptoEnabled())
 	{
@@ -141,7 +141,7 @@ bool KOSocket::Send(Packet * pkt)
 	bool r;
 
 	uint8 opcode = pkt->GetOpcode();
-	uint8 * out_stream = NULL;
+	uint8 * out_stream = nullptr;
 	uint16 len = (uint16)(pkt->size() + 1);
 
 	if (isCryptoEnabled())

@@ -27,7 +27,7 @@ public:
 	C3DMap();
 	bool Initialize(_ZONE_INFO *pZone);
 	CRegion * GetRegion(uint16 regionX, uint16 regionZ);
-	bool CheckEvent( float x, float z, CUser* pUser = NULL );
+	bool CheckEvent( float x, float z, CUser* pUser = nullptr );
 	void RegionItemRemove(CRegion * pRegion, _LOOT_BUNDLE * pBundle, _LOOT_ITEM * pItem);
 	bool RegionItemAdd(uint16 rx, uint16 rz, _LOOT_BUNDLE * pBundle);
 	bool ObjectCollision(float x1, float z1, float y1, float x2, float z2, float y2);

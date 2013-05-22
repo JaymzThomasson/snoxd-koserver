@@ -64,7 +64,7 @@ public:
 	void SendFlyingSantaOrAngel();
 	void BattleZoneCurrentUsers();
 	void GetCaptainUserPtr();
-	void Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser = NULL);
+	void Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser = nullptr);
 	void KickOutZoneUsers(short zone);
 	__int64 GenerateItemSerial();
 	int KickOutAllUsers();
@@ -91,7 +91,7 @@ public:
 	void DeleteAllNpcList(int flag = 0);
 	CNpc*  GetNpcPtr( int sid, int cur_zone );
 
-	void AddDatabaseRequest(Packet & pkt, CUser *pUser = NULL);
+	void AddDatabaseRequest(Packet & pkt, CUser *pUser = nullptr);
 
 	// Get info for NPCs in regions around user (WIZ_REQ_NPCIN)
 	void NpcInOutForMe(CUser* pSendUser);
@@ -140,11 +140,11 @@ public:
 			buffer = msg;
 
 		ChatPacket::Construct(&result, (uint8) chatType, &buffer);
-		Send_All(&result, NULL, byNation);
+		Send_All(&result, nullptr, byNation);
 	}
 
 	template <ChatType chatType>
-	INLINE void SendFormattedChat(const char * msg, uint8 byNation = Nation::ALL, bool bFormatNotice = false, va_list args = NULL)
+	INLINE void SendFormattedChat(const char * msg, uint8 byNation = Nation::ALL, bool bFormatNotice = false, va_list args = nullptr)
 	{
 		char buffer[512];
 		vsnprintf(buffer, sizeof(buffer), msg, args);
@@ -191,15 +191,15 @@ public:
 
 	void SendFormattedResource(uint32 nResourceID, uint8 byNation = Nation::ALL, bool bIsNotice = true, ...);
 
-	void Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
-	void Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
-	void Send_OldRegions(Packet *pkt, int old_x, int old_z, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
-	void Send_NewRegions(Packet *pkt, int new_x, int new_z, C3DMap *pMap, int x, int z, CUser* pExceptUser = NULL);
+	void Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = nullptr);
+	void Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser* pExceptUser = nullptr);
+	void Send_OldRegions(Packet *pkt, int old_x, int old_z, C3DMap *pMap, int x, int z, CUser* pExceptUser = nullptr);
+	void Send_NewRegions(Packet *pkt, int new_x, int new_z, C3DMap *pMap, int x, int z, CUser* pExceptUser = nullptr);
 
-	void Send_NearRegion(Packet *pkt, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser=NULL );
-	void Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser* pExceptUser=NULL );
+	void Send_NearRegion(Packet *pkt, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser=nullptr );
+	void Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser* pExceptUser=nullptr );
 
-	void Send_All(Packet *pkt, CUser* pExceptUser = NULL, uint8 nation = 0);
+	void Send_All(Packet *pkt, CUser* pExceptUser = nullptr, uint8 nation = 0);
 	void Send_AIServer(Packet *pkt);
 
 	void GetServerResource(int nResourceID, std::string * result, ...);

@@ -40,7 +40,7 @@ void CUser::ExchangeReq(Packet & pkt)
 
 	uint16 destid = pkt.read<uint16>();
 	CUser* pUser = g_pMain->GetUserPtr(destid);
-	if (pUser == NULL
+	if (pUser == nullptr
 		|| pUser->isTrading()
 		|| (pUser->GetNation() != GetNation() && pUser->GetZoneID() != 21 && GetZoneID() != 21)
 		|| pUser->GetZoneID() != GetZoneID())
@@ -66,7 +66,7 @@ void CUser::ExchangeAgree(Packet & pkt)
 
 	uint8 bResult = pkt.read<uint8>();
 	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
-	if (pUser == NULL) 
+	if (pUser == nullptr) 
 	{
 		m_sExchangeUser = -1;
 		return;
@@ -98,13 +98,13 @@ void CUser::ExchangeAdd(Packet & pkt)
 	uint64 nSerialNum;
 	uint32 nItemID, count = 0;
 	uint16 duration = 0;
-	_EXCHANGE_ITEM* pItem = NULL;
+	_EXCHANGE_ITEM* pItem = nullptr;
 	list<_EXCHANGE_ITEM*>::iterator	Iter;
 	uint8 pos;
 	bool bAdd = true, bGold = false;
 
 	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
-	if (pUser == NULL
+	if (pUser == nullptr
 		|| pUser->isDead()
 		|| isDead())
 	{
@@ -114,7 +114,7 @@ void CUser::ExchangeAdd(Packet & pkt)
 
 	pkt >> pos >> nItemID >> count;
 	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
-	if (pTable == NULL
+	if (pTable == nullptr
 
 		|| (nItemID != ITEM_GOLD 
 			&& (pos >= HAVE_MAX // Invalid position
@@ -217,7 +217,7 @@ void CUser::ExchangeDecide()
 	bool bSuccess = true;
 
 	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
-	if (pUser == NULL
+	if (pUser == nullptr
 		|| pUser->isDead()
 		|| isDead())
 	{
@@ -315,7 +315,7 @@ void CUser::ExchangeCancel()
 
 	InitExchange(false);
 
-	if (pUser != NULL)
+	if (pUser != nullptr)
 	{
 		pUser->ExchangeCancel();
 
@@ -329,7 +329,7 @@ void CUser::InitExchange(bool bStart)
 	while (m_ExchangeItemList.size())
 	{
 		_EXCHANGE_ITEM *pItem = m_ExchangeItemList.front();
-		if (pItem != NULL)
+		if (pItem != nullptr)
 			delete pItem;
 
 		m_ExchangeItemList.pop_front();
@@ -360,7 +360,7 @@ bool CUser::ExecuteExchange()
 	uint8 i = 0;
 
 	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
-	if (pUser == NULL)
+	if (pUser == nullptr)
 		return false;
 
 	foreach (Iter, pUser->m_ExchangeItemList)
@@ -372,7 +372,7 @@ bool CUser::ExecuteExchange()
 		}
 
 		_ITEM_TABLE *pTable = g_pMain->GetItemPtr((*Iter)->nItemID);
-		if (pTable == NULL)
+		if (pTable == nullptr)
 			continue;
 
 		for (i = 0; i < HAVE_MAX; i++)
@@ -424,11 +424,11 @@ bool CUser::ExecuteExchange()
 int CUser::ExchangeDone()
 {
 	int money = 0;
-	CUser* pUser = NULL;
-	_ITEM_TABLE* pTable = NULL;
+	CUser* pUser = nullptr;
+	_ITEM_TABLE* pTable = nullptr;
 
 	pUser = g_pMain->GetUserPtr(m_sExchangeUser);
-	if (pUser == NULL)
+	if (pUser == nullptr)
 		return 0;
 
 	// TO-DO: Clean this up. Not sure why the coin entry is the only thing being cleaned up.
@@ -458,7 +458,7 @@ int CUser::ExchangeDone()
 		pItem->nSerialNum = m_MirrorItem[i].nSerialNum;
 
 		pTable = g_pMain->GetItemPtr(pItem->nNum);
-		if (pTable == NULL)
+		if (pTable == nullptr)
 			continue;
 
 		if (!pTable->m_bCountable && pItem->nSerialNum == 0)

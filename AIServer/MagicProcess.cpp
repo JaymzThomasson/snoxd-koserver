@@ -7,7 +7,7 @@
 
 CMagicProcess::CMagicProcess()
 {
-	m_pSrcUser = NULL;
+	m_pSrcUser = nullptr;
 	m_bMagicState = NONE;
 }
 
@@ -21,7 +21,7 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 	int magicid = 0;
 	int16 sid, tid;
 	uint16 data1 = 0, data2 = 0, data3 = 0, data4 = 0, data5 = 0, data6 = 0, TotalDex=0, righthand_damage = 0, result = 1;
-	_MAGIC_TABLE* pTable = NULL;
+	_MAGIC_TABLE* pTable = nullptr;
 
 	sid = m_pSrcUser->m_iUserId;
 
@@ -70,8 +70,8 @@ void CMagicProcess::MagicPacket(Packet & pkt)
 
 _MAGIC_TABLE* CMagicProcess::IsAvailable(int magicid, int tid, uint8 type )
 {
-	if (m_pSrcUser == NULL)
-		return NULL;
+	if (m_pSrcUser == nullptr)
+		return nullptr;
 
 	_MAGIC_TABLE *pTable = g_pMain->m_MagictableArray.GetData(magicid);
 	if (!pTable)
@@ -92,9 +92,9 @@ uint8 CMagicProcess::ExecuteType1(int magicid, int tid, int data1, int data2, in
 	//TRACE("magictype1 ,, magicid=%d, damage=%d\n", magicid, damage);
 
 //	if (damage > 0) {
-		CNpc* pNpc = NULL ;      // Pointer initialization!
+		CNpc* pNpc = nullptr ;      // Pointer initialization!
 		pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
-		if(pNpc == NULL || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
+		if(pNpc == nullptr || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
 			bResult = 0;
 			goto packet_send;
 		}
@@ -135,9 +135,9 @@ uint8 CMagicProcess::ExecuteType2(int magicid, int tid, int data1, int data2, in
 	result << magicid << m_pSrcUser->m_iUserId << tid << data1;
 
 	if (damage > 0){
-		CNpc* pNpc = NULL ;      // Pointer initialization!
+		CNpc* pNpc = nullptr ;      // Pointer initialization!
 		pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
-		if(pNpc == NULL || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
+		if(pNpc == nullptr || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
 			bResult = 0;
 			goto packet_send;
 		}
@@ -176,10 +176,10 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 {	
 	int damage = 0, attack_type = 0; 
 	bool bResult = true;
-	_MAGIC_TYPE3* pType = NULL;
-	CNpc* pNpc = NULL ;      // Pointer initialization!
+	_MAGIC_TYPE3* pType = nullptr;
+	CNpc* pNpc = nullptr ;      // Pointer initialization!
 
-	_MAGIC_TABLE* pMagic = NULL;
+	_MAGIC_TABLE* pMagic = nullptr;
 	pMagic = g_pMain->m_MagictableArray.GetData( magicid );   // Get main magic table.
 	if( !pMagic ) return; 
 
@@ -191,7 +191,7 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 	}
 
 	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
-	if(pNpc == NULL || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
+	if(pNpc == nullptr || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
 		bResult = false;
 		goto packet_send;
 	}
@@ -291,8 +291,8 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 	int damage = 0;
 	uint16 sResult = 1;
 
-	_MAGIC_TYPE4* pType = NULL;
-	CNpc* pNpc = NULL ;      // Pointer initialization!
+	_MAGIC_TYPE4* pType = nullptr;
+	CNpc* pNpc = nullptr ;      // Pointer initialization!
 
 	if(tid == -1)	{	// 지역 공격
 		sResult = AreaAttack(4, magicid, moral, data1, data2, data3, 0, 0);
@@ -303,7 +303,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 	}
 
 	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
-	if(pNpc == NULL || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
+	if(pNpc == nullptr || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
 		sResult = 0;
 		goto fail_return;
 	}
@@ -377,9 +377,9 @@ short CMagicProcess::GetMagicDamage(int tid, int total_hit, int attribute, int d
 
 	if( tid < NPC_BAND || tid > INVALID_BAND) return 0;     // Check if target id is valid.
 
-	CNpc* pNpc = NULL;              
+	CNpc* pNpc = nullptr;              
 	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
-	if(pNpc == NULL || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	return 0;
+	if(pNpc == nullptr || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	return 0;
 	if(pNpc->m_proto->m_tNpcType == NPC_ARTIFACT||pNpc->m_proto->m_tNpcType == NPC_PHOENIX_GATE || pNpc->m_proto->m_tNpcType == NPC_GATE_LEVER || pNpc->m_proto->m_tNpcType == NPC_SPECIAL_GATE ) return 0;
 	
 	//result = m_pSrcUser->GetHitRate(m_pSrcUser->m_fHitrate / pNpc->m_sEvadeRate ); 
@@ -436,8 +436,8 @@ short CMagicProcess::GetMagicDamage(int tid, int total_hit, int attribute, int d
 
 short CMagicProcess::AreaAttack(int magictype, int magicid, int moral, int data1, int data2, int data3, int dexpoint, int righthand_damage)
 {
-	_MAGIC_TYPE3* pType3 = NULL;
-	_MAGIC_TYPE4* pType4 = NULL;
+	_MAGIC_TYPE3* pType3 = nullptr;
+	_MAGIC_TYPE4* pType4 = nullptr;
 	int radius = 0; 
 
 	if(magictype == 3)	{
@@ -466,7 +466,7 @@ short CMagicProcess::AreaAttack(int magictype, int magicid, int moral, int data1
 	int region_z = data3 / VIEW_DIST;
 
 	MAP* pMap = m_pSrcUser->GetMap();
-	if(pMap == NULL) return 0;
+	if(pMap == nullptr) return 0;
 
 	int min_x = region_x - 1;	if(min_x < 0) min_x = 0;
 	int min_z = region_z - 1;	if(min_z < 0) min_z = 0;
@@ -492,16 +492,16 @@ short CMagicProcess::AreaAttack(int magictype, int magicid, int moral, int data1
 void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid, int moral, int data1, int data2, int data3, int dexpoint, int righthand_damage)
 {
 	MAP* pMap = m_pSrcUser->GetMap();
-	if (pMap == NULL) return;
+	if (pMap == nullptr) return;
 	// 자신의 region에 있는 UserArray을 먼저 검색하여,, 가까운 거리에 유저가 있는지를 판단..
 	if(rx < 0 || rz < 0 || rx > pMap->GetXRegionMax() || rz > pMap->GetZRegionMax())	{
 		TRACE("#### CMagicProcess-AreaAttackDamage() Fail : [nid=%d, name=%s], nRX=%d, nRZ=%d #####\n", m_pSrcUser->m_iUserId, m_pSrcUser->m_strUserID, rx, rz);
 		return;
 	}
 
-	_MAGIC_TYPE3* pType3 = NULL;
-	_MAGIC_TYPE4* pType4 = NULL;
-	_MAGIC_TABLE* pMagic = NULL;
+	_MAGIC_TYPE3* pType3 = nullptr;
+	_MAGIC_TYPE4* pType4 = nullptr;
+	_MAGIC_TABLE* pMagic = nullptr;
 
 	int damage = 0, tid = 0, target_damage = 0, attribute = 0;
 	float fRadius = 0; 
@@ -538,11 +538,11 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 
 
 	__Vector3 vStart, vEnd;
-	CNpc* pNpc = NULL ;      // Pointer initialization!
+	CNpc* pNpc = nullptr ;      // Pointer initialization!
 	float fDis = 0.0f;
 	vStart.Set((float)data1, (float)0, (float)data3);
 	int count = 0, total_mon = 0, attack_type=0;
-	int* pNpcIDList = NULL;
+	int* pNpcIDList = nullptr;
 	bool bResult = true;
 
 	pMap->m_lock.Acquire();
@@ -560,7 +560,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 		if( nid < NPC_BAND ) continue;
 		pNpc = (CNpc*)g_pMain->m_arNpc.GetData(nid - NPC_BAND);
 
-		if (pNpc == NULL || pNpc->m_NpcState == NPC_DEAD)
+		if (pNpc == nullptr || pNpc->m_NpcState == NPC_DEAD)
 			continue;
 
 		if( m_pSrcUser->m_bNation == pNpc->m_byGroup ) continue;
@@ -656,7 +656,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 
 	if(pNpcIDList)	{
 		delete [] pNpcIDList;
-		pNpcIDList = NULL;
+		pNpcIDList = nullptr;
 	}
 }
 

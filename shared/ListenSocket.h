@@ -14,10 +14,10 @@ public:
 	ListenSocket(SocketMgr *socketMgr, const char * ListenAddress, uint32 Port) : m_threadRunning(false)
 	{
 #ifndef USE_STD_THREAD
-		m_hThread = NULL;
+		m_hThread = nullptr;
 #endif
 
-		m_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+		m_socket = WSASocket(AF_INET, SOCK_STREAM, 0, nullptr, 0, WSA_FLAG_OVERLAPPED);
 
 		// Enable blocking on the socket
 		u_long arg = 0;
@@ -31,7 +31,7 @@ public:
 		if (strcmp(ListenAddress, "0.0.0.0"))
 		{
 			struct hostent * hostname = gethostbyname(ListenAddress);
-			if (hostname != NULL)
+			if (hostname != nullptr)
 				memcpy(&m_address.sin_addr.s_addr, hostname->h_addr_list[0], hostname->h_length);
 		}
 
@@ -67,19 +67,19 @@ public:
 		m_hThread.detach();
 		return true;
 #else
-		if (m_hThread != NULL)
+		if (m_hThread != nullptr)
 			return false;
 
 		DWORD id;
-		m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&ListenSocketThread<T>, this, NULL, &id);
-		return m_hThread != NULL;
+		m_hThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ListenSocketThread<T>, this, nullptr, &id);
+		return m_hThread != nullptr;
 #endif
 	}
 
 	void suspend()
 	{
 #ifndef USE_STD_THREAD
-		if (m_hThread != NULL)
+		if (m_hThread != nullptr)
 			SuspendThread(m_hThread);
 #else
 		SuspendThread(m_hThread.native_handle());
@@ -89,7 +89,7 @@ public:
 	void resume()
 	{
 #ifndef USE_STD_THREAD
-		if (m_hThread != NULL)
+		if (m_hThread != nullptr)
 			ResumeThread(m_hThread);
 #else
 		ResumeThread(m_hThread.native_handle());
@@ -108,7 +108,7 @@ public:
 		while (m_opened && m_threadRunning)
 		{
 			//SOCKET aSocket = accept(m_socket, (sockaddr*)&m_tempAddress, (socklen_t*)&len);
-			SOCKET aSocket = WSAAccept(m_socket, (sockaddr*)&m_tempAddress, (socklen_t*)&len, NULL, NULL);
+			SOCKET aSocket = WSAAccept(m_socket, (sockaddr*)&m_tempAddress, (socklen_t*)&len, 0, 0);
 			if (aSocket == INVALID_SOCKET)
 			{
 				//sleep(10); // Don't kill the CPU!
@@ -119,7 +119,7 @@ public:
 			Socket *socket = m_socketMgr->AssignSocket(aSocket);
 
 			// No available sessions... unfortunately, we're going to have to let you go.
-			if (socket == NULL)
+			if (socket == nullptr)
 			{
 				shutdown(aSocket, SD_BOTH);
 				closesocket(aSocket);

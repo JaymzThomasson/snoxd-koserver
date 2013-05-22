@@ -12,7 +12,7 @@ template <class T>
 class KOSocketMgr : public SocketMgr
 {
 public:
-	KOSocketMgr<T>() : m_server(NULL) {}
+	KOSocketMgr<T>() : m_server(nullptr) {}
 
 	virtual void InitSessions(uint16 sTotalSessions);
 	virtual bool Listen(uint16 sPort, uint16 sTotalSessions);
@@ -76,7 +76,7 @@ public:
 
 	T * operator[] (uint16 id)
 	{
-		T * result = NULL;
+		T * result = nullptr;
 
 		AcquireLock();
 		auto itr = m_activeSessions.find(id);
@@ -110,7 +110,7 @@ void KOSocketMgr<T>::InitSessions(uint16 sTotalSessions)
 template <class T>
 bool KOSocketMgr<T>::Listen(uint16 sPort, uint16 sTotalSessions)
 {
-	if (m_server != NULL)
+	if (m_server != nullptr)
 		return false;
 
 	CreateCompletionPort();
@@ -125,7 +125,7 @@ bool KOSocketMgr<T>::Listen(uint16 sPort, uint16 sTotalSessions)
 template <class T>
 Socket * KOSocketMgr<T>::AssignSocket(SOCKET socket)
 {
-	Socket *pSock = NULL;
+	Socket *pSock = nullptr;
 
 	m_lock.AcquireWriteLock();
 	for (auto itr = m_idleSessions.begin(); itr != m_idleSessions.end(); itr++)
@@ -189,7 +189,7 @@ void KOSocketMgr<T>::Shutdown()
 	m_idleSessions.clear();
 	m_lock.ReleaseWriteLock();
 
-	if (m_server != NULL)
+	if (m_server != nullptr)
 		delete m_server;
 
 	SocketMgr::Shutdown();

@@ -4,15 +4,15 @@
 #include "User.h"
 
 Unit::Unit(bool bPlayer /*= false*/) 
-	: m_pMap(NULL), m_pRegion(NULL), m_sRegionX(0), m_sRegionZ(0), m_bPlayer(bPlayer)
+	: m_pMap(nullptr), m_pRegion(nullptr), m_sRegionX(0), m_sRegionZ(0), m_bPlayer(bPlayer)
 {
 	Initialize();
 }
 
 void Unit::Initialize()
 {
-	m_pMap = NULL;
-	m_pRegion = NULL;
+	m_pMap = nullptr;
+	m_pRegion = nullptr;
 
 	SetPosition(0.0f, 0.0f, 0.0f);
 	m_bLevel = 0;
@@ -67,7 +67,7 @@ float Unit::GetDistance(float fx, float fz)
 // Calculate the 2D distance between Units.
 float Unit::GetDistance(Unit * pTarget)
 {
-	ASSERT(pTarget != NULL);
+	ASSERT(pTarget != nullptr);
 	if (GetZoneID() != pTarget->GetZoneID())
 		return -FLT_MAX;
 
@@ -116,7 +116,7 @@ bool Unit::RegisterRegion()
 		new_region_x = GetNewRegionX(), new_region_z = GetNewRegionZ(), 
 		old_region_x = GetRegionX(),	old_region_z = GetRegionZ();
 
-	if (GetRegion() == NULL
+	if (GetRegion() == nullptr
 		|| (old_region_x == new_region_x && old_region_z == new_region_z))
 		return false;
 
@@ -130,7 +130,7 @@ bool Unit::RegisterRegion()
 
 void Unit::RemoveRegion(int16 del_x, int16 del_z)
 {
-	ASSERT(GetMap() != NULL);
+	ASSERT(GetMap() != nullptr);
 
 	Packet result;
 	GetInOut(result, INOUT_OUT);
@@ -139,7 +139,7 @@ void Unit::RemoveRegion(int16 del_x, int16 del_z)
 
 void Unit::InsertRegion(int16 insert_x, int16 insert_z)
 {
-	ASSERT(GetMap() != NULL);
+	ASSERT(GetMap() != nullptr);
 
 	Packet result;
 	GetInOut(result, INOUT_IN);
@@ -153,20 +153,20 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 	short common_damage = 0, temp_hit = 0, temp_ac = 0, temp_hit_B = 0;
 	uint8 result;
 
-	if (pTarget == NULL || pTarget->isDead())
+	if (pTarget == nullptr || pTarget->isDead())
 		return -1;
 
 	temp_ac = pTarget->m_sTotalAc + pTarget->m_sACAmount;
 	temp_hit_B = (int)((m_sTotalHit * m_bAttackAmount * 200 / 100) / (temp_ac + 240));
 
     // Skill/arrow hit.    
-	if (pSkill != NULL)
+	if (pSkill != nullptr)
 	{
 		// SKILL HIT! YEAH!	                                
 		if (pSkill->bType[0] == 1)
 		{
 			_MAGIC_TYPE1 *pType1 = g_pMain->m_Magictype1Array.GetData(pSkill->iNum);
-			if (pType1 == NULL)
+			if (pType1 == nullptr)
 				return -1;     	                                
 
 			// Non-relative hit.
@@ -186,7 +186,7 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 		else if (pSkill->bType[0] == 2)
 		{
 			_MAGIC_TYPE2 *pType2 = g_pMain->m_Magictype2Array.GetData(pSkill->iNum);
-			if (pType2 == NULL)
+			if (pType2 == nullptr)
 				return -1; 
 			
 			// Non-relative/Penetration hit.
@@ -218,7 +218,7 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 		case GREAT_SUCCESS:
 		case SUCCESS:
 		case NORMAL:
-			if (pSkill != NULL)
+			if (pSkill != nullptr)
 			{	 // Skill Hit.
 				damage = (short)temp_hit;
 				random = myrand(0, damage);
@@ -363,7 +363,7 @@ short Unit::GetACDamage(int damage, Unit *pTarget)
 	foreach_array (slot, weaponSlots)
 	{
 		_ITEM_TABLE * pWeapon = pUser->GetItemPrototype(slot);
-		if (pWeapon == NULL)
+		if (pWeapon == nullptr)
 			continue;
 
 		if (pWeapon->isDagger())

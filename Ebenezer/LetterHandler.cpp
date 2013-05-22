@@ -127,7 +127,7 @@ void CUser::ReqLetterSend(Packet & pkt)
 {
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
 	string strRecipient, strSubject, strMessage;
-	_ITEM_DATA *pItem = NULL;
+	_ITEM_DATA *pItem = nullptr;
 	uint32 nItemID = 0, nCoins = 0, nCoinRequirement = 1000;
 	uint8 bType, bSrcPos;
 	int8 bResult = 1;
@@ -156,7 +156,7 @@ void CUser::ReqLetterSend(Packet & pkt)
 		_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
 
 		// Invalid item (ID doesn't exist)
-		if (pTable == NULL
+		if (pTable == nullptr
 			// Invalid slot ID
 			|| bSrcPos > HAVE_MAX
 			// Item doesn't match what the server sees.
@@ -193,7 +193,7 @@ void CUser::ReqLetterSend(Packet & pkt)
 	GoldLose(nCoinRequirement);
 
 	// Remove the player's item
-	if (pItem != NULL)
+	if (pItem != nullptr)
 	{
 		memset(pItem, 0, sizeof(_ITEM_DATA));
 		SendStackChange(nItemID, pItem->sCount, pItem->sDuration, bSrcPos);
@@ -201,7 +201,7 @@ void CUser::ReqLetterSend(Packet & pkt)
 
 	// If the other player's online, notify them.
 	CUser *pUser = g_pMain->GetUserPtr(strRecipient, TYPE_CHARACTER);
-	if (pUser != NULL)
+	if (pUser != nullptr)
 	{
 		Packet notification(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
 		notification << uint8(LETTER_UNREAD) << true;

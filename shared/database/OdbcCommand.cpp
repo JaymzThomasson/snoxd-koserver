@@ -2,12 +2,12 @@
 #include "OdbcConnection.h"
 
 OdbcCommand::OdbcCommand(HDBC conn)
-	: m_odbcConnection(NULL), m_connHandle(conn), m_hStmt(NULL), m_resultCode(-1)
+	: m_odbcConnection(nullptr), m_connHandle(conn), m_hStmt(nullptr), m_resultCode(-1)
 {
 }
 
 OdbcCommand::OdbcCommand(OdbcConnection * conn)
-	: m_odbcConnection(conn), m_hStmt(NULL)
+	: m_odbcConnection(conn), m_hStmt(nullptr)
 {
 	m_connHandle = conn->GetConnectionHandle();
 	m_odbcConnection->AddCommand(this);
@@ -23,7 +23,7 @@ bool OdbcCommand::BindParameters()
 			param->GetCDataType(), param->GetDataType(), param->GetDataTypeSize(), 0, 
 			param->GetAddress(), param->GetDataTypeSize(), param->GetCBValue())))
 		{
-			if (m_odbcConnection != NULL)
+			if (m_odbcConnection != nullptr)
 				m_szError = m_odbcConnection->ReportSQLError(SQL_HANDLE_STMT, m_hStmt, _T("SQLBindParameter"), _T("Failed to bind parameter."));
 			else
 				m_szError = OdbcConnection::GetSQLError(SQL_HANDLE_STMT, m_hStmt);
@@ -42,13 +42,13 @@ bool OdbcCommand::Open(bool bRetry /*= false*/)
 
 	if (!SQL_SUCCEEDED(SQLAllocHandle(SQL_HANDLE_STMT, m_connHandle, &m_hStmt)))
 	{
-		if (m_odbcConnection != NULL)
+		if (m_odbcConnection != nullptr)
 			m_szError = m_odbcConnection->ReportSQLError(SQL_HANDLE_DBC, m_connHandle, _T("SQLAllocHandle"), _T("Failed to allocate statement handle."));
 		else
 			m_szError = OdbcConnection::GetSQLError(SQL_HANDLE_DBC, m_connHandle);
 
 		// Attempt full SQL reconnection once.
-		if (m_odbcConnection == NULL || bRetry)
+		if (m_odbcConnection == nullptr || bRetry)
 			return false;
 		
 		// Perform soft disconnect, preserving existing commands
@@ -79,7 +79,7 @@ bool OdbcCommand::Execute(const tstring & szSQL)
 
 	if (!SQL_SUCCEEDED(SQLExecDirect(m_hStmt, (SQLTCHAR *)szSQL.c_str(), szSQL.length())))
 	{
-		if (m_odbcConnection != NULL)
+		if (m_odbcConnection != nullptr)
 			m_szError = m_odbcConnection->ReportSQLError(SQL_HANDLE_STMT, m_hStmt, (TCHAR *)szSQL.c_str(), _T("Failed to execute statement."));
 		else
 			m_szError = OdbcConnection::GetSQLError(SQL_HANDLE_STMT, m_hStmt);
@@ -105,7 +105,7 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 
 	if (!SQL_SUCCEEDED(SQLPrepare(m_hStmt, (SQLTCHAR *)szSQL.c_str(), szSQL.length())))
 	{
-		if (m_odbcConnection != NULL)
+		if (m_odbcConnection != nullptr)
 			m_szError = m_odbcConnection->ReportSQLError(SQL_HANDLE_STMT, m_hStmt, _T("SQLPrepare"), _T("Failed to prepare statement."));
 		else
 			m_szError = OdbcConnection::GetSQLError(SQL_HANDLE_STMT, m_hStmt);
@@ -119,7 +119,7 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 
 	if (!SQL_SUCCEEDED(SQLExecute(m_hStmt)))
 	{
-		if (m_odbcConnection != NULL)
+		if (m_odbcConnection != nullptr)
 			m_szError = m_odbcConnection->ReportSQLError(SQL_HANDLE_STMT, m_hStmt, (TCHAR *)szSQL.c_str(), _T("Failed to execute prepared statement."));
 		else
 			m_szError = OdbcConnection::GetSQLError(SQL_HANDLE_STMT, m_hStmt);
@@ -229,17 +229,17 @@ void OdbcCommand::ClearParameters()
 
 void OdbcCommand::Close()
 {
-	if (m_hStmt != NULL)
+	if (m_hStmt != nullptr)
 	{
 		SQLCloseCursor(m_hStmt); // free results, if any
 		SQLFreeHandle(SQL_HANDLE_STMT, m_hStmt);
-		m_hStmt = NULL;
+		m_hStmt = nullptr;
 	}
 }
 
 void OdbcCommand::Detach()
 {
-	m_odbcConnection = NULL;
+	m_odbcConnection = nullptr;
 }
 
 OdbcCommand::~OdbcCommand()
@@ -247,6 +247,6 @@ OdbcCommand::~OdbcCommand()
 	Close();
 	ClearParameters();
 
-	if (m_odbcConnection != NULL)
+	if (m_odbcConnection != nullptr)
 		m_odbcConnection->RemoveCommand(this);
 }

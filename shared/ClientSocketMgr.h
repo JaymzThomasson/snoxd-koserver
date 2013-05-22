@@ -11,7 +11,7 @@ class ClientSocketMgr : public KOSocketMgr<T>
 public:
 	ClientSocketMgr<T>() {}
 
- 	virtual Socket *AssignSocket(SOCKET socket) { return NULL; }
+ 	virtual Socket *AssignSocket(SOCKET socket) { return nullptr; }
 
 	virtual ~ClientSocketMgr() {}
 };

@@ -27,7 +27,7 @@ void CUser::Initialize()
 	m_cury = 0.0f;				// 현재 Y 좌표
 	m_curz = 0.0f;				// 현재 Z 좌표
 	m_curZone = -1;				// 현재 존
-	m_pMap = NULL;
+	m_pMap = nullptr;
 	m_bNation = 0;						// 소속국가
 	m_bLevel = 0;						// 레벨
 	m_sHP = 0;							// HP
@@ -66,7 +66,7 @@ void CUser::Initialize()
 void CUser::Attack(int sid, int tid)
 {
 	CNpc* pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
-	if(pNpc == NULL)	return;
+	if(pNpc == nullptr)	return;
 	if(pNpc->m_NpcState == NPC_DEAD) return;
 	if(pNpc->m_iHP == 0) return;
 
@@ -139,7 +139,7 @@ void CUser::Dead(int tid, int nDamage)
 	InitNpcAttack();
 
 	MAP* pMap = GetMap();
-	if (pMap == NULL 
+	if (pMap == nullptr 
 		|| m_sRegionX < 0 || m_sRegionZ < 0 
 		|| m_sRegionX > pMap->GetXRegionMax() || m_sRegionZ > pMap->GetZRegionMax())
 		return;
@@ -260,14 +260,14 @@ short CUser::GetDamage(int tid, int magicid)
 	short Hit = 0;	short HitB = 0;
 	short Ac = 0; int random = 0;	uint8 result;
 
-	_MAGIC_TABLE* pTable = NULL;
-	_MAGIC_TYPE1* pType1 = NULL; 
-	_MAGIC_TYPE2* pType2 = NULL;
+	_MAGIC_TABLE* pTable = nullptr;
+	_MAGIC_TYPE1* pType1 = nullptr; 
+	_MAGIC_TYPE2* pType2 = nullptr;
 
 	if (tid < NPC_BAND || tid > INVALID_BAND)	return damage;
-	CNpc* pNpc = NULL;
+	CNpc* pNpc = nullptr;
 	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
-	if(pNpc == NULL)		return damage;
+	if(pNpc == nullptr)		return damage;
 	if(pNpc->m_proto->m_tNpcType == NPC_ARTIFACT || pNpc->m_proto->m_tNpcType == NPC_PHOENIX_GATE || pNpc->m_proto->m_tNpcType == NPC_GATE_LEVER || pNpc->m_proto->m_tNpcType == NPC_SPECIAL_GATE ) return damage;
 	
 	Attack = (float)m_fHitrate;			// 공격민첩
@@ -372,7 +372,7 @@ short CUser::GetMagicDamage(int damage, short tid)
 	short total_r = 0;
 	short temp_damage = 0;
 
-	CNpc* pNpc = NULL;
+	CNpc* pNpc = nullptr;
 	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
 	if(!pNpc) return damage;
 	
@@ -600,7 +600,7 @@ void CUser::HealMagic()
 	int region_z = (int)(m_curz / VIEW_DIST);
 
 	MAP* pMap = GetMap();
-	if (pMap == NULL) return;
+	if (pMap == nullptr) return;
 	int min_x = region_x - 1;	if(min_x < 0) min_x = 0;
 	int min_z = region_z - 1;	if(min_z < 0) min_z = 0;
 	int max_x = region_x + 1;	if(max_x > pMap->GetXRegionMax()) max_x = pMap->GetXRegionMax();
@@ -621,7 +621,7 @@ void CUser::HealMagic()
 void CUser::HealAreaCheck(int rx, int rz)
 {
 	MAP* pMap = GetMap();
-	if (pMap == NULL) return;
+	if (pMap == nullptr) return;
 	// 자신의 region에 있는 NpcArray을 먼저 검색하여,, 가까운 거리에 Monster가 있는지를 판단..
 	if(rx < 0 || rz < 0 || rx > pMap->GetXRegionMax() || rz > pMap->GetZRegionMax())	{
 		TRACE("#### CUser-HealAreaCheck() Fail : [nid=%d, name=%s], nRX=%d, nRZ=%d #####\n", m_iUserId, m_strUserID, rx, rz);
@@ -631,7 +631,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 	float fRadius = 10.0f;				// 30m
 
 	__Vector3 vStart, vEnd;
-	CNpc* pNpc = NULL ;      // Pointer initialization!
+	CNpc* pNpc = nullptr ;      // Pointer initialization!
 	float fDis = 0.0f;
 	vStart.Set(m_curx, (float)0, m_curz);
 	int send_index=0, result = 1, count = 0; 
@@ -649,7 +649,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 		if( nid < NPC_BAND ) continue;
 		pNpc = (CNpc*)g_pMain->m_arNpc.GetData(nid - NPC_BAND);
 
-		if( pNpc != NULL && pNpc->m_NpcState != NPC_DEAD)	{
+		if( pNpc != nullptr && pNpc->m_NpcState != NPC_DEAD)	{
 			if( m_bNation == pNpc->m_byGroup ) continue;
 			vEnd.Set(pNpc->m_fCurX, pNpc->m_fCurY, pNpc->m_fCurZ); 
 			fDis = pNpc->GetDistance(vStart, vEnd);

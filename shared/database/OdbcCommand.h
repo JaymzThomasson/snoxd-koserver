@@ -12,7 +12,7 @@ public:
 	OdbcCommand(HDBC conn);
 	OdbcCommand(OdbcConnection * conn);
 
-	INLINE bool isOpen() { return m_hStmt != NULL; };
+	INLINE bool isOpen() { return m_hStmt != nullptr; };
 	INLINE TCHAR * GetError() { return (TCHAR *)m_szError.c_str();  };
 	INLINE bool hasData() { return m_resultCode != SQL_NO_DATA && SQL_SUCCEEDED(m_resultCode); };
 	INLINE void SetConnectionHandle(HDBC handle) { m_connHandle = handle; };

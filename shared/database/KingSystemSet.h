@@ -26,7 +26,7 @@ public:
 		pData = m_pMap->GetData(byNation);
 
 		// We don't? Create one.
-		if (pData == NULL)
+		if (pData == nullptr)
 		{
 			pData = new CKingSystem();
 

@@ -47,9 +47,9 @@ void CUser::QuestV2PacketProcess(Packet & pkt)
 	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(m_sEventNid);
 	_QUEST_HELPER * pQuestHelper = g_pMain->m_QuestHelperArray.GetData(nQuestID);
 	// Does this quest helper exist?
-	if (pQuestHelper == NULL
+	if (pQuestHelper == nullptr
 		// Does the quest NPC exist, and is it alive? 
-		|| pNpc == NULL || pNpc->isDead()
+		|| pNpc == nullptr || pNpc->isDead()
 		// Are we even talking to this NPC?
 		|| pQuestHelper->sNpcId != pNpc->GetEntryID()
 		// Are we in range of this NPC?
@@ -113,7 +113,7 @@ void CUser::SaveEvent(uint16 sQuestID, uint8 bQuestState)
 {
 	_QUEST_MONSTER * pQuestMonster = g_pMain->m_QuestMonsterArray.GetData(sQuestID);
 
-	if (pQuestMonster != NULL
+	if (pQuestMonster != nullptr
 		&& bQuestState == 1
 		&& m_sEventDataIndex > 0)
 		return;
@@ -136,7 +136,7 @@ void CUser::SaveEvent(uint16 sQuestID, uint8 bQuestState)
 	}
 
 	if (bQuestState == 1
-		&& pQuestMonster != NULL)
+		&& pQuestMonster != nullptr)
 	{
 		// TO-DO: Decipher this into more meaningful code. :p
 		int16 v11 = ((int16)((uint32)(6711 * sQuestID) >> 16) >> 10) - (sQuestID >> 15);
@@ -181,7 +181,7 @@ void CUser::QuestV2MonsterCountAdd(uint16 sNpcID)
 	// but then, this system can't really handle that (static counts). More research is necessary.
 	uint16 sQuestNum = 0; // placeholder so that we can implement logic mockup
 	_QUEST_MONSTER *pQuestMonster = g_pMain->m_QuestMonsterArray.GetData(sQuestNum);
-	if (pQuestMonster == NULL)
+	if (pQuestMonster == nullptr)
 		return;
 
 	// TO-DO: Implement obscure zone ID logic
@@ -253,7 +253,7 @@ void CUser::QuestV2MonsterDataRequest()
 
 void CUser::QuestV2ExecuteHelper(_QUEST_HELPER * pQuestHelper)
 {
-	if (pQuestHelper == NULL
+	if (pQuestHelper == nullptr
 		|| !CheckExistEvent(pQuestHelper->sEventDataIndex, 2) && pQuestHelper->bQuestType != 3)
 		return;
 
@@ -262,7 +262,7 @@ void CUser::QuestV2ExecuteHelper(_QUEST_HELPER * pQuestHelper)
 
 void CUser::QuestV2CheckFulfill(_QUEST_HELPER * pQuestHelper)
 {
-	if (pQuestHelper == NULL
+	if (pQuestHelper == nullptr
 		|| !CheckExistEvent(pQuestHelper->sEventDataIndex, 1))
 		return;
 
@@ -276,7 +276,7 @@ bool CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID, int8 
 	bool result = false;
 
 	// Make sure the NPC exists and is not dead (we should also check if it's in range)
-	if (pNpc == NULL
+	if (pNpc == nullptr
 		|| pNpc->isDead())
 		return result;
 
@@ -300,7 +300,7 @@ bool CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID, int8 
 void CUser::QuestV2SaveEvent(uint16 sQuestID)
 {
 	_QUEST_HELPER * pQuestHelper = g_pMain->m_QuestHelperArray.GetData(sQuestID);
-	if (pQuestHelper == NULL)
+	if (pQuestHelper == nullptr)
 		return;
 
 	SaveEvent(pQuestHelper->sEventDataIndex, pQuestHelper->bEventStatus);
@@ -365,7 +365,7 @@ void CUser::QuestV2ShowMap(uint32 nQuestHelperID)
 uint8 CUser::CheckMonsterCount(uint8 bGroup)
 {
 	_QUEST_MONSTER * pQuestMonster = g_pMain->m_QuestMonsterArray.GetData(m_sEventDataIndex);
-	if (pQuestMonster == NULL
+	if (pQuestMonster == nullptr
 		|| bGroup == 0
 		|| bGroup >= QUEST_MOB_GROUPS)
 		return 0;

@@ -2,7 +2,7 @@
 #include "SocketMgr.h"
 
 Socket::Socket(SOCKET fd, uint32 sendbuffersize, uint32 recvbuffersize) 
-	: m_fd(fd), m_connected(false),	m_deleted(false), m_socketMgr(NULL)
+	: m_fd(fd), m_connected(false),	m_deleted(false), m_socketMgr(nullptr)
 {
 	// Allocate buffers
 	readBuffer.Allocate(recvbuffersize);
@@ -101,7 +101,7 @@ bool Socket::BurstSend(const uint8 * Bytes, uint32 Size)
 std::string Socket::GetRemoteIP()
 {
 	char* ip = (char*)inet_ntoa(m_client.sin_addr);
-	if (ip != NULL)
+	if (ip != nullptr)
 		return std::string(ip);
 
 	return std::string("noip");

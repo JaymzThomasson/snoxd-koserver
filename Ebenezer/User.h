@@ -394,7 +394,7 @@ public:
 	void LoyaltyDivide( short tid );
 	void GetUserInfoForAI(Packet & result);
 	bool ItemEquipAvailable( _ITEM_TABLE* pTable );
-	virtual void HpChange(int amount, Unit *pAttacker = NULL, bool bSendToAI = true);
+	virtual void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToAI = true);
 	virtual void MSpChange(int amount);
 	void SendPartyHPUpdate();
 	void ShowEffect(uint32 nSkillID);
@@ -631,7 +631,7 @@ public:
 	void ChangeFame(uint8 bFame);
 	void SendServerIndex();
 
-	void SendToRegion(Packet *pkt, CUser *pExceptUser = NULL);
+	void SendToRegion(Packet *pkt, CUser *pExceptUser = nullptr);
 
 	virtual void OnDeath(Unit *pKiller);
 

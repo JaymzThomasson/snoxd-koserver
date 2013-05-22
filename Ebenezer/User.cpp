@@ -132,7 +132,7 @@ void CUser::OnDisconnect()
 		if (isInClan())
 		{
 			CKnights *pKnights = g_pMain->GetClanPtr(GetClanID());
-			if (pKnights != NULL)
+			if (pKnights != nullptr)
 				pKnights->OnLogout(this);
 		}
 
@@ -551,7 +551,7 @@ void CUser::LogOut()
 void CUser::SendMyInfo()
 {
 	C3DMap* pMap = GetMap();
-	CKnights* pKnights = NULL;
+	CKnights* pKnights = nullptr;
 
 	if (!pMap->IsValidPosition( m_curx, m_curz, 0.0f))
 	{
@@ -571,7 +571,7 @@ void CUser::SendMyInfo()
 
 	// Are we the King? Let's see, shall we?
 	CKingSystem * pData = g_pMain->m_KingSystemArray.GetData(GetNation());
-	if (pData != NULL
+	if (pData != nullptr
 		&& _strcmpi(pData->m_strKingName.c_str(), m_strUserID.c_str()) == 0)
 		m_bRank = 1; // We're da King, man.
 	else
@@ -594,7 +594,7 @@ void CUser::SendMyInfo()
 	if (isInClan())
 		pKnights = g_pMain->GetClanPtr(GetClanID());
 
-	if (pKnights == NULL)
+	if (pKnights == nullptr)
 	{
 		result	<< uint64(0) << uint16(-1) << uint32(0);
 	}
@@ -663,7 +663,7 @@ void CUser::SendMyInfo()
  */
 void CUser::SetMaxHp(int iFlag)
 {
-	_CLASS_COEFFICIENT* p_TableCoefficient = NULL;
+	_CLASS_COEFFICIENT* p_TableCoefficient = nullptr;
 	p_TableCoefficient = g_pMain->m_CoefficientArray.GetData( m_sClass );
 	if( !p_TableCoefficient ) return;
 
@@ -692,7 +692,7 @@ void CUser::SetMaxHp(int iFlag)
  */
 void CUser::SetMaxMp()
 {
-	_CLASS_COEFFICIENT* p_TableCoefficient = NULL;
+	_CLASS_COEFFICIENT* p_TableCoefficient = nullptr;
 	p_TableCoefficient = g_pMain->m_CoefficientArray.GetData( m_sClass );
 	if( !p_TableCoefficient ) return;
 
@@ -789,7 +789,7 @@ void CUser::SetZoneAbilityChange()
 	else if (zone == 1 || zone == 11)
 	{
 		CKingSystem * pData = g_pMain->m_KingSystemArray.GetData(KARUS);
-		uint16 sTariff = (pData == NULL ? 0 : pData->m_byTerritoryTariff);
+		uint16 sTariff = (pData == nullptr ? 0 : pData->m_byTerritoryTariff);
 
 		result	<< uint8(0) << uint8(1) << uint8(0)
 				<< sTariff; // orc-side tariff
@@ -797,7 +797,7 @@ void CUser::SetZoneAbilityChange()
 	else if (zone == 2 || zone == 12)
 	{
 		CKingSystem * pData = g_pMain->m_KingSystemArray.GetData(ELMORAD);
-		uint16 sTariff = (pData == NULL ? 0 : pData->m_byTerritoryTariff);
+		uint16 sTariff = (pData == nullptr ? 0 : pData->m_byTerritoryTariff);
 
 		result	<< uint8(0) << uint8(1) << uint8(0)
 				<< sTariff; // human-side tariff
@@ -835,7 +835,7 @@ void CUser::RequestUserIn(Packet & pkt)
 	for (int i = 0; i < user_count; i++)
 	{
 		CUser *pUser = g_pMain->GetUserPtr(pkt.read<uint16>());
-		if (pUser == NULL || !pUser->isInGame())
+		if (pUser == nullptr || !pUser->isInGame())
 			continue;
 
 		result << uint8(0) << pUser->GetSocketID();
@@ -872,7 +872,7 @@ void CUser::RequestNpcIn(Packet & pkt)
 			continue;
 
 		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(nid);
-		if (pNpc == NULL || pNpc->isDead())
+		if (pNpc == nullptr || pNpc->isDead())
 			continue;
 
 		result << pNpc->GetID();
@@ -888,7 +888,7 @@ void CUser::RequestNpcIn(Packet & pkt)
  */
 void CUser::SetSlotItemValue()
 {
-	_ITEM_TABLE* pTable = NULL;
+	_ITEM_TABLE* pTable = nullptr;
 	int item_hit = 0, item_ac = 0;
 
 	m_sItemMaxHp = m_sItemMaxMp = 0;
@@ -955,7 +955,7 @@ void CUser::SetSlotItemValue()
 	for (int i = SLOT_MAX; i < INVENTORY_TOTAL; i++) 
 	{
 		pTable = GetItemPrototype(i);
-		if (pTable == NULL)
+		if (pTable == nullptr)
 			continue;
 
 		// Non-stackable items should have a count of 1. If not, something's broken.
@@ -1008,7 +1008,7 @@ void CUser::SetSlotItemValue()
 		}
 	}
 
-	_ITEM_TABLE* pRightHand = NULL;			// Get item info for right hand.
+	_ITEM_TABLE* pRightHand = nullptr;			// Get item info for right hand.
 	pRightHand = g_pMain->GetItemPtr(m_sItemArray[RIGHTHAND].nNum);
 	if (pRightHand) {
 		if (pRightHand->m_bFireDamage) {
@@ -1205,10 +1205,10 @@ void CUser::PointChange(Packet & pkt)
  * @param	pAttacker	The attacker.
  * @param	bSendToAI	true to update the AI server.
  */
-void CUser::HpChange(int amount, Unit *pAttacker /*= NULL*/, bool bSendToAI /*= true*/) 
+void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /*= true*/) 
 {
 	Packet result(WIZ_HP_CHANGE);
-	uint16 tid = (pAttacker != NULL ? pAttacker->GetID() : -1);
+	uint16 tid = (pAttacker != nullptr ? pAttacker->GetID() : -1);
 	int16 oldHP = m_sHp;
 
 	// If we're taking damage...
@@ -1363,12 +1363,12 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 	bool bHaveBow = false;
 	_CLASS_COEFFICIENT* p_TableCoefficient = g_pMain->m_CoefficientArray.GetData(m_sClass);
 	uint16 sItemDamage = 0;
-	if (p_TableCoefficient == NULL)
+	if (p_TableCoefficient == nullptr)
 		return;
 	
 	float hitcoefficient = 0.0f;
 	_ITEM_TABLE * pRightHand = GetItemPrototype(RIGHTHAND);
-	if (pRightHand != NULL)
+	if (pRightHand != nullptr)
 	{
 		switch (pRightHand->m_bKind/10)
 		{
@@ -1404,7 +1404,7 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 	}
 
 	_ITEM_TABLE *pLeftHand = GetItemPrototype(LEFTHAND);
-	if (pLeftHand != NULL)
+	if (pLeftHand != nullptr)
 	{
 		if (pLeftHand->isBow())
 		{
@@ -1485,7 +1485,7 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 
 		// If a shield's not equipped, bonuses are decreased by half.
 		_ITEM_TABLE *pLeftHand = GetItemPrototype(LEFTHAND);
-		if (pLeftHand == NULL || pLeftHand->isShield())
+		if (pLeftHand == nullptr || pLeftHand->isShield())
 		{
 			bResistanceBonus /= 2;
 			bDefenseBonus /= 2;
@@ -1554,7 +1554,7 @@ void CUser::SendTargetHP( uint8 echo, int tid, int damage )
 	{
 		if (g_pMain->m_bPointCheckFlag == false) return;
 		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(tid);
-		if (pNpc == NULL)
+		if (pNpc == nullptr)
 			return;
 		hp = pNpc->m_iHP;	
 		maxhp = pNpc->m_iMaxHP;
@@ -1562,7 +1562,7 @@ void CUser::SendTargetHP( uint8 echo, int tid, int damage )
 	else 
 	{
 		CUser *pUser = g_pMain->GetUserPtr(tid);
-		if (pUser == NULL || pUser->isDead()) 
+		if (pUser == nullptr || pUser->isDead()) 
 			return;
 
 		hp = pUser->m_sHp;	
@@ -1585,14 +1585,14 @@ void CUser::BundleOpenReq(Packet & pkt)
 	uint32 bundle_index = pkt.read<uint32>();
 	C3DMap* pMap = GetMap();
 
-	if (pMap == NULL
+	if (pMap == nullptr
 		|| bundle_index < 1 
-		|| GetRegion() == NULL
+		|| GetRegion() == nullptr
 		|| isDead()) // yeah, we know people abuse this. We do not care!
 		return;
 
 	_LOOT_BUNDLE *pBundle = GetRegion()->m_RegionItemArray.GetData(bundle_index);
-	if (pBundle == NULL
+	if (pBundle == nullptr
 		|| !isInRange(pBundle->x, pBundle->z, MAX_LOOT_RANGE))
 		return;
 
@@ -1628,21 +1628,21 @@ void CUser::ItemGet(Packet & pkt)
 
 	Packet result(WIZ_ITEM_GET);
 	uint32 nBundleID = pkt.read<uint32>(), nItemID = pkt.read<uint32>();
-	_LOOT_BUNDLE * pBundle = NULL;
-	_LOOT_ITEM * pItem = NULL;
+	_LOOT_BUNDLE * pBundle = nullptr;
+	_LOOT_ITEM * pItem = nullptr;
 	CRegion* pRegion = GetRegion();
-	CUser * pReceiver = NULL;
+	CUser * pReceiver = nullptr;
 
 	// Lock the array while we process this request
 	// to prevent any race conditions between getting/removing the items...
 	FastGuard lock(pRegion->m_RegionItemArray.m_lock);
 
 	// Are we in any region?
-	if (pRegion == NULL
+	if (pRegion == nullptr
 		|| isTrading()
 		|| isDead()
 		// Does the bundle exist in this region's list?
-		|| (pBundle = pRegion->m_RegionItemArray.GetData(nBundleID)) == NULL
+		|| (pBundle = pRegion->m_RegionItemArray.GetData(nBundleID)) == nullptr
 		// Are we close enough to the bundle?
 		|| !isInRange(pBundle->x, pBundle->z, MAX_LOOT_RANGE))
 		goto fail_return;
@@ -1659,9 +1659,9 @@ void CUser::ItemGet(Packet & pkt)
 
 	// Attempt to loot the specified item.
 	// If looting is possible, we can then give the receiver the item.
-	if (pItem == NULL
+	if (pItem == nullptr
 		|| pItem->sCount == 0
-		|| (pReceiver = GetLootUser(pBundle, pItem)) == NULL)
+		|| (pReceiver = GetLootUser(pBundle, pItem)) == nullptr)
 		goto fail_return;
 
 	// If we're dealing with coins, either:
@@ -1673,7 +1673,7 @@ void CUser::ItemGet(Packet & pkt)
 		_PARTY_GROUP * pParty;
 		// Not in a party, so all the coins go to us.
 		if (!isInParty()
-			|| (pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex)) == NULL)
+			|| (pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex)) == nullptr)
 		{
 			// NOTE: Coins have been checked already.
 			m_iGold += pItem->sCount;
@@ -1688,7 +1688,7 @@ void CUser::ItemGet(Packet & pkt)
 			for (int i = 0; i < MAX_PARTY_USERS; i++)
 			{
 				CUser * pUser = g_pMain->GetUserPtr(pParty->uid[i]);
-				if (pUser == NULL)
+				if (pUser == nullptr)
 					continue;
 
 				sumOfLevels += pUser->GetLevel();
@@ -1805,11 +1805,11 @@ fail_return:
  */
 CUser * CUser::GetLootUser(_LOOT_BUNDLE * pBundle, _LOOT_ITEM * pItem)
 {
-	CUser * pReceiver = NULL;
+	CUser * pReceiver = nullptr;
 
-	if (pBundle == NULL
-		|| pItem == NULL)
-		return NULL;
+	if (pBundle == nullptr
+		|| pItem == nullptr)
+		return nullptr;
 
 	// If we're dealing with coins, either:
 	//  - we're in a party, in which case we need to distribute the coins (proportionately, by their level). 
@@ -1824,7 +1824,7 @@ CUser * CUser::GetLootUser(_LOOT_BUNDLE * pBundle, _LOOT_ITEM * pItem)
 			// We're not in a party, so we must check to be 
 			// sure we have enough room for the coins.
 			if ((GetCoins() + pItem->sCount) > COIN_MAX)
-				return NULL;
+				return nullptr;
 		}
 
 		// The caller will perform the distribution.
@@ -1972,7 +1972,7 @@ void CUser::LoyaltyChange(short tid)
 		return;
 
 	CUser* pTUser = g_pMain->GetUserPtr(tid);  
-	if (pTUser == NULL) 
+	if (pTUser == nullptr) 
 		return;
 
 	if (pTUser->GetNation() != GetNation()) 
@@ -2178,17 +2178,17 @@ void CUser::LoyaltyDivide(short tid)
 		return;
 
 	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData( m_sPartyIndex );
-	if (pParty == NULL)
+	if (pParty == nullptr)
 		return;
 
 	CUser* pTUser = g_pMain->GetUserPtr(tid);
-	if (pTUser == NULL) 
+	if (pTUser == nullptr) 
 		return;
 
 	for (int i = 0; i < MAX_PARTY_USERS; i++)
 	{
 		CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
-		if (pUser == NULL)
+		if (pUser == nullptr)
 			continue;
 		levelsum += pUser->GetLevel();
 		total_member++;
@@ -2238,7 +2238,7 @@ void CUser::LoyaltyDivide(short tid)
 
 		for (int j = 0; j < MAX_PARTY_USERS; j++) {		// Distribute loyalty amongst party members.
 			CUser *pUser = g_pMain->GetUserPtr(pParty->uid[j]);
-			if (pUser == NULL)
+			if (pUser == nullptr)
 				continue;
 
 			pUser->SendLoyaltyChange(individualvalue);
@@ -2253,7 +2253,7 @@ void CUser::LoyaltyDivide(short tid)
 //
 	for (int j = 0; j < MAX_PARTY_USERS; j++) {		// Distribute loyalty amongst party members.
 		CUser *pUser = g_pMain->GetUserPtr(pParty->uid[j]);
-		if (pUser == NULL)
+		if (pUser == nullptr)
 			continue;
 
 		//TRACE("LoyaltyDivide 333 - user1=%s, %d\n", pUser->GetName(), pUser->m_iLoyalty);
@@ -2284,12 +2284,12 @@ void CUser::ItemWoreOut(int type, int damage)
 	for (uint8 i = 0, slot = armourTypes[i]; i < totalSlots; i++)
 	{
 		_ITEM_DATA * pItem = GetItem(slot);
-		_ITEM_TABLE * pTable = NULL;
+		_ITEM_TABLE * pTable = nullptr;
 
 		// Is a non-broken item equipped?
-		if (pItem == NULL || pItem->sDuration <= 0
+		if (pItem == nullptr || pItem->sDuration <= 0
 			// Does the item exist?
-			|| (pTable = g_pMain->GetItemPtr(pItem->nNum)) == NULL
+			|| (pTable = g_pMain->GetItemPtr(pItem->nNum)) == nullptr
 			// If it's in the left or righthand slot, is it a shield? (this doesn't apply to weapons)
 			|| ((slot == LEFTHAND || slot == RIGHTHAND)
 					&& pTable->m_bSlot != 2))
@@ -2408,14 +2408,14 @@ void CUser::HPTimeChangeType3()
 	for (int h = 0; h < MAX_TYPE3_REPEAT; h++)
 	{
 		// Yikes. This will need cleaning up.
-		CUser *pUser = NULL;
-		CNpc *pNpc = NULL;
-		Unit *pUnit = NULL;
+		CUser *pUser = nullptr;
+		CNpc *pNpc = nullptr;
+		Unit *pUnit = nullptr;
 
 		if (m_sSourceID[h] < MAX_USER) 
 		{
 			pUser = g_pMain->GetUserPtr(m_sSourceID[h]);
-			if (pUser != NULL)
+			if (pUser != nullptr)
 				pUser->SendTargetHP(0, GetSocketID(), m_bHPAmount[h]);
 
 			pUnit = pUser;
@@ -2523,7 +2523,7 @@ void CUser::SendAllKnightsID()
 	foreach_stlmap (itr, g_pMain->m_KnightsArray)
 	{
 		CKnights *pKnights = itr->second;
-		if (pKnights == NULL)
+		if (pKnights == nullptr)
 			continue;
 		result << pKnights->m_sIndex << pKnights->m_strName;
 		count++;
@@ -2546,7 +2546,7 @@ void CUser::OperatorCommand(Packet & pkt)
 		return;
 
 	CUser *pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
-	if (pUser == NULL)
+	if (pUser == nullptr)
 		return;
 
 	switch (opcode)
@@ -2612,7 +2612,7 @@ int CUser::FindSlotForItem(uint32 nItemID, uint16 sCount)
 {
 	int result = -1;
 	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
-	if (pTable == NULL)
+	if (pTable == nullptr)
 		return result;
 
 	// If the item's stackable, try to find it a home.
@@ -2685,7 +2685,7 @@ bool CUser::GetStartPosition(short & x, short & z, uint8 bZone /*= 0 */)
 	// Get start position data for current zone (unless we specified a zone).
 	int nZoneID = (bZone == 0 ? GetZoneID() : bZone);
 	_START_POSITION *pData = g_pMain->GetStartPosition(nZoneID);
-	if (pData == NULL)
+	if (pData == nullptr)
 		return false;
 
 	// TO-DO: Allow for Delos/CSW.
@@ -2739,10 +2739,10 @@ CUser * CUser::GetItemRoutingUser(uint32 nItemID, uint16 sCount)
 
 	_ITEM_TABLE * pTable;
 	_PARTY_GROUP * pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
-	if (pParty == NULL
-		|| (pTable = g_pMain->GetItemPtr(nItemID)) == NULL
+	if (pParty == nullptr
+		|| (pTable = g_pMain->GetItemPtr(nItemID)) == nullptr
 		|| pParty->bItemRouting >= MAX_PARTY_USERS)
-		return NULL;
+		return nullptr;
 
 	for (int i = 0; i < MAX_PARTY_USERS; i++)
 	{
@@ -2753,12 +2753,12 @@ CUser * CUser::GetItemRoutingUser(uint32 nItemID, uint16 sCount)
 		else
 			pParty->bItemRouting++;
 
-		if (pUser != NULL 
+		if (pUser != nullptr 
 			&& pUser->CheckWeight(pTable, nItemID, sCount))
 			return pUser;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void CUser::ClassChangeReq()
@@ -2943,7 +2943,7 @@ void CUser::GoldChange(short tid, int gold)
 	if (m_bZone == ZONE_SNOW_BATTLE) return;
 
 	CUser* pTUser = g_pMain->GetUserPtr(tid);
-	if (pTUser == NULL || pTUser->m_iGold <= 0)
+	if (pTUser == nullptr || pTUser->m_iGold <= 0)
 		return;
 
 	// Reward money in war zone
@@ -2959,7 +2959,7 @@ void CUser::GoldChange(short tid, int gold)
 
 		// Otherwise, if we're in a party, we need to divide it up.
 		_PARTY_GROUP* pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
-		if (pParty == NULL)
+		if (pParty == nullptr)
 			return;			
 
 		int userCount = 0, levelSum = 0, temp_gold = (pTUser->m_iGold * 4) / 10;	
@@ -2969,7 +2969,7 @@ void CUser::GoldChange(short tid, int gold)
 		for (int i = 0; i < MAX_PARTY_USERS; i++)
 		{
 			CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
-			if (pUser == NULL)
+			if (pUser == nullptr)
 				continue;
 
 			userCount++;
@@ -2983,7 +2983,7 @@ void CUser::GoldChange(short tid, int gold)
 		for (int i = 0; i < MAX_PARTY_USERS; i++)
 		{		
 			CUser * pUser = g_pMain->GetUserPtr(pParty->uid[i]);
-			if (pUser == NULL)
+			if (pUser == nullptr)
 				continue;
 
 			pUser->GoldGain((int)(temp_gold * (float)(pUser->GetLevel() / (float)levelSum)));
@@ -3016,16 +3016,16 @@ void CUser::SelectWarpList(Packet & pkt)
 	pkt >> npcid >> warpid;
 
 	_WARP_INFO *pWarp = GetMap()->GetWarp(warpid);
-	if (pWarp == NULL
+	if (pWarp == nullptr
 		|| (pWarp->sNation != 0 && pWarp->sNation != GetNation()))
 		return;
 
 	C3DMap *pMap = g_pMain->GetZoneByID(pWarp->sZone);
-	if (pMap == NULL)
+	if (pMap == nullptr)
 		return;
 
 	_ZONE_SERVERINFO *pInfo = g_pMain->m_ServerArray.GetData(pMap->m_nServerNo);
-	if (pInfo == NULL)
+	if (pInfo == nullptr)
 		return;
 
 	float rx = 0.0f, rz = 0.0f;
@@ -3051,11 +3051,11 @@ void CUser::ServerChangeOk(Packet & pkt)
 	uint16 warpid = pkt.read<uint16>();
 	C3DMap* pMap = GetMap();
 	float rx = 0.0f, rz = 0.0f;
-	if (pMap == NULL)
+	if (pMap == nullptr)
 		return;
 
 	_WARP_INFO* pWarp = pMap->GetWarp(warpid);
-	if (pWarp == NULL)
+	if (pWarp == nullptr)
 		return;
 
 	rx = (float)myrand(0, (int)pWarp->fR * 2);
@@ -3078,7 +3078,7 @@ bool CUser::GetWarpList(int warp_group)
 	foreach (itr, warpList)
 	{
 		C3DMap *pDstMap = g_pMain->GetZoneByID((*itr)->sZone);
-		if (pDstMap == NULL)
+		if (pDstMap == nullptr)
 			continue;
 
 		result	<< (*itr)->sWarpID 
@@ -3112,11 +3112,11 @@ bool CUser::GateLeverObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 	CNpc* pNpc, *pGateNpc;
 
 		// Does the lever (object) NPC exist?
-	if ((pNpc = g_pMain->m_arNpcArray.GetData(nid)) == NULL
+	if ((pNpc = g_pMain->m_arNpcArray.GetData(nid)) == nullptr
 		// Does the corresponding gate object event exist?
-		|| (pGateEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID)) == NULL
+		|| (pGateEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID)) == nullptr
 		// Does the corresponding gate (object) NPC exist?
-		|| (pGateNpc = g_pMain->m_arNpcArray.GetData(pEvent->sControlNpcID)) == NULL
+		|| (pGateNpc = g_pMain->m_arNpcArray.GetData(pEvent->sControlNpcID)) == nullptr
 		// Is it even a gate?
 		|| !pGateNpc->isGate()
 		// If the gate's closed (i.e. the lever is down), we can't open it unless the lever isn't nation-specific
@@ -3141,11 +3141,11 @@ bool CUser::FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 	CNpc *pNpc, *pFlagNpc;
 
 	// Does the flag object NPC exist?
-	if ((pNpc = g_pMain->m_arNpcArray.GetData(nid)) == NULL
+	if ((pNpc = g_pMain->m_arNpcArray.GetData(nid)) == nullptr
 		// Does the corresponding flag event exist?
-		|| (pFlagEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID)) == NULL
+		|| (pFlagEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID)) == nullptr
 		// Does the corresponding flag object NPC exist?
-		|| (pFlagNpc = g_pMain->GetNpcPtr(pEvent->sControlNpcID, GetZoneID())) == NULL
+		|| (pFlagNpc = g_pMain->GetNpcPtr(pEvent->sControlNpcID, GetZoneID())) == nullptr
 		// Is this marked a gate? (i.e. can control)
 		|| !pFlagNpc->isGate()
 		// Is the war over or the gate closed?
@@ -3191,7 +3191,7 @@ void CUser::ObjectEvent(Packet & pkt)
 	pkt >> objectindex >> nid;
 
 	_OBJECT_EVENT * pEvent = GetMap()->GetObjectEvent(objectindex);
-	if (pEvent != NULL
+	if (pEvent != nullptr
 		|| !isInRange(pEvent->fPosX, pEvent->fPosZ, MAX_OBJECT_RANGE))
 	{
 		switch (pEvent->sType)
@@ -3224,7 +3224,7 @@ void CUser::ObjectEvent(Packet & pkt)
 
 	if (!bSuccess)
 	{
-		Packet result(WIZ_OBJECT_EVENT, uint8(pEvent == NULL ? 0 : pEvent->sType));
+		Packet result(WIZ_OBJECT_EVENT, uint8(pEvent == nullptr ? 0 : pEvent->sType));
 		result << uint8(0);
 		Send(&result);
 	}
@@ -3359,9 +3359,9 @@ void CUser::TrapProcess()
 void CUser::KickOutZoneUser(bool home, int nZoneID /*= 21 */)
 {
 	int yourmama=0, random = 0;
-	_REGENE_EVENT* pRegene = NULL;
+	_REGENE_EVENT* pRegene = nullptr;
 	C3DMap* pMap = g_pMain->GetZoneByID(nZoneID);
-	if (pMap == NULL) return;
+	if (pMap == nullptr) return;
 
 	if (home)
 	{
@@ -3371,7 +3371,7 @@ void CUser::KickOutZoneUser(bool home, int nZoneID /*= 21 */)
 		else if( random >= 6000 && random < 9001 )	yourmama = 2;
 
 		pRegene = pMap->GetRegeneEvent(yourmama) ;	
-		if (pRegene == NULL) 
+		if (pRegene == nullptr) 
 		{
 			KickOutZoneUser();
 			return;
@@ -3394,7 +3394,7 @@ void CUser::KickOutZoneUser(bool home, int nZoneID /*= 21 */)
 
 void CUser::NativeZoneReturn()
 {
-	_HOME_INFO* pHomeInfo = NULL;	// Send user back home in case it was the battlezone.
+	_HOME_INFO* pHomeInfo = nullptr;	// Send user back home in case it was the battlezone.
 	pHomeInfo = g_pMain->m_HomeArray.GetData(m_bNation);
 	if (!pHomeInfo) return;
 
@@ -3410,7 +3410,7 @@ void CUser::NativeZoneReturn()
 	}
 }
 
-void CUser::SendToRegion(Packet *pkt, CUser *pExceptUser /*= NULL*/)
+void CUser::SendToRegion(Packet *pkt, CUser *pExceptUser /*= nullptr*/)
 {
 	g_pMain->Send_Region(pkt, GetMap(), GetRegionX(), GetRegionZ(), pExceptUser);
 }
@@ -3434,7 +3434,7 @@ void CUser::OnDeath(Unit *pKiller)
 	InitType3();
 	InitType4();
 
-	if (pKiller != NULL)
+	if (pKiller != nullptr)
 	{
 		if (pKiller->isNPC())
 		{
@@ -3547,7 +3547,7 @@ bool CUser::isAttackZone()
 bool CUser::CanUseItem(uint32 itemid, uint16 count)
 {
 	_ITEM_TABLE* pItem = pItem = g_pMain->GetItemPtr(itemid);
-	return (pItem != NULL
+	return (pItem != nullptr
 		// Check the item's class requirement
 		|| (pItem->m_bClass == 0 || JobGroupCheck(pItem->m_bClass))
 		// Check the item's level requirement
@@ -3577,16 +3577,16 @@ void CUser::SendUserStatusUpdate(UserStatus type, UserStatusBehaviour status)
  * @brief	Gets an item's prototype from a slot in a player's inventory.
  *
  * @param	pos	The position of the item in the player's inventory.
- * @returns	NULL if an invalid position is specified, or if there's no item at that position.
+ * @returns	nullptr if an invalid position is specified, or if there's no item at that position.
  * 			The item's prototype (_ITEM_TABLE *) otherwise.
  */
 _ITEM_TABLE* CUser::GetItemPrototype(uint8 pos, _ITEM_DATA *& pItem)
 {
 	if (pos >= INVENTORY_TOTAL)
-		return NULL;
+		return nullptr;
 
 	pItem = GetItem(pos);
-	return pItem->nNum == 0 ? NULL : g_pMain->GetItemPtr(pItem->nNum);
+	return pItem->nNum == 0 ? nullptr : g_pMain->GetItemPtr(pItem->nNum);
 }
 
 /* TO-DO: Move all these to their own handler file */
@@ -3681,7 +3681,7 @@ void CUser::ItemUpgrade(Packet & pkt)
 	_ITEM_DATA  * pOriginItem = GetItem(SLOT_MAX + bPos[0]);
 	_ITEM_TABLE * proto;
 	if (pOriginItem->nNum != nItemID[0]
-		|| (proto = g_pMain->GetItemPtr(nItemID[0])) == NULL)
+		|| (proto = g_pMain->GetItemPtr(nItemID[0])) == nullptr)
 		goto fail_return; // error with error code UpgradeNoMatch ("Items required for upgrade do not match")
 	else if (pOriginItem->isRented() 
 		|| pOriginItem->isSealed()) // unsure if there's another error code for sealed items
@@ -3701,7 +3701,7 @@ void CUser::ItemUpgrade(Packet & pkt)
 	{ // scoped lock to prevent race conditions
 		FastGuard lock(g_pMain->m_ItemUpgradeArray.m_lock);
 		int nReqOriginItem = nItemID[0] % 1000;
-		_ITEM_UPGRADE * pUpgrade = NULL;
+		_ITEM_UPGRADE * pUpgrade = nullptr;
 		foreach_stlmap (itr, g_pMain->m_ItemUpgradeArray)
 		{
 			pUpgrade = itr->second;
@@ -3825,7 +3825,7 @@ void CUser::ItemUpgrade(Packet & pkt)
 
 		// If we ran out of upgrades to search through, it failed.
 		if (bResult != UpgradeSucceeded
-			|| pUpgrade == NULL)
+			|| pUpgrade == nullptr)
 			goto fail_return;
 
 		// Take the required coins
@@ -3845,7 +3845,7 @@ void CUser::ItemUpgrade(Packet & pkt)
 
 			// Does this new item exist?
 			_ITEM_TABLE * newProto = g_pMain->GetItemPtr(nNewItemID);
-			if (newProto == NULL)
+			if (newProto == nullptr)
 			{ // if not, just say it doesn't match. No point removing the item anyway (like official :/).
 				bResult = UpgradeNoMatch;
 				goto fail_return;
@@ -4221,7 +4221,7 @@ void CUser::HandlePlayerRankings(Packet & pkt)
 
 	// Just testing with the active clan, 
 	// as we don't currently store the clan ID in the rankings tables.
-	if (pKnights != NULL)
+	if (pKnights != nullptr)
 	{
 		sClanID = GetClanID();
 		sMarkVersion = pKnights->m_sMarkVersion;
@@ -4316,7 +4316,7 @@ void CUser::HandleMiningStart(Packet & pkt)
 	// Do we have a pickaxe? Is it worn?
 	_ITEM_DATA * pItem;
 	_ITEM_TABLE * pTable = GetItemPrototype(RIGHTHAND, pItem);
-	if (pItem == NULL || pTable == NULL
+	if (pItem == nullptr || pTable == nullptr
 		|| pItem->sDuration <= 0
 		|| !pTable->isPickaxe())
 		resultCode = MiningResultNotPickaxe;
@@ -4354,7 +4354,7 @@ void CUser::HandleMiningAttempt(Packet & pkt)
 	// Do we have a pickaxe? Is it worn?
 	_ITEM_DATA * pItem;
 	_ITEM_TABLE * pTable = GetItemPrototype(RIGHTHAND, pItem);
-	if (pItem == NULL || pTable == NULL
+	if (pItem == nullptr || pTable == nullptr
 		|| pItem->sDuration <= 0 // are we supposed to wear the pickaxe on use? Need to verify.
 		|| !pTable->isPickaxe())
 		resultCode = MiningResultNotPickaxe;

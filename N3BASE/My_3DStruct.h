@@ -261,7 +261,7 @@ inline void __Matrix44::RotationY(float fDelta)
 
 inline bool _IntersectTriangle(const __Vector3& vOrig, const __Vector3& vDir,
 							  const __Vector3& v0, const __Vector3& v1, const __Vector3& v2,
-							  float& fT, float& fU, float& fV, __Vector3* pVCol = NULL)
+							  float& fT, float& fU, float& fV, __Vector3* pVCol = nullptr)
 {
     // Find vectors for two edges sharing vert0
     static __Vector3 vEdge1, vEdge2;

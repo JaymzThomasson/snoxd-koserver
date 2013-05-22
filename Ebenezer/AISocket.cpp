@@ -174,7 +174,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 		pNpc->m_byDirection = bDirection;
 		pNpc->SetRegion(pNpc->GetNewRegionX(), pNpc->GetNewRegionZ());
 
-		if (pNpc->GetMap() == NULL)
+		if (pNpc->GetMap() == nullptr)
 		{
 			pNpc->DecRef();
 			continue;
@@ -183,7 +183,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 		if (pNpc->m_byObjectType == SPECIAL_OBJECT)
 		{
 			_OBJECT_EVENT* pEvent = pNpc->GetMap()->GetObjectEvent(pNpc->m_sSid);
-			if (pEvent != NULL)
+			if (pEvent != nullptr)
 				pEvent->byLife = 1;
 		}
 
@@ -214,7 +214,7 @@ void CAISocket::RecvNpcMoveResult(Packet & pkt)
 	pkt >> flag >> sNid >> fX >> fZ >> fY >> fSecForMetor;
 
 	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(sNid);
-	if (pNpc == NULL)
+	if (pNpc == nullptr)
 		return;
 
 	if (pNpc->isDead())
@@ -234,9 +234,9 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 	uint8 type, bResult, byAttackType = 0;
 	float fDir=0.0f;
 	short damage = 0;
-	CNpc* pNpc = NULL, *pMon = NULL;
-	CUser* pUser = NULL;
-	_OBJECT_EVENT* pEvent = NULL;
+	CNpc* pNpc = nullptr, *pMon = nullptr;
+	CUser* pUser = nullptr;
+	_OBJECT_EVENT* pEvent = nullptr;
 
 	pkt >> type >> bResult >> sid >> tid >> damage >> nHP >> byAttackType;
 
@@ -262,7 +262,7 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 			pNpc->SendToRegion(&result);
 		}
 
-		if (pUser != NULL) 
+		if (pUser != nullptr) 
 		{
 			pUser->SendTargetHP( 0, tid, -damage ); 
 			if( byAttackType != MAGIC_ATTACK && byAttackType != DURATION_ATTACK) {
@@ -304,7 +304,7 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 		if( tid >= USER_BAND && tid < NPC_BAND)
 		{
 			pUser = g_pMain->GetUserPtr(tid);
-			if(pUser == NULL)	
+			if(pUser == nullptr)	
 				return;
 
 			pUser->HpChange(-damage, pNpc, false);
@@ -364,7 +364,7 @@ void CAISocket::RecvMagicAttackResult(Packet & pkt)
 		if (sid >= USER_BAND && sid < NPC_BAND)
 		{
 			CUser *pUser = g_pMain->GetUserPtr(sid);
-			if (pUser == NULL || pUser->isDead())
+			if (pUser == nullptr || pUser->isDead())
 				return;
 
 			pUser->SendToRegion(&pkt);
@@ -388,7 +388,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 	pkt >> Mode >> sNid;
 
 	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNid);
-	if (pNpc == NULL)
+	if (pNpc == nullptr)
 		return;
 
 	pkt >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
@@ -407,7 +407,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 	pNpc->m_byDirection = byDirection;
 	strcpy(pNpc->m_strName, strName.c_str());
 
-	if (pNpc->GetMap() == NULL)
+	if (pNpc->GetMap() == nullptr)
 		return;
 
 	pNpc->InsertRegion(pNpc->GetNewRegionX(), pNpc->GetNewRegionZ());
@@ -416,7 +416,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 	if (pNpc->m_byObjectType == SPECIAL_OBJECT)
 	{
 		_OBJECT_EVENT *pEvent = pNpc->GetMap()->GetObjectEvent( pNpc->m_sSid );
-		if (pEvent != NULL)
+		if (pEvent != nullptr)
 			pEvent->byLife = 1;
 	}
 
@@ -442,7 +442,7 @@ void CAISocket::RecvUserHP(Packet & pkt)
 	if (sNid >= USER_BAND && sNid < NPC_BAND)
 	{
 		CUser * pUser = g_pMain->GetUserPtr(sNid);
-		if (pUser == NULL)
+		if (pUser == nullptr)
 			return;
 
 		pUser->m_sHp = nHP;
@@ -450,7 +450,7 @@ void CAISocket::RecvUserHP(Packet & pkt)
 	else if (sNid >= NPC_BAND)
 	{
 		CNpc * pNpc = g_pMain->m_arNpcArray.GetData(sNid);
-		if (pNpc == NULL)
+		if (pNpc == nullptr)
 			return;
 
 		pNpc->m_iHP = nHP;
@@ -464,7 +464,7 @@ void CAISocket::RecvUserExp(Packet & pkt)
 	pkt >> tid >> sExp >> sLoyalty;
 
 	CUser* pUser = g_pMain->GetUserPtr(tid);
-	if (pUser == NULL)
+	if (pUser == nullptr)
 		return;
 
 	if (sExp > 0)
@@ -494,7 +494,7 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 	uint8 byCount, bZone;
 	int nItemNumber[NPC_HAVE_ITEM_LIST];
 	short sCount[NPC_HAVE_ITEM_LIST];
-	CUser* pUser = NULL;
+	CUser* pUser = nullptr;
 	pkt >> sUid >> sNid >> bZone >> regionx >> regionz >> fX >> fZ >> fY >> byCount;
 
 	for (int i = 0; i < byCount; i++)
@@ -504,7 +504,7 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 		return;
 
 	C3DMap *pMap = g_pMain->GetZoneByID(bZone);
-	if (pMap == NULL)
+	if (pMap == nullptr)
 		return;
 
 	_LOOT_BUNDLE * pBundle = new _LOOT_BUNDLE;
@@ -530,7 +530,7 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 	}
 
 	pUser = g_pMain->GetUserPtr(sUid);
-	if (pUser == NULL) 
+	if (pUser == nullptr) 
 		return;
 
 	result << sNid << pBundle->nBundleID;
@@ -545,11 +545,11 @@ void CAISocket::RecvUserFail(Packet & pkt)
 	short nid, sid;
 	pkt >> nid >> sid;
 	CUser* pUser = g_pMain->GetUserPtr(nid);
-	if (pUser == NULL)
+	if (pUser == nullptr)
 		return;
 
 	// wtf is this I don't even
-	pUser->HpChange(-10000, NULL, false);
+	pUser->HpChange(-10000, nullptr, false);
 
 	Packet result(WIZ_ATTACK, uint8(1));
 	result << uint8(2) << sid << nid;
@@ -596,7 +596,7 @@ void CAISocket::RecvGateDestory(Packet & pkt)
 	pkt >> nid >> bGateStatus >> sCurZone >> rX >> rZ;
 
 	CNpc* pNpc = g_pMain->m_arNpcArray.GetData(nid);
-	if (pNpc == NULL)
+	if (pNpc == nullptr)
 		return;
 
 	pNpc->m_byGateOpen = bGateStatus;
@@ -608,14 +608,14 @@ void CAISocket::RecvNpcDead(Packet & pkt)
 {
 	uint16 nid = pkt.read<uint16>();
 	CNpc* pNpc = g_pMain->m_arNpcArray.GetData(nid);
-	if (pNpc == NULL)
+	if (pNpc == nullptr)
 		return;
 
 	C3DMap* pMap = pNpc->GetMap();
-	if (pMap == NULL)
+	if (pMap == nullptr)
 		return;
 
-	pNpc->OnDeath(NULL);
+	pNpc->OnDeath(nullptr);
 }
 
 void CAISocket::RecvNpcInOut(Packet & pkt)
@@ -633,8 +633,8 @@ void CAISocket::RecvNpcInOut(Packet & pkt)
 void CAISocket::RecvBattleEvent(Packet & pkt)
 {
 	string chatstr, strMaxUserName, strKnightsName;
-	CUser* pUser = NULL;
-	CKnights* pKnights = NULL;
+	CUser* pUser = nullptr;
+	CKnights* pKnights = nullptr;
 
 	uint8 bType, bResult;
 	pkt >> bType >> bResult;
@@ -693,7 +693,7 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 		if (!strMaxUserName.empty())
 		{
 			pUser = g_pMain->GetUserPtr(strMaxUserName, TYPE_CHARACTER);
-			if (pUser != NULL)
+			if (pUser != nullptr)
 			{
 				pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
 				if (pKnights)
@@ -761,7 +761,7 @@ void CAISocket::RecvNpcEventItem(Packet & pkt)
 	pkt >> sUid >> sNid >> nItemID >> nCount;
 
 	CUser *pUser = g_pMain->GetUserPtr(sUid);
-	if (pUser == NULL)
+	if (pUser == nullptr)
 		return;
 
 	pUser->GiveItem(nItemID, nCount);
@@ -775,7 +775,7 @@ void CAISocket::RecvGateOpen(Packet & pkt)
 	pkt >> sNid >> sEventID >> bFlag;
 
 	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNid);
-	if (pNpc == NULL)	
+	if (pNpc == nullptr)	
 	{
 		TRACE("#### RecvGateOpen Npc Pointer null : nid=%d ####\n", sNid);
 		return;
@@ -784,7 +784,7 @@ void CAISocket::RecvGateOpen(Packet & pkt)
 	pNpc->m_byGateOpen = bFlag; // possibly not needed (we'll do it below), but need to make sure.
 
 	_OBJECT_EVENT *pEvent = pNpc->GetMap()->GetObjectEvent(sEventID);
-	if (pEvent == NULL)	
+	if (pEvent == nullptr)	
 	{
 		TRACE("#### RecvGateOpen Npc Object fail : nid=%d, sid=%d ####\n", sNid, sEventID);
 		return;

@@ -4,7 +4,7 @@ void CUser::Attack(Packet & pkt)
 	int16 sid = -1, tid = -1, damage, delaytime, distance;	
 	uint8 bType, bResult;	
 	
-	CUser* pTUser = NULL;
+	CUser* pTUser = nullptr;
 
 	pkt >> bType >> bResult >> tid >> delaytime >> distance;
 
@@ -17,7 +17,7 @@ void CUser::Attack(Packet & pkt)
 
 	// If you're holding a weapon, do a client-based (ugh, do not trust!) delay check.
 	_ITEM_TABLE *pTable = GetItemPrototype(RIGHTHAND);
-	if (pTable != NULL) 
+	if (pTable != nullptr) 
 	{
 		if (delaytime < pTable->m_sDelay
 			|| distance > pTable->m_sRange)
@@ -32,13 +32,13 @@ void CUser::Attack(Packet & pkt)
 	{
 		pTUser = g_pMain->GetUserPtr(tid);
  
-		if (pTUser == NULL || pTUser->isDead() || pTUser->isBlinking()
+		if (pTUser == nullptr || pTUser->isDead() || pTUser->isBlinking()
 				|| (pTUser->GetNation() == GetNation() && GetZoneID() != 48 /* TO-DO: implement better checks */)
 				|| !isAttackZone()) 
 			bResult = 0;
 		else 
 		{
-			damage = GetDamage(pTUser, NULL);
+			damage = GetDamage(pTUser, nullptr);
 			if (GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE)
 				damage = 0;		
 
@@ -65,7 +65,7 @@ void CUser::Attack(Packet & pkt)
 			return;	
 
 		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(tid);		
-		if (pNpc != NULL && pNpc->isAlive() 
+		if (pNpc != nullptr && pNpc->isAlive() 
 			&& (pNpc->GetNation() == 0
 				|| pNpc->GetNation() != GetNation()))
 		{
@@ -99,12 +99,12 @@ void CUser::Attack(Packet & pkt)
 
 void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 {
-	ASSERT(GetMap() != NULL);
+	ASSERT(GetMap() != nullptr);
 
-	CUser* pUser = NULL;
-	_OBJECT_EVENT* pEvent = NULL;
-	_HOME_INFO* pHomeInfo = NULL;
-	_MAGIC_TYPE5* pType = NULL;
+	CUser* pUser = nullptr;
+	_OBJECT_EVENT* pEvent = nullptr;
+	_HOME_INFO* pHomeInfo = nullptr;
+	_MAGIC_TYPE5* pType = nullptr;
 
 	if (!isDead())
 		return;

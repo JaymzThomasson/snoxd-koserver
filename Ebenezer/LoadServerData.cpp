@@ -189,7 +189,7 @@ bool CEbenezerDlg::LoadAllKnights()
 
 bool CEbenezerDlg::LoadAllKnightsUserData()
 {
-	LOAD_TABLE(CKnightsUserSet, g_DBAgent.m_GameDB, NULL, true);
+	LOAD_TABLE(CKnightsUserSet, g_DBAgent.m_GameDB, nullptr, true);
 }
 
 bool CEbenezerDlg::LoadKnightsAllianceTable()
@@ -201,7 +201,7 @@ bool CEbenezerDlg::LoadUserRankings()
 {
 	CUserPersonalRankSet UserPersonalRankSet(g_DBAgent.m_GameDB, &m_UserPersonalRankMap);
 	CUserKnightsRankSet  UserKnightsRankSet(g_DBAgent.m_GameDB, &m_UserKnightsRankMap);
-	TCHAR * szError = NULL;
+	TCHAR * szError = nullptr;
 
 	// Cleanup first, in the event it's already loaded (we'll have this automatically reload in-game)
 	CleanupUserRankings();
@@ -210,14 +210,14 @@ bool CEbenezerDlg::LoadUserRankings()
 	FastGuard lock(m_userRankingsLock);
 
 	szError = UserPersonalRankSet.Read(true);
-	if (szError != NULL)
+	if (szError != nullptr)
 	{
 		TRACE("Failed to load personal rankings, error: %s\n", szError);
 		return false;
 	}
 
 	szError = UserKnightsRankSet.Read(true);
-	if (szError != NULL)
+	if (szError != nullptr)
 	{
 		TRACE("Failed to load user knights rankings, error: %s\n", szError);
 		return false;
@@ -236,7 +236,7 @@ void CEbenezerDlg::CleanupUserRankings()
 	foreach (itr, m_UserPersonalRankMap)
 	{
 		CUser *pUser = GetUserPtr(itr->first, TYPE_CHARACTER);
-		if (pUser != NULL)
+		if (pUser != nullptr)
 			pUser->m_bPersonalRank = -1;
 
 		deleteSet.insert(itr->second);
@@ -247,7 +247,7 @@ void CEbenezerDlg::CleanupUserRankings()
 	foreach (itr, m_UserKnightsRankMap)
 	{
 		CUser *pUser = GetUserPtr(itr->first, TYPE_CHARACTER);
-		if (pUser != NULL)
+		if (pUser != nullptr)
 			pUser->m_bKnightsRank = -1;
 
 		deleteSet.insert(itr->second);
@@ -274,7 +274,7 @@ bool CEbenezerDlg::LoadKnightsCapeTable()
 bool CEbenezerDlg::LoadKnightsRankTable(bool bWarTime /*= false*/)
 {
 	std::string strKarusCaptainNames, strElmoCaptainNames;
-	LOAD_TABLE_ERROR_ONLY(CKnightsRankSet, g_DBAgent.m_GameDB, NULL, true);
+	LOAD_TABLE_ERROR_ONLY(CKnightsRankSet, g_DBAgent.m_GameDB, nullptr, true);
 
 	if (!bWarTime)
 		return true;
@@ -288,7 +288,7 @@ bool CEbenezerDlg::LoadKnightsRankTable(bool bWarTime /*= false*/)
 			pSet.strKarusCaptain[0], pSet.strKarusCaptain[1], pSet.strKarusCaptain[2], 
 			pSet.strKarusCaptain[3], pSet.strKarusCaptain[4]);
 		ChatPacket::Construct(&result, WAR_SYSTEM_CHAT, &strKarusCaptainNames);
-		Send_All(&result, NULL, KARUS);
+		Send_All(&result, nullptr, KARUS);
 	}
 
 	if (pSet.nElmoCount > 0)
@@ -298,7 +298,7 @@ bool CEbenezerDlg::LoadKnightsRankTable(bool bWarTime /*= false*/)
 			pSet.strElmoCaptain[0], pSet.strElmoCaptain[1], pSet.strElmoCaptain[2], 
 			pSet.strElmoCaptain[3], pSet.strElmoCaptain[4]);
 		ChatPacket::Construct(&result, WAR_SYSTEM_CHAT, &strElmoCaptainNames);
-		Send_All(&result, NULL, ELMORAD);
+		Send_All(&result, nullptr, ELMORAD);
 	}
 
 	return true;

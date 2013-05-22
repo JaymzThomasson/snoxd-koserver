@@ -5,16 +5,16 @@
 #ifdef USE_STD_THREAD
 static std::thread s_hConsoleInputThread;
 #else
-static HANDLE s_hConsoleInputThread = NULL;
+static HANDLE s_hConsoleInputThread = nullptr;
 #endif
 
 void StartConsoleInputThread()
 {
 #ifdef USE_STD_THREAD
-	s_hConsoleInputThread = std::thread(ConsoleInputThread, static_cast<void *>(NULL));
+	s_hConsoleInputThread = std::thread(ConsoleInputThread, static_cast<void *>(nullptr));
 #else
 	DWORD dwThread;
-	s_hConsoleInputThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&ConsoleInputThread, NULL, NULL, &dwThread);
+	s_hConsoleInputThread = CreateThread(nullptr, nullptr, (LPTHREAD_START_ROUTINE)&ConsoleInputThread, nullptr, nullptr, &dwThread);
 #endif
 }
 
@@ -41,7 +41,7 @@ unsigned int __stdcall ConsoleInputThread(void * lpParam)
 	{
 		// Read in single line from stdin
 		memset(cmd, 0, sizeof(cmd)); 
-		if (fgets(cmd, sizeof(cmd), stdin) == NULL)
+		if (fgets(cmd, sizeof(cmd), stdin) == nullptr)
 		{
 			printf("Console input thread closing...\n");
 			break;

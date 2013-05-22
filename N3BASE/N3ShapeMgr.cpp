@@ -5,16 +5,16 @@ CN3ShapeMgr::CN3ShapeMgr()
 	m_fMapWidth = 0.0f;
 	m_fMapLength = 0.0f;
 	m_nCollisionFaceCount = 0;
-	m_pvCollisions = NULL;
+	m_pvCollisions = nullptr;
 	memset(m_pCells, 0, sizeof(m_pCells));
 }
 
 CN3ShapeMgr::~CN3ShapeMgr()
 {
-	if (m_pvCollisions != NULL)
+	if (m_pvCollisions != nullptr)
 	{
 		delete [] m_pvCollisions; 
-		m_pvCollisions = NULL;
+		m_pvCollisions = nullptr;
 	}
 
 	for(int z = 0; z < MAX_CELL_MAIN; z++)
@@ -32,10 +32,10 @@ void CN3ShapeMgr::Release()
 	m_fMapLength = 0.0f;
 	m_nCollisionFaceCount = 0;
 
-	if (m_pvCollisions != NULL)
+	if (m_pvCollisions != nullptr)
 	{
 		delete [] m_pvCollisions; 
-		m_pvCollisions = NULL;
+		m_pvCollisions = nullptr;
 	}
 
 	for(int z = 0; z < MAX_CELL_MAIN; z++)
@@ -43,7 +43,7 @@ void CN3ShapeMgr::Release()
 		for(int x = 0; x < MAX_CELL_MAIN; x++)
 		{
 			delete m_pCells[x][z];
-			m_pCells[x][z] = NULL;
+			m_pCells[x][z] = nullptr;
 		}
 	}
 	memset(m_pCells, 0, sizeof(MAX_CELL_MAIN));
@@ -57,10 +57,10 @@ bool CN3ShapeMgr::LoadCollisionData(FILE *fp)
 
 	fread(&m_nCollisionFaceCount, 4, 1, fp);
 
-	if (m_pvCollisions != NULL)
+	if (m_pvCollisions != nullptr)
 	{
 		delete [] m_pvCollisions; 
-		m_pvCollisions = NULL;
+		m_pvCollisions = nullptr;
 	}
 
 	if(m_nCollisionFaceCount > 0)
@@ -76,10 +76,10 @@ bool CN3ShapeMgr::LoadCollisionData(FILE *fp)
 		int x = 0;
 		for(float fX = 0.0f; fX < m_fMapWidth;  fX += CELL_MAIN_SIZE, x++)
 		{
-			if (m_pCells[x][z] != NULL)
+			if (m_pCells[x][z] != nullptr)
 			{
 				delete m_pCells[x][z]; 
-				m_pCells[x][z] = NULL;
+				m_pCells[x][z] = nullptr;
 			}
 
 			uint32 bExist;
@@ -170,7 +170,7 @@ bool CN3ShapeMgr::CheckCollision(	const __Vector3& vPos,		// 충돌 위치
 
 int CN3ShapeMgr::SubCellPathThru(const __Vector3& vFrom, const __Vector3& vAt, __CellSub** ppSubCells) // 벡터 사이에 걸친 셀포인터 돌려준다..
 {
-	if(NULL == ppSubCells) return 0;
+	if(nullptr == ppSubCells) return 0;
 
 	// 범위를 정하고..
 	int xx1 = 0, xx2 = 0, zz1 = 0, zz2 = 0;
@@ -221,7 +221,7 @@ int CN3ShapeMgr::SubCellPathThru(const __Vector3& vFrom, const __Vector3& vAt, _
 			int nX = x / CELL_MAIN_DEVIDE;
 			int nZ = z / CELL_MAIN_DEVIDE;
 			if(nX < 0 || nX >= MAX_CELL_MAIN || nZ < 0 && nZ >= MAX_CELL_MAIN) continue; // 메인셀바깥에 있음 지나간다.
-			if(NULL == m_pCells[nX][nZ]) continue; // 메인셀이 널이면 지나간다..
+			if(nullptr == m_pCells[nX][nZ]) continue; // 메인셀이 널이면 지나간다..
 
 			int nXSub = x%CELL_MAIN_DEVIDE;
 			int nZSub = z%CELL_MAIN_DEVIDE;
@@ -237,7 +237,7 @@ int CN3ShapeMgr::SubCellPathThru(const __Vector3& vFrom, const __Vector3& vAt, _
 float CN3ShapeMgr::GetHeightNearstPos(const __Vector3 &vPos, __Vector3* pvNormal) // 가장 가까운 높이값을 돌려준다. 없으면 -FLT_MAX 을 돌려준다.
 {
 	__CellSub* pCell = this->SubCell(vPos.x, vPos.z); // 서브셀을 가져온다..
-	if(NULL == pCell || pCell->nCCPolyCount <= 0) return -FLT_MAX; // 없음 말자.
+	if(nullptr == pCell || pCell->nCCPolyCount <= 0) return -FLT_MAX; // 없음 말자.
 
 	__Vector3 vPosV = vPos; vPosV.y = 5000.0f; // 꼭대기에 위치를 하고..
 	__Vector3 vDir(0,-1, 0); // 수직 방향 벡터
@@ -277,7 +277,7 @@ float CN3ShapeMgr::GetHeightNearstPos(const __Vector3 &vPos, __Vector3* pvNormal
 float CN3ShapeMgr::GetHeight(float fX, float fZ, __Vector3* pvNormal) // 가장 높은 곳을 돌려준다.. 없으면 -FLT_MAX값을 돌려준다.
 {
 	__CellSub* pCell = this->SubCell(fX, fZ); // 서브셀을 가져온다..
-	if(NULL == pCell || pCell->nCCPolyCount <= 0) return -FLT_MAX; // 없음 말자.
+	if(nullptr == pCell || pCell->nCCPolyCount <= 0) return -FLT_MAX; // 없음 말자.
 
 	__Vector3 vPosV(fX, 5000.0f, fZ); // 꼭대기에 위치를 하고..
 	__Vector3 vDir(0,-1, 0); // 수직 방향 벡터
@@ -326,294 +326,294 @@ void CN3ShapeMgr::SubCell(const __Vector3& vPos, __CellSub** ppSubCell)			// 해�
 		switch( i )
 		{
 			case 0:
-				if ( m_pCells[x][z] != NULL )
+				if ( m_pCells[x][z] != nullptr )
 					ppSubCell[i] = &(m_pCells[x][z]->SubCells[xx][zz]);
 				else
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 				break;
 
 			case 1:
 				if ( (x == 0) && (xx == 0) )
 				{
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (x != 0) && (xx == 0) )
 				{
-					if ( m_pCells[x-1][z] != NULL )
+					if ( m_pCells[x-1][z] != nullptr )
 						ppSubCell[i] = &(m_pCells[x-1][z]->SubCells[CELL_MAIN_DEVIDE-1][zz]);
 					else
-						ppSubCell[i] = NULL;
+						ppSubCell[i] = nullptr;
 					break;
 				}
 
-				if ( m_pCells[x][z] != NULL )
+				if ( m_pCells[x][z] != nullptr )
 					ppSubCell[i] = &(m_pCells[x][z]->SubCells[xx-1][zz]);
 				else
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 				break;
 
 			case 2:
 				if ( (x == 0) && (xx == 0) )
 				{
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (z == (CELL_MAIN_SIZE-1)) && ( zz == (CELL_MAIN_DEVIDE-1) ) )
 				{
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (x != 0) && (xx == 0) )											// x 감소, z 증가.
 				{
 					if ( (z != (MAX_CELL_MAIN-1)) && ( zz == (CELL_MAIN_DEVIDE-1) ) )
-						if ( m_pCells[x-1][z+1] != NULL )
+						if ( m_pCells[x-1][z+1] != nullptr )
 							ppSubCell[i] = &(m_pCells[x-1][z+1]->SubCells[CELL_MAIN_DEVIDE-1][0]);
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					else
-						if ( m_pCells[x-1][z] != NULL )
+						if ( m_pCells[x-1][z] != nullptr )
 							ppSubCell[i] = &(m_pCells[x-1][z]->SubCells[CELL_MAIN_DEVIDE-1][zz+1]);
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (z != (MAX_CELL_MAIN-1)) && (zz == (CELL_MAIN_DEVIDE-1) ) )		// x 감소, z 증가.
 				{
 					if ( (x != 0) && (xx == 0) )
-						if ( m_pCells[x-1][z+1] != NULL )
+						if ( m_pCells[x-1][z+1] != nullptr )
 							ppSubCell[i] = &(m_pCells[x-1][z+1]->SubCells[CELL_MAIN_DEVIDE-1][0]);	
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					else
-						if ( m_pCells[x][z+1] != NULL )
+						if ( m_pCells[x][z+1] != nullptr )
 							ppSubCell[i] = &(m_pCells[x][z+1]->SubCells[xx-1][0]);	
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					break;
 				}
 							
-				if ( m_pCells[x][z] != NULL )
+				if ( m_pCells[x][z] != nullptr )
 					ppSubCell[i] = &(m_pCells[x][z]->SubCells[xx-1][zz+1]);						
 				else
-					ppSubCell[i] = NULL;					
+					ppSubCell[i] = nullptr;					
 					break;
 
 			case 3:
 				if ( (z == (MAX_CELL_MAIN-1)) && (zz == (CELL_MAIN_DEVIDE-1)) )			// z 증가.
 				{
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (z != (MAX_CELL_MAIN-1)) && (zz == (CELL_MAIN_DEVIDE-1)) )
 				{
-					if ( m_pCells[x-1][z] != NULL )
+					if ( m_pCells[x-1][z] != nullptr )
 						ppSubCell[i] = &(m_pCells[x-1][z]->SubCells[xx][0]);
 					else
-						ppSubCell[i] = NULL;
+						ppSubCell[i] = nullptr;
 					break;
 				}
 
-				if ( m_pCells[x][z] != NULL )
+				if ( m_pCells[x][z] != nullptr )
 					ppSubCell[i] = &(m_pCells[x][z]->SubCells[xx][zz+1]);
 				else
-					ppSubCell[i] = NULL;					
+					ppSubCell[i] = nullptr;					
 				break;
 
 			case 4:
 				if ( (x == (MAX_CELL_MAIN-1)) && (xx == (CELL_MAIN_DEVIDE-1)) )			// x 증가, z 증가.
 				{
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (z == (MAX_CELL_MAIN-1)) && ( zz == (CELL_MAIN_DEVIDE-1)) )
 				{
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (x != (MAX_CELL_MAIN-1)) && (xx == (CELL_MAIN_DEVIDE-1)) )
 				{
 					if ( (z != (MAX_CELL_MAIN-1)) && ( zz == (CELL_MAIN_DEVIDE-1)) )
-						if ( m_pCells[x+1][z+1] != NULL )
+						if ( m_pCells[x+1][z+1] != nullptr )
 							ppSubCell[i] = &(m_pCells[x+1][z+1]->SubCells[0][0]);
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					else
-						if ( m_pCells[x+1][z] != NULL )
+						if ( m_pCells[x+1][z] != nullptr )
 							ppSubCell[i] = &(m_pCells[x+1][z]->SubCells[0][zz+1]);
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (z != (MAX_CELL_MAIN-1)) && (zz == (CELL_MAIN_DEVIDE-1)) )
 				{
 					if ( (x != (MAX_CELL_MAIN-1)) && (xx == (CELL_MAIN_DEVIDE-1)) )
-						if ( m_pCells[x+1][z+1] != NULL )
+						if ( m_pCells[x+1][z+1] != nullptr )
 							ppSubCell[i] = &(m_pCells[x+1][z+1]->SubCells[0][0]);	
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					else
-						if ( m_pCells[x][z+1] != NULL )
+						if ( m_pCells[x][z+1] != nullptr )
 							ppSubCell[i] = &(m_pCells[x][z+1]->SubCells[xx+1][0]);	
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					break;
 				}
 
-				if ( m_pCells[x][z] != NULL )								
+				if ( m_pCells[x][z] != nullptr )								
 					ppSubCell[i] = &(m_pCells[x][z]->SubCells[xx+1][zz+1]);						
 				else
-					ppSubCell[i] = NULL;					
+					ppSubCell[i] = nullptr;					
 				break;
 
 			case 5:																		// x 증가.
 				if ( (x == (MAX_CELL_MAIN-1)) && (xx == (CELL_MAIN_DEVIDE-1)) )
 				{
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (x != (MAX_CELL_MAIN-1)) && (xx == (CELL_MAIN_DEVIDE-1)) )
 				{
-					if ( m_pCells[x+1][z] != NULL )
+					if ( m_pCells[x+1][z] != nullptr )
 						ppSubCell[i] = &(m_pCells[x+1][z]->SubCells[0][zz]);
 					else
-						ppSubCell[i] = NULL;
+						ppSubCell[i] = nullptr;
 					break;
 				}
 
-				if ( m_pCells[x][z] != NULL )								
+				if ( m_pCells[x][z] != nullptr )								
 					ppSubCell[i] = &(m_pCells[x][z]->SubCells[xx+1][zz]);
 				else
-					ppSubCell[i] = NULL;					
+					ppSubCell[i] = nullptr;					
 				break;
 
 			case 6:																		// x 증가. z 감소.		
 				if ( (x == (MAX_CELL_MAIN-1)) && (xx == (CELL_MAIN_DEVIDE-1)) )
 				{
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (z == 0) && (zz == 0) )
 				{
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (x != (MAX_CELL_MAIN-1)) && (xx == (CELL_MAIN_DEVIDE-1)) )			
 				{
 					if ( (z != 0) && (zz == 0) )
-						if ( m_pCells[x+1][z-1] != NULL )								
+						if ( m_pCells[x+1][z-1] != nullptr )								
 							ppSubCell[i] = &(m_pCells[x+1][z-1]->SubCells[0][CELL_MAIN_DEVIDE-1]);
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					else
-						if ( m_pCells[x+1][z] != NULL )								
+						if ( m_pCells[x+1][z] != nullptr )								
 							ppSubCell[i] = &(m_pCells[x+1][z]->SubCells[0][zz-1]);
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (z != 0) && (zz == 0) )
 				{
 					if ( (x != (CELL_MAIN_SIZE-1)) && (xx == (CELL_MAIN_DEVIDE-1) ) )
-						if ( m_pCells[x+1][z-1] != NULL )								
+						if ( m_pCells[x+1][z-1] != nullptr )								
 							ppSubCell[i] = &(m_pCells[x+1][z-1]->SubCells[0][CELL_MAIN_DEVIDE-1]);
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					else
-						if ( m_pCells[x][z-1] != NULL )								
+						if ( m_pCells[x][z-1] != nullptr )								
 							ppSubCell[i] = &(m_pCells[x][z-1]->SubCells[xx+1][CELL_MAIN_DEVIDE-1]);	
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					break;
 				}
 
-				if ( m_pCells[x][z] != NULL )								
+				if ( m_pCells[x][z] != nullptr )								
 					ppSubCell[i] = &(m_pCells[x][z]->SubCells[xx+1][zz-1]);						
 				else
-					ppSubCell[i] = NULL;					
+					ppSubCell[i] = nullptr;					
 				break;
 
 			case 7:																		// z 감소.
 				if ( (z == 0) && (zz == 0) )	
 				{
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (z != 0) && (zz == 0) )
 				{
-					if ( m_pCells[x][z-1] != NULL )								
+					if ( m_pCells[x][z-1] != nullptr )								
 						ppSubCell[i] = &(m_pCells[x][z-1]->SubCells[xx][CELL_MAIN_DEVIDE-1]);
 					else
-						ppSubCell[i] = NULL;					
+						ppSubCell[i] = nullptr;					
 					break;
 				}
 
-				if ( m_pCells[x][z] != NULL )								
+				if ( m_pCells[x][z] != nullptr )								
 					ppSubCell[i] = &(m_pCells[x][z]->SubCells[xx][zz-1]);
 				else
-					ppSubCell[i] = NULL;					
+					ppSubCell[i] = nullptr;					
 				break;
 
 			case 8:																		// x 감소, z 감소.
 				if ( (x == 0) && (xx == 0) )
 				{
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (z == 0) && (zz == 0) )
 				{
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (x != 0) && (xx == 0) )
 				{
 					if ( (z != 0) && (zz == 0) )
-						if ( m_pCells[x-1][z-1] != NULL )								
+						if ( m_pCells[x-1][z-1] != nullptr )								
 							ppSubCell[i] = &(m_pCells[x-1][z-1]->SubCells[CELL_MAIN_DEVIDE-1][CELL_MAIN_DEVIDE-1]);
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					else
-						if ( m_pCells[x-1][z] != NULL )								
+						if ( m_pCells[x-1][z] != nullptr )								
 							ppSubCell[i] = &(m_pCells[x-1][z]->SubCells[CELL_MAIN_DEVIDE-1][zz-1]);
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					break;
 				}
 
 				if ( (z != 0) && (zz == 0) )
 				{
 					if ( (x != 0) && (xx == 0) )
-						if ( m_pCells[x-1][z-1] != NULL )								
+						if ( m_pCells[x-1][z-1] != nullptr )								
 							ppSubCell[i] = &(m_pCells[x-1][z-1]->SubCells[CELL_MAIN_DEVIDE-1][CELL_MAIN_DEVIDE-1]);
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					else
-						if ( m_pCells[x][z-1] != NULL )								
+						if ( m_pCells[x][z-1] != nullptr )								
 							ppSubCell[i] = &(m_pCells[x][z-1]->SubCells[xx-1][CELL_MAIN_DEVIDE-1]);	
 						else
-							ppSubCell[i] = NULL;
+							ppSubCell[i] = nullptr;
 					break;
 				}
 							
-				if ( m_pCells[x][z] != NULL )								
+				if ( m_pCells[x][z] != nullptr )								
 					ppSubCell[i] = &(m_pCells[x][z]->SubCells[xx-1][zz-1]);						
 				else
-					ppSubCell[i] = NULL;
+					ppSubCell[i] = nullptr;
 				break;
 		}	// switch
 	}	// for 

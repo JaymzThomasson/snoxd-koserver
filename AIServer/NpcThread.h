@@ -1,7 +1,7 @@
 #pragma once
 
 UINT NpcThreadProc(LPVOID pParam /* CNpcThread ptr */);
-UINT ZoneEventThreadProc(LPVOID pParam /* = NULL */);
+UINT ZoneEventThreadProc(LPVOID pParam /* = nullptr */);
 
 typedef std::set<CNpc *> NpcSet;
 

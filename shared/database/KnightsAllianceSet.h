@@ -19,7 +19,7 @@ public:
 		_dbCommand->FetchUInt16(4, pData->sMercenaryClan_2);
 
 		CKnights * pKnights = g_pMain->GetClanPtr(pData->sMainAllianceKnights);
-		if (pKnights == NULL
+		if (pKnights == nullptr
 			|| !m_pMap->PutData(pData->sMainAllianceKnights, pData))
 			delete pData;
 

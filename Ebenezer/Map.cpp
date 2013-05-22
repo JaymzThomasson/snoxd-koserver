@@ -14,7 +14,7 @@ _REGENE_EVENT * C3DMap::GetRegeneEvent(int objectindex) { return m_smdFile->GetR
 _WARP_INFO * C3DMap::GetWarp(int warpID) { return m_smdFile->GetWarp(warpID); }
 void C3DMap::GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries) { m_smdFile->GetWarpList(warpGroup, warpEntries); }
 
-C3DMap::C3DMap() : m_smdFile(NULL), m_ppRegion(NULL),
+C3DMap::C3DMap() : m_smdFile(nullptr), m_ppRegion(nullptr),
 	m_nZoneNumber(0), m_sMaxUser(150), m_wBundle(1),
 	m_bType(0), m_isAttackZone(false)
 {
@@ -32,21 +32,21 @@ bool C3DMap::Initialize(_ZONE_INFO *pZone)
 
 	m_smdFile = SMDFile::Load(pZone->m_MapName);
 
-	if (m_smdFile != NULL)
+	if (m_smdFile != nullptr)
 	{
 		m_ppRegion = new CRegion*[m_smdFile->m_nXRegion];
 		for (int i = 0; i < m_smdFile->m_nXRegion; i++)
 			m_ppRegion[i] = new CRegion[m_smdFile->m_nZRegion];
 	}
 
-	return (m_smdFile != NULL);
+	return (m_smdFile != nullptr);
 }
 
 CRegion * C3DMap::GetRegion(uint16 regionX, uint16 regionZ)
 {
 	if (regionX >= GetXRegionMax()
 		|| regionZ >= GetZRegionMax())
-		return NULL;
+		return nullptr;
 
 	FastGuard lock(m_lock);
 	return &m_ppRegion[regionX][regionZ];
@@ -56,7 +56,7 @@ CRegion * C3DMap::GetRegion(uint16 regionX, uint16 regionZ)
 bool C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _LOOT_BUNDLE * pBundle)
 {
 	if (rx >= GetXRegionMax() || rz >= GetZRegionMax()
-		|| pBundle == NULL)
+		|| pBundle == nullptr)
 		return false;
 
 	FastGuard lock(m_lock);
@@ -80,7 +80,7 @@ bool C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _LOOT_BUNDLE * pBundle)
  */
 void C3DMap::RegionItemRemove(CRegion * pRegion, _LOOT_BUNDLE * pBundle, _LOOT_ITEM * pItem)
 {
-	if (pBundle == NULL)
+	if (pBundle == nullptr)
 		return;
 
 	// If the bundle exists, and the item matches what the user's removing
@@ -108,7 +108,7 @@ bool C3DMap::CheckEvent(float x, float z, CUser* pUser)
 		return false;
 
 	CGameEvent *pEvent = m_EventArray.GetData( event_index );
-	if (pEvent == NULL)
+	if (pEvent == nullptr)
 		return false;
 
 	if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_BATTLE && g_pMain->m_byBattleOpen != NATION_BATTLE ) return false;
@@ -133,15 +133,15 @@ C3DMap::~C3DMap()
 {
 	m_EventArray.DeleteAllData();
 
-	if (m_ppRegion != NULL)
+	if (m_ppRegion != nullptr)
 	{
 		for (int i = 0; i <= GetXRegionMax(); i++)
 			delete [] m_ppRegion[i];
 
 		delete [] m_ppRegion;
-		m_ppRegion = NULL;
+		m_ppRegion = nullptr;
 	}
 
-	if (m_smdFile != NULL)
+	if (m_smdFile != nullptr)
 		m_smdFile->DecRef();
 }

@@ -3,14 +3,14 @@
 #include "../Mutex.h"
 
 OdbcConnection::OdbcConnection()
-	: m_connHandle(NULL), m_envHandle(NULL), m_bMarsEnabled(false), m_lock(new FastMutex())
+	: m_connHandle(nullptr), m_envHandle(nullptr), m_bMarsEnabled(false), m_lock(new FastMutex())
 {
 }
 
 bool OdbcConnection::isConnected() 
 {
 	FastGuard lock(m_lock);
-	return (m_connHandle != NULL);
+	return (m_connHandle != nullptr);
 }
 
 bool OdbcConnection::isError() 
@@ -73,7 +73,7 @@ bool OdbcConnection::Connect()
 	if (m_bMarsEnabled)
 		szConn += _T("MARS_Connection=yes;");
 
-	if (!SQL_SUCCEEDED(SQLDriverConnect(m_connHandle, NULL, (SQLTCHAR *)szConn.c_str(), SQL_NTS, NULL, NULL, NULL, NULL)))
+	if (!SQL_SUCCEEDED(SQLDriverConnect(m_connHandle, SQL_NULL_HANDLE, (SQLTCHAR *)szConn.c_str(), SQL_NTS, 0, 0, 0, 0)))
 	{
 		ReportSQLError(SQL_HANDLE_DBC, m_connHandle, _T("SQLDriverConnect"), _T("Unable to establish connection."));
 		goto error_handler;
@@ -93,7 +93,7 @@ OdbcCommand *OdbcConnection::CreateCommand()
 {
 	if (!isConnected()
 		&& !Connect())
-		return NULL;
+		return nullptr;
 
 	return new OdbcCommand(this);
 }
@@ -114,17 +114,17 @@ void OdbcConnection::RemoveCommand(OdbcCommand *dbCommand)
 void OdbcConnection::ResetHandles()
 {
 	// Free the connection handle if it's allocated
-	if (m_connHandle != NULL)
+	if (m_connHandle != nullptr)
 	{
 		SQLFreeHandle(SQL_HANDLE_DBC, m_connHandle);
-		m_connHandle = NULL;
+		m_connHandle = nullptr;
 	}
 
 	// Free the environment handle if it's allocated
-	if (m_envHandle != NULL)
+	if (m_envHandle != nullptr)
 	{
 		SQLFreeHandle(SQL_HANDLE_ENV, m_envHandle);
-		m_envHandle = NULL;
+		m_envHandle = nullptr;
 	}
 }
 
@@ -145,7 +145,7 @@ tstring OdbcConnection::ReportSQLError(SQLSMALLINT handleType, SQLHANDLE handle,
 
 	m_odbcErrors.push_back(error);
 
-	if (handle != NULL)
+	if (handle != nullptr)
 	{
 		error->ExtendedErrorMessage = GetSQLError(handleType, handle);
 		return error->ExtendedErrorMessage;
@@ -171,7 +171,7 @@ tstring OdbcConnection::GetSQLError(SQLSMALLINT handleType, SQLHANDLE handle)
 OdbcError *OdbcConnection::GetError()
 {
 	if (!isError())
-		return NULL;
+		return nullptr;
 
 	FastGuard lock(m_lock);
 	OdbcError *pError = m_odbcErrors.back();
@@ -186,7 +186,7 @@ void OdbcConnection::ResetErrors()
 
 	FastGuard lock(m_lock);
 	OdbcError *pError;
-	while ((pError = GetError()) != NULL)
+	while ((pError = GetError()) != nullptr)
 		delete pError;
 }
 

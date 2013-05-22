@@ -16,7 +16,7 @@ bool CDBProcess::LoadVersionList()
 	bool result = false;
 	auto_ptr<OdbcCommand> dbCommand(m_dbConnection.CreateCommand());
 
-	if (dbCommand.get() == NULL)
+	if (dbCommand.get() == nullptr)
 		return false;
 
 	if (!dbCommand->Execute(_T("SELECT sVersion, sHistoryVersion, strFileName FROM VERSION")))
@@ -50,7 +50,7 @@ bool CDBProcess::LoadVersionList()
 bool CDBProcess::LoadUserCountList()
 {
 	auto_ptr<OdbcCommand> dbCommand(m_dbConnection.CreateCommand());
-	if (dbCommand.get() == NULL)
+	if (dbCommand.get() == nullptr)
 		return false;
 
 	if (!dbCommand->Execute(_T("SELECT serverid, zone1_count, zone2_count, zone3_count FROM CONCURRENT")))
@@ -81,7 +81,7 @@ uint16 CDBProcess::AccountLogin(string & id, string & pwd)
 {
 	uint16 result = 2; // account not found
 	auto_ptr<OdbcCommand> dbCommand(m_dbConnection.CreateCommand());
-	if (dbCommand.get() == NULL)
+	if (dbCommand.get() == nullptr)
 		return 0;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, id.c_str(), id.length());

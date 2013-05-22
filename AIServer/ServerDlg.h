@@ -70,7 +70,7 @@ public:
 	static uint32 __stdcall Timer_CheckAliveTest(void * lpParam);
 	void CheckAliveTest();
 	void DeleteUserList(int uid);
-	void DeleteAllUserList(CGameSocket *pSock = NULL);
+	void DeleteAllUserList(CGameSocket *pSock = nullptr);
 	void Send(Packet * pkt);
 	void SendSystemMsg(char* pMsg, int type=0);
 	void ResetBattleZone();

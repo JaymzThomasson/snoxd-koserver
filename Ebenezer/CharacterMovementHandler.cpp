@@ -1,6 +1,6 @@
 void CUser::MoveProcess(Packet & pkt)
 {
-	ASSERT(GetMap() != NULL);
+	ASSERT(GetMap() != nullptr);
 	if (m_bWarp || isDead()) 
 		return;
 		
@@ -57,7 +57,7 @@ void CUser::GetInOut(Packet & result, uint8 bType)
 
 void CUser::UserInOut(uint8 bType)
 {
-	if (GetRegion() == NULL)
+	if (GetRegion() == nullptr)
 		return;
 
 	Packet result;
@@ -81,14 +81,14 @@ void CUser::UserInOut(uint8 bType)
 
 void CUser::GetUserInfo(Packet & pkt)
 {
-	CKnights *pKnights = NULL;
+	CKnights *pKnights = nullptr;
 	pkt.SByte();
 
 	pkt		<< GetName()
 			<< uint16(GetNation()) << GetClanID() << getFame();
 
 	pKnights = g_pMain->GetClanPtr(GetClanID());
-	if (pKnights == NULL)
+	if (pKnights == nullptr)
 	{
 		pkt	<< uint32(0) << uint16(0) << uint8(0) << uint16(-1) << uint32(0) << uint8(0);
 	}
@@ -151,8 +151,8 @@ void CUser::ZoneChange(int zone, float x, float z)
 {
 	m_bZoneChangeFlag = true;
 
-	C3DMap* pMap = NULL;
-	_ZONE_SERVERINFO *pInfo = NULL;
+	C3DMap* pMap = nullptr;
+	_ZONE_SERVERINFO *pInfo = nullptr;
 
 	pMap = g_pMain->GetZoneByID(zone);
 	if (!pMap) 
@@ -227,7 +227,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		if (isInClan())
 		{
 			CKnights * pKnights = g_pMain->GetClanPtr(GetClanID());
-			if (pKnights != NULL
+			if (pKnights != nullptr
 					&& pKnights->bKnightsWarStarted)
 			{
 				Packet clanPacket(WIZ_KNIGHTS_PROCESS);
@@ -300,7 +300,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 void CUser::Warp(uint16 sPosX, uint16 sPosZ)
 {
-	ASSERT(GetMap() != NULL);
+	ASSERT(GetMap() != nullptr);
 	if (m_bWarp)
 		return;
 

@@ -4,13 +4,13 @@
 #include "MagicInstance.h"
 #include "User.h" // need to move UserRegionCheck() to get rid of this
 
-void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= NULL*/, bool isRecastingSavedMagic /*= false*/)
+void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= nullptr*/, bool isRecastingSavedMagic /*= false*/)
 {
 	MagicInstance instance;
 	pkt >> instance.bOpcode >> instance.nSkillID;
 
 	instance.pSkill = g_pMain->m_MagictableArray.GetData(instance.nSkillID);
-	if (instance.pSkill == NULL)
+	if (instance.pSkill == nullptr)
 	{
 		TRACE("[%s] Used skill %d but it does not exist.\n", pCaster->GetName(), instance.nSkillID);
 		return;
@@ -24,8 +24,8 @@ void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= NULL*/, bool is
 	instance.pSkillTarget = g_pMain->GetUnit(instance.sTargetID);
 
 	// Prevent users from faking other players or NPCs.
-	if (pCaster != NULL // if it's NULL, it's from AI.
-		&& (instance.pSkillCaster == NULL 
+	if (pCaster != nullptr // if it's nullptr, it's from AI.
+		&& (instance.pSkillCaster == nullptr 
 			|| instance.pSkillCaster->isNPC()
 			|| instance.pSkillCaster != pCaster))
 		return;
@@ -38,7 +38,7 @@ void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= NULL*/, bool is
 bool CMagicProcess::UserRegionCheck(Unit * pSkillCaster, Unit * pSkillTarget, _MAGIC_TABLE * pSkill, int radius, short mousex /*= 0*/, short mousez /*= 0*/)
 {
 	if (pSkillCaster->isDead()
-		|| pSkillTarget == NULL)
+		|| pSkillTarget == nullptr)
 		return false;
 
 	switch (pSkill->bMoral)

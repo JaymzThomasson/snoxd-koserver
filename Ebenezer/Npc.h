@@ -48,7 +48,7 @@ public:
 
 	void SendGateFlag(uint8 bFlag = -1, bool bSendAI = true);
 
-	virtual void HpChange(int amount, Unit *pAttacker = NULL, bool bSendToAI = true); 
+	virtual void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToAI = true); 
 	virtual void MSpChange(int amount);
 
 	virtual void OnDeath(Unit *pKiller);

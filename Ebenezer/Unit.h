@@ -106,7 +106,7 @@ public:
 	virtual bool HasSavedMagic(uint32 nSkillID) { return false; }
 	virtual int16 GetSavedMagicDuration(uint32 nSkillID) { return -1; }
 
-	virtual void HpChange(int amount, Unit *pAttacker = NULL, bool bSendToAI = true) = 0;
+	virtual void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToAI = true) = 0;
 	virtual void MSpChange(int amount) = 0;
 
 	void SendToRegion(Packet *result);

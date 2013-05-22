@@ -40,12 +40,12 @@ protected:
 	_tprintf(_T("ERROR: Could not load table, the error received was:\n%s\n"), err); \
 
 #define _HANDLE_DB_ERROR(err) \
-	if (err != NULL) \
+	if (err != nullptr) \
 		_DISPLAY_DB_ERROR(err); \
-	return (err == NULL)
+	return (err == nullptr)
 
 #define _HANDLE_DB_ERROR_ONLY(err) \
-	if (err != NULL) { \
+	if (err != nullptr) { \
 		_DISPLAY_DB_ERROR(err); \
 		return false; \
 	}

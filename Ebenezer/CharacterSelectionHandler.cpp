@@ -55,7 +55,7 @@ void CUser::NewCharToAgent(Packet & pkt)
 
 	if (bCharIndex > 2)
 		errorCode = NEWCHAR_NO_MORE;
-	else if (p_TableCoefficient == NULL
+	else if (p_TableCoefficient == nullptr
 			|| (str + sta + dex + intel + cha) > 300) 
 		errorCode = NEWCHAR_INVALID_DETAILS;
 	else if (str < 50 || sta < 50 || dex < 50 || intel < 50 || cha < 50) 
@@ -145,13 +145,13 @@ void CUser::SelectCharacter(Packet & pkt)
 		goto fail_return;
 
 	m_pMap = g_pMain->GetZoneByID(GetZoneID());
-	if (GetMap() == NULL)
+	if (GetMap() == nullptr)
 		goto fail_return;
 
 	if (g_pMain->m_nServerNo != GetMap()->m_nServerNo)
 	{
 		_ZONE_SERVERINFO *pInfo = g_pMain->m_ServerArray.GetData(GetMap()->m_nServerNo);
-		if (pInfo == NULL) 
+		if (pInfo == nullptr) 
 			goto fail_return;
 
 		SendServerChange(pInfo->strServerIP, bInit);
@@ -198,7 +198,7 @@ void CUser::SelectCharacter(Packet & pkt)
 	else if (GetClanID() != 0)
 	{
 		CKnights* pKnights = g_pMain->GetClanPtr( GetClanID() );
-		if (pKnights != NULL)
+		if (pKnights != nullptr)
 		{
 			CKnightsManager::SetKnightsUser(GetClanID(), GetName());
 		}
@@ -226,7 +226,7 @@ void CUser::SendServerChange(char *ip, uint8 bInit)
 void CUser::SetLogInInfoToDB(uint8 bInit)
 {
 	_ZONE_SERVERINFO *pInfo = g_pMain->m_ServerArray.GetData(g_pMain->m_nServerNo);
-	if (pInfo == NULL) 
+	if (pInfo == nullptr) 
 	{
 		Disconnect();
 		return;

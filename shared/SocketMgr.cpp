@@ -18,7 +18,7 @@ uint32 __stdcall SocketWorkerThread(void * lpParam)
 		if (!GetQueuedCompletionStatus(cp, &len, (PULONG_PTR)&s, &ol_ptr, INFINITE))
 #endif
 		{
-			if (s != NULL)
+			if (s != nullptr)
 				s->Disconnect();
 			continue;
 		}
@@ -65,17 +65,17 @@ std::queue<Socket *> SocketMgr::s_disconnectionQueue;
 #ifdef USE_STD_THREAD
 std::thread SocketMgr::s_hCleanupThread; 
 #else
-HANDLE SocketMgr::s_hCleanupThread = NULL; 
+HANDLE SocketMgr::s_hCleanupThread = nullptr; 
 #endif
 
-SocketMgr::SocketMgr() : m_threadCount(0), m_completionPort(NULL), m_bShutdown(false)
+SocketMgr::SocketMgr() : m_threadCount(0), m_completionPort(nullptr), m_bShutdown(false)
 {
 	IncRef();
 }
 
 void SocketMgr::CreateCompletionPort()
 {
-	SetCompletionPort(CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, (ULONG_PTR)0, 0));
+	SetCompletionPort(CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, (ULONG_PTR)0, 0));
 }
 
 void SocketMgr::SetupWinsock()
@@ -100,14 +100,14 @@ void SocketMgr::SpawnWorkerThreads()
 		m_hThreads.push_back(std::thread(SocketWorkerThread, this));
 
 	if (!s_hCleanupThread.joinable())
-		s_hCleanupThread = std::thread(SocketCleanupThread, static_cast<void *>(NULL));
+		s_hCleanupThread = std::thread(SocketCleanupThread, static_cast<void *>(nullptr));
 #else
 	DWORD id;
 	for (long x = 0; x < m_threadCount; x++)
-		m_hThreads.push_back(CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&SocketWorkerThread, (LPVOID)this, 0, &id));
+		m_hThreads.push_back(CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&SocketWorkerThread, (LPVOID)this, 0, &id));
 
-	if (s_hCleanupThread == NULL)
-		s_hCleanupThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&SocketCleanupThread, NULL, 0, &id);
+	if (s_hCleanupThread == nullptr)
+		s_hCleanupThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&SocketCleanupThread, nullptr, 0, &id);
 #endif
 }
 
@@ -192,10 +192,10 @@ void SocketMgr::CleanupWinsock()
 		s_hCleanupThread.join();
 	}
 #else
-	if (s_hCleanupThread != NULL)
+	if (s_hCleanupThread != nullptr)
 	{
 		s_bRunningCleanupThread = false;
-		s_hCleanupThread = NULL;
+		s_hCleanupThread = nullptr;
 	}
 #endif
 

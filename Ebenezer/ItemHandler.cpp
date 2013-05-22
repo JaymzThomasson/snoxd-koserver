@@ -8,7 +8,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 	uint32 itemid, count;
 	uint16 npcid, reference_pos;
 	uint8 page, srcpos, destpos;
-	_ITEM_TABLE* pTable = NULL;
+	_ITEM_TABLE* pTable = nullptr;
 	uint8 command = pkt.read<uint8>();
 	bool bResult = false;
 
@@ -35,7 +35,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 
 	pkt >> npcid >> itemid >> page >> srcpos >> destpos;
 	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(npcid);
-	if (pNpc == NULL
+	if (pNpc == nullptr
 		|| pNpc->GetType() != NPC_WAREHOUSE
 		|| !isInRange(pNpc, MAX_NPC_RANGE))
 		goto fail_return;
@@ -218,7 +218,7 @@ bool CUser::CheckWeight(uint32 nItemID, uint16 sCount)
 
 bool CUser::CheckWeight(_ITEM_TABLE * pTable, uint32 nItemID, uint16 sCount)
 {
-	return (pTable != NULL // Make sure the item exists
+	return (pTable != nullptr // Make sure the item exists
 			// and that the weight doesn't exceed our limit
 			&& (m_sItemWeight + (pTable->m_sWeight * sCount)) <= m_sMaxWeight
 			// and we have room for the item.
@@ -229,7 +229,7 @@ bool CUser::CheckWeight(_ITEM_TABLE * pTable, uint32 nItemID, uint16 sCount)
 bool CUser::CheckExistItem(int itemid, short count)
 {
 	_ITEM_TABLE* pTable = g_pMain->GetItemPtr(itemid);
-	if (pTable == NULL)
+	if (pTable == nullptr)
 		return false;	
 
 	// Search for the existance of all items in the player's inventory storage and onwards (includes magic bags)
@@ -278,7 +278,7 @@ bool CUser::RobItem(uint32 itemid, uint16 count)
 		return true;
 
 	_ITEM_TABLE* pTable = g_pMain->GetItemPtr( itemid );
-	if (pTable == NULL)
+	if (pTable == nullptr)
 		return false;
 
 	// Search for the existance of all items in the player's inventory storage and onwards (includes magic bags)
@@ -312,7 +312,7 @@ bool CUser::GiveItem(uint32 itemid, uint16 count, bool send_packet /*= true*/)
 	uint8 pos;
 	bool bNewItem = true;
 	_ITEM_TABLE* pTable = g_pMain->GetItemPtr( itemid );
-	if (pTable == NULL)
+	if (pTable == nullptr)
 		return false;	
 	
 	pos = FindSlotForItem(itemid, count);
@@ -353,7 +353,7 @@ void CUser::SendItemWeight()
 
 bool CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 {
-	return (pTable != NULL
+	return (pTable != nullptr
 		&& GetLevel() >= pTable->m_bReqLevel 
 		&& GetLevel() <= pTable->m_bReqLevelMax
 		&& (pTable->m_bRace == 0 || pTable->m_bRace == m_bRace)
@@ -378,7 +378,7 @@ void CUser::ItemMove(Packet & pkt)
 		goto fail_return;
 
 	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
-	if (pTable == NULL
+	if (pTable == nullptr
 		//  || dir == ITEM_INVEN_SLOT && ((pTable->m_sWeight + m_sItemWeight) > m_sMaxWeight))
 		//  || dir > ITEM_MBAG_TO_MBAG || bSrcPos >= SLOT_MAX+HAVE_MAX+COSP_MAX+MBAG_MAX || bDstPos >= SLOT_MAX+HAVE_MAX+COSP_MAX+MBAG_MAX
 			|| ((dir == ITEM_INVEN_SLOT || dir == ITEM_SLOT_SLOT) 
@@ -564,7 +564,7 @@ bool CUser::CheckExchange(int nExchangeID)
 {
 	// Does the exchange exist?
 	_ITEM_EXCHANGE * pExchange = g_pMain->m_ItemExchangeArray.GetData(nExchangeID);
-	if (pExchange == NULL)
+	if (pExchange == nullptr)
 		return false;
 
 	// Find free slots in the inventory, so that we can check against this later.
@@ -592,9 +592,9 @@ bool CUser::CheckExchange(int nExchangeID)
 		uint32 nItemID = pExchange->nExchangeItemNum[i];
 
 		// Does the item exist? If not, we'll ignore it (NOTE: not official behaviour).
-		_ITEM_TABLE * pTable = NULL;
+		_ITEM_TABLE * pTable = nullptr;
 		if (nItemID == 0
-			|| (pTable = g_pMain->GetItemPtr(nItemID)) == NULL)
+			|| (pTable = g_pMain->GetItemPtr(nItemID)) == nullptr)
 			continue;
 
 		// Try to find a slot for the item.
@@ -631,7 +631,7 @@ bool CUser::RunExchange(int nExchangeID)
 	_ITEM_EXCHANGE * pExchange = g_pMain->m_ItemExchangeArray.GetData(nExchangeID);
 
 	// Does the exchange exist?
-	if (pExchange == NULL
+	if (pExchange == nullptr
 		// Is it a valid exchange (do we have room?)
 		|| !CheckExchange(nExchangeID)
 		// We handle flags from 0-101 only. Anything else is broken.

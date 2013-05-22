@@ -39,7 +39,7 @@ uint32 Condition::Wait(time_t timeout)
 
 	// Enter a new event handle into the wait set.
 	HANDLE hWaitEvent = Push();
-	if( NULL == hWaitEvent )
+	if( nullptr == hWaitEvent )
 		return WAIT_FAILED;
 
 	// Store the current lock count for re-acquisition.
@@ -106,7 +106,7 @@ uint32 Condition::Wait()
 
 	// Enter a new event handle into the wait set.
 	HANDLE hWaitEvent = Push();
-	if( NULL == hWaitEvent )
+	if( nullptr == hWaitEvent )
 		return WAIT_FAILED;
 
 	// Store the current lock count for re-acquisition.
@@ -173,7 +173,7 @@ void Condition::Signal()
 	HANDLE hWaitEvent = Pop();
 
 	// If there is not thread currently waiting, that's just fine.
-	if(NULL == hWaitEvent)
+	if(nullptr == hWaitEvent)
 		return;
 
 	// Signal the event.
@@ -205,14 +205,14 @@ HANDLE Condition::Push()
 {
 	// Create the new event.
 	HANDLE hWaitEvent = CreateEvent(
-		NULL, // no security
+		nullptr, // no security
 		FALSE, // auto-reset event
 		FALSE, // initially unsignalled
-		NULL // string name
+		nullptr // string name
 		);
 	//
-	if( NULL == hWaitEvent ) {
-		return NULL;
+	if( nullptr == hWaitEvent ) {
+		return nullptr;
 	}
 
 	// Push the handle on the deque.
@@ -228,7 +228,7 @@ HANDLE Condition::Pop()
 	// Pop the first handle off the deque.
 	//
 	m_critsecWaitSetProtection.Acquire();
-	HANDLE hWaitEvent = NULL; 
+	HANDLE hWaitEvent = nullptr; 
 	if( 0 != m_deqWaitSet.size() )
 	{
 		hWaitEvent = m_deqWaitSet.front();

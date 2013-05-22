@@ -44,8 +44,8 @@ short * MAP::GetEventIDs() { return m_smdFile->GetEventIDs(); }
 int MAP::GetEventID(int x, int z) { return m_smdFile->GetEventID(x, z); }
 
 
-MAP::MAP() : m_smdFile(NULL), m_ppRegion(NULL),
-	m_fHeight(NULL), m_byRoomType(0), m_byRoomEvent(0),
+MAP::MAP() : m_smdFile(nullptr), m_ppRegion(nullptr),
+	m_fHeight(nullptr), m_byRoomType(0), m_byRoomEvent(0),
 	m_byRoomStatus(1), m_byInitRoomCount(0),
 	m_nZoneNumber(0), m_sKarusRoom(0), m_sElmoradRoom(0)
 {
@@ -60,7 +60,7 @@ bool MAP::Initialize(_ZONE_INFO *pZone)
 
 	m_smdFile = SMDFile::Load(pZone->m_MapName);
 
-	if (m_smdFile != NULL)
+	if (m_smdFile != nullptr)
 	{
 		ObjectEventArray * pEvents = m_smdFile->GetObjectEventArray();
 		FastGuard(pEvents->m_lock);
@@ -95,14 +95,14 @@ bool MAP::Initialize(_ZONE_INFO *pZone)
 		}
 	}
 
-	return (m_smdFile != NULL);
+	return (m_smdFile != nullptr);
 }
 
 MAP::~MAP()
 {
 	RemoveMapData();
 
-	if (m_smdFile != NULL)
+	if (m_smdFile != nullptr)
 		m_smdFile->DecRef();
 }
 
@@ -111,16 +111,16 @@ void MAP::RemoveMapData()
 	if( m_ppRegion ) {
 		for(int i=0; i <= GetXRegionMax(); i++) {
 			delete[] m_ppRegion[i];
-			m_ppRegion[i] = NULL;
+			m_ppRegion[i] = nullptr;
 		}
 		delete[] m_ppRegion;
-		m_ppRegion = NULL;
+		m_ppRegion = nullptr;
 	}
 
 	if (m_fHeight)
 	{
 		delete[] m_fHeight;
-		m_fHeight = NULL;
+		m_fHeight = nullptr;
 	}
 	
 	m_ObjectEventArray.DeleteAllData();
@@ -214,7 +214,7 @@ bool MAP::LoadRoomEvent()
 	int			t_index = 0, logic=0, exec=0;
 	int			event_num = 0, nation = 0;
 
-	CRoomEvent*	pEvent = NULL;
+	CRoomEvent*	pEvent = nullptr;
 	ifstream is(filename);
 	if (!is)
 		return false;
@@ -252,7 +252,7 @@ bool MAP::LoadRoomEvent()
 					goto cancel_event_load;
 				}
 				
-				pEvent = NULL;
+				pEvent = nullptr;
 				pEvent = SetRoomEvent( event_num );
 			}
 			else if( !strcmp( first, "TYPE" ) )	{
@@ -348,7 +348,7 @@ int MAP::IsRoomCheck(float fx, float fz)
 	// dungeion work
 	// 현재의 존이 던젼인지를 판단, 아니면 리턴처리
 	
-	CRoomEvent* pRoom = NULL;
+	CRoomEvent* pRoom = nullptr;
 
 	int nSize = m_arRoomEventArray.GetSize();
 	int nX = (int)fx;
@@ -416,7 +416,7 @@ CRoomEvent* MAP::SetRoomEvent( int number )
 	CRoomEvent* pEvent = m_arRoomEventArray.GetData( number );
 	if( pEvent )	{
 		TRACE("#### SetRoom Error : double event number = %d ####\n", number);
-		return NULL;
+		return nullptr;
 	}
 
 	pEvent = new CRoomEvent();
@@ -424,8 +424,8 @@ CRoomEvent* MAP::SetRoomEvent( int number )
 	pEvent->m_sRoomNumber = number;
 	if( !m_arRoomEventArray.PutData( pEvent->m_sRoomNumber, pEvent) ) {
 		delete pEvent;
-		pEvent = NULL;
-		return NULL;
+		pEvent = nullptr;
+		return nullptr;
 	}
 
 	return pEvent;
@@ -443,7 +443,7 @@ bool MAP::IsRoomStatusCheck()
 	foreach_stlmap (itr, m_arRoomEventArray)
 	{
 		CRoomEvent *pRoom = itr->second;
-		if (pRoom == NULL)
+		if (pRoom == nullptr)
 		{
 			TRACE("#### IsRoomStatusCheck Error : room empty number = %d ####\n", itr->first);
 			continue;
@@ -485,7 +485,7 @@ void MAP::InitializeRoom()
 	foreach_stlmap (itr, m_arRoomEventArray)
 	{
 		CRoomEvent *pRoom = itr->second;
-		if (pRoom == NULL)
+		if (pRoom == nullptr)
 		{
 			TRACE("#### InitializeRoom Error : room empty number = %d ####\n", itr->first);
 			continue;

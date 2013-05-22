@@ -14,7 +14,7 @@ CLuaEngine::CLuaEngine() : m_lock(new RWLock())
 {
 }
 
-CLuaScript::CLuaScript() : m_luaState(NULL), m_lock(new FastMutex())
+CLuaScript::CLuaScript() : m_luaState(nullptr), m_lock(new FastMutex())
 {
 }
 
@@ -39,7 +39,7 @@ bool CLuaScript::Initialise()
 	FastGuard lock(m_lock);
 
 	// Lua already initialised?
-	if (m_luaState != NULL)
+	if (m_luaState != nullptr)
 	{
 		printf("ERROR: Lua script already initialised. Cannot reinitialise.\n");
 		return false;
@@ -47,7 +47,7 @@ bool CLuaScript::Initialise()
 
 	// Create a new state.
 	m_luaState = luaL_newstate();
-	if (m_luaState == NULL)
+	if (m_luaState == nullptr)
 	{
 		printf("ERROR: Failed to initialise Lua script. Not enough memory.\n");
 		return false;
@@ -233,7 +233,7 @@ bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 
 	/* Attempt to run the script. */
 
 	// Load the buffer with our bytecode.
-	int err = luaL_loadbuffer(m_luaState, reinterpret_cast<const char *>(&bytecode[0]), bytecode.size(), NULL);
+	int err = luaL_loadbuffer(m_luaState, reinterpret_cast<const char *>(&bytecode[0]), bytecode.size(), nullptr);
 	if (err != LUA_OK)
 	{
 		RetrieveLoadError(err, filename);
@@ -352,7 +352,7 @@ void CLuaEngine::Shutdown()
 CLuaScript::~CLuaScript()
 {
 	m_lock->Acquire();
-	if (m_luaState != NULL)
+	if (m_luaState != nullptr)
 		lua_close(m_luaState);
 	m_lock->Release();
 	delete m_lock;

@@ -35,7 +35,7 @@ public:
 		}
 
 		C3DMap *pZone = m_pZoneArray->GetData(bZone);
-		if (pZone == NULL
+		if (pZone == nullptr
 			|| !pZone->m_EventArray.PutData(pData->m_sIndex, pData))
 			delete pData;
 

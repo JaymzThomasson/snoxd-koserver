@@ -98,7 +98,7 @@ public:
 	void SendSkillToAI();
 	void BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8]);
 	void BuildAndSendSkillPacket(Unit * pUnit, bool bSendToRegion, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8]);
-	void SendSkill(bool bSendToRegion = true, Unit * pUnit = NULL);
+	void SendSkill(bool bSendToRegion = true, Unit * pUnit = nullptr);
 	void SendSkillFailed(int16 sTargetID = -1);
 	void SendTransformationList();
 };

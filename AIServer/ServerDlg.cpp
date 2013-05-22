@@ -53,7 +53,7 @@ CServerDlg::CServerDlg()
 	m_sKillElmoNpc = 0;
 
 #ifndef USE_STD_THREAD
-	m_hZoneEventThread = NULL;
+	m_hZoneEventThread = nullptr;
 #endif
 
 	memset(m_strGameDSN, 0, sizeof(m_strGameDSN));
@@ -66,13 +66,13 @@ bool CServerDlg::Startup()
 	//----------------------------------------------------------------------
 	//	Sets a random number starting point.
 	//----------------------------------------------------------------------
-	srand( (unsigned)time(NULL) );
+	srand( (unsigned)time(nullptr) );
 
 #ifdef USE_STD_THREAD
-	g_hTimerThreads.push_back(std::thread(Timer_CheckAliveTest, (void *)NULL));
+	g_hTimerThreads.push_back(std::thread(Timer_CheckAliveTest, (void *)nullptr));
 #else
 	DWORD dwThreadId;
-	g_hTimerThreads.push_back(CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Timer_CheckAliveTest, NULL, NULL, &dwThreadId));
+	g_hTimerThreads.push_back(CreateThread(nullptr, nullptr, (LPTHREAD_START_ROUTINE)&Timer_CheckAliveTest, nullptr, nullptr, &dwThreadId));
 #endif
 
 	m_sMapEventNpc = 0;
@@ -80,7 +80,7 @@ bool CServerDlg::Startup()
 
 	// User Point Init
 	for(int i=0; i<MAX_USER; i++)
-		m_pUser[i] = NULL;
+		m_pUser[i] = nullptr;
 
 	// Server Start
 	//CTime time = CTime::GetCurrentTime();
@@ -222,7 +222,7 @@ bool CServerDlg::CreateNpcThread()
 	m_CurrentNPC = 0;
 	m_CurrentNPCError = 0;
 
-	LOAD_TABLE_ERROR_ONLY(CNpcPosSet, &m_GameDB, NULL, false);
+	LOAD_TABLE_ERROR_ONLY(CNpcPosSet, &m_GameDB, nullptr, false);
 			
 	int nThreadNumber = 0;
 	foreach_stlmap (itr, g_arZone)
@@ -252,8 +252,8 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 	// This method will only ever run in the same thread.
 	static int nRandom = 0;
 	static double dbSpeed = 0;
-	static CNpcTable * pNpcTable = NULL;
-	static CRoomEvent* pRoom = NULL;
+	static CNpcTable * pNpcTable = nullptr;
+	static CRoomEvent* pRoom = nullptr;
 	static char szPath[500];
 	static float fRandom_X = 0.0f, fRandom_Z = 0.0f;
 
@@ -312,7 +312,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 				pNpcTable = m_arNpcTable.GetData(sSid);
 			}
 
-			if (pNpcTable == NULL)
+			if (pNpcTable == nullptr)
 			{
 				printf("NPC %d not found in %s table.\n", pNpc->m_sNid, bMonster ? "K_MONSTER" : "K_NPC");
 				delete pNpc;
@@ -412,7 +412,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 			}	
 			
 			pNpc->m_pZone = GetZoneByID(pNpc->m_bCurZone);
-			if (pNpc->GetMap() == NULL)
+			if (pNpc->GetMap() == nullptr)
 			{
 				printf(_T("Error: NPC %d in zone %d that does not exist."), sSid, bZoneID);
 				delete pNpc;
@@ -432,7 +432,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 			if (pNpc->GetMap()->m_byRoomEvent > 0 && pNpc->m_byDungeonFamily > 0)
 			{
 				pRoom = pNpc->GetMap()->m_arRoomEventArray.GetData(pNpc->m_byDungeonFamily);
-				if (pRoom == NULL)
+				if (pRoom == nullptr)
 				{
 					printf("Error : CServerDlg,, Map Room Npc Fail!!\n");
 					delete pNpc;
@@ -467,9 +467,9 @@ void CServerDlg::ResumeAI()
 #else
 	DWORD id;
 	foreach (itr, m_arNpcThread)
-		(*itr)->m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, *itr, NULL, &id);
+		(*itr)->m_hThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, *itr, nullptr, &id);
 
-	m_hZoneEventThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&ZoneEventThreadProc, this, NULL, &id);
+	m_hZoneEventThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ZoneEventThreadProc, this, nullptr, &id);
 #endif
 }
 
@@ -492,7 +492,7 @@ void CServerDlg::DeleteUserList(int uid)
 		TRACE("*** UserLogOut으로 포인터 반환 : uid=%d, %s ***\n", uid, pUser->m_strUserID);
 		pUser->m_lUsed = 1;
 		delete m_pUser[uid];
-		m_pUser[uid] = NULL;
+		m_pUser[uid] = nullptr;
 	}
 	else
 		TRACE("#### ServerDlg:DeleteUserList Not Uid Fail : uid=%d\n", uid);
@@ -544,7 +544,7 @@ void CServerDlg::AllNpcInfo()
 		foreach_stlmap (itr, m_arNpc)
 		{
 			CNpc *pNpc = itr->second;
-			if (pNpc == NULL
+			if (pNpc == nullptr
 				|| pNpc->m_bCurZone != nZone)	
 				continue;
 
@@ -575,21 +575,21 @@ void CServerDlg::AllNpcInfo()
 
 CUser* CServerDlg::GetUserPtr(int nid)
 {
-	CUser* pUser = NULL;
+	CUser* pUser = nullptr;
 
 	if(nid < 0 || nid >= MAX_USER)	{
 		if(nid != -1)		TRACE("### GetUserPtr :: User Array Overflow [%d] ###\n", nid );
-		return NULL;
+		return nullptr;
 	}
 
 	pUser = m_pUser[nid];
-	if(pUser == NULL)	return NULL;
-	if( pUser->m_lUsed == 1 ) return NULL;	// 포인터 사용을 허락치 않음.. (logout중)
-	if(pUser->m_iUserId < 0 || pUser->m_iUserId >= MAX_USER)	return NULL;
+	if(pUser == nullptr)	return nullptr;
+	if( pUser->m_lUsed == 1 ) return nullptr;	// 포인터 사용을 허락치 않음.. (logout중)
+	if(pUser->m_iUserId < 0 || pUser->m_iUserId >= MAX_USER)	return nullptr;
 
 	if( pUser->m_iUserId == nid )	return pUser;
 
-	return NULL;
+	return nullptr;
 }
 
 uint32 CServerDlg::Timer_CheckAliveTest(void * lpParam)
@@ -623,7 +623,7 @@ void CServerDlg::CheckAliveTest()
 void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 {
 	// If a server disconnected, show it...
-	if (pSock != NULL)
+	if (pSock != nullptr)
 	{
 		printf("[GameServer disconnected = %s]\n", pSock->GetRemoteIP().c_str());
 		return;
@@ -638,7 +638,7 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 	foreach_stlmap (itr, g_arZone)
 	{
 		MAP * pMap = itr->second;
-		if (pMap == NULL)	
+		if (pMap == nullptr)	
 			continue;
 		for (int i=0; i<=pMap->GetXRegionMax(); i++ ) {
 			for( int j=0; j<=pMap->GetZRegionMax(); j++ ) {
@@ -651,11 +651,11 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 	for (int i = 0; i < MAX_USER; i++)	
 	{
 		CUser *pUser = m_pUser[i];
-		if (pUser == NULL)  
+		if (pUser == nullptr)  
 			continue;
 
 		delete m_pUser[i];
-		m_pUser[i] = NULL;
+		m_pUser[i] = nullptr;
 	}
 
 	// Party Array Delete 
@@ -681,7 +681,7 @@ void CServerDlg::GameServerAcceptThread()
 //	추가할 소환몹의 메모리를 참조하기위해 플래그가 0인 상태것만 넘긴다.
 CNpc* CServerDlg::GetEventNpcPtr()
 {
-	CNpc* pNpc = NULL;
+	CNpc* pNpc = nullptr;
 	for(int i = m_TotalNPC; i < m_arNpc.GetSize(); i++)		{
 		pNpc = m_arNpc.GetData( i );
 		if( !pNpc ) continue;
@@ -692,7 +692,7 @@ CNpc* CServerDlg::GetEventNpcPtr()
 
 		return pNpc;
 	}
-	return NULL;
+	return nullptr;
 }
 
 bool CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
@@ -700,7 +700,7 @@ bool CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 	int  iCount = 0;
 	CNpc* pEventNpc	= GetEventNpcPtr();
 
-	if(pEventNpc == NULL)
+	if(pEventNpc == nullptr)
 	{
 		TRACE("소환할수 있는 몹은 최대 20마리입니다.\n");
 		return false;
@@ -767,7 +767,7 @@ bool CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 	pEventNpc->m_NpcState = NPC_DEAD;	// 상태는 죽은것으로 해야 한다.. 
 	pEventNpc->m_bFirstLive = 1;		// 처음 살아난 경우로 해줘야 한다..
 
-	if (pEventNpc->GetMap() == NULL)
+	if (pEventNpc->GetMap() == nullptr)
 	{
 		TRACE("Zone %d doesn't exist (NPC=%d)\n", zone, pNpc->m_proto->m_sSid);
 		return false;
@@ -787,7 +787,7 @@ void CServerDlg::RegionCheck()
 	foreach_stlmap(itr, g_arZone)	
 	{
 		MAP *pMap = itr->second;
-		if (pMap == NULL)
+		if (pMap == nullptr)
 			continue;
 
 		for (int i = 0; i <= pMap->GetXRegionMax(); i++)
@@ -804,7 +804,7 @@ bool CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
 		return false;
 
 	CNpcTable * pNpcTable = m_arNpcTable.GetData(sSid);
-	if(pNpcTable == NULL)	{
+	if(pNpcTable == nullptr)	{
 		// TRACE("#### AddObjectEventNpc Fail : [sid = %d], zone=%d #####\n", pEvent->sIndex, zone_number);
 		return false;
 	}
@@ -832,7 +832,7 @@ bool CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
 	pNpc->Load(m_sMapEventNpc++, pNpcTable);
 	pNpc->m_pZone = pMap;
 
-	if (pNpc->GetMap() == NULL
+	if (pNpc->GetMap() == nullptr
 		|| !m_arNpc.PutData(pNpc->m_sNid, pNpc))
 	{
 		m_sMapEventNpc--;
@@ -853,7 +853,7 @@ MAP * CServerDlg::GetZoneByID(int zonenumber)
 int CServerDlg::GetServerNumber( int zonenumber )
 {
 	MAP *pMap = GetZoneByID(zonenumber);
-	if (pMap == NULL)
+	if (pMap == nullptr)
 		return -1;
 
 	return pMap->m_nServerNo;
@@ -881,7 +881,7 @@ void CServerDlg::ResetBattleZone()
 	foreach_stlmap (itr, g_arZone)
 	{
 		MAP *pMap = itr->second;
-		if (pMap == NULL || pMap->m_byRoomEvent == 0) 
+		if (pMap == nullptr || pMap->m_byRoomEvent == 0) 
 			continue;
 		//if( pMap->IsRoomStatusCheck() == true )	continue;	// 전체방이 클리어 되었다면
 		pMap->InitializeRoom();
@@ -920,7 +920,7 @@ CServerDlg::~CServerDlg()
 	for(int i = 0; i < MAX_USER; i++)	{
 		if(m_pUser[i])	{
 			delete m_pUser[i];
-			m_pUser[i] = NULL;
+			m_pUser[i] = nullptr;
 		}
 	}
 

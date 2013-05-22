@@ -28,13 +28,13 @@
 	const struct luaL_Reg gFuncs[] =
 	{
 		{ "Function", Function },
-		{ NULL, NULL }
+		{ nullptr, nullptr }
 	};
 */
 #define DEFINE_LUA_FUNCTION_TABLE(name, methods) const struct luaL_Reg name[] = \
 	 { \
 		methods \
-		{ NULL, NULL } \
+		{ nullptr, nullptr } \
 	 }
 
 // Helper macros to generate elements in a Lua function table.
@@ -123,7 +123,7 @@ template <typename T> inline void lua_tsetglobal(lua_State * L, const char * szG
 }
 
 // Macro to help push a null (nil) arg
-//#define LUA_PUSH_NULL()
+//#define LUA_PUSH_nullptr()
 
 // Binds an arbitrary Lua class.
 #define lua_bindclass(L, Class) lua_createclass(L, Class::LUA_CLASS_METHOD_TABLE, Class::LUA_CLASS_METATABLE)

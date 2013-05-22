@@ -22,7 +22,7 @@ public:
 		_dbCommand->FetchUInt32(3, pData->nPoints);
 
 		CKnights *pKnights = g_pMain->GetClanPtr(pData->sClanID);
-		if (pKnights == NULL 
+		if (pKnights == nullptr 
 			|| (pKnights->m_byNation != KARUS && pKnights->m_byNation != ELMORAD)
 			|| !g_pMain->m_KnightsRatingArray[pKnights->m_byNation - 1].PutData(pData->nRank, pData))
 		{
@@ -36,7 +36,7 @@ public:
 				return true;
 			
 			CUser *pUser = g_pMain->GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
-			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
+			if (pUser == nullptr || pUser->GetZoneID() != ZONE_BATTLE)
 				return true;
 
 			if (pUser->GetClanID() == pData->sClanID)
@@ -51,7 +51,7 @@ public:
 				return true;
 
 			CUser *pUser = g_pMain->GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
-			if (pUser == NULL || pUser->GetZoneID() != ZONE_BATTLE)
+			if (pUser == nullptr || pUser->GetZoneID() != ZONE_BATTLE)
 				return true;
 			if (pUser->GetClanID() == pData->sClanID)
 			{

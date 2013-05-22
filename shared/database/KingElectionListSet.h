@@ -25,7 +25,7 @@ public:
 		pData = m_pMap->GetData(byNation);
 
 		// We don't? Nothing to do here.
-		if (pData == NULL)
+		if (pData == nullptr)
 			return true;
 		/**
 		 * byType list:

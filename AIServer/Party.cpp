@@ -40,8 +40,8 @@ void CParty::PartyCreate(Packet & pkt)
 	uint16 sPartyIndex = pkt.read<uint16>(), sUid = pkt.read<uint16>();
 	short sHP = 0, sClass = 0;
 	uint8  byLevel= 0;
-	_PARTY_GROUP* pParty = NULL;
-	CUser* pUser = NULL;
+	_PARTY_GROUP* pParty = nullptr;
+	CUser* pUser = nullptr;
 
 	pUser = g_pMain->GetUserPtr(sUid);
 	if(pUser)	{
@@ -66,8 +66,8 @@ void CParty::PartyInsert(Packet & pkt)
 	uint8 byIndex = pkt.read<uint8>();
 	uint16 sUid = pkt.read<uint16>(), sHP = 0, sClass = 0;
 	uint8  byLevel= 0;
-	_PARTY_GROUP* pParty = NULL;
-	CUser* pUser = NULL;
+	_PARTY_GROUP* pParty = nullptr;
+	CUser* pUser = nullptr;
 
 	pParty = g_pMain->m_arParty.GetData( sPartyIndex );
 	if( !pParty ) {				// 이상한 경우
@@ -88,8 +88,8 @@ void CParty::PartyInsert(Packet & pkt)
 void CParty::PartyRemove(Packet & pkt)
 {
 	uint16 sPartyIndex = pkt.read<uint16>(), sUid = pkt.read<uint16>();
-	_PARTY_GROUP* pParty = NULL;
-	CUser* pUser = NULL;
+	_PARTY_GROUP* pParty = nullptr;
+	CUser* pUser = nullptr;
 
 	if (sUid > MAX_USER) return;
 
@@ -117,7 +117,7 @@ void CParty::PartyDelete(Packet & pkt)
 {
 	uint16 sPartyIndex = pkt.read<uint16>();
 	_PARTY_GROUP *pParty = g_pMain->m_arParty.GetData(sPartyIndex);
-	if (pParty == NULL)
+	if (pParty == nullptr)
 		return;
 
 	for( int i=0; i<8; i++ ) {

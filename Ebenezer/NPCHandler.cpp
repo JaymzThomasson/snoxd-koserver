@@ -12,8 +12,8 @@ void CUser::ItemRepair(Packet & pkt)
 	Packet result(WIZ_ITEM_REPAIR);
 	uint32 money, itemid;
 	uint16 durability, quantity, sNpcID;
-	_ITEM_TABLE* pTable = NULL;
-	CNpc *pNpc = NULL;
+	_ITEM_TABLE* pTable = nullptr;
+	CNpc *pNpc = nullptr;
 	uint8 sPos, sSlot;
 
 	pkt >> sPos >> sSlot >> sNpcID >> itemid;
@@ -27,7 +27,7 @@ void CUser::ItemRepair(Packet & pkt)
 	}
 
 	pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
-	if (pNpc == NULL
+	if (pNpc == nullptr
 		|| pNpc->GetType() != NPC_TINKER
 		|| !isInRange(pNpc, MAX_NPC_RANGE))
 		return;
@@ -68,7 +68,7 @@ void CUser::ClientEvent(uint16 sNpcID)
 
 	int32 iEventID = 0;
 	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
-	if (pNpc == NULL
+	if (pNpc == nullptr
 		|| !isInRange(pNpc, MAX_NPC_RANGE))
 		return;
 
@@ -89,10 +89,10 @@ void CUser::ClientEvent(uint16 sNpcID)
 
 	// Copy it. We should really lock the list, but nevermind.
 	QuestHelperList & pList = itr->second;
-	_QUEST_HELPER * pHelper = NULL;
+	_QUEST_HELPER * pHelper = nullptr;
 	foreach(itr, pList)
 	{
-		if ((*itr) == NULL
+		if ((*itr) == nullptr
 			|| (*itr)->sEventDataIndex
 			|| (*itr)->bEventStatus
 			|| ((*itr)->bNation != 3 && (*itr)->bNation != GetNation())
@@ -103,7 +103,7 @@ void CUser::ClientEvent(uint16 sNpcID)
 		break;
 	}
 
-	if (pHelper == NULL)
+	if (pHelper == nullptr)
 		return;
 
 	QuestV2RunEvent(pHelper, pHelper->nEventTriggerIndex);
@@ -230,7 +230,7 @@ void CUser::RecvSelectMsg(Packet & pkt)	// Receive menu reply from client.
 
 bool CUser::AttemptSelectMsg(uint8 bMenuID, int8 bySelectedReward)
 {
-	_QUEST_HELPER * pHelper = NULL;
+	_QUEST_HELPER * pHelper = nullptr;
 	if (bMenuID >= MAX_MESSAGE_EVENT
 		|| isDead()
 		|| m_nQuestHelperID == 0)
@@ -239,7 +239,7 @@ bool CUser::AttemptSelectMsg(uint8 bMenuID, int8 bySelectedReward)
 	// Get the event number that needs to be processed next.
 	int32 selectedEvent = m_iSelMsgEvent[bMenuID];
 	if (selectedEvent < 0
-		|| (pHelper = g_pMain->m_QuestHelperArray.GetData(m_nQuestHelperID)) == NULL
+		|| (pHelper = g_pMain->m_QuestHelperArray.GetData(m_nQuestHelperID)) == nullptr
 		|| !QuestV2RunEvent(pHelper, selectedEvent, bySelectedReward))
 		return false;
 
@@ -259,7 +259,7 @@ void CUser::SelectMsg(uint8 bFlag, int32 nQuestID, int32 menuHeaderText,
 					  int32 menuButtonText[MAX_MESSAGE_EVENT], int32 menuButtonEvents[MAX_MESSAGE_EVENT])
 {
 	_QUEST_HELPER * pHelper = g_pMain->m_QuestHelperArray.GetData(m_nQuestHelperID);
-	if (pHelper == NULL)
+	if (pHelper == nullptr)
 		return;
 
 	// Send the menu to the client
@@ -289,7 +289,7 @@ void CUser::NpcEvent(Packet & pkt)
 	int32 nQuestID = pkt.read<int32>();
 
 	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
-	if (pNpc == NULL
+	if (pNpc == nullptr
 		|| !isInRange(pNpc, MAX_NPC_RANGE))
 		return;
 
@@ -331,15 +331,15 @@ void CUser::NpcEvent(Packet & pkt)
 		if (pNpc->GetType() == NPC_ELECTION)
 		{
 			// Ensure this still works as per official without a row in the table.
-			string strKingName = (pKingSystem == NULL ? "" : pKingSystem->m_strKingName);
+			string strKingName = (pKingSystem == nullptr ? "" : pKingSystem->m_strKingName);
 			result.SByte();
 			result	<< uint8(KING_NPC) << strKingName;
 		}
 		else
 		{
 			// Ensure this still works as per official without a row in the table.
-			uint32 nTribute = (pKingSystem == NULL ? 0 : pKingSystem->m_nTribute + pKingSystem->m_nTerritoryTax);
-			uint32 nTreasury = (pKingSystem == NULL ? 0 : pKingSystem->m_nNationalTreasury);
+			uint32 nTribute = (pKingSystem == nullptr ? 0 : pKingSystem->m_nTribute + pKingSystem->m_nTerritoryTax);
+			uint32 nTreasury = (pKingSystem == nullptr ? 0 : pKingSystem->m_nNationalTreasury);
 			result	<< uint8(KING_TAX) << uint8(1) // success
 					<< uint16(isKing() ? 1 : 2) // 1 enables king-specific stuff (e.g. scepter), 2 is normal user stuff
 					<< nTribute << nTreasury;
@@ -382,8 +382,8 @@ void CUser::ItemTrade(Packet & pkt)
 	int itemid = 0, money = 0, group = 0;
 	uint16 npcid;
 	uint16 count, real_count = 0;
-	_ITEM_TABLE* pTable = NULL;
-	CNpc* pNpc = NULL;
+	_ITEM_TABLE* pTable = nullptr;
+	CNpc* pNpc = nullptr;
 	uint8 type, pos, destpos, errorCode = 1;
 	bool bSuccess = true;
 
@@ -399,7 +399,7 @@ void CUser::ItemTrade(Packet & pkt)
 	{
 		pkt >> group >> npcid;
 		if (!g_pMain->m_bPointCheckFlag
-			|| (pNpc = g_pMain->m_arNpcArray.GetData(npcid)) == NULL
+			|| (pNpc = g_pMain->m_arNpcArray.GetData(npcid)) == nullptr
 			|| (pNpc->GetType() != NPC_MERCHANT && pNpc->GetType() != NPC_TINKER)
 			|| pNpc->m_iSellingGroup != group
 			|| !isInRange(pNpc, MAX_NPC_RANGE))
@@ -438,7 +438,7 @@ void CUser::ItemTrade(Packet & pkt)
 	}
 
 	if (isTrading()
-		|| (pTable = g_pMain->GetItemPtr(itemid)) == NULL
+		|| (pTable = g_pMain->GetItemPtr(itemid)) == nullptr
 		|| (type == 2 // if we're selling an item...
 				&& (itemid >= ITEM_NO_TRADE // Cannot be traded, sold or stored.
 					|| pTable->m_bRace == RACE_UNTRADEABLE))) // Cannot be traded or sold.
@@ -553,8 +553,8 @@ send_packet:
 void CUser::HandleCapeChange(Packet & pkt)
 {
 	Packet result(WIZ_CAPE);
-	CKnights *pKnights = NULL;
-	_KNIGHTS_CAPE *pCape = NULL;
+	CKnights *pKnights = nullptr;
+	_KNIGHTS_CAPE *pCape = nullptr;
 	int16 sErrorCode = 0, sCapeID;
 	uint8 r, g, b;
 
@@ -569,7 +569,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 	}
 
 	// Does the clan exist?
-	if ((pKnights = g_pMain->GetClanPtr(GetClanID())) == NULL)
+	if ((pKnights = g_pMain->GetClanPtr(GetClanID())) == nullptr)
 	{
 		sErrorCode = -2;
 		goto fail_return;
@@ -588,7 +588,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 	if (sCapeID >= 0)
 	{
 		// Does this cape type exist?
-		if ((pCape = g_pMain->m_KnightsCapeArray.GetData(sCapeID)) == NULL)
+		if ((pCape = g_pMain->m_KnightsCapeArray.GetData(sCapeID)) == nullptr)
 		{
 			sErrorCode = -5;
 			goto fail_return;

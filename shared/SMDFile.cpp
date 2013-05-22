@@ -7,7 +7,7 @@
 
 SMDFile::SMDMap SMDFile::s_loadedMaps;
 
-SMDFile::SMDFile() : m_ppnEvent(NULL), m_fHeight(NULL),
+SMDFile::SMDFile() : m_ppnEvent(nullptr), m_fHeight(nullptr),
 	m_nXRegion(0), m_nZRegion(0), m_nMapSize(0), m_fUnitDist(0.0f),
 	m_N3ShapeMgr(new CN3ShapeMgr())
 {
@@ -35,8 +35,8 @@ SMDFile *SMDFile::Load(std::string mapName)
 
 	// Does this file exist/can it be opened?
 	FILE *fp = fopen(filename.c_str(), "rb");
-	if (fp == NULL)
-		return NULL;
+	if (fp == nullptr)
+		return nullptr;
 
 	// Try to load the file now.
 	SMDFile *smd = new SMDFile();
@@ -44,7 +44,7 @@ SMDFile *SMDFile::Load(std::string mapName)
 	{
 		// Problem? Make sure we clean up after ourselves.
 		smd->DecRef(); // it's the only reference anyway
-		smd = NULL;
+		smd = nullptr;
 	}
 	else
 	{
@@ -151,7 +151,7 @@ void SMDFile::GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries)
 	foreach_stlmap (itr, m_WarpArray)
 	{
 		_WARP_INFO *pWarp = itr->second;
-		if (pWarp == NULL || (pWarp->sWarpID / 10) != warpGroup)
+		if (pWarp == nullptr || (pWarp->sWarpID / 10) != warpGroup)
 			continue;
 		
 		warpEntries.insert(pWarp);
@@ -262,16 +262,16 @@ bool SMDFile::ObjectCollision(float x1, float z1, float y1, float x2, float z2, 
 
 SMDFile::~SMDFile()
 {
-	if (m_ppnEvent != NULL)
+	if (m_ppnEvent != nullptr)
 	{
 		delete [] m_ppnEvent;
-		m_ppnEvent = NULL;
+		m_ppnEvent = nullptr;
 	}
 
-	if (m_fHeight != NULL)
+	if (m_fHeight != nullptr)
 	{
 		delete[] m_fHeight;
-		m_fHeight = NULL;
+		m_fHeight = nullptr;
 	}
 
 	delete m_N3ShapeMgr;

@@ -4,7 +4,7 @@
 
 KOSocketMgr<LoginSession> LoginServer::s_socketMgr;
 
-LoginServer::LoginServer() : m_sLastVersion(__VERSION), m_fp(NULL)
+LoginServer::LoginServer() : m_sLastVersion(__VERSION), m_fp(nullptr)
 {
 	memset(m_strFtpUrl, 0, sizeof(m_strFtpUrl));
 	memset(m_strFilePath, 0, sizeof(m_strFilePath));
@@ -18,7 +18,7 @@ bool LoginServer::Startup()
 	GetInfoFromIni();
 
 	m_fp = fopen("./Login.log", "a");
-	if (m_fp == NULL)
+	if (m_fp == nullptr)
 	{
 		printf("ERROR: Unable to open log file.\n");
 		return false;
@@ -67,7 +67,7 @@ void LoginServer::GetInfoFromIni()
 		nServerCount = 1;
 	
 	char key[20]; 
-	_SERVER_INFO* pInfo = NULL;
+	_SERVER_INFO* pInfo = nullptr;
 	
 	m_ServerList.reserve(nServerCount);
 
@@ -165,7 +165,7 @@ void LoginServer::WriteLogFile(string & logMessage)
 
 void LoginServer::ReportSQLError(OdbcError *pError)
 {
-	if (pError == NULL)
+	if (pError == nullptr)
 		return;
 
 	// This is *very* temporary.
@@ -187,7 +187,7 @@ LoginServer::~LoginServer()
 		delete itr->second;
 	m_VersionList.clear();
 
-	if (m_fp != NULL)
+	if (m_fp != nullptr)
 		fclose(m_fp);
 
 	s_socketMgr.Shutdown();

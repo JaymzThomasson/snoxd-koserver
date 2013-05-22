@@ -23,7 +23,7 @@ bool LoginSession::HandlePacket(Packet & pkt)
 
 	// Unknown packet
 	if (opcode >= NUM_LS_OPCODES
-		|| PacketHandlers[opcode] == NULL)
+		|| PacketHandlers[opcode] == nullptr)
 		return false;
 
 	(this->*PacketHandlers[opcode])(pkt);

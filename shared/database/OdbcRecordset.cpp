@@ -37,7 +37,7 @@ TCHAR * OdbcRecordset::Read(bool bAllowEmptyTable /*= false*/)
 	if (!_dbCommand->hasData())
 	{
 		if (bAllowEmptyTable)
-			return NULL;
+			return nullptr;
 
 		_stprintf(szError, _T("%s table is empty."), GetTableName().c_str());
 		return szError;
@@ -55,7 +55,7 @@ TCHAR * OdbcRecordset::Read(bool bAllowEmptyTable /*= false*/)
 		}
 	} while (_dbCommand->MoveNext());
 
-	return NULL;
+	return nullptr;
 }
 
 OdbcRecordset::~OdbcRecordset()

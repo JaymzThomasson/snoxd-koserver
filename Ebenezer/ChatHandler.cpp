@@ -121,7 +121,7 @@ void CUser::Chat(Packet & pkt)
 	case PRIVATE_CHAT:
 	{
 		CUser *pUser = g_pMain->GetUserPtr(m_sPrivateChatUser);
-		if (pUser != NULL) 
+		if (pUser != nullptr) 
 			pUser->Send(&result);
 	} break;
 
@@ -165,7 +165,7 @@ void CUser::Chat(Packet & pkt)
 		if (isInClan())
 		{
 			CKnights *pKnights = g_pMain->GetClanPtr(GetClanID());
-			if (pKnights != NULL && pKnights->m_sAlliance > 0)
+			if (pKnights != nullptr && pKnights->m_sAlliance > 0)
 				g_pMain->Send_KnightsAlliance(pKnights->m_sAlliance, &result);
 		}
 		break;
@@ -191,7 +191,7 @@ void CUser::ChatTargetSelect(Packet & pkt)
 			return;
 
 		CUser *pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
-		if (pUser == NULL || pUser == this)
+		if (pUser == nullptr || pUser == this)
 		{
 			result << int16(0); 
 		}
@@ -229,7 +229,7 @@ void CUser::ChatTargetSelect(Packet & pkt)
  */
 void CUser::SendDeathNotice(CUser * pKiller, DeathNoticeType noticeType)
 {
-	if (pKiller == NULL)
+	if (pKiller == nullptr)
 		return;
 
 	Packet result(WIZ_CHAT, uint8(DEATH_NOTICE));
@@ -292,7 +292,7 @@ COMMAND_HANDLER(CUser::HandleGiveItemCommand)
 	vargs.pop_front();
 
 	CUser *pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
-	if (pUser == NULL)
+	if (pUser == nullptr)
 	{
 		// send error message saying the character does not exist or is not online
 		return true;
@@ -301,7 +301,7 @@ COMMAND_HANDLER(CUser::HandleGiveItemCommand)
 	uint32 nItemID = atoi(vargs.front().c_str());
 	vargs.pop_front();
 	_ITEM_TABLE *pItem = g_pMain->GetItemPtr(nItemID);
-	if (pItem == NULL)
+	if (pItem == nullptr)
 	{
 		// send error message saying the item does not exist
 		return true;
@@ -379,7 +379,7 @@ COMMAND_HANDLER(CEbenezerDlg::HandleKillUserCommand)
 
 	std::string strUserID = vargs.front();
 	CUser *pUser = GetUserPtr(strUserID, TYPE_CHARACTER);
-	if (pUser == NULL)
+	if (pUser == nullptr)
 	{
 		// send error saying that user was not found
 		return true;
@@ -550,7 +550,7 @@ COMMAND_HANDLER(CEbenezerDlg::HandleReloadNoticeCommand)
 void CEbenezerDlg::SendFormattedResource(uint32 nResourceID, uint8 byNation, bool bIsNotice, ...)
 {
 	_SERVER_RESOURCE *pResource = m_ServerResourceArray.GetData(nResourceID);
-	if (pResource == NULL)
+	if (pResource == nullptr)
 		return;
 
 	string buffer;

@@ -22,7 +22,7 @@ void CUser::PartyProcess(Packet & pkt)
 			return;
 
 		pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
-		if (pUser == NULL)
+		if (pUser == nullptr)
 			return;
 
 		PartyRequest(pUser->GetSocketID(), (opcode == PARTY_CREATE));
@@ -57,12 +57,12 @@ void CUser::PartyCancel()
 
 	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
 	m_sPartyIndex = -1;
-	if (pParty == NULL)
+	if (pParty == nullptr)
 		return;
 	
 	leader_id = pParty->uid[0];
 	CUser *pUser = g_pMain->GetUserPtr(leader_id);
-	if (pUser == NULL)
+	if (pUser == nullptr)
 		return;
 
 	for (int i = 0; i < 8; i++)
@@ -83,10 +83,10 @@ void CUser::PartyRequest(int memberid, bool bCreate)
 {
 	Packet result;
 	int16 errorCode = -1, i=0;
-	_PARTY_GROUP* pParty = NULL;
+	_PARTY_GROUP* pParty = nullptr;
 
 	CUser *pUser = g_pMain->GetUserPtr(memberid);
-	if (pUser == NULL
+	if (pUser == nullptr
 		|| pUser->isInParty()) goto fail_return;
 
 	// Only allow partying of the enemy nation in Moradon or FT.
@@ -119,7 +119,7 @@ void CUser::PartyRequest(int memberid, bool bCreate)
 	{
 		if( isInParty() ) goto fail_return;	// can't create a party if we're already in one
 		pParty = g_pMain->CreateParty(this);
-		if (pParty == NULL)
+		if (pParty == nullptr)
 			goto fail_return;
 
 		m_bPartyLeader = true;
@@ -145,8 +145,8 @@ fail_return:
 void CUser::PartyInsert()
 {
 	Packet result(WIZ_PARTY);
-	CUser* pUser = NULL;
-	_PARTY_GROUP* pParty = NULL;
+	CUser* pUser = nullptr;
+	_PARTY_GROUP* pParty = nullptr;
 	uint8 byIndex = 0xFF;
 	if (!isInParty())
 		return;
@@ -185,7 +185,7 @@ void CUser::PartyInsert()
 
 		// For everyone else, 
 		pUser = g_pMain->GetUserPtr(pParty->uid[i]);
-		if (pUser == NULL)
+		if (pUser == nullptr)
 			continue;
 
 		result.clear();
@@ -199,7 +199,7 @@ void CUser::PartyInsert()
 	}
 	
 	pUser = g_pMain->GetUserPtr(pParty->uid[0]);
-	if (pUser == NULL)
+	if (pUser == nullptr)
 		return;
 
 	if (pUser->m_bNeedParty == 2 && pUser->isInParty())
@@ -228,11 +228,11 @@ void CUser::PartyRemove(int memberid)
 		return;
 
 	CUser *pUser = g_pMain->GetUserPtr(memberid);
-	if (pUser == NULL)
+	if (pUser == nullptr)
 		return;
 
 	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
-	if (pParty == NULL) 
+	if (pParty == nullptr) 
 	{
 		m_sPartyIndex = pUser->m_sPartyIndex = -1;
 		return;
@@ -269,7 +269,7 @@ void CUser::PartyRemove(int memberid)
 	if (count == 1)
 	{
 		CUser *pPartyLeader = g_pMain->GetUserPtr(pParty->uid[0]);
-		if (pPartyLeader == NULL)
+		if (pPartyLeader == nullptr)
 			return;
 		else
 			pPartyLeader->PartyDelete();
@@ -295,7 +295,7 @@ void CUser::PartyDelete()
 		return;
 
 	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
-	if (pParty == NULL)
+	if (pParty == nullptr)
 	{
 		m_sPartyIndex = -1;
 		return;
@@ -304,7 +304,7 @@ void CUser::PartyDelete()
 	for (int i = 0; i < MAX_PARTY_USERS; i++)
 	{
 		CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
-		if (pUser != NULL)
+		if (pUser != nullptr)
 			pUser->m_sPartyIndex = -1;
 	}
 
@@ -424,7 +424,7 @@ void CUser::SendPartyBBSNeeded(uint16 page_index, uint8 bType)
 	foreach (itr, sessMap)
 	{
 		CUser *pUser = TO_USER(itr->second);
-		_PARTY_GROUP *pParty = NULL;
+		_PARTY_GROUP *pParty = nullptr;
 		string WantedMessage = "";
 		uint8 PartyMembers = 0;
 		uint16 sClass = pUser->m_sClass;
@@ -445,7 +445,7 @@ void CUser::SendPartyBBSNeeded(uint16 page_index, uint8 bType)
 		if (m_bPartyLeader)
 		{
 			pParty = g_pMain->m_PartyArray.GetData( m_sPartyIndex );
-			if (pParty == NULL) //Shouldn't be hit.
+			if (pParty == nullptr) //Shouldn't be hit.
 				return;
 			WantedMessage = pParty->WantedMessage;
 			PartyMembers = GetPartyMemberAmount();
@@ -486,7 +486,7 @@ void CUser::PartyBBSWanted(Packet & pkt)
 	if(!m_bPartyLeader)
 		return;
 	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData( m_sPartyIndex );
-	if(pParty == NULL)
+	if(pParty == nullptr)
 		return;
 		pkt >> pParty->sWantedClass >> page_index >> pParty->WantedMessage;
 

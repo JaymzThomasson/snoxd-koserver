@@ -12,7 +12,7 @@ class CGameEvent
 {
 public:
 	CGameEvent();
-	void RunEvent(CUser* pUser = NULL);
+	void RunEvent(CUser* pUser = nullptr);
 
 	uint16	m_sIndex;
 	uint8	m_bType;

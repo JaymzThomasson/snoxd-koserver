@@ -12,9 +12,9 @@
 CPathFind::CPathFind()
 {
 	m_pStack = (STACK *)calloc(1, sizeof(STACK));
-	m_pOpen = NULL;
-	m_pClosed = NULL;
-	m_pMap = NULL;
+	m_pOpen = nullptr;
+	m_pClosed = nullptr;
+	m_pMap = nullptr;
 	m_lMapUse = 0;
 }
 
@@ -38,7 +38,7 @@ void CPathFind::ClearData()
 			t_node1 = t_node2;
 		}
 		free(m_pOpen);
-		m_pOpen = NULL;
+		m_pOpen = nullptr;
 	}
 
 	if(m_pClosed)
@@ -51,7 +51,7 @@ void CPathFind::ClearData()
 			t_node1 = t_node2;
 		}
 		free(m_pClosed);
-		m_pClosed = NULL;
+		m_pClosed = nullptr;
 	}
 }
 
@@ -76,9 +76,9 @@ void CPathFind::SetMap(int x, int y, short *pMap, uint32 nMapSize, int16 min_x, 
 
 _PathNode *CPathFind::FindPath(int start_x, int start_y, int dest_x, int dest_y)
 {
-	_PathNode *t_node, *r_node = NULL;
+	_PathNode *t_node, *r_node = nullptr;
 	
-//	if(!m_pMap) return NULL;
+//	if(!m_pMap) return nullptr;
 
 	ClearData();
 	m_pOpen = (_PathNode *)calloc(1, sizeof(_PathNode));
@@ -94,7 +94,7 @@ _PathNode *CPathFind::FindPath(int start_x, int start_y, int dest_x, int dest_y)
 
 	m_pOpen->NextNode = t_node;
 	r_node = (_PathNode *)ReturnBestNode();
-	if(r_node == NULL) return r_node;
+	if(r_node == nullptr) return r_node;
 	if(r_node->x == dest_x && r_node->y == dest_y)
 		return r_node;
 
@@ -106,12 +106,12 @@ _PathNode *CPathFind::ReturnBestNode()
 {
 	_PathNode *tmp;
 	
-	if(m_pOpen->NextNode == NULL) {
-		return NULL;
+	if(m_pOpen->NextNode == nullptr) {
+		return nullptr;
 	}
 	
 	tmp=m_pOpen->NextNode;   // point to first node on m_pOpen
-	m_pOpen->NextNode=tmp->NextNode;    // Make m_pOpen point to nextnode or NULL.
+	m_pOpen->NextNode=tmp->NextNode;    // Make m_pOpen point to nextnode or nullptr.
 	
 	tmp->NextNode=m_pClosed->NextNode;
 	m_pClosed->NextNode=tmp;
@@ -155,11 +155,11 @@ void CPathFind::FindChildPathSub(_PathNode *node, int x, int y, int dx, int dy, 
 	
 	g = node->g + arg;
 	
-	if((old_node = CheckOpen(x, y)) != NULL)
+	if((old_node = CheckOpen(x, y)) != nullptr)
 	{
 		for(c = 0; c < 8; c++)
 		{
-			if(node->Child[c] == NULL)
+			if(node->Child[c] == nullptr)
 			{
 				break;
 			}
@@ -172,11 +172,11 @@ void CPathFind::FindChildPathSub(_PathNode *node, int x, int y, int dx, int dy, 
 			old_node->f = g + old_node->h;
 		}
 	}
-	else if((old_node = CheckClosed(x, y)) != NULL)
+	else if((old_node = CheckClosed(x, y)) != nullptr)
 	{
 		for(c = 0; c < 8; c++)
 		{
-			if(node->Child[c] == NULL)
+			if(node->Child[c] == nullptr)
 			{
 				break;
 			}
@@ -203,7 +203,7 @@ void CPathFind::FindChildPathSub(_PathNode *node, int x, int y, int dx, int dy, 
 		Insert(t_node);
 		for(c = 0; c < 8; c++)
 		{
-			if(node->Child[c] == NULL)
+			if(node->Child[c] == nullptr)
 			{
 				break;
 			}
@@ -215,7 +215,7 @@ void CPathFind::FindChildPathSub(_PathNode *node, int x, int y, int dx, int dy, 
 _PathNode *CPathFind::CheckOpen(int x, int y)
 {
 	_PathNode *tmp = m_pOpen->NextNode;
-	while (tmp != NULL)
+	while (tmp != nullptr)
 	{
 		if (tmp->x == x && tmp->y == y)
 			return tmp;
@@ -223,7 +223,7 @@ _PathNode *CPathFind::CheckOpen(int x, int y)
 		tmp = tmp->NextNode;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 _PathNode *CPathFind::CheckClosed(int x, int y)
@@ -232,7 +232,7 @@ _PathNode *CPathFind::CheckClosed(int x, int y)
 	
 	tmp = m_pClosed->NextNode;
 	
-	while(tmp != NULL)
+	while(tmp != nullptr)
 	{
 		if(tmp->x == x && tmp->y == y)
 		{
@@ -244,7 +244,7 @@ _PathNode *CPathFind::CheckClosed(int x, int y)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void CPathFind::Insert(_PathNode *node)
@@ -252,7 +252,7 @@ void CPathFind::Insert(_PathNode *node)
 	_PathNode *tmp1, *tmp2;
 	int f;
 	
-	if(m_pOpen->NextNode == NULL)
+	if(m_pOpen->NextNode == nullptr)
 	{
 		m_pOpen->NextNode = node;
 		return;
@@ -261,7 +261,7 @@ void CPathFind::Insert(_PathNode *node)
 	f = node->f;
 	tmp1 = m_pOpen;
 	tmp2 = m_pOpen->NextNode;
-	while((tmp2 != NULL) && (tmp2->f < f))
+	while((tmp2 != nullptr) && (tmp2->f < f))
 	{
 		tmp1 = tmp2;
 		tmp2 = tmp2->NextNode;
@@ -278,7 +278,7 @@ void CPathFind::PropagateDown(_PathNode *old)
 	g = old->g;
 	for(c = 0; c < 8; c++)
 	{
-		if((child = old->Child[c]) == NULL)
+		if((child = old->Child[c]) == nullptr)
 		{
 			break;
 		}
@@ -291,12 +291,12 @@ void CPathFind::PropagateDown(_PathNode *old)
 		}
 	}
 	
-	while (m_pStack->NextStackPtr != NULL)
+	while (m_pStack->NextStackPtr != nullptr)
 	{
 		parent = Pop();
 		for(c = 0; c < 8; c++)
 		{
-			if((child = parent->Child[c])==NULL)
+			if((child = parent->Child[c])==nullptr)
 			{
 				break;
 			}

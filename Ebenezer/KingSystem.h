@@ -49,7 +49,7 @@ public:
 
 	// Updates the election status
 	void UpdateElectionStatus(uint8 byElectionState);
-	void UpdateElectionList(uint8 byElectionListType, bool bDeleteList, uint16 sClanID, std::string & strUserID, CUser * pUser = NULL);
+	void UpdateElectionList(uint8 byElectionListType, bool bDeleteList, uint16 sClanID, std::string & strUserID, CUser * pUser = nullptr);
 
 	// Checks to see if a special (coin/XP) event should end.
 	void CheckSpecialEvent();

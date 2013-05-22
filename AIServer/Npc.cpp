@@ -31,7 +31,7 @@ static float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f,
 bool CNpc::SetUid(float x, float z, int id)
 {
 	MAP* pMap = GetMap();
-	if (pMap == NULL) 
+	if (pMap == nullptr) 
 	{
 		TRACE("#### Npc-SetUid Zone Fail : [name=%s], zone=%d #####\n", m_proto->m_strName, m_bCurZone);
 		return false;
@@ -67,7 +67,7 @@ bool CNpc::SetUid(float x, float z, int id)
 		//TRACE("++ Npc-SetUid RegionAdd : [nid=%d, name=%s], x=%.2f, z=%.2f, nRX=%d, nRZ=%d \n", m_sNid+NPC_BAND, m_proto->m_strName,x,z, nRX, nRY);
 		// 새로운 region으로 npc이동 - npc의 정보 추가..
 		CNpc* pNpc = g_pMain->m_arNpc.GetData( id-NPC_BAND );
-		if(pNpc == NULL)
+		if(pNpc == nullptr)
 			return false;
 		pMap->RegionNpcAdd(m_iRegion_X, m_iRegion_Z, id);
 
@@ -81,7 +81,7 @@ bool CNpc::SetUid(float x, float z, int id)
 
 CNpc::CNpc() : m_NpcState(NPC_LIVE), m_byGateOpen(0), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
 	m_byAttackPos(0), m_ItemUserLevel(0), m_Delay(0), 
-	m_proto(NULL), m_pZone(NULL), m_pPath(NULL)
+	m_proto(nullptr), m_pZone(nullptr), m_pPath(nullptr)
 {
 	InitTarget();
 
@@ -184,7 +184,7 @@ void CNpc::InitTarget()
 		if(m_Target.id >= 0 && m_Target.id < NPC_BAND)
 		{
 			CUser* pUser = g_pMain->GetUserPtr(m_Target.id);
-			if(pUser != NULL)
+			if(pUser != nullptr)
 			{
 				if(m_byAttackPos > 0 && m_byAttackPos < 9)
 					pUser->m_sSurroundNpcNumber[m_byAttackPos-1] = -1;
@@ -208,7 +208,7 @@ void CNpc::Init()
 	m_Delay = 0;
 	m_fDelayTime = getMSTime();
 
-	if (GetMap() == NULL) 
+	if (GetMap() == nullptr) 
 	{
 		TRACE("#### Npc-Init Zone Fail : [name=%s], zone=%d #####\n", m_proto->m_strName, m_bCurZone);
 		return;
@@ -586,7 +586,7 @@ time_t CNpc::NpcStanding()
 	}	*/
 
 	MAP* pMap = GetMap();
-	if (pMap == NULL)	
+	if (pMap == nullptr)	
 	{
 		TRACE("### NpcStanding Zone Index Error : nid=%d, name=%s, zone=%d ###\n", m_sNid+NPC_BAND, m_proto->m_strName, m_bCurZone);
 		return -1;
@@ -609,7 +609,7 @@ time_t CNpc::NpcStanding()
 
 	// dungeon work
 	// 던젼 존인지를 먼저 판단
-	CRoomEvent* pRoom = NULL;
+	CRoomEvent* pRoom = nullptr;
 	pRoom = pMap->m_arRoomEventArray.GetData( m_byDungeonFamily );
 	if( pRoom )	{
 		if( pRoom->m_byStatus == 1 )	{	// 방의 상태가 실행되지 않았다면,, 몬스터는 standing
@@ -643,13 +643,13 @@ time_t CNpc::NpcStanding()
 time_t CNpc::NpcBack()
 {
 	if(m_Target.id >= 0 && m_Target.id < NPC_BAND)	{
-		if(g_pMain->GetUserPtr((m_Target.id - USER_BAND)) == NULL)	{	// Target User 가 존재하는지 검사
+		if(g_pMain->GetUserPtr((m_Target.id - USER_BAND)) == nullptr)	{	// Target User 가 존재하는지 검사
 			m_NpcState = NPC_STANDING;
 			return m_sSpeed;//STEP_DELAY;
 		}
 	}
 	else if(m_Target.id >= NPC_BAND && m_Target.id < INVALID_BAND)	{
-		if(g_pMain->m_arNpc.GetData(m_Target.id-NPC_BAND) == NULL)	{
+		if(g_pMain->m_arNpc.GetData(m_Target.id-NPC_BAND) == nullptr)	{
 			m_NpcState = NPC_STANDING;
 			return m_sSpeed;
 		}
@@ -729,9 +729,9 @@ bool CNpc::SetLive()
 	InitUserList();					// 타겟을위한 리스트를 초기화.
 	//InitPos();
 
-	CNpc* pNpc = NULL;
+	CNpc* pNpc = nullptr;
 
-	/* Event Monster가 다시 살아날 경우에는 Event Monster를 죽인다 이벤트 스레드에서도 포인터를 NULL */
+	/* Event Monster가 다시 살아날 경우에는 Event Monster를 죽인다 이벤트 스레드에서도 포인터를 nullptr */
 	if (m_lEventNpc == 1 && !m_bFirstLive)
 	{
 		NpcSet::iterator itr = g_pMain->m_arEventNpcThread[0]->m_pNpcs.find(this);
@@ -745,7 +745,7 @@ bool CNpc::SetLive()
 	}
 
 	MAP* pMap = GetMap();
-	if (pMap == NULL)	
+	if (pMap == nullptr)	
 		return false;
 
 	if(m_bFirstLive)	{	// NPC 가 처음 살아나는 경우	
@@ -888,7 +888,7 @@ bool CNpc::RandomMove()
 	// 보통이동일때는 걷는 속도로 맞추어준다...
 	m_fSecForMetor = m_fSpeed_1;
 
-	if (GetMap() == NULL
+	if (GetMap() == nullptr
 		|| m_bySearchRange == 0
 		|| m_byMoveType == 0
 		|| !GetUserInView()
@@ -1119,7 +1119,7 @@ bool CNpc::RandomBackMove()
 	if (m_bySearchRange == 0) return false;
 	
 	float fDestX = -1.0f, fDestZ = -1.0f;
-	if (GetMap() == NULL) 
+	if (GetMap() == nullptr) 
 	{
 		TRACE("#### Npc-RandomBackMove Zone Fail : [name=%s], zone=%d #####\n", m_proto->m_strName, m_bCurZone);
 		return false;
@@ -1139,7 +1139,7 @@ bool CNpc::RandomBackMove()
 	vStart.Set(m_fCurX, m_fCurY, m_fCurZ);
 
 	int nID = m_Target.id;					// Target 을 구한다.
-	CUser* pUser = NULL;
+	CUser* pUser = nullptr;
 
 	int iDir = 0;
 
@@ -1149,7 +1149,7 @@ bool CNpc::RandomBackMove()
 	if(nID >= USER_BAND && nID < NPC_BAND)	// Target 이 User 인 경우
 	{
 		pUser = g_pMain->GetUserPtr(nID - USER_BAND);
-		if(pUser == NULL)	
+		if(pUser == nullptr)	
 			return false;
 		// 도주할 방향을 결정,,  먼저 x축으로
 		if((int)pUser->m_curx != (int)m_fCurX)  
@@ -1358,7 +1358,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 	m_vMapSize.cx = max_x - min_x + 1;		
 	m_vMapSize.cy = max_y - min_y + 1;
 	
-	m_pPath = NULL;
+	m_pPath = nullptr;
 
 	m_vPathFind.SetMap(m_vMapSize.cx, m_vMapSize.cy, GetMap()->GetEventIDs(), GetMap()->GetMapSize(), min_x, min_y);
 	m_pPath = m_vPathFind.FindPath(end.x, end.y, start.x, start.y);
@@ -1368,7 +1368,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 	while(m_pPath)
 	{
 		m_pPath = m_pPath->Parent;
-		if(m_pPath == NULL)			break;
+		if(m_pPath == nullptr)			break;
 		m_pPoint[count].pPoint.x = m_pPath->x+min_x;		m_pPoint[count].pPoint.y = m_pPath->y+min_y;
 		//m_pPath = m_pPath->Parent;
 		count++;
@@ -1410,7 +1410,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 void CNpc::Dead(int iDeadType)
 {
 	MAP* pMap = GetMap();
-	if(pMap == NULL)	return;
+	if(pMap == nullptr)	return;
 
 	m_iHP = 0;
 	m_NpcState = NPC_DEAD;
@@ -1475,9 +1475,9 @@ bool CNpc::FindEnemy()
 	}
 
 	MAP* pMap = GetMap();
-	if (pMap == NULL)	return false;
-	CUser *pUser = NULL;
-	CNpc *pNpc = NULL;
+	if (pMap == nullptr)	return false;
+	CUser *pUser = nullptr;
+	CNpc *pNpc = nullptr;
 
 	int target_uid = 0;
 	__Vector3 vUser, vNpc;
@@ -1678,13 +1678,13 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 {
 	MAP* pMap = GetMap();
 	float fDis = 0.0f;
-	if(pMap == NULL)	return fDis;
+	if(pMap == nullptr)	return fDis;
 	float fComp = fCompDis;
 	float fSearchRange = (float)m_bySearchRange;
 	int target_uid = -1;
 	__Vector3 vUser, vNpc, vMon;
 	vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
-	int* pIDList = NULL;
+	int* pIDList = nullptr;
 	int iLevelComprison = 0;
 	
 	if(nType == 1)	{		// user을 타겟으로 잡는 경우
@@ -1702,7 +1702,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 
 		for(int i=0 ; i<nUser; i++ ) {
 			CUser *pUser = g_pMain->GetUserPtr(pIDList[i]);
-			if( pUser != NULL && pUser->m_bLive == USER_LIVE)	{
+			if( pUser != nullptr && pUser->m_bLive == USER_LIVE)	{
 				// 같은 국가의 유저는 공격을 하지 않도록 한다...
 				if (m_byGroup == pUser->m_bNation
 					|| pUser->m_bInvisibilityType
@@ -1767,7 +1767,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 
 			if(m_sNid == pNpc->m_sNid)	continue;
 
-			if( pNpc != NULL && pNpc->m_NpcState != NPC_DEAD && pNpc->m_sNid != m_sNid)	{
+			if( pNpc != nullptr && pNpc->m_NpcState != NPC_DEAD && pNpc->m_sNid != m_sNid)	{
 				// 같은 국가의 몬스터는 공격을 하지 않도록 한다...
 				if(m_byGroup == pNpc->m_byGroup)	continue;
 
@@ -1794,7 +1794,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 
 	if(pIDList)	{
 		delete [] pIDList;
-		pIDList = NULL;
+		pIDList = nullptr;
 	}
 
 	return fComp;
@@ -1824,7 +1824,7 @@ int CNpc::GetMyField()
 //	주변에 나를 공격한 유저가 있는지 알아본다
 bool CNpc::IsDamagedUserList(CUser *pUser)
 {
-	if(pUser == NULL) return false;
+	if(pUser == nullptr) return false;
 
 	for(int i = 0; i < NPC_HAVE_USER_LIST; i++)
 	{
@@ -1839,7 +1839,7 @@ int CNpc::IsSurround(CUser* pUser)
 {
 	if(m_tNpcLongType) return 0;		//원거리는 통과
 
-	if(pUser == NULL)	return -2;		// User가 없으므로 타겟지정 실패..
+	if(pUser == nullptr)	return -2;		// User가 없으므로 타겟지정 실패..
 	int nDir = pUser->IsSurroundCheck(m_fCurX, 0.0f, m_fCurZ, m_sNid+NPC_BAND);
 	if(nDir != 0)
 	{
@@ -1853,7 +1853,7 @@ int CNpc::IsSurround(CUser* pUser)
 bool CNpc::IsMovable(float x, float z)
 {
 	MAP* pMap = GetMap();
-	if (pMap == NULL
+	if (pMap == nullptr
 		|| x < 0 || z < 0
 		|| x >= pMap->GetMapSize() || z >= pMap->GetMapSize()
 		|| pMap->GetEventID((int)x, (int)z) == 0)
@@ -2036,15 +2036,15 @@ bool CNpc::StepNoPathMove()
 int CNpc::IsCloseTarget(int nRange, int Flag)
 {
 	__Vector3 vUser, vWillUser, vNpc, vDistance;
-	CUser* pUser = NULL;
-	CNpc* pNpc = NULL;
+	CUser* pUser = nullptr;
+	CNpc* pNpc = nullptr;
 	float fDis = 0.0f, fWillDis = 0.0f, fX = 0.0f, fZ = 0.0f;
 	bool  bUserType = false;	// 타겟이 유저이면 true
 	vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
 
 	if(m_Target.id >= USER_BAND && m_Target.id < NPC_BAND)	{	// Target 이 User 인 경우
 		pUser = g_pMain->GetUserPtr(m_Target.id - USER_BAND);
-		if(pUser == NULL)	{
+		if(pUser == nullptr)	{
 			InitTarget();
 			return -1;
 		}
@@ -2061,7 +2061,7 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 	else if(m_Target.id >= NPC_BAND && m_Target.id < INVALID_BAND)	// Target 이 mon 인 경우
 	{
 		pNpc = g_pMain->m_arNpc.GetData(m_Target.id - NPC_BAND);
-		if(pNpc == NULL) 
+		if(pNpc == nullptr) 
 		{
 			InitTarget();
 			return -1;
@@ -2150,8 +2150,8 @@ int CNpc::GetTargetPath(int option)
 
 	// 추격할때는 뛰는 속도로 맞추어준다...
 	m_fSecForMetor = m_fSpeed_2;
-	CUser* pUser = NULL;
-	CNpc* pNpc = NULL;
+	CUser* pUser = nullptr;
+	CNpc* pNpc = nullptr;
 	float iTempRange = 0.0f;
 	__Vector3 vUser, vNpc, vDistance, vEnd22;
 	float fDis = 0.0f;
@@ -2160,7 +2160,7 @@ int CNpc::GetTargetPath(int option)
 
 	if(m_Target.id >= USER_BAND && m_Target.id < NPC_BAND)	{	// Target 이 User 인 경우
 		pUser = g_pMain->GetUserPtr(m_Target.id - USER_BAND);
-		if(pUser == NULL)	{
+		if(pUser == nullptr)	{
 			InitTarget();
 			return -1;
 		}
@@ -2199,7 +2199,7 @@ int CNpc::GetTargetPath(int option)
 	}
 	else if(m_Target.id >= NPC_BAND && m_Target.id < INVALID_BAND)	{	// Target 이 mon 인 경우
 		pNpc = g_pMain->m_arNpc.GetData(m_Target.id - NPC_BAND);
-		if(pNpc == NULL) {
+		if(pNpc == nullptr) {
 			InitTarget();
 			return false;
 		}
@@ -2212,7 +2212,7 @@ int CNpc::GetTargetPath(int option)
 	}
 
 	MAP* pMap = GetMap();
-	if (pMap == NULL) 
+	if (pMap == nullptr) 
 		return -1;
 
 	int max_xx = pMap->GetMapSize();
@@ -2377,8 +2377,8 @@ int CNpc::Attack()
 		return 0;
 	}
 
-	CNpc*	pNpc		= NULL;	
-	CUser*	pUser		= NULL;
+	CNpc*	pNpc		= nullptr;	
+	CUser*	pUser		= nullptr;
 	int		nDamage		= 0;
 	int nID = m_Target.id;					// Target 을 구한다.
 
@@ -2386,7 +2386,7 @@ int CNpc::Attack()
 	if(nID >= USER_BAND && nID < NPC_BAND)	{	// Target 이 User 인 경우
 		pUser = g_pMain->GetUserPtr(nID - USER_BAND);
 		
-		if(pUser == NULL)	{				// User 가 Invalid 한 경우
+		if(pUser == nullptr)	{				// User 가 Invalid 한 경우
 			InitTarget();
 			m_NpcState = NPC_STANDING;
 			return nStandingTime;
@@ -2465,7 +2465,7 @@ int CNpc::Attack()
 	else if(nID >= NPC_BAND && m_Target.id < INVALID_BAND)	{
 		pNpc = g_pMain->m_arNpc.GetData(nID - NPC_BAND);
 	
-		if(pNpc == NULL)	{				// User 가 Invalid 한 경우
+		if(pNpc == nullptr)	{				// User 가 Invalid 한 경우
 			InitTarget();
 			m_NpcState = NPC_STANDING;
 			return nStandingTime;
@@ -2540,8 +2540,8 @@ int CNpc::LongAndMagicAttack()
 		return 0;
 	}
 
-	CNpc*	pNpc		= NULL;	
-	CUser*	pUser		= NULL;
+	CNpc*	pNpc		= nullptr;	
+	CUser*	pUser		= nullptr;
 	int		nDamage		= 0;
 	int nID = m_Target.id;					// Target 을 구한다.
 
@@ -2549,7 +2549,7 @@ int CNpc::LongAndMagicAttack()
 	if(nID >= USER_BAND && nID < NPC_BAND)	{	// Target 이 User 인 경우
 		pUser = g_pMain->GetUserPtr(nID - USER_BAND);
 		
-		if(pUser == NULL)	{				// User 가 Invalid 한 경우
+		if(pUser == nullptr)	{				// User 가 Invalid 한 경우
 			InitTarget();
 			m_NpcState = NPC_STANDING;
 			return nStandingTime;
@@ -2592,7 +2592,7 @@ int CNpc::LongAndMagicAttack()
 		pNpc = g_pMain->m_arNpc.GetData(nID - NPC_BAND);
 		//pNpc = g_pMain->m_arNpc[nID - NPC_BAND];
 		
-		if(pNpc == NULL)	{				// User 가 Invalid 한 경우
+		if(pNpc == nullptr)	{				// User 가 Invalid 한 경우
 			InitTarget();
 			m_NpcState = NPC_STANDING;
 			return nStandingTime;
@@ -2618,8 +2618,8 @@ int CNpc::LongAndMagicAttack()
 
 int CNpc::TracingAttack()		// 0:attack fail, 1:attack success
 {
-	CNpc*	pNpc		= NULL;	
-	CUser*	pUser		= NULL;
+	CNpc*	pNpc		= nullptr;	
+	CUser*	pUser		= nullptr;
 
 	int		nDamage		= 0;
 
@@ -2628,7 +2628,7 @@ int CNpc::TracingAttack()		// 0:attack fail, 1:attack success
 	// 회피값/명중판정/데미지 계산 -----------------------------------------//
 	if(nID >= USER_BAND && nID < NPC_BAND)	{	// Target 이 User 인 경우
 		pUser = g_pMain->GetUserPtr(nID - USER_BAND);
-		if(pUser == NULL)	return 0;				// User 가 Invalid 한 경우
+		if(pUser == nullptr)	return 0;				// User 가 Invalid 한 경우
 		if(pUser->m_bLive == USER_DEAD)		{		// User 가 이미 죽은경우
 			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->m_iUserId, 0, 0);
 			return 0;
@@ -2657,7 +2657,7 @@ int CNpc::TracingAttack()		// 0:attack fail, 1:attack success
 	else if(nID >= NPC_BAND && m_Target.id < INVALID_BAND)	{
 		pNpc = g_pMain->m_arNpc.GetData(nID - NPC_BAND);
 		
-		if(pNpc == NULL)	return 0;				// User 가 Invalid 한 경우
+		if(pNpc == nullptr)	return 0;				// User 가 Invalid 한 경우
 
 		if(pNpc->m_iHP <= 0 || pNpc->m_NpcState == NPC_DEAD)	{
 			SendAttackSuccess(ATTACK_TARGET_DEAD, pNpc->m_sNid+NPC_BAND, 0, 0);
@@ -2692,8 +2692,8 @@ void CNpc::MoveAttack()
 	__Vector3 vNpc;
 	__Vector3 vDistance;
 	__Vector3 vEnd22;
-	CUser* pUser = NULL;
-	CNpc* pNpc = NULL;
+	CUser* pUser = nullptr;
+	CNpc* pNpc = nullptr;
 	float fDis = 0.0f;
 	float fX = 0.0f, fZ = 0.0f;
 	vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
@@ -2701,7 +2701,7 @@ void CNpc::MoveAttack()
 	if(m_Target.id >= USER_BAND && m_Target.id < NPC_BAND)	// Target 이 User 인 경우
 	{
 		pUser = g_pMain->GetUserPtr(m_Target.id - USER_BAND);
-		if(pUser == NULL) 
+		if(pUser == nullptr) 
 		{
 			InitTarget();
 			return;
@@ -2726,7 +2726,7 @@ void CNpc::MoveAttack()
 	{
 		pNpc = g_pMain->m_arNpc.GetData(m_Target.id - NPC_BAND);		
 		//pNpc = g_pMain->m_arNpc[m_Target.id - NPC_BAND];
-		if(pNpc == NULL) 
+		if(pNpc == nullptr) 
 		{
 			InitTarget();
 			return;
@@ -2791,7 +2791,7 @@ int CNpc::GetNFinalDamage(CNpc *pNpc)
 	int random = 0;
 	uint8 result;
 
-	if(pNpc == NULL)	return damage;
+	if(pNpc == nullptr)	return damage;
 
 	// 공격민첩
 	Attack = (float)m_sHitRate;
@@ -2958,7 +2958,7 @@ int CNpc::GetFinalDamage(CUser *pUser, int type)
 	int random = 0;
 	uint8 result;
 
-	if(pUser == NULL)	return damage;
+	if(pUser == nullptr)	return damage;
 	
 	Attack = (float)m_sHitRate;		// 공격민첩
 	Avoid = (float)pUser->m_fAvoidrate;		// 방어민첩	
@@ -3099,7 +3099,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 	float fDistance1 = 0.0f, fDistance2 = 0.0f;
 	int iRandom = myrand(0, 100);
 
-	if (pUser == NULL
+	if (pUser == nullptr
 		|| pUser->m_bLive == USER_DEAD
 		|| pUser->m_bNation == m_byGroup
 		|| pUser->m_bInvisibilityType
@@ -3111,7 +3111,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 		|| m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT)
 		return;
 
-	CUser *preUser = NULL;
+	CUser *preUser = nullptr;
 	if(m_Target.id >= 0 && m_Target.id < NPC_BAND)	
 		preUser = g_pMain->GetUserPtr(m_Target.id - USER_BAND);
 
@@ -3129,7 +3129,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 		}
 		return;
 	}
-	if(preUser != NULL/* && preUser->m_state == GAME_STATE_INGAME */)
+	if(preUser != nullptr/* && preUser->m_state == GAME_STATE_INGAME */)
 	{
 		preDamage = 0; lastDamage = 0;
 
@@ -3157,7 +3157,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 		if(iRandom >= 95 && iRandom < 101)		{		// Heal Magic을 사용한 유저
 		}
 	}
-	else if(preUser == NULL && nAttackType == 1004)		return;		// Heal magic에 반응하지 않도록..
+	else if(preUser == nullptr && nAttackType == 1004)		return;		// Heal magic에 반응하지 않도록..
 		
 	m_Target.id	= pUser->m_iUserId + USER_BAND;
 	m_Target.x	= pUser->m_curx;
@@ -3219,10 +3219,10 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 	__Vector3 vMonster, vNpc;
 	float fDist = 0.0f;
 
-	if(pNpc == NULL) return;
+	if(pNpc == nullptr) return;
 	if(pNpc->m_NpcState == NPC_DEAD) return;
 
-	CNpc *preNpc = NULL;
+	CNpc *preNpc = nullptr;
 	if(m_Target.id >= 0 && m_Target.id < NPC_BAND)
 	{
 	}
@@ -3233,7 +3233,7 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 
 	if(pNpc == preNpc) return;
 
-	if(preNpc != NULL)
+	if(preNpc != nullptr)
 	{
 		preDamage = 0; lastDamage = 0;
 		preDamage = GetNFinalDamage(preNpc);
@@ -3314,23 +3314,23 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid)
 	int i=0, len=0;
 	int userDamage = 0;
 	bool bFlag = false;
-	_ExpUserList *tempUser = NULL;
+	_ExpUserList *tempUser = nullptr;
 
 	if(m_NpcState == NPC_DEAD) return true;
 	if(m_iHP <= 0) return true;
 	if(nDamage < 0) return true;
 
-	CUser* pUser = NULL;
-	CNpc* pNpc = NULL;
+	CUser* pUser = nullptr;
+	CNpc* pNpc = nullptr;
 	char strDurationID[MAX_ID_SIZE+1];
 
 	if(uid >= USER_BAND && uid < NPC_BAND)	{	// Target 이 User 인 경우
 		pUser = g_pMain->GetUserPtr(uid);	// 해당 사용자인지 인증
-		if(pUser == NULL) return true;
+		if(pUser == nullptr) return true;
 	}
 	else if(uid >= NPC_BAND && m_Target.id < INVALID_BAND)	{	// Target 이 mon 인 경우
 		pNpc = g_pMain->m_arNpc.GetData(uid - NPC_BAND);
-		if(pNpc == NULL) return true;
+		if(pNpc == nullptr) return true;
 		userDamage = nDamage;		
 		goto go_result;
 	}
@@ -3461,13 +3461,13 @@ void CNpc::SendExpToUserList()
 	double TempValue = 0;
 	int nPartyNumber = -1;
 	int nUid = -1;
-	CUser* pUser = NULL;
-	CUser* pPartyUser = NULL;
-	CUser* pMaxDamageUser = NULL;
-	_PARTY_GROUP* pParty = NULL;
+	CUser* pUser = nullptr;
+	CUser* pPartyUser = nullptr;
+	CUser* pMaxDamageUser = nullptr;
+	_PARTY_GROUP* pParty = nullptr;
 	char strMaxDamageUser[MAX_ID_SIZE+1];
 	MAP* pMap = GetMap();
-	if (pMap == NULL) return;
+	if (pMap == nullptr) return;
 
 	IsUserInSight();	// 시야권내에 있는 유저 셋팅..
 				
@@ -3475,7 +3475,7 @@ void CNpc::SendExpToUserList()
 	{
 		if(m_DamagedUserList[i].iUid < 0 || m_DamagedUserList[i].nDamage<= 0) continue;
 		if(m_DamagedUserList[i].bIs == true) pUser = g_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
-		if(pUser == NULL) continue;
+		if(pUser == nullptr) continue;
 		
 		if(pUser->m_byNowParty == 1)			// 파티 소속
 		{	
@@ -3487,7 +3487,7 @@ void CNpc::SendExpToUserList()
 					CompDamage = totalDamage;
 					m_sMaxDamageUserid = m_DamagedUserList[i].iUid;
 					pMaxDamageUser = g_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
-					if(pMaxDamageUser == NULL)	{
+					if(pMaxDamageUser == nullptr)	{
 						m_byMaxDamagedNation = pUser->m_bNation;
 						strcpy_s( strMaxDamageUser, sizeof(strMaxDamageUser), pUser->m_strUserID );
 					}
@@ -3517,7 +3517,7 @@ void CNpc::SendExpToUserList()
 				{
 					if(m_DamagedUserList[j].iUid < 0 || m_DamagedUserList[j].nDamage<= 0) continue;
 					if(m_DamagedUserList[j].bIs == true) pPartyUser = g_pMain->GetUserPtr(m_DamagedUserList[j].iUid);
-					if(pPartyUser == NULL) continue;
+					if(pPartyUser == nullptr) continue;
 					if(pUser->m_sPartyNumber == pPartyUser->m_sPartyNumber)	continue;
 					count++;
 				}
@@ -3637,7 +3637,7 @@ void CNpc::SendExpToUserList()
 					CompDamage = totalDamage;
 					m_sMaxDamageUserid = m_DamagedUserList[i].iUid;
 					pMaxDamageUser = g_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
-					if(pMaxDamageUser == NULL)	{
+					if(pMaxDamageUser == nullptr)	{
 						m_byMaxDamagedNation = pUser->m_bNation;
 						strcpy_s( strMaxDamageUser, sizeof(strMaxDamageUser), pUser->m_strUserID );
 					}
@@ -3716,7 +3716,7 @@ int CNpc::SendDead(int type)
 //	NPC와 Target 과의 거리가 지정 범위보다 작은지 판단
 bool CNpc::IsCloseTarget(CUser *pUser, int nRange)
 {
-	if(pUser == NULL)
+	if(pUser == nullptr)
 	{
 		return false;
 	}
@@ -3751,9 +3751,9 @@ bool CNpc::IsCloseTarget(CUser *pUser, int nRange)
 //        2:사제NPC가 같은 아군의 상태를 체크해서 치료할 목적으로,, 리턴으로 치료될 아군의 NID를 리턴한다
 int CNpc::FindFriend(int type)
 {
-	CNpc* pNpc = NULL;
+	CNpc* pNpc = nullptr;
 	MAP* pMap = GetMap();
-	if (pMap == NULL) return 0;
+	if (pMap == nullptr) return 0;
 
 	if(m_bySearchRange == 0) return 0;
 	if(type != 2)	{
@@ -3808,7 +3808,7 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 		return;
 	}
 
-	int* pNpcIDList = NULL, total_mon, count = 0;
+	int* pNpcIDList = nullptr, total_mon, count = 0;
 
 	pMap->m_lock.Acquire();
 	CRegion *pRegion = &pMap->m_ppRegion[x][z];
@@ -3819,7 +3819,7 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 		pNpcIDList[count++] = *itr->second;
 	pMap->m_lock.Release();
 
-	CNpc* pNpc = NULL;
+	CNpc* pNpc = nullptr;
 	__Vector3 vStart, vEnd;
 	float fDis = 0.0f;
 	// 공격 받은 상태이기때문에.. searchrange를 2배로..
@@ -3834,7 +3834,7 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 		if( nid < NPC_BAND )	continue;
 		pNpc = (CNpc*)g_pMain->m_arNpc.GetData(nid - NPC_BAND);
 
-		if( pNpc != NULL && pNpc->m_NpcState != NPC_DEAD && pNpc->m_sNid != m_sNid)	{
+		if( pNpc != nullptr && pNpc->m_NpcState != NPC_DEAD && pNpc->m_sNid != m_sNid)	{
 			vEnd.Set(pNpc->m_fCurX, pNpc->m_fCurY, pNpc->m_fCurZ); 
 			fDis = GetDistance(vStart, vEnd);
 
@@ -3863,7 +3863,7 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 					}
 				}
 				else if(type == 2)	{
-					if(pHealer == NULL) continue;
+					if(pHealer == nullptr) continue;
 					// HP상태를 체크
 					iHP = (int)(pNpc->m_iMaxHP * 0.9);
 					if(pNpc->m_iHP <= iHP)	{		// HP 체크
@@ -3882,7 +3882,7 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 
 	if(pNpcIDList)	{
 		delete [] pNpcIDList;
-		pNpcIDList = NULL;
+		pNpcIDList = nullptr;
 	}
 }
 
@@ -4055,7 +4055,7 @@ float CNpc::GetDistance(__Vector3 & vOrig, __Vector3 & vDest)
 bool CNpc::GetUserInView()
 {
 	MAP* pMap = GetMap();
-	if (pMap == NULL)	return false;
+	if (pMap == nullptr)	return false;
 	//if( m_ZoneIndex > 5 || m_ZoneIndex < 0) return false;		// 임시코드 ( 2002.03.24 )
 	int min_x = (int)(m_fCurX - NPC_VIEW_RANGE)/VIEW_DIST;	if(min_x < 0) min_x = 0;
 	int min_z = (int)(m_fCurZ - NPC_VIEW_RANGE)/VIEW_DIST;	if(min_z < 0) min_z = 0;
@@ -4081,7 +4081,7 @@ bool CNpc::GetUserInView()
 bool CNpc::GetUserInViewRange(int x, int z)
 {
 	MAP* pMap = GetMap();
-	if (pMap == NULL || x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())	{
+	if (pMap == nullptr || x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())	{
 		TRACE("#### Npc-GetUserInViewRange() Fail : [nid=%d, sid=%d], x1=%d, z1=%d #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, x, z);
 		return false;
 	}
@@ -4094,7 +4094,7 @@ bool CNpc::GetUserInViewRange(int x, int z)
 	foreach_stlmap (itr, pMap->m_ppRegion[x][z].m_RegionUserArray)
 	{
 		CUser *pUser = g_pMain->GetUserPtr(*itr->second);
-		if (pUser == NULL)
+		if (pUser == nullptr)
 			continue;
 
 		vEnd.Set(pUser->m_curx, 0, pUser->m_curz);
@@ -4140,7 +4140,7 @@ void CNpc::CalcAdaptivePosition(__Vector3 & vPosOrig, __Vector3 & vPosDest, floa
 //	현재 몹을 기준으로 한 화면 범위안에 있는지 판단
 void CNpc::IsUserInSight()
 {
-	CUser* pUser = NULL;
+	CUser* pUser = nullptr;
 	// Npc와 User와의 거리가 50미터 안에 있는 사람에게만,, 경험치를 준다..
 	int iSearchRange = NPC_EXP_RANGE;		
 
@@ -4158,7 +4158,7 @@ void CNpc::IsUserInSight()
 	for(i = 0; i < NPC_HAVE_USER_LIST; i++)
 	{
 		pUser = g_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
-		if(pUser == NULL)	continue;
+		if(pUser == nullptr)	continue;
 
 		vEnd.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz);
 		fDis = GetDistance(vStart, vEnd);
@@ -4396,7 +4396,7 @@ void CNpc::IsNoPathFind(float fDistance)
 		return;
 	}
 
-	if (GetMap() == NULL)
+	if (GetMap() == nullptr)
 	{
 		ClearPathFindData();
 		TRACE("#### Npc-IsNoPathFind No map : [nid=%d, name=%s], zone=%d #####\n", m_sNid+NPC_BAND, m_proto->m_strName, m_bCurZone);
@@ -4462,7 +4462,7 @@ void CNpc::GiveNpcHaveItem()
 	}
 	
 	_K_MONSTER_ITEM * pItem = g_pMain->m_NpcItemArray.GetData(m_iItem);
-	if (pItem != NULL)
+	if (pItem != nullptr)
 	{
 		// j = iItem
 		for (int j = 0; j < 5; j++)
@@ -4485,7 +4485,7 @@ void CNpc::GiveNpcHaveItem()
 				else 
 				{
 					_MAKE_ITEM_GROUP * pGroup = g_pMain->m_MakeItemGroupArray.GetData(pItem->iItem[j]);
-					if (pGroup == NULL
+					if (pGroup == nullptr
 						|| pGroup->iItems.size() != 30)
 						continue;
 
@@ -4560,12 +4560,12 @@ int	CNpc::GetPartyDamage(int iNumber)
 {
 	int i=0;
 	int nDamage = 0;
-	CUser* pUser = NULL;
+	CUser* pUser = nullptr;
 	for(i = 0; i < NPC_HAVE_USER_LIST; i++)				// 일단 리스트를 검색한다.
 	{
 		if(m_DamagedUserList[i].iUid < 0 || m_DamagedUserList[i].nDamage<= 0) continue;
 		if(m_DamagedUserList[i].bIs == true) pUser = g_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
-		if(pUser == NULL) continue;
+		if(pUser == nullptr) continue;
 		
 		if(pUser->m_sPartyNumber != iNumber)	continue;
 
@@ -4658,7 +4658,7 @@ bool CNpc::CheckFindEnermy()
 
 	MAP* pMap = GetMap();
 
-	if (pMap == NULL
+	if (pMap == nullptr
 		|| m_iRegion_X > pMap->GetXRegionMax() || m_iRegion_Z > pMap->GetZRegionMax() || m_iRegion_X < 0 || m_iRegion_Z < 0)
 	{
 		//TRACE("#### CheckFindEnermy Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, m_iRegion_X, m_iRegion_Z);
@@ -4838,11 +4838,11 @@ int	CNpc::ItemProdution(int item_number)							// 아이템 제작
 int  CNpc::GetItemGrade(int item_grade)
 {
 	int iPercent = 0, iRandom = 0, i=0;
-	_MAKE_ITEM_GRADE_CODE* pItemData = NULL;
+	_MAKE_ITEM_GRADE_CODE* pItemData = nullptr;
 
 	iRandom = myrand(1, 1000);
 	pItemData = g_pMain->m_MakeGradeItemArray.GetData(item_grade); 
-	if(pItemData == NULL)	return 0;
+	if(pItemData == nullptr)	return 0;
 
 
 	for(i=0; i<9; i++)	{
@@ -4878,7 +4878,7 @@ int  CNpc::GetItemGrade(int item_grade)
 int  CNpc::GetWeaponItemCodeNumber(int item_type)
 {
 	int iPercent = 0, iRandom = 0, i=0, iItem_level = 0;
-	_MAKE_WEAPON* pItemData = NULL;
+	_MAKE_WEAPON* pItemData = nullptr;
 
 	iRandom = myrand(0, 1000);
 	if( item_type == 1 )	{		// 무기구
@@ -4890,7 +4890,7 @@ int  CNpc::GetWeaponItemCodeNumber(int item_type)
 		pItemData = g_pMain->m_MakeDefensiveItemArray.GetData(iItem_level); 
 	}
 
-	if(pItemData == NULL)	return 0;
+	if(pItemData == nullptr)	return 0;
 
 	for(i=0; i<MAX_UPGRADE_WEAPON; i++)	{
 		if(i == 0)	{
@@ -4925,11 +4925,11 @@ int  CNpc::GetItemCodeNumber(int level, int item_type)
 {
 	int iItemCode = 0, iRandom = 0, i=0, iItemType = 0, iPercent = 0;
 	int iItemPercent[3];
-	_MAKE_ITEM_LARE_CODE* pItemData = NULL;
+	_MAKE_ITEM_LARE_CODE* pItemData = nullptr;
 
 	iRandom = myrand(0, 1000);
 	pItemData = g_pMain->m_MakeLareItemArray.GetData(level); 
-	if(pItemData == NULL)	return -1;
+	if(pItemData == nullptr)	return -1;
 	iItemPercent[0] = pItemData->sLareItem;
 	iItemPercent[1] = pItemData->sMagicItem;
 	iItemPercent[2] = pItemData->sGeneralItem;
@@ -5002,13 +5002,13 @@ int  CNpc::GetItemCodeNumber(int level, int item_type)
 void CNpc::DurationMagic_4()
 {
 	MAP* pMap = GetMap();
-	if (pMap == NULL)	
+	if (pMap == nullptr)	
 		return;
 
 	if (m_byDungeonFamily > 0)
 	{
 		CRoomEvent* pRoom = pMap->m_arRoomEventArray.GetData(m_byDungeonFamily);
-		if (pRoom == NULL)
+		if (pRoom == nullptr)
 		{
 			// If it doesn't exist, there's no point continually assuming it exists. Just unset it.
 			// We'll only throw the message once, so that the user knows they need to make sure the room event exists.
@@ -5059,14 +5059,14 @@ void CNpc::ChangeMonsterInfomation(int iChangeType)
 	if(m_byInitMoveType >= 0 && m_byInitMoveType < 100)	{
 		if (iChangeType == 1)	// 다른 몬스터로 변환..
 			pNpcTable = g_pMain->m_arMonTable.GetData(m_sChangeSid);
-		if(pNpcTable == NULL)	{
+		if(pNpcTable == nullptr)	{
 			TRACE("##### ChangeMonsterInfomation Sid Fail -- Sid = %d #####\n", m_sChangeSid);
 		}
 	}
 	else if(m_byInitMoveType >= 100)	{
 		if(iChangeType == 1)	// 다른 몬스터로 변환..
 			pNpcTable = g_pMain->m_arNpcTable.GetData(m_sChangeSid);
-		if(pNpcTable == NULL)	{
+		if(pNpcTable == nullptr)	{
 			TRACE("##### ChangeMonsterInfomation Sid Fail -- Sid = %d #####\n", m_sChangeSid);
 		}
 	}
@@ -5197,7 +5197,7 @@ time_t CNpc::NpcHealing()
 	}
 
 	// 치료대상이 치료가 다 됐는지를 판단.. 
-	CNpc* pNpc = NULL;
+	CNpc* pNpc = nullptr;
 	int nID = m_Target.id;
 	bool bFlag = false;
 	int iHP = 0;
@@ -5246,7 +5246,7 @@ time_t CNpc::NpcHealing()
 	if(nID >= NPC_BAND && nID < INVALID_BAND)	{
 		pNpc = g_pMain->m_arNpc.GetData(nID - NPC_BAND);
 
-		if(pNpc == NULL)	{				// User 가 Invalid 한 경우
+		if(pNpc == nullptr)	{				// User 가 Invalid 한 경우
 			InitTarget();
 		}
 
@@ -5363,7 +5363,7 @@ bool CNpc::Teleport()
 	int i=0;
 	int nX=0, nZ=0, nTileX=0, nTileZ=0;
 	MAP* pMap = GetMap();
-	if (pMap == NULL)	return false;
+	if (pMap == nullptr)	return false;
 
 	while(1)	{
 		i++;
