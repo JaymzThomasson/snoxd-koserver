@@ -228,8 +228,8 @@ void CEbenezerDlg::GetTimeFromIni()
 	g_hTimerThreads.push_back(std::thread(&CEbenezerDlg::Timer_CheckAliveUser, (void *)nullptr));
 #else
 	DWORD dwThreadId;
-	g_hTimerThreads.push_back(CreateThread(nullptr, nullptr, (LPTHREAD_START_ROUTINE)&Timer_UpdateGameTime, nullptr, nullptr, &dwThreadId));
-	g_hTimerThreads.push_back(CreateThread(nullptr, nullptr, (LPTHREAD_START_ROUTINE)&Timer_CheckAliveUser, nullptr, nullptr, &dwThreadId));
+	g_hTimerThreads.push_back(CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&Timer_UpdateGameTime, nullptr, 0, &dwThreadId));
+	g_hTimerThreads.push_back(CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&Timer_CheckAliveUser, nullptr, 0, &dwThreadId));
 #endif
 }
 

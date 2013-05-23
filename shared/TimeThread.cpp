@@ -20,7 +20,7 @@ void StartTimeThread()
 	s_hTimeThread = std::thread(TimeThread, static_cast<void *>(nullptr));
 #else
 	DWORD dwThreadId;
-	s_hTimeThread = CreateThread(nullptr, nullptr, (LPTHREAD_START_ROUTINE)&TimeThread, nullptr, nullptr, &dwThreadId);
+	s_hTimeThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&TimeThread, nullptr, 0, &dwThreadId);
 #endif
 }
 

@@ -14,7 +14,7 @@ void StartConsoleInputThread()
 	s_hConsoleInputThread = std::thread(ConsoleInputThread, static_cast<void *>(nullptr));
 #else
 	DWORD dwThread;
-	s_hConsoleInputThread = CreateThread(nullptr, nullptr, (LPTHREAD_START_ROUTINE)&ConsoleInputThread, nullptr, nullptr, &dwThread);
+	s_hConsoleInputThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ConsoleInputThread, nullptr, 0, &dwThread);
 #endif
 }
 

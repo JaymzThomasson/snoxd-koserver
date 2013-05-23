@@ -31,7 +31,7 @@ void DatabaseThread::Startup(uint32 dwThreads)
 #else
 	DWORD id;
 	for (uint32 i = 0; i < dwThreads; i++)
-		s_hThreads.push_back(CreateThread(nullptr, nullptr, (LPTHREAD_START_ROUTINE)&ThreadProc, (LPVOID)i, nullptr, &id));
+		s_hThreads.push_back(CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ThreadProc, (LPVOID)i, 0, &id));
 #endif
 	s_dwThreads = dwThreads;
 }

@@ -71,7 +71,7 @@ public:
 			return false;
 
 		DWORD id;
-		m_hThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ListenSocketThread<T>, this, nullptr, &id);
+		m_hThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ListenSocketThread<T>, this, 0, &id);
 		return m_hThread != nullptr;
 #endif
 	}

@@ -72,7 +72,7 @@ bool CServerDlg::Startup()
 	g_hTimerThreads.push_back(std::thread(Timer_CheckAliveTest, (void *)nullptr));
 #else
 	DWORD dwThreadId;
-	g_hTimerThreads.push_back(CreateThread(nullptr, nullptr, (LPTHREAD_START_ROUTINE)&Timer_CheckAliveTest, nullptr, nullptr, &dwThreadId));
+	g_hTimerThreads.push_back(CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&Timer_CheckAliveTest, nullptr, 0, &dwThreadId));
 #endif
 
 	m_sMapEventNpc = 0;
@@ -467,9 +467,9 @@ void CServerDlg::ResumeAI()
 #else
 	DWORD id;
 	foreach (itr, m_arNpcThread)
-		(*itr)->m_hThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, *itr, nullptr, &id);
+		(*itr)->m_hThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, *itr, 0, &id);
 
-	m_hZoneEventThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ZoneEventThreadProc, this, nullptr, &id);
+	m_hZoneEventThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ZoneEventThreadProc, this, 0, &id);
 #endif
 }
 
