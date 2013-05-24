@@ -90,6 +90,15 @@
     <ClCompile Include="..\shared\DebugUtils.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\SocketMgrWin32.cpp">
+      <Filter>Shared\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\SocketOpsWin32.cpp">
+      <Filter>Shared\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\SocketWin32.cpp">
+      <Filter>Shared\Networking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VersionManager.rc">
@@ -133,9 +142,6 @@
     <ClInclude Include="..\shared\Socket.h">
       <Filter>Shared\Networking</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\ListenSocket.h">
-      <Filter>Shared\Networking</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\JvCryption.h">
       <Filter>Shared\Networking</Filter>
     </ClInclude>
@@ -171,6 +177,15 @@
     </ClInclude>
     <ClInclude Include="..\shared\DebugUtils.h">
       <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\ListenSocketWin32.h">
+      <Filter>Shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\SocketMgrWin32.h">
+      <Filter>Shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\SocketOps.h">
+      <Filter>Shared\Networking</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

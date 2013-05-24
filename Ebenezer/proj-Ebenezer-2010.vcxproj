@@ -170,6 +170,9 @@
     <ClCompile Include="..\shared\SMDFile.cpp" />
     <ClCompile Include="..\shared\Socket.cpp" />
     <ClCompile Include="..\shared\SocketMgr.cpp" />
+    <ClCompile Include="..\shared\SocketMgrWin32.cpp" />
+    <ClCompile Include="..\shared\SocketOpsWin32.cpp" />
+    <ClCompile Include="..\shared\SocketWin32.cpp" />
     <ClCompile Include="..\shared\TimeThread.cpp" />
     <ClCompile Include="..\shared\tstring.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -348,7 +351,7 @@
     <ClInclude Include="..\shared\JvCryption.h" />
     <ClInclude Include="..\shared\KOSocket.h" />
     <ClInclude Include="..\shared\KOSocketMgr.h" />
-    <ClInclude Include="..\shared\ListenSocket.h" />
+    <ClInclude Include="..\shared\ListenSocketWin32.h" />
     <ClInclude Include="..\shared\lzf.h" />
     <ClInclude Include="..\shared\Mutex.h" />
     <ClInclude Include="..\shared\packets.h" />
@@ -358,6 +361,8 @@
     <ClInclude Include="..\shared\Socket.h" />
     <ClInclude Include="..\shared\SocketDefines.h" />
     <ClInclude Include="..\shared\SocketMgr.h" />
+    <ClInclude Include="..\shared\SocketMgrWin32.h" />
+    <ClInclude Include="..\shared\SocketOps.h" />
     <ClInclude Include="..\shared\TimeThread.h" />
     <ClInclude Include="AISocket.h" />
     <ClInclude Include="ChatHandler.h" />

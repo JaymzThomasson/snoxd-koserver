@@ -1,6 +1,10 @@
 #pragma once
 
-#define INLINE __forceinline
+#ifdef _WIN32
+#	define INLINE __forceinline
+#else
+#	define INLINE inline
+#endif
 
 typedef signed __int64 int64;
 typedef signed __int32 int32;

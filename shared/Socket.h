@@ -1,7 +1,5 @@
 #pragma once
 
-#include "SocketDefines.h"
-#include "CircularBuffer.h"
 #include "Mutex.h"
 
 class SocketMgr;
@@ -16,12 +14,6 @@ public:
 
 	// Disconnect the socket.
 	void Disconnect();
-
-	// Enable/disable blocking on a socket
-	void SetBlocking(bool block = false);
-
-	// Enable/disable nagle buffering on a socket
-	void SetBuffering(bool enable = true);
 
 	// Accept from the already-set fd.
 	void Accept(sockaddr_in * address);

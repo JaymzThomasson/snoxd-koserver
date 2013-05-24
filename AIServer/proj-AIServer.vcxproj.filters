@@ -131,6 +131,15 @@
     <ClCompile Include="..\shared\DebugUtils.cpp">
       <Filter>shared</Filter>
     </ClCompile>
+    <ClCompile Include="..\shared\SocketOpsWin32.cpp">
+      <Filter>shared\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\SocketWin32.cpp">
+      <Filter>shared\Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shared\SocketMgrWin32.cpp">
+      <Filter>shared\Networking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
@@ -250,9 +259,6 @@
     <ClInclude Include="..\shared\KOSocketMgr.h">
       <Filter>shared\Networking</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\ListenSocket.h">
-      <Filter>shared\Networking</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\Socket.h">
       <Filter>shared\Networking</Filter>
     </ClInclude>
@@ -300,6 +306,18 @@
     </ClInclude>
     <ClInclude Include="..\shared\DebugUtils.h">
       <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\SocketOps.h">
+      <Filter>shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\Network.h">
+      <Filter>shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\SocketMgrWin32.h">
+      <Filter>shared\Networking</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\ListenSocketWin32.h">
+      <Filter>shared\Networking</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

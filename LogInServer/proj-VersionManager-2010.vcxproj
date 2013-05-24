@@ -175,6 +175,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\shared\SocketMgrWin32.cpp" />
+    <ClCompile Include="..\shared\SocketOpsWin32.cpp" />
+    <ClCompile Include="..\shared\SocketWin32.cpp" />
     <ClCompile Include="..\shared\tstring.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -212,7 +215,7 @@
     <ClInclude Include="..\shared\JvCryption.h" />
     <ClInclude Include="..\shared\KOSocket.h" />
     <ClInclude Include="..\shared\KOSocketMgr.h" />
-    <ClInclude Include="..\shared\ListenSocket.h" />
+    <ClInclude Include="..\shared\ListenSocketWin32.h" />
     <ClInclude Include="..\shared\lzf.h" />
     <ClInclude Include="..\shared\Mutex.h" />
     <ClInclude Include="..\shared\Packet.h" />
@@ -220,6 +223,8 @@
     <ClInclude Include="..\shared\Socket.h" />
     <ClInclude Include="..\shared\SocketDefines.h" />
     <ClInclude Include="..\shared\SocketMgr.h" />
+    <ClInclude Include="..\shared\SocketMgrWin32.h" />
+    <ClInclude Include="..\shared\SocketOps.h" />
     <ClInclude Include="DBProcess.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="LoginServer.h" />

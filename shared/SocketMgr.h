@@ -5,26 +5,28 @@
 #include "Socket.h"
 #include "ListenSocket.h"
 
+uint32 __stdcall SocketCleanupThread(void * lpParam);
+
 class SocketMgr
 {
 public:
 	SocketMgr();
 
-	INLINE HANDLE GetCompletionPort() { return m_completionPort; }
-	INLINE void SetCompletionPort(HANDLE cp) { m_completionPort = cp; }
-
-	void CreateCompletionPort();
+	uint32 GetPreferredThreadCount();
 	void SpawnWorkerThreads();
 	void ShutdownThreads();
 
+	static void SetupSockets();
+	static void CleanupSockets();
+
+#ifdef CONFIG_USE_IOCP
+#	include "SocketMgrWin32.inl"
+#endif
+
 	virtual Socket *AssignSocket(SOCKET socket) = 0;
-	virtual void OnConnect(Socket *pSock) {};
-	virtual void OnDisconnect(Socket *pSock) 
-	{
-		FastGuard lock(s_disconnectionQueueLock);
-		s_disconnectionQueue.push(pSock);
-	}
-	virtual void DisconnectCallback(Socket *pSock) {}
+	virtual void OnConnect(Socket *pSock);
+	virtual void OnDisconnect(Socket *pSock);
+	virtual void DisconnectCallback(Socket *pSock);
 	virtual void Shutdown();
 	virtual ~SocketMgr();
 
@@ -33,7 +35,7 @@ public:
 
 protected:
 	bool m_bShutdown;
-	HANDLE m_completionPort;
+
 #ifdef USE_STD_THREAD
 	std::vector<std::thread> m_hThreads;
 	static std::thread s_hCleanupThread;
@@ -43,38 +45,24 @@ protected:
 #endif
 
 	long m_threadCount;
-
-	static void SetupWinsock();
-	static void CleanupWinsock();
+	bool m_bWorkerThreadsActive;
 
 #ifdef USE_STD_ATOMIC
 	/* before we increment, first time it'll be 0 */
-	INLINE void IncRef() { if (s_refCounter++ == 0) SetupWinsock(); }
-	INLINE void DecRef() { if (--s_refCounter== 0) CleanupWinsock(); }
+	INLINE void IncRef() { if (s_refCounter++ == 0) SetupSockets(); }
+	INLINE void DecRef() { if (--s_refCounter== 0) CleanupSockets(); }
 
 	// reference counter (one app can hold multiple socket manager instances)
 	static std::atomic_ulong s_refCounter;
 #else
 	/* first increment sets it to 1 */
-	INLINE void IncRef() { if (InterlockedIncrement(&s_refCounter) == 1) SetupWinsock(); }
-	INLINE void DecRef() { if (InterlockedDecrement(&s_refCounter) == 0) CleanupWinsock(); }
+	INLINE void IncRef() { if (InterlockedIncrement(&s_refCounter) == 1) SetupSockets(); }
+	INLINE void DecRef() { if (InterlockedDecrement(&s_refCounter) == 0) CleanupSockets(); }
 
 	// reference counter (one app can hold multiple socket manager instances)
 	volatile static long s_refCounter;
 #endif
-};
 
-typedef void(*OperationHandler)(Socket * s, uint32 len);
-
-uint32 __stdcall SocketWorkerThread(void * lp);
-
-void HandleReadComplete(Socket * s, uint32 len);
-void HandleWriteComplete(Socket * s, uint32 len);
-void HandleShutdown(Socket * s, uint32 len);
-
-static OperationHandler ophandlers[] =
-{
-	&HandleReadComplete,
-	&HandleWriteComplete,
-	&HandleShutdown
+public:
+	static bool s_bRunningCleanupThread;
 };

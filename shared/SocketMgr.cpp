@@ -1,47 +1,25 @@
 #include "stdafx.h"
 #include "SocketMgr.h"
 
-uint32 __stdcall SocketWorkerThread(void * lpParam)
-{
-	SocketMgr *socketMgr = (SocketMgr *)lpParam;
-	HANDLE cp = socketMgr->GetCompletionPort();
-	DWORD len;
-	Socket * s;
-	OverlappedStruct * ov;
-	LPOVERLAPPED ol_ptr;
+bool SocketMgr::s_bRunningCleanupThread = true;
+FastMutex SocketMgr::s_disconnectionQueueLock;
+std::queue<Socket *> SocketMgr::s_disconnectionQueue;
 
-	while (true)
-	{
-#ifndef _WIN64
-		if (!GetQueuedCompletionStatus(cp, &len, (LPDWORD)&s, &ol_ptr, INFINITE))
+#ifdef USE_STD_THREAD
+std::thread SocketMgr::s_hCleanupThread; 
 #else
-		if (!GetQueuedCompletionStatus(cp, &len, (PULONG_PTR)&s, &ol_ptr, INFINITE))
+HANDLE SocketMgr::s_hCleanupThread = nullptr; 
 #endif
-		{
-			if (s != nullptr)
-				s->Disconnect();
-			continue;
-		}
 
-		ov = CONTAINING_RECORD(ol_ptr, OverlappedStruct, m_overlap);
+#ifdef USE_STD_ATOMIC
+std::atomic_ulong SocketMgr::s_refCounter;
+#else
+volatile long SocketMgr::s_refCounter = 0;
+#endif
 
-		if (ov->m_event == SOCKET_IO_THREAD_SHUTDOWN)
-		{
-			delete ov;
-			return 0;
-		}
-
-		if (ov->m_event < NUM_SOCKET_IO_EVENTS)
-			ophandlers[ov->m_event](s, len);
-	}
-
-	return 0;
-}
-
-static bool s_bRunningCleanupThread = true;
-unsigned int __stdcall SocketCleanupThread(void * lpParam)
+uint32 __stdcall SocketCleanupThread(void * lpParam)
 {
-	while (s_bRunningCleanupThread)
+	while (SocketMgr::s_bRunningCleanupThread)
 	{
 		SocketMgr::s_disconnectionQueueLock.Acquire();
 		while (!SocketMgr::s_disconnectionQueue.empty())
@@ -58,54 +36,32 @@ unsigned int __stdcall SocketCleanupThread(void * lpParam)
 	return 0;
 }
 
-#ifdef USE_STD_ATOMIC
-std::atomic_ulong SocketMgr::s_refCounter;
-#else
-long SocketMgr::s_refCounter = 0;
+SocketMgr::SocketMgr() : m_threadCount(0), 
+#ifdef CONFIG_USE_IOCP
+	m_completionPort(nullptr), 
 #endif
-
-FastMutex SocketMgr::s_disconnectionQueueLock;
-std::queue<Socket *> SocketMgr::s_disconnectionQueue;
-
-#ifdef USE_STD_THREAD
-std::thread SocketMgr::s_hCleanupThread; 
-#else
-HANDLE SocketMgr::s_hCleanupThread = nullptr; 
-#endif
-
-SocketMgr::SocketMgr() : m_threadCount(0), m_completionPort(nullptr), m_bShutdown(false)
+	m_bWorkerThreadsActive(false),
+	m_bShutdown(false)
 {
 	IncRef();
 }
 
-void SocketMgr::CreateCompletionPort()
-{
-	SetCompletionPort(CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, (ULONG_PTR)0, 0));
-}
-
-void SocketMgr::SetupWinsock()
-{
-	WSADATA wsaData;
-	WSAStartup(MAKEWORD(2,0), &wsaData);
-}
-
 void SocketMgr::SpawnWorkerThreads()
 {
-	if (!m_hThreads.empty())
+	if (m_bWorkerThreadsActive)
 		return;
 
-	SYSTEM_INFO si;
-	GetSystemInfo(&si);
-
-	m_threadCount = si.dwNumberOfProcessors * 2;
+	m_threadCount = GetPreferredThreadCount(); // IOCP is better off multithreaded, epoll and kqueue are not
+	m_bWorkerThreadsActive = true;
 
 	TRACE("SocketMgr - spawning %u worker threads.\n", m_threadCount);
+
 #ifdef USE_STD_THREAD
 	for (long x = 0; x < m_threadCount; x++)
-		m_hThreads.push_back(std::thread(SocketWorkerThread, this));
+		m_hThreads.push_back(std::thread(SocketWorkerThread, static_cast<void *>(this)));
 
 	if (!s_hCleanupThread.joinable())
-		s_hCleanupThread = std::thread(SocketCleanupThread, static_cast<void *>(nullptr));
+		s_hCleanupThread = std::thread(SocketCleanupThread, nullptr);
 #else
 	DWORD id;
 	for (long x = 0; x < m_threadCount; x++)
@@ -150,18 +106,34 @@ void HandleWriteComplete(Socket * s, uint32 len)
 	s->BurstEnd();					  // Unlock
 }
 
-void HandleShutdown(Socket * s, uint32 len)
+void HandleShutdown(Socket * s, uint32 len) {}
+void SocketMgr::OnConnect(Socket *pSock) {}
+void SocketMgr::DisconnectCallback(Socket *pSock) {}
+void SocketMgr::OnDisconnect(Socket *pSock) 
 {
-
+	FastGuard lock(s_disconnectionQueueLock);
+	s_disconnectionQueue.push(pSock);
 }
 
 void SocketMgr::ShutdownThreads()
 {
+#ifdef CONFIG_USE_IOCP
 	for (long i = 0; i < m_threadCount; i++)
 	{
 		OverlappedStruct * ov = new OverlappedStruct(SOCKET_IO_THREAD_SHUTDOWN);
 		PostQueuedCompletionStatus(m_completionPort, 0, (ULONG_PTR)0, &ov->m_overlap);
 	}
+#endif
+
+	m_bWorkerThreadsActive = false;
+
+#ifdef USE_STD_THREAD
+	foreach (itr, m_hThreads)
+		(*itr).join();
+#else
+	foreach (itr, m_hThreads)
+		WaitForSingleObject(*itr, INFINITE);
+#endif
 }
 
 void SocketMgr::Shutdown()
@@ -171,24 +143,18 @@ void SocketMgr::Shutdown()
 
 	ShutdownThreads();
 
-#ifdef USE_STD_THREAD
-	foreach (itr, m_hThreads)
-		(*itr).join();
-#else
-	foreach (itr, m_hThreads)
-		WaitForSingleObject(*itr, INFINITE);
-#endif
-
 	DecRef();
 	m_bShutdown = true;
 }
 
-SocketMgr::~SocketMgr()
+void SocketMgr::SetupSockets()
 {
-	Shutdown();
+#ifdef CONFIG_USE_IOCP
+	SetupWinsock();
+#endif
 }
 
-void SocketMgr::CleanupWinsock()
+void SocketMgr::CleanupSockets()
 {
 #ifdef USE_STD_THREAD
 	if (s_hCleanupThread.joinable())
@@ -200,9 +166,17 @@ void SocketMgr::CleanupWinsock()
 	if (s_hCleanupThread != nullptr)
 	{
 		s_bRunningCleanupThread = false;
+		WaitForSingleObject(s_hCleanupThread, INFINITE);
 		s_hCleanupThread = nullptr;
 	}
 #endif
 
-	WSACleanup();
+#ifdef CONFIG_USE_IOCP
+	CleanupWinsock();
+#endif
+}
+
+SocketMgr::~SocketMgr()
+{
+	Shutdown();
 }

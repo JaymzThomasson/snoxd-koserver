@@ -1,4 +1,15 @@
+/*
+ * Multiplatform Async Network Library
+ * Copyright (c) 2007 Burlex
+ *
+ * ListenSocket<T>: Creates a socket listener on specified address and port,
+ *				  requires Update() to be called every loop.
+ *
+ */
+
 #pragma once
+
+#ifdef CONFIG_USE_IOCP
 
 template <class T>
 uint32 __stdcall ListenSocketThread(void * lpParam)
@@ -20,8 +31,7 @@ public:
 		m_socket = WSASocket(AF_INET, SOCK_STREAM, 0, nullptr, 0, WSA_FLAG_OVERLAPPED);
 
 		// Enable blocking on the socket
-		u_long arg = 0;
-		ioctlsocket(m_socket, FIONBIO, &arg);
+		SocketOps::Blocking(m_socket);
 
 		m_address.sin_family = AF_INET;
 		m_address.sin_port = ntohs((u_short)Port);
@@ -103,8 +113,7 @@ public:
 		m_threadRunning = true;
 
 		// Remove blocking on the socket
-		//u_long arg = 1;
-		//ioctlsocket(m_socket, FIONBIO, &arg);
+		// SocketOps::Nonblocking(m_socket);
 		while (m_opened && m_threadRunning)
 		{
 			//SOCKET aSocket = accept(m_socket, (sockaddr*)&m_tempAddress, (socklen_t*)&len);
@@ -138,10 +147,7 @@ public:
 		m_opened = false;
 
 		if (mo)
-		{
-			shutdown(m_socket, SD_BOTH);
-			closesocket(m_socket);
-		}
+			SocketOps::CloseSocket(m_socket);
 
 		m_threadRunning = false;
 
@@ -171,3 +177,5 @@ private:
 	struct sockaddr_in m_address;
 	bool m_opened;
 };
+
+#endif
