@@ -12,20 +12,11 @@
     <Filter Include="Resource Files">
       <UniqueIdentifier>{a28bbc89-f194-4df4-a771-852c2fa9c91c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="shared">
-      <UniqueIdentifier>{af1ffd15-695e-4c2c-a6a1-c615428b2863}</UniqueIdentifier>
-    </Filter>
     <Filter Include="N3Base">
       <UniqueIdentifier>{5056e633-713a-4c87-981f-339526193987}</UniqueIdentifier>
     </Filter>
     <Filter Include="Database">
       <UniqueIdentifier>{20471dba-a07d-44f4-8d18-1dfea6801a6c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="shared\Networking">
-      <UniqueIdentifier>{326b4ac4-0852-4c3e-8e55-4e739d9d8101}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="shared\Database">
-      <UniqueIdentifier>{c3343c07-9ec2-4a14-9d40-160f2c82b1e9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -56,89 +47,20 @@
     <ClCompile Include="ServerDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\lzf.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\crc32.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\Ini.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp">
       <Filter>N3Base</Filter>
     </ClCompile>
     <ClCompile Include="GameSocket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\CircularBuffer.cpp">
-      <Filter>shared\Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\JvCryption.cpp">
-      <Filter>shared\Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\KOSocket.cpp">
-      <Filter>shared\Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\Socket.cpp">
-      <Filter>shared\Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\SocketMgr.cpp">
-      <Filter>shared\Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcRecordset.cpp">
-      <Filter>shared\Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcCommand.cpp">
-      <Filter>shared\Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcConnection.cpp">
-      <Filter>shared\Database</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\database\OdbcParameter.cpp">
-      <Filter>shared\Database</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\SMDFile.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\TimeThread.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\Mutex.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\Condition.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\RWLock.cpp">
-      <Filter>shared</Filter>
     </ClCompile>
     <ClCompile Include="StdAfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\shared\tstring.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\ReferenceObject.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
     <ClCompile Include="AIUser.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\DebugUtils.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\SocketOpsWin32.cpp">
-      <Filter>shared\Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\SocketWin32.cpp">
-      <Filter>shared\Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="..\shared\SocketMgrWin32.cpp">
-      <Filter>shared\Networking</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -190,15 +112,6 @@
     <ClInclude Include="Resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\lzf.h">
-      <Filter>shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\crc32.h">
-      <Filter>shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\Ini.h">
-      <Filter>shared</Filter>
-    </ClInclude>
     <ClInclude Include="..\N3BASE\N3ShapeMgr.h">
       <Filter>N3Base</Filter>
     </ClInclude>
@@ -247,77 +160,8 @@
     <ClInclude Include="GameSocket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\CircularBuffer.h">
-      <Filter>shared\Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\JvCryption.h">
-      <Filter>shared\Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\KOSocket.h">
-      <Filter>shared\Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\KOSocketMgr.h">
-      <Filter>shared\Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\Socket.h">
-      <Filter>shared\Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\SocketDefines.h">
-      <Filter>shared\Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\SocketMgr.h">
-      <Filter>shared\Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\globals.h">
-      <Filter>shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\OdbcRecordset.h">
-      <Filter>shared\Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\OdbcCommand.h">
-      <Filter>shared\Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\OdbcConnection.h">
-      <Filter>shared\Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\OdbcParameter.h">
-      <Filter>shared\Database</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\database\MakeItemGroupSet.h">
       <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\SMDFile.h">
-      <Filter>shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\TimeThread.h">
-      <Filter>shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\Condition.h">
-      <Filter>shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\Mutex.h">
-      <Filter>shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\RWLock.h">
-      <Filter>shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\ReferenceObject.h">
-      <Filter>shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\DebugUtils.h">
-      <Filter>shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\SocketOps.h">
-      <Filter>shared\Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\Network.h">
-      <Filter>shared\Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\SocketMgrWin32.h">
-      <Filter>shared\Networking</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\ListenSocketWin32.h">
-      <Filter>shared\Networking</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
