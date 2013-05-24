@@ -47,11 +47,21 @@ protected:
 	static void SetupWinsock();
 	static void CleanupWinsock();
 
-	// TO-DO: Make this atomic.
-	INLINE void IncRef() { if (s_refs++ == 0) SetupWinsock(); }
-	INLINE void DecRef() { if (--s_refs == 0) CleanupWinsock(); }
+#ifdef USE_STD_ATOMIC
+	/* before we increment, first time it'll be 0 */
+	INLINE void IncRef() { if (s_refCounter++ == 0) SetupWinsock(); }
+	INLINE void DecRef() { if (--s_refCounter== 0) CleanupWinsock(); }
 
-	static uint32 s_refs; // reference counter (one app can hold multiple socket manager instances)
+	// reference counter (one app can hold multiple socket manager instances)
+	static std::atomic_ulong s_refCounter;
+#else
+	/* first increment sets it to 1 */
+	INLINE void IncRef() { if (InterlockedIncrement(&s_refCounter) == 1) SetupWinsock(); }
+	INLINE void DecRef() { if (InterlockedDecrement(&s_refCounter) == 0) CleanupWinsock(); }
+
+	// reference counter (one app can hold multiple socket manager instances)
+	volatile static long s_refCounter;
+#endif
 };
 
 typedef void(*OperationHandler)(Socket * s, uint32 len);

@@ -12,10 +12,12 @@
 #if (__cplusplus >= 201103L) /* C++11 */  || (_MSC_VER >= 1700) /* VS2012 */
 #	include <thread>
 #	include <chrono>
+#	include <atomic>
 
 // Use new portable C++11 functionality.
 #	define USE_STD_THREAD
 #	define USE_STD_MUTEX
+#	define USE_STD_ATOMIC
 #	ifdef USE_STD_MUTEX
 #		define USE_STD_CONDITION_VARIABLE
 #	endif

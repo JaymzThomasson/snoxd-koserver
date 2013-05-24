@@ -58,7 +58,12 @@ unsigned int __stdcall SocketCleanupThread(void * lpParam)
 	return 0;
 }
 
-uint32 SocketMgr::s_refs = 0;
+#ifdef USE_STD_ATOMIC
+std::atomic_ulong SocketMgr::s_refCounter;
+#else
+long SocketMgr::s_refCounter;
+#endif
+
 FastMutex SocketMgr::s_disconnectionQueueLock;
 std::queue<Socket *> SocketMgr::s_disconnectionQueue;
 

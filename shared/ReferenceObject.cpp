@@ -1,21 +1,26 @@
-#include "WindowsHeaders.h"
+#include "stdafx.h"
 #include "ReferenceObject.h"
 
 ReferenceObject::ReferenceObject() 
-	: m_refCount(1)
 {
+	IncRef();
 }
 
 void ReferenceObject::IncRef() 
 {
-#ifdef _WIN32
+#ifdef USE_STD_ATOMIC
+	m_refCount++;
+#else /* win32 only */
 	InterlockedIncrement(&m_refCount);
 #endif
 }
 
 void ReferenceObject::DecRef()
 {
-#ifdef _WIN32
+#ifdef USE_STD_ATOMIC
+	if (--m_refCount == 0)
+		delete this;
+#else /* win32 only */
 	if (InterlockedDecrement(&m_refCount) == 0) 
 		delete this; 
 #endif
