@@ -65,6 +65,21 @@
 
 #endif
 
+/* Define the compiler we're using */
+#define COMPILER_MICROSOFT 0
+#define COMPILER_GNU	   1
+#define COMPILER_BORLAND   2
+
+#ifdef _MSC_VER
+#  define COMPILER COMPILER_MICROSOFT
+#elif defined( __BORLANDC__ )
+#  define COMPILER COMPILER_BORLAND
+#elif defined( __GNUC__ )
+#  define COMPILER COMPILER_GNU
+#else
+#  pragma error "FATAL ERROR: Unknown compiler."
+#endif
+
 /* Define the build we're compiling */
 #ifdef _DEBUG
 #		define BUILD_TYPE "Debug"
