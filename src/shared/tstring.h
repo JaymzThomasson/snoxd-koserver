@@ -1,7 +1,18 @@
 #pragma once
 
-#include <tchar.h>
 #include <string>
+
+// This header is Windows-specific
+// Allow for minimal code changes for other systems.
+#ifdef WIN32
+#include <tchar.h>
+#else
+#define TCHAR char
+#define _T(x) x
+#define _tprintf printf
+#define _vsntprintf _vsnprintf
+#define _stprintf sprintf
+#endif
 
 #ifdef UNICODE
 typedef std::wstring tstring;

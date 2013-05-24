@@ -861,7 +861,7 @@ bool CNpc::SetLive()
 	else if( m_bySpecialType == 5 && m_byChangeType == 3)	{		// 몬스터의 출현,,,
 	//else if( m_byChangeType == 3)	{		// 몬스터의 출현,,,
 		//char notify[50];
-		//sprintf_s( notify, sizeof(notify), "** 알림 : %s 몬스터가 출현하였습니다 **", m_proto->m_strName);
+		//_snprintf( notify, sizeof(notify), "** 알림 : %s 몬스터가 출현하였습니다 **", m_proto->m_strName);
 		//g_pMain->SendSystemMsg(notify, PUBLIC_CHAT);
 	}
 
@@ -3343,7 +3343,7 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid)
 		if(m_DamagedUserList[i].iUid == uid)	{
 			if(_stricmp("**duration**", id) == 0) {
 				bFlag = true;
-				strcpy_s(strDurationID, sizeof(strDurationID), pUser->m_strUserID);
+				strncpy(strDurationID, pUser->m_strUserID, sizeof(strDurationID));
 				if(_stricmp(m_DamagedUserList[i].strUserID, strDurationID) == 0)	{
 					m_DamagedUserList[i].nDamage += userDamage; 
 					goto go_result;
@@ -3368,7 +3368,7 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid)
 					TRACE("###  Npc SerDamage Fail ---> uid = %d, name=%s, len=%d, id=%s  ### \n", m_sNid+NPC_BAND, m_proto->m_strName, len, id);
 					continue;
 				}
-				if(bFlag == true)	strcpy_s(m_DamagedUserList[i].strUserID, sizeof(m_DamagedUserList[i].strUserID), strDurationID);
+				if(bFlag == true)	strncpy(m_DamagedUserList[i].strUserID, strDurationID, sizeof(m_DamagedUserList[i].strUserID));
 				else	{
 					if(_stricmp("**duration**", id) == 0) {
 						strcpy(m_DamagedUserList[i].strUserID, pUser->m_strUserID);
@@ -3489,11 +3489,11 @@ void CNpc::SendExpToUserList()
 					pMaxDamageUser = g_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
 					if(pMaxDamageUser == nullptr)	{
 						m_byMaxDamagedNation = pUser->m_bNation;
-						strcpy_s( strMaxDamageUser, sizeof(strMaxDamageUser), pUser->m_strUserID );
+						strncpy( strMaxDamageUser, pUser->m_strUserID, sizeof(strMaxDamageUser) );
 					}
 					else	{
 						m_byMaxDamagedNation = pMaxDamageUser->m_bNation;
-						strcpy_s( strMaxDamageUser, sizeof(strMaxDamageUser), pMaxDamageUser->m_strUserID );
+						strncpy( strMaxDamageUser, pMaxDamageUser->m_strUserID, sizeof(strMaxDamageUser) );
 					}
 				}
 
@@ -3639,11 +3639,11 @@ void CNpc::SendExpToUserList()
 					pMaxDamageUser = g_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
 					if(pMaxDamageUser == nullptr)	{
 						m_byMaxDamagedNation = pUser->m_bNation;
-						strcpy_s( strMaxDamageUser, sizeof(strMaxDamageUser), pUser->m_strUserID );
+						strncpy( strMaxDamageUser, pUser->m_strUserID, sizeof(strMaxDamageUser) );
 					}
 					else	{
 						m_byMaxDamagedNation = pMaxDamageUser->m_bNation;
-						strcpy_s( strMaxDamageUser, sizeof(strMaxDamageUser), pMaxDamageUser->m_strUserID );
+						strncpy( strMaxDamageUser, pMaxDamageUser->m_strUserID, sizeof(strMaxDamageUser) );
 					}
 				}
 

@@ -41,7 +41,7 @@ public:
 
 			if (pUser->GetClanID() == pData->sClanID)
 			{
-				sprintf_s(strKarusCaptain[nKarusCount++], 50, "[%s][%s]", pKnights->m_strName, pUser->GetName());
+				_snprintf(strKarusCaptain[nKarusCount++], 50, "[%s][%s]", pKnights->m_strName, pUser->GetName());
 				pUser->ChangeFame(COMMAND_CAPTAIN);
 			}
 		}
@@ -55,7 +55,7 @@ public:
 				return true;
 			if (pUser->GetClanID() == pData->sClanID)
 			{
-				sprintf_s(strElmoCaptain[nElmoCount++], 50, "[%s][%s]", pKnights->m_strName, pUser->GetName());
+				_snprintf(strElmoCaptain[nElmoCount++], 50, "[%s][%s]", pKnights->m_strName, pUser->GetName());
 				pUser->ChangeFame(COMMAND_CAPTAIN);
 			}
 		}

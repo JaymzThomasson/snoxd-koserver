@@ -108,7 +108,7 @@ bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 
 	{
 		// Build full path to script
 		char szPath[_MAX_PATH];
-		sprintf_s(szPath, sizeof(szPath), LUA_SCRIPT_DIRECTORY "%s", filename);
+		_snprintf(szPath, sizeof(szPath), LUA_SCRIPT_DIRECTORY "%s", filename);
 
 		// Release the read lock (we're not reading anymore)
 		m_lock->ReleaseReadLock();

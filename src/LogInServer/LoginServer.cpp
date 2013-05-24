@@ -76,37 +76,37 @@ void LoginServer::GetInfoFromIni()
 	{
 		pInfo = new _SERVER_INFO;
 
-		sprintf_s(key, sizeof(key), "SERVER_%02d", i);
+		_snprintf(key, sizeof(key), "SERVER_%02d", i);
 		ini.GetString("SERVER_LIST", key, "127.0.0.1", pInfo->strServerIP, sizeof(pInfo->strServerIP), false);
 
-		sprintf_s(key, sizeof(key), "LANIP_%02d", i);
+		_snprintf(key, sizeof(key), "LANIP_%02d", i);
 		ini.GetString("SERVER_LIST", key, "127.0.0.1", pInfo->strLanIP, sizeof(pInfo->strLanIP), false);
 
-		sprintf_s(key, sizeof(key), "NAME_%02d", i);
+		_snprintf(key, sizeof(key), "NAME_%02d", i);
 		ini.GetString("SERVER_LIST", key, "TEST|Server 1", pInfo->strServerName, sizeof(pInfo->strServerName), false);
 
-		sprintf_s(key, sizeof(key), "ID_%02d", i);
+		_snprintf(key, sizeof(key), "ID_%02d", i);
 		pInfo->sServerID = ini.GetInt("SERVER_LIST", key, 1);
 
-		sprintf_s(key, sizeof(key), "GROUPID_%02d", i);
+		_snprintf(key, sizeof(key), "GROUPID_%02d", i);
 		pInfo->sGroupID = ini.GetInt("SERVER_LIST", key, 1);
 
-		sprintf_s(key, sizeof(key), "PREMLIMIT_%02d", i);
+		_snprintf(key, sizeof(key), "PREMLIMIT_%02d", i);
 		pInfo->sPlayerCap = ini.GetInt("SERVER_LIST", key, MAX_USER);
 
-		sprintf_s(key, sizeof(key), "FREELIMIT_%02d", i);
+		_snprintf(key, sizeof(key), "FREELIMIT_%02d", i);
 		pInfo->sFreePlayerCap = ini.GetInt("SERVER_LIST", key, MAX_USER);
 
-		sprintf_s(key, sizeof(key), "KING1_%02d", i);
+		_snprintf(key, sizeof(key), "KING1_%02d", i);
 		ini.GetString("SERVER_LIST", key, "", pInfo->strKarusKingName, sizeof(pInfo->strKarusKingName));
 
-		sprintf_s(key, sizeof(key), "KING2_%02d", i);
+		_snprintf(key, sizeof(key), "KING2_%02d", i);
 		ini.GetString("SERVER_LIST", key, "", pInfo->strElMoradKingName, sizeof(pInfo->strElMoradKingName));
 
-		sprintf_s(key, sizeof(key), "KINGMSG1_%02d", i);
+		_snprintf(key, sizeof(key), "KINGMSG1_%02d", i);
 		ini.GetString("SERVER_LIST", key, "", pInfo->strKarusNotice, sizeof(pInfo->strKarusNotice));
 
-		sprintf_s(key, sizeof(key), "KINGMSG2_%02d", i);
+		_snprintf(key, sizeof(key), "KINGMSG2_%02d", i);
 		ini.GetString("SERVER_LIST", key, "", pInfo->strElMoradNotice, sizeof(pInfo->strElMoradNotice));
 
 		m_ServerList.push_back(pInfo);
@@ -123,14 +123,14 @@ void LoginServer::GetInfoFromIni()
 	{
 		string title, message;
 
-		sprintf_s(key, sizeof(key), "TITLE_%02d", i);
+		_snprintf(key, sizeof(key), "TITLE_%02d", i);
 		ini.GetString("NEWS", key, "", tmp, sizeof(tmp));
 
 		title = tmp;
 		if (title.size() == 0)
 			continue;
 		
-		sprintf_s(key, sizeof(key), "MESSAGE_%02d", i);
+		_snprintf(key, sizeof(key), "MESSAGE_%02d", i);
 		ini.GetString("NEWS", key, "", tmp, sizeof(tmp));
 
 		message = tmp;
