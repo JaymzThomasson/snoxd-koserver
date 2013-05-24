@@ -366,7 +366,6 @@
     <ClInclude Include="..\shared\SocketOps.h" />
     <ClInclude Include="..\shared\STLMap.h" />
     <ClInclude Include="..\shared\TimeThread.h" />
-    <ClInclude Include="..\shared\WindowsHeaders.h" />
     <ClInclude Include="AISocket.h" />
     <ClInclude Include="ChatHandler.h" />
     <ClInclude Include="ConsoleInputThread.h" />

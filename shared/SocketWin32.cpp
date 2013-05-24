@@ -43,7 +43,6 @@ bool Socket::Connect(const char * Address, uint32 Port)
 	return true;
 }
 
-
 void Socket::WriteCallback()
 {
 	if (IsDeleted() || !IsConnected())

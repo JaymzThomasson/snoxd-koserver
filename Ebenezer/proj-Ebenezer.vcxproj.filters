@@ -446,9 +446,6 @@
     <ClInclude Include="..\shared\Mutex.h">
       <Filter>Shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\WindowsHeaders.h">
-      <Filter>Shared</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\RWLock.h">
       <Filter>Shared</Filter>
     </ClInclude>
