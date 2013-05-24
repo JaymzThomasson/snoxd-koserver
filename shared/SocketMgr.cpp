@@ -61,7 +61,7 @@ unsigned int __stdcall SocketCleanupThread(void * lpParam)
 #ifdef USE_STD_ATOMIC
 std::atomic_ulong SocketMgr::s_refCounter;
 #else
-long SocketMgr::s_refCounter;
+long SocketMgr::s_refCounter = 0;
 #endif
 
 FastMutex SocketMgr::s_disconnectionQueueLock;

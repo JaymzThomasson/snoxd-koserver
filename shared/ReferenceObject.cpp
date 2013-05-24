@@ -2,6 +2,9 @@
 #include "ReferenceObject.h"
 
 ReferenceObject::ReferenceObject() 
+#ifndef USE_STD_ATOMIC
+	: m_refCount(0)
+#endif
 {
 	IncRef();
 }
