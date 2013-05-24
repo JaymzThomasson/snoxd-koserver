@@ -392,7 +392,7 @@ public:
 	int GetDir(float x1, float z1, float x2, float z2);
 	void NpcMoveEnd();
 
-	inline float RandomGenf(float max, float min);
+	INLINE float RandomGenf(float max, float min);
 	void GetVectorPosition(__Vector3 & vOrig, __Vector3 & vDest, float fDis, __Vector3 * vResult);
 	void CalcAdaptivePosition(__Vector3 & vPosOrig, __Vector3 & vPosDest, float fAttackDistance, __Vector3 * vResult);
 	void ComputeDestPos(__Vector3 & vCur, float fDegree, float fDegreeOffset, float fDistance, __Vector3 * vResult);

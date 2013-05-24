@@ -16,7 +16,7 @@
 	arg[id++] = atoi(temp); \
 }
 
-inline int ParseSpace( char* tBuf, char* sBuf)
+INLINE int ParseSpace( char* tBuf, char* sBuf)
 {
 	int i = 0, index = 0;
 	bool flag = false;

@@ -98,10 +98,10 @@ public:
 
 	uint8 operator[](size_t pos) { return read<uint8>(pos); }
 
-	__forceinline size_t rpos() { return _rpos; };
-	__forceinline size_t rpos(size_t rpos) { return _rpos = rpos; };
-	__forceinline size_t wpos() { return _wpos; };
-	__forceinline size_t wpos(size_t wpos) { return _wpos = wpos; };
+	INLINE size_t rpos() { return _rpos; };
+	INLINE size_t rpos(size_t rpos) { return _rpos = rpos; };
+	INLINE size_t wpos() { return _wpos; };
+	INLINE size_t wpos(size_t wpos) { return _wpos = wpos; };
 
 	template <typename T> T read() 
 	{
@@ -128,7 +128,7 @@ public:
 	};
 
 	const uint8 *contents() const { return &_storage[0]; };
-	__forceinline size_t size() const { return _storage.size(); };
+	INLINE size_t size() const { return _storage.size(); };
 
 	// one should never use resize
 	void resize(size_t newsize) 
@@ -171,7 +171,7 @@ public:
 		memcpy(&_storage[pos], src, cnt);
 	}
 
-	__forceinline void reverse() { std::reverse(_storage.begin(), _storage.end()); }
+	INLINE void reverse() { std::reverse(_storage.begin(), _storage.end()); }
 
 protected:
 	// read and write positions

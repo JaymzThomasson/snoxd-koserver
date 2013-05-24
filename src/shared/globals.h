@@ -162,7 +162,7 @@ enum StatType
 #define STAT_MAX 255
 #define QUEST_ARRAY_SIZE 600 // That's a limit of 200 quests (3 bytes per quest)
 
-inline int myrand( int min, int max )
+INLINE int myrand( int min, int max )
 {
 	if( min == max ) return min;
 	if( min > max )
@@ -185,7 +185,7 @@ inline int myrand( int min, int max )
 	return (int)( min + (int)rand_result );
 };
 
-inline bool CheckPercent(short percent)
+INLINE bool CheckPercent(short percent)
 {
 	if (percent < 0 || percent > 1000) 
 		return false;
