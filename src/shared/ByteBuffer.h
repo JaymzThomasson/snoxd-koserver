@@ -171,8 +171,6 @@ public:
 		memcpy(&_storage[pos], src, cnt);
 	}
 
-	INLINE void reverse() { std::reverse(_storage.begin(), _storage.end()); }
-
 protected:
 	// read and write positions
 	size_t _rpos, _wpos;
