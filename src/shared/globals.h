@@ -144,7 +144,7 @@ struct _MERCH_DATA
 	uint32 nNum;
 	int16 sDuration;
 	uint16 sCount;
-	__int64 nSerialNum;
+	uint64 nSerialNum;
 	uint32 nPrice;
 	uint8 bOriginalSlot;
 };

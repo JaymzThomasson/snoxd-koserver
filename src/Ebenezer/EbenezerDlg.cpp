@@ -1561,7 +1561,7 @@ int CEbenezerDlg::KickOutAllUsers()
 /**
  * @brief	Generates a new item serial.
  */
-__int64 CEbenezerDlg::GenerateItemSerial()
+uint64 CEbenezerDlg::GenerateItemSerial()
 {
 	static FastMutex _mutex;
 

@@ -164,7 +164,7 @@ public:
 	uint32	m_bAbnormalType;			// Is the player normal,a giant, or a dwarf?
 
 	short	m_sWhoKilledMe;				// Who killed me???
-	__int64		m_iLostExp;					// Experience point that was lost when you died.
+	int64		m_iLostExp;					// Experience point that was lost when you died.
 
 	time_t	m_tLastTrapAreaTime;		// The last moment you were in the trap area.
 
@@ -615,7 +615,7 @@ public:
 	void SetZoneAbilityChange();
 	void SetMaxMp();
 	void SetMaxHp(int iFlag=0);
-	void ExpChange(__int64 iExp);
+	void ExpChange(int64 iExp);
 	void LogOut();
 	void SendMyInfo();
 	void SendServerChange(char *ip, uint8 bInit);

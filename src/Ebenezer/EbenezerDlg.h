@@ -66,7 +66,7 @@ public:
 	void GetCaptainUserPtr();
 	void Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser = nullptr);
 	void KickOutZoneUsers(short zone);
-	__int64 GenerateItemSerial();
+	uint64 GenerateItemSerial();
 	int KickOutAllUsers();
 	void CheckAliveUser();
 	int GetKnightsGrade(int nPoints);

@@ -189,7 +189,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 		{
 			short duration = m_sItemArray[SLOT_MAX+srcpos].sDuration;
 			short itemcount = m_sItemArray[SLOT_MAX+srcpos].sCount;
-			__int64 serial = m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
+			uint64 serial = m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
 			m_sItemArray[SLOT_MAX+srcpos].nNum = m_sItemArray[SLOT_MAX+destpos].nNum;
 			m_sItemArray[SLOT_MAX+srcpos].sDuration = m_sItemArray[SLOT_MAX+destpos].sDuration;
 			m_sItemArray[SLOT_MAX+srcpos].sCount = m_sItemArray[SLOT_MAX+destpos].sCount;
