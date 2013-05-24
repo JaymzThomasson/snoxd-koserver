@@ -89,7 +89,6 @@
 // Sometimes it's necessary to avoid collisions, but aside from that, specifying the enumeration helps make code intent clearer.
 #pragma warning(disable: 4482)
 
-
 #define STR(str) #str
 #define STRINGIFY(str) STR(str)
 

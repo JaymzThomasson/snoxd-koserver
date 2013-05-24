@@ -3,7 +3,6 @@
 #include <queue>
 #include <set>
 #include "Socket.h"
-#include "ListenSocket.h"
 
 uint32 __stdcall SocketCleanupThread(void * lpParam);
 
