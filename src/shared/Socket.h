@@ -94,9 +94,8 @@ protected:
 
 	SocketMgr *m_socketMgr;
 
-	// IOCP specific
+#ifdef CONFIG_USE_IOCP
 public:
-
 	// Set completion port that this socket will be assigned to.
 	INLINE void SetCompletionPort(HANDLE cp) { m_completionPort = cp; }
 	
@@ -123,4 +122,5 @@ private:
 	
 	// Assigns the socket to his completion port.
 	void AssignToCompletionPort();
+#endif
 };

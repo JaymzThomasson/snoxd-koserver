@@ -3,7 +3,7 @@
 void StartTimeThread();
 void CleanupTimeThread();
 	
-uint32 __stdcall TimeThread(void * lpParam);
+uint32 THREADCALL TimeThread(void * lpParam);
 
 extern bool g_bRunning;
 extern time_t UNIXTIME;

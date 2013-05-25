@@ -17,7 +17,7 @@ std::atomic_ulong SocketMgr::s_refCounter;
 volatile long SocketMgr::s_refCounter = 0;
 #endif
 
-uint32 __stdcall SocketCleanupThread(void * lpParam)
+uint32 THREADCALL SocketCleanupThread(void * lpParam)
 {
 	while (SocketMgr::s_bRunningCleanupThread)
 	{

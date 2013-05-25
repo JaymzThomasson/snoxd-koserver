@@ -10,8 +10,7 @@
 #	else
 #		include <sys/event.h>
 #	endif
-#endif
-
+#else // IOCP-specific functionality
 enum SocketIOEvent
 {
 	SOCKET_IO_EVENT_READ_COMPLETE   = 0,
@@ -71,3 +70,4 @@ public:
 #endif
 	}
 };
+#endif

@@ -58,8 +58,8 @@ public:
 
 	void AIServerConnect();
 
-	static uint32 __stdcall Timer_UpdateGameTime(void * lpParam);
-	static uint32 __stdcall Timer_CheckAliveUser(void * lpParam);
+	static uint32 THREADCALL Timer_UpdateGameTime(void * lpParam);
+	static uint32 THREADCALL Timer_CheckAliveUser(void * lpParam);
 
 	void SendFlyingSantaOrAngel();
 	void BattleZoneCurrentUsers();

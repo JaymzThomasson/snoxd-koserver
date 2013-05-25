@@ -67,7 +67,7 @@ public:
 	MAP * GetZoneByID(int zonenumber);
 	int GetServerNumber( int zonenumber );
 
-	static uint32 __stdcall Timer_CheckAliveTest(void * lpParam);
+	static uint32 THREADCALL Timer_CheckAliveTest(void * lpParam);
 	void CheckAliveTest();
 	void DeleteUserList(int uid);
 	void DeleteAllUserList(CGameSocket *pSock = nullptr);

@@ -28,6 +28,8 @@
 #	include <winsock2.h>
 #	include <ws2tcpip.h>
 
+#	define THREADCALL WINAPI
+
 #else /* not a Windows environment */
 
 #	include "config.h"
@@ -62,6 +64,8 @@
 #		define PLATFORM_TEXT "Linux"
 #		define CONFIG_USE_EPOLL
 #	endif
+
+#	define THREADCALL 
 
 #endif
 
@@ -137,6 +141,9 @@
 #ifndef WIN32
 #	define SetConsoleTitle(title) /* unsupported & unnecessary */
 #endif
+
+#include <cstring>
+#include <string>
 
 #include "types.h"
 #include "globals.h"

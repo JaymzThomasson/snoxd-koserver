@@ -4,7 +4,7 @@
 #include <set>
 #include "Socket.h"
 
-uint32 __stdcall SocketCleanupThread(void * lpParam);
+uint32 THREADCALL SocketCleanupThread(void * lpParam);
 
 class SocketMgr
 {
@@ -29,8 +29,8 @@ public:
 	virtual void Shutdown();
 	virtual ~SocketMgr();
 
-	static FastMutex SocketMgr::s_disconnectionQueueLock;
-	static std::queue<Socket *> SocketMgr::s_disconnectionQueue;
+	static FastMutex s_disconnectionQueueLock;
+	static std::queue<Socket *> s_disconnectionQueue;
 
 protected:
 	bool m_bShutdown;

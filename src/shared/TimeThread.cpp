@@ -33,7 +33,7 @@ void CleanupTimeThread()
 #endif
 }
 
-uint32 __stdcall TimeThread(void * lpParam)
+uint32 THREADCALL TimeThread(void * lpParam)
 {
 	while (g_bRunning)
 	{

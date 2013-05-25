@@ -12,7 +12,7 @@
 #ifdef CONFIG_USE_IOCP
 
 template <class T>
-uint32 __stdcall ListenSocketThread(void * lpParam)
+uint32 THREADCALL ListenSocketThread(void * lpParam)
 {
 	ListenSocket<T> * ls = (ListenSocket<T> *)lpParam;
 	return ls->runnable() ? 0 : 1;

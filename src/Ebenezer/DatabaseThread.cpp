@@ -44,7 +44,7 @@ void DatabaseThread::AddRequest(Packet * pkt)
 	s_hEvent.Signal();
 }
 
-unsigned int __stdcall DatabaseThread::ThreadProc(void * lpParam)
+uint32 THREADCALL DatabaseThread::ThreadProc(void * lpParam)
 {
 	while (_running)
 	{

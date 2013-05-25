@@ -31,7 +31,7 @@ void CleanupConsoleInputThread()
 #endif
 }
 
-unsigned int __stdcall ConsoleInputThread(void * lpParam)
+uint32 THREADCALL ConsoleInputThread(void * lpParam)
 {
 	size_t i = 0;
 	size_t len;

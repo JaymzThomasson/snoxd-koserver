@@ -113,7 +113,10 @@ bool KOSocketMgr<T>::Listen(uint16 sPort, uint16 sTotalSessions)
 	if (m_server != nullptr)
 		return false;
 
+#ifdef CONFIG_USE_IOCP
 	CreateCompletionPort();
+#endif
+
 	m_server = new ListenSocket<T>(this, "0.0.0.0", sPort);
 	if (!m_server->IsOpen())
 		return false;
