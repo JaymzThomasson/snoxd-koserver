@@ -28,16 +28,19 @@ int main()
 	g_pMain = &pMain;
 
 	// Startup server
-	if (!g_pMain->Startup())
+	if (g_pMain->Startup())
 	{
-		system("pause"); // most users won't be running this via command prompt
-		return 1;
+		printf("\nServer started up successfully!\n");
+
+		// Wait until console's signaled as closing
+		s_hEvent.Wait();
 	}
-
-	printf("\nServer started up successfully!\n");
-
-	// Wait until console's signaled as closing
-	s_hEvent.Wait();
+	else
+	{
+#ifdef WIN32
+		system("pause");
+#endif
+	}
 
 	printf("Server shutting down, please wait...\n");
 
