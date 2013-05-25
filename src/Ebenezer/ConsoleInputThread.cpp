@@ -24,7 +24,8 @@ void CleanupConsoleInputThread()
 	// as it's blocking on fgets(). Need to fix this up so that we can wait for the thread.
 	// Currently we close the thread when a read error occurs (ctrl-c causes a read error, exiting does not).
 #ifdef USE_STD_THREAD
-	s_hConsoleInputThread.join();
+	if (s_hConsoleInputThread.joinable())
+		s_hConsoleInputThread.join();
 #else
 	TerminateThread(s_hConsoleInputThread, 0);
 	WaitForSingleObject(s_hConsoleInputThread, INFINITE);

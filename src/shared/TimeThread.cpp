@@ -27,7 +27,8 @@ void StartTimeThread()
 void CleanupTimeThread()
 {
 #ifdef USE_STD_THREAD
-	s_hTimeThread.join();
+	if (s_hTimeThread.joinable())
+		s_hTimeThread.join();
 #else
 	WaitForSingleObject(s_hTimeThread, INFINITE);
 #endif

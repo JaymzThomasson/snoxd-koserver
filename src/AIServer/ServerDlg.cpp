@@ -897,7 +897,8 @@ CServerDlg::~CServerDlg()
 	foreach (itr, m_arNpcThread)
 		(*itr)->m_hThread.join();
 
-	m_hZoneEventThread.join();
+	if (m_hZoneEventThread.joinable())
+		m_hZoneEventThread.join();
 
 	foreach (itr, g_hTimerThreads)
 		(*itr).join();
