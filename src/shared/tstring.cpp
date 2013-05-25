@@ -33,6 +33,13 @@ std::string & rtrim(std::string &s)
 	return s;
 }
 
+// trim from start
+std::string & ltrim(std::string &s) 
+{
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(safe_isspace))));
+	return s;
+}
+
 void tstrcpy(char *dst, size_t len, std::string & src)
 {
 	memset(dst, 0x00, len);

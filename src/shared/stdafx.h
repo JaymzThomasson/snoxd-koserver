@@ -142,9 +142,9 @@
 #	define SetConsoleTitle(title) /* unsupported & unnecessary */
 #endif
 
-#include <cstring>
-#include <string>
+#include <map>
 
+#include "tstring.h"
 #include "types.h"
 #include "globals.h"
 #include "Network.h"

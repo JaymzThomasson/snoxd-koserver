@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <string>
 
 // This header is Windows-specific
@@ -23,4 +24,5 @@ typedef std::string tstring;
 void _string_format(const std::string fmt, std::string * result, va_list args);
 std::string string_format(const std::string fmt, ...);
 std::string & rtrim(std::string &s);
+std::string & ltrim(std::string &s);
 void tstrcpy(char *dst, size_t len, std::string & src);
