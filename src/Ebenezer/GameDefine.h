@@ -249,6 +249,7 @@ struct	_EXCHANGE_ITEM
 	uint32	nCount;
 	uint16	sDurability;
 	uint8	bSrcPos;
+	uint8	bDstPos;
 	uint64	nSerialNum;
 };
 

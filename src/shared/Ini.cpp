@@ -57,7 +57,7 @@ bool CIni::Load(const char * lpFilename /*= nullptr*/)
 			std::string key = line.substr(0, keySeparatorPos),
 						value = line.substr(keySeparatorPos + 1);
 
-			// Clean up key/value to allow for 'key = valu
+			// Clean up key/value to allow for 'key = value'
 			rtrim(key);   /* remove trailing whitespace from keys */
 			ltrim(value); /* remove preleading whitespace from values */
 

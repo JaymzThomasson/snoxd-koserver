@@ -98,7 +98,7 @@ void CUser::ExchangeAdd(Packet & pkt)
 	uint64 nSerialNum;
 	uint32 nItemID, count = 0;
 	uint16 duration = 0;
-	_EXCHANGE_ITEM* pItem = nullptr;
+	_ITEM_DATA * pSrcItem = nullptr;
 	list<_EXCHANGE_ITEM*>::iterator	Iter;
 	uint8 pos;
 	bool bAdd = true, bGold = false;
@@ -115,7 +115,6 @@ void CUser::ExchangeAdd(Packet & pkt)
 	pkt >> pos >> nItemID >> count;
 	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
 	if (pTable == nullptr
-
 		|| (nItemID != ITEM_GOLD 
 			&& (pos >= HAVE_MAX // Invalid position
 				|| nItemID >= ITEM_NO_TRADE // Cannot be traded, stored or sold.
@@ -128,26 +127,26 @@ void CUser::ExchangeAdd(Packet & pkt)
 		if (count <= 0 || count > m_iGold) 
 			goto add_fail;
 
+		// If we have coins in the list already
+		// add to the amount of coins listed.
 		foreach (itr, m_ExchangeItemList)
 		{
 			if ((*itr)->nItemID == ITEM_GOLD)
 			{
 				(*itr)->nCount += count;
-				m_iGold -= count;
-				bAdd = false;
+				bAdd = false; /* don't need to add a new entry */
 				break;
 			}
 		}
-		if (bAdd)
-			m_iGold -= count;
+
+		m_iGold -= count;
 	}
-	else if (m_MirrorItem[pos].nNum == nItemID)
+	else if ((pSrcItem = GetItem(SLOT_MAX + pos)) != nullptr
+		&& pSrcItem->nNum == nItemID)
 	{
-		// TO-DO: Remove this mirrored setup, it's no doubt going to cause us grief.
-		_ITEM_DATA *pItem = &m_MirrorItem[pos];
-		if (pItem->sCount < count
-			|| pItem->isRented()
-			|| pItem->isSealed())
+		if (pSrcItem->sCount < count
+			|| pSrcItem->isRented()
+			|| pSrcItem->isSealed())
 			goto add_fail;
 
 		if (pTable->m_bCountable)
@@ -157,21 +156,16 @@ void CUser::ExchangeAdd(Packet & pkt)
 				if ((*itr)->nItemID == nItemID)
 				{
 					(*itr)->nCount += count;
-					pItem->sCount -= count;
 					bAdd = false;
 					break;
 				}
 			}
 		}
 
-		if (bAdd)
-			pItem->sCount -= count;
+		pSrcItem->sCount -= count;
 	
-		duration = pItem->sDuration;
-		nSerialNum = pItem->nSerialNum;
-
-		if (pItem->sCount <= 0 || pTable->m_bCountable == 0)
-			memset(pItem, 0, sizeof(_ITEM_DATA));
+		duration = pSrcItem->sDuration;
+		nSerialNum = pSrcItem->nSerialNum;
 	}
 	else
 		goto add_fail;
@@ -189,11 +183,12 @@ void CUser::ExchangeAdd(Packet & pkt)
 
 	if (bAdd)
 	{
-		pItem = new _EXCHANGE_ITEM;
+		_EXCHANGE_ITEM * pItem = new _EXCHANGE_ITEM;
 		pItem->nItemID = nItemID;
 		pItem->sDurability = duration;
 		pItem->nCount = count;
 		pItem->nSerialNum = nSerialNum;
+		pItem->bSrcPos = SLOT_MAX + pos;
 		m_ExchangeItemList.push_back(pItem);
 	}
 
@@ -214,8 +209,6 @@ add_fail:
 
 void CUser::ExchangeDecide()
 {
-	bool bSuccess = true;
-
 	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
 	if (pUser == nullptr
 		|| pUser->isDead()
@@ -234,38 +227,28 @@ void CUser::ExchangeDecide()
 		return;
 	}
 
-	if (!ExecuteExchange() || !pUser->ExecuteExchange())
+	// Did the exchange requirements fail?
+	if (!CheckExchange() || !pUser->CheckExchange())
 	{
-		foreach (itr, m_ExchangeItemList)
-		{
-			if ((*itr)->nItemID == ITEM_GOLD)
-			{
-				m_iGold += (*itr)->nCount;
-				break;
-			}
-		}
-			
-		foreach (itr, pUser->m_ExchangeItemList)
-		{
-			if ((*itr)->nItemID == ITEM_GOLD)
-			{
-				pUser->m_iGold += (*itr)->nCount;
-				break;
-			}
-		}
-
-		bSuccess = false;
+		// At this stage, neither user has their items exchanged.
+		// However, their coins were removed -- these will be removed by InitExchange().
+		result << uint8(EXCHANGE_DONE) << uint8(0);
+		Send(&result);
+		pUser->Send(&result);
 	}
-
-	if (bSuccess)
+	else
 	{
+		ExecuteExchange();
+		pUser->ExecuteExchange();
+
+		Packet result(WIZ_EXCHANGE);
 		result << uint8(EXCHANGE_DONE) << uint8(1)
 				<< m_iGold
 				<< uint16(pUser->m_ExchangeItemList.size());
 
 		foreach (itr, pUser->m_ExchangeItemList)
 		{
-			result	<< (*itr)->bSrcPos << (*itr)->nItemID
+			result	<< (*itr)->bDstPos << (*itr)->nItemID
 					<< uint16((*itr)->nCount) << (*itr)->sDurability;
 		}
 		Send(&result);
@@ -278,19 +261,13 @@ void CUser::ExchangeDecide()
 
 		foreach (itr, m_ExchangeItemList)
 		{
-			result	<< (*itr)->bSrcPos << (*itr)->nItemID
+			result	<< (*itr)->bDstPos << (*itr)->nItemID
 					<< uint16((*itr)->nCount) << (*itr)->sDurability;
 		}
 		pUser->Send(&result);
 
 		SendItemWeight();
 		pUser->SendItemWeight();
-	}
-	else 
-	{
-		result << uint8(EXCHANGE_DONE) << uint8(0);
-		Send(&result);
-		pUser->Send(&result);
 	}
 
 	InitExchange(false);
@@ -304,15 +281,6 @@ void CUser::ExchangeCancel()
 		return;
 
 	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
-	foreach (itr, m_ExchangeItemList)
-	{
-		if ((*itr)->nItemID == ITEM_GOLD)
-		{
-			m_iGold += (*itr)->nCount;
-			break;
-		}
-	}
-
 	InitExchange(false);
 
 	if (pUser != nullptr)
@@ -330,7 +298,17 @@ void CUser::InitExchange(bool bStart)
 	{
 		_EXCHANGE_ITEM *pItem = m_ExchangeItemList.front();
 		if (pItem != nullptr)
+		{
+			// Restore coins to owner
+			if (pItem->nItemID == ITEM_GOLD)
+				m_iGold += pItem->nCount;
+			// Restore items to owner
+			// NOTE: Items are only completely removed when exchanging.
+			else
+				GetItem(pItem->bSrcPos)->sCount += pItem->nCount;
+
 			delete pItem;
+		}
 
 		m_ExchangeItemList.pop_front();
 	}
@@ -339,35 +317,83 @@ void CUser::InitExchange(bool bStart)
 	{
 		m_sExchangeUser = -1;
 		m_bExchangeOK = 0;
-		memset(&m_MirrorItem, 0, sizeof(m_MirrorItem));
 		return;
-	}
-
-	foreach_array (i, m_MirrorItem)
-	{
-		_ITEM_DATA *pItem = &m_sItemArray[SLOT_MAX+i];
-		m_MirrorItem[i].nNum = pItem->nNum;
-		m_MirrorItem[i].sDuration = pItem->sDuration;
-		m_MirrorItem[i].sCount = pItem->sCount;
-		m_MirrorItem[i].nSerialNum = pItem->nSerialNum;
 	}
 }
 
-bool CUser::ExecuteExchange()
+/**
+ * @brief	Determines if a trade will be successful.
+ * 			If it's successful, we can exchange the items.
+ *
+ * @return	true if it succeeds, false if it fails.
+ */
+bool CUser::CheckExchange()
 {
 	uint32 money = 0;
-	short weight = 0;
-	uint8 i = 0;
+	uint16 weight = 0;
 
 	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
 	if (pUser == nullptr)
 		return false;
 
+	// Get the total number of free slots in the player's inventory
+	uint8 bFreeSlots = 0, bItemCount = 0;
+	for (uint8 i = SLOT_MAX; i < SLOT_MAX+HAVE_MAX; i++)
+	{
+		_ITEM_DATA * pItem = GetItem(i);
+		if (pItem->nNum == 0)
+			bFreeSlots++;
+	}
+
+	// Loop through the other user's list of items up for trade.
+	foreach (Iter, pUser->m_ExchangeItemList)
+	{
+		// If we're trading coins, ensure we don't exceed our limit.
+		if ((*Iter)->nItemID == ITEM_GOLD)
+		{
+			money += (*Iter)->nCount;
+			if ((m_iGold + money) > COIN_MAX)
+				return false;
+
+			continue;
+		}
+
+		// Does this item exist?
+		_ITEM_TABLE *pTable = g_pMain->GetItemPtr((*Iter)->nItemID);
+		if (pTable == nullptr)
+			return false;
+
+		// Is there enough room for this item?
+		// NOTE: Also ensures we have enough space in our inventory (with one exchange in mind anyway)
+		if (!CheckWeight(pTable, (*Iter)->nItemID, (*Iter)->nCount))
+			return false;
+
+		// Total up the weight.
+		weight += pTable->m_sWeight;
+		bItemCount++;
+	}
+
+	// Do we have enough free slots for all these items?
+	if (bItemCount > bFreeSlots)
+		return false; /* note: ignores item stacks for now */
+
+	// Ensure the total combined item weight does not exceed our weight limit
+	return ((weight + m_sItemWeight) <= m_sMaxWeight);
+}
+
+bool CUser::ExecuteExchange()
+{
+	CUser *pUser = g_pMain->GetUserPtr(m_sExchangeUser);
+	if (pUser == nullptr)
+		return false;
+
+	ItemList::iterator coinItr = pUser->m_ExchangeItemList.end();
 	foreach (Iter, pUser->m_ExchangeItemList)
 	{
 		if ((*Iter)->nItemID == ITEM_GOLD)
 		{
-			money = (*Iter)->nCount;
+			m_iGold += (*Iter)->nCount;
+			coinItr = Iter;
 			continue;
 		}
 
@@ -375,95 +401,44 @@ bool CUser::ExecuteExchange()
 		if (pTable == nullptr)
 			continue;
 
-		for (i = 0; i < HAVE_MAX; i++)
-		{
-			_ITEM_DATA *pItem = &m_MirrorItem[i];
-			if (pItem->nNum == 0 && !pTable->m_bCountable)
-			{
-				pItem->nNum = (*Iter)->nItemID;
-				pItem->sDuration = (*Iter)->sDurability;
-				pItem->sCount = (*Iter)->nCount;
-				pItem->nSerialNum = (*Iter)->nSerialNum;
-				(*Iter)->bSrcPos = i;	
-				weight += pTable->m_sWeight;
-				break;
-			}
+		int nSlot = FindSlotForItem((*Iter)->nItemID, (*Iter)->nCount);
+		ASSERT(nSlot > 0); /* this shouldn't happen, CheckExchange() prevents this */
 
-			if (pItem->nNum == (*Iter)->nItemID && pTable->m_bCountable)
-			{			
-				pItem->sCount += (*Iter)->nCount;
-				if (pItem->sCount > MAX_ITEM_COUNT )
-					pItem->sCount = MAX_ITEM_COUNT;
-				weight += pTable->m_sWeight * (*Iter)->nCount;
-				(*Iter)->bSrcPos = i;
-				break;
-			}
-		}
+		_ITEM_DATA * pDstItem = GetItem(nSlot);
+		_ITEM_DATA * pSrcItem = pUser->GetItem((*Iter)->bSrcPos);
 
-		if (i == HAVE_MAX && pTable->m_bCountable)
-		{
-			for (i = 0; i < HAVE_MAX; i++)
-			{
-				_ITEM_DATA *pItem = &m_MirrorItem[i];
-				if (pItem->nNum != 0)
-					continue;
+		ASSERT(pDstItem->nNum == pSrcItem->nNum || pDstItem->nNum == 0);
 
-				pItem->nNum = (*Iter)->nItemID;
-				pItem->sDuration = (*Iter)->sDurability;
-				pItem->sCount = (*Iter)->nCount;
-				(*Iter)->bSrcPos = i;
-				weight += pTable->m_sWeight * (*Iter)->nCount;
-				break;
-			}
-		}
-	}
+		pDstItem->nNum = pSrcItem->nNum;
+		pDstItem->sCount += (*Iter)->nCount;
 
-	return ((weight + m_sItemWeight) <= m_sMaxWeight);
-}
-
-int CUser::ExchangeDone()
-{
-	int money = 0;
-	CUser* pUser = nullptr;
-	_ITEM_TABLE* pTable = nullptr;
-
-	pUser = g_pMain->GetUserPtr(m_sExchangeUser);
-	if (pUser == nullptr)
-		return 0;
-
-	// TO-DO: Clean this up. Not sure why the coin entry is the only thing being cleaned up.
-	// It's cleaned up properly in InitExchange()... it's no wonder this system's so abusable.
-	// The mirror item setup is also confusing when there's the existing exchange list.
-	foreach (itr, pUser->m_ExchangeItemList)
-	{
-		if ((*itr)->nItemID != ITEM_GOLD)
-			continue;
-
-		money = (*itr)->nCount;
-		delete (*itr);
-		pUser->m_ExchangeItemList.erase(itr);
-		break;
-	}
+		if (pDstItem->sCount > MAX_ITEM_COUNT)
+			pDstItem->sCount = MAX_ITEM_COUNT;
 	
-	if (money > 0) 
-		m_iGold += money;
+		pDstItem->sDuration = pSrcItem->sDuration;
+		pDstItem->nSerialNum = pSrcItem->nSerialNum;
 
-	for (int i = 0; i < HAVE_MAX; i++)
-	{
-		_ITEM_DATA *pItem = &m_sItemArray[SLOT_MAX+i];
+		// This is really silly, but match the count up with the duration
+		// for this special items that behave this way.
+		if (pTable->m_bKind == 255)
+			pDstItem->sCount = pDstItem->sDuration;
 
-		pItem->nNum = m_MirrorItem[i].nNum;
-		pItem->sDuration = m_MirrorItem[i].sDuration;
-		pItem->sCount = m_MirrorItem[i].sCount;
-		pItem->nSerialNum = m_MirrorItem[i].nSerialNum;
+		// Set destination position for use in packet to client
+		// to let them know where the item is.
+		(*Iter)->bDstPos = (uint8) (nSlot - SLOT_MAX);
 
-		pTable = g_pMain->GetItemPtr(pItem->nNum);
-		if (pTable == nullptr)
-			continue;
-
-		if (!pTable->m_bCountable && pItem->nSerialNum == 0)
-			pItem->nSerialNum = g_pMain->GenerateItemSerial();
+		// Remove the item from the other player.
+		if (pSrcItem->sCount == 0)
+			memset(pSrcItem, 0, sizeof(_ITEM_DATA));
 	}
 
-	return money;
+	// Remove coins from the list so it doesn't get sent
+	// with the rest of the packet.
+	if (coinItr != pUser->m_ExchangeItemList.end())
+	{
+		delete *coinItr;
+		pUser->m_ExchangeItemList.erase(coinItr);
+	}
+
+	return true;
 }

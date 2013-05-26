@@ -143,7 +143,6 @@ public:
 	uint8	m_bExchangeOK;
 
 	ItemList	m_ExchangeItemList;
-	_ITEM_DATA	m_MirrorItem[HAVE_MAX];
 
 	bool	m_bBlockPrivateChat;
 	short	m_sPrivateChatUser;
@@ -479,8 +478,8 @@ public:
 	void ExchangeCancel();
 
 	void InitExchange(bool bStart);
+	bool CheckExchange();
 	bool ExecuteExchange();
-	int ExchangeDone();
 
 	// Merchant system (both types)
 	void MerchantProcess(Packet & pkt);
