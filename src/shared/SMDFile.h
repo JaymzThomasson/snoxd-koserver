@@ -14,9 +14,9 @@ class SMDFile : public ReferenceObject
 public:
 	SMDFile();
 
-	static SMDFile *Load(std::string mapName);
+	static SMDFile *Load(std::string mapName, bool bLoadWarpsAndRegeneEvents = false /* AI server doesn't need them */);
 
-	bool LoadMap(FILE *fp);
+	bool LoadMap(FILE *fp, bool bLoadWarpsAndRegeneEvents /* AI server doesn't need them */);
 	void LoadTerrain(FILE *fp);
 	void LoadObjectEvent(FILE *fp);
 	void LoadMapTile(FILE *fp);

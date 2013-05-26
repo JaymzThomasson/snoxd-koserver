@@ -13,7 +13,7 @@ SMDFile::SMDFile() : m_ppnEvent(nullptr), m_fHeight(nullptr),
 {
 }
 
-SMDFile *SMDFile::Load(std::string mapName)
+SMDFile *SMDFile::Load(std::string mapName, bool bLoadWarpsAndRegeneEvents /*= false*/)
 {
 #ifdef WIN32 // case insensitive filenames, allowing for database inconsistency...
 	STRTOLOWER(mapName);
@@ -40,7 +40,7 @@ SMDFile *SMDFile::Load(std::string mapName)
 
 	// Try to load the file now.
 	SMDFile *smd = new SMDFile();
-	if (!smd->LoadMap(fp))
+	if (!smd->LoadMap(fp, bLoadWarpsAndRegeneEvents))
 	{
 		// Problem? Make sure we clean up after ourselves.
 		smd->DecRef(); // it's the only reference anyway
@@ -56,7 +56,7 @@ SMDFile *SMDFile::Load(std::string mapName)
 	return smd;
 }
 
-bool SMDFile::LoadMap(FILE *fp)
+bool SMDFile::LoadMap(FILE *fp, bool bLoadWarpsAndRegeneEvents)
 {
 	LoadTerrain(fp);
 
@@ -74,10 +74,11 @@ bool SMDFile::LoadMap(FILE *fp)
 	LoadObjectEvent(fp);
 	LoadMapTile(fp);
 
-#if defined(EBENEZER)
-	LoadRegeneEvent(fp);	
-	LoadWarpList(fp);
-#endif
+	if (bLoadWarpsAndRegeneEvents)
+	{
+		LoadRegeneEvent(fp);
+		LoadWarpList(fp);
+	}
 
 	return true;
 }

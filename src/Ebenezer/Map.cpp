@@ -30,7 +30,7 @@ bool C3DMap::Initialize(_ZONE_INFO *pZone)
 	m_bType = pZone->m_bType;
 	m_isAttackZone = pZone->isAttackZone == 1;
 
-	m_smdFile = SMDFile::Load(pZone->m_MapName);
+	m_smdFile = SMDFile::Load(pZone->m_MapName, true /* load warps & regene events */);
 
 	if (m_smdFile != nullptr)
 	{

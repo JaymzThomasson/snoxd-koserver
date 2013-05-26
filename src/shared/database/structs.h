@@ -198,7 +198,7 @@ struct _WARP_INFO
 	char	strWarpName[32];
 	char	strAnnounce[256];
 	uint16	sUnk0; // padding?
-	DWORD	dwPay;
+	uint32	dwPay;
 	short	sZone;
 	uint16	sUnk1; // padding?
 	float	fX;
