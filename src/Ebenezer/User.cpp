@@ -3192,7 +3192,7 @@ void CUser::ObjectEvent(Packet & pkt)
 
 	_OBJECT_EVENT * pEvent = GetMap()->GetObjectEvent(objectindex);
 	if (pEvent != nullptr
-		|| !isInRange(pEvent->fPosX, pEvent->fPosZ, MAX_OBJECT_RANGE))
+		&& isInRange(pEvent->fPosX, pEvent->fPosZ, MAX_OBJECT_RANGE))
 	{
 		switch (pEvent->sType)
 		{
