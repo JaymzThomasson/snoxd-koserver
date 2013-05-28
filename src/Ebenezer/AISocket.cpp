@@ -167,18 +167,18 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 			continue;
 		}
 
-		//TRACE("Recv --> NpcUserInfo : uid = %d, x=%f, z=%f.. \n", nid, fPosX, fPosZ);
-		strcpy(pNpc->m_strName, strName.c_str());
-
 		pNpc->m_pMap = g_pMain->GetZoneByID(pNpc->GetZoneID());
-		pNpc->m_byDirection = bDirection;
-		pNpc->SetRegion(pNpc->GetNewRegionX(), pNpc->GetNewRegionZ());
-
 		if (pNpc->GetMap() == nullptr)
 		{
 			pNpc->DecRef();
 			continue;
 		}
+
+		//TRACE("Recv --> NpcUserInfo : uid = %d, x=%f, z=%f.. \n", nid, fPosX, fPosZ);
+		strcpy(pNpc->m_strName, strName.c_str());
+
+		pNpc->m_byDirection = bDirection;
+		pNpc->SetRegion(pNpc->GetNewRegionX(), pNpc->GetNewRegionZ());
 
 		if (pNpc->m_byObjectType == SPECIAL_OBJECT)
 		{
