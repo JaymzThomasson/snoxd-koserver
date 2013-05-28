@@ -1868,7 +1868,7 @@ void CUser::StateChange(Packet & pkt)
 	switch (bType)
 	{
 	case 1:
-		if (buff != USER_STANDING || buff != USER_SITDOWN)
+		if (buff != USER_STANDING && buff != USER_SITDOWN)
 			return;
 		break;
 
