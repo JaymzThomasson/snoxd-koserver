@@ -1,5 +1,7 @@
 #pragma once
 
+#define MAX_ZONE_ID 255 /* maximum size of a byte */
+
 typedef std::map<uint16, _ZONE_INFO *> ZoneInfoMap;
 	
 class CZoneInfoSet : public OdbcRecordset
@@ -39,6 +41,13 @@ public:
 		pData->m_fInitY = (float)(iY / 100.0f);
 		pData->m_fInitZ = (float)(iZ / 100.0f);
 #endif
+
+		if (pData->m_nZoneNumber > MAX_ZONE_ID)
+		{
+			printf("ERROR: Zone ID %d is too large. Highest zone ID can be %d.\n", pData->m_nZoneNumber, MAX_ZONE_ID);
+			delete pData;
+			return false;
+		}
 
 		if (m_pMap->find(pData->m_nZoneNumber) != m_pMap->end())
 			delete pData;
