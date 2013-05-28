@@ -42,6 +42,5 @@ public:
 	virtual ~CAISocket() {}
 
 private:
-	bool m_bAllNpcInfoRecv;
 	bool m_bHasConnected;
 };

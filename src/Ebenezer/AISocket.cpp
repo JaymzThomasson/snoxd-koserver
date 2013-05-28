@@ -264,7 +264,6 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 
 		if (pUser != nullptr) 
 		{
-			pUser->SendTargetHP( 0, tid, -damage ); 
 			if( byAttackType != MAGIC_ATTACK && byAttackType != DURATION_ATTACK) {
 				pUser->ItemWoreOut(ATTACK, damage);
 

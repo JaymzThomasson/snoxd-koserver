@@ -1263,6 +1263,10 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 	if (isInParty())
 		SendPartyHPUpdate();
 
+	if (pAttacker != nullptr
+		&& pAttacker->isPlayer())
+		TO_USER(pAttacker)->SendTargetHP(0, GetID(), amount);
+
 	if (m_sHp == 0)
 		OnDeath(pAttacker);
 }
@@ -2415,9 +2419,6 @@ void CUser::HPTimeChangeType3()
 		if (m_sSourceID[h] < MAX_USER) 
 		{
 			pUser = g_pMain->GetUserPtr(m_sSourceID[h]);
-			if (pUser != nullptr)
-				pUser->SendTargetHP(0, GetSocketID(), m_bHPAmount[h]);
-
 			pUnit = pUser;
 		}
 		else
@@ -2427,7 +2428,7 @@ void CUser::HPTimeChangeType3()
 		}
 
 		// Reduce the HP 
-		HpChange(m_bHPAmount[h]); // do we need to specify the source of the DOT?
+		HpChange(m_bHPAmount[h], pUnit); // do we need to specify the source of the DOT?
 
 		// Aw, did we die? :(
 		if (m_sHp == 0)

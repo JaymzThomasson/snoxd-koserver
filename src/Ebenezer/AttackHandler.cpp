@@ -53,7 +53,6 @@ void CUser::Attack(Packet & pkt)
 
 				ItemWoreOut(ATTACK, damage);
 				pTUser->ItemWoreOut(DEFENCE, damage);
-				SendTargetHP(0, tid, -damage);
 			}
 		}
 	}

@@ -563,12 +563,8 @@ bool MagicInstance::ExecuteType1()
 		damage = pSkillCaster->GetDamage(pSkillTarget, pSkill);
 		pSkillTarget->HpChange(-damage, pSkillCaster);
 
-		if(pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
+		if (pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
 			ReflectDamage(damage);
-
-		// This is more than a little ugly.
-		if (pSkillCaster->isPlayer())
-			TO_USER(pSkillCaster)->SendTargetHP(0, sTargetID, -damage);
 	}
 
 	// If we're allowing monsters to be stealthed too (it'd be cool) then this check needs to be changed.
@@ -638,12 +634,8 @@ bool MagicInstance::ExecuteType2()
 
 	pSkillTarget->HpChange(-damage, pSkillCaster);     // Reduce target health point.
 
-	if(pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
+	if (pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
 		ReflectDamage(damage);
-
-	// This is more than a little ugly.
-	if (pSkillCaster->isPlayer())
-		TO_USER(pSkillCaster)->SendTargetHP(0, sTargetID, -damage);     // Change the HP of the target.
 
 packet_send:
 	// If we're allowing monsters to be stealthed too (it'd be cool) then this check needs to be changed.
@@ -731,8 +723,6 @@ bool MagicInstance::ExecuteType3()
 			if (pType->bDirectType == 1)     // Health Point related !
 			{			
 				pTUser->HpChange(damage, pSkillCaster);     // Reduce target health point.
-				if (pSkillCaster->isPlayer())
-					TO_USER(pSkillCaster)->SendTargetHP( 0, (*itr)->GetID(), damage );     // Change the HP of the target.			
 				if(pTUser->m_bReflectArmorType != 0 && pTUser != pSkillCaster)
 					ReflectDamage(damage);
 			}
@@ -751,8 +741,6 @@ bool MagicInstance::ExecuteType3()
 					damage = (pTUser->m_iMaxHp * (pType->sFirstDamage - 100)) / 100;
 
 				pTUser->HpChange(damage, pSkillCaster);
-				if (pSkillCaster->isPlayer())
-					TO_USER(pSkillCaster)->SendTargetHP( 0, (*itr)->GetID(), damage );
 			}
 			if (sTargetID != -1)
 				sData[1] = 1;
@@ -760,8 +748,6 @@ bool MagicInstance::ExecuteType3()
 		else if (pType->bDuration != 0) {    // Durational Spells! Remember, durational spells only involve HPs.
 			if (damage != 0) {		// In case there was first damage......
 				pTUser->HpChange(damage, pSkillCaster);			// Initial damage!!!
-				if (pSkillCaster->isPlayer())
-					TO_USER(pSkillCaster)->SendTargetHP(0, pTUser->GetSocketID(), damage );     // Change the HP of the target. 
 			}
 
 			if (pTUser->m_bResHpType != USER_DEAD) {	// ���⵵ ��ȣ �ڵ� �߽�...
