@@ -10,7 +10,7 @@
 #include "stdafx.h"
 #ifdef CONFIG_USE_IOCP
 
-DWORD WINAPI SocketMgr::SocketWorkerThread(LPVOID lpParam)
+uint32 THREADCALL SocketMgr::SocketWorkerThread(void * lpParam)
 {
 	SocketMgr *socketMgr = (SocketMgr *)lpParam;
 	HANDLE cp = socketMgr->GetCompletionPort();

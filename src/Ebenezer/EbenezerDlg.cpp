@@ -23,12 +23,7 @@ using namespace std;
 
 KOSocketMgr<CUser> g_socketMgr;
 ClientSocketMgr<CAISocket> g_aiSocketMgr;
-
-#ifdef USE_STD_THREAD
-std::vector<std::thread> g_hTimerThreads;
-#else
-std::vector<HANDLE> g_hTimerThreads;
-#endif
+std::vector<Thread *> g_timerThreads;
 
 WORD	g_increase_serial = 1;
 
@@ -223,14 +218,8 @@ void CEbenezerDlg::GetTimeFromIni()
 
 	ini.GetString("AI_SERVER", "IP", "127.0.0.1", m_AIServerIP, sizeof(m_AIServerIP));
 
-#ifdef USE_STD_THREAD
-	g_hTimerThreads.push_back(std::thread(&CEbenezerDlg::Timer_UpdateGameTime, (void *)nullptr));
-	g_hTimerThreads.push_back(std::thread(&CEbenezerDlg::Timer_CheckAliveUser, (void *)nullptr));
-#else
-	DWORD dwThreadId;
-	g_hTimerThreads.push_back(CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&Timer_UpdateGameTime, nullptr, 0, &dwThreadId));
-	g_hTimerThreads.push_back(CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&Timer_CheckAliveUser, nullptr, 0, &dwThreadId));
-#endif
+	g_timerThreads.push_back(new Thread(Timer_UpdateGameTime));
+	g_timerThreads.push_back(new Thread(Timer_CheckAliveUser));
 }
 
 /**
@@ -1685,13 +1674,11 @@ void CEbenezerDlg::SendFlyingSantaOrAngel()
 
 CEbenezerDlg::~CEbenezerDlg() 
 {
-#ifdef USE_STD_THREAD
-	foreach (itr, g_hTimerThreads)
-		(*itr).join();
-#else
-	foreach (itr, g_hTimerThreads)
-		WaitForSingleObject(*itr, INFINITE);
-#endif
+	foreach (itr, g_timerThreads)
+	{
+		(*itr)->waitForExit();
+		delete (*itr);
+	}
 
 	KickOutAllUsers();
 

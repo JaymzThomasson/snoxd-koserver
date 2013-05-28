@@ -35,13 +35,8 @@ public:
 protected:
 	bool m_bShutdown;
 
-#ifdef USE_STD_THREAD
-	std::vector<std::thread> m_hThreads;
-	static std::thread s_hCleanupThread;
-#else
-	std::vector<HANDLE> m_hThreads;
-	static HANDLE s_hCleanupThread;
-#endif
+	std::vector<Thread *> m_threads;
+	static Thread s_cleanupThread;
 
 	long m_threadCount;
 	bool m_bWorkerThreadsActive;

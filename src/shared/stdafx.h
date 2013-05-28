@@ -147,5 +147,6 @@
 #include "tstring.h"
 #include "types.h"
 #include "globals.h"
+#include "Thread.h"
 #include "Network.h"
 #include "TimeThread.h"

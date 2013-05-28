@@ -2,20 +2,11 @@
 #include "EbenezerDlg.h"
 #include "ConsoleInputThread.h"
 
-#ifdef USE_STD_THREAD
-static std::thread s_hConsoleInputThread;
-#else
-static HANDLE s_hConsoleInputThread = nullptr;
-#endif
+static Thread s_consoleInputThread;
 
 void StartConsoleInputThread()
 {
-#ifdef USE_STD_THREAD
-	s_hConsoleInputThread = std::thread(ConsoleInputThread, static_cast<void *>(nullptr));
-#else
-	DWORD dwThread;
-	s_hConsoleInputThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ConsoleInputThread, nullptr, 0, &dwThread);
-#endif
+	s_consoleInputThread.start(ConsoleInputThread, nullptr);
 }
 
 void CleanupConsoleInputThread()
@@ -23,13 +14,7 @@ void CleanupConsoleInputThread()
 	// The thread is still pretty primitive; there's no way to signal the thread to end
 	// as it's blocking on fgets(). Need to fix this up so that we can wait for the thread.
 	// Currently we close the thread when a read error occurs (ctrl-c causes a read error, exiting does not).
-#ifdef USE_STD_THREAD
-	if (s_hConsoleInputThread.joinable())
-		s_hConsoleInputThread.join();
-#else
-	TerminateThread(s_hConsoleInputThread, 0);
-	WaitForSingleObject(s_hConsoleInputThread, INFINITE);
-#endif
+	s_consoleInputThread.waitForExit();
 }
 
 uint32 THREADCALL ConsoleInputThread(void * lpParam)

@@ -30,12 +30,7 @@ bool g_bNpcExit	= false;
 ZoneArray			g_arZone;
 
 KOSocketMgr<CGameSocket> CServerDlg::s_socketMgr;
-
-#ifdef USE_STD_THREAD
-std::vector<std::thread> g_hTimerThreads;
-#else
-std::vector<HANDLE> g_hTimerThreads;
-#endif
+std::vector<Thread *> g_timerThreads;
 
 CServerDlg::CServerDlg()
 {
@@ -52,10 +47,6 @@ CServerDlg::CServerDlg()
 	m_sKillKarusNpc = 0;
 	m_sKillElmoNpc = 0;
 
-#ifndef USE_STD_THREAD
-	m_hZoneEventThread = nullptr;
-#endif
-
 	memset(m_strGameDSN, 0, sizeof(m_strGameDSN));
 	memset(m_strGameUID, 0, sizeof(m_strGameUID));
 	memset(m_strGamePWD, 0, sizeof(m_strGamePWD));
@@ -68,12 +59,7 @@ bool CServerDlg::Startup()
 	//----------------------------------------------------------------------
 	srand( (unsigned)time(nullptr) );
 
-#ifdef USE_STD_THREAD
-	g_hTimerThreads.push_back(std::thread(Timer_CheckAliveTest, (void *)nullptr));
-#else
-	DWORD dwThreadId;
-	g_hTimerThreads.push_back(CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&Timer_CheckAliveTest, nullptr, 0, &dwThreadId));
-#endif
+	g_timerThreads.push_back(new Thread(Timer_CheckAliveTest));
 
 	m_sMapEventNpc = 0;
 	m_bFirstServerFlag = false;			
@@ -224,11 +210,9 @@ bool CServerDlg::CreateNpcThread()
 
 	LOAD_TABLE_ERROR_ONLY(CNpcPosSet, &m_GameDB, nullptr, false);
 			
-	int nThreadNumber = 0;
 	foreach_stlmap (itr, g_arZone)
 	{
 		CNpcThread * pNpcThread = new CNpcThread;
-		pNpcThread->m_sThreadNumber = nThreadNumber++;
 		m_arNpcThread.push_back(pNpcThread);
 
 		foreach_stlmap (npcItr, m_arNpc)
@@ -459,18 +443,10 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 //	NPC Thread 들을 작동시킨다.
 void CServerDlg::ResumeAI()
 {
-#ifdef USE_STD_THREAD
 	foreach (itr, m_arNpcThread)
-		(*itr)->m_hThread = std::thread(NpcThreadProc, static_cast<void *>(*itr));
+		(*itr)->m_thread.start(NpcThreadProc, *itr);
 
-	m_hZoneEventThread = std::thread(ZoneEventThreadProc, this);
-#else
-	DWORD id;
-	foreach (itr, m_arNpcThread)
-		(*itr)->m_hThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&NpcThreadProc, *itr, 0, &id);
-
-	m_hZoneEventThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ZoneEventThreadProc, this, 0, &id);
-#endif
+	m_zoneEventThread.start(ZoneEventThreadProc, this);
 }
 
 void CServerDlg::DeleteUserList(int uid)
@@ -592,7 +568,7 @@ CUser* CServerDlg::GetUserPtr(int nid)
 	return nullptr;
 }
 
-uint32 CServerDlg::Timer_CheckAliveTest(void * lpParam)
+uint32 THREADCALL CServerDlg::Timer_CheckAliveTest(void * lpParam)
 {
 	while (g_bRunning)
 	{
@@ -893,24 +869,16 @@ CServerDlg::~CServerDlg()
 {
 	g_bNpcExit = true;
 
-#ifdef USE_STD_THREAD
 	foreach (itr, m_arNpcThread)
-		(*itr)->m_hThread.join();
+		(*itr)->m_thread.waitForExit();
 
-	if (m_hZoneEventThread.joinable())
-		m_hZoneEventThread.join();
+	m_zoneEventThread.waitForExit();
 
-	foreach (itr, g_hTimerThreads)
-		(*itr).join();
-#else
-	foreach (itr, m_arNpcThread)
-		WaitForSingleObject((*itr)->m_hThread, INFINITE);
-
-	WaitForSingleObject(m_hZoneEventThread, INFINITE);
-
-	foreach (itr, g_hTimerThreads)
-		WaitForSingleObject(*itr, INFINITE);
-#endif
+	foreach (itr, g_timerThreads)
+	{
+		(*itr)->waitForExit();
+		delete (*itr);
+	}
 
 	// NpcThread Array Delete
 	foreach (itr, m_arNpcThread)

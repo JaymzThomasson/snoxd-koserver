@@ -16,24 +16,12 @@ static FastMutex _lock;
 
 static Condition s_hEvent;
 
-#ifdef USE_STD_THREAD
-static std::vector<std::thread> s_hThreads;
-#else
-static std::vector<HANDLE> s_hThreads;
-#endif
-static uint32 s_dwThreads = 0;
+static std::vector<Thread *> s_threads;
 
 void DatabaseThread::Startup(uint32 dwThreads)
 {
-#ifdef USE_STD_THREAD
 	for (uint32 i = 0; i < dwThreads; i++)
-		s_hThreads.push_back(std::thread(ThreadProc, (void *)i));
-#else
-	DWORD id;
-	for (uint32 i = 0; i < dwThreads; i++)
-		s_hThreads.push_back(CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ThreadProc, (LPVOID)i, 0, &id));
-#endif
-	s_dwThreads = dwThreads;
+		s_threads.push_back(new Thread(ThreadProc, (void *)i));
 }
 
 void DatabaseThread::AddRequest(Packet * pkt)
@@ -856,20 +844,18 @@ void DatabaseThread::Shutdown()
 {
 	_running = false;
 
-	if (!s_hThreads.empty())
+	if (!s_threads.empty())
 	{
 		// Wake them up in case they're sleeping.
 		s_hEvent.Broadcast();
 
-#ifdef USE_STD_THREAD
-		foreach (itr, s_hThreads)
-			(*itr).join();
-#else
-		foreach (itr, s_hThreads)
-			WaitForSingleObject(*itr, INFINITE);
-#endif
+		foreach (itr, s_threads)
+		{
+			(*itr)->waitForExit();
+			delete (*itr);
+		}
 
-		s_hThreads.clear();
+		s_threads.clear();
 	}
 
 	_lock.Acquire();

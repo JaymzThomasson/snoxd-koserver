@@ -7,7 +7,7 @@
 	static void SetupWinsock();
 	static void CleanupWinsock();
 	
-	static DWORD WINAPI SocketWorkerThread(LPVOID lpParam);
+	static uint32 THREADCALL SocketWorkerThread(void * lpParam);
 
 	HANDLE m_completionPort;
 

@@ -24,10 +24,6 @@ class ListenSocket
 public:
 	ListenSocket(SocketMgr *socketMgr, const char * ListenAddress, uint32 Port) : m_threadRunning(false)
 	{
-#ifndef USE_STD_THREAD
-		m_hThread = nullptr;
-#endif
-
 		m_socket = WSASocket(AF_INET, SOCK_STREAM, 0, nullptr, 0, WSA_FLAG_OVERLAPPED);
 
 		// Enable blocking on the socket
@@ -69,42 +65,15 @@ public:
 
 	bool run()
 	{
-#ifdef USE_STD_THREAD
-		if (m_hThread.joinable())
+		if (m_thread.isStarted())
 			return false;
 
-		m_hThread = std::thread(ListenSocketThread<T>, this);
-		m_hThread.detach();
+		m_thread.start(ListenSocketThread<T>, this);
 		return true;
-#else
-		if (m_hThread != nullptr)
-			return false;
-
-		DWORD id;
-		m_hThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&ListenSocketThread<T>, this, 0, &id);
-		return m_hThread != nullptr;
-#endif
 	}
 
-	void suspend()
-	{
-#ifndef USE_STD_THREAD
-		if (m_hThread != nullptr)
-			SuspendThread(m_hThread);
-#else
-		SuspendThread(m_hThread.native_handle());
-#endif
-	}
-
-	void resume()
-	{
-#ifndef USE_STD_THREAD
-		if (m_hThread != nullptr)
-			ResumeThread(m_hThread);
-#else
-		ResumeThread(m_hThread.native_handle());
-#endif
-	}
+	void suspend() { m_thread.suspend(); }
+	void resume() { m_thread.resume(); }
 
 	bool runnable()
 	{
@@ -150,13 +119,7 @@ public:
 			SocketOps::CloseSocket(m_socket);
 
 		m_threadRunning = false;
-
-#ifdef USE_STD_THREAD
-		if (m_hThread.joinable())
-			m_hThread.join(); 
-#else
-		WaitForSingleObject(m_hThread, INFINITE);
-#endif
+		m_thread.waitForExit();
 	}
 
 	INLINE bool IsOpen() { return m_opened; }
@@ -164,12 +127,7 @@ public:
 
 private:
 	bool m_threadRunning;
-
-#ifdef USE_STD_THREAD
-	std::thread m_hThread;
-#else
-	HANDLE m_hThread;
-#endif
+	Thread m_thread;
 
 	HANDLE m_cp;
 	SocketMgr *m_socketMgr;

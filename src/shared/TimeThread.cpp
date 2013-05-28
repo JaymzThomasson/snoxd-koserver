@@ -5,33 +5,18 @@
 time_t UNIXTIME; // update this routinely to avoid the expensive time() syscall!
 tm g_localTime;
 
-#ifdef USE_STD_THREAD
-static std::thread s_hTimeThread;
-#else
-static HANDLE s_hTimeThread = nullptr;
-#endif
+static Thread s_timeThread;
 
 void StartTimeThread()
 {
 	UNIXTIME = time(nullptr); // update it first, just to ensure it's set when we need to use it.
 	g_localTime = *localtime(&UNIXTIME);
-
-#ifdef USE_STD_THREAD
-	s_hTimeThread = std::thread(TimeThread, static_cast<void *>(nullptr));
-#else
-	DWORD dwThreadId;
-	s_hTimeThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&TimeThread, nullptr, 0, &dwThreadId);
-#endif
+	s_timeThread.start(TimeThread);
 }
 
 void CleanupTimeThread()
 {
-#ifdef USE_STD_THREAD
-	if (s_hTimeThread.joinable())
-		s_hTimeThread.join();
-#else
-	WaitForSingleObject(s_hTimeThread, INFINITE);
-#endif
+	s_timeThread.waitForExit();
 }
 
 uint32 THREADCALL TimeThread(void * lpParam)

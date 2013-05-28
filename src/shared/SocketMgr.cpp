@@ -5,11 +5,7 @@ bool SocketMgr::s_bRunningCleanupThread = true;
 FastMutex SocketMgr::s_disconnectionQueueLock;
 std::queue<Socket *> SocketMgr::s_disconnectionQueue;
 
-#ifdef USE_STD_THREAD
-std::thread SocketMgr::s_hCleanupThread; 
-#else
-HANDLE SocketMgr::s_hCleanupThread = nullptr; 
-#endif
+Thread SocketMgr::s_cleanupThread; 
 
 #ifdef USE_STD_ATOMIC
 std::atomic_ulong SocketMgr::s_refCounter;
@@ -56,20 +52,11 @@ void SocketMgr::SpawnWorkerThreads()
 
 	TRACE("SocketMgr - spawning %u worker threads.\n", m_threadCount);
 
-#ifdef USE_STD_THREAD
 	for (long x = 0; x < m_threadCount; x++)
-		m_hThreads.push_back(std::thread(SocketWorkerThread, static_cast<void *>(this)));
+		m_threads.push_back(new Thread(SocketWorkerThread, static_cast<void *>(this)));
 
-	if (!s_hCleanupThread.joinable())
-		s_hCleanupThread = std::thread(SocketCleanupThread, nullptr);
-#else
-	DWORD id;
-	for (long x = 0; x < m_threadCount; x++)
-		m_hThreads.push_back(CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&SocketWorkerThread, (LPVOID)this, 0, &id));
-
-	if (s_hCleanupThread == nullptr)
-		s_hCleanupThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)&SocketCleanupThread, nullptr, 0, &id);
-#endif
+	if (!s_cleanupThread.isStarted())
+		s_cleanupThread.start(SocketCleanupThread);
 }
 
 void HandleReadComplete(Socket * s, uint32 len)
@@ -127,13 +114,11 @@ void SocketMgr::ShutdownThreads()
 
 	m_bWorkerThreadsActive = false;
 
-#ifdef USE_STD_THREAD
-	foreach (itr, m_hThreads)
-		(*itr).join();
-#else
-	foreach (itr, m_hThreads)
-		WaitForSingleObject(*itr, INFINITE);
-#endif
+	foreach (itr, m_threads)
+	{
+		(*itr)->waitForExit();
+		delete (*itr);
+	}
 }
 
 void SocketMgr::Shutdown()
@@ -156,20 +141,11 @@ void SocketMgr::SetupSockets()
 
 void SocketMgr::CleanupSockets()
 {
-#ifdef USE_STD_THREAD
-	if (s_hCleanupThread.joinable())
+	if (s_cleanupThread.isStarted())
 	{
 		s_bRunningCleanupThread = false;
-		s_hCleanupThread.join();
+		s_cleanupThread.waitForExit();
 	}
-#else
-	if (s_hCleanupThread != nullptr)
-	{
-		s_bRunningCleanupThread = false;
-		WaitForSingleObject(s_hCleanupThread, INFINITE);
-		s_hCleanupThread = nullptr;
-	}
-#endif
 
 #ifdef CONFIG_USE_IOCP
 	CleanupWinsock();

@@ -1,7 +1,7 @@
 #pragma once
 
-UINT NpcThreadProc(LPVOID pParam /* CNpcThread ptr */);
-UINT ZoneEventThreadProc(LPVOID pParam /* = nullptr */);
+uint32 THREADCALL NpcThreadProc(void * lpParam /* CNpcThread ptr */);
+uint32 THREADCALL ZoneEventThreadProc(void * lpParam /* = nullptr */);
 
 typedef std::set<CNpc *> NpcSet;
 
@@ -18,11 +18,5 @@ public:
 
 	HWND	hWndMsg;
 
-#ifdef USE_STD_THREAD
-	std::thread m_hThread;
-#else
-	HANDLE m_hThread;
-#endif
-
-	short m_sThreadNumber;					// thread number ,, test
+	Thread m_thread;
 };

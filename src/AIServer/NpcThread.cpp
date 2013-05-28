@@ -6,7 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 // NPC Thread Callback Function
 //
-UINT NpcThreadProc(LPVOID pParam /* CNpcThread ptr */)
+uint32 THREADCALL NpcThreadProc(void * pParam /* CNpcThread ptr */)
 {
 	CNpcThread*	pInfo	= (CNpcThread *)pParam;
 	CNpc*				pNpc	= nullptr;
@@ -128,7 +128,7 @@ UINT NpcThreadProc(LPVOID pParam /* CNpcThread ptr */)
 //////////////////////////////////////////////////////////////////////
 // NPC Thread Callback Function
 //
-UINT ZoneEventThreadProc(LPVOID pParam /* = nullptr */)
+uint32 THREADCALL ZoneEventThreadProc(void * pParam /* = nullptr */)
 {
 	CServerDlg* m_pMain = (CServerDlg*) pParam;
 	int j=0;
@@ -158,11 +158,8 @@ UINT ZoneEventThreadProc(LPVOID pParam /* = nullptr */)
 	return 0;
 }
 
-CNpcThread::CNpcThread() : m_sThreadNumber(-1)
+CNpcThread::CNpcThread()
 {
-#ifndef USE_STD_THREAD
-	m_hThread = nullptr;
-#endif
 }
 
 CNpcThread::~CNpcThread()

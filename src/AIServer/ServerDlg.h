@@ -98,11 +98,7 @@ public:
 	NpcItemArray			m_NpcItemArray;
 	MakeItemGroupArray		m_MakeItemGroupArray;
 
-#ifdef USE_STD_THREAD
-	std::thread m_hZoneEventThread;
-#else
-	HANDLE m_hZoneEventThread;
-#endif
+	Thread m_zoneEventThread;
 
 	char m_strGameDSN[32], m_strGameUID[32], m_strGamePWD[32];
 	OdbcConnection m_GameDB;
