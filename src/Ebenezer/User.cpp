@@ -428,13 +428,25 @@ void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/)
 {
 	Packet result(WIZ_LOYALTY_CHANGE, uint8(1));
 
-	m_iLoyalty += nChangeAmount;
-	m_iLoyaltyMonthly += nChangeAmount;
+	// If we're taking NP, we need to prevent us from hitting values below 0.
+	if (nChangeAmount < 0)
+	{
+		// Negate the value so it becomes positive (i.e. -50 -> 50) 
+		// so we can determine if we're trying to take more NP than we have.
+		uint32 amt = -nChangeAmount; /* avoids unsigned/signed comparison warning */
 
-	if (m_iLoyalty < 0)
-		m_iLoyalty = 0;
-	if (m_iLoyaltyMonthly < 0)
-		m_iLoyaltyMonthly = 0;
+		if (amt > m_iLoyalty) m_iLoyalty = 0;
+		else m_iLoyalty += nChangeAmount;
+
+		if (amt > m_iLoyaltyMonthly) m_iLoyaltyMonthly = 0;
+		else m_iLoyaltyMonthly += nChangeAmount;
+	}
+	// We're simply adding NP here.
+	else
+	{
+		m_iLoyalty += nChangeAmount;
+		m_iLoyaltyMonthly += nChangeAmount;
+	}
 
 	result	<< m_iLoyalty << m_iLoyaltyMonthly
 			<< uint32(0) // Clan donations(? Donations made by this user? For the clan overall?)
@@ -1981,7 +1993,7 @@ void CUser::LoyaltyChange(short tid)
 
 	if (pTUser->GetNation() != GetNation()) 
 	{
-		if (pTUser->m_iLoyalty <= 0) 
+		if (pTUser->GetLoyalty() == 0) 
 		{
 			loyalty_source = 0;
 			loyalty_target = 0;
@@ -2220,7 +2232,7 @@ void CUser::LoyaltyDivide(short tid)
 	if (pTUser->m_bNation != m_bNation) {		// Different nations!!!
 		level_difference = pTUser->GetLevel() - average_level;	// Calculate difference!
 
-		if (pTUser->m_iLoyalty <= 0) {	   // No cheats allowed...
+		if (pTUser->GetLoyalty() == 0) {	   // No cheats allowed...
 			loyalty_source = 0;
 			loyalty_target = 0;
 		}
