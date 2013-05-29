@@ -206,7 +206,6 @@ bool CServerDlg::CreateNpcThread()
 {
 	m_TotalNPC = m_sMapEventNpc;
 	m_CurrentNPC = 0;
-	m_CurrentNPCError = 0;
 
 	LOAD_TABLE_ERROR_ONLY(CNpcPosSet, &m_GameDB, nullptr, false);
 			

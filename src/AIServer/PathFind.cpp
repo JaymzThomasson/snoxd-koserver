@@ -63,15 +63,6 @@ void CPathFind::SetMap(int x, int y, short *pMap, uint32 nMapSize, int16 min_x, 
 	m_pMap = pMap;
 	this->min_x = min_x;
 	this->min_y = min_y;
-
-/*	if(InterlockedCompareExchange(&m_lMapUse, (LONG)1, (LONG)0) == 0)
-	{
-		m_vMapSize.cx = x;
-		m_vMapSize.cy = y;
-		m_pMap = map;
-		::InterlockedExchange(&m_lMapUse, 0);
-	}
-	else TRACE("잘못된 맵셋팅\n");	*/
 }
 
 _PathNode *CPathFind::FindPath(int start_x, int start_y, int dest_x, int dest_y)

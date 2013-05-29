@@ -106,8 +106,11 @@ public:
 	CUser* m_pUser[MAX_USER];
 
 	uint16			m_TotalNPC;			// DB에있는 총 수
-	long			m_CurrentNPCError;	// 세팅에서 실패한 수
-	long			m_CurrentNPC;		// 현재 게임상에서 실제로 셋팅된 수
+#ifdef USE_STD_ATOMIC
+	std::atomic_ushort m_CurrentNPC;
+#else
+	long			m_CurrentNPC;
+#endif
 	short			m_sTotalMap;		// Zone 수 
 	short			m_sMapEventNpc;		// Map에서 읽어들이는 event npc 수
 

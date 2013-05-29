@@ -829,7 +829,11 @@ bool CNpc::SetLive()
 		NpcTypeParser();
 		m_bFirstLive = false;
 
+#ifdef USE_STD_ATOMIC
+		g_pMain->m_CurrentNPC++;
+#else
 		InterlockedIncrement(&g_pMain->m_CurrentNPC);
+#endif
 
 		if(g_pMain->m_TotalNPC == g_pMain->m_CurrentNPC)	// 몬스터 총 수와 초기화한 몬스터의 수가 같다면
 		{
