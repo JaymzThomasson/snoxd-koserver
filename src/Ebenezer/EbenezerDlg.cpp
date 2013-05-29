@@ -392,11 +392,11 @@ int32 CEbenezerDlg::GetEventTrigger(CNpc * pNpc)
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 {
 	// Protect party ID generation
-	m_partyLock.Acquire();
+	m_PartyArray.m_lock.Acquire();
 	pLeader->m_sPartyIndex = m_sPartyIndex++;
 	if (m_sPartyIndex == SHRT_MAX)
 		m_sPartyIndex = 0;
-	m_partyLock.Release();
+	m_PartyArray.m_lock.Release();
 
 	_PARTY_GROUP * pParty = new _PARTY_GROUP;
 	pParty->wIndex = pLeader->m_sPartyIndex;
@@ -413,7 +413,6 @@ _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 
 void CEbenezerDlg::DeleteParty(short sIndex)
 {
-	FastGuard lock(m_partyLock);
 	m_PartyArray.DeleteData(sIndex);
 }
 
@@ -1104,7 +1103,7 @@ void CEbenezerDlg::SendAllUserInfo()
 		result.clear();
 	}
 
-	FastGuard lock(m_partyLock);
+	FastGuard lock(m_PartyArray.m_lock);
 	foreach_stlmap (itr, m_PartyArray)
 	{
 		_PARTY_GROUP *pParty = itr->second;

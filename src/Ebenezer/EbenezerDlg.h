@@ -326,7 +326,6 @@ public:
 
 private:
 	CLuaEngine	m_luaEngine;
-	FastMutex m_partyLock;
 
 	std::string m_strGameDSN, m_strAccountDSN;
 	std::string m_strGameUID, m_strAccountUID;

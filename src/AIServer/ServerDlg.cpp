@@ -634,7 +634,6 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 	}
 
 	// Party Array Delete 
-	FastGuard lock2(m_partyLock);
 	m_arParty.DeleteAllData();
 
 	m_bFirstServerFlag = false;

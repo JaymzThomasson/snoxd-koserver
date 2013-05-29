@@ -594,7 +594,6 @@ void CGameSocket::RecvPartyInfoAllData(Packet & pkt)
 	for (int i = 0; i < 8; i++)
 		pParty->uid[i] = pkt.read<uint16>();
 
-	FastGuard lock(g_pMain->m_partyLock);
 	if (g_pMain->m_arParty.PutData(pParty->wIndex, pParty))
 		TRACE("****  RecvPartyInfoAllData()---> PartyIndex = %d  ******\n", sPartyIndex);
 }

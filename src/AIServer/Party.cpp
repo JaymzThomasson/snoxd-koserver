@@ -53,11 +53,9 @@ void CParty::PartyCreate(Packet & pkt)
 	pParty->wIndex = sPartyIndex;
 	pParty->uid[0] = sUid;
 
-	g_pMain->m_partyLock.Acquire();
 	if( g_pMain->m_arParty.PutData( pParty->wIndex, pParty ) ) {
 		TRACE("Party - Create() : Party »ý¼º  number = %d, uid=%d, %d \n", sPartyIndex, pParty->uid[0], pParty->uid[1]);
 	}
-	g_pMain->m_partyLock.Release();
 }
 
 void CParty::PartyInsert(Packet & pkt)
@@ -130,7 +128,5 @@ void CParty::PartyDelete(Packet & pkt)
 		}
 	}
 
-	g_pMain->m_partyLock.Acquire();
 	g_pMain->m_arParty.DeleteData( pParty->wIndex );
-	g_pMain->m_partyLock.Release();
 }
