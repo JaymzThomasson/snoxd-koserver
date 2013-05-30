@@ -329,11 +329,16 @@ public:
 			+ m_bstrSkill[SkillPointMaster];
 	}
 
-	INLINE _ITEM_DATA * GetItem(uint8 pos) { return &m_sItemArray[pos]; }
+	INLINE _ITEM_DATA * GetItem(uint8 pos) 
+	{
+		ASSERT(pos < INVENTORY_TOTAL);
+		return &m_sItemArray[pos]; 
+	}
 
 	INLINE _ITEM_TABLE * GetItemPrototype(uint8 pos) 
 	{
 		_ITEM_DATA * pItem;
+		ASSERT(pos < INVENTORY_TOTAL);
 		return GetItemPrototype(pos, pItem);
 	}
 
