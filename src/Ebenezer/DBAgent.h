@@ -84,7 +84,7 @@ public:
 	bool UpdateUser(std::string & strCharID, UserUpdateType type, CUser *pUser);
 	bool UpdateWarehouseData(std::string & strAccountID, UserUpdateType type, CUser *pUser);
 	bool UpdateSavedMagic(CUser *pUser);
-	uint8 SealItem(std::string strSealPasswd, uint64 nItemSerial, uint32 nItemID, uint8 bSealType, bool doSeal, CUser *pUser);
+	uint8 SealItem(std::string strSealPasswd, uint64 nItemSerial, uint32 nItemID, uint8 bSealType, CUser *pUser);
 
 	int8 CreateKnights(uint16 sClanID, uint8 bNation, std::string & strKnightsName, std::string & strChief, uint8 bFlag = 1);
 	int UpdateKnights(uint8 bType, std::string & strCharID, uint16 sClanID, uint8 bDomination);

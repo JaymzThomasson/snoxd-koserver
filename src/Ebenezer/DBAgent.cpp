@@ -461,7 +461,12 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 
 		UserItemSealMap::iterator sealitr = pUser->m_sealedItemMap.find(nSerialNum);
 		if (sealitr != pUser->m_sealedItemMap.end())
-			pItem->bFlag = ITEM_FLAG_SEALED;
+		{
+			if (sealitr->second->bSealType == 1)
+				pItem->bFlag = ITEM_FLAG_SEALED;
+			else if (sealitr->second->bSealType == 3)
+				pItem->bFlag = ITEM_FLAG_BOUND;
+		}
 	}
 
 	// Clean up the rental data
@@ -783,7 +788,7 @@ void CDBAgent::SaveSkillShortcut(short sCount, char *buff, CUser *pUser)
 		ReportSQLError(m_GameDB->GetError());
 }
 
-uint8 CDBAgent::SealItem(string strSealPasswd, uint64 nItemSerial, uint32 nItemID, uint8 bSealType, bool doSeal, CUser *pUser)
+uint8 CDBAgent::SealItem(string strSealPasswd, uint64 nItemSerial, uint32 nItemID, uint8 bSealType, CUser *pUser)
 {
 	auto_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == nullptr)
@@ -797,7 +802,7 @@ uint8 CDBAgent::SealItem(string strSealPasswd, uint64 nItemSerial, uint32 nItemI
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
 
-	if (!dbCommand->Execute(string_format(_T("{CALL USER_ITEM_SEAL(?, ?, ?, %I64d, %d, %d, %d, ?)}"), nItemSerial, nItemID, bSealType, doSeal)))
+	if (!dbCommand->Execute(string_format(_T("{CALL USER_ITEM_SEAL(?, ?, ?, %I64d, %d, %d, ?)}"), nItemSerial, nItemID, bSealType)))
 		ReportSQLError(m_GameDB->GetError());
 
 	return nRet;
