@@ -818,26 +818,34 @@ void CUser::ReqSealItem(Packet & pkt)
 	uint32 nItemID;
 	uint64 nItemSerial;
 	string strSealPasswd;
-	bool doSeal;
 
-	pkt >> opcode1 >> bSealType >> nItemID >> bSrcPos >> strSealPasswd >> bSealResult >> doSeal;
+	pkt >> opcode1 >> bSealType >> nItemID >> bSrcPos >> strSealPasswd >> bSealResult;
 	
 	nItemSerial = GetItem(SLOT_MAX+bSrcPos)->nSerialNum;
 
 	if (!bSealResult)
-		bSealResult = g_DBAgent.SealItem(strSealPasswd, nItemSerial, nItemID, bSealType, doSeal, this);
+		bSealResult = g_DBAgent.SealItem(strSealPasswd, nItemSerial, nItemID, bSealType, this);
 
 	Packet result(WIZ_ITEM_UPGRADE, uint8(ITEM_SEAL));
 	result << bSealType << bSealResult << nItemID << bSrcPos;
 	Send(&result);
 
-	if (bSealResult == 1 && doSeal)
+	if (bSealResult == 1)
 	{
-		GetItem(SLOT_MAX+bSrcPos)->bFlag = ITEM_FLAG_SEALED;
-		GoldChange(GetSocketID(), 1000000);
+		switch(bSealType)
+		{
+			case 1:
+				GetItem(SLOT_MAX+bSrcPos)->bFlag = ITEM_FLAG_SEALED;
+				GoldChange(GetSocketID(), 1000000);
+				break;
+			case 2:
+				GetItem(SLOT_MAX+bSrcPos)->bFlag = 0;
+				break;
+			case 3:
+				GetItem(SLOT_MAX+bSrcPos)->bFlag = ITEM_FLAG_BOUND;
+				break;
+		}
 	}
-	else if (bSealResult == 1 && !doSeal)
-		GetItem(SLOT_MAX+bSrcPos)->bFlag = 0;
 }
 
 void DatabaseThread::Shutdown()

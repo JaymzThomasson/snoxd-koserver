@@ -4035,7 +4035,7 @@ void CUser::ItemSealProcess(Packet & pkt)
 			// If no error, pass it along to the database.
 			if (bResponse == SealErrorNone)
 			{
-				result << nItemID << bSrcPos << strPasswd << bResponse << false;
+				result << nItemID << bSrcPos << strPasswd << bResponse;
 				g_pMain->AddDatabaseRequest(result, this);
 			}
 			// If there's an error, tell the client.
@@ -4051,15 +4051,21 @@ void CUser::ItemSealProcess(Packet & pkt)
 		// Used when binding a Krowaz item (used to take it from not bound -> bound)
 		case SEAL_TYPE_KROWAZ:
 		{
-			string strPasswd = "1";
+			string strPasswd = "0"; //Dummy, not actually used.
 			uint32 nItemID;
-			uint8 bSrcPos = 0 , unk3, bResponse = 1;
+			uint8 bSrcPos = 0 , unk3, bResponse = SealErrorNone;
 			uint16 unk1, unk2;
 			pkt >> unk1 >> nItemID >> bSrcPos >> unk3 >> unk2;
 
-			Packet result(WIZ_ITEM_UPGRADE, uint8(ITEM_SEAL));
-			result << uint8(3) << uint8(1) << nItemID << bSrcPos;
-			Send(&result);
+			if (GetItem(SLOT_MAX+bSrcPos)->bFlag != ITEM_FLAG_NONE
+				|| GetItem(SLOT_MAX+bSrcPos)->nNum != nItemID)
+				bResponse = SealErrorFailed;
+
+			if(bResponse == SealErrorNone)
+			{
+				result << nItemID << bSrcPos << strPasswd << bResponse;
+				g_pMain->AddDatabaseRequest(result, this);
+			}
 		} break;
 	}
 }
