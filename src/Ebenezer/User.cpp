@@ -4038,7 +4038,8 @@ void CUser::ItemSealProcess(Packet & pkt)
 			uint8 bSrcPos, bResponse = SealErrorNone;
 			pkt >> unk0 >> nItemID >> bSrcPos >> strPasswd;
 
-			if (GetItem(SLOT_MAX+bSrcPos)->bFlag != ITEM_FLAG_SEALED
+			if (bSrcPos >= HAVE_MAX
+				|| GetItem(SLOT_MAX+bSrcPos)->bFlag != ITEM_FLAG_SEALED
 				|| GetItem(SLOT_MAX+bSrcPos)->nNum != nItemID)
 				bResponse = SealErrorFailed;
 			else if (strPasswd.empty() || strPasswd.length() > 8)
@@ -4069,7 +4070,8 @@ void CUser::ItemSealProcess(Packet & pkt)
 			uint16 unk1, unk2;
 			pkt >> unk1 >> nItemID >> bSrcPos >> unk3 >> unk2;
 
-			if (GetItem(SLOT_MAX+bSrcPos)->bFlag != ITEM_FLAG_NONE
+			if (bSrcPos >= HAVE_MAX
+				|| GetItem(SLOT_MAX+bSrcPos)->bFlag != ITEM_FLAG_NONE
 				|| GetItem(SLOT_MAX+bSrcPos)->nNum != nItemID)
 				bResponse = SealErrorFailed;
 
