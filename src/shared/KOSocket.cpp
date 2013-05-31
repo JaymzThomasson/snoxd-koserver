@@ -77,9 +77,11 @@ void KOSocket::OnRead()
 			|| !DecryptPacket(in_stream, pkt))
 		{
 			TRACE("%s: Footer invalid (%X) or failed to decrypt.\n", GetRemoteIP().c_str(), footer);
+			delete [] in_stream;
 			goto error_handler;
-
 		}
+
+		delete [] in_stream;
 
 		if (!HandlePacket(pkt))
 		{
