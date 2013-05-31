@@ -1476,10 +1476,11 @@ bool CNpc::FindEnemy()
 	if (isNonAttackingObject())
 		return false;
 
-	// Disable AI enemy finding (of users) in neutral zones.
-	// Guards and monsters are, however, allowed.
 	bool bIsGuard = isGuard();
 	bool bIsNeutralZone = (m_bCurZone == 21 || m_bCurZone == 48); // Moradon/Arena
+
+	// Disable AI enemy finding (of users) in neutral zones.
+	// Guards and monsters are, however, allowed.
 	if (!isMonster()
 		&& !bIsGuard 
 		&& bIsNeutralZone)
@@ -1514,7 +1515,8 @@ bool CNpc::FindEnemy()
 	}
 
 	/*** Only find user enemies in non-neutral zones unless we're a monster ***/
-	if (isMonster() || !bIsNeutralZone)
+	if ((isMonster() || !bIsNeutralZone)
+		&& GetNation() != Nation::ALL)
 	{
 		fCompareDis = FindEnemyExpand(m_iRegion_X, m_iRegion_Z, fCompareDis, 1);
 
@@ -1727,7 +1729,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 			CUser *pUser = g_pMain->GetUserPtr(pIDList[i]);
 			if( pUser != nullptr && pUser->m_bLive == USER_LIVE)	{
 				// 같은 국가의 유저는 공격을 하지 않도록 한다...
-				if (m_byGroup == pUser->m_bNation
+				if (GetNation() == pUser->m_bNation
 					|| pUser->m_bInvisibilityType
 					|| pUser->m_byIsOP == MANAGER_USER)
 					continue;
