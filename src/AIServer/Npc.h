@@ -103,6 +103,28 @@ struct __Vector3;
 class CNpc  
 {
 public:
+	INLINE CNpcTable * GetProto() { return m_proto; }
+	INLINE uint8 GetType() { return GetProto()->m_tNpcType; }
+	INLINE bool isGate() 
+	{
+		return GetType() == NPC_GATE 
+			|| GetType() == NPC_PHOENIX_GATE 
+			|| GetType() == NPC_SPECIAL_GATE 
+			|| GetType() == NPC_VICTORY_GATE; 
+	}
+
+	INLINE bool isArtifact() 
+	{ 
+		return GetType() == NPC_ARTIFACT 
+			|| GetType() == NPC_DESTROYED_ARTIFACT 
+			|| GetType() == NPC_ARTIFACT1 
+			|| GetType() == NPC_ARTIFACT2 
+			|| GetType() == NPC_ARTIFACT3 
+			|| GetType() == NPC_ARTIFACT4; 
+	}
+
+	INLINE bool isNonAttackingObject() { return isGate() || GetType() == NPC_GATE_LEVER || isArtifact(); }
+
 	CNpcTable *m_proto;
 
 	_Target	m_Target;				// 공격할 유저 저장,,

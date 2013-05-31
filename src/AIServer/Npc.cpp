@@ -367,7 +367,7 @@ time_t CNpc::NpcTracing()
 	}
 
 	//  고정 경비병은 추적이 되지 않도록한다.
-	if (m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT)
+	if (isNonAttackingObject())
 	{
 		InitTarget();
 		m_NpcState = NPC_STANDING;
@@ -467,20 +467,16 @@ time_t CNpc::NpcAttacking()
 	}
 
 //	TRACE("Npc Attack - [nid=%d, sid=%d]\n", m_sNid, m_proto->m_sSid);
+	if (isNonAttackingObject())
+	{
+		m_NpcState = NPC_STANDING;
+		return m_sStandTime/2;
+	}
 	
 	int ret = IsCloseTarget(m_byAttackRange);
 	if(ret == 1)	{	// 공격할 수 있는만큼 가까운 거리인가?
 		m_NpcState = NPC_FIGHTING;
 		return 0;
-	}
-
-	//if(m_proto->m_tNpcType == NPCTYPE_DOOR || m_proto->m_tNpcType == NPCTYPE_ARTIFACT || m_proto->m_tNpcType == NPCTYPE_PHOENIX_GATE || m_proto->m_tNpcType == NPCTYPE_GATE_LEVER)		return;		// 성문 NPC는 공격처리 안하게
-
-	// 작업 : 이 부분에서.. 경비병도 공격이 가능하게...
-	if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT)
-	{
-		m_NpcState = NPC_STANDING;
-		return m_sStandTime/2;
 	}
 
 	int nValue = GetTargetPath();
@@ -1469,7 +1465,8 @@ void CNpc::Dead(int iDeadType)
 //	NPC 주변의 적을 찾는다.
 bool CNpc::FindEnemy()
 {
-	if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT )		return false;
+	if (isNonAttackingObject())
+		return false;
 
 	// Healer Npc
 	int iMonsterNid = 0;
@@ -2329,13 +2326,13 @@ int CNpc::Attack()
 	int nRandom = 0, nPercent=1000;
 	bool bTeleport = false;
 
-/*	nRandom = myrand(1, 10000);
-	if( COMPARE( nRandom, 8000, 10000) )	{
-		bTeleport = Teleport();
-		if( bTeleport )		return m_Delay;
-	}	*/
+	if (isNonAttackingObject())
+	{
+		m_NpcState = NPC_STANDING;
+		InitTarget();
+		return 0;
+	}	
 
-	//if( m_tNpcLongType==1 && m_proto->m_tNpcType != NPC_BOSS_MONSTER )	{
 	if( m_tNpcLongType == 1 )	{		// 장거리 공격이 가능한것은 공격거리로 판단..
 		return LongAndMagicAttack();
 	}
@@ -2346,12 +2343,6 @@ int CNpc::Attack()
 	ret = IsCloseTarget(m_byAttackRange, 2);
 
 	if(ret == 0)   {
-		if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT ) // 고정 경비병은 추적을 하지 않도록..
-		{
-			m_NpcState = NPC_STANDING;
-			InitTarget();
-			return 0;
-		}	
 		m_sStepCount = 0;
 		m_byActionFlag = ATTACK_TO_TRACE;
 		m_NpcState = NPC_TRACING;			// 공격하고 도망가는 유저를 따라 잡기위해(반응을 좀더 빠르게) 
@@ -2363,12 +2354,6 @@ int CNpc::Attack()
 			return LongAndMagicAttack();
 		}
 		else	{
-			if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT ) // 고정 경비병은 추적을 하지 않도록..
-			{
-				m_NpcState = NPC_STANDING;
-				InitTarget();
-				return 0;
-			}	
 			m_sStepCount = 0;
 			m_byActionFlag = ATTACK_TO_TRACE;
 			m_NpcState = NPC_TRACING;			// 공격하고 도망가는 유저를 따라 잡기위해(반응을 좀더 빠르게) 
@@ -3109,10 +3094,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 		|| pUser->m_bInvisibilityType
 		|| pUser->m_byIsOP == MANAGER_USER
 		|| m_NpcState == NPC_FAINTING
-		|| m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT 
-		|| m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER 
-		|| m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE 
-		|| m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT)
+		|| isNonAttackingObject())
 		return;
 
 	CUser *preUser = nullptr;
@@ -3122,11 +3104,11 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 	if(pUser == preUser)	{
 		if(m_tNpcGroupType)	 {			// 가족타입이면 시야안에 같은 타입에게 목표 지정
 			m_Target.failCount = 0;
-			if(m_proto->m_tNpcType == NPC_BOSS_MONSTER)	FindFriend(1);
+			if(m_proto->m_tNpcType == NPC_BOSS)	FindFriend(1);
 			else		FindFriend();
 		}
 		else	{
-			if(m_proto->m_tNpcType == NPC_BOSS_MONSTER)	{
+			if(m_proto->m_tNpcType == NPC_BOSS)	{
 				m_Target.failCount = 0;
 				FindFriend(1);
 			}
@@ -3205,11 +3187,11 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 
 	if(m_tNpcGroupType)	 {			// 가족타입이면 시야안에 같은 타입에게 목표 지정
 		m_Target.failCount = 0;
-		if(m_proto->m_tNpcType == NPC_BOSS_MONSTER)	FindFriend(1);
+		if(m_proto->m_tNpcType == NPC_BOSS)	FindFriend(1);
 		else		FindFriend();
 	}
 	else	{
-		if(m_proto->m_tNpcType == NPC_BOSS_MONSTER)	{
+		if(m_proto->m_tNpcType == NPC_BOSS)	{
 			m_Target.failCount = 0;
 			FindFriend(1);
 		}
@@ -5212,12 +5194,6 @@ time_t CNpc::NpcHealing()
 	ret = IsCloseTarget(m_byAttackRange, 2);
 
 	if(ret == 0)   {
-		if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT ) // 고정 경비병은 추적을 하지 않도록..
-		{
-			m_NpcState = NPC_STANDING;
-			InitTarget();
-			return 0;
-		}	
 		m_sStepCount = 0;
 		m_byActionFlag = ATTACK_TO_TRACE;
 		m_NpcState = NPC_TRACING;			// 공격하고 도망가는 유저를 따라 잡기위해(반응을 좀더 빠르게) 
@@ -5229,12 +5205,6 @@ time_t CNpc::NpcHealing()
 			return LongAndMagicAttack();
 		}
 		else	{
-			if(m_proto->m_tNpcType == NPC_DOOR || m_proto->m_tNpcType == NPC_ARTIFACT || m_proto->m_tNpcType == NPC_PHOENIX_GATE || m_proto->m_tNpcType == NPC_GATE_LEVER || m_proto->m_tNpcType == NPC_DOMESTIC_ANIMAL || m_proto->m_tNpcType == NPC_SPECIAL_GATE || m_proto->m_tNpcType == NPC_DESTORY_ARTIFACT ) // 고정 경비병은 추적을 하지 않도록..
-			{
-				m_NpcState = NPC_STANDING;
-				InitTarget();
-				return 0;
-			}	
 			m_sStepCount = 0;
 			m_byActionFlag = ATTACK_TO_TRACE;
 			m_NpcState = NPC_TRACING;			// 공격하고 도망가는 유저를 따라 잡기위해(반응을 좀더 빠르게) 

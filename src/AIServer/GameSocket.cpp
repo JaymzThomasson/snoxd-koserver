@@ -549,21 +549,21 @@ void CGameSocket::RecvGateOpen(Packet & pkt)
 	pNpc = g_pMain->m_arNpc.GetData(nid);
 	if(pNpc == nullptr)		return;
 
-	if(pNpc->m_proto->m_tNpcType == NPC_DOOR || pNpc->m_proto->m_tNpcType == NPC_GATE_LEVER || pNpc->m_proto->m_tNpcType == NPC_PHOENIX_GATE ) 	{
-		if(byGateOpen < 0 || byGateOpen < 2) 	{
-			TRACE("####   RecvGateOpen()  byGateOpen Fail --> byGateOpen = %d  ####\n", byGateOpen);
-			return;
-		}
-
-		pNpc->m_byGateOpen = byGateOpen;
-
-		TRACE("****  RecvGateOpen()---> nid = %d, byGateOpen = %d  ******\n", nid, byGateOpen);
-	}
-	else	{
+	if (!pNpc->isGate()) 
+	{
 		TRACE("####   RecvGateOpen()  NpcType Fail --> type = %d  ####\n", pNpc->m_proto->m_tNpcType);
 		return;
 	}
-	
+
+	if (byGateOpen < 0 || byGateOpen < 2)
+	{
+		TRACE("####   RecvGateOpen()  byGateOpen Fail --> byGateOpen = %d  ####\n", byGateOpen);
+		return;
+	}
+
+	pNpc->m_byGateOpen = byGateOpen;
+
+	TRACE("****  RecvGateOpen()---> nid = %d, byGateOpen = %d  ******\n", nid, byGateOpen);
 }
 
 void CGameSocket::RecvUserVisibility(Packet & pkt)

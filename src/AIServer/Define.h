@@ -69,21 +69,6 @@ struct _NpcPosition
 #define NPC_NUM					20
 #define MAX_DUNGEON_BOSS_MONSTER	20
 	
-#define NPC_DEAD				0X00
-#define NPC_LIVE				0X01
-#define NPC_ATTACKING			0X02
-#define NPC_ATTACKED			0X03
-#define NPC_ESCAPE				0X04
-#define NPC_STANDING			0X05
-#define NPC_MOVING				0X06
-#define NPC_TRACING				0X07
-#define NPC_FIGHTING			0X08
-#define NPC_STRATEGY			0x09
-#define NPC_BACK				0x0A
-#define NPC_SLEEPING			0x0B
-#define NPC_FAINTING			0x0C
-#define NPC_HEALING				0x0D
-
 #define NPC_PASSIVE				150
 #define NPC_MAX_MOVE_RANGE		100
 
@@ -134,28 +119,6 @@ const uint8	MAGIC_ATTACK_TARGET_DEAD	= 4;
 // Npc Type
 // Monster는 0부터 시작 10까지의 타입
 #define NPCTYPE_MONSTER				0	// monster
-#define NPC_BOSS_MONSTER			3	// 대장 몬스터
-#define NPC_DUNGEON_MONSTER			4	// 던젼 몬스터
-#define NPC_TRAP_MONSTER			5	// 함정 몬스터
-// NPC는 11부터 시작
-#define NPC_GUARD					11	// 붙박이형 경비병
-#define NPC_PATROL_GUARD			12	// 일반 필드에서 정찰을 담당하는 정찰병
-#define NPC_STORE_GUARD				13	// 일반 필드에서 상점주변을 보호하는 경비병
-#define NPC_MERCHANT				21	// 상점주인 NPC 
-#define NPC_TINKER					22	// 대장장이
-#define NPC_WAREHOUSE				23	// 창고지기
-#define NPC_CAPTAIN_NPC				35	// 전직 시켜주는 NPC
-#define NPC_KNIGHTS_NPC				36	// 기사단 관리 NPC
-#define NPC_CLERIC					37	// 대사제 NPC
-#define NPC_HEALER					40	// Healer
-#define NPC_DOOR					50	// 성문 (6->50)
-#define NPC_PHOENIX_GATE			51	// 깨지지 않는 문 (8->51)
-#define NPC_SPECIAL_GATE			52	// 깨지지 않는 문이면서 2분마다 열렸다 닫혔다 하는 문
-#define NPC_GATE_LEVER				55	// 성문 레버...	(9->55)	
-#define NPC_ARTIFACT				60	// 결계석 (7->60)
-#define NPC_DESTORY_ARTIFACT		61	// 파괴되는 결계석
-#define NPC_DOMESTIC_ANIMAL			99	// 가축 NPC
-////////////////////////////////////////////////////////////
 
 #define MORAL_SELF				1		// 나 자신..
 #define MORAL_FRIEND_WITHME		2		// 나를 포함한 우리편(국가) 중 하나 ..
