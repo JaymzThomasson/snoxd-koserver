@@ -130,13 +130,14 @@ void CNpc::SendInOut(uint8 bType, float fX, float fZ, float fY)
 void CNpc::GetNpcInfo(Packet & pkt)
 {
 	pkt << GetEntryID()
-		<< uint8(GetNation() == 0 ? 1 : 2) // Monster = 1, NPC = 2 (need to use a better flag)
+		<< uint8(isMonster() ? 1 : 2) // Monster = 1, NPC = 2 (need to use a better flag)
 		<< m_sPid
 		<< m_tNpcType
 		<< m_iSellingGroup
 		<< m_sSize
 		<< m_iWeapon_1 << m_iWeapon_2
-		<< GetNation()
+		// Monsters require 0 regardless, otherwise they'll act as NPCs.
+		<< uint8(isMonster() ? 0 : GetNation())
 		<< GetLevel()
 		<< GetSPosX() << GetSPosZ() << GetSPosY()
 		<< uint32(isGateOpen())

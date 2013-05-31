@@ -156,7 +156,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 			>> pNpc->m_curx >> pNpc->m_curz >> pNpc->m_cury >> bDirection >> pNpc->m_NpcState
 			>> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP >> pNpc->m_byGateOpen
 			>> pNpc->m_sTotalHitrate >> pNpc->m_sTotalEvasionrate >> pNpc->m_sTotalAc >> pNpc->m_byObjectType
-			>> pNpc->m_byTrapNumber;
+			>> pNpc->m_byTrapNumber >> pNpc->m_bMonster;
 
 		if (strName.empty())
 			strName = "<the spawn with no name>";
@@ -395,7 +395,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 		>> pNpc->m_curx >> pNpc->m_curz >> pNpc->m_cury >> byDirection >> pNpc->m_NpcState
 		>> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP >> pNpc->m_byGateOpen
 		>> pNpc->m_sTotalHitrate >> pNpc->m_sTotalEvasionrate >> pNpc->m_sTotalAc >> pNpc->m_byObjectType
-		>> pNpc->m_byTrapNumber;
+		>> pNpc->m_byTrapNumber >> pNpc->m_bMonster;
 
 	if (strName.empty() || strName.length() > MAX_NPC_SIZE)
 	{

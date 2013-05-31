@@ -302,7 +302,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 				return false;
 			}
 
-			pNpc->Load(m_TotalNPC++, pNpcTable);
+			pNpc->Load(m_TotalNPC++, pNpcTable, bMonster);
 			pNpc->m_byBattlePos = 0;
 
 			if (pNpc->m_byMoveType >= 2)
@@ -803,7 +803,7 @@ bool CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
 	pNpc->m_nInitMaxX	= (int)pEvent->fPosX+1;
 	pNpc->m_nInitMaxY	= (int)pEvent->fPosZ+1;	
 
-	pNpc->Load(m_sMapEventNpc++, pNpcTable);
+	pNpc->Load(m_sMapEventNpc++, pNpcTable, false);
 	pNpc->m_pZone = pMap;
 
 	if (pNpc->GetMap() == nullptr

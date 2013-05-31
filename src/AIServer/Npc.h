@@ -105,6 +105,7 @@ class CNpc
 public:
 	INLINE CNpcTable * GetProto() { return m_proto; }
 	INLINE uint8 GetType() { return GetProto()->m_tNpcType; }
+	INLINE uint8 GetNation() { return m_byGroup; }
 	INLINE bool isGate() 
 	{
 		return GetType() == NPC_GATE 
@@ -124,6 +125,9 @@ public:
 	}
 
 	INLINE bool isNonAttackingObject() { return isGate() || GetType() == NPC_GATE_LEVER || isArtifact(); }
+	INLINE bool isDead() { return m_NpcState == NPC_DEAD || m_iHP <= 0; }
+	INLINE bool isAlive() { return !isDead(); }
+	INLINE bool isMonster() { return m_bMonster; }
 
 	CNpcTable *m_proto;
 
@@ -319,6 +323,8 @@ public:
 	float   m_fOldSpeed_1;			// 기본 이동 타입		(1초에 갈 수 있는 거리)
 	float   m_fOldSpeed_2;			// 뛰는 이동 타입..		(1초에 갈 수 있는 거리)
 
+	bool	m_bMonster;
+
 public:
 	INLINE MAP * GetMap() { return m_pZone; };
 
@@ -331,7 +337,7 @@ public:
 	void InitPos();
 	void InitMagicValuable();
 
-	void Load(uint16 sNpcID, CNpcTable * proto);
+	void Load(uint16 sNpcID, CNpcTable * proto, bool bMonster);
 
 protected:
 	void ClearPathFindData(void);

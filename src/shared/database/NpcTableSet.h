@@ -4,7 +4,7 @@ class CNpcTableSet : public OdbcRecordset
 {
 public:
 	CNpcTableSet(OdbcConnection * dbConnection, NpcTableArray * pMap) 
-		: OdbcRecordset(dbConnection), m_pMap(pMap) 
+		: OdbcRecordset(dbConnection), m_pMap(pMap), m_bMonster(false)
 	{
 	}
 
@@ -62,6 +62,11 @@ public:
 		_dbCommand->FetchByte(i++, pData->m_byDirectAttack);
 		_dbCommand->FetchByte(i++, pData->m_byMagicAttack);
 
+		// Certain NPCs are defined in the database with a type of 0, which is the monster type.
+		// This can potentially cause problems in the future, so fix it now.
+		if (!m_bMonster && pData->m_tNpcType == NPC_MONSTER)
+			pData->m_tNpcType = NPC_GENERAL;
+
 		pData->m_fBulk =  (float)(((double)sBulk / 100) * ((double)pData->m_sSize / 100));
 			
 		if (!m_pMap->PutData(pData->m_sSid, pData))
@@ -71,14 +76,16 @@ public:
 	}
 
 	NpcTableArray *m_pMap;
+	bool m_bMonster;
 };
 
 class CMonTableSet : public CNpcTableSet
 {
 public:
 	CMonTableSet(OdbcConnection * dbConnection, NpcTableArray * pMap) 
-		: CNpcTableSet(dbConnection, pMap) 
+		: CNpcTableSet(dbConnection, pMap)
 	{
+		m_bMonster = true;
 	}
 
 	virtual tstring GetTableName() { return _T("K_MONSTER"); }
