@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "User.h"
 #include "Map.h"
 #include "EbenezerDlg.h"
 
@@ -197,6 +198,10 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /*
 		result << GetID() << m_iHP << pAttacker->GetID();
 		Send_AIServer(&result);
 	}
+
+	if (pAttacker != nullptr
+		&& pAttacker->isPlayer())
+		TO_USER(pAttacker)->SendTargetHP(0, GetID(), amount);
 }
 
 /**
