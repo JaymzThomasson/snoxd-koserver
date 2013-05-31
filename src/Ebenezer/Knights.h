@@ -16,6 +16,22 @@ struct _KNIGHTS_USER
 	};
 };
 
+enum ClanTypeFlag
+{
+	ClanTypeTraining	= 1,
+	ClanTypePromoted	= 2,
+	ClanTypeAccredited5	= 3,
+	ClanTypeAccredited4	= 4,
+	ClanTypeAccredited2	= 5,
+	ClanTypeAccredited3	= 6,
+	ClanTypeAccredited1	= 7,
+	ClanTypeRoyal5		= 8,
+	ClanTypeRoyal4		= 9,
+	ClanTypeRoyal3		= 10,
+	ClanTypeRoyal2		= 11,
+	ClanTypeRoyal1		= 12
+};
+
 class CKnights  
 {
 public:

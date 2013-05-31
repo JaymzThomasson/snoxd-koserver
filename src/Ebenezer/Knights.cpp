@@ -119,7 +119,7 @@ bool CKnights::RemoveUser(CUser *pUser)
 void CKnights::Disband(CUser *pLeader /*= nullptr*/)
 {
 	string clanNotice;
-	g_pMain->GetServerResource(m_byFlag == CLAN_TYPE ? IDS_CLAN_DESTROY : IDS_KNIGHTS_DESTROY, 
+	g_pMain->GetServerResource(m_byFlag == ClanTypeTraining ? IDS_CLAN_DESTROY : IDS_KNIGHTS_DESTROY, 
 		&clanNotice, m_strName.c_str());
 	SendChat(clanNotice.c_str());
 

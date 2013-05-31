@@ -102,7 +102,7 @@ void CKnightsManager::CreateKnights(CUser* pUser, Packet & pkt)
 		uint16 knightindex = GetKnightsIndex(pUser->m_bNation);
 		if (knightindex >= 0)
 		{	
-			result	<< uint8(CLAN_TYPE) 
+			result	<< uint8(ClanTypeTraining) 
 					<< knightindex << pUser->GetNation()
 					<< idname << pUser->GetName();
 			g_pMain->AddDatabaseRequest(result, pUser);
@@ -368,7 +368,7 @@ void CKnightsManager::AllKnightsList(CUser *pUser, Packet & pkt)
 	{
 		CKnights* pKnights = itr->second;
 		if (pKnights == nullptr
-			|| pKnights->m_byFlag < KNIGHTS_TYPE
+			|| pKnights->m_byFlag < ClanTypePromoted
 			|| pKnights->m_byNation != pUser->GetNation()
 			|| count++ < start) 
 			continue;
@@ -667,7 +667,7 @@ void CKnightsManager::RegisterClanSymbol(CUser* pUser, Packet & pkt)
 	else if ((pKnights = g_pMain->GetClanPtr(pUser->GetClanID())) == nullptr)
 		sFailCode = 20;
 	// Clan not promoted
-	else if (pKnights->m_byFlag < KNIGHTS_TYPE)
+	else if (pKnights->m_byFlag < ClanTypePromoted)
 		sFailCode = 11;
 
 	// Uh oh, did we error?
@@ -697,7 +697,7 @@ void CKnightsManager::RequestClanSymbolVersion(CUser* pUser, Packet & pkt)
 	int16 sFailCode = 1;
 
 	CKnights *pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
-	if (pKnights == nullptr || pKnights->m_byFlag < KNIGHTS_TYPE /* not promoted */ || !pUser->isClanLeader())
+	if (pKnights == nullptr || pKnights->m_byFlag < ClanTypePromoted /* not promoted */ || !pUser->isClanLeader())
 		sFailCode = 11;
 	else if (pUser->GetZoneID() != pUser->GetNation())
 		sFailCode = 12;
@@ -751,7 +751,7 @@ void CKnightsManager::GetClanSymbol(CUser* pUser, uint16 sClanID)
 	// Dose that clan exist?
 	if (pKnights == nullptr 
 		// Are they promoted?
-		|| pKnights->m_byFlag < KNIGHTS_TYPE
+		|| pKnights->m_byFlag < ClanTypePromoted
 		// Is their symbol version set?
 		|| pKnights->m_sMarkVersion == 0
 		// The clan symbol is more than 0 bytes, right?
