@@ -30,6 +30,7 @@ bool Thread::start(lpfnThreadFunc lpThreadFunc, void * lpParam /*= nullptr*/)
 	try
 	{
 		m_thread = std::thread(lpThreadFunc, lpParam);
+		return true;
 	}
 	catch (std::exception & ex)
 	{
