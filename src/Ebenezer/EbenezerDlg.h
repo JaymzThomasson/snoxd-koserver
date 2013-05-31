@@ -69,7 +69,7 @@ public:
 	uint64 GenerateItemSerial();
 	int KickOutAllUsers();
 	void CheckAliveUser();
-	int GetKnightsGrade(int nPoints);
+	int GetKnightsGrade(uint32 nPoints);
 	void WritePacketLog();
 	uint16 GetKnightsAllMembers(uint16 sClanID, Packet & result, uint16 & pktSize, bool bClanLeader);
 	void GetUserRank(CUser *pUser);

@@ -1481,9 +1481,9 @@ uint16 CEbenezerDlg::GetKnightsAllMembers(uint16 sClanID, Packet & result, uint1
  *
  * @return	The clan grade.
  */
-int CEbenezerDlg::GetKnightsGrade(int nPoints)
+int CEbenezerDlg::GetKnightsGrade(uint32 nPoints)
 {
-	int nClanPoints = nPoints / MAX_CLAN_USERS;
+	uint32 nClanPoints = nPoints / MAX_CLAN_USERS;
 
 	if (nClanPoints >= 20000)
 		return 1;
