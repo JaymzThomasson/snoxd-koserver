@@ -3557,16 +3557,83 @@ void CUser::HandleHelmet(Packet & pkt)
 	SendToRegion(&result);
 }
 
-bool CUser::isAttackZone()
+/**
+ * @brief	Determine if this user is in an arena area.
+ *
+ * @return	true if in arena, false if not.
+ */
+bool CUser::isInArena()
 {
-	// this needs to be handled more generically (i.e. bounds loaded from the database, or their existing SMD method)
-	if (GetZoneID() == 21 
-		&& ((GetX() < 735.0f && GetX() > 684.0f) 
-		&& ((GetZ() < 491.0f && GetZ() > 440.0f) || (GetZ() < 411.0f && GetZ() > 360.0f)))
-		|| ((GetZoneID() == 1  && g_pMain->m_byKarusOpenFlag) || (GetZoneID() == 2 && g_pMain->m_byElmoradOpenFlag)) )  //Taking into account invasions
-	return true;
+	/*
+		All of this needs to be handled more generically 
+		(i.e. bounds loaded from the database, or their existing SMD method).
+	*/
 
-	return GetMap()->isAttackZone();
+	// If we're in the Arena zone, assume combat is acceptable everywhere.
+	// NOTE: This is why we need generic bounds checks, to ensure even attacks in the Arena zone are in one of the 4 arena locations.
+	if (GetZoneID() == 48)
+		return true;
+
+	// The only other arena is located in Moradon. If we're not in Moradon, then it's not an Arena.
+	if (GetZoneID() != 21)
+		return false;
+
+	// Moradon outside arena spawn bounds.
+	 return ((GetX() < 735.0f && GetX() > 684.0f) 
+			&& ((GetZ() < 491.0f && GetZ() > 440.0f) || (GetZ() < 411.0f && GetZ() > 360.0f)));
+}
+
+/**
+ * @brief	Determine if this user is in a normal PVP zone.
+ * 			That is, they're in an PK zone that allows combat 
+ * 			against the opposite nation.
+ *
+ * @return	true if in PVP zone, false if not.
+ */
+bool CUser::isInPVPZone()
+{
+	// If the zone is classified an 'attack' zone (this should probably be clarified)
+	// it is a PVP zone.
+	if (GetMap()->isAttackZone())
+		return true;
+
+	// Native/home zones are classed as PVP zones during invasions.
+	if ((GetZoneID() == KARUS && g_pMain->m_byKarusOpenFlag) 
+		|| (GetZoneID() == ELMORAD && g_pMain->m_byElmoradOpenFlag))
+		return true;
+
+	return false;
+}
+
+/**
+ * @brief	Determine if a user can attack the specified unit.
+ *
+ * @param	pTarget	Target for the attack.
+ *
+ * @return	true if we can attack, false if not.
+ */
+bool CUser::CanAttack(Unit * pTarget)
+{
+	if (!Unit::CanAttack(pTarget))
+		return false;
+
+	bool bIsSameNation = (GetNation() == pTarget->GetNation());
+
+	// If we're trying to attack an NPC, it is instead easier to defer to the NPC's 
+	// own attack logic (which takes into account its varied nations).
+	if (pTarget->isNPC())
+		return TO_NPC(pTarget)->CanAttack(this);
+
+	// Players can attack other players in the arena.
+	if (isInArena() && TO_USER(pTarget)->isInArena())
+		return true;
+
+	// Players can attack opposing nation players when they're in PVP zones.
+	if (bIsSameNation == false && isInPVPZone())
+		return true;
+
+	// Players cannot attack other players in any other circumstance.
+	return false;
 }
 
 bool CUser::CanUseItem(uint32 itemid, uint16 count)
@@ -4212,7 +4279,7 @@ void CUser::RecastSavedMagic()
 		{
 			case 6:
 				// Not allowing transformations in PvP zones!
-				if (isAttackZone())
+				if (GetMap()->isAttackZone())
 				{
 					RemoveSavedMagic(itr->first);
 					return;

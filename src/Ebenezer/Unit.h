@@ -73,6 +73,7 @@ public:
 	virtual int32 GetMana() = 0;
 	virtual int32 GetMaxMana() = 0;
 
+	INLINE bool isIncapacitated() { return isDead() || isBlinded() || isBlinking(); }
 	INLINE bool isTransformed() { return m_bIsTransformed; }
 	INLINE bool isBlinded() { return m_bIsBlinded; }
 	INLINE bool canInstantCast() { return m_bInstantCast; }
@@ -117,6 +118,7 @@ public:
 	void AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO & pBuffInfo);
 
 	virtual void StateChangeServerDirect(uint8 bType, uint32 nBuff) {}
+	virtual bool CanAttack(Unit * pTarget);
 
 	void OnDeath(Unit *pKiller);
 	void SendDeathAnimation();

@@ -157,12 +157,6 @@ const uint8	MAGIC_ATTACK_TARGET_DEAD	= 4;
 #define NPC_DOMESTIC_ANIMAL			99	// 가축 NPC
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// Magic State
-#define NONE				0x01
-#define CASTING				0x02
-////////////////////////////////////////////////////////////
-
 #define MORAL_SELF				1		// 나 자신..
 #define MORAL_FRIEND_WITHME		2		// 나를 포함한 우리편(국가) 중 하나 ..
 #define MORAL_FRIEND_EXCEPTME	3		// 나를 뺀 우리편 중 하나 

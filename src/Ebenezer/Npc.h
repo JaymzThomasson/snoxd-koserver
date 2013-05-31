@@ -68,6 +68,8 @@ public:
 	virtual int32 GetMana() { return 0; }
 	virtual int32 GetMaxMana() { return 0; }
 
+	virtual bool CanAttack(Unit * pTarget);
+
 	virtual ~CNpc();
 
 	DECLARE_LUA_CLASS(CNpc);

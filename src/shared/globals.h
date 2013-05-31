@@ -30,7 +30,8 @@ enum Nation
 {
 	ALL = 0,
 	KARUS,
-	ELMORAD
+	ELMORAD,
+	NONE
 };
 
 // ITEM_SLOT DEFINE

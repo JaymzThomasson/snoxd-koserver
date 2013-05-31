@@ -135,29 +135,12 @@ bool MagicInstance::UserCanCast()
 		&& nSkillID != SNOW_EVENT_SKILL)
 		return false;
 
-	if (pSkillTarget != nullptr)
-	{
-		// Players require a little more rigorous checking
-		if (pSkillTarget->isPlayer())
-		{
-			if (pSkillTarget != pSkillCaster)
-			{
-				if (pSkillTarget->GetZoneID() != pSkillCaster->GetZoneID()
-					|| !TO_USER(pSkillTarget)->isAttackZone()
-					// Will have to add support for the outside battlefield
-					|| (TO_USER(pSkillTarget)->isAttackZone() 
-						&& pSkillTarget->GetNation() == pSkillCaster->GetNation()))
-					return false;
-			}
-		}
-		// If the target's an NPC, we don't need to be as thorough.
-		else 
-		{
-			if (pSkillTarget->GetZoneID() != pSkillCaster->GetZoneID()
-				|| pSkillTarget->GetNation() == pSkillCaster->GetNation())
-				return false;
-		}
-	}
+	// If a target is specified, and we're using an attack skill, determine if the caster can attack the target.
+	// NOTE: This disregards whether we're trying/able to attack ourselves (which may be skill induced?).
+	if (pSkillTarget != nullptr
+		&& (pSkill->bMoral == MORAL_ENEMY || pSkill->bMoral == MORAL_NPC || pSkill->bMoral == MORAL_ALL)
+		&& !pSkillCaster->CanAttack(pSkillTarget))
+		return false;
 
 	// Archer & transformation skills will handle item checking themselves
 	if ((pSkill->bType[0] != 2 && pSkill->bType[0] != 6) 
@@ -1063,7 +1046,7 @@ bool MagicInstance::ExecuteType6()
 			return false;
 
 		if (pType == nullptr
-			|| TO_USER(pSkillCaster)->isAttackZone()
+			|| pSkillCaster->GetMap()->isAttackZone()
 			|| pSkillCaster->isTransformed())
 			return false;
 

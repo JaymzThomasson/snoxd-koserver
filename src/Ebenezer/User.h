@@ -688,8 +688,10 @@ public:
 	bool PromoteUserNovice();
 	bool PromoteUser();
 
-	//Zone checks
-	bool isAttackZone();
+	// Attack/zone checks
+	bool CanAttack(Unit * pTarget);
+	bool isInArena();
+	bool isInPVPZone();
 
 	void ResetWindows();
 

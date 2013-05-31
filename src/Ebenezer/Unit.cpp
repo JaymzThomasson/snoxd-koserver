@@ -518,6 +518,31 @@ void Unit::InitType4()
 	StateChangeServerDirect(3, ABNORMAL_NORMAL);
 }
 
+/**
+ * @brief	Determine if this unit is basically able to attack the specified unit.
+ * 			This should only be called to handle the minimal shared logic between
+ * 			NPCs and players. 
+ * 			
+ * 			You should use the more appropriate CUser or CNpc specialization.
+ *
+ * @param	pTarget	Target for the attack.
+ *
+ * @return	true if we can attack, false if not.
+ */
+bool Unit::CanAttack(Unit * pTarget)
+{
+	// Units cannot attack units in different zones.
+	if (GetZoneID() != pTarget->GetZoneID())
+		return false;
+
+	// Units cannot attack other units when either of them when they are incapacitated.
+	if (isIncapacitated()
+		|| pTarget->isIncapacitated())
+		return false;
+
+	return true;
+}
+
 void Unit::OnDeath(Unit *pKiller)
 {
 	SendDeathAnimation();
