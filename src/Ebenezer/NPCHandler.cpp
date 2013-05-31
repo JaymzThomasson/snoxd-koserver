@@ -576,7 +576,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 	}
 
 	// Make sure we're promoted
-	if (pKnights->m_byFlag < KNIGHTS_TYPE
+	if (pKnights->m_byFlag < ClanTypePromoted
 		// and that if we're in an alliance, we're the main alliance.
 		|| (pKnights->m_sAlliance != 0 && pKnights->m_sAlliance != pKnights->m_sIndex))
 	{
@@ -624,7 +624,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 	if (r != 0 || g != 0 || b != 0)
 	{
 		// To use paint, the clan needs to be accredited
-		if (pKnights->m_byFlag <= KNIGHTS_TYPE)
+		if (pKnights->m_byFlag < ClanTypeAccredited5)
 		{
 			sErrorCode = -1; // need to find the error code for this
 			goto fail_return;
