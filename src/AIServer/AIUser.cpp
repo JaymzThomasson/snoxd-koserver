@@ -267,8 +267,9 @@ short CUser::GetDamage(int tid, int magicid)
 	if (tid < NPC_BAND || tid > INVALID_BAND)	return damage;
 	CNpc* pNpc = nullptr;
 	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
-	if(pNpc == nullptr)		return damage;
-	if(pNpc->m_proto->m_tNpcType == NPC_ARTIFACT || pNpc->m_proto->m_tNpcType == NPC_PHOENIX_GATE || pNpc->m_proto->m_tNpcType == NPC_GATE_LEVER || pNpc->m_proto->m_tNpcType == NPC_SPECIAL_GATE ) return damage;
+	if (pNpc == nullptr
+		|| pNpc->isNonAttackingObject())
+		return damage;
 	
 	Attack = (float)m_fHitrate;			// °ø°Ý¹ÎÃ¸
 	Avoid = (float)pNpc->m_sEvadeRate;	// ¹æ¾î¹ÎÃ¸	
