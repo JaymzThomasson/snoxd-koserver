@@ -2498,7 +2498,7 @@ int CNpc::Attack()
 		}
 		
 		if(nDamage > 0)	{
-			pNpc->SetDamage(0, nDamage, m_proto->m_strName, m_sNid+NPC_BAND);
+			pNpc->SetDamage(0, nDamage, m_sNid+NPC_BAND);
 			//if(pNpc->m_iHP > 0)
 			SendAttackSuccess(ATTACK_SUCCESS, pNpc->m_sNid+NPC_BAND, nDamage, pNpc->m_iHP);
 		}
@@ -2666,7 +2666,7 @@ int CNpc::TracingAttack()		// 0:attack fail, 1:attack success
 		//TRACE("Npc-Attack() : [mon: x=%.2f, z=%.2f], [user : x=%.2f, z=%.2f]\n", m_fCurX, m_fCurZ, pUser->m_curx, pUser->m_curz);
 		
 		if(nDamage > 0)		{
-			if(pNpc->SetDamage(0, nDamage, m_proto->m_strName, m_sNid+NPC_BAND) == true) {
+			if(pNpc->SetDamage(0, nDamage, m_sNid+NPC_BAND) == true) {
 				SendAttackSuccess(ATTACK_SUCCESS, pNpc->m_sNid+NPC_BAND, nDamage, pNpc->m_iHP);
 			}
 			else{
@@ -3302,9 +3302,9 @@ int CNpc::GetDefense()
 	return m_sDefense;
 }
 
-//	Damage 계산, 만약 m_iHP 가 0 이하이면 사망처리
-bool CNpc::SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid)
+bool CNpc::SetDamage(int nAttackType, int nDamage, int uid, int iDeadType /*= 0*/)
 {
+	bool bIsDurationDamage = (nAttackType < 0);
 	int i=0, len=0;
 	int userDamage = 0;
 	bool bFlag = false;
@@ -3318,14 +3318,18 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid)
 	CNpc* pNpc = nullptr;
 	char strDurationID[MAX_ID_SIZE+1];
 
+	char * id = nullptr;
+
 	if(uid >= USER_BAND && uid < NPC_BAND)	{	// Target 이 User 인 경우
 		pUser = g_pMain->GetUserPtr(uid);	// 해당 사용자인지 인증
 		if(pUser == nullptr) return true;
+		id = pUser->m_strUserID;
 	}
 	else if(uid >= NPC_BAND && m_Target.id < INVALID_BAND)	{	// Target 이 mon 인 경우
 		pNpc = g_pMain->m_arNpc.GetData(uid - NPC_BAND);
 		if(pNpc == nullptr) return true;
-		userDamage = nDamage;		
+		userDamage = nDamage;
+		id = pNpc->GetProto()->m_strName;
 		goto go_result;
 	}
 
@@ -3335,7 +3339,8 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid)
 
 	for(i = 0; i < NPC_HAVE_USER_LIST; i++)	{
 		if(m_DamagedUserList[i].iUid == uid)	{
-			if(_stricmp("**duration**", id) == 0) {
+			if (bIsDurationDamage)
+			{
 				bFlag = true;
 				strncpy(strDurationID, pUser->m_strUserID, sizeof(strDurationID));
 				if(_stricmp(m_DamagedUserList[i].strUserID, strDurationID) == 0)	{
@@ -3385,7 +3390,9 @@ go_result:
 	{
 	//	m_ItemUserLevel = pUser->m_sLevel;
 		m_iHP = 0;
-		Dead();
+		Dead(iDeadType);
+		SendExpToUserList();
+		GiveNpcHaveItem();
 		return false;
 	}
 
@@ -3698,16 +3705,6 @@ void CNpc::SendExpToUserList()
 	}
 }
 
-int CNpc::SendDead(int type)
-{
-	if(m_NpcState != NPC_DEAD || m_iHP > 0) return 0;
-
-	if(type) GiveNpcHaveItem();	// 아이템 떨구기(경비면이면 안떨어트림)
-
-	return m_sRegenTime;
-}
-
-//	NPC와 Target 과의 거리가 지정 범위보다 작은지 판단
 bool CNpc::IsCloseTarget(CUser *pUser, int nRange)
 {
 	if(pUser == nullptr)
@@ -5123,10 +5120,8 @@ void CNpc::DurationMagic_3()
 					// damage 계산식...
 					duration_damage = m_MagicType3[i].sHPAmount;
 					duration_damage = abs(duration_damage);
-					if( SetDamage(0, duration_damage, "**duration**", m_MagicType3[i].sHPAttackUserID  ) == false )	{
+					if( SetDamage(-1, duration_damage, m_MagicType3[i].sHPAttackUserID  ) == false )	{
 						// Npc가 죽은 경우,,
-						SendExpToUserList(); // 경험치 분배!!
-						SendDead();
 						SendAttackSuccess(MAGIC_ATTACK_TARGET_DEAD, m_MagicType3[i].sHPAttackUserID, duration_damage, m_iHP, 1, DURATION_ATTACK);
 						//TRACE("&&&& Duration Magic attack .. pNpc->m_byHPInterval[%d] = %d &&&& \n", i, m_MagicType3[i].byHPInterval);
 						m_MagicType3[i].tStartTime = 0;

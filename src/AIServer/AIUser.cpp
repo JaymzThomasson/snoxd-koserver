@@ -90,11 +90,8 @@ void CUser::Attack(int sid, int tid)
 	// Calculate Target HP	 -------------------------------------------------------//
 	short sOldNpcHP = pNpc->m_iHP;
 
-	if(pNpc->SetDamage(0, nFinalDamage, m_strUserID, m_iUserId + USER_BAND) == false)
+	if(pNpc->SetDamage(0, nFinalDamage, m_iUserId + USER_BAND) == false)
 	{
-		// Npc가 죽은 경우,,
-		pNpc->SendExpToUserList(); // 경험치 분배!!
-		pNpc->SendDead();
 		SendAttackSuccess(tid, ATTACK_TARGET_DEAD, nFinalDamage, pNpc->m_iHP);
 	}
 	else

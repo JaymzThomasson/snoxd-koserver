@@ -57,8 +57,8 @@ bool CGameSocket::HandlePacket(Packet & pkt)
 	case AG_USER_SET_HP:
 		RecvUserSetHP(pkt);
 		break;
-	case AG_NPC_SET_HP:
-		RecvNpcSetHP(pkt);
+	case AG_NPC_HP_CHANGE:
+		RecvNpcHpChange(pkt);
 		break;
 	case AG_USER_UPDATE:
 		RecvUserUpdate(pkt);
@@ -420,23 +420,24 @@ void CGameSocket::RecvUserSetHP(Packet & pkt)
 	}
 }
 
-void CGameSocket::RecvNpcSetHP(Packet & pkt)
+void CGameSocket::RecvNpcHpChange(Packet & pkt)
 {
-	uint16 nid = pkt.read<uint16>();
-	int32 nHP = pkt.read<int32>();
-
-	CNpc* pNpc = g_pMain->m_arNpc.GetData(nid);
+	int16 nid, sAttackerID;
+	int32 nHP, nAmount;
+	pkt >> nid >> sAttackerID >> nHP >> nAmount;
+	CNpc * pNpc = g_pMain->m_arNpc.GetData(nid - NPC_BAND);
 	if (pNpc == nullptr)
 		return;
 
-	if (pNpc->m_iHP != nHP)
+	if (nAmount < 0)
 	{
-		pNpc->m_iHP = nHP;
-		if (nHP <= 0)
-		{
-			pNpc->SendExpToUserList();
-			pNpc->GiveNpcHaveItem();
-		}
+		pNpc->SetDamage(0, -nAmount, sAttackerID, 1);
+	}
+	else
+	{		
+		pNpc->m_iHP += nAmount;
+		if (pNpc->m_iHP > pNpc->m_iMaxHP)
+			pNpc->m_iHP = pNpc->m_iMaxHP;
 	}
 }
 

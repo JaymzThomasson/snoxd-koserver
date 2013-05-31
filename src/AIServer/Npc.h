@@ -352,9 +352,8 @@ public:
 	//void  FindFriendRegion(int x, int z, MAP* pMap, int type=0);
 	bool IsCloseTarget(CUser *pUser, int nRange);
 	void ToTargetMove(CUser* pUser);
-	int SendDead(int type = 1);			// Npc Dead
 	void SendExpToUserList();								// User 경험치 분배..
-	bool SetDamage(int nAttackType, int nDamage, TCHAR *id, int uid);	// Npc의 데미지 계산..
+	bool SetDamage(int nAttackType, int nDamage, int uid, int iDeadType = 0);	// Npc의 데미지 계산..
 	bool SetHMagicDamage(int nDamage);	// Npc의 데미지 계산..
 	int GetDefense();										// Npc의 방어값..
 	void ChangeTarget(int nAttackType, CUser *pUser);

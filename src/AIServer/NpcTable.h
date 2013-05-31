@@ -6,7 +6,7 @@ class CNpcTable
 {
 public:
 	uint16	m_sSid;							// MONSTER(NPC) Serial ID
-	TCHAR	m_strName[MAX_NPC_SIZE+1];		// MONSTER(NPC) Name
+	char	m_strName[MAX_NPC_SIZE+1];		// MONSTER(NPC) Name
 	uint16	m_sPid;							// MONSTER(NPC) Picture ID
 	uint16	m_sSize;						// 캐릭터의 비율(100 퍼센트 기준)
 	uint32	m_iWeapon_1;		// 무기계열(오른손)

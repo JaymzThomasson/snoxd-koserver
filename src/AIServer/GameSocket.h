@@ -27,7 +27,7 @@ public:
 	void RecvUserLogOut(Packet & pkt);
 	void RecvUserRegene(Packet & pkt);
 	void RecvUserSetHP(Packet & pkt);
-	void RecvNpcSetHP(Packet & pkt);
+	void RecvNpcHpChange(Packet & pkt);
 	void RecvAttackReq(Packet & pkt);
 	void RecvUserUpdate(Packet & pkt);
 	void RecvZoneChange(Packet & pkt);

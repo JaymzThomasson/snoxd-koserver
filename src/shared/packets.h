@@ -618,4 +618,4 @@ const uint8	AG_USER_UPDATE		= 109;	// User狼 Update Info
 const uint8	AG_USER_FAIL		= 110;	// 肋给等 蜡历 贸府...
 const uint8	AG_USER_PARTY		= 111;	// 颇萍贸府 淬寸
 const uint8	AG_USER_VISIBILITY  = 112;	// updates invisibility status
-const uint8	AG_NPC_SET_HP		= 113;	// updates an NPC's HP
+const uint8	AG_NPC_HP_CHANGE	= 113;	// updates an NPC's HP
