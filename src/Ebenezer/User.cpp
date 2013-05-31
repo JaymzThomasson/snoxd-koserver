@@ -3368,40 +3368,52 @@ void CUser::TrapProcess()
 	}
 }
 
-// TO-DO: This needs updating.
 void CUser::KickOutZoneUser(bool home, int nZoneID /*= 21 */)
 {
-	int yourmama=0, random = 0;
-	_REGENE_EVENT* pRegene = nullptr;
 	C3DMap* pMap = g_pMain->GetZoneByID(nZoneID);
-	if (pMap == nullptr) return;
+	if (pMap == nullptr) 
+		return;
 
 	if (home)
 	{
-		int random = myrand(0, 9000) ;
-		if( random >= 0 && random < 3000 )			yourmama = 0;
-		else if( random >= 3000 && random < 6000 )	yourmama = 1;
-		else if( random >= 6000 && random < 9001 )	yourmama = 2;
+		int eventID = 0;
+		int random = myrand(0, 9000);
+		if (random >= 0 && random < 3000)			eventID = 0;
+		else if (random >= 3000 && random < 6000)	eventID = 1;
+		else if (random >= 6000 && random < 9001)	eventID = 2;
 
-		pRegene = pMap->GetRegeneEvent(yourmama) ;	
+		_REGENE_EVENT* pRegene = pMap->GetRegeneEvent(eventID);
 		if (pRegene == nullptr) 
 		{
 			KickOutZoneUser();
 			return;
 		}
 
-		float x = pRegene->fRegenePosX + (float)myrand(0, (int)pRegene->fRegeneAreaX);
-		float y = pRegene->fRegenePosZ + (float)myrand(0, (int)pRegene->fRegeneAreaZ);
-
-		ZoneChange(pMap->m_nZoneNumber, x, y);			
+		ZoneChange(pMap->m_nZoneNumber, 
+			pRegene->fRegenePosX + (float)myrand(0, (int)pRegene->fRegeneAreaX), 
+			pRegene->fRegenePosZ + (float)myrand(0, (int)pRegene->fRegeneAreaZ));
+		return;
 	}
-	else {
-		if (m_bNation == KARUS) {
-			ZoneChange( pMap->m_nZoneNumber, 1335, 83);	// Move user to native zone.
-		}
-		else {
-			ZoneChange( pMap->m_nZoneNumber, 445, 1950 );	// Move user to native zone.
-		}
+
+	// Teleport the player to their native zone.
+	_HOME_INFO * pHomeInfo = g_pMain->m_HomeArray.GetData(GetNation());
+	if (pHomeInfo == nullptr)
+	{
+		KickOutZoneUser(true);
+		return;
+	}
+
+	if (GetNation() == KARUS)
+	{
+		ZoneChange(GetNation(), 
+			(float)pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX), 
+			(float)pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ));
+	}
+	else
+	{
+		ZoneChange(GetNation(), 
+			(float)pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX), 
+			(float)pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ));
 	}
 }
 
