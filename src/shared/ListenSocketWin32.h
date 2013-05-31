@@ -45,14 +45,14 @@ public:
 		int ret = ::bind(m_socket, (const sockaddr*)&m_address, sizeof(m_address));
 		if (ret != 0)
 		{
-			TRACE("Bind unsuccessful on port %u.\n", Port);
+			printf("Bind unsuccessful on port %u.\n", Port);
 			return;
 		}
 
 		ret = listen(m_socket, 5);
 		if (ret != 0) 
 		{
-			TRACE("Unable to listen on port %u.\n", Port);
+			printf("Unable to listen on port %u.\n", Port);
 			return;
 		}
 
