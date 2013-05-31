@@ -1708,25 +1708,22 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 	int target_uid = -1;
 	__Vector3 vUser, vNpc, vMon;
 	vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
-	int* pIDList = nullptr;
 	int iLevelComprison = 0;
 	
 	if(nType == 1)	{		// user을 타겟으로 잡는 경우
 
 		FastGuard lock(pMap->m_lock);
 		CRegion *pRegion = &pMap->m_ppRegion[nRX][nRZ];
-		int nUser = pRegion->m_RegionUserArray.GetSize(), count = 0;
+		FastGuard lock2(pRegion->m_RegionUserArray.m_lock);
+		int nUser = pRegion->m_RegionUserArray.m_UserTypeMap.size(), count = 0;
 
 		//TRACE("FindEnemyExpand type1,, region_x=%d, region_z=%d, user=%d, mon=%d\n", nRX, nRZ, nUser, nMonster);
 		if( nUser == 0 )
 			return 0.0f;
 
-		pIDList = new int[nUser];
 		foreach_stlmap (itr, pRegion->m_RegionUserArray)
-			pIDList[count++] = *itr->second;
-
-		for(int i=0 ; i<nUser; i++ ) {
-			CUser *pUser = g_pMain->GetUserPtr(pIDList[i]);
+		{
+			CUser *pUser = g_pMain->GetUserPtr(*itr->second);
 			if( pUser != nullptr && pUser->m_bLive == USER_LIVE)	{
 				// 같은 국가의 유저는 공격을 하지 않도록 한다...
 				if (GetNation() == pUser->m_bNation
@@ -1773,20 +1770,15 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 	else if(nType == 2)		{		// 경비병이 몬스터를 타겟으로 잡는 경우
 		FastGuard lock(pMap->m_lock);
 		CRegion *pRegion = &pMap->m_ppRegion[nRX][nRZ];
-		int nMonster = pRegion->m_RegionNpcArray.GetSize(), count = 0;
+		int nMonster = pRegion->m_RegionNpcArray.m_UserTypeMap.size(), count = 0;
 	
 		//TRACE("FindEnemyExpand type1,, region_x=%d, region_z=%d, user=%d, mon=%d\n", nRX, nRZ, nUser, nMonster);
 		if( nMonster == 0 )
 			return 0.0f;
 
-		pIDList = new int[nMonster];
 		foreach_stlmap (itr, pRegion->m_RegionNpcArray)
-			pIDList[count++] = *itr->second;
-
-		//TRACE("FindEnemyExpand type2,, region_x=%d, region_z=%d, user=%d, mon=%d\n", nRX, nRZ, nUser, nMonster);
-
-		for(int i=0 ; i<nMonster; i++ ) {
-			int nNpcid = pIDList[i];
+		{
+			int nNpcid = *itr->second;
 			if( nNpcid < NPC_BAND )	continue;
 			CNpc *pNpc = (CNpc*)g_pMain->m_arNpc.GetData(nNpcid - NPC_BAND);
 
@@ -1815,11 +1807,6 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 				else continue;
 			}
 		}
-	}
-
-	if(pIDList)	{
-		delete [] pIDList;
-		pIDList = nullptr;
 	}
 
 	return fComp;
@@ -4095,11 +4082,13 @@ bool CNpc::GetUserInViewRange(int x, int z)
 	}
 
 	FastGuard lock(pMap->m_lock);
+	CRegion * pRegion = &pMap->m_ppRegion[x][z];
+	FastGuard lock2(pRegion->m_RegionUserArray.m_lock);
 	__Vector3 vStart, vEnd;
 	vStart.Set(m_fCurX, 0, m_fCurZ);
 	float fDis = 0.0f; 
 
-	foreach_stlmap (itr, pMap->m_ppRegion[x][z].m_RegionUserArray)
+	foreach_stlmap (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = g_pMain->GetUserPtr(*itr->second);
 		if (pUser == nullptr)
@@ -4673,6 +4662,7 @@ bool CNpc::CheckFindEnermy()
 		return false;
 	}
 
+	FastMutex lock(pMap->m_lock);
 	if (pMap->m_ppRegion[m_iRegion_X][m_iRegion_Z].m_byMoving == 1)
 		return true;
 

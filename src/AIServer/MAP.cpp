@@ -146,10 +146,13 @@ void MAP::RegionUserAdd(int rx, int rz, int uid)
 		return;
 
 	FastGuard lock(m_lock);
+	CRegion * pRegion = &m_ppRegion[rx][rz];
 	int *pInt = new int;
 	*pInt = uid;
-	if (!m_ppRegion[rx][rz].m_RegionUserArray.PutData(uid, pInt))
+	if (!pRegion->m_RegionUserArray.PutData(uid, pInt))
 		delete pInt;
+
+	pRegion->m_byMoving = !pRegion->m_RegionUserArray.IsEmpty();
 }
 
 bool MAP::RegionUserRemove(int rx, int rz, int uid)
@@ -158,7 +161,9 @@ bool MAP::RegionUserRemove(int rx, int rz, int uid)
 		return false;
 
 	FastGuard lock(m_lock);
-	m_ppRegion[rx][rz].m_RegionUserArray.DeleteData( uid );
+	CRegion * pRegion = &m_ppRegion[rx][rz];
+	pRegion->m_RegionUserArray.DeleteData(uid);
+	pRegion->m_byMoving = !pRegion->m_RegionUserArray.IsEmpty();
 	return true;
 }
 
@@ -182,24 +187,6 @@ bool MAP::RegionNpcRemove(int rx, int rz, int nid)
 	FastGuard lock(m_lock);
 	m_ppRegion[rx][rz].m_RegionNpcArray.DeleteData( nid );
 	return true;
-}
-
-int  MAP::GetRegionUserSize(int rx, int rz)
-{
-	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
-		return 0;
-
-	FastGuard lock(m_lock);
-	return m_ppRegion[rx][rz].m_RegionUserArray.GetSize();
-}
-
-int  MAP::GetRegionNpcSize(int rx, int rz)
-{
-	if (rx < 0 || rz < 0 || rx > GetXRegionMax() || rz > GetZRegionMax())
-		return 0;
-
-	FastGuard lock(m_lock);
-	return m_ppRegion[rx][rz].m_RegionNpcArray.GetSize();
 }
 
 bool MAP::LoadRoomEvent()

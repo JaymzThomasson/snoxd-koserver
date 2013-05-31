@@ -591,8 +591,6 @@ void CServerDlg::CheckAliveTest()
 
 	if (sessCount > 0 && count == 0)
 		DeleteAllUserList();
-
-	RegionCheck();
 }
 
 void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
@@ -753,21 +751,6 @@ bool CServerDlg::SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz)
 	TRACE("*** %d, %s 를 소환하였습니다. state = %d ***\n", pEventNpc->m_sNid+NPC_BAND, pEventNpc->m_proto->m_strName, pEventNpc->m_NpcState);
 
 	return true;
-}
-
-void CServerDlg::RegionCheck()
-{
-	FastGuard lock(m_userLock);
-	foreach_stlmap(itr, g_arZone)	
-	{
-		MAP *pMap = itr->second;
-		if (pMap == nullptr)
-			continue;
-
-		for (int i = 0; i <= pMap->GetXRegionMax(); i++)
-			for (int j = 0; j <= pMap->GetZRegionMax(); j++)
-				pMap->m_ppRegion[i][j].m_byMoving = (pMap->m_ppRegion[i][j].m_RegionUserArray.GetSize() > 0 ? 1 : 0);
-	}
 }
 
 bool CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
