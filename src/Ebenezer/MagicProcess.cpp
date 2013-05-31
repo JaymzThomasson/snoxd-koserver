@@ -516,7 +516,6 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, CUser *pTarget)
 
 	pTarget->SetSlotItemValue();
 	pTarget->SetUserAbility();
-	pTarget->SendItemMove(2);
 	pTarget->Send2AI_UserUpdateInfo();
 
 	pTarget->m_buffLock.Acquire();
