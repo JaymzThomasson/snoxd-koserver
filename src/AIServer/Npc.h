@@ -106,6 +106,12 @@ public:
 	INLINE CNpcTable * GetProto() { return m_proto; }
 	INLINE uint8 GetType() { return GetProto()->m_tNpcType; }
 	INLINE uint8 GetNation() { return m_byGroup; }
+
+	INLINE bool isGuard()
+	{
+		return GetType() == NPC_GUARD || GetType() == NPC_PATROL_GUARD || GetType() == NPC_STORE_GUARD;
+	}
+
 	INLINE bool isGate() 
 	{
 		return GetType() == NPC_GATE 

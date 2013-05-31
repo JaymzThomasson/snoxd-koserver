@@ -1476,6 +1476,15 @@ bool CNpc::FindEnemy()
 	if (isNonAttackingObject())
 		return false;
 
+	// Disable AI enemy finding (of users) in neutral zones.
+	// Guards and monsters are, however, allowed.
+	bool bIsGuard = isGuard();
+	bool bIsNeutralZone = (m_bCurZone == 21 || m_bCurZone == 48); // Moradon/Arena
+	if (!isMonster()
+		&& !bIsGuard 
+		&& bIsNeutralZone)
+		return false;
+
 	// Healer Npc
 	int iMonsterNid = 0;
 	if( m_proto->m_tNpcType == NPC_HEALER )	{		// Heal
@@ -1504,29 +1513,33 @@ bool CNpc::FindEnemy()
 		return false;
 	}
 
-	fCompareDis = FindEnemyExpand(m_iRegion_X, m_iRegion_Z, fCompareDis, 1);
+	/*** Only find user enemies in non-neutral zones unless we're a monster ***/
+	if (isMonster() || !bIsNeutralZone)
+	{
+		fCompareDis = FindEnemyExpand(m_iRegion_X, m_iRegion_Z, fCompareDis, 1);
 
-	int x=0, y=0;
+		int x=0, y=0;
 
-	// 이웃해 있는 Region을 검색해서,,  몬의 위치와 제일 가까운 User을 향해.. 이동..
-	for(int l=0; l<4; l++)	{
-		if(m_iFind_X[l] == 0 && m_iFind_Y[l] == 0)		continue;
+		// 이웃해 있는 Region을 검색해서,,  몬의 위치와 제일 가까운 User을 향해.. 이동..
+		for(int l=0; l<4; l++)	{
+			if(m_iFind_X[l] == 0 && m_iFind_Y[l] == 0)		continue;
 
-		x = m_iRegion_X + (m_iFind_X[l]);
-		y = m_iRegion_Z + (m_iFind_Y[l]);
+			x = m_iRegion_X + (m_iFind_X[l]);
+			y = m_iRegion_Z + (m_iFind_Y[l]);
 
-		// 이부분 수정요망,,
-		if(x < 0 || y < 0 || x > pMap->GetXRegionMax() || y > pMap->GetZRegionMax())		continue;
+			// 이부분 수정요망,,
+			if(x < 0 || y < 0 || x > pMap->GetXRegionMax() || y > pMap->GetZRegionMax())		continue;
 
-		fCompareDis = FindEnemyExpand(x, y, fCompareDis, 1);
+			fCompareDis = FindEnemyExpand(x, y, fCompareDis, 1);
+		}
+
+		if(m_Target.id >= 0 && (fCompareDis <= fSearchRange))		return true;
+
+		fCompareDis = 0.0f;
 	}
 
-	if(m_Target.id >= 0 && (fCompareDis <= fSearchRange))		return true;
-
-	fCompareDis = 0.0f;
-
-	// 타입이 경비병인 경우에는 같은 나라의 몬스터가 아닌경우에는 몬스터를 공격하도록 한다..
-	if(m_proto->m_tNpcType == NPC_GUARD || m_proto->m_tNpcType == NPC_PATROL_GUARD || m_proto->m_tNpcType == NPC_STORE_GUARD) // || m_proto->m_tNpcType == NPCTYPE_MONSTER)	
+	/*** Only find NPC/mob enemies if we are a guard ***/
+	if (bIsGuard) // || m_proto->m_tNpcType == NPCTYPE_MONSTER)	
 	{
 		fCompareDis = FindEnemyExpand(m_iRegion_X, m_iRegion_Z, fCompareDis, 2);
 
@@ -1544,9 +1557,9 @@ bool CNpc::FindEnemy()
 
 			fCompareDis = FindEnemyExpand(x, y, fCompareDis, 2);
 		}
-	}
 
-	if(m_Target.id >= 0 && (fCompareDis <= fSearchRange))	return true;
+		if(m_Target.id >= 0 && (fCompareDis <= fSearchRange))	return true;
+	}
 
 	// 아무도 없으므로 리스트에 관리하는 유저를 초기화한다.
 	InitUserList();		
@@ -1697,6 +1710,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 	int iLevelComprison = 0;
 	
 	if(nType == 1)	{		// user을 타겟으로 잡는 경우
+
 		FastGuard lock(pMap->m_lock);
 		CRegion *pRegion = &pMap->m_ppRegion[nRX][nRZ];
 		int nUser = pRegion->m_RegionUserArray.GetSize(), count = 0;
