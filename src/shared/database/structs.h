@@ -167,6 +167,11 @@ struct _MAGIC_TYPE9
 	uint32	nNeedItem;
 };
 
+struct _SERVER_RESOURCE
+{
+	uint32 nResourceID;
+	std::string strResource;
+};
 
 #pragma pack(push, 1)
 struct _OBJECT_EVENT

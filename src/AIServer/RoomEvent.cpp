@@ -289,7 +289,7 @@ void CRoomEvent::InitializeRoom()
 
 void CRoomEvent::EndEventSay( int option1, int option2 )
 {
-	char buff[512] = {0};
+	std::string buff;
 
 	switch (option1)
 	{
@@ -298,16 +298,16 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 			switch (option2)
 			{
 			case 1:
-				LoadString(nullptr, IDS_KARUS_CATCH_1, buff, sizeof(buff));
+				g_pMain->GetServerResource(IDS_KARUS_CATCH_1, &buff);
 				break;
 			case 2:
-				LoadString(nullptr, IDS_KARUS_CATCH_2, buff, sizeof(buff));
+				g_pMain->GetServerResource(IDS_KARUS_CATCH_2, &buff);
 				break;
 			case 11:
-				LoadString(nullptr, IDS_ELMORAD_CATCH_1, buff, sizeof(buff));
+				g_pMain->GetServerResource(IDS_ELMORAD_CATCH_1, &buff);
 				break;
 			case 12:
-				LoadString(nullptr, IDS_ELMORAD_CATCH_2, buff, sizeof(buff));
+				g_pMain->GetServerResource(IDS_ELMORAD_CATCH_2, &buff);
 				break;
 			}
 
@@ -315,7 +315,7 @@ void CRoomEvent::EndEventSay( int option1, int option2 )
 		} break;
 
 		case 2:
-			LoadString(nullptr, IDS_KARUS_PATHWAY + (option2-1), buff, sizeof(buff));
+			g_pMain->GetServerResource(IDS_KARUS_PATHWAY + (option2-1), &buff);
 			g_pMain->SendSystemMsg(buff, WAR_SYSTEM_CHAT);
 
 			// this is normal, we need to send the following packet as well.

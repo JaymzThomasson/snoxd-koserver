@@ -29,6 +29,7 @@ typedef std::list <int>						ZoneNpcInfoList;
 typedef CSTLMap <MAP>						ZoneArray;
 typedef CSTLMap <_K_MONSTER_ITEM>			NpcItemArray;
 typedef CSTLMap <_MAKE_ITEM_GROUP>			MakeItemGroupArray;
+typedef CSTLMap <_SERVER_RESOURCE>			ServerResourceArray;
 
 class CServerDlg
 {
@@ -47,6 +48,7 @@ private:
 	bool GetMakeDefensiveItemTableData();
 	bool GetMakeGradeItemTableData();
 	bool GetMakeLareItemTableData();
+	bool GetServerResourceTable();
 	bool MapFileLoad();
 	void GetServerInfoIni();
 	
@@ -56,6 +58,7 @@ public:
 
 	bool LoadSpawnCallback(OdbcCommand *dbCommand);
 	void GameServerAcceptThread();
+	void GetServerResource(int nResourceID, std::string * result, ...);
 	bool AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap);
 	void AllNpcInfo();
 	CUser* GetUserPtr(int nid);
@@ -69,7 +72,7 @@ public:
 	void DeleteUserList(int uid);
 	void DeleteAllUserList(CGameSocket *pSock = nullptr);
 	void Send(Packet * pkt);
-	void SendSystemMsg(char* pMsg, int type=0);
+	void SendSystemMsg(std::string & pMsg, int type=0);
 	void ResetBattleZone();
 
 	~CServerDlg();
@@ -94,6 +97,7 @@ public:
 	ZoneArray				g_arZone;
 	NpcItemArray			m_NpcItemArray;
 	MakeItemGroupArray		m_MakeItemGroupArray;
+	ServerResourceArray		m_ServerResourceArray;
 
 	Thread m_zoneEventThread;
 
