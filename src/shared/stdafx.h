@@ -29,6 +29,7 @@
 #	include <ws2tcpip.h>
 
 #	define THREADCALL WINAPI
+#	define STRCASECMP _stricmp
 
 #else /* not a Windows environment */
 
@@ -66,6 +67,7 @@
 #	endif
 
 #	define THREADCALL 
+#	define STRCASECMP strcasecmp
 
 #endif
 

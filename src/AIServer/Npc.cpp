@@ -3346,12 +3346,12 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, int uid, int iDeadType /*= 0*
 			{
 				bFlag = true;
 				strncpy(strDurationID, pUser->m_strUserID, sizeof(strDurationID));
-				if(_stricmp(m_DamagedUserList[i].strUserID, strDurationID) == 0)	{
+				if (STRCASECMP(m_DamagedUserList[i].strUserID, strDurationID) == 0)	{
 					m_DamagedUserList[i].nDamage += userDamage; 
 					goto go_result;
 				}
 			}
-			else if(_stricmp(m_DamagedUserList[i].strUserID, id) == 0) 
+			else if (STRCASECMP(m_DamagedUserList[i].strUserID, id) == 0) 
 			{ 
 				m_DamagedUserList[i].nDamage += userDamage; 
 				goto go_result;
@@ -3372,7 +3372,7 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, int uid, int iDeadType /*= 0*
 				}
 				if(bFlag == true)	strncpy(m_DamagedUserList[i].strUserID, strDurationID, sizeof(m_DamagedUserList[i].strUserID));
 				else	{
-					if(_stricmp("**duration**", id) == 0) {
+					if (STRCASECMP("**duration**", id) == 0) {
 						strcpy(m_DamagedUserList[i].strUserID, pUser->m_strUserID);
 					}
 					else strcpy(m_DamagedUserList[i].strUserID, id);
@@ -4166,7 +4166,7 @@ void CNpc::IsUserInSight()
 			if(m_DamagedUserList[i].iUid == pUser->m_iUserId)
 			{
 				// 최종 ID를 비교해서 동일하면	
-				if(_stricmp(m_DamagedUserList[i].strUserID, pUser->m_strUserID) == 0) 
+				if (STRCASECMP(m_DamagedUserList[i].strUserID, pUser->m_strUserID) == 0) 
 				{ 
 					// 이때서야 존재한다는 표시를 한다
 					m_DamagedUserList[i].bIs = true;

@@ -120,7 +120,7 @@ bool CKnightsManager::IsAvailableName( const char *strname)
 	FastGuard lock(g_pMain->m_KnightsArray.m_lock);
 
 	foreach_stlmap (itr, g_pMain->m_KnightsArray)
-		if (_strnicmp(itr->second->m_strName.c_str(), strname, MAX_ID_SIZE) == 0)
+		if (STRCASECMP(itr->second->m_strName.c_str(), strname) == 0)
 			return false;
 
 	return true;
@@ -306,7 +306,7 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 opco
 			bResult = 2;
 		else if (pUser->GetZoneID() != pUser->GetNation())
 			bResult = 12;
-		else if (_strnicmp(strUserID.c_str(), pUser->GetName(), strUserID.size()) == 0)
+		else if (STRCASECMP(strUserID.c_str(), pUser->GetName()) == 0)
 			bResult = 9;
 		else if (((opcode == KNIGHTS_ADMIT || opcode == KNIGHTS_REJECT) && pUser->getFame() < OFFICER)
 			|| (opcode == KNIGHTS_PUNISH && pUser->getFame() < VICECHIEF))
