@@ -142,7 +142,7 @@ void CUser::ReqLetterSend(Packet & pkt)
 		// Invalid type (as far as we're concerned)
 		|| bType == 0 || bType > 2)
 		bResult = -1;
-	else if (_stricmp(m_strUserID.c_str(), strRecipient.c_str()) == 0)
+	else if (STRCASECMP(m_strUserID.c_str(), strRecipient.c_str()) == 0)
 		bResult = -6;
 
 	if (bResult != 1)

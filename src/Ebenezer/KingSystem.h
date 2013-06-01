@@ -13,7 +13,7 @@ struct _KING_ELECTION_LIST
 struct ci_compare
 {
 	bool operator() (const std::string & str1, const std::string & str2) const {
-		return _stricmp(str1.c_str(), str2.c_str()) < 0;
+		return STRCASECMP(str1.c_str(), str2.c_str()) < 0;
 	}
 };
 
