@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "LuaEngine.h"
 #include "User.h"
 #include "Npc.h"

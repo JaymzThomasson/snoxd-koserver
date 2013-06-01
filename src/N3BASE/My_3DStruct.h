@@ -1,6 +1,7 @@
 #pragma once
 
 #include <math.h>
+#include <cfloat>
 
 /* Here follow the extremely few remaining D3D8 components we require */
 

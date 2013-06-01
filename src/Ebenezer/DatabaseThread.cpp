@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "../shared/Condition.h"
 #include "EbenezerDlg.h"
 #include "KnightsManager.h"

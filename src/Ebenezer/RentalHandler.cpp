@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "User.h"
 
 void CUser::RentalSystem(Packet & pkt)
