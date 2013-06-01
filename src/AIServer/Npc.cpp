@@ -4657,7 +4657,7 @@ bool CNpc::CheckFindEnermy()
 		return false;
 	}
 
-	FastMutex lock(pMap->m_lock);
+	FastGuard lock(pMap->m_lock);
 	if (pMap->m_ppRegion[m_iRegion_X][m_iRegion_Z].m_byMoving == 1)
 		return true;
 
