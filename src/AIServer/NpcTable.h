@@ -62,7 +62,7 @@ public:
 	uint8	m_byDirectAttack;	// 공격방법( 0 : 직접, 1:롱공격(간접공격), 2:직,간접공격 )
 	uint8	m_byMagicAttack;	// 마법공격( 0:마법공격 없음, 1:마법공격, 2:독공격, 3:힐링)
 
-	CNpcTable::CNpcTable() : m_sSpeed(MONSTER_SPEED)
+	CNpcTable() : m_sSpeed(MONSTER_SPEED)
 	{
 		memset(&m_strName, 0, sizeof(m_strName));
 	}

@@ -222,7 +222,7 @@ struct _ZONE_INFO
 	uint8	m_byRoomEvent;
 #else
 	float m_fInitX, m_fInitY, m_fInitZ;
-	BYTE m_bType, isAttackZone;
+	uint8 m_bType, isAttackZone;
 #endif
 };
 

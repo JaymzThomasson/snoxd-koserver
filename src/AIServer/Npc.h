@@ -182,7 +182,8 @@ public:
 	short		m_max_x;
 	short		m_max_y;
 
-	SIZE	m_vMapSize;
+	typedef struct { long cx; long cy; } Size;
+	Size	m_vMapSize;
 
 	float m_fStartPoint_X, m_fStartPoint_Y;
 	float m_fEndPoint_X, m_fEndPoint_Y;

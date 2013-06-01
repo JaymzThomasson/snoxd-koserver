@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "GameSocket.h"
 #include "User.h"
-#include "Map.h"
-#include "region.h"
+#include "MAP.h"
+#include "Region.h"
 #include "../shared/globals.h"
-#include "extern.h"
 #include "Npc.h"
 
 CGameSocket::~CGameSocket() {}

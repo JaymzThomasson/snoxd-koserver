@@ -2,7 +2,6 @@
 #include "User.h"
 #include "Region.h"
 #include "GameSocket.h"
-#include "extern.h"
 #include "Npc.h"
 #include "MAP.h"
 

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Region.h"
-#include "extern.h"
+#include "Extern.h"
 #include "Npc.h"
 #include "User.h"
 #include "NpcThread.h"
