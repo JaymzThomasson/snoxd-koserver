@@ -57,7 +57,7 @@ public:
 	_PathNode *Pop();
 
 protected:
-	LONG	m_lMapUse;	
+	long	m_lMapUse;	
 	_PathNode *m_pOpen, *m_pClosed;
 	STACK *m_pStack;
 	short *m_pMap;
