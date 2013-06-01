@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../N3Base/N3ShapeMgr.h"
+#include "../N3BASE/N3ShapeMgr.h"
 #include "../shared/STLMap.h"
 #include "Extern.h"
 #include "RoomEvent.h"

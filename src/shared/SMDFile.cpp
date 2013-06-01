@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "../N3Base/N3ShapeMgr.h"
+#include "../N3BASE/N3ShapeMgr.h"
 #include "STLMap.h"
 #include "database/structs.h"
 #include <set>

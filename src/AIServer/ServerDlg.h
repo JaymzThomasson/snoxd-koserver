@@ -6,7 +6,7 @@
 #include "GameSocket.h"
 
 #include "MAP.h"
-#include "Pathfind.h"
+#include "PathFind.h"
 
 #include "../shared/STLMap.h"
 
