@@ -22,7 +22,7 @@
 #include "../shared/database/MakeLareItemTableSet.h"
 #include "../shared/database/ServerResourceSet.h"
 #include "Region.h"
-#include "../shared/ini.h"
+#include "../shared/Ini.h"
 #include "../shared/packets.h"
 
 using namespace std;
