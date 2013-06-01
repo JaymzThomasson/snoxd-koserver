@@ -814,12 +814,12 @@ void CKingSystem::HandleDatabaseRequest_Event(CUser * pUser, Packet & pkt)
 
 void CUser::ReqSealItem(Packet & pkt)
 {
-	uint8 bSrcPos, bSealType, opcode1, bSealResult;
+	uint8 bSrcPos, bSealType, opcode, bSealResult;
 	uint32 nItemID;
 	uint64 nItemSerial;
 	string strSealPasswd;
 
-	pkt >> opcode1 >> bSealType >> nItemID >> bSrcPos >> strSealPasswd >> bSealResult;
+	pkt >> opcode >> bSealType >> nItemID >> bSrcPos >> strSealPasswd >> bSealResult;
 	
 	nItemSerial = GetItem(SLOT_MAX+bSrcPos)->nSerialNum;
 
@@ -836,7 +836,7 @@ void CUser::ReqSealItem(Packet & pkt)
 		{
 			case 1:
 				GetItem(SLOT_MAX+bSrcPos)->bFlag = ITEM_FLAG_SEALED;
-				GoldChange(GetSocketID(), 1000000);
+				GoldLose(1000000);
 				break;
 			case 2:
 				GetItem(SLOT_MAX+bSrcPos)->bFlag = 0;
