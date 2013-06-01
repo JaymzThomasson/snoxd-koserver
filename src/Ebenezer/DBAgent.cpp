@@ -268,7 +268,7 @@ void CDBAgent::LoadRentalData(string & strAccountID, string & strCharID, UserRen
 		_RENTAL_ITEM *pRentalItem = nullptr;
 
 		dbCommand->FetchString(1, pItem->strUserID);
-		if (_strcmpi(pItem->strUserID.c_str(), strCharID.c_str()) != 0)
+		if (STRCASECMP(pItem->strUserID.c_str(), strCharID.c_str()) != 0)
 		{
 			delete pItem;
 			continue;

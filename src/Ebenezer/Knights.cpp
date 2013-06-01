@@ -33,7 +33,7 @@ void CKnights::OnLogin(CUser *pUser)
 	foreach_array (i, m_arKnightsUser)
 	{
 		if (!m_arKnightsUser[i].byUsed
-			|| _strcmpi(m_arKnightsUser[i].strUserName, pUser->GetName()))
+			|| STRCASECMP(m_arKnightsUser[i].strUserName, pUser->GetName()))
 			continue;
 
 		m_arKnightsUser[i].pSession = pUser;
@@ -49,7 +49,7 @@ void CKnights::OnLogout(CUser *pUser)
 	foreach_array (i, m_arKnightsUser)
 	{
 		if (!m_arKnightsUser[i].byUsed
-			|| _strcmpi(m_arKnightsUser[i].strUserName, pUser->GetName()))
+			|| STRCASECMP(m_arKnightsUser[i].strUserName, pUser->GetName()))
 			continue;
 
 		m_arKnightsUser[i].pSession = nullptr;
@@ -91,7 +91,7 @@ bool CKnights::RemoveUser(const char *strUserID)
 		if (m_arKnightsUser[i].byUsed == 0)
 			continue;
 
-		if (!_strcmpi(m_arKnightsUser[i].strUserName, strUserID))
+		if (!STRCASECMP(m_arKnightsUser[i].strUserName, strUserID))
 		{
 			m_arKnightsUser[i].byUsed = 0;
 			strcpy(m_arKnightsUser[i].strUserName, "");

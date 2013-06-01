@@ -602,7 +602,7 @@ void CKnightsManager::SetKnightsUser(int index, const char* UserName)
 		if (pKnights->m_arKnightsUser[i].byUsed == 0)
 			continue;
 		
-		if (!_strcmpi(pKnights->m_arKnightsUser[i].strUserName, UserName))
+		if (!STRCASECMP(pKnights->m_arKnightsUser[i].strUserName, UserName))
 			return;
 	}
 

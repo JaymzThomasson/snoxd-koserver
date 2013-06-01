@@ -584,7 +584,7 @@ void CUser::SendMyInfo()
 	// Are we the King? Let's see, shall we?
 	CKingSystem * pData = g_pMain->m_KingSystemArray.GetData(GetNation());
 	if (pData != nullptr
-		&& _strcmpi(pData->m_strKingName.c_str(), m_strUserID.c_str()) == 0)
+		&& STRCASECMP(pData->m_strKingName.c_str(), m_strUserID.c_str()) == 0)
 		m_bRank = 1; // We're da King, man.
 	else
 		m_bRank = 0; // totally not da King.
