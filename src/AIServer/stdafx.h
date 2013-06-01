@@ -3,5 +3,5 @@
 #include "../shared/stdafx.h"
 
 #include <list>
-#include "define.h"			// define
+#include "Define.h"			// define
 #include "ServerDlg.h"

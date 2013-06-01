@@ -1,7 +1,7 @@
 #pragma once
 
 #include <set>
-#include "define.h"
+#include "Define.h"
 #include "GameDefine.h"
 #include "../shared/STLMap.h"
 
