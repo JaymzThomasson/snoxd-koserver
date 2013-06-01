@@ -156,7 +156,7 @@ public:
 	void SendFormattedChat(const char * msg, uint8 byNation = Nation::ALL, bool bFormatNotice = false, ...)
 	{
 		va_list ap;
-		va_start(ap, nation);
+		va_start(ap, byNation);
 		SendFormattedChat<chatType>(msg, byNation, bFormatNotice, ap);
 		va_end(ap);
 	}
