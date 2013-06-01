@@ -78,7 +78,7 @@ _PathNode *CPathFind::FindPath(int start_x, int start_y, int dest_x, int dest_y)
 	t_node = (_PathNode *)calloc(1, sizeof(_PathNode));
 	t_node->g = 0;
 	t_node->h = (int)sqrt((double)((start_x-dest_x)*(start_x-dest_x) + (start_y-dest_y)*(start_y-dest_y)));
-//	t_node->h = (int)max( start_x-dest_x, start_y-dest_y );
+//	t_node->h = (int)std::max( start_x-dest_x, start_y-dest_y );
 	t_node->f = t_node->g + t_node->h;
 	t_node->x = start_x;
 	t_node->y = start_y;
@@ -187,7 +187,7 @@ void CPathFind::FindChildPathSub(_PathNode *node, int x, int y, int dx, int dy, 
 		t_node->Parent = node;
 		t_node->g = g;
 //		t_node->h = (int)sqrt((x-dx)*(x-dx) + (y-dy)*(y-dy));
-		t_node->h = (int)max( x-dx, y-dy );
+		t_node->h = (int)std::max( x-dx, y-dy );
 		t_node->f = g + t_node->h;
 		t_node->x = x;
 		t_node->y = y;

@@ -144,6 +144,14 @@
 #	define SetConsoleTitle(title) /* unsupported & unnecessary */
 #endif
 
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
+
 #include <memory>
 #include <map>
 
