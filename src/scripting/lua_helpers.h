@@ -18,9 +18,16 @@
 //#define DEFINE_LUA_CLASS(Class, methods) \
 //	const char * Class ## ::LUA_CLASS_METATABLE = "luaL_" STR(Class); \
 //	DEFINE_LUA_FUNCTION_TABLE(Class::LUA_CLASS_METHOD_TABLE, methods)
-#define DEFINE_LUA_CLASS(methods) \
-	const char * LUA_CLASS ## ::LUA_CLASS_METATABLE = "luaL_" STR(LUA_CLASS); \
-	DEFINE_LUA_FUNCTION_TABLE(LUA_CLASS::LUA_CLASS_METHOD_TABLE, methods)
+#define CONCAT_(A, B) A ## B
+#define CONCAT(A, B) CONCAT_(A, B)
+
+// Define our Lua class constants (outside of the class)
+//#define DEFINE_LUA_CLASS(Class, methods) \
+//      const char * Class ## ::LUA_CLASS_METATABLE = "luaL_" STR(Class); \
+//      DEFINE_LUA_FUNCTION_TABLE(Class::LUA_CLASS_METHOD_TABLE, methods)
+#define DEFINE_LUA_CLASS(...) \
+        const char * LUA_CLASS::LUA_CLASS_METATABLE = STRINGIFY(CONCAT(luaL_, LUA_CLASS)); \
+        DEFINE_LUA_FUNCTION_TABLE(LUA_CLASS::LUA_CLASS_METHOD_TABLE, __VA_ARGS__)
 
 // Helper macro to build a Lua function table.
 // Should look something like:
@@ -31,16 +38,17 @@
 		{ nullptr, nullptr }
 	};
 */
-#define DEFINE_LUA_FUNCTION_TABLE(name, methods) const struct luaL_Reg name[] = \
+#define DEFINE_LUA_FUNCTION_TABLE(name, ...) const struct luaL_Reg name[] = \
 	 { \
-		methods \
+		__VA_ARGS__ \
 		{ nullptr, nullptr } \
 	 }
 
 // Helper macros to generate elements in a Lua function table.
-#define MAKE_LUA_FUNCTION(name) { STR(name), Lua_ ## name }, 
+#define MAKE_LUA_FUNCTION(name) { #name, Lua_ ## name }, 
+
 // #define MAKE_LUA_METHOD(Class, name) { STR(name), Class::Lua_ ## name }, 
-#define MAKE_LUA_METHOD(name) { STR(name), LUA_CLASS::Lua_ ## name }, 
+#define MAKE_LUA_METHOD(name) { #name, LUA_CLASS::Lua_ ## name }, 
 
 // Defines the header for a Lua C function (or C++ method prototype, but remember to define as static).
 #define LUA_FUNCTION(name) int Lua_ ## name(lua_State *L)
