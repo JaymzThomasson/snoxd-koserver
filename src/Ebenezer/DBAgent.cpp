@@ -39,9 +39,13 @@ bool CDBAgent::Startup(bool bMarsEnabled,
 	uint32 dwThreads = 1;
 	if (bMarsEnabled)
 	{
+#ifdef WIN32
 		SYSTEM_INFO si;
 		GetSystemInfo(&si);
 		dwThreads = si.dwNumberOfProcessors * 2;
+#else
+		dwThreads = sysconf(_SC_NPROCESSORS_ONLN) * 2;
+#endif
 	}
 	DatabaseThread::Startup(dwThreads);
 
