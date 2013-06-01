@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "MAP.h"
 #include "PathFind.h"
-#include "math.h"
-#include "Serverdlg.h"
+#include <math.h>
+#include "ServerDlg.h"
 
 #define LEVEL_ONE_FIND_CROSS			2
 #define LEVEL_ONE_FIND_DIAGONAL			3
