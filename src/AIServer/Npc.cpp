@@ -171,7 +171,7 @@ void CNpc::InitUserList()
 		m_DamagedUserList[i].bIs = false;
 		m_DamagedUserList[i].iUid = -1;
 		m_DamagedUserList[i].nDamage = 0;
-		::ZeroMemory(m_DamagedUserList[i].strUserID, sizeof(m_DamagedUserList[i].strUserID));
+		memset(&m_DamagedUserList[i].strUserID, 0, sizeof(m_DamagedUserList[i].strUserID));
 	}
 }
 
