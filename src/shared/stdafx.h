@@ -157,6 +157,8 @@
 #include <memory>
 #include <map>
 #include <unordered_map>
+#include <list>
+#include <vector>
 
 #include "tstring.h"
 #include "types.h"
