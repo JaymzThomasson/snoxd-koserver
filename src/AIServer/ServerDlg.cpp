@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <time.h>
+#include <cstdarg>
 #include "GameSocket.h"
 #include "Npc.h"
 #include "User.h"
