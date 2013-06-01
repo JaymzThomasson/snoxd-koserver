@@ -20,6 +20,7 @@
 #include "../shared/database/MakeDefensiveTableSet.h"
 #include "../shared/database/MakeGradeItemTableSet.h"
 #include "../shared/database/MakeLareItemTableSet.h"
+#include "../shared/database/ServerResourceSet.h"
 #include "Region.h"
 #include "../shared/ini.h"
 #include "../shared/packets.h"
@@ -126,6 +127,7 @@ bool CServerDlg::Startup()
 		|| !GetMakeDefensiveItemTableData()
 		|| !GetMakeGradeItemTableData()
 		|| !GetMakeLareItemTableData()
+		|| !GetServerResourceTable()
 		|| !GetNpcTableData(false)
 		|| !GetNpcTableData(true)
 		// Load maps
@@ -184,6 +186,11 @@ bool CServerDlg::GetMakeGradeItemTableData()
 bool CServerDlg::GetMakeLareItemTableData()
 {
 	LOAD_TABLE(CMakeLareItemTableSet, &m_GameDB, &m_MakeLareItemArray, false);
+}
+
+bool CServerDlg::GetServerResourceTable()
+{
+	LOAD_TABLE(CServerResourceSet, &m_GameDB, &m_ServerResourceArray, false);
 }
 
 bool CServerDlg::GetNpcItemTable()
@@ -501,6 +508,27 @@ bool CServerDlg::MapFileLoad()
 	}
 
 	return true;
+}
+
+/**
+ * @brief	Gets & formats a cached server resource (_SERVER_RESOURCE entry).
+ *
+ * @param	nResourceID	Identifier for the resource.
+ * @param	result	   	The string to store the formatted result in.
+ */
+void CServerDlg::GetServerResource(int nResourceID, string * result, ...)
+{
+	_SERVER_RESOURCE *pResource = m_ServerResourceArray.GetData(nResourceID);
+	if (pResource == nullptr)
+	{
+		*result = nResourceID;
+		return;
+	}
+
+	va_list args;
+	va_start(args, result);
+	_string_format(pResource->strResource, result, args);
+	va_end(args);
 }
 
 // game server에 모든 npc정보를 전송..
@@ -825,7 +853,7 @@ void CServerDlg::GetServerInfoIni()
 	inifile.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, sizeof(m_strGamePWD), false);
 }
 
-void CServerDlg::SendSystemMsg(char* pMsg, int type)
+void CServerDlg::SendSystemMsg(std::string & pMsg, int type)
 {
 	Packet result(AG_SYSTEM_MSG, uint8(type));
 	result << pMsg;

@@ -398,12 +398,6 @@ struct _START_POSITION
 	uint8	bRangeZ;
 };
 
-struct _SERVER_RESOURCE
-{
-	uint32 nResourceID;
-	std::string strResource;
-};
-
 struct _KNIGHTS_RATING
 {
 	uint32 nRank;
