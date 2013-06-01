@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../shared/types.h"
-#include <hash_map>
+#include <unordered_map>
 
 #define LUA_SCRIPT_DIRECTORY				"./quests/"
 #define LUA_SCRIPT_ENTRY_POINT				"Main"
@@ -24,7 +24,7 @@ extern "C" {
 #include "lua_bindings.h"
 
 typedef std::vector<uint8> BytecodeBuffer;
-typedef stdext::hash_map<std::string, BytecodeBuffer> ScriptBytecodeMap;
+typedef std::unordered_map<std::string, BytecodeBuffer> ScriptBytecodeMap;
 class CUser;
 class CNpc;
 class FastMutex;

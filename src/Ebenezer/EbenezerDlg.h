@@ -11,7 +11,7 @@ class CUser;
 
 #include "LoadServerData.h"
 
-typedef stdext::hash_map<std::string, CUser *> NameMap;
+typedef std::unordered_map<std::string, CUser *> NameMap;
 
 class CEbenezerDlg
 {
