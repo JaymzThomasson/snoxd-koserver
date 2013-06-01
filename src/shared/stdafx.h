@@ -152,6 +152,8 @@
 #undef max
 #endif
 
+#include <sqltypes.h> /* this will define the SQL & required Windows types on a non-Windows system */
+
 #include <memory>
 #include <map>
 #include <unordered_map>
