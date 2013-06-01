@@ -841,12 +841,9 @@ bool CNpc::SetLive()
 
 		if(g_pMain->m_TotalNPC == g_pMain->m_CurrentNPC)	// 몬스터 총 수와 초기화한 몬스터의 수가 같다면
 		{
-			printf("Monster All Init Success - %d\n", g_pMain->m_CurrentNPC);
-
-			TRACE("Npc - SerLive : GameServerAcceptThread, cur = %d\n", g_pMain->m_CurrentNPC);
-			g_pMain->GameServerAcceptThread();				// 게임서버 Accept
+			printf("Monster All Init Success - %d\n", g_pMain->m_TotalNPC);
+			g_pMain->GameServerAcceptThread();
 		}
-		//TRACE("Npc - SerLive : CurrentNpc = %d\n", g_pMain->m_CurrentNPC);
 	}
 	
 	// NPC의 초기 보고 있는 방향,,
