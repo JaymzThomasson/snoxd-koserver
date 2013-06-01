@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "KingSystem.h"
 #include "EbenezerDlg.h"
 #include "User.h"
