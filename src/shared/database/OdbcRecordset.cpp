@@ -2,8 +2,6 @@
 #include "OdbcConnection.h"
 #include "OdbcRecordset.h"
 
-using std::auto_ptr;
-
 OdbcRecordset::OdbcRecordset(OdbcConnection * dbConnection) : _dbConnection(dbConnection)
 {
 	_dbCommand = _dbConnection->CreateCommand();

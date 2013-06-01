@@ -196,7 +196,7 @@ bool OdbcCommand::FetchString(int pos, std::string & value)
 			return false;
 
 		// Allocate a buffer large enough for the string's actual length
-		std::auto_ptr<char> varBuffer(new char[bufferSize + 1]);
+		std::unique_ptr<char> varBuffer(new char[bufferSize + 1]);
 
 		// If the string still couldn't be fetched, nothing we can do.
 		if (!FetchString(pos, varBuffer.get(), bufferSize + 1, &bufferSize))

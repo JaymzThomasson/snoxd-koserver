@@ -14,7 +14,7 @@ bool CDBProcess::Connect(TCHAR *szDSN, TCHAR *szUser, TCHAR *szPass)
 bool CDBProcess::LoadVersionList()
 {
 	bool result = false;
-	auto_ptr<OdbcCommand> dbCommand(m_dbConnection.CreateCommand());
+	unique_ptr<OdbcCommand> dbCommand(m_dbConnection.CreateCommand());
 
 	if (dbCommand.get() == nullptr)
 		return false;
@@ -49,7 +49,7 @@ bool CDBProcess::LoadVersionList()
 
 bool CDBProcess::LoadUserCountList()
 {
-	auto_ptr<OdbcCommand> dbCommand(m_dbConnection.CreateCommand());
+	unique_ptr<OdbcCommand> dbCommand(m_dbConnection.CreateCommand());
 	if (dbCommand.get() == nullptr)
 		return false;
 
@@ -80,7 +80,7 @@ bool CDBProcess::LoadUserCountList()
 uint16 CDBProcess::AccountLogin(string & id, string & pwd)
 {
 	uint16 result = 2; // account not found
-	auto_ptr<OdbcCommand> dbCommand(m_dbConnection.CreateCommand());
+	unique_ptr<OdbcCommand> dbCommand(m_dbConnection.CreateCommand());
 	if (dbCommand.get() == nullptr)
 		return 0;
 
