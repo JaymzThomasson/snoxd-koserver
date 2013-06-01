@@ -3,7 +3,7 @@
 //#include "iocport.h"
 #include "MagicProcess.h"
 
-#include "extern.h"
+#include "Extern.h"
 #include "../shared/STLMap.h"
 
 class MAP;

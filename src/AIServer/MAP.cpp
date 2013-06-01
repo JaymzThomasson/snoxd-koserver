@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "Map.h"
-#include "Serverdlg.h"
+#include "MAP.h"
+#include "ServerDlg.h"
 #include "Region.h"
 #include "Npc.h"
 #include "User.h"
