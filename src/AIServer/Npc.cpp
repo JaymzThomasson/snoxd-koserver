@@ -1890,8 +1890,6 @@ bool CNpc::StepMove()
 {
 	if(m_NpcState != NPC_MOVING && m_NpcState != NPC_TRACING && m_NpcState != NPC_BACK) return false;
 	
-	POINT ptPre={-1,-1};
-
 	__Vector3 vStart, vEnd, vDis;
 	float fDis;
 
