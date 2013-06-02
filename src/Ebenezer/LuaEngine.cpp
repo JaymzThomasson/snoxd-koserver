@@ -107,8 +107,8 @@ bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 
 	if (itr == m_scriptMap.end())
 	{
 		// Build full path to script
-		char szPath[_MAX_PATH];
-		_snprintf(szPath, sizeof(szPath), LUA_SCRIPT_DIRECTORY "%s", filename);
+		std::string szPath = LUA_SCRIPT_DIRECTORY;
+		szPath += filename;
 
 		// Release the read lock (we're not reading anymore)
 		m_lock->ReleaseReadLock();
@@ -116,9 +116,9 @@ bool CLuaEngine::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 
 		// Attempt to compile 
 		BytecodeBuffer bytecode;
 		bytecode.reserve(LUA_SCRIPT_BUFFER_SIZE);
-		if (!SelectAvailableScript()->CompileScript(szPath, bytecode))
+		if (!SelectAvailableScript()->CompileScript(szPath.c_str(), bytecode))
 		{
-			printf("ERROR: Could not compile Lua script `%s`.\n", szPath);
+			printf("ERROR: Could not compile Lua script `%s`.\n", szPath.c_str());
 			return false;
 		}
 
