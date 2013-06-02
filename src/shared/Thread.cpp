@@ -42,7 +42,7 @@ bool Thread::start(lpfnThreadFunc lpThreadFunc, void * lpParam /*= nullptr*/)
 	}
 }
 
-bool Thread::waitForExit(uint32 msWaitTime /*= INFINITE */)
+bool Thread::waitForExit()
 {
 	try
 	{
@@ -71,9 +71,9 @@ bool Thread::start(lpfnThreadFunc lpThreadFunc, void * lpParam /*= nullptr*/)
 	return (m_thread != nullptr);
 }
 
-bool Thread::waitForExit(uint32 msWaitTime /*= INFINITE*/)
+bool Thread::waitForExit()
 {
-	return WaitForSingleObject(m_thread, msWaitTime) != WAIT_OBJECT_0;
+	return WaitForSingleObject(m_thread, INFINITE) != WAIT_OBJECT_0;
 }
 #endif
 
