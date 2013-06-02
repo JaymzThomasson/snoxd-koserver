@@ -12,13 +12,11 @@ Socket::Socket(SOCKET fd, uint32 sendbuffersize, uint32 recvbuffersize)
 	// IOCP member variables
 	m_writeLock = 0;
 	m_completionPort = 0;
+#endif
 
 	// Check for needed fd allocation.
-	if (m_fd == 0) // TO-DO: Wrap this up into its own method
-		m_fd = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
-#else
-	ASSERT(m_fd != 0);
-#endif
+	if (m_fd == 0)
+		m_fd = SocketOps::CreateTCPFileDescriptor();
 }
 
 bool Socket::Connect(const char * Address, uint32 Port)
