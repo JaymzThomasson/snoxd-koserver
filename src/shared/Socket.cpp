@@ -64,6 +64,8 @@ void Socket::_OnConnect()
 	// IOCP stuff
 #ifdef CONFIG_USE_IOCP
 	AssignToCompletionPort();
+#else
+	GetSocketMgr()->AddSocket(this);
 #endif
 
 	// Call virtual onconnect

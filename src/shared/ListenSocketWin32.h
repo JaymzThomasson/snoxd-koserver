@@ -99,8 +99,7 @@ public:
 			// No available sessions... unfortunately, we're going to have to let you go.
 			if (socket == nullptr)
 			{
-				shutdown(aSocket, SD_BOTH);
-				closesocket(aSocket);
+				SocketOps::CloseSocket(aSocket);
 				continue;
 			}
 			socket->SetCompletionPort(m_cp);
