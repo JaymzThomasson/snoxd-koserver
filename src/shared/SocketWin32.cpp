@@ -1,46 +1,14 @@
 #include "stdafx.h"
 #ifdef CONFIG_USE_IOCP
-
-Socket::Socket(SOCKET fd, uint32 sendbuffersize, uint32 recvbuffersize) 
-	: m_fd(fd), m_connected(false),	m_deleted(false), m_socketMgr(nullptr)
+void Socket::AssignToCompletionPort()
 {
-	// Allocate buffers
-	readBuffer.Allocate(recvbuffersize);
-	writeBuffer.Allocate(sendbuffersize);
-
-	// IOCP member variables
-	m_writeLock = 0;
-	m_completionPort = 0;
-
-	// Check for needed fd allocation.
-	if (m_fd == 0) // TO-DO: Wrap this up into its own method
-		m_fd = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
+	CreateIoCompletionPort((HANDLE)m_fd, m_completionPort, (ULONG_PTR)this, 0);
 }
 
-bool Socket::Connect(const char * Address, uint32 Port)
+void Socket::BurstPush()
 {
-	struct hostent * ci = gethostbyname(Address);
-	if (ci == 0)
-		return false;
-
-	m_client.sin_family = ci->h_addrtype;
-	m_client.sin_port = ntohs((u_short)Port);
-	memcpy(&m_client.sin_addr.s_addr, ci->h_addr_list[0], ci->h_length);
-
-	SocketOps::Blocking(m_fd);
-
-	if (m_fd == 0)
-		m_fd = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
-
-	if (connect(m_fd, (const sockaddr*)&m_client, sizeof(m_client)) == -1)
-		return false;
-
-	// at this point the connection was established
-	m_completionPort = m_socketMgr->GetCompletionPort();
-	m_socketMgr->OnConnect(this);
-
-	_OnConnect();
-	return true;
+	if (AcquireSendLock())
+		WriteCallback();
 }
 
 void Socket::WriteCallback()

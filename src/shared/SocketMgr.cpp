@@ -33,12 +33,10 @@ uint32 THREADCALL SocketCleanupThread(void * lpParam)
 }
 
 SocketMgr::SocketMgr() : m_threadCount(0), 
-#ifdef CONFIG_USE_IOCP
-	m_completionPort(nullptr), 
-#endif
 	m_bWorkerThreadsActive(false),
 	m_bShutdown(false)
 {
+	Initialise();
 	IncRef();
 }
 
@@ -59,41 +57,6 @@ void SocketMgr::SpawnWorkerThreads()
 		s_cleanupThread.start(SocketCleanupThread);
 }
 
-void HandleReadComplete(Socket * s, uint32 len)
-{
-	if (s->IsDeleted())
-		return;
-
-	s->m_readEvent.Unmark();
-	if (len)
-	{
-		s->GetReadBuffer().IncrementWritten(len);
-		s->OnRead();
-		s->SetupReadEvent();
-	}
-	else
-	{
-		// s->Delete();	  // Queue deletion.
-		s->Disconnect();
-	}
-}
-
-void HandleWriteComplete(Socket * s, uint32 len)
-{
-	if (s->IsDeleted())
-		return;
-
-	s->m_writeEvent.Unmark();
-	s->BurstBegin();					// Lock
-	s->GetWriteBuffer().Remove(len);
-	if( s->GetWriteBuffer().GetContiguousBytes() > 0 )
-		s->WriteCallback();
-	else
-		s->DecSendLock();
-	s->BurstEnd();					  // Unlock
-}
-
-void HandleShutdown(Socket * s, uint32 len) {}
 void SocketMgr::OnConnect(Socket *pSock) {}
 void SocketMgr::DisconnectCallback(Socket *pSock) {}
 void SocketMgr::OnDisconnect(Socket *pSock) 
@@ -127,6 +90,7 @@ void SocketMgr::Shutdown()
 		return;
 
 	ShutdownThreads();
+	_CleanupSockets(); /* cleanup implementation specific sockets */
 
 	DecRef();
 	m_bShutdown = true;
@@ -148,7 +112,7 @@ void SocketMgr::CleanupSockets()
 	}
 
 #ifdef CONFIG_USE_IOCP
-	CleanupWinsock();
+	WSACleanup();
 #endif
 }
 

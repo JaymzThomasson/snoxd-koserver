@@ -18,6 +18,9 @@ public:
 	// Accept from the already-set fd.
 	void Accept(sockaddr_in * address);
 
+	void ReadCallback(uint32 len);
+	void WriteCallback();
+
 	/* Implementable methods */
 
 	// Called when data is received.
@@ -55,10 +58,6 @@ public:
 	INLINE uint32 GetRemotePort() { return ntohs(m_client.sin_port); }
 	INLINE SOCKET GetFd() { return m_fd; }
 	INLINE SocketMgr * GetSocketMgr() { return m_socketMgr; }
-	
-	void SetupReadEvent();
-	void ReadCallback(uint32 len);
-	void WriteCallback();
 
 	INLINE bool IsDeleted() { return m_deleted; }
 	INLINE bool IsConnected() { return m_connected; }
@@ -94,6 +93,8 @@ protected:
 
 	SocketMgr *m_socketMgr;
 
+
+/* Win32 - IOCP Specific Calls */
 #ifdef CONFIG_USE_IOCP
 public:
 	// Set completion port that this socket will be assigned to.
@@ -111,6 +112,7 @@ public:
 		return true;
 	}
 
+	void SetupReadEvent();
 	OverlappedStruct m_readEvent, m_writeEvent;
 
 private:
@@ -122,5 +124,57 @@ private:
 	
 	// Assigns the socket to his completion port.
 	void AssignToCompletionPort();
+#endif
+
+/* Linux - EPOLL Specific Calls */
+#ifdef CONFIG_USE_EPOLL
+public:
+	// Posts a epoll event with the specified arguments.
+	void PostEvent(uint32 events);
+
+	// Atomic wrapper functions for increasing read/write locks
+	// TO-DO: Replace with std::atomic
+	INLINE void IncSendLock() { FastGuard lock(m_writeLockMutex); m_writeLock++; }
+	INLINE void DecSendLock() { FastGuard lock(m_writeLockMutex); m_writeLock--; }
+	INLINE bool HasSendLock() { FastGuard lock(m_writeLockMutex); return (m_writeLock != 0); }
+	INLINE bool AcquireSendLock()
+	{
+		FastGuard lock(m_writeLockMutex);
+		if (m_writeLock != 0)
+			return false;
+			
+		m_writeLock++;
+		return true;
+	}
+
+private:
+	uint32 m_writeLock;
+	FastMutex m_writeLockMutex;
+#endif
+
+/* FreeBSD - kqueue specific calls */
+#ifdef CONFIG_USE_KQUEUE
+public:
+	// Posts an event with the specified arguments.
+	void PostEvent(int events, bool oneshot);
+	
+	// Atomic wrapper functions for increasing read/write locks
+	// TO-DO: Replace with std::atomic
+	INLINE void IncSendLock() { FastGuard lock(m_writeLockMutex); m_writeLock++; }
+	INLINE void DecSendLock() { FastGuard lock(m_writeLockMutex); m_writeLock--; }
+	INLINE bool HasSendLock() { FastGuard lock(m_writeLockMutex); return (m_writeLock != 0); }
+	INLINE bool AcquireSendLock()
+	{
+		FastGuard lock(m_writeLockMutex);
+		if (m_writeLock != 0)
+			return false;
+			
+		m_writeLock++;
+		return true;
+	}
+
+private:
+	uint32 m_writeLock;
+	Mutex m_writeLockMutex;
 #endif
 };
