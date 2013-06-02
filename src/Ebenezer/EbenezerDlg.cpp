@@ -361,7 +361,7 @@ void CEbenezerDlg::RemoveSessionNames(CUser *pSession)
 		upperName = pSession->GetName();
 		STRTOUPPER(upperName);
 
-		FastMutex lock(m_characterNameLock);
+		FastGuard lock(m_characterNameLock);
 		m_characterNameMap.erase(upperName);
 	}
 }
