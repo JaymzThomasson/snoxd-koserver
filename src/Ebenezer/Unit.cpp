@@ -2,6 +2,7 @@
 #include "Map.h"
 #include "EbenezerDlg.h"
 #include "User.h"
+#include <cfloat>
 
 Unit::Unit(bool bPlayer /*= false*/) 
 	: m_pMap(nullptr), m_pRegion(nullptr), m_sRegionX(0), m_sRegionZ(0), m_bPlayer(bPlayer)
