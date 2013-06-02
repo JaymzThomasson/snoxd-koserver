@@ -11,8 +11,10 @@
 #define TCHAR char
 #define _T(x) x
 #define _tprintf printf
-#define _vsntprintf _vsnprintf
+#define _vsntprintf vsnprintf
+#define _vsnprintf vsnprintf
 #define _stprintf sprintf
+#define _snprintf snprintf
 #endif
 
 #ifdef UNICODE
