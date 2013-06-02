@@ -105,8 +105,11 @@ bool CEbenezerDlg::Startup()
 		return false;
 	}
 
+#ifdef CONFIG_USE_IOCP
 	// Bit tacky, but there's no reason we can't reuse the existing completion port for our AI socket
 	g_aiSocketMgr.SetCompletionPort(g_socketMgr.GetCompletionPort());
+#endif
+
 	g_aiSocketMgr.InitSessions(1);
 
 	if (!g_DBAgent.Startup(m_bMarsEnabled, 
