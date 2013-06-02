@@ -5,6 +5,7 @@
 void CUser::WarehouseProcess(Packet & pkt)
 {
 	Packet result(WIZ_WAREHOUSE);
+	CNpc * pNpc;
 	uint32 itemid, count;
 	uint16 npcid, reference_pos;
 	uint8 page, srcpos, destpos;
@@ -34,7 +35,8 @@ void CUser::WarehouseProcess(Packet & pkt)
 	}
 
 	pkt >> npcid >> itemid >> page >> srcpos >> destpos;
-	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(npcid);
+
+	pNpc = g_pMain->m_arNpcArray.GetData(npcid);
 	if (pNpc == nullptr
 		|| pNpc->GetType() != NPC_WAREHOUSE
 		|| !isInRange(pNpc, MAX_NPC_RANGE))
@@ -368,6 +370,7 @@ bool CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 
 void CUser::ItemMove(Packet & pkt)
 {
+	_ITEM_TABLE *pTable;
 	_ITEM_DATA *pSrcItem, *pDstItem, tmpItem;
 	uint32 nItemID;
 	uint8 dir, bSrcPos, bDstPos;
@@ -377,7 +380,7 @@ void CUser::ItemMove(Packet & pkt)
 	if (isTrading() || isMerchanting())
 		goto fail_return;
 
-	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
+	pTable = g_pMain->GetItemPtr(nItemID);
 	if (pTable == nullptr
 		//  || dir == ITEM_INVEN_SLOT && ((pTable->m_sWeight + m_sItemWeight) > m_sMaxWeight))
 		//  || dir > ITEM_MBAG_TO_MBAG || bSrcPos >= SLOT_MAX+HAVE_MAX+COSP_MAX+MBAG_MAX || bDstPos >= SLOT_MAX+HAVE_MAX+COSP_MAX+MBAG_MAX
@@ -798,6 +801,7 @@ void CUser::SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes
 void CUser::ItemRemove(Packet & pkt)
 {
 	Packet result(WIZ_ITEM_REMOVE);
+	_ITEM_DATA * pItem;
 	uint8 bType, bPos;
 	uint32 nItemID;
 
@@ -824,13 +828,14 @@ void CUser::ItemRemove(Packet & pkt)
 		bPos += SLOT_MAX;
 	}
 
-	_ITEM_DATA *pItem = &m_sItemArray[bPos];
+	pItem = GetItem(bPos);
 
 	// Make sure the item matches what the client says it is
 	if (pItem->nNum != nItemID
 		|| pItem->isSealed() 
 		|| pItem->isRented())
 		goto fail_return;
+
 	memset(pItem, 0, sizeof(_ITEM_DATA));
 
 	SendItemWeight();
