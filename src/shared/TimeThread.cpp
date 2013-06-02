@@ -6,6 +6,7 @@ time_t UNIXTIME; // update this routinely to avoid the expensive time() syscall!
 tm g_localTime;
 
 static Thread s_timeThread;
+static bool g_bRunningThread;
 
 void StartTimeThread()
 {
@@ -21,7 +22,7 @@ void CleanupTimeThread()
 
 uint32 THREADCALL TimeThread(void * lpParam)
 {
-	while (g_bRunning)
+	while (g_bRunningThread)
 	{
 		time_t t = time(nullptr);
 		if (UNIXTIME != t)
