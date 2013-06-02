@@ -2,6 +2,7 @@
 
 //	unix defines
 #ifndef CONFIG_USE_IOCP
+
 #	define SOCKET int
 #	define SD_BOTH SHUT_RDWR
 
@@ -10,7 +11,9 @@
 #	else
 #		include <sys/event.h>
 #	endif
+
 #else // IOCP-specific functionality
+
 enum SocketIOEvent
 {
 	SOCKET_IO_EVENT_READ_COMPLETE   = 0,

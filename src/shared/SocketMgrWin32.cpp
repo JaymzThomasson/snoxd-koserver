@@ -47,6 +47,11 @@ uint32 THREADCALL SocketMgr::SocketWorkerThread(void * lpParam)
 	return 0;
 }
 
+void SocketMgr::Initialise()
+{
+	m_completionPort = nullptr;
+}
+
 uint32 SocketMgr::GetPreferredThreadCount()
 {
 	SYSTEM_INFO si;
@@ -66,9 +71,42 @@ void SocketMgr::SetupWinsock()
 	WSAStartup(MAKEWORD(2,0), &wsaData);
 }
 
-void SocketMgr::CleanupWinsock() 
+void HandleReadComplete(Socket * s, uint32 len)
 {
-	WSACleanup(); 
+	if (s->IsDeleted())
+		return;
+
+	s->m_readEvent.Unmark();
+	if (len)
+	{
+		s->GetReadBuffer().IncrementWritten(len);
+		s->OnRead();
+		s->SetupReadEvent();
+	}
+	else
+	{
+		// s->Delete();	  // Queue deletion.
+		s->Disconnect();
+	}
 }
+
+void HandleWriteComplete(Socket * s, uint32 len)
+{
+	if (s->IsDeleted())
+		return;
+
+	s->m_writeEvent.Unmark();
+	s->BurstBegin();					// Lock
+	s->GetWriteBuffer().Remove(len);
+	if( s->GetWriteBuffer().GetContiguousBytes() > 0 )
+		s->WriteCallback();
+	else
+		s->DecSendLock();
+	s->BurstEnd();					  // Unlock
+}
+
+void HandleShutdown(Socket * s, uint32 len) {}
+
+void SocketMgr::_CleanupSockets() { /* do nothing */ }
 
 #endif
