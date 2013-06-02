@@ -68,6 +68,7 @@
 
 #	define THREADCALL 
 #	define STRCASECMP strcasecmp
+#	define SetConsoleTitle(title) /* unsupported & unnecessary */
 
 #endif
 
@@ -138,10 +139,6 @@
 // Other platforms rely on C++11 support.
 #else
 #	define sleep(ms) Sleep(ms)
-#endif
-
-#ifndef WIN32
-#	define SetConsoleTitle(title) /* unsupported & unnecessary */
 #endif
 
 #ifdef min

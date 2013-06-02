@@ -15,7 +15,7 @@ public:
 #endif
 
 	bool start(lpfnThreadFunc lpThreadFunc, void * lpParam = nullptr);
-	bool waitForExit(uint32 msWaitTime = INFINITE);
+	bool waitForExit();
 
 	void suspend();
 	void resume();
