@@ -555,8 +555,10 @@ void CUser::HandleCapeChange(Packet & pkt)
 	Packet result(WIZ_CAPE);
 	CKnights *pKnights = nullptr;
 	_KNIGHTS_CAPE *pCape = nullptr;
+	uint32 nReqClanPoints = 0, nReqCoins = 0;
 	int16 sErrorCode = 0, sCapeID;
 	uint8 r, g, b;
+	bool bApplyingPaint = false;
 
 	pkt >> sCapeID >> r >> g >> b;
 
@@ -584,7 +586,6 @@ void CUser::HandleCapeChange(Packet & pkt)
 		goto fail_return;
 	}
 
-	uint32 nReqClanPoints = 0, nReqCoins = 0;
 	if (sCapeID >= 0)
 	{
 		// Does this cape type exist?
@@ -617,8 +618,6 @@ void CUser::HandleCapeChange(Packet & pkt)
 		nReqCoins = pCape->nReqCoins;
 		nReqClanPoints = pCape->nReqClanPoints;
 	}
-
-	bool bApplyingPaint = false;
 
 	// These are 0 when not used
 	if (r != 0 || g != 0 || b != 0)

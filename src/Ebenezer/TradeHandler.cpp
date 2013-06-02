@@ -30,6 +30,9 @@ void CUser::ExchangeProcess(Packet & pkt)
 void CUser::ExchangeReq(Packet & pkt)
 {
 	Packet result(WIZ_EXCHANGE);
+	CUser * pUser;
+	uint16 destid;
+
 	if (isDead())
 		goto fail_return;
 	else if (isTrading())
@@ -38,8 +41,8 @@ void CUser::ExchangeReq(Packet & pkt)
 		return;
 	}
 
-	uint16 destid = pkt.read<uint16>();
-	CUser* pUser = g_pMain->GetUserPtr(destid);
+	destid = pkt.read<uint16>();
+	pUser = g_pMain->GetUserPtr(destid);
 	if (pUser == nullptr
 		|| pUser->isTrading()
 		|| (pUser->GetNation() != GetNation() && pUser->GetZoneID() != 21 && GetZoneID() != 21)

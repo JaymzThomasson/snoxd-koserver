@@ -56,6 +56,7 @@ void CUser::HandleChallenge(Packet & pkt)
 void CUser::HandleChallengeRequestPVP(Packet & pkt)
 {
 	Packet result(WIZ_CHALLENGE);
+	CUser *pUser;
 	string strUserID;
 	uint8 bErrorCode = CHALLENGE_GENERIC_ERROR;
 
@@ -79,7 +80,7 @@ void CUser::HandleChallengeRequestPVP(Packet & pkt)
 
 	pkt >> strUserID;
 
-	CUser *pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
+	pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
 	if (pUser == nullptr
 		|| !pUser->isInGame()
 		|| pUser->isInParty()
@@ -114,6 +115,7 @@ fail_return:
 void CUser::HandleChallengeRequestCVC(Packet & pkt)
 {
 	Packet result(WIZ_CHALLENGE);
+	CUser *pUser;
 	string strUserID;
 	uint8 bErrorCode = CHALLENGE_GENERIC_ERROR;
 
@@ -144,7 +146,7 @@ void CUser::HandleChallengeRequestCVC(Packet & pkt)
 
 	pkt >> strUserID;
 
-	CUser *pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
+	pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
 	if (pUser == nullptr
 		|| !pUser->isInGame()
 		|| pUser->isInParty()

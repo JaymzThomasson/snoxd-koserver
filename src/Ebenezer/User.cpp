@@ -3753,6 +3753,8 @@ void CUser::ItemUpgrade(Packet & pkt)
 	};
 
 	Packet result(WIZ_ITEM_UPGRADE, uint8(ITEM_UPGRADE));
+	_ITEM_DATA  * pOriginItem;
+	_ITEM_TABLE * proto;
 	int32 nItemID[10]; int8 bPos[10];
 	uint16 sNpcID;
 	int8 bResult = UpgradeNoMatch;
@@ -3770,8 +3772,7 @@ void CUser::ItemUpgrade(Packet & pkt)
 	if (bPos[0] >= HAVE_MAX)
 		return;
 
-	_ITEM_DATA  * pOriginItem = GetItem(SLOT_MAX + bPos[0]);
-	_ITEM_TABLE * proto;
+	pOriginItem = GetItem(SLOT_MAX + bPos[0]);
 	if (pOriginItem->nNum != nItemID[0]
 		|| (proto = g_pMain->GetItemPtr(nItemID[0])) == nullptr)
 		goto fail_return; // error with error code UpgradeNoMatch ("Items required for upgrade do not match")

@@ -126,6 +126,7 @@ void CUser::ReqLetterRead(Packet & pkt)
 void CUser::ReqLetterSend(Packet & pkt)
 {
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
+	CUser * pUser;
 	string strRecipient, strSubject, strMessage;
 	_ITEM_DATA *pItem = nullptr;
 	uint32 nItemID = 0, nCoins = 0, nCoinRequirement = 1000;
@@ -200,7 +201,7 @@ void CUser::ReqLetterSend(Packet & pkt)
 	}
 
 	// If the other player's online, notify them.
-	CUser *pUser = g_pMain->GetUserPtr(strRecipient, TYPE_CHARACTER);
+	pUser = g_pMain->GetUserPtr(strRecipient, TYPE_CHARACTER);
 	if (pUser != nullptr)
 	{
 		Packet notification(WIZ_SHOPPING_MALL, uint8(STORE_LETTER));
