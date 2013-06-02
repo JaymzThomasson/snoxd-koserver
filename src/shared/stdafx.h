@@ -33,7 +33,11 @@
 
 #else /* not a Windows environment */
 
-#	include "config.h"
+//	Include generated config file from ./configure
+#	if defined(HAVE_CONFIG_H)
+#		include "config.h"
+#	endif
+
 #	include <sys/time.h>
 #	include <sys/types.h>
 #	include <sys/ioctl.h>
