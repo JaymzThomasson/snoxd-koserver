@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <cstdarg>
 #include "OdbcConnection.h"
 #include "../Mutex.h"
 
