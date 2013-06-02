@@ -317,12 +317,11 @@ void MagicInstance::SendSkill(bool bSendToRegion /*= true*/, Unit * pUnit /*= nu
 bool MagicInstance::IsAvailable()
 {
 	CUser* pParty = nullptr;   // When the target is a party....
+	int modulator = 0, Class = 0, moral = 0, skill_mod = 0 ;
 	bool isNPC = (sCasterID >= NPC_BAND);		// Identifies source : true means source is NPC.
 
 	if (pSkill == nullptr)
 		goto fail_return;
-
-	int modulator = 0, Class = 0, moral = 0, skill_mod = 0 ;
 
 	if (sTargetID >= 0 && sTargetID < MAX_USER) 
 		moral = pSkillTarget->GetNation();
