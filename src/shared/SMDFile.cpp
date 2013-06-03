@@ -31,7 +31,7 @@ SMDFile *SMDFile::Load(std::string mapName, bool bLoadWarpsAndRegeneEvents /*= f
 	}
 
 	// Map hasn't already been loaded
-	std::string filename = "./MAP/" + mapName;
+	std::string filename = "./map/" + mapName;
 
 	// Does this file exist/can it be opened?
 	FILE *fp = fopen(filename.c_str(), "rb");
