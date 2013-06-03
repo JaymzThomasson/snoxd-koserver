@@ -132,7 +132,6 @@ void OdbcConnection::ResetHandles()
 tstring OdbcConnection::ReportSQLError(SQLSMALLINT handleType, SQLHANDLE handle,
 								 TCHAR *szSource, TCHAR *szError, ...)
 {
-	tstring szErrorMessage;
 	TCHAR szErrorBuffer[256];
 	OdbcError *error = new OdbcError();
 
@@ -149,10 +148,11 @@ tstring OdbcConnection::ReportSQLError(SQLSMALLINT handleType, SQLHANDLE handle,
 	if (handle != nullptr)
 	{
 		error->ExtendedErrorMessage = GetSQLError(handleType, handle);
-		return error->ExtendedErrorMessage;
+		if (!error->ExtendedErrorMessage.empty())
+			return error->ExtendedErrorMessage;
 	}
 	
-	return szErrorMessage;
+	return szErrorBuffer;
 }
 
 tstring OdbcConnection::GetSQLError(SQLSMALLINT handleType, SQLHANDLE handle)
