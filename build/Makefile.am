@@ -131,3 +131,18 @@ AIServer_SOURCES = \
 	../src/AIServer/RoomEvent.cpp \
 	../src/AIServer/ServerDlg.cpp \
 	../src/AIServer/stdafx.cpp
+
+########################################
+#           Post-build script          #
+#   Copies files to build's bin dir    #
+########################################
+all-local:
+if DEBUG_BUILD
+        BinDir = ../bin/Debug/
+else
+        BinDir = ../bin/Release/
+endif
+	@cp VersionManager $(BinDir)
+	@cp Ebenezer $(BinDir)
+	@cp AIServer $(BinDir)	
+	@echo Server files copied to directory: $(BinDir)

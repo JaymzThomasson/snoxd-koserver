@@ -23,6 +23,7 @@ AC_ARG_ENABLE([debug],
   [BUILD_TYPE="DEBUG"],
   [BUILD_TYPE="NDEBUG"])
 AC_SUBST([BUILD_TYPE])
+AM_CONDITIONAL([DEBUG_BUILD], [test x$BUILD_TYPE = xDEBUG])
 
 # Check for ODBC headers 
 AC_CHECK_HEADER([sql.h], [], [AC_MSG_ERROR([Couldn't find sql.h... please setup unixODBC first.])])
