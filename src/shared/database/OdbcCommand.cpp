@@ -77,7 +77,8 @@ bool OdbcCommand::Execute(const tstring & szSQL)
 	if (!BindParameters())
 		return false;
 
-	if (!SQL_SUCCEEDED(SQLExecDirect(m_hStmt, (SQLTCHAR *)szSQL.c_str(), szSQL.length())))
+	SQLRETURN result = SQLExecDirect(m_hStmt, (SQLTCHAR *)szSQL.c_str(), szSQL.length());
+	if (!(result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO || result == SQL_NO_DATA))
 	{
 		if (m_odbcConnection != nullptr)
 			m_szError = m_odbcConnection->ReportSQLError(SQL_HANDLE_STMT, m_hStmt, (TCHAR *)szSQL.c_str(), _T("Failed to execute statement."));
@@ -117,7 +118,8 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 	if (!BindParameters())
 		return false;
 
-	if (!SQL_SUCCEEDED(SQLExecute(m_hStmt)))
+	SQLRETURN result = SQLExecute(m_hStmt);
+	if (!(result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO || result == SQL_NO_DATA))
 	{
 		if (m_odbcConnection != nullptr)
 			m_szError = m_odbcConnection->ReportSQLError(SQL_HANDLE_STMT, m_hStmt, (TCHAR *)szSQL.c_str(), _T("Failed to execute prepared statement."));
