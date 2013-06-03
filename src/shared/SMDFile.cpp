@@ -31,12 +31,15 @@ SMDFile *SMDFile::Load(std::string mapName, bool bLoadWarpsAndRegeneEvents /*= f
 	}
 
 	// Map hasn't already been loaded
-	std::string filename = ".\\MAP\\" + mapName;
+	std::string filename = "./MAP/" + mapName;
 
 	// Does this file exist/can it be opened?
 	FILE *fp = fopen(filename.c_str(), "rb");
 	if (fp == nullptr)
+	{
+		printf("ERROR: %s does not exist or no permission to access.\n", filename.c_str());
 		return nullptr;
+	}
 
 	// Try to load the file now.
 	SMDFile *smd = new SMDFile();
