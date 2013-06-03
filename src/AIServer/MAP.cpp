@@ -192,7 +192,7 @@ bool MAP::RegionNpcRemove(int rx, int rz, int nid)
 bool MAP::LoadRoomEvent()
 {
 	uint32		length, count;
-	string		filename = string_format(".\\MAP\\%d.aievt", m_byRoomEvent);
+	string		filename = string_format(MAP_DIR "%d.aievt", m_byRoomEvent);
 	char		byte;
 	char		buf[4096];
 	char		first[1024];
@@ -204,7 +204,10 @@ bool MAP::LoadRoomEvent()
 	CRoomEvent*	pEvent = nullptr;
 	ifstream is(filename);
 	if (!is)
+	{
+		printf("ERROR: %s does not exist or no permission to access.\n", filename.c_str());
 		return false;
+	}
 
 	is.seekg(0, is.end);
     length = (uint32)is.tellg();

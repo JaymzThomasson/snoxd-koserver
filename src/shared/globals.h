@@ -4,6 +4,8 @@
 #include "packets.h"
 #include "Packet.h"
 
+#define MAP_DIR				"./map/"
+
 #define MAX_USER			3000
 
 #define MAX_ID_SIZE			20
