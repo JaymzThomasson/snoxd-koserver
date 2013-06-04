@@ -33,11 +33,13 @@ void CKnights::OnLogin(CUser *pUser)
 	// Set the active session for this user
 	foreach_array (i, m_arKnightsUser)
 	{
-		if (!m_arKnightsUser[i].byUsed
-			|| STRCASECMP(m_arKnightsUser[i].strUserName, pUser->GetName()))
+		_KNIGHTS_USER * p = &m_arKnightsUser[i];
+		if (!p->byUsed
+			|| STRCASECMP(p->strUserName, pUser->GetName()) != 0)
 			continue;
 
-		m_arKnightsUser[i].pSession = pUser;
+		p->pSession = pUser;
+		pUser->m_pKnightsUser = p;
 		break;
 	}
 }
@@ -47,14 +49,10 @@ void CKnights::OnLogout(CUser *pUser)
 	// TO-DO: Implement logout notice here
 
 	// Unset the active session for this user
-	foreach_array (i, m_arKnightsUser)
+	if (pUser->m_pKnightsUser != nullptr)
 	{
-		if (!m_arKnightsUser[i].byUsed
-			|| STRCASECMP(m_arKnightsUser[i].strUserName, pUser->GetName()))
-			continue;
-
-		m_arKnightsUser[i].pSession = nullptr;
-		break;
+		pUser->m_pKnightsUser->pSession = nullptr;
+		pUser->m_pKnightsUser = nullptr;
 	}
 }
 
@@ -96,15 +94,18 @@ bool CKnights::RemoveUser(const char *strUserID)
 {
 	for (int i = 0; i < MAX_CLAN_USERS; i++)
 	{
-		if (m_arKnightsUser[i].byUsed == 0)
+		_KNIGHTS_USER * p = &m_arKnightsUser[i];
+		if (p->byUsed == 0)
 			continue;
 
-		if (STRCASECMP(m_arKnightsUser[i].strUserName, strUserID) == 0)
+		if (STRCASECMP(p->strUserName, strUserID) == 0)
 		{
-			strcpy(m_arKnightsUser[i].strUserName, "");
-			m_arKnightsUser[i].pSession = nullptr;
-			m_arKnightsUser[i].nDonatedNP = 0;
-			m_arKnightsUser[i].byUsed = 0;
+			// If they're not logged in (note: logged in users being removed have their NP refunded in the other handler)
+			// but they've donated NP, ensure they're refunded for the next time they login.
+			if (p->nDonatedNP > 0)
+				RefundDonatedNP(p->nDonatedNP, nullptr, p->strUserName);
+
+			p->Initialise();
 			return true;
 		}
 	}
@@ -119,18 +120,26 @@ bool CKnights::RemoveUser(const char *strUserID)
  */
 bool CKnights::RemoveUser(CUser *pUser)
 {
-	if (pUser == nullptr)
+	if (pUser == nullptr
+		|| pUser->m_pKnightsUser == nullptr)
 		return false;
-
-	bool result = RemoveUser(pUser->GetName());
-
+	
+	// Ensure users are refunded when they leave/are removed from a clan.
+	// NOTE: If we bring back multiserver setups, this is going to cause synchronisation issues.
+	uint32 nDonatedNP = pUser->m_pKnightsUser->nDonatedNP;
+	if (nDonatedNP > 0)
+		RefundDonatedNP(nDonatedNP, pUser);
+	
 	pUser->SetClanID(0);
 	pUser->m_bFame = 0;
+
+	pUser->m_pKnightsUser->Initialise();
+	pUser->m_pKnightsUser = nullptr;
 
 	if (!pUser->isClanLeader())
 		pUser->SendClanUserStatusUpdate();
 
-	return result;
+	return true;
 }
 
 /**
@@ -177,16 +186,13 @@ void CKnights::Disband(CUser *pLeader /*= nullptr*/)
 		if (!p->byUsed)
 			continue;
 
-		uint32 nDonatedNP = p->nDonatedNP;
-
-		// If the user's donated NP, ensure they're refunded.
-		if (p->nDonatedNP > 0)
-			RefundDonatedNP(p->nDonatedNP, p->pSession, p->strUserName);
-
 		// If the user's logged in, handle the player data removal in-game.
 		// It will be saved to the database when they log out.
 		if (p->pSession != nullptr)
 			RemoveUser(p->pSession);
+		else
+			RemoveUser(p->strUserName);
+
 	}
 	g_pMain->m_KnightsArray.DeleteData(m_sIndex);
 

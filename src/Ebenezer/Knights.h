@@ -10,13 +10,14 @@ struct _KNIGHTS_USER
 	uint32	nDonatedNP;
 	CUser	*pSession;
 
-	_KNIGHTS_USER()
+	INLINE _KNIGHTS_USER() { Initialise(); }
+	INLINE void Initialise()
 	{
 		byUsed = 0;
 		memset(strUserName, 0, sizeof(strUserName));
 		nDonatedNP = 0;
 		pSession = nullptr;
-	};
+	}
 };
 
 enum ClanTypeFlag
