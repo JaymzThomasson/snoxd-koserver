@@ -22,6 +22,7 @@ void CleanupTimeThread()
 
 uint32 THREADCALL TimeThread(void * lpParam)
 {
+	g_bRunningThread = true;
 	while (g_bRunningThread)
 	{
 		time_t t = time(nullptr);
