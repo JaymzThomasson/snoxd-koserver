@@ -133,7 +133,8 @@ public:
 	uint8	m_bWarp;
 	uint8	m_bNeedParty;
 
-	short	m_sPartyIndex;
+	uint16	m_sPartyIndex;
+	bool	m_bInParty;
 	bool	m_bPartyLeader;
 
 	bool	m_bCanSeeStealth;
@@ -190,7 +191,7 @@ public:
 	virtual bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; }
 
 	INLINE bool isInGame() { return GetState() == GAME_STATE_INGAME; }
-	INLINE bool isInParty() { return m_sPartyIndex != -1; }
+	INLINE bool isInParty() { return m_bInParty; }
 	INLINE bool isInClan() { return GetClanID() > 0; }
 
 	INLINE bool isKing() { return m_bRank == 1; }
@@ -229,6 +230,8 @@ public:
 	INLINE uint8 getFame() { return m_bFame; }
 
 	INLINE uint16 GetClass() { return m_sClass; }
+
+	INLINE uint16 GetPartyID() { return m_sPartyIndex; }
 
 	INLINE int16 GetClanID() { return m_bKnights; }
 	INLINE void SetClanID(int16 val) { m_bKnights = val; }

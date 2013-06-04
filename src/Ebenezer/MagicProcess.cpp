@@ -52,10 +52,10 @@ bool CMagicProcess::UserRegionCheck(Unit * pSkillCaster, Unit * pSkillTarget, _M
 			if (!TO_USER(pSkillTarget)->isInParty())
 				return (pSkillTarget == pSkillCaster);
 
-			if (TO_USER(pSkillTarget)->m_sPartyIndex == TO_USER(pSkillCaster)->m_sPartyIndex 
+			if (TO_USER(pSkillTarget)->GetPartyID() == TO_USER(pSkillCaster)->GetPartyID()
 				&& pSkill->bType[0] != 8)
 				goto final_test;
-			else if (TO_USER(pSkillTarget)->m_sPartyIndex == TO_USER(pSkillCaster)->m_sPartyIndex 
+			else if (TO_USER(pSkillTarget)->GetPartyID() == TO_USER(pSkillCaster)->GetPartyID() 
 				&& pSkill->bType[0] == 8)
 			{
 				if (pSkillTarget->GetZoneID() == ZONE_BATTLE && (UNIXTIME - TO_USER(pSkillTarget)->m_tLastRegeneTime < CLAN_SUMMON_TIME))

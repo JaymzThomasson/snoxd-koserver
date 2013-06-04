@@ -56,7 +56,10 @@ void CUser::PartyCancel()
 		return;
 
 	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
+
 	m_sPartyIndex = -1;
+	m_bInParty = false;
+
 	if (pParty == nullptr)
 		return;
 	
@@ -130,6 +133,7 @@ void CUser::PartyRequest(int memberid, bool bCreate)
 	}
 
 	pUser->m_sPartyIndex = m_sPartyIndex;
+	pUser->m_bInParty = true;
 
 	result.Initialize(WIZ_PARTY);
 	result << uint8(PARTY_PERMIT) << GetSocketID() << GetName();
@@ -148,11 +152,14 @@ void CUser::PartyInsert()
 	CUser* pUser = nullptr;
 	_PARTY_GROUP* pParty = nullptr;
 	uint8 byIndex = 0xFF;
+
 	if (!isInParty())
 		return;
 
-	pParty = g_pMain->m_PartyArray.GetData( m_sPartyIndex );
-	if( !pParty ) {	
+	pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
+	if (pParty == nullptr)
+	{
+		m_bInParty = false;
 		m_sPartyIndex = -1;
 		return;
 	}
@@ -163,6 +170,7 @@ void CUser::PartyInsert()
 	{
 		if (pParty->uid[i] == GetSocketID())
 		{
+			m_bInParty = false;
 			m_sPartyIndex = -1;
 			return;
 		}
@@ -234,6 +242,7 @@ void CUser::PartyRemove(int memberid)
 	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
 	if (pParty == nullptr) 
 	{
+		m_bInParty = pUser->m_bInParty = false;
 		m_sPartyIndex = pUser->m_sPartyIndex = -1;
 		return;
 	}
@@ -297,6 +306,7 @@ void CUser::PartyDelete()
 	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
 	if (pParty == nullptr)
 	{
+		m_bInParty = false;
 		m_sPartyIndex = -1;
 		return;
 	}
@@ -305,7 +315,10 @@ void CUser::PartyDelete()
 	{
 		CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
 		if (pUser != nullptr)
+		{
+			m_bInParty = false;
 			pUser->m_sPartyIndex = -1;
+		}
 	}
 
 	Packet result(WIZ_PARTY, uint8(PARTY_DELETE));
