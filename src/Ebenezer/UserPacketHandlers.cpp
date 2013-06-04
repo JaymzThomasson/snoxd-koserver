@@ -8,7 +8,6 @@
 #include "../shared/KOSocketMgr.h"
 #include "../shared/tstring.h"
 
-extern KOSocketMgr<CUser> g_socketMgr;
 using namespace std;
 
 ServerCommandTable CEbenezerDlg::s_commandTable;

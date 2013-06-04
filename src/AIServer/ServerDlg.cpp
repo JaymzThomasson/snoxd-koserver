@@ -31,7 +31,6 @@ using namespace std;
 bool g_bNpcExit	= false;
 ZoneArray			g_arZone;
 
-KOSocketMgr<CGameSocket> CServerDlg::s_socketMgr;
 std::vector<Thread *> g_timerThreads;
 
 CServerDlg::CServerDlg()
@@ -111,7 +110,7 @@ bool CServerDlg::Startup()
 	else if (m_byZone == ELMORAD_ZONE)
 		sPort = AI_ELMO_SOCKET_PORT;
 
-	if (!s_socketMgr.Listen(sPort, MAX_SOCKET))
+	if (!m_socketMgr.Listen(sPort, MAX_SOCKET))
 		return false;
 
 	//----------------------------------------------------------------------
@@ -556,7 +555,7 @@ void CServerDlg::AllNpcInfo()
 			if (++bCount == NPC_NUM)
 			{
 				result.put(0, bCount);
-				s_socketMgr.SendAllCompressed(&result);
+				m_socketMgr.SendAllCompressed(&result);
 
 				// Reset packet buffer
 				bCount = 0;
@@ -568,12 +567,12 @@ void CServerDlg::AllNpcInfo()
 		if (bCount != 0 && bCount < NPC_NUM)
 		{
 			result.put(0, bCount);
-			s_socketMgr.SendAllCompressed(&result);
+			m_socketMgr.SendAllCompressed(&result);
 		}
 
 		Packet serverInfo(AG_SERVER_INFO, uint8(nZone));
 		serverInfo << uint16(m_TotalNPC);
-		s_socketMgr.SendAll(&serverInfo);
+		m_socketMgr.SendAll(&serverInfo);
 	}
 }
 
@@ -609,14 +608,14 @@ uint32 THREADCALL CServerDlg::Timer_CheckAliveTest(void * lpParam)
 void CServerDlg::CheckAliveTest()
 {
 	Packet result(AG_CHECK_ALIVE_REQ);
-	SessionMap & sessMap = s_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = m_socketMgr.GetActiveSessionMap();
 	uint32 count = 0, sessCount = sessMap.size();
 	foreach (itr, sessMap)
 	{
 		if (itr->second->Send(&result))
 			count++;
 	}
-	s_socketMgr.ReleaseLock();
+	m_socketMgr.ReleaseLock();
 
 	if (sessCount > 0 && count == 0)
 		DeleteAllUserList();
@@ -671,12 +670,12 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 
 void CServerDlg::Send(Packet * pkt)
 {
-	s_socketMgr.SendAll(pkt);
+	m_socketMgr.SendAll(pkt);
 }
 
 void CServerDlg::GameServerAcceptThread()
 {
-	s_socketMgr.RunServer();
+	m_socketMgr.RunServer();
 }
 
 //	추가할 소환몹의 메모리를 참조하기위해 플래그가 0인 상태것만 넘긴다.
@@ -904,5 +903,5 @@ CServerDlg::~CServerDlg()
 	}
 
 	m_ZoneNpcList.clear();
-	s_socketMgr.Shutdown();
+	m_socketMgr.Shutdown();
 }

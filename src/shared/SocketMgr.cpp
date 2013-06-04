@@ -32,8 +32,8 @@ SocketMgr::SocketMgr() : m_threadCount(0),
 	m_bWorkerThreadsActive(false),
 	m_bShutdown(false)
 {
-	Initialise();
 	IncRef();
+	Initialise();
 }
 
 void SocketMgr::SpawnWorkerThreads()

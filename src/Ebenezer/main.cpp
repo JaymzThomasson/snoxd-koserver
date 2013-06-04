@@ -14,7 +14,6 @@ bool g_bRunning = true;
 
 int main()
 {
-	CEbenezerDlg pMain;
 
 	SetConsoleTitle("Game server for Knight Online v" STRINGIFY(__VERSION));
 
@@ -31,10 +30,10 @@ int main()
 	// Start up the console input thread
 	StartConsoleInputThread();
 	
-	g_pMain = &pMain;
+	g_pMain = new CEbenezerDlg();
 
 	// Start up server
-	if (pMain.Startup())
+	if (g_pMain->Startup())
 	{
 		printf("\nServer started up successfully!\n");
 
@@ -53,6 +52,8 @@ int main()
 	// This seems redundant, but it's not. 
 	// We still have the destructor for the dialog instance, which allows time for threads to properly cleanup.
 	g_bRunning = false; 
+
+	delete g_pMain;
 
 	CleanupTimeThread();
 	CleanupConsoleInputThread();

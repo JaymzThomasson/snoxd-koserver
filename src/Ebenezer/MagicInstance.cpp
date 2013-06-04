@@ -6,8 +6,6 @@
 #include "MagicProcess.h"
 #include "MagicInstance.h"
 
-extern KOSocketMgr<CUser> g_socketMgr;
-
 using std::string;
 using std::vector;
 
@@ -646,7 +644,7 @@ bool MagicInstance::ExecuteType3()
 	if (sTargetID == -1)
 	{
 		// TO-DO: Make this not completely and utterly suck (i.e. kill that loop!).
-		SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
+		SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
 		foreach (itr, sessMap)
 		{		
 			CUser* pTUser = TO_USER(itr->second);
@@ -654,7 +652,7 @@ bool MagicInstance::ExecuteType3()
 				&& CMagicProcess::UserRegionCheck(pSkillCaster, pTUser, pSkill, pType->bRadius, sData[0], sData[2]))
 				casted_member.push_back(pTUser);
 		}
-		g_socketMgr.ReleaseLock();
+		g_pMain->m_socketMgr.ReleaseLock();
 
 /*
 	This may affect monsters, so we do not want to it fail here.
@@ -799,7 +797,7 @@ bool MagicInstance::ExecuteType4()
 	if (sTargetID == -1)
 	{
 		// TO-DO: Localise this. This is horribly unnecessary.
-		SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
+		SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
 		foreach (itr, sessMap)
 		{		
 			CUser* pTUser = TO_USER(itr->second);
@@ -807,7 +805,7 @@ bool MagicInstance::ExecuteType4()
 				&& CMagicProcess::UserRegionCheck(pSkillCaster, pTUser, pSkill, pType->bRadius, sData[0], sData[2]))
 				casted_member.push_back(pTUser);
 		}
-		g_socketMgr.ReleaseLock();
+		g_pMain->m_socketMgr.ReleaseLock();
 
 		if (casted_member.empty())
 		{		
@@ -1137,14 +1135,14 @@ bool MagicInstance::ExecuteType8()
 	if (sTargetID == -1)
 	{
 		// TO-DO: Localise this loop to make it not suck (the life out of the server).
-		SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
+		SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
 		foreach (itr, sessMap)
 		{		
 			CUser* pTUser = TO_USER(itr->second);
 			if (CMagicProcess::UserRegionCheck(pSkillCaster, pTUser, pSkill, pType->sRadius, sData[0], sData[2]))
 				casted_member.push_back(pTUser);
 		}
-		g_socketMgr.ReleaseLock();
+		g_pMain->m_socketMgr.ReleaseLock();
 
 		if (casted_member.empty()) 
 			return false;	

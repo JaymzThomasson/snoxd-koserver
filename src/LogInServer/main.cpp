@@ -9,8 +9,6 @@ BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
 
 int main()
 {
-	LoginServer pMain;
-
 	SetConsoleTitle("Login server for Knight Online v" STRINGIFY(__VERSION));
 
 #ifdef WIN32
@@ -20,7 +18,7 @@ int main()
 	/* TO-DO: Signals */
 #endif
 
-	g_pMain = &pMain;
+	g_pMain = new LoginServer();
 
 	// Startup server
 	if (g_pMain->Startup())
@@ -36,7 +34,10 @@ int main()
 		system("pause");
 #endif
 	}
+
 	printf("Server shutting down, please wait...\n");
+
+	delete g_pMain;
 
 	return 0;
 }

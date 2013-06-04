@@ -11,6 +11,10 @@ class CUser;
 
 #include "LoadServerData.h"
 
+#include "User.h"
+#include "AISocket.h"
+#include "../shared/ClientSocketMgr.h"
+
 typedef std::unordered_map<std::string, CUser *> NameMap;
 
 class CEbenezerDlg
@@ -323,6 +327,9 @@ public:
 	uint8 m_byKingWeatherEvent_Minute;
 
 	INLINE CLuaEngine * GetLuaEngine() { return &m_luaEngine; }
+
+	KOSocketMgr<CUser> m_socketMgr;
+	ClientSocketMgr<CAISocket> m_aiSocketMgr;
 
 private:
 	CLuaEngine	m_luaEngine;

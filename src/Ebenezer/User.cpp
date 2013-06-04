@@ -2173,13 +2173,13 @@ void CUser::CountConcurrentUser()
 		return;
 
 	uint16 count = 0;
-	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
 		if (TO_USER(itr->second)->isInGame())
 			count++;
 	}
-	g_socketMgr.ReleaseLock();
+	g_pMain->m_socketMgr.ReleaseLock();
 
 	Packet result(WIZ_CONCURRENTUSER);
 	result << count;

@@ -2,8 +2,6 @@
 #include <sstream>
 #include "../shared/Ini.h"
 
-KOSocketMgr<LoginSession> LoginServer::s_socketMgr;
-
 LoginServer::LoginServer() : m_sLastVersion(__VERSION), m_fp(nullptr)
 {
 	memset(m_strFtpUrl, 0, sizeof(m_strFtpUrl));
