@@ -38,13 +38,13 @@ bool LoginServer::Startup()
 	printf("Latest version in database: %d\n", GetVersion());
 	InitPacketHandlers();
 
-	if (!s_socketMgr.Listen(_LISTEN_PORT, MAX_USER))
+	if (!m_socketMgr.Listen(_LISTEN_PORT, MAX_USER))
 	{
 		printf("ERROR: Failed to listen on server port.\n");
 		return false;
 	}
 
-	s_socketMgr.RunServer();
+	m_socketMgr.RunServer();
 	return true;
 }
 
@@ -188,5 +188,5 @@ LoginServer::~LoginServer()
 	if (m_fp != nullptr)
 		fclose(m_fp);
 
-	s_socketMgr.Shutdown();
+	m_socketMgr.Shutdown();
 }
