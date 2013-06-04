@@ -6,8 +6,7 @@ FastMutex SocketMgr::s_disconnectionQueueLock;
 std::queue<Socket *> SocketMgr::s_disconnectionQueue;
 
 Thread SocketMgr::s_cleanupThread; 
-
-Atomic<uint32> SocketMgr::s_refCounter = 0;
+Atomic<uint32> SocketMgr::s_refCounter;
 
 uint32 THREADCALL SocketCleanupThread(void * lpParam)
 {
@@ -32,6 +31,13 @@ SocketMgr::SocketMgr() : m_threadCount(0),
 	m_bWorkerThreadsActive(false),
 	m_bShutdown(false)
 {
+	static bool bRefCounterInitialised = false;
+	if (!bRefCounterInitialised)
+	{
+		s_refCounter = 0;
+		bRefCounterInitialised = true;
+	}
+
 	IncRef();
 	Initialise();
 }
