@@ -59,16 +59,8 @@ protected:
 	long m_threadCount;
 	bool m_bWorkerThreadsActive;
 
-	INLINE void IncRef() 
-	{
-		uint32 t = s_refCounter.increment();
-		if (t == 1) SetupSockets();
-	}
-	INLINE void DecRef() 
-	{
-		uint32 t = s_refCounter.decrement();
-		if (t == 0) CleanupSockets(); 
-	}
+	INLINE void IncRef() { if (s_refCounter.increment() == 1) SetupSockets(); }
+	INLINE void DecRef() { if (s_refCounter.decrement() == 0) CleanupSockets(); }
 
 	// reference counter (one app can hold multiple socket manager instances)
 	static Atomic<uint32> s_refCounter;
