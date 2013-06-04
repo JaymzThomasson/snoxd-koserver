@@ -7,7 +7,7 @@ public:
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
 	virtual tstring GetTableName() { return _T("KNIGHTS"); }
-	virtual tstring GetColumns() { return _T("IDNum, Flag, Nation, Ranking, IDName, Members, Chief, ViceChief_1, ViceChief_2, ViceChief_3, Gold, Domination, Points, Mark, sMarkVersion, sMarkLen, sCape, bCapeR, bCapeG, bCapeB, sAllianceKnights"); }
+	virtual tstring GetColumns() { return _T("IDNum, Flag, Nation, Ranking, IDName, Members, Chief, ViceChief_1, ViceChief_2, ViceChief_3, Gold, Domination, Points, Mark, sMarkVersion, sMarkLen, sCape, bCapeR, bCapeG, bCapeB, sAllianceKnights, ClanPointFund"); }
 
 	virtual bool Fetch()
 	{
@@ -34,6 +34,7 @@ public:
 		_dbCommand->FetchByte(19, pData->m_bCapeG);
 		_dbCommand->FetchByte(20, pData->m_bCapeB);
 		_dbCommand->FetchUInt16(21, pData->m_sAlliance);
+		_dbCommand->FetchUInt32(22, (uint32 &) pData->m_nClanPointFund);
 
 		pData->m_byGrade = g_pMain->GetKnightsGrade(pData->m_nPoints);
 

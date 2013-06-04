@@ -7,11 +7,14 @@ struct _KNIGHTS_USER
 {
 	uint8    byUsed;
 	char	strUserName[MAX_ID_SIZE+1];
+	uint32	nDonatedNP;
 	CUser	*pSession;
+
 	_KNIGHTS_USER()
 	{
 		byUsed = 0;
 		memset(strUserName, 0, sizeof(strUserName));
+		nDonatedNP = 0;
 		pSession = nullptr;
 	};
 };
@@ -51,6 +54,7 @@ public:
 	uint64	m_nMoney;
 	uint16	m_sDomination;
 	Atomic<uint32> m_nPoints;
+	Atomic<uint32> m_nClanPointFund;
 	uint16	m_sMarkVersion, m_sMarkLen;
 	char	m_Image[MAX_KNIGHTS_MARK];
 	uint16	m_sCape;
@@ -69,8 +73,11 @@ public:
 
 	bool AddUser(const char *strUserID);
 	bool AddUser(CUser *pUser);
+
 	bool RemoveUser(const char *strUserID);
 	bool RemoveUser(CUser *pUser);
+
+	void RefundDonatedNP(uint32 nDonatedNP, CUser * pUser = nullptr, const char * strUserID = nullptr);
 
 	void Disband(CUser *pLeader = nullptr);
 
