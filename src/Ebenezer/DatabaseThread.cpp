@@ -392,8 +392,8 @@ void CUser::ReqUserLogOut()
 #if 0
 void CUser::ReqConCurrentUserCount()
 {
-	uint32 count = g_socketMgr.GetActiveSessionMap().size();
-	g_socketMgr.ReleaseLock();
+	uint32 count = g_pMain->m_socketMgr.GetActiveSessionMap().size();
+	g_pMain->m_socketMgr.ReleaseLock();
 	m_DBAgent.UpdateConCurrentUserCount(m_nServerNo, m_nZoneNo, count);
 }
 #endif

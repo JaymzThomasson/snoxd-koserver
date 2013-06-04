@@ -3,8 +3,6 @@
 #include "User.h"
 #include "../shared/KOSocketMgr.h"
 
-extern KOSocketMgr<CUser> g_socketMgr;
-
 using namespace std;
 
 void CUser::PartyProcess(Packet & pkt)
@@ -372,7 +370,7 @@ void CUser::PartyBBSRegister(Packet & pkt)
 	StateChangeServerDirect(2, 2); // seeking a party
 
 	// TO-DO: Make this a more localised map
-	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
 		CUser *pUser = TO_USER(itr->second);
@@ -387,7 +385,7 @@ void CUser::PartyBBSRegister(Packet & pkt)
 		if (pUser->GetSocketID() == GetSocketID()) break;
 		counter++;		
 	}
-	g_socketMgr.ReleaseLock();
+	g_pMain->m_socketMgr.ReleaseLock();
 
 	SendPartyBBSNeeded(counter / MAX_BBS_PAGE, PARTY_BBS_LIST);
 }
@@ -432,7 +430,7 @@ void CUser::SendPartyBBSNeeded(uint16 page_index, uint8 bType)
 	result << bType << uint8(1) << page_index << uint8(0) << uint8(0); //Not sure what the last 2 bytes are.
 
 	// TO-DO: Make this a more localised map
-	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
 	int i = -1; // start at -1, first iteration gets us to 0.
 	foreach (itr, sessMap)
 	{
@@ -476,7 +474,7 @@ void CUser::SendPartyBBSNeeded(uint16 page_index, uint8 bType)
 				<< PartyMembers;
 		valid_counter++;
 	}
-	g_socketMgr.ReleaseLock();
+	g_pMain->m_socketMgr.ReleaseLock();
 
 	// You still need to fill up ten slots.
 	if (valid_counter < MAX_BBS_PAGE)

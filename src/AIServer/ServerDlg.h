@@ -121,7 +121,7 @@ public:
 
 	FastMutex m_userLock;
 
-	static KOSocketMgr<CGameSocket> s_socketMgr;
+	KOSocketMgr<CGameSocket> m_socketMgr;
 
 private:
 	uint8				m_byZone;

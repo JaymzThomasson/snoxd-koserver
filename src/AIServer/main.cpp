@@ -11,8 +11,6 @@ bool g_bRunning = true;
 
 int main()
 {
-	CServerDlg pMain;
-
 	SetConsoleTitle("AI server for Knight Online v" STRINGIFY(__VERSION));
 
 #ifdef WIN32
@@ -25,7 +23,7 @@ int main()
 	// Start up the time updater thread
 	StartTimeThread();
 
-	g_pMain = &pMain;
+	g_pMain = new CServerDlg();
 
 	// Startup server
 	if (g_pMain->Startup())
@@ -47,6 +45,8 @@ int main()
 	// This seems redundant, but it's not. 
 	// We still have the destructor for the dialog instance, which allows time for threads to properly cleanup.
 	g_bRunning = false;
+
+	delete g_pMain;
 
 	CleanupTimeThread();
 

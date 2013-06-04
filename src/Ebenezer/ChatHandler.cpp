@@ -429,21 +429,21 @@ COMMAND_HANDLER(CEbenezerDlg::HandleWarCloseCommand)
 
 COMMAND_HANDLER(CEbenezerDlg::HandleShutdownCommand)
 {
-	g_socketMgr.SuspendServer();
+	g_pMain->m_socketMgr.SuspendServer();
 	printf("Server shutdown, %d users kicked out.\n", KickOutAllUsers());
 	return true;
 }
 
 COMMAND_HANDLER(CEbenezerDlg::HandlePauseCommand)
 {
-	g_socketMgr.SuspendServer();
+	g_pMain->m_socketMgr.SuspendServer();
 	printf("Server no longer accepting connections.\n");
 	return true;
 }
 
 COMMAND_HANDLER(CEbenezerDlg::HandleResumeCommand)
 {
-	g_socketMgr.ResumeServer();
+	g_pMain->m_socketMgr.ResumeServer();
 	printf("Server accepting connections.\n");
 	return true;
 }
@@ -535,14 +535,14 @@ COMMAND_HANDLER(CEbenezerDlg::HandleReloadNoticeCommand)
 	// and update all logged in players
 	// if we're using the new notice format that's always shown
 #if __VERSION >= 1453
-	SessionMap & sessMap = g_socketMgr.GetActiveSessionMap();
+	SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
 	{
 		CUser * pUser = TO_USER(itr->second);
 		if (pUser->isInGame())
 			pUser->SendNotice();
 	}
-	g_socketMgr.ReleaseLock();
+	g_pMain->m_socketMgr.ReleaseLock();
 #endif
 	return true;
 }
