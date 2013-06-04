@@ -1169,7 +1169,7 @@ void CKnightsManager::ReqDonateNP(CUser *pUser, Packet & pkt)
 	// Ensure the user has enough NP to donate to the clan.
 	if (amountNP > pUser->GetLoyalty()
 		// Users must have at least MIN_NATIONAL_POINTS at all times.
-		|| (pUser->GetLoyalty() - amountNP) <= MIN_NATIONAL_POINTS)
+		|| (pUser->GetLoyalty() - amountNP) < MIN_NP_TO_DONATE)
 		return;
 
 	// Ensure the clan exists
