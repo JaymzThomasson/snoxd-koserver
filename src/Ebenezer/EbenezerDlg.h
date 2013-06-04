@@ -229,7 +229,7 @@ public:
 	_ITEM_TABLE * GetItemPtr(uint32 nItemID);
 
 	_PARTY_GROUP * CreateParty(CUser *pLeader);
-	void DeleteParty(short sIndex);
+	void DeleteParty(uint16 sIndex);
 
 	~CEbenezerDlg();
 

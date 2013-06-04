@@ -395,12 +395,16 @@ int32 CEbenezerDlg::GetEventTrigger(CNpc * pNpc)
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 {
 	_PARTY_GROUP * pParty = new _PARTY_GROUP;
+
+	pLeader->m_bInParty = true;
 	pLeader->m_sPartyIndex = m_sPartyIndex.increment();
+
 	pParty->wIndex = pLeader->m_sPartyIndex;
 	pParty->uid[0] = pLeader->GetSocketID();
 	if (!m_PartyArray.PutData(pParty->wIndex, pParty))
 	{
 		delete pParty;
+		pLeader->m_bInParty = false;
 		pLeader->m_sPartyIndex = -1;
 		pParty = nullptr;
 	}
@@ -408,7 +412,7 @@ _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 	return pParty;
 }
 
-void CEbenezerDlg::DeleteParty(short sIndex)
+void CEbenezerDlg::DeleteParty(uint16 sIndex)
 {
 	m_PartyArray.DeleteData(sIndex);
 }
