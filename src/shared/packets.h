@@ -359,6 +359,7 @@ enum
 	KNIGHTS_DONATE_POINTS	= 0x3D,
 	KNIGHTS_HANDOVER		= 0x3E,
 
+	KNIGHTS_DONATION_LIST	= 0x40,
 	KNIGHTS_TOP10			= 0x41,
 
 	// These are NOT official client opcodes.

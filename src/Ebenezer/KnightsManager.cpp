@@ -69,6 +69,9 @@ void CKnightsManager::PacketProcess(CUser *pUser, Packet & pkt)
 	case KNIGHTS_DONATE_POINTS:
 		DonateNP(pUser, pkt);
 		break;
+	case KNIGHTS_DONATION_LIST:
+		DonationList(pUser, pkt);
+		break;
 	case KNIGHTS_ALLY_LIST:
 		break;
 
@@ -870,3 +873,43 @@ void CKnightsManager::DonateNP(CUser *pUser, Packet & pkt)
 	// Pass the packet straight to the database thread for further processing.
 	g_pMain->AddDatabaseRequest(pkt, pUser);
 }
+
+/**
+ * @brief	Handles the clan NP donations list packet from the client.
+ * 			i.e. the "save cont" button's "accumulation status" list.
+ *
+ * @param	pUser	The user.
+ * @param	pkt  	The packet.
+ */
+void CKnightsManager::DonationList(CUser *pUser, Packet & pkt)
+{
+	// Ensure the user's valid and in a clan.
+	if (pUser == nullptr 
+		|| !pUser->isInClan())
+		return;
+
+	// Ensure the clan exists and the clan is at least Accredited.
+	CKnights * pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
+	if (pKnights == nullptr
+		|| pKnights->m_byFlag < ClanTypeAccredited5)
+		return;
+
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_DONATION_LIST));
+	uint8 count = 0;
+	size_t wpos = result.wpos();
+	result << count;
+
+	for (int i = 0; i < MAX_CLAN_USERS; i++)
+	{
+		_KNIGHTS_USER * p = &pKnights->m_arKnightsUser[i];
+		if (!p->byUsed)
+			continue;
+
+		result << p->strUserName << p->nDonatedNP;
+		count++;
+	}
+
+	result.put(wpos, count);
+	pUser->Send(&result);
+}
+
