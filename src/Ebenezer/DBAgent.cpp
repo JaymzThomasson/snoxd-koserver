@@ -1177,16 +1177,14 @@ void CKnightsManager::ReqDonateNP(CUser *pUser, Packet & pkt)
 	if (pKnights == nullptr)
 		return;
 
-	uint32 amountClanPoints = amountNP / MAX_CLAN_USERS;
-
 	// Take player's donated NP. Don't affect monthly NP. 
-	if (g_DBAgent.DonateClanPoints(pUser, amountClanPoints, amountNP))
+	if (g_DBAgent.DonateClanPoints(pUser, amountNP))
 	{
 		// Update the user's donated NP
 		AddUserDonatedNP(pUser->GetClanID(), pUser->m_strUserID, amountNP);
 
-		// Add to the clan's points
-		pKnights->m_nClanPointFund += amountClanPoints;
+		// Add to the clan point fund
+		pKnights->m_nClanPointFund += amountNP;
 
 		// Take the NP from the user and update the client.
 		pUser->m_iLoyalty -= amountNP;
@@ -1199,24 +1197,18 @@ void CKnightsManager::ReqDonateNP(CUser *pUser, Packet & pkt)
  * 			Also increases the user's total NP donated.
  *
  * @param	pUser	  	The donor user.
- * @param	clanPoints	The number of clan points being donated to the clan.
- * 						NOTE: Clan points are (national points) / MAX_CLAN_USERS
  * @param	amountNP  	The number of national points being donated by the user.
- * 						This must be supplied separately so as to ensure the total 
- * 						NP attributed to the user remains accurate;
- * 						the use of integer division in the clan point calculation 
- * 						WILL lose NP over time.
  *
  * @return	true if it succeeds, false if it fails.
  */
-bool CDBAgent::DonateClanPoints(CUser * pUser, uint32 clanPoints, uint32 amountNP)
+bool CDBAgent::DonateClanPoints(CUser * pUser,  uint32 amountNP)
 {
 	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
 	if (dbCommand.get() == nullptr)
 		return false;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_strUserID.c_str(), pUser->m_strUserID.length());
-	if (!dbCommand->Execute(string_format(_T("{CALL DONATE_CLAN_POINTS(?, %d, %d, %d)}"), pUser->GetClanID(), clanPoints, amountNP)))
+	if (!dbCommand->Execute(string_format(_T("{CALL DONATE_CLAN_POINTS(?, %d, %d)}"), pUser->GetClanID(), amountNP)))
 	{
 		ReportSQLError(m_GameDB->GetError());
 		return false;
