@@ -63,10 +63,11 @@ void CKnightsManager::PacketProcess(CUser *pUser, Packet & pkt)
 	case KNIGHTS_TOP10:
 		ListTop10Clans(pUser);
 		break;
+	case KNIGHTS_POINT_REQ:
+		DonateNPReq(pUser, pkt);
+		break;
 	case KNIGHTS_DONATE_POINTS:
 		DonateNP(pUser, pkt);
-		break;
-	case KNIGHTS_POINT_REQ:
 		break;
 	case KNIGHTS_ALLY_LIST:
 		break;
@@ -818,6 +819,32 @@ void CKnightsManager::ListTop10Clans(CUser *pUser)
 
 	pUser->Send(&result);
 }
+
+/**
+ * @brief	Handles the clan NP info packet from the client.
+ * 			It is designed to tell the user how many points are
+ * 			currently stored, and how much they can donate.
+ *
+ * @param	pUser	The user.
+ * @param	pkt  	The packet.
+ */
+void CKnightsManager::DonateNPReq(CUser * pUser, Packet & pkt)
+{
+	if (pUser == nullptr
+		|| !pUser->isInClan())
+		return;
+
+	CKnights * pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
+	if (pKnights == nullptr)
+		return;
+
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_POINT_REQ));
+	result	<< uint8(1) 
+			<< uint32(pUser->GetLoyalty()) 
+			<< uint32(pKnights->m_nClanPointFund); // note: amount shown is in NP form
+	pUser->Send(&result);
+}
+
 
 /**
  * @brief	Handles the clan NP donations packet from the client.

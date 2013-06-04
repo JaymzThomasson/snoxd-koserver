@@ -93,7 +93,7 @@ public:
 	bool LoadKnightsInfo(uint16 sClanID, uint8 & bNation, std::string & strKnightsName, uint16 & sMembers, uint32 & nPoints, uint8 & bRank);
 	void LoadKnightsAllList(uint8 bNation);
 	bool UpdateClanSymbol(uint16 sClanID, uint16 sSymbolSize, char *clanSymbol);
-	bool DonateClanPoints(CUser * pUser, uint32 clanPoints, uint32 amountNP);
+	bool DonateClanPoints(CUser * pUser, uint32 amountNP);
 	void RefundNP(std::string & strUserID, uint32 nRefundNP);
 
 	void UpdateCape(uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint8 b);

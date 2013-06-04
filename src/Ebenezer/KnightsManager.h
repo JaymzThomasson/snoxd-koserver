@@ -21,6 +21,7 @@ public:
 	static void RequestClanSymbols(CUser* pUser, Packet & pkt);
 	static void GetClanSymbol(CUser* pUser, uint16 sClanID);
 	static void ListTop10Clans(CUser *pUser);
+	static void DonateNPReq(CUser *pUser, Packet & pkt);
 	static void DonateNP(CUser *pUser, Packet & pkt);
 
 	static bool AddKnightsUser(int index, const char* UserName);
