@@ -6,8 +6,10 @@
 #include "Unit.h"
 #include "ChatHandler.h"
 
+struct _KNIGHTS_USER;
 struct _EXCHANGE_ITEM;
 struct _USER_SEAL_ITEM;
+
 typedef std::map<uint64, _USER_SEAL_ITEM*>	UserItemSealMap;
 typedef	std::list<_EXCHANGE_ITEM*>			ItemList;
 typedef	std::map<uint32, time_t>			SkillCooldownList;
@@ -740,6 +742,8 @@ public:
 
 	UserSavedMagicMap m_savedMagicMap;
 	FastMutex m_savedMagicLock;
+
+	_KNIGHTS_USER * m_pKnightsUser;
 
 public:
 	DECLARE_LUA_CLASS(CUser);

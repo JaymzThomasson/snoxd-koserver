@@ -111,6 +111,8 @@ void CUser::Initialize()
 
 	memset(&m_bKillCounts, 0, sizeof(m_bKillCounts));
 	m_sEventDataIndex = 0;
+
+	m_pKnightsUser = nullptr;
 }
 
 /**
