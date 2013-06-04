@@ -23,6 +23,7 @@ public:
 	static void ListTop10Clans(CUser *pUser);
 	static void DonateNPReq(CUser *pUser, Packet & pkt);
 	static void DonateNP(CUser *pUser, Packet & pkt);
+	static void DonationList(CUser *pUser, Packet & pkt);
 
 	static bool AddKnightsUser(int index, const char* UserName);
 	static void SetKnightsUser(int index, const char* UserName);
