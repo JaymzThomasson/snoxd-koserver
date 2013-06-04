@@ -7,20 +7,38 @@ public:
 	Atomic() {}
 	Atomic(T value) : m_atomic(value) {}
 
-	INLINE Atomic& operator++() { increment(); return *this; }
-	INLINE Atomic& operator--() { decrement(); return *this; }
+	operator T() { return (T) m_atomic; }
+
+	INLINE Atomic<T>& operator++() { increment(); return *this; }
+	INLINE Atomic<T>& operator--() { decrement(); return *this; }
+	
+	// NOTE: The following operators should only be used if it can't be helped.
+	#define ATOMIC_COMPARISON(op) \
+		template <typename T2> \
+		INLINE friend bool operator op (Atomic<T>& lhs, const T2 rhs) { return lhs.m_atomic op rhs; }
+
+	ATOMIC_COMPARISON(>)
+	ATOMIC_COMPARISON(>=)
+	ATOMIC_COMPARISON(<)
+	ATOMIC_COMPARISON(<=)
+	ATOMIC_COMPARISON(==)
+	ATOMIC_COMPARISON(!=)
+
+	#undef ATOMIC_COMPARISON
 
 #ifdef USE_STD_ATOMIC
-	template <typename T2> 
-	INLINE Atomic& operator=(const T2 & rhs) { m_atomic = rhs; return *this; }
+	template <typename T2> INLINE Atomic<T>& operator=(const T2& rhs) { m_atomic = rhs; return *this; }
+	template <typename T2> INLINE Atomic<T>& operator+=(const T2 rhs) { m_atomic += rhs; return *this; }
+	template <typename T2> INLINE Atomic<T>& operator-=(const T2 rhs) { m_atomic -= rhs; return *this; }
 
 	INLINE T increment() { return ++m_atomic; }
 	INLINE T decrement() { return --m_atomic; }
 
 	INLINE bool compare_exchange(T & expected, T desired) { return m_atomic.compare_exchange_strong(expected, desired); }
 #else
-	template <typename T2> 
-	INLINE Atomic& operator=(const T2 & rhs) { InterlockedExchange(&m_atomic, rhs); return *this; }
+	template <typename T2> INLINE Atomic<T>& operator=(const T2& rhs) { InterlockedExchange(&m_atomic, rhs); return *this; }
+	template <typename T2> INLINE Atomic<T>& operator+=(const T2 rhs) { InterlockedAdd(&m_atomic, rhs); return *this; }
+	template <typename T2> INLINE Atomic<T>& operator-=(const T2 rhs) { InterlockedAdd(&m_atomic, -rhs); return *this; }
 
 	INLINE T increment() { return (T) InterlockedIncrement(&m_atomic); }
 	INLINE T decrement() { return (T) InterlockedDecrement(&m_atomic); }

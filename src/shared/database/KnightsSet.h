@@ -25,7 +25,7 @@ public:
 		_dbCommand->FetchString(10, pData->m_strViceChief_3);
 		_dbCommand->FetchUInt64(11, pData->m_nMoney);
 		_dbCommand->FetchUInt16(12, pData->m_sDomination);
-		_dbCommand->FetchUInt32(13, pData->m_nPoints);
+		_dbCommand->FetchUInt32(13, (uint32 &) pData->m_nPoints);
 		_dbCommand->FetchBinary(14, pData->m_Image, sizeof(pData->m_Image));
 		_dbCommand->FetchUInt16(15, pData->m_sMarkVersion);
 		_dbCommand->FetchUInt16(16, pData->m_sMarkLen);
