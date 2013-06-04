@@ -21,9 +21,11 @@ public:
 	static void RequestClanSymbols(CUser* pUser, Packet & pkt);
 	static void GetClanSymbol(CUser* pUser, uint16 sClanID);
 	static void ListTop10Clans(CUser *pUser);
+	static void DonateNP(CUser *pUser, Packet & pkt);
 
 	static bool AddKnightsUser(int index, const char* UserName);
 	static void SetKnightsUser(int index, const char* UserName);
+	static void AddUserDonatedNP(int index, std::string & strUserID, uint32 nDonatedNP);
 	static bool RemoveKnightsUser(int index, const char* UserName);
 	static bool LoadKnightsIndex(int index);
 	static bool LoadAllKnights();
@@ -37,6 +39,8 @@ public:
 	static void ReqAllKnightsMember(CUser *pUser, Packet & pkt);
 	static void ReqKnightsList(Packet & pkt);
 	static void ReqRegisterClanSymbol(CUser *pUser, Packet & pkt);
+	static void ReqDonateNP(CUser *pUser, Packet & pkt);
+	static void ReqRefundNP(Packet & pkt);
 
 	static void RecvUpdateKnights(CUser* pUser, Packet & pkt, uint8 command);
 	static void RecvModifyFame(CUser* pUser, Packet & pkt, uint8 command);

@@ -442,6 +442,12 @@ void CKnightsManager::ReqKnightsPacket(CUser* pUser, Packet & pkt)
 	case KNIGHTS_MARK_REGISTER:
 		ReqRegisterClanSymbol(pUser, pkt);
 		break;
+	case KNIGHTS_DONATE_POINTS:
+		ReqDonateNP(pUser, pkt);
+		break;
+	case KNIGHTS_REFUND_POINTS:
+		ReqRefundNP(pkt);
+		break;
 	}
 }
 

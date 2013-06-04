@@ -64,6 +64,7 @@ void CKnightsManager::PacketProcess(CUser *pUser, Packet & pkt)
 		ListTop10Clans(pUser);
 		break;
 	case KNIGHTS_DONATE_POINTS:
+		DonateNP(pUser, pkt);
 		break;
 	case KNIGHTS_POINT_REQ:
 		break;
@@ -373,7 +374,9 @@ void CKnightsManager::AllKnightsList(CUser *pUser, Packet & pkt)
 			|| count++ < start) 
 			continue;
 
-		result << uint16(pKnights->m_sIndex) << pKnights->m_strName << uint16(pKnights->m_sMembers) << pKnights->m_strChief << uint32(pKnights->m_nPoints);
+		result	<< uint16(pKnights->m_sIndex) << pKnights->m_strName 
+				<< uint16(pKnights->m_sMembers) << pKnights->m_strChief 
+				<< uint32(pKnights->m_nPoints);
 		if (count >= start + 10)
 			break;
 	}
@@ -609,6 +612,25 @@ void CKnightsManager::SetKnightsUser(int index, const char* UserName)
 	pKnights->AddUser(UserName);
 }
 
+void CKnightsManager::AddUserDonatedNP(int index, std::string & strUserID, uint32 nDonatedNP)
+{
+	CKnights *pKnights = g_pMain->GetClanPtr(index);
+	if (pKnights == nullptr)
+		return;
+
+	for (int i = 0; i < MAX_CLAN_USERS; i++)
+	{
+		if (pKnights->m_arKnightsUser[i].byUsed == 0)
+			continue;
+		
+		if (STRCASECMP(pKnights->m_arKnightsUser[i].strUserName, strUserID.c_str()) == 0)
+		{
+			pKnights->m_arKnightsUser[i].nDonatedNP += nDonatedNP;
+			break;
+		}
+	}
+}
+
 void CKnightsManager::RecvKnightsAllList(Packet & pkt)
 {
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_ALLLIST_REQ));
@@ -795,4 +817,26 @@ void CKnightsManager::ListTop10Clans(CUser *pUser)
 	}
 
 	pUser->Send(&result);
+}
+
+/**
+ * @brief	Handles the clan NP donations packet from the client.
+ *
+ * @param	pUser	The user.
+ * @param	pkt  	The packet.
+ */
+void CKnightsManager::DonateNP(CUser *pUser, Packet & pkt)
+{
+	// Ensure the user's valid and in a clan.
+	if (pUser == nullptr || !pUser->isInClan())
+		return;
+
+	// Ensure the clan exists and the clan is at least Accredited.
+	CKnights * pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
+	if (pKnights == nullptr
+		|| pKnights->m_byFlag < ClanTypeAccredited5)
+		return;
+
+	// Pass the packet straight to the database thread for further processing.
+	g_pMain->AddDatabaseRequest(pkt, pUser);
 }

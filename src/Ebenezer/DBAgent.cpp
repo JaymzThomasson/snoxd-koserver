@@ -1150,6 +1150,113 @@ bool CDBAgent::UpdateClanSymbol(uint16 sClanID, uint16 sSymbolSize, char *clanSy
 	return (nRet == 1);
 }
 
+/**
+ * @brief	Handles the clan NP donations database request.
+ * 			It is essentially the client packet's real handler
+ * 			as the packet is simply forwarded here.
+ *
+ * @param	pUser	The user.
+ * @param	pkt  	The packet.
+ */
+void CKnightsManager::ReqDonateNP(CUser *pUser, Packet & pkt)
+{
+	if (pUser == nullptr || !pUser->isInClan())
+		return;
+
+	uint32 amountNP;
+	pkt >> amountNP;
+
+	// Ensure the user has enough NP to donate to the clan.
+	if (amountNP > pUser->GetLoyalty())
+		return;
+
+	// Ensure the clan exists
+	CKnights * pKnights = g_pMain->GetClanPtr(pUser->GetClanID());
+	if (pKnights == nullptr)
+		return;
+
+	uint32 amountClanPoints = amountNP / MAX_CLAN_USERS;
+
+	// Take player's donated NP. Don't affect monthly NP. 
+	if (g_DBAgent.DonateClanPoints(pUser, amountClanPoints, amountNP))
+	{
+		// Update the user's donated NP
+		AddUserDonatedNP(pUser->GetClanID(), pUser->m_strUserID, amountNP);
+
+		// Add to the clan's points
+		pKnights->m_nClanPointFund += amountClanPoints;
+
+		// Take the NP from the user and update the client.
+		pUser->m_iLoyalty -= amountNP;
+		pUser->SendLoyaltyChange(0);
+	}
+}
+
+/**
+ * @brief	Donates (clanPoints) clan points to the specified user's clan.
+ * 			Also increases the user's total NP donated.
+ *
+ * @param	pUser	  	The donor user.
+ * @param	clanPoints	The number of clan points being donated to the clan.
+ * 						NOTE: Clan points are (national points) / MAX_CLAN_USERS
+ * @param	amountNP  	The number of national points being donated by the user.
+ * 						This must be supplied separately so as to ensure the total 
+ * 						NP attributed to the user remains accurate;
+ * 						the use of integer division in the clan point calculation 
+ * 						WILL lose NP over time.
+ *
+ * @return	true if it succeeds, false if it fails.
+ */
+bool CDBAgent::DonateClanPoints(CUser * pUser, uint32 clanPoints, uint32 amountNP)
+{
+	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == nullptr)
+		return false;
+
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_strUserID.c_str(), pUser->m_strUserID.length());
+	if (!dbCommand->Execute(string_format(_T("{CALL DONATE_CLAN_POINTS(?, %d, %d, %d)}"), pUser->GetClanID(), clanPoints, amountNP)))
+	{
+		ReportSQLError(m_GameDB->GetError());
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * @brief	Handles the database request to refund the specified
+ * 			logged out character's donated NP.
+ * 			
+ * 			NOTE: Logged in players don't need to be handled as their NP is
+ * 			refunded in-game.
+ *
+ * @param	pkt	The packet.
+ */
+void CKnightsManager::ReqRefundNP(Packet & pkt)
+{
+	string strUserID;
+	uint32 nRefundNP;
+	pkt >> strUserID >> nRefundNP;
+	g_DBAgent.RefundNP(strUserID, nRefundNP);
+}
+
+/**
+ * @brief	Refunds the specified amount of NP to a logged out character.
+ *
+ * @param	strUserID	Character's name.
+ * @param	nRefundNP	The amount of NP to refund.
+ */
+void CDBAgent::RefundNP(string & strUserID, uint32 nRefundNP)
+{
+	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == nullptr)
+		return;
+	
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strUserID.c_str(), strUserID.length());
+	if (!dbCommand->Execute(string_format(_T("UPDATE USERDATA SET Loyalty += %d WHERE strUserID = ?"), nRefundNP)))
+		ReportSQLError(m_GameDB->GetError());
+}
+
 void CDBAgent::UpdateCape(uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint8 b)
 {
 	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());

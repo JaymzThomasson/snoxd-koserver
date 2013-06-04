@@ -359,7 +359,11 @@ enum
 	KNIGHTS_DONATE_POINTS	= 0x3D,
 	KNIGHTS_HANDOVER		= 0x3E,
 
-	KNIGHTS_TOP10			= 0x41
+	KNIGHTS_TOP10			= 0x41,
+
+	// These are NOT official client opcodes.
+	// They are opcodes for the database thread only.
+	KNIGHTS_REFUND_POINTS	= 0xF0
 };
 
 enum OperatorCommands
