@@ -153,7 +153,14 @@
 #undef max
 #endif
 
-#include <sqltypes.h> /* this will define the SQL & required Windows types on a non-Windows system */
+#ifndef WIN32
+// 	For working 64-bit support we need unixODBX 2.3.1 (Nov 2011)
+//	Unfortunately, 2.3.0 (2010) is still available in most repositories
+//	This hack will force SQLLEN/SQLULEN to use 32-bit types (if we're building 64-bit code).
+//	It will throw a warning during compile, but it should still run fine.
+#	define BUILD_LEGACY_64_BIT_MODE
+#	include <sqltypes.h> /* this will define the SQL & required Windows types on a non-Windows system */
+#endif
 
 #include <memory>
 #include <map>
