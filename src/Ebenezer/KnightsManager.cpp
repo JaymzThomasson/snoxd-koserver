@@ -828,7 +828,10 @@ void CKnightsManager::ListTop10Clans(CUser *pUser)
 void CKnightsManager::DonateNP(CUser *pUser, Packet & pkt)
 {
 	// Ensure the user's valid and in a clan.
-	if (pUser == nullptr || !pUser->isInClan())
+	if (pUser == nullptr 
+		|| !pUser->isInClan()
+		// Ensure users don't try to donate NP when their NP is at or below the minimum.
+		|| pUser->GetLoyalty() <= MIN_NATIONAL_POINTS)
 		return;
 
 	// Ensure the clan exists and the clan is at least Accredited.
