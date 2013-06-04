@@ -59,21 +59,11 @@ protected:
 	long m_threadCount;
 	bool m_bWorkerThreadsActive;
 
-#ifdef USE_STD_ATOMIC
-	/* before we increment, first time it'll be 0 */
-	INLINE void IncRef() { if (s_refCounter++ == 0) SetupSockets(); }
-	INLINE void DecRef() { if (--s_refCounter== 0) CleanupSockets(); }
+	INLINE void IncRef() { if (s_refCounter.increment() == 1) SetupSockets(); }
+	INLINE void DecRef() { if (s_refCounter.decrement() == 0) CleanupSockets(); }
 
 	// reference counter (one app can hold multiple socket manager instances)
-	static std::atomic_ulong s_refCounter;
-#else
-	/* first increment sets it to 1 */
-	INLINE void IncRef() { if (InterlockedIncrement(&s_refCounter) == 1) SetupSockets(); }
-	INLINE void DecRef() { if (InterlockedDecrement(&s_refCounter) == 0) CleanupSockets(); }
-
-	// reference counter (one app can hold multiple socket manager instances)
-	volatile static long s_refCounter;
-#endif
+	static Atomic<uint32> s_refCounter;
 
 public:
 	static bool s_bRunningCleanupThread;

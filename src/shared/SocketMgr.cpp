@@ -7,11 +7,7 @@ std::queue<Socket *> SocketMgr::s_disconnectionQueue;
 
 Thread SocketMgr::s_cleanupThread; 
 
-#ifdef USE_STD_ATOMIC
-std::atomic_ulong SocketMgr::s_refCounter;
-#else
-volatile long SocketMgr::s_refCounter = 0;
-#endif
+Atomic<uint32> SocketMgr::s_refCounter = 0;
 
 uint32 THREADCALL SocketCleanupThread(void * lpParam)
 {

@@ -28,22 +28,18 @@ public:
 	OVERLAPPED m_overlap;
 	SocketIOEvent m_event;
 
-#ifdef USE_STD_ATOMIC
-	std::atomic_bool m_inUse;
-#else
-	volatile long m_inUse;
-#endif
+	Atomic<bool> m_inUse;
 
 	OverlappedStruct(SocketIOEvent ev) : m_event(ev)
 	{
 		memset(&m_overlap, 0, sizeof(OVERLAPPED));
-		m_inUse = 0;
+		m_inUse = false;
 	};
 
 	OverlappedStruct()
 	{
 		memset(&m_overlap, 0, sizeof(OVERLAPPED));
-		m_inUse = 0;
+		m_inUse = false;
 	}
 
 	INLINE void Reset(SocketIOEvent ev)
@@ -54,23 +50,14 @@ public:
 
 	void Mark()
 	{
-#ifdef USE_STD_ATOMIC
-		bool val = 0;
-		if (!m_inUse.compare_exchange_strong(val, 1))
-#else
-		long val = InterlockedCompareExchange(&m_inUse, 1, 0);
-		if (val != 0)
-#endif
+		bool val = false;
+		if (!m_inUse.compare_exchange(val, true))
 			TRACE("!!!! Network: Detected double use of read/write event! Previous event was %u.\n", m_event);
 	}
 
 	void Unmark()
 	{
-#ifdef USE_STD_ATOMIC
-		m_inUse = 0;
-#else
-		InterlockedExchange(&m_inUse, 0);
-#endif
+		m_inUse = false;
 	}
 };
 #endif

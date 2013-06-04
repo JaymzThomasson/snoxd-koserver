@@ -143,5 +143,8 @@
     <ClInclude Include="Thread.h">
       <Filter>Threading</Filter>
     </ClInclude>
+    <ClInclude Include="Atomic.h">
+      <Filter>Threading</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

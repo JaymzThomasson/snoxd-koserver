@@ -272,7 +272,7 @@ public:
 	ItemUpgradeArray		m_ItemUpgradeArray;
 	KingSystemArray			m_KingSystemArray;
 
-	short	m_sPartyIndex;
+	Atomic<uint16>			m_sPartyIndex;
 	short	m_sZoneCount;							// AI Server 재접속시 사용
 
 	bool	m_bFirstServerFlag;		// 서버가 처음시작한 후 게임서버가 붙은 경우에는 1, 붙지 않은 경우 0

@@ -394,14 +394,8 @@ int32 CEbenezerDlg::GetEventTrigger(CNpc * pNpc)
 
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 {
-	// Protect party ID generation
-	m_PartyArray.m_lock.Acquire();
-	pLeader->m_sPartyIndex = m_sPartyIndex++;
-	if (m_sPartyIndex == SHRT_MAX)
-		m_sPartyIndex = 0;
-	m_PartyArray.m_lock.Release();
-
 	_PARTY_GROUP * pParty = new _PARTY_GROUP;
+	pLeader->m_sPartyIndex = m_sPartyIndex.increment();
 	pParty->wIndex = pLeader->m_sPartyIndex;
 	pParty->uid[0] = pLeader->GetSocketID();
 	if (!m_PartyArray.PutData(pParty->wIndex, pParty))
