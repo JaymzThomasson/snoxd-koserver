@@ -50,7 +50,7 @@ public:
 
 	uint64	m_nMoney;
 	uint16	m_sDomination;
-	uint32	m_nPoints;
+	Atomic<uint32> m_nPoints;
 	uint16	m_sMarkVersion, m_sMarkLen;
 	char	m_Image[MAX_KNIGHTS_MARK];
 	uint16	m_sCape;
