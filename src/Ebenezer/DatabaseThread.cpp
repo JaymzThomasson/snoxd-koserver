@@ -482,11 +482,14 @@ void CKnightsManager::ReqCreateKnights(CUser *pUser, Packet & pkt)
 	pKnights->m_strChief = pUser->GetName();
 
 	pUser->m_iGold -= CLAN_COIN_REQUIREMENT;
-	pUser->m_bFame = CHIEF;
 
 	g_pMain->m_KnightsArray.PutData(pKnights->m_sIndex, pKnights);
 
 	pKnights->AddUser(pUser);
+
+	// Ensure the clan leader's fame is set
+	// CKnights::AddUser() will default it to TRAINEE, so it needs to be set afterwards.
+	pUser->m_bFame = CHIEF;
 
 	result	<< uint8(1) << pUser->GetSocketID() 
 			<< sClanID << strKnightsName
