@@ -25,7 +25,7 @@ public:
 
 	~LoginServer();
 
-	KOSocketMgr<LoginSession> s_socketMgr;
+	KOSocketMgr<LoginSession> m_socketMgr;
 
 private:
 	void GetInfoFromIni();
