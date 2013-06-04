@@ -14,9 +14,5 @@ public:
 	virtual ~ReferenceObject() {}
 
 private:
-#ifdef USE_STD_ATOMIC
-	std::atomic_ulong m_refCount;
-#else
-	volatile long m_refCount;
-#endif
+	Atomic<uint32> m_refCount;
 };

@@ -276,6 +276,7 @@
     <ClCompile Include="tstring.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Atomic.h" />
     <ClInclude Include="CircularBuffer.h" />
     <ClInclude Include="Condition.h" />
     <ClInclude Include="crc32.h" />

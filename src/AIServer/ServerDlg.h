@@ -107,11 +107,7 @@ public:
 	CUser* m_pUser[MAX_USER];
 
 	uint16			m_TotalNPC;			// DB에있는 총 수
-#ifdef USE_STD_ATOMIC
-	std::atomic_ushort m_CurrentNPC;
-#else
-	long			m_CurrentNPC;
-#endif
+	Atomic<uint16>	m_CurrentNPC;
 	short			m_sTotalMap;		// Zone 수 
 	short			m_sMapEventNpc;		// Map에서 읽어들이는 event npc 수
 
@@ -123,7 +119,7 @@ public:
 	uint8 m_iWeather;
 	uint8	m_byNight;			// 밤인지,, 낮인지를 판단... 1:낮, 2:밤
 
-	FastMutex m_userLock, m_partyLock;
+	FastMutex m_userLock;
 
 	static KOSocketMgr<CGameSocket> s_socketMgr;
 
