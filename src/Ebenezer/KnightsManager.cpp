@@ -313,8 +313,8 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 opco
 			bResult = 12;
 		else if (STRCASECMP(strUserID.c_str(), pUser->GetName().c_str()) == 0)
 			bResult = 9;
-		else if (((opcode == KNIGHTS_ADMIT || opcode == KNIGHTS_REJECT) && pUser->getFame() < OFFICER)
-			|| (opcode == KNIGHTS_PUNISH && pUser->getFame() < VICECHIEF))
+		else if (((opcode == KNIGHTS_ADMIT || opcode == KNIGHTS_REJECT) && pUser->GetFame() < OFFICER)
+			|| (opcode == KNIGHTS_PUNISH && pUser->GetFame() < VICECHIEF))
 			bResult = 0;	
 		else if (opcode != KNIGHTS_ADMIT && opcode != KNIGHTS_REJECT && opcode != KNIGHTS_PUNISH 
 			&& !pUser->isClanLeader())
@@ -457,7 +457,7 @@ void CKnightsManager::CurrentKnightsMember(CUser *pUser, Packet & pkt)
 			continue;
 
 		CUser *pTUser = p->pSession;
-		result << pUser->GetName() << pUser->getFame() << pUser->GetLevel() << pUser->GetClass();
+		result << pUser->GetName() << pUser->GetFame() << pUser->GetLevel() << pUser->GetClass();
 		count++;
 		if (count >= start + 10)
 			break;
@@ -484,7 +484,7 @@ void CKnightsManager::RecvUpdateKnights(CUser *pUser, Packet & pkt, uint8 comman
 		pKnights->RemoveUser(pUser);
 
 	Packet result(WIZ_KNIGHTS_PROCESS, command);
-	result	<< uint8(1) << pUser->GetSocketID() << pUser->GetClanID() << pUser->getFame();
+	result	<< uint8(1) << pUser->GetSocketID() << pUser->GetClanID() << pUser->GetFame();
 
 	if (command == KNIGHTS_JOIN)
 	{

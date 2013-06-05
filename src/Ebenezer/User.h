@@ -183,11 +183,11 @@ public:
 	uint32				m_nQuestHelperID;
 
 public:
-	INLINE bool isBanned() { return getAuthority() == AUTHORITY_BANNED; }
-	INLINE bool isMuted() { return getAuthority() == AUTHORITY_MUTED; }
-	INLINE bool isAttackDisabled() { return getAuthority() == AUTHORITY_ATTACK_DISABLED; }
-	INLINE bool isGM() { return getAuthority() == AUTHORITY_GAME_MASTER; }
-	INLINE bool isLimitedGM() { return getAuthority() == AUTHORITY_LIMITED_GAME_MASTER; }
+	INLINE bool isBanned() { return GetAuthority() == AUTHORITY_BANNED; }
+	INLINE bool isMuted() { return GetAuthority() == AUTHORITY_MUTED; }
+	INLINE bool isAttackDisabled() { return GetAuthority() == AUTHORITY_ATTACK_DISABLED; }
+	INLINE bool isGM() { return GetAuthority() == AUTHORITY_GAME_MASTER; }
+	INLINE bool isLimitedGM() { return GetAuthority() == AUTHORITY_LIMITED_GAME_MASTER; }
 
 	virtual bool isDead() { return m_bResHpType == USER_DEAD || m_sHp <= 0; }
 	virtual bool isBlinking() { return m_bAbnormalType == ABNORMAL_BLINKING; }
@@ -197,8 +197,8 @@ public:
 	INLINE bool isInClan() { return GetClanID() > 0; }
 
 	INLINE bool isKing() { return m_bRank == 1; }
-	INLINE bool isClanLeader() { return getFame() == CHIEF; }
-	INLINE bool isClanAssistant() { return getFame() == VICECHIEF; }
+	INLINE bool isClanLeader() { return GetFame() == CHIEF; }
+	INLINE bool isClanAssistant() { return GetFame() == VICECHIEF; }
 	INLINE bool isPartyLeader() { return isInParty() && m_bPartyLeader; }
 
 	INLINE bool isWarrior() { return JobGroupCheck(1); }
@@ -228,8 +228,8 @@ public:
 
 	INLINE int8 GetMerchantState() { return m_bMerchantState; }
 
-	INLINE uint8 getAuthority() { return m_bAuthority; }
-	INLINE uint8 getFame() { return m_bFame; }
+	INLINE uint8 GetAuthority() { return m_bAuthority; }
+	INLINE uint8 GetFame() { return m_bFame; }
 
 	INLINE uint16 GetClass() { return m_sClass; }
 
@@ -258,19 +258,19 @@ public:
 
 	INLINE GameState GetState() { return m_state; }
 
-	INLINE uint8 getStat(StatType type)
+	INLINE uint8 GetStat(StatType type)
 	{
 		ASSERT(type < STAT_COUNT);
 		return m_bStats[type];
 	}
 
-	INLINE void setStat(StatType type, uint8 val)
+	INLINE void SetStat(StatType type, uint8 val)
 	{
 		ASSERT(type < STAT_COUNT);
 		m_bStats[type] = val;
 	}
 
-	INLINE int32 getStatTotal() // NOTE: Shares name with another, but lack-of args should be self-explanatory
+	INLINE int32 GetStatTotal() // NOTE: Shares name with another, but lack-of args should be self-explanatory
 	{
 		int32 total = 0; // NOTE: this loop should be unrolled by the compiler
 		foreach_array (i, m_bStats)
@@ -278,18 +278,18 @@ public:
 		return total;
 	}
 
-	INLINE int16 getStatItemBonus(StatType type)
+	INLINE int16 GetStatItemBonus(StatType type)
 	{
 		ASSERT(type < STAT_COUNT);
 		return m_sStatItemBonuses[type];
 	}
 
-	INLINE int16 getStatWithItemBonus(StatType type)
+	INLINE int16 GetStatWithItemBonus(StatType type)
 	{
-		return getStat(type) + getStatItemBonus(type);
+		return GetStat(type) + GetStatItemBonus(type);
 	}
 
-	INLINE int32 getStatItemBonusTotal()
+	INLINE int32 GetStatItemBonusTotal()
 	{
 		int32 total = 0; // NOTE: this loop should be unrolled by the compiler
 		foreach_array (i, m_sStatItemBonuses)
@@ -297,24 +297,24 @@ public:
 		return total;
 	}
 
-	INLINE uint16 getStatBonusTotal(StatType type)
+	INLINE uint16 GetStatBonusTotal(StatType type)
 	{
-		return getStatBuff(type) + getStatItemBonus(type);
+		return GetStatBuff(type) + GetStatItemBonus(type);
 	}
 
-	INLINE uint8 getStatBuff(StatType type)
+	INLINE uint8 GetStatBuff(StatType type)
 	{
 		ASSERT(type < STAT_COUNT);
 		return m_bStatBuffs[type];
 	}
 
-	INLINE void setStatBuff(StatType type, uint8 val)
+	INLINE void SetStatBuff(StatType type, uint8 val)
 	{
 		ASSERT(type < STAT_COUNT);
 		m_bStatBuffs[type] = val;
 	}
 
-	INLINE uint32 getStatBuffTotal()
+	INLINE uint32 GetStatBuffTotal()
 	{
 		uint32 total = 0; // NOTE: this loop should be unrolled by the compiler
 		foreach_array (i, m_bStatBuffs)
@@ -324,7 +324,7 @@ public:
 
 	INLINE uint16 getStatTotal(StatType type)
 	{
-		return getStat(type) + getStatItemBonus(type) + getStatBuff(type);
+		return GetStat(type) + GetStatItemBonus(type) + GetStatBuff(type);
 	}
 
 	INLINE uint16 GetTotalSkillPoints()

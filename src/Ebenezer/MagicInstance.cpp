@@ -174,7 +174,7 @@ void MagicInstance::SendSkillToAI()
 		Packet result(AG_MAGIC_ATTACK_REQ); // this is the order it was in.
 		result	<< sCasterID << bOpcode << sTargetID << nSkillID 
 				<< sData[0] << sData[1] << sData[2] << sData[3] << sData[4] << sData[5]
-				<< TO_USER(pSkillCaster)->getStatWithItemBonus(STAT_CHA);
+				<< TO_USER(pSkillCaster)->GetStatWithItemBonus(STAT_CHA);
 
 		_ITEM_DATA * pItem;
 		_ITEM_TABLE* pRightHand = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND, pItem);
@@ -1400,11 +1400,11 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 	else
 	{
 		CUser *pUser = TO_USER(pSkillCaster);
-		uint8 bCha = pUser->getStat(STAT_CHA);
+		uint8 bCha = pUser->GetStat(STAT_CHA);
 		if (bCha > 86)
 			sMagicAmount = pUser->m_sMagicAttackAmount - (bCha - 86);
 
-		total_hit *= pUser->getStat(STAT_CHA) / 186;
+		total_hit *= pUser->GetStat(STAT_CHA) / 186;
 		result = SUCCESS;
 	}
 		

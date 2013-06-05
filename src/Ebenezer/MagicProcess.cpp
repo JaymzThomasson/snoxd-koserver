@@ -170,11 +170,11 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 	case BUFF_TYPE_STATS:
 		if (pTarget->isPlayer())
 		{
-			TO_USER(pTarget)->setStatBuff(STAT_STR, pType->bStr);
-			TO_USER(pTarget)->setStatBuff(STAT_STA, pType->bSta);
-			TO_USER(pTarget)->setStatBuff(STAT_DEX, pType->bDex);
-			TO_USER(pTarget)->setStatBuff(STAT_INT, pType->bIntel);
-			TO_USER(pTarget)->setStatBuff(STAT_CHA, pType->bCha);	
+			TO_USER(pTarget)->SetStatBuff(STAT_STR, pType->bStr);
+			TO_USER(pTarget)->SetStatBuff(STAT_STA, pType->bSta);
+			TO_USER(pTarget)->SetStatBuff(STAT_DEX, pType->bDex);
+			TO_USER(pTarget)->SetStatBuff(STAT_INT, pType->bIntel);
+			TO_USER(pTarget)->SetStatBuff(STAT_CHA, pType->bCha);	
 		}
 		break;
 
@@ -194,7 +194,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 
 	case BUFF_TYPE_MAGIC_POWER:
 		if (pTarget->isPlayer())
-			pTarget->m_sMagicAttackAmount = (pType->bMagicAttack - 100) * TO_USER(pTarget)->getStat(STAT_CHA) / 100;
+			pTarget->m_sMagicAttackAmount = (pType->bMagicAttack - 100) * TO_USER(pTarget)->GetStat(STAT_CHA) / 100;
 		break;
 
 	case BUFF_TYPE_EXPERIENCE:
@@ -361,11 +361,11 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, CUser *pTarget)
 	case BUFF_TYPE_STATS:
 		if (pTarget->isPlayer())
 		{
-			TO_USER(pTarget)->setStatBuff(STAT_STR, 0);
-			TO_USER(pTarget)->setStatBuff(STAT_STA, 0);
-			TO_USER(pTarget)->setStatBuff(STAT_DEX, 0);
-			TO_USER(pTarget)->setStatBuff(STAT_INT, 0);
-			TO_USER(pTarget)->setStatBuff(STAT_CHA, 0);	
+			TO_USER(pTarget)->SetStatBuff(STAT_STR, 0);
+			TO_USER(pTarget)->SetStatBuff(STAT_STA, 0);
+			TO_USER(pTarget)->SetStatBuff(STAT_DEX, 0);
+			TO_USER(pTarget)->SetStatBuff(STAT_INT, 0);
+			TO_USER(pTarget)->SetStatBuff(STAT_CHA, 0);	
 		}
 		break;
 
