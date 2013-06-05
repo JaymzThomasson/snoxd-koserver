@@ -410,7 +410,6 @@ public:
 	void SendItemMove(uint8 subcommand);
 	void ItemWoreOut( int type, int damage );
 	void Dead();
-	void LoyaltyDivide( short tid );
 	void GetUserInfoForAI(Packet & result);
 	bool ItemEquipAvailable( _ITEM_TABLE* pTable );
 	virtual void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToAI = true);
@@ -620,7 +619,8 @@ public:
 	void SendNotice();
 	void UserLookChange( int pos, int itemid, int durability );
 	void SpeedHackUser();
-	void LoyaltyChange(short tid);
+	void LoyaltyChange(int16 tid, uint16 bonusNP = 0);
+	void LoyaltyDivide(int16 tid, uint16 bonusNP = 0);
 	void ChangeNP(short sAmount, bool bDistributeToParty = true);
 	void ZoneChange( int zone, float x, float z );
 	void SendTargetHP( uint8 echo, int tid, int damage = 0 );

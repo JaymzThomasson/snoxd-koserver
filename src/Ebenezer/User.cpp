@@ -114,7 +114,7 @@ void CUser::Initialize()
 
 	m_pKnightsUser = nullptr;
 
-	m_sRivalID = 1;
+	m_sRivalID = -1;
 	m_tRivalExpiryTime = 0;
 }
 
@@ -2037,9 +2037,10 @@ void CUser::StateChangeServerDirect(uint8 bType, uint32 nBuff)
  * @brief	Takes a target's loyalty points (NP)
  * 			and rewards some/all to the killer (current user).
  *
- * @param	tid	The target's ID.
+ * @param	tid		The target's ID.
+ * @param	bonusNP Bonus NP to be awarded to the killer as-is.
  */
-void CUser::LoyaltyChange(short tid)
+void CUser::LoyaltyChange(int16 tid, uint16 bonusNP /*= 0*/)
 {
 	short loyalty_source = 0, loyalty_target = 0;
 
@@ -2082,6 +2083,9 @@ void CUser::LoyaltyChange(short tid)
 			loyalty_target = -50;
 		}
 	}
+
+	// Include any bonus NP (e.g. rival NP bonus)
+	loyalty_source += bonusNP;
 
 	SendLoyaltyChange(loyalty_source);
 	pTUser->SendLoyaltyChange(loyalty_target);
@@ -2244,7 +2248,14 @@ void CUser::CountConcurrentUser()
 	Send(&result);
 }
 
-void CUser::LoyaltyDivide(short tid)
+/**
+ * @brief	Takes a target's loyalty points (NP)
+ * 			and rewards some/all to the killer's party (current user).
+ *
+ * @param	tid		The target's ID.
+ * @param	bonusNP Bonus NP to be awarded to the killer's party as-is.
+ */
+void CUser::LoyaltyDivide(int16 tid, uint16 bonusNP /*= 0*/)
 {
 	int levelsum = 0, individualvalue = 0;
 	short temp_loyalty = 0, level_difference = 0, loyalty_source = 0, loyalty_target = 0, average_level = 0; 
@@ -2322,18 +2333,22 @@ void CUser::LoyaltyDivide(short tid)
 		
 		return;
 	}
-//
+
 	if (m_bZone != m_bNation && m_bZone < 3) { 
 		loyalty_source  = 2 * loyalty_source;
 	}
-//
+
+	// Adds bonus NP to be divided up & rewarded to the entire party.
+	// e.g. in the case of rival kills (should it share this particular bonus though?)
+	loyalty_source += bonusNP;
+
 	for (int j = 0; j < MAX_PARTY_USERS; j++) {		// Distribute loyalty amongst party members.
 		CUser *pUser = g_pMain->GetUserPtr(pParty->uid[j]);
 		if (pUser == nullptr)
 			continue;
 
 		//TRACE("LoyaltyDivide 333 - user1=%s, %d\n", pUser->GetName(), pUser->m_iLoyalty);
-		individualvalue = pUser->GetLevel() * loyalty_source / levelsum ;
+		individualvalue = pUser->GetLevel() * loyalty_source / levelsum;
 		pUser->SendLoyaltyChange(individualvalue);
 	}
 
@@ -3558,42 +3573,61 @@ void CUser::OnDeath(Unit *pKiller)
 				{
 					DeathNoticeType noticeType = DeathNoticeNone;
 
-					if (!isInArena())
+					if (isInArena())
 					{
+						// Show death notices in the arena
+						noticeType = DeathNoticeCoordinates;
+					}
+					else
+					{
+						uint16 bonusNP = 0;
+						bool bKilledByRival = false;
+
+						// In PVP zones (just Ronark Land for now)
+						if (GetZoneID() == ZONE_RONARK_LAND)
+						{
+							// Show death notices in PVP zones
+							noticeType = DeathNoticeCoordinates;
+
+							// If we were killed by our rival
+							bKilledByRival = (!pUser->hasRivalryExpired() && pUser->GetRivalID() == GetID());
+							if (bKilledByRival)
+							{
+								// If we are our killer's rival, use the rival notice instead.
+								noticeType = DeathNoticeRival;
+
+								// Apply bonus NP for rival kills
+								bonusNP += RIVALRY_NP_BONUS;
+
+								// This player is no longer our rival (is this intended behaviour or must it still expire?)
+								RemoveRival();
+							}
+						}
+
 						if (!pUser->isInParty())
-							pUser->LoyaltyChange(GetID());
+							pUser->LoyaltyChange(GetID(), bonusNP);
 						else
-							pUser->LoyaltyDivide(GetID());
+							pUser->LoyaltyDivide(GetID(), bonusNP);
 
 						pUser->GoldChange(GetID(), 0);
 
 						if (GetZoneID() != GetNation() && GetZoneID() <= ELMORAD)
 							ExpChange(-(m_iMaxExp / 100));
-					}
-					else
-					{
-						// Show death notices in the arena
-						noticeType = DeathNoticeCoordinates;
-					}
 
-					// In PVP zones (just Ronark Land for now)
-					if (GetZoneID() == ZONE_RONARK_LAND)
-					{
-						// Show death notices in PVP zones
-						noticeType = DeathNoticeCoordinates;
+						// If we were killed by our rival, then we're longer rivals with this player.
+						// It is unclear what the official stance on this behaviour is, but I assume
+						// it is not meant to reset the killer as the victim's rival (which it would do otherwise).
+						if (!bKilledByRival
+							&& GetZoneID() == ZONE_RONARK_LAND)
+						{
+							// If we don't have a rival, this player is now our rival for 3 minutes.
+							if (!hasRival())
+								SetRival(pUser);
 
-						// If we are our killer's rival, use the rival notice instead.
-						if (!pUser->hasRivalryExpired()
-							&& pUser->GetRivalID() == GetID())
-							noticeType = DeathNoticeRival;
-
-						// If we don't have a rival, this player is now our rival for 3 minutes.
-						if (!hasRival())
-							SetRival(pUser);
-
-						// If our killer doesn't have a rival, they are now our rival for 3 minutes.
-						if (!pUser->hasRival())
-							pUser->SetRival(this);
+							// If our killer doesn't have a rival, they are now our rival for 3 minutes.
+							if (!pUser->hasRival())
+								pUser->SetRival(this);
+						}
 					}
 
 					// Send a death notice where applicable
