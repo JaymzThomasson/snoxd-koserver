@@ -96,8 +96,11 @@ public:
 			m_bChallengeRequested;  // opcode of challenge request received by challengee
 	int16	m_sChallengeUser;
 
-	//Magic System Cooldown checks
+	// Rival system
+	int16	m_sRivalID;			// rival's session ID
+	time_t	m_tRivalExpiryTime;	// time when the rivalry ends
 
+	// Magic System Cooldown checks
 	SkillCooldownList	m_CoolDownList;
 
 	bool	m_bIsChicken; // Is the character taking the beginner/chicken quest?
@@ -256,6 +259,11 @@ public:
 	INLINE bool hasMonthlyLoyalty(uint32 amount) { return (GetMonthlyLoyalty() >= amount); }
 	INLINE bool hasManner(uint32 amount) { return (GetManner() >= amount); }
 
+	INLINE bool hasRival() { return m_sRivalID >= 0; }
+	INLINE bool hasRivalryExpired() { return UNIXTIME >= m_tRivalExpiryTime; }
+
+	INLINE int16 GetRivalID() { return m_sRivalID; }
+
 	INLINE GameState GetState() { return m_state; }
 
 	INLINE uint8 GetStat(StatType type)
@@ -359,6 +367,8 @@ public:
 
 	virtual void AddToRegion(int16 new_region_x, int16 new_region_z);
 
+	void SetRival(CUser * pRival);
+	void RemoveRival();
 	void SendLoyaltyChange(int32 nChangeAmount = 0);
 
 	void NativeZoneReturn();

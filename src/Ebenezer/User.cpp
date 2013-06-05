@@ -113,6 +113,9 @@ void CUser::Initialize()
 	m_sEventDataIndex = 0;
 
 	m_pKnightsUser = nullptr;
+
+	m_sRivalID = 1;
+	m_tRivalExpiryTime = 0;
 }
 
 /**
@@ -417,7 +420,62 @@ bool CUser::HandlePacket(Packet & pkt)
 	if (isBlinking())		// Should you stop blinking?
 		BlinkTimeCheck();
 
+	if (hasRival() && hasRivalryExpired())
+		RemoveRival();
+
 	return true;
+}
+
+void CUser::SetRival(CUser * pRival)
+{
+	if (pRival == nullptr
+		|| hasRival())
+		return;
+
+	Packet result(WIZ_PVP, uint8(PVPAssignRival));
+	CKnights * pKnights;
+
+	// unknown packet data
+	uint8 packet[] = 
+	{
+		0x53, 0x07, /* ID? */
+		0x02, 0x97, 0x09, 0x49, 0xBF, 0x7C, 0x05, 
+		0x00 /* flag? */
+	};
+
+	result.append(packet);
+
+	if (isInClan())
+		pKnights = g_pMain->GetClanPtr(GetClanID());
+
+	if (pKnights == nullptr)
+		result << uint16(0); // 0 length clan name
+	else
+		result << pKnights->m_strName;
+
+	result << pRival->GetName();
+
+	m_sRivalID = pRival->GetID();
+	m_tRivalExpiryTime = UNIXTIME + RIVALRY_DURATION;
+
+	Send(&result);
+}
+
+/**
+ * @brief	Removes our rivalry state.
+ */
+void CUser::RemoveRival()
+{
+	if (!hasRival())
+		return;
+
+	// Reset our rival data
+	m_tRivalExpiryTime = 0;
+	m_sRivalID = -1;
+
+	// Send the packet to let the client know that our rivalry has ended
+	Packet result(WIZ_PVP, uint8(PVPRemoveRival));
+	Send(&result);
 }
 
 /**
@@ -3495,18 +3553,52 @@ void CUser::OnDeath(Unit *pKiller)
 					else 
 						g_pMain->m_sElmoradDead++;
 				}
-				// Otherwise...
+				// All zones other than the snow war.
 				else
 				{
-					if (!pUser->isInParty())
-						pUser->LoyaltyChange(GetID());
+					DeathNoticeType noticeType = DeathNoticeNone;
+
+					if (!isInArena())
+					{
+						if (!pUser->isInParty())
+							pUser->LoyaltyChange(GetID());
+						else
+							pUser->LoyaltyDivide(GetID());
+
+						pUser->GoldChange(GetID(), 0);
+
+						if (GetZoneID() != GetNation() && GetZoneID() <= ELMORAD)
+							ExpChange(-(m_iMaxExp / 100));
+					}
 					else
-						pUser->LoyaltyDivide(GetID());
+					{
+						// Show death notices in the arena
+						noticeType = DeathNoticeCoordinates;
+					}
 
-					pUser->GoldChange(GetID(), 0);
+					// In PVP zones (just Ronark Land for now)
+					if (GetZoneID() == ZONE_RONARK_LAND)
+					{
+						// Show death notices in PVP zones
+						noticeType = DeathNoticeCoordinates;
 
-					if (GetZoneID() != GetNation() && GetZoneID() <= ELMORAD)
-						ExpChange(-(m_iMaxExp / 100));
+						// If we are our killer's rival, use the rival notice instead.
+						if (!pUser->hasRivalryExpired()
+							&& pUser->GetRivalID() == GetID())
+							noticeType = DeathNoticeRival;
+
+						// If we don't have a rival, this player is now our rival for 3 minutes.
+						if (!hasRival())
+							SetRival(pUser);
+
+						// If our killer doesn't have a rival, they are now our rival for 3 minutes.
+						if (!pUser->hasRival())
+							pUser->SetRival(this);
+					}
+
+					// Send a death notice where applicable
+					if (noticeType != DeathNoticeNone)
+						SendDeathNotice(pUser, noticeType); 
 				}
 			
 				m_sWhoKilledMe = pUser->GetID();
