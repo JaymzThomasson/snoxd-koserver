@@ -168,7 +168,8 @@ enum PVPOpcodes
 {
 	PVPAssignRival	= 1,
 	PVPRemoveRival	= 2,
-	PVPUpdateHelmet	= 5
+	PVPUpdateHelmet	= 5, // the helmet icon indicates the level of the anger gauge
+	PVPResetHelmet	= 6
 };
 
 ////////////////////////////////////////////////////////////////

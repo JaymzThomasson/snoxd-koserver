@@ -3658,13 +3658,15 @@ void CUser::OnDeath(Unit *pKiller)
  */
 void CUser::UpdateAngerGauge(uint8 byAngerGauge)
 {
-	Packet result(WIZ_PVP, uint8(PVPUpdateHelmet));
+	Packet result(WIZ_PVP, uint8(byAngerGauge == 0 ? PVPResetHelmet : PVPUpdateHelmet));
 
 	if (byAngerGauge > MAX_ANGER_GAUGE)
 		byAngerGauge = MAX_ANGER_GAUGE;
 
 	m_byAngerGauge = byAngerGauge;
-	result << byAngerGauge << hasFullAngerGauge();
+	if (byAngerGauge > 0)
+		result << byAngerGauge << hasFullAngerGauge();
+
 	Send(&result);
 }
 
