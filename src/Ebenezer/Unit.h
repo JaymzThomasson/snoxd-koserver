@@ -63,7 +63,7 @@ public:
 	INLINE CRegion * GetRegion() { return m_pRegion; }
 	void SetRegion(uint16 x = -1, uint16 z = -1);
 
-	virtual const char * GetName() = 0; // this is especially fun...
+	virtual std::string & GetName() = 0; // this is especially fun...
 
 	INLINE uint8 GetNation() { return m_bNation; }
 	INLINE uint8 GetLevel() { return m_bLevel; }

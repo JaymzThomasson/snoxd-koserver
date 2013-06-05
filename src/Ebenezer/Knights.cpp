@@ -35,7 +35,7 @@ void CKnights::OnLogin(CUser *pUser)
 	{
 		_KNIGHTS_USER * p = &m_arKnightsUser[i];
 		if (!p->byUsed
-			|| STRCASECMP(p->strUserName, pUser->GetName()) != 0)
+			|| STRCASECMP(p->strUserName.c_str(), pUser->GetName().c_str()) != 0)
 			continue;
 
 		p->pSession = pUser;
@@ -56,14 +56,14 @@ void CKnights::OnLogout(CUser *pUser)
 	}
 }
 
-bool CKnights::AddUser(const char *strUserID)
+bool CKnights::AddUser(std::string & strUserID)
 {
 	for (int i = 0; i < MAX_CLAN_USERS; i++)
 	{
 		if (m_arKnightsUser[i].byUsed == 0)
 		{
 			m_arKnightsUser[i].byUsed = 1;
-			strcpy(m_arKnightsUser[i].strUserName, strUserID);
+			m_arKnightsUser[i].strUserName = strUserID;
 			m_arKnightsUser[i].pSession = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
 			return true;
 		}
@@ -90,7 +90,7 @@ bool CKnights::AddUser(CUser *pUser)
  *
  * @return	.
  */
-bool CKnights::RemoveUser(const char *strUserID)
+bool CKnights::RemoveUser(std::string & strUserID)
 {
 	for (int i = 0; i < MAX_CLAN_USERS; i++)
 	{
@@ -98,12 +98,12 @@ bool CKnights::RemoveUser(const char *strUserID)
 		if (p->byUsed == 0)
 			continue;
 
-		if (STRCASECMP(p->strUserName, strUserID) == 0)
+		if (STRCASECMP(p->strUserName.c_str(), strUserID.c_str()) == 0)
 		{
 			// If they're not logged in (note: logged in users being removed have their NP refunded in the other handler)
 			// but they've donated NP, ensure they're refunded for the next time they login.
 			if (p->nDonatedNP > 0)
-				RefundDonatedNP(p->nDonatedNP, nullptr, p->strUserName);
+				RefundDonatedNP(p->nDonatedNP, nullptr, p->strUserName.c_str());
 
 			p->Initialise();
 			return true;

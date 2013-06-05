@@ -23,7 +23,7 @@ void CNpc::Initialize()
 	m_sSid = 0;
 	m_sPid = 0;				// MONSTER(NPC) Picture ID
 	m_sSize = 100;				// MONSTER(NPC) Size
-	memset(m_strName, 0, MAX_NPC_SIZE+1);		// MONSTER(NPC) Name
+	m_strName.clear();			// MONSTER(NPC) Name
 	m_iMaxHP = 0;				// 최대 HP
 	m_iHP = 0;					// 현재 HP
 	//m_byState = 0;			// 몬스터 (NPC) 상태이상

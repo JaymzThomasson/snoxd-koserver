@@ -25,10 +25,9 @@ public:
 	static void DonateNP(CUser *pUser, Packet & pkt);
 	static void DonationList(CUser *pUser, Packet & pkt);
 
-	static bool AddKnightsUser(int index, const char* UserName);
-	static void SetKnightsUser(int index, const char* UserName);
+	static bool AddKnightsUser(int index, std::string & strUserID);
 	static void AddUserDonatedNP(int index, std::string & strUserID, uint32 nDonatedNP);
-	static bool RemoveKnightsUser(int index, const char* UserName);
+	static bool RemoveKnightsUser(int index, std::string & strUserID);
 	static bool LoadKnightsIndex(int index);
 	static bool LoadAllKnights();
 

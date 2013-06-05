@@ -19,7 +19,7 @@ public:
 		_dbCommand->FetchString(2, strUserID);
 		_dbCommand->FetchUInt32(3, nDonatedNP);
 
-		CKnightsManager::AddKnightsUser(sIDNum, strUserID.c_str());
+		CKnightsManager::AddKnightsUser(sIDNum, strUserID);
 		CKnightsManager::AddUserDonatedNP(sIDNum, strUserID, nDonatedNP);
 		return true;
 	}

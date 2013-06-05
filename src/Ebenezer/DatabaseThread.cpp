@@ -377,13 +377,11 @@ void CUser::ReqChangeCape(Packet & pkt)
 
 void CUser::ReqUserLogOut()
 {
-	string strCharID = GetName();
-
-	g_DBAgent.UpdateUser(strCharID, UPDATE_LOGOUT, this);
-	g_DBAgent.UpdateWarehouseData(m_strAccountID, UPDATE_LOGOUT, this);
+	g_DBAgent.UpdateUser(GetName(), UPDATE_LOGOUT, this);
+	g_DBAgent.UpdateWarehouseData(GetAccountName(), UPDATE_LOGOUT, this);
 	
 	if (m_bLogout != 2)	// zone change logout
-		g_DBAgent.AccountLogout(m_strAccountID);
+		g_DBAgent.AccountLogout(GetAccountName());
 
 	// this session can be used again.
 	m_deleted = false;
@@ -400,9 +398,8 @@ void CUser::ReqConCurrentUserCount()
 
 void CUser::ReqSaveCharacter()
 {
-	std::string strUserID = GetName();
-	g_DBAgent.UpdateUser(strUserID, UPDATE_PACKET_SAVE, this);
-	g_DBAgent.UpdateWarehouseData(m_strAccountID, UPDATE_PACKET_SAVE, this);
+	g_DBAgent.UpdateUser(GetName(), UPDATE_PACKET_SAVE, this);
+	g_DBAgent.UpdateWarehouseData(GetAccountName(), UPDATE_PACKET_SAVE, this);
 }
 
 void CKnightsManager::ReqKnightsPacket(CUser* pUser, Packet & pkt)
