@@ -14,10 +14,8 @@ void CUser::WarehouseProcess(Packet & pkt)
 	bool bResult = false;
 
 	if (isDead())
-	{
-		TRACE("### WarehouseProcess Fail : name=%s(%d), m_bResHpType=%d, hp=%d, x=%d, z=%d ###\n", GetName(), GetSocketID(), m_bResHpType, m_sHp, (int)m_curx, (int)m_curz);
 		return;
-	}
+
 	if (isTrading())
 		goto fail_return;
 

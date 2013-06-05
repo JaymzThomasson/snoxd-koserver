@@ -1511,7 +1511,7 @@ void CEbenezerDlg::CheckAliveUser()
 		if (pUser->m_sAliveCount++ > 3)
 		{
 			pUser->Disconnect();
-			TRACE("User dropped due to inactivity - char=%s\n", pUser->GetName());
+			TRACE("User dropped due to inactivity - char=%s\n", pUser->GetName().c_str());
 		}
 	}
 	g_pMain->m_socketMgr.ReleaseLock();

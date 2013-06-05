@@ -341,7 +341,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 
 	if (pUser == nullptr 
 		|| pUser->m_bLogout
-		|| strlen(pUser->GetName()) != 0
+		|| !pUser->GetName().empty()
 		|| strCharID.length() > MAX_ID_SIZE
 		/*|| pUser->m_dwTime != 0*/)
 		return false;
@@ -759,7 +759,7 @@ bool CDBAgent::LoadSkillShortcut(Packet & result, CUser *pUser)
 	uint16 sCount;
 	char strSkillData[260];
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName(), strlen(pUser->GetName()));
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName().c_str(), pUser->GetName().length());
 	if (!dbCommand->Execute(_T("{CALL SKILLSHORTCUT_LOAD(?)}")))
 	{
 		ReportSQLError(m_GameDB->GetError());
@@ -785,7 +785,7 @@ void CDBAgent::SaveSkillShortcut(short sCount, char *buff, CUser *pUser)
 	if (dbCommand.get() == nullptr)
 		return;
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName(), strlen(pUser->GetName()));
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName().c_str(), pUser->GetName().length());
 	dbCommand->AddParameter(SQL_PARAM_INPUT, buff, 260);
 
 	if (!dbCommand->Execute(string_format(_T("{CALL SKILLSHORTCUT_SAVE(?, %d, ?)}"), sCount)))
@@ -800,8 +800,8 @@ uint8 CDBAgent::SealItem(string strSealPasswd, uint64 nItemSerial, uint32 nItemI
 
 	uint8 nRet = 1;
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetAccountName(), strlen(pUser->GetAccountName()));
-	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName(), strlen(pUser->GetName()));
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetAccountName().c_str(), pUser->GetAccountName().length());
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName().c_str(), pUser->GetName().length());
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strSealPasswd.c_str(), strSealPasswd.length());
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
@@ -818,7 +818,7 @@ void CDBAgent::RequestFriendList(std::vector<string> & friendList, CUser *pUser)
 	if (dbCommand.get() == nullptr)
 		return;
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName(), strlen(pUser->GetName()));
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName().c_str(), pUser->GetName().length());
 	if (!dbCommand->Execute(_T("SELECT * FROM FRIEND_LIST WHERE strUserID=?")))
 		ReportSQLError(m_GameDB->GetError());
 
@@ -846,8 +846,8 @@ FriendAddResult CDBAgent::AddFriend(short sid, short tid)
 
 	int16 nRet = (int16)FRIEND_ADD_ERROR;
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, pSrcUser->GetName(), strlen(pSrcUser->GetName()));
-	dbCommand->AddParameter(SQL_PARAM_INPUT, pTargetUser->GetName(), strlen(pTargetUser->GetName()));
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pSrcUser->GetName().c_str(), pSrcUser->GetName().length());
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pTargetUser->GetName().c_str(), pTargetUser->GetName().length());
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
 	if (!dbCommand->Execute(_T("{CALL INSERT_FRIEND_LIST(?, ?, ?)}")))

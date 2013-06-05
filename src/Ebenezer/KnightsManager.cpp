@@ -311,7 +311,7 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 opco
 			bResult = 2;
 		else if (pUser->GetZoneID() != pUser->GetNation())
 			bResult = 12;
-		else if (STRCASECMP(strUserID.c_str(), pUser->GetName()) == 0)
+		else if (STRCASECMP(strUserID.c_str(), pUser->GetName().c_str()) == 0)
 			bResult = 9;
 		else if (((opcode == KNIGHTS_ADMIT || opcode == KNIGHTS_REJECT) && pUser->getFame() < OFFICER)
 			|| (opcode == KNIGHTS_PUNISH && pUser->getFame() < VICECHIEF))
@@ -457,7 +457,7 @@ void CKnightsManager::CurrentKnightsMember(CUser *pUser, Packet & pkt)
 			continue;
 
 		CUser *pTUser = p->pSession;
-		result << pUser->GetName() << pUser->getFame() << pUser->GetLevel() << pUser->m_sClass;
+		result << pUser->GetName() << pUser->getFame() << pUser->GetLevel() << pUser->GetClass();
 		count++;
 		if (count >= start + 10)
 			break;
@@ -523,7 +523,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, uint8 command)
 		}
 		else
 		{
-			pKnights->RemoveUser(strUserID.c_str());
+			pKnights->RemoveUser(strUserID);
 		}
 		break;
 	case KNIGHTS_ADMIT:
@@ -571,7 +571,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, uint8 command)
 
 	// Construct the clan system chat packet
 	Packet result;
-	std::string strMessage = string_format(clanNotice, pTUser != nullptr ? pTUser->GetName() : strUserID.c_str());
+	std::string strMessage = string_format(clanNotice, pTUser != nullptr ? pTUser->GetName().c_str() : strUserID.c_str());
 	ChatPacket::Construct(&result, KNIGHTS_CHAT, &strMessage);
 
 	// If we've been removed from a clan, tell the user as well (since they're no longer in the clan)
@@ -583,37 +583,16 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, uint8 command)
 		pKnights->Send(&result);
 }
 
-bool CKnightsManager::AddKnightsUser(int index, const char* UserName)
+bool CKnightsManager::AddKnightsUser(int index, std::string & strUserID)
 {
 	CKnights *pKnights = g_pMain->GetClanPtr(index);
-	return (pKnights == nullptr ? false : pKnights->AddUser(UserName));
+	return (pKnights == nullptr ? false : pKnights->AddUser(strUserID));
 }
 
-bool CKnightsManager::RemoveKnightsUser(int index, const char* UserName)
+bool CKnightsManager::RemoveKnightsUser(int index, std::string & strUserID)
 {
 	CKnights *pKnights = g_pMain->GetClanPtr(index);
-	return (pKnights == nullptr ? false : pKnights->RemoveUser(UserName));
-}
-
-/**
- * This method seems to be useless. Leaving it just in case.
- **/
-void CKnightsManager::SetKnightsUser(int index, const char* UserName)
-{
-	CKnights *pKnights = g_pMain->GetClanPtr(index);
-	if (pKnights == nullptr)
-		return;
-
-	for (int i = 0; i < MAX_CLAN_USERS; i++)
-	{
-		if (pKnights->m_arKnightsUser[i].byUsed == 0)
-			continue;
-		
-		if (!STRCASECMP(pKnights->m_arKnightsUser[i].strUserName, UserName))
-			return;
-	}
-
-	pKnights->AddUser(UserName);
+	return (pKnights == nullptr ? false : pKnights->RemoveUser(strUserID));
 }
 
 void CKnightsManager::AddUserDonatedNP(int index, std::string & strUserID, uint32 nDonatedNP)
@@ -627,7 +606,7 @@ void CKnightsManager::AddUserDonatedNP(int index, std::string & strUserID, uint3
 		if (pKnights->m_arKnightsUser[i].byUsed == 0)
 			continue;
 		
-		if (STRCASECMP(pKnights->m_arKnightsUser[i].strUserName, strUserID.c_str()) == 0)
+		if (STRCASECMP(pKnights->m_arKnightsUser[i].strUserName.c_str(), strUserID.c_str()) == 0)
 		{
 			pKnights->m_arKnightsUser[i].nDonatedNP += nDonatedNP;
 			break;

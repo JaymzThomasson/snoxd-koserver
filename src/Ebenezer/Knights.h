@@ -8,7 +8,7 @@ class CUser;
 struct _KNIGHTS_USER
 {
 	uint8    byUsed;
-	char	strUserName[MAX_ID_SIZE+1];
+	std::string strUserName;
 	uint32	nDonatedNP;
 	CUser	*pSession;
 
@@ -16,7 +16,7 @@ struct _KNIGHTS_USER
 	INLINE void Initialise()
 	{
 		byUsed = 0;
-		memset(strUserName, 0, sizeof(strUserName));
+		strUserName.clear();
 		nDonatedNP = 0;
 		pSession = nullptr;
 	}
@@ -74,10 +74,10 @@ public:
 	// Detach our session from the clan's list & tell clannies we logged off.
 	void OnLogout(CUser *pUser);
 
-	bool AddUser(const char *strUserID);
+	bool AddUser(std::string & strUserID);
 	bool AddUser(CUser *pUser);
 
-	bool RemoveUser(const char *strUserID);
+	bool RemoveUser(std::string & strUserID);
 	bool RemoveUser(CUser *pUser);
 
 	void RefundDonatedNP(uint32 nDonatedNP, CUser * pUser = nullptr, const char * strUserID = nullptr);

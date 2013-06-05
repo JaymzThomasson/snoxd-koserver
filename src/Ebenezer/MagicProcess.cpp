@@ -12,7 +12,7 @@ void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= nullptr*/, bool
 	instance.pSkill = g_pMain->m_MagictableArray.GetData(instance.nSkillID);
 	if (instance.pSkill == nullptr)
 	{
-		TRACE("[%s] Used skill %d but it does not exist.\n", pCaster->GetName(), instance.nSkillID);
+		TRACE("[%s] Used skill %d but it does not exist.\n", pCaster->GetName().c_str(), instance.nSkillID);
 		return;
 	}
 

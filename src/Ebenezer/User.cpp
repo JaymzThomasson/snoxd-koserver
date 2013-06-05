@@ -1912,7 +1912,7 @@ void CUser::StateChange(Packet & pkt)
 
 		default:
 			TRACE("[SID=%d] StateChange: %s tripped (bType=%d, buff=%d, nBuff=%d) somehow, HOW!?\n", 
-				GetSocketID(), GetName(), bType, buff, nBuff);
+				GetSocketID(), GetName().c_str(), bType, buff, nBuff);
 			break;
 		}
 		break;
@@ -1927,7 +1927,7 @@ void CUser::StateChange(Packet & pkt)
 
 	default:
 		TRACE("[SID=%d] StateChange: %s tripped (bType=%d, buff=%d, nBuff=%d) somehow, HOW!?\n", 
-			GetSocketID(), GetName(), bType, buff, nBuff);
+			GetSocketID(), GetName().c_str(), bType, buff, nBuff);
 		return;
 	}
 

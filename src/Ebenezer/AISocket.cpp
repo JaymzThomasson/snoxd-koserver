@@ -175,7 +175,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 		}
 
 		//TRACE("Recv --> NpcUserInfo : uid = %d, x=%f, z=%f.. \n", nid, fPosX, fPosZ);
-		strcpy(pNpc->m_strName, strName.c_str());
+		pNpc->m_strName = strName;
 
 		pNpc->m_byDirection = bDirection;
 		pNpc->SetRegion(pNpc->GetNewRegionX(), pNpc->GetNewRegionZ());
@@ -404,7 +404,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 	}
 
 	pNpc->m_byDirection = byDirection;
-	strcpy(pNpc->m_strName, strName.c_str());
+	pNpc->m_strName = strName;
 
 	if (pNpc->GetMap() == nullptr)
 		return;
@@ -554,7 +554,7 @@ void CAISocket::RecvUserFail(Packet & pkt)
 	result << uint8(2) << sid << nid;
 	pUser->SendToRegion(&result);
 
-	TRACE("### AISocket - RecvUserFail : sid=%d, tid=%d, id=%s ####\n", sid, nid, pUser->GetName());
+	TRACE("### AISocket - RecvUserFail : sid=%d, tid=%d, id=%s ####\n", sid, nid, pUser->GetName().c_str());
 }
 
 void CAISocket::InitEventMonster(int index)

@@ -167,11 +167,11 @@ void CUser::ZoneChange(int zone, float x, float z)
 		if( m_bZone == BATTLE_ZONE )	{
 			if( pMap->m_bType == 1 && m_bNation != zone && (zone < 10 || zone > 21))	{	// ???? ?????? ???? ????..
 				if( m_bNation == KARUS && !g_pMain->m_byElmoradOpenFlag )	{
-					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", GetName(), m_bNation, g_pMain->m_byElmoradOpenFlag);
+					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", GetName().c_str(), m_bNation, g_pMain->m_byElmoradOpenFlag);
 					return;
 				}
 				else if( m_bNation == ELMORAD && !g_pMain->m_byKarusOpenFlag )	{
-					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", GetName(), m_bNation, g_pMain->m_byKarusOpenFlag);
+					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", GetName().c_str(), m_bNation, g_pMain->m_byKarusOpenFlag);
 					return;
 				}
 			}
@@ -245,7 +245,6 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 		if (GetZoneID() == ZONE_SNOW_BATTLE)
 		{
-			//TRACE("ZoneChange - name=%s\n", GetName());
 			SetMaxHp();
 		}
 
@@ -258,8 +257,6 @@ void CUser::ZoneChange(int zone, float x, float z)
 
 	m_pMap = pMap;
 
-	//TRACE("ZoneChange ,,, id=%s, nation=%d, zone=%d, x=%.2f, z=%.2f\n", GetName(), m_bNation, zone, x, z);
-	
 	if( g_pMain->m_nServerNo != pMap->m_nServerNo ) {
 		pInfo = g_pMain->m_ServerArray.GetData( pMap->m_nServerNo );
 		if( !pInfo ) 

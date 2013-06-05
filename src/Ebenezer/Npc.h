@@ -7,7 +7,7 @@ class CNpc  : public Unit
 {
 public:
 	virtual uint16 GetID() { return m_sNid; }
-	virtual const char * GetName() { return m_strName; }
+	virtual std::string & GetName() { return m_strName; }
 
 	uint16	m_sNid; // NPC ID
 	uint16	m_sSid; // prototype ID
@@ -16,7 +16,7 @@ public:
 	short	m_sSize;			// MONSTER(NPC) Size
 	int		m_iWeapon_1;
 	int		m_iWeapon_2;
-	char	m_strName[MAX_NPC_SIZE+1];		// MONSTER(NPC) Name
+	std::string m_strName;		// MONSTER(NPC) Name
 	int		m_iMaxHP;			// 최대 HP
 	int		m_iHP;				// 현재 HP
 	uint8	m_byState;			// 몬스터 (NPC) 상태

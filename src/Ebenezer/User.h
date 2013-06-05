@@ -45,8 +45,8 @@ class CUser : public Unit, public KOSocket
 public:
 	virtual uint16 GetID() { return GetSocketID(); }
 
-	const char * GetAccountName() { return m_strAccountID.c_str(); }
-	virtual const char * GetName() { return m_strUserID.c_str(); }
+	std::string & GetAccountName() { return m_strAccountID; }
+	virtual std::string & GetName() { return m_strUserID; }
 
 	std::string	m_strAccountID, m_strUserID;
 

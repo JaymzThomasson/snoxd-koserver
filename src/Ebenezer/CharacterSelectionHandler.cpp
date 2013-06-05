@@ -195,19 +195,12 @@ void CUser::SelectCharacter(Packet & pkt)
 		m_bFame = 0;
 		return;
 	}
-	else if (GetClanID() != 0)
+	else if (GetClanID() != 0
+		&& GetZoneID() > 2)
 	{
-		CKnights* pKnights = g_pMain->GetClanPtr( GetClanID() );
-		if (pKnights != nullptr)
-		{
-			CKnightsManager::SetKnightsUser(GetClanID(), GetName());
-		}
-		else if (GetZoneID() > 2)
-		{
-			result.Initialize(WIZ_KNIGHTS_PROCESS);
-			result << uint8(KNIGHTS_LIST_REQ) << GetClanID();
-			g_pMain->AddDatabaseRequest(result, this);
-		}
+		result.Initialize(WIZ_KNIGHTS_PROCESS);
+		result << uint8(KNIGHTS_LIST_REQ) << GetClanID();
+		g_pMain->AddDatabaseRequest(result, this);
 	}
 	return;
 

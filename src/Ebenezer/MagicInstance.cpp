@@ -1258,7 +1258,6 @@ bool MagicInstance::ExecuteType8()
 
 				pTUser->ZoneChange(pSkillCaster->GetZoneID(), pSkillCaster->GetX(), pSkillCaster->GetZ()) ;
 				pTUser->UserInOut(INOUT_RESPAWN);
-				//TRACE(" Summon ,, name=%s, x=%.2f, z=%.2f\n", pTUser->GetName(), pTUser->m_curx, pTUser->m_curz);
 				break;
 
 			case 20:	// Randomly teleport the source (within 20 meters)		
