@@ -34,4 +34,5 @@ ChatCommandTable CUser::s_commandTable;
 #include "RentalHandler.cpp"
 #include "ShoppingMallHandler.cpp"
 #include "TradeHandler.cpp"
-
+#include "SealHandler.cpp"
+#include "UpgradeHandler.cpp"
