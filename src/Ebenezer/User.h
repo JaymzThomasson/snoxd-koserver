@@ -100,6 +100,9 @@ public:
 	int16	m_sRivalID;			// rival's session ID
 	time_t	m_tRivalExpiryTime;	// time when the rivalry ends
 
+	// Anger gauge system 
+	uint8	m_byAngerGauge; // values range from 0-5
+
 	// Magic System Cooldown checks
 	SkillCooldownList	m_CoolDownList;
 
@@ -259,9 +262,11 @@ public:
 	INLINE bool hasMonthlyLoyalty(uint32 amount) { return (GetMonthlyLoyalty() >= amount); }
 	INLINE bool hasManner(uint32 amount) { return (GetManner() >= amount); }
 
-	INLINE bool hasRival() { return m_sRivalID >= 0; }
-	INLINE bool hasRivalryExpired() { return UNIXTIME >= m_tRivalExpiryTime; }
+	INLINE uint8 GetAngerGauge() { return m_byAngerGauge; }
+	INLINE bool hasFullAngerGauge() { return GetAngerGauge() >= MAX_ANGER_GAUGE; }
 
+	INLINE bool hasRival() { return GetRivalID() >= 0; }
+	INLINE bool hasRivalryExpired() { return UNIXTIME >= m_tRivalExpiryTime; }
 	INLINE int16 GetRivalID() { return m_sRivalID; }
 
 	INLINE GameState GetState() { return m_state; }
@@ -653,6 +658,7 @@ public:
 	void SendToRegion(Packet *pkt, CUser *pExceptUser = nullptr);
 
 	virtual void OnDeath(Unit *pKiller);
+	void UpdateAngerGauge(uint8 byAngerGauge);
 
 	// Exchange system
 	bool CheckExchange(int nExchangeID);
