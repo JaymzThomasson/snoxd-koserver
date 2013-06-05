@@ -116,6 +116,8 @@ void CUser::Initialize()
 
 	m_sRivalID = -1;
 	m_tRivalExpiryTime = 0;
+
+	m_byAngerGauge = 0;
 }
 
 /**
@@ -3602,6 +3604,11 @@ void CUser::OnDeath(Unit *pKiller)
 								// This player is no longer our rival (is this intended behaviour or must it still expire?)
 								RemoveRival();
 							}
+
+							// The anger gauge is increased on each death.
+							// When your anger gauge is full (5 deaths), you can use the "Anger Explosion" skill.
+							if (!hasFullAngerGauge())
+								UpdateAngerGauge(++m_byAngerGauge);
 						}
 
 						if (!pUser->isInParty())
@@ -3641,6 +3648,24 @@ void CUser::OnDeath(Unit *pKiller)
 	}
 
 	Unit::OnDeath(pKiller);
+}
+
+/**
+ * @brief	Updates the player's anger gauge level, setting it to
+ * 			byAngerGauge.
+ *
+ * @param	byAngerGauge	The anger gauge level.
+ */
+void CUser::UpdateAngerGauge(uint8 byAngerGauge)
+{
+	Packet result(WIZ_PVP, uint8(PVPUpdateHelmet));
+
+	if (byAngerGauge > MAX_ANGER_GAUGE)
+		byAngerGauge = MAX_ANGER_GAUGE;
+
+	m_byAngerGauge = byAngerGauge;
+	result << byAngerGauge << hasFullAngerGauge();
+	Send(&result);
 }
 
 // We have no clan handler, we probably won't need to implement it (but we'll see).

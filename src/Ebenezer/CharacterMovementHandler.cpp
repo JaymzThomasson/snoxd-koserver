@@ -219,6 +219,11 @@ void CUser::ZoneChange(int zone, float x, float z)
 	{
 		SetZoneAbilityChange();
 
+		// Reset the user's anger gauge when leaving the zone
+		// Unknown if this is official behaviour, but it's logical.
+		if (GetAngerGauge() > 0)
+			UpdateAngerGauge(0);
+
 		/* 
 			Here we also send a clan packet with subopcode 0x16 (with a byte flag of 2) if war zone/Moradon
 			or subopcode 0x17 (with nWarEnemyID) for all else
