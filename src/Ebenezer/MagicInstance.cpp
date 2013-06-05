@@ -1504,8 +1504,8 @@ void MagicInstance::Type6Cancel()
 	pUser->m_bIsTransformed = false;
 	pUser->Send(&result);
 
-	pUser->StateChangeServerDirect(3, ABNORMAL_NORMAL);
 	pUser->RemoveSavedMagic(pUser->m_bAbnormalType);
+	pUser->StateChangeServerDirect(3, ABNORMAL_NORMAL);
 }
 
 void MagicInstance::Type9Cancel()
