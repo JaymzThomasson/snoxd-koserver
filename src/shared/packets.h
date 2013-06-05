@@ -125,12 +125,13 @@
 #define WIZ_STORY				0x81
 #define WIZ_MINING				0x86
 #define WIZ_HELMET				0x87
-#define WIZ_RONARK_HELMET		0x88
+#define WIZ_PVP					0x88
 #define WIZ_CHANGE_HAIR			0x89 // Changes hair colour/facial features at character selection
 #define WIZ_DEATH_LIST			0x90
 #define WIZ_CLANPOINTS_BATTLE	0x91 // not sure
 
 #define WIZ_TEST_PACKET			0xff	// Test packet
+
 ////////////////////////////////////////////////////////////////
 // chat define
 ////////////////////////////////////////////////////////////////
@@ -160,6 +161,14 @@ enum DeathNoticeType
 	DeathNoticeCoordinates	= 0, // - %s defeat %s ( %d, %d ) -
 	DeathNotice				= 1, // - %s has been defeated by %s -
 	DeathNoticeRival		= 2, // - %s has avenged %s -
+	DeathNoticeNone			= 0xFF
+};
+
+enum PVPOpcodes
+{
+	PVPAssignRival	= 1,
+	PVPRemoveRival	= 2,
+	PVPUpdateHelmet	= 5
 };
 
 ////////////////////////////////////////////////////////////////
