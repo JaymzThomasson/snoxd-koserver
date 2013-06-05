@@ -222,6 +222,12 @@
     <ClCompile Include="..\shared\SocketWin32.cpp">
       <Filter>Shared\Networking</Filter>
     </ClCompile>
+    <ClCompile Include="SealHandler.cpp">
+      <Filter>Source Files\Handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradeHandler.cpp">
+      <Filter>Source Files\Handlers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">

@@ -423,6 +423,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-XP|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="LoadServerData.cpp" />
+    <ClCompile Include="SealHandler.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-XP|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-XP|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="ShoppingMallHandler.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-XP|Win32'">true</ExcludedFromBuild>
@@ -442,6 +448,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-XP|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Unit.cpp" />
+    <ClCompile Include="UpgradeHandler.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-XP|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-XP|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="User.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug-XP|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
