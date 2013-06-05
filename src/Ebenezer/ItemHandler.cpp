@@ -359,11 +359,11 @@ bool CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 		&& (pTable->m_bRace == 0 || pTable->m_bRace == m_bRace)
 		&& m_bRank >= pTable->m_bReqRank // this needs to be verified
 		&& m_bTitle >= pTable->m_bReqTitle // this is unused
-		&& getStat(STAT_STR) >= pTable->m_bReqStr 
-		&& getStat(STAT_STA) >= pTable->m_bReqSta 
-		&& getStat(STAT_DEX) >= pTable->m_bReqDex 
-		&& getStat(STAT_INT) >= pTable->m_bReqIntel 
-		&& getStat(STAT_CHA) >= pTable->m_bReqCha);
+		&& GetStat(STAT_STR) >= pTable->m_bReqStr 
+		&& GetStat(STAT_STA) >= pTable->m_bReqSta 
+		&& GetStat(STAT_DEX) >= pTable->m_bReqDex 
+		&& GetStat(STAT_INT) >= pTable->m_bReqIntel 
+		&& GetStat(STAT_CHA) >= pTable->m_bReqCha);
 }
 
 void CUser::ItemMove(Packet & pkt)

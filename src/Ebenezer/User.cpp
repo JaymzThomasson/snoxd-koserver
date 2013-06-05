@@ -467,7 +467,7 @@ void CUser::ChangeFame(uint8 bFame)
 	Packet result(WIZ_AUTHORITY_CHANGE, uint8(COMMAND_AUTHORITY));
 
 	m_bFame = bFame;
-	result << GetSocketID() << getFame();
+	result << GetSocketID() << GetFame();
 	SendToRegion(&result);
 }
 
@@ -602,8 +602,8 @@ void CUser::SendMyInfo()
 			<< GetLevel()
 			<< m_sPoints
 			<< m_iMaxExp << m_iExp
-			<< m_iLoyalty << m_iLoyaltyMonthly
-			<< GetClanID() << getFame();
+			<< GetLoyalty() << GetMonthlyLoyalty()
+			<< GetClanID() << GetFame();
 
 	if (isInClan())
 		pKnights = g_pMain->GetClanPtr(GetClanID());
@@ -630,11 +630,11 @@ void CUser::SendMyInfo()
 			<< m_iMaxHp << m_sHp
 			<< m_iMaxMp << m_sMp
 			<< m_sMaxWeight << m_sItemWeight
-			<< getStat(STAT_STR) << uint8(getStatItemBonus(STAT_STR))
-			<< getStat(STAT_STA) << uint8(getStatItemBonus(STAT_STA))
-			<< getStat(STAT_DEX) << uint8(getStatItemBonus(STAT_DEX))
-			<< getStat(STAT_INT) << uint8(getStatItemBonus(STAT_INT))
-			<< getStat(STAT_CHA) << uint8(getStatItemBonus(STAT_CHA))
+			<< GetStat(STAT_STR) << uint8(GetStatItemBonus(STAT_STR))
+			<< GetStat(STAT_STA) << uint8(GetStatItemBonus(STAT_STA))
+			<< GetStat(STAT_DEX) << uint8(GetStatItemBonus(STAT_DEX))
+			<< GetStat(STAT_INT) << uint8(GetStatItemBonus(STAT_INT))
+			<< GetStat(STAT_CHA) << uint8(GetStatItemBonus(STAT_CHA))
 			<< m_sTotalHit << m_sTotalAc
 			<< m_bFireR << m_bColdR << m_bLightningR << m_bMagicR << m_bDiseaseR << m_bPoisonR
 			<< m_iGold
@@ -1154,7 +1154,7 @@ void CUser::LevelChange(short level, bool bLevelUp /*= true*/)
 
 	if (bLevelUp)
 	{
-		if ((m_sPoints + getStatTotal()) < int32(300 + 3 * (level - 1)))
+		if ((m_sPoints + GetStatTotal()) < int32(300 + 3 * (level - 1)))
 			m_sPoints += 3;
 		if (level >= 10 && GetTotalSkillPoints() < 2 * (level - 9))
 			m_bstrSkill[SkillPointFree] += 2;
@@ -1200,7 +1200,7 @@ void CUser::PointChange(Packet & pkt)
 
 	if (statType < STAT_STR || statType >= STAT_COUNT 
 		|| m_sPoints < 1
-		|| getStat(statType) == STAT_MAX) 
+		|| GetStat(statType) == STAT_MAX) 
 		return;
 
 	Packet result(WIZ_POINT_CHANGE, type);
@@ -1436,7 +1436,7 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 		}
 	}
 
-	int temp_str = getStat(STAT_STR), temp_dex = getStatTotal(STAT_DEX);
+	int temp_str = GetStat(STAT_STR), temp_dex = getStatTotal(STAT_DEX);
 //	if( temp_str > 255 ) temp_str = 255;
 //	if( temp_dex > 255 ) temp_dex = 255;
 
@@ -1447,9 +1447,9 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 	if (temp_str == 160)
 		baseAP--;
 
-	temp_str += getStatBonusTotal(STAT_STR);
+	temp_str += GetStatBonusTotal(STAT_STR);
 
-	m_sMaxWeight = ((getStatWithItemBonus(STAT_STR) + GetLevel()) * 50) * (m_bMaxWeightAmount / 100);
+	m_sMaxWeight = ((GetStatWithItemBonus(STAT_STR) + GetLevel()) * 50) * (m_bMaxWeightAmount / 100);
 	if (isRogue() || bHaveBow)  // latter check's probably unnecessary
 		m_sTotalHit = (short)((((0.005f * sItemDamage * (temp_dex + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_dex )) + 3) * (m_bAttackAmount / 100));
 	else
@@ -1539,14 +1539,14 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
       ++m_sTotalAc;
 #endif
 
-	uint8 bSta = getStat(STAT_STA);
+	uint8 bSta = GetStat(STAT_STA);
 	if (bSta > 100)
 	{
 		m_sTotalAc += bSta - 100;
 		// m_sTotalAcUnk += (bSta - 100) / 3;
 	}
 
-	uint8 bInt = getStat(STAT_INT);
+	uint8 bInt = GetStat(STAT_INT);
 	if (bInt > 100)
 		m_bResistanceBonus += (bInt - 100) / 2;
 
@@ -2361,9 +2361,9 @@ void CUser::SendItemMove(uint8 subcommand)
 		result	<< m_sTotalHit << uint16(m_sTotalAc + m_sACAmount)
 				<< m_sMaxWeight
 				<< m_iMaxHp << m_iMaxMp
-				<< getStatBonusTotal(STAT_STR) << getStatBonusTotal(STAT_STA)
-				<< getStatBonusTotal(STAT_DEX) << getStatBonusTotal(STAT_INT)
-				<< getStatBonusTotal(STAT_CHA)
+				<< GetStatBonusTotal(STAT_STR) << GetStatBonusTotal(STAT_STA)
+				<< GetStatBonusTotal(STAT_DEX) << GetStatBonusTotal(STAT_INT)
+				<< GetStatBonusTotal(STAT_CHA)
 				<< uint16(m_bFireR + m_bResistanceBonus) << uint16(m_bColdR + m_bResistanceBonus) << uint16(m_bLightningR + m_bResistanceBonus) 
 				<< uint16(m_bMagicR + m_bResistanceBonus) << uint16(m_bDiseaseR + m_bResistanceBonus) << uint16(m_bPoisonR + m_bResistanceBonus);
 	}
@@ -2873,7 +2873,7 @@ void CUser::AllPointChange()
 	}
 	
 	// It's 300-10 for clarity (the 10 being the stat points assigned on char creation)
-	if (getStatTotal() == 290)
+	if (GetStatTotal() == 290)
 	{
 		bResult = 2; // don't need to reallocate stats, it has been done already...
 		goto fail_return;
@@ -2883,58 +2883,58 @@ void CUser::AllPointChange()
 	switch (m_bRace)
 	{
 	case KARUS_BIG:	
-		setStat(STAT_STR, 65);
-		setStat(STAT_STA, 65);
-		setStat(STAT_DEX, 60);
-		setStat(STAT_INT, 50);
-		setStat(STAT_CHA, 50);
+		SetStat(STAT_STR, 65);
+		SetStat(STAT_STA, 65);
+		SetStat(STAT_DEX, 60);
+		SetStat(STAT_INT, 50);
+		SetStat(STAT_CHA, 50);
 		break;
 	case KARUS_MIDDLE:
-		setStat(STAT_STR, 65);
-		setStat(STAT_STA, 65);
-		setStat(STAT_DEX, 60);
-		setStat(STAT_INT, 50);
-		setStat(STAT_CHA, 50);
+		SetStat(STAT_STR, 65);
+		SetStat(STAT_STA, 65);
+		SetStat(STAT_DEX, 60);
+		SetStat(STAT_INT, 50);
+		SetStat(STAT_CHA, 50);
 		break;
 	case KARUS_SMALL:
-		setStat(STAT_STR, 50);
-		setStat(STAT_STA, 50);
-		setStat(STAT_DEX, 70);
-		setStat(STAT_INT, 70);
-		setStat(STAT_CHA, 50);
+		SetStat(STAT_STR, 50);
+		SetStat(STAT_STA, 50);
+		SetStat(STAT_DEX, 70);
+		SetStat(STAT_INT, 70);
+		SetStat(STAT_CHA, 50);
 		break;
 	case KARUS_WOMAN:
-		setStat(STAT_STR, 50);
-		setStat(STAT_STA, 60);
-		setStat(STAT_DEX, 60);
-		setStat(STAT_INT, 60);
-		setStat(STAT_CHA, 50);
+		SetStat(STAT_STR, 50);
+		SetStat(STAT_STA, 60);
+		SetStat(STAT_DEX, 60);
+		SetStat(STAT_INT, 60);
+		SetStat(STAT_CHA, 50);
 		break;
 	case BABARIAN:
-		setStat(STAT_STR, 65);
-		setStat(STAT_STA, 65);
-		setStat(STAT_DEX, 60);
-		setStat(STAT_INT, 50);
-		setStat(STAT_CHA, 50);
+		SetStat(STAT_STR, 65);
+		SetStat(STAT_STA, 65);
+		SetStat(STAT_DEX, 60);
+		SetStat(STAT_INT, 50);
+		SetStat(STAT_CHA, 50);
 		break;
 	case ELMORAD_MAN:
-		setStat(STAT_STR, 60);
-		setStat(STAT_STA, 60);
-		setStat(STAT_DEX, 70);
-		setStat(STAT_INT, 50);
-		setStat(STAT_CHA, 50);
+		SetStat(STAT_STR, 60);
+		SetStat(STAT_STA, 60);
+		SetStat(STAT_DEX, 70);
+		SetStat(STAT_INT, 50);
+		SetStat(STAT_CHA, 50);
 		break;
 	case ELMORAD_WOMAN:
-		setStat(STAT_STR, 50);
-		setStat(STAT_STA, 50);
-		setStat(STAT_DEX, 70);
-		setStat(STAT_INT, 70);
-		setStat(STAT_CHA, 50);
+		SetStat(STAT_STR, 50);
+		SetStat(STAT_STA, 50);
+		SetStat(STAT_DEX, 70);
+		SetStat(STAT_INT, 70);
+		SetStat(STAT_CHA, 50);
 		break;
 	}
 
 	m_sPoints = (GetLevel() - 1) * 3 + 10;
-	ASSERT(getStatTotal() == 290);
+	ASSERT(GetStatTotal() == 290);
 
 	m_iGold = money;
 
@@ -2942,8 +2942,8 @@ void CUser::AllPointChange()
 	Send2AI_UserUpdateInfo();
 
 	result << uint8(1) // result (success)
-		<< m_iGold
-		<< getStat(STAT_STR) << getStat(STAT_STA) << getStat(STAT_DEX) << getStat(STAT_INT) << getStat(STAT_CHA)
+		<< GetCoins()
+		<< GetStat(STAT_STR) << GetStat(STAT_STA) << GetStat(STAT_DEX) << GetStat(STAT_INT) << GetStat(STAT_CHA)
 		<< m_iMaxHp << m_iMaxMp << m_sTotalHit << m_sMaxWeight << m_sPoints;
 	Send(&result);
 
@@ -3449,7 +3449,7 @@ void CUser::OnDeath(Unit *pKiller)
 
 	m_bResHpType = USER_DEAD;
 
-	if (getFame() == COMMAND_CAPTAIN)
+	if (GetFame() == COMMAND_CAPTAIN)
 	{
 		ChangeFame(CHIEF);
 		if (GetNation() == KARUS)
@@ -3522,7 +3522,7 @@ void CUser::SendClanUserStatusUpdate(bool bToRegion /*= true*/)
 {
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_MODIFY_FAME));
 	result	<< uint8(1) << GetSocketID() 
-			<< GetClanID() << getFame();
+			<< GetClanID() << GetFame();
 
 	// TO-DO: Make this region code user-specific to perform faster.
 	if (bToRegion)

@@ -1310,7 +1310,7 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 		pTUser->GoldGain(AWARD_GOLD);
 		pTUser->ExpChange(AWARD_EXP);
 
-		if (pTUser->getFame() == COMMAND_CAPTAIN)
+		if (pTUser->GetFame() == COMMAND_CAPTAIN)
 		{
 			if (pTUser->isKing())
 				pTUser->ChangeNP(500);
@@ -1338,7 +1338,7 @@ void CEbenezerDlg::BanishLosers()
 			continue;
 
 		// Reset captains
-		if (pUser->getFame() == COMMAND_CAPTAIN)
+		if (pUser->GetFame() == COMMAND_CAPTAIN)
 			pUser->ChangeFame(CHIEF);
 
 		// Kick out invaders
@@ -1460,7 +1460,7 @@ uint16 CEbenezerDlg::GetKnightsAllMembers(uint16 sClanID, Packet & result, uint1
 
 		CUser *pUser = p->pSession;
 		if (pUser != nullptr)
-			result << pUser->GetName() << pUser->getFame() << pUser->GetLevel() << pUser->m_sClass << uint8(1);
+			result << pUser->GetName() << pUser->GetFame() << pUser->GetLevel() << pUser->m_sClass << uint8(1);
 		else // normally just clan leaders see this, but we can be generous now.
 			result << pKnights->m_arKnightsUser[i].strUserName << uint8(0) << uint8(0) << uint16(0) << uint8(0);
 

@@ -85,7 +85,7 @@ void CUser::GetUserInfo(Packet & pkt)
 	pkt.SByte();
 
 	pkt		<< GetName()
-			<< uint16(GetNation()) << GetClanID() << getFame();
+			<< uint16(GetNation()) << GetClanID() << GetFame();
 
 	pKnights = g_pMain->GetClanPtr(GetClanID());
 	if (pKnights == nullptr)
