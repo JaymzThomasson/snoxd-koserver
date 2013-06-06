@@ -24,9 +24,9 @@ public:
 	bool Load(const char * lpFileName = nullptr);
 	void Save(const char * lpFileName = nullptr);
 
-	int GetInt(char* lpAppName, char* lpKeyName, const int nDefault);
-	bool GetBool(char* lpAppName, char* lpKeyName, const bool bDefault);
-	void GetString(char* lpAppName, char* lpKeyName, const char* lpDefault, std::string & lpOutString, bool bAllowEmptyStrings = true);
-	int SetInt(char* lpAppName, char* lpKeyName, const int nDefault);
-	int SetString(char* lpAppName, char* lpKeyName, const char* lpDefault);
+	int GetInt(const char* lpAppName, const char* lpKeyName, const int nDefault);
+	bool GetBool(const char* lpAppName, const char* lpKeyName, const bool bDefault);
+	void GetString(const char* lpAppName, const char* lpKeyName, const char* lpDefault, std::string & lpOutString, bool bAllowEmptyStrings = true);
+	int SetInt(const char* lpAppName, const char* lpKeyName, const int nDefault);
+	int SetString(const char* lpAppName, const char* lpKeyName, const char* lpDefault);
 };
