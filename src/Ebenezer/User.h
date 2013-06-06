@@ -656,6 +656,7 @@ public:
 	void SendServerIndex();
 
 	void SendToRegion(Packet *pkt, CUser *pExceptUser = nullptr);
+	void SendToZone(Packet *pkt, CUser *pExceptUser = nullptr);
 
 	virtual void OnDeath(Unit *pKiller);
 	void UpdateAngerGauge(uint8 byAngerGauge);

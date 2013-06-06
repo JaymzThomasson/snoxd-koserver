@@ -485,6 +485,41 @@ void CEbenezerDlg::AIServerConnect()
 	}
 }
 
+/**
+ * @brief	Sends a packet to all players in the specified zone
+ * 			matching the specified criteria.
+ *
+ * @param	pkt		   	The packet.
+ * @param	sZoneID	   	Zone's identifier.
+ * @param	pExceptUser	User to except. If specified, will ignore this user.
+ * @param	nation	   	Nation to allow. If unspecified, will default to Nation::ALL 
+ * 						which will send to all/both nations.
+ */
+void CEbenezerDlg::Send_Zone(Packet *pkt, uint16 sZoneID, CUser* pExceptUser /*= nullptr*/, uint8 nation /*= 0*/)
+{
+	SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
+	{
+		CUser * pUser = TO_USER(itr->second);
+		if (pUser == pExceptUser 
+			|| !pUser->isInGame()
+			|| pUser->GetZoneID() != sZoneID
+			|| (nation != Nation::ALL && nation != pUser->GetNation()))
+			continue;
+
+		pUser->Send(pkt);
+	}
+	g_pMain->m_socketMgr.ReleaseLock();
+}
+
+/**
+ * @brief	Sends a packet to all users connected and logged into the server.
+ *
+ * @param	pkt		   	The packet.
+ * @param	pExceptUser	User to except. If specified, will ignore this user.
+ * @param	nation	   	Nation to allow. If unspecified, will default to Nation::ALL 
+ * 						which will send to all/both nations.
+ */
 void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= nullptr*/, uint8 nation /*= 0*/)
 {
 	SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
@@ -493,7 +528,7 @@ void CEbenezerDlg::Send_All(Packet *pkt, CUser* pExceptUser /*= nullptr*/, uint8
 		CUser * pUser = TO_USER(itr->second);
 		if (pUser == pExceptUser 
 			|| !pUser->isInGame()
-			|| (nation != 0 && nation != pUser->GetNation()))
+			|| (nation != Nation::ALL && nation != pUser->GetNation()))
 			continue;
 
 		pUser->Send(pkt);

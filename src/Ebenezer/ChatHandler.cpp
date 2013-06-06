@@ -243,7 +243,7 @@ void CUser::SendDeathNotice(CUser * pKiller, DeathNoticeType noticeType)
 			<< GetName()
 			<< uint16(GetX()) << uint16(GetZ());
 
-	SendToRegion(&result); // TO-DO: Should send to all users in a zone.
+	SendToZone(&result);
 }
 
 bool CUser::ProcessChatCommand(std::string & message)
