@@ -72,12 +72,7 @@ CEbenezerDlg::CEbenezerDlg()
 	m_nServerGroup = 0;
 	m_sDiscount = 0;
 	
-	memset( m_AIServerIP, 0, 20 );
-
 	m_bPermanentChatMode = false;
-	memset( m_strKarusCaptain, 0x00, MAX_ID_SIZE+1 );
-	memset( m_strElmoradCaptain, 0x00, MAX_ID_SIZE+1 );
-
 	m_bSantaOrAngel = FLYING_NONE;
 }
 
@@ -144,24 +139,17 @@ void CEbenezerDlg::GetTimeFromIni()
 	CIni ini(CONF_GAME_SERVER);
 	int year=0, month=0, date=0, hour=0, server_count=0, sgroup_count = 0, i=0;
 	char ipkey[20];
-	char temp[64];
 
 	// This is so horrible.
-	ini.GetString("ODBC", "GAME_DSN", "KN_online", temp, sizeof(temp), false);
-	m_strGameDSN = temp;
-	ini.GetString("ODBC", "GAME_UID", "knight", temp, sizeof(temp), false);
-	m_strGameUID = temp;
-	ini.GetString("ODBC", "GAME_PWD", "knight", temp, sizeof(temp), false);
-	m_strGamePWD = temp;
+	ini.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, false);
+	ini.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, false);
+	ini.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, false);
 
 	m_bMarsEnabled = ini.GetBool("ODBC", "GAME_MARS", true);
 
-	ini.GetString("ODBC", "ACCOUNT_DSN", "KN_online", temp, sizeof(temp), false);
-	m_strAccountDSN = temp;
-	ini.GetString("ODBC", "ACCOUNT_UID", "knight", temp, sizeof(temp), false);
-	m_strAccountUID = temp;
-	ini.GetString("ODBC", "ACCOUNT_PWD", "knight", temp, sizeof(temp), false);
-	m_strAccountPWD = temp;
+	ini.GetString("ODBC", "ACCOUNT_DSN", "KN_online", m_strAccountDSN, false);
+	ini.GetString("ODBC", "ACCOUNT_UID", "knight", m_strAccountUID, false);
+	ini.GetString("ODBC", "ACCOUNT_PWD", "knight", m_strAccountPWD, false);
 
 	bool bMarsEnabled = ini.GetBool("ODBC", "ACCOUNT_MARS", true);
 
@@ -189,16 +177,18 @@ void CEbenezerDlg::GetTimeFromIni()
 		return;
 	}
 
-	for( i=0; i<server_count; i++ ) {
+	for (i = 0; i < server_count; i++)
+	{
 		_ZONE_SERVERINFO *pInfo = new _ZONE_SERVERINFO;
-		sprintf( ipkey, "SERVER_%02d", i );
+		sprintf(ipkey, "SERVER_%02d", i);
 		pInfo->sServerNo = ini.GetInt("ZONE_INFO", ipkey, 1);
-		sprintf( ipkey, "SERVER_IP_%02d", i );
-		ini.GetString("ZONE_INFO", ipkey, "127.0.0.1", pInfo->strServerIP, sizeof(pInfo->strServerIP));
+		sprintf(ipkey, "SERVER_IP_%02d", i);
+		ini.GetString("ZONE_INFO", ipkey, "127.0.0.1", pInfo->strServerIP);
 		m_ServerArray.PutData(pInfo->sServerNo, pInfo);
 	}
 
-	if( m_nServerGroup != 0 )	{
+	if (m_nServerGroup != 0)
+	{
 		m_nServerGroupNo = ini.GetInt("SG_INFO", "GMY_INFO", 1);
 		sgroup_count = ini.GetInt("SG_INFO", "GSERVER_COUNT", 1);
 		if (server_count < 1)
@@ -206,18 +196,20 @@ void CEbenezerDlg::GetTimeFromIni()
 			printf("ERROR: Invalid GSERVER_COUNT property in INI.\n");
 			return;
 		}
-		for( i=0; i<sgroup_count; i++ ) {
+
+		for (i = 0; i < sgroup_count; i++)
+		{
 			_ZONE_SERVERINFO *pInfo = new _ZONE_SERVERINFO;
-			sprintf( ipkey, "GSERVER_%02d", i );
+			sprintf(ipkey, "GSERVER_%02d",i );
 			pInfo->sServerNo = ini.GetInt("SG_INFO", ipkey, 1);
-			sprintf( ipkey, "GSERVER_IP_%02d", i );
-			ini.GetString("SG_INFO", ipkey, "127.0.0.1", pInfo->strServerIP, sizeof(pInfo->strServerIP));
+			sprintf(ipkey, "GSERVER_IP_%02d", i);
+			ini.GetString("SG_INFO", ipkey, "127.0.0.1", pInfo->strServerIP);
 
 			m_ServerGroupArray.PutData(pInfo->sServerNo, pInfo);
 		}
 	}
 
-	ini.GetString("AI_SERVER", "IP", "127.0.0.1", m_AIServerIP, sizeof(m_AIServerIP));
+	ini.GetString("AI_SERVER", "IP", "127.0.0.1", m_AIServerIP);
 
 	g_timerThreads.push_back(new Thread(Timer_UpdateGameTime));
 	g_timerThreads.push_back(new Thread(Timer_CheckAliveUser));
@@ -473,7 +465,7 @@ void CEbenezerDlg::AIServerConnect()
 	{
 		CAISocket *pSock = static_cast<CAISocket *>(itr->second);
 		bool bReconnecting = pSock->IsReconnecting();
-		if (!pSock->Connect(m_AIServerIP, port)) // couldn't connect... let's leave you alone for now
+		if (!pSock->Connect(m_AIServerIP.c_str(), port)) // couldn't connect... let's leave you alone for now
 			continue;
 
 		// Connected! Now send the connection packet.
@@ -1436,16 +1428,16 @@ void CEbenezerDlg::Announcement(uint8 type, int nation, int chat_type)
 			GetServerResource(IDS_BATTLE_CLOSE, &chatstr);
 			break;
 		case KARUS_CAPTAIN_NOTIFY:
-			GetServerResource(IDS_KARUS_CAPTAIN, &chatstr);
+			GetServerResource(IDS_KARUS_CAPTAIN, &chatstr, m_strKarusCaptain.c_str());
 			break;
 		case ELMORAD_CAPTAIN_NOTIFY:
-			GetServerResource(IDS_ELMO_CAPTAIN, &chatstr, m_strElmoradCaptain);
+			GetServerResource(IDS_ELMO_CAPTAIN, &chatstr, m_strElmoradCaptain.c_str());
 			break;
 		case KARUS_CAPTAIN_DEPRIVE_NOTIFY:
-			GetServerResource(IDS_KARUS_CAPTAIN_DEPRIVE, &chatstr, m_strKarusCaptain);
+			GetServerResource(IDS_KARUS_CAPTAIN_DEPRIVE, &chatstr, m_strKarusCaptain.c_str());
 			break;
 		case ELMORAD_CAPTAIN_DEPRIVE_NOTIFY:
-			GetServerResource(IDS_ELMO_CAPTAIN_DEPRIVE, &chatstr, m_strElmoradCaptain);
+			GetServerResource(IDS_ELMO_CAPTAIN_DEPRIVE, &chatstr, m_strElmoradCaptain.c_str());
 			break;
 	}
 

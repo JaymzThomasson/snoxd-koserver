@@ -346,8 +346,7 @@ struct	_PARTY_GROUP
 struct _ZONE_SERVERINFO
 {
 	short		sServerNo;
-	char		strServerIP[20];
-	_ZONE_SERVERINFO() {memset(strServerIP, 0x00, 20);};
+	std::string	strServerIP;
 };
 
 struct _HOME_INFO

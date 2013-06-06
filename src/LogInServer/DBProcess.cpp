@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-bool CDBProcess::Connect(TCHAR *szDSN, TCHAR *szUser, TCHAR *szPass)
+bool CDBProcess::Connect(string & szDSN, string & szUser, string & szPass)
 {
 	if (!m_dbConnection.Connect(szDSN, szUser, szPass))
 	{

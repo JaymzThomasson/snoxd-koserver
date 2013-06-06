@@ -208,7 +208,7 @@ fail_return:
 	Send(&result);
 }
 
-void CUser::SendServerChange(char *ip, uint8 bInit)
+void CUser::SendServerChange(std::string & ip, uint8 bInit)
 {
 	Packet result(WIZ_SERVER_CHANGE);
 	result << ip << uint16(_LISTEN_PORT) << bInit << GetZoneID() << g_pMain->m_byOldVictory;

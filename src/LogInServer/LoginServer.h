@@ -13,8 +13,8 @@ public:
 	LoginServer();
 
 	INLINE short GetVersion() { return m_sLastVersion; };
-	INLINE char * GetFTPUrl() { return m_strFtpUrl; };
-	INLINE char * GetFTPPath() { return m_strFilePath; };
+	INLINE std::string & GetFTPUrl() { return m_strFtpUrl; };
+	INLINE std::string & GetFTPPath() { return m_strFilePath; };
 
 	INLINE News * GetNews() { return &m_news; };
 
@@ -32,8 +32,8 @@ private:
 	void WriteLogFile(std::string & logMessage);
 	void ReportSQLError(OdbcError *pError);
 
-	char	m_strFtpUrl[256], m_strFilePath[256];
-	char	m_ODBCName[32], m_ODBCLogin[32], m_ODBCPwd[32];
+	std::string m_strFtpUrl, m_strFilePath;
+	std::string m_ODBCName, m_ODBCLogin, m_ODBCPwd;
 	short	m_sLastVersion;
 
 	VersionInfoList		m_VersionList;
