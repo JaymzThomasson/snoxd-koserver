@@ -289,16 +289,19 @@ bool CUser::RobItem(uint32 itemid, uint16 count)
 			|| m_sItemArray[i].sCount < count)
 			continue;
 
-		pItem->sCount -= count;
+		// Consumable "scrolls" (with some exceptions) use the duration/durability as a usage count
+		// instead of the stack size. Interestingly, the client shows this instead of the stack size in this case.
+		bool bIsConsumableScroll = (pTable->m_bKind == 255); /* include 97? not sure how accurate this check is... */
+		if (bIsConsumableScroll)
+			pItem->sDuration -= count;
+		else
+			pItem->sCount -= count;
 
-		// This is a hackfix to ensure the duration is tweaked as well as the count
-		// for those special items that use this instead.
-		// This may or may not be accurate.
-		if (pTable->m_bKind == 255)
-			pItem->sDuration = pItem->sCount;
-
-		if (pItem->sCount == 0)
-			memset(&m_sItemArray[i], 0, sizeof(_ITEM_DATA));
+		// Delete the item if the stack's now 0
+		// or if the item is a consumable scroll and its "duration"/use count is now 0.
+		if (pItem->sCount == 0 
+			|| (bIsConsumableScroll && pItem->sDuration == 0))
+			memset(pItem, 0, sizeof(_ITEM_DATA));
 
 		SendStackChange(itemid, pItem->sCount, pItem->sDuration, i - SLOT_MAX);
 		return true;
