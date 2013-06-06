@@ -55,7 +55,7 @@ public:
 private:
 	void AddCommand(OdbcCommand *dbCommand);
 	void RemoveCommand(OdbcCommand *dbCommand);
-	tstring ReportSQLError(SQLSMALLINT handleType, SQLHANDLE handle, TCHAR *szSource, TCHAR *szError, ...);
+	tstring ReportSQLError(SQLSMALLINT handleType, SQLHANDLE handle, const TCHAR *szSource, const TCHAR *szError, ...);
 
 	void Close();
 	void ResetHandles();
