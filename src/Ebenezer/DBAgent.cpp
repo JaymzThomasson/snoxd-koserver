@@ -62,6 +62,8 @@ bool CDBAgent::Connect(bool bMarsEnabled,
 		return false;
 	}
 
+	// If MARS was turned off as it could not be used, don't bother trying it again.
+	bMarsEnabled = m_AccountDB->isMarsEnabled();
 	if (!m_GameDB->Connect(strGameDSN, strGameUID, strGamePWD, bMarsEnabled))
 	{
 		ReportSQLError(m_GameDB->GetError());

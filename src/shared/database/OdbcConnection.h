@@ -5,6 +5,15 @@
 #include <sqlext.h>
 #include <set>
 
+// MARS settings from sqlncli.h
+#ifndef SQL_COPT_SS_MARS_ENABLED
+#	define SQL_COPT_SS_MARS_ENABLED 1224
+#endif
+
+#ifndef SQL_MARS_ENABLED_YES
+#	define SQL_MARS_ENABLED_YES (SQLPOINTER)1
+#endif
+
 #include "../tstring.h"
 
 struct OdbcError

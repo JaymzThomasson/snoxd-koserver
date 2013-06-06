@@ -37,7 +37,7 @@ bool OdbcConnection::Connect(tstring szDSN, tstring szUser, tstring szPass, bool
 
 bool OdbcConnection::Connect()
 {
-	if (m_szDSN.length() == 0)
+	if (m_szDSN.empty())
 		return false;
 
 	FastGuard lock(m_lock);
@@ -77,7 +77,21 @@ bool OdbcConnection::Connect()
 
 	// Enable multiple active result sets
 	if (m_bMarsEnabled)
-		szConn += _T("MARS_Connection=yes;");
+	{
+		if (!SQL_SUCCEEDED(SQLSetConnectAttr(m_connHandle, SQL_COPT_SS_MARS_ENABLED, SQL_MARS_ENABLED_YES, SQL_IS_UINTEGER)))
+		{
+			printf("** WARNING **\n\n");
+			printf("Attempted to used MARS (Multiple Active Result Sets), but this\n");
+			printf("feature is not supported by your ODBC driver or SQL Server version.\n\n");
+			printf("To benefit from MARS, you need to be using at least SQL Server 2005, and at\n");
+			printf("least the 'SQL Native Client' ODBC driver (as opposed to the vastly outdated\n'SQL Server' driver).\n\n");
+			printf("Continuing to connect without MARS.\n\n");
+			m_bMarsEnabled = false;
+		}
+
+		// NOTE: We can enable MARS via specifying the following, but we are unable to detect if it's supported this way.
+		// szConn += _T("MARS_Connection=yes;");
+	}
 
 	if (!SQL_SUCCEEDED(SQLDriverConnect(m_connHandle, SQL_NULL_HANDLE, (SQLTCHAR *)szConn.c_str(), SQL_NTS, 0, 0, 0, 0)))
 	{
