@@ -17,6 +17,7 @@ void StartTimeThread()
 
 void CleanupTimeThread()
 {
+	g_bRunningThread = false;
 	s_timeThread.waitForExit();
 }
 
