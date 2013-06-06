@@ -124,7 +124,7 @@ bool CIni::GetBool(char* lpAppName, char* lpKeyName, bool bDefault)
 	return GetInt(lpAppName, lpKeyName, bDefault) == 1;
 }
 
-void CIni::GetString(char* lpAppName, char* lpKeyName, char* lpDefault, char *lpOutString, int nOutLength, bool bAllowEmptyStrings /*= true */)
+void CIni::GetString(char* lpAppName, char* lpKeyName, char* lpDefault, std::string & lpOutString, bool bAllowEmptyStrings /*= true*/)
 {
 	ConfigMap::iterator sectionItr = m_configMap.find(lpAppName);
 	if (sectionItr != m_configMap.end())
@@ -132,13 +132,13 @@ void CIni::GetString(char* lpAppName, char* lpKeyName, char* lpDefault, char *lp
 		ConfigEntryMap::iterator keyItr = sectionItr->second.find(lpKeyName);
 		if (keyItr != sectionItr->second.end())
 		{
-			strncpy(lpOutString, keyItr->second.c_str(), nOutLength);
+			lpOutString = keyItr->second;
 			return;
 		}
 	}
 
 	SetString(lpAppName, lpKeyName, lpDefault);
-	strncpy(lpOutString, lpDefault, nOutLength);
+	lpOutString = lpDefault;
 }
 
 int CIni::SetInt(char* lpAppName, char* lpKeyName, int nDefault)
