@@ -17,8 +17,10 @@ void StartTimeThread()
 
 void CleanupTimeThread()
 {
+	printf("Waiting for time thread to shutdown...");
 	g_bRunningThread = false;
 	s_timeThread.waitForExit();
+	printf(" done.\n");
 }
 
 uint32 THREADCALL TimeThread(void * lpParam)

@@ -874,30 +874,41 @@ CServerDlg::~CServerDlg()
 {
 	g_bNpcExit = true;
 
+	printf("Waiting for NPC threads to exit...");
 	foreach (itr, m_arNpcThread)
+	{
 		(*itr)->m_thread.waitForExit();
+		delete (*itr);
+	}
+	m_arNpcThread.clear();
+	printf(" exited.\n");
 
+	printf("Waiting for zone event thread to exit...");
 	m_zoneEventThread.waitForExit();
+	printf(" exited.\n");
 
+	printf("Waiting for timer threads to exit...");
 	foreach (itr, g_timerThreads)
 	{
 		(*itr)->waitForExit();
 		delete (*itr);
 	}
+	printf(" exited.\n");
 
-	// NpcThread Array Delete
-	foreach (itr, m_arNpcThread)
-		delete *itr;
-	m_arNpcThread.clear();
-
-	// User Array Delete
-	for(int i = 0; i < MAX_USER; i++)	{
-		if(m_pUser[i])	{
+	printf("Freeing user sessions...");
+	for (int i = 0; i < MAX_USER; i++)
+	{
+		if (m_pUser[i] != nullptr)
+		{
 			delete m_pUser[i];
 			m_pUser[i] = nullptr;
 		}
 	}
+	printf(" done.\n");
 
 	m_ZoneNpcList.clear();
+
+	printf("Shutting down socket system...");
 	m_socketMgr.Shutdown();
+	printf(" done.\n");
 }
