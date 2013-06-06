@@ -112,12 +112,15 @@ public:
 	{
 		// prevent a race condition here.
 		bool mo = m_opened;
+
 		m_opened = false;
+		m_threadRunning = false;
+
+		resume();
 
 		if (mo)
 			SocketOps::CloseSocket(m_socket);
 
-		m_threadRunning = false;
 		m_thread.waitForExit();
 	}
 
