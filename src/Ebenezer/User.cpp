@@ -3511,9 +3511,29 @@ void CUser::NativeZoneReturn()
 	}
 }
 
+/**
+ * @brief	Sends a packet to all players within the 
+ * 			user's current region and surrounding regions 
+ * 			(i.e. visible area)
+ *
+ * @param	pkt		   	The packet.
+ * @param	pExceptUser	The except user.
+ */
 void CUser::SendToRegion(Packet *pkt, CUser *pExceptUser /*= nullptr*/)
 {
 	g_pMain->Send_Region(pkt, GetMap(), GetRegionX(), GetRegionZ(), pExceptUser);
+}
+
+/**
+ * @brief	Sends a packet to all players within the 
+ * 			user's current zone.
+ *
+ * @param	pkt		   	The packet.
+ * @param	pExceptUser	The except user.
+ */
+void CUser::SendToZone(Packet *pkt, CUser *pExceptUser /*= nullptr*/)
+{
+	g_pMain->Send_Zone(pkt, GetZoneID(), pExceptUser);
 }
 
 void CUser::OnDeath(Unit *pKiller)
