@@ -20,7 +20,7 @@ bool OdbcConnection::isError()
 	return (!m_odbcErrors.empty());
 }
 
-bool OdbcConnection::Connect(tstring szDSN, tstring szUser, tstring szPass, bool bMarsEnabled /*= true*/)
+bool OdbcConnection::Connect(tstring & szDSN, tstring & szUser, tstring & szPass, bool bMarsEnabled /*= true*/)
 {
 	m_szDSN = szDSN;
 	m_szUser = szUser;

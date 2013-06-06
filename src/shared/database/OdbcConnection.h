@@ -40,7 +40,7 @@ public:
 	INLINE bool isMarsEnabled() { return m_bMarsEnabled; }
 
 
-	bool Connect(tstring szDSN, tstring szUser, tstring szPass, bool bMarsEnabled = true);
+	bool Connect(tstring & szDSN, tstring & szUser, tstring & szPass, bool bMarsEnabled = true);
 	bool Connect();
 
 	OdbcCommand *CreateCommand();
