@@ -18,7 +18,7 @@ bool CIni::Load(const char * lpFilename /*= nullptr*/)
 	std::ifstream file(fn);
 	if (!file)
 	{
-		printf("Error: Unable to load config from file:\n%s\n", fn);
+		printf("Warning: %s does not exist, will use configured defaults.\n", fn);
 		return false;
 	}
 
