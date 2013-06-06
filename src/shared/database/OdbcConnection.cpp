@@ -25,7 +25,12 @@ bool OdbcConnection::Connect(tstring szDSN, tstring szUser, tstring szPass, bool
 	m_szDSN = szDSN;
 	m_szUser = szUser;
 	m_szPass = szPass;
+
+#ifdef WIN32
 	m_bMarsEnabled = bMarsEnabled;
+#else // MARS is not supported by FreeTDS
+	m_bMarsEnabled = false;
+#endif
 
 	return Connect();
 }
