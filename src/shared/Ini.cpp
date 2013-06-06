@@ -1,24 +1,17 @@
 #include "stdafx.h"
 #include "Ini.h"
-
-#ifdef USE_CUSTOM_INI_PARSER
 #include <iostream>
 #include <fstream>
 #include "tstring.h"
-#endif
 
 #define INI_BUFFER 512
 
 CIni::CIni(const char *lpFilename)
 {
 	m_szFileName = lpFilename;
-
-#ifdef USE_CUSTOM_INI_PARSER
 	Load(lpFilename);
-#endif
 }
 
-#ifdef USE_CUSTOM_INI_PARSER
 bool CIni::Load(const char * lpFilename /*= nullptr*/)
 {
 	const char * fn = (lpFilename == nullptr ? m_szFileName.c_str() : lpFilename);
@@ -112,11 +105,8 @@ void CIni::Save(const char * lpFilename /*= nullptr*/)
 	fclose(fp);
 }
 
-#endif
-
 int CIni::GetInt(char* lpAppName, char* lpKeyName, int nDefault)
 {
-#ifdef USE_CUSTOM_INI_PARSER
 	ConfigMap::iterator sectionItr = m_configMap.find(lpAppName);
 	if (sectionItr != m_configMap.end())
 	{
@@ -127,18 +117,6 @@ int CIni::GetInt(char* lpAppName, char* lpKeyName, int nDefault)
 
 	SetInt(lpAppName, lpKeyName, nDefault);
 	return nDefault;
-#else
-	char tmp[INI_BUFFER];
-	GetPrivateProfileInt(lpAppName, lpKeyName,nDefault, m_szFileName.c_str());
-	if (!GetPrivateProfileString(lpAppName, lpKeyName, "", tmp, INI_BUFFER, m_szFileName.c_str()))
-	{
-		_snprintf(tmp, INI_BUFFER, "%d", nDefault);
-		WritePrivateProfileString(lpAppName, lpKeyName, tmp, m_szFileName.c_str());
-		return nDefault;
-	}
-
-	return GetPrivateProfileInt(lpAppName, lpKeyName, nDefault, m_szFileName.c_str());
-#endif
 }
 
 bool CIni::GetBool(char* lpAppName, char* lpKeyName, bool bDefault)
@@ -148,7 +126,6 @@ bool CIni::GetBool(char* lpAppName, char* lpKeyName, bool bDefault)
 
 void CIni::GetString(char* lpAppName, char* lpKeyName, char* lpDefault, char *lpOutString, int nOutLength, bool bAllowEmptyStrings /*= true */)
 {
-#ifdef USE_CUSTOM_INI_PARSER
 	ConfigMap::iterator sectionItr = m_configMap.find(lpAppName);
 	if (sectionItr != m_configMap.end())
 	{
@@ -162,14 +139,6 @@ void CIni::GetString(char* lpAppName, char* lpKeyName, char* lpDefault, char *lp
 
 	SetString(lpAppName, lpKeyName, lpDefault);
 	strncpy(lpOutString, lpDefault, nOutLength);
-#else
-	if (!GetPrivateProfileString(lpAppName, lpKeyName, "", lpOutString, nOutLength, m_szFileName.c_str())
-		|| (!bAllowEmptyStrings && lpOutString[0] == 0))
-	{
-		WritePrivateProfileString(lpAppName, lpKeyName, lpDefault, m_szFileName.c_str());
-		strncpy(lpOutString, lpDefault, nOutLength);
-	}
-#endif
 }
 
 int CIni::SetInt(char* lpAppName, char* lpKeyName, int nDefault)
@@ -181,7 +150,6 @@ int CIni::SetInt(char* lpAppName, char* lpKeyName, int nDefault)
 
 int CIni::SetString(char* lpAppName, char* lpKeyName, char* lpDefault)
 {
-#ifdef USE_CUSTOM_INI_PARSER
 	ConfigMap::iterator itr = m_configMap.find(lpAppName);
 	if (itr == m_configMap.end())
 	{
@@ -191,7 +159,4 @@ int CIni::SetString(char* lpAppName, char* lpKeyName, char* lpDefault)
 	itr->second[lpKeyName] = lpDefault;
 	Save();
 	return 1;
-#else
-	return WritePrivateProfileString(lpAppName, lpKeyName, lpDefault, m_szFileName.c_str());
-#endif
 }
