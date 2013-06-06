@@ -34,7 +34,7 @@ void DatabaseThread::AddRequest(Packet * pkt)
 
 uint32 THREADCALL DatabaseThread::ThreadProc(void * lpParam)
 {
-	while (_running)
+	while (true)
 	{
 		Packet *p = nullptr;
 
@@ -50,6 +50,10 @@ uint32 THREADCALL DatabaseThread::ThreadProc(void * lpParam)
 		// If there's no more packets to handle, wait until there are.
 		if (p == nullptr)
 		{
+			// If we're shutting down, don't bother waiting for more (there are no more).
+			if (!_running)
+				break;
+
 			s_hEvent.Wait();
 			continue;
 		}
