@@ -3791,15 +3791,33 @@ bool CUser::CanAttack(Unit * pTarget)
 	return false;
 }
 
+/**
+ * @brief	Determine if we can use the specified item
+ * 			via the magic/skill system.
+ *
+ * @param	itemid	The ID of the item.
+ * @param	count 	Stack (can probably disregard, as it's always 1).
+ *
+ * @return	true if we can use item, false if not.
+ */
 bool CUser::CanUseItem(uint32 itemid, uint16 count)
 {
 	_ITEM_TABLE* pItem = pItem = g_pMain->GetItemPtr(itemid);
-	return (pItem != nullptr
-		// Check the item's class requirement
-		|| (pItem->m_bClass == 0 || JobGroupCheck(pItem->m_bClass))
+	if (pItem == nullptr)
+		return false;
+
+	// Disable scroll usage while transformed.
+	if (isTransformed() && (pItem->GetKind() == 255 || pItem->GetKind() == 97))
+		return false;
+
+	// Check the item's class requirement
+	if ((pItem->m_bClass == 0 || JobGroupCheck(pItem->m_bClass))
 		// Check the item's level requirement
 		|| (pItem->m_bReqLevel <= GetLevel() && pItem->m_bReqLevelMax >= GetLevel())
-		|| CheckExistItem(itemid, count));
+		|| CheckExistItem(itemid, count))
+		return false;
+
+	return true;
 }
 
 void CUser::SendUserStatusUpdate(UserStatus type, UserStatusBehaviour status)
