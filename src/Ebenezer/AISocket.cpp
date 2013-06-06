@@ -372,7 +372,7 @@ void CAISocket::RecvMagicAttackResult(Packet & pkt)
 
 		// If we're an NPC, casting a skill (rather, it's finished casting) on a player...
 		pkt.rpos(0);
-		CMagicProcess::MagicPacket(pkt, false);
+		CMagicProcess::MagicPacket(pkt);
 	}
 	
 }
