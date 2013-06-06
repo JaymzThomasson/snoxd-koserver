@@ -2,6 +2,7 @@
 
 class CUser;
 class CEbenezerDlg;
+class CKnights;
 class Packet;
 
 class CKnightsManager  
@@ -20,6 +21,13 @@ public:
 	static void RequestClanSymbolVersion(CUser* pUser, Packet & pkt);
 	static void RequestClanSymbols(CUser* pUser, Packet & pkt);
 	static void GetClanSymbol(CUser* pUser, uint16 sClanID);
+	static bool CheckAlliance(CKnights * pMainClan, CKnights * pTargetClan);
+	static void KnightsAllianceCreate(CUser* pUser, Packet & pkt);
+	static void KnightsAllianceRequest(CUser* pUser, Packet & pkt);
+	static void KnightsAllianceInsert(CUser* pUser, Packet & pkt);
+	static void KnightsAllianceRemove(CUser* pUser, Packet & pkt);
+	static void KnightsAlliancePunish(CUser* pUser, Packet & pkt);
+	static void KnightsAllianceList(CUser* pUser, Packet & pkt);
 	static void ListTop10Clans(CUser *pUser);
 	static void DonateNPReq(CUser *pUser, Packet & pkt);
 	static void DonateNP(CUser *pUser, Packet & pkt);
