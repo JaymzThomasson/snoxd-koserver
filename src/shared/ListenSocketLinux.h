@@ -18,7 +18,7 @@ class ListenSocket : public ListenSocketBase
 {
 public:
 	ListenSocket(SocketMgr * mgr, const char * ListenAddress, uint32 Port) 
-		: ListenSocketBase(), m_socketMgr(mgr)
+		: ListenSocketBase(), m_socketMgr(mgr), m_bSuspended(false)
     {
 		m_socket = socket(AF_INET, SOCK_STREAM, 0);
         SocketOps::ReuseAddr(m_socket);
@@ -63,8 +63,8 @@ public:
     }
 
 	bool run() {}
-	void suspend() {}
-	void resume() {}
+	void suspend() { m_bSuspended = true; }
+	void resume() { m_bSuspended = false; }
 
     void Close()
     {
@@ -78,6 +78,13 @@ public:
 		SOCKET aSocket = accept(m_socket, (sockaddr*)&m_tempAddress, (socklen_t*)&len);
 		if (aSocket == -1)
 			return;
+
+		// If we're not accepting new connections, just drop the connection.
+		if (m_bSuspended)
+		{
+			SocketOps::CloseSocket(aSocket);
+			return;
+		}
 
 		Socket * socket = m_socketMgr->AssignSocket(aSocket);
 		if (socket == nullptr)
@@ -98,6 +105,7 @@ private:
     struct sockaddr_in m_tempAddress;
     bool m_opened;
     uint32 len;
+	bool m_bSuspended;
 };
 
 #endif
