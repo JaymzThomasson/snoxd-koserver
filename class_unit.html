@@ -165,9 +165,9 @@ INLINE <a class="el" href="class_c_region.html">CRegion</a> *&#160;</td><td clas
 <tr class="memitem:a0511b4d9b66a73626622490304e23194"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0511b4d9b66a73626622490304e23194"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SetRegion</b> (uint16 x=-1, uint16 z=-1)</td></tr>
 <tr class="separator:a0511b4d9b66a73626622490304e23194"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad27987df9e1f59ebda4eb0b14fc662f9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad27987df9e1f59ebda4eb0b14fc662f9"></a>
-virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><b>GetName</b> ()=0</td></tr>
-<tr class="separator:ad27987df9e1f59ebda4eb0b14fc662f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abefdf6fd688ea61dcac9573b7df30a06"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abefdf6fd688ea61dcac9573b7df30a06"></a>
+virtual std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetName</b> ()=0</td></tr>
+<tr class="separator:abefdf6fd688ea61dcac9573b7df30a06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6ea6bc77a2211aa27acc68b58615db1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad6ea6bc77a2211aa27acc68b58615db1"></a>
 INLINE uint8&#160;</td><td class="memItemRight" valign="bottom"><b>GetNation</b> ()</td></tr>
 <tr class="separator:ad6ea6bc77a2211aa27acc68b58615db1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -186,12 +186,18 @@ virtual int32&#160;</td><td class="memItemRight" valign="bottom"><b>GetMana</b> 
 <tr class="memitem:ab954c735bed7e90abedb618fb76b7592"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab954c735bed7e90abedb618fb76b7592"></a>
 virtual int32&#160;</td><td class="memItemRight" valign="bottom"><b>GetMaxMana</b> ()=0</td></tr>
 <tr class="separator:ab954c735bed7e90abedb618fb76b7592"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a77a3ad842c17b24c0e9b0b93cd6a0eac"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a77a3ad842c17b24c0e9b0b93cd6a0eac"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isIncapacitated</b> ()</td></tr>
+<tr class="separator:a77a3ad842c17b24c0e9b0b93cd6a0eac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82dabcc93a234e16046ca69cab2f90b5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a82dabcc93a234e16046ca69cab2f90b5"></a>
 INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isTransformed</b> ()</td></tr>
 <tr class="separator:a82dabcc93a234e16046ca69cab2f90b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5bfb0c240313132e5db8361b868a50b6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5bfb0c240313132e5db8361b868a50b6"></a>
 INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isBlinded</b> ()</td></tr>
 <tr class="separator:a5bfb0c240313132e5db8361b868a50b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a154e115bc91a70aa78b75a074b390b2a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a154e115bc91a70aa78b75a074b390b2a"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isBuffed</b> ()</td></tr>
+<tr class="separator:a154e115bc91a70aa78b75a074b390b2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a56729d6a941906f80286c5ff33ea488c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a56729d6a941906f80286c5ff33ea488c"></a>
 INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>canInstantCast</b> ()</td></tr>
 <tr class="separator:a56729d6a941906f80286c5ff33ea488c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -261,9 +267,9 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>HasSavedMagic
 <tr class="memitem:a4a9328a8791a880c4ffadfe76158c744"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4a9328a8791a880c4ffadfe76158c744"></a>
 virtual int16&#160;</td><td class="memItemRight" valign="bottom"><b>GetSavedMagicDuration</b> (uint32 nSkillID)</td></tr>
 <tr class="separator:a4a9328a8791a880c4ffadfe76158c744"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1c0774daac95af9964aaa3e586aad141"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1c0774daac95af9964aaa3e586aad141"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>HpChange</b> (int amount, <a class="el" href="class_unit.html">Unit</a> *pAttacker=NULL, bool bSendToAI=true)=0</td></tr>
-<tr class="separator:a1c0774daac95af9964aaa3e586aad141"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a306eebc9b5cfc8d495b9699b20293c88"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a306eebc9b5cfc8d495b9699b20293c88"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>HpChange</b> (int amount, <a class="el" href="class_unit.html">Unit</a> *pAttacker=nullptr, bool bSendToAI=true)=0</td></tr>
+<tr class="separator:a306eebc9b5cfc8d495b9699b20293c88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abde9e24113bc8ed5dc48f15571c36424"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abde9e24113bc8ed5dc48f15571c36424"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>MSpChange</b> (int amount)=0</td></tr>
 <tr class="separator:abde9e24113bc8ed5dc48f15571c36424"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -285,6 +291,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>AddType4Buff</b> (uin
 <tr class="memitem:aab1d17e15fcc85ba1b52d8fee84ccc4c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aab1d17e15fcc85ba1b52d8fee84ccc4c"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>StateChangeServerDirect</b> (uint8 bType, uint32 nBuff)</td></tr>
 <tr class="separator:aab1d17e15fcc85ba1b52d8fee84ccc4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07ad7e76f96c9c8f41d42cc2789f4f1e"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_unit.html#a07ad7e76f96c9c8f41d42cc2789f4f1e">CanAttack</a> (<a class="el" href="class_unit.html">Unit</a> *pTarget)</td></tr>
+<tr class="memdesc:a07ad7e76f96c9c8f41d42cc2789f4f1e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determine if this unit is basically able to attack the specified unit. This should only be called to handle the minimal shared logic between NPCs and players.  <a href="#a07ad7e76f96c9c8f41d42cc2789f4f1e">More...</a><br/></td></tr>
+<tr class="separator:a07ad7e76f96c9c8f41d42cc2789f4f1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a018894dc89c07199e69c9970fb66ee31"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a018894dc89c07199e69c9970fb66ee31"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>OnDeath</b> (<a class="el" href="class_unit.html">Unit</a> *pKiller)</td></tr>
 <tr class="separator:a018894dc89c07199e69c9970fb66ee31"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -467,7 +476,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bType3Flag</b></td>
 Type4BuffMap&#160;</td><td class="memItemRight" valign="bottom"><b>m_buffMap</b></td></tr>
 <tr class="separator:a2841f1cdcf12661e00f58dda4e6753a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a781712125e4a4868bae456de815bc9d3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a781712125e4a4868bae456de815bc9d3"></a>
-<a class="el" href="class_fast_mutex.html">FastMutex</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m_buffLock</b></td></tr>
+FastMutex&#160;</td><td class="memItemRight" valign="bottom"><b>m_buffLock</b></td></tr>
 <tr class="separator:a781712125e4a4868bae456de815bc9d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adcc1d212dcafd4d1f5ecf8dd446bb145"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adcc1d212dcafd4d1f5ecf8dd446bb145"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bIsTransformed</b></td></tr>
@@ -496,14 +505,51 @@ uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_bReflectArmorType<
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This class is a bridge between the <a class="el" href="struct_c_npc.html">CNpc</a> &amp; <a class="el" href="struct_c_user.html">CUser</a> classes </p>
-</div><hr/>The documentation for this class was generated from the following files:<ul>
-<li>Ebenezer/<a class="el" href="_unit_8h_source.html">Unit.h</a></li>
-<li>Ebenezer/Unit.cpp</li>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a07ad7e76f96c9c8f41d42cc2789f4f1e"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Unit::CanAttack </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_unit.html">Unit</a> *&#160;</td>
+          <td class="paramname"><em>pTarget</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Determine if this unit is basically able to attack the specified unit. This should only be called to handle the minimal shared logic between NPCs and players. </p>
+<pre class="fragment">        You should use the more appropriate CUser or CNpc specialization.
+</pre><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pTarget</td><td>Target for the attack.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if we can attack, false if not. </dd></dl>
+
+<p>Reimplemented in <a class="el" href="struct_c_user.html#a6e2c6b203c6318488dcc825ba98ad883">CUser</a>, and <a class="el" href="struct_c_npc.html#a557f3d626834d1eb31b6954c0b657703">CNpc</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li>src/Ebenezer/<a class="el" href="_unit_8h_source.html">Unit.h</a></li>
+<li>src/Ebenezer/Unit.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:13 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:06 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

@@ -83,8 +83,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
-<a href="#pro-static-methods">Static Protected Member Functions</a> &#124;
 <a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="#pro-static-attribs">Static Protected Attributes</a> &#124;
 <a href="class_socket_mgr-members.html">List of all members</a>  </div>
@@ -99,23 +100,23 @@ Inheritance diagram for SocketMgr:</div>
   <img src="class_socket_mgr.png" usemap="#SocketMgr_map" alt=""/>
   <map id="SocketMgr_map" name="SocketMgr_map">
 <area href="class_k_o_socket_mgr.html" alt="KOSocketMgr&lt; T &gt;" shape="rect" coords="0,56,194,80"/>
-<area href="class_k_o_socket_mgr.html" alt="KOSocketMgr&lt; CGameSocket &gt;" shape="rect" coords="204,56,398,80"/>
-<area href="class_k_o_socket_mgr.html" alt="KOSocketMgr&lt; LoginSession &gt;" shape="rect" coords="408,56,602,80"/>
+<area href="class_k_o_socket_mgr.html" alt="KOSocketMgr&lt; CAISocket &gt;" shape="rect" coords="204,56,398,80"/>
+<area href="class_k_o_socket_mgr.html" alt="KOSocketMgr&lt; CGameSocket &gt;" shape="rect" coords="408,56,602,80"/>
+<area href="class_k_o_socket_mgr.html" alt="KOSocketMgr&lt; CUser &gt;" shape="rect" coords="612,56,806,80"/>
+<area href="class_k_o_socket_mgr.html" alt="KOSocketMgr&lt; LoginSession &gt;" shape="rect" coords="816,56,1010,80"/>
 <area href="class_client_socket_mgr.html" alt="ClientSocketMgr&lt; T &gt;" shape="rect" coords="0,112,194,136"/>
+<area href="class_client_socket_mgr.html" alt="ClientSocketMgr&lt; CAISocket &gt;" shape="rect" coords="204,112,398,136"/>
 </map>
  </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a7da078ceaa3d3e7c90af5ca16602c71e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7da078ceaa3d3e7c90af5ca16602c71e"></a>
-INLINE HANDLE&#160;</td><td class="memItemRight" valign="bottom"><b>GetCompletionPort</b> ()</td></tr>
-<tr class="separator:a7da078ceaa3d3e7c90af5ca16602c71e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2a07e76ecf951c0c628f6510e0a388d8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2a07e76ecf951c0c628f6510e0a388d8"></a>
-INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>SetCompletionPort</b> (HANDLE cp)</td></tr>
-<tr class="separator:a2a07e76ecf951c0c628f6510e0a388d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a87da74e4e915446ad6b8bac10deb375c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a87da74e4e915446ad6b8bac10deb375c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>CreateCompletionPort</b> ()</td></tr>
-<tr class="separator:a87da74e4e915446ad6b8bac10deb375c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba5bb154ca8a00d24fff880b2b9acb78"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aba5bb154ca8a00d24fff880b2b9acb78"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Initialise</b> ()</td></tr>
+<tr class="separator:aba5bb154ca8a00d24fff880b2b9acb78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0cdcd0d458eb79b6b5b5ec479a871143"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0cdcd0d458eb79b6b5b5ec479a871143"></a>
+uint32&#160;</td><td class="memItemRight" valign="bottom"><b>GetPreferredThreadCount</b> ()</td></tr>
+<tr class="separator:a0cdcd0d458eb79b6b5b5ec479a871143"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9d2c299b1d73ff72221325498b867168"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9d2c299b1d73ff72221325498b867168"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SpawnWorkerThreads</b> ()</td></tr>
 <tr class="separator:a9d2c299b1d73ff72221325498b867168"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -125,15 +126,42 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ShutdownThreads</b> (
 <tr class="memitem:a9bd28c088260d1034db13c87a4cdf495"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9bd28c088260d1034db13c87a4cdf495"></a>
 virtual <a class="el" href="class_socket.html">Socket</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>AssignSocket</b> (SOCKET socket)=0</td></tr>
 <tr class="separator:a9bd28c088260d1034db13c87a4cdf495"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac4bab7b52bb131e835ed820964107f6c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac4bab7b52bb131e835ed820964107f6c"></a>
+<tr class="memitem:a5434317a151b06b48a76d1d95f2a2467"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5434317a151b06b48a76d1d95f2a2467"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>OnConnect</b> (<a class="el" href="class_socket.html">Socket</a> *pSock)</td></tr>
-<tr class="separator:ac4bab7b52bb131e835ed820964107f6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6ad9f5b52f302e160740d78e83e4bba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab6ad9f5b52f302e160740d78e83e4bba"></a>
+<tr class="separator:a5434317a151b06b48a76d1d95f2a2467"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e0abff480c072025d620b9d7cb6c192"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6e0abff480c072025d620b9d7cb6c192"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>OnDisconnect</b> (<a class="el" href="class_socket.html">Socket</a> *pSock)</td></tr>
-<tr class="separator:ab6ad9f5b52f302e160740d78e83e4bba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adab71f8cf522bff28e6786bbc0453e36"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adab71f8cf522bff28e6786bbc0453e36"></a>
+<tr class="separator:a6e0abff480c072025d620b9d7cb6c192"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49f4e980b0f5b82e3a1249088a348465"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a49f4e980b0f5b82e3a1249088a348465"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>DisconnectCallback</b> (<a class="el" href="class_socket.html">Socket</a> *pSock)</td></tr>
-<tr class="separator:adab71f8cf522bff28e6786bbc0453e36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a49f4e980b0f5b82e3a1249088a348465"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0852620288f4b1f5333f373af0db0c1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad0852620288f4b1f5333f373af0db0c1"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>_CleanupSockets</b> ()</td></tr>
+<tr class="separator:ad0852620288f4b1f5333f373af0db0c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac681ce2bdb407fa3559d7f3b2ddb954d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac681ce2bdb407fa3559d7f3b2ddb954d"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Shutdown</b> ()</td></tr>
+<tr class="separator:ac681ce2bdb407fa3559d7f3b2ddb954d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a2532c90cde76c02e1ea229f82ee032cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2532c90cde76c02e1ea229f82ee032cb"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>SetupSockets</b> ()</td></tr>
+<tr class="separator:a2532c90cde76c02e1ea229f82ee032cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe21951de872619cbff1e7b8dd657265"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe21951de872619cbff1e7b8dd657265"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>CleanupSockets</b> ()</td></tr>
+<tr class="separator:abe21951de872619cbff1e7b8dd657265"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:aa0a307c146244633eb69a8d6ef0450c3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa0a307c146244633eb69a8d6ef0450c3"></a>
+static <a class="el" href="class_mutex.html">Mutex</a>&#160;</td><td class="memItemRight" valign="bottom"><b>s_disconnectionQueueLock</b></td></tr>
+<tr class="separator:aa0a307c146244633eb69a8d6ef0450c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4af54cf820df81d3aedfac338773ea5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae4af54cf820df81d3aedfac338773ea5"></a>
+static std::queue&lt; <a class="el" href="class_socket.html">Socket</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>s_disconnectionQueue</b></td></tr>
+<tr class="separator:ae4af54cf820df81d3aedfac338773ea5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b513e8ad2d4151007c27872f05f8062"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8b513e8ad2d4151007c27872f05f8062"></a>
+static bool&#160;</td><td class="memItemRight" valign="bottom"><b>s_bRunningCleanupThread</b> = true</td></tr>
+<tr class="separator:a8b513e8ad2d4151007c27872f05f8062"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
@@ -144,44 +172,39 @@ INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>IncRef</b> ()<
 INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>DecRef</b> ()</td></tr>
 <tr class="separator:ac307dcfc7571fd385c76cfd438705e6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-static-methods"></a>
-Static Protected Member Functions</h2></td></tr>
-<tr class="memitem:aac7934c3e200d3bc15299f5a4f1f850a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aac7934c3e200d3bc15299f5a4f1f850a"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>SetupWinsock</b> ()</td></tr>
-<tr class="separator:aac7934c3e200d3bc15299f5a4f1f850a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8895ee3cf62f079023719e2806ea0258"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8895ee3cf62f079023719e2806ea0258"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>CleanupWinsock</b> ()</td></tr>
-<tr class="separator:a8895ee3cf62f079023719e2806ea0258"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
-<tr class="memitem:a50731af8f84b857ca1f97e84e72e7d4e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a50731af8f84b857ca1f97e84e72e7d4e"></a>
-HANDLE&#160;</td><td class="memItemRight" valign="bottom"><b>m_completionPort</b></td></tr>
-<tr class="separator:a50731af8f84b857ca1f97e84e72e7d4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab417964a3c2bac68a71b12405f190dc6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab417964a3c2bac68a71b12405f190dc6"></a>
-HANDLE *&#160;</td><td class="memItemRight" valign="bottom"><b>m_hThreads</b></td></tr>
-<tr class="separator:ab417964a3c2bac68a71b12405f190dc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a807a5c7fb9cc01b4c1fcbda7fa403e3b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a807a5c7fb9cc01b4c1fcbda7fa403e3b"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bShutdown</b></td></tr>
+<tr class="separator:a807a5c7fb9cc01b4c1fcbda7fa403e3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a913dafa219f2ec33bd72f4e38b25dd88"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a913dafa219f2ec33bd72f4e38b25dd88"></a>
+std::vector&lt; <a class="el" href="class_thread.html">Thread</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_threads</b></td></tr>
+<tr class="separator:a913dafa219f2ec33bd72f4e38b25dd88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad4ee63a182f449a14880257b1b52477e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad4ee63a182f449a14880257b1b52477e"></a>
 long&#160;</td><td class="memItemRight" valign="bottom"><b>m_threadCount</b></td></tr>
 <tr class="separator:ad4ee63a182f449a14880257b1b52477e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03fbe3a6e1d8b166edc6343e58e42dfe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a03fbe3a6e1d8b166edc6343e58e42dfe"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bWorkerThreadsActive</b></td></tr>
+<tr class="separator:a03fbe3a6e1d8b166edc6343e58e42dfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-static-attribs"></a>
 Static Protected Attributes</h2></td></tr>
-<tr class="memitem:a369a509f1cbd7164ba7fb64af01f62b4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a369a509f1cbd7164ba7fb64af01f62b4"></a>
-static HANDLE&#160;</td><td class="memItemRight" valign="bottom"><b>s_hCleanupThread</b> = NULL</td></tr>
-<tr class="separator:a369a509f1cbd7164ba7fb64af01f62b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e32ac605b305c0115714b9b77ced507"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7e32ac605b305c0115714b9b77ced507"></a>
-static uint32&#160;</td><td class="memItemRight" valign="bottom"><b>s_refs</b> = 0</td></tr>
-<tr class="separator:a7e32ac605b305c0115714b9b77ced507"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7bab49145e357027a31b0b1080938d3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad7bab49145e357027a31b0b1080938d3"></a>
+static <a class="el" href="class_thread.html">Thread</a>&#160;</td><td class="memItemRight" valign="bottom"><b>s_cleanupThread</b></td></tr>
+<tr class="separator:ad7bab49145e357027a31b0b1080938d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f5aa65eccce64326bc0110d5e8d4a25"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2f5aa65eccce64326bc0110d5e8d4a25"></a>
+static <a class="el" href="class_atomic.html">Atomic</a>&lt; uint32 &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>s_refCounter</b></td></tr>
+<tr class="separator:a2f5aa65eccce64326bc0110d5e8d4a25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>shared/<a class="el" href="_socket_mgr_8h_source.html">SocketMgr.h</a></li>
-<li>shared/SocketMgr.cpp</li>
+<li>src/shared/<a class="el" href="_socket_mgr_8h_source.html">SocketMgr.h</a></li>
+<li>src/shared/SocketMgr.cpp</li>
+<li>src/shared/SocketMgrLinux.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:13 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:06 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

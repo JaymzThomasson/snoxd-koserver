@@ -133,7 +133,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>SendAll</b> (<a class
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SendAllCompressed</b> (<a class="el" href="class_packet.html">Packet</a> *result)</td></tr>
 <tr class="separator:a4e3ea3529a4bed80ec92430f082fcf47 inherit pub_methods_class_k_o_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ec84bebd5527252cf4c804855be7419 inherit pub_methods_class_k_o_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ec84bebd5527252cf4c804855be7419"></a>
-<a class="el" href="class_listen_socket.html">ListenSocket</a>&lt; T &gt; *&#160;</td><td class="memItemRight" valign="bottom"><b>GetServer</b> ()</td></tr>
+ListenSocket&lt; T &gt; *&#160;</td><td class="memItemRight" valign="bottom"><b>GetServer</b> ()</td></tr>
 <tr class="separator:a3ec84bebd5527252cf4c804855be7419 inherit pub_methods_class_k_o_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f18e2f1d25607ad392ce020496354ac inherit pub_methods_class_k_o_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6f18e2f1d25607ad392ce020496354ac"></a>
 INLINE SessionMap &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetIdleSessionMap</b> ()</td></tr>
@@ -150,28 +150,48 @@ INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>ReleaseLock</b
 <tr class="memitem:af44c3e5602dc331a2b610d64f38502de inherit pub_methods_class_k_o_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af44c3e5602dc331a2b610d64f38502de"></a>
 T *&#160;</td><td class="memItemRight" valign="bottom"><b>operator[]</b> (uint16 id)</td></tr>
 <tr class="separator:af44c3e5602dc331a2b610d64f38502de inherit pub_methods_class_k_o_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add470469981ac50c5954ddd2932e5b9f inherit pub_methods_class_k_o_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="add470469981ac50c5954ddd2932e5b9f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Shutdown</b> ()</td></tr>
+<tr class="separator:add470469981ac50c5954ddd2932e5b9f inherit pub_methods_class_k_o_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_socket_mgr"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_socket_mgr')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_socket_mgr.html">SocketMgr</a></td></tr>
-<tr class="memitem:a7da078ceaa3d3e7c90af5ca16602c71e inherit pub_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7da078ceaa3d3e7c90af5ca16602c71e"></a>
-INLINE HANDLE&#160;</td><td class="memItemRight" valign="bottom"><b>GetCompletionPort</b> ()</td></tr>
-<tr class="separator:a7da078ceaa3d3e7c90af5ca16602c71e inherit pub_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2a07e76ecf951c0c628f6510e0a388d8 inherit pub_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2a07e76ecf951c0c628f6510e0a388d8"></a>
-INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>SetCompletionPort</b> (HANDLE cp)</td></tr>
-<tr class="separator:a2a07e76ecf951c0c628f6510e0a388d8 inherit pub_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a87da74e4e915446ad6b8bac10deb375c inherit pub_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a87da74e4e915446ad6b8bac10deb375c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>CreateCompletionPort</b> ()</td></tr>
-<tr class="separator:a87da74e4e915446ad6b8bac10deb375c inherit pub_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba5bb154ca8a00d24fff880b2b9acb78 inherit pub_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aba5bb154ca8a00d24fff880b2b9acb78"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Initialise</b> ()</td></tr>
+<tr class="separator:aba5bb154ca8a00d24fff880b2b9acb78 inherit pub_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0cdcd0d458eb79b6b5b5ec479a871143 inherit pub_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0cdcd0d458eb79b6b5b5ec479a871143"></a>
+uint32&#160;</td><td class="memItemRight" valign="bottom"><b>GetPreferredThreadCount</b> ()</td></tr>
+<tr class="separator:a0cdcd0d458eb79b6b5b5ec479a871143 inherit pub_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9d2c299b1d73ff72221325498b867168 inherit pub_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9d2c299b1d73ff72221325498b867168"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SpawnWorkerThreads</b> ()</td></tr>
 <tr class="separator:a9d2c299b1d73ff72221325498b867168 inherit pub_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a578e8d250c2d290fb0395a0525e3132e inherit pub_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a578e8d250c2d290fb0395a0525e3132e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ShutdownThreads</b> ()</td></tr>
 <tr class="separator:a578e8d250c2d290fb0395a0525e3132e inherit pub_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6ad9f5b52f302e160740d78e83e4bba inherit pub_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab6ad9f5b52f302e160740d78e83e4bba"></a>
+<tr class="memitem:a6e0abff480c072025d620b9d7cb6c192 inherit pub_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6e0abff480c072025d620b9d7cb6c192"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>OnDisconnect</b> (<a class="el" href="class_socket.html">Socket</a> *pSock)</td></tr>
-<tr class="separator:ab6ad9f5b52f302e160740d78e83e4bba inherit pub_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a6e0abff480c072025d620b9d7cb6c192 inherit pub_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0852620288f4b1f5333f373af0db0c1 inherit pub_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad0852620288f4b1f5333f373af0db0c1"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>_CleanupSockets</b> ()</td></tr>
+<tr class="separator:ad0852620288f4b1f5333f373af0db0c1 inherit pub_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pub_static_methods_class_socket_mgr"><td colspan="2" onclick="javascript:toggleInherit('pub_static_methods_class_socket_mgr')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="class_socket_mgr.html">SocketMgr</a></td></tr>
+<tr class="memitem:a2532c90cde76c02e1ea229f82ee032cb inherit pub_static_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2532c90cde76c02e1ea229f82ee032cb"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>SetupSockets</b> ()</td></tr>
+<tr class="separator:a2532c90cde76c02e1ea229f82ee032cb inherit pub_static_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe21951de872619cbff1e7b8dd657265 inherit pub_static_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe21951de872619cbff1e7b8dd657265"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>CleanupSockets</b> ()</td></tr>
+<tr class="separator:abe21951de872619cbff1e7b8dd657265 inherit pub_static_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_static_attribs_class_socket_mgr"><td colspan="2" onclick="javascript:toggleInherit('pub_static_attribs_class_socket_mgr')"><img src="closed.png" alt="-"/>&#160;Static Public Attributes inherited from <a class="el" href="class_socket_mgr.html">SocketMgr</a></td></tr>
+<tr class="memitem:aa0a307c146244633eb69a8d6ef0450c3 inherit pub_static_attribs_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa0a307c146244633eb69a8d6ef0450c3"></a>
+static <a class="el" href="class_mutex.html">Mutex</a>&#160;</td><td class="memItemRight" valign="bottom"><b>s_disconnectionQueueLock</b></td></tr>
+<tr class="separator:aa0a307c146244633eb69a8d6ef0450c3 inherit pub_static_attribs_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4af54cf820df81d3aedfac338773ea5 inherit pub_static_attribs_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae4af54cf820df81d3aedfac338773ea5"></a>
+static std::queue&lt; <a class="el" href="class_socket.html">Socket</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>s_disconnectionQueue</b></td></tr>
+<tr class="separator:ae4af54cf820df81d3aedfac338773ea5 inherit pub_static_attribs_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b513e8ad2d4151007c27872f05f8062 inherit pub_static_attribs_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8b513e8ad2d4151007c27872f05f8062"></a>
+static bool&#160;</td><td class="memItemRight" valign="bottom"><b>s_bRunningCleanupThread</b> = true</td></tr>
+<tr class="separator:a8b513e8ad2d4151007c27872f05f8062 inherit pub_static_attribs_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_class_socket_mgr"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_class_socket_mgr')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="class_socket_mgr.html">SocketMgr</a></td></tr>
 <tr class="memitem:aa801224cb21b7d2421a4e744975fc241 inherit pro_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa801224cb21b7d2421a4e744975fc241"></a>
 INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>IncRef</b> ()</td></tr>
@@ -179,13 +199,6 @@ INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>IncRef</b> ()<
 <tr class="memitem:ac307dcfc7571fd385c76cfd438705e6e inherit pro_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac307dcfc7571fd385c76cfd438705e6e"></a>
 INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>DecRef</b> ()</td></tr>
 <tr class="separator:ac307dcfc7571fd385c76cfd438705e6e inherit pro_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pro_static_methods_class_socket_mgr"><td colspan="2" onclick="javascript:toggleInherit('pro_static_methods_class_socket_mgr')"><img src="closed.png" alt="-"/>&#160;Static Protected Member Functions inherited from <a class="el" href="class_socket_mgr.html">SocketMgr</a></td></tr>
-<tr class="memitem:aac7934c3e200d3bc15299f5a4f1f850a inherit pro_static_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aac7934c3e200d3bc15299f5a4f1f850a"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>SetupWinsock</b> ()</td></tr>
-<tr class="separator:aac7934c3e200d3bc15299f5a4f1f850a inherit pro_static_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8895ee3cf62f079023719e2806ea0258 inherit pro_static_methods_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8895ee3cf62f079023719e2806ea0258"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>CleanupWinsock</b> ()</td></tr>
-<tr class="separator:a8895ee3cf62f079023719e2806ea0258 inherit pro_static_methods_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_class_k_o_socket_mgr"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_class_k_o_socket_mgr')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="class_k_o_socket_mgr.html">KOSocketMgr&lt; T &gt;</a></td></tr>
 <tr class="memitem:a63dded7dc66206f7cc9de4b4da163ab0 inherit pro_attribs_class_k_o_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a63dded7dc66206f7cc9de4b4da163ab0"></a>
 SessionMap&#160;</td><td class="memItemRight" valign="bottom"><b>m_idleSessions</b></td></tr>
@@ -197,20 +210,20 @@ SessionMap&#160;</td><td class="memItemRight" valign="bottom"><b>m_activeSession
 <a class="el" href="class_r_w_lock.html">RWLock</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m_lock</b></td></tr>
 <tr class="separator:a5f050504d01e236d961c89be09f19222 inherit pro_attribs_class_k_o_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_static_attribs_class_socket_mgr"><td colspan="2" onclick="javascript:toggleInherit('pro_static_attribs_class_socket_mgr')"><img src="closed.png" alt="-"/>&#160;Static Protected Attributes inherited from <a class="el" href="class_socket_mgr.html">SocketMgr</a></td></tr>
-<tr class="memitem:a369a509f1cbd7164ba7fb64af01f62b4 inherit pro_static_attribs_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a369a509f1cbd7164ba7fb64af01f62b4"></a>
-static HANDLE&#160;</td><td class="memItemRight" valign="bottom"><b>s_hCleanupThread</b> = NULL</td></tr>
-<tr class="separator:a369a509f1cbd7164ba7fb64af01f62b4 inherit pro_static_attribs_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e32ac605b305c0115714b9b77ced507 inherit pro_static_attribs_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7e32ac605b305c0115714b9b77ced507"></a>
-static uint32&#160;</td><td class="memItemRight" valign="bottom"><b>s_refs</b> = 0</td></tr>
-<tr class="separator:a7e32ac605b305c0115714b9b77ced507 inherit pro_static_attribs_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7bab49145e357027a31b0b1080938d3 inherit pro_static_attribs_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad7bab49145e357027a31b0b1080938d3"></a>
+static <a class="el" href="class_thread.html">Thread</a>&#160;</td><td class="memItemRight" valign="bottom"><b>s_cleanupThread</b></td></tr>
+<tr class="separator:ad7bab49145e357027a31b0b1080938d3 inherit pro_static_attribs_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f5aa65eccce64326bc0110d5e8d4a25 inherit pro_static_attribs_class_socket_mgr"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2f5aa65eccce64326bc0110d5e8d4a25"></a>
+static <a class="el" href="class_atomic.html">Atomic</a>&lt; uint32 &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>s_refCounter</b></td></tr>
+<tr class="separator:a2f5aa65eccce64326bc0110d5e8d4a25 inherit pro_static_attribs_class_socket_mgr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>shared/<a class="el" href="_client_socket_mgr_8h_source.html">ClientSocketMgr.h</a></li>
+<li>src/shared/<a class="el" href="_client_socket_mgr_8h_source.html">ClientSocketMgr.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:12 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:04 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

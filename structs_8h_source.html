@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.3.1"/>
-<title>Snoxd.net&#39;s public KO server project: shared/database/structs.h Source File</title>
+<title>Snoxd.net&#39;s public KO server project: src/shared/database/structs.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -78,7 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_9982052f7ce695d12571567315b2fafa.html">shared</a></li><li class="navelem"><a class="el" href="dir_3b3af38c7ebde6ef348e5b4f8551182b.html">database</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_4f38db07240614f25134cb9a8bebbaf9.html">shared</a></li><li class="navelem"><a class="el" href="dir_7b98b85d87b4035281b5dd89c636b741.html">database</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -255,78 +255,83 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    uint32  nNeedItem;</div>
 <div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;};</div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;<span class="preprocessor">#pragma pack(push, 1)</span></div>
-<div class="line"><a name="l00172"></a><span class="lineno"><a class="code" href="struct___o_b_j_e_c_t___e_v_e_n_t.html">  172</a></span>&#160;<span class="preprocessor"></span><span class="keyword">struct </span><a class="code" href="struct___o_b_j_e_c_t___e_v_e_n_t.html">_OBJECT_EVENT</a></div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;{</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    <span class="keywordtype">int</span> sBelong;</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <span class="keywordtype">short</span> sIndex;</div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    <span class="keywordtype">short</span> sType;</div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    <span class="keywordtype">short</span> sControlNpcID;</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <span class="keywordtype">short</span> sStatus;</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    <span class="keywordtype">float</span> fPosX;</div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    <span class="keywordtype">float</span> fPosY;</div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    <span class="keywordtype">float</span> fPosZ;</div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    uint8 byLife;</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;};</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;</div>
-<div class="line"><a name="l00185"></a><span class="lineno"><a class="code" href="struct___r_e_g_e_n_e___e_v_e_n_t.html">  185</a></span>&#160;<span class="keyword">struct </span><a class="code" href="struct___r_e_g_e_n_e___e_v_e_n_t.html">_REGENE_EVENT</a></div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;{</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <span class="keywordtype">float</span> fRegenePosX;</div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    <span class="keywordtype">float</span> fRegenePosY;</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    <span class="keywordtype">float</span> fRegenePosZ;</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="keywordtype">float</span> fRegeneAreaZ;</div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    <span class="keywordtype">float</span> fRegeneAreaX;</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    <span class="keywordtype">int</span>   sRegenePoint;</div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;};</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;</div>
-<div class="line"><a name="l00195"></a><span class="lineno"><a class="code" href="struct___w_a_r_p___i_n_f_o.html">  195</a></span>&#160;<span class="keyword">struct </span><a class="code" href="struct___w_a_r_p___i_n_f_o.html">_WARP_INFO</a></div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;{</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    <span class="keywordtype">short</span>   sWarpID;</div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;    <span class="keywordtype">char</span>    strWarpName[32];</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <span class="keywordtype">char</span>    strAnnounce[256];</div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;    uint16  sUnk0; <span class="comment">// padding?</span></div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    DWORD   dwPay;</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    <span class="keywordtype">short</span>   sZone;</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    uint16  sUnk1; <span class="comment">// padding?</span></div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    <span class="keywordtype">float</span>   fX;</div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    <span class="keywordtype">float</span>   fY;</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;    <span class="keywordtype">float</span>   fZ;</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    <span class="keywordtype">float</span>   fR;</div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    <span class="keywordtype">short</span>   sNation;</div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    uint16  sUnk2; <span class="comment">// padding?</span></div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    <a class="code" href="struct___w_a_r_p___i_n_f_o.html">_WARP_INFO</a>() { memset(<span class="keyword">this</span>, 0, <span class="keyword">sizeof</span>(<a class="code" href="struct___w_a_r_p___i_n_f_o.html">_WARP_INFO</a>)); };</div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;};</div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;<span class="preprocessor">#pragma pack(pop)</span></div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00215"></a><span class="lineno"><a class="code" href="struct___z_o_n_e___i_n_f_o.html">  215</a></span>&#160;<span class="keyword">struct </span><a class="code" href="struct___z_o_n_e___i_n_f_o.html">_ZONE_INFO</a></div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;{</div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    uint16  m_nServerNo;</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    uint16  m_nZoneNumber;</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    std::string m_MapName;</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;<span class="preprocessor">#if defined(AI_SERVER)</span></div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;<span class="preprocessor"></span>    uint8   m_byRoomEvent;</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;<span class="preprocessor"></span>    <span class="keywordtype">float</span> m_fInitX, m_fInitY, m_fInitZ;</div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    BYTE m_bType, isAttackZone;</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;<span class="preprocessor"></span>};</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;</div>
-<div class="line"><a name="l00229"></a><span class="lineno"><a class="code" href="struct___b_u_f_f___t_y_p_e4___i_n_f_o.html">  229</a></span>&#160;<span class="keyword">struct </span><a class="code" href="struct___b_u_f_f___t_y_p_e4___i_n_f_o.html">_BUFF_TYPE4_INFO</a></div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;{</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    <span class="keywordtype">bool</span>    m_bIsBuff; <span class="comment">// Is it a buff or a debuff?</span></div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    <span class="keywordtype">bool</span>    m_bDurationExtended;</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    time_t  m_tEndTime;</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;</div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    INLINE <span class="keywordtype">bool</span> isBuff() { <span class="keywordflow">return</span> m_bIsBuff; }</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    INLINE <span class="keywordtype">bool</span> isDebuff() { <span class="keywordflow">return</span> !m_bIsBuff; }</div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;};</div>
+<div class="line"><a name="l00170"></a><span class="lineno"><a class="code" href="struct___s_e_r_v_e_r___r_e_s_o_u_r_c_e.html">  170</a></span>&#160;<span class="keyword">struct </span><a class="code" href="struct___s_e_r_v_e_r___r_e_s_o_u_r_c_e.html">_SERVER_RESOURCE</a></div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;{</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    uint32 nResourceID;</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    std::string strResource;</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;};</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;<span class="preprocessor">#pragma pack(push, 1)</span></div>
+<div class="line"><a name="l00177"></a><span class="lineno"><a class="code" href="struct___o_b_j_e_c_t___e_v_e_n_t.html">  177</a></span>&#160;<span class="preprocessor"></span><span class="keyword">struct </span><a class="code" href="struct___o_b_j_e_c_t___e_v_e_n_t.html">_OBJECT_EVENT</a></div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;{</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    <span class="keywordtype">int</span> sBelong;</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    <span class="keywordtype">short</span> sIndex;</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    <span class="keywordtype">short</span> sType;</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    <span class="keywordtype">short</span> sControlNpcID;</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <span class="keywordtype">short</span> sStatus;</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    <span class="keywordtype">float</span> fPosX;</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    <span class="keywordtype">float</span> fPosY;</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keywordtype">float</span> fPosZ;</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    uint8 byLife;</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;};</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;</div>
+<div class="line"><a name="l00190"></a><span class="lineno"><a class="code" href="struct___r_e_g_e_n_e___e_v_e_n_t.html">  190</a></span>&#160;<span class="keyword">struct </span><a class="code" href="struct___r_e_g_e_n_e___e_v_e_n_t.html">_REGENE_EVENT</a></div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;{</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    <span class="keywordtype">float</span> fRegenePosX;</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    <span class="keywordtype">float</span> fRegenePosY;</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    <span class="keywordtype">float</span> fRegenePosZ;</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    <span class="keywordtype">float</span> fRegeneAreaZ;</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <span class="keywordtype">float</span> fRegeneAreaX;</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    <span class="keywordtype">int</span>   sRegenePoint;</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;};</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;</div>
+<div class="line"><a name="l00200"></a><span class="lineno"><a class="code" href="struct___w_a_r_p___i_n_f_o.html">  200</a></span>&#160;<span class="keyword">struct </span><a class="code" href="struct___w_a_r_p___i_n_f_o.html">_WARP_INFO</a></div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;{</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    <span class="keywordtype">short</span>   sWarpID;</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <span class="keywordtype">char</span>    strWarpName[32];</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    <span class="keywordtype">char</span>    strAnnounce[256];</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    uint16  sUnk0; <span class="comment">// padding?</span></div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;    uint32  dwPay;</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    <span class="keywordtype">short</span>   sZone;</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    uint16  sUnk1; <span class="comment">// padding?</span></div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    <span class="keywordtype">float</span>   fX;</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    <span class="keywordtype">float</span>   fY;</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    <span class="keywordtype">float</span>   fZ;</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <span class="keywordtype">float</span>   fR;</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;    <span class="keywordtype">short</span>   sNation;</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    uint16  sUnk2; <span class="comment">// padding?</span></div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    <a class="code" href="struct___w_a_r_p___i_n_f_o.html">_WARP_INFO</a>() { memset(<span class="keyword">this</span>, 0, <span class="keyword">sizeof</span>(<a class="code" href="struct___w_a_r_p___i_n_f_o.html">_WARP_INFO</a>)); };</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;};</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;<span class="preprocessor">#pragma pack(pop)</span></div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00220"></a><span class="lineno"><a class="code" href="struct___z_o_n_e___i_n_f_o.html">  220</a></span>&#160;<span class="keyword">struct </span><a class="code" href="struct___z_o_n_e___i_n_f_o.html">_ZONE_INFO</a></div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;{</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    uint16  m_nServerNo;</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    uint16  m_nZoneNumber;</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    std::string m_MapName;</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;</div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;<span class="preprocessor">#if defined(AI_SERVER)</span></div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;<span class="preprocessor"></span>    uint8   m_byRoomEvent;</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;<span class="preprocessor"></span>    <span class="keywordtype">float</span> m_fInitX, m_fInitY, m_fInitZ;</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    uint8 m_bType, isAttackZone;</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;<span class="preprocessor"></span>};</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;</div>
+<div class="line"><a name="l00234"></a><span class="lineno"><a class="code" href="struct___b_u_f_f___t_y_p_e4___i_n_f_o.html">  234</a></span>&#160;<span class="keyword">struct </span><a class="code" href="struct___b_u_f_f___t_y_p_e4___i_n_f_o.html">_BUFF_TYPE4_INFO</a></div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;{</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    <span class="keywordtype">bool</span>    m_bIsBuff; <span class="comment">// Is it a buff or a debuff?</span></div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <span class="keywordtype">bool</span>    m_bDurationExtended;</div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    time_t  m_tEndTime;</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    INLINE <span class="keywordtype">bool</span> isBuff() { <span class="keywordflow">return</span> m_bIsBuff; }</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    INLINE <span class="keywordtype">bool</span> isDebuff() { <span class="keywordflow">return</span> !m_bIsBuff; }</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

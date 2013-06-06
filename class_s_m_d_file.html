@@ -101,9 +101,9 @@ Inheritance diagram for SMDFile:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ad240324fefbded9ff21c35004a0944e0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad240324fefbded9ff21c35004a0944e0"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>LoadMap</b> (FILE *fp)</td></tr>
-<tr class="separator:ad240324fefbded9ff21c35004a0944e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a429b35d53f70fbd6ddb161bcea31a97d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a429b35d53f70fbd6ddb161bcea31a97d"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>LoadMap</b> (FILE *fp, bool bLoadWarpsAndRegeneEvents)</td></tr>
+<tr class="separator:a429b35d53f70fbd6ddb161bcea31a97d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a22725009677d192e4ad68935df201194"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a22725009677d192e4ad68935df201194"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>LoadTerrain</b> (FILE *fp)</td></tr>
 <tr class="separator:a22725009677d192e4ad68935df201194"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -122,9 +122,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>LoadWarpList</b> (FIL
 <tr class="memitem:a2c8c67dadf49d9c5c6ad35047d5ffdbd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2c8c67dadf49d9c5c6ad35047d5ffdbd"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsValidPosition</b> (float x, float z, float y)</td></tr>
 <tr class="separator:a2c8c67dadf49d9c5c6ad35047d5ffdbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a99a8bf5c99b77989da77090a6de436ee"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a99a8bf5c99b77989da77090a6de436ee"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>CheckEvent</b> (float x, float z, <a class="el" href="struct_c_user.html">CUser</a> *pUser=NULL)</td></tr>
-<tr class="separator:a99a8bf5c99b77989da77090a6de436ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5e6b9d266b6456e1039478c83344321"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac5e6b9d266b6456e1039478c83344321"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>CheckEvent</b> (float x, float z, <a class="el" href="struct_c_user.html">CUser</a> *pUser=nullptr)</td></tr>
+<tr class="separator:ac5e6b9d266b6456e1039478c83344321"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a951a3bedbacc964e59e717473720229e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a951a3bedbacc964e59e717473720229e"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>ObjectCollision</b> (float x1, float z1, float y1, float x2, float z2, float y2)</td></tr>
 <tr class="separator:a951a3bedbacc964e59e717473720229e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -174,18 +174,18 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DecRef</b> ()</td></t
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a08b5773b28dd2418c7ef1c32df77214b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a08b5773b28dd2418c7ef1c32df77214b"></a>
-static <a class="el" href="class_s_m_d_file.html">SMDFile</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Load</b> (std::string mapName)</td></tr>
-<tr class="separator:a08b5773b28dd2418c7ef1c32df77214b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a228fb1a27f7669f10a9b12e8b1149c5e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a228fb1a27f7669f10a9b12e8b1149c5e"></a>
+static <a class="el" href="class_s_m_d_file.html">SMDFile</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Load</b> (std::string mapName, bool bLoadWarpsAndRegeneEvents=false)</td></tr>
+<tr class="separator:a228fb1a27f7669f10a9b12e8b1149c5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>shared/<a class="el" href="_s_m_d_file_8h_source.html">SMDFile.h</a></li>
-<li>shared/SMDFile.cpp</li>
+<li>src/shared/<a class="el" href="_s_m_d_file_8h_source.html">SMDFile.h</a></li>
+<li>src/shared/SMDFile.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:13 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:06 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

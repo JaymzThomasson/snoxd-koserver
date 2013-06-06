@@ -170,9 +170,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateWarehouseData</
 <tr class="memitem:a96cbb5ebbd324ce31366b36d2d47088f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a96cbb5ebbd324ce31366b36d2d47088f"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateSavedMagic</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
 <tr class="separator:a96cbb5ebbd324ce31366b36d2d47088f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aacd8f62930a70f10689f882715a2182e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aacd8f62930a70f10689f882715a2182e"></a>
-uint8&#160;</td><td class="memItemRight" valign="bottom"><b>SealItem</b> (std::string strSealPasswd, uint64 nItemSerial, uint32 nItemID, uint8 bSealType, bool doSeal, <a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
-<tr class="separator:aacd8f62930a70f10689f882715a2182e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0fa41459150a47a29aa2fb44c9dc6c3a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0fa41459150a47a29aa2fb44c9dc6c3a"></a>
+uint8&#160;</td><td class="memItemRight" valign="bottom"><b>SealItem</b> (std::string strSealPasswd, uint64 nItemSerial, uint32 nItemID, uint8 bSealType, <a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
+<tr class="separator:a0fa41459150a47a29aa2fb44c9dc6c3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af6e433a4a8b9ed4a5606d634b0bc9897"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af6e433a4a8b9ed4a5606d634b0bc9897"></a>
 int8&#160;</td><td class="memItemRight" valign="bottom"><b>CreateKnights</b> (uint16 sClanID, uint8 bNation, std::string &amp;strKnightsName, std::string &amp;strChief, uint8 bFlag=1)</td></tr>
 <tr class="separator:af6e433a4a8b9ed4a5606d634b0bc9897"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -194,6 +194,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>LoadKnightsAllList</b
 <tr class="memitem:a3b5a41634a0ca2bfe5402c10274d6b40"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3b5a41634a0ca2bfe5402c10274d6b40"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateClanSymbol</b> (uint16 sClanID, uint16 sSymbolSize, char *clanSymbol)</td></tr>
 <tr class="separator:a3b5a41634a0ca2bfe5402c10274d6b40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aebbbe3f36c549865d9daab96512dae36"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_d_b_agent.html#aebbbe3f36c549865d9daab96512dae36">DonateClanPoints</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, uint32 amountNP)</td></tr>
+<tr class="memdesc:aebbbe3f36c549865d9daab96512dae36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Donates (clanPoints) clan points to the specified user's clan. Also increases the user's total NP donated.  <a href="#aebbbe3f36c549865d9daab96512dae36">More...</a><br/></td></tr>
+<tr class="separator:aebbbe3f36c549865d9daab96512dae36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a30ac0c3e0247c617a941fbdc0372774d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_d_b_agent.html#a30ac0c3e0247c617a941fbdc0372774d">RefundNP</a> (std::string &amp;strUserID, uint32 nRefundNP)</td></tr>
+<tr class="memdesc:a30ac0c3e0247c617a941fbdc0372774d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refunds the specified amount of NP to a logged out character.  <a href="#a30ac0c3e0247c617a941fbdc0372774d">More...</a><br/></td></tr>
+<tr class="separator:a30ac0c3e0247c617a941fbdc0372774d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af7e9ac4a89c4989b391261d664d85048"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af7e9ac4a89c4989b391261d664d85048"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateCape</b> (uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint8 b)</td></tr>
 <tr class="separator:af7e9ac4a89c4989b391261d664d85048"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -250,6 +256,77 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>CEbenezerDlg</b></td
 <tr class="separator:a50755bcf91efd5eb8a85f83869a2155f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="aebbbe3f36c549865d9daab96512dae36"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool CDBAgent::DonateClanPoints </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32&#160;</td>
+          <td class="paramname"><em>amountNP</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Donates (clanPoints) clan points to the specified user's clan. Also increases the user's total NP donated. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUser</td><td>The donor user. </td></tr>
+    <tr><td class="paramname">amountNP</td><td>The number of national points being donated by the user.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if it succeeds, false if it fails. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a30ac0c3e0247c617a941fbdc0372774d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CDBAgent::RefundNP </td>
+          <td>(</td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>strUserID</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32&#160;</td>
+          <td class="paramname"><em>nRefundNP</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Refunds the specified amount of NP to a logged out character. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">strUserID</td><td>Character's name. </td></tr>
+    <tr><td class="paramname">nRefundNP</td><td>The amount of NP to refund. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="a19a07d30b8b85f6139d1a023439c8d48"></a>
 <div class="memitem">
 <div class="memproto">
@@ -434,13 +511,13 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>CEbenezerDlg</b></td
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>Ebenezer/<a class="el" href="_d_b_agent_8h_source.html">DBAgent.h</a></li>
-<li>Ebenezer/DBAgent.cpp</li>
+<li>src/Ebenezer/<a class="el" href="_d_b_agent_8h_source.html">DBAgent.h</a></li>
+<li>src/Ebenezer/DBAgent.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:03 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

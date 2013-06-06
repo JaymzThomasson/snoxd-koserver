@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.3.1"/>
-<title>Snoxd.net&#39;s public KO server project: Ebenezer/Npc.h Source File</title>
+<title>Snoxd.net&#39;s public KO server project: src/Ebenezer/Npc.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -78,7 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_334c8279933e6a7bafa2e590e80978ad.html">Ebenezer</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_e93684172c9a41a933ee0a0b96d1d32c.html">Ebenezer</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -95,7 +95,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;{</div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    <span class="keyword">virtual</span> uint16 GetID() { <span class="keywordflow">return</span> m_sNid; }</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    <span class="keyword">virtual</span> <span class="keyword">const</span> <span class="keywordtype">char</span> * GetName() { <span class="keywordflow">return</span> m_strName; }</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    <span class="keyword">virtual</span> std::string &amp; GetName() { <span class="keywordflow">return</span> m_strName; }</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    uint16  m_sNid; <span class="comment">// NPC ID</span></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    uint16  m_sSid; <span class="comment">// prototype ID</span></div>
@@ -104,77 +104,81 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <span class="keywordtype">short</span>   m_sSize;            <span class="comment">// MONSTER(NPC) Size</span></div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <span class="keywordtype">int</span>     m_iWeapon_1;</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keywordtype">int</span>     m_iWeapon_2;</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <span class="keywordtype">char</span>    m_strName[MAX_NPC_SIZE+1];      <span class="comment">// MONSTER(NPC) Name</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    std::string m_strName;      <span class="comment">// MONSTER(NPC) Name</span></div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="keywordtype">int</span>     m_iMaxHP;           <span class="comment">// 최대 HP</span></div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">int</span>     m_iHP;              <span class="comment">// 현재 HP</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    BYTE    m_byState;          <span class="comment">// 몬스터 (NPC) 상태</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    BYTE    m_tNpcType;         <span class="comment">// NPC Type</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    uint8   m_byState;          <span class="comment">// 몬스터 (NPC) 상태</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    uint8   m_tNpcType;         <span class="comment">// NPC Type</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;                                <span class="comment">// 0 : Normal Monster</span></div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;                                <span class="comment">// 1 : NPC</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;                                <span class="comment">// 2 : 각 입구,출구 NPC</span></div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;                                <span class="comment">// 3 : 경비병</span></div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordtype">int</span>   m_iSellingGroup;      <span class="comment">// ItemGroup</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="comment">//  DWORD   m_dwStepDelay;      </span></div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    BYTE    m_NpcState;         <span class="comment">// NPC의 상태 - 살았다, 죽었다, 서있다 등등...</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    BYTE    m_byGateOpen;       <span class="comment">// Gate Npc Status -&gt; 1 : open 0 : close</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    BYTE    m_byObjectType;     <span class="comment">// 보통은 0, object타입(성문, 레버)은 1</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    int16   m_byDirection;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    uint8   m_byTrapNumber;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <a class="code" href="struct_c_npc.html">CNpc</a>();</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#a19cfd7547e0b4425b62735bf5e985441" title="Initializes this object.">Initialize</a>();</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#a692dc2197ad46c2ee3828fdb9ec52ee3" title="Adds the NPC to the region.">AddToRegion</a>(int16 new_region_x, int16 new_region_z);</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#aad0b2f95033590f3ff70ce37dabffda0" title="Sends the movement packet for the NPC.">MoveResult</a>(<span class="keywordtype">float</span> xpos, <span class="keywordtype">float</span> ypos, <span class="keywordtype">float</span> zpos, <span class="keywordtype">float</span> speed);</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#adc0cea3dc6f49220221572fc26416248" title="Constructs an in/out packet for the NPC.">GetInOut</a>(<a class="code" href="class_packet.html">Packet</a> &amp; result, uint8 bType);</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#a90a77486abc45f13716417c59c6ca4f2" title="Constructs and sends an in/out packet for the NPC.">SendInOut</a>(uint8 bType, <span class="keywordtype">float</span> fx, <span class="keywordtype">float</span> fz, <span class="keywordtype">float</span> fy);</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#ad880c9318e7d1c454a1fe42f1ed804ec" title="Gets NPC information for use in various NPC packets.">GetNpcInfo</a>(<a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#ae89e4704b0910145745061aeed1a39b7" title="Sends a gate status.">SendGateFlag</a>(BYTE bFlag = -1, <span class="keywordtype">bool</span> bSendAI = <span class="keyword">true</span>);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#aa003eefe2bce54bbb436e78b4b83123e" title="Changes an NPC&#39;s hitpoints.">HpChange</a>(<span class="keywordtype">int</span> amount, <a class="code" href="class_unit.html">Unit</a> *pAttacker = NULL, <span class="keywordtype">bool</span> bSendToAI = <span class="keyword">true</span>); </div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#ae52f556418ad36bd6648c3c3fca96f21" title="Changes an NPC&#39;s mana.">MSpChange</a>(<span class="keywordtype">int</span> amount);</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#ab4b2248755ee2ad3ab290b86042e515b" title="Executes the death action.">OnDeath</a>(<a class="code" href="class_unit.html">Unit</a> *pKiller);</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> isDead() { <span class="keywordflow">return</span> m_NpcState == NPC_DEAD || m_iHP &lt;= 0; };</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    INLINE <span class="keywordtype">bool</span> isGate() { <span class="keywordflow">return</span> GetType() == NPC_GATE || GetType() == NPC_PHOENIX_GATE || GetType() == NPC_SPECIAL_GATE || GetType() == NPC_VICTORY_GATE; };</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    INLINE <span class="keywordtype">bool</span> isGateOpen() { <span class="keywordflow">return</span> m_byGateOpen == 1; };</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    INLINE <span class="keywordtype">bool</span> isGateClosed() { <span class="keywordflow">return</span> !isGateOpen(); };</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    INLINE <span class="keywordtype">short</span> GetEntryID() { <span class="keywordflow">return</span> m_sSid; };</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    INLINE BYTE GetType() { <span class="keywordflow">return</span> m_tNpcType; };</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    INLINE BYTE GetState() { <span class="keywordflow">return</span> m_byState; };</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keyword">virtual</span> int32 GetHealth() { <span class="keywordflow">return</span> m_iHP; }</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keyword">virtual</span> int32 GetMaxHealth() { <span class="keywordflow">return</span> m_iMaxHP; }</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keyword">virtual</span> int32 GetMana() { <span class="keywordflow">return</span> 0; }</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keyword">virtual</span> int32 GetMaxMana() { <span class="keywordflow">return</span> 0; }</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="struct_c_npc.html">CNpc</a>();</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    uint8   m_NpcState;         <span class="comment">// NPC의 상태 - 살았다, 죽었다, 서있다 등등...</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    uint8   m_byGateOpen;       <span class="comment">// Gate Npc Status -&gt; 1 : open 0 : close</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    uint8    m_byObjectType;     <span class="comment">// 보통은 0, object타입(성문, 레버)은 1</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    int16   m_byDirection;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    uint8   m_byTrapNumber;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keywordtype">bool</span>    m_bMonster; <span class="comment">// are we a monster or an NPC?</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <a class="code" href="struct_c_npc.html">CNpc</a>();</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#a19cfd7547e0b4425b62735bf5e985441" title="Initializes this object.">Initialize</a>();</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#a692dc2197ad46c2ee3828fdb9ec52ee3" title="Adds the NPC to the region.">AddToRegion</a>(int16 new_region_x, int16 new_region_z);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#aad0b2f95033590f3ff70ce37dabffda0" title="Sends the movement packet for the NPC.">MoveResult</a>(<span class="keywordtype">float</span> xpos, <span class="keywordtype">float</span> ypos, <span class="keywordtype">float</span> zpos, <span class="keywordtype">float</span> speed);</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#adc0cea3dc6f49220221572fc26416248" title="Constructs an in/out packet for the NPC.">GetInOut</a>(<a class="code" href="class_packet.html">Packet</a> &amp; result, uint8 bType);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#a90a77486abc45f13716417c59c6ca4f2" title="Constructs and sends an in/out packet for the NPC.">SendInOut</a>(uint8 bType, <span class="keywordtype">float</span> fx, <span class="keywordtype">float</span> fz, <span class="keywordtype">float</span> fy);</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#ad880c9318e7d1c454a1fe42f1ed804ec" title="Gets NPC information for use in various NPC packets.">GetNpcInfo</a>(<a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#a305ad9969426c61aa6c02723597aee63" title="Sends a gate status.">SendGateFlag</a>(uint8 bFlag = -1, <span class="keywordtype">bool</span> bSendAI = <span class="keyword">true</span>);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#abdc93a5afbb3051f534fea7365e21d30" title="Changes an NPC&#39;s hitpoints.">HpChange</a>(<span class="keywordtype">int</span> amount, <a class="code" href="class_unit.html">Unit</a> *pAttacker = <span class="keyword">nullptr</span>, <span class="keywordtype">bool</span> bSendToAI = <span class="keyword">true</span>); </div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#ae52f556418ad36bd6648c3c3fca96f21" title="Changes an NPC&#39;s mana.">MSpChange</a>(<span class="keywordtype">int</span> amount);</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="struct_c_npc.html#ab4b2248755ee2ad3ab290b86042e515b" title="Executes the death action.">OnDeath</a>(<a class="code" href="class_unit.html">Unit</a> *pKiller);</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> isDead() { <span class="keywordflow">return</span> m_NpcState == NPC_DEAD || m_iHP &lt;= 0; };</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    INLINE <span class="keywordtype">bool</span> isMonster() { <span class="keywordflow">return</span> m_bMonster; }</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    INLINE <span class="keywordtype">bool</span> isGate() { <span class="keywordflow">return</span> GetType() == NPC_GATE || GetType() == NPC_PHOENIX_GATE || GetType() == NPC_SPECIAL_GATE || GetType() == NPC_VICTORY_GATE; };</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    INLINE <span class="keywordtype">bool</span> isGateOpen() { <span class="keywordflow">return</span> m_byGateOpen == 1; };</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    INLINE <span class="keywordtype">bool</span> isGateClosed() { <span class="keywordflow">return</span> !isGateOpen(); };</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    INLINE <span class="keywordtype">short</span> GetEntryID() { <span class="keywordflow">return</span> m_sSid; };</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    INLINE uint8 GetType() { <span class="keywordflow">return</span> m_tNpcType; };</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    INLINE uint8 GetState() { <span class="keywordflow">return</span> m_byState; };</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keyword">virtual</span> int32 GetHealth() { <span class="keywordflow">return</span> m_iHP; }</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keyword">virtual</span> int32 GetMaxHealth() { <span class="keywordflow">return</span> m_iMaxHP; }</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keyword">virtual</span> int32 GetMana() { <span class="keywordflow">return</span> 0; }</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keyword">virtual</span> int32 GetMaxMana() { <span class="keywordflow">return</span> 0; }</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    DECLARE_LUA_CLASS(<a class="code" href="struct_c_npc.html">CNpc</a>);</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> <a class="code" href="struct_c_npc.html#a557f3d626834d1eb31b6954c0b657703" title="Determine if an NPC can attack the specified unit.">CanAttack</a>(<a class="code" href="class_unit.html">Unit</a> * pTarget);</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    DECLARE_LUA_GETTER(GetID);</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    DECLARE_LUA_GETTER(GetEntryID);</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    DECLARE_LUA_GETTER(GetName);</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    DECLARE_LUA_GETTER(GetNation);</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    DECLARE_LUA_GETTER(GetType);</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    DECLARE_LUA_GETTER(GetZoneID);</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    DECLARE_LUA_GETTER(GetX);</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    DECLARE_LUA_GETTER(GetY);</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    DECLARE_LUA_GETTER(GetZ);</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;};</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="struct_c_npc.html">CNpc</a>();</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    DECLARE_LUA_CLASS(<a class="code" href="struct_c_npc.html">CNpc</a>);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    DECLARE_LUA_GETTER(GetID);</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    DECLARE_LUA_GETTER(GetEntryID);</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    DECLARE_LUA_GETTER(GetName);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    DECLARE_LUA_GETTER(GetNation);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    DECLARE_LUA_GETTER(GetType);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    DECLARE_LUA_GETTER(GetZoneID);</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    DECLARE_LUA_GETTER(GetX);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    DECLARE_LUA_GETTER(GetY);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    DECLARE_LUA_GETTER(GetZ);</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

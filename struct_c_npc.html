@@ -82,6 +82,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
@@ -104,6 +105,11 @@ Inheritance diagram for CNpc:</div>
 </map>
  </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_c_npc_1_1_size.html">Size</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a81c2db4c92dcfe4b19b1512409cb9e2d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a81c2db4c92dcfe4b19b1512409cb9e2d"></a>
@@ -115,9 +121,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af6cdc98246640469caa422abdf02175d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af6cdc98246640469caa422abdf02175d"></a>
 virtual uint16&#160;</td><td class="memItemRight" valign="bottom"><b>GetID</b> ()</td></tr>
 <tr class="separator:af6cdc98246640469caa422abdf02175d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad66a4fd690d3558d130812d9a0a5b6c9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad66a4fd690d3558d130812d9a0a5b6c9"></a>
-virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><b>GetName</b> ()</td></tr>
-<tr class="separator:ad66a4fd690d3558d130812d9a0a5b6c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5c9dc479817c832e02be2ec0e596591"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af5c9dc479817c832e02be2ec0e596591"></a>
+virtual std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetName</b> ()</td></tr>
+<tr class="separator:af5c9dc479817c832e02be2ec0e596591"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a19cfd7547e0b4425b62735bf5e985441"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a19cfd7547e0b4425b62735bf5e985441"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_c_npc.html#a19cfd7547e0b4425b62735bf5e985441">Initialize</a> ()</td></tr>
 <tr class="memdesc:a19cfd7547e0b4425b62735bf5e985441"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes this object. <br/></td></tr>
@@ -137,12 +143,12 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memitem:ad880c9318e7d1c454a1fe42f1ed804ec"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_c_npc.html#ad880c9318e7d1c454a1fe42f1ed804ec">GetNpcInfo</a> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="memdesc:ad880c9318e7d1c454a1fe42f1ed804ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets NPC information for use in various NPC packets.  <a href="#ad880c9318e7d1c454a1fe42f1ed804ec">More...</a><br/></td></tr>
 <tr class="separator:ad880c9318e7d1c454a1fe42f1ed804ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae89e4704b0910145745061aeed1a39b7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_c_npc.html#ae89e4704b0910145745061aeed1a39b7">SendGateFlag</a> (BYTE bFlag=-1, bool bSendAI=true)</td></tr>
-<tr class="memdesc:ae89e4704b0910145745061aeed1a39b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends a gate status.  <a href="#ae89e4704b0910145745061aeed1a39b7">More...</a><br/></td></tr>
-<tr class="separator:ae89e4704b0910145745061aeed1a39b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa003eefe2bce54bbb436e78b4b83123e"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_c_npc.html#aa003eefe2bce54bbb436e78b4b83123e">HpChange</a> (int amount, <a class="el" href="class_unit.html">Unit</a> *pAttacker=NULL, bool bSendToAI=true)</td></tr>
-<tr class="memdesc:aa003eefe2bce54bbb436e78b4b83123e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Changes an NPC's hitpoints.  <a href="#aa003eefe2bce54bbb436e78b4b83123e">More...</a><br/></td></tr>
-<tr class="separator:aa003eefe2bce54bbb436e78b4b83123e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a305ad9969426c61aa6c02723597aee63"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_c_npc.html#a305ad9969426c61aa6c02723597aee63">SendGateFlag</a> (uint8 bFlag=-1, bool bSendAI=true)</td></tr>
+<tr class="memdesc:a305ad9969426c61aa6c02723597aee63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends a gate status.  <a href="#a305ad9969426c61aa6c02723597aee63">More...</a><br/></td></tr>
+<tr class="separator:a305ad9969426c61aa6c02723597aee63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdc93a5afbb3051f534fea7365e21d30"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_c_npc.html#abdc93a5afbb3051f534fea7365e21d30">HpChange</a> (int amount, <a class="el" href="class_unit.html">Unit</a> *pAttacker=nullptr, bool bSendToAI=true)</td></tr>
+<tr class="memdesc:abdc93a5afbb3051f534fea7365e21d30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Changes an NPC's hitpoints.  <a href="#abdc93a5afbb3051f534fea7365e21d30">More...</a><br/></td></tr>
+<tr class="separator:abdc93a5afbb3051f534fea7365e21d30"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae52f556418ad36bd6648c3c3fca96f21"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_c_npc.html#ae52f556418ad36bd6648c3c3fca96f21">MSpChange</a> (int amount)</td></tr>
 <tr class="memdesc:ae52f556418ad36bd6648c3c3fca96f21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Changes an NPC's mana.  <a href="#ae52f556418ad36bd6648c3c3fca96f21">More...</a><br/></td></tr>
 <tr class="separator:ae52f556418ad36bd6648c3c3fca96f21"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -152,24 +158,27 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr class="memitem:ab79e4ba538ceb8a2aa96b1f770ffce44"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab79e4ba538ceb8a2aa96b1f770ffce44"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>isDead</b> ()</td></tr>
 <tr class="separator:ab79e4ba538ceb8a2aa96b1f770ffce44"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab396d7402a4a4f94e4e6cfe36f1f1633"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab396d7402a4a4f94e4e6cfe36f1f1633"></a>
-__forceinline bool&#160;</td><td class="memItemRight" valign="bottom"><b>isGate</b> ()</td></tr>
-<tr class="separator:ab396d7402a4a4f94e4e6cfe36f1f1633"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af8716b5fac2b4f8e360def445978a970"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af8716b5fac2b4f8e360def445978a970"></a>
-__forceinline bool&#160;</td><td class="memItemRight" valign="bottom"><b>isGateOpen</b> ()</td></tr>
-<tr class="separator:af8716b5fac2b4f8e360def445978a970"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60dc15cd761b0ab6357decbd91a968ed"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a60dc15cd761b0ab6357decbd91a968ed"></a>
-__forceinline bool&#160;</td><td class="memItemRight" valign="bottom"><b>isGateClosed</b> ()</td></tr>
-<tr class="separator:a60dc15cd761b0ab6357decbd91a968ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a47c5ac048fd53ec233170702ce734b7d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a47c5ac048fd53ec233170702ce734b7d"></a>
-__forceinline short&#160;</td><td class="memItemRight" valign="bottom"><b>GetEntryID</b> ()</td></tr>
-<tr class="separator:a47c5ac048fd53ec233170702ce734b7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9235b9a9187b2482b56b6425258ebca1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9235b9a9187b2482b56b6425258ebca1"></a>
-__forceinline BYTE&#160;</td><td class="memItemRight" valign="bottom"><b>GetType</b> ()</td></tr>
-<tr class="separator:a9235b9a9187b2482b56b6425258ebca1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8037a12683fe0059338a2ffa7a96e64e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8037a12683fe0059338a2ffa7a96e64e"></a>
-__forceinline BYTE&#160;</td><td class="memItemRight" valign="bottom"><b>GetState</b> ()</td></tr>
-<tr class="separator:a8037a12683fe0059338a2ffa7a96e64e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a319c7491bf24c4658e22390159fc48cc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a319c7491bf24c4658e22390159fc48cc"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>isMonster</b> ()</td></tr>
+<tr class="separator:a319c7491bf24c4658e22390159fc48cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a069e3ccc42715928d7693b742faf274a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a069e3ccc42715928d7693b742faf274a"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>isGate</b> ()</td></tr>
+<tr class="separator:a069e3ccc42715928d7693b742faf274a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a4d97fb7b8ae0d2d03d1c7afbf5ddfe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4a4d97fb7b8ae0d2d03d1c7afbf5ddfe"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>isGateOpen</b> ()</td></tr>
+<tr class="separator:a4a4d97fb7b8ae0d2d03d1c7afbf5ddfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96dee05ff19c617751d04ee8a6ae7b3f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a96dee05ff19c617751d04ee8a6ae7b3f"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>isGateClosed</b> ()</td></tr>
+<tr class="separator:a96dee05ff19c617751d04ee8a6ae7b3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac849d6c6f45051d533920274fa4649f2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac849d6c6f45051d533920274fa4649f2"></a>
+short&#160;</td><td class="memItemRight" valign="bottom"><b>GetEntryID</b> ()</td></tr>
+<tr class="separator:ac849d6c6f45051d533920274fa4649f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6ee6ef8485ffa9b11d1051ccede4de5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa6ee6ef8485ffa9b11d1051ccede4de5"></a>
+uint8&#160;</td><td class="memItemRight" valign="bottom"><b>GetType</b> ()</td></tr>
+<tr class="separator:aa6ee6ef8485ffa9b11d1051ccede4de5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9bfb0332e8438201f7798f5c7b023e9e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9bfb0332e8438201f7798f5c7b023e9e"></a>
+uint8&#160;</td><td class="memItemRight" valign="bottom"><b>GetState</b> ()</td></tr>
+<tr class="separator:a9bfb0332e8438201f7798f5c7b023e9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d62d6b693cdce4b75cadbe5f8aa0f2f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0d62d6b693cdce4b75cadbe5f8aa0f2f"></a>
 virtual int32&#160;</td><td class="memItemRight" valign="bottom"><b>GetHealth</b> ()</td></tr>
 <tr class="separator:a0d62d6b693cdce4b75cadbe5f8aa0f2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -182,6 +191,39 @@ virtual int32&#160;</td><td class="memItemRight" valign="bottom"><b>GetMana</b> 
 <tr class="memitem:a007a179ed420c8c075211d56e20fd724"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a007a179ed420c8c075211d56e20fd724"></a>
 virtual int32&#160;</td><td class="memItemRight" valign="bottom"><b>GetMaxMana</b> ()</td></tr>
 <tr class="separator:a007a179ed420c8c075211d56e20fd724"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a557f3d626834d1eb31b6954c0b657703"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_c_npc.html#a557f3d626834d1eb31b6954c0b657703">CanAttack</a> (<a class="el" href="class_unit.html">Unit</a> *pTarget)</td></tr>
+<tr class="memdesc:a557f3d626834d1eb31b6954c0b657703"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determine if an NPC can attack the specified unit.  <a href="#a557f3d626834d1eb31b6954c0b657703">More...</a><br/></td></tr>
+<tr class="separator:a557f3d626834d1eb31b6954c0b657703"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa55e0205ae00ec5b0c5b2d4bde6482d3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa55e0205ae00ec5b0c5b2d4bde6482d3"></a>
+INLINE <a class="el" href="class_c_npc_table.html">CNpcTable</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetProto</b> ()</td></tr>
+<tr class="separator:aa55e0205ae00ec5b0c5b2d4bde6482d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a407f0cf7acf4d8c416729396e2da4d3c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a407f0cf7acf4d8c416729396e2da4d3c"></a>
+INLINE uint8&#160;</td><td class="memItemRight" valign="bottom"><b>GetType</b> ()</td></tr>
+<tr class="separator:a407f0cf7acf4d8c416729396e2da4d3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb6bfd886ded632e89a25a67f08825a8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afb6bfd886ded632e89a25a67f08825a8"></a>
+INLINE uint8&#160;</td><td class="memItemRight" valign="bottom"><b>GetNation</b> ()</td></tr>
+<tr class="separator:afb6bfd886ded632e89a25a67f08825a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2885d4e811cf41060c1f031b46fbe46b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2885d4e811cf41060c1f031b46fbe46b"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isGuard</b> ()</td></tr>
+<tr class="separator:a2885d4e811cf41060c1f031b46fbe46b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b52aaeb7d3cd497730c7b1cb0bedf20"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6b52aaeb7d3cd497730c7b1cb0bedf20"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isGate</b> ()</td></tr>
+<tr class="separator:a6b52aaeb7d3cd497730c7b1cb0bedf20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf6ca3dcc286c0b8e3ff3fa6d9278053"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaf6ca3dcc286c0b8e3ff3fa6d9278053"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isArtifact</b> ()</td></tr>
+<tr class="separator:aaf6ca3dcc286c0b8e3ff3fa6d9278053"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a353dc3ed50bdd0e9a404c141d4e33b90"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a353dc3ed50bdd0e9a404c141d4e33b90"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isNonAttackingObject</b> ()</td></tr>
+<tr class="separator:a353dc3ed50bdd0e9a404c141d4e33b90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83f2afd5aaeb848dbd3066e8684d254f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a83f2afd5aaeb848dbd3066e8684d254f"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isDead</b> ()</td></tr>
+<tr class="separator:a83f2afd5aaeb848dbd3066e8684d254f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80e855dcd72232735572e9bf13a776c4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a80e855dcd72232735572e9bf13a776c4"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isAlive</b> ()</td></tr>
+<tr class="separator:a80e855dcd72232735572e9bf13a776c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49f30c16e8e9694eb3ff216ee4d39650"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a49f30c16e8e9694eb3ff216ee4d39650"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isMonster</b> ()</td></tr>
+<tr class="separator:a49f30c16e8e9694eb3ff216ee4d39650"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f64f10005270baf9b3cc341f734267d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4f64f10005270baf9b3cc341f734267d"></a>
 INLINE <a class="el" href="class_m_a_p.html">MAP</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetMap</b> ()</td></tr>
 <tr class="separator:a4f64f10005270baf9b3cc341f734267d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -200,15 +242,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>InitPos</b> ()</td></
 <tr class="memitem:aff13d2c9de21aad229f1e64ebb34ef2f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aff13d2c9de21aad229f1e64ebb34ef2f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>InitMagicValuable</b> ()</td></tr>
 <tr class="separator:aff13d2c9de21aad229f1e64ebb34ef2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad47fe841116545a07dd64c5c0a94f403"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad47fe841116545a07dd64c5c0a94f403"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Load</b> (uint16 sNpcID, <a class="el" href="class_c_npc_table.html">CNpcTable</a> *proto)</td></tr>
-<tr class="separator:ad47fe841116545a07dd64c5c0a94f403"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5eb052a6a0bead798dce08a51cf75de"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac5eb052a6a0bead798dce08a51cf75de"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Load</b> (uint16 sNpcID, <a class="el" href="class_c_npc_table.html">CNpcTable</a> *proto, bool bMonster)</td></tr>
+<tr class="separator:ac5eb052a6a0bead798dce08a51cf75de"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a14df6b0f0843b1f665f3b0c1af2cef26"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a14df6b0f0843b1f665f3b0c1af2cef26"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>FillNpcInfo</b> (<a class="el" href="class_packet.html">Packet</a> &amp;result)</td></tr>
 <tr class="separator:a14df6b0f0843b1f665f3b0c1af2cef26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6d606e91bc181cbf1ebdb391855facf7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6d606e91bc181cbf1ebdb391855facf7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>NpcStrategy</b> (BYTE type)</td></tr>
-<tr class="separator:a6d606e91bc181cbf1ebdb391855facf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad114f43c63d5896ec880a1a2752c41d3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad114f43c63d5896ec880a1a2752c41d3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>NpcStrategy</b> (uint8 type)</td></tr>
+<tr class="separator:ad114f43c63d5896ec880a1a2752c41d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa03a37e2d9d3006463811a9c1aea226f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa03a37e2d9d3006463811a9c1aea226f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>NpcTypeParser</b> ()</td></tr>
 <tr class="separator:aa03a37e2d9d3006463811a9c1aea226f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -218,24 +260,21 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>FindFriend</b> (int ty
 <tr class="memitem:afc258927010296c7747493c982c48ff5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afc258927010296c7747493c982c48ff5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>FindFriendRegion</b> (int x, int z, <a class="el" href="class_m_a_p.html">MAP</a> *pMap, <a class="el" href="struct___target_healer.html">_TargetHealer</a> *pHealer, int type=0)</td></tr>
 <tr class="separator:afc258927010296c7747493c982c48ff5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af96c25a98ceea477ccda57b81f6d4fae"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af96c25a98ceea477ccda57b81f6d4fae"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>IsCloseTarget</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, int nRange)</td></tr>
-<tr class="separator:af96c25a98ceea477ccda57b81f6d4fae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad92bd129fcfa54a9cd77ca77f231e0e3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad92bd129fcfa54a9cd77ca77f231e0e3"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsCloseTarget</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, int nRange)</td></tr>
+<tr class="separator:ad92bd129fcfa54a9cd77ca77f231e0e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a558f05ecfcf7cd566368d09e8dd67eec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a558f05ecfcf7cd566368d09e8dd67eec"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ToTargetMove</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
 <tr class="separator:a558f05ecfcf7cd566368d09e8dd67eec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23b3188ac581b0f37c5560a2f2a5987c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a23b3188ac581b0f37c5560a2f2a5987c"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>SendDead</b> (int type=1)</td></tr>
-<tr class="separator:a23b3188ac581b0f37c5560a2f2a5987c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a20559b092f46b58619c311d18464a93f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a20559b092f46b58619c311d18464a93f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SendExpToUserList</b> ()</td></tr>
 <tr class="separator:a20559b092f46b58619c311d18464a93f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a00b6349f8870f9ad346d51431c8f2f77"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a00b6349f8870f9ad346d51431c8f2f77"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>SetDamage</b> (int nAttackType, int nDamage, TCHAR *id, int uid)</td></tr>
-<tr class="separator:a00b6349f8870f9ad346d51431c8f2f77"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a701962e246e708bce3bc9c732a1c2dfc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a701962e246e708bce3bc9c732a1c2dfc"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>SetHMagicDamage</b> (int nDamage)</td></tr>
-<tr class="separator:a701962e246e708bce3bc9c732a1c2dfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7cde2e8ed4b69085186b2451def56558"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7cde2e8ed4b69085186b2451def56558"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>SetDamage</b> (int nAttackType, int nDamage, int uid, int iDeadType=0)</td></tr>
+<tr class="separator:a7cde2e8ed4b69085186b2451def56558"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a714781db540d7d83672dcf7d20cb5d7e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a714781db540d7d83672dcf7d20cb5d7e"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>SetHMagicDamage</b> (int nDamage)</td></tr>
+<tr class="separator:a714781db540d7d83672dcf7d20cb5d7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5fa8f73e43b35aadf90f1c1fad2d2e68"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5fa8f73e43b35aadf90f1c1fad2d2e68"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>GetDefense</b> ()</td></tr>
 <tr class="separator:a5fa8f73e43b35aadf90f1c1fad2d2e68"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -251,18 +290,18 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>GetFinalDamage</b> (<a
 <tr class="memitem:aa8d982a3e14d653bc8a15e330ab2f99e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa8d982a3e14d653bc8a15e330ab2f99e"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>GetNFinalDamage</b> (<a class="el" href="struct_c_npc.html">CNpc</a> *pNpc)</td></tr>
 <tr class="separator:aa8d982a3e14d653bc8a15e330ab2f99e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acb17865c2a5acd8e15a1c7e1e5fea424"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acb17865c2a5acd8e15a1c7e1e5fea424"></a>
-BYTE&#160;</td><td class="memItemRight" valign="bottom"><b>GetHitRate</b> (float rate)</td></tr>
-<tr class="separator:acb17865c2a5acd8e15a1c7e1e5fea424"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef50c6b89ddcbce8d3a8fb6dc0a223f2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef50c6b89ddcbce8d3a8fb6dc0a223f2"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>ResetPath</b> ()</td></tr>
-<tr class="separator:aef50c6b89ddcbce8d3a8fb6dc0a223f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2842eddda5ea771d8d1b35cae08421be"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2842eddda5ea771d8d1b35cae08421be"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>GetTargetPos</b> (float &amp;x, float &amp;z)</td></tr>
-<tr class="separator:a2842eddda5ea771d8d1b35cae08421be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed0671e99cced90e83ddc0e49213c9f5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aed0671e99cced90e83ddc0e49213c9f5"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>IsChangePath</b> ()</td></tr>
-<tr class="separator:aed0671e99cced90e83ddc0e49213c9f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab71f7a0e8da926dac8c17aec24b336c9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab71f7a0e8da926dac8c17aec24b336c9"></a>
+uint8&#160;</td><td class="memItemRight" valign="bottom"><b>GetHitRate</b> (float rate)</td></tr>
+<tr class="separator:ab71f7a0e8da926dac8c17aec24b336c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f5884b904de2ff0c6aca3e29586aecf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3f5884b904de2ff0c6aca3e29586aecf"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>ResetPath</b> ()</td></tr>
+<tr class="separator:a3f5884b904de2ff0c6aca3e29586aecf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5064497077931394b54b1ed4fc39b5e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5064497077931394b54b1ed4fc39b5e4"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>GetTargetPos</b> (float &amp;x, float &amp;z)</td></tr>
+<tr class="separator:a5064497077931394b54b1ed4fc39b5e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b9cb585843d340053fa9b8c6acdf367"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8b9cb585843d340053fa9b8c6acdf367"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsChangePath</b> ()</td></tr>
+<tr class="separator:a8b9cb585843d340053fa9b8c6acdf367"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2349507c2d8e7231daece3c2a306637d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2349507c2d8e7231daece3c2a306637d"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>Attack</b> ()</td></tr>
 <tr class="separator:a2349507c2d8e7231daece3c2a306637d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -281,45 +320,45 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>GetPartyDamage</b> (in
 <tr class="memitem:aff3769b0e8d835f9b4beab3b903f1cce"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aff3769b0e8d835f9b4beab3b903f1cce"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>IsCloseTarget</b> (int nRange, int Flag=0)</td></tr>
 <tr class="separator:aff3769b0e8d835f9b4beab3b903f1cce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac1a37088d3e18c8cf0e1293d1fd4a3cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac1a37088d3e18c8cf0e1293d1fd4a3cb"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>StepMove</b> ()</td></tr>
-<tr class="separator:ac1a37088d3e18c8cf0e1293d1fd4a3cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2d6abe75996ac7c54289a1effb5bf68e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2d6abe75996ac7c54289a1effb5bf68e"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>StepNoPathMove</b> ()</td></tr>
-<tr class="separator:a2d6abe75996ac7c54289a1effb5bf68e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff51aaaa4d00f552fa57d81b3b0f132a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aff51aaaa4d00f552fa57d81b3b0f132a"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>IsMovingEnd</b> ()</td></tr>
-<tr class="separator:aff51aaaa4d00f552fa57d81b3b0f132a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a952449ceb4fd8251924a9577b6deac35"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a952449ceb4fd8251924a9577b6deac35"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>IsMovable</b> (float x, float z)</td></tr>
-<tr class="separator:a952449ceb4fd8251924a9577b6deac35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d2af1a513a51df8b040852dc9d19e4d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3d2af1a513a51df8b040852dc9d19e4d"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>StepMove</b> ()</td></tr>
+<tr class="separator:a3d2af1a513a51df8b040852dc9d19e4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa736c97d9afd428a1be3bbad021b1d82"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa736c97d9afd428a1be3bbad021b1d82"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>StepNoPathMove</b> ()</td></tr>
+<tr class="separator:aa736c97d9afd428a1be3bbad021b1d82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65f304b40ea198c599649b5dc71a3496"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a65f304b40ea198c599649b5dc71a3496"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsMovingEnd</b> ()</td></tr>
+<tr class="separator:a65f304b40ea198c599649b5dc71a3496"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa64b4a6eebc4cb0d4a70962ef73c9bf1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa64b4a6eebc4cb0d4a70962ef73c9bf1"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsMovable</b> (float x, float z)</td></tr>
+<tr class="separator:aa64b4a6eebc4cb0d4a70962ef73c9bf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9c9d94f2fed90bc97871179a390a7908"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c9d94f2fed90bc97871179a390a7908"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>IsSurround</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
 <tr class="separator:a9c9d94f2fed90bc97871179a390a7908"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a41352fff8dff97cf44c3e72711dcdc52"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a41352fff8dff97cf44c3e72711dcdc52"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>IsDamagedUserList</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
-<tr class="separator:a41352fff8dff97cf44c3e72711dcdc52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af84e18554875a1a967c16ba7ceab12c4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af84e18554875a1a967c16ba7ceab12c4"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsDamagedUserList</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
+<tr class="separator:af84e18554875a1a967c16ba7ceab12c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7d66c352ba4e11487968272a6e5d4e2f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7d66c352ba4e11487968272a6e5d4e2f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>IsUserInSight</b> ()</td></tr>
 <tr class="separator:a7d66c352ba4e11487968272a6e5d4e2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0204b23b13ce02054b14d50047f57073"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0204b23b13ce02054b14d50047f57073"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>IsLevelCheck</b> (int iLevel)</td></tr>
-<tr class="separator:a0204b23b13ce02054b14d50047f57073"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a293d69b36d83d3994f55ca94cf39aa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0a293d69b36d83d3994f55ca94cf39aa"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>IsHPCheck</b> (int iHP)</td></tr>
-<tr class="separator:a0a293d69b36d83d3994f55ca94cf39aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a595ecbafd9bb15e7e836db6e7f53b89b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a595ecbafd9bb15e7e836db6e7f53b89b"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>IsCompStatus</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
-<tr class="separator:a595ecbafd9bb15e7e836db6e7f53b89b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e84a8ec6822c795db20c4745e8cee83"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1e84a8ec6822c795db20c4745e8cee83"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>IsPathFindCheck</b> (float fDistance)</td></tr>
-<tr class="separator:a1e84a8ec6822c795db20c4745e8cee83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8736a34ebd927fc895819c76742fb61"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac8736a34ebd927fc895819c76742fb61"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsLevelCheck</b> (int iLevel)</td></tr>
+<tr class="separator:ac8736a34ebd927fc895819c76742fb61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d94f04c361df5cc2b624cb3a59aafcf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4d94f04c361df5cc2b624cb3a59aafcf"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsHPCheck</b> (int iHP)</td></tr>
+<tr class="separator:a4d94f04c361df5cc2b624cb3a59aafcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c5798284522854f8c64f6ce6b1001cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5c5798284522854f8c64f6ce6b1001cf"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsCompStatus</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
+<tr class="separator:a5c5798284522854f8c64f6ce6b1001cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c23ebcf34c48b4acd7f623efb670b2b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1c23ebcf34c48b4acd7f623efb670b2b"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsPathFindCheck</b> (float fDistance)</td></tr>
+<tr class="separator:a1c23ebcf34c48b4acd7f623efb670b2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa40e75e51563a8123cd5aa038ac834f3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa40e75e51563a8123cd5aa038ac834f3"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>IsNoPathFind</b> (float fDistance)</td></tr>
 <tr class="separator:aa40e75e51563a8123cd5aa038ac834f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8c4a542f6b7477cf7c94f93ed98ee00e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8c4a542f6b7477cf7c94f93ed98ee00e"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>IsInExpRange</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
-<tr class="separator:a8c4a542f6b7477cf7c94f93ed98ee00e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd6660200b8f3f69ba7a98ba32060372"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acd6660200b8f3f69ba7a98ba32060372"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsInExpRange</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
+<tr class="separator:acd6660200b8f3f69ba7a98ba32060372"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a87409dc91d8f578c457ce8787cf4080a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a87409dc91d8f578c457ce8787cf4080a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>GiveNpcHaveItem</b> ()</td></tr>
 <tr class="separator:a87409dc91d8f578c457ce8787cf4080a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -353,39 +392,39 @@ time_t&#160;</td><td class="memItemRight" valign="bottom"><b>NpcStanding</b> ()<
 <tr class="memitem:a7484114b0b1557e2d9476c0d27bcffa8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7484114b0b1557e2d9476c0d27bcffa8"></a>
 time_t&#160;</td><td class="memItemRight" valign="bottom"><b>NpcBack</b> ()</td></tr>
 <tr class="separator:a7484114b0b1557e2d9476c0d27bcffa8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e659a647fe895266673e39171ec17ab"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6e659a647fe895266673e39171ec17ab"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>SetLive</b> ()</td></tr>
-<tr class="separator:a6e659a647fe895266673e39171ec17ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a307dc8a70845e2a179a1ed007e9b9bda"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a307dc8a70845e2a179a1ed007e9b9bda"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>IsInRange</b> (int nX, int nZ)</td></tr>
-<tr class="separator:a307dc8a70845e2a179a1ed007e9b9bda"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a21a808f6e0692fb8d7dcd96ad8b77ba0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a21a808f6e0692fb8d7dcd96ad8b77ba0"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>RandomMove</b> ()</td></tr>
-<tr class="separator:a21a808f6e0692fb8d7dcd96ad8b77ba0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5d2c37caab4fbea2f59c66a6a1895a2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad5d2c37caab4fbea2f59c66a6a1895a2"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>RandomBackMove</b> ()</td></tr>
-<tr class="separator:ad5d2c37caab4fbea2f59c66a6a1895a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66645547cf40d6aba065d04f07f48e13"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a66645547cf40d6aba065d04f07f48e13"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>IsInPathRange</b> ()</td></tr>
-<tr class="separator:a66645547cf40d6aba065d04f07f48e13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a093418d871f20f3c2383790f6cd190de"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a093418d871f20f3c2383790f6cd190de"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>SetLive</b> ()</td></tr>
+<tr class="separator:a093418d871f20f3c2383790f6cd190de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6951031696865639e9cc2227ec9649d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae6951031696865639e9cc2227ec9649d"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsInRange</b> (int nX, int nZ)</td></tr>
+<tr class="separator:ae6951031696865639e9cc2227ec9649d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae660ba4382986fc80c3ce0f236361e85"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae660ba4382986fc80c3ce0f236361e85"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>RandomMove</b> ()</td></tr>
+<tr class="separator:ae660ba4382986fc80c3ce0f236361e85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdca20dbc1be489c3d8d1edb10b800b8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abdca20dbc1be489c3d8d1edb10b800b8"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>RandomBackMove</b> ()</td></tr>
+<tr class="separator:abdca20dbc1be489c3d8d1edb10b800b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c8eb1991ce2cc33abf8a9ad2fba1ae1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2c8eb1991ce2cc33abf8a9ad2fba1ae1"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsInPathRange</b> ()</td></tr>
+<tr class="separator:a2c8eb1991ce2cc33abf8a9ad2fba1ae1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac1ad69415848671284f34096f1449499"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac1ad69415848671284f34096f1449499"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>GetNearPathPoint</b> ()</td></tr>
 <tr class="separator:ac1ad69415848671284f34096f1449499"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2db0dca4828515dc53a07b335a9b2fe2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2db0dca4828515dc53a07b335a9b2fe2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SendAttackSuccess</b> (BYTE byResult, int tuid, short sDamage, int nHP=0, BYTE byFlag=0, short sAttack_type=1)</td></tr>
-<tr class="separator:a2db0dca4828515dc53a07b335a9b2fe2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a16b3836cfdcd297886c31dfc75293f3a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a16b3836cfdcd297886c31dfc75293f3a"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>SetUid</b> (float x, float z, int id)</td></tr>
-<tr class="separator:a16b3836cfdcd297886c31dfc75293f3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab36b476888dc15e9edb96d721483465"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aab36b476888dc15e9edb96d721483465"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SendAttackSuccess</b> (uint8 byResult, int tuid, short sDamage, int nHP=0, uint8 byFlag=0, short sAttack_type=1)</td></tr>
+<tr class="separator:aab36b476888dc15e9edb96d721483465"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adaad7c0a611e975a3cf268068e161e9e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adaad7c0a611e975a3cf268068e161e9e"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>SetUid</b> (float x, float z, int id)</td></tr>
+<tr class="separator:adaad7c0a611e975a3cf268068e161e9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a80241272a4320f37ae63ad3bce9b2530"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a80241272a4320f37ae63ad3bce9b2530"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Dead</b> (int iDeadType=0)</td></tr>
 <tr class="separator:a80241272a4320f37ae63ad3bce9b2530"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f308680f74154be89466ff55738c925"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0f308680f74154be89466ff55738c925"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>FindEnemy</b> ()</td></tr>
-<tr class="separator:a0f308680f74154be89466ff55738c925"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aceed4ba32a2cb9d6a9a5548a28541c61"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aceed4ba32a2cb9d6a9a5548a28541c61"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>CheckFindEnermy</b> ()</td></tr>
-<tr class="separator:aceed4ba32a2cb9d6a9a5548a28541c61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0371bb39d0ad56329df88eb91a31eb4b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0371bb39d0ad56329df88eb91a31eb4b"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>FindEnemy</b> ()</td></tr>
+<tr class="separator:a0371bb39d0ad56329df88eb91a31eb4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f18f702cecb6d0d4a52609e4d6a9e2b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4f18f702cecb6d0d4a52609e4d6a9e2b"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>CheckFindEnermy</b> ()</td></tr>
+<tr class="separator:a4f18f702cecb6d0d4a52609e4d6a9e2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a855dd73550a8f7b915eb3ce4e94b74c2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a855dd73550a8f7b915eb3ce4e94b74c2"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>FindEnemyRegion</b> ()</td></tr>
 <tr class="separator:a855dd73550a8f7b915eb3ce4e94b74c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -402,7 +441,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>GetDir</b> (float x1, 
 void&#160;</td><td class="memItemRight" valign="bottom"><b>NpcMoveEnd</b> ()</td></tr>
 <tr class="separator:a2050de20c7de2600801ef7ffcd86ec87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a18ef02ef60e67b6781d48195c3cb0088"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a18ef02ef60e67b6781d48195c3cb0088"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>RandomGenf</b> (float max, float min)</td></tr>
+INLINE float&#160;</td><td class="memItemRight" valign="bottom"><b>RandomGenf</b> (float max, float min)</td></tr>
 <tr class="separator:a18ef02ef60e67b6781d48195c3cb0088"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a009493bbb3cce43952344963f88bc139"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a009493bbb3cce43952344963f88bc139"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>GetVectorPosition</b> (__Vector3 &amp;vOrig, __Vector3 &amp;vDest, float fDis, __Vector3 *vResult)</td></tr>
@@ -422,12 +461,12 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>GetDistance</b> (__V
 <tr class="memitem:a95d057d97ee12c40f1b4690feb00da7c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a95d057d97ee12c40f1b4690feb00da7c"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>PathFind</b> (<a class="el" href="struct_c_point.html">CPoint</a> start, <a class="el" href="struct_c_point.html">CPoint</a> end, float fDistance)</td></tr>
 <tr class="separator:a95d057d97ee12c40f1b4690feb00da7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3904fb33167b3fdc7cb496408bb7c49a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3904fb33167b3fdc7cb496408bb7c49a"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>GetUserInView</b> ()</td></tr>
-<tr class="separator:a3904fb33167b3fdc7cb496408bb7c49a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a92cd1fe4218e30cd54ef05d60a4357c2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a92cd1fe4218e30cd54ef05d60a4357c2"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>GetUserInViewRange</b> (int x, int z)</td></tr>
-<tr class="separator:a92cd1fe4218e30cd54ef05d60a4357c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a238be39e53699956afc6b7d460b6bbc9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a238be39e53699956afc6b7d460b6bbc9"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>GetUserInView</b> ()</td></tr>
+<tr class="separator:a238be39e53699956afc6b7d460b6bbc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa83c9f4a605ef46e64c10a3d766aa15e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa83c9f4a605ef46e64c10a3d766aa15e"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>GetUserInViewRange</b> (int x, int z)</td></tr>
+<tr class="separator:aa83c9f4a605ef46e64c10a3d766aa15e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6db690f8b30eb4a44186df161bf096b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad6db690f8b30eb4a44186df161bf096b"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>MoveAttack</b> ()</td></tr>
 <tr class="separator:ad6db690f8b30eb4a44186df161bf096b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -467,9 +506,9 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>GetPartyExp</b> (int p
 <tr class="memitem:a5c89e5d694bb8a39e2b2add3989d9325"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5c89e5d694bb8a39e2b2add3989d9325"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ChangeAbility</b> (int iChangeType)</td></tr>
 <tr class="separator:a5c89e5d694bb8a39e2b2add3989d9325"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa06deb23ac69ada9feee4f7bc7f953c2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa06deb23ac69ada9feee4f7bc7f953c2"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>Teleport</b> ()</td></tr>
-<tr class="separator:aa06deb23ac69ada9feee4f7bc7f953c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9490c1fe85f78471b7361931f32428eb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9490c1fe85f78471b7361931f32428eb"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>Teleport</b> ()</td></tr>
+<tr class="separator:a9490c1fe85f78471b7361931f32428eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_unit"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_unit')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_unit.html">Unit</a></td></tr>
 <tr class="memitem:a27ca49f21950a0c33420d36de3c86585 inherit pub_methods_class_unit"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27ca49f21950a0c33420d36de3c86585"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Unit</b> (bool bPlayer=false)</td></tr>
@@ -531,12 +570,18 @@ INLINE uint8&#160;</td><td class="memItemRight" valign="bottom"><b>GetNation</b>
 <tr class="memitem:aa040cf3eab265060295212350b017ea7 inherit pub_methods_class_unit"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa040cf3eab265060295212350b017ea7"></a>
 INLINE uint8&#160;</td><td class="memItemRight" valign="bottom"><b>GetLevel</b> ()</td></tr>
 <tr class="separator:aa040cf3eab265060295212350b017ea7 inherit pub_methods_class_unit"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a77a3ad842c17b24c0e9b0b93cd6a0eac inherit pub_methods_class_unit"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a77a3ad842c17b24c0e9b0b93cd6a0eac"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isIncapacitated</b> ()</td></tr>
+<tr class="separator:a77a3ad842c17b24c0e9b0b93cd6a0eac inherit pub_methods_class_unit"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82dabcc93a234e16046ca69cab2f90b5 inherit pub_methods_class_unit"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a82dabcc93a234e16046ca69cab2f90b5"></a>
 INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isTransformed</b> ()</td></tr>
 <tr class="separator:a82dabcc93a234e16046ca69cab2f90b5 inherit pub_methods_class_unit"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5bfb0c240313132e5db8361b868a50b6 inherit pub_methods_class_unit"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5bfb0c240313132e5db8361b868a50b6"></a>
 INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isBlinded</b> ()</td></tr>
 <tr class="separator:a5bfb0c240313132e5db8361b868a50b6 inherit pub_methods_class_unit"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a154e115bc91a70aa78b75a074b390b2a inherit pub_methods_class_unit"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a154e115bc91a70aa78b75a074b390b2a"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isBuffed</b> ()</td></tr>
+<tr class="separator:a154e115bc91a70aa78b75a074b390b2a inherit pub_methods_class_unit"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a56729d6a941906f80286c5ff33ea488c inherit pub_methods_class_unit"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a56729d6a941906f80286c5ff33ea488c"></a>
 INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>canInstantCast</b> ()</td></tr>
 <tr class="separator:a56729d6a941906f80286c5ff33ea488c inherit pub_methods_class_unit"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -546,9 +591,6 @@ INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>canStealth</b>
 <tr class="memitem:ac7f80135de1d9f4117b4b27cda5c5a64 inherit pub_methods_class_unit"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac7f80135de1d9f4117b4b27cda5c5a64"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>isBlinking</b> ()</td></tr>
 <tr class="separator:ac7f80135de1d9f4117b4b27cda5c5a64 inherit pub_methods_class_unit"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5bf75e904a61ef5bd8fce73c95597177 inherit pub_methods_class_unit"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5bf75e904a61ef5bd8fce73c95597177"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>isAlive</b> ()</td></tr>
-<tr class="separator:a5bf75e904a61ef5bd8fce73c95597177 inherit pub_methods_class_unit"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0a25c04e316ec5b7ce06bd1f6c0cd3d8 inherit pub_methods_class_unit"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0a25c04e316ec5b7ce06bd1f6c0cd3d8"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><b>GetDistance</b> (float fx, float fz)</td></tr>
 <tr class="separator:a0a25c04e316ec5b7ce06bd1f6c0cd3d8 inherit pub_methods_class_unit"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -679,39 +721,42 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>m_iWeapon_1</b></td></
 <tr class="memitem:a633cddb78a1c36250298478b404868b1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a633cddb78a1c36250298478b404868b1"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>m_iWeapon_2</b></td></tr>
 <tr class="separator:a633cddb78a1c36250298478b404868b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9210c66038935bbec706434d17150f2a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9210c66038935bbec706434d17150f2a"></a>
-char&#160;</td><td class="memItemRight" valign="bottom"><b>m_strName</b> [30+1]</td></tr>
-<tr class="separator:a9210c66038935bbec706434d17150f2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59eb79f68f264c4a51bdbcc88d890bc6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a59eb79f68f264c4a51bdbcc88d890bc6"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>m_strName</b></td></tr>
+<tr class="separator:a59eb79f68f264c4a51bdbcc88d890bc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8f2ccd7b7992ca5550de2516048aa6da"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8f2ccd7b7992ca5550de2516048aa6da"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>m_iMaxHP</b></td></tr>
 <tr class="separator:a8f2ccd7b7992ca5550de2516048aa6da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a448fb8f263728ee98c76e125a8ca4bca"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a448fb8f263728ee98c76e125a8ca4bca"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>m_iHP</b></td></tr>
 <tr class="separator:a448fb8f263728ee98c76e125a8ca4bca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8c298727e93b5afcab7440a2017f2e91"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8c298727e93b5afcab7440a2017f2e91"></a>
-BYTE&#160;</td><td class="memItemRight" valign="bottom"><b>m_byState</b></td></tr>
-<tr class="separator:a8c298727e93b5afcab7440a2017f2e91"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a86155d017f2a04fe559d8c3adcf32c3a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a86155d017f2a04fe559d8c3adcf32c3a"></a>
-BYTE&#160;</td><td class="memItemRight" valign="bottom"><b>m_tNpcType</b></td></tr>
-<tr class="separator:a86155d017f2a04fe559d8c3adcf32c3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affccf38108b085bbfe7c6439c401c199"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="affccf38108b085bbfe7c6439c401c199"></a>
+uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_byState</b></td></tr>
+<tr class="separator:affccf38108b085bbfe7c6439c401c199"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9143e3871c9714a7cf595ce9c3b838f8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9143e3871c9714a7cf595ce9c3b838f8"></a>
+uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_tNpcType</b></td></tr>
+<tr class="separator:a9143e3871c9714a7cf595ce9c3b838f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d3ba1dba1f78380e05f9bebc0c0819e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1d3ba1dba1f78380e05f9bebc0c0819e"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>m_iSellingGroup</b></td></tr>
 <tr class="separator:a1d3ba1dba1f78380e05f9bebc0c0819e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad1e6ec6399dadae17e12a34a64bb9530"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad1e6ec6399dadae17e12a34a64bb9530"></a>
-BYTE&#160;</td><td class="memItemRight" valign="bottom"><b>m_NpcState</b></td></tr>
-<tr class="separator:ad1e6ec6399dadae17e12a34a64bb9530"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9bf4cff90564d45f1decd7feec00cd63"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9bf4cff90564d45f1decd7feec00cd63"></a>
-BYTE&#160;</td><td class="memItemRight" valign="bottom"><b>m_byGateOpen</b></td></tr>
-<tr class="separator:a9bf4cff90564d45f1decd7feec00cd63"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a202fe3ee5bf5764c699672fa218f0869"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a202fe3ee5bf5764c699672fa218f0869"></a>
-BYTE&#160;</td><td class="memItemRight" valign="bottom"><b>m_byObjectType</b></td></tr>
-<tr class="separator:a202fe3ee5bf5764c699672fa218f0869"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affefd6d0f6992fbe8043e51de919ad61"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="affefd6d0f6992fbe8043e51de919ad61"></a>
+uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_NpcState</b></td></tr>
+<tr class="separator:affefd6d0f6992fbe8043e51de919ad61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e11808ef0ec3d26619c681b1200926f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8e11808ef0ec3d26619c681b1200926f"></a>
+uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_byGateOpen</b></td></tr>
+<tr class="separator:a8e11808ef0ec3d26619c681b1200926f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aabda165b4323713757b13c319a963924"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aabda165b4323713757b13c319a963924"></a>
+uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_byObjectType</b></td></tr>
+<tr class="separator:aabda165b4323713757b13c319a963924"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a66c8ad09bec799659f0e517ec89f4f07"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a66c8ad09bec799659f0e517ec89f4f07"></a>
 int16&#160;</td><td class="memItemRight" valign="bottom"><b>m_byDirection</b></td></tr>
 <tr class="separator:a66c8ad09bec799659f0e517ec89f4f07"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ab20cb8cd5d4609ce12adad01d2f045"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2ab20cb8cd5d4609ce12adad01d2f045"></a>
 uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_byTrapNumber</b></td></tr>
 <tr class="separator:a2ab20cb8cd5d4609ce12adad01d2f045"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeafec5afb6f270d30a40f25da1bd00a9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aeafec5afb6f270d30a40f25da1bd00a9"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bMonster</b></td></tr>
+<tr class="separator:aeafec5afb6f270d30a40f25da1bd00a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a16590220ff8c98db1e2faa6b645894be"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a16590220ff8c98db1e2faa6b645894be"></a>
 <a class="el" href="class_c_npc_table.html">CNpcTable</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>m_proto</b></td></tr>
 <tr class="separator:a16590220ff8c98db1e2faa6b645894be"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -751,12 +796,9 @@ short&#160;</td><td class="memItemRight" valign="bottom"><b>m_sPathCount</b></td
 <tr class="memitem:a7ab1b89dd32cdcae7eb33aaff2f082cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7ab1b89dd32cdcae7eb33aaff2f082cf"></a>
 short&#160;</td><td class="memItemRight" valign="bottom"><b>m_sMaxPathCount</b></td></tr>
 <tr class="separator:a7ab1b89dd32cdcae7eb33aaff2f082cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0fe639799f9c8c30ab0c9edca944693"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0fe639799f9c8c30ab0c9edca944693"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>m_bFirstLive</b></td></tr>
-<tr class="separator:ab0fe639799f9c8c30ab0c9edca944693"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:affefd6d0f6992fbe8043e51de919ad61"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="affefd6d0f6992fbe8043e51de919ad61"></a>
-uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_NpcState</b></td></tr>
-<tr class="separator:affefd6d0f6992fbe8043e51de919ad61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb641d22bfe54ecedccd5cfd1d6b134c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abb641d22bfe54ecedccd5cfd1d6b134c"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bFirstLive</b></td></tr>
+<tr class="separator:abb641d22bfe54ecedccd5cfd1d6b134c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abe0889ec060584f65d2b67101e5c0c81"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe0889ec060584f65d2b67101e5c0c81"></a>
 <a class="el" href="class_m_a_p.html">MAP</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>m_pZone</b></td></tr>
 <tr class="separator:abe0889ec060584f65d2b67101e5c0c81"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -805,9 +847,9 @@ short&#160;</td><td class="memItemRight" valign="bottom"><b>m_max_x</b></td></tr
 <tr class="memitem:a6f8424084850f6ef3ce21d6ffe2431aa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6f8424084850f6ef3ce21d6ffe2431aa"></a>
 short&#160;</td><td class="memItemRight" valign="bottom"><b>m_max_y</b></td></tr>
 <tr class="separator:a6f8424084850f6ef3ce21d6ffe2431aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0c9d284ce186eb57b228e16515c211fd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0c9d284ce186eb57b228e16515c211fd"></a>
-SIZE&#160;</td><td class="memItemRight" valign="bottom"><b>m_vMapSize</b></td></tr>
-<tr class="separator:a0c9d284ce186eb57b228e16515c211fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d6972fb2897f89605ff9a08595f92f0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2d6972fb2897f89605ff9a08595f92f0"></a>
+<a class="el" href="struct_c_npc_1_1_size.html">Size</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m_vMapSize</b></td></tr>
+<tr class="separator:a2d6972fb2897f89605ff9a08595f92f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a77c95e3f085e5bf931de841e0710b078"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a77c95e3f085e5bf931de841e0710b078"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><b>m_fStartPoint_X</b></td></tr>
 <tr class="separator:a77c95e3f085e5bf931de841e0710b078"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -970,15 +1012,9 @@ uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_byBattlePos</b></t
 <tr class="memitem:a6067031f50bf02e007c53f922c8eef6a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6067031f50bf02e007c53f922c8eef6a"></a>
 uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_byWhatAttackType</b></td></tr>
 <tr class="separator:a6067031f50bf02e007c53f922c8eef6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8e11808ef0ec3d26619c681b1200926f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8e11808ef0ec3d26619c681b1200926f"></a>
-uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_byGateOpen</b></td></tr>
-<tr class="separator:a8e11808ef0ec3d26619c681b1200926f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5cee30f6d3d5c8714183f41148572c0c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5cee30f6d3d5c8714183f41148572c0c"></a>
 uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_byMaxDamagedNation</b></td></tr>
 <tr class="separator:a5cee30f6d3d5c8714183f41148572c0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aabda165b4323713757b13c319a963924"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aabda165b4323713757b13c319a963924"></a>
-uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_byObjectType</b></td></tr>
-<tr class="separator:aabda165b4323713757b13c319a963924"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a17346fee463b533d151219deebb10efc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a17346fee463b533d151219deebb10efc"></a>
 uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_byDungeonFamily</b></td></tr>
 <tr class="separator:a17346fee463b533d151219deebb10efc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1045,9 +1081,9 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>m_fBattlePos_z</b></
 <tr class="memitem:acf62bf575236226c29b64ada97c42b82"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acf62bf575236226c29b64ada97c42b82"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><b>m_fSecForRealMoveMetor</b></td></tr>
 <tr class="separator:acf62bf575236226c29b64ada97c42b82"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ab015fb42074822bb2275ac1c736ac7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ab015fb42074822bb2275ac1c736ac7"></a>
-BOOL&#160;</td><td class="memItemRight" valign="bottom"><b>m_bPathFlag</b></td></tr>
-<tr class="separator:a3ab015fb42074822bb2275ac1c736ac7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d348de8e6a6702aaf2ce89861b7c263"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2d348de8e6a6702aaf2ce89861b7c263"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bPathFlag</b></td></tr>
+<tr class="separator:a2d348de8e6a6702aaf2ce89861b7c263"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adcd67e226fe89e574bc8020de43a2c93"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adcd67e226fe89e574bc8020de43a2c93"></a>
 <a class="el" href="struct___npc_position.html">_NpcPosition</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m_pPoint</b> [MAX_PATH_LINE]</td></tr>
 <tr class="separator:adcd67e226fe89e574bc8020de43a2c93"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1260,7 +1296,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bType3Flag</b></td>
 Type4BuffMap&#160;</td><td class="memItemRight" valign="bottom"><b>m_buffMap</b></td></tr>
 <tr class="separator:a2841f1cdcf12661e00f58dda4e6753a0 inherit pub_attribs_class_unit"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a781712125e4a4868bae456de815bc9d3 inherit pub_attribs_class_unit"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a781712125e4a4868bae456de815bc9d3"></a>
-<a class="el" href="class_fast_mutex.html">FastMutex</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m_buffLock</b></td></tr>
+FastMutex&#160;</td><td class="memItemRight" valign="bottom"><b>m_buffLock</b></td></tr>
 <tr class="separator:a781712125e4a4868bae456de815bc9d3 inherit pub_attribs_class_unit"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adcc1d212dcafd4d1f5ecf8dd446bb145 inherit pub_attribs_class_unit"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adcc1d212dcafd4d1f5ecf8dd446bb145"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bIsTransformed</b></td></tr>
@@ -1290,7 +1326,7 @@ uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_bReflectArmorType<
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
 <tr class="memitem:a2789f331431a8751734f32324e6bfb6d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2789f331431a8751734f32324e6bfb6d"></a>
-static const char *&#160;</td><td class="memItemRight" valign="bottom"><b>__LuaMetatableName</b> = &quot;luaL_&quot; &quot; <a class="el" href="struct_c_npc.html">CNpc</a> &quot;</td></tr>
+static const char *&#160;</td><td class="memItemRight" valign="bottom"><b>__LuaMetatableName</b> = &quot;luaL_CNpc&quot;</td></tr>
 <tr class="separator:a2789f331431a8751734f32324e6bfb6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac03b46207d3712f66c08fd32f840a754"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac03b46207d3712f66c08fd32f840a754"></a>
 static struct luaL_Reg&#160;</td><td class="memItemRight" valign="bottom"><b>__LuaMethodTable</b> []</td></tr>
@@ -1345,6 +1381,41 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearPathFindData</b>
 </dl>
 
 <p>Implements <a class="el" href="class_unit.html">Unit</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a557f3d626834d1eb31b6954c0b657703"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool CNpc::CanAttack </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_unit.html">Unit</a> *&#160;</td>
+          <td class="paramname"><em>pTarget</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Determine if an NPC can attack the specified unit. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pTarget</td><td>The target we are attempting to attack.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if we can attack, false if not. </dd></dl>
+
+<p>Reimplemented from <a class="el" href="class_unit.html#a07ad7e76f96c9c8f41d42cc2789f4f1e">Unit</a>.</p>
 
 </div>
 </div>
@@ -1417,7 +1488,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearPathFindData</b>
 
 </div>
 </div>
-<a class="anchor" id="aa003eefe2bce54bbb436e78b4b83123e"></a>
+<a class="anchor" id="abdc93a5afbb3051f534fea7365e21d30"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -1434,7 +1505,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearPathFindData</b>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="class_unit.html">Unit</a> *&#160;</td>
-          <td class="paramname"><em>pAttacker</em> = <code>NULL</code>, </td>
+          <td class="paramname"><em>pAttacker</em> = <code>nullptr</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1584,14 +1655,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearPathFindData</b>
 
 </div>
 </div>
-<a class="anchor" id="ae89e4704b0910145745061aeed1a39b7"></a>
+<a class="anchor" id="a305ad9969426c61aa6c02723597aee63"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void CNpc::SendGateFlag </td>
           <td>(</td>
-          <td class="paramtype">BYTE&#160;</td>
+          <td class="paramtype">uint8&#160;</td>
           <td class="paramname"><em>bFlag</em> = <code>-1</code>, </td>
         </tr>
         <tr>
@@ -1669,16 +1740,16 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearPathFindData</b>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>Ebenezer/lua_bindings.cpp</li>
-<li>Ebenezer/<a class="el" href="_ebenezer_2_npc_8h_source.html">Npc.h</a></li>
-<li>AIServer/<a class="el" href="_a_i_server_2_npc_8h_source.html">Npc.h</a></li>
-<li>Ebenezer/Npc.cpp</li>
-<li>AIServer/Npc.cpp</li>
+<li>src/Ebenezer/lua_bindings.cpp</li>
+<li>src/Ebenezer/<a class="el" href="_ebenezer_2_npc_8h_source.html">Npc.h</a></li>
+<li>src/AIServer/<a class="el" href="_a_i_server_2_npc_8h_source.html">Npc.h</a></li>
+<li>src/Ebenezer/Npc.cpp</li>
+<li>src/AIServer/Npc.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:12 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:04 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

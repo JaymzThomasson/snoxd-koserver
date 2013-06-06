@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.3.1"/>
-<title>Snoxd.net&#39;s public KO server project: shared/database/KnightsRankSet.h Source File</title>
+<title>Snoxd.net&#39;s public KO server project: src/shared/database/KnightsRankSet.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -78,7 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_9982052f7ce695d12571567315b2fafa.html">shared</a></li><li class="navelem"><a class="el" href="dir_3b3af38c7ebde6ef348e5b4f8551182b.html">database</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_4f38db07240614f25134cb9a8bebbaf9.html">shared</a></li><li class="navelem"><a class="el" href="dir_7b98b85d87b4035281b5dd89c636b741.html">database</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -110,7 +110,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        _dbCommand-&gt;FetchUInt32(3, pData-&gt;nPoints);</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;        <a class="code" href="class_c_knights.html">CKnights</a> *pKnights = g_pMain-&gt;GetClanPtr(pData-&gt;sClanID);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        <span class="keywordflow">if</span> (pKnights == NULL </div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        <span class="keywordflow">if</span> (pKnights == <span class="keyword">nullptr</span> </div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;            || (pKnights-&gt;m_byNation != KARUS &amp;&amp; pKnights-&gt;m_byNation != ELMORAD)</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;            || !g_pMain-&gt;m_KnightsRatingArray[pKnights-&gt;m_byNation - 1].PutData(pData-&gt;nRank, pData))</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        {</div>
@@ -124,12 +124,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;                <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;            </div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;            <a class="code" href="struct_c_user.html">CUser</a> *pUser = g_pMain-&gt;GetUserPtr(pKnights-&gt;m_strChief, TYPE_CHARACTER);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;            <span class="keywordflow">if</span> (pUser == NULL || pUser-&gt;GetZoneID() != ZONE_BATTLE)</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;            <span class="keywordflow">if</span> (pUser == <span class="keyword">nullptr</span> || pUser-&gt;GetZoneID() != ZONE_BATTLE)</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;                <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;            <span class="keywordflow">if</span> (pUser-&gt;GetClanID() == pData-&gt;sClanID)</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;            {</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;                sprintf_s(strKarusCaptain[nKarusCount++], 50, <span class="stringliteral">&quot;[%s][%s]&quot;</span>, pKnights-&gt;m_strName, pUser-&gt;GetName());</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;                _snprintf(strKarusCaptain[nKarusCount++], 50, <span class="stringliteral">&quot;[%s][%s]&quot;</span>, pKnights-&gt;m_strName.c_str(), pUser-&gt;GetName().c_str());</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;                pUser-&gt;<a class="code" href="struct_c_user.html#a9377213532e236e8e40bc3c858dd66b7" title="Changes a player&#39;s fame.">ChangeFame</a>(COMMAND_CAPTAIN);</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;            }</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        }</div>
@@ -139,11 +139,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;                <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;            <a class="code" href="struct_c_user.html">CUser</a> *pUser = g_pMain-&gt;GetUserPtr(pKnights-&gt;m_strChief, TYPE_CHARACTER);</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;            <span class="keywordflow">if</span> (pUser == NULL || pUser-&gt;GetZoneID() != ZONE_BATTLE)</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;            <span class="keywordflow">if</span> (pUser == <span class="keyword">nullptr</span> || pUser-&gt;GetZoneID() != ZONE_BATTLE)</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;            <span class="keywordflow">if</span> (pUser-&gt;GetClanID() == pData-&gt;sClanID)</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;            {</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;                sprintf_s(strElmoCaptain[nElmoCount++], 50, <span class="stringliteral">&quot;[%s][%s]&quot;</span>, pKnights-&gt;m_strName, pUser-&gt;GetName());</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;                _snprintf(strElmoCaptain[nElmoCount++], 50, <span class="stringliteral">&quot;[%s][%s]&quot;</span>, pKnights-&gt;m_strName.c_str(), pUser-&gt;GetName().c_str());</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;                pUser-&gt;<a class="code" href="struct_c_user.html#a9377213532e236e8e40bc3c858dd66b7" title="Changes a player&#39;s fame.">ChangeFame</a>(COMMAND_CAPTAIN);</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;            }</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        }</div>
@@ -157,7 +157,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

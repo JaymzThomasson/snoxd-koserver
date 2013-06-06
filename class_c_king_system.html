@@ -100,9 +100,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:ae4b38d9e8c0cbe60555b1df385e400c7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#ae4b38d9e8c0cbe60555b1df385e400c7">UpdateElectionStatus</a> (uint8 byElectionState)</td></tr>
 <tr class="memdesc:ae4b38d9e8c0cbe60555b1df385e400c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the election status.  <a href="#ae4b38d9e8c0cbe60555b1df385e400c7">More...</a><br/></td></tr>
 <tr class="separator:ae4b38d9e8c0cbe60555b1df385e400c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a248477a419bc780a8380a8a6e28f74ad"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#a248477a419bc780a8380a8a6e28f74ad">UpdateElectionList</a> (uint8 byElectionListType, bool bDeleteList, uint16 sClanID, std::string &amp;strUserID, <a class="el" href="struct_c_user.html">CUser</a> *pUser=NULL)</td></tr>
-<tr class="memdesc:a248477a419bc780a8380a8a6e28f74ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the election list.  <a href="#a248477a419bc780a8380a8a6e28f74ad">More...</a><br/></td></tr>
-<tr class="separator:a248477a419bc780a8380a8a6e28f74ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af11472f55889cc9ae1cd673459d39644"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#af11472f55889cc9ae1cd673459d39644">UpdateElectionList</a> (uint8 byElectionListType, bool bDeleteList, uint16 sClanID, std::string &amp;strUserID, <a class="el" href="struct_c_user.html">CUser</a> *pUser=nullptr)</td></tr>
+<tr class="memdesc:af11472f55889cc9ae1cd673459d39644"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the election list.  <a href="#af11472f55889cc9ae1cd673459d39644">More...</a><br/></td></tr>
+<tr class="separator:af11472f55889cc9ae1cd673459d39644"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abe25bd8c70989db28455989a65edec98"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe25bd8c70989db28455989a65edec98"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_king_system.html#abe25bd8c70989db28455989a65edec98">CheckSpecialEvent</a> ()</td></tr>
 <tr class="memdesc:abe25bd8c70989db28455989a65edec98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks to see if a special (coin/XP) event should end. <br/></td></tr>
@@ -274,9 +274,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>m_strKingName<
 <tr class="memitem:a74cfefb0435ce269efe0a1f7b500fa0f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a74cfefb0435ce269efe0a1f7b500fa0f"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>m_strImRequestID</b></td></tr>
 <tr class="separator:a74cfefb0435ce269efe0a1f7b500fa0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a8eb02684b903248f1e0bb7b5586a24"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3a8eb02684b903248f1e0bb7b5586a24"></a>
-<a class="el" href="class_fast_mutex.html">FastMutex</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m_lock</b></td></tr>
-<tr class="separator:a3a8eb02684b903248f1e0bb7b5586a24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3ad8e5e133120db90c97e792948f32a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac3ad8e5e133120db90c97e792948f32a"></a>
+<a class="el" href="class_mutex.html">Mutex</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m_lock</b></td></tr>
+<tr class="separator:ac3ad8e5e133120db90c97e792948f32a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acf4146709ed86a6f2bf1022191c1a962"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acf4146709ed86a6f2bf1022191c1a962"></a>
 ClanIDSet&#160;</td><td class="memItemRight" valign="bottom"><b>m_top10ClanSet</b></td></tr>
 <tr class="separator:acf4146709ed86a6f2bf1022191c1a962"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -545,7 +545,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bSentFirstMessage</
 <p>Handles database requests for the King system. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">pUser</td><td>The user making the request, if applicable. NULL if not. </td></tr>
+    <tr><td class="paramname">pUser</td><td>The user making the request, if applicable. nullptr if not. </td></tr>
     <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
   </table>
   </dd>
@@ -588,7 +588,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bSentFirstMessage</
 <p>Handles database requests for the election system. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">pUser</td><td>The user making the request, if applicable. NULL if not. </td></tr>
+    <tr><td class="paramname">pUser</td><td>The user making the request, if applicable. nullptr if not. </td></tr>
     <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
   </table>
   </dd>
@@ -631,7 +631,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bSentFirstMessage</
 <p>Handles database requests for King commands. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">pUser</td><td>The user making the request, if applicable. NULL if not. </td></tr>
+    <tr><td class="paramname">pUser</td><td>The user making the request, if applicable. nullptr if not. </td></tr>
     <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
   </table>
   </dd>
@@ -958,7 +958,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bSentFirstMessage</
 
 </div>
 </div>
-<a class="anchor" id="a248477a419bc780a8380a8a6e28f74ad"></a>
+<a class="anchor" id="af11472f55889cc9ae1cd673459d39644"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -990,7 +990,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bSentFirstMessage</
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
-          <td class="paramname"><em>pUser</em> = <code>NULL</code>&#160;</td>
+          <td class="paramname"><em>pUser</em> = <code>nullptr</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1039,14 +1039,14 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_bSentFirstMessage</
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>Ebenezer/<a class="el" href="_king_system_8h_source.html">KingSystem.h</a></li>
-<li>Ebenezer/DatabaseThread.cpp</li>
-<li>Ebenezer/KingSystem.cpp</li>
+<li>src/Ebenezer/<a class="el" href="_king_system_8h_source.html">KingSystem.h</a></li>
+<li>src/Ebenezer/DatabaseThread.cpp</li>
+<li>src/Ebenezer/KingSystem.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:03 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.3.1"/>
-<title>Snoxd.net&#39;s public KO server project: Ebenezer/DBAgent.h Source File</title>
+<title>Snoxd.net&#39;s public KO server project: src/Ebenezer/DBAgent.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -78,7 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_334c8279933e6a7bafa2e590e80978ad.html">Ebenezer</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_e93684172c9a41a933ee0a0b96d1d32c.html">Ebenezer</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -172,7 +172,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordtype">bool</span> UpdateUser(std::string &amp; strCharID, UserUpdateType type, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordtype">bool</span> UpdateWarehouseData(std::string &amp; strAccountID, UserUpdateType type, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordtype">bool</span> UpdateSavedMagic(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    uint8 SealItem(std::string strSealPasswd, uint64 nItemSerial, uint32 nItemID, uint8 bSealType, <span class="keywordtype">bool</span> doSeal, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    uint8 SealItem(std::string strSealPasswd, uint64 nItemSerial, uint32 nItemID, uint8 bSealType, <a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    int8 CreateKnights(uint16 sClanID, uint8 bNation, std::string &amp; strKnightsName, std::string &amp; strChief, uint8 bFlag = 1);</div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">int</span> UpdateKnights(uint8 bType, std::string &amp; strCharID, uint16 sClanID, uint8 bDomination);</div>
@@ -181,42 +181,44 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">bool</span> LoadKnightsInfo(uint16 sClanID, uint8 &amp; bNation, std::string &amp; strKnightsName, uint16 &amp; sMembers, uint32 &amp; nPoints, uint8 &amp; bRank);</div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keywordtype">void</span> LoadKnightsAllList(uint8 bNation);</div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <span class="keywordtype">bool</span> UpdateClanSymbol(uint16 sClanID, uint16 sSymbolSize, <span class="keywordtype">char</span> *clanSymbol);</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordtype">void</span> UpdateCape(uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint8 b);</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="class_c_d_b_agent.html#aebbbe3f36c549865d9daab96512dae36" title="Donates (clanPoints) clan points to the specified user&#39;s clan. Also increases the user&#39;s total NP don...">DonateClanPoints</a>(<a class="code" href="struct_c_user.html">CUser</a> * pUser, uint32 amountNP);</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_d_b_agent.html#a30ac0c3e0247c617a941fbdc0372774d" title="Refunds the specified amount of NP to a logged out character.">RefundNP</a>(std::string &amp; strUserID, uint32 nRefundNP);</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keywordtype">void</span> UpdateBattleEvent(std::string &amp; strCharID, uint8 bNation);</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keywordtype">void</span> AccountLogout(std::string &amp; strAccountID);</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordtype">void</span> UpdateConCurrentUserCount(<span class="keywordtype">int</span> nServerNo, <span class="keywordtype">int</span> nZoneNo, <span class="keywordtype">int</span> nCount);</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keywordtype">void</span> UpdateCape(uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint8 b);</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="keywordtype">void</span> UpdateBattleEvent(std::string &amp; strCharID, uint8 bNation);</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordtype">void</span> AccountLogout(std::string &amp; strAccountID);</div>
 <div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    uint8 GetUnreadLetterCount(std::string &amp; strCharID);</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="keywordtype">bool</span> GetLetterList(std::string &amp; strCharID, <a class="code" href="class_packet.html">Packet</a> &amp; result, <span class="keywordtype">bool</span> bNewLettersOnly = <span class="keyword">true</span>);</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    int8 SendLetter(std::string &amp; strSenderID, std::string &amp; strRecipientID, std::string &amp; strSubject, std::string &amp; strMessage, uint8 bType, <a class="code" href="struct___i_t_e_m___d_a_t_a.html">_ITEM_DATA</a> * pItem);</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <span class="keywordtype">bool</span> ReadLetter(std::string &amp; strCharID, uint32 nLetterID, std::string &amp; strMessage);</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    int8 GetItemFromLetter(std::string &amp; strCharID, uint32 nLetterID, uint32 &amp; nItemID, uint16 &amp; sCount, uint16 &amp; sDurability, uint32 &amp; nCoins, uint64 &amp; nSerialNum);</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="keywordtype">void</span> DeleteLetter(std::string &amp; strCharID, uint32 nLetterID);</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_d_b_agent.html#a046f3aef6fe973c517a52ec7d20c54da" title="Updates the election status.">UpdateElectionStatus</a>(uint8 byType, uint8 byNation);</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_d_b_agent.html#a70291d8cde3d630ee116c368f5c6f982" title="Updates the election list.">UpdateElectionList</a>(uint8 byDBType, uint8 byType, uint8 byNation, uint16 sKnights, uint32 nAmount, std::string &amp; strNominee);</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    int16 <a class="code" href="class_c_d_b_agent.html#aefe68362fc87e53b4670869f10509364" title="Nominates/recommends strNominee as King.">UpdateCandidacyRecommend</a>(std::string &amp; strNominator, std::string &amp; strNominee, uint8 byNation);</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_d_b_agent.html#a19a07d30b8b85f6139d1a023439c8d48" title="Updates the candidacy notice board.">UpdateCandidacyNoticeBoard</a>(std::string &amp; strCharID, uint8 byNation, std::string &amp; strNotice);</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keywordtype">void</span> UpdateNoahOrExpEvent(uint8 byType, uint8 byNation, uint8 byAmount, uint8 byDay, uint8 byHour, uint8 byMinute, uint16 sDuration);</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordtype">void</span> InsertPrizeEvent(uint8 byType, uint8 byNation, uint32 nCoins, std::string &amp; strCharID);</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    ~<a class="code" href="class_c_d_b_agent.html">CDBAgent</a>();</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keywordtype">void</span> UpdateConCurrentUserCount(<span class="keywordtype">int</span> nServerNo, <span class="keywordtype">int</span> nZoneNo, <span class="keywordtype">int</span> nCount);</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    uint8 GetUnreadLetterCount(std::string &amp; strCharID);</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <span class="keywordtype">bool</span> GetLetterList(std::string &amp; strCharID, <a class="code" href="class_packet.html">Packet</a> &amp; result, <span class="keywordtype">bool</span> bNewLettersOnly = <span class="keyword">true</span>);</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    int8 SendLetter(std::string &amp; strSenderID, std::string &amp; strRecipientID, std::string &amp; strSubject, std::string &amp; strMessage, uint8 bType, <a class="code" href="struct___i_t_e_m___d_a_t_a.html">_ITEM_DATA</a> * pItem);</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="keywordtype">bool</span> ReadLetter(std::string &amp; strCharID, uint32 nLetterID, std::string &amp; strMessage);</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    int8 GetItemFromLetter(std::string &amp; strCharID, uint32 nLetterID, uint32 &amp; nItemID, uint16 &amp; sCount, uint16 &amp; sDurability, uint32 &amp; nCoins, uint64 &amp; nSerialNum);</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="keywordtype">void</span> DeleteLetter(std::string &amp; strCharID, uint32 nLetterID);</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_d_b_agent.html#a046f3aef6fe973c517a52ec7d20c54da" title="Updates the election status.">UpdateElectionStatus</a>(uint8 byType, uint8 byNation);</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_d_b_agent.html#a70291d8cde3d630ee116c368f5c6f982" title="Updates the election list.">UpdateElectionList</a>(uint8 byDBType, uint8 byType, uint8 byNation, uint16 sKnights, uint32 nAmount, std::string &amp; strNominee);</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    int16 <a class="code" href="class_c_d_b_agent.html#aefe68362fc87e53b4670869f10509364" title="Nominates/recommends strNominee as King.">UpdateCandidacyRecommend</a>(std::string &amp; strNominator, std::string &amp; strNominee, uint8 byNation);</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_d_b_agent.html#a19a07d30b8b85f6139d1a023439c8d48" title="Updates the candidacy notice board.">UpdateCandidacyNoticeBoard</a>(std::string &amp; strCharID, uint8 byNation, std::string &amp; strNotice);</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="keywordtype">void</span> UpdateNoahOrExpEvent(uint8 byType, uint8 byNation, uint8 byAmount, uint8 byDay, uint8 byHour, uint8 byMinute, uint16 sDuration);</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="keywordtype">void</span> InsertPrizeEvent(uint8 byType, uint8 byNation, uint32 nCoins, std::string &amp; strCharID);</div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    <a class="code" href="class_odbc_connection.html">OdbcConnection</a> *m_GameDB, *m_AccountDB;</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <a class="code" href="class_fast_mutex.html">FastMutex</a> m_lock;</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="class_c_ebenezer_dlg.html">CEbenezerDlg</a>;</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;};</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="keyword">extern</span> <a class="code" href="class_c_d_b_agent.html">CDBAgent</a> g_DBAgent;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    ~<a class="code" href="class_c_d_b_agent.html">CDBAgent</a>();</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    <a class="code" href="class_odbc_connection.html">OdbcConnection</a> *m_GameDB, *m_AccountDB;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    FastMutex m_lock;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="class_c_ebenezer_dlg.html">CEbenezerDlg</a>;</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;};</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="keyword">extern</span> <a class="code" href="class_c_d_b_agent.html">CDBAgent</a> g_DBAgent;</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

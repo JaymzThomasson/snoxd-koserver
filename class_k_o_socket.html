@@ -148,15 +148,15 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>Connect</b> (const ch
 <tr class="memitem:aaa10d0fa473ad69e665b8c49ca938cfa inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaa10d0fa473ad69e665b8c49ca938cfa"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Disconnect</b> ()</td></tr>
 <tr class="separator:aaa10d0fa473ad69e665b8c49ca938cfa inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab7aa974f854eef18096c7ec279a46816 inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab7aa974f854eef18096c7ec279a46816"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SetBlocking</b> (bool block=false)</td></tr>
-<tr class="separator:ab7aa974f854eef18096c7ec279a46816 inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5302117803136c1eb9732d9338bdd821 inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5302117803136c1eb9732d9338bdd821"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SetBuffering</b> (bool enable=true)</td></tr>
-<tr class="separator:a5302117803136c1eb9732d9338bdd821 inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3041ddee4a45ab9ec39260f9fcae3c08 inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3041ddee4a45ab9ec39260f9fcae3c08"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Accept</b> (sockaddr_in *address)</td></tr>
 <tr class="separator:a3041ddee4a45ab9ec39260f9fcae3c08 inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf64aecb6db4683adfe8f61140ae7d5a inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaf64aecb6db4683adfe8f61140ae7d5a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadCallback</b> (uint32 len)</td></tr>
+<tr class="separator:aaf64aecb6db4683adfe8f61140ae7d5a inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5165f598a6324df4ad62627fdfdb8dfe inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5165f598a6324df4ad62627fdfdb8dfe"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteCallback</b> ()</td></tr>
+<tr class="separator:a5165f598a6324df4ad62627fdfdb8dfe inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23731361b305d526240ce0b2b066c848 inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a23731361b305d526240ce0b2b066c848"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Send</b> (const uint8 *Bytes, uint32 Size)</td></tr>
 <tr class="separator:a23731361b305d526240ce0b2b066c848 inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -190,15 +190,6 @@ INLINE SOCKET&#160;</td><td class="memItemRight" valign="bottom"><b>GetFd</b> ()
 <tr class="memitem:a0c8c03db4b3de295df2d3238de15bbff inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0c8c03db4b3de295df2d3238de15bbff"></a>
 INLINE <a class="el" href="class_socket_mgr.html">SocketMgr</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetSocketMgr</b> ()</td></tr>
 <tr class="separator:a0c8c03db4b3de295df2d3238de15bbff inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a2fa8a5dcfd368f06d5b63912be16a8 inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9a2fa8a5dcfd368f06d5b63912be16a8"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SetupReadEvent</b> ()</td></tr>
-<tr class="separator:a9a2fa8a5dcfd368f06d5b63912be16a8 inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf64aecb6db4683adfe8f61140ae7d5a inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaf64aecb6db4683adfe8f61140ae7d5a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadCallback</b> (uint32 len)</td></tr>
-<tr class="separator:aaf64aecb6db4683adfe8f61140ae7d5a inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5165f598a6324df4ad62627fdfdb8dfe inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5165f598a6324df4ad62627fdfdb8dfe"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteCallback</b> ()</td></tr>
-<tr class="separator:a5165f598a6324df4ad62627fdfdb8dfe inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab0d5407f9d182e2292eae476adc84a1c inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0d5407f9d182e2292eae476adc84a1c"></a>
 INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsDeleted</b> ()</td></tr>
 <tr class="separator:ab0d5407f9d182e2292eae476adc84a1c inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -220,18 +211,6 @@ INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>SetSocketMgr</
 <tr class="memitem:a78e4136d373de810ec9ef5bd074fea2b inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a78e4136d373de810ec9ef5bd074fea2b"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Delete</b> ()</td></tr>
 <tr class="separator:a78e4136d373de810ec9ef5bd074fea2b inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1889b7f6eda762d8377e92e6d0dda5aa inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1889b7f6eda762d8377e92e6d0dda5aa"></a>
-INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>SetCompletionPort</b> (HANDLE cp)</td></tr>
-<tr class="separator:a1889b7f6eda762d8377e92e6d0dda5aa inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0e0efa3c84f7292434d81160946654e9 inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0e0efa3c84f7292434d81160946654e9"></a>
-INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>IncSendLock</b> ()</td></tr>
-<tr class="separator:a0e0efa3c84f7292434d81160946654e9 inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a21a36dba1993b02eb8de4f43548b9f05 inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a21a36dba1993b02eb8de4f43548b9f05"></a>
-INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>DecSendLock</b> ()</td></tr>
-<tr class="separator:a21a36dba1993b02eb8de4f43548b9f05 inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64756b33e0b8ebb1cbc14ae8898a8a9d inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a64756b33e0b8ebb1cbc14ae8898a8a9d"></a>
-INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>AcquireSendLock</b> ()</td></tr>
-<tr class="separator:a64756b33e0b8ebb1cbc14ae8898a8a9d inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
@@ -287,26 +266,19 @@ sockaddr_in&#160;</td><td class="memItemRight" valign="bottom"><b>m_client</b></
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
-<tr class="inherit_header pub_attribs_class_socket"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_class_socket')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="class_socket.html">Socket</a></td></tr>
-<tr class="memitem:a25168b9a77eea059a034909fe20dc47b inherit pub_attribs_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a25168b9a77eea059a034909fe20dc47b"></a>
-<a class="el" href="class_overlapped_struct.html">OverlappedStruct</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m_readEvent</b></td></tr>
-<tr class="separator:a25168b9a77eea059a034909fe20dc47b inherit pub_attribs_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6495f81355dbc0b23b7b27af9c253283 inherit pub_attribs_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6495f81355dbc0b23b7b27af9c253283"></a>
-<a class="el" href="class_overlapped_struct.html">OverlappedStruct</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m_writeEvent</b></td></tr>
-<tr class="separator:a6495f81355dbc0b23b7b27af9c253283 inherit pub_attribs_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_class_socket"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_class_socket')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="class_socket.html">Socket</a></td></tr>
 <tr class="memitem:a7997f15566d4e06d75f2c7debd522147 inherit pro_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7997f15566d4e06d75f2c7debd522147"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>_OnConnect</b> ()</td></tr>
 <tr class="separator:a7997f15566d4e06d75f2c7debd522147 inherit pro_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>shared/<a class="el" href="_k_o_socket_8h_source.html">KOSocket.h</a></li>
-<li>shared/KOSocket.cpp</li>
+<li>src/shared/<a class="el" href="_k_o_socket_8h_source.html">KOSocket.h</a></li>
+<li>src/shared/KOSocket.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:13 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:06 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

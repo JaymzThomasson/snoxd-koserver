@@ -122,9 +122,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>Initialize</b> (<a cl
 <tr class="memitem:a51003494f49f8fefd188af65c1fce687"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a51003494f49f8fefd188af65c1fce687"></a>
 <a class="el" href="class_c_region.html">CRegion</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetRegion</b> (uint16 regionX, uint16 regionZ)</td></tr>
 <tr class="separator:a51003494f49f8fefd188af65c1fce687"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7552ce21f74cb2922b3c29f78df9ffc2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7552ce21f74cb2922b3c29f78df9ffc2"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>CheckEvent</b> (float x, float z, <a class="el" href="struct_c_user.html">CUser</a> *pUser=NULL)</td></tr>
-<tr class="separator:a7552ce21f74cb2922b3c29f78df9ffc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04cdbd1d05b88d99e756d6147ee2eff3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a04cdbd1d05b88d99e756d6147ee2eff3"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>CheckEvent</b> (float x, float z, <a class="el" href="struct_c_user.html">CUser</a> *pUser=nullptr)</td></tr>
+<tr class="separator:a04cdbd1d05b88d99e756d6147ee2eff3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79c44c20d4797c32f9978a2c4ba70859"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c3_d_map.html#a79c44c20d4797c32f9978a2c4ba70859">RegionItemRemove</a> (<a class="el" href="class_c_region.html">CRegion</a> *pRegion, <a class="el" href="struct___l_o_o_t___b_u_n_d_l_e.html">_LOOT_BUNDLE</a> *pBundle, <a class="el" href="struct___l_o_o_t___i_t_e_m.html">_LOOT_ITEM</a> *pItem)</td></tr>
 <tr class="memdesc:a79c44c20d4797c32f9978a2c4ba70859"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes an item from a region's bundle. If the bundle's empty, the bundle is then removed from the region.  <a href="#a79c44c20d4797c32f9978a2c4ba70859">More...</a><br/></td></tr>
 <tr class="separator:a79c44c20d4797c32f9978a2c4ba70859"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -158,9 +158,9 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>m_fInitZ</b></td></t
 <tr class="memitem:a45ece46173e33fd8d0ce2cfbb1f30c70"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a45ece46173e33fd8d0ce2cfbb1f30c70"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><b>m_fInitY</b></td></tr>
 <tr class="separator:a45ece46173e33fd8d0ce2cfbb1f30c70"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a14ccfaecb68e998c78e848eeb92ba58a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a14ccfaecb68e998c78e848eeb92ba58a"></a>
-BYTE&#160;</td><td class="memItemRight" valign="bottom"><b>m_bType</b></td></tr>
-<tr class="separator:a14ccfaecb68e998c78e848eeb92ba58a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3586b5979f1fa41904ae1deb56725a51"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3586b5979f1fa41904ae1deb56725a51"></a>
+uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_bType</b></td></tr>
+<tr class="separator:a3586b5979f1fa41904ae1deb56725a51"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a00564a2abb9a9f82900252eb24942ee5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a00564a2abb9a9f82900252eb24942ee5"></a>
 short&#160;</td><td class="memItemRight" valign="bottom"><b>m_sMaxUser</b></td></tr>
 <tr class="separator:a00564a2abb9a9f82900252eb24942ee5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -170,12 +170,15 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_isAttackZone</b></t
 <tr class="memitem:a27a94310503c7efcb402c79fdb8c925d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27a94310503c7efcb402c79fdb8c925d"></a>
 <a class="el" href="class_c_region.html">CRegion</a> **&#160;</td><td class="memItemRight" valign="bottom"><b>m_ppRegion</b></td></tr>
 <tr class="separator:a27a94310503c7efcb402c79fdb8c925d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa393c18a97a1318f1689fbe3065beb9d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa393c18a97a1318f1689fbe3065beb9d"></a>
-DWORD&#160;</td><td class="memItemRight" valign="bottom"><b>m_wBundle</b></td></tr>
-<tr class="separator:aa393c18a97a1318f1689fbe3065beb9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2ae042203a36223066cab8269d513c0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad2ae042203a36223066cab8269d513c0"></a>
+uint32&#160;</td><td class="memItemRight" valign="bottom"><b>m_wBundle</b></td></tr>
+<tr class="separator:ad2ae042203a36223066cab8269d513c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa184d808f6a08074d76e694cb199f284"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa184d808f6a08074d76e694cb199f284"></a>
 <a class="el" href="class_s_m_d_file.html">SMDFile</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>m_smdFile</b></td></tr>
 <tr class="separator:aa184d808f6a08074d76e694cb199f284"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ef2b9c25f01518e514b19411b070f48"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1ef2b9c25f01518e514b19411b070f48"></a>
+<a class="el" href="class_mutex.html">Mutex</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m_lock</b></td></tr>
+<tr class="separator:a1ef2b9c25f01518e514b19411b070f48"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a79c44c20d4797c32f9978a2c4ba70859"></a>
@@ -221,13 +224,13 @@ DWORD&#160;</td><td class="memItemRight" valign="bottom"><b>m_wBundle</b></td></
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>Ebenezer/<a class="el" href="_ebenezer_2_map_8h_source.html">Map.h</a></li>
-<li>Ebenezer/Map.cpp</li>
+<li>src/Ebenezer/<a class="el" href="_ebenezer_2_map_8h_source.html">Map.h</a></li>
+<li>src/Ebenezer/Map.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:11 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:03 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

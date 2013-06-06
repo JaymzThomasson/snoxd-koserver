@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.3.1"/>
-<title>Snoxd.net&#39;s public KO server project: AIServer/ServerDlg.h Source File</title>
+<title>Snoxd.net&#39;s public KO server project: src/AIServer/ServerDlg.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -78,7 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_a548eda2657b76e5e912008611eb5d48.html">AIServer</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_3f591d602b2e84ff4fdf6beaf1536dc0.html">AIServer</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -94,7 +94,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &quot;GameSocket.h&quot;</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &quot;MAP.h&quot;</span></div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &quot;Pathfind.h&quot;</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &quot;PathFind.h&quot;</span></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &quot;../shared/STLMap.h&quot;</span></div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div>
@@ -117,52 +117,52 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keyword">typedef</span> <a class="code" href="class_c_s_t_l_map.html">CSTLMap &lt;MAP&gt;</a>                       <a class="code" href="class_c_s_t_l_map.html">ZoneArray</a>;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keyword">typedef</span> <a class="code" href="class_c_s_t_l_map.html">CSTLMap &lt;_K_MONSTER_ITEM&gt;</a>           <a class="code" href="class_c_s_t_l_map.html">NpcItemArray</a>;</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">typedef</span> <a class="code" href="class_c_s_t_l_map.html">CSTLMap &lt;_MAKE_ITEM_GROUP&gt;</a>          <a class="code" href="class_c_s_t_l_map.html">MakeItemGroupArray</a>;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
-<div class="line"><a name="l00033"></a><span class="lineno"><a class="code" href="class_c_server_dlg.html">   33</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_server_dlg.html">CServerDlg</a></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;{</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="keywordtype">void</span> ResumeAI();</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    BOOL CreateNpcThread();</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    BOOL GetMagicTableData();</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    BOOL GetMagicType1Data();</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    BOOL GetMagicType2Data();</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    BOOL GetMagicType3Data();</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    BOOL GetMagicType4Data();</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    BOOL GetNpcTableData(<span class="keywordtype">bool</span> bNpcData = <span class="keyword">true</span>);</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    BOOL GetNpcItemTable();</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    BOOL GetMakeItemGroupTable();</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    BOOL GetMakeWeaponItemTableData();</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    BOOL GetMakeDefensiveItemTableData();</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    BOOL GetMakeGradeItemTableData();</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    BOOL GetMakeLareItemTableData();</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    BOOL MapFileLoad();</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">void</span> GetServerInfoIni();</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    </div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">void</span> SyncTest();</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">void</span> RegionCheck();     <span class="comment">// region안에 들어오는 유저 체크 (스레드에서 FindEnermy()함수의 부하를 줄이기 위한 꽁수)</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">// Construction</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <a class="code" href="class_c_server_dlg.html">CServerDlg</a>();</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordtype">bool</span> Startup();</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordtype">bool</span> LoadSpawnCallback(<a class="code" href="class_odbc_command.html">OdbcCommand</a> *dbCommand);</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">void</span> GameServerAcceptThread();</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    BOOL AddObjectEventNpc(<a class="code" href="struct___o_b_j_e_c_t___e_v_e_n_t.html">_OBJECT_EVENT</a>* pEvent, <a class="code" href="class_m_a_p.html">MAP</a> * pMap);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="keyword">typedef</span> <a class="code" href="class_c_s_t_l_map.html">CSTLMap &lt;_SERVER_RESOURCE&gt;</a>          <a class="code" href="class_c_s_t_l_map.html">ServerResourceArray</a>;</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
+<div class="line"><a name="l00034"></a><span class="lineno"><a class="code" href="class_c_server_dlg.html">   34</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_server_dlg.html">CServerDlg</a></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;{</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordtype">void</span> ResumeAI();</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keywordtype">bool</span> CreateNpcThread();</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordtype">bool</span> GetMagicTableData();</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordtype">bool</span> GetMagicType1Data();</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">bool</span> GetMagicType2Data();</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordtype">bool</span> GetMagicType3Data();</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">bool</span> GetMagicType4Data();</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">bool</span> GetNpcTableData(<span class="keywordtype">bool</span> bNpcData = <span class="keyword">true</span>);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordtype">bool</span> GetNpcItemTable();</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">bool</span> GetMakeItemGroupTable();</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordtype">bool</span> GetMakeWeaponItemTableData();</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">bool</span> GetMakeDefensiveItemTableData();</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordtype">bool</span> GetMakeGradeItemTableData();</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">bool</span> GetMakeLareItemTableData();</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">bool</span> GetServerResourceTable();</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">bool</span> MapFileLoad();</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">void</span> GetServerInfoIni();</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    </div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <a class="code" href="class_c_server_dlg.html">CServerDlg</a>();</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">bool</span> Startup();</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordtype">bool</span> LoadSpawnCallback(<a class="code" href="class_odbc_command.html">OdbcCommand</a> *dbCommand);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordtype">void</span> GameServerAcceptThread();</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_server_dlg.html#ad9f0e9d0a5476bfbf8704b36c96ab3c4" title="Gets &amp; formats a cached server resource (_SERVER_RESOURCE entry).">GetServerResource</a>(<span class="keywordtype">int</span> nResourceID, std::string * result, ...);</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">bool</span> AddObjectEventNpc(<a class="code" href="struct___o_b_j_e_c_t___e_v_e_n_t.html">_OBJECT_EVENT</a>* pEvent, <a class="code" href="class_m_a_p.html">MAP</a> * pMap);</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">void</span> AllNpcInfo();</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <a class="code" href="struct_c_user.html">CUser</a>* GetUserPtr(<span class="keywordtype">int</span> nid);</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <a class="code" href="struct_c_npc.html">CNpc</a>*  GetEventNpcPtr();</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    BOOL   SetSummonNpcData(<a class="code" href="struct_c_npc.html">CNpc</a>* pNpc, <span class="keywordtype">int</span> zone, <span class="keywordtype">float</span> fx, <span class="keywordtype">float</span> fz);</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">bool</span>   SetSummonNpcData(<a class="code" href="struct_c_npc.html">CNpc</a>* pNpc, <span class="keywordtype">int</span> zone, <span class="keywordtype">float</span> fx, <span class="keywordtype">float</span> fz);</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <a class="code" href="class_m_a_p.html">MAP</a> * GetZoneByID(<span class="keywordtype">int</span> zonenumber);</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordtype">int</span> GetServerNumber( <span class="keywordtype">int</span> zonenumber );</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">void</span> CheckAliveTest();</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordtype">void</span> DeleteUserList(<span class="keywordtype">int</span> uid);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordtype">void</span> DeleteAllUserList(<a class="code" href="class_c_game_socket.html">CGameSocket</a> *pSock = NULL);</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">void</span> Send(<a class="code" href="class_packet.html">Packet</a> * pkt);</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">void</span> SendSystemMsg( <span class="keywordtype">char</span>* pMsg, <span class="keywordtype">int</span> type=0, <span class="keywordtype">int</span> who=0 );</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordtype">void</span> ResetBattleZone();</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordtype">void</span> OnTimer(UINT nIDEvent);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keyword">static</span> uint32 THREADCALL Timer_CheckAliveTest(<span class="keywordtype">void</span> * lpParam);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordtype">void</span> CheckAliveTest();</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordtype">void</span> DeleteUserList(<span class="keywordtype">int</span> uid);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">void</span> DeleteAllUserList(<a class="code" href="class_c_game_socket.html">CGameSocket</a> *pSock = <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">void</span> Send(<a class="code" href="class_packet.html">Packet</a> * pkt);</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordtype">void</span> SendSystemMsg(std::string &amp; pMsg, <span class="keywordtype">int</span> type=0);</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordtype">void</span> ResetBattleZone();</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    ~<a class="code" href="class_c_server_dlg.html">CServerDlg</a>();</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="keyword">public</span>:</div>
@@ -185,39 +185,41 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ZoneArray</a>               g_arZone;</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">NpcItemArray</a>            m_NpcItemArray;</div>
 <div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">MakeItemGroupArray</a>      m_MakeItemGroupArray;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    HANDLE m_hZoneEventThread;      <span class="comment">// zone</span></div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ServerResourceArray</a>     m_ServerResourceArray;</div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordtype">char</span> m_strGameDSN[32], m_strGameUID[32], m_strGamePWD[32];</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <a class="code" href="class_odbc_connection.html">OdbcConnection</a> m_GameDB;</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <a class="code" href="struct_c_user.html">CUser</a>* m_pUser[MAX_USER];</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <a class="code" href="class_thread.html">Thread</a> m_zoneEventThread;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keywordtype">char</span> m_strGameDSN[32], m_strGameUID[32], m_strGamePWD[32];</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <a class="code" href="class_odbc_connection.html">OdbcConnection</a> m_GameDB;</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <span class="comment">// 전역 객체 변수   //BOOL          m_bNpcExit;</span></div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    uint16          m_TotalNPC;         <span class="comment">// DB에있는 총 수</span></div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="keywordtype">long</span>            m_CurrentNPCError;  <span class="comment">// 세팅에서 실패한 수</span></div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <span class="keywordtype">long</span>            m_CurrentNPC;       <span class="comment">// 현재 게임상에서 실제로 셋팅된 수</span></div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <a class="code" href="struct_c_user.html">CUser</a>* m_pUser[MAX_USER];</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    uint16          m_TotalNPC;         <span class="comment">// DB에있는 총 수</span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <a class="code" href="class_atomic.html">Atomic&lt;uint16&gt;</a>  m_CurrentNPC;</div>
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="keywordtype">short</span>           m_sTotalMap;        <span class="comment">// Zone 수 </span></div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keywordtype">short</span>           m_sMapEventNpc;     <span class="comment">// Map에서 읽어들이는 event npc 수</span></div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    BOOL            m_bFirstServerFlag;     <span class="comment">// 서버가 처음시작한 후 게임서버가 붙은 경우에는 1, 붙지 않은 경우 0</span></div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    BYTE  m_byBattleEvent;                 <span class="comment">// 전쟁 이벤트 관련 플래그( 1:전쟁중이 아님, 0:전쟁중)</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keywordtype">bool</span>            m_bFirstServerFlag;     <span class="comment">// 서버가 처음시작한 후 게임서버가 붙은 경우에는 1, 붙지 않은 경우 0</span></div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    uint8  m_byBattleEvent;                <span class="comment">// 전쟁 이벤트 관련 플래그( 1:전쟁중이 아님, 0:전쟁중)</span></div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordtype">short</span> m_sKillKarusNpc, m_sKillElmoNpc; <span class="comment">// 전쟁동안에 죽은 npc숫자</span></div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    uint16  m_iYear, m_iMonth, m_iDate, m_iHour, m_iMin, m_iAmount;</div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    uint8 m_iWeather;</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    BYTE    m_byNight;          <span class="comment">// 밤인지,, 낮인지를 판단... 1:낮, 2:밤</span></div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    uint8   m_byNight;          <span class="comment">// 밤인지,, 낮인지를 판단... 1:낮, 2:밤</span></div>
 <div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <span class="keyword">static</span> <a class="code" href="class_k_o_socket_mgr.html">KOSocketMgr&lt;CGameSocket&gt;</a> s_socketMgr;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    FastMutex m_userLock;</div>
 <div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    BYTE                m_byZone;</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;};</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="keyword">extern</span> <a class="code" href="class_c_server_dlg.html">CServerDlg</a> * g_pMain;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <a class="code" href="class_k_o_socket_mgr.html">KOSocketMgr&lt;CGameSocket&gt;</a> m_socketMgr;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    uint8               m_byZone;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;};</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="keyword">extern</span> <a class="code" href="class_c_server_dlg.html">CServerDlg</a> * g_pMain;</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

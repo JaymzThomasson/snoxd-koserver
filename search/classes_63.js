@@ -33,6 +33,7 @@ var searchData=
   ['cknightsuserset',['CKnightsUserSet',['../class_c_knights_user_set.html',1,'']]],
   ['cleveluptableset',['CLevelUpTableSet',['../class_c_level_up_table_set.html',1,'']]],
   ['clientsocketmgr',['ClientSocketMgr',['../class_client_socket_mgr.html',1,'']]],
+  ['clientsocketmgr_3c_20caisocket_20_3e',['ClientSocketMgr&lt; CAISocket &gt;',['../class_client_socket_mgr.html',1,'']]],
   ['cluaengine',['CLuaEngine',['../class_c_lua_engine.html',1,'']]],
   ['cluascript',['CLuaScript',['../class_c_lua_script.html',1,'']]],
   ['cmagicprocess',['CMagicProcess',['../class_c_magic_process.html',1,'']]],

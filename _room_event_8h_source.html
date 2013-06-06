@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.3.1"/>
-<title>Snoxd.net&#39;s public KO server project: AIServer/RoomEvent.h Source File</title>
+<title>Snoxd.net&#39;s public KO server project: src/AIServer/RoomEvent.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -78,7 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_a548eda2657b76e5e912008611eb5d48.html">AIServer</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_3f591d602b2e84ff4fdf6beaf1536dc0.html">AIServer</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -108,9 +108,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">int</span>     m_iZoneNumber;      <span class="comment">// zone number</span></div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keywordtype">short</span>   m_sRoomNumber;      <span class="comment">// room number (0:empty room)</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    BYTE    m_byStatus;         <span class="comment">// room status (1:init, 2:progress, 3:clear)</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    BYTE    m_byCheck;          <span class="comment">// 조건문의 갯수</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    BYTE    m_byRoomType;       <span class="comment">// 방의 타입(0:일반, 1:함정방, 2:,,,,)</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    uint8   m_byStatus;         <span class="comment">// room status (1:init, 2:progress, 3:clear)</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    uint8   m_byCheck;          <span class="comment">// 조건문의 갯수</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    uint8   m_byRoomType;       <span class="comment">// 방의 타입(0:일반, 1:함정방, 2:,,,,)</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keywordtype">int</span>     m_iInitMinX;        <span class="comment">// room region x</span></div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordtype">int</span>     m_iInitMinZ;</div>
@@ -130,7 +130,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">mapNpcArray</a> m_mapRoomNpcArray;              <span class="comment">// room npc uid array</span></div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    BYTE    m_byLogicNumber;    <span class="comment">// 현재의 조건문 검사 번호 (조건번호는 1부터 시작됨) (m_byCheck와 m_byLogicNumber이 같다면 클리어 상태)</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    uint8    m_byLogicNumber;   <span class="comment">// 현재의 조건문 검사 번호 (조건번호는 1부터 시작됨) (m_byCheck와 m_byLogicNumber이 같다면 클리어 상태)</span></div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">public</span>:</div>
@@ -142,9 +142,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keyword">private</span>:</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">void</span> Initialize();</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    BOOL  CheckEvent(<span class="keywordtype">int</span> event_num);</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    BOOL  RunEvent( <span class="keywordtype">int</span> event_num );</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    BOOL  CheckMonsterCount( <span class="keywordtype">int</span> sid, <span class="keywordtype">int</span> count, <span class="keywordtype">int</span> type );</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">bool</span>  CheckEvent(<span class="keywordtype">int</span> event_num);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordtype">bool</span>  RunEvent( <span class="keywordtype">int</span> event_num );</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordtype">bool</span>  CheckMonsterCount( <span class="keywordtype">int</span> sid, <span class="keywordtype">int</span> count, <span class="keywordtype">int</span> type );</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <a class="code" href="struct_c_npc.html">CNpc</a>* GetNpcPtr( <span class="keywordtype">int</span> sid );</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">void</span>  EndEventSay( <span class="keywordtype">int</span> option1, <span class="keywordtype">int</span> option2 );</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
@@ -152,7 +152,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

@@ -164,9 +164,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>SendSkillToAI</b> ()<
 <tr class="memitem:a06036134e209bfe14a9d59edd22f8a7a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_magic_instance.html#a06036134e209bfe14a9d59edd22f8a7a">BuildAndSendSkillPacket</a> (<a class="el" href="class_unit.html">Unit</a> *pUnit, bool bSendToRegion, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8])</td></tr>
 <tr class="memdesc:a06036134e209bfe14a9d59edd22f8a7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds and sends skill packet using the specified data to pUnit.  <a href="#a06036134e209bfe14a9d59edd22f8a7a">More...</a><br/></td></tr>
 <tr class="separator:a06036134e209bfe14a9d59edd22f8a7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa331d96dd40065371f08e18c059794b5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_magic_instance.html#aa331d96dd40065371f08e18c059794b5">SendSkill</a> (bool bSendToRegion=true, <a class="el" href="class_unit.html">Unit</a> *pUnit=NULL)</td></tr>
-<tr class="memdesc:aa331d96dd40065371f08e18c059794b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends the skill data in the current context to pUnit. If pUnit is NULL, it will assume the caster.  <a href="#aa331d96dd40065371f08e18c059794b5">More...</a><br/></td></tr>
-<tr class="separator:aa331d96dd40065371f08e18c059794b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba680a3d41a41cda609234d27352aafe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_magic_instance.html#aba680a3d41a41cda609234d27352aafe">SendSkill</a> (bool bSendToRegion=true, <a class="el" href="class_unit.html">Unit</a> *pUnit=nullptr)</td></tr>
+<tr class="memdesc:aba680a3d41a41cda609234d27352aafe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends the skill data in the current context to pUnit. If pUnit is nullptr, it will assume the caster.  <a href="#aba680a3d41a41cda609234d27352aafe">More...</a><br/></td></tr>
+<tr class="separator:aba680a3d41a41cda609234d27352aafe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6985815c81f7bb253e482fc4ce776201"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_magic_instance.html#a6985815c81f7bb253e482fc4ce776201">SendSkillFailed</a> (int16 sTargetID=-1)</td></tr>
 <tr class="memdesc:a6985815c81f7bb253e482fc4ce776201"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends the skill failed packet to the caster.  <a href="#a6985815c81f7bb253e482fc4ce776201">More...</a><br/></td></tr>
 <tr class="separator:a6985815c81f7bb253e482fc4ce776201"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -338,7 +338,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>bIsRecastingSavedMagi
 
 </div>
 </div>
-<a class="anchor" id="aa331d96dd40065371f08e18c059794b5"></a>
+<a class="anchor" id="aba680a3d41a41cda609234d27352aafe"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -352,7 +352,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>bIsRecastingSavedMagi
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="class_unit.html">Unit</a> *&#160;</td>
-          <td class="paramname"><em>pUnit</em> = <code>NULL</code>&#160;</td>
+          <td class="paramname"><em>pUnit</em> = <code>nullptr</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -362,7 +362,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>bIsRecastingSavedMagi
       </table>
 </div><div class="memdoc">
 
-<p>Sends the skill data in the current context to pUnit. If pUnit is NULL, it will assume the caster. </p>
+<p>Sends the skill data in the current context to pUnit. If pUnit is nullptr, it will assume the caster. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">bSendToRegion</td><td>true to send the packet to pUnit's region. If pUnit is an NPC, this is assumed true. </td></tr>
@@ -398,13 +398,13 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>bIsRecastingSavedMagi
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>Ebenezer/<a class="el" href="_magic_instance_8h_source.html">MagicInstance.h</a></li>
-<li>Ebenezer/MagicInstance.cpp</li>
+<li>src/Ebenezer/<a class="el" href="_magic_instance_8h_source.html">MagicInstance.h</a></li>
+<li>src/Ebenezer/MagicInstance.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:13 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:06 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

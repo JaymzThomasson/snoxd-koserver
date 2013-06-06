@@ -8,6 +8,8 @@ var searchData=
   ['initialize',['Initialize',['../struct_c_npc.html#a19cfd7547e0b4425b62735bf5e985441',1,'CNpc::Initialize()'],['../struct_c_user.html#ab01915f83b7646ca262450895772449b',1,'CUser::Initialize()'],['../class_packet.html#acb572128c50ec139bc2da318d10fd27e',1,'Packet::Initialize()']]],
   ['insertnominee',['InsertNominee',['../class_c_king_system.html#a76da63fa76fcea1038cecffc5f902a73',1,'CKingSystem']]],
   ['insertsavedmagic',['InsertSavedMagic',['../struct_c_user.html#a6e8ce33a46f2f5d7143be3ecfb1767a9',1,'CUser']]],
+  ['isinarena',['isInArena',['../struct_c_user.html#af366b6bb4571e585805eb1783361926b',1,'CUser']]],
+  ['isinpvpzone',['isInPVPZone',['../struct_c_user.html#a174db67c21756ddbc63cadeb55cc6888',1,'CUser']]],
   ['itemget',['ItemGet',['../struct_c_user.html#affbdc5010a9962bc2d41a7430447d8d3',1,'CUser']]],
   ['itemsealprocess',['ItemSealProcess',['../struct_c_user.html#a3baad5d1b0a0b5af697cb3f16d91c2a6',1,'CUser']]],
   ['itemupgrade',['ItemUpgrade',['../struct_c_user.html#a54d66e7a490f6d8444d5b3f06f91963d',1,'CUser']]],

@@ -129,17 +129,48 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>RequestClanSym
 <tr class="memitem:a3ac7e68031b41326c7f7575594cdaba6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ac7e68031b41326c7f7575594cdaba6"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>GetClanSymbol</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, uint16 sClanID)</td></tr>
 <tr class="separator:a3ac7e68031b41326c7f7575594cdaba6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21ec0cf85c45f2fc9a819e64d43744b6"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_knights_manager.html#a21ec0cf85c45f2fc9a819e64d43744b6">CheckAlliance</a> (<a class="el" href="class_c_knights.html">CKnights</a> *pMainClan, <a class="el" href="class_c_knights.html">CKnights</a> *pTargetClan)</td></tr>
+<tr class="memdesc:a21ec0cf85c45f2fc9a819e64d43744b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs CSW/Delos checks to determine whether an alliance can be made with the specified clan.  <a href="#a21ec0cf85c45f2fc9a819e64d43744b6">More...</a><br/></td></tr>
+<tr class="separator:a21ec0cf85c45f2fc9a819e64d43744b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3f5be1b729a39d3e2384ff386b5c2f0"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_knights_manager.html#ac3f5be1b729a39d3e2384ff386b5c2f0">KnightsAllianceCreate</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memdesc:ac3f5be1b729a39d3e2384ff386b5c2f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles the client packet responsible for creating an alliance with another clan.  <a href="#ac3f5be1b729a39d3e2384ff386b5c2f0">More...</a><br/></td></tr>
+<tr class="separator:ac3f5be1b729a39d3e2384ff386b5c2f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b7d4c463658049f6bb9631369b81b54"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b7d4c463658049f6bb9631369b81b54"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>KnightsAllianceRequest</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="separator:a5b7d4c463658049f6bb9631369b81b54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a439d8c00538fcb678c5c241425a13a21"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_knights_manager.html#a439d8c00538fcb678c5c241425a13a21">KnightsAllianceInsert</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memdesc:a439d8c00538fcb678c5c241425a13a21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles the client packet responsible for forming an alliance with another clan. We must already lead an alliance.  <a href="#a439d8c00538fcb678c5c241425a13a21">More...</a><br/></td></tr>
+<tr class="separator:a439d8c00538fcb678c5c241425a13a21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3c5609f5b8d28e00347f4fa0ff9e39d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad3c5609f5b8d28e00347f4fa0ff9e39d"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>KnightsAllianceRemove</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="separator:ad3c5609f5b8d28e00347f4fa0ff9e39d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3053d0eae0642b26cd56e5786ce3cbdc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3053d0eae0642b26cd56e5786ce3cbdc"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>KnightsAlliancePunish</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="separator:a3053d0eae0642b26cd56e5786ce3cbdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6aa9237370b99548e18226c35e0e2c3a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_knights_manager.html#a6aa9237370b99548e18226c35e0e2c3a">KnightsAllianceList</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memdesc:a6aa9237370b99548e18226c35e0e2c3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles the client packet responsible for displaying all clans that are part of the user's clan's alliance.  <a href="#a6aa9237370b99548e18226c35e0e2c3a">More...</a><br/></td></tr>
+<tr class="separator:a6aa9237370b99548e18226c35e0e2c3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71f750adf18f8f36f5cf9d53b5beb09e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a71f750adf18f8f36f5cf9d53b5beb09e"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>ListTop10Clans</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
 <tr class="separator:a71f750adf18f8f36f5cf9d53b5beb09e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a49fef2c455688261680a14cb4c1f2edc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a49fef2c455688261680a14cb4c1f2edc"></a>
-static bool&#160;</td><td class="memItemRight" valign="bottom"><b>AddKnightsUser</b> (int index, const char *UserName)</td></tr>
-<tr class="separator:a49fef2c455688261680a14cb4c1f2edc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d923ea2052f2accadbfd3e3f745d162"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_knights_manager.html#a1d923ea2052f2accadbfd3e3f745d162">SetKnightsUser</a> (int index, const char *UserName)</td></tr>
-<tr class="separator:a1d923ea2052f2accadbfd3e3f745d162"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e85c848e996e7e0d94d3c822e76f625"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3e85c848e996e7e0d94d3c822e76f625"></a>
-static bool&#160;</td><td class="memItemRight" valign="bottom"><b>RemoveKnightsUser</b> (int index, const char *UserName)</td></tr>
-<tr class="separator:a3e85c848e996e7e0d94d3c822e76f625"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7318d0f58efca67991009646d7b464fb"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_knights_manager.html#a7318d0f58efca67991009646d7b464fb">DonateNPReq</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memdesc:a7318d0f58efca67991009646d7b464fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles the clan NP info packet from the client. It is designed to tell the user how many points are currently stored, and how much they can donate.  <a href="#a7318d0f58efca67991009646d7b464fb">More...</a><br/></td></tr>
+<tr class="separator:a7318d0f58efca67991009646d7b464fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae48dd410dd6f018b93e8d84e3826dc67"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_knights_manager.html#ae48dd410dd6f018b93e8d84e3826dc67">DonateNP</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memdesc:ae48dd410dd6f018b93e8d84e3826dc67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles the clan NP donations packet from the client.  <a href="#ae48dd410dd6f018b93e8d84e3826dc67">More...</a><br/></td></tr>
+<tr class="separator:ae48dd410dd6f018b93e8d84e3826dc67"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10a5e72f31e4524c47c3ebc4cacfcd93"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_knights_manager.html#a10a5e72f31e4524c47c3ebc4cacfcd93">DonationList</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memdesc:a10a5e72f31e4524c47c3ebc4cacfcd93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles the clan NP donations list packet from the client. i.e. the "save cont" button's "accumulation status" list.  <a href="#a10a5e72f31e4524c47c3ebc4cacfcd93">More...</a><br/></td></tr>
+<tr class="separator:a10a5e72f31e4524c47c3ebc4cacfcd93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3544eb51eee5490774d7386c6a0a8a9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab3544eb51eee5490774d7386c6a0a8a9"></a>
+static bool&#160;</td><td class="memItemRight" valign="bottom"><b>AddKnightsUser</b> (int index, std::string &amp;strUserID)</td></tr>
+<tr class="separator:ab3544eb51eee5490774d7386c6a0a8a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40ebe474a4e313528b7102441e00ded5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a40ebe474a4e313528b7102441e00ded5"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>AddUserDonatedNP</b> (int index, std::string &amp;strUserID, uint32 nDonatedNP)</td></tr>
+<tr class="separator:a40ebe474a4e313528b7102441e00ded5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c440deb742754faa273b98e91be02b8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6c440deb742754faa273b98e91be02b8"></a>
+static bool&#160;</td><td class="memItemRight" valign="bottom"><b>RemoveKnightsUser</b> (int index, std::string &amp;strUserID)</td></tr>
+<tr class="separator:a6c440deb742754faa273b98e91be02b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab15344559fae5e9c0a3e67743b7efb61"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab15344559fae5e9c0a3e67743b7efb61"></a>
 static bool&#160;</td><td class="memItemRight" valign="bottom"><b>LoadKnightsIndex</b> (int index)</td></tr>
 <tr class="separator:ab15344559fae5e9c0a3e67743b7efb61"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -170,6 +201,12 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>ReqKnightsList
 <tr class="memitem:a2b60669714e94e71ae81d7b6507cb76c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2b60669714e94e71ae81d7b6507cb76c"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>ReqRegisterClanSymbol</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="separator:a2b60669714e94e71ae81d7b6507cb76c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3cb0bfd2a459c4ce1a7f932b1a4df336"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_knights_manager.html#a3cb0bfd2a459c4ce1a7f932b1a4df336">ReqDonateNP</a> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memdesc:a3cb0bfd2a459c4ce1a7f932b1a4df336"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles the clan NP donations database request. It is essentially the client packet's real handler as the packet is simply forwarded here.  <a href="#a3cb0bfd2a459c4ce1a7f932b1a4df336">More...</a><br/></td></tr>
+<tr class="separator:a3cb0bfd2a459c4ce1a7f932b1a4df336"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa293273ba61b26f0a8ff1dde5145c81d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_knights_manager.html#aa293273ba61b26f0a8ff1dde5145c81d">ReqRefundNP</a> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memdesc:aa293273ba61b26f0a8ff1dde5145c81d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles the database request to refund the specified logged out character's donated NP.  <a href="#aa293273ba61b26f0a8ff1dde5145c81d">More...</a><br/></td></tr>
+<tr class="separator:aa293273ba61b26f0a8ff1dde5145c81d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a971f3f358b80e529b7b3be0e0d3fcbd1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a971f3f358b80e529b7b3be0e0d3fcbd1"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvUpdateKnights</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt, uint8 command)</td></tr>
 <tr class="separator:a971f3f358b80e529b7b3be0e0d3fcbd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -190,6 +227,388 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>PacketProcess<
 <tr class="separator:a563fb18ebb15c80a662adca20014cb6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a21ec0cf85c45f2fc9a819e64d43744b6"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool CKnightsManager::CheckAlliance </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_c_knights.html">CKnights</a> *&#160;</td>
+          <td class="paramname"><em>pMainClan</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_c_knights.html">CKnights</a> *&#160;</td>
+          <td class="paramname"><em>pTargetClan</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Performs CSW/Delos checks to determine whether an alliance can be made with the specified clan. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pMainClan</td><td>The clan seeking to form an alliance. </td></tr>
+    <tr><td class="paramname">pTargetClan</td><td>Target clan an alliance is being formed with.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if it succeeds, false if it fails. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae48dd410dd6f018b93e8d84e3826dc67"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKnightsManager::DonateNP </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_packet.html">Packet</a> &amp;&#160;</td>
+          <td class="paramname"><em>pkt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handles the clan NP donations packet from the client. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUser</td><td>The user. </td></tr>
+    <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a7318d0f58efca67991009646d7b464fb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKnightsManager::DonateNPReq </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_packet.html">Packet</a> &amp;&#160;</td>
+          <td class="paramname"><em>pkt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handles the clan NP info packet from the client. It is designed to tell the user how many points are currently stored, and how much they can donate. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUser</td><td>The user. </td></tr>
+    <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a10a5e72f31e4524c47c3ebc4cacfcd93"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKnightsManager::DonationList </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_packet.html">Packet</a> &amp;&#160;</td>
+          <td class="paramname"><em>pkt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handles the clan NP donations list packet from the client. i.e. the "save cont" button's "accumulation status" list. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUser</td><td>The user. </td></tr>
+    <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ac3f5be1b729a39d3e2384ff386b5c2f0"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKnightsManager::KnightsAllianceCreate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_packet.html">Packet</a> &amp;&#160;</td>
+          <td class="paramname"><em>pkt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handles the client packet responsible for creating an alliance with another clan. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUser</td><td>The user. </td></tr>
+    <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a439d8c00538fcb678c5c241425a13a21"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKnightsManager::KnightsAllianceInsert </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_packet.html">Packet</a> &amp;&#160;</td>
+          <td class="paramname"><em>pkt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handles the client packet responsible for forming an alliance with another clan. We must already lead an alliance. </p>
+<pre class="fragment">        NOTE: Most of the logic (error codes also) is for the most part 
+        identical to the creation of the alliance. 
+        It just doesn't _create_ an alliance (and requires the alliance to exist).
+</pre><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUser</td><td>The user. </td></tr>
+    <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a6aa9237370b99548e18226c35e0e2c3a"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKnightsManager::KnightsAllianceList </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_packet.html">Packet</a> &amp;&#160;</td>
+          <td class="paramname"><em>pkt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handles the client packet responsible for displaying all clans that are part of the user's clan's alliance. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUser</td><td>The user. </td></tr>
+    <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a3cb0bfd2a459c4ce1a7f932b1a4df336"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKnightsManager::ReqDonateNP </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_c_user.html">CUser</a> *&#160;</td>
+          <td class="paramname"><em>pUser</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_packet.html">Packet</a> &amp;&#160;</td>
+          <td class="paramname"><em>pkt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handles the clan NP donations database request. It is essentially the client packet's real handler as the packet is simply forwarded here. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pUser</td><td>The user. </td></tr>
+    <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="aa293273ba61b26f0a8ff1dde5145c81d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKnightsManager::ReqRefundNP </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_packet.html">Packet</a> &amp;&#160;</td>
+          <td class="paramname"><em>pkt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handles the database request to refund the specified logged out character's donated NP. </p>
+<pre class="fragment">        NOTE: Logged in players don't need to be handled as their NP is
+        refunded in-game.
+</pre><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="a6677d7441e9a4d04fc7487bda2c851af"></a>
 <div class="memitem">
 <div class="memproto">
@@ -225,50 +644,16 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>PacketProcess<
 
 </div>
 </div>
-<a class="anchor" id="a1d923ea2052f2accadbfd3e3f745d162"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void CKnightsManager::SetKnightsUser </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>index</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>UserName</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>This method seems to be useless. Leaving it just in case. </p>
-
-</div>
-</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>Ebenezer/<a class="el" href="_knights_manager_8h_source.html">KnightsManager.h</a></li>
-<li>Ebenezer/DatabaseThread.cpp</li>
-<li>Ebenezer/KnightsManager.cpp</li>
+<li>src/Ebenezer/<a class="el" href="_knights_manager_8h_source.html">KnightsManager.h</a></li>
+<li>src/Ebenezer/DatabaseThread.cpp</li>
+<li>src/Ebenezer/DBAgent.cpp</li>
+<li>src/Ebenezer/KnightsManager.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:12 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:04 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

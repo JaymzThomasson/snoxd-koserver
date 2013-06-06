@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.3.1"/>
-<title>Snoxd.net&#39;s public KO server project: Ebenezer/KingSystem.h Source File</title>
+<title>Snoxd.net&#39;s public KO server project: src/Ebenezer/KingSystem.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -78,7 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_334c8279933e6a7bafa2e590e80978ad.html">Ebenezer</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_e93684172c9a41a933ee0a0b96d1d32c.html">Ebenezer</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -101,7 +101,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00013"></a><span class="lineno"><a class="code" href="structci__compare.html">   13</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structci__compare.html">ci_compare</a></div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;{</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="keywordtype">bool</span> operator() (<span class="keyword">const</span> std::string &amp; str1, <span class="keyword">const</span> std::string &amp; str2)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;        <span class="keywordflow">return</span> _stricmp(str1.c_str(), str2.c_str()) &lt; 0;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;        <span class="keywordflow">return</span> STRCASECMP(str1.c_str(), str2.c_str()) &lt; 0;</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    }</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;};</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
@@ -137,7 +137,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="comment">// Updates the election status</span></div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#ae4b38d9e8c0cbe60555b1df385e400c7" title="Updates the election status.">UpdateElectionStatus</a>(uint8 byElectionState);</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#a248477a419bc780a8380a8a6e28f74ad" title="Updates the election list.">UpdateElectionList</a>(uint8 byElectionListType, <span class="keywordtype">bool</span> bDeleteList, uint16 sClanID, std::string &amp; strUserID, <a class="code" href="struct_c_user.html">CUser</a> * pUser = NULL);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#af11472f55889cc9ae1cd673459d39644" title="Updates the election list.">UpdateElectionList</a>(uint8 byElectionListType, <span class="keywordtype">bool</span> bDeleteList, uint16 sClanID, std::string &amp; strUserID, <a class="code" href="struct_c_user.html">CUser</a> * pUser = <span class="keyword">nullptr</span>);</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="comment">// Checks to see if a special (coin/XP) event should end.</span></div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_king_system.html#abe25bd8c70989db28455989a65edec98" title="Checks to see if a special (coin/XP) event should end.">CheckSpecialEvent</a>();</div>
@@ -217,7 +217,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    std::string m_strKingName;</div>
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    std::string m_strImRequestID;</div>
 <div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <a class="code" href="class_fast_mutex.html">FastMutex</a> m_lock;</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    FastMutex m_lock;</div>
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    ClanIDSet m_top10ClanSet;</div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;</div>
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;    KingCandidacyNoticeBoardMap m_noticeBoardMap;</div>
@@ -234,7 +234,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

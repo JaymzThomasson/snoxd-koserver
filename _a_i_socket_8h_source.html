@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.3.1"/>
-<title>Snoxd.net&#39;s public KO server project: Ebenezer/AISocket.h Source File</title>
+<title>Snoxd.net&#39;s public KO server project: src/Ebenezer/AISocket.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -78,7 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_334c8279933e6a7bafa2e590e80978ad.html">Ebenezer</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_e93684172c9a41a933ee0a0b96d1d32c.html">Ebenezer</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -94,7 +94,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00006"></a><span class="lineno"><a class="code" href="class_c_a_i_socket.html">    6</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_a_i_socket.html">CAISocket</a> : <span class="keyword">public</span> <a class="code" href="class_k_o_socket.html">KOSocket</a> </div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;{</div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    <a class="code" href="class_c_a_i_socket.html">CAISocket</a>(uint16 socketID, <a class="code" href="class_socket_mgr.html">SocketMgr</a> * mgr) : <a class="code" href="class_k_o_socket.html">KOSocket</a>(socketID, mgr, 0, 65536, 65536), m_bHasConnected(<span class="keyword">false</span>) {}</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    <a class="code" href="class_c_a_i_socket.html">CAISocket</a>(uint16 socketID, <a class="code" href="class_socket_mgr.html">SocketMgr</a> * mgr) : <a class="code" href="class_k_o_socket.html">KOSocket</a>(socketID, mgr, 0, 262144, 262144), m_bHasConnected(<span class="keyword">false</span>) {}</div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    INLINE <span class="keywordtype">bool</span> IsReconnecting() { <span class="keywordflow">return</span> m_bHasConnected; }</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div>
@@ -130,13 +130,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_c_a_i_socket.html">CAISocket</a>() {}</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordtype">bool</span> m_bAllNpcInfoRecv;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">bool</span> m_bHasConnected;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;};</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordtype">bool</span> m_bHasConnected;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

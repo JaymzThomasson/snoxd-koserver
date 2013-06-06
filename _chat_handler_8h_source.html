@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.3.1"/>
-<title>Snoxd.net&#39;s public KO server project: Ebenezer/ChatHandler.h Source File</title>
+<title>Snoxd.net&#39;s public KO server project: src/Ebenezer/ChatHandler.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -78,7 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_334c8279933e6a7bafa2e590e80978ad.html">Ebenezer</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_e93684172c9a41a933ee0a0b96d1d32c.html">Ebenezer</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -93,18 +93,18 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;    <span class="comment">// Construct a chat packet from the data provided</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;    <span class="comment">// NOTE: Using pointers here for more flexible input (references would be nice, but implementation can be fiddly)</span></div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> Construct(<a class="code" href="class_packet.html">Packet</a> * result, uint8 bType, std::string * strMessage = NULL, std::string * strSender = NULL, </div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> Construct(<a class="code" href="class_packet.html">Packet</a> * result, uint8 bType, std::string * strMessage = <span class="keyword">nullptr</span>, std::string * strSender = <span class="keyword">nullptr</span>, </div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;        uint8 bNation = 1, int16 senderID = -1)</div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    {</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;        result-&gt;<a class="code" href="class_packet.html#acb572128c50ec139bc2da318d10fd27e" title="Clear packet and set opcode all in one mighty blow.">Initialize</a>(WIZ_CHAT);</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;        *result &lt;&lt; bType &lt;&lt; bNation &lt;&lt; senderID;</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;        result-&gt;SByte();</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;        <span class="keywordflow">if</span> (strSender == NULL) *result &lt;&lt; uint8(0);</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;        <span class="keywordflow">if</span> (strSender == <span class="keyword">nullptr</span>) *result &lt;&lt; uint8(0);</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;        <span class="keywordflow">else</span> *result &lt;&lt; *strSender;</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        result-&gt;DByte();</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;        <span class="keywordflow">if</span> (strMessage == NULL) *result &lt;&lt; uint16(0);</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;        <span class="keywordflow">if</span> (strMessage == <span class="keyword">nullptr</span>) *result &lt;&lt; uint16(0);</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        <span class="keywordflow">else</span> *result &lt;&lt; *strMessage;</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    }</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;</div>
@@ -132,7 +132,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;INLINE <span class="keywordtype">void</span>* allocate_and_copy(uint32 len, <span class="keywordtype">void</span> * pointer)</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;{</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">void</span> * data = (<span class="keywordtype">void</span>*)malloc(len);</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordflow">if</span> (data == NULL)</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordflow">if</span> (data == <span class="keyword">nullptr</span>)</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        <span class="keywordflow">return</span> data;</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    memcpy(data, pointer, len);</div>
@@ -180,7 +180,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

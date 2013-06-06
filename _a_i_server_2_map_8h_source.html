@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.3.1"/>
-<title>Snoxd.net&#39;s public KO server project: AIServer/MAP.h Source File</title>
+<title>Snoxd.net&#39;s public KO server project: src/AIServer/MAP.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -78,7 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_a548eda2657b76e5e912008611eb5d48.html">AIServer</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_3f591d602b2e84ff4fdf6beaf1536dc0.html">AIServer</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -88,7 +88,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="contents">
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;../N3Base/N3ShapeMgr.h&quot;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;../N3BASE/N3ShapeMgr.h&quot;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;../shared/STLMap.h&quot;</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;Extern.h&quot;</span></div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &quot;RoomEvent.h&quot;</span></div>
@@ -125,36 +125,36 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordtype">int</span> m_nServerNo;</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    std::string m_MapName;</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordtype">float</span>*      m_fHeight;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    BYTE        m_byRoomType;       <span class="comment">// 방의 초기화관련( 0:자동으로 초기화, 1:전쟁이벤트 관련(특정조건이 완료시 초기화)</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    BYTE        m_byRoomEvent;      <span class="comment">// event room(0:empty, 1:use)</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    BYTE        m_byRoomStatus;     <span class="comment">// room status(1:진행중, 2:방을 초기화중, 3:방초기화 완료)</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    BYTE        m_byInitRoomCount;  <span class="comment">// room 초기화 시간을 제어(몬스터와 동기화를 맞추기 위해)</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    uint8       m_byRoomType;       <span class="comment">// 방의 초기화관련( 0:자동으로 초기화, 1:전쟁이벤트 관련(특정조건이 완료시 초기화)</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    uint8       m_byRoomEvent;      <span class="comment">// event room(0:empty, 1:use)</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    uint8       m_byRoomStatus;     <span class="comment">// room status(1:진행중, 2:방을 초기화중, 3:방초기화 완료)</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    uint8       m_byInitRoomCount;  <span class="comment">// room 초기화 시간을 제어(몬스터와 동기화를 맞추기 위해)</span></div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ObjectEventArray</a> m_ObjectEventArray;</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">RoomEventArray</a>   m_arRoomEventArray;</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">short</span>   m_sKarusRoom;           <span class="comment">// karus의 성갯수</span></div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordtype">short</span>   m_sElmoradRoom;         <span class="comment">// elmorad의 성갯수</span></div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <a class="code" href="class_m_a_p.html">MAP</a>();</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_m_a_p.html">MAP</a>();</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">bool</span> Initialize(<a class="code" href="struct___z_o_n_e___i_n_f_o.html">_ZONE_INFO</a> *pZone);</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    FastMutex m_lock;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <a class="code" href="class_m_a_p.html">MAP</a>();</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_m_a_p.html">MAP</a>();</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    BOOL LoadRoomEvent();</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    BOOL ObjectIntersect(<span class="keywordtype">float</span> x1, <span class="keywordtype">float</span> z1, <span class="keywordtype">float</span> y1, <span class="keywordtype">float</span> x2, <span class="keywordtype">float</span> z2, <span class="keywordtype">float</span> y2);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">float</span> GetHeight( <span class="keywordtype">float</span> x, <span class="keywordtype">float</span> z );</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    BOOL RegionNpcRemove( <span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz, <span class="keywordtype">int</span> nid );</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordtype">void</span> RegionNpcAdd( <span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz, <span class="keywordtype">int</span> nid );</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    BOOL RegionUserRemove( <span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz, <span class="keywordtype">int</span> uid );</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">void</span> RegionUserAdd( <span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz, <span class="keywordtype">int</span> uid );</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">int</span>  GetRegionUserSize(<span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz);</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordtype">int</span>  GetRegionNpcSize(<span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz);</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">bool</span> Initialize(<a class="code" href="struct___z_o_n_e___i_n_f_o.html">_ZONE_INFO</a> *pZone);</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">bool</span> LoadRoomEvent();</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordtype">bool</span> ObjectIntersect(<span class="keywordtype">float</span> x1, <span class="keywordtype">float</span> z1, <span class="keywordtype">float</span> y1, <span class="keywordtype">float</span> x2, <span class="keywordtype">float</span> z2, <span class="keywordtype">float</span> y2);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordtype">float</span> GetHeight( <span class="keywordtype">float</span> x, <span class="keywordtype">float</span> z );</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">bool</span> RegionNpcRemove( <span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz, <span class="keywordtype">int</span> nid );</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">void</span> RegionNpcAdd( <span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz, <span class="keywordtype">int</span> nid );</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">bool</span> RegionUserRemove( <span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz, <span class="keywordtype">int</span> uid );</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordtype">void</span> RegionUserAdd( <span class="keywordtype">int</span> rx, <span class="keywordtype">int</span> rz, <span class="keywordtype">int</span> uid );</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">int</span> IsRoomCheck(<span class="keywordtype">float</span> fx, <span class="keywordtype">float</span> fz);    <span class="comment">// 던젼에서 사용, 유저의 현재위치가 던젼의 어느 위치에 있는지를 판단</span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    BOOL IsRoomStatusCheck();</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordtype">bool</span> IsRoomStatusCheck();</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    BOOL IsMovable(<span class="keywordtype">int</span> dest_x, <span class="keywordtype">int</span> dest_y);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordtype">bool</span> IsMovable(<span class="keywordtype">int</span> dest_x, <span class="keywordtype">int</span> dest_y);</div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">void</span> InitializeRoom();</div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <a class="code" href="class_c_room_event.html">CRoomEvent</a>* SetRoomEvent( <span class="keywordtype">int</span> number );</div>
@@ -167,7 +167,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue May 21 2013 14:47:10 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>
