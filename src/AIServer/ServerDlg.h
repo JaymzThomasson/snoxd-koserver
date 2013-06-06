@@ -101,7 +101,7 @@ public:
 
 	Thread m_zoneEventThread;
 
-	char m_strGameDSN[32], m_strGameUID[32], m_strGamePWD[32];
+	std::string m_strGameDSN, m_strGameUID, m_strGamePWD;
 	OdbcConnection m_GameDB;
 
 	CUser* m_pUser[MAX_USER];

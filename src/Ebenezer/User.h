@@ -642,7 +642,7 @@ public:
 	void ExpChange(int64 iExp);
 	void LogOut();
 	void SendMyInfo();
-	void SendServerChange(char *ip, uint8 bInit);
+	void SendServerChange(std::string & ip, uint8 bInit);
 	void Send2AI_UserUpdateInfo(bool initialInfo = false);
 
 	virtual void GetInOut(Packet & result, uint8 bType);

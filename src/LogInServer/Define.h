@@ -7,29 +7,23 @@
 
 struct _SERVER_INFO
 {
-	char strServerIP[32];
-	char strLanIP[32];
-	char strServerName[32];
+	std::string strServerIP;
+	std::string strLanIP;
+	std::string strServerName;
 	short sUserCount;
 	short sServerID;
 	short sGroupID;
 	short sPlayerCap;
 	short sFreePlayerCap;
-	char strKarusKingName[MAX_ID_SIZE+1];
-	char strKarusNotice[256]; // not sure how big they should be
-	char strElMoradKingName[MAX_ID_SIZE+1];
-	char strElMoradNotice[256];
+	std::string strKarusKingName;
+	std::string strKarusNotice;
+	std::string strElMoradKingName;
+	std::string strElMoradNotice;
 
-	_SERVER_INFO() {
-		memset(strServerIP, 0x00, sizeof(strServerIP));
-		memset(strServerName, 0x00, sizeof(strServerName));
-		memset(strKarusKingName, 0x00, sizeof(strKarusKingName));
-		memset(strKarusNotice, 0x00, sizeof(strKarusNotice));
-		memset(strElMoradKingName, 0x00, sizeof(strElMoradKingName));
-		memset(strElMoradNotice, 0x00, sizeof(strElMoradNotice));
-
+	_SERVER_INFO()
+	{
 		sUserCount = sServerID = sGroupID = sPlayerCap = sFreePlayerCap = 0;
-	};
+	}
 };
 
 struct News

@@ -47,10 +47,6 @@ CServerDlg::CServerDlg()
 	m_byBattleEvent = BATTLEZONE_CLOSE;
 	m_sKillKarusNpc = 0;
 	m_sKillElmoNpc = 0;
-
-	memset(m_strGameDSN, 0, sizeof(m_strGameDSN));
-	memset(m_strGameUID, 0, sizeof(m_strGameUID));
-	memset(m_strGamePWD, 0, sizeof(m_strGamePWD));
 }
 
 bool CServerDlg::Startup()
@@ -846,11 +842,11 @@ int CServerDlg::GetServerNumber( int zonenumber )
 
 void CServerDlg::GetServerInfoIni()
 {
-	CIni inifile("./server.ini");
-	m_byZone = inifile.GetInt("SERVER", "ZONE", UNIFY_ZONE);
-	inifile.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, sizeof(m_strGameDSN), false);
-	inifile.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, sizeof(m_strGameUID), false);
-	inifile.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, sizeof(m_strGamePWD), false);
+	CIni ini("./server.ini");
+	m_byZone = ini.GetInt("SERVER", "ZONE", UNIFY_ZONE);
+	ini.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, false);
+	ini.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, false);
+	ini.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, false);
 }
 
 void CServerDlg::SendSystemMsg(std::string & pMsg, int type)

@@ -240,7 +240,7 @@ public:
 	~CEbenezerDlg();
 
 	char	m_ppNotice[20][128];
-	char	m_AIServerIP[20];
+	std::string	m_AIServerIP;
 
 	NpcArray				m_arNpcArray;
 	ZoneArray				m_ZoneArray;
@@ -299,8 +299,7 @@ public:
 	short   m_sDiscount;	// 능력치와 포인트 초기화 할인 (0:할인없음, 1:할인(50%) )
 	short	m_sKarusDead, m_sElmoradDead, m_sBanishDelay, m_sKarusCount, m_sElmoradCount;
 	int m_nBattleZoneOpenWeek, m_nBattleZoneOpenHourStart, m_nBattleZoneOpenHourEnd;
-	char m_strKarusCaptain[MAX_ID_SIZE+1];
-	char m_strElmoradCaptain[MAX_ID_SIZE+1];
+	std::string m_strKarusCaptain, m_strElmoradCaptain;
 
 	uint8	m_bMaxRegenePoint;
 

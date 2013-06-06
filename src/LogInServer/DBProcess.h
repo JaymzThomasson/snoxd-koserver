@@ -5,7 +5,7 @@
 class CDBProcess  
 {
 public:
-	bool Connect(TCHAR *szDSN, TCHAR *szUser, TCHAR *szPass);
+	bool Connect(std::string & szDSN, std::string & szUser, std::string & szPass);
 
 	bool LoadVersionList();
 	bool LoadUserCountList();
