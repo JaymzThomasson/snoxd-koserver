@@ -3517,7 +3517,7 @@ void CUser::NativeZoneReturn()
  * 			(i.e. visible area)
  *
  * @param	pkt		   	The packet.
- * @param	pExceptUser	The except user.
+ * @param	pExceptUser	User to except. If specified, will ignore this user.
  */
 void CUser::SendToRegion(Packet *pkt, CUser *pExceptUser /*= nullptr*/)
 {
@@ -3529,7 +3529,7 @@ void CUser::SendToRegion(Packet *pkt, CUser *pExceptUser /*= nullptr*/)
  * 			user's current zone.
  *
  * @param	pkt		   	The packet.
- * @param	pExceptUser	The except user.
+ * @param	pExceptUser	User to except. If specified, will ignore this user.
  */
 void CUser::SendToZone(Packet *pkt, CUser *pExceptUser /*= nullptr*/)
 {
