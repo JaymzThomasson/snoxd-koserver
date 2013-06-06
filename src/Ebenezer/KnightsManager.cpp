@@ -856,8 +856,67 @@ void CKnightsManager::KnightsAllianceRequest(CUser* pUser, Packet & pkt)
 {
 }
 
+/**
+ * @brief	Handles the client packet responsible for forming an alliance
+ * 			with another clan. We must already lead an alliance.
+ * 			
+ * 			NOTE: Most of the logic (error codes also) is for the most part 
+ * 			identical to the creation of the alliance. 
+ * 			It just doesn't _create_ an alliance (and requires the alliance to exist).
+ *
+ * @param	pUser	The user.
+ * @param	pkt  	The packet.
+ */
 void CKnightsManager::KnightsAllianceInsert(CUser* pUser, Packet & pkt)
 {
+	if (pUser == nullptr
+		|| pUser->isDead())
+		return;
+
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_ALLY_CREATE));
+	_KNIGHTS_ALLIANCE * pAlliance;
+	CKnights * pMainClan, * pTargetClan;
+	CUser * pTargetLeader;
+	uint16 targetClanLeaderID = pkt.read<uint16>();
+
+	// Only clan leaders can form alliances with other clans (error #2)
+	if (!pUser->isClanLeader()
+		// Ensure the clan still exists (error #3)
+		|| (pMainClan = g_pMain->GetClanPtr(pUser->GetClanID())) == nullptr
+		// Clans must be promoted before they can form alliances (error #4)
+		|| pMainClan->isPromoted()
+		// A clan can not add a clan to their alliance if they're not already elading one. (error #5)
+		|| !pMainClan->isInAlliance()
+		// Ensure the target clan leader is online. (error #7, #6 is invalid ID but this checks it anyway)
+		|| (pTargetLeader = g_pMain->GetUserPtr(targetClanLeaderID)) == nullptr
+		// ... and that the target clan leader is not dead. (error #8)
+		|| pTargetLeader->isDead()
+		// Alliances can only be formed between clan leaders. (error #9)
+		|| !pTargetLeader->isClanLeader()
+		// Ensure the target clan still exists. (error #10)
+		|| (pTargetClan = g_pMain->GetClanPtr(pTargetLeader->GetClanID())) == nullptr
+		/* note: error #11 is unknown */
+		// An alliance cannot be formed with a clan already in an alliance. (error #12)
+		|| pTargetClan->isInAlliance()
+		// The alliance must already exist. (error #13)
+		|| (pAlliance = g_pMain->m_KnightsAllianceArray.GetData(pMainClan->GetAllianceID())) == nullptr
+		// Alliances can only be formed between same-nation clans. (error #14)
+		|| pUser->GetNation() != pTargetLeader->GetNation()
+		// Only one clan can be promoted (sub clan). (error #15)
+		|| (pTargetClan->isPromoted() && pAlliance->sSubAllianceKnights > 0)
+		// The only other clans must be training clans. (error #17, #16 is similar but only applies to one clan when some flag is set)
+		|| (!pTargetClan->isPromoted() && (pAlliance->sMercenaryClan_1 > 0 || pAlliance->sMercenaryClan_2 > 0))
+		// Perform additional Delos/CSW checks to determine whether an alliance can be formed. (error #18)
+		|| !CheckAlliance(pMainClan, pTargetClan))
+	{
+		/* NOTE: 
+			We don't need to error. None of these are handled by the client anyway. 
+			Ignoring the packet produces the same behaviour.
+		*/
+		return;
+	}
+
+	/* update the database to form  the alliance */
 }
 
 void CKnightsManager::KnightsAllianceRemove(CUser* pUser, Packet & pkt)
