@@ -1057,7 +1057,9 @@ bool MagicInstance::ExecuteType6()
 
 		if (pType == nullptr
 			|| pSkillCaster->GetMap()->isAttackZone()
-			|| pSkillCaster->isTransformed())
+			|| pSkillCaster->isTransformed()
+			// All buffs must be removed before using transformation skills
+			|| pSkillCaster->isBuffed())
 			return false;
 
 		// Let's start by looking at the item that was used for the transformation.
@@ -1127,7 +1129,6 @@ bool MagicInstance::ExecuteType6()
 	pSkillCaster->InsertSavedMagic(nSkillID, sDuration);
 	return true;
 }
-
 
 bool MagicInstance::ExecuteType7()
 {

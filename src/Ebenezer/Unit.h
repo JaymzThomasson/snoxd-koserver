@@ -76,6 +76,13 @@ public:
 	INLINE bool isIncapacitated() { return isDead() || isBlinded() || isBlinking(); }
 	INLINE bool isTransformed() { return m_bIsTransformed; }
 	INLINE bool isBlinded() { return m_bIsBlinded; }
+
+	INLINE bool isBuffed()
+	{
+		FastGuard lock(m_buffLock);
+		return !m_buffMap.empty();
+	}
+
 	INLINE bool canInstantCast() { return m_bInstantCast; }
 	INLINE bool canStealth()	{ return m_bCanStealth; }
 
