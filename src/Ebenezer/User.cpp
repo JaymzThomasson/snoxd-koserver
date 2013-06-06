@@ -3810,11 +3810,12 @@ bool CUser::CanUseItem(uint32 itemid, uint16 count)
 	if (isTransformed() && (pItem->GetKind() == 255 || pItem->GetKind() == 97))
 		return false;
 
-	// Check the item's class requirement
-	if ((pItem->m_bClass == 0 || JobGroupCheck(pItem->m_bClass))
+	// If the item's class specific, ensure it can be used by this user.
+	if ((pItem->m_bClass != 0 && !JobGroupCheck(pItem->m_bClass))
 		// Check the item's level requirement
-		|| (pItem->m_bReqLevel <= GetLevel() && pItem->m_bReqLevelMax >= GetLevel())
-		|| CheckExistItem(itemid, count))
+		|| (GetLevel() < pItem->m_bReqLevel || GetLevel() > pItem->m_bReqLevelMax)
+		// Ensure the item exists.
+		|| !CheckExistItem(itemid, count))
 		return false;
 
 	return true;
