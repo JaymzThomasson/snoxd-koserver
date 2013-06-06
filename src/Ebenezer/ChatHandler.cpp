@@ -165,8 +165,8 @@ void CUser::Chat(Packet & pkt)
 		if (isInClan())
 		{
 			CKnights *pKnights = g_pMain->GetClanPtr(GetClanID());
-			if (pKnights != nullptr && pKnights->m_sAlliance > 0)
-				g_pMain->Send_KnightsAlliance(pKnights->m_sAlliance, &result);
+			if (pKnights != nullptr && pKnights->isInAlliance())
+				g_pMain->Send_KnightsAlliance(pKnights->GetAllianceID(), &result);
 		}
 		break;
 	case WAR_SYSTEM_CHAT:

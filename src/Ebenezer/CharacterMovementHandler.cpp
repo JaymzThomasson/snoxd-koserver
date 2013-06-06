@@ -94,7 +94,7 @@ void CUser::GetUserInfo(Packet & pkt)
 	}
 	else
 	{
-		pkt	<< uint16(pKnights->m_sAlliance)
+		pkt	<< pKnights->GetAllianceID()
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
 				<< uint16(pKnights->m_sMarkVersion) // symbol/mark version

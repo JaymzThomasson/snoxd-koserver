@@ -578,9 +578,9 @@ void CUser::HandleCapeChange(Packet & pkt)
 	}
 
 	// Make sure we're promoted
-	if (pKnights->m_byFlag < ClanTypePromoted
-		// and that if we're in an alliance, we're the main alliance.
-		|| (pKnights->m_sAlliance != 0 && pKnights->m_sAlliance != pKnights->m_sIndex))
+	if (!pKnights->isPromoted()
+		// and that if we're in an alliance, we're the primary clan in the alliance.
+		|| (pKnights->isInAlliance() && !pKnights->isAllianceLeader()))
 	{
 		sErrorCode = -1;
 		goto fail_return;
@@ -660,7 +660,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 	}
 
 	result	<< uint16(1) // success
-			<< uint16(pKnights->m_sAlliance)
+			<< pKnights->GetAllianceID()
 			<< uint16(pKnights->m_sIndex)
 			<< uint16(pKnights->m_sCape) 
 			<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB
