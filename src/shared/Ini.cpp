@@ -105,7 +105,7 @@ void CIni::Save(const char * lpFilename /*= nullptr*/)
 	fclose(fp);
 }
 
-int CIni::GetInt(char* lpAppName, char* lpKeyName, int nDefault)
+int CIni::GetInt(char* lpAppName, char* lpKeyName, const int nDefault)
 {
 	ConfigMap::iterator sectionItr = m_configMap.find(lpAppName);
 	if (sectionItr != m_configMap.end())
@@ -119,12 +119,12 @@ int CIni::GetInt(char* lpAppName, char* lpKeyName, int nDefault)
 	return nDefault;
 }
 
-bool CIni::GetBool(char* lpAppName, char* lpKeyName, bool bDefault)
+bool CIni::GetBool(char* lpAppName, char* lpKeyName, const bool bDefault)
 {
 	return GetInt(lpAppName, lpKeyName, bDefault) == 1;
 }
 
-void CIni::GetString(char* lpAppName, char* lpKeyName, char* lpDefault, std::string & lpOutString, bool bAllowEmptyStrings /*= true*/)
+void CIni::GetString(char* lpAppName, char* lpKeyName, const char* lpDefault, std::string & lpOutString, bool bAllowEmptyStrings /*= true*/)
 {
 	ConfigMap::iterator sectionItr = m_configMap.find(lpAppName);
 	if (sectionItr != m_configMap.end())
@@ -141,14 +141,14 @@ void CIni::GetString(char* lpAppName, char* lpKeyName, char* lpDefault, std::str
 	lpOutString = lpDefault;
 }
 
-int CIni::SetInt(char* lpAppName, char* lpKeyName, int nDefault)
+int CIni::SetInt(char* lpAppName, char* lpKeyName, const int nDefault)
 {
 	char tmpDefault[INI_BUFFER];
 	_snprintf(tmpDefault, INI_BUFFER, "%d", nDefault);
 	return SetString(lpAppName, lpKeyName, tmpDefault);
 }
 
-int CIni::SetString(char* lpAppName, char* lpKeyName, char* lpDefault)
+int CIni::SetString(char* lpAppName, char* lpKeyName, const char* lpDefault)
 {
 	ConfigMap::iterator itr = m_configMap.find(lpAppName);
 	if (itr == m_configMap.end())
