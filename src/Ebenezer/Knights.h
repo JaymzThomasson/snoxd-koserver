@@ -66,6 +66,15 @@ public:
 
 	_KNIGHTS_USER m_arKnightsUser[MAX_CLAN_USERS];
 
+	INLINE uint16 GetID() { return m_sIndex; }
+	INLINE uint16 GetAllianceID() { return m_sAlliance; }
+	INLINE uint16 GetCapeID() { return m_sCape; }
+	INLINE std::string & GetName() { return m_strName; }
+
+	INLINE bool isPromoted() { return m_byFlag >= ClanTypePromoted; }
+	INLINE bool isInAlliance() { return m_sAlliance > 0; }
+	INLINE bool isAllianceLeader() { return GetAllianceID() == GetID(); }
+
 	CKnights();
 
 	// Attach our session to the clan's list & tell clannies we logged in.

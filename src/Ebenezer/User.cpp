@@ -676,8 +676,7 @@ void CUser::SendMyInfo()
 	{
 		pKnights->OnLogin(this);
 
-		// TO-DO: Figure all this out.
-		result	<< uint16(pKnights->m_sAlliance)
+		result	<< pKnights->GetAllianceID()
 				<< pKnights->m_byFlag
 				<< pKnights->m_strName
 				<< pKnights->m_byGrade << pKnights->m_byRanking
