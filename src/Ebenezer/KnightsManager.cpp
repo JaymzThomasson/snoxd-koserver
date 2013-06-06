@@ -899,7 +899,7 @@ void CKnightsManager::KnightsAllianceInsert(CUser* pUser, Packet & pkt)
 		// An alliance cannot be formed with a clan already in an alliance. (error #12)
 		|| pTargetClan->isInAlliance()
 		// The alliance must already exist. (error #13)
-		|| (pAlliance = g_pMain->m_KnightsAllianceArray.GetData(pMainClan->GetAllianceID())) == nullptr
+		|| (pAlliance = g_pMain->GetAlliancePtr(pMainClan->GetAllianceID())) == nullptr
 		// Alliances can only be formed between same-nation clans. (error #14)
 		|| pUser->GetNation() != pTargetLeader->GetNation()
 		// Only one clan can be promoted (sub clan). (error #15)
@@ -916,7 +916,7 @@ void CKnightsManager::KnightsAllianceInsert(CUser* pUser, Packet & pkt)
 		return;
 	}
 
-	/* update the database to form  the alliance */
+	/* update the database to form the alliance */
 }
 
 void CKnightsManager::KnightsAllianceRemove(CUser* pUser, Packet & pkt)
@@ -927,8 +927,62 @@ void CKnightsManager::KnightsAlliancePunish(CUser* pUser, Packet & pkt)
 {
 }
 
+/**
+ * @brief	Handles the client packet responsible for displaying
+ * 			all clans that are part of the user's clan's alliance.
+ *
+ * @param	pUser	The user.
+ * @param	pkt  	The packet.
+ */
 void CKnightsManager::KnightsAllianceList(CUser* pUser, Packet & pkt)
 {
+	if (pUser == nullptr
+		|| !pUser->isInClan())
+		return;
+
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_ALLY_LIST));
+	_KNIGHTS_ALLIANCE * pAlliance;
+	CKnights * pClan = g_pMain->GetClanPtr(pUser->GetClanID());
+
+	if (pClan == nullptr
+		|| !pClan->isInAlliance()
+		|| (pAlliance = g_pMain->GetAlliancePtr(pClan->GetAllianceID())) == nullptr)
+	{
+		result << uint8(0);
+		pUser->Send(&result);
+		return;
+	}
+
+	int16 clans[] = 
+	{ 
+		pAlliance->sMainAllianceKnights, pAlliance->sSubAllianceKnights, 
+		pAlliance->sMercenaryClan_1, pAlliance->sMercenaryClan_2 
+	};
+
+	size_t wpos = result.wpos();
+	uint8 clanCount = 0;
+	result << clanCount;
+
+	result.SByte();
+	foreach_array(i, clans)
+	{
+		int16 sClanID = clans[i]; 
+		if (sClanID <= 0)
+			continue;
+
+		CKnights * pTmp = g_pMain->GetClanPtr(sClanID);
+		if (pTmp == nullptr)
+			continue;
+
+		result << pTmp->GetID() << pTmp->GetName() << uint8(0); /* unknown flag */
+		clanCount++;
+	}
+
+	if (clanCount == 0)
+		return;
+
+	result.put(wpos, clanCount);
+	pUser->Send(&result);
 }
 
 void CKnightsManager::ListTop10Clans(CUser *pUser)
