@@ -149,7 +149,7 @@ void OdbcConnection::ResetHandles()
 }
 
 tstring OdbcConnection::ReportSQLError(SQLSMALLINT handleType, SQLHANDLE handle,
-								 TCHAR *szSource, TCHAR *szError, ...)
+								 const TCHAR *szSource, const TCHAR *szError, ...)
 {
 	TCHAR szErrorBuffer[256];
 	OdbcError *error = new OdbcError();
