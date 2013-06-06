@@ -1557,16 +1557,10 @@ int CEbenezerDlg::KickOutAllUsers()
 	foreach (itr, sessMap)
 	{
 		CUser *pUser = TO_USER(itr->second);
-		bool bIngame = pUser->isInGame();
-		pUser->Disconnect();
-
-		// Only delay (for saving) if they're logged in, this is awful... 
-		// but until we do away with the shared memory system, it'll overflow the queue...
-		if (bIngame)
-		{
+		if (pUser->isInGame())
 			count++;
-			sleep(50);
-		}
+
+		pUser->Disconnect();
 	}
 	g_pMain->m_socketMgr.ReleaseLock();
 	return count;
@@ -1699,22 +1693,32 @@ void CEbenezerDlg::SendFlyingSantaOrAngel()
 
 CEbenezerDlg::~CEbenezerDlg() 
 {
+	printf("Waiting for timer threads to exit...");
 	foreach (itr, g_timerThreads)
 	{
 		(*itr)->waitForExit();
 		delete (*itr);
 	}
+	printf(" exited.\n");
 
-	KickOutAllUsers();
-
-	m_aiSocketMgr.Shutdown();
-	m_socketMgr.Shutdown();
+	printf("Suspending server...\n");
+	m_socketMgr.SuspendServer();
 
 	// Cleanup our script pool & consequently ensure all scripts 
 	// finish execution before proceeding.
 	// This prevents us from freeing data that's in use.
+	printf("Shutting down Lua engine...");
 	m_luaEngine.Shutdown();
+	printf(" done.\n");
+
+	printf("Shutting down database system...");
 	DatabaseThread::Shutdown();
+	printf(" done.\n");
+
+	printf("Shutting down socket system...");
+	m_aiSocketMgr.Shutdown();
+	m_socketMgr.Shutdown();
+	printf(" done.\n");
 
 	CUser::CleanupChatCommands();
 	CEbenezerDlg::CleanupServerCommands();

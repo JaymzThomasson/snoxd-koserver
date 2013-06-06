@@ -178,5 +178,7 @@ LoginServer::~LoginServer()
 	if (m_fp != nullptr)
 		fclose(m_fp);
 
+	printf("Shutting down socket system...");
 	m_socketMgr.Shutdown();
+	printf(" done.\n");
 }
