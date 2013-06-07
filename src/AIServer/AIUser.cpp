@@ -648,7 +648,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 
 		if( pNpc != nullptr && pNpc->m_NpcState != NPC_DEAD)	{
 			if( m_bNation == pNpc->m_byGroup ) continue;
-			vEnd.Set(pNpc->m_fCurX, pNpc->m_fCurY, pNpc->m_fCurZ); 
+			vEnd.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
 			fDis = pNpc->GetDistance(vStart, vEnd);
 
 			if(fDis <= fRadius)	{	// NPC가 반경안에 있을 경우...

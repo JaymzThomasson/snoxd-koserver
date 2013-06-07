@@ -198,7 +198,7 @@ bool CServerDlg::CreateNpcThread()
 
 		foreach_stlmap (npcItr, m_arNpc)
 		{
-			if (npcItr->second->m_bCurZone != itr->first)
+			if (npcItr->second->GetZoneID() != itr->first)
 				continue;
 
 			CNpc * pNpc = npcItr->second;
@@ -291,7 +291,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 
 		pNpc->InitPos();
 			
-		pNpc->m_bCurZone = bZoneID;
+		pNpc->m_bZone = bZoneID;
 
 		nRandom = abs(iLeftX - iRightX);
 		if (nRandom <= 1)
@@ -315,9 +315,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 				fRandom_Z = (float)myrand(iBottomZ, iTopZ);
 		}
 
-		pNpc->m_fCurX	= fRandom_X;
-		pNpc->m_fCurY	= 0;
-		pNpc->m_fCurZ	= fRandom_Z;
+		pNpc->SetPosition(fRandom_X, 0.0f, fRandom_Z);
 					
 		pNpc->m_sRegenTime		= sRegTime * SECOND;
 		pNpc->m_byDirection		= bDirection;
@@ -373,7 +371,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 			pNpc->m_nLimitMaxZ = iLimitMaxZ;
 		}	
 			
-		pNpc->m_pZone = GetZoneByID(pNpc->m_bCurZone);
+		pNpc->m_pZone = GetZoneByID(pNpc->GetZoneID());
 		if (pNpc->GetMap() == nullptr)
 		{
 			printf(_T("Error: NPC %d in zone %d that does not exist."), sSid, bZoneID);
@@ -389,7 +387,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 			continue;
 		}
 
-		pNpc->SetUid(pNpc->m_fCurX, pNpc->m_fCurZ, pNpc->m_sNid + NPC_BAND);
+		pNpc->SetUid(pNpc->GetX(), pNpc->GetZ(), pNpc->m_sNid + NPC_BAND);
 
 		if (pNpc->GetMap()->m_byRoomEvent > 0 && pNpc->m_byDungeonFamily > 0)
 		{
@@ -519,7 +517,7 @@ void CServerDlg::AllNpcInfo()
 		{
 			CNpc *pNpc = itr->second;
 			if (pNpc == nullptr
-				|| pNpc->m_bCurZone != nZone)	
+				|| pNpc->GetZoneID() != nZone)	
 				continue;
 
 			pNpc->FillNpcInfo(result);
@@ -672,10 +670,8 @@ bool CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
 	pNpc->m_byObjectType = SPECIAL_OBJECT;
 	pNpc->m_byGateOpen	= (uint8)pEvent->sStatus;
 
-	pNpc->m_bCurZone	= pMap->m_nZoneNumber;
-	pNpc->m_fCurX		= pEvent->fPosX;
-	pNpc->m_fCurY		= pEvent->fPosY;
-	pNpc->m_fCurZ		= pEvent->fPosZ;
+	pNpc->m_bZone	= pMap->m_nZoneNumber;
+	pNpc->SetPosition(pEvent->fPosX, pEvent->fPosY, pEvent->fPosZ);
 	
  	pNpc->m_nInitMinX	= (int)pEvent->fPosX-1;
 	pNpc->m_nInitMinY	= (int)pEvent->fPosZ-1;

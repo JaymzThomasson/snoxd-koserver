@@ -33,7 +33,7 @@ bool CNpc::SetUid(float x, float z, int id)
 	MAP* pMap = GetMap();
 	if (pMap == nullptr) 
 	{
-		TRACE("#### Npc-SetUid Zone Fail : [name=%s], zone=%d #####\n", GetName().c_str(), m_bCurZone);
+		TRACE("#### Npc-SetUid Zone Fail : [name=%s], zone=%d #####\n", GetName().c_str(), GetZoneID());
 		return false;
 	}
 
@@ -45,7 +45,7 @@ bool CNpc::SetUid(float x, float z, int id)
 	if(x1 < 0 || z1 < 0 || x1 >= pMap->GetMapSize() || z1 >= pMap->GetMapSize())
 	{
 		TRACE("#### SetUid failed : [nid=%d, sid=%d, zone=%d], coordinates out of range of map x=%d, z=%d, map size=%d #####\n", 
-			m_sNid+NPC_BAND, m_proto->m_sSid, m_bCurZone, x1, z1, pMap->GetMapSize());
+			m_sNid+NPC_BAND, m_proto->m_sSid, GetZoneID(), x1, z1, pMap->GetMapSize());
 		return false;
 	}
 
@@ -201,13 +201,13 @@ void CNpc::InitTarget()
 //	NPC 기본정보 초기화
 void CNpc::Init()
 {
-	m_pZone = g_pMain->GetZoneByID(m_bCurZone);
+	m_pZone = g_pMain->GetZoneByID(GetZoneID());
 	m_Delay = 0;
 	m_fDelayTime = getMSTime();
 
 	if (GetMap() == nullptr) 
 	{
-		TRACE("#### Npc-Init Zone Fail : [name=%s], zone=%d #####\n", GetName().c_str(), m_bCurZone);
+		TRACE("#### Npc-Init Zone Fail : [name=%s], zone=%d #####\n", GetName().c_str(), GetZoneID());
 		return;
 	}
 }
@@ -320,7 +320,7 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto, bool bMonster)
 	m_tItemPer			= proto->m_tItemPer;
 	m_tDnPer			= proto->m_tDnPer;
 
-	m_pZone = g_pMain->GetZoneByID(m_bCurZone);
+	m_pZone = g_pMain->GetZoneByID(GetZoneID());
 	m_bFirstLive = 1;
 }
 
@@ -366,7 +366,8 @@ time_t CNpc::NpcTracing()
 			TRACE("### Npc-NpcTracing  Fail : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, GetName().c_str(), m_fPrevX, m_fPrevZ);
 		}
 		else	{
-			m_fCurX = m_fPrevX;		m_fCurZ = m_fPrevZ; 
+			m_curx = m_fPrevX;		
+			m_curz = m_fPrevZ; 
 		}
 	}
 
@@ -410,8 +411,8 @@ time_t CNpc::NpcTracing()
 		// If we're not already following a user, define our start coords.
 		if (!m_bTracing)
 		{
-			m_fTracingStartX = m_fCurX;
-			m_fTracingStartZ = m_fCurZ;
+			m_fTracingStartX = GetX();
+			m_fTracingStartZ = GetZ();
 			m_bTracing = true;
 		}
 	}
@@ -439,7 +440,7 @@ time_t CNpc::NpcTracing()
 	Packet result(MOVE_RESULT, uint8(SUCCESS));
 	result << uint16(m_sNid + NPC_BAND);
 	if (IsMovingEnd())
-		result	<< m_fCurX << m_fCurZ << m_fCurY
+		result	<< GetX() << GetZ() << GetY()
 				<< float(0.0f);
 	else
 		result	<< m_fPrevX << m_fPrevZ << m_fPrevY 
@@ -520,7 +521,8 @@ time_t CNpc::NpcMoving()
 			TRACE("### Npc-Moving Fail : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, GetName().c_str(), m_fPrevX, m_fPrevZ);
 		}
 		else	{
-			m_fCurX = m_fPrevX;		m_fCurZ = m_fPrevZ; 
+			m_curx = m_fPrevX;
+			m_curz = m_fPrevZ; 
 		}
 	}
 
@@ -541,9 +543,10 @@ time_t CNpc::NpcMoving()
 	}	
 
 	if(IsMovingEnd())	{				// 이동이 끝났으면
-		m_fCurX = m_fPrevX;		m_fCurZ = m_fPrevZ; 
-		if(m_fCurX < 0 || m_fCurZ < 0)	{
-			TRACE("Npc-NpcMoving-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, GetName().c_str(), m_fCurX, m_fCurZ);
+		m_curx = m_fPrevX;		
+		m_curz = m_fPrevZ; 
+		if(GetX() < 0 || GetZ() < 0)	{
+			TRACE("Npc-NpcMoving-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, GetName().c_str(), GetX(), GetZ());
 		}
 
 		m_NpcState = NPC_STANDING;
@@ -583,12 +586,12 @@ time_t CNpc::NpcStanding()
 	MAP* pMap = GetMap();
 	if (pMap == nullptr)	
 	{
-		TRACE("### NpcStanding Zone Index Error : nid=%d, name=%s, zone=%d ###\n", m_sNid+NPC_BAND, GetName().c_str(), m_bCurZone);
+		TRACE("### NpcStanding Zone Index Error : nid=%d, name=%s, zone=%d ###\n", m_sNid+NPC_BAND, GetName().c_str(), GetZoneID());
 		return -1;
 	}
 
 /*	bool bCheckRange = false;
-	bCheckRange = IsInRange( (int)m_fCurX, (int)m_fCurZ);
+	bCheckRange = IsInRange( (int)GetX(), (int)GetZ());
 	if( bCheckRange )	{	// 활동영역안에 있다면
 		if( m_tNpcAttType != m_tNpcOldAttType )	{
 			m_tNpcAttType = ATROCITY_ATTACK_TYPE;	// 공격성향으로
@@ -660,17 +663,18 @@ time_t CNpc::NpcBack()
 			TRACE("### Npc-NpcBack Fail-1 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, GetName().c_str(), m_fPrevX, m_fPrevZ);
 		}
 		else	{
-			m_fCurX = m_fPrevX;		m_fCurZ = m_fPrevZ; 
+			m_curx = m_fPrevX;		
+			m_curz = m_fPrevZ; 
 		}
 	}
 	
 	if(IsMovingEnd())	{				// 이동이 끝났으면
-		m_fCurX = m_fPrevX;		m_fCurZ = m_fPrevZ; 
-		if(m_fCurX < 0 || m_fCurZ < 0)
-			TRACE("Npc-NpcBack-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, GetName().c_str(), m_fCurX, m_fCurZ);
+		m_curx = m_fPrevX;		m_curz = m_fPrevZ; 
+		if(GetX() < 0 || GetZ() < 0)
+			TRACE("Npc-NpcBack-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, GetName().c_str(), GetX(), GetZ());
 
 		Packet result(MOVE_RESULT, uint8(SUCCESS));
-		result << uint16(m_sNid + NPC_BAND) << m_fCurX << m_fCurZ << m_fCurY << float(0.0f);
+		result << uint16(m_sNid + NPC_BAND) << GetX() << GetZ() << GetY() << float(0.0f);
 		g_pMain->Send(&result);
 
 //		TRACE("** NpcBack 이동이 끝남,, stand로\n");
@@ -744,13 +748,13 @@ bool CNpc::SetLive()
 		return false;
 
 	if(m_bFirstLive)	{	// NPC 가 처음 살아나는 경우	
-		m_nInitX = m_fPrevX = m_fCurX;
-		m_nInitY = m_fPrevY = m_fCurY;
-		m_nInitZ = m_fPrevZ = m_fCurZ;
+		m_nInitX = m_fPrevX = GetX();
+		m_nInitY = m_fPrevY = GetY();
+		m_nInitZ = m_fPrevZ = GetZ();
 	}
 
-	if(m_fCurX < 0 || m_fCurZ < 0)	{
-		TRACE("Npc-SetLive-1 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, GetName().c_str(), m_fCurX, m_fCurZ);
+	if(GetX() < 0 || GetZ() < 0)	{
+		TRACE("Npc-SetLive-1 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, GetName().c_str(), GetX(), GetZ());
 	}
 
 	int dest_x = (int)m_nInitX / TILE_SIZE;
@@ -759,9 +763,9 @@ bool CNpc::SetLive()
 	bool bMove = pMap->IsMovable(dest_x, dest_z);
 
 	if(m_proto->m_tNpcType != NPCTYPE_MONSTER || m_lEventNpc == 1)	{
-		m_fCurX = m_fPrevX = m_nInitX;
-		m_fCurY = m_fPrevY = m_nInitY;
-		m_fCurZ = m_fPrevZ = m_nInitZ;
+		m_curx = m_fPrevX = m_nInitX;
+		m_cury = m_fPrevY = m_nInitY;
+		m_curz = m_fPrevZ = m_nInitZ;
 	}
 	else	{
 		int nX = 0;
@@ -802,18 +806,18 @@ bool CNpc::SetLive()
 				return false;
 			}
 
-			m_nInitX = m_fPrevX = m_fCurX = (float)nX;
-			m_nInitZ = m_fPrevZ = m_fCurZ = (float)nZ;
+			m_nInitX = m_fPrevX = m_curx = (float)nX;
+			m_nInitZ = m_fPrevZ = m_curz = (float)nZ;
 
-			if(m_fCurX < 0 || m_fCurZ < 0)	{
-				TRACE("Npc-SetLive-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, GetName().c_str(), m_fCurX, m_fCurZ);
+			if(GetX() < 0 || GetZ() < 0)	{
+				TRACE("Npc-SetLive-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, GetName().c_str(), GetX(), GetZ());
 			}
 
 			break;
 		}	
 	}
 
-	//SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);
+	//SetUid(GetX(), GetZ(), m_sNid + NPC_BAND);
 
 	// 상태이상 정보 초기화
 	m_fHPChangeTime = getMSTime();
@@ -855,7 +859,7 @@ bool CNpc::SetLive()
 		//g_pMain->SendSystemMsg(notify, PUBLIC_CHAT);
 	}
 
-	SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);
+	SetUid(GetX(), GetZ(), m_sNid + NPC_BAND);
 	m_byDeadType = 0;
 
 	Packet result(AG_NPC_INFO);
@@ -896,7 +900,7 @@ bool CNpc::RandomMove()
 	bool bPeedBack = false;
 
 	if(m_byMoveType == 1)	{// 랜덤하게 조금씩 움직이는 NPC
-		bPeedBack = IsInRange( (int)m_fCurX, (int)m_fCurZ);
+		bPeedBack = IsInRange( (int)GetX(), (int)GetZ());
 		if( bPeedBack == false )	{	
 			//TRACE("초기위치를 벗어났군,,,  patten=%d \n", m_iPattenFrame);
 		}
@@ -909,8 +913,8 @@ bool CNpc::RandomMove()
 		random_x = myrand(3, 7);
 		random_z = myrand(3, 7);
 
-		fDestX = m_fCurX + (float)random_x;
-		fDestZ = m_fCurZ + (float)random_z;
+		fDestX = GetX() + (float)random_x;
+		fDestZ = GetZ() + (float)random_z;
 
 		if(m_iPattenFrame == 2)	{
 			fDestX = m_pPattenPos.x;
@@ -921,7 +925,7 @@ bool CNpc::RandomMove()
 			m_iPattenFrame++;
 		}
 
-		vStart.Set(m_fCurX, m_fCurY, m_fCurZ);
+		vStart.Set(GetX(), GetY(), GetZ());
 		vEnd.Set(fDestX, 0, fDestZ);
 		fDis = GetDistance(vStart, vEnd);
 		if(fDis > 50)	{
@@ -943,7 +947,7 @@ bool CNpc::RandomMove()
 				TRACE("##### RandomMove Fail : [nid = %d, sid=%d], path = %d/%d, 이동할 수 있는 거리에서 너무 멀어졌당,, 어케해 #####\n", 
 					m_sNid+NPC_BAND, m_proto->m_sSid, m_sPathCount, m_sMaxPathCount);
 
-				vStart.Set(m_fCurX, m_fCurY, m_fCurZ);
+				vStart.Set(GetX(), GetY(), GetZ());
 				fDestX = (float)m_PathList.pPattenPos[0].x + m_fBattlePos_x;
 				fDestZ = (float)m_PathList.pPattenPos[0].z + m_fBattlePos_z;
 				vEnd.Set(fDestX, 0, fDestZ);
@@ -987,7 +991,7 @@ bool CNpc::RandomMove()
 			if(nPathCount  == -1)	{
 				// 무조건 0번 위치 방향으로 40m 이동하게 처리하장.. 
 				TRACE("##### RandomMove Fail : [nid = %d, sid=%d], path = %d/%d, 이동할 수 있는 거리에서 너무 멀어졌당,, 어케해 #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, m_sPathCount, m_sMaxPathCount);
-				vStart.Set(m_fCurX, m_fCurY, m_fCurZ);
+				vStart.Set(GetX(), GetY(), GetZ());
 				fDestX = (float)m_PathList.pPattenPos[0].x + m_fBattlePos_x;
 				fDestZ = (float)m_PathList.pPattenPos[0].z + m_fBattlePos_z;
 				vEnd.Set(fDestX, 0, fDestZ);
@@ -1012,20 +1016,20 @@ bool CNpc::RandomMove()
 		m_sPathCount++;
 	}
 
-	vStart.Set(m_fCurX, 0, m_fCurZ);
+	vStart.Set(GetX(), 0, GetZ());
 	vEnd.Set(fDestX, 0, fDestZ);
 
-	if(m_fCurX < 0 || m_fCurZ < 0 || fDestX < 0 || fDestZ < 0)	{
+	if(GetX() < 0 || GetZ() < 0 || fDestX < 0 || fDestZ < 0)	{
 		TRACE("##### RandomMove Fail : value is negative.. [nid = %d, name=%s], cur_x=%.2f, z=%.2f, dest_x=%.2f, dest_z=%.2f#####\n", 
-			m_sNid+NPC_BAND, GetName().c_str(), m_fCurX, m_fCurZ, fDestX, fDestZ);
+			m_sNid+NPC_BAND, GetName().c_str(), GetX(), GetZ(), fDestX, fDestZ);
 		return false;
 	}
 
 	int mapWidth = (int)(max_xx * GetMap()->GetUnitDistance());
 
-	if(m_fCurX >= mapWidth || m_fCurZ >= mapWidth || fDestX >= mapWidth || fDestZ >= mapWidth)	{
+	if(GetX() >= mapWidth || GetZ() >= mapWidth || fDestX >= mapWidth || fDestZ >= mapWidth)	{
 		TRACE("##### RandomMove Fail : value is overflow .. [nid = %d, name=%s], cur_x=%.2f, z=%.2f, dest_x=%.2f, dest_z=%.2f#####\n", 
-			m_sNid+NPC_BAND, GetName().c_str(), m_fCurX, m_fCurZ, fDestX, fDestZ);
+			m_sNid+NPC_BAND, GetName().c_str(), GetX(), GetZ(), fDestX, fDestZ);
 		return false;
 	}
 
@@ -1042,13 +1046,13 @@ bool CNpc::RandomMove()
 			if(m_sPathCount <= 0) m_sPathCount=0;
 		}
 		TRACE("##### RandomMove Fail : NPC_MAX_MOVE_RANGE overflow  .. [nid = %d, name=%s], cur_x=%.2f, z=%.2f, dest_x=%.2f, dest_z=%.2f, fDis=%.2f#####\n", 
-			m_sNid+NPC_BAND, GetName().c_str(), m_fCurX, m_fCurZ, fDestX, fDestZ, fDis);
+			m_sNid+NPC_BAND, GetName().c_str(), GetX(), GetZ(), fDestX, fDestZ, fDis);
 		return false;
 	}
 
 	if(fDis <= m_fSecForMetor)		{		// 이동거리 안에 목표점이 있다면 바로 이동하게 처리...
 		ClearPathFindData();
-		m_fStartPoint_X = m_fCurX;		m_fStartPoint_Y = m_fCurZ;
+		m_fStartPoint_X = GetX();		m_fStartPoint_Y = GetZ();
 		m_fEndPoint_X = fDestX;			m_fEndPoint_Y = fDestZ;
 		m_bPathFlag = true;
 		m_iAniFrameIndex = 1;
@@ -1059,20 +1063,20 @@ bool CNpc::RandomMove()
 	}
 
 	float fTempRange = (float)fDis+2;				// 일시적으로 보정한다.
-	int min_x = (int)(m_fCurX - fTempRange)/TILE_SIZE;	if(min_x < 0) min_x = 0;
-	int min_z = (int)(m_fCurZ - fTempRange)/TILE_SIZE;	if(min_z < 0) min_z = 0;
-	int max_x = (int)(m_fCurX + fTempRange)/TILE_SIZE;	if(max_x >= max_xx) max_x = max_xx - 1;
-	int max_z = (int)(m_fCurZ + fTempRange)/TILE_SIZE;	if(min_z >= max_zz) min_z = max_zz - 1;
+	int min_x = (int)(GetX() - fTempRange)/TILE_SIZE;	if(min_x < 0) min_x = 0;
+	int min_z = (int)(GetZ() - fTempRange)/TILE_SIZE;	if(min_z < 0) min_z = 0;
+	int max_x = (int)(GetX() + fTempRange)/TILE_SIZE;	if(max_x >= max_xx) max_x = max_xx - 1;
+	int max_z = (int)(GetZ() + fTempRange)/TILE_SIZE;	if(min_z >= max_zz) min_z = max_zz - 1;
 
 	CPoint start, end;
-	start.x = (int)(m_fCurX/TILE_SIZE) - min_x;
-	start.y = (int)(m_fCurZ/TILE_SIZE) - min_z;
+	start.x = (int)(GetX()/TILE_SIZE) - min_x;
+	start.y = (int)(GetZ()/TILE_SIZE) - min_z;
 	end.x = (int)(fDestX/TILE_SIZE) - min_x;
 	end.y = (int)(fDestZ/TILE_SIZE) - min_z;
 
 	if(start.x < 0 || start.y < 0 || end.x < 0 || end.y < 0)	return false;
 
-	m_fStartPoint_X = m_fCurX;		m_fStartPoint_Y = m_fCurZ;
+	m_fStartPoint_X = GetX();		m_fStartPoint_Y = GetZ();
 	m_fEndPoint_X = fDestX;	m_fEndPoint_Y = fDestZ;
 
 	m_min_x = min_x;
@@ -1102,7 +1106,7 @@ bool CNpc::RandomBackMove()
 	float fDestX = -1.0f, fDestZ = -1.0f;
 	if (GetMap() == nullptr) 
 	{
-		TRACE("#### Npc-RandomBackMove Zone Fail : [name=%s], zone=%d #####\n", GetName().c_str(), m_bCurZone);
+		TRACE("#### Npc-RandomBackMove Zone Fail : [name=%s], zone=%d #####\n", GetName().c_str(), GetZoneID());
 		return false;
 	}
 
@@ -1110,14 +1114,14 @@ bool CNpc::RandomBackMove()
 	int max_zz = GetMap()->GetMapSize();
 	int x = 0, y = 0;
 	float fTempRange = (float)m_bySearchRange*2;				// 일시적으로 보정한다.
-	int min_x = (int)(m_fCurX - fTempRange)/TILE_SIZE;	if(min_x < 0) min_x = 0;
-	int min_z = (int)(m_fCurZ - fTempRange)/TILE_SIZE;	if(min_z < 0) min_z = 0;
-	int max_x = (int)(m_fCurX + fTempRange)/TILE_SIZE;	if(max_x > max_xx) max_x = max_xx;
-	int max_z = (int)(m_fCurZ + fTempRange)/TILE_SIZE;	if(max_z > max_zz) max_z = max_zz;
+	int min_x = (int)(GetX() - fTempRange)/TILE_SIZE;	if(min_x < 0) min_x = 0;
+	int min_z = (int)(GetZ() - fTempRange)/TILE_SIZE;	if(min_z < 0) min_z = 0;
+	int max_x = (int)(GetX() + fTempRange)/TILE_SIZE;	if(max_x > max_xx) max_x = max_xx;
+	int max_z = (int)(GetZ() + fTempRange)/TILE_SIZE;	if(max_z > max_zz) max_z = max_zz;
 
 	__Vector3 vStart, vEnd, vEnd22;
 	float fDis = 0.0f;
-	vStart.Set(m_fCurX, m_fCurY, m_fCurZ);
+	vStart.Set(GetX(), GetY(), GetZ());
 
 	int nID = m_Target.id;					// Target 을 구한다.
 	CUser* pUser = nullptr;
@@ -1133,12 +1137,12 @@ bool CNpc::RandomBackMove()
 		if(pUser == nullptr)	
 			return false;
 		// 도주할 방향을 결정,,  먼저 x축으로
-		if((int)pUser->m_curx != (int)m_fCurX)  
+		if((int)pUser->m_curx != (int)GetX())  
 		{
 			iRandomX = myrand((int)m_bySearchRange, (int)(m_bySearchRange*1.5));
 			iRandomZ = myrand(0, (int)m_bySearchRange);
 
-			if((int)pUser->m_curx > (int)m_fCurX)  
+			if((int)pUser->m_curx > (int)GetX())  
 				iDir = 1;
 			else
 				iDir = 2;
@@ -1147,7 +1151,7 @@ bool CNpc::RandomBackMove()
 		{
 			iRandomZ = myrand((int)m_bySearchRange, (int)(m_bySearchRange*1.5));
 			iRandomX = myrand(0, (int)m_bySearchRange);
-			if((int)pUser->m_curz > (int)m_fCurZ)  
+			if((int)pUser->m_curz > (int)GetZ())  
 				iDir = 3;
 			else
 				iDir = 4;
@@ -1156,32 +1160,32 @@ bool CNpc::RandomBackMove()
 		switch(iDir)
 		{
 		case 1:
-			fDestX = m_fCurX - iRandomX;
+			fDestX = GetX() - iRandomX;
 			if(iRandomValue == 0)
-				fDestZ = m_fCurZ - iRandomX;
+				fDestZ = GetZ() - iRandomX;
 			else
-				fDestZ = m_fCurZ + iRandomX;
+				fDestZ = GetZ() + iRandomX;
 			break;
 		case 2:
-			fDestX = m_fCurX + iRandomX;
+			fDestX = GetX() + iRandomX;
 			if(iRandomValue == 0)
-				fDestZ = m_fCurZ - iRandomX;
+				fDestZ = GetZ() - iRandomX;
 			else
-				fDestZ = m_fCurZ + iRandomX;
+				fDestZ = GetZ() + iRandomX;
 			break;
 		case 3:
-			fDestZ = m_fCurZ - iRandomX;
+			fDestZ = GetZ() - iRandomX;
 			if(iRandomValue == 0)
-				fDestX = m_fCurX - iRandomX;
+				fDestX = GetX() - iRandomX;
 			else
-				fDestX = m_fCurX + iRandomX;
+				fDestX = GetX() + iRandomX;
 			break;
 		case 4:
-			fDestZ = m_fCurZ - iRandomX;
+			fDestZ = GetZ() - iRandomX;
 			if(iRandomValue == 0)
-				fDestX = m_fCurX - iRandomX;
+				fDestX = GetX() - iRandomX;
 			else
-				fDestX = m_fCurX + iRandomX;
+				fDestX = GetX() + iRandomX;
 			break;
 		}
 
@@ -1199,8 +1203,8 @@ bool CNpc::RandomBackMove()
 	}
 
 	CPoint start, end;
-	start.x = (int)(m_fCurX/TILE_SIZE) - min_x;
-	start.y = (int)(m_fCurZ/TILE_SIZE) - min_z;
+	start.x = (int)(GetX()/TILE_SIZE) - min_x;
+	start.y = (int)(GetZ()/TILE_SIZE) - min_z;
 	end.x = (int)(fDestX/TILE_SIZE) - min_x;
 	end.y = (int)(fDestZ/TILE_SIZE) - min_z;
 
@@ -1209,7 +1213,7 @@ bool CNpc::RandomBackMove()
 		return false;
 	}
 
-	m_fStartPoint_X = m_fCurX;		m_fStartPoint_Y = m_fCurZ;
+	m_fStartPoint_X = GetX();		m_fStartPoint_Y = GetZ();
 	m_fEndPoint_X = fDestX;	m_fEndPoint_Y = fDestZ;
 
 	m_min_x = min_x;
@@ -1229,7 +1233,7 @@ bool CNpc::IsInPathRange()
 	float fPathRange = 40.0f;	// 오차 패스 범위 
 	__Vector3 vStart, vEnd;
 	float fDistance = 0.0f;
-	vStart.Set(m_fCurX, m_fCurY, m_fCurZ);
+	vStart.Set(GetX(), GetY(), GetZ());
 	if(m_sPathCount < 0)	return false;
 	vEnd.Set((float)m_PathList.pPattenPos[m_sPathCount].x + m_fBattlePos_x, 0, (float)m_PathList.pPattenPos[m_sPathCount].z + m_fBattlePos_z);
 	fDistance = GetDistance(vStart, vEnd);
@@ -1246,7 +1250,7 @@ int CNpc::GetNearPathPoint()
 	float fMaxPathRange = (float)NPC_MAX_MOVE_RANGE;
 	float fDis1 = 0.0f, fDis2 = 0.0f;
 	int nRet = -1;
-	vStart.Set(m_fCurX, m_fCurY, m_fCurZ);
+	vStart.Set(GetX(), GetY(), GetZ());
 	vEnd.Set((float)m_PathList.pPattenPos[m_sPathCount].x + m_fBattlePos_x, 0, (float)m_PathList.pPattenPos[m_sPathCount].z + m_fBattlePos_z);
 	fDis1 = GetDistance(vStart, vEnd);
 
@@ -1447,7 +1451,7 @@ bool CNpc::FindEnemy()
 		return false;
 
 	bool bIsGuard = isGuard();
-	bool bIsNeutralZone = (m_bCurZone == 21 || m_bCurZone == 48); // Moradon/Arena
+	bool bIsNeutralZone = (GetZoneID() == 21 || GetZoneID() == 48); // Moradon/Arena
 
 	// Disable AI enemy finding (of users) in neutral zones.
 	// Guards and monsters are, however, allowed.
@@ -1472,7 +1476,7 @@ bool CNpc::FindEnemy()
 	__Vector3 vUser, vNpc;
 	float fDis = 0.0f;
 	float fCompareDis = 0.0f;
-	vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
+	vNpc.Set(GetX(), GetY(), GetZ());
 
 	float fSearchRange = (float)m_bySearchRange;
 
@@ -1552,10 +1556,10 @@ int CNpc::FindEnemyRegion()
 	int  iEX = (m_iRegion_X+1) * VIEW_DIST;
 	int  iEZ = (m_iRegion_Z+1) * VIEW_DIST;
 	int  iSearchRange = m_bySearchRange;
-	int iCurSX = (int)m_fCurX - m_bySearchRange;
-	int iCurSY = (int)m_fCurX - m_bySearchRange;
-	int iCurEX = (int)m_fCurX + m_bySearchRange;
-	int iCurEY = (int)m_fCurX + m_bySearchRange;
+	int iCurSX = (int)GetX() - m_bySearchRange;
+	int iCurSY = (int)GetX() - m_bySearchRange;
+	int iCurEX = (int)GetX() + m_bySearchRange;
+	int iCurEY = (int)GetX() + m_bySearchRange;
 	
 	int iMyPos = GetMyField();
 
@@ -1676,7 +1680,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 	float fSearchRange = (float)m_bySearchRange;
 	int target_uid = -1;
 	__Vector3 vUser, vNpc, vMon;
-	vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
+	vNpc.Set(GetX(), GetY(), GetZ());
 	int iLevelComprison = 0;
 	
 	if(nType == 1)	{		// user을 타겟으로 잡는 경우
@@ -1757,7 +1761,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 				// 같은 국가의 몬스터는 공격을 하지 않도록 한다...
 				if(m_byGroup == pNpc->m_byGroup)	continue;
 
-				vMon.Set(pNpc->m_fCurX, pNpc->m_fCurY, pNpc->m_fCurZ); 
+				vMon.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
 				fDis = GetDistance(vMon, vNpc);
 
 				// 작업 : 여기에서 나의 공격거리에 있는 유저인지를 판단
@@ -1767,9 +1771,9 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 						fComp = fDis;
 						m_Target.id	= target_uid;
 						m_Target.failCount = 0;
-						m_Target.x	= pNpc->m_fCurX;
-						m_Target.y	= pNpc->m_fCurY;
-						m_Target.z	= pNpc->m_fCurZ;
+						m_Target.x	= pNpc->GetX();
+						m_Target.y	= pNpc->GetY();
+						m_Target.z	= pNpc->GetZ();
 					//	TRACE("Npc-IsCloseTarget - target_x = %.2f, z=%.2f\n", m_Target.x, m_Target.z);
 					}
 				}	
@@ -1788,8 +1792,8 @@ int CNpc::GetMyField()
 	int iX = m_iRegion_X * VIEW_DIST;
 	int iZ = m_iRegion_Z * VIEW_DIST;
 	int iAdd = VIEW_DIST / 2;
-	int iCurX = (int)m_fCurX;	// monster current position_x
-	int iCurZ = (int)m_fCurZ;
+	int iCurX = (int)GetX();	// monster current position_x
+	int iCurZ = (int)GetZ();
 	if(COMPARE(iCurX, iX, iX+iAdd) && COMPARE(iCurZ, iZ, iZ+iAdd))
 		iRet = 1;
 	else if(COMPARE(iCurX, iX+iAdd, iX+VIEW_DIST) && COMPARE(iCurZ, iZ, iZ+iAdd))
@@ -1821,7 +1825,7 @@ int CNpc::IsSurround(CUser* pUser)
 	if(m_tNpcLongType) return 0;		//원거리는 통과
 
 	if(pUser == nullptr)	return -2;		// User가 없으므로 타겟지정 실패..
-	int nDir = pUser->IsSurroundCheck(m_fCurX, 0.0f, m_fCurZ, m_sNid+NPC_BAND);
+	int nDir = pUser->IsSurroundCheck(GetX(), 0.0f, GetZ(), m_sNid+NPC_BAND);
 	if(nDir != 0)
 	{
 		m_byAttackPos = nDir;
@@ -1846,7 +1850,6 @@ bool CNpc::IsMovable(float x, float z)
 //	Path Find 로 찾은길을 다 이동 했는지 판단
 bool CNpc::IsMovingEnd()
 {
-	//if(m_fCurX == m_fEndPoint_X && m_fCurZ == m_fEndPoint_Y) 
 	if(m_fPrevX == m_fEndPoint_X && m_fPrevZ == m_fEndPoint_Y) 
 	{
 		//m_sStepCount = 0;
@@ -1868,7 +1871,7 @@ bool CNpc::StepMove()
 	float fOldCurX = 0.0f, fOldCurZ = 0.0f;
 
 	if(m_sStepCount == 0)	{
-		fOldCurX = m_fCurX;  fOldCurZ = m_fCurZ;
+		fOldCurX = GetX();  fOldCurZ = GetZ();
 	}
 	else	{
 		fOldCurX = m_fPrevX; fOldCurZ = m_fPrevZ;
@@ -1952,11 +1955,11 @@ bool CNpc::StepMove()
 
 	if (m_sStepCount++ > 0)
 	{
-		m_fCurX = fOldCurX;		 m_fCurZ = fOldCurZ;
-		if(m_fCurX < 0 || m_fCurZ < 0)
-			TRACE("Npc-StepMove : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, GetName().c_str(), m_fCurX, m_fCurZ);
+		m_curx = fOldCurX;		 m_curz = fOldCurZ;
+		if(GetX() < 0 || GetZ() < 0)
+			TRACE("Npc-StepMove : nid=(%d, %s), x=%.2f, z=%.2f\n", m_sNid+NPC_BAND, GetName().c_str(), GetX(), GetZ());
 		
-		return SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);
+		return SetUid(GetX(), GetZ(), m_sNid + NPC_BAND);
 	}
 
 	return true;
@@ -1970,7 +1973,7 @@ bool CNpc::StepNoPathMove()
 	float fOldCurX = 0.0f, fOldCurZ = 0.0f;
 
 	if(m_sStepCount == 0)	{
-		fOldCurX = m_fCurX; fOldCurZ = m_fCurZ;
+		fOldCurX = GetX(); fOldCurZ = GetZ();
 	}
 	else	{
 		fOldCurX = m_fPrevX; fOldCurZ = m_fPrevZ;
@@ -2002,10 +2005,10 @@ bool CNpc::StepNoPathMove()
 		}
 		else	
 		{
-			m_fCurX = fOldCurX;	 m_fCurZ = fOldCurZ;
+			m_curx = fOldCurX;	 m_curz = fOldCurZ;
 		}
 		
-		return (SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND));
+		return (SetUid(GetX(), GetZ(), m_sNid + NPC_BAND));
 	}
 
 	return true;
@@ -2019,7 +2022,7 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 	CNpc* pNpc = nullptr;
 	float fDis = 0.0f, fWillDis = 0.0f, fX = 0.0f, fZ = 0.0f;
 	bool  bUserType = false;	// 타겟이 유저이면 true
-	vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
+	vNpc.Set(GetX(), GetY(), GetZ());
 
 	if(m_Target.id >= USER_BAND && m_Target.id < NPC_BAND)	{	// Target 이 User 인 경우
 		pUser = g_pMain->GetUserPtr(m_Target.id - USER_BAND);
@@ -2045,9 +2048,9 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 			InitTarget();
 			return -1;
 		}
-		vUser.Set(pNpc->m_fCurX, pNpc->m_fCurY, pNpc->m_fCurZ); 
-		fX = pNpc->m_fCurX;
-		fZ = pNpc->m_fCurZ;
+		vUser.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
+		fX = pNpc->GetX();
+		fZ = pNpc->GetZ();
 	}
 	else	{
 		return -1;
@@ -2084,8 +2087,8 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 	}
 
 	/* 타겟의 좌표를 최신 것으로 수정하고, 마지막 포인터 좌표를 수정한다,, */
-	m_fEndPoint_X = m_fCurX;
-	m_fEndPoint_Y = m_fCurZ;
+	m_fEndPoint_X = GetX();
+	m_fEndPoint_Y = GetZ();
 	m_Target.x = fX;
 	m_Target.z = fZ;
 
@@ -2147,13 +2150,13 @@ int CNpc::GetTargetPath(int option)
 			InitTarget();
 			return -1;
 		}
-		if(pUser->m_curZone != m_bCurZone)	{
+		if(pUser->m_curZone != GetZoneID())	{
 			InitTarget();
 			return -1;
 		}
 
 		if(option == 1)	{	// magic이나 활등으로 공격 당했다면...
-			vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
+			vNpc.Set(GetX(), GetY(), GetZ());
 			vUser.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz); 
 			fDis = GetDistance(vNpc, vUser);
 			if(fDis >= NPC_MAX_MOVE_RANGE)		return -1;	// 너무 거리가 멀어서,, 추적이 안되게..
@@ -2167,8 +2170,8 @@ int CNpc::GetTargetPath(int option)
 
 		if (m_bTracing)
 		{
-			float dx = m_fCurX - m_fTracingStartX;
-			float dy = m_fCurZ - m_fTracingStartZ;
+			float dx = GetX() - m_fTracingStartX;
+			float dy = GetZ() - m_fTracingStartZ;
 			if (pow(dx, 2.0f) + pow(dy, 2.0f) > pow(iTempRange, 2.0f))
 			{
 				InitTarget();
@@ -2197,10 +2200,10 @@ int CNpc::GetTargetPath(int option)
 	int max_xx = pMap->GetMapSize();
 	int max_zz = pMap->GetMapSize();
 
-	int min_x = (int)(m_fCurX - iTempRange)/TILE_SIZE;	if(min_x < 0) min_x = 0;
-	int min_z = (int)(m_fCurZ - iTempRange)/TILE_SIZE;	if(min_z < 0) min_z = 0;
-	int max_x = (int)(m_fCurX + iTempRange)/TILE_SIZE;	if(max_x > max_xx) max_x = max_xx;
-	int max_z = (int)(m_fCurZ + iTempRange)/TILE_SIZE;	if(min_z > max_zz) min_z = max_zz;
+	int min_x = (int)(GetX() - iTempRange)/TILE_SIZE;	if(min_x < 0) min_x = 0;
+	int min_z = (int)(GetZ() - iTempRange)/TILE_SIZE;	if(min_z < 0) min_z = 0;
+	int max_x = (int)(GetX() + iTempRange)/TILE_SIZE;	if(max_x > max_xx) max_x = max_xx;
+	int max_z = (int)(GetZ() + iTempRange)/TILE_SIZE;	if(min_z > max_zz) min_z = max_zz;
 
 	if(m_Target.id >= USER_BAND && m_Target.id < NPC_BAND)	{	// Target 이 User 인 경우
 		// 목표점이 Search Range를 벗어나지 않는지 검사
@@ -2210,9 +2213,9 @@ int CNpc::GetTargetPath(int option)
 			return -1;
 		}
 
-		m_fStartPoint_X = m_fCurX;		m_fStartPoint_Y = m_fCurZ;
+		m_fStartPoint_X = GetX();		m_fStartPoint_Y = GetZ();
 	
-		vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
+		vNpc.Set(GetX(), GetY(), GetZ());
 		vUser.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz); 
 		
 		// 여기에서 유저의 어느 방향으로 공격할것인지를 판단...(셋팅)
@@ -2239,15 +2242,15 @@ int CNpc::GetTargetPath(int option)
 	else if(m_Target.id >= NPC_BAND && m_Target.id < INVALID_BAND)	{	// Target 이 mon 인 경우
 		// 목표점이 Search Range를 벗어나지 않는지 검사
 		CRect r = CRect(min_x, min_z, max_x+1, max_z+1);
-		if(r.PtInRect((int)pNpc->m_fCurX/TILE_SIZE, (int)pNpc->m_fCurZ/TILE_SIZE) == false)	{
+		if(r.PtInRect((int)pNpc->GetX()/TILE_SIZE, (int)pNpc->GetZ()/TILE_SIZE) == false)	{
 			TRACE("### Npc-GetTargetPath() Npc Fail return -1: [nid=%d] t_Name=%s, AttackPos=%d ###\n", m_sNid+NPC_BAND, pNpc->GetName().c_str(), m_byAttackPos);
 			return -1;
 		}
 
-		m_fStartPoint_X = m_fCurX;		m_fStartPoint_Y = m_fCurZ;
+		m_fStartPoint_X = GetX();		m_fStartPoint_Y = GetZ();
 	
-		vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
-		vUser.Set(pNpc->m_fCurX, pNpc->m_fCurY, pNpc->m_fCurZ); 
+		vNpc.Set(GetX(), GetY(), GetZ());
+		vUser.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
 		
 		CalcAdaptivePosition(vNpc, vUser, 2.0f+m_proto->m_fBulk, &vEnd22);
 		m_fEndPoint_X = vEnd22.x;	m_fEndPoint_Y = vEnd22.z;
@@ -2278,8 +2281,8 @@ int CNpc::GetTargetPath(int option)
 	}
 
 	CPoint start, end;
-	start.x = (int)(m_fCurX/TILE_SIZE) - min_x;
-	start.y = (int)(m_fCurZ/TILE_SIZE) - min_z;
+	start.x = (int)(GetX()/TILE_SIZE) - min_x;
+	start.y = (int)(GetZ()/TILE_SIZE) - min_z;
 	end.x = (int)(vEnd22.x/TILE_SIZE) - min_x;
 	end.y = (int)(vEnd22.z/TILE_SIZE) - min_z;
 
@@ -2392,7 +2395,7 @@ int CNpc::Attack()
 		if(m_byWhatAttackType == 4 || m_byWhatAttackType == 5)	{		// 지역 마법 사용 몬스터이면.....
 			nRandom = myrand(1, 10000);
 			if(nRandom < nPercent)	{				// 지역마법공격...
-				CNpcMagicProcess::MagicPacket(MAGIC_EFFECTING, m_proto->m_iMagic2, m_sNid + NPC_BAND, -1, int16(m_fCurX), int16(m_fCurY), int16(m_fCurZ));
+				CNpcMagicProcess::MagicPacket(MAGIC_EFFECTING, m_proto->m_iMagic2, m_sNid + NPC_BAND, -1, int16(GetX()), int16(GetY()), int16(GetZ()));
 				//TRACE("++++ AreaMagicAttack --- sid=%d, magicid=%d\n", m_sNid+NPC_BAND, m_proto->m_iMagic2);
 				return m_sAttackDelay + 1000;	// 지역마법은 조금 시간이 걸리도록.....
 			}
@@ -2415,7 +2418,7 @@ int CNpc::Attack()
 
 		// 명중이면 //Damage 처리 ----------------------------------------------------------------//
 		nDamage = GetFinalDamage(pUser);	// 최종 대미지
-		//TRACE("Npc-Attack() : [mon: x=%.2f, z=%.2f], [user : x=%.2f, z=%.2f]\n", m_fCurX, m_fCurZ, pUser->m_curx, pUser->m_curz);
+		//TRACE("Npc-Attack() : [mon: x=%.2f, z=%.2f], [user : x=%.2f, z=%.2f]\n", GetX(), GetZ(), pUser->m_curx, pUser->m_curz);
 		
 		if(nDamage > 0) {
 			pUser->SetDamage(nDamage, m_sNid+NPC_BAND);
@@ -2463,7 +2466,7 @@ int CNpc::Attack()
 
 		if(pUser)
 		{
-			//TRACE("Npc-Attack() : [mon: x=%.2f, z=%.2f], [user : x=%.2f, z=%.2f]\n", m_fCurX, m_fCurZ, pUser->m_curx, pUser->m_curz);
+			//TRACE("Npc-Attack() : [mon: x=%.2f, z=%.2f], [user : x=%.2f, z=%.2f]\n", GetX(), GetZ(), pUser->m_curx, pUser->m_curz);
 		}
 		
 		if(nDamage > 0)	{
@@ -2631,7 +2634,7 @@ int CNpc::TracingAttack()		// 0:attack fail, 1:attack success
 
 		// 명중이면 //Damage 처리 ----------------------------------------------------------------//
 		nDamage = GetNFinalDamage(pNpc);	// 최종 대미지
-		//TRACE("Npc-Attack() : [mon: x=%.2f, z=%.2f], [user : x=%.2f, z=%.2f]\n", m_fCurX, m_fCurZ, pUser->m_curx, pUser->m_curz);
+		//TRACE("Npc-Attack() : [mon: x=%.2f, z=%.2f], [user : x=%.2f, z=%.2f]\n", GetX(), GetZ(), pUser->m_curx, pUser->m_curz);
 		
 		if(nDamage > 0)		{
 			if(pNpc->SetDamage(0, nDamage, m_sNid+NPC_BAND) == true) {
@@ -2661,7 +2664,7 @@ void CNpc::MoveAttack()
 	CNpc* pNpc = nullptr;
 	float fDis = 0.0f;
 	float fX = 0.0f, fZ = 0.0f;
-	vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
+	vNpc.Set(GetX(), GetY(), GetZ());
 
 	if(m_Target.id >= USER_BAND && m_Target.id < NPC_BAND)	// Target 이 User 인 경우
 	{
@@ -2694,7 +2697,7 @@ void CNpc::MoveAttack()
 			InitTarget();
 			return;
 		}
-		vUser.Set(pNpc->m_fCurX, pNpc->m_fCurY, pNpc->m_fCurZ); 
+		vUser.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
 
 		CalcAdaptivePosition(vNpc, vUser, 2, &vEnd22);
 		fX = vEnd22.x;	fZ = vEnd22.z;
@@ -2715,19 +2718,19 @@ void CNpc::MoveAttack()
 
 	vDistance = vEnd22 - vNpc;
 	fDis = vDistance.Magnitude();	
-	m_fCurX = vEnd22.x;
-	m_fCurZ = vEnd22.z;
+	m_curx = vEnd22.x;
+	m_curz = vEnd22.z;
 
-	if(m_fCurX < 0 || m_fCurZ < 0)
+	if(GetX() < 0 || GetZ() < 0)
 	{
 		TRACE("Npc-MoveAttack : nid=(%d, %s), x=%.2f, z=%.2f\n", 
-			m_sNid+NPC_BAND, GetName().c_str(), m_fCurX, m_fCurZ);
+			m_sNid+NPC_BAND, GetName().c_str(), GetX(), GetZ());
 	}
 
 
 	Packet result(MOVE_RESULT, uint8(SUCCESS));
 	result	<< uint16(m_sNid + NPC_BAND)
-			<< m_fCurX << m_fCurZ << m_fCurY;
+			<< GetX() << GetZ() << GetY();
 
 	// This seems really dumb, but for reasons unbeknownst to me
 	// we're sending the packet twice -- first with the distance/speed,
@@ -2739,10 +2742,10 @@ void CNpc::MoveAttack()
 	result.put(wpos, 0.0f); // replace the distance/speed with 0
 	g_pMain->Send(&result); // send it again
 
-	SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);
+	SetUid(GetX(), GetZ(), m_sNid + NPC_BAND);
 	
-	m_fEndPoint_X = m_fCurX;
-	m_fEndPoint_Y = m_fCurZ;
+	m_fEndPoint_X = GetX();
+	m_fEndPoint_Y = GetZ();
 }
 
 int CNpc::GetNFinalDamage(CNpc *pNpc)
@@ -2853,7 +2856,7 @@ bool CNpc::IsChangePath()
 	}
 
 	 //TRACE("#### IsChangePath() - [몬 - cur:x=%.2f, z=%.2f, 목표점:x=%.2f, z=%.2f], [target : x=%.2f, z=%.2f]\n", 
-	//	 m_fCurX, m_fCurZ, m_fEndPoint_X, m_fEndPoint_Y, fCurX, fCurZ);
+	//	 GetX(), GetZ(), m_fEndPoint_X, m_fEndPoint_Y, fCurX, fCurZ);
 	return true;
 }
 
@@ -2875,8 +2878,8 @@ bool CNpc::GetTargetPos(float& x, float& z)
 		//CNpc* pNpc = g_pMain->m_arNpc[m_Target.id - NPC_BAND];
 		if(!pNpc) return false;
 
-		x = pNpc->m_fCurX;
-		z = pNpc->m_fCurZ;
+		x = pNpc->GetX();
+		z = pNpc->GetZ();
 
 	}
 
@@ -3101,7 +3104,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 			if(preDamage > lastDamage) return;
 		}
 		else if(iRandom >= 50 && iRandom < 80)	{		// 가장 가까운 플레이어
-			vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
+			vNpc.Set(GetX(), GetY(), GetZ());
 			vUser.Set(preUser->m_curx, 0, preUser->m_curz);
 			fDistance1 = GetDistance(vNpc, vUser);
 			vUser.Set(pUser->m_curx, 0, pUser->m_curz);
@@ -3201,11 +3204,11 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 		lastDamage = GetNFinalDamage(pNpc); 
 
 		// 조건을 검색,,   (거리와 유저의 공격력을 판단해서,,)
-		vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
-		vMonster.Set(preNpc->m_fCurX, 0, preNpc->m_fCurZ);
+		vNpc.Set(GetX(), GetY(), GetZ());
+		vMonster.Set(preNpc->GetX(), 0, preNpc->GetZ());
 		fDist = GetDistance(vNpc, vMonster);
 		preDamage = (int)((double)preDamage/fDist + 0.5);
-		vMonster.Set(pNpc->m_fCurX, 0, pNpc->m_fCurZ);
+		vMonster.Set(pNpc->GetX(), 0, pNpc->GetZ());
 		fDist = GetDistance(vNpc, vMonster);
 		lastDamage = (int)((double)lastDamage/fDist + 0.5);
 
@@ -3213,9 +3216,9 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 	}
 		
 	m_Target.id	= pNpc->m_sNid + NPC_BAND;
-	m_Target.x	= pNpc->m_fCurX;
-	m_Target.y	= pNpc->m_fCurZ;
-	m_Target.z  = pNpc->m_fCurZ;
+	m_Target.x	= pNpc->GetX();
+	m_Target.y	= pNpc->GetZ();
+	m_Target.z  = pNpc->GetZ();
 
 	int nValue = 0;
 	// 어슬렁 거리는데 공격하면 바로 반격
@@ -3686,7 +3689,7 @@ bool CNpc::IsCloseTarget(CUser *pUser, int nRange)
 	__Vector3 vUser;
 	__Vector3 vNpc;
 	float fDis = 0.0f;
-	vNpc.Set(m_fCurX, m_fCurY, m_fCurZ);
+	vNpc.Set(GetX(), GetY(), GetZ());
 	vUser.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz); 
 	fDis = GetDistance(vNpc, vUser);
 	
@@ -3718,10 +3721,10 @@ int CNpc::FindFriend(int type)
 		if(m_Target.id == -1) return 0;
 	}
 
-	int min_x = (int)(m_fCurX - m_bySearchRange)/VIEW_DIST;	if(min_x < 0) min_x = 0;
-	int min_z = (int)(m_fCurZ - m_bySearchRange)/VIEW_DIST;	if(min_z < 0) min_z = 0;
-	int max_x = (int)(m_fCurX + m_bySearchRange)/VIEW_DIST;	if(max_x > pMap->GetXRegionMax()) max_x = pMap->GetXRegionMax();
-	int max_z = (int)(m_fCurZ + m_bySearchRange)/VIEW_DIST;	if(min_z > pMap->GetZRegionMax()) min_z = pMap->GetZRegionMax();
+	int min_x = (int)(GetX() - m_bySearchRange)/VIEW_DIST;	if(min_x < 0) min_x = 0;
+	int min_z = (int)(GetZ() - m_bySearchRange)/VIEW_DIST;	if(min_z < 0) min_z = 0;
+	int max_x = (int)(GetX() + m_bySearchRange)/VIEW_DIST;	if(max_x > pMap->GetXRegionMax()) max_x = pMap->GetXRegionMax();
+	int max_z = (int)(GetZ() + m_bySearchRange)/VIEW_DIST;	if(min_z > pMap->GetZRegionMax()) min_z = pMap->GetZRegionMax();
 
 	int search_x = max_x - min_x + 1;		
 	int search_z = max_z - min_z + 1;	
@@ -3784,7 +3787,7 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 	float fSearchRange = 0.0f;
 	if( type == 2)	fSearchRange = (float)m_byAttackRange;
 	else fSearchRange = (float)m_byTracingRange;
-	vStart.Set(m_fCurX, m_fCurY, m_fCurZ);
+	vStart.Set(GetX(), GetY(), GetZ());
 	int iValue = 0, iCompValue = 0, iHP = 0;
 
 	for(int i=0 ; i<total_mon; i++ ) {
@@ -3793,7 +3796,7 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 		pNpc = (CNpc*)g_pMain->m_arNpc.GetData(nid - NPC_BAND);
 
 		if( pNpc != nullptr && pNpc->m_NpcState != NPC_DEAD && pNpc->m_sNid != m_sNid)	{
-			vEnd.Set(pNpc->m_fCurX, pNpc->m_fCurY, pNpc->m_fCurZ); 
+			vEnd.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
 			fDis = GetDistance(vStart, vEnd);
 
 			// 여기에서 나의 공격거리에 있는 유저인지를 판단
@@ -3865,9 +3868,9 @@ void CNpc::FillNpcInfo(Packet & result)
 
 	result	<< uint16(m_sNid + NPC_BAND) << m_proto->m_sSid << m_proto->m_sPid
 			<< m_sSize << m_iWeapon_1 << m_iWeapon_2
-			<< m_bCurZone << GetName()
+			<< GetZoneID() << GetName()
 			<< m_byGroup << uint8(m_proto->m_sLevel)
-			<< m_fCurX << m_fCurZ << m_fCurY << m_byDirection
+			<< GetX() << GetZ() << GetY() << m_byDirection
 			<< bool(m_iHP > 0) // are we alive?
 			<< m_proto->m_tNpcType
 			<< m_iSellingGroup << m_iMaxHP << m_iHP
@@ -3988,11 +3991,11 @@ float CNpc::RandomGenf(float max, float min)
 
 void CNpc::NpcMoveEnd()
 {
-	SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);
+	SetUid(GetX(), GetZ(), m_sNid + NPC_BAND);
 
 	Packet result(MOVE_RESULT, uint8(SUCCESS));
 	result	<< uint16(m_sNid + NPC_BAND)
-			<< m_fCurX << m_fCurZ << m_fCurY << float(0.0f);
+			<< GetX() << GetZ() << GetY() << float(0.0f);
 
 	g_pMain->Send(&result);
 }
@@ -4016,10 +4019,10 @@ bool CNpc::GetUserInView()
 	MAP* pMap = GetMap();
 	if (pMap == nullptr)	return false;
 	//if( m_ZoneIndex > 5 || m_ZoneIndex < 0) return false;		// 임시코드 ( 2002.03.24 )
-	int min_x = (int)(m_fCurX - NPC_VIEW_RANGE)/VIEW_DIST;	if(min_x < 0) min_x = 0;
-	int min_z = (int)(m_fCurZ - NPC_VIEW_RANGE)/VIEW_DIST;	if(min_z < 0) min_z = 0;
-	int max_x = (int)(m_fCurX + NPC_VIEW_RANGE)/VIEW_DIST;	if(max_x > pMap->GetXRegionMax()) max_x = pMap->GetXRegionMax();
-	int max_z = (int)(m_fCurZ + NPC_VIEW_RANGE)/VIEW_DIST;	if(max_z > pMap->GetZRegionMax()) max_z = pMap->GetZRegionMax();
+	int min_x = (int)(GetX() - NPC_VIEW_RANGE)/VIEW_DIST;	if(min_x < 0) min_x = 0;
+	int min_z = (int)(GetZ() - NPC_VIEW_RANGE)/VIEW_DIST;	if(min_z < 0) min_z = 0;
+	int max_x = (int)(GetX() + NPC_VIEW_RANGE)/VIEW_DIST;	if(max_x > pMap->GetXRegionMax()) max_x = pMap->GetXRegionMax();
+	int max_z = (int)(GetZ() + NPC_VIEW_RANGE)/VIEW_DIST;	if(max_z > pMap->GetZRegionMax()) max_z = pMap->GetZRegionMax();
 
 	int search_x = max_x - min_x + 1;		
 	int search_z = max_z - min_z + 1;	
@@ -4049,7 +4052,7 @@ bool CNpc::GetUserInViewRange(int x, int z)
 	CRegion * pRegion = &pMap->m_ppRegion[x][z];
 	FastGuard lock2(pRegion->m_RegionUserArray.m_lock);
 	__Vector3 vStart, vEnd;
-	vStart.Set(m_fCurX, 0, m_fCurZ);
+	vStart.Set(GetX(), 0, GetZ());
 	float fDis = 0.0f; 
 
 	foreach_stlmap (itr, pRegion->m_RegionUserArray)
@@ -4109,7 +4112,7 @@ void CNpc::IsUserInSight()
 	__Vector3 vStart, vEnd;
 	float fDis = 0.0f;
 
-	vStart.Set(m_fCurX, m_fCurY, m_fCurZ);
+	vStart.Set(GetX(), GetY(), GetZ());
 
 	for(j = 0; j < NPC_HAVE_USER_LIST; j++)
 	{
@@ -4361,7 +4364,7 @@ void CNpc::IsNoPathFind(float fDistance)
 	if (GetMap() == nullptr)
 	{
 		ClearPathFindData();
-		TRACE("#### Npc-IsNoPathFind No map : [nid=%d, name=%s], zone=%d #####\n", m_sNid+NPC_BAND, GetName().c_str(), m_bCurZone);
+		TRACE("#### Npc-IsNoPathFind No map : [nid=%d, name=%s], zone=%d #####\n", m_sNid+NPC_BAND, GetName().c_str(), GetZoneID());
 		return;
 	}
 	MAP* pMap = GetMap();
@@ -4478,8 +4481,8 @@ void CNpc::GiveNpcHaveItem()
 
 	Packet result(AG_NPC_GIVE_ITEM);
 	result	<< m_sMaxDamageUserid << uint16(m_sNid + NPC_BAND)
-			<< m_bCurZone << m_iRegion_X << m_iRegion_Z
-			<< m_fCurX << m_fCurZ << m_fCurY
+			<< GetZoneID() << m_iRegion_X << m_iRegion_Z
+			<< GetX() << GetZ() << GetY()
 			<< uint8(nCount);
 
 	for (i = 0; i < nCount; i++)
@@ -4599,12 +4602,12 @@ bool CNpc::IsInExpRange(CUser* pUser)
 	__Vector3 vStart, vEnd;
 	float fDis = 0.0f;
 
-	vStart.Set(m_fCurX, m_fCurY, m_fCurZ);
+	vStart.Set(GetX(), GetY(), GetZ());
 	vEnd.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz);
 	fDis = GetDistance(vStart, vEnd);
 	if((int)fDis <= iSearchRange)
 	{
-		if(m_bCurZone == pUser->m_curZone)
+		if(GetZoneID() == pUser->m_curZone)
 			return true;
 	}
 
@@ -5312,8 +5315,8 @@ bool CNpc::Teleport()
 		i++;
 		nX = myrand(0, 10);
 		nX = myrand(0, 10);
-		nX = (int)m_fCurX + nX;
-		nZ = (int)m_fCurZ + nZ;
+		nX = (int)GetX() + nX;
+		nZ = (int)GetZ() + nZ;
 		nTileX = nX / TILE_SIZE;
 		nTileZ = nZ / TILE_SIZE;
 
@@ -5328,15 +5331,15 @@ bool CNpc::Teleport()
 	}	
 
 	Packet result(AG_NPC_INOUT);
-	result << uint8(NPC_OUT) << uint16(m_sNid + NPC_BAND) << m_fCurX << m_fCurZ << m_fCurY;
+	result << uint8(NPC_OUT) << uint16(m_sNid + NPC_BAND) << GetX() << GetZ() << GetY();
 	g_pMain->Send(&result);
 
-	m_fCurX = (float)nX;	m_fCurZ = (float)nZ;
+	m_curx = (float)nX;	m_curz = (float)nZ;
 
 	result.clear();
-	result << uint8(NPC_IN) << uint16(m_sNid + NPC_BAND) << m_fCurX << m_fCurZ << float(0.0f);
+	result << uint8(NPC_IN) << uint16(m_sNid + NPC_BAND) << GetX() << GetZ() << float(0.0f);
 	g_pMain->Send(&result);
 
-	SetUid(m_fCurX, m_fCurZ, m_sNid + NPC_BAND);
+	SetUid(GetX(), GetZ(), m_sNid + NPC_BAND);
 	return true;
 }
