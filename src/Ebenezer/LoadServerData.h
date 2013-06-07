@@ -46,8 +46,5 @@ typedef CSTLMap <CKingSystem>				KingSystemArray;
 typedef std::unordered_map<std::string, _USER_RANK *>		UserNameRankMap; 
 typedef std::map<uint8, _USER_RANK *>		UserRankMap;
 
-typedef std::pair<uint8, uint16>			NpcTrapPair;
-typedef std::map<NpcTrapPair, int32>		EventTriggerArray;
-
 typedef std::vector<_QUEST_HELPER *>		QuestHelperList;
 typedef std::map<uint16, QuestHelperList>	QuestNpcList;

@@ -419,9 +419,6 @@
     <ClInclude Include="..\shared\database\KnightsCapeSet.h">
       <Filter>Database</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\database\EventTriggerSet.h">
-      <Filter>Database</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\database\QuestMonsterSet.h">
       <Filter>Database</Filter>
     </ClInclude>

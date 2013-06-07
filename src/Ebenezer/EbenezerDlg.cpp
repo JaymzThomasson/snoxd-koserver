@@ -372,16 +372,6 @@ Unit * CEbenezerDlg::GetUnit(uint16 id)
 	return m_arNpcArray.GetData(id);
 }
 
-int32 CEbenezerDlg::GetEventTrigger(CNpc * pNpc)
-{
-	NpcTrapPair key(pNpc->m_byTrapNumber, pNpc->GetID());
-	EventTriggerArray::iterator itr = m_EventTriggerArray.find(key);
-	if (itr == m_EventTriggerArray.end())
-		return -1;
-
-	return itr->second;
-}
-
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 {
 	_PARTY_GROUP * pParty = new _PARTY_GROUP;

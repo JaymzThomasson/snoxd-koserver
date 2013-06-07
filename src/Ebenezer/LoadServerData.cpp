@@ -28,7 +28,6 @@
 #include "../shared/database/CoefficientSet.h"
 #include "../shared/database/LevelUpTableSet.h"
 #include "../shared/database/ServerResourceSet.h"
-#include "../shared/database/EventTriggerSet.h"
 #include "../shared/database/QuestHelperSet.h"
 #include "../shared/database/QuestMonsterSet.h"
 #include "../shared/database/KnightsSet.h"
@@ -52,7 +51,6 @@ bool CEbenezerDlg::LoadTables()
 			&& LoadItemExchangeTable()
 			&& LoadItemUpgradeTable()
 			&& LoadServerResourceTable()
-			&& LoadEventTriggerTable()
 			&& LoadQuestHelperTable()
 			&& LoadQuestMonsterTable()
 			&& LoadMagicTable()
@@ -98,11 +96,6 @@ bool CEbenezerDlg::LoadItemUpgradeTable()
 bool CEbenezerDlg::LoadServerResourceTable()
 {
 	LOAD_TABLE(CServerResourceSet, g_DBAgent.m_GameDB, &m_ServerResourceArray, false);
-}
-
-bool CEbenezerDlg::LoadEventTriggerTable()
-{
-	LOAD_TABLE(CEventTriggerSet, g_DBAgent.m_GameDB, &m_EventTriggerArray, true);
 }
 
 bool CEbenezerDlg::LoadQuestHelperTable()
