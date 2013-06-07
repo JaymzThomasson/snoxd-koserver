@@ -738,13 +738,15 @@ bool CNpc::SetLive()
 	/* Event Monster가 다시 살아날 경우에는 Event Monster를 죽인다 이벤트 스레드에서도 포인터를 nullptr */
 	if (m_lEventNpc == 1 && !m_bFirstLive)
 	{
+#if 0
 		NpcSet::iterator itr = g_pMain->m_arEventNpcThread[0]->m_pNpcs.find(this);
 		if (itr != g_pMain->m_arEventNpcThread[0]->m_pNpcs.end())
 		{
 			m_lEventNpc = 0;
 			g_pMain->m_arEventNpcThread[0]->m_pNpcs.erase(itr);
-			TRACE("소환 몬스터 포인터 반환 ,, thread index=%d, nid=%d\n", i, m_sNid+NPC_BAND);
 		}
+#endif
+		m_lEventNpc = 0;
 		return true;
 	}
 

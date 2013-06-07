@@ -62,8 +62,6 @@ public:
 	bool AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap);
 	void AllNpcInfo();
 	CUser* GetUserPtr(int nid);
-	CNpc*  GetEventNpcPtr();
-	bool   SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz);
 	MAP * GetZoneByID(int zonenumber);
 
 	static uint32 THREADCALL Timer_CheckAliveTest(void * lpParam);
@@ -81,7 +79,6 @@ public:
 	NpcTableArray		m_arMonTable;
 	NpcTableArray		m_arNpcTable;
 	NpcThreadArray		m_arNpcThread;
-	NpcThreadArray		m_arEventNpcThread;	// Event Npc Logic
 	PartyArray			m_arParty;
 	ZoneNpcInfoList		m_ZoneNpcList;
 	MagictableArray		m_MagictableArray;
