@@ -117,12 +117,12 @@ void LoginServer::GetInfoFromIni()
 
 		_snprintf(key, sizeof(key), "TITLE_%02d", i);
 		ini.GetString("NEWS", key, "", title);
-		if (title.empty() == 0)
+		if (title.empty())
 			continue;
 		
 		_snprintf(key, sizeof(key), "MESSAGE_%02d", i);
 		ini.GetString("NEWS", key, "", message);
-		if (message.empty() == 0)
+		if (message.empty())
 			continue;
 
 		size_t oldPos = 0, pos = 0;
