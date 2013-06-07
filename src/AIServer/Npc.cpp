@@ -4487,21 +4487,10 @@ void CNpc::HpChange()
 
 bool CNpc::IsInExpRange(CUser* pUser)
 {
-	// Npc와 User와의 거리가 50미터 안에 있는 사람에게만,, 경험치를 준다..
-	int iSearchRange = NPC_EXP_RANGE;		
-	__Vector3 vStart, vEnd;
-	float fDis = 0.0f;
+	if (GetZoneID() != pUser->m_curZone)
+		return false;
 
-	vStart.Set(GetX(), GetY(), GetZ());
-	vEnd.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz);
-	fDis = GetDistance(vStart, vEnd);
-	if((int)fDis <= iSearchRange)
-	{
-		if(GetZoneID() == pUser->m_curZone)
-			return true;
-	}
-
-	return false;
+	return isInRange(pUser->m_curx, pUser->m_curz, NPC_EXP_RANGE);
 }
 
 bool CNpc::CheckFindEnermy()
