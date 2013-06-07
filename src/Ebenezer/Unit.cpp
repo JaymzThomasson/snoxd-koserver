@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "Map.h"
-#include "EbenezerDlg.h"
+#ifdef EBENEZER
+#	include "EbenezerDlg.h"
+#else
+#	include "../AIServer/ServerDlg.h"
+#endif
 #include "User.h"
 #include <cfloat>
 
