@@ -18,7 +18,7 @@ public:
 
 		int i = 1;
 		_dbCommand->FetchUInt16(i++, pData->m_sSid);
-		_dbCommand->FetchString(i++, pData->m_strName, sizeof(pData->m_strName));
+		_dbCommand->FetchString(i++, pData->m_strName);
 		_dbCommand->FetchUInt16(i++, pData->m_sPid);
 		_dbCommand->FetchUInt16(i++, pData->m_sSize);
 		_dbCommand->FetchUInt32(i++, pData->m_iWeapon_1);

@@ -2,16 +2,6 @@
 
 extern bool	g_bNpcExit;
 
-struct	_PARTY_GROUP
-{
-	WORD wIndex;
-	short uid[8];		// 하나의 파티에 8명까지 가입가능
-	_PARTY_GROUP() {
-		for(int i=0;i<8;i++)
-			uid[i] = -1;
-	};
-};
-
 struct _MAKE_WEAPON
 {
 	uint8	byIndex;

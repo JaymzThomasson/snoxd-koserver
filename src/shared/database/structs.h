@@ -231,6 +231,29 @@ struct _ZONE_INFO
 #endif
 };
 
+#define MAX_PARTY_USERS		8
+struct	_PARTY_GROUP
+{
+	WORD	wIndex;
+	short	uid		[MAX_PARTY_USERS];
+
+#ifdef EBENEZER
+	uint8	bItemRouting;
+	std::string	WantedMessage;
+	uint16	sWantedClass;
+#endif
+
+	_PARTY_GROUP()
+	{
+		for (int i = 0; i < MAX_PARTY_USERS; i++)
+			uid[i] = -1; 
+
+#ifdef EBENEZER
+		bItemRouting = 0;
+#endif
+	}
+};
+
 struct _BUFF_TYPE4_INFO
 {
 	bool	m_bIsBuff; // Is it a buff or a debuff?
