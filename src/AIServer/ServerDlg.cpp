@@ -43,7 +43,6 @@ CServerDlg::CServerDlg()
 	m_iWeather = 0;
 	m_iAmount = 0;
 	m_byNight = 1;
-	m_byZone = KARUS_ZONE;
 	m_byBattleEvent = BATTLEZONE_CLOSE;
 	m_sKillKarusNpc = 0;
 	m_sKillElmoNpc = 0;
@@ -83,30 +82,10 @@ bool CServerDlg::Startup()
 		return false;
 	}
 
-	// This probably isn't really even needed.
-	if		(m_byZone == UNIFY_ZONE)	printf(" *** Server zone: ALL ***");
-	else if (m_byZone == KARUS_ZONE)	printf(" *** Server zone: KARUS ***");
-	else if (m_byZone == ELMORAD_ZONE)	printf(" *** Server zone: EL MORAD ***");
-	else if (m_byZone == BATTLE_ZONE)	printf(" *** Server zone: BATTLE ***");
-	else
-	{
-		printf("ERROR: Server zone unknown (%d).\n", m_byZone);
-		return false;
-	}
-
-	printf("\n\n");
-
 	//----------------------------------------------------------------------
 	//	Communication Part Initialize ...
 	//----------------------------------------------------------------------
-
-	uint16 sPort = BATTLE_ZONE;
-	if (m_byZone == KARUS_ZONE || m_byZone == UNIFY_ZONE)
-		sPort = AI_KARUS_SOCKET_PORT;
-	else if (m_byZone == ELMORAD_ZONE)
-		sPort = AI_ELMO_SOCKET_PORT;
-
-	if (!m_socketMgr.Listen(sPort, MAX_SOCKET))
+	if (!m_socketMgr.Listen(AI_SERVER_PORT, MAX_SOCKET))
 		return false;
 
 	//----------------------------------------------------------------------
@@ -275,165 +254,160 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 	dbCommand->FetchByte(19, bDotCnt);
 	dbCommand->FetchString(20, szPath, sizeof(szPath));
 
-	nServerNum = GetServerNumber(bZoneID);
-
-	if (m_byZone == nServerNum || m_byZone == UNIFY_ZONE)
+	uint8 bPathSerial = 1;
+	for (uint8 j = 0; j < bNumNpc; j++)
 	{
-		uint8 bPathSerial = 1;
-		for (uint8 j = 0; j < bNumNpc; j++)
+		CNpc * pNpc = new CNpc();
+
+		pNpc->m_byMoveType = bActType;
+		pNpc->m_byInitMoveType = bActType;
+
+		bool bMonster = (bActType < 100);
+		if (bMonster)
 		{
-			CNpc * pNpc = new CNpc();
+			pNpcTable = m_arMonTable.GetData(sSid);
+		}
+		else 
+		{
+			pNpc->m_byMoveType = bActType - 100;
+			pNpcTable = m_arNpcTable.GetData(sSid);
+		}
 
-			pNpc->m_byMoveType = bActType;
-			pNpc->m_byInitMoveType = bActType;
+		if (pNpcTable == nullptr)
+		{
+			printf("NPC %d not found in %s table.\n", pNpc->m_sNid, bMonster ? "K_MONSTER" : "K_NPC");
+			delete pNpc;
+			return false;
+		}
 
-			bool bMonster = (bActType < 100);
-			if (bMonster)
-			{
-				pNpcTable = m_arMonTable.GetData(sSid);
-			}
-			else 
-			{
-				pNpc->m_byMoveType = bActType - 100;
-				pNpcTable = m_arNpcTable.GetData(sSid);
-			}
+		pNpc->Load(m_TotalNPC++, pNpcTable, bMonster);
+		pNpc->m_byBattlePos = 0;
 
-			if (pNpcTable == nullptr)
-			{
-				printf("NPC %d not found in %s table.\n", pNpc->m_sNid, bMonster ? "K_MONSTER" : "K_NPC");
-				delete pNpc;
-				return false;
-			}
+		if (pNpc->m_byMoveType >= 2)
+		{
+			pNpc->m_byBattlePos = myrand(1, 3);
+			pNpc->m_byPathCount = bPathSerial++;
+		}
 
-			pNpc->Load(m_TotalNPC++, pNpcTable, bMonster);
-			pNpc->m_byBattlePos = 0;
-
-			if (pNpc->m_byMoveType >= 2)
-			{
-				pNpc->m_byBattlePos = myrand(1, 3);
-				pNpc->m_byPathCount = bPathSerial++;
-			}
-
-			pNpc->InitPos();
+		pNpc->InitPos();
 			
-			pNpc->m_bCurZone = bZoneID;
+		pNpc->m_bCurZone = bZoneID;
 
-			nRandom = abs(iLeftX - iRightX);
-			if (nRandom <= 1)
-				fRandom_X = (float)iLeftX;
+		nRandom = abs(iLeftX - iRightX);
+		if (nRandom <= 1)
+			fRandom_X = (float)iLeftX;
+		else
+		{
+			if (iLeftX < iRightX)
+				fRandom_X = (float)myrand(iLeftX, iRightX);
 			else
-			{
-				if (iLeftX < iRightX)
-					fRandom_X = (float)myrand(iLeftX, iRightX);
-				else
-					fRandom_X = (float)myrand(iRightX, iLeftX);
-			}
+				fRandom_X = (float)myrand(iRightX, iLeftX);
+		}
 
-			nRandom = abs(iTopZ - iBottomZ);
-			if (nRandom <= 1)
-				fRandom_Z = (float)iTopZ;
+		nRandom = abs(iTopZ - iBottomZ);
+		if (nRandom <= 1)
+			fRandom_Z = (float)iTopZ;
+		else
+		{
+			if (iTopZ < iBottomZ)
+				fRandom_Z = (float)myrand(iTopZ, iBottomZ);
 			else
-			{
-				if (iTopZ < iBottomZ)
-					fRandom_Z = (float)myrand(iTopZ, iBottomZ);
-				else
-					fRandom_Z = (float)myrand(iBottomZ, iTopZ);
-			}
+				fRandom_Z = (float)myrand(iBottomZ, iTopZ);
+		}
 
-			pNpc->m_fCurX	= fRandom_X;
-			pNpc->m_fCurY	= 0;
-			pNpc->m_fCurZ	= fRandom_Z;
+		pNpc->m_fCurX	= fRandom_X;
+		pNpc->m_fCurY	= 0;
+		pNpc->m_fCurZ	= fRandom_Z;
 					
-			pNpc->m_sRegenTime		= sRegTime * SECOND;
-			pNpc->m_byDirection		= bDirection;
-			pNpc->m_sMaxPathCount	= bDotCnt;
+		pNpc->m_sRegenTime		= sRegTime * SECOND;
+		pNpc->m_byDirection		= bDirection;
+		pNpc->m_sMaxPathCount	= bDotCnt;
 
-			if ((pNpc->m_byMoveType == 2 || pNpc->m_byMoveType == 3) && bDotCnt == 0)
+		if ((pNpc->m_byMoveType == 2 || pNpc->m_byMoveType == 3) && bDotCnt == 0)
+		{
+			pNpc->m_byMoveType = 1;
+			TRACE("##### ServerDlg:CreateNpcThread - Path type Error :  nid=%d, sid=%d, name=%s, acttype=%d, path=%d #####\n", pNpc->m_sNid+NPC_BAND, pNpc->m_proto->m_sSid, pNpc->m_proto->m_strName, pNpc->m_byMoveType, pNpc->m_sMaxPathCount);
+		}
+
+		if (bDotCnt > 0)
+		{
+			int index = 0;
+			for (int l = 0; l < bDotCnt; l++)
 			{
-				pNpc->m_byMoveType = 1;
-				TRACE("##### ServerDlg:CreateNpcThread - Path type Error :  nid=%d, sid=%d, name=%s, acttype=%d, path=%d #####\n", pNpc->m_sNid+NPC_BAND, pNpc->m_proto->m_sSid, pNpc->m_proto->m_strName, pNpc->m_byMoveType, pNpc->m_sMaxPathCount);
+				static char szX[5], szZ[5];
+
+				memset(szX, 0, sizeof(szX));
+				memset(szZ, 0, sizeof(szZ));
+
+				memcpy(szX, szPath + index, 4);
+				index += 4;
+
+				memcpy(szZ, szPath + index, 4);
+				index += 4;
+
+				pNpc->m_PathList.pPattenPos[l].x = atoi(szX);
+				pNpc->m_PathList.pPattenPos[l].z = atoi(szZ);
 			}
+		}
 
-			if (bDotCnt > 0)
-			{
-				int index = 0;
-				for (int l = 0; l < bDotCnt; l++)
-				{
-					static char szX[5], szZ[5];
+		pNpc->m_tItemPer		= pNpcTable->m_tItemPer;	// NPC Type
+		pNpc->m_tDnPer			= pNpcTable->m_tDnPer;	// NPC Type
 
-					memset(szX, 0, sizeof(szX));
-					memset(szZ, 0, sizeof(szZ));
+		pNpc->m_nInitMinX = pNpc->m_nLimitMinX		= iLeftX;
+		pNpc->m_nInitMinY = pNpc->m_nLimitMinZ		= iTopZ;
+		pNpc->m_nInitMaxX = pNpc->m_nLimitMaxX		= iRightX;
+		pNpc->m_nInitMaxY = pNpc->m_nLimitMaxZ		= iBottomZ;
 
-					memcpy(szX, szPath + index, 4);
-					index += 4;
+		// dungeon work
+		pNpc->m_byDungeonFamily	= bDungeonFamily;
+		pNpc->m_bySpecialType	= bSpecialType;
+		pNpc->m_byRegenType		= bRegenType;
+		pNpc->m_byTrapNumber    = bTrapNumber;
 
-					memcpy(szZ, szPath + index, 4);
-					index += 4;
-
-					pNpc->m_PathList.pPattenPos[l].x = atoi(szX);
-					pNpc->m_PathList.pPattenPos[l].z = atoi(szZ);
-				}
-			}
-
-			pNpc->m_tItemPer		= pNpcTable->m_tItemPer;	// NPC Type
-			pNpc->m_tDnPer			= pNpcTable->m_tDnPer;	// NPC Type
-
-			pNpc->m_nInitMinX = pNpc->m_nLimitMinX		= iLeftX;
-			pNpc->m_nInitMinY = pNpc->m_nLimitMinZ		= iTopZ;
-			pNpc->m_nInitMaxX = pNpc->m_nLimitMaxX		= iRightX;
-			pNpc->m_nInitMaxY = pNpc->m_nLimitMaxZ		= iBottomZ;
-
-			// dungeon work
-			pNpc->m_byDungeonFamily	= bDungeonFamily;
-			pNpc->m_bySpecialType	= bSpecialType;
-			pNpc->m_byRegenType		= bRegenType;
-			pNpc->m_byTrapNumber    = bTrapNumber;
-
-			if (pNpc->m_byDungeonFamily > 0)
-			{
-				pNpc->m_nLimitMinX = iLimitMinX;
-				pNpc->m_nLimitMinZ = iLimitMinZ;
-				pNpc->m_nLimitMaxX = iLimitMaxX;
-				pNpc->m_nLimitMaxZ = iLimitMaxZ;
-			}	
+		if (pNpc->m_byDungeonFamily > 0)
+		{
+			pNpc->m_nLimitMinX = iLimitMinX;
+			pNpc->m_nLimitMinZ = iLimitMinZ;
+			pNpc->m_nLimitMaxX = iLimitMaxX;
+			pNpc->m_nLimitMaxZ = iLimitMaxZ;
+		}	
 			
-			pNpc->m_pZone = GetZoneByID(pNpc->m_bCurZone);
-			if (pNpc->GetMap() == nullptr)
+		pNpc->m_pZone = GetZoneByID(pNpc->m_bCurZone);
+		if (pNpc->GetMap() == nullptr)
+		{
+			printf(_T("Error: NPC %d in zone %d that does not exist."), sSid, bZoneID);
+			delete pNpc;
+			return false;
+		}
+
+		if (!m_arNpc.PutData(pNpc->m_sNid, pNpc))
+		{
+			--m_TotalNPC;
+			TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
+			delete pNpc;
+			continue;
+		}
+
+		pNpc->SetUid(pNpc->m_fCurX, pNpc->m_fCurZ, pNpc->m_sNid + NPC_BAND);
+
+		if (pNpc->GetMap()->m_byRoomEvent > 0 && pNpc->m_byDungeonFamily > 0)
+		{
+			pRoom = pNpc->GetMap()->m_arRoomEventArray.GetData(pNpc->m_byDungeonFamily);
+			if (pRoom == nullptr)
 			{
-				printf(_T("Error: NPC %d in zone %d that does not exist."), sSid, bZoneID);
+				printf("Error : CServerDlg,, Map Room Npc Fail!!\n");
 				delete pNpc;
 				return false;
 			}
 
-			if (!m_arNpc.PutData(pNpc->m_sNid, pNpc))
+			// this is why their CSTLMap class sucks.
+			int *pInt = new int;
+			*pInt = pNpc->m_sNid;
+			if (!pRoom->m_mapRoomNpcArray.PutData(pNpc->m_sNid, pInt))
 			{
-				--m_TotalNPC;
-				TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
-				delete pNpc;
-				continue;
-			}
-
-			pNpc->SetUid(pNpc->m_fCurX, pNpc->m_fCurZ, pNpc->m_sNid + NPC_BAND);
-
-			if (pNpc->GetMap()->m_byRoomEvent > 0 && pNpc->m_byDungeonFamily > 0)
-			{
-				pRoom = pNpc->GetMap()->m_arRoomEventArray.GetData(pNpc->m_byDungeonFamily);
-				if (pRoom == nullptr)
-				{
-					printf("Error : CServerDlg,, Map Room Npc Fail!!\n");
-					delete pNpc;
-					return false;
-				}
-
-				// this is why their CSTLMap class sucks.
-				int *pInt = new int;
-				*pInt = pNpc->m_sNid;
-				if (!pRoom->m_mapRoomNpcArray.PutData(pNpc->m_sNid, pInt))
-				{
-					delete pInt;
-					TRACE("### Map - Room Array MonsterNid Fail : nid=%d, sid=%d ###\n", 
-					pNpc->m_sNid, pNpc->m_proto->m_sSid);
-				}
+				delete pInt;
+				TRACE("### Map - Room Array MonsterNid Fail : nid=%d, sid=%d ###\n", 
+				pNpc->m_sNid, pNpc->m_proto->m_sSid);
 			}
 		}
 	}
@@ -831,19 +805,9 @@ MAP * CServerDlg::GetZoneByID(int zonenumber)
 	return g_arZone.GetData(zonenumber);
 }
 
-int CServerDlg::GetServerNumber( int zonenumber )
-{
-	MAP *pMap = GetZoneByID(zonenumber);
-	if (pMap == nullptr)
-		return -1;
-
-	return pMap->m_nServerNo;
-}
-
 void CServerDlg::GetServerInfoIni()
 {
 	CIni ini("./server.ini");
-	m_byZone = ini.GetInt("SERVER", "ZONE", UNIFY_ZONE);
 	ini.GetString("ODBC", "GAME_DSN", "KN_online", m_strGameDSN, false);
 	ini.GetString("ODBC", "GAME_UID", "knight", m_strGameUID, false);
 	ini.GetString("ODBC", "GAME_PWD", "knight", m_strGamePWD, false);

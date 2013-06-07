@@ -419,22 +419,6 @@ uint32 CEbenezerDlg::Timer_CheckAliveUser(void * lpParam)
 	return 0;
 }
 
-int CEbenezerDlg::GetAIServerPort()
-{
-	int nPort = AI_KARUS_SOCKET_PORT;
-	switch (m_nServerNo)
-	{
-	case ELMORAD:
-		nPort = AI_ELMO_SOCKET_PORT;
-		break;
-
-	case BATTLE:
-		nPort = AI_BATTLE_SOCKET_PORT;
-		break;
-	}
-	return nPort;
-}
-
 void CEbenezerDlg::AIServerConnect()
 {
 	// Are there any (note: we only use 1 now) idle/disconnected sessions?
@@ -448,14 +432,12 @@ void CEbenezerDlg::AIServerConnect()
 	if (idleSessions.empty())
 		return;
 
-	int port = GetAIServerPort();
-
 	// Attempt reconnecting to the server
 	foreach (itr, idleSessions)
 	{
 		CAISocket *pSock = static_cast<CAISocket *>(itr->second);
 		bool bReconnecting = pSock->IsReconnecting();
-		if (!pSock->Connect(m_AIServerIP.c_str(), port)) // couldn't connect... let's leave you alone for now
+		if (!pSock->Connect(m_AIServerIP.c_str(), AI_SERVER_PORT)) // couldn't connect... let's leave you alone for now
 			continue;
 
 		// Connected! Now send the connection packet.

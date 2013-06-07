@@ -3688,7 +3688,7 @@ void CNpc::SendExpToUserList()
 				{
 					result.clear();
 					result	<< uint8(BATTLE_EVENT_RESULT) 
-							<< uint8(bKarusComplete ? KARUS_ZONE : ELMORAD_ZONE)
+							<< uint8(bKarusComplete ? KARUS : ELMORAD)
 							<< strMaxDamageUser;
 					g_pMain->Send(&result);
 				}

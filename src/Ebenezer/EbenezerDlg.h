@@ -86,7 +86,6 @@ public:
 	void Send_PartyMember(int party, Packet *result);
 	void Send_KnightsMember(int index, Packet *pkt);
 	void Send_KnightsAlliance(uint16 sAllianceID, Packet *pkt);
-	int GetAIServerPort();
 	void SetGameTime();
 	void UpdateWeather();
 	void UpdateGameTime();

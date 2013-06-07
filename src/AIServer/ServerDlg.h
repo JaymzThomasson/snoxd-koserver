@@ -65,7 +65,6 @@ public:
 	CNpc*  GetEventNpcPtr();
 	bool   SetSummonNpcData(CNpc* pNpc, int zone, float fx, float fz);
 	MAP * GetZoneByID(int zonenumber);
-	int GetServerNumber( int zonenumber );
 
 	static uint32 THREADCALL Timer_CheckAliveTest(void * lpParam);
 	void CheckAliveTest();
@@ -122,9 +121,6 @@ public:
 	FastMutex m_userLock;
 
 	KOSocketMgr<CGameSocket> m_socketMgr;
-
-private:
-	uint8				m_byZone;
 };
 
 extern CServerDlg * g_pMain;
