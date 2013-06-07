@@ -35,6 +35,7 @@ void CUser::Initialize()
 	m_bIsHidingHelmet = false;
 	m_bMining = false;
 	m_bPremiumMerchant = false;
+	m_bInParty = false;
 
 	m_tLastMiningAttempt = 0;
 
