@@ -29,7 +29,6 @@ public:
 	bool LoadItemExchangeTable();
 	bool LoadItemUpgradeTable();
 	bool LoadServerResourceTable();
-	bool LoadEventTriggerTable();
 	bool LoadQuestHelperTable();
 	bool LoadQuestMonsterTable();
 	bool LoadMagicTable();
@@ -219,8 +218,6 @@ public:
 
 	Unit * GetUnit(uint16 id);
 
-	int32 GetEventTrigger(CNpc * pNpc);
-
 	// Adds the account name & session to a hashmap (on login)
 	void AddAccountName(CUser *pSession);
 
@@ -269,7 +266,6 @@ public:
 	HomeArray				m_HomeArray;
 	StartPositionArray		m_StartPositionArray;
 	ServerResourceArray		m_ServerResourceArray;
-	EventTriggerArray		m_EventTriggerArray;
 	QuestHelperArray		m_QuestHelperArray;
 	QuestNpcList			m_QuestNpcList;
 	QuestMonsterArray		m_QuestMonsterArray;
