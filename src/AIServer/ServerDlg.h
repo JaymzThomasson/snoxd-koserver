@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Define.h"
 #include "../shared/KOSocketMgr.h"
 #include "../shared/database/OdbcConnection.h"
 
