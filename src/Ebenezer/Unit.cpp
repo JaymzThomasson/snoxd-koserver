@@ -105,6 +105,7 @@ bool Unit::isInRangeSlow(float fx, float fz, float fNonSquaredRange)
 	return isInRange(fx, fz, pow(fNonSquaredRange, 2.0f));
 }
 
+#ifdef EBENEZER
 void Unit::SetRegion(uint16 x /*= -1*/, uint16 z /*= -1*/) 
 {
 	m_sRegionX = x; m_sRegionZ = z; 
@@ -146,6 +147,7 @@ void Unit::InsertRegion(int16 insert_x, int16 insert_z)
 	GetInOut(result, INOUT_IN);
 	g_pMain->Send_NewRegions(&result, insert_x, insert_z, GetMap(), GetRegionX(), GetRegionZ());
 }
+#endif
 
 short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 {
@@ -355,6 +357,7 @@ short Unit::GetACDamage(int damage, Unit *pTarget)
 	if (isNPC() || pTarget->isNPC())
 		return damage;
 
+#ifdef EBENEZER
 	if (pTarget->isDead())
 		return 0;
 
@@ -381,6 +384,7 @@ short Unit::GetACDamage(int damage, Unit *pTarget)
 			damage -= damage * pTarget->m_sBowR / 200;
 	}
 
+#endif
 	return damage;
 }
 
@@ -472,6 +476,7 @@ uint8 Unit::GetHitRate(float rate)
 	return FAIL;
 }
 
+#ifdef EBENEZER
 void Unit::SendToRegion(Packet *result)
 {
 	g_pMain->Send_Region(result, GetMap(), GetRegionX(), GetRegionZ());
@@ -482,6 +487,7 @@ void Unit::Send_AIServer(Packet *result)
 {
 	g_pMain->Send_AIServer(result);
 }
+#endif
 
 void Unit::InitType3()
 {
@@ -551,9 +557,11 @@ void Unit::OnDeath(Unit *pKiller)
 
 void Unit::SendDeathAnimation()
 {
+#ifdef EBENEZER
 	Packet result(WIZ_DEAD);
 	result << GetID();
 	SendToRegion(&result);
+#endif
 }
 
 void Unit::AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO & pBuffInfo)

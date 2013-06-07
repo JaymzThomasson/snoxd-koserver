@@ -139,7 +139,7 @@ void CGameSocket::RecvUserInfo(Packet & pkt)
 
 	strcpy(pUser->m_strUserID, strUserID.c_str());
 	pUser->m_pMap = g_pMain->GetZoneByID(pUser->m_curZone);
-	pUser->m_bLive = USER_LIVE;
+	pUser->m_bLive = AI_USER_LIVE;
 
 	TRACE("****  RecvUserInfo()---> uid = %d, name=%s ******\n", 
 		pUser->m_iUserId, pUser->m_strUserID);
@@ -182,7 +182,7 @@ void CGameSocket::RecvUserInOut(Packet & pkt)
 	{
 	//	TRACE("##### Fail : ^^& RecvUserInOut() [name = %s]. state=%d, hp=%d\n", pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
 		
-		if(pUser->m_bLive == USER_DEAD || pUser->m_sHP <= 0)
+		if(pUser->m_bLive == AI_USER_DEAD || pUser->m_sHP <= 0)
 		{
 			if(pUser->m_sHP > 0)
 			{
@@ -290,11 +290,11 @@ bool CGameSocket::SetUid(float x, float z, int id, int speed)
 
 	if(pUser != nullptr)
 	{
-		if(pUser->m_bLive == USER_DEAD || pUser->m_sHP <= 0)
+		if(pUser->m_bLive == AI_USER_DEAD || pUser->m_sHP <= 0)
 		{
 			if(pUser->m_sHP > 0)
 			{
-				pUser->m_bLive = USER_LIVE;
+				pUser->m_bLive = AI_USER_LIVE;
 				TRACE("##### CGameSocket-SetUid Fail : User啊 Heal等 版快.. [id=%s, bLive=%d, hp=%d] ######\n", pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
 			}
 			else
@@ -349,11 +349,11 @@ void CGameSocket::RecvAttackReq(Packet & pkt)
 	CUser* pUser = g_pMain->GetUserPtr(sid);
 	if(pUser == nullptr) return;
 
-	if(pUser->m_bLive == USER_DEAD || pUser->m_sHP <= 0)
+	if(pUser->m_bLive == AI_USER_DEAD || pUser->m_sHP <= 0)
 	{
 		if(pUser->m_sHP > 0)
 		{
-			pUser->m_bLive = USER_LIVE;
+			pUser->m_bLive = AI_USER_LIVE;
 			TRACE("##### CGameSocket-Attack Fail : User啊 Heal等 版快.. [id=%d, %s, bLive=%d, hp=%d] ######\n", pUser->m_iUserId, pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
 		}		
 		else
@@ -397,7 +397,7 @@ void CGameSocket::RecvUserRegene(Packet & pkt)
 	if(pUser == nullptr)	
 		return;
 
-	pUser->m_bLive = USER_LIVE;
+	pUser->m_bLive = AI_USER_LIVE;
 	pUser->m_sHP = sHP;
 
 	TRACE("**** RecvUserRegene -- uid = (%s,%d), HP = %d\n", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP);
@@ -511,7 +511,7 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 
 		strcpy(pUser->m_strUserID, strUserID.c_str());
 		pUser->m_pMap = g_pMain->GetZoneByID(pUser->m_curZone);
-		pUser->m_bLive = USER_LIVE;
+		pUser->m_bLive = AI_USER_LIVE;
 		if (pUser->m_sPartyNumber != -1)
 			pUser->m_byNowParty = 1;
 
@@ -613,9 +613,9 @@ void CGameSocket::RecvHealMagic(Packet & pkt)
 	pUser = g_pMain->GetUserPtr(sid);
 	if(pUser == nullptr) return;
 
-	if(pUser->m_bLive == USER_DEAD || pUser->m_sHP <= 0)	{
+	if(pUser->m_bLive == AI_USER_DEAD || pUser->m_sHP <= 0)	{
 		if(pUser->m_sHP > 0)	{
-			pUser->m_bLive = USER_LIVE;
+			pUser->m_bLive = AI_USER_LIVE;
 			TRACE("##### CGameSocket-RecvHealMagic Fail : User啊 Heal等 版快.. [id=%d, %s, bLive=%d, hp=%d] ######\n", pUser->m_iUserId, pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
 		}		
 		else
@@ -646,7 +646,7 @@ void CGameSocket::RecvUserFail(Packet & pkt)
 	if (pUser == nullptr) 
 		return;
 
-	pUser->m_bLive = USER_LIVE;
+	pUser->m_bLive = AI_USER_LIVE;
 	pUser->m_sHP = sHP;
 }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef EBENEZER
+
 #include "resource.h"
 #include "LuaEngine.h"
 
@@ -368,3 +370,5 @@ public:
 };
 
 extern CEbenezerDlg * g_pMain;
+
+#endif

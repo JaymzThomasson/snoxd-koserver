@@ -5,10 +5,10 @@
 class CNpcTable  
 {
 public:
-	uint16	m_sSid;							// MONSTER(NPC) Serial ID
-	char	m_strName[MAX_NPC_SIZE+1];		// MONSTER(NPC) Name
-	uint16	m_sPid;							// MONSTER(NPC) Picture ID
-	uint16	m_sSize;						// 캐릭터의 비율(100 퍼센트 기준)
+	uint16	m_sSid;				// MONSTER(NPC) Serial ID
+	std::string	m_strName;		// MONSTER(NPC) Name
+	uint16	m_sPid;				// MONSTER(NPC) Picture ID
+	uint16	m_sSize;			// 캐릭터의 비율(100 퍼센트 기준)
 	uint32	m_iWeapon_1;		// 무기계열(오른손)
 	uint32	m_iWeapon_2;		// 무기계열(왼손)
 	uint8	m_byGroup;			// 소속집단
@@ -64,6 +64,5 @@ public:
 
 	CNpcTable() : m_sSpeed(MONSTER_SPEED)
 	{
-		memset(&m_strName, 0, sizeof(m_strName));
 	}
 };

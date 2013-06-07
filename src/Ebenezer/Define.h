@@ -21,8 +21,6 @@
 #define MAX_CLASS			26			// ��� MAX
 #define MAX_LEVEL			83			// �ְ�...
 
-#define MAX_PARTY_USERS		8
-
 #define MAX_MESSAGE_EVENT			12
 
 ///////////////// BBS RELATED //////////////////////////////

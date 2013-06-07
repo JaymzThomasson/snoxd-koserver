@@ -99,10 +99,27 @@ struct _TargetHealer
 
 class MAP;
 
+#include "../Ebenezer/Unit.h"
+
 struct __Vector3;
-class CNpc
+class CNpc : public Unit
 {
 public:
+
+	virtual uint16 GetID() { return m_sNid; }
+	virtual std::string & GetName() { return GetProto()->m_strName; }
+
+	virtual int32 GetHealth() { return m_iHP; }
+	virtual int32 GetMaxHealth() { return GetProto()->m_iMaxHP; }
+	virtual int32 GetMana() { return m_sMP; }
+	virtual int32 GetMaxMana() { return GetProto()->m_sMaxMP; }
+
+	virtual void GetInOut(Packet &, uint8) {}
+	virtual void AddToRegion(int16 sRegionX, int16 sRegionZ) {}
+
+	virtual void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToAI = true) {}
+	virtual void MSpChange(int amount) {}
+
 	INLINE CNpcTable * GetProto() { return m_proto; }
 	INLINE uint8 GetType() { return GetProto()->m_tNpcType; }
 	INLINE uint8 GetNation() { return m_byGroup; }

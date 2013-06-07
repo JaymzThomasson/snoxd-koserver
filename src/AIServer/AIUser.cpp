@@ -21,7 +21,7 @@ void CUser::Initialize()
 
 	memset(m_strUserID, 0, MAX_ID_SIZE+1);	// 캐릭터의 이름
 	m_iUserId = -1;					// User의 번호
-	m_bLive = USER_DEAD;			// 죽었니? 살았니?
+	m_bLive = AI_USER_DEAD;			// 죽었니? 살았니?
 	m_curx = 0.0f;				// 현재 X 좌표
 	m_cury = 0.0f;				// 현재 Y 좌표
 	m_curz = 0.0f;				// 현재 Z 좌표
@@ -112,7 +112,7 @@ void CUser::SendAttackSuccess(short tid, uint8 bResult, short sDamage, int nHP, 
 
 void CUser::SetDamage(int damage, int tid)
 {
-	if (damage <= 0 || m_bLive == USER_DEAD)
+	if (damage <= 0 || m_bLive == AI_USER_DEAD)
 		return;
 
 	m_sHP -= (short)damage;
@@ -126,11 +126,11 @@ void CUser::SetDamage(int damage, int tid)
 
 void CUser::Dead(int tid, int nDamage)
 {
-	if (m_bLive == USER_DEAD)
+	if (m_bLive == AI_USER_DEAD)
 		return;
 
 	m_sHP = 0;
-	m_bLive = USER_DEAD;
+	m_bLive = AI_USER_DEAD;
 
 	InitNpcAttack();
 
@@ -149,7 +149,7 @@ void CUser::Dead(int tid, int nDamage)
 
 void CUser::SendHP()
 {
-	if (m_bLive == USER_DEAD)
+	if (m_bLive == AI_USER_DEAD)
 		return;
 
 	Packet result(AG_USER_SET_HP);

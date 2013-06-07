@@ -5,7 +5,6 @@
 //
 #define AI_SERVER_PORT		10020
 #define MAX_SOCKET					100
-#define CLIENT_SOCKSIZE		10
 #define MAX_PATH_LINE		100
 
 #define MAX_NPC_SIZE		30
@@ -45,16 +44,8 @@ struct _NpcPosition
 //
 //	About USER
 //
-#define USER_DEAD				0X00
-#define USER_LIVE				0X01
-
-//
-//	About USER Log define 
-//
-#define USER_LOGIN				0X01
-#define USER_LOGOUT				0X02
-#define USER_LEVEL_UP			0X03
-
+#define AI_USER_DEAD				0X00
+#define AI_USER_LIVE				0X01
 
 //
 //	About NPC
@@ -148,7 +139,6 @@ const uint8	MAGIC_ATTACK_TARGET_DEAD	= 4;
 #define BATTLEZONE_OPEN         0x00
 #define BATTLEZONE_CLOSE        0x01           
 #define DECLARE_WINNER          0x02
-#define DECLARE_BAN				0x03
 
 ////////////////////////////////////////////////////////////////
 // weather define

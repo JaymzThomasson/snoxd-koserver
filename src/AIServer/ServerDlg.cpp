@@ -326,7 +326,8 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 		if ((pNpc->m_byMoveType == 2 || pNpc->m_byMoveType == 3) && bDotCnt == 0)
 		{
 			pNpc->m_byMoveType = 1;
-			TRACE("##### ServerDlg:CreateNpcThread - Path type Error :  nid=%d, sid=%d, name=%s, acttype=%d, path=%d #####\n", pNpc->m_sNid+NPC_BAND, pNpc->m_proto->m_sSid, pNpc->m_proto->m_strName, pNpc->m_byMoveType, pNpc->m_sMaxPathCount);
+			TRACE("##### ServerDlg:CreateNpcThread - Path type Error :  nid=%d, sid=%d, name=%s, acttype=%d, path=%d #####\n", 
+				pNpc->m_sNid+NPC_BAND, pNpc->m_proto->m_sSid, pNpc->GetName().c_str(), pNpc->m_byMoveType, pNpc->m_sMaxPathCount);
 		}
 
 		if (bDotCnt > 0)

@@ -326,23 +326,6 @@ struct _ITEM_TABLE
 	INLINE bool isPickaxe() { return GetKind() == WEAPON_PICKAXE; }
 };
 
-struct	_PARTY_GROUP
-{
-	WORD	wIndex;
-	short	uid		[MAX_PARTY_USERS];
-	uint8	bItemRouting;
-	std::string	WantedMessage;
-	uint16	sWantedClass;
-
-	_PARTY_GROUP()
-	{
-		for (int i = 0; i < MAX_PARTY_USERS; i++)
-			uid[i] = -1; 
-
-		bItemRouting = 0;
-	};
-};
-
 struct _ZONE_SERVERINFO
 {
 	short		sServerNo;
