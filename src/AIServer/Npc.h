@@ -422,8 +422,7 @@ public:
 	// Packet SendºÎºÐ..
 	void SendAttackSuccess(uint8 byResult, int tuid, short sDamage, int nHP=0, uint8 byFlag = 0, short sAttack_type=1);
 
-	// Inline Function
-	bool SetUid(float x, float z, int id);
+	bool RegisterRegion(float x, float z);
 
 	void Dead(int iDeadType = 0);
 	bool FindEnemy();
