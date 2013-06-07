@@ -49,8 +49,6 @@ bool CNpc::SetUid(float x, float z, int id)
 		return false;
 	}
 
-	// map 이동이 불가능이면 npc등록 실패.. 
-	// 작업 : 이 부분을 나중에 수정 처리....
 	// if(pMap->m_pMap[x1][z1].m_sEvent == 0) return false;
 	if(nRX > pMap->GetXRegionMax() || nRY > pMap->GetZRegionMax() || nRX < 0 || nRY < 0)
 	{
@@ -58,24 +56,26 @@ bool CNpc::SetUid(float x, float z, int id)
 		return false;
 	}
 
-	if(m_iRegion_X != nRX || m_iRegion_Z != nRY)
+	if (GetRegionX() != nRX || GetRegionZ() != nRY)
 	{
-		int nOld_RX = m_iRegion_X;
-		int nOld_RZ = m_iRegion_Z;
-		m_iRegion_X = nRX;		m_iRegion_Z = nRY;
+		int nOld_RX = GetRegionX();
+		int nOld_RZ = GetRegionZ();
+
+		m_sRegionX = nRX;
+		m_sRegionZ = nRY;
 
 		CNpc* pNpc = g_pMain->m_arNpc.GetData( id-NPC_BAND );
 		if(pNpc == nullptr)
 			return false;
-		pMap->RegionNpcAdd(m_iRegion_X, m_iRegion_Z, id);
 
+		pMap->RegionNpcAdd(GetRegionX(), GetRegionZ(), id);
 		pMap->RegionNpcRemove(nOld_RX, nOld_RZ, id);
 	}
 
 	return true;
 }
 
-CNpc::CNpc() : m_NpcState(NPC_LIVE), m_byGateOpen(0), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
+CNpc::CNpc() : Unit(), m_NpcState(NPC_LIVE), m_byGateOpen(0), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
 	m_byAttackPos(0), m_ItemUserLevel(0), m_Delay(0), 
 	m_proto(nullptr), m_pZone(nullptr), m_pPath(nullptr)
 {
@@ -108,8 +108,6 @@ CNpc::CNpc() : m_NpcState(NPC_LIVE), m_byGateOpen(0), m_byObjectType(NORMAL_OBJE
 	m_fHPChangeTime = getMSTime();
 	m_tFaintingTime = 0;
 
-	m_iRegion_X = 0;
-	m_iRegion_Z = 0;
 	m_nLimitMinX = m_nLimitMinZ = 0;
 	m_nLimitMaxX = m_nLimitMaxZ = 0;
 	m_lEventNpc = 0;
@@ -715,7 +713,7 @@ bool CNpc::SetLive()
 	m_byActionFlag = NO_ACTION;
 	m_byMaxDamagedNation = 0;
 
-	m_iRegion_X = -1;	m_iRegion_Z = -1;
+	m_sRegionX = m_sRegionZ = -1;
 	m_fAdd_x = 0.0f;	m_fAdd_z = 0.0f;
 	m_fStartPoint_X = 0.0f;		m_fStartPoint_Y = 0.0f; 
 	m_fEndPoint_X = 0.0f;		m_fEndPoint_Y = 0.0f;
@@ -1402,12 +1400,14 @@ void CNpc::Dead(int iDeadType)
 	m_bFirstLive = false;
 	m_byDeadType = 100;		// 전쟁이벤트중에서 죽는 경우
 
-	if(m_iRegion_X > pMap->GetXRegionMax() || m_iRegion_Z > pMap->GetZRegionMax())	{
-		TRACE("#### Npc-Dead() Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, m_iRegion_X, m_iRegion_Z);
+	if (GetRegionX() > pMap->GetXRegionMax() || GetRegionZ() > pMap->GetZRegionMax())
+	{
+		TRACE("#### Npc-Dead() Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", 
+			m_sNid+NPC_BAND, m_proto->m_sSid, GetRegionX(), GetRegionZ());
 		return;
 	}
 
-	pMap->RegionNpcRemove(m_iRegion_X, m_iRegion_Z, m_sNid+NPC_BAND);
+	pMap->RegionNpcRemove(GetRegionX(), GetRegionZ(), m_sNid+NPC_BAND);
 
 	if(iDeadType == 1)	{	// User에 의해 죽은것이 아니기 때문에... 클라이언트에 Dead패킷전송...
 		Packet result(AG_DEAD);
@@ -1482,16 +1482,15 @@ bool CNpc::FindEnemy()
 
 	int iExpand = FindEnemyRegion();
 
-	// 자신의 region에 있는 UserArray을 먼저 검색하여,, 가까운 거리에 유저가 있는지를 판단..
-	if(m_iRegion_X > pMap->GetXRegionMax() || m_iRegion_Z > pMap->GetZRegionMax() || m_iRegion_X < 0 || m_iRegion_Z < 0)	{
+	if (GetRegionX() > pMap->GetXRegionMax() 
+		|| GetRegionZ() > pMap->GetZRegionMax())
 		return false;
-	}
 
 	/*** Only find user enemies in non-neutral zones unless we're a monster ***/
 	if ((isMonster() || !bIsNeutralZone)
 		&& GetNation() != Nation::ALL)
 	{
-		fCompareDis = FindEnemyExpand(m_iRegion_X, m_iRegion_Z, fCompareDis, 1);
+		fCompareDis = FindEnemyExpand(GetRegionX(), GetRegionZ(), fCompareDis, 1);
 
 		int x=0, y=0;
 
@@ -1499,11 +1498,11 @@ bool CNpc::FindEnemy()
 		for(int l=0; l<4; l++)	{
 			if(m_iFind_X[l] == 0 && m_iFind_Y[l] == 0)		continue;
 
-			x = m_iRegion_X + (m_iFind_X[l]);
-			y = m_iRegion_Z + (m_iFind_Y[l]);
+			x = GetRegionX() + (m_iFind_X[l]);
+			y = GetRegionZ() + (m_iFind_Y[l]);
 
 			// 이부분 수정요망,,
-			if(x < 0 || y < 0 || x > pMap->GetXRegionMax() || y > pMap->GetZRegionMax())		continue;
+			if (x < 0 || y < 0 || x > pMap->GetXRegionMax() || y > pMap->GetZRegionMax())		continue;
 
 			fCompareDis = FindEnemyExpand(x, y, fCompareDis, 1);
 		}
@@ -1516,7 +1515,7 @@ bool CNpc::FindEnemy()
 	/*** Only find NPC/mob enemies if we are a guard ***/
 	if (bIsGuard) // || m_proto->m_tNpcType == NPCTYPE_MONSTER)	
 	{
-		fCompareDis = FindEnemyExpand(m_iRegion_X, m_iRegion_Z, fCompareDis, 2);
+		fCompareDis = FindEnemyExpand(GetRegionX(), GetRegionZ(), fCompareDis, 2);
 
 		int x=0, y=0;
 
@@ -1524,8 +1523,8 @@ bool CNpc::FindEnemy()
 		for(int l=0; l<4; l++)	{
 			if(m_iFind_X[l] == 0 && m_iFind_Y[l] == 0)			continue;
 
-			x = m_iRegion_X + (m_iFind_X[l]);
-			y = m_iRegion_Z + (m_iFind_Y[l]);
+			x = GetRegionX() + (m_iFind_X[l]);
+			y = GetRegionZ() + (m_iFind_Y[l]);
 
 			// 이부분 수정요망,,
 			if(x < 0 || y < 0 || x > pMap->GetXRegionMax() || y > pMap->GetZRegionMax())	continue;
@@ -1551,10 +1550,10 @@ int CNpc::FindEnemyRegion()
 		6	7	8
 	*/
 	int iRetValue = 0;
-	int  iSX = m_iRegion_X * VIEW_DIST;
-	int  iSZ = m_iRegion_Z * VIEW_DIST;
-	int  iEX = (m_iRegion_X+1) * VIEW_DIST;
-	int  iEZ = (m_iRegion_Z+1) * VIEW_DIST;
+	int  iSX = GetRegionX() * VIEW_DIST;
+	int  iSZ = GetRegionZ() * VIEW_DIST;
+	int  iEX = (GetRegionX()+1) * VIEW_DIST;
+	int  iEZ = (GetRegionZ()+1) * VIEW_DIST;
 	int  iSearchRange = m_bySearchRange;
 	int iCurSX = (int)GetX() - m_bySearchRange;
 	int iCurSY = (int)GetX() - m_bySearchRange;
@@ -1789,8 +1788,8 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 int CNpc::GetMyField()
 {
 	int iRet = 0;
-	int iX = m_iRegion_X * VIEW_DIST;
-	int iZ = m_iRegion_Z * VIEW_DIST;
+	int iX = GetRegionX() * VIEW_DIST;
+	int iZ = GetRegionZ() * VIEW_DIST;
 	int iAdd = VIEW_DIST / 2;
 	int iCurX = (int)GetX();	// monster current position_x
 	int iCurZ = (int)GetZ();
@@ -4372,7 +4371,7 @@ void CNpc::GiveNpcHaveItem()
 
 	Packet result(AG_NPC_GIVE_ITEM);
 	result	<< m_sMaxDamageUserid << uint16(m_sNid + NPC_BAND)
-			<< GetZoneID() << m_iRegion_X << m_iRegion_Z
+			<< GetZoneID() << GetRegionX() << GetRegionZ()
 			<< GetX() << GetZ() << GetY()
 			<< uint8(nCount);
 
@@ -4507,21 +4506,21 @@ bool CNpc::IsInExpRange(CUser* pUser)
 
 bool CNpc::CheckFindEnermy()
 {
-	// 경비병은 몬스터도 공격하므로 제외
-	if(m_proto->m_tNpcType == NPC_GUARD || m_proto->m_tNpcType == NPC_PATROL_GUARD || m_proto->m_tNpcType == NPC_STORE_GUARD ) // || m_proto->m_tNpcType == NPCTYPE_MONSTER)
+	if (isGuard())
 		return true;
 
 	MAP* pMap = GetMap();
 
 	if (pMap == nullptr
-		|| m_iRegion_X > pMap->GetXRegionMax() || m_iRegion_Z > pMap->GetZRegionMax() || m_iRegion_X < 0 || m_iRegion_Z < 0)
+		|| GetRegionX() > pMap->GetXRegionMax() 
+		|| GetRegionZ() > pMap->GetZRegionMax())
 	{
 		//TRACE("#### CheckFindEnermy Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", m_sNid+NPC_BAND, m_proto->m_sSid, m_iRegion_X, m_iRegion_Z);
 		return false;
 	}
 
 	FastGuard lock(pMap->m_lock);
-	if (pMap->m_ppRegion[m_iRegion_X][m_iRegion_Z].m_byMoving == 1)
+	if (pMap->m_ppRegion[GetRegionX()][GetRegionZ()].m_byMoving == 1)
 		return true;
 
 	return false;
