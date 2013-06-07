@@ -53,7 +53,6 @@ MAP::MAP() : m_smdFile(nullptr), m_ppRegion(nullptr),
 
 bool MAP::Initialize(_ZONE_INFO *pZone)
 {
-	m_nServerNo = pZone->m_nServerNo;
 	m_nZoneNumber = pZone->m_nZoneNumber;
 	m_MapName = pZone->m_MapName;
 	m_byRoomEvent = pZone->m_byRoomEvent;
