@@ -334,8 +334,6 @@ public:
 	bool m_bTracing;
 	float m_fTracingStartX, m_fTracingStartZ;
 
-	short m_iRegion_X;					// 현재의 region - x pos
-	short m_iRegion_Z;					// 현재의 region - z pos
 	short m_iFind_X[4];					// find enemy에서 찾을 Region검사영역
 	short m_iFind_Y[4];
 
