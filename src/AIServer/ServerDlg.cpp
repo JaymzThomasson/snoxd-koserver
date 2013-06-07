@@ -387,7 +387,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 			continue;
 		}
 
-		pNpc->SetUid(pNpc->GetX(), pNpc->GetZ(), pNpc->GetID());
+		pNpc->RegisterRegion(pNpc->GetX(), pNpc->GetZ());
 
 		if (pNpc->GetMap()->m_byRoomEvent > 0 && pNpc->m_byDungeonFamily > 0)
 		{

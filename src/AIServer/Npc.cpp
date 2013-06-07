@@ -28,7 +28,7 @@ static float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f,
 #define ATTACK_LIMIT_LEVEL		10
 #define FAINTING_TIME			2 // in seconds
 
-bool CNpc::SetUid(float x, float z, int id)
+bool CNpc::RegisterRegion(float x, float z)
 {
 	MAP* pMap = GetMap();
 	if (pMap == nullptr) 
@@ -64,12 +64,8 @@ bool CNpc::SetUid(float x, float z, int id)
 		m_sRegionX = nRX;
 		m_sRegionZ = nRY;
 
-		CNpc* pNpc = g_pMain->m_arNpc.GetData(id);
-		if(pNpc == nullptr)
-			return false;
-
-		pMap->RegionNpcAdd(GetRegionX(), GetRegionZ(), id);
-		pMap->RegionNpcRemove(nOld_RX, nOld_RZ, id);
+		pMap->RegionNpcAdd(GetRegionX(), GetRegionZ(), GetID());
+		pMap->RegionNpcRemove(nOld_RX, nOld_RZ, GetID());
 	}
 
 	return true;
@@ -854,7 +850,7 @@ bool CNpc::SetLive()
 		//g_pMain->SendSystemMsg(notify, PUBLIC_CHAT);
 	}
 
-	SetUid(GetX(), GetZ(), GetID());
+	RegisterRegion(GetX(), GetZ());
 	m_byDeadType = 0;
 
 	Packet result(AG_NPC_INFO);
@@ -1881,7 +1877,7 @@ bool CNpc::StepMove()
 		m_fPrevX = m_fEndPoint_X;
 		m_fPrevZ = m_fEndPoint_Y;
 		TRACE("##### Step Move Fail : [nid = %d,%s] m_iAniFrameCount=%d/%d ######\n", GetID(), GetName().c_str(), m_iAniFrameCount, m_iAniFrameIndex);
-		SetUid(m_fPrevX, m_fPrevZ, GetID());
+		RegisterRegion(m_fPrevX, m_fPrevZ);
 		return false;	
 	}
 
@@ -1954,7 +1950,7 @@ bool CNpc::StepMove()
 		if(GetX() < 0 || GetZ() < 0)
 			TRACE("Npc-StepMove : nid=(%d, %s), x=%.2f, z=%.2f\n", GetID(), GetName().c_str(), GetX(), GetZ());
 		
-		return SetUid(GetX(), GetZ(), GetID());
+		return RegisterRegion(GetX(), GetZ());
 	}
 
 	return true;
@@ -2003,7 +1999,7 @@ bool CNpc::StepNoPathMove()
 			m_curx = fOldCurX;	 m_curz = fOldCurZ;
 		}
 		
-		return (SetUid(GetX(), GetZ(), GetID()));
+		return RegisterRegion(GetX(), GetZ());
 	}
 
 	return true;
@@ -2723,7 +2719,7 @@ void CNpc::MoveAttack()
 	result.put(wpos, 0.0f); // replace the distance/speed with 0
 	g_pMain->Send(&result); // send it again
 
-	SetUid(GetX(), GetZ(), GetID());
+	RegisterRegion(GetX(), GetZ());
 	
 	m_fEndPoint_X = GetX();
 	m_fEndPoint_Y = GetZ();
@@ -3965,7 +3961,7 @@ float CNpc::RandomGenf(float max, float min)
 
 void CNpc::NpcMoveEnd()
 {
-	SetUid(GetX(), GetZ(), GetID());
+	RegisterRegion(GetX(), GetZ());
 
 	Packet result(MOVE_RESULT, uint8(SUCCESS));
 	result	<< GetID()
@@ -5193,6 +5189,6 @@ bool CNpc::Teleport()
 	result << uint8(NPC_IN) << GetID() << GetX() << GetZ() << float(0.0f);
 	g_pMain->Send(&result);
 
-	SetUid(GetX(), GetZ(), GetID());
+	RegisterRegion(GetX(), GetZ());
 	return true;
 }
