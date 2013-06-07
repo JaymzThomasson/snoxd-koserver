@@ -1253,6 +1253,17 @@ void CDBAgent::RefundNP(string & strUserID, uint32 nRefundNP)
 		ReportSQLError(m_GameDB->GetError());
 }
 
+/**
+ * @brief	Handles clan cape database updates.
+ *
+ * @param	sClanID	Identifier for the clan.
+ * @param	sCapeID	Identifier for the cape.
+ * @param	r 	Red colour component.
+ * @param	g 	Green colour component.
+ * @param	b 	Blue colour component.
+ *
+ * @return	true if it succeeds, false if it fails.
+ */
 void CDBAgent::UpdateCape(uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint8 b)
 {
 	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
