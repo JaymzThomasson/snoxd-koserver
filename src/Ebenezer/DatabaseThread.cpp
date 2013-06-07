@@ -287,11 +287,9 @@ void CUser::ReqSkillDataLoad(Packet & pkt)
 
 void CUser::ReqSkillDataSave(Packet & pkt)
 {
-	char buff[260];
-	short sCount;
-
 	// Initialize our buffer (not all skills are likely to be saved, we need to store the entire 260 bytes).
-	memset(buff, 0x00, sizeof(buff));
+	char buff[260] = {0};
+	short sCount;
 
 	// Read in our skill count
 	pkt >> sCount;
@@ -370,6 +368,11 @@ void CUser::ReqRemoveFriend(Packet & pkt)
 	RecvFriendModify(result, FRIEND_REMOVE);
 }
 
+/**
+ * @brief	Handles clan cape update requests.
+ *
+ * @param	pkt	The packet.
+ */
 void CUser::ReqChangeCape(Packet & pkt)
 {
 	uint16 sClanID, sCapeID;
