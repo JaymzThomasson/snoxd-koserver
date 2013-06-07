@@ -553,7 +553,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 			continue;
 
 		if( m_pSrcUser->m_bNation == pNpc->m_byGroup ) continue;
-		vEnd.Set(pNpc->m_fCurX, pNpc->m_fCurY, pNpc->m_fCurZ); 
+		vEnd.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
 		fDis = pNpc->GetDistance(vStart, vEnd);
 
 		if(fDis > fRadius)

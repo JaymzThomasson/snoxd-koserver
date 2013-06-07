@@ -182,11 +182,6 @@ public:
 	float		m_nInitY;			// 贸澜 积己等 困摹 Y
 	float		m_nInitZ;			// 贸澜 积己等 困摹 Z
 
-	uint8		m_bCurZone;			// Current Zone;
-	float		m_fCurX;			// Current X Pos;
-	float		m_fCurY;			// Current Y Pos;
-	float		m_fCurZ;			// Current Z Pos;
-
 	float		m_fPrevX;			// Prev X Pos;
 	float		m_fPrevY;			// Prev Y Pos;
 	float		m_fPrevZ;			// Prev Z Pos;
