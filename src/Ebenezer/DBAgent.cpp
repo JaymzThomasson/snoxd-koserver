@@ -308,7 +308,7 @@ void CDBAgent::LoadItemSealData(string & strAccountID, string & strCharID, UserI
 		return;
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strAccountID.c_str(), strAccountID.length());
-	if (!dbCommand->Execute(_T("{CALL LOAD_SEALED_ITEM_DATA(?)}")))
+	if (!dbCommand->Execute(_T("SELECT nItemSerial, nItemID, bSealType FROM SEALED_ITEMS WHERE strAccountID=?")))
 	{
 		ReportSQLError(m_GameDB->GetError());
 		return;
