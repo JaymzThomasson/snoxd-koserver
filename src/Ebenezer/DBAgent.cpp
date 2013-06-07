@@ -634,8 +634,10 @@ bool CDBAgent::LoadSavedMagic(CUser *pUser)
 
 	uint16 nRet = 0;
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->m_strUserID.c_str(), pUser->m_strUserID.length());
-	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
-	if (!dbCommand->Execute(_T("{CALL LOAD_SAVED_MAGIC(?, ?)}")))
+	if (!dbCommand->Execute(_T("SELECT "
+		"nSkill1, nDuring1, nSkill2, nDuring2, nSkill3, nDuring3, nSkill4, nDuring4, nSkill5, nDuring5, "
+		"nSkill6, nDuring6, nSkill7, nDuring7, nSkill8, nDuring8, nSkill9, nDuring9, nSkill10, nDuring10 "
+		"FROM USER_SAVED_MAGIC WHERE strCharID = ?")))
 	{
 		ReportSQLError(m_GameDB->GetError());
 		return false;
@@ -762,7 +764,7 @@ bool CDBAgent::LoadSkillShortcut(Packet & result, CUser *pUser)
 	char strSkillData[260];
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, pUser->GetName().c_str(), pUser->GetName().length());
-	if (!dbCommand->Execute(_T("{CALL SKILLSHORTCUT_LOAD(?)}")))
+	if (!dbCommand->Execute(_T("SELECT nCount, strSkillData FROM USERDATA_SKILLSHORTCUT WHERE strCharID=?")))
 	{
 		ReportSQLError(m_GameDB->GetError());
 		return false;
@@ -968,11 +970,12 @@ bool CDBAgent::UpdateWarehouseData(string & strAccountID, UserUpdateType type, C
 		serialBuffer << pItem->nSerialNum;
 	}
 
-	dbCommand->AddParameter(SQL_PARAM_INPUT, strAccountID.c_str(), strAccountID.length());
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)itemBuffer.contents(), itemBuffer.size(), SQL_BINARY);
 	dbCommand->AddParameter(SQL_PARAM_INPUT, (char *)serialBuffer.contents(), serialBuffer.size(), SQL_BINARY);
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strAccountID.c_str(), strAccountID.length());
 
-	if (!dbCommand->Execute(string_format(_T("{CALL UPDATE_WAREHOUSE(?,%d,%d,?,?)}"), pUser->m_iBank, pUser->m_dwTime)))
+	if (!dbCommand->Execute(string_format(_T("UPDATE WAREHOUSE SET nMoney=%d, dwTime=%d, WarehouseData=?, strSerial=? WHERE strAccountID=?"), 
+		pUser->m_iBank, pUser->m_dwTime)))
 	{
 		ReportSQLError(m_GameDB->GetError());
 		return false;
@@ -1033,7 +1036,7 @@ uint16 CDBAgent::LoadKnightsAllMembers(uint16 sClanID, Packet & result)
 	if (dbCommand.get() == nullptr)
 		return 0;
 
-	if (!dbCommand->Execute(string_format(_T("{CALL LOAD_KNIGHTS_MEMBERS(%d)}"), sClanID)))
+	if (!dbCommand->Execute(string_format(_T("SELECT strUserId, Fame, Level, Class FROM USERDATA WHERE Knights = %d"), sClanID)))
 		ReportSQLError(m_GameDB->GetError());
 
 	if (!dbCommand->hasData())
@@ -1143,13 +1146,14 @@ bool CDBAgent::UpdateClanSymbol(uint16 sClanID, uint16 sSymbolSize, char *clanSy
 	if (dbCommand.get() == nullptr)
 		return false;
 
-	uint16 nRet = 0;
-	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 	dbCommand->AddParameter(SQL_PARAM_INPUT, clanSymbol, MAX_KNIGHTS_MARK, SQL_BINARY);
-	if (!dbCommand->Execute(string_format(_T("{CALL UPDATE_KNIGHTS_MARK(?, %d, %d, ?)}"), sClanID, sSymbolSize)))
+	if (!dbCommand->Execute(string_format(_T("UPDATE KNIGHTS SET Mark=?, sMarkVersion = sMarkVersion + 1, sMarkLen=%d WHERE IDNum=%d"), sSymbolSize, sClanID)))
+	{
 		ReportSQLError(m_GameDB->GetError());
+		return false;
+	}
 
-	return (nRet == 1);
+	return true;
 }
 
 /**
@@ -1488,7 +1492,7 @@ void CDBAgent::DeleteLetter(string & strCharID, uint32 nLetterID)
 
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
 	// NOTE: The official implementation passes all 5 letter IDs.
-	if (!dbCommand->Execute(string_format(_T("{CALL MAIL_BOX_DELETE_LETTER(?, %d)}"), nLetterID)))
+	if (!dbCommand->Execute(string_format(_T("UPDATE MAIL_BOX SET bDeleted = 1 WHERE id = %d AND strRecipientID = ?"), nLetterID)))
 		ReportSQLError(m_GameDB->GetError());
 }
 
