@@ -100,7 +100,7 @@ struct _TargetHealer
 class MAP;
 
 struct __Vector3;
-class CNpc  
+class CNpc
 {
 public:
 	INLINE CNpcTable * GetProto() { return m_proto; }

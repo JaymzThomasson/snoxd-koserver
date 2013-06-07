@@ -285,10 +285,10 @@ bool MAP::LoadRoomEvent()
 				}
 
 				t_index += ParseSpace( temp, buf + t_index );	nation = atoi( temp );
-				if( nation == KARUS_ZONE )	{
+				if( nation == KARUS )	{
 					m_sKarusRoom++;
 				}
-				else if( nation == ELMORAD_ZONE )	{
+				else if( nation == ELMORAD )	{
 					m_sElmoradRoom++;
 				}
 			}

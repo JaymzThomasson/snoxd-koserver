@@ -668,7 +668,7 @@ void CGameSocket::RecvBattleEvent(Packet & pkt)
 		CNpc *pNpc = g_pMain->m_arNpc.GetData(i);
 		if (pNpc == nullptr)
 			continue;
-		if (pNpc->m_proto->m_tNpcType > 10 && (pNpc->m_byGroup == KARUS_ZONE || pNpc->m_byGroup == ELMORAD_ZONE))
+		if (pNpc->m_proto->m_tNpcType > 10 && (pNpc->m_byGroup == KARUS || pNpc->m_byGroup == ELMORAD))
 		{
 			if (bEvent == BATTLEZONE_OPEN || bEvent == BATTLEZONE_CLOSE)
 				pNpc->ChangeAbility(bEvent);

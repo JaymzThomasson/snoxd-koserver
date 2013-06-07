@@ -3,9 +3,7 @@
 //
 //	Defines About Communication
 //
-#define AI_KARUS_SOCKET_PORT		10020
-#define AI_ELMO_SOCKET_PORT			10030
-#define AI_BATTLE_SOCKET_PORT		10040
+#define AI_SERVER_PORT		10020
 #define MAX_SOCKET					100
 #define CLIENT_SOCKSIZE		10
 #define MAX_PATH_LINE		100
@@ -14,13 +12,6 @@
 #define MAX_WEAPON_NAME_SIZE	40
 #define VIEW_DIST			48		// 가시거리
 #define MAX_UPGRADE_WEAPON	12
-
-///////////////// NATION ///////////////////////////////////
-//
-#define UNIFY_ZONE			0
-#define KARUS_ZONE			1
-#define ELMORAD_ZONE		2
-#define BATTLE_ZONE			3
 
 //enum MOVE_SPEED {SPEED_SLOW=0, SPEED_NORMAL, SPEED_FAST};
 //enum USER_TYPE {TYPE_USER=0, TYPE_MONSTER, TYPE_NPC, TYPE_DOOR, TYPE_GUARD};
