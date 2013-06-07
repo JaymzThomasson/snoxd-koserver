@@ -92,8 +92,7 @@ uint8 CMagicProcess::ExecuteType1(int magicid, int tid, int data1, int data2, in
 	//TRACE("magictype1 ,, magicid=%d, damage=%d\n", magicid, damage);
 
 //	if (damage > 0) {
-		CNpc* pNpc = nullptr ;      // Pointer initialization!
-		pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
+		CNpc* pNpc = g_pMain->m_arNpc.GetData(tid);
 		if(pNpc == nullptr || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
 			bResult = 0;
 			goto packet_send;
@@ -131,8 +130,7 @@ uint8 CMagicProcess::ExecuteType2(int magicid, int tid, int data1, int data2, in
 	result << magicid << m_pSrcUser->m_iUserId << tid << data1;
 
 	if (damage > 0){
-		CNpc* pNpc = nullptr ;      // Pointer initialization!
-		pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
+		CNpc* pNpc = g_pMain->m_arNpc.GetData(tid);
 		if(pNpc == nullptr || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
 			bResult = 0;
 			goto packet_send;
@@ -184,7 +182,7 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 			return;
 	}
 
-	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
+	pNpc = g_pMain->m_arNpc.GetData(tid);
 	if(pNpc == nullptr || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
 		bResult = false;
 		goto packet_send;
@@ -290,7 +288,7 @@ void CMagicProcess::ExecuteType4(int magicid, int sid, int tid, int data1, int d
 		goto fail_return;
 	}
 
-	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
+	pNpc = g_pMain->m_arNpc.GetData(tid);
 	if(pNpc == nullptr || pNpc->m_NpcState == NPC_DEAD || pNpc->m_iHP == 0)	{
 		sResult = 0;
 		goto fail_return;
@@ -365,8 +363,7 @@ short CMagicProcess::GetMagicDamage(int tid, int total_hit, int attribute, int d
 
 	if( tid < NPC_BAND || tid > INVALID_BAND) return 0;     // Check if target id is valid.
 
-	CNpc* pNpc = nullptr;              
-	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
+	CNpc* pNpc = g_pMain->m_arNpc.GetData(tid);
 	if (pNpc == nullptr || pNpc->isDead()
 		|| pNpc->isNonAttackingObject())
 		return 0;
@@ -547,7 +544,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 	{
 		int nid = pNpcIDList[i];
 		if( nid < NPC_BAND ) continue;
-		pNpc = (CNpc*)g_pMain->m_arNpc.GetData(nid - NPC_BAND);
+		pNpc = g_pMain->m_arNpc.GetData(nid);
 
 		if (pNpc == nullptr || pNpc->m_NpcState == NPC_DEAD)
 			continue;
@@ -559,8 +556,9 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 		if(fDis > fRadius)
 			continue;
 
-		if(magictype == 3)	{	// Å¸ÀÙ 3ÀÏ °æ¿ì...
-			damage = GetMagicDamage(pNpc->m_sNid+NPC_BAND, target_damage, attribute, dexpoint, righthand_damage);
+		if (magictype == 3)
+		{
+			damage = GetMagicDamage(pNpc->GetID(), target_damage, attribute, dexpoint, righthand_damage);
 			TRACE("Area magictype3 ,, magicid=%d, damage=%d\n", magicid, damage);
 			if(damage >= 0)	{
 				bResult = pNpc->SetHMagicDamage(damage);
@@ -571,10 +569,10 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 				else attack_type = magicid;
 
 				if(pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_iUserId + USER_BAND) == false)	{
-					m_pSrcUser->SendAttackSuccess(pNpc->m_sNid+NPC_BAND, MAGIC_ATTACK_TARGET_DEAD, damage, pNpc->m_iHP);
+					m_pSrcUser->SendAttackSuccess(pNpc->GetID(), MAGIC_ATTACK_TARGET_DEAD, damage, pNpc->m_iHP);
 				}
 				else	{
-					m_pSrcUser->SendAttackSuccess(pNpc->m_sNid+NPC_BAND, ATTACK_SUCCESS, damage, pNpc->m_iHP);
+					m_pSrcUser->SendAttackSuccess(pNpc->GetID(), ATTACK_SUCCESS, damage, pNpc->m_iHP);
 				}
 			}
 
@@ -582,7 +580,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 			//if ( pMagic->bType[1] == 0 || pMagic->bType[1] == 3 ) 
 			{
 				Packet result(AG_MAGIC_ATTACK_RESULT, uint8(MAGIC_EFFECTING));
-				result	<< magicid << m_pSrcUser->m_iUserId << uint16(pNpc->m_sNid+NPC_BAND)
+				result	<< magicid << m_pSrcUser->m_iUserId << pNpc->GetID()
 						<< uint16(data1) << uint16(bResult) << uint16(data3)
 						<< uint16(moral) << uint16(0) << uint16(0);
 				g_pMain->Send(&result);
@@ -633,7 +631,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 			TRACE("Area magictype4 ,, magicid=%d\n", magicid);
 
 			Packet result(AG_MAGIC_ATTACK_RESULT, uint8(MAGIC_EFFECTING));
-			result	<< magicid << m_pSrcUser->m_iUserId << uint16(pNpc->m_sNid+NPC_BAND)
+			result	<< magicid << m_pSrcUser->m_iUserId << pNpc->GetID()
 					<< uint16(data1) << uint16(bResult) << uint16(data3)
 					<< uint16(0) << uint16(0) << uint16(0);
 			g_pMain->Send(&result);

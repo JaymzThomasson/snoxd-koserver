@@ -34,8 +34,6 @@ uint32 THREADCALL NpcThreadProc(void * pParam /* CNpcThread ptr */)
 
 				//if((pNpc->m_proto->m_tNpcType == NPCTYPE_DOOR || pNpc->m_proto->m_tNpcType == NPCTYPE_ARTIFACT || pNpc->m_proto->m_tNpcType == NPCTYPE_PHOENIX_GATE || pNpc->m_proto->m_tNpcType == NPCTYPE_GATE_LEVER) && !pNpc->m_bFirstLive) continue;
 				//if( pNpc->m_bFirstLive ) continue;
-				if( pNpc->m_sNid < 0 ) continue;		// 잘못된 몬스터 (임시코드 2002.03.24)
-
 				dwTickTime = fTime2 - pNpc->m_fDelayTime;
 
 				if(pNpc->m_Delay > (int)dwTickTime && !pNpc->m_bFirstLive && pNpc->m_Delay != 0) 

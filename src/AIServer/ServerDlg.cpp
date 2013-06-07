@@ -275,7 +275,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 
 		if (pNpcTable == nullptr)
 		{
-			printf("NPC %d not found in %s table.\n", pNpc->m_sNid, bMonster ? "K_MONSTER" : "K_NPC");
+			printf("NPC %d not found in %s table.\n", sSid, bMonster ? "K_MONSTER" : "K_NPC");
 			delete pNpc;
 			return false;
 		}
@@ -325,7 +325,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 		{
 			pNpc->m_byMoveType = 1;
 			TRACE("##### ServerDlg:CreateNpcThread - Path type Error :  nid=%d, sid=%d, name=%s, acttype=%d, path=%d #####\n", 
-				pNpc->m_sNid+NPC_BAND, pNpc->m_proto->m_sSid, pNpc->GetName().c_str(), pNpc->m_byMoveType, pNpc->m_sMaxPathCount);
+				pNpc->GetID(), pNpc->m_proto->m_sSid, pNpc->GetName().c_str(), pNpc->m_byMoveType, pNpc->m_sMaxPathCount);
 		}
 
 		if (bDotCnt > 0)
@@ -379,15 +379,15 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 			return false;
 		}
 
-		if (!m_arNpc.PutData(pNpc->m_sNid, pNpc))
+		if (!m_arNpc.PutData(pNpc->GetID(), pNpc))
 		{
 			--m_TotalNPC;
-			TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
+			TRACE("Npc PutData Fail - %d\n", pNpc->GetID());
 			delete pNpc;
 			continue;
 		}
 
-		pNpc->SetUid(pNpc->GetX(), pNpc->GetZ(), pNpc->m_sNid + NPC_BAND);
+		pNpc->SetUid(pNpc->GetX(), pNpc->GetZ(), pNpc->GetID());
 
 		if (pNpc->GetMap()->m_byRoomEvent > 0 && pNpc->m_byDungeonFamily > 0)
 		{
@@ -401,12 +401,12 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 
 			// this is why their CSTLMap class sucks.
 			int *pInt = new int;
-			*pInt = pNpc->m_sNid;
-			if (!pRoom->m_mapRoomNpcArray.PutData(pNpc->m_sNid, pInt))
+			*pInt = pNpc->GetID();
+			if (!pRoom->m_mapRoomNpcArray.PutData(*pInt, pInt))
 			{
 				delete pInt;
 				TRACE("### Map - Room Array MonsterNid Fail : nid=%d, sid=%d ###\n", 
-				pNpc->m_sNid, pNpc->m_proto->m_sSid);
+				pNpc->GetID(), pNpc->m_proto->m_sSid);
 			}
 		}
 	}
@@ -682,10 +682,10 @@ bool CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
 	pNpc->m_pZone = pMap;
 
 	if (pNpc->GetMap() == nullptr
-		|| !m_arNpc.PutData(pNpc->m_sNid, pNpc))
+		|| !m_arNpc.PutData(pNpc->GetID(), pNpc))
 	{
 		m_sMapEventNpc--;
-		TRACE("Npc PutData Fail - %d\n", pNpc->m_sNid);
+		TRACE("Npc PutData Fail - %d\n", pNpc->GetID());
 		delete pNpc;
 		return false;
 	}
