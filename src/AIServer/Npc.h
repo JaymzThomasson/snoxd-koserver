@@ -379,7 +379,6 @@ public:
 	void ChangeNTarget(CNpc *pNpc);
 	int GetFinalDamage(CUser *pUser, int type = 1);
 	int GetNFinalDamage(CNpc *pNpc);
-	uint8 GetHitRate(float rate);
 	bool ResetPath();
 	bool GetTargetPos(float& x, float& z);
 	bool IsChangePath();
