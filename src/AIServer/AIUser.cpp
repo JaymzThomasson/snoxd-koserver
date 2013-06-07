@@ -64,7 +64,7 @@ void CUser::Initialize()
 
 void CUser::Attack(int sid, int tid)
 {
-	CNpc* pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
+	CNpc* pNpc = g_pMain->m_arNpc.GetData(tid);
 	if(pNpc == nullptr)	return;
 	if(pNpc->m_NpcState == NPC_DEAD) return;
 	if(pNpc->m_iHP == 0) return;
@@ -262,7 +262,7 @@ short CUser::GetDamage(int tid, int magicid)
 
 	if (tid < NPC_BAND || tid > INVALID_BAND)	return damage;
 	CNpc* pNpc = nullptr;
-	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
+	pNpc = g_pMain->m_arNpc.GetData(tid);
 	if (pNpc == nullptr
 		|| pNpc->isNonAttackingObject())
 		return damage;
@@ -369,8 +369,7 @@ short CUser::GetMagicDamage(int damage, short tid)
 	short total_r = 0;
 	short temp_damage = 0;
 
-	CNpc* pNpc = nullptr;
-	pNpc = g_pMain->m_arNpc.GetData(tid-NPC_BAND);
+	CNpc* pNpc = g_pMain->m_arNpc.GetData(tid);
 	if(!pNpc) return damage;
 	
 	if (m_bMagicTypeRightHand > 4 && m_bMagicTypeRightHand < 8) {
@@ -644,7 +643,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 	for(int i = 0 ; i < total_mon; i++ ) {
 		int nid = pNpcIDList[i];
 		if( nid < NPC_BAND ) continue;
-		pNpc = (CNpc*)g_pMain->m_arNpc.GetData(nid - NPC_BAND);
+		pNpc = g_pMain->m_arNpc.GetData(nid);
 
 		if( pNpc != nullptr && pNpc->m_NpcState != NPC_DEAD)	{
 			if( m_bNation == pNpc->m_byGroup ) continue;

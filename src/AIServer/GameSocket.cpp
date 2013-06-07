@@ -424,7 +424,7 @@ void CGameSocket::RecvNpcHpChange(Packet & pkt)
 	int16 nid, sAttackerID;
 	int32 nHP, nAmount;
 	pkt >> nid >> sAttackerID >> nHP >> nAmount;
-	CNpc * pNpc = g_pMain->m_arNpc.GetData(nid - NPC_BAND);
+	CNpc * pNpc = g_pMain->m_arNpc.GetData(nid);
 	if (pNpc == nullptr)
 		return;
 
@@ -545,8 +545,7 @@ void CGameSocket::RecvGateOpen(Packet & pkt)
 		return;
 	}
 
-	CNpc* pNpc = nullptr;
-	pNpc = g_pMain->m_arNpc.GetData(nid);
+	CNpc* pNpc = g_pMain->m_arNpc.GetData(nid);
 	if(pNpc == nullptr)		return;
 
 	if (!pNpc->isGate()) 
@@ -662,12 +661,13 @@ void CGameSocket::RecvBattleEvent(Packet & pkt)
 			g_pMain->ResetBattleZone();
 	}
 
-	int nSize = g_pMain->m_arNpc.GetSize();
-	for (int i = 0; i < nSize; i++)
+	FastGuard lock(g_pMain->m_arNpc.m_lock);
+	foreach_stlmap (itr, g_pMain->m_arNpc)
 	{
-		CNpc *pNpc = g_pMain->m_arNpc.GetData(i);
+		CNpc *pNpc = itr->second;
 		if (pNpc == nullptr)
 			continue;
+
 		if (pNpc->m_proto->m_tNpcType > 10 && (pNpc->m_byGroup == KARUS || pNpc->m_byGroup == ELMORAD))
 		{
 			if (bEvent == BATTLEZONE_OPEN || bEvent == BATTLEZONE_CLOSE)

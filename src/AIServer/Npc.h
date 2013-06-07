@@ -176,7 +176,7 @@ public:
 	uint8	m_NpcState;			// NPC의 상태 - 살았다, 죽었다, 서있다 등등...
 	MAP *	m_pZone;
 
-	short	m_sNid;				// NPC (서버상의)일련번호
+	short	m_sNid;
 
 	float		m_nInitX;			// 처음 생성된 위치 X
 	float		m_nInitY;			// 처음 생성된 위치 Y
