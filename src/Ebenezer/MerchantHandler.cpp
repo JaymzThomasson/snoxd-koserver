@@ -532,7 +532,7 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 
 	// Do they have enough coins?
 	nPrice = pWantedItem->nPrice * sStackSize;
-	if (nPrice > pMerchant->m_iGold)
+	if (!pMerchant->hasCoins(nPrice))
 		return;
 
 	// Now find the buyer a home for their item
@@ -541,6 +541,7 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 		return;
 
 	_ITEM_DATA *pMerchantItem = pMerchant->GetItem(bDstPos);
+
 	// Take coins off the buying merchant
 	if (!pMerchant->GoldLose(nPrice))
 		return;
@@ -556,6 +557,13 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 	pMerchantItem->sDuration = pSellerItem->sDuration;
 	pSellerItem->sCount -= sStackSize;
 	pMerchantItem->sCount += sStackSize;
+
+	// Update how many items the buyer still needs.
+	pWantedItem->sCount -= sStackSize;
+
+	// If the buyer needs no more, remove this item from the wanted list.
+	if (pWantedItem->sCount == 0)
+		memset(pWantedItem, 0, sizeof(_MERCH_DATA));
 
 	// If the seller's all out, remove their item.
 	if (pSellerItem->sCount == 0)
