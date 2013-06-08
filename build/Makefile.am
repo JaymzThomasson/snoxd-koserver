@@ -41,6 +41,7 @@ libsnoxdko_shared_la_SOURCES = \
 	../src/shared/SMDFile.cpp \
 	../src/shared/TimeThread.cpp \
 	../src/shared/ReferenceObject.cpp \
+	../src/shared/signal_handler.cpp \
 	../src/N3BASE/N3ShapeMgr.cpp
 
 ###########################

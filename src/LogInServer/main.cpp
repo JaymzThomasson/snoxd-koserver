@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "../shared/signal_handler.h"
 
 LoginServer * g_pMain;
 static Condition s_hEvent;
@@ -14,9 +15,9 @@ int main()
 #ifdef WIN32
 	// Override the console handler
 	SetConsoleCtrlHandler(_ConsoleHandler, TRUE);
-#else
-	/* TO-DO: Signals */
 #endif
+
+	HookSignals(&s_hEvent);
 
 	g_pMain = new LoginServer();
 
@@ -38,6 +39,7 @@ int main()
 	printf("Server shutting down, please wait...\n");
 
 	delete g_pMain;
+	UnhookSignals();
 
 	return 0;
 }

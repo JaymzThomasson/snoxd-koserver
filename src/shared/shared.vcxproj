@@ -224,6 +224,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-XP|Win32'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="signal_handler.cpp" />
     <ClCompile Include="SMDFile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-XP|Win32'">Use</PrecompiledHeader>
@@ -297,6 +298,7 @@
     <ClInclude Include="Packet.h" />
     <ClInclude Include="ReferenceObject.h" />
     <ClInclude Include="RWLock.h" />
+    <ClInclude Include="signal_handler.h" />
     <ClInclude Include="SMDFile.h" />
     <ClInclude Include="Socket.h" />
     <ClInclude Include="SocketDefines.h" />

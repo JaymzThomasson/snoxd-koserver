@@ -71,6 +71,7 @@
     <ClCompile Include="Thread.cpp">
       <Filter>Threading</Filter>
     </ClCompile>
+    <ClCompile Include="signal_handler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CircularBuffer.h">
@@ -146,5 +147,6 @@
     <ClInclude Include="Atomic.h">
       <Filter>Threading</Filter>
     </ClInclude>
+    <ClInclude Include="signal_handler.h" />
   </ItemGroup>
 </Project>
