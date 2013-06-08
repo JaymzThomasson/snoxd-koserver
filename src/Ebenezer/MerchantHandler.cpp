@@ -573,7 +573,7 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 
 	// Update players
 	SendStackChange(pSellerItem->nNum, pSellerItem->sCount, pSellerItem->sDuration, bSellerSrcSlot);
-	pMerchant->SendStackChange(pMerchantItem->nNum, pMerchantItem->sCount, pMerchantItem->sDuration, bDstPos,
+	pMerchant->SendStackChange(pMerchantItem->nNum, pMerchantItem->sCount, pMerchantItem->sDuration, bDstPos - SLOT_MAX,
 		pMerchantItem->sCount == sStackSize); 	// if the buying merchant only has what they wanted, it's a new item.
 												// (otherwise it was a stackable item that was merged into an existing slot)
 
@@ -587,7 +587,7 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 			<< bMerchantListSlot;
 	Send(&result);
 
-	if (bMerchantListSlot < 4 && sRemainingStackSize == 0)
+	if (bMerchantListSlot < 4 && pWantedItem->sCount == 0)
 	{
 		result.Initialize(WIZ_MERCHANT_INOUT);
 		result << uint8(2) << m_sMerchantsSocketID << uint16(bMerchantListSlot);
