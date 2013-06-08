@@ -4,6 +4,7 @@
 *.o
 *.obj
 *.lib
+*.enc
 
 # Compiled Dynamic libraries
 *.so
