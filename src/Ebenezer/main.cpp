@@ -2,6 +2,7 @@
 #include "../shared/Condition.h"
 #include "EbenezerDlg.h"
 #include "ConsoleInputThread.h"
+#include "../shared/signal_handler.h"
 
 CEbenezerDlg * g_pMain;
 static Condition s_hEvent;
@@ -20,9 +21,9 @@ int main()
 #ifdef WIN32
 	// Override the console handler
 	SetConsoleCtrlHandler(_ConsoleHandler, TRUE);
-#else
-	/* TO-DO: Signals */
 #endif
+
+	HookSignals(&s_hEvent);
 
 	// Start up the time updater thread
 	StartTimeThread();
@@ -57,6 +58,7 @@ int main()
 
 	CleanupTimeThread();
 	CleanupConsoleInputThread();
+	UnhookSignals();
 
 	return 0;
 }

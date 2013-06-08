@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "../shared/signal_handler.h"
 
 CServerDlg * g_pMain;
 static Condition s_hEvent;
@@ -16,9 +17,9 @@ int main()
 #ifdef WIN32
 	// Override the console handler
 	SetConsoleCtrlHandler(_ConsoleHandler, TRUE);
-#else
-	/* TO-DO: Signals */
 #endif
+
+	HookSignals(&s_hEvent);
 
 	// Start up the time updater thread
 	StartTimeThread();
@@ -49,6 +50,7 @@ int main()
 	delete g_pMain;
 
 	CleanupTimeThread();
+	UnhookSignals();
 
 	return 0;
 }
