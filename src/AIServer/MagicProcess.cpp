@@ -225,8 +225,8 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 		}
 		else if ( pType->bDirectType == 2 || pType->bDirectType == 3 )    // Magic or Skill Point related !
 			pNpc->MSpChange(pType->bDirectType, pType->sFirstDamage);     // Change the SP or the MP of the target.
-		else if( pType->bDirectType == 4 )     // Armor Durability related.
-			pNpc->ItemWoreOut( DEFENCE, pType->sFirstDamage);     // Reduce Slot Item Durability
+		// else if( pType->bDirectType == 4 )     // Armor Durability related.
+		//	pNpc->ItemWoreOut( DEFENCE, pType->sFirstDamage);     // Reduce Slot Item Durability
 	}
 	else if (pType->bDuration != 0)   {  // Durational Spells! Remember, durational spells only involve HPs.
 		if(damage >= 0)	{

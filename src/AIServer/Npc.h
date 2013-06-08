@@ -446,7 +446,6 @@ public:
 	void MoveAttack();
 	void HpChange();
 	void MSpChange(int type, int amount);
-	void ItemWoreOut( int type, int damage );
 	int	 ItemProdution(int item_number);
 	int  GetItemGrade(int item_grade);
 	int  GetItemCodeNumber(int level, int item_type);
