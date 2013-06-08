@@ -506,6 +506,10 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 
 	pkt >> bSellerSrcSlot >> bMerchantListSlot >> sStackSize;
 
+	if (bSellerSrcSlot >= HAVE_MAX
+		|| bMerchantListSlot >= MAX_MERCH_ITEMS)
+		return;
+
 	_MERCH_DATA *pWantedItem = &pMerchant->m_arMerchantItems[bMerchantListSlot];
 	_ITEM_DATA *pSellerItem = GetItem(SLOT_MAX + bSellerSrcSlot);
 
