@@ -517,7 +517,10 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 	// and that they want enough, and the selling user has enough
 	if (pWantedItem->nNum != pSellerItem->nNum
 		|| pWantedItem->sCount < sStackSize
-		|| pSellerItem->sCount < sStackSize)
+		|| pSellerItem->sCount < sStackSize
+		// For scrolls, this will ensure you can only sell a full stack of scrolls.
+		// For everything else, this will ensure you cannot sell items that need repair.
+		|| pSellerItem->sDuration != pWantedItem->sDuration)
 		return;
 
 	// If it's not stackable, and we're specifying something other than 1
