@@ -3,35 +3,42 @@
 #include "MagicProcess.h"
 
 #include "Extern.h"
+
 #include "../shared/STLMap.h"
+#include "../Ebenezer/Unit.h"
 
 class MAP;
-class CUser  
+class CUser : public Unit
 {
 public:
 	CMagicProcess m_MagicProcess;
 
-	INLINE std::string & GetName() { return m_strUserID; }
+	virtual uint16 GetID() { return m_iUserId; }
+	virtual std::string & GetName() { return m_strUserID; }
 
-	INLINE uint8 GetNation() { return m_bNation; }
-	INLINE uint8 GetLevel() { return m_bLevel; }
+	virtual int32 GetHealth() { return m_sHP; }
+	virtual int32 GetMaxHealth() { return m_sMaxHP; }
+	virtual int32 GetMana() { return m_sMP; }
+	virtual int32 GetMaxMana() { return m_sMaxMP; }
+
+	virtual void GetInOut(Packet &, uint8) {}
+	virtual void AddToRegion(int16 sRegionX, int16 sRegionZ) {}
+
+	virtual void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToAI = true) {}
+	virtual void MSpChange(int amount) {}
+
+	virtual bool isDead() { return m_bLive == AI_USER_DEAD || GetHealth() <= 0; }
 
 	std::string m_strUserID;
 	short	m_iUserId;					// User의 번호
 	uint8	m_bLive;					// 죽었니? 살았니?
 
-	float			m_curx;				// 현재 X 좌표
-	float			m_cury;				// 현재 Y 좌표
-	float			m_curz;				// 현재 Z 좌표
 	float			m_fWill_x;			// 다음 X 좌표
 	float			m_fWill_y;			// 다음 Y 좌표
 	float			m_fWill_z;			// 다음 Z 좌표
 	short			m_sSpeed;			// 유저의 스피드	
 	uint8 			m_curZone;			// 현재 존
 	MAP *			m_pMap;
-
-	uint8	m_bNation;						// 소속국가
-	uint8	m_bLevel;						// 레벨
 
 	short	m_sHP;							// HP
 	short	m_sMP;							// MP
