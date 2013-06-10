@@ -1210,18 +1210,13 @@ bool CNpc::RandomBackMove()
 
 bool CNpc::IsInPathRange()
 {
-	float fPathRange = 40.0f;	// 오차 패스 범위 
-	__Vector3 vStart, vEnd;
-	float fDistance = 0.0f;
-	vStart.Set(GetX(), GetY(), GetZ());
-	if(m_sPathCount < 0)	return false;
-	vEnd.Set((float)m_PathList.pPattenPos[m_sPathCount].x + m_fBattlePos_x, 0, (float)m_PathList.pPattenPos[m_sPathCount].z + m_fBattlePos_z);
-	fDistance = GetDistance(vStart, vEnd);
+	if (m_sPathCount < 0)	
+		return false;
 
-	if((int)fDistance <= (int)fPathRange+1)
-		return true;
-
-	return false;
+	static const float fPathRange = 40.0f;
+	return isInRangeSlow((float)m_PathList.pPattenPos[m_sPathCount].x + m_fBattlePos_x, 
+						(float)m_PathList.pPattenPos[m_sPathCount].z + m_fBattlePos_z,
+						fPathRange + 1);
 }
 
 int CNpc::GetNearPathPoint()
@@ -1679,48 +1674,44 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 		foreach_stlmap (itr, pRegion->m_RegionUserArray)
 		{
 			CUser *pUser = g_pMain->GetUserPtr(*itr->second);
-			if( pUser != nullptr && pUser->m_bLive == AI_USER_LIVE)	{
-				// 같은 국가의 유저는 공격을 하지 않도록 한다...
-				if (GetNation() == pUser->m_bNation
-					|| pUser->m_bInvisibilityType
-					|| pUser->m_byIsOP == MANAGER_USER)
-					continue;
+			if (pUser == nullptr 
+				|| pUser->isDead()
+				|| GetNation() == pUser->GetNation()
+				|| pUser->m_bInvisibilityType
+				|| pUser->m_byIsOP == MANAGER_USER)
+				continue;
 
-				vUser.Set(pUser->GetX(), pUser->GetY(), pUser->GetZ()); 
-				fDis = GetDistance(vUser, vNpc);
+			float fDis = Unit::GetDistance(pUser);
+			if (fDis > pow(fSearchRange, 2.0f)
+				|| fDis < pow(fComp, 2.0f))
+				continue;
 
-				// 작업 : 여기에서 나의 공격거리에 있는 유저인지를 판단
-				if(fDis <= fSearchRange)	{
-					if(fDis >= fComp)	{	// 
-						target_uid = pUser->m_iUserId;
-						fComp = fDis;
+			target_uid = pUser->m_iUserId;
+			fComp = fDis;
 
-						//후공몹...
-						if(!m_tNpcAttType)	{	// 날 공격한 놈을 찾는다.
-							if(IsDamagedUserList(pUser) || (m_tNpcGroupType && m_Target.id == target_uid))	{
-								m_Target.id	= target_uid;
-								m_Target.bSet = true;
-								m_Target.failCount = 0;
-								m_Target.x	= pUser->GetX();
-								m_Target.y	= pUser->GetY();
-								m_Target.z	= pUser->GetZ();
-							}
-						}
-						else	{	// 선공몹...
-							iLevelComprison = pUser->m_bLevel - m_proto->m_sLevel;
-							// 작업할 것 : 타입에 따른 공격성향으로..
-							//if(iLevelComprison > ATTACK_LIMIT_LEVEL)	continue;
+			//후공몹...
+			if(!m_tNpcAttType)	{	// 날 공격한 놈을 찾는다.
+				if(IsDamagedUserList(pUser) || (m_tNpcGroupType && m_Target.id == target_uid))	{
+					m_Target.id	= target_uid;
+					m_Target.bSet = true;
+					m_Target.failCount = 0;
+					m_Target.x	= pUser->GetX();
+					m_Target.y	= pUser->GetY();
+					m_Target.z	= pUser->GetZ();
+				}
+			}
+			else	{	// 선공몹...
+				iLevelComprison = pUser->m_bLevel - m_proto->m_sLevel;
+				// 작업할 것 : 타입에 따른 공격성향으로..
+				//if(iLevelComprison > ATTACK_LIMIT_LEVEL)	continue;
 
-							m_Target.id	= target_uid;
-							m_Target.bSet = true;
-							m_Target.failCount = 0;
-							m_Target.x	= pUser->GetX();
-							m_Target.y	= pUser->GetY();
-							m_Target.z	= pUser->GetZ();
-							//TRACE("Npc-FindEnemyExpand - target_x = %.2f, z=%.2f\n", m_Target.x, m_Target.z);
-						}
-					}
-				}	
+				m_Target.id	= target_uid;
+				m_Target.bSet = true;
+				m_Target.failCount = 0;
+				m_Target.x	= pUser->GetX();
+				m_Target.y	= pUser->GetY();
+				m_Target.z	= pUser->GetZ();
+				//TRACE("Npc-FindEnemyExpand - target_x = %.2f, z=%.2f\n", m_Target.x, m_Target.z);
 			}
 		}
 	}
@@ -3621,26 +3612,10 @@ void CNpc::SendExpToUserList()
 
 bool CNpc::IsCloseTarget(CUser *pUser, int nRange)
 {
-	if(pUser == nullptr)
-	{
-		return false;
-	}
-	if(pUser->m_sHP <= 0 ||/* pUser->m_state != GAME_STATE_INGAME ||*/ pUser->m_bLive == false)
-	{
-		return false;
-	}
-
-	__Vector3 vUser;
-	__Vector3 vNpc;
-	float fDis = 0.0f;
-	vNpc.Set(GetX(), GetY(), GetZ());
-	vUser.Set(pUser->GetX(), pUser->GetY(), pUser->GetZ()); 
-	fDis = GetDistance(vNpc, vUser);
-	
-	// 공격받은 상태기 때문에 2배의 거리감지영역,,
-	if((int)fDis > nRange * 2) return false; 
-
-	//InitTarget();
+	if (pUser == nullptr
+		|| pUser->isDead()
+		|| !isInRangeSlow(pUser, nRange * 2.0f))
+		return false; 
 
 	m_Target.id = pUser->m_iUserId;
 	m_Target.bSet = true;
@@ -3979,8 +3954,6 @@ bool CNpc::GetUserInViewRange(int x, int z)
 
 	FastGuard lock(pMap->m_lock);
 	CRegion * pRegion = &pMap->m_ppRegion[x][z];
-	__Vector3 vStart, vEnd;
-	vStart.Set(GetX(), 0, GetZ());
 	float fDis = 0.0f; 
 
 	foreach_stlmap (itr, pRegion->m_RegionUserArray)
@@ -3989,10 +3962,8 @@ bool CNpc::GetUserInViewRange(int x, int z)
 		if (pUser == nullptr)
 			continue;
 
-		vEnd.Set(pUser->GetX(), 0, pUser->GetZ());
-		fDis = GetDistance(vStart, vEnd);
-		if (fDis <= NPC_VIEW_RANGE)
-			return true;		
+		if (isInRange(pUser, NPC_VIEW_RANGE))
+			return true;
 	}
 	
 	return false;
@@ -4029,44 +4000,22 @@ void CNpc::CalcAdaptivePosition(__Vector3 & vPosOrig, __Vector3 & vPosDest, floa
 	*vResult += vPosDest;
 }
 
-//	현재 몹을 기준으로 한 화면 범위안에 있는지 판단
 void CNpc::IsUserInSight()
 {
-	CUser* pUser = nullptr;
-	// Npc와 User와의 거리가 50미터 안에 있는 사람에게만,, 경험치를 준다..
-	int iSearchRange = NPC_EXP_RANGE;		
-
-	int i,j;
-	__Vector3 vStart, vEnd;
-	float fDis = 0.0f;
-
-	vStart.Set(GetX(), GetY(), GetZ());
-
-	for(j = 0; j < NPC_HAVE_USER_LIST; j++)
-	{
+	for (int j = 0; j < NPC_HAVE_USER_LIST; j++)
 		m_DamagedUserList[j].bIs = false;
-	}
 
-	for(i = 0; i < NPC_HAVE_USER_LIST; i++)
+	for (int i = 0; i < NPC_HAVE_USER_LIST; i++)
 	{
-		pUser = g_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
-		if(pUser == nullptr)	continue;
+		CUser * pUser = g_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
+		if (pUser == nullptr
+			|| !isInRangeSlow(pUser, NPC_EXP_RANGE))
+			continue;
 
-		vEnd.Set(pUser->GetX(), pUser->GetY(), pUser->GetZ());
-		fDis = GetDistance(vStart, vEnd);
-
-		if((int)fDis <= iSearchRange)
+		if (m_DamagedUserList[i].iUid == pUser->m_iUserId)
 		{
-			// 갖고있는 리스트상의 유저와 같다면
-			if(m_DamagedUserList[i].iUid == pUser->m_iUserId)
-			{
-				// 최종 ID를 비교해서 동일하면	
-				if (STRCASECMP(m_DamagedUserList[i].strUserID, pUser->GetName().c_str()) == 0) 
-				{ 
-					// 이때서야 존재한다는 표시를 한다
-					m_DamagedUserList[i].bIs = true;
-				}
-			}
+			if (STRCASECMP(m_DamagedUserList[i].strUserID, pUser->GetName().c_str()) == 0) 
+				m_DamagedUserList[i].bIs = true;
 		}
 	}
 }
@@ -4410,7 +4359,7 @@ bool CNpc::IsInExpRange(CUser* pUser)
 	if (GetZoneID() != pUser->GetZoneID())
 		return false;
 
-	return isInRange(pUser->GetX(), pUser->GetZ(), NPC_EXP_RANGE);
+	return isInRangeSlow(pUser->GetX(), pUser->GetZ(), NPC_EXP_RANGE);
 }
 
 bool CNpc::CheckFindEnemy()

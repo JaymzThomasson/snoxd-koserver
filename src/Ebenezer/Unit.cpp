@@ -66,7 +66,7 @@ void Unit::Initialize()
 // Calculate the distance between 2 2D points.
 float Unit::GetDistance(float fx, float fz)
 {
-	return pow(GetX() - fx, 2.0f) + pow(GetZ() - fz, 2.0f);
+	return GetDistance(GetX(), GetZ(), fx, fz);
 }
 
 // Calculate the 2D distance between Units.
@@ -107,6 +107,21 @@ bool Unit::isInRangeSlow(Unit * pTarget, float fNonSquaredRange)
 bool Unit::isInRangeSlow(float fx, float fz, float fNonSquaredRange)
 {
 	return isInRange(fx, fz, pow(fNonSquaredRange, 2.0f));
+}
+
+float Unit::GetDistance(float fStartX, float fStartZ, float fEndX, float fEndZ)
+{
+	return pow(fStartX - fEndX, 2.0f) + pow(fStartZ - fEndZ, 2.0f);
+}
+
+bool Unit::isInRange(float fStartX, float fStartZ, float fEndX, float fEndZ, float fSquaredRange)
+{
+	return (GetDistance(fStartX, fStartZ, fEndX, fEndZ) <= fSquaredRange);
+}
+
+bool Unit::isInRangeSlow(float fStartX, float fStartZ, float fEndX, float fEndZ, float fNonSquaredRange)
+{
+	return isInRange(fStartX, fStartZ, fEndX, fEndZ, pow(fNonSquaredRange, 2.0f));
 }
 
 #ifdef EBENEZER

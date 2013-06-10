@@ -512,11 +512,6 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 		return;
 	}
 
-
-	__Vector3 vStart, vEnd;
-	CNpc* pNpc = nullptr ;      // Pointer initialization!
-	float fDis = 0.0f;
-	vStart.Set((float)data1, (float)0, (float)data3);
 	int count = 0, total_mon = 0, attack_type=0;
 	bool bResult = true;
 
@@ -531,9 +526,7 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 		if (m_pSrcUser->GetNation() == pNpc->GetNation())
 			continue;
 
-		vEnd.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
-		fDis = pNpc->GetDistance(vStart, vEnd);
-		if (fDis > fRadius)
+		if (!pNpc->isInRangeSlow((float)data1, (float)data3, fRadius))
 			continue;
 
 		if (magictype == 3)

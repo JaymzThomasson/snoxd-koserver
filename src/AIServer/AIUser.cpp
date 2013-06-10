@@ -581,9 +581,6 @@ void CUser::HealAreaCheck(int rx, int rz)
 
 	static const float fRadius = 10.0f; // 30m
 
-	__Vector3 vStart, vEnd;
-	vStart.Set(GetX(), 0.0f, GetZ());
-
 	FastGuard lock(pMap->m_lock);
 	CRegion *pRegion = &pMap->m_ppRegion[rx][rz];
 	foreach_stlmap (itr, pRegion->m_RegionNpcArray)
@@ -593,10 +590,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 			|| GetNation() == pNpc->GetNation())
 			continue;
 
-		vEnd.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
-
-		float fDis = pNpc->GetDistance(vStart, vEnd);
-		if (fDis <= fRadius)	
+		if (isInRangeSlow(pNpc, fRadius))
 			pNpc->ChangeTarget(1004, this);
 	}
 }
