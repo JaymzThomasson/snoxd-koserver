@@ -681,11 +681,8 @@ void CEbenezerDlg::UpdateGameTime()
 	BattleZoneOpenTimer();	// Check if it's time for the BattleZone to open or end.
 
 	// Check timed King events.
-	{ // limited scope, lock will be release outside of scope.
-		FastGuard lock(m_KingSystemArray.m_lock);
-		foreach_stlmap (itr, m_KingSystemArray)
-			itr->second->CheckKingTimer();
-	}
+	foreach_stlmap (itr, m_KingSystemArray)
+		itr->second->CheckKingTimer();
 
 	if( m_nMin == 60 ) {
 		m_nHour++;
@@ -1101,7 +1098,6 @@ void CEbenezerDlg::SendAllUserInfo()
 		result.clear();
 	}
 
-	FastGuard lock(m_PartyArray.m_lock);
 	foreach_stlmap (itr, m_PartyArray)
 	{
 		_PARTY_GROUP *pParty = itr->second;
@@ -1128,7 +1124,7 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 
 	// Remove spawns from users to prevent them from getting bugged...
 	m_arNpcArray.m_lock.Acquire();
-	foreach_stlmap (itr, m_arNpcArray)
+	foreach_stlmap_nolock (itr, m_arNpcArray)
 	{
 		if (itr->second->isAlive())
 			itr->second->SendInOut(INOUT_OUT, 0.0f, 0.0f, 0.0f);
@@ -1142,7 +1138,6 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 	m_arNpcArray.m_lock.Release();
 
 	// Now remove all spawns from all regions
-	FastGuard zoneLock(m_ZoneArray.m_lock);
 	foreach_stlmap (itr, m_ZoneArray)
 	{
 		C3DMap *pMap = itr->second;
@@ -1614,7 +1609,6 @@ void CEbenezerDlg::Send_CommandChat(Packet *pkt, int nation, CUser* pExceptUser)
 
 void CEbenezerDlg::GetCaptainUserPtr()
 {
-	FastGuard lock(m_KnightsArray.m_lock);
 	foreach_stlmap (itr, m_KnightsArray)
 	{
 		CKnights *pKnights = itr->second;

@@ -661,7 +661,6 @@ void CGameSocket::RecvBattleEvent(Packet & pkt)
 			g_pMain->ResetBattleZone();
 	}
 
-	FastGuard lock(g_pMain->m_arNpc.m_lock);
 	foreach_stlmap (itr, g_pMain->m_arNpc)
 	{
 		CNpc *pNpc = itr->second;

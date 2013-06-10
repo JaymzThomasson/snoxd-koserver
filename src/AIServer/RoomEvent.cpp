@@ -199,35 +199,21 @@ bool CRoomEvent::RunEvent( int event_num )
 
 CNpc* CRoomEvent::GetNpcPtr( int sid )
 {
-	int count = 0;
-	
-	int nMonster = m_mapRoomNpcArray.GetSize();
-	if( nMonster == 0 )	{
+	if (m_mapRoomNpcArray.IsEmpty())	
+	{
 		TRACE("### RoomEvent-GetNpcPtr() : monster empty ###\n");
 		return nullptr;
 	}
 
-	FastGuard lock(m_mapRoomNpcArray.m_lock);
-	int *pIDList = new int[nMonster];
 	foreach_stlmap (itr, m_mapRoomNpcArray)
-		pIDList[count++] = *itr->second;
+	{
+		CNpc *pNpc = g_pMain->m_arNpc.GetData(itr->first);
+		if (pNpc == nullptr
+			|| pNpc->GetProto()->m_sSid != sid)
+			continue;
 
-	for(int i=0 ; i<nMonster; i++ ) {
-		int nMonsterid = pIDList[i];
-		if( nMonsterid < 0 )	continue;
-		CNpc *pNpc = g_pMain->m_arNpc.GetData( nMonsterid );
-		if( !pNpc )		continue;
-		if( pNpc->m_proto->m_sSid == sid )	{
-			if(pIDList)	{
-				delete [] pIDList;
-				pIDList = nullptr;
-			}
-			return pNpc;
-		}
+		return pNpc;
 	}
-
-	if (pIDList)
-		delete [] pIDList;
 
 	return nullptr;
 }
@@ -238,42 +224,42 @@ bool  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
 	bool bRetValue = false;
 	
 	int nMonster = m_mapRoomNpcArray.GetSize();
-	if( nMonster == 0 )	{
+	if (nMonster == 0)
+	{
 		TRACE("### RoomEvent-GetNpcPtr() : monster empty ###\n");
 		return nullptr;
 	}
 	
-	m_mapRoomNpcArray.m_lock.Acquire();
-	int *pIDList = new int[nMonster];
 	foreach_stlmap (itr, m_mapRoomNpcArray)
-		pIDList[nTotalMonster++] = *itr->second;
-	m_mapRoomNpcArray.m_lock.Release();
+	{
+		CNpc *pNpc = g_pMain->m_arNpc.GetData(itr->first);
+		if (pNpc == nullptr)
+			continue;
 
-	for(int i=0 ; i<nMonster; i++ ) {
-		CNpc *pNpc = g_pMain->m_arNpc.GetData(pIDList[i]);
-		if( !pNpc )		continue;
-		if( type == 4 )	{
-			if( pNpc->m_byRegenType == 2 )	pNpc->m_byRegenType = 0;
+		if (type == 4)
+		{
+			if (pNpc->m_byRegenType == 2)	pNpc->m_byRegenType = 0;
 			pNpc->m_byChangeType = 0;
 		}
-		else if( type == 3 )	{				// 모든 몬스터를 죽었는지를 판단
-			if( pNpc->m_byDeadType == 100 )	nMonsterCount++;
-			if( nMonsterCount == nMonster )	bRetValue = true;
+		else if (type == 3)
+		{
+			if (pNpc->m_byDeadType == 100)	nMonsterCount++;
+			if (nMonsterCount == nMonster)	bRetValue = true;
 		}
-		else	if( pNpc->m_proto->m_sSid == sid )	{
-			if( type == 1 )	{					// 특정 몬스터가 마리수 만큼 죽었는지를 판단
-				if( pNpc->m_byChangeType == 100 )	nMonsterCount++;
-				if( nMonsterCount == count )	bRetValue = true;
+		else if (pNpc->GetProto()->m_sSid == sid)
+		{
+			if (type == 1)
+			{
+				if (pNpc->m_byChangeType == 100)	nMonsterCount++;
+				if (nMonsterCount == count)			bRetValue = true;
 			}
-			else if( type == 2 )	{			// 특정 몬스터를 마리수 만큼 출현 시켜라,,
-				pNpc->m_byChangeType = 3;	nMonsterCount++;
-				if( nMonsterCount == count )	bRetValue = true;
+			else if (type == 2)
+			{
+				pNpc->m_byChangeType = 3;		nMonsterCount++;
+				if (nMonsterCount == count)		bRetValue = true;
 			}
 		}
 	}
-
-	if (pIDList)
-		delete [] pIDList;
 
 	return bRetValue;
 }
@@ -284,7 +270,7 @@ void CRoomEvent::InitializeRoom()
 	m_tDelayTime = 0;
 	m_byLogicNumber = 1;
 
-	CheckMonsterCount( 0, 0, 4);	// 몬스터의 m_byChangeType=0으로 초기화 
+	CheckMonsterCount(0, 0, 4);	// 몬스터의 m_byChangeType=0으로 초기화 
 }
 
 void CRoomEvent::EndEventSay( int option1, int option2 )

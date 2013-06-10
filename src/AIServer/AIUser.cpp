@@ -618,44 +618,31 @@ void CUser::HealAreaCheck(int rx, int rz)
 {
 	MAP* pMap = GetMap();
 	if (pMap == nullptr) return;
-	// 자신의 region에 있는 NpcArray을 먼저 검색하여,, 가까운 거리에 Monster가 있는지를 판단..
-	if(rx < 0 || rz < 0 || rx > pMap->GetXRegionMax() || rz > pMap->GetZRegionMax())	{
+
+	if (rx < 0 || rz < 0 || rx > pMap->GetXRegionMax() || rz > pMap->GetZRegionMax())	
+	{
 		TRACE("#### CUser-HealAreaCheck() Fail : [nid=%d, name=%s], nRX=%d, nRZ=%d #####\n", m_iUserId, m_strUserID, rx, rz);
 		return;
 	}
 
-	float fRadius = 10.0f;				// 30m
+	static const float fRadius = 10.0f; // 30m
 
 	__Vector3 vStart, vEnd;
-	CNpc* pNpc = nullptr ;      // Pointer initialization!
-	float fDis = 0.0f;
 	vStart.Set(m_curx, (float)0, m_curz);
-	int send_index=0, result = 1, count = 0; 
 
-	pMap->m_lock.Acquire();
+	FastGuard lock(pMap->m_lock);
 	CRegion *pRegion = &pMap->m_ppRegion[rx][rz];
-	int total_mon = pRegion->m_RegionNpcArray.GetSize();
-	int *pNpcIDList = new int[total_mon];
 	foreach_stlmap (itr, pRegion->m_RegionNpcArray)
-		pNpcIDList[count++] = *itr->second;
-	pMap->m_lock.Release();
+	{
+		CNpc * pNpc = g_pMain->m_arNpc.GetData(itr->first);
+		if (pNpc == nullptr || pNpc->isDead()
+			|| m_bNation == pNpc->m_byGroup)
+			continue;
 
-	for(int i = 0 ; i < total_mon; i++ ) {
-		int nid = pNpcIDList[i];
-		if( nid < NPC_BAND ) continue;
-		pNpc = g_pMain->m_arNpc.GetData(nid);
+		vEnd.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
 
-		if( pNpc != nullptr && pNpc->m_NpcState != NPC_DEAD)	{
-			if( m_bNation == pNpc->m_byGroup ) continue;
-			vEnd.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
-			fDis = pNpc->GetDistance(vStart, vEnd);
-
-			if(fDis <= fRadius)	{	// NPC가 반경안에 있을 경우...
-				pNpc->ChangeTarget(1004, this);
-			}	
-		}
+		float fDis = pNpc->GetDistance(vStart, vEnd);
+		if (fDis <= fRadius)	
+			pNpc->ChangeTarget(1004, this);
 	}
-
-	if (pNpcIDList)
-		delete [] pNpcIDList;
 }

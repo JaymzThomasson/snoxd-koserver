@@ -46,7 +46,7 @@ int MAP::GetEventID(int x, int z) { return m_smdFile->GetEventID(x, z); }
 
 MAP::MAP() : m_smdFile(nullptr), m_ppRegion(nullptr),
 	m_fHeight(nullptr), m_byRoomType(0), m_byRoomEvent(0),
-	m_byRoomStatus(1), m_byInitRoomCount(0),
+	m_byRoomStatus(RoomStatusInitialised), m_byInitRoomCount(0),
 	m_nZoneNumber(0), m_sKarusRoom(0), m_sElmoradRoom(0)
 {
 }
@@ -62,8 +62,6 @@ bool MAP::Initialize(_ZONE_INFO *pZone)
 	if (m_smdFile != nullptr)
 	{
 		ObjectEventArray * pEvents = m_smdFile->GetObjectEventArray();
-		FastGuard(pEvents->m_lock);
-
 		foreach_stlmap(itr, (*pEvents))
 		{
 			_OBJECT_EVENT * pEvent = itr->second;
@@ -425,12 +423,11 @@ CRoomEvent* MAP::SetRoomEvent( int number )
 
 bool MAP::IsRoomStatusCheck()
 {
-	int nClearRoom = 1;
-	int nTotalRoom = m_arRoomEventArray.GetSize() + 1;
+	int nClearRoom = 1,
+		nTotalRoom = m_arRoomEventArray.GetSize() + 1;
 
-	if( m_byRoomStatus == 2 )	{	// 방을 초기화중
+	if (m_byRoomStatus == RoomStatusInProgress)
 		m_byInitRoomCount++;
-	}
 
 	foreach_stlmap (itr, m_arRoomEventArray)
 	{
@@ -441,31 +438,37 @@ bool MAP::IsRoomStatusCheck()
 			continue;
 		}
 
-		if( m_byRoomStatus == 1)	{	// 방 진행중
-			if( pRoom->m_byStatus == 3 )	nClearRoom += 1;
-			if( m_byRoomType == 0 )	{
-				if( nTotalRoom == nClearRoom )	{		// 방이 다 클리어 되었어여.. 초기화 해줘여,,
-					m_byRoomStatus = 2;
-					TRACE("방이 다 클리어 되었어여.. 초기화 해줘여,, zone=%d, type=%d, status=%d\n", m_nZoneNumber, m_byRoomType, m_byRoomStatus);
-					return true;
-				}
-			}
-		}
-		else if( m_byRoomStatus == 2)	{	// 방을 초기화중
-			if( m_byInitRoomCount >= 10 ) {
-				pRoom->InitializeRoom();		// 실제 방을 초기화
+		if (m_byRoomStatus == RoomStatusInitialised)
+		{
+			if (pRoom->isCleared())	
 				nClearRoom += 1;
-				if( nTotalRoom == nClearRoom )	{		// 방이 초기화 되었어여.. 
-					m_byRoomStatus = 3;
-					TRACE("방이 초기화 되었어여..  status=%d\n", m_byRoomStatus);
+
+			if (m_byRoomType == 0)	
+			{
+				if (nTotalRoom == nClearRoom)
+				{
+					m_byRoomStatus = RoomStatusInProgress;
 					return true;
 				}
 			}
 		}
-		else if( m_byRoomStatus == 3)	{	// 방 초기화 완료
-			m_byRoomStatus = 1;
+		else if (m_byRoomStatus == RoomStatusInProgress)
+		{
+			if (m_byInitRoomCount >= 10)
+			{
+				pRoom->InitializeRoom();
+				nClearRoom += 1;
+				if (nTotalRoom == nClearRoom)
+				{
+					m_byRoomStatus = RoomStatusCleared;
+					return true;
+				}
+			}
+		}
+		else if (m_byRoomStatus == RoomStatusCleared)
+		{
+			m_byRoomStatus = RoomStatusInitialised;
 			m_byInitRoomCount = 0;
-			TRACE("방이 다시 시작되었군여..  status=%d\n", m_byRoomStatus);
 			return true;
 		}
 	}
@@ -483,8 +486,8 @@ void MAP::InitializeRoom()
 			continue;
 		}
 
-		pRoom->InitializeRoom();		// 실제 방을 초기화
-		m_byRoomStatus = 1;
+		pRoom->InitializeRoom();
+		m_byRoomStatus = RoomStatusInitialised;
 		m_byInitRoomCount = 0;
 	}
 }

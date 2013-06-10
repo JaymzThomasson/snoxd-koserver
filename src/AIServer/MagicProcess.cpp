@@ -528,24 +528,13 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 	float fDis = 0.0f;
 	vStart.Set((float)data1, (float)0, (float)data3);
 	int count = 0, total_mon = 0, attack_type=0;
-	int* pNpcIDList = nullptr;
 	bool bResult = true;
 
-	pMap->m_lock.Acquire();
+	FastGuard lock(pMap->m_lock);
 	CRegion *pRegion = &pMap->m_ppRegion[rx][rz];
-	total_mon = pRegion->m_RegionNpcArray.GetSize();
-	pNpcIDList = new int[total_mon];
-
 	foreach_stlmap (itr, pRegion->m_RegionNpcArray)
-		pNpcIDList[count++] = *itr->second;
-	pMap->m_lock.Release();
-
-	for(int i = 0; i < total_mon; i++)
 	{
-		int nid = pNpcIDList[i];
-		if( nid < NPC_BAND ) continue;
-		pNpc = g_pMain->m_arNpc.GetData(nid);
-
+		CNpc * pNpc = g_pMain->m_arNpc.GetData(itr->first);
 		if (pNpc == nullptr || pNpc->m_NpcState == NPC_DEAD)
 			continue;
 
@@ -636,11 +625,6 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 					<< uint16(0) << uint16(0) << uint16(0);
 			g_pMain->Send(&result);
 		}
-	}
-
-	if(pNpcIDList)	{
-		delete [] pNpcIDList;
-		pNpcIDList = nullptr;
 	}
 }
 

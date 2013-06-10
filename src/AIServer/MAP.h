@@ -39,7 +39,7 @@ public:
 	float*		m_fHeight;
 	uint8		m_byRoomType;		// 방의 초기화관련( 0:자동으로 초기화, 1:전쟁이벤트 관련(특정조건이 완료시 초기화)
 	uint8		m_byRoomEvent;		// event room(0:empty, 1:use)
-	uint8		m_byRoomStatus;		// room status(1:진행중, 2:방을 초기화중, 3:방초기화 완료)
+	RoomStatus	m_byRoomStatus;		// room status(1:진행중, 2:방을 초기화중, 3:방초기화 완료)
 	uint8		m_byInitRoomCount;	// room 초기화 시간을 제어(몬스터와 동기화를 맞추기 위해)
 	ObjectEventArray m_ObjectEventArray;
 	RoomEventArray	 m_arRoomEventArray;
