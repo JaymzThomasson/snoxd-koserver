@@ -1781,20 +1781,20 @@ int CNpc::GetMyField()
 	return iRet;
 }
 
-//	주변에 나를 공격한 유저가 있는지 알아본다
 bool CNpc::IsDamagedUserList(CUser *pUser)
 {
-	if(pUser == nullptr) return false;
+	if (pUser == nullptr) 
+		return false;
 
-	for(int i = 0; i < NPC_HAVE_USER_LIST; i++)
+	for (int i = 0; i < NPC_HAVE_USER_LIST; i++)
 	{
-		if(strcmp(m_DamagedUserList[i].strUserID, pUser->m_strUserID) == 0) return true;
+		if (STRCASECMP(m_DamagedUserList[i].strUserID, pUser->GetName().c_str()) == 0) 
+			return true;
 	}
 
 	return false;
 }
 
-//	타겟이 둘러 쌓여 있으면 다음 타겟을 찾는다.
 int CNpc::IsSurround(CUser* pUser)
 {
 	if(m_tNpcLongType) return 0;		//원거리는 통과
@@ -2183,7 +2183,7 @@ int CNpc::GetTargetPath(int option)
 	if(m_Target.id >= USER_BAND && m_Target.id < NPC_BAND)	{	// Target 이 User 인 경우
 		CRect r = CRect(min_x, min_z, max_x+1, max_z+1);
 		if(r.PtInRect((int)pUser->m_curx/TILE_SIZE, (int)pUser->m_curz/TILE_SIZE) == false)	{
-			TRACE("### Npc-GetTargetPath() User Fail return -1: [nid=%d] t_Name=%s, AttackPos=%d ###\n", GetID(), pUser->m_strUserID, m_byAttackPos);
+			TRACE("### Npc-GetTargetPath() User Fail return -1: [nid=%d] t_Name=%s, AttackPos=%d ###\n", GetID(), pUser->GetName().c_str(), m_byAttackPos);
 			return -1;
 		}
 
@@ -3227,18 +3227,18 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType /*=
 	CNpc* pNpc = nullptr;
 	char strDurationID[MAX_ID_SIZE+1];
 
-	char * id = nullptr;
+	const char * id = nullptr;
 
 	if (uid < NPC_BAND)	{	// Target 이 User 인 경우
 		pUser = g_pMain->GetUserPtr(uid);	// 해당 사용자인지 인증
 		if(pUser == nullptr) return true;
-		id = pUser->m_strUserID;
+		id = pUser->GetName().c_str();
 	}
 	else if (uid >= NPC_BAND && m_Target.id < INVALID_BAND)	{	// Target 이 mon 인 경우
 		pNpc = g_pMain->m_arNpc.GetData(uid);
 		if(pNpc == nullptr) return true;
 		userDamage = nDamage;
-		id = const_cast<char *>(pNpc->GetName().c_str());
+		id = pNpc->GetName().c_str();
 		goto go_result;
 	}
 
@@ -3251,7 +3251,7 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType /*=
 			if (bIsDurationDamage)
 			{
 				bFlag = true;
-				strncpy(strDurationID, pUser->m_strUserID, sizeof(strDurationID));
+				strncpy(strDurationID, pUser->GetName().c_str(), sizeof(strDurationID));
 				if (STRCASECMP(m_DamagedUserList[i].strUserID, strDurationID) == 0)	{
 					m_DamagedUserList[i].nDamage += userDamage; 
 					goto go_result;
@@ -3279,7 +3279,7 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType /*=
 				if(bFlag == true)	strncpy(m_DamagedUserList[i].strUserID, strDurationID, sizeof(m_DamagedUserList[i].strUserID));
 				else	{
 					if (STRCASECMP("**duration**", id) == 0) {
-						strcpy(m_DamagedUserList[i].strUserID, pUser->m_strUserID);
+						strcpy(m_DamagedUserList[i].strUserID, pUser->GetName().c_str());
 					}
 					else strcpy(m_DamagedUserList[i].strUserID, id);
 				}
@@ -3396,11 +3396,11 @@ void CNpc::SendExpToUserList()
 					pMaxDamageUser = g_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
 					if(pMaxDamageUser == nullptr)	{
 						m_byMaxDamagedNation = pUser->m_bNation;
-						strncpy( strMaxDamageUser, pUser->m_strUserID, sizeof(strMaxDamageUser) );
+						strncpy( strMaxDamageUser, pUser->GetName().c_str(), sizeof(strMaxDamageUser) );
 					}
 					else	{
 						m_byMaxDamagedNation = pMaxDamageUser->m_bNation;
-						strncpy( strMaxDamageUser, pMaxDamageUser->m_strUserID, sizeof(strMaxDamageUser) );
+						strncpy( strMaxDamageUser, pMaxDamageUser->GetName().c_str(), sizeof(strMaxDamageUser) );
 					}
 				}
 
@@ -3542,11 +3542,11 @@ void CNpc::SendExpToUserList()
 					pMaxDamageUser = g_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
 					if(pMaxDamageUser == nullptr)	{
 						m_byMaxDamagedNation = pUser->m_bNation;
-						strncpy( strMaxDamageUser, pUser->m_strUserID, sizeof(strMaxDamageUser) );
+						strncpy( strMaxDamageUser, pUser->GetName().c_str(), sizeof(strMaxDamageUser) );
 					}
 					else	{
 						m_byMaxDamagedNation = pMaxDamageUser->m_bNation;
-						strncpy( strMaxDamageUser, pMaxDamageUser->m_strUserID, sizeof(strMaxDamageUser) );
+						strncpy( strMaxDamageUser, pMaxDamageUser->GetName().c_str(), sizeof(strMaxDamageUser) );
 					}
 				}
 
@@ -3561,7 +3561,7 @@ void CNpc::SendExpToUserList()
 					if(TempValue > nLoyalty)	nLoyalty = nLoyalty + 1;
 				}
 
-				//TRACE("* User Exp id=%s, damage=%d, total=%d, exp=%d, loral=%d *\n", pUser->m_strUserID, (int)totalDamage, m_TotalDamage, nExp, nLoyalty);
+				//TRACE("* User Exp id=%s, damage=%d, total=%d, exp=%d, loral=%d *\n", pUser->GetName().c_str(), (int)totalDamage, m_TotalDamage, nExp, nLoyalty);
 				pUser->SetExp(nExp, nLoyalty, GetLevel());
 			}
 		}
@@ -4046,7 +4046,7 @@ void CNpc::IsUserInSight()
 			if(m_DamagedUserList[i].iUid == pUser->m_iUserId)
 			{
 				// 최종 ID를 비교해서 동일하면	
-				if (STRCASECMP(m_DamagedUserList[i].strUserID, pUser->m_strUserID) == 0) 
+				if (STRCASECMP(m_DamagedUserList[i].strUserID, pUser->GetName().c_str()) == 0) 
 				{ 
 					// 이때서야 존재한다는 표시를 한다
 					m_DamagedUserList[i].bIs = true;

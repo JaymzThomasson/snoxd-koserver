@@ -440,7 +440,7 @@ void CServerDlg::DeleteUserList(int uid)
 	}
 
 	if( pUser->m_iUserId == uid )	{
-		TRACE("*** UserLogOut으로 포인터 반환 : uid=%d, %s ***\n", uid, pUser->m_strUserID);
+		TRACE("*** UserLogOut으로 포인터 반환 : uid=%d, %s ***\n", uid, pUser->GetName().c_str());
 		pUser->m_lUsed = 1;
 		delete m_pUser[uid];
 		m_pUser[uid] = nullptr;

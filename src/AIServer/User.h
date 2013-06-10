@@ -11,10 +11,12 @@ class CUser
 public:
 	CMagicProcess m_MagicProcess;
 
+	INLINE std::string & GetName() { return m_strUserID; }
+
 	INLINE uint8 GetNation() { return m_bNation; }
 	INLINE uint8 GetLevel() { return m_bLevel; }
 
-	char m_strUserID[MAX_ID_SIZE+1];	// 캐릭터의 이름
+	std::string m_strUserID;
 	short	m_iUserId;					// User의 번호
 	uint8	m_bLive;					// 죽었니? 살았니?
 

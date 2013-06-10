@@ -19,7 +19,6 @@ void CUser::Initialize()
 {
 	m_MagicProcess.m_pSrcUser = this;
 
-	memset(m_strUserID, 0, MAX_ID_SIZE+1);	// 캐릭터의 이름
 	m_iUserId = -1;					// User의 번호
 	m_bLive = AI_USER_DEAD;			// 죽었니? 살았니?
 	m_curx = 0.0f;				// 현재 X 좌표
@@ -142,7 +141,7 @@ void CUser::Dead(int tid, int nDamage)
 
 	pMap->RegionUserRemove(m_sRegionX, m_sRegionZ, m_iUserId);
 
-	TRACE("*** User Dead = %d, %s ***\n", m_iUserId, m_strUserID);
+	TRACE("*** User Dead = %d, %s ***\n", m_iUserId, GetName().c_str());
 	if (tid > 0)
 		SendAttackSuccess(m_iUserId+USER_BAND, ATTACK_TARGET_DEAD, nDamage, m_sHP, 1, 2, tid /*sid*/);
 }
@@ -591,7 +590,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 
 	if (rx < 0 || rz < 0 || rx > pMap->GetXRegionMax() || rz > pMap->GetZRegionMax())	
 	{
-		TRACE("#### CUser-HealAreaCheck() Fail : [nid=%d, name=%s], nRX=%d, nRZ=%d #####\n", m_iUserId, m_strUserID, rx, rz);
+		TRACE("#### CUser-HealAreaCheck() Fail : [nid=%d, name=%s], nRX=%d, nRZ=%d #####\n", m_iUserId, GetName().c_str(), rx, rz);
 		return;
 	}
 
