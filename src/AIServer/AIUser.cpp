@@ -21,13 +21,6 @@ void CUser::Initialize()
 
 	m_iUserId = -1;					// User의 번호
 	m_bLive = AI_USER_DEAD;			// 죽었니? 살았니?
-	m_curx = 0.0f;				// 현재 X 좌표
-	m_cury = 0.0f;				// 현재 Y 좌표
-	m_curz = 0.0f;				// 현재 Z 좌표
-	m_curZone = -1;				// 현재 존
-	m_pMap = nullptr;
-	m_bNation = 0;						// 소속국가
-	m_bLevel = 0;						// 레벨
 	m_sHP = 0;							// HP
 	m_sMP = 0;							// MP
 	m_sMaxHP = 0;							// MaxHP
