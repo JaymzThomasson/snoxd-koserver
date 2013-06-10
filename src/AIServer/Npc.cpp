@@ -866,7 +866,7 @@ bool CNpc::RandomMove()
 
 	if (m_byMoveType == 1)	
 	{
-		bPeedBack = IsInRange((int)GetX(), (int)GetZ());
+		bPeedBack = isInSpawnRange((int)GetX(), (int)GetZ());
 		if (bPeedBack == false)
 		{	
 			//TRACE("초기위치를 벗어났군,,,  patten=%d \n", m_iPattenFrame);
@@ -1014,7 +1014,7 @@ bool CNpc::RandomMove()
 
     if (m_proto->m_tNpcType == NPC_DUNGEON_MONSTER)
 	{
-		if (!IsInRange((int)fDestX, (int)fDestZ))
+		if (!isInSpawnRange((int)fDestX, (int)fDestZ))
 			return false;	
     }
 
@@ -1259,22 +1259,10 @@ int CNpc::GetNearPathPoint()
 	return nRet;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-//	NPC 가 초기 생성위치 안에 있는지 검사
-//
-bool CNpc::IsInRange(int nX, int nZ)
+bool CNpc::isInSpawnRange(int nX, int nZ)
 {
-	// NPC 가 초기 위치를 벗어났는지 판단한다.
-	bool bFlag_1 = false, bFlag_2 = false;
-	if (m_nLimitMinX < m_nLimitMaxX)
-		if  (COMPARE(nX, m_nLimitMinX, m_nLimitMaxX))		bFlag_1 = true;
-	else if (COMPARE(nX, m_nLimitMaxX, m_nLimitMinX))		bFlag_1 = true;
-
-	if (m_nLimitMinZ < m_nLimitMaxZ)
-		if  (COMPARE(nZ, m_nLimitMinZ, m_nLimitMaxZ))		bFlag_2 = true;
-	else if (COMPARE(nZ, m_nLimitMaxZ, m_nLimitMinZ))		bFlag_2 = true;
-
-	return (bFlag_1 && bFlag_2);
+	CRect r(m_nLimitMinX, m_nLimitMinZ, m_nLimitMaxX, m_nLimitMaxZ);
+	return r.PtInRect(nX, nZ);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -2041,7 +2029,7 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 
 	// 작업할것 :	 던젼 몬스터의 경우 일정영역을 벗어나지 못하도록 체크하는 루틴 	
     if ( m_proto->m_tNpcType == NPC_DUNGEON_MONSTER )	{
-		if( IsInRange( (int)vUser.x, (int)vUser.z ) == false)
+		if( isInSpawnRange( (int)vUser.x, (int)vUser.z ) == false)
 			return -1;	
     }		
 
@@ -2264,7 +2252,7 @@ int CNpc::GetTargetPath(int option)
 
 	// 작업할것 :	 던젼 몬스터의 경우 일정영역을 벗어나지 못하도록 체크하는 루틴 	
     if ( m_proto->m_tNpcType == NPC_DUNGEON_MONSTER )	{
-		if( IsInRange( (int)vEnd22.x, (int)vEnd22.z ) == false)
+		if( isInSpawnRange( (int)vEnd22.x, (int)vEnd22.z ) == false)
 			return -1;	
     }
 
