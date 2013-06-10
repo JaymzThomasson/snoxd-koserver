@@ -248,11 +248,11 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto, bool bMonster)
 	m_sSize				= proto->m_sSize;
 	m_iWeapon_1			= proto->m_iWeapon_1;
 	m_iWeapon_2			= proto->m_iWeapon_2;
-	m_byGroup			= proto->m_byGroup;
+	m_bNation			= proto->m_byGroup;
 
 	// Monsters cannot, by design, be friendly to everybody.
 	if (isMonster() && GetNation() == Nation::ALL)
-		m_byGroup = Nation::NONE;
+		m_bNation = Nation::NONE;
 
 	m_byActType			= proto->m_byActType;
 	m_byRank			= proto->m_byRank;
@@ -1731,13 +1731,14 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 
 			if (GetID() == pNpc->GetID())	continue;
 
-			if( pNpc != nullptr && pNpc->m_NpcState != NPC_DEAD && pNpc->GetID() != GetID())	{
-				if(m_byGroup == pNpc->m_byGroup)	continue;
+			if (pNpc != nullptr && pNpc->m_NpcState != NPC_DEAD && pNpc->GetID() != GetID())	
+			{
+				if (GetNation() == pNpc->GetNation())
+					continue;
 
 				vMon.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
 				fDis = GetDistance(vMon, vNpc);
 
-				// 작업 : 여기에서 나의 공격거리에 있는 유저인지를 판단
 				if(fDis <= fSearchRange)	{
 					if(fDis >= fComp)	{	// 
 						target_uid = nNpcid;
@@ -2403,12 +2404,15 @@ int CNpc::Attack()
 			return nStandingTime;
 		}
 
-		if( m_proto->m_tNpcType == NPC_HEALER && pNpc->m_byGroup == m_byGroup )	{	// healer이면서 같은국가의 NPC인경우에는 힐
+		// healer이면서 같은국가의 NPC인경우에는 힐
+		if (m_proto->m_tNpcType == NPC_HEALER && pNpc->GetNation() == GetNation())
+		{
 			m_NpcState = NPC_HEALING;
 			return 0;
 		}
 
-		if(pNpc->m_iHP <= 0 || pNpc->m_NpcState == NPC_DEAD)	{
+		if (pNpc->isDead())
+		{
 			SendAttackSuccess(ATTACK_TARGET_DEAD, pNpc->GetID(), 0, 0);
 			InitTarget();
 			m_NpcState = NPC_STANDING;
@@ -3012,7 +3016,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 
 	if (pUser == nullptr
 		|| pUser->m_bLive == AI_USER_DEAD
-		|| pUser->m_bNation == m_byGroup
+		|| pUser->GetNation() == GetNation()
 		|| pUser->m_bInvisibilityType
 		|| pUser->m_byIsOP == MANAGER_USER
 		|| m_NpcState == NPC_FAINTING
@@ -3792,7 +3796,7 @@ void CNpc::FillNpcInfo(Packet & result)
 	result	<< GetID() << m_proto->m_sSid << m_proto->m_sPid
 			<< m_sSize << m_iWeapon_1 << m_iWeapon_2
 			<< GetZoneID() << GetName()
-			<< m_byGroup << uint8(m_proto->m_sLevel)
+			<< GetNation() << uint8(m_proto->m_sLevel)
 			<< GetX() << GetZ() << GetY() << m_byDirection
 			<< bool(m_iHP > 0) // are we alive?
 			<< m_proto->m_tNpcType
@@ -4827,7 +4831,7 @@ void CNpc::ChangeMonsterInfomation(int iChangeType)
 	m_sSize			= pNpcTable->m_sSize;
 	m_iWeapon_1		= pNpcTable->m_iWeapon_1;
 	m_iWeapon_2		= pNpcTable->m_iWeapon_2;
-	m_byGroup		= pNpcTable->m_byGroup;
+	m_bNation		= pNpcTable->m_byGroup;
 	m_byActType		= pNpcTable->m_byActType;
 	m_byRank		= pNpcTable->m_byRank;
 	m_byTitle		= pNpcTable->m_byTitle;

@@ -667,7 +667,7 @@ void CGameSocket::RecvBattleEvent(Packet & pkt)
 		if (pNpc == nullptr)
 			continue;
 
-		if (pNpc->m_proto->m_tNpcType > 10 && (pNpc->m_byGroup == KARUS || pNpc->m_byGroup == ELMORAD))
+		if (pNpc->m_proto->m_tNpcType > 10 && (pNpc->GetNation() == KARUS || pNpc->GetNation() == ELMORAD))
 		{
 			if (bEvent == BATTLEZONE_OPEN || bEvent == BATTLEZONE_CLOSE)
 				pNpc->ChangeAbility(bEvent);
