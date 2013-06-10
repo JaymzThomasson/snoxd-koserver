@@ -119,32 +119,30 @@ void CGameSocket::RecvServerConnect(Packet & pkt)
 void CGameSocket::RecvUserInfo(Packet & pkt)
 {
 	CUser *pUser = new CUser();
-	std::string strUserID;
 
 	pUser->Initialize();
 
 	pkt.SByte();
-	pkt >> pUser->m_iUserId >> strUserID >> pUser->m_curZone >> pUser->m_bNation 
+	pkt >> pUser->m_iUserId >> pUser->m_strUserID >> pUser->m_curZone >> pUser->m_bNation 
 		>> pUser->m_bLevel >> pUser->m_sHP >> pUser->m_sMP >> pUser->m_sHitDamage
 		>> pUser->m_sAC >> pUser->m_fHitrate >> pUser->m_fAvoidrate >> pUser->m_sItemAC 
 		>> pUser->m_bMagicTypeLeftHand >> pUser->m_bMagicTypeRightHand
 		>> pUser->m_sMagicAmountLeftHand >> pUser->m_sMagicAmountRightHand
 		>> pUser->m_byIsOP >> pUser->m_bInvisibilityType;
 
-	if (strUserID.empty() || strUserID.length() > MAX_ID_SIZE)
+	if (pUser->GetName().empty() || pUser->GetName().length() > MAX_ID_SIZE)
 	{
 		delete pUser;
 		return;
 	}
 
-	strcpy(pUser->m_strUserID, strUserID.c_str());
 	pUser->m_pMap = g_pMain->GetZoneByID(pUser->m_curZone);
 	pUser->m_bLive = AI_USER_LIVE;
 
 	TRACE("****  RecvUserInfo()---> uid = %d, name=%s ******\n", 
-		pUser->m_iUserId, pUser->m_strUserID);
+		pUser->m_iUserId, pUser->GetName().c_str());
 
-	if (pUser->m_iUserId >= USER_BAND && pUser->m_iUserId < MAX_USER)
+	if (pUser->m_iUserId < MAX_USER)
 		g_pMain->m_pUser[pUser->m_iUserId] = pUser;
 	else 
 		delete pUser;
@@ -176,22 +174,22 @@ void CGameSocket::RecvUserInOut(Packet & pkt)
 
 	CUser* pUser = g_pMain->GetUserPtr(uid);
 
-//	TRACE("^^& RecvUserInOut( type=%d )-> User(%s, %d),, zone=%d, index=%d, region_x=%d, y=%d\n", bType, pUser->m_strUserID, pUser->m_iUserId, pUser->m_curZone, pUser->m_sZoneIndex, region_x, region_z);
+//	TRACE("^^& RecvUserInOut( type=%d )-> User(%s, %d),, zone=%d, index=%d, region_x=%d, y=%d\n", bType, pUser->GetName().c_str(), pUser->m_iUserId, pUser->m_curZone, pUser->m_sZoneIndex, region_x, region_z);
 
 	if(pUser != nullptr)
 	{
-	//	TRACE("##### Fail : ^^& RecvUserInOut() [name = %s]. state=%d, hp=%d\n", pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
+	//	TRACE("##### Fail : ^^& RecvUserInOut() [name = %s]. state=%d, hp=%d\n", pUser->GetName().c_str(), pUser->m_bLive, pUser->m_sHP);
 		
 		if(pUser->m_bLive == AI_USER_DEAD || pUser->m_sHP <= 0)
 		{
 			if(pUser->m_sHP > 0)
 			{
 				pUser->m_bLive = true;
-				TRACE("##### CGameSocket-RecvUserInOut Fail : UserHeal  [id=%s, bLive=%d, hp=%d], fX=%.2f, fZ=%.2f ######\n", pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP, fX, fZ);
+				TRACE("##### CGameSocket-RecvUserInOut Fail : UserHeal  [id=%s, bLive=%d, hp=%d], fX=%.2f, fZ=%.2f ######\n", pUser->GetName().c_str(), pUser->m_bLive, pUser->m_sHP, fX, fZ);
 			}
 			else
 			{
-				TRACE("##### CGameSocket-RecvUserInOut Fail : UserDead  [id=%s, bLive=%d, hp=%d], fX=%.2f, fZ=%.2f ######\n", pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP, fX, fZ);
+				TRACE("##### CGameSocket-RecvUserInOut Fail : UserDead  [id=%s, bLive=%d, hp=%d], fX=%.2f, fZ=%.2f ######\n", pUser->GetName().c_str(), pUser->m_bLive, pUser->m_sHP, fX, fZ);
 				// 죽은 유저이므로 게임서버에 죽은 처리를 한다...
 				//Send_UserError(uid);
 				//return;
@@ -208,32 +206,32 @@ void CGameSocket::RecvUserInOut(Packet & pkt)
 
 		if(x1 < 0 || z1 < 0 || x1 >= pMap->GetMapSize() || z1 >= pMap->GetMapSize())
 		{
-			TRACE("#### RecvUserInOut Fail : [name=%s], x1=%d, z1=%d #####\n", pUser->m_strUserID, region_x, region_z);
+			TRACE("#### RecvUserInOut Fail : [name=%s], x1=%d, z1=%d #####\n", pUser->GetName().c_str(), region_x, region_z);
 			return;
 		}
-		// map 이동이 불가능이면 User등록 실패..
+
 		//if(pMap->m_pMap[x1][z1].m_sEvent == 0) return;
 		if(region_x > pMap->GetXRegionMax() || region_z > pMap->GetZRegionMax())
 		{
-			TRACE("#### GameSocket-RecvUserInOut() Fail : [name=%s], nRX=%d, nRZ=%d #####\n", pUser->m_strUserID, region_x, region_z);
+			TRACE("#### GameSocket-RecvUserInOut() Fail : [name=%s], nRX=%d, nRZ=%d #####\n", pUser->GetName().c_str(), region_x, region_z);
 			return;
 		}
 
-		//strcpy(pUser->m_strUserID, strName);
 		pUser->m_curx = pUser->m_fWill_x = fX;
 		pUser->m_curz = pUser->m_fWill_z = fZ;
 
-		if(bType == 2)	{		// region out
-			// 기존의 region정보에서 User의 정보 삭제..
+		// leaving a region
+		if (bType == 2)	
+		{
 			pMap->RegionUserRemove(region_x, region_z, uid);
-			//TRACE("^^& RecvUserInOut()-> User(%s, %d)를 Region에서 삭제..,, zone=%d, index=%d, region_x=%d, y=%d\n", pUser->m_strUserID, pUser->m_iUserId, pUser->m_curZone, pUser->m_sZoneIndex, region_x, region_z);
 		}
-		else	{				// region in
-			if(pUser->m_sRegionX != region_x || pUser->m_sRegionZ != region_z)	{
-				pUser->m_sRegionX = region_x;		pUser->m_sRegionZ = region_z;
-				pMap->RegionUserAdd(region_x, region_z, uid);
-				//TRACE("^^& RecvUserInOut()-> User(%s, %d)를 Region에 등록,, zone=%d, index=%d, region_x=%d, y=%d\n", pUser->m_strUserID, pUser->m_iUserId, pUser->m_curZone, pUser->m_sZoneIndex, region_x, region_z);
-			}
+		// entering a region
+		else if (pUser->m_sRegionX != region_x || pUser->m_sRegionZ != region_z)	
+		{
+			pUser->m_sRegionX = region_x;		
+			pUser->m_sRegionZ = region_z;
+
+			pMap->RegionUserAdd(region_x, region_z, uid);
 		}
 	}
 }
@@ -277,33 +275,21 @@ bool CGameSocket::SetUid(float x, float z, int id, int speed)
 	
 	if(x1 < 0 || z1 < 0 || x1 >= pMap->GetMapSize() || z1 >= pMap->GetMapSize())
 	{
-		TRACE("#### GameSocket ,, SetUid Fail : [nid=%d, name=%s], x1=%d, z1=%d #####\n", id, pUser->m_strUserID, x1, z1);
+		TRACE("#### GameSocket ,, SetUid Fail : [nid=%d, name=%s], x1=%d, z1=%d #####\n", id, pUser->GetName().c_str(), x1, z1);
 		return false;
 	}
 	if(nRX > pMap->GetXRegionMax() || nRZ > pMap->GetZRegionMax())
 	{
-		TRACE("#### GameSocket , SetUid Fail : [nid=%d, name=%s], nRX=%d, nRZ=%d #####\n", id, pUser->m_strUserID, nRX, nRZ);
+		TRACE("#### GameSocket , SetUid Fail : [nid=%d, name=%s], nRX=%d, nRZ=%d #####\n", id, pUser->GetName().c_str(), nRX, nRZ);
 		return false;
 	}
-	// map 이동이 불가능이면 User등록 실패..
+
 	// if(pMap->m_pMap[x1][z1].m_sEvent == 0) return false;
 
-	if(pUser != nullptr)
+	if (pUser != nullptr)
 	{
-		if(pUser->m_bLive == AI_USER_DEAD || pUser->m_sHP <= 0)
-		{
-			if(pUser->m_sHP > 0)
-			{
-				pUser->m_bLive = AI_USER_LIVE;
-				TRACE("##### CGameSocket-SetUid Fail : User가 Heal된 경우.. [id=%s, bLive=%d, hp=%d] ######\n", pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
-			}
-			else
-			{
-				TRACE("##### CGameSocket-SetUid Fail : UserDead  [id=%s, bLive=%d, hp=%d] ######\n", pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
-				//Send_UserError(id);
-				return false;
-			}
-		}
+		if (pUser->m_bLive == AI_USER_DEAD || pUser->m_sHP <= 0)
+			return false;
 		
 		///// attack ~ 
 		if( speed != 0 )	{
@@ -318,14 +304,11 @@ bool CGameSocket::SetUid(float x, float z, int id, int speed)
 		}
 		/////~ attack 
 
-		//TRACE("GameSocket : SetUid()--> uid = %d, x=%f, z=%f \n", id, x, z);
 		if(pUser->m_sRegionX != nRX || pUser->m_sRegionZ != nRZ)
 		{
-			//TRACE("*** SetUid()-> User(%s, %d)를 Region에 삭제,, zone=%d, index=%d, region_x=%d, y=%d\n", pUser->m_strUserID, pUser->m_iUserId, pUser->m_curZone, pUser->m_sZoneIndex, pUser->m_sRegionX, pUser->m_sRegionZ);
 			pMap->RegionUserRemove(pUser->m_sRegionX, pUser->m_sRegionZ, id);
 			pUser->m_sRegionX = nRX;		pUser->m_sRegionZ = nRZ;
 			pMap->RegionUserAdd(pUser->m_sRegionX, pUser->m_sRegionZ, id);
-			//TRACE("*** SetUid()-> User(%s, %d)를 Region에 등록,, zone=%d, index=%d, region_x=%d, y=%d\n", pUser->m_strUserID, pUser->m_iUserId, pUser->m_curZone, pUser->m_sZoneIndex, nRX, nRZ);
 		}
 	}
 
@@ -347,23 +330,11 @@ void CGameSocket::RecvAttackReq(Packet & pkt)
 		>> sItemAC >> bTypeLeft >> bTypeRight >> sAmountLeft >> sAmountRight;
 
 	CUser* pUser = g_pMain->GetUserPtr(sid);
-	if(pUser == nullptr) return;
+	if (pUser == nullptr
+		|| pUser->m_bLive == AI_USER_DEAD
+		|| pUser->m_sHP <= 0)
+		return;
 
-	if(pUser->m_bLive == AI_USER_DEAD || pUser->m_sHP <= 0)
-	{
-		if(pUser->m_sHP > 0)
-		{
-			pUser->m_bLive = AI_USER_LIVE;
-			TRACE("##### CGameSocket-Attack Fail : User가 Heal된 경우.. [id=%d, %s, bLive=%d, hp=%d] ######\n", pUser->m_iUserId, pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
-		}		
-		else
-		{
-			TRACE("##### CGameSocket-Attack Fail : UserDead  [id=%d, %s, bLive=%d, hp=%d] ######\n", pUser->m_iUserId, pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
-			// 죽은 유저이므로 게임서버에 죽은 처리를 한다...
-			Send_UserError(sid, tid);
-			return;
-		}
-	}
 	pUser->m_sHitDamage = sDamage;
 	pUser->m_fHitrate = fHitAgi;
 	pUser->m_fAvoidrate = fAvoidAgi;
@@ -400,7 +371,7 @@ void CGameSocket::RecvUserRegene(Packet & pkt)
 	pUser->m_bLive = AI_USER_LIVE;
 	pUser->m_sHP = sHP;
 
-	TRACE("**** RecvUserRegene -- uid = (%s,%d), HP = %d\n", pUser->m_strUserID, pUser->m_iUserId, pUser->m_sHP);
+	TRACE("**** RecvUserRegene -- uid = (%s,%d), HP = %d\n", pUser->GetName().c_str(), pUser->m_iUserId, pUser->m_sHP);
 }
 
 void CGameSocket::RecvUserSetHP(Packet & pkt)
@@ -478,7 +449,7 @@ void CGameSocket::RecvZoneChange(Packet & pkt)
 	pUser->m_pMap = g_pMain->GetZoneByID(byZoneNumber);
 	pUser->m_curZone = byZoneNumber;
 
-	TRACE("**** RecvZoneChange -- user(%s, %d), cur_zone = %d\n", pUser->m_strUserID, pUser->m_iUserId, byZoneNumber);
+	TRACE("**** RecvZoneChange -- user(%s, %d), cur_zone = %d\n", pUser->GetName().c_str(), pUser->m_iUserId, byZoneNumber);
 }
 
 void CGameSocket::RecvUserInfoAllData(Packet & pkt)
@@ -488,11 +459,10 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 	for (int i = 0; i < byCount; i++)
 	{
 		CUser* pUser = new CUser();
-		std::string strUserID;
 
 		pUser->Initialize();
 
-		pkt >> pUser->m_iUserId >> strUserID >> pUser->m_curZone
+		pkt >> pUser->m_iUserId >> pUser->m_strUserID >> pUser->m_curZone
 			>> pUser->m_bNation >> pUser->m_bLevel 
 			>> pUser->m_sHP >> pUser->m_sMP
 			>> pUser->m_sHitDamage >> pUser->m_sAC
@@ -500,23 +470,22 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 			>> pUser->m_sPartyNumber >> pUser->m_byIsOP
 			>> pUser->m_bInvisibilityType;
 
-		if (strUserID.empty() || strUserID.length() > MAX_ID_SIZE)
+		if (pUser->GetName().empty() || pUser->GetName().length() > MAX_ID_SIZE)
 		{
 			TRACE("###  RecvUserInfoAllData() Fail ---> uid = %d, name=%s, len=%d  ### \n", 
-				pUser->m_iUserId, strUserID.c_str(), strUserID.length());
+				pUser->m_iUserId, pUser->GetName().c_str(), pUser->GetName().length());
 
 			delete pUser;
 			continue;
 		}
 
-		strcpy(pUser->m_strUserID, strUserID.c_str());
 		pUser->m_pMap = g_pMain->GetZoneByID(pUser->m_curZone);
 		pUser->m_bLive = AI_USER_LIVE;
 		if (pUser->m_sPartyNumber != -1)
 			pUser->m_byNowParty = 1;
 
 		TRACE("****  RecvUserInfoAllData()---> uid = %d, %s, party_number=%d  ******\n", 
-			pUser->m_iUserId, pUser->m_strUserID, pUser->m_sPartyNumber);
+			pUser->m_iUserId, pUser->GetName().c_str(), pUser->m_sPartyNumber);
 
 		if (pUser->m_iUserId >= USER_BAND && pUser->m_iUserId < MAX_USER)
 		{
@@ -605,26 +574,12 @@ void CGameSocket::RecvCheckAlive(Packet & pkt)
 void CGameSocket::RecvHealMagic(Packet & pkt)
 {
 	uint16 sid = pkt.read<uint16>();
+	CUser* pUser = g_pMain->GetUserPtr(sid);
 
-	//TRACE("RecvHealMagic : [sid=%d] \n", sid);
-
-	CUser* pUser = nullptr;
-	pUser = g_pMain->GetUserPtr(sid);
-	if(pUser == nullptr) return;
-
-	if(pUser->m_bLive == AI_USER_DEAD || pUser->m_sHP <= 0)	{
-		if(pUser->m_sHP > 0)	{
-			pUser->m_bLive = AI_USER_LIVE;
-			TRACE("##### CGameSocket-RecvHealMagic Fail : User가 Heal된 경우.. [id=%d, %s, bLive=%d, hp=%d] ######\n", pUser->m_iUserId, pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
-		}		
-		else
-		{
-			TRACE("##### CGameSocket-RecvHealMagic Fail : UserDead  [id=%d, %s, bLive=%d, hp=%d] ######\n", pUser->m_iUserId, pUser->m_strUserID, pUser->m_bLive, pUser->m_sHP);
-			// 죽은 유저이므로 게임서버에 죽은 처리를 한다...
-			//Send_UserError(sid, tid);
-			return;
-		}
-	}
+	if (pUser == nullptr
+		|| pUser->m_sHP <= 0
+		|| pUser->m_bLive == AI_USER_DEAD) 
+		return;
 
 	pUser->HealMagic();
 }
