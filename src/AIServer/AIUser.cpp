@@ -17,6 +17,8 @@ CUser::~CUser() {}
 
 void CUser::Initialize()
 {
+	Unit::Initialize();
+
 	m_iUserId = -1;					// User의 번호
 	m_bLive = AI_USER_DEAD;			// 죽었니? 살았니?
 	m_curx = 0.0f;				// 현재 X 좌표
@@ -31,8 +33,6 @@ void CUser::Initialize()
 	m_sMaxHP = 0;							// MaxHP
 	m_sMaxMP = 0;							// MaxMP
 	m_state = 0;				// User의 상태
-	m_sRegionX = 0;						// 현재 영역 X 좌표
-	m_sRegionZ = 0;						// 현재 영역 Z 좌표
 	m_sOldRegionX = 0;	
 	m_sOldRegionZ = 0;	
 	m_bResHp = 0;						// 회복량

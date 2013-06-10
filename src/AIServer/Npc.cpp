@@ -183,6 +183,8 @@ void CNpc::InitTarget()
 
 void CNpc::Init()
 {
+	Unit::Initialize();
+
 	m_pZone = g_pMain->GetZoneByID(GetZoneID());
 	m_Delay = 0;
 	m_fDelayTime = getMSTime();

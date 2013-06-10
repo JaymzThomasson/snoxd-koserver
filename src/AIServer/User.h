@@ -43,8 +43,6 @@ public:
 
 	uint8	m_state;						// User의 상태
 
-	short	m_sRegionX;						// 현재 영역 X 좌표
-	short	m_sRegionZ;						// 현재 영역 Z 좌표
 	short	m_sOldRegionX;					// 이전 영역 X 좌표
 	short	m_sOldRegionZ;					// 이전 영역 Z 좌표
 
