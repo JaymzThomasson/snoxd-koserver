@@ -85,13 +85,6 @@ struct _MagicType3
 	time_t		tStartTime;	
 };
 
-struct _MagicType4
-{
-	uint8	byAmount;
-	short	sDurationTime;		// duration, in seconds
-	time_t	tStartTime;
-};
-
 struct _TargetHealer
 {
 	short	sNID;				// npc nid
@@ -212,11 +205,9 @@ public:
 	int		m_nInitMaxX;
 	int		m_nInitMaxY;
 
-	// 지속 마법 관련..
-	time_t	m_fHPChangeTime;			// Hp 회복율
-	time_t	m_tFaintingTime;			// 기절해 있는 시간..
-	_MagicType3  m_MagicType3[MAX_MAGIC_TYPE3];			// HP 관련된 마법..
-	_MagicType4  m_MagicType4[MAX_MAGIC_TYPE4];			// 능력치 관련된 마법..
+	time_t	m_fHPChangeTime;
+	time_t	m_tFaintingTime;
+	_MagicType3  m_MagicType3[MAX_MAGIC_TYPE3];
 
 	//----------------------------------------------------------------
 	//	MONSTER DB 쪽에 있는 변수들
@@ -353,7 +344,6 @@ public:
 	void InitTarget(void);
 	void InitUserList();
 	void InitPos();
-	void InitMagicValuable();
 
 	void Load(uint16 sNpcID, CNpcTable * proto, bool bMonster);
 
