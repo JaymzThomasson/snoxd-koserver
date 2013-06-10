@@ -1,5 +1,11 @@
 #pragma once
 
+#if defined(AI_SERVER)
+#	define KOMap MAP
+#else
+#	define KOMap C3DMap
+#endif
+
 #include "Define.h"
 #include "../shared/ReferenceObject.h"
 #include <map>
@@ -16,7 +22,7 @@
 struct _MAGIC_TABLE;
 struct _BUFF_TYPE4_INFO;
 class CRegion;
-class C3DMap;
+class KOMap;
 class Packet;
 
 typedef std::map<uint8, _BUFF_TYPE4_INFO> Type4BuffMap;
@@ -34,7 +40,7 @@ public:
 	INLINE bool isPlayer() { return m_bPlayer; }
 	INLINE bool isNPC() { return !isPlayer(); }
 
-	INLINE C3DMap * GetMap() { return m_pMap; }
+	INLINE KOMap * GetMap() { return m_pMap; }
 
 	virtual uint16 GetID() = 0;
 	INLINE uint8 GetZoneID() { return m_bZone; }
@@ -132,7 +138,7 @@ public:
 
 // public for the moment
 // protected:
-	C3DMap  * m_pMap;
+	KOMap  * m_pMap;
 	CRegion * m_pRegion;
 
 	uint8	m_bZone;

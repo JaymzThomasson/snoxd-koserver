@@ -1,7 +1,5 @@
 #pragma once
 
-#include "MagicProcess.h"
-
 #include "Extern.h"
 
 #include "../shared/STLMap.h"
@@ -11,8 +9,6 @@ class MAP;
 class CUser : public Unit
 {
 public:
-	CMagicProcess m_MagicProcess;
-
 	virtual uint16 GetID() { return m_iUserId; }
 	virtual std::string & GetName() { return m_strUserID; }
 
@@ -100,8 +96,6 @@ public:
 	void SendAttackSuccess(short tid, uint8 result, short sDamage, int nHP=0, short sAttack_type=1, uint8 type = 1, short sid = -1);
 	void SendHP();												// user¿« HP
 	void SendExp(int iExp, int iLoyalty, int tType = 1);
-
-	INLINE MAP * GetMap() { return m_pMap; };
 
 	CUser();
 	virtual ~CUser();
