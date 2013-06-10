@@ -15,17 +15,14 @@ static float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f,
 #define ATROCITY_ATTACK_TYPE 1				// 선공
 #define TENDER_ATTACK_TYPE	 0				// 후공	
 
-// 행동변경 관련 
 #define NO_ACTION				0
 #define ATTACK_TO_TRACE			1				// 공격에서 추격
-#define MONSTER_CHANGED			1 
 #define LONG_ATTACK_RANGE		30				// 장거리 공격 유효거리
 #define SHORT_ATTACK_RANGE		3				// 직접공격 유효거리
 
 #define ARROW_MIN				391010000
 #define ARROW_MAX				392010000
 
-#define ATTACK_LIMIT_LEVEL		10
 #define FAINTING_TIME			2 // in seconds
 
 bool CNpc::RegisterRegion(float x, float z)
@@ -1647,7 +1644,6 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 	uint16 target_uid;
 	__Vector3 vUser, vNpc, vMon;
 	vNpc.Set(GetX(), GetY(), GetZ());
-	int iLevelComprison = 0;
 	
 	// Finding players
 	if (nType == 1)	
@@ -1688,11 +1684,8 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 					m_Target.z	= pUser->GetZ();
 				}
 			}
-			else	{	// 선공몹...
-				iLevelComprison = pUser->m_bLevel - m_proto->m_sLevel;
-				// 작업할 것 : 타입에 따른 공격성향으로..
-				//if(iLevelComprison > ATTACK_LIMIT_LEVEL)	continue;
-
+			else	
+			{
 				m_Target.id	= target_uid;
 				m_Target.bSet = true;
 				m_Target.failCount = 0;
