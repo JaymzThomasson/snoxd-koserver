@@ -43,14 +43,12 @@ void CUser::Initialize()
 	m_sItemAC = 0;
 	m_fHitrate = 0.0f;					// 타격 성공률
 	m_fAvoidrate = 0;					// 회피 성공률
-	m_bLogOut = false;				// Logout 중인가?
 	m_byNowParty = 0;
 	m_sPartyTotalLevel = 0;
 	m_byPartyTotalMan = 0;
 	m_sPartyNumber = -1;
 	m_byIsOP = 0;
 	m_bInvisibilityType = 0;
-	m_lUsed = 0;
 	InitNpcAttack();
 
 	m_bMagicTypeLeftHand = 0;			

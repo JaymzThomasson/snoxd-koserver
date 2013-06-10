@@ -441,7 +441,6 @@ void CServerDlg::DeleteUserList(int uid)
 
 	if( pUser->m_iUserId == uid )	{
 		TRACE("*** UserLogOut으로 포인터 반환 : uid=%d, %s ***\n", uid, pUser->GetName().c_str());
-		pUser->m_lUsed = 1;
 		delete m_pUser[uid];
 		m_pUser[uid] = nullptr;
 	}
@@ -547,21 +546,19 @@ void CServerDlg::AllNpcInfo()
 
 CUser* CServerDlg::GetUserPtr(int nid)
 {
-	CUser* pUser = nullptr;
-
-	if(nid < 0 || nid >= MAX_USER)	{
-		if(nid != -1)		TRACE("### GetUserPtr :: User Array Overflow [%d] ###\n", nid );
+	if (nid < 0 || nid >= MAX_USER)	
+	{
+		if (nid != -1)		
+			TRACE("### GetUserPtr :: User Array Overflow [%d] ###\n", nid);
 		return nullptr;
 	}
 
-	pUser = m_pUser[nid];
-	if(pUser == nullptr)	return nullptr;
-	if( pUser->m_lUsed == 1 ) return nullptr;	// 포인터 사용을 허락치 않음.. (logout중)
-	if(pUser->m_iUserId < 0 || pUser->m_iUserId >= MAX_USER)	return nullptr;
+	CUser * pUser = m_pUser[nid];
+	if (pUser == nullptr
+		|| pUser->m_iUserId != nid)
+		return nullptr;
 
-	if( pUser->m_iUserId == nid )	return pUser;
-
-	return nullptr;
+	return pUser;
 }
 
 uint32 THREADCALL CServerDlg::Timer_CheckAliveTest(void * lpParam)

@@ -66,11 +66,6 @@ public:
 
 	uint8   m_byIsOP;					// 운영자인지를 판단..
 	uint8	m_bInvisibilityType;
-
-	long   m_lUsed;						// 포인터 사용유무.. (1:사용중.. 접근 허락치 않음. 0:사용해도 무방)
-
-	bool		m_bLogOut;				// Logout 중인가?
-
 	uint8    m_bMagicTypeLeftHand;			// The type of magic item in user's left hand  
 	uint8    m_bMagicTypeRightHand;			// The type of magic item in user's right hand
 	short   m_sMagicAmountLeftHand;         // The amount of magic item in user's left hand
