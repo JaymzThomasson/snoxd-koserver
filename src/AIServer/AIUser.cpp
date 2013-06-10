@@ -17,8 +17,6 @@ CUser::~CUser() {}
 
 void CUser::Initialize()
 {
-	m_MagicProcess.m_pSrcUser = this;
-
 	m_iUserId = -1;					// User의 번호
 	m_bLive = AI_USER_DEAD;			// 죽었니? 살았니?
 	m_curx = 0.0f;				// 현재 X 좌표

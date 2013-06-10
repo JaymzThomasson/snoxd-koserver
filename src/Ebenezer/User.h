@@ -362,7 +362,7 @@ public:
 
 	_ITEM_TABLE * GetItemPrototype(uint8 pos, _ITEM_DATA *& pItem);
 
-	INLINE C3DMap * GetMap() { return m_pMap; }
+	INLINE KOMap * GetMap() { return m_pMap; }
 
 	CUser(uint16 socketID, SocketMgr *mgr); 
 
