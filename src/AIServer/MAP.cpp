@@ -343,14 +343,10 @@ int MAP::IsRoomCheck(float fx, float fz)
 	int minX=0, minZ=0, maxX=0, maxZ=0;
 	int room_number = 0;
 
-	bool bFlag_1 = false, bFlag_2 = false;
-
 	for( int i = 1; i < nSize+1; i++)		{
 		pRoom = m_arRoomEventArray.GetData( i );
 		if( !pRoom ) continue;
 		if( pRoom->m_byStatus == 3 )	continue;	// 방이 실행중이거나 깬(clear) 상태라면 검색하지 않음
-
-		bFlag_1 = false; bFlag_2 = false;
 
 		if( pRoom->m_byStatus == 1 )	{			// 방이 초기화 상태
 			minX = pRoom->m_iInitMinX;		minZ = pRoom->m_iInitMinZ;
@@ -362,21 +358,8 @@ int MAP::IsRoomCheck(float fx, float fz)
 			maxX = pRoom->m_iEndMaxX;		maxZ = pRoom->m_iEndMaxZ;
 		}
 	
-		if( minX < maxX )	{
-			if( COMPARE(nX, minX, maxX) )		bFlag_1 = true;
-		}
-		else	{
-			if( COMPARE(nX, maxX, minX) )		bFlag_1 = true;
-		}
-
-		if( minZ < maxZ )	{
-			if( COMPARE(nZ, minZ, maxZ) )		bFlag_2 = true;
-		}
-		else	{
-			if( COMPARE(nZ, maxZ, minZ) )		bFlag_2 = true;
-		}
-
-		if (bFlag_1 == true && bFlag_2 == true)
+		CRect r(minX, minZ, maxX, maxZ);
+		if (r.PtInRect(nX, nZ))
 		{
 			if (pRoom->isInitialised())	
 			{
