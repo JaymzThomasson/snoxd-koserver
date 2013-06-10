@@ -192,6 +192,19 @@ void CNpc::Init()
 	}
 }
 
+void CNpc::InitType3()
+{ /* temporary until this is replaced with inherited Unit functionality */
+	Unit::InitType3();
+	for (int i = 0; i < MAX_MAGIC_TYPE3; i++)  
+	{
+		m_MagicType3[i].sHPAttackUserID = -1;
+		m_MagicType3[i].sHPAmount = 0;
+		m_MagicType3[i].byHPDuration = 0;
+		m_MagicType3[i].byHPInterval = 2;
+		m_MagicType3[i].tStartTime = 0;
+	}
+}
+
 void CNpc::InitPos()
 {
 	static const float fDD = 1.5f;
