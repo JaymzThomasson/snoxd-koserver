@@ -52,6 +52,7 @@ struct	_ExpUserList
 struct _Target
 {
 	uint16	id;							// 공격대상 User uid
+	bool bSet;
 	float x;						// User의 x pos
 	float y;						// User의 y pos
 	float z;						// User의 z pos
@@ -150,6 +151,8 @@ public:
 	INLINE bool isDead() { return m_NpcState == NPC_DEAD || m_iHP <= 0; }
 	INLINE bool isAlive() { return !isDead(); }
 	INLINE bool isMonster() { return m_bMonster; }
+
+	INLINE bool hasTarget() { return m_Target.bSet; }
 
 	CNpcTable *m_proto;
 

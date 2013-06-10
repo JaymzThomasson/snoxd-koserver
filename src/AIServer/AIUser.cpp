@@ -68,9 +68,10 @@ void CUser::Attack(int sid, int tid)
 	if(pNpc->m_NpcState == NPC_DEAD) return;
 	if(pNpc->m_iHP == 0) return;
 
-/*	if(pNpc->m_proto->m_tNpcType == NPCTYPE_GUARD)					// 경비병이면 타겟을 해당 유저로
+/*	if (pNpc->isGuard())
 	{
-		pNpc->m_Target.id = m_iUserId + USER_BAND;
+		pNpc->m_Target.id = m_iUserId;
+		pNpc->m_Target.bSet = true;
 		pNpc->m_Target.x = m_curx;
 		pNpc->m_Target.y = m_cury;
 		pNpc->m_Target.failCount = 0;
@@ -88,21 +89,16 @@ void CUser::Attack(int sid, int tid)
 	// Calculate Target HP	 -------------------------------------------------------//
 	short sOldNpcHP = pNpc->m_iHP;
 
-	if(pNpc->SetDamage(0, nFinalDamage, m_iUserId + USER_BAND) == false)
-	{
+	if (!pNpc->SetDamage(0, nFinalDamage, m_iUserId))
 		SendAttackSuccess(tid, ATTACK_TARGET_DEAD, nFinalDamage, pNpc->m_iHP);
-	}
 	else
-	{
-		// 공격 결과 전송
 		SendAttackSuccess(tid, ATTACK_SUCCESS, nFinalDamage, pNpc->m_iHP);
-	}
 }
 
 void CUser::SendAttackSuccess(short tid, uint8 bResult, short sDamage, int nHP, short sAttack_type, uint8 type /*= 1*/, short sid /*= -1*/)
 {
 	if (sid < 0)
-		sid = m_iUserId + USER_BAND;
+		sid = m_iUserId;
 
 	Packet result(AG_ATTACK_RESULT, type);
 	result << bResult << sid << tid << sDamage << nHP << uint8(sAttack_type);
@@ -143,7 +139,7 @@ void CUser::Dead(int tid, int nDamage)
 
 	TRACE("*** User Dead = %d, %s ***\n", m_iUserId, GetName().c_str());
 	if (tid > 0)
-		SendAttackSuccess(m_iUserId+USER_BAND, ATTACK_TARGET_DEAD, nDamage, m_sHP, 1, 2, tid /*sid*/);
+		SendAttackSuccess(m_iUserId, ATTACK_TARGET_DEAD, nDamage, m_sHP, 1, 2, tid /*sid*/);
 }
 
 void CUser::SendHP()

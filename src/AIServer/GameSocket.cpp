@@ -487,7 +487,7 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 		TRACE("****  RecvUserInfoAllData()---> uid = %d, %s, party_number=%d  ******\n", 
 			pUser->m_iUserId, pUser->GetName().c_str(), pUser->m_sPartyNumber);
 
-		if (pUser->m_iUserId >= USER_BAND && pUser->m_iUserId < MAX_USER)
+		if (pUser->m_iUserId < MAX_USER)
 		{
 			// Does a user already exist? Free them (I know, tacky...)
 			if (g_pMain->m_pUser[pUser->m_iUserId] != nullptr)
