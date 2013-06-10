@@ -3382,11 +3382,11 @@ void CNpc::SendExpToUserList()
 					m_sMaxDamageUserid = m_DamagedUserList[i].iUid;
 					pMaxDamageUser = g_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
 					if(pMaxDamageUser == nullptr)	{
-						m_byMaxDamagedNation = pUser->m_bNation;
+						m_byMaxDamagedNation = pUser->GetNation();
 						strncpy( strMaxDamageUser, pUser->GetName().c_str(), sizeof(strMaxDamageUser) );
 					}
 					else	{
-						m_byMaxDamagedNation = pMaxDamageUser->m_bNation;
+						m_byMaxDamagedNation = pMaxDamageUser->GetNation();
 						strncpy( strMaxDamageUser, pMaxDamageUser->GetName().c_str(), sizeof(strMaxDamageUser) );
 					}
 				}
@@ -3528,11 +3528,11 @@ void CNpc::SendExpToUserList()
 					m_sMaxDamageUserid = m_DamagedUserList[i].iUid;
 					pMaxDamageUser = g_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
 					if(pMaxDamageUser == nullptr)	{
-						m_byMaxDamagedNation = pUser->m_bNation;
+						m_byMaxDamagedNation = pUser->GetNation();
 						strncpy( strMaxDamageUser, pUser->GetName().c_str(), sizeof(strMaxDamageUser) );
 					}
 					else	{
-						m_byMaxDamagedNation = pMaxDamageUser->m_bNation;
+						m_byMaxDamagedNation = pMaxDamageUser->GetNation();
 						strncpy( strMaxDamageUser, pMaxDamageUser->GetName().c_str(), sizeof(strMaxDamageUser) );
 					}
 				}
