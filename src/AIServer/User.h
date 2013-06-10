@@ -12,6 +12,7 @@ public:
 	CMagicProcess m_MagicProcess;
 
 	INLINE uint8 GetNation() { return m_bNation; }
+	INLINE uint8 GetLevel() { return m_bLevel; }
 
 	char m_strUserID[MAX_ID_SIZE+1];	// 캐릭터의 이름
 	short	m_iUserId;					// User의 번호

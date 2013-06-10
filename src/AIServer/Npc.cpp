@@ -249,6 +249,7 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto, bool bMonster)
 	m_iWeapon_1			= proto->m_iWeapon_1;
 	m_iWeapon_2			= proto->m_iWeapon_2;
 	m_bNation			= proto->m_byGroup;
+	m_bLevel			= (uint8) proto->m_sLevel; // max level used that I know about is 250, no need for 2 bytes
 
 	// Monsters cannot, by design, be friendly to everybody.
 	if (isMonster() && GetNation() == Nation::ALL)
@@ -605,7 +606,7 @@ time_t CNpc::NpcBack()
 
 	if (m_Target.id >= 0 && m_Target.id < NPC_BAND)	
 	{
-		if (g_pMain->GetUserPtr((m_Target.id - USER_BAND)) == nullptr)	
+		if (g_pMain->GetUserPtr(m_Target.id) == nullptr)	
 		{
 			m_NpcState = NPC_STANDING;
 			return m_sSpeed;//STEP_DELAY;
@@ -2878,17 +2879,7 @@ int CNpc::GetFinalDamage(CUser *pUser, int type)
 	Attack = (float)m_sHitRate;		// 공격민첩
 	Avoid = (float)pUser->m_fAvoidrate;		// 방어민첩	
 	Hit = m_sDamage;	// 공격자 Hit 		
-//	Ac = (short)pUser->m_sAC ;	// 방어자 Ac 
-
-//	Ac = (short)pUser->m_sItemAC + (short)pUser->m_sLevel ;	// 방어자 Ac 
-//	Ac = (short)pUser->m_sAC - (short)pUser->m_sLevel ;	// 방어자 Ac. 잉...성래씨 미워 ㅜ.ㅜ
-	Ac = (short)pUser->m_sItemAC + (short)pUser->m_bLevel + (short)(pUser->m_sAC - pUser->m_bLevel - pUser->m_sItemAC);
-
-//	ASSERT(Ac != 0);
-//	short kk = (short)pUser->m_sItemAC;
-//	short tt = (short)pUser->m_sLevel;
-//	Ac = kk + tt;
-
+	Ac = (short)pUser->m_sItemAC + (short)pUser->GetLevel() + (short)(pUser->m_sAC - pUser->GetLevel() - pUser->m_sItemAC);
 	HitB = (int)((Hit * 200) / (Ac + 240)) ;
 
 	int nMaxDamage = (int)(2.6 * m_sDamage);
@@ -3306,7 +3297,6 @@ go_result:
 
 	if( m_iHP <= 0 )
 	{
-	//	m_ItemUserLevel = pUser->m_sLevel;
 		m_iHP = 0;
 		Dead(iDeadType);
 		SendExpToUserList();
@@ -3479,8 +3469,6 @@ void CNpc::SendExpToUserList()
 										nLoyalty = (int)TempValue;
 										if(TempValue > nLoyalty)	nLoyalty = nLoyalty + 1;
 									}
-									//TRACE("* PartyUser Exp id=%s, damage=%d, total=%d, exp=%d, loral=%d, level=%d/%d *\n", pPartyUser->m_strUserID, (int)totalDamage, m_TotalDamage, nExp, nLoyalty, pPartyUser->m_sLevel, nTotalLevel);
-									//pPartyUser->SetExp(nExp, nLoyalty, m_proto->m_sLevel);
 									pPartyUser->SetPartyExp(nExp, nLoyalty, nTotalLevel, nTotalMan);
 								}
 							}
@@ -3526,8 +3514,6 @@ void CNpc::SendExpToUserList()
 									nLoyalty = (int)TempValue;
 									if(TempValue > nLoyalty)	nLoyalty = nLoyalty + 1;
 								}
-								//TRACE("* PartyUser Exp id=%s, damage=%d, total=%d, exp=%d, loral=%d, level=%d/%d *\n", pPartyUser->m_strUserID, (int)totalDamage, m_TotalDamage, nExp, nLoyalty, pPartyUser->m_sLevel, nTotalLevel);
-								//pPartyUser->SetExp(nExp, nLoyalty, m_proto->m_sLevel);
 								pPartyUser->SetPartyExp(nExp, nLoyalty, nTotalLevel, nTotalMan);
 							}
 						}
@@ -3576,7 +3562,7 @@ void CNpc::SendExpToUserList()
 				}
 
 				//TRACE("* User Exp id=%s, damage=%d, total=%d, exp=%d, loral=%d *\n", pUser->m_strUserID, (int)totalDamage, m_TotalDamage, nExp, nLoyalty);
-				pUser->SetExp(nExp, nLoyalty, m_proto->m_sLevel);
+				pUser->SetExp(nExp, nLoyalty, GetLevel());
 			}
 		}
 	}
@@ -3796,7 +3782,7 @@ void CNpc::FillNpcInfo(Packet & result)
 	result	<< GetID() << m_proto->m_sSid << m_proto->m_sPid
 			<< m_sSize << m_iWeapon_1 << m_iWeapon_2
 			<< GetZoneID() << GetName()
-			<< GetNation() << uint8(m_proto->m_sLevel)
+			<< GetNation() << GetLevel()
 			<< GetX() << GetZ() << GetY() << m_byDirection
 			<< bool(m_iHP > 0) // are we alive?
 			<< m_proto->m_tNpcType
@@ -4072,19 +4058,10 @@ void CNpc::IsUserInSight()
 
 bool CNpc::IsLevelCheck(int iLevel)
 {
-	// 몬스터의 레벨보다 낮으면,,,  바로 공격
-	if(iLevel <= m_proto->m_sLevel)
+	if (iLevel <= GetLevel())
 		return false;
 
-	int compLevel = 0;
-
-	compLevel = iLevel - m_proto->m_sLevel;
-
-	// 레벨을 비교해서 8미만이면 바로 공격
-	if(compLevel < 8)	
-		return false;
-
-	return true;
+	return (iLevel - GetLevel() >= 8);
 }
 
 bool CNpc::IsHPCheck(int iHP)
@@ -4466,7 +4443,7 @@ int	CNpc::ItemProdution(int item_number)							// 아이템 제작
 
 	iItemGrade = GetItemGrade(item_number);
 	if(iItemGrade == 0)		return 0;
-	iItemLevel = m_proto->m_sLevel / 5;
+	iItemLevel = GetLevel() / 5;
 
 	if( COMPARE( iRandom, 1, 4001) )	{			// 무기구 아이템
 		iDefault = 100000000;
@@ -4646,11 +4623,11 @@ int  CNpc::GetWeaponItemCodeNumber(int item_type)
 
 	iRandom = myrand(0, 1000);
 	if( item_type == 1 )	{		// 무기구
-		iItem_level = m_proto->m_sLevel / 10;
+		iItem_level = GetLevel() / 10;
 		pItemData = g_pMain->m_MakeWeaponItemArray.GetData(iItem_level); 
 	}
 	else if( item_type == 2 )	{	// 방어구
-		iItem_level = m_proto->m_sLevel / 10;
+		iItem_level = GetLevel() / 10;
 		pItemData = g_pMain->m_MakeDefensiveItemArray.GetData(iItem_level); 
 	}
 
@@ -5012,7 +4989,7 @@ int CNpc::GetPartyExp(int party_level, int man, int nNpcExp)
 	int nPartyExp = 0;
 	int nLevel = party_level / man;
 	double TempValue = 0;
-	nLevel = m_proto->m_sLevel - nLevel;
+	nLevel = GetLevel() - nLevel;
 
 	if (nLevel < 2)
 	{
