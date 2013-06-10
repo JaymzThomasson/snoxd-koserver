@@ -2131,15 +2131,11 @@ int CNpc::GetTargetPath(int option)
 			else iTempRange += 2;
 		}
 
-		if (m_bTracing)
+		if (m_bTracing
+			&& !isInRangeSlow(m_fTracingStartX, m_fTracingStartZ, iTempRange))
 		{
-			float dx = GetX() - m_fTracingStartX;
-			float dy = GetZ() - m_fTracingStartZ;
-			if (pow(dx, 2.0f) + pow(dy, 2.0f) > pow(iTempRange, 2.0f))
-			{
-				InitTarget();
-				return -1;
-			}
+			InitTarget();
+			return -1;
 		}
 	}
 	// NPC

@@ -414,7 +414,7 @@ public:
 	time_t NpcBack();
 	bool SetLive();
 
-	bool IsInRange(int nX, int nZ);
+	bool isInSpawnRange(int nX, int nZ);
 	bool RandomMove();				//
 	bool RandomBackMove();				//
 	bool IsInPathRange();			//
