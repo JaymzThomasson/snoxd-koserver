@@ -1,5 +1,14 @@
-ALTER TABLE USERDATA
-ALTER COLUMN [Exp] bigint
+DECLARE @constraint as sysname
+SELECT @constraint = b.name FROM sys.all_columns a 
+INNER JOIN
+sys.default_constraints b
+ON a.default_object_id = b.object_id
+WHERE a.object_id = OBJECT_ID('USERDATA')
+AND a.name = 'Exp'
+IF (@constraint IS NOT NULL)
+	EXEC('ALTER TABLE USERDATA DROP CONSTRAINT ' + @constraint)
+GO
+ALTER TABLE USERDATA ALTER COLUMN [Exp] bigint
 GO
 ALTER PROCEDURE [dbo].[UPDATE_USER_DATA]
 	@id 		varchar(21),
