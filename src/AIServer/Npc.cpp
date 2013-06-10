@@ -424,8 +424,7 @@ time_t CNpc::NpcTracing()
 
 	if (nFlag == 2 && m_tNpcLongType == 0 && m_proto->m_tNpcType != NPC_HEALER)
 	{
-		int nRet = TracingAttack();
-		if (nRet == 0)
+		if (!TracingAttack())
 		{
 			InitTarget();
 			NpcMoveEnd();
@@ -2549,71 +2548,71 @@ int CNpc::LongAndMagicAttack()
 	return m_sAttackDelay;
 }
 
-int CNpc::TracingAttack()		// 0:attack fail, 1:attack success
+bool CNpc::TracingAttack()
 {
-	CNpc*	pNpc		= nullptr;	
-	CUser*	pUser		= nullptr;
+	int nDamage = 0;
+	uint16 nID = m_Target.id;
 
-	int		nDamage		= 0;
+	if (nID < NPC_BAND)	// Target is a player
+	{
+		CUser * pUser = g_pMain->GetUserPtr(nID);
+		if (pUser == nullptr)
+			return false;
 
-	int nID = m_Target.id;					// Target 을 구한다.
-
-	// 회피값/명중판정/데미지 계산 -----------------------------------------//
-	if(nID >= USER_BAND && nID < NPC_BAND)	{	// Target 이 User 인 경우
-		pUser = g_pMain->GetUserPtr(nID - USER_BAND);
-		if(pUser == nullptr)	return 0;				// User 가 Invalid 한 경우
-		if(pUser->m_bLive == AI_USER_DEAD)		{		// User 가 이미 죽은경우
+		if (pUser->m_bLive == AI_USER_DEAD)		
+		{
 			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->m_iUserId, 0, 0);
-			return 0;
+			return false;
 		}
 
 		if (pUser->m_bInvisibilityType
 			/*|| pUser->m_state == STATE_DISCONNECTED*/
 			|| pUser->m_byIsOP == MANAGER_USER)
-			return 0;
+			return false;
 
-		// 명중이면 //Damage 처리 ----------------------------------------------------------------//
-		nDamage = GetFinalDamage(pUser);	// 최종 대미지
+		nDamage = GetFinalDamage(pUser);
 		
-		if(nDamage > 0)		{
+		if (nDamage > 0)		
+		{
 			pUser->SetDamage(nDamage, GetID());
-			if(pUser->m_bLive != AI_USER_DEAD)	{
+			if (pUser->m_bLive != AI_USER_DEAD)
 				SendAttackSuccess(ATTACK_SUCCESS, pUser->m_iUserId, nDamage, pUser->m_sHP);
-			}
 		}
 		else
 			SendAttackSuccess(ATTACK_FAIL, pUser->m_iUserId, nDamage, pUser->m_sHP);
-
-		// 방어측 내구도 감소
 	}
-	else if(nID >= NPC_BAND && m_Target.id < INVALID_BAND)	{
-		pNpc = g_pMain->m_arNpc.GetData(nID);
-		
-		if(pNpc == nullptr)	return 0;				// User 가 Invalid 한 경우
+	else // Target is an NPC/monster
+	{
+		CNpc * pNpc = g_pMain->m_arNpc.GetData(nID);
+		if (pNpc == nullptr)
+			return false;
 
-		if(pNpc->m_iHP <= 0 || pNpc->m_NpcState == NPC_DEAD)	{
+		if (pNpc->isDead())
+		{
 			SendAttackSuccess(ATTACK_TARGET_DEAD, pNpc->GetID(), 0, 0);
-			return 0;
+			return false;
 		}
 
-		nDamage = GetNFinalDamage(pNpc);	// 최종 대미지
-		
-		if(nDamage > 0)		{
-			if(pNpc->SetDamage(0, nDamage, GetID()) == true) {
-				SendAttackSuccess(ATTACK_SUCCESS, pNpc->GetID(), nDamage, pNpc->m_iHP);
-			}
-			else{
-				SendAttackSuccess(ATTACK_SUCCESS, pNpc->GetID(), nDamage, pNpc->m_iHP);
-				SendAttackSuccess(ATTACK_TARGET_DEAD, pNpc->GetID(), nDamage, pNpc->m_iHP);
-				return 0;
-			}
-		}
-		else{
+		nDamage = GetNFinalDamage(pNpc);
+
+		if (nDamage <= 0)
+		{
 			SendAttackSuccess(ATTACK_FAIL, pNpc->GetID(), nDamage, pNpc->m_iHP);
 		}
+		else
+		{
+			if (!pNpc->SetDamage(0, nDamage, GetID())) 
+			{
+				// SendAttackSuccess(ATTACK_SUCCESS, pNpc->GetID(), nDamage, pNpc->m_iHP);
+				SendAttackSuccess(ATTACK_TARGET_DEAD, pNpc->GetID(), nDamage, pNpc->m_iHP);
+				return false;
+			}
+
+			SendAttackSuccess(ATTACK_SUCCESS, pNpc->GetID(), nDamage, pNpc->m_iHP);
+		}
 	}
 
-	return 1;
+	return true;
 }
 
 void CNpc::MoveAttack()
@@ -2628,10 +2627,10 @@ void CNpc::MoveAttack()
 	float fX = 0.0f, fZ = 0.0f;
 	vNpc.Set(GetX(), GetY(), GetZ());
 
-	if(m_Target.id >= USER_BAND && m_Target.id < NPC_BAND)	// Target 이 User 인 경우
+	if (m_Target.id < NPC_BAND)	// Target is a player
 	{
-		pUser = g_pMain->GetUserPtr(m_Target.id - USER_BAND);
-		if(pUser == nullptr) 
+		pUser = g_pMain->GetUserPtr(m_Target.id);
+		if (pUser == nullptr) 
 		{
 			InitTarget();
 			return;
@@ -2650,7 +2649,7 @@ void CNpc::MoveAttack()
 			fX = vEnd22.x;	fZ = vEnd22.z;
 		}
 	}
-	else if(m_Target.id >= NPC_BAND && m_Target.id < INVALID_BAND)	// Target 이 mon 인 경우
+	else // Target is an NPC/monster
 	{
 		pNpc = g_pMain->m_arNpc.GetData(m_Target.id);		
 		if (pNpc == nullptr) 
@@ -2667,15 +2666,7 @@ void CNpc::MoveAttack()
 	vDistance = vUser - vNpc;
 	fDis = vDistance.Magnitude();	
 	
-	if((int)fDis < 3) return;	// target과의 거리가 3미터 미만이면 멈춘상태에서 공격이고..
-/*	if(m_tNpcLongType)		// 장거리 공격이 가능한것은 공격거리로 판단..
-	{
-		if((int)fDis > nRange) return false; 
-	}	
-	else					// 단거리(직접공격)
-	{
-		if(fDis > 2.5) return false;			// 작업 :공격가능거리를 2.5로 임시 수정함..
-	}	*/
+	if ((int)fDis < 3) return;
 
 	vDistance = vEnd22 - vNpc;
 	fDis = vDistance.Magnitude();	
@@ -2818,23 +2809,23 @@ bool CNpc::IsChangePath()
 //	Target 의 현재 위치를 얻는다.
 bool CNpc::GetTargetPos(float& x, float& z)
 {
-	if(m_Target.id >= USER_BAND && m_Target.id < NPC_BAND)	// Target 이 User 인 경우
+	if (m_Target.id < NPC_BAND)
 	{
-		CUser* pUser = g_pMain->GetUserPtr(m_Target.id - USER_BAND);
-
-		if(!pUser) return false;
+		CUser* pUser = g_pMain->GetUserPtr(m_Target.id);
+		if (pUser == nullptr)
+			return false;
 
 		x = pUser->m_curx;
 		z = pUser->m_curz;
 	}
-	else if(m_Target.id >= NPC_BAND && m_Target.id < INVALID_BAND)
+	else 
 	{
 		CNpc* pNpc = g_pMain->m_arNpc.GetData(m_Target.id);
-		if (!pNpc) return false;
+		if (pNpc == nullptr)
+			return false;
 
 		x = pNpc->GetX();
 		z = pNpc->GetZ();
-
 	}
 
 	return true;
@@ -3030,8 +3021,8 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 		return;
 
 	CUser *preUser = nullptr;
-	if(m_Target.id >= 0 && m_Target.id < NPC_BAND)	
-		preUser = g_pMain->GetUserPtr(m_Target.id - USER_BAND);
+	if (m_Target.id < NPC_BAND)	
+		preUser = g_pMain->GetUserPtr(m_Target.id);
 
 	if(pUser == preUser)	{
 		if(m_tNpcGroupType)	 {			// 가족타입이면 시야안에 같은 타입에게 목표 지정
@@ -3226,7 +3217,7 @@ int CNpc::GetDefense()
 	return m_sDefense;
 }
 
-bool CNpc::SetDamage(int nAttackType, int nDamage, int uid, int iDeadType /*= 0*/)
+bool CNpc::SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType /*= 0*/)
 {
 	bool bIsDurationDamage = (nAttackType < 0);
 	int i=0, len=0;
@@ -3244,12 +3235,12 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, int uid, int iDeadType /*= 0*
 
 	char * id = nullptr;
 
-	if(uid >= USER_BAND && uid < NPC_BAND)	{	// Target 이 User 인 경우
+	if (uid < NPC_BAND)	{	// Target 이 User 인 경우
 		pUser = g_pMain->GetUserPtr(uid);	// 해당 사용자인지 인증
 		if(pUser == nullptr) return true;
 		id = pUser->m_strUserID;
 	}
-	else if(uid >= NPC_BAND && m_Target.id < INVALID_BAND)	{	// Target 이 mon 인 경우
+	else if (uid >= NPC_BAND && m_Target.id < INVALID_BAND)	{	// Target 이 mon 인 경우
 		pNpc = g_pMain->m_arNpc.GetData(uid);
 		if(pNpc == nullptr) return true;
 		userDamage = nDamage;
@@ -3323,7 +3314,7 @@ go_result:
 	int iRandom = myrand(1, 100);
 	int iLightningR = 0;
 
-	if(uid >= USER_BAND && uid < NPC_BAND)	// Target 이 User 인 경우
+	if (uid < NPC_BAND)	// Target 이 User 인 경우
 	{
 		if(nAttackType == 3 && m_NpcState != NPC_FAINTING)	{			// 기절 시키는 스킬을 사용했다면..
 			// 확률 계산..
@@ -3339,7 +3330,7 @@ go_result:
 			ChangeTarget(nAttackType, pUser);
 		}
 	}
-	if(uid >= NPC_BAND && m_Target.id < INVALID_BAND)	// Target 이 mon 인 경우
+	else // Target 이 mon 인 경우
 	{
 		ChangeNTarget(pNpc);
 	}
@@ -3650,7 +3641,7 @@ bool CNpc::IsCloseTarget(CUser *pUser, int nRange)
 
 	//InitTarget();
 
-	m_Target.id = pUser->m_iUserId + USER_BAND;
+	m_Target.id = pUser->m_iUserId;
 	m_Target.x = pUser->m_curx;
 	m_Target.y = pUser->m_cury;
 	m_Target.z = pUser->m_curz;
@@ -4447,7 +4438,7 @@ bool CNpc::IsInExpRange(CUser* pUser)
 	return isInRange(pUser->m_curx, pUser->m_curz, NPC_EXP_RANGE);
 }
 
-bool CNpc::CheckFindEnermy()
+bool CNpc::CheckFindEnemy()
 {
 	if (isGuard())
 		return true;
@@ -4458,7 +4449,7 @@ bool CNpc::CheckFindEnermy()
 		|| GetRegionX() > pMap->GetXRegionMax() 
 		|| GetRegionZ() > pMap->GetZRegionMax())
 	{
-		TRACE("#### CheckFindEnermy Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", GetID(), m_proto->m_sSid, GetRegionX(), GetRegionZ());
+		TRACE("#### CheckFindEnemy Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", GetID(), m_proto->m_sSid, GetRegionX(), GetRegionZ());
 		return false;
 	}
 

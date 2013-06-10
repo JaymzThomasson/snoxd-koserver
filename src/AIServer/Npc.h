@@ -51,7 +51,7 @@ struct	_ExpUserList
 
 struct _Target
 {
-	int	id;							// 공격대상 User uid
+	uint16	id;							// 공격대상 User uid
 	float x;						// User의 x pos
 	float y;						// User의 y pos
 	float z;						// User의 z pos
@@ -370,7 +370,7 @@ public:
 	bool IsCloseTarget(CUser *pUser, int nRange);
 	void ToTargetMove(CUser* pUser);
 	void SendExpToUserList();								// User 경험치 분배..
-	bool SetDamage(int nAttackType, int nDamage, int uid, int iDeadType = 0);	// Npc의 데미지 계산..
+	bool SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType = 0);	// Npc의 데미지 계산..
 	bool SetHMagicDamage(int nDamage);	// Npc의 데미지 계산..
 	int GetDefense();										// Npc의 방어값..
 	void ChangeTarget(int nAttackType, CUser *pUser);
@@ -382,7 +382,7 @@ public:
 	bool IsChangePath();
 	int Attack();
 	int LongAndMagicAttack();
-	int TracingAttack();
+	bool TracingAttack();
 	int GetTargetPath(int option = 0);
 	int	GetPartyDamage(int iNumber);
 	int IsCloseTarget(int nRange, int Flag=0);
