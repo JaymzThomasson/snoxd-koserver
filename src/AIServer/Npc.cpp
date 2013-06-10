@@ -1118,12 +1118,12 @@ bool CNpc::RandomBackMove()
 		if (pUser == nullptr)	
 			return false;
 
-		if((int)pUser->m_curx != (int)GetX())  
+		if((int)pUser->GetX() != (int)GetX())  
 		{
 			iRandomX = myrand((int)m_bySearchRange, (int)(m_bySearchRange*1.5));
 			iRandomZ = myrand(0, (int)m_bySearchRange);
 
-			if((int)pUser->m_curx > (int)GetX())  
+			if((int)pUser->GetX() > (int)GetX())  
 				iDir = 1;
 			else
 				iDir = 2;
@@ -1132,7 +1132,7 @@ bool CNpc::RandomBackMove()
 		{
 			iRandomZ = myrand((int)m_bySearchRange, (int)(m_bySearchRange*1.5));
 			iRandomX = myrand(0, (int)m_bySearchRange);
-			if((int)pUser->m_curz > (int)GetZ())  
+			if((int)pUser->GetZ() > (int)GetZ())  
 				iDir = 3;
 			else
 				iDir = 4;
@@ -1686,7 +1686,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 					|| pUser->m_byIsOP == MANAGER_USER)
 					continue;
 
-				vUser.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz); 
+				vUser.Set(pUser->GetX(), pUser->GetY(), pUser->GetZ()); 
 				fDis = GetDistance(vUser, vNpc);
 
 				// 작업 : 여기에서 나의 공격거리에 있는 유저인지를 판단
@@ -1701,9 +1701,9 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 								m_Target.id	= target_uid;
 								m_Target.bSet = true;
 								m_Target.failCount = 0;
-								m_Target.x	= pUser->m_curx;
-								m_Target.y	= pUser->m_cury;
-								m_Target.z	= pUser->m_curz;
+								m_Target.x	= pUser->GetX();
+								m_Target.y	= pUser->GetY();
+								m_Target.z	= pUser->GetZ();
 							}
 						}
 						else	{	// 선공몹...
@@ -1714,9 +1714,9 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 							m_Target.id	= target_uid;
 							m_Target.bSet = true;
 							m_Target.failCount = 0;
-							m_Target.x	= pUser->m_curx;
-							m_Target.y	= pUser->m_cury;
-							m_Target.z	= pUser->m_curz;
+							m_Target.x	= pUser->GetX();
+							m_Target.y	= pUser->GetY();
+							m_Target.z	= pUser->GetZ();
 							//TRACE("Npc-FindEnemyExpand - target_x = %.2f, z=%.2f\n", m_Target.x, m_Target.z);
 						}
 					}
@@ -2020,10 +2020,10 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 			InitTarget();
 			return -1;
 		}
-		vUser.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz); 
+		vUser.Set(pUser->GetX(), pUser->GetY(), pUser->GetZ()); 
 		vWillUser.Set(pUser->m_fWill_x, pUser->m_fWill_y, pUser->m_fWill_z); 
-		fX = pUser->m_curx;		
-		fZ = pUser->m_curz;
+		fX = pUser->GetX();		
+		fZ = pUser->GetZ();
 
 		vDistance = vWillUser - vNpc;
 		fWillDis = vDistance.Magnitude();	
@@ -2057,7 +2057,7 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 	if(Flag == 1)	{
 		m_byResetFlag = 1;
 		if(pUser)	{
-			if(m_Target.x == pUser->m_curx && m_Target.z == pUser->m_curz)
+			if(m_Target.x == pUser->GetX() && m_Target.z == pUser->GetZ())
 				m_byResetFlag = 0;
 		}
 		//TRACE("NpcTracing-IsCloseTarget - target_x = %.2f, z=%.2f, dis=%.2f, Flag=%d\n", m_Target.x, m_Target.z, fDis, m_byResetFlag);
@@ -2141,7 +2141,7 @@ int CNpc::GetTargetPath(int option)
 
 		if(option == 1)	{	// magic이나 활등으로 공격 당했다면...
 			vNpc.Set(GetX(), GetY(), GetZ());
-			vUser.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz); 
+			vUser.Set(pUser->GetX(), pUser->GetY(), pUser->GetZ()); 
 			fDis = GetDistance(vNpc, vUser);
 			if(fDis >= NPC_MAX_MOVE_RANGE)		return -1;	// 너무 거리가 멀어서,, 추적이 안되게..
 			iTempRange = fDis + 10;
@@ -2197,7 +2197,7 @@ int CNpc::GetTargetPath(int option)
 			return -1;
 
 		CRect r = CRect(min_x, min_z, max_x+1, max_z+1);
-		if (!r.PtInRect((int)pUser->m_curx/TILE_SIZE, (int)pUser->m_curz/TILE_SIZE))
+		if (!r.PtInRect((int)pUser->GetX()/TILE_SIZE, (int)pUser->GetZ()/TILE_SIZE))
 		{
 			TRACE("### Npc-GetTargetPath() User Fail return -1: [nid=%d] t_Name=%s, AttackPos=%d ###\n", GetID(), pUser->GetName().c_str(), m_byAttackPos);
 			return -1;
@@ -2206,7 +2206,7 @@ int CNpc::GetTargetPath(int option)
 		m_fStartPoint_X = GetX();		m_fStartPoint_Y = GetZ();
 	
 		vNpc.Set(GetX(), GetY(), GetZ());
-		vUser.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz); 
+		vUser.Set(pUser->GetX(), pUser->GetY(), pUser->GetZ()); 
 		
 		IsSurround(pUser);
 
@@ -2655,7 +2655,7 @@ void CNpc::MoveAttack()
 			InitTarget();
 			return;
 		}
-		vUser.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz); 
+		vUser.Set(pUser->GetX(), pUser->GetY(), pUser->GetZ()); 
 
 		CalcAdaptivePosition(vNpc, vUser, 2, &vEnd22);
 
@@ -2837,8 +2837,8 @@ bool CNpc::GetTargetPos(float& x, float& z)
 		if (pUser == nullptr)
 			return false;
 
-		x = pUser->m_curx;
-		z = pUser->m_curz;
+		x = pUser->GetX();
+		z = pUser->GetZ();
 	}
 	else 
 	{
@@ -3063,9 +3063,9 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 		}
 		else if(iRandom >= 50 && iRandom < 80)	{		// 가장 가까운 플레이어
 			vNpc.Set(GetX(), GetY(), GetZ());
-			vUser.Set(preUser->m_curx, 0, preUser->m_curz);
+			vUser.Set(preUser->GetX(), 0, preUser->GetZ());
 			fDistance1 = GetDistance(vNpc, vUser);
-			vUser.Set(pUser->m_curx, 0, pUser->m_curz);
+			vUser.Set(pUser->GetX(), 0, pUser->GetZ());
 			fDistance2 = GetDistance(vNpc, vUser);
 			//TRACE("Npc-changeTarget 222 - iRandom=%d, preDis=%.2f, lastDis=%.2f\n", iRandom, fDistance1, fDistance2);
 			if(fDistance2 > fDistance1)	return;
@@ -3083,9 +3083,9 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 		
 	m_Target.id	= pUser->m_iUserId;
 	m_Target.bSet = true;
-	m_Target.x	= pUser->m_curx;
-	m_Target.y	= pUser->m_cury;
-	m_Target.z  = pUser->m_curz;
+	m_Target.x	= pUser->GetX();
+	m_Target.y	= pUser->GetY();
+	m_Target.z  = pUser->GetZ();
 
 	//TRACE("Npc-changeTarget - target_x = %.2f, z=%.2f\n", m_Target.x, m_Target.z);
 
@@ -3634,7 +3634,7 @@ bool CNpc::IsCloseTarget(CUser *pUser, int nRange)
 	__Vector3 vNpc;
 	float fDis = 0.0f;
 	vNpc.Set(GetX(), GetY(), GetZ());
-	vUser.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz); 
+	vUser.Set(pUser->GetX(), pUser->GetY(), pUser->GetZ()); 
 	fDis = GetDistance(vNpc, vUser);
 	
 	// 공격받은 상태기 때문에 2배의 거리감지영역,,
@@ -3644,9 +3644,9 @@ bool CNpc::IsCloseTarget(CUser *pUser, int nRange)
 
 	m_Target.id = pUser->m_iUserId;
 	m_Target.bSet = true;
-	m_Target.x = pUser->m_curx;
-	m_Target.y = pUser->m_cury;
-	m_Target.z = pUser->m_curz;
+	m_Target.x = pUser->GetX();
+	m_Target.y = pUser->GetY();
+	m_Target.z = pUser->GetZ();
 
 	return true;
 }
@@ -3989,7 +3989,7 @@ bool CNpc::GetUserInViewRange(int x, int z)
 		if (pUser == nullptr)
 			continue;
 
-		vEnd.Set(pUser->m_curx, 0, pUser->m_curz);
+		vEnd.Set(pUser->GetX(), 0, pUser->GetZ());
 		fDis = GetDistance(vStart, vEnd);
 		if (fDis <= NPC_VIEW_RANGE)
 			return true;		
@@ -4052,7 +4052,7 @@ void CNpc::IsUserInSight()
 		pUser = g_pMain->GetUserPtr(m_DamagedUserList[i].iUid);
 		if(pUser == nullptr)	continue;
 
-		vEnd.Set(pUser->m_curx, pUser->m_cury, pUser->m_curz);
+		vEnd.Set(pUser->GetX(), pUser->GetY(), pUser->GetZ());
 		fDis = GetDistance(vStart, vEnd);
 
 		if((int)fDis <= iSearchRange)
@@ -4410,7 +4410,7 @@ bool CNpc::IsInExpRange(CUser* pUser)
 	if (GetZoneID() != pUser->GetZoneID())
 		return false;
 
-	return isInRange(pUser->m_curx, pUser->m_curz, NPC_EXP_RANGE);
+	return isInRange(pUser->GetX(), pUser->GetZ(), NPC_EXP_RANGE);
 }
 
 bool CNpc::CheckFindEnemy()

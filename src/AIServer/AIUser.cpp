@@ -61,8 +61,8 @@ void CUser::Attack(int sid, int tid)
 	{
 		pNpc->m_Target.id = m_iUserId;
 		pNpc->m_Target.bSet = true;
-		pNpc->m_Target.x = m_curx;
-		pNpc->m_Target.y = m_cury;
+		pNpc->m_Target.x = GetX();
+		pNpc->m_Target.y = GetY();
 		pNpc->m_Target.failCount = 0;
 		pNpc->Attack();
 	//	return;
@@ -518,8 +518,8 @@ int CUser::IsSurroundCheck(float fX, float fY, float fZ, int NpcID)
 
 		if(m_sSurroundNpcNumber[i] == -1 && bFlag==false)
 		{
-			fDX = m_curx + surround_fx[i]; 
-			fDZ = m_curz + surround_fz[i]; 
+			fDX = GetX() + surround_fx[i]; 
+			fDZ = GetZ() + surround_fz[i]; 
 			vUser.Set(fDX, 0.0f, fDZ);
 			vDis = vUser - vNpc;
 			fDis = vDis.Magnitude();
@@ -546,8 +546,8 @@ int CUser::IsSurroundCheck(float fX, float fY, float fZ, int NpcID)
 
 void CUser::HealMagic()
 {
-	int region_x = (int)(m_curx / VIEW_DIST);
-	int region_z = (int)(m_curz / VIEW_DIST);
+	int region_x = (int)(GetX() / VIEW_DIST);
+	int region_z = (int)(GetZ() / VIEW_DIST);
 
 	MAP* pMap = GetMap();
 	if (pMap == nullptr) return;
@@ -582,7 +582,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 	static const float fRadius = 10.0f; // 30m
 
 	__Vector3 vStart, vEnd;
-	vStart.Set(m_curx, (float)0, m_curz);
+	vStart.Set(GetX(), 0.0f, GetZ());
 
 	FastGuard lock(pMap->m_lock);
 	CRegion *pRegion = &pMap->m_ppRegion[rx][rz];
