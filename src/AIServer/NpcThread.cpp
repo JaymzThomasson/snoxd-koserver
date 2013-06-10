@@ -126,14 +126,8 @@ uint32 THREADCALL NpcThreadProc(void * pParam /* CNpcThread ptr */)
 	return 0;
 }
 
-//////////////////////////////////////////////////////////////////////
-// NPC Thread Callback Function
-//
 uint32 THREADCALL ZoneEventThreadProc(void * pParam /* = nullptr */)
 {
-	CServerDlg* m_pMain = (CServerDlg*) pParam;
-	int j=0;
-
 	while (!g_bNpcExit)
 	{
 		foreach_stlmap (itr, g_pMain->g_arZone)
@@ -144,16 +138,18 @@ uint32 THREADCALL ZoneEventThreadProc(void * pParam /* = nullptr */)
 				|| pMap->IsRoomStatusCheck()) 
 				continue;
 
-			for (j = 1; j < pMap->m_arRoomEventArray.GetSize() + 1; j++)
+			foreach_stlmap (itr, pMap->m_arRoomEventArray)
 			{
-				CRoomEvent* pRoom = pMap->m_arRoomEventArray.GetData(j);
-				if( !pRoom ) continue;
-				if( pRoom->m_byStatus == 1 || pRoom->m_byStatus == 3 )   continue; // 1:init, 2:progress, 3:clear
-				// 여기서 처리하는 로직...
+				CRoomEvent * pRoom = itr->second;
+				if (pRoom == nullptr
+					|| !pRoom->isInProgress())
+					continue;
+
 				pRoom->MainRoom();
 			}
 		}
-		sleep(1000);	// 1초당 한번
+
+		sleep(1000);
 	}
 
 	return 0;

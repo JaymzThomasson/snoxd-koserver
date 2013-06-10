@@ -7,7 +7,7 @@ CRoomEvent::CRoomEvent()
 {
 	m_iZoneNumber = 0;
 	m_sRoomNumber = 0;
-	m_byStatus	= 1;
+	m_byStatus	= RoomStatusInitialised;
 	m_iInitMinX = 0;
 	m_iInitMinZ = 0;
 	m_iInitMaxX = 0;
@@ -55,7 +55,7 @@ void CRoomEvent::MainRoom()
 		if( bRunCheck )	{
 			//wsprintf(notify, "** 알림 : [%d]방이 클리어 되어습니다. **", m_sRoomNumber);
 			//g_pMain->SendSystemMsg(notify, PUBLIC_CHAT);
-			m_byStatus = 3;
+			m_byStatus = RoomStatusCleared;
 		}
 	}
 }
@@ -280,7 +280,7 @@ bool  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
 
 void CRoomEvent::InitializeRoom()
 {
-	m_byStatus	= 1;			
+	m_byStatus	= RoomStatusInitialised;			
 	m_tDelayTime = 0;
 	m_byLogicNumber = 1;
 
