@@ -106,7 +106,6 @@ CNpc::CNpc() : Unit(), m_NpcState(NPC_LIVE), m_byGateOpen(0), m_byObjectType(NOR
 	m_lEventNpc = 0;
 	m_fSecForRealMoveMetor = 0.0f;
 	InitUserList();
-	InitMagicValuable();
 
 	m_bTracing = false;
 	m_fTracingStartX = m_fTracingStartZ = 0.0f;
@@ -217,25 +216,6 @@ void CNpc::InitPos()
 
 	m_fBattlePos_x = fx[m_byBattlePos][m_byPathCount - 1];
 	m_fBattlePos_z = fz[m_byBattlePos][m_byPathCount - 1];
-}
-
-void CNpc::InitMagicValuable()
-{
-	for (int i = 0; i < MAX_MAGIC_TYPE4; i++)
-	{
-		m_MagicType4[i].byAmount = 100;
-		m_MagicType4[i].sDurationTime = 0;
-		m_MagicType4[i].tStartTime = 0;
-	}
-
-	for (int i = 0; i< MAX_MAGIC_TYPE3; i++)	
-	{
-		m_MagicType3[i].sHPAttackUserID = -1;
-		m_MagicType3[i].sHPAmount = 0;
-		m_MagicType3[i].byHPDuration = 0;
-		m_MagicType3[i].byHPInterval = 2;
-		m_MagicType3[i].tStartTime = 0;
-	}
 }
 
 void CNpc::Load(uint16 sNpcID, CNpcTable * proto, bool bMonster)
@@ -789,7 +769,9 @@ bool CNpc::SetLive()
 
 	m_fHPChangeTime = getMSTime();
 	m_tFaintingTime = 0;
-	InitMagicValuable();
+
+	InitType3();
+	InitType4();
 
 	if (m_bFirstLive)	
 	{
@@ -4701,19 +4683,18 @@ void CNpc::DurationMagic_4()
 		}
 	}
 
-	for (int i = 0; i < MAX_MAGIC_TYPE4; i++)	
+	FastGuard lock(m_buffLock);
+	foreach (itr, m_buffMap)
 	{
-		if (!m_MagicType4[i].sDurationTime
-			|| UNIXTIME < (m_MagicType4[i].tStartTime + m_MagicType4[i].sDurationTime))
+		if (itr->second.m_tEndTime > UNIXTIME)
 			continue;
 
-		// Remove buff state
-		m_MagicType4[i].sDurationTime = 0;		
-		m_MagicType4[i].tStartTime = 0;
-		m_MagicType4[i].byAmount = 0;
+		// NOTE: Skills are in the process of being moved over to Ebenezer
+		// So these don't work at all for now
+		// CMagicProcess::RemoveType4Buff(itr->first, this);
 
 		// Revert speed de/buff
-		if (i == 5)	// BUFF_TYPE_SPEED
+		if (itr->first == 5)	// BUFF_TYPE_SPEED
 		{
 			m_fSpeed_1 = m_fOldSpeed_1;
 			m_fSpeed_2 = m_fOldSpeed_2;
