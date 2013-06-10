@@ -99,10 +99,15 @@ public:
 
 	float GetDistance(float fx, float fz);
 	float GetDistance(Unit * pTarget);
+
 	bool isInRange(Unit * pTarget, float fSquaredRange);
 	bool isInRange(float fx, float fz, float fSquaredRange);
 	bool isInRangeSlow(Unit * pTarget, float fNonSquaredRange);
 	bool isInRangeSlow(float fx, float fz, float fNonSquaredRange);
+
+	static float GetDistance(float fStartX, float fStartZ, float fEndX, float fEndZ);
+	static bool isInRange(float fStartX, float fStartZ, float fEndX, float fEndZ, float fSquaredRange);
+	static bool isInRangeSlow(float fStartX, float fStartZ, float fEndX, float fEndZ, float fNonSquaredRange);
 
 	virtual void GetInOut(Packet & result, uint8 bType) = 0;
 

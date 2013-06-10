@@ -45,7 +45,7 @@ struct	_ExpUserList
 	char	strUserID[MAX_ID_SIZE+1];		// 아이디(캐릭터 이름)
 	int		iUid;							// User uid
 	int		nDamage;						// 타격치 합
-	bool	bIs;							// 시야에 존재하는지를 판단(true:존재)
+	bool	bIs;							// user in view range
 	//bool	bSameParty;						
 };
 
