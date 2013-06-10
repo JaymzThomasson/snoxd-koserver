@@ -98,13 +98,10 @@ uint8 CMagicProcess::ExecuteType1(int magicid, int tid, int data1, int data2, in
 			goto packet_send;
 		}
 
-		if(pNpc->SetDamage(magicid, damage, m_pSrcUser->m_iUserId + USER_BAND) == false)	{
+		if (!pNpc->SetDamage(magicid, damage, m_pSrcUser->m_iUserId))
 			m_pSrcUser->SendAttackSuccess(tid, ATTACK_TARGET_DEAD, damage, pNpc->m_iHP);
-		}
-		else	{
-			// 공격 결과 전송
+		else
 			m_pSrcUser->SendAttackSuccess(tid, ATTACK_SUCCESS, damage, pNpc->m_iHP);
-		}
 
 packet_send:
 	if (pMagic->bType[1] == 0 || pMagic->bType[1] == 1)
@@ -136,7 +133,7 @@ uint8 CMagicProcess::ExecuteType2(int magicid, int tid, int data1, int data2, in
 			goto packet_send;
 		}
 
-		if (!pNpc->SetDamage(magicid, damage, m_pSrcUser->m_iUserId + USER_BAND))
+		if (!pNpc->SetDamage(magicid, damage, m_pSrcUser->m_iUserId))
 		{
 			result	<< int16(bResult) << data3 << int16(0) << int16(0) << int16(0)
 					<< int16(damage == 0 ? -104 : 0);
@@ -147,8 +144,8 @@ uint8 CMagicProcess::ExecuteType2(int magicid, int tid, int data1, int data2, in
 
 			return bResult;
 		}
-		else	{
-			// 공격 결과 전송
+		else	
+		{
 			m_pSrcUser->SendAttackSuccess(tid, ATTACK_SUCCESS, damage, pNpc->m_iHP);
 		}
 	}
@@ -213,14 +210,10 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 				if(pType->bAttribute == 3)   attack_type = 3; // 기절시키는 마법이라면.....
 				else attack_type = magicid;
 
-				if (!pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_iUserId + USER_BAND))
-				{
+				if (!pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_iUserId))
 					m_pSrcUser->SendAttackSuccess(tid, MAGIC_ATTACK_TARGET_DEAD, damage, pNpc->m_iHP, MAGIC_ATTACK);
-				}
-				else	{
-					// 공격 결과 전송
+				else
 					m_pSrcUser->SendAttackSuccess(tid, ATTACK_SUCCESS, damage, pNpc->m_iHP, MAGIC_ATTACK);
-				}
 			}
 		}
 		else if ( pType->bDirectType == 2 || pType->bDirectType == 3 )    // Magic or Skill Point related !
@@ -236,13 +229,10 @@ void CMagicProcess::ExecuteType3(int magicid, int tid, int data1, int data2, int
 			if(pType->bAttribute == 3)   attack_type = 3; // 기절시키는 마법이라면.....
 			else attack_type = magicid;
 				
-			if(pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_iUserId + USER_BAND) == false)	{
+			if (!pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_iUserId))
 				m_pSrcUser->SendAttackSuccess(tid, MAGIC_ATTACK_TARGET_DEAD, damage, pNpc->m_iHP);
-			}
-			else	{
-				// 공격 결과 전송
+			else
 				m_pSrcUser->SendAttackSuccess(tid, ATTACK_SUCCESS, damage, pNpc->m_iHP);
-			}
 		}
 
 		damage = GetMagicDamage(tid, pType->sTimeDamage, pType->bAttribute, dexpoint, righthand_damage);
@@ -558,12 +548,10 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 				if(pType3->bAttribute == 3)   attack_type = 3; // 기절시키는 마법이라면.....
 				else attack_type = magicid;
 
-				if(pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_iUserId + USER_BAND) == false)	{
+				if (!pNpc->SetDamage(attack_type, damage, m_pSrcUser->m_iUserId))
 					m_pSrcUser->SendAttackSuccess(pNpc->GetID(), MAGIC_ATTACK_TARGET_DEAD, damage, pNpc->m_iHP);
-				}
-				else	{
+				else
 					m_pSrcUser->SendAttackSuccess(pNpc->GetID(), ATTACK_SUCCESS, damage, pNpc->m_iHP);
-				}
 			}
 
 			// 패킷 전송.....
