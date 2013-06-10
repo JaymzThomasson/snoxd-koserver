@@ -2131,15 +2131,10 @@ int CNpc::GetTargetPath(int option)
 	if (m_Target.id < NPC_BAND)	
 	{
 		pUser = g_pMain->GetUserPtr(m_Target.id);
-		if(pUser == nullptr)	{
-			InitTarget();
-			return -1;
-		}
-		if(pUser->m_sHP <= 0 /*|| pUser->m_state != GAME_STATE_INGAME*/ || pUser->m_bLive == false)	{
-			InitTarget();
-			return -1;
-		}
-		if(pUser->m_curZone != GetZoneID())	{
+		if(pUser == nullptr
+			|| pUser->isDead()
+			|| pUser->GetZoneID() != GetZoneID())
+		{
 			InitTarget();
 			return -1;
 		}
@@ -4412,7 +4407,7 @@ void CNpc::HpChange()
 
 bool CNpc::IsInExpRange(CUser* pUser)
 {
-	if (GetZoneID() != pUser->m_curZone)
+	if (GetZoneID() != pUser->GetZoneID())
 		return false;
 
 	return isInRange(pUser->m_curx, pUser->m_curz, NPC_EXP_RANGE);

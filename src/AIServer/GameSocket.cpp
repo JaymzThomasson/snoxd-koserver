@@ -123,7 +123,7 @@ void CGameSocket::RecvUserInfo(Packet & pkt)
 	pUser->Initialize();
 
 	pkt.SByte();
-	pkt >> pUser->m_iUserId >> pUser->m_strUserID >> pUser->m_curZone >> pUser->m_bNation 
+	pkt >> pUser->m_iUserId >> pUser->m_strUserID >> pUser->m_bZone >> pUser->m_bNation 
 		>> pUser->m_bLevel >> pUser->m_sHP >> pUser->m_sMP >> pUser->m_sHitDamage
 		>> pUser->m_sAC >> pUser->m_fHitrate >> pUser->m_fAvoidrate >> pUser->m_sItemAC 
 		>> pUser->m_bMagicTypeLeftHand >> pUser->m_bMagicTypeRightHand
@@ -136,7 +136,7 @@ void CGameSocket::RecvUserInfo(Packet & pkt)
 		return;
 	}
 
-	pUser->m_pMap = g_pMain->GetZoneByID(pUser->m_curZone);
+	pUser->m_pMap = g_pMain->GetZoneByID(pUser->m_bZone);
 	pUser->m_bLive = AI_USER_LIVE;
 
 	TRACE("****  RecvUserInfo()---> uid = %d, name=%s ******\n", 
@@ -170,11 +170,7 @@ void CGameSocket::RecvUserInOut(Packet & pkt)
 
 	// 수정할것,,, : 지금 존 번호를 0으로 했는데.. 유저의 존 정보의 번호를 읽어야,, 함,,
 	MAP* pMap = nullptr;
-	//g_pMain->g_arZone[pUser->m_curZone];
-
 	CUser* pUser = g_pMain->GetUserPtr(uid);
-
-//	TRACE("^^& RecvUserInOut( type=%d )-> User(%s, %d),, zone=%d, index=%d, region_x=%d, y=%d\n", bType, pUser->GetName().c_str(), pUser->m_iUserId, pUser->m_curZone, pUser->m_sZoneIndex, region_x, region_z);
 
 	if(pUser != nullptr)
 	{
@@ -313,7 +309,6 @@ bool CGameSocket::SetUid(float x, float z, int id, int speed)
 	}
 
 	// dungeon work
-	// if( pUser->m_curZone == 던젼 ) 
 	int room = pMap->IsRoomCheck( x, z );
 
 	return true;
@@ -447,7 +442,7 @@ void CGameSocket::RecvZoneChange(Packet & pkt)
 		return;
 
 	pUser->m_pMap = g_pMain->GetZoneByID(byZoneNumber);
-	pUser->m_curZone = byZoneNumber;
+	pUser->m_bZone = byZoneNumber;
 
 	TRACE("**** RecvZoneChange -- user(%s, %d), cur_zone = %d\n", pUser->GetName().c_str(), pUser->m_iUserId, byZoneNumber);
 }
@@ -462,7 +457,7 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 
 		pUser->Initialize();
 
-		pkt >> pUser->m_iUserId >> pUser->m_strUserID >> pUser->m_curZone
+		pkt >> pUser->m_iUserId >> pUser->m_strUserID >> pUser->m_bZone
 			>> pUser->m_bNation >> pUser->m_bLevel 
 			>> pUser->m_sHP >> pUser->m_sMP
 			>> pUser->m_sHitDamage >> pUser->m_sAC
@@ -479,7 +474,7 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 			continue;
 		}
 
-		pUser->m_pMap = g_pMain->GetZoneByID(pUser->m_curZone);
+		pUser->m_pMap = g_pMain->GetZoneByID(pUser->GetZoneID());
 		pUser->m_bLive = AI_USER_LIVE;
 		if (pUser->m_sPartyNumber != -1)
 			pUser->m_byNowParty = 1;
