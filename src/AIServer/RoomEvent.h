@@ -15,12 +15,25 @@ struct _RoomEvent
 
 class CNpc;
 
+enum RoomStatus
+{
+	RoomStatusInitialised	= 1,
+	RoomStatusInProgress	= 2,
+	RoomStatusCleared		= 3
+};
+
 class CRoomEvent  
 {
 public:
+	INLINE RoomStatus GetStatus() { return m_byStatus; }
+
+	INLINE bool isInitialised() { return GetStatus() == RoomStatusInitialised; }
+	INLINE bool isInProgress() { return GetStatus() == RoomStatusInProgress; }
+	INLINE bool isCleared() { return GetStatus() == RoomStatusCleared; }
+
 	int     m_iZoneNumber;		// zone number
 	short	m_sRoomNumber;		// room number (0:empty room)
-	uint8	m_byStatus;			// room status (1:init, 2:progress, 3:clear)
+	RoomStatus	m_byStatus;		// room status (1:init, 2:progress, 3:clear)
 	uint8	m_byCheck;			// 조건문의 갯수
 	uint8	m_byRoomType;		// 방의 타입(0:일반, 1:함정방, 2:,,,,)
 

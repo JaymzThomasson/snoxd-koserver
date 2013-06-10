@@ -426,7 +426,7 @@ public:
 
 	void Dead(int iDeadType = 0);
 	bool FindEnemy();
-	bool CheckFindEnermy();
+	bool CheckFindEnemy();
 	int FindEnemyRegion();
 	float FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType);
 	int GetMyField();
