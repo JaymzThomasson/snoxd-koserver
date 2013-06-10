@@ -636,7 +636,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 	{
 		CNpc * pNpc = g_pMain->m_arNpc.GetData(itr->first);
 		if (pNpc == nullptr || pNpc->isDead()
-			|| m_bNation == pNpc->m_byGroup)
+			|| GetNation() == pNpc->GetNation())
 			continue;
 
 		vEnd.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 

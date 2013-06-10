@@ -538,11 +538,12 @@ void CMagicProcess::AreaAttackDamage(int magictype, int rx, int rz, int magicid,
 		if (pNpc == nullptr || pNpc->m_NpcState == NPC_DEAD)
 			continue;
 
-		if( m_pSrcUser->m_bNation == pNpc->m_byGroup ) continue;
+		if (m_pSrcUser->GetNation() == pNpc->GetNation())
+			continue;
+
 		vEnd.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
 		fDis = pNpc->GetDistance(vStart, vEnd);
-
-		if(fDis > fRadius)
+		if (fDis > fRadius)
 			continue;
 
 		if (magictype == 3)

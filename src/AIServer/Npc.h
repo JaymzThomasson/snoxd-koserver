@@ -122,7 +122,6 @@ public:
 
 	INLINE CNpcTable * GetProto() { return m_proto; }
 	INLINE uint8 GetType() { return GetProto()->m_tNpcType; }
-	INLINE uint8 GetNation() { return m_byGroup; }
 
 	INLINE bool isGuard()
 	{
@@ -222,7 +221,6 @@ public:
 	short   m_sSize;						// 캐릭터의 비율(100 퍼센트 기준)
 	int     m_iWeapon_1;			// 착용 무기
 	int     m_iWeapon_2;			// 착용 무기
-	uint8	m_byGroup;			// 소속집단(국가 개념)
 	uint8	m_byActType;		// 행동패턴
 	uint8	m_byRank;			// 작위
 	uint8	m_byTitle;			// 지위
