@@ -113,6 +113,7 @@ public:
 
 	virtual void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToAI = true) {}
 	virtual void MSpChange(int amount) {}
+	virtual void InitType3(); // temporary until type 3 code is replaced
 
 	INLINE CNpcTable * GetProto() { return m_proto; }
 	INLINE uint8 GetType() { return GetProto()->m_tNpcType; }
