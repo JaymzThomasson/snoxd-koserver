@@ -350,10 +350,20 @@ INLINE void STRTOUPPER(std::string& str)
 		str[i] = (char)toupper(str[i]);
 };
 
-#define foreach(itr, arr) for (auto itr = arr.begin(); itr != arr.end(); itr++)
-#define foreach_stlmap(itr, arr) for (auto itr = arr.m_UserTypeMap.begin(); itr != arr.m_UserTypeMap.end(); itr++)
+#define foreach(itr, arr) \
+	for (auto itr = arr.begin(); itr != arr.end(); itr++)
+
+// ideally this guard should be scoped within the loop...
+#define foreach_stlmap(itr, arr) \
+	FastGuard _lock(arr.m_lock); \
+	foreach_stlmap_nolock(itr, arr)
+
+#define foreach_stlmap_nolock(itr, arr) \
+	for (auto itr = arr.m_UserTypeMap.begin(); itr != arr.m_UserTypeMap.end(); itr++)
+
 #define foreach_array(itr, arr) foreach_array_n(itr, arr, sizeof(arr) / sizeof(arr[0]))
 #define foreach_array_n(itr, arr, len) for (auto itr = 0; itr < len; itr++)
+
 #define foreach_region(x, z) for (int x = -1; x <= 1; x++) \
 	for (int z = -1; z <= 1; z++)
 

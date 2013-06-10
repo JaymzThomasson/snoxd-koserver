@@ -107,7 +107,6 @@ void CUser::ItemUpgrade(Packet & pkt)
 	}
 	
 	{ // scoped lock to prevent race conditions
-		FastGuard lock(g_pMain->m_ItemUpgradeArray.m_lock);
 		int nReqOriginItem = nItemID[0] % 1000;
 		_ITEM_UPGRADE * pUpgrade = nullptr;
 		foreach_stlmap (itr, g_pMain->m_ItemUpgradeArray)

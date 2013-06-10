@@ -1658,15 +1658,14 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 	vNpc.Set(GetX(), GetY(), GetZ());
 	int iLevelComprison = 0;
 	
-	if(nType == 1)	{		// user을 타겟으로 잡는 경우
-
+	// Finding players
+	if (nType == 1)	
+	{
 		FastGuard lock(pMap->m_lock);
 		CRegion *pRegion = &pMap->m_ppRegion[nRX][nRZ];
-		FastGuard lock2(pRegion->m_RegionUserArray.m_lock);
-		int nUser = pRegion->m_RegionUserArray.m_UserTypeMap.size(), count = 0;
 
 		//TRACE("FindEnemyExpand type1,, region_x=%d, region_z=%d, user=%d, mon=%d\n", nRX, nRZ, nUser, nMonster);
-		if( nUser == 0 )
+		if (pRegion->m_RegionUserArray.IsEmpty())
 			return 0.0f;
 
 		foreach_stlmap (itr, pRegion->m_RegionUserArray)
@@ -1715,13 +1714,13 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 			}
 		}
 	}
-	else if(nType == 2)		{		// 경비병이 몬스터를 타겟으로 잡는 경우
+	// Finding NPCs/monsters
+	else if (nType == 2)		
+	{
 		FastGuard lock(pMap->m_lock);
 		CRegion *pRegion = &pMap->m_ppRegion[nRX][nRZ];
-		int nMonster = pRegion->m_RegionNpcArray.m_UserTypeMap.size(), count = 0;
-	
-		//TRACE("FindEnemyExpand type1,, region_x=%d, region_z=%d, user=%d, mon=%d\n", nRX, nRZ, nUser, nMonster);
-		if( nMonster == 0 )
+
+		if (pRegion->m_RegionNpcArray.IsEmpty())
 			return 0.0f;
 
 		foreach_stlmap (itr, pRegion->m_RegionNpcArray)
@@ -3711,38 +3710,24 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 		return;
 	}
 
-	int* pNpcIDList = nullptr, total_mon, count = 0;
-
-	pMap->m_lock.Acquire();
+	FastGuard lock(pMap->m_lock);
 	CRegion *pRegion = &pMap->m_ppRegion[x][z];
-	total_mon = pRegion->m_RegionNpcArray.GetSize();
-	pNpcIDList = new int[total_mon];
+	__Vector3 vStart, vEnd;
+	float fDis = 0.0f, 
+		fSearchRange = (type == 2 ? (float)m_byAttackRange : (float)m_byTracingRange);
+	int iValue = 0;
+
+	vStart.Set(GetX(), GetY(), GetZ());
 
 	foreach_stlmap (itr, pRegion->m_RegionNpcArray)
-		pNpcIDList[count++] = *itr->second;
-	pMap->m_lock.Release();
-
-	CNpc* pNpc = nullptr;
-	__Vector3 vStart, vEnd;
-	float fDis = 0.0f;
-	// 공격 받은 상태이기때문에.. searchrange를 2배로..
-	float fSearchRange = 0.0f;
-	if( type == 2)	fSearchRange = (float)m_byAttackRange;
-	else fSearchRange = (float)m_byTracingRange;
-	vStart.Set(GetX(), GetY(), GetZ());
-	int iValue = 0, iCompValue = 0, iHP = 0;
-
-	for(int i=0 ; i<total_mon; i++ ) {
-		int nid = pNpcIDList[i];
-		if( nid < NPC_BAND )	continue;
-		pNpc = g_pMain->m_arNpc.GetData(nid);
+	{
+		CNpc * pNpc = g_pMain->m_arNpc.GetData(itr->first);
 
 		if (pNpc != nullptr && pNpc->m_NpcState != NPC_DEAD && pNpc->GetID() != GetID())
 		{
 			vEnd.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
 			fDis = GetDistance(vStart, vEnd);
 
-			// 여기에서 나의 공격거리에 있는 유저인지를 판단
 			if(fDis <= fSearchRange)	{
 				if(type == 1)	{
 					if(GetID() != pNpc->GetID())	{
@@ -3768,11 +3753,11 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 				}
 				else if(type == 2)	{
 					if(pHealer == nullptr) continue;
-					// HP상태를 체크
-					iHP = (int)(pNpc->m_iMaxHP * 0.9);
+
+					int iHP = (int)(pNpc->m_iMaxHP * 0.9);
 					if(pNpc->m_iHP <= iHP)	{		// HP 체크
-						iCompValue = (int)((pNpc->m_iMaxHP - pNpc->m_iHP) / (pNpc->m_iMaxHP * 0.01));
-						if(iValue < iCompValue)		{
+						int iCompValue = (int)((pNpc->m_iMaxHP - pNpc->m_iHP) / (pNpc->m_iMaxHP * 0.01));
+						if (iValue < iCompValue)		{
 							iValue = iCompValue;
 							pHealer->sNID = pNpc->GetID();
 							pHealer->sValue = iValue;
@@ -3782,11 +3767,6 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 			}	
 			else continue;
 		}
-	}
-
-	if(pNpcIDList)	{
-		delete [] pNpcIDList;
-		pNpcIDList = nullptr;
 	}
 }
 
@@ -3994,7 +3974,6 @@ bool CNpc::GetUserInViewRange(int x, int z)
 
 	FastGuard lock(pMap->m_lock);
 	CRegion * pRegion = &pMap->m_ppRegion[x][z];
-	FastGuard lock2(pRegion->m_RegionUserArray.m_lock);
 	__Vector3 vStart, vEnd;
 	vStart.Set(GetX(), 0, GetZ());
 	float fDis = 0.0f; 
@@ -4007,7 +3986,7 @@ bool CNpc::GetUserInViewRange(int x, int z)
 
 		vEnd.Set(pUser->m_curx, 0, pUser->m_curz);
 		fDis = GetDistance(vStart, vEnd);
-		if(fDis <= NPC_VIEW_RANGE)
+		if (fDis <= NPC_VIEW_RANGE)
 			return true;		
 	}
 	

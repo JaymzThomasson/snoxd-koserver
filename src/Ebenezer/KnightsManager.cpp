@@ -138,8 +138,6 @@ void CKnightsManager::CreateKnights(CUser* pUser, Packet & pkt)
 
 bool CKnightsManager::IsAvailableName( const char *strname)
 {
-	FastGuard lock(g_pMain->m_KnightsArray.m_lock);
-
 	foreach_stlmap (itr, g_pMain->m_KnightsArray)
 		if (STRCASECMP(itr->second->GetName().c_str(), strname) == 0)
 			return false;
@@ -384,7 +382,6 @@ void CKnightsManager::AllKnightsList(CUser *pUser, Packet & pkt)
 	uint16 sPage = pkt.read<uint16>(), start = sPage * 10, count = 0;
 	result << uint8(1) << sPage << count;
 
-	FastGuard lock(g_pMain->m_KnightsArray.m_lock);
 	foreach_stlmap (itr, g_pMain->m_KnightsArray)
 	{
 		CKnights* pKnights = itr->second;
