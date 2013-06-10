@@ -166,8 +166,6 @@ void CUser::SetExp(int iNpcExp, int iLoyalty, int iLevel)
 	nLevel = iLevel - m_bLevel;
 
 	if(nLevel <= -14)	{
-		//TRACE("$$ User - SetExp Level Fail : %s, exp=%d, loyalty=%d, mylevel=%d, level=%d $$\n", m_strUserID, iNpcExp, iLoyalty, m_proto->m_sLevel, iLevel);
-		//return;
 		TempValue = iNpcExp * 0.2;
 		nExp = (int)TempValue;
 		if(TempValue > nExp)  nExp=nExp+1;
@@ -198,31 +196,6 @@ void CUser::SetExp(int iNpcExp, int iLoyalty, int iLevel)
 		nExp = iNpcExp * 1;
 		nLoyalty = iLoyalty * 1;
 	}
-/*	else if(nLevel >= 2 && nLevel < 5)
-	{
-		TempValue = iNpcExp * 1.2;
-		nExp = (int)TempValue;
-		if(TempValue > nExp)  nExp=nExp+1;
-		TempValue = iLoyalty * 1.2;
-		nLoyalty = (int)TempValue;
-		if(TempValue > nLoyalty)  nLoyalty=nLoyalty+1;
-	}
-	else if(nLevel >= 5 && nLevel < 8)
-	{
-		TempValue = iNpcExp * 1.5;
-		nExp = (int)TempValue;
-		if(TempValue > nExp)  nExp=nExp+1;
-		TempValue = iLoyalty * 1.5;
-		nLoyalty = (int)TempValue;
-		if(TempValue > nLoyalty)  nLoyalty=nLoyalty+1;
-	}
-	else if(nLevel >= 8)
-	{
-		nExp = iNpcExp * 2;
-		nLoyalty = iLoyalty * 2;
-	}	*/
-
-	//TRACE("$$ User - SetExp Level : %s, exp=%d->%d, loy=%d->%d, mylevel=%d, monlevel=%d $$\n", m_strUserID, iNpcExp, nExp, iLoyalty, nLoyalty, m_proto->m_sLevel, iLevel);
 
 	SendExp(nExp, nLoyalty);
 }
@@ -237,12 +210,9 @@ void CUser::SetPartyExp(int iNpcExp, int iLoyalty, int iPartyLevel, int iMan)
 	TempValue = (double)iPartyLevel / 100.0;
 	nExpPercent = (int)(iNpcExp * TempValue);
 
-	//TRACE("$$ User - SetPartyExp Level : %s, exp=%d->%d, loy=%d->%d, mylevel=%d, iPartyLevel=%d $$\n", m_strUserID, iNpcExp, nExpPercent, iLoyalty, nLoyalty, m_proto->m_sLevel, iPartyLevel);
-
 	SendExp(iNpcExp, iLoyalty);
 }
 
-//  경험치를 보낸다. (레벨업일때 관련 수치를 준다)
 void CUser::SendExp(int iExp, int iLoyalty, int tType)
 {
 	Packet result(AG_USER_EXP);
