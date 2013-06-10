@@ -3203,6 +3203,10 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType /*=
 		id = pNpc->GetName().c_str();
 		goto go_result;
 	}
+	else
+	{
+		return false;
+	}
 
 	userDamage = nDamage;		
 													// 잉여 데미지는 소용없다.		
