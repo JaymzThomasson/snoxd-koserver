@@ -31,21 +31,18 @@ uint32 THREADCALL NpcThreadProc(void * pParam /* CNpcThread ptr */)
 			foreach (itr, pInfo->m_pNpcs)
 			{
 				pNpc = *itr;
-
-				//if((pNpc->m_proto->m_tNpcType == NPCTYPE_DOOR || pNpc->m_proto->m_tNpcType == NPCTYPE_ARTIFACT || pNpc->m_proto->m_tNpcType == NPCTYPE_PHOENIX_GATE || pNpc->m_proto->m_tNpcType == NPCTYPE_GATE_LEVER) && !pNpc->m_bFirstLive) continue;
-				//if( pNpc->m_bFirstLive ) continue;
 				dwTickTime = fTime2 - pNpc->m_fDelayTime;
 
-				if(pNpc->m_Delay > (int)dwTickTime && !pNpc->m_bFirstLive && pNpc->m_Delay != 0) 
+				if (pNpc->m_Delay > (int)dwTickTime && !pNpc->m_bFirstLive && pNpc->m_Delay != 0) 
 				{
-					if(pNpc->m_Delay < 0) pNpc->m_Delay = 0;
+					if (pNpc->m_Delay < 0) pNpc->m_Delay = 0;
 
-					//적발견시... (2002. 04.23수정, 부하줄이기)
-					if(pNpc->m_NpcState == NPC_STANDING && pNpc->CheckFindEnermy() )	{
-						if( pNpc->FindEnemy() )	{
-							pNpc->m_NpcState = NPC_ATTACKING;
-							pNpc->m_Delay = 0;
-						}
+					if (pNpc->m_NpcState == NPC_STANDING 
+						&& pNpc->CheckFindEnemy()
+						&& pNpc->FindEnemy())
+					{
+						pNpc->m_NpcState = NPC_ATTACKING;
+						pNpc->m_Delay = 0;
 					}
 					continue;
 				}	

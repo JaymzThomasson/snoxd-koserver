@@ -230,7 +230,7 @@ void CAISocket::RecvNpcMoveResult(Packet & pkt)
 void CAISocket::RecvNpcAttack(Packet & pkt)
 {
 	int nHP = 0, temp_damage = 0;
-	int16 sid, tid;
+	uint16 sid, tid;
 	uint8 type, bResult, byAttackType = 0;
 	float fDir=0.0f;
 	short damage = 0;
@@ -278,8 +278,6 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 					break;
 				}				
 			
-			temp_damage = 0;	// reset data;
-
 			temp_damage = damage * pUser->m_bMagicTypeRightHand / 100 ;
 
 			switch (pUser->m_bMagicTypeRightHand) {	// LEFT HAND!!!
@@ -290,7 +288,6 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 					pUser->MSpChange(temp_damage);
 					break;
 				}	
-//		
 			}
 		}
 	}
@@ -299,8 +296,7 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 		pNpc = g_pMain->m_arNpcArray.GetData(sid);
 		if(!pNpc)	return;
 
-		//TRACE("CAISocket-RecvNpcAttack 222 : sid=%s, tid=%d, zone_num=%d\n", sid, tid, m_iZoneNum);
-		if( tid >= USER_BAND && tid < NPC_BAND)
+		if (tid < NPC_BAND)
 		{
 			pUser = g_pMain->GetUserPtr(tid);
 			if(pUser == nullptr)	
@@ -316,7 +312,7 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 
 			//TRACE("RecvNpcAttack ==> sid = %d, tid = %d, result = %d\n", sid, tid, result);
 		}
-		else if (tid >= NPC_BAND)		// npc attack -> monster
+		else // npc attack -> monster
 		{
 			pMon = g_pMain->m_arNpcArray.GetData(tid);
 			if(!pMon)	return;
@@ -360,7 +356,7 @@ void CAISocket::RecvMagicAttackResult(Packet & pkt)
 	}
 	else if (byCommand == MAGIC_EFFECTING)
 	{
-		if (sid >= USER_BAND && sid < NPC_BAND)
+		if (sid < NPC_BAND)
 		{
 			CUser *pUser = g_pMain->GetUserPtr(sid);
 			if (pUser == nullptr || pUser->isDead())
@@ -438,7 +434,7 @@ void CAISocket::RecvUserHP(Packet & pkt)
 	// Is this such a good idea?? 
 	// It should be better to let Ebenezer handle the reason for the HP change
 	// that way the packet can be sent to the client etc...
-	if (sNid >= USER_BAND && sNid < NPC_BAND)
+	if (sNid < NPC_BAND)
 	{
 		CUser * pUser = g_pMain->GetUserPtr(sNid);
 		if (pUser == nullptr)
@@ -446,7 +442,7 @@ void CAISocket::RecvUserHP(Packet & pkt)
 
 		pUser->m_sHp = nHP;
 	}
-	else if (sNid >= NPC_BAND)
+	else
 	{
 		CNpc * pNpc = g_pMain->m_arNpcArray.GetData(sNid);
 		if (pNpc == nullptr)
