@@ -18,6 +18,7 @@ lib_LTLIBRARIES = $(Shared) $(Lua)
 libsnoxdko_shared_la_CPPFLAGS = -D$(BUILD_TYPE)
 libsnoxdko_shared_la_LIBADD = $(UNIXODBC_LIBS)
 libsnoxdko_shared_la_SOURCES = \
+	../src/shared/DebugUtils.cpp \
 	../src/shared/Mutex.cpp \
 	../src/shared/Thread.cpp \
 	../src/shared/Condition.cpp \

@@ -101,13 +101,22 @@
 #endif
 
 /* Define the build we're compiling */
-#ifdef _DEBUG
+#if defined(_DEBUG) || defined(DEBUG)
 #		define BUILD_TYPE "Debug"
 #		include <cassert>
 #		include "DebugUtils.h"
 
 #		define ASSERT assert
 #		define TRACE FormattedDebugString
+
+//	Ensure both typically used debug defines behave as intended
+#	ifndef DEBUG
+#		define DEBUG
+#	endif
+#	ifndef _DEBUG
+#		define _DEBUG
+#	endif
+
 #else
 #		define BUILD_TYPE "Release"
 #		define ASSERT 
