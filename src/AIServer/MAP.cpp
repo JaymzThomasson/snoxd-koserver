@@ -332,28 +332,27 @@ cancel_event_load:
 
 int MAP::IsRoomCheck(float fx, float fz)
 {
-	// dungeion work
-	// 현재의 존이 던젼인지를 판단, 아니면 리턴처리
-	
-	CRoomEvent* pRoom = nullptr;
-
-	int nSize = m_arRoomEventArray.GetSize();
-	int nX = (int)fx;
-	int nZ = (int)fz;
+	int nX = (int)fx, nZ = (int)fz;
 	int minX=0, minZ=0, maxX=0, maxZ=0;
 	int room_number = 0;
 
-	for( int i = 1; i < nSize+1; i++)		{
-		pRoom = m_arRoomEventArray.GetData( i );
-		if( !pRoom ) continue;
-		if( pRoom->m_byStatus == 3 )	continue;	// 방이 실행중이거나 깬(clear) 상태라면 검색하지 않음
+	foreach_stlmap (itr, m_arRoomEventArray)		
+	{
+		CRoomEvent * pRoom = itr->second;
+		if (pRoom == nullptr
+			|| pRoom->isCleared())
+			continue;
 
-		if( pRoom->m_byStatus == 1 )	{			// 방이 초기화 상태
+		if (pRoom->isInitialised())
+		{
 			minX = pRoom->m_iInitMinX;		minZ = pRoom->m_iInitMinZ;
 			maxX = pRoom->m_iInitMaxX;		maxZ = pRoom->m_iInitMaxZ;
 		}
-		else if( pRoom->m_byStatus == 2 )	{		// 진행중인 상태
-			if( pRoom->m_Logic[0].sNumber != 4)	continue;	// 목표지점까지 이동하는게 아니라면,,
+		else // if (pRoom->isInProgress())
+		{
+			if (pRoom->m_Logic[0].sNumber != 4)	
+				continue;
+
 			minX = pRoom->m_iEndMinX;		minZ = pRoom->m_iEndMinZ;
 			maxX = pRoom->m_iEndMaxX;		maxZ = pRoom->m_iEndMaxZ;
 		}
@@ -365,8 +364,8 @@ int MAP::IsRoomCheck(float fx, float fz)
 			{
 				pRoom->m_byStatus = RoomStatusInProgress;
 				pRoom->m_tDelayTime = UNIXTIME;
-				room_number = i;
-				TRACE(" Room Check - number = %d, x=%d, z=%d\n", i, nX, nZ);
+				room_number = itr->first;
+				TRACE(" Room Check - number = %d, x=%d, z=%d\n", room_number, nX, nZ);
 				//wsprintf(notify, "** 알림 : [%d Zone][%d] 방에 들어오신것을 환영합니다 **", m_nZoneNumber, pRoom->m_sRoomNumber);
 				//g_pMain->SendSystemMsg(notify, PUBLIC_CHAT);
 			}
