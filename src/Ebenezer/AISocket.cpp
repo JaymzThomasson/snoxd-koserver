@@ -417,7 +417,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 
 	if (Mode == 0)
 	{
-		TRACE("RecvNpcInfo - dead monster nid=%d, name=%s\n", pNpc->GetID(), pNpc->m_strName);
+		TRACE("RecvNpcInfo - dead monster nid=%d, name=%s\n", pNpc->GetID(), pNpc->GetName().c_str());
 		return;
 	}
 
@@ -595,7 +595,7 @@ void CAISocket::RecvGateDestory(Packet & pkt)
 		return;
 
 	pNpc->m_byGateOpen = bGateStatus;
-	TRACE("RecvGateDestory - (%d,%s), gate_status=%d\n", pNpc->GetID(), pNpc->m_strName, pNpc->m_byGateOpen);
+	TRACE("RecvGateDestory - (%d,%s), gate_status=%d\n", pNpc->GetID(), pNpc->GetName().c_str(), pNpc->m_byGateOpen);
 }
 
 // TO-DO: Remove this. NPCs don't just randomly die, it would make sense to do this as a result of the cause, not just because.
