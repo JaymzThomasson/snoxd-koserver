@@ -255,7 +255,7 @@ bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 
 	err = lua_pcall(m_luaState, 
 		1,	// 1 arguments
 		0,	// 0 returned values
-		NULL); // no error handler
+		0);	// no error handler
 
 	// Nothing returned, so we can finish up here.
 	if (err == LUA_OK)

@@ -179,6 +179,12 @@
 #undef max
 #endif
 
+#ifdef UNUSED
+#undef UNUSED
+#endif
+
+#define UNUSED(n) if (n)
+
 // define compiler-specific types
 #include "types.h"
 
