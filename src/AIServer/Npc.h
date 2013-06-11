@@ -95,6 +95,13 @@ class MAP;
 
 #include "../Ebenezer/Unit.h"
 
+enum MonSearchType
+{
+	MonSearchSameFamily,	// find any available mobs of the same family
+	MonSearchAny,			// find any available mob
+	MonSearchNeedsHealing	// find any mob that needs healing
+};
+
 struct __Vector3;
 class CNpc : public Unit
 {
@@ -356,9 +363,8 @@ public:
 	void FillNpcInfo(Packet & result);
 	void NpcStrategy(uint8 type);
 	void NpcTypeParser();
-	int  FindFriend(int type=0);
-	void  FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int type=0);
-	//void  FindFriendRegion(int x, int z, MAP* pMap, int type=0);
+	int  FindFriend(MonSearchType type = MonSearchSameFamily);
+	void  FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, MonSearchType type = MonSearchSameFamily);
 	bool IsCloseTarget(CUser *pUser, int nRange);
 	void ToTargetMove(CUser* pUser);
 	void SendExpToUserList();								// User 경험치 분배..

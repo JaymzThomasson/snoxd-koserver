@@ -1421,7 +1421,7 @@ bool CNpc::FindEnemy()
 	// Healer Npc
 	int iMonsterNid = 0;
 	if( m_proto->m_tNpcType == NPC_HEALER )	{		// Heal
-		iMonsterNid = FindFriend( 2 );
+		iMonsterNid = FindFriend(MonSearchNeedsHealing);
 		if( iMonsterNid != 0 )	return true;
 	}
 
@@ -3003,13 +3003,13 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 	{
 		if (m_tNpcGroupType)	 {			// 가족타입이면 시야안에 같은 타입에게 목표 지정
 			m_Target.failCount = 0;
-			if(m_proto->m_tNpcType == NPC_BOSS)	FindFriend(1);
-			else		FindFriend();
+			if(m_proto->m_tNpcType == NPC_BOSS)	FindFriend(MonSearchAny);
+			else		FindFriend(MonSearchSameFamily);
 		}
 		else	{
 			if(m_proto->m_tNpcType == NPC_BOSS)	{
 				m_Target.failCount = 0;
-				FindFriend(1);
+				FindFriend(MonSearchAny);
 			}
 		}
 		return;
@@ -3085,15 +3085,20 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 	}
 //	else m_NpcState = NPC_ATTACKING;	// 한참 공격하는데 누가 방해하면 목표를 바꿈
 
-	if(m_tNpcGroupType)	 {			// 가족타입이면 시야안에 같은 타입에게 목표 지정
+	if (m_tNpcGroupType)	 
+	{
 		m_Target.failCount = 0;
-		if(m_proto->m_tNpcType == NPC_BOSS)	FindFriend(1);
-		else		FindFriend();
+		if (m_proto->m_tNpcType == NPC_BOSS)	
+			FindFriend(MonSearchAny);
+		else
+			FindFriend(MonSearchSameFamily);
 	}
-	else	{
-		if(m_proto->m_tNpcType == NPC_BOSS)	{
+	else	
+	{
+		if (m_proto->m_tNpcType == NPC_BOSS)	
+		{
 			m_Target.failCount = 0;
-			FindFriend(1);
+			FindFriend(MonSearchAny);
 		}
 	}
 }
@@ -3602,18 +3607,13 @@ bool CNpc::IsCloseTarget(CUser *pUser, int nRange)
 	return true;
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// 시야 범위내의 내동료를 찾는다.
-// type = 0: 같은 그룹이면서 같은 패밀리 타입만 도움, 1:그룹이나 패밀리에 관계없이 도움, 
-//        2:사제NPC가 같은 아군의 상태를 체크해서 치료할 목적으로,, 리턴으로 치료될 아군의 NID를 리턴한다
-int CNpc::FindFriend(int type)
+int CNpc::FindFriend(MonSearchType type)
 {
 	CNpc* pNpc = nullptr;
 	MAP* pMap = GetMap();
-	if (pMap == nullptr) return 0;
 	if (pMap == nullptr
 		|| m_bySearchRange == 0
-		|| (type != 2 && hasTarget()))
+		|| (type != MonSearchNeedsHealing && hasTarget()))
 		return 0;
 
 	int min_x = (int)(GetX() - m_bySearchRange)/VIEW_DIST;	if(min_x < 0) min_x = 0;
@@ -3631,16 +3631,15 @@ int CNpc::FindFriend(int type)
 		arHealer[i].sValue = 0;
 	}
 
-	for(i = 0; i < search_x; i++)	{
-		for(j = 0; j < search_z; j++)	{
+	for (i = 0; i < search_x; i++)	
+		for (j = 0; j < search_z; j++)
 			FindFriendRegion(min_x+i, min_z+j, pMap, &arHealer[count], type);
-			//FindFriendRegion(min_x+i, min_z+j, pMap, type);
-		}
-	}
 
 	int iValue = 0, iMonsterNid = 0;
-	for(i=0; i<9; i++)	{
-		if(iValue < arHealer[i].sValue)	{
+	for (i=0; i<9; i++)	
+	{
+		if (iValue < arHealer[i].sValue)	
+		{
 			iValue = arHealer[i].sValue;
 			iMonsterNid = arHealer[i].sNID;
 		}
@@ -3656,7 +3655,7 @@ int CNpc::FindFriend(int type)
 	return 0;
 }
 
-void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int type)
+void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, MonSearchType type)
 {
 	if (x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())
 	{
@@ -3668,7 +3667,7 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 	CRegion *pRegion = &pMap->m_ppRegion[x][z];
 	__Vector3 vStart, vEnd;
 	float fDis = 0.0f, 
-		fSearchRange = (type == 2 ? (float)m_byAttackRange : (float)m_byTracingRange);
+		fSearchRange = (type == MonSearchNeedsHealing ? (float)m_byAttackRange : (float)m_byTracingRange);
 	int iValue = 0;
 
 	vStart.Set(GetX(), GetY(), GetZ());
@@ -3682,10 +3681,15 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 			vEnd.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
 			fDis = GetDistance(vStart, vEnd);
 
-			if(fDis <= fSearchRange)	{
-				if(type == 1)	{
-					if(GetID() != pNpc->GetID())	{
-						if (pNpc->hasTarget() && pNpc->m_NpcState == NPC_FIGHTING) continue;
+			if (fDis <= fSearchRange)	
+			{
+				if (type == MonSearchAny)
+				{
+					if (GetID() != pNpc->GetID())	
+					{
+						if (pNpc->hasTarget() && pNpc->m_NpcState == NPC_FIGHTING) 
+							continue;
+
 						pNpc->m_Target.id = m_Target.id;
 						pNpc->m_Target.bSet = true;
 						pNpc->m_Target.x = m_Target.x;
@@ -3695,9 +3699,12 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 						pNpc->NpcStrategy(NPC_ATTACK_SHOUT);
 					}
 				}
-				else if(type == 0)	{
-					if(pNpc->m_tNpcGroupType && GetID() != pNpc->GetID() && pNpc->m_proto->m_byFamilyType == m_proto->m_byFamilyType)	{
-						if (pNpc->hasTarget() && pNpc->m_NpcState == NPC_FIGHTING) continue;
+				else if (type == MonSearchSameFamily)
+				{
+					if (pNpc->m_tNpcGroupType && GetID() != pNpc->GetID() && pNpc->m_proto->m_byFamilyType == m_proto->m_byFamilyType)	{
+						if (pNpc->hasTarget() && pNpc->m_NpcState == NPC_FIGHTING) 
+							continue;
+
 						pNpc->m_Target.id = m_Target.id;
 						pNpc->m_Target.bSet = true;
 						pNpc->m_Target.x = m_Target.x;
@@ -3707,8 +3714,10 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, int
 						pNpc->NpcStrategy(NPC_ATTACK_SHOUT);
 					}
 				}
-				else if(type == 2)	{
-					if(pHealer == nullptr) continue;
+				else if (type == MonSearchNeedsHealing)
+				{
+					if (pHealer == nullptr) 
+						return;
 
 					int iHP = (int)(pNpc->m_iMaxHP * 0.9);
 					if(pNpc->m_iHP <= iHP)	{		// HP 체크
@@ -4911,8 +4920,7 @@ time_t CNpc::NpcHealing()
 		}
 	}
 
-
-	int iMonsterNid = FindFriend(2);
+	int iMonsterNid = FindFriend(MonSearchNeedsHealing);
 	if (iMonsterNid == 0)	
 	{
 		InitTarget();
