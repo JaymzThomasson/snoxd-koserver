@@ -76,15 +76,6 @@ struct _PathList
 	_PattenPos pPattenPos[NPC_MAX_PATH_LIST];
 };
 
-struct _MagicType3
-{
-	short		sHPAttackUserID;	// 지속 마법을 사용한 유저의 아이디 저장
-	short		sHPAmount;			// 지속 damage ( 지속총양 / (지속시간 / 2) )
-	uint8		byHPDuration;		// 지속 시간
-	uint8		byHPInterval;		// 지속 간격
-	time_t		tStartTime;	
-};
-
 struct _TargetHealer
 {
 	short	sNID;				// npc nid
@@ -120,7 +111,6 @@ public:
 
 	virtual void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToAI = true) {}
 	virtual void MSpChange(int amount) {}
-	virtual void InitType3(); // temporary until type 3 code is replaced
 
 	INLINE CNpcTable * GetProto() { return m_proto; }
 	INLINE uint8 GetType() { return GetProto()->m_tNpcType; }
@@ -215,7 +205,6 @@ public:
 
 	time_t	m_fHPChangeTime;
 	time_t	m_tFaintingTime;
-	_MagicType3  m_MagicType3[MAX_MAGIC_TYPE3];
 
 	//----------------------------------------------------------------
 	//	MONSTER DB 쪽에 있는 변수들
@@ -441,8 +430,6 @@ public:
 	int  GetItemGrade(int item_grade);
 	int  GetItemCodeNumber(int level, int item_type);
 	int  GetWeaponItemCodeNumber(int item_type);
-	void DurationMagic_4();
-	void DurationMagic_3();
 	void ChangeMonsterInfomation(int iChangeType);
 	int  GetPartyExp( int party_level, int man, int nNpcExp );
 	void ChangeAbility(int iChangeType);

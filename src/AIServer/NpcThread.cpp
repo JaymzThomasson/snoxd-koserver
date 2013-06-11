@@ -52,9 +52,6 @@ uint32 THREADCALL NpcThreadProc(void * pParam /* CNpcThread ptr */)
 					pNpc->HpChange();
 				}
 
-				pNpc->DurationMagic_4();		// 付过 贸府...
-				pNpc->DurationMagic_3();		// 瘤加付过..
-
 				uint8 bState = pNpc->m_NpcState;
 				time_t tDelay = -1;
 				switch (bState)
