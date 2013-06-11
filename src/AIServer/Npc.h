@@ -269,7 +269,7 @@ public:
 	uint8	m_byAttackPos;		// User의 어느 부분에서 공격하느지를 판단(8방향)
 	uint8	m_byBattlePos;		// 어떤 진형을 선택할 것인지를 판단..
 	uint8	m_byWhatAttackType; // 공격 타입 : Normal(0), 근.장거리마법(1), 독(2), 힐링(3), 지역마법만(4), 1+4번 마법(5)
-	uint8	m_byGateOpen;		// 성문일 경우에.. 사용... Gate Npc Status -> 1 : open 0 : close
+	bool	m_byGateOpen;		// 성문일 경우에.. 사용... Gate Npc Status -> 1 : open 0 : close
 	uint8	m_byMaxDamagedNation;	// 나를 죽인 유저의 국가를 저장.. (1:카루스, 2:엘모라드)
 	uint8	m_byObjectType;         // 보통은 0, object타입(성문, 레버)은 1
 	uint8	m_byDungeonFamily;		// 던젼에서 같은 패밀리 묶음 (같은 방)

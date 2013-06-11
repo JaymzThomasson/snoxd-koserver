@@ -68,7 +68,7 @@ bool CNpc::RegisterRegion(float x, float z)
 	return true;
 }
 
-CNpc::CNpc() : Unit(), m_NpcState(NPC_LIVE), m_byGateOpen(0), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
+CNpc::CNpc() : Unit(), m_NpcState(NPC_LIVE), m_byGateOpen(false), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
 	m_byAttackPos(0), m_ItemUserLevel(0), m_Delay(0), 
 	m_proto(nullptr), m_pZone(nullptr), m_pPath(nullptr)
 {

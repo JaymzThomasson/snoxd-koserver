@@ -662,7 +662,7 @@ bool CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
 	pNpc->m_byBattlePos = 0;
 
 	pNpc->m_byObjectType = SPECIAL_OBJECT;
-	pNpc->m_byGateOpen	= (uint8)pEvent->sStatus;
+	pNpc->m_byGateOpen	= (pEvent->sStatus == 1);
 
 	pNpc->m_bZone	= pMap->m_nZoneNumber;
 	pNpc->SetPosition(pEvent->fPosX, pEvent->fPosY, pEvent->fPosZ);

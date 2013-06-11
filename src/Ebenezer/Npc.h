@@ -28,7 +28,7 @@ public:
 	int   m_iSellingGroup;		// ItemGroup
 
 	uint8	m_NpcState;			// NPC의 상태 - 살았다, 죽었다, 서있다 등등...
-	uint8	m_byGateOpen;		// Gate Npc Status -> 1 : open 0 : close
+	bool	m_byGateOpen;		// Gate status: true is open, false is closed.
 
 	uint8    m_byObjectType;     // 보통은 0, object타입(성문, 레버)은 1
 	int16	m_byDirection;
@@ -59,7 +59,7 @@ public:
 
 	INLINE bool isMonster() { return m_bMonster; }
 	INLINE bool isGate() { return GetType() == NPC_GATE || GetType() == NPC_PHOENIX_GATE || GetType() == NPC_SPECIAL_GATE || GetType() == NPC_VICTORY_GATE; };
-	INLINE bool isGateOpen() { return m_byGateOpen == 1; };
+	INLINE bool isGateOpen() { return m_byGateOpen; };
 	INLINE bool isGateClosed() { return !isGateOpen(); };
 
 	INLINE short GetEntryID() { return m_sSid; };
