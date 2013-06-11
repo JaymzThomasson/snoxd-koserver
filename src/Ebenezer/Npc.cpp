@@ -133,7 +133,7 @@ void CNpc::GetNpcInfo(Packet & pkt)
 	pkt << GetEntryID()
 		<< uint8(isMonster() ? 1 : 2) // Monster = 1, NPC = 2 (need to use a better flag)
 		<< m_sPid
-		<< m_tNpcType
+		<< GetType()
 		<< m_iSellingGroup
 		<< m_sSize
 		<< m_iWeapon_1 << m_iWeapon_2

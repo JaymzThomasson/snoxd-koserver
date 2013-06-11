@@ -400,7 +400,7 @@ time_t CNpc::NpcTracing()
 				<< (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
 	g_pMain->Send(&result);
 
-	if (nFlag == 2 && m_tNpcLongType == 0 && m_proto->m_tNpcType != NPC_HEALER)
+	if (nFlag == 2 && m_tNpcLongType == 0 && !isHealer())
 	{
 		if (!TracingAttack())
 		{
@@ -562,7 +562,8 @@ time_t CNpc::NpcStanding()
 
 	m_NpcState = NPC_STANDING;
 	
-	if (m_proto->m_tNpcType == NPC_SPECIAL_GATE && g_pMain->m_byBattleEvent == BATTLEZONE_OPEN)
+	if (GetType() == NPC_SPECIAL_GATE 
+		&& g_pMain->m_byBattleEvent == BATTLEZONE_OPEN)
 	{
 		m_byGateOpen = !m_byGateOpen;
 		Packet result(AG_NPC_GATE_OPEN);
@@ -702,7 +703,7 @@ bool CNpc::SetLive()
 
 	bool bMove = pMap->IsMovable(dest_x, dest_z);
 
-	if (m_proto->m_tNpcType != NPCTYPE_MONSTER || m_lEventNpc == 1)
+	if (GetType() != NPCTYPE_MONSTER || m_lEventNpc == 1)
 	{
 		m_curx = m_fPrevX = m_nInitX;
 		m_cury = m_fPrevY = m_nInitY;
@@ -985,11 +986,9 @@ bool CNpc::RandomMove()
 		return false;
 	}
 
-    if (m_proto->m_tNpcType == NPC_DUNGEON_MONSTER)
-	{
-		if (!isInSpawnRange((int)fDestX, (int)fDestZ))
-			return false;	
-    }
+    if (GetType() == NPC_DUNGEON_MONSTER
+		&& !isInSpawnRange((int)fDestX, (int)fDestZ))
+		return false;	
 
 	fDis = GetDistance(vStart, vEnd);
 	if (fDis > NPC_MAX_MOVE_RANGE)
@@ -1385,9 +1384,11 @@ bool CNpc::FindEnemy()
 
 	// Healer Npc
 	int iMonsterNid = 0;
-	if( m_proto->m_tNpcType == NPC_HEALER )	{		// Heal
+	if (isHealer())
+	{
 		iMonsterNid = FindFriend(MonSearchNeedsHealing);
-		if( iMonsterNid != 0 )	return true;
+		if (iMonsterNid != 0)
+			return true;
 	}
 
 	MAP* pMap = GetMap();
@@ -1437,7 +1438,7 @@ bool CNpc::FindEnemy()
 	}
 
 	/*** Only find NPC/mob enemies if we are a guard ***/
-	if (bIsGuard) // || m_proto->m_tNpcType == NPCTYPE_MONSTER)	
+	if (bIsGuard) // || GetType() == NPCTYPE_MONSTER)	
 	{
 		fCompareDis = FindEnemyExpand(GetRegionX(), GetRegionZ(), fCompareDis, 2);
 
@@ -1980,11 +1981,9 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 
 	fDis = fDis - m_proto->m_fBulk;
 
-	// 작업할것 :	 던젼 몬스터의 경우 일정영역을 벗어나지 못하도록 체크하는 루틴 	
-    if ( m_proto->m_tNpcType == NPC_DUNGEON_MONSTER )	{
-		if( isInSpawnRange( (int)vUser.x, (int)vUser.z ) == false)
-			return -1;	
-    }		
+    if (GetType() == NPC_DUNGEON_MONSTER
+		&& !isInSpawnRange((int)vUser.x, (int)vUser.z))
+		return -1;	
 
 	if(Flag == 1)	{
 		m_byResetFlag = 1;
@@ -2005,14 +2004,14 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 		return 0; 
 	}
 
-	/* 타겟의 좌표를 최신 것으로 수정하고, 마지막 포인터 좌표를 수정한다,, */
 	m_fEndPoint_X = GetX();
 	m_fEndPoint_Y = GetZ();
 	m_Target.x = fX;
 	m_Target.z = fZ;
 
-	//if( m_tNpcLongType && m_proto->m_tNpcType != NPC_BOSS_MONSTER)	{		// 장거리 공격이 가능한것은 공격거리로 판단..
-	if( m_tNpcLongType == 1 )	{		// 장거리 공격이 가능한것은 공격거리로 판단..
+	//if( m_tNpcLongType && GetType() != NPC_BOSS_MONSTER)	{
+	if (m_tNpcLongType == 1)
+	{
 		if(fDis < LONG_ATTACK_RANGE)	return 1;
 		else if(fDis > LONG_ATTACK_RANGE && fDis <= nRange) return 2;
 	}
@@ -2039,17 +2038,13 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 int CNpc::GetTargetPath(int option)
 {
 	int nInitType = m_byInitMoveType;
-	if(m_byInitMoveType >= 100)	{
-		nInitType = m_byInitMoveType - 100;
-	}
-	// 행동 타입 수정
-	if(m_proto->m_tNpcType != 0)	{
-		//if(m_byMoveType != m_byInitMoveType)
-		//	m_byMoveType = m_byInitMoveType;	// 자기 자리로 돌아갈 수 있도록..
-		if(m_byMoveType != nInitType)	m_byMoveType = nInitType;	// 자기 자리로 돌아갈 수 있도록..
-	}
+	if (m_byInitMoveType >= 100)
+		nInitType -= 100;
 
-	// 추격할때는 뛰는 속도로 맞추어준다...
+	if (GetType() != NPC_MONSTER
+		&& m_byMoveType != nInitType)
+		m_byMoveType = nInitType;
+
 	m_fSecForMetor = m_fSpeed_2;
 	CUser* pUser = nullptr;
 	CNpc* pNpc = nullptr;
@@ -2190,7 +2185,8 @@ int CNpc::GetTargetPath(int option)
 	}
 
 	
-	if (m_proto->m_tNpcType != NPC_DUNGEON_MONSTER && hasTarget())	
+	if (GetType() != NPC_DUNGEON_MONSTER 
+		&& hasTarget())	
 		return 0;	
 
 	CPoint start, end;
@@ -2199,18 +2195,15 @@ int CNpc::GetTargetPath(int option)
 	end.x = (int)(vEnd22.x/TILE_SIZE) - min_x;
 	end.y = (int)(vEnd22.z/TILE_SIZE) - min_z;
 
-	// 작업할것 :	 던젼 몬스터의 경우 일정영역을 벗어나지 못하도록 체크하는 루틴 	
-    if ( m_proto->m_tNpcType == NPC_DUNGEON_MONSTER )	{
-		if( isInSpawnRange( (int)vEnd22.x, (int)vEnd22.z ) == false)
-			return -1;	
-    }
+    if (GetType() == NPC_DUNGEON_MONSTER
+		&& !isInSpawnRange((int)vEnd22.x, (int)vEnd22.z))
+		return -1;	
 
 	m_min_x = min_x;
 	m_min_y = min_z;
 	m_max_x = max_x;
 	m_max_y = max_z;
 
-	// Run Path Find ---------------------------------------------//
 	return PathFind(start, end, m_fSecForMetor);
 }
 
@@ -2239,19 +2232,19 @@ int CNpc::Attack()
 	if(ret == 0)   {
 		m_sStepCount = 0;
 		m_byActionFlag = ATTACK_TO_TRACE;
-		m_NpcState = NPC_TRACING;			// 공격하고 도망가는 유저를 따라 잡기위해(반응을 좀더 빠르게) 
-		return 0;							// IsCloseTarget()에 유저 x, y값을 갱신하고 Delay = 0으로 줌
+		m_NpcState = NPC_TRACING;
+		return 0;
 	}	
 	else if( ret == 2 )	{
-		//if(m_proto->m_tNpcType == NPC_BOSS_MONSTER)	{		// 대장 몬스터이면.....
-		if(m_tNpcLongType == 2)	{		// 직접, 간접(롱)공격이 가능한 몬스터 이므로 장거리 공격을 할 수 있다.
+		//if (GetType() == NPC_BOSS_MONSTER)	{
+		if(m_tNpcLongType == 2)	{
 			return LongAndMagicAttack();
 		}
 		else	{
 			m_sStepCount = 0;
 			m_byActionFlag = ATTACK_TO_TRACE;
-			m_NpcState = NPC_TRACING;			// 공격하고 도망가는 유저를 따라 잡기위해(반응을 좀더 빠르게) 
-			return 0;							// IsCloseTarget()에 유저 x, y값을 갱신하고 Delay = 0으로 줌
+			m_NpcState = NPC_TRACING;
+			return 0;
 		}
 	}
 	else if( ret == -1 )	{
@@ -2347,8 +2340,8 @@ int CNpc::Attack()
 			return nStandingTime;
 		}
 
-		// healer이면서 같은국가의 NPC인경우에는 힐
-		if (m_proto->m_tNpcType == NPC_HEALER && pNpc->GetNation() == GetNation())
+		if (isHealer() 
+			&& pNpc->GetNation() == GetNation())
 		{
 			m_NpcState = NPC_HEALING;
 			return 0;
@@ -2396,16 +2389,16 @@ int CNpc::LongAndMagicAttack()
 	if(ret == 0)	{
 		m_sStepCount = 0;
 		m_byActionFlag = ATTACK_TO_TRACE;
-		m_NpcState = NPC_TRACING;			// 공격하고 도망가는 유저를 따라 잡기위해(반응을 좀더 빠르게) 
-		return 0;							// IsCloseTarget()에 유저 x, y값을 갱신하고 Delay = 0으로 줌
+		m_NpcState = NPC_TRACING;
+		return 0;
 	}	
 	else if( ret == 2 )	{
-		//if(m_proto->m_tNpcType != NPC_BOSS_MONSTER)	{		// 대장 몬스터이면.....
-		if(m_tNpcLongType == 1)	{		// 장거리 몬스터이면.....
+		//if (GetType() != NPC_BOSS_MONSTER)	{
+		if(m_tNpcLongType == 1)	{
 			m_sStepCount = 0;
 			m_byActionFlag = ATTACK_TO_TRACE;
-			m_NpcState = NPC_TRACING;			// 공격하고 도망가는 유저를 따라 잡기위해(반응을 좀더 빠르게) 
-			return 0;							// IsCloseTarget()에 유저 x, y값을 갱신하고 Delay = 0으로 줌
+			m_NpcState = NPC_TRACING;
+			return 0;
 		}
 	}
 	if( ret == -1 )	{
@@ -2958,19 +2951,19 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 
 	if (pUser == preUser)	
 	{
-		if (m_tNpcGroupType)	 {			// 가족타입이면 시야안에 같은 타입에게 목표 지정
+		if (m_tNpcGroupType)	 
+		{
 			m_Target.failCount = 0;
-			if(m_proto->m_tNpcType == NPC_BOSS)	FindFriend(MonSearchAny);
-			else		FindFriend(MonSearchSameFamily);
+			FindFriend(GetType() == NPC_BOSS ? MonSearchAny : MonSearchSameFamily);
 		}
-		else	{
-			if(m_proto->m_tNpcType == NPC_BOSS)	{
-				m_Target.failCount = 0;
-				FindFriend(MonSearchAny);
-			}
+		else if (GetType() == NPC_BOSS)	
+		{
+			m_Target.failCount = 0;
+			FindFriend(MonSearchAny);
 		}
 		return;
 	}
+
 	if(preUser != nullptr/* && preUser->m_state == GAME_STATE_INGAME */)
 	{
 		preDamage = 0; lastDamage = 0;
@@ -3045,18 +3038,12 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 	if (m_tNpcGroupType)	 
 	{
 		m_Target.failCount = 0;
-		if (m_proto->m_tNpcType == NPC_BOSS)	
-			FindFriend(MonSearchAny);
-		else
-			FindFriend(MonSearchSameFamily);
+		FindFriend(GetType() == NPC_BOSS ? MonSearchAny : MonSearchSameFamily);
 	}
-	else	
+	else if (GetType() == NPC_BOSS)	
 	{
-		if (m_proto->m_tNpcType == NPC_BOSS)	
-		{
-			m_Target.failCount = 0;
-			FindFriend(MonSearchAny);
-		}
+		m_Target.failCount = 0;
+		FindFriend(MonSearchAny);
 	}
 }
 
@@ -3717,7 +3704,7 @@ void CNpc::FillNpcInfo(Packet & result)
 			<< GetNation() << GetLevel()
 			<< GetX() << GetZ() << GetY() << m_byDirection
 			<< bool(m_iHP > 0) // are we alive?
-			<< m_proto->m_tNpcType
+			<< GetType()
 			<< m_iSellingGroup << m_iMaxHP << m_iHP
 			<< m_byGateOpen 
 			<< float(m_sHitRate) << float(m_sEvadeRate) << m_sDefense
@@ -4701,7 +4688,7 @@ time_t CNpc::NpcFainting()
 
 time_t CNpc::NpcHealing()
 {
-	if (m_proto->m_tNpcType != NPC_HEALER)
+	if (!isHealer())
 	{
 		InitTarget();
 		m_NpcState = NPC_STANDING;

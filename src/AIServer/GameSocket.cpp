@@ -515,7 +515,7 @@ void CGameSocket::RecvGateOpen(Packet & pkt)
 
 	if (!pNpc->isGate()) 
 	{
-		TRACE("####   RecvGateOpen()  NpcType Fail --> type = %d  ####\n", pNpc->m_proto->m_tNpcType);
+		TRACE("####   RecvGateOpen()  NpcType Fail --> type = %d  ####\n", pNpc->GetType());
 		return;
 	}
 
@@ -611,7 +611,7 @@ void CGameSocket::RecvBattleEvent(Packet & pkt)
 		if (pNpc == nullptr)
 			continue;
 
-		if (pNpc->m_proto->m_tNpcType > 10 && (pNpc->GetNation() == KARUS || pNpc->GetNation() == ELMORAD))
+		if (pNpc->GetType() > 10 && (pNpc->GetNation() == KARUS || pNpc->GetNation() == ELMORAD))
 		{
 			if (bEvent == BATTLEZONE_OPEN || bEvent == BATTLEZONE_CLOSE)
 				pNpc->ChangeAbility(bEvent);

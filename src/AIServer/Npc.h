@@ -115,6 +115,8 @@ public:
 	INLINE CNpcTable * GetProto() { return m_proto; }
 	INLINE uint8 GetType() { return GetProto()->m_tNpcType; }
 
+	INLINE bool isHealer() { return GetType() == NPC_HEALER; } 
+
 	INLINE bool isGuard()
 	{
 		return GetType() == NPC_GUARD || GetType() == NPC_PATROL_GUARD || GetType() == NPC_STORE_GUARD;
@@ -167,7 +169,6 @@ public:
 
 	bool	m_bFirstLive;		// NPC 가 처음 생성되는지 죽었다 살아나는지 판단.
 	uint8	m_NpcState;			// NPC의 상태 - 살았다, 죽었다, 서있다 등등...
-	MAP *	m_pZone;
 
 	short	m_sNid;
 
