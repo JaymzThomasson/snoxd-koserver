@@ -59,7 +59,7 @@ void CUser::Attack(int sid, int tid)
 
 /*	if (pNpc->isGuard())
 	{
-		pNpc->m_Target.id = m_iUserId;
+		pNpc->m_Target.id = GetID();
 		pNpc->m_Target.bSet = true;
 		pNpc->m_Target.x = GetX();
 		pNpc->m_Target.y = GetY();
@@ -78,7 +78,7 @@ void CUser::Attack(int sid, int tid)
 	// Calculate Target HP	 -------------------------------------------------------//
 	short sOldNpcHP = pNpc->m_iHP;
 
-	if (!pNpc->SetDamage(0, nFinalDamage, m_iUserId))
+	if (!pNpc->SetDamage(0, nFinalDamage, GetID()))
 		SendAttackSuccess(tid, ATTACK_TARGET_DEAD, nFinalDamage, pNpc->m_iHP);
 	else
 		SendAttackSuccess(tid, ATTACK_SUCCESS, nFinalDamage, pNpc->m_iHP);
@@ -87,7 +87,7 @@ void CUser::Attack(int sid, int tid)
 void CUser::SendAttackSuccess(short tid, uint8 bResult, short sDamage, int nHP, short sAttack_type, uint8 type /*= 1*/, short sid /*= -1*/)
 {
 	if (sid < 0)
-		sid = m_iUserId;
+		sid = GetID();
 
 	Packet result(AG_ATTACK_RESULT, type);
 	result << bResult << sid << tid << sDamage << nHP << uint8(sAttack_type);
@@ -134,11 +134,11 @@ void CUser::Dead(int tid, int nDamage)
 		|| m_sRegionX > pMap->GetXRegionMax() || m_sRegionZ > pMap->GetZRegionMax())
 		return;
 
-	pMap->RegionUserRemove(m_sRegionX, m_sRegionZ, m_iUserId);
+	pMap->RegionUserRemove(m_sRegionX, m_sRegionZ, GetID());
 
-	TRACE("*** User Dead = %d, %s ***\n", m_iUserId, GetName().c_str());
+	TRACE("*** User Dead = %d, %s ***\n", GetID(), GetName().c_str());
 	if (tid > 0)
-		SendAttackSuccess(m_iUserId, ATTACK_TARGET_DEAD, nDamage, m_sHP, 1, 2, tid /*sid*/);
+		SendAttackSuccess(GetID(), ATTACK_TARGET_DEAD, nDamage, m_sHP, 1, 2, tid /*sid*/);
 }
 
 void CUser::SendHP()
@@ -147,7 +147,7 @@ void CUser::SendHP()
 		return;
 
 	Packet result(AG_USER_SET_HP);
-	result << m_iUserId << uint32(m_sHP);
+	result << GetID() << uint32(m_sHP);
 	g_pMain->Send(&result);   
 }
 
@@ -210,7 +210,7 @@ void CUser::SetPartyExp(int iNpcExp, int iLoyalty, int iPartyLevel, int iMan)
 void CUser::SendExp(int iExp, int iLoyalty, int tType)
 {
 	Packet result(AG_USER_EXP);
-	result << m_iUserId << uint16(iExp) << uint16(iLoyalty);
+	result << GetID() << uint16(iExp) << uint16(iLoyalty);
 	g_pMain->Send(&result);   	
 }
 
@@ -585,7 +585,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 
 	if (rx < 0 || rz < 0 || rx > pMap->GetXRegionMax() || rz > pMap->GetZRegionMax())	
 	{
-		TRACE("#### CUser-HealAreaCheck() Fail : [nid=%d, name=%s], nRX=%d, nRZ=%d #####\n", m_iUserId, GetName().c_str(), rx, rz);
+		TRACE("#### CUser-HealAreaCheck() Fail : [nid=%d, name=%s], nRX=%d, nRZ=%d #####\n", GetID(), GetName().c_str(), rx, rz);
 		return;
 	}
 

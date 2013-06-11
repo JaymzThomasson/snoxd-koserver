@@ -140,10 +140,10 @@ void CGameSocket::RecvUserInfo(Packet & pkt)
 	pUser->m_bLive = AI_USER_LIVE;
 
 	TRACE("****  RecvUserInfo()---> uid = %d, name=%s ******\n", 
-		pUser->m_iUserId, pUser->GetName().c_str());
+		pUser->GetID(), pUser->GetName().c_str());
 
-	if (pUser->m_iUserId < MAX_USER)
-		g_pMain->m_pUser[pUser->m_iUserId] = pUser;
+	if (pUser->GetID() < MAX_USER)
+		g_pMain->m_pUser[pUser->GetID()] = pUser;
 	else 
 		delete pUser;
 }
@@ -366,7 +366,7 @@ void CGameSocket::RecvUserRegene(Packet & pkt)
 	pUser->m_bLive = AI_USER_LIVE;
 	pUser->m_sHP = sHP;
 
-	TRACE("**** RecvUserRegene -- uid = (%s,%d), HP = %d\n", pUser->GetName().c_str(), pUser->m_iUserId, pUser->m_sHP);
+	TRACE("**** RecvUserRegene -- uid = (%s,%d), HP = %d\n", pUser->GetName().c_str(), pUser->GetID(), pUser->m_sHP);
 }
 
 void CGameSocket::RecvUserSetHP(Packet & pkt)
@@ -444,7 +444,7 @@ void CGameSocket::RecvZoneChange(Packet & pkt)
 	pUser->m_pMap = g_pMain->GetZoneByID(byZoneNumber);
 	pUser->m_bZone = byZoneNumber;
 
-	TRACE("**** RecvZoneChange -- user(%s, %d), cur_zone = %d\n", pUser->GetName().c_str(), pUser->m_iUserId, byZoneNumber);
+	TRACE("**** RecvZoneChange -- user(%s, %d), cur_zone = %d\n", pUser->GetName().c_str(), pUser->GetID(), byZoneNumber);
 }
 
 void CGameSocket::RecvUserInfoAllData(Packet & pkt)
@@ -468,7 +468,7 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 		if (pUser->GetName().empty() || pUser->GetName().length() > MAX_ID_SIZE)
 		{
 			TRACE("###  RecvUserInfoAllData() Fail ---> uid = %d, name=%s, len=%d  ### \n", 
-				pUser->m_iUserId, pUser->GetName().c_str(), pUser->GetName().length());
+				pUser->GetID(), pUser->GetName().c_str(), pUser->GetName().length());
 
 			delete pUser;
 			continue;
@@ -480,15 +480,15 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 			pUser->m_byNowParty = 1;
 
 		TRACE("****  RecvUserInfoAllData()---> uid = %d, %s, party_number=%d  ******\n", 
-			pUser->m_iUserId, pUser->GetName().c_str(), pUser->m_sPartyNumber);
+			pUser->GetID(), pUser->GetName().c_str(), pUser->m_sPartyNumber);
 
-		if (pUser->m_iUserId < MAX_USER)
+		if (pUser->GetID() < MAX_USER)
 		{
 			// Does a user already exist? Free them (I know, tacky...)
-			if (g_pMain->m_pUser[pUser->m_iUserId] != nullptr)
-				delete g_pMain->m_pUser[pUser->m_iUserId];
+			if (g_pMain->m_pUser[pUser->GetID()] != nullptr)
+				delete g_pMain->m_pUser[pUser->GetID()];
 
-			g_pMain->m_pUser[pUser->m_iUserId] = pUser;
+			g_pMain->m_pUser[pUser->GetID()] = pUser;
 		}
 		else
 		{

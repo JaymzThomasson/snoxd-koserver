@@ -349,9 +349,6 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 			}
 		}
 
-		pNpc->m_tItemPer		= pNpcTable->m_tItemPer;	// NPC Type
-		pNpc->m_tDnPer			= pNpcTable->m_tDnPer;	// NPC Type
-
 		pNpc->m_nInitMinX = pNpc->m_nLimitMinX		= iLeftX;
 		pNpc->m_nInitMinY = pNpc->m_nLimitMinZ		= iTopZ;
 		pNpc->m_nInitMaxX = pNpc->m_nLimitMaxX		= iRightX;
@@ -439,7 +436,7 @@ void CServerDlg::DeleteUserList(int uid)
 		return;
 	}
 
-	if( pUser->m_iUserId == uid )	{
+	if( pUser->GetID() == uid )	{
 		TRACE("*** UserLogOut으로 포인터 반환 : uid=%d, %s ***\n", uid, pUser->GetName().c_str());
 		delete m_pUser[uid];
 		m_pUser[uid] = nullptr;
@@ -555,7 +552,7 @@ CUser* CServerDlg::GetUserPtr(int nid)
 
 	CUser * pUser = m_pUser[nid];
 	if (pUser == nullptr
-		|| pUser->m_iUserId != nid)
+		|| pUser->GetID() != nid)
 		return nullptr;
 
 	return pUser;

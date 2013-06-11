@@ -54,9 +54,6 @@ public:
 	uint8	m_byAttackRange;	// 사정거리
 	uint8	m_byTracingRange;	// 추격거리
 
-	uint8	m_tItemPer;			// 아이템이 떨어질 확률
-	uint8	m_tDnPer;			// 돈이 떨어질확률
-
 	uint32	m_iMoney;			// 떨어지는 돈
 	uint16	m_iItem;			// 떨어지는 아이템
 	uint8	m_byDirectAttack;	// 공격방법( 0 : 직접, 1:롱공격(간접공격), 2:직,간접공격 )
