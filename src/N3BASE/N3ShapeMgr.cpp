@@ -51,11 +51,20 @@ void CN3ShapeMgr::Release()
 
 bool CN3ShapeMgr::LoadCollisionData(FILE *fp)
 {
-	UNUSED(fread(&m_fMapWidth, 4, 1, fp));
-	UNUSED(fread(&m_fMapLength, 4, 1, fp));
+	if (fread(&m_fMapWidth, 4, 1, fp) != 1
+		|| fread(&m_fMapLength, 4, 1, fp) != 1)
+	{
+		ASSERT(0);
+		return false;
+	}
+
 	Create(m_fMapWidth, m_fMapLength);
 
-	UNUSED(fread(&m_nCollisionFaceCount, 4, 1, fp));
+	if (fread(&m_nCollisionFaceCount, 4, 1, fp) != 1)
+	{
+		ASSERT(0);
+		return false;
+	}
 
 	if (m_pvCollisions != nullptr)
 	{
@@ -66,7 +75,11 @@ bool CN3ShapeMgr::LoadCollisionData(FILE *fp)
 	if (m_nCollisionFaceCount > 0)
 	{
 		m_pvCollisions = new __Vector3[m_nCollisionFaceCount * 3];
-		UNUSED(fread(m_pvCollisions, sizeof(__Vector3) * m_nCollisionFaceCount * 3, 1, fp));
+		if (fread(m_pvCollisions, sizeof(__Vector3) * m_nCollisionFaceCount * 3, 1, fp) != 1)
+		{
+			ASSERT(0);
+			return false;
+		}
 	}
 
 	// Cell data
@@ -83,7 +96,11 @@ bool CN3ShapeMgr::LoadCollisionData(FILE *fp)
 			}
 
 			uint32 bExist;
-			UNUSED(fread(&bExist, 4, 1, fp));
+			if (fread(&bExist, 4, 1, fp) != 1)
+			{
+				ASSERT(0);
+				return false;
+			}
 
 			if (!bExist) 
 				continue;

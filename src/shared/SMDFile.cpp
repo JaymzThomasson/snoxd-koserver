@@ -88,22 +88,37 @@ bool SMDFile::LoadMap(FILE *fp, bool bLoadWarpsAndRegeneEvents)
 
 void SMDFile::LoadTerrain(FILE *fp)
 {
-	UNUSED(fread(&m_nMapSize, sizeof(m_nMapSize), 1, fp));
-	UNUSED(fread(&m_fUnitDist, sizeof(m_fUnitDist), 1, fp));
+	if (fread(&m_nMapSize, sizeof(m_nMapSize), 1, fp) != 1
+		|| fread(&m_fUnitDist, sizeof(m_fUnitDist), 1, fp) != 1)
+	{
+		ASSERT(0);
+		return;
+	}
 
 	m_fHeight = new float[m_nMapSize * m_nMapSize];
-	UNUSED(fread(m_fHeight, sizeof(float) * m_nMapSize * m_nMapSize, 1, fp));
+	if (fread(m_fHeight, sizeof(float) * m_nMapSize * m_nMapSize, 1, fp) != 1)
+		ASSERT(0);
 }
 
 void SMDFile::LoadObjectEvent(FILE *fp)
 {
 	int iEventObjectCount = 0;
-	UNUSED(fread(&iEventObjectCount, sizeof(int), 1, fp));
+	if (fread(&iEventObjectCount, sizeof(int), 1, fp) != 1)
+	{
+		ASSERT(0);
+		return;
+	}
+
 	for (int i = 0; i < iEventObjectCount; i++)
 	{
 		_OBJECT_EVENT* pEvent = new _OBJECT_EVENT;
 
-		UNUSED(fread(pEvent, sizeof(_OBJECT_EVENT) - sizeof(pEvent->byLife), 1, fp));
+		if (fread(pEvent, sizeof(_OBJECT_EVENT) - sizeof(pEvent->byLife), 1, fp) != 1)
+		{
+			ASSERT(0);
+			return;
+		}
+
 		pEvent->byLife = 1;
 
 		if (pEvent->sIndex <= 0
@@ -115,17 +130,22 @@ void SMDFile::LoadObjectEvent(FILE *fp)
 void SMDFile::LoadMapTile(FILE *fp)
 {
 	m_ppnEvent = new short[m_nMapSize * m_nMapSize];
-	UNUSED(fread(m_ppnEvent, sizeof(short) * m_nMapSize * m_nMapSize, 1, fp));
+	if (fread(m_ppnEvent, sizeof(short) * m_nMapSize * m_nMapSize, 1, fp) != 1)
+		ASSERT(0);
 }
 
 void SMDFile::LoadRegeneEvent(FILE *fp)	
 {
 	int iEventObjectCount = 0;
-	UNUSED(fread(&iEventObjectCount, sizeof(iEventObjectCount), 1, fp));
+	if (fread(&iEventObjectCount, sizeof(iEventObjectCount), 1, fp) != 1)
+		ASSERT(0);
+
 	for (int i = 0; i < iEventObjectCount; i++)
 	{
 		_REGENE_EVENT *pEvent = new _REGENE_EVENT;
-		UNUSED(fread(pEvent, sizeof(_REGENE_EVENT) - sizeof(pEvent->sRegenePoint), 1, fp));
+		if (fread(pEvent, sizeof(_REGENE_EVENT) - sizeof(pEvent->sRegenePoint), 1, fp) != 1)
+			ASSERT(0);
+
 		pEvent->sRegenePoint = i;
 
 		if (pEvent->sRegenePoint < 0
@@ -138,11 +158,25 @@ void SMDFile::LoadWarpList(FILE *fp)
 {
 	int WarpCount = 0;
 
-	UNUSED(fread(&WarpCount, sizeof(WarpCount), 1, fp));
+	if (fread(&WarpCount, sizeof(WarpCount), 1, fp) != 1)
+	{
+		ASSERT(0);
+		return;
+	}
+
 	for (int i = 0; i < WarpCount; i++)
 	{
 		_WARP_INFO *pWarp = new _WARP_INFO;
-		UNUSED(fread(pWarp, sizeof(_WARP_INFO), 1, fp));
+		if (fread(pWarp, sizeof(_WARP_INFO), 1, fp) != 1)
+		{
+			// NOTE: Some SMDs are so horribly broken warps are incomplete.
+			// This will stop this (reasonably) normal use case from behaving any differently.
+			if (feof(fp))
+				return;
+
+			ASSERT(0);
+			return;
+		}
 
 		if (pWarp->sWarpID == 0
 			|| !m_WarpArray.PutData(pWarp->sWarpID, pWarp))

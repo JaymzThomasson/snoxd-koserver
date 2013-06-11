@@ -19,13 +19,23 @@ public:
 
 		void Load(FILE *fp)
 		{
-			UNUSED(fread(&nCCPolyCount, sizeof(int), 1, fp));
-			if(nCCPolyCount != 0)
+			if (fread(&nCCPolyCount, sizeof(int), 1, fp) != 1)
 			{
-				if(pdwCCVertIndices) delete [] pdwCCVertIndices;
+				ASSERT(0);
+				return;
+			}
+
+			if (nCCPolyCount != 0)
+			{
+				if (pdwCCVertIndices) 
+					delete [] pdwCCVertIndices;
+
 				pdwCCVertIndices = new uint32[nCCPolyCount * 3];
-				// _ASSERT(pdwCCVertIndices);
-				UNUSED(fread(pdwCCVertIndices, nCCPolyCount * 3 * 4, 1, fp));
+				if (fread(pdwCCVertIndices, nCCPolyCount * 3 * 4, 1, fp) != 1)
+				{
+					ASSERT(0);
+					return;
+				}
 			}
 		}
 
@@ -41,16 +51,28 @@ public:
 
 		void Load(FILE *fp)
 		{
-			UNUSED(fread(&nShapeCount, sizeof(int), 1, fp));
+			if (fread(&nShapeCount, sizeof(int), 1, fp) != 1)
+			{
+				ASSERT(0);
+				return;
+			}
+
 			if (nShapeCount != 0)
 			{
-				if(pwShapeIndices) delete [] pwShapeIndices;
+				if (pwShapeIndices) 
+					delete [] pwShapeIndices;
+
 				pwShapeIndices = new WORD[nShapeCount];
-				UNUSED(fread(pwShapeIndices, nShapeCount * 2, 1, fp));
+				if (fread(pwShapeIndices, nShapeCount * 2, 1, fp) != 1)
+				{
+					ASSERT(0);
+					return;
+				}
 			}
-			for(int z = 0; z < CELL_MAIN_DEVIDE; z++)
+
+			for (int z = 0; z < CELL_MAIN_DEVIDE; z++)
 			{
-				for(int x = 0; x < CELL_MAIN_DEVIDE; x++)
+				for (int x = 0; x < CELL_MAIN_DEVIDE; x++)
 					SubCells[x][z].Load(fp);
 			}
 		}
