@@ -74,7 +74,7 @@ public:
 	void Initialize();
 	void InitNpcAttack();
 	void Attack(int sid, int tid);	// ATTACK
-	void SetDamage(int damage, int tid);				// user damage
+	bool SetDamage(int damage, int attackerID);
 	void Dead(int tid, int nDamage);					// user dead
 	void SetExp(int iNpcExp, int iLoyalty, int iLevel);		// user exp
 	void SetPartyExp(int iNpcExp, int iLoyalty, int iPartyLevel, int iMan);		// user exp

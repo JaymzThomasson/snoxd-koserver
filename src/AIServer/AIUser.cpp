@@ -94,18 +94,28 @@ void CUser::SendAttackSuccess(short tid, uint8 bResult, short sDamage, int nHP, 
 	g_pMain->Send(&result);
 }
 
-void CUser::SetDamage(int damage, int tid)
+/**
+ * @brief	Applies damage to a user.
+ *
+ * @param	damage		The damage.
+ * @param	attackerID  The attacker's ID.
+ *
+ * @return	false if the damage caused death, true if not.
+ * 			NOTE: The somewhat backwards logic is for consistency with CNpc::SetDamage().
+ */
+bool CUser::SetDamage(int damage, int attackerID)
 {
 	if (damage <= 0 || m_bLive == AI_USER_DEAD)
-		return;
+		return true;
 
 	m_sHP -= (short)damage;
 
-	if (m_sHP <= 0)
-	{
-		m_sHP = 0;
-		Dead(tid, damage);
-	}
+	if (m_sHP > 0)
+		return true;
+
+	m_sHP = 0;
+	Dead(attackerID, damage);
+	return false;
 }
 
 void CUser::Dead(int tid, int nDamage)
