@@ -102,25 +102,33 @@
 
 /* Define the build we're compiling */
 #if defined(_DEBUG) || defined(DEBUG)
-#		define BUILD_TYPE "Debug"
-#		include <cassert>
-#		include "DebugUtils.h"
+#	define BUILD_TYPE "Debug"
+#	include <cassert>
+#	include "DebugUtils.h"
 
-#		define ASSERT assert
-#		define TRACE FormattedDebugString
+#	define ASSERT assert
+#	define TRACE FormattedDebugString
+
+//	Enables tracing to stdout. 
+//	Preferable with the VS debugger (is thrown in the "output" window), but
+//	it can be spammy otherwise (especially if you don't need it enabled).
+#	ifdef WIN32
+#		define USE_SQL_TRACE
+#	endif
 
 //	Ensure both typically used debug defines behave as intended
 #	ifndef DEBUG
 #		define DEBUG
 #	endif
+
 #	ifndef _DEBUG
 #		define _DEBUG
 #	endif
 
 #else
-#		define BUILD_TYPE "Release"
-#		define ASSERT 
-#		define TRACE 
+#	define BUILD_TYPE "Release"
+#	define ASSERT 
+#	define TRACE 
 #endif
 
 /* Define the architecture we're compiling for */

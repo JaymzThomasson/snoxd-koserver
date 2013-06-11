@@ -70,7 +70,7 @@ bool OdbcCommand::Execute(const tstring & szSQL)
 	if (!Open())
 		return false;
 
-#ifdef DEBUG
+#ifdef USE_SQL_TRACE
 	TRACE((szSQL + _T("\n")).c_str());
 #endif
 
@@ -100,7 +100,7 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 	if (!Open())
 		return false;
 
-#ifdef DEBUG
+#ifdef USE_SQL_TRACE
 	TRACE((szSQL + _T("\n")).c_str());
 #endif
 
