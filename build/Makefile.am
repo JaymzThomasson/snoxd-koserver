@@ -123,7 +123,6 @@ AIServer_SOURCES = \
 	../src/AIServer/main.cpp \
 	../src/AIServer/AIUser.cpp \
 	../src/AIServer/GameSocket.cpp \
-	../src/AIServer/MagicProcess.cpp \
 	../src/AIServer/MAP.cpp \
 	../src/AIServer/Npc.cpp \
 	../src/AIServer/NpcMagicProcess.cpp \
