@@ -31,6 +31,10 @@
 #	define THREADCALL WINAPI
 #	define STRCASECMP _stricmp
 
+#	define I64FMT "%016I64X"
+#	define I64FMTD "%I64u"
+#	define SI64FMTD "%I64d"
+
 #else /* not a Windows environment */
 
 //	Include generated config file from ./configure
@@ -72,6 +76,11 @@
 
 #	define THREADCALL 
 #	define STRCASECMP strcasecmp
+
+#	define I64FMT "%016llX"
+#	define I64FMTD "%llu"
+#	define SI64FMTD "%lld"
+
 #	define SetConsoleTitle(title) /* unsupported & unnecessary */
 
 #endif

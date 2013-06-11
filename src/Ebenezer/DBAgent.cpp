@@ -809,8 +809,7 @@ uint8 CDBAgent::SealItem(string strSealPasswd, uint64 nItemSerial, uint32 nItemI
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strSealPasswd.c_str(), strSealPasswd.length());
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
 
-
-	if (!dbCommand->Execute(string_format(_T("{CALL USER_ITEM_SEAL(?, ?, ?, %I64d, %d, %d, ?)}"), nItemSerial, nItemID, bSealType)))
+	if (!dbCommand->Execute(string_format(_T("{CALL USER_ITEM_SEAL(?, ?, ?, " I64FMTD ", %d, %d, ?)}"), nItemSerial, nItemID, bSealType)))
 		ReportSQLError(m_GameDB->GetError());
 
 	return nRet;
@@ -925,7 +924,7 @@ bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, CUser *pUser)
 	if (!dbCommand->Execute(string_format(_T("{CALL UPDATE_USER_DATA ("
 			"?, " // strCharID 
 			"%d, %d, %d, %d, %d, "		// nation, race, class, hair, rank
-			"%d, %d, %I64d, %d, %d, "		// title, level, exp, loyalty, face
+			"%d, %d, " I64FMTD ", %d, %d, "		// title, level, exp, loyalty, face
 			"%d, %d, %d, "				// city, knights, fame
 			"%d, %d, %d, "				// hp, mp, sp
 			"%d, %d, %d, %d, %d, "		// str, sta, dex, int, cha
@@ -1423,9 +1422,8 @@ int8 CDBAgent::SendLetter(string & strSenderID, string & strRecipientID, string 
 
 	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &sRet);
 
-	// NOTE: %I64d is signed int64 for Microsoft compilers (all we care about right now)
-	// Also: MSSQL uses signed types.
-	if (!dbCommand->Execute(string_format(_T("{CALL MAIL_BOX_SEND(?, ?, ?, ?, %d, %d, %d, %d, %I64d, ?)}"), 
+	// MSSQL uses signed types.
+	if (!dbCommand->Execute(string_format(_T("{CALL MAIL_BOX_SEND(?, ?, ?, ?, %d, %d, %d, %d, " I64FMTD ", ?)}"), 
 		bType, nItemID, sCount, sDurability, nSerialNum)))
 	{
 		ReportSQLError(m_GameDB->GetError());
