@@ -2367,14 +2367,10 @@ int CNpc::Attack()
 
 		nDamage = GetFinalDamage(pUser);	// 최종 대미지
 		
-		if(nDamage > 0) {
-			pUser->SetDamage(nDamage, GetID());
-			if(pUser->m_bLive != AI_USER_DEAD)	{
-				SendAttackSuccess(ATTACK_SUCCESS, pUser->m_iUserId, nDamage, pUser->m_sHP);
-			}
-		}
-		else
-			SendAttackSuccess(ATTACK_FAIL, pUser->m_iUserId, nDamage, pUser->m_sHP);
+		if (nDamage <= 0)
+			SendAttackSuccess(ATTACK_FAIL, pUser->GetID(), nDamage, pUser->m_sHP);
+		else if (pUser->SetDamage(nDamage, GetID()))
+			SendAttackSuccess(ATTACK_SUCCESS, pUser->GetID(), nDamage, pUser->m_sHP);
 	}
 	else // Targeting NPC
 	{
@@ -2553,14 +2549,10 @@ bool CNpc::TracingAttack()
 
 		nDamage = GetFinalDamage(pUser);
 		
-		if (nDamage > 0)		
-		{
-			pUser->SetDamage(nDamage, GetID());
-			if (pUser->m_bLive != AI_USER_DEAD)
-				SendAttackSuccess(ATTACK_SUCCESS, pUser->m_iUserId, nDamage, pUser->m_sHP);
-		}
-		else
-			SendAttackSuccess(ATTACK_FAIL, pUser->m_iUserId, nDamage, pUser->m_sHP);
+		if (nDamage <= 0)
+			SendAttackSuccess(ATTACK_FAIL, pUser->GetID(), nDamage, pUser->m_sHP);
+		else if (pUser->SetDamage(nDamage, GetID()))
+			SendAttackSuccess(ATTACK_SUCCESS, pUser->GetID(), nDamage, pUser->m_sHP);
 	}
 	else // Target is an NPC/monster
 	{
