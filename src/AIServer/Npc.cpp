@@ -94,7 +94,6 @@ CNpc::CNpc() : Unit(), m_NpcState(NPC_LIVE), m_byGateOpen(0), m_byObjectType(NOR
 	m_sControlSid = 0;
 	m_sPathCount = 0;
 	m_sMaxPathCount = 0;
-	m_byMoneyType = 0;
 
 	m_bFirstLive = true;
 
@@ -292,8 +291,6 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto, bool bMonster)
 
 	m_sRegenTime		= 10000 * SECOND;
 	m_sMaxPathCount		= 0;
-	m_tItemPer			= proto->m_tItemPer;
-	m_tDnPer			= proto->m_tDnPer;
 
 	m_pZone = g_pMain->GetZoneByID(GetZoneID());
 	m_bFirstLive = 1;
@@ -1285,59 +1282,43 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 		return 1;
 	}
 
+	m_vMapSize.cx = m_max_x - m_min_x + 1;
+	m_vMapSize.cy = m_max_y - m_min_y + 1;
 
-	int i;
-	int min_x, max_x;
-	int min_y, max_y;
-
-	min_x = m_min_x;
-	min_y = m_min_y;
-	max_x = m_max_x;
-	max_y = m_max_y;
-
-	m_vMapSize.cx = max_x - min_x + 1;		
-	m_vMapSize.cy = max_y - min_y + 1;
-	
 	m_pPath = nullptr;
 
-	m_vPathFind.SetMap(m_vMapSize.cx, m_vMapSize.cy, GetMap()->GetEventIDs(), GetMap()->GetMapSize(), min_x, min_y);
+	m_vPathFind.SetMap(m_vMapSize.cx, m_vMapSize.cy, GetMap()->GetEventIDs(), GetMap()->GetMapSize(), m_min_x, m_min_y);
 	m_pPath = m_vPathFind.FindPath(end.x, end.y, start.x, start.y);
 
 	int count = 0;
-
-	while(m_pPath)
+	while (m_pPath != nullptr)
 	{
 		m_pPath = m_pPath->Parent;
-		if(m_pPath == nullptr)			break;
-		m_pPoint[count].pPoint.x = m_pPath->x+min_x;		m_pPoint[count].pPoint.y = m_pPath->y+min_y;
-		//m_pPath = m_pPath->Parent;
+		if (m_pPath == nullptr)			
+			break;
+
+		m_pPoint[count].pPoint.x = m_pPath->x + m_min_x;		
+		m_pPoint[count].pPoint.y = m_pPath->y + m_min_y;
 		count++;
 	}	
 	
-	if(count <= 0 || count >= MAX_PATH_LINE)	{	
+	if (count <= 0 || count >= MAX_PATH_LINE)
 		return 0;
-	}
 
-	m_iAniFrameIndex = count-1;
-	
-	float x1 = 0.0f;
-	float z1 = 0.0f;
-
+	m_iAniFrameIndex = count - 1;
 	int nAdd = GetDir(m_fStartPoint_X, m_fStartPoint_Y, m_fEndPoint_X, m_fEndPoint_Y);
 
-	for(i=0; i<count; i++)
+	for (int i = 0; i < count; i++)
 	{
-		if(i==(count-1))
+		if (i == (count - 1))
 		{
 			m_pPoint[i].fXPos = m_fEndPoint_X;
 			m_pPoint[i].fZPos = m_fEndPoint_Y;
 		}
 		else
 		{
-			x1 = (float)(m_pPoint[i].pPoint.x * TILE_SIZE + m_fAdd_x);
-			z1 = (float)(m_pPoint[i].pPoint.y * TILE_SIZE + m_fAdd_z);
-			m_pPoint[i].fXPos = x1;
-			m_pPoint[i].fZPos = z1;
+			m_pPoint[i].fXPos = (float)(m_pPoint[i].pPoint.x * TILE_SIZE + m_fAdd_x);
+			m_pPoint[i].fZPos = (float)(m_pPoint[i].pPoint.y * TILE_SIZE + m_fAdd_z);
 		}
 	}
 
@@ -1665,7 +1646,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 				|| fDis < pow(fComp, 2.0f))
 				continue;
 
-			target_uid = pUser->m_iUserId;
+			target_uid = pUser->GetID();
 			fComp = fDis;
 
 			//후공몹...
@@ -2310,8 +2291,8 @@ int CNpc::Attack()
 		}
 
 		if(pUser->m_bLive == AI_USER_DEAD)	{		// User 가 이미 죽은경우
-			//SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->m_iUserId, 0, pUser->m_iHP);
-			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->m_iUserId, 0, 0);
+			//SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->GetID(), 0, pUser->m_iHP);
+			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->GetID(), 0, 0);
 			InitTarget();
 			m_NpcState = NPC_STANDING;
 			return nStandingTime;
@@ -2355,11 +2336,11 @@ int CNpc::Attack()
 				if (nRandom < nPercent)	
 				{
 					Packet result(AG_MAGIC_ATTACK_RESULT, uint8(MAGIC_EFFECTING));
-					result	<< m_proto->m_iMagic1 << GetID() << pUser->m_iUserId
+					result	<< m_proto->m_iMagic1 << GetID() << pUser->GetID()
 							<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
 					g_pMain->Send(&result);
 
-					//TRACE("LongAndMagicAttack --- sid=%d, tid=%d\n", GetID(), pUser->m_iUserId);
+					//TRACE("LongAndMagicAttack --- sid=%d, tid=%d\n", GetID(), pUser->GetID());
 					return m_sAttackDelay;
 				}
 			}
@@ -2465,7 +2446,7 @@ int CNpc::LongAndMagicAttack()
 		}
 
 		if(pUser->m_bLive == AI_USER_DEAD)	{		// User 가 이미 죽은경우
-			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->m_iUserId, 0, 0);
+			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->GetID(), 0, 0);
 			InitTarget();
 			m_NpcState = NPC_STANDING;
 			return nStandingTime;
@@ -2494,8 +2475,8 @@ int CNpc::LongAndMagicAttack()
 			}	
 		}	*/
 
-		CNpcMagicProcess::MagicPacket(MAGIC_CASTING, m_proto->m_iMagic1, GetID(), pUser->m_iUserId);
-		//TRACE("**** LongAndMagicAttack --- sid=%d, tid=%d\n", GetID(), pUser->m_iUserId);
+		CNpcMagicProcess::MagicPacket(MAGIC_CASTING, m_proto->m_iMagic1, GetID(), pUser->GetID());
+		//TRACE("**** LongAndMagicAttack --- sid=%d, tid=%d\n", GetID(), pUser->GetID());
 	}
 	else // Target monster/NPC 
 	{
@@ -2538,7 +2519,7 @@ bool CNpc::TracingAttack()
 
 		if (pUser->m_bLive == AI_USER_DEAD)		
 		{
-			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->m_iUserId, 0, 0);
+			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->GetID(), 0, 0);
 			return false;
 		}
 
@@ -3036,7 +3017,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 	}
 	else if(preUser == nullptr && nAttackType == 1004)		return;		// Heal magic에 반응하지 않도록..
 		
-	m_Target.id	= pUser->m_iUserId;
+	m_Target.id	= pUser->GetID();
 	m_Target.bSet = true;
 	m_Target.x	= pUser->GetX();
 	m_Target.y	= pUser->GetY();
@@ -3590,7 +3571,7 @@ bool CNpc::IsCloseTarget(CUser *pUser, int nRange)
 		|| !isInRangeSlow(pUser, nRange * 2.0f))
 		return false; 
 
-	m_Target.id = pUser->m_iUserId;
+	m_Target.id = pUser->GetID();
 	m_Target.bSet = true;
 	m_Target.x = pUser->GetX();
 	m_Target.y = pUser->GetY();
@@ -3798,24 +3779,16 @@ int CNpc::GetDir(float x1, float z1, float x2, float z2)
 		if (y22>y11) 
 		{
 			if (x22>x11) 
-			{
-				nDir = DIR_DOWNRIGHT;		// -> 
-			}
+				nDir = DIR_DOWNRIGHT;
 			else 
-			{
-				nDir = DIR_DOWNLEFT;		// -> 
-			}
+				nDir = DIR_DOWNLEFT;
 		}
 		else
 		{
 			if (x22 > x11) 
-			{
 				nDir = DIR_UPRIGHT;		
-			}
 			else 
-			{
 				nDir = DIR_UPLEFT;
-			}
 		}
 	}
 
@@ -3858,15 +3831,6 @@ result_value:
 	}
 
 	return nDir;
-}
-
-float CNpc::RandomGenf(float max, float min)
-{
-	if ( max == min ) return max;
-	if ( min > max ) { float b = min; min = max; max = b; }
-	int k = rand()%(int)((max*100-min*100));	
-
-	return (float)((float)(k*0.01f)+min);
 }
 
 void CNpc::NpcMoveEnd()
@@ -3989,7 +3953,7 @@ void CNpc::IsUserInSight()
 			|| !isInRangeSlow(pUser, NPC_EXP_RANGE))
 			continue;
 
-		if (m_DamagedUserList[i].iUid == pUser->m_iUserId)
+		if (m_DamagedUserList[i].iUid == pUser->GetID())
 		{
 			if (STRCASECMP(m_DamagedUserList[i].strUserID, pUser->GetName().c_str()) == 0) 
 				m_DamagedUserList[i].bIs = true;
@@ -4136,15 +4100,6 @@ void CNpc::IsNoPathFind(float fDistance)
 void CNpc::GiveNpcHaveItem()
 {
 	int temp = 0, iPer = 0, iMakeItemCode = 0, iMoney = 0, iRandom, nCount = 1, i =0;
-
-/*	if( m_byMoneyType == 1 )	{
-		SetByte(pBuf, AG_NPC_EVENT_ITEM, index);
-		SetShort(pBuf, m_sMaxDamageUserid, index);	
-		SetShort(pBuf, GetID(), index);
-		SetDWORD(pBuf, TYPE_MONEY_SID, index);
-		SetDWORD(pBuf, m_iMoney, index);
-		return;
-	}	*/
 
 	iRandom = myrand(70, 100);
 	iMoney = m_iMoney * iRandom / 100;

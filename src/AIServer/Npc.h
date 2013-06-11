@@ -249,10 +249,6 @@ public:
 	uint8	m_byAttackRange;	// 사정거리
 	uint8	m_byTracingRange;	// 추격 거리
 
-	uint8	m_tItemPer;			// 아이템이 떨어질 확률
-	uint8	m_tDnPer;			// 돈이 떨어질확률
-	uint8	m_byMoneyType;		// Event몬스터일 경우 돈을 많이 주는 것, (0:루팅, 1:루팅을 하지 않고 바로 나눠갖는다)
-
 	int		m_iMoney;			// 떨어지는 돈
 	int		m_iItem;			// 떨어지는 아이템
 
@@ -432,7 +428,6 @@ public:
 	int GetDir(float x1, float z1, float x2, float z2);
 	void NpcMoveEnd();
 
-	INLINE float RandomGenf(float max, float min);
 	void GetVectorPosition(__Vector3 & vOrig, __Vector3 & vDest, float fDis, __Vector3 * vResult);
 	void CalcAdaptivePosition(__Vector3 & vPosOrig, __Vector3 & vPosDest, float fAttackDistance, __Vector3 * vResult);
 	void ComputeDestPos(__Vector3 & vCur, float fDegree, float fDegreeOffset, float fDistance, __Vector3 * vResult);
