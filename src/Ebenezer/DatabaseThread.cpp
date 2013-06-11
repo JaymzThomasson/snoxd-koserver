@@ -20,7 +20,7 @@ static std::vector<Thread *> s_threads;
 
 void DatabaseThread::Startup(uint32 dwThreads)
 {
-	for (uint32 i = 0; i < dwThreads; i++)
+	for (long i = 0; i < dwThreads; i++)
 		s_threads.push_back(new Thread(ThreadProc, (void *)i));
 }
 

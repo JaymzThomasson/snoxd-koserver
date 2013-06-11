@@ -950,7 +950,7 @@ void CKnightsManager::KnightsAllianceList(CUser* pUser, Packet & pkt)
 		return;
 	}
 
-	int16 clans[] = 
+	uint16 clans[] = 
 	{ 
 		pAlliance->sMainAllianceKnights, pAlliance->sSubAllianceKnights, 
 		pAlliance->sMercenaryClan_1, pAlliance->sMercenaryClan_2 
@@ -963,10 +963,7 @@ void CKnightsManager::KnightsAllianceList(CUser* pUser, Packet & pkt)
 	result.SByte();
 	foreach_array(i, clans)
 	{
-		int16 sClanID = clans[i]; 
-		if (sClanID <= 0)
-			continue;
-
+		uint16 sClanID = clans[i]; 
 		CKnights * pTmp = g_pMain->GetClanPtr(sClanID);
 		if (pTmp == nullptr)
 			continue;

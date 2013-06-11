@@ -207,7 +207,7 @@ bool CServerDlg::CreateNpcThread()
 		}
 	}
 
-	printf("[Monster Init - %d, threads=%d]\n", m_TotalNPC, m_arNpcThread.size());
+	printf("[Monster Init - %d, threads=%lld]\n", m_TotalNPC, (long long) m_arNpcThread.size());
 	return true;
 }
 

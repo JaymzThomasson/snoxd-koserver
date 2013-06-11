@@ -20,7 +20,7 @@ public:
 		else *result << *strMessage;
 	}
 
-	static void Construct(Packet * result, uint8 bType, char * szMessage, char * szSender = "",
+	static void Construct(Packet * result, uint8 bType, const char * szMessage, const char * szSender = "",
 		uint8 bNation = 1, int16 senderID = -1)
 	{
 		std::string strSender = szSender, strMessage = szMessage;

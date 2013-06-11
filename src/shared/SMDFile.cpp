@@ -88,22 +88,22 @@ bool SMDFile::LoadMap(FILE *fp, bool bLoadWarpsAndRegeneEvents)
 
 void SMDFile::LoadTerrain(FILE *fp)
 {
-	fread(&m_nMapSize, sizeof(m_nMapSize), 1, fp);
-	fread(&m_fUnitDist, sizeof(m_fUnitDist), 1, fp);
+	UNUSED(fread(&m_nMapSize, sizeof(m_nMapSize), 1, fp));
+	UNUSED(fread(&m_fUnitDist, sizeof(m_fUnitDist), 1, fp));
 
 	m_fHeight = new float[m_nMapSize * m_nMapSize];
-	fread(m_fHeight, sizeof(float) * m_nMapSize * m_nMapSize, 1, fp);
+	UNUSED(fread(m_fHeight, sizeof(float) * m_nMapSize * m_nMapSize, 1, fp));
 }
 
 void SMDFile::LoadObjectEvent(FILE *fp)
 {
 	int iEventObjectCount = 0;
-	fread(&iEventObjectCount, sizeof(int), 1, fp);
+	UNUSED(fread(&iEventObjectCount, sizeof(int), 1, fp));
 	for (int i = 0; i < iEventObjectCount; i++)
 	{
 		_OBJECT_EVENT* pEvent = new _OBJECT_EVENT;
 
-		fread(pEvent, sizeof(_OBJECT_EVENT) - sizeof(pEvent->byLife), 1, fp);
+		UNUSED(fread(pEvent, sizeof(_OBJECT_EVENT) - sizeof(pEvent->byLife), 1, fp));
 		pEvent->byLife = 1;
 
 		if (pEvent->sIndex <= 0
@@ -115,34 +115,34 @@ void SMDFile::LoadObjectEvent(FILE *fp)
 void SMDFile::LoadMapTile(FILE *fp)
 {
 	m_ppnEvent = new short[m_nMapSize * m_nMapSize];
-	fread(m_ppnEvent, sizeof(short) * m_nMapSize * m_nMapSize, 1, fp);
+	UNUSED(fread(m_ppnEvent, sizeof(short) * m_nMapSize * m_nMapSize, 1, fp));
 }
 
 void SMDFile::LoadRegeneEvent(FILE *fp)	
 {
 	int iEventObjectCount = 0;
-	fread(&iEventObjectCount, sizeof(iEventObjectCount), 1, fp);
+	UNUSED(fread(&iEventObjectCount, sizeof(iEventObjectCount), 1, fp));
 	for (int i = 0; i < iEventObjectCount; i++)
 	{
 		_REGENE_EVENT *pEvent = new _REGENE_EVENT;
-		fread(pEvent, sizeof(_REGENE_EVENT) - sizeof(pEvent->sRegenePoint), 1, fp);
+		UNUSED(fread(pEvent, sizeof(_REGENE_EVENT) - sizeof(pEvent->sRegenePoint), 1, fp));
 		pEvent->sRegenePoint = i;
 
 		if (pEvent->sRegenePoint < 0
 			|| !m_ObjectRegeneArray.PutData(pEvent->sRegenePoint, pEvent))
 			delete pEvent;
-	}	
+	}
 }
 
 void SMDFile::LoadWarpList(FILE *fp)
 {
 	int WarpCount = 0;
 
-	fread(&WarpCount, sizeof(WarpCount), 1, fp);
+	UNUSED(fread(&WarpCount, sizeof(WarpCount), 1, fp));
 	for (int i = 0; i < WarpCount; i++)
 	{
 		_WARP_INFO *pWarp = new _WARP_INFO;
-		fread(pWarp, sizeof(_WARP_INFO), 1, fp);
+		UNUSED(fread(pWarp, sizeof(_WARP_INFO), 1, fp));
 
 		if (pWarp->sWarpID == 0
 			|| !m_WarpArray.PutData(pWarp->sWarpID, pWarp))
@@ -157,7 +157,7 @@ void SMDFile::GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries)
 		_WARP_INFO *pWarp = itr->second;
 		if (pWarp == nullptr || (pWarp->sWarpID / 10) != warpGroup)
 			continue;
-		
+
 		warpEntries.insert(pWarp);
 	}
 }

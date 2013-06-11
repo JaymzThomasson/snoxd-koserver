@@ -51,11 +51,11 @@ void CN3ShapeMgr::Release()
 
 bool CN3ShapeMgr::LoadCollisionData(FILE *fp)
 {
-	fread(&m_fMapWidth, 4, 1, fp); // Shape Count
-	fread(&m_fMapLength, 4, 1, fp); // Shape Count
-	this->Create(m_fMapWidth, m_fMapLength);
+	UNUSED(fread(&m_fMapWidth, 4, 1, fp));
+	UNUSED(fread(&m_fMapLength, 4, 1, fp));
+	Create(m_fMapWidth, m_fMapLength);
 
-	fread(&m_nCollisionFaceCount, 4, 1, fp);
+	UNUSED(fread(&m_nCollisionFaceCount, 4, 1, fp));
 
 	if (m_pvCollisions != nullptr)
 	{
@@ -63,13 +63,13 @@ bool CN3ShapeMgr::LoadCollisionData(FILE *fp)
 		m_pvCollisions = nullptr;
 	}
 
-	if(m_nCollisionFaceCount > 0)
+	if (m_nCollisionFaceCount > 0)
 	{
 		m_pvCollisions = new __Vector3[m_nCollisionFaceCount * 3];
-		fread(m_pvCollisions, sizeof(__Vector3) * m_nCollisionFaceCount * 3, 1, fp);
+		UNUSED(fread(m_pvCollisions, sizeof(__Vector3) * m_nCollisionFaceCount * 3, 1, fp));
 	}
 
-	// Cell Data 쓰기.
+	// Cell data
 	int z = 0;
 	for(float fZ = 0.0f; fZ < m_fMapLength; fZ += CELL_MAIN_SIZE, z++)
 	{
@@ -83,8 +83,10 @@ bool CN3ShapeMgr::LoadCollisionData(FILE *fp)
 			}
 
 			uint32 bExist;
-			fread(&bExist, 4, 1, fp); // 데이터가 있는 셀인지 쓰고..
-			if (!bExist) continue;
+			UNUSED(fread(&bExist, 4, 1, fp));
+
+			if (!bExist) 
+				continue;
 
 			m_pCells[x][z] = new __CellMain;
 			m_pCells[x][z]->Load(fp);
