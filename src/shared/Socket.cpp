@@ -10,9 +10,9 @@ Socket::Socket(SOCKET fd, uint32 sendbuffersize, uint32 recvbuffersize)
 
 #ifdef CONFIG_USE_IOCP
 	// IOCP member variables
-	m_writeLock = 0;
 	m_completionPort = 0;
 #endif
+	m_writeLock = 0;
 
 	// Check for needed fd allocation.
 	if (m_fd == 0)
