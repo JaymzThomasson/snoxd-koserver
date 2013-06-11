@@ -70,8 +70,8 @@ bool OdbcCommand::Execute(const tstring & szSQL)
 	if (!Open())
 		return false;
 
-#ifdef _DEBUG
-	OutputDebugString((szSQL + _T("\n")).c_str());
+#ifdef DEBUG
+	TRACE((szSQL + _T("\n")).c_str());
 #endif
 
 	if (!BindParameters())
@@ -100,8 +100,8 @@ bool OdbcCommand::Prepare(const tstring & szSQL)
 	if (!Open())
 		return false;
 
-#ifdef _DEBUG
-	OutputDebugString((szSQL + _T("\n")).c_str());
+#ifdef DEBUG
+	TRACE((szSQL + _T("\n")).c_str());
 #endif
 
 	if (!SQL_SUCCEEDED(SQLPrepare(m_hStmt, (SQLTCHAR *)szSQL.c_str(), szSQL.length())))
