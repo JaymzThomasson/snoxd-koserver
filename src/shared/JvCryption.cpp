@@ -15,12 +15,14 @@ void CJvCryption::Init() { m_tkey = m_public_key ^ g_private_key; }
 
 uint64 CJvCryption::GenerateKey()
 {
+#ifdef USE_CRYPTION
 	// because of their sucky encryption method, 0 means it effectively won't be encrypted. 
 	// We don't want that happening...
 	do
 	{
 		m_public_key = (uint64)rand() << 32 | rand();
 	} while (!m_public_key); 
+#endif
 	return m_public_key;
 }
 
@@ -44,7 +46,8 @@ int CJvCryption::JvDecryptionWithCRC32(int len, uint8 *datain, uint8 *dataout)
 {
 	int result;
 	JvDecryptionFast(len, datain, dataout);
-	if (crc32(dataout, len - 4, -1) == *(unsigned long*)(len - 4 + dataout))
+
+	if (crc32(dataout, len - 4, -1) == *(uint32 *)(len - 4 + dataout))
 		result = len - 4;
 	else
 		result = -1;

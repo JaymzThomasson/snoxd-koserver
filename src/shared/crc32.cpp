@@ -56,7 +56,7 @@
   /*																		*/
   /*  --------------------------------------------------------------------  */
 
-static unsigned long crc32_tab[] = {
+static uint32 crc32_tab[] = {
 	  0x00000000L, 0x77073096L, 0xee0e612cL, 0x990951baL, 0x076dc419L,
 	  0x706af48fL, 0xe963a535L, 0x9e6495a3L, 0x0edb8832L, 0x79dcb8a4L,
 	  0xe0d5e91eL, 0x97d2d988L, 0x09b64c2bL, 0x7eb17cbdL, 0xe7b82d07L,
@@ -113,17 +113,11 @@ static unsigned long crc32_tab[] = {
 
 /* Return a 32-bit CRC of the contents of the buffer. */
 
-unsigned long crc32(const unsigned char *s, unsigned int len, unsigned int startVal /* = 0*/)
+uint32 crc32(const uint8 *s, uint32 len, uint32 startVal /* = 0*/)
 {
-  unsigned int i;
-  unsigned long crc32val;
-  
-  crc32val = startVal;
-  for (i = 0;  i < len;  i ++)
-	{
-	  crc32val =
-	crc32_tab[(crc32val ^ s[i]) & 0xff] ^
-	  (crc32val >> 8);
-	}
-  return crc32val;
+	uint32 crc32val = startVal;
+	for (uint32 i = 0; i < len; i++)
+		crc32val = crc32_tab[(crc32val ^ s[i]) & 0xff] ^ (crc32val >> 8);
+
+	return crc32val;
 }

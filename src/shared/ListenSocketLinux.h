@@ -21,13 +21,13 @@ public:
 		: ListenSocketBase(), m_socketMgr(mgr), m_bSuspended(false)
     {
 		m_socket = socket(AF_INET, SOCK_STREAM, 0);
-        SocketOps::ReuseAddr(m_socket);
-        SocketOps::Nonblocking(m_socket);
+		SocketOps::ReuseAddr(m_socket);
+		SocketOps::Nonblocking(m_socket);
 
-        m_address.sin_family = AF_INET;
-        m_address.sin_port = ntohs((u_short)Port);
-        m_address.sin_addr.s_addr = htonl(INADDR_ANY);
-        m_opened = false;
+		m_address.sin_family = AF_INET;
+		m_address.sin_port = ntohs((u_short)Port);
+		m_address.sin_addr.s_addr = htonl(INADDR_ANY);
+		m_opened = false;
 
 		if (strcmp(ListenAddress, "0.0.0.0"))
 		{
@@ -48,30 +48,30 @@ public:
 		if (ret != 0) 
 		{
 			printf("Unable to listen on port %u.\n", Port);
-            return;
-        }
+			return;
+		}
 
 		len = sizeof(sockaddr_in);
 		m_opened = true;
 		mgr->AddListenSocket(this);
-    }
+	}
 
-    ~ListenSocket()
-    {
-        if (m_opened)
-            SocketOps::CloseSocket(m_socket);
-    }
+	~ListenSocket()
+	{
+		if (m_opened)
+			SocketOps::CloseSocket(m_socket);
+	}
 
 	bool run() {}
 	void suspend() { m_bSuspended = true; }
 	void resume() { m_bSuspended = false; }
 
-    void Close()
-    {
-        if (m_opened)
-            SocketOps::CloseSocket(m_socket);
-        m_opened = false;
-    }
+	void Close()
+	{
+		if (m_opened)
+			SocketOps::CloseSocket(m_socket);
+		m_opened = false;
+	}
 
 	void OnAccept()
 	{
@@ -92,19 +92,20 @@ public:
 			SocketOps::CloseSocket(aSocket);
 			return;
 		}
+
 		socket->Accept(&m_tempAddress);
 	}
 
-    INLINE bool IsOpen() { return m_opened; }
-	SOCKET GetFd() { return m_socket; }	
+	INLINE bool IsOpen() { return m_opened; }
+	SOCKET GetFd() { return m_socket; }
 
 private:
 	SocketMgr * m_socketMgr;
-    SOCKET m_socket;
-    struct sockaddr_in m_address;
-    struct sockaddr_in m_tempAddress;
-    bool m_opened;
-    uint32 len;
+	SOCKET m_socket;
+	struct sockaddr_in m_address;
+	struct sockaddr_in m_tempAddress;
+	bool m_opened;
+	uint32 len;
 	bool m_bSuspended;
 };
 
