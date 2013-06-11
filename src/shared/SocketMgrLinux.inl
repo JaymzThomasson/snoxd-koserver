@@ -23,5 +23,6 @@
 
 	SocketMap m_sockets;
 	ListenSocketMap m_listenSockets;
+	FastMutex m_socketLock;
 
 #endif

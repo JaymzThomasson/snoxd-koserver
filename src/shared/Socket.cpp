@@ -111,9 +111,6 @@ void Socket::Disconnect()
 		return;
 
 	m_connected = false;
-	
-	SocketOps::CloseSocket(m_fd);
-	m_fd = 0;
 
 #ifdef CONFIG_USE_IOCP
 	m_readEvent.Unmark();
@@ -123,7 +120,17 @@ void Socket::Disconnect()
 	OnDisconnect();
 
 	// remove from mgr
-	m_socketMgr->OnDisconnect(this);
+#ifndef CONFIG_USE_IOCP // to-do: clean this up
+        GetSocketMgr()->RemoveSocket(this);
+#endif
+        GetSocketMgr()->OnDisconnect(this);
+
+	SocketOps::CloseSocket(m_fd);
+        m_fd = 0;
+
+	// Reset the read/write buffers
+	GetReadBuffer().Remove(GetReadBuffer().GetSize());
+	GetWriteBuffer().Remove(GetWriteBuffer().GetSize());
 
 	//if (!IsDeleted())
 	//	Delete();

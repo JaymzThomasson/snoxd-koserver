@@ -14,11 +14,12 @@ KOSocket::KOSocket(uint16 socketID, SocketMgr * mgr, SOCKET fd, uint32 sendBuffe
 void KOSocket::OnConnect()
 {
 	TRACE("Connection received from %s:%d\n", GetRemoteIP().c_str(), GetRemotePort());
-	m_remaining = 0;
-	m_usingCrypto = false;
-	m_readTries = 0;
-	m_sequence = 0;
-	// m_lastResponse = 0; 
+
+        m_remaining = 0;
+        m_usingCrypto = false;
+        m_readTries = 0;
+        m_sequence = 0;
+        // m_lastResponse = 0;
 }
 
 void KOSocket::OnRead() 
@@ -98,7 +99,6 @@ void KOSocket::OnRead()
 	return;
 
 error_handler:
-	GetReadBuffer().Remove(GetReadBuffer().GetSize());
 	Disconnect();
 }
 
@@ -228,6 +228,8 @@ void KOSocket::OnDisconnect()
 
 void KOSocket::EnableCrypto()
 {
+#ifdef USE_CRYPTION
 	m_crypto.Init();
 	m_usingCrypto = true;
+#endif
 }

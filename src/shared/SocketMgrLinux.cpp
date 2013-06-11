@@ -25,7 +25,9 @@ uint32 SocketMgr::GetPreferredThreadCount() { return 1; }
 
 void SocketMgr::AddSocket(Socket * s)
 {
+	FastGuard lock(m_socketLock);
 	auto itr = m_sockets.find(s->GetFd());
+
 	if (itr != m_sockets.end())
 	{
 		s->Delete();
@@ -46,6 +48,8 @@ void SocketMgr::AddSocket(Socket * s)
 
 void SocketMgr::AddListenSocket(ListenSocketBase * s)
 {
+	FastGuard lock(m_socketLock);
+
 	auto itr = m_listenSockets.find(s->GetFd());
 	ASSERT(itr == m_listenSockets.end());
 	m_listenSockets[s->GetFd()] = s;
@@ -62,13 +66,16 @@ void SocketMgr::AddListenSocket(ListenSocketBase * s)
 
 void SocketMgr::RemoveSocket(Socket * s)
 {
+	FastGuard lock(m_socketLock);
+
 	auto itr = m_sockets.find(s->GetFd());
 	if (itr == m_sockets.end() 
 		|| itr->second != s)
 	{
-		printf("epoll warning: Could not remove fd %u from the set as it doesn't exist?", s->GetFd());
+		printf("epoll warning: Could not remove fd %u from the set as it doesn't exist?\n", s->GetFd());
 		return;
 	}
+
 
 	m_sockets.erase(itr);
 
@@ -83,6 +90,7 @@ void SocketMgr::RemoveSocket(Socket * s)
 
 void SocketMgr::CloseAll()
 {
+	FastGuard lock(m_socketLock);
 	foreach (itr, m_sockets)
 		itr->second->Delete();
 }
@@ -94,8 +102,8 @@ void SocketMgr::_CleanupSockets()
 
 uint32 THREADCALL SocketMgr::SocketWorkerThread(void * lpParam)
 {
-    // epoll event struct
-    struct epoll_event events[THREAD_EVENT_SIZE]; /* that stack... */
+	// epoll event struct
+	struct epoll_event events[THREAD_EVENT_SIZE]; /* that stack... */
 
 	SocketMgr * mgr = static_cast<SocketMgr *>(lpParam);
 	while (mgr->m_bWorkerThreadsActive)
@@ -103,12 +111,15 @@ uint32 THREADCALL SocketMgr::SocketWorkerThread(void * lpParam)
 		int fd_count = epoll_wait(mgr->m_epollFd, events, THREAD_EVENT_SIZE, EPOLL_WAIT_TIMEOUT);
 		for (int i = 0; i < fd_count; ++i)
 		{
+			FastGuard socketLock(mgr->m_socketLock);
+
 			if (events[i].data.fd >= SOCKET_HOLDER_SIZE)
 			{
 				printf("epoll warning: Requested FD that is too high (%u)\n", events[i].data.fd);
 				continue;
 			}
 
+			// Does this socket exist in our socket map?
 			auto itr = mgr->m_sockets.find(events[i].data.fd);
 			if (itr == mgr->m_sockets.end())
 			{
@@ -127,7 +138,7 @@ uint32 THREADCALL SocketMgr::SocketWorkerThread(void * lpParam)
 				ptr->Disconnect();
 				continue;
 			}
-			
+
 			if (events[i].events & EPOLLIN)
 			{
 				ptr->ReadCallback(0);               // Len is unknown at this point.

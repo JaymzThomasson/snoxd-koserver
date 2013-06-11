@@ -1,5 +1,6 @@
 #pragma once
 
+#define USE_CRYPTION
 #include "crc32.h"
 
 class CJvCryption
