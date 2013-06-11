@@ -35,7 +35,6 @@ public:
 	CRegion**		m_ppRegion;				// 64미터의 타일정보..
 	int m_nZoneNumber;						// zone number
 	int	m_nServerNo;
-	std::string m_MapName;
 	float*		m_fHeight;
 	uint8		m_byRoomType;		// 방의 초기화관련( 0:자동으로 초기화, 1:전쟁이벤트 관련(특정조건이 완료시 초기화)
 	uint8		m_byRoomEvent;		// event room(0:empty, 1:use)

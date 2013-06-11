@@ -43,7 +43,7 @@ SMDFile *SMDFile::Load(std::string mapName, bool bLoadWarpsAndRegeneEvents /*= f
 
 	// Try to load the file now.
 	SMDFile *smd = new SMDFile();
-	if (!smd->LoadMap(fp, bLoadWarpsAndRegeneEvents))
+	if (!smd->LoadMap(fp, mapName, bLoadWarpsAndRegeneEvents))
 	{
 		// Problem? Make sure we clean up after ourselves.
 		smd->DecRef(); // it's the only reference anyway
@@ -59,8 +59,24 @@ SMDFile *SMDFile::Load(std::string mapName, bool bLoadWarpsAndRegeneEvents /*= f
 	return smd;
 }
 
-bool SMDFile::LoadMap(FILE *fp, bool bLoadWarpsAndRegeneEvents)
+void SMDFile::OnInvalidMap()
 {
+	printf("\n ** An error has occurred **\n\n");
+	printf("ERROR: %s is not a valid map file.\n\n", m_MapName.c_str());
+	printf("Previously, we ignored all invalid map behaviour, however this only hides\n");
+	printf("very real problems - especially with things like AI pathfinding.\n\n");
+	printf("This problem is most likely occur with maps tweaked to use a different\n");
+	printf("map size. Unfortunately, doing this means data after that (almost everything)\n");
+	printf("becomes corrupt, which is known to cause extremely 'unusual' buggy behaviour.\n\n");
+	printf("It is recommended you use a map built for this zone, or at the very least,\n");\
+	printf("you should use a map originally built for the same zone size.\n\n");
+	ASSERT(0);
+}
+
+bool SMDFile::LoadMap(FILE *fp, std::string & mapName, bool bLoadWarpsAndRegeneEvents)
+{
+	m_MapName = mapName;
+
 	LoadTerrain(fp);
 
 	m_N3ShapeMgr->Create((m_nMapSize - 1)*m_fUnitDist, (m_nMapSize-1)*m_fUnitDist);
@@ -90,34 +106,25 @@ void SMDFile::LoadTerrain(FILE *fp)
 {
 	if (fread(&m_nMapSize, sizeof(m_nMapSize), 1, fp) != 1
 		|| fread(&m_fUnitDist, sizeof(m_fUnitDist), 1, fp) != 1)
-	{
-		ASSERT(0);
-		return;
-	}
+		return OnInvalidMap();
 
 	m_fHeight = new float[m_nMapSize * m_nMapSize];
 	if (fread(m_fHeight, sizeof(float) * m_nMapSize * m_nMapSize, 1, fp) != 1)
-		ASSERT(0);
+		OnInvalidMap();
 }
 
 void SMDFile::LoadObjectEvent(FILE *fp)
 {
 	int iEventObjectCount = 0;
 	if (fread(&iEventObjectCount, sizeof(int), 1, fp) != 1)
-	{
-		ASSERT(0);
-		return;
-	}
+		return OnInvalidMap();
 
 	for (int i = 0; i < iEventObjectCount; i++)
 	{
 		_OBJECT_EVENT* pEvent = new _OBJECT_EVENT;
 
 		if (fread(pEvent, sizeof(_OBJECT_EVENT) - sizeof(pEvent->byLife), 1, fp) != 1)
-		{
-			ASSERT(0);
-			return;
-		}
+			return OnInvalidMap();
 
 		pEvent->byLife = 1;
 
@@ -131,20 +138,20 @@ void SMDFile::LoadMapTile(FILE *fp)
 {
 	m_ppnEvent = new short[m_nMapSize * m_nMapSize];
 	if (fread(m_ppnEvent, sizeof(short) * m_nMapSize * m_nMapSize, 1, fp) != 1)
-		ASSERT(0);
+		return OnInvalidMap();
 }
 
 void SMDFile::LoadRegeneEvent(FILE *fp)	
 {
 	int iEventObjectCount = 0;
 	if (fread(&iEventObjectCount, sizeof(iEventObjectCount), 1, fp) != 1)
-		ASSERT(0);
+		return OnInvalidMap();
 
 	for (int i = 0; i < iEventObjectCount; i++)
 	{
 		_REGENE_EVENT *pEvent = new _REGENE_EVENT;
 		if (fread(pEvent, sizeof(_REGENE_EVENT) - sizeof(pEvent->sRegenePoint), 1, fp) != 1)
-			ASSERT(0);
+			return OnInvalidMap();
 
 		pEvent->sRegenePoint = i;
 
@@ -159,10 +166,7 @@ void SMDFile::LoadWarpList(FILE *fp)
 	int WarpCount = 0;
 
 	if (fread(&WarpCount, sizeof(WarpCount), 1, fp) != 1)
-	{
-		ASSERT(0);
-		return;
-	}
+		return OnInvalidMap();
 
 	for (int i = 0; i < WarpCount; i++)
 	{
@@ -174,8 +178,7 @@ void SMDFile::LoadWarpList(FILE *fp)
 			if (feof(fp))
 				return;
 
-			ASSERT(0);
-			return;
+			return OnInvalidMap();
 		}
 
 		if (pWarp->sWarpID == 0
