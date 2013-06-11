@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <stdarg.h>
 
 void FormattedDebugString(const char * fmt, ...)
 {
@@ -15,5 +16,10 @@ void FormattedDebugString(const char * fmt, ...)
 	*p++ = '\r';
 	*p++ = '\n';
 	*p   = '\0';
+
+#ifdef WIN32
 	OutputDebugString(buf);
+#else
+	printf("%s", buf);
+#endif
 }
