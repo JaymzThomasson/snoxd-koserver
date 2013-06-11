@@ -54,7 +54,6 @@ MAP::MAP() : m_smdFile(nullptr), m_ppRegion(nullptr),
 bool MAP::Initialize(_ZONE_INFO *pZone)
 {
 	m_nZoneNumber = pZone->m_nZoneNumber;
-	m_MapName = pZone->m_MapName;
 	m_byRoomEvent = pZone->m_byRoomEvent;
 
 	m_smdFile = SMDFile::Load(pZone->m_MapName);
@@ -83,7 +82,7 @@ bool MAP::Initialize(_ZONE_INFO *pZone)
 		if (!LoadRoomEvent())
 		{
 			printf("ERROR: Unable to load room event (%d.aievt) for map - %s\n", 
-				m_byRoomEvent, m_MapName.c_str());
+				m_byRoomEvent, pZone->m_MapName.c_str());
 			m_byRoomEvent = 0;
 		}
 		else

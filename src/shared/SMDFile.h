@@ -16,7 +16,8 @@ public:
 
 	static SMDFile *Load(std::string mapName, bool bLoadWarpsAndRegeneEvents = false /* AI server doesn't need them */);
 
-	bool LoadMap(FILE *fp, bool bLoadWarpsAndRegeneEvents /* AI server doesn't need them */);
+	void OnInvalidMap();
+	bool LoadMap(FILE *fp, std::string & mapName, bool bLoadWarpsAndRegeneEvents /* AI server doesn't need them */);
 	void LoadTerrain(FILE *fp);
 	void LoadObjectEvent(FILE *fp);
 	void LoadMapTile(FILE *fp);
@@ -47,6 +48,8 @@ public:
 	virtual ~SMDFile();
 
 private:
+	std::string m_MapName;
+
 	short*		m_ppnEvent;
 	WarpArray	m_WarpArray;
 
