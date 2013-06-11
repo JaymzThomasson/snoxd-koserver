@@ -39,7 +39,7 @@ void CNpc::Initialize()
 	m_iWeapon_1 = 0;
 	m_iWeapon_2 = 0;
 	m_NpcState = NPC_LIVE;
-	m_byGateOpen = 1;
+	m_byGateOpen = true;
 	m_byObjectType = NORMAL_OBJECT;
 
 	m_byTrapNumber = 0;
@@ -159,7 +159,7 @@ void CNpc::SendGateFlag(uint8 bFlag /*= -1*/, bool bSendAI /*= true*/)
 
 	// If there's a flag to set, set it now.
 	if (bFlag >= 0)
-		m_byGateOpen = bFlag;
+		m_byGateOpen = (bFlag == 1);
 
 	// Tell everyone nearby our new status.
 	result << uint8(1) << GetID() << m_byGateOpen;

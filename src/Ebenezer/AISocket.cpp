@@ -587,7 +587,7 @@ void CAISocket::RecvCheckAlive(Packet & pkt)
 void CAISocket::RecvGateDestory(Packet & pkt)
 {
 	uint16 nid, sCurZone, rX, rZ;
-	uint8 bGateStatus;
+	bool bGateStatus;
 	pkt >> nid >> bGateStatus >> sCurZone >> rX >> rZ;
 
 	CNpc* pNpc = g_pMain->m_arNpcArray.GetData(nid);
@@ -765,7 +765,7 @@ void CAISocket::RecvNpcEventItem(Packet & pkt)
 void CAISocket::RecvGateOpen(Packet & pkt)
 {
 	uint16 sNid, sEventID; 
-	uint8 bFlag;
+	bool bFlag;
 
 	pkt >> sNid >> sEventID >> bFlag;
 

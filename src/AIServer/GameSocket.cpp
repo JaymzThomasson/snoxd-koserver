@@ -500,7 +500,7 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 void CGameSocket::RecvGateOpen(Packet & pkt)
 {
 	uint16 nid;
-	uint8 byGateOpen;
+	bool byGateOpen;
 
 	pkt >> nid >> byGateOpen;
 	if (nid < NPC_BAND)	
@@ -510,7 +510,8 @@ void CGameSocket::RecvGateOpen(Packet & pkt)
 	}
 
 	CNpc* pNpc = g_pMain->m_arNpc.GetData(nid);
-	if(pNpc == nullptr)		return;
+	if (pNpc == nullptr)		
+		return;
 
 	if (!pNpc->isGate()) 
 	{
@@ -518,14 +519,7 @@ void CGameSocket::RecvGateOpen(Packet & pkt)
 		return;
 	}
 
-	if (byGateOpen < 0 || byGateOpen < 2)
-	{
-		TRACE("####   RecvGateOpen()  byGateOpen Fail --> byGateOpen = %d  ####\n", byGateOpen);
-		return;
-	}
-
 	pNpc->m_byGateOpen = byGateOpen;
-
 	TRACE("****  RecvGateOpen()---> nid = %d, byGateOpen = %d  ******\n", nid, byGateOpen);
 }
 
