@@ -368,7 +368,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 			pNpc->m_nLimitMaxZ = iLimitMaxZ;
 		}	
 			
-		pNpc->m_pZone = GetZoneByID(pNpc->GetZoneID());
+		pNpc->m_pMap = GetZoneByID(pNpc->GetZoneID());
 		if (pNpc->GetMap() == nullptr)
 		{
 			printf(_T("Error: NPC %d in zone %d that does not exist."), sSid, bZoneID);
@@ -673,7 +673,7 @@ bool CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
 	pNpc->m_nInitMaxY	= (int)pEvent->fPosZ+1;	
 
 	pNpc->Load(m_sMapEventNpc++, pNpcTable, false);
-	pNpc->m_pZone = pMap;
+	pNpc->m_pMap = pMap;
 
 	if (pNpc->GetMap() == nullptr
 		|| !m_arNpc.PutData(pNpc->GetID(), pNpc))

@@ -339,8 +339,6 @@ public:
 	bool	m_bMonster;
 
 public:
-	INLINE MAP * GetMap() { return m_pZone; };
-
 	CNpc();
 	virtual ~CNpc();
 
