@@ -503,8 +503,8 @@ void CGameSocket::RecvGateOpen(Packet & pkt)
 	uint8 byGateOpen;
 
 	pkt >> nid >> byGateOpen;
-
-	if(nid < NPC_BAND || nid < INVALID_BAND)	{
+	if (nid < NPC_BAND)	
+	{
 		TRACE("####   RecvGateOpen()  nid Fail --> nid = %d  ####\n", nid);
 		return;
 	}
