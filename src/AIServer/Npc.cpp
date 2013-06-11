@@ -191,19 +191,6 @@ void CNpc::Init()
 	}
 }
 
-void CNpc::InitType3()
-{ /* temporary until this is replaced with inherited Unit functionality */
-	Unit::InitType3();
-	for (int i = 0; i < MAX_MAGIC_TYPE3; i++)  
-	{
-		m_MagicType3[i].sHPAttackUserID = -1;
-		m_MagicType3[i].sHPAmount = 0;
-		m_MagicType3[i].byHPDuration = 0;
-		m_MagicType3[i].byHPInterval = 2;
-		m_MagicType3[i].tStartTime = 0;
-	}
-}
-
 void CNpc::InitPos()
 {
 	static const float fDD = 1.5f;
@@ -779,9 +766,6 @@ bool CNpc::SetLive()
 
 	m_fHPChangeTime = getMSTime();
 	m_tFaintingTime = 0;
-
-	InitType3();
-	InitType4();
 
 	if (m_bFirstLive)	
 	{
@@ -4629,52 +4613,6 @@ int  CNpc::GetItemCodeNumber(int level, int item_type)
 	return iItemCode;
 }
 
-void CNpc::DurationMagic_4()
-{
-	MAP* pMap = GetMap();
-	if (pMap == nullptr)	
-		return;
-
-	if (m_byDungeonFamily > 0)
-	{
-		CRoomEvent* pRoom = pMap->m_arRoomEventArray.GetData(m_byDungeonFamily);
-		if (pRoom == nullptr)
-		{
-			// If it doesn't exist, there's no point continually assuming it exists. Just unset it.
-			// We'll only throw the message once, so that the user knows they need to make sure the room event exists.
-			m_byDungeonFamily = 0;
-			TRACE("#### Npc-DurationMagic_4() failed: room event does not exist : [nid=%d, name=%s], m_byDungeonFamily(event)=%d #####\n", 
-				GetID(), GetName().c_str(), m_byDungeonFamily);
-		}
-		else if (pRoom->m_byStatus == 3
-				&& m_NpcState != NPC_DEAD
-				&& m_byRegenType == 0)
-		{
-			m_byRegenType = 2;
-			Dead(1);
-			return;
-		}
-	}
-
-	FastGuard lock(m_buffLock);
-	foreach (itr, m_buffMap)
-	{
-		if (itr->second.m_tEndTime > UNIXTIME)
-			continue;
-
-		// NOTE: Skills are in the process of being moved over to Ebenezer
-		// So these don't work at all for now
-		// CMagicProcess::RemoveType4Buff(itr->first, this);
-
-		// Revert speed de/buff
-		if (itr->first == 5)	// BUFF_TYPE_SPEED
-		{
-			m_fSpeed_1 = m_fOldSpeed_1;
-			m_fSpeed_2 = m_fOldSpeed_2;
-		}
-	}
-}
-
 void CNpc::ChangeMonsterInfomation(int iChangeType)
 {
 	if (m_sChangeSid == 0 || m_byChangeType == 0)
@@ -4737,55 +4675,6 @@ void CNpc::ChangeMonsterInfomation(int iChangeType)
 	m_iItem			= pNpcTable->m_iItem;
 	m_tNpcLongType	= pNpcTable->m_byDirectAttack;	
 	m_byWhatAttackType = pNpcTable->m_byMagicAttack;
-}
-
-void CNpc::DurationMagic_3()
-{
-	int duration_damage = 0;
-
-	for (int i = 0; i < MAX_MAGIC_TYPE3; i++)
-	{
-		if (!m_MagicType3[i].byHPDuration
-			|| UNIXTIME < (m_MagicType3[i].tStartTime + m_MagicType3[i].byHPInterval))
-			continue;
-
-		m_MagicType3[i].byHPInterval += 2;
-
-		// ignore healing, just apply DOT
-		if (m_MagicType3[i].sHPAmount < 0)
-		{
-			duration_damage = abs(m_MagicType3[i].sHPAmount);
-
-			// If DOT damage has killed the NPC....
-			if (!SetDamage(-1, duration_damage, m_MagicType3[i].sHPAttackUserID))
-			{
-				SendAttackSuccess(MAGIC_ATTACK_TARGET_DEAD, m_MagicType3[i].sHPAttackUserID, duration_damage, m_iHP, 1, DURATION_ATTACK);
-
-				m_MagicType3[i].tStartTime = 0;
-				m_MagicType3[i].byHPDuration = 0;
-				m_MagicType3[i].byHPInterval = 2;
-				m_MagicType3[i].sHPAmount = 0;
-				m_MagicType3[i].sHPAttackUserID = -1; 
-				duration_damage = 0;
-			}
-			// Not dead yet.
-			else
-			{
-				SendAttackSuccess(ATTACK_SUCCESS, m_MagicType3[i].sHPAttackUserID, duration_damage, m_iHP, 1, DURATION_ATTACK);	
-			}
-		}
-
-		// Has DOT expired yet? If it's expired, we can remove it.
-		if (UNIXTIME < (m_MagicType3[i].tStartTime + m_MagicType3[i].byHPDuration))
-			continue;
-
-		m_MagicType3[i].tStartTime = 0;
-		m_MagicType3[i].byHPDuration = 0;
-		m_MagicType3[i].byHPInterval = 2;
-		m_MagicType3[i].sHPAmount = 0;
-		m_MagicType3[i].sHPAttackUserID = -1;
-		duration_damage = 0;
-	}	
 }
 
 time_t CNpc::NpcSleeping()
