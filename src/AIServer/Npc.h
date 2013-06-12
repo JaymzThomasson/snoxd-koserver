@@ -109,7 +109,7 @@ public:
 	virtual void GetInOut(Packet &, uint8) {}
 	virtual void AddToRegion(int16 sRegionX, int16 sRegionZ) {}
 
-	virtual void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToAI = true) {}
+	virtual void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToEbenezer = true);
 	virtual void MSpChange(int amount) {}
 
 	INLINE CNpcTable * GetProto() { return m_proto; }
@@ -352,7 +352,7 @@ public:
 	bool IsCloseTarget(CUser *pUser, int nRange);
 	void ToTargetMove(CUser* pUser);
 	void SendExpToUserList();								// User 경험치 분배..
-	bool SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType = 0);	// Npc의 데미지 계산..
+	bool SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType = 0, bool bSendToEbenezer = true);	// Npc의 데미지 계산..
 	bool SetHMagicDamage(int nDamage);	// Npc의 데미지 계산..
 	int GetDefense();										// Npc의 방어값..
 	void ChangeTarget(int nAttackType, CUser *pUser);

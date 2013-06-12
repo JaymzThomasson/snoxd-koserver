@@ -3135,7 +3135,7 @@ int CNpc::GetDefense()
 	return m_sDefense;
 }
 
-bool CNpc::SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType /*= 0*/)
+bool CNpc::SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType /*= 0*/, bool bSendToEbenezer /*= true*/)
 {
 	bool bIsDurationDamage = (nAttackType < 0);
 	int i=0, len=0;
@@ -3147,6 +3147,7 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType /*=
 	if(m_iHP <= 0) return true;
 	if(nDamage < 0) return true;
 
+	Unit * pAttacker = nullptr;
 	CUser* pUser = nullptr;
 	CNpc* pNpc = nullptr;
 	char strDurationID[MAX_ID_SIZE+1];
@@ -3154,12 +3155,12 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType /*=
 	const char * id = nullptr;
 
 	if (uid < NPC_BAND)	{	// Target 이 User 인 경우
-		pUser = g_pMain->GetUserPtr(uid);	// 해당 사용자인지 인증
+		pAttacker = pUser = g_pMain->GetUserPtr(uid);	// 해당 사용자인지 인증
 		if(pUser == nullptr) return true;
 		id = pUser->GetName().c_str();
 	}
 	else if (uid >= NPC_BAND && uid < INVALID_BAND)	{	// Target 이 mon 인 경우
-		pNpc = g_pMain->m_arNpc.GetData(uid);
+		pAttacker = pNpc = g_pMain->m_arNpc.GetData(uid);
 		if(pNpc == nullptr) return true;
 		userDamage = nDamage;
 		id = pNpc->GetName().c_str();
@@ -3222,6 +3223,7 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType /*=
 go_result:
 	m_TotalDamage += userDamage;
 	m_iHP -= nDamage;	
+	HpChange(-nDamage, pAttacker, bSendToEbenezer);
 
 	if( m_iHP <= 0 )
 	{
@@ -3257,6 +3259,29 @@ go_result:
 	}
 
 	return true;
+}
+
+void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToEbenezer /*= true*/)
+{
+	uint16 tid = (pAttacker != nullptr ? pAttacker->GetID() : -1);
+	int16 oldHP = m_iHP;
+
+	if (amount < 0 && -amount >= m_iHP)
+		m_iHP = 0;
+	else if (amount >= 0 && m_iHP + amount > m_iMaxHP)
+		m_iHP = m_iMaxHP;
+	else
+		m_iHP += amount;
+
+	if (bSendToEbenezer)
+	{
+		Packet result(AG_NPC_HP_CHANGE);
+		result << GetID() << tid << m_iHP << amount;
+		g_pMain->Send(&result);
+	}
+
+	if (m_iHP == 0)
+		OnDeath(pAttacker);
 }
 
 bool CNpc::SetHMagicDamage(int nDamage)
