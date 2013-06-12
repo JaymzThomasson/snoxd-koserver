@@ -178,8 +178,6 @@ void CNpc::InitTarget()
 
 void CNpc::Init()
 {
-	Unit::Initialize();
-
 	m_pMap = g_pMain->GetZoneByID(GetZoneID());
 	m_Delay = 0;
 	m_fDelayTime = getMSTime();
@@ -4654,6 +4652,11 @@ void CNpc::ChangeMonsterInfomation(int iChangeType)
 	m_iWeapon_1		= pNpcTable->m_iWeapon_1;
 	m_iWeapon_2		= pNpcTable->m_iWeapon_2;
 	m_bNation		= pNpcTable->m_byGroup;
+
+	// Monsters cannot, by design, be friendly to everybody.
+	if (isMonster() && GetNation() == Nation::ALL)
+		m_bNation = Nation::NONE;
+
 	m_byActType		= pNpcTable->m_byActType;
 	m_byRank		= pNpcTable->m_byRank;
 	m_byTitle		= pNpcTable->m_byTitle;
