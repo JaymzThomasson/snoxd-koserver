@@ -5,6 +5,9 @@
 *.obj
 *.lib
 *.enc
+*.Po
+*.Plo
+*.dirstamp
 
 # Compiled Dynamic libraries
 *.so
