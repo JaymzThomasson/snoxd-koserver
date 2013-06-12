@@ -79,6 +79,9 @@ bool CAISocket::HandlePacket(Packet & pkt)
 		case AG_COMPRESSED:
 			RecvCompressed(pkt);
 			break;
+		case AG_NPC_HP_CHANGE:
+			RecvNpcHpChange(pkt);
+			break;
 	}
 
 	return true;
@@ -817,4 +820,23 @@ void CAISocket::RecvCompressed(Packet & pkt)
 	delete [] decompressedBuffer;
 
 	HandlePacket(pkt);
+}
+
+void CAISocket::RecvNpcHpChange(Packet & pkt)
+{
+	Unit * pAttacker = nullptr;
+	int16 nid, sAttackerID;
+	int32 nHP, nAmount;
+	pkt >> nid >> sAttackerID >> nHP >> nAmount;
+
+	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(nid);
+	if (pNpc == nullptr)
+		return;
+
+	if (sAttackerID < NPC_BAND)
+		pAttacker = g_pMain->GetUserPtr(sAttackerID);
+	else
+		pAttacker = g_pMain->m_arNpcArray.GetData(sAttackerID);
+
+	pNpc->HpChange(nAmount, pAttacker, false);
 }

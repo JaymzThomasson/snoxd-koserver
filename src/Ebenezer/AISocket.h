@@ -37,6 +37,7 @@ public:
 	void RecvNpcEventItem(Packet & pkt);
 	void RecvGateOpen(Packet & pkt);
 	void RecvCompressed(Packet & pkt);
+	void RecvNpcHpChange(Packet & pkt);
 
 	virtual void OnDisconnect();
 	virtual ~CAISocket() {}

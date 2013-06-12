@@ -183,6 +183,8 @@ void CNpc::SendGateFlag(uint8 bFlag /*= -1*/, bool bSendAI /*= true*/)
  */
 void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /*= true*/) 
 {
+	uint16 tid = (pAttacker != nullptr ? pAttacker->GetID() : -1);
+
 	// Glorious copypasta.
 	if (amount < 0 && -amount > m_iHP)
 		m_iHP = 0;
@@ -195,7 +197,7 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /*
 	{
 		// NOTE: This will handle the death notification/looting.
 		Packet result(AG_NPC_HP_CHANGE);
-		result << GetID() << pAttacker->GetID() << m_iHP << amount;
+		result << GetID() << tid << m_iHP << amount;
 		Send_AIServer(&result);
 	}
 
