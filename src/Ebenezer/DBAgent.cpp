@@ -405,10 +405,6 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 	dbCommand->FetchUInt32(field++, pUser->m_iMannerPoint);
 	dbCommand->FetchUInt32(field++, pUser->m_iLoyaltyMonthly);
 
-	// kind of unnecessary
-	if (nRet == 0)
-		return false;
-
 	pUser->m_strUserID = strCharID;
 
 	// Convert the old quest storage format to the new one.
