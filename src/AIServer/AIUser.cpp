@@ -105,7 +105,7 @@ void CUser::SendAttackSuccess(short tid, uint8 bResult, short sDamage, int nHP, 
  */
 bool CUser::SetDamage(int damage, int attackerID)
 {
-	if (damage <= 0 || m_bLive == AI_USER_DEAD)
+	if (damage <= 0 || isDead())
 		return true;
 
 	m_sHP -= (short)damage;
@@ -143,7 +143,7 @@ void CUser::Dead(int tid, int nDamage)
 
 void CUser::SendHP()
 {
-	if (m_bLive == AI_USER_DEAD)
+	if (isDead())
 		return;
 
 	Packet result(AG_USER_SET_HP);

@@ -2265,8 +2265,8 @@ int CNpc::Attack()
 			return nStandingTime;
 		}
 
-		if(pUser->m_bLive == AI_USER_DEAD)	{		// User 가 이미 죽은경우
-			//SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->GetID(), 0, pUser->m_iHP);
+		if (pUser->isDead())
+		{
 			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->GetID(), 0, 0);
 			InitTarget();
 			m_NpcState = NPC_STANDING;
@@ -2420,7 +2420,8 @@ int CNpc::LongAndMagicAttack()
 			return nStandingTime;
 		}
 
-		if(pUser->m_bLive == AI_USER_DEAD)	{		// User 가 이미 죽은경우
+		if (pUser->isDead())
+		{
 			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->GetID(), 0, 0);
 			InitTarget();
 			m_NpcState = NPC_STANDING;
@@ -2492,7 +2493,7 @@ bool CNpc::TracingAttack()
 		if (pUser == nullptr)
 			return false;
 
-		if (pUser->m_bLive == AI_USER_DEAD)		
+		if (pUser->isDead())		
 		{
 			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->GetID(), 0, 0);
 			return false;
@@ -2926,7 +2927,6 @@ int CNpc::GetFinalDamage(CUser *pUser, int type)
 	return damage;	
 }
 
-//	나를 공격한 유저를 타겟으로 삼는다.(기준 : 렙과 HP를 기준으로 선정)
 void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 {
 	int preDamage, lastDamage;
@@ -2935,7 +2935,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 	int iRandom = myrand(0, 100);
 
 	if (pUser == nullptr
-		|| pUser->m_bLive == AI_USER_DEAD
+		|| pUser->isDead()
 		|| pUser->GetNation() == GetNation()
 		|| pUser->m_bInvisibilityType
 		|| pUser->m_byIsOP == MANAGER_USER
