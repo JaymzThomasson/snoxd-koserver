@@ -101,9 +101,12 @@ bool CEbenezerDlg::Startup()
 #ifdef CONFIG_USE_IOCP
 	// Bit tacky, but there's no reason we can't reuse the existing completion port for our AI socket
 	m_aiSocketMgr.SetCompletionPort(g_pMain->m_socketMgr.GetCompletionPort());
+#else // ensure epoll/kqueue are still processed for client workers
+	m_aiSocketMgr.SpawnWorkerThreads();
 #endif
 
 	m_aiSocketMgr.InitSessions(1);
+
 
 	if (!g_DBAgent.Startup(m_bMarsEnabled, 
 			m_strAccountDSN, m_strAccountUID, m_strAccountPWD,
