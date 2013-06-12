@@ -43,7 +43,6 @@ bool Socket::Connect(const char * Address, uint32 Port)
 #ifdef CONFIG_USE_IOCP
 	m_completionPort = m_socketMgr->GetCompletionPort();
 #endif
-	m_socketMgr->OnConnect(this);
 
 	_OnConnect();
 	return true;
@@ -61,12 +60,17 @@ void Socket::_OnConnect()
 	SocketOps::EnableBuffering(m_fd);
 	m_connected = true;
 
+	m_writeLockMutex.Acquire();
+	m_writeLock = 0;
+	m_writeLockMutex.Release();
+
 	// IOCP stuff
 #ifdef CONFIG_USE_IOCP
 	AssignToCompletionPort();
 #else
 	GetSocketMgr()->AddSocket(this);
 #endif
+	m_socketMgr->OnConnect(this);
 
 	// Call virtual onconnect
 	OnConnect();
@@ -121,12 +125,16 @@ void Socket::Disconnect()
 
 	// remove from mgr
 #ifndef CONFIG_USE_IOCP // to-do: clean this up
-        GetSocketMgr()->RemoveSocket(this);
+	GetSocketMgr()->RemoveSocket(this);
 #endif
-        GetSocketMgr()->OnDisconnect(this);
+	GetSocketMgr()->OnDisconnect(this);
 
 	SocketOps::CloseSocket(m_fd);
-        m_fd = 0;
+	m_fd = 0;
+
+	m_writeLockMutex.Acquire();
+	m_writeLock = 0;
+	m_writeLockMutex.Release();
 
 	// Reset the read/write buffers
 	GetReadBuffer().Remove(GetReadBuffer().GetSize());

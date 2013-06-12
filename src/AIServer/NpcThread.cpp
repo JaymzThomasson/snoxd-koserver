@@ -127,7 +127,8 @@ uint32 THREADCALL ZoneEventThreadProc(void * pParam /* = nullptr */)
 {
 	while (!g_bNpcExit)
 	{
-		foreach_stlmap (itr, g_pMain->g_arZone)
+		g_pMain->g_arZone.m_lock.Acquire();
+		foreach_stlmap_nolock (itr, g_pMain->g_arZone)
 		{
 			MAP *pMap = itr->second;
 			if (pMap == nullptr
@@ -145,6 +146,7 @@ uint32 THREADCALL ZoneEventThreadProc(void * pParam /* = nullptr */)
 				pRoom->MainRoom();
 			}
 		}
+		g_pMain->g_arZone.m_lock.Release();
 
 		sleep(1000);
 	}

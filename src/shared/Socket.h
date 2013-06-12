@@ -93,24 +93,11 @@ protected:
 
 	SocketMgr *m_socketMgr;
 
-
 /* Win32 - IOCP Specific Calls */
 #ifdef CONFIG_USE_IOCP
 public:
 	// Set completion port that this socket will be assigned to.
 	INLINE void SetCompletionPort(HANDLE cp) { m_completionPort = cp; }
-	
-	// Atomic wrapper functions for increasing read/write locks
-	INLINE void IncSendLock() { InterlockedIncrement(&m_writeLock); }
-	INLINE void DecSendLock() { InterlockedDecrement(&m_writeLock); }
-	INLINE bool AcquireSendLock()
-	{
-		if (m_writeLock)
-			return false;
-
-		IncSendLock();
-		return true;
-	}
 
 	void SetupReadEvent();
 	OverlappedStruct m_readEvent, m_writeEvent;
@@ -118,10 +105,7 @@ public:
 private:
 	// Completion port socket is assigned to
 	HANDLE m_completionPort;
-	
-	// Write lock, stops multiple write events from being posted.
-	volatile long m_writeLock;
-	
+
 	// Assigns the socket to his completion port.
 	void AssignToCompletionPort();
 #endif
@@ -131,25 +115,6 @@ private:
 public:
 	// Posts a epoll event with the specified arguments.
 	void PostEvent(uint32 events);
-
-	// Atomic wrapper functions for increasing read/write locks
-	// TO-DO: Replace with std::atomic
-	INLINE void IncSendLock() { FastGuard lock(m_writeLockMutex); m_writeLock++; }
-	INLINE void DecSendLock() { FastGuard lock(m_writeLockMutex); m_writeLock--; }
-	INLINE bool HasSendLock() { FastGuard lock(m_writeLockMutex); return (m_writeLock != 0); }
-	INLINE bool AcquireSendLock()
-	{
-		FastGuard lock(m_writeLockMutex);
-		if (m_writeLock != 0)
-			return false;
-			
-		m_writeLock++;
-		return true;
-	}
-
-private:
-	uint32 m_writeLock;
-	FastMutex m_writeLockMutex;
 #endif
 
 /* FreeBSD - kqueue specific calls */
@@ -157,24 +122,24 @@ private:
 public:
 	// Posts an event with the specified arguments.
 	void PostEvent(int events, bool oneshot);
-	
-	// Atomic wrapper functions for increasing read/write locks
-	// TO-DO: Replace with std::atomic
-	INLINE void IncSendLock() { FastGuard lock(m_writeLockMutex); m_writeLock++; }
-	INLINE void DecSendLock() { FastGuard lock(m_writeLockMutex); m_writeLock--; }
+#endif
+
+public:
+	/* Atomic wrapper functions for increasing read/write locks */
+	INLINE void IncSendLock() { FastGuard lock(m_writeLockMutex); ++m_writeLock; }
+	INLINE void DecSendLock() { FastGuard lock(m_writeLockMutex); --m_writeLock; }
 	INLINE bool HasSendLock() { FastGuard lock(m_writeLockMutex); return (m_writeLock != 0); }
 	INLINE bool AcquireSendLock()
 	{
 		FastGuard lock(m_writeLockMutex);
 		if (m_writeLock != 0)
 			return false;
-			
-		m_writeLock++;
+
+		++m_writeLock;
 		return true;
 	}
-
 private:
+	// Write lock, stops multiple write events from being posted.
 	uint32 m_writeLock;
-	Mutex m_writeLockMutex;
-#endif
+	FastMutex m_writeLockMutex;
 };
