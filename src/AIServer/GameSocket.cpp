@@ -11,6 +11,7 @@ CGameSocket::~CGameSocket() {}
 void CGameSocket::OnConnect()
 {
 	KOSocket::OnConnect();
+	Initialize();
 }
 
 void CGameSocket::Initialize()
@@ -22,7 +23,6 @@ void CGameSocket::OnDisconnect()
 {
 	TRACE("*** CloseProcess - socketID=%d ... server=%s *** \n", GetSocketID(), GetRemoteIP().c_str());
 	g_pMain->DeleteAllUserList(this);
-	Initialize();
 }
 
 bool CGameSocket::HandlePacket(Packet & pkt)

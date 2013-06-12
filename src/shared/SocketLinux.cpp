@@ -12,15 +12,14 @@
 
 void Socket::PostEvent(uint32 events)
 {
-    SOCKET epoll_fd = GetSocketMgr()->GetEpollFd();
+	SOCKET epoll_fd = GetSocketMgr()->GetEpollFd();
 
-    struct epoll_event ev;
-	memset(&ev, 0, sizeof(epoll_event));
-    ev.data.fd = m_fd;
-    ev.events = events | EPOLLET;			/* use edge-triggered instead of level-triggered because we're using nonblocking sockets */
+	struct epoll_event ev = {0};
+	ev.data.fd = m_fd;
+	ev.events = events | EPOLLET;			/* use edge-triggered instead of level-triggered because we're using nonblocking sockets */
 
-    // post actual event
-    if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, ev.data.fd, &ev))
+	// post actual event
+	if (epoll_ctl(epoll_fd, EPOLL_CTL_MOD, ev.data.fd, &ev))
 		printf("epoll warning: Could not post event on fd %u\n", m_fd);
 }
 
@@ -30,21 +29,18 @@ void Socket::ReadCallback(uint32 len)
 		return;
 
 	// We have to lock here.
-	m_readMutex.Acquire();
+	FastGuard lock(m_readMutex);
 
 	size_t space = readBuffer.GetSpace();
 	int bytes = recv(m_fd, readBuffer.GetBuffer(), space, 0);
 	if (bytes <= 0)
 	{
-		m_readMutex.Release();
 		Disconnect();
 		return;
-    }    
+	}
 
 	readBuffer.IncrementWritten(bytes);
 	OnRead();
-
-	m_readMutex.Release();
 }
 
 void Socket::WriteCallback()
