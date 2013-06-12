@@ -31,10 +31,8 @@ bool Socket::Connect(const char * Address, uint32 Port)
 
 	SocketOps::Blocking(m_fd);
 
-#ifdef CONFIG_USE_IOCP
 	if (m_fd == 0)
-		m_fd = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
-#endif
+		m_fd = SocketOps::CreateTCPFileDescriptor();
 
 	if (connect(m_fd, (const sockaddr*)&m_client, sizeof(m_client)) == -1)
 		return false;
