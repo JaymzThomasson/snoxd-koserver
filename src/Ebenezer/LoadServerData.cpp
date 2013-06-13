@@ -205,14 +205,14 @@ bool CEbenezerDlg::LoadUserRankings()
 	szError = UserPersonalRankSet.Read(true);
 	if (szError != nullptr)
 	{
-		TRACE("Failed to load personal rankings, error: %s\n", szError);
+		printf("ERROR: Failed to load personal rankings, error:\n%s\n", szError);
 		return false;
 	}
 
 	szError = UserKnightsRankSet.Read(true);
 	if (szError != nullptr)
 	{
-		TRACE("Failed to load user knights rankings, error: %s\n", szError);
+		printf("ERROR: Failed to load user knights rankings, error:\n%s\n", szError);
 		return false;
 	}
 
