@@ -162,8 +162,3 @@ CNpcThread::~CNpcThread()
 {
 	m_pNpcs.clear();
 }
-
-void CNpcThread::InitThreadInfo(HWND hwnd)
-{
-	hWndMsg	= hwnd;
-}

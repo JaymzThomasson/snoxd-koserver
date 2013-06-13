@@ -210,7 +210,6 @@ void CGameSocket::RecvUserInOut(Packet & pkt)
 		pMap->RegionUserAdd(region_x, region_z, uid);
 	}
 }
-}
 
 void CGameSocket::RecvUserMove(Packet & pkt)
 {
@@ -254,6 +253,7 @@ bool CGameSocket::SetUid(float x, float z, int id, int speed)
 		TRACE("#### GameSocket ,, SetUid Fail : [nid=%d, name=%s], x1=%d, z1=%d #####\n", id, pUser->GetName().c_str(), x1, z1);
 		return false;
 	}
+
 	if(nRX > pMap->GetXRegionMax() || nRZ > pMap->GetZRegionMax())
 	{
 		TRACE("#### GameSocket , SetUid Fail : [nid=%d, name=%s], nRX=%d, nRZ=%d #####\n", id, pUser->GetName().c_str(), nRX, nRZ);

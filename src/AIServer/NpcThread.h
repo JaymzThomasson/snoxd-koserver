@@ -13,10 +13,6 @@ public:
 	virtual ~CNpcThread();
 
 public:
-	void InitThreadInfo(HWND hwnd);
 	NpcSet m_pNpcs;
-
-	HWND	hWndMsg;
-
 	Thread m_thread;
 };
