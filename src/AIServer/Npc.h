@@ -338,6 +338,7 @@ public:
 	void InitPos();
 
 	void Load(uint16 sNpcID, CNpcTable * proto, bool bMonster);
+	void SendMoveResult(float fX, float fY, float fZ, float fSpeed = 0.0f);
 
 protected:
 	void ClearPathFindData(void);
