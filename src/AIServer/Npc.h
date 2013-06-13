@@ -274,8 +274,6 @@ public:
 	uint8	m_byChangeType;			// 0:정상상태, 1:변하기 위한 준비, 2:다른몬스터로 변함, 3:몬스터의 출현, 100:몬스터의 죽음
 	uint8	m_byRegenType;			// 0:정상적으로 리젠이 됨.. , 1:한번 죽으면 리젠이 안되는 특수 몸, 2:리젠이 안됨
 	uint8    m_byDeadType;			// 0:살아 있는 경우, 100:전쟁이벤트중 죽은 경우
-	short   m_sChangeSid;			// 변하는 몬스터의 Sid번호..
-	short   m_sControlSid;			// 조정하는 몬스터의 Sid번호..
 
 
 	//----------------------------------------------------------------
@@ -431,7 +429,6 @@ public:
 	int  GetItemGrade(int item_grade);
 	int  GetItemCodeNumber(int level, int item_type);
 	int  GetWeaponItemCodeNumber(int item_type);
-	void ChangeMonsterInfomation(int iChangeType);
 	int  GetPartyExp( int party_level, int man, int nNpcExp );
 	void ChangeAbility(int iChangeType);
 	bool Teleport();

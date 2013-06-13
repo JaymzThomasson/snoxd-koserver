@@ -90,8 +90,6 @@ CNpc::CNpc() : Unit(), m_NpcState(NPC_LIVE), m_byGateOpen(false), m_byObjectType
 	m_byTrapNumber = 0;
 	m_byChangeType = 0;
 	m_byDeadType = 0;
-	m_sChangeSid = 0;
-	m_sControlSid = 0;
 	m_sPathCount = 0;
 	m_sMaxPathCount = 0;
 
@@ -295,12 +293,6 @@ time_t CNpc::NpcLive()
 	{
 		m_NpcState = NPC_LIVE;
 		return m_sRegenTime;
-	}
-
-	if (m_byChangeType == 1)
-	{
-		m_byChangeType = 2;
-		ChangeMonsterInfomation(1);
 	}
 
 	m_NpcState = SetLive() ? NPC_STANDING : NPC_LIVE;
@@ -1314,21 +1306,9 @@ void CNpc::Dead(int iDeadType)
 		g_pMain->Send(&result);
 	}
 
-	// Dungeon Work : 변하는 몬스터의 경우 변하게 처리..
-	if( m_bySpecialType == 1 || m_bySpecialType == 4)	{
-		if( m_byChangeType == 0 )	{
-			m_byChangeType = 1;
-			//ChangeMonsterInfomation( 1 );
-		}
-		else if( m_byChangeType == 2 )	{
-			if( m_byDungeonFamily < 0 || m_byDungeonFamily >= MAX_DUNGEON_BOSS_MONSTER )	{
-				TRACE("#### Npc-Dead() m_byDungeonFamily Fail : [nid=%d, name=%s], m_byDungeonFamily=%d #####\n", GetID(), GetName().c_str(), m_byDungeonFamily);
-				return;
-			}
-//			pMap->m_arDungeonBossMonster[m_byDungeonFamily] = 0;
-		}
-	}
-	else	{
+	// Dungeon Work 
+	if (m_bySpecialType != 1 && m_bySpecialType != 4)
+	{
 		m_byChangeType = 100;
 	}
 
@@ -4586,75 +4566,6 @@ int  CNpc::GetItemCodeNumber(int level, int item_type)
 	}
 
 	return iItemCode;
-}
-
-void CNpc::ChangeMonsterInfomation(int iChangeType)
-{
-	if (m_sChangeSid == 0 || m_byChangeType == 0)
-		return;	
-
-	if (m_NpcState != NPC_DEAD)
-		return;
-	
-	CNpcTable*	pNpcTable = GetProto();
-
-	if (iChangeType == 1)
-	{
-		if (isMonster())	
-			pNpcTable = g_pMain->m_arMonTable.GetData(m_sChangeSid);
-		else
-			pNpcTable = g_pMain->m_arNpcTable.GetData(m_sChangeSid);
-	}
-
-	if (pNpcTable == nullptr)
-	{
-		TRACE("##### ChangeMonsterInfomation Sid Fail -- Sid = %d #####\n", m_sChangeSid);
-		return;
-	}
-
-	m_proto			= pNpcTable;
-	m_sSize			= pNpcTable->m_sSize;
-	m_iWeapon_1		= pNpcTable->m_iWeapon_1;
-	m_iWeapon_2		= pNpcTable->m_iWeapon_2;
-	m_bNation		= pNpcTable->m_byGroup;
-
-	// Monsters cannot, by design, be friendly to everybody.
-	if (isMonster() && GetNation() == Nation::ALL)
-		m_bNation = Nation::NONE;
-
-	m_byActType		= pNpcTable->m_byActType;
-	m_byRank		= pNpcTable->m_byRank;
-	m_byTitle		= pNpcTable->m_byTitle;
-	m_iSellingGroup = pNpcTable->m_iSellingGroup;
-	m_iHP			= pNpcTable->m_iMaxHP;
-	m_iMaxHP		= pNpcTable->m_iMaxHP;
-	m_sMP			= pNpcTable->m_sMaxMP;
-	m_sMaxMP		= pNpcTable->m_sMaxMP;
-	m_sAttack		= pNpcTable->m_sAttack;	
-	m_sDefense		= pNpcTable->m_sDefense;
-	m_sHitRate		= pNpcTable->m_sHitRate;
-	m_sEvadeRate	= pNpcTable->m_sEvadeRate;
-	m_sDamage		= pNpcTable->m_sDamage;	
-	m_sAttackDelay	= pNpcTable->m_sAttackDelay;
-	m_sSpeed		= pNpcTable->m_sSpeed;
-	m_fSpeed_1		= (float)pNpcTable->m_bySpeed_1;
-	m_fSpeed_2		= (float)pNpcTable->m_bySpeed_2;
-	m_fOldSpeed_1	= (float)pNpcTable->m_bySpeed_1;
-	m_fOldSpeed_2	= (float)pNpcTable->m_bySpeed_2;
-	m_sStandTime	= pNpcTable->m_sStandTime;
-	m_byFireR		= pNpcTable->m_byFireR;
-	m_byColdR		= pNpcTable->m_byColdR;
-	m_byLightningR	= pNpcTable->m_byLightningR;
-	m_byMagicR		= pNpcTable->m_byMagicR;
-	m_byDiseaseR	= pNpcTable->m_byDiseaseR;
-	m_byPoisonR		= pNpcTable->m_byPoisonR;
-	m_bySearchRange	= pNpcTable->m_bySearchRange;
-	m_byAttackRange	= pNpcTable->m_byAttackRange;
-	m_byTracingRange= pNpcTable->m_byTracingRange;
-	m_iMoney		= pNpcTable->m_iMoney;
-	m_iItem			= pNpcTable->m_iItem;
-	m_tNpcLongType	= pNpcTable->m_byDirectAttack;	
-	m_byWhatAttackType = pNpcTable->m_byMagicAttack;
 }
 
 time_t CNpc::NpcSleeping()
