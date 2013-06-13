@@ -423,6 +423,14 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 	memset(pUser->m_sItemArray, 0x00, sizeof(pUser->m_sItemArray));
 
 	UserRentalMap rentalData;
+
+        // For non-MARS connections until this statement is cleaned up, we need to cleanup any
+        // active statement.
+        // This normally occurs when dbCommand goes out of scope, i.e. when this method returns.
+        // However, since before it goes out of scope, we call two methods with their own database code
+        // we have multiple statements active. So we need to free this one first before we can use them.
+        delete dbCommand.release();
+
 	LoadRentalData(strAccountID, strCharID, rentalData);
 	LoadItemSealData(strAccountID, strCharID, pUser->m_sealedItemMap);
 
