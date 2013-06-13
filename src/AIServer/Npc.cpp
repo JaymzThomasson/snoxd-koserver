@@ -281,6 +281,13 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto, bool bMonster)
 	m_bFirstLive = 1;
 }
 
+void CNpc::SendMoveResult(float fX, float fY, float fZ, float fSpeed /*= 0.0f*/)
+{
+	Packet result(MOVE_RESULT, uint8(SUCCESS));
+	result << GetID() << fX << fZ << fY << fSpeed;
+	g_pMain->Send(&result);
+}
+
 time_t CNpc::NpcLive()
 {
 	// Dungeon Work 
@@ -377,15 +384,10 @@ time_t CNpc::NpcTracing()
 		return m_sStandTime;
 	}
 
-	Packet result(MOVE_RESULT, uint8(SUCCESS));
-	result << GetID();
 	if (IsMovingEnd())
-		result	<< GetX() << GetZ() << GetY()
-				<< float(0.0f);
+		SendMoveResult(GetX(), GetY(), GetZ());
 	else
-		result	<< m_fPrevX << m_fPrevZ << m_fPrevY 
-				<< (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
-	g_pMain->Send(&result);
+		SendMoveResult(m_fPrevX, m_fPrevY, m_fPrevZ, (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000)));
 
 	if (nFlag == 2 && m_tNpcLongType == 0 && !isHealer())
 	{
@@ -501,15 +503,10 @@ time_t CNpc::NpcMoving()
 		return m_sStandTime;
 	}
 
-	Packet result(MOVE_RESULT, uint8(SUCCESS));
-	result << GetID();
 	if (IsMovingEnd())
-		result	<< m_fPrevX << m_fPrevZ << m_fPrevY 
-				<< float(0.0f);
+		SendMoveResult(m_fPrevX, m_fPrevY, m_fPrevZ);
 	else
-		result	<< m_fPrevX << m_fPrevZ << m_fPrevY 
-				<< (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
-	g_pMain->Send(&result);
+		SendMoveResult(m_fPrevX, m_fPrevY, m_fPrevZ, (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000)));
 
 	return m_sSpeed;	
 }
@@ -610,10 +607,7 @@ time_t CNpc::NpcBack()
 		if (GetX() < 0 || GetZ() < 0)
 			TRACE("Npc-NpcBack-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", GetID(), GetName().c_str(), GetX(), GetZ());
 
-		Packet result(MOVE_RESULT, uint8(SUCCESS));
-		result << GetID() << GetX() << GetZ() << GetY() << float(0.0f);
-		g_pMain->Send(&result);
-
+		SendMoveResult(GetX(), GetY(), GetZ());
 		m_NpcState = NPC_STANDING;
 		return m_sStandTime;
 	}
@@ -625,11 +619,7 @@ time_t CNpc::NpcBack()
 		return m_sStandTime;
 	}
 
-	Packet result(MOVE_RESULT, uint8(SUCCESS));
-	result	<< GetID() << m_fPrevX << m_fPrevZ << m_fPrevY 
-			<< (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000));
-	g_pMain->Send(&result);
-
+	SendMoveResult(m_fPrevX, m_fPrevY, m_fPrevZ, (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000)));
 	return m_sSpeed;
 }
 
@@ -2602,20 +2592,9 @@ void CNpc::MoveAttack()
 			GetID(), GetName().c_str(), GetX(), GetZ());
 	}
 
-
-	Packet result(MOVE_RESULT, uint8(SUCCESS));
-	result	<< GetID()
-			<< GetX() << GetZ() << GetY();
-
-	// This seems really dumb, but for reasons unbeknownst to me
-	// we're sending the packet twice -- first with the distance/speed,
-	// second without. 
-	int wpos = result.wpos(); 
-	result << fDis;
-	g_pMain->Send(&result); // send the first packet
-
-	result.put(wpos, 0.0f); // replace the distance/speed with 0
-	g_pMain->Send(&result); // send it again
+	// Move to target... then stop (this is really awkward behaviour.)
+	SendMoveResult(GetX(), GetY(), GetZ(), fDis);
+	SendMoveResult(GetX(), GetY(), GetZ());
 
 	RegisterRegion(GetX(), GetZ());
 	
@@ -3821,12 +3800,7 @@ result_value:
 void CNpc::NpcMoveEnd()
 {
 	RegisterRegion(GetX(), GetZ());
-
-	Packet result(MOVE_RESULT, uint8(SUCCESS));
-	result	<< GetID()
-			<< GetX() << GetZ() << GetY() << float(0.0f);
-
-	g_pMain->Send(&result);
+	SendMoveResult(GetX(), GetY(), GetZ());
 }
 
 void CNpc::GetVectorPosition(__Vector3 & vOrig, __Vector3 & vDest, float fDis, __Vector3 * vResult)
