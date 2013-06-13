@@ -77,7 +77,7 @@ uint32 THREADCALL NpcThreadProc(void * pParam /* CNpcThread ptr */)
 					break;
 
 				case NPC_FIGHTING:
-					tDelay = pNpc->NpcFighting();
+					tDelay = pNpc->Attack();
 					break;
 
 				case NPC_BACK:

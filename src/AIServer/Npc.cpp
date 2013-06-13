@@ -300,17 +300,6 @@ time_t CNpc::NpcLive()
 	return m_sStandTime;
 }
 
-time_t CNpc::NpcFighting()
-{
-	if (isDead())
-	{
-		Dead();
-		return -1;
-	}
-	
-	return Attack();
-}
-
 time_t CNpc::NpcTracing()
 {
 	if (m_sStepCount != 0)
@@ -2207,7 +2196,9 @@ int CNpc::GetTargetPath(int option)
 
 int CNpc::Attack()
 {
-	// 텔레포트 가능하게,, (렌덤으로,, )
+	if (isDead())
+		return -1;
+
 	int nRandom = 0, nPercent=1000;
 	bool bTeleport = false;
 

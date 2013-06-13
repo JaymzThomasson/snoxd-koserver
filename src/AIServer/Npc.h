@@ -384,7 +384,6 @@ public:
 	void GiveNpcHaveItem();		// NPC 가 가진 아이템을 떨군다
 
 	time_t NpcLive();
-	time_t NpcFighting();
 	time_t NpcTracing();
 	time_t NpcAttacking();
 	time_t NpcMoving();
