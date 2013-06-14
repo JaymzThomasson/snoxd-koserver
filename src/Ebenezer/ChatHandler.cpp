@@ -148,6 +148,17 @@ void CUser::Chat(Packet & pkt)
 		if (isInClan())
 			g_pMain->Send_KnightsMember(GetClanID(), &result);
 		break;
+	case CLAN_NOTICE:
+		if (isInClan() 
+			&& isClanLeader())
+		{
+			CKnights * pKnights = g_pMain->GetClanPtr(GetClanID());
+			if (pKnights == nullptr)
+				return;
+
+			pKnights->UpdateClanNotice(chatstr);
+		}
+		break;
 	case PUBLIC_CHAT:
 	case ANNOUNCEMENT_CHAT:
 		if (isGM())

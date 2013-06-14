@@ -49,10 +49,9 @@ public:
 	uint16	m_sMembers;
 
 	std::string m_strName;
-	std::string m_strChief;
-	std::string m_strViceChief_1;
-	std::string m_strViceChief_2;
-	std::string m_strViceChief_3;
+	std::string m_strChief, 
+		m_strViceChief_1, m_strViceChief_2, m_strViceChief_3;
+	std::string m_strClanNotice;
 
 	uint64	m_nMoney;
 	uint16	m_sDomination;
@@ -79,6 +78,8 @@ public:
 
 	// Attach our session to the clan's list & tell clannies we logged in.
 	void OnLogin(CUser *pUser);
+
+	void UpdateClanNotice(std::string & clanNotice);
 
 	// Detach our session from the clan's list & tell clannies we logged off.
 	void OnLogout(CUser *pUser);
