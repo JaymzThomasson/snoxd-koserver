@@ -32,18 +32,14 @@ void CUser::Attack(Packet & pkt)
 	{
 		pTUser = g_pMain->GetUserPtr(tid);
  
-		if (pTUser == nullptr
-			|| !CanAttack(pTUser)) 
-			bResult = 0;
-		else 
+		if (pTUser != nullptr
+			&& CanAttack(pTUser)) 
 		{
 			damage = GetDamage(pTUser, nullptr);
 			if (GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE)
 				damage = 0;		
 
-			if (damage <= 0)
-				bResult = 0;
-			else 
+			if (damage > 0)
 			{
 				// TO-DO: Move all this redundant code into appropriate event-based methods so that all the other cases don't have to copypasta (and forget stuff).
 				pTUser->HpChange(-damage, this);
