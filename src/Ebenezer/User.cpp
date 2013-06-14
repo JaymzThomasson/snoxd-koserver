@@ -976,9 +976,20 @@ void CUser::SetSlotItemValue()
 	m_sDaggerR = 0; m_sSwordR = 0; m_sAxeR = 0; m_sMaceR = 0; m_sSpearR = 0; m_sBowR = 0;
 	m_bMagicTypeLeftHand = 0; m_bMagicTypeRightHand = 0; m_sMagicAmountLeftHand = 0; m_sMagicAmountRightHand = 0;       
 
-	for(int i=0; i<SLOT_MAX; i++)  {
-		if(m_sItemArray[i].nNum <= 0)
+	// Apply stat bonuses from all equipped & cospre items.
+	for (int i = 0; i < INVENTORY_COSP+COSP_MAX; i++)
+	{
+		// If we hit SLOT_MAX, skip us through the inventory
+		// and straight to the cospre items.
+		if (i == SLOT_MAX)
+		{
+			i = INVENTORY_COSP - 1;
 			continue;
+		}
+
+		if (m_sItemArray[i].nNum <= 0)
+			continue;
+
 		pTable = g_pMain->GetItemPtr( m_sItemArray[i].nNum );
 		if( !pTable )
 			continue;
