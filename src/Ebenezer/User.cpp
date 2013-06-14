@@ -3800,7 +3800,7 @@ bool CUser::CanAttack(Unit * pTarget)
 	// If we're trying to attack an NPC, it is instead easier to defer to the NPC's 
 	// own attack logic (which takes into account its varied nations).
 	if (pTarget->isNPC())
-		return TO_NPC(pTarget)->CanAttack(this);
+		return TO_NPC(pTarget)->isHostileTo(this);
 
 	// Players can attack other players in the arena.
 	if (isInArena() && TO_USER(pTarget)->isInArena())
