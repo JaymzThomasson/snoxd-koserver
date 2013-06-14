@@ -52,9 +52,19 @@ void CKnights::OnLogin(CUser *pUser)
 	// Construct the clan notice packet to send to the logged in player
 	if (!m_strClanNotice.empty())
 	{
-		ChatPacket::Construct(&result, CLAN_NOTICE, &m_strClanNotice);
+		ConstructClanNoticePacket(&result);
 		pUser->Send(&result);
 	}
+}
+
+void CKnights::ConstructClanNoticePacket(Packet *result)
+{
+	result->Initialize(WIZ_NOTICE);
+	result->DByte();
+	*result	<< uint8(4)			// type
+			<< uint8(1)			// total blocks
+			<< "Clan Notice"	// header
+			<< m_strClanNotice;
 }
 
 void CKnights::UpdateClanNotice(std::string & clanNotice)
@@ -70,7 +80,7 @@ void CKnights::UpdateClanNotice(std::string & clanNotice)
 	Send(&result);
 
 	// Construct the new clan notice packet
-	ChatPacket::Construct(&result, CLAN_NOTICE, &clanNotice);
+	ConstructClanNoticePacket(&result);
 	Send(&result);
 }
 
