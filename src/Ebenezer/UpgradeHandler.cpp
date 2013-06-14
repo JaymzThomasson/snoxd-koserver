@@ -211,9 +211,10 @@ void CUser::ItemUpgrade(Packet & pkt)
 
 			for (int x = 0; x < 5; x++)
 			{
-				if (bPos[x+1] >= HAVE_MAX 
-					&& nItemID[x+1] != GetItem(bPos[x+1])->nNum 
-					&& nItemID[x+1] != pUpgrade->nReqItem[x])
+				if (bPos[x+1] != -1
+					&& (bPos[x+1] >= HAVE_MAX 
+						|| nItemID[x+1] != GetItem(bPos[x+1])->nNum 
+						|| nItemID[x+1] != pUpgrade->nReqItem[x]))
 					goto fail_return;
 
 				if (pUpgrade->nReqItem[x+1] != 0)
@@ -243,7 +244,7 @@ void CUser::ItemUpgrade(Packet & pkt)
 		GoldLose(pUpgrade->nReqNoah);
 
 		// Generate a random number, test if the item burned.
-		int rand = myrand(9000, 10000);
+		int rand = myrand(0, myrand(9000, 10000));
 		if (pUpgrade->sGenRate <= rand)
 		{
 			bResult = UpgradeFailed;
