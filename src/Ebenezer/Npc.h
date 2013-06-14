@@ -72,6 +72,7 @@ public:
 	virtual int32 GetMaxMana() { return 0; }
 
 	virtual bool CanAttack(Unit * pTarget);
+	bool isHostileTo(Unit * pTarget);
 
 	virtual ~CNpc();
 

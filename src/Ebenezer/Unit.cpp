@@ -561,9 +561,13 @@ bool Unit::CanAttack(Unit * pTarget)
 	if (GetZoneID() != pTarget->GetZoneID())
 		return false;
 
-	// Units cannot attack other units when either of them when they are incapacitated.
+	// We cannot attack our target if we are incapacitated 
+	// (should include debuffs & being blinded)
 	if (isIncapacitated()
-		|| pTarget->isIncapacitated())
+		// or if our target is in a state in which
+		// they should not be allowed to be attacked
+		|| pTarget->isDead()
+		|| pTarget->isBlinking())
 		return false;
 
 	return true;

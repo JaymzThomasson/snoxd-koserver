@@ -239,7 +239,20 @@ bool CNpc::CanAttack(Unit * pTarget)
 {
 	if (!Unit::CanAttack(pTarget))
 		return false;
-	
+
+	return isHostileTo(pTarget);
+}
+
+/**
+ * @brief	Determines if an NPC is hostile to a unit.
+ * 			Non-hostile NPCs cannot be attacked.
+ *
+ * @param	pTarget	Target unit
+ *
+ * @return	true if hostile to, false if not.
+ */
+bool CNpc::isHostileTo(Unit * pTarget)
+{
 	// A nation of 0 indicates friendliness to all
 	if (GetNation() == Nation::ALL)
 		return false;
