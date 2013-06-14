@@ -17,7 +17,7 @@ public:
 		_dbCommand->FetchUInt32(2, pData->nReqCoins);
 		_dbCommand->FetchByte(3, pData->byGrade);
 		_dbCommand->FetchUInt32(4, pData->nReqClanPoints);
-		_dbCommand->FetchByte(3, pData->byRanking);
+		_dbCommand->FetchByte(5, pData->byRanking);
 
 		// Convert this from NP to clan points
 		pData->nReqClanPoints /= MAX_CLAN_USERS;
