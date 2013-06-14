@@ -520,7 +520,7 @@ void CKnightsManager::ReqUpdateKnights(CUser *pUser, Packet & pkt, uint8 opcode)
 	}
 
 	result << sClanID;  // Hate doing this, but it's reusable.
-	RecvUpdateKnights(pUser, pkt, opcode);
+	RecvUpdateKnights(pUser, result, opcode);
 }
 
 void CKnightsManager::ReqModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 command)
@@ -544,7 +544,7 @@ void CKnightsManager::ReqModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 c
 	}
 
 	result << sClanID << strCharID; // I really hate doing this, but OK...
-	RecvModifyFame(pUser, pkt, command);
+	RecvModifyFame(pUser, result, command);
 }
 
 void CKnightsManager::ReqDestroyKnights(CUser *pUser, Packet & pkt)
