@@ -3830,7 +3830,10 @@ bool CUser::CanUseItem(uint32 itemid, uint16 count)
 		return false;
 
 	// Disable scroll usage while transformed.
-	if (isTransformed() && (pItem->GetKind() == 255 || pItem->GetKind() == 97))
+	if (isTransformed() 
+		// Various NPC transformations ("Transform Scrolls") are exempt from this rule -- it's just monsters.
+		&& m_bAbnormalType < 500000
+		&& (pItem->GetKind() == 255 || pItem->GetKind() == 97))
 		return false;
 
 	// If the item's class specific, ensure it can be used by this user.
