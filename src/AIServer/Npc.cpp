@@ -319,7 +319,15 @@ time_t CNpc::NpcTracing()
 		InitTarget();
 		m_NpcState = NPC_STANDING;
 		return m_sStandTime;
-	}	
+	}
+
+	// Prevent spawns like Guard Towers from following
+	// targets while attacking.
+	if (m_byMoveType == 4)
+	{
+		m_NpcState = NPC_FIGHTING;
+		return m_sStandTime;
+	}
 
 	int nFlag = IsCloseTarget(m_byAttackRange, 1);
 	if (nFlag == 1)
