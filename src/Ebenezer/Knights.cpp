@@ -28,8 +28,6 @@ CKnights::CKnights()
 
 void CKnights::OnLogin(CUser *pUser)
 {
-	// TO-DO: Implement login notice here
-
 	// Set the active session for this user
 	foreach_array (i, m_arKnightsUser)
 	{
@@ -42,18 +40,29 @@ void CKnights::OnLogin(CUser *pUser)
 		pUser->m_pKnightsUser = p;
 		break;
 	}
+
+	// Send login notice
+	Packet loginNotice;
+	// TO-DO: Shift this to SERVER_RESOURCE
+	std::string buffer = string_format("*** %s has logged in ***", pUser->GetName().c_str());
+	ChatPacket::Construct(&loginNotice, KNIGHTS_CHAT, &buffer);
+	Send(&loginNotice);
 }
 
 void CKnights::OnLogout(CUser *pUser)
 {
-	// TO-DO: Implement logout notice here
-
 	// Unset the active session for this user
 	if (pUser->m_pKnightsUser != nullptr)
 	{
 		pUser->m_pKnightsUser->pSession = nullptr;
 		pUser->m_pKnightsUser = nullptr;
 	}
+
+	Packet logoutNotice;
+	// TO-DO: Shift this to SERVER_RESOURCE
+	std::string buffer = string_format("*** %s has logged out ***", pUser->GetName().c_str());
+	ChatPacket::Construct(&logoutNotice, KNIGHTS_CHAT, &buffer);
+	Send(&logoutNotice);
 }
 
 bool CKnights::AddUser(std::string & strUserID)
