@@ -72,7 +72,7 @@ void CUser::ItemUpgrade(Packet & pkt)
 	_ITEM_TABLE * proto;
 	int32 nItemID[10]; int8 bPos[10];
 	uint16 sNpcID;
-	int8 bResult = UpgradeNoMatch;
+	int8 bType, bResult = UpgradeNoMatch;
 
 	if (isTrading() || isMerchanting())
 	{
@@ -80,6 +80,9 @@ void CUser::ItemUpgrade(Packet & pkt)
 		goto fail_return;
 	}
 
+#if __VERSION >= 1453 // not sure when this occurred, assuming ROFD.
+	pkt >> bType; // either preview or upgrade, need to allow for these types
+#endif
 	pkt >> sNpcID;
 	for (int i = 0; i < 10; i++)
 		pkt >> nItemID[i] >> bPos[i];
@@ -101,8 +104,9 @@ void CUser::ItemUpgrade(Packet & pkt)
 	// Check the first 5 (+1, first is technically the item we're upgrading) slots. 
 	for (int x = 0; x < 5; x++)
 	{
-		if (bPos[x+1] >= HAVE_MAX 
-			&& nItemID[x+1] != GetItem(bPos[x+1])->nNum)
+		if (bPos[x+1] != -1
+			&& (bPos[x+1] >= HAVE_MAX 
+				|| nItemID[x+1] != GetItem(bPos[x+1])->nNum))
 			goto fail_return;
 	}
 	
