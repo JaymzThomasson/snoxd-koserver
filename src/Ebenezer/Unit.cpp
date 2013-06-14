@@ -79,6 +79,15 @@ float Unit::GetDistance(Unit * pTarget)
 	return GetDistance(pTarget->GetX(), pTarget->GetZ());
 }
 
+float Unit::GetDistanceSqrt(Unit * pTarget)
+{
+	ASSERT(pTarget != nullptr);
+	if (GetZoneID() != pTarget->GetZoneID())
+		return -FLT_MAX;
+
+	return sqrtf(GetDistance(pTarget->GetX(), pTarget->GetZ()));
+}
+
 // Check to see if the Unit is in 2D range of another Unit.
 // Range MUST be squared already.
 bool Unit::isInRange(Unit * pTarget, float fSquaredRange)
