@@ -977,34 +977,39 @@ void CUser::SetSlotItemValue()
 	m_bMagicTypeLeftHand = 0; m_bMagicTypeRightHand = 0; m_sMagicAmountLeftHand = 0; m_sMagicAmountRightHand = 0;       
 
 	// Apply stat bonuses from all equipped & cospre items.
-	for (int i = 0; i < INVENTORY_COSP+COSP_MAX; i++)
+	// Total up the weight of all items.
+	for (int i = 0; i < INVENTORY_TOTAL; i++)
 	{
-		// If we hit SLOT_MAX, skip us through the inventory
-		// and straight to the cospre items.
-		if (i == SLOT_MAX)
+		_ITEM_DATA * pItem = nullptr;
+		pTable = GetItemPrototype(i, pItem);
+		if (pTable == nullptr)
+			continue;
+
+		// Non-stackable items should have a count of 1. If not, something's broken.
+		m_sItemWeight += pTable->m_sWeight * pItem->sCount;
+
+		// Do not apply stats to unequipped items
+		if ((i >= SLOT_MAX && i < INVENTORY_COSP)
+			// or items in magic bags.
+			|| i >= INVENTORY_MBAG)
+			continue;
+
+		if (pItem->sDuration == 0) 
 		{
-			i = INVENTORY_COSP - 1;
-			continue;
-		}
-
-		if (m_sItemArray[i].nNum <= 0)
-			continue;
-
-		pTable = g_pMain->GetItemPtr( m_sItemArray[i].nNum );
-		if( !pTable )
-			continue;
-		if( m_sItemArray[i].sDuration == 0 ) {
 			item_hit = pTable->m_sDamage / 2;
 			item_ac = pTable->m_sAc / 2;
 		}
-		else {
+		else 
+		{
 			item_hit = pTable->m_sDamage;
 			item_ac = pTable->m_sAc;
 		}
-		if( i == RIGHTHAND ) 	// ItemHit Only Hands
+
+		if (i == RIGHTHAND) 	// ItemHit Only Hands
 			m_sItemHit += item_hit;
-		if( i == LEFTHAND ) {
-			if( ( m_sClass == BERSERKER || m_sClass == BLADE ) )
+		else if (i == LEFTHAND)
+		{
+			if ((m_sClass == BERSERKER || m_sClass == BLADE))
 				m_sItemHit += (short)(item_hit * 0.5f);
 		}
 
@@ -1033,18 +1038,6 @@ void CUser::SetSlotItemValue()
 		m_sMaceR += pTable->m_sMaceAc;
 		m_sSpearR += pTable->m_sSpearAc;
 		m_sBowR += pTable->m_sBowAc;
-	}
-
-	// Also add the weight of items in the inventory
-	// This will include magic bags. Should we be including those?
-	for (int i = SLOT_MAX; i < INVENTORY_TOTAL; i++) 
-	{
-		pTable = GetItemPrototype(i);
-		if (pTable == nullptr)
-			continue;
-
-		// Non-stackable items should have a count of 1. If not, something's broken.
-		m_sItemWeight += pTable->m_sWeight * m_sItemArray[i].sCount;
 	}
 
 	if (m_sItemHit < 3)
