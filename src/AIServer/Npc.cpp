@@ -1583,9 +1583,9 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 				|| pUser->m_byIsOP == MANAGER_USER)
 				continue;
 
-			float fDis = Unit::GetDistance(pUser);
-			if (fDis > pow(fSearchRange, 2.0f)
-				|| fDis < pow(fComp, 2.0f))
+			float fDis = Unit::GetDistanceSqrt(pUser);
+			if (fDis > fSearchRange
+				|| fDis < fComp)
 				continue;
 
 			target_uid = pUser->GetID();

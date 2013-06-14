@@ -99,6 +99,7 @@ public:
 
 	float GetDistance(float fx, float fz);
 	float GetDistance(Unit * pTarget);
+	float GetDistanceSqrt(Unit * pTarget);
 
 	bool isInRange(Unit * pTarget, float fSquaredRange);
 	bool isInRange(float fx, float fz, float fSquaredRange);
