@@ -2,7 +2,7 @@ void CUser::Attack(Packet & pkt)
 {
 	Packet result;
 	int16 sid = -1, tid = -1, damage, delaytime, distance;	
-	uint8 bType, bResult;	
+	uint8 bType, bResult = 0;	
 	
 	CUser* pTUser = nullptr;
 
@@ -33,7 +33,7 @@ void CUser::Attack(Packet & pkt)
 		pTUser = g_pMain->GetUserPtr(tid);
  
 		if (pTUser == nullptr
-			|| CanAttack(pTUser)) 
+			|| !CanAttack(pTUser)) 
 			bResult = 0;
 		else 
 		{
@@ -63,9 +63,8 @@ void CUser::Attack(Packet & pkt)
 			return;	
 
 		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(tid);		
-		if (pNpc != nullptr && pNpc->isAlive() 
-			&& (pNpc->GetNation() == 0
-				|| pNpc->GetNation() != GetNation()))
+		if (pNpc != nullptr 
+			&& CanAttack(pNpc))
 		{
 			result.SetOpcode(AG_ATTACK_REQ);
 			result	<< bType << bResult
