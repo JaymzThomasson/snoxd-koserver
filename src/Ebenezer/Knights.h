@@ -79,6 +79,7 @@ public:
 	// Attach our session to the clan's list & tell clannies we logged in.
 	void OnLogin(CUser *pUser);
 
+	void ConstructClanNoticePacket(Packet *result);
 	void UpdateClanNotice(std::string & clanNotice);
 
 	// Detach our session from the clan's list & tell clannies we logged off.
