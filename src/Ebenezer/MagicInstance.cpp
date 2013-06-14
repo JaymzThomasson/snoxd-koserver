@@ -1347,17 +1347,22 @@ bool MagicInstance::ExecuteType9()
 
 	sData[1] = 1;
 	
-	if (pSkillTarget->HasSavedMagic(nSkillID))
+	if (pSkillCaster->HasSavedMagic(nSkillID))
 	{
 		sData[1] = 0;
 		SendSkillFailed();
 		return false;
 	}
 	
-	if (pType->bStateChange <= 2 && pSkillTarget->canStealth())
+	if (pType->bStateChange <= 2 
+		&& pSkillCaster->canStealth())
 	{
-		pSkillCaster->StateChangeServerDirect(7, pType->bStateChange); // Update the client to be invisible
-		pSkillTarget->InsertSavedMagic(nSkillID, pType->sDuration);
+		// Invisibility perk does NOT apply when using these skills on monsters.
+		if (pSkillTarget->isPlayer())
+		{
+			pSkillCaster->StateChangeServerDirect(7, pType->bStateChange); // Update the client to be invisible
+			pSkillCaster->InsertSavedMagic(nSkillID, pType->sDuration);
+		}
 	}
 	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4)
 	{
