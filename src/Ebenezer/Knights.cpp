@@ -28,6 +28,8 @@ CKnights::CKnights()
 
 void CKnights::OnLogin(CUser *pUser)
 {
+	Packet result;
+
 	// Set the active session for this user
 	foreach_array (i, m_arKnightsUser)
 	{
@@ -42,11 +44,34 @@ void CKnights::OnLogin(CUser *pUser)
 	}
 
 	// Send login notice
-	Packet loginNotice;
 	// TO-DO: Shift this to SERVER_RESOURCE
 	std::string buffer = string_format("*** %s has logged in ***", pUser->GetName().c_str());
-	ChatPacket::Construct(&loginNotice, KNIGHTS_CHAT, &buffer);
-	Send(&loginNotice);
+	ChatPacket::Construct(&result, KNIGHTS_CHAT, &buffer);
+	Send(&result);
+
+	// Construct the clan notice packet to send to the logged in player
+	if (!m_strClanNotice.empty())
+	{
+		ChatPacket::Construct(&result, CLAN_NOTICE, &m_strClanNotice);
+		pUser->Send(&result);
+	}
+}
+
+void CKnights::UpdateClanNotice(std::string & clanNotice)
+{
+	Packet result;
+
+	// Update the stored clan notice
+	m_strClanNotice = clanNotice;
+
+	// Construct the update notice packet to inform players the clan notice has changed
+	std::string updateNotice = string_format("*** %s updated the clan notice ***", m_strChief.c_str());
+	ChatPacket::Construct(&result, KNIGHTS_CHAT, &updateNotice);
+	Send(&result);
+
+	// Construct the new clan notice packet
+	ChatPacket::Construct(&result, CLAN_NOTICE, &clanNotice);
+	Send(&result);
 }
 
 void CKnights::OnLogout(CUser *pUser)

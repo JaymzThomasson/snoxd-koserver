@@ -153,6 +153,7 @@ enum ChatType
 	MERCHANT_CHAT				= 14,
 	ALLIANCE_CHAT				= 15,
 	ANNOUNCEMENT_CHAT			= 17,
+	CLAN_NOTICE					= 24,
 	DEATH_NOTICE				= 26
 };
 
