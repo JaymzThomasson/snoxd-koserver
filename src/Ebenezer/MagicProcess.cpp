@@ -127,7 +127,7 @@ void CMagicProcess::CheckExpiredType6Skills(Unit * pTarget)
 	instance.Type6Cancel();
 }
 
-bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, Unit * pCaster, CUser *pTarget)
+bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, Unit * pCaster, Unit *pTarget)
 {
 	switch (pType->bBuffType)
 	{
@@ -138,7 +138,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 			pTarget->m_sMaxHPAmount = pType->sMaxHP;
 
 		if (pType->sMaxMP == 0 && pType->sMaxMPPct > 0)
-			pTarget->m_sMaxMPAmount = (pType->sMaxMPPct - 100) * (pTarget->m_iMaxMp - pTarget->m_sMaxMPAmount) / 100;
+			pTarget->m_sMaxMPAmount = (pType->sMaxMPPct - 100) * (pTarget->GetMaxMana() - pTarget->m_sMaxMPAmount) / 100;
 		else
 			pTarget->m_sMaxMPAmount = pType->sMaxMP;
 		break;
@@ -334,7 +334,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 	return true;
 }
 
-bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, CUser *pTarget)
+bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 {
 	switch (byBuffType)
 	{
@@ -393,11 +393,13 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, CUser *pTarget)
 		break;
 
 	case BUFF_TYPE_EXPERIENCE:
-		pTarget->m_bExpGainAmount = 100;
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bExpGainAmount = 100;
 		break;
 
 	case BUFF_TYPE_WEIGHT:
-		pTarget->m_bMaxWeightAmount = 100;
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bMaxWeightAmount = 100;
 		break;
 
 	case BUFF_TYPE_WEAPON_DAMAGE:
@@ -519,17 +521,23 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, CUser *pTarget)
 		return false;
 	}
 
-	pTarget->SetSlotItemValue();
-	pTarget->SetUserAbility();
-	pTarget->Send2AI_UserUpdateInfo();
+	if (pTarget->isPlayer())
+	{
+		TO_USER(pTarget)->SetSlotItemValue();
+		TO_USER(pTarget)->SetUserAbility();
+		TO_USER(pTarget)->Send2AI_UserUpdateInfo();
+	}
 
 	pTarget->m_buffLock.Acquire();
 	pTarget->m_buffMap.erase(byBuffType);
 	pTarget->m_buffLock.Release();
 
-	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
-	result << byBuffType;
-	pTarget->Send(&result);
+	if (pTarget->isPlayer())
+	{
+		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
+		result << byBuffType;
+		TO_USER(pTarget)->Send(&result);
+	}
 
 	return true;
 }
