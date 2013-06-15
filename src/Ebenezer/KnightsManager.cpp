@@ -492,9 +492,20 @@ void CKnightsManager::RecvUpdateKnights(CUser *pUser, Packet & pkt, uint8 comman
 		return;
 
 	if (command == KNIGHTS_JOIN)
+	{
+		std::string noticeText;
+		g_pMain->GetServerResource(IDS_KNIGHTS_JOIN, &noticeText, pUser->GetName().c_str());
 		pKnights->AddUser(pUser);
-	else
+		pKnights->SendChat("%s", noticeText.c_str());
+
+	}
+	else if (command == KNIGHTS_WITHDRAW || command == KNIGHTS_REMOVE)
+	{
+		std::string noticeText;
+		g_pMain->GetServerResource(command == KNIGHTS_WITHDRAW ? IDS_KNIGHTS_WITHDRAW : IDS_KNIGHTS_REMOVE, &noticeText, pUser->GetName().c_str());
+		pKnights->SendChat("%s", noticeText.c_str());
 		pKnights->RemoveUser(pUser);
+	}
 
 	Packet result(WIZ_KNIGHTS_PROCESS, command);
 	result	<< uint8(1) << pUser->GetSocketID() << pUser->GetClanID() << pUser->GetFame();
