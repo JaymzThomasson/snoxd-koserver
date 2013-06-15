@@ -643,29 +643,21 @@ bool MagicInstance::ExecuteType3()
 	// If the target's a group of people...
 	if (sTargetID == -1)
 	{
-		// TO-DO: Make this not completely and utterly suck (i.e. kill that loop!).
-		SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
-		foreach (itr, sessMap)
+		std::vector<uint16> unitList;
+		g_pMain->GetUnitListFromSurroundingRegions(pSkillCaster, &unitList);
+		foreach (itr, unitList)
 		{		
-			CUser* pTUser = TO_USER(itr->second);
-			if (!pTUser->isDead() && !pTUser->isBlinking()
-				&& CMagicProcess::UserRegionCheck(pSkillCaster, pTUser, pSkill, pType->bRadius, sData[0], sData[2]))
-				casted_member.push_back(pTUser);
+			Unit * pTarget = g_pMain->GetUnit(*itr);
+			if (!pTarget->isDead() && !pTarget->isBlinking()
+				&& CMagicProcess::UserRegionCheck(pSkillCaster, pTarget, pSkill, pType->bRadius, sData[0], sData[2]))
+				casted_member.push_back(pTarget);
 		}
-		g_pMain->m_socketMgr.ReleaseLock();
 
-/*
-	This may affect monsters, so we do not want to it fail here.
-	When this is merged with AI, this will see both monsters and users, 
-	so we can re-apply this check then.
-*/
-#if 0	
 		if (casted_member.empty())
 		{
 			SendSkillFailed();
 			return false;			
 		}
-#endif
 
 		// Hack to allow for the showing of AOE skills under any circumstance.
 		// Send the skill data in the current context to the caster's region
@@ -698,75 +690,98 @@ bool MagicInstance::ExecuteType3()
 
 	foreach (itr, casted_member)
 	{
-		// assume player for now
-		CUser* pTUser = TO_USER(*itr); // it's checked above, not much need to check it again
+		Unit * pTarget = *itr; // it's checked above, not much need to check it again
 		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1) && (nSkillID < 400000))	// If you are casting an attack spell.
-			damage = GetMagicDamage(pTUser, pType->sFirstDamage, pType->bAttribute) ;	// Get Magical damage point.
+			damage = GetMagicDamage(pTarget, pType->sFirstDamage, pType->bAttribute) ;	// Get Magical damage point.
 		else 
 			damage = pType->sFirstDamage;
 
 		if (pSkillCaster->isPlayer())
 		{
-			if( pSkillCaster->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE )
-				damage = -10;		
+			if (pSkillCaster->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE)
+				damage = -10;
 		}
 
+		// Non-durational spells.
 		if (pType->bDuration == 0) 
-		{     // Non-Durational Spells.
-			if (pType->bDirectType == 1)     // Health Point related !
+		{
+			// Affects target's HP
+			if (pType->bDirectType == 1)
 			{			
-				pTUser->HpChange(damage, pSkillCaster);     // Reduce target health point.
-				if(pTUser->m_bReflectArmorType != 0 && pTUser != pSkillCaster)
+				pTarget->HpChange(damage, pSkillCaster);
+
+				if (pTarget->m_bReflectArmorType != 0 && pTarget != pSkillCaster)
 					ReflectDamage(damage);
 			}
-			else if ( pType->bDirectType == 2 || pType->bDirectType == 3 )    // Magic or Skill Point related !
-				pTUser->MSpChange(damage);     // Change the SP or the MP of the target.		
-			else if( pType->bDirectType == 4 )     // Armor Durability related.
-				pTUser->ItemWoreOut( DEFENCE, -damage);     // Reduce Slot Item Durability
-			else if( pType->bDirectType == 8 ) //
+			// Affects target's MP
+			else if (pType->bDirectType == 2 || pType->bDirectType == 3)
+			{
+				pTarget->MSpChange(damage);
+			}
+			// For players, wear out their items.
+			else if (pType->bDirectType == 4)
+			{
+				if (pTarget->isPlayer())
+					TO_USER(pTarget)->ItemWoreOut(DEFENCE, -damage);
+			}
+			// Need to absorb HP from the target user to the source user
+			// NOTE: Must only affect players.
+			else if (pType->bDirectType == 8)
+			{
 				continue;
-				//Need to absorb HP from the target user to the source user
-			else if( pType->bDirectType == 9 ) //Damage based on percentage of target's max HP
+			}
+			// Damage based on percentage of target's max HP
+			else if (pType->bDirectType == 9) //Damage based on percentage of target's max HP
 			{
 				if (pType->sFirstDamage < 100)
-					damage = (pType->sFirstDamage * pTUser->m_sHp) / -100;
+					damage = (pType->sFirstDamage * pTarget->GetHealth()) / -100;
 				else
-					damage = (pTUser->m_iMaxHp * (pType->sFirstDamage - 100)) / 100;
+					damage = (pTarget->GetMaxHealth() * (pType->sFirstDamage - 100)) / 100;
 
-				pTUser->HpChange(damage, pSkillCaster);
+				pTarget->HpChange(damage, pSkillCaster);
 			}
+
 			if (sTargetID != -1)
 				sData[1] = 1;
 		}
-		else if (pType->bDuration != 0) {    // Durational Spells! Remember, durational spells only involve HPs.
+		// Durational spells! Durational spells only involve HP.
+		else if (pType->bDuration != 0) 
+		{
 			if (damage != 0) {		// In case there was first damage......
-				pTUser->HpChange(damage, pSkillCaster);			// Initial damage!!!
+				pTarget->HpChange(damage, pSkillCaster);			// Initial damage!!!
 			}
 
-			if (pTUser->m_bResHpType != USER_DEAD) {	// ���⵵ ��ȣ �ڵ� �߽�...
-				if (pType->sTimeDamage < 0) {
-					duration_damage = GetMagicDamage(pTUser, pType->sTimeDamage, pType->bAttribute) ;
-				}
-				else duration_damage = pType->sTimeDamage ;
+			if (pTarget->isAlive()) {
+				if (pType->sTimeDamage < 0) 
+					duration_damage = GetMagicDamage(pTarget, pType->sTimeDamage, pType->bAttribute);
+				else 
+					duration_damage = pType->sTimeDamage;
 
-				for (int k = 0 ; k < MAX_TYPE3_REPEAT ; k++) {	// For continuous damages...
-					if (pTUser->m_bHPInterval[k] == 5) {
-						pTUser->m_tHPStartTime[k] = pTUser->m_tHPLastTime[k] = UNIXTIME;     // The durational magic routine.
-						pTUser->m_bHPDuration[k] = pType->bDuration;
-						pTUser->m_bHPInterval[k] = 2;		
-						pTUser->m_bHPAmount[k] = (int16)(duration_damage / ( (float)pTUser->m_bHPDuration[k] / (float)pTUser->m_bHPInterval[k] )) ; // now to figure out which one was zero? :p, neither, that's the problem >_<
-						pTUser->m_sSourceID[k] = sCasterID;
+				// Setup DOT (damage over time)
+				for (int k = 0 ; k < MAX_TYPE3_REPEAT; k++) 
+				{
+					if (pTarget->m_bHPInterval[k] == 5) 
+					{
+						pTarget->m_tHPStartTime[k] = pTarget->m_tHPLastTime[k] = UNIXTIME;     // The durational magic routine.
+						pTarget->m_bHPDuration[k] = pType->bDuration;
+						pTarget->m_bHPInterval[k] = 2;		
+						// now to figure out which one was zero? :p, neither, that's the problem >_<
+						pTarget->m_bHPAmount[k] = (int16)(duration_damage / ( (float)pTarget->m_bHPDuration[k] / (float)pTarget->m_bHPInterval[k] ));
+						pTarget->m_sSourceID[k] = sCasterID;
 						break;
 					}
 				}
 
-				pTUser->m_bType3Flag = true;
+				pTarget->m_bType3Flag = true;
 			}
 
-			if (pTUser->isInParty() && pType->sTimeDamage < 0)
-				pTUser->SendPartyStatusUpdate(1, 1);
+			if (pTarget->isPlayer())
+			{
+				if (TO_USER(pTarget)->isInParty() && pType->sTimeDamage < 0)
+					TO_USER(pTarget)->SendPartyStatusUpdate(1, 1);
 
-			pTUser->SendUserStatusUpdate(pType->bAttribute == POISON_R ? USER_STATUS_POISON : USER_STATUS_DOT, USER_STATUS_INFLICT);
+				TO_USER(pTarget)->SendUserStatusUpdate(pType->bAttribute == POISON_R ? USER_STATUS_POISON : USER_STATUS_DOT, USER_STATUS_INFLICT);
+			}
 		}
 
 		if (pSkillCaster->isPlayer() //If we're allowing monsters to be stealthed too (it'd be cool) then this check needs to be changed.
@@ -777,7 +792,7 @@ bool MagicInstance::ExecuteType3()
 		// Send the skill data in the current context to the caster's region, with the target explicitly set.
 		// In the case of AOEs, this will mean the AOE will show the AOE's effect on the user (not show the AOE itself again).
 		if (pSkill->bType[1] == 0 || pSkill->bType[1] == 3)
-			BuildAndSendSkillPacket(pSkillCaster, true, sCasterID, pTUser->GetSocketID(), bOpcode, nSkillID, sData);
+			BuildAndSendSkillPacket(pSkillCaster, true, sCasterID, pTarget->GetID(), bOpcode, nSkillID, sData);
 
 		// Tell the AI server we're healing someone (so that they can choose to pick on the healer!)
 		if (pType->bDirectType == 1 && damage > 0

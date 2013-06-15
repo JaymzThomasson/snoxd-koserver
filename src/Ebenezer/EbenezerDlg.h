@@ -109,6 +109,9 @@ public:
 	// Get list of NPCs for regions around user (WIZ_NPC_REGION)
 	void RegionNpcInfoForMe(CUser* pSendUser);	
 
+	// Get raw list of all units in regions surrounding pOwner.
+	void GetUnitListFromSurroundingRegions(Unit * pOwner, std::vector<uint16> * pList);
+
 	// Get info for users in regions around user (WIZ_REQ_USERIN)
 	void UserInOutForMe(CUser* pSendUser);
 
