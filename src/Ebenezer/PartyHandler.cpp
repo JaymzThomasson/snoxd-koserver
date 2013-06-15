@@ -124,7 +124,8 @@ void CUser::PartyRequest(int memberid, bool bCreate)
 			goto fail_return;
 
 		m_bPartyLeader = true;
-		
+		StateChangeServerDirect(6, 1); // give party leader the 'P' symbol
+
 		result.Initialize(AG_USER_PARTY);
 		result << uint8(PARTY_CREATE) << pParty->wIndex << pParty->uid[0];
 		Send_AIServer(&result);
@@ -324,6 +325,7 @@ void CUser::PartyDelete()
 	result.Initialize(AG_USER_PARTY);
 
 	m_bPartyLeader = false;
+	StateChangeServerDirect(6, 0); // remove 'P' symbol from party leader
 
 	result << uint8(PARTY_DELETE) << uint16(pParty->wIndex);
 	Send_AIServer(&result);
