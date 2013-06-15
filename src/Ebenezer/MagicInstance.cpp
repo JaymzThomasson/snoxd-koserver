@@ -478,14 +478,18 @@ bool MagicInstance::IsAvailable()
 			}
 		}
 
-		if (bOpcode == MAGIC_EFFECTING) {    // MP/SP SUBTRACTION ROUTINE!!! ITEM AND HP TOO!!!	
-			int total_hit = pSkillCaster->m_sTotalHit ;
+		// Handle MP/HP/item loss.
+		if (bOpcode == MAGIC_EFFECTING) 
+		{
+			int total_hit = pSkillCaster->m_sTotalHit;
 
+#if 0 // dodgy checks preventing legitimate behaviour
 			if (pSkill->bType[0] == 2 && pSkill->bFlyingEffect != 0) // Type 2 related...
 				return true;		// Do not reduce MP/SP when flying effect is not 0.
 
 			if (pSkill->bType[0] == 1 && sData[0] > 1)
 				return true;		// Do not reduce MP/SP when combo number is higher than 0.
+#endif
  
 			if (pSkill->sMsp > pSkillCaster->GetMana())
 				goto fail_return;
