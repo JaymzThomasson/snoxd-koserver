@@ -744,6 +744,17 @@ bool MagicInstance::ExecuteType3()
 
 				pTarget->HpChange(damage, pSkillCaster);
 			}
+			// Drains target's MP, gives half of it to the caster as HP
+			// NOTE: Non-durational form (as in 1.8xx). This was made durational later (database configured).
+			else if (pType->bDirectType == 16)
+			{
+				// Only apply this to players
+				if (pTarget->isPlayer())
+				{
+					pTarget->MSpChange(pType->sFirstDamage);
+					pSkillCaster->HpChange(-(pType->sFirstDamage) / 2);
+				}
+			}
 
 			if (sTargetID != -1)
 				sData[1] = 1;
@@ -751,11 +762,11 @@ bool MagicInstance::ExecuteType3()
 		// Durational spells! Durational spells only involve HP.
 		else if (pType->bDuration != 0) 
 		{
-			if (damage != 0) {		// In case there was first damage......
+			if (damage != 0)		// In case there was first damage......
 				pTarget->HpChange(damage, pSkillCaster);			// Initial damage!!!
-			}
 
-			if (pTarget->isAlive()) {
+			if (pTarget->isAlive()) 
+			{
 				if (pType->sTimeDamage < 0) 
 					duration_damage = GetMagicDamage(pTarget, pType->sTimeDamage, pType->bAttribute);
 				else 

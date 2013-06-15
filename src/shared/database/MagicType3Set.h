@@ -18,9 +18,9 @@ public:
 		_dbCommand->FetchInt16(3, pData->sFirstDamage);
 		_dbCommand->FetchInt16(4, pData->sEndDamage);
 		_dbCommand->FetchInt16(5, pData->sTimeDamage);
-		_dbCommand->FetchByte(6, pData->bRadius);
-		_dbCommand->FetchByte(7, pData->bDuration);
-		_dbCommand->FetchByte(8, pData->bAttribute);
+		_dbCommand->FetchByte(6, pData->bDuration);
+		_dbCommand->FetchByte(7, pData->bAttribute);
+		_dbCommand->FetchUInt16(8, pData->sAngle);
 
 		if (!m_pMap->PutData(pData->iNum, pData))
 			delete pData;
