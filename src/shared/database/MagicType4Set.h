@@ -19,7 +19,7 @@ public:
 		_dbCommand->FetchUInt16(4, pData->sDuration);
 		_dbCommand->FetchByte(5, pData->bAttackSpeed);
 		_dbCommand->FetchByte(6, pData->bSpeed);
-		_dbCommand->FetchUInt16(7, pData->sAC);
+		_dbCommand->FetchInt16(7, pData->sAC);
 		_dbCommand->FetchUInt16(8, pData->sACPct);
 		_dbCommand->FetchByte(9, pData->bAttack);
 		_dbCommand->FetchByte(10, pData->bMagicAttack);

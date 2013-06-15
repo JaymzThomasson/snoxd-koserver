@@ -231,7 +231,12 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_ATTACK_SPEED_ARMOR:
-		pTarget->m_sACAmount -= pType->sAC;
+		pTarget->m_sACAmount += pType->sAC;
+
+		// Prevent total defense from ever going below 0
+		if ((pTarget->m_sACAmount + pTarget->m_sTotalAc) < 0)
+			pTarget->m_sACAmount = -(pTarget->m_sTotalAc);
+
 		pTarget->m_bAttackAmount = pType->bAttack;
 		break;
 

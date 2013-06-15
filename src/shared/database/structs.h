@@ -67,7 +67,7 @@ struct _MAGIC_TYPE4
 	uint16	sDuration;  // duration, in seconds
 	uint8	bAttackSpeed;
 	uint8	bSpeed;
-	uint16	sAC;
+	int16	sAC;
 	uint16	sACPct;
 	uint8	bAttack;
 	uint8	bMagicAttack;
