@@ -1001,6 +1001,36 @@ void CEbenezerDlg::RegionNpcInfoForMe(CUser *pSendUser)
 	pSendUser->SendCompressed(&result);
 }
 
+void CEbenezerDlg::GetUnitListFromSurroundingRegions(Unit * pOwner, std::vector<uint16> * pList)
+{
+	if (pOwner == nullptr)
+		return;
+
+	C3DMap * pMap = pOwner->GetMap();
+	ASSERT(pMap != nullptr);
+
+	int16 rx = pOwner->GetRegionX(), rz = pOwner->GetRegionZ();
+
+	FastGuard lock(pMap->m_lock);
+	foreach_region(x, z)
+	{
+		uint16 region_x = rx + x, region_z = rz + z;
+		CRegion * pRegion = pMap->GetRegion(region_x, region_z);
+		if (pRegion == nullptr)
+			continue;
+
+		FastGuard lock2(pRegion->m_lock);
+
+		// Add all potential NPCs to list
+		foreach (itr, pRegion->m_RegionNpcArray)
+			pList->push_back(*itr);
+
+		// Add all potential users to list
+		foreach (itr, pRegion->m_RegionUserArray)
+			pList->push_back(*itr);
+	}
+}
+
 void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, uint16 region_x, uint16 region_z, Packet & pkt, uint16 & t_count)
 {
 	if (!m_bPointCheckFlag
