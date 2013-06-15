@@ -1293,37 +1293,27 @@ bool MagicInstance::ExecuteType8()
 				pTUser->UserInOut(INOUT_RESPAWN);
 				break;
 
-			case 20:	// Randomly teleport the source (within 20 meters)		
-				// Send the packet to the target.
+			case 20:	// Teleport the source (radius) meters forward
+			{
+				// Calculate difference between where user is now and where they were previously
+				// to figure out an orientation.
+				// Should really use m_sDirection, but not sure what the value is exactly.
+				float	warp_x = pTUser->GetX() - pTUser->m_oldx, 
+						warp_z = pTUser->GetZ() - pTUser->m_oldz;
+
+				// Unable to work out orientation, so we'll just fail (won't be necessary with m_sDirection).
+				float	distance = sqrtf(warp_x*warp_x + warp_z*warp_z);
+				if (distance == 0.0f)
+					goto packet_send;
+
+				warp_x /= distance; warp_z /= distance;
+				warp_x *= pType->sRadius; warp_z *= pType->sRadius;
+				warp_x += pTUser->m_oldx; warp_z += pTUser->m_oldz;
+
 				sData[1] = 1;
 				BuildAndSendSkillPacket(*itr, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sData); 
-
-				float warp_x, warp_z;		// Variable Initialization.
-				float temp_warp_x, temp_warp_z;
-
-				warp_x = pTUser->m_curx;	// Get current locations.
-				warp_z = pTUser->m_curz;
-
-				temp_warp_x = (float)myrand(0, 20) ;	// Get random positions (within 20 meters)
-				temp_warp_z = (float)myrand(0, 20) ;
-
-				if (temp_warp_x > 10)	// Get new x-position.
-					warp_x = warp_x + (temp_warp_x - 10 ) ;
-				else
-					warp_x = warp_x - temp_warp_x ;
-
-				if (temp_warp_z > 10)	// Get new z-position.
-					warp_z = warp_z + (temp_warp_z - 10 ) ;
-				else
-					warp_z = warp_z - temp_warp_z ;
-				
-				if (warp_x < 0.0f) warp_x = 0.0f ;		// Make sure all positions are within range.
-				if (warp_x > 4096) warp_x = 4096 ;		// Change it if it isn't!!!
-				if (warp_z < 0.0f) warp_z = 0.0f ;		// (Warp function does not check this!)
-				if (warp_z > 4096) warp_z = 4096 ;
-
 				pTUser->Warp(uint16(warp_x * 10), uint16(warp_z * 10));
-				break;
+			} break;
 
 			case 21:	// Summon a monster within a zone.
 				// LATER!!! 
@@ -1336,8 +1326,8 @@ bool MagicInstance::ExecuteType8()
 				if (pSkill->bMoral < MORAL_ENEMY && pTUser->GetNation() != pSkillCaster->GetNation()) //I'm not the same nation as you are and thus can't t
 					return false;
 					
-				dest_x = pTUser->m_curx;
-				dest_z = pTUser->m_curz;
+				dest_x = pTUser->GetX();
+				dest_z = pTUser->GetZ();
 
 				if (pSkillCaster->isPlayer())
 					TO_USER(pSkillCaster)->Warp(uint16(dest_x * 10), uint16(dest_z * 10));

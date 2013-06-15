@@ -115,6 +115,7 @@ public:
 	int8	m_bPersonalRank;
 	int8	m_bKnightsRank;
 
+	float	m_oldx, m_oldy, m_oldz;
 	int16	m_sDirection;
 
 	int64	m_iMaxExp;

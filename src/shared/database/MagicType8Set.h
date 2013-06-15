@@ -15,7 +15,7 @@ public:
 
 		_dbCommand->FetchUInt32(1, pData->iNum);
 		_dbCommand->FetchByte(2, pData->bTarget);
-		_dbCommand->FetchUInt16(2, pData->sRadius);
+		_dbCommand->FetchUInt16(3, pData->sRadius);
 		_dbCommand->FetchByte(4, pData->bWarpType);
 		_dbCommand->FetchUInt16(5, pData->sExpRecover);
 

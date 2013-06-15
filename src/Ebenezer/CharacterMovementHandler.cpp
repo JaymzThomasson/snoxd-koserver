@@ -14,10 +14,16 @@ void CUser::MoveProcess(Packet & pkt)
 	if (!GetMap()->IsValidPosition(real_x, real_z, real_y)) 
 		return;
 
+	if (m_oldx != GetX()
+		|| m_oldz != GetZ())
+	{
+		m_oldx = GetX();
+		m_oldy = GetY();
+		m_oldz = GetZ();
+	}
+
 	// TO-DO: Ensure this is checked properly to prevent speedhacking
-	m_curx = real_x;
-	m_curz = real_z;
-	m_cury = real_y;
+	SetPosition(real_x, real_y, real_z);
 
 	if (RegisterRegion())
 	{
