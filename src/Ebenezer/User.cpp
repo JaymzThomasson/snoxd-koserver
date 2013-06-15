@@ -628,7 +628,7 @@ void CUser::SendMyInfo()
 	C3DMap* pMap = GetMap();
 	CKnights* pKnights = nullptr;
 
-	if (!pMap->IsValidPosition( m_curx, m_curz, 0.0f))
+	if (!pMap->IsValidPosition(GetX(), GetZ(), 0.0f))
 	{
 		short x = 0, z = 0;
 		GetStartPosition(x, z); 
@@ -3372,7 +3372,7 @@ void CUser::BlinkTimeCheck()
 	result.SByte(); // TO-DO: Remove this redundant uselessness that is mgame
 	result	<< uint8(INOUT_RESPAWN) << GetSocketID()
 			<< GetName()
-			<< m_curx << m_curz;
+			<< GetX() << GetZ();
 	Send_AIServer(&result);
 
 	UpdateVisibility(INVIS_NONE);

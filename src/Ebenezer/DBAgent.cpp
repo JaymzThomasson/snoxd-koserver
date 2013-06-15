@@ -396,6 +396,9 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 	pUser->m_curx = (float)(dbCommand->FetchInt32(field++) / 100.0f);
 	pUser->m_curz = (float)(dbCommand->FetchInt32(field++) / 100.0f);
 	pUser->m_cury = (float)(dbCommand->FetchInt32(field++) / 100.0f);
+	pUser->m_oldx = pUser->m_curx;
+	pUser->m_oldy = pUser->m_cury;
+	pUser->m_oldz = pUser->m_curz;
 	pUser->m_dwTime = dbCommand->FetchUInt32(field++) + 1;
 	dbCommand->FetchString(field++, (char *)pUser->m_bstrSkill, sizeof(pUser->m_bstrSkill));
 	dbCommand->FetchBinary(field++, strItem, sizeof(strItem));
