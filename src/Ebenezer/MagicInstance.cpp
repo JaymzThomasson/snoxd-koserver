@@ -771,7 +771,7 @@ bool MagicInstance::ExecuteType3()
 					duration_damage = pType->sTimeDamage;
 
 				// Setup DOT (damage over time)
-				for (int k = 0 ; k < MAX_TYPE3_REPEAT; k++) 
+				for (int k = 0; k < MAX_TYPE3_REPEAT; k++) 
 				{
 					if (pTarget->m_bHPInterval[k] == 5) 
 					{
@@ -788,12 +788,16 @@ bool MagicInstance::ExecuteType3()
 				pTarget->m_bType3Flag = true;
 			}
 
-			if (pTarget->isPlayer())
+			// Send the status updates (i.e. DOT or position indicators) to the party/user
+			if (pTarget->isPlayer()
+				// Ignore healing spells, not sure if this will break any skills.
+				&& pType->sTimeDamage < 0)
 			{
-				if (TO_USER(pTarget)->isInParty() && pType->sTimeDamage < 0)
-					TO_USER(pTarget)->SendPartyStatusUpdate(1, 1);
+				CUser * pTUser = TO_USER(pTarget);
+				if (pTUser->isInParty())
+					pTUser->SendPartyStatusUpdate(1, 1);
 
-				TO_USER(pTarget)->SendUserStatusUpdate(pType->bAttribute == POISON_R ? USER_STATUS_POISON : USER_STATUS_DOT, USER_STATUS_INFLICT);
+				pTUser->SendUserStatusUpdate(pType->bAttribute == POISON_R ? USER_STATUS_POISON : USER_STATUS_DOT, USER_STATUS_INFLICT);
 			}
 		}
 
