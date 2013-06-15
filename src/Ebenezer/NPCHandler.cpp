@@ -672,7 +672,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 	result	<< uint8(KNIGHTS_CAPE_UPDATE)
 			<< GetClanID()
 			<< pKnights->m_byFlag
-			<< uint16(pKnights->m_sCape)
+			<< pKnights->GetCapeID()
 			<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB
 			<< uint8(0);
 
@@ -684,8 +684,8 @@ void CUser::HandleCapeChange(Packet & pkt)
 	// TO-DO: Send to other servers via UDP.
 
 	// Now tell Aujard to save (we don't particularly care whether it was able to do so or not).
-	result.clear();
-	result	<< uint16(pKnights->m_sIndex) << uint16(pKnights->m_sCape) 
+	result.Initialize(WIZ_CAPE);
+	result	<< pKnights->GetID() << pKnights->GetCapeID()
 			<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB;
 	g_pMain->AddDatabaseRequest(result, this);
 	return;
