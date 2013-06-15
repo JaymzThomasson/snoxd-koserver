@@ -151,11 +151,9 @@ bool MagicInstance::UserCanCast()
 		&& !IsAvailable())
 		return false;
 
-	if (!pSkillCaster->canInstantCast())
-		pSkillCaster->m_bInstantCast = false;
-	else
-		pSkillCaster->m_bInstantCast = false;
-	
+	// Instant casting affects the next cast skill only, and is then removed.
+	if (pSkillCaster->canInstantCast())
+		CMagicProcess::RemoveType4Buff(BUFF_TYPE_INSTANT_MAGIC, pSkillCaster);
 
 	//Incase we made it to here, we can cast! Hurray!
 	return true;
