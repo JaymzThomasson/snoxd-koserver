@@ -104,13 +104,17 @@ bool CKnights::AddUser(std::string & strUserID)
 {
 	for (int i = 0; i < MAX_CLAN_USERS; i++)
 	{
-		if (m_arKnightsUser[i].byUsed == 0)
-		{
-			m_arKnightsUser[i].byUsed = 1;
-			m_arKnightsUser[i].strUserName = strUserID;
-			m_arKnightsUser[i].pSession = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
-			return true;
-		}
+		_KNIGHTS_USER * p = &m_arKnightsUser[i];
+		if (p->byUsed)
+			continue;
+
+		p->byUsed = 1;
+		p->strUserName = strUserID;
+		p->pSession = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
+		if (p->pSession != nullptr)
+			p->pSession->m_pKnightsUser = p;
+
+		return true;
 	}
 
 	return false;
