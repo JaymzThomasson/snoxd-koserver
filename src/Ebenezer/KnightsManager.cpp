@@ -501,9 +501,6 @@ void CKnightsManager::RecvUpdateKnights(CUser *pUser, Packet & pkt, uint8 comman
 	}
 	else if (command == KNIGHTS_WITHDRAW || command == KNIGHTS_REMOVE)
 	{
-		std::string noticeText;
-		g_pMain->GetServerResource(command == KNIGHTS_WITHDRAW ? IDS_KNIGHTS_WITHDRAW : IDS_KNIGHTS_REMOVE, &noticeText, pUser->GetName().c_str());
-		pKnights->SendChat("%s", noticeText.c_str());
 		pKnights->RemoveUser(pUser);
 	}
 
@@ -541,14 +538,11 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, uint8 command)
 	{
 	case KNIGHTS_REMOVE:
 		if (pTUser != nullptr)
-		{
-			g_pMain->GetServerResource(IDS_KNIGHTS_REMOVE, &clanNotice);
 			pKnights->RemoveUser(pTUser);
-		}
 		else
-		{
 			pKnights->RemoveUser(strUserID);
-		}
+
+		g_pMain->GetServerResource(IDS_KNIGHTS_REMOVE, &clanNotice, pTUser == nullptr ? strUserID.c_str() : pTUser->GetName().c_str());
 		break;
 	case KNIGHTS_ADMIT:
 		if (pTUser != nullptr)
@@ -567,14 +561,14 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, uint8 command)
 		if (pTUser != nullptr)
 		{
 			pTUser->m_bFame = CHIEF;
-			g_pMain->GetServerResource(IDS_KNIGHTS_CHIEF, &clanNotice);
+			g_pMain->GetServerResource(IDS_KNIGHTS_CHIEF, &clanNotice, pTUser->GetName().c_str());
 		}
 		break;
 	case KNIGHTS_VICECHIEF:
 		if (pTUser != nullptr)
 		{
 			pTUser->m_bFame = VICECHIEF;
-			g_pMain->GetServerResource(IDS_KNIGHTS_VICECHIEF, &clanNotice);
+			g_pMain->GetServerResource(IDS_KNIGHTS_VICECHIEF, &clanNotice, pTUser->GetName().c_str());
 		}
 		break;
 	case KNIGHTS_OFFICER:
@@ -595,8 +589,7 @@ void CKnightsManager::RecvModifyFame(CUser *pUser, Packet & pkt, uint8 command)
 
 	// Construct the clan system chat packet
 	Packet result;
-	std::string strMessage = string_format(clanNotice, pTUser != nullptr ? pTUser->GetName().c_str() : strUserID.c_str());
-	ChatPacket::Construct(&result, KNIGHTS_CHAT, &strMessage);
+	ChatPacket::Construct(&result, KNIGHTS_CHAT, &clanNotice);
 
 	// If we've been removed from a clan, tell the user as well (since they're no longer in the clan)
 	if (command == KNIGHTS_REMOVE && pTUser != nullptr)
