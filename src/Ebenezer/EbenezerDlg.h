@@ -65,7 +65,10 @@ public:
 
 	static uint32 THREADCALL Timer_UpdateGameTime(void * lpParam);
 	static uint32 THREADCALL Timer_CheckAliveUser(void * lpParam);
+	static uint32 THREADCALL Timer_UpdateConcurrent(void * lpParam);
 
+	void ReqUpdateConcurrent();
+	
 	void SendFlyingSantaOrAngel();
 	void BattleZoneCurrentUsers();
 	void GetCaptainUserPtr();

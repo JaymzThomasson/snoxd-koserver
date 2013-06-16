@@ -131,7 +131,15 @@ uint32 THREADCALL DatabaseThread::ThreadProc(void * lpParam)
 			break;
 		case WIZ_ITEM_UPGRADE:
 			if (pUser) pUser->ReqSealItem(pkt);
+			break;
+		case WIZ_ZONE_CONCURRENT:
+			{
+				uint32 serverNo, count;
+				pkt >> serverNo >> count;
+				g_DBAgent.UpdateConCurrentUserCount(serverNo, 1, count);
+			} break;
 		}
+
 		// Free the packet.
 		delete p;
 	}
@@ -393,15 +401,6 @@ void CUser::ReqUserLogOut()
 	// this session can be used again.
 	m_deleted = false;
 }
-
-#if 0
-void CUser::ReqConCurrentUserCount()
-{
-	uint32 count = g_pMain->m_socketMgr.GetActiveSessionMap().size();
-	g_pMain->m_socketMgr.ReleaseLock();
-	m_DBAgent.UpdateConCurrentUserCount(m_nServerNo, m_nZoneNo, count);
-}
-#endif
 
 void CUser::ReqSaveCharacter()
 {

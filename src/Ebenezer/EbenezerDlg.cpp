@@ -216,6 +216,7 @@ void CEbenezerDlg::GetTimeFromIni()
 
 	g_timerThreads.push_back(new Thread(Timer_UpdateGameTime));
 	g_timerThreads.push_back(new Thread(Timer_CheckAliveUser));
+	g_timerThreads.push_back(new Thread(Timer_UpdateConcurrent));
 }
 
 /**
@@ -420,6 +421,25 @@ uint32 CEbenezerDlg::Timer_CheckAliveUser(void * lpParam)
 		sleep(30000);
 	}
 	return 0;
+}
+
+uint32 CEbenezerDlg::Timer_UpdateConcurrent(void * lpParam)
+{
+	while (g_bRunning)
+	{
+		g_pMain->ReqUpdateConcurrent();
+		sleep(60000);
+	}
+	return 0;
+}
+
+void CEbenezerDlg::ReqUpdateConcurrent()
+{
+	Packet result(WIZ_ZONE_CONCURRENT);
+	result	<< uint32(m_nServerNo)
+			<< uint32(m_socketMgr.GetActiveSessionMap().size());
+	g_pMain->m_socketMgr.ReleaseLock();
+	AddDatabaseRequest(result);
 }
 
 void CEbenezerDlg::AIServerConnect()
