@@ -129,6 +129,11 @@ void CMagicProcess::CheckExpiredType6Skills(Unit * pTarget)
 
 bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, Unit * pCaster, Unit *pTarget)
 {
+	// Buff mustn't already be added at this point.
+	FastGuard lock(pTarget->m_buffLock);
+	if (pTarget->m_buffMap.find(pType->bBuffType) != pTarget->m_buffMap.end())
+		return false;
+
 	switch (pType->bBuffType)
 	{
 	case BUFF_TYPE_HP_MP:
@@ -285,7 +290,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_TRIPLEAC_HALFSPEED:	// Wall of Iron
-		pTarget->m_sACAmount += pTarget->m_sTotalAc * 2;
+		pTarget->m_sACAmount += pTarget->m_sTotalAc * 2; // TO-DO: Store this value independently for restoration
 		pTarget->m_bSpeedAmount = pTarget->m_bSpeedAmount / 2;
 		if (pTarget->m_bSpeedAmount = 0)
 			pTarget->m_bSpeedAmount = 1;
@@ -336,6 +341,13 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 
 bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 {
+	// Buff must be added at this point. If it doesn't exist, we can't remove it twice.
+	FastGuard lock(pTarget->m_buffLock);
+	if (pTarget->m_buffMap.find(byBuffType) == pTarget->m_buffMap.end())
+		return false;
+
+	pTarget->m_buffMap.erase(byBuffType);
+
 	switch (byBuffType)
 	{
 	case BUFF_TYPE_HP_MP:
@@ -474,7 +486,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_TRIPLEAC_HALFSPEED:	// Wall of Iron
-		pTarget->m_sACAmount -= (pTarget->m_sTotalAc / 3 * 2);
+		pTarget->m_sACAmount -= pTarget->m_sTotalAc * 2; // TO-DO: Store this value independently for restoration
 		pTarget->m_bSpeedAmount = 100;
 		if (pTarget->m_bSpeedAmount = 0)
 			pTarget->m_bSpeedAmount = 1;
@@ -526,14 +538,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		TO_USER(pTarget)->SetSlotItemValue();
 		TO_USER(pTarget)->SetUserAbility();
 		TO_USER(pTarget)->Send2AI_UserUpdateInfo();
-	}
 
-	pTarget->m_buffLock.Acquire();
-	pTarget->m_buffMap.erase(byBuffType);
-	pTarget->m_buffLock.Release();
-
-	if (pTarget->isPlayer())
-	{
 		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
 		result << byBuffType;
 		TO_USER(pTarget)->Send(&result);
