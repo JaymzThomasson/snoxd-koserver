@@ -17,7 +17,8 @@ public:
 		_dbCommand->FetchByte(2, pData->bHitType);
 		_dbCommand->FetchUInt16(3, pData->sHitRate);
 		_dbCommand->FetchUInt16(4, pData->sAddDamage);
-		_dbCommand->FetchByte(5, pData->bNeedArrow);
+		_dbCommand->FetchUInt16(5, pData->sAddRange);
+		_dbCommand->FetchByte(6, pData->bNeedArrow);
 
 		if (!m_pMap->PutData(pData->iNum, pData))
 			delete pData;
