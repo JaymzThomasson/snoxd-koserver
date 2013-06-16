@@ -615,9 +615,12 @@ bool MagicInstance::ExecuteType2()
 	damage = pSkillCaster->GetDamage(pSkillTarget, pSkill);  // Get damage points of enemy.	
 
 	pSkillTarget->HpChange(-damage, pSkillCaster);     // Reduce target health point.
-
 	if (pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
 		ReflectDamage(damage);
+
+	// Skill was successful so we can remove the arrows.
+	if (pSkillCaster->isPlayer())
+		TO_USER(pSkillCaster)->RobItem(pSkill->iUseItem, pType->bNeedArrow);
 
 packet_send:
 	// If we're allowing monsters to be stealthed too (it'd be cool) then this check needs to be changed.
