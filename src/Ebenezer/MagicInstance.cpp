@@ -777,8 +777,7 @@ bool MagicInstance::ExecuteType3()
 					{
 						pTarget->m_tHPStartTime[k] = pTarget->m_tHPLastTime[k] = UNIXTIME;     // The durational magic routine.
 						pTarget->m_bHPDuration[k] = pType->bDuration;
-						pTarget->m_bHPInterval[k] = 2;		
-						// now to figure out which one was zero? :p, neither, that's the problem >_<
+						pTarget->m_bHPInterval[k] = 2;
 						pTarget->m_bHPAmount[k] = (int16)(duration_damage / ( (float)pTarget->m_bHPDuration[k] / (float)pTarget->m_bHPInterval[k] ));
 						pTarget->m_sSourceID[k] = sCasterID;
 						break;

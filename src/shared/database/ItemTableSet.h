@@ -26,7 +26,7 @@ public:
 		_dbCommand->FetchUInt16(i++, pData->m_sDuration);
 		_dbCommand->FetchUInt32(i++, pData->m_iBuyPrice);
 		_dbCommand->FetchUInt32(i++, pData->m_iSellPrice);
-		_dbCommand->FetchUInt16(i++, pData->m_sAc);
+		_dbCommand->FetchInt16(i++, pData->m_sAc);
 		_dbCommand->FetchByte(i++, pData->m_bCountable);
 		_dbCommand->FetchUInt32(i++, pData->m_iEffect1);
 		_dbCommand->FetchUInt32(i++, pData->m_iEffect2);
@@ -64,12 +64,12 @@ public:
 		_dbCommand->FetchInt16(i++, pData->m_sChaB);
 		_dbCommand->FetchInt16(i++, pData->m_MaxHpB);
 		_dbCommand->FetchInt16(i++, pData->m_MaxMpB);
-		_dbCommand->FetchUInt16(i++, pData->m_bFireR);
-		_dbCommand->FetchUInt16(i++, pData->m_bColdR);
-		_dbCommand->FetchUInt16(i++, pData->m_bLightningR);
-		_dbCommand->FetchUInt16(i++, pData->m_bMagicR);
-		_dbCommand->FetchUInt16(i++, pData->m_bPoisonR);
-		_dbCommand->FetchUInt16(i++, pData->m_bCurseR);
+		_dbCommand->FetchInt16(i++, pData->m_bFireR);
+		_dbCommand->FetchInt16(i++, pData->m_bColdR);
+		_dbCommand->FetchInt16(i++, pData->m_bLightningR);
+		_dbCommand->FetchInt16(i++, pData->m_bMagicR);
+		_dbCommand->FetchInt16(i++, pData->m_bPoisonR);
+		_dbCommand->FetchInt16(i++, pData->m_bCurseR);
 
 		if (!m_pMap->PutData(pData->m_iNum, pData))
 			delete pData;
