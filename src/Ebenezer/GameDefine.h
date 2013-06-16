@@ -568,4 +568,6 @@ enum FlyingSantaOrAngel
 	FLYING_ANGEL	= 2
 };
 
+#define KING_SCEPTER 910074311
+
 #include "../shared/database/structs.h"

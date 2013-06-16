@@ -1071,11 +1071,25 @@ void CKingSystem::KingTaxSystem(CUser * pUser, Packet & pkt)
 			DatabaseThread::AddRequest(&result);
 		} break;
 
-		// King's sceptre
+		// King's scepter / "unnecessary translation"
 		case 7:
-			break;
+		{
+			if (pUser->CheckExistItem(KING_SCEPTER))
+			{
+				result << int16(-1);
+			}
+			else if (pUser->FindSlotForItem(KING_SCEPTER) < 0)
+			{
+				result << int16(-2);
+			}
+			else
+			{
+				pUser->GiveItem(KING_SCEPTER, 1, false);
+				result << int16(1);
+			}
+			pUser->Send(&result);
+		} break;
 	}
-
 }
 
 /**
