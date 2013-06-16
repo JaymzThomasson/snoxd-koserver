@@ -406,7 +406,7 @@ public:
 	bool CheckClass(short class1, short class2 = -1, short class3 = -1, short class4 = -1, short class5 = -1, short class6 = -1);
 	bool GiveItem(uint32 nItemID, uint16 sCount = 1, bool send_packet = true);
 	bool RobItem(uint32 nItemID, uint16 sCount);
-	bool CheckExistItem(int itemid, short count);
+	bool CheckExistItem(int itemid, short count = 1);
 	bool CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,
 		int32 nItemID3, int16 sCount3, int32 nItemID4, int16 sCount4, int32 nItemID5, int16 sCount5);
 	bool CheckWeight(uint32 nItemID, uint16 sCount);
@@ -421,7 +421,7 @@ public:
 	void GoldChange(short tid, int gold);
 	CUser * GetItemRoutingUser(uint32 nItemID, uint16 sCount);
 	bool GetStartPosition(short & x, short & y, uint8 bZone = 0);
-	int FindSlotForItem(uint32 nItemID, uint16 sCount);
+	int FindSlotForItem(uint32 nItemID, uint16 sCount = 1);
 	int GetEmptySlot();
 	void SendAllKnightsID();
 	void SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes, not a bug */, uint16 sDurability, uint8 bPos, bool bNewItem = false);

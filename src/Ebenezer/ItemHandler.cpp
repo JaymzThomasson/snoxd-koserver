@@ -226,7 +226,7 @@ bool CUser::CheckWeight(_ITEM_TABLE * pTable, uint32 nItemID, uint16 sCount)
 }
 
 
-bool CUser::CheckExistItem(int itemid, short count)
+bool CUser::CheckExistItem(int itemid, short count /*= 1*/)
 {
 	_ITEM_TABLE* pTable = g_pMain->GetItemPtr(itemid);
 	if (pTable == nullptr)

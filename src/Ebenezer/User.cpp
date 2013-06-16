@@ -2701,7 +2701,7 @@ void CUser::SpeedHackTime(Packet & pkt)
 #endif
 }
 
-int CUser::FindSlotForItem(uint32 nItemID, uint16 sCount)
+int CUser::FindSlotForItem(uint32 nItemID, uint16 sCount /*= 1*/)
 {
 	int result = -1;
 	_ITEM_TABLE *pTable = g_pMain->GetItemPtr(nItemID);
