@@ -157,7 +157,26 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 
 	case BUFF_TYPE_SIZE:
 		if (pCaster->isPlayer())
-			TO_USER(pCaster)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
+		{
+			// Unfortunately there's no way to differentiate which does what.
+			// Officially it also resorts to checking the skill ID.
+			uint8 bEffect = ABNORMAL_NORMAL;
+			switch (pSkill->iNum)
+			{
+			case 490034: // Bezoar
+			case 490401: // Maximize Scroll
+				bEffect = ABNORMAL_GIANT;
+				break;
+
+			case 490035: // Rice cake
+			case 490100: // unknown, possibly intended to be "Minimize Scroll"
+				bEffect = ABNORMAL_DWARF;
+				break;
+			}
+
+			if (bEffect != ABNORMAL_NORMAL)
+				TO_USER(pTarget)->StateChangeServerDirect(3, bEffect);
+		}
 		break;
 
 	case BUFF_TYPE_DAMAGE:
