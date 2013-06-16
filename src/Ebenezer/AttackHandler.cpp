@@ -249,6 +249,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	g_pMain->RegionNpcInfoForMe(this);
 
 	BlinkStart();
+	RecastSavedMagic();
 
 	if (isInParty())
 	{
