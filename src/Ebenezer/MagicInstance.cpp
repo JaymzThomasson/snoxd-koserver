@@ -43,9 +43,38 @@ void MagicInstance::Run()
 	switch (bOpcode)
 	{
 		case MAGIC_CASTING:
-		case MAGIC_FLYING:
 			SendSkill(true); // send this to the region
 			break;
+
+		case MAGIC_FLYING:
+		{
+			// Handle arrow & mana checking/removals.
+			if (pSkillCaster->isPlayer())
+			{
+				CUser * pCaster = TO_USER(pSkillCaster);
+				_MAGIC_TYPE2 * pType = g_pMain->m_Magictype2Array.GetData(nSkillID);
+				if (pType == nullptr
+					// The user does not have enough arrows! We should point them in the right direction. ;)
+					|| (!pCaster->CheckExistItem(pSkill->iUseItem, pType->bNeedArrow))
+					// Ensure user has enough mana for this skill
+					|| pSkill->sMsp > pSkillCaster->GetMana())
+				{
+					SendSkillFailed();
+					return;
+				}
+
+				// Add all flying arrow instances to the user's list for hit detection
+				FastGuard lock(pCaster->m_arrowLock);
+				for (size_t i = 0; i < pType->bNeedArrow; i++)
+					pCaster->m_flyingArrows.push_back(Arrow(pType->iNum, UNIXTIME));
+
+				// Remove the mana & arrows
+				pCaster->MSpChange(-(pSkill->sMsp));
+				pCaster->RobItem(pSkill->iUseItem, pType->bNeedArrow);
+			}
+
+			SendSkill(true); // send this to the region
+		} break;
 
 		case MAGIC_FAIL:
 			SendSkill(false); // don't send this to the region
@@ -481,10 +510,10 @@ bool MagicInstance::IsAvailable()
 		{
 			int total_hit = pSkillCaster->m_sTotalHit;
 
-#if 0 // dodgy checks preventing legitimate behaviour
 			if (pSkill->bType[0] == 2 && pSkill->bFlyingEffect != 0) // Type 2 related...
 				return true;		// Do not reduce MP/SP when flying effect is not 0.
 
+#if 0 // dodgy check preventing legitimate behaviour
 			if (pSkill->bType[0] == 1 && sData[0] > 1)
 				return true;		// Do not reduce MP/SP when combo number is higher than 0.
 #endif
@@ -564,6 +593,30 @@ bool MagicInstance::ExecuteType1()
 
 bool MagicInstance::ExecuteType2()
 {
+	/*
+		NOTE: 
+			Archery skills work differently to most other skills.
+			
+			When an archery skill is used, the client sends MAGIC_FLYING (instead of MAGIC_CASTING) 
+			to show the arrows flying in the air to their targets.
+			
+			The client chooses the target(s) to be hit by the arrows.
+
+			When an arrow hits a target, it will send MAGIC_EFFECTING which triggers this handler.
+			An arrow sent may not necessarily hit a target.
+
+			As such, for archery skills that use multiple arrows, not all n arrows will necessarily
+			hit their target, and thus they will not necessarily call this handler all n times.
+
+			What this means is, we must remove all n arrows from the user in MAGIC_FLYING, otherwise
+			it is not guaranteed all arrows will be hit and thus removed.
+			(and we can't just go and take all n items each time an arrow hits, that could potentially 
+			mean 25 arrows are removed [5 each hit] when using "Arrow Shower"!)
+
+			However, via the use of hacks, this MAGIC_FLYING step can be skipped -- so we must also check 
+			to ensure that there arrows are indeed flying, to prevent users from spamming the skill
+			without using arrows.
+	 */
 	if (pSkill == nullptr)
 		return false;
 
@@ -573,10 +626,7 @@ bool MagicInstance::ExecuteType2()
 	int sx, sz, tx, tz;
 
 	_MAGIC_TYPE2 *pType = g_pMain->m_Magictype2Array.GetData(nSkillID);
-	if (pType == nullptr
-		// The user does not have enough arrows! We should point them in the right direction. ;)
-		|| (pSkillCaster->isPlayer() 
-			&& !TO_USER(pSkillCaster)->CheckExistItem(pSkill->iUseItem, pType->bNeedArrow)))
+	if (pType == nullptr)
 		return false;
 
 	_ITEM_TABLE* pTable = nullptr;
@@ -612,15 +662,49 @@ bool MagicInstance::ExecuteType2()
 	if ((pow((float)(sx - tx), 2.0f) + pow((float)(sz - tz), 2.0f)) > total_range)	   // Target is out of range, exit.
 		goto packet_send;
 	
+	if (pSkillCaster->isPlayer())
+	{
+		CUser * pUser = TO_USER(pSkillCaster);
+		FastGuard lock(pUser->m_arrowLock);
+
+		// No arrows currently flying.
+		if (pUser->m_flyingArrows.empty())
+			goto packet_send;
+
+		ArrowList::iterator arrowItr;
+		bool bFoundArrow = false;
+		for (auto itr = pUser->m_flyingArrows.begin(); itr != pUser->m_flyingArrows.end();)
+		{
+			if (UNIXTIME >= itr->tFlyingTime + ARROW_EXPIRATION_TIME)
+			{
+				itr = pUser->m_flyingArrows.erase(itr);
+			}
+			else
+			{
+				if (itr->nSkillID == nSkillID)
+				{
+					arrowItr = itr; /* don't break out here to ensure we remove all expired arrows */
+					bFoundArrow = true;
+				}
+
+				++itr;
+			}
+		}
+
+		// No flying arrow matching this skill's criteria was found.
+		// User's probably cheating.
+		if (!bFoundArrow)
+			goto packet_send;
+
+		// Remove this instance's arrow now that we've found it.
+		pUser->m_flyingArrows.erase(arrowItr);
+	}
+
 	damage = pSkillCaster->GetDamage(pSkillTarget, pSkill);  // Get damage points of enemy.	
 
 	pSkillTarget->HpChange(-damage, pSkillCaster);     // Reduce target health point.
 	if (pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
 		ReflectDamage(damage);
-
-	// Skill was successful so we can remove the arrows.
-	if (pSkillCaster->isPlayer())
-		TO_USER(pSkillCaster)->RobItem(pSkill->iUseItem, pType->bNeedArrow);
 
 packet_send:
 	// If we're allowing monsters to be stealthed too (it'd be cool) then this check needs to be changed.

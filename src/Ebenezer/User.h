@@ -37,6 +37,22 @@ enum MerchantState
 	MERCHANT_STATE_BUYING	= 1
 };
 
+#define ARROW_EXPIRATION_TIME (5) // seconds
+
+struct Arrow
+{
+	uint32 nSkillID;
+	time_t tFlyingTime;
+
+	Arrow(uint32 nSkillID, time_t tFlyingTime) 
+	{
+		this->nSkillID = nSkillID;
+		this->tFlyingTime = tFlyingTime;
+	}
+};
+
+typedef std::vector<Arrow> ArrowList;
+
 #include "GameDefine.h"
 
 class CEbenezerDlg;
@@ -105,6 +121,9 @@ public:
 
 	// Magic System Cooldown checks
 	SkillCooldownList	m_CoolDownList;
+
+	ArrowList m_flyingArrows;
+	FastMutex m_arrowLock;
 
 	bool	m_bIsChicken; // Is the character taking the beginner/chicken quest?
 	bool	m_bIsHidingHelmet;
