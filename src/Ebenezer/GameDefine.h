@@ -267,7 +267,7 @@ struct _ITEM_TABLE
 	uint16	m_sDuration;
 	uint32	m_iBuyPrice;
 	uint32	m_iSellPrice;
-	uint16	m_sAc;
+	int16	m_sAc;
 	uint8	m_bCountable;
 	uint32	m_iEffect1;
 	uint32	m_iEffect2;
@@ -305,12 +305,12 @@ struct _ITEM_TABLE
 	int16	m_sChaB;
 	int16	m_MaxHpB;
 	int16	m_MaxMpB;
-	uint16	m_bFireR;
-	uint16	m_bColdR;
-	uint16	m_bLightningR;
-	uint16	m_bMagicR;
-	uint16	m_bPoisonR;
-	uint16	m_bCurseR;
+	int16	m_bFireR;
+	int16	m_bColdR;
+	int16	m_bLightningR;
+	int16	m_bMagicR;
+	int16	m_bPoisonR;
+	int16	m_bCurseR;
 
 	INLINE uint8 GetKind() { return m_bKind; }
 	INLINE uint8 GetItemGroup() { return m_bKind / 10; }
