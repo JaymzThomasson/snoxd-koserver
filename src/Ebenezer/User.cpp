@@ -1567,7 +1567,7 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 
 		// If a shield's not equipped, bonuses are decreased by half.
 		_ITEM_TABLE *pLeftHand = GetItemPrototype(LEFTHAND);
-		if (pLeftHand == nullptr || pLeftHand->isShield())
+		if (pLeftHand == nullptr || !pLeftHand->isShield())
 		{
 			bResistanceBonus /= 2;
 			bDefenseBonus /= 2;
