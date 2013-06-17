@@ -3350,6 +3350,7 @@ void CUser::UpdateVisibility(InvisibilityType bNewType)
 
 void CUser::BlinkStart()
 {
+#if !defined(DISABLE_PLAYER_BLINKING)
 	// Don't blink in these zones
 	if (GetZoneID() == ZONE_RONARK_LAND // colony zone
 		|| (GetZoneID() / 100) == 1) // war zone
@@ -3363,6 +3364,7 @@ void CUser::BlinkStart()
 	m_bInvisibilityType = INVIS_NONE; // but players should. 
 
 	StateChangeServerDirect(3, ABNORMAL_BLINKING);
+#endif
 }
 
 void CUser::BlinkTimeCheck()
