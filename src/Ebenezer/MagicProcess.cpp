@@ -412,10 +412,16 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 {
 	// Buff must be added at this point. If it doesn't exist, we can't remove it twice.
 	FastGuard lock(pTarget->m_buffLock);
-	if (pTarget->m_buffMap.find(byBuffType) == pTarget->m_buffMap.end())
+	auto itr = pTarget->m_buffMap.find(byBuffType);
+	if (itr == pTarget->m_buffMap.end())
 		return false;
 
-	pTarget->m_buffMap.erase(byBuffType);
+	// If this buff persists across logout, it should be removed here too.
+	if (pTarget->isPlayer()
+		&& pTarget->HasSavedMagic(itr->second.m_nSkillID))
+		TO_USER(pTarget)->RemoveSavedMagic(itr->second.m_nSkillID);
+
+	pTarget->m_buffMap.erase(itr);
 
 	switch (byBuffType)
 	{

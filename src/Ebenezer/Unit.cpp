@@ -548,9 +548,23 @@ void Unit::InitType4()
 	m_bLightningRAmount = 0;
 	m_bMagicRAmount = 0;
 	m_bDiseaseRAmount = 0;
-	m_bPoisonRAmount = 0;		
+	m_bPoisonRAmount = 0;
 
 	StateChangeServerDirect(3, ABNORMAL_NORMAL);
+
+	// Remove all buffs that should not be recast.
+	FastGuard lock(m_buffLock);
+	for (auto itr = m_buffMap.begin(); itr != m_buffMap.end();)
+	{
+		if (!HasSavedMagic(itr->second.m_nSkillID))
+		{
+			itr = m_buffMap.erase(itr);
+		}
+		else
+		{
+			++itr;
+		}
+	}
 }
 
 /**

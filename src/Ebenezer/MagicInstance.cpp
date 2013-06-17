@@ -974,18 +974,20 @@ bool MagicInstance::ExecuteType4()
 			goto fail_return;
 		}
 
-		if ( nSkillID > 500000 && pTUser->isPlayer() )
-			pTUser->InsertSavedMagic(nSkillID, pType->sDuration);
-
 		if (!CMagicProcess::GrantType4Buff(pSkill, pType, pSkillCaster, pTUser))
 		{
 			bResult = 0;
 			goto fail_return;
 		}
 
+		if (nSkillID > 500000 && pTUser->isPlayer())
+			pTUser->InsertSavedMagic(nSkillID, pType->sDuration);
+
 		if (pSkillCaster->isPlayer()
 			&& (sTargetID != -1 && pSkill->bType[0] == 4))
 			pSkillCaster->MSpChange( -(pSkill->sMsp) );
+
+		pBuffInfo.m_nSkillID = nSkillID;
 
 		if (pSkillCaster->isPlayer())
 			pBuffInfo.m_bIsBuff = (pSkillCaster->GetNation() == pTUser->GetNation());
@@ -995,7 +997,7 @@ bool MagicInstance::ExecuteType4()
 		pBuffInfo.m_bDurationExtended = false;
 		pBuffInfo.m_tEndTime = UNIXTIME + pType->sDuration;
 
-		//Add the buff into the buff map.
+		// Add the buff into the buff map.
 		pTUser->AddType4Buff(pType->bBuffType, pBuffInfo);
 
 		pTUser->SetSlotItemValue();				// Update character stats.
