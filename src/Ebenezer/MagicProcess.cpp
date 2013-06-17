@@ -154,6 +154,29 @@ void CMagicProcess::CheckExpiredType9Skills(Unit * pTarget)
 	}
 }
 
+void CMagicProcess::RemoveStealth(Unit * pTarget, InvisibilityType bInvisibilityType)
+{
+	if (bInvisibilityType != INVIS_DISPEL_ON_MOVE
+		&& bInvisibilityType != INVIS_DISPEL_ON_ATTACK)
+		return;
+
+	FastGuard lock(pTarget->m_buffLock);
+	Type9BuffMap & buffMap = pTarget->m_type9BuffMap;
+	MagicInstance instance;
+
+	// Buff type is 1 for 'dispel on move' skills and 2 for 'dispel on attack' skills.
+	uint8 bType = (bInvisibilityType == INVIS_DISPEL_ON_MOVE ? 1 : 2);
+
+	// If there's no such skill active on the user, no reason to remove it.
+	auto itr = buffMap.find(bType);
+	if (itr == buffMap.end())
+		return;
+
+	instance.pSkillCaster = pTarget;
+	instance.nSkillID = itr->second.nSkillID;
+	instance.Type9Cancel();
+}
+
 bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, Unit * pCaster, Unit *pTarget)
 {
 	// Buff mustn't already be added at this point.

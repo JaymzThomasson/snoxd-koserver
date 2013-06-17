@@ -233,6 +233,16 @@ void MagicInstance::SendSkillToAI()
 
 bool MagicInstance::ExecuteSkill(uint8 bType)
 {
+	// If a player is stealthed, and they are casting a type 1/2/3/7 skill
+	// it is classed as an attack, so they should be unstealthed.
+	if (pSkillCaster->isPlayer()
+		&& TO_USER(pSkillCaster)->m_bInvisibilityType != INVIS_NONE
+		&& ((bType >= 1 && bType <= 3) || (bType == 7)))
+	{
+		CMagicProcess::RemoveStealth(pSkillCaster, INVIS_DISPEL_ON_MOVE);
+		CMagicProcess::RemoveStealth(pSkillCaster, INVIS_DISPEL_ON_ATTACK);
+	}
+
 	switch (bType)
 	{
 		case 1: return ExecuteType1();
@@ -578,10 +588,6 @@ bool MagicInstance::ExecuteType1()
 			ReflectDamage(damage);
 	}
 
-	// If we're allowing monsters to be stealthed too (it'd be cool) then this check needs to be changed.
-	if (pSkillCaster->isPlayer() && TO_USER(pSkillCaster)->m_bInvisibilityType != 0) 
-		pSkillCaster->StateChangeServerDirect(7, INVIS_NONE);
-
 	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
 	sData[3] = (damage == 0 ? -104 : 0);
 
@@ -707,9 +713,6 @@ bool MagicInstance::ExecuteType2()
 		ReflectDamage(damage);
 
 packet_send:
-	// If we're allowing monsters to be stealthed too (it'd be cool) then this check needs to be changed.
-	if (pSkillCaster->isPlayer() && TO_USER(pSkillCaster)->m_bInvisibilityType != 0) 
-		pSkillCaster->StateChangeServerDirect(7, INVIS_NONE);
 	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
 	sData[3] = (damage == 0 ? -104 : 0);
 
@@ -886,11 +889,6 @@ bool MagicInstance::ExecuteType3()
 				pTUser->SendUserStatusUpdate(pType->bAttribute == POISON_R ? USER_STATUS_POISON : USER_STATUS_DOT, USER_STATUS_INFLICT);
 			}
 		}
-
-		if (pSkillCaster->isPlayer() //If we're allowing monsters to be stealthed too (it'd be cool) then this check needs to be changed.
-			&& TO_USER(pSkillCaster)->m_bInvisibilityType != 0 
-			&& damage < 0) //To allow for minor healing (as rogues)
-			pSkillCaster->StateChangeServerDirect(7, INVIS_NONE);
 
 		// Send the skill data in the current context to the caster's region, with the target explicitly set.
 		// In the case of AOEs, this will mean the AOE will show the AOE's effect on the user (not show the AOE itself again).

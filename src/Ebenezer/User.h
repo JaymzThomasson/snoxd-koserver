@@ -27,8 +27,7 @@ enum InvisibilityType
 {
 	INVIS_NONE				= 0,
 	INVIS_DISPEL_ON_MOVE	= 1,
-	INVIS_NORMAL			= 2,
-	INVIS_DISPEL_ON_ATTACK	= 3
+	INVIS_DISPEL_ON_ATTACK	= 2
 };
 
 enum MerchantState

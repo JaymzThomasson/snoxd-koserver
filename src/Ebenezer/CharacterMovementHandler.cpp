@@ -33,7 +33,7 @@ void CUser::MoveProcess(Packet & pkt)
 	}
 
 	if (m_bInvisibilityType == INVIS_DISPEL_ON_MOVE)
-		StateChangeServerDirect(7, INVIS_NONE);
+		CMagicProcess::RemoveStealth(this, INVIS_DISPEL_ON_MOVE);
 
 	Packet result(WIZ_MOVE);
 	result << GetSocketID() << will_x << will_z << will_y << speed << echo;
@@ -111,7 +111,7 @@ void CUser::GetUserInfo(Packet & pkt)
 	}
 
 	// There are two event-driven invisibility states; dispel on attack, and dispel on move.
-	// These are handled primarily server-side; the client only cares about value 1 (which we class as 'dispel on move').
+	// These are handled primarily server-side; from memory the client only cares about value 1 (which we class as 'dispel on move').
 	// As this is the only place where this flag is actually sent to the client, we'll just convert 'dispel on attack' 
 	// back to 'dispel on move' as the client expects.
 	uint8 bInvisibilityType = m_bInvisibilityType;

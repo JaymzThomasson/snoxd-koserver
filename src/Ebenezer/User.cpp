@@ -3352,7 +3352,7 @@ void CUser::BlinkStart()
 	m_tBlinkExpiryTime = UNIXTIME + BLINK_TIME;
 	m_bRegeneType = REGENE_ZONECHANGE;
 	
-	UpdateVisibility(INVIS_NORMAL); // AI shouldn't see us
+	UpdateVisibility(INVIS_DISPEL_ON_ATTACK); // AI shouldn't see us
 	m_bInvisibilityType = INVIS_NONE; // but players should. 
 
 	StateChangeServerDirect(3, ABNORMAL_BLINKING);
