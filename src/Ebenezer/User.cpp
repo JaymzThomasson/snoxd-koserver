@@ -2186,24 +2186,27 @@ void CUser::SkillPointChange(Packet & pkt)
 	uint8 type = pkt.read<uint8>();
 	Packet result(WIZ_SKILLPT_CHANGE, type);
 	// invalid type
-	if (type < 5 || type > 8 
+	if (type < SkillPointCat1 || type > SkillPointMaster 
 		// not enough free skill points to allocate
 		|| m_bstrSkill[0] < 1 
 		// restrict skill points per category to your level
 		|| m_bstrSkill[type] + 1 > GetLevel()
 		// we need our first job change to assign skill points
-		|| (m_sClass % 100) <= 4
+		|| (GetClass() % 100) <= 4
 		// to set points in the mastery category, we need to be mastered.
-		|| (type == 8
-			&& ((m_sClass % 2) != 0 || (m_sClass % 100) < 6))) 
+		|| (type == SkillPointMaster
+			&& ((GetClass() % 2) != 0 || (GetClass() % 100) < 6)
+				// force a limit of MAX_LEVEL - 60 (the level you can do the mastery quest)
+				// on the master skill category, so the limit's 23 skill points with a level 83 cap.
+				|| m_bstrSkill[type] >= (MAX_LEVEL - 60))) 
 	{
 		result << m_bstrSkill[type]; // only send the packet on failure
 		Send(&result);
 		return;
 	}
 
-	m_bstrSkill[0] -= 1;
-	m_bstrSkill[type] += 1;
+	--m_bstrSkill[0];
+	++m_bstrSkill[type];
 }
 
 void CUser::UpdateGameWeather(Packet & pkt)
