@@ -63,7 +63,9 @@ enum ItemMovementType
 // Item Weapon Type Define
 #define WEAPON_DAGGER			1
 #define WEAPON_SWORD			2
+#define WEAPON_2H_SWORD			22 // Kind field as-is
 #define WEAPON_AXE				3
+#define WEAPON_2H_AXE			32 // Kind field as-is
 #define WEAPON_MACE				4
 #define WEAPON_SPEAR			5
 #define WEAPON_SHIELD			6
@@ -317,13 +319,18 @@ struct _ITEM_TABLE
 
 	INLINE bool isDagger() { return GetItemGroup() == WEAPON_DAGGER; }
 	INLINE bool isSword() { return GetItemGroup() == WEAPON_SWORD; }
+	INLINE bool is2HSword() { return GetKind() == WEAPON_2H_SWORD; }
 	INLINE bool isAxe() { return GetItemGroup() == WEAPON_AXE; }
+	INLINE bool is2HAxe() { return GetKind() == WEAPON_2H_AXE; }
 	INLINE bool isMace() { return GetItemGroup() == WEAPON_MACE || GetItemGroup() == WEAPON_MACE2; }
 	INLINE bool isSpear() { return GetItemGroup() == WEAPON_SPEAR; }
 	INLINE bool isShield() { return GetItemGroup() == WEAPON_SHIELD; }
 	INLINE bool isStaff() { return GetItemGroup() == WEAPON_STAFF; }
 	INLINE bool isBow() { return GetItemGroup() == WEAPON_BOW || GetItemGroup() == WEAPON_LONGBOW; }
 	INLINE bool isPickaxe() { return GetKind() == WEAPON_PICKAXE; }
+
+	// Detect 2-handed weapons. There's probably a better way of doing this.
+	INLINE bool is2Handed() { return isBow() || is2HSword() || is2HAxe() || isMace() || isSpear(); }
 };
 
 struct _ZONE_SERVERINFO

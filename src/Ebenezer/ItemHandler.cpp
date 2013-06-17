@@ -517,6 +517,30 @@ void CUser::ItemMove(Packet & pkt)
 		memset(pSrcItem, 0, sizeof(_ITEM_DATA)); // Clear out the source item's data
 	}
 
+
+	// If we're equipping a 2-handed weapon, we need to ensure that if there's 
+	// an item in the other weapon slot (2-handed or not), it's unequipped.
+	if (dir == ITEM_INVEN_SLOT)
+	{
+		uint8 bOtherWeaponSlot = 0;
+
+		if (bDstPos == LEFTHAND && pTable->m_bSlot == 4)
+			bOtherWeaponSlot = RIGHTHAND;
+		else if (bDstPos == RIGHTHAND && pTable->is2Handed())
+			bOtherWeaponSlot = LEFTHAND;
+
+		if (bOtherWeaponSlot != 0)
+		{
+			_ITEM_DATA * pUnequipItem = GetItem(bOtherWeaponSlot);
+
+			// Place item where item that we just equipped was.
+			memcpy(pSrcItem, pUnequipItem, sizeof(_ITEM_DATA));
+			memset(pUnequipItem, 0, sizeof(_ITEM_DATA));
+
+			UserLookChange(bOtherWeaponSlot, 0, 0);
+		}
+	}
+
 	// If equipping/de-equipping an item
 	if (dir == ITEM_INVEN_SLOT || dir == ITEM_SLOT_INVEN
 		// or moving an item to/from our cospre item slots
