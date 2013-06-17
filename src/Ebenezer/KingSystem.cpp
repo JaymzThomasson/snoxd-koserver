@@ -1068,7 +1068,7 @@ void CKingSystem::KingTaxSystem(CUser * pUser, Packet & pkt)
 			g_pMain->Send_All(&result, nullptr, m_byNation);
 
 			// Update the database (TO-DO: Implement the request)
-			DatabaseThread::AddRequest(&result);
+			g_pMain->AddDatabaseRequest(result, pUser);
 		} break;
 
 		// King's scepter / "unnecessary translation"
