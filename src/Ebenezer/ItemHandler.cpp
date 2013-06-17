@@ -359,7 +359,6 @@ bool CUser::ItemEquipAvailable(_ITEM_TABLE *pTable)
 	return (pTable != nullptr
 		&& GetLevel() >= pTable->m_bReqLevel 
 		&& GetLevel() <= pTable->m_bReqLevelMax
-		&& (pTable->m_bRace == 0 || pTable->m_bRace == m_bRace)
 		&& m_bRank >= pTable->m_bReqRank // this needs to be verified
 		&& m_bTitle >= pTable->m_bReqTitle // this is unused
 		&& GetStat(STAT_STR) >= pTable->m_bReqStr 

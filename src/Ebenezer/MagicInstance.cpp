@@ -540,8 +540,7 @@ bool MagicInstance::IsAvailable()
 					pItem = g_pMain->GetItemPtr(pSkill->iUseItem);
 					if( !pItem ) return false;
 
-					if ((pItem->m_bRace != 0 && TO_USER(pSkillCaster)->m_bRace != pItem->m_bRace)
-						|| (pItem->m_bClass != 0 && !TO_USER(pSkillCaster)->JobGroupCheck(pItem->m_bClass))
+					if ((pItem->m_bClass != 0 && !TO_USER(pSkillCaster)->JobGroupCheck(pItem->m_bClass))
 						|| (pItem->m_bReqLevel != 0 && TO_USER(pSkillCaster)->GetLevel() < pItem->m_bReqLevel)
 						|| (!TO_USER(pSkillCaster)->RobItem(pSkill->iUseItem, 1)))	
 						return false;

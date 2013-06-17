@@ -164,7 +164,7 @@ void CUser::ReqLetterSend(Packet & pkt)
 			|| (pItem = GetItem(SLOT_MAX + bSrcPos))->nNum != nItemID)
 			bResult = -1;
 		// Untradeable item
-		else if (pTable->m_bRace == 20 || nItemID >= ITEM_GOLD
+		else if (pTable->m_bRace == RACE_UNTRADEABLE || nItemID >= ITEM_GOLD
 			|| pItem->isSealed() || pItem->isRented())
 			bResult = -32;
 	}
