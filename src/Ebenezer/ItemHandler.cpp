@@ -532,12 +532,14 @@ void CUser::ItemMove(Packet & pkt)
 		if (bOtherWeaponSlot != 0)
 		{
 			_ITEM_DATA * pUnequipItem = GetItem(bOtherWeaponSlot);
+			if (pUnequipItem->nNum != 0)
+			{
+				// Place item where item that we just equipped was.
+				memcpy(pSrcItem, pUnequipItem, sizeof(_ITEM_DATA));
+				memset(pUnequipItem, 0, sizeof(_ITEM_DATA));
 
-			// Place item where item that we just equipped was.
-			memcpy(pSrcItem, pUnequipItem, sizeof(_ITEM_DATA));
-			memset(pUnequipItem, 0, sizeof(_ITEM_DATA));
-
-			UserLookChange(bOtherWeaponSlot, 0, 0);
+				UserLookChange(bOtherWeaponSlot, 0, 0);
+			}
 		}
 	}
 
