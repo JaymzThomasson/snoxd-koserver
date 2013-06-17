@@ -233,7 +233,7 @@ bool CUser::CheckExistItem(int itemid, short count /*= 1*/)
 		return false;	
 
 	// Search for the existance of all items in the player's inventory storage and onwards (includes magic bags)
-	for (int i = SLOT_MAX; i < INVENTORY_TOTAL; i++)
+	for (int i = 0; i < INVENTORY_TOTAL; i++)
 	{
 		// This implementation fixes a bug where it ignored the possibility for multiple stacks.
 		if (m_sItemArray[i].nNum == itemid
