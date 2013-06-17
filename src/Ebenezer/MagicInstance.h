@@ -88,7 +88,7 @@ public:
 	void Type3Cancel();
 	void Type4Cancel();
 	void Type6Cancel();
-	void Type9Cancel();
+	void Type9Cancel(bool bRemoveFromMap = true);
 	void Type4Extend();
 
 	short GetMagicDamage(Unit *pTarget, int total_hit, int attribute);

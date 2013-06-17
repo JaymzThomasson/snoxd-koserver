@@ -21,11 +21,13 @@
 
 struct _MAGIC_TABLE;
 struct _BUFF_TYPE4_INFO;
+struct _BUFF_TYPE9_INFO;
 class CRegion;
 class KOMap;
 class Packet;
 
 typedef std::map<uint8, _BUFF_TYPE4_INFO> Type4BuffMap;
+typedef std::map<uint8, _BUFF_TYPE9_INFO> Type9BuffMap;
 
 /**
  * This class is a bridge between the CNpc & CUser classes
@@ -208,6 +210,7 @@ public:
 	bool	m_bType3Flag;
 
 	Type4BuffMap m_buffMap;
+	Type9BuffMap m_type9BuffMap;
 	FastMutex	m_buffLock;
 
 	bool	m_bIsTransformed; // Is the unit in a transformed state?

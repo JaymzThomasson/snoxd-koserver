@@ -1446,6 +1446,7 @@ packet_send:
 bool MagicInstance::ExecuteType9()
 {
 	if (pSkill == nullptr
+		// Only players can use these skills.
 		|| !pSkillCaster->isPlayer())
 		return false;
 
@@ -1454,8 +1455,13 @@ bool MagicInstance::ExecuteType9()
 		return false;
 
 	sData[1] = 1;
-	
-	if (pSkillCaster->HasSavedMagic(nSkillID))
+
+	CUser * pCaster = TO_USER(pSkillCaster);
+	FastGuard lock(pCaster->m_buffLock);
+	Type9BuffMap & buffMap = pCaster->m_type9BuffMap;
+
+	// Ensure this type of skill isn't already in use.
+	if (buffMap.find(pType->bStateChange) != buffMap.end())
 	{
 		sData[1] = 0;
 		SendSkillFailed();
@@ -1463,22 +1469,24 @@ bool MagicInstance::ExecuteType9()
 	}
 	
 	if (pType->bStateChange <= 2 
-		&& pSkillCaster->canStealth())
+		&& pCaster->canStealth())
 	{
 		// Invisibility perk does NOT apply when using these skills on monsters.
 		if (pSkillTarget->isPlayer())
 		{
-			pSkillCaster->StateChangeServerDirect(7, pType->bStateChange); // Update the client to be invisible
-			pSkillCaster->InsertSavedMagic(nSkillID, pType->sDuration);
+			pCaster->StateChangeServerDirect(7, pType->bStateChange); // Update the client to be invisible
+			buffMap.insert(std::make_pair(pType->bStateChange, _BUFF_TYPE9_INFO(nSkillID, UNIXTIME + pType->sDuration)));
 		}
 	}
 	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4)
 	{
-		Packet stealth(WIZ_STEALTH);
-		stealth << uint8(1) << uint16(pType->sRadius);
-		if (TO_USER(pSkillCaster)->isInParty())
+		Packet stealth(WIZ_STEALTH, uint8(1));
+		stealth << uint16(pType->sRadius);
+
+		// If the player's in a party, apply this skill to all members of the party.
+		if (pCaster->isInParty())
 		{
-			_PARTY_GROUP* pParty = g_pMain->m_PartyArray.GetData(TO_USER(pSkillCaster)->m_sPartyIndex);
+			_PARTY_GROUP * pParty = g_pMain->m_PartyArray.GetData(pCaster->GetPartyID());
 			if (pParty == nullptr)
 				return false;
 
@@ -1487,22 +1495,31 @@ bool MagicInstance::ExecuteType9()
 				CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
 				if (pUser == nullptr)
 					continue;
-				pUser->InsertSavedMagic(nSkillID, pType->sDuration);
+
+				FastGuard buffLock(pUser->m_buffLock);
+
+				// If this user already has this skill active, we don't need to reapply it.
+				if (pUser->m_type9BuffMap.find(pType->bStateChange) 
+					!= pUser->m_type9BuffMap.end())
+					continue;
+
+				pUser->m_type9BuffMap.insert(std::make_pair(pType->bStateChange, _BUFF_TYPE9_INFO(nSkillID, UNIXTIME + pType->sDuration)));
 				pUser->Send(&stealth);
 			}
 		}
-		else
+		else // not in a party, so just apply this skill to us.
 		{
-			TO_USER(pSkillCaster)->Send(&stealth);
+			buffMap.insert(std::make_pair(pType->bStateChange, _BUFF_TYPE9_INFO(nSkillID, UNIXTIME + pType->sDuration)));
+			pCaster->Send(&stealth);
 		}
 	}
 
 	Packet result;
 	BuildSkillPacket(result, sCasterID, sTargetID, bOpcode, nSkillID, sData);
-	if (TO_USER(pSkillCaster)->isInParty() && pType->bStateChange == 4)
-		g_pMain->Send_PartyMember(TO_USER(pSkillCaster)->m_sPartyIndex, &result);
+	if (pCaster->isInParty() && pType->bStateChange == 4)
+		g_pMain->Send_PartyMember(pCaster->GetPartyID(), &result);
 	else
-		TO_USER(pSkillCaster)->Send(&result);
+		pCaster->Send(&result);
 
 	return true;
 }
@@ -1622,43 +1639,57 @@ void MagicInstance::Type6Cancel()
 	pUser->StateChangeServerDirect(3, ABNORMAL_NORMAL);
 }
 
-void MagicInstance::Type9Cancel()
+void MagicInstance::Type9Cancel(bool bRemoveFromMap /*= true*/)
 {
-	if (pSkill == nullptr)
+	if (pSkill == nullptr
+		|| pSkillCaster == nullptr
+		|| !pSkillCaster->isPlayer())
 		return;
 
-	_MAGIC_TYPE9 *pType = g_pMain->m_Magictype9Array.GetData(nSkillID);
+	_MAGIC_TYPE9 * pType = g_pMain->m_Magictype9Array.GetData(nSkillID);
 	if (pType == nullptr)
 		return;
 
 	uint8 bResponse = 0;
+	CUser * pCaster = TO_USER(pSkillCaster);
+	FastGuard lock(pCaster->m_buffLock);
+	Type9BuffMap & buffMap = pCaster->m_type9BuffMap;
+
+	// If this skill isn't already applied, there's no reason to remove it.
+	if (buffMap.find(pType->bStateChange) == buffMap.end())
+		return;
 	
-	if (pType->bStateChange <= 2 || pType->bStateChange >= 5 && pType->bStateChange < 7) //Stealths
+	// Remove the buff from the map
+	if (bRemoveFromMap)
+		buffMap.erase(pType->bStateChange);
+
+	// Stealths
+	if (pType->bStateChange <= 2 
+		|| (pType->bStateChange >= 5 && pType->bStateChange < 7))
 	{
-		TO_USER(pSkillCaster)->StateChangeServerDirect(7, INVIS_NONE);
-		TO_USER(pSkillCaster)->RemoveSavedMagic(nSkillID);
+		pCaster->StateChangeServerDirect(7, INVIS_NONE);
 		bResponse = 91;
 	}
-	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4) //Lupine etc.
+	// Lupine etc.
+	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4) 
 	{
 		Packet stealth(WIZ_STEALTH);
 		stealth << uint16(0) << uint8(0);
-		TO_USER(pSkillCaster)->Send(&stealth);
-		TO_USER(pSkillCaster)->RemoveSavedMagic(nSkillID);
+		pCaster->Send(&stealth);
 		bResponse = 92;
 	}
-	else if (pType->bStateChange == 7) //Guardian pet related
+	// Guardian pet related
+	else if (pType->bStateChange == 7)
 	{
 		Packet pet(WIZ_PET, uint8(1));
 		pet << uint16(1) << uint16(6);
-		TO_USER(pSkillCaster)->Send(&pet);
+		pCaster->Send(&pet);
 		bResponse = 93;
 	}
 
-
 	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
-		result << bResponse;
-	TO_USER(pSkillCaster)->Send(&result);
+	result << bResponse;
+	pCaster->Send(&result);
 }
 
 void MagicInstance::Type4Cancel()

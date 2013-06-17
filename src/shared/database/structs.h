@@ -263,3 +263,15 @@ struct _BUFF_TYPE4_INFO
 	INLINE bool isBuff() { return m_bIsBuff; }
 	INLINE bool isDebuff() { return !m_bIsBuff; }
 };
+
+struct _BUFF_TYPE9_INFO
+{
+	uint32	nSkillID;
+	time_t	tEndTime;
+
+	_BUFF_TYPE9_INFO(uint32 nSkillID, time_t tEndTime)
+	{
+		this->nSkillID = nSkillID;
+		this->tEndTime = tEndTime;
+	}
+};

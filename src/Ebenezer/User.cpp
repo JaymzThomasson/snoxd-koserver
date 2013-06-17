@@ -409,16 +409,17 @@ bool CUser::HandlePacket(Packet & pkt)
 		}
 	} 
 
-	m_buffLock.Acquire();
-	if (!m_buffMap.empty())		// For Type 4 Stat Duration.
-		Type4Duration();
-	m_buffLock.Release();
+	// Check for expired type 4 buffs
+	Type4Duration();
 
 	// Expire any timed out saved skills.
 	CheckSavedMagic();
 		
 	if (isTransformed())
 		CMagicProcess::CheckExpiredType6Skills(this);
+
+	// Check for expired type 9/visibility skills
+	CMagicProcess::CheckExpiredType9Skills(this);
 
 	if (isBlinking())		// Should you stop blinking?
 		BlinkTimeCheck();
@@ -2584,6 +2585,8 @@ void CUser::InitType4()
 void CUser::Type4Duration()
 {
 	FastGuard lock(m_buffLock);
+	if (m_buffMap.empty())
+		return;
 
 	foreach (itr, m_buffMap)
 	{

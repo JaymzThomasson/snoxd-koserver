@@ -87,13 +87,11 @@ void CUser::UserInOut(uint8 bType)
 
 void CUser::GetUserInfo(Packet & pkt)
 {
-	CKnights *pKnights = nullptr;
 	pkt.SByte();
-
 	pkt		<< GetName()
 			<< uint16(GetNation()) << GetClanID() << GetFame();
 
-	pKnights = g_pMain->GetClanPtr(GetClanID());
+	CKnights * pKnights = g_pMain->GetClanPtr(GetClanID());
 	if (pKnights == nullptr)
 	{
 		pkt	<< uint32(0) << uint16(0) << uint8(0) << uint16(-1) << uint32(0) << uint8(0);
@@ -112,6 +110,14 @@ void CUser::GetUserInfo(Packet & pkt)
 				<< uint8(1); 
 	}
 
+	// There are two event-driven invisibility states; dispel on attack, and dispel on move.
+	// These are handled primarily server-side; the client only cares about value 1 (which we class as 'dispel on move').
+	// As this is the only place where this flag is actually sent to the client, we'll just convert 'dispel on attack' 
+	// back to 'dispel on move' as the client expects.
+	uint8 bInvisibilityType = m_bInvisibilityType;
+	if (bInvisibilityType == INVIS_DISPEL_ON_ATTACK)
+		bInvisibilityType = INVIS_DISPEL_ON_MOVE;
+
 	pkt	<< GetLevel() << m_bRace << m_sClass
 		<< GetSPosX() << GetSPosZ() << GetSPosY()
 		<< m_bFace << m_nHair
@@ -119,7 +125,7 @@ void CUser::GetUserInfo(Packet & pkt)
 		<< m_bNeedParty
 		<< m_bAuthority
 		<< m_bPartyLeader // is party leader (bool)
-		<< m_bInvisibilityType // visibility state
+		<< bInvisibilityType // visibility state
 		<< uint8(0) // team colour (i.e. in soccer, 0=none, 1=blue, 2=red)
 		<< m_bIsHidingHelmet // either this is correct and items are super buggy, or it causes baldness. You choose.
 		<< m_sDirection // direction 

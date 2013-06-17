@@ -127,6 +127,33 @@ void CMagicProcess::CheckExpiredType6Skills(Unit * pTarget)
 	instance.Type6Cancel();
 }
 
+void CMagicProcess::CheckExpiredType9Skills(Unit * pTarget)
+{
+	if (!pTarget->isPlayer())
+		return;
+
+	FastGuard lock(pTarget->m_buffLock);
+	Type9BuffMap & buffMap = pTarget->m_type9BuffMap;
+
+	MagicInstance instance;
+	instance.pSkillCaster = pTarget;
+
+	for (auto itr = buffMap.begin(); itr != buffMap.end();)
+	{
+		if (UNIXTIME >= itr->second.tEndTime) 
+		{
+			// Cancel the skill, but don't remove it from the map. We'll do that.
+			instance.nSkillID = itr->second.nSkillID;
+			instance.Type9Cancel(false); 
+			itr = buffMap.erase(itr);
+		}
+		else 
+		{
+			++itr;
+		}
+	}
+}
+
 bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, Unit * pCaster, Unit *pTarget)
 {
 	// Buff mustn't already be added at this point.
