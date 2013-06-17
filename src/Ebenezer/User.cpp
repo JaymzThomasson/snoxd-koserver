@@ -1185,8 +1185,8 @@ void CUser::ExpChange(int64 iExp)
 	{
 		if (GetLevel() < MAX_LEVEL)
 		{
-			// Reset our XP to 0, level us up.
-			m_iExp = 0;
+			// Reset our XP, level us up.
+			m_iExp -= m_iMaxExp;
 			LevelChange(++m_bLevel);
 			return;
 		}
