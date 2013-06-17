@@ -294,7 +294,12 @@ void CKnightsManager::DestroyKnights( CUser* pUser )
 	uint8 bResult = 1;
 	if (!pUser->isClanLeader())
 		bResult = 0;
+#if __VERSION < 1453
 	else if (pUser->GetZoneID() != pUser->GetNation())
+#else
+	else if (pUser->GetZoneID() != pUser->GetNation()
+		&& pUser->GetZoneID() != ZONE_MORADON)
+#endif
 		bResult = 12;
 
 	if (bResult == 1)
