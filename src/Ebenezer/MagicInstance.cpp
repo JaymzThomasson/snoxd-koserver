@@ -919,7 +919,9 @@ bool MagicInstance::ExecuteType4()
 	if (pType == nullptr)
 		return false;
 
-	if (!bIsRecastingSavedMagic && sTargetID > 0 && pSkillTarget->HasSavedMagic(nSkillID))
+	if (!bIsRecastingSavedMagic 
+		&& sTargetID >= 0 
+		&& pSkillTarget->HasSavedMagic(nSkillID))
 		return false;
 
 	if (sTargetID == -1)
@@ -973,7 +975,7 @@ bool MagicInstance::ExecuteType4()
 			goto fail_return;
 		}
 
-		if (!CMagicProcess::GrantType4Buff(pSkill, pType, pSkillCaster, pTUser))
+		if (!CMagicProcess::GrantType4Buff(pSkill, pType, pSkillCaster, pTUser, bIsRecastingSavedMagic))
 		{
 			bResult = 0;
 			goto fail_return;

@@ -177,11 +177,12 @@ void CMagicProcess::RemoveStealth(Unit * pTarget, InvisibilityType bInvisibility
 	instance.Type9Cancel();
 }
 
-bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, Unit * pCaster, Unit *pTarget)
+bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, Unit * pCaster, Unit *pTarget, bool bIsRecastingSavedMagic /*= false*/)
 {
 	// Buff mustn't already be added at this point.
 	FastGuard lock(pTarget->m_buffLock);
-	if (pTarget->m_buffMap.find(pType->bBuffType) != pTarget->m_buffMap.end())
+	if (!bIsRecastingSavedMagic
+		&& pTarget->m_buffMap.find(pType->bBuffType) != pTarget->m_buffMap.end())
 		return false;
 
 	switch (pType->bBuffType)
