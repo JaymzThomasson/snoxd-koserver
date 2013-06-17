@@ -269,7 +269,13 @@ void CKnightsManager::WithdrawKnights(CUser *pUser, Packet & pkt)
 	{
 		if (!pUser->isInClan())
 			bResult = 10;
-		else if (pUser->isClanLeader() && pUser->GetZoneID() != pUser->GetNation())
+		else if (pUser->isClanLeader()
+#if __VERSION < 1453
+			&& pUser->GetZoneID() != pUser->GetNation())
+#else
+			&& (pUser->GetZoneID() != pUser->GetNation()
+				&& pUser->GetZoneID() != ZONE_MORADON))
+#endif
 			bResult = 12;
 
 		if (bResult != 0)
@@ -328,7 +334,12 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 opco
 	{
 		if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
 			bResult = 2;
+#if __VERSION < 1453
 		else if (pUser->GetZoneID() != pUser->GetNation())
+#else
+		else if (pUser->GetZoneID() != pUser->GetNation()
+			&& pUser->GetZoneID() != ZONE_MORADON)
+#endif
 			bResult = 12;
 		else if (STRCASECMP(strUserID.c_str(), pUser->GetName().c_str()) == 0)
 			bResult = 9;
