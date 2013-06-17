@@ -1469,6 +1469,16 @@ bool MagicInstance::ExecuteType9()
 	if (pType->bStateChange <= 2 
 		&& pCaster->canStealth())
 	{
+		// Cannot stealth when already stealthed.
+		// This prevents us from using both types 1 and 2 (i.e. dispel on move & dispel on attack)
+		// at the same time.
+		if (pCaster->m_bInvisibilityType != INVIS_NONE)
+		{
+			sData[1] = 0;
+			SendSkillFailed();
+			return false;
+		}
+
 		// Invisibility perk does NOT apply when using these skills on monsters.
 		if (pSkillTarget->isPlayer())
 		{
