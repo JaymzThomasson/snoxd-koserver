@@ -1214,13 +1214,17 @@ void CUser::ExpChange(int64 iExp)
  */
 void CUser::LevelChange(short level, bool bLevelUp /*= true*/)
 {
-	if( level < 1 || level > MAX_LEVEL )
+	if (level < 1 || level > MAX_LEVEL)
 		return;
 
 	if (bLevelUp)
 	{
-		if ((m_sPoints + GetStatTotal()) < int32(300 + 3 * (level - 1)))
-			m_sPoints += 3;
+		// On each level up, we should give 3 stat points for levels 1-60.
+		// For each level above that, we give an additional 2 stat points (so 5 stat points per level).
+		int levelsAfter60 = (level > 60 ? level - 60 : 0);
+		if ((m_sPoints + GetStatTotal()) < int32(297 + (3 * level) + (2 * levelsAfter60)))
+			m_sPoints += (levelsAfter60 == 0 ? 3 : 5);
+
 		if (level >= 10 && GetTotalSkillPoints() < 2 * (level - 9))
 			m_bstrSkill[SkillPointFree] += 2;
 	}
