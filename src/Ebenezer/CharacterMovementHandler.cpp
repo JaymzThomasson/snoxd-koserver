@@ -301,6 +301,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		m_sBind = -1;
 		InitType3();
 		InitType4();
+		CMagicProcess::CheckExpiredType9Skills(this, true);
 		SetUserAbility();
 	}	
 

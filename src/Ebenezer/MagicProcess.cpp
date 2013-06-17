@@ -127,7 +127,7 @@ void CMagicProcess::CheckExpiredType6Skills(Unit * pTarget)
 	instance.Type6Cancel();
 }
 
-void CMagicProcess::CheckExpiredType9Skills(Unit * pTarget)
+void CMagicProcess::CheckExpiredType9Skills(Unit * pTarget, bool bForceExpiration /*= false*/)
 {
 	if (!pTarget->isPlayer())
 		return;
@@ -140,7 +140,7 @@ void CMagicProcess::CheckExpiredType9Skills(Unit * pTarget)
 
 	for (auto itr = buffMap.begin(); itr != buffMap.end();)
 	{
-		if (UNIXTIME >= itr->second.tEndTime) 
+		if (bForceExpiration || UNIXTIME >= itr->second.tEndTime) 
 		{
 			// Cancel the skill, but don't remove it from the map. We'll do that.
 			instance.nSkillID = itr->second.nSkillID;
