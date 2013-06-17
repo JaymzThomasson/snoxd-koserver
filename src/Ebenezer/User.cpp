@@ -3289,7 +3289,7 @@ void CUser::ObjectEvent(Packet & pkt)
 	{
 		switch (pEvent->sType)
 		{
-		case OBJECT_BIND:
+			case OBJECT_BIND:
 			case OBJECT_REMOVE_BIND:
 				bSuccess = BindObjectEvent(pEvent);
 				break;

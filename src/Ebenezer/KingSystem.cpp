@@ -1084,7 +1084,7 @@ void CKingSystem::KingTaxSystem(CUser * pUser, Packet & pkt)
 			}
 			else
 			{
-				pUser->GiveItem(KING_SCEPTER, 1, false);
+				pUser->GiveItem(KING_SCEPTER);
 				result << int16(1);
 			}
 			pUser->Send(&result);
