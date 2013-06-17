@@ -66,9 +66,12 @@ bool CMagicProcess::UserRegionCheck(Unit * pSkillCaster, Unit * pSkillTarget, _M
 
 			break;
 
+		// Nation alone cannot dictate whether a unit can attack another.
+		// As such, we must check behaviour specific to these entities.
+		// For example: same nation players attacking each other in an arena.
 		case MORAL_SELF_AREA:
 		case MORAL_AREA_ENEMY:
-			if (pSkillTarget->GetNation() != pSkillCaster->GetNation())
+			if (pSkillCaster->CanAttack(pSkillTarget))
 				goto final_test;
 			break;
 

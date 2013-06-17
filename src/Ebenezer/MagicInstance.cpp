@@ -430,7 +430,10 @@ bool MagicInstance::IsAvailable()
 
 			break;
 		case MORAL_ENEMY:	// #7
-			if (pSkillCaster->GetNation() == moral)
+			// Nation alone cannot dictate whether a unit can attack another.
+			// As such, we must check behaviour specific to these entities.
+			// For example: same nation players attacking each other in an arena.
+			if (!pSkillCaster->CanAttack(pSkillTarget))
 				goto fail_return;
 			break;	
 		case MORAL_ALL:	 // #8
@@ -739,7 +742,8 @@ bool MagicInstance::ExecuteType3()
 		foreach (itr, unitList)
 		{		
 			Unit * pTarget = g_pMain->GetUnit(*itr);
-			if (!pTarget->isDead() && !pTarget->isBlinking()
+			if (pSkillCaster != pTarget
+				&& !pTarget->isDead() && !pTarget->isBlinking()
 				&& CMagicProcess::UserRegionCheck(pSkillCaster, pTarget, pSkill, pType->bRadius, sData[0], sData[2]))
 				casted_member.push_back(pTarget);
 		}
