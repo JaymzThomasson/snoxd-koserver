@@ -2445,7 +2445,8 @@ void CUser::SendItemMove(uint8 subcommand)
 	// If the subcommand is not error, send the stats.
 	if (subcommand != 0)
 	{
-		result	<< m_sTotalHit << uint16(m_sTotalAc + m_sACAmount)
+		result	<< uint16(m_sTotalHit * m_bAttackAmount / 100) 
+				<< uint16(m_sTotalAc + m_sACAmount)
 				<< m_sMaxWeight
 				<< m_iMaxHp << m_iMaxMp
 				<< GetStatBonusTotal(STAT_STR) << GetStatBonusTotal(STAT_STA)
