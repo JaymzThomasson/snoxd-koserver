@@ -99,11 +99,20 @@ void CUser::PartyRequest(int memberid, bool bCreate)
 		goto fail_return;
 	}
 
-	if( !(   ( pUser->GetLevel() <= (int)(GetLevel() * 1.5) && pUser->GetLevel() >= (int)(GetLevel() * 1.5)) 
-		  || ( pUser->GetLevel() <= (GetLevel() + 8) && pUser->GetLevel() >= ((int)(GetLevel()) - 8))))
+	// Players taking the beginner/"chicken" quest can party anyone.
+	if (!m_bIsChicken)
 	{
-		errorCode = -2;
-		goto fail_return;
+		// Players in the same clan can party together, no matter the level difference.
+		if (!isInClan() 
+			|| GetClanID() != pUser->GetClanID())
+		{
+			if ( !(   ( pUser->GetLevel() <= (int)(GetLevel() * 1.5) && pUser->GetLevel() >= (int)(GetLevel() * 1.5)) 
+				  || ( pUser->GetLevel() <= (GetLevel() + 8) && pUser->GetLevel() >= ((int)(GetLevel()) - 8))))
+			{
+				errorCode = -2;
+				goto fail_return;
+			}
+		}
 	}
 
 	if (!bCreate)
