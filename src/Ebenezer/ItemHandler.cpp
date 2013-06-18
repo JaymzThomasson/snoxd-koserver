@@ -442,17 +442,27 @@ void CUser::ItemMove(Packet & pkt)
 			goto fail_return;
 		
 		pSrcItem = &m_sItemArray[INVENTORY_COSP + bSrcPos];
-		pDstItem = &m_sItemArray[INVENTORY_INVENT + bDstPos];
+		pDstItem = &m_sItemArray[SLOT_MAX + bDstPos];
 		break;
 
 	case ITEM_INVEN_TO_COSP: // TO-DO: Update IsValidSlotPos() for cospre items?
-		if (bDstPos >= COSP_MAX || bSrcPos >= HAVE_MAX
+		if (bDstPos >= COSP_MAX+MBAG_COUNT || bSrcPos >= HAVE_MAX
 			// Make sure that the item actually exists there.
-			|| nItemID != m_sItemArray[INVENTORY_INVENT + bSrcPos].nNum)
+			|| nItemID != m_sItemArray[SLOT_MAX + bSrcPos].nNum)
 			goto fail_return;
-		
-		pSrcItem = &m_sItemArray[INVENTORY_INVENT + bSrcPos];
+
+		pSrcItem = &m_sItemArray[SLOT_MAX + bSrcPos];
 		pDstItem = &m_sItemArray[INVENTORY_COSP + bDstPos];
+
+		// If we're setting a magic bag...
+		if (bDstPos == COSP_BAG1 || bDstPos == COSP_BAG2)
+		{
+			// Can't replace existing magic bag.
+			if (pDstItem->nNum != 0
+				// Can't set any old item in the bag slot, it must be a bag.
+				|| pTable->m_bSlot != 25)
+				goto fail_return;
+		}
 		break;
 
 	case ITEM_INVEN_SLOT:

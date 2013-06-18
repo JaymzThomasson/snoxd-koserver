@@ -175,6 +175,8 @@ const uint8 CRIGHT				= 45;
 const uint8 CTOP				= 46;
 const uint8 BAG1				= 47;
 const uint8 BAG2				= 48;
+const uint8 COSP_BAG1			= 5; // relative bag slot from cospre items
+const uint8 COSP_BAG2			= 6; // relative bag slot from cospre items
 
 const uint8 SLOT_MAX			= 14; // 14 equipped item slots
 const uint8 HAVE_MAX			= 28; // 28 inventory slots
