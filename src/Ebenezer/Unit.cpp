@@ -580,6 +580,9 @@ void Unit::InitType4()
  */
 bool Unit::CanAttack(Unit * pTarget)
 {
+	if (pTarget == nullptr)
+		return false;
+
 	// Units cannot attack units in different zones.
 	if (GetZoneID() != pTarget->GetZoneID())
 		return false;

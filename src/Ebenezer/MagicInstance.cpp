@@ -239,8 +239,13 @@ bool MagicInstance::ExecuteSkill(uint8 bType)
 		&& TO_USER(pSkillCaster)->m_bInvisibilityType != INVIS_NONE
 		&& ((bType >= 1 && bType <= 3) || (bType == 7)))
 	{
-		CMagicProcess::RemoveStealth(pSkillCaster, INVIS_DISPEL_ON_MOVE);
-		CMagicProcess::RemoveStealth(pSkillCaster, INVIS_DISPEL_ON_ATTACK);
+		// If the spell affects us, i.e. minor heal or such, we shouldn't remove stealth.
+		if (pSkillCaster != pSkillTarget 
+			&& pSkillCaster->CanAttack(pSkillTarget))
+		{
+			CMagicProcess::RemoveStealth(pSkillCaster, INVIS_DISPEL_ON_MOVE);
+			CMagicProcess::RemoveStealth(pSkillCaster, INVIS_DISPEL_ON_ATTACK);
+		}
 	}
 
 	switch (bType)
