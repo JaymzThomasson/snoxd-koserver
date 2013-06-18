@@ -394,14 +394,13 @@ void CGameSocket::RecvUserUpdate(Packet & pkt)
 	if (pUser == nullptr)
 		return;
 
-	uint8 bOldLevel = pUser->m_bLevel;
-
 	pkt.SByte();
-	pkt >> strUserID >> pUser->m_bLevel >> pUser->m_sHP >> pUser->m_sMP
-		>> pUser->m_sHitDamage >> pUser->m_sAC >> pUser->m_fHitrate >> pUser->m_fAvoidrate
-		>> pUser->m_sItemAC >> pUser->m_bMagicTypeLeftHand >> pUser->m_bMagicTypeRightHand
+	pkt >> pUser->m_strUserID >> pUser->m_bZone >> pUser->m_bNation 
+		>> pUser->m_bLevel >> pUser->m_sHP >> pUser->m_sMP >> pUser->m_sHitDamage
+		>> pUser->m_sAC >> pUser->m_fHitrate >> pUser->m_fAvoidrate >> pUser->m_sItemAC 
+		>> pUser->m_bMagicTypeLeftHand >> pUser->m_bMagicTypeRightHand
 		>> pUser->m_sMagicAmountLeftHand >> pUser->m_sMagicAmountRightHand
-		>> pUser->m_bInvisibilityType;
+		>> pUser->m_byIsOP >> pUser->m_bInvisibilityType;
 }
 
 void CGameSocket::Send_UserError(short uid, short tid)
