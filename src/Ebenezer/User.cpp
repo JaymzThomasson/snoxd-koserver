@@ -3627,7 +3627,20 @@ void CUser::OnDeath(Unit *pKiller)
 							// Show death notices in PVP zones
 							noticeType = DeathNoticeCoordinates;
 
-							// If we were killed by our rival
+							/**
+							 * NOTE:
+							 * The rival system is poorly named, evidently it's meant to work more 
+							 * like a vengeance system than anything.
+							 * 
+							 * In a nutshell:
+							 *  - user a kills user b,  
+							 *  - user b sets user a as their rival.  
+							 *  - when user b kills user a, they receive +150NP and the rivalry ends.   
+							 *  - if user a at this point does not have a rival already, user b becomes their rival and it starts again.
+							 *  - if a rivalry expires (after 3min) before the user has killed their rival, the rivalry ends.  
+							 **/
+
+							// If the killer has us set as their rival, reward them & remove the rivalry.
 							bKilledByRival = (!pUser->hasRivalryExpired() && pUser->GetRivalID() == GetID());
 							if (bKilledByRival)
 							{
@@ -3637,8 +3650,8 @@ void CUser::OnDeath(Unit *pKiller)
 								// Apply bonus NP for rival kills
 								bonusNP += RIVALRY_NP_BONUS;
 
-								// This player is no longer our rival (is this intended behaviour or must it still expire?)
-								RemoveRival();
+								// This player is no longer our rival
+								pUser->RemoveRival();
 							}
 
 							// The anger gauge is increased on each death.
@@ -3657,20 +3670,10 @@ void CUser::OnDeath(Unit *pKiller)
 						if (GetZoneID() != GetNation() && GetZoneID() <= ELMORAD)
 							ExpChange(-(m_iMaxExp / 100));
 
-						// If we were killed by our rival, then we're longer rivals with this player.
-						// It is unclear what the official stance on this behaviour is, but I assume
-						// it is not meant to reset the killer as the victim's rival (which it would do otherwise).
-						if (!bKilledByRival
-							&& GetZoneID() == ZONE_RONARK_LAND)
-						{
-							// If we don't have a rival, this player is now our rival for 3 minutes.
-							if (!hasRival())
-								SetRival(pUser);
-
-							// If our killer doesn't have a rival, they are now our rival for 3 minutes.
-							if (!pUser->hasRival())
-								pUser->SetRival(this);
-						}
+						// If we don't have a rival, this player is now our rival for 3 minutes.
+						if (GetZoneID() == ZONE_RONARK_LAND
+							&& !hasRival())
+							SetRival(pUser);
 					}
 
 					// Send a death notice where applicable
