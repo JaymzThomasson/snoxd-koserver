@@ -451,6 +451,9 @@ void CKnightsManager::ReqKnightsPacket(CUser* pUser, Packet & pkt)
 	case KNIGHTS_REFUND_POINTS:
 		ReqRefundNP(pkt);
 		break;
+	case KNIGHTS_UPDATE_FUND:
+		ReqUpdateNP(pkt);
+		break;
 	}
 }
 

@@ -634,7 +634,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 	}
 
 	// If this requires clan points, does our clan have enough?
-	if (pKnights->m_nPoints < nReqClanPoints) /* should this use the fund? */
+	if (pKnights->m_nClanPointFund < nReqClanPoints)
 	{
 		// this error may not be correct
 		sErrorCode = -7;
@@ -645,8 +645,11 @@ void CUser::HandleCapeChange(Packet & pkt)
 		GoldLose(nReqCoins);
 
 	if (nReqClanPoints)
-		pKnights->m_nPoints -= nReqClanPoints; /* should this use the fund? */
-
+	{
+		pKnights->m_nClanPointFund -= nReqClanPoints;
+		pKnights->UpdateClanFund();
+	}
+	
 	// Are we changing the cape?
 	if (sCapeID >= 0)
 		pKnights->m_sCape = sCapeID;

@@ -55,7 +55,7 @@ public:
 
 	uint64	m_nMoney;
 	uint16	m_sDomination;
-	Atomic<uint32> m_nPoints;
+	uint32	m_nPoints;
 	Atomic<uint32> m_nClanPointFund; // stored in national point form
 	uint16	m_sMarkVersion, m_sMarkLen;
 	char	m_Image[MAX_KNIGHTS_MARK];
@@ -81,6 +81,8 @@ public:
 
 	void ConstructClanNoticePacket(Packet *result);
 	void UpdateClanNotice(std::string & clanNotice);
+
+	void UpdateClanFund();
 
 	// Detach our session from the clan's list & tell clannies we logged off.
 	void OnLogout(CUser *pUser);

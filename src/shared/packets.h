@@ -379,7 +379,8 @@ enum
 
 	// These are NOT official client opcodes.
 	// They are opcodes for the database thread only.
-	KNIGHTS_REFUND_POINTS	= 0xF0
+	KNIGHTS_REFUND_POINTS	= 0xF0,
+	KNIGHTS_UPDATE_FUND		= 0xF1
 };
 
 enum OperatorCommands

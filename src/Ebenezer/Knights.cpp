@@ -84,6 +84,16 @@ void CKnights::UpdateClanNotice(std::string & clanNotice)
 	Send(&result);
 }
 
+/**
+ * @brief	Sends a request to update the clan's fund in the database.
+ */
+void CKnights::UpdateClanFund()
+{
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_UPDATE_FUND));
+	result << GetID() << uint32(m_nClanPointFund);
+	g_pMain->AddDatabaseRequest(result);
+}
+
 void CKnights::OnLogout(CUser *pUser)
 {
 	// Unset the active session for this user

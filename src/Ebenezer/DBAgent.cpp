@@ -1247,6 +1247,20 @@ void CKnightsManager::ReqRefundNP(Packet & pkt)
 }
 
 /**
+ * @brief	Handles the database request to update the
+ * 			specified clan's clan point fund.
+ *
+ * @param	pkt	The packet.
+ */
+void CKnightsManager::ReqUpdateNP(Packet & pkt)
+{
+	uint16 sClanID;
+	uint32 nClanPointFund;
+	pkt >> sClanID >> nClanPointFund;
+	g_DBAgent.UpdateClanFund(sClanID, nClanPointFund);
+}
+
+/**
  * @brief	Refunds the specified amount of NP to a logged out character.
  *
  * @param	strUserID	Character's name.
@@ -1260,6 +1274,22 @@ void CDBAgent::RefundNP(string & strUserID, uint32 nRefundNP)
 	
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strUserID.c_str(), strUserID.length());
 	if (!dbCommand->Execute(string_format(_T("UPDATE USERDATA SET Loyalty += %d WHERE strUserID = ?"), nRefundNP)))
+		ReportSQLError(m_GameDB->GetError());
+}
+
+/**
+ * @brief	Updates the clan fund.
+ *
+ * @param	sClanID		  	Identifier for the clan.
+ * @param	nClanPointFund	The current clan point fund.
+ */
+void CDBAgent::UpdateClanFund(uint16 sClanID, uint32 nClanPointFund)
+{
+	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == nullptr)
+		return;
+	
+	if (!dbCommand->Execute(string_format(_T("UPDATE KNIGHTS SET ClanPointFund = %d WHERE IDNum = %d"), nClanPointFund, sClanID)))
 		ReportSQLError(m_GameDB->GetError());
 }
 
