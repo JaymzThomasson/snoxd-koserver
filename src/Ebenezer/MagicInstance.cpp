@@ -1038,14 +1038,15 @@ bool MagicInstance::ExecuteType4()
 		if (pSkill->bType[1] == 0 || pSkill->bType[1] == 4)
 		{
 			CUser *pUser = (pSkillCaster->isPlayer() ? TO_USER(pSkillCaster) : pTUser);
+
+			if (!bIsRecastingSavedMagic)
+				sData[3] = (bResult == 1 || sData[3] == 0 ? pType->sDuration : 0);
+
 			int16 sDataCopy[8] = 
 			{
 				sData[0], bResult, sData[2], sData[3],
 				sData[4], pType->bSpeed, sData[6], sData[7]
 			};
-
-			if (!bIsRecastingSavedMagic)
-				sDataCopy[3] = (bResult == 1 || sData[3] == 0 ? pType->sDuration : 0);
 
 			BuildAndSendSkillPacket(pUser, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sDataCopy);
 
