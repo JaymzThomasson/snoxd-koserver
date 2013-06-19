@@ -1681,8 +1681,7 @@ void MagicInstance::Type6Cancel()
 
 void MagicInstance::Type9Cancel(bool bRemoveFromMap /*= true*/)
 {
-	if (pSkill == nullptr
-		|| pSkillCaster == nullptr
+	if (pSkillCaster == nullptr
 		|| !pSkillCaster->isPlayer())
 		return;
 
