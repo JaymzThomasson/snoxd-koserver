@@ -53,9 +53,16 @@ void MagicInstance::Run()
 			{
 				CUser * pCaster = TO_USER(pSkillCaster);
 				_MAGIC_TYPE2 * pType = g_pMain->m_Magictype2Array.GetData(nSkillID);
+
+				// Throwing knives are differentiated by the fact "NeedArrow" is set to 0.
+				// We still need to check for & take 1 throwing knife in this case however.
+				uint8 bCount = pType->bNeedArrow;
+				if (!bCount)
+					bCount = 1;
+
 				if (pType == nullptr
 					// The user does not have enough arrows! We should point them in the right direction. ;)
-					|| (!pCaster->CheckExistItem(pSkill->iUseItem, pType->bNeedArrow))
+					|| (!pCaster->CheckExistItem(pSkill->iUseItem, bCount))
 					// Ensure user has enough mana for this skill
 					|| pSkill->sMsp > pSkillCaster->GetMana())
 				{
@@ -65,12 +72,12 @@ void MagicInstance::Run()
 
 				// Add all flying arrow instances to the user's list for hit detection
 				FastGuard lock(pCaster->m_arrowLock);
-				for (size_t i = 0; i < pType->bNeedArrow; i++)
+				for (size_t i = 0; i < bCount; i++)
 					pCaster->m_flyingArrows.push_back(Arrow(pType->iNum, UNIXTIME));
 
 				// Remove the mana & arrows
 				pCaster->MSpChange(-(pSkill->sMsp));
-				pCaster->RobItem(pSkill->iUseItem, pType->bNeedArrow);
+				pCaster->RobItem(pSkill->iUseItem, bCount);
 			}
 
 			SendSkill(true); // send this to the region
@@ -637,33 +644,49 @@ bool MagicInstance::ExecuteType2()
 	if (pType == nullptr)
 		return false;
 
-	_ITEM_TABLE* pTable = nullptr;
-	if (pSkillCaster->isPlayer())
-	{
-		// Not wearing a left-handed bow
-		pTable = TO_USER(pSkillCaster)->GetItemPrototype(LEFTHAND);
-		if (pTable == nullptr || !pTable->isBow())
-		{
-			pTable = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND);
+	int range = 0;
 
-			// Not wearing a right-handed (2h) bow either!
+	// If we need arrows, then we require a bow.
+	// This check is needed to allow for throwing knives (the sole exception at this time.
+	// In this case, 'NeedArrow' is set to 0 -- we do not need a bow to use throwing knives, obviously.
+	if (pType->bNeedArrow > 0)
+	{
+		_ITEM_TABLE * pTable = nullptr;
+		if (pSkillCaster->isPlayer())
+		{
+			// Not wearing a left-handed bow
+			pTable = TO_USER(pSkillCaster)->GetItemPrototype(LEFTHAND);
 			if (pTable == nullptr || !pTable->isBow())
-				return false;
+			{
+				pTable = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND);
+
+				// Not wearing a right-handed (2h) bow either!
+				if (pTable == nullptr || !pTable->isBow())
+					return false;
+			}
 		}
+		else 
+		{
+			// TO-DO: Verify this. It's more a placeholder than anything. 
+			pTable = g_pMain->GetItemPtr(TO_NPC(pSkillCaster)->m_iWeapon_1);
+			if (pTable == nullptr)
+				return false; 
+		}
+		
+		// For arrow skills, we require a bow & its range.
+		range = pTable->m_sRange;
 	}
 	else
 	{
-		// TO-DO: Verify this. It's more a placeholder than anything. 
-		pTable = g_pMain->GetItemPtr(TO_NPC(pSkillCaster)->m_iWeapon_1);
-		if (pTable == nullptr)
-			return false; 
+		// For non-arrow skills (i.e. throwing knives) we should use the skill's range.
+		range = pSkill->sRange;
 	}
 
 	// is this checked already?
 	if (pSkillTarget == nullptr || pSkillTarget->isDead())
 		goto packet_send;
 	
-	total_range = pow(((pType->sAddRange * pTable->m_sRange) / 100.0f), 2.0f) ;     // Range verification procedure.
+	total_range = pow(((pType->sAddRange * range) / 100.0f), 2.0f) ;     // Range verification procedure.
 	sx = (int)pSkillCaster->GetX(); tx = (int)pSkillTarget->GetX();
 	sz = (int)pSkillCaster->GetZ(); tz = (int)pSkillTarget->GetZ();
 	
