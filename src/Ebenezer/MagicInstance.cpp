@@ -908,11 +908,7 @@ bool MagicInstance::ExecuteType3()
 				// Ignore healing spells, not sure if this will break any skills.
 				&& pType->sTimeDamage < 0)
 			{
-				CUser * pTUser = TO_USER(pTarget);
-				if (pTUser->isInParty())
-					pTUser->SendPartyStatusUpdate(1, 1);
-
-				pTUser->SendUserStatusUpdate(pType->bAttribute == POISON_R ? USER_STATUS_POISON : USER_STATUS_DOT, USER_STATUS_INFLICT);
+				TO_USER(pTarget)->SendUserStatusUpdate(pType->bAttribute == POISON_R ? USER_STATUS_POISON : USER_STATUS_DOT, USER_STATUS_INFLICT);
 			}
 		}
 
@@ -1052,7 +1048,13 @@ bool MagicInstance::ExecuteType4()
 			BuildAndSendSkillPacket(pUser, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sDataCopy);
 
 			if (pSkill->bMoral >= MORAL_ENEMY)
-				pTUser->SendUserStatusUpdate(pType->bBuffType == BUFF_TYPE_SPEED ? USER_STATUS_SPEED : USER_STATUS_POISON, USER_STATUS_INFLICT);
+			{
+				UserStatus status = USER_STATUS_POISON;
+				if (pType->bBuffType == BUFF_TYPE_SPEED || pType->bBuffType == BUFF_TYPE_SPEED2)
+					status = USER_STATUS_SPEED;
+
+				pTUser->SendUserStatusUpdate(status, USER_STATUS_INFLICT);
+			}
 		}
 		
 		if (bResult == 0

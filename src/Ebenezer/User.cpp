@@ -3879,6 +3879,10 @@ void CUser::SendUserStatusUpdate(UserStatus type, UserStatusBehaviour status)
 			  5				, 2 = Cure grey HP
 	*/
 	Send(&result);
+
+	if (isInParty())
+		SendPartyStatusUpdate(type, status);
+
 }
 
 /**

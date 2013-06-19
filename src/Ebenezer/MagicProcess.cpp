@@ -420,10 +420,14 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 	if (itr == pTarget->m_buffMap.end())
 		return false;
 
+	_MAGIC_TABLE * pSkill = g_pMain->m_MagictableArray.GetData(itr->second.m_nSkillID);
+	if (pSkill == nullptr)
+		return false;
+
 	// If this buff persists across logout, it should be removed here too.
 	if (pTarget->isPlayer()
-		&& pTarget->HasSavedMagic(itr->second.m_nSkillID))
-		TO_USER(pTarget)->RemoveSavedMagic(itr->second.m_nSkillID);
+		&& pTarget->HasSavedMagic(pSkill->iNum))
+		TO_USER(pTarget)->RemoveSavedMagic(pSkill->iNum);
 
 	pTarget->m_buffMap.erase(itr);
 
@@ -614,6 +618,12 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 
 	if (pTarget->isPlayer())
 	{
+		if (pSkill->bMoral >= MORAL_ENEMY)
+		{
+			if (byBuffType == BUFF_TYPE_SPEED || byBuffType == BUFF_TYPE_SPEED2)
+				TO_USER(pTarget)->SendUserStatusUpdate(USER_STATUS_SPEED, USER_STATUS_CURE);
+		}
+
 		TO_USER(pTarget)->SetSlotItemValue();
 		TO_USER(pTarget)->SetUserAbility();
 		TO_USER(pTarget)->Send2AI_UserUpdateInfo();
