@@ -2531,13 +2531,6 @@ void CUser::HPTimeChangeType3()
 
 		// Reduce the HP 
 		HpChange(m_bHPAmount[h], pUnit); // do we need to specify the source of the DOT?
-
-		// Aw, did we die? :(
-		if (m_sHp == 0)
-		{
-			OnDeath(pUnit);
-			break;
-		}
 	}
 
 	// Type 3 cancellation process.
