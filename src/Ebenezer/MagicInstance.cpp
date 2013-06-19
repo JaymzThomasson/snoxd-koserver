@@ -809,8 +809,8 @@ bool MagicInstance::ExecuteType3()
 	foreach (itr, casted_member)
 	{
 		Unit * pTarget = *itr; // it's checked above, not much need to check it again
-		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1) && (nSkillID < 400000))	// If you are casting an attack spell.
-			damage = GetMagicDamage(pTarget, pType->sFirstDamage, pType->bAttribute) ;	// Get Magical damage point.
+		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1 || pType->bDirectType == 8) && (nSkillID < 400000))	// If you are casting an attack spell.
+			damage = GetMagicDamage(pTarget, pType->sFirstDamage, pType->bAttribute);	// Get Magical damage point.
 		else 
 			damage = pType->sFirstDamage;
 
@@ -1579,7 +1579,7 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 		|| pSkillCaster->isDead())
 		return 0;
 
-	uint16 sMagicAmount = 0;
+	int16 sMagicAmount = 0;
 	if (pSkillCaster->isNPC())
 	{
 		result = pSkillCaster->GetHitRate(pTarget->m_sTotalHitrate / pSkillCaster->m_sTotalEvasionrate); 
@@ -1589,9 +1589,10 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 		CUser *pUser = TO_USER(pSkillCaster);
 		uint8 bCha = pUser->GetStat(STAT_CHA);
 		if (bCha > 86)
-			sMagicAmount = pUser->m_sMagicAttackAmount - (bCha - 86);
+			sMagicAmount = bCha - 86;
 
-		total_hit *= pUser->GetStat(STAT_CHA) / 186;
+		sMagicAmount += pUser->m_sMagicAttackAmount;
+		total_hit *= bCha / 186;
 		result = SUCCESS;
 	}
 		

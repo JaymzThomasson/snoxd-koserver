@@ -399,15 +399,9 @@ bool CUser::HandlePacket(Packet & pkt)
 	if (!isBlinking() && m_tHPLastTimeNormal != 0 && (UNIXTIME - m_tHPLastTimeNormal) > m_bHPIntervalNormal)
 		HPTimeChange();	// For Sitdown/Standup HP restoration.
 
-	if (m_bType3Flag) {     // For Type 3 HP Duration.
-		for (int i = 0 ; i < MAX_TYPE3_REPEAT ; i++) {	
-			if (m_tHPLastTime[i] != 0 && (UNIXTIME - m_tHPLastTime[i]) > m_bHPInterval[i])
-			{
-				HPTimeChangeType3();	
-				break;
-			}
-		}
-	} 
+	// Handles DOT/HOT skills (not COLD skills though.)
+	if (m_bType3Flag) 
+		HPTimeChangeType3();	
 
 	// Check for expired type 4 buffs
 	Type4Duration();
@@ -2506,74 +2500,61 @@ void CUser::HPTimeChange()
 
 void CUser::HPTimeChangeType3()
 {
-	fill_n(m_tHPLastTime, MAX_TYPE3_REPEAT, UNIXTIME);
-
-	if (isDead())
+	if (isDead()
+		|| !m_bType3Flag)
 		return;
 
-	for (int h = 0; h < MAX_TYPE3_REPEAT; h++)
-	{
-		// Yikes. This will need cleaning up.
-		CUser *pUser = nullptr;
-		CNpc *pNpc = nullptr;
-		Unit *pUnit = nullptr;
-
-		if (m_sSourceID[h] < MAX_USER) 
-		{
-			pUser = g_pMain->GetUserPtr(m_sSourceID[h]);
-			pUnit = pUser;
-		}
-		else
-		{
-			pNpc = g_pMain->m_arNpcArray.GetData(m_sSourceID[h]);
-			pUnit = pNpc;
-		}
-
-		// Reduce the HP 
-		HpChange(m_bHPAmount[h], pUnit); // do we need to specify the source of the DOT?
-	}
-
-	// Type 3 cancellation process.
-	// This probably shouldn't be here.
+	int totalDuration = 0;
+	bool bIsDOT = false;
 	for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
 	{
-		if (m_bHPDuration[i] > 0)
+		// Has the required interval elapsed before using this skill?
+		if (m_tHPStartTime[i] == 0
+			|| m_tHPLastTime[i] == 0 
+			|| (UNIXTIME - m_tHPLastTime[i]) < m_bHPInterval[i])
+			continue;
+
+		Unit * pUnit = g_pMain->GetUnit(m_sSourceID[i]);
+
+		// Reduce the HP 
+		HpChange(m_bHPAmount[i], pUnit); // do we need to specify the source of the DOT?
+
+		// Has the skill expired yet?
+		if (m_bHPDuration[i] > 0
+			&& (UNIXTIME - m_tHPStartTime[i]) >= m_bHPDuration[i])
 		{
-			if ((UNIXTIME - m_tHPStartTime[i]) >= m_bHPDuration[i])
-			{
-				Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
+			Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
 
-				if (m_bHPAmount[i] > 0)
-					result << uint8(100);
-				else
-					result << uint8(200);
+			if (m_bHPAmount[i] > 0)
+				result << uint8(100);
+			else
+				result << uint8(200);
 
-				Send(&result);
+			Send(&result);
 
-				m_tHPStartTime[i] = 0;
-				m_tHPLastTime[i] = 0;
-				m_bHPAmount[i] = 0;
-				m_bHPDuration[i] = 0;				
-				m_bHPInterval[i] = 5;
-				m_sSourceID[i] = -1; 
-			}
+			m_tHPStartTime[i] = 0;
+			m_tHPLastTime[i] = 0;
+			m_bHPAmount[i] = 0;
+			m_bHPDuration[i] = 0;				
+			m_bHPInterval[i] = 5;
+			m_sSourceID[i] = -1; 
 		}
+		else if (m_bHPAmount[i] < 0)
+		{
+			bIsDOT = true;
+		}
+
+		totalDuration += m_bHPDuration[i];
 	}
 
-	int buff_test = 0;
-	bool bType3Test = true;
-	foreach_array (j, m_bHPDuration)
-	{
-		buff_test += m_bHPDuration[j];
-		if (m_bHPAmount[j] < 0)
-			bType3Test = false;
-	}
+	fill_n(m_tHPLastTime, MAX_TYPE3_REPEAT, UNIXTIME);
 
-	if (buff_test == 0)
+	// Have all the skills expired?
+	if (totalDuration == 0)
 		m_bType3Flag = false;
 
-	if (isInParty() && bType3Test)
-		SendPartyStatusUpdate(1, 0);
+	if (!bIsDOT)
+		SendUserStatusUpdate(USER_STATUS_DOT, USER_STATUS_CURE);
 }
 
 void CUser::InitType4()
@@ -3873,8 +3854,9 @@ void CUser::SendUserStatusUpdate(UserStatus type, UserStatusBehaviour status)
 	*/
 	Send(&result);
 
+	// It seems to just be 0/1 for the status here.
 	if (isInParty())
-		SendPartyStatusUpdate(type, status);
+		SendPartyStatusUpdate(type, status - 1);
 
 }
 
