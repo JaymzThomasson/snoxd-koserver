@@ -1045,7 +1045,7 @@ bool MagicInstance::ExecuteType4()
 			};
 
 			if (!bIsRecastingSavedMagic)
-				sData[3] = (bResult == 1 || sData[3] == 0 ? pType->sDuration : 0);
+				sDataCopy[3] = (bResult == 1 || sData[3] == 0 ? pType->sDuration : 0);
 
 			BuildAndSendSkillPacket(pUser, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sDataCopy);
 
