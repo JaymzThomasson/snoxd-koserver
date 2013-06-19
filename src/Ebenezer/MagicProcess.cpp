@@ -185,7 +185,8 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 	// Buff mustn't already be added at this point.
 	FastGuard lock(pTarget->m_buffLock);
 	if (!bIsRecastingSavedMagic
-		&& pTarget->m_buffMap.find(pType->bBuffType) != pTarget->m_buffMap.end())
+		&& pTarget->m_buffMap.find(pType->bBuffType) != pTarget->m_buffMap.end() 
+		&& pCaster == pTarget) //To allow debuff stacking, NOT sure if this is supposed to work like this! Ifnot we'll have to find a workaround.
 		return false;
 
 	switch (pType->bBuffType)

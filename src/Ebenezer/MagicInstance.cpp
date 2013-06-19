@@ -981,17 +981,17 @@ bool MagicInstance::ExecuteType4()
 		casted_member.push_back(pTUser);
 	}
 
-	pSkillCaster->m_buffLock.Acquire();
-	Type4BuffMap::iterator buffItr = pSkillCaster->m_buffMap.find(pType->bBuffType);
-	bool bFoundBuff = (buffItr != pSkillCaster->m_buffMap.end());
-	bool bIsBuff = (bFoundBuff && buffItr->second.isBuff());
-	pSkillCaster->m_buffLock.Release();
-
 	foreach (itr, casted_member)
 	{
 		uint8 bResult = 1;
 		CUser* pTUser = *itr;
 		_BUFF_TYPE4_INFO pBuffInfo;
+
+		pTUser->m_buffLock.Acquire();
+		Type4BuffMap::iterator buffItr = pTUser->m_buffMap.find(pType->bBuffType);
+		bool bFoundBuff = (buffItr != pTUser->m_buffMap.end());
+		bool bIsBuff = (bFoundBuff && buffItr->second.isBuff());
+		pTUser->m_buffLock.Release();
 
 		if (bFoundBuff && 
 			(bIsBuff && sTargetID == -1))
