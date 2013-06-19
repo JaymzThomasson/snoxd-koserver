@@ -353,16 +353,14 @@ void CUser::GiveMerchantItems()
 	for (int i = 0; i < MAX_MERCH_ITEMS; i++)
 	{
 		_MERCH_DATA *pMerch = &m_arMerchantItems[i];
-		uint8 bOriginalSlot = pMerch->bOriginalSlot;
+		_ITEM_DATA *pItem = &m_sItemArray[pMerch->bOriginalSlot];
 
-		_ITEM_DATA *pItem = &m_sItemArray[bOriginalSlot];
 		pItem->nNum = pMerch->nNum;
 		pItem->nSerialNum = pMerch->nSerialNum;
 		pItem->sCount = pMerch->sCount;
 		pItem->sDuration = pMerch->sDuration;
 
-		SendStackChange(pItem->nNum, pItem->sCount, pItem->sDuration, pMerch->bOriginalSlot, 
-			pItem->sCount == pMerch->sCount); // is it a new item?
+		// NOTE: Don't need to update the client, the client doesn't see any change.
 	}
 
 	// remove the items from the array now that they've been restored to the user
