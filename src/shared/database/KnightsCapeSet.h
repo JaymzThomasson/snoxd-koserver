@@ -19,8 +19,14 @@ public:
 		_dbCommand->FetchUInt32(4, pData->nReqClanPoints);
 		_dbCommand->FetchByte(5, pData->byRanking);
 
+#if 0	// https://github.com/twostars/snoxd-koserver/issues/168#issuecomment-19630966
+		// This assumes the price is in NP, not clan points... 
+		// The above comment disagrees with this behaviour, so disabling temporarily.
+		// Need to find out for sure what the price is in.
+
 		// Convert this from NP to clan points
 		pData->nReqClanPoints /= MAX_CLAN_USERS;
+#endif
 
 		if (!m_pMap->PutData(pData->sCapeIndex, pData))
 			delete pData;
