@@ -104,15 +104,6 @@ const uint8	MAGIC_ATTACK_TARGET_DEAD	= 4;
 // Monster는 0부터 시작 10까지의 타입
 #define NPCTYPE_MONSTER				0	// monster
 
-////////////////////////////////////////////////////////////////
-// Magic Packet sub define 
-////////////////////////////////////////////////////////////////
-#define MAGIC_CASTING			0x01
-#define MAGIC_FLYING			0x02
-#define MAGIC_EFFECTING			0x03
-#define MAGIC_FAIL				0x04
-#define MAGIC_TYPE4_END			0x05	// For type 4 durational spells.					
-
 // Attack Type
 #define DIRECT_ATTACK		0
 #define LONG_ATTACK			1
@@ -126,27 +117,5 @@ const uint8	MAGIC_ATTACK_TARGET_DEAD	= 4;
 #define BATTLEZONE_OPEN         0x00
 #define BATTLEZONE_CLOSE        0x01           
 #define DECLARE_WINNER          0x02
-
-////////////////////////////////////////////////////////////////
-// weather define
-////////////////////////////////////////////////////////////////
-#define WEATHER_FINE			0x01
-#define WEATHER_RAIN			0x02
-#define WEATHER_SNOW			0x03
-////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////
-// magic define
-////////////////////////////////////////////////////////////////
-#define MORAL_GOOD		0x01
-#define MORAL_BAD		0x02
-#define MORAL_NEUTRAL	0x03
-
-////////////////////////////////////////////////////////////////
-// Type 3 Attribute define
-////////////////////////////////////////////////////////////////
-#define ATTRIBUTE_FIRE			 1
-#define ATTRIBUTE_ICE			 2
-#define ATTRIBUTE_LIGHTNING		 3
 
 const int TYPE_MONEY_SID		=	900000000;
