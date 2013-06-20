@@ -1287,6 +1287,7 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 	Packet result(WIZ_HP_CHANGE);
 	uint16 tid = (pAttacker != nullptr ? pAttacker->GetID() : -1);
 	int16 oldHP = m_sHp;
+	int originalAmount = amount;
 
 	// If we're taking damage...
 	if (amount < 0)
@@ -1340,9 +1341,11 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 	if (isInParty())
 		SendPartyHPUpdate();
 
+	// Ensure we send the original damage (prior to passives) amount to the attacker 
+	// as it appears to behave that way officially.
 	if (pAttacker != nullptr
 		&& pAttacker->isPlayer())
-		TO_USER(pAttacker)->SendTargetHP(0, GetID(), amount);
+		TO_USER(pAttacker)->SendTargetHP(0, GetID(), originalAmount);
 
 	if (m_sHp == 0)
 		OnDeath(pAttacker);
