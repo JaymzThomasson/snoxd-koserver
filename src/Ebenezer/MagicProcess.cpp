@@ -328,9 +328,14 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_BLIND:
-		pTarget->m_bIsBlinded = true;
+		// The only skill that uses this buff type is "Blinding Strafe", which states:
+		// Description: Shoots an arrow that inflicts 400% damage and blinds the enemy. Does not apply to monsters.
+		// As such, we should not blind monsters.
 		if (pTarget->isPlayer())
+		{
+			pTarget->m_bIsBlinded = true;
 			TO_USER(pTarget)->SendUserStatusUpdate(USER_STATUS_BLIND, USER_STATUS_INFLICT);
+		}
 		break;
 
 	case BUFF_TYPE_FREEZE:
@@ -534,9 +539,12 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_BLIND:
-		pTarget->m_bIsBlinded = false;
+		// Only players can be blinded (at least by the only skill - "Blinding Strafe" - that uses this type).
 		if (pTarget->isPlayer())
+		{
+			pTarget->m_bIsBlinded = false;
 			TO_USER(pTarget)->SendUserStatusUpdate(USER_STATUS_BLIND, USER_STATUS_CURE);
+		}
 		break;
 
 	case BUFF_TYPE_FREEZE:
