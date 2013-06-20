@@ -400,8 +400,6 @@
     <ClInclude Include="..\shared\database\MagicTableSet.h" />
     <ClInclude Include="..\shared\database\MagicType1Set.h" />
     <ClInclude Include="..\shared\database\MagicType2Set.h" />
-    <ClInclude Include="..\shared\database\MagicType3Set.h" />
-    <ClInclude Include="..\shared\database\MagicType4Set.h" />
     <ClInclude Include="..\shared\database\MakeDefensiveTableSet.h" />
     <ClInclude Include="..\shared\database\MakeGradeItemTableSet.h" />
     <ClInclude Include="..\shared\database\MakeItemGroupSet.h" />

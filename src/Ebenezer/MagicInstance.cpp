@@ -992,19 +992,11 @@ bool MagicInstance::ExecuteType4()
 		pTUser->m_buffLock.Acquire();
 		Type4BuffMap::iterator buffItr = pTUser->m_buffMap.find(pType->bBuffType);
 		bool bFoundBuff = (buffItr != pTUser->m_buffMap.end());
-		bool bIsBuff = false;
-
-		// Need a better way to determine whether it's a buff or a debuff
-		if (pSkillCaster == pTUser)
-			bIsBuff = true;
-		else if (pSkillCaster->isPlayer())
-			bIsBuff = !pSkillCaster->CanAttack(pTUser);
-
 		pTUser->m_buffLock.Release();
 
 		// If this skill is a debuff, and the caster is in the crossfire, 
 		// we should not bother debuffing them.
-		if (!bIsBuff
+		if (!pType->bIsBuff
 			&& pTUser == pSkillCaster)
 			continue;
 
@@ -1012,7 +1004,7 @@ bool MagicInstance::ExecuteType4()
 			|| !CMagicProcess::GrantType4Buff(pSkill, pType, pSkillCaster, pTUser, bIsRecastingSavedMagic))
 		{
 			// Only error out if we cannot grant a targeted buff.
-			if (bIsBuff && sTargetID != -1)
+			if (pType->bIsBuff && sTargetID != -1)
 			{
 				bResult = 0;
 				goto fail_return;
@@ -1032,7 +1024,7 @@ bool MagicInstance::ExecuteType4()
 			pSkillCaster->MSpChange( -(pSkill->sMsp) );
 
 		pBuffInfo.m_nSkillID = nSkillID;
-		pBuffInfo.m_bIsBuff = bIsBuff;
+		pBuffInfo.m_bIsBuff = pType->bIsBuff;
 
 		pBuffInfo.m_bDurationExtended = false;
 		pBuffInfo.m_tEndTime = UNIXTIME + pType->sDuration;

@@ -42,6 +42,9 @@ public:
 		_dbCommand->FetchByte(27, pData->bPoisonR);
 		_dbCommand->FetchByte(28, pData->bExpPct);
 		
+		// Determine if the skill is a buff or a debuff.
+		pData->bIsBuff = CMagicProcess::IsBuff(pData);
+
 		if (!m_pMap->PutData(pData->iNum, pData))
 			delete pData;
 

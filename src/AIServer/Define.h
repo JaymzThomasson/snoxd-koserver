@@ -104,19 +104,6 @@ const uint8	MAGIC_ATTACK_TARGET_DEAD	= 4;
 // Monster는 0부터 시작 10까지의 타입
 #define NPCTYPE_MONSTER				0	// monster
 
-#define MORAL_SELF				1		// 나 자신..
-#define MORAL_FRIEND_WITHME		2		// 나를 포함한 우리편(국가) 중 하나 ..
-#define MORAL_FRIEND_EXCEPTME	3		// 나를 뺀 우리편 중 하나 
-#define MORAL_PARTY				4		// 나를 포함한 우리파티 중 하나..
-#define MORAL_NPC				5		// NPC중 하나.
-#define MORAL_PARTY_ALL			6		// 나를 호함한 파티 모두..
-#define MORAL_ENEMY				7		// 울편을 제외한 모든 적중 하나(NPC포함)
-#define MORAL_ALL				8		// 겜상에 존재하는 모든 것중 하나.
-#define MORAL_AREA_ENEMY		10		// 지역에 포함된 적
-#define MORAL_AREA_FRIEND		11		// 지역에 포함된 우리편
-#define MORAL_AREA_ALL			12		// 지역에 포함된 모두
-#define MORAL_SELF_AREA			13		// 나를 중심으로 한 지역
-
 ////////////////////////////////////////////////////////////////
 // Magic Packet sub define 
 ////////////////////////////////////////////////////////////////
@@ -154,14 +141,6 @@ const uint8	MAGIC_ATTACK_TARGET_DEAD	= 4;
 #define MORAL_GOOD		0x01
 #define MORAL_BAD		0x02
 #define MORAL_NEUTRAL	0x03
-
-#define NONE_R				0
-#define	FIRE_R				1
-#define	COLD_R				2
-#define LIGHTNING_R			3
-#define MAGIC_R				4
-#define DISEASE_R			5
-#define POISON_R			6
 
 ////////////////////////////////////////////////////////////////
 // Type 3 Attribute define

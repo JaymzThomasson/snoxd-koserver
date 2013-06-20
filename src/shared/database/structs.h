@@ -89,6 +89,8 @@ struct _MAGIC_TYPE4
 	uint8	bDiseaseR;
 	uint8	bPoisonR;
 	uint8	bExpPct;
+
+	bool	bIsBuff; // true if buff, false if debuff
 };
 
 struct _MAGIC_TYPE5

@@ -644,3 +644,118 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 
 	return true;
 }
+
+/**
+ * @brief	Test if the specified skill is a buff
+ * 			or a debuff.
+ *
+ * @param	pSkill	The specified skill.
+ *
+ * @return	true if skill is a buff, false if debuff.
+ */
+bool CMagicProcess::IsBuff(_MAGIC_TYPE4 * pType)
+{
+	switch (pType->bBuffType)
+	{
+	case BUFF_TYPE_HP_MP:
+		if (pType->sMaxHP > 0
+			|| pType->sMaxMP > 0)
+			return true;
+
+		// If either the max HP percent or max MP percent are less than 100%
+		// it is a debuff we are dealing with, not a buff.
+		return (pType->sMaxHPPct >= 100 && pType->sMaxMPPct >= 100);
+
+	case BUFF_TYPE_AC:
+		if (pType->sAC == 0 && pType->sACPct > 0)
+			return pType->sACPct >= 100;
+		else
+			return pType->sAC >= 0;
+
+	// Size changes (via Bezoars, Rice cakes, etc)
+	// are buffs.
+	case BUFF_TYPE_SIZE:
+		return true;
+
+	case BUFF_TYPE_DAMAGE:
+		return pType->bAttack >= 100;
+
+	case BUFF_TYPE_ATTACK_SPEED:
+		return pType->bAttackSpeed >= 100;
+
+	case BUFF_TYPE_SPEED:
+		return pType->bSpeed >= 100;
+
+	// If any of the stats are below 0, it's a debuff.
+	case BUFF_TYPE_STATS:
+		return !(pType->bStr < 0 || pType->bSta < 0 || pType->bDex < 0 || pType->bIntel < 0 || pType->bCha); 
+
+	// There are no skills that negatively affect resistances, so it will always be a buff.
+	case BUFF_TYPE_RESISTANCES:
+		return true;
+
+	case BUFF_TYPE_ACCURACY:
+		return (pType->bHitRate >= 100 && pType->sAvoidRate >= 100);
+
+	case BUFF_TYPE_MAGIC_POWER:
+		return pType->bMagicAttack >= 100;
+
+	case BUFF_TYPE_EXPERIENCE:
+	case BUFF_TYPE_WEIGHT:
+		return true;
+
+	case BUFF_TYPE_WEAPON_DAMAGE:
+		return pType->bAttack > 0;
+
+	case BUFF_TYPE_WEAPON_AC:
+		if (pType->sAC == 0 && pType->sACPct > 0)
+			return pType->sACPct >= 100;
+		else
+			return pType->sAC > 0;
+
+	case BUFF_TYPE_LOYALTY:
+	case BUFF_TYPE_NOAH_BONUS:
+	case BUFF_TYPE_PREMIUM_MERCHANT:
+	case BUFF_TYPE_ATTACK_SPEED_ARMOR: // only used by "Berserk Echo", which is a buff.
+	case BUFF_TYPE_DAMAGE_DOUBLE:
+		return true;
+
+	case BUFF_TYPE_DISABLE_TARGETING:
+	case BUFF_TYPE_BLIND:
+	case BUFF_TYPE_FREEZE:
+		return false;
+
+	case BUFF_TYPE_INSTANT_MAGIC:
+		return true;
+
+	case BUFF_TYPE_DECREASE_RESIST:
+		return false;
+
+	case BUFF_TYPE_MAGE_ARMOR:
+	case BUFF_TYPE_PROHIBIT_INVIS:
+	case BUFF_TYPE_RESIS_AND_MAGIC_DMG: // Elysian Web
+	case BUFF_TYPE_TRIPLEAC_HALFSPEED:	// Wall of Iron
+	case BUFF_TYPE_BLOCK_CURSE:			// Counter Curse
+	case BUFF_TYPE_BLOCK_CURSE_REFLECT:	// Curse Refraction
+	case BUFF_TYPE_MANA_ABSORB:		// Outrage / Frenzy / Mana Shield
+		return true;
+
+	case BUFF_TYPE_IGNORE_WEAPON:		// Weapon cancellation
+		// Disarms the opponent. (rendering them unable to attack)
+		return false;
+
+	case BUFF_TYPE_PASSION_OF_SOUL:		// Passion of the Soul
+	case BUFF_TYPE_FIRM_DETERMINATION:	// Firm Determination
+		return true;
+
+	case BUFF_TYPE_SPEED2:				// Cold Wave
+		// skill explicitly slows
+		return false;
+
+	case BUFF_TYPE_ATTACK_RANGE_ARMOR:	// Inevitable Murderous
+	case BUFF_TYPE_MIRROR_DAMAGE_PARTY: // Minak's Thorn
+		return true;
+	}
+
+	return false;
+}
