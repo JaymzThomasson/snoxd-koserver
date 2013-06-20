@@ -737,6 +737,8 @@ bool MagicInstance::ExecuteType2()
 	if (pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
 		ReflectDamage(damage);
 
+	bResult = true;
+
 packet_send:
 	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
 	sData[3] = (damage == 0 ? -104 : 0);
