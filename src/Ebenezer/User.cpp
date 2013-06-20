@@ -2518,6 +2518,7 @@ void CUser::HPTimeChangeType3()
 
 		// Reduce the HP 
 		HpChange(m_bHPAmount[i], pUnit); // do we need to specify the source of the DOT?
+		m_tHPLastTime[i] = UNIXTIME;
 
 		// Has the skill expired yet?
 		if (m_bHPDuration[i] > 0
@@ -2546,8 +2547,6 @@ void CUser::HPTimeChangeType3()
 
 		totalDuration += m_bHPDuration[i];
 	}
-
-	fill_n(m_tHPLastTime, MAX_TYPE3_REPEAT, UNIXTIME);
 
 	// Have all the skills expired?
 	if (totalDuration == 0)
