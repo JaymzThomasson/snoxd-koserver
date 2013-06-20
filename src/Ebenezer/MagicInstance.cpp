@@ -995,17 +995,26 @@ bool MagicInstance::ExecuteType4()
 		bool bIsBuff = (bFoundBuff && buffItr->second.isBuff());
 		pTUser->m_buffLock.Release();
 
-		if (bFoundBuff && 
-			(bIsBuff && sTargetID == -1))
-		{
-			bResult = 0;
-			goto fail_return;
-		}
+		// If this skill is a debuff, and the caster is in the crossfire, 
+		// we should not bother debuffing them.
+		if (!bIsBuff
+			&& pTUser == pSkillCaster)
+			continue;
 
-		if (!CMagicProcess::GrantType4Buff(pSkill, pType, pSkillCaster, pTUser, bIsRecastingSavedMagic))
+		if (bFoundBuff 
+			|| !CMagicProcess::GrantType4Buff(pSkill, pType, pSkillCaster, pTUser, bIsRecastingSavedMagic))
 		{
-			bResult = 0;
-			goto fail_return;
+			// Only error out if we cannot grant a targeted buff.
+			if (bIsBuff && sTargetID != -1)
+			{
+				bResult = 0;
+				goto fail_return;
+			}
+
+			// Debuffs of any kind, or area buffs should be ignored and carry on.
+			// Usually - debuffs specifically - they correspond with attack skills which should
+			// not be reset on fail.
+			continue;
 		}
 
 		if (nSkillID > 500000 && pTUser->isPlayer())
