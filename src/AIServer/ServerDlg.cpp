@@ -604,10 +604,10 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 		MAP * pMap = itr->second;
 		if (pMap == nullptr)	
 			continue;
-		for (int i=0; i<=pMap->GetXRegionMax(); i++ ) {
-			for( int j=0; j<=pMap->GetZRegionMax(); j++ ) {
+		for (int i = 0; i < pMap->GetXRegionMax(); i++)
+		{
+			for (int j = 0; j < pMap->GetZRegionMax(); j++)
 				pMap->m_ppRegion[i][j].m_RegionUserArray.DeleteAllData();
-			}
 		}
 	}
 

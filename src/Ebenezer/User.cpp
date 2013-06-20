@@ -2456,8 +2456,7 @@ void CUser::HPTimeChange()
 {
 	m_tHPLastTimeNormal = UNIXTIME;
 
-	if (m_bResHpType == USER_DEAD
-		|| m_sHp < 1)
+	if (isDead())
 		return;
 
 	int mpPercent = 100;

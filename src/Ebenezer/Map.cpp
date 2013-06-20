@@ -44,8 +44,8 @@ bool C3DMap::Initialize(_ZONE_INFO *pZone)
 
 CRegion * C3DMap::GetRegion(uint16 regionX, uint16 regionZ)
 {
-	if (regionX >= GetXRegionMax()
-		|| regionZ >= GetZRegionMax())
+	if (regionX > GetXRegionMax()
+		|| regionZ > GetZRegionMax())
 		return nullptr;
 
 	FastGuard lock(m_lock);
@@ -55,7 +55,7 @@ CRegion * C3DMap::GetRegion(uint16 regionX, uint16 regionZ)
 
 bool C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _LOOT_BUNDLE * pBundle)
 {
-	if (rx >= GetXRegionMax() || rz >= GetZRegionMax()
+	if (rx > GetXRegionMax() || rz > GetZRegionMax()
 		|| pBundle == nullptr)
 		return false;
 
@@ -135,7 +135,7 @@ C3DMap::~C3DMap()
 
 	if (m_ppRegion != nullptr)
 	{
-		for (int i = 0; i <= GetXRegionMax(); i++)
+		for (int i = 0; i < GetXRegionMax(); i++)
 			delete [] m_ppRegion[i];
 
 		delete [] m_ppRegion;
