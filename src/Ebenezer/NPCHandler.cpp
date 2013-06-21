@@ -609,7 +609,7 @@ void CUser::HandleCapeChange(Packet & pkt)
 		// Since no capes seem to use it, we'll ignore it...
 
 		// Can we even afford this cape?
-		if (m_iGold < (uint32)pCape->nReqCoins)
+		if (!hasCoins(pCape->nReqCoins))
 		{
 			sErrorCode = -7;
 			goto fail_return;

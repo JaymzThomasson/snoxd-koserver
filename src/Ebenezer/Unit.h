@@ -201,12 +201,31 @@ public:
 	short	m_sSpearR;						// Resistance to Spear
 	short	m_sBowR;						// Resistance to Bow		
 
-	time_t	m_tHPLastTime[MAX_TYPE3_REPEAT];		// For Automatic HP recovery and Type 3 durational HP recovery.
-	time_t	m_tHPStartTime[MAX_TYPE3_REPEAT];
-	int16	m_bHPAmount[MAX_TYPE3_REPEAT];
-	uint8	m_bHPDuration[MAX_TYPE3_REPEAT];
-	uint8	m_bHPInterval[MAX_TYPE3_REPEAT];
-	short	m_sSourceID[MAX_TYPE3_REPEAT];
+	struct MagicType3
+	{
+		bool	m_byUsed;		// indicates whether this element is used
+		time_t	m_tHPLastTime;	// time when the durational skill last affected the unit
+		int16	m_sHPAmount;	// HP amount to affet the unit by (negative for damage, positive for HP recovery)
+		uint8	m_bHPInterval;	// interval (in seconds) between each durational skill effect
+		uint8	m_bTickCount;	// 
+		uint8	m_bTickLimit;	// number of ticks required before the skill expires
+		uint16	m_sSourceID;	// ID of the unit that used this skill on the unit
+
+		MagicType3() { Reset(); }
+
+		INLINE void Reset()
+		{
+			m_byUsed = false;
+			m_tHPLastTime = 0;
+			m_sHPAmount = 0;
+			m_bHPInterval = 0;
+			m_bTickCount = 0;
+			m_bTickLimit = 0;
+			m_sSourceID = -1;
+		}
+	};
+
+	MagicType3 m_durationalSkills[MAX_TYPE3_REPEAT];
 	bool	m_bType3Flag;
 
 	Type4BuffMap m_buffMap;

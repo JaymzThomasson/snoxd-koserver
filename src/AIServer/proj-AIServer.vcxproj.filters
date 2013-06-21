@@ -139,12 +139,6 @@
     <ClInclude Include="..\shared\database\MagicType2Set.h">
       <Filter>Database</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\database\MagicType3Set.h">
-      <Filter>Database</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\database\MagicType4Set.h">
-      <Filter>Database</Filter>
-    </ClInclude>
     <ClInclude Include="..\shared\database\MakeDefensiveTableSet.h">
       <Filter>Database</Filter>
     </ClInclude>

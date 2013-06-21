@@ -238,16 +238,140 @@ void MagicInstance::SendSkillToAI()
 	}
 }
 
+/**
+ * @brief	Checks primary type 3 skill prerequisites before executing the skill.
+ *
+ * @return	true if it succeeds, false if it fails.
+ */
+bool MagicInstance::CheckType3Prerequisites()
+{
+	_MAGIC_TYPE3 * pType = g_pMain->m_Magictype3Array.GetData(nSkillID);
+	if (pType == nullptr)
+		return false;
+
+	// Handle AOE prerequisites
+	if (sTargetID == -1)
+	{
+		// No need to handle any prerequisite logic for NPCs/mobs casting AOEs.
+		if (!pSkillCaster->isPlayer())
+			return true;
+
+		if (pSkill->bMoral == MORAL_PARTY_ALL
+			&& pType->sTimeDamage > 0)
+		{
+			// Players may not cast group healing spells whilst transformed
+			// into a monster (skills with IDs of 45###). 
+			if (pSkillCaster->isTransformed()
+				&& (TO_USER(pSkillCaster)->m_bAbnormalType / 10000 == 45))
+			{
+				SendSkillFailed();
+				return false;
+			}
+
+			// Official behaviour means we cannot cast a group healing spell
+			// if we currently have an active restoration spells on us.
+			// This behaviour seems fairly illogical, but it's how it works.
+			for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
+			{
+				if (pSkillCaster->m_durationalSkills[i].m_sHPAmount > 0)
+				{
+					SendSkillFailed();
+					return false;
+				}
+			}
+		}
+
+		// No other reason to reject AOE spells.
+		return true;
+	}
+	// Handle prerequisites for skills cast on NPCs.
+	else if (sTargetID >= NPC_BAND)
+	{
+		if (pSkillTarget == nullptr)
+			return false;
+		
+		// Unless the zone is Delos, or it's a healing skill, we can continue on our merry way.
+		if (pSkillCaster->GetZoneID() != 30
+			|| (pType->sFirstDamage <= 0 && pType->sTimeDamage <= 0))
+			return true;
+
+		// We cannot heal gates! That would be bad, very bad.
+		if (TO_NPC(pSkillTarget)->GetType() == NPC_GATE) // note: official only checks byType 50
+		{
+			SendSkillFailed();
+			return false;
+		}
+
+		// Otherwise, officially there's no reason we can't heal NPCs (more specific logic later).
+		return true;
+	}
+	// Handle prerequisites for skills cast on players.
+	else
+	{
+		// We only care about friendly non-AOE spells.
+		if (pSkill->bMoral > MORAL_PARTY)
+			return true;
+
+		if (pSkillTarget == nullptr 
+			|| !pSkillTarget->isPlayer()
+			|| pSkillTarget->isDead())
+			return false;
+
+		// If the spell is a healing/restoration spell...
+		if (pType->sTimeDamage > 0)
+		{
+			// Official behaviour means we cannot cast a restoration spell
+			// if the target currently has an active restoration spell on them.
+			for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
+			{
+				if (pSkillTarget->m_durationalSkills[i].m_sHPAmount > 0)
+				{
+					SendSkillFailed();
+					return false;
+				}
+			}
+		}
+
+		// It appears that the server should reject any attacks or heals
+		// on players that have transformed into monsters.
+		if (pSkillTarget->isTransformed()
+			&& (TO_USER(pSkillTarget)->m_bAbnormalType / 10000 == 45)
+			&& !pSkillCaster->CanAttack(pSkillTarget))
+		{
+			SendSkillFailed();
+			return false;
+		}
+
+		return true;
+	}
+}
+
 bool MagicInstance::ExecuteSkill(uint8 bType)
 {
-	// If a player is stealthed, and they are casting a type 1/2/3/7 skill
-	// it is classed as an attack, so they should be unstealthed.
-	if (pSkillCaster->isPlayer()
-		&& TO_USER(pSkillCaster)->m_bInvisibilityType != INVIS_NONE
-		&& ((bType >= 1 && bType <= 3) || (bType == 7)))
+	// Implement player-specific logic before skills are executed.
+	if (pSkillCaster->isPlayer())
 	{
-		CMagicProcess::RemoveStealth(pSkillCaster, INVIS_DISPEL_ON_MOVE);
-		CMagicProcess::RemoveStealth(pSkillCaster, INVIS_DISPEL_ON_ATTACK);
+		// Handle prerequisite checks for primary skills.
+		// This must occur before stealth is removed; if a skill fails here, 
+		// it should NOT unstealth users.
+		if (pSkill->bType[0] == bType)
+		{
+			switch (bType)
+			{
+			case 3: 
+				if (!CheckType3Prerequisites())
+					return false;
+			}
+		}
+
+		// If a player is stealthed, and they are casting a type 1/2/3/7 skill
+		// it is classed as an attack, so they should be unstealthed.
+		if (TO_USER(pSkillCaster)->m_bInvisibilityType != INVIS_NONE
+			&& ((bType >= 1 && bType <= 3) || (bType == 7)))
+		{
+			CMagicProcess::RemoveStealth(pSkillCaster, INVIS_DISPEL_ON_MOVE);
+			CMagicProcess::RemoveStealth(pSkillCaster, INVIS_DISPEL_ON_ATTACK);
+		}
 	}
 
 	switch (bType)
@@ -737,6 +861,8 @@ bool MagicInstance::ExecuteType2()
 	if (pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
 		ReflectDamage(damage);
 
+	bResult = true;
+
 packet_send:
 	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
 	sData[3] = (damage == 0 ? -104 : 0);
@@ -809,8 +935,8 @@ bool MagicInstance::ExecuteType3()
 	foreach (itr, casted_member)
 	{
 		Unit * pTarget = *itr; // it's checked above, not much need to check it again
-		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1) && (nSkillID < 400000))	// If you are casting an attack spell.
-			damage = GetMagicDamage(pTarget, pType->sFirstDamage, pType->bAttribute) ;	// Get Magical damage point.
+		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1 || pType->bDirectType == 8) && (nSkillID < 400000))	// If you are casting an attack spell.
+			damage = GetMagicDamage(pTarget, pType->sFirstDamage, pType->bAttribute);	// Get Magical damage point.
 		else 
 			damage = pType->sFirstDamage;
 
@@ -887,15 +1013,32 @@ bool MagicInstance::ExecuteType3()
 				// Setup DOT (damage over time)
 				for (int k = 0; k < MAX_TYPE3_REPEAT; k++) 
 				{
-					if (pTarget->m_bHPInterval[k] == 5) 
-					{
-						pTarget->m_tHPStartTime[k] = pTarget->m_tHPLastTime[k] = UNIXTIME;     // The durational magic routine.
-						pTarget->m_bHPDuration[k] = pType->bDuration;
-						pTarget->m_bHPInterval[k] = 2;
-						pTarget->m_bHPAmount[k] = (int16)(duration_damage / ( (float)pTarget->m_bHPDuration[k] / (float)pTarget->m_bHPInterval[k] ));
-						pTarget->m_sSourceID[k] = sCasterID;
-						break;
-					}
+					Unit::MagicType3 * pEffect = &pTarget->m_durationalSkills[k];
+					if (pEffect->m_byUsed)
+						continue;
+
+					pEffect->m_byUsed = true;
+					pEffect->m_tHPLastTime = 0;
+					pEffect->m_bHPInterval = 2;					// interval of 2s between each damage loss/HP gain 
+
+					// number of ticks required at a rate of 2s per tick over the total duration of the skill
+
+					// NOTE: This (and the calculated HP amount) are being ceil()'d temporarily to bring us 
+					// closer to hitting the full amount, which is currently not possible as the client 
+					// usually cancels the "expired" skills 1-2 ticks short.
+					// The excess here is negligible, and more than likely official exhibits the same behaviour,
+					// however we'll revise when we handle these ticks to speed things up, which should hopefully 
+					// make this a lot less of an issue.
+	
+					float tickCount = ceil((float)pType->bDuration / (float)pEffect->m_bHPInterval);
+
+					// amount of HP to be given/taken every tick at a rate of 2s per tick
+					pEffect->m_sHPAmount = (int16)(ceil(duration_damage / tickCount));
+																					
+					pEffect->m_bTickCount = 0;
+					pEffect->m_bTickLimit = (uint8)(tickCount);
+					pEffect->m_sSourceID = sCasterID;
+					break;
 				}
 
 				pTarget->m_bType3Flag = true;
@@ -990,20 +1133,28 @@ bool MagicInstance::ExecuteType4()
 		pTUser->m_buffLock.Acquire();
 		Type4BuffMap::iterator buffItr = pTUser->m_buffMap.find(pType->bBuffType);
 		bool bFoundBuff = (buffItr != pTUser->m_buffMap.end());
-		bool bIsBuff = (bFoundBuff && buffItr->second.isBuff());
 		pTUser->m_buffLock.Release();
 
-		if (bFoundBuff && 
-			(bIsBuff && sTargetID == -1))
-		{
-			bResult = 0;
-			goto fail_return;
-		}
+		// If this skill is a debuff, and the caster is in the crossfire, 
+		// we should not bother debuffing them.
+		if (!pType->bIsBuff
+			&& pTUser == pSkillCaster)
+			continue;
 
-		if (!CMagicProcess::GrantType4Buff(pSkill, pType, pSkillCaster, pTUser, bIsRecastingSavedMagic))
+		if (bFoundBuff 
+			|| !CMagicProcess::GrantType4Buff(pSkill, pType, pSkillCaster, pTUser, bIsRecastingSavedMagic))
 		{
-			bResult = 0;
-			goto fail_return;
+			// Only error out if we cannot grant a targeted buff.
+			if (pType->bIsBuff && sTargetID != -1)
+			{
+				bResult = 0;
+				goto fail_return;
+			}
+
+			// Debuffs of any kind, or area buffs should be ignored and carry on.
+			// Usually - debuffs specifically - they correspond with attack skills which should
+			// not be reset on fail.
+			continue;
 		}
 
 		if (nSkillID > 500000 && pTUser->isPlayer())
@@ -1014,11 +1165,7 @@ bool MagicInstance::ExecuteType4()
 			pSkillCaster->MSpChange( -(pSkill->sMsp) );
 
 		pBuffInfo.m_nSkillID = nSkillID;
-
-		if (pSkillCaster->isPlayer())
-			pBuffInfo.m_bIsBuff = (pSkillCaster->GetNation() == pTUser->GetNation());
-		else
-			pBuffInfo.m_bIsBuff = false;
+		pBuffInfo.m_bIsBuff = pType->bIsBuff;
 
 		pBuffInfo.m_bDurationExtended = false;
 		pBuffInfo.m_tEndTime = UNIXTIME + pType->sDuration;
@@ -1093,36 +1240,40 @@ bool MagicInstance::ExecuteType5()
 
 	switch (pType->bType)
 	{
-		case REMOVE_TYPE3:		// REMOVE TYPE 3!!!
+		// Remove all DOT skills
+		case REMOVE_TYPE3:
 			for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
 			{
-				if (pSkillTarget->m_bHPAmount[i] < 0) {
-					pSkillTarget->m_tHPStartTime[i] = 0;
-					pSkillTarget->m_tHPLastTime[i] = 0;   
-					pSkillTarget->m_bHPAmount[i] = 0;
-					pSkillTarget->m_bHPDuration[i] = 0;				
-					pSkillTarget->m_bHPInterval[i] = 5;
-					pSkillTarget->m_sSourceID[i] = -1;
+				Unit::MagicType3 * pEffect = &pSkillTarget->m_durationalSkills[i];
+				if (!pEffect->m_byUsed)
+					continue;
 
-					if (pSkillTarget->isPlayer())
-					{
-						// TO-DO: Wrap this up (ugh, I feel so dirty)
-						Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
-						result << uint8(200); // removes all
-						TO_USER(pSkillTarget)->Send(&result); 
-					}
+				// Ignore healing-over-time skills
+				if (pEffect->m_sHPAmount >= 0)
+					continue;
+
+				pEffect->Reset();
+				if (pSkillTarget->isPlayer())
+				{
+					// TO-DO: Wrap this up (ugh, I feel so dirty)
+					Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
+					result << uint8(200); // removes DOT skill
+					TO_USER(pSkillTarget)->Send(&result); 
 				}
 			}
 
 			buff_test = 0;
 			for (int j = 0; j < MAX_TYPE3_REPEAT; j++)
-				buff_test += pSkillTarget->m_bHPDuration[j];
+			{
+				if (pSkillTarget->m_durationalSkills[j].m_byUsed)
+					buff_test++;
+			}
 			if (buff_test == 0) pSkillTarget->m_bType3Flag = false;	
 
 			// Check for Type 3 Curses.
 			for (int k = 0; k < MAX_TYPE3_REPEAT; k++)
 			{
-				if (pSkillTarget->m_bHPAmount[k] < 0)
+				if (pSkillTarget->m_durationalSkills[k].m_sHPAmount < 0)
 				{
 					bType3Test = false;
 					break;
@@ -1579,7 +1730,7 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 		|| pSkillCaster->isDead())
 		return 0;
 
-	uint16 sMagicAmount = 0;
+	int16 sMagicAmount = 0;
 	if (pSkillCaster->isNPC())
 	{
 		result = pSkillCaster->GetHitRate(pTarget->m_sTotalHitrate / pSkillCaster->m_sTotalEvasionrate); 
@@ -1589,9 +1740,10 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 		CUser *pUser = TO_USER(pSkillCaster);
 		uint8 bCha = pUser->GetStat(STAT_CHA);
 		if (bCha > 86)
-			sMagicAmount = pUser->m_sMagicAttackAmount - (bCha - 86);
+			sMagicAmount = bCha - 86;
 
-		total_hit *= pUser->GetStat(STAT_CHA) / 186;
+		sMagicAmount += pUser->m_sMagicAttackAmount;
+		total_hit *= bCha / 186;
 		result = SUCCESS;
 	}
 		
@@ -1771,28 +1923,31 @@ void MagicInstance::Type3Cancel()
 
 	for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
 	{
-		if (pSkillCaster->m_bHPAmount[i] > 0)
-		{
-			pSkillCaster->m_tHPStartTime[i] = 0;
-			pSkillCaster->m_tHPLastTime[i] = 0;   
-			pSkillCaster->m_bHPAmount[i] = 0;
-			pSkillCaster->m_bHPDuration[i] = 0;				
-			pSkillCaster->m_bHPInterval[i] = 5;
-			pSkillCaster->m_sSourceID[i] = -1;
-			break;
-		}
+		Unit::MagicType3 * pEffect = &pSkillCaster->m_durationalSkills[i];
+		if (!pEffect->m_byUsed
+			// we can only cancel healing-over-time skills
+			// damage-over-time skills must remain.
+			|| pEffect->m_sHPAmount <= 0)
+			continue;
+
+		pEffect->Reset();
+		break;	// we can only have one healing-over-time skill active.
+				// since we've found it, no need to loop through the rest of the array.
 	}
 
 	if (pSkillCaster->isPlayer())
 	{
 		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
-		result << uint8(100);
+		result << uint8(100); // remove the healing-over-time skill.
 		TO_USER(pSkillCaster)->Send(&result); 
 	}
 
 	int buff_test = 0;
 	for (int j = 0; j < MAX_TYPE3_REPEAT; j++)
-		buff_test += pSkillCaster->m_bHPDuration[j];
+	{
+		if (pSkillCaster->m_durationalSkills[j].m_byUsed)
+			buff_test++;
+	}
 	if (buff_test == 0) pSkillCaster->m_bType3Flag = false;	
 
 	if (pSkillCaster->isPlayer() && !pSkillCaster->m_bType3Flag

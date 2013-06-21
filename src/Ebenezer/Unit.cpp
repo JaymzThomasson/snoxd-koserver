@@ -519,15 +519,8 @@ void Unit::Send_AIServer(Packet *result)
 
 void Unit::InitType3()
 {
-	for (int i = 0 ; i < MAX_TYPE3_REPEAT; i++)
-	{
-		m_tHPStartTime[i] = 0;		
-		m_tHPLastTime[i] = 0;
-		m_bHPAmount[i] = 0;
-		m_bHPDuration[i] = 0;
-		m_bHPInterval[i] = 5;
-		m_sSourceID[i] = -1;
-	}
+	for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
+		m_durationalSkills[i].Reset();
 
 	m_bType3Flag = false;
 }

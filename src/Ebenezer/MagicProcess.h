@@ -3,6 +3,8 @@
 class Packet;
 class Unit;
 struct _MAGIC_TABLE;
+struct _MAGIC_TYPE4;
+
 class CMagicProcess  
 {
 public:
@@ -13,4 +15,5 @@ public:
 	static bool UserRegionCheck(Unit * pSkillCaster, Unit * pSkillTarget, _MAGIC_TABLE * pSkill, int radius, short mousex = 0, short mousez = 0);
 	static bool GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, Unit * pCaster, Unit *pTarget, bool bIsRecastingSavedMagic = false);
 	static bool RemoveType4Buff(uint8 byBuffType, Unit *pTarget);
+	static bool IsBuff(_MAGIC_TYPE4 * pType);
 };

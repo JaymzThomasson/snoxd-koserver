@@ -10,8 +10,6 @@
 #include "../shared/database/MagicTableSet.h"
 #include "../shared/database/MagicType1Set.h"
 #include "../shared/database/MagicType2Set.h"
-#include "../shared/database/MagicType3Set.h"
-#include "../shared/database/MagicType4Set.h"
 #include "../shared/database/NpcPosSet.h"
 #include "../shared/database/ZoneInfoSet.h"
 #include "../shared/database/NpcItemSet.h"
@@ -94,8 +92,6 @@ bool CServerDlg::Startup()
 	if (!GetMagicTableData()
 		|| !GetMagicType1Data()
 		|| !GetMagicType2Data()
-		|| !GetMagicType3Data()
-		|| !GetMagicType4Data()
 		|| !GetNpcItemTable()
 		|| !GetMakeItemGroupTable()
 		|| !GetMakeWeaponItemTableData()
@@ -131,16 +127,6 @@ bool CServerDlg::GetMagicType1Data()
 bool CServerDlg::GetMagicType2Data()
 {
 	LOAD_TABLE(CMagicType2Set, &m_GameDB, &m_Magictype2Array, false);
-}
-
-bool CServerDlg::GetMagicType3Data()
-{
-	LOAD_TABLE(CMagicType3Set, &m_GameDB, &m_Magictype3Array, false);
-}
-
-bool CServerDlg::GetMagicType4Data()
-{
-	LOAD_TABLE(CMagicType4Set, &m_GameDB, &m_Magictype4Array, false);
 }
 
 bool CServerDlg::GetMakeWeaponItemTableData()
@@ -604,10 +590,10 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 		MAP * pMap = itr->second;
 		if (pMap == nullptr)	
 			continue;
-		for (int i=0; i<=pMap->GetXRegionMax(); i++ ) {
-			for( int j=0; j<=pMap->GetZRegionMax(); j++ ) {
+		for (int i = 0; i < pMap->GetXRegionMax(); i++)
+		{
+			for (int j = 0; j < pMap->GetZRegionMax(); j++)
 				pMap->m_ppRegion[i][j].m_RegionUserArray.DeleteAllData();
-			}
 		}
 	}
 

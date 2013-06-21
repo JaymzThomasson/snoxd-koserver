@@ -20,8 +20,6 @@ typedef CSTLMap <CNpc>						NpcArray;
 typedef CSTLMap <_MAGIC_TABLE>				MagictableArray;
 typedef CSTLMap <_MAGIC_TYPE1>				Magictype1Array;
 typedef CSTLMap <_MAGIC_TYPE2>				Magictype2Array;
-typedef CSTLMap <_MAGIC_TYPE3>				Magictype3Array;
-typedef CSTLMap	<_MAGIC_TYPE4>				Magictype4Array;
 typedef CSTLMap <_PARTY_GROUP>				PartyArray;
 typedef CSTLMap <_MAKE_WEAPON>				MakeWeaponItemTableArray;
 typedef CSTLMap <_MAKE_ITEM_GRADE_CODE>		MakeGradeItemTableArray;
@@ -40,8 +38,6 @@ private:
 	bool GetMagicTableData();
 	bool GetMagicType1Data();
 	bool GetMagicType2Data();
-	bool GetMagicType3Data();
-	bool GetMagicType4Data();
 	bool GetNpcTableData(bool bNpcData = true);
 	bool GetNpcItemTable();
 	bool GetMakeItemGroupTable();
@@ -85,8 +81,6 @@ public:
 	MagictableArray		m_MagictableArray;
 	Magictype1Array		m_Magictype1Array;
 	Magictype2Array		m_Magictype2Array;
-	Magictype3Array		m_Magictype3Array;
-	Magictype4Array		m_Magictype4Array;
 	MakeWeaponItemTableArray	m_MakeWeaponItemArray;
 	MakeWeaponItemTableArray	m_MakeDefensiveItemArray;
 	MakeGradeItemTableArray	m_MakeGradeItemArray;

@@ -1242,7 +1242,8 @@ void CEbenezerDlg::AliveUserCheck()
 
 		for (int k = 0; k < MAX_TYPE3_REPEAT; k++)
 		{
-			if ((UNIXTIME - pUser->m_tHPLastTime[k]) >= PLAYER_IDLE_TIME)
+			// This is WRONG. VERY WRONG. 
+			if ((UNIXTIME - pUser->m_durationalSkills[k].m_tHPLastTime) >= PLAYER_IDLE_TIME)
 			{
 				pUser->Disconnect();
 				break;
