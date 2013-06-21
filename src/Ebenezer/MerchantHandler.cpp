@@ -580,15 +580,17 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 	pMerchant->Send(&result);
 
 	result.clear();
-	result	<< uint8(MERCHANT_BUY_SOLD) << uint16(1)
-			<< pMerchantItem->nNum << sRemainingStackSize
-			<< bMerchantListSlot;
+	result	<< uint8(MERCHANT_BUY_SOLD) << uint8(1) << uint16(bMerchantListSlot) << pWantedItem->sCount << uint8(0) ;
+	Send(&result);
+
+	result.clear();
+	result << uint8(MERCHANT_BUY_BUY) << uint8(1);
 	Send(&result);
 
 	if (bMerchantListSlot < 4 && pWantedItem->sCount == 0)
 	{
 		result.Initialize(WIZ_MERCHANT_INOUT);
-		result << uint8(2) << m_sMerchantsSocketID << uint16(bMerchantListSlot);
+		result << uint8(2) << m_sMerchantsSocketID << uint16(0) << bMerchantListSlot;
 		pMerchant->SendToRegion(&result);
 	}
 
