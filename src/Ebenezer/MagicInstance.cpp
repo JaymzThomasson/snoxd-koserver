@@ -54,30 +54,44 @@ void MagicInstance::Run()
 				CUser * pCaster = TO_USER(pSkillCaster);
 				_MAGIC_TYPE2 * pType = g_pMain->m_Magictype2Array.GetData(nSkillID);
 
-				// Throwing knives are differentiated by the fact "NeedArrow" is set to 0.
-				// We still need to check for & take 1 throwing knife in this case however.
-				uint8 bCount = pType->bNeedArrow;
-				if (!bCount)
-					bCount = 1;
+				// NOTE: Not all skills that use MAGIC_FLYING are type 2 skills.
+				// Some type 3 skills use it (such as "Vampiric Fire"). 
+				// For these we should really apply the same flying logic, but for now we'll just ignore it.
+				if (pType != nullptr)
+				{
+					// Throwing knives are differentiated by the fact "NeedArrow" is set to 0.
+					// We still need to check for & take 1 throwing knife in this case however.
+					uint8 bCount = pType->bNeedArrow;
+					if (!bCount)
+						bCount = 1;
 
-				if (pType == nullptr
-					// The user does not have enough arrows! We should point them in the right direction. ;)
-					|| (!pCaster->CheckExistItem(pSkill->iUseItem, bCount))
-					// Ensure user has enough mana for this skill
-					|| pSkill->sMsp > pSkillCaster->GetMana())
+					if (pType == nullptr
+						// The user does not have enough arrows! We should point them in the right direction. ;)
+						|| (!pCaster->CheckExistItem(pSkill->iUseItem, bCount))
+						// Ensure user has enough mana for this skill
+						|| pSkill->sMsp > pSkillCaster->GetMana())
+					{
+						SendSkillFailed();
+						return;
+					}
+
+					// Add all flying arrow instances to the user's list for hit detection
+					FastGuard lock(pCaster->m_arrowLock);
+					for (size_t i = 0; i < bCount; i++)
+						pCaster->m_flyingArrows.push_back(Arrow(pType->iNum, UNIXTIME));
+
+					// Remove the arrows
+					pCaster->RobItem(pSkill->iUseItem, bCount);
+				}
+				// for non-type 2 skills, ensure we check the user's mana.
+				else if (pSkill->sMsp > pSkillCaster->GetMana())
 				{
 					SendSkillFailed();
 					return;
 				}
 
-				// Add all flying arrow instances to the user's list for hit detection
-				FastGuard lock(pCaster->m_arrowLock);
-				for (size_t i = 0; i < bCount; i++)
-					pCaster->m_flyingArrows.push_back(Arrow(pType->iNum, UNIXTIME));
-
-				// Remove the mana & arrows
+				// Take the required mana for this skill
 				pCaster->MSpChange(-(pSkill->sMsp));
-				pCaster->RobItem(pSkill->iUseItem, bCount);
 			}
 
 			SendSkill(true); // send this to the region
