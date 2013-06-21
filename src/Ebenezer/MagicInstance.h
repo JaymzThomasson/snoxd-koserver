@@ -74,6 +74,8 @@ public:
 	bool IsAvailable();
 	bool UserCanCast();
 
+	bool CheckType3Prerequisites();
+
 	bool ExecuteSkill(uint8 bType);
 	bool ExecuteType1();	
 	bool ExecuteType2();

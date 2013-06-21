@@ -20,7 +20,8 @@ public:
 		_dbCommand->FetchInt16(5, pData->sTimeDamage);
 		_dbCommand->FetchByte(6, pData->bDuration);
 		_dbCommand->FetchByte(7, pData->bAttribute);
-		_dbCommand->FetchUInt16(8, pData->sAngle);
+		_dbCommand->FetchByte(8, pData->bRadius);
+		_dbCommand->FetchUInt16(9, pData->sAngle);
 
 		if (!m_pMap->PutData(pData->iNum, pData))
 			delete pData;

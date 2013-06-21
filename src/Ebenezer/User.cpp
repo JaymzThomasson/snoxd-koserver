@@ -393,7 +393,8 @@ bool CUser::HandlePacket(Packet & pkt)
 	if (command == WIZ_GAMESTART)
 	{
 		m_tHPLastTimeNormal = UNIXTIME;
-		fill_n(m_tHPLastTime, MAX_TYPE3_REPEAT, UNIXTIME);
+		for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
+			m_durationalSkills[i].m_tHPLastTime = UNIXTIME;
 	}	
 
 	if (!isBlinking() && m_tHPLastTimeNormal != 0 && (UNIXTIME - m_tHPLastTimeNormal) > m_bHPIntervalNormal)
@@ -2506,52 +2507,49 @@ void CUser::HPTimeChangeType3()
 		|| !m_bType3Flag)
 		return;
 
-	int totalDuration = 0;
+	int totalActiveDurationalSkills = 0;
 	bool bIsDOT = false;
 	for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
 	{
-		// Has the required interval elapsed before using this skill?
-		if (m_tHPStartTime[i] == 0
-			|| m_tHPLastTime[i] == 0 
-			|| (UNIXTIME - m_tHPLastTime[i]) < m_bHPInterval[i])
+		MagicType3 * pEffect = &m_durationalSkills[i];
+		if (!pEffect->m_byUsed)
 			continue;
 
-		Unit * pUnit = g_pMain->GetUnit(m_sSourceID[i]);
-
-		// Reduce the HP 
-		HpChange(m_bHPAmount[i], pUnit); // do we need to specify the source of the DOT?
-		m_tHPLastTime[i] = UNIXTIME;
-
-		// Has the skill expired yet?
-		if (m_bHPDuration[i] > 0
-			&& (UNIXTIME - m_tHPStartTime[i]) >= m_bHPDuration[i])
+		// Has the required interval elapsed before using this skill?
+		if ((UNIXTIME - pEffect->m_tHPLastTime) >= pEffect->m_bHPInterval)
 		{
-			Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
+			Unit * pUnit = g_pMain->GetUnit(pEffect->m_sSourceID);
 
-			if (m_bHPAmount[i] > 0)
-				result << uint8(100);
-			else
-				result << uint8(200);
+			// Reduce the HP 
+			HpChange(pEffect->m_sHPAmount, pUnit); // do we need to specify the source of the DOT?
+			pEffect->m_tHPLastTime = UNIXTIME;
 
-			Send(&result);
+			// Has the skill expired yet?
+			if (++pEffect->m_bTickCount == pEffect->m_bTickLimit)
+			{
+				Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
 
-			m_tHPStartTime[i] = 0;
-			m_tHPLastTime[i] = 0;
-			m_bHPAmount[i] = 0;
-			m_bHPDuration[i] = 0;				
-			m_bHPInterval[i] = 5;
-			m_sSourceID[i] = -1; 
-		}
-		else if (m_bHPAmount[i] < 0)
-		{
-			bIsDOT = true;
+				// Healing-over-time skills require the type 100
+				if (pEffect->m_sHPAmount > 0)
+					result << uint8(100);
+				else // Damage-over-time requires 200.
+					result << uint8(200);
+
+				Send(&result);
+				pEffect->Reset();
+			}
+			else if (pEffect->m_sHPAmount < 0)
+			{
+				bIsDOT = true;
+			}
 		}
 
-		totalDuration += m_bHPDuration[i];
+		if (pEffect->m_byUsed)
+			totalActiveDurationalSkills++;
 	}
 
 	// Have all the skills expired?
-	if (totalDuration == 0)
+	if (totalActiveDurationalSkills == 0)
 		m_bType3Flag = false;
 
 	if (!bIsDOT)
