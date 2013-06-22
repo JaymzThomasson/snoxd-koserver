@@ -2956,7 +2956,14 @@ void CUser::AllPointChange()
 		break;
 	}
 
-	m_sPoints = (GetLevel() - 1) * 3 + 10;
+	// Players gain 3 stats points for each level up to and including 60.
+	// They also received 10 free stat points on creation. 
+	m_sPoints = 10 + (GetLevel() - 1) * 3;
+
+	// For every level after 60, we add an additional two points.
+	if (GetLevel() > 60)
+		m_sPoints += 2 * (GetLevel() - 60);
+
 	ASSERT(GetStatTotal() == 290);
 
 	m_iGold = money;
