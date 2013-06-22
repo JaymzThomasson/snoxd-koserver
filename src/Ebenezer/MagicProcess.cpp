@@ -906,7 +906,6 @@ bool CMagicProcess::IsBuff(_MAGIC_TYPE4 * pType)
 		return true;
 	}
 
-	printf("Unhandled buff type (%d) for skill %d, assuming it's a debuff.\n", pType->bBuffType, pType->iNum);
-	ASSERT(0);
+	printf("WARNING: Unhandled buff type (%d) for skill %d, assuming it's a debuff.\n", pType->bBuffType, pType->iNum);
 	return false;
 }
