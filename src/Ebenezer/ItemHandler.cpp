@@ -312,7 +312,7 @@ bool CUser::RobItem(uint32 itemid, uint16 count)
 
 bool CUser::GiveItem(uint32 itemid, uint16 count, bool send_packet /*= true*/)
 {
-	uint8 pos;
+	int8 pos;
 	bool bNewItem = true;
 	_ITEM_TABLE* pTable = g_pMain->GetItemPtr( itemid );
 	if (pTable == nullptr)
