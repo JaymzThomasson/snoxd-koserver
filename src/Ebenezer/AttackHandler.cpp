@@ -70,14 +70,7 @@ void CUser::Attack(Packet & pkt)
 		{
 			result.SetOpcode(AG_ATTACK_REQ);
 			result	<< bType << bResult
-					<< GetSocketID() << tid
-					<< uint16(m_sTotalHit * m_bAttackAmount / 100)
-					<< uint16(m_sTotalAc + m_sACAmount)
-					<< m_sTotalHitrate /* this is actually a float. screwed up naming... */
-					<< m_sTotalEvasionrate /* also a float */
-					<< m_sItemAc
-					<< m_bMagicTypeLeftHand << m_bMagicTypeRightHand
-					<< m_sMagicAmountLeftHand << m_sMagicAmountRightHand;
+					<< GetSocketID() << tid;
 			Send_AIServer(&result);	
 			return;
 		}

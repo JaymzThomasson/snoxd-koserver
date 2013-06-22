@@ -635,7 +635,6 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 
 		TO_USER(pTarget)->SetSlotItemValue();
 		TO_USER(pTarget)->SetUserAbility();
-		TO_USER(pTarget)->Send2AI_UserUpdateInfo();
 
 		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
 		result << byBuffType;

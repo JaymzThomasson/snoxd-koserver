@@ -119,6 +119,7 @@ void CGameSocket::RecvServerConnect(Packet & pkt)
 void CGameSocket::RecvUserInfo(Packet & pkt)
 {
 	CUser *pUser = new CUser();
+	uint32 equippedItems = 0;
 
 	pUser->Initialize();
 
@@ -126,9 +127,27 @@ void CGameSocket::RecvUserInfo(Packet & pkt)
 	pkt >> pUser->m_iUserId >> pUser->m_strUserID >> pUser->m_bZone >> pUser->m_bNation 
 		>> pUser->m_bLevel >> pUser->m_sHP >> pUser->m_sMP >> pUser->m_sHitDamage
 		>> pUser->m_sAC >> pUser->m_fHitrate >> pUser->m_fAvoidrate >> pUser->m_sItemAC 
-		>> pUser->m_bMagicTypeLeftHand >> pUser->m_bMagicTypeRightHand
-		>> pUser->m_sMagicAmountLeftHand >> pUser->m_sMagicAmountRightHand
-		>> pUser->m_byIsOP >> pUser->m_bInvisibilityType;
+		>> pUser->m_byIsOP >> pUser->m_bInvisibilityType
+		>> equippedItems;
+
+	FastGuard lock(pUser->m_equippedItemBonusLock);
+	pUser->m_equippedItemBonuses.clear();
+
+	for (uint32 i = 0; i < equippedItems; i++)
+	{
+		uint8 bSlot; uint32 bonusCount;
+		Unit::ItemBonusMap bonusMap;
+
+		pkt >> bSlot >> bonusCount;
+		for (uint32 x = 0; x < bonusCount; x++)
+		{
+			uint8 bType; int16 sAmount;
+			pkt >> bType >> sAmount;
+			bonusMap.insert(std::make_pair(bType, sAmount));
+		}
+
+		pUser->m_equippedItemBonuses[bSlot] = bonusMap;
+	}
 
 	if (pUser->GetName().empty() || pUser->GetName().length() > MAX_ID_SIZE)
 	{
@@ -297,27 +316,13 @@ bool CGameSocket::SetUid(float x, float z, int id, int speed)
 void CGameSocket::RecvAttackReq(Packet & pkt)
 {
 	uint16 sid, tid;
-	float rx=0.0f, ry=0.0f, rz=0.0f, fDir = 0.0f, fHitAgi, fAvoidAgi;
-	short sDamage, sAC, sItemAC, sAmountLeft, sAmountRight;
-	uint8 type, result, bTypeLeft, bTypeRight;
+	uint8 type, result;
 
-	pkt >> type >> result >> sid >> tid >> sDamage >> sAC >> fHitAgi >> fAvoidAgi
-		>> sItemAC >> bTypeLeft >> bTypeRight >> sAmountLeft >> sAmountRight;
-
+	pkt >> type >> result >> sid >> tid;
 	CUser* pUser = g_pMain->GetUserPtr(sid);
 	if (pUser == nullptr
 		|| pUser->isDead())
 		return;
-
-	pUser->m_sHitDamage = sDamage;
-	pUser->m_fHitrate = fHitAgi;
-	pUser->m_fAvoidrate = fAvoidAgi;
-	pUser->m_sAC = sAC;
-	pUser->m_sItemAC = sItemAC;
-	pUser->m_bMagicTypeLeftHand = bTypeLeft;
-	pUser->m_bMagicTypeRightHand = bTypeRight;
-	pUser->m_sMagicAmountLeftHand = sAmountLeft;
-	pUser->m_sMagicAmountRightHand = sAmountRight;
 
 	pUser->Attack(sid, tid);
 }
@@ -389,6 +394,7 @@ void CGameSocket::RecvUserUpdate(Packet & pkt)
 {
 	uint16 uid = pkt.read<uint16>();
 	std::string strUserID;
+	uint32 equippedItems = 0;
 
 	CUser* pUser = g_pMain->GetUserPtr(uid);
 	if (pUser == nullptr)
@@ -398,9 +404,27 @@ void CGameSocket::RecvUserUpdate(Packet & pkt)
 	pkt >> pUser->m_strUserID >> pUser->m_bZone >> pUser->m_bNation 
 		>> pUser->m_bLevel >> pUser->m_sHP >> pUser->m_sMP >> pUser->m_sHitDamage
 		>> pUser->m_sAC >> pUser->m_fHitrate >> pUser->m_fAvoidrate >> pUser->m_sItemAC 
-		>> pUser->m_bMagicTypeLeftHand >> pUser->m_bMagicTypeRightHand
-		>> pUser->m_sMagicAmountLeftHand >> pUser->m_sMagicAmountRightHand
-		>> pUser->m_byIsOP >> pUser->m_bInvisibilityType;
+		>> pUser->m_byIsOP >> pUser->m_bInvisibilityType
+		>> equippedItems;
+
+	FastGuard lock(pUser->m_equippedItemBonusLock);
+	pUser->m_equippedItemBonuses.clear();
+
+	for (uint32 i = 0; i < equippedItems; i++)
+	{
+		uint8 bSlot; uint32 bonusCount;
+		Unit::ItemBonusMap bonusMap;
+
+		pkt >> bSlot >> bonusCount;
+		for (uint32 x = 0; x < bonusCount; x++)
+		{
+			uint8 bType; int16 sAmount;
+			pkt >> bType >> sAmount;
+			bonusMap.insert(std::make_pair(bType, sAmount));
+		}
+
+		pUser->m_equippedItemBonuses[bSlot] = bonusMap;
+	}
 }
 
 void CGameSocket::Send_UserError(short uid, short tid)
@@ -432,6 +456,7 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 	for (int i = 0; i < byCount; i++)
 	{
 		CUser* pUser = new CUser();
+		uint32 equippedItems = 0;
 
 		pUser->Initialize();
 
@@ -441,7 +466,25 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 			>> pUser->m_sHitDamage >> pUser->m_sAC
 			>> pUser->m_fHitrate >> pUser->m_fAvoidrate
 			>> pUser->m_sPartyNumber >> pUser->m_byIsOP
-			>> pUser->m_bInvisibilityType;
+			>> pUser->m_bInvisibilityType
+			>> equippedItems;
+
+		FastGuard lock(pUser->m_equippedItemBonusLock);
+		for (uint32 i = 0; i < equippedItems; i++)
+		{
+			uint8 bSlot; uint32 bonusCount;
+			Unit::ItemBonusMap bonusMap;
+
+			pkt >> bSlot >> bonusCount;
+			for (uint32 x = 0; x < bonusCount; x++)
+			{
+				uint8 bType; int16 sAmount;
+				pkt >> bType >> sAmount;
+				bonusMap.insert(std::make_pair(bType, sAmount));
+			}
+
+			pUser->m_equippedItemBonuses[bSlot] = bonusMap;
+		}
 
 		if (pUser->GetName().empty() || pUser->GetName().length() > MAX_ID_SIZE)
 		{

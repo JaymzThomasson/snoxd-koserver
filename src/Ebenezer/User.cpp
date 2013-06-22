@@ -970,7 +970,7 @@ void CUser::SetSlotItemValue()
 	m_bFireR = 0; m_bColdR = 0; m_bLightningR = 0; m_bMagicR = 0; m_bDiseaseR = 0; m_bPoisonR = 0;
 	
 	m_sDaggerR = 0; m_sSwordR = 0; m_sAxeR = 0; m_sMaceR = 0; m_sSpearR = 0; m_sBowR = 0;
-	m_bMagicTypeLeftHand = 0; m_bMagicTypeRightHand = 0; m_sMagicAmountLeftHand = 0; m_sMagicAmountRightHand = 0;       
+	m_equippedItemBonuses.clear();
 
 	// Apply stat bonuses from all equipped & cospre items.
 	// Total up the weight of all items.
@@ -1034,97 +1034,39 @@ void CUser::SetSlotItemValue()
 		m_sMaceR += pTable->m_sMaceAc;
 		m_sSpearR += pTable->m_sSpearAc;
 		m_sBowR += pTable->m_sBowAc;
+
+		ItemBonusMap bonusMap;
+		if (pTable->m_bFireDamage)
+			bonusMap.insert(std::make_pair(ITEM_TYPE_FIRE, pTable->m_bFireDamage));
+
+		if (pTable->m_bIceDamage)
+			bonusMap.insert(std::make_pair(ITEM_TYPE_COLD, pTable->m_bIceDamage));
+
+		if (pTable->m_bLightningDamage)
+			bonusMap.insert(std::make_pair(ITEM_TYPE_LIGHTNING, pTable->m_bLightningDamage));
+
+		if (pTable->m_bPoisonDamage)
+			bonusMap.insert(std::make_pair(ITEM_TYPE_POISON, pTable->m_bPoisonDamage));
+
+		if (pTable->m_bHPDrain)
+			bonusMap.insert(std::make_pair(ITEM_TYPE_HP_DRAIN, pTable->m_bHPDrain));
+
+		if (pTable->m_bMPDamage)
+			bonusMap.insert(std::make_pair(ITEM_TYPE_MP_DAMAGE, pTable->m_bMPDamage));
+
+		if (pTable->m_bMPDrain)
+			bonusMap.insert(std::make_pair(ITEM_TYPE_MP_DRAIN, pTable->m_bMPDrain));
+			
+		if (pTable->m_bMirrorDamage)
+			bonusMap.insert(std::make_pair(ITEM_TYPE_MIRROR_DAMAGE, pTable->m_bMirrorDamage));
+
+		// If we have bonuses to apply, store them.
+		if (!bonusMap.empty())
+			m_equippedItemBonuses[i] = bonusMap;
 	}
 
 	if (m_sItemHit < 3)
 		m_sItemHit = 3;
-
-	_ITEM_TABLE* pLeftHand = GetItemPrototype(LEFTHAND);
-	if (pLeftHand) {
-		if (pLeftHand->m_bFireDamage) {
-			m_bMagicTypeLeftHand = 1;
-			m_sMagicAmountLeftHand = pLeftHand->m_bFireDamage;
-		}
-
-		if (pLeftHand->m_bIceDamage) {
-			m_bMagicTypeLeftHand = 2;
-			m_sMagicAmountLeftHand = pLeftHand->m_bIceDamage;
-		}
-
-		if (pLeftHand->m_bLightningDamage) {
-			m_bMagicTypeLeftHand = 3;
-			m_sMagicAmountLeftHand = pLeftHand->m_bLightningDamage;
-		}
-
-		if (pLeftHand->m_bPoisonDamage) {
-			m_bMagicTypeLeftHand = 4;
-			m_sMagicAmountLeftHand = pLeftHand->m_bPoisonDamage;
-		}
-
-		if (pLeftHand->m_bHPDrain) {
-			m_bMagicTypeLeftHand = 5;
-			m_sMagicAmountLeftHand = pLeftHand->m_bHPDrain;
-		}
-
-		if (pLeftHand->m_bMPDamage) {
-			m_bMagicTypeLeftHand = 6;
-			m_sMagicAmountLeftHand = pLeftHand->m_bMPDamage;
-		}
-
-		if (pLeftHand->m_bMPDrain) {
-			m_bMagicTypeLeftHand = 7;
-			m_sMagicAmountLeftHand = pLeftHand->m_bMPDrain;
-		}
-
-		if (pLeftHand->m_bMirrorDamage)	{
-			m_bMagicTypeLeftHand = 8;
-			m_sMagicAmountLeftHand = pLeftHand->m_bMirrorDamage;	
-		}
-	}
-
-	_ITEM_TABLE* pRightHand = nullptr;			// Get item info for right hand.
-	pRightHand = g_pMain->GetItemPtr(m_sItemArray[RIGHTHAND].nNum);
-	if (pRightHand) {
-		if (pRightHand->m_bFireDamage) {
-			m_bMagicTypeRightHand = 1;
-			m_sMagicAmountRightHand = pRightHand->m_bFireDamage;
-		}
-
-		if (pRightHand->m_bIceDamage) {
-			m_bMagicTypeRightHand = 2;
-			m_sMagicAmountRightHand = pRightHand->m_bIceDamage;
-		}
-
-		if (pRightHand->m_bLightningDamage) {
-			m_bMagicTypeRightHand = 3;
-			m_sMagicAmountRightHand = pRightHand->m_bLightningDamage;
-		}
-
-		if (pRightHand->m_bPoisonDamage) {
-			m_bMagicTypeRightHand = 4;
-			m_sMagicAmountRightHand = pRightHand->m_bPoisonDamage;
-		}
-
-		if (pRightHand->m_bHPDrain) {
-			m_bMagicTypeRightHand = 5;
-			m_sMagicAmountRightHand = pRightHand->m_bHPDrain;
-		}
-
-		if (pRightHand->m_bMPDamage) {
-			m_bMagicTypeRightHand = 6;
-			m_sMagicAmountRightHand = pRightHand->m_bMPDamage;
-		}
-
-		if (pRightHand->m_bMPDrain) {
-			m_bMagicTypeRightHand = 7;
-			m_sMagicAmountRightHand = pRightHand->m_bMPDrain;
-		}
-
-		if (pRightHand->m_bMirrorDamage) {
-			m_bMagicTypeRightHand = 8;
-			m_sMagicAmountRightHand = pRightHand->m_bMirrorDamage;	
-		}		
-	}
 }
 
 /**
@@ -1323,7 +1265,6 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 		{
 			SetSlotItemValue();
 			SetUserAbility();
-			Send2AI_UserUpdateInfo();
 
 			if (m_sHp < hp30Percent)
 				ShowEffect(106800); // skill ID for "Boldness", shown when a player takes damage.
@@ -1419,6 +1360,7 @@ void CUser::ShowEffect(uint32 nSkillID)
 void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 {
 	Packet result(initialInfo ? AG_USER_INFO : AG_USER_UPDATE);
+	FastGuard lock(m_equippedItemBonusLock);
 
 	result.SByte();
 	result	<< GetSocketID()
@@ -1429,9 +1371,15 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 			<< uint16(m_sTotalAc + m_sACAmount)
 			<< m_sTotalHitrate << m_sTotalEvasionrate
 			<< m_sItemAc
-			<< m_bMagicTypeLeftHand << m_bMagicTypeRightHand
-			<< m_sMagicAmountLeftHand << m_sMagicAmountRightHand
-			<< m_bAuthority << m_bInvisibilityType;
+			<< m_bAuthority << m_bInvisibilityType
+			<< uint32(m_equippedItemBonuses.size());
+
+	foreach (itr, m_equippedItemBonuses)
+	{
+		result << itr->first << uint32(itr->second.size()); // slot ID & number of bonuses
+		foreach (bonusItr, itr->second)
+			result << bonusItr->first << bonusItr->second; // bonus type, bonus amount
+	}
 
 	Send_AIServer(&result);
 }
@@ -1621,6 +1569,9 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 
 	if (bSendPacket)
 		SendItemMove(2);
+
+	// Update the AI server
+	Send2AI_UserUpdateInfo();
 }
 
 /**
@@ -2230,6 +2181,8 @@ void CUser::UpdateGameWeather(Packet & pkt)
 
 void CUser::GetUserInfoForAI(Packet & result)
 {
+	FastGuard lock(m_equippedItemBonusLock);
+
 	result.SByte(); 
 	result	<< GetSocketID()
 			<< GetName() << GetZoneID() << GetNation() << GetLevel()
@@ -2238,7 +2191,15 @@ void CUser::GetUserInfoForAI(Packet & result)
 			<< uint16(m_sTotalAc + m_sACAmount)
 			<< m_sTotalHitrate << m_sTotalEvasionrate
 			<< m_sPartyIndex << m_bAuthority
-			<< m_bInvisibilityType;
+			<< m_bInvisibilityType
+			<< uint32(m_equippedItemBonuses.size());
+
+	foreach (itr, m_equippedItemBonuses)
+	{
+		result << itr->first << uint32(itr->second.size()); // slot ID & number of bonuses
+		foreach (bonusItr, itr->second)
+			result << bonusItr->first << bonusItr->second; // bonus type, bonus amount
+	}
 }
 
 void CUser::CountConcurrentUser()

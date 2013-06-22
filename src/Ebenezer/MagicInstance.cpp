@@ -209,49 +209,6 @@ bool MagicInstance::UserCanCast()
 	return true;
 }
 
-void MagicInstance::SendSkillToAI()
-{
-	if (pSkill == nullptr)
-		return;
-
-	if (sTargetID >= NPC_BAND 
-		|| (sTargetID == -1 && (pSkill->bMoral == MORAL_AREA_ENEMY || pSkill->bMoral == MORAL_SELF_AREA)))
-	{		
-		int total_magic_damage = 0;
-
-		Packet result(AG_MAGIC_ATTACK_REQ); // this is the order it was in.
-		result	<< sCasterID << bOpcode << sTargetID << nSkillID 
-				<< sData[0] << sData[1] << sData[2] << sData[3] << sData[4] << sData[5]
-				<< TO_USER(pSkillCaster)->GetStatWithItemBonus(STAT_CHA);
-
-		_ITEM_DATA * pItem;
-		_ITEM_TABLE* pRightHand = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND, pItem);
-
-		if (pItem != nullptr && pRightHand != nullptr && pRightHand->isStaff()
-			&& TO_USER(pSkillCaster)->GetItemPrototype(LEFTHAND) == nullptr)
-		{
-			if (pSkill->bType[0] == 3) {
-				total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * pSkillCaster->GetLevel()) / 60);
-
-				_MAGIC_TYPE3 *pType3 = g_pMain->m_Magictype3Array.GetData(nSkillID);
-				if (pType3 == nullptr)
-					return;
-
-				if (pSkillCaster->m_bMagicTypeRightHand == pType3->bAttribute )					
-					total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * pSkillCaster->GetLevel()) / 30);
-				
-				if (pItem->sDuration <= 0)
-					total_magic_damage /= 3;
-
-				if (pType3->bAttribute == 4)
-					total_magic_damage = 0;
-			}
-		}
-		result << uint16(total_magic_damage);
-		g_pMain->Send_AIServer(&result);		
-	}
-}
-
 /**
  * @brief	Checks primary type 3 skill prerequisites before executing the skill.
  *
@@ -1789,19 +1746,68 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 		if (pSkillCaster->isPlayer()) 
 		{
 			CUser *pUser = TO_USER(pSkillCaster);
+
+			// double the staff's damage when using a skill of the same attribute as the staff
 			_ITEM_TABLE *pRightHand = pUser->GetItemPrototype(RIGHTHAND);
 			if (pRightHand != nullptr && pRightHand->isStaff()
 				&& pUser->GetItemPrototype(LEFTHAND) == nullptr)
 			{
+				FastGuard lock(pSkillCaster->m_equippedItemBonusLock);
 				righthand_damage = pRightHand->m_sDamage;
-					
-				if (pSkillCaster->m_bMagicTypeRightHand == attribute)
-					attribute_damage = pRightHand->m_sDamage;
+				auto itr = pSkillCaster->m_equippedItemBonuses.find(RIGHTHAND);
+				if (itr != pSkillCaster->m_equippedItemBonuses.end())
+				{
+					auto bonusItr = itr->second.find(attribute);
+					if (bonusItr != itr->second.end()) 
+						attribute_damage = pRightHand->m_sDamage; 
+				}
 			}
 			else 
 			{
 				righthand_damage = 0;
 			}
+
+			// Add on any elemental skill damage
+			FastGuard lock(pSkillCaster->m_equippedItemBonusLock);
+			foreach (itr, pSkillCaster->m_equippedItemBonuses)
+			{
+				uint8 bSlot = itr->first;
+				foreach (bonusItr, itr->second)
+				{
+					uint8 bType = bonusItr->first; 
+					int16 sAmount = bonusItr->second;
+					int16 sTempResist = 0;
+
+					switch (bType)
+					{
+						case ITEM_TYPE_FIRE :	// Fire Damage
+							sTempResist = pTarget->m_bFireR + pTarget->m_bFireRAmount;
+							break;
+						case ITEM_TYPE_COLD :	// Ice Damage
+							sTempResist = pTarget->m_bColdR + pTarget->m_bColdRAmount;
+							break;
+						case ITEM_TYPE_LIGHTNING :	// Lightning Damage
+							sTempResist = pTarget->m_bLightningR + pTarget->m_bLightningRAmount;
+							break;
+						case ITEM_TYPE_POISON :	// Poison Damage
+							sTempResist = pTarget->m_bPoisonR + pTarget->m_bPoisonRAmount;
+							break;
+					}
+
+					sTempResist += pTarget->m_bResistanceBonus;
+					if (bType >= ITEM_TYPE_FIRE 
+						&& bType <= ITEM_TYPE_POISON)
+					{
+						if (sTempResist > 200) 
+							sTempResist = 200;
+
+						// add attribute damage amount to right-hand damage instead of attribute
+						// so it doesn't bother taking into account caster level (as it would with the staff attributes).
+						righthand_damage += sAmount - sAmount * sTempResist / 200;
+					}
+				}
+			}
+
 		}
 
 		damage = (short)(230 * total_hit / (total_r + 250));
@@ -1810,7 +1816,7 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 
 		if (pSkillCaster->isNPC())
 			damage -= ((3 * righthand_damage) + (3 * attribute_damage));
-		else if (attribute != 4)	// Only if the staff has an attribute.
+		else if (attribute != MAGIC_R)	// Only if the staff has an attribute.
 			damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * pSkillCaster->GetLevel()) / 60) + ((attribute_damage * 0.8f) + (attribute_damage * pSkillCaster->GetLevel()) / 30));
 	}
 

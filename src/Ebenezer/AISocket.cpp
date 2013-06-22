@@ -267,30 +267,28 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 
 		if (pUser != nullptr) 
 		{
-			if( byAttackType != MAGIC_ATTACK && byAttackType != DURATION_ATTACK) {
+			if (byAttackType != MAGIC_ATTACK && byAttackType != DURATION_ATTACK) 
+			{
 				pUser->ItemWoreOut(ATTACK, damage);
+				FastGuard lock(pUser->m_equippedItemBonusLock);
+				
+				foreach (itr, pUser->m_equippedItemBonuses)
+				{
+					foreach (bonusItr, itr->second)
+					{
+						temp_damage = damage * bonusItr->second / 100;
 
-			temp_damage = damage * pUser->m_bMagicTypeLeftHand / 100 ;
-
-			switch (pUser->m_bMagicTypeLeftHand) {	// LEFT HAND!!!
-				case ITEM_TYPE_HP_DRAIN :	// HP Drain		
-					pUser->HpChange(temp_damage);	
-					break;
-				case ITEM_TYPE_MP_DRAIN :	// MP Drain		
-					pUser->MSpChange(temp_damage);
-					break;
-				}				
-			
-			temp_damage = damage * pUser->m_bMagicTypeRightHand / 100 ;
-
-			switch (pUser->m_bMagicTypeRightHand) {	// LEFT HAND!!!
-				case ITEM_TYPE_HP_DRAIN :	// HP Drain		
-					pUser->HpChange(temp_damage);			
-					break;
-				case ITEM_TYPE_MP_DRAIN :	// MP Drain		
-					pUser->MSpChange(temp_damage);
-					break;
-				}	
+						switch (bonusItr->first)
+						{
+						case ITEM_TYPE_HP_DRAIN :	// HP Drain		
+							pUser->HpChange(temp_damage);	
+							break;
+						case ITEM_TYPE_MP_DRAIN :	// MP Drain		
+							pUser->MSpChange(temp_damage);
+							break;
+						}
+					}				
+				}
 			}
 		}
 	}

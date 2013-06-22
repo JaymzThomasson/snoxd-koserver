@@ -189,10 +189,17 @@ public:
 
 	uint8	m_bResistanceBonus;
 
-	uint8   m_bMagicTypeLeftHand;			// The type of magic item in user's left hand  
-	uint8   m_bMagicTypeRightHand;			// The type of magic item in user's right hand
-	short   m_sMagicAmountLeftHand;         // The amount of magic item in user's left hand
-	short	m_sMagicAmountRightHand;        // The amount of magic item in user's left hand
+	// bonus type -> amount
+	typedef std::map<uint8, int16> ItemBonusMap;
+
+	// slot id -> bonus map
+	typedef std::map<uint8, ItemBonusMap> EquippedItemBonuses;
+
+	// This map is for applying item bonuses from equipped skills, i.e. resistances, drains, damage reflection, etc.
+	// It is indexed by slot ID (this should really work with the item container), and contains a map of each bonus (indexed by type)
+	// supported by this item (we support multiple bonuses, official most likely still overrides them).
+	EquippedItemBonuses m_equippedItemBonuses;
+	FastMutex m_equippedItemBonusLock;
 
 	short   m_sDaggerR;						// Resistance to Dagger
 	short   m_sSwordR;						// Resistance to Sword
