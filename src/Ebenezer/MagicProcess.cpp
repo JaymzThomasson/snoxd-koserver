@@ -412,6 +412,10 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		// Spreads damage received across party members and mirror's part of the damage.
 		break;
 
+	case BUFF_TYPE_DAGGER_BOW_DEFENSE: // Eskrima
+		// Inflicts attacks as well as a bleeding curse on the enemy. Decreases 10% Dagger and Bow Defense of the enemy under the bleeding curse buff.
+		break;
+
 	default:
 		return false;
 	}
@@ -621,6 +625,10 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		// Spreads damage received across party members and mirror's part of the damage.
 		break;
 
+	case BUFF_TYPE_DAGGER_BOW_DEFENSE: // Eskrima
+		// Inflicts attacks as well as a bleeding curse on the enemy. Decreases 10% Dagger and Bow Defense of the enemy under the bleeding curse buff.
+		break;
+
 	default:
 		return false;
 	}
@@ -754,6 +762,9 @@ bool CMagicProcess::IsBuff(_MAGIC_TYPE4 * pType)
 	case BUFF_TYPE_ATTACK_RANGE_ARMOR:	// Inevitable Murderous
 	case BUFF_TYPE_MIRROR_DAMAGE_PARTY: // Minak's Thorn
 		return true;
+
+	case BUFF_TYPE_DAGGER_BOW_DEFENSE: // Eskrima
+		return false;
 	}
 
 	return false;

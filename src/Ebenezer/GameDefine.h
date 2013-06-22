@@ -544,7 +544,8 @@ enum BuffType
 	BUFF_TYPE_FIRM_DETERMINATION	= 36, //Firm Determination
 	BUFF_TYPE_SPEED2				= 40, //Cold Wave
 	BUFF_TYPE_ATTACK_RANGE_ARMOR	= 43, //Inevitable Murderous
-	BUFF_TYPE_MIRROR_DAMAGE_PARTY	= 44  //Minak's Thorn
+	BUFF_TYPE_MIRROR_DAMAGE_PARTY	= 44, //Minak's Thorn
+	BUFF_TYPE_DAGGER_BOW_DEFENSE	= 45, //Eskrima
 };
 
 enum AuthorityTypes
