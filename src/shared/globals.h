@@ -275,6 +275,16 @@ struct _MERCH_DATA
 	uint8 bOriginalSlot;
 };
 
+enum AuthorityTypes
+{
+	AUTHORITY_GAME_MASTER			= 0,
+	AUTHORITY_PLAYER				= 1,
+	AUTHORITY_MUTED					= 11,
+	AUTHORITY_ATTACK_DISABLED		= 12,
+	AUTHORITY_LIMITED_GAME_MASTER	= 250,
+	AUTHORITY_BANNED				= 255
+};
+
 enum StatType
 {
 	STAT_STR = 0,

@@ -15,12 +15,6 @@
 //enum MOVE_SPEED {SPEED_SLOW=0, SPEED_NORMAL, SPEED_FAST};
 //enum USER_TYPE {TYPE_USER=0, TYPE_MONSTER, TYPE_NPC, TYPE_DOOR, TYPE_GUARD};
 
-//
-//	User Authority
-//
-#define MANAGER_USER	0	// 款康磊, 包府磊
-#define GENERAL_USER	1	// 老馆蜡历
-
 // Npc InOut
 #define NPC_IN					0X01
 #define NPC_OUT					0X02
