@@ -153,6 +153,7 @@ enum ChatType
 	MERCHANT_CHAT				= 14,
 	ALLIANCE_CHAT				= 15,
 	ANNOUNCEMENT_CHAT			= 17,
+	SEEKING_PARTY_CHAT			= 19,
 	CLAN_NOTICE					= 24,
 	KROWAZ_NOTICE				= 25,
 	DEATH_NOTICE				= 26
@@ -198,6 +199,8 @@ enum PVPOpcodes
 #define PARTY_STATUSCHANGE		0x09	// Party Member Status ( disaster, poison ) Change
 #define PARTY_REGISTER			0x0A	// Party Message Board Register
 #define PARTY_REPORT			0x0B	// Party Request Message Board Messages
+#define PARTY_PROMOTE			0x1C	// Promotes user to party leader
+#define PARTY_ALL_STATUSCHANGE	0x1D	// Sets the specified status of the selected party members to 1.
 
 enum TradeOpcodes
 {

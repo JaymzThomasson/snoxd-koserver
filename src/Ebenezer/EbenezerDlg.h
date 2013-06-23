@@ -209,7 +209,8 @@ public:
 	void Send_NearRegion(Packet *pkt, C3DMap *pMap, int region_x, int region_z, float curx, float curz, CUser* pExceptUser=nullptr );
 	void Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser* pExceptUser=nullptr );
 
-	void Send_Zone(Packet *pkt, uint16 sZoneID, CUser* pExceptUser = nullptr, uint8 nation = 0);
+	void Send_Zone_Matched_Class(Packet *pkt, uint8 bZoneID, CUser* pExceptUser, uint8 nation, uint8 seekingPartyOptions);
+	void Send_Zone(Packet *pkt, uint8 bZoneID, CUser* pExceptUser = nullptr, uint8 nation = 0);
 
 	void Send_All(Packet *pkt, CUser* pExceptUser = nullptr, uint8 nation = 0);
 	void Send_AIServer(Packet *pkt);
