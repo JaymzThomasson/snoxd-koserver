@@ -324,7 +324,7 @@ void CUser::PartyDelete()
 		CUser *pUser = g_pMain->GetUserPtr(pParty->uid[i]);
 		if (pUser != nullptr)
 		{
-			m_bInParty = false;
+			pUser->m_bInParty = false;
 			pUser->m_sPartyIndex = -1;
 		}
 	}
