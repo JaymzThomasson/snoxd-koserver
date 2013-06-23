@@ -4151,7 +4151,7 @@ void CNpc::Yaw2D(float fDirX, float fDirZ, float& fYawResult)
 void CNpc::ComputeDestPos(__Vector3 & vCur, float fDegree, float fDegreeOffset, float fDistance, __Vector3 * vResult)
 {
 	__Matrix44 mtxRot; 
-	vResult->Zero();
+	vResult->Set(0.0f, 0.0f, 1.0f);
 	mtxRot.RotationY(D3DXToRadian(fDegree+fDegreeOffset));
 	*vResult *= mtxRot;
 	*vResult *= fDistance;
