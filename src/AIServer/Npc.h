@@ -312,7 +312,7 @@ public:
 	short m_iAniFrameIndex;
 	short m_iAniFrameCount;
 	uint8 m_byPathCount;					// 패스를 따라 이동하는 몬스터 끼리 겹치지 않도록,, 
-	uint8 m_byResetFlag;					// 추적공격시 패스파인딩을 다시 할것인지,, 말것인지를 판단..
+	uint8 m_byResetFlag;					// when set to 1, indicates that an NPC should stop following its target
 	uint8 m_byActionFlag;				// 행동변화 플래그 ( 0 : 행동변화 없음, 1 : 공격에서 추격)
 
 	bool m_bTracing;
