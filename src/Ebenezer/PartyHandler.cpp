@@ -34,6 +34,11 @@ void CUser::PartyProcess(Packet & pkt)
 			PartyCancel();
 		break;
 
+	// Authorises a member as the new party leader
+	case PARTY_PROMOTE:
+		PartyPromote(pkt.read<uint16>());
+		break;
+
 	// Remove a user from our party.
 	case PARTY_REMOVE:
 		PartyRemove(pkt.read<uint16>());
@@ -236,6 +241,56 @@ void CUser::PartyInsert()
 	result.Initialize(AG_USER_PARTY);
 	result	<< uint8(PARTY_INSERT) << pParty->wIndex << byIndex << GetSocketID();
 	Send_AIServer(&result);
+}
+
+void CUser::PartyPromote(uint16 sMemberID)
+{
+	// Only the existing party leader can promote a new party leader.
+	if (!isPartyLeader())
+		return;
+
+	// Ensure this user exists and that they're in our party already.
+	CUser * pUser = g_pMain->GetUserPtr(sMemberID);
+	if (pUser == nullptr
+		|| pUser->GetPartyID() != GetPartyID())
+		return;
+
+	// Ensure this party exists.
+	_PARTY_GROUP * pParty = g_pMain->m_PartyArray.GetData(GetPartyID());
+	if (pParty == nullptr)
+		return;
+
+	// Find the position of the user to promote in the array.
+	uint8 pos = 0;
+	for (uint8 i = 1; i < MAX_PARTY_USERS; i++)
+	{
+		if (pParty->uid[i] != sMemberID)
+			continue;
+
+		pos = i;
+		break;
+	}
+
+	// Didn't find it? (leader's always position 0, no need to check there)
+	if (pos == 0)
+		return;
+
+	// Swap the IDs around, so they have the leadership position.
+	std::swap(pParty->uid[0], pParty->uid[pos]);
+
+	// Swap the need party flags
+	std::swap(m_bNeedParty, pUser->m_bNeedParty);
+
+	// Unset us as leader.
+	m_bPartyLeader = false;
+
+	StateChangeServerDirect(6, 0); // remove 'P' symbol from old party leader	
+	StateChangeServerDirect(2, m_bNeedParty); // seeking a party
+
+	// Make them leader.
+	pUser->m_bPartyLeader = true;
+	pUser->StateChangeServerDirect(6, 1); // assign 'P' symbol to new party leader
+	pUser->StateChangeServerDirect(2, pUser->m_bNeedParty); // seeking a party
 }
 
 void CUser::PartyRemove(int memberid)
@@ -504,20 +559,22 @@ void CUser::SendPartyBBSNeeded(uint16 page_index, uint8 bType)
 void CUser::PartyBBSWanted(Packet & pkt)
 {
 	uint16 page_index = 0;
-
-	if(!m_bPartyLeader)
+	if (!isPartyLeader())
 		return;
+
 	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData( m_sPartyIndex );
-	if(pParty == nullptr)
+	if (pParty == nullptr)
 		return;
-		pkt >> pParty->sWantedClass >> page_index >> pParty->WantedMessage;
 
+	pkt >> pParty->sWantedClass >> page_index >> pParty->WantedMessage;
 	SendPartyBBSNeeded(page_index, PARTY_BBS_WANTED);
 }
 
 uint8 CUser::GetPartyMemberAmount()
 {
-	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData( m_sPartyIndex );
+	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData(GetPartyID());
+	if (pParty == nullptr)
+		return 0;
 
 	uint8 PartyMembers = 0;
 	for( int i = 0; i < MAX_PARTY_USERS; i++)
