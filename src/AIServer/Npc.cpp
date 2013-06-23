@@ -353,7 +353,7 @@ time_t CNpc::NpcTracing()
 	if (m_byActionFlag == ATTACK_TO_TRACE)
 	{
 		m_byActionFlag = NO_ACTION;
-		m_byResetFlag = 1;
+		m_bStopFollowingTarget = true;
 
 		// If we're not already following a user, define our start coords.
 		if (!m_bTracing)
@@ -364,7 +364,7 @@ time_t CNpc::NpcTracing()
 		}
 	}
 
-	if (m_byResetFlag == 1)
+	if (m_bStopFollowingTarget)
 	{
 		if (!ResetPath())// && !m_tNpcTraceType)
 		{
@@ -630,7 +630,7 @@ bool CNpc::SetLive()
 	m_sMP = m_sMaxMP;
 	m_sPathCount = 0;
 	m_iPattenFrame = 0;
-	m_byResetFlag = 0;
+	m_bStopFollowingTarget = false;
 	m_byActionFlag = NO_ACTION;
 	m_byMaxDamagedNation = 0;
 
@@ -1950,19 +1950,21 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 		&& !isInSpawnRange((int)vUser.x, (int)vUser.z))
 		return -1;	
 
-	if(Flag == 1)	{
-		m_byResetFlag = 1;
-		if(pUser)	{
-			if(m_Target.x == pUser->GetX() && m_Target.z == pUser->GetZ())
-				m_byResetFlag = 0;
+	if (Flag == 1)	
+	{
+		m_bStopFollowingTarget = true;
+		if (pUser != nullptr)	
+		{
+			if (m_Target.x == pUser->GetX() && m_Target.z == pUser->GetZ())
+				m_bStopFollowingTarget = false;
 		}
-		//TRACE("NpcTracing-IsCloseTarget - target_x = %.2f, z=%.2f, dis=%.2f, Flag=%d\n", m_Target.x, m_Target.z, fDis, m_byResetFlag);
+		//TRACE("NpcTracing-IsCloseTarget - target_x = %.2f, z=%.2f, dis=%.2f, Flag=%d\n", m_Target.x, m_Target.z, fDis, m_bStopFollowingTarget);
 	}
 	
 	if((int)fDis > nRange)	{
 		if(Flag == 2)			{
 			//TRACE("NpcFighting-IsCloseTarget - target_x = %.2f, z=%.2f, dis=%.2f\n", m_Target.x, m_Target.z, fDis);
-			m_byResetFlag = 1;
+			m_bStopFollowingTarget = true;
 			m_Target.x = fX;
 			m_Target.z = fZ;
 		}
