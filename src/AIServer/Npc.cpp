@@ -1588,7 +1588,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 				|| pUser->isDead()
 				|| GetNation() == pUser->GetNation()
 				|| pUser->m_bInvisibilityType
-				|| pUser->m_byIsOP == MANAGER_USER)
+				|| pUser->isGM())
 				continue;
 
 			float fDis = Unit::GetDistanceSqrt(pUser);
@@ -2252,7 +2252,9 @@ int CNpc::Attack()
 			return nStandingTime;
 		}
 
-		if(pUser->m_byIsOP == MANAGER_USER)	{	// 운영자는 공격을 안하게..
+		// Don't attack GMs.
+		if (pUser->isGM())
+		{
 			InitTarget();
 			m_NpcState = NPC_MOVING;
 			return nStandingTime;
@@ -2407,7 +2409,9 @@ int CNpc::LongAndMagicAttack()
 			return nStandingTime;
 		}
 
-		if(pUser->m_byIsOP == MANAGER_USER)	{		// 운영자는 공격을 안하게..
+		// Don't cast skills on GMs.
+		if (pUser->isGM())
+		{
 			InitTarget();
 			m_NpcState = NPC_MOVING;
 			return nStandingTime;
@@ -2472,7 +2476,7 @@ bool CNpc::TracingAttack()
 
 		if (pUser->m_bInvisibilityType
 			/*|| pUser->m_state == STATE_DISCONNECTED*/
-			|| pUser->m_byIsOP == MANAGER_USER)
+			|| pUser->isGM())
 			return false;
 
 		nDamage = GetFinalDamage(pUser);
@@ -2898,7 +2902,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 		|| pUser->isDead()
 		|| pUser->GetNation() == GetNation()
 		|| pUser->m_bInvisibilityType
-		|| pUser->m_byIsOP == MANAGER_USER
+		|| pUser->isGM()
 		|| m_NpcState == NPC_FAINTING
 		|| isNonAttackingObject())
 		return;
