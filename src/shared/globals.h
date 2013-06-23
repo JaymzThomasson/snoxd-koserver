@@ -175,6 +175,12 @@ const uint8 CRIGHT				= 45;
 const uint8 CTOP				= 46;
 const uint8 BAG1				= 47;
 const uint8 BAG2				= 48;
+
+const uint8 COSP_HELMET			= 1;
+const uint8 COSP_GLOVE			= 2;
+const uint8 COSP_GLOVE2			= 3;
+const uint8 COSP_BREAST			= 4;
+
 const uint8 COSP_BAG1			= 5; // relative bag slot from cospre items
 const uint8 COSP_BAG2			= 6; // relative bag slot from cospre items
 

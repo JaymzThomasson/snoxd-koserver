@@ -445,10 +445,11 @@ void CUser::ItemMove(Packet & pkt)
 		pDstItem = &m_sItemArray[SLOT_MAX + bDstPos];
 		break;
 
-	case ITEM_INVEN_TO_COSP: // TO-DO: Update IsValidSlotPos() for cospre items?
+	case ITEM_INVEN_TO_COSP:
 		if (bDstPos >= COSP_MAX+MBAG_COUNT || bSrcPos >= HAVE_MAX
 			// Make sure that the item actually exists there.
-			|| nItemID != m_sItemArray[SLOT_MAX + bSrcPos].nNum)
+			|| nItemID != m_sItemArray[SLOT_MAX + bSrcPos].nNum
+			|| !IsValidSlotPos(pTable, bDstPos))
 			goto fail_return;
 
 		pSrcItem = &m_sItemArray[SLOT_MAX + bSrcPos];
@@ -754,64 +755,78 @@ bool CUser::RunExchange(int nExchangeID)
 
 bool CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)
 {
-	if( !pTable )
+	if (pTable == nullptr)
 		return false;
 
-	switch( pTable->m_bSlot ) {
+	switch (pTable->m_bSlot)
+	{
 	case 0:
-		if( destpos != RIGHTHAND && destpos != LEFTHAND )
+		if (destpos != RIGHTHAND && destpos != LEFTHAND)
 			return false;
 		break;
 	case 1:
 	case 3:
-		if( destpos != RIGHTHAND )
+		if (destpos != RIGHTHAND)
 			return false;
 		break;
 	case 2:
 	case 4:
-		if( destpos != LEFTHAND )
+		if (destpos != LEFTHAND)
 			return false;
 		break;
 	case 5:
-		if( destpos != BREAST )
+		if (destpos != BREAST)
 			return false;
 		break;
 	case 6:
-		if( destpos != LEG )
+		if (destpos != LEG)
 			return false;
 		break;
 	case 7:
-		if( destpos != HEAD )
+		if (destpos != HEAD)
 			return false;
 		break;
 	case 8:
-		if( destpos != GLOVE )
+		if (destpos != GLOVE)
 			return false;
 		break;
 	case 9:
-		if( destpos != FOOT )
+		if (destpos != FOOT)
 			return false;
 		break;
 	case 10:
-		if( destpos != RIGHTEAR && destpos != LEFTEAR )
+		if (destpos != RIGHTEAR && destpos != LEFTEAR)
 			return false;
 		break;
 	case 11:
-		if( destpos != NECK )
+		if (destpos != NECK)
 			return false;
 		break;
 	case 12:
-		if( destpos != RIGHTRING && destpos != LEFTRING )
+		if (destpos != RIGHTRING && destpos != LEFTRING)
 			return false;
 		break;
 	case 13:
-		if( destpos != SHOULDER )
+		if (destpos != SHOULDER)
 			return false;
 		break;
 	case 14:
-		if( destpos != WAIST )
+		if (destpos != WAIST)
 			return false;
 		break;
+	case 100:
+		if (destpos != COSP_GLOVE && destpos != COSP_GLOVE2)
+			return false;
+		break;
+	case 105:
+		if (destpos != COSP_BREAST)
+			return false;
+		break;
+	case 107:
+		if (destpos != COSP_HELMET)
+			return false;
+		break;
+
 	default:
 		return false;
 	}
