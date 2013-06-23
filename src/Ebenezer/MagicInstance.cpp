@@ -933,7 +933,7 @@ bool MagicInstance::ExecuteType3()
 			{
 				pTarget->MSpChange(damage);
 			}
-			// For players, wear out their items.
+			// "Magic Hammer" repairs equipped items.
 			else if (pType->bDirectType == 4)
 			{
 				if (pTarget->isPlayer())

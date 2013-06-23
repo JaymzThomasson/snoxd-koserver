@@ -2351,12 +2351,13 @@ void CUser::ItemWoreOut(int type, int damage)
 		_ITEM_TABLE * pTable = nullptr;
 
 		// Is a non-broken item equipped?
-		if (pItem == nullptr || pItem->sDuration <= 0
+		if (pItem == nullptr 
+			|| (damage > 0 && pItem->sDuration <= 0)
 			// Does the item exist?
 			|| (pTable = g_pMain->GetItemPtr(pItem->nNum)) == nullptr
 			// If it's in the left or righthand slot, is it a shield? (this doesn't apply to weapons)
-			|| ((slot == LEFTHAND || slot == RIGHTHAND)
-					&& pTable->m_bSlot != 2))
+			|| (type == ATTACK 
+				&& ((slot == LEFTHAND || slot == RIGHTHAND) && pTable->m_bSlot != 2)))
 			continue;
 
 		int beforepercent = (int)((pItem->sDuration / (double)pTable->m_sDuration) * 100);
