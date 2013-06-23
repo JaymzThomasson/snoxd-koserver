@@ -292,7 +292,7 @@ public:
 	int		m_nLimitMaxX;
 	int		m_nLimitMaxZ;
 
-	long	m_lEventNpc;
+	bool	m_bIsEventNpc;
 
 	float m_fAdd_x;
 	float m_fAdd_z;

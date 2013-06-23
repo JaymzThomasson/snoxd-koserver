@@ -100,7 +100,7 @@ CNpc::CNpc() : Unit(), m_NpcState(NPC_LIVE), m_byGateOpen(false), m_byObjectType
 
 	m_nLimitMinX = m_nLimitMinZ = 0;
 	m_nLimitMaxX = m_nLimitMaxZ = 0;
-	m_lEventNpc = 0;
+	m_bIsEventNpc = false;
 	m_fSecForRealMoveMetor = 0.0f;
 	InitUserList();
 
@@ -647,17 +647,17 @@ bool CNpc::SetLive()
 
 	CNpc* pNpc = nullptr;
 
-	if (m_lEventNpc == 1 && !m_bFirstLive)
+	if (m_bIsEventNpc && !m_bFirstLive)
 	{
 #if 0
 		NpcSet::iterator itr = g_pMain->m_arEventNpcThread[0]->m_pNpcs.find(this);
 		if (itr != g_pMain->m_arEventNpcThread[0]->m_pNpcs.end())
 		{
-			m_lEventNpc = 0;
+			m_bIsEventNpc = false;
 			g_pMain->m_arEventNpcThread[0]->m_pNpcs.erase(itr);
 		}
 #endif
-		m_lEventNpc = 0;
+		m_bIsEventNpc = false;
 		return true;
 	}
 
@@ -680,7 +680,7 @@ bool CNpc::SetLive()
 
 	bool bMove = pMap->IsMovable(dest_x, dest_z);
 
-	if (GetType() != NPCTYPE_MONSTER || m_lEventNpc == 1)
+	if (GetType() != NPCTYPE_MONSTER || m_bIsEventNpc)
 	{
 		m_curx = m_fPrevX = m_nInitX;
 		m_cury = m_fPrevY = m_nInitY;
