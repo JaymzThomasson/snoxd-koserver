@@ -416,7 +416,7 @@ public:
 
 	void GetVectorPosition(__Vector3 & vOrig, __Vector3 & vDest, float fDis, __Vector3 * vResult);
 	void CalcAdaptivePosition(__Vector3 & vPosOrig, __Vector3 & vPosDest, float fAttackDistance, __Vector3 * vResult);
-	void ComputeDestPos(__Vector3 & vCur, float fDegree, float fDegreeOffset, float fDistance, __Vector3 * vResult);
+	void ComputeDestPos(__Vector3 & vCur, float fDegree, float fDistance, __Vector3 * vResult);
 	void Yaw2D(float fDirX, float fDirZ, float& fYawResult);
 	float GetDistance(__Vector3 & vOrig, __Vector3 & vDest);
 	int  PathFind(CPoint start, CPoint end, float fDistance);

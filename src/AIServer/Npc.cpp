@@ -2101,7 +2101,7 @@ int CNpc::GetTargetPath(int option)
 		if(m_byAttackPos > 0 && m_byAttackPos < 9)	{
 			fDegree = (float)((m_byAttackPos-1)*45);
 			fTargetDistance = 2.0f+m_proto->m_fBulk;
-			ComputeDestPos(vUser, 0.0f, fDegree, fTargetDistance, &vEnd22);
+			ComputeDestPos(vUser, fDegree, fTargetDistance, &vEnd22);
 			fSurX = vEnd22.x - vUser.x;			fSurZ = vEnd22.z - vUser.z;
 			m_fEndPoint_X = vUser.x + fSurX;	m_fEndPoint_Y = vUser.z + fSurZ;
 		}
@@ -4148,11 +4148,11 @@ void CNpc::Yaw2D(float fDirX, float fDirZ, float& fYawResult)
 	}
 }
   
-void CNpc::ComputeDestPos(__Vector3 & vCur, float fDegree, float fDegreeOffset, float fDistance, __Vector3 * vResult)
+void CNpc::ComputeDestPos(__Vector3 & vCur, float fDegree, float fDistance, __Vector3 * vResult)
 {
 	__Matrix44 mtxRot; 
 	vResult->Set(0.0f, 0.0f, 1.0f);
-	mtxRot.RotationY(D3DXToRadian(fDegree+fDegreeOffset));
+	mtxRot.RotationY(D3DXToRadian(fDegree));
 	*vResult *= mtxRot;
 	*vResult *= fDistance;
 	*vResult += vCur;
