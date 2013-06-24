@@ -10,27 +10,25 @@
 #include <set>
 #include "../shared/SMDFile.h"
 
-// This is more than a little convulated.
-#define PARSE_ARGUMENTS(count, temp, buff, arg, id, index) for (int _i = 0; _i < count; _i++) { \
-	index += ParseSpace(temp, buff + index); \
-	arg[id++] = atoi(temp); \
-}
-
 INLINE int ParseSpace( char* tBuf, char* sBuf)
 {
 	int i = 0, index = 0;
 	bool flag = false;
 	
-	while(sBuf[index] == ' ' || sBuf[index] == '\t')index++;
-	while(sBuf[index] !=' ' && sBuf[index] !='\t' && sBuf[index] !=(uint8) 0){
+	while (sBuf[index] == ' ' || sBuf[index] == '\t')
+		index++;
+
+	while (sBuf[index] !=' ' && sBuf[index] !='\t' && sBuf[index] != 0)
+	{
 		tBuf[i++] = sBuf[index++];
 		flag = true;
 	}
 	tBuf[i] = 0;
 
-	while(sBuf[index] == ' ' || sBuf[index] == '\t')index++;
-	if(!flag) return 0;	
-	return index;
+	while (sBuf[index] == ' ' || sBuf[index] == '\t')
+		index++;
+
+	return !flag ? 0 : index;
 };
 
 using namespace std;
