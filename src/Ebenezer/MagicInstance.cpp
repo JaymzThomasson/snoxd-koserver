@@ -54,30 +54,44 @@ void MagicInstance::Run()
 				CUser * pCaster = TO_USER(pSkillCaster);
 				_MAGIC_TYPE2 * pType = g_pMain->m_Magictype2Array.GetData(nSkillID);
 
-				// Throwing knives are differentiated by the fact "NeedArrow" is set to 0.
-				// We still need to check for & take 1 throwing knife in this case however.
-				uint8 bCount = pType->bNeedArrow;
-				if (!bCount)
-					bCount = 1;
+				// NOTE: Not all skills that use MAGIC_FLYING are type 2 skills.
+				// Some type 3 skills use it (such as "Vampiric Fire"). 
+				// For these we should really apply the same flying logic, but for now we'll just ignore it.
+				if (pType != nullptr)
+				{
+					// Throwing knives are differentiated by the fact "NeedArrow" is set to 0.
+					// We still need to check for & take 1 throwing knife in this case however.
+					uint8 bCount = pType->bNeedArrow;
+					if (!bCount)
+						bCount = 1;
 
-				if (pType == nullptr
-					// The user does not have enough arrows! We should point them in the right direction. ;)
-					|| (!pCaster->CheckExistItem(pSkill->iUseItem, bCount))
-					// Ensure user has enough mana for this skill
-					|| pSkill->sMsp > pSkillCaster->GetMana())
+					if (pType == nullptr
+						// The user does not have enough arrows! We should point them in the right direction. ;)
+						|| (!pCaster->CheckExistItem(pSkill->iUseItem, bCount))
+						// Ensure user has enough mana for this skill
+						|| pSkill->sMsp > pSkillCaster->GetMana())
+					{
+						SendSkillFailed();
+						return;
+					}
+
+					// Add all flying arrow instances to the user's list for hit detection
+					FastGuard lock(pCaster->m_arrowLock);
+					for (size_t i = 0; i < bCount; i++)
+						pCaster->m_flyingArrows.push_back(Arrow(pType->iNum, UNIXTIME));
+
+					// Remove the arrows
+					pCaster->RobItem(pSkill->iUseItem, bCount);
+				}
+				// for non-type 2 skills, ensure we check the user's mana.
+				else if (pSkill->sMsp > pSkillCaster->GetMana())
 				{
 					SendSkillFailed();
 					return;
 				}
 
-				// Add all flying arrow instances to the user's list for hit detection
-				FastGuard lock(pCaster->m_arrowLock);
-				for (size_t i = 0; i < bCount; i++)
-					pCaster->m_flyingArrows.push_back(Arrow(pType->iNum, UNIXTIME));
-
-				// Remove the mana & arrows
+				// Take the required mana for this skill
 				pCaster->MSpChange(-(pSkill->sMsp));
-				pCaster->RobItem(pSkill->iUseItem, bCount);
 			}
 
 			SendSkill(true); // send this to the region
@@ -193,49 +207,6 @@ bool MagicInstance::UserCanCast()
 
 	//Incase we made it to here, we can cast! Hurray!
 	return true;
-}
-
-void MagicInstance::SendSkillToAI()
-{
-	if (pSkill == nullptr)
-		return;
-
-	if (sTargetID >= NPC_BAND 
-		|| (sTargetID == -1 && (pSkill->bMoral == MORAL_AREA_ENEMY || pSkill->bMoral == MORAL_SELF_AREA)))
-	{		
-		int total_magic_damage = 0;
-
-		Packet result(AG_MAGIC_ATTACK_REQ); // this is the order it was in.
-		result	<< sCasterID << bOpcode << sTargetID << nSkillID 
-				<< sData[0] << sData[1] << sData[2] << sData[3] << sData[4] << sData[5]
-				<< TO_USER(pSkillCaster)->GetStatWithItemBonus(STAT_CHA);
-
-		_ITEM_DATA * pItem;
-		_ITEM_TABLE* pRightHand = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND, pItem);
-
-		if (pItem != nullptr && pRightHand != nullptr && pRightHand->isStaff()
-			&& TO_USER(pSkillCaster)->GetItemPrototype(LEFTHAND) == nullptr)
-		{
-			if (pSkill->bType[0] == 3) {
-				total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f)+ (pRightHand->m_sDamage * pSkillCaster->GetLevel()) / 60);
-
-				_MAGIC_TYPE3 *pType3 = g_pMain->m_Magictype3Array.GetData(nSkillID);
-				if (pType3 == nullptr)
-					return;
-
-				if (pSkillCaster->m_bMagicTypeRightHand == pType3->bAttribute )					
-					total_magic_damage += (int)((pRightHand->m_sDamage * 0.8f) + (pRightHand->m_sDamage * pSkillCaster->GetLevel()) / 30);
-				
-				if (pItem->sDuration <= 0)
-					total_magic_damage /= 3;
-
-				if (pType3->bAttribute == 4)
-					total_magic_damage = 0;
-			}
-		}
-		result << uint16(total_magic_damage);
-		g_pMain->Send_AIServer(&result);		
-	}
 }
 
 /**
@@ -962,7 +933,7 @@ bool MagicInstance::ExecuteType3()
 			{
 				pTarget->MSpChange(damage);
 			}
-			// For players, wear out their items.
+			// "Magic Hammer" repairs equipped items.
 			else if (pType->bDirectType == 4)
 			{
 				if (pTarget->isPlayer())
@@ -1775,19 +1746,68 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 		if (pSkillCaster->isPlayer()) 
 		{
 			CUser *pUser = TO_USER(pSkillCaster);
+
+			// double the staff's damage when using a skill of the same attribute as the staff
 			_ITEM_TABLE *pRightHand = pUser->GetItemPrototype(RIGHTHAND);
 			if (pRightHand != nullptr && pRightHand->isStaff()
 				&& pUser->GetItemPrototype(LEFTHAND) == nullptr)
 			{
+				FastGuard lock(pSkillCaster->m_equippedItemBonusLock);
 				righthand_damage = pRightHand->m_sDamage;
-					
-				if (pSkillCaster->m_bMagicTypeRightHand == attribute)
-					attribute_damage = pRightHand->m_sDamage;
+				auto itr = pSkillCaster->m_equippedItemBonuses.find(RIGHTHAND);
+				if (itr != pSkillCaster->m_equippedItemBonuses.end())
+				{
+					auto bonusItr = itr->second.find(attribute);
+					if (bonusItr != itr->second.end()) 
+						attribute_damage = pRightHand->m_sDamage; 
+				}
 			}
 			else 
 			{
 				righthand_damage = 0;
 			}
+
+			// Add on any elemental skill damage
+			FastGuard lock(pSkillCaster->m_equippedItemBonusLock);
+			foreach (itr, pSkillCaster->m_equippedItemBonuses)
+			{
+				uint8 bSlot = itr->first;
+				foreach (bonusItr, itr->second)
+				{
+					uint8 bType = bonusItr->first; 
+					int16 sAmount = bonusItr->second;
+					int16 sTempResist = 0;
+
+					switch (bType)
+					{
+						case ITEM_TYPE_FIRE :	// Fire Damage
+							sTempResist = pTarget->m_bFireR + pTarget->m_bFireRAmount;
+							break;
+						case ITEM_TYPE_COLD :	// Ice Damage
+							sTempResist = pTarget->m_bColdR + pTarget->m_bColdRAmount;
+							break;
+						case ITEM_TYPE_LIGHTNING :	// Lightning Damage
+							sTempResist = pTarget->m_bLightningR + pTarget->m_bLightningRAmount;
+							break;
+						case ITEM_TYPE_POISON :	// Poison Damage
+							sTempResist = pTarget->m_bPoisonR + pTarget->m_bPoisonRAmount;
+							break;
+					}
+
+					sTempResist += pTarget->m_bResistanceBonus;
+					if (bType >= ITEM_TYPE_FIRE 
+						&& bType <= ITEM_TYPE_POISON)
+					{
+						if (sTempResist > 200) 
+							sTempResist = 200;
+
+						// add attribute damage amount to right-hand damage instead of attribute
+						// so it doesn't bother taking into account caster level (as it would with the staff attributes).
+						righthand_damage += sAmount - sAmount * sTempResist / 200;
+					}
+				}
+			}
+
 		}
 
 		damage = (short)(230 * total_hit / (total_r + 250));
@@ -1796,7 +1816,7 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 
 		if (pSkillCaster->isNPC())
 			damage -= ((3 * righthand_damage) + (3 * attribute_damage));
-		else if (attribute != 4)	// Only if the staff has an attribute.
+		else if (attribute != MAGIC_R)	// Only if the staff has an attribute.
 			damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * pSkillCaster->GetLevel()) / 60) + ((attribute_damage * 0.8f) + (attribute_damage * pSkillCaster->GetLevel()) / 30));
 	}
 

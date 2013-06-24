@@ -9,6 +9,7 @@ class MAP;
 class CUser : public Unit
 {
 public:
+	INLINE bool isGM() { return m_byIsOP == AUTHORITY_GAME_MASTER; }
 	virtual uint16 GetID() { return m_iUserId; }
 	virtual std::string & GetName() { return m_strUserID; }
 

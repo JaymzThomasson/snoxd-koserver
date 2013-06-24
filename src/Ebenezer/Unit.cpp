@@ -42,11 +42,9 @@ void Unit::Initialize()
 	m_sMaceR = 0;						
 	m_sSpearR = 0;					
 	m_sBowR = 0;		
-	
-	m_bMagicTypeLeftHand = 0;		// For weapons and shields with special power.		
-	m_bMagicTypeRightHand = 0;		
-	m_sMagicAmountLeftHand = 0;        
-	m_sMagicAmountRightHand = 0;
+
+	FastGuard lock(m_equippedItemBonusLock);
+	m_equippedItemBonuses.clear();
 
 	m_bCanStealth = true;
 	m_bReflectArmorType = 0;
@@ -285,95 +283,74 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 
 short Unit::GetMagicDamage(int damage, Unit *pTarget)
 {
-	short total_r, temp_damage = 0;
 	if (pTarget->isDead())
 		return 0;
 
-	if (m_bMagicTypeRightHand > 4 && m_bMagicTypeRightHand < 8)
-		temp_damage = damage * m_sMagicAmountRightHand / 100;
+	FastGuard lock(m_equippedItemBonusLock);
+	int16 sReflectDamage = 0;
 
-	switch (m_bMagicTypeRightHand)
-	{	// RIGHT HAND!!!
-		case ITEM_TYPE_FIRE :	// Fire Damage
-			total_r = pTarget->m_bFireR + pTarget->m_bFireRAmount;
-			break;
-		case ITEM_TYPE_COLD :	// Ice Damage
-			total_r = pTarget->m_bColdR + pTarget->m_bColdRAmount;
-			break;
-		case ITEM_TYPE_LIGHTNING :	// Lightning Damage
-			total_r = pTarget->m_bLightningR + pTarget->m_bLightningRAmount;
-			break;
-		case ITEM_TYPE_POISON :	// Poison Damage
-			total_r = pTarget->m_bPoisonR + pTarget->m_bPoisonRAmount;
-			break;
-		case ITEM_TYPE_HP_DRAIN :	// HP Drain		
-			HpChange(temp_damage);			
-			break;
-		case ITEM_TYPE_MP_DAMAGE :	// MP Damage		
-			pTarget->MSpChange(-temp_damage);
-			break;
-		case ITEM_TYPE_MP_DRAIN :	// MP Drain		
-			MSpChange(temp_damage);
-			break;
-	}
-
-	total_r += pTarget->m_bResistanceBonus;
-
-	if (m_bMagicTypeRightHand > 0 && m_bMagicTypeRightHand < 5)
+	// Check each item that has a bonus effect.
+	foreach (itr, m_equippedItemBonuses)
 	{
-		if (total_r > 200) total_r = 200;
-		temp_damage = m_sMagicAmountRightHand - m_sMagicAmountRightHand * total_r / 200;
-		damage += temp_damage;
+		// Each item can support multiple bonuses.
+		// Thus, we must handle each bonus.
+		foreach (bonusItr, itr->second)
+		{
+			short total_r = 0, temp_damage = 0;
+			uint8 bType = bonusItr->first;
+			int16 sAmount = bonusItr->second;
+
+			bool bIsDrain = (bType >= ITEM_TYPE_HP_DRAIN && bType <= ITEM_TYPE_MP_DRAIN);
+			if (bIsDrain)
+				temp_damage = damage * sAmount / 100;
+
+			switch (bType)
+			{
+			case ITEM_TYPE_FIRE :	// Fire Damage
+				total_r = pTarget->m_bFireR + pTarget->m_bFireRAmount;
+				break;
+			case ITEM_TYPE_COLD :	// Ice Damage
+				total_r = pTarget->m_bColdR + pTarget->m_bColdRAmount;
+				break;
+			case ITEM_TYPE_LIGHTNING :	// Lightning Damage
+				total_r = pTarget->m_bLightningR + pTarget->m_bLightningRAmount;
+				break;
+			case ITEM_TYPE_POISON :	// Poison Damage
+				total_r = pTarget->m_bPoisonR + pTarget->m_bPoisonRAmount;
+				break;
+			case ITEM_TYPE_HP_DRAIN :	// HP Drain		
+				HpChange(temp_damage);			
+				break;
+			case ITEM_TYPE_MP_DAMAGE :	// MP Damage		
+				pTarget->MSpChange(-temp_damage);
+				break;
+			case ITEM_TYPE_MP_DRAIN :	// MP Drain		
+				MSpChange(temp_damage);
+				break;
+			case ITEM_TYPE_MIRROR_DAMAGE:
+				sReflectDamage += sAmount;
+				break;
+			}
+
+			total_r += pTarget->m_bResistanceBonus;
+			if (!bIsDrain)
+			{
+				if (total_r > 200) 
+					total_r = 200;
+
+				temp_damage = sAmount - sAmount * total_r / 200;
+				damage += temp_damage;
+			}
+		}
 	}
 
-	total_r = 0;		// Reset all temporary data.
-	temp_damage = 0;
-
-	if (m_bMagicTypeLeftHand > 4 && m_bMagicTypeLeftHand < 8)
-		temp_damage = damage * m_sMagicAmountLeftHand / 100;
-
-	switch (m_bMagicTypeLeftHand)
-	{	// LEFT HAND!!!
-		case ITEM_TYPE_FIRE :	// Fire Damage
-			total_r = pTarget->m_bFireR + pTarget->m_bFireRAmount;
-			break;
-		case ITEM_TYPE_COLD :	// Ice Damage
-			total_r = pTarget->m_bColdR + pTarget->m_bColdRAmount;
-			break;
-		case ITEM_TYPE_LIGHTNING :	// Lightning Damage
-			total_r = pTarget->m_bLightningR + pTarget->m_bLightningRAmount;
-			break;
-		case ITEM_TYPE_POISON :	// Poison Damage
-			total_r = pTarget->m_bPoisonR + pTarget->m_bPoisonRAmount;
-			break;
-		case ITEM_TYPE_HP_DRAIN :	// HP Drain		
-			HpChange(temp_damage);			
-			break;
-		case ITEM_TYPE_MP_DAMAGE :	// MP Damage		
-			pTarget->MSpChange(-temp_damage);
-			break;
-		case ITEM_TYPE_MP_DRAIN :	// MP Drain		
-			MSpChange(temp_damage);
-			break;
-	}
-
-	total_r += pTarget->m_bResistanceBonus;
-
-	if (m_bMagicTypeLeftHand > 0 && m_bMagicTypeLeftHand < 5)
+	// If any items have have damage reflection enabled, we should reflect this back to the client.
+	// NOTE: This should only apply to shields, so it should only ever apply once.
+	// We do this here to ensure it's taking into account the total calculated damage.
+	if (sReflectDamage > 0)
 	{
-		if (total_r > 200) total_r = 200;
-		temp_damage = m_sMagicAmountLeftHand - m_sMagicAmountLeftHand * total_r / 200;
-		damage += temp_damage;
-	}
-
-	total_r = 0;		// Reset all temporary data.
-	temp_damage = 0;
-
-	// Mirror Attack Check routine.
-	if (pTarget->m_bMagicTypeLeftHand == ITEM_TYPE_MIRROR_DAMAGE)
-	{
-		temp_damage = damage * pTarget->m_sMagicAmountLeftHand / 100;
-		HpChange(-temp_damage);		// Reflective Hit.
+		short temp_damage = damage * sReflectDamage / 100;
+		HpChange(-temp_damage);
 	}
 
 	return damage;

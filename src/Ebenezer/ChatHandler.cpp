@@ -56,7 +56,7 @@ void CUser::Chat(Packet & pkt)
 {
 	Packet result;
 	uint16 sessID;
-	uint8 type = pkt.read<uint8>(), bNation;
+	uint8 type = pkt.read<uint8>(), seekingPartyOptions, bNation;
 	string chatstr, finalstr, strSender, * strMessage;
 
 	bool isAnnouncement = false;
@@ -72,10 +72,8 @@ void CUser::Chat(Packet & pkt)
 	if (isGM() && ProcessChatCommand(chatstr))
 		return;
 
-#if 0 // Removed this - all it seems to do is cause chat to break for GMs (is it 19xx+ only?)
-	if( isGM() && type == GENERAL_CHAT)
-		type = 0x14;
-#endif
+	if (type == SEEKING_PARTY_CHAT)
+		pkt >> seekingPartyOptions;
 
 	// Handle GM notice & announcement commands
 	if (type == PUBLIC_CHAT || type == ANNOUNCEMENT_CHAT)
@@ -183,6 +181,13 @@ void CUser::Chat(Packet & pkt)
 	case WAR_SYSTEM_CHAT:
 		if (isGM())
 			g_pMain->Send_All(&result);
+		break;
+	case SEEKING_PARTY_CHAT:
+		if (m_bNeedParty == 2)
+		{
+			Send(&result);
+			g_pMain->Send_Zone_Matched_Class(&result, GetZoneID(), this, GetNation(), seekingPartyOptions);
+		}
 		break;
 	}
 }

@@ -175,6 +175,12 @@ const uint8 CRIGHT				= 45;
 const uint8 CTOP				= 46;
 const uint8 BAG1				= 47;
 const uint8 BAG2				= 48;
+
+const uint8 COSP_HELMET			= 1;
+const uint8 COSP_GLOVE			= 2;
+const uint8 COSP_GLOVE2			= 3;
+const uint8 COSP_BREAST			= 4;
+
 const uint8 COSP_BAG1			= 5; // relative bag slot from cospre items
 const uint8 COSP_BAG2			= 6; // relative bag slot from cospre items
 
@@ -267,6 +273,16 @@ struct _MERCH_DATA
 	uint64 nSerialNum;
 	uint32 nPrice;
 	uint8 bOriginalSlot;
+};
+
+enum AuthorityTypes
+{
+	AUTHORITY_GAME_MASTER			= 0,
+	AUTHORITY_PLAYER				= 1,
+	AUTHORITY_MUTED					= 11,
+	AUTHORITY_ATTACK_DISABLED		= 12,
+	AUTHORITY_LIMITED_GAME_MASTER	= 250,
+	AUTHORITY_BANNED				= 255
 };
 
 enum StatType

@@ -473,16 +473,15 @@ void CEbenezerDlg::AIServerConnect()
 }
 
 /**
- * @brief	Sends a packet to all players in the specified zone
- * 			matching the specified criteria.
+ * @brief	Sends a packet to all users in the zone matching the specified class types.
  *
- * @param	pkt		   	The packet.
- * @param	sZoneID	   	Zone's identifier.
- * @param	pExceptUser	User to except. If specified, will ignore this user.
- * @param	nation	   	Nation to allow. If unspecified, will default to Nation::ALL 
- * 						which will send to all/both nations.
+ * @param	pkt				   	The packet.
+ * @param	bZoneID			   	Identifier for the zone.
+ * @param	pExceptUser		   	The except user.
+ * @param	nation			   	The nation.
+ * @param	seekingPartyOptions	Bitmask of classes to send to.
  */
-void CEbenezerDlg::Send_Zone(Packet *pkt, uint16 sZoneID, CUser* pExceptUser /*= nullptr*/, uint8 nation /*= 0*/)
+void CEbenezerDlg::Send_Zone_Matched_Class(Packet *pkt, uint8 bZoneID, CUser* pExceptUser, uint8 nation, uint8 seekingPartyOptions)
 {
 	SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
 	foreach (itr, sessMap)
@@ -490,7 +489,44 @@ void CEbenezerDlg::Send_Zone(Packet *pkt, uint16 sZoneID, CUser* pExceptUser /*=
 		CUser * pUser = TO_USER(itr->second);
 		if (pUser == pExceptUser 
 			|| !pUser->isInGame()
-			|| pUser->GetZoneID() != sZoneID
+			|| pUser->GetZoneID() != bZoneID
+			|| pUser->isInParty()) // looking for users to join the party
+			continue;
+
+		// If we're in the neutral zone (Moradon), it doesn't matter which nation we party with.
+		// For all other zones, we must party with a player of the same nation.
+		if (pUser->GetZoneID() == ZONE_MORADON 
+			|| pUser->GetNation() == nation)
+		{
+			if (	((seekingPartyOptions & 1) && pUser->JobGroupCheck(1))
+				||	((seekingPartyOptions & 2) && pUser->JobGroupCheck(2))
+				||	((seekingPartyOptions & 4) && pUser->JobGroupCheck(3))
+				||	((seekingPartyOptions & 8) && pUser->JobGroupCheck(4)))
+			pUser->Send(pkt);
+		}
+	}
+	g_pMain->m_socketMgr.ReleaseLock();
+}
+
+/**
+ * @brief	Sends a packet to all players in the specified zone
+ * 			matching the specified criteria.
+ *
+ * @param	pkt		   	The packet.
+ * @param	bZoneID	   	Zone's identifier.
+ * @param	pExceptUser	User to except. If specified, will ignore this user.
+ * @param	nation	   	Nation to allow. If unspecified, will default to Nation::ALL 
+ * 						which will send to all/both nations.
+ */
+void CEbenezerDlg::Send_Zone(Packet *pkt, uint8 bZoneID, CUser* pExceptUser /*= nullptr*/, uint8 nation /*= 0*/)
+{
+	SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
+	{
+		CUser * pUser = TO_USER(itr->second);
+		if (pUser == pExceptUser 
+			|| !pUser->isInGame()
+			|| pUser->GetZoneID() != bZoneID
 			|| (nation != Nation::ALL && nation != pUser->GetNation()))
 			continue;
 

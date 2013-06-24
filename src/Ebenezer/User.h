@@ -508,6 +508,7 @@ public:
 
 	void PartyProcess(Packet & pkt);
 	void PartyDelete();
+	void PartyPromote(uint16 sMemberID);
 	void PartyRemove( int memberid );
 	void PartyInsert();
 	void PartyCancel();

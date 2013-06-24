@@ -100,7 +100,7 @@ CNpc::CNpc() : Unit(), m_NpcState(NPC_LIVE), m_byGateOpen(false), m_byObjectType
 
 	m_nLimitMinX = m_nLimitMinZ = 0;
 	m_nLimitMaxX = m_nLimitMaxZ = 0;
-	m_lEventNpc = 0;
+	m_bIsEventNpc = false;
 	m_fSecForRealMoveMetor = 0.0f;
 	InitUserList();
 
@@ -353,7 +353,7 @@ time_t CNpc::NpcTracing()
 	if (m_byActionFlag == ATTACK_TO_TRACE)
 	{
 		m_byActionFlag = NO_ACTION;
-		m_byResetFlag = 1;
+		m_bStopFollowingTarget = true;
 
 		// If we're not already following a user, define our start coords.
 		if (!m_bTracing)
@@ -364,7 +364,7 @@ time_t CNpc::NpcTracing()
 		}
 	}
 
-	if (m_byResetFlag == 1)
+	if (m_bStopFollowingTarget)
 	{
 		if (!ResetPath())// && !m_tNpcTraceType)
 		{
@@ -630,7 +630,7 @@ bool CNpc::SetLive()
 	m_sMP = m_sMaxMP;
 	m_sPathCount = 0;
 	m_iPattenFrame = 0;
-	m_byResetFlag = 0;
+	m_bStopFollowingTarget = false;
 	m_byActionFlag = NO_ACTION;
 	m_byMaxDamagedNation = 0;
 
@@ -647,17 +647,17 @@ bool CNpc::SetLive()
 
 	CNpc* pNpc = nullptr;
 
-	if (m_lEventNpc == 1 && !m_bFirstLive)
+	if (m_bIsEventNpc && !m_bFirstLive)
 	{
 #if 0
 		NpcSet::iterator itr = g_pMain->m_arEventNpcThread[0]->m_pNpcs.find(this);
 		if (itr != g_pMain->m_arEventNpcThread[0]->m_pNpcs.end())
 		{
-			m_lEventNpc = 0;
+			m_bIsEventNpc = false;
 			g_pMain->m_arEventNpcThread[0]->m_pNpcs.erase(itr);
 		}
 #endif
-		m_lEventNpc = 0;
+		m_bIsEventNpc = false;
 		return true;
 	}
 
@@ -680,7 +680,7 @@ bool CNpc::SetLive()
 
 	bool bMove = pMap->IsMovable(dest_x, dest_z);
 
-	if (GetType() != NPCTYPE_MONSTER || m_lEventNpc == 1)
+	if (GetType() != NPCTYPE_MONSTER || m_bIsEventNpc)
 	{
 		m_curx = m_fPrevX = m_nInitX;
 		m_cury = m_fPrevY = m_nInitY;
@@ -1588,7 +1588,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 				|| pUser->isDead()
 				|| GetNation() == pUser->GetNation()
 				|| pUser->m_bInvisibilityType
-				|| pUser->m_byIsOP == MANAGER_USER)
+				|| pUser->isGM())
 				continue;
 
 			float fDis = Unit::GetDistanceSqrt(pUser);
@@ -1950,19 +1950,21 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 		&& !isInSpawnRange((int)vUser.x, (int)vUser.z))
 		return -1;	
 
-	if(Flag == 1)	{
-		m_byResetFlag = 1;
-		if(pUser)	{
-			if(m_Target.x == pUser->GetX() && m_Target.z == pUser->GetZ())
-				m_byResetFlag = 0;
+	if (Flag == 1)	
+	{
+		m_bStopFollowingTarget = true;
+		if (pUser != nullptr)	
+		{
+			if (m_Target.x == pUser->GetX() && m_Target.z == pUser->GetZ())
+				m_bStopFollowingTarget = false;
 		}
-		//TRACE("NpcTracing-IsCloseTarget - target_x = %.2f, z=%.2f, dis=%.2f, Flag=%d\n", m_Target.x, m_Target.z, fDis, m_byResetFlag);
+		//TRACE("NpcTracing-IsCloseTarget - target_x = %.2f, z=%.2f, dis=%.2f, Flag=%d\n", m_Target.x, m_Target.z, fDis, m_bStopFollowingTarget);
 	}
 	
 	if((int)fDis > nRange)	{
 		if(Flag == 2)			{
 			//TRACE("NpcFighting-IsCloseTarget - target_x = %.2f, z=%.2f, dis=%.2f\n", m_Target.x, m_Target.z, fDis);
-			m_byResetFlag = 1;
+			m_bStopFollowingTarget = true;
 			m_Target.x = fX;
 			m_Target.z = fZ;
 		}
@@ -2101,7 +2103,7 @@ int CNpc::GetTargetPath(int option)
 		if(m_byAttackPos > 0 && m_byAttackPos < 9)	{
 			fDegree = (float)((m_byAttackPos-1)*45);
 			fTargetDistance = 2.0f+m_proto->m_fBulk;
-			ComputeDestPos(vUser, 0.0f, fDegree, fTargetDistance, &vEnd22);
+			ComputeDestPos(vUser, fDegree, fTargetDistance, &vEnd22);
 			fSurX = vEnd22.x - vUser.x;			fSurZ = vEnd22.z - vUser.z;
 			m_fEndPoint_X = vUser.x + fSurX;	m_fEndPoint_Y = vUser.z + fSurZ;
 		}
@@ -2250,7 +2252,9 @@ int CNpc::Attack()
 			return nStandingTime;
 		}
 
-		if(pUser->m_byIsOP == MANAGER_USER)	{	// 운영자는 공격을 안하게..
+		// Don't attack GMs.
+		if (pUser->isGM())
+		{
 			InitTarget();
 			m_NpcState = NPC_MOVING;
 			return nStandingTime;
@@ -2405,7 +2409,9 @@ int CNpc::LongAndMagicAttack()
 			return nStandingTime;
 		}
 
-		if(pUser->m_byIsOP == MANAGER_USER)	{		// 운영자는 공격을 안하게..
+		// Don't cast skills on GMs.
+		if (pUser->isGM())
+		{
 			InitTarget();
 			m_NpcState = NPC_MOVING;
 			return nStandingTime;
@@ -2470,7 +2476,7 @@ bool CNpc::TracingAttack()
 
 		if (pUser->m_bInvisibilityType
 			/*|| pUser->m_state == STATE_DISCONNECTED*/
-			|| pUser->m_byIsOP == MANAGER_USER)
+			|| pUser->isGM())
 			return false;
 
 		nDamage = GetFinalDamage(pUser);
@@ -2896,7 +2902,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 		|| pUser->isDead()
 		|| pUser->GetNation() == GetNation()
 		|| pUser->m_bInvisibilityType
-		|| pUser->m_byIsOP == MANAGER_USER
+		|| pUser->isGM()
 		|| m_NpcState == NPC_FAINTING
 		|| isNonAttackingObject())
 		return;
@@ -4148,11 +4154,11 @@ void CNpc::Yaw2D(float fDirX, float fDirZ, float& fYawResult)
 	}
 }
   
-void CNpc::ComputeDestPos(__Vector3 & vCur, float fDegree, float fDegreeOffset, float fDistance, __Vector3 * vResult)
+void CNpc::ComputeDestPos(__Vector3 & vCur, float fDegree, float fDistance, __Vector3 * vResult)
 {
 	__Matrix44 mtxRot; 
-	vResult->Zero();
-	mtxRot.RotationY(D3DXToRadian(fDegree+fDegreeOffset));
+	vResult->Set(0.0f, 0.0f, 1.0f);
+	mtxRot.RotationY(D3DXToRadian(fDegree));
 	*vResult *= mtxRot;
 	*vResult *= fDistance;
 	*vResult += vCur;

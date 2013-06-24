@@ -292,7 +292,7 @@ public:
 	int		m_nLimitMaxX;
 	int		m_nLimitMaxZ;
 
-	long	m_lEventNpc;
+	bool	m_bIsEventNpc;
 
 	float m_fAdd_x;
 	float m_fAdd_z;
@@ -312,7 +312,7 @@ public:
 	short m_iAniFrameIndex;
 	short m_iAniFrameCount;
 	uint8 m_byPathCount;					// 패스를 따라 이동하는 몬스터 끼리 겹치지 않도록,, 
-	uint8 m_byResetFlag;					// 추적공격시 패스파인딩을 다시 할것인지,, 말것인지를 판단..
+	bool m_bStopFollowingTarget;		// when set, indicates that an NPC should stop following its target
 	uint8 m_byActionFlag;				// 행동변화 플래그 ( 0 : 행동변화 없음, 1 : 공격에서 추격)
 
 	bool m_bTracing;
@@ -416,7 +416,7 @@ public:
 
 	void GetVectorPosition(__Vector3 & vOrig, __Vector3 & vDest, float fDis, __Vector3 * vResult);
 	void CalcAdaptivePosition(__Vector3 & vPosOrig, __Vector3 & vPosDest, float fAttackDistance, __Vector3 * vResult);
-	void ComputeDestPos(__Vector3 & vCur, float fDegree, float fDegreeOffset, float fDistance, __Vector3 * vResult);
+	void ComputeDestPos(__Vector3 & vCur, float fDegree, float fDistance, __Vector3 * vResult);
 	void Yaw2D(float fDirX, float fDirZ, float& fYawResult);
 	float GetDistance(__Vector3 & vOrig, __Vector3 & vDest);
 	int  PathFind(CPoint start, CPoint end, float fDistance);

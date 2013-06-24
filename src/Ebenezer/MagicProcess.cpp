@@ -185,8 +185,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 	// Buff mustn't already be added at this point.
 	FastGuard lock(pTarget->m_buffLock);
 	if (!bIsRecastingSavedMagic
-		&& pTarget->m_buffMap.find(pType->bBuffType) != pTarget->m_buffMap.end() 
-		&& pCaster == pTarget) //To allow debuff stacking, NOT sure if this is supposed to work like this! Ifnot we'll have to find a workaround.
+		&& pTarget->m_buffMap.find(pType->bBuffType) != pTarget->m_buffMap.end())
 		return false;
 
 	switch (pType->bBuffType)
@@ -387,6 +386,10 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		// Uses mana to receive damage (for mana shield its multiplied by 4, 100 damage = 400 mana used)
 		break;
 
+	case BUFF_TYPE_VARIOUS_EFFECTS: //... whatever the event item grants.
+		// what is tweaked in the database: AC, Attack, MaxHP, resistances
+		break;
+
 	case BUFF_TYPE_IGNORE_WEAPON:		// Weapon cancellation
 		// Disarms the opponent. (rendering them unable to attack)
 		break;
@@ -403,6 +406,9 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		pTarget->m_bSpeedAmount = (pTarget->m_bSpeedAmount / 100 * 65);
 		break;
 
+	case BUFF_TYPE_UNK_EXPERIENCE:		// unknown buff type, used for something relating to XP.
+		break;
+
 	case BUFF_TYPE_ATTACK_RANGE_ARMOR:	// Inevitable Murderous
 		pTarget->m_sACAmount += 100;
 		// Increase attack range by 1 meter.
@@ -410,6 +416,55 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 
 	case BUFF_TYPE_MIRROR_DAMAGE_PARTY: // Minak's Thorn
 		// Spreads damage received across party members and mirror's part of the damage.
+		break;
+
+	case BUFF_TYPE_DAGGER_BOW_DEFENSE: // Eskrima
+		// Inflicts attacks as well as a bleeding curse on the enemy. Decreases 10% Dagger and Bow Defense of the enemy under the bleeding curse buff.
+		break;
+
+	case BUFF_TYPE_LOYALTY_AMOUNT:		// Santa's Present (gives an extra +2NP per kill, unlike BUFF_TYPE_LOYALTY which uses an percent).
+		break;
+
+	case BUFF_TYPE_NO_RECALL:			// prevents teleportation.
+		break;
+
+	case BUFF_TYPE_REDUCE_TARGET:		// "Reduction" (reduces target's stats, but enlarges their character to make them easier to attack)
+		break;
+
+	case BUFF_TYPE_SILENCE_TARGET:		// Silences the target to prevent them from using any skills (or potions)
+		break;
+
+	case BUFF_TYPE_NO_POTIONS:			// "No Potion" prevents target from using potions.
+		break;
+
+	case BUFF_TYPE_KAUL_TRANSFORMATION:	// Transforms the target into a Kaul (a pig thing), preventing you from /town'ing or attacking, but increases defense.
+		break;
+
+	case BUFF_TYPE_UNDEAD:				// User becomes undead, increasing defense but preventing the use of potions and converting all health received into damage.
+		break;
+
+	case BUFF_TYPE_UNSIGHT:				// Unsure how this is different to "Blind", but skill description simply reads "Blocks your[the target's] sight."
+		break;
+
+	case BUFF_TYPE_BLOCK_PHYSICAL_DAMAGE: // Blocks all physical damage.
+		break;
+
+	case BUFF_TYPE_BLOCK_MAGICAL_DAMAGE: // Blocks all magical/skill damage.
+		break;
+
+	case BUFF_TYPE_UNK_POTION:			// unknown potion, "Return of the Warrior", "Comeback potion", perhaps some sort of revive?
+		break;
+
+	case BUFF_TYPE_SLEEP:				// Zantman(Sandman), puts enemies to sleep.
+		break;
+
+	case BUFF_TYPE_INVISIBILITY_POTION:	// "Unidentified potion"
+		break;
+
+	case BUFF_TYPE_GODS_BLESSING:		// Increases your defense/max HP 
+		break;
+
+	case BUFF_TYPE_HELP_COMPENSATION:	// Compensation for using the help system (to help, ask for help, both?)
 		break;
 
 	default:
@@ -600,6 +655,10 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		// Disarms the opponent. (rendering them unable to attack)
 		break;
 
+	case BUFF_TYPE_VARIOUS_EFFECTS: //... whatever the event item grants.
+		// what is tweaked in the database: AC, Attack, MaxHP, resistances
+		break;
+
 	case BUFF_TYPE_PASSION_OF_SOUL:		// Passion of the Soul
 		// Increase pet's HP by 120
 		break;
@@ -612,6 +671,9 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		pTarget->m_bSpeedAmount = 100;
 		break;
 
+	case BUFF_TYPE_UNK_EXPERIENCE:		// unknown buff type, used for something relating to XP.
+		break;
+
 	case BUFF_TYPE_ATTACK_RANGE_ARMOR:	// Inevitable Murderous
 		pTarget->m_sACAmount -= 100;
 		// Buff type increases attack range by 1 meter.
@@ -619,6 +681,55 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 
 	case BUFF_TYPE_MIRROR_DAMAGE_PARTY: // Minak's Thorn
 		// Spreads damage received across party members and mirror's part of the damage.
+		break;
+
+	case BUFF_TYPE_DAGGER_BOW_DEFENSE: // Eskrima
+		// Inflicts attacks as well as a bleeding curse on the enemy. Decreases 10% Dagger and Bow Defense of the enemy under the bleeding curse buff.
+		break;
+
+	case BUFF_TYPE_LOYALTY_AMOUNT:		// Santa's Present (gives an extra +2NP per kill, unlike BUFF_TYPE_LOYALTY which uses an percent).
+		break;
+
+	case BUFF_TYPE_NO_RECALL:			// prevents teleportation.
+		break;
+
+	case BUFF_TYPE_REDUCE_TARGET:		// "Reduction" (reduces target's stats, but enlarges their character to make them easier to attack)
+		break;
+
+	case BUFF_TYPE_SILENCE_TARGET:		// Silences the target to prevent them from using any skills (or potions)
+		break;
+
+	case BUFF_TYPE_NO_POTIONS:			// "No Potion" prevents target from using potions.
+		break;
+
+	case BUFF_TYPE_KAUL_TRANSFORMATION:	// Transforms the target into a Kaul (a pig thing), preventing you from /town'ing or attacking, but increases defense.
+		break;
+
+	case BUFF_TYPE_UNDEAD:				// User becomes undead, increasing defense but preventing the use of potions and converting all health received into damage.
+		break;
+
+	case BUFF_TYPE_UNSIGHT:				// Unsure how this is different to "Blind", but skill description simply reads "Blocks your[the target's] sight."
+		break;
+
+	case BUFF_TYPE_BLOCK_PHYSICAL_DAMAGE: // Blocks all physical damage.
+		break;
+
+	case BUFF_TYPE_BLOCK_MAGICAL_DAMAGE: // Blocks all magical/skill damage.
+		break;
+
+	case BUFF_TYPE_UNK_POTION:			// unknown potion, "Return of the Warrior", "Comeback potion", perhaps some sort of revive?
+		break;
+		
+	case BUFF_TYPE_SLEEP:				// Zantman(Sandman), puts enemies to sleep.
+		break;
+
+	case BUFF_TYPE_INVISIBILITY_POTION:	// "Unidentified potion"
+		break;
+
+	case BUFF_TYPE_GODS_BLESSING:		// Increases your defense/max HP 
+		break;
+
+	case BUFF_TYPE_HELP_COMPENSATION:	// Compensation for using the help system (to help, ask for help, both?)
 		break;
 
 	default:
@@ -635,7 +746,6 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 
 		TO_USER(pTarget)->SetSlotItemValue();
 		TO_USER(pTarget)->SetUserAbility();
-		TO_USER(pTarget)->Send2AI_UserUpdateInfo();
 
 		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
 		result << byBuffType;
@@ -657,6 +767,9 @@ bool CMagicProcess::IsBuff(_MAGIC_TYPE4 * pType)
 {
 	switch (pType->bBuffType)
 	{
+	case BUFF_TYPE_NONE: // used by things like firecrackers.
+		return true;
+
 	case BUFF_TYPE_HP_MP:
 		if (pType->sMaxHP > 0
 			|| pType->sMaxMP > 0)
@@ -744,6 +857,9 @@ bool CMagicProcess::IsBuff(_MAGIC_TYPE4 * pType)
 		// Disarms the opponent. (rendering them unable to attack)
 		return false;
 
+	case BUFF_TYPE_VARIOUS_EFFECTS: //... whatever the event item grants.
+		return true; // everything seems positive, however it might be prudent to have this check.
+
 	case BUFF_TYPE_PASSION_OF_SOUL:		// Passion of the Soul
 	case BUFF_TYPE_FIRM_DETERMINATION:	// Firm Determination
 		return true;
@@ -752,10 +868,43 @@ bool CMagicProcess::IsBuff(_MAGIC_TYPE4 * pType)
 		// skill explicitly slows
 		return false;
 
+	case BUFF_TYPE_UNK_EXPERIENCE:		//unknown buff type, used for something relating to XP.
+		return true;
+
 	case BUFF_TYPE_ATTACK_RANGE_ARMOR:	// Inevitable Murderous
-	case BUFF_TYPE_MIRROR_DAMAGE_PARTY: // Minak's Thorn
+	case BUFF_TYPE_MIRROR_DAMAGE_PARTY:	// Minak's Thorn
+		return true;
+
+	case BUFF_TYPE_DAGGER_BOW_DEFENSE:	// Eskrima
+		return false;
+
+	case BUFF_TYPE_LOYALTY_AMOUNT:		// Santa's Present (gives an extra +2NP per kill).
+		return true;
+
+	case BUFF_TYPE_NO_RECALL:			// prevents teleportation.
+	case BUFF_TYPE_REDUCE_TARGET:		// "Reduction" (reduces target's stats, but enlarges their character to make them easier to attack)
+	case BUFF_TYPE_SILENCE_TARGET:		// Silences the target to prevent them from using any skills (or potions)
+	case BUFF_TYPE_NO_POTIONS:			// "No Potion" prevents target from using potions.
+	case BUFF_TYPE_KAUL_TRANSFORMATION:	// Transforms the target into a Kaul (a pig thing), preventing you from /town'ing or attacking, but increases defense.
+	case BUFF_TYPE_UNDEAD:				// User becomes undead, increasing defense but preventing the use of potions and converting all health received into damage.
+	case BUFF_TYPE_UNSIGHT:				// Unsure how this is different to "Blind", but skill description simply reads "Blocks your[the target's] sight."
+		return false;
+
+
+	case BUFF_TYPE_BLOCK_PHYSICAL_DAMAGE: // Blocks all physical damage.
+	case BUFF_TYPE_BLOCK_MAGICAL_DAMAGE:  // Blocks all magical/skill damage.
+	case BUFF_TYPE_UNK_POTION:			  // unknown potion, "Return of the Warrior", "Comeback potion", perhaps some sort of revive?
+		return true;
+
+	case BUFF_TYPE_SLEEP:				// Zantman(Sandman), puts enemies to sleep.
+		return false;
+
+	case BUFF_TYPE_INVISIBILITY_POTION:	// "Unidentified potion", it debuffs, but hides in the interest of the user. Needs to be a buff.
+	case BUFF_TYPE_GODS_BLESSING:		// Increases your defense/max HP 
+	case BUFF_TYPE_HELP_COMPENSATION:	// Compensation for using the help system (to help, ask for help, both?)
 		return true;
 	}
 
+	printf("WARNING: Unhandled buff type (%d) for skill %d, assuming it's a debuff.\n", pType->bBuffType, pType->iNum);
 	return false;
 }
