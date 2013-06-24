@@ -302,4 +302,6 @@ void CUser::GameStart(Packet & pkt)
 		if (isDead())
 			SendDeathAnimation();
 	}
+
+	m_tHPLastTimeNormal = UNIXTIME;
 }

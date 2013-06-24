@@ -388,9 +388,6 @@ bool CUser::HandlePacket(Packet & pkt)
 		return false;
 	}
 
-	if (command == WIZ_GAMESTART)
-		m_tHPLastTimeNormal = UNIXTIME;
-
 	Update();
 	return true;
 }
