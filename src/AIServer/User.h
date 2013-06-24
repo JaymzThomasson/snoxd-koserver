@@ -54,12 +54,7 @@ public:
 	short   m_sPartyTotalLevel;			// ÆÄÆ¼ ¸ÎÀº »ç¶÷ÀÇ ÃÑ ·¹º§
 	short	m_sPartyNumber;				// ÆÄÆ¼ ¹øÈ£
 
-	short	m_sHitDamage;				// Hit
-	float	m_fHitrate;					// °ø°Ý ¹ÎÃ¸·ü
-	float	m_fAvoidrate;				// ¹æ¾î ¹ÎÃ¸·ü
-	short	m_sAC;						// ¹æ¾îÀ²
-	short   m_sItemAC;                  // ¾ÆÀÌÅÛ ¹æ¾î·ü
-	
+	short   m_sItemAc;                  // ¾ÆÀÌÅÛ ¹æ¾î·ü
 
 	short  m_sSurroundNpcNumber[8];		// Npc ´Ù±¼~
 
@@ -71,7 +66,6 @@ public:
 	short	m_sMagicAmountRightHand;        // The amount of magic item in user's left hand
 
 public:
-	short GetMagicDamage(int damage, short tid);
 	void Initialize();
 	void InitNpcAttack();
 	void Attack(int sid, int tid);	// ATTACK
@@ -79,7 +73,6 @@ public:
 	void Dead(int tid, int nDamage);					// user dead
 	void SetExp(int iNpcExp, int iLoyalty, int iLevel);		// user exp
 	void SetPartyExp(int iNpcExp, int iLoyalty, int iPartyLevel, int iMan);		// user exp
-	short GetDamage(int tid, int magicid=0);
 	int IsSurroundCheck(float fX, float fY, float fZ, int NpcID);
 	void HealMagic();
 	void HealAreaCheck(int rx, int rz);
@@ -87,6 +80,8 @@ public:
 	void SendAttackSuccess(short tid, uint8 result, short sDamage, int nHP=0, short sAttack_type=1, uint8 type = 1, short sid = -1);
 	void SendHP();												// userÀÇ HP
 	void SendExp(int iExp, int iLoyalty, int tType = 1);
+
+	short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false);
 
 	CUser();
 	virtual ~CUser();

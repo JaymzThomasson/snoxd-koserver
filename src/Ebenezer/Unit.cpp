@@ -2,10 +2,12 @@
 #include "Map.h"
 #ifdef EBENEZER
 #	include "EbenezerDlg.h"
+#	include "User.h"
 #else
 #	include "../AIServer/ServerDlg.h"
+#	include "../AIServer/Npc.h"
+#	include "../AIServer/User.h"
 #endif
-#include "User.h"
 #include <cfloat>
 
 Unit::Unit(bool bPlayer /*= false*/) 
@@ -25,23 +27,12 @@ void Unit::Initialize()
 
 	m_sTotalHit = 0;
 	m_sTotalAc = 0;
-	m_sTotalHitrate = 0.0f;
-	m_sTotalEvasionrate = 0.0f;
+	m_fTotalHitrate = 0.0f;
+	m_fTotalEvasionrate = 0.0f;
 
 	m_bResistanceBonus = 0;
-	m_bFireR = 0;
-	m_bColdR = 0;
-	m_bLightningR = 0;
-	m_bMagicR = 0;
-	m_bDiseaseR = 0;
-	m_bPoisonR = 0;
-
-	m_sDaggerR = 0;			
-	m_sSwordR = 0;			
-	m_sAxeR = 0;						
-	m_sMaceR = 0;						
-	m_sSpearR = 0;					
-	m_sBowR = 0;		
+	m_sFireR = m_sColdR = m_sLightningR = m_sMagicR = m_sDiseaseR = m_sPoisonR = 0;
+	m_sDaggerR = m_sSwordR = m_sAxeR = m_sMaceR = m_sSpearR = m_sBowR = 0;		
 
 	FastGuard lock(m_equippedItemBonusLock);
 	m_equippedItemBonuses.clear();
@@ -175,11 +166,29 @@ void Unit::InsertRegion(int16 insert_x, int16 insert_z)
 }
 #endif
 
-short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
+/* These should not be declared here, but it's necessary until the AI server better shares unit code */
+
+/**
+ * @brief	Calculates damage for players attacking either monsters/NPCs or other players.
+ *
+ * @param	pTarget			Target unit.
+ * @param	pSkill			The skill used in the attack, if applicable..
+ * @param	bPreviewOnly	true to preview the damage only and not apply any item bonuses.
+ * 							Used by AI logic to determine who to target (by checking who deals the most damage).
+ *
+ * @return	The damage.
+ */
+short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool bPreviewOnly /*= false*/)
 {
+	/*
+		This seems identical to users attacking NPCs/monsters.
+		The only differences are:
+		 - GetACDamage() is not called
+		 - the resulting damage is not divided by 3.
+	 */
 	short damage = 0;
 	int random = 0;
-	short common_damage = 0, temp_hit = 0, temp_ac = 0, temp_hit_B = 0;
+	short temp_hit = 0, temp_ac = 0, temp_hit_B = 0;
 	uint8 result;
 
 	if (pTarget == nullptr || pTarget->isDead())
@@ -188,7 +197,7 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 	temp_ac = pTarget->m_sTotalAc + pTarget->m_sACAmount;
 	temp_hit_B = (int)((m_sTotalHit * m_bAttackAmount * 200 / 100) / (temp_ac + 240));
 
-    // Skill/arrow hit.    
+	// Skill/arrow hit.    
 	if (pSkill != nullptr)
 	{
 		// SKILL HIT! YEAH!	                                
@@ -206,7 +215,7 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 			// Relative hit.
 			else 
 			{
-				result = GetHitRate((m_sTotalHitrate / pTarget->m_sTotalEvasionrate) * (pType1->sHitRate / 100.0f));			
+				result = GetHitRate((m_fTotalHitrate / pTarget->m_fTotalEvasionrate) * (pType1->sHitRate / 100.0f));			
 			}
 
 			temp_hit = (short)(temp_hit_B * (pType1->sHit / 100.0f));
@@ -226,7 +235,7 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 			// Relative hit/Arc hit.
 			else   
 			{
-				result = GetHitRate((m_sTotalHitrate / pTarget->m_sTotalEvasionrate) * (pType2->sHitRate / 100.0f));
+				result = GetHitRate((m_fTotalHitrate / pTarget->m_fTotalEvasionrate) * (pType2->sHitRate / 100.0f));
 			}
 
 			if (pType2->bHitType == 1 /* || pType2->bHitType == 2 */) 
@@ -239,7 +248,7 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 	else 
 	{
 		temp_hit = m_sTotalHit * m_bAttackAmount / 100;
-		result = GetHitRate(m_sTotalHitrate / pTarget->m_sTotalEvasionrate);
+		result = GetHitRate(m_fTotalHitrate / pTarget->m_fTotalEvasionrate);
 	}
 	
 	switch (result)
@@ -264,24 +273,124 @@ short Unit::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill)
 			}		
 			
 			break;
-		case FAIL:
-			damage = 0;
-			break;
 	}	
 
-	damage = GetMagicDamage(damage, pTarget);	// 2. Magical item damage....	
+	// Apply item bonuses
+	damage = GetMagicDamage(damage, pTarget, bPreviewOnly);
 
 	// These two only apply to players
-	if (isPlayer() && pTarget->isPlayer())
+	if (pTarget->isPlayer())
 	{
 		damage = GetACDamage(damage, pTarget);		// 3. Additional AC calculation....	
-		damage = damage / 3;
+		damage /= 3;
 	}
 
-	return damage;	  
+	return damage;
 }
 
-short Unit::GetMagicDamage(int damage, Unit *pTarget)
+short CNpc::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool bPreviewOnly /*= false*/) 
+{
+	if (pTarget->isPlayer())
+		return GetDamage(TO_USER(pTarget), pSkill);
+
+	return GetDamage(TO_NPC(pTarget), pSkill);
+}
+
+/**
+ * @brief	Calculates damage for monsters/NPCs attacking players.
+ *
+ * @param	pTarget			Target player.
+ * @param	pSkill			The skill (not used here).
+ * @param	bPreviewOnly	true to preview the damage only and not apply any item bonuses (not used here).
+ *
+ * @return	The damage.
+ */
+short CNpc::GetDamage(CUser *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool bPreviewOnly /*= false*/) 
+{
+	if (pTarget == nullptr)
+		return 0;
+
+	short damage = 0, Ac, HitB;
+
+	Ac = TO_USER(pTarget)->m_sItemAc + pTarget->GetLevel() 
+		+ (pTarget->m_sTotalAc + pTarget->m_sACAmount - pTarget->GetLevel() - TO_USER(pTarget)->m_sItemAc);
+	HitB = (int)((m_sTotalHit * m_bAttackAmount * 200 / 100) / (Ac + 240));
+
+	if (HitB <= 0)
+		return 0;
+
+	uint8 result = GetHitRate(m_fTotalHitrate / pTarget->m_fTotalEvasionrate);	
+	switch (result)
+	{
+	case GREAT_SUCCESS:
+		damage = (int)(0.3f * myrand(0, HitB));
+		damage += (short)(0.85f * (float)HitB);
+		damage = (damage * 3) / 2;
+		break;
+
+	case SUCCESS:
+	case NORMAL:
+		damage = (int)(0.3f * myrand(0, HitB));
+		damage += (short)(0.85f * (float)HitB);
+		break;
+	}
+
+	int nMaxDamage = (int)(2.6 * m_sTotalHit);
+	if (damage > nMaxDamage)	
+		damage = nMaxDamage;
+
+	return damage;	
+}
+
+/**
+ * @brief	Calculates damage for monsters/NPCs attacking other monsters/NPCs.
+ *
+ * @param	pTarget			Target NPC/monster.
+ * @param	pSkill			The skill (not used here).
+ * @param	bPreviewOnly	true to preview the damage only and not apply any item bonuses (not used here).
+ *
+ * @return	The damage.
+ */
+short CNpc::GetDamage(CNpc *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool bPreviewOnly /*= false*/) 
+{
+	if (pTarget == nullptr)
+		return 0;
+
+	short damage = 0, Hit = m_sTotalHit, Ac = pTarget->m_sTotalAc;
+	uint8 result = GetHitRate(m_fTotalHitrate / pTarget->m_fTotalEvasionrate);
+	switch (result)
+	{
+	case GREAT_SUCCESS:
+		damage = (short)(0.6 * Hit);
+		if (damage <= 0)
+		{
+			damage = 0;
+			break;
+		}
+		damage = myrand(0, damage);
+		damage += (short)(0.7 * Hit);
+		break;
+
+	case SUCCESS:
+	case NORMAL:
+		if (Hit - Ac > 0)
+		{
+			damage = (short)(0.6 * (Hit - Ac));
+			if (damage <= 0)
+			{
+				damage = 0;
+				break;
+			}
+			damage = myrand(0, damage);
+			damage += (short)(0.7 * (Hit - Ac));
+		}
+		break;
+	}
+	
+	return damage;	
+}
+
+short Unit::GetMagicDamage(int damage, Unit *pTarget, bool bPreviewOnly /*= false*/)
 {
 	if (pTarget->isDead())
 		return 0;
@@ -307,16 +416,16 @@ short Unit::GetMagicDamage(int damage, Unit *pTarget)
 			switch (bType)
 			{
 			case ITEM_TYPE_FIRE :	// Fire Damage
-				total_r = pTarget->m_bFireR + pTarget->m_bFireRAmount;
+				total_r = pTarget->m_sFireR + pTarget->m_bFireRAmount;
 				break;
 			case ITEM_TYPE_COLD :	// Ice Damage
-				total_r = pTarget->m_bColdR + pTarget->m_bColdRAmount;
+				total_r = pTarget->m_sColdR + pTarget->m_bColdRAmount;
 				break;
 			case ITEM_TYPE_LIGHTNING :	// Lightning Damage
-				total_r = pTarget->m_bLightningR + pTarget->m_bLightningRAmount;
+				total_r = pTarget->m_sLightningR + pTarget->m_bLightningRAmount;
 				break;
 			case ITEM_TYPE_POISON :	// Poison Damage
-				total_r = pTarget->m_bPoisonR + pTarget->m_bPoisonRAmount;
+				total_r = pTarget->m_sPoisonR + pTarget->m_bPoisonRAmount;
 				break;
 			case ITEM_TYPE_HP_DRAIN :	// HP Drain		
 				HpChange(temp_damage);			

@@ -692,7 +692,8 @@ void CUser::SendMyInfo()
 			<< GetStat(STAT_INT) << uint8(GetStatItemBonus(STAT_INT))
 			<< GetStat(STAT_CHA) << uint8(GetStatItemBonus(STAT_CHA))
 			<< m_sTotalHit << m_sTotalAc
-			<< m_bFireR << m_bColdR << m_bLightningR << m_bMagicR << m_bDiseaseR << m_bPoisonR
+			<< uint8(m_sFireR) << uint8(m_sColdR) << uint8(m_sLightningR)
+			<< uint8(m_sMagicR) << uint8(m_sDiseaseR) << uint8(m_sPoisonR)
 			<< m_iGold
 			<< m_bAuthority
 			<< m_bPersonalRank << m_bKnightsRank; // national rank, leader rank
@@ -967,9 +968,8 @@ void CUser::SetSlotItemValue()
 	m_sItemHitrate = m_sItemEvasionrate = 100; 
 	
 	memset(m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
-	m_bFireR = 0; m_bColdR = 0; m_bLightningR = 0; m_bMagicR = 0; m_bDiseaseR = 0; m_bPoisonR = 0;
-	
-	m_sDaggerR = 0; m_sSwordR = 0; m_sAxeR = 0; m_sMaceR = 0; m_sSpearR = 0; m_sBowR = 0;
+	m_sFireR = m_sColdR = m_sLightningR = m_sMagicR = m_sDiseaseR = m_sPoisonR = 0;
+	m_sDaggerR = m_sSwordR = m_sMaceR = m_sSpearR = m_sBowR = 0;
 	m_equippedItemBonuses.clear();
 
 	// Apply stat bonuses from all equipped & cospre items.
@@ -1021,12 +1021,12 @@ void CUser::SetSlotItemValue()
 		m_sItemEvasionrate += pTable->m_sEvarate;
 		m_sItemWeight += pTable->m_sWeight;
 
-		m_bFireR += pTable->m_bFireR;
-		m_bColdR += pTable->m_bColdR;
-		m_bLightningR += pTable->m_bLightningR;
-		m_bMagicR += pTable->m_bMagicR;
-		m_bDiseaseR += pTable->m_bCurseR;
-		m_bPoisonR += pTable->m_bPoisonR;
+		m_sFireR += pTable->m_bFireR;
+		m_sColdR += pTable->m_bColdR;
+		m_sLightningR += pTable->m_bLightningR;
+		m_sMagicR += pTable->m_bMagicR;
+		m_sDiseaseR += pTable->m_bCurseR;
+		m_sPoisonR += pTable->m_bPoisonR;
 
 		m_sDaggerR += pTable->m_sDaggerAc;
 		m_sSwordR += pTable->m_sSwordAc;
@@ -1360,27 +1360,7 @@ void CUser::ShowEffect(uint32 nSkillID)
 void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 {
 	Packet result(initialInfo ? AG_USER_INFO : AG_USER_UPDATE);
-	FastGuard lock(m_equippedItemBonusLock);
-
-	result.SByte();
-	result	<< GetSocketID()
-			<< GetName()
-			<< GetZoneID() << GetNation() << GetLevel()
-			<< m_sHp << m_sMp
-			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
-			<< uint16(m_sTotalAc + m_sACAmount)
-			<< m_sTotalHitrate << m_sTotalEvasionrate
-			<< m_sItemAc
-			<< m_bAuthority << m_bInvisibilityType
-			<< uint32(m_equippedItemBonuses.size());
-
-	foreach (itr, m_equippedItemBonuses)
-	{
-		result << itr->first << uint32(itr->second.size()); // slot ID & number of bonuses
-		foreach (bonusItr, itr->second)
-			result << bonusItr->first << bonusItr->second; // bonus type, bonus amount
-	}
-
+	GetUserInfoForAI(result);
 	Send_AIServer(&result);
 }
 
@@ -1471,9 +1451,9 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 		m_sTotalHit = (short)(((((0.005f * sItemDamage * (temp_str + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_str )) + 3) * (m_bAttackAmount / 100)) + baseAP);	
 
 	m_sTotalAc = (short)(p_TableCoefficient->AC * (GetLevel() + m_sItemAc));
-	m_sTotalHitrate = ((1 + p_TableCoefficient->Hitrate * GetLevel() *  temp_dex ) * m_sItemHitrate/100 ) * (m_bHitRateAmount/100);
+	m_fTotalHitrate = ((1 + p_TableCoefficient->Hitrate * GetLevel() *  temp_dex ) * m_sItemHitrate/100 ) * (m_bHitRateAmount/100);
 
-	m_sTotalEvasionrate = ((1 + p_TableCoefficient->Evasionrate * GetLevel() * temp_dex ) * m_sItemEvasionrate/100) * (m_sAvoidRateAmount/100);
+	m_fTotalEvasionrate = ((1 + p_TableCoefficient->Evasionrate * GetLevel() * temp_dex ) * m_sItemEvasionrate/100) * (m_sAvoidRateAmount/100);
 
 	SetMaxHp();
 	SetMaxMp();
@@ -2187,9 +2167,10 @@ void CUser::GetUserInfoForAI(Packet & result)
 	result	<< GetSocketID()
 			<< GetName() << GetZoneID() << GetNation() << GetLevel()
 			<< m_sHp << m_sMp 
-			<< uint16(m_sTotalHit * m_bAttackAmount / 100)
-			<< uint16(m_sTotalAc + m_sACAmount)
-			<< m_sTotalHitrate << m_sTotalEvasionrate
+			<< m_sTotalHit << m_bAttackAmount
+			<< m_sTotalAc << m_sACAmount
+			<< m_fTotalHitrate << m_fTotalEvasionrate
+			<< m_sItemAc
 			<< m_sPartyIndex << m_bAuthority
 			<< m_bInvisibilityType
 			<< uint32(m_equippedItemBonuses.size());
@@ -2412,8 +2393,8 @@ void CUser::SendItemMove(uint8 subcommand)
 				<< GetStatBonusTotal(STAT_STR) << GetStatBonusTotal(STAT_STA)
 				<< GetStatBonusTotal(STAT_DEX) << GetStatBonusTotal(STAT_INT)
 				<< GetStatBonusTotal(STAT_CHA)
-				<< uint16(m_bFireR + m_bResistanceBonus) << uint16(m_bColdR + m_bResistanceBonus) << uint16(m_bLightningR + m_bResistanceBonus) 
-				<< uint16(m_bMagicR + m_bResistanceBonus) << uint16(m_bDiseaseR + m_bResistanceBonus) << uint16(m_bPoisonR + m_bResistanceBonus);
+				<< uint16(m_sFireR + m_bResistanceBonus) << uint16(m_sColdR + m_bResistanceBonus) << uint16(m_sLightningR + m_bResistanceBonus) 
+				<< uint16(m_sMagicR + m_bResistanceBonus) << uint16(m_sDiseaseR + m_bResistanceBonus) << uint16(m_sPoisonR + m_bResistanceBonus);
 	}
 	Send(&result);
 }

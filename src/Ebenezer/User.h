@@ -431,6 +431,8 @@ public:
 	void HPTimeChange();
 	void HPTimeChangeType3();
 
+	short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false);
+
 	void SendDurability(uint8 slot, uint16 durability);
 	void SendItemMove(uint8 subcommand);
 	void ItemWoreOut( int type, int damage );

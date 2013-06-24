@@ -119,8 +119,8 @@ public:
 	void RemoveRegion(int16 del_x, int16 del_z);
 	void InsertRegion(int16 insert_x, int16 insert_z);
 
-	short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill);
-	short GetMagicDamage(int damage, Unit *pTarget);
+	virtual short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false) = 0;
+	short GetMagicDamage(int damage, Unit *pTarget, bool bPreviewOnly = false);
 	short GetACDamage(int damage, Unit *pTarget);
 	uint8 GetHitRate(float rate);
 
@@ -161,11 +161,11 @@ public:
 
 	short	m_sTotalHit;
 	short	m_sTotalAc;
-	float	m_sTotalHitrate;
-	float	m_sTotalEvasionrate;
+	float	m_fTotalHitrate;
+	float	m_fTotalEvasionrate;
 
 	short   m_sACAmount;
-	uint8    m_bAttackAmount;
+	uint8   m_bAttackAmount;
 	short	m_sMagicAttackAmount;
 	short	m_sMaxHPAmount, m_sMaxMPAmount;
 	uint8	m_bHitRateAmount;
@@ -174,17 +174,17 @@ public:
 	uint8	m_bAttackSpeedAmount;
 	uint8   m_bSpeedAmount;
 
-	uint8	m_bFireR;
+	uint16	m_sFireR;
 	uint8	m_bFireRAmount;
-	uint8	m_bColdR;
+	uint16	m_sColdR;
 	uint8	m_bColdRAmount;
-	uint8	m_bLightningR;
+	uint16	m_sLightningR;
 	uint8	m_bLightningRAmount;
-	uint8	m_bMagicR;
+	uint16	m_sMagicR;
 	uint8	m_bMagicRAmount;
-	uint8	m_bDiseaseR;
+	uint16	m_sDiseaseR;
 	uint8	m_bDiseaseRAmount;
-	uint8	m_bPoisonR;
+	uint16	m_sPoisonR;
 	uint8	m_bPoisonRAmount;	
 
 	uint8	m_bResistanceBonus;

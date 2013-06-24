@@ -125,10 +125,16 @@ void CGameSocket::RecvUserInfo(Packet & pkt)
 
 	pkt.SByte();
 	pkt >> pUser->m_iUserId >> pUser->m_strUserID >> pUser->m_bZone >> pUser->m_bNation 
-		>> pUser->m_bLevel >> pUser->m_sHP >> pUser->m_sMP >> pUser->m_sHitDamage
-		>> pUser->m_sAC >> pUser->m_fHitrate >> pUser->m_fAvoidrate >> pUser->m_sItemAC 
+		>> pUser->m_bLevel >> pUser->m_sHP >> pUser->m_sMP 
+		>> pUser->m_sTotalHit >> pUser->m_bAttackAmount
+		>> pUser->m_sTotalAc >> pUser->m_sACAmount
+		>> pUser->m_fTotalHitrate >> pUser->m_fTotalEvasionrate 
+		>> pUser->m_sItemAc
+		>> pUser->m_sPartyNumber 
 		>> pUser->m_byIsOP >> pUser->m_bInvisibilityType
 		>> equippedItems;
+
+	printf("User AC = %d\n", pUser->m_sItemAc);
 
 	FastGuard lock(pUser->m_equippedItemBonusLock);
 	pUser->m_equippedItemBonuses.clear();
@@ -402,8 +408,12 @@ void CGameSocket::RecvUserUpdate(Packet & pkt)
 
 	pkt.SByte();
 	pkt >> pUser->m_strUserID >> pUser->m_bZone >> pUser->m_bNation 
-		>> pUser->m_bLevel >> pUser->m_sHP >> pUser->m_sMP >> pUser->m_sHitDamage
-		>> pUser->m_sAC >> pUser->m_fHitrate >> pUser->m_fAvoidrate >> pUser->m_sItemAC 
+		>> pUser->m_bLevel >> pUser->m_sHP >> pUser->m_sMP 
+		>> pUser->m_sTotalHit >> pUser->m_bAttackAmount
+		>> pUser->m_sTotalAc >> pUser->m_sACAmount
+		>> pUser->m_fTotalHitrate >> pUser->m_fTotalEvasionrate 
+		>> pUser->m_sItemAc
+		>> pUser->m_sPartyNumber 
 		>> pUser->m_byIsOP >> pUser->m_bInvisibilityType
 		>> equippedItems;
 
@@ -463,8 +473,10 @@ void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 		pkt >> pUser->m_iUserId >> pUser->m_strUserID >> pUser->m_bZone
 			>> pUser->m_bNation >> pUser->m_bLevel 
 			>> pUser->m_sHP >> pUser->m_sMP
-			>> pUser->m_sHitDamage >> pUser->m_sAC
-			>> pUser->m_fHitrate >> pUser->m_fAvoidrate
+			>> pUser->m_sTotalHit >> pUser->m_bAttackAmount
+			>> pUser->m_sTotalAc >> pUser->m_sACAmount
+			>> pUser->m_fTotalHitrate >> pUser->m_fTotalEvasionrate 
+			>> pUser->m_sItemAc
 			>> pUser->m_sPartyNumber >> pUser->m_byIsOP
 			>> pUser->m_bInvisibilityType
 			>> equippedItems;
@@ -569,7 +581,7 @@ void CGameSocket::RecvPartyInfoAllData(Packet & pkt)
 	_PARTY_GROUP *pParty = new _PARTY_GROUP;
 	pParty->wIndex = sPartyIndex;
 
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < MAX_PARTY_USERS; i++)
 		pParty->uid[i] = pkt.read<uint16>();
 
 	if (g_pMain->m_arParty.PutData(pParty->wIndex, pParty))

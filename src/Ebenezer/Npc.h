@@ -3,7 +3,7 @@
 #include "LuaEngine.h"
 #include "Unit.h"
 
-class CNpc  : public Unit
+class CNpc : public Unit
 {
 public:
 	virtual uint16 GetID() { return m_sNid; }
@@ -73,6 +73,10 @@ public:
 
 	virtual bool CanAttack(Unit * pTarget);
 	bool isHostileTo(Unit * pTarget);
+
+	short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false);
+	short GetDamage(CUser *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false);
+	short GetDamage(CNpc *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false);
 
 	virtual ~CNpc();
 

@@ -239,10 +239,10 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto, bool bMonster)
 	m_sMP				= proto->m_sMaxMP;
 	m_sMaxMP			= proto->m_sMaxMP;
 	m_sAttack			= proto->m_sAttack;
-	m_sDefense			= proto->m_sDefense;
-	m_sHitRate			= proto->m_sHitRate;
-	m_sEvadeRate		= proto->m_sEvadeRate;
-	m_sDamage			= proto->m_sDamage;
+	m_sTotalAc			= proto->m_sDefense;
+	m_fTotalHitrate		= proto->m_sHitRate;
+	m_fTotalEvasionrate	= proto->m_sEvadeRate;
+	m_sTotalHit			= proto->m_sDamage;
 	m_sAttackDelay		= proto->m_sAttackDelay;
 	m_sSpeed			= proto->m_sSpeed;
 
@@ -257,12 +257,12 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto, bool bMonster)
 
 	m_fSecForMetor		= 4.0f;
 	m_sStandTime		= proto->m_sStandTime;
-	m_byFireR			= proto->m_byFireR;
-	m_byColdR			= proto->m_byColdR;
-	m_byLightningR		= proto->m_byLightningR;
-	m_byMagicR			= proto->m_byMagicR;
-	m_byDiseaseR		= proto->m_byDiseaseR;
-	m_byPoisonR			= proto->m_byPoisonR;
+	m_sFireR			= proto->m_byFireR;
+	m_sColdR			= proto->m_byColdR;
+	m_sLightningR		= proto->m_byLightningR;
+	m_sMagicR			= proto->m_byMagicR;
+	m_sDiseaseR		= proto->m_byDiseaseR;
+	m_sPoisonR			= proto->m_byPoisonR;
 	m_bySearchRange		= proto->m_bySearchRange;
 	m_byAttackRange		= proto->m_byAttackRange;
 	m_byTracingRange	= proto->m_byTracingRange;
@@ -2283,18 +2283,14 @@ int CNpc::Attack()
 
 				if (nRandom < nPercent)	
 				{
-					Packet result(AG_MAGIC_ATTACK_RESULT, uint8(MAGIC_EFFECTING));
-					result	<< m_proto->m_iMagic1 << GetID() << pUser->GetID()
-							<< uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
-					g_pMain->Send(&result);
-
+					CNpcMagicProcess::MagicPacket(MAGIC_EFFECTING, m_proto->m_iMagic1, GetID(), pUser->GetID());
 					//TRACE("LongAndMagicAttack --- sid=%d, tid=%d\n", GetID(), pUser->GetID());
 					return m_sAttackDelay;
 				}
 			}
 		}
 
-		nDamage = GetFinalDamage(pUser);	// 최종 대미지
+		nDamage = GetDamage(pUser); /* preview the amount of damage that might be dealt for comparison */
 		
 		if (nDamage <= 0)
 			SendAttackSuccess(ATTACK_FAIL, pUser->GetID(), nDamage, pUser->m_sHP);
@@ -2332,19 +2328,15 @@ int CNpc::Attack()
 			return 0;
 		}	*/
 
-		// MoveAttack
 		//MoveAttack();
 
-		// 명중이면 //Damage 처리 ----------------------------------------------------------------//
-		nDamage = GetNFinalDamage(pNpc);	// 최종 대미지
-
-		if(nDamage > 0)	{
-			pNpc->SetDamage(0, nDamage, GetID());
-			//if(pNpc->m_iHP > 0)
-			SendAttackSuccess(ATTACK_SUCCESS, pNpc->GetID(), nDamage, pNpc->m_iHP);
-		}
-		else
+		nDamage = GetDamage(pNpc);
+		if (nDamage <= 0)	
 			SendAttackSuccess(ATTACK_FAIL, pNpc->GetID(), nDamage, pNpc->m_iHP);
+		else if (pNpc->SetDamage(0, nDamage, GetID()))
+			SendAttackSuccess(ATTACK_SUCCESS, pNpc->GetID(), nDamage, pNpc->m_iHP);
+		else
+			SendAttackSuccess(ATTACK_TARGET_DEAD, pNpc->GetID(), nDamage, pNpc->m_iHP);
 	}
 
 	return m_sAttackDelay;
@@ -2439,7 +2431,8 @@ int CNpc::LongAndMagicAttack()
 			return nStandingTime;
 		}
 
-		if(pNpc->m_iHP <= 0 || pNpc->m_NpcState == NPC_DEAD)	{
+		if (pNpc->isDead())
+		{
 			SendAttackSuccess(ATTACK_TARGET_DEAD, pNpc->GetID(), 0, 0);
 			InitTarget();
 			m_NpcState = NPC_STANDING;
@@ -2479,12 +2472,16 @@ bool CNpc::TracingAttack()
 			|| pUser->isGM())
 			return false;
 
-		nDamage = GetFinalDamage(pUser);
-		
+		nDamage = GetDamage(pUser);
 		if (nDamage <= 0)
 			SendAttackSuccess(ATTACK_FAIL, pUser->GetID(), nDamage, pUser->m_sHP);
 		else if (pUser->SetDamage(nDamage, GetID()))
 			SendAttackSuccess(ATTACK_SUCCESS, pUser->GetID(), nDamage, pUser->m_sHP);
+		else
+		{
+			SendAttackSuccess(ATTACK_TARGET_DEAD, pUser->GetID(), nDamage, pUser->m_sHP);
+			return false;
+		}
 	}
 	else // Target is an NPC/monster
 	{
@@ -2498,22 +2495,15 @@ bool CNpc::TracingAttack()
 			return false;
 		}
 
-		nDamage = GetNFinalDamage(pNpc);
-
+		nDamage = GetDamage(pNpc);
 		if (nDamage <= 0)
-		{
 			SendAttackSuccess(ATTACK_FAIL, pNpc->GetID(), nDamage, pNpc->m_iHP);
-		}
+		else if (pNpc->SetDamage(0, nDamage, GetID())) 
+			SendAttackSuccess(ATTACK_SUCCESS, pNpc->GetID(), nDamage, pNpc->m_iHP);
 		else
 		{
-			if (!pNpc->SetDamage(0, nDamage, GetID())) 
-			{
-				// SendAttackSuccess(ATTACK_SUCCESS, pNpc->GetID(), nDamage, pNpc->m_iHP);
-				SendAttackSuccess(ATTACK_TARGET_DEAD, pNpc->GetID(), nDamage, pNpc->m_iHP);
-				return false;
-			}
-
-			SendAttackSuccess(ATTACK_SUCCESS, pNpc->GetID(), nDamage, pNpc->m_iHP);
+			SendAttackSuccess(ATTACK_TARGET_DEAD, pNpc->GetID(), nDamage, pNpc->m_iHP);
+			return false;
 		}
 	}
 
@@ -2594,76 +2584,6 @@ void CNpc::MoveAttack()
 	
 	m_fEndPoint_X = GetX();
 	m_fEndPoint_Y = GetZ();
-}
-
-int CNpc::GetNFinalDamage(CNpc *pNpc)
-{
-	short damage = 0;
-	float Attack = 0;
-	float Avoid = 0;
-	short Hit = 0;
-	short Ac = 0;
-	int random = 0;
-	uint8 result;
-
-	if(pNpc == nullptr)	return damage;
-
-	// 공격민첩
-	Attack = (float)m_sHitRate;
-
-	// 방어민첩
-	Avoid = (float)pNpc->m_sEvadeRate;
-
-	//공격자 Hit 
-	Hit = m_sDamage;
-	
-	// 방어자 Ac 
-	Ac = (short)pNpc->m_sDefense;
-
-	// 타격비 구하기
-	result = GetHitRate(Attack/Avoid);		
-
-	switch(result)
-	{
-//	case GREAT_SUCCESS:
-//		damage = (short)(0.6 * (2 * Hit));
-//		if(damage <= 0){
-//			damage = 0;
-//			break;
-//		}
-//		damage = myrand(0, damage);
-//		damage += (short)(0.7 * (2 * Hit));
-//		break;
-	case GREAT_SUCCESS:
-		damage = (short)(0.6 * Hit);
-		if(damage <= 0){
-			damage = 0;
-			break;
-		}
-		damage = myrand(0, damage);
-		damage += (short)(0.7 * Hit);
-		break;
-	case SUCCESS:
-	case NORMAL:
-		if(Hit - Ac > 0)
-		{
-			damage = (short)(0.6 * (Hit - Ac));
-			if(damage <= 0){
-				damage = 0;
-			break;
-			}
-			damage = myrand(0, damage);
-			damage += (short)(0.7 * (Hit - Ac));
-		}
-		else
-			damage = 0;
-		break;
-	case FAIL:
-		damage = 0;
-		break;
-	}
-	
-	return damage;	
 }
 
 bool CNpc::IsCompStatus(CUser* pUser)
@@ -2757,140 +2677,6 @@ bool CNpc::ResetPath()
 	return true;	
 }
 
-int CNpc::GetFinalDamage(CUser *pUser, int type)
-{
-	short damage = 0;
-	float Attack = 0;
-	float Avoid = 0;
-	short Hit = 0;
-	short Ac = 0;
-	short HitB = 0;
-	int random = 0;
-	uint8 result;
-
-	if(pUser == nullptr)	return damage;
-	
-	Attack = (float)m_sHitRate;		// 공격민첩
-	Avoid = (float)pUser->m_fAvoidrate;		// 방어민첩	
-	Hit = m_sDamage;	// 공격자 Hit 		
-	Ac = (short)pUser->m_sItemAC + (short)pUser->GetLevel() + (short)(pUser->m_sAC - pUser->GetLevel() - pUser->m_sItemAC);
-	HitB = (int)((Hit * 200) / (Ac + 240)) ;
-
-	int nMaxDamage = (int)(2.6 * m_sDamage);
-
-	// 타격비 구하기
-	result = GetHitRate(Attack/Avoid);	
-	
-//	TRACE("Hitrate : %d     %f/%f\n", result, Attack, Avoid);
-
-	switch(result)
-	{
-	case GREAT_SUCCESS:
-/*
-		damage = (short)(0.6 * (2 * Hit));
-		if(damage <= 0){
-			damage = 0;
-			break;
-		}
-		damage = myrand(0, damage);
-		damage += (short)(0.7 * (2 * Hit));
-		break;
-*/	
-//		damage = 0;
-//		break;
-
-		damage = (short)HitB;
-		if(damage <= 0){
-			damage = 0;
-			break;
-		}
-
-		damage = (int)(0.3f * myrand(0, damage));
-		damage += (short)(0.85f * (float)HitB);
-//		damage = damage * 2;
-		damage = (damage * 3) / 2;
-		break;
-
-	case SUCCESS:
-/*
-		damage = (short)(0.6f * Hit);
-		if(damage <= 0){
-			damage = 0;
-			break;
-		}
-		damage = myrand(0, damage);
-		damage += (short)(0.7f * Hit);
-		break;
-*/
-/*
-		damage = (short)(0.3f * (float)HitB);
-		if(damage <= 0){
-			damage = 0;
-			break;
-		}
-		damage = myrand(0, damage);
-		damage += (short)(0.85f * (float)HitB);
-*/
-/*
-		damage = (short)HitB;
-		if(damage <= 0){
-			damage = 0;
-			break;
-		}
-		damage = (int)(0.3f * myrand(0, damage));
-		damage += (short)(0.85f * (float)HitB);
-		damage = damage * 2;
-
-		break;
-*/
-	case NORMAL:
-		/*
-		if(Hit - Ac > 0){
-			damage = (short)(0.6f * (Hit - Ac));
-			if(damage <= 0){
-				damage = 0;
-				break;
-			}
-			damage = myrand(0, damage);
-			damage += (short)(0.7f * (Hit - Ac));
-
-		}
-		else
-			damage = 0;
-		*/
-/*
-		damage = (short)(0.3f * (float)HitB);
-		if(damage <= 0){
-			damage = 0;
-			break;
-		}
-		damage = myrand(0, damage);
-		damage += (short)(0.85f * (float)HitB);
-*/
-		damage = (short)HitB;
-		if(damage <= 0){
-			damage = 0;
-			break;
-		}
-		damage = (int)(0.3f * myrand(0, damage));
-		damage += (short)(0.85f * (float)HitB);
-
-		break;
-
-	case FAIL:
-		damage = 0;
-
-		break;
-	}
-	
-	if(damage > nMaxDamage)	{
-		TRACE("#### Npc-GetFinalDamage Fail : nid=%d, result=%d, damage=%d, maxdamage=%d\n", GetID(), result, damage, nMaxDamage);
-		damage = nMaxDamage;
-	}
-
-	return damage;	
-}
-
 void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 {
 	int preDamage, lastDamage;
@@ -2931,8 +2717,8 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 		preDamage = 0; lastDamage = 0;
 
 		if(iRandom >= 0 && iRandom < 50)	{			// 몬스터 자신을 가장 강하게 타격한 유저
-			preDamage = preUser->GetDamage(GetID());
-			lastDamage = pUser->GetDamage(GetID());
+			preDamage = preUser->GetDamage(this);
+			lastDamage = pUser->GetDamage(this);
 			//TRACE("Npc-changeTarget 111 - iRandom=%d, pre=%d, last=%d\n", iRandom, preDamage, lastDamage);
 			if(preDamage > lastDamage) return;
 		}
@@ -2946,8 +2732,8 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 			if(fDistance2 > fDistance1)	return;
 		}
 		if(iRandom >= 80 && iRandom < 95)		{		// 몬스터가 유저에게 가장 많이 타격을 줄 수 있는 유저
-			preDamage = GetFinalDamage(preUser, 0);
-			lastDamage = GetFinalDamage(pUser, 0); 
+			preDamage = GetDamage(preUser, nullptr, true); /* preview the amount of damage that might be dealt for comparison */
+			lastDamage = GetDamage(pUser, nullptr, true); 
 			//TRACE("Npc-changeTarget 333 - iRandom=%d, pre=%d, last=%d\n", iRandom, preDamage, lastDamage);
 			if(preDamage > lastDamage) return;
 		}
@@ -3026,9 +2812,8 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 	if (preNpc == nullptr
 		|| pNpc == preNpc) return;
 
-	preDamage = 0; lastDamage = 0;
-	preDamage = GetNFinalDamage(preNpc);
-	lastDamage = GetNFinalDamage(pNpc); 
+	preDamage = GetDamage(preNpc, nullptr, true); /* preview the damage that might be dealt for comparison */
+	lastDamage = GetDamage(pNpc, nullptr, true); 
 
 	vNpc.Set(GetX(), GetY(), GetZ());
 	vMonster.Set(preNpc->GetX(), 0, preNpc->GetZ());
@@ -3089,12 +2874,6 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 void CNpc::ToTargetMove(CUser* pUser)
 {
 	TRACE("### ToTargetMove() 유저 길찾기 실패 ### \n");
-}
-
-//	NPC 의 방어력을 얻어온다.
-int CNpc::GetDefense()
-{
-	return m_sDefense;
 }
 
 bool CNpc::SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType /*= 0*/, bool bSendToEbenezer /*= true*/)
@@ -3203,7 +2982,7 @@ go_result:
 	{
 		if(nAttackType == 3 && m_NpcState != NPC_FAINTING)	{			// 기절 시키는 스킬을 사용했다면..
 			// 확률 계산..
-			iLightningR = (int)(10 + (40 - 40 * ( (double)m_byLightningR / 80)));
+			iLightningR = (int)(10 + (40 - 40 * ( (double)m_sLightningR / 80)));
 			if( COMPARE(iRandom, 0, iLightningR) )	{
 				m_NpcState = NPC_FAINTING;
 				m_Delay = 0;
@@ -3244,30 +3023,6 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToEbene
 
 	if (m_iHP == 0)
 		OnDeath(pAttacker);
-}
-
-bool CNpc::SetHMagicDamage(int nDamage)
-{
-	if (isDead()
-		|| nDamage <= 0)
-		return false;
-
-	int oldHP = 0;
-
-	oldHP = m_iHP;
-	m_iHP += nDamage;
-	if( m_iHP < 0 )
-		m_iHP = 0;
-	else if ( m_iHP > m_iMaxHP )
-		m_iHP = m_iMaxHP;
-
-	TRACE("Npc - SetHMagicDamage(), nid=%d,%s, oldHP=%d -> curHP=%d\n", GetID(), GetName().c_str(), oldHP, m_iHP);
-
-	Packet result(AG_USER_SET_HP);
-	result << GetID() << m_iHP;
-	g_pMain->Send(&result);
-
-	return true;
 }
 
 //	NPC 사망처리시 경험치 분배를 계산한다.(일반 유저와 버디 사용자구분)
@@ -3694,9 +3449,15 @@ void CNpc::FillNpcInfo(Packet & result)
 			<< GetType()
 			<< m_iSellingGroup << m_iMaxHP << m_iHP
 			<< m_byGateOpen 
-			<< float(m_sHitRate) << float(m_sEvadeRate) << m_sDefense
+			<< m_fTotalHitrate << m_fTotalEvasionrate 
+			<< m_sTotalAc << m_sTotalHit
 			<< m_byObjectType << m_byTrapNumber 
-			<< m_bMonster;
+			<< m_bMonster
+			// Include resistance data, note that we don't need to send modified amounts as 
+			// there's no skill handling here - it happens in Ebenezer.
+			// We will probably need to update the AI server (from Ebenezer) with this data.
+			<< m_sFireR << m_sColdR << m_sLightningR 
+			<< m_sMagicR << m_sDiseaseR << m_sPoisonR;
 }
 
 int CNpc::GetDir(float x1, float z1, float x2, float z2)
@@ -4730,14 +4491,14 @@ void CNpc::ChangeAbility(int iChangeType)
 		if (GetHealth() > nHP)
 			HpChange();
 
-		m_sDefense = nAC;
-		m_sDamage = nDamage;
-		m_byFireR		= nFireR;
-		m_byColdR		= nColdR;
-		m_byLightningR	= nLightningR;
-		m_byMagicR		= nMagicR;
-		m_byDiseaseR	= nDiseaseR;
-		m_byPoisonR		= nPoisonR;
+		m_sTotalAc		= nAC;
+		m_sTotalHit		= nDamage;
+		m_sFireR		= nFireR;
+		m_sColdR		= nColdR;
+		m_sLightningR	= nLightningR;
+		m_sMagicR		= nMagicR;
+		m_sDiseaseR		= nDiseaseR;
+		m_sPoisonR		= nPoisonR;
 	}
 	else if (iChangeType == BATTLEZONE_CLOSE)
 	{
@@ -4748,14 +4509,14 @@ void CNpc::ChangeAbility(int iChangeType)
 			HpChange();
 		}
 
-		m_sDamage		= pNpcTable->m_sDamage;
-		m_sDefense		= pNpcTable->m_sDefense;
-		m_byFireR		= pNpcTable->m_byFireR;
-		m_byColdR		= pNpcTable->m_byColdR;
-		m_byLightningR	= pNpcTable->m_byLightningR;
-		m_byMagicR		= pNpcTable->m_byMagicR;
-		m_byDiseaseR	= pNpcTable->m_byDiseaseR;
-		m_byPoisonR		= pNpcTable->m_byPoisonR;
+		m_sTotalHit		= pNpcTable->m_sDamage;
+		m_sTotalAc		= pNpcTable->m_sDefense;
+		m_sFireR		= pNpcTable->m_byFireR;
+		m_sColdR		= pNpcTable->m_byColdR;
+		m_sLightningR	= pNpcTable->m_byLightningR;
+		m_sMagicR		= pNpcTable->m_byMagicR;
+		m_sDiseaseR		= pNpcTable->m_byDiseaseR;
+		m_sPoisonR		= pNpcTable->m_byPoisonR;
 	}
 }
 

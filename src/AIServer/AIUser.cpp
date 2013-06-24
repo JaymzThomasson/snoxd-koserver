@@ -12,7 +12,7 @@
 static float surround_fx[8] = {0.0f, -0.7071f, -1.0f, -0.7083f,  0.0f,  0.7059f,  1.0000f, 0.7083f};
 static float surround_fz[8] = {1.0f,  0.7071f,  0.0f, -0.7059f, -1.0f, -0.7083f, -0.0017f, 0.7059f};
 
-CUser::CUser() {}
+CUser::CUser() : Unit(true) {}
 CUser::~CUser() {}
 
 void CUser::Initialize()
@@ -31,11 +31,7 @@ void CUser::Initialize()
 	m_bResHp = 0;						// 회복량
 	m_bResMp = 0;
 	m_bResSta = 0;
-	m_sHitDamage = 0;					// Hit
-	m_sAC = 0;
-	m_sItemAC = 0;
-	m_fHitrate = 0.0f;					// 타격 성공률
-	m_fAvoidrate = 0;					// 회피 성공률
+	m_sItemAc = 0;
 	m_byNowParty = 0;
 	m_sPartyTotalLevel = 0;
 	m_byPartyTotalMan = 0;
@@ -53,9 +49,9 @@ void CUser::Initialize()
 void CUser::Attack(int sid, int tid)
 {
 	CNpc* pNpc = g_pMain->m_arNpc.GetData(tid);
-	if(pNpc == nullptr)	return;
-	if(pNpc->m_NpcState == NPC_DEAD) return;
-	if(pNpc->m_iHP == 0) return;
+	if (pNpc == nullptr
+		|| pNpc->isDead())
+		return;
 
 /*	if (pNpc->isGuard())
 	{
@@ -68,17 +64,10 @@ void CUser::Attack(int sid, int tid)
 	//	return;
 	}	*/
 
-	int nDefence = 0, nFinalDamage = 0;
-	// NPC 방어값 
-	nDefence = pNpc->GetDefense();
-
-	// 명중이면 //Damage 처리 ----------------------------------------------------------------//
-	nFinalDamage = GetDamage(tid);
-		
-	// Calculate Target HP	 -------------------------------------------------------//
-	short sOldNpcHP = pNpc->m_iHP;
-
-	if (!pNpc->SetDamage(0, nFinalDamage, GetID()))
+	int nFinalDamage = GetDamage(pNpc);
+	if (nFinalDamage <= 0)
+		SendAttackSuccess(tid, ATTACK_FAIL, nFinalDamage, pNpc->m_iHP);
+	else if (!pNpc->SetDamage(0, nFinalDamage, GetID()))
 		SendAttackSuccess(tid, ATTACK_TARGET_DEAD, nFinalDamage, pNpc->m_iHP);
 	else
 		SendAttackSuccess(tid, ATTACK_SUCCESS, nFinalDamage, pNpc->m_iHP);
@@ -212,201 +201,6 @@ void CUser::SendExp(int iExp, int iLoyalty, int tType)
 	Packet result(AG_USER_EXP);
 	result << GetID() << uint16(iExp) << uint16(iLoyalty);
 	g_pMain->Send(&result);   	
-}
-
-short CUser::GetDamage(int tid, int magicid)
-{
-	short damage = 0;	float Attack = 0;	float Avoid = 0;
-	short Hit = 0;	short HitB = 0;
-	short Ac = 0; int random = 0;	uint8 result;
-
-	_MAGIC_TABLE* pTable = nullptr;
-	_MAGIC_TYPE1* pType1 = nullptr; 
-	_MAGIC_TYPE2* pType2 = nullptr;
-
-	if (tid < NPC_BAND || tid > INVALID_BAND)	return damage;
-	CNpc* pNpc = nullptr;
-	pNpc = g_pMain->m_arNpc.GetData(tid);
-	if (pNpc == nullptr
-		|| pNpc->isNonAttackingObject())
-		return damage;
-	
-	Attack = (float)m_fHitrate;			// 공격민첩
-	Avoid = (float)pNpc->m_sEvadeRate;	// 방어민첩	
-	Hit = m_sHitDamage;					// 공격자 Hit 
-//	Ac = (short)(pNpc->m_sDefense) + pNpc->m_sLevel;		// 방어자 Ac 2002.07.06
-	Ac = (short)(pNpc->m_sDefense);		// 방어자 Ac 
-	HitB = (int)((Hit * 200) / (Ac + 240)) ;	// 새로운 공격식의 B
-
-	if( magicid > 0 )	{	 // Skill Hit.
-		pTable = g_pMain->m_MagictableArray.GetData( magicid );     // Get main magic table.
-		if( !pTable ) return -1; 
-		
-		if (pTable->bType[0] == 1)	{	// SKILL HIT!
-			pType1 = g_pMain->m_Magictype1Array.GetData( magicid );	    // Get magic skill table type 1.
-			if( !pType1 ) return -1;     	                                
-
-			if(pType1->bHitType)	{  // Non-relative hit.
-				random = myrand(0,100) ;       
-				if (pType1->sHitRate <= random)			result = FAIL;
-				else 									result = SUCCESS;
-			}
-			else	{     // Relative hit.
-				result = GetHitRate( (Attack / Avoid) * (pType1->sHitRate / 100.0f) );
-			}
-/*
-			if(pType1->bHitType) {  // Non-relative hit.
-				Hit = m_sHitDamage * (pType1->sHit / 100.0f);
-			}
-			else {
-//				Hit = (m_sHitDamage - pNpc->m_sDefense) 
-				Hit = HitB * (pType1->sHit / 100.0f) ;
-			}		
-*/
-			Hit = (short)(HitB * (pType1->sHit / 100.0f));
-		}
-		else if (pTable->bType[0] == 2)   { // ARROW HIT!
-			pType2 = g_pMain->m_Magictype2Array.GetData( magicid );	    // Get magic skill table type 1.
-			if( !pType2 ) return -1; 
-			
-			if(pType2->bHitType == 1 || pType2->bHitType == 2 )   {  // Non-relative/Penetration hit.
-				random = myrand(0,100) ; 
-				if (pType2->sHitRate <= random)			result = FAIL;
-				else									result = SUCCESS;
-				//result = SUCCESS;
-			}
-			else	{     // Relative hit/Arc hit.
-				result = GetHitRate( (Attack / Avoid) * (pType2->sHitRate / 100.0f) );
-			}
-			
-			if(pType2->bHitType == 1 /* || pType2->bHitType == 2 */ )   {
-				Hit = (short)(m_sHitDamage * (pType2->sAddDamage / 100.0f));
-			}
-			else{				
-//				Hit = (m_sHitDamage - pNpc->m_sDefense) * (pType2->sAddDamage / 100.0f);
-				Hit = (short)(HitB * (pType2->sAddDamage / 100.0f));
-			}
-		}
-	}
-	else	{	// Normal Hit.
-		result = GetHitRate(Attack/Avoid);		// 타격비 구하기
-	}
-
-	switch(result)	{
-		case GREAT_SUCCESS:
-		case SUCCESS:
-		case NORMAL:		
-			if( magicid > 0 ) {	 // 스킬 공격
-				damage = (short)Hit;
-				random = myrand(0, damage);
-//				damage = (short)((0.85f * (float)Hit) + 0.3f * (float)random);
-				if (pTable->bType[0] == 1) {
-					damage = (short)((float)Hit + 0.3f * (float)random + 0.99);
-				}
-				else {
-					damage = (short)((float)(Hit*0.6f) + 1.0f * (float)random + 0.99);
-				}
-			}				
-			else {			//일반 공격	
-				damage = (short)(HitB);
-				random = myrand(0, damage);
-				damage = (short)((0.85f * (float)HitB) + 0.3f * (float)random);
-			}
-
-			break;
-		case FAIL:  // 사장님 요구 
-				damage = 0;
-			break;
-	}
-	
-	if (damage <= 0)
-		return 0;
-
-	damage = GetMagicDamage(damage,tid);	// 2. Magical item damage....
-
-	//return 3000;
-	return damage;		
-}
-
-short CUser::GetMagicDamage(int damage, short tid)
-{
-	short total_r = 0;
-	short temp_damage = 0;
-
-	CNpc* pNpc = g_pMain->m_arNpc.GetData(tid);
-	if(!pNpc) return damage;
-	
-	if (m_bMagicTypeRightHand > 4 && m_bMagicTypeRightHand < 8) {
-		temp_damage = damage * m_sMagicAmountRightHand / 100;
-	}
-
-	switch (m_bMagicTypeRightHand) {	// RIGHT HAND!!!
-		case 1 :	// Fire Damage
-			total_r = pNpc->m_byFireR ;
-			break;
-		case 2 :	// Ice Damage
-			total_r = pNpc->m_byColdR ;
-			break;
-		case 3 :	// Lightning Damage
-			total_r = pNpc->m_byLightningR ;
-			break;
-		case 4 :	// Poison Damage
-			total_r = pNpc->m_byPoisonR ;
-			break;
-		case 5 :	// HP Drain						
-			break;
-		case 6 :	// MP Damage		
-			pNpc->MSpChange(2, -temp_damage);
-			break;
-		case 7 :	// MP Drain				
-			break;
-		case 0:
-			break;
-	}
-
-	if (m_bMagicTypeRightHand > 0 && m_bMagicTypeRightHand < 5) {	
-		temp_damage = m_sMagicAmountRightHand - m_sMagicAmountRightHand * total_r / 200;
-		damage = damage + temp_damage;
-	}
-
-	total_r = 0 ;		// Reset all temporary data.
-	temp_damage = 0 ;
-
-	if (m_bMagicTypeLeftHand > 4 && m_bMagicTypeLeftHand < 8) {
-		temp_damage = damage * m_sMagicAmountLeftHand / 100;
-	}
-
-	switch (m_bMagicTypeLeftHand) {	// LEFT HAND!!!
-		case 1 :	// Fire Damage
-			total_r = pNpc->m_byFireR;
-			break;
-		case 2 :	// Ice Damage
-			total_r = pNpc->m_byColdR;
-			break;
-		case 3 :	// Lightning Damage
-			total_r = pNpc->m_byLightningR;
-			break;
-		case 4 :	// Poison Damage
-			total_r = pNpc->m_byPoisonR;
-			break;
-		case 5 :	// HP Drain					
-			break;
-		case 6 :	// MP Damage		
-			pNpc->MSpChange(2, -temp_damage);
-			break;
-		case 7 :	// MP Drain		
-			break;
-		case 0:
-			break;
-	}
-
-	if (m_bMagicTypeLeftHand > 0 && m_bMagicTypeLeftHand < 5) {
-		if (total_r > 200) total_r = 200;
-		temp_damage = m_sMagicAmountLeftHand - m_sMagicAmountLeftHand * total_r / 200;
-		damage = damage + temp_damage;
-	}
-
-	return damage;
 }
 
 void CUser::InitNpcAttack()

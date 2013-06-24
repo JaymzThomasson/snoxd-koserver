@@ -220,21 +220,12 @@ public:
 	int		m_iMaxHP;			// 최대 HP
 	short	m_sMaxMP;			// 최대 MP
 	short	m_sAttack;			// 공격값(지금 사용하지 않음..)
-	short	m_sDefense;			// 방어값
-	short	m_sHitRate;			// 공격민첩
-	short   m_sEvadeRate;		// 방어민첩
-	short	m_sDamage;			// 기본 데미지 - 공격값
 	short	m_sAttackDelay;		// 공격딜레이
 	short	m_sSpeed;			// 이동속도	
 	float   m_fSpeed_1;			// 기본 이동 타입		(1초에 갈 수 있는 거리)
 	float   m_fSpeed_2;			// 뛰는 이동 타입..		(1초에 갈 수 있는 거리)
 	short	m_sStandTime;		// 서있는 시간
-	uint16	m_byFireR;			// 화염 저항력
-	uint16	m_byColdR;			// 냉기 저항력
-	uint16	m_byLightningR;		// 전기 저항력
-	uint16	m_byMagicR;			// 마법 저항력
-	uint16	m_byDiseaseR;		// 저주 저항력
-	uint16	m_byPoisonR;		// 독 저항력
+
 	uint8	m_bySearchRange;	// 적 탐지 범위
 	uint8	m_byAttackRange;	// 사정거리
 	uint8	m_byTracingRange;	// 추격 거리
@@ -352,12 +343,8 @@ public:
 	void ToTargetMove(CUser* pUser);
 	void SendExpToUserList();								// User 경험치 분배..
 	bool SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType = 0, bool bSendToEbenezer = true);	// Npc의 데미지 계산..
-	bool SetHMagicDamage(int nDamage);	// Npc의 데미지 계산..
-	int GetDefense();										// Npc의 방어값..
 	void ChangeTarget(int nAttackType, CUser *pUser);
 	void ChangeNTarget(CNpc *pNpc);
-	int GetFinalDamage(CUser *pUser, int type = 1);
-	int GetNFinalDamage(CNpc *pNpc);
 	bool ResetPath();
 	bool GetTargetPos(float& x, float& z);
 	bool IsChangePath();
@@ -399,7 +386,10 @@ public:
 	bool IsInPathRange();			//
 	int GetNearPathPoint();			//
 
-	// Packet Send부분..
+	short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false);
+	short GetDamage(CUser *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false);
+	short GetDamage(CNpc *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false);
+
 	void SendAttackSuccess(uint8 byResult, int tuid, short sDamage, int nHP=0, uint8 byFlag = 0, short sAttack_type=1);
 
 	bool RegisterRegion(float x, float z);
