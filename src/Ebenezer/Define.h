@@ -100,6 +100,7 @@ enum InOutType
 #define ZONE_KARUS				1
 #define ZONE_ELMORAD			2
 #define ZONE_MORADON			21
+#define ZONE_DELOS				30
 #define ZONE_BATTLE				101
 #define ZONE_SNOW_BATTLE		102
 #define	ZONE_RONARK_LAND		71

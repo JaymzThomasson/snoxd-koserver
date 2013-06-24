@@ -197,6 +197,12 @@ bool MagicInstance::UserCanCast()
 			&& !TO_USER(pSkillCaster)->CanUseItem(pSkill->iUseItem, 1))) 
 		return false;
 
+	// We cannot use CSW transformations outside of Delos (or when CSW is not enabled.)
+	if (pSkill->bType[0] == 6
+		&& (nSkillID / 10000) == 45
+		&& pSkillCaster->GetZoneID() != ZONE_DELOS)
+		return false;
+
 	if ((bOpcode == MAGIC_EFFECTING || bOpcode == MAGIC_CASTING) 
 		&& !IsAvailable())
 		return false;
@@ -1356,8 +1362,11 @@ bool MagicInstance::ExecuteType6()
 			these skills bypass the transformation list and thus do not set the flag.
 		*/
 
+
+		// NOTE: Should this make use of "NeedItem"? It could very well indicate which to use.
+
 		// Special items (e.g. Hera transformation scroll) use the scroll (tied to the skill)
-		if ((pTable2 != nullptr && pTable2->m_bKind == 255)
+		if ((pTable2 != nullptr && (pTable2->m_bKind == 255 || pTable2->m_bKind == 97))
 			// Totems (i.e. rings) take gems (tied to the skill)
 			|| (pTable != nullptr && pTable->m_bKind == 93)) 
 			iUseItem = pSkill->iUseItem;
