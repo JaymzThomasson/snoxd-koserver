@@ -134,8 +134,6 @@ void CGameSocket::RecvUserInfo(Packet & pkt)
 		>> pUser->m_byIsOP >> pUser->m_bInvisibilityType
 		>> equippedItems;
 
-	printf("User AC = %d\n", pUser->m_sItemAc);
-
 	FastGuard lock(pUser->m_equippedItemBonusLock);
 	pUser->m_equippedItemBonuses.clear();
 
