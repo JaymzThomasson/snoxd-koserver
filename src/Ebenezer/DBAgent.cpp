@@ -409,6 +409,7 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 	dbCommand->FetchUInt32(field++, pUser->m_iLoyaltyMonthly);
 
 	pUser->m_strUserID = strCharID;
+	pUser->m_lastSaveTime = UNIXTIME;
 
 	// Convert the old quest storage format to the new one.
 	pUser->m_questMap.clear();
@@ -427,12 +428,9 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 
 	UserRentalMap rentalData;
 
-        // For non-MARS connections until this statement is cleaned up, we need to cleanup any
-        // active statement.
-        // This normally occurs when dbCommand goes out of scope, i.e. when this method returns.
-        // However, since before it goes out of scope, we call two methods with their own database code
-        // we have multiple statements active. So we need to free this one first before we can use them.
-        delete dbCommand.release();
+	// For non-MARS connections, until this statement is cleaned up, 
+	// no other statements can be processed.
+	delete dbCommand.release();
 
 	LoadRentalData(strAccountID, strCharID, rentalData);
 	LoadItemSealData(strAccountID, strCharID, pUser->m_sealedItemMap);
@@ -952,7 +950,8 @@ bool CDBAgent::UpdateUser(string & strCharID, UserUpdateType type, CUser *pUser)
 		return false;
 	}
 
-	return UpdateSavedMagic(pUser);
+	pUser->m_lastSaveTime = UNIXTIME;
+	return true;
 }
 
 bool CDBAgent::UpdateWarehouseData(string & strAccountID, UserUpdateType type, CUser *pUser)

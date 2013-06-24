@@ -15,7 +15,8 @@ typedef	std::list<_EXCHANGE_ITEM*>			ItemList;
 typedef	std::map<uint32, time_t>			SkillCooldownList;
 typedef	std::map<uint32, time_t>			UserSavedMagicMap;
 
-#define BANISH_DELAY_TIME    30
+// Time (in seconds) between each save request (5min).
+#define PLAYER_SAVE_INTERVAL	(5 * 60)
 
 enum GameState
 {
@@ -93,6 +94,7 @@ public:
 
 	uint8	m_bLogout;
 	uint32	m_dwTime;
+	time_t	m_lastSaveTime;
 
 	uint8	m_bAccountStatus;
 	uint8	m_bPremiumType;
@@ -186,8 +188,6 @@ public:
 	uint8	m_bSpeedHackCheck;
 
 	time_t	m_tBlinkExpiryTime;			// When you should stop blinking.
-
-	short	m_sAliveCount;
 
 	uint32	m_bAbnormalType;			// Is the player normal,a giant, or a dwarf?
 
@@ -389,6 +389,8 @@ public:
 	virtual void OnConnect();
 	virtual void OnDisconnect();
 	virtual bool HandlePacket(Packet & pkt);
+
+	void Update();
 
 	virtual void AddToRegion(int16 new_region_x, int16 new_region_z);
 

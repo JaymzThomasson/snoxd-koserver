@@ -215,7 +215,7 @@ void CEbenezerDlg::GetTimeFromIni()
 	ini.GetString("AI_SERVER", "IP", "127.0.0.1", m_AIServerIP);
 
 	g_timerThreads.push_back(new Thread(Timer_UpdateGameTime));
-	g_timerThreads.push_back(new Thread(Timer_CheckAliveUser));
+	g_timerThreads.push_back(new Thread(Timer_UpdateSessions));
 	g_timerThreads.push_back(new Thread(Timer_UpdateConcurrent));
 }
 
@@ -408,17 +408,33 @@ uint32 CEbenezerDlg::Timer_UpdateGameTime(void * lpParam)
 		g_pMain->UpdateGameTime();
 		if (++g_pMain->m_sErrorSocketCount > 3)
 			g_pMain->AIServerConnect();
-		sleep(6000);
+		sleep(6 * SECOND);
 	}
 	return 0;
 }
 
-uint32 CEbenezerDlg::Timer_CheckAliveUser(void * lpParam)
+uint32 CEbenezerDlg::Timer_UpdateSessions(void * lpParam)
 {
 	while (g_bRunning)
 	{
-		g_pMain->CheckAliveUser();
-		sleep(30000);
+		SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
+		foreach (itr, sessMap)
+		{
+			CUser * pUser = TO_USER(itr->second);
+
+			// Disconnect timed out sessions
+			if ((UNIXTIME - pUser->GetLastResponseTime()) >= KOSOCKET_TIMEOUT)
+			{
+				pUser->Disconnect();
+				continue;
+			}
+
+			// Update the player, and hence any skill effects while we're here.
+			if (pUser->isInGame())
+				pUser->Update();
+		}
+		g_pMain->m_socketMgr.ReleaseLock();
+		sleep(30 * SECOND);
 	}
 	return 0;
 }
@@ -428,7 +444,7 @@ uint32 CEbenezerDlg::Timer_UpdateConcurrent(void * lpParam)
 	while (g_bRunning)
 	{
 		g_pMain->ReqUpdateConcurrent();
-		sleep(60000);
+		sleep(60 * SECOND);
 	}
 	return 0;
 }
@@ -1265,30 +1281,6 @@ CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
 	return nullptr;
 }
 
-void CEbenezerDlg::AliveUserCheck()
-{
-	SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
-	foreach (itr, sessMap)
-	{
-		// TO-DO: Replace this with a better, more generic check
-		// Shouldn't have to rely on skills (or being in-game)
-		CUser * pUser = TO_USER(itr->second);
-		if (!pUser->isInGame()) 
-			continue;
-
-		for (int k = 0; k < MAX_TYPE3_REPEAT; k++)
-		{
-			// This is WRONG. VERY WRONG. 
-			if ((UNIXTIME - pUser->m_durationalSkills[k].m_tHPLastTime) >= PLAYER_IDLE_TIME)
-			{
-				pUser->Disconnect();
-				break;
-			}
-		}
-	}
-	g_pMain->m_socketMgr.ReleaseLock();
-}
-
 void CEbenezerDlg::BattleZoneOpenTimer()
 {
 	int nWeek = g_localTime.tm_wday;
@@ -1578,27 +1570,6 @@ int CEbenezerDlg::GetKnightsGrade(uint32 nPoints)
 		return 4;
 
 	return 5;
-}
-
-/**
- * @brief	Checks & drops in-game users for inactivity.
- */
-void CEbenezerDlg::CheckAliveUser()
-{
-	SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
-	foreach (itr, sessMap)
-	{
-		CUser *pUser = TO_USER(itr->second);
-		if (!pUser->isInGame())
-			continue;
-
-		if (pUser->m_sAliveCount++ > 3)
-		{
-			pUser->Disconnect();
-			TRACE("User dropped due to inactivity - char=%s\n", pUser->GetName().c_str());
-		}
-	}
-	g_pMain->m_socketMgr.ReleaseLock();
 }
 
 /**

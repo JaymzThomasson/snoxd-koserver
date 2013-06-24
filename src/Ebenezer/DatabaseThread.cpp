@@ -394,7 +394,8 @@ void CUser::ReqUserLogOut()
 {
 	g_DBAgent.UpdateUser(GetName(), UPDATE_LOGOUT, this);
 	g_DBAgent.UpdateWarehouseData(GetAccountName(), UPDATE_LOGOUT, this);
-	
+	g_DBAgent.UpdateSavedMagic(this);
+
 	if (m_bLogout != 2)	// zone change logout
 		g_DBAgent.AccountLogout(GetAccountName());
 
@@ -406,6 +407,7 @@ void CUser::ReqSaveCharacter()
 {
 	g_DBAgent.UpdateUser(GetName(), UPDATE_PACKET_SAVE, this);
 	g_DBAgent.UpdateWarehouseData(GetAccountName(), UPDATE_PACKET_SAVE, this);
+	g_DBAgent.UpdateSavedMagic(this);
 }
 
 void CKnightsManager::ReqKnightsPacket(CUser* pUser, Packet & pkt)

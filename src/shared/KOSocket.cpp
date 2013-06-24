@@ -15,11 +15,11 @@ void KOSocket::OnConnect()
 {
 	TRACE("Connection received from %s:%d\n", GetRemoteIP().c_str(), GetRemotePort());
 
-        m_remaining = 0;
-        m_usingCrypto = false;
-        m_readTries = 0;
-        m_sequence = 0;
-        // m_lastResponse = 0;
+	m_remaining = 0;
+	m_usingCrypto = false;
+	m_readTries = 0;
+	m_sequence = 0;
+	m_lastResponse = UNIXTIME;
 }
 
 void KOSocket::OnRead() 
@@ -84,9 +84,11 @@ void KOSocket::OnRead()
 
 		delete [] in_stream;
 
+		// Update the time of the last (valid) response from the client.
+		m_lastResponse = UNIXTIME;
+
 		if (!HandlePacket(pkt))
 		{
-
 			TRACE("%s: Handler for packet %X returned false\n", GetRemoteIP().c_str(), pkt.GetOpcode());
 #ifndef _DEBUG
 			goto error_handler;

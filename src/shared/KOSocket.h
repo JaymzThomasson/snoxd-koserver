@@ -5,6 +5,9 @@
 #include "JvCryption.h"
 #include "lzf.h"
 
+// KO sockets time out after at least 10 seconds of inactivity.
+#define KOSOCKET_TIMEOUT (10) 
+
 class KOSocket : public Socket
 {
 public:
@@ -12,6 +15,7 @@ public:
 
 	INLINE bool isCryptoEnabled() { return m_usingCrypto; };
 	INLINE uint16 GetSocketID() { return m_socketID; };
+	INLINE time_t GetLastResponseTime() { return m_lastResponse; }
 
 	virtual void OnConnect();
 	virtual void OnRead();

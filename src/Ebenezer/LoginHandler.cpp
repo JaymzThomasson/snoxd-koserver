@@ -39,7 +39,6 @@ void CUser::LoginProcess(Packet & pkt)
 	pUser = g_pMain->GetUserPtr(strAccountID, TYPE_ACCOUNT);
 	if (pUser && (pUser->GetSocketID() != GetSocketID()))
 	{
-		pUser->UserDataSaveToAgent();
 		pUser->Disconnect();
 		goto fail_return;
 	}

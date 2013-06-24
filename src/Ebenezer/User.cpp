@@ -89,7 +89,6 @@ void CUser::Initialize()
 
 	m_tBlinkExpiryTime = 0;
 
-	m_sAliveCount = 0;
 	m_bAbnormalType = ABNORMAL_NORMAL;	// User starts out in normal size.
 
 	m_sWhoKilledMe = -1;
@@ -334,7 +333,6 @@ bool CUser::HandlePacket(Packet & pkt)
 		break;
 	case WIZ_SPEEDHACK_CHECK:
 		SpeedHackTime(pkt);
-		m_sAliveCount = 0;
 		break;
 	case WIZ_WAREHOUSE:
 		WarehouseProcess(pkt);
@@ -391,12 +389,17 @@ bool CUser::HandlePacket(Packet & pkt)
 	}
 
 	if (command == WIZ_GAMESTART)
-	{
 		m_tHPLastTimeNormal = UNIXTIME;
-		for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
-			m_durationalSkills[i].m_tHPLastTime = UNIXTIME;
-	}	
 
+	Update();
+	return true;
+}
+
+/**
+ * @brief	Updates timed player data, e.g. skills & save requests.
+ */
+void CUser::Update()
+{
 	if (!isBlinking() && m_tHPLastTimeNormal != 0 && (UNIXTIME - m_tHPLastTimeNormal) > m_bHPIntervalNormal)
 		HPTimeChange();	// For Sitdown/Standup HP restoration.
 
@@ -422,7 +425,11 @@ bool CUser::HandlePacket(Packet & pkt)
 	if (hasRival() && hasRivalryExpired())
 		RemoveRival();
 
-	return true;
+	if ((UNIXTIME - m_lastSaveTime) >= PLAYER_SAVE_INTERVAL)
+	{
+		m_lastSaveTime = UNIXTIME; // this is set by UpdateUser(), however it may result in multiple requests unless it's set first.
+		UserDataSaveToAgent();
+	}
 }
 
 void CUser::SetRival(CUser * pRival)

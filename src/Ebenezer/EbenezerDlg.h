@@ -64,7 +64,7 @@ public:
 	void AIServerConnect();
 
 	static uint32 THREADCALL Timer_UpdateGameTime(void * lpParam);
-	static uint32 THREADCALL Timer_CheckAliveUser(void * lpParam);
+	static uint32 THREADCALL Timer_UpdateSessions(void * lpParam);
 	static uint32 THREADCALL Timer_UpdateConcurrent(void * lpParam);
 
 	void ReqUpdateConcurrent();
