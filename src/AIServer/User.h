@@ -58,12 +58,8 @@ public:
 
 	short  m_sSurroundNpcNumber[8];		// Npc 다굴~
 
-	uint8   m_byIsOP;					// 운영자인지를 판단..
+	uint8   m_byIsOP;
 	uint8	m_bInvisibilityType;
-	uint8    m_bMagicTypeLeftHand;			// The type of magic item in user's left hand  
-	uint8    m_bMagicTypeRightHand;			// The type of magic item in user's right hand
-	short   m_sMagicAmountLeftHand;         // The amount of magic item in user's left hand
-	short	m_sMagicAmountRightHand;        // The amount of magic item in user's left hand
 
 public:
 	void Initialize();

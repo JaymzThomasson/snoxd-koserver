@@ -39,11 +39,6 @@ void CUser::Initialize()
 	m_byIsOP = 0;
 	m_bInvisibilityType = 0;
 	InitNpcAttack();
-
-	m_bMagicTypeLeftHand = 0;			
-	m_bMagicTypeRightHand = 0;			
-	m_sMagicAmountLeftHand = 0;       
-	m_sMagicAmountRightHand = 0;      
 }
 
 void CUser::Attack(int sid, int tid)
