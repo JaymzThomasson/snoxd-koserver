@@ -421,9 +421,14 @@ uint32 CEbenezerDlg::Timer_UpdateSessions(void * lpParam)
 		foreach (itr, sessMap)
 		{
 			CUser * pUser = TO_USER(itr->second);
+			uint32 timeout = KOSOCKET_TIMEOUT;
+
+			// User has authed, but isn't in-game yet (creating a character, or is waiting for the game to load).
+			if (!pUser->m_strAccountID.empty() && !pUser->isInGame())
+				timeout = KOSOCKET_LOADING_TIMEOUT;
 
 			// Disconnect timed out sessions
-			if ((UNIXTIME - pUser->GetLastResponseTime()) >= KOSOCKET_TIMEOUT)
+			if ((UNIXTIME - pUser->GetLastResponseTime()) >= timeout)
 			{
 				pUser->Disconnect();
 				continue;

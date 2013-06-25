@@ -8,6 +8,9 @@
 // KO sockets time out after at least 10 seconds of inactivity.
 #define KOSOCKET_TIMEOUT (10) 
 
+// Allow up to 30 minutes for the player to create their character / the client to load.
+#define KOSOCKET_LOADING_TIMEOUT (30 * 60)
+
 class KOSocket : public Socket
 {
 public:
