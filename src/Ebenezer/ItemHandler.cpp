@@ -826,6 +826,10 @@ bool CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)
 		if (destpos != COSP_HELMET)
 			return false;
 		break;
+	case 110:
+		if (destpos != COSP_WINGS)
+			return false;
+		break;
 
 	default:
 		return false;

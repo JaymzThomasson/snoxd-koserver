@@ -176,6 +176,7 @@ const uint8 CTOP				= 46;
 const uint8 BAG1				= 47;
 const uint8 BAG2				= 48;
 
+const uint8 COSP_WINGS			= 0;
 const uint8 COSP_HELMET			= 1;
 const uint8 COSP_GLOVE			= 2;
 const uint8 COSP_GLOVE2			= 3;
