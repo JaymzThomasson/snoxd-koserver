@@ -45,39 +45,6 @@
 #include "../shared/database/KingCandidacyNoticeBoardSet.h"
 #include "../shared/database/KingElectionListSet.h"
 
-bool CEbenezerDlg::LoadTables()
-{
-	return (LoadItemTable()
-			&& LoadItemExchangeTable()
-			&& LoadItemUpgradeTable()
-			&& LoadServerResourceTable()
-			&& LoadQuestHelperTable()
-			&& LoadQuestMonsterTable()
-			&& LoadMagicTable()
-			&& LoadMagicType1()
-			&& LoadMagicType2()
-			&& LoadMagicType3()
-			&& LoadMagicType4()
-			&& LoadMagicType5()
-			&& LoadMagicType6()
-			&& LoadMagicType7()
-			&& LoadMagicType8()
-			&& LoadMagicType9()
-			&& LoadRentalList()
-			&& LoadCoefficientTable()
-			&& LoadLevelUpTable()
-			&& LoadAllKnights()
-			&& LoadAllKnightsUserData()
-			&& LoadKnightsAllianceTable()
-			&& LoadUserRankings()
-			&& LoadKnightsCapeTable()
-			&& LoadKnightsRankTable()
-			&& LoadHomeTable()
-			&& LoadStartPositionTable()
-			&& LoadBattleTable()
-			&& LoadKingSystem());
-}
-
 bool CEbenezerDlg::LoadItemTable()
 {
 	LOAD_TABLE(CItemTableSet, g_DBAgent.m_GameDB, &m_ItemtableArray, false);

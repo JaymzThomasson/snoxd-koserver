@@ -57,12 +57,13 @@ public:
 	INLINE bool canAttackSameNation() { return (m_zoneFlags & ATTACK_SAME_NATION) != 0; } 
 
 	INLINE uint8 GetZoneType() { return m_zoneType; }
-	INLINE uint16 GetTariff() { return m_sTariff; }
+	INLINE uint8 GetTariff() { return m_byTariff; }
+	INLINE void SetTariff(uint8 tariff) { m_byTariff = tariff; }
 
 protected:
 	void SetZoneAttributes(int zoneNumber);
 
 	ZoneAbilityType m_zoneType;
 	uint8 m_zoneFlags;
-	uint16 m_sTariff;
+	uint8 m_byTariff;
 };

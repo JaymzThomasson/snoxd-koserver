@@ -710,7 +710,7 @@ void KOMap::SetZoneAttributes(int zoneNumber)
 	// until we merge the AI/Ebenezer map classes.
 	
 	m_zoneFlags = 0;
-	m_sTariff = 10; // defaults to 10 officially for zones that don't use it.
+	m_byTariff = 10; // defaults to 10 officially for zones that don't use it.
 
 	switch (zoneNumber)
 	{

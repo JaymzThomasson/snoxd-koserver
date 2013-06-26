@@ -3,6 +3,7 @@
 #include "EbenezerDlg.h"
 #include "User.h"
 #include "../shared/DateTime.h"
+#include "Map.h"
 
 CKingSystem::CKingSystem()
 {
@@ -23,7 +24,6 @@ CKingSystem::CKingSystem()
 	m_sExpEvent_Duration = 0;
 
 	m_nTribute = 0;
-	m_byTerritoryTariff = 0;
 	m_nTerritoryTax = m_nNationalTreasury = 0;
 
 	m_bSentFirstMessage = false;
@@ -1043,17 +1043,23 @@ void CKingSystem::KingTaxSystem(CUser * pUser, Packet & pkt)
 		// Lookup the tariff
 		case 3:
 		{
-			result << int16(1) << m_byTerritoryTariff;
+			C3DMap * pMap = g_pMain->GetZoneByID(m_byNation);
+			if (pMap == nullptr)
+				return;
+
+			result << int16(1) << pMap->GetTariff();
 			pUser->Send(&result);
 		} break;
 
 		// Update the tariff
 		case 4:
 		{
+			C3DMap * pMap = g_pMain->GetZoneByID(m_byNation);
 			uint8 byTerritoryTariff = pkt.read<uint8>();
 
-			// Invalid tariff amount
-			if (byTerritoryTariff > 10)
+			// Map doesn't exist, or invalid tariff amount
+			if (pMap == nullptr
+				|| byTerritoryTariff > 10)
 			{
 				result << int16(-2);
 				pUser->Send(&result);
@@ -1061,7 +1067,7 @@ void CKingSystem::KingTaxSystem(CUser * pUser, Packet & pkt)
 			}
 
 			// Update the tariff
-			m_byTerritoryTariff = byTerritoryTariff;
+			pMap->SetTariff(byTerritoryTariff);
 
 			// Let all users in your nation know.
 			result << int16(1) << byTerritoryTariff << m_byNation;

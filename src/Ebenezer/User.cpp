@@ -827,7 +827,7 @@ void CUser::SetZoneAbilityChange()
 	result	<< GetMap()->canTradeWithOtherNation()
 			<< GetMap()->GetZoneType()
 			<< GetMap()->canTalkToOtherNation()
-			<< GetMap()->GetTariff();
+			<< uint16(GetMap()->GetTariff());
 
 	Send(&result);
 }
