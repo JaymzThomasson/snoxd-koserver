@@ -3651,7 +3651,7 @@ bool CUser::isInArena()
 
 	// If we're in the Arena zone, assume combat is acceptable everywhere.
 	// NOTE: This is why we need generic bounds checks, to ensure even attacks in the Arena zone are in one of the 4 arena locations.
-	if (GetZoneID() == 48)
+	if (GetZoneID() == ZONE_ARENA)
 		return true;
 
 	// The only other arena is located in Moradon. If we're not in Moradon, then it's not an Arena.
@@ -3672,9 +3672,7 @@ bool CUser::isInArena()
  */
 bool CUser::isInPVPZone()
 {
-	// If the zone is classified an 'attack' zone (this should probably be clarified)
-	// it is a PVP zone.
-	if (GetMap()->isAttackZone())
+	if (GetMap()->canAttackOtherNation())
 		return true;
 
 	// Native/home zones are classed as PVP zones during invasions.
@@ -3705,11 +3703,12 @@ bool CUser::CanAttack(Unit * pTarget)
 		return TO_NPC(pTarget)->isHostileTo(this);
 
 	// Players can attack other players in the arena.
-	if (isInArena() && TO_USER(pTarget)->isInArena())
+	if (isInArena() 
+		&& TO_USER(pTarget)->isInArena())
 		return true;
 
 	// Players can attack opposing nation players when they're in PVP zones.
-	if (bIsSameNation == false && isInPVPZone())
+	if (!bIsSameNation && isInPVPZone())
 		return true;
 
 	// Players cannot attack other players in any other circumstance.

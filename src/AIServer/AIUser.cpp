@@ -298,7 +298,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 	{
 		CNpc * pNpc = g_pMain->m_arNpc.GetData(itr->first);
 		if (pNpc == nullptr || pNpc->isDead()
-			|| GetNation() == pNpc->GetNation())
+			|| !pNpc->isHostileTo(this))
 			continue;
 
 		if (isInRangeSlow(pNpc, fRadius))
