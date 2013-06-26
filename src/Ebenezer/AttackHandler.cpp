@@ -98,6 +98,8 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	_HOME_INFO* pHomeInfo = nullptr;
 	_MAGIC_TYPE5* pType = nullptr;
 
+	bool diedInArena = isInArena();
+
 	if (!isDead())
 		return;
 
@@ -247,7 +249,13 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	g_pMain->RegionUserInOutForMe(this);
 	g_pMain->RegionNpcInfoForMe(this);
 
-	BlinkStart();
+	InitializeStealth();
+	SendUserStatusUpdate(USER_STATUS_DOT, USER_STATUS_CURE);
+	SendUserStatusUpdate(USER_STATUS_POISON, USER_STATUS_CURE);
+	if(diedInArena)
+		SendUserStatusUpdate(USER_STATUS_SPEED, USER_STATUS_CURE);
+	else
+		BlinkStart();
 	RecastSavedMagic();
 
 	if (isInParty())

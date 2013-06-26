@@ -364,7 +364,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_RESIS_AND_MAGIC_DMG: // Elysian Web
-		// Increases your magic resistance to block an additional 30% magic damage.
+		pTarget->m_bMagicDamageReduction = pType->bExpPct;
 		break;
 
 	case BUFF_TYPE_TRIPLEAC_HALFSPEED:	// Wall of Iron
@@ -632,7 +632,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_RESIS_AND_MAGIC_DMG: // Elysian Web
-		// Increases your magic resistance to block an additional 30% magic damage.
+		pTarget->m_bMagicDamageReduction = 100;
 		break;
 
 	case BUFF_TYPE_TRIPLEAC_HALFSPEED:	// Wall of Iron

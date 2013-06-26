@@ -1827,6 +1827,8 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 			damage -= ((3 * righthand_damage) + (3 * attribute_damage));
 		else if (attribute != MAGIC_R)	// Only if the staff has an attribute.
 			damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * pSkillCaster->GetLevel()) / 60) + ((attribute_damage * 0.8f) + (attribute_damage * pSkillCaster->GetLevel()) / 30));
+		if(pTarget->m_bMagicDamageReduction < 100)
+			damage = damage * pTarget->m_bMagicDamageReduction / 100;
 	}
 
 	// Apply boost for skills matching weather type.
@@ -1896,9 +1898,7 @@ void MagicInstance::Type9Cancel(bool bRemoveFromMap /*= true*/)
 	// Lupine etc.
 	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4) 
 	{
-		Packet stealth(WIZ_STEALTH);
-		stealth << uint16(0) << uint8(0);
-		pCaster->Send(&stealth);
+		pCaster->InitializeStealth();
 		bResponse = 92;
 	}
 	// Guardian pet related

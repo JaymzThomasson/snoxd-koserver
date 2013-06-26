@@ -186,6 +186,7 @@ public:
 	uint8	m_bDiseaseRAmount;
 	uint16	m_sPoisonR;
 	uint8	m_bPoisonRAmount;	
+	uint8	m_bMagicDamageReduction;
 
 	uint8	m_bResistanceBonus;
 
