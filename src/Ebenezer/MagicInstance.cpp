@@ -1117,16 +1117,18 @@ bool MagicInstance::ExecuteType4()
 		if (!pType->bIsBuff
 			&& pTUser == pSkillCaster)
 			continue;
-		if(!pType->bIsBuff && pTUser->m_bBlockCurse)
-		{
-			bResult=0;
-			goto fail_return;
-		}
+
+		// If the user already has this buff
 		if (bFoundBuff 
+			// or it's a curse (debuff), and we're blocking them 
+			|| (!pType->bIsBuff && pTUser->m_bBlockCurse)
+			// or we couldn't grant the (de)buff...
 			|| !CMagicProcess::GrantType4Buff(pSkill, pType, pSkillCaster, pTUser, bIsRecastingSavedMagic))
 		{
-			// Only error out if we cannot grant a targeted buff.
-			if (pType->bIsBuff && sTargetID != -1)
+			// We should only error out if we cannot grant a targeted buff
+			// or, if the *targeted* user is blocking curses (debuffs).
+			if (sTargetID != -1
+				&& (pType->bIsBuff || (!pType->bIsBuff && pTUser->m_bBlockCurse)))
 			{
 				bResult = 0;
 				goto fail_return;
