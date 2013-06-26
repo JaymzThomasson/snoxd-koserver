@@ -1117,7 +1117,11 @@ bool MagicInstance::ExecuteType4()
 		if (!pType->bIsBuff
 			&& pTUser == pSkillCaster)
 			continue;
-
+		if(!pType->bIsBuff && pTUser->m_bBlockCurse)
+		{
+			bResult=0;
+			goto fail_return;
+		}
 		if (bFoundBuff 
 			|| !CMagicProcess::GrantType4Buff(pSkill, pType, pSkillCaster, pTUser, bIsRecastingSavedMagic))
 		{
