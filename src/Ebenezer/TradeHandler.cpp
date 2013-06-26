@@ -246,7 +246,7 @@ void CUser::ExchangeDecide()
 
 		Packet result(WIZ_EXCHANGE);
 		result << uint8(EXCHANGE_DONE) << uint8(1)
-				<< m_iGold
+				<< GetCoins()
 				<< uint16(pUser->m_ExchangeItemList.size());
 
 		foreach (itr, pUser->m_ExchangeItemList)
@@ -259,7 +259,7 @@ void CUser::ExchangeDecide()
 		result.clear();
 
 		result << uint8(EXCHANGE_DONE) << uint8(1)
-				<< pUser->m_iGold
+				<< pUser->GetCoins()
 				<< uint16(m_ExchangeItemList.size());
 
 		foreach (itr, m_ExchangeItemList)

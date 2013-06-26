@@ -489,7 +489,7 @@ void CKnightsManager::ReqCreateKnights(CUser *pUser, Packet & pkt)
 	pKnights->m_strName = strKnightsName;
 	pKnights->m_strChief = pUser->GetName();
 
-	pUser->m_iGold -= CLAN_COIN_REQUIREMENT;
+	pUser->GoldLose(CLAN_COIN_REQUIREMENT, false);
 
 	g_pMain->m_KnightsArray.PutData(pKnights->m_sIndex, pKnights);
 

@@ -1696,7 +1696,7 @@ void CUser::ItemGet(Packet & pkt)
 			|| (pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex)) == nullptr)
 		{
 			// NOTE: Coins have been checked already.
-			m_iGold += pItem->sCount;
+			GoldGain(pItem->sCount, false);
 			result << uint8(LootSolo) << nBundleID << int8(-1) << nItemID << pItem->sCount << GetCoins();
 			pReceiver->Send(&result);
 		}
@@ -1721,14 +1721,9 @@ void CUser::ItemGet(Packet & pkt)
 			foreach (itr, partyUsers)
 			{
 				// Calculate the number of coins to give the player
-				int coins = (int)(pItem->sCount * (float)((*itr)->GetLevel() / (float)sumOfLevels));
-
 				// Give each party member coins relative to their level.
-				// Ensure we don't overflow the coins (no need to error out like solo player looting)
-				if (((*itr)->GetCoins() + coins) > COIN_MAX)
-					(*itr)->m_iGold = COIN_MAX;
-				else
-					(*itr)->m_iGold += coins;
+				int coins = (int)(pItem->sCount * (float)((*itr)->GetLevel() / (float)sumOfLevels));
+				GoldGain(coins, false);
 
 				// Let each player know they received coins.
 				result.clear();
@@ -2821,11 +2816,8 @@ void CUser::AllSkillPointChange()
 		|| (g_pMain->m_sDiscount == 1 && g_pMain->m_byOldVictory == m_bNation))
 		temp_value /= 2;
 
-	money = m_iGold - temp_value;
-
-	// Not enough money, or level too low.
-	if (money < 0
-		|| GetLevel() < 10)
+	// Level too low.
+	if (GetLevel() < 10)
 		goto fail_return;
 
 	// Get total skill points
@@ -2839,15 +2831,16 @@ void CUser::AllSkillPointChange()
 		goto fail_return;
 	}
 
+	// Not enough money.
+	if (!GoldLose(temp_value, false))
+		goto fail_return;
+
 	// Reset skill points.
 	m_bstrSkill[0] = (GetLevel() - 9) * 2;
 	for (int i = 1; i < 9; i++)	
 		m_bstrSkill[i] = 0;
 
-	// Take coins.
-	m_iGold = money;
-
-	result << uint8(1) << m_iGold << m_bstrSkill[0];
+	result << uint8(1) << GetCoins() << m_bstrSkill[0];
 	Send(&result);
 	return;
 
@@ -2859,7 +2852,7 @@ fail_return:
 void CUser::AllPointChange()
 {
 	Packet result(WIZ_CLASS_CHANGE, uint8(ALL_POINT_CHANGE));
-	int money, temp_money;
+	int temp_money;
 	uint8 bResult = 0;
 
 	if (GetLevel() > MAX_LEVEL)
@@ -2875,9 +2868,6 @@ void CUser::AllPointChange()
 		|| g_pMain->m_sDiscount == 2)
 		temp_money /= 2;
 	
-	money = m_iGold - temp_money;
-	if(money < 0)	goto fail_return;
-
 	for (int i = 0; i < SLOT_MAX; i++)
 	{
 		if (m_sItemArray[i].nNum) {
@@ -2892,6 +2882,10 @@ void CUser::AllPointChange()
 		bResult = 2; // don't need to reallocate stats, it has been done already...
 		goto fail_return;
 	}
+
+	// Not enough coins
+	if (!GoldLose(temp_money, false))
+		goto fail_return;
 
 	// TO-DO: Pull this from the database.
 	switch (m_bRace)
@@ -2956,8 +2950,6 @@ void CUser::AllPointChange()
 		m_sPoints += 2 * (GetLevel() - 60);
 
 	ASSERT(GetStatTotal() == 290);
-
-	m_iGold = money;
 
 	SetUserAbility();
 	Send2AI_UserUpdateInfo();
@@ -3323,29 +3315,38 @@ void CUser::BlinkTimeCheck()
 	UpdateVisibility(INVIS_NONE);
 }
 
-void CUser::GoldGain(int gold)	// 1 -> Get gold    2 -> Lose gold
+void CUser::GoldGain(uint32 gold, bool bSendPacket /*= true*/)
 {
-	Packet result(WIZ_GOLD_CHANGE);
-
-	//Assuming it works like this, although this affects (probably) all gold gained (including kills in PvP zones)
-	//If this is wrong and it should ONLY affect gold gained from monsters, let us know!
+	// Assuming it works like this, although this affects (probably) all gold gained (including kills in PvP zones)
+	// If this is wrong and it should ONLY affect gold gained from monsters, let us know!
 	gold += (m_bNoahGainAmount - 100) * gold / 100;
-	
-	m_iGold += gold;
 
-	result << uint8(1) << gold << m_iGold;
-	Send(&result);	
+	if (m_iGold + gold > COIN_MAX)
+		m_iGold = COIN_MAX;
+	else
+		m_iGold += gold;
+
+	if (bSendPacket)
+	{
+		Packet result(WIZ_GOLD_CHANGE, uint8(CoinGain));
+		result << gold << GetCoins();
+		Send(&result);	
+	}
 }
 
-bool CUser::GoldLose(unsigned int gold)
+bool CUser::GoldLose(uint32 gold, bool bSendPacket /*= true*/)
 {
-	if (m_iGold < gold) 
+	if (!hasCoins(gold)) 
 		return false;
 	
-	Packet result(WIZ_GOLD_CHANGE);
 	m_iGold -= gold;
-	result << uint8(2) << gold << m_iGold;
-	Send(&result);	
+
+	if (bSendPacket)
+	{
+		Packet result(WIZ_GOLD_CHANGE, uint8(CoinLoss));
+		result << gold << GetCoins();
+		Send(&result);	
+	}
 	return true;
 }
 
