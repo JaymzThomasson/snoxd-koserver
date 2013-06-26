@@ -577,8 +577,8 @@ enum UserStatus
 
 enum UserStatusBehaviour
 {
-	USER_STATUS_INFLICT	= 1,
-	USER_STATUS_CURE	= 2
+	USER_STATUS_CURE	= 0,
+	USER_STATUS_INFLICT	= 1
 };
 
 enum FlyingSantaOrAngel

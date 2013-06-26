@@ -334,10 +334,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		// Description: Shoots an arrow that inflicts 400% damage and blinds the enemy. Does not apply to monsters.
 		// As such, we should not blind monsters.
 		if (pTarget->isPlayer())
-		{
 			pTarget->m_bIsBlinded = true;
-			TO_USER(pTarget)->SendUserStatusUpdate(USER_STATUS_BLIND, USER_STATUS_INFLICT);
-		}
 		break;
 
 	case BUFF_TYPE_FREEZE:
@@ -604,7 +601,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		if (pTarget->isPlayer())
 		{
 			pTarget->m_bIsBlinded = false;
-			TO_USER(pTarget)->SendUserStatusUpdate(USER_STATUS_BLIND, USER_STATUS_CURE);
+			TO_USER(pTarget)->SendUserStatusUpdate(USER_STATUS_POISON, USER_STATUS_CURE);
 		}
 		break;
 
