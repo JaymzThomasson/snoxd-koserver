@@ -42,7 +42,7 @@ void Unit::Initialize()
 	m_bIsTransformed = false;
 	m_bIsBlinded = false;
 	m_bInstantCast = false;
-
+	m_bBlockCurse = false;
 	InitType3();	 // Initialize durational type 3 stuff :)
 	InitType4();	 // Initialize durational type 4 stuff :)
 }
