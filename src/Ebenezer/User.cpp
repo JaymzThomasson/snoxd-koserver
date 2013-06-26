@@ -2512,6 +2512,7 @@ void CUser::InitType4()
 	m_bMaxWeightAmount = 100;
 	m_bExpGainAmount = 100;
 	m_bNPGainAmount = 100;
+	m_bNoahGainAmount = 100;
 }
 
 void CUser::Type4Duration()
@@ -3325,6 +3326,10 @@ void CUser::BlinkTimeCheck()
 void CUser::GoldGain(int gold)	// 1 -> Get gold    2 -> Lose gold
 {
 	Packet result(WIZ_GOLD_CHANGE);
+
+	//Assuming it works like this, although this affects (probably) all gold gained (including kills in PvP zones)
+	//If this is wrong and it should ONLY affect gold gained from monsters, let us know!
+	gold += (m_bNoahGainAmount - 100) * gold / 100;
 	
 	m_iGold += gold;
 

@@ -156,6 +156,7 @@ public:
 
 	uint8	m_bExpGainAmount;
 	uint8	m_bNPGainAmount;
+	uint8	m_bNoahGainAmount;
 	uint8	m_bMaxWeightAmount; 
 
 	short	m_iMaxHp, m_iMaxMp;
