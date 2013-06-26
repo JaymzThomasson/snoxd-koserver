@@ -687,6 +687,7 @@ public:
 
 	virtual void OnDeath(Unit *pKiller);
 	void UpdateAngerGauge(uint8 byAngerGauge);
+	void InitializeStealth();
 
 	// Exchange system
 	bool CheckExchange(int nExchangeID);

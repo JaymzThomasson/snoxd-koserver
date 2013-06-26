@@ -1896,9 +1896,7 @@ void MagicInstance::Type9Cancel(bool bRemoveFromMap /*= true*/)
 	// Lupine etc.
 	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4) 
 	{
-		Packet stealth(WIZ_STEALTH);
-		stealth << uint16(0) << uint8(0);
-		pCaster->Send(&stealth);
+		pCaster->InitializeStealth();
 		bResponse = 92;
 	}
 	// Guardian pet related

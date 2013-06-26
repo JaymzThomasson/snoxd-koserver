@@ -4195,3 +4195,10 @@ void CUser::HandleMiningStop(Packet & pkt)
 void CUser::HandleSoccer(Packet & pkt)
 {
 }
+
+void CUser::InitializeStealth()
+{
+	Packet pkt(WIZ_STEALTH);
+	pkt << uint8(0) << uint16(0);
+	Send(&pkt);
+}
