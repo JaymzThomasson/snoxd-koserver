@@ -417,7 +417,7 @@ public:
 	bool CheckWeight(_ITEM_TABLE * pTable, uint32 nItemID, uint16 sCount);
 	bool CheckSkillPoint(uint8 skillnum, uint8 min, uint8 max);
 	bool GoldLose(uint32 gold, bool bSendPacket = true);
-	void GoldGain(uint32 gold, bool bSendPacket = true);
+	void GoldGain(uint32 gold, bool bSendPacket = true, bool bApplyBonus = false);
 	void SendItemWeight();
 	void UpdateVisibility(InvisibilityType bNewType);
 	void BlinkStart();

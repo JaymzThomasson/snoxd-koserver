@@ -1645,7 +1645,7 @@ void CUser::ItemGet(Packet & pkt)
 			|| (pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex)) == nullptr)
 		{
 			// NOTE: Coins have been checked already.
-			GoldGain(pItem->sCount, false);
+			GoldGain(pItem->sCount, false, true);
 			result << uint8(LootSolo) << nBundleID << int8(-1) << nItemID << pItem->sCount << GetCoins();
 			pReceiver->Send(&result);
 		}
@@ -1672,7 +1672,7 @@ void CUser::ItemGet(Packet & pkt)
 				// Calculate the number of coins to give the player
 				// Give each party member coins relative to their level.
 				int coins = (int)(pItem->sCount * (float)((*itr)->GetLevel() / (float)sumOfLevels));
-				GoldGain(coins, false);
+				GoldGain(coins, false, true);
 
 				// Let each player know they received coins.
 				result.clear();
@@ -3264,11 +3264,12 @@ void CUser::BlinkTimeCheck()
 	UpdateVisibility(INVIS_NONE);
 }
 
-void CUser::GoldGain(uint32 gold, bool bSendPacket /*= true*/)
+void CUser::GoldGain(uint32 gold, bool bSendPacket /*= true*/, bool bApplyBonus /*= false*/)
 {
 	// Assuming it works like this, although this affects (probably) all gold gained (including kills in PvP zones)
 	// If this is wrong and it should ONLY affect gold gained from monsters, let us know!
-	gold += (m_bNoahGainAmount - 100) * gold / 100;
+	if (bApplyBonus)
+		gold += (m_bNoahGainAmount - 100) * gold / 100;
 
 	if (m_iGold + gold > COIN_MAX)
 		m_iGold = COIN_MAX;
