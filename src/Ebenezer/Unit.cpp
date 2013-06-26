@@ -697,3 +697,69 @@ void Unit::AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO & pBuffInfo)
 	FastGuard lock(m_buffLock);
 	m_buffMap.insert(std::make_pair(bBuffType, pBuffInfo));
 }
+
+/**
+ * @brief	Sets zone attributes for the loaded zone.
+ *
+ * @param	zoneNumber	The zone number.
+ */
+void KOMap::SetZoneAttributes(int zoneNumber)
+{
+	// This should not be here, but it's necessary to avoid code duplication
+	// until we merge the AI/Ebenezer map classes.
+	
+	m_zoneFlags = 0;
+	m_sTariff = 10; // defaults to 10 officially for zones that don't use it.
+
+	switch (zoneNumber)
+	{
+	case ZONE_MORADON:
+	case 51: // Orc Prisoner Quest arena
+	case 52: // Blood Don Quest arena
+	case 53: // Goblin Quest arena
+	case ZONE_FORGOTTEN_TEMPLE: // Forgotten Temple
+		m_zoneType = ZoneAbilityNeutral;
+		m_zoneFlags = TRADE_OTHER_NATION | TALK_OTHER_NATION;
+		break;
+
+	case ZONE_CAITHAROS_ARENA: // Caitharos/Knight Quest arena
+		m_zoneType = ZoneAbilityCaitharosArena;
+		m_zoneFlags = TALK_OTHER_NATION | ATTACK_OTHER_NATION;
+		break;
+
+	case 32: // Desperation abyss
+	case 33: // Hell abyss
+		m_zoneType = ZoneAbilityPVPNeutralNPCs;
+		m_zoneFlags = TALK_OTHER_NATION | ATTACK_OTHER_NATION;
+		break;
+
+	case ZONE_ARENA:
+		m_zoneType = ZoneAbilityNeutral;
+		m_zoneFlags = TALK_OTHER_NATION | ATTACK_OTHER_NATION | ATTACK_SAME_NATION;
+		break;
+
+	case ZONE_KARUS:
+	case ZONE_KARUS_ESLANT:
+	case ZONE_ELMORAD:
+	case ZONE_ELMORAD_ESLANT:
+	case ZONE_RONARK_LAND:
+	case ZONE_ARDREAM:
+		m_zoneType = ZoneAbilityPVP;
+		m_zoneFlags = ATTACK_OTHER_NATION;
+		break;
+
+	case ZONE_DELOS:
+		m_zoneType = ZoneAbilitySiegeDisabled; // depends on current siege state
+		m_zoneFlags = TRADE_OTHER_NATION | TALK_OTHER_NATION; // also depends on current siege state, should be updated by CSW.
+		break;
+
+	case ZONE_BIFROST:
+		m_zoneType = ZoneAbilityPVPNeutralNPCs;
+		m_zoneFlags = ATTACK_OTHER_NATION;
+		break;
+
+	default:
+		m_zoneType = ZoneAbilityPVP;
+		break;
+	}
+}

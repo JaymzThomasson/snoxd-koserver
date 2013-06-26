@@ -823,62 +823,11 @@ void CUser::SendWeather()
 void CUser::SetZoneAbilityChange()
 {
 	Packet result(WIZ_ZONEABILITY, uint8(1));
-	uint8 zone = GetZoneID();
 
-	// Moradon or temples (but NOT FT).
-	if (zone == 21
-		|| ((zone / 10) == 5 && zone != 54))
-	{
-		result	<< uint8(1) << uint8(0) << uint8(1)
-				<< uint16(zone == 21 ? 20 : 10); // zone tariff
-	}
-	// Arena
-	else if (zone == 48)
-	{
-		result	<< uint8(0) << uint8(0) << uint8(1)
-				<< uint16(10);
-	}
-	// Now we handle FT
-	else if (zone == 54)
-	{
-		result	<< uint8(0) << uint8(7) << uint8(1)
-				<< uint16(10);
-	}
-	// desperation abyss & hell abyss
-	else if (zone == 32 || zone == 33)
-	{
-		result	<< uint8(0) << uint8(8) << uint8(1)
-				<< uint16(10);
-	}
-	// colony zone
-	else if (zone == ZONE_RONARK_LAND)
-	{
-		result	<< uint8(0) << uint8(1) << uint8(0)
-				<< uint16(20);
-	}
-	// delos
-	else if (zone == 31)
-	{
-		// to-do
-	}
-	else if (zone == 1 || zone == 11)
-	{
-		CKingSystem * pData = g_pMain->m_KingSystemArray.GetData(KARUS);
-		uint16 sTariff = (pData == nullptr ? 0 : pData->m_byTerritoryTariff);
-
-		result	<< uint8(0) << uint8(1) << uint8(0)
-				<< sTariff; // orc-side tariff
-	}
-	else if (zone == 2 || zone == 12)
-	{
-		CKingSystem * pData = g_pMain->m_KingSystemArray.GetData(ELMORAD);
-		uint16 sTariff = (pData == nullptr ? 0 : pData->m_byTerritoryTariff);
-
-		result	<< uint8(0) << uint8(1) << uint8(0)
-				<< sTariff; // human-side tariff
-	}
-	else 
-		return;
+	result	<< GetMap()->canTradeWithOtherNation()
+			<< GetMap()->GetZoneType()
+			<< GetMap()->canTalkToOtherNation()
+			<< GetMap()->GetTariff();
 
 	Send(&result);
 }

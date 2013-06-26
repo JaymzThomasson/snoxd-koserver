@@ -34,6 +34,7 @@ bool C3DMap::Initialize(_ZONE_INFO *pZone)
 
 	if (m_smdFile != nullptr)
 	{
+		SetZoneAttributes(m_nZoneNumber);
 		m_ppRegion = new CRegion*[m_smdFile->m_nXRegion];
 		for (int i = 0; i < m_smdFile->m_nXRegion; i++)
 			m_ppRegion[i] = new CRegion[m_smdFile->m_nZRegion];
@@ -135,7 +136,7 @@ C3DMap::~C3DMap()
 
 	if (m_ppRegion != nullptr)
 	{
-		for (int i = 0; i < GetXRegionMax(); i++)
+		for (int i = 0; i <= GetXRegionMax(); i++)
 			delete [] m_ppRegion[i];
 
 		delete [] m_ppRegion;

@@ -48,4 +48,21 @@ public:
 
 	SMDFile *m_smdFile;
 	FastMutex m_lock;
+
+	/* the following should all be duplicated to AI server's map class for now */
+
+	INLINE bool canTradeWithOtherNation() { return (m_zoneFlags & TRADE_OTHER_NATION) != 0; }
+	INLINE bool canTalkToOtherNation() { return (m_zoneFlags & TALK_OTHER_NATION) != 0; }
+	INLINE bool canAttackOtherNation() { return (m_zoneFlags & ATTACK_OTHER_NATION) != 0; } 
+	INLINE bool canAttackSameNation() { return (m_zoneFlags & ATTACK_SAME_NATION) != 0; } 
+
+	INLINE uint8 GetZoneType() { return m_zoneType; }
+	INLINE uint16 GetTariff() { return m_sTariff; }
+
+protected:
+	void SetZoneAttributes(int zoneNumber);
+
+	ZoneAbilityType m_zoneType;
+	uint8 m_zoneFlags;
+	uint16 m_sTariff;
 };
