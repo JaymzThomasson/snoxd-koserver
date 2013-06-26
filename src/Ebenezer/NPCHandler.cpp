@@ -42,20 +42,20 @@ void CUser::ItemRepair(Packet & pkt)
 		quantity = pTable->m_sDuration - m_sItemArray[SLOT_MAX+sSlot].sDuration;
 	
 	money = (unsigned int)((((pTable->m_iBuyPrice-10) / 10000.0f) + pow((float)pTable->m_iBuyPrice, 0.75f)) * quantity / (double)durability);
-	if( money > m_iGold ) goto fail_return;
+	if (!GoldLose(money, false))
+		goto fail_return;
 
-	m_iGold -= money;
-	if( sPos == 1 )
+	if (sPos == 1)
 		m_sItemArray[sSlot].sDuration = durability;
 	else if( sPos == 2 )
 		m_sItemArray[SLOT_MAX+sSlot].sDuration = durability;
 
-	result << uint8(1) << m_iGold;
+	result << uint8(1) << GetCoins();
 	Send(&result);
 	return;
 
 fail_return:
-	result << uint8(0) << m_iGold;
+	result << uint8(0) << GetCoins();
 	Send(&result);
 }
 
@@ -477,7 +477,7 @@ void CUser::ItemTrade(Packet & pkt)
 		}
 
 		transactionPrice = ((uint32)pTable->m_iBuyPrice * count);
-		if (m_iGold < transactionPrice)
+		if (!hasCoins(transactionPrice))
 		{
 			errorCode = 3;
 			goto fail_return;
@@ -492,6 +492,7 @@ void CUser::ItemTrade(Packet & pkt)
 		m_sItemArray[SLOT_MAX+pos].nNum = itemid;
 		m_sItemArray[SLOT_MAX+pos].sDuration = pTable->m_sDuration;
 		m_sItemArray[SLOT_MAX+pos].sCount += count;
+
 		m_iGold -= transactionPrice;
 
 		if (!pTable->m_bCountable)
@@ -523,10 +524,7 @@ void CUser::ItemTrade(Packet & pkt)
 		else
 			transactionPrice = (pTable->m_iBuyPrice * count);
 
-		if (m_iGold + transactionPrice > COIN_MAX)
-			m_iGold = COIN_MAX;
-		else
-			m_iGold += transactionPrice;
+		GoldGain(transactionPrice, false);
 
 		if (count >= pItem->sCount)
 			memset(pItem, 0, sizeof(_ITEM_DATA));
