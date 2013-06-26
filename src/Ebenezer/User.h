@@ -155,6 +155,7 @@ public:
 	int8	m_bStatBuffs[STAT_COUNT];
 
 	uint8	m_bExpGainAmount;
+	uint8	m_bNPGainAmount;
 	uint8	m_bMaxWeightAmount; 
 
 	short	m_iMaxHp, m_iMaxMp;

@@ -2031,6 +2031,9 @@ void CUser::LoyaltyChange(int16 tid, uint16 bonusNP /*= 0*/)
 	// Include any bonus NP (e.g. rival NP bonus)
 	loyalty_source += bonusNP;
 
+	//If you're using an NP modifying buff then add the bonus (NOTE : We do not take extra NP from the user that dies!)
+	loyalty_source += (m_bNPGainAmount - 100) * loyalty_source / 100;
+
 	SendLoyaltyChange(loyalty_source);
 	pTUser->SendLoyaltyChange(loyalty_target);
 
@@ -2508,6 +2511,7 @@ void CUser::InitType4()
 	Unit::InitType4();
 	m_bMaxWeightAmount = 100;
 	m_bExpGainAmount = 100;
+	m_bNPGainAmount = 100;
 }
 
 void CUser::Type4Duration()

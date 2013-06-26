@@ -297,7 +297,8 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_LOYALTY:
-		// uses pType->ExpPct
+		if(pTarget->isPlayer())
+			TO_USER(pTarget)->m_bNPGainAmount = pType->bExpPct;
 		break;
 
 	case BUFF_TYPE_NOAH_BONUS:
@@ -567,7 +568,8 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_LOYALTY:
-		// uses pType->ExpPct
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bNPGainAmount = 100;
 		break;
 
 	case BUFF_TYPE_NOAH_BONUS:
