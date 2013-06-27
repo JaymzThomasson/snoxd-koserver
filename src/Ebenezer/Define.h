@@ -99,11 +99,18 @@ enum InOutType
 // Zone IDs
 #define ZONE_KARUS				1
 #define ZONE_ELMORAD			2
+#define ZONE_KARUS_ESLANT		11
+#define ZONE_ELMORAD_ESLANT		12
 #define ZONE_MORADON			21
 #define ZONE_DELOS				30
+#define ZONE_BIFROST			31
+#define ZONE_ARENA				48
+#define ZONE_CAITHAROS_ARENA	54
+#define ZONE_FORGOTTEN_TEMPLE	55
 #define ZONE_BATTLE				101
 #define ZONE_SNOW_BATTLE		102
 #define	ZONE_RONARK_LAND		71
+#define	ZONE_ARDREAM			72
 
 #define MAX_BATTLE_ZONE_USERS	150
 

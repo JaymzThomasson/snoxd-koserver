@@ -42,7 +42,7 @@ void Unit::Initialize()
 	m_bIsTransformed = false;
 	m_bIsBlinded = false;
 	m_bInstantCast = false;
-
+	m_bBlockCurse = false;
 	InitType3();	 // Initialize durational type 3 stuff :)
 	InitType4();	 // Initialize durational type 4 stuff :)
 }
@@ -697,4 +697,111 @@ void Unit::AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO & pBuffInfo)
 {
 	FastGuard lock(m_buffLock);
 	m_buffMap.insert(std::make_pair(bBuffType, pBuffInfo));
+}
+
+/**************************************************************************
+ * The following methods should not be here, but it's necessary to avoid
+ * code duplication between AI and Ebenezer until they're better merged.
+ **************************************************************************/ 
+
+/**
+ * @brief	Sets zone attributes for the loaded zone.
+ *
+ * @param	zoneNumber	The zone number.
+ */
+void KOMap::SetZoneAttributes(int zoneNumber)
+{
+	m_zoneFlags = 0;
+	m_byTariff = 10; // defaults to 10 officially for zones that don't use it.
+
+	switch (zoneNumber)
+	{
+	case ZONE_MORADON:
+	case 51: // Orc Prisoner Quest arena
+	case 52: // Blood Don Quest arena
+	case 53: // Goblin Quest arena
+	case ZONE_FORGOTTEN_TEMPLE: // Forgotten Temple
+		m_zoneType = ZoneAbilityNeutral;
+		m_zoneFlags = TRADE_OTHER_NATION | TALK_OTHER_NATION | FRIENDLY_NPCS;
+		break;
+
+	case ZONE_CAITHAROS_ARENA: // Caitharos/Knight Quest arena
+		m_zoneType = ZoneAbilityCaitharosArena;
+		m_zoneFlags = TALK_OTHER_NATION | ATTACK_OTHER_NATION | FRIENDLY_NPCS;
+		break;
+
+	case 32: // Desperation abyss
+	case 33: // Hell abyss
+		m_zoneType = ZoneAbilityPVPNeutralNPCs;
+		m_zoneFlags = TALK_OTHER_NATION | ATTACK_OTHER_NATION | FRIENDLY_NPCS;
+		break;
+
+	case ZONE_ARENA:
+		m_zoneType = ZoneAbilityNeutral;
+		m_zoneFlags = TALK_OTHER_NATION | ATTACK_OTHER_NATION | ATTACK_SAME_NATION | FRIENDLY_NPCS;
+		break;
+
+	case ZONE_KARUS:
+	case ZONE_KARUS_ESLANT:
+	case ZONE_ELMORAD:
+	case ZONE_ELMORAD_ESLANT:
+	case ZONE_RONARK_LAND:
+	case ZONE_ARDREAM:
+		m_zoneType = ZoneAbilityPVP;
+		m_zoneFlags = ATTACK_OTHER_NATION;
+		break;
+
+	case ZONE_DELOS:
+		m_zoneType = ZoneAbilitySiegeDisabled; // depends on current siege state
+		m_zoneFlags = TRADE_OTHER_NATION | TALK_OTHER_NATION | FRIENDLY_NPCS; // also depends on current siege state, should be updated by CSW.
+		break;
+
+	case ZONE_BIFROST:
+		m_zoneType = ZoneAbilityPVPNeutralNPCs;
+		m_zoneFlags = ATTACK_OTHER_NATION | FRIENDLY_NPCS;
+		break;
+
+	default:
+		m_zoneType = ZoneAbilityPVP;
+		break;
+	}
+}
+
+/**
+ * @brief	Determine if an NPC can attack the specified unit.
+ *
+ * @param	pTarget	The target we are attempting to attack.
+ *
+ * @return	true if we can attack, false if not.
+ */
+bool CNpc::CanAttack(Unit * pTarget)
+{
+	if (!Unit::CanAttack(pTarget))
+		return false;
+
+	return isHostileTo(pTarget);
+}
+
+/**
+ * @brief	Determines if an NPC is hostile to a unit.
+ * 			Non-hostile NPCs cannot be attacked.
+ *
+ * @param	pTarget	Target unit
+ *
+ * @return	true if hostile to, false if not.
+ */
+bool CNpc::isHostileTo(Unit * pTarget)
+{
+	// A nation of 0 indicates friendliness to all
+	if (GetNation() == Nation::ALL
+		// Also allow for cases when all NPCs in this zone are inherently friendly.
+		|| (!isMonster() && GetMap()->areNPCsFriendly()))
+		return false;
+
+	// A nation of 3 indicates hostility to all (or friendliness to none)
+	if (GetNation() == Nation::NONE)
+		return true;
+
+	// An NPC cannot attack a unit of the same nation
+	return (GetNation() != pTarget->GetNation());
 }

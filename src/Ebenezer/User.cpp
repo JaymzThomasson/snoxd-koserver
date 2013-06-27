@@ -823,62 +823,11 @@ void CUser::SendWeather()
 void CUser::SetZoneAbilityChange()
 {
 	Packet result(WIZ_ZONEABILITY, uint8(1));
-	uint8 zone = GetZoneID();
 
-	// Moradon or temples (but NOT FT).
-	if (zone == 21
-		|| ((zone / 10) == 5 && zone != 54))
-	{
-		result	<< uint8(1) << uint8(0) << uint8(1)
-				<< uint16(zone == 21 ? 20 : 10); // zone tariff
-	}
-	// Arena
-	else if (zone == 48)
-	{
-		result	<< uint8(0) << uint8(0) << uint8(1)
-				<< uint16(10);
-	}
-	// Now we handle FT
-	else if (zone == 54)
-	{
-		result	<< uint8(0) << uint8(7) << uint8(1)
-				<< uint16(10);
-	}
-	// desperation abyss & hell abyss
-	else if (zone == 32 || zone == 33)
-	{
-		result	<< uint8(0) << uint8(8) << uint8(1)
-				<< uint16(10);
-	}
-	// colony zone
-	else if (zone == ZONE_RONARK_LAND)
-	{
-		result	<< uint8(0) << uint8(1) << uint8(0)
-				<< uint16(20);
-	}
-	// delos
-	else if (zone == 31)
-	{
-		// to-do
-	}
-	else if (zone == 1 || zone == 11)
-	{
-		CKingSystem * pData = g_pMain->m_KingSystemArray.GetData(KARUS);
-		uint16 sTariff = (pData == nullptr ? 0 : pData->m_byTerritoryTariff);
-
-		result	<< uint8(0) << uint8(1) << uint8(0)
-				<< sTariff; // orc-side tariff
-	}
-	else if (zone == 2 || zone == 12)
-	{
-		CKingSystem * pData = g_pMain->m_KingSystemArray.GetData(ELMORAD);
-		uint16 sTariff = (pData == nullptr ? 0 : pData->m_byTerritoryTariff);
-
-		result	<< uint8(0) << uint8(1) << uint8(0)
-				<< sTariff; // human-side tariff
-	}
-	else 
-		return;
+	result	<< GetMap()->canTradeWithOtherNation()
+			<< GetMap()->GetZoneType()
+			<< GetMap()->canTalkToOtherNation()
+			<< uint16(GetMap()->GetTariff());
 
 	Send(&result);
 }
@@ -1696,7 +1645,7 @@ void CUser::ItemGet(Packet & pkt)
 			|| (pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex)) == nullptr)
 		{
 			// NOTE: Coins have been checked already.
-			GoldGain(pItem->sCount, false);
+			GoldGain(pItem->sCount, false, true);
 			result << uint8(LootSolo) << nBundleID << int8(-1) << nItemID << pItem->sCount << GetCoins();
 			pReceiver->Send(&result);
 		}
@@ -1723,7 +1672,7 @@ void CUser::ItemGet(Packet & pkt)
 				// Calculate the number of coins to give the player
 				// Give each party member coins relative to their level.
 				int coins = (int)(pItem->sCount * (float)((*itr)->GetLevel() / (float)sumOfLevels));
-				GoldGain(coins, false);
+				GoldGain(coins, false, true);
 
 				// Let each player know they received coins.
 				result.clear();
@@ -3315,11 +3264,12 @@ void CUser::BlinkTimeCheck()
 	UpdateVisibility(INVIS_NONE);
 }
 
-void CUser::GoldGain(uint32 gold, bool bSendPacket /*= true*/)
+void CUser::GoldGain(uint32 gold, bool bSendPacket /*= true*/, bool bApplyBonus /*= false*/)
 {
 	// Assuming it works like this, although this affects (probably) all gold gained (including kills in PvP zones)
 	// If this is wrong and it should ONLY affect gold gained from monsters, let us know!
-	gold += (m_bNoahGainAmount - 100) * gold / 100;
+	if (bApplyBonus)
+		gold += (m_bNoahGainAmount - 100) * gold / 100;
 
 	if (m_iGold + gold > COIN_MAX)
 		m_iGold = COIN_MAX;
@@ -3702,7 +3652,7 @@ bool CUser::isInArena()
 
 	// If we're in the Arena zone, assume combat is acceptable everywhere.
 	// NOTE: This is why we need generic bounds checks, to ensure even attacks in the Arena zone are in one of the 4 arena locations.
-	if (GetZoneID() == 48)
+	if (GetZoneID() == ZONE_ARENA)
 		return true;
 
 	// The only other arena is located in Moradon. If we're not in Moradon, then it's not an Arena.
@@ -3723,9 +3673,7 @@ bool CUser::isInArena()
  */
 bool CUser::isInPVPZone()
 {
-	// If the zone is classified an 'attack' zone (this should probably be clarified)
-	// it is a PVP zone.
-	if (GetMap()->isAttackZone())
+	if (GetMap()->canAttackOtherNation())
 		return true;
 
 	// Native/home zones are classed as PVP zones during invasions.
@@ -3756,11 +3704,12 @@ bool CUser::CanAttack(Unit * pTarget)
 		return TO_NPC(pTarget)->isHostileTo(this);
 
 	// Players can attack other players in the arena.
-	if (isInArena() && TO_USER(pTarget)->isInArena())
+	if (isInArena() 
+		&& TO_USER(pTarget)->isInArena())
 		return true;
 
 	// Players can attack opposing nation players when they're in PVP zones.
-	if (bIsSameNation == false && isInPVPZone())
+	if (!bIsSameNation && isInPVPZone())
 		return true;
 
 	// Players cannot attack other players in any other circumstance.

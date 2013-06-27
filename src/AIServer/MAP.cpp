@@ -59,6 +59,7 @@ bool MAP::Initialize(_ZONE_INFO *pZone)
 	if (m_smdFile != nullptr)
 	{
 		ObjectEventArray * pEvents = m_smdFile->GetObjectEventArray();
+		SetZoneAttributes(m_nZoneNumber);
 		foreach_stlmap(itr, (*pEvents))
 		{
 			_OBJECT_EVENT * pEvent = itr->second;
@@ -117,7 +118,6 @@ void MAP::RemoveMapData()
 		m_fHeight = nullptr;
 	}
 	
-	m_ObjectEventArray.DeleteAllData();
 	m_arRoomEventArray.DeleteAllData();
 }
 

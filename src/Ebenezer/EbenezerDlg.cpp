@@ -107,12 +107,39 @@ bool CEbenezerDlg::Startup()
 
 	m_aiSocketMgr.InitSessions(1);
 
-
 	if (!g_DBAgent.Startup(m_bMarsEnabled, 
 			m_strAccountDSN, m_strAccountUID, m_strAccountPWD,
 			m_strGameDSN, m_strGameUID, m_strGamePWD)
-		|| !LoadTables()
-		|| !MapFileLoad())
+		|| !LoadItemTable()
+		|| !LoadItemExchangeTable()
+		|| !LoadItemUpgradeTable()
+		|| !LoadServerResourceTable()
+		|| !LoadQuestHelperTable()
+		|| !LoadQuestMonsterTable()
+		|| !LoadMagicTable()
+		|| !LoadMagicType1()
+		|| !LoadMagicType2()
+		|| !LoadMagicType3()
+		|| !LoadMagicType4()
+		|| !LoadMagicType5()
+		|| !LoadMagicType6()
+		|| !LoadMagicType7()
+		|| !LoadMagicType8()
+		|| !LoadMagicType9()
+		|| !LoadRentalList()
+		|| !LoadCoefficientTable()
+		|| !LoadLevelUpTable()
+		|| !LoadAllKnights()
+		|| !LoadAllKnightsUserData()
+		|| !LoadKnightsAllianceTable()
+		|| !LoadUserRankings()
+		|| !LoadKnightsCapeTable()
+		|| !LoadKnightsRankTable()
+		|| !LoadHomeTable()
+		|| !LoadStartPositionTable()
+		|| !LoadBattleTable()
+		|| !MapFileLoad()
+		|| !LoadKingSystem())
 		return false;
 
 	LoadNoticeData();

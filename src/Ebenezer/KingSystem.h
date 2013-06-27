@@ -122,7 +122,6 @@ public:
 	uint16	m_sExpEvent_Duration;
 
 	uint32	m_nTribute;
-	uint8	m_byTerritoryTariff;
 	uint32	m_nTerritoryTax;
 	uint32	m_nNationalTreasury;
 

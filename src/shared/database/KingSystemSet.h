@@ -12,7 +12,7 @@ public:
 	virtual bool Fetch()
 	{
 		CKingSystem * pData;
-		uint8 byNation;
+		uint8 byNation, byTariff;
 		uint32 i = 1;
 
 		// Pull the nation first so we can use it as an ID.
@@ -72,9 +72,13 @@ public:
 
 		/* Money, money, money. */
 		_dbCommand->FetchUInt32(i++, pData->m_nTribute);
-		_dbCommand->FetchByte(i++, pData->m_byTerritoryTariff);
+		_dbCommand->FetchByte(i++, byTariff);
 		_dbCommand->FetchUInt32(i++, pData->m_nTerritoryTax);
 		_dbCommand->FetchUInt32(i++, pData->m_nNationalTreasury);
+
+		C3DMap * pMap = g_pMain->GetZoneByID(pData->m_byNation);
+		if (pMap != nullptr)
+			pMap->SetTariff(byTariff);
 
 		/* Names are so hard to remember. */
 		_dbCommand->FetchString(i++, pData->m_strKingName);

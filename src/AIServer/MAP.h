@@ -40,7 +40,6 @@ public:
 	uint8		m_byRoomEvent;		// event room(0:empty, 1:use)
 	RoomStatus	m_byRoomStatus;		// room status(1:진행중, 2:방을 초기화중, 3:방초기화 완료)
 	uint8		m_byInitRoomCount;	// room 초기화 시간을 제어(몬스터와 동기화를 맞추기 위해)
-	ObjectEventArray m_ObjectEventArray;
 	RoomEventArray	 m_arRoomEventArray;
 	short	m_sKarusRoom;			// karus의 성갯수
 	short	m_sElmoradRoom;			// elmorad의 성갯수
@@ -69,9 +68,25 @@ public:
 	void InitializeRoom();
 
 	CRoomEvent* SetRoomEvent( int number );
-
-protected:
 	void RemoveMapData();
 
 	SMDFile * m_smdFile;
+
+	/* the following should all be duplicated to AI server's map class for now */
+
+	INLINE bool canTradeWithOtherNation() { return (m_zoneFlags & TRADE_OTHER_NATION) != 0; }
+	INLINE bool canTalkToOtherNation() { return (m_zoneFlags & TALK_OTHER_NATION) != 0; }
+	INLINE bool canAttackOtherNation() { return (m_zoneFlags & ATTACK_OTHER_NATION) != 0; } 
+	INLINE bool canAttackSameNation() { return (m_zoneFlags & ATTACK_SAME_NATION) != 0; } 
+	INLINE bool areNPCsFriendly() { return (m_zoneFlags & FRIENDLY_NPCS) != 0; }
+
+	INLINE uint8 GetZoneType() { return m_zoneType; }
+	INLINE uint8 GetTariff() { return m_byTariff; }
+
+protected:
+	void SetZoneAttributes(int zoneNumber);
+
+	ZoneAbilityType m_zoneType;
+	uint16 m_zoneFlags;
+	uint8 m_byTariff;
 };

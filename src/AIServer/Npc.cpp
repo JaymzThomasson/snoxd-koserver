@@ -1375,9 +1375,9 @@ bool CNpc::FindEnemy()
 		|| GetRegionZ() > pMap->GetZRegionMax())
 		return false;
 
-	/*** Only find user enemies in non-neutral zones unless we're a monster ***/
-	if ((isMonster() || !bIsNeutralZone)
-		&& GetNation() != Nation::ALL)
+	/*** If we're a monster, we can find user enemies anywhere. If we're an NPC, we must not be friendly. ***/
+	if (isMonster() 
+		|| (!GetMap()->areNPCsFriendly() || GetNation() != Nation::ALL))
 	{
 		fCompareDis = FindEnemyExpand(GetRegionX(), GetRegionZ(), fCompareDis, 1);
 
@@ -1586,7 +1586,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 			CUser *pUser = g_pMain->GetUserPtr(*itr->second);
 			if (pUser == nullptr 
 				|| pUser->isDead()
-				|| GetNation() == pUser->GetNation()
+				|| !pUser->CanAttack(this)
 				|| pUser->m_bInvisibilityType
 				|| pUser->isGM())
 				continue;
@@ -1641,7 +1641,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 
 			if (pNpc != nullptr && pNpc->m_NpcState != NPC_DEAD && pNpc->GetID() != GetID())	
 			{
-				if (GetNation() == pNpc->GetNation())
+				if (!isHostileTo(pNpc))
 					continue;
 
 				vMon.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
@@ -2308,7 +2308,7 @@ int CNpc::Attack()
 		}
 
 		if (isHealer() 
-			&& pNpc->GetNation() == GetNation())
+			&& !isHostileTo(pNpc))
 		{
 			m_NpcState = NPC_HEALING;
 			return 0;
@@ -2686,7 +2686,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 
 	if (pUser == nullptr
 		|| pUser->isDead()
-		|| pUser->GetNation() == GetNation()
+		|| !isHostileTo(pUser)
 		|| pUser->m_bInvisibilityType
 		|| pUser->isGM()
 		|| m_NpcState == NPC_FAINTING

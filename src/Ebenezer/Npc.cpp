@@ -229,43 +229,6 @@ void CNpc::MSpChange(int amount)
 }
 
 /**
- * @brief	Determine if an NPC can attack the specified unit.
- *
- * @param	pTarget	The target we are attempting to attack.
- *
- * @return	true if we can attack, false if not.
- */
-bool CNpc::CanAttack(Unit * pTarget)
-{
-	if (!Unit::CanAttack(pTarget))
-		return false;
-
-	return isHostileTo(pTarget);
-}
-
-/**
- * @brief	Determines if an NPC is hostile to a unit.
- * 			Non-hostile NPCs cannot be attacked.
- *
- * @param	pTarget	Target unit
- *
- * @return	true if hostile to, false if not.
- */
-bool CNpc::isHostileTo(Unit * pTarget)
-{
-	// A nation of 0 indicates friendliness to all
-	if (GetNation() == Nation::ALL)
-		return false;
-
-	// A nation of 3 indicates hostility to all (or friendliness to none)
-	if (GetNation() == Nation::NONE)
-		return true;
-
-	// An NPC cannot attack a unit of the same nation
-	return (GetNation() != pTarget->GetNation());
-}
-
-/**
  * @brief	Executes the death action.
  *
  * @param	pKiller	The killer.

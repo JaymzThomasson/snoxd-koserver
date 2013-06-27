@@ -376,6 +376,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 
 	case BUFF_TYPE_BLOCK_CURSE:			// Counter Curse
 		// Blocks all curses.
+		pTarget->m_bBlockCurse = true;
 		break;
 
 	case BUFF_TYPE_BLOCK_CURSE_REFLECT:	// Curse Refraction
@@ -644,6 +645,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 
 	case BUFF_TYPE_BLOCK_CURSE:			// Counter Curse
 		// Blocks all curses.
+		pTarget->m_bBlockCurse = false;
 		break;
 
 	case BUFF_TYPE_BLOCK_CURSE_REFLECT:	// Curse Refraction

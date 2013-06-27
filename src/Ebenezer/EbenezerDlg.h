@@ -344,8 +344,6 @@ private:
 	std::string m_strGamePWD, m_strAccountPWD;
 	bool m_bMarsEnabled;
 
-	bool LoadTables();
-
 	bool ProcessServerCommand(std::string & command);
 
 public:
