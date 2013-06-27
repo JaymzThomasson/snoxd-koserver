@@ -38,6 +38,7 @@ void CUser::InitChatCommands()
 		// Command				Handler											Help message
 		{ "test",				&CUser::HandleTestCommand,						"Test command" },
 		{ "give_item",			&CUser::HandleGiveItemCommand,					"Gives a player an item. Arguments: character name | item ID | [optional stack size]" },
+		{ "status_update",		&CUser::HandleStatusUpdateCommand,					"Sends a specific status update to the user (testing purposes!)" },
 		{ "zonechange",			&CUser::HandleZoneChangeCommand,				"Teleports you to the specified zone. Arguments: zone ID" },
 		{ "open1",				&CUser::HandleWar1OpenCommand,					"Opens war zone 1" },
 		{ "open2",				&CUser::HandleWar2OpenCommand,					"Opens war zone 2" },
@@ -332,6 +333,33 @@ COMMAND_HANDLER(CUser::HandleGiveItemCommand)
 	{
 		// send error message saying the item couldn't be added
 	}
+
+	return true;
+}
+
+COMMAND_HANDLER(CUser::HandleStatusUpdateCommand)
+{
+	// type | status
+	if (vargs.size() < 2)
+	{
+		// send description
+		return true;
+	}
+
+	uint8 type = atoi(vargs.front().c_str());
+	vargs.pop_front();
+
+	CUser *pUser = g_pMain->GetUserPtr(this->m_strUserID, TYPE_CHARACTER);
+	if (pUser == nullptr)
+	{
+		// send error message saying the character does not exist or is not online
+		return true;
+	}
+
+	uint8 status = atoi(vargs.front().c_str());
+	vargs.pop_front();
+
+	pUser->SendUserStatusUpdate((UserStatus)type, (UserStatusBehaviour)status);
 
 	return true;
 }

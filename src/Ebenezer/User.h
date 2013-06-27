@@ -485,6 +485,7 @@ public:
 
 	COMMAND_HANDLER(HandleTestCommand);
 	COMMAND_HANDLER(HandleGiveItemCommand);
+	COMMAND_HANDLER(HandleStatusUpdateCommand);
 	COMMAND_HANDLER(HandleZoneChangeCommand);
 	COMMAND_HANDLER(HandleWar1OpenCommand);
 	COMMAND_HANDLER(HandleWar2OpenCommand);
