@@ -234,7 +234,7 @@ void CUser::PartyInsert()
 			<< uint8(1) // success
 			<< GetName()
 			<< m_iMaxHp << m_sHp
-			<< GetLevel() << m_sClass
+			<< GetLevel() << GetClass()
 			<< m_iMaxMp << m_sMp;
 	g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 
@@ -278,19 +278,37 @@ void CUser::PartyPromote(uint16 sMemberID)
 	// Swap the IDs around, so they have the leadership position.
 	std::swap(pParty->uid[0], pParty->uid[pos]);
 
-	// Swap the need party flags
+	// Swap the seeking party & leader flags
 	std::swap(m_bNeedParty, pUser->m_bNeedParty);
+	std::swap(m_bPartyLeader, pUser->m_bPartyLeader);
 
-	// Unset us as leader.
-	m_bPartyLeader = false;
-
+	// Remove our leadership state from the client
 	StateChangeServerDirect(6, 0); // remove 'P' symbol from old party leader	
 	StateChangeServerDirect(2, m_bNeedParty); // seeking a party
 
 	// Make them leader.
-	pUser->m_bPartyLeader = true;
 	pUser->StateChangeServerDirect(6, 1); // assign 'P' symbol to new party leader
 	pUser->StateChangeServerDirect(2, pUser->m_bNeedParty); // seeking a party
+
+	Packet result(WIZ_PARTY, uint8(PARTY_INSERT));
+	result << pUser->GetSocketID()
+			<< uint8(100) // reset position to leader
+			<< pUser->GetName()
+			<< pUser->m_iMaxHp << pUser->m_sHp
+			<< pUser->GetLevel() << pUser->GetClass()
+			<< pUser->m_iMaxMp << pUser->m_sMp;
+	g_pMain->Send_PartyMember(m_sPartyIndex, &result);
+
+	// Now update the slots in the AI server.
+	result.Initialize(AG_USER_PARTY);
+
+	// Shift the ex-leader to the promoted player's slot
+	result	<< uint8(PARTY_INSERT) << pParty->wIndex << pos << GetSocketID();
+	Send_AIServer(&result);
+
+	// Shift the leader to the ex-leader's slot (0).
+	result	<< uint8(PARTY_INSERT) << pParty->wIndex << uint8(0) << pUser->GetSocketID();
+	Send_AIServer(&result);
 }
 
 void CUser::PartyRemove(int memberid)
