@@ -58,6 +58,7 @@ enum NpcType
 {
 	NPC_MONSTER				= 0,
 	NPC_GENERAL				= 1,
+	NPC_SCARECROW			= 2,
 	NPC_BOSS				= 3,
 	NPC_DUNGEON_MONSTER		= 4,
 	NPC_TRAP_MONSTER		= 5,
