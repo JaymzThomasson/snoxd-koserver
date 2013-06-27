@@ -580,7 +580,7 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 	pMerchant->Send(&result);
 
 	result.clear();
-	result	<< uint8(MERCHANT_BUY_SOLD) << uint8(1) << uint16(bMerchantListSlot) << pWantedItem->sCount << uint8(0) ;
+	result << uint8(MERCHANT_BUY_SOLD) << uint8(1) << bMerchantListSlot << pWantedItem->sCount << bSellerSrcSlot << pSellerItem->sCount;
 	Send(&result);
 
 	result.clear();
@@ -590,9 +590,9 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 	if (bMerchantListSlot < 4 && pWantedItem->sCount == 0)
 	{
 		result.Initialize(WIZ_MERCHANT_INOUT);
-		result << uint8(2) << m_sMerchantsSocketID << uint16(0) << bMerchantListSlot;
+		result << uint8(2) << m_sMerchantsSocketID << uint8(1) << uint8(0) << bMerchantListSlot;
 		pMerchant->SendToRegion(&result);
-	}
+	}		
 
 	int nItemsRemaining = 0;
 	for (int i = 0; i < MAX_MERCH_ITEMS; i++)
@@ -603,7 +603,6 @@ void CUser::BuyingMerchantBuy(Packet & pkt)
 
 	if (nItemsRemaining == 0)
 		pMerchant->BuyingMerchantClose();
-		
 }
 
 void CUser::RemoveFromMerchantLookers()
