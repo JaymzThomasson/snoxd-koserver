@@ -18,7 +18,6 @@ void CUser::Initialize()
 {
 	Unit::Initialize();
 
-	// memset(&m_pUserData, 0x00, sizeof(_USER_DATA));
 	m_strUserID.clear();
 	m_strAccountID.clear();
 	m_bLogout = 0;
@@ -54,13 +53,22 @@ void CUser::Initialize()
 	memset(&m_byAPClassBonusAmount, 0, sizeof(m_byAPClassBonusAmount));
 	memset(&m_byAcClassBonusAmount, 0, sizeof(m_byAcClassBonusAmount));
 
+	memset(&m_bStats, 0, sizeof(m_bStats));
 	memset(&m_sStatItemBonuses, 0, sizeof(m_sStatItemBonuses));
 	memset(&m_bStatBuffs, 0, sizeof(m_bStatBuffs));
+	memset(&m_bstrSkill, 0, sizeof(m_bstrSkill));
 
 	m_sItemHitrate = 100;
 	m_sItemEvasionrate = 100;
 
 	m_sSpeed = 0;
+
+	m_bAuthority = AUTHORITY_PLAYER;
+	m_bLevel = 1;
+	m_iExp = 0;
+	m_iBank = m_iGold = 0;
+	m_iLoyalty = m_iLoyaltyMonthly = 0;
+	m_sHp = m_sMp = m_sSp = 0;
 
 	m_iMaxHp = 0;
 	m_iMaxMp = 1;
