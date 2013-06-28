@@ -1334,17 +1334,17 @@ bool MagicInstance::ExecuteType6()
 	uint32 iUseItem = 0;
 	uint16 sDuration = 0;
 
+	if (pType == nullptr
+		|| pSkillCaster->GetMap()->isAttackZone()
+		|| pSkillCaster->isTransformed()
+		// All buffs must be removed before using transformation skills
+		|| pSkillCaster->isBuffed())
+		return false;
+
 	// We can ignore all these checks if we're just recasting on relog.
 	if (!bIsRecastingSavedMagic)
 	{
 		if (pSkillTarget->HasSavedMagic(nSkillID))
-			return false;
-
-		if (pType == nullptr
-			|| pSkillCaster->GetMap()->isAttackZone()
-			|| pSkillCaster->isTransformed()
-			// All buffs must be removed before using transformation skills
-			|| pSkillCaster->isBuffed())
 			return false;
 
 		// Let's start by looking at the item that was used for the transformation.
