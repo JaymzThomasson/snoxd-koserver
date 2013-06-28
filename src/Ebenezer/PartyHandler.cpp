@@ -537,7 +537,8 @@ void CUser::SendPartyBBSNeeded(uint16 page_index, uint8 bType)
 		result.SByte();
 		result	<< WantedMessage
 				<< pUser->GetZoneID()
-				<< PartyMembers;
+				<< PartyMembers
+				<< uint8(0);
 		valid_counter++;
 	}
 	g_pMain->m_socketMgr.ReleaseLock();
@@ -548,8 +549,9 @@ void CUser::SendPartyBBSNeeded(uint16 page_index, uint8 bType)
 		for (int j = valid_counter; j < MAX_BBS_PAGE; j++)
 			result	<< uint16(0) << uint16(0)
 					<< uint16(0) << uint8(0)
-					<< uint8(0) << uint16(0)
-					<< uint16(0);
+					<< uint8(0) << uint8(0)
+					<< uint16(0)
+					<< uint8(0);
 	}
 
 	result << page_index << BBS_Counter;
