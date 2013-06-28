@@ -448,25 +448,16 @@ void CUser::SetRival(CUser * pRival)
 		return;
 
 	Packet result(WIZ_PVP, uint8(PVPAssignRival));
-	CKnights * pKnights;
+	CKnights * pKnights = nullptr;
 
-	// unknown packet data
-	uint8 packet[] = 
-	{
-		0x53, 0x07, /* ID? */
-		0x02, 0x97, 0x09, 0x49, 0xBF, 0x7C, 0x05, 
-		0x00 /* flag? */
-	};
+	result	<< pRival->GetID()
+ 			<< GetCoins() << GetLoyalty();
 
-	result.append(packet);
-
-	if (isInClan())
-		pKnights = g_pMain->GetClanPtr(GetClanID());
-
-	if (pKnights == nullptr)
-		result << uint16(0); // 0 length clan name
+	if (isInClan() 
+		&& (pKnights = g_pMain->GetClanPtr(GetClanID())) != nullptr)
+		result << pKnights->GetName();
 	else
-		result << pKnights->m_strName;
+		result << uint16(0); // 0 length clan name;
 
 	result << pRival->GetName();
 
@@ -2803,6 +2794,9 @@ void CUser::ResetWindows()
 	// If we're just browsing, free up our spot so others can browse the vendor.
 	if (m_sMerchantsSocketID >= 0)
 		CancelMerchant();
+
+	if (hasRival())
+		RemoveRival();
 
 /*	if (isUsingBuyingMerchant())
 		BuyingMerchantClose();
