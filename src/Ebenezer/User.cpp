@@ -1023,6 +1023,7 @@ void CUser::SetSlotItemValue()
 		if (pTable->m_bRace < 100)
 			continue;
 
+		// Each set is uniquely identified by item's race
 		auto itr = setItems.find(pTable->m_bRace);
 
 		// If the item doesn't exist in our map yet...
