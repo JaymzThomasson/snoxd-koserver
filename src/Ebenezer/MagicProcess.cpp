@@ -322,7 +322,8 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_DAMAGE_DOUBLE:
-		pTarget->m_bAttackAmount = pType->bAttack;
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bPlayerAttackAmount = pType->bAttack;
 		break;
 
 	case BUFF_TYPE_DISABLE_TARGETING:
@@ -591,7 +592,8 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_DAMAGE_DOUBLE:
-		pTarget->m_bAttackAmount = 100;
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bPlayerAttackAmount = 100;
 		break;
 
 	case BUFF_TYPE_DISABLE_TARGETING:

@@ -159,6 +159,8 @@ public:
 	uint32	m_sMaxWeight;
 	uint16   m_sSpeed;	// NOTE: Currently unused
 
+	uint8	m_bPlayerAttackAmount;
+
 	int16	m_sItemMaxHp;
 	int16	m_sItemMaxMp;
 	uint32	m_sItemWeight;

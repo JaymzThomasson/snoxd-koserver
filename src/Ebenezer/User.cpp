@@ -43,11 +43,9 @@ void CUser::Initialize()
 
 	m_sDirection = 0;
 
-	m_sItemMaxHp = 0;
-	m_sItemMaxMp = 0;
+	m_sItemMaxHp = m_sItemMaxMp = 0;
 	m_sItemWeight = 0;
-	m_sItemHit = 0;
-	m_sItemAc = 0;
+	m_sItemHit = m_sItemAc = 0;
 
 	m_byAPBonusAmount = 0;
 	memset(&m_byAPClassBonusAmount, 0, sizeof(m_byAPClassBonusAmount));
@@ -58,6 +56,7 @@ void CUser::Initialize()
 	memset(&m_bStatBuffs, 0, sizeof(m_bStatBuffs));
 	memset(&m_bstrSkill, 0, sizeof(m_bstrSkill));
 
+	m_bPlayerAttackAmount = 100;
 	m_sItemHitrate = 100;
 	m_sItemEvasionrate = 100;
 

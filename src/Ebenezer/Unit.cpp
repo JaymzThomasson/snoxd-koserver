@@ -199,11 +199,16 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 	temp_ap = m_sTotalHit * m_bAttackAmount;
 
 #ifdef EBENEZER
-	// Apply class-specific AC/AP bonuses.
+	// Apply player vs player AC/AP bonuses.
 	if (pTarget->isPlayer())
 	{
 		CUser * pTUser = TO_USER(pTarget);	// NOTE: using a = a*v instead of a *= v because the compiler assumes different 
 											// types being multiplied, which results in these calcs not behaving correctly.
+
+		// adjust player AP by percent, for skills like "Critical Point"
+		temp_ap = temp_ap * m_bPlayerAttackAmount / 100; 
+
+		// Now handle class-specific AC/AP bonuses.
 		temp_ac = temp_ac * (100 + pTUser->m_byAcClassBonusAmount[GetBaseClassType() - 1]) / 100;
 		temp_ap = temp_ap * (100 + m_byAPClassBonusAmount[pTUser->GetBaseClassType() - 1]) / 100;
 	}
