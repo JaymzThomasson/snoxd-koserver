@@ -1335,7 +1335,8 @@ bool MagicInstance::ExecuteType6()
 	uint16 sDuration = 0;
 
 	if (pType == nullptr
-		|| pSkillCaster->GetMap()->isAttackZone()
+		// Allow NPC transformations in PVP zones
+		|| (pType->bUserSkillUse != 3 && pSkillCaster->GetMap()->canAttackOtherNation())
 		|| pSkillCaster->isTransformed()
 		// All buffs must be removed before using transformation skills
 		|| pSkillCaster->isBuffed())

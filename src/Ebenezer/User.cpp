@@ -3963,7 +3963,7 @@ void CUser::RecastSavedMagic()
 		{
 			case 6:
 				// Not allowing transformations in PvP zones!
-				if (GetMap()->isAttackZone())
+				if (GetMap()->canAttackOtherNation())
 				{
 					RemoveSavedMagic(itr->first);
 					return;
