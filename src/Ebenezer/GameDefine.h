@@ -56,8 +56,32 @@ enum ItemMovementType
 	ITEM_INVEN_TO_COSP		= 7,  // Inventory -> Cospre bag
 	ITEM_COSP_TO_INVEN		= 8,  // Cospre bag -> Inventory
 	ITEM_INVEN_TO_MBAG		= 9,  // Inventory -> Magic bag
-	ITEM_MBAG_TO_INVEN		= 10, //Magic bag -> Magic bag
-	ITEM_MBAG_TO_MBAG		= 11 //Magic bag -> Magic bag
+	ITEM_MBAG_TO_INVEN		= 10, // Magic bag -> Inventory
+	ITEM_MBAG_TO_MBAG		= 11  // Magic bag -> Magic bag
+};
+
+enum ItemSlotType
+{
+	ItemSlot1HEitherHand		= 0,
+	ItemSlot1HRightHand			= 1,
+	ItemSlot1HLeftHand			= 2,
+	ItemSlot2HRightHand			= 3,
+	ItemSlot2HLeftHand			= 4,
+	ItemSlotPauldron			= 5,
+	ItemSlotPads				= 6,
+	ItemSlotHelmet				= 7,
+	ItemSlotGloves				= 8,
+	ItemSlotBoots				= 9,
+	ItemSlotEarring				= 10,
+	ItemSlotNecklace			= 11,
+	ItemSlotRing				= 12,
+	ItemSlotShoulder			= 13,
+	ItemSlotBelt				= 14,
+	ItemSlotBag					= 25,
+	ItemSlotCospreGloves		= 100,
+	ItemSlotCosprePauldron		= 105,
+	ItemSlotCospreHelmet		= 107,
+	ItemSlotCospreWings			= 110
 };
 
 // Item Weapon Type Define

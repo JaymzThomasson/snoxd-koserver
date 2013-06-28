@@ -461,7 +461,7 @@ void CUser::ItemMove(Packet & pkt)
 			// Can't replace existing magic bag.
 			if (pDstItem->nNum != 0
 				// Can't set any old item in the bag slot, it must be a bag.
-				|| pTable->m_bSlot != 25)
+				|| pTable->m_bSlot != ItemSlotBag)
 				goto fail_return;
 		}
 		break;
@@ -535,7 +535,7 @@ void CUser::ItemMove(Packet & pkt)
 	{
 		uint8 bOtherWeaponSlot = 0;
 
-		if (bDstPos == LEFTHAND && pTable->m_bSlot == 4)
+		if (bDstPos == LEFTHAND && pTable->m_bSlot == ItemSlot2HLeftHand)
 			bOtherWeaponSlot = RIGHTHAND;
 		else if (bDstPos == RIGHTHAND && pTable->is2Handed())
 			bOtherWeaponSlot = LEFTHAND;
@@ -760,73 +760,89 @@ bool CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)
 
 	switch (pTable->m_bSlot)
 	{
-	case 0:
+	case ItemSlot1HEitherHand:
 		if (destpos != RIGHTHAND && destpos != LEFTHAND)
 			return false;
 		break;
-	case 1:
-	case 3:
+
+	case ItemSlot1HRightHand:
+	case ItemSlot2HRightHand:
 		if (destpos != RIGHTHAND)
 			return false;
 		break;
-	case 2:
-	case 4:
+
+	case ItemSlot1HLeftHand:
+	case ItemSlot2HLeftHand:
 		if (destpos != LEFTHAND)
 			return false;
 		break;
-	case 5:
+
+	case ItemSlotPauldron:
 		if (destpos != BREAST)
 			return false;
 		break;
-	case 6:
+
+	case ItemSlotPads:
 		if (destpos != LEG)
 			return false;
 		break;
-	case 7:
+
+	case ItemSlotHelmet:
 		if (destpos != HEAD)
 			return false;
 		break;
-	case 8:
+
+	case ItemSlotGloves:
 		if (destpos != GLOVE)
 			return false;
 		break;
-	case 9:
+
+	case ItemSlotBoots:
 		if (destpos != FOOT)
 			return false;
 		break;
-	case 10:
+
+	case ItemSlotEarring:
 		if (destpos != RIGHTEAR && destpos != LEFTEAR)
 			return false;
 		break;
-	case 11:
+
+	case ItemSlotNecklace:
 		if (destpos != NECK)
 			return false;
 		break;
-	case 12:
+
+	case ItemSlotRing:
 		if (destpos != RIGHTRING && destpos != LEFTRING)
 			return false;
 		break;
-	case 13:
+
+	case ItemSlotShoulder:
 		if (destpos != SHOULDER)
 			return false;
 		break;
-	case 14:
+
+	case ItemSlotBelt:
 		if (destpos != WAIST)
 			return false;
 		break;
-	case 100:
+
+	case ItemSlotCospreGloves:
 		if (destpos != COSP_GLOVE && destpos != COSP_GLOVE2)
 			return false;
 		break;
-	case 105:
+
+	case ItemSlotCosprePauldron:
 		if (destpos != COSP_BREAST)
 			return false;
 		break;
-	case 107:
+
+	case ItemSlotCospreHelmet:
 		if (destpos != COSP_HELMET)
 			return false;
 		break;
-	case 110:
+
+	case ItemSlotCospreWings:
 		if (destpos != COSP_WINGS)
 			return false;
 		break;

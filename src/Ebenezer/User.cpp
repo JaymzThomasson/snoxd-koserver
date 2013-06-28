@@ -1036,19 +1036,19 @@ void CUser::SetSlotItemValue()
 		// Update the final set ID depending on the equipped set item 
 		switch (pTable->m_bSlot)
 		{
-		case 7: // helm
+		case ItemSlotHelmet:
 			itr->second += 2;
 			break;
-		case 5: // pauldron
+		case ItemSlotPauldron:
 			itr->second += 16;
 			break;
-		case 6: // pads
+		case ItemSlotPads:
 			itr->second += 512;
 			break;
-		case 8: // gloves
+		case ItemSlotGloves:
 			itr->second += 2048;
 			break;
-		case 9: // boots
+		case ItemSlotBoots:
 			itr->second += 4096;
 			break;
 		}
@@ -2351,7 +2351,7 @@ void CUser::ItemWoreOut(int type, int damage)
 			|| (pTable = g_pMain->GetItemPtr(pItem->nNum)) == nullptr
 			// If it's in the left or righthand slot, is it a shield? (this doesn't apply to weapons)
 			|| (type == ATTACK 
-				&& ((slot == LEFTHAND || slot == RIGHTHAND) && pTable->m_bSlot != 2)))
+				&& ((slot == LEFTHAND || slot == RIGHTHAND) && pTable->m_bSlot != ItemSlot1HLeftHand)))
 			continue;
 
 		int beforepercent = (int)((pItem->sDuration / (double)pTable->m_sDuration) * 100);
