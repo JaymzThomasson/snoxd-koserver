@@ -449,6 +449,8 @@ uint32 CEbenezerDlg::Timer_UpdateSessions(void * lpParam)
 		foreach (itr, sessMap)
 		{
 			CUser * pUser = TO_USER(itr->second);
+
+#ifndef DEBUG // ignore timeouts in debug builds, as we'll probably be pausing it with the debugger.
 			uint32 timeout = KOSOCKET_TIMEOUT;
 
 			// User has authed, but isn't in-game yet (creating a character, or is waiting for the game to load).
@@ -461,7 +463,7 @@ uint32 CEbenezerDlg::Timer_UpdateSessions(void * lpParam)
 				pUser->Disconnect();
 				continue;
 			}
-
+#endif
 			// Update the player, and hence any skill effects while we're here.
 			if (pUser->isInGame())
 				pUser->Update();
