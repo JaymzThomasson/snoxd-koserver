@@ -33,6 +33,7 @@ void Unit::Initialize()
 	m_bResistanceBonus = 0;
 	m_sFireR = m_sColdR = m_sLightningR = m_sMagicR = m_sDiseaseR = m_sPoisonR = 0;
 	m_sDaggerR = m_sSwordR = m_sAxeR = m_sMaceR = m_sSpearR = m_sBowR = 0;		
+	m_byDaggerRAmount = m_byBowRAmount = 100;
 
 	FastGuard lock(m_equippedItemBonusLock);
 	m_equippedItemBonuses.clear();

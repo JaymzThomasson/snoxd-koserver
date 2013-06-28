@@ -202,12 +202,15 @@ public:
 	EquippedItemBonuses m_equippedItemBonuses;
 	FastMutex m_equippedItemBonusLock;
 
-	short   m_sDaggerR;						// Resistance to Dagger
-	short   m_sSwordR;						// Resistance to Sword
-	short	m_sAxeR;						// Resistance to Axe
-	short	m_sMaceR;						// Resistance to Mace
-	short	m_sSpearR;						// Resistance to Spear
-	short	m_sBowR;						// Resistance to Bow		
+	// Weapon resistances
+	int16 m_sDaggerR; 
+	uint8 m_byDaggerRAmount;
+	int16 m_sSwordR;
+	int16 m_sAxeR;
+	int16 m_sMaceR;
+	int16 m_sSpearR;
+	int16 m_sBowR; 
+	uint8 m_byBowRAmount;
 
 	struct MagicType3
 	{

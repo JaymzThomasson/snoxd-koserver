@@ -1083,6 +1083,11 @@ void CUser::SetSlotItemValue()
 
 	if (m_sItemHit < 3)
 		m_sItemHit = 3;
+
+	// Update applicable weapon resistance amounts based on skill modifiers
+	// e.g. Eskrima
+	m_sDaggerR	+= (m_byDaggerRAmount - 100) * m_sDaggerR / 100;
+	m_sBowR		+= (m_byBowRAmount - 100) * m_sBowR / 100;
 }
 
 /**
