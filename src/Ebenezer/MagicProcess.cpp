@@ -751,7 +751,6 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 				TO_USER(pTarget)->SendUserStatusUpdate(USER_STATUS_SPEED, USER_STATUS_CURE);
 		}
 
-		TO_USER(pTarget)->SetSlotItemValue();
 		TO_USER(pTarget)->SetUserAbility();
 
 		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));

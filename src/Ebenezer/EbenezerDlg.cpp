@@ -547,10 +547,10 @@ void CEbenezerDlg::Send_Zone_Matched_Class(Packet *pkt, uint8 bZoneID, CUser* pE
 		if (pUser->GetZoneID() == ZONE_MORADON 
 			|| pUser->GetNation() == nation)
 		{
-			if (	((seekingPartyOptions & 1) && pUser->JobGroupCheck(1))
-				||	((seekingPartyOptions & 2) && pUser->JobGroupCheck(2))
-				||	((seekingPartyOptions & 4) && pUser->JobGroupCheck(3))
-				||	((seekingPartyOptions & 8) && pUser->JobGroupCheck(4)))
+			if (	((seekingPartyOptions & 1) && pUser->JobGroupCheck(ClassWarrior))
+				||	((seekingPartyOptions & 2) && pUser->JobGroupCheck(ClassRogue))
+				||	((seekingPartyOptions & 4) && pUser->JobGroupCheck(ClassMage))
+				||	((seekingPartyOptions & 8) && pUser->JobGroupCheck(ClassPriest)))
 			pUser->Send(pkt);
 		}
 	}

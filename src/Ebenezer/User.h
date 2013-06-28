@@ -38,6 +38,22 @@ enum MerchantState
 	MERCHANT_STATE_BUYING	= 1
 };
 
+enum ClassType
+{
+	ClassWarrior		= 1,
+	ClassRogue			= 2,
+	ClassMage			= 3,
+	ClassPriest			= 4,
+	ClassWarriorNovice	= 5,
+	ClassWarriorMaster	= 6,
+	ClassRogueNovice	= 7,
+	ClassRogueMaster	= 8,
+	ClassMageNovice		= 9,
+	ClassMageMaster		= 10,
+	ClassPriestNovice	= 11,
+	ClassPriestMaster	= 12
+};
+
 #define ARROW_EXPIRATION_TIME (5) // seconds
 
 struct Arrow
@@ -151,6 +167,10 @@ public:
 	short	m_sItemHitrate;
 	short	m_sItemEvasionrate;
 
+	uint8	m_byAPBonusAmount;
+	uint8	m_byAPClassBonusAmount[4]; // one for each of the 4 class types
+	uint8	m_byAcClassBonusAmount[4]; // one for each of the 4 class types
+
 	int16	m_sStatItemBonuses[STAT_COUNT];
 	int8	m_bStatBuffs[STAT_COUNT];
 
@@ -229,10 +249,10 @@ public:
 	INLINE bool isClanAssistant() { return GetFame() == VICECHIEF; }
 	INLINE bool isPartyLeader() { return isInParty() && m_bPartyLeader; }
 
-	INLINE bool isWarrior() { return JobGroupCheck(1); }
-	INLINE bool isRogue() { return JobGroupCheck(2); }
-	INLINE bool isMage() { return JobGroupCheck(3); }
-	INLINE bool isPriest() { return JobGroupCheck(4); }
+	INLINE bool isWarrior() { return JobGroupCheck(ClassWarrior); }
+	INLINE bool isRogue() { return JobGroupCheck(ClassRogue); }
+	INLINE bool isMage() { return JobGroupCheck(ClassMage); }
+	INLINE bool isPriest() { return JobGroupCheck(ClassPriest); }
 
 	INLINE bool isMastered() 
 	{
@@ -260,6 +280,37 @@ public:
 	INLINE uint8 GetFame() { return m_bFame; }
 
 	INLINE uint16 GetClass() { return m_sClass; }
+
+	/**
+	 * @brief	Gets the player's base class type, independent of nation.
+	 *
+	 * @return	The class type.
+	 */
+	INLINE ClassType GetBaseClassType()
+	{
+		static const ClassType classTypes[] = 
+		{
+			ClassWarrior, ClassRogue, ClassMage, ClassPriest, 
+			ClassWarrior, ClassWarrior,	// job changed / mastered
+			ClassRogue, ClassRogue,		// job changed / mastered
+			ClassMage, ClassMage,		// job changed / mastered
+			ClassPriest, ClassPriest	// job changed / mastered
+		}; 
+
+		uint8 classType = GetClassType();
+		ASSERT(classType >= 1 && classType <= 12);
+		return classTypes[classType - 1];
+	}
+
+	/**
+	 * @brief	Gets class type, independent of nation.
+	 *
+	 * @return	The class type.
+	 */
+	INLINE uint8 GetClassType()
+	{
+		return GetClass() % 100;
+	}
 
 	INLINE uint16 GetPartyID() { return m_sPartyIndex; }
 
@@ -661,6 +712,7 @@ public:
 	void SetUserAbility(bool bSendPacket = true);
 	void LevelChange(short level, bool bLevelUp = true);
 	void SetSlotItemValue();
+	void ApplySetItemBonuses(_SET_ITEM * pItem);
 	void SendTime();
 	void SendWeather();
 	void SendPremiumInfo();

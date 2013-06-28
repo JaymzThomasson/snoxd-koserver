@@ -349,7 +349,7 @@ bool CUser::GiveItem(uint32 itemid, uint16 count, bool send_packet /*= true*/)
 void CUser::SendItemWeight()
 {
 	Packet result(WIZ_WEIGHT_CHANGE);
-	SetSlotItemValue();
+	SetUserAbility();
 	result << m_sItemWeight;
 	Send(&result);
 }
@@ -561,7 +561,6 @@ void CUser::ItemMove(Packet & pkt)
 		|| dir == ITEM_SLOT_SLOT)
 	{
 		// Re-update item stats
-		SetSlotItemValue();
 		SetUserAbility(false);
 	}
 

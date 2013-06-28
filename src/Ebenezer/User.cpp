@@ -50,6 +50,10 @@ void CUser::Initialize()
 	m_sItemHit = 0;
 	m_sItemAc = 0;
 
+	m_byAPBonusAmount = 0;
+	memset(&m_byAPClassBonusAmount, 0, sizeof(m_byAPClassBonusAmount));
+	memset(&m_byAcClassBonusAmount, 0, sizeof(m_byAcClassBonusAmount));
+
 	memset(&m_sStatItemBonuses, 0, sizeof(m_sStatItemBonuses));
 	memset(&m_bStatBuffs, 0, sizeof(m_bStatBuffs));
 
@@ -923,6 +927,11 @@ void CUser::SetSlotItemValue()
 	memset(m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
 	m_sFireR = m_sColdR = m_sLightningR = m_sMagicR = m_sDiseaseR = m_sPoisonR = 0;
 	m_sDaggerR = m_sSwordR = m_sMaceR = m_sSpearR = m_sBowR = 0;
+
+	m_byAPBonusAmount = 0;
+	memset(&m_byAPClassBonusAmount, 0, sizeof(m_byAPClassBonusAmount));
+	memset(&m_byAcClassBonusAmount, 0, sizeof(m_byAcClassBonusAmount));
+
 	m_equippedItemBonuses.clear();
 
 	map<uint16, uint32> setItems;
@@ -1019,6 +1028,15 @@ void CUser::SetSlotItemValue()
 		if (!bonusMap.empty())
 			m_equippedItemBonuses[i] = bonusMap;
 
+		// Apply cospre item stats
+		if (pTable->GetKind() == ITEM_KIND_COSPRE)
+		{
+			// If this item exists in the set table, it has bonuses to be applied.
+			_SET_ITEM * pSetItem = g_pMain->m_SetItemArray.GetData(pTable->m_iNum);
+			if (pSetItem != nullptr)
+				ApplySetItemBonuses(pSetItem);
+		}
+
 		// All set items start with race over 100
 		if (pTable->m_bRace < 100)
 			continue;
@@ -1063,22 +1081,7 @@ void CUser::SetSlotItemValue()
 		if (pItem == nullptr)
 			continue;
 
-		m_sItemAc += pItem->ACBonus;
-		m_sItemMaxHp += pItem->HPBonus;
-		m_sItemMaxMp += pItem->MPBonus;
-
-		m_sStatItemBonuses[STAT_STR] += pItem->StrengthBonus;
-		m_sStatItemBonuses[STAT_STA] += pItem->StaminaBonus;
-		m_sStatItemBonuses[STAT_DEX] += pItem->DexterityBonus;
-		m_sStatItemBonuses[STAT_INT] += pItem->IntelBonus;
-		m_sStatItemBonuses[STAT_CHA] += pItem->CharismaBonus;
-
-		m_sFireR += pItem->FlameResistance;
-		m_sColdR += pItem->GlacierResistance;
-		m_sLightningR += pItem->LightningResistance;
-		m_sMagicR += pItem->MagicResistance;
-		m_sDiseaseR += pItem->CurseResistance;
-		m_sPoisonR += pItem->PoisonResistance;
+		ApplySetItemBonuses(pItem);
 	}
 
 	if (m_sItemHit < 3)
@@ -1088,6 +1091,35 @@ void CUser::SetSlotItemValue()
 	// e.g. Eskrima
 	m_sDaggerR	+= (m_byDaggerRAmount - 100) * m_sDaggerR / 100;
 	m_sBowR		+= (m_byBowRAmount - 100) * m_sBowR / 100;
+}
+
+void CUser::ApplySetItemBonuses(_SET_ITEM * pItem)
+{
+	m_sItemAc += pItem->ACBonus;
+	m_sItemMaxHp += pItem->HPBonus;
+	m_sItemMaxMp += pItem->MPBonus;
+
+	m_sStatItemBonuses[STAT_STR] += pItem->StrengthBonus;
+	m_sStatItemBonuses[STAT_STA] += pItem->StaminaBonus;
+	m_sStatItemBonuses[STAT_DEX] += pItem->DexterityBonus;
+	m_sStatItemBonuses[STAT_INT] += pItem->IntelBonus;
+	m_sStatItemBonuses[STAT_CHA] += pItem->CharismaBonus;
+
+	m_sFireR += pItem->FlameResistance;
+	m_sColdR += pItem->GlacierResistance;
+	m_sLightningR += pItem->LightningResistance;
+	m_sMagicR += pItem->MagicResistance;
+	m_sDiseaseR += pItem->CurseResistance;
+	m_sPoisonR += pItem->PoisonResistance;
+
+	// NOTE: The following percentages use values such as 3 to indicate +3% (not the typical 103%).
+	// Also note that at this time, there are no negative values used, so we can assume it's always a bonus.
+	m_byAPBonusAmount += pItem->APBonusPercent; 
+	if (pItem->APBonusClassType >= 1 && pItem->APBonusClassType <= 4)
+		m_byAPClassBonusAmount[pItem->APBonusClassType - 1] += pItem->APBonusClassPercent;
+
+	if (pItem->ACBonusClassType >= 1 && pItem->ACBonusClassType <= 4)
+		m_byAcClassBonusAmount[pItem->ACBonusClassType - 1] += pItem->ACBonusClassPercent;
 }
 
 /**
@@ -1188,8 +1220,6 @@ void CUser::LevelChange(short level, bool bLevelUp /*= true*/)
 	}
 
 	m_iMaxExp = g_pMain->GetExpByLevel(level);
-	
-	SetSlotItemValue();
 	SetUserAbility();
 
 	m_sMp = m_iMaxMp;
@@ -1284,7 +1314,6 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 		if ((oldHP >= hp30Percent && m_sHp < hp30Percent)
 			|| (m_sHp > hp30Percent))
 		{
-			SetSlotItemValue();
 			SetUserAbility();
 
 			if (m_sHp < hp30Percent)
@@ -1395,7 +1424,7 @@ void CUser::Send2AI_UserUpdateInfo(bool initialInfo /*= false*/)
 void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 {
 	bool bHaveBow = false;
-	_CLASS_COEFFICIENT* p_TableCoefficient = g_pMain->m_CoefficientArray.GetData(m_sClass);
+	_CLASS_COEFFICIENT* p_TableCoefficient = g_pMain->m_CoefficientArray.GetData(GetClass());
 	uint16 sItemDamage = 0;
 	if (p_TableCoefficient == nullptr)
 		return;
@@ -1452,6 +1481,9 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 		}
 	}
 
+	// Update stats based on item data
+	SetSlotItemValue();
+
 	int temp_str = GetStat(STAT_STR), temp_dex = getStatTotal(STAT_DEX);
 //	if( temp_str > 255 ) temp_str = 255;
 //	if( temp_dex > 255 ) temp_dex = 255;
@@ -1466,10 +1498,10 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 	temp_str += GetStatBonusTotal(STAT_STR);
 
 	m_sMaxWeight = ((GetStatWithItemBonus(STAT_STR) + GetLevel()) * 50) * (m_bMaxWeightAmount / 100);
-	if (isRogue() || bHaveBow)  // latter check's probably unnecessary
-		m_sTotalHit = (short)((((0.005f * sItemDamage * (temp_dex + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_dex )) + 3) * (m_bAttackAmount / 100));
+	if (isRogue()) 
+		m_sTotalHit = (short)((((0.005f * sItemDamage * (temp_dex + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_dex )) + 3) * (m_bAttackAmount / 100)) * ((100 + m_byAPBonusAmount) / 100);
 	else
-		m_sTotalHit = (short)(((((0.005f * sItemDamage * (temp_str + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_str )) + 3) * (m_bAttackAmount / 100)) + baseAP);	
+		m_sTotalHit = (short)(((((0.005f * sItemDamage * (temp_str + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_str )) + 3) * (m_bAttackAmount / 100)) + baseAP) * ((100 + m_byAPBonusAmount) / 100);
 
 	m_sTotalAc = (short)(p_TableCoefficient->AC * (GetLevel() + m_sItemAc));
 	m_fTotalHitrate = ((1 + p_TableCoefficient->Hitrate * GetLevel() *  temp_dex ) * m_sItemHitrate/100 ) * (m_bHitRateAmount/100);
@@ -2371,8 +2403,6 @@ void CUser::ItemWoreOut(int type, int damage)
 		if (m_sItemArray[slot].sDuration == 0)
 		{
 			SendDurability(slot, 0);
-		
-			SetSlotItemValue();
 			SetUserAbility(false);
 			SendItemMove(1);
 			continue;
@@ -3384,23 +3414,22 @@ bool CUser::CheckClass(short class1, short class2, short class3, short class4, s
 bool CUser::JobGroupCheck(short jobgroupid)
 {
 	if (jobgroupid > 100) 
-		return m_sClass == jobgroupid;
+		return GetClass() == jobgroupid;
 
-	int subClass = m_sClass % 100;
-
+	ClassType subClass = GetBaseClassType();
 	switch (jobgroupid) 
 	{
 		case GROUP_WARRIOR:
-			return (subClass == 1 || subClass == 5 || subClass == 6);
+			return (subClass == ClassWarrior || subClass == ClassWarriorNovice || subClass == ClassWarriorMaster);
 
 		case GROUP_ROGUE:
-			return (subClass == 2 || subClass == 7 || subClass == 8);
+			return (subClass == ClassRogue || subClass == ClassRogueNovice || subClass == ClassRogueMaster);
 
 		case GROUP_MAGE:
-			return (subClass == 3 || subClass == 9 || subClass == 10);
+			return (subClass == ClassMage || subClass == ClassMageNovice || subClass == ClassMageMaster);
 
 		case GROUP_CLERIC:	
-			return (subClass == 4 || subClass == 11 || subClass == 12);
+			return (subClass == ClassPriest || subClass == ClassPriestNovice || subClass == ClassPriestMaster);
 	}
 
 	return (subClass == jobgroupid);

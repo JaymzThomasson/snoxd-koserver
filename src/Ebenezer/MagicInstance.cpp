@@ -1156,7 +1156,7 @@ bool MagicInstance::ExecuteType4()
 		// Add the buff into the buff map.
 		pTUser->AddType4Buff(pType->bBuffType, pBuffInfo);
 
-		pTUser->SetSlotItemValue();				// Update character stats.
+		// Update character stats.
 		pTUser->SetUserAbility();
 
 		if (pTUser->isInParty() && pBuffInfo.isDebuff())

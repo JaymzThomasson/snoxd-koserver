@@ -189,14 +189,27 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 	 */
 	short damage = 0;
 	int random = 0;
-	short temp_hit = 0, temp_ac = 0, temp_hit_B = 0;
+	short temp_hit = 0, temp_ac = 0, temp_ap = 0, temp_hit_B = 0;
 	uint8 result;
 
 	if (pTarget == nullptr || pTarget->isDead())
 		return -1;
 
 	temp_ac = pTarget->m_sTotalAc + pTarget->m_sACAmount;
-	temp_hit_B = (int)((m_sTotalHit * m_bAttackAmount * 200 / 100) / (temp_ac + 240));
+	temp_ap = m_sTotalHit * m_bAttackAmount;
+
+#ifdef EBENEZER
+	// Apply class-specific AC/AP bonuses.
+	if (pTarget->isPlayer())
+	{
+		CUser * pTUser = TO_USER(pTarget);	// NOTE: using a = a*v instead of a *= v because the compiler assumes different 
+											// types being multiplied, which results in these calcs not behaving correctly.
+		temp_ac = temp_ac * (100 + pTUser->m_byAcClassBonusAmount[GetBaseClassType() - 1]) / 100;
+		temp_ap = temp_ap * (100 + m_byAPClassBonusAmount[pTUser->GetBaseClassType() - 1]) / 100;
+	}
+#endif
+
+	temp_hit_B = (int)((temp_ap * 200 / 100) / (temp_ac + 240));
 
 	// Skill/arrow hit.    
 	if (pSkill != nullptr)
@@ -248,7 +261,7 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 	// Normal hit (R attack)     
 	else 
 	{
-		temp_hit = m_sTotalHit * m_bAttackAmount / 100;
+		temp_hit = temp_ap / 100;
 		result = GetHitRate(m_fTotalHitrate / pTarget->m_fTotalEvasionrate);
 	}
 	

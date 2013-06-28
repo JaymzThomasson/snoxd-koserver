@@ -287,9 +287,6 @@ void CUser::MerchantItemBuy(Packet & pkt)
 	if (pMerch->sCount == 0)
 		memset(pMerch, 0, sizeof(_MERCH_DATA));
 
-	SetSlotItemValue();
-	pMerchant->SetSlotItemValue();
-
 	SetUserAbility();
 	pMerchant->SetUserAbility();
 

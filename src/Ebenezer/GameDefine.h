@@ -108,6 +108,8 @@ enum ItemSlotType
 #define WEAPON_PRIEST_AC		24	// ��ų ���
 #define WEAPON_PICKAXE			61	// Unlike the others, this is just the Kind field as-is (not / 10).
 
+#define ITEM_KIND_COSPRE		252
+
 ////////////////////////////////////////////////////////////
 // User Status //
 #define USER_STANDING			0X01		// �� �ִ�.
@@ -468,7 +470,7 @@ struct _ITEM_UPGRADE
 struct _SET_ITEM
 {
 	uint32 SetIndex;
-	uint16 ACBonus;
+
 	uint16 HPBonus;
 	uint16 MPBonus;
 	uint16 StrengthBonus;
@@ -482,6 +484,14 @@ struct _SET_ITEM
 	uint16 PoisonResistance;
 	uint16 MagicResistance;
 	uint16 CurseResistance;
+
+	uint16 APBonusPercent;		// +AP% for all classes
+	uint16 APBonusClassType;	// defines a specific class for +APBonusClassPercent% to be used against
+	uint16 APBonusClassPercent;	// +AP% for APBonusClassType only
+
+	uint16 ACBonus;				// +AC amount for all classes
+	uint16 ACBonusClassType;	// defines a specific class for +ACBonusClassPercent% to be used against
+	uint16 ACBonusClassPercent;	// +AC% for ACBonusClassType only
 };
 
 struct _QUEST_HELPER

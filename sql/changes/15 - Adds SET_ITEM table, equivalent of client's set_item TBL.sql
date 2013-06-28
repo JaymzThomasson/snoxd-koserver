@@ -34,6 +34,6 @@ CREATE TABLE [SET_ITEM](
 	[Unk17] [tinyint] NOT NULL,
 	[Unk18] [tinyint] NOT NULL,
 	[Unk19] [tinyint] NOT NULL,
-	[Unk20] [tinyint] NULL,
+	[Unk20] [tinyint] NOT NULL,
 	[Unk21] [tinyint] NOT NULL
 )
