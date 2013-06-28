@@ -792,6 +792,12 @@ bool CNpc::CanAttack(Unit * pTarget)
  */
 bool CNpc::isHostileTo(Unit * pTarget)
 {
+	// Scarecrows are NPCs that the client allows us to attack
+	// however, since they're not a monster, and all NPCs in neutral zones
+	// are friendly, we need to override to ensure we can attack them server-side.
+	if (GetType() == NPC_SCARECROW)
+		return true;
+
 	// A nation of 0 indicates friendliness to all
 	if (GetNation() == Nation::ALL
 		// Also allow for cases when all NPCs in this zone are inherently friendly.

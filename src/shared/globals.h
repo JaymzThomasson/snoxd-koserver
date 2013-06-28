@@ -143,6 +143,7 @@ enum NpcType
 	NPC_GATE2				= 150, // Doda camp gate
 	NPC_ADELIA				= 153, // Goddess Adelia[event]
 	NPC_CHAOTIC_GENERATOR2	= 162, // newer type used by the Chaotic Generator
+	NPC_SCARECROW			= 171, // official scarecrow byType
 	NPC_KARUS_WARDER1		= 190,
 	NPC_KARUS_WARDER2		= 191,
 	NPC_ELMORAD_WARDER1		= 192,
