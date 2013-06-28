@@ -42,6 +42,7 @@ typedef	CSTLMap	<_RENTAL_ITEM>				RentalItemArray;
 typedef CSTLMap <_ITEM_EXCHANGE>			ItemExchangeArray;
 typedef CSTLMap <_ITEM_UPGRADE>				ItemUpgradeArray;
 typedef CSTLMap <CKingSystem>				KingSystemArray;
+typedef CSTLMap <_SET_ITEM>					SetItemArray;
 
 typedef std::unordered_map<std::string, _USER_RANK *>		UserNameRankMap; 
 typedef std::map<uint8, _USER_RANK *>		UserRankMap;

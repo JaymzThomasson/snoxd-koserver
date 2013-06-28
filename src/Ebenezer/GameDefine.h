@@ -441,6 +441,25 @@ struct _ITEM_UPGRADE
 	int32	nGiveItem;
 };
 
+struct _SET_ITEM
+{
+	uint32 SetIndex;
+	uint16 ACBonus;
+	uint16 HPBonus;
+	uint16 MPBonus;
+	uint16 StrengthBonus;
+	uint16 StaminaBonus;
+	uint16 DexterityBonus;
+	uint16 IntelBonus;
+	uint16 CharismaBonus;
+	uint16 FlameResistance;
+	uint16 GlacierResistance;
+	uint16 LightningResistance;
+	uint16 PoisonResistance;
+	uint16 MagicResistance;
+	uint16 CurseResistance;
+};
+
 struct _QUEST_HELPER
 {
 	uint32	nIndex;

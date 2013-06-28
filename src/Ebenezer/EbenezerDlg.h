@@ -28,6 +28,7 @@ public:
 	void GetTimeFromIni();
 
 	bool LoadItemTable();
+	bool LoadSetItemTable();
 	bool LoadItemExchangeTable();
 	bool LoadItemUpgradeTable();
 	bool LoadServerResourceTable();
@@ -250,6 +251,7 @@ public:
 	NpcArray				m_arNpcArray;
 	ZoneArray				m_ZoneArray;
 	ItemtableArray			m_ItemtableArray;
+	SetItemArray			m_SetItemArray;
 	MagictableArray			m_MagictableArray;
 	Magictype1Array			m_Magictype1Array;
 	Magictype2Array         m_Magictype2Array;

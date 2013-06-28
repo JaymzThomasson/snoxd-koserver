@@ -11,6 +11,7 @@
 
 #include "../shared/database/OdbcRecordset.h"
 #include "../shared/database/ItemTableSet.h"
+#include "../shared/database/SetItemTableSet.h"
 #include "../shared/database/ItemExchangeSet.h"
 #include "../shared/database/ItemUpgradeSet.h"
 #include "../shared/database/MagicTableSet.h"
@@ -48,6 +49,11 @@
 bool CEbenezerDlg::LoadItemTable()
 {
 	LOAD_TABLE(CItemTableSet, g_DBAgent.m_GameDB, &m_ItemtableArray, false);
+}
+
+bool CEbenezerDlg::LoadSetItemTable()
+{
+	LOAD_TABLE(CSetItemTableSet, g_DBAgent.m_GameDB, &m_SetItemArray, true);
 }
 
 bool CEbenezerDlg::LoadItemExchangeTable()

@@ -925,6 +925,8 @@ void CUser::SetSlotItemValue()
 	m_sDaggerR = m_sSwordR = m_sMaceR = m_sSpearR = m_sBowR = 0;
 	m_equippedItemBonuses.clear();
 
+	map<uint16, uint32> setItems;
+
 	// Apply stat bonuses from all equipped & cospre items.
 	// Total up the weight of all items.
 	for (int i = 0; i < INVENTORY_TOTAL; i++)
@@ -1016,6 +1018,66 @@ void CUser::SetSlotItemValue()
 		// If we have bonuses to apply, store them.
 		if (!bonusMap.empty())
 			m_equippedItemBonuses[i] = bonusMap;
+
+		// All set items start with race over 100
+		if (pTable->m_bRace < 100)
+			continue;
+
+		auto itr = setItems.find(pTable->m_bRace);
+
+		// If the item doesn't exist in our map yet...
+		if (itr == setItems.end())
+		{
+			// Generate the base set ID and insert it into our map
+			setItems.insert(make_pair(pTable->m_bRace, pTable->m_bRace * 10000));
+			itr = setItems.find(pTable->m_bRace);
+		}
+
+		// Update the final set ID depending on the equipped set item 
+		switch (pTable->m_bSlot)
+		{
+		case 7: // helm
+			itr->second += 2;
+			break;
+		case 5: // pauldron
+			itr->second += 16;
+			break;
+		case 6: // pads
+			itr->second += 512;
+			break;
+		case 8: // gloves
+			itr->second += 2048;
+			break;
+		case 9: // boots
+			itr->second += 4096;
+			break;
+		}
+	}
+
+	// Now we can add up all the set bonuses, if any.
+	foreach (itr, setItems)
+	{
+		// Test if this set item exists (if we're not using at least 2 items from the set, this will fail)
+		_SET_ITEM * pItem = g_pMain->m_SetItemArray.GetData(itr->second);
+		if (pItem == nullptr)
+			continue;
+
+		m_sItemAc += pItem->ACBonus;
+		m_sItemMaxHp += pItem->HPBonus;
+		m_sItemMaxMp += pItem->MPBonus;
+
+		m_sStatItemBonuses[STAT_STR] += pItem->StrengthBonus;
+		m_sStatItemBonuses[STAT_STA] += pItem->StaminaBonus;
+		m_sStatItemBonuses[STAT_DEX] += pItem->DexterityBonus;
+		m_sStatItemBonuses[STAT_INT] += pItem->IntelBonus;
+		m_sStatItemBonuses[STAT_CHA] += pItem->CharismaBonus;
+
+		m_sFireR += pItem->FlameResistance;
+		m_sColdR += pItem->GlacierResistance;
+		m_sLightningR += pItem->LightningResistance;
+		m_sMagicR += pItem->MagicResistance;
+		m_sDiseaseR += pItem->CurseResistance;
+		m_sPoisonR += pItem->PoisonResistance;
 	}
 
 	if (m_sItemHit < 3)

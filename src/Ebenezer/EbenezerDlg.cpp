@@ -111,6 +111,7 @@ bool CEbenezerDlg::Startup()
 			m_strAccountDSN, m_strAccountUID, m_strAccountPWD,
 			m_strGameDSN, m_strGameUID, m_strGamePWD)
 		|| !LoadItemTable()
+		|| !LoadSetItemTable()
 		|| !LoadItemExchangeTable()
 		|| !LoadItemUpgradeTable()
 		|| !LoadServerResourceTable()
