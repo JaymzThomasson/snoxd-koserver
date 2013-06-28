@@ -1586,7 +1586,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 			CUser *pUser = g_pMain->GetUserPtr(*itr->second);
 			if (pUser == nullptr 
 				|| pUser->isDead()
-				|| !pUser->CanAttack(this)
+				|| !CanAttack(pUser)
 				|| pUser->m_bInvisibilityType
 				|| pUser->isGM())
 				continue;
