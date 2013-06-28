@@ -571,24 +571,18 @@ void CUser::ItemMove(Packet & pkt)
 	switch (dir)
 	{
 	case ITEM_INVEN_SLOT:
+	case ITEM_INVEN_TO_COSP:
 		UserLookChange(bDstPos, nItemID, pDstItem->sDuration);	
 		break;
 
 	case ITEM_SLOT_INVEN:
+	case ITEM_COSP_TO_INVEN:
 		UserLookChange(bSrcPos, 0, 0);
 		break;
 
 	case ITEM_SLOT_SLOT:
 		UserLookChange(bSrcPos, pSrcItem->nNum, pSrcItem->sDuration);
 		UserLookChange(bDstPos, pDstItem->nNum, pDstItem->sDuration);
-		break;
-
-	case ITEM_INVEN_TO_COSP:
-		UserLookChange(INVENTORY_COSP + bDstPos, nItemID, pDstItem->sDuration);
-		break;
-
-	case ITEM_COSP_TO_INVEN:
-		UserLookChange(INVENTORY_INVENT + bSrcPos, 0, 0);
 		break;
 	}
 
