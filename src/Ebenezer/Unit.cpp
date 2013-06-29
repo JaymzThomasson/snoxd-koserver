@@ -44,6 +44,24 @@ void Unit::Initialize()
 	m_bIsBlinded = false;
 	m_bInstantCast = false;
 	m_bBlockCurse = false;
+
+	m_bAttackSpeedAmount = 100;		// this is for the duration spells Type 4
+    m_bSpeedAmount = 100;
+    m_sACAmount = 0;
+    m_bAttackAmount = 100;
+	m_sMagicAttackAmount = 0;
+	m_sMaxHPAmount = 0;
+	m_sMaxMPAmount = 0;
+	m_bHitRateAmount = 100;
+	m_sAvoidRateAmount = 100;
+	m_bFireRAmount = 0;
+	m_bColdRAmount = 0;
+	m_bLightningRAmount = 0;
+	m_bMagicRAmount = 0;
+	m_bDiseaseRAmount = 0;
+	m_bPoisonRAmount = 0;
+	m_bMagicDamageReduction = 100;
+
 	InitType3();	 // Initialize durational type 3 stuff :)
 	InitType4();	 // Initialize durational type 4 stuff :)
 }
@@ -632,37 +650,18 @@ void Unit::InitType3()
 
 void Unit::InitType4()
 {
-	m_bAttackSpeedAmount = 100;		// this is for the duration spells Type 4
-    m_bSpeedAmount = 100;
-    m_sACAmount = 0;
-    m_bAttackAmount = 100;
-	m_sMagicAttackAmount = 0;
-	m_sMaxHPAmount = 0;
-	m_sMaxMPAmount = 0;
-	m_bHitRateAmount = 100;
-	m_sAvoidRateAmount = 100;
-	m_bFireRAmount = 0;
-	m_bColdRAmount = 0;
-	m_bLightningRAmount = 0;
-	m_bMagicRAmount = 0;
-	m_bDiseaseRAmount = 0;
-	m_bPoisonRAmount = 0;
-	m_bMagicDamageReduction = 100;
-
-	StateChangeServerDirect(3, ABNORMAL_NORMAL);
-
 	// Remove all buffs that should not be recast.
 	FastGuard lock(m_buffLock);
-	for (auto itr = m_buffMap.begin(); itr != m_buffMap.end();)
+	Type4BuffMap buffMap = m_buffMap; // copy the map
+
+	for (auto itr = buffMap.begin(); itr != buffMap.end(); itr++)
 	{
-		if (!HasSavedMagic(itr->second.m_nSkillID))
-		{
-			itr = m_buffMap.erase(itr);
-		}
-		else
-		{
-			++itr;
-		}
+		if (HasSavedMagic(itr->second.m_nSkillID))
+			continue;
+
+#ifdef EBENEZER
+		CMagicProcess::RemoveType4Buff(itr->first, this);
+#endif
 	}
 }
 
