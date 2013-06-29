@@ -23,6 +23,7 @@
 #include "Region.h"
 #include "../shared/Ini.h"
 #include "../shared/packets.h"
+#include "../shared/DateTime.h"
 
 using namespace std;
 
@@ -63,8 +64,8 @@ bool CServerDlg::Startup()
 		m_pUser[i] = nullptr;
 
 	// Server Start
-	//CTime time = CTime::GetCurrentTime();
-	//AddToList("[AI ServerStart - %d-%d-%d, %02d:%02d]", time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute() );
+	DateTime time;
+	printf("Server started on %02d-%02d-%04d at %02d:%02d.\n\n", time.GetDay(), time.GetMonth(), time.GetYear(), time.GetHour(), time.GetMinute());
 
 	//----------------------------------------------------------------------
 	//	DB part initialize
