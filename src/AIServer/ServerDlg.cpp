@@ -59,10 +59,6 @@ bool CServerDlg::Startup()
 	m_sMapEventNpc = 0;
 	m_bFirstServerFlag = false;			
 
-	// User Point Init
-	for(int i=0; i<MAX_USER; i++)
-		m_pUser[i] = nullptr;
-
 	// Server Start
 	DateTime time;
 	printf("Server started on %02d-%02d-%04d at %02d:%02d.\n\n", time.GetDay(), time.GetMonth(), time.GetYear(), time.GetHour(), time.GetMinute());
