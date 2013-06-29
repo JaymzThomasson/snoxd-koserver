@@ -73,6 +73,7 @@ void CUser::Initialize()
 	m_iMaxMp = 1;
 	m_iMaxExp = 0;
 	m_sMaxWeight = 0;
+	m_sMaxWeightBonus = 0;
 
 	m_bResHpType = USER_STANDING;
 	m_bWarp = 0x00;
@@ -919,7 +920,7 @@ void CUser::SetSlotItemValue()
 
 	m_sItemMaxHp = m_sItemMaxMp = 0;
 	m_sItemHit = m_sItemAc = 0; 
-	m_sItemWeight = 0;	
+	m_sItemWeight = m_sMaxWeightBonus = 0;	
 	m_sItemHitrate = m_sItemEvasionrate = 100; 
 	
 	memset(m_sStatItemBonuses, 0, sizeof(uint16) * STAT_COUNT);
@@ -943,8 +944,18 @@ void CUser::SetSlotItemValue()
 		if (pTable == nullptr)
 			continue;
 
-		// Non-stackable items should have a count of 1. If not, something's broken.
-		m_sItemWeight += pTable->m_sWeight * pItem->sCount;
+		// Bags increase max weight, they do not weigh anything.
+		if (i == INVENTORY_COSP + COSP_BAG1
+			|| i == INVENTORY_COSP + COSP_BAG2)
+		{
+			m_sMaxWeightBonus += pTable->m_sDuration;
+		}
+		// All other items are attributed to the total weight of items in our inventory.
+		else
+		{
+			// Non-stackable items should have a count of 1. If not, something's broken.
+			m_sItemWeight += pTable->m_sWeight * pItem->sCount;
+		}
 
 		// Do not apply stats to unequipped items
 		if ((i >= SLOT_MAX && i < INVENTORY_COSP)
@@ -1495,7 +1506,7 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 
 	temp_str += GetStatBonusTotal(STAT_STR);
 
-	m_sMaxWeight = ((GetStatWithItemBonus(STAT_STR) + GetLevel()) * 50) * (m_bMaxWeightAmount / 100);
+	m_sMaxWeight = (((GetStatWithItemBonus(STAT_STR) + GetLevel()) * 50) + m_sMaxWeightBonus)  * (m_bMaxWeightAmount / 100);
 	if (isRogue()) 
 		m_sTotalHit = (short)((((0.005f * sItemDamage * (temp_dex + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_dex )) + 3) * (m_bAttackAmount / 100)) * ((100 + m_byAPBonusAmount) / 100);
 	else

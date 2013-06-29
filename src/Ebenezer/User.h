@@ -156,7 +156,10 @@ public:
 	int16	m_sDirection;
 
 	int64	m_iMaxExp;
+
 	uint32	m_sMaxWeight;
+	uint16	m_sMaxWeightBonus;
+
 	uint16   m_sSpeed;	// NOTE: Currently unused
 
 	uint8	m_bPlayerAttackAmount;
