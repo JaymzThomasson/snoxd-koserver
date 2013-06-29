@@ -30,6 +30,8 @@ typedef CSTLMap <_K_MONSTER_ITEM>			NpcItemArray;
 typedef CSTLMap <_MAKE_ITEM_GROUP>			MakeItemGroupArray;
 typedef CSTLMap <_SERVER_RESOURCE>			ServerResourceArray;
 
+typedef std::map<uint16, CUser *>			UserSessionMap;
+
 class CServerDlg
 {
 private:
@@ -58,12 +60,15 @@ public:
 	void GetServerResource(int nResourceID, std::string * result, ...);
 	bool AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap);
 	void AllNpcInfo();
-	CUser* GetUserPtr(int nid);
+
+	CUser* GetUserPtr(uint16 sessionId);
+	bool SetUserPtr(uint16 sessionId, CUser * pUser);
+	void DeleteUserPtr(uint16 sessionId);
+
 	MAP * GetZoneByID(int zonenumber);
 
 	static uint32 THREADCALL Timer_CheckAliveTest(void * lpParam);
 	void CheckAliveTest();
-	void DeleteUserList(int uid);
 	void DeleteAllUserList(CGameSocket *pSock = nullptr);
 	void Send(Packet * pkt);
 	void SendSystemMsg(std::string & pMsg, int type=0);
@@ -95,7 +100,7 @@ public:
 	std::string m_strGameDSN, m_strGameUID, m_strGamePWD;
 	OdbcConnection m_GameDB;
 
-	CUser* m_pUser[MAX_USER];
+	UserSessionMap m_pUser;
 
 	uint16			m_TotalNPC;			// DB¿¡ÀÖ´Â ÃÑ ¼ö
 	Atomic<uint16>	m_CurrentNPC;

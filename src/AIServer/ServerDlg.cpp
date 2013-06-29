@@ -408,30 +408,6 @@ void CServerDlg::ResumeAI()
 	m_zoneEventThread.start(ZoneEventThreadProc, this);
 }
 
-void CServerDlg::DeleteUserList(int uid)
-{
-	if(uid < 0 || uid >= MAX_USER)	{
-		TRACE("#### ServerDlg:DeleteUserList Uid Fail : uid=%d\n", uid);
-		return;
-	}
-
-	FastGuard lock(m_userLock);
-
-	CUser* pUser = m_pUser[uid];
-	if( !pUser )	{
-		TRACE("#### ServerDlg:DeleteUserList UserPtr Fail : uid=%d\n", uid);
-		return;
-	}
-
-	if( pUser->GetID() == uid )	{
-		TRACE("*** UserLogOut으로 포인터 반환 : uid=%d, %s ***\n", uid, pUser->GetName().c_str());
-		delete m_pUser[uid];
-		m_pUser[uid] = nullptr;
-	}
-	else
-		TRACE("#### ServerDlg:DeleteUserList Not Uid Fail : uid=%d\n", uid);
-}
-
 bool CServerDlg::MapFileLoad()
 {
 	ZoneInfoMap zoneMap;
@@ -528,21 +504,42 @@ void CServerDlg::AllNpcInfo()
 	}
 }
 
-CUser* CServerDlg::GetUserPtr(int nid)
+CUser* CServerDlg::GetUserPtr(uint16 sessionId)
 {
-	if (nid < 0 || nid >= MAX_USER)	
-	{
-		if (nid != -1)		
-			TRACE("### GetUserPtr :: User Array Overflow [%d] ###\n", nid);
+	FastGuard lock(m_userLock);
+	auto itr = m_pUser.find(sessionId);
+	if (itr == m_pUser.end())
 		return nullptr;
+
+	return itr->second;
+}
+
+bool CServerDlg::SetUserPtr(uint16 sessionId, CUser * pUser)
+{
+	if (sessionId >= MAX_USER)
+		return false;
+
+	FastGuard lock(m_userLock);
+	auto itr = m_pUser.find(sessionId);
+	if (itr != m_pUser.end())
+	{
+		TRACE("Warning: User %u has not been removed from the session map.\n", sessionId);
+		return false; 
 	}
 
-	CUser * pUser = m_pUser[nid];
-	if (pUser == nullptr
-		|| pUser->GetID() != nid)
-		return nullptr;
+	m_pUser[sessionId] = pUser;
+	return true;
+}
 
-	return pUser;
+void CServerDlg::DeleteUserPtr(uint16 sessionId)
+{
+	FastGuard lock(m_userLock);
+	auto itr = m_pUser.find(sessionId);
+	if (itr != m_pUser.end())
+	{
+		delete itr->second;
+		m_pUser.erase(itr);
+	}
 }
 
 uint32 THREADCALL CServerDlg::Timer_CheckAliveTest(void * lpParam)
@@ -599,15 +596,14 @@ void CServerDlg::DeleteAllUserList(CGameSocket *pSock)
 	}
 
 	FastGuard lock(m_userLock);
-	for (int i = 0; i < MAX_USER; i++)	
+	foreach (itr, m_pUser)
 	{
-		CUser *pUser = m_pUser[i];
-		if (pUser == nullptr)  
+		if (itr->second == nullptr)  
 			continue;
 
-		delete m_pUser[i];
-		m_pUser[i] = nullptr;
+		delete itr->second;
 	}
+	m_pUser.clear();
 
 	// Party Array Delete 
 	m_arParty.DeleteAllData();

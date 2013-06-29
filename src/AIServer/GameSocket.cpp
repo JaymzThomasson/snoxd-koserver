@@ -119,12 +119,33 @@ void CGameSocket::RecvServerConnect(Packet & pkt)
 void CGameSocket::RecvUserInfo(Packet & pkt)
 {
 	CUser *pUser = new CUser();
-	uint32 equippedItems = 0;
-
 	pUser->Initialize();
 
+	pkt >> pUser->m_iUserId;
+	ReadUserInfo(pkt, pUser);
+
+	if (pUser->GetName().empty() || pUser->GetName().length() > MAX_ID_SIZE)
+	{
+		delete pUser;
+		return;
+	}
+
+	pUser->m_pMap = g_pMain->GetZoneByID(pUser->m_bZone);
+	pUser->m_bLive = AI_USER_LIVE;
+
+	TRACE("****  RecvUserInfo()---> uid = %d, name=%s ******\n", 
+		pUser->GetID(), pUser->GetName().c_str());
+
+	if (!g_pMain->SetUserPtr(pUser->GetID(), pUser))
+		delete pUser;
+}
+
+void CGameSocket::ReadUserInfo(Packet & pkt, CUser * pUser)
+{
+	uint32 equippedItems = 0;
+
 	pkt.SByte();
-	pkt >> pUser->m_iUserId >> pUser->m_strUserID >> pUser->m_bZone >> pUser->m_bNation 
+	pkt >> pUser->m_strUserID >> pUser->m_bZone >> pUser->m_bNation 
 		>> pUser->m_bLevel >> pUser->m_sHP >> pUser->m_sMP 
 		>> pUser->m_sTotalHit >> pUser->m_bAttackAmount
 		>> pUser->m_sTotalAc >> pUser->m_sACAmount
@@ -133,6 +154,9 @@ void CGameSocket::RecvUserInfo(Packet & pkt)
 		>> pUser->m_sPartyNumber 
 		>> pUser->m_byIsOP >> pUser->m_bInvisibilityType
 		>> equippedItems;
+
+	if (pUser->m_sPartyNumber != -1)
+		pUser->m_byNowParty = 1;
 
 	FastGuard lock(pUser->m_equippedItemBonusLock);
 	pUser->m_equippedItemBonuses.clear();
@@ -152,23 +176,6 @@ void CGameSocket::RecvUserInfo(Packet & pkt)
 
 		pUser->m_equippedItemBonuses[bSlot] = bonusMap;
 	}
-
-	if (pUser->GetName().empty() || pUser->GetName().length() > MAX_ID_SIZE)
-	{
-		delete pUser;
-		return;
-	}
-
-	pUser->m_pMap = g_pMain->GetZoneByID(pUser->m_bZone);
-	pUser->m_bLive = AI_USER_LIVE;
-
-	TRACE("****  RecvUserInfo()---> uid = %d, name=%s ******\n", 
-		pUser->GetID(), pUser->GetName().c_str());
-
-	if (pUser->GetID() < MAX_USER)
-		g_pMain->m_pUser[pUser->GetID()] = pUser;
-	else 
-		delete pUser;
 }
 
 void CGameSocket::RecvUserInOut(Packet & pkt)
@@ -333,13 +340,12 @@ void CGameSocket::RecvAttackReq(Packet & pkt)
 
 void CGameSocket::RecvUserLogOut(Packet & pkt)
 {
-	short uid;
+	uint16 sessionId;
 	std::string strUserID;
+	pkt >> sessionId >> strUserID; // double byte string for once
 
-	pkt >> uid >> strUserID; // double byte string for once
-
-	g_pMain->DeleteUserList(uid);
-	TRACE("**** User LogOut -- uid = %d, name = %s\n", uid, strUserID.c_str());
+	g_pMain->DeleteUserPtr(sessionId);
+	TRACE("**** User LogOut -- uid = %d, name = %s\n", sessionId, strUserID.c_str());
 }
 
 void CGameSocket::RecvUserRegene(Packet & pkt)
@@ -396,43 +402,11 @@ void CGameSocket::RecvNpcHpChange(Packet & pkt)
 
 void CGameSocket::RecvUserUpdate(Packet & pkt)
 {
-	uint16 uid = pkt.read<uint16>();
-	std::string strUserID;
-	uint32 equippedItems = 0;
-
-	CUser* pUser = g_pMain->GetUserPtr(uid);
+	CUser* pUser = g_pMain->GetUserPtr(pkt.read<uint16>());
 	if (pUser == nullptr)
 		return;
 
-	pkt.SByte();
-	pkt >> pUser->m_strUserID >> pUser->m_bZone >> pUser->m_bNation 
-		>> pUser->m_bLevel >> pUser->m_sHP >> pUser->m_sMP 
-		>> pUser->m_sTotalHit >> pUser->m_bAttackAmount
-		>> pUser->m_sTotalAc >> pUser->m_sACAmount
-		>> pUser->m_fTotalHitrate >> pUser->m_fTotalEvasionrate 
-		>> pUser->m_sItemAc
-		>> pUser->m_sPartyNumber 
-		>> pUser->m_byIsOP >> pUser->m_bInvisibilityType
-		>> equippedItems;
-
-	FastGuard lock(pUser->m_equippedItemBonusLock);
-	pUser->m_equippedItemBonuses.clear();
-
-	for (uint32 i = 0; i < equippedItems; i++)
-	{
-		uint8 bSlot; uint32 bonusCount;
-		Unit::ItemBonusMap bonusMap;
-
-		pkt >> bSlot >> bonusCount;
-		for (uint32 x = 0; x < bonusCount; x++)
-		{
-			uint8 bType; int16 sAmount;
-			pkt >> bType >> sAmount;
-			bonusMap.insert(std::make_pair(bType, sAmount));
-		}
-
-		pUser->m_equippedItemBonuses[bSlot] = bonusMap;
-	}
+	ReadUserInfo(pkt, pUser);
 }
 
 void CGameSocket::Send_UserError(short uid, short tid)
@@ -460,72 +434,8 @@ void CGameSocket::RecvZoneChange(Packet & pkt)
 void CGameSocket::RecvUserInfoAllData(Packet & pkt)
 {
 	uint8 byCount = pkt.read<uint8>();
-	pkt.SByte();
 	for (int i = 0; i < byCount; i++)
-	{
-		CUser* pUser = new CUser();
-		uint32 equippedItems = 0;
-
-		pUser->Initialize();
-
-		pkt >> pUser->m_iUserId >> pUser->m_strUserID >> pUser->m_bZone
-			>> pUser->m_bNation >> pUser->m_bLevel 
-			>> pUser->m_sHP >> pUser->m_sMP
-			>> pUser->m_sTotalHit >> pUser->m_bAttackAmount
-			>> pUser->m_sTotalAc >> pUser->m_sACAmount
-			>> pUser->m_fTotalHitrate >> pUser->m_fTotalEvasionrate 
-			>> pUser->m_sItemAc
-			>> pUser->m_sPartyNumber >> pUser->m_byIsOP
-			>> pUser->m_bInvisibilityType
-			>> equippedItems;
-
-		FastGuard lock(pUser->m_equippedItemBonusLock);
-		for (uint32 i = 0; i < equippedItems; i++)
-		{
-			uint8 bSlot; uint32 bonusCount;
-			Unit::ItemBonusMap bonusMap;
-
-			pkt >> bSlot >> bonusCount;
-			for (uint32 x = 0; x < bonusCount; x++)
-			{
-				uint8 bType; int16 sAmount;
-				pkt >> bType >> sAmount;
-				bonusMap.insert(std::make_pair(bType, sAmount));
-			}
-
-			pUser->m_equippedItemBonuses[bSlot] = bonusMap;
-		}
-
-		if (pUser->GetName().empty() || pUser->GetName().length() > MAX_ID_SIZE)
-		{
-			TRACE("###  RecvUserInfoAllData() Fail ---> uid = %d, name=%s, len=%d  ### \n", 
-				pUser->GetID(), pUser->GetName().c_str(), pUser->GetName().length());
-
-			delete pUser;
-			continue;
-		}
-
-		pUser->m_pMap = g_pMain->GetZoneByID(pUser->GetZoneID());
-		pUser->m_bLive = AI_USER_LIVE;
-		if (pUser->m_sPartyNumber != -1)
-			pUser->m_byNowParty = 1;
-
-		TRACE("****  RecvUserInfoAllData()---> uid = %d, %s, party_number=%d  ******\n", 
-			pUser->GetID(), pUser->GetName().c_str(), pUser->m_sPartyNumber);
-
-		if (pUser->GetID() < MAX_USER)
-		{
-			// Does a user already exist? Free them (I know, tacky...)
-			if (g_pMain->m_pUser[pUser->GetID()] != nullptr)
-				delete g_pMain->m_pUser[pUser->GetID()];
-
-			g_pMain->m_pUser[pUser->GetID()] = pUser;
-		}
-		else
-		{
-			delete pUser;
-		}
-	}
+		RecvUserInfo(pkt);
 }
 
 void CGameSocket::RecvGateOpen(Packet & pkt)
