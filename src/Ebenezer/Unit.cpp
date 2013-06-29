@@ -187,9 +187,9 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 		 - GetACDamage() is not called
 		 - the resulting damage is not divided by 3.
 	 */
-	short damage = 0;
+	int32 damage = 0;
 	int random = 0;
-	short temp_hit = 0, temp_ac = 0, temp_ap = 0, temp_hit_B = 0;
+	int32 temp_hit = 0, temp_ac = 0, temp_ap = 0, temp_hit_B = 0;
 	uint8 result;
 
 	if (pTarget == nullptr || pTarget->isDead())
@@ -237,7 +237,7 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 				result = GetHitRate((m_fTotalHitrate / pTarget->m_fTotalEvasionrate) * (pType1->sHitRate / 100.0f));			
 			}
 
-			temp_hit = (short)(temp_hit_B * (pType1->sHit / 100.0f));
+			temp_hit = (int32)(temp_hit_B * (pType1->sHit / 100.0f));
 		}
 		// ARROW HIT! YEAH!
 		else if (pSkill->bType[0] == 2)
@@ -258,9 +258,9 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 			}
 
 			if (pType2->bHitType == 1 /* || pType2->bHitType == 2 */) 
-				temp_hit = (short)(m_sTotalHit * m_bAttackAmount * (pType2->sAddDamage / 100.0f) / 100);
+				temp_hit = (int32)(m_sTotalHit * m_bAttackAmount * (pType2->sAddDamage / 100.0f) / 100);
 			else
-				temp_hit = (short)(temp_hit_B * (pType2->sAddDamage / 100.0f));
+				temp_hit = (int32)(temp_hit_B * (pType2->sAddDamage / 100.0f));
 		}
 	}
 	// Normal hit (R attack)     
@@ -277,7 +277,7 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 		case NORMAL:
 			if (pSkill != nullptr)
 			{	 // Skill Hit.
-				damage = (short)temp_hit;
+				damage = temp_hit;
 				random = myrand(0, damage);
 				if (pSkill->bType[0] == 1)
 					damage = (short)((temp_hit + 0.3f * random) + 0.99f);
@@ -286,7 +286,7 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 			}
 			else
 			{	// Normal Hit.	
-				damage = (short)temp_hit_B;
+				damage = temp_hit_B;
 				random = myrand(0, damage);
 				damage = (short)((0.85f * temp_hit_B) + 0.3f * random);
 			}		
