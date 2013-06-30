@@ -311,9 +311,10 @@ void CUser::ZoneChange(uint16 sNewZone, float x, float z)
 	SetPosition(x, 0.0f, z);
 	m_pMap = pMap;
 
-	if( g_pMain->m_nServerNo != pMap->m_nServerNo ) {
-		_ZONE_SERVERINFO *pInfo = g_pMain->m_ServerArray.GetData( pMap->m_nServerNo );
-		if( !pInfo ) 
+	if (g_pMain->m_nServerNo != pMap->m_nServerNo)
+	{
+		_ZONE_SERVERINFO *pInfo = g_pMain->m_ServerArray.GetData(pMap->m_nServerNo);
+		if (pInfo == nullptr) 
 			return;
 
 		UserDataSaveToAgent();
@@ -325,7 +326,7 @@ void CUser::ZoneChange(uint16 sNewZone, float x, float z)
 	
 	SetRegion(GetNewRegionX(), GetNewRegionZ());
 
-	Packet result(WIZ_ZONE_CHANGE, uint8(3)); // magic numbers, sigh.
+	Packet result(WIZ_ZONE_CHANGE, uint8(ZoneChangeTeleport));
 	result << uint16(GetZoneID()) << GetSPosX() << GetSPosZ() << GetSPosY() << g_pMain->m_byOldVictory;
 	Send(&result);
 
@@ -395,16 +396,16 @@ void CUser::RecvZoneChange(Packet & pkt)
 		return;
 
 	uint8 opcode = pkt.read<uint8>();
-	if (opcode == 1)
+	if (opcode == ZoneChangeLoading)
 	{
 		g_pMain->UserInOutForMe(this);
 		g_pMain->NpcInOutForMe(this);
 		g_pMain->MerchantUserInOutForMe(this);
 
-		Packet result(WIZ_ZONE_CHANGE, uint8(2)); // finalise the zone change
+		Packet result(WIZ_ZONE_CHANGE, uint8(ZoneChangeLoaded)); // finalise the zone change
 		Send(&result);
 	}
-	else if (opcode == 2)
+	else if (opcode == ZoneChangeLoaded)
 	{
 		UserInOut(INOUT_RESPAWN);
 
