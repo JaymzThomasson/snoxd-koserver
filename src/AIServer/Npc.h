@@ -243,8 +243,7 @@ public:
 	//----------------------------------------------------------------
 	uint8	m_tNpcAttType;		// 공격 성향 : 선공(1), 후공(0)
 	uint8	m_tNpcOldAttType;	// 공격 성향 : 선공(1), 후공(0) (활동영역 제어)
-	uint8	m_tNpcGroupType;	// 군집을 형성하냐(1), 안하냐?(0)
-	uint8	m_byNpcEndAttType;	// 마지막까지 싸우면(1), 그렇지 않으면(0)
+	bool	m_bHasFriends;		// When set, monsters behave in groups (defined by their family type) and will seek out help from nearby similar mobs.
 	uint8	m_byAttackPos;		// User의 어느 부분에서 공격하느지를 판단(8방향)
 	uint8	m_byBattlePos;		// 어떤 진형을 선택할 것인지를 판단..
 	bool	m_byGateOpen;		// 성문일 경우에.. 사용... Gate Npc Status -> 1 : open 0 : close

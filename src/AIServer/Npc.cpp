@@ -12,8 +12,11 @@
 static float surround_fx[8] = {0.0f, -1.4142f, -2.0f, -1.4167f,  0.0f,  1.4117f,  2.0000f, 1.4167f};
 static float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f, -0.0035f, 1.4117f};
 
-#define ATROCITY_ATTACK_TYPE 1				// 선공
-#define TENDER_ATTACK_TYPE	 0				// 후공	
+enum AttackType
+{
+	TENDER_ATTACK_TYPE		= 0, // Presumably this means the mob is passive, i.e. won't attack until it or its friends are attacked.
+	ATROCITY_ATTACK_TYPE	= 1 // Presumably this means the mob is just as happy to attack you first.
+};
 
 #define NO_ACTION				0
 #define ATTACK_TO_TRACE			1				// 공격에서 추격
@@ -76,10 +79,8 @@ CNpc::CNpc() : Unit(), m_NpcState(NPC_LIVE), m_byGateOpen(false), m_byObjectType
 
 	m_fDelayTime = getMSTime();
 
-	m_tNpcAttType = ATROCITY_ATTACK_TYPE;		// 공격 성향
-	m_tNpcOldAttType = ATROCITY_ATTACK_TYPE;		// 공격 성향
-	m_tNpcGroupType = 0;	// 도움을 주는냐(1), 안주는냐?(0)
-	m_byNpcEndAttType = 1;
+	m_tNpcAttType = ATROCITY_ATTACK_TYPE;
+	m_bHasFriends = false; // :'(
 	m_byMoveType = 1;
 	m_byInitMoveType  = 1;
 	m_byRegenType = 0;
@@ -1594,18 +1595,10 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 			target_uid = pUser->GetID();
 			fComp = fDis;
 
-			//후공몹...
-			if(!m_tNpcAttType)	{	// 날 공격한 놈을 찾는다.
-				if(IsDamagedUserList(pUser) || (m_tNpcGroupType && m_Target.id == target_uid))	{
-					m_Target.id	= target_uid;
-					m_Target.bSet = true;
-					m_Target.failCount = 0;
-					m_Target.x	= pUser->GetX();
-					m_Target.y	= pUser->GetY();
-					m_Target.z	= pUser->GetZ();
-				}
-			}
-			else	
+			// Aggressive spawns don't mind attacking first.
+			if (m_tNpcAttType == ATROCITY_ATTACK_TYPE
+				// Passive spawns will only attack if they've been attacked first, or they've got backup! (Cowards!)
+				|| (m_tNpcAttType == TENDER_ATTACK_TYPE && (IsDamagedUserList(pUser) || (m_bHasFriends && m_Target.id == target_uid))))
 			{
 				m_Target.id	= target_uid;
 				m_Target.bSet = true;
@@ -1613,7 +1606,6 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 				m_Target.x	= pUser->GetX();
 				m_Target.y	= pUser->GetY();
 				m_Target.z	= pUser->GetZ();
-				//TRACE("Npc-FindEnemyExpand - target_x = %.2f, z=%.2f\n", m_Target.x, m_Target.z);
 			}
 		}
 	}
@@ -2251,13 +2243,6 @@ int CNpc::Attack()
 			m_NpcState = NPC_MOVING;
 			return nStandingTime;
 		}
-		// Npc와 유저와의 HP를 비교하여.. 도망을 갈 것인지를 판단...
-	/*	if(m_byNpcEndAttType)	{
-			if(IsCompStatus(pUser) == true)	{
-				m_NpcState = NPC_BACK;
-				return 0;
-			}	
-		}	*/
 
 		if (GetProto()->m_byMagicAttack == 4 || GetProto()->m_byMagicAttack == 5)
 		{
@@ -2395,15 +2380,6 @@ int CNpc::LongAndMagicAttack()
 			m_NpcState = NPC_MOVING;
 			return nStandingTime;
 		}
-		// Npc와 유저와의 HP를 비교하여.. 도망을 갈 것인지를 판단...
-	/*	if(m_byNpcEndAttType)
-		{
-			if(IsCompStatus(pUser) == true)
-			{
-				m_NpcState = NPC_BACK;
-				return 0;
-			}	
-		}	*/
 
 		CNpcMagicProcess::MagicPacket(MAGIC_CASTING, m_proto->m_iMagic1, GetID(), pUser->GetID());
 		//TRACE("**** LongAndMagicAttack --- sid=%d, tid=%d\n", GetID(), pUser->GetID());
@@ -2684,17 +2660,12 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 	if (hasTarget() && m_Target.id < NPC_BAND)	
 		preUser = g_pMain->GetUserPtr(m_Target.id);
 
-	if (pUser == preUser)	
+	if (pUser == preUser)
 	{
-		if (m_tNpcGroupType)	 
+		if (m_bHasFriends || GetType() == NPC_BOSS) 
 		{
 			m_Target.failCount = 0;
 			FindFriend(GetType() == NPC_BOSS ? MonSearchAny : MonSearchSameFamily);
-		}
-		else if (GetType() == NPC_BOSS)	
-		{
-			m_Target.failCount = 0;
-			FindFriend(MonSearchAny);
 		}
 		return;
 	}
@@ -2770,15 +2741,10 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 	}
 //	else m_NpcState = NPC_ATTACKING;	// 한참 공격하는데 누가 방해하면 목표를 바꿈
 
-	if (m_tNpcGroupType)	 
+	if (m_bHasFriends || GetType() == NPC_BOSS)	 
 	{
 		m_Target.failCount = 0;
 		FindFriend(GetType() == NPC_BOSS ? MonSearchAny : MonSearchSameFamily);
-	}
-	else if (GetType() == NPC_BOSS)	
-	{
-		m_Target.failCount = 0;
-		FindFriend(MonSearchAny);
 	}
 }
 
@@ -2850,7 +2816,7 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 	}
 //	else m_NpcState = NPC_ATTACKING;	// 한참 공격하는데 누가 방해하면 목표를 바꿈
 
-	if(m_tNpcGroupType)					// 가족타입이면 시야안에 같은 타입에게 목표 지정
+	if (m_bHasFriends)
 	{
 		m_Target.failCount = 0;
 		FindFriend();
@@ -3370,7 +3336,7 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, Mon
 				}
 				else if (type == MonSearchSameFamily)
 				{
-					if (pNpc->m_tNpcGroupType && GetID() != pNpc->GetID() && pNpc->m_proto->m_byFamilyType == m_proto->m_byFamilyType)	{
+					if (pNpc->m_bHasFriends && GetID() != pNpc->GetID() && pNpc->m_proto->m_byFamilyType == m_proto->m_byFamilyType)	{
 						if (pNpc->hasTarget() && pNpc->m_NpcState == NPC_FIGHTING) 
 							continue;
 
@@ -3929,34 +3895,24 @@ int	CNpc::GetPartyDamage(int iNumber)
 
 void CNpc::NpcTypeParser()
 {
-	// 선공인지 후공인지를 결정한다
-	switch(m_byActType)
+	switch (m_byActType)
 	{
 	case 1:
-		m_tNpcAttType = m_tNpcOldAttType = 0;
-		break;
 	case 2:
-		m_tNpcAttType = m_tNpcOldAttType = 0;
-		m_byNpcEndAttType = 0;			
+		m_tNpcAttType = TENDER_ATTACK_TYPE;
 		break;
+
 	case 3:
-		m_tNpcGroupType = 1;
-		m_tNpcAttType = m_tNpcOldAttType = 0;
-		break;
 	case 4:
-		m_tNpcGroupType = 1;
-		m_tNpcAttType = m_tNpcOldAttType = 0;
-		m_byNpcEndAttType = 0;			
+		m_bHasFriends = true; // yay!
+		m_tNpcAttType = TENDER_ATTACK_TYPE;
 		break;
+
 	case 6:
-		m_byNpcEndAttType = 0;			
 		break;
-	case 5:
-	case 7:
-		m_tNpcAttType = m_tNpcOldAttType = 1;
-		break;
-	default :
-		m_tNpcAttType = m_tNpcOldAttType = 1;
+
+	default:
+		m_tNpcAttType = ATROCITY_ATTACK_TYPE;
 	}
 }
 
