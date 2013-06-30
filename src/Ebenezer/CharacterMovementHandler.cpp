@@ -161,6 +161,10 @@ void CUser::Rotate(Packet & pkt)
 
 bool CUser::CanChangeZone(C3DMap * pTargetMap, ZoneChangeError & errorReason)
 {
+	// While unofficial, game masters should be allowed to teleport anywhere.
+	if (isGM())
+		return true;
+
 	// Generic error reason; this should only be checked when the method returns false.
 	errorReason = ZoneChangeErrorGeneric;
 
