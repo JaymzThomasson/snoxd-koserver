@@ -170,6 +170,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 	if (!pMap) 
 		return;
 
+#if 0 // TO-DO: Replace with https://github.com/twostars/snoxd-koserver/issues/256
 	if( pMap->m_bType == 2 ) {	// If Target zone is frontier zone.
 		if( GetLevel() < 20 && g_pMain->m_byBattleOpen != SNOW_BATTLE)
 			return;
@@ -212,6 +213,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		if( pMap->m_bType == 1 && m_bNation != zone && (zone < 10 || zone > 21))
 			return;
 	}
+#endif
 
 	m_bWarp = 0x01;
 

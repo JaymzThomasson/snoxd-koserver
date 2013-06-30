@@ -15,8 +15,7 @@ _WARP_INFO * C3DMap::GetWarp(int warpID) { return m_smdFile->GetWarp(warpID); }
 void C3DMap::GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries) { m_smdFile->GetWarpList(warpGroup, warpEntries); }
 
 C3DMap::C3DMap() : m_smdFile(nullptr), m_ppRegion(nullptr),
-	m_nZoneNumber(0), m_sMaxUser(150), m_wBundle(1),
-	m_bType(0)
+	m_nZoneNumber(0), m_sMaxUser(150), m_wBundle(1)
 {
 }
 
@@ -27,7 +26,6 @@ bool C3DMap::Initialize(_ZONE_INFO *pZone)
 	m_fInitX = pZone->m_fInitX;
 	m_fInitY = pZone->m_fInitY;
 	m_fInitZ = pZone->m_fInitZ;
-	m_bType = pZone->m_bType;
 
 	m_smdFile = SMDFile::Load(pZone->m_MapName, true /* load warps & regene events */);
 
