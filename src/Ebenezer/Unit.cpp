@@ -740,23 +740,23 @@ void KOMap::SetZoneAttributes(int zoneNumber)
 	case 53: // Goblin Quest arena
 	case ZONE_FORGOTTEN_TEMPLE: // Forgotten Temple
 		m_zoneType = ZoneAbilityNeutral;
-		m_zoneFlags = TRADE_OTHER_NATION | TALK_OTHER_NATION | FRIENDLY_NPCS;
+		m_zoneFlags = ZF_TRADE_OTHER_NATION | ZF_TALK_OTHER_NATION | ZF_FRIENDLY_NPCS;
 		break;
 
 	case ZONE_CAITHAROS_ARENA: // Caitharos/Knight Quest arena
 		m_zoneType = ZoneAbilityCaitharosArena;
-		m_zoneFlags = TALK_OTHER_NATION | ATTACK_OTHER_NATION | FRIENDLY_NPCS;
+		m_zoneFlags = ZF_TALK_OTHER_NATION | ZF_ATTACK_OTHER_NATION | ZF_FRIENDLY_NPCS;
 		break;
 
 	case 32: // Desperation abyss
 	case 33: // Hell abyss
 		m_zoneType = ZoneAbilityPVPNeutralNPCs;
-		m_zoneFlags = TALK_OTHER_NATION | ATTACK_OTHER_NATION | FRIENDLY_NPCS;
+		m_zoneFlags = ZF_TALK_OTHER_NATION | ZF_ATTACK_OTHER_NATION | ZF_FRIENDLY_NPCS;
 		break;
 
 	case ZONE_ARENA:
 		m_zoneType = ZoneAbilityNeutral;
-		m_zoneFlags = TALK_OTHER_NATION | ATTACK_OTHER_NATION | ATTACK_SAME_NATION | FRIENDLY_NPCS;
+		m_zoneFlags = ZF_TALK_OTHER_NATION | ZF_ATTACK_OTHER_NATION | ZF_ATTACK_SAME_NATION | ZF_FRIENDLY_NPCS;
 		break;
 
 	case ZONE_KARUS:
@@ -766,17 +766,25 @@ void KOMap::SetZoneAttributes(int zoneNumber)
 	case ZONE_RONARK_LAND:
 	case ZONE_ARDREAM:
 		m_zoneType = ZoneAbilityPVP;
-		m_zoneFlags = ATTACK_OTHER_NATION;
+		m_zoneFlags = ZF_ATTACK_OTHER_NATION;
+		break;
+
+	case ZONE_BATTLE:
+	case ZONE_BATTLE2:
+	case ZONE_BATTLE3:
+	case ZONE_SNOW_BATTLE:
+		m_zoneType = ZoneAbilityPVP;
+		m_zoneFlags = ZF_ATTACK_OTHER_NATION | ZF_WAR_ZONE;
 		break;
 
 	case ZONE_DELOS:
 		m_zoneType = ZoneAbilitySiegeDisabled; // depends on current siege state
-		m_zoneFlags = TRADE_OTHER_NATION | TALK_OTHER_NATION | FRIENDLY_NPCS; // also depends on current siege state, should be updated by CSW.
+		m_zoneFlags = ZF_TRADE_OTHER_NATION | ZF_TALK_OTHER_NATION | ZF_FRIENDLY_NPCS; // also depends on current siege state, should be updated by CSW.
 		break;
 
 	case ZONE_BIFROST:
 		m_zoneType = ZoneAbilityPVPNeutralNPCs;
-		m_zoneFlags = ATTACK_OTHER_NATION | FRIENDLY_NPCS;
+		m_zoneFlags = ZF_ATTACK_OTHER_NATION | ZF_FRIENDLY_NPCS;
 		break;
 
 	default:

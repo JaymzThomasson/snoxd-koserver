@@ -74,11 +74,12 @@ public:
 
 	/* the following should all be duplicated to AI server's map class for now */
 
-	INLINE bool canTradeWithOtherNation() { return (m_zoneFlags & TRADE_OTHER_NATION) != 0; }
-	INLINE bool canTalkToOtherNation() { return (m_zoneFlags & TALK_OTHER_NATION) != 0; }
-	INLINE bool canAttackOtherNation() { return (m_zoneFlags & ATTACK_OTHER_NATION) != 0; } 
-	INLINE bool canAttackSameNation() { return (m_zoneFlags & ATTACK_SAME_NATION) != 0; } 
-	INLINE bool areNPCsFriendly() { return (m_zoneFlags & FRIENDLY_NPCS) != 0; }
+	INLINE bool canTradeWithOtherNation() { return (m_zoneFlags & ZF_TRADE_OTHER_NATION) != 0; }
+	INLINE bool canTalkToOtherNation() { return (m_zoneFlags & ZF_TALK_OTHER_NATION) != 0; }
+	INLINE bool canAttackOtherNation() { return (m_zoneFlags & ZF_ATTACK_OTHER_NATION) != 0; } 
+	INLINE bool canAttackSameNation() { return (m_zoneFlags & ZF_ATTACK_SAME_NATION) != 0; } 
+	INLINE bool isWarZone() { return (m_zoneFlags & ZF_WAR_ZONE) != 0; }
+	INLINE bool areNPCsFriendly() { return (m_zoneFlags & ZF_FRIENDLY_NPCS) != 0; }
 
 	INLINE uint8 GetZoneType() { return m_zoneType; }
 	INLINE uint8 GetTariff() { return m_byTariff; }
