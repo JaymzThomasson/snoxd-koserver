@@ -14,8 +14,8 @@ static float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f,
 
 enum AttackType
 {
-	TENDER_ATTACK_TYPE		= 0, // Presumably this means the spawn is passive, i.e. won't attack until it or it expects same-type spawns to help out.
-	ATROCITY_ATTACK_TYPE	= 1 // Presumably this means the mob spawn just as happy to attack you first.
+	TENDER_ATTACK_TYPE		= 0, // The spawn is passive, i.e. won't attack until it's attacked, or it expects same-type spawns to help out.
+	ATROCITY_ATTACK_TYPE	= 1  // The spawn is aggressive, i.e. it's just as happy to attack you first.
 };
 
 #define NO_ACTION				0
@@ -3394,7 +3394,6 @@ void CNpc::FillNpcInfo(Packet & result)
 			<< GetZoneID() << GetName()
 			<< GetNation() << GetLevel()
 			<< GetX() << GetZ() << GetY() << m_byDirection
-			<< bool(m_iHP > 0) // are we alive?
 			<< GetType()
 			<< m_iSellingGroup << m_iMaxHP << m_iHP
 			<< m_byGateOpen 

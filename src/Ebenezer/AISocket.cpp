@@ -156,7 +156,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 
 		pkt >> pNpc->m_NpcState >> pNpc->m_sNid >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
 			>> pNpc->m_bZone >> strName >> pNpc->m_bNation >> pNpc->m_bLevel
-			>> pNpc->m_curx >> pNpc->m_curz >> pNpc->m_cury >> bDirection >> pNpc->m_NpcState
+			>> pNpc->m_curx >> pNpc->m_curz >> pNpc->m_cury >> bDirection
 			>> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP >> pNpc->m_byGateOpen
 			>> pNpc->m_fTotalHitrate >> pNpc->m_fTotalEvasionrate 
 			>> pNpc->m_sTotalAc >> pNpc->m_sTotalHit 
@@ -393,7 +393,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 
 	pkt >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
 		>> pNpc->m_bZone >> strName >> pNpc->m_bNation >> pNpc->m_bLevel
-		>> pNpc->m_curx >> pNpc->m_curz >> pNpc->m_cury >> byDirection >> pNpc->m_NpcState
+		>> pNpc->m_curx >> pNpc->m_curz >> pNpc->m_cury >> byDirection
 		>> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP >> pNpc->m_byGateOpen
 		>> pNpc->m_fTotalHitrate >> pNpc->m_fTotalEvasionrate 
 		>> pNpc->m_sTotalAc >> pNpc->m_sTotalHit 
@@ -408,6 +408,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 		return;
 	}
 
+	pNpc->m_NpcState = Mode;
 	pNpc->m_byDirection = byDirection;
 	pNpc->m_strName = strName;
 
@@ -424,7 +425,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 			pEvent->byLife = 1;
 	}
 
-	if (Mode == 0)
+	if (pNpc->m_NpcState == NPC_DEAD)
 	{
 		TRACE("RecvNpcInfo - dead monster nid=%d, name=%s\n", pNpc->GetID(), pNpc->GetName().c_str());
 		return;
