@@ -93,89 +93,76 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 {
 	ASSERT(GetMap() != nullptr);
 
-	CUser* pUser = nullptr;
 	_OBJECT_EVENT* pEvent = nullptr;
 	_HOME_INFO* pHomeInfo = nullptr;
-	_MAGIC_TYPE5* pType = nullptr;
-
-	bool diedInArena = isInArena();
+	float x = 0.0f, z = 0.0f;
 
 	if (!isDead())
 		return;
 
-	InitType3();
-	InitType4();
-
-	if (regene_type != 1 && regene_type != 2) {
+	if (regene_type != 1 && regene_type != 2)
 		regene_type = 1;
-	}
 
-	if (regene_type == 2) {
+	if (regene_type == 2) 
+	{
 		magicid = 490041;	// The Stone of Ressurection magic ID
 
-		if (!RobItem(379006000, 3 * GetLevel())) {
-			return;	// Subtract resurrection stones.
-		}
-
-		if (GetLevel() <= 5) {
-			return;	// 5 level minimum.
-		}
+		// Is our level high enough to be able to resurrect using this skill?
+ 		if (GetLevel() <= 5
+			// Do we have enough resurrection stones?
+			|| !RobItem(379006000, 3 * GetLevel()))
+			return;
 	}
 
-	pHomeInfo = g_pMain->m_HomeArray.GetData(m_bNation);
-	if (!pHomeInfo) return;
+	// If we're in a home zone, we'll want the from there. Otherwise, assume our own home zone.
+	pHomeInfo = g_pMain->m_HomeArray.GetData(GetZoneID() <= ZONE_ELMORAD ? GetZoneID() : GetNation());
+	if (pHomeInfo == nullptr)
+		return;
 
 	UserInOut(INOUT_OUT);
 
-	float x = 0.0f, z = 0.0f;
-	x = (float)(myrand( 0, 400 )/100.0f);	z = (float)(myrand( 0, 400 )/100.0f);
-	if( x < 2.5f )	x = 1.5f + x;
-	if( z < 2.5f )	z = 1.5f + z;
-
 	pEvent = GetMap()->GetObjectEvent(m_sBind);	
 
-	// TO-DO: Clean this entire thing up. Wow.
-	if (magicid == 0) {
-		if( pEvent && pEvent->byLife == 1 ) {		// Bind Point
-			m_curx = pEvent->fPosX + x;
-			m_curz = pEvent->fPosZ + z;
-			m_cury = 0;
+	// If we're not using a spell to resurrect.
+	if (magicid == 0) 
+	{
+		// Resurrect at a bind/respawn point
+		if (pEvent != nullptr && pEvent->byLife == 1)
+		{
+			SetPosition(pEvent->fPosX + x, 0.0f, pEvent->fPosZ + z);
 		}
-		else if( m_bNation != m_bZone) {	// Free Zone or Opposite Zone
-			if(m_bZone > 200) {		// Frontier Zone...
+		// Are we trying to respawn in a home zone?
+		else if (GetZoneID() <= ZONE_ELMORAD) 
+		{
+			// Use the proper respawn area for our nation, as the opposite nation can
+			// enter this zone at a war's invasion stage.
+			if (GetNation() == KARUS) 
+			{
+				x = (float)(pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX));
+				z = (float)(pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ));			
+			}
+			else 
+			{
+				x = (float)(pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX));
+				z = (float)(pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ));
+			}		
+		}
+		else
+		{
+			// If we're in a war zone (aside from snow wars, which apparently use different coords), use BattleZone coordinates.
+			if (GetZoneID() != ZONE_SNOW_BATTLE 
+				&& GetZoneID() == (100 + g_pMain->m_byBattleZone))
+			{
+				x = (float)(pHomeInfo->BattleZoneX + myrand(0, pHomeInfo->BattleZoneLX));
+				z = (float)(pHomeInfo->BattleZoneZ + myrand(0, pHomeInfo->BattleZoneLZ));
+			}
+			// If we're in a zone that can attack other-nation players (includes snow wars), use FreeZone coordinates instead.
+			else if (GetMap()->canAttackOtherNation())
+			{
 				x = (float)(pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX));
 				z = (float)(pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ));
 			}
-//
-			else if(m_bZone > 100 && m_bZone < 200) {		// Battle Zone...
-/*
-				m_bResHpType = USER_STANDING;
-				HpChange( m_iMaxHp );
-				KickOutZoneUser();	// Go back to your own zone!
-				return;
-*/
-				x = (float)(pHomeInfo->BattleZoneX + myrand(0, pHomeInfo->BattleZoneLX));
-				z = (float)(pHomeInfo->BattleZoneZ + myrand(0, pHomeInfo->BattleZoneLZ));
-				if (m_bZone == ZONE_SNOW_BATTLE) {
-					x = (float)(pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX));
-					z = (float)(pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ));					
-				}
-			}
-			else if (m_bZone > 10 && m_bZone < 20) {
-				x = (float)(527 + myrand(0, 10));
-				z = (float)(543 + myrand(0, 10));
-			}
-			else if (m_bZone < 3) {	// Specific Lands...
-				if (m_bNation == KARUS) {
-					x = (float)(pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX));
-					z = (float)(pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ));			
-				}
-				else if (m_bNation == ELMORAD) {
-					x = (float)(pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX));
-					z = (float)(pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ));	
-				}		
-				else return;
-			}
+			// For all else, just grab the start position (/town coordinates) from the START_POSITION table.
 			else
 			{
 				short sx, sz;
@@ -184,50 +171,32 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 				x = sx;
 				z = sz;
 			}
-
-			m_curx = x;
-			m_curz = z;
 		}
-		else {	
-			if (m_bNation == KARUS) {
-				x = (float)(pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX));
-				z = (float)(pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ));			
-			}
-			else if (m_bNation == ELMORAD) {			
-				x = (float)(pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX));
-				z = (float)(pHomeInfo->ElmoZoneZ + myrand(0, pHomeInfo->ElmoZoneLZ));
-			}		
-			else return;		
 
-			m_curx = x;
-			m_curz = z;
-		}
+		SetPosition(x, 0.0f, z);
+
+		m_bAbnormalType = ABNORMAL_BLINKING;
+		m_bResHpType = USER_STANDING;	
+		m_bRegeneType = REGENE_NORMAL;
+	}
+	else // we're respawning using a resurrect skill.
+	{
+		_MAGIC_TYPE5 * pType = g_pMain->m_Magictype5Array.GetData(magicid);     
+		if (pType == nullptr)
+			return;
+
+		MSpChange(-m_iMaxMp); // reset us to 0 MP. 
+
+		if (m_sWhoKilledMe == -1) 
+			ExpChange((m_iLostExp * pType->bExpRecover) / 100); // Restore 
+
+		m_bResHpType = USER_STANDING;
+		m_bRegeneType = REGENE_MAGIC;
 	}
 
 	Packet result(WIZ_REGENE);
 	result << GetSPosX() << GetSPosZ() << GetSPosY();
 	Send(&result);
-	
-	if (magicid > 0) {	// Clerical Resurrection.
-		pType = g_pMain->m_Magictype5Array.GetData(magicid);     
-		if ( !pType ) return;
-
-		m_bResHpType = USER_STANDING;
-		MSpChange(-m_iMaxMp);					// Empty out MP.
-
-		if (m_sWhoKilledMe == -1 && regene_type == 1) {		
-			ExpChange((m_iLostExp * pType->bExpRecover) / 100);		// Restore Target Experience.
-		}
-
-		m_bRegeneType = REGENE_MAGIC;
-	}
-	else {		// Normal Regene.
-//
-		m_bAbnormalType = ABNORMAL_BLINKING;
-//
-		m_bResHpType = USER_STANDING;	
-		m_bRegeneType = REGENE_NORMAL;
-	}
 
 	HpChange(m_iMaxHp);
 
@@ -252,22 +221,10 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	InitializeStealth();
 	SendUserStatusUpdate(USER_STATUS_DOT, USER_STATUS_CURE);
 	SendUserStatusUpdate(USER_STATUS_POISON, USER_STATUS_CURE);
-	if(diedInArena)
-		SendUserStatusUpdate(USER_STATUS_SPEED, USER_STATUS_CURE);
-	else
-		BlinkStart();
-	RecastSavedMagic();
 
-	if (isInParty())
-	{
-		// TO-DO: Wrap these up into Party-specific methods (nothing for that yet)
-		// UPDATE: Sticking them in the CUser class for the moment. Need to have them make sense, though.
-		if (!m_bType3Flag)
-			SendPartyStatusUpdate(1);
- 
-		m_buffLock.Acquire();
-		if (m_buffMap.empty())
-			SendPartyStatusUpdate(2);
-		m_buffLock.Release();
-	}
+	if (isInArena())
+		SendUserStatusUpdate(USER_STATUS_SPEED, USER_STATUS_CURE);
+
+	BlinkStart();
+	RecastSavedMagic();
 }

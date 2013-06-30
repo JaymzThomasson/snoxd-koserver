@@ -218,8 +218,8 @@ public:
 
 	uint32	m_bAbnormalType;			// Is the player normal,a giant, or a dwarf?
 
-	short	m_sWhoKilledMe;				// Who killed me???
-	int64		m_iLostExp;					// Experience point that was lost when you died.
+	int16	m_sWhoKilledMe;				// ID of the unit that killed you.
+	int64	m_iLostExp;					// Experience points that were lost when you died.
 
 	time_t	m_tLastTrapAreaTime;		// The last moment you were in the trap area.
 
