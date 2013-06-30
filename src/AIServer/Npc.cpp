@@ -3178,11 +3178,7 @@ void CNpc::SendExpToUserList()
 				}
 			}
 			//nExp = 
-		}	
-		else if(pUser->m_byNowParty == 2)		// 부대 소속
-		{	
-			
-		}	
+		}
 		else									// 개인
 		{
 			totalDamage = m_DamagedUserList[i].nDamage;
