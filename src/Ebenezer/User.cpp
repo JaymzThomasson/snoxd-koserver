@@ -3863,22 +3863,20 @@ void CUser::SendUserStatusUpdate(UserStatus type, UserStatusBehaviour status)
 	Packet result(WIZ_ZONEABILITY, uint8(2));
 	result << uint8(type) << uint8(status);
 	/*
+			  1				, 0 = Cure damage over time
 			  1				, 1 = Damage over time
-			  1				, 2 = Cure damage over time
+			  2				, 0 = Cure poison
 			  2				, 1 = poison (purple)
-			  2				, 2 = Cure poison
+			  3				, 0 = Cure disease
 			  3				, 1 = disease (green)
-			  3				, 2 = Cure disease
 			  4				, 1 = blind
+			  5				, 0 = Cure grey HP
 			  5				, 1 = HP is grey (not sure what this is)
-			  5				, 2 = Cure grey HP
 	*/
 	Send(&result);
 
-	// It seems to just be 0/1 for the status here.
 	if (isInParty())
-		SendPartyStatusUpdate(type, status - 1);
-
+		SendPartyStatusUpdate(type, status);
 }
 
 /**
