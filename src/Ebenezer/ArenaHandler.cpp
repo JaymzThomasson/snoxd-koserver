@@ -69,7 +69,7 @@ void CUser::HandleChallengeRequestPVP(Packet & pkt)
 		|| isStoreOpen())
 		goto fail_return;
 
-	if (GetMap()->canAttackOtherNation()
+	if (GetMap()->isNationPVPZone()
 		|| GetZoneID() == ZONE_DELOS 
 		|| GetMap()->isWarZone())
 	{
@@ -137,7 +137,7 @@ void CUser::HandleChallengeRequestCVC(Packet & pkt)
 		goto fail_return;
 	}
 
-	if (GetMap()->canAttackOtherNation() 
+	if (GetMap()->isNationPVPZone() 
 		|| GetZoneID() == ZONE_DELOS 
 		|| GetMap()->isWarZone())
 	{

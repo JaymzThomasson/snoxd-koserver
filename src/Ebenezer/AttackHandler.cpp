@@ -151,13 +151,13 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 		{
 			// If we're in a war zone (aside from snow wars, which apparently use different coords), use BattleZone coordinates.
 			if (GetZoneID() != ZONE_SNOW_BATTLE 
-				&& GetZoneID() == (100 + g_pMain->m_byBattleZone))
+				&& GetZoneID() == (ZONE_BATTLE_BASE + g_pMain->m_byBattleZone))
 			{
 				x = (float)(pHomeInfo->BattleZoneX + myrand(0, pHomeInfo->BattleZoneLX));
 				z = (float)(pHomeInfo->BattleZoneZ + myrand(0, pHomeInfo->BattleZoneLZ));
 			}
 			// If we're in a zone that can attack other-nation players (includes snow wars), use FreeZone coordinates instead.
-			else if (GetMap()->canAttackOtherNation())
+			else if (GetMap()->isNationPVPZone())
 			{
 				x = (float)(pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX));
 				z = (float)(pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ));
