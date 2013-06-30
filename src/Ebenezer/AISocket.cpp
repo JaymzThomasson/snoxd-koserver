@@ -655,9 +655,9 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 		}
 
 		if (bResult == KARUS)
-			g_pMain->m_byKarusOpenFlag = 1;	
+			g_pMain->m_byKarusOpenFlag = true;	
 		else if (bResult == ELMORAD)
-			g_pMain->m_byElmoradOpenFlag = 1;
+			g_pMain->m_byElmoradOpenFlag = true;
 	}
 	else if (bType == BATTLE_EVENT_RESULT)
 	{
@@ -670,24 +670,22 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 		pkt.SByte();
 		pkt >> strMaxUserName;
 
-		if (!strMaxUserName.empty())
+		if (!strMaxUserName.empty()
+			&& !g_pMain->m_byBattleSave)
 		{
-			if (g_pMain->m_byBattleSave == 0)
-			{
-				Packet result(WIZ_BATTLE_EVENT, bType);
-				result.SByte();
-				result << bResult << strMaxUserName;
+			Packet result(WIZ_BATTLE_EVENT, bType);
+			result.SByte();
+			result << bResult << strMaxUserName;
 
-				g_pMain->AddDatabaseRequest(result);
-				g_pMain->m_byBattleSave = 1;
-			}
+			g_pMain->AddDatabaseRequest(result);
+			g_pMain->m_byBattleSave = true;
 		}
 
 		g_pMain->m_bVictory = bResult;
 		g_pMain->m_byOldVictory = bResult;
-		g_pMain->m_byKarusOpenFlag = 0;
-		g_pMain->m_byElmoradOpenFlag = 0;
-		g_pMain->m_byBanishFlag = 1;
+		g_pMain->m_byKarusOpenFlag = false;
+		g_pMain->m_byElmoradOpenFlag = false;
+		g_pMain->m_byBanishFlag = true;
 	}
 	else if (bType == BATTLE_EVENT_MAX_USER)
 	{
