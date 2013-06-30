@@ -1721,7 +1721,7 @@ void CEbenezerDlg::GetCaptainUserPtr()
  */
 void CEbenezerDlg::BattleZoneCurrentUsers()
 {
-	C3DMap* pMap = GetZoneByID(ZONE_BATTLE);
+	C3DMap* pMap = GetZoneByID(ZONE_BATTLE_BASE + m_byBattleZone);
 	if (pMap == nullptr || m_nServerNo != pMap->m_nServerNo)
 		return;
 
@@ -1730,7 +1730,7 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 	foreach (itr, sessMap)
 	{
 		CUser * pUser = TO_USER(itr->second);
-		if (!pUser->isInGame() || pUser->GetZoneID() != ZONE_BATTLE)
+		if (!pUser->isInGame() || pUser->GetZoneID() != pMap->GetID())
 			continue;
 
 		if (pUser->GetNation() == KARUS)

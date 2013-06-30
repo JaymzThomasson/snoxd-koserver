@@ -62,14 +62,16 @@ void CUser::HandleChallengeRequestPVP(Packet & pkt)
 
 	if (m_bRequestingChallenge 
 		|| m_bChallengeRequested
-		|| GetZoneID() == 48
+		|| GetZoneID() == ZONE_ARENA
 		|| isInParty()
 		|| isTrading()
 		|| isMerchanting()
 		|| isStoreOpen())
 		goto fail_return;
 
-	if (GetZoneID() == 201 || GetZoneID() == 30 || (GetZoneID() / 100) == 1)
+	if (GetMap()->canAttackOtherNation()
+		|| GetZoneID() == ZONE_DELOS 
+		|| GetMap()->isWarZone())
 	{
 		bErrorCode = CHALLENGE_ZONE_ERROR;
 		goto fail_return;
@@ -121,7 +123,7 @@ void CUser::HandleChallengeRequestCVC(Packet & pkt)
 
 	if (m_bRequestingChallenge 
 		|| m_bChallengeRequested
-		|| GetZoneID() == 48
+		|| GetZoneID() == ZONE_ARENA
 		|| isInParty()
 		|| isTrading()
 		|| isMerchanting()
@@ -135,7 +137,9 @@ void CUser::HandleChallengeRequestCVC(Packet & pkt)
 		goto fail_return;
 	}
 
-	if (GetZoneID() == 201 || GetZoneID() == 30 || (GetZoneID() / 100) == 1)
+	if (GetMap()->canAttackOtherNation() 
+		|| GetZoneID() == ZONE_DELOS 
+		|| GetMap()->isWarZone())
 	{
 		bErrorCode = CHALLENGE_ZONE_ERROR;
 		goto fail_return;
@@ -207,8 +211,8 @@ void CUser::HandleChallengeAcceptPVP(Packet & pkt)
 	pUser->m_bRequestingChallenge = 0;
 
 	// Glorious magic numbers!
-	ZoneChange(48, 135.0f, 115.0f);
-	pUser->ZoneChange(48, 120.0f, 115.0f);
+	ZoneChange(ZONE_ARENA, 135.0f, 115.0f);
+	pUser->ZoneChange(ZONE_ARENA, 120.0f, 115.0f);
 }
 
 // This is sent when the challengee accepts a challenger's clan vs clan request
@@ -256,7 +260,7 @@ void CUser::HandleChallengeAcceptCVC(Packet & pkt)
 			&& !pClanMember->isInParty()
 			&& !pClanMember->m_bRequestingChallenge
 			&& pClanMember->m_sChallengeUser < 0)
-			pClanMember->ZoneChange(48, 128.0f, 125.0f);
+			pClanMember->ZoneChange(ZONE_ARENA, 128.0f, 125.0f);
 	}
 
 	foreach_array (i, pClan2->m_arKnightsUser)
@@ -273,7 +277,7 @@ void CUser::HandleChallengeAcceptCVC(Packet & pkt)
 			&& !pClanMember->isInParty()
 			&& !pClanMember->m_bRequestingChallenge
 			&& pClanMember->m_sChallengeUser < 0)
-			pClanMember->ZoneChange(48, 135.0f, 120.0f);
+			pClanMember->ZoneChange(ZONE_ARENA, 135.0f, 120.0f);
 	}
 }
 

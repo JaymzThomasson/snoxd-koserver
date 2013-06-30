@@ -46,6 +46,8 @@ public:
 	SMDFile *m_smdFile;
 	FastMutex m_lock;
 
+	INLINE uint16 GetID() { return m_nZoneNumber; }
+
 	/* the following should all be duplicated to AI server's map class for now */
 
 	INLINE bool canTradeWithOtherNation() { return (m_zoneFlags & ZF_TRADE_OTHER_NATION) != 0; }

@@ -204,7 +204,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 		if( pMap->m_bType == 1 && m_bNation != zone ) {		// ???? ?????? ???? ????..
 			return;
 		}
-		else if( pMap->m_bType == 2 && (zone == ZONE_RONARK_LAND || zone == ZONE_BATTLE ) ) {			// You can't go to frontier zone when Battlezone is open.
+		else if( pMap->m_bType == 2 && (pMap->canAttackOtherNation())) {			// You can't go to frontier zone when Battlezone is open.
 			return;
 		}
 	}

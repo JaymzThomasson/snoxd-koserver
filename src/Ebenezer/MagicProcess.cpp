@@ -2,6 +2,7 @@
 #include "EbenezerDlg.h"
 #include "MagicProcess.h"
 #include "MagicInstance.h"
+#include "Map.h"
 #include "User.h" // need to move UserRegionCheck() to get rid of this
 
 void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= nullptr*/, bool isRecastingSavedMagic /*= false*/)
@@ -58,7 +59,7 @@ bool CMagicProcess::UserRegionCheck(Unit * pSkillCaster, Unit * pSkillTarget, _M
 			else if (TO_USER(pSkillTarget)->GetPartyID() == TO_USER(pSkillCaster)->GetPartyID() 
 				&& pSkill->bType[0] == 8)
 			{
-				if (pSkillTarget->GetZoneID() == ZONE_BATTLE && (UNIXTIME - TO_USER(pSkillTarget)->m_tLastRegeneTime < CLAN_SUMMON_TIME))
+				if (pSkillTarget->GetMap()->isWarZone() && (UNIXTIME - TO_USER(pSkillTarget)->m_tLastRegeneTime < CLAN_SUMMON_TIME))
 					return false;
 
 				goto final_test;	
@@ -95,7 +96,7 @@ bool CMagicProcess::UserRegionCheck(Unit * pSkillCaster, Unit * pSkillTarget, _M
 			else if (TO_USER(pSkillTarget)->GetClanID() == TO_USER(pSkillCaster)->GetClanID() 
 				&& pSkill->bType[0] == 8)
 			{
-				if (pSkillTarget->GetZoneID() == ZONE_BATTLE && (UNIXTIME - TO_USER(pSkillTarget)->m_tLastRegeneTime < CLAN_SUMMON_TIME))
+				if (pSkillTarget->GetMap()->isWarZone() && (UNIXTIME - TO_USER(pSkillTarget)->m_tLastRegeneTime < CLAN_SUMMON_TIME))
 					return false;
 				goto final_test;	
 			}

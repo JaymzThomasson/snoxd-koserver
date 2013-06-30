@@ -1141,7 +1141,7 @@ void CUser::ExpChange(int64 iExp)
 	// Stop players level 5 or under from losing XP on death.
 	if ((GetLevel() < 6 && iExp < 0)
 		// Stop players in the war zone (TO-DO: Add other war zones) from losing XP on death.
-		|| (m_bZone == ZONE_BATTLE && iExp < 0))
+		|| (GetMap()->isWarZone() && iExp < 0))
 		return;
 
 	// Despite being signed, we don't want m_iExp ever going below 0.
@@ -2301,20 +2301,16 @@ void CUser::LoyaltyDivide(int16 tid, uint16 bonusNP /*= 0*/)
 	average_level = levelsum / total_member;	// Calculate average level.
 
 	//	This is for the Event Battle on Wednesday :(
-	if (g_pMain->m_byBattleOpen) {
-		if (m_bZone == ZONE_BATTLE) {
-			if (pTUser->m_bNation == KARUS) {
-				g_pMain->m_sKarusDead++;
-				//TRACE("++ LoyaltyDivide - ka=%d, el=%d\n", g_pMain->m_sKarusDead, g_pMain->m_sElmoradDead);
-			}
-			else if (pTUser->m_bNation == ELMORAD) {
-				g_pMain->m_sElmoradDead++;
-				//TRACE("++ LoyaltyDivide - ka=%d, el=%d\n", g_pMain->m_sKarusDead, g_pMain->m_sElmoradDead);
-			}
-		}
+	if (g_pMain->m_byBattleOpen
+		&& GetZoneID() == (ZONE_BATTLE_BASE + g_pMain->m_byBattleZone))
+	{
+		if (pTUser->GetNation() == KARUS)
+			g_pMain->m_sKarusDead++;
+		else
+			g_pMain->m_sElmoradDead++;
 	}
 		
-	if (pTUser->m_bNation != m_bNation) {		// Different nations!!!
+	if (pTUser->GetNation() != GetNation()) {		// Different nations!!!
 		level_difference = pTUser->GetLevel() - average_level;	// Calculate difference!
 
 		if (pTUser->GetLoyalty() == 0) {	   // No cheats allowed...

@@ -114,7 +114,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 			return;
 	}
 
-	// If we're in a home zone, we'll want the from there. Otherwise, assume our own home zone.
+	// If we're in a home zone, we'll want the coordinates from there. Otherwise, assume our own home zone.
 	pHomeInfo = g_pMain->m_HomeArray.GetData(GetZoneID() <= ZONE_ELMORAD ? GetZoneID() : GetNation());
 	if (pHomeInfo == nullptr)
 		return;

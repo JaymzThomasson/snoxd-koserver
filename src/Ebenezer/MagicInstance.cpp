@@ -1463,13 +1463,9 @@ bool MagicInstance::ExecuteType8()
 	{
 		uint8 bResult = 0;
 		_OBJECT_EVENT* pEvent = nullptr;
-		float x = 0.0f, z = 0.0f;
-		x = (float)(myrand( 0, 400 )/100.0f);	z = (float)(myrand( 0, 400 )/100.0f);
-		if( x < 2.5f )	x = 1.5f + x;
-		if( z < 2.5f )	z = 1.5f + z;
-
 		CUser* pTUser = *itr;
-		_HOME_INFO* pHomeInfo = g_pMain->m_HomeArray.GetData(pTUser->GetNation());
+		// If we're in a home zone, we'll want the coordinates from there. Otherwise, assume our own home zone.
+		_HOME_INFO* pHomeInfo = g_pMain->m_HomeArray.GetData(pTUser->GetZoneID() <= ZONE_ELMORAD ? pTUser->GetZoneID() : pTUser->GetNation());
 		if (pHomeInfo == nullptr)
 			return false;
 
@@ -1496,23 +1492,21 @@ bool MagicInstance::ExecuteType8()
 
 				pEvent = pTUser->GetMap()->GetObjectEvent(pTUser->m_sBind);
 
-				if( pEvent ) {
-					pTUser->Warp(uint16((pEvent->fPosX + x) * 10), uint16((pEvent->fPosZ + z) * 10));	
+				if (pEvent != nullptr)
+					pTUser->Warp(uint16(pEvent->fPosX * 10), uint16(pEvent->fPosZ * 10));	
+				else if (pTUser->GetZoneID() <= ELMORAD) 
+				{
+					if (pTUser->GetNation() == KARUS)
+						pTUser->Warp(uint16((pHomeInfo->KarusZoneX + myrand(0, pHomeInfo->KarusZoneLX)) * 10), uint16((pHomeInfo->KarusZoneZ + myrand(0, pHomeInfo->KarusZoneLZ)) * 10));
+					else
+						pTUser->Warp(uint16((pHomeInfo->ElmoZoneX + myrand(0, pHomeInfo->ElmoZoneLX)) * 10), uint16((pHomeInfo->ElmoZoneZ + + myrand(0, pHomeInfo->ElmoZoneLZ)) * 10));
 				}
-				// TO-DO: Remove this hardcoded nonsense
-				else if(pTUser->GetNation() != pTUser->GetZoneID() && pTUser->GetZoneID() <= ELMORAD) 
-				{	 // User is in different zone.
-					if (pTUser->GetNation() == KARUS) // Land of Karus
-						pTUser->Warp(uint16((852 + x) * 10), uint16((164 + z) * 10));
-					else	// Land of Elmorad
-						pTUser->Warp(uint16((177 + x) * 10), uint16((923 + z) * 10));
-				}
-				else if (pTUser->m_bZone == ZONE_BATTLE)
-					pTUser->Warp(uint16((pHomeInfo->BattleZoneX + x) * 10), uint16((pHomeInfo->BattleZoneZ + z) * 10));	
-				else if (pTUser->m_bZone == ZONE_RONARK_LAND)
-					pTUser->Warp(uint16((pHomeInfo->FreeZoneX + x) * 10), uint16((pHomeInfo->FreeZoneZ + z) * 10));
+				else if (pTUser->GetMap()->isWarZone())
+					pTUser->Warp(uint16((pHomeInfo->BattleZoneX + myrand(0, pHomeInfo->BattleZoneLX)) * 10), uint16((pHomeInfo->BattleZoneZ + myrand(0, pHomeInfo->BattleZoneLZ)) * 10));
+				else if (pTUser->GetMap()->canAttackOtherNation())
+					pTUser->Warp(uint16((pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX)) * 10), uint16((pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ)) * 10));
 				else
-					pTUser->Warp(uint16((pTUser->GetMap()->m_fInitX + x) * 10), uint16((pTUser->GetMap()->m_fInitZ + z) * 10));	
+					pTUser->Warp(uint16(pTUser->GetMap()->m_fInitX * 10), uint16(pTUser->GetMap()->m_fInitZ * 10));
 				break;
 
 			case 2:		// Send target to teleport point WITHIN the zone.
