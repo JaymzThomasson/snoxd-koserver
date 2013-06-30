@@ -54,6 +54,14 @@ enum ClassType
 	ClassPriestMaster	= 12
 };
 
+enum ZoneChangeError
+{
+	ZoneChangeErrorGeneric,
+	ZoneChangeErrorWrongLevel,
+	ZoneChangeErrorWarActive,
+	ZoneChangeErrorNeedLoyalty
+};
+
 #define ARROW_EXPIRATION_TIME (5) // seconds
 
 struct Arrow
@@ -187,7 +195,7 @@ public:
 	short	m_iMaxHp, m_iMaxMp;
 	
 	uint8	m_bResHpType;
-	uint8	m_bWarp;
+	bool	m_bWarp;
 	uint8	m_bNeedParty;
 
 	uint16	m_sPartyIndex;
@@ -711,7 +719,10 @@ public:
 	void LoyaltyChange(int16 tid, uint16 bonusNP = 0);
 	void LoyaltyDivide(int16 tid, uint16 bonusNP = 0);
 	void ChangeNP(short sAmount, bool bDistributeToParty = true);
-	void ZoneChange( int zone, float x, float z );
+
+	bool CanChangeZone(C3DMap * pTargetMap, ZoneChangeError & errorReason);
+	void ZoneChange(uint16 sNewZone, float x, float z);
+
 	void SendTargetHP( uint8 echo, int tid, int damage = 0 );
 	bool IsValidSlotPos( _ITEM_TABLE* pTable, int destpos );
 	void SetUserAbility(bool bSendPacket = true);

@@ -76,7 +76,7 @@ void CUser::Initialize()
 	m_sMaxWeightBonus = 0;
 
 	m_bResHpType = USER_STANDING;
-	m_bWarp = 0x00;
+	m_bWarp = false;
 
 	m_sMerchantsSocketID = -1;
 	m_sChallengeUser = -1;
