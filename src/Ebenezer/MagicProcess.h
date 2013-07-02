@@ -8,7 +8,7 @@ struct _MAGIC_TYPE4;
 class CMagicProcess  
 {
 public:
-	static void MagicPacket(Packet & pkt, Unit * pCaster = nullptr, bool isRecastingSavedMagic = false);
+	static void MagicPacket(Packet & pkt, Unit * pCaster = nullptr);
 	static void CheckExpiredType6Skills(Unit * pTarget);
 	static void CheckExpiredType9Skills(Unit * pTarget, bool bForceExpiration = false);
 	static void RemoveStealth(Unit * pTarget, InvisibilityType bInvisibilityType);

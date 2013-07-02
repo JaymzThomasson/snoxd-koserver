@@ -3990,29 +3990,13 @@ void CUser::RecastSavedMagic()
 
 	foreach (itr, castSet)
 	{
-		_MAGIC_TABLE *pSkill = g_pMain->m_MagictableArray.GetData(itr->first);
-		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_EFFECTING));
-		result << pSkill->iNum << GetSocketID() << GetSocketID() << uint16(0) << uint16(1) << uint16(0) << uint16(itr->second - UNIXTIME) << uint16(0) << uint16(0);
-		switch (pSkill->bType[0])
-		{
-			case 6:
-				// Not allowing transformations in PvP zones!
-				if (GetMap()->canAttackOtherNation())
-				{
-					RemoveSavedMagic(itr->first);
-					return;
-				}
+		MagicInstance instance;
 
-				StateChangeServerDirect(3, ABNORMAL_NORMAL);
-				UpdateVisibility(INVIS_NONE);
-				break;
+		instance.pSkillCaster = this;
+		instance.nSkillID = itr->first;
+		instance.bIsRecastingSavedMagic = true;
 
-			case 9:
-				//To-do : Add support for Guards, until then we don't need this line.
-				//_MAGIC_TYPE9 *pType = g_pMain->m_Magictype9Array.GetData(pSkill->iNum);
-				break;
-		}
-		CMagicProcess::MagicPacket(result, this, true);
+		instance.Run();
 	}
 
 }

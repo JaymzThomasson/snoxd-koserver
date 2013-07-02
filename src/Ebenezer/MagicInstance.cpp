@@ -105,10 +105,9 @@ void MagicInstance::Run()
 			// Hacky check for a transformation item (Disguise Totem, Disguise Scroll)
 			// These apply when first type's set to 0, second type's set and obviously, there's a consumable item.
 			// Need to find a better way of handling this.
-			if (pSkill->bType[0] == 0 && pSkill->bType[1] != 0
-				&& pSkill->iUseItem != 0
-				&& (pSkillCaster->isPlayer() 
-					&& TO_USER(pSkillCaster)->CheckExistItem(pSkill->iUseItem, 1)))
+			if (!bIsRecastingSavedMagic
+				&& (pSkill->bType[0] == 0 && pSkill->bType[1] != 0 && pSkill->iUseItem != 0
+				&& (pSkillCaster->isPlayer() && TO_USER(pSkillCaster)->CheckExistItem(pSkill->iUseItem, 1))))
 			{
 				SendTransformationList();
 				return;
@@ -1337,10 +1336,17 @@ bool MagicInstance::ExecuteType6()
 	if (pType == nullptr
 		// Allow NPC transformations in PVP zones
 		|| (pType->bUserSkillUse != 3 && pSkillCaster->GetMap()->canAttackOtherNation())
-		|| pSkillCaster->isTransformed()
+		|| (!bIsRecastingSavedMagic && pSkillCaster->isTransformed())
 		// All buffs must be removed before using transformation skills
 		|| pSkillCaster->isBuffed())
+	{
+		// If we're recasting it, then it's either already cast on us (i.e. we're changing zones)
+		// or we're relogging. We need to remove it now, as the client doesn't see us using it.
+		if (bIsRecastingSavedMagic)
+			Type6Cancel(true);
+
 		return false;
+	}
 
 	// We can ignore all these checks if we're just recasting on relog.
 	if (!bIsRecastingSavedMagic)
@@ -1849,10 +1855,12 @@ short MagicInstance::GetWeatherDamage(short damage, int attribute)
 	return damage;
 }
 
-void MagicInstance::Type6Cancel()
+void MagicInstance::Type6Cancel(bool bForceRemoval /*= false*/)
 {
+	// NPCs cannot transform.
 	if (!pSkillCaster->isPlayer()
-		|| !pSkillCaster->isTransformed())
+		// Are we transformed? Note: if we're relogging, and we need to remove it, we should ignore this check.
+		|| (!bForceRemoval && !pSkillCaster->isTransformed()))
 		return;
 
 	CUser * pUser = TO_USER(pSkillCaster);

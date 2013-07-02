@@ -69,6 +69,12 @@ public:
 	int16	sData[8];
 	bool	bIsRecastingSavedMagic;
 
+	MagicInstance() : bOpcode(MAGIC_EFFECTING), nSkillID(0), pSkill(nullptr), 
+		sCasterID(-1), sTargetID(-1), pSkillCaster(nullptr), pSkillTarget(nullptr),
+		bIsRecastingSavedMagic(false)
+	{
+	}
+
 	void Run();
 
 	bool IsAvailable();
@@ -89,7 +95,7 @@ public:
 
 	void Type3Cancel();
 	void Type4Cancel();
-	void Type6Cancel();
+	void Type6Cancel(bool bForceRemoval = false);
 	void Type9Cancel(bool bRemoveFromMap = true);
 	void Type4Extend();
 

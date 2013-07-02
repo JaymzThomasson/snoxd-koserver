@@ -5,7 +5,7 @@
 #include "Map.h"
 #include "User.h" // need to move UserRegionCheck() to get rid of this
 
-void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= nullptr*/, bool isRecastingSavedMagic /*= false*/)
+void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= nullptr*/)
 {
 	MagicInstance instance;
 	pkt >> instance.bOpcode >> instance.nSkillID;
@@ -31,7 +31,7 @@ void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= nullptr*/, bool
 			|| instance.pSkillCaster != pCaster))
 		return;
 
-	instance.bIsRecastingSavedMagic = isRecastingSavedMagic;
+	instance.bIsRecastingSavedMagic = false;
 	instance.Run();
 }
 
