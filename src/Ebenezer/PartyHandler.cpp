@@ -527,7 +527,7 @@ void CUser::SendPartyBBSNeeded(uint16 page_index, uint8 bType)
 
 		if ((GetNation() != pUser->GetNation() && GetZoneID() != 21 && GetZoneID() != 55 && GetZoneID() != pUser->GetZoneID())
 			|| (pUser->m_bNeedParty == 1 && !pUser->m_bPartyLeader)
-			|| !(  ( pUser->GetLevel() <= (int)(GetLevel() * 1.5) && pUser->GetLevel() >= (int)(GetLevel() * 1.5)) 
+			|| !(  ( pUser->GetLevel() <= (int)(GetLevel() * 1.5) && pUser->GetLevel() >= (int)(GetLevel() * 2 / 3)) 
 				|| ( pUser->GetLevel() <= (GetLevel() + 8) && pUser->GetLevel() >= ((int)(GetLevel()) - 8))))
 			  continue;
 
@@ -537,13 +537,13 @@ void CUser::SendPartyBBSNeeded(uint16 page_index, uint8 bType)
 			|| valid_counter >= MAX_BBS_PAGE)
 			continue;
 
-		if (m_bPartyLeader)
+		if (pUser->m_bPartyLeader)
 		{
-			pParty = g_pMain->m_PartyArray.GetData( m_sPartyIndex );
+			pParty = g_pMain->m_PartyArray.GetData( pUser->m_sPartyIndex );
 			if (pParty == nullptr) //Shouldn't be hit.
 				return;
 			WantedMessage = pParty->WantedMessage;
-			PartyMembers = GetPartyMemberAmount();
+			PartyMembers = GetPartyMemberAmount(pParty);
 			sClass = pParty->sWantedClass;
 		}
 
@@ -590,9 +590,8 @@ void CUser::PartyBBSWanted(Packet & pkt)
 	SendPartyBBSNeeded(page_index, PARTY_BBS_WANTED);
 }
 
-uint8 CUser::GetPartyMemberAmount()
+uint8 CUser::GetPartyMemberAmount(_PARTY_GROUP *pParty)
 {
-	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData(GetPartyID());
 	if (pParty == nullptr)
 		return 0;
 

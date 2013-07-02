@@ -24,7 +24,7 @@
 #define MAX_MESSAGE_EVENT			12
 
 ///////////////// BBS RELATED //////////////////////////////
-#define MAX_BBS_PAGE			23
+#define MAX_BBS_PAGE			22
 #define MAX_BBS_MESSAGE			40
 #define MAX_BBS_TITLE			20
 #define MAX_BBS_POST			500

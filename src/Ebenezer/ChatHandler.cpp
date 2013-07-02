@@ -109,7 +109,10 @@ void CUser::Chat(Packet & pkt)
 		sessID = GetSocketID();
 	}
 
-	ChatPacket::Construct(&result, type, strMessage, &strSender, bNation, sessID);
+	if(type == 1 && isGM())
+		ChatPacket::Construct(&result, 12, strMessage, &strSender, bNation, sessID);
+	else
+		ChatPacket::Construct(&result, type, strMessage, &strSender, bNation, sessID);
 
 	switch (type) 
 	{

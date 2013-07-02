@@ -654,7 +654,7 @@ public:
 	void PartyBBSDelete(Packet & pkt);
 	void PartyBBSNeeded(Packet & pkt, uint8 type);
 	void PartyBBSWanted(Packet & pkt);
-	uint8 GetPartyMemberAmount();
+	uint8 GetPartyMemberAmount(_PARTY_GROUP *pParty);
 
 	void SendPartyBBSNeeded(uint16 page_index, uint8 bType);
 
