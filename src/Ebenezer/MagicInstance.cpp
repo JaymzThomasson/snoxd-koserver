@@ -1108,26 +1108,24 @@ bool MagicInstance::ExecuteType4()
 
 		pTUser->m_buffLock.Acquire();
 		Type4BuffMap::iterator buffItr = pTUser->m_buffMap.find(pType->bBuffType);
-		bool bFoundBuff = (buffItr != pTUser->m_buffMap.end());
+		bool bSkillTypeAlreadyOnTarget = (buffItr != pTUser->m_buffMap.end());
 		pTUser->m_buffLock.Release();
 
-		// If this skill is a debuff, and the caster is in the crossfire, 
-		// we should not bother debuffing them.
-		if (!pType->bIsBuff
-			&& pTUser == pSkillCaster)
+		// If this skill is a debuff, and we are in the crossfire, 
+		// we should not bother debuffing ourselves (that would be bad!)
+		if (pType->isDebuff() && pTUser == pSkillCaster)
 			continue;
-
-		// If the user already has this buff
-		if (bFoundBuff 
+		
+		// If the user already has this (de)buff type cast on them
+		if (bSkillTypeAlreadyOnTarget 
 			// or it's a curse (debuff), and we're blocking them 
-			|| (!pType->bIsBuff && pTUser->m_bBlockCurse)
+			|| (pType->isDebuff() && pTUser->m_bBlockCurse)
 			// or we couldn't grant the (de)buff...
 			|| !CMagicProcess::GrantType4Buff(pSkill, pType, pSkillCaster, pTUser, bIsRecastingSavedMagic))
 		{
-			// We should only error out if we cannot grant a targeted buff
-			// or, if the *targeted* user is blocking curses (debuffs).
-			if (sTargetID != -1
-				&& (pType->bIsBuff || (!pType->bIsBuff && pTUser->m_bBlockCurse)))
+			if (sTargetID != -1 // only error out when buffing a target, otherwise we break the mass-(de)buff.
+				// Only buffs should error here, unless it's a debuff & the user's blocking it.
+				&& (pType->isBuff() || (pType->isDebuff() && pTUser->m_bBlockCurse)))
 			{
 				bResult = 0;
 				goto fail_return;

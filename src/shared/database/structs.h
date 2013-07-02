@@ -91,6 +91,9 @@ struct _MAGIC_TYPE4
 	uint8	bExpPct;
 
 	bool	bIsBuff; // true if buff, false if debuff
+
+	INLINE bool isBuff() { return bIsBuff; }
+	INLINE bool isDebuff() { return !bIsBuff; }
 };
 
 struct _MAGIC_TYPE5
