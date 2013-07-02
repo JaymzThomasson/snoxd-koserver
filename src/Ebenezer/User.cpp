@@ -1781,7 +1781,7 @@ void CUser::ItemGet(Packet & pkt)
 				// Calculate the number of coins to give the player
 				// Give each party member coins relative to their level.
 				int coins = (int)(pItem->sCount * (float)((*itr)->GetLevel() / (float)sumOfLevels));
-				GoldGain(coins, false, true);
+				(*itr)->GoldGain(coins, false, true);
 
 				// Let each player know they received coins.
 				result.clear();
