@@ -57,7 +57,7 @@ void CUser::Chat(Packet & pkt)
 {
 	Packet result;
 	uint16 sessID;
-	uint8 type = pkt.read<uint8>(), seekingPartyOptions, bNation;
+	uint8 type = pkt.read<uint8>(), bOutType = type, seekingPartyOptions, bNation;
 	string chatstr, finalstr, strSender, * strMessage;
 
 	bool isAnnouncement = false;
@@ -109,10 +109,11 @@ void CUser::Chat(Packet & pkt)
 		sessID = GetSocketID();
 	}
 
-	if(type == 1 && isGM())
-		ChatPacket::Construct(&result, 12, strMessage, &strSender, bNation, sessID);
-	else
-		ChatPacket::Construct(&result, type, strMessage, &strSender, bNation, sessID);
+	// GMs should use GM chat to help them stand out amongst players.
+	if (type == GENERAL_CHAT && isGM())
+		bOutType = GM_CHAT;
+
+	ChatPacket::Construct(&result, bOutType, strMessage, &strSender, bNation, sessID);
 
 	switch (type) 
 	{
@@ -121,7 +122,11 @@ void CUser::Chat(Packet & pkt)
 		break;
 
 	case PRIVATE_CHAT:
+	case COMMAND_PM_CHAT:
 	{
+		if (type == COMMAND_PM_CHAT && GetFame() != COMMAND_CAPTAIN)
+			return;
+
 		CUser *pUser = g_pMain->GetUserPtr(m_sPrivateChatUser);
 		if (pUser != nullptr) 
 			pUser->Send(&result);

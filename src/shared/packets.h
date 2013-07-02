@@ -153,16 +153,20 @@ enum ChatType
 	WAR_SYSTEM_CHAT				= 8,
 	PERMANENT_CHAT				= 9,
 	END_PERMANENT_CHAT			= 10,
-	REPEAT_CHAT					= 11,
-	END_REPEAT_CHAT				= 12,
+	QUEST_ERROR_CHAT			= 11,	// Quest failed (red text, middle of screen)
+	GM_CHAT						= 12,
 	COMMAND_CHAT				= 13,
 	MERCHANT_CHAT				= 14,
 	ALLIANCE_CHAT				= 15,
 	ANNOUNCEMENT_CHAT			= 17,
 	SEEKING_PARTY_CHAT			= 19,
+	GM_INFO_CHAT				= 21,	// info window : "Level: 0, UserCount:16649" (NOTE: Think this is the missing overhead info (probably in form of a command (with args))
+	COMMAND_PM_CHAT				= 22,	// Commander Chat PM??
 	CLAN_NOTICE					= 24,
 	KROWAZ_NOTICE				= 25,
-	DEATH_NOTICE				= 26
+	DEATH_NOTICE				= 26,
+	CHAOS_STONE_NOTICE			= 27,	// The enemy has destroyed the Chaos stone something (Red text, middle of screen)
+	ANNOUNCEMENT_WHITE_CHAT		= 29	// what's it used for?
 };
 
 enum DeathNoticeType
