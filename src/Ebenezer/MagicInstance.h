@@ -73,6 +73,7 @@ public:
 		sCasterID(-1), sTargetID(-1), pSkillCaster(nullptr), pSkillTarget(nullptr),
 		bIsRecastingSavedMagic(false)
 	{
+		memset(&sData, 0, sizeof(sData));
 	}
 
 	void Run();
@@ -81,6 +82,7 @@ public:
 	bool UserCanCast();
 
 	bool CheckType3Prerequisites();
+	bool CheckType4Prerequisites();
 
 	bool ExecuteSkill(uint8 bType);
 	bool ExecuteType1();	

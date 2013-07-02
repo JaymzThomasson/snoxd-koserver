@@ -215,7 +215,7 @@ bool MagicInstance::UserCanCast()
 }
 
 /**
- * @brief	Checks primary type 3 skill prerequisites before executing the skill.
+ * @brief	Checks primary type 3 (DOT/HOT) skill prerequisites before executing the skill.
  *
  * @return	true if it succeeds, false if it fails.
  */
@@ -322,6 +322,50 @@ bool MagicInstance::CheckType3Prerequisites()
 	}
 }
 
+/**
+ * @brief	Checks primary type 4 (buff/debuff) skill prerequisites before executing the skill.
+ *
+ * @return	true if it succeeds, false if it fails.
+ */
+bool MagicInstance::CheckType4Prerequisites()
+{
+	_MAGIC_TYPE4 * pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
+	if (pType == nullptr)
+		return false;
+
+	if (sTargetID < 0 || sTargetID >= MAX_USER)
+	{
+		if (sTargetID < NPC_BAND // i.e. it's an AOE
+			|| pType->bBuffType != BUFF_TYPE_HP_MP // doesn't matter who we heal.
+			|| pType->sMaxHPPct != 99) // e.g. skills like Dispel Magic / Sweet Kiss
+			return true;
+
+		SendSkillFailed();
+		return false;
+	}
+
+	// At this point, it can only be a user -- so ensure the ID was invalid (this was looked up earlier).
+	if (pSkillTarget == nullptr
+		|| !pSkillTarget->isPlayer())
+		return false;
+
+	if (pSkillTarget->isTransformed() && 
+			// Can't use buff scrolls/pots when transformed.
+			(nSkillID >= 500000
+			// Can't use bezoars etc when transformed 
+			// (this should really be a whitelist, but this is blocked explicitly in 1.298)
+			|| pType->bBuffType == BUFF_TYPE_SIZE))
+	{
+		SendSkillFailed();
+		return false;
+	}
+
+	
+	// TO-DO: Allow for siege-weapon only buffs (e.g. "Physical Attack Scroll")
+
+	return true;
+}
+
 bool MagicInstance::ExecuteSkill(uint8 bType)
 {
 	// Implement player-specific logic before skills are executed.
@@ -337,6 +381,12 @@ bool MagicInstance::ExecuteSkill(uint8 bType)
 			case 3: 
 				if (!CheckType3Prerequisites())
 					return false;
+				break;
+
+			case 4: 
+				if (!CheckType4Prerequisites())
+					return false;
+				break;
 			}
 		}
 
@@ -1333,7 +1383,7 @@ bool MagicInstance::ExecuteType6()
 
 	if (pType == nullptr
 		// Allow NPC transformations in PVP zones
-		|| (pType->bUserSkillUse != 3 && pSkillCaster->GetMap()->canAttackOtherNation())
+		|| (pType->bUserSkillUse != TransformationSkillUseNPC && pSkillCaster->GetMap()->canAttackOtherNation())
 		|| (!bIsRecastingSavedMagic && pSkillCaster->isTransformed())
 		// All buffs must be removed before using transformation skills
 		|| pSkillCaster->isBuffed())
@@ -1406,12 +1456,30 @@ bool MagicInstance::ExecuteType6()
 		sDuration = tmp;
 	}
 
+	switch (pType->bUserSkillUse)
+	{
+	case TransformationSkillUseMonster:
+		pSkillCaster->m_transformationType = TransformationMonster;
+		break;
+
+	case TransformationSkillUseNPC:
+		pSkillCaster->m_transformationType = TransformationNPC;
+		break;
+
+	case TransformationSkillUseSiege:
+	case TransformationSkillUseSiege2:
+		pSkillCaster->m_transformationType = TransformationSiege;
+		break;
+
+	default: // anything 
+		return false;
+	}
+
 	// TO-DO : Save duration, and obviously end
 	pSkillCaster->m_tTransformationStartTime = UNIXTIME;
 	pSkillCaster->m_sTransformationDuration = sDuration;
 
 	pSkillCaster->StateChangeServerDirect(3, nSkillID);
-	pSkillCaster->m_bIsTransformed = true;
 
 	// TO-DO : Give the users ALL TEH BONUSES!!
 
@@ -1865,7 +1933,7 @@ void MagicInstance::Type6Cancel(bool bForceRemoval /*= false*/)
 	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_CANCEL_TYPE6));
 
 	// TO-DO: Reset stat changes, recalculate stats.
-	pUser->m_bIsTransformed = false;
+	pUser->m_transformationType = TransformationNone;
 	pUser->Send(&result);
 
 	pUser->RemoveSavedMagic(pUser->m_bAbnormalType);

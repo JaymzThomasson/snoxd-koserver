@@ -29,6 +29,14 @@ class Packet;
 typedef std::map<uint8, _BUFF_TYPE4_INFO> Type4BuffMap;
 typedef std::map<uint8, _BUFF_TYPE9_INFO> Type9BuffMap;
 
+enum TransformationType
+{
+	TransformationNone,
+	TransformationMonster,
+	TransformationNPC,
+	TransformationSiege
+};
+
 /**
  * This class is a bridge between the CNpc & CUser classes
  **/
@@ -82,7 +90,10 @@ public:
 	virtual int32 GetMaxMana() = 0;
 
 	INLINE bool isIncapacitated() { return isDead() || isBlinded() || isBlinking(); }
-	INLINE bool isTransformed() { return m_bIsTransformed; }
+	INLINE bool isTransformed() { return m_transformationType != TransformationNone; }
+	INLINE bool isNPCTransformation() { return m_transformationType == TransformationNPC; }
+	INLINE bool isMonsterTransformation() { return m_transformationType == TransformationMonster; }
+	INLINE bool isSiegeTransformation() { return m_transformationType == TransformationSiege; }
 	INLINE bool isBlinded() { return m_bIsBlinded; }
 
 	INLINE bool isBuffed()
@@ -243,8 +254,7 @@ public:
 	Type9BuffMap m_type9BuffMap;
 	FastMutex	m_buffLock;
 
-	bool	m_bIsTransformed; // Is the unit in a transformed state?
-
+	TransformationType m_transformationType;
 	uint32	m_nTransformationItem; // item used for transforming (e.g. disguise scroll, totem..)
 	time_t	m_tTransformationStartTime;
 	uint16	m_sTransformationDuration;

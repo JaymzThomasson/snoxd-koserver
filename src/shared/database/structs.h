@@ -131,6 +131,16 @@ struct _MAGIC_TYPE6
 	uint8	bMonsterFriendly;
 };
 
+
+enum TransformationSkillUse
+{
+	TransformationSkillUseSiege		= 0,
+	TransformationSkillUseMonster	= 1,
+	TransformationSkillUseNPC		= 3,
+	TransformationSkillUseSpecial	= 4, // e.g. Snowman transformations
+	TransformationSkillUseSiege2	= 7  // e.g. Moving Towers
+};
+
 struct _MAGIC_TYPE7
 {
 	uint32	iNum;
