@@ -156,7 +156,7 @@ void CAISocket::RecvNpcInfoAll(Packet & pkt)
 
 		pkt >> pNpc->m_NpcState >> pNpc->m_sNid >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
 			>> pNpc->m_bZone >> strName >> pNpc->m_bNation >> pNpc->m_bLevel
-			>> pNpc->m_curx >> pNpc->m_curz >> pNpc->m_cury >> bDirection >> pNpc->m_NpcState
+			>> pNpc->m_curx >> pNpc->m_curz >> pNpc->m_cury >> bDirection
 			>> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP >> pNpc->m_byGateOpen
 			>> pNpc->m_fTotalHitrate >> pNpc->m_fTotalEvasionrate 
 			>> pNpc->m_sTotalAc >> pNpc->m_sTotalHit 
@@ -393,7 +393,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 
 	pkt >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
 		>> pNpc->m_bZone >> strName >> pNpc->m_bNation >> pNpc->m_bLevel
-		>> pNpc->m_curx >> pNpc->m_curz >> pNpc->m_cury >> byDirection >> pNpc->m_NpcState
+		>> pNpc->m_curx >> pNpc->m_curz >> pNpc->m_cury >> byDirection
 		>> pNpc->m_tNpcType >> pNpc->m_iSellingGroup >> pNpc->m_iMaxHP >> pNpc->m_iHP >> pNpc->m_byGateOpen
 		>> pNpc->m_fTotalHitrate >> pNpc->m_fTotalEvasionrate 
 		>> pNpc->m_sTotalAc >> pNpc->m_sTotalHit 
@@ -408,6 +408,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 		return;
 	}
 
+	pNpc->m_NpcState = Mode;
 	pNpc->m_byDirection = byDirection;
 	pNpc->m_strName = strName;
 
@@ -424,7 +425,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 			pEvent->byLife = 1;
 	}
 
-	if (Mode == 0)
+	if (pNpc->m_NpcState == NPC_DEAD)
 	{
 		TRACE("RecvNpcInfo - dead monster nid=%d, name=%s\n", pNpc->GetID(), pNpc->GetName().c_str());
 		return;
@@ -655,9 +656,9 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 		}
 
 		if (bResult == KARUS)
-			g_pMain->m_byKarusOpenFlag = 1;	
+			g_pMain->m_byKarusOpenFlag = true;	
 		else if (bResult == ELMORAD)
-			g_pMain->m_byElmoradOpenFlag = 1;
+			g_pMain->m_byElmoradOpenFlag = true;
 	}
 	else if (bType == BATTLE_EVENT_RESULT)
 	{
@@ -670,24 +671,22 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 		pkt.SByte();
 		pkt >> strMaxUserName;
 
-		if (!strMaxUserName.empty())
+		if (!strMaxUserName.empty()
+			&& !g_pMain->m_byBattleSave)
 		{
-			if (g_pMain->m_byBattleSave == 0)
-			{
-				Packet result(WIZ_BATTLE_EVENT, bType);
-				result.SByte();
-				result << bResult << strMaxUserName;
+			Packet result(WIZ_BATTLE_EVENT, bType);
+			result.SByte();
+			result << bResult << strMaxUserName;
 
-				g_pMain->AddDatabaseRequest(result);
-				g_pMain->m_byBattleSave = 1;
-			}
+			g_pMain->AddDatabaseRequest(result);
+			g_pMain->m_byBattleSave = true;
 		}
 
 		g_pMain->m_bVictory = bResult;
 		g_pMain->m_byOldVictory = bResult;
-		g_pMain->m_byKarusOpenFlag = 0;
-		g_pMain->m_byElmoradOpenFlag = 0;
-		g_pMain->m_byBanishFlag = 1;
+		g_pMain->m_byKarusOpenFlag = false;
+		g_pMain->m_byElmoradOpenFlag = false;
+		g_pMain->m_byBanishFlag = true;
 	}
 	else if (bType == BATTLE_EVENT_MAX_USER)
 	{

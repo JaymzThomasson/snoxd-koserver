@@ -159,75 +159,114 @@ void CUser::Rotate(Packet & pkt)
 	SendToRegion(&result, this);
 }
 
-void CUser::ZoneChange(int zone, float x, float z)
+bool CUser::CanChangeZone(C3DMap * pTargetMap, ZoneChangeError & errorReason)
 {
-	m_bZoneChangeFlag = true;
+	// While unofficial, game masters should be allowed to teleport anywhere.
+	if (isGM())
+		return true;
 
-	C3DMap* pMap = nullptr;
-	_ZONE_SERVERINFO *pInfo = nullptr;
+	// Generic error reason; this should only be checked when the method returns false.
+	errorReason = ZoneChangeErrorGeneric;
 
-	pMap = g_pMain->GetZoneByID(zone);
-	if (!pMap) 
+	switch (pTargetMap->GetID())
+	{
+	case ZONE_ELMORAD:
+	case ZONE_KARUS:
+		// Users may enter Luferson (1)/El Morad (2) if they are that nation, 
+		if (GetNation() == pTargetMap->GetID())
+			return true;
+
+		// Users may also enter if there's a war invasion happening in that zone.
+		if (GetNation() == KARUS)
+			return g_pMain->m_byElmoradOpenFlag;
+		else
+			return g_pMain->m_byKarusOpenFlag;
+
+	case ZONE_KARUS_ESLANT:
+		return GetNation() == KARUS;
+
+	case ZONE_ELMORAD_ESLANT:
+		return GetNation() == ELMORAD;
+
+	// Delos (30) may be entered by anybody, unless CSW is started -- in which case, it should only allow members of the clans competing for the castle (right?).
+	case ZONE_DELOS: // TO-DO: implement CSW logic
+		return true;
+
+	// Bifrost (31) may only be entered if the zone is open by the event. 
+	// If it's open, it should only be open for the zone in control of the monument in the first stage. 
+	// After that, it's open to both zones (note: this extended logic won't be implemented until we actually implement the event -- #84).
+	case ZONE_BIFROST: // TO-DO: implement Bifrost logic
+		return true;
+
+	case ZONE_RONARK_LAND:
+	case ZONE_ARDREAM:
+		// PVP zones such as Ronark Land/Ardream (do we include both?) may only be entered if a war is not started. 
+		if (g_pMain->m_byBattleOpen != NO_BATTLE)
+		{
+			errorReason = ZoneChangeErrorWarActive;
+			return false;
+		}
+
+		// They may also not be entered if the user has no NP.
+		if (GetLoyalty() <= 0)
+		{
+			errorReason = ZoneChangeErrorNeedLoyalty;
+			return false;
+		}
+		break;
+
+	default:
+		// War zones may only be entered if that war zone is active.
+		if (pTargetMap->isWarZone())
+		{
+			if ((ZONE_BATTLE_BASE - pTargetMap->GetID()) != g_pMain->m_byBattleZone)
+				return false;
+		}
+	}
+
+	return true;
+}
+
+void CUser::ZoneChange(uint16 sNewZone, float x, float z)
+{
+	C3DMap * pMap = g_pMain->GetZoneByID(sNewZone);
+	if (pMap == nullptr) 
 		return;
 
-	if( pMap->m_bType == 2 ) {	// If Target zone is frontier zone.
-		if( GetLevel() < 20 && g_pMain->m_byBattleOpen != SNOW_BATTLE)
-			return;
-	}
+	ZoneChangeError errorReason;
+	if (!CanChangeZone(pMap, errorReason))
+	{
+		Packet result;
 
-	if( g_pMain->m_byBattleOpen == NATION_BATTLE )	{		// Battle zone open
-		if( m_bZone == BATTLE_ZONE )	{
-			if( pMap->m_bType == 1 && m_bNation != zone && (zone < 10 || zone > 21))	{	// ???? ?????? ???? ????..
-				if( m_bNation == KARUS && !g_pMain->m_byElmoradOpenFlag )	{
-					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", GetName().c_str(), m_bNation, g_pMain->m_byElmoradOpenFlag);
-					return;
-				}
-				else if( m_bNation == ELMORAD && !g_pMain->m_byKarusOpenFlag )	{
-					TRACE("#### ZoneChange Fail ,,, id=%s, nation=%d, flag=%d\n", GetName().c_str(), m_bNation, g_pMain->m_byKarusOpenFlag);
-					return;
-				}
-			}
-		}
-		else if( pMap->m_bType == 1 && m_bNation != zone && (zone < 10 || zone > 21)) {		// ???? ?????? ???? ????..
-			return;
-		}
-//
-		else if( pMap->m_bType == 2 && zone == ZONE_RONARK_LAND ) {	 // You can't go to frontier zone when Battlezone is open.
-			Packet result(WIZ_WARP_LIST, uint8(2));
-			result << uint8(0);
+		switch (errorReason)
+		{
+		case ZoneChangeErrorWrongLevel:
+			/* this will depend on the zone */
+			break;
+
+		case ZoneChangeErrorWarActive:
+			result.Initialize(WIZ_WARP_LIST);
+			result << uint8(2) << uint8(4);
 			Send(&result);
-			return;
+			break;
+
+		case ZoneChangeErrorNeedLoyalty:
+			/* does this have an error? */
+			break;
 		}
-//
-	}
-	else if( g_pMain->m_byBattleOpen == SNOW_BATTLE )	{					// Snow Battle zone open
-		if( pMap->m_bType == 1 && m_bNation != zone ) {		// ???? ?????? ???? ????..
-			return;
-		}
-		else if( pMap->m_bType == 2 && (zone == ZONE_RONARK_LAND || zone == ZONE_BATTLE ) ) {			// You can't go to frontier zone when Battlezone is open.
-			return;
-		}
-	}
-	else	{					// Battle zone close
-		if( pMap->m_bType == 1 && m_bNation != zone && (zone < 10 || zone > 21))
-			return;
+
+		return;
 	}
 
-	m_bWarp = 0x01;
+	m_bWarp = true;
+	m_bZoneChangeFlag = true;
 
 	UserInOut(INOUT_OUT);
 
-	if( m_bZone == ZONE_SNOW_BATTLE )	{
-		//TRACE("ZoneChange - name=%s\n", m_id);
-		SetMaxHp( 1 );
-	}
+	if (sNewZone == ZONE_SNOW_BATTLE)
+		SetMaxHp(1);
 
-	bool bSameZone = (GetZoneID() == zone);
-	m_bZone = zone;
-	m_curx = x;
-	m_curz = z;
-
-	if (!bSameZone)
+	if (GetZoneID() != sNewZone)
 	{
 		SetZoneAbilityChange();
 
@@ -248,8 +287,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 					&& pKnights->bKnightsWarStarted)
 			{
 				Packet clanPacket(WIZ_KNIGHTS_PROCESS);
-				if ((GetZoneID() / 100) == 1
-					|| GetZoneID() == 21)
+				if (pMap->isWarZone() || byNewZone == ZONE_MORADON)
 					clanPacket << uint8(0x17) << uint8(2);
 				else 
 					clanPacket << uint16(0x16) << uint16(0 /*nWarEnemyID*/);
@@ -260,10 +298,8 @@ void CUser::ZoneChange(int zone, float x, float z)
 #endif
 
 
-		if (GetZoneID() == ZONE_SNOW_BATTLE)
-		{
+		if (sNewZone == ZONE_SNOW_BATTLE)
 			SetMaxHp();
-		}
 
 		if (isInParty())
 			PartyRemove(GetSocketID());
@@ -271,12 +307,14 @@ void CUser::ZoneChange(int zone, float x, float z)
 		ResetWindows();
 	}
 
-
+	m_bZone = (uint8) sNewZone; // this is 2 bytes to support the warp data loaded from SMDs. It should not go above a byte, however.
+	SetPosition(x, 0.0f, z);
 	m_pMap = pMap;
 
-	if( g_pMain->m_nServerNo != pMap->m_nServerNo ) {
-		pInfo = g_pMain->m_ServerArray.GetData( pMap->m_nServerNo );
-		if( !pInfo ) 
+	if (g_pMain->m_nServerNo != pMap->m_nServerNo)
+	{
+		_ZONE_SERVERINFO *pInfo = g_pMain->m_ServerArray.GetData(pMap->m_nServerNo);
+		if (pInfo == nullptr) 
 			return;
 
 		UserDataSaveToAgent();
@@ -288,7 +326,7 @@ void CUser::ZoneChange(int zone, float x, float z)
 	
 	SetRegion(GetNewRegionX(), GetNewRegionZ());
 
-	Packet result(WIZ_ZONE_CHANGE, uint8(3)); // magic numbers, sigh.
+	Packet result(WIZ_ZONE_CHANGE, uint8(ZoneChangeTeleport));
 	result << uint16(GetZoneID()) << GetSPosX() << GetSPosZ() << GetSPosY() << g_pMain->m_byOldVictory;
 	Send(&result);
 
@@ -358,16 +396,16 @@ void CUser::RecvZoneChange(Packet & pkt)
 		return;
 
 	uint8 opcode = pkt.read<uint8>();
-	if (opcode == 1)
+	if (opcode == ZoneChangeLoading)
 	{
 		g_pMain->UserInOutForMe(this);
 		g_pMain->NpcInOutForMe(this);
 		g_pMain->MerchantUserInOutForMe(this);
 
-		Packet result(WIZ_ZONE_CHANGE, uint8(2)); // finalise the zone change
+		Packet result(WIZ_ZONE_CHANGE, uint8(ZoneChangeLoaded)); // finalise the zone change
 		Send(&result);
 	}
-	else if (opcode == 2)
+	else if (opcode == ZoneChangeLoaded)
 	{
 		UserInOut(INOUT_RESPAWN);
 
@@ -378,8 +416,8 @@ void CUser::RecvZoneChange(Packet & pkt)
 			RecastSavedMagic();
 		}
 
-		m_bZoneChangeFlag = 0;
-		m_bWarp = 0;
+		m_bZoneChangeFlag = false;
+		m_bWarp = false;
 	}
 }
 

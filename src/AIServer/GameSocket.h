@@ -21,6 +21,7 @@ public:
 	virtual void OnDisconnect();
 	void RecvServerConnect(Packet & pkt);
 	void RecvUserInfo(Packet & pkt);
+	void ReadUserInfo(Packet & pkt, CUser * pUser);
 	void RecvUserInOut(Packet & pkt);
 	void RecvUserMove(Packet & pkt);
 	void RecvUserMoveEdge(Packet & pkt);

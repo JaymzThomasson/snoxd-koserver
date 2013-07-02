@@ -161,10 +161,10 @@ void CUser::SelectCharacter(Packet & pkt)
 	if (g_pMain->m_byBattleOpen == NO_BATTLE && GetFame() == COMMAND_CAPTAIN)
 		m_bFame = CHIEF;
 
-	if ((GetZoneID() != GetNation() && GetZoneID() < 3 && !g_pMain->m_byBattleOpen)
-		|| (GetZoneID() == ZONE_BATTLE && (g_pMain->m_byBattleOpen != NATION_BATTLE))
-		|| (GetZoneID() == ZONE_SNOW_BATTLE && (g_pMain->m_byBattleOpen != SNOW_BATTLE))
-		|| (GetZoneID() == ZONE_RONARK_LAND && g_pMain->m_byBattleOpen))
+	// Disallow players from relogging in the opposite nation's home zone when an invasion's not running.
+	if ((GetZoneID() != GetNation() && GetZoneID() <= ZONE_ELMORAD && !g_pMain->m_byBattleOpen)
+		// also disallow players from logging back into war zones that aren't currently active...
+		|| (GetMap()->isWarZone() && (GetZoneID() - ZONE_BATTLE_BASE) != g_pMain->m_byBattleZone))
 	{
 		NativeZoneReturn();
 		Disconnect();

@@ -76,7 +76,7 @@ void CUser::Initialize()
 	m_sMaxWeightBonus = 0;
 
 	m_bResHpType = USER_STANDING;
-	m_bWarp = 0x00;
+	m_bWarp = false;
 
 	m_sMerchantsSocketID = -1;
 	m_sChallengeUser = -1;
@@ -1141,7 +1141,7 @@ void CUser::ExpChange(int64 iExp)
 	// Stop players level 5 or under from losing XP on death.
 	if ((GetLevel() < 6 && iExp < 0)
 		// Stop players in the war zone (TO-DO: Add other war zones) from losing XP on death.
-		|| (m_bZone == ZONE_BATTLE && iExp < 0))
+		|| (GetMap()->isWarZone() && iExp < 0))
 		return;
 
 	// Despite being signed, we don't want m_iExp ever going below 0.
@@ -1508,9 +1508,9 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 
 	m_sMaxWeight = (((GetStatWithItemBonus(STAT_STR) + GetLevel()) * 50) + m_sMaxWeightBonus)  * (m_bMaxWeightAmount / 100);
 	if (isRogue()) 
-		m_sTotalHit = (short)((((0.005f * sItemDamage * (temp_dex + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_dex )) + 3) * (m_bAttackAmount / 100)) * ((100 + m_byAPBonusAmount) / 100);
+		m_sTotalHit = (short)(((((0.005f * sItemDamage * (temp_dex + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_dex )) + 3) * m_bAttackAmount / 100) * (100 + m_byAPBonusAmount) / 100);
 	else
-		m_sTotalHit = (short)(((((0.005f * sItemDamage * (temp_str + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_str )) + 3) * (m_bAttackAmount / 100)) + baseAP) * ((100 + m_byAPBonusAmount) / 100);
+		m_sTotalHit = (short)((((((0.005f * sItemDamage * (temp_str + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_str )) + 3) * m_bAttackAmount / 100) + baseAP) * (100 + m_byAPBonusAmount) / 100);
 
 	m_sTotalAc = (short)(p_TableCoefficient->AC * (GetLevel() + m_sItemAc));
 	m_fTotalHitrate = ((1 + p_TableCoefficient->Hitrate * GetLevel() *  temp_dex ) * m_sItemHitrate/100 ) * (m_bHitRateAmount/100);
@@ -1781,7 +1781,7 @@ void CUser::ItemGet(Packet & pkt)
 				// Calculate the number of coins to give the player
 				// Give each party member coins relative to their level.
 				int coins = (int)(pItem->sCount * (float)((*itr)->GetLevel() / (float)sumOfLevels));
-				GoldGain(coins, false, true);
+				(*itr)->GoldGain(coins, false, true);
 
 				// Let each player know they received coins.
 				result.clear();
@@ -2301,20 +2301,16 @@ void CUser::LoyaltyDivide(int16 tid, uint16 bonusNP /*= 0*/)
 	average_level = levelsum / total_member;	// Calculate average level.
 
 	//	This is for the Event Battle on Wednesday :(
-	if (g_pMain->m_byBattleOpen) {
-		if (m_bZone == ZONE_BATTLE) {
-			if (pTUser->m_bNation == KARUS) {
-				g_pMain->m_sKarusDead++;
-				//TRACE("++ LoyaltyDivide - ka=%d, el=%d\n", g_pMain->m_sKarusDead, g_pMain->m_sElmoradDead);
-			}
-			else if (pTUser->m_bNation == ELMORAD) {
-				g_pMain->m_sElmoradDead++;
-				//TRACE("++ LoyaltyDivide - ka=%d, el=%d\n", g_pMain->m_sKarusDead, g_pMain->m_sElmoradDead);
-			}
-		}
+	if (g_pMain->m_byBattleOpen
+		&& GetZoneID() == (ZONE_BATTLE_BASE + g_pMain->m_byBattleZone))
+	{
+		if (pTUser->GetNation() == KARUS)
+			g_pMain->m_sKarusDead++;
+		else
+			g_pMain->m_sElmoradDead++;
 	}
 		
-	if (pTUser->m_bNation != m_bNation) {		// Different nations!!!
+	if (pTUser->GetNation() != GetNation()) {		// Different nations!!!
 		level_difference = pTUser->GetLevel() - average_level;	// Calculate difference!
 
 		if (pTUser->GetLoyalty() == 0) {	   // No cheats allowed...
@@ -3335,9 +3331,8 @@ void CUser::UpdateVisibility(InvisibilityType bNewType)
 void CUser::BlinkStart()
 {
 #if !defined(DISABLE_PLAYER_BLINKING)
-	// Don't blink in these zones
-	if (GetZoneID() == ZONE_RONARK_LAND // colony zone
-		|| (GetZoneID() / 100) == 1) // war zone
+	// Don't blink in zones where we can attack the other nation (note: this includes the arena!)
+	if (GetMap()->canAttackOtherNation())
 		return;
 
 	m_bAbnormalType = ABNORMAL_BLINKING;
@@ -3863,22 +3858,20 @@ void CUser::SendUserStatusUpdate(UserStatus type, UserStatusBehaviour status)
 	Packet result(WIZ_ZONEABILITY, uint8(2));
 	result << uint8(type) << uint8(status);
 	/*
+			  1				, 0 = Cure damage over time
 			  1				, 1 = Damage over time
-			  1				, 2 = Cure damage over time
+			  2				, 0 = Cure poison
 			  2				, 1 = poison (purple)
-			  2				, 2 = Cure poison
+			  3				, 0 = Cure disease
 			  3				, 1 = disease (green)
-			  3				, 2 = Cure disease
 			  4				, 1 = blind
+			  5				, 0 = Cure grey HP
 			  5				, 1 = HP is grey (not sure what this is)
-			  5				, 2 = Cure grey HP
 	*/
 	Send(&result);
 
-	// It seems to just be 0/1 for the status here.
 	if (isInParty())
-		SendPartyStatusUpdate(type, status - 1);
-
+		SendPartyStatusUpdate(type, status);
 }
 
 /**

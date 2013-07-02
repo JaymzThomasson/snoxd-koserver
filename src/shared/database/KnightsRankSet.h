@@ -36,7 +36,7 @@ public:
 				return true;
 			
 			CUser *pUser = g_pMain->GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
-			if (pUser == nullptr || pUser->GetZoneID() != ZONE_BATTLE)
+			if (pUser == nullptr || !pUser->GetMap()->isWarZone())
 				return true;
 
 			if (pUser->GetClanID() == pData->sClanID)
@@ -51,8 +51,9 @@ public:
 				return true;
 
 			CUser *pUser = g_pMain->GetUserPtr(pKnights->m_strChief, TYPE_CHARACTER);
-			if (pUser == nullptr || pUser->GetZoneID() != ZONE_BATTLE)
+			if (pUser == nullptr || !pUser->GetMap()->isWarZone())
 				return true;
+
 			if (pUser->GetClanID() == pData->sClanID)
 			{
 				_snprintf(strElmoCaptain[nElmoCount++], 50, "[%s][%s]", pKnights->m_strName.c_str(), pUser->GetName().c_str());

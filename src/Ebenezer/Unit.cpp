@@ -44,6 +44,24 @@ void Unit::Initialize()
 	m_bIsBlinded = false;
 	m_bInstantCast = false;
 	m_bBlockCurse = false;
+
+	m_bAttackSpeedAmount = 100;		// this is for the duration spells Type 4
+    m_bSpeedAmount = 100;
+    m_sACAmount = 0;
+    m_bAttackAmount = 100;
+	m_sMagicAttackAmount = 0;
+	m_sMaxHPAmount = 0;
+	m_sMaxMPAmount = 0;
+	m_bHitRateAmount = 100;
+	m_sAvoidRateAmount = 100;
+	m_bFireRAmount = 0;
+	m_bColdRAmount = 0;
+	m_bLightningRAmount = 0;
+	m_bMagicRAmount = 0;
+	m_bDiseaseRAmount = 0;
+	m_bPoisonRAmount = 0;
+	m_bMagicDamageReduction = 100;
+
 	InitType3();	 // Initialize durational type 3 stuff :)
 	InitType4();	 // Initialize durational type 4 stuff :)
 }
@@ -187,9 +205,9 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 		 - GetACDamage() is not called
 		 - the resulting damage is not divided by 3.
 	 */
-	short damage = 0;
+	int32 damage = 0;
 	int random = 0;
-	short temp_hit = 0, temp_ac = 0, temp_ap = 0, temp_hit_B = 0;
+	int32 temp_hit = 0, temp_ac = 0, temp_ap = 0, temp_hit_B = 0;
 	uint8 result;
 
 	if (pTarget == nullptr || pTarget->isDead())
@@ -237,7 +255,7 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 				result = GetHitRate((m_fTotalHitrate / pTarget->m_fTotalEvasionrate) * (pType1->sHitRate / 100.0f));			
 			}
 
-			temp_hit = (short)(temp_hit_B * (pType1->sHit / 100.0f));
+			temp_hit = (int32)(temp_hit_B * (pType1->sHit / 100.0f));
 		}
 		// ARROW HIT! YEAH!
 		else if (pSkill->bType[0] == 2)
@@ -258,9 +276,9 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 			}
 
 			if (pType2->bHitType == 1 /* || pType2->bHitType == 2 */) 
-				temp_hit = (short)(m_sTotalHit * m_bAttackAmount * (pType2->sAddDamage / 100.0f) / 100);
+				temp_hit = (int32)(m_sTotalHit * m_bAttackAmount * (pType2->sAddDamage / 100.0f) / 100);
 			else
-				temp_hit = (short)(temp_hit_B * (pType2->sAddDamage / 100.0f));
+				temp_hit = (int32)(temp_hit_B * (pType2->sAddDamage / 100.0f));
 		}
 	}
 	// Normal hit (R attack)     
@@ -277,7 +295,7 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 		case NORMAL:
 			if (pSkill != nullptr)
 			{	 // Skill Hit.
-				damage = (short)temp_hit;
+				damage = temp_hit;
 				random = myrand(0, damage);
 				if (pSkill->bType[0] == 1)
 					damage = (short)((temp_hit + 0.3f * random) + 0.99f);
@@ -286,7 +304,7 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 			}
 			else
 			{	// Normal Hit.	
-				damage = (short)temp_hit_B;
+				damage = temp_hit_B;
 				random = myrand(0, damage);
 				damage = (short)((0.85f * temp_hit_B) + 0.3f * random);
 			}		
@@ -632,37 +650,18 @@ void Unit::InitType3()
 
 void Unit::InitType4()
 {
-	m_bAttackSpeedAmount = 100;		// this is for the duration spells Type 4
-    m_bSpeedAmount = 100;
-    m_sACAmount = 0;
-    m_bAttackAmount = 100;
-	m_sMagicAttackAmount = 0;
-	m_sMaxHPAmount = 0;
-	m_sMaxMPAmount = 0;
-	m_bHitRateAmount = 100;
-	m_sAvoidRateAmount = 100;
-	m_bFireRAmount = 0;
-	m_bColdRAmount = 0;
-	m_bLightningRAmount = 0;
-	m_bMagicRAmount = 0;
-	m_bDiseaseRAmount = 0;
-	m_bPoisonRAmount = 0;
-	m_bMagicDamageReduction = 100;
-
-	StateChangeServerDirect(3, ABNORMAL_NORMAL);
-
 	// Remove all buffs that should not be recast.
 	FastGuard lock(m_buffLock);
-	for (auto itr = m_buffMap.begin(); itr != m_buffMap.end();)
+	Type4BuffMap buffMap = m_buffMap; // copy the map
+
+	for (auto itr = buffMap.begin(); itr != buffMap.end(); itr++)
 	{
-		if (!HasSavedMagic(itr->second.m_nSkillID))
-		{
-			itr = m_buffMap.erase(itr);
-		}
-		else
-		{
-			++itr;
-		}
+		if (HasSavedMagic(itr->second.m_nSkillID))
+			continue;
+
+#ifdef EBENEZER
+		CMagicProcess::RemoveType4Buff(itr->first, this);
+#endif
 	}
 }
 
@@ -741,23 +740,23 @@ void KOMap::SetZoneAttributes(int zoneNumber)
 	case 53: // Goblin Quest arena
 	case ZONE_FORGOTTEN_TEMPLE: // Forgotten Temple
 		m_zoneType = ZoneAbilityNeutral;
-		m_zoneFlags = TRADE_OTHER_NATION | TALK_OTHER_NATION | FRIENDLY_NPCS;
+		m_zoneFlags = ZF_TRADE_OTHER_NATION | ZF_TALK_OTHER_NATION | ZF_FRIENDLY_NPCS;
 		break;
 
 	case ZONE_CAITHAROS_ARENA: // Caitharos/Knight Quest arena
 		m_zoneType = ZoneAbilityCaitharosArena;
-		m_zoneFlags = TALK_OTHER_NATION | ATTACK_OTHER_NATION | FRIENDLY_NPCS;
+		m_zoneFlags = ZF_TALK_OTHER_NATION | ZF_ATTACK_OTHER_NATION | ZF_FRIENDLY_NPCS;
 		break;
 
 	case 32: // Desperation abyss
 	case 33: // Hell abyss
 		m_zoneType = ZoneAbilityPVPNeutralNPCs;
-		m_zoneFlags = TALK_OTHER_NATION | ATTACK_OTHER_NATION | FRIENDLY_NPCS;
+		m_zoneFlags = ZF_TALK_OTHER_NATION | ZF_ATTACK_OTHER_NATION | ZF_FRIENDLY_NPCS;
 		break;
 
 	case ZONE_ARENA:
 		m_zoneType = ZoneAbilityNeutral;
-		m_zoneFlags = TALK_OTHER_NATION | ATTACK_OTHER_NATION | ATTACK_SAME_NATION | FRIENDLY_NPCS;
+		m_zoneFlags = ZF_TALK_OTHER_NATION | ZF_ATTACK_OTHER_NATION | ZF_ATTACK_SAME_NATION | ZF_FRIENDLY_NPCS;
 		break;
 
 	case ZONE_KARUS:
@@ -767,17 +766,25 @@ void KOMap::SetZoneAttributes(int zoneNumber)
 	case ZONE_RONARK_LAND:
 	case ZONE_ARDREAM:
 		m_zoneType = ZoneAbilityPVP;
-		m_zoneFlags = ATTACK_OTHER_NATION;
+		m_zoneFlags = ZF_ATTACK_OTHER_NATION;
+		break;
+
+	case ZONE_BATTLE:
+	case ZONE_BATTLE2:
+	case ZONE_BATTLE3:
+	case ZONE_SNOW_BATTLE:
+		m_zoneType = ZoneAbilityPVP;
+		m_zoneFlags = ZF_ATTACK_OTHER_NATION | ZF_WAR_ZONE;
 		break;
 
 	case ZONE_DELOS:
 		m_zoneType = ZoneAbilitySiegeDisabled; // depends on current siege state
-		m_zoneFlags = TRADE_OTHER_NATION | TALK_OTHER_NATION | FRIENDLY_NPCS; // also depends on current siege state, should be updated by CSW.
+		m_zoneFlags = ZF_TRADE_OTHER_NATION | ZF_TALK_OTHER_NATION | ZF_FRIENDLY_NPCS; // also depends on current siege state, should be updated by CSW.
 		break;
 
 	case ZONE_BIFROST:
 		m_zoneType = ZoneAbilityPVPNeutralNPCs;
-		m_zoneFlags = ATTACK_OTHER_NATION | FRIENDLY_NPCS;
+		m_zoneFlags = ZF_ATTACK_OTHER_NATION | ZF_FRIENDLY_NPCS;
 		break;
 
 	default:

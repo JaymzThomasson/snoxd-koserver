@@ -241,15 +241,10 @@ public:
 	//----------------------------------------------------------------
 	//	MONSTER AI에 관련된 변수들
 	//----------------------------------------------------------------
-	uint8	m_tNpcLongType;		// 공격 거리 : 원거리(1), 근거리(0), 직.간접(2)
 	uint8	m_tNpcAttType;		// 공격 성향 : 선공(1), 후공(0)
-	uint8	m_tNpcOldAttType;	// 공격 성향 : 선공(1), 후공(0) (활동영역 제어)
-	uint8	m_tNpcGroupType;	// 군집을 형성하냐(1), 안하냐?(0)
-	uint8	m_byNpcEndAttType;	// 마지막까지 싸우면(1), 그렇지 않으면(0)
-//	uint8	m_tNpcTraceType;	// 끝까지 따라간다(1), 시야에서 없어지면 그만(0)
+	bool	m_bHasFriends;		// When set, monsters behave in groups (defined by their family type) and will seek out help from nearby similar mobs.
 	uint8	m_byAttackPos;		// User의 어느 부분에서 공격하느지를 판단(8방향)
 	uint8	m_byBattlePos;		// 어떤 진형을 선택할 것인지를 판단..
-	uint8	m_byWhatAttackType; // 공격 타입 : Normal(0), 근.장거리마법(1), 독(2), 힐링(3), 지역마법만(4), 1+4번 마법(5)
 	bool	m_byGateOpen;		// 성문일 경우에.. 사용... Gate Npc Status -> 1 : open 0 : close
 	uint8	m_byMaxDamagedNation;	// 나를 죽인 유저의 국가를 저장.. (1:카루스, 2:엘모라드)
 	uint8	m_byObjectType;         // 보통은 0, object타입(성문, 레버)은 1
@@ -414,7 +409,6 @@ public:
 	bool GetUserInViewRange(int x, int z);
 	void MoveAttack();
 	void HpChange();
-	void MSpChange(int type, int amount);
 	int	 ItemProdution(int item_number);
 	int  GetItemGrade(int item_grade);
 	int  GetItemCodeNumber(int level, int item_type);

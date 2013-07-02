@@ -15,7 +15,7 @@ public:
 #if defined(AI_SERVER)
 	virtual tstring GetColumns() { return _T("ServerNo, ZoneNo, strZoneName, RoomEvent"); }
 #else
-	virtual tstring GetColumns() { return _T("ServerNo, ZoneNo, strZoneName, InitX, InitZ, InitY, Type, isAttackZone"); }
+	virtual tstring GetColumns() { return _T("ServerNo, ZoneNo, strZoneName, InitX, InitZ, InitY"); }
 #endif
 
 	virtual bool Fetch()
@@ -34,8 +34,6 @@ public:
 		_dbCommand->FetchUInt32(i++, iX);
 		_dbCommand->FetchUInt32(i++, iZ);
 		_dbCommand->FetchUInt32(i++, iY);
-		_dbCommand->FetchByte(i++, pData->m_bType);
-		_dbCommand->FetchByte(i++, pData->isAttackZone);
 
 		pData->m_fInitX = (float)(iX / 100.0f);
 		pData->m_fInitY = (float)(iY / 100.0f);

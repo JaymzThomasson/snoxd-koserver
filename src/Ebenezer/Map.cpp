@@ -15,8 +15,7 @@ _WARP_INFO * C3DMap::GetWarp(int warpID) { return m_smdFile->GetWarp(warpID); }
 void C3DMap::GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries) { m_smdFile->GetWarpList(warpGroup, warpEntries); }
 
 C3DMap::C3DMap() : m_smdFile(nullptr), m_ppRegion(nullptr),
-	m_nZoneNumber(0), m_sMaxUser(150), m_wBundle(1),
-	m_bType(0), m_isAttackZone(false)
+	m_nZoneNumber(0), m_sMaxUser(150), m_wBundle(1)
 {
 }
 
@@ -27,8 +26,6 @@ bool C3DMap::Initialize(_ZONE_INFO *pZone)
 	m_fInitX = pZone->m_fInitX;
 	m_fInitY = pZone->m_fInitY;
 	m_fInitZ = pZone->m_fInitZ;
-	m_bType = pZone->m_bType;
-	m_isAttackZone = pZone->isAttackZone == 1;
 
 	m_smdFile = SMDFile::Load(pZone->m_MapName, true /* load warps & regene events */);
 
@@ -105,28 +102,26 @@ void C3DMap::RegionItemRemove(CRegion * pRegion, _LOOT_BUNDLE * pBundle, _LOOT_I
 bool C3DMap::CheckEvent(float x, float z, CUser* pUser)
 {
 	int event_index = m_smdFile->GetEventID((int)(x / m_smdFile->GetUnitDistance()), (int)(z / m_smdFile->GetUnitDistance()));
-	if( event_index < 2 )
+	if (event_index < 2)
 		return false;
 
 	CGameEvent *pEvent = m_EventArray.GetData( event_index );
 	if (pEvent == nullptr)
 		return false;
 
-	if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_BATTLE && g_pMain->m_byBattleOpen != NATION_BATTLE ) return false;
-	if( pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen != SNOW_BATTLE ) return false;
-	if( pUser->m_bNation == KARUS && pEvent->m_iExec[0] == ZONE_BATTLE )	{
-		if( g_pMain->m_sKarusCount > MAX_BATTLE_ZONE_USERS )	{
-			TRACE("### BattleZone karus full users = %d, name=%s \n", g_pMain->m_sKarusCount, pUser->GetName().c_str());
+	if (pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_BATTLE && g_pMain->m_byBattleOpen != NATION_BATTLE ) return false;
+	if (pEvent->m_bType == 1 && pEvent->m_iExec[0]==ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen != SNOW_BATTLE ) return false;
+	if (pEvent->m_iExec[0] == ZONE_BATTLE)
+	{
+		if ((pUser->GetNation() == KARUS && g_pMain->m_sKarusCount > MAX_BATTLE_ZONE_USERS
+			|| pUser->GetNation() == ELMORAD && g_pMain->m_sElmoradCount > MAX_BATTLE_ZONE_USERS))
+		{
+			TRACE("%s cannot enter war zone %d, too many users.\n", pUser->GetName().c_str(), pEvent->m_iExec[0]);
 			return false;
 		}
 	}
-	else if( pUser->m_bNation == ELMORAD && pEvent->m_iExec[0] == ZONE_BATTLE )	{
-		if( g_pMain->m_sElmoradCount > MAX_BATTLE_ZONE_USERS )	{
-			TRACE("### BattleZone elmorad full users = %d, name=%s \n", g_pMain->m_sElmoradCount, pUser->GetName().c_str());
-			return false;
-		}
-	}
-	pEvent->RunEvent( pUser );
+
+	pEvent->RunEvent(pUser);
 	return true;
 }
 

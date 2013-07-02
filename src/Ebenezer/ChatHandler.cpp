@@ -470,7 +470,7 @@ COMMAND_HANDLER(CEbenezerDlg::HandleSnowWarOpenCommand)
 COMMAND_HANDLER(CUser::HandleWarCloseCommand) { return g_pMain->HandleWarCloseCommand(vargs, args, description); }
 COMMAND_HANDLER(CEbenezerDlg::HandleWarCloseCommand)
 {
-	m_byBanishFlag = 1;
+	m_byBanishFlag = true;
 	return true;
 }
 

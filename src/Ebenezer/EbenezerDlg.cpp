@@ -45,8 +45,8 @@ CEbenezerDlg::CEbenezerDlg()
 	m_bKarusFlag = 0;
 	m_bElmoradFlag = 0;
 
-	m_byKarusOpenFlag = m_byElmoradOpenFlag = 0;
-	m_byBanishFlag = 0;
+	m_byKarusOpenFlag = m_byElmoradOpenFlag = false;
+	m_byBanishFlag = false;
 	m_sBanishDelay = 0;
 
 	m_sKarusDead = 0;
@@ -54,7 +54,7 @@ CEbenezerDlg::CEbenezerDlg()
 
 	m_bVictory = 0;	
 	m_byOldVictory = 0;
-	m_byBattleSave = 0;
+	m_byBattleSave = false;
 	m_sKarusCount = 0;
 	m_sElmoradCount = 0;
 
@@ -1325,10 +1325,11 @@ void CEbenezerDlg::BattleZoneOpenTimer()
 
 	if( m_byBattleOpen == NATION_BATTLE )		BattleZoneCurrentUsers();
 
-	if( m_byBanishFlag == 1 )	{		
+	if (m_byBanishFlag)
+	{
 		if( m_sBanishDelay == 0 )	{
 			m_byBattleOpen = NO_BATTLE;
-			m_byKarusOpenFlag = m_byElmoradOpenFlag = 0;
+			m_byKarusOpenFlag = m_byElmoradOpenFlag = false;
 		}
 
 		m_sBanishDelay++;
@@ -1463,15 +1464,15 @@ void CEbenezerDlg::BanishLosers()
 void CEbenezerDlg::ResetBattleZone()
 {
 	m_bVictory = 0;
-	m_byBanishFlag = 0;
+	m_byBanishFlag = false;
 	m_sBanishDelay = 0;
 	m_bKarusFlag = 0,
 	m_bElmoradFlag = 0;
-	m_byKarusOpenFlag = m_byElmoradOpenFlag = 0;
+	m_byKarusOpenFlag = m_byElmoradOpenFlag = false;
 	m_byBattleOpen = NO_BATTLE;
 	m_byOldBattleOpen = NO_BATTLE;
 	m_sKarusDead = m_sElmoradDead = 0;
-	m_byBattleSave = 0;
+	m_byBattleSave = false;
 	m_sKarusCount = 0;
 	m_sElmoradCount = 0;
 	// REMEMBER TO MAKE ALL FLAGS AND LEVERS NEUTRAL AGAIN!!!!!!!!!!
@@ -1721,7 +1722,7 @@ void CEbenezerDlg::GetCaptainUserPtr()
  */
 void CEbenezerDlg::BattleZoneCurrentUsers()
 {
-	C3DMap* pMap = GetZoneByID(ZONE_BATTLE);
+	C3DMap* pMap = GetZoneByID(ZONE_BATTLE_BASE + m_byBattleZone);
 	if (pMap == nullptr || m_nServerNo != pMap->m_nServerNo)
 		return;
 
@@ -1730,7 +1731,7 @@ void CEbenezerDlg::BattleZoneCurrentUsers()
 	foreach (itr, sessMap)
 	{
 		CUser * pUser = TO_USER(itr->second);
-		if (!pUser->isInGame() || pUser->GetZoneID() != ZONE_BATTLE)
+		if (!pUser->isInGame() || pUser->GetZoneID() != pMap->GetID())
 			continue;
 
 		if (pUser->GetNation() == KARUS)

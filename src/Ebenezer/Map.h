@@ -22,8 +22,6 @@ public:
 	_WARP_INFO * GetWarp(int warpID);
 	void GetWarpList(int warpGroup, std::set<_WARP_INFO *> & warpEntries);
 	
-	INLINE bool isAttackZone() { return m_isAttackZone; }
-
 	C3DMap();
 	bool Initialize(_ZONE_INFO *pZone);
 	CRegion * GetRegion(uint16 regionX, uint16 regionZ);
@@ -38,9 +36,7 @@ public:
 
 	int	m_nServerNo, m_nZoneNumber;
 	float m_fInitX, m_fInitZ, m_fInitY;
-	uint8	m_bType;		// Zone Type : 1 -> common zone,  2 -> battle zone, 3 -> 24 hour open battle zone
 	short	m_sMaxUser;
-	bool m_isAttackZone;
 
 	CRegion**	m_ppRegion;
 
@@ -49,13 +45,17 @@ public:
 	SMDFile *m_smdFile;
 	FastMutex m_lock;
 
+	INLINE uint16 GetID() { return m_nZoneNumber; }
+
 	/* the following should all be duplicated to AI server's map class for now */
 
-	INLINE bool canTradeWithOtherNation() { return (m_zoneFlags & TRADE_OTHER_NATION) != 0; }
-	INLINE bool canTalkToOtherNation() { return (m_zoneFlags & TALK_OTHER_NATION) != 0; }
-	INLINE bool canAttackOtherNation() { return (m_zoneFlags & ATTACK_OTHER_NATION) != 0; } 
-	INLINE bool canAttackSameNation() { return (m_zoneFlags & ATTACK_SAME_NATION) != 0; } 
-	INLINE bool areNPCsFriendly() { return (m_zoneFlags & FRIENDLY_NPCS) != 0; }
+	INLINE bool canTradeWithOtherNation() { return (m_zoneFlags & ZF_TRADE_OTHER_NATION) != 0; }
+	INLINE bool canTalkToOtherNation() { return (m_zoneFlags & ZF_TALK_OTHER_NATION) != 0; }
+	INLINE bool canAttackOtherNation() { return (m_zoneFlags & ZF_ATTACK_OTHER_NATION) != 0; } 
+	INLINE bool canAttackSameNation() { return (m_zoneFlags & ZF_ATTACK_SAME_NATION) != 0; } 
+	INLINE bool isWarZone() { return (m_zoneFlags & ZF_WAR_ZONE) != 0; }
+	INLINE bool isNationPVPZone() { return canAttackOtherNation() && !canAttackSameNation(); }
+	INLINE bool areNPCsFriendly() { return (m_zoneFlags & ZF_FRIENDLY_NPCS) != 0; }
 
 	INLINE uint8 GetZoneType() { return m_zoneType; }
 	INLINE uint8 GetTariff() { return m_byTariff; }
