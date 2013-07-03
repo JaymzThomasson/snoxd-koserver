@@ -3454,14 +3454,14 @@ void CUser::TrapProcess()
 	}
 }
 
-void CUser::KickOutZoneUser(bool home, int nZoneID /*= 21 */)
+void CUser::KickOutZoneUser(bool home, int nZoneID /*= ZONE_MORADON */)
 {
-	C3DMap* pMap = g_pMain->GetZoneByID(nZoneID);
-	if (pMap == nullptr) 
-		return;
-
 	if (home)
 	{
+		C3DMap* pMap = g_pMain->GetZoneByID(nZoneID);
+		if (pMap == nullptr) 
+			return;
+
 		int eventID = 0;
 		int random = myrand(0, 9000);
 		if (random >= 0 && random < 3000)			eventID = 0;
