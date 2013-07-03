@@ -1165,7 +1165,12 @@ bool MagicInstance::ExecuteType4()
 
 		pTUser->m_buffLock.Acquire();
 		Type4BuffMap::iterator buffItr = pTUser->m_buffMap.find(pType->bBuffType);
-		bool bSkillTypeAlreadyOnTarget = (buffItr != pTUser->m_buffMap.end());
+
+		// Identify whether or not a skill (buff/debuff) with this buff type was already cast on the player.
+		// NOTE:	Buffs will already be cast on a user when trying to recast. 
+		//			We should not error out in this case.
+		bool bSkillTypeAlreadyOnTarget = (!bIsRecastingSavedMagic && buffItr != pTUser->m_buffMap.end());
+
 		pTUser->m_buffLock.Release();
 
 		// If this skill is a debuff, and we are in the crossfire, 
