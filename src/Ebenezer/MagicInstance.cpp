@@ -347,17 +347,19 @@ bool MagicInstance::CheckType4Prerequisites()
 		|| !pSkillTarget->isPlayer())
 		return false;
 
-	if (TO_USER(pSkillTarget)->isTransformed() && 
-			// Can't use buff scrolls/pots when transformed.
-			(nSkillID >= 500000
+	if (TO_USER(pSkillTarget)->isTransformed())
+	{
+		// Can't use buff scrolls/pots when transformed into anything but NPCs.
+		if (!TO_USER(pSkillTarget)->isNPCTransformation() 
+			&& (nSkillID >= 500000
 			// Can't use bezoars etc when transformed 
 			// (this should really be a whitelist, but this is blocked explicitly in 1.298)
 			|| pType->bBuffType == BUFF_TYPE_SIZE))
-	{
-		SendSkillFailed();
-		return false;
+		{
+			SendSkillFailed();
+			return false;
+		}
 	}
-
 	
 	// TO-DO: Allow for siege-weapon only buffs (e.g. "Physical Attack Scroll")
 
