@@ -1320,24 +1320,22 @@ bool MagicInstance::ExecuteType5()
 			break;
 
 		case REMOVE_TYPE4: // Remove type 4 debuffs
-			pSkillTarget->m_buffLock.Acquire();
-			foreach (itr, pSkillTarget->m_buffMap)
+		{
+			FastGuard lock(pSkillTarget->m_buffLock);
+			Type4BuffMap buffMap = pSkillTarget->m_buffMap; // copy the map so we can't break it while looping
+			foreach (itr, buffMap)
 			{
 				if (itr->second.isDebuff())
-					CMagicProcess::RemoveType4Buff(itr->first, TO_USER(pSkillTarget));
-
-				if (pSkillTarget->HasSavedMagic(itr->first))
-					TO_USER(pSkillTarget)->RecastSavedMagic();
+					CMagicProcess::RemoveType4Buff(itr->first, pSkillTarget);
 			}
-			pSkillTarget->m_buffLock.Release();
 
 			// NOTE: This originally checked to see if there were any active debuffs.
 			// As this seems pointless (as we're removing all of them), it was removed
 			// however leaving this note in, in case this behaviour in certain conditions
 			// is required.
-			if (pSkillTarget->isPlayer() && TO_USER(pSkillTarget)->isInParty())
-				TO_USER(pSkillTarget)->SendPartyStatusUpdate(2, 0);
-			break;
+			if (pSkillTarget->isPlayer())
+				TO_USER(pSkillTarget)->SendUserStatusUpdate(USER_STATUS_POISON, USER_STATUS_CURE);
+		} break;
 			
 		case RESURRECTION:		// RESURRECT A DEAD PLAYER!!!
 			if (pSkillTarget->isPlayer())
@@ -1345,7 +1343,8 @@ bool MagicInstance::ExecuteType5()
 			break;
 
 		case REMOVE_BLESS:
-			pSkillTarget->m_buffLock.Acquire();
+		{
+			FastGuard lock(pSkillTarget->m_buffLock);
 			buffIterator = pSkillTarget->m_buffMap.find(BUFF_TYPE_HP_MP);
 			if (buffIterator != pSkillTarget->m_buffMap.end() 
 				&& buffIterator->second.isBuff()) 
@@ -1365,8 +1364,7 @@ bool MagicInstance::ExecuteType5()
 				if (pSkillTarget->isPlayer() && TO_USER(pSkillTarget)->isInParty() && !bIsDebuffed) 
 					TO_USER(pSkillTarget)->SendPartyStatusUpdate(2, 0);
 			}
-			pSkillTarget->m_buffLock.Release();
-			break;
+		} break;
 	}
 
 	if (pSkill->bType[1] == 0 || pSkill->bType[1] == 5)
