@@ -698,6 +698,7 @@ public:
 	void BifrostPieceProcess(Packet & pkt); // originally named BeefRoastPieceProcess() -- that's not happening.
 	void ItemUpgradeRebirth(Packet & pkt);
 	void ItemSealProcess(Packet & pkt);
+	void SealItem(uint8 bSealType, uint8 bSrcPos);
 	void CharacterSealProcess(Packet & pkt);
 
 	void ShoppingMall(Packet & pkt);

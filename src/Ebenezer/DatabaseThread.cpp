@@ -848,21 +848,7 @@ void CUser::ReqSealItem(Packet & pkt)
 	Send(&result);
 
 	if (bSealResult == 1)
-	{
-		switch(bSealType)
-		{
-			case 1:
-				GetItem(SLOT_MAX+bSrcPos)->bFlag = ITEM_FLAG_SEALED;
-				GoldLose(1000000);
-				break;
-			case 2:
-				GetItem(SLOT_MAX+bSrcPos)->bFlag = 0;
-				break;
-			case 3:
-				GetItem(SLOT_MAX+bSrcPos)->bFlag = ITEM_FLAG_BOUND;
-				break;
-		}
-	}
+		SealItem(bSealType, bSrcPos);
 }
 
 void DatabaseThread::Shutdown()

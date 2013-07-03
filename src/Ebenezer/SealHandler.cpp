@@ -1,3 +1,23 @@
+#define ITEM_SEAL_PRICE 1000000
+
+enum
+{
+	SEAL_TYPE_SEAL		= 1,
+	SEAL_TYPE_UNSEAL	= 2,
+	SEAL_TYPE_KROWAZ	= 3
+};
+
+enum SealErrorCodes
+{
+	SealErrorNone			= 0, // no error, success!
+	SealErrorFailed			= 2, // "Seal Failed."
+	SealErrorNeedCoins		= 3, // "Not enough coins."
+	SealErrorInvalidCode	= 4, // "Invalid Citizen Registry Number" (i.e. invalid code/password)
+	SealErrorPremiumOnly	= 5, // "Only available to premium users"
+	SealErrorFailed2		= 6, // "Seal Failed."
+	SealErrorTooSoon		= 7, // "Please try again. You may not repeat this function instantly."
+};
+
 /**
  * @brief	Packet handler for the item sealing system.
  *
@@ -5,25 +25,6 @@
  */
 void CUser::ItemSealProcess(Packet & pkt)
 {
-	#define ITEM_SEAL_PRICE 1000000
-	enum
-	{
-		SEAL_TYPE_SEAL		= 1,
-		SEAL_TYPE_UNSEAL	= 2,
-		SEAL_TYPE_KROWAZ	= 3
-	};
-
-	enum SealErrorCodes
-	{
-		SealErrorNone			= 0, // no error, success!
-		SealErrorFailed			= 2, // "Seal Failed."
-		SealErrorNeedCoins		= 3, // "Not enough coins."
-		SealErrorInvalidCode	= 4, // "Invalid Citizen Registry Number" (i.e. invalid code/password)
-		SealErrorPremiumOnly	= 5, // "Only available to premium users"
-		SealErrorFailed2		= 6, // "Seal Failed."
-		SealErrorTooSoon		= 7, // "Please try again. You may not repeat this function instantly."
-	};
-
 	// Seal type
 	uint8 opcode = pkt.read<uint8>();
 
@@ -58,7 +59,7 @@ void CUser::ItemSealProcess(Packet & pkt)
 			else if (strPasswd.empty() || strPasswd.length() > 8)
 				bResponse = SealErrorInvalidCode;
 			// do we have enough coins?
-			else if (m_iGold < ITEM_SEAL_PRICE)
+			else if (!hasCoins(ITEM_SEAL_PRICE))
 				bResponse = SealErrorNeedCoins;
 
 			_ITEM_TABLE* pItem = g_pMain->m_ItemtableArray.GetData(nItemID);
@@ -72,6 +73,7 @@ void CUser::ItemSealProcess(Packet & pkt)
 			// If no error, pass it along to the database.
 			if (bResponse == SealErrorNone)
 			{
+				result << nItemID << bSrcPos << strPasswd << bResponse;
 				g_pMain->AddDatabaseRequest(result, this);
 			}
 			// If there's an error, tell the client.
@@ -130,12 +132,35 @@ void CUser::ItemSealProcess(Packet & pkt)
 				|| GetItem(SLOT_MAX+bSrcPos)->nNum != nItemID)
 				bResponse = SealErrorFailed;
 
-			if(bResponse == SealErrorNone)
+			if (bResponse == SealErrorNone)
 			{
 				result << nItemID << bSrcPos << strPasswd << bResponse;
 				g_pMain->AddDatabaseRequest(result, this);
 			}
 		} break;
+	}
+}
+
+void CUser::SealItem(uint8 bSealType, uint8 bSrcPos)
+{
+	_ITEM_DATA * pItem = GetItem(SLOT_MAX + bSrcPos);
+	if (pItem == nullptr)
+		return;
+
+	switch (bSealType)
+	{
+		case SEAL_TYPE_SEAL:
+			pItem->bFlag = ITEM_FLAG_SEALED;
+			GoldLose(ITEM_SEAL_PRICE);
+			break;
+
+		case SEAL_TYPE_UNSEAL:
+			pItem->bFlag = 0;
+			break;
+
+		case SEAL_TYPE_KROWAZ:
+			pItem->bFlag = ITEM_FLAG_BOUND;
+			break;
 	}
 }
 
