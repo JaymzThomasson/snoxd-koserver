@@ -237,8 +237,7 @@ bool MagicInstance::CheckType3Prerequisites()
 		{
 			// Players may not cast group healing spells whilst transformed
 			// into a monster (skills with IDs of 45###). 
-			if (pSkillCaster->isTransformed()
-				&& (TO_USER(pSkillCaster)->m_bAbnormalType / 10000 == 45))
+			if (TO_USER(pSkillCaster)->isMonsterTransformation())
 			{
 				SendSkillFailed();
 				return false;
@@ -310,8 +309,7 @@ bool MagicInstance::CheckType3Prerequisites()
 
 		// It appears that the server should reject any attacks or heals
 		// on players that have transformed into monsters.
-		if (pSkillTarget->isTransformed()
-			&& (TO_USER(pSkillTarget)->m_bAbnormalType / 10000 == 45)
+		if (TO_USER(pSkillTarget)->isMonsterTransformation()
 			&& !pSkillCaster->CanAttack(pSkillTarget))
 		{
 			SendSkillFailed();
@@ -349,7 +347,7 @@ bool MagicInstance::CheckType4Prerequisites()
 		|| !pSkillTarget->isPlayer())
 		return false;
 
-	if (pSkillTarget->isTransformed() && 
+	if (TO_USER(pSkillTarget)->isTransformed() && 
 			// Can't use buff scrolls/pots when transformed.
 			(nSkillID >= 500000
 			// Can't use bezoars etc when transformed 
@@ -423,7 +421,7 @@ void MagicInstance::SendTransformationList()
 
 	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TRANSFORM_LIST));
 	result << nSkillID;
-	pSkillCaster->m_nTransformationItem = pSkill->iUseItem;
+	TO_USER(pSkillCaster)->m_nTransformationItem = pSkill->iUseItem;
 	TO_USER(pSkillCaster)->Send(&result);
 }
 
@@ -641,7 +639,12 @@ bool MagicInstance::IsAvailable()
 
 		case MORAL_CLAN_ALL:	// #15
 			break;
-//
+
+		case MORAL_SIEGE_WEAPON:
+			if (pSkillCaster->isPlayer()
+				|| !TO_USER(pSkillCaster)->isSiegeTransformation())
+				goto fail_return;
+			break;
 	}
 
 	// This only applies to users casting skills. NPCs are fine and dandy (we can trust THEM at least).
@@ -653,7 +656,8 @@ bool MagicInstance::IsAvailable()
 			if( Class != TO_USER(pSkillCaster)->GetClass() ) goto fail_return;
 			if( pSkill->sSkillLevel > TO_USER(pSkillCaster)->m_bstrSkill[modulator] ) goto fail_return;
 		}
-		else if (pSkill->sSkillLevel > pSkillCaster->GetLevel()) goto fail_return;
+		else if (pSkill->sSkillLevel > pSkillCaster->GetLevel()) 
+			goto fail_return;
 
 		if (pSkill->bType[0] == 1) {	// Weapons verification in case of COMBO attack (another hacking prevention).
 			if (pSkill->sSkill == 1055 || pSkill->sSkill == 2055) {		// Weapons verification in case of dual wielding attacks !		
@@ -1377,6 +1381,7 @@ bool MagicInstance::ExecuteType6()
 		|| !pSkillCaster->isPlayer())
 		return false;
 
+	CUser * pCaster = TO_USER(pSkillCaster);
 	_MAGIC_TYPE6 * pType = g_pMain->m_Magictype6Array.GetData(nSkillID);
 	uint32 iUseItem = 0;
 	uint16 sDuration = 0;
@@ -1384,7 +1389,7 @@ bool MagicInstance::ExecuteType6()
 	if (pType == nullptr
 		// Allow NPC transformations in PVP zones
 		|| (pType->bUserSkillUse != TransformationSkillUseNPC && pSkillCaster->GetMap()->canAttackOtherNation())
-		|| (!bIsRecastingSavedMagic && pSkillCaster->isTransformed())
+		|| (!bIsRecastingSavedMagic && pCaster->isTransformed())
 		// All buffs must be removed before using transformation skills
 		|| pSkillCaster->isBuffed())
 	{
@@ -1403,7 +1408,7 @@ bool MagicInstance::ExecuteType6()
 			return false;
 
 		// Let's start by looking at the item that was used for the transformation.
-		_ITEM_TABLE *pTable = g_pMain->GetItemPtr(pSkillCaster->m_nTransformationItem);
+		_ITEM_TABLE *pTable = g_pMain->GetItemPtr(pCaster->m_nTransformationItem);
 
 		// Also, for the sake of specific skills that bypass the list, let's lookup the 
 		// item attached to the skill.
@@ -1433,7 +1438,7 @@ bool MagicInstance::ExecuteType6()
 			iUseItem = pSkill->iUseItem;
 		// If we're using a normal transformation scroll, we can leave the item as it is.
 		else 
-			iUseItem = pSkillCaster->m_nTransformationItem;
+			iUseItem = pCaster->m_nTransformationItem;
 
 		// Attempt to take the item (no further checks, so no harm in multipurposing)
 		// If we add more checks, remember to change this check.
@@ -1459,16 +1464,16 @@ bool MagicInstance::ExecuteType6()
 	switch (pType->bUserSkillUse)
 	{
 	case TransformationSkillUseMonster:
-		pSkillCaster->m_transformationType = TransformationMonster;
+		pCaster->m_transformationType = TransformationMonster;
 		break;
 
 	case TransformationSkillUseNPC:
-		pSkillCaster->m_transformationType = TransformationNPC;
+		pCaster->m_transformationType = TransformationNPC;
 		break;
 
 	case TransformationSkillUseSiege:
 	case TransformationSkillUseSiege2:
-		pSkillCaster->m_transformationType = TransformationSiege;
+		pCaster->m_transformationType = TransformationSiege;
 		break;
 
 	default: // anything 
@@ -1476,8 +1481,9 @@ bool MagicInstance::ExecuteType6()
 	}
 
 	// TO-DO : Save duration, and obviously end
-	pSkillCaster->m_tTransformationStartTime = UNIXTIME;
-	pSkillCaster->m_sTransformationDuration = sDuration;
+	pCaster->m_sTransformID = pType->sTransformID;
+	pCaster->m_tTransformationStartTime = UNIXTIME;
+	pCaster->m_sTransformationDuration = sDuration;
 
 	pSkillCaster->StateChangeServerDirect(3, nSkillID);
 
@@ -1926,7 +1932,7 @@ void MagicInstance::Type6Cancel(bool bForceRemoval /*= false*/)
 	// NPCs cannot transform.
 	if (!pSkillCaster->isPlayer()
 		// Are we transformed? Note: if we're relogging, and we need to remove it, we should ignore this check.
-		|| (!bForceRemoval && !pSkillCaster->isTransformed()))
+		|| (!bForceRemoval && !TO_USER(pSkillCaster)->isTransformed()))
 		return;
 
 	CUser * pUser = TO_USER(pSkillCaster);

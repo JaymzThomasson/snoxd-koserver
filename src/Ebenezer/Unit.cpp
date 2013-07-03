@@ -40,7 +40,6 @@ void Unit::Initialize()
 
 	m_bCanStealth = true;
 	m_bReflectArmorType = 0;
-	m_transformationType = TransformationNone;
 	m_bIsBlinded = false;
 	m_bInstantCast = false;
 	m_bBlockCurse = false;

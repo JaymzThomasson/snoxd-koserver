@@ -62,6 +62,14 @@ enum ZoneChangeError
 	ZoneChangeErrorNeedLoyalty
 };
 
+enum TransformationType
+{
+	TransformationNone,
+	TransformationMonster,
+	TransformationNPC,
+	TransformationSiege
+};
+
 #define ARROW_EXPIRATION_TIME (5) // seconds
 
 struct Arrow
@@ -150,6 +158,12 @@ public:
 
 	ArrowList m_flyingArrows;
 	FastMutex m_arrowLock;
+
+	TransformationType m_transformationType;
+	uint16	m_sTransformID;
+	uint32	m_nTransformationItem; // item used for transforming (e.g. disguise scroll, totem..)
+	time_t	m_tTransformationStartTime;
+	uint16	m_sTransformationDuration;
 
 	bool	m_bIsChicken; // Is the character taking the beginner/chicken quest?
 	bool	m_bIsHidingHelmet;
@@ -286,6 +300,11 @@ public:
 	INLINE bool isMining() { return m_bMining; }
 
 	INLINE bool isBlockingPrivateChat() { return m_bBlockPrivateChat; }
+
+	INLINE bool isTransformed() { return m_transformationType != TransformationNone; }
+	INLINE bool isNPCTransformation() { return m_transformationType == TransformationNPC; }
+	INLINE bool isMonsterTransformation() { return m_transformationType == TransformationMonster; }
+	INLINE bool isSiegeTransformation() { return m_transformationType == TransformationSiege; }
 
 	INLINE int8 GetMerchantState() { return m_bMerchantState; }
 

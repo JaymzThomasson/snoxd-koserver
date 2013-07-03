@@ -117,6 +117,8 @@ void CUser::Initialize()
 	m_tLastRegeneTime = 0;
 	m_bZoneChangeSameZone = false;
 
+	m_transformationType = TransformationNone;
+ 	m_sTransformID = 0;
 	m_nTransformationItem = 0;
 	m_tTransformationStartTime = 0;
 	m_sTransformationDuration = 0;
@@ -3836,11 +3838,13 @@ bool CUser::CanUseItem(uint32 itemid, uint16 count)
 		return false;
 
 	// Disable scroll usage while transformed.
-	if (isTransformed() 
+	if (isTransformed())
+	{
 		// Various NPC transformations ("Transform Scrolls") are exempt from this rule -- it's just monsters.
-		&& m_bAbnormalType < 500000
-		&& (pItem->GetKind() == 255 || pItem->GetKind() == 97))
-		return false;
+		// Also, siege transformations can use their own buff scrolls.
+		if (isMonsterTransformation())
+			return false;
+	}
 
 	// If the item's class specific, ensure it can be used by this user.
 	if ((pItem->m_bClass != 0 && !JobGroupCheck(pItem->m_bClass))

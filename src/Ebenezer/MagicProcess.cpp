@@ -122,8 +122,8 @@ final_test:
 void CMagicProcess::CheckExpiredType6Skills(Unit * pTarget)
 {
 	if (!pTarget->isPlayer()
-		|| !pTarget->isTransformed()
-		|| (UNIXTIME - pTarget->m_tTransformationStartTime) < pTarget->m_sTransformationDuration)
+		|| !TO_USER(pTarget)->isTransformed()
+		|| (UNIXTIME - TO_USER(pTarget)->m_tTransformationStartTime) < TO_USER(pTarget)->m_sTransformationDuration)
 		return;
 
 	MagicInstance instance;

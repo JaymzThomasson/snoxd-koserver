@@ -45,7 +45,8 @@ enum SkillMoral
 	MORAL_ANGEL				= 22,
 	MORAL_DRAGON			= 23,
 	MORAL_CORPSE_FRIEND		= 25,
-	MORAL_CORPSE_ENEMY		= 26
+	MORAL_CORPSE_ENEMY		= 26,
+	MORAL_SIEGE_WEAPON		= 31  // must be using a siege weapon
 };
 
 #define WARP_RESURRECTION		1		// To the resurrection point.
