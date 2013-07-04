@@ -920,6 +920,8 @@ bool MagicInstance::ExecuteType3()
 	{
 		std::vector<uint16> unitList;
 		g_pMain->GetUnitListFromSurroundingRegions(pSkillCaster, &unitList);
+		if(pType->sFirstDamage > 0)
+			casted_member.push_back(pSkillCaster);
 		foreach (itr, unitList)
 		{		
 			Unit * pTarget = g_pMain->GetUnit(*itr);
@@ -929,16 +931,12 @@ bool MagicInstance::ExecuteType3()
 				casted_member.push_back(pTarget);
 		}
 
+		//If you managed to not hit anything with your AoE, you're still gonna have a cooldown (You should l2aim)
 		if (casted_member.empty())
 		{
-			SendSkillFailed();
-			return false;			
-		}
-
-		// Hack to allow for the showing of AOE skills under any circumstance.
-		// Send the skill data in the current context to the caster's region
-		if (sTargetID == -1)
 			SendSkill();
+			return true;			
+		}
 	}
 	else
 	{	// If the target was a single unit.
@@ -1143,7 +1141,7 @@ bool MagicInstance::ExecuteType4()
 		if (casted_member.empty())
 		{		
 			if (pSkillCaster->isPlayer())
-				SendSkillFailed();
+				SendSkill();
 
 			return false;
 		}
