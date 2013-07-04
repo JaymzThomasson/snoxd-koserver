@@ -730,6 +730,8 @@ void KOMap::SetZoneAttributes(int zoneNumber)
 {
 	m_zoneFlags = 0;
 	m_byTariff = 10; // defaults to 10 officially for zones that don't use it.
+	m_byMinLevel = 1;
+	m_byMaxLevel = MAX_LEVEL;
 
 	switch (zoneNumber)
 	{
@@ -763,9 +765,19 @@ void KOMap::SetZoneAttributes(int zoneNumber)
 	case ZONE_ELMORAD:
 	case ZONE_ELMORAD_ESLANT:
 	case ZONE_RONARK_LAND:
+	case ZONE_RONARK_LAND_BASE:
 	case ZONE_ARDREAM:
 		m_zoneType = ZoneAbilityPVP;
 		m_zoneFlags = ZF_ATTACK_OTHER_NATION;
+
+		if (zoneNumber == ZONE_KARUS_ESLANT || zoneNumber == ZONE_ELMORAD_ESLANT)
+			m_byMinLevel = MIN_LEVEL_ESLANT;
+		else if (zoneNumber == ZONE_RONARK_LAND)
+			m_byMinLevel = MIN_LEVEL_RONARK_LAND;
+		else if (zoneNumber == ZONE_ARDREAM)
+			m_byMinLevel = MIN_LEVEL_ARDREAM;
+		else if (zoneNumber == ZONE_RONARK_LAND_BASE)
+			m_byMinLevel = MIN_LEVEL_RONARK_LAND_BASE, m_byMaxLevel = MAX_LEVEL_RONARK_LAND_BASE;
 		break;
 
 	case ZONE_BATTLE:
@@ -784,6 +796,12 @@ void KOMap::SetZoneAttributes(int zoneNumber)
 	case ZONE_BIFROST:
 		m_zoneType = ZoneAbilityPVPNeutralNPCs;
 		m_zoneFlags = ZF_ATTACK_OTHER_NATION | ZF_FRIENDLY_NPCS;
+		break;
+
+	case ZONE_KROWAZ_DOMINION:
+		m_zoneType = ZoneAbilityPVPNeutralNPCs;
+		m_zoneFlags = ZF_ATTACK_OTHER_NATION | ZF_TALK_OTHER_NATION | ZF_FRIENDLY_NPCS;
+		m_byMinLevel = MIN_LEVEL_KROWAZ_DOMINION;
 		break;
 
 	default:

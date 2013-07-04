@@ -168,6 +168,14 @@ bool CUser::CanChangeZone(C3DMap * pTargetMap, ZoneChangeError & errorReason)
 	// Generic error reason; this should only be checked when the method returns false.
 	errorReason = ZoneChangeErrorGeneric;
 
+	// Ensure the user meets the zone's level requirements
+	if (GetLevel() < pTargetMap->GetMinLevelReq()
+		|| GetLevel() > pTargetMap->GetMaxLevelReq())
+	{
+		errorReason = ZoneChangeErrorWrongLevel;
+		return false;
+	}
+
 	switch (pTargetMap->GetID())
 	{
 	case ZONE_ELMORAD:

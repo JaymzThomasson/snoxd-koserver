@@ -85,10 +85,14 @@ public:
 	INLINE uint8 GetZoneType() { return m_zoneType; }
 	INLINE uint8 GetTariff() { return m_byTariff; }
 
+	INLINE uint8 GetMinLevelReq() { return m_byMinLevel; }
+	INLINE uint8 GetMaxLevelReq() { return m_byMaxLevel; }
+
 protected:
 	void SetZoneAttributes(int zoneNumber);
 
 	ZoneAbilityType m_zoneType;
 	uint16 m_zoneFlags;
 	uint8 m_byTariff;
+	uint8 m_byMinLevel, m_byMaxLevel;
 };

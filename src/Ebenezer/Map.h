@@ -61,10 +61,14 @@ public:
 	INLINE uint8 GetTariff() { return m_byTariff; }
 	INLINE void SetTariff(uint8 tariff) { m_byTariff = tariff; }
 
+	INLINE uint8 GetMinLevelReq() { return m_byMinLevel; }
+	INLINE uint8 GetMaxLevelReq() { return m_byMaxLevel; }
+
 protected:
 	void SetZoneAttributes(int zoneNumber);
 
 	ZoneAbilityType m_zoneType;
 	uint16 m_zoneFlags;
 	uint8 m_byTariff;
+	uint8 m_byMinLevel, m_byMaxLevel;
 };
