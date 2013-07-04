@@ -271,7 +271,7 @@ bool CUser::CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int
 	return true;
 }
 
-bool CUser::RobItem(uint32 itemid, uint16 count)
+bool CUser::RobItem(uint32 itemid, uint16 count /*= 1*/)
 {
 	// Allow unused exchanges.
 	if (count == 0)

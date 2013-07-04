@@ -202,6 +202,8 @@ bool CKnights::RemoveUser(CUser *pUser)
 
 /**
  * @brief	Refunds 30% of the user's donated NP.
+ * 			If the user has the item "CONT Recovery", refund ALL of the user's 
+ * 			donated NP.
  *
  * @param	nDonatedNP	The donated NP.
  * @param	pUser	  	The user's session, when refunding the user in-game.
@@ -213,7 +215,10 @@ bool CKnights::RemoveUser(CUser *pUser)
  */
 void CKnights::RefundDonatedNP(uint32 nDonatedNP, CUser * pUser /*= nullptr*/, const char * strUserID /*= nullptr*/)
 {
-	nDonatedNP = (nDonatedNP * 30) / 100;
+	// Refund 30% of NP unless the user has the item "CONT Recovery".
+	// In this case, ALL of the donated NP will be refunded.
+	if (!pUser->RobItem(ITEM_CONT_RECOVERY))
+		nDonatedNP = (nDonatedNP * 30) / 100;
 
 	// Remove the refunded NP from the clan fund
 	m_nClanPointFund -= nDonatedNP;

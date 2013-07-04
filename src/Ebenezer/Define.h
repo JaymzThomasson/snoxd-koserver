@@ -120,6 +120,9 @@ enum InOutType
 
 #define MAX_BATTLE_ZONE_USERS	150
 
+// ID of the Cont Recovery item... shouldn't hardcode this, but seems there's no other way.
+#define ITEM_CONT_RECOVERY		800370000
+
 //////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////
