@@ -335,7 +335,6 @@ public:
 	int  FindFriend(MonSearchType type = MonSearchSameFamily);
 	void  FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, MonSearchType type = MonSearchSameFamily);
 	bool IsCloseTarget(CUser *pUser, int nRange);
-	void ToTargetMove(CUser* pUser);
 	void SendExpToUserList();								// User 경험치 분배..
 	bool SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType = 0, bool bSendToEbenezer = true);	// Npc의 데미지 계산..
 	void ChangeTarget(int nAttackType, CUser *pUser);
@@ -405,7 +404,7 @@ public:
 	void Yaw2D(float fDirX, float fDirZ, float& fYawResult);
 	float GetDistance(__Vector3 & vOrig, __Vector3 & vDest);
 	int  PathFind(CPoint start, CPoint end, float fDistance);
-	bool GetUserInView();	// Npc의 가시 거리안에 User가 있는지를 판단
+	bool GetUserInView();
 	bool GetUserInViewRange(int x, int z);
 	void MoveAttack();
 	void HpChange();

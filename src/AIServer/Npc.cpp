@@ -2823,12 +2823,6 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 	}
 }
 
-
-void CNpc::ToTargetMove(CUser* pUser)
-{
-	TRACE("### ToTargetMove() 유저 길찾기 실패 ### \n");
-}
-
 bool CNpc::SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType /*= 0*/, bool bSendToEbenezer /*= true*/)
 {
 	bool bIsDurationDamage = (nAttackType < 0);
