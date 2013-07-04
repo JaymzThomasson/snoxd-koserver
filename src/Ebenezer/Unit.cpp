@@ -42,7 +42,7 @@ void Unit::Initialize()
 	m_bReflectArmorType = 0;
 	m_bIsBlinded = false;
 	m_bInstantCast = false;
-	m_bBlockCurse = false;
+	m_bBlockCurses = m_bReflectCurses = false;
 
 	m_bAttackSpeedAmount = 100;		// this is for the duration spells Type 4
     m_bSpeedAmount = 100;

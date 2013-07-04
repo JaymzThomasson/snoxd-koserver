@@ -245,6 +245,6 @@ public:
 	bool	m_bIsBlinded;
 	bool	m_bCanStealth;
 	bool	m_bInstantCast;
-	bool    m_bBlockCurse;
+	bool    m_bBlockCurses, m_bReflectCurses;
 	uint8	m_bReflectArmorType;
 };

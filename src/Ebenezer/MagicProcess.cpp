@@ -377,12 +377,11 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_BLOCK_CURSE:			// Counter Curse
-		// Blocks all curses.
-		pTarget->m_bBlockCurse = true;
+		pTarget->m_bBlockCurses = true;
 		break;
 
 	case BUFF_TYPE_BLOCK_CURSE_REFLECT:	// Curse Refraction
-		// Blocks all curses and has a chance to reflect the curse back upon the caster.
+		pTarget->m_bReflectCurses = true;
 		break;
 
 	case BUFF_TYPE_MANA_ABSORB:		// Outrage / Frenzy / Mana Shield
@@ -648,12 +647,11 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_BLOCK_CURSE:			// Counter Curse
-		// Blocks all curses.
-		pTarget->m_bBlockCurse = false;
+		pTarget->m_bBlockCurses = false;
 		break;
 
 	case BUFF_TYPE_BLOCK_CURSE_REFLECT:	// Curse Refraction
-		// Blocks all curses and has a chance to reflect the curse back upon the caster.
+		pTarget->m_bReflectCurses = false;
 		break;
 
 	case BUFF_TYPE_MANA_ABSORB:		// Outrage / Frenzy / Mana Shield

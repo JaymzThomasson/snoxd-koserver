@@ -1162,6 +1162,24 @@ bool MagicInstance::ExecuteType4()
 		uint8 bResult = 1;
 		CUser* pTUser = *itr;
 		_BUFF_TYPE4_INFO pBuffInfo;
+		bool bBlockingDebuffs = pTUser->m_bBlockCurses;
+
+		// Skill description: Blocks all curses and has a chance to reflect the curse back onto the caster.
+		// NOTE: the exact rate is undefined, so we'll have to guess and improve later.
+		if (pType->isDebuff() && pTUser->m_bReflectCurses)
+		{
+			const short reflectChance = 25; // % chance to reflect.
+			if (CheckPercent(reflectChance * 10))
+			{
+				pTUser = TO_USER(pSkillCaster); // skill has been reflected, the target is now the caster.
+				bBlockingDebuffs = (pTUser->m_bBlockCurses || pTUser->m_bReflectCurses); 
+			}
+			// Didn't reflect, so we'll just block instead.
+			else 
+			{
+				bBlockingDebuffs = true;
+			}
+		}
 
 		pTUser->m_buffLock.Acquire();
 		Type4BuffMap::iterator buffItr = pTUser->m_buffMap.find(pType->bBuffType);
@@ -1181,13 +1199,13 @@ bool MagicInstance::ExecuteType4()
 		// If the user already has this (de)buff type cast on them
 		if (bSkillTypeAlreadyOnTarget 
 			// or it's a curse (debuff), and we're blocking them 
-			|| (pType->isDebuff() && pTUser->m_bBlockCurse)
+			|| (pType->isDebuff() && bBlockingDebuffs)
 			// or we couldn't grant the (de)buff...
 			|| !CMagicProcess::GrantType4Buff(pSkill, pType, pSkillCaster, pTUser, bIsRecastingSavedMagic))
 		{
 			if (sTargetID != -1 // only error out when buffing a target, otherwise we break the mass-(de)buff.
 				// Only buffs should error here, unless it's a debuff & the user's blocking it.
-				&& (pType->isBuff() || (pType->isDebuff() && pTUser->m_bBlockCurse)))
+				&& (pType->isBuff() || (pType->isDebuff() && bBlockingDebuffs)))
 			{
 				bResult = 0;
 				goto fail_return;
@@ -1237,7 +1255,7 @@ bool MagicInstance::ExecuteType4()
 				sData[4], pType->bSpeed, sData[6], sData[7]
 			};
 
-			BuildAndSendSkillPacket(pUser, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sDataCopy);
+			BuildAndSendSkillPacket(pUser, true, sCasterID, pTUser->GetID(), bOpcode, nSkillID, sDataCopy);
 
 			if (pSkill->bMoral >= MORAL_ENEMY)
 			{
