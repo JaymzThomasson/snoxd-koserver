@@ -129,7 +129,7 @@ enum InOutType
 #define MIN_LEVEL_ARDREAM			35
 #define MAX_LEVEL_ARDREAM			59
 #define MIN_LEVEL_RONARK_LAND_BASE	45
-#define MAX_LEVEL_RONARK_LAND_BASE	60
+#define MAX_LEVEL_RONARK_LAND_BASE	69
 #define MIN_LEVEL_KROWAZ_DOMINION	70
 
 // ID of the Cont Recovery item... shouldn't hardcode this, but seems there's no other way.
