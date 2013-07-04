@@ -1086,19 +1086,13 @@ bool CDBAgent::LoadKnightsInfo(uint16 sClanID, uint8 & bNation, std::string & st
 	return true;
 }
 
-void CDBAgent::LoadKnightsAllList(uint8 bNation)
+void CDBAgent::LoadKnightsAllList()
 {
 	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
-	tstring szSQL;
+	const tstring szSQL = _T("SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Points != 0 ORDER BY Points DESC"); 
 
 	if (dbCommand.get() == nullptr)
 		return;
-
-	// war zone
-	if (bNation == 3)
-		szSQL = _T("SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Points != 0 ORDER BY Points DESC");
-	else
-		szSQL = string_format(_T("SELECT IDNum, Points, Ranking FROM KNIGHTS WHERE Nation=%d AND Points != 0 ORDER BY Points DESC"), bNation); 
 
 	if (!dbCommand->Execute(szSQL))
 		ReportSQLError(m_GameDB->GetError());

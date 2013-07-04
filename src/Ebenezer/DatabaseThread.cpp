@@ -442,7 +442,7 @@ void CKnightsManager::ReqKnightsPacket(CUser* pUser, Packet & pkt)
 		ReqKnightsList(pkt);
 		break;
 	case KNIGHTS_ALLLIST_REQ:
-		g_DBAgent.LoadKnightsAllList(pkt.read<uint8>()); // read nation
+		g_DBAgent.LoadKnightsAllList();
 		break;
 	case KNIGHTS_MARK_REGISTER:
 		ReqRegisterClanSymbol(pUser, pkt);

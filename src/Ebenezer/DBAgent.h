@@ -91,7 +91,7 @@ public:
 	int DeleteKnights(uint16 sClanID);
 	uint16 LoadKnightsAllMembers(uint16 sClanID, Packet & result);
 	bool LoadKnightsInfo(uint16 sClanID, uint8 & bNation, std::string & strKnightsName, uint16 & sMembers, uint32 & nPoints, uint8 & bRank);
-	void LoadKnightsAllList(uint8 bNation);
+	void LoadKnightsAllList();
 	bool UpdateClanSymbol(uint16 sClanID, uint16 sSymbolSize, char *clanSymbol);
 	bool DonateClanPoints(CUser * pUser, uint32 amountNP);
 	void RefundNP(std::string & strUserID, uint32 nRefundNP);

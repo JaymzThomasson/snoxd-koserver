@@ -784,7 +784,6 @@ void CEbenezerDlg::Send_AIServer(Packet *pkt)
 void CEbenezerDlg::UpdateGameTime()
 {
 	DateTime now(&g_localTime);
-	CUser* pUser = nullptr;
 
 	BattleZoneOpenTimer();	// Check if it's time for the BattleZone to open or end.
 
@@ -805,9 +804,12 @@ void CEbenezerDlg::UpdateGameTime()
 	// Every day
 	if (m_sDate != now.GetDay())
 	{
+		// Update clan grades/rankings
 		Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_ALLLIST_REQ));
-		result << uint8(m_nServerNo);
 		AddDatabaseRequest(result);
+
+		// Update user rankings
+		LoadUserRankings();
 	}
 
 	// Update the server time
