@@ -541,112 +541,115 @@ bool MagicInstance::IsAvailable()
 	else 
 		moral = pSkillCaster->GetNation();
 
-	switch( pSkill->bMoral ) {		// Compare morals between source and target character.
-		case MORAL_SELF:   // #1         // ( to see if spell is cast on the right target or not )
-			if (pSkillCaster != pSkillTarget)
-				goto fail_return;
-			break;
-		case MORAL_FRIEND_WITHME:	// #2
-			if (moral != 0 && 
-				pSkillCaster->GetNation() != moral)
-				goto fail_return;
-			break;
-		case MORAL_FRIEND_EXCEPTME:	   // #3
-			if (pSkillCaster->GetNation() != moral
-				|| pSkillCaster == pSkillTarget)
-				goto fail_return;
-			break;
-		case MORAL_PARTY:	 // #4
-		{
-			// NPCs can't *be* in parties.
-			if (pSkillCaster->isNPC()
-				|| (pSkillTarget != nullptr && pSkillTarget->isNPC()))
-				goto fail_return;
+	if(pSkillCaster->m_pMap->canAttackOtherNation())
+	{
+		switch( pSkill->bMoral ) {		// Compare morals between source and target character.
+			case MORAL_SELF:   // #1         // ( to see if spell is cast on the right target or not )
+				if (pSkillCaster != pSkillTarget)
+					goto fail_return;
+				break;
+			case MORAL_FRIEND_WITHME:	// #2
+				if (moral != 0 && 
+					pSkillCaster->GetNation() != moral)
+					goto fail_return;
+				break;
+			case MORAL_FRIEND_EXCEPTME:	   // #3
+				if (pSkillCaster->GetNation() != moral
+					|| pSkillCaster == pSkillTarget)
+					goto fail_return;
+				break;
+			case MORAL_PARTY:	 // #4
+			{
+				// NPCs can't *be* in parties.
+				if (pSkillCaster->isNPC()
+					|| (pSkillTarget != nullptr && pSkillTarget->isNPC()))
+					goto fail_return;
 
-			// We're definitely a user, so...
-			CUser *pCaster = TO_USER(pSkillCaster);
+				// We're definitely a user, so...
+				CUser *pCaster = TO_USER(pSkillCaster);
 
-			// If the caster's not in a party, make sure the target's not someone other than themselves.
-			if ((!pCaster->isInParty() && pSkillCaster != pSkillTarget)
-				// Verify that the nation matches the intended moral
-				|| pCaster->GetNation() != moral
-				// and that if there is a target, they're in the same party.
-				|| (pSkillTarget != nullptr && 
-					TO_USER(pSkillTarget)->m_sPartyIndex != pCaster->m_sPartyIndex))
-				goto fail_return;
-		} break;
-		case MORAL_NPC:		// #5
-			if (pSkillTarget == nullptr
-				|| !pSkillTarget->isNPC()
-				|| pSkillTarget->GetNation() != moral)
-				goto fail_return;
-			break;
-		case MORAL_PARTY_ALL:     // #6
-//			if ( !m_pSrcUser->isInParty() ) goto fail_return;		
-//			if ( !m_pSrcUser->isInParty() && sid != tid) goto fail_return;					
+				// If the caster's not in a party, make sure the target's not someone other than themselves.
+				if ((!pCaster->isInParty() && pSkillCaster != pSkillTarget)
+					// Verify that the nation matches the intended moral
+					|| pCaster->GetNation() != moral
+					// and that if there is a target, they're in the same party.
+					|| (pSkillTarget != nullptr && 
+						TO_USER(pSkillTarget)->m_sPartyIndex != pCaster->m_sPartyIndex))
+					goto fail_return;
+			} break;
+			case MORAL_NPC:		// #5
+				if (pSkillTarget == nullptr
+					|| !pSkillTarget->isNPC()
+					|| pSkillTarget->GetNation() != moral)
+					goto fail_return;
+				break;
+			case MORAL_PARTY_ALL:     // #6
+	//			if ( !m_pSrcUser->isInParty() ) goto fail_return;		
+	//			if ( !m_pSrcUser->isInParty() && sid != tid) goto fail_return;					
 
-			break;
-		case MORAL_ENEMY:	// #7
-			// Nation alone cannot dictate whether a unit can attack another.
-			// As such, we must check behaviour specific to these entities.
-			// For example: same nation players attacking each other in an arena.
-			if (!pSkillCaster->CanAttack(pSkillTarget))
-				goto fail_return;
-			break;	
-		case MORAL_ALL:	 // #8
-			// N/A
-			break;
-		case MORAL_AREA_ENEMY:		// #10
-			// N/A
-			break;
-		case MORAL_AREA_FRIEND:		// #11
-			if (pSkillCaster->GetNation() != moral)
-				goto fail_return;
-			break;
-		case MORAL_AREA_ALL:	// #12
-			// N/A
-			break;
-		case MORAL_SELF_AREA:     // #13
-			// Remeber, EVERYONE in the area is affected by this one. No moral check!!!
-			break;
-		case MORAL_CORPSE_FRIEND:		// #25
-			if (pSkillCaster->GetNation() != moral
-				// We need to revive *something*.
-				|| pSkillTarget == nullptr
-				// We cannot revive ourselves.
-				|| pSkillCaster == pSkillTarget
-				// We can't revive living targets.
-				|| pSkillTarget->isAlive())
-				goto fail_return;
-			break;
-		case MORAL_CLAN:		// #14
-		{
-			// NPCs cannot be in clans.
-			if (pSkillCaster->isNPC()
-				|| (pSkillTarget != nullptr && pSkillTarget->isNPC()))
-				goto fail_return;
+				break;
+			case MORAL_ENEMY:	// #7
+				// Nation alone cannot dictate whether a unit can attack another.
+				// As such, we must check behaviour specific to these entities.
+				// For example: same nation players attacking each other in an arena.
+				if (!pSkillCaster->CanAttack(pSkillTarget))
+					goto fail_return;
+				break;	
+			case MORAL_ALL:	 // #8
+				// N/A
+				break;
+			case MORAL_AREA_ENEMY:		// #10
+				// N/A
+				break;
+			case MORAL_AREA_FRIEND:		// #11
+				if (pSkillCaster->GetNation() != moral)
+					goto fail_return;
+				break;
+			case MORAL_AREA_ALL:	// #12
+				// N/A
+				break;
+			case MORAL_SELF_AREA:     // #13
+				// Remeber, EVERYONE in the area is affected by this one. No moral check!!!
+				break;
+			case MORAL_CORPSE_FRIEND:		// #25
+				if (pSkillCaster->GetNation() != moral
+					// We need to revive *something*.
+					|| pSkillTarget == nullptr
+					// We cannot revive ourselves.
+					|| pSkillCaster == pSkillTarget
+					// We can't revive living targets.
+					|| pSkillTarget->isAlive())
+					goto fail_return;
+				break;
+			case MORAL_CLAN:		// #14
+			{
+				// NPCs cannot be in clans.
+				if (pSkillCaster->isNPC()
+					|| (pSkillTarget != nullptr && pSkillTarget->isNPC()))
+					goto fail_return;
 
-			// We're definitely a user, so....
-			CUser * pCaster = TO_USER(pSkillCaster);
+				// We're definitely a user, so....
+				CUser * pCaster = TO_USER(pSkillCaster);
 
-			// If the caster's not in a clan, make sure the target's not someone other than themselves.
-			if ((!pCaster->isInClan() && pSkillCaster != pSkillTarget)
-				// Verify the intended moral
-				|| pCaster->GetNation() != moral
-				// If we're targeting someone, that target must be in our clan.
-				|| (pSkillTarget != nullptr 
-					&& TO_USER(pSkillTarget)->GetClanID() != pCaster->GetClanID()))
-				goto fail_return;
-		} break;
+				// If the caster's not in a clan, make sure the target's not someone other than themselves.
+				if ((!pCaster->isInClan() && pSkillCaster != pSkillTarget)
+					// Verify the intended moral
+					|| pCaster->GetNation() != moral
+					// If we're targeting someone, that target must be in our clan.
+					|| (pSkillTarget != nullptr 
+						&& TO_USER(pSkillTarget)->GetClanID() != pCaster->GetClanID()))
+					goto fail_return;
+			} break;
 
-		case MORAL_CLAN_ALL:	// #15
-			break;
+			case MORAL_CLAN_ALL:	// #15
+				break;
 
-		case MORAL_SIEGE_WEAPON:
-			if (pSkillCaster->isPlayer()
-				|| !TO_USER(pSkillCaster)->isSiegeTransformation())
-				goto fail_return;
-			break;
+			case MORAL_SIEGE_WEAPON:
+				if (pSkillCaster->isPlayer()
+					|| !TO_USER(pSkillCaster)->isSiegeTransformation())
+					goto fail_return;
+				break;
+		}
 	}
 
 	// This only applies to users casting skills. NPCs are fine and dandy (we can trust THEM at least).
@@ -932,7 +935,7 @@ bool MagicInstance::ExecuteType3()
 		}
 
 		//If you managed to not hit anything with your AoE, you're still gonna have a cooldown (You should l2aim)
-		if (casted_member.empty())
+		if (casted_member.empty() || sTargetID == -1)
 		{
 			SendSkill();
 			return true;			
