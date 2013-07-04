@@ -318,7 +318,14 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 	if (pTarget->isPlayer())
 	{
 		damage = GetACDamage(damage, pTarget);		// 3. Additional AC calculation....	
-		damage /= 3;
+
+		// Give increased damage in war zones (as per official 1.298~1.325)
+		// This may need to be revised to use the last nation to win the war, or more accurately, 
+		// the nation that last won the war 3 times in a row (whether official behaves this way now is unknown).
+		if (GetMap()->isWarZone())
+			damage /= 2;
+		else
+			damage /= 3;
 	}
 
 	return damage;
