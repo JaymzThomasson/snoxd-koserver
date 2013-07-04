@@ -1192,6 +1192,10 @@ bool MagicInstance::ExecuteType4()
 		//			We should not error out in this case.
 		bool bSkillTypeAlreadyOnTarget = (!bIsRecastingSavedMagic && buffItr != pTUser->m_buffMap.end());
 
+		// Debuffs 'stack', in that the expiry time is reset each time (no more, no less).
+		if (bSkillTypeAlreadyOnTarget && pType->isDebuff())
+			buffItr->second.m_tEndTime = UNIXTIME + pType->sDuration;
+
 		pTUser->m_buffLock.Release();
 
 		// If this skill is a debuff, and we are in the crossfire, 
@@ -1199,8 +1203,8 @@ bool MagicInstance::ExecuteType4()
 		if (pType->isDebuff() && pTUser == pSkillCaster)
 			continue;
 		
-		// If the user already has this (de)buff type cast on them
-		if (bSkillTypeAlreadyOnTarget 
+		// If the user already has this buff type cast on them (debuffs should just reset the duration)
+		if ((bSkillTypeAlreadyOnTarget && pType->isBuff())
 			// or it's a curse (debuff), and we're blocking them 
 			|| (pType->isDebuff() && bBlockingDebuffs)
 			// or we couldn't grant the (de)buff...
@@ -1227,21 +1231,21 @@ bool MagicInstance::ExecuteType4()
 			&& (sTargetID != -1 && pSkill->bType[0] == 4))
 			pSkillCaster->MSpChange( -(pSkill->sMsp) );
 
-		pBuffInfo.m_nSkillID = nSkillID;
-		pBuffInfo.m_bIsBuff = pType->bIsBuff;
+		// We do not want to reinsert debuffs into the map (which had their expiry times reset above).
+		if (!bSkillTypeAlreadyOnTarget)
+		{
+			pBuffInfo.m_nSkillID = nSkillID;
+			pBuffInfo.m_bIsBuff = pType->bIsBuff;
 
-		pBuffInfo.m_bDurationExtended = false;
-		pBuffInfo.m_tEndTime = UNIXTIME + pType->sDuration;
+			pBuffInfo.m_bDurationExtended = false;
+			pBuffInfo.m_tEndTime = UNIXTIME + pType->sDuration;
 
-		// Add the buff into the buff map.
-		pTUser->AddType4Buff(pType->bBuffType, pBuffInfo);
+			// Add the buff into the buff map.
+			pTUser->AddType4Buff(pType->bBuffType, pBuffInfo);
+		}
 
 		// Update character stats.
 		pTUser->SetUserAbility();
-
-		if (pTUser->isInParty() && pBuffInfo.isDebuff())
-			pTUser->SendPartyStatusUpdate(2, 1);
-
 		pTUser->Send2AI_UserUpdateInfo();
 
 	fail_return:
