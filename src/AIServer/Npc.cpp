@@ -2311,7 +2311,7 @@ int CNpc::Attack()
 		nDamage = GetDamage(pNpc);
 		if (nDamage <= 0)	
 			SendAttackSuccess(ATTACK_FAIL, pNpc->GetID(), nDamage, pNpc->m_iHP);
-		else if (pNpc->SetDamage(0, nDamage, GetID()))
+		else if (pNpc->SetDamage(nDamage, GetID()))
 			SendAttackSuccess(ATTACK_SUCCESS, pNpc->GetID(), nDamage, pNpc->m_iHP);
 		else
 			SendAttackSuccess(ATTACK_TARGET_DEAD, pNpc->GetID(), nDamage, pNpc->m_iHP);
@@ -2464,7 +2464,7 @@ bool CNpc::TracingAttack()
 		nDamage = GetDamage(pNpc);
 		if (nDamage <= 0)
 			SendAttackSuccess(ATTACK_FAIL, pNpc->GetID(), nDamage, pNpc->m_iHP);
-		else if (pNpc->SetDamage(0, nDamage, GetID())) 
+		else if (pNpc->SetDamage(nDamage, GetID())) 
 			SendAttackSuccess(ATTACK_SUCCESS, pNpc->GetID(), nDamage, pNpc->m_iHP);
 		else
 		{
@@ -2826,9 +2826,8 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 	}
 }
 
-bool CNpc::SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType /*= 0*/, bool bSendToEbenezer /*= true*/)
+bool CNpc::SetDamage(int nDamage, uint16 uid, int iDeadType /*= 0*/, bool bSendToEbenezer /*= true*/)
 {
-	bool bIsDurationDamage = (nAttackType < 0);
 	int i=0, len=0;
 	int userDamage = 0;
 	bool bFlag = false;
@@ -2866,22 +2865,13 @@ bool CNpc::SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType /*=
 													// 잉여 데미지는 소용없다.		
 	if( (m_iHP - nDamage) < 0 ) userDamage = m_iHP;
 
-	for(i = 0; i < NPC_HAVE_USER_LIST; i++)	{
-		if(m_DamagedUserList[i].iUid == uid)	{
-			if (bIsDurationDamage)
-			{
-				bFlag = true;
-				strncpy(strDurationID, pUser->GetName().c_str(), sizeof(strDurationID));
-				if (STRCASECMP(m_DamagedUserList[i].strUserID, strDurationID) == 0)	{
-					m_DamagedUserList[i].nDamage += userDamage; 
-					goto go_result;
-				}
-			}
-			else if (STRCASECMP(m_DamagedUserList[i].strUserID, id) == 0) 
-			{ 
-				m_DamagedUserList[i].nDamage += userDamage; 
-				goto go_result;
-			}
+	for (i = 0; i < NPC_HAVE_USER_LIST; i++)	
+	{
+		if (m_DamagedUserList[i].iUid == uid
+				&& STRCASECMP(m_DamagedUserList[i].strUserID, id) == 0) 
+		{ 
+			m_DamagedUserList[i].nDamage += userDamage; 
+			goto go_result;
 		}
 	}
 
@@ -2928,23 +2918,32 @@ go_result:
 	int iRandom = myrand(1, 100);
 	int iLightningR = 0;
 
-	if (uid < NPC_BAND)	// Target 이 User 인 경우
+	if (uid < NPC_BAND)
 	{
-		if(nAttackType == 3 && m_NpcState != NPC_FAINTING)	{			// 기절 시키는 스킬을 사용했다면..
-			// 확률 계산..
+#if 0	// This code handles stuns from skills with the lightning attribute.
+		// Since Ebenezer now handles skill code, this is only kept for future reference 
+		// so we can accurately reimplement this.
+
+		if (nAttackType == 3 && m_NpcState != NPC_FAINTING)	
+		{
 			iLightningR = (int)(10 + (40 - 40 * ( (double)m_sLightningR / 80)));
 			if( COMPARE(iRandom, 0, iLightningR) )	{
 				m_NpcState = NPC_FAINTING;
 				m_Delay = 0;
 				m_tFaintingTime = UNIXTIME;
 			}
-			else	ChangeTarget(nAttackType, pUser);
+			else	
+			{
+				ChangeTarget(nAttackType, pUser);
+			}
 		}
-		else	{
-			ChangeTarget(nAttackType, pUser);
+		else	
+#endif
+		{
+			ChangeTarget(0, pUser);
 		}
 	}
-	else // Target 이 mon 인 경우
+	else
 	{
 		ChangeNTarget(pNpc);
 	}

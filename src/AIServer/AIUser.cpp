@@ -62,7 +62,7 @@ void CUser::Attack(int sid, int tid)
 	int nFinalDamage = GetDamage(pNpc);
 	if (nFinalDamage <= 0)
 		SendAttackSuccess(tid, ATTACK_FAIL, nFinalDamage, pNpc->m_iHP);
-	else if (!pNpc->SetDamage(0, nFinalDamage, GetID()))
+	else if (!pNpc->SetDamage(nFinalDamage, GetID()))
 		SendAttackSuccess(tid, ATTACK_TARGET_DEAD, nFinalDamage, pNpc->m_iHP);
 	else
 		SendAttackSuccess(tid, ATTACK_SUCCESS, nFinalDamage, pNpc->m_iHP);

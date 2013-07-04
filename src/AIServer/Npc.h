@@ -343,8 +343,8 @@ public:
 	int  FindFriend(MonSearchType type = MonSearchSameFamily);
 	void  FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, MonSearchType type = MonSearchSameFamily);
 	bool IsCloseTarget(CUser *pUser, int nRange);
-	void SendExpToUserList();								// User 경험치 분배..
-	bool SetDamage(int nAttackType, int nDamage, uint16 uid, int iDeadType = 0, bool bSendToEbenezer = true);	// Npc의 데미지 계산..
+	void SendExpToUserList();
+	bool SetDamage(int nDamage, uint16 uid, int iDeadType = 0, bool bSendToEbenezer = true);
 	void ChangeTarget(int nAttackType, CUser *pUser);
 	void ChangeNTarget(CNpc *pNpc);
 	bool ResetPath();
