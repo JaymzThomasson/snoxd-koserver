@@ -176,7 +176,7 @@ public:
 	short m_sMaxPathCount;		// NPC의 PathList Max Count
 
 	bool	m_bFirstLive;		// NPC 가 처음 생성되는지 죽었다 살아나는지 판단.
-	uint8	m_NpcState;			// NPC의 상태 - 살았다, 죽었다, 서있다 등등...
+	uint8	m_OldNpcState, m_NpcState;
 
 	short	m_sNid;
 
@@ -320,6 +320,9 @@ public:
 
 	bool	m_bMonster;
 
+	uint32	m_nActiveSkillID;		// ID of skill currently being cast
+	int16	m_sActiveTargetID;		// ID of the target of the skill currently being cast
+
 public:
 	CNpc();
 	virtual ~CNpc();
@@ -378,6 +381,7 @@ public:
 	time_t NpcSleeping();
 	time_t NpcFainting();
 	time_t NpcHealing();
+	time_t NpcCasting();
 	time_t NpcStanding();
 	time_t NpcBack();
 	bool SetLive();

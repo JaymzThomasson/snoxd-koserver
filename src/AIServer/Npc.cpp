@@ -71,8 +71,8 @@ bool CNpc::RegisterRegion(float x, float z)
 	return true;
 }
 
-CNpc::CNpc() : Unit(), m_NpcState(NPC_LIVE), m_byGateOpen(false), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
-	m_byAttackPos(0), m_ItemUserLevel(0), m_Delay(0), 
+CNpc::CNpc() : Unit(), m_NpcState(NPC_LIVE), m_OldNpcState(m_NpcState), m_byGateOpen(false), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
+	m_byAttackPos(0), m_ItemUserLevel(0), m_Delay(0), m_nActiveSkillID(0), m_sActiveTargetID(-1), 
 	m_proto(nullptr), m_pPath(nullptr)
 {
 	InitTarget();
@@ -2384,7 +2384,7 @@ int CNpc::LongAndMagicAttack()
 			return nStandingTime;
 		}
 
-		CNpcMagicProcess::MagicPacket(MAGIC_CASTING, m_proto->m_iMagic1, GetID(), pUser->GetID());
+		return CNpcMagicProcess::MagicPacket(MAGIC_CASTING, m_proto->m_iMagic1, GetID(), pUser->GetID());
 		//TRACE("**** LongAndMagicAttack --- sid=%d, tid=%d\n", GetID(), pUser->GetID());
 	}
 	else // Target monster/NPC 
@@ -4353,6 +4353,20 @@ time_t CNpc::NpcHealing()
 
 	CNpcMagicProcess::MagicPacket(MAGIC_EFFECTING, m_proto->m_iMagic3, GetID(), iMonsterNid);
 	return m_sAttackDelay;
+}
+
+time_t CNpc::NpcCasting()
+{
+	if (isDead())
+		return -1;
+
+	CNpcMagicProcess::MagicPacket(MAGIC_EFFECTING, m_nActiveSkillID, GetID(), m_sActiveTargetID);
+
+	m_NpcState = m_OldNpcState;
+	m_nActiveSkillID = 0;
+	m_sActiveTargetID = -1;
+
+	return 0;
 }
 
 int CNpc::GetPartyExp(int party_level, int man, int nNpcExp)

@@ -102,6 +102,10 @@ uint32 THREADCALL NpcThreadProc(void * pParam /* CNpcThread ptr */)
 				case NPC_HEALING:
 					tDelay = pNpc->NpcHealing();
 					break;
+
+				case NPC_CASTING:
+					tDelay = pNpc->NpcCasting();
+					break;
 				}
 
 				// This may not be necessary, but it keeps behaviour identical.

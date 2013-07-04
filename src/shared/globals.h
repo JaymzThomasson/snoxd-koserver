@@ -51,7 +51,8 @@ enum NpcState
 	NPC_BACK,
 	NPC_SLEEPING,
 	NPC_FAINTING,
-	NPC_HEALING
+	NPC_HEALING,
+	NPC_CASTING
 };
 
 enum NpcType
