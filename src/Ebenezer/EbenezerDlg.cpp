@@ -4,6 +4,7 @@
 
 #include "../shared/ClientSocketMgr.h"
 #include "../shared/Ini.h"
+#include "../shared/DateTime.h"
 
 #include <time.h>
 #include <iostream>
@@ -27,11 +28,14 @@ WORD	g_increase_serial = 1;
 
 CEbenezerDlg::CEbenezerDlg()
 {
-	m_nYear = 0; 
-	m_nMonth = 0;
-	m_nDate = 0;
-	m_nHour = 0;
-	m_nMin = 0;
+	DateTime now;
+
+	m_sYear = now.GetYear();
+	m_sMonth = now.GetMonth();
+	m_sDate = now.GetDay();
+	m_sHour = now.GetHour();
+	m_sMin = now.GetMinute();
+
 	m_byWeather = 0;
 	m_sWeatherAmount = 0;
 	m_byKingWeatherEvent = 0;
@@ -187,11 +191,7 @@ void CEbenezerDlg::GetTimeFromIni()
 	// Both need to be enabled to use MARS.
 	if (!m_bMarsEnabled || !bMarsEnabled)
 		m_bMarsEnabled = false;
-	
-	m_nYear = ini.GetInt("TIMER", "YEAR", 1);
-	m_nMonth = ini.GetInt("TIMER", "MONTH", 1);
-	m_nDate = ini.GetInt("TIMER", "DATE", 1);
-	m_nHour = ini.GetInt("TIMER", "HOUR", 1);
+
 	m_byWeather = ini.GetInt("TIMER", "WEATHER", 1);
 
 	m_nBattleZoneOpenWeek  = ini.GetInt("BATTLE", "WEEK", 5);
@@ -783,10 +783,8 @@ void CEbenezerDlg::Send_AIServer(Packet *pkt)
 
 void CEbenezerDlg::UpdateGameTime()
 {
+	DateTime now(&g_localTime);
 	CUser* pUser = nullptr;
-	bool bKnights = false;
-
-	m_nMin++;
 
 	BattleZoneOpenTimer();	// Check if it's time for the BattleZone to open or end.
 
@@ -794,39 +792,34 @@ void CEbenezerDlg::UpdateGameTime()
 	foreach_stlmap (itr, m_KingSystemArray)
 		itr->second->CheckKingTimer();
 
-	if( m_nMin == 60 ) {
-		m_nHour++;
-		m_nMin = 0;
+	// Every hour
+	if (m_sHour != now.GetHour())
+	{
 		UpdateWeather();
 		SetGameTime();
 
 		if (m_bSantaOrAngel)
 			SendFlyingSantaOrAngel();
 	}
-	if( m_nHour == 24 ) {
-		m_nDate++;
-		m_nHour = 0;
-		bKnights = true;
-	}
-	if( m_nDate == 31 ) {
-		m_nMonth++;
-		m_nDate = 1;
-	}
-	if( m_nMonth == 13 ) {
-		m_nYear++;
-		m_nMonth = 1;
-	}
 
-	Packet result(AG_TIME_WEATHER);
-	result << m_nYear << m_nMonth << m_nDate << m_nHour << m_nMin << m_byWeather << m_sWeatherAmount;
-	Send_AIServer(&result);
-
-	if (bKnights)
+	// Every day
+	if (m_sDate != now.GetDay())
 	{
-		result.Initialize(WIZ_KNIGHTS_PROCESS);
-		result << uint8(KNIGHTS_ALLLIST_REQ) << uint8(m_nServerNo);
+		Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_ALLLIST_REQ));
+		result << uint8(m_nServerNo);
 		AddDatabaseRequest(result);
 	}
+
+	// Update the server time
+	m_sYear = now.GetYear();
+	m_sMonth = now.GetMonth();
+	m_sDate = now.GetDay();
+	m_sHour = now.GetHour();
+	m_sMin = now.GetMinute();
+
+	Packet result(AG_TIME_WEATHER);
+	result << m_sYear << m_sMonth << m_sDate << m_sHour << m_sMin << m_byWeather << m_sWeatherAmount;
+	Send_AIServer(&result);
 }
 
 void CEbenezerDlg::UpdateWeather()
@@ -894,10 +887,6 @@ void CEbenezerDlg::UpdateWeather()
 void CEbenezerDlg::SetGameTime()
 {
 	CIni ini(CONF_GAME_SERVER);
-	ini.SetInt( "TIMER", "YEAR", m_nYear );
-	ini.SetInt( "TIMER", "MONTH", m_nMonth );
-	ini.SetInt( "TIMER", "DATE", m_nDate );
-	ini.SetInt( "TIMER", "HOUR", m_nHour );
 	ini.SetInt( "TIMER", "WEATHER", m_byWeather );
 }
 

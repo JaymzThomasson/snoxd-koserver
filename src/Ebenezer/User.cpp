@@ -805,8 +805,8 @@ void CUser::SetMaxMp()
 void CUser::SendTime()
 {
 	Packet result(WIZ_TIME);
-	result	<< uint16(g_pMain->m_nYear) << uint16(g_pMain->m_nMonth) << uint16(g_pMain->m_nDate)
-			<< uint16(g_pMain->m_nHour) << uint16(g_pMain->m_nMin);
+	result	<< uint16(g_pMain->m_sYear) << uint16(g_pMain->m_sMonth) << uint16(g_pMain->m_sDate)
+			<< uint16(g_pMain->m_sHour) << uint16(g_pMain->m_sMin);
 	Send(&result);
 }
 
@@ -2216,7 +2216,7 @@ void CUser::UpdateGameWeather(Packet & pkt)
 	else
 	{
 		uint16 y, m, d;
-		pkt >> y >> m >> d >> g_pMain->m_nHour >> g_pMain->m_nMin;
+		pkt >> y >> m >> d >> g_pMain->m_sHour >> g_pMain->m_sMin;
 	}
 	Send(&pkt); // pass the packet straight on
 }

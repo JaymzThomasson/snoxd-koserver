@@ -292,7 +292,7 @@ public:
 	bool	m_bPointCheckFlag;		// AI서버와 재접전에 NPC포인터 참조막기 (true:포인터 참조, false:포인터 참조 못함)
 	short   m_sErrorSocketCount;  // 이상소켓 감시용
 
-	uint16 m_nYear, m_nMonth, m_nDate, m_nHour, m_nMin;
+	uint16 m_sYear, m_sMonth, m_sDate, m_sHour, m_sMin;
 	uint8 m_byWeather;
 	uint16 m_sWeatherAmount;
 	int m_nCastleCapture;
