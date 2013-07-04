@@ -105,18 +105,7 @@ bool CMagicProcess::UserRegionCheck(Unit * pSkillCaster, Unit * pSkillTarget, _M
 	return false;	
 
 final_test:
-	if (pSkillTarget->GetRegion() != pSkillCaster->GetRegion())
-		return false;
-
-	if (radius != 0)
-	{
-		float temp_x = pSkillTarget->GetX() - mousex;
-		float temp_z = pSkillTarget->GetZ() - mousez;
-		float distance = pow(temp_x, 2.0f) + pow(temp_z, 2.0f);
-		if (distance > pow((float)radius, 2.0f)) 
-			return false;
-	}
-	return true;	// Target is in the area.
+	return (radius == 0 || pSkillTarget->isInRangeSlow(mousex, mousez, (float) radius));
 }
 
 void CMagicProcess::CheckExpiredType6Skills(Unit * pTarget)
