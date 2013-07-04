@@ -2165,7 +2165,7 @@ int CNpc::GetTargetPath(int option)
 	return PathFind(start, end, m_fSecForMetor);
 }
 
-int CNpc::Attack()
+time_t CNpc::Attack()
 {
 	if (isDead())
 		return -1;
@@ -2320,7 +2320,7 @@ int CNpc::Attack()
 	return m_sAttackDelay;
 }
 
-int CNpc::LongAndMagicAttack()
+time_t CNpc::LongAndMagicAttack()
 {
 	int nStandingTime = m_sStandTime;
 	auto result = IsCloseTarget(m_byAttackRange, 2);

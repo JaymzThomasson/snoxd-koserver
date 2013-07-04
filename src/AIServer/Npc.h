@@ -353,8 +353,8 @@ public:
 	bool ResetPath();
 	bool GetTargetPos(float& x, float& z);
 	bool IsChangePath();
-	int Attack();
-	int LongAndMagicAttack();
+	time_t Attack();
+	time_t LongAndMagicAttack();
 	bool TracingAttack();
 	int GetTargetPath(int option = 0);
 	int	GetPartyDamage(int iNumber);
