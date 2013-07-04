@@ -325,21 +325,21 @@ time_t CNpc::NpcTracing()
 		return m_sStandTime;
 	}
 
-	int nFlag = IsCloseTarget(m_byAttackRange, 1);
-	if (nFlag == 1)
+	auto result = IsCloseTarget(m_byAttackRange, 1);
+	if (result == CloseTargetInGeneralRange)
 	{
 		NpcMoveEnd();
 		m_NpcState = NPC_FIGHTING;
 		return 0;
 	}
-	else if (nFlag == -1)
+	else if (result == CloseTargetInvalid)
 	{
 		InitTarget();
 		NpcMoveEnd();
 		m_NpcState = NPC_STANDING;
 		return m_sStandTime;
 	}
-	else if (nFlag == 2 && GetProto()->m_byDirectAttack == 2)
+	else if (result == CloseTargetInAttackRange && GetProto()->m_byDirectAttack == 2)
 	{
 		NpcMoveEnd();
 		m_NpcState = NPC_FIGHTING;
@@ -385,7 +385,7 @@ time_t CNpc::NpcTracing()
 	else
 		SendMoveResult(m_fPrevX, m_fPrevY, m_fPrevZ, (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000)));
 
-	if (nFlag == 2 && GetProto()->m_byDirectAttack == 0 && !isHealer())
+	if (result == CloseTargetInAttackRange && GetProto()->m_byDirectAttack == 0 && !isHealer())
 	{
 		if (!TracingAttack())
 		{
@@ -413,8 +413,8 @@ time_t CNpc::NpcAttacking()
 		return m_sStandTime/2;
 	}
 	
-	int ret = IsCloseTarget(m_byAttackRange);
-	if (ret == 1)
+	auto result = IsCloseTarget(m_byAttackRange);
+	if (result == CloseTargetInGeneralRange)
 	{
 		m_NpcState = NPC_FIGHTING;
 		return 0;
@@ -1885,11 +1885,10 @@ bool CNpc::StepNoPathMove()
 	return true;
 }
 
-//	NPC와 Target 과의 거리가 지정 범위보다 작은지 판단
-int CNpc::IsCloseTarget(int nRange, int Flag)
+CloseTargetResult CNpc::IsCloseTarget(int nRange, int Flag)
 {
 	if (!hasTarget())
-		return -1;
+		return CloseTargetInvalid;
 
 	CUser * pUser = nullptr;
 	CNpc * pNpc = nullptr;
@@ -1904,8 +1903,9 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 		if (pUser == nullptr)	
 		{
 			InitTarget();
-			return -1;
+			return CloseTargetInvalid;
 		}
+
 		vUser.Set(pUser->GetX(), pUser->GetY(), pUser->GetZ()); 
 		vWillUser.Set(pUser->m_fWill_x, pUser->m_fWill_y, pUser->m_fWill_z); 
 		fX = pUser->GetX();		
@@ -1922,7 +1922,7 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 		if(pNpc == nullptr) 
 		{
 			InitTarget();
-			return -1;
+			return CloseTargetInvalid;
 		}
 		vUser.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
 		fX = pNpc->GetX();
@@ -1936,7 +1936,7 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 
     if (GetType() == NPC_DUNGEON_MONSTER
 		&& !isInSpawnRange((int)vUser.x, (int)vUser.z))
-		return -1;	
+		return CloseTargetInvalid;
 
 	if (Flag == 1)	
 	{
@@ -1949,14 +1949,17 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 		//TRACE("NpcTracing-IsCloseTarget - target_x = %.2f, z=%.2f, dis=%.2f, Flag=%d\n", m_Target.x, m_Target.z, fDis, m_bStopFollowingTarget);
 	}
 	
-	if((int)fDis > nRange)	{
-		if(Flag == 2)			{
+	if ((int)fDis > nRange)	
+	{
+		if (Flag == 2)			
+		{
 			//TRACE("NpcFighting-IsCloseTarget - target_x = %.2f, z=%.2f, dis=%.2f\n", m_Target.x, m_Target.z, fDis);
 			m_bStopFollowingTarget = true;
 			m_Target.x = fX;
 			m_Target.z = fZ;
 		}
-		return 0; 
+
+		return CloseTargetNotInRange; 
 	}
 
 	m_fEndPoint_X = GetX();
@@ -1964,29 +1967,29 @@ int CNpc::IsCloseTarget(int nRange, int Flag)
 	m_Target.x = fX;
 	m_Target.z = fZ;
 
-	//if( m_tNpcLongType && GetType() != NPC_BOSS_MONSTER)	{
 	if (GetProto()->m_byDirectAttack == 1)
 	{
-		if(fDis < LONG_ATTACK_RANGE)	return 1;
-		else if(fDis > LONG_ATTACK_RANGE && fDis <= nRange) return 2;
+		if (fDis <= LONG_ATTACK_RANGE) return CloseTargetInGeneralRange;
+		else if (fDis <= nRange) return CloseTargetInAttackRange;
 	}
-	else	{					// 단거리(직접공격)
-		if( Flag == 1 )		{	// 몬스터의 이동하면서이 거리체크시
-			if(fDis < (SHORT_ATTACK_RANGE+m_proto->m_fBulk) )	return 1;
-			if(fDis > (SHORT_ATTACK_RANGE+m_proto->m_fBulk) && fDis <= nRange) return 2;				// 유저의 현재좌표를 기준으로
-			if( bUserType == true )	{	// 유저일때만,, Will좌표를 기준으로 한다
-				if(fWillDis > (SHORT_ATTACK_RANGE+m_proto->m_fBulk) && fWillDis <= nRange) return 2;		// 유저의 Will돠표를 기준으로
-			}
+	else	
+	{
+		if (Flag == 1)
+		{
+			if (fDis <= (SHORT_ATTACK_RANGE + m_proto->m_fBulk)) return CloseTargetInGeneralRange;
+			else if (fDis <= nRange) return CloseTargetInAttackRange;
+
+			if (bUserType && fWillDis > (SHORT_ATTACK_RANGE + m_proto->m_fBulk) && fWillDis <= nRange) 
+				return CloseTargetInAttackRange;
 		}
-		else {
-			if(fDis < (SHORT_ATTACK_RANGE+m_proto->m_fBulk) )	return 1;
-			else if(fDis > (SHORT_ATTACK_RANGE+m_proto->m_fBulk) && fDis <= nRange) return 2;
+		else 
+		{
+			if (fDis <= (SHORT_ATTACK_RANGE + m_proto->m_fBulk)) return CloseTargetInGeneralRange;
+			else if (fDis <= nRange) return CloseTargetInAttackRange;
 		}
 	}
 
-
-	//TRACE("Npc-IsCloseTarget - target_x = %.2f, z=%.2f\n", m_Target.x, m_Target.z);
-	return 0;
+	return CloseTargetNotInRange;
 }
 
 //	Target 과 NPC 간 Path Finding을 수행한다.
@@ -2181,15 +2184,15 @@ int CNpc::Attack()
 		return LongAndMagicAttack();
 		
 	int nStandingTime = m_sStandTime;
-	int ret = IsCloseTarget(m_byAttackRange, 2);
-	if (ret == 0)   
+	auto result = IsCloseTarget(m_byAttackRange, 2);
+	if (result == CloseTargetNotInRange)   
 	{
 		m_sStepCount = 0;
 		m_byActionFlag = ATTACK_TO_TRACE;
 		m_NpcState = NPC_TRACING;
 		return 0;
 	}	
-	else if (ret == 2)
+	else if (result == CloseTargetInAttackRange)
 	{
 		if (GetProto()->m_byDirectAttack == 2)
 			return LongAndMagicAttack();
@@ -2199,7 +2202,7 @@ int CNpc::Attack()
 		m_NpcState = NPC_TRACING;
 		return 0;
 	}
-	else if (ret == -1)
+	else if (result == CloseTargetInvalid)
 	{
 		m_NpcState = NPC_STANDING;
 		InitTarget();
@@ -2320,22 +2323,22 @@ int CNpc::Attack()
 int CNpc::LongAndMagicAttack()
 {
 	int nStandingTime = m_sStandTime;
-	int ret = IsCloseTarget(m_byAttackRange, 2);
-	if(ret == 0)	
+	auto result = IsCloseTarget(m_byAttackRange, 2);
+	if (result == CloseTargetNotInRange)	
 	{
 		m_sStepCount = 0;
 		m_byActionFlag = ATTACK_TO_TRACE;
 		m_NpcState = NPC_TRACING;
 		return 0;
 	}	
-	else if (ret == 2 && GetProto()->m_byDirectAttack == 1)
+	else if (result == CloseTargetInAttackRange && GetProto()->m_byDirectAttack == 1)
 	{
 		m_sStepCount = 0;
 		m_byActionFlag = ATTACK_TO_TRACE;
 		m_NpcState = NPC_TRACING;
 		return 0;
 	}
-	else if (ret == -1)
+	else if (result == CloseTargetInvalid)
 	{
 		m_NpcState = NPC_STANDING;
 		InitTarget();
@@ -4293,15 +4296,15 @@ time_t CNpc::NpcHealing()
 		return m_sStandTime;
 	}
 
-	int ret = IsCloseTarget(m_byAttackRange, 2);
-	if (ret == 0)   
+	auto result = IsCloseTarget(m_byAttackRange, 2);
+	if (result == CloseTargetNotInRange)   
 	{
 		m_sStepCount = 0;
 		m_byActionFlag = ATTACK_TO_TRACE;
 		m_NpcState = NPC_TRACING;
 		return 0;
 	}	
-	else if (ret == 2)
+	else if (result == CloseTargetInAttackRange)
 	{
 		if (GetProto()->m_byDirectAttack == 2)
 			return LongAndMagicAttack();
@@ -4311,7 +4314,7 @@ time_t CNpc::NpcHealing()
 		m_NpcState = NPC_TRACING;
 		return 0;
 	}
-	else if (ret == -1)
+	else if (result == CloseTargetInvalid)
 	{
 		m_NpcState = NPC_STANDING;
 		InitTarget();

@@ -93,6 +93,14 @@ enum MonSearchType
 	MonSearchNeedsHealing	// find any mob that needs healing
 };
 
+enum CloseTargetResult
+{
+	CloseTargetInvalid,
+	CloseTargetNotInRange,
+	CloseTargetInGeneralRange,
+	CloseTargetInAttackRange
+};
+
 struct __Vector3;
 class CNpc : public Unit
 {
@@ -347,7 +355,7 @@ public:
 	bool TracingAttack();
 	int GetTargetPath(int option = 0);
 	int	GetPartyDamage(int iNumber);
-	int IsCloseTarget(int nRange, int Flag=0);
+	CloseTargetResult IsCloseTarget(int nRange, int Flag=0);
 	bool StepMove();
 	bool StepNoPathMove();
 	bool IsMovingEnd();
