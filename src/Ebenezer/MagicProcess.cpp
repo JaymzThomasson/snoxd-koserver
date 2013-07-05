@@ -411,6 +411,14 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_REDUCE_TARGET:		// "Reduction" (reduces target's stats, but enlarges their character to make them easier to attack)
+		// NOTE: Skill description says "Enlarge enemy, but decrease attack and defense rate by 5%"
+		// There's nothing else set in the client to give those stats, and AC's reduced by 15% according to the data...
+		// Just working with the TBL data for now (i.e. just the 15% AC reduction).
+		if (pTarget->isPlayer())
+		{
+			TO_USER(pTarget)->StateChangeServerDirect(3, ABNORMAL_GIANT);
+			pTarget->m_sACPercent += (100 - pType->sACPct);
+		}
 		break;
 
 	case BUFF_TYPE_SILENCE_TARGET:		// Silences the target to prevent them from using any skills (or potions)
@@ -691,6 +699,14 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_REDUCE_TARGET:		// "Reduction" (reduces target's stats, but enlarges their character to make them easier to attack)
+		// NOTE: Skill description says "Enlarge enemy, but decrease attack and defense rate by 5%"
+		// There's nothing else set in the client to give those stats, and AC's reduced by 15% according to the data...
+		// Just working with the TBL data for now (i.e. just the 15% AC reduction).
+		if (pTarget->isPlayer())
+		{
+			TO_USER(pTarget)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
+			pTarget->m_sACPercent -= (100 - pType->sACPct);
+		}
 		break;
 
 	case BUFF_TYPE_SILENCE_TARGET:		// Silences the target to prevent them from using any skills (or potions)
