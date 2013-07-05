@@ -427,6 +427,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_UNSIGHT:				// Unsure how this is different to "Blind", but skill description simply reads "Blocks your[the target's] sight."
+		pTarget->m_bIsBlinded = true;
 		break;
 
 	case BUFF_TYPE_BLOCK_PHYSICAL_DAMAGE: // Blocks all physical damage.
@@ -701,7 +702,8 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		pTarget->m_sACPercent -= (pType->sACPct - 100);
 		break;
 
-	case BUFF_TYPE_UNSIGHT:				// Unsure how this is different to "Blind", but skill description simply reads "Blocks your[the target's] sight."
+	case BUFF_TYPE_UNSIGHT:				// Unsure how this is different to "Blind", but skill description simply reads "Blocks your sight."
+		pTarget->m_bIsBlinded = false;
 		break;
 
 	case BUFF_TYPE_BLOCK_PHYSICAL_DAMAGE: // Blocks all physical damage.
@@ -879,7 +881,7 @@ bool CMagicProcess::IsBuff(_MAGIC_TYPE4 * pType)
 	case BUFF_TYPE_NO_POTIONS:			// "No Potion" prevents target from using potions.
 	case BUFF_TYPE_KAUL_TRANSFORMATION:	// Transforms the target into a Kaul (a pig thing), preventing you from /town'ing or attacking, but increases defense.
 	case BUFF_TYPE_UNDEAD:				// User becomes undead, increasing defense but preventing the use of potions and converting all health received into damage.
-	case BUFF_TYPE_UNSIGHT:				// Unsure how this is different to "Blind", but skill description simply reads "Blocks your[the target's] sight."
+	case BUFF_TYPE_UNSIGHT:				// Unsure how this is different to "Blind", but skill description simply reads "Blocks your sight."
 		return false;
 
 	case BUFF_TYPE_BLOCK_PHYSICAL_DAMAGE: // Blocks all physical damage.

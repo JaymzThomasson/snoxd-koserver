@@ -609,7 +609,7 @@ enum BuffType
 	BUFF_TYPE_NO_POTIONS			= 153, // "No Potion" prevents target from using potions.
 	BUFF_TYPE_KAUL_TRANSFORMATION	= 154, // Transforms the target into a Kaul (a pig thing), preventing you from /town'ing or attacking, but increases defense.
 	BUFF_TYPE_UNDEAD				= 155, // User becomes undead, increasing defense but preventing the use of potions and converting all health received into damage.
-	BUFF_TYPE_UNSIGHT				= 156, // Unsure how this is different to "Blind", but skill description simply reads "Blocks your[the target's] sight."
+	BUFF_TYPE_UNSIGHT				= 156, // Unsure how this is different to "Blind", but skill description simply reads "Blocks your sight."
 	BUFF_TYPE_BLOCK_PHYSICAL_DAMAGE	= 157, // Blocks all physical damage.
 	BUFF_TYPE_BLOCK_MAGICAL_DAMAGE	= 158, // Blocks all magical/skill damage.
 	BUFF_TYPE_UNK_POTION			= 159, // unknown potion, "Return of the Warrior", "Comeback potion", perhaps some sort of revive?
