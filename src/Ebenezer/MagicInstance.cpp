@@ -149,7 +149,7 @@ bool MagicInstance::UserCanCast()
 	if (bIsRecastingSavedMagic)
 		return true;
 
-	if (pSkillCaster->canUseSkills())
+	if (!pSkillCaster->canUseSkills())
 		return false;
 
 	// Users who are blinking cannot use skills.
