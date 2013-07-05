@@ -242,7 +242,5 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 			&& !GetMap()->isWarZone()
 			&& GetLoyalty() == 0)
 			KickOutZoneUser(false);
-
-		// TO-DO: We should also kick players out of zones if their level no longer meets the zone's requirements.
 	}
 }

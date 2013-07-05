@@ -1234,7 +1234,7 @@ void CUser::LevelChange(short level, bool bLevelUp /*= true*/)
 	SetUserAbility();
 
 	m_sMp = m_iMaxMp;
-	HpChange( m_iMaxHp );
+	HpChange(m_iMaxHp);
 
 	Send2AI_UserUpdateInfo();
 
@@ -1254,6 +1254,11 @@ void CUser::LevelChange(short level, bool bLevelUp /*= true*/)
 		result << uint8(PARTY_LEVELCHANGE) << GetSocketID() << GetLevel();
 		g_pMain->Send_PartyMember(m_sPartyIndex, &result);
 	}
+
+	// We should kick players out of the zone if their level no longer matches the requirements for this zone.
+	if (GetLevel() < GetMap()->GetMinLevelReq() 
+		|| GetLevel() > GetMap()->GetMaxLevelReq())
+		KickOutZoneUser();
 }
 
 /**
