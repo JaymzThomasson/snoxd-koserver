@@ -19,15 +19,18 @@ public:
 	INLINE News * GetNews() { return &m_news; };
 
 	INLINE VersionInfoList* GetPatchList() { return &m_VersionList; };
-	INLINE ServerInfoList* GetServerList() { return &m_ServerList; };
 
 	bool Startup();
+
+	static uint32 THREADCALL Timer_UpdateUserCount(void * lpParam);
+	void GetServerList(Packet & result);
 
 	~LoginServer();
 
 	KOSocketMgr<LoginSession> m_socketMgr;
 
 private:
+	void UpdateServerList();
 	void GetInfoFromIni();
 	void WriteLogFile(std::string & logMessage);
 	void ReportSQLError(OdbcError *pError);
@@ -41,8 +44,9 @@ private:
 
 	News m_news;
 
-	RWLock m_serverListLock, m_patchListLock;
-	FastMutex m_lock;
+	RWLock m_patchListLock;
+	Packet m_serverListPacket;
+	FastMutex m_lock, m_serverListLock;
 
 	FILE *m_fp;
 public:

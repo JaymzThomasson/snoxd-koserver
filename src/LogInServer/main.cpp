@@ -3,6 +3,7 @@
 
 LoginServer * g_pMain;
 static Condition s_hEvent;
+bool g_bRunning = true;
 
 #ifdef WIN32
 BOOL WINAPI _ConsoleHandler(DWORD dwCtrlType);
@@ -38,6 +39,7 @@ int main()
 
 	printf("Server shutting down, please wait...\n");
 
+	g_bRunning = false; 
 	delete g_pMain;
 	UnhookSignals();
 

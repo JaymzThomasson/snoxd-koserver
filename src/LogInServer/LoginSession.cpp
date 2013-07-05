@@ -96,7 +96,6 @@ void LoginSession::HandleLogin(Packet & pkt)
 void LoginSession::HandleServerlist(Packet & pkt)
 {
 	Packet result(pkt.GetOpcode());
-	g_pMain->m_DBProcess.LoadUserCountList();
 
 #if __VERSION >= 1500
 	uint16 echo;
@@ -104,37 +103,7 @@ void LoginSession::HandleServerlist(Packet & pkt)
 	result << echo;
 #endif
 
-	result << uint8(g_pMain->GetServerList()->size());
-	foreach (itr, (*g_pMain->GetServerList())) 
-	{		
-		_SERVER_INFO *pServer = *itr;
-
-		result << pServer->strServerIP;
-#if __VERSION >= 1888
-		result << pServer->strLanIP;
-#endif
-		result << pServer->strServerName;
-
-		if (pServer->sUserCount <= pServer->sPlayerCap)
-			result << pServer->sUserCount;
-		else
-			result << int16(-1);
-#if __VERSION >= 1453
-		result << pServer->sServerID << pServer->sGroupID;
-		result << pServer->sPlayerCap << pServer->sFreePlayerCap;
-
-#if __VERSION < 1600
-		result << uint8(1); // unknown, 1 in 15XX samples, 0 in 18XX+
-#else
-		result << uint8(0); 
-#endif
-
-		// we read all this stuff from ini, TO-DO: make this more versatile.
-		result	<< pServer->strKarusKingName << pServer->strKarusNotice 
-				<< pServer->strElMoradKingName << pServer->strElMoradNotice;
-#endif
-	}
-
+	g_pMain->GetServerList(result);
 	Send(&result);
 }
 
