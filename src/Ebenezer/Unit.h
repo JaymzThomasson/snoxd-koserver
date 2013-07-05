@@ -163,7 +163,8 @@ public:
 	float	m_fTotalHitrate;
 	float	m_fTotalEvasionrate;
 
-	short   m_sACAmount;
+	short   m_sACAmount;	// additional absolute AC
+	int16	m_sACPercent;	// percentage of total AC to modify by
 	uint8   m_bAttackAmount;
 	short	m_sMagicAttackAmount;
 	short	m_sMaxHPAmount, m_sMaxMPAmount;
@@ -247,4 +248,5 @@ public:
 	bool	m_bInstantCast;
 	bool    m_bBlockCurses, m_bReflectCurses;
 	uint8	m_bReflectArmorType;
+	bool	m_bUndead;
 };

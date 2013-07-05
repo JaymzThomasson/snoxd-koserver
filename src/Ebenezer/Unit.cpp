@@ -43,11 +43,13 @@ void Unit::Initialize()
 	m_bIsBlinded = false;
 	m_bInstantCast = false;
 	m_bBlockCurses = m_bReflectCurses = false;
+	m_bUndead = false;
 
 	m_bAttackSpeedAmount = 100;		// this is for the duration spells Type 4
-    m_bSpeedAmount = 100;
-    m_sACAmount = 0;
-    m_bAttackAmount = 100;
+	m_bSpeedAmount = 100;
+	m_sACAmount = 0;
+	m_sACPercent = 100;
+	m_bAttackAmount = 100;
 	m_sMagicAttackAmount = 0;
 	m_sMaxHPAmount = 0;
 	m_sMaxMPAmount = 0;
@@ -212,7 +214,14 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 	if (pTarget == nullptr || pTarget->isDead())
 		return -1;
 
-	temp_ac = pTarget->m_sTotalAc + pTarget->m_sACAmount;
+	temp_ac = pTarget->m_sTotalAc;
+
+	// A unit's total AC shouldn't ever go below 0.
+	if ((temp_ac - pTarget->m_sACAmount) <= 0)
+		temp_ac = 0;
+	else
+		temp_ac += pTarget->m_sACAmount;
+
 	temp_ap = m_sTotalHit * m_bAttackAmount;
 
 #ifdef EBENEZER
@@ -353,10 +362,17 @@ short CNpc::GetDamage(CUser *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 	if (pTarget == nullptr)
 		return 0;
 
-	short damage = 0, Ac, HitB;
+	int32 damage = 0, HitB;
+	int32 Ac = pTarget->m_sTotalAc;
+
+	// A unit's total AC shouldn't ever go below 0.
+	if ((Ac - pTarget->m_sACAmount) <= 0)
+		Ac = 0;
+	else
+		Ac += pTarget->m_sACAmount;
 
 	Ac = TO_USER(pTarget)->m_sItemAc + pTarget->GetLevel() 
-		+ (pTarget->m_sTotalAc + pTarget->m_sACAmount - pTarget->GetLevel() - TO_USER(pTarget)->m_sItemAc);
+		+ (Ac - pTarget->GetLevel() - TO_USER(pTarget)->m_sItemAc);
 	HitB = (int)((m_sTotalHit * m_bAttackAmount * 200 / 100) / (Ac + 240));
 
 	if (HitB <= 0)
@@ -382,7 +398,7 @@ short CNpc::GetDamage(CUser *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 	if (damage > nMaxDamage)	
 		damage = nMaxDamage;
 
-	return damage;	
+	return (short) damage;	
 }
 
 /**

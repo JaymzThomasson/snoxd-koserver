@@ -193,10 +193,11 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_AC:
+	case BUFF_TYPE_WEAPON_AC:
 		if (pType->sAC == 0 && pType->sACPct > 0)
-			pTarget->m_sACAmount = pTarget->m_sTotalAc * (pType->sACPct - 100) / 100;
+			pTarget->m_sACPercent += (pType->sACPct - 100);
 		else
-			pTarget->m_sACAmount = pType->sAC;
+			pTarget->m_sACAmount += pType->sAC;
 		break;
 
 	case BUFF_TYPE_SIZE:
@@ -279,13 +280,6 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		// uses pType->Attack
 		break;
 
-	case BUFF_TYPE_WEAPON_AC:
-		if (pType->sAC == 0 && pType->sACPct > 0)
-			pTarget->m_sACAmount = pTarget->m_sTotalAc * (pType->sACPct - 100) / 100;
-		else
-			pTarget->m_sACAmount = pType->sAC;
-		break;
-
 	case BUFF_TYPE_LOYALTY:
 		if(pTarget->isPlayer())
 			TO_USER(pTarget)->m_bNPGainAmount = pType->bExpPct;
@@ -303,11 +297,6 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 
 	case BUFF_TYPE_ATTACK_SPEED_ARMOR:
 		pTarget->m_sACAmount += pType->sAC;
-
-		// Prevent total defense from ever going below 0
-		if ((pTarget->m_sACAmount + pTarget->m_sTotalAc) < 0)
-			pTarget->m_sACAmount = -(pTarget->m_sTotalAc);
-
 		pTarget->m_bAttackAmount = pType->bAttack;
 		break;
 
@@ -359,7 +348,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_TRIPLEAC_HALFSPEED:	// Wall of Iron
-		pTarget->m_sACAmount += pTarget->m_sTotalAc * 2; // TO-DO: Store this value independently for restoration
+		pTarget->m_sACPercent += 300; // 300%, or 3x
 		pTarget->m_bSpeedAmount = pTarget->m_bSpeedAmount / 2;
 		if (pTarget->m_bSpeedAmount = 0)
 			pTarget->m_bSpeedAmount = 1;
@@ -433,6 +422,8 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_UNDEAD:				// User becomes undead, increasing defense but preventing the use of potions and converting all health received into damage.
+		pTarget->m_bUndead = true;
+		pTarget->m_sACPercent += (pType->sACPct - 100);
 		break;
 
 	case BUFF_TYPE_UNSIGHT:				// Unsure how this is different to "Blind", but skill description simply reads "Blocks your[the target's] sight."
@@ -477,10 +468,15 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 	if (pSkill == nullptr)
 		return false;
 
+	_MAGIC_TYPE4 * pType = g_pMain->m_Magictype4Array.GetData(pSkill->iNum);
+	if (pType == nullptr)
+		return false;
+
 	// If this buff persists across logout, it should be removed here too.
 	if (pTarget->isPlayer()
 		&& pTarget->HasSavedMagic(pSkill->iNum))
 		TO_USER(pTarget)->RemoveSavedMagic(pSkill->iNum);
+
 
 	pTarget->m_buffMap.erase(itr);
 
@@ -492,7 +488,11 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_AC:
-		pTarget->m_sACAmount = 0;
+	case BUFF_TYPE_WEAPON_AC:
+		if (pType->sAC == 0 && pType->sACPct > 0)
+			pTarget->m_sACPercent -= (pType->sACPct - 100);
+		else
+			pTarget->m_sACAmount -= pType->sAC;
 		break;
 
 	case BUFF_TYPE_SIZE:
@@ -554,10 +554,6 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		// uses pType->Attack
 		break;
 
-	case BUFF_TYPE_WEAPON_AC:
-		pTarget->m_sACAmount = 0;
-		break;
-
 	case BUFF_TYPE_LOYALTY:
 		if (pTarget->isPlayer())
 			TO_USER(pTarget)->m_bNPGainAmount = 100;
@@ -574,9 +570,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_ATTACK_SPEED_ARMOR:
-		// should this revert a specific amount? if so, we need to store it so that we know how much.
-		// most likely though, it's just recalculated.
-		pTarget->m_sACAmount = 0;
+		pTarget->m_sACAmount -= pType->sAC;
 		pTarget->m_bAttackAmount = 100;
 		break;
 
@@ -629,7 +623,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_TRIPLEAC_HALFSPEED:	// Wall of Iron
-		pTarget->m_sACAmount -= pTarget->m_sTotalAc * 2; // TO-DO: Store this value independently for restoration
+		pTarget->m_sACPercent -= 300; // 300%, or 3x
 		pTarget->m_bSpeedAmount = 100;
 		if (pTarget->m_bSpeedAmount = 0)
 			pTarget->m_bSpeedAmount = 1;
@@ -703,6 +697,8 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_UNDEAD:				// User becomes undead, increasing defense but preventing the use of potions and converting all health received into damage.
+		pTarget->m_bUndead = false;
+		pTarget->m_sACPercent -= (pType->sACPct - 100);
 		break;
 
 	case BUFF_TYPE_UNSIGHT:				// Unsure how this is different to "Blind", but skill description simply reads "Blocks your[the target's] sight."
@@ -885,7 +881,6 @@ bool CMagicProcess::IsBuff(_MAGIC_TYPE4 * pType)
 	case BUFF_TYPE_UNDEAD:				// User becomes undead, increasing defense but preventing the use of potions and converting all health received into damage.
 	case BUFF_TYPE_UNSIGHT:				// Unsure how this is different to "Blind", but skill description simply reads "Blocks your[the target's] sight."
 		return false;
-
 
 	case BUFF_TYPE_BLOCK_PHYSICAL_DAMAGE: // Blocks all physical damage.
 	case BUFF_TYPE_BLOCK_MAGICAL_DAMAGE:  // Blocks all magical/skill damage.

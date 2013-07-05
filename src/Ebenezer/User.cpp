@@ -1313,6 +1313,12 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 				amount = (90 * amount) / 100;
 		}
     }
+	// If we're receiving HP and we're undead, all healing must become damage.
+	else if (m_bUndead)
+	{
+		amount = -amount;
+		originalAmount = amount;
+	}
 
 	if (amount < 0 && -amount >= m_sHp)
 		m_sHp = 0;
@@ -1520,6 +1526,11 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 		m_sTotalHit = (short)((((((0.005f * sItemDamage * (temp_str + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_str )) + 3) * m_bAttackAmount / 100) + baseAP) * (100 + m_byAPBonusAmount) / 100);
 
 	m_sTotalAc = (short)(p_TableCoefficient->AC * (GetLevel() + m_sItemAc));
+	if (m_sACPercent <= 0)
+		m_sTotalAc = 0;
+	else
+		m_sTotalAc = m_sTotalAc * m_sACPercent / 100;
+
 	m_fTotalHitrate = ((1 + p_TableCoefficient->Hitrate * GetLevel() *  temp_dex ) * m_sItemHitrate/100 ) * (m_bHitRateAmount/100);
 
 	m_fTotalEvasionrate = ((1 + p_TableCoefficient->Evasionrate * GetLevel() * temp_dex ) * m_sItemEvasionrate/100) * (m_sAvoidRateAmount/100);
