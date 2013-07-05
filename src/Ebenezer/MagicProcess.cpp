@@ -422,10 +422,11 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_SILENCE_TARGET:		// Silences the target to prevent them from using any skills (or potions)
-		pTarget->m_bSkillsEnabled = false;
+		pTarget->m_bCanUseSkills = false;
 		break;
 
 	case BUFF_TYPE_NO_POTIONS:			// "No Potion" prevents target from using potions.
+		pTarget->m_bCanUsePotions = false;
 		break;
 
 	case BUFF_TYPE_KAUL_TRANSFORMATION:	// Transforms the target into a Kaul (a pig thing), preventing you from /town'ing or attacking, but increases defense.
@@ -710,10 +711,11 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_SILENCE_TARGET:		// Silences the target to prevent them from using any skills (or potions)
-		pTarget->m_bSkillsEnabled = true;
+		pTarget->m_bCanUseSkills = true;
 		break;
 
 	case BUFF_TYPE_NO_POTIONS:			// "No Potion" prevents target from using potions.
+		pTarget->m_bCanUsePotions = true;
 		break;
 
 	case BUFF_TYPE_KAUL_TRANSFORMATION:	// Transforms the target into a Kaul (a pig thing), preventing you from /town'ing or attacking, but increases defense.

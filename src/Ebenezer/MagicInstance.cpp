@@ -655,6 +655,21 @@ bool MagicInstance::IsAvailable()
 	// This only applies to users casting skills. NPCs are fine and dandy (we can trust THEM at least).
 	if (pSkillCaster->isPlayer())
 	{
+		if (pSkill->bType[0] == 3)
+		{
+			_MAGIC_TYPE3 * pType3 = g_pMain->m_Magictype3Array.GetData(pSkill->iNum);
+			if (pType3 == nullptr)
+				goto fail_return;
+
+			// Allow for skills that block potion use.
+			// NOTE: Officially they most likely go by skill ID (5#####), but this seems less hacky.
+			if (!pSkillCaster->canUsePotions()
+				&& pType3->bDirectType == 1 // affects target's HP (magic numbers! yay!)
+				&& pType3->sFirstDamage > 0 // healing only
+				&& pSkill->iNum != 0) // requiring an item (i.e. pots, nothing else in my database matches) 
+				goto fail_return;
+		}
+
 		modulator = pSkill->sSkill % 10;     // Hacking prevention!
 		if( modulator != 0 ) {	
 			Class = pSkill->sSkill / 10;
