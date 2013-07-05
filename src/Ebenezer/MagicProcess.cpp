@@ -413,6 +413,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_SILENCE_TARGET:		// Silences the target to prevent them from using any skills (or potions)
+		pTarget->m_bSkillsEnabled = false;
 		break;
 
 	case BUFF_TYPE_NO_POTIONS:			// "No Potion" prevents target from using potions.
@@ -689,6 +690,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_SILENCE_TARGET:		// Silences the target to prevent them from using any skills (or potions)
+		pTarget->m_bSkillsEnabled = true;
 		break;
 
 	case BUFF_TYPE_NO_POTIONS:			// "No Potion" prevents target from using potions.
