@@ -2,6 +2,9 @@
 #include <sstream>
 #include "../shared/Ini.h"
 
+extern bool g_bRunning;
+std::vector<Thread *> g_timerThreads;
+
 LoginServer::LoginServer() : m_sLastVersion(__VERSION), m_fp(nullptr)
 {
 }
@@ -40,7 +43,65 @@ bool LoginServer::Startup()
 	}
 
 	m_socketMgr.RunServer();
+	g_timerThreads.push_back(new Thread(Timer_UpdateUserCount));
 	return true;
+}
+
+uint32 LoginServer::Timer_UpdateUserCount(void * lpParam)
+{
+	while (g_bRunning)
+	{
+		g_pMain->UpdateServerList();
+		sleep(60 * SECOND);
+	}
+	return 0;
+}
+
+void LoginServer::GetServerList(Packet & result)
+{
+	FastGuard lock(m_serverListLock);
+	result.append(m_serverListPacket.contents(), m_serverListPacket.size());
+}
+
+void LoginServer::UpdateServerList()
+{
+	// Update the user counts first
+	m_DBProcess.LoadUserCountList();
+
+	FastGuard lock(m_serverListLock);
+	Packet & result = m_serverListPacket;
+
+	result.clear();
+	result << uint8(m_ServerList.size());
+	foreach (itr, m_ServerList) 
+	{		
+		_SERVER_INFO *pServer = *itr;
+
+		result << pServer->strServerIP;
+#if __VERSION >= 1888
+		result << pServer->strLanIP;
+#endif
+		result << pServer->strServerName;
+
+		if (pServer->sUserCount <= pServer->sPlayerCap)
+			result << pServer->sUserCount;
+		else
+			result << int16(-1);
+#if __VERSION >= 1453
+		result << pServer->sServerID << pServer->sGroupID;
+		result << pServer->sPlayerCap << pServer->sFreePlayerCap;
+
+#if __VERSION < 1600
+		result << uint8(1); // unknown, 1 in 15XX samples, 0 in 18XX+
+#else
+		result << uint8(0); 
+#endif
+
+		// we read all this stuff from ini, TO-DO: make this more versatile.
+		result	<< pServer->strKarusKingName << pServer->strKarusNotice 
+				<< pServer->strElMoradKingName << pServer->strElMoradNotice;
+#endif
+	}
 }
 
 void LoginServer::GetInfoFromIni()
@@ -167,6 +228,14 @@ void LoginServer::ReportSQLError(OdbcError *pError)
 
 LoginServer::~LoginServer() 
 {
+	printf("Waiting for timer threads to exit...");
+	foreach (itr, g_timerThreads)
+	{
+		(*itr)->waitForExit();
+		delete (*itr);
+	}
+	printf(" exited.\n");
+
 	foreach (itr, m_ServerList)
 		delete *itr;
 	m_ServerList.clear();
