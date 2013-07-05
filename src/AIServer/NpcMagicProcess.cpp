@@ -25,6 +25,7 @@ time_t CNpcMagicProcess::MagicPacket(uint8 opcode, uint32 nSkillID, int16 sCaste
 		pNpc->m_OldNpcState = pNpc->m_NpcState;
 		pNpc->m_NpcState = NPC_CASTING;
 		pNpc->m_nActiveSkillID = nSkillID;
+		pNpc->m_sActiveTargetID = sTargetID;
 
 		return (pSkill->bCastTime * SECOND);
 	}
