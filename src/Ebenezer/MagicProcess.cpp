@@ -407,6 +407,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_NO_RECALL:			// prevents teleportation.
+		pTarget->m_bCanTeleport = false;
 		break;
 
 	case BUFF_TYPE_REDUCE_TARGET:		// "Reduction" (reduces target's stats, but enlarges their character to make them easier to attack)
@@ -686,6 +687,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_NO_RECALL:			// prevents teleportation.
+		pTarget->m_bCanTeleport = true;
 		break;
 
 	case BUFF_TYPE_REDUCE_TARGET:		// "Reduction" (reduces target's stats, but enlarges their character to make them easier to attack)

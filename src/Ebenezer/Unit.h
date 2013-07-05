@@ -84,6 +84,7 @@ public:
 	INLINE bool isIncapacitated() { return isDead() || isBlinded() || isBlinking(); }
 	INLINE bool isBlinded() { return m_bIsBlinded; }
 	INLINE bool canUseSkills() { return !isBlinded() && m_bSkillsEnabled; }
+	INLINE bool canTeleport() { return m_bCanTeleport; }
 
 	INLINE bool isBuffed()
 	{
@@ -246,6 +247,7 @@ public:
 
 	bool	m_bIsBlinded;
 	bool	m_bSkillsEnabled; // blinding prevents you from using skills or attacks, skills like "Full Skill Gear" prevent use of skills only.
+	bool	m_bCanTeleport;
 	bool	m_bCanStealth;
 	bool	m_bInstantCast;
 	bool    m_bBlockCurses, m_bReflectCurses;

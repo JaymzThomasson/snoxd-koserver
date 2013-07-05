@@ -42,6 +42,7 @@ void Unit::Initialize()
 	m_bReflectArmorType = 0;
 	m_bIsBlinded = false;
 	m_bSkillsEnabled = true;
+	m_bCanTeleport = true;
 	m_bInstantCast = false;
 	m_bUndead = false;
 

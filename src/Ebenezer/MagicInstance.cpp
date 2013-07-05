@@ -1588,7 +1588,9 @@ bool MagicInstance::ExecuteType8()
 
 		if (pType->bWarpType != 11) 
 		{   // Warp or summon related: targets CANNOT be dead.
-			if (pTUser->isDead())
+			if (pTUser->isDead()
+				// Players can have their teleports blocked by skills.
+				|| !pTUser->canTeleport())
 				goto packet_send;
 		}
 		// Resurrection related: we're reviving DEAD targets.
