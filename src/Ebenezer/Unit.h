@@ -251,4 +251,7 @@ public:
 	bool    m_bBlockCurses, m_bReflectCurses;
 	uint8	m_bReflectArmorType;
 	bool	m_bUndead;
+
+	bool m_bBlockPhysical;
+	bool m_bBlockMagic;
 };

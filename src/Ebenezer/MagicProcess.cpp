@@ -432,9 +432,11 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_BLOCK_PHYSICAL_DAMAGE: // Blocks all physical damage.
+		pTarget->m_bBlockPhysical = true;
 		break;
 
 	case BUFF_TYPE_BLOCK_MAGICAL_DAMAGE: // Blocks all magical/skill damage.
+		pTarget->m_bBlockMagic = true;
 		break;
 
 	case BUFF_TYPE_UNK_POTION:			// unknown potion, "Return of the Warrior", "Comeback potion", perhaps some sort of revive?
@@ -709,9 +711,11 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_BLOCK_PHYSICAL_DAMAGE: // Blocks all physical damage.
+		pTarget->m_bBlockPhysical = false;
 		break;
 
 	case BUFF_TYPE_BLOCK_MAGICAL_DAMAGE: // Blocks all magical/skill damage.
+		pTarget->m_bBlockMagic = false;
 		break;
 
 	case BUFF_TYPE_UNK_POTION:			// unknown potion, "Return of the Warrior", "Comeback potion", perhaps some sort of revive?

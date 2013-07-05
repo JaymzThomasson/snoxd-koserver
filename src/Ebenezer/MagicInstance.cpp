@@ -973,6 +973,10 @@ bool MagicInstance::ExecuteType3()
 		else 
 			damage = pType->sFirstDamage;
 
+		// Allow for complete magic damage blocks.
+		if (damage < 0 && pTarget->m_bBlockMagic)
+			continue;
+
 		if (pSkillCaster->isPlayer())
 		{
 			if (pSkillCaster->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE)
@@ -1045,6 +1049,10 @@ bool MagicInstance::ExecuteType3()
 					duration_damage = GetMagicDamage(pTarget, pType->sTimeDamage, pType->bAttribute);
 				else 
 					duration_damage = pType->sTimeDamage;
+
+				// Allow for complete magic damage blocks.
+				if (duration_damage < 0 && pTarget->m_bBlockMagic)
+					continue;
 
 				// Setup DOT (damage over time)
 				for (int k = 0; k < MAX_TYPE3_REPEAT; k++) 

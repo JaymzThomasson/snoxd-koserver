@@ -43,8 +43,10 @@ void Unit::Initialize()
 	m_bIsBlinded = false;
 	m_bSkillsEnabled = true;
 	m_bInstantCast = false;
-	m_bBlockCurses = m_bReflectCurses = false;
 	m_bUndead = false;
+
+	m_bBlockPhysical = m_bBlockMagic = false;
+	m_bBlockCurses = m_bReflectCurses = false;
 
 	m_bAttackSpeedAmount = 100;		// this is for the duration spells Type 4
 	m_bSpeedAmount = 100;
@@ -214,6 +216,12 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 
 	if (pTarget == nullptr || pTarget->isDead())
 		return -1;
+
+	// Allow for complete physical damage blocks.
+	// NOTE: Unsure if we need to count skill usage as magic damage or if we 
+	// should only block that in explicit magic damage skills (CMagicProcess::GetMagicDamage()).
+	if (pTarget->m_bBlockPhysical)
+		return 0;
 
 	temp_ac = pTarget->m_sTotalAc;
 
