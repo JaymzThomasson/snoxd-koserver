@@ -950,7 +950,7 @@ bool MagicInstance::ExecuteType3()
 		}
 
 		//If you managed to not hit anything with your AoE, you're still gonna have a cooldown (You should l2aim)
-		if (casted_member.empty() || sTargetID == -1)
+		if (casted_member.empty() || (sTargetID == -1 && casted_member.empty()))
 		{
 			SendSkill();
 			return true;			
