@@ -162,6 +162,11 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 				x = (float)(pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX));
 				z = (float)(pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ));
 			}
+			else if (GetZoneID() == ZONE_MORADON && isInArena())
+			{
+				x = (float)(MINI_ARENA_RESPAWN_X + myrand(-MINI_ARENA_RESPAWN_RADIUS, MINI_ARENA_RESPAWN_RADIUS));
+				z = (float)(MINI_ARENA_RESPAWN_Z + myrand(-MINI_ARENA_RESPAWN_RADIUS, MINI_ARENA_RESPAWN_RADIUS));
+			}
 			// For all else, just grab the start position (/town coordinates) from the START_POSITION table.
 			else
 			{

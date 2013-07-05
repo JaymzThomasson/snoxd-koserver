@@ -132,6 +132,11 @@ enum InOutType
 #define MAX_LEVEL_RONARK_LAND_BASE	69
 #define MIN_LEVEL_KROWAZ_DOMINION	70
 
+// Where to respawn after dying in the Moradon arenas
+#define MINI_ARENA_RESPAWN_X		741
+#define MINI_ARENA_RESPAWN_Z		425
+#define MINI_ARENA_RESPAWN_RADIUS	5
+
 // ID of the Cont Recovery item... shouldn't hardcode this, but seems there's no other way.
 #define ITEM_CONT_RECOVERY		800370000
 

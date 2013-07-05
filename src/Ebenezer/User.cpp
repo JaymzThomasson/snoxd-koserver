@@ -3762,7 +3762,7 @@ bool CUser::isInArena()
 		return true;
 
 	// The only other arena is located in Moradon. If we're not in Moradon, then it's not an Arena.
-	if (GetZoneID() != 21)
+	if (GetZoneID() != ZONE_MORADON)
 		return false;
 
 	// Moradon outside arena spawn bounds.
