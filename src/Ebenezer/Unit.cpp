@@ -365,31 +365,9 @@ void CUser::OnAttack(Unit * pTarget, AttackType attackType)
 		return;
 
 	// Trigger weapon procs for the attacker on attack
-
 	static const uint8 itemSlots[] = { RIGHTHAND, LEFTHAND };
 	foreach_array (i, itemSlots)
-	{
-		_ITEM_DATA * pItem = GetItem(itemSlots[i]);
-		if (pItem == nullptr
-			|| pItem->sDuration == 0)
-			continue;
-
-		_ITEM_OP * pData = g_pMain->m_ItemOpArray.GetData(pItem->nNum);
-		if (pData == nullptr
-			|| pData->bTriggerType != TriggerTypeAttack
-			|| !CheckPercent(pData->bTriggerRate * 10))
-			continue;
-
-		MagicInstance instance;
-
-		instance.sCasterID = GetID();
-		instance.sTargetID = pTarget->GetID();
-		instance.pSkillCaster = this;
-		instance.pSkillTarget = pTarget;
-		instance.nSkillID = pData->nSkillID;
-
-		instance.Run();
-	}
+		TriggerProcItem(itemSlots[i], pTarget, TriggerTypeAttack);
 }
 
 void CUser::OnDefend(Unit * pAttacker, AttackType attackType)
@@ -400,28 +378,31 @@ void CUser::OnDefend(Unit * pAttacker, AttackType attackType)
 	// Trigger defensive procs for the defender when being attacked
 	static const uint8 itemSlots[] = { LEFTHAND };
 	foreach_array (i, itemSlots)
-	{
-		_ITEM_DATA * pItem = GetItem(itemSlots[i]);
-		if (pItem == nullptr
-			|| pItem->sDuration == 0)
-			continue;
+		TriggerProcItem(itemSlots[i], pAttacker, TriggerTypeDefend);
+}
 
-		_ITEM_OP * pData = g_pMain->m_ItemOpArray.GetData(pItem->nNum);
-		if (pData == nullptr
-			|| pData->bTriggerType != TriggerTypeDefend
-			|| !CheckPercent(pData->bTriggerRate * 10))
-			continue;
+void CUser::TriggerProcItem(uint8 bSlot, Unit * pTarget, ItemTriggerType triggerType)
+{
+	_ITEM_DATA * pItem = GetItem(bSlot);
+	if (pItem == nullptr
+		|| pItem->sDuration == 0)
+		return;
 
-		MagicInstance instance;
+	_ITEM_OP * pData = g_pMain->m_ItemOpArray.GetData(pItem->nNum);
+	if (pData == nullptr
+		|| pData->bTriggerType != triggerType
+		|| !CheckPercent(pData->bTriggerRate * 10))
+		return;
 
-		instance.sCasterID = GetID();
-		instance.sTargetID = pAttacker->GetID();
-		instance.pSkillCaster = this;
-		instance.pSkillTarget = pAttacker;
-		instance.nSkillID = pData->nSkillID;
+	MagicInstance instance;
 
-		instance.Run();
-	}
+	instance.sCasterID = GetID();
+	instance.sTargetID = pTarget->GetID();
+	instance.pSkillCaster = this;
+	instance.pSkillTarget = pTarget;
+	instance.nSkillID = pData->nSkillID;
+
+	instance.Run();
 }
 #endif
 
