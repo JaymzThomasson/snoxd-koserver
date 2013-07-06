@@ -1060,7 +1060,7 @@ bool MagicInstance::ExecuteType3()
 				// HP booster (should this actually just be using sFirstDamage as the percent of max HP, i.e. 105 being 5% of max HP each increment?)
 				if (pType->bDirectType == 14)
 					duration_damage = (int)(pSkillCaster->GetLevel() * (1 + pSkillCaster->GetLevel() / 30.0)) + 3;
-				else if (pType->sTimeDamage < 0) 
+				else if (pType->sTimeDamage < 0 && pType->bAttribute != 4) 
 					duration_damage = GetMagicDamage(pTarget, pType->sTimeDamage, pType->bAttribute);
 				else 
 					duration_damage = pType->sTimeDamage;
