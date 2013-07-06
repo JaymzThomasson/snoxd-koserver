@@ -48,7 +48,7 @@ void Unit::Initialize()
 	m_bBlockPhysical = m_bBlockMagic = false;
 	m_bBlockCurses = m_bReflectCurses = false;
 
-	m_bAttackSpeedAmount = 100;		// this is for the duration spells Type 4
+	m_sAttackSpeedAmount = 100;		// this is for the duration spells Type 4
 	m_bSpeedAmount = 100;
 	m_sACAmount = 0;
 	m_sACPercent = 100;

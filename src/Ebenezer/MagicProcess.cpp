@@ -229,7 +229,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_ATTACK_SPEED:
-		pTarget->m_bAttackSpeedAmount = pType->bAttackSpeed;
+		pTarget->m_sAttackSpeedAmount += (100 - pType->bAttackSpeed);
 		break;
 
 	case BUFF_TYPE_SPEED:
@@ -296,8 +296,9 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_ATTACK_SPEED_ARMOR:
+		// NOTE: This officially uses the Attack field (usually used for AP), but the skill is designed to adjust attack speed.
 		pTarget->m_sACAmount += pType->sAC;
-		pTarget->m_bAttackAmount = pType->bAttack;
+		pTarget->m_sAttackSpeedAmount += (100 - pType->bAttack); 
 		break;
 
 	case BUFF_TYPE_DAMAGE_DOUBLE:
@@ -518,7 +519,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_ATTACK_SPEED:
-		pTarget->m_bAttackSpeedAmount = 100;
+		pTarget->m_sAttackSpeedAmount -= (100 - pType->bAttackSpeed);
 		break;
 
 	case BUFF_TYPE_SPEED:
@@ -584,8 +585,9 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_ATTACK_SPEED_ARMOR:
+		// NOTE: This officially uses the Attack field (usually used for AP), but the skill is designed to adjust attack speed.
 		pTarget->m_sACAmount -= pType->sAC;
-		pTarget->m_bAttackAmount = 100;
+		pTarget->m_sAttackSpeedAmount -= (100 - pType->bAttack);
 		break;
 
 	case BUFF_TYPE_DAMAGE_DOUBLE:

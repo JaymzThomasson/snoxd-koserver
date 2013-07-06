@@ -174,7 +174,7 @@ public:
 	uint8	m_bHitRateAmount;
 	short	m_sAvoidRateAmount;
 
-	uint8	m_bAttackSpeedAmount;
+	int16	m_sAttackSpeedAmount;
 	uint8   m_bSpeedAmount;
 
 	uint16	m_sFireR;

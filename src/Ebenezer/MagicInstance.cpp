@@ -1400,13 +1400,8 @@ bool MagicInstance::ExecuteType5()
 
 		case REMOVE_BLESS:
 		{
-			FastGuard lock(pSkillTarget->m_buffLock);
-			buffIterator = pSkillTarget->m_buffMap.find(BUFF_TYPE_HP_MP);
-			if (buffIterator != pSkillTarget->m_buffMap.end() 
-				&& buffIterator->second.isBuff()) 
+			if (CMagicProcess::RemoveType4Buff(BUFF_TYPE_HP_MP, TO_USER(pSkillTarget)))
 			{
-				CMagicProcess::RemoveType4Buff(BUFF_TYPE_HP_MP, TO_USER(pSkillTarget));
-
 				bool bIsDebuffed = false;
 				foreach (itr, pSkillTarget->m_buffMap)
 				{
