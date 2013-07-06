@@ -102,6 +102,7 @@ void CUser::Initialize()
 	m_tBlinkExpiryTime = 0;
 
 	m_bAbnormalType = ABNORMAL_NORMAL;	// User starts out in normal size.
+	m_nOldAbnormalType = m_bAbnormalType;
 
 	m_sWhoKilledMe = -1;
 	m_iLostExp = 0;
@@ -1314,7 +1315,7 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 		}
     }
 	// If we're receiving HP and we're undead, all healing must become damage.
-	else if (m_bUndead)
+	else if (m_bIsUndead)
 	{
 		amount = -amount;
 		originalAmount = amount;
@@ -2028,6 +2029,7 @@ void CUser::StateChangeServerDirect(uint8 bType, uint32 nBuff)
 		break;
 
 	case 3:
+		m_nOldAbnormalType = m_bAbnormalType;
 		m_bAbnormalType = nBuff;
 		break;
 
@@ -2754,7 +2756,9 @@ int CUser::GetEmptySlot()
 
 void CUser::Home()
 {
-	if (isDead())
+	if (isDead()
+		// When transformed into a "Kaul", you are unable to /town or attack.
+		|| isKaul())
 		return;
 
 	// The point where you will be warped to.

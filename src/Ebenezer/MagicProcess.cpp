@@ -431,10 +431,16 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_KAUL_TRANSFORMATION:	// Transforms the target into a Kaul (a pig thing), preventing you from /town'ing or attacking, but increases defense.
+		if (pTarget->isPlayer())
+		{
+			pTarget->m_bIsKaul = true;
+			pTarget->m_sACAmount += 500;
+			pTarget->StateChangeServerDirect(3, pType->iNum);
+		}
 		break;
 
 	case BUFF_TYPE_UNDEAD:				// User becomes undead, increasing defense but preventing the use of potions and converting all health received into damage.
-		pTarget->m_bUndead = true;
+		pTarget->m_bIsUndead = true;
 		pTarget->m_sACPercent += (pType->sACPct - 100);
 		break;
 
@@ -721,10 +727,16 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_KAUL_TRANSFORMATION:	// Transforms the target into a Kaul (a pig thing), preventing you from /town'ing or attacking, but increases defense.
+		if (pTarget->isPlayer())
+		{
+			pTarget->m_bIsKaul = false;
+			pTarget->m_sACAmount -= 500;
+			pTarget->StateChangeServerDirect(3, TO_USER(pTarget)->m_nOldAbnormalType);
+		}
 		break;
 
 	case BUFF_TYPE_UNDEAD:				// User becomes undead, increasing defense but preventing the use of potions and converting all health received into damage.
-		pTarget->m_bUndead = false;
+		pTarget->m_bIsUndead = false;
 		pTarget->m_sACPercent -= (pType->sACPct - 100);
 		break;
 

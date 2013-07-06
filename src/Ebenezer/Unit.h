@@ -83,11 +83,12 @@ public:
 	virtual int32 GetMana() = 0;
 	virtual int32 GetMaxMana() = 0;
 
-	INLINE bool isIncapacitated() { return isDead() || isBlinded() || isBlinking(); }
+	INLINE bool isIncapacitated() { return isDead() || isBlinded() || isBlinking() || isKaul(); }
 	INLINE bool isBlinded() { return m_bIsBlinded; }
-	INLINE bool canUseSkills() { return !isBlinded() && m_bCanUseSkills; }
+	INLINE bool canUseSkills() { return !isBlinded() && m_bCanUseSkills && !isKaul(); }
 	INLINE bool canUsePotions() { return m_bCanUsePotions; }
 	INLINE bool canTeleport() { return m_bCanTeleport; }
+	INLINE bool isKaul() { return m_bIsKaul; }
 
 	INLINE bool isBuffed()
 	{
@@ -259,7 +260,7 @@ public:
 	bool	m_bInstantCast;
 	bool    m_bBlockCurses, m_bReflectCurses;
 	uint8	m_bReflectArmorType;
-	bool	m_bUndead;
+	bool	m_bIsUndead, m_bIsKaul;
 
 	bool m_bBlockPhysical;
 	bool m_bBlockMagic;

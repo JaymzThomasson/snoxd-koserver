@@ -239,6 +239,7 @@ public:
 	time_t	m_tBlinkExpiryTime;			// When you should stop blinking.
 
 	uint32	m_bAbnormalType;			// Is the player normal,a giant, or a dwarf?
+	uint32	m_nOldAbnormalType;
 
 	int16	m_sWhoKilledMe;				// ID of the unit that killed you.
 	int64	m_iLostExp;					// Experience points that were lost when you died.

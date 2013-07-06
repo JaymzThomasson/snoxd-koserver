@@ -44,7 +44,7 @@ void Unit::Initialize()
 	m_bIsBlinded = false;
 	m_bCanUseSkills = m_bCanUsePotions = m_bCanTeleport = true;
 	m_bInstantCast = false;
-	m_bUndead = false;
+	m_bIsUndead = m_bIsKaul = false;
 
 	m_bBlockPhysical = m_bBlockMagic = false;
 	m_bBlockCurses = m_bReflectCurses = false;
@@ -223,7 +223,7 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 		&& !bPreviewOnly)
 	{
 		OnAttack(pTarget, AttackTypePhysical);
-		pTarget->OnDefend(this, AttackTypeMagic);
+		pTarget->OnDefend(this, AttackTypePhysical);
 	}
 
 	temp_ac = pTarget->m_sTotalAc;

@@ -11,8 +11,7 @@ void CUser::Attack(Packet & pkt)
 //	delaytime = delaytime / 100.0f;
 //	distance = distance / 10.0f;
 
-	if (isBlinking()
-		|| isDead())
+	if (isIncapacitated())
 		return;
 
 	if (m_bInvisibilityType != INVIS_NONE)
