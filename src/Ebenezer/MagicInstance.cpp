@@ -1233,11 +1233,16 @@ bool MagicInstance::ExecuteType4()
 		//			We should not error out in this case.
 		bool bSkillTypeAlreadyOnTarget = (!bIsRecastingSavedMagic && buffItr != pTUser->m_buffMap.end());
 
-		// Debuffs 'stack', in that the expiry time is reset each time (no more, no less).
-		if (bSkillTypeAlreadyOnTarget && pType->isDebuff())
-			buffItr->second.m_tEndTime = UNIXTIME + pType->sDuration;
-
 		pTUser->m_buffLock.Release();
+
+		// Debuffs 'stack', in that the expiry time is reset each time.
+		// Debuffs also take precedence over buffs of the same nature, so we should ensure they get removed 
+		// rather than just stacking the modifiers, as the client only supports one (de)buff of that type active.
+		if (bSkillTypeAlreadyOnTarget && pType->isDebuff())
+		{
+			CMagicProcess::RemoveType4Buff(pType->bBuffType, pTUser);
+			bSkillTypeAlreadyOnTarget = false;
+		}
 
 		// If this skill is a debuff, and we are in the crossfire, 
 		// we should not bother debuffing ourselves (that would be bad!)
