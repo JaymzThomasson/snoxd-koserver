@@ -361,7 +361,8 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 #if EBENEZER
 void CUser::OnAttack(Unit * pTarget, AttackType attackType)
 {
-	if (!pTarget->isPlayer())
+	if (!pTarget->isPlayer()
+		|| attackType == AttackTypeMagic)
 		return;
 
 	// Trigger weapon procs for the attacker on attack
