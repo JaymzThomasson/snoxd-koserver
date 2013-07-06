@@ -41,6 +41,7 @@ typedef	CSTLMap	<_QUEST_MONSTER>			QuestMonsterArray;
 typedef	CSTLMap	<_RENTAL_ITEM>				RentalItemArray;
 typedef CSTLMap <_ITEM_EXCHANGE>			ItemExchangeArray;
 typedef CSTLMap <_ITEM_UPGRADE>				ItemUpgradeArray;
+typedef CSTLMap <_ITEM_OP>					ItemOpArray;
 typedef CSTLMap <CKingSystem>				KingSystemArray;
 typedef CSTLMap <_SET_ITEM>					SetItemArray;
 

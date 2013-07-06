@@ -12,7 +12,7 @@
 static float surround_fx[8] = {0.0f, -1.4142f, -2.0f, -1.4167f,  0.0f,  1.4117f,  2.0000f, 1.4167f};
 static float surround_fz[8] = {2.0f,  1.4142f,  0.0f, -1.4167f, -2.0f, -1.4167f, -0.0035f, 1.4117f};
 
-enum AttackType
+enum
 {
 	TENDER_ATTACK_TYPE		= 0, // The spawn is passive, i.e. won't attack until it's attacked, or it expects same-type spawns to help out.
 	ATROCITY_ATTACK_TYPE	= 1  // The spawn is aggressive, i.e. it's just as happy to attack you first.

@@ -229,7 +229,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_ATTACK_SPEED:
-		pTarget->m_sAttackSpeedAmount += (100 - pType->bAttackSpeed);
+		pTarget->m_sAttackSpeedAmount += (pType->bAttackSpeed - 100);
 		break;
 
 	case BUFF_TYPE_SPEED:
@@ -298,7 +298,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 	case BUFF_TYPE_ATTACK_SPEED_ARMOR:
 		// NOTE: This officially uses the Attack field (usually used for AP), but the skill is designed to adjust attack speed.
 		pTarget->m_sACAmount += pType->sAC;
-		pTarget->m_sAttackSpeedAmount += (100 - pType->bAttack); 
+		pTarget->m_sAttackSpeedAmount += (pType->bAttack - 100); 
 		break;
 
 	case BUFF_TYPE_DAMAGE_DOUBLE:
@@ -418,7 +418,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		if (pTarget->isPlayer())
 		{
 			TO_USER(pTarget)->StateChangeServerDirect(3, ABNORMAL_GIANT);
-			pTarget->m_sACPercent += (100 - pType->sACPct);
+			pTarget->m_sACPercent += (pType->sACPct - 100);
 		}
 		break;
 
@@ -438,7 +438,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		pTarget->m_sACPercent += (pType->sACPct - 100);
 		break;
 
-	case BUFF_TYPE_UNSIGHT:				// Unsure how this is different to "Blind", but skill description simply reads "Blocks your[the target's] sight."
+	case BUFF_TYPE_UNSIGHT:				// Blocks the caster's sight (not the target's).
 		pTarget->m_bIsBlinded = true;
 		break;
 
@@ -519,7 +519,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_ATTACK_SPEED:
-		pTarget->m_sAttackSpeedAmount -= (100 - pType->bAttackSpeed);
+		pTarget->m_sAttackSpeedAmount -= (pType->bAttackSpeed - 100);
 		break;
 
 	case BUFF_TYPE_SPEED:
@@ -587,7 +587,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 	case BUFF_TYPE_ATTACK_SPEED_ARMOR:
 		// NOTE: This officially uses the Attack field (usually used for AP), but the skill is designed to adjust attack speed.
 		pTarget->m_sACAmount -= pType->sAC;
-		pTarget->m_sAttackSpeedAmount -= (100 - pType->bAttack);
+		pTarget->m_sAttackSpeedAmount -= (pType->bAttack - 100);
 		break;
 
 	case BUFF_TYPE_DAMAGE_DOUBLE:
@@ -708,7 +708,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		if (pTarget->isPlayer())
 		{
 			TO_USER(pTarget)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
-			pTarget->m_sACPercent -= (100 - pType->sACPct);
+			pTarget->m_sACPercent -= (pType->sACPct - 100);
 		}
 		break;
 
@@ -728,7 +728,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		pTarget->m_sACPercent -= (pType->sACPct - 100);
 		break;
 
-	case BUFF_TYPE_UNSIGHT:				// Unsure how this is different to "Blind", but skill description simply reads "Blocks your sight."
+	case BUFF_TYPE_UNSIGHT:				// Blocks the caster's sight (not the target's).
 		pTarget->m_bIsBlinded = false;
 		break;
 
@@ -909,7 +909,7 @@ bool CMagicProcess::IsBuff(_MAGIC_TYPE4 * pType)
 	case BUFF_TYPE_NO_POTIONS:			// "No Potion" prevents target from using potions.
 	case BUFF_TYPE_KAUL_TRANSFORMATION:	// Transforms the target into a Kaul (a pig thing), preventing you from /town'ing or attacking, but increases defense.
 	case BUFF_TYPE_UNDEAD:				// User becomes undead, increasing defense but preventing the use of potions and converting all health received into damage.
-	case BUFF_TYPE_UNSIGHT:				// Unsure how this is different to "Blind", but skill description simply reads "Blocks your sight."
+	case BUFF_TYPE_UNSIGHT:				// Blocks the caster's sight (not the target's).
 		return false;
 
 	case BUFF_TYPE_BLOCK_PHYSICAL_DAMAGE: // Blocks all physical damage.

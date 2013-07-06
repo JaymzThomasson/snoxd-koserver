@@ -338,6 +338,9 @@
     <ClInclude Include="..\shared\database\SetItemTableSet.h">
       <Filter>Database</Filter>
     </ClInclude>
+    <ClInclude Include="..\shared\database\ItemOpSet.h">
+      <Filter>Database</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Ebenezer.ico">

@@ -3,6 +3,7 @@
 #ifdef EBENEZER
 #	include "EbenezerDlg.h"
 #	include "User.h"
+#	include "MagicInstance.h"
 #else
 #	include "../AIServer/ServerDlg.h"
 #	include "../AIServer/Npc.h"
@@ -217,11 +218,13 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 	if (pTarget == nullptr || pTarget->isDead())
 		return -1;
 
-	// Allow for complete physical damage blocks.
-	// NOTE: Unsure if we need to count skill usage as magic damage or if we 
-	// should only block that in explicit magic damage skills (CMagicProcess::GetMagicDamage()).
-	if (pTarget->m_bBlockPhysical)
-		return 0;
+	// Trigger item procs
+	if (pTarget->isPlayer()
+		&& !bPreviewOnly)
+	{
+		OnAttack(pTarget, AttackTypePhysical);
+		pTarget->OnDefend(this, AttackTypeMagic);
+	}
 
 	temp_ac = pTarget->m_sTotalAc;
 
@@ -248,6 +251,12 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 		temp_ap = temp_ap * (100 + m_byAPClassBonusAmount[pTUser->GetBaseClassType() - 1]) / 100;
 	}
 #endif
+
+	// Allow for complete physical damage blocks.
+	// NOTE: Unsure if we need to count skill usage as magic damage or if we 
+	// should only block that in explicit magic damage skills (CMagicProcess::GetMagicDamage()).
+	if (pTarget->m_bBlockPhysical)
+		return 0;
 
 	temp_hit_B = (int)((temp_ap * 200 / 100) / (temp_ac + 240));
 
@@ -348,6 +357,73 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 
 	return damage;
 }
+
+#if EBENEZER
+void CUser::OnAttack(Unit * pTarget, AttackType attackType)
+{
+	if (!pTarget->isPlayer())
+		return;
+
+	// Trigger weapon procs for the attacker on attack
+
+	static const uint8 itemSlots[] = { RIGHTHAND, LEFTHAND };
+	foreach_array (i, itemSlots)
+	{
+		_ITEM_DATA * pItem = GetItem(itemSlots[i]);
+		if (pItem == nullptr
+			|| pItem->sDuration == 0)
+			continue;
+
+		_ITEM_OP * pData = g_pMain->m_ItemOpArray.GetData(pItem->nNum);
+		if (pData == nullptr
+			|| pData->bTriggerType != TriggerTypeAttack
+			|| !CheckPercent(pData->bTriggerRate * 10))
+			continue;
+
+		MagicInstance instance;
+
+		instance.sCasterID = GetID();
+		instance.sTargetID = pTarget->GetID();
+		instance.pSkillCaster = this;
+		instance.pSkillTarget = pTarget;
+		instance.nSkillID = pData->nSkillID;
+
+		instance.Run();
+	}
+}
+
+void CUser::OnDefend(Unit * pAttacker, AttackType attackType)
+{
+	if (!pAttacker->isPlayer())
+		return;
+
+	// Trigger defensive procs for the defender when being attacked
+	static const uint8 itemSlots[] = { LEFTHAND };
+	foreach_array (i, itemSlots)
+	{
+		_ITEM_DATA * pItem = GetItem(itemSlots[i]);
+		if (pItem == nullptr
+			|| pItem->sDuration == 0)
+			continue;
+
+		_ITEM_OP * pData = g_pMain->m_ItemOpArray.GetData(pItem->nNum);
+		if (pData == nullptr
+			|| pData->bTriggerType != TriggerTypeDefend
+			|| !CheckPercent(pData->bTriggerRate * 10))
+			continue;
+
+		MagicInstance instance;
+
+		instance.sCasterID = GetID();
+		instance.sTargetID = pAttacker->GetID();
+		instance.pSkillCaster = this;
+		instance.pSkillTarget = pAttacker;
+		instance.nSkillID = pData->nSkillID;
+
+		instance.Run();
+	}
+}
+#endif
 
 short CNpc::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool bPreviewOnly /*= false*/) 
 {

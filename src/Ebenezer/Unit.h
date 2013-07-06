@@ -29,6 +29,8 @@ class Packet;
 typedef std::map<uint8, _BUFF_TYPE4_INFO> Type4BuffMap;
 typedef std::map<uint8, _BUFF_TYPE9_INFO> Type9BuffMap;
 
+enum AttackType { AttackTypePhysical, AttackTypeMagic };
+
 /**
  * This class is a bridge between the CNpc & CUser classes
  **/
@@ -122,6 +124,9 @@ public:
 	void InsertRegion(int16 insert_x, int16 insert_z);
 
 	virtual short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false) = 0;
+	virtual void OnAttack(Unit * pTarget, AttackType attackType) {}
+	virtual void OnDefend(Unit * pAttacker, AttackType attackType) {}
+
 	short GetMagicDamage(int damage, Unit *pTarget, bool bPreviewOnly = false);
 	short GetACDamage(int damage, Unit *pTarget);
 	uint8 GetHitRate(float rate);

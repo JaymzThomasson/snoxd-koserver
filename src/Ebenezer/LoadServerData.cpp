@@ -14,6 +14,7 @@
 #include "../shared/database/SetItemTableSet.h"
 #include "../shared/database/ItemExchangeSet.h"
 #include "../shared/database/ItemUpgradeSet.h"
+#include "../shared/database/ItemOpSet.h"
 #include "../shared/database/MagicTableSet.h"
 #include "../shared/database/MagicType1Set.h"
 #include "../shared/database/MagicType2Set.h"
@@ -64,6 +65,11 @@ bool CEbenezerDlg::LoadItemExchangeTable()
 bool CEbenezerDlg::LoadItemUpgradeTable()
 {
 	LOAD_TABLE(CItemUpgradeSet, g_DBAgent.m_GameDB, &m_ItemUpgradeArray, false);
+}
+
+bool CEbenezerDlg::LoadItemOpTable()
+{
+	LOAD_TABLE(CItemOpSet, g_DBAgent.m_GameDB, &m_ItemOpArray, false);
 }
 
 bool CEbenezerDlg::LoadServerResourceTable()

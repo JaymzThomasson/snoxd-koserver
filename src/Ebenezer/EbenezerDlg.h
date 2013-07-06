@@ -31,6 +31,7 @@ public:
 	bool LoadSetItemTable();
 	bool LoadItemExchangeTable();
 	bool LoadItemUpgradeTable();
+	bool LoadItemOpTable();
 	bool LoadServerResourceTable();
 	bool LoadQuestHelperTable();
 	bool LoadQuestMonsterTable();
@@ -282,6 +283,7 @@ public:
 	RentalItemArray			m_RentalItemArray;
 	ItemExchangeArray		m_ItemExchangeArray;
 	ItemUpgradeArray		m_ItemUpgradeArray;
+	ItemOpArray				m_ItemOpArray;
 	KingSystemArray			m_KingSystemArray;
 
 	Atomic<uint16>			m_sPartyIndex;

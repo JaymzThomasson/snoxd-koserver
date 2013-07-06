@@ -1175,7 +1175,7 @@ bool MagicInstance::ExecuteType4()
 	else 
 	{
 		// If the target was another single player.
-		CUser* pTUser = g_pMain->GetUserPtr(sTargetID);
+		CUser* pTUser = TO_USER(pSkillTarget);
 		if (pTUser == nullptr 
 			|| pTUser->isDead() || (pTUser->isBlinking() && !bIsRecastingSavedMagic)) 
 			return false;
@@ -1188,6 +1188,24 @@ bool MagicInstance::ExecuteType4()
 		uint8 bResult = 1;
 		CUser* pTUser = *itr;
 		_BUFF_TYPE4_INFO pBuffInfo;
+		bool bAllowCastOnSelf = false;
+
+		// A handful of skills (Krowaz, currently) should use the caster as the target.
+		// As such, we should correct this before any other buff/debuff logic is handled.
+		switch (pType->bBuffType)
+		{
+		case BUFF_TYPE_UNDEAD:
+		case BUFF_TYPE_UNSIGHT:
+		case BUFF_TYPE_BLOCK_PHYSICAL_DAMAGE:
+		case BUFF_TYPE_BLOCK_MAGICAL_DAMAGE:
+			if (!pSkillCaster->isPlayer())
+				continue;
+
+			pTUser = TO_USER(pSkillCaster);
+			bAllowCastOnSelf = true;
+			break;
+		}
+
 		bool bBlockingDebuffs = pTUser->m_bBlockCurses;
 
 		// Skill description: Blocks all curses and has a chance to reflect the curse back onto the caster.
@@ -1223,7 +1241,9 @@ bool MagicInstance::ExecuteType4()
 
 		// If this skill is a debuff, and we are in the crossfire, 
 		// we should not bother debuffing ourselves (that would be bad!)
-		if (pType->isDebuff() && pTUser == pSkillCaster)
+		// Note that we should allow us if there's an explicit override (i.e. with Krowaz self-debuffs)
+		if (!bAllowCastOnSelf 
+			&& pType->isDebuff() && pTUser == pSkillCaster)
 			continue;
 		
 		// If the user already has this buff type cast on them (debuffs should just reset the duration)
@@ -1838,6 +1858,17 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 		|| pSkillCaster == nullptr
 		|| pTarget->isDead()
 		|| pSkillCaster->isDead())
+		return 0;
+
+	// Trigger item procs
+	if (pTarget->isPlayer()
+		&& pSkillCaster->isPlayer())
+	{
+		pSkillCaster->OnAttack(pTarget, AttackTypeMagic);
+		pTarget->OnDefend(pSkillCaster, AttackTypeMagic);
+	}
+
+	if (pTarget->m_bBlockMagic)
 		return 0;
 
 	int16 sMagicAmount = 0;
