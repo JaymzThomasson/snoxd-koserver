@@ -42,11 +42,11 @@ public:
 
 	virtual void Initialize();
 
-	INLINE UnitType GetType() { return m_unitType; }
-	INLINE void SetType(UnitType unitType) { m_unitType = unitType; }
+	INLINE UnitType GetUnitType() { return m_unitType; }
+	INLINE void SetUnitType(UnitType unitType) { m_unitType = unitType; }
 
-	INLINE bool isPlayer() { return GetType() == UnitPlayer; }
-	INLINE bool isNPC() { return GetType() == UnitNPC; }
+	INLINE bool isPlayer() { return GetUnitType() == UnitPlayer; }
+	INLINE bool isNPC() { return GetUnitType() == UnitNPC; }
 
 	INLINE KOMap * GetMap() { return m_pMap; }
 
