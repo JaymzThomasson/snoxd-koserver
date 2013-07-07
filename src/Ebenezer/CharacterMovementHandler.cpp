@@ -383,8 +383,8 @@ void CUser::ZoneChangeParty(uint16 sNewZone, float x, float z)
 }
 
 /**
- * @brief	Changes the zone of all clan members within the user's zone.
- * 			If the user is not in a clan, they should still be teleported.
+ * @brief	Changes the zone of all clan members in home/neutral zones (including Eslant).
+ * 			If the user is not in a clan, they should not be teleported.
  *
  * @param	sNewZone	ID of the new zone.
  * @param	x			The x coordinate.
@@ -394,15 +394,14 @@ void CUser::ZoneChangeClan(uint16 sNewZone, float x, float z)
 {
 	CKnights * pKnights = g_pMain->GetClanPtr(GetClanID());
 	if (pKnights == nullptr)
-		return ZoneChange(sNewZone, x, z);
+		return;
 
 	for (int i = 0; i < MAX_CLAN_USERS; i++)
 	{
 		_KNIGHTS_USER * p = &pKnights->m_arKnightsUser[i];
 		CUser * pUser = p->pSession;
-		if (p->byUsed
-			&& pUser != nullptr
-			&& pUser->GetZoneID() == GetZoneID())
+		if (p->byUsed && pUser != nullptr
+			&& pUser->GetZoneID() < ZONE_DELOS)
 			pUser->ZoneChange(sNewZone, x, z);
 	}
 }
