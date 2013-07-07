@@ -383,7 +383,7 @@ void CUser::ZoneChangeParty(uint16 sNewZone, float x, float z)
 }
 
 /**
- * @brief	Changes the zone of all clan mmembers within the user's zone.
+ * @brief	Changes the zone of all clan members within the user's zone.
  * 			If the user is not in a clan, they should still be teleported.
  *
  * @param	sNewZone	ID of the new zone.
