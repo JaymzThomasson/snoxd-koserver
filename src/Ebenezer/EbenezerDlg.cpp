@@ -393,6 +393,7 @@ void CEbenezerDlg::RemoveSessionNames(CUser *pSession)
 }
 
 CUser				* CEbenezerDlg::GetUserPtr(int sid) { return g_pMain->m_socketMgr[sid]; }
+_PARTY_GROUP		* CEbenezerDlg::GetPartyPtr(uint16 sPartyID) { return m_PartyArray.GetData(sPartyID); }
 CKnights			* CEbenezerDlg::GetClanPtr(uint16 sClanID) { return m_KnightsArray.GetData(sClanID); }
 _KNIGHTS_ALLIANCE	* CEbenezerDlg::GetAlliancePtr(uint16 sAllianceID) { return m_KnightsAllianceArray.GetData(sAllianceID); }
 _ITEM_TABLE			* CEbenezerDlg::GetItemPtr(uint32 nItemID) { return m_ItemtableArray.GetData(nItemID); }
@@ -412,7 +413,7 @@ _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 	pLeader->m_bInParty = true;
 	pLeader->m_sPartyIndex = m_sPartyIndex.increment();
 
-	pParty->wIndex = pLeader->m_sPartyIndex;
+	pParty->wIndex = pLeader->GetPartyID();
 	pParty->uid[0] = pLeader->GetSocketID();
 	if (!m_PartyArray.PutData(pParty->wIndex, pParty))
 	{
@@ -742,7 +743,7 @@ void CEbenezerDlg::Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z
 
 void CEbenezerDlg::Send_PartyMember(int party, Packet *result)
 {
-	_PARTY_GROUP* pParty = m_PartyArray.GetData(party);
+	_PARTY_GROUP* pParty = GetPartyPtr(party);
 	if (pParty == nullptr)
 		return;
 

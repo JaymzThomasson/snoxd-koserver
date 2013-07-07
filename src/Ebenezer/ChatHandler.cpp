@@ -134,7 +134,7 @@ void CUser::Chat(Packet & pkt)
 
 	case PARTY_CHAT:
 		if (isInParty())
-			g_pMain->Send_PartyMember(m_sPartyIndex, &result);
+			g_pMain->Send_PartyMember(GetPartyID(), &result);
 		break;
 
 	case SHOUT_CHAT:

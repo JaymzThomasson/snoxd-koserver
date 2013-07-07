@@ -1253,7 +1253,7 @@ void CUser::LevelChange(short level, bool bLevelUp /*= true*/)
 		// TO-DO: Move this to party specific code
 		result.Initialize(WIZ_PARTY);
 		result << uint8(PARTY_LEVELCHANGE) << GetSocketID() << GetLevel();
-		g_pMain->Send_PartyMember(m_sPartyIndex, &result);
+		g_pMain->Send_PartyMember(GetPartyID(), &result);
 	}
 
 	// We should kick players out of the zone if their level no longer matches the requirements for this zone.
@@ -1408,7 +1408,7 @@ void CUser::SendPartyHPUpdate()
 			<< GetSocketID()
 			<< m_iMaxHp << m_sHp
 			<< m_iMaxMp << m_sMp;
-	g_pMain->Send_PartyMember(m_sPartyIndex, &result);
+	g_pMain->Send_PartyMember(GetPartyID(), &result);
 }
 
 /**
@@ -1770,7 +1770,7 @@ void CUser::ItemGet(Packet & pkt)
 		_PARTY_GROUP * pParty;
 		// Not in a party, so all the coins go to us.
 		if (!isInParty()
-			|| (pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex)) == nullptr)
+			|| (pParty = g_pMain->GetPartyPtr(GetPartyID())) == nullptr)
 		{
 			// NOTE: Coins have been checked already.
 			GoldGain(pItem->sCount, false, true);
@@ -1863,7 +1863,7 @@ void CUser::ItemGet(Packet & pkt)
 		{
 			result.clear();
 			result << uint8(LootPartyNotification) << nBundleID << nItemID << pReceiver->GetName();
-			g_pMain->Send_PartyMember(m_sPartyIndex, &result);
+			g_pMain->Send_PartyMember(GetPartyID(), &result);
 
 			// If we're not the receiver, i.e. round-robin gave it to someone else
 			// we should let us know that this was done (otherwise we'll be like, "GM!!? WHERE'S MY ITEM?!?")
@@ -2251,7 +2251,7 @@ void CUser::GetUserInfoForAI(Packet & result)
 			<< m_sTotalAc << m_sACAmount
 			<< m_fTotalHitrate << m_fTotalEvasionrate
 			<< m_sItemAc
-			<< m_sPartyIndex << m_bAuthority
+			<< GetPartyID() << GetAuthority()
 			<< m_bInvisibilityType
 			<< uint32(m_equippedItemBonuses.size());
 
@@ -2298,7 +2298,7 @@ void CUser::LoyaltyDivide(int16 tid, uint16 bonusNP /*= 0*/)
 	if (!isInParty())
 		return;
 
-	_PARTY_GROUP *pParty = g_pMain->m_PartyArray.GetData( m_sPartyIndex );
+	_PARTY_GROUP *pParty = g_pMain->GetPartyPtr(GetPartyID());
 	if (pParty == nullptr)
 		return;
 
@@ -2839,7 +2839,7 @@ CUser * CUser::GetItemRoutingUser(uint32 nItemID, uint16 sCount)
 		return this;
 
 	_ITEM_TABLE * pTable;
-	_PARTY_GROUP * pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
+	_PARTY_GROUP * pParty = g_pMain->GetPartyPtr(GetPartyID());
 	if (pParty == nullptr
 		|| (pTable = g_pMain->GetItemPtr(nItemID)) == nullptr
 		|| pParty->bItemRouting >= MAX_PARTY_USERS)
@@ -3063,7 +3063,7 @@ void CUser::GoldChange(short tid, int gold)
 		}
 
 		// Otherwise, if we're in a party, we need to divide it up.
-		_PARTY_GROUP* pParty = g_pMain->m_PartyArray.GetData(m_sPartyIndex);
+		_PARTY_GROUP* pParty = g_pMain->GetPartyPtr(GetPartyID());
 		if (pParty == nullptr)
 			return;			
 
@@ -3743,7 +3743,7 @@ void CUser::SendPartyStatusUpdate(uint8 bStatus, uint8 bResult /*= 0*/)
 
 	Packet result(WIZ_PARTY, uint8(PARTY_STATUSCHANGE));
 	result << GetSocketID() << bStatus << bResult;
-	g_pMain->Send_PartyMember(m_sPartyIndex, &result);
+	g_pMain->Send_PartyMember(GetPartyID(), &result);
 }
 
 void CUser::HandleHelmet(Packet & pkt)

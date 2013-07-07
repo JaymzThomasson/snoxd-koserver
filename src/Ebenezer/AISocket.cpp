@@ -542,7 +542,7 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 	if (!pUser->isInParty())
 		pUser->Send(&result);
 	else
-		g_pMain->Send_PartyMember(pUser->m_sPartyIndex, &result);
+		g_pMain->Send_PartyMember(pUser->GetPartyID(), &result);
 }
 
 void CAISocket::RecvUserFail(Packet & pkt)

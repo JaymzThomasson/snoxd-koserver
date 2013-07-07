@@ -574,7 +574,7 @@ bool MagicInstance::IsAvailable()
 					|| pCaster->GetNation() != moral
 					// and that if there is a target, they're in the same party.
 					|| (pSkillTarget != nullptr && 
-						TO_USER(pSkillTarget)->m_sPartyIndex != pCaster->m_sPartyIndex))
+						TO_USER(pSkillTarget)->GetPartyID() != pCaster->GetPartyID()))
 					goto fail_return;
 			} break;
 			case MORAL_NPC:		// #5
@@ -1815,7 +1815,7 @@ bool MagicInstance::ExecuteType9()
 		// If the player's in a party, apply this skill to all members of the party.
 		if (pCaster->isInParty())
 		{
-			_PARTY_GROUP * pParty = g_pMain->m_PartyArray.GetData(pCaster->GetPartyID());
+			_PARTY_GROUP * pParty = g_pMain->GetPartyPtr(pCaster->GetPartyID());
 			if (pParty == nullptr)
 				return false;
 

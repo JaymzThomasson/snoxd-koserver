@@ -237,6 +237,7 @@ public:
 	// Removes the account name & character names from the hashmaps (on logout)
 	void RemoveSessionNames(CUser *pSession);
 
+	_PARTY_GROUP * GetPartyPtr(uint16 sPartyID);
 	CKnights * GetClanPtr(uint16 sClanID);
 	_KNIGHTS_ALLIANCE * GetAlliancePtr(uint16 sAllianceID);
 	_ITEM_TABLE * GetItemPtr(uint32 nItemID);

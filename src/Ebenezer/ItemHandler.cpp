@@ -321,7 +321,7 @@ bool CUser::RobItem(uint32 itemid, uint16 count /*= 1*/)
  */
 bool CUser::RobAllItemParty(uint32 nItemID, uint16 sCount /*= 1*/)
 {
-	_PARTY_GROUP * pParty = g_pMain->m_PartyArray.GetData(GetPartyID());
+	_PARTY_GROUP * pParty = g_pMain->GetPartyPtr(GetPartyID());
 	if (pParty == nullptr)
 		return RobItem(nItemID, sCount);
 
