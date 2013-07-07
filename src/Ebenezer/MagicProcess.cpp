@@ -396,7 +396,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_MIRROR_DAMAGE_PARTY: // Minak's Thorn
-		// Spreads damage received across party members and mirror's part of the damage.
+		pTarget->m_bMirrorDamage = true;
 		break;
 
 	case BUFF_TYPE_DAGGER_BOW_DEFENSE: // Eskrima
@@ -697,7 +697,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_MIRROR_DAMAGE_PARTY: // Minak's Thorn
-		// Spreads damage received across party members and mirror's part of the damage.
+		pTarget->m_bMirrorDamage = false;
 		break;
 
 	case BUFF_TYPE_DAGGER_BOW_DEFENSE: // Eskrima

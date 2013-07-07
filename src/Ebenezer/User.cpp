@@ -1319,13 +1319,36 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 	uint16 tid = (pAttacker != nullptr ? pAttacker->GetID() : -1);
 	int16 oldHP = m_sHp;
 	int originalAmount = amount;
+	int mirrorDamage = 0;
+	_PARTY_GROUP *pParty = nullptr;
+	CUser *pUser = nullptr;
 
 	// If we're taking damage...
 	if (amount < 0)
 	{
+		//Handle the mirroring of damage.
+		if(m_bMirrorDamage && isInParty())
+		{
+			mirrorDamage = (20*amount) / 100;
+			amount -= mirrorDamage;
+			pParty = g_pMain->GetPartyPtr(GetPartyID());
+			if(pParty != nullptr)
+			{
+				mirrorDamage = mirrorDamage / (GetPartyMemberAmount(pParty) - 1);
+				for(int i = 0; i < MAX_PARTY_USERS; i++)
+				{
+					pUser = g_pMain->GetUserPtr(pParty->uid[i]);
+					if(pUser == this)
+						continue;
+
+					pUser->HpChange(mirrorDamage);
+				}
+			}
+		}
 		// Handle mastery passives
 		if (isMastered())
 		{
+
 			// Matchless: [Passive]Decreases all damages received by 15%
 			if (CheckSkillPoint(SkillPointMaster, 10, MAX_LEVEL))
 				amount = (85 * amount) / 100;
