@@ -68,6 +68,7 @@ void Unit::Initialize()
 	m_bPoisonRAmount = 0;
 	m_bMagicDamageReduction = 100;
 	m_bManaAbsorb = 0;
+	m_bRadiusAmount = 0;
 
 	InitType3();	 // Initialize durational type 3 stuff :)
 	InitType4();	 // Initialize durational type 4 stuff :)

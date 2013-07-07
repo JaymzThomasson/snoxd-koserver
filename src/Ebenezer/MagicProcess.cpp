@@ -392,7 +392,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 
 	case BUFF_TYPE_ATTACK_RANGE_ARMOR:	// Inevitable Murderous
 		pTarget->m_sACAmount += 100;
-		// Increase attack range by 1 meter.
+		pTarget->m_bRadiusAmount = pType->bRadius;
 		break;
 
 	case BUFF_TYPE_MIRROR_DAMAGE_PARTY: // Minak's Thorn
@@ -693,7 +693,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 
 	case BUFF_TYPE_ATTACK_RANGE_ARMOR:	// Inevitable Murderous
 		pTarget->m_sACAmount -= 100;
-		// Buff type increases attack range by 1 meter.
+		pTarget->m_bRadiusAmount = 0;
 		break;
 
 	case BUFF_TYPE_MIRROR_DAMAGE_PARTY: // Minak's Thorn
