@@ -499,6 +499,9 @@ struct _SET_ITEM
 	uint16 MagicResistance;
 	uint16 CurseResistance;
 
+	uint16 XPBonusPercent;
+	uint16 CoinBonusPercent;
+
 	uint16 APBonusPercent;		// +AP% for all classes
 	uint16 APBonusClassType;	// defines a specific class for +APBonusClassPercent% to be used against
 	uint16 APBonusClassPercent;	// +AP% for APBonusClassType only
@@ -506,6 +509,9 @@ struct _SET_ITEM
 	uint16 ACBonus;				// +AC amount for all classes
 	uint16 ACBonusClassType;	// defines a specific class for +ACBonusClassPercent% to be used against
 	uint16 ACBonusClassPercent;	// +AC% for ACBonusClassType only
+
+	uint16 MaxWeightBonus;
+	uint16 NPBonus;
 };
 
 struct _QUEST_HELPER

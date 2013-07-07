@@ -201,9 +201,9 @@ public:
 	int16	m_sStatItemBonuses[STAT_COUNT];
 	int8	m_bStatBuffs[STAT_COUNT];
 
-	uint8	m_bExpGainAmount;
-	uint8	m_bNPGainAmount;
-	uint8	m_bNoahGainAmount;
+	uint8	m_bExpGainAmount, m_bItemExpGainAmount;
+	uint8	m_bNPGainAmount, m_bItemNPBonus, m_bSkillNPBonus;
+	uint8	m_bNoahGainAmount, m_bItemNoahGainAmount;
 	uint8	m_bMaxWeightAmount; 
 
 	short	m_iMaxHp, m_iMaxMp;
@@ -515,7 +515,6 @@ public:
 	void SendAllKnightsID();
 	void SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes, not a bug */, uint16 sDurability, uint8 bPos, bool bNewItem = false);
 
-	void InitType4();
 	void Type4Duration();
 	void HPTimeChange();
 	void HPTimeChangeType3();

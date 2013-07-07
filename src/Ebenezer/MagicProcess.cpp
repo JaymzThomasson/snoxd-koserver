@@ -405,6 +405,8 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_LOYALTY_AMOUNT:		// Santa's Present (gives an extra +2NP per kill, unlike BUFF_TYPE_LOYALTY which uses an percent).
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bSkillNPBonus += 2;
 		break;
 
 	case BUFF_TYPE_NO_RECALL:			// prevents teleportation.
@@ -704,6 +706,8 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_LOYALTY_AMOUNT:		// Santa's Present (gives an extra +2NP per kill, unlike BUFF_TYPE_LOYALTY which uses an percent).
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bSkillNPBonus -= 2;
 		break;
 
 	case BUFF_TYPE_NO_RECALL:			// prevents teleportation.

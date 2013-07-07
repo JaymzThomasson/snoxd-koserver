@@ -47,6 +47,10 @@ void CUser::Initialize()
 	m_sItemWeight = 0;
 	m_sItemHit = m_sItemAc = 0;
 
+	m_bExpGainAmount = m_bNPGainAmount = m_bNoahGainAmount = 100;
+	m_bItemExpGainAmount = m_bItemNoahGainAmount = 0;
+	m_bItemNPBonus = m_bSkillNPBonus = 0;
+
 	m_byAPBonusAmount = 0;
 	memset(&m_byAPClassBonusAmount, 0, sizeof(m_byAPClassBonusAmount));
 	memset(&m_byAcClassBonusAmount, 0, sizeof(m_byAcClassBonusAmount));
@@ -516,6 +520,12 @@ void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/)
 	// We're simply adding NP here.
 	else
 	{
+		// If you're using an NP modifying buff then add the bonus (NOTE: We do not take extra NP from the user that dies!)
+		nChangeAmount += m_bNPGainAmount * nChangeAmount / 100;
+
+		// Add on any additional NP gained from items/skills.
+		nChangeAmount += m_bItemNPBonus + m_bSkillNPBonus;
+
 		m_iLoyalty += nChangeAmount;
 		m_iLoyaltyMonthly += nChangeAmount;
 	}
@@ -937,6 +947,7 @@ void CUser::SetSlotItemValue()
 	memset(&m_byAPClassBonusAmount, 0, sizeof(m_byAPClassBonusAmount));
 	memset(&m_byAcClassBonusAmount, 0, sizeof(m_byAcClassBonusAmount));
 
+	m_bItemExpGainAmount = m_bItemNPBonus = m_bItemNoahGainAmount = 0;
 	m_equippedItemBonuses.clear();
 
 	map<uint16, uint32> setItems;
@@ -1104,8 +1115,8 @@ void CUser::SetSlotItemValue()
 
 	// Update applicable weapon resistance amounts based on skill modifiers
 	// e.g. Eskrima
-	m_sDaggerR	+= (m_byDaggerRAmount - 100) * m_sDaggerR / 100;
-	m_sBowR		+= (m_byBowRAmount - 100) * m_sBowR / 100;
+	m_sDaggerR	+= m_byDaggerRAmount * m_sDaggerR / 100;
+	m_sBowR		+= m_byBowRAmount * m_sBowR / 100;
 }
 
 void CUser::ApplySetItemBonuses(_SET_ITEM * pItem)
@@ -1126,6 +1137,12 @@ void CUser::ApplySetItemBonuses(_SET_ITEM * pItem)
 	m_sMagicR += pItem->MagicResistance;
 	m_sDiseaseR += pItem->CurseResistance;
 	m_sPoisonR += pItem->PoisonResistance;
+
+	m_bItemExpGainAmount += pItem->XPBonusPercent;
+	m_bItemNoahGainAmount += pItem->CoinBonusPercent;
+	m_bItemNPBonus += pItem->NPBonus;
+
+	m_sMaxWeightBonus += pItem->MaxWeightBonus;
 
 	// NOTE: The following percentages use values such as 3 to indicate +3% (not the typical 103%).
 	// Also note that at this time, there are no negative values used, so we can assume it's always a bonus.
@@ -1156,7 +1173,7 @@ void CUser::ExpChange(int64 iExp)
 
 	// Adjust the exp gained based on the percent set by the buff
 	if (iExp > 0)
-		iExp *= m_bExpGainAmount / 100;
+		iExp = iExp * (m_bExpGainAmount + m_bItemExpGainAmount) / 100;
 
 	bool bLevel = true;
 	if (iExp < 0 
@@ -2107,9 +2124,6 @@ void CUser::LoyaltyChange(int16 tid, uint16 bonusNP /*= 0*/)
 	// Include any bonus NP (e.g. rival NP bonus)
 	loyalty_source += bonusNP;
 
-	//If you're using an NP modifying buff then add the bonus (NOTE : We do not take extra NP from the user that dies!)
-	loyalty_source += (m_bNPGainAmount - 100) * loyalty_source / 100;
-
 	SendLoyaltyChange(loyalty_source);
 	pTUser->SendLoyaltyChange(loyalty_target);
 
@@ -2574,15 +2588,6 @@ void CUser::HPTimeChangeType3()
 
 	if (!bIsDOT)
 		SendUserStatusUpdate(USER_STATUS_DOT, USER_STATUS_CURE);
-}
-
-void CUser::InitType4()
-{
-	Unit::InitType4();
-	m_bMaxWeightAmount = 100;
-	m_bExpGainAmount = 100;
-	m_bNPGainAmount = 100;
-	m_bNoahGainAmount = 100;
 }
 
 void CUser::Type4Duration()
@@ -3399,7 +3404,7 @@ void CUser::GoldGain(uint32 gold, bool bSendPacket /*= true*/, bool bApplyBonus 
 	// Assuming it works like this, although this affects (probably) all gold gained (including kills in PvP zones)
 	// If this is wrong and it should ONLY affect gold gained from monsters, let us know!
 	if (bApplyBonus)
-		gold += (m_bNoahGainAmount - 100) * gold / 100;
+		gold = gold * (m_bNoahGainAmount + m_bItemNoahGainAmount) / 100;
 
 	if (m_iGold + gold > COIN_MAX)
 		m_iGold = COIN_MAX;
