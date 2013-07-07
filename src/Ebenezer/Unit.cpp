@@ -392,7 +392,7 @@ void CUser::TriggerProcItem(uint8 bSlot, Unit * pTarget, ItemTriggerType trigger
 	_ITEM_OP * pData = g_pMain->m_ItemOpArray.GetData(pItem->nNum);
 	if (pData == nullptr
 		|| pData->bTriggerType != triggerType
-		/*|| !CheckPercent(pData->bTriggerRate * 10)*/)
+		|| !CheckPercent(pData->bTriggerRate * 10))
 		return;
 
 	MagicInstance instance;
