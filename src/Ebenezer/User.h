@@ -1054,4 +1054,8 @@ public:
 	DECLARE_LUA_FUNCTION(PromoteUser) {
 		LUA_RETURN(LUA_GET_INSTANCE()->PromoteUser());
 	}
+
+	DECLARE_LUA_FUNCTION(ShowEffect) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->ShowEffect(LUA_ARG(uint32, 2))); // effect ID
+	}
 };

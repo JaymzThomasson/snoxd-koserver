@@ -96,7 +96,7 @@ DEFINE_LUA_CLASS
 	// MAKE_LUA_METHOD(ZoneChangeParty)
 	// MAKE_LUA_METHOD(ZoneChangeClan)
 	// MAKE_LUA_METHOD(PromoteKnight)
-	// MAKE_LUA_METHOD(SendEffect)
+	MAKE_LUA_METHOD(ShowEffect)
 	MAKE_LUA_METHOD(KissUser)
 );
 #undef LUA_CLASS
@@ -106,7 +106,7 @@ DEFINE_LUA_CLASS
 (
 	// Getters
 	MAKE_LUA_METHOD(GetID)
-	MAKE_LUA_METHOD(GetEntryID)
+	MAKE_LUA_METHOD(GetProtoID)
 	MAKE_LUA_METHOD(GetName)
 	MAKE_LUA_METHOD(GetNation)
 	MAKE_LUA_METHOD(GetType)
