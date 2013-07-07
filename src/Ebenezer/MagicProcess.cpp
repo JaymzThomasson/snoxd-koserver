@@ -364,7 +364,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_MANA_ABSORB:		// Outrage / Frenzy / Mana Shield
-		// Uses mana to receive damage (for mana shield its multiplied by 4, 100 damage = 400 mana used)
+		pTarget->m_bManaAbsorb = pType->bExpPct;
 		break;
 
 	case BUFF_TYPE_VARIOUS_EFFECTS: //... whatever the event item grants.
@@ -665,7 +665,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_MANA_ABSORB:		// Outrage / Frenzy / Mana Shield
-		// Uses mana to receive damage (for mana shield its multiplied by 4, 100 damage = 400 mana used)
+		pTarget->m_bManaAbsorb = 0;
 		break;
 
 	case BUFF_TYPE_IGNORE_WEAPON:		// Weapon cancellation

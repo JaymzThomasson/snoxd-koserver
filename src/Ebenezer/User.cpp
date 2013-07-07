@@ -1320,8 +1320,6 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 	int16 oldHP = m_sHp;
 	int originalAmount = amount;
 	int mirrorDamage = 0;
-	_PARTY_GROUP *pParty = nullptr;
-	CUser *pUser = nullptr;
 
 	// If we're taking damage...
 	if (amount < 0)
@@ -1329,6 +1327,8 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 		//Handle the mirroring of damage.
 		if(m_bMirrorDamage && isInParty())
 		{
+			_PARTY_GROUP *pParty = nullptr;
+			CUser *pUser = nullptr;
 			mirrorDamage = (20*amount) / 100;
 			amount -= mirrorDamage;
 			pParty = g_pMain->GetPartyPtr(GetPartyID());
@@ -1348,7 +1348,14 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 		//Handle mana absorb skills
 		if(m_bManaAbsorb > 0)
 		{
+			int toBeAbsorbed = 0;
+			toBeAbsorbed = (originalAmount*m_bManaAbsorb) / 100;
+			amount -= toBeAbsorbed;
 
+			if(m_bManaAbsorb == 15)
+				toBeAbsorbed *= 4;
+
+			MSpChange(toBeAbsorbed);
 		}
 		// Handle mastery passives
 		if (isMastered())
