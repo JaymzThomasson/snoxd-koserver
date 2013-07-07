@@ -359,6 +359,54 @@ void CUser::ZoneChange(uint16 sNewZone, float x, float z)
 	m_bZoneChangeFlag = false;
 }
 
+/**
+ * @brief	Changes the zone of all party members within the user's zone.
+ * 			If the user is not in a party, they should still be teleported.
+ *
+ * @param	sNewZone	ID of the new zone.
+ * @param	x			The x coordinate.
+ * @param	z			The z coordinate.
+ */
+void CUser::ZoneChangeParty(uint16 sNewZone, float x, float z)
+{
+	_PARTY_GROUP * pParty = g_pMain->GetPartyPtr(GetPartyID());
+	if (pParty == nullptr)
+		return ZoneChange(sNewZone, x, z);
+
+	for (int i = 0; i < MAX_PARTY_USERS; i++)
+	{
+		CUser * pUser = g_pMain->GetUserPtr(pParty->uid[i]);
+		if (pUser != nullptr 
+			&& pUser->GetZoneID() == GetZoneID())
+			pUser->ZoneChange(sNewZone, x, z);
+	}
+}
+
+/**
+ * @brief	Changes the zone of all clan mmembers within the user's zone.
+ * 			If the user is not in a clan, they should still be teleported.
+ *
+ * @param	sNewZone	ID of the new zone.
+ * @param	x			The x coordinate.
+ * @param	z			The z coordinate.
+ */
+void CUser::ZoneChangeClan(uint16 sNewZone, float x, float z)
+{
+	CKnights * pKnights = g_pMain->GetClanPtr(GetClanID());
+	if (pKnights == nullptr)
+		return ZoneChange(sNewZone, x, z);
+
+	for (int i = 0; i < MAX_CLAN_USERS; i++)
+	{
+		_KNIGHTS_USER * p = &pKnights->m_arKnightsUser[i];
+		CUser * pUser = p->pSession;
+		if (p->byUsed
+			&& pUser != nullptr
+			&& pUser->GetZoneID() == GetZoneID())
+			pUser->ZoneChange(sNewZone, x, z);
+	}
+}
+
 void CUser::Warp(uint16 sPosX, uint16 sPosZ)
 {
 	ASSERT(GetMap() != nullptr);

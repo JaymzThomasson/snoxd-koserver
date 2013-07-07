@@ -747,6 +747,8 @@ public:
 
 	bool CanChangeZone(C3DMap * pTargetMap, ZoneChangeError & errorReason);
 	void ZoneChange(uint16 sNewZone, float x, float z);
+	void ZoneChangeParty(uint16 sNewZone, float x, float z);
+	void ZoneChangeClan(uint16 sNewZone, float x, float z);
 
 	void SendTargetHP( uint8 echo, int tid, int damage = 0 );
 	bool IsValidSlotPos( _ITEM_TABLE* pTable, int destpos );
@@ -1064,5 +1066,27 @@ public:
 
 	DECLARE_LUA_FUNCTION(ShowEffect) {
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->ShowEffect(LUA_ARG(uint32, 2))); // effect ID
+	}
+
+
+	DECLARE_LUA_FUNCTION(ZoneChange) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->ZoneChange(
+			LUA_ARG(uint16, 2),		// zone ID
+			LUA_ARG(float, 3),		// x
+			LUA_ARG(float, 4)));	// z
+	}
+
+	DECLARE_LUA_FUNCTION(ZoneChangeParty) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->ZoneChangeParty(
+			LUA_ARG(uint16, 2),		// zone ID
+			LUA_ARG(float, 3),		// x
+			LUA_ARG(float, 4)));	// z
+	}
+
+	DECLARE_LUA_FUNCTION(ZoneChangeClan) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->ZoneChangeClan(
+			LUA_ARG(uint16, 2),		// zone ID
+			LUA_ARG(float, 3),		// x
+			LUA_ARG(float, 4)));	// z
 	}
 };
