@@ -56,19 +56,12 @@ struct _Target
 	float x;						// User¿« x pos
 	float y;						// User¿« y pos
 	float z;						// User¿« z pos
-	int failCount;
 };
 
 struct _PattenPos
 {
 	short x;
 	short z;
-};
-
-struct _Patten
-{
-	int	patten_index;
-	_PattenPos pPattenPos[NPC_MAX_PATH_LIST];
 };
 
 struct _PathList
@@ -358,7 +351,7 @@ public:
 	void  FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, MonSearchType type = MonSearchSameFamily);
 	bool IsCloseTarget(CUser *pUser, int nRange);
 	void SendExpToUserList();
-	bool SetDamage(int nDamage, uint16 uid, int iDeadType = 0, bool bSendToEbenezer = true);
+	bool SetDamage(int nDamage, uint16 uid, bool bSendToEbenezer = true);
 	void ChangeTarget(int nAttackType, CUser *pUser);
 	void ChangeNTarget(CNpc *pNpc);
 	bool ResetPath();
@@ -373,7 +366,6 @@ public:
 	bool StepMove();
 	bool StepNoPathMove();
 	bool IsMovingEnd();
-	bool IsMovable(float x, float z);
 	int  IsSurround(CUser* pUser);
 	bool IsDamagedUserList(CUser *pUser);
 	void IsUserInSight();
@@ -407,12 +399,12 @@ public:
 	void SendAttackSuccess(uint8 byResult, int tuid, short sDamage, int nHP=0, uint8 byFlag = 0, short sAttack_type=1);
 
 	bool RegisterRegion(float x, float z);
+	void Dead(bool bSendDeathPacket = true);
 
-	void Dead(int iDeadType = 0);
 	bool FindEnemy();
 	bool CheckFindEnemy();
 	int FindEnemyRegion();
-	float FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType);
+	float FindEnemyExpand(int nRX, int nRZ, float fCompDis, UnitType unitType);
 	int GetMyField();
 
 	int GetDir(float x1, float z1, float x2, float z2);

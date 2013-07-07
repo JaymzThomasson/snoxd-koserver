@@ -12,7 +12,7 @@
 static float surround_fx[8] = {0.0f, -0.7071f, -1.0f, -0.7083f,  0.0f,  0.7059f,  1.0000f, 0.7083f};
 static float surround_fz[8] = {1.0f,  0.7071f,  0.0f, -0.7059f, -1.0f, -0.7083f, -0.0017f, 0.7059f};
 
-CUser::CUser() : Unit(true) {}
+CUser::CUser() : Unit(UnitPlayer) {}
 CUser::~CUser() {}
 
 void CUser::Initialize()
@@ -54,7 +54,6 @@ void CUser::Attack(int sid, int tid)
 		pNpc->m_Target.bSet = true;
 		pNpc->m_Target.x = GetX();
 		pNpc->m_Target.y = GetY();
-		pNpc->m_Target.failCount = 0;
 		pNpc->Attack();
 	//	return;
 	}	*/

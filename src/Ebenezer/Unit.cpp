@@ -11,8 +11,8 @@
 #endif
 #include <cfloat>
 
-Unit::Unit(bool bPlayer /*= false*/) 
-	: m_pMap(nullptr), m_pRegion(nullptr), m_sRegionX(0), m_sRegionZ(0), m_bPlayer(bPlayer)
+Unit::Unit(UnitType unitType) 
+	: m_pMap(nullptr), m_pRegion(nullptr), m_sRegionX(0), m_sRegionZ(0), m_unitType(unitType)
 {
 	Initialize();
 }
@@ -797,6 +797,10 @@ void Unit::SendDeathAnimation()
 	Packet result(WIZ_DEAD);
 	result << GetID();
 	SendToRegion(&result);
+#else
+	Packet result(AG_DEAD);
+	result << GetID();
+	g_pMain->Send(&result);
 #endif
 }
 

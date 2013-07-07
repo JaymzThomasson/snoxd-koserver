@@ -373,7 +373,7 @@ void CGameSocket::RecvNpcHpChange(Packet & pkt)
 
 	if (nAmount < 0)
 	{
-		pNpc->SetDamage(-nAmount, sAttackerID, 1, false);
+		pNpc->SetDamage(-nAmount, sAttackerID, false);
 	}
 	else
 	{		

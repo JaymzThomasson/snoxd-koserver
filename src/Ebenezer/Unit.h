@@ -30,6 +30,7 @@ typedef std::map<uint8, _BUFF_TYPE4_INFO> Type4BuffMap;
 typedef std::map<uint8, _BUFF_TYPE9_INFO> Type9BuffMap;
 
 enum AttackType { AttackTypeNone, AttackTypePhysical, AttackTypeMagic };
+enum UnitType { UnitPlayer, UnitNPC, UnitPet };
 
 /**
  * This class is a bridge between the CNpc & CUser classes
@@ -37,12 +38,15 @@ enum AttackType { AttackTypeNone, AttackTypePhysical, AttackTypeMagic };
 class Unit : public ReferenceObject
 {
 public:
-	Unit(bool bPlayer = false);
+	Unit(UnitType unitType);
 
 	virtual void Initialize();
 
-	INLINE bool isPlayer() { return m_bPlayer; }
-	INLINE bool isNPC() { return !isPlayer(); }
+	INLINE UnitType GetType() { return m_unitType; }
+	INLINE void SetType(UnitType unitType) { m_unitType = unitType; }
+
+	INLINE bool isPlayer() { return GetType() == UnitPlayer; }
+	INLINE bool isNPC() { return GetType() == UnitNPC; }
 
 	INLINE KOMap * GetMap() { return m_pMap; }
 
@@ -174,7 +178,7 @@ public:
 
 	uint16	m_sRegionX, m_sRegionZ; // this is probably redundant
 
-	bool	m_bPlayer;
+	UnitType m_unitType;
 
 	uint8	m_bLevel;
 	uint8	m_bNation;

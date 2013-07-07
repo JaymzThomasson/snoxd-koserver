@@ -71,7 +71,8 @@ bool CNpc::RegisterRegion(float x, float z)
 	return true;
 }
 
-CNpc::CNpc() : Unit(), m_NpcState(NPC_LIVE), m_OldNpcState(m_NpcState), m_byGateOpen(false), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
+CNpc::CNpc() : Unit(UnitNPC), 
+	m_NpcState(NPC_LIVE), m_OldNpcState(m_NpcState), m_byGateOpen(false), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
 	m_byAttackPos(0), m_ItemUserLevel(0), m_Delay(0), m_nActiveSkillID(0), m_sActiveTargetID(-1), 
 	m_proto(nullptr), m_pPath(nullptr)
 {
@@ -169,7 +170,6 @@ void CNpc::InitTarget()
 	m_Target.id = -1;
 	m_Target.bSet = false;
 	m_Target.x = m_Target.y = m_Target.z = 0.0f;
-	m_Target.failCount = 0;
 	m_bTracing = false;
 }
 
@@ -1210,12 +1210,11 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 {
 	ClearPathFindData();
 
-	if(start.x < 0 || start.y < 0 || end.x < 0 || end.y < 0)
-	{
+	if (start.x < 0 || start.y < 0 
+		|| end.x < 0 || end.y < 0)
 		return -1;
-	}
 
-	if(start.x == end.x && start.y == end.y)	// 같은 타일 안에서,, 조금 움직임이 있었다면,,
+	if (start.x == end.x && start.y == end.y)
 	{
 		m_bPathFlag = true;
 		m_iAniFrameIndex = 1;
@@ -1224,8 +1223,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 		return 1;
 	}
 	
-	// 여기에서 패스파인드를 실행할건지.. 바로 목표점으로 갈건인지를 판단..
-	if(IsPathFindCheck(fDistance) == true)
+	if (IsPathFindCheck(fDistance))
 	{
 		m_bPathFlag = true;
 		return 1;
@@ -1274,9 +1272,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 	return 1;
 }
 
-
-//	NPC 사망처리
-void CNpc::Dead(int iDeadType)
+void CNpc::Dead(bool bSendDeathPacket /*= false*/)
 {
 	MAP* pMap = GetMap();
 	if(pMap == nullptr)	return;
@@ -1296,11 +1292,11 @@ void CNpc::Dead(int iDeadType)
 
 	pMap->RegionNpcRemove(GetRegionX(), GetRegionZ(), GetID());
 
-	if (iDeadType == 1)
+	if (bSendDeathPacket)
 	{
-		Packet result(AG_DEAD);
-		result << GetID();
-		g_pMain->Send(&result);
+		SendDeathAnimation();
+		SendExpToUserList();
+		GiveNpcHaveItem();
 	}
 
 /*
@@ -1361,7 +1357,7 @@ bool CNpc::FindEnemy()
 	if (isMonster() 
 		|| (!GetMap()->areNPCsFriendly() || GetNation() != Nation::ALL))
 	{
-		fCompareDis = FindEnemyExpand(GetRegionX(), GetRegionZ(), fCompareDis, 1);
+		fCompareDis = FindEnemyExpand(GetRegionX(), GetRegionZ(), fCompareDis, UnitPlayer);
 
 		int x=0, y=0;
 
@@ -1375,7 +1371,7 @@ bool CNpc::FindEnemy()
 			// 이부분 수정요망,,
 			if (x < 0 || y < 0 || x > pMap->GetXRegionMax() || y > pMap->GetZRegionMax())		continue;
 
-			fCompareDis = FindEnemyExpand(x, y, fCompareDis, 1);
+			fCompareDis = FindEnemyExpand(x, y, fCompareDis, UnitPlayer);
 		}
 
 		if (hasTarget() && (fCompareDis <= fSearchRange))		
@@ -1387,7 +1383,7 @@ bool CNpc::FindEnemy()
 	/*** Only find NPC/mob enemies if we are a guard ***/
 	if (bIsGuard) // || GetType() == NPCTYPE_MONSTER)	
 	{
-		fCompareDis = FindEnemyExpand(GetRegionX(), GetRegionZ(), fCompareDis, 2);
+		fCompareDis = FindEnemyExpand(GetRegionX(), GetRegionZ(), fCompareDis, UnitNPC);
 
 		int x=0, y=0;
 
@@ -1401,7 +1397,7 @@ bool CNpc::FindEnemy()
 			// 이부분 수정요망,,
 			if(x < 0 || y < 0 || x > pMap->GetXRegionMax() || y > pMap->GetZRegionMax())	continue;
 
-			fCompareDis = FindEnemyExpand(x, y, fCompareDis, 2);
+			fCompareDis = FindEnemyExpand(x, y, fCompareDis, UnitNPC);
 		}
 
 		if (hasTarget() && (fCompareDis <= fSearchRange))	return true;
@@ -1542,7 +1538,7 @@ int CNpc::FindEnemyRegion()
 	return iRetValue;
 }
 
-float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
+float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, UnitType unitType)
 {
 	MAP* pMap = GetMap();
 	float fDis = 0.0f;
@@ -1554,7 +1550,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 	vNpc.Set(GetX(), GetY(), GetZ());
 	
 	// Finding players
-	if (nType == 1)	
+	if (unitType == UnitPlayer)	
 	{
 		FastGuard lock(pMap->m_lock);
 		CRegion *pRegion = &pMap->m_ppRegion[nRX][nRZ];
@@ -1588,7 +1584,6 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 			{
 				m_Target.id	= target_uid;
 				m_Target.bSet = true;
-				m_Target.failCount = 0;
 				m_Target.x	= pUser->GetX();
 				m_Target.y	= pUser->GetY();
 				m_Target.z	= pUser->GetZ();
@@ -1596,7 +1591,7 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 		}
 	}
 	// Finding NPCs/monsters
-	else if (nType == 2)		
+	else if (unitType == UnitNPC)		
 	{
 		FastGuard lock(pMap->m_lock);
 		CRegion *pRegion = &pMap->m_ppRegion[nRX][nRZ];
@@ -1626,7 +1621,6 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, int nType)
 					fComp = fDis;
 					m_Target.id	= target_uid;
 					m_Target.bSet = true;
-					m_Target.failCount = 0;
 					m_Target.x	= pNpc->GetX();
 					m_Target.y	= pNpc->GetY();
 					m_Target.z	= pNpc->GetZ();
@@ -1688,19 +1682,6 @@ int CNpc::IsSurround(CUser* pUser)
 		return nDir;
 	}
 	return -1;					// 타겟이 둘러 쌓여 있음...
-}
-
-//	x, y 가 움직일 수 있는 좌표인지 판단
-bool CNpc::IsMovable(float x, float z)
-{
-	MAP* pMap = GetMap();
-	if (pMap == nullptr
-		|| x < 0 || z < 0
-		|| x >= pMap->GetMapSize() || z >= pMap->GetMapSize()
-		|| pMap->GetEventID((int)x, (int)z) == 0)
-		return false;
-
-	return true;
 }
 
 //	Path Find 로 찾은길을 다 이동 했는지 판단
@@ -2604,10 +2585,8 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 	if (pUser == preUser)
 	{
 		if (m_bHasFriends || GetType() == NPC_BOSS) 
-		{
-			m_Target.failCount = 0;
 			FindFriend(GetType() == NPC_BOSS ? MonSearchAny : MonSearchSameFamily);
-		}
+
 		return;
 	}
 
@@ -2683,10 +2662,7 @@ void CNpc::ChangeTarget(int nAttackType, CUser *pUser)
 //	else m_NpcState = NPC_ATTACKING;	// 한참 공격하는데 누가 방해하면 목표를 바꿈
 
 	if (m_bHasFriends || GetType() == NPC_BOSS)	 
-	{
-		m_Target.failCount = 0;
 		FindFriend(GetType() == NPC_BOSS ? MonSearchAny : MonSearchSameFamily);
-	}
 }
 
 //	나를 공격한 Npc를 타겟으로 삼는다.(기준 : 렙과 HP를 기준으로 선정)
@@ -2758,13 +2734,10 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 //	else m_NpcState = NPC_ATTACKING;	// 한참 공격하는데 누가 방해하면 목표를 바꿈
 
 	if (m_bHasFriends)
-	{
-		m_Target.failCount = 0;
 		FindFriend();
-	}
 }
 
-bool CNpc::SetDamage(int nDamage, uint16 uid, int iDeadType /*= 0*/, bool bSendToEbenezer /*= true*/)
+bool CNpc::SetDamage(int nDamage, uint16 uid, bool bSendToEbenezer /*= true*/)
 {
 	int i=0, len=0;
 	int userDamage = 0;
@@ -2843,15 +2816,8 @@ go_result:
 	m_TotalDamage += userDamage;
 	m_iHP -= nDamage;	
 	HpChange(-nDamage, pAttacker, bSendToEbenezer);
-
-	if( m_iHP <= 0 )
-	{
-		m_iHP = 0;
-		Dead(iDeadType);
-		SendExpToUserList();
-		GiveNpcHaveItem();
+	if (m_iHP <= 0)
 		return false;
-	}
 
 	int iRandom = myrand(1, 100);
 	int iLightningR = 0;
@@ -2909,7 +2875,7 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToEbene
 	}
 
 	if (m_iHP == 0)
-		OnDeath(pAttacker);
+		Dead();
 }
 
 //	NPC 사망처리시 경험치 분배를 계산한다.(일반 유저와 버디 사용자구분)
@@ -3261,7 +3227,6 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, Mon
 						pNpc->m_Target.x = m_Target.x;
 						pNpc->m_Target.y = m_Target.y;
 						pNpc->m_Target.z = m_Target.z;
-						pNpc->m_Target.failCount = 0;
 						pNpc->NpcStrategy(NPC_ATTACK_SHOUT);
 					}
 				}
@@ -3276,7 +3241,6 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, Mon
 						pNpc->m_Target.x = m_Target.x;
 						pNpc->m_Target.y = m_Target.y;
 						pNpc->m_Target.z = m_Target.z;
-						pNpc->m_Target.failCount = 0;
 						pNpc->NpcStrategy(NPC_ATTACK_SHOUT);
 					}
 				}

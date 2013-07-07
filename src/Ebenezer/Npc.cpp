@@ -3,7 +3,7 @@
 #include "Map.h"
 #include "EbenezerDlg.h"
 
-CNpc::CNpc()
+CNpc::CNpc() : Unit(UnitNPC)
 {
 	Initialize();
 }
