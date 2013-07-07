@@ -663,11 +663,20 @@ bool MagicInstance::IsAvailable()
 
 			// Allow for skills that block potion use.
 			// NOTE: Officially they most likely go by skill ID (5#####), but this seems less hacky.
-			if (!pSkillCaster->canUsePotions()
+			if (!pSkillCaster->canUsePotions() 
 				&& pType3->bDirectType == 1 // affects target's HP (magic numbers! yay!)
 				&& pType3->sFirstDamage > 0 // healing only
-				&& pSkill->iNum != 0) // requiring an item (i.e. pots, nothing else in my database matches) 
-				goto fail_return;
+				&& pSkill->iUseItem != 0) // requiring an item (i.e. pots) 
+			{
+				// To avoid conflicting with priest skills that require items (e.g. "Laying of hands")
+				// we need to lookup the item itself for the information we need to ignore it.
+				_ITEM_TABLE * pTable = g_pMain->GetItemPtr(pSkill->iUseItem);
+				if (pTable == nullptr
+					// Item-required healing skills are class-specific. 
+					// We DO NOT want to block these skills.
+					|| pTable->m_bClass == 0)
+					goto fail_return;
+			}
 		}
 
 		modulator = pSkill->sSkill % 10;     // Hacking prevention!
