@@ -51,7 +51,7 @@ void CUser::QuestV2PacketProcess(Packet & pkt)
 		// Does the quest NPC exist, and is it alive? 
 		|| pNpc == nullptr || pNpc->isDead()
 		// Are we even talking to this NPC?
-		|| pQuestHelper->sNpcId != pNpc->GetEntryID()
+		|| pQuestHelper->sNpcId != pNpc->GetProtoID()
 		// Are we in range of this NPC?
 		|| !isInRange(pNpc, MAX_NPC_RANGE)
 		// Is this quest for this player's nation? NOTE: 3 indicates both (why not 0, I don't know)

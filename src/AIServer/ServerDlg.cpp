@@ -308,7 +308,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 		{
 			pNpc->m_byMoveType = 1;
 			TRACE("##### ServerDlg:CreateNpcThread - Path type Error :  nid=%d, sid=%d, name=%s, acttype=%d, path=%d #####\n", 
-				pNpc->GetID(), pNpc->m_proto->m_sSid, pNpc->GetName().c_str(), pNpc->m_byMoveType, pNpc->m_sMaxPathCount);
+				pNpc->GetID(), pNpc->GetProtoID(), pNpc->GetName().c_str(), pNpc->m_byMoveType, pNpc->m_sMaxPathCount);
 		}
 
 		if (bDotCnt > 0)
@@ -386,7 +386,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 			{
 				delete pInt;
 				TRACE("### Map - Room Array MonsterNid Fail : nid=%d, sid=%d ###\n", 
-				pNpc->GetID(), pNpc->m_proto->m_sSid);
+				pNpc->GetID(), pNpc->GetProtoID());
 			}
 		}
 	}

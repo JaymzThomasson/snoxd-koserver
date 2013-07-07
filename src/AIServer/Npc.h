@@ -110,8 +110,8 @@ struct __Vector3;
 class CNpc : public Unit
 {
 public:
-
 	virtual uint16 GetID() { return m_sNid; }
+	INLINE uint16 GetProtoID() { return GetProto()->m_sSid; }
 	virtual std::string & GetName() { return GetProto()->m_strName; }
 
 	virtual int32 GetHealth() { return m_iHP; }

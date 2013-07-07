@@ -62,7 +62,7 @@ public:
 	INLINE bool isGateOpen() { return m_byGateOpen; };
 	INLINE bool isGateClosed() { return !isGateOpen(); };
 
-	INLINE short GetEntryID() { return m_sSid; };
+	INLINE short GetProtoID() { return m_sSid; };
 	INLINE uint8 GetType() { return m_tNpcType; };
 	INLINE uint8 GetState() { return m_byState; };
 
@@ -83,7 +83,7 @@ public:
 	DECLARE_LUA_CLASS(CNpc);
 
 	DECLARE_LUA_GETTER(GetID);
-	DECLARE_LUA_GETTER(GetEntryID);
+	DECLARE_LUA_GETTER(GetProtoID);
 	DECLARE_LUA_GETTER(GetName);
 	DECLARE_LUA_GETTER(GetNation);
 	DECLARE_LUA_GETTER(GetType);

@@ -73,7 +73,7 @@ void CUser::ClientEvent(uint16 sNpcID)
 		return;
 
 	m_sEventNid = sNpcID;
-	m_sEventSid = pNpc->GetEntryID(); // For convenience purposes with Lua scripts.
+	m_sEventSid = pNpc->GetProtoID(); // For convenience purposes with Lua scripts.
 
 	// Aww.
 	if (pNpc->GetType() == NPC_KISS)
@@ -83,7 +83,7 @@ void CUser::ClientEvent(uint16 sNpcID)
 	}
 
 	FastGuard lock(g_pMain->m_questNpcLock);
-	QuestNpcList::iterator itr = g_pMain->m_QuestNpcList.find(pNpc->GetEntryID());
+	QuestNpcList::iterator itr = g_pMain->m_QuestNpcList.find(pNpc->GetProtoID());
 	if (itr == g_pMain->m_QuestNpcList.end())
 		return;
 

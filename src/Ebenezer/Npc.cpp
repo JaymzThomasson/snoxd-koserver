@@ -130,7 +130,7 @@ void CNpc::SendInOut(uint8 bType, float fX, float fZ, float fY)
  */
 void CNpc::GetNpcInfo(Packet & pkt)
 {
-	pkt << GetEntryID()
+	pkt << GetProtoID()
 		<< uint8(isMonster() ? 1 : 2) // Monster = 1, NPC = 2 (need to use a better flag)
 		<< m_sPid
 		<< GetType()
@@ -245,7 +245,7 @@ void CNpc::OnDeath(Unit *pKiller)
 
 	if (m_byObjectType == SPECIAL_OBJECT)
 	{
-		_OBJECT_EVENT *pEvent = GetMap()->GetObjectEvent(GetEntryID());
+		_OBJECT_EVENT *pEvent = GetMap()->GetObjectEvent(GetProtoID());
 		if (pEvent != nullptr)
 			pEvent->byLife = 0;
 	}

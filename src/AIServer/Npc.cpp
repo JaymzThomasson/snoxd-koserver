@@ -42,17 +42,17 @@ bool CNpc::RegisterRegion(float x, float z)
 	int nRX = (int)x / VIEW_DIST;
 	int nRY = (int)z / VIEW_DIST;
 
-	if(x1 < 0 || z1 < 0 || x1 >= pMap->GetMapSize() || z1 >= pMap->GetMapSize())
+	if (x1 < 0 || z1 < 0 || x1 >= pMap->GetMapSize() || z1 >= pMap->GetMapSize())
 	{
 		TRACE("#### SetUid failed : [nid=%d, sid=%d, zone=%d], coordinates out of range of map x=%d, z=%d, map size=%d #####\n", 
-			GetID(), m_proto->m_sSid, GetZoneID(), x1, z1, pMap->GetMapSize());
+			GetID(), GetProtoID(), GetZoneID(), x1, z1, pMap->GetMapSize());
 		return false;
 	}
 
 	// if(pMap->m_pMap[x1][z1].m_sEvent == 0) return false;
 	if(nRX > pMap->GetXRegionMax() || nRY > pMap->GetZRegionMax() || nRX < 0 || nRY < 0)
 	{
-		TRACE("#### SetUid Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", GetID(), m_proto->m_sSid, nRX, nRY);
+		TRACE("#### SetUid Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", GetID(), GetProtoID(), nRX, nRY);
 		return false;
 	}
 
@@ -860,7 +860,7 @@ bool CNpc::RandomMove()
 			if (nPathCount  == -1)	
 			{
 				TRACE("##### RandomMove Fail : [nid = %d, sid=%d], path = %d/%d, 이동할 수 있는 거리에서 너무 멀어졌당,, 어케해 #####\n", 
-					GetID(), m_proto->m_sSid, m_sPathCount, m_sMaxPathCount);
+					GetID(), GetProtoID(), m_sPathCount, m_sMaxPathCount);
 
 				vStart.Set(GetX(), GetY(), GetZ());
 				fDestX = (float)m_PathList.pPattenPos[0].x + m_fBattlePos_x;
@@ -902,7 +902,7 @@ bool CNpc::RandomMove()
 			nPathCount = GetNearPathPoint();
 			if (nPathCount  == -1)	
 			{
-				TRACE("##### RandomMove Fail : [nid = %d, sid=%d], path = %d/%d, 이동할 수 있는 거리에서 너무 멀어졌당,, 어케해 #####\n", GetID(), m_proto->m_sSid, m_sPathCount, m_sMaxPathCount);
+				TRACE("##### RandomMove Fail : [nid = %d, sid=%d], path = %d/%d, 이동할 수 있는 거리에서 너무 멀어졌당,, 어케해 #####\n", GetID(), GetProtoID(), m_sPathCount, m_sMaxPathCount);
 				vStart.Set(GetX(), GetY(), GetZ());
 				fDestX = (float)m_PathList.pPattenPos[0].x + m_fBattlePos_x;
 				fDestZ = (float)m_PathList.pPattenPos[0].z + m_fBattlePos_z;
@@ -1286,7 +1286,7 @@ void CNpc::Dead(bool bSendDeathPacket /*= false*/)
 	if (GetRegionX() > pMap->GetXRegionMax() || GetRegionZ() > pMap->GetZRegionMax())
 	{
 		TRACE("#### Npc-Dead() Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", 
-			GetID(), m_proto->m_sSid, GetRegionX(), GetRegionZ());
+			GetID(), GetProtoID(), GetRegionX(), GetRegionZ());
 		return;
 	}
 
@@ -3191,7 +3191,7 @@ void CNpc::FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, Mon
 {
 	if (x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())
 	{
-		TRACE("#### Npc-FindFriendRegion() Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", GetID(), m_proto->m_sSid, x, z);
+		TRACE("#### Npc-FindFriendRegion() Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", GetID(), GetProtoID(), x, z);
 		return;
 	}
 
@@ -3280,7 +3280,7 @@ void CNpc::NpcStrategy(uint8 type)
 void CNpc::FillNpcInfo(Packet & result)
 {
 	result	<< uint8(1) 
-			<< GetID() << m_proto->m_sSid << m_proto->m_sPid
+			<< GetID() << GetProtoID() << m_proto->m_sPid
 			<< m_sSize << m_iWeapon_1 << m_iWeapon_2
 			<< GetZoneID() << GetName()
 			<< GetNation() << GetLevel()
@@ -3442,7 +3442,7 @@ bool CNpc::GetUserInViewRange(int x, int z)
 	MAP* pMap = GetMap();
 	if (pMap == nullptr || x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())
 	{
-		TRACE("#### Npc-GetUserInViewRange() Fail : [nid=%d, sid=%d], x1=%d, z1=%d #####\n", GetID(), m_proto->m_sSid, x, z);
+		TRACE("#### Npc-GetUserInViewRange() Fail : [nid=%d, sid=%d], x1=%d, z1=%d #####\n", GetID(), GetProtoID(), x, z);
 		return false;
 	}
 
@@ -3810,7 +3810,7 @@ bool CNpc::CheckFindEnemy()
 		|| GetRegionX() > pMap->GetXRegionMax() 
 		|| GetRegionZ() > pMap->GetZRegionMax())
 	{
-		TRACE("#### CheckFindEnemy Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", GetID(), m_proto->m_sSid, GetRegionX(), GetRegionZ());
+		TRACE("#### CheckFindEnemy Fail : [nid=%d, sid=%d], nRX=%d, nRZ=%d #####\n", GetID(), GetProtoID(), GetRegionX(), GetRegionZ());
 		return false;
 	}
 

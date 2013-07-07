@@ -209,7 +209,7 @@ CNpc* CRoomEvent::GetNpcPtr( int sid )
 	{
 		CNpc *pNpc = g_pMain->GetNpcPtr(itr->first);
 		if (pNpc == nullptr
-			|| pNpc->GetProto()->m_sSid != sid)
+			|| pNpc->GetProtoID() != sid)
 			continue;
 
 		return pNpc;
@@ -246,7 +246,7 @@ bool  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
 			if (pNpc->m_byDeadType == 100)	nMonsterCount++;
 			if (nMonsterCount == nMonster)	bRetValue = true;
 		}
-		else if (pNpc->GetProto()->m_sSid == sid)
+		else if (pNpc->GetProtoID() == sid)
 		{
 			if (type == 1)
 			{
