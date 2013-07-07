@@ -55,9 +55,6 @@ bool CAISocket::HandlePacket(Packet & pkt)
 		case AG_NPC_GIVE_ITEM:
 			RecvNpcGiveItem(pkt);
 			break;
-		case AG_USER_FAIL:
-			RecvUserFail(pkt);
-			break;
 		case AG_NPC_GATE_DESTORY:
 			RecvGateDestory(pkt);
 			break;
@@ -543,24 +540,6 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 		pUser->Send(&result);
 	else
 		g_pMain->Send_PartyMember(pUser->GetPartyID(), &result);
-}
-
-void CAISocket::RecvUserFail(Packet & pkt)
-{
-	short nid, sid;
-	pkt >> nid >> sid;
-	CUser* pUser = g_pMain->GetUserPtr(nid);
-	if (pUser == nullptr)
-		return;
-
-	// wtf is this I don't even
-	pUser->HpChange(-10000, nullptr, false);
-
-	Packet result(WIZ_ATTACK, uint8(1));
-	result << uint8(2) << sid << nid;
-	pUser->SendToRegion(&result);
-
-	TRACE("### AISocket - RecvUserFail : sid=%d, tid=%d, id=%s ####\n", sid, nid, pUser->GetName().c_str());
 }
 
 void CAISocket::InitEventMonster(int index)
