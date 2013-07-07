@@ -92,7 +92,7 @@ DEFINE_LUA_CLASS
 	// MAKE_LUA_METHOD(ResetStatPoints) // AllStatPointChange(1)
 	MAKE_LUA_METHOD(PromoteUserNovice)
 	MAKE_LUA_METHOD(PromoteUser)
-	// MAKE_LUA_METHOD(RobAllItemParty)
+	MAKE_LUA_METHOD(RobAllItemParty)
 	// MAKE_LUA_METHOD(ZoneChangeParty)
 	// MAKE_LUA_METHOD(ZoneChangeClan)
 	// MAKE_LUA_METHOD(PromoteKnight)

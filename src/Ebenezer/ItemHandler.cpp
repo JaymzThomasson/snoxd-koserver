@@ -310,6 +310,40 @@ bool CUser::RobItem(uint32 itemid, uint16 count /*= 1*/)
 	return false;
 }
 
+/**
+ * @brief	Checks if all players in the party have sCount of item nItemID
+ * 			and if so, removes it.
+ *
+ * @param	nItemID	Identifier for the item.
+ * @param	sCount 	Stack size.
+ *
+ * @return	true if the required items were taken, false if not.
+ */
+bool CUser::RobAllItemParty(uint32 nItemID, uint16 sCount /*= 1*/)
+{
+	_PARTY_GROUP * pParty = g_pMain->m_PartyArray.GetData(GetPartyID());
+	if (pParty == nullptr)
+		return RobItem(nItemID, sCount);
+
+	// First check to see if all users in the party have enough of the specified item.
+	vector<CUser *> partyUsers;
+	for (int i = 0; i < MAX_PARTY_USERS; i++)
+	{
+		CUser * pUser = g_pMain->GetUserPtr(pParty->uid[i]);
+		if (pUser != nullptr
+			&& !pUser->CheckExistItem(nItemID, sCount))
+			return false;
+
+		partyUsers.push_back(pUser);
+	}
+
+	// Since all users have the required item, we can now remove them. 
+	foreach (itr, partyUsers)
+		(*itr)->RobItem(nItemID, sCount);
+
+	return true;
+}
+
 bool CUser::GiveItem(uint32 itemid, uint16 count, bool send_packet /*= true*/)
 {
 	int8 pos;

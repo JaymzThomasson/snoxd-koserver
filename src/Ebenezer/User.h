@@ -494,6 +494,7 @@ public:
 	bool CheckClass(short class1, short class2 = -1, short class3 = -1, short class4 = -1, short class5 = -1, short class6 = -1);
 	bool GiveItem(uint32 nItemID, uint16 sCount = 1, bool send_packet = true);
 	bool RobItem(uint32 nItemID, uint16 sCount = 1);
+	bool RobAllItemParty(uint32 nItemID, uint16 sCount = 1);
 	bool CheckExistItem(int itemid, short count = 1);
 	bool CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,
 		int32 nItemID3, int16 sCount3, int32 nItemID4, int16 sCount4, int32 nItemID5, int16 sCount5);
@@ -941,6 +942,12 @@ public:
 
 	DECLARE_LUA_FUNCTION(RobItem) {
 		LUA_RETURN(LUA_GET_INSTANCE()->RobItem(
+			LUA_ARG(uint32, 2), 
+			LUA_ARG_OPTIONAL(uint16, 1, 3)));
+	}
+
+	DECLARE_LUA_FUNCTION(RobAllItemParty) {
+		LUA_RETURN(LUA_GET_INSTANCE()->RobAllItemParty(
 			LUA_ARG(uint32, 2), 
 			LUA_ARG_OPTIONAL(uint16, 1, 3)));
 	}
