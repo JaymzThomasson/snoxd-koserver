@@ -107,7 +107,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;        _dbCommand-&gt;FetchUInt16(4, pData-&gt;sDuration);</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        _dbCommand-&gt;FetchByte(5, pData-&gt;bAttackSpeed);</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        _dbCommand-&gt;FetchByte(6, pData-&gt;bSpeed);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        _dbCommand-&gt;FetchUInt16(7, pData-&gt;sAC);</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        _dbCommand-&gt;FetchInt16(7, pData-&gt;sAC);</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;        _dbCommand-&gt;FetchUInt16(8, pData-&gt;sACPct);</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;        _dbCommand-&gt;FetchByte(9, pData-&gt;bAttack);</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        _dbCommand-&gt;FetchByte(10, pData-&gt;bMagicAttack);</div>
@@ -130,18 +130,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;        _dbCommand-&gt;FetchByte(27, pData-&gt;bPoisonR);</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        _dbCommand-&gt;FetchByte(28, pData-&gt;bExpPct);</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        </div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        <span class="keywordflow">if</span> (!m_pMap-&gt;PutData(pData-&gt;iNum, pData))</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;            <span class="keyword">delete</span> pData;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        <span class="comment">// Determine if the skill is a buff or a debuff.</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        pData-&gt;bIsBuff = <a class="code" href="class_c_magic_process.html#ac52bb131545a2880d8027dda94354d38" title="Test if the specified skill is a buff or a debuff.">CMagicProcess::IsBuff</a>(pData);</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    }</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        <span class="keywordflow">if</span> (!m_pMap-&gt;PutData(pData-&gt;iNum, pData))</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;            <span class="keyword">delete</span> pData;</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype4Array</a> *m_pMap;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;};</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    }</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype4Array</a> *m_pMap;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

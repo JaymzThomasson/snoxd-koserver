@@ -90,11 +90,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="directory">
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>_OnConnect</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
   <tr bgcolor="#f0f0f0"><td class="entry"><b>Accept</b>(sockaddr_in *address) (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>BurstBegin</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>BurstEnd</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>BurstPush</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>BurstSend</b>(const uint8 *Bytes, uint32 Size) (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>Connect</b>(const char *Address, uint32 Port) (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>AcquireSendLock</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>BurstBegin</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>BurstEnd</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>BurstPush</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>BurstSend</b>(const uint8 *Bytes, uint32 Size) (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>Connect</b>(const char *Address, uint32 Port) (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>DecSendLock</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr bgcolor="#f0f0f0"><td class="entry"><b>Delete</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>Disconnect</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0"><td class="entry"><b>GetFd</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
@@ -105,6 +107,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>GetRemoteStruct</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr bgcolor="#f0f0f0"><td class="entry"><b>GetSocketMgr</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>GetWriteBuffer</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>HasSendLock</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>IncSendLock</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr bgcolor="#f0f0f0"><td class="entry"><b>IsConnected</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>IsDeleted</b>() (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr bgcolor="#f0f0f0"><td class="entry"><b>m_client</b> (defined in <a class="el" href="class_socket.html">Socket</a>)</td><td class="entry"><a class="el" href="class_socket.html">Socket</a></td><td class="entry"><span class="mlabel">protected</span></td></tr>
@@ -129,7 +133,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </table></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:06 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:32 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

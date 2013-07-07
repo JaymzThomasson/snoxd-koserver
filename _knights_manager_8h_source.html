@@ -89,7 +89,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="keyword">class </span><a class="code" href="struct_c_user.html">CUser</a>;</div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="keyword">class </span><a class="code" href="class_c_ebenezer_dlg.html">CEbenezerDlg</a>;</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="keyword">class </span>CEbenezerDlg;</div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">class </span><a class="code" href="class_c_knights.html">CKnights</a>;</div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">class </span><a class="code" href="class_packet.html">Packet</a>;</div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div>
@@ -138,19 +138,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> ReqRegisterClanSymbol(<a class="code" href="struct_c_user.html">CUser</a> *pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="class_c_knights_manager.html#a3cb0bfd2a459c4ce1a7f932b1a4df336" title="Handles the clan NP donations database request. It is essentially the client packet&#39;s real handler as...">ReqDonateNP</a>(<a class="code" href="struct_c_user.html">CUser</a> *pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="class_c_knights_manager.html#aa293273ba61b26f0a8ff1dde5145c81d" title="Handles the database request to refund the specified logged out character&#39;s donated NP...">ReqRefundNP</a>(<a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> RecvUpdateKnights(<a class="code" href="struct_c_user.html">CUser</a>* pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt, uint8 command);</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> RecvModifyFame(<a class="code" href="struct_c_user.html">CUser</a>* pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt, uint8 command);</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> RecvKnightsAllList(<a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">int</span> GetKnightsIndex( <span class="keywordtype">int</span> nation );</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">bool</span> IsAvailableName( <span class="keyword">const</span> <span class="keywordtype">char</span>* strname);  </div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> PacketProcess(<a class="code" href="struct_c_user.html">CUser</a>* pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);  </div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;};</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="class_c_knights_manager.html#a24d5ec4defc343acc14a3c8e93cc87ab" title="Handles the database request to update the specified clan&#39;s clan point fund.">ReqUpdateNP</a>(<a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> RecvUpdateKnights(<a class="code" href="struct_c_user.html">CUser</a>* pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt, uint8 command);</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> RecvModifyFame(<a class="code" href="struct_c_user.html">CUser</a>* pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt, uint8 command);</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> RecvKnightsAllList(<a class="code" href="class_packet.html">Packet</a> &amp; pkt);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">int</span> GetKnightsIndex( <span class="keywordtype">int</span> nation );</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">bool</span> IsAvailableName( <span class="keyword">const</span> <span class="keywordtype">char</span>* strname);  </div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> PacketProcess(<a class="code" href="struct_c_user.html">CUser</a>* pUser, <a class="code" href="class_packet.html">Packet</a> &amp; pkt);  </div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

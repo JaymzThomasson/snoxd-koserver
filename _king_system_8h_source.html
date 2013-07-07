@@ -210,31 +210,30 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    uint16  m_sExpEvent_Duration;</div>
 <div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;</div>
 <div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    uint32  m_nTribute;</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    uint8   m_byTerritoryTariff;</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    uint32  m_nTerritoryTax;</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    uint32  m_nNationalTreasury;</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    std::string m_strKingName;</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    std::string m_strImRequestID;</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    FastMutex m_lock;</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    ClanIDSet m_top10ClanSet;</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;    KingCandidacyNoticeBoardMap m_noticeBoardMap;</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;</div>
-<div class="line"><a name="l00142"></a><span class="lineno"><a class="code" href="class_c_king_system.html#abead17aed054a81cd3d31605c6e0f715">  142</a></span>&#160;    KingElectionList <a class="code" href="class_c_king_system.html#abead17aed054a81cd3d31605c6e0f715" title="List of senators. Senators are the top 10 clan leaders and are able to nominate a King or propose imp...">m_senatorList</a>;</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;</div>
-<div class="line"><a name="l00149"></a><span class="lineno"><a class="code" href="class_c_king_system.html#a01ea8acaa5e1b8b4ffb7da3df607eacd">  149</a></span>&#160;    KingElectionList <a class="code" href="class_c_king_system.html#a01ea8acaa5e1b8b4ffb7da3df607eacd" title="List of candidates still in the running for King. Candidates for election must be senators...">m_candidateList</a>;</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;</div>
-<div class="line"><a name="l00154"></a><span class="lineno"><a class="code" href="class_c_king_system.html#a5269b9cc7b4a1ece77c49492649526ba">  154</a></span>&#160;    ResignedCandidateList <a class="code" href="class_c_king_system.html#a5269b9cc7b4a1ece77c49492649526ba" title="List of resigned candidates.">m_resignedCandidateList</a>;</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    <span class="comment">// TO-DO: Give this a more appropriate name.</span></div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    <span class="keywordtype">bool</span> m_bSentFirstMessage;</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;};</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    uint32  m_nTerritoryTax;</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    uint32  m_nNationalTreasury;</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    std::string m_strKingName;</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    std::string m_strImRequestID;</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    FastMutex m_lock;</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    ClanIDSet m_top10ClanSet;</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    KingCandidacyNoticeBoardMap m_noticeBoardMap;</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;</div>
+<div class="line"><a name="l00141"></a><span class="lineno"><a class="code" href="class_c_king_system.html#abead17aed054a81cd3d31605c6e0f715">  141</a></span>&#160;    KingElectionList <a class="code" href="class_c_king_system.html#abead17aed054a81cd3d31605c6e0f715" title="List of senators. Senators are the top 10 clan leaders and are able to nominate a King or propose imp...">m_senatorList</a>;</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;</div>
+<div class="line"><a name="l00148"></a><span class="lineno"><a class="code" href="class_c_king_system.html#a01ea8acaa5e1b8b4ffb7da3df607eacd">  148</a></span>&#160;    KingElectionList <a class="code" href="class_c_king_system.html#a01ea8acaa5e1b8b4ffb7da3df607eacd" title="List of candidates still in the running for King. Candidates for election must be senators...">m_candidateList</a>;</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;</div>
+<div class="line"><a name="l00153"></a><span class="lineno"><a class="code" href="class_c_king_system.html#a5269b9cc7b4a1ece77c49492649526ba">  153</a></span>&#160;    ResignedCandidateList <a class="code" href="class_c_king_system.html#a5269b9cc7b4a1ece77c49492649526ba" title="List of resigned candidates.">m_resignedCandidateList</a>;</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    <span class="comment">// TO-DO: Give this a more appropriate name.</span></div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    <span class="keywordtype">bool</span> m_bSentFirstMessage;</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

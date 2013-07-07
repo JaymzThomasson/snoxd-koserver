@@ -100,7 +100,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> Fetch()</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    {</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;        <a class="code" href="class_c_king_system.html">CKingSystem</a> * pData;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;        uint8 byNation;</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;        uint8 byNation, byTariff;</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;        uint32 i = 1;</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        <span class="comment">// Pull the nation first so we can use it as an ID.</span></div>
@@ -160,25 +160,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;        <span class="comment">/* Money, money, money. */</span></div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        _dbCommand-&gt;FetchUInt32(i++, pData-&gt;m_nTribute);</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        _dbCommand-&gt;FetchByte(i++, pData-&gt;m_byTerritoryTariff);</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        _dbCommand-&gt;FetchByte(i++, byTariff);</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;        _dbCommand-&gt;FetchUInt32(i++, pData-&gt;m_nTerritoryTax);</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;        _dbCommand-&gt;FetchUInt32(i++, pData-&gt;m_nNationalTreasury);</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;        <span class="comment">/* Names are so hard to remember. */</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;        _dbCommand-&gt;FetchString(i++, pData-&gt;m_strKingName);</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;        _dbCommand-&gt;FetchString(i++, pData-&gt;m_strImRequestID);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;        <a class="code" href="class_c3_d_map.html">C3DMap</a> * pMap = g_pMain-&gt;GetZoneByID(pData-&gt;m_byNation);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;        <span class="keywordflow">if</span> (pMap != <span class="keyword">nullptr</span>)</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;            pMap-&gt;SetTariff(byTariff);</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        pData-&gt;<a class="code" href="class_c_king_system.html#a6202a5b2139cefc7c366ea31bc81c434" title="Resets the election lists.">ResetElectionLists</a>();</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    }</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">KingSystemArray</a> * m_pMap;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;};</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        <span class="comment">/* Names are so hard to remember. */</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        _dbCommand-&gt;FetchString(i++, pData-&gt;m_strKingName);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        _dbCommand-&gt;FetchString(i++, pData-&gt;m_strImRequestID);</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;        pData-&gt;<a class="code" href="class_c_king_system.html#a6202a5b2139cefc7c366ea31bc81c434" title="Resets the election lists.">ResetElectionLists</a>();</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    }</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">KingSystemArray</a> * m_pMap;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

@@ -137,59 +137,63 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    uint16  m_sMembers;</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    std::string m_strName;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    std::string m_strChief;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    std::string m_strViceChief_1;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    std::string m_strViceChief_2;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    std::string m_strViceChief_3;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    uint64  m_nMoney;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    uint16  m_sDomination;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <a class="code" href="class_atomic.html">Atomic&lt;uint32&gt;</a> m_nPoints;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <a class="code" href="class_atomic.html">Atomic&lt;uint32&gt;</a> m_nClanPointFund; <span class="comment">// stored in national point form</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    uint16  m_sMarkVersion, m_sMarkLen;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <span class="keywordtype">char</span>    m_Image[MAX_KNIGHTS_MARK];</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    uint16  m_sCape;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    uint8   m_bCapeR, m_bCapeG, m_bCapeB;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    uint16  m_sAlliance;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <a class="code" href="struct___k_n_i_g_h_t_s___u_s_e_r.html">_KNIGHTS_USER</a> m_arKnightsUser[MAX_CLAN_USERS];</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    INLINE uint16 GetID() { <span class="keywordflow">return</span> m_sIndex; }</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    INLINE uint16 GetAllianceID() { <span class="keywordflow">return</span> m_sAlliance; }</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    INLINE uint16 GetCapeID() { <span class="keywordflow">return</span> m_sCape; }</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    INLINE std::string &amp; GetName() { <span class="keywordflow">return</span> m_strName; }</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    INLINE <span class="keywordtype">bool</span> isPromoted() { <span class="keywordflow">return</span> m_byFlag &gt;= ClanTypePromoted; }</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    INLINE <span class="keywordtype">bool</span> isInAlliance() { <span class="keywordflow">return</span> m_sAlliance &gt; 0; }</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    INLINE <span class="keywordtype">bool</span> isAllianceLeader() { <span class="keywordflow">return</span> GetAllianceID() == GetID(); }</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <a class="code" href="class_c_knights.html">CKnights</a>();</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="comment">// Attach our session to the clan&#39;s list &amp; tell clannies we logged in.</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">void</span> OnLogin(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="comment">// Detach our session from the clan&#39;s list &amp; tell clannies we logged off.</span></div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordtype">void</span> OnLogout(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordtype">bool</span> AddUser(std::string &amp; strUserID);</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">bool</span> AddUser(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="class_c_knights.html#a54041f633f385f75d5fc1009fec0c53b" title="Removes the specified user from the clan array.">RemoveUser</a>(std::string &amp; strUserID);</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="class_c_knights.html#a54041f633f385f75d5fc1009fec0c53b" title="Removes the specified user from the clan array.">RemoveUser</a>(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_knights.html#afac8d3336b1cbfc549b04dc29a8df82f" title="Refunds 30% of the user&#39;s donated NP.">RefundDonatedNP</a>(uint32 nDonatedNP, <a class="code" href="struct_c_user.html">CUser</a> * pUser = <span class="keyword">nullptr</span>, <span class="keyword">const</span> <span class="keywordtype">char</span> * strUserID = <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keywordtype">void</span> Disband(<a class="code" href="struct_c_user.html">CUser</a> *pLeader = <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    std::string m_strChief, </div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        m_strViceChief_1, m_strViceChief_2, m_strViceChief_3;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    std::string m_strClanNotice;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    uint64  m_nMoney;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    uint16  m_sDomination;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    uint32  m_nPoints;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <a class="code" href="class_atomic.html">Atomic&lt;uint32&gt;</a> m_nClanPointFund; <span class="comment">// stored in national point form</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    uint16  m_sMarkVersion, m_sMarkLen;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">char</span>    m_Image[MAX_KNIGHTS_MARK];</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    uint16  m_sCape;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    uint8   m_bCapeR, m_bCapeG, m_bCapeB;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    uint16  m_sAlliance;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <a class="code" href="struct___k_n_i_g_h_t_s___u_s_e_r.html">_KNIGHTS_USER</a> m_arKnightsUser[MAX_CLAN_USERS];</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    INLINE uint16 GetID() { <span class="keywordflow">return</span> m_sIndex; }</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    INLINE uint16 GetAllianceID() { <span class="keywordflow">return</span> m_sAlliance; }</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    INLINE uint16 GetCapeID() { <span class="keywordflow">return</span> m_sCape; }</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    INLINE std::string &amp; GetName() { <span class="keywordflow">return</span> m_strName; }</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    INLINE <span class="keywordtype">bool</span> isPromoted() { <span class="keywordflow">return</span> m_byFlag &gt;= ClanTypePromoted; }</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    INLINE <span class="keywordtype">bool</span> isInAlliance() { <span class="keywordflow">return</span> m_sAlliance &gt; 0; }</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    INLINE <span class="keywordtype">bool</span> isAllianceLeader() { <span class="keywordflow">return</span> GetAllianceID() == GetID(); }</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <a class="code" href="class_c_knights.html">CKnights</a>();</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="comment">// Attach our session to the clan&#39;s list &amp; tell clannies we logged in.</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordtype">void</span> OnLogin(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordtype">void</span> ConstructClanNoticePacket(<a class="code" href="class_packet.html">Packet</a> *result);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">void</span> UpdateClanNotice(std::string &amp; clanNotice);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_knights.html#ad27f0816b77d52c996fdbd8309e626b0" title="Sends a request to update the clan&#39;s fund in the database.">UpdateClanFund</a>();</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="comment">// Detach our session from the clan&#39;s list &amp; tell clannies we logged off.</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordtype">void</span> OnLogout(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">bool</span> AddUser(std::string &amp; strUserID);</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordtype">bool</span> AddUser(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="class_c_knights.html#a54041f633f385f75d5fc1009fec0c53b" title="Removes the specified user from the clan array.">RemoveUser</a>(std::string &amp; strUserID);</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="class_c_knights.html#a54041f633f385f75d5fc1009fec0c53b" title="Removes the specified user from the clan array.">RemoveUser</a>(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keywordtype">void</span> SendChat(<span class="keyword">const</span> <span class="keywordtype">char</span> * format, ...);</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordtype">void</span> Send(<a class="code" href="class_packet.html">Packet</a> *pkt);</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_c_knights.html">CKnights</a>();</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;};</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_knights.html#afac8d3336b1cbfc549b04dc29a8df82f" title="Refunds 30% of the user&#39;s donated NP. If the user has the item &quot;CONT Recovery&quot;, refund ALL of the u...">RefundDonatedNP</a>(uint32 nDonatedNP, <a class="code" href="struct_c_user.html">CUser</a> * pUser = <span class="keyword">nullptr</span>, <span class="keyword">const</span> <span class="keywordtype">char</span> * strUserID = <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">void</span> Disband(<a class="code" href="struct_c_user.html">CUser</a> *pLeader = <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keywordtype">void</span> SendChat(<span class="keyword">const</span> <span class="keywordtype">char</span> * format, ...);</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="keywordtype">void</span> Send(<a class="code" href="class_packet.html">Packet</a> *pkt);</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_c_knights.html">CKnights</a>();</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

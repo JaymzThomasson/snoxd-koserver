@@ -108,7 +108,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        <span class="keywordflow">else</span> *result &lt;&lt; *strMessage;</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    }</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> Construct(<a class="code" href="class_packet.html">Packet</a> * result, uint8 bType, <span class="keywordtype">char</span> * szMessage, <span class="keywordtype">char</span> * szSender = <span class="stringliteral">&quot;&quot;</span>,</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> Construct(<a class="code" href="class_packet.html">Packet</a> * result, uint8 bType, <span class="keyword">const</span> <span class="keywordtype">char</span> * szMessage, <span class="keyword">const</span> <span class="keywordtype">char</span> * szSender = <span class="stringliteral">&quot;&quot;</span>,</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;        uint8 bNation = 1, int16 senderID = -1)</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    {</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        std::string strSender = szSender, strMessage = szMessage;</div>
@@ -171,7 +171,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;}</div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="preprocessor">#include &lt;map&gt;</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="keyword">class </span><a class="code" href="class_c_ebenezer_dlg.html">CEbenezerDlg</a>;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="keyword">class </span>CEbenezerDlg;</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="keyword">typedef</span> std::map&lt;std::string, Command&lt;CUser&gt; *&gt; ChatCommandTable;</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="keyword">typedef</span> std::map&lt;std::string, Command&lt;CEbenezerDlg&gt; *&gt; ServerCommandTable;</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
@@ -180,7 +180,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

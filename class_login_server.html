@@ -83,6 +83,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="class_login_server-members.html">List of all members</a>  </div>
@@ -96,24 +97,30 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac981763bb5d8b1ef7a0301dc415c26a3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac981763bb5d8b1ef7a0301dc415c26a3"></a>
 INLINE short&#160;</td><td class="memItemRight" valign="bottom"><b>GetVersion</b> ()</td></tr>
 <tr class="separator:ac981763bb5d8b1ef7a0301dc415c26a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abe0e3a5d13fdf1e1c2f0c7d9135bfb3f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abe0e3a5d13fdf1e1c2f0c7d9135bfb3f"></a>
-INLINE char *&#160;</td><td class="memItemRight" valign="bottom"><b>GetFTPUrl</b> ()</td></tr>
-<tr class="separator:abe0e3a5d13fdf1e1c2f0c7d9135bfb3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a84685512734a965e4a6973bd18133db5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a84685512734a965e4a6973bd18133db5"></a>
-INLINE char *&#160;</td><td class="memItemRight" valign="bottom"><b>GetFTPPath</b> ()</td></tr>
-<tr class="separator:a84685512734a965e4a6973bd18133db5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9877b35b66f45feaedb5bcbc35675c5c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9877b35b66f45feaedb5bcbc35675c5c"></a>
+INLINE std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetFTPUrl</b> ()</td></tr>
+<tr class="separator:a9877b35b66f45feaedb5bcbc35675c5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8e0b52a156d63ba253089455f54211a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae8e0b52a156d63ba253089455f54211a"></a>
+INLINE std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetFTPPath</b> ()</td></tr>
+<tr class="separator:ae8e0b52a156d63ba253089455f54211a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7743c45e1c1a91209c28ebfe9f1db094"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7743c45e1c1a91209c28ebfe9f1db094"></a>
 INLINE <a class="el" href="struct_news.html">News</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetNews</b> ()</td></tr>
 <tr class="separator:a7743c45e1c1a91209c28ebfe9f1db094"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0b57d1e04cd71f1eddcd88c2dc84e5c3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b57d1e04cd71f1eddcd88c2dc84e5c3"></a>
 INLINE VersionInfoList *&#160;</td><td class="memItemRight" valign="bottom"><b>GetPatchList</b> ()</td></tr>
 <tr class="separator:a0b57d1e04cd71f1eddcd88c2dc84e5c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afbdcd3e973be1149665b6a2336ecac02"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afbdcd3e973be1149665b6a2336ecac02"></a>
-INLINE ServerInfoList *&#160;</td><td class="memItemRight" valign="bottom"><b>GetServerList</b> ()</td></tr>
-<tr class="separator:afbdcd3e973be1149665b6a2336ecac02"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afaa02c40728ba66307056155fee1c38a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afaa02c40728ba66307056155fee1c38a"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Startup</b> ()</td></tr>
 <tr class="separator:afaa02c40728ba66307056155fee1c38a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a574158c5405845911dda4684756844a5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a574158c5405845911dda4684756844a5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>GetServerList</b> (<a class="el" href="class_packet.html">Packet</a> &amp;result)</td></tr>
+<tr class="separator:a574158c5405845911dda4684756844a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:ae8af3d0293daf0f6728cabbc353d93c2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae8af3d0293daf0f6728cabbc353d93c2"></a>
+static uint32 THREADCALL&#160;</td><td class="memItemRight" valign="bottom"><b>Timer_UpdateUserCount</b> (void *lpParam)</td></tr>
+<tr class="separator:ae8af3d0293daf0f6728cabbc353d93c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -137,7 +144,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>CDBProcess</b></td><
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:06 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:32 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

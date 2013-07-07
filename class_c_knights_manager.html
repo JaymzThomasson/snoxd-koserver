@@ -207,6 +207,9 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>ReqRegisterCla
 <tr class="memitem:aa293273ba61b26f0a8ff1dde5145c81d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_knights_manager.html#aa293273ba61b26f0a8ff1dde5145c81d">ReqRefundNP</a> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="memdesc:aa293273ba61b26f0a8ff1dde5145c81d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles the database request to refund the specified logged out character's donated NP.  <a href="#aa293273ba61b26f0a8ff1dde5145c81d">More...</a><br/></td></tr>
 <tr class="separator:aa293273ba61b26f0a8ff1dde5145c81d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24d5ec4defc343acc14a3c8e93cc87ab"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_knights_manager.html#a24d5ec4defc343acc14a3c8e93cc87ab">ReqUpdateNP</a> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
+<tr class="memdesc:a24d5ec4defc343acc14a3c8e93cc87ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles the database request to update the specified clan's clan point fund.  <a href="#a24d5ec4defc343acc14a3c8e93cc87ab">More...</a><br/></td></tr>
+<tr class="separator:a24d5ec4defc343acc14a3c8e93cc87ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a971f3f358b80e529b7b3be0e0d3fcbd1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a971f3f358b80e529b7b3be0e0d3fcbd1"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvUpdateKnights</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser, <a class="el" href="class_packet.html">Packet</a> &amp;pkt, uint8 command)</td></tr>
 <tr class="separator:a971f3f358b80e529b7b3be0e0d3fcbd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -644,6 +647,38 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>PacketProcess<
 
 </div>
 </div>
+<a class="anchor" id="a24d5ec4defc343acc14a3c8e93cc87ab"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CKnightsManager::ReqUpdateNP </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="class_packet.html">Packet</a> &amp;&#160;</td>
+          <td class="paramname"><em>pkt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handles the database request to update the specified clan's clan point fund. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pkt</td><td>The packet. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/Ebenezer/<a class="el" href="_knights_manager_8h_source.html">KnightsManager.h</a></li>
 <li>src/Ebenezer/DatabaseThread.cpp</li>
@@ -653,7 +688,7 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>PacketProcess<
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:04 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:30 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

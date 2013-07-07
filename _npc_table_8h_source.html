@@ -93,10 +93,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00005"></a><span class="lineno"><a class="code" href="class_c_npc_table.html">    5</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_npc_table.html">CNpcTable</a>  </div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;{</div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    uint16  m_sSid;                         <span class="comment">// MONSTER(NPC) Serial ID</span></div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    <span class="keywordtype">char</span>    m_strName[MAX_NPC_SIZE+1];      <span class="comment">// MONSTER(NPC) Name</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    uint16  m_sPid;                         <span class="comment">// MONSTER(NPC) Picture ID</span></div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    uint16  m_sSize;                        <span class="comment">// 캐릭터의 비율(100 퍼센트 기준)</span></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    uint16  m_sSid;             <span class="comment">// MONSTER(NPC) Serial ID</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    std::string m_strName;      <span class="comment">// MONSTER(NPC) Name</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    uint16  m_sPid;             <span class="comment">// MONSTER(NPC) Picture ID</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    uint16  m_sSize;            <span class="comment">// 캐릭터의 비율(100 퍼센트 기준)</span></div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    uint32  m_iWeapon_1;        <span class="comment">// 무기계열(오른손)</span></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    uint32  m_iWeapon_2;        <span class="comment">// 무기계열(왼손)</span></div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    uint8   m_byGroup;          <span class="comment">// 소속집단</span></div>
@@ -142,23 +142,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    uint8   m_byAttackRange;    <span class="comment">// 사정거리</span></div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    uint8   m_byTracingRange;   <span class="comment">// 추격거리</span></div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    uint8   m_tItemPer;         <span class="comment">// 아이템이 떨어질 확률</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    uint8   m_tDnPer;           <span class="comment">// 돈이 떨어질확률</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    uint32  m_iMoney;           <span class="comment">// 떨어지는 돈</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    uint16  m_iItem;            <span class="comment">// 떨어지는 아이템</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    uint8   m_byDirectAttack;   <span class="comment">// 공격방법( 0 : 직접, 1:롱공격(간접공격), 2:직,간접공격 )</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    uint8   m_byMagicAttack;    <span class="comment">// 마법공격( 0:마법공격 없음, 1:마법공격, 2:독공격, 3:힐링)</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <a class="code" href="class_c_npc_table.html">CNpcTable</a>() : m_sSpeed(MONSTER_SPEED)</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    {</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        memset(&amp;m_strName, 0, <span class="keyword">sizeof</span>(m_strName));</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    }</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;};</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    uint32  m_iMoney;           <span class="comment">// 떨어지는 돈</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    uint16  m_iItem;            <span class="comment">// 떨어지는 아이템</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    uint8   m_byDirectAttack;   <span class="comment">// 공격방법( 0 : 직접, 1:롱공격(간접공격), 2:직,간접공격 )</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    uint8   m_byMagicAttack;    <span class="comment">// 마법공격( 0:마법공격 없음, 1:마법공격, 2:독공격, 3:힐링)</span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <a class="code" href="class_c_npc_table.html">CNpcTable</a>() : m_sSpeed(MONSTER_SPEED)</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    {</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    }</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:28 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

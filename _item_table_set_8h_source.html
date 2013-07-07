@@ -114,7 +114,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        _dbCommand-&gt;FetchUInt16(i++, pData-&gt;m_sDuration);</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        _dbCommand-&gt;FetchUInt32(i++, pData-&gt;m_iBuyPrice);</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        _dbCommand-&gt;FetchUInt32(i++, pData-&gt;m_iSellPrice);</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        _dbCommand-&gt;FetchUInt16(i++, pData-&gt;m_sAc);</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        _dbCommand-&gt;FetchInt16(i++, pData-&gt;m_sAc);</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;        _dbCommand-&gt;FetchByte(i++, pData-&gt;m_bCountable);</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;        _dbCommand-&gt;FetchUInt32(i++, pData-&gt;m_iEffect1);</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;        _dbCommand-&gt;FetchUInt32(i++, pData-&gt;m_iEffect2);</div>
@@ -152,12 +152,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        _dbCommand-&gt;FetchInt16(i++, pData-&gt;m_sChaB);</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        _dbCommand-&gt;FetchInt16(i++, pData-&gt;m_MaxHpB);</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        _dbCommand-&gt;FetchInt16(i++, pData-&gt;m_MaxMpB);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        _dbCommand-&gt;FetchUInt16(i++, pData-&gt;m_bFireR);</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        _dbCommand-&gt;FetchUInt16(i++, pData-&gt;m_bColdR);</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        _dbCommand-&gt;FetchUInt16(i++, pData-&gt;m_bLightningR);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        _dbCommand-&gt;FetchUInt16(i++, pData-&gt;m_bMagicR);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        _dbCommand-&gt;FetchUInt16(i++, pData-&gt;m_bPoisonR);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        _dbCommand-&gt;FetchUInt16(i++, pData-&gt;m_bCurseR);</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        _dbCommand-&gt;FetchInt16(i++, pData-&gt;m_bFireR);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        _dbCommand-&gt;FetchInt16(i++, pData-&gt;m_bColdR);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        _dbCommand-&gt;FetchInt16(i++, pData-&gt;m_bLightningR);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        _dbCommand-&gt;FetchInt16(i++, pData-&gt;m_bMagicR);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        _dbCommand-&gt;FetchInt16(i++, pData-&gt;m_bPoisonR);</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        _dbCommand-&gt;FetchInt16(i++, pData-&gt;m_bCurseR);</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        <span class="keywordflow">if</span> (!m_pMap-&gt;PutData(pData-&gt;m_iNum, pData))</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;            <span class="keyword">delete</span> pData;</div>
@@ -170,7 +170,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

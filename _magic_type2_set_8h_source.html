@@ -105,20 +105,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;        _dbCommand-&gt;FetchByte(2, pData-&gt;bHitType);</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        _dbCommand-&gt;FetchUInt16(3, pData-&gt;sHitRate);</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;        _dbCommand-&gt;FetchUInt16(4, pData-&gt;sAddDamage);</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        _dbCommand-&gt;FetchByte(5, pData-&gt;bNeedArrow);</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        <span class="keywordflow">if</span> (!m_pMap-&gt;PutData(pData-&gt;iNum, pData))</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;            <span class="keyword">delete</span> pData;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    }</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype2Array</a> *m_pMap;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;};</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        _dbCommand-&gt;FetchUInt16(5, pData-&gt;sAddRange);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        _dbCommand-&gt;FetchByte(6, pData-&gt;bNeedArrow);</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;        <span class="keywordflow">if</span> (!m_pMap-&gt;PutData(pData-&gt;iNum, pData))</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;            <span class="keyword">delete</span> pData;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    }</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype2Array</a> *m_pMap;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

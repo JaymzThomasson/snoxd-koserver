@@ -123,15 +123,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvServerConnect</b>
 <tr class="memitem:aef0913a2a08e87af5f06b4812ded2cc5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef0913a2a08e87af5f06b4812ded2cc5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvUserInfo</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="separator:aef0913a2a08e87af5f06b4812ded2cc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af70f2856b3645c549e3c86601bb27c70"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af70f2856b3645c549e3c86601bb27c70"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadUserInfo</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt, <a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
+<tr class="separator:af70f2856b3645c549e3c86601bb27c70"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad4a83d8faf61580f846ecbb6a1eedd0d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad4a83d8faf61580f846ecbb6a1eedd0d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvUserInOut</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="separator:ad4a83d8faf61580f846ecbb6a1eedd0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac87d4fc33b77144d7931ebe9b64ed923"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac87d4fc33b77144d7931ebe9b64ed923"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvUserMove</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="separator:ac87d4fc33b77144d7931ebe9b64ed923"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac49f4c59cd6b804c717f4ea83da2eefa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac49f4c59cd6b804c717f4ea83da2eefa"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvUserMoveEdge</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
-<tr class="separator:ac49f4c59cd6b804c717f4ea83da2eefa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a54176a1d0a8c1b6ad58165843bbc0ead"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a54176a1d0a8c1b6ad58165843bbc0ead"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvUserLogOut</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="separator:a54176a1d0a8c1b6ad58165843bbc0ead"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -165,21 +165,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvGateOpen</b> (<a 
 <tr class="memitem:af739157f7cdf1f99733b47eec2c5ab55"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af739157f7cdf1f99733b47eec2c5ab55"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvUserVisibility</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="separator:af739157f7cdf1f99733b47eec2c5ab55"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a940004141c6396d82b32bffa17566e72"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a940004141c6396d82b32bffa17566e72"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvCheckAlive</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
-<tr class="separator:a940004141c6396d82b32bffa17566e72"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0b87d9d1184b0898d5335182792d1137"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b87d9d1184b0898d5335182792d1137"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvHealMagic</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="separator:a0b87d9d1184b0898d5335182792d1137"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2293568c8502f9d66a4778cd5890eb62"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2293568c8502f9d66a4778cd5890eb62"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvTimeAndWeather</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="separator:a2293568c8502f9d66a4778cd5890eb62"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac15b9be24081838ec6747a2500bbc738"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac15b9be24081838ec6747a2500bbc738"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvUserFail</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
-<tr class="separator:ac15b9be24081838ec6747a2500bbc738"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29d2b19e4da99205aa543976d652ffe6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a29d2b19e4da99205aa543976d652ffe6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Send_UserError</b> (short uid, short tid=10000)</td></tr>
-<tr class="separator:a29d2b19e4da99205aa543976d652ffe6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae5abf6800441118037e7ec369acb565"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aae5abf6800441118037e7ec369acb565"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>RecvBattleEvent</b> (<a class="el" href="class_packet.html">Packet</a> &amp;pkt)</td></tr>
 <tr class="separator:aae5abf6800441118037e7ec369acb565"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -196,6 +187,9 @@ INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isCryptoEnable
 <tr class="memitem:ac9396a7cc5ae126b466a5ade25bbf2e2 inherit pub_methods_class_k_o_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac9396a7cc5ae126b466a5ade25bbf2e2"></a>
 INLINE uint16&#160;</td><td class="memItemRight" valign="bottom"><b>GetSocketID</b> ()</td></tr>
 <tr class="separator:ac9396a7cc5ae126b466a5ade25bbf2e2 inherit pub_methods_class_k_o_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca8fe3f61c82852d612073230486db4e inherit pub_methods_class_k_o_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aca8fe3f61c82852d612073230486db4e"></a>
+INLINE time_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetLastResponseTime</b> ()</td></tr>
+<tr class="separator:aca8fe3f61c82852d612073230486db4e inherit pub_methods_class_k_o_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae330fd86198b26a30be67917bd42bfd8 inherit pub_methods_class_k_o_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae330fd86198b26a30be67917bd42bfd8"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>OnRead</b> ()</td></tr>
 <tr class="separator:ae330fd86198b26a30be67917bd42bfd8 inherit pub_methods_class_k_o_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -284,6 +278,18 @@ INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>SetSocketMgr</
 <tr class="memitem:a78e4136d373de810ec9ef5bd074fea2b inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a78e4136d373de810ec9ef5bd074fea2b"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Delete</b> ()</td></tr>
 <tr class="separator:a78e4136d373de810ec9ef5bd074fea2b inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e0efa3c84f7292434d81160946654e9 inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0e0efa3c84f7292434d81160946654e9"></a>
+INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>IncSendLock</b> ()</td></tr>
+<tr class="separator:a0e0efa3c84f7292434d81160946654e9 inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21a36dba1993b02eb8de4f43548b9f05 inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a21a36dba1993b02eb8de4f43548b9f05"></a>
+INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>DecSendLock</b> ()</td></tr>
+<tr class="separator:a21a36dba1993b02eb8de4f43548b9f05 inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adce25de38c6061100ce776723ca91508 inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adce25de38c6061100ce776723ca91508"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>HasSendLock</b> ()</td></tr>
+<tr class="separator:adce25de38c6061100ce776723ca91508 inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64756b33e0b8ebb1cbc14ae8898a8a9d inherit pub_methods_class_socket"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a64756b33e0b8ebb1cbc14ae8898a8a9d"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>AcquireSendLock</b> ()</td></tr>
+<tr class="separator:a64756b33e0b8ebb1cbc14ae8898a8a9d inherit pub_methods_class_socket"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -327,7 +333,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_usingCrypto</b></td
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:03 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:30 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

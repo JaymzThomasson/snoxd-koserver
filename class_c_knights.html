@@ -116,6 +116,16 @@ INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isAllianceLead
 <tr class="memitem:a3d2ef945a12b39b7ba9feb8b4fc1afee"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3d2ef945a12b39b7ba9feb8b4fc1afee"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>OnLogin</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
 <tr class="separator:a3d2ef945a12b39b7ba9feb8b4fc1afee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aded06821ca2bbe4fcff1270d841b5af7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aded06821ca2bbe4fcff1270d841b5af7"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ConstructClanNoticePacket</b> (<a class="el" href="class_packet.html">Packet</a> *result)</td></tr>
+<tr class="separator:aded06821ca2bbe4fcff1270d841b5af7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a615420dfcfa69c0b31c499048acd89e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a615420dfcfa69c0b31c499048acd89e4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateClanNotice</b> (std::string &amp;clanNotice)</td></tr>
+<tr class="separator:a615420dfcfa69c0b31c499048acd89e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad27f0816b77d52c996fdbd8309e626b0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad27f0816b77d52c996fdbd8309e626b0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_knights.html#ad27f0816b77d52c996fdbd8309e626b0">UpdateClanFund</a> ()</td></tr>
+<tr class="memdesc:ad27f0816b77d52c996fdbd8309e626b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends a request to update the clan's fund in the database. <br/></td></tr>
+<tr class="separator:ad27f0816b77d52c996fdbd8309e626b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e8f8cc80c39e6f1d7e806458e3108e5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8e8f8cc80c39e6f1d7e806458e3108e5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>OnLogout</b> (<a class="el" href="struct_c_user.html">CUser</a> *pUser)</td></tr>
 <tr class="separator:a8e8f8cc80c39e6f1d7e806458e3108e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -132,7 +142,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>AddUser</b> (<a class
 <tr class="memdesc:a69dcefed2049b6942b6019947c3dc51f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the specified user from this clan.  <a href="#a69dcefed2049b6942b6019947c3dc51f">More...</a><br/></td></tr>
 <tr class="separator:a69dcefed2049b6942b6019947c3dc51f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afac8d3336b1cbfc549b04dc29a8df82f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_knights.html#afac8d3336b1cbfc549b04dc29a8df82f">RefundDonatedNP</a> (uint32 nDonatedNP, <a class="el" href="struct_c_user.html">CUser</a> *pUser=nullptr, const char *strUserID=nullptr)</td></tr>
-<tr class="memdesc:afac8d3336b1cbfc549b04dc29a8df82f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refunds 30% of the user's donated NP.  <a href="#afac8d3336b1cbfc549b04dc29a8df82f">More...</a><br/></td></tr>
+<tr class="memdesc:afac8d3336b1cbfc549b04dc29a8df82f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refunds 30% of the user's donated NP. If the user has the item "CONT Recovery", refund ALL of the user's donated NP.  <a href="#afac8d3336b1cbfc549b04dc29a8df82f">More...</a><br/></td></tr>
 <tr class="separator:afac8d3336b1cbfc549b04dc29a8df82f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aebb1792c94559aec8db1d5d13c715f3f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aebb1792c94559aec8db1d5d13c715f3f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Disband</b> (<a class="el" href="struct_c_user.html">CUser</a> *pLeader=nullptr)</td></tr>
@@ -179,15 +189,18 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>m_strViceChief
 <tr class="memitem:af2c3387b50b4951e860a68b1e0b0eba8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af2c3387b50b4951e860a68b1e0b0eba8"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>m_strViceChief_3</b></td></tr>
 <tr class="separator:af2c3387b50b4951e860a68b1e0b0eba8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8494552bf13bdd9884e6981cde4edc29"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8494552bf13bdd9884e6981cde4edc29"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>m_strClanNotice</b></td></tr>
+<tr class="separator:a8494552bf13bdd9884e6981cde4edc29"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac748debb375be1d82dfd7be62ae47108"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac748debb375be1d82dfd7be62ae47108"></a>
 uint64&#160;</td><td class="memItemRight" valign="bottom"><b>m_nMoney</b></td></tr>
 <tr class="separator:ac748debb375be1d82dfd7be62ae47108"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac63bff7970863ce7c56af54f9964502d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac63bff7970863ce7c56af54f9964502d"></a>
 uint16&#160;</td><td class="memItemRight" valign="bottom"><b>m_sDomination</b></td></tr>
 <tr class="separator:ac63bff7970863ce7c56af54f9964502d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a14905c3c1a1c9ef82d76bf095f88ca9f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a14905c3c1a1c9ef82d76bf095f88ca9f"></a>
-<a class="el" href="class_atomic.html">Atomic</a>&lt; uint32 &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_nPoints</b></td></tr>
-<tr class="separator:a14905c3c1a1c9ef82d76bf095f88ca9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06e92023b335d3fa33e38715edf67920"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a06e92023b335d3fa33e38715edf67920"></a>
+uint32&#160;</td><td class="memItemRight" valign="bottom"><b>m_nPoints</b></td></tr>
+<tr class="separator:a06e92023b335d3fa33e38715edf67920"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac925f24847aa1702df8ad13f98ef50ea"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac925f24847aa1702df8ad13f98ef50ea"></a>
 <a class="el" href="class_atomic.html">Atomic</a>&lt; uint32 &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_nClanPointFund</b></td></tr>
 <tr class="separator:ac925f24847aa1702df8ad13f98ef50ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -250,7 +263,7 @@ uint16&#160;</td><td class="memItemRight" valign="bottom"><b>m_sAlliance</b></td
       </table>
 </div><div class="memdoc">
 
-<p>Refunds 30% of the user's donated NP. </p>
+<p>Refunds 30% of the user's donated NP. If the user has the item "CONT Recovery", refund ALL of the user's donated NP. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">nDonatedNP</td><td>The donated NP. </td></tr>
@@ -318,7 +331,7 @@ uint16&#160;</td><td class="memItemRight" valign="bottom"><b>m_sAlliance</b></td
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:03 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:30 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

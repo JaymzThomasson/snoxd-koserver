@@ -88,384 +88,392 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="contents">
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;resource.h&quot;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;LuaEngine.h&quot;</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &quot;Define.h&quot;</span></div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &quot;ChatHandler.h&quot;</span></div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="keyword">class </span><a class="code" href="class_c3_d_map.html">C3DMap</a>;</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">class </span><a class="code" href="struct_c_user.html">CUser</a>;</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#include &quot;LoadServerData.h&quot;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#ifdef EBENEZER</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;resource.h&quot;</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &quot;LuaEngine.h&quot;</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &quot;Define.h&quot;</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &quot;ChatHandler.h&quot;</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">class </span><a class="code" href="class_c3_d_map.html">C3DMap</a>;</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">class </span><a class="code" href="struct_c_user.html">CUser</a>;</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#include &quot;User.h&quot;</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#include &quot;AISocket.h&quot;</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor">#include &quot;../shared/ClientSocketMgr.h&quot;</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">typedef</span> std::unordered_map&lt;std::string, CUser *&gt; NameMap;</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#include &quot;LoadServerData.h&quot;</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor">#include &quot;User.h&quot;</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#include &quot;AISocket.h&quot;</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &quot;../shared/ClientSocketMgr.h&quot;</span></div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
-<div class="line"><a name="l00020"></a><span class="lineno"><a class="code" href="class_c_ebenezer_dlg.html">   20</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_ebenezer_dlg.html">CEbenezerDlg</a></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;{</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">public</span>: </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <a class="code" href="class_c_ebenezer_dlg.html">CEbenezerDlg</a>();</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="class_c_ebenezer_dlg.html#a301ebbf684b3c079312414f39415f268" title="Loads config, table data, initialises sockets and generally starts up the server.">Startup</a>();</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a5a0cb33ddea6846b2c9f446c506974c2" title="Loads the server&#39;s config from the INI file.">GetTimeFromIni</a>();</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">typedef</span> std::unordered_map&lt;std::string, CUser *&gt; NameMap;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">class </span>CEbenezerDlg</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;{</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">public</span>: </div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    CEbenezerDlg();</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keywordtype">bool</span> Startup();</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordtype">bool</span> LoadItemTable();</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="keywordtype">bool</span> LoadItemExchangeTable();</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordtype">bool</span> LoadItemUpgradeTable();</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordtype">bool</span> LoadServerResourceTable();</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordtype">bool</span> LoadEventTriggerTable();</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordtype">bool</span> LoadQuestHelperTable();</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordtype">bool</span> LoadQuestMonsterTable();</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordtype">bool</span> LoadMagicTable();</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType1();</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType2();</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType3();</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType4();</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType5();</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType6();</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType7();</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType8();</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType9();</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordtype">bool</span> LoadRentalList();</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">bool</span> LoadCoefficientTable();</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordtype">bool</span> LoadLevelUpTable();</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">bool</span> LoadAllKnights();</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordtype">bool</span> LoadAllKnightsUserData();</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">bool</span> LoadKnightsAllianceTable();</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">bool</span> LoadUserRankings();</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">void</span> CleanupUserRankings();</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">bool</span> LoadKnightsCapeTable();</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">bool</span> LoadKnightsRankTable(<span class="keywordtype">bool</span> bWarTime = <span class="keyword">false</span>);</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">bool</span> LoadHomeTable();</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">bool</span> LoadStartPositionTable();</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">bool</span> LoadBattleTable();</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordtype">bool</span> LoadKingSystem();</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordtype">bool</span> MapFileLoad();</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">bool</span> LoadNoticeData();</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordtype">void</span> GetTimeFromIni();</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordtype">bool</span> LoadItemTable();</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordtype">bool</span> LoadSetItemTable();</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordtype">bool</span> LoadItemExchangeTable();</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordtype">bool</span> LoadItemUpgradeTable();</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordtype">bool</span> LoadItemOpTable();</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordtype">bool</span> LoadServerResourceTable();</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="keywordtype">bool</span> LoadQuestHelperTable();</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordtype">bool</span> LoadQuestMonsterTable();</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keywordtype">bool</span> LoadMagicTable();</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType1();</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType2();</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType3();</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType4();</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType5();</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType6();</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType7();</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType8();</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordtype">bool</span> LoadMagicType9();</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">bool</span> LoadRentalList();</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordtype">bool</span> LoadCoefficientTable();</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">bool</span> LoadLevelUpTable();</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">bool</span> LoadAllKnights();</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">bool</span> LoadAllKnightsUserData();</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">bool</span> LoadKnightsAllianceTable();</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">bool</span> LoadUserRankings();</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">void</span> CleanupUserRankings();</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">bool</span> LoadKnightsCapeTable();</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">bool</span> LoadKnightsRankTable(<span class="keywordtype">bool</span> bWarTime = <span class="keyword">false</span>);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordtype">bool</span> LoadHomeTable();</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordtype">bool</span> LoadStartPositionTable();</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordtype">bool</span> LoadBattleTable();</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">bool</span> LoadKingSystem();</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">void</span> AIServerConnect();</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keyword">static</span> uint32 THREADCALL Timer_UpdateGameTime(<span class="keywordtype">void</span> * lpParam);</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keyword">static</span> uint32 THREADCALL Timer_CheckAliveUser(<span class="keywordtype">void</span> * lpParam);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">bool</span> MapFileLoad();</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordtype">bool</span> LoadNoticeData();</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">void</span> AIServerConnect();</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a93a32125b3be5323a689d02c87682281" title="Sends the flying santa/angel packet to all users in the server.">SendFlyingSantaOrAngel</a>();</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#ac109c33162d12fed0fd2a033d5b923cf" title="Updates the number of users currently in the war zone and sends the user counts to all servers in thi...">BattleZoneCurrentUsers</a>();</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">void</span> GetCaptainUserPtr();</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordtype">void</span> Send_CommandChat(<a class="code" href="class_packet.html">Packet</a> *pkt, <span class="keywordtype">int</span> nation, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a432dfc52826ba329d0e05b884fe0720c" title="Kick out all users from the specified zone to their home zone.">KickOutZoneUsers</a>(<span class="keywordtype">short</span> zone);</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    uint64 <a class="code" href="class_c_ebenezer_dlg.html#a7c0d2c9299c083e84811a9b6dec4a4ad" title="Generates a new item serial.">GenerateItemSerial</a>();</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">int</span> <a class="code" href="class_c_ebenezer_dlg.html#a660229c9711e9a4b60a515b1e7561fe7" title="Disconnects all players in the server.">KickOutAllUsers</a>();</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a4a593f279d4376519b5cfca3ac6be749" title="Checks &amp; drops in-game users for inactivity.">CheckAliveUser</a>();</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordtype">int</span> <a class="code" href="class_c_ebenezer_dlg.html#a8e25d96328e76d99fe941db12e8b814f" title="Calculates the clan grade from the specified loyalty points (NP).">GetKnightsGrade</a>(uint32 nPoints);</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordtype">void</span> WritePacketLog();</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    uint16 GetKnightsAllMembers(uint16 sClanID, <a class="code" href="class_packet.html">Packet</a> &amp; result, uint16 &amp; pktSize, <span class="keywordtype">bool</span> bClanLeader);</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a2ca9d79b5d34747a2f5110b8199647c3" title="Loads the specified user&#39;s NP ranks from the rankings tables.">GetUserRank</a>(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordtype">void</span> Announcement(uint8 type, <span class="keywordtype">int</span> nation=0, <span class="keywordtype">int</span> chat_type=8);</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">void</span> ResetBattleZone();</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a37681b067006022bf6192ef31e521b27" title="Kicks invaders out of the invaded nation after a war and resets captains.">BanishLosers</a>();</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">void</span> BattleZoneVictoryCheck();</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordtype">void</span> BattleZoneOpenTimer();</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordtype">void</span> BattleZoneOpen(<span class="keywordtype">int</span> nType, uint8 bZone = 0);    <span class="comment">// 0:open 1:close</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordtype">void</span> AliveUserCheck();</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">void</span> Send_PartyMember(<span class="keywordtype">int</span> party, <a class="code" href="class_packet.html">Packet</a> *result);</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordtype">void</span> Send_KnightsMember(<span class="keywordtype">int</span> index, <a class="code" href="class_packet.html">Packet</a> *pkt);</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordtype">void</span> Send_KnightsAlliance(uint16 sAllianceID, <a class="code" href="class_packet.html">Packet</a> *pkt);</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">int</span> GetAIServerPort();</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordtype">void</span> SetGameTime();</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordtype">void</span> UpdateWeather();</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">void</span> UpdateGameTime();</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keywordtype">void</span> SendAllUserInfo();</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <span class="keywordtype">void</span> DeleteAllNpcList(<span class="keywordtype">int</span> flag = 0);</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <a class="code" href="struct_c_npc.html">CNpc</a>*  GetNpcPtr( <span class="keywordtype">int</span> sid, <span class="keywordtype">int</span> cur_zone );</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">void</span> AddDatabaseRequest(<a class="code" href="class_packet.html">Packet</a> &amp; pkt, <a class="code" href="struct_c_user.html">CUser</a> *pUser = <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="comment">// Get info for NPCs in regions around user (WIZ_REQ_NPCIN)</span></div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="keywordtype">void</span> NpcInOutForMe(<a class="code" href="struct_c_user.html">CUser</a>* pSendUser);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keyword">static</span> uint32 THREADCALL Timer_UpdateGameTime(<span class="keywordtype">void</span> * lpParam);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keyword">static</span> uint32 THREADCALL Timer_UpdateSessions(<span class="keywordtype">void</span> * lpParam);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keyword">static</span> uint32 THREADCALL Timer_UpdateConcurrent(<span class="keywordtype">void</span> * lpParam);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordtype">void</span> ReqUpdateConcurrent();</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    </div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">void</span> SendFlyingSantaOrAngel();</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordtype">void</span> BattleZoneCurrentUsers();</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordtype">void</span> GetCaptainUserPtr();</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordtype">void</span> Send_CommandChat(<a class="code" href="class_packet.html">Packet</a> *pkt, <span class="keywordtype">int</span> nation, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <span class="keywordtype">void</span> KickOutZoneUsers(<span class="keywordtype">short</span> zone);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    uint64 GenerateItemSerial();</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordtype">int</span> KickOutAllUsers();</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">void</span> CheckAliveUser();</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordtype">int</span> GetKnightsGrade(uint32 nPoints);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">void</span> WritePacketLog();</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    uint16 GetKnightsAllMembers(uint16 sClanID, <a class="code" href="class_packet.html">Packet</a> &amp; result, uint16 &amp; pktSize, <span class="keywordtype">bool</span> bClanLeader);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordtype">void</span> GetUserRank(<a class="code" href="struct_c_user.html">CUser</a> *pUser);</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordtype">void</span> Announcement(uint8 type, <span class="keywordtype">int</span> nation=0, <span class="keywordtype">int</span> chat_type=8);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordtype">void</span> ResetBattleZone();</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordtype">void</span> BanishLosers();</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordtype">void</span> BattleZoneVictoryCheck();</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">void</span> BattleZoneOpenTimer();</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordtype">void</span> BattleZoneOpen(<span class="keywordtype">int</span> nType, uint8 bZone = 0);    <span class="comment">// 0:open 1:close</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordtype">void</span> AliveUserCheck();</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">void</span> Send_PartyMember(<span class="keywordtype">int</span> party, <a class="code" href="class_packet.html">Packet</a> *result);</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keywordtype">void</span> Send_KnightsMember(<span class="keywordtype">int</span> index, <a class="code" href="class_packet.html">Packet</a> *pkt);</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <span class="keywordtype">void</span> Send_KnightsAlliance(uint16 sAllianceID, <a class="code" href="class_packet.html">Packet</a> *pkt);</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keywordtype">void</span> SetGameTime();</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordtype">void</span> UpdateWeather();</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">void</span> UpdateGameTime();</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keywordtype">void</span> SendAllUserInfo();</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keywordtype">void</span> DeleteAllNpcList(<span class="keywordtype">int</span> flag = 0);</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <a class="code" href="struct_c_npc.html">CNpc</a>*  GetNpcPtr( <span class="keywordtype">int</span> sid, <span class="keywordtype">int</span> cur_zone );</div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="comment">// Get info for NPCs in region</span></div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keywordtype">void</span> GetRegionNpcIn(<a class="code" href="class_c3_d_map.html">C3DMap</a>* pMap, uint16 region_x, uint16 region_z, <a class="code" href="class_packet.html">Packet</a> &amp; pkt, uint16 &amp; t_count);</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="comment">// Get list of NPC IDs in region</span></div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <span class="keywordtype">void</span> GetRegionNpcList(<a class="code" href="class_c3_d_map.html">C3DMap</a>* pMap, uint16 region_x, uint16 region_z, <a class="code" href="class_packet.html">Packet</a> &amp; pkt, uint16 &amp; t_count);</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="comment">// Get list of NPCs for regions around user (WIZ_NPC_REGION)</span></div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <span class="keywordtype">void</span> RegionNpcInfoForMe(<a class="code" href="struct_c_user.html">CUser</a>* pSendUser);  </div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="comment">// Get info for users in regions around user (WIZ_REQ_USERIN)</span></div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keywordtype">void</span> UserInOutForMe(<a class="code" href="struct_c_user.html">CUser</a>* pSendUser);</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="comment">// Get info for users in region</span></div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keywordtype">void</span> GetRegionUserIn(<a class="code" href="class_c3_d_map.html">C3DMap</a>* pMap, uint16 region_x, uint16 region_z, <a class="code" href="class_packet.html">Packet</a> &amp; pkt, uint16 &amp; t_count);</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="comment">// Get list of user IDs in region</span></div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    <span class="keywordtype">void</span> GetRegionUserList(<a class="code" href="class_c3_d_map.html">C3DMap</a>* pMap, uint16 region_x, uint16 region_z, <a class="code" href="class_packet.html">Packet</a> &amp; pkt, uint16 &amp; t_count);</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    <span class="comment">// Get list of users for regions around user (WIZ_REGIONCHANGE)</span></div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <span class="keywordtype">void</span> RegionUserInOutForMe(<a class="code" href="struct_c_user.html">CUser</a>* pSendUser);</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <span class="comment">// Get info for merchants in regions around user</span></div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    <span class="keywordtype">void</span> MerchantUserInOutForMe(<a class="code" href="struct_c_user.html">CUser</a>* pSendUser);</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    <span class="comment">// Get list of merchants in region</span></div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    <span class="keywordtype">void</span> GetRegionMerchantUserIn(<a class="code" href="class_c3_d_map.html">C3DMap</a>* pMap, uint16 region_x, uint16 region_z, <a class="code" href="class_packet.html">Packet</a> &amp; pkt, uint16 &amp; t_count);</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    INLINE <span class="keywordtype">bool</span> isPermanentMessageSet() { <span class="keywordflow">return</span> m_bPermanentChatMode; }</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <span class="keywordtype">void</span> SetPermanentMessage(<span class="keyword">const</span> <span class="keywordtype">char</span> * format, ...);</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    <span class="keywordtype">void</span> HandleConsoleCommand(<span class="keyword">const</span> <span class="keywordtype">char</span> * msg);</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keywordtype">void</span> AddDatabaseRequest(<a class="code" href="class_packet.html">Packet</a> &amp; pkt, <a class="code" href="struct_c_user.html">CUser</a> *pUser = <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="comment">// Get info for NPCs in regions around user (WIZ_REQ_NPCIN)</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keywordtype">void</span> NpcInOutForMe(<a class="code" href="struct_c_user.html">CUser</a>* pSendUser);</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    <span class="comment">// Get info for NPCs in region</span></div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="keywordtype">void</span> GetRegionNpcIn(<a class="code" href="class_c3_d_map.html">C3DMap</a>* pMap, uint16 region_x, uint16 region_z, <a class="code" href="class_packet.html">Packet</a> &amp; pkt, uint16 &amp; t_count);</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="comment">// Get list of NPC IDs in region</span></div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keywordtype">void</span> GetRegionNpcList(<a class="code" href="class_c3_d_map.html">C3DMap</a>* pMap, uint16 region_x, uint16 region_z, <a class="code" href="class_packet.html">Packet</a> &amp; pkt, uint16 &amp; t_count);</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="comment">// Get list of NPCs for regions around user (WIZ_NPC_REGION)</span></div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keywordtype">void</span> RegionNpcInfoForMe(<a class="code" href="struct_c_user.html">CUser</a>* pSendUser);  </div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="comment">// Get raw list of all units in regions surrounding pOwner.</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="keywordtype">void</span> GetUnitListFromSurroundingRegions(<a class="code" href="class_unit.html">Unit</a> * pOwner, std::vector&lt;uint16&gt; * pList);</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    <span class="comment">// Get info for users in regions around user (WIZ_REQ_USERIN)</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    <span class="keywordtype">void</span> UserInOutForMe(<a class="code" href="struct_c_user.html">CUser</a>* pSendUser);</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    <span class="comment">// Get info for users in region</span></div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <span class="keywordtype">void</span> GetRegionUserIn(<a class="code" href="class_c3_d_map.html">C3DMap</a>* pMap, uint16 region_x, uint16 region_z, <a class="code" href="class_packet.html">Packet</a> &amp; pkt, uint16 &amp; t_count);</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    <span class="comment">// Get list of user IDs in region</span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    <span class="keywordtype">void</span> GetRegionUserList(<a class="code" href="class_c3_d_map.html">C3DMap</a>* pMap, uint16 region_x, uint16 region_z, <a class="code" href="class_packet.html">Packet</a> &amp; pkt, uint16 &amp; t_count);</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    <span class="comment">// Get list of users for regions around user (WIZ_REGIONCHANGE)</span></div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    <span class="keywordtype">void</span> RegionUserInOutForMe(<a class="code" href="struct_c_user.html">CUser</a>* pSendUser);</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <span class="comment">// Get info for merchants in regions around user</span></div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    <span class="keywordtype">void</span> MerchantUserInOutForMe(<a class="code" href="struct_c_user.html">CUser</a>* pSendUser);</div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;    <span class="keyword">template</span> &lt;ChatType chatType&gt;</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    INLINE <span class="keywordtype">void</span> SendChat(<span class="keyword">const</span> <span class="keywordtype">char</span> * msg, uint8 byNation = Nation::ALL, <span class="keywordtype">bool</span> bFormatNotice = <span class="keyword">false</span>)</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    {</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;        <a class="code" href="class_packet.html">Packet</a> result;</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;        std::string buffer;</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;    <span class="comment">// Get list of merchants in region</span></div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    <span class="keywordtype">void</span> GetRegionMerchantUserIn(<a class="code" href="class_c3_d_map.html">C3DMap</a>* pMap, uint16 region_x, uint16 region_z, <a class="code" href="class_packet.html">Packet</a> &amp; pkt, uint16 &amp; t_count);</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    INLINE <span class="keywordtype">bool</span> isPermanentMessageSet() { <span class="keywordflow">return</span> m_bPermanentChatMode; }</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    <span class="keywordtype">void</span> SetPermanentMessage(<span class="keyword">const</span> <span class="keywordtype">char</span> * format, ...);</div>
 <div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;        <span class="keywordflow">if</span> (bFormatNotice)</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;            <a class="code" href="class_c_ebenezer_dlg.html#aee0e1447b41503c6ae75b1e64a62bd24" title="Gets &amp; formats a cached server resource (_SERVER_RESOURCE entry).">GetServerResource</a>(IDP_ANNOUNCEMENT, &amp;buffer, msg);</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;        <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;            buffer = msg;</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;        ChatPacket::Construct(&amp;result, (uint8) chatType, &amp;buffer);</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;        <a class="code" href="class_c_ebenezer_dlg.html#ad5495819fca08123fee57c870744960a" title="Sends a packet to all users connected and logged into the server.">Send_All</a>(&amp;result, <span class="keyword">nullptr</span>, byNation);</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    }</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    <span class="keyword">template</span> &lt;ChatType chatType&gt;</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    INLINE <span class="keywordtype">void</span> SendFormattedChat(<span class="keyword">const</span> <span class="keywordtype">char</span> * msg, uint8 byNation = Nation::ALL, <span class="keywordtype">bool</span> bFormatNotice = <span class="keyword">false</span>, va_list args = <span class="keyword">nullptr</span>)</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    {</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;        <span class="keywordtype">char</span> buffer[512];</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;        vsnprintf(buffer, <span class="keyword">sizeof</span>(buffer), msg, args);</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;        SendChat&lt;chatType&gt;(buffer, byNation, bFormatNotice);</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;        va_end(args);</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    }</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keyword">template</span> &lt;ChatType chatType&gt;</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    <span class="keywordtype">void</span> SendFormattedChat(<span class="keyword">const</span> <span class="keywordtype">char</span> * msg, uint8 byNation = Nation::ALL, <span class="keywordtype">bool</span> bFormatNotice = <span class="keyword">false</span>, ...)</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    {</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;        va_list ap;</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;        va_start(ap, byNation);</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;        SendFormattedChat&lt;chatType&gt;(msg, byNation, bFormatNotice, ap);</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;        va_end(ap);</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    }</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="comment">/* The following are simply wrappers for more readable SendChat() calls */</span></div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    INLINE <span class="keywordtype">void</span> SendNotice(<span class="keyword">const</span> <span class="keywordtype">char</span> *msg, uint8 byNation = Nation::ALL) </div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    {</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;        SendChat&lt;PUBLIC_CHAT&gt;(msg, byNation, <span class="keyword">true</span>);</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    }</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <span class="keywordtype">void</span> SendFormattedNotice(<span class="keyword">const</span> <span class="keywordtype">char</span> *msg, uint8 byNation = Nation::ALL, ...)</div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    {</div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;        va_list ap;</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;        va_start(ap, byNation);</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;        SendFormattedChat&lt;PUBLIC_CHAT&gt;(msg, byNation, <span class="keyword">true</span>, ap);</div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;        va_end(ap);</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;    <span class="keywordtype">void</span> HandleConsoleCommand(<span class="keyword">const</span> <span class="keywordtype">char</span> * msg);</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;    <span class="keyword">template</span> &lt;ChatType chatType&gt;</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    INLINE <span class="keywordtype">void</span> SendChat(<span class="keyword">const</span> <span class="keywordtype">char</span> * msg, uint8 byNation = Nation::ALL, <span class="keywordtype">bool</span> bFormatNotice = <span class="keyword">false</span>)</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    {</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;        <a class="code" href="class_packet.html">Packet</a> result;</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;        std::string buffer;</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;        <span class="keywordflow">if</span> (bFormatNotice)</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;            GetServerResource(IDP_ANNOUNCEMENT, &amp;buffer, msg);</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;        <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;            buffer = msg;</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;        ChatPacket::Construct(&amp;result, (uint8) chatType, &amp;buffer);</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;        Send_All(&amp;result, <span class="keyword">nullptr</span>, byNation);</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    }</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <span class="keyword">template</span> &lt;ChatType chatType&gt;</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    INLINE <span class="keywordtype">void</span> SendFormattedChat(<span class="keyword">const</span> <span class="keywordtype">char</span> * msg, uint8 byNation = Nation::ALL, <span class="keywordtype">bool</span> bFormatNotice = <span class="keyword">false</span>, va_list args = <span class="keyword">nullptr</span>)</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    {</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;        <span class="keywordtype">char</span> buffer[512];</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;        vsnprintf(buffer, <span class="keyword">sizeof</span>(buffer), msg, args);</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;        SendChat&lt;chatType&gt;(buffer, byNation, bFormatNotice);</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;        va_end(args);</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    }</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    <span class="keyword">template</span> &lt;ChatType chatType&gt;</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="keywordtype">void</span> SendFormattedChat(<span class="keyword">const</span> <span class="keywordtype">char</span> * msg, uint8 byNation = Nation::ALL, <span class="keywordtype">bool</span> bFormatNotice = <span class="keyword">false</span>, ...)</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    {</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;        va_list ap;</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;        va_start(ap, byNation);</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;        SendFormattedChat&lt;chatType&gt;(msg, byNation, bFormatNotice, ap);</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;        va_end(ap);</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    }</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    <span class="comment">/* The following are simply wrappers for more readable SendChat() calls */</span></div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    INLINE <span class="keywordtype">void</span> SendNotice(<span class="keyword">const</span> <span class="keywordtype">char</span> *msg, uint8 byNation = Nation::ALL) </div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    {</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;        SendChat&lt;PUBLIC_CHAT&gt;(msg, byNation, <span class="keyword">true</span>);</div>
 <div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    }</div>
 <div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    INLINE <span class="keywordtype">void</span> SendAnnouncement(<span class="keyword">const</span> <span class="keywordtype">char</span> *msg, uint8 byNation = Nation::ALL)</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <span class="keywordtype">void</span> SendFormattedNotice(<span class="keyword">const</span> <span class="keywordtype">char</span> *msg, uint8 byNation = Nation::ALL, ...)</div>
 <div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    {</div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;        SendChat&lt;WAR_SYSTEM_CHAT&gt;(msg, byNation, <span class="keyword">true</span>);</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    }</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;</div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    <span class="keywordtype">void</span> SendFormattedAnnouncement(<span class="keyword">const</span> <span class="keywordtype">char</span> *msg, uint8 byNation = Nation::ALL, ...)</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    {</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;        va_list ap;</div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;        va_start(ap, byNation);</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;        SendFormattedChat&lt;WAR_SYSTEM_CHAT&gt;(msg, byNation, <span class="keyword">true</span>, ap);</div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;        va_end(ap);</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;        va_list ap;</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;        va_start(ap, byNation);</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;        SendFormattedChat&lt;PUBLIC_CHAT&gt;(msg, byNation, <span class="keyword">true</span>, ap);</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;        va_end(ap);</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    }</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    INLINE <span class="keywordtype">void</span> SendAnnouncement(<span class="keyword">const</span> <span class="keywordtype">char</span> *msg, uint8 byNation = Nation::ALL)</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    {</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;        SendChat&lt;WAR_SYSTEM_CHAT&gt;(msg, byNation, <span class="keyword">true</span>);</div>
 <div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    }</div>
 <div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <span class="keywordtype">void</span> SendFormattedResource(uint32 nResourceID, uint8 byNation = Nation::ALL, <span class="keywordtype">bool</span> bIsNotice = <span class="keyword">true</span>, ...);</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;</div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;    <span class="keywordtype">void</span> Send_Region(<a class="code" href="class_packet.html">Packet</a> *pkt, <a class="code" href="class_c3_d_map.html">C3DMap</a> *pMap, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> z, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <span class="keywordtype">void</span> Send_UnitRegion(<a class="code" href="class_packet.html">Packet</a> *pkt, <a class="code" href="class_c3_d_map.html">C3DMap</a> *pMap, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> z, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;    <span class="keywordtype">void</span> Send_OldRegions(<a class="code" href="class_packet.html">Packet</a> *pkt, <span class="keywordtype">int</span> old_x, <span class="keywordtype">int</span> old_z, <a class="code" href="class_c3_d_map.html">C3DMap</a> *pMap, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> z, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    <span class="keywordtype">void</span> Send_NewRegions(<a class="code" href="class_packet.html">Packet</a> *pkt, <span class="keywordtype">int</span> new_x, <span class="keywordtype">int</span> new_z, <a class="code" href="class_c3_d_map.html">C3DMap</a> *pMap, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> z, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <span class="keywordtype">void</span> Send_NearRegion(<a class="code" href="class_packet.html">Packet</a> *pkt, <a class="code" href="class_c3_d_map.html">C3DMap</a> *pMap, <span class="keywordtype">int</span> region_x, <span class="keywordtype">int</span> region_z, <span class="keywordtype">float</span> curx, <span class="keywordtype">float</span> curz, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser=<span class="keyword">nullptr</span> );</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    <span class="keywordtype">void</span> Send_FilterUnitRegion(<a class="code" href="class_packet.html">Packet</a> *pkt, <a class="code" href="class_c3_d_map.html">C3DMap</a> *pMap, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> z, <span class="keywordtype">float</span> ref_x, <span class="keywordtype">float</span> ref_z, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser=<span class="keyword">nullptr</span> );</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <span class="keywordtype">void</span> SendFormattedAnnouncement(<span class="keyword">const</span> <span class="keywordtype">char</span> *msg, uint8 byNation = Nation::ALL, ...)</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    {</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;        va_list ap;</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;        va_start(ap, byNation);</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;        SendFormattedChat&lt;WAR_SYSTEM_CHAT&gt;(msg, byNation, <span class="keyword">true</span>, ap);</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;        va_end(ap);</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    }</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    <span class="keywordtype">void</span> SendFormattedResource(uint32 nResourceID, uint8 byNation = Nation::ALL, <span class="keywordtype">bool</span> bIsNotice = <span class="keyword">true</span>, ...);</div>
 <div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a6dbb5fc398774349339f4a70d44a29d2" title="Sends a packet to all players in the specified zone matching the specified criteria.">Send_Zone</a>(<a class="code" href="class_packet.html">Packet</a> *pkt, uint16 sZoneID, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = <span class="keyword">nullptr</span>, uint8 nation = 0);</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;</div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#ad5495819fca08123fee57c870744960a" title="Sends a packet to all users connected and logged into the server.">Send_All</a>(<a class="code" href="class_packet.html">Packet</a> *pkt, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = <span class="keyword">nullptr</span>, uint8 nation = 0);</div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    <span class="keywordtype">void</span> Send_AIServer(<a class="code" href="class_packet.html">Packet</a> *pkt);</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;    <span class="keywordtype">void</span> Send_Region(<a class="code" href="class_packet.html">Packet</a> *pkt, <a class="code" href="class_c3_d_map.html">C3DMap</a> *pMap, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> z, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    <span class="keywordtype">void</span> Send_UnitRegion(<a class="code" href="class_packet.html">Packet</a> *pkt, <a class="code" href="class_c3_d_map.html">C3DMap</a> *pMap, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> z, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    <span class="keywordtype">void</span> Send_OldRegions(<a class="code" href="class_packet.html">Packet</a> *pkt, <span class="keywordtype">int</span> old_x, <span class="keywordtype">int</span> old_z, <a class="code" href="class_c3_d_map.html">C3DMap</a> *pMap, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> z, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    <span class="keywordtype">void</span> Send_NewRegions(<a class="code" href="class_packet.html">Packet</a> *pkt, <span class="keywordtype">int</span> new_x, <span class="keywordtype">int</span> new_z, <a class="code" href="class_c3_d_map.html">C3DMap</a> *pMap, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> z, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = <span class="keyword">nullptr</span>);</div>
 <div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#aee0e1447b41503c6ae75b1e64a62bd24" title="Gets &amp; formats a cached server resource (_SERVER_RESOURCE entry).">GetServerResource</a>(<span class="keywordtype">int</span> nResourceID, std::string * result, ...);</div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <a class="code" href="struct___s_t_a_r_t___p_o_s_i_t_i_o_n.html">_START_POSITION</a> *<a class="code" href="class_c_ebenezer_dlg.html#a8092ef1f9e45f3f42d27cb1cb322b5f2" title="Gets the starting positions (for both nations) for the specified zone.">GetStartPosition</a>(<span class="keywordtype">int</span> nZoneID);</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    <span class="keywordtype">void</span> Send_NearRegion(<a class="code" href="class_packet.html">Packet</a> *pkt, <a class="code" href="class_c3_d_map.html">C3DMap</a> *pMap, <span class="keywordtype">int</span> region_x, <span class="keywordtype">int</span> region_z, <span class="keywordtype">float</span> curx, <span class="keywordtype">float</span> curz, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser=<span class="keyword">nullptr</span> );</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <span class="keywordtype">void</span> Send_FilterUnitRegion(<a class="code" href="class_packet.html">Packet</a> *pkt, <a class="code" href="class_c3_d_map.html">C3DMap</a> *pMap, <span class="keywordtype">int</span> x, <span class="keywordtype">int</span> z, <span class="keywordtype">float</span> ref_x, <span class="keywordtype">float</span> ref_z, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser=<span class="keyword">nullptr</span> );</div>
 <div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;</div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    int64 <a class="code" href="class_c_ebenezer_dlg.html#a3817226d9783f170965047932d11cd0f" title="Gets the experience points required for the specified level.">GetExpByLevel</a>(<span class="keywordtype">int</span> nLevel);</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    <a class="code" href="class_c3_d_map.html">C3DMap</a> * <a class="code" href="class_c_ebenezer_dlg.html#a7d36ab3105ef9b2942b2ba7e4289ccc8" title="Gets zone by its identifier.">GetZoneByID</a>(<span class="keywordtype">int</span> zoneID);</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    <span class="keywordtype">void</span> Send_Zone_Matched_Class(<a class="code" href="class_packet.html">Packet</a> *pkt, uint8 bZoneID, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser, uint8 nation, uint8 seekingPartyOptions);</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    <span class="keywordtype">void</span> Send_Zone(<a class="code" href="class_packet.html">Packet</a> *pkt, uint8 bZoneID, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = <span class="keyword">nullptr</span>, uint8 nation = 0);</div>
 <div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;</div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <a class="code" href="struct_c_user.html">CUser</a> * GetUserPtr(std::string findName, NameType type);</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <a class="code" href="struct_c_user.html">CUser</a> * GetUserPtr(<span class="keywordtype">int</span> sid);</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <span class="keywordtype">void</span> Send_All(<a class="code" href="class_packet.html">Packet</a> *pkt, <a class="code" href="struct_c_user.html">CUser</a>* pExceptUser = <span class="keyword">nullptr</span>, uint8 nation = 0);</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <span class="keywordtype">void</span> Send_AIServer(<a class="code" href="class_packet.html">Packet</a> *pkt);</div>
 <div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <a class="code" href="class_unit.html">Unit</a> * GetUnit(uint16 <span class="keywordtype">id</span>);</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    int32 GetEventTrigger(<a class="code" href="struct_c_npc.html">CNpc</a> * pNpc);</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <span class="comment">// Adds the account name &amp; session to a hashmap (on login)</span></div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a504ba9793096c77e4bc09f278dfa302a" title="Adds the account name &amp; session to a hashmap (on login)">AddAccountName</a>(<a class="code" href="struct_c_user.html">CUser</a> *pSession);</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;</div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    <span class="comment">// Adds the character name &amp; session to a hashmap (when in-game)</span></div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#a5cabe065a9b35d7b5ad2b36f4989fc2f" title="Adds the character name &amp; session to a hashmap (when in-game)">AddCharacterName</a>(<a class="code" href="struct_c_user.html">CUser</a> *pSession);</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;</div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    <span class="comment">// Removes the account name &amp; character names from the hashmaps (on logout)</span></div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_ebenezer_dlg.html#ac35edc55bc8ccf94144a841571751ad2" title="Removes the account name &amp; character names from the hashmaps (on logout)">RemoveSessionNames</a>(<a class="code" href="struct_c_user.html">CUser</a> *pSession);</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    <a class="code" href="class_c_knights.html">CKnights</a> * GetClanPtr(uint16 sClanID);</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    <a class="code" href="struct___k_n_i_g_h_t_s___a_l_l_i_a_n_c_e.html">_KNIGHTS_ALLIANCE</a> * GetAlliancePtr(uint16 sAllianceID);</div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    <a class="code" href="struct___i_t_e_m___t_a_b_l_e.html">_ITEM_TABLE</a> * GetItemPtr(uint32 nItemID);</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <span class="keywordtype">void</span> GetServerResource(<span class="keywordtype">int</span> nResourceID, std::string * result, ...);</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <a class="code" href="struct___s_t_a_r_t___p_o_s_i_t_i_o_n.html">_START_POSITION</a> *GetStartPosition(<span class="keywordtype">int</span> nZoneID);</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    int64 GetExpByLevel(<span class="keywordtype">int</span> nLevel);</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <a class="code" href="class_c3_d_map.html">C3DMap</a> * GetZoneByID(<span class="keywordtype">int</span> zoneID);</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;</div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;    <a class="code" href="struct_c_user.html">CUser</a> * GetUserPtr(std::string findName, NameType type);</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    <a class="code" href="struct_c_user.html">CUser</a> * GetUserPtr(<span class="keywordtype">int</span> sid);</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    <a class="code" href="class_unit.html">Unit</a> * GetUnit(uint16 <span class="keywordtype">id</span>);</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    <span class="comment">// Adds the account name &amp; session to a hashmap (on login)</span></div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    <span class="keywordtype">void</span> AddAccountName(<a class="code" href="struct_c_user.html">CUser</a> *pSession);</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    <span class="comment">// Adds the character name &amp; session to a hashmap (when in-game)</span></div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    <span class="keywordtype">void</span> AddCharacterName(<a class="code" href="struct_c_user.html">CUser</a> *pSession);</div>
 <div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;</div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <a class="code" href="struct___p_a_r_t_y___g_r_o_u_p.html">_PARTY_GROUP</a> * CreateParty(<a class="code" href="struct_c_user.html">CUser</a> *pLeader);</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    <span class="keywordtype">void</span> DeleteParty(uint16 sIndex);</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <span class="comment">// Removes the account name &amp; character names from the hashmaps (on logout)</span></div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    <span class="keywordtype">void</span> RemoveSessionNames(<a class="code" href="struct_c_user.html">CUser</a> *pSession);</div>
 <div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    ~<a class="code" href="class_c_ebenezer_dlg.html">CEbenezerDlg</a>();</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    <span class="keywordtype">char</span>    m_ppNotice[20][128];</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    <span class="keywordtype">char</span>    m_AIServerIP[20];</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    <a class="code" href="struct___p_a_r_t_y___g_r_o_u_p.html">_PARTY_GROUP</a> * GetPartyPtr(uint16 sPartyID);</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    <a class="code" href="class_c_knights.html">CKnights</a> * GetClanPtr(uint16 sClanID);</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    <a class="code" href="struct___k_n_i_g_h_t_s___a_l_l_i_a_n_c_e.html">_KNIGHTS_ALLIANCE</a> * GetAlliancePtr(uint16 sAllianceID);</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    <a class="code" href="struct___i_t_e_m___t_a_b_l_e.html">_ITEM_TABLE</a> * GetItemPtr(uint32 nItemID);</div>
 <div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">NpcArray</a>                m_arNpcArray;</div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ZoneArray</a>               m_ZoneArray;</div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ItemtableArray</a>          m_ItemtableArray;</div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">MagictableArray</a>         m_MagictableArray;</div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype1Array</a>         m_Magictype1Array;</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype2Array</a>         m_Magictype2Array;</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype3Array</a>         m_Magictype3Array;</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype4Array</a>         m_Magictype4Array;</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype5Array</a>         m_Magictype5Array;</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype6Array</a>         m_Magictype6Array;</div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype7Array</a>         m_Magictype7Array;</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype8Array</a>         m_Magictype8Array;</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype9Array</a>         m_Magictype9Array;</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">CoefficientArray</a>        m_CoefficientArray;</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    LevelUpArray            m_LevelUpArray;</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">PartyArray</a>              m_PartyArray;</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">KnightsArray</a>            m_KnightsArray;</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">KnightsRatingArray</a>      m_KnightsRatingArray[2]; <span class="comment">// one for both nations</span></div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">KnightsAllianceArray</a>    m_KnightsAllianceArray;</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">KnightsCapeArray</a>        m_KnightsCapeArray;</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    UserNameRankMap         m_UserPersonalRankMap;</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    UserNameRankMap         m_UserKnightsRankMap;</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    UserRankMap             m_playerRankings[2]; <span class="comment">// one for both nations</span></div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    FastMutex               m_userRankingsLock;</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">HomeArray</a>               m_HomeArray;</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">StartPositionArray</a>      m_StartPositionArray;</div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ServerResourceArray</a>     m_ServerResourceArray;</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    EventTriggerArray       m_EventTriggerArray;</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">QuestHelperArray</a>        m_QuestHelperArray;</div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    QuestNpcList            m_QuestNpcList;</div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">QuestMonsterArray</a>       m_QuestMonsterArray;</div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">RentalItemArray</a>         m_RentalItemArray;</div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ItemExchangeArray</a>       m_ItemExchangeArray;</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ItemUpgradeArray</a>        m_ItemUpgradeArray;</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">KingSystemArray</a>         m_KingSystemArray;</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <a class="code" href="class_atomic.html">Atomic&lt;uint16&gt;</a>          m_sPartyIndex;</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    <span class="keywordtype">short</span>   m_sZoneCount;                           <span class="comment">// AI Server 재접속시 사용</span></div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;</div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    <span class="keywordtype">bool</span>    m_bFirstServerFlag;     <span class="comment">// 서버가 처음시작한 후 게임서버가 붙은 경우에는 1, 붙지 않은 경우 0</span></div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;    <span class="keywordtype">bool</span>    m_bServerCheckFlag;</div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    <span class="keywordtype">bool</span>    m_bPointCheckFlag;      <span class="comment">// AI서버와 재접전에 NPC포인터 참조막기 (true:포인터 참조, false:포인터 참조 못함)</span></div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    <span class="keywordtype">short</span>   m_sErrorSocketCount;  <span class="comment">// 이상소켓 감시용</span></div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    uint16 m_nYear, m_nMonth, m_nDate, m_nHour, m_nMin;</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    uint8 m_byWeather;</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    uint16 m_sWeatherAmount;</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    <span class="keywordtype">int</span> m_nCastleCapture;</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    uint8    m_byBattleOpen, m_byOldBattleOpen;                 <span class="comment">// 0:전쟁중이 아님, 1:전쟁중(국가간전쟁), 2:눈싸움전쟁</span></div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    uint8   m_byBattleZone;</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    uint8   m_bVictory, m_byOldVictory;</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    uint8   m_bKarusFlag, m_bElmoradFlag;</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    uint8    m_byKarusOpenFlag, m_byElmoradOpenFlag, m_byBanishFlag, m_byBattleSave;</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    <span class="keywordtype">short</span>   m_sDiscount;    <span class="comment">// 능력치와 포인트 초기화 할인 (0:할인없음, 1:할인(50%) )</span></div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    <span class="keywordtype">short</span>   m_sKarusDead, m_sElmoradDead, m_sBanishDelay, m_sKarusCount, m_sElmoradCount;</div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    <span class="keywordtype">int</span> m_nBattleZoneOpenWeek, m_nBattleZoneOpenHourStart, m_nBattleZoneOpenHourEnd;</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;    <span class="keywordtype">char</span> m_strKarusCaptain[MAX_ID_SIZE+1];</div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    <span class="keywordtype">char</span> m_strElmoradCaptain[MAX_ID_SIZE+1];</div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;</div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    uint8   m_bMaxRegenePoint;</div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;</div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;    <span class="keywordtype">bool</span>    m_bPermanentChatMode;</div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;    std::string m_strPermanentChat;</div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;</div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;    uint8 m_bSantaOrAngel;</div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;</div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;    <span class="comment">// zone server info</span></div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;    <span class="keywordtype">int</span>                 m_nServerNo, m_nServerGroupNo;</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;    <span class="keywordtype">int</span>                 m_nServerGroup; <span class="comment">// server의 번호(0:서버군이 없다, 1:서버1군, 2:서버2군)</span></div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ServerArray</a>         m_ServerArray;</div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ServerArray</a>         m_ServerGroupArray;</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <a class="code" href="struct___p_a_r_t_y___g_r_o_u_p.html">_PARTY_GROUP</a> * CreateParty(<a class="code" href="struct_c_user.html">CUser</a> *pLeader);</div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;    <span class="keywordtype">void</span> DeleteParty(uint16 sIndex);</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;</div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    ~CEbenezerDlg();</div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    <span class="keywordtype">char</span>    m_ppNotice[20][128];</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    std::string m_AIServerIP;</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">NpcArray</a>                m_arNpcArray;</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ZoneArray</a>               m_ZoneArray;</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ItemtableArray</a>          m_ItemtableArray;</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">SetItemArray</a>            m_SetItemArray;</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">MagictableArray</a>         m_MagictableArray;</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype1Array</a>         m_Magictype1Array;</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype2Array</a>         m_Magictype2Array;</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype3Array</a>         m_Magictype3Array;</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype4Array</a>         m_Magictype4Array;</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype5Array</a>         m_Magictype5Array;</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype6Array</a>         m_Magictype6Array;</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype7Array</a>         m_Magictype7Array;</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype8Array</a>         m_Magictype8Array;</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">Magictype9Array</a>         m_Magictype9Array;</div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">CoefficientArray</a>        m_CoefficientArray;</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    LevelUpArray            m_LevelUpArray;</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">PartyArray</a>              m_PartyArray;</div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">KnightsArray</a>            m_KnightsArray;</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">KnightsRatingArray</a>      m_KnightsRatingArray[2]; <span class="comment">// one for both nations</span></div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">KnightsAllianceArray</a>    m_KnightsAllianceArray;</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">KnightsCapeArray</a>        m_KnightsCapeArray;</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    UserNameRankMap         m_UserPersonalRankMap;</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    UserNameRankMap         m_UserKnightsRankMap;</div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    UserRankMap             m_playerRankings[2]; <span class="comment">// one for both nations</span></div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    FastMutex               m_userRankingsLock;</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">HomeArray</a>               m_HomeArray;</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">StartPositionArray</a>      m_StartPositionArray;</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ServerResourceArray</a>     m_ServerResourceArray;</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">QuestHelperArray</a>        m_QuestHelperArray;</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    QuestNpcList            m_QuestNpcList;</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">QuestMonsterArray</a>       m_QuestMonsterArray;</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">RentalItemArray</a>         m_RentalItemArray;</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ItemExchangeArray</a>       m_ItemExchangeArray;</div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ItemUpgradeArray</a>        m_ItemUpgradeArray;</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ItemOpArray</a>             m_ItemOpArray;</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">KingSystemArray</a>         m_KingSystemArray;</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    <a class="code" href="class_atomic.html">Atomic&lt;uint16&gt;</a>          m_sPartyIndex;</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    <span class="keywordtype">short</span>   m_sZoneCount;                           <span class="comment">// AI Server 재접속시 사용</span></div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    <span class="keywordtype">bool</span>    m_bFirstServerFlag;     <span class="comment">// 서버가 처음시작한 후 게임서버가 붙은 경우에는 1, 붙지 않은 경우 0</span></div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    <span class="keywordtype">bool</span>    m_bServerCheckFlag;</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <span class="keywordtype">bool</span>    m_bPointCheckFlag;      <span class="comment">// AI서버와 재접전에 NPC포인터 참조막기 (true:포인터 참조, false:포인터 참조 못함)</span></div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    <span class="keywordtype">short</span>   m_sErrorSocketCount;  <span class="comment">// 이상소켓 감시용</span></div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;</div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    uint16 m_sYear, m_sMonth, m_sDate, m_sHour, m_sMin;</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    uint8 m_byWeather;</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    uint16 m_sWeatherAmount;</div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    <span class="keywordtype">int</span> m_nCastleCapture;</div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;</div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    uint8    m_byBattleOpen, m_byOldBattleOpen;                 <span class="comment">// 0:전쟁중이 아님, 1:전쟁중(국가간전쟁), 2:눈싸움전쟁</span></div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;    uint8   m_byBattleZone;</div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    uint8   m_bVictory, m_byOldVictory;</div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    uint8   m_bKarusFlag, m_bElmoradFlag;</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;    <span class="keywordtype">bool</span>    m_byKarusOpenFlag, m_byElmoradOpenFlag, m_byBanishFlag, m_byBattleSave;</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;    <span class="keywordtype">short</span>   m_sDiscount;    <span class="comment">// 능력치와 포인트 초기화 할인 (0:할인없음, 1:할인(50%) )</span></div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;    <span class="keywordtype">short</span>   m_sKarusDead, m_sElmoradDead, m_sBanishDelay, m_sKarusCount, m_sElmoradCount;</div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;    <span class="keywordtype">int</span> m_nBattleZoneOpenWeek, m_nBattleZoneOpenHourStart, m_nBattleZoneOpenHourEnd;</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    std::string m_strKarusCaptain, m_strElmoradCaptain;</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;</div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;    uint8   m_bMaxRegenePoint;</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;    <span class="keywordtype">bool</span>    m_bPermanentChatMode;</div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;    std::string m_strPermanentChat;</div>
 <div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;</div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;    NameMap     m_accountNameMap,</div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;                m_characterNameMap;</div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;</div>
-<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;    FastMutex   m_accountNameLock,</div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;                m_characterNameLock,</div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;                m_questNpcLock;</div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;</div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;    <span class="comment">// Controlled weather events set by Kings</span></div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;    uint8 m_byKingWeatherEvent;</div>
-<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;    uint8 m_byKingWeatherEvent_Day;</div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;    uint8 m_byKingWeatherEvent_Hour;</div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;    uint8 m_byKingWeatherEvent_Minute;</div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;</div>
-<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;    INLINE <a class="code" href="class_c_lua_engine.html">CLuaEngine</a> * GetLuaEngine() { <span class="keywordflow">return</span> &amp;m_luaEngine; }</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;    uint8 m_bSantaOrAngel;</div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;</div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;    <span class="comment">// zone server info</span></div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;    <span class="keywordtype">int</span>                 m_nServerNo, m_nServerGroupNo;</div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;    <span class="keywordtype">int</span>                 m_nServerGroup; <span class="comment">// server의 번호(0:서버군이 없다, 1:서버1군, 2:서버2군)</span></div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ServerArray</a>         m_ServerArray;</div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">ServerArray</a>         m_ServerGroupArray;</div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;</div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;    NameMap     m_accountNameMap,</div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;                m_characterNameMap;</div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;</div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;    FastMutex   m_accountNameLock,</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;                m_characterNameLock,</div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;                m_questNpcLock;</div>
 <div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;</div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;    <a class="code" href="class_k_o_socket_mgr.html">KOSocketMgr&lt;CUser&gt;</a> m_socketMgr;</div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;    <a class="code" href="class_client_socket_mgr.html">ClientSocketMgr&lt;CAISocket&gt;</a> m_aiSocketMgr;</div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;</div>
-<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;    <a class="code" href="class_c_lua_engine.html">CLuaEngine</a>  m_luaEngine;</div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;    <span class="comment">// Controlled weather events set by Kings</span></div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;    uint8 m_byKingWeatherEvent;</div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;    uint8 m_byKingWeatherEvent_Day;</div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;    uint8 m_byKingWeatherEvent_Hour;</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;    uint8 m_byKingWeatherEvent_Minute;</div>
 <div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;</div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;    std::string m_strGameDSN, m_strAccountDSN;</div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;    std::string m_strGameUID, m_strAccountUID;</div>
-<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;    std::string m_strGamePWD, m_strAccountPWD;</div>
-<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;    <span class="keywordtype">bool</span> m_bMarsEnabled;</div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;    INLINE <a class="code" href="class_c_lua_engine.html">CLuaEngine</a> * GetLuaEngine() { <span class="keywordflow">return</span> &amp;m_luaEngine; }</div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;</div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;    <a class="code" href="class_k_o_socket_mgr.html">KOSocketMgr&lt;CUser&gt;</a> m_socketMgr;</div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;    <a class="code" href="class_client_socket_mgr.html">ClientSocketMgr&lt;CAISocket&gt;</a> m_aiSocketMgr;</div>
 <div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;</div>
-<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;    <span class="keywordtype">bool</span> LoadTables();</div>
-<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;</div>
-<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;    <span class="keywordtype">bool</span> ProcessServerCommand(std::string &amp; command);</div>
-<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;</div>
-<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;    <span class="keywordtype">void</span> InitServerCommands();</div>
-<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;    <span class="keywordtype">void</span> CleanupServerCommands();</div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;    <a class="code" href="class_c_lua_engine.html">CLuaEngine</a>  m_luaEngine;</div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;</div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;    std::string m_strGameDSN, m_strAccountDSN;</div>
+<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;    std::string m_strGameUID, m_strAccountUID;</div>
+<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;    std::string m_strGamePWD, m_strAccountPWD;</div>
+<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;    <span class="keywordtype">bool</span> m_bMarsEnabled;</div>
 <div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;</div>
-<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;    <span class="keyword">static</span> ServerCommandTable s_commandTable;</div>
+<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;    <span class="keywordtype">bool</span> ProcessServerCommand(std::string &amp; command);</div>
 <div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;</div>
-<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;    COMMAND_HANDLER(HandleNoticeCommand);</div>
-<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;    COMMAND_HANDLER(HandleKillUserCommand);</div>
-<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;    COMMAND_HANDLER(HandleWar1OpenCommand);</div>
-<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;    COMMAND_HANDLER(HandleWar2OpenCommand);</div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;    COMMAND_HANDLER(HandleWar3OpenCommand);</div>
-<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;    COMMAND_HANDLER(HandleSnowWarOpenCommand);</div>
-<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;    COMMAND_HANDLER(HandleWarCloseCommand);</div>
-<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;    COMMAND_HANDLER(HandleShutdownCommand);</div>
-<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;    COMMAND_HANDLER(HandlePauseCommand);</div>
-<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;    COMMAND_HANDLER(HandleResumeCommand);</div>
-<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;    COMMAND_HANDLER(HandleDiscountCommand);</div>
-<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;    COMMAND_HANDLER(HandleGlobalDiscountCommand);</div>
-<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;    COMMAND_HANDLER(HandleDiscountOffCommand);</div>
-<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;    COMMAND_HANDLER(HandleCaptainCommand);</div>
-<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;    COMMAND_HANDLER(HandleSantaCommand);</div>
-<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;    COMMAND_HANDLER(HandleSantaOffCommand);</div>
-<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;    COMMAND_HANDLER(HandleAngelCommand);</div>
-<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;    COMMAND_HANDLER(HandlePermanentChatCommand);</div>
-<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;    COMMAND_HANDLER(HandlePermanentChatOffCommand);</div>
-<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;    COMMAND_HANDLER(HandleReloadNoticeCommand);</div>
-<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;};</div>
-<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;</div>
-<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;<span class="keyword">extern</span> <a class="code" href="class_c_ebenezer_dlg.html">CEbenezerDlg</a> * g_pMain;</div>
+<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;    <span class="keywordtype">void</span> InitServerCommands();</div>
+<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;    <span class="keywordtype">void</span> CleanupServerCommands();</div>
+<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;</div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;    <span class="keyword">static</span> ServerCommandTable s_commandTable;</div>
+<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;</div>
+<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;    COMMAND_HANDLER(HandleNoticeCommand);</div>
+<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;    COMMAND_HANDLER(HandleKillUserCommand);</div>
+<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;    COMMAND_HANDLER(HandleWar1OpenCommand);</div>
+<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;    COMMAND_HANDLER(HandleWar2OpenCommand);</div>
+<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;    COMMAND_HANDLER(HandleWar3OpenCommand);</div>
+<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;    COMMAND_HANDLER(HandleSnowWarOpenCommand);</div>
+<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;    COMMAND_HANDLER(HandleWarCloseCommand);</div>
+<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;    COMMAND_HANDLER(HandleShutdownCommand);</div>
+<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;    COMMAND_HANDLER(HandlePauseCommand);</div>
+<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;    COMMAND_HANDLER(HandleResumeCommand);</div>
+<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;    COMMAND_HANDLER(HandleDiscountCommand);</div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;    COMMAND_HANDLER(HandleGlobalDiscountCommand);</div>
+<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;    COMMAND_HANDLER(HandleDiscountOffCommand);</div>
+<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;    COMMAND_HANDLER(HandleCaptainCommand);</div>
+<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;    COMMAND_HANDLER(HandleSantaCommand);</div>
+<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;    COMMAND_HANDLER(HandleSantaOffCommand);</div>
+<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;    COMMAND_HANDLER(HandleAngelCommand);</div>
+<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;    COMMAND_HANDLER(HandlePermanentChatCommand);</div>
+<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;    COMMAND_HANDLER(HandlePermanentChatOffCommand);</div>
+<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;    COMMAND_HANDLER(HandleReloadNoticeCommand);</div>
+<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;};</div>
+<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;</div>
+<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;<span class="keyword">extern</span> CEbenezerDlg * g_pMain;</div>
+<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;</div>
+<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

@@ -84,6 +84,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="class_c3_d_map-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">C3DMap Class Reference</div>  </div>
@@ -113,9 +115,6 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsValidPosition</b> (
 <tr class="memitem:a321f1d11e05ceb41d6e7a3e51b1d6329"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a321f1d11e05ceb41d6e7a3e51b1d6329"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>GetWarpList</b> (int warpGroup, std::set&lt; <a class="el" href="struct___w_a_r_p___i_n_f_o.html">_WARP_INFO</a> * &gt; &amp;warpEntries)</td></tr>
 <tr class="separator:a321f1d11e05ceb41d6e7a3e51b1d6329"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7bd8a160eeb48fb129d74d2eeb09171f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7bd8a160eeb48fb129d74d2eeb09171f"></a>
-INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isAttackZone</b> ()</td></tr>
-<tr class="separator:a7bd8a160eeb48fb129d74d2eeb09171f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0cf6e753dbb04bed24f7b528cb3f35b7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0cf6e753dbb04bed24f7b528cb3f35b7"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Initialize</b> (<a class="el" href="struct___z_o_n_e___i_n_f_o.html">_ZONE_INFO</a> *pZone)</td></tr>
 <tr class="separator:a0cf6e753dbb04bed24f7b528cb3f35b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -137,6 +136,45 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>ObjectCollision</b> (
 <tr class="memitem:a482b4c37fc198b599bef5f0c70c806b7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a482b4c37fc198b599bef5f0c70c806b7"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><b>GetHeight</b> (float x, float y, float z)</td></tr>
 <tr class="separator:a482b4c37fc198b599bef5f0c70c806b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad80062839ec85fb339f572b27d69a6e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad80062839ec85fb339f572b27d69a6e4"></a>
+INLINE uint16&#160;</td><td class="memItemRight" valign="bottom"><b>GetID</b> ()</td></tr>
+<tr class="separator:ad80062839ec85fb339f572b27d69a6e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a843c9e29b868e7874c51f0309b96001e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a843c9e29b868e7874c51f0309b96001e"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>canTradeWithOtherNation</b> ()</td></tr>
+<tr class="separator:a843c9e29b868e7874c51f0309b96001e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97e89f4b6cf817df56e835a4d1169859"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a97e89f4b6cf817df56e835a4d1169859"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>canTalkToOtherNation</b> ()</td></tr>
+<tr class="separator:a97e89f4b6cf817df56e835a4d1169859"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f8a6f73d684b5b2aa60e8576c3ebfb1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3f8a6f73d684b5b2aa60e8576c3ebfb1"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>canAttackOtherNation</b> ()</td></tr>
+<tr class="separator:a3f8a6f73d684b5b2aa60e8576c3ebfb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac25367c2a86d1b3243df0666105dc0da"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac25367c2a86d1b3243df0666105dc0da"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>canAttackSameNation</b> ()</td></tr>
+<tr class="separator:ac25367c2a86d1b3243df0666105dc0da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43e91c3a740db9568f6156d2838c0e43"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a43e91c3a740db9568f6156d2838c0e43"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isWarZone</b> ()</td></tr>
+<tr class="separator:a43e91c3a740db9568f6156d2838c0e43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af26a7ae572394dee5c11e8e5b88f65f2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af26a7ae572394dee5c11e8e5b88f65f2"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>isNationPVPZone</b> ()</td></tr>
+<tr class="separator:af26a7ae572394dee5c11e8e5b88f65f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0278cc96265d6b4d959c90df1bcf23f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae0278cc96265d6b4d959c90df1bcf23f"></a>
+INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><b>areNPCsFriendly</b> ()</td></tr>
+<tr class="separator:ae0278cc96265d6b4d959c90df1bcf23f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee928926dbcd7b3d0cbc3fffb281a78b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee928926dbcd7b3d0cbc3fffb281a78b"></a>
+INLINE uint8&#160;</td><td class="memItemRight" valign="bottom"><b>GetZoneType</b> ()</td></tr>
+<tr class="separator:aee928926dbcd7b3d0cbc3fffb281a78b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae152d43529e47f09df219310d7d96e4b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae152d43529e47f09df219310d7d96e4b"></a>
+INLINE uint8&#160;</td><td class="memItemRight" valign="bottom"><b>GetTariff</b> ()</td></tr>
+<tr class="separator:ae152d43529e47f09df219310d7d96e4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35e67c3eaf90b6f5b9a49c7f389e89e0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a35e67c3eaf90b6f5b9a49c7f389e89e0"></a>
+INLINE void&#160;</td><td class="memItemRight" valign="bottom"><b>SetTariff</b> (uint8 tariff)</td></tr>
+<tr class="separator:a35e67c3eaf90b6f5b9a49c7f389e89e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e9ddf92b0970239d8025b34ecaa13fb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7e9ddf92b0970239d8025b34ecaa13fb"></a>
+INLINE uint8&#160;</td><td class="memItemRight" valign="bottom"><b>GetMinLevelReq</b> ()</td></tr>
+<tr class="separator:a7e9ddf92b0970239d8025b34ecaa13fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab551815f187e0fe103ea93222e47fb94"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab551815f187e0fe103ea93222e47fb94"></a>
+INLINE uint8&#160;</td><td class="memItemRight" valign="bottom"><b>GetMaxLevelReq</b> ()</td></tr>
+<tr class="separator:ab551815f187e0fe103ea93222e47fb94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -158,15 +196,9 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>m_fInitZ</b></td></t
 <tr class="memitem:a45ece46173e33fd8d0ce2cfbb1f30c70"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a45ece46173e33fd8d0ce2cfbb1f30c70"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><b>m_fInitY</b></td></tr>
 <tr class="separator:a45ece46173e33fd8d0ce2cfbb1f30c70"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3586b5979f1fa41904ae1deb56725a51"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3586b5979f1fa41904ae1deb56725a51"></a>
-uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_bType</b></td></tr>
-<tr class="separator:a3586b5979f1fa41904ae1deb56725a51"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a00564a2abb9a9f82900252eb24942ee5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a00564a2abb9a9f82900252eb24942ee5"></a>
 short&#160;</td><td class="memItemRight" valign="bottom"><b>m_sMaxUser</b></td></tr>
 <tr class="separator:a00564a2abb9a9f82900252eb24942ee5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ada120caea141e9220e05807c84e7bac3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ada120caea141e9220e05807c84e7bac3"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>m_isAttackZone</b></td></tr>
-<tr class="separator:ada120caea141e9220e05807c84e7bac3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a27a94310503c7efcb402c79fdb8c925d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27a94310503c7efcb402c79fdb8c925d"></a>
 <a class="el" href="class_c_region.html">CRegion</a> **&#160;</td><td class="memItemRight" valign="bottom"><b>m_ppRegion</b></td></tr>
 <tr class="separator:a27a94310503c7efcb402c79fdb8c925d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -179,6 +211,30 @@ uint32&#160;</td><td class="memItemRight" valign="bottom"><b>m_wBundle</b></td><
 <tr class="memitem:a1ef2b9c25f01518e514b19411b070f48"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1ef2b9c25f01518e514b19411b070f48"></a>
 <a class="el" href="class_mutex.html">Mutex</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m_lock</b></td></tr>
 <tr class="separator:a1ef2b9c25f01518e514b19411b070f48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:a3cf98f5329844711ed7fc5a23f759c99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c3_d_map.html#a3cf98f5329844711ed7fc5a23f759c99">SetZoneAttributes</a> (int zoneNumber)</td></tr>
+<tr class="memdesc:a3cf98f5329844711ed7fc5a23f759c99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets zone attributes for the loaded zone.  <a href="#a3cf98f5329844711ed7fc5a23f759c99">More...</a><br/></td></tr>
+<tr class="separator:a3cf98f5329844711ed7fc5a23f759c99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:abdf41bfc331eac122359215e6e5074ec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abdf41bfc331eac122359215e6e5074ec"></a>
+ZoneAbilityType&#160;</td><td class="memItemRight" valign="bottom"><b>m_zoneType</b></td></tr>
+<tr class="separator:abdf41bfc331eac122359215e6e5074ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65526d56aba52cd6f3146c0e694cdd85"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a65526d56aba52cd6f3146c0e694cdd85"></a>
+uint16&#160;</td><td class="memItemRight" valign="bottom"><b>m_zoneFlags</b></td></tr>
+<tr class="separator:a65526d56aba52cd6f3146c0e694cdd85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a077a32c498d1a22920e127fab756dd37"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a077a32c498d1a22920e127fab756dd37"></a>
+uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_byTariff</b></td></tr>
+<tr class="separator:a077a32c498d1a22920e127fab756dd37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad6faedd1a94419aa783c9aa0ae3c599"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aad6faedd1a94419aa783c9aa0ae3c599"></a>
+uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_byMinLevel</b></td></tr>
+<tr class="separator:aad6faedd1a94419aa783c9aa0ae3c599"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c6e488bd95e80aba556f61dd57d0703"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4c6e488bd95e80aba556f61dd57d0703"></a>
+uint8&#160;</td><td class="memItemRight" valign="bottom"><b>m_byMaxLevel</b></td></tr>
+<tr class="separator:a4c6e488bd95e80aba556f61dd57d0703"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a79c44c20d4797c32f9978a2c4ba70859"></a>
@@ -223,14 +279,47 @@ uint32&#160;</td><td class="memItemRight" valign="bottom"><b>m_wBundle</b></td><
 
 </div>
 </div>
+<a class="anchor" id="a3cf98f5329844711ed7fc5a23f759c99"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void C3DMap::SetZoneAttributes </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>zoneNumber</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sets zone attributes for the loaded zone. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">zoneNumber</td><td>The zone number. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/Ebenezer/<a class="el" href="_ebenezer_2_map_8h_source.html">Map.h</a></li>
 <li>src/Ebenezer/Map.cpp</li>
+<li>src/Ebenezer/Unit.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:03 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:30 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

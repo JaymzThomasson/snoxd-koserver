@@ -124,7 +124,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;                <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;            </div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;            <a class="code" href="struct_c_user.html">CUser</a> *pUser = g_pMain-&gt;GetUserPtr(pKnights-&gt;m_strChief, TYPE_CHARACTER);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;            <span class="keywordflow">if</span> (pUser == <span class="keyword">nullptr</span> || pUser-&gt;GetZoneID() != ZONE_BATTLE)</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;            <span class="keywordflow">if</span> (pUser == <span class="keyword">nullptr</span> || !pUser-&gt;GetMap()-&gt;isWarZone())</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;                <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;            <span class="keywordflow">if</span> (pUser-&gt;GetClanID() == pData-&gt;sClanID)</div>
@@ -139,25 +139,26 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;                <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;            <a class="code" href="struct_c_user.html">CUser</a> *pUser = g_pMain-&gt;GetUserPtr(pKnights-&gt;m_strChief, TYPE_CHARACTER);</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;            <span class="keywordflow">if</span> (pUser == <span class="keyword">nullptr</span> || pUser-&gt;GetZoneID() != ZONE_BATTLE)</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;            <span class="keywordflow">if</span> (pUser == <span class="keyword">nullptr</span> || !pUser-&gt;GetMap()-&gt;isWarZone())</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;            <span class="keywordflow">if</span> (pUser-&gt;GetClanID() == pData-&gt;sClanID)</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;            {</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;                _snprintf(strElmoCaptain[nElmoCount++], 50, <span class="stringliteral">&quot;[%s][%s]&quot;</span>, pKnights-&gt;m_strName.c_str(), pUser-&gt;GetName().c_str());</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;                pUser-&gt;<a class="code" href="struct_c_user.html#a9377213532e236e8e40bc3c858dd66b7" title="Changes a player&#39;s fame.">ChangeFame</a>(COMMAND_CAPTAIN);</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;            }</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        }</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    }</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">char</span> strKarusCaptain[5][50], strElmoCaptain[5][50]; </div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    uint32 nKarusCount, nElmoCount;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;};</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;            <span class="keywordflow">if</span> (pUser-&gt;GetClanID() == pData-&gt;sClanID)</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;            {</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;                _snprintf(strElmoCaptain[nElmoCount++], 50, <span class="stringliteral">&quot;[%s][%s]&quot;</span>, pKnights-&gt;m_strName.c_str(), pUser-&gt;GetName().c_str());</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;                pUser-&gt;<a class="code" href="struct_c_user.html#a9377213532e236e8e40bc3c858dd66b7" title="Changes a player&#39;s fame.">ChangeFame</a>(COMMAND_CAPTAIN);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;            }</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        }</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    }</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordtype">char</span> strKarusCaptain[5][50], strElmoCaptain[5][50]; </div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    uint32 nKarusCount, nElmoCount;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

@@ -118,13 +118,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment">/* This computes a 32 bit CRC of the data in the buffer, and returns the</span></div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">   CRC.  The polynomial used is 0xedb88320. */</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> crc32(<span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *s, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> len, <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> startVal = 0);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;uint32 crc32(<span class="keyword">const</span> uint8 *s, uint32 len, uint32 startVal = 0);</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* CRC32_H */</span><span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

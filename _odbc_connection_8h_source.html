@@ -128,7 +128,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    INLINE <span class="keywordtype">bool</span> isMarsEnabled() { <span class="keywordflow">return</span> m_bMarsEnabled; }</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">bool</span> Connect(tstring szDSN, tstring szUser, tstring szPass, <span class="keywordtype">bool</span> bMarsEnabled = <span class="keyword">true</span>);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">bool</span> Connect(tstring &amp; szDSN, tstring &amp; szUser, tstring &amp; szPass, <span class="keywordtype">bool</span> bMarsEnabled = <span class="keyword">true</span>);</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">bool</span> Connect();</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <a class="code" href="class_odbc_command.html">OdbcCommand</a> *CreateCommand();</div>
@@ -143,7 +143,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keyword">private</span>:</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">void</span> AddCommand(<a class="code" href="class_odbc_command.html">OdbcCommand</a> *dbCommand);</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">void</span> RemoveCommand(<a class="code" href="class_odbc_command.html">OdbcCommand</a> *dbCommand);</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    tstring ReportSQLError(SQLSMALLINT handleType, SQLHANDLE handle, TCHAR *szSource, TCHAR *szError, ...);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    tstring ReportSQLError(SQLSMALLINT handleType, SQLHANDLE handle, <span class="keyword">const</span> TCHAR *szSource, <span class="keyword">const</span> TCHAR *szError, ...);</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordtype">void</span> Close();</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">void</span> ResetHandles();</div>
@@ -164,7 +164,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

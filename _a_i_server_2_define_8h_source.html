@@ -91,186 +91,118 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">//</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">//  Defines About Communication</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#define AI_KARUS_SOCKET_PORT        10020</span></div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define AI_ELMO_SOCKET_PORT         10030</span></div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define AI_BATTLE_SOCKET_PORT       10040</span></div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAX_SOCKET                  100</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define CLIENT_SOCKSIZE     10</span></div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAX_PATH_LINE       100</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#define MAX_NPC_SIZE        30</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAX_WEAPON_NAME_SIZE    40</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define VIEW_DIST           48      // 가시거리</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAX_UPGRADE_WEAPON  12</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#define UNIFY_ZONE          0</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define KARUS_ZONE          1</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define ELMORAD_ZONE        2</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define BATTLE_ZONE         3</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#define AI_SERVER_PORT      10020</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAX_SOCKET                  100</span></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAX_PATH_LINE       100</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#define MAX_NPC_SIZE        30</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAX_WEAPON_NAME_SIZE    40</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define VIEW_DIST           48      // 가시거리</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAX_UPGRADE_WEAPON  12</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="comment">//enum MOVE_SPEED {SPEED_SLOW=0, SPEED_NORMAL, SPEED_FAST};</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment">//enum USER_TYPE {TYPE_USER=0, TYPE_MONSTER, TYPE_NPC, TYPE_DOOR, TYPE_GUARD};</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment">// Npc InOut</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#define NPC_IN                  0X01</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define NPC_OUT                 0X02</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#define TILE_SIZE       4</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define CELL_SIZE       4</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">//enum MOVE_SPEED {SPEED_SLOW=0, SPEED_NORMAL, SPEED_FAST};</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">//enum USER_TYPE {TYPE_USER=0, TYPE_MONSTER, TYPE_NPC, TYPE_DOOR, TYPE_GUARD};</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="comment">//  User Authority</span></div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#define MANAGER_USER    0   // 운영자, 관리자</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define GENERAL_USER    1   // 일반유저</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">// Npc InOut</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#define NPC_IN                  0X01</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define NPC_OUT                 0X02</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#define TILE_SIZE       4</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define CELL_SIZE       4</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">#define COMPARE(x,min,max) ((x&gt;=min)&amp;&amp;(x&lt;max))</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00043"></a><span class="lineno"><a class="code" href="struct___npc_position.html">   43</a></span>&#160;<span class="keyword">struct </span><a class="code" href="struct___npc_position.html">_NpcPosition</a></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;{</div>
-<div class="line"><a name="l00045"></a><span class="lineno"><a class="code" href="struct___npc_position_1_1_point.html">   45</a></span>&#160;    <span class="keyword">typedef</span> <span class="keyword">struct </span>{ <span class="keywordtype">long</span> x; <span class="keywordtype">long</span> y; } <a class="code" href="struct___npc_position_1_1_point.html">Point</a>;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    uint8   byType;         <span class="comment">// type</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    uint8   bySpeed;        <span class="comment">// speed</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <a class="code" href="struct___npc_position_1_1_point.html">Point</a>   pPoint;         <span class="comment">// position</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">float</span> fXPos;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">float</span> fZPos;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;};</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">//  About USER</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor">#define USER_DEAD               0X00</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define USER_LIVE               0X01</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#define COMPARE(x,min,max) ((x&gt;=min)&amp;&amp;(x&lt;max))</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00027"></a><span class="lineno"><a class="code" href="struct___npc_position.html">   27</a></span>&#160;<span class="keyword">struct </span><a class="code" href="struct___npc_position.html">_NpcPosition</a></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;{</div>
+<div class="line"><a name="l00029"></a><span class="lineno"><a class="code" href="struct___npc_position_1_1_point.html">   29</a></span>&#160;    <span class="keyword">typedef</span> <span class="keyword">struct </span>{ <span class="keywordtype">long</span> x; <span class="keywordtype">long</span> y; } <a class="code" href="struct___npc_position_1_1_point.html">Point</a>;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    uint8   byType;         <span class="comment">// type</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    uint8   bySpeed;        <span class="comment">// speed</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <a class="code" href="struct___npc_position_1_1_point.html">Point</a>   pPoint;         <span class="comment">// position</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordtype">float</span> fXPos;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordtype">float</span> fZPos;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;};</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">//</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">//  About USER</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">//</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">#define AI_USER_DEAD                0X00</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define AI_USER_LIVE                0X01</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">//</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">//  About NPC</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">//</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">#define NPC_NUM                 20</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAX_DUNGEON_BOSS_MONSTER    20</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor"></span>    </div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#define NPC_PASSIVE             150</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define NPC_MAX_MOVE_RANGE      100</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment">//</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">//  About Map Object</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">//</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">#define USER_BAND               0           // Map 위에 유저가 있다.</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define NPC_BAND                10000       // Map 위에 NPC(몹포함)가 있다.</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define INVALID_BAND            30000       // 잘못된 ID BAND</span></div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">//  About USER Log define </span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">//  Item</span></div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="preprocessor">#define USER_LOGIN              0X01</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define USER_LOGOUT             0X02</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define USER_LEVEL_UP           0X03</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">//  About NPC</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="preprocessor">#define NPC_NUM                 20</span></div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAX_DUNGEON_BOSS_MONSTER    20</span></div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="preprocessor"></span>    </div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="preprocessor">#define NPC_PASSIVE             150</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define NPC_MAX_MOVE_RANGE      100</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">//  About Map Object</span></div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="preprocessor">#define USER_BAND               0           // Map 위에 유저가 있다.</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define NPC_BAND                10000       // Map 위에 NPC(몹포함)가 있다.</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define INVALID_BAND            30000       // 잘못된 ID BAND</span></div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment">//  Item</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="preprocessor">#define TYPE_MONEY              0</span></div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define TYPE_ITEM               1</span></div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="comment">// Durability Type</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="preprocessor">#define ATTACK              0x01</span></div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DEFENCE             0x02</span></div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment">//  Attack</span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="keyword">const</span> uint8 ATTACK_FAIL     =   0;</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="keyword">const</span> uint8 ATTACK_SUCCESS  =   1;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="keyword">const</span> uint8 ATTACK_TARGET_DEAD  = 2;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="keyword">const</span> uint8 ATTACK_TARGET_DEAD_OK = 3;</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="keyword">const</span> uint8 MAGIC_ATTACK_TARGET_DEAD    = 4;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="preprocessor">#define GREAT_SUCCESS           0X01        // 대성공</span></div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define SUCCESS                 0X02        // 성공</span></div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define NORMAL                  0X03        // 보통</span></div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define FAIL                    0X04        // 실패</span></div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="preprocessor">#define DIR_DOWN            0           // 각 보고있는 방향을 정의한다.</span></div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DIR_DOWNLEFT        1</span></div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DIR_LEFT            2</span></div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DIR_UPLEFT          3</span></div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DIR_UP              4</span></div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DIR_UPRIGHT         5</span></div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DIR_RIGHT           6</span></div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DIR_DOWNRIGHT       7</span></div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="comment">// Npc Type</span></div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="comment">// Monster는 0부터 시작 10까지의 타입</span></div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="preprocessor">#define NPCTYPE_MONSTER             0   // monster</span></div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="preprocessor">#define MORAL_SELF              1       // 나 자신..</span></div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MORAL_FRIEND_WITHME     2       // 나를 포함한 우리편(국가) 중 하나 ..</span></div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MORAL_FRIEND_EXCEPTME   3       // 나를 뺀 우리편 중 하나 </span></div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MORAL_PARTY             4       // 나를 포함한 우리파티 중 하나..</span></div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MORAL_NPC               5       // NPC중 하나.</span></div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MORAL_PARTY_ALL         6       // 나를 호함한 파티 모두..</span></div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MORAL_ENEMY             7       // 울편을 제외한 모든 적중 하나(NPC포함)</span></div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MORAL_ALL               8       // 겜상에 존재하는 모든 것중 하나.</span></div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MORAL_AREA_ENEMY        10      // 지역에 포함된 적</span></div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MORAL_AREA_FRIEND       11      // 지역에 포함된 우리편</span></div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MORAL_AREA_ALL          12      // 지역에 포함된 모두</span></div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MORAL_SELF_AREA         13      // 나를 중심으로 한 지역</span></div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;<span class="comment">// Magic Packet sub define </span></div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;<span class="comment"></span><span class="preprocessor">#define MAGIC_CASTING           0x01</span></div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAGIC_FLYING            0x02</span></div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAGIC_EFFECTING         0x03</span></div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAGIC_FAIL              0x04</span></div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAGIC_TYPE4_END         0x05    // For type 4 durational spells.                    </span></div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;<span class="comment">// Attack Type</span></div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;<span class="preprocessor">#define DIRECT_ATTACK       0</span></div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define LONG_ATTACK         1</span></div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAGIC_ATTACK        2</span></div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DURATION_ATTACK     3</span></div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;<span class="preprocessor">#define NORMAL_OBJECT       0</span></div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define SPECIAL_OBJECT      1</span></div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;<span class="comment">// Battlezone Announcement</span></div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;<span class="preprocessor">#define BATTLEZONE_OPEN         0x00</span></div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define BATTLEZONE_CLOSE        0x01           </span></div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DECLARE_WINNER          0x02</span></div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DECLARE_BAN             0x03</span></div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;<span class="comment">// weather define</span></div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="comment"></span><span class="preprocessor">#define WEATHER_FINE            0x01</span></div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define WEATHER_RAIN            0x02</span></div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define WEATHER_SNOW            0x03</span></div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;<span class="comment">// magic define</span></div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;<span class="comment"></span><span class="preprocessor">#define MORAL_GOOD      0x01</span></div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MORAL_BAD       0x02</span></div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MORAL_NEUTRAL   0x03</span></div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;<span class="preprocessor">#define NONE_R              0</span></div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define FIRE_R              1</span></div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define COLD_R              2</span></div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define LIGHTNING_R         3</span></div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAGIC_R             4</span></div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DISEASE_R           5</span></div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define POISON_R            6</span></div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="comment">// Type 3 Attribute define</span></div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="comment"></span><span class="preprocessor">#define ATTRIBUTE_FIRE           1</span></div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define ATTRIBUTE_ICE            2</span></div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define ATTRIBUTE_LIGHTNING      3</span></div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;<span class="keyword">const</span> <span class="keywordtype">int</span> TYPE_MONEY_SID        =   900000000;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="preprocessor">#define TYPE_MONEY              0</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define TYPE_ITEM               1</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment">// Durability Type</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="preprocessor">#define ATTACK              0x01</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DEFENCE             0x02</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment">//</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">//  Attack</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment">//</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="keyword">const</span> uint8 ATTACK_FAIL     =   0;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="keyword">const</span> uint8 ATTACK_SUCCESS  =   1;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="keyword">const</span> uint8 ATTACK_TARGET_DEAD  = 2;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="keyword">const</span> uint8 ATTACK_TARGET_DEAD_OK = 3;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="keyword">const</span> uint8 MAGIC_ATTACK_TARGET_DEAD    = 4;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="preprocessor">#define GREAT_SUCCESS           0X01        // 대성공</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define SUCCESS                 0X02        // 성공</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define NORMAL                  0X03        // 보통</span></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define FAIL                    0X04        // 실패</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="preprocessor">#define DIR_DOWN            0           // 각 보고있는 방향을 정의한다.</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DIR_DOWNLEFT        1</span></div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DIR_LEFT            2</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DIR_UPLEFT          3</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DIR_UP              4</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DIR_UPRIGHT         5</span></div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DIR_RIGHT           6</span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DIR_DOWNRIGHT       7</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment">// Npc Type</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment">// Monster는 0부터 시작 10까지의 타입</span></div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="preprocessor">#define NPCTYPE_MONSTER             0   // monster</span></div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment">// Attack Type</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="preprocessor">#define DIRECT_ATTACK       0</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define LONG_ATTACK         1</span></div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MAGIC_ATTACK        2</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DURATION_ATTACK     3</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="preprocessor">#define NORMAL_OBJECT       0</span></div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define SPECIAL_OBJECT      1</span></div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="comment">// Battlezone Announcement</span></div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="preprocessor">#define BATTLEZONE_OPEN         0x00</span></div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define BATTLEZONE_CLOSE        0x01           </span></div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define DECLARE_WINNER          0x02</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;<span class="keyword">const</span> <span class="keywordtype">int</span> TYPE_MONEY_SID        =   900000000;</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

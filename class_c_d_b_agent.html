@@ -188,9 +188,9 @@ uint16&#160;</td><td class="memItemRight" valign="bottom"><b>LoadKnightsAllMembe
 <tr class="memitem:a2c96027e4b6284ad5536c5b337594d09"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2c96027e4b6284ad5536c5b337594d09"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>LoadKnightsInfo</b> (uint16 sClanID, uint8 &amp;bNation, std::string &amp;strKnightsName, uint16 &amp;sMembers, uint32 &amp;nPoints, uint8 &amp;bRank)</td></tr>
 <tr class="separator:a2c96027e4b6284ad5536c5b337594d09"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b2189d419032a137a7c44ef6b614535"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2b2189d419032a137a7c44ef6b614535"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>LoadKnightsAllList</b> (uint8 bNation)</td></tr>
-<tr class="separator:a2b2189d419032a137a7c44ef6b614535"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0221d9c0389425462ff03eaa111f6bae"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0221d9c0389425462ff03eaa111f6bae"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>LoadKnightsAllList</b> ()</td></tr>
+<tr class="separator:a0221d9c0389425462ff03eaa111f6bae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b5a41634a0ca2bfe5402c10274d6b40"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3b5a41634a0ca2bfe5402c10274d6b40"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateClanSymbol</b> (uint16 sClanID, uint16 sSymbolSize, char *clanSymbol)</td></tr>
 <tr class="separator:a3b5a41634a0ca2bfe5402c10274d6b40"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -200,8 +200,11 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateClanSymbol</b> 
 <tr class="memitem:a30ac0c3e0247c617a941fbdc0372774d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_d_b_agent.html#a30ac0c3e0247c617a941fbdc0372774d">RefundNP</a> (std::string &amp;strUserID, uint32 nRefundNP)</td></tr>
 <tr class="memdesc:a30ac0c3e0247c617a941fbdc0372774d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refunds the specified amount of NP to a logged out character.  <a href="#a30ac0c3e0247c617a941fbdc0372774d">More...</a><br/></td></tr>
 <tr class="separator:a30ac0c3e0247c617a941fbdc0372774d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af7e9ac4a89c4989b391261d664d85048"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af7e9ac4a89c4989b391261d664d85048"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateCape</b> (uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint8 b)</td></tr>
+<tr class="memitem:a2c505eff3b643c5a5fe7c68c0589a19e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_d_b_agent.html#a2c505eff3b643c5a5fe7c68c0589a19e">UpdateClanFund</a> (uint16 sClanID, uint32 nClanPointFund)</td></tr>
+<tr class="memdesc:a2c505eff3b643c5a5fe7c68c0589a19e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the clan fund.  <a href="#a2c505eff3b643c5a5fe7c68c0589a19e">More...</a><br/></td></tr>
+<tr class="separator:a2c505eff3b643c5a5fe7c68c0589a19e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7e9ac4a89c4989b391261d664d85048"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_d_b_agent.html#af7e9ac4a89c4989b391261d664d85048">UpdateCape</a> (uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint8 b)</td></tr>
+<tr class="memdesc:af7e9ac4a89c4989b391261d664d85048"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handles clan cape database updates.  <a href="#af7e9ac4a89c4989b391261d664d85048">More...</a><br/></td></tr>
 <tr class="separator:af7e9ac4a89c4989b391261d664d85048"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7656a8fbc6a37585070b14478843d728"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7656a8fbc6a37585070b14478843d728"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateBattleEvent</b> (std::string &amp;strCharID, uint8 bNation)</td></tr>
@@ -412,6 +415,98 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>CEbenezerDlg</b></td
 
 </div>
 </div>
+<a class="anchor" id="af7e9ac4a89c4989b391261d664d85048"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CDBAgent::UpdateCape </td>
+          <td>(</td>
+          <td class="paramtype">uint16&#160;</td>
+          <td class="paramname"><em>sClanID</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16&#160;</td>
+          <td class="paramname"><em>sCapeID</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8&#160;</td>
+          <td class="paramname"><em>r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8&#160;</td>
+          <td class="paramname"><em>b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handles clan cape database updates. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sClanID</td><td>Identifier for the clan. </td></tr>
+    <tr><td class="paramname">sCapeID</td><td>Identifier for the cape. </td></tr>
+    <tr><td class="paramname">r</td><td>Red colour component. </td></tr>
+    <tr><td class="paramname">g</td><td>Green colour component. </td></tr>
+    <tr><td class="paramname">b</td><td>Blue colour component.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if it succeeds, false if it fails. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a2c505eff3b643c5a5fe7c68c0589a19e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CDBAgent::UpdateClanFund </td>
+          <td>(</td>
+          <td class="paramtype">uint16&#160;</td>
+          <td class="paramname"><em>sClanID</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32&#160;</td>
+          <td class="paramname"><em>nClanPointFund</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Updates the clan fund. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">sClanID</td><td>Identifier for the clan. </td></tr>
+    <tr><td class="paramname">nClanPointFund</td><td>The current clan point fund. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="a70291d8cde3d630ee116c368f5c6f982"></a>
 <div class="memitem">
 <div class="memproto">
@@ -517,7 +612,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>CEbenezerDlg</b></td
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:03 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:30 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

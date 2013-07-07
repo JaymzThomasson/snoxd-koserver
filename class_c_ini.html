@@ -100,21 +100,21 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>Load</b> (const char 
 <tr class="memitem:ab0baa503bfa2acd36bc99f63481a2677"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0baa503bfa2acd36bc99f63481a2677"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Save</b> (const char *lpFileName=nullptr)</td></tr>
 <tr class="separator:ab0baa503bfa2acd36bc99f63481a2677"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae35310ad5ef210a2053ab85e42de24f8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae35310ad5ef210a2053ab85e42de24f8"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>GetInt</b> (char *lpAppName, char *lpKeyName, int nDefault)</td></tr>
-<tr class="separator:ae35310ad5ef210a2053ab85e42de24f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7c0c0f0e763955e30eb6e632bd6d6bbc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7c0c0f0e763955e30eb6e632bd6d6bbc"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>GetBool</b> (char *lpAppName, char *lpKeyName, bool bDefault)</td></tr>
-<tr class="separator:a7c0c0f0e763955e30eb6e632bd6d6bbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad7b891aa2d2d905a33496a1ebc12375a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad7b891aa2d2d905a33496a1ebc12375a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>GetString</b> (char *lpAppName, char *lpKeyName, char *lpDefault, char *lpOutString, int nOutLength, bool bAllowEmptyStrings=true)</td></tr>
-<tr class="separator:ad7b891aa2d2d905a33496a1ebc12375a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac13ca237ae09b190b8455af7c8c85921"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac13ca237ae09b190b8455af7c8c85921"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>SetInt</b> (char *lpAppName, char *lpKeyName, int nDefault)</td></tr>
-<tr class="separator:ac13ca237ae09b190b8455af7c8c85921"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a112dedff38af0e1b9acd751b9f4edaa9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a112dedff38af0e1b9acd751b9f4edaa9"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>SetString</b> (char *lpAppName, char *lpKeyName, char *lpDefault)</td></tr>
-<tr class="separator:a112dedff38af0e1b9acd751b9f4edaa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86db569d7df8c980606cf82a29264a24"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a86db569d7df8c980606cf82a29264a24"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>GetInt</b> (const char *lpAppName, const char *lpKeyName, const int nDefault)</td></tr>
+<tr class="separator:a86db569d7df8c980606cf82a29264a24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1fdf333c9873f591298a9869a3937174"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1fdf333c9873f591298a9869a3937174"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>GetBool</b> (const char *lpAppName, const char *lpKeyName, const bool bDefault)</td></tr>
+<tr class="separator:a1fdf333c9873f591298a9869a3937174"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee4d3e34ac7300f258f7fbf6780e15e0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee4d3e34ac7300f258f7fbf6780e15e0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>GetString</b> (const char *lpAppName, const char *lpKeyName, const char *lpDefault, std::string &amp;lpOutString, bool bAllowEmptyStrings=true)</td></tr>
+<tr class="separator:aee4d3e34ac7300f258f7fbf6780e15e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1e54ce8a38dc31596293a8cb5e81908"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa1e54ce8a38dc31596293a8cb5e81908"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>SetInt</b> (const char *lpAppName, const char *lpKeyName, const int nDefault)</td></tr>
+<tr class="separator:aa1e54ce8a38dc31596293a8cb5e81908"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1638669b4bb70e90728b884a673796a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af1638669b4bb70e90728b884a673796a"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>SetString</b> (const char *lpAppName, const char *lpKeyName, const char *lpDefault)</td></tr>
+<tr class="separator:af1638669b4bb70e90728b884a673796a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/shared/<a class="el" href="_ini_8h_source.html">Ini.h</a></li>
@@ -123,7 +123,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>SetString</b> (char *l
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:03 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:30 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

@@ -101,6 +101,12 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsAvailable</b> ()</t
 <tr class="memitem:a48afe8cf09f7a1fc5e838da7bb85d1aa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a48afe8cf09f7a1fc5e838da7bb85d1aa"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>UserCanCast</b> ()</td></tr>
 <tr class="separator:a48afe8cf09f7a1fc5e838da7bb85d1aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9632ae2eed4eaf4139e84da36a94c892"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_magic_instance.html#a9632ae2eed4eaf4139e84da36a94c892">CheckType3Prerequisites</a> ()</td></tr>
+<tr class="memdesc:a9632ae2eed4eaf4139e84da36a94c892"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks primary type 3 (DOT/HOT) skill prerequisites before executing the skill.  <a href="#a9632ae2eed4eaf4139e84da36a94c892">More...</a><br/></td></tr>
+<tr class="separator:a9632ae2eed4eaf4139e84da36a94c892"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f2c37061c9c5f2780d92fb7a5bfc5e8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_magic_instance.html#a3f2c37061c9c5f2780d92fb7a5bfc5e8">CheckType4Prerequisites</a> ()</td></tr>
+<tr class="memdesc:a3f2c37061c9c5f2780d92fb7a5bfc5e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks primary type 4 (buff/debuff) skill prerequisites before executing the skill.  <a href="#a3f2c37061c9c5f2780d92fb7a5bfc5e8">More...</a><br/></td></tr>
+<tr class="separator:a3f2c37061c9c5f2780d92fb7a5bfc5e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a898c0f9833d0372836e9fad4555237ed"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a898c0f9833d0372836e9fad4555237ed"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>ExecuteSkill</b> (uint8 bType)</td></tr>
 <tr class="separator:a898c0f9833d0372836e9fad4555237ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -137,12 +143,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Type3Cancel</b> ()</t
 <tr class="memitem:a302c83fa62fdd15cef0747e8e1fef8b4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a302c83fa62fdd15cef0747e8e1fef8b4"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Type4Cancel</b> ()</td></tr>
 <tr class="separator:a302c83fa62fdd15cef0747e8e1fef8b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ace6902b2230dbfd757af837a2594967b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ace6902b2230dbfd757af837a2594967b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Type6Cancel</b> ()</td></tr>
-<tr class="separator:ace6902b2230dbfd757af837a2594967b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c730b847e6318d315440bbb876f8566"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6c730b847e6318d315440bbb876f8566"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Type9Cancel</b> ()</td></tr>
-<tr class="separator:a6c730b847e6318d315440bbb876f8566"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2299672753893560b90aacab5f44da6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af2299672753893560b90aacab5f44da6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Type6Cancel</b> (bool bForceRemoval=false)</td></tr>
+<tr class="separator:af2299672753893560b90aacab5f44da6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb2534302127bc99e23c23b19c35f88d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adb2534302127bc99e23c23b19c35f88d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Type9Cancel</b> (bool bRemoveFromMap=true)</td></tr>
+<tr class="separator:adb2534302127bc99e23c23b19c35f88d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a911dfcdb771cb2f4798a74be6b7edb82"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a911dfcdb771cb2f4798a74be6b7edb82"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Type4Extend</b> ()</td></tr>
 <tr class="separator:a911dfcdb771cb2f4798a74be6b7edb82"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -338,6 +344,42 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>bIsRecastingSavedMagi
 
 </div>
 </div>
+<a class="anchor" id="a9632ae2eed4eaf4139e84da36a94c892"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool MagicInstance::CheckType3Prerequisites </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Checks primary type 3 (DOT/HOT) skill prerequisites before executing the skill. </p>
+<dl class="section return"><dt>Returns</dt><dd>true if it succeeds, false if it fails. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a3f2c37061c9c5f2780d92fb7a5bfc5e8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool MagicInstance::CheckType4Prerequisites </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Checks primary type 4 (buff/debuff) skill prerequisites before executing the skill. </p>
+<dl class="section return"><dt>Returns</dt><dd>true if it succeeds, false if it fails. </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="aba680a3d41a41cda609234d27352aafe"></a>
 <div class="memitem">
 <div class="memproto">
@@ -404,7 +446,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>bIsRecastingSavedMagi
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:06 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:32 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

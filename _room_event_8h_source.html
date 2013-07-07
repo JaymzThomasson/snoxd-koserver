@@ -103,56 +103,69 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="keyword">class </span><a class="code" href="struct_c_npc.html">CNpc</a>;</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;</div>
-<div class="line"><a name="l00018"></a><span class="lineno"><a class="code" href="class_c_room_event.html">   18</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_room_event.html">CRoomEvent</a>  </div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">enum</span> RoomStatus</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;{</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">int</span>     m_iZoneNumber;      <span class="comment">// zone number</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <span class="keywordtype">short</span>   m_sRoomNumber;      <span class="comment">// room number (0:empty room)</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    uint8   m_byStatus;         <span class="comment">// room status (1:init, 2:progress, 3:clear)</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    uint8   m_byCheck;          <span class="comment">// 조건문의 갯수</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    uint8   m_byRoomType;       <span class="comment">// 방의 타입(0:일반, 1:함정방, 2:,,,,)</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keywordtype">int</span>     m_iInitMinX;        <span class="comment">// room region x</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordtype">int</span>     m_iInitMinZ;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="keywordtype">int</span>     m_iInitMaxX;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordtype">int</span>     m_iInitMaxZ;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordtype">int</span>     m_iEndMinX;         <span class="comment">// room end region x 도착지점,,</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordtype">int</span>     m_iEndMinZ;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordtype">int</span>     m_iEndMaxX;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordtype">int</span>     m_iEndMaxZ;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <a class="code" href="struct___room_event.html">_RoomEvent</a>  m_Logic[MAX_CHECK_EVENT];       <span class="comment">// 조건들</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <a class="code" href="struct___room_event.html">_RoomEvent</a>  m_Exec[MAX_CHECK_EVENT];        <span class="comment">// 실행문</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    RoomStatusInitialised   = 1,</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    RoomStatusInProgress    = 2,</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    RoomStatusCleared       = 3</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;};</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
+<div class="line"><a name="l00025"></a><span class="lineno"><a class="code" href="class_c_room_event.html">   25</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_c_room_event.html">CRoomEvent</a>  </div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;{</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    INLINE RoomStatus GetStatus() { <span class="keywordflow">return</span> m_byStatus; }</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    INLINE <span class="keywordtype">bool</span> isInitialised() { <span class="keywordflow">return</span> GetStatus() == RoomStatusInitialised; }</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    INLINE <span class="keywordtype">bool</span> isInProgress() { <span class="keywordflow">return</span> GetStatus() == RoomStatusInProgress; }</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    INLINE <span class="keywordtype">bool</span> isCleared() { <span class="keywordflow">return</span> GetStatus() == RoomStatusCleared; }</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordtype">int</span>     m_iZoneNumber;      <span class="comment">// zone number</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordtype">short</span>   m_sRoomNumber;      <span class="comment">// room number (0:empty room)</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    RoomStatus  m_byStatus;     <span class="comment">// room status (1:init, 2:progress, 3:clear)</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    uint8   m_byCheck;          <span class="comment">// 조건문의 갯수</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    uint8   m_byRoomType;       <span class="comment">// 방의 타입(0:일반, 1:함정방, 2:,,,,)</span></div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    time_t   m_tDelayTime;                      <span class="comment">// time</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">mapNpcArray</a> m_mapRoomNpcArray;              <span class="comment">// room npc uid array</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    uint8    m_byLogicNumber;   <span class="comment">// 현재의 조건문 검사 번호 (조건번호는 1부터 시작됨) (m_byCheck와 m_byLogicNumber이 같다면 클리어 상태)</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <a class="code" href="class_c_room_event.html">CRoomEvent</a>();</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_c_room_event.html">CRoomEvent</a>();</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">void</span> MainRoom();</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordtype">void</span> InitializeRoom();</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordtype">int</span>     m_iInitMinX;        <span class="comment">// room region x</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">int</span>     m_iInitMinZ;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordtype">int</span>     m_iInitMaxX;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">int</span>     m_iInitMaxZ;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keywordtype">int</span>     m_iEndMinX;         <span class="comment">// room end region x 도착지점,,</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">int</span>     m_iEndMinZ;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordtype">int</span>     m_iEndMaxX;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">int</span>     m_iEndMaxZ;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <a class="code" href="struct___room_event.html">_RoomEvent</a>  m_Logic[MAX_CHECK_EVENT];       <span class="comment">// 조건들</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <a class="code" href="struct___room_event.html">_RoomEvent</a>  m_Exec[MAX_CHECK_EVENT];        <span class="comment">// 실행문</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    time_t   m_tDelayTime;                      <span class="comment">// time</span></div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">void</span> Initialize();</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">bool</span>  CheckEvent(<span class="keywordtype">int</span> event_num);</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keywordtype">bool</span>  RunEvent( <span class="keywordtype">int</span> event_num );</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordtype">bool</span>  CheckMonsterCount( <span class="keywordtype">int</span> sid, <span class="keywordtype">int</span> count, <span class="keywordtype">int</span> type );</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <a class="code" href="struct_c_npc.html">CNpc</a>* GetNpcPtr( <span class="keywordtype">int</span> sid );</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">void</span>  EndEventSay( <span class="keywordtype">int</span> option1, <span class="keywordtype">int</span> option2 );</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;};</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <a class="code" href="class_c_s_t_l_map.html">mapNpcArray</a> m_mapRoomNpcArray;              <span class="comment">// room npc uid array</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    uint8    m_byLogicNumber;   <span class="comment">// 현재의 조건문 검사 번호 (조건번호는 1부터 시작됨) (m_byCheck와 m_byLogicNumber이 같다면 클리어 상태)</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    <a class="code" href="class_c_room_event.html">CRoomEvent</a>();</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_c_room_event.html">CRoomEvent</a>();</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordtype">void</span> MainRoom();</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordtype">void</span> InitializeRoom();</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordtype">void</span> Initialize();</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">bool</span>  CheckEvent(<span class="keywordtype">int</span> event_num);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordtype">bool</span>  RunEvent( <span class="keywordtype">int</span> event_num );</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordtype">bool</span>  CheckMonsterCount( <span class="keywordtype">int</span> sid, <span class="keywordtype">int</span> count, <span class="keywordtype">int</span> type );</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <a class="code" href="struct_c_npc.html">CNpc</a>* GetNpcPtr( <span class="keywordtype">int</span> sid );</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="keywordtype">void</span>  EndEventSay( <span class="keywordtype">int</span> option1, <span class="keywordtype">int</span> option2 );</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;};</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>

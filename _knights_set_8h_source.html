@@ -124,7 +124,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        _dbCommand-&gt;FetchUInt16(21, pData-&gt;m_sAlliance);</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        _dbCommand-&gt;FetchUInt32(22, (uint32 &amp;) pData-&gt;m_nClanPointFund);</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        pData-&gt;m_byGrade = g_pMain-&gt;<a class="code" href="class_c_ebenezer_dlg.html#a8e25d96328e76d99fe941db12e8b814f" title="Calculates the clan grade from the specified loyalty points (NP).">GetKnightsGrade</a>(pData-&gt;m_nPoints);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        pData-&gt;m_byGrade = g_pMain-&gt;GetKnightsGrade(pData-&gt;m_nPoints);</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        <span class="keywordflow">if</span> (!m_pMap-&gt;PutData(pData-&gt;m_sIndex, pData))</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;            <span class="keyword">delete</span> pData;</div>
@@ -137,7 +137,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 6 2013 22:30:02 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 7 2013 17:27:29 for Snoxd.net's public KO server project by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.3.1
 </small></address>
