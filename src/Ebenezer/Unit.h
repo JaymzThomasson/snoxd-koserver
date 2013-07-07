@@ -29,7 +29,7 @@ class Packet;
 typedef std::map<uint8, _BUFF_TYPE4_INFO> Type4BuffMap;
 typedef std::map<uint8, _BUFF_TYPE9_INFO> Type9BuffMap;
 
-enum AttackType { AttackTypePhysical, AttackTypeMagic };
+enum AttackType { AttackTypeNone, AttackTypePhysical, AttackTypeMagic };
 
 /**
  * This class is a bridge between the CNpc & CUser classes

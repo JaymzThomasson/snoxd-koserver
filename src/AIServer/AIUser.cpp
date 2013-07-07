@@ -43,7 +43,7 @@ void CUser::Initialize()
 
 void CUser::Attack(int sid, int tid)
 {
-	CNpc* pNpc = g_pMain->m_arNpc.GetData(tid);
+	CNpc* pNpc = g_pMain->GetNpcPtr(tid);
 	if (pNpc == nullptr
 		|| pNpc->isDead())
 		return;
@@ -296,7 +296,7 @@ void CUser::HealAreaCheck(int rx, int rz)
 	CRegion *pRegion = &pMap->m_ppRegion[rx][rz];
 	foreach_stlmap (itr, pRegion->m_RegionNpcArray)
 	{
-		CNpc * pNpc = g_pMain->m_arNpc.GetData(itr->first);
+		CNpc * pNpc = g_pMain->GetNpcPtr(itr->first);
 		if (pNpc == nullptr || pNpc->isDead()
 			|| !pNpc->isHostileTo(this))
 			continue;

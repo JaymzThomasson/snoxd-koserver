@@ -101,6 +101,18 @@ enum CloseTargetResult
 	CloseTargetInAttackRange
 };
 
+enum NpcSpecialType
+{
+	NpcSpecialTypeNone				= 0,
+	NpcSpecialTypeCycleSpawn		= 7,
+	NpcSpecialTypeKarusWarder1		= 90,
+	NpcSpecialTypeKarusWarder2		= 91,
+	NpcSpecialTypeElmoradWarder1	= 92,
+	NpcSpecialTypeElmoradWarder2	= 93,
+	NpcSpecialTypeKarusKeeper		= 98,
+	NpcSpecialTypeElmoradKeeper		= 99
+};
+
 struct __Vector3;
 class CNpc : public Unit
 {
@@ -257,7 +269,7 @@ public:
 	uint8	m_byMaxDamagedNation;	// 나를 죽인 유저의 국가를 저장.. (1:카루스, 2:엘모라드)
 	uint8	m_byObjectType;         // 보통은 0, object타입(성문, 레버)은 1
 	uint8	m_byDungeonFamily;		// 던젼에서 같은 패밀리 묶음 (같은 방)
-	uint8	m_bySpecialType;		// 몬스터의 형태가 변하는지를 판단(0:변하지 않음, 1:변하는 몬스터, 
+	NpcSpecialType	m_bySpecialType;		// 몬스터의 형태가 변하는지를 판단(0:변하지 않음, 1:변하는 몬스터, 
 									// 2:죽는경우 조정하는 몬스터(대장몬스터 죽을경우 성문이 열림), 
 									// 3:대장몬스터의 죽음과 관련이 있는 몬스터(대장몬스터가 죽으면 관계되는 몬스터는 같이 죽도록)
 									// 4:변하면서 죽는경우 조정하는 몬스터 (m_sControlSid)
@@ -342,7 +354,6 @@ public:
 
 	void FillNpcInfo(Packet & result);
 	void NpcStrategy(uint8 type);
-	void NpcTypeParser();
 	int  FindFriend(MonSearchType type = MonSearchSameFamily);
 	void  FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, MonSearchType type = MonSearchSameFamily);
 	bool IsCloseTarget(CUser *pUser, int nRange);
@@ -358,7 +369,7 @@ public:
 	bool TracingAttack();
 	int GetTargetPath(int option = 0);
 	int	GetPartyDamage(int iNumber);
-	CloseTargetResult IsCloseTarget(int nRange, int Flag=0);
+	CloseTargetResult IsCloseTarget(int nRange, AttackType attackType);
 	bool StepMove();
 	bool StepNoPathMove();
 	bool IsMovingEnd();
@@ -366,13 +377,10 @@ public:
 	int  IsSurround(CUser* pUser);
 	bool IsDamagedUserList(CUser *pUser);
 	void IsUserInSight();
-	bool IsLevelCheck(int iLevel);
-	bool IsHPCheck(int iHP);
-	bool IsCompStatus(CUser* pUser);
-	bool IsPathFindCheck(float fDistance);						// 패스 파인드를 할것인지를 체크하는 루틴..
-	void IsNoPathFind(float fDistance);						// 패스 파인드를 하지 않고 공격대상으로 가는 루틴..
+	bool IsPathFindCheck(float fDistance);
+	void IsNoPathFind(float fDistance);
 	bool IsInExpRange(CUser* pUser);
-	void GiveNpcHaveItem();		// NPC 가 가진 아이템을 떨군다
+	void GiveNpcHaveItem();
 
 	time_t NpcLive();
 	time_t NpcTracing();
@@ -387,10 +395,10 @@ public:
 	bool SetLive();
 
 	bool isInSpawnRange(int nX, int nZ);
-	bool RandomMove();				//
-	bool RandomBackMove();				//
-	bool IsInPathRange();			//
-	int GetNearPathPoint();			//
+	bool RandomMove();
+	bool RandomBackMove();
+	bool IsInPathRange();
+	int GetNearPathPoint();
 
 	short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false);
 	short GetDamage(CUser *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false);
@@ -423,7 +431,7 @@ public:
 	int	 ItemProdution(int item_number);
 	int  GetItemGrade(int item_grade);
 	int  GetItemCodeNumber(int level, int item_type);
-	int  GetWeaponItemCodeNumber(int item_type);
+	int  GetWeaponItemCodeNumber(bool bWeapon);
 	int  GetPartyExp( int party_level, int man, int nNpcExp );
 	void ChangeAbility(int iChangeType);
 	bool Teleport();

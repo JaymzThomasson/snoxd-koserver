@@ -41,7 +41,7 @@ CServerDlg::CServerDlg()
 	m_iMin = 0;
 	m_iWeather = 0;
 	m_iAmount = 0;
-	m_byNight = 1;
+	m_bIsNight = false;
 	m_byBattleEvent = BATTLEZONE_CLOSE;
 	m_sKillKarusNpc = 0;
 	m_sKillElmoNpc = 0;
@@ -339,7 +339,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 
 		// dungeon work
 		pNpc->m_byDungeonFamily	= bDungeonFamily;
-		pNpc->m_bySpecialType	= bSpecialType;
+		pNpc->m_bySpecialType	= (NpcSpecialType) bSpecialType;
 		pNpc->m_byRegenType		= bRegenType;
 		pNpc->m_byTrapNumber    = bTrapNumber;
 
@@ -500,6 +500,19 @@ void CServerDlg::AllNpcInfo()
 	}
 }
 
+Unit * CServerDlg::GetUnitPtr(uint16 id)
+{
+	if (id < NPC_BAND)
+		return GetUserPtr(id);
+
+	return GetNpcPtr(id);
+}
+
+CNpc * CServerDlg::GetNpcPtr(uint16 npcId)
+{
+	return m_arNpc.GetData(npcId);
+}
+
 CUser* CServerDlg::GetUserPtr(uint16 sessionId)
 {
 	FastGuard lock(m_userLock);
@@ -543,7 +556,7 @@ uint32 THREADCALL CServerDlg::Timer_CheckAliveTest(void * lpParam)
 	while (g_bRunning)
 	{
 		g_pMain->CheckAliveTest();
-		sleep(10000);
+		sleep(10 * SECOND);
 	}
 	return 0;
 }

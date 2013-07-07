@@ -41,9 +41,6 @@ bool CGameSocket::HandlePacket(Packet & pkt)
 	case AG_USER_MOVE:
 		RecvUserMove(pkt);
 		break;
-	case AG_USER_MOVEEDGE:
-		RecvUserMoveEdge(pkt);
-		break;
 	case AG_ATTACK_REQ:
 		RecvAttackReq(pkt);
 		break;
@@ -74,17 +71,11 @@ bool CGameSocket::HandlePacket(Packet & pkt)
 	case AG_PARTY_INFO_ALL:
 		RecvPartyInfoAllData(pkt);
 		break;
-	case AG_CHECK_ALIVE_REQ:
-		RecvCheckAlive(pkt);
-		break;
 	case AG_HEAL_MAGIC:
 		RecvHealMagic(pkt);
 		break;
 	case AG_TIME_WEATHER:
 		RecvTimeAndWeather(pkt);
-		break;
-	case AG_USER_FAIL:
-		RecvUserFail(pkt);
 		break;
 	case AG_BATTLE_EVENT:
 		RecvBattleEvent(pkt);
@@ -249,14 +240,6 @@ void CGameSocket::RecvUserMove(Packet & pkt)
 	SetUid(fX, fZ, uid, speed);
 }
 
-void CGameSocket::RecvUserMoveEdge(Packet & pkt)
-{
-	uint16 uid;
-	float fX, fZ, fY;
-	pkt >> uid >> fX >> fZ >> fY;
-	SetUid(fX, fZ, uid, 0);
-}
-
 bool CGameSocket::SetUid(float x, float z, int id, int speed)
 {
 	int x1 = (int)x / TILE_SIZE;
@@ -384,7 +367,7 @@ void CGameSocket::RecvNpcHpChange(Packet & pkt)
 	int16 nid, sAttackerID;
 	int32 nHP, nAmount;
 	pkt >> nid >> sAttackerID >> nHP >> nAmount;
-	CNpc * pNpc = g_pMain->m_arNpc.GetData(nid);
+	CNpc * pNpc = g_pMain->GetNpcPtr(nid);
 	if (pNpc == nullptr)
 		return;
 
@@ -407,13 +390,6 @@ void CGameSocket::RecvUserUpdate(Packet & pkt)
 		return;
 
 	ReadUserInfo(pkt, pUser);
-}
-
-void CGameSocket::Send_UserError(short uid, short tid)
-{
-	Packet result(AG_USER_FAIL);
-	result << uid << tid;
-	Send(&result);
 }
 
 void CGameSocket::RecvZoneChange(Packet & pkt)
@@ -450,7 +426,7 @@ void CGameSocket::RecvGateOpen(Packet & pkt)
 		return;
 	}
 
-	CNpc* pNpc = g_pMain->m_arNpc.GetData(nid);
+	CNpc* pNpc = g_pMain->GetNpcPtr(nid);
 	if (pNpc == nullptr)		
 		return;
 
@@ -496,11 +472,6 @@ void CGameSocket::RecvPartyInfoAllData(Packet & pkt)
 		TRACE("****  RecvPartyInfoAllData()---> PartyIndex = %d  ******\n", sPartyIndex);
 }
 
-void CGameSocket::RecvCheckAlive(Packet & pkt)
-{
-//	TRACE("CAISocket-RecvCheckAlive : zone_num=%d\n", m_iZoneNum);
-}
-
 void CGameSocket::RecvHealMagic(Packet & pkt)
 {
 	uint16 sid = pkt.read<uint16>();
@@ -515,22 +486,12 @@ void CGameSocket::RecvHealMagic(Packet & pkt)
 
 void CGameSocket::RecvTimeAndWeather(Packet & pkt)
 {
-	pkt >> g_pMain->m_iYear >> g_pMain->m_iMonth >> g_pMain->m_iDate >> g_pMain->m_iHour >> g_pMain->m_iMin >> g_pMain->m_iWeather >> g_pMain->m_iAmount;
+	pkt >> g_pMain->m_iYear >> g_pMain->m_iMonth >> g_pMain->m_iDate 
+		>> g_pMain->m_iHour >> g_pMain->m_iMin 
+		>> g_pMain->m_iWeather >> g_pMain->m_iAmount;
 
-	if (g_pMain->m_iHour >=5 && g_pMain->m_iHour < 21)	g_pMain->m_byNight = 1;
-	else												g_pMain->m_byNight = 2;
-}
-
-void CGameSocket::RecvUserFail(Packet & pkt)
-{
-	uint16 sid, tid, sHP;
-	pkt >> sid >> tid >> sHP;
-	CUser* pUser = g_pMain->GetUserPtr(sid);
-	if (pUser == nullptr) 
-		return;
-
-	pUser->m_bLive = AI_USER_LIVE;
-	pUser->m_sHP = sHP;
+	// We'll class day time as 6am to 9pm.
+	g_pMain->m_bIsNight = (g_pMain->m_iHour <= 5 || g_pMain->m_iHour >= 21);
 }
 
 void CGameSocket::RecvBattleEvent(Packet & pkt)

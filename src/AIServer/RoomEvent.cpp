@@ -207,7 +207,7 @@ CNpc* CRoomEvent::GetNpcPtr( int sid )
 
 	foreach_stlmap (itr, m_mapRoomNpcArray)
 	{
-		CNpc *pNpc = g_pMain->m_arNpc.GetData(itr->first);
+		CNpc *pNpc = g_pMain->GetNpcPtr(itr->first);
 		if (pNpc == nullptr
 			|| pNpc->GetProto()->m_sSid != sid)
 			continue;
@@ -232,7 +232,7 @@ bool  CRoomEvent::CheckMonsterCount( int sid, int count, int type )
 	
 	foreach_stlmap (itr, m_mapRoomNpcArray)
 	{
-		CNpc *pNpc = g_pMain->m_arNpc.GetData(itr->first);
+		CNpc *pNpc = g_pMain->GetNpcPtr(itr->first);
 		if (pNpc == nullptr)
 			continue;
 

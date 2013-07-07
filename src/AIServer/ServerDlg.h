@@ -13,6 +13,7 @@
 
 class CNpcThread;
 class CNpcTable;
+class Unit;
 
 typedef std::vector <CNpcThread*>			NpcThreadArray;
 typedef CSTLMap <CNpcTable>					NpcTableArray;
@@ -60,6 +61,9 @@ public:
 	void GetServerResource(int nResourceID, std::string * result, ...);
 	bool AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap);
 	void AllNpcInfo();
+
+	Unit * GetUnitPtr(uint16 id);
+	CNpc * GetNpcPtr(uint16 npcId);
 
 	CUser* GetUserPtr(uint16 sessionId);
 	bool SetUserPtr(uint16 sessionId, CUser * pUser);
@@ -113,7 +117,7 @@ public:
 
 	uint16	m_iYear, m_iMonth, m_iDate, m_iHour, m_iMin, m_iAmount;
 	uint8 m_iWeather;
-	uint8	m_byNight;			// π„¿Œ¡ˆ,, ≥∑¿Œ¡ˆ∏¶ ∆«¥‹... 1:≥∑, 2:π„
+	bool m_bIsNight;
 
 	FastMutex m_userLock;
 

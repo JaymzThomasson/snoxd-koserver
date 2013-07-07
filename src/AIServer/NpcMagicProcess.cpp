@@ -18,7 +18,7 @@ time_t CNpcMagicProcess::MagicPacket(uint8 opcode, uint32 nSkillID, int16 sCaste
 		if (pSkill == nullptr)
 			return -1;
 
-		CNpc * pNpc = g_pMain->m_arNpc.GetData(sCasterID);
+		CNpc * pNpc = g_pMain->GetNpcPtr(sCasterID);
 		if (pNpc == nullptr)
 			return -1;
 

@@ -707,7 +707,7 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 				if (bResult >= 3 && bResult <= 6)
 					pUser->ChangeNP(500); /* TO-DO: Remove hardcoded values */
 				// Keeper
-				else if (bResult == 8)
+				else if (bResult == 7 || bResult == 8)
 					pUser->ChangeNP(1000);
 			}
 		}
@@ -730,7 +730,8 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 		case 6: // El Morad warder 2
 			nResourceID = IDS_KILL_ELMO_GUARD2;
 			break;
-		case 8: // Keeper
+		case 7: // Karus Keeper
+		case 8: // El Morad Keeper
 			nResourceID = IDS_KILL_GATEKEEPER;
 			break;
 		}
