@@ -1338,12 +1338,17 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 				for(int i = 0; i < MAX_PARTY_USERS; i++)
 				{
 					pUser = g_pMain->GetUserPtr(pParty->uid[i]);
-					if(pUser == this)
+					if(pUser == nullptr || pUser == this)
 						continue;
 
 					pUser->HpChange(mirrorDamage);
 				}
 			}
+		}
+		//Handle mana absorb skills
+		if(m_bManaAbsorb > 0)
+		{
+
 		}
 		// Handle mastery passives
 		if (isMastered())

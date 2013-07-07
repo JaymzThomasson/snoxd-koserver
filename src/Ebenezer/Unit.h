@@ -212,6 +212,7 @@ public:
 	uint16	m_sPoisonR;
 	uint8	m_bPoisonRAmount;	
 	uint8	m_bMagicDamageReduction;
+	uint8	m_bManaAbsorb;
 
 	uint8	m_bResistanceBonus;
 
