@@ -368,6 +368,28 @@ void CEbenezerDlg::AddCharacterName(CUser *pSession)
 }
 
 /**
+ * @brief	Removes an existing character name/session from the hashmap, 
+ * 			replaces the character's name and reinserts the session with 
+ * 			the new name into the hashmap.
+ *
+ * @param	pSession		The session.
+ * @param	strNewUserID	Character's new name.
+ */
+void CEbenezerDlg::ReplaceCharacterName(CUser *pSession, std::string & strNewUserID)
+{
+	FastGuard lock(m_characterNameLock);
+
+	// Remove the old name from the map
+	string upperName = pSession->GetName();
+	STRTOUPPER(upperName);
+	m_characterNameMap.erase(upperName);
+
+	// Update the character's name & re-add them to the map.
+	pSession->m_strUserID = strNewUserID;
+	AddCharacterName(pSession);
+}
+
+/**
  * @brief	Removes the account name & character names from the hashmaps (on logout)
  *
  * @param	pSession	The session.

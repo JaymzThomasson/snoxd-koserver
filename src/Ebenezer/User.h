@@ -718,6 +718,10 @@ public:
 	void ReqLetterGetItem(Packet & pkt);
 	void ReqLetterDelete(Packet & pkt);
 
+	void HandleNameChange(Packet & pkt);
+	void HandlePlayerNameChange(Packet & pkt);
+	void SendNameChange(NameChangeOpcode opcode = NameChangeShowDialog);
+
 	void HandleHelmet(Packet & pkt);
 	void HandleCapeChange(Packet & pkt);
 
@@ -867,6 +871,7 @@ public:
 	void ReqRequestFriendList(Packet & pkt);
 	void ReqAddFriend(Packet & pkt);
 	void ReqRemoveFriend(Packet & pkt);
+	void ReqChangeName(Packet & pkt);
 	void ReqChangeCape(Packet & pkt);
 	void ReqSealItem(Packet & pkt);
 
@@ -1068,7 +1073,6 @@ public:
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->ShowEffect(LUA_ARG(uint32, 2))); // effect ID
 	}
 
-
 	DECLARE_LUA_FUNCTION(ZoneChange) {
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->ZoneChange(
 			LUA_ARG(uint16, 2),		// zone ID
@@ -1088,5 +1092,9 @@ public:
 			LUA_ARG(uint16, 2),		// zone ID
 			LUA_ARG(float, 3),		// x
 			LUA_ARG(float, 4)));	// z
+	}
+
+	DECLARE_LUA_FUNCTION(SendNameChange) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->SendNameChange());
 	}
 };

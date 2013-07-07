@@ -234,6 +234,10 @@ public:
 	// Adds the character name & session to a hashmap (when in-game)
 	void AddCharacterName(CUser *pSession);
 
+	// Removes an existing character name/session from the hashmap, replaces the character's name 
+	// and reinserts the session with the new name into the hashmap.
+	void ReplaceCharacterName(CUser *pSession, std::string & strNewUserID);
+
 	// Removes the account name & character names from the hashmaps (on logout)
 	void RemoveSessionNames(CUser *pSession);
 

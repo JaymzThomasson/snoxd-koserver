@@ -140,6 +140,9 @@ enum InOutType
 // ID of the Cont Recovery item... shouldn't hardcode this, but seems there's no other way.
 #define ITEM_CONT_RECOVERY		800370000
 
+// ID of the "Scroll of Identity" item. At some point we should just pass this code off to a Lua script.
+#define ITEM_SCROLL_OF_IDENTITY	800032000
+
 //////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////

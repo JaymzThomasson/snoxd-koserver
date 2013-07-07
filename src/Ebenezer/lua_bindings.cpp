@@ -85,7 +85,7 @@ DEFINE_LUA_CLASS
 	// MAKE_LUA_METHOD(CountMonsterQuestMain) // CheckMonsterCount(3)
 	MAKE_LUA_METHOD(CheckExchange)
 	MAKE_LUA_METHOD(RunExchange)
-	// MAKE_LUA_METHOD(SendNameChangeDialog)
+	MAKE_LUA_METHOD(SendNameChange)
 	// MAKE_LUA_METHOD(SendRestatDialog) // these two are the same thing
 	// MAKE_LUA_METHOD(SendReskillDialog)
 	// MAKE_LUA_METHOD(ResetSkillPoints) // AllSkillPointChange(1)

@@ -120,6 +120,9 @@ uint32 THREADCALL DatabaseThread::ThreadProc(void * lpParam)
 		case WIZ_FRIEND_PROCESS:
 			if (pUser) pUser->ReqFriendProcess(pkt);
 			break;
+		case WIZ_NAME_CHANGE:
+			if (pUser) pUser->ReqChangeName(pkt);
+			break;
 		case WIZ_CAPE:
 			if (pUser) pUser->ReqChangeCape(pkt);
 			break;
@@ -374,6 +377,45 @@ void CUser::ReqRemoveFriend(Packet & pkt)
 	result << uint8(resultCode) << strCharID;
 
 	RecvFriendModify(result, FRIEND_REMOVE);
+}
+
+/**
+ * @brief	Handles name change requests.
+ *
+ * @param	pkt	The packet.
+ */
+void CUser::ReqChangeName(Packet & pkt)
+{
+	NameChangeOpcode response;
+	uint8 opcode;
+	string strName;
+
+	pkt >> opcode >> strName;
+
+	switch (opcode)
+	{
+	case NameChangePlayerRequest:
+		response = g_DBAgent.UpdateCharacterName(GetAccountName(), GetName(), strName);
+
+		// On success, update the name in the server & remove the scroll.
+		// (we checked if it existed before handling the request).
+		if (response == NameChangeSuccess)
+		{
+			// Replace the character's name (in both the session and the character lookup hashmap).
+			g_pMain->ReplaceCharacterName(this, strName);
+
+			// Take the scroll...
+			RobItem(ITEM_SCROLL_OF_IDENTITY);
+
+			// Remove user from others' view & make them reappear again so 
+			// the name can be updated for those currently in range.
+			UserInOut(INOUT_OUT);
+			UserInOut(INOUT_IN);
+		}
+		break;
+	}
+
+	SendNameChange(response);
 }
 
 /**

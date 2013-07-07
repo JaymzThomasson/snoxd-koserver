@@ -254,6 +254,15 @@ enum MerchantOpcodes
 	MERCHANT_BUY_UNK1			= 0x30
 };
 
+enum NameChangeOpcode
+{
+	NameChangePlayerRequest	= 0, // contains the request with the player's name
+	NameChangeShowDialog	= 1,
+	NameChangeInvalidName	= 2,
+	NameChangeSuccess		= 3,
+	NameChangeInClan		= 4
+};
+
 enum KingSystemOpcodes
 {
 	KING_ELECTION		= 1,

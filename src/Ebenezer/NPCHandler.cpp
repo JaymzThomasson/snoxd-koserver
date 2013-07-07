@@ -548,6 +548,72 @@ send_packet:
 	Send(&result);
 }
 
+/**
+ * @brief	Handles the name change response packet
+ * 			containing the specified new name.
+ *
+ * @param	pkt	The packet.
+ */
+void CUser::HandleNameChange(Packet & pkt)
+{
+	uint8 opcode;
+	pkt >> opcode;
+
+	switch (opcode)
+	{
+	case NameChangePlayerRequest:
+		HandlePlayerNameChange(pkt);
+		break;
+	}
+}
+
+/**
+ * @brief	Handles the character name change response packet
+ * 			containing the specified new character's name.
+ *
+ * @param	pkt	The packet.
+ */
+void CUser::HandlePlayerNameChange(Packet & pkt)
+{
+	NameChangeOpcode response = NameChangeSuccess;
+	string strUserID;
+	pkt >> strUserID;
+
+	if (strUserID.empty() || strUserID.length() > MAX_ID_SIZE)
+		response = NameChangeInvalidName;
+	else if (isInClan())
+		response = NameChangeInClan;
+
+	if (response != NameChangeSuccess)
+	{
+		SendNameChange(response);
+		return;
+	}
+
+	// Ensure we have the scroll before handling this request.
+	if (!CheckExistItem(ITEM_SCROLL_OF_IDENTITY))
+		return;
+	
+	Packet result(WIZ_NAME_CHANGE, uint8(NameChangePlayerRequest));
+	result << strUserID;
+	g_pMain->AddDatabaseRequest(result, this);
+}
+
+/**
+ * @brief	Sends a name change packet.
+ *
+ * @param	opcode	Name change packet opcode.
+ * 					NameChangeShowDialog shows the dialog where you can set your name.
+ * 					NameChangeSuccess confirms the name was changed.
+ * 					NameChangeInvalidName throws an error reporting the name is invalid.
+ * 					NameChangeInClan throws an error reporting the user's still in a clan (and needs to leave).
+ */
+void CUser::SendNameChange(NameChangeOpcode opcode /*= NameChangeShowDialog*/)
+{
+	Packet result(WIZ_NAME_CHANGE, uint8(opcode));
+	Send(&result);
+}
+
 void CUser::HandleCapeChange(Packet & pkt)
 {
 	Packet result(WIZ_CAPE);
@@ -662,8 +728,8 @@ void CUser::HandleCapeChange(Packet & pkt)
 
 	result	<< uint16(1) // success
 			<< pKnights->GetAllianceID()
-			<< uint16(pKnights->m_sIndex)
-			<< uint16(pKnights->m_sCape) 
+			<< pKnights->GetID()
+			<< pKnights->GetCapeID()
 			<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB
 			<< uint8(0);
 

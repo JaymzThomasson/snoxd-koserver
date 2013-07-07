@@ -1286,6 +1286,26 @@ void CDBAgent::UpdateClanFund(uint16 sClanID, uint32 nClanPointFund)
 		ReportSQLError(m_GameDB->GetError());
 }
 
+NameChangeOpcode CDBAgent::UpdateCharacterName(std::string & strAccountID, std::string & strUserID, std::string & strNewUserID)
+{
+	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == nullptr)
+		return NameChangeInvalidName;
+
+	int16 nRet = 1;
+
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strAccountID.c_str(), strAccountID.length());
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strUserID.c_str(), strUserID.length());
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strNewUserID.c_str(), strNewUserID.length());
+	dbCommand->AddParameter(SQL_PARAM_OUTPUT, &nRet);
+
+	if (!dbCommand->Execute(string_format(_T("{CALL CHANGE_NEW_ID(%d, ?, ?, ?, ?)}"), g_pMain->m_nServerNo)))
+		ReportSQLError(m_AccountDB->GetError());
+
+	// Procedure returns 0 for success, and 1 (or anything, really) for invalid name
+	return (nRet == 0 ? NameChangeSuccess : NameChangeInvalidName);
+}
+
 /**
  * @brief	Handles clan cape database updates.
  *

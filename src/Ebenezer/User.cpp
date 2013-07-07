@@ -379,6 +379,9 @@ bool CUser::HandlePacket(Packet & pkt)
 	case WIZ_SHOPPING_MALL: // letter system's used in here too
 		ShoppingMall(pkt);
 		break;
+	case WIZ_NAME_CHANGE:
+		HandleNameChange(pkt);
+		break;
 	case WIZ_KING:
 		CKingSystem::PacketProcess(this, pkt);
 		break;
