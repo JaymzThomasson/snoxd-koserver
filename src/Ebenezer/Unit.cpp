@@ -804,6 +804,9 @@ void Unit::AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO & pBuffInfo)
 {
 	FastGuard lock(m_buffLock);
 	m_buffMap.insert(std::make_pair(bBuffType, pBuffInfo));
+
+	if (pBuffInfo.isBuff())
+		m_buffCount++;
 }
 
 /**************************************************************************

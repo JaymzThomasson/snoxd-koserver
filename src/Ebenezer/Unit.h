@@ -93,7 +93,19 @@ public:
 	INLINE bool isBuffed()
 	{
 		FastGuard lock(m_buffLock);
-		return !m_buffMap.empty();
+
+		// Check the buff counter.
+		// We cannot check the map itself, as the map contains both buffs and debuffs.
+		return m_buffCount > 0;
+	}
+
+	INLINE bool isDebuffed()
+	{
+		FastGuard lock(m_buffLock);
+
+		// As the 'buff' map contains both buffs and debuffs, if the number of buffs/debuffs in the map doesn't 
+		// match the number of buffs we have, we can conclude we have some debuffs in there.
+		return (uint8) m_buffMap.size() != m_buffCount; 
 	}
 
 	INLINE bool canInstantCast() { return m_bInstantCast; }
@@ -251,6 +263,7 @@ public:
 	Type4BuffMap m_buffMap;
 	Type9BuffMap m_type9BuffMap;
 	FastMutex	m_buffLock;
+	uint8		m_buffCount; // counter for buffs (not debuffs). Used for identifying when the user is buffed.
 
 	bool	m_bIsBlinded;
 	bool	m_bCanUseSkills; // blinding prevents you from using skills or attacks, skills like "Full Skill Gear" prevent use of skills only.

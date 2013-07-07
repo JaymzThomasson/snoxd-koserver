@@ -499,6 +499,9 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		TO_USER(pTarget)->RemoveSavedMagic(pSkill->iNum);
 
 
+	if (itr->second.isBuff())
+		pTarget->m_buffCount--;
+
 	pTarget->m_buffMap.erase(itr);
 
 	switch (byBuffType)
