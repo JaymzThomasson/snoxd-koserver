@@ -1465,7 +1465,7 @@ bool MagicInstance::ExecuteType6()
 		|| (pType->bUserSkillUse != TransformationSkillUseNPC && pSkillCaster->GetMap()->canAttackOtherNation())
 		|| (!bIsRecastingSavedMagic && pCaster->isTransformed())
 		// All buffs must be removed before using transformation skills
-		|| pSkillCaster->isBuffed())
+		|| (pType->bUserSkillUse != TransformationSkillUseNPC && pSkillCaster->isBuffed()))
 	{
 		// If we're recasting it, then it's either already cast on us (i.e. we're changing zones)
 		// or we're relogging. We need to remove it now, as the client doesn't see us using it.

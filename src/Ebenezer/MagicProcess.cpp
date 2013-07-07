@@ -220,7 +220,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 			}
 
 			if (bEffect != ABNORMAL_NORMAL)
-				TO_USER(pTarget)->StateChangeServerDirect(3, bEffect);
+				pTarget->StateChangeServerDirect(3, bEffect);
 		}
 		break;
 
@@ -417,7 +417,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		// Just working with the TBL data for now (i.e. just the 15% AC reduction).
 		if (pTarget->isPlayer())
 		{
-			TO_USER(pTarget)->StateChangeServerDirect(3, ABNORMAL_GIANT);
+			pTarget->StateChangeServerDirect(3, ABNORMAL_GIANT);
 			pTarget->m_sACPercent += (pType->sACPct - 100);
 		}
 		break;
@@ -713,7 +713,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		// Just working with the TBL data for now (i.e. just the 15% AC reduction).
 		if (pTarget->isPlayer())
 		{
-			TO_USER(pTarget)->StateChangeServerDirect(3, ABNORMAL_NORMAL);
+			pTarget->StateChangeServerDirect(3, ABNORMAL_NORMAL);
 			pTarget->m_sACPercent -= (pType->sACPct - 100);
 		}
 		break;
