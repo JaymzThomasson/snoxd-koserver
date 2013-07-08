@@ -8,6 +8,8 @@ void CUser::WarehouseProcess(Packet & pkt)
 	uint32 nItemID, nCount;
 	uint16 sNpcId, reference_pos;
 	uint8 page, bSrcPos, bDstPos;
+	CNpc * pNpc = nullptr;
+	_ITEM_TABLE * pTable = nullptr;
 	_ITEM_DATA * pSrcItem = nullptr, * pDstItem = nullptr;
 	uint8 opcode;
 	bool bResult = false;
@@ -38,13 +40,13 @@ void CUser::WarehouseProcess(Packet & pkt)
 
 	pkt >> sNpcId >> nItemID >> page >> bSrcPos >> bDstPos;
 
-	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(sNpcId);
+	pNpc = g_pMain->m_arNpcArray.GetData(sNpcId);
 	if (pNpc == nullptr
 		|| pNpc->GetType() != NPC_WAREHOUSE
 		|| !isInRange(pNpc, MAX_NPC_RANGE))
 		goto fail_return;
 
-	_ITEM_TABLE * pTable = g_pMain->GetItemPtr(nItemID);
+	pTable = g_pMain->GetItemPtr(nItemID);
 	if (pTable == nullptr)
 		goto fail_return;
 
