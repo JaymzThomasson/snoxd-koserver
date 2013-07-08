@@ -522,7 +522,7 @@ public:
 	short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false);
 	void OnAttack(Unit * pTarget, AttackType attackType);
 	void OnDefend(Unit * pAttacker, AttackType attackType);
-	void TriggerProcItem(uint8 bSlot, Unit * pTarget, ItemTriggerType triggerType);
+	bool TriggerProcItem(uint8 bSlot, Unit * pTarget, ItemTriggerType triggerType);
 
 	void SendDurability(uint8 slot, uint16 durability);
 	void SendItemMove(uint8 subcommand);
