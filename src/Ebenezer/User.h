@@ -70,6 +70,14 @@ enum TransformationType
 	TransformationSiege
 };
 
+
+enum TeamColour
+{
+	TeamColourNone = 0,
+	TeamColourBlue,
+	TeamColourRed
+};
+
 #define ARROW_EXPIRATION_TIME (5) // seconds
 
 struct Arrow
@@ -257,6 +265,8 @@ public:
 	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];
 	short				m_sEventNid, m_sEventSid;
 	uint32				m_nQuestHelperID;
+
+	TeamColour	m_teamColour;
 
 public:
 	INLINE bool isBanned() { return GetAuthority() == AUTHORITY_BANNED; }
@@ -522,7 +532,7 @@ public:
 	short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false);
 	void OnAttack(Unit * pTarget, AttackType attackType);
 	void OnDefend(Unit * pAttacker, AttackType attackType);
-	void TriggerProcItem(uint8 bSlot, Unit * pTarget, ItemTriggerType triggerType);
+	bool TriggerProcItem(uint8 bSlot, Unit * pTarget, ItemTriggerType triggerType);
 
 	void SendDurability(uint8 slot, uint16 durability);
 	void SendItemMove(uint8 subcommand);
