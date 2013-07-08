@@ -5,12 +5,11 @@
 void CUser::WarehouseProcess(Packet & pkt)
 {
 	Packet result(WIZ_WAREHOUSE);
-	CNpc * pNpc;
-	uint32 itemid, count;
-	uint16 npcid, reference_pos;
-	uint8 page, srcpos, destpos;
-	_ITEM_TABLE* pTable = nullptr;
-	uint8 command = pkt.read<uint8>();
+	uint32 nItemID, nCount;
+	uint16 sNpcId, reference_pos;
+	uint8 page, bSrcPos, bDstPos;
+	_ITEM_DATA * pSrcItem = nullptr, * pDstItem = nullptr;
+	uint8 opcode;
 	bool bResult = false;
 
 	if (isDead())
@@ -19,7 +18,8 @@ void CUser::WarehouseProcess(Packet & pkt)
 	if (isTrading())
 		goto fail_return;
 
-	if (command == WAREHOUSE_OPEN)
+	pkt >> opcode;
+	if (opcode == WAREHOUSE_OPEN)
 	{
 		result << uint8(WAREHOUSE_OPEN) << uint8(WAREHOUSE_OPEN) << GetInnCoins();
 		for (int i = 0; i < WAREHOUSE_MAX; i++)
@@ -36,190 +36,180 @@ void CUser::WarehouseProcess(Packet & pkt)
 		return;
 	}
 
-	pkt >> npcid >> itemid >> page >> srcpos >> destpos;
+	pkt >> sNpcId >> nItemID >> page >> bSrcPos >> bDstPos;
 
-	pNpc = g_pMain->m_arNpcArray.GetData(npcid);
+	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(sNpcId);
 	if (pNpc == nullptr
 		|| pNpc->GetType() != NPC_WAREHOUSE
 		|| !isInRange(pNpc, MAX_NPC_RANGE))
 		goto fail_return;
 
-	pTable = g_pMain->GetItemPtr( itemid );
-	if( !pTable ) goto fail_return;
+	_ITEM_TABLE * pTable = g_pMain->GetItemPtr(nItemID);
+	if (pTable == nullptr)
+		goto fail_return;
+
 	reference_pos = 24 * page;
 
-	// TO-DO: Clean up this entire method. It's horrendous!
-	switch (command)
+	switch (opcode)
 	{
-	/* stuff going into the inn */
+	// Inventory -> inn
 	case WAREHOUSE_INPUT:
-		pkt >> count;
+		pkt >> nCount;
 
 		// Handle coin input.
-		if (itemid == ITEM_GOLD)
+		if (nItemID == ITEM_GOLD)
 		{
-			if (!hasCoins(count)
-				|| GetInnCoins() + count > COIN_MAX)
+			if (!hasCoins(nCount)
+				|| GetInnCoins() + nCount > COIN_MAX)
 				goto fail_return;
 
-			m_iBank += count;
-			m_iGold -= count;
+			m_iBank += nCount;
+			m_iGold -= nCount;
 			break;
 		}
 
-		if (srcpos > HAVE_MAX
-			|| reference_pos + destpos > WAREHOUSE_MAX
-			|| itemid >= ITEM_NO_TRADE) // Cannot be traded, sold or stored (note: don't check the race, as these items CAN be stored).
+		// Check for invalid slot IDs.
+		if (bSrcPos > HAVE_MAX
+			|| reference_pos + bDstPos > WAREHOUSE_MAX
+			// Cannot be traded, sold or stored (note: don't check the race, as these items CAN be stored).
+			|| nItemID >= ITEM_NO_TRADE	
+			// Check that the source item we're moving is what the client says it is.
+			|| (pSrcItem = GetItem(SLOT_MAX + bSrcPos))->nNum != nItemID
+			// Rented items cannot be placed in the inn.
+			|| pSrcItem->isRented())
 			goto fail_return;
 
-		if (m_sItemArray[SLOT_MAX+srcpos].isRented())
+		pDstItem = &m_sWarehouseArray[reference_pos + bDstPos];
+		// Forbid users from moving non-stackable items into a slot already occupied by an item.
+		if ((!pTable->isStackable() && pDstItem->nNum != 0)
+			// Forbid users from moving stackable items into a slot already occupied by a different item.
+			|| (pTable->isStackable() 
+				&& pDstItem->nNum != 0 // slot in use
+				&& pDstItem->nNum != pSrcItem->nNum) // ... by a different item.
+			// Ensure users have enough of the specified item to move.
+			|| pSrcItem->sCount < nCount)
 			goto fail_return;
 
-		if( m_sItemArray[SLOT_MAX+srcpos].nNum != itemid ) goto fail_return;
-		if( m_sWarehouseArray[reference_pos+destpos].nNum && !pTable->m_bCountable ) goto fail_return;
-		if( m_sItemArray[SLOT_MAX+srcpos].sCount < count ) goto fail_return;
-		m_sWarehouseArray[reference_pos+destpos].nNum = itemid;
-		m_sWarehouseArray[reference_pos+destpos].sDuration = m_sItemArray[SLOT_MAX+srcpos].sDuration;
-		m_sWarehouseArray[reference_pos+destpos].nSerialNum = m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
-		m_sWarehouseArray[reference_pos+destpos].bFlag = m_sItemArray[SLOT_MAX+srcpos].bFlag;
-		if( pTable->m_bCountable == 0 && m_sWarehouseArray[reference_pos+destpos].nSerialNum == 0 )
-			m_sWarehouseArray[reference_pos+destpos].nSerialNum = g_pMain->GenerateItemSerial();
+		pDstItem->nNum = pSrcItem->nNum;
+		pDstItem->sDuration = pSrcItem->sDuration;
+		pDstItem->sCount = (uint16) nCount;
+		pSrcItem->sCount -= nCount;
+		pDstItem->bFlag = pSrcItem->bFlag;
+		pDstItem->sRemainingRentalTime = pSrcItem->sRemainingRentalTime;
+		pDstItem->nExpirationTime = pSrcItem->nExpirationTime;
 
-		if( pTable->m_bCountable ) {
-			m_sWarehouseArray[reference_pos+destpos].sCount += (unsigned short)count;
-		}
-		else {
-			m_sWarehouseArray[reference_pos+destpos].sCount = m_sItemArray[SLOT_MAX+srcpos].sCount;
-		}
+		if (!pTable->isStackable() || nCount == pDstItem->sCount)
+			pDstItem->nSerialNum = pSrcItem->nSerialNum;
 
-		if( !pTable->m_bCountable ) {
-			m_sItemArray[SLOT_MAX+srcpos].nNum = 0;
-			m_sItemArray[SLOT_MAX+srcpos].sDuration = 0;
-			m_sItemArray[SLOT_MAX+srcpos].sCount = 0;
-			m_sItemArray[SLOT_MAX+srcpos].nSerialNum = 0;
-			m_sItemArray[SLOT_MAX+srcpos].bFlag = ITEM_FLAG_NONE;
-		}
-		else {
-			m_sItemArray[SLOT_MAX+srcpos].sCount -= (unsigned short)count;
-			if( m_sItemArray[SLOT_MAX+srcpos].sCount <= 0 ) {
-				m_sItemArray[SLOT_MAX+srcpos].nNum = 0;
-				m_sItemArray[SLOT_MAX+srcpos].sDuration = 0;
-				m_sItemArray[SLOT_MAX+srcpos].sCount = 0;
-				m_sItemArray[SLOT_MAX+srcpos].nSerialNum = 0;
-				m_sItemArray[SLOT_MAX+srcpos].bFlag = ITEM_FLAG_NONE;
-			}
-		}
+		if (!pTable->isStackable() && pDstItem->nSerialNum == 0)
+			pDstItem->nSerialNum = g_pMain->GenerateItemSerial();
+
+		if (pSrcItem->sCount == 0)
+			memset(pSrcItem, 0, sizeof(_ITEM_DATA));
 
 		SendItemWeight();
 		break;
 
-	/* stuff being taken out of the inn */
+	// Inn -> inventory
 	case WAREHOUSE_OUTPUT:
-		pkt >> count;
+		pkt >> nCount;
 
-		if (itemid == ITEM_GOLD)
+		if (nItemID == ITEM_GOLD)
 		{
-			if (!hasInnCoins(count)
-				|| GetCoins() + count > COIN_MAX)
+			if (!hasInnCoins(nCount)
+				|| GetCoins() + nCount > COIN_MAX)
 				goto fail_return;
 
-			m_iGold += count;
-			m_iBank -= count;
+			m_iGold += nCount;
+			m_iBank -= nCount;
 			break;
 		}
 
-		if (reference_pos + srcpos > WAREHOUSE_MAX
-			|| destpos > HAVE_MAX)
+		// Ensure we're not being given an invalid slot ID.
+		if (reference_pos + bSrcPos > WAREHOUSE_MAX
+			|| bDstPos > HAVE_MAX
+			// Check that the source item we're moving is what the client says it is.
+			|| (pSrcItem = &m_sWarehouseArray[reference_pos + bSrcPos])->nNum != nItemID
+			// Does the player have enough room in their inventory?
+			|| !CheckWeight(pTable, nItemID, (uint16) nCount))
 			goto fail_return;
 
-		if (pTable->m_bCountable) {	// Check weight of countable item.
-			if (((pTable->m_sWeight * count)   + m_sItemWeight) > m_sMaxWeight) {			
-				goto fail_return;
-			}
-		}
-		else {	// Check weight of non-countable item.
-			if ((pTable->m_sWeight + m_sItemWeight) > m_sMaxWeight) {
-				goto fail_return;
-			}
-		}		
+		pDstItem = GetItem(SLOT_MAX + bDstPos);
+		// Forbid users from moving non-stackable items into a slot already occupied by an item.
+		if ((!pTable->isStackable() && pDstItem->nNum != 0)
+			// Forbid users from moving stackable items into a slot already occupied by a different item.
+			|| (pTable->isStackable() 
+				&& pDstItem->nNum != 0 // slot in use
+				&& pDstItem->nNum != pSrcItem->nNum) // ... by a different item.
+			// Ensure users have enough of the specified item to move.
+			|| pSrcItem->sCount < nCount)
+			goto fail_return;
 
-		if( m_sWarehouseArray[reference_pos+srcpos].nNum != itemid ) goto fail_return;
-		if( m_sItemArray[SLOT_MAX+destpos].nNum && !pTable->m_bCountable ) goto fail_return;
-		if( m_sWarehouseArray[reference_pos+srcpos].sCount < count ) goto fail_return;
-		m_sItemArray[SLOT_MAX+destpos].nNum = itemid;
-		m_sItemArray[SLOT_MAX+destpos].sDuration = m_sWarehouseArray[reference_pos+srcpos].sDuration;
-		m_sItemArray[SLOT_MAX+destpos].nSerialNum = m_sWarehouseArray[reference_pos+srcpos].nSerialNum;
-		m_sItemArray[SLOT_MAX+destpos].bFlag = m_sWarehouseArray[reference_pos+srcpos].bFlag;
-		if( pTable->m_bCountable )
-			m_sItemArray[SLOT_MAX+destpos].sCount += (unsigned short)count;
-		else {
-			if( m_sItemArray[SLOT_MAX+destpos].nSerialNum == 0 )
-				m_sItemArray[SLOT_MAX+destpos].nSerialNum = g_pMain->GenerateItemSerial();
-			m_sItemArray[SLOT_MAX+destpos].sCount = m_sWarehouseArray[reference_pos+srcpos].sCount;
-		}
-		if( !pTable->m_bCountable ) {
-			m_sWarehouseArray[reference_pos+srcpos].nNum = 0;
-			m_sWarehouseArray[reference_pos+srcpos].sDuration = 0;
-			m_sWarehouseArray[reference_pos+srcpos].sCount = 0;
-			m_sWarehouseArray[reference_pos+srcpos].nSerialNum = 0;
-			m_sWarehouseArray[reference_pos+srcpos].bFlag = ITEM_FLAG_NONE;
-		}
-		else {
-			m_sWarehouseArray[reference_pos+srcpos].sCount -= (unsigned short)count;
-			if( m_sWarehouseArray[reference_pos+srcpos].sCount <= 0 ) {
-				m_sWarehouseArray[reference_pos+srcpos].nNum = 0;
-				m_sWarehouseArray[reference_pos+srcpos].sDuration = 0;
-				m_sWarehouseArray[reference_pos+srcpos].sCount = 0;
-				m_sWarehouseArray[reference_pos+srcpos].nSerialNum = 0;
-				m_sWarehouseArray[reference_pos+srcpos].bFlag = ITEM_FLAG_NONE;
-			}
-		}
+		pDstItem->nNum = pSrcItem->nNum;
+		pDstItem->sDuration = pSrcItem->sDuration;
+		pDstItem->sCount = (uint16) nCount;
+		pSrcItem->sCount -= nCount;
+		pDstItem->bFlag = pSrcItem->bFlag;
+		pDstItem->sRemainingRentalTime = pSrcItem->sRemainingRentalTime;
+		pDstItem->nExpirationTime = pSrcItem->nExpirationTime;
+
+		if (!pTable->isStackable() || nCount == pDstItem->sCount)
+			pDstItem->nSerialNum = pSrcItem->nSerialNum;
+
+		if (!pTable->isStackable() && pDstItem->nSerialNum == 0)
+			pDstItem->nSerialNum = g_pMain->GenerateItemSerial();
+
+		if (pSrcItem->sCount == 0)
+			memset(pSrcItem, 0, sizeof(_ITEM_DATA));
 
 		SendItemWeight();
 		break;
+
+	// Inn -> inn
 	case WAREHOUSE_MOVE:
-		if( reference_pos+srcpos > WAREHOUSE_MAX ) goto fail_return;
-		if( m_sWarehouseArray[reference_pos+srcpos].nNum != itemid ) goto fail_return;
-		if( m_sWarehouseArray[reference_pos+destpos].nNum ) goto fail_return;
-		m_sWarehouseArray[reference_pos+destpos].nNum = itemid;
-		m_sWarehouseArray[reference_pos+destpos].sDuration = m_sWarehouseArray[reference_pos+srcpos].sDuration;
-		m_sWarehouseArray[reference_pos+destpos].sCount = m_sWarehouseArray[reference_pos+srcpos].sCount;
-		m_sWarehouseArray[reference_pos+destpos].nSerialNum = m_sWarehouseArray[reference_pos+srcpos].nSerialNum;
-		m_sWarehouseArray[reference_pos+destpos].bFlag = m_sWarehouseArray[reference_pos+srcpos].bFlag;
-
-		m_sWarehouseArray[reference_pos+srcpos].nNum = 0;
-		m_sWarehouseArray[reference_pos+srcpos].sDuration = 0;
-		m_sWarehouseArray[reference_pos+srcpos].sCount = 0;
-		m_sWarehouseArray[reference_pos+srcpos].nSerialNum = 0;
-		m_sWarehouseArray[reference_pos+srcpos].bFlag = ITEM_FLAG_NONE;
-		break;
-	case WAREHOUSE_INVENMOVE:
-		if( itemid != m_sItemArray[SLOT_MAX+srcpos].nNum )
+		// Ensure we're not being given an invalid slot ID.
+		if (reference_pos + bSrcPos > WAREHOUSE_MAX
+			|| reference_pos + bDstPos > WAREHOUSE_MAX)
 			goto fail_return;
-		{
-			short duration = m_sItemArray[SLOT_MAX+srcpos].sDuration;
-			short itemcount = m_sItemArray[SLOT_MAX+srcpos].sCount;
-			uint64 serial = m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
-			uint8 bFlag = m_sItemArray[SLOT_MAX+srcpos].bFlag;
-			m_sItemArray[SLOT_MAX+srcpos].nNum = m_sItemArray[SLOT_MAX+destpos].nNum;
-			m_sItemArray[SLOT_MAX+srcpos].sDuration = m_sItemArray[SLOT_MAX+destpos].sDuration;
-			m_sItemArray[SLOT_MAX+srcpos].sCount = m_sItemArray[SLOT_MAX+destpos].sCount;
-			m_sItemArray[SLOT_MAX+srcpos].nSerialNum = m_sItemArray[SLOT_MAX+destpos].nSerialNum;
-			m_sItemArray[SLOT_MAX+srcpos].bFlag = m_sItemArray[SLOT_MAX+destpos].bFlag;
 
-			m_sItemArray[SLOT_MAX+destpos].nNum = itemid;
-			m_sItemArray[SLOT_MAX+destpos].sDuration = duration;
-			m_sItemArray[SLOT_MAX+destpos].sCount = itemcount;
-			m_sItemArray[SLOT_MAX+destpos].nSerialNum = serial;
-			m_sItemArray[SLOT_MAX+destpos].bFlag = bFlag;
-		}
+		pSrcItem = &m_sWarehouseArray[reference_pos + bSrcPos];
+		pDstItem = &m_sWarehouseArray[reference_pos + bDstPos];
+
+		// Check that the source item we're moving is what the client says it is.
+		if (pSrcItem->nNum != nItemID
+			// You can't move a partial stack in the inn (the whole stack is moved).
+			|| pDstItem->nNum != 0)
+			goto fail_return;
+
+		memcpy(pDstItem, pSrcItem, sizeof(_ITEM_DATA));
+		memset(pSrcItem, 0, sizeof(_ITEM_DATA));
+		break;
+
+	// Inventory -> inventory (using the inn dialog)
+	case WAREHOUSE_INVENMOVE:
+		// Ensure we're not being given an invalid slot ID.
+		if (bSrcPos > HAVE_MAX
+			|| bDstPos > HAVE_MAX)
+			goto fail_return;
+
+		pSrcItem = GetItem(SLOT_MAX + bSrcPos);
+		pDstItem = GetItem(SLOT_MAX + bDstPos);
+
+		// Check that the source item we're moving is what the client says it is.
+		if (pSrcItem->nNum != nItemID
+			// You can't move a partial stack in the inventory (the whole stack is moved).
+			|| pDstItem->nNum != 0)
+			goto fail_return;
+
+		memcpy(pDstItem, pSrcItem, sizeof(_ITEM_DATA));
+		memset(pSrcItem, 0, sizeof(_ITEM_DATA));
 		break;
 	}
 
 	bResult = true;
 
 fail_return: // hmm...
-	result << uint8(command) << bResult;
+	result << opcode << bResult;
 	Send(&result);
 }
 

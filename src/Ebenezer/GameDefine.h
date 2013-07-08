@@ -342,6 +342,8 @@ struct _ITEM_TABLE
 	int16	m_bPoisonR;
 	int16	m_bCurseR;
 
+	INLINE bool isStackable() { return m_bCountable != 0; }
+
 	INLINE uint8 GetKind() { return m_bKind; }
 	INLINE uint8 GetItemGroup() { return m_bKind / 10; }
 
