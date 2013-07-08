@@ -25,8 +25,12 @@ void CUser::WarehouseProcess(Packet & pkt)
 		for (int i = 0; i < WAREHOUSE_MAX; i++)
 		{
 			_ITEM_DATA *pItem = &m_sWarehouseArray[i];
-			result	<< pItem->nNum << pItem->sDuration << pItem->sCount
-					<< uint8(0) << uint16(0) << uint16(0) << uint16(0) << uint16(0);
+			result	<< pItem->nNum 
+					<< pItem->sDuration << pItem->sCount
+					<< pItem->bFlag 
+					<< pItem->sRemainingRentalTime 
+					<< uint32(0)
+					<< pItem->nExpirationTime;
 		}
 		Send(&result);
 		return;
@@ -68,8 +72,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 			|| itemid >= ITEM_NO_TRADE) // Cannot be traded, sold or stored (note: don't check the race, as these items CAN be stored).
 			goto fail_return;
 
-		if (m_sItemArray[SLOT_MAX+srcpos].isSealed()
-			|| m_sItemArray[SLOT_MAX+srcpos].isRented())
+		if (m_sItemArray[SLOT_MAX+srcpos].isRented())
 			goto fail_return;
 
 		if( m_sItemArray[SLOT_MAX+srcpos].nNum != itemid ) goto fail_return;
@@ -78,6 +81,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 		m_sWarehouseArray[reference_pos+destpos].nNum = itemid;
 		m_sWarehouseArray[reference_pos+destpos].sDuration = m_sItemArray[SLOT_MAX+srcpos].sDuration;
 		m_sWarehouseArray[reference_pos+destpos].nSerialNum = m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
+		m_sWarehouseArray[reference_pos+destpos].bFlag = m_sItemArray[SLOT_MAX+srcpos].bFlag;
 		if( pTable->m_bCountable == 0 && m_sWarehouseArray[reference_pos+destpos].nSerialNum == 0 )
 			m_sWarehouseArray[reference_pos+destpos].nSerialNum = g_pMain->GenerateItemSerial();
 
@@ -93,6 +97,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 			m_sItemArray[SLOT_MAX+srcpos].sDuration = 0;
 			m_sItemArray[SLOT_MAX+srcpos].sCount = 0;
 			m_sItemArray[SLOT_MAX+srcpos].nSerialNum = 0;
+			m_sItemArray[SLOT_MAX+srcpos].bFlag = ITEM_FLAG_NONE;
 		}
 		else {
 			m_sItemArray[SLOT_MAX+srcpos].sCount -= (unsigned short)count;
@@ -101,6 +106,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 				m_sItemArray[SLOT_MAX+srcpos].sDuration = 0;
 				m_sItemArray[SLOT_MAX+srcpos].sCount = 0;
 				m_sItemArray[SLOT_MAX+srcpos].nSerialNum = 0;
+				m_sItemArray[SLOT_MAX+srcpos].bFlag = ITEM_FLAG_NONE;
 			}
 		}
 
@@ -143,6 +149,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 		m_sItemArray[SLOT_MAX+destpos].nNum = itemid;
 		m_sItemArray[SLOT_MAX+destpos].sDuration = m_sWarehouseArray[reference_pos+srcpos].sDuration;
 		m_sItemArray[SLOT_MAX+destpos].nSerialNum = m_sWarehouseArray[reference_pos+srcpos].nSerialNum;
+		m_sItemArray[SLOT_MAX+destpos].bFlag = m_sWarehouseArray[reference_pos+srcpos].bFlag;
 		if( pTable->m_bCountable )
 			m_sItemArray[SLOT_MAX+destpos].sCount += (unsigned short)count;
 		else {
@@ -155,6 +162,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 			m_sWarehouseArray[reference_pos+srcpos].sDuration = 0;
 			m_sWarehouseArray[reference_pos+srcpos].sCount = 0;
 			m_sWarehouseArray[reference_pos+srcpos].nSerialNum = 0;
+			m_sWarehouseArray[reference_pos+srcpos].bFlag = ITEM_FLAG_NONE;
 		}
 		else {
 			m_sWarehouseArray[reference_pos+srcpos].sCount -= (unsigned short)count;
@@ -163,11 +171,11 @@ void CUser::WarehouseProcess(Packet & pkt)
 				m_sWarehouseArray[reference_pos+srcpos].sDuration = 0;
 				m_sWarehouseArray[reference_pos+srcpos].sCount = 0;
 				m_sWarehouseArray[reference_pos+srcpos].nSerialNum = 0;
+				m_sWarehouseArray[reference_pos+srcpos].bFlag = ITEM_FLAG_NONE;
 			}
 		}
 
-		SendItemWeight();		
-		//TRACE("WARE OUTPUT : %s %s %d %d %d %d %d", m_id, m_Accountid, ITEM_WAREHOUSE_GET, 0, itemid, count, m_sItemArray[SLOT_MAX+destpos].sDuration );
+		SendItemWeight();
 		break;
 	case WAREHOUSE_MOVE:
 		if( reference_pos+srcpos > WAREHOUSE_MAX ) goto fail_return;
@@ -177,11 +185,13 @@ void CUser::WarehouseProcess(Packet & pkt)
 		m_sWarehouseArray[reference_pos+destpos].sDuration = m_sWarehouseArray[reference_pos+srcpos].sDuration;
 		m_sWarehouseArray[reference_pos+destpos].sCount = m_sWarehouseArray[reference_pos+srcpos].sCount;
 		m_sWarehouseArray[reference_pos+destpos].nSerialNum = m_sWarehouseArray[reference_pos+srcpos].nSerialNum;
+		m_sWarehouseArray[reference_pos+destpos].bFlag = m_sWarehouseArray[reference_pos+srcpos].bFlag;
 
 		m_sWarehouseArray[reference_pos+srcpos].nNum = 0;
 		m_sWarehouseArray[reference_pos+srcpos].sDuration = 0;
 		m_sWarehouseArray[reference_pos+srcpos].sCount = 0;
 		m_sWarehouseArray[reference_pos+srcpos].nSerialNum = 0;
+		m_sWarehouseArray[reference_pos+srcpos].bFlag = ITEM_FLAG_NONE;
 		break;
 	case WAREHOUSE_INVENMOVE:
 		if( itemid != m_sItemArray[SLOT_MAX+srcpos].nNum )
@@ -190,15 +200,18 @@ void CUser::WarehouseProcess(Packet & pkt)
 			short duration = m_sItemArray[SLOT_MAX+srcpos].sDuration;
 			short itemcount = m_sItemArray[SLOT_MAX+srcpos].sCount;
 			uint64 serial = m_sItemArray[SLOT_MAX+srcpos].nSerialNum;
+			uint8 bFlag = m_sItemArray[SLOT_MAX+srcpos].bFlag;
 			m_sItemArray[SLOT_MAX+srcpos].nNum = m_sItemArray[SLOT_MAX+destpos].nNum;
 			m_sItemArray[SLOT_MAX+srcpos].sDuration = m_sItemArray[SLOT_MAX+destpos].sDuration;
 			m_sItemArray[SLOT_MAX+srcpos].sCount = m_sItemArray[SLOT_MAX+destpos].sCount;
 			m_sItemArray[SLOT_MAX+srcpos].nSerialNum = m_sItemArray[SLOT_MAX+destpos].nSerialNum;
+			m_sItemArray[SLOT_MAX+srcpos].bFlag = m_sItemArray[SLOT_MAX+destpos].bFlag;
 
 			m_sItemArray[SLOT_MAX+destpos].nNum = itemid;
 			m_sItemArray[SLOT_MAX+destpos].sDuration = duration;
 			m_sItemArray[SLOT_MAX+destpos].sCount = itemcount;
 			m_sItemArray[SLOT_MAX+destpos].nSerialNum = serial;
+			m_sItemArray[SLOT_MAX+destpos].bFlag = bFlag;
 		}
 		break;
 	}

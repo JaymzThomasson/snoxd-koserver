@@ -600,6 +600,15 @@ bool CDBAgent::LoadWarehouseData(string & strAccountID, CUser *pUser)
 		pUser->m_sWarehouseArray[i].sDuration = sDurability;
 		pUser->m_sWarehouseArray[i].sCount = sCount;
 		pUser->m_sWarehouseArray[i].nSerialNum = nSerialNum;
+
+		UserItemSealMap::iterator sealitr = pUser->m_sealedItemMap.find(nSerialNum);
+		if (sealitr != pUser->m_sealedItemMap.end())
+		{
+			if (sealitr->second->bSealType == 1)
+				pUser->m_sWarehouseArray[i].bFlag = ITEM_FLAG_SEALED;
+			else if (sealitr->second->bSealType == 3)
+				pUser->m_sWarehouseArray[i].bFlag = ITEM_FLAG_BOUND;
+		}
 	}
 
 	return true;
