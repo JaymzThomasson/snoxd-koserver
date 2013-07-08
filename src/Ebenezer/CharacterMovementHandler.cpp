@@ -126,7 +126,7 @@ void CUser::GetUserInfo(Packet & pkt)
 		<< m_bAuthority
 		<< m_bPartyLeader // is party leader (bool)
 		<< bInvisibilityType // visibility state
-		<< uint8(0) // team colour (i.e. in soccer, 0=none, 1=blue, 2=red)
+		<< uint8(m_teamColour) // team colour (i.e. in soccer, 0=none, 1=blue, 2=red)
 		<< m_bIsHidingHelmet // either this is correct and items are super buggy, or it causes baldness. You choose.
 		<< m_sDirection // direction 
 		<< m_bIsChicken // chicken/beginner flag

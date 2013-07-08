@@ -137,6 +137,8 @@ void CUser::Initialize()
 	m_tRivalExpiryTime = 0;
 
 	m_byAngerGauge = 0;
+
+	m_teamColour = TeamColourNone;
 }
 
 /**

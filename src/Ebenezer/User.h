@@ -70,6 +70,14 @@ enum TransformationType
 	TransformationSiege
 };
 
+
+enum TeamColour
+{
+	TeamColourNone = 0,
+	TeamColourBlue,
+	TeamColourRed
+};
+
 #define ARROW_EXPIRATION_TIME (5) // seconds
 
 struct Arrow
@@ -257,6 +265,8 @@ public:
 	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];
 	short				m_sEventNid, m_sEventSid;
 	uint32				m_nQuestHelperID;
+
+	TeamColour	m_teamColour;
 
 public:
 	INLINE bool isBanned() { return GetAuthority() == AUTHORITY_BANNED; }
