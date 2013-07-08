@@ -131,21 +131,21 @@ void CUser::GetUserInfo(Packet & pkt)
 		<< m_sDirection // direction 
 		<< m_bIsChicken // chicken/beginner flag
 		<< m_bRank // king flag
-		<< m_bPersonalRank << m_bKnightsRank // NP ranks (total, monthly)
-		<< m_sItemArray[BREAST].nNum << m_sItemArray[BREAST].sDuration << uint8(0)
-		<< m_sItemArray[LEG].nNum << m_sItemArray[LEG].sDuration << uint8(0)
-		<< m_sItemArray[HEAD].nNum << m_sItemArray[HEAD].sDuration << uint8(0)
-		<< m_sItemArray[GLOVE].nNum << m_sItemArray[GLOVE].sDuration << uint8(0)
-		<< m_sItemArray[FOOT].nNum << m_sItemArray[FOOT].sDuration << uint8(0)
-		<< m_sItemArray[SHOULDER].nNum << m_sItemArray[SHOULDER].sDuration << uint8(0)
-		<< m_sItemArray[RIGHTHAND].nNum << m_sItemArray[RIGHTHAND].sDuration << uint8(0)
-		<< m_sItemArray[LEFTHAND].nNum << m_sItemArray[LEFTHAND].sDuration << uint8(0)
-		<< m_sItemArray[CWING].nNum << m_sItemArray[CWING].sDuration << uint8(0)
-		<< m_sItemArray[CTOP].nNum << m_sItemArray[CTOP].sDuration << uint8(0)
-		<< m_sItemArray[CHELMET].nNum << m_sItemArray[CHELMET].sDuration << uint8(0)
-		<< m_sItemArray[CRIGHT].nNum << m_sItemArray[CRIGHT].sDuration << uint8(0)
-		<< m_sItemArray[CLEFT].nNum << m_sItemArray[CLEFT].sDuration << uint8(0)
-		<< GetZoneID() << uint8(-1) << uint8(-1) << uint16(0) << uint16(0) << uint16(0);
+		<< m_bPersonalRank << m_bKnightsRank; // NP ranks (total, monthly)
+
+	uint8 equippedItems[] = 
+	{
+		BREAST, LEG, HEAD, GLOVE, FOOT, SHOULDER, RIGHTHAND, LEFTHAND,
+		CWING, CTOP, CHELMET, CRIGHT, CLEFT
+	};
+
+	foreach_array (i, equippedItems) 
+	{
+		_ITEM_DATA * pItem = &m_sItemArray[i];
+		pkt << pItem->nNum << pItem->sDuration << pItem->bFlag;
+	}
+
+	pkt << GetZoneID() << uint8(-1) << uint8(-1) << uint16(0) << uint16(0) << uint16(0);
 }
 
 void CUser::Rotate(Packet & pkt)
