@@ -879,6 +879,11 @@ bool CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)
 			return false;
 		break;
 
+	case ItemSlotBag:
+		if (destpos != COSP_BAG1 && destpos != COSP_BAG2)
+			return false;
+		break;
+
 	default:
 		return false;
 	}
