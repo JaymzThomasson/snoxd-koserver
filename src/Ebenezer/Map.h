@@ -56,6 +56,7 @@ public:
 	INLINE bool isWarZone() { return (m_zoneFlags & ZF_WAR_ZONE) != 0; }
 	INLINE bool isNationPVPZone() { return canAttackOtherNation() && !canAttackSameNation(); }
 	INLINE bool areNPCsFriendly() { return (m_zoneFlags & ZF_FRIENDLY_NPCS) != 0; }
+	INLINE bool canUpdateClan() { return (m_zoneFlags & ZF_CLAN_UPDATE) != 0; }
 
 	INLINE uint8 GetZoneType() { return m_zoneType; }
 	INLINE uint8 GetTariff() { return m_byTariff; }

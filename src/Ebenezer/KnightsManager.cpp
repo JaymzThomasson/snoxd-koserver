@@ -113,9 +113,12 @@ void CKnightsManager::CreateKnights(CUser* pUser, Packet & pkt)
 		ret_value = 5;
 	else if (g_pMain->m_nServerGroup == 2)
 		ret_value = 8;
+	// Users may only create a clan in their home zone.
+	else if (pUser->GetZoneID() != pUser->GetNation())
+		ret_value = 9;
 	else if (pUser->GetLevel() < CLAN_LEVEL_REQUIREMENT)
 		ret_value = 2;
-	else if (pUser->m_iGold < CLAN_COIN_REQUIREMENT)
+	else if (!pUser->hasCoins(CLAN_COIN_REQUIREMENT))
 		ret_value = 4;
 
 	if (ret_value == 0)
@@ -183,7 +186,7 @@ void CKnightsManager::JoinKnights(CUser *pUser, Packet & pkt)
 
 	do
 	{
-		if (pUser->GetMap()->canAttackOtherNation())
+		if (!pUser->GetMap()->canUpdateClan())
 			bResult = 12;
 		else if (!pUser->isClanLeader() && !pUser->isClanAssistant())
 			bResult = 6;
@@ -269,13 +272,7 @@ void CKnightsManager::WithdrawKnights(CUser *pUser, Packet & pkt)
 	{
 		if (!pUser->isInClan())
 			bResult = 10;
-		else if (pUser->isClanLeader()
-#if __VERSION < 1453
-			&& pUser->GetZoneID() != pUser->GetNation())
-#else
-			&& (pUser->GetZoneID() != pUser->GetNation()
-				&& pUser->GetZoneID() != ZONE_MORADON))
-#endif
+		else if (pUser->isClanLeader() && !pUser->GetMap()->canUpdateClan())
 			bResult = 12;
 
 		if (bResult != 0)
@@ -300,12 +297,7 @@ void CKnightsManager::DestroyKnights( CUser* pUser )
 	uint8 bResult = 1;
 	if (!pUser->isClanLeader())
 		bResult = 0;
-#if __VERSION < 1453
-	else if (pUser->GetZoneID() != pUser->GetNation())
-#else
-	else if (pUser->GetZoneID() != pUser->GetNation()
-		&& pUser->GetZoneID() != ZONE_MORADON)
-#endif
+	else if (!pUser->GetMap()->canUpdateClan())
 		bResult = 12;
 
 	if (bResult == 1)
@@ -334,12 +326,7 @@ void CKnightsManager::ModifyKnightsMember(CUser *pUser, Packet & pkt, uint8 opco
 	{
 		if (strUserID.empty() || strUserID.size() > MAX_ID_SIZE)
 			bResult = 2;
-#if __VERSION < 1453
-		else if (pUser->GetZoneID() != pUser->GetNation())
-#else
-		else if (pUser->GetZoneID() != pUser->GetNation()
-			&& pUser->GetZoneID() != ZONE_MORADON)
-#endif
+		else if (!pUser->GetMap()->canUpdateClan())
 			bResult = 12;
 		else if (STRCASECMP(strUserID.c_str(), pUser->GetName().c_str()) == 0)
 			bResult = 9;

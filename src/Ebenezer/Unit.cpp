@@ -864,6 +864,10 @@ void KOMap::SetZoneAttributes(int zoneNumber)
 	case ZONE_FORGOTTEN_TEMPLE: // Forgotten Temple
 		m_zoneType = ZoneAbilityNeutral;
 		m_zoneFlags = ZF_TRADE_OTHER_NATION | ZF_TALK_OTHER_NATION | ZF_FRIENDLY_NPCS;
+#if __VERSION >= 1453
+		if (zoneNumber == ZONE_MORADON)
+			m_zoneFlags |= ZF_CLAN_UPDATE;
+#endif
 		break;
 
 	case ZONE_CAITHAROS_ARENA: // Caitharos/Knight Quest arena
@@ -900,6 +904,8 @@ void KOMap::SetZoneAttributes(int zoneNumber)
 			m_byMinLevel = MIN_LEVEL_ARDREAM;
 		else if (zoneNumber == ZONE_RONARK_LAND_BASE)
 			m_byMinLevel = MIN_LEVEL_RONARK_LAND_BASE, m_byMaxLevel = MAX_LEVEL_RONARK_LAND_BASE;
+		else if (zoneNumber == ZONE_KARUS || zoneNumber == ZONE_ELMORAD)
+			m_zoneFlags |= ZF_CLAN_UPDATE;
 		break;
 
 	case ZONE_BATTLE:
