@@ -742,9 +742,24 @@ bool MagicInstance::IsAvailable()
 			if (pSkill->bType[0] != 4 || (pSkill->bType[0] == 4 && sTargetID == -1))
 				pSkillCaster->MSpChange(-(pSkill->sMsp));
 
-			if (pSkill->sHP > 0 && pSkill->sMsp == 0) {			// DEDUCTION OF HPs in Magic/Skill using HPs.
+			// Skills that require HP rather than MP.
+			if (pSkill->sHP > 0 
+				&& pSkill->sMsp == 0 
+				&& pSkill->sHP < 10000) // Hack (used officially) to allow for skills like "Sacrifice"
+			{
 				if (pSkill->sHP > pSkillCaster->GetHealth()) goto fail_return;
 				pSkillCaster->HpChange(-pSkill->sHP);
+			}
+
+			// Support skills like "Sacrifice", that sacrifice your HP for another's.
+			if (pSkill->sHP >= 10000)
+			{
+				// Can't cast this on ourself.
+				if (pSkillCaster == pSkillTarget)
+					return false;
+
+				// Take 10,000 HP from the caster (note: DB is set to 10,0001 but server will always take 10,000...)
+				pSkillCaster->HpChange(-10000); 
 			}
 		}
 	}
