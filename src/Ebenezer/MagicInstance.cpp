@@ -1184,7 +1184,7 @@ bool MagicInstance::ExecuteType4()
 	else 
 	{
 		// If the target was another single player.
-		CUser* pTUser = TO_USER(pSkillTarget);
+		CUser* pTUser = g_pMain->GetUserPtr(sTargetID);
 		if (pTUser == nullptr 
 			|| pTUser->isDead() || (pTUser->isBlinking() && !bIsRecastingSavedMagic)) 
 			return false;
