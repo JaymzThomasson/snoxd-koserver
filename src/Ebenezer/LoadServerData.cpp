@@ -69,7 +69,7 @@ bool CEbenezerDlg::LoadItemUpgradeTable()
 
 bool CEbenezerDlg::LoadItemOpTable()
 {
-	LOAD_TABLE(CItemOpSet, g_DBAgent.m_GameDB, &m_ItemOpArray, false);
+	LOAD_TABLE(CItemOpSet, g_DBAgent.m_GameDB, &m_ItemOpArray, true);
 }
 
 bool CEbenezerDlg::LoadServerResourceTable()
