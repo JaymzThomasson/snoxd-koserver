@@ -3037,7 +3037,7 @@ void CUser::AllPointChange()
 		SetStat(STAT_STR, 50);
 		SetStat(STAT_STA, 60);
 		SetStat(STAT_DEX, 60);
-		SetStat(STAT_INT, 60);
+		SetStat(STAT_INT, 70);
 		SetStat(STAT_CHA, 50);
 		break;
 	case BABARIAN:
@@ -3071,16 +3071,30 @@ void CUser::AllPointChange()
 	if (GetLevel() > 60)
 		m_sPoints += 2 * (GetLevel() - 60);
 
-	ASSERT(GetStatTotal() == 290);
+	uint16 statTotal = GetStatTotal();
+	ASSERT(statTotal == 290);
 
 	SetUserAbility();
 	Send2AI_UserUpdateInfo();
 
+	// NOTE: In newer versions (1453 is just a guess at this point)
+	// they send the stat points in two bytes, rather than one.
+	// The stat points themselves are always a byte.
+#if __VERSION >= 1453
+	uint16
+#else
+	uint8
+#endif
+	byStr = GetStat(STAT_STR), bySta = GetStat(STAT_STA), 
+		byDex = GetStat(STAT_DEX), byInt = GetStat(STAT_INT),
+		byCha = GetStat(STAT_CHA);
+
 	result << uint8(1) // result (success)
 		<< GetCoins()
-		<< GetStat(STAT_STR) << GetStat(STAT_STA) << GetStat(STAT_DEX) << GetStat(STAT_INT) << GetStat(STAT_CHA)
+		<< byStr << bySta << byDex << byInt << byCha 
 		<< m_iMaxHp << m_iMaxMp << m_sTotalHit << m_sMaxWeight << m_sPoints;
 	Send(&result);
+	return;
 
 fail_return:
 	result << bResult << temp_money;
