@@ -73,7 +73,7 @@ bool CNpc::RegisterRegion(float x, float z)
 
 CNpc::CNpc() : Unit(UnitNPC), 
 	m_NpcState(NPC_LIVE), m_OldNpcState(m_NpcState), m_byGateOpen(false), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
-	m_byAttackPos(0), m_ItemUserLevel(0), m_Delay(0), m_nActiveSkillID(0), m_sActiveTargetID(-1), 
+	m_byAttackPos(0), m_ItemUserLevel(0), m_Delay(0), m_nActiveSkillID(0), m_sActiveTargetID(-1), m_sActiveCastTime(0),
 	m_proto(nullptr), m_pPath(nullptr)
 {
 	InitTarget();
@@ -4200,13 +4200,20 @@ time_t CNpc::NpcCasting()
 	if (isDead())
 		return -1;
 
+	// Officially the attack delay overlaps with the cast time, so more often than not
+	// by the time the skill's cast, there should be very little to no delay for all cases I can see.
+	// Regardless, we'll allow for longer delays if set.
+	// NOTE: If it goes below 0 (which it will most of the time), the caller won't care to handle it.
+	time_t tAttackDelay = m_sAttackDelay - m_sActiveCastTime;
+
 	CNpcMagicProcess::MagicPacket(MAGIC_EFFECTING, m_nActiveSkillID, GetID(), m_sActiveTargetID);
 
 	m_NpcState = m_OldNpcState;
 	m_nActiveSkillID = 0;
 	m_sActiveTargetID = -1;
+	m_sActiveCastTime = 0;
 
-	return 0;
+	return tAttackDelay;
 }
 
 int CNpc::GetPartyExp(int party_level, int man, int nNpcExp)

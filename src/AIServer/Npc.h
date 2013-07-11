@@ -328,6 +328,7 @@ public:
 
 	uint32	m_nActiveSkillID;		// ID of skill currently being cast
 	int16	m_sActiveTargetID;		// ID of the target of the skill currently being cast
+	uint16	m_sActiveCastTime;		// Cast time of the skill currently being cast (in seconds)
 
 public:
 	CNpc();
