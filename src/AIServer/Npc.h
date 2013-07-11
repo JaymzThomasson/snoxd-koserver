@@ -153,7 +153,8 @@ public:
 			|| GetType() == NPC_ARTIFACT4; 
 	}
 
-	INLINE bool isNonAttackingObject() { return isGate() || GetType() == NPC_GATE_LEVER || isArtifact(); }
+	INLINE bool isNonAttackingObject() { return isGate() || GetType() == NPC_GATE_LEVER || isArtifact() || GetType() == NPC_SCARECROW; }
+
 	INLINE bool isDead() { return m_NpcState == NPC_DEAD || m_iHP <= 0; }
 	INLINE bool isAlive() { return !isDead(); }
 	INLINE bool isMonster() { return m_bMonster; }
