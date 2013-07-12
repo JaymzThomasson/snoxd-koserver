@@ -747,7 +747,7 @@ void CUser::SendMyInfo()
 
 	g_pMain->AddCharacterName(this);
 
-	SetZoneAbilityChange();
+	SetZoneAbilityChange(GetZoneID());
 	Send2AI_UserUpdateInfo(true); 
 }
 
@@ -841,14 +841,18 @@ void CUser::SendWeather()
  * 			the client handles other players/NPCs.
  * 			Also sends the zone's current tax rate.
  */
-void CUser::SetZoneAbilityChange()
+void CUser::SetZoneAbilityChange(uint16 sNewZone)
 {
+	C3DMap * pMap = g_pMain->GetZoneByID(sNewZone);
+	if (pMap == nullptr)
+		return;
+
 	Packet result(WIZ_ZONEABILITY, uint8(1));
 
-	result	<< GetMap()->canTradeWithOtherNation()
-			<< GetMap()->GetZoneType()
-			<< GetMap()->canTalkToOtherNation()
-			<< uint16(GetMap()->GetTariff());
+	result	<< pMap->canTradeWithOtherNation()
+			<< pMap->GetZoneType()
+			<< pMap->canTalkToOtherNation()
+			<< uint16(pMap->GetTariff());
 
 	Send(&result);
 }

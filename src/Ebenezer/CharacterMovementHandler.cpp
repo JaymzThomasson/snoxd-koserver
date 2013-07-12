@@ -276,7 +276,7 @@ void CUser::ZoneChange(uint16 sNewZone, float x, float z)
 
 	if (GetZoneID() != sNewZone)
 	{
-		SetZoneAbilityChange();
+		SetZoneAbilityChange(sNewZone);
 
 		// Reset the user's anger gauge when leaving the zone
 		// Unknown if this is official behaviour, but it's logical.
@@ -295,7 +295,7 @@ void CUser::ZoneChange(uint16 sNewZone, float x, float z)
 					&& pKnights->bKnightsWarStarted)
 			{
 				Packet clanPacket(WIZ_KNIGHTS_PROCESS);
-				if (pMap->isWarZone() || byNewZone == ZONE_MORADON)
+				if (pMap->isWarZone() || sNewZone == ZONE_MORADON)
 					clanPacket << uint8(0x17) << uint8(2);
 				else 
 					clanPacket << uint16(0x16) << uint16(0 /*nWarEnemyID*/);

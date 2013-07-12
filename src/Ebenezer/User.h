@@ -773,7 +773,7 @@ public:
 	void SendTime();
 	void SendWeather();
 	void SendPremiumInfo();
-	void SetZoneAbilityChange();
+	void SetZoneAbilityChange(uint16 sNewZone);
 	void SetMaxMp();
 	void SetMaxHp(int iFlag=0);
 	void ExpChange(int64 iExp);
