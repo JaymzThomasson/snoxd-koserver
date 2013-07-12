@@ -19,9 +19,9 @@ public:
 		_dbCommand->FetchUInt32(i++, pData->nIndex);
 		_dbCommand->FetchUInt16(i++, pData->sNpcNum);
 		_dbCommand->FetchSByte(i++, pData->bOriginType);
-		_dbCommand->FetchUInt32(i++, pData->nOriginItem);
-		for (int i = 0; i < MAX_ITEMS_REQ_FOR_UPGRADE; i++)
-			_dbCommand->FetchUInt32(i++, pData->nReqItem[i]);
+		_dbCommand->FetchUInt16(i++, pData->sOriginItem);
+		for (int x = 0; x < MAX_ITEMS_REQ_FOR_UPGRADE; x++)
+			_dbCommand->FetchUInt32(i++, pData->nReqItem[x]);
 		_dbCommand->FetchUInt32(i++, pData->nReqNoah);
 		_dbCommand->FetchByte(i++, pData->bRateType);
 		_dbCommand->FetchUInt16(i++, pData->sGenRate);

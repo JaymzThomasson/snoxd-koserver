@@ -67,12 +67,14 @@ void CUser::ItemUpgrade(Packet & pkt)
 		UpgradeRental		= 5
 	};
 
+	enum UpgradeType { UpgradeTypeNormal = 1, UpgradeTypePreview = 2 };
+
 	Packet result(WIZ_ITEM_UPGRADE, uint8(ITEM_UPGRADE));
 	_ITEM_DATA  * pOriginItem;
 	_ITEM_TABLE * proto;
 	int32 nItemID[10]; int8 bPos[10];
 	uint16 sNpcID;
-	int8 bType, bResult = UpgradeNoMatch;
+	int8 bType = UpgradeTypeNormal, bResult = UpgradeNoMatch;
 
 	if (isTrading() || isMerchanting())
 	{
@@ -85,10 +87,12 @@ void CUser::ItemUpgrade(Packet & pkt)
 #endif
 	pkt >> sNpcID;
 	for (int i = 0; i < 10; i++)
+	{
 		pkt >> nItemID[i] >> bPos[i];
-
-	if (bPos[0] >= HAVE_MAX)
-		return;
+		// Invalid slot ID
+		if (bPos[i] != -1 && bPos[i] >= HAVE_MAX)
+			return;
+	}
 
 	pOriginItem = GetItem(SLOT_MAX + bPos[0]);
 	if (pOriginItem->nNum != nItemID[0]
@@ -101,12 +105,11 @@ void CUser::ItemUpgrade(Packet & pkt)
 		goto fail_return;
 	}
 
-	// Check the first 5 (+1, first is technically the item we're upgrading) slots. 
-	for (int x = 0; x < 5; x++)
+	// Invalid item in slot.
+	for (int x = 0; x < 10; x++)
 	{
-		if (bPos[x+1] != -1
-			&& (bPos[x+1] >= HAVE_MAX 
-				|| nItemID[x+1] != GetItem(bPos[x+1])->nNum))
+		if (bPos[x] != -1
+			&& nItemID[x] != GetItem(SLOT_MAX + bPos[x])->nNum)
 			goto fail_return;
 	}
 	
@@ -116,7 +119,7 @@ void CUser::ItemUpgrade(Packet & pkt)
 		foreach_stlmap (itr, g_pMain->m_ItemUpgradeArray)
 		{
 			pUpgrade = itr->second;
-			if (pUpgrade->nOriginItem != nReqOriginItem)
+			if (pUpgrade->sOriginItem != nReqOriginItem)
 				continue;
 
 			if ((nItemID[0] / MIN_ITEM_ID) != pUpgrade->nIndex / 100000
@@ -194,45 +197,41 @@ void CUser::ItemUpgrade(Packet & pkt)
 						break;
 				}
 			}
-			else
-			{
-				if (((pUpgrade->nIndex >= 300000 || pUpgrade->nIndex < 200000)
-					&& (pUpgrade->nIndex >= 400000 || pUpgrade->nIndex < 300000 || proto->m_bSlot - proto->m_bKind == 73))
-					|| (proto->m_bKind - proto->m_bSlot) == 8)
-					continue;
-
-				break;
-			}
 
 			if ((nItemID[0] / MIN_ITEM_ID) != (pUpgrade->nIndex / 100000) 
 				&& ((pUpgrade->nIndex / 100000) == 1 
 					|| (pUpgrade->nIndex / 100000) == 2))
 				continue;
 
-			for (int x = 0; x < 5; x++)
+			bool isValidMatch = true;
+			// Does our upgrade attempt match the requirements for this upgrade entry?
+			for (int x = 1; x < MAX_ITEMS_REQ_FOR_UPGRADE; x++)
 			{
-				if (bPos[x+1] != -1
-					&& (bPos[x+1] >= HAVE_MAX 
-						|| nItemID[x+1] != GetItem(bPos[x+1])->nNum 
-						|| nItemID[x+1] != pUpgrade->nReqItem[x]))
-					goto fail_return;
-
-				if (pUpgrade->nReqItem[x+1] != 0)
+				if (bPos[x] == -1
+					|| pUpgrade->nReqItem[x-1] == 0)
 					continue;
 
-				if (pUpgrade->nReqItem[6] == 255 
-					|| pUpgrade->nReqItem[6] == proto->m_ItemType)
+				_ITEM_DATA * pItem = GetItem(SLOT_MAX + bPos[x]);
+				if (nItemID[x] != pItem->nNum 
+					|| nItemID[x] != pUpgrade->nReqItem[x-1])
 				{
-					if (!hasCoins(pUpgrade->nReqNoah))
-					{
-						bResult = UpgradeNeedCoins;
-						goto fail_return;
-					}
-
-					bResult = UpgradeSucceeded;
+					isValidMatch = false;
 					break;
 				}
 			}
+
+			// Not a valid match, try another row.
+			if (!isValidMatch)
+				continue;
+
+			if (!hasCoins(pUpgrade->nReqNoah))
+			{
+				bResult = UpgradeNeedCoins;
+				goto fail_return;
+			}
+
+			bResult = UpgradeSucceeded;
+			break;
 		}
 
 		// If we ran out of upgrades to search through, it failed.
@@ -240,15 +239,13 @@ void CUser::ItemUpgrade(Packet & pkt)
 			|| pUpgrade == nullptr)
 			goto fail_return;
 
-		// Take the required coins
-		GoldLose(pUpgrade->nReqNoah);
-
 		// Generate a random number, test if the item burned.
 		int rand = myrand(0, myrand(9000, 10000));
 		if (pUpgrade->sGenRate <= rand)
 		{
 			bResult = UpgradeFailed;
-			RobItem(nItemID[0], 1); // remove the item
+			if (bType != UpgradeTypePreview)
+				memset(pOriginItem, 0, sizeof(_ITEM_DATA));
 		}
 		else
 		{
@@ -263,19 +260,30 @@ void CUser::ItemUpgrade(Packet & pkt)
 				goto fail_return;
 			}
 
-			// Update the user's item in their inventory with the new item
-			pOriginItem->nNum = nNewItemID;
-
-			// Reset the durability also, to the new cap.
-			pOriginItem->sDuration = newProto->m_sDuration;
-
-			// Remove all required items, if applicable.
-			for (int i = 0; i < 10; i++)
+			if (bType != UpgradeTypePreview)
 			{
-				if (bPos[i] >= HAVE_MAX)
+				// Update the user's item in their inventory with the new item
+				pOriginItem->nNum = nNewItemID;
+
+				// Reset the durability also, to the new cap.
+				pOriginItem->sDuration = newProto->m_sDuration;
+
+				// Replace the item ID in the list for the packet
+				nItemID[0] = nNewItemID;
+			}
+		}
+
+		// Remove the source item 
+		if (bType != UpgradeTypePreview)
+		{
+			// Remove all required items, if applicable.
+			for (int i = 1; i < MAX_ITEMS_REQ_FOR_UPGRADE; i++)
+			{
+				if (bPos[i] == -1
+					|| bPos[i] >= HAVE_MAX)
 					continue;
 
-				_ITEM_DATA * pItem = GetItem(bPos[i]);
+				_ITEM_DATA * pItem = GetItem(SLOT_MAX + bPos[i]);
 				if (pItem->nNum == 0 
 					|| pItem->sCount == 0)
 					continue;
@@ -284,11 +292,12 @@ void CUser::ItemUpgrade(Packet & pkt)
 				if (pItem->sCount == 0)
 					memset(pItem, 0, sizeof(pItem));
 			}
-
-			// Replace the item ID in the list for the packet
-			nItemID[0] = nNewItemID;
 		}
 	} // end of scoped lock
+
+#if __VERSION >= 1453
+	result << bType;
+#endif
 
 	result << bResult;
 	foreach_array (i, nItemID)
