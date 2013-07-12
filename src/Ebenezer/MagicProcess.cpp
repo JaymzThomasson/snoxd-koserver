@@ -351,7 +351,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 	case BUFF_TYPE_TRIPLEAC_HALFSPEED:	// Wall of Iron
 		pTarget->m_sACPercent += 300; // 300%, or 3x
 		pTarget->m_bSpeedAmount = pTarget->m_bSpeedAmount / 2;
-		if (pTarget->m_bSpeedAmount = 0)
+		if (pTarget->m_bSpeedAmount == 0)
 			pTarget->m_bSpeedAmount = 1;
 		break;
 
@@ -652,8 +652,6 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 	case BUFF_TYPE_TRIPLEAC_HALFSPEED:	// Wall of Iron
 		pTarget->m_sACPercent -= 300; // 300%, or 3x
 		pTarget->m_bSpeedAmount = 100;
-		if (pTarget->m_bSpeedAmount = 0)
-			pTarget->m_bSpeedAmount = 1;
 		break;
 
 	case BUFF_TYPE_BLOCK_CURSE:			// Counter Curse
