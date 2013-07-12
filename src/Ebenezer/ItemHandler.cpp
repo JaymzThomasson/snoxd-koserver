@@ -23,16 +23,14 @@ void CUser::WarehouseProcess(Packet & pkt)
 	pkt >> opcode;
 	if (opcode == WAREHOUSE_OPEN)
 	{
-		result << uint8(WAREHOUSE_OPEN) << uint8(WAREHOUSE_OPEN) << GetInnCoins();
+		result << opcode << uint8(1) << GetInnCoins();
 		for (int i = 0; i < WAREHOUSE_MAX; i++)
 		{
 			_ITEM_DATA *pItem = &m_sWarehouseArray[i];
 			result	<< pItem->nNum 
 					<< pItem->sDuration << pItem->sCount
 					<< pItem->bFlag 
-					<< pItem->sRemainingRentalTime 
-					<< uint32(0)
-					<< pItem->nExpirationTime;
+					<< uint64(0);
 		}
 		Send(&result);
 		return;
