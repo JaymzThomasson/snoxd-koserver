@@ -249,10 +249,10 @@ void CNpc::Load(uint16 sNpcID, CNpcTable * proto, bool bMonster)
 	if (m_byObjectType == SPECIAL_OBJECT)
 		m_sSpeed = 1000;
 
-	m_fSpeed_1			= (float)(proto->m_bySpeed_1 * (m_sSpeed / 1000));
-	m_fSpeed_2			= (float)(proto->m_bySpeed_2 * (m_sSpeed / 1000));
-	m_fOldSpeed_1		= (float)(proto->m_bySpeed_1 * (m_sSpeed / 1000));
-	m_fOldSpeed_2		= (float)(proto->m_bySpeed_2 * (m_sSpeed / 1000));
+	m_fSpeed_1			= ((float)proto->m_bySpeed_1 * ((float)m_sSpeed / 1000));
+	m_fSpeed_2			= ((float)proto->m_bySpeed_2 * ((float)m_sSpeed / 1000));
+	m_fOldSpeed_1		= ((float)proto->m_bySpeed_1 * ((float)m_sSpeed / 1000));
+	m_fOldSpeed_2		= ((float)proto->m_bySpeed_2 * ((float)m_sSpeed / 1000));
 
 	m_fSecForMetor		= 4.0f;
 	m_sStandTime		= proto->m_sStandTime;
@@ -280,6 +280,7 @@ void CNpc::SendMoveResult(float fX, float fY, float fZ, float fSpeed /*= 0.0f*/)
 	Packet result(MOVE_RESULT, uint8(SUCCESS));
 	result << GetID() << fX << fZ << fY << fSpeed;
 	g_pMain->Send(&result);
+	RegisterRegion(fX, fZ);
 }
 
 time_t CNpc::NpcLive()
@@ -488,6 +489,7 @@ time_t CNpc::NpcMoving()
 		if (GetX() < 0 || GetZ() < 0)	
 			TRACE("Npc-NpcMoving-2 : nid=(%d, %s), x=%.2f, z=%.2f\n", GetID(), GetName().c_str(), GetX(), GetZ());
 
+		// SendMoveResult(m_fPrevX, m_fPrevY, m_fPrevZ);
 		m_NpcState = NPC_STANDING;
 		return m_sStandTime;
 	}
@@ -499,11 +501,7 @@ time_t CNpc::NpcMoving()
 		return m_sStandTime;
 	}
 
-	if (IsMovingEnd())
-		SendMoveResult(m_fPrevX, m_fPrevY, m_fPrevZ);
-	else
-		SendMoveResult(m_fPrevX, m_fPrevY, m_fPrevZ, (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000)));
-
+	SendMoveResult(m_fPrevX, m_fPrevY, m_fPrevZ, (float)(m_fSecForRealMoveMetor / ((double)m_sSpeed / 1000)));
 	return m_sSpeed;	
 }
 
@@ -1234,7 +1232,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 
 	m_pPath = nullptr;
 
-	m_vPathFind.SetMap(m_vMapSize.cx, m_vMapSize.cy, GetMap()->GetEventIDs(), GetMap()->GetMapSize(), m_min_x, m_min_y);
+	m_vPathFind.SetMap(m_vMapSize.cx, m_vMapSize.cy, GetMap(), m_min_x, m_min_y);
 	m_pPath = m_vPathFind.FindPath(end.x, end.y, start.x, start.y);
 
 	int count = 0;
@@ -1245,8 +1243,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 			break;
 
 		m_pPoint[count].pPoint.x = m_pPath->x + m_min_x;		
-		m_pPoint[count].pPoint.y = m_pPath->y + m_min_y;
-		count++;
+		m_pPoint[count++].pPoint.y = m_pPath->y + m_min_y;
 	}	
 	
 	if (count <= 0 || count >= MAX_PATH_LINE)
@@ -1687,7 +1684,7 @@ int CNpc::IsSurround(CUser* pUser)
 //	Path Find 로 찾은길을 다 이동 했는지 판단
 bool CNpc::IsMovingEnd()
 {
-	if(m_fPrevX == m_fEndPoint_X && m_fPrevZ == m_fEndPoint_Y) 
+	if (m_fPrevX == m_fEndPoint_X && m_fPrevZ == m_fEndPoint_Y) 
 	{
 		//m_sStepCount = 0;
 		m_iAniFrameCount = 0;
@@ -1722,26 +1719,19 @@ bool CNpc::StepMove()
 	{
 		m_fPrevX = m_fEndPoint_X;
 		m_fPrevZ = m_fEndPoint_Y;
-		TRACE("##### Step Move Fail : [nid = %d,%s] m_iAniFrameCount=%d/%d ######\n", GetID(), GetName().c_str(), m_iAniFrameCount, m_iAniFrameIndex);
+
 		RegisterRegion(m_fPrevX, m_fPrevZ);
 		return false;	
 	}
 
 	fDis = GetDistance(vStart, vEnd);
-
-	// For as long as speeds are broken, this check's going to cause problems
-	// It's disabled for now, but note that the removal of this check is the reason 
-	// why mobs are going to have weird looking bursts of speed.
-	// Without, they'll just get stuck going back and forth in position. Compromises.
-//#if 0
-	if(fDis >= m_fSecForMetor)
+	if (fDis >= m_fSecForMetor)
 	{
 		GetVectorPosition(vStart, vEnd, m_fSecForMetor, &vDis);
 		m_fPrevX = vDis.x;
 		m_fPrevZ = vDis.z;
 	}
 	else
-//#endif
 	{
 		m_iAniFrameCount++;
 		if(m_iAniFrameCount == m_iAniFrameIndex)
@@ -1754,7 +1744,7 @@ bool CNpc::StepMove()
 				GetVectorPosition(vStart, vEnd, m_fSecForMetor, &vDis);
 				m_fPrevX = vDis.x;
 				m_fPrevZ = vDis.z;
-				m_iAniFrameCount--;
+//				m_iAniFrameCount--;
 			}
 			else
 			{
@@ -3529,18 +3519,13 @@ bool CNpc::IsPathFindCheck(float fDistance)
 
 	nX = (int)(vStart.x / TILE_SIZE);
 	nZ = (int)(vStart.z / TILE_SIZE);
-	if(pMap->IsMovable(nX, nZ) == true)
-	{
-		nError = -1;
+	if (pMap->IsMovable(nX, nZ))
 		return false;
-	}
+
 	nX = (int)(vEnd.x / TILE_SIZE);
 	nZ = (int)(vEnd.z / TILE_SIZE);
-	if(pMap->IsMovable(nX, nZ) == true)
-	{
-		nError = -1;
+	if (pMap->IsMovable(nX, nZ))
 		return false;
-	}
 
 	do
 	{
@@ -3548,7 +3533,7 @@ bool CNpc::IsPathFindCheck(float fDistance)
 		GetVectorPosition(vDis, vEnd, fDistance, &vDis);
 		fDis = GetDistance(vOldDis, vEnd);
 
-		if(fDis > NPC_MAX_MOVE_RANGE)
+		if (fDis > NPC_MAX_MOVE_RANGE)
 		{
 			nError = -1;
 			break;
@@ -3557,7 +3542,7 @@ bool CNpc::IsPathFindCheck(float fDistance)
 		nX = (int)(vDis.x / TILE_SIZE);
 		nZ = (int)(vDis.z / TILE_SIZE);
 
-		if(pMap->IsMovable(nX, nZ) == true
+		if (pMap->IsMovable(nX, nZ)
 			|| count >= MAX_PATH_LINE)
 		{
 			nError = -1;
@@ -3571,7 +3556,7 @@ bool CNpc::IsPathFindCheck(float fDistance)
 
 	m_iAniFrameIndex = count;
 
-	if(nError == -1)
+	if (nError == -1)
 		return false;
 
 	return true;

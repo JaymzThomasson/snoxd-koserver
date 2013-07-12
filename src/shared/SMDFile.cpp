@@ -286,7 +286,7 @@ float SMDFile::GetHeight(float x, float y, float z)
 int SMDFile::GetEventID(int x, int z)
 {
 	if (x < 0 || x >= m_nMapSize || z < 0 || z >= m_nMapSize)
-		return 0;
+		return -1;
 
 	return m_ppnEvent[x * m_nMapSize + z];
 }

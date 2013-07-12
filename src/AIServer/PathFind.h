@@ -40,7 +40,7 @@ class CPathFind
 {
 public:
 	bool IsBlankMap(int x, int y);
-	void SetMap(int x, int y, short *pMap, uint32 nMapSize, int16 min_x, int16 min_y);
+	void SetMap(int x, int y, MAP * pMap, int16 min_x, int16 min_y);
 	void PropagateDown(_PathNode *old);
 	void Insert(_PathNode *node);
 	_PathNode *CheckOpen(int x, int y);
@@ -60,8 +60,8 @@ protected:
 	long	m_lMapUse;	
 	_PathNode *m_pOpen, *m_pClosed;
 	STACK *m_pStack;
-	short *m_pMap;
-	int16 min_x, min_y;
-	CSize m_vMapSize;
+	MAP *m_pMap;
+	int16 m_min_x, m_min_y;
 	uint32 m_nMapSize;
+	CSize m_vMapSize;
 };

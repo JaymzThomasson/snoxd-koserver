@@ -39,8 +39,6 @@ float MAP::GetUnitDistance() { return m_smdFile->GetUnitDistance(); }
 int MAP::GetXRegionMax() { return m_smdFile->GetXRegionMax(); }
 int MAP::GetZRegionMax() { return m_smdFile->GetZRegionMax(); }
 short * MAP::GetEventIDs() { return m_smdFile->GetEventIDs(); }
-int MAP::GetEventID(int x, int z) { return m_smdFile->GetEventID(x, z); }
-
 
 MAP::MAP() : m_smdFile(nullptr), m_ppRegion(nullptr),
 	m_fHeight(nullptr), m_byRoomType(0), m_byRoomEvent(0),
@@ -123,9 +121,6 @@ void MAP::RemoveMapData()
 
 bool MAP::IsMovable(int dest_x, int dest_y)
 {
-	if(dest_x < 0 || dest_y < 0 ) return false;
-	if (dest_x >= GetMapSize() || dest_y >= GetMapSize()) return false;
-
 	return m_smdFile->GetEventID(dest_x, dest_y) == 0;
 }
 

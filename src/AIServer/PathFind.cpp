@@ -54,14 +54,13 @@ void CPathFind::ClearData()
 	}
 }
 
-void CPathFind::SetMap(int x, int y, short *pMap, uint32 nMapSize, int16 min_x, int16 min_y)
+void CPathFind::SetMap(int x, int y, MAP * pMap, int16 min_x, int16 min_y)
 {
 	m_vMapSize.cx = x;
 	m_vMapSize.cy = y;
-	m_nMapSize = nMapSize; // event array requires the full map size
 	m_pMap = pMap;
-	this->min_x = min_x;
-	this->min_y = min_y;
+	m_min_x = min_x;
+	m_min_y = min_y;
 }
 
 _PathNode *CPathFind::FindPath(int start_x, int start_y, int dest_x, int dest_y)
@@ -82,13 +81,21 @@ _PathNode *CPathFind::FindPath(int start_x, int start_y, int dest_x, int dest_y)
 	t_node->x = start_x;
 	t_node->y = start_y;
 
+	int maxtry = abs(start_x-dest_x)*m_vMapSize.cx + abs(start_y-dest_y)*m_vMapSize.cy + 1;
+	int count = 0;
 	m_pOpen->NextNode = t_node;
-	r_node = (_PathNode *)ReturnBestNode();
-	if(r_node == nullptr) return r_node;
-	if(r_node->x == dest_x && r_node->y == dest_y)
-		return r_node;
+	while (1)
+	{
+		if (count++ > maxtry * 2)
+			return nullptr;
 
-	FindChildPath(r_node, dest_x, dest_y);
+		r_node = (_PathNode *)ReturnBestNode();
+		if (r_node == nullptr) return r_node;
+		if (r_node->x == dest_x && r_node->y == dest_y)
+			return r_node;
+
+		FindChildPath(r_node, dest_x, dest_y);
+	}
 	return r_node;
 }
 
@@ -327,11 +334,5 @@ _PathNode *CPathFind::Pop()
 
 bool CPathFind::IsBlankMap(int x, int y)
 {
-	if (x < 0 || y < 0 || x >= m_vMapSize.cx || y >= m_vMapSize.cy) 
-		return false;
-
-	if ((min_x + x) < 0 || (min_y + y) < 0)
-		return false;
-
-	return !m_pMap[(min_x + x) * m_nMapSize + (min_y + y)];
+	return m_pMap->IsMovable(m_min_x + x, m_min_y + y);
 }

@@ -30,7 +30,6 @@ public:
 	int GetXRegionMax();
 	int GetZRegionMax();
 	short * GetEventIDs();
-	int GetEventID(int x, int z);
 
 	CRegion**		m_ppRegion;				// 64미터의 타일정보..
 	int m_nZoneNumber;						// zone number
