@@ -66,14 +66,44 @@ bool CNpc::RegisterRegion(float x, float z)
 
 		pMap->RegionNpcAdd(GetRegionX(), GetRegionZ(), GetID());
 		pMap->RegionNpcRemove(nOld_RX, nOld_RZ, GetID());
+
+		SendRegionUpdate();
 	}
 
 	return true;
 }
 
-CNpc::CNpc() : Unit(UnitNPC), 
+void CNpc::SendInOut(InOutType type)
+{
+	Packet result(AG_NPC_INOUT);
+	result << uint8(type) << GetID() << GetX() << GetZ() << GetY();
+	g_pMain->Send(&result);
+}
+
+void CNpc::SendNpcInfo()
+{
+	Packet result(AG_NPC_INFO);
+	result.SByte();
+	FillNpcInfo(result);
+	g_pMain->Send(&result);
+}
+
+/**
+ * @brief	Sends a region update packet to the game server
+ * 			to indicate the NPC has changed regions, so it should
+ * 			handle showing/removing the NPCs from applicable players.
+ */
+void CNpc::SendRegionUpdate()
+{
+	Packet result(AG_NPC_REGION_UPDATE);
+	result << GetID() << GetX() << GetY() << GetZ();
+	g_pMain->Send(&result);
+}
+
+CNpc::CNpc() : Unit(UnitNPC), m_bDelete(false),
 	m_NpcState(NPC_LIVE), m_OldNpcState(m_NpcState), m_byGateOpen(false), m_byObjectType(NORMAL_OBJECT), m_byPathCount(0),
 	m_byAttackPos(0), m_ItemUserLevel(0), m_Delay(0), m_nActiveSkillID(0), m_sActiveTargetID(-1), m_sActiveCastTime(0),
+	m_byDirection(0),
 	m_proto(nullptr), m_pPath(nullptr)
 {
 	InitTarget();
@@ -627,15 +657,8 @@ bool CNpc::SetLive()
 
 	if (m_bIsEventNpc && !m_bFirstLive)
 	{
-#if 0
-		NpcSet::iterator itr = g_pMain->m_arEventNpcThread[0]->m_pNpcs.find(this);
-		if (itr != g_pMain->m_arEventNpcThread[0]->m_pNpcs.end())
-		{
-			m_bIsEventNpc = false;
-			g_pMain->m_arEventNpcThread[0]->m_pNpcs.erase(itr);
-		}
-#endif
-		m_bIsEventNpc = false;
+		g_pMain->RemoveEventNPC(this);
+		m_bDelete = true;
 		return true;
 	}
 
@@ -747,7 +770,8 @@ bool CNpc::SetLive()
 
 		m_bFirstLive = false;
 
-		if (g_pMain->m_CurrentNPC.increment() == g_pMain->m_TotalNPC)
+		if (g_pMain->m_CurrentNPC.increment() == g_pMain->m_TotalNPC
+			&& !m_bIsEventNpc)
 		{
 			printf("Monster All Init Success - %d\n", g_pMain->m_TotalNPC);
 			g_pMain->GameServerAcceptThread();
@@ -769,11 +793,7 @@ bool CNpc::SetLive()
 	RegisterRegion(GetX(), GetZ());
 	m_byDeadType = 0;
 
-	Packet result(AG_NPC_INFO);
-	result.SByte();
-	FillNpcInfo(result);
-	g_pMain->Send(&result);
-
+	SendNpcInfo();
 	return true;
 }
 

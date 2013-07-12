@@ -174,10 +174,12 @@ bool CServerDlg::CreateNpcThread()
 
 	LOAD_TABLE_ERROR_ONLY(CNpcPosSet, &m_GameDB, nullptr, false);
 			
+	FastGuard lock(m_eventThreadLock);
 	foreach_stlmap (itr, g_arZone)
 	{
-		CNpcThread * pNpcThread = new CNpcThread;
-		m_arNpcThread.push_back(pNpcThread);
+		CNpcThread * pNpcThread = new CNpcThread();
+		m_arNpcThread.insert(make_pair(itr->first, pNpcThread));
+		m_arEventNpcThread.insert(make_pair(itr->first, new CNpcThread()));
 
 		foreach_stlmap (npcItr, m_arNpc)
 		{
@@ -263,7 +265,7 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 			return false;
 		}
 
-		pNpc->Load(m_TotalNPC++, pNpcTable, bMonster);
+		pNpc->Load(++m_TotalNPC, pNpcTable, bMonster);
 		pNpc->m_byBattlePos = 0;
 
 		if (pNpc->m_byMoveType >= 2)
@@ -367,8 +369,6 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 			continue;
 		}
 
-		pNpc->RegisterRegion(pNpc->GetX(), pNpc->GetZ());
-
 		if (pNpc->GetMap()->m_byRoomEvent > 0 && pNpc->m_byDungeonFamily > 0)
 		{
 			pRoom = pNpc->GetMap()->m_arRoomEventArray.GetData(pNpc->m_byDungeonFamily);
@@ -394,12 +394,14 @@ bool CServerDlg::LoadSpawnCallback(OdbcCommand *dbCommand)
 	return true;
 }
 
-
-//	NPC Thread 들을 작동시킨다.
 void CServerDlg::ResumeAI()
 {
 	foreach (itr, m_arNpcThread)
-		(*itr)->m_thread.start(NpcThreadProc, *itr);
+		itr->second->m_thread.start(NpcThreadProc, itr->second);
+
+	FastGuard lock(m_eventThreadLock);
+	foreach (itr, m_arEventNpcThread)
+		itr->second->m_thread.start(NpcThreadProc, itr->second);
 
 	m_zoneEventThread.start(ZoneEventThreadProc, this);
 }
@@ -680,6 +682,56 @@ bool CServerDlg::AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap)
 	return true;
 }
 
+CNpc * CServerDlg::SpawnEventNpc(uint16 sSid, bool bIsMonster, uint8 byZone, float fX, float fY, float fZ)
+{
+	CNpcTable * proto = nullptr;
+	MAP * pZone = GetZoneByID(byZone);
+
+	if (pZone == nullptr)
+		return nullptr;
+
+	if (bIsMonster)
+		proto = m_arMonTable.GetData(sSid);
+	else
+		proto = m_arNpcTable.GetData(sSid);
+
+	if (proto == nullptr)
+		return nullptr;
+
+	FastGuard lock(m_eventThreadLock);
+	auto itr = m_arEventNpcThread.find(byZone);
+	if (itr == m_arEventNpcThread.end())
+		return false;
+
+	CNpc * pNpc = new CNpc();
+
+	pNpc->m_bIsEventNpc = true;
+	pNpc->m_byMoveType = 1;
+	pNpc->m_byInitMoveType = 1;
+	pNpc->m_byBattlePos = 0;
+
+	pNpc->m_bZone = byZone;
+	pNpc->SetPosition(fX, fY, fZ);
+	pNpc->m_pMap = pZone;
+
+	pNpc->Load(++m_TotalNPC, proto, bIsMonster);
+	pNpc->InitPos();
+
+	itr->second->AddNPC(pNpc);
+
+	return pNpc;
+}
+
+void CServerDlg::RemoveEventNPC(CNpc * pNpc)
+{
+	FastGuard lock(m_eventThreadLock);
+	auto itr = m_arEventNpcThread.find(pNpc->GetZoneID());
+	if (itr == m_arEventNpcThread.end())
+		return;
+
+	itr->second->RemoveNPC(pNpc);
+}
+
 MAP * CServerDlg::GetZoneByID(int zonenumber)
 {
 	return g_arZone.GetData(zonenumber);
@@ -721,10 +773,21 @@ CServerDlg::~CServerDlg()
 	printf("Waiting for NPC threads to exit...");
 	foreach (itr, m_arNpcThread)
 	{
-		(*itr)->m_thread.waitForExit();
-		delete (*itr);
+		CNpcThread * pThread = itr->second;
+		pThread->m_thread.waitForExit();
+		delete pThread;
 	}
 	m_arNpcThread.clear();
+
+	FastGuard lock(m_eventThreadLock);
+	foreach (itr, m_arEventNpcThread)
+	{
+		CNpcThread * pThread = itr->second;
+		pThread->m_thread.waitForExit();
+		delete pThread;
+	}
+	m_arEventNpcThread.clear();
+
 	printf(" exited.\n");
 
 	printf("Waiting for zone event thread to exit...");

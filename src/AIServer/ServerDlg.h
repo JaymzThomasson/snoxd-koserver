@@ -15,7 +15,7 @@ class CNpcThread;
 class CNpcTable;
 class Unit;
 
-typedef std::vector <CNpcThread*>			NpcThreadArray;
+typedef std::map <uint8, CNpcThread*>		NpcThreadArray;
 typedef CSTLMap <CNpcTable>					NpcTableArray;
 typedef CSTLMap <CNpc>						NpcArray;
 typedef CSTLMap <_MAGIC_TABLE>				MagictableArray;
@@ -60,6 +60,9 @@ public:
 	void GameServerAcceptThread();
 	void GetServerResource(int nResourceID, std::string * result, ...);
 	bool AddObjectEventNpc(_OBJECT_EVENT* pEvent, MAP * pMap);
+	CNpc * SpawnEventNpc(uint16 sSid, bool bIsMonster, uint8 byZone, float fX, float fY, float fZ);
+
+	void RemoveEventNPC(CNpc * pNpc);
 	void AllNpcInfo();
 
 	Unit * GetUnitPtr(uint16 id);
@@ -85,6 +88,7 @@ public:
 	NpcTableArray		m_arMonTable;
 	NpcTableArray		m_arNpcTable;
 	NpcThreadArray		m_arNpcThread;
+	NpcThreadArray		m_arEventNpcThread;
 	PartyArray			m_arParty;
 	ZoneNpcInfoList		m_ZoneNpcList;
 	MagictableArray		m_MagictableArray;
@@ -106,7 +110,7 @@ public:
 
 	UserSessionMap m_pUser;
 
-	uint16			m_TotalNPC;			// DB에있는 총 수
+	Atomic<uint16>	m_TotalNPC;			// DB에있는 총 수
 	Atomic<uint16>	m_CurrentNPC;
 	short			m_sTotalMap;		// Zone 수 
 	short			m_sMapEventNpc;		// Map에서 읽어들이는 event npc 수
@@ -119,7 +123,7 @@ public:
 	uint8 m_iWeather;
 	bool m_bIsNight;
 
-	FastMutex m_userLock;
+	FastMutex m_userLock, m_eventThreadLock;
 
 	KOSocketMgr<CGameSocket> m_socketMgr;
 };

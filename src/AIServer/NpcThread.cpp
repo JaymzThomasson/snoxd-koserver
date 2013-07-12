@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "NpcThread.h"
 #include "Npc.h"
+
 #define DELAY				250
 
 //////////////////////////////////////////////////////////////////////
@@ -24,12 +25,13 @@ uint32 THREADCALL NpcThreadProc(void * pParam /* CNpcThread ptr */)
 
 		if(!pInfo) return 0;
 
-		while(!g_bNpcExit)
+		while (!g_bNpcExit)
 		{
 			fTime2 = getMSTime();
-
+			pInfo->m_lock.Acquire();
 			foreach (itr, pInfo->m_pNpcs)
 			{
+				bool bDeleteNPC = false;
 				pNpc = *itr;
 				dwTickTime = fTime2 - pNpc->m_fDelayTime;
 
@@ -115,9 +117,14 @@ uint32 THREADCALL NpcThreadProc(void * pParam /* CNpcThread ptr */)
 
 				if (tDelay >= 0)
 					pNpc->m_Delay = tDelay;
-			}	
 
-			sleep(100);
+				if (pNpc->m_bDelete)
+					g_pMain->m_arNpc.DeleteData(pNpc->GetID());
+			}
+
+			pInfo->m_lock.Release();
+
+			sleep(DELAY);
 		}
 	}
 	catch (std::exception & ex)
@@ -158,11 +165,24 @@ uint32 THREADCALL ZoneEventThreadProc(void * pParam /* = nullptr */)
 	return 0;
 }
 
+void CNpcThread::AddNPC(CNpc * pNpc)
+{
+	FastGuard lock(m_lock);
+	m_pNpcs.insert(pNpc);
+}
+
+void CNpcThread::RemoveNPC(CNpc * pNpc)
+{
+	FastGuard lock(m_lock);
+	m_pNpcs.erase(pNpc);
+}
+
 CNpcThread::CNpcThread()
 {
 }
 
 CNpcThread::~CNpcThread()
 {
+	FastGuard lock(m_lock);
 	m_pNpcs.clear();
 }

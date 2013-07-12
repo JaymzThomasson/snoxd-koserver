@@ -330,6 +330,8 @@ public:
 	int16	m_sActiveTargetID;		// ID of the target of the skill currently being cast
 	uint16	m_sActiveCastTime;		// Cast time of the skill currently being cast (in seconds)
 
+	bool	m_bDelete; // when set, will remove the NPC from the server after execution.
+
 public:
 	CNpc();
 	virtual ~CNpc();
@@ -401,6 +403,9 @@ public:
 	void SendAttackSuccess(uint8 byResult, int tuid, short sDamage, int nHP=0, uint8 byFlag = 0, short sAttack_type=1);
 
 	bool RegisterRegion(float x, float z);
+	void SendInOut(InOutType type);
+	void SendNpcInfo();
+	void SendRegionUpdate();
 	void Dead(bool bSendDeathPacket = true);
 
 	bool FindEnemy();

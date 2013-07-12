@@ -38,6 +38,7 @@ public:
 	void RecvHealMagic(Packet & pkt);
 	void RecvTimeAndWeather(Packet & pkt);
 	void RecvBattleEvent(Packet & pkt);
+	void RecvNpcSpawnRequest(Packet & pkt);
 
 	bool SetUid(float x, float z, int id, int speed);
 

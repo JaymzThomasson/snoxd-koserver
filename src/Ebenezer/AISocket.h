@@ -25,6 +25,7 @@ public:
 	void RecvNpcAttack(Packet & pkt);
 	void RecvMagicAttackResult(Packet & pkt);
 	void RecvNpcInfo(Packet & pkt);
+	void RecvNpcRegionUpdate(Packet & pkt);
 	void RecvUserHP(Packet & pkt);
 	void RecvUserExp(Packet & pkt);
 	void RecvSystemMsg(Packet & pkt);
@@ -38,6 +39,7 @@ public:
 	void RecvGateOpen(Packet & pkt);
 	void RecvCompressed(Packet & pkt);
 	void RecvNpcHpChange(Packet & pkt);
+	void RecvNpcSpawnRequest(Packet & pkt);
 
 	virtual void OnDisconnect();
 	virtual ~CAISocket() {}

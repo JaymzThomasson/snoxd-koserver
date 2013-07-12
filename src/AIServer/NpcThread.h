@@ -10,9 +10,12 @@ class CNpcThread
 {
 public:
 	CNpcThread();
+	void AddNPC(CNpc * pNpc);
+	void RemoveNPC(CNpc * pNpc);
 	virtual ~CNpcThread();
 
 public:
 	NpcSet m_pNpcs;
+	FastMutex m_lock;
 	Thread m_thread;
 };

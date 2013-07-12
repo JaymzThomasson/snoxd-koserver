@@ -43,6 +43,9 @@ bool CAISocket::HandlePacket(Packet & pkt)
 		case AG_NPC_INFO:
 			RecvNpcInfo(pkt);
 			break;
+		case AG_NPC_REGION_UPDATE:
+			RecvNpcRegionUpdate(pkt);
+			break;
 		case AG_USER_SET_HP:
 			RecvUserHP(pkt);
 			break;
@@ -380,13 +383,18 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 	std::string strName;
 	uint8 Mode, byDirection;
 	uint16 sNid;
+	bool bCreated = false;
 
 	pkt.SByte();
 	pkt >> Mode >> sNid;
 
 	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNid);
 	if (pNpc == nullptr)
-		return;
+	{
+		pNpc = new CNpc();
+		pNpc->m_sNid = sNid;
+		bCreated = true;
+	}
 
 	pkt >> pNpc->m_sSid >> pNpc->m_sPid >> pNpc->m_sSize >> pNpc->m_iWeapon_1 >> pNpc->m_iWeapon_2
 		>> pNpc->m_bZone >> strName >> pNpc->m_bNation >> pNpc->m_bLevel
@@ -409,11 +417,14 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 	pNpc->m_byDirection = byDirection;
 	pNpc->m_strName = strName;
 
+	pNpc->m_pMap = g_pMain->GetZoneByID(pNpc->GetZoneID());
 	if (pNpc->GetMap() == nullptr)
+	{
+		pNpc->DecRef();
 		return;
+	}
 
-	pNpc->InsertRegion(pNpc->GetNewRegionX(), pNpc->GetNewRegionZ());
-	pNpc->SetRegion(pNpc->GetNewRegionX(), pNpc->GetNewRegionZ());
+	pNpc->RegisterRegion();
 
 	if (pNpc->m_byObjectType == SPECIAL_OBJECT)
 	{
@@ -422,6 +433,9 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 			pEvent->byLife = 1;
 	}
 
+	if (bCreated)
+		g_pMain->m_arNpcArray.PutData(pNpc->GetID(), pNpc);
+
 	if (pNpc->m_NpcState == NPC_DEAD)
 	{
 		TRACE("RecvNpcInfo - dead monster nid=%d, name=%s\n", pNpc->GetID(), pNpc->GetName().c_str());
@@ -429,6 +443,21 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 	}
 
 	pNpc->SendInOut(INOUT_IN, pNpc->GetX(), pNpc->GetZ(), pNpc->GetY());
+}
+
+void CAISocket::RecvNpcRegionUpdate(Packet & pkt)
+{
+	uint16 sNpcID;
+	float fX, fY, fZ;
+
+	pkt >> sNpcID >> fX >> fY >> fZ;
+
+	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
+	if (pNpc == nullptr)
+		return;
+
+	pNpc->SetPosition(fX, fY, fZ);
+	pNpc->RegisterRegion();
 }
 
 void CAISocket::RecvUserHP(Packet & pkt)

@@ -623,6 +623,8 @@ const uint8	AG_NPC_GATE_DESTORY	= 10;
 const uint8	AG_NPC_INOUT		= 11;	
 const uint8	AG_NPC_EVENT_ITEM	= 12;	
 const uint8	AG_NPC_HP_REQ		= 13;
+const uint8 AG_NPC_SPAWN_REQ	= 14;	// spawns an NPC/monster at the desired location
+const uint8 AG_NPC_REGION_UPDATE	= 15;
 
 // ---------------------------------------------------------------------
 // AI Server와 게임서버간의 User, Npc 공통 관련된 패킷은 50번~100번 
@@ -643,7 +645,7 @@ const uint8	AG_PARTY_INFO_ALL		= 62;	// Party의 모든 정보 전송
 const uint8	AG_HEAL_MAGIC			= 63;	// Healing magic
 const uint8	AG_TIME_WEATHER			= 64;	// time and whether info
 const uint8	AG_BATTLE_EVENT			= 65;	// battle event
-const uint8  AG_COMPRESSED			= 66;
+const uint8 AG_COMPRESSED			= 66;
 
 // ---------------------------------------------------------------------
 // Battle Event Sub Packet

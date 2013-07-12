@@ -86,6 +86,9 @@ bool CGameSocket::HandlePacket(Packet & pkt)
 	case AG_USER_VISIBILITY:
 		RecvUserVisibility(pkt);
 		break;
+	case AG_NPC_SPAWN_REQ:
+		RecvNpcSpawnRequest(pkt);
+		break;
 	}
 	return true;
 }
@@ -517,5 +520,29 @@ void CGameSocket::RecvBattleEvent(Packet & pkt)
 			if (bEvent == BATTLEZONE_OPEN || bEvent == BATTLEZONE_CLOSE)
 				pNpc->ChangeAbility(bEvent);
 		}
+	}
+}
+
+void CGameSocket::RecvNpcSpawnRequest(Packet & pkt)
+{
+	uint16 sSid, sX, sY, sZ, sCount, sRadius;
+	uint8 byZone;
+	bool bIsMonster;
+	float fX, fY, fZ;
+
+	pkt >> sSid >> bIsMonster >> byZone >> sX >> sY >> sZ >> sCount >> sRadius;
+
+	fX = sX / 10.0f;
+	fY = sY / 10.0f;
+	fZ = sZ / 10.0f;
+
+	int16 minRange = -(sRadius / 2);
+	for (uint16 i = 0; i < sCount; i++)
+	{
+		g_pMain->SpawnEventNpc(sSid, bIsMonster, 
+			byZone, 
+			(float)(fX + myrand(minRange, sRadius)), 
+			fY, 
+			(float)(fZ + myrand(minRange, sRadius)));
 	}
 }

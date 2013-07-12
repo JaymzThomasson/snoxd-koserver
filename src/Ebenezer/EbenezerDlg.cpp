@@ -428,6 +428,29 @@ Unit * CEbenezerDlg::GetUnit(uint16 id)
 	return m_arNpcArray.GetData(id);
 }
 
+/**
+ * @brief	Spawn one or more event NPC/monsters.
+ *
+ * @param	sSid	  	The database ID of the NPC/monster to spawn.
+ * @param	bIsMonster	true if we are spawning a monster, false for an NPC.
+ * @param	byZone	  	The zone ID to spawn the monster to.
+ * @param	fX		  	The x coordinate.
+ * @param	fY		  	The y coordinate.
+ * @param	fZ		  	The z coordinate.
+ * @param	sCount	  	Number of spawns to create.
+ * @param	sRadius	  	Spawn radius.
+ */
+void CEbenezerDlg::SpawnEventNpc(uint16 sSid, bool bIsMonster, uint8 byZone, float fX, float fY, float fZ, uint16 sCount /*= 1*/, uint16 sRadius /*= 0*/)
+{
+	Packet result(AG_NPC_SPAWN_REQ);
+	result	<< sSid << bIsMonster 
+			<< byZone 
+			<< uint16(fX * 10) << uint16(fY * 10) << uint16(fZ * 10) 
+			<< sCount 
+			<< sRadius;
+	Send_AIServer(&result);
+}
+
 _PARTY_GROUP * CEbenezerDlg::CreateParty(CUser *pLeader)
 {
 	_PARTY_GROUP * pParty = new _PARTY_GROUP;

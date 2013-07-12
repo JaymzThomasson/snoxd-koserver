@@ -228,6 +228,9 @@ public:
 
 	Unit * GetUnit(uint16 id);
 
+	// Spawns an event NPC/monster
+	void SpawnEventNpc(uint16 sSid, bool bIsMonster, uint8 byZone, float fX, float fY, float fZ, uint16 sCount = 1, uint16 sRadius = 0);
+
 	// Adds the account name & session to a hashmap (on login)
 	void AddAccountName(CUser *pSession);
 
