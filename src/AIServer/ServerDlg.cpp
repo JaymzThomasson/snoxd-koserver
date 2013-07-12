@@ -706,7 +706,7 @@ CNpc * CServerDlg::SpawnEventNpc(uint16 sSid, bool bIsMonster, uint8 byZone, flo
 	CNpc * pNpc = new CNpc();
 
 	pNpc->m_bIsEventNpc = true;
-	pNpc->m_byMoveType = 1;
+	pNpc->m_byMoveType = (bIsMonster ? 1 : 0);
 	pNpc->m_byInitMoveType = 1;
 	pNpc->m_byBattlePos = 0;
 
