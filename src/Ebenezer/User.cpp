@@ -523,7 +523,7 @@ void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/)
 	else
 	{
 		// If you're using an NP modifying buff then add the bonus (NOTE: We do not take extra NP from the user that dies!)
-		nChangeAmount += m_bNPGainAmount * nChangeAmount / 100;
+		nChangeAmount = m_bNPGainAmount * nChangeAmount / 100;
 
 		// Add on any additional NP gained from items/skills.
 		nChangeAmount += m_bItemNPBonus + m_bSkillNPBonus;
