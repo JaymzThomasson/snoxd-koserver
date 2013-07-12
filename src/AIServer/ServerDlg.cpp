@@ -718,6 +718,7 @@ CNpc * CServerDlg::SpawnEventNpc(uint16 sSid, bool bIsMonster, uint8 byZone, flo
 	pNpc->InitPos();
 
 	itr->second->AddNPC(pNpc);
+	m_arNpc.PutData(pNpc->GetID(), pNpc);
 
 	return pNpc;
 }
