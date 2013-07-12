@@ -241,11 +241,11 @@ void CUser::ItemUpgrade(Packet & pkt)
 
 		// Generate a random number, test if the item burned.
 		int rand = myrand(0, myrand(9000, 10000));
-		if (pUpgrade->sGenRate <= rand)
+		if (bType == UpgradeTypeNormal
+			&& pUpgrade->sGenRate <= rand)
 		{
 			bResult = UpgradeFailed;
-			if (bType != UpgradeTypePreview)
-				memset(pOriginItem, 0, sizeof(_ITEM_DATA));
+			memset(pOriginItem, 0, sizeof(_ITEM_DATA));
 		}
 		else
 		{
