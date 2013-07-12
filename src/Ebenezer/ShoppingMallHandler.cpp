@@ -52,7 +52,7 @@ void CUser::ReqLoadWebItemMall()
 	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_CLOSE));
 	std::vector<_ITEM_DATA> itemList;
 
-	if (g_DBAgent.LoadWebItemMall(itemList, this))
+	if (!g_DBAgent.LoadWebItemMall(itemList, this))
 		return;
 
 	// reuse the GiveItem() method for giving them the item, just don't send the packet
