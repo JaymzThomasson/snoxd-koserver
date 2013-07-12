@@ -1485,8 +1485,12 @@ bool MagicInstance::ExecuteType6()
 	uint16 sDuration = 0;
 
 	if (pType == nullptr
-		// Allow NPC transformations in PVP zones
-		|| (pType->bUserSkillUse != TransformationSkillUseNPC && pSkillCaster->GetMap()->canAttackOtherNation())
+			// Allow NPC transformations in PVP zones
+			|| (pType->bUserSkillUse != TransformationSkillUseNPC
+				// All PVP zones.
+				&& pSkillCaster->GetMap()->canAttackOtherNation()
+				// Exclude home zones (which can be invaded).
+				&& pSkillCaster->GetZoneID() > ELMORAD)
 		|| (!bIsRecastingSavedMagic && pCaster->isTransformed())
 		// All buffs must be removed before using transformation skills
 		|| (pType->bUserSkillUse != TransformationSkillUseNPC && pSkillCaster->isBuffed()))
