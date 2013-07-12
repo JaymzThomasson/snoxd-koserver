@@ -267,10 +267,10 @@ void CUser::ItemUpgrade(Packet & pkt)
 
 				// Reset the durability also, to the new cap.
 				pOriginItem->sDuration = newProto->m_sDuration;
-
-				// Replace the item ID in the list for the packet
-				nItemID[0] = nNewItemID;
 			}
+
+			// Replace the item ID in the list for the packet
+			nItemID[0] = nNewItemID;
 		}
 
 		// Remove the source item 
