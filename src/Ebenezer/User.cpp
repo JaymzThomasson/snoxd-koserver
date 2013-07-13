@@ -772,9 +772,14 @@ void CUser::SetMaxHp(int iFlag)
 	if( m_bZone == ZONE_SNOW_BATTLE && iFlag == 0 )	{
 		m_iMaxHp = 100;
 	}
-	else	{
+	else	
+	{
 		m_iMaxHp = (short)(((p_TableCoefficient->HP * GetLevel() * GetLevel() * temp_sta ) 
 		      + 0.1 * (GetLevel() * temp_sta) + (temp_sta / 5)) + m_sMaxHPAmount + m_sItemMaxHp + 20);
+
+		// A player's max HP should be capped at (currently) 14,000 HP.
+		if (m_iMaxHp > MAX_PLAYER_HP)
+			m_iMaxHp = MAX_PLAYER_HP;
 
 		if( iFlag == 1 )	m_sHp = m_iMaxHp;
 		else if( iFlag == 2 )	m_iMaxHp = 100;

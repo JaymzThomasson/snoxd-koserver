@@ -20,6 +20,7 @@
 
 #define MAX_CLASS			26			// ��� MAX
 #define MAX_LEVEL			83			// �ְ�...
+#define MAX_PLAYER_HP		14000
 
 #define MAX_MESSAGE_EVENT			12
 
