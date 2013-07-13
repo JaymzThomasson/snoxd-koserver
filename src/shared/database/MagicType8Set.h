@@ -7,7 +7,7 @@ public:
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
 	virtual tstring GetTableName() { return _T("MAGIC_TYPE8"); }
-	virtual tstring GetColumns() { return _T("iNum, Target, Radius, WarpType, ExpRecover"); }
+	virtual tstring GetColumns() { return _T("iNum, Target, Radius, WarpType, ExpRecover, KickDistance"); }
 
 	virtual bool Fetch()
 	{
@@ -18,6 +18,7 @@ public:
 		_dbCommand->FetchUInt16(3, pData->sRadius);
 		_dbCommand->FetchByte(4, pData->bWarpType);
 		_dbCommand->FetchUInt16(5, pData->sExpRecover);
+		_dbCommand->FetchUInt16(6, pData->sKickDistance);
 
 		if (!m_pMap->PutData(pData->iNum, pData))
 			delete pData;

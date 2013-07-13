@@ -166,6 +166,7 @@ struct _MAGIC_TYPE8
 	uint16	sRadius;
 	uint8	bWarpType;
 	uint16	sExpRecover;
+	uint16	sKickDistance; // used exclusively by soccer ball-control skills.
 };
 
 struct _MAGIC_TYPE9
