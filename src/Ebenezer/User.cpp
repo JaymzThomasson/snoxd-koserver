@@ -165,6 +165,9 @@ void CUser::OnDisconnect()
 		}
 
 		ResetWindows();
+
+		if (hasRival())
+			RemoveRival();
 	}
 	LogOut();
 }
@@ -2871,9 +2874,6 @@ void CUser::ResetWindows()
 	// If we're just browsing, free up our spot so others can browse the vendor.
 	if (m_sMerchantsSocketID >= 0)
 		CancelMerchant();
-
-	if (hasRival())
-		RemoveRival();
 
 /*	if (isUsingBuyingMerchant())
 		BuyingMerchantClose();

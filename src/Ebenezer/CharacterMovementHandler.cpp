@@ -312,6 +312,9 @@ void CUser::ZoneChange(uint16 sNewZone, float x, float z)
 		if (isInParty())
 			PartyRemove(GetSocketID());
 
+		if (hasRival())
+			RemoveRival();
+
 		ResetWindows();
 	}
 
