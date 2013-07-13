@@ -497,6 +497,7 @@
     <ClInclude Include="..\shared\database\MagicType7Set.h" />
     <ClInclude Include="..\shared\database\MagicType8Set.h" />
     <ClInclude Include="..\shared\database\MagicType9Set.h" />
+    <ClInclude Include="..\shared\database\MonsterSummonListSet.h" />
     <ClInclude Include="..\shared\database\QuestHelperSet.h" />
     <ClInclude Include="..\shared\database\QuestMonsterSet.h" />
     <ClInclude Include="..\shared\database\RentalItemSet.h" />

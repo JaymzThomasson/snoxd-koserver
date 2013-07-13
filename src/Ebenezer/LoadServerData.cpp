@@ -46,6 +46,7 @@
 #include "../shared/database/KingSystemSet.h"
 #include "../shared/database/KingCandidacyNoticeBoardSet.h"
 #include "../shared/database/KingElectionListSet.h"
+#include "../shared/database/MonsterSummonListSet.h"
 
 bool CEbenezerDlg::LoadItemTable()
 {
@@ -296,6 +297,11 @@ bool CEbenezerDlg::LoadKingSystem()
 	LOAD_TABLE_ERROR_ONLY(CKingSystemSet, g_DBAgent.m_GameDB, &m_KingSystemArray, true);
 	LOAD_TABLE_ERROR_ONLY(CKingCandidacyNoticeBoardSet, g_DBAgent.m_GameDB, &m_KingSystemArray, true);
 	LOAD_TABLE(CKingElectionListSet, g_DBAgent.m_GameDB, &m_KingSystemArray, true);
+}
+
+bool CEbenezerDlg::LoadMonsterSummonListTable()
+{
+	LOAD_TABLE(CMonsterSummonListSet, g_DBAgent.m_GameDB, &m_MonsterSummonList, true);
 }
 
 bool CEbenezerDlg::MapFileLoad()

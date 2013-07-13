@@ -50,3 +50,6 @@ typedef std::map<uint8, _USER_RANK *>		UserRankMap;
 
 typedef std::vector<_QUEST_HELPER *>		QuestHelperList;
 typedef std::map<uint16, QuestHelperList>	QuestNpcList;
+
+typedef std::vector<_MONSTER_SUMMON_LIST>	MonsterSummonList;
+typedef CSTLMap <MonsterSummonList>			MonsterSummonListArray;

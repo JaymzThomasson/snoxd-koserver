@@ -249,6 +249,14 @@ struct _ZONE_INFO
 #endif
 };
 
+struct _MONSTER_SUMMON_LIST
+{
+	uint16	sSid;
+	uint16	sLevel;
+	uint16	sProbability;
+	uint8	bType;
+};
+
 #define MAX_PARTY_USERS		8
 struct	_PARTY_GROUP
 {

@@ -145,7 +145,8 @@ bool CEbenezerDlg::Startup()
 		|| !LoadStartPositionTable()
 		|| !LoadBattleTable()
 		|| !MapFileLoad()
-		|| !LoadKingSystem())
+		|| !LoadKingSystem()
+		|| !LoadMonsterSummonListTable())
 		return false;
 
 	LoadNoticeData();

@@ -59,6 +59,7 @@ public:
 	bool LoadStartPositionTable();
 	bool LoadBattleTable();
 	bool LoadKingSystem();
+	bool LoadMonsterSummonListTable();
 
 	bool MapFileLoad();
 	bool LoadNoticeData();
@@ -293,6 +294,7 @@ public:
 	ItemUpgradeArray		m_ItemUpgradeArray;
 	ItemOpArray				m_ItemOpArray;
 	KingSystemArray			m_KingSystemArray;
+	MonsterSummonListArray	m_MonsterSummonList;
 
 	Atomic<uint16>			m_sPartyIndex;
 	short	m_sZoneCount;							// AI Server 재접속시 사용
