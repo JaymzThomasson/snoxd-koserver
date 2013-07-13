@@ -47,7 +47,7 @@ void CUser::Initialize()
 	m_sItemWeight = 0;
 	m_sItemHit = m_sItemAc = 0;
 
-	m_bExpGainAmount = m_bNPGainAmount = m_bNoahGainAmount = 100;
+	m_sExpGainAmount = m_bNPGainAmount = m_bNoahGainAmount = 100;
 	m_bItemExpGainAmount = m_bItemNoahGainAmount = 0;
 	m_bItemNPBonus = m_bSkillNPBonus = 0;
 
@@ -1182,7 +1182,7 @@ void CUser::ExpChange(int64 iExp)
 
 	// Adjust the exp gained based on the percent set by the buff
 	if (iExp > 0)
-		iExp = iExp * (m_bExpGainAmount + m_bItemExpGainAmount) / 100;
+		iExp = iExp * (m_sExpGainAmount + m_bItemExpGainAmount) / 100;
 
 	bool bLevel = true;
 	if (iExp < 0 
@@ -1333,18 +1333,18 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 	// If we're taking damage...
 	if (amount < 0)
 	{
-		//Handle the mirroring of damage.
-		if(m_bMirrorDamage && isInParty())
+		// Handle the mirroring of damage.
+		if (m_bMirrorDamage && isInParty())
 		{
 			_PARTY_GROUP *pParty = nullptr;
 			CUser *pUser = nullptr;
-			mirrorDamage = (20*amount) / 100;
+			mirrorDamage = (m_byMirrorAmount * amount) / 100;
 			amount -= mirrorDamage;
 			pParty = g_pMain->GetPartyPtr(GetPartyID());
-			if(pParty != nullptr)
+			if (pParty != nullptr)
 			{
 				mirrorDamage = mirrorDamage / (GetPartyMemberAmount(pParty) - 1);
-				for(int i = 0; i < MAX_PARTY_USERS; i++)
+				for (int i = 0; i < MAX_PARTY_USERS; i++)
 				{
 					pUser = g_pMain->GetUserPtr(pParty->uid[i]);
 					if(pUser == nullptr || pUser == this)
@@ -1354,22 +1354,23 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 				}
 			}
 		}
-		//Handle mana absorb skills
-		if(m_bManaAbsorb > 0)
+
+		// Handle mana absorb skills
+		if (m_bManaAbsorb > 0)
 		{
 			int toBeAbsorbed = 0;
 			toBeAbsorbed = (originalAmount*m_bManaAbsorb) / 100;
 			amount -= toBeAbsorbed;
 
-			if(m_bManaAbsorb == 15)
+			if (m_bManaAbsorb == 15)
 				toBeAbsorbed *= 4;
 
 			MSpChange(toBeAbsorbed);
 		}
+
 		// Handle mastery passives
 		if (isMastered())
 		{
-
 			// Matchless: [Passive]Decreases all damages received by 15%
 			if (CheckSkillPoint(SkillPointMaster, 10, MAX_LEVEL))
 				amount = (85 * amount) / 100;

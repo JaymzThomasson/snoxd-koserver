@@ -209,7 +209,8 @@ public:
 	int16	m_sStatItemBonuses[STAT_COUNT];
 	int8	m_bStatBuffs[STAT_COUNT];
 
-	uint8	m_bExpGainAmount, m_bItemExpGainAmount;
+	uint16	m_sExpGainAmount;
+	uint8	m_bItemExpGainAmount;
 	uint8	m_bNPGainAmount, m_bItemNPBonus, m_bSkillNPBonus;
 	uint8	m_bNoahGainAmount, m_bItemNoahGainAmount;
 	uint8	m_bMaxWeightAmount; 

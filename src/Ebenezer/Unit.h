@@ -278,7 +278,8 @@ public:
 	bool	m_bCanStealth;
 	bool	m_bInstantCast;
 	bool    m_bBlockCurses, m_bReflectCurses;
-	bool	m_bMirrorDamage;
+	bool	m_bMirrorDamage; 
+	uint8	m_byMirrorAmount;
 	uint8	m_bReflectArmorType;
 	bool	m_bIsUndead, m_bIsKaul;
 

@@ -7,7 +7,7 @@ public:
 		: OdbcRecordset(dbConnection), m_pMap(pMap) {}
 
 	virtual tstring GetTableName() { return _T("MAGIC_TYPE4"); }
-	virtual tstring GetColumns() { return _T("iNum, BuffType, Radius, Duration, AttackSpeed, Speed, AC, ACPct, Attack, MagicAttack, MaxHP, MaxHPPct, MaxMP, MaxMPPct, HitRate, AvoidRate, Str, Sta, Dex, Intel, Cha, FireR, ColdR, LightningR, MagicR, DiseaseR, PoisonR, ExpPct"); }
+	virtual tstring GetColumns() { return _T("iNum, BuffType, Radius, Duration, AttackSpeed, Speed, AC, ACPct, Attack, MagicAttack, MaxHP, MaxHPPct, MaxMP, MaxMPPct, HitRate, AvoidRate, Str, Sta, Dex, Intel, Cha, FireR, ColdR, LightningR, MagicR, DiseaseR, PoisonR, ExpPct, SpecialAmount"); }
 
 	virtual bool Fetch()
 	{
@@ -40,7 +40,8 @@ public:
 		_dbCommand->FetchByte(25, pData->bMagicR);
 		_dbCommand->FetchByte(26, pData->bDiseaseR);
 		_dbCommand->FetchByte(27, pData->bPoisonR);
-		_dbCommand->FetchByte(28, pData->bExpPct);
+		_dbCommand->FetchUInt16(28, pData->sExpPct);
+		_dbCommand->FetchUInt16(29, pData->sSpecialAmount);
 		
 		// Determine if the skill is a buff or a debuff.
 		pData->bIsBuff = CMagicProcess::IsBuff(pData);

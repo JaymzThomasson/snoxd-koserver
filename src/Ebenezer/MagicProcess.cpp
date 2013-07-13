@@ -268,12 +268,12 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 
 	case BUFF_TYPE_EXPERIENCE:
 		if (pTarget->isPlayer())
-			TO_USER(pTarget)->m_bExpGainAmount = pType->bExpPct;
+			TO_USER(pTarget)->m_sExpGainAmount = (uint8) pType->sExpPct;
 		break;
 
 	case BUFF_TYPE_WEIGHT:
 		if (pTarget->isPlayer())
-			TO_USER(pTarget)->m_bMaxWeightAmount = pType->bExpPct;
+			TO_USER(pTarget)->m_bMaxWeightAmount = (uint8) pType->sExpPct;
 		break;
 
 	case BUFF_TYPE_WEAPON_DAMAGE:
@@ -282,12 +282,12 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 
 	case BUFF_TYPE_LOYALTY:
 		if(pTarget->isPlayer())
-			TO_USER(pTarget)->m_bNPGainAmount = pType->bExpPct;
+			TO_USER(pTarget)->m_bNPGainAmount = (uint8) pType->sExpPct;
 		break;
 
 	case BUFF_TYPE_NOAH_BONUS:
 		if(pTarget->isPlayer())
-			TO_USER(pTarget)->m_bNoahGainAmount = pType->bExpPct;
+			TO_USER(pTarget)->m_bNoahGainAmount = (uint8) pType->sExpPct;
 		break;
 
 	case BUFF_TYPE_PREMIUM_MERCHANT:
@@ -345,7 +345,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_RESIS_AND_MAGIC_DMG: // Elysian Web
-		pTarget->m_bMagicDamageReduction = pType->bExpPct;
+		pTarget->m_bMagicDamageReduction = (uint8) pType->sExpPct;
 		break;
 
 	case BUFF_TYPE_TRIPLEAC_HALFSPEED:	// Wall of Iron
@@ -364,7 +364,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_MANA_ABSORB:		// Outrage / Frenzy / Mana Shield
-		pTarget->m_bManaAbsorb = pType->bExpPct;
+		pTarget->m_bManaAbsorb = (uint8) pType->sExpPct;
 		break;
 
 	case BUFF_TYPE_VARIOUS_EFFECTS: //... whatever the event item grants.
@@ -397,11 +397,15 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 
 	case BUFF_TYPE_MIRROR_DAMAGE_PARTY: // Minak's Thorn
 		pTarget->m_bMirrorDamage = true;
+		pTarget->m_byMirrorAmount = (uint8) pType->sSpecialAmount;
 		break;
 
 	case BUFF_TYPE_DAGGER_BOW_DEFENSE: // Eskrima
 		// Inflicts attacks as well as a bleeding curse on the enemy. Decreases 10% Dagger and Bow Defense of the enemy under the bleeding curse buff.
-		pTarget->m_byDaggerRAmount = pTarget->m_byBowRAmount = pType->bExpPct; // note: overwrite the percentage for now (nothing else uses it)
+		// NOTE: overwrite the percentage for now (nothing else uses it)
+		// Also: the amount is 20 in the database. Could be that it's divided by 2 (i.e. splitting it between dagger/bow), the skill description's inaccurate
+		// or the description roughly reflects the final damage after player damage reduction. For now, we'll just assume it's the latter.
+		pTarget->m_byDaggerRAmount = pTarget->m_byBowRAmount = 100 - (uint8) pType->sSpecialAmount;
 		break;
 
 	case BUFF_TYPE_LOYALTY_AMOUNT:		// Santa's Present (gives an extra +2NP per kill, unlike BUFF_TYPE_LOYALTY which uses an percent).
@@ -568,7 +572,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 
 	case BUFF_TYPE_EXPERIENCE:
 		if (pTarget->isPlayer())
-			TO_USER(pTarget)->m_bExpGainAmount = 100;
+			TO_USER(pTarget)->m_sExpGainAmount = 100;
 		break;
 
 	case BUFF_TYPE_WEIGHT:
@@ -696,6 +700,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 
 	case BUFF_TYPE_MIRROR_DAMAGE_PARTY: // Minak's Thorn
 		pTarget->m_bMirrorDamage = false;
+		pTarget->m_byMirrorAmount = 0;
 		break;
 
 	case BUFF_TYPE_DAGGER_BOW_DEFENSE: // Eskrima
