@@ -941,6 +941,16 @@ bool CMagicProcess::IsBuff(_MAGIC_TYPE4 * pType)
 	case BUFF_TYPE_GODS_BLESSING:		// Increases your defense/max HP 
 	case BUFF_TYPE_HELP_COMPENSATION:	// Compensation for using the help system (to help, ask for help, both?)
 		return true;
+
+	// TO-DO: Identify and name these.
+	case 47: // appears to disable magic attacks, used by lots of skills but only one vaguely mentions that in its description.
+		return false;
+
+	case 48: // DC/War/Exp Flash - grants additional NP/XP
+		return true;
+
+	case 166: // unknown, assume debuff for now.
+		return false;
 	}
 
 	printf("WARNING: Unhandled buff type (%d) for skill %d, assuming it's a debuff.\n", pType->bBuffType, pType->iNum);
