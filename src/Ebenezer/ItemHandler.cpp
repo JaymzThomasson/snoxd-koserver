@@ -424,8 +424,7 @@ void CUser::ItemMove(Packet & pkt)
 			|| ((dir == ITEM_INVEN_SLOT || dir == ITEM_SLOT_SLOT) 
 				&& (bDstPos > SLOT_MAX || !ItemEquipAvailable(pTable)))
 			|| (dir == ITEM_SLOT_INVEN && bSrcPos > SLOT_MAX)
-			|| (dir == ITEM_INVEN_SLOT && bDstPos == RESERVED)
-			|| (dir == ITEM_SLOT_INVEN && bDstPos == RESERVED))
+			|| ((dir == ITEM_INVEN_SLOT || dir == ITEM_SLOT_SLOT) && bDstPos == RESERVED))
 			goto fail_return;
 
 	switch (dir)
