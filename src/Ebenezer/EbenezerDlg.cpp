@@ -1495,8 +1495,9 @@ void CEbenezerDlg::BanishLosers()
 			pUser->ChangeFame(CHIEF);
 
 		// Kick out invaders
-		if (pUser->GetZoneID() <= ELMORAD
-			&& pUser->GetZoneID() != pUser->GetNation())
+		if ((pUser->GetZoneID() <= ELMORAD && pUser->GetZoneID() != pUser->GetNation())
+			// and those still in the war zone.
+			|| pUser->GetMap()->isWarZone())
 			pUser->KickOutZoneUser(true);
 	}
 	g_pMain->m_socketMgr.ReleaseLock();
