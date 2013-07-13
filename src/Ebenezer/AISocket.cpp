@@ -750,7 +750,7 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 			return;
 		}
 
-		g_pMain->GetServerResource(nResourceID, &strKnightsName, strMaxUserName.c_str());
+		g_pMain->GetServerResource(nResourceID, &chatstr, strKnightsName.c_str(), strMaxUserName.c_str());
 
 		Packet result;
 		string finalstr;
