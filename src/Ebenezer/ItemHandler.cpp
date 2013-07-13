@@ -38,7 +38,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 
 	pkt >> sNpcId >> nItemID >> page >> bSrcPos >> bDstPos;
 
-	pNpc = g_pMain->m_arNpcArray.GetData(sNpcId);
+	pNpc = g_pMain->GetNpcPtr(sNpcId);
 	if (pNpc == nullptr
 		|| pNpc->GetType() != NPC_WAREHOUSE
 		|| !isInRange(pNpc, MAX_NPC_RANGE))

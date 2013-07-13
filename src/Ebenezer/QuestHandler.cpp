@@ -44,7 +44,7 @@ void CUser::QuestV2PacketProcess(Packet & pkt)
 	uint8 opcode = pkt.read<uint8>();
 	uint32 nQuestID = pkt.read<uint32>();
 
-	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(m_sEventNid);
+	CNpc *pNpc = g_pMain->GetNpcPtr(m_sEventNid);
 	_QUEST_HELPER * pQuestHelper = g_pMain->m_QuestHelperArray.GetData(nQuestID);
 	// Does this quest helper exist?
 	if (pQuestHelper == nullptr
@@ -272,7 +272,7 @@ void CUser::QuestV2CheckFulfill(_QUEST_HELPER * pQuestHelper)
 bool CUser::QuestV2RunEvent(_QUEST_HELPER * pQuestHelper, uint32 nEventID, int8 bSelectedReward /*= -1*/)
 {
 	// Lookup the corresponding NPC.
-	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(m_sEventNid);
+	CNpc * pNpc = g_pMain->GetNpcPtr(m_sEventNid);
 	bool result = false;
 
 	// Make sure the NPC exists and is not dead (we should also check if it's in range)

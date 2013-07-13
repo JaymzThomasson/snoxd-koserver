@@ -63,7 +63,7 @@ void CUser::Attack(Packet & pkt)
 		if (g_pMain->m_bPointCheckFlag == false)	
 			return;	
 
-		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(tid);		
+		CNpc *pNpc = g_pMain->GetNpcPtr(tid);		
 		if (pNpc != nullptr 
 			&& CanAttack(pNpc))
 		{

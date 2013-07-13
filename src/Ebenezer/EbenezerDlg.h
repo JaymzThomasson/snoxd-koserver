@@ -225,7 +225,8 @@ public:
 	C3DMap * GetZoneByID(int zoneID);
 
 	CUser * GetUserPtr(std::string findName, NameType type);
-	CUser * GetUserPtr(int sid);
+	CUser * GetUserPtr(uint16 sUserId);
+	CNpc  * GetNpcPtr(uint16 sNpcId);
 
 	Unit * GetUnit(uint16 id);
 

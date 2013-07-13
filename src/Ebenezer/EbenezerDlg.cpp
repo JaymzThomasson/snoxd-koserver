@@ -415,7 +415,8 @@ void CEbenezerDlg::RemoveSessionNames(CUser *pSession)
 	}
 }
 
-CUser				* CEbenezerDlg::GetUserPtr(int sid) { return g_pMain->m_socketMgr[sid]; }
+CUser				* CEbenezerDlg::GetUserPtr(uint16 sUserId) { return m_socketMgr[sUserId]; }
+CNpc				* CEbenezerDlg::GetNpcPtr(uint16 sNpcId) { return m_arNpcArray.GetData(sNpcId); }
 _PARTY_GROUP		* CEbenezerDlg::GetPartyPtr(uint16 sPartyID) { return m_PartyArray.GetData(sPartyID); }
 CKnights			* CEbenezerDlg::GetClanPtr(uint16 sClanID) { return m_KnightsArray.GetData(sClanID); }
 _KNIGHTS_ALLIANCE	* CEbenezerDlg::GetAlliancePtr(uint16 sAllianceID) { return m_KnightsAllianceArray.GetData(sAllianceID); }
@@ -426,7 +427,7 @@ Unit * CEbenezerDlg::GetUnit(uint16 id)
 	if (id < NPC_BAND)
 		return GetUserPtr(id);
 
-	return m_arNpcArray.GetData(id);
+	return GetNpcPtr(id);
 }
 
 /**

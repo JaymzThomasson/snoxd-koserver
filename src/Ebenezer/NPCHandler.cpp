@@ -26,7 +26,7 @@ void CUser::ItemRepair(Packet & pkt)
 		if (m_sItemArray[SLOT_MAX+sSlot].nNum != itemid) goto fail_return;
 	}
 
-	pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
+	pNpc = g_pMain->GetNpcPtr(sNpcID);
 	if (pNpc == nullptr
 		|| pNpc->GetType() != NPC_TINKER
 		|| !isInRange(pNpc, MAX_NPC_RANGE))
@@ -67,7 +67,7 @@ void CUser::ClientEvent(uint16 sNpcID)
 		return;
 
 	int32 iEventID = 0;
-	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
+	CNpc *pNpc = g_pMain->GetNpcPtr(sNpcID);
 	if (pNpc == nullptr
 		|| !isInRange(pNpc, MAX_NPC_RANGE))
 		return;
@@ -288,7 +288,7 @@ void CUser::NpcEvent(Packet & pkt)
 	uint16 sNpcID = pkt.read<uint16>();
 	int32 nQuestID = pkt.read<int32>();
 
-	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
+	CNpc *pNpc = g_pMain->GetNpcPtr(sNpcID);
 	if (pNpc == nullptr
 		|| !isInRange(pNpc, MAX_NPC_RANGE))
 		return;
@@ -399,7 +399,7 @@ void CUser::ItemTrade(Packet & pkt)
 	{
 		pkt >> group >> npcid;
 		if (!g_pMain->m_bPointCheckFlag
-			|| (pNpc = g_pMain->m_arNpcArray.GetData(npcid)) == nullptr
+			|| (pNpc = g_pMain->GetNpcPtr(npcid)) == nullptr
 			|| (pNpc->GetType() != NPC_MERCHANT && pNpc->GetType() != NPC_TINKER)
 			|| pNpc->m_iSellingGroup != group
 			|| !isInRange(pNpc, MAX_NPC_RANGE))

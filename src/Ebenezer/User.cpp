@@ -928,7 +928,7 @@ void CUser::RequestNpcIn(Packet & pkt)
 		if (nid < 0 || nid > NPC_BAND+NPC_BAND)
 			continue;
 
-		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(nid);
+		CNpc *pNpc = g_pMain->GetNpcPtr(nid);
 		if (pNpc == nullptr || pNpc->isDead())
 			continue;
 
@@ -1720,7 +1720,7 @@ void CUser::SendTargetHP( uint8 echo, int tid, int damage )
 	if (tid >= NPC_BAND)
 	{
 		if (g_pMain->m_bPointCheckFlag == false) return;
-		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(tid);
+		CNpc *pNpc = g_pMain->GetNpcPtr(tid);
 		if (pNpc == nullptr)
 			return;
 		hp = pNpc->m_iHP;	
@@ -3286,11 +3286,11 @@ bool CUser::GateLeverObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 	CNpc* pNpc, *pGateNpc;
 
 		// Does the lever (object) NPC exist?
-	if ((pNpc = g_pMain->m_arNpcArray.GetData(nid)) == nullptr
+	if ((pNpc = g_pMain->GetNpcPtr(nid)) == nullptr
 		// Does the corresponding gate object event exist?
 		|| (pGateEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID)) == nullptr
 		// Does the corresponding gate (object) NPC exist?
-		|| (pGateNpc = g_pMain->m_arNpcArray.GetData(pEvent->sControlNpcID)) == nullptr
+		|| (pGateNpc = g_pMain->GetNpcPtr(pEvent->sControlNpcID)) == nullptr
 		// Is it even a gate?
 		|| !pGateNpc->isGate()
 		// If the gate's closed (i.e. the lever is down), we can't open it unless the lever isn't nation-specific
@@ -3315,7 +3315,7 @@ bool CUser::FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 	CNpc *pNpc, *pFlagNpc;
 
 	// Does the flag object NPC exist?
-	if ((pNpc = g_pMain->m_arNpcArray.GetData(nid)) == nullptr
+	if ((pNpc = g_pMain->GetNpcPtr(nid)) == nullptr
 		// Does the corresponding flag event exist?
 		|| (pFlagEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID)) == nullptr
 		// Does the corresponding flag object NPC exist?

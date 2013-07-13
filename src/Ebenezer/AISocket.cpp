@@ -220,7 +220,7 @@ void CAISocket::RecvNpcMoveResult(Packet & pkt)
 	float fX, fY, fZ, fSecForMetor;
 	pkt >> flag >> sNid >> fX >> fZ >> fY >> fSecForMetor;
 
-	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(sNid);
+	CNpc * pNpc = g_pMain->GetNpcPtr(sNid);
 	if (pNpc == nullptr)
 		return;
 
@@ -251,7 +251,7 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 
 	if(type == 0x01)			// user attack -> npc
 	{
-		pNpc = g_pMain->m_arNpcArray.GetData(tid);
+		pNpc = g_pMain->GetNpcPtr(tid);
 		if(!pNpc)	return;
 		pNpc->m_iHP -= damage;
 		if( pNpc->m_iHP < 0 )
@@ -298,7 +298,7 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 	}
 	else if (type == 2)		// npc attack -> user
 	{
-		pNpc = g_pMain->m_arNpcArray.GetData(sid);
+		pNpc = g_pMain->GetNpcPtr(sid);
 		if(!pNpc)	return;
 
 		if (tid < NPC_BAND)
@@ -319,7 +319,7 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 		}
 		else // npc attack -> monster
 		{
-			pMon = g_pMain->m_arNpcArray.GetData(tid);
+			pMon = g_pMain->GetNpcPtr(tid);
 			if(!pMon)	return;
 			pMon->m_iHP -= damage;
 			if( pMon->m_iHP < 0 )
@@ -353,7 +353,7 @@ void CAISocket::RecvMagicAttackResult(Packet & pkt)
 	if (byCommand == MAGIC_CASTING
 		|| (byCommand == MAGIC_EFFECTING && sid >= NPC_BAND && tid >= NPC_BAND))
 	{
-		CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sid);
+		CNpc *pNpc = g_pMain->GetNpcPtr(sid);
 		if (!pNpc)
 			return;
 
@@ -388,7 +388,7 @@ void CAISocket::RecvNpcInfo(Packet & pkt)
 	pkt.SByte();
 	pkt >> Mode >> sNid;
 
-	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNid);
+	CNpc *pNpc = g_pMain->GetNpcPtr(sNid);
 	if (pNpc == nullptr)
 	{
 		pNpc = new CNpc();
@@ -452,7 +452,7 @@ void CAISocket::RecvNpcRegionUpdate(Packet & pkt)
 
 	pkt >> sNpcID >> fX >> fY >> fZ;
 
-	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(sNpcID);
+	CNpc * pNpc = g_pMain->GetNpcPtr(sNpcID);
 	if (pNpc == nullptr)
 		return;
 
@@ -480,7 +480,7 @@ void CAISocket::RecvUserHP(Packet & pkt)
 	}
 	else
 	{
-		CNpc * pNpc = g_pMain->m_arNpcArray.GetData(sNid);
+		CNpc * pNpc = g_pMain->GetNpcPtr(sNid);
 		if (pNpc == nullptr)
 			return;
 
@@ -608,7 +608,7 @@ void CAISocket::RecvGateDestory(Packet & pkt)
 	bool bGateStatus;
 	pkt >> nid >> bGateStatus >> sCurZone >> rX >> rZ;
 
-	CNpc* pNpc = g_pMain->m_arNpcArray.GetData(nid);
+	CNpc* pNpc = g_pMain->GetNpcPtr(nid);
 	if (pNpc == nullptr)
 		return;
 
@@ -620,7 +620,7 @@ void CAISocket::RecvGateDestory(Packet & pkt)
 void CAISocket::RecvNpcDead(Packet & pkt)
 {
 	uint16 nid = pkt.read<uint16>();
-	CNpc* pNpc = g_pMain->m_arNpcArray.GetData(nid);
+	CNpc* pNpc = g_pMain->GetNpcPtr(nid);
 	if (pNpc == nullptr)
 		return;
 
@@ -638,7 +638,7 @@ void CAISocket::RecvNpcInOut(Packet & pkt)
 	float fX, fZ, fY;
 
 	pkt >> bType >> sNid >> fX >> fZ >> fY;
-	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(sNid);
+	CNpc * pNpc = g_pMain->GetNpcPtr(sNid);
 	if (pNpc)
 		pNpc->SendInOut(bType, fX, fZ, fY);
 }
@@ -786,7 +786,7 @@ void CAISocket::RecvGateOpen(Packet & pkt)
 
 	pkt >> sNid >> sEventID >> bFlag;
 
-	CNpc *pNpc = g_pMain->m_arNpcArray.GetData(sNid);
+	CNpc *pNpc = g_pMain->GetNpcPtr(sNid);
 	if (pNpc == nullptr)	
 	{
 		TRACE("#### RecvGateOpen Npc Pointer null : nid=%d ####\n", sNid);
@@ -843,14 +843,14 @@ void CAISocket::RecvNpcHpChange(Packet & pkt)
 	int32 nHP, nAmount;
 	pkt >> nid >> sAttackerID >> nHP >> nAmount;
 
-	CNpc * pNpc = g_pMain->m_arNpcArray.GetData(nid);
+	CNpc * pNpc = g_pMain->GetNpcPtr(nid);
 	if (pNpc == nullptr)
 		return;
 
 	if (sAttackerID < NPC_BAND)
 		pAttacker = g_pMain->GetUserPtr(sAttackerID);
 	else
-		pAttacker = g_pMain->m_arNpcArray.GetData(sAttackerID);
+		pAttacker = g_pMain->GetNpcPtr(sAttackerID);
 
 	pNpc->HpChange(nAmount, pAttacker, false);
 }
