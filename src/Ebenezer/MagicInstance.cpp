@@ -788,7 +788,23 @@ bool MagicInstance::ExecuteType1()
 	if (pSkillTarget != nullptr && !pSkillTarget->isDead())
 	{
 		bResult = 1;
+
+		uint16 sAdditionalDamage = pType->sAddDamage;
+
+		// Give increased damage in war zones (as per official 1.298~1.325)
+		// This may need to be revised to use the last nation to win the war, or more accurately, 
+		// the nation that last won the war 3 times in a row (whether official behaves this way now is unknown).
+		if (pSkillCaster->isPlayer())
+		{
+			if (pSkillCaster->GetMap()->isWarZone())
+				sAdditionalDamage /= 2;
+			else
+				sAdditionalDamage /= 3;
+		}
+
 		damage = pSkillCaster->GetDamage(pSkillTarget, pSkill);
+		damage += sAdditionalDamage;
+
 		pSkillTarget->HpChange(-damage, pSkillCaster);
 
 		if (pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)

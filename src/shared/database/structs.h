@@ -29,6 +29,7 @@ struct _MAGIC_TYPE1
 	uint8	bHitType;
 	uint16	sHitRate;
 	uint16	sHit;
+	uint16	sAddDamage;
 	uint8	bDelay;
 	uint8	bComboType;
 	uint8	bComboCount;

@@ -17,11 +17,12 @@ public:
 		_dbCommand->FetchByte(2, pData->bHitType);
 		_dbCommand->FetchUInt16(3, pData->sHitRate);
 		_dbCommand->FetchUInt16(4, pData->sHit);
-		_dbCommand->FetchByte(5, pData->bDelay);
-		_dbCommand->FetchByte(6, pData->bComboType);
-		_dbCommand->FetchByte(7, pData->bComboCount);
-		_dbCommand->FetchUInt16(8, pData->sComboDamage);
-		_dbCommand->FetchUInt16(9, pData->sRange);
+		_dbCommand->FetchUInt16(5, pData->sAddDamage);
+		_dbCommand->FetchByte(6, pData->bDelay);
+		_dbCommand->FetchByte(7, pData->bComboType);
+		_dbCommand->FetchByte(8, pData->bComboCount);
+		_dbCommand->FetchUInt16(9, pData->sComboDamage);
+		_dbCommand->FetchUInt16(10, pData->sRange);
 
 		if (!m_pMap->PutData(pData->iNum, pData))
 			delete pData;
