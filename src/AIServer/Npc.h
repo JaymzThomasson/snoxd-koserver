@@ -154,6 +154,7 @@ public:
 	}
 
 	INLINE bool isNonAttackingObject() { return isGate() || GetType() == NPC_GATE_LEVER || isArtifact() || GetType() == NPC_SCARECROW; }
+	INLINE bool isNonAttackableObject() { return isGate() || GetType() == NPC_GATE_LEVER; }
 
 	INLINE bool isDead() { return m_NpcState == NPC_DEAD || m_iHP <= 0; }
 	INLINE bool isAlive() { return !isDead(); }

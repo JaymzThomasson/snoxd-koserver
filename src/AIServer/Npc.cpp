@@ -1622,29 +1622,26 @@ float CNpc::FindEnemyExpand(int nRX, int nRZ, float fCompDis, UnitType unitType)
 			if( nNpcid < NPC_BAND )	continue;
 			CNpc *pNpc = g_pMain->GetNpcPtr(nNpcid);
 
-			if (GetID() == pNpc->GetID())	continue;
+			if (pNpc == nullptr
+				|| pNpc == this
+				|| pNpc->isDead()
+				|| pNpc->isNonAttackableObject()
+				|| !isHostileTo(pNpc))
+				continue;
 
-			if (pNpc != nullptr && pNpc->m_NpcState != NPC_DEAD && pNpc->GetID() != GetID())	
-			{
-				if (!isHostileTo(pNpc))
-					continue;
+			vMon.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
+			fDis = GetDistance(vMon, vNpc);
 
-				vMon.Set(pNpc->GetX(), pNpc->GetY(), pNpc->GetZ()); 
-				fDis = GetDistance(vMon, vNpc);
+			if (fDis > fSearchRange || fDis < fComp)
+				continue;
 
-				if(fDis <= fSearchRange && fDis >= fComp)
-				{
-					target_uid = nNpcid;
-					fComp = fDis;
-					m_Target.id	= target_uid;
-					m_Target.bSet = true;
-					m_Target.x	= pNpc->GetX();
-					m_Target.y	= pNpc->GetY();
-					m_Target.z	= pNpc->GetZ();
-				}	
-				else 
-					continue;
-			}
+			target_uid = nNpcid;
+			fComp = fDis;
+			m_Target.id	= target_uid;
+			m_Target.bSet = true;
+			m_Target.x	= pNpc->GetX();
+			m_Target.y	= pNpc->GetY();
+			m_Target.z	= pNpc->GetZ();
 		}
 	}
 
