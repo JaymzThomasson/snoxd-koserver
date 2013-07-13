@@ -794,7 +794,8 @@ bool MagicInstance::ExecuteType1()
 		// Give increased damage in war zones (as per official 1.298~1.325)
 		// This may need to be revised to use the last nation to win the war, or more accurately, 
 		// the nation that last won the war 3 times in a row (whether official behaves this way now is unknown).
-		if (pSkillCaster->isPlayer())
+		if (pSkillCaster->isPlayer()
+			&& pSkillTarget->isPlayer())
 		{
 			if (pSkillCaster->GetMap()->isWarZone())
 				sAdditionalDamage /= 2;
