@@ -99,7 +99,7 @@ public:
 	void UpdateGameTime();
 	void SendAllUserInfo();
 	void DeleteAllNpcList(int flag = 0);
-	CNpc*  GetNpcPtr( int sid, int cur_zone );
+	CNpc*  FindNpcInZone(uint16 sPid, uint8 byZone);
 
 	void AddDatabaseRequest(Packet & pkt, CUser *pUser = nullptr);
 

@@ -1335,18 +1335,30 @@ void CEbenezerDlg::DeleteAllNpcList(int flag)
 	TRACE("*** DeleteAllNpcList - End *** \n");
 }
 
-CNpc*  CEbenezerDlg::GetNpcPtr( int sid, int cur_zone )
+/**
+ * @brief	Searches for the first NPC in the specified zone
+ * 			with the specified picture/model ID.
+ *
+ * @param	sPid	Picture/model ID of the NPC.
+ * @param	byZone	Zone to search in.
+ *
+ * @return	null if it fails, else the NPC instance we found.
+ */
+CNpc*  CEbenezerDlg::FindNpcInZone(uint16 sPid, uint8 byZone)
 {
-	if( m_bPointCheckFlag == false)	return nullptr;
+	if (!m_bPointCheckFlag)
+		return nullptr;
 
-	CNpc* pNpc = nullptr;
-
-	int nSize = m_arNpcArray.GetSize();
-
-	for( int i = 0; i < nSize; i++)	{
-		pNpc = m_arNpcArray.GetData( i+NPC_BAND );
-		if (pNpc == nullptr || pNpc->GetZoneID() != cur_zone
-			|| pNpc->m_sPid != sid) // this isn't a typo (unless it's mgame's typo).
+	FastGuard lock(m_arNpcArray.m_lock);
+	foreach_stlmap (itr, m_arNpcArray)
+	{
+		CNpc * pNpc = itr->second;
+		if (pNpc == nullptr || pNpc->GetZoneID() != byZone
+			// This isn't a typo, it's actually just a hack.
+			// The picture/model ID of most spawns is the same as their prototype ID.
+			// When there's more than one spawn prototype (i.e. different sSid), we keep using
+			// the same picture/model ID. So we check this instead of the sSid...
+			|| pNpc->m_sPid != sPid) 
 			continue;
 
 		return pNpc;

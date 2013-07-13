@@ -3319,7 +3319,7 @@ bool CUser::FlagObjectEvent(_OBJECT_EVENT *pEvent, int nid)
 		// Does the corresponding flag event exist?
 		|| (pFlagEvent = GetMap()->GetObjectEvent(pEvent->sControlNpcID)) == nullptr
 		// Does the corresponding flag object NPC exist?
-		|| (pFlagNpc = g_pMain->GetNpcPtr(pEvent->sControlNpcID, GetZoneID())) == nullptr
+		|| (pFlagNpc = g_pMain->FindNpcInZone(pEvent->sControlNpcID, GetZoneID())) == nullptr
 		// Is this marked a gate? (i.e. can control)
 		|| !pFlagNpc->isGate()
 		// Is the war over or the gate closed?
