@@ -591,6 +591,9 @@ public:
 	COMMAND_HANDLER(HandleWar3OpenCommand);
 	COMMAND_HANDLER(HandleSnowWarOpenCommand);
 	COMMAND_HANDLER(HandleWarCloseCommand);
+	COMMAND_HANDLER(HandleLoyaltyChangeCommand);
+	COMMAND_HANDLER(HandleExpChangeCommand);
+	COMMAND_HANDLER(HandleGoldChangeCommand);
 
 	void Regene(uint8 regene_type, uint32 magicid = 0);
 	void RequestUserIn(Packet & pkt);
