@@ -88,8 +88,8 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(SendNameChange)
 	// MAKE_LUA_METHOD(SendRestatDialog) // these two are the same thing
 	// MAKE_LUA_METHOD(SendReskillDialog)
-	// MAKE_LUA_METHOD(ResetSkillPoints) // AllSkillPointChange(1)
-	// MAKE_LUA_METHOD(ResetStatPoints) // AllStatPointChange(1)
+	MAKE_LUA_METHOD(ResetSkillPoints) // AllSkillPointChange(1)
+	MAKE_LUA_METHOD(ResetStatPoints) // AllStatPointChange(1)
 	MAKE_LUA_METHOD(PromoteUserNovice)
 	MAKE_LUA_METHOD(PromoteUser)
 	MAKE_LUA_METHOD(RobAllItemParty)
