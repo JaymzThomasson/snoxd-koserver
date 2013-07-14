@@ -46,6 +46,9 @@ void CUser::InitChatCommands()
 		{ "open3",				&CUser::HandleWar3OpenCommand,					"Opens war zone 3" },
 		{ "snowopen",			&CUser::HandleSnowWarOpenCommand,				"Opens the snow war zone" },
 		{ "close",				&CUser::HandleWarCloseCommand,					"Closes the active war zone" },
+		{ "np_change",			&CUser::HandleLoyaltyChangeCommand,				"Change a player an loyalty" },
+		{ "exp_change",			&CUser::HandleExpChangeCommand,					"Change a player an exp" },
+		{ "gold_change",		&CUser::HandleGoldChangeCommand,				"Change a player an gold" },
 
 	};
 
@@ -478,6 +481,101 @@ COMMAND_HANDLER(CUser::HandleWarCloseCommand) { return g_pMain->HandleWarCloseCo
 COMMAND_HANDLER(CEbenezerDlg::HandleWarCloseCommand)
 {
 	m_byBanishFlag = true;
+	return true;
+}
+
+COMMAND_HANDLER(CUser::HandleLoyaltyChangeCommand)
+{
+	// Char name | loyalty
+	if (vargs.size() < 2)
+	{
+		// send description
+		return true;
+	}
+
+	std::string strUserID = vargs.front();
+	vargs.pop_front();
+
+	CUser *pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
+	if (pUser == nullptr)
+	{
+		// send error message saying the character does not exist or is not online
+		return true;
+	}
+
+	if (vargs.empty())
+		return true;
+
+	uint32 nLoyalty = atoi(vargs.front().c_str());
+
+	if (nLoyalty != 0)
+		pUser->SendLoyaltyChange(nLoyalty, false);
+	
+	return true;
+}
+
+COMMAND_HANDLER(CUser::HandleExpChangeCommand)
+{
+	// Char name | exp
+	if (vargs.size() < 2)
+	{
+		// send description
+		return true;
+	}
+
+	std::string strUserID = vargs.front();
+	vargs.pop_front();
+
+	CUser *pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
+	if (pUser == nullptr)
+	{
+		// send error message saying the character does not exist or is not online
+		return true;
+	}
+
+	if (vargs.empty())
+		return true;
+
+	int64 nExp = atoi(vargs.front().c_str());
+
+	if (nExp != 0)
+		pUser->ExpChange(nExp);
+	
+	return true;
+}
+
+COMMAND_HANDLER(CUser::HandleGoldChangeCommand)
+{
+	// Char name | exp
+	if (vargs.size() < 2)
+	{
+		// send description
+		return true;
+	}
+
+	std::string strUserID = vargs.front();
+	vargs.pop_front();
+
+	CUser *pUser = g_pMain->GetUserPtr(strUserID, TYPE_CHARACTER);
+	if (pUser == nullptr)
+	{
+		// send error message saying the character does not exist or is not online
+		return true;
+	}
+
+	if (vargs.empty())
+		return true;
+
+	uint32 nGold = atoi(vargs.front().c_str());
+
+	if (nGold != 0)
+	{
+		if (nGold > 0)
+			pUser->GoldGain(nGold);
+		else
+			pUser->GoldLose(nGold);
+	}
+	
 	return true;
 }
 
