@@ -1380,118 +1380,138 @@ bool MagicInstance::ExecuteType4()
 
 bool MagicInstance::ExecuteType5()
 {
-	// Disallow NPCs (for now?).
-	if (pSkillCaster->isNPC()
-		|| (pSkillTarget != nullptr && pSkillTarget->isNPC()))
-		return false;
-
-	int damage = 0;
-	int buff_test = 0; bool bType3Test = true, bType4Test = true; 	
-
-	if (pSkill == nullptr)
+	// Disallow anyone that isn't a player.
+	if (!pSkillCaster->isPlayer()
+		|| pSkill == nullptr)
 		return false;
 
 	_MAGIC_TYPE5* pType = g_pMain->m_Magictype5Array.GetData(nSkillID);
-	if (pType == nullptr
-		|| pSkillTarget == nullptr 
-		|| (pSkillTarget->isDead() && pType->bType != RESURRECTION) 
-		|| (!pSkillTarget->isDead() && pType->bType == RESURRECTION)) 
+	if (pType == nullptr)
 		return false;
 
-	Type4BuffMap::iterator buffIterator;
+	vector<CUser *> casted_member;
 
-	switch (pType->bType)
+	// Targeting a group of people (e.g. party)
+	if (sTargetID == -1)
 	{
-		// Remove all DOT skills
-		case REMOVE_TYPE3:
-			for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
-			{
-				Unit::MagicType3 * pEffect = &pSkillTarget->m_durationalSkills[i];
-				if (!pEffect->m_byUsed)
-					continue;
+		SessionMap & sessMap = g_pMain->m_socketMgr.GetActiveSessionMap();
+		foreach (itr, sessMap)
+		{
+			CUser * pTUser = TO_USER(itr->second);
+			if (!pTUser->isInGame())
+				continue;
 
-				// Ignore healing-over-time skills
-				if (pEffect->m_sHPAmount >= 0)
-					continue;
+			// If the target's dead, only allow resurrection/self-resurrection spells.
+			if (pTUser->isDead() 
+				&& (pType->bType != RESURRECTION && pType->bType != RESURRECTION_SELF))
+				continue;
 
-				pEffect->Reset();
-				if (pSkillTarget->isPlayer())
+			// If the target's alive, we don't need to resurrect them.
+			if (!pTUser->isDead() 
+					&& (pType->bType == RESURRECTION || pType->bType == RESURRECTION_SELF))
+				continue;
+
+			// Ensure the target's applicable for this skill.
+			if (CMagicProcess::UserRegionCheck(pSkillCaster, pTUser, pSkill, pSkill->sRange, sData[0], sData[2]))
+				casted_member.push_back(pTUser);
+		}
+		g_pMain->m_socketMgr.ReleaseLock();
+	}
+	// Targeting a single person
+	else
+	{
+		if (pSkillTarget == nullptr
+			|| !pSkillTarget->isPlayer())
+			return false;
+
+		// If the target's dead, only allow resurrection/self-resurrection spells.
+		if (pSkillTarget->isDead() 
+			&& (pType->bType != RESURRECTION && pType->bType != RESURRECTION_SELF))
+			return false;
+
+			// If the target's alive, we don't need to resurrect them.
+		if (!pSkillTarget->isDead() 
+				&& (pType->bType == RESURRECTION || pType->bType == RESURRECTION_SELF))
+			return false;
+
+		casted_member.push_back(TO_USER(pSkillTarget));
+	}
+
+	foreach (itr, casted_member)
+	{
+		Type4BuffMap::iterator buffIterator;
+		CUser * pTUser = (*itr);
+
+		switch (pType->bType)
+		{
+			// Remove all DOT skills
+			case REMOVE_TYPE3:
+				for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
 				{
+					Unit::MagicType3 * pEffect = &pTUser->m_durationalSkills[i];
+					if (!pEffect->m_byUsed)
+						continue;
+
+					// Ignore healing-over-time skills
+					if (pEffect->m_sHPAmount >= 0)
+						continue;
+
+					pEffect->Reset();
 					// TO-DO: Wrap this up (ugh, I feel so dirty)
 					Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
 					result << uint8(200); // removes DOT skill
-					TO_USER(pSkillTarget)->Send(&result); 
+					pTUser->Send(&result); 
 				}
-			}
 
-			buff_test = 0;
-			for (int j = 0; j < MAX_TYPE3_REPEAT; j++)
+				if (!pTUser->isBuffed() && !pTUser->isDebuffed())
+					pTUser->m_bType3Flag = false;
+
+				if (pTUser->isInParty() && !pTUser->isDebuffed())
+					pTUser->SendPartyStatusUpdate(1);
+				break;
+
+			case REMOVE_TYPE4: // Remove type 4 debuffs
 			{
-				if (pSkillTarget->m_durationalSkills[j].m_byUsed)
-					buff_test++;
-			}
-			if (buff_test == 0) pSkillTarget->m_bType3Flag = false;	
-
-			// Check for Type 3 Curses.
-			for (int k = 0; k < MAX_TYPE3_REPEAT; k++)
-			{
-				if (pSkillTarget->m_durationalSkills[k].m_sHPAmount < 0)
-				{
-					bType3Test = false;
-					break;
-				}
-			}
-  
-			if (pSkillTarget->isPlayer()
-				&& TO_USER(pSkillTarget)->isInParty() && bType3Test)
-				TO_USER(pSkillTarget)->SendPartyStatusUpdate(1);
-			break;
-
-		case REMOVE_TYPE4: // Remove type 4 debuffs
-		{
-			FastGuard lock(pSkillTarget->m_buffLock);
-			Type4BuffMap buffMap = pSkillTarget->m_buffMap; // copy the map so we can't break it while looping
-			foreach (itr, buffMap)
-			{
-				if (itr->second.isDebuff())
-					CMagicProcess::RemoveType4Buff(itr->first, pSkillTarget);
-			}
-
-			// NOTE: This originally checked to see if there were any active debuffs.
-			// As this seems pointless (as we're removing all of them), it was removed
-			// however leaving this note in, in case this behaviour in certain conditions
-			// is required.
-			if (pSkillTarget->isPlayer())
-				TO_USER(pSkillTarget)->SendUserStatusUpdate(USER_STATUS_POISON, USER_STATUS_CURE);
-		} break;
-			
-		case RESURRECTION:		// RESURRECT A DEAD PLAYER!!!
-			if (pSkillTarget->isPlayer())
-				TO_USER(pSkillTarget)->Regene(1, nSkillID);
-			break;
-
-		case REMOVE_BLESS:
-		{
-			if (CMagicProcess::RemoveType4Buff(BUFF_TYPE_HP_MP, TO_USER(pSkillTarget)))
-			{
-				bool bIsDebuffed = false;
-				foreach (itr, pSkillTarget->m_buffMap)
+				FastGuard lock(pTUser->m_buffLock);
+				Type4BuffMap buffMap = pTUser->m_buffMap; // copy the map so we can't break it while looping
+				foreach (itr, buffMap)
 				{
 					if (itr->second.isDebuff())
-					{
-						bIsDebuffed = true;
-						break;
-					}
+						CMagicProcess::RemoveType4Buff(itr->first, pTUser);
 				}
 
-				if (pSkillTarget->isPlayer() && TO_USER(pSkillTarget)->isInParty() && !bIsDebuffed) 
-					TO_USER(pSkillTarget)->SendPartyStatusUpdate(2, 0);
-			}
-		} break;
-	}
+				// NOTE: This originally checked to see if there were any active debuffs.
+				// As this seems pointless (as we're removing all of them), it was removed
+				// however leaving this note in, in case this behaviour in certain conditions
+				// is required.
+				pTUser->SendUserStatusUpdate(USER_STATUS_POISON, USER_STATUS_CURE);
+			} break;
+			
+			case RESURRECTION_SELF:
+				if (pSkillCaster != pTUser)
+					continue;
 
-	if (pSkill->bType[1] == 0 || pSkill->bType[1] == 5)
-		SendSkill();
+			case RESURRECTION:
+				pTUser->Regene(1, nSkillID);
+				break;
+
+			case REMOVE_BLESS:
+			{
+				if (CMagicProcess::RemoveType4Buff(BUFF_TYPE_HP_MP, pTUser))
+				{
+					if (pTUser->isInParty() && !pTUser->isDebuffed()) 
+						pTUser->SendPartyStatusUpdate(2, 0);
+				}
+			} break;
+		}
+
+		if (pSkill->bType[1] == 0 || pSkill->bType[1] == 5)
+		{
+			// Send the packet to the caster.
+			sData[1] = 1;
+			BuildAndSendSkillPacket(pSkillCaster, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sData); 
+		}
+	}
 
 	return true;
 }
