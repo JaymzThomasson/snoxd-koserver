@@ -1044,16 +1044,19 @@ bool MagicInstance::ExecuteType3()
 		{
 			// Affects target's HP
 			if (pType->bDirectType == 1)
-			{			
-				pTarget->HpChange(damage, pSkillCaster);
-
+			{	
+					pTarget->HpChange(damage, pSkillCaster);
+				
 				if (pTarget->m_bReflectArmorType != 0 && pTarget != pSkillCaster)
 					ReflectDamage(damage);
 			}
 			// Affects target's MP
 			else if (pType->bDirectType == 2 || pType->bDirectType == 3)
 			{
-				pTarget->MSpChange(damage);
+				
+					pTarget->MSpChange(damage);
+				
+				
 			}
 			// "Magic Hammer" repairs equipped items.
 			else if (pType->bDirectType == 4)
@@ -1737,14 +1740,20 @@ bool MagicInstance::ExecuteType8()
 			} break;
 
 			case 12:	// Summon a target within the zone.	
+				
+				
 				if (pSkillCaster->GetZoneID() != pTUser->GetZoneID())   // Same zone? 
 					goto packet_send;
 
 				// Send the packet to the target.
-				sData[1] = 1;
-				BuildAndSendSkillPacket(*itr, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sData); 
+				if (pSkillCaster != pSkillTarget)
+				{
+					sData[1] = 1;
+					BuildAndSendSkillPacket(*itr, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sData); 
+
+					pTUser->Warp(pSkillCaster->GetSPosX(), pSkillCaster->GetSPosZ());
+				}
 				
-				pTUser->Warp(pSkillCaster->GetSPosX(), pSkillCaster->GetSPosZ());
 				break;
 
 			case 13:	// Summon a target outside the zone.			
