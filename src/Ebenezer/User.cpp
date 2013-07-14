@@ -504,8 +504,10 @@ void CUser::RemoveRival()
  * 			change packet.
  *
  * @param	nChangeAmount	The amount to adjust the loyalty points by.
+ * @param	bIsKillReward	When set to true, enables the use of NP-modifying buffs
+ *							and includes monthly NP gains.
  */
-void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/)
+void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/, bool bIsKillReward /*= false*/)
 {
 	Packet result(WIZ_LOYALTY_CHANGE, uint8(1));
 
@@ -519,20 +521,39 @@ void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/)
 		if (amt > m_iLoyalty) m_iLoyalty = 0;
 		else m_iLoyalty += nChangeAmount;
 
-		if (amt > m_iLoyaltyMonthly) m_iLoyaltyMonthly = 0;
-		else m_iLoyaltyMonthly += nChangeAmount;
+		// We should only adjust monthly NP when NP was lost when killing a player.
+		if (bIsKillReward)
+		{
+			if (amt > m_iLoyaltyMonthly) m_iLoyaltyMonthly = 0;
+			else m_iLoyaltyMonthly += nChangeAmount;
+		}
 	}
 	// We're simply adding NP here.
 	else
 	{
-		// If you're using an NP modifying buff then add the bonus (NOTE: We do not take extra NP from the user that dies!)
-		nChangeAmount = m_bNPGainAmount * nChangeAmount / 100;
+		// We should only apply NP bonuses when NP was gained as a reward for killing a player.
+		if (bIsKillReward)
+		{
+			// If you're using an NP modifying buff then add the bonus (NOTE: We do not take extra NP from the user that dies!)
+			nChangeAmount = m_bNPGainAmount * nChangeAmount / 100;
 
-		// Add on any additional NP gained from items/skills.
-		nChangeAmount += m_bItemNPBonus + m_bSkillNPBonus;
+			// Add on any additional NP gained from items/skills.
+			nChangeAmount += m_bItemNPBonus + m_bSkillNPBonus;
+		}
 
-		m_iLoyalty += nChangeAmount;
-		m_iLoyaltyMonthly += nChangeAmount;
+		if (m_iLoyalty + nChangeAmount > LOYALTY_MAX)
+			m_iLoyalty = LOYALTY_MAX;
+		else
+			m_iLoyalty += nChangeAmount;
+
+		// We should only apply additional monthly NP when NP was gained as a reward for killing a player.
+		if (bIsKillReward)
+		{
+			if (m_iLoyaltyMonthly + nChangeAmount > LOYALTY_MAX)
+				m_iLoyaltyMonthly = LOYALTY_MAX;
+			else
+				m_iLoyaltyMonthly += nChangeAmount;
+		}
 	}
 
 	result	<< m_iLoyalty << m_iLoyaltyMonthly
@@ -2174,8 +2195,8 @@ void CUser::LoyaltyChange(int16 tid, uint16 bonusNP /*= 0*/)
 	// Include any bonus NP (e.g. rival NP bonus)
 	loyalty_source += bonusNP;
 
-	SendLoyaltyChange(loyalty_source);
-	pTUser->SendLoyaltyChange(loyalty_target);
+	SendLoyaltyChange(loyalty_source, true);
+	pTUser->SendLoyaltyChange(loyalty_target, true);
 
 	// TO-DO: Move this to a better place (death handler, preferrably)
 	// If a war's running, and we died/killed in a war zone... (this method should NOT be so tied up in specifics( 
@@ -2200,7 +2221,7 @@ void CUser::ChangeNP(short sAmount, bool bDistributeToParty /*= true*/)
 	if (bDistributeToParty && isInParty()) 
 		; /* TO-DO: Cut out all the specifics from LoyaltyDivide() and implement the core of it as its own method */
 	else // Otherwise, we just give NP to the player (which this does, implicitly)
-		SendLoyaltyChange(sAmount); 
+		SendLoyaltyChange(sAmount, true); 
 }
 
 void CUser::SpeedHackUser()
@@ -2425,7 +2446,7 @@ void CUser::LoyaltyDivide(int16 tid, uint16 bonusNP /*= 0*/)
 			if (pUser == nullptr)
 				continue;
 
-			pUser->SendLoyaltyChange(individualvalue);
+			pUser->SendLoyaltyChange(individualvalue, true);
 		}
 		
 		return;
@@ -2446,10 +2467,10 @@ void CUser::LoyaltyDivide(int16 tid, uint16 bonusNP /*= 0*/)
 
 		//TRACE("LoyaltyDivide 333 - user1=%s, %d\n", pUser->GetName(), pUser->m_iLoyalty);
 		individualvalue = pUser->GetLevel() * loyalty_source / levelsum;
-		pUser->SendLoyaltyChange(individualvalue);
+		pUser->SendLoyaltyChange(individualvalue, true);
 	}
 
-	pTUser->SendLoyaltyChange(loyalty_target);
+	pTUser->SendLoyaltyChange(loyalty_target, true);
 }
 
 void CUser::ItemWoreOut(int type, int damage)

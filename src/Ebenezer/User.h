@@ -493,7 +493,7 @@ public:
 
 	void SetRival(CUser * pRival);
 	void RemoveRival();
-	void SendLoyaltyChange(int32 nChangeAmount = 0);
+	void SendLoyaltyChange(int32 nChangeAmount = 0, bool bIsKillReward = false);
 
 	void NativeZoneReturn();
 	void KickOutZoneUser(bool home = false, int nZoneID = 21);
