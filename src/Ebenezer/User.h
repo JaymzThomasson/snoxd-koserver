@@ -127,7 +127,7 @@ public:
 	int16	m_sPoints; // this is just to shut the compiler up
 	uint32	m_iGold, m_iBank;
 	int16	m_sBind;
-	
+
 	uint8    m_bstrSkill[10];	
 	_ITEM_DATA m_sItemArray[INVENTORY_TOTAL];
 	_ITEM_DATA m_sWarehouseArray[WAREHOUSE_MAX];
@@ -151,7 +151,7 @@ public:
 	UserItemSealMap m_sealedItemMap;
 
 	uint8	m_bRequestingChallenge, // opcode of challenge request being sent by challenger
-			m_bChallengeRequested;  // opcode of challenge request received by challengee
+		m_bChallengeRequested;  // opcode of challenge request received by challengee
 	int16	m_sChallengeUser;
 
 	// Rival system
@@ -216,7 +216,7 @@ public:
 	uint8	m_bMaxWeightAmount; 
 
 	short	m_iMaxHp, m_iMaxMp;
-	
+
 	uint8	m_bResHpType;
 	bool	m_bWarp;
 	uint8	m_bNeedParty;
@@ -326,10 +326,10 @@ public:
 	INLINE uint16 GetClass() { return m_sClass; }
 
 	/**
-	 * @brief	Gets the player's base class type, independent of nation.
-	 *
-	 * @return	The class type.
-	 */
+	* @brief	Gets the player's base class type, independent of nation.
+	*
+	* @return	The class type.
+	*/
 	INLINE ClassType GetBaseClassType()
 	{
 		static const ClassType classTypes[] = 
@@ -347,10 +347,10 @@ public:
 	}
 
 	/**
-	 * @brief	Gets class type, independent of nation.
-	 *
-	 * @return	The class type.
-	 */
+	* @brief	Gets class type, independent of nation.
+	*
+	* @return	The class type.
+	*/
 	INLINE uint8 GetClassType()
 	{
 		return GetClass() % 100;
@@ -460,8 +460,8 @@ public:
 	INLINE uint16 GetTotalSkillPoints()
 	{
 		return m_bstrSkill[SkillPointFree] + m_bstrSkill[SkillPointCat1] 
-			+ m_bstrSkill[SkillPointCat2] + m_bstrSkill[SkillPointCat3] 
-			+ m_bstrSkill[SkillPointMaster];
+		+ m_bstrSkill[SkillPointCat2] + m_bstrSkill[SkillPointCat3] 
+		+ m_bstrSkill[SkillPointMaster];
 	}
 
 	INLINE _ITEM_DATA * GetItem(uint8 pos) 
@@ -789,7 +789,7 @@ public:
 	void GetUserInfo(Packet & pkt);
 	void SendUserStatusUpdate(UserStatus type, UserStatusBehaviour status);
 	virtual void Initialize();
-	
+
 	void ChangeFame(uint8 bFame);
 	void SendServerIndex();
 
@@ -838,10 +838,10 @@ public:
 	void QuestV2SaveEvent(uint16 sQuestID);
 	void QuestV2SendNpcMsg(uint32 nQuestID, uint16 sNpcID);
 	void QuestV2ShowGiveItem(uint32 nUnk1, uint16 sUnk1, 
-								uint32 nUnk2, uint16 sUnk2,
-								uint32 nUnk3, uint16 sUnk3,
-								uint32 nUnk4, uint16 sUnk4,
-								uint32 nUnk5 = 0, uint16 sUnk5 = 0);
+		uint32 nUnk2, uint16 sUnk2,
+		uint32 nUnk3, uint16 sUnk3,
+		uint32 nUnk4, uint16 sUnk4,
+		uint32 nUnk5 = 0, uint16 sUnk5 = 0);
 	uint16 QuestV2SearchEligibleQuest(uint16 sNpcID);
 	void QuestV2ShowMap(uint32 nQuestHelperID);
 	uint8 CheckMonsterCount(uint8 bGroup);
@@ -886,7 +886,7 @@ public:
 	void ReqChangeCape(Packet & pkt);
 	void ReqSealItem(Packet & pkt);
 
-//private:
+	//private:
 	static ChatCommandTable s_commandTable;
 	GameState m_state;
 
@@ -1107,5 +1107,13 @@ public:
 
 	DECLARE_LUA_FUNCTION(SendNameChange) {
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->SendNameChange());
+	}
+
+	DECLARE_LUA_FUNCTION(ResetStatPoints) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->AllPointChange());
+	}
+
+	DECLARE_LUA_FUNCTION(ResetSkillPoints) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->AllSkillPointChange());
 	}
 };
