@@ -1021,6 +1021,7 @@ bool MagicInstance::ExecuteType3()
 		TO_USER(pSkillCaster)->UpdateAngerGauge(0);
 	}
 
+	sData[1] = 1;
 	foreach (itr, casted_member)
 	{
 		Unit * pTarget = *itr; // it's checked above, not much need to check it again
@@ -1152,11 +1153,7 @@ bool MagicInstance::ExecuteType3()
 			{
 				TO_USER(pTarget)->SendUserStatusUpdate(pType->bAttribute == POISON_R ? USER_STATUS_POISON : USER_STATUS_DOT, USER_STATUS_INFLICT);
 			}
-
 		}
-
-		if (sTargetID != -1)
-			sData[1] = 1;
 
 		// Send the skill data in the current context to the caster's region, with the target explicitly set.
 		// In the case of AOEs, this will mean the AOE will show the AOE's effect on the user (not show the AOE itself again).
@@ -1172,6 +1169,11 @@ bool MagicInstance::ExecuteType3()
 			g_pMain->Send_AIServer(&result);
 		}
 	}
+
+	// Allow for AOE effects.
+	if (pSkill->bType[0] == 3
+		&& sTargetID == -1)
+		SendSkill();
 
 	return true;
 }
