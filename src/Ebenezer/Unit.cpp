@@ -423,11 +423,16 @@ bool CUser::TriggerProcItem(uint8 bSlot, Unit * pTarget, ItemTriggerType trigger
 
 	MagicInstance instance;
 
+	instance.bIsItemProc = true;
 	instance.sCasterID = GetID();
 	instance.sTargetID = pTarget->GetID();
 	instance.pSkillCaster = this;
 	instance.pSkillTarget = pTarget;
 	instance.nSkillID = pData->nSkillID;
+
+	// For AOE skills such as "Splash", the AOE should be focus on the target.
+	instance.sData[0] = (uint16) pTarget->GetX();
+	instance.sData[2] = (uint16) pTarget->GetZ();
 
 	instance.Run();
 	return true; // it is an applicable item, and it proc'd. No need to proc subsequent items.

@@ -162,7 +162,14 @@ bool MagicInstance::UserCanCast()
 	if ((pSkill->bMoral >= MORAL_AREA_ENEMY
 			&& pSkill->bMoral <= MORAL_SELF_AREA)
 		&& sTargetID != -1)
-		return false;
+	{
+		// Items that proc skills require the target ID to be fixed up.
+		// There's no other means of detecting who to target.
+		if (!bIsItemProc)
+			return false;
+
+		sTargetID = -1;
+	}
 
 	// NPCs do not need further checks.
 	// NOTE: The source check's implemented in the main packet wrapper.
