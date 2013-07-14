@@ -1045,7 +1045,7 @@ bool MagicInstance::ExecuteType3()
 			// Affects target's HP
 			if (pType->bDirectType == 1)
 			{	
-					pTarget->HpChange(damage, pSkillCaster);
+				pTarget->HpChange(damage, pSkillCaster);
 				
 				if (pTarget->m_bReflectArmorType != 0 && pTarget != pSkillCaster)
 					ReflectDamage(damage);
@@ -1053,10 +1053,7 @@ bool MagicInstance::ExecuteType3()
 			// Affects target's MP
 			else if (pType->bDirectType == 2 || pType->bDirectType == 3)
 			{
-				
-					pTarget->MSpChange(damage);
-				
-				
+				pTarget->MSpChange(damage);			
 			}
 			// "Magic Hammer" repairs equipped items.
 			else if (pType->bDirectType == 4)
@@ -1070,8 +1067,8 @@ bool MagicInstance::ExecuteType3()
 			{
 				continue;
 			}
-			// Damage based on percentage of target's max HP
-			else if (pType->bDirectType == 9) //Damage based on percentage of target's max HP
+			// Caster absorbs damage based on percentage of target's max HP
+			else if (pType->bDirectType == 9)
 			{
 				if (pType->sFirstDamage < 100)
 					damage = (pType->sFirstDamage * pTarget->GetHealth()) / -100;
@@ -1079,6 +1076,7 @@ bool MagicInstance::ExecuteType3()
 					damage = (pTarget->GetMaxHealth() * (pType->sFirstDamage - 100)) / 100;
 
 				pTarget->HpChange(damage, pSkillCaster);
+				pSkillCaster->HpChange(-(damage));
 			}
 			// Drains target's MP, gives half of it to the caster as HP
 			// NOTE: Non-durational form (as in 1.8xx). This was made durational later (database configured).
