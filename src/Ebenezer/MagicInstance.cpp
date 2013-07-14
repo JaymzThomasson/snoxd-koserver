@@ -816,7 +816,7 @@ bool MagicInstance::ExecuteType1()
 		pSkillTarget->HpChange(-damage, pSkillCaster);
 
 		if (pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
-			ReflectDamage(damage);
+			ReflectDamage(damage, pSkillTarget);
 	}
 
 	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
@@ -957,7 +957,7 @@ bool MagicInstance::ExecuteType2()
 
 	pSkillTarget->HpChange(-damage, pSkillCaster);     // Reduce target health point.
 	if (pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
-		ReflectDamage(damage);
+		ReflectDamage(damage, pSkillTarget);
 
 	bResult = true;
 
@@ -1056,7 +1056,7 @@ bool MagicInstance::ExecuteType3()
 				pTarget->HpChange(damage, pSkillCaster);
 				
 				if (pTarget->m_bReflectArmorType != 0 && pTarget != pSkillCaster)
-					ReflectDamage(damage);
+					ReflectDamage(damage, pTarget);
 			}
 			// Affects target's MP
 			else if (pType->bDirectType == 2 || pType->bDirectType == 3)
@@ -2265,32 +2265,36 @@ void MagicInstance::Type4Extend()
 	TO_USER(pSkillTarget)->Send(&result);
 }
 
-void MagicInstance::ReflectDamage(int32 damage)
+void MagicInstance::ReflectDamage(int32 damage, Unit * pTarget)
 {
-	if(damage < 0)
+	if (pSkillCaster == nullptr
+		|| pTarget == nullptr)
+		return;
+
+	if (damage < 0)
 		damage *= -1;
 
 	int16 total_resistance_caster = 0;
 	int32 reflect_damage = 0;
 
-	switch(pSkillTarget->m_bReflectArmorType)
+	switch (pTarget->m_bReflectArmorType)
 	{
 		case FIRE_DAMAGE:
 			total_resistance_caster = pSkillCaster->m_sFireR + pSkillCaster->m_bFireRAmount;
 			reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) / 100 * 25;
-			pSkillCaster->HpChange(-damage, pSkillTarget);
+			pSkillCaster->HpChange(-damage, pTarget);
 		break;
 		
 		case ICE_DAMAGE:
 			total_resistance_caster = pSkillCaster->m_sColdR + pSkillCaster->m_bColdRAmount;
 			reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) / 100 * 25;
-			pSkillCaster->HpChange(-damage, pSkillTarget);
+			pSkillCaster->HpChange(-damage, pTarget);
 		break;
 
 		case LIGHTNING_DAMAGE:
 			total_resistance_caster = pSkillCaster->m_sLightningR + pSkillCaster->m_bLightningRAmount;
 			reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) / 100 * 25;
-			pSkillCaster->HpChange(-damage, pSkillTarget);
+			pSkillCaster->HpChange(-damage, pTarget);
 		break;
 	}
 }

@@ -105,7 +105,7 @@ public:
 
 	short GetMagicDamage(Unit *pTarget, int total_hit, int attribute);
 	short GetWeatherDamage(short damage, int attribute);
-	void ReflectDamage(int32 damage);
+	void ReflectDamage(int32 damage, Unit * pTarget);
 
 	void SendSkillToAI();
 	void BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8]);
