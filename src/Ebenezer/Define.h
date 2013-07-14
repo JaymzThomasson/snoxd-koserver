@@ -17,6 +17,7 @@
 #define NPC_HAVE_ITEM_LIST	6
 #define ZONEITEM_MAX		2100000000	// ��� ������� �ִ� �����ۼ�...
 #define COIN_MAX			2100000000
+#define LOYALTY_MAX			2100000000
 
 #define MAX_CLASS			26			// ��� MAX
 #define MAX_LEVEL			83			// �ְ�...

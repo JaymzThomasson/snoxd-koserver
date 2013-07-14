@@ -69,6 +69,8 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(GoldGain)
 	MAKE_LUA_METHOD(GoldLose)
 	MAKE_LUA_METHOD(ExpChange)
+	MAKE_LUA_METHOD(GiveLoyalty)
+	MAKE_LUA_METHOD(RobLoyalty)
 	// MAKE_LUA_METHOD(RequestReward)
 	// MAKE_LUA_METHOD(RequestPersonalRankReward)
 	MAKE_LUA_METHOD(SaveEvent)
