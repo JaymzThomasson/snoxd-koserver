@@ -759,8 +759,6 @@ public:
 	void LoyaltyChange(int16 tid, uint16 bonusNP = 0);
 	void LoyaltyDivide(int16 tid, uint16 bonusNP = 0);
 	void ChangeNP(short sAmount, bool bDistributeToParty = true);
-	void GiveLoyalty(uint32 loyalty, bool bSendPacket = true);
-	void RobLoyalty(uint32 loyalty, bool bSendPacket = true);
 
 	bool CanChangeZone(C3DMap * pTargetMap, ZoneChangeError & errorReason);
 	void ZoneChange(uint16 sNewZone, float x, float z);
@@ -1120,10 +1118,10 @@ public:
 	}
 
 	DECLARE_LUA_FUNCTION(GiveLoyalty) {
-		LUA_NO_RETURN(LUA_GET_INSTANCE()->GiveLoyalty(LUA_ARG(uint32, 2)));	
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->SendLoyaltyChange(LUA_ARG(int32, 2)));	
 	}
 
 	DECLARE_LUA_FUNCTION(RobLoyalty) {
-		LUA_NO_RETURN(LUA_GET_INSTANCE()->RobLoyalty(LUA_ARG(uint32, 2)));	
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->SendLoyaltyChange(-(LUA_ARG(int32, 2))));	
 	}
 };

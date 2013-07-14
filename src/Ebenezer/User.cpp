@@ -2210,40 +2210,6 @@ void CUser::LoyaltyChange(int16 tid, uint16 bonusNP /*= 0*/)
 	}
 }
 
-void CUser::GiveLoyalty(uint32 loyalty, bool bSendPacket /*= true*/)
-{
-	if ((m_iLoyalty + loyalty) > LOYALTY_MAX)
-		bSendPacket = false;
-	else
-		m_iLoyalty += loyalty;
-
-	if (bSendPacket)
-	{
-		Packet result(WIZ_LOYALTY_CHANGE, uint8(1));
-		result	<< m_iLoyalty << m_iLoyaltyMonthly
-			<< uint32(0)
-			<< uint32(0);
-		Send(&result);	
-	}
-}
-
-void CUser::RobLoyalty(uint32 loyalty, bool bSendPacket /*= true*/)
-{
-	if (hasLoyalty(loyalty))
-		m_iLoyalty -= loyalty;
-	else
-		bSendPacket = false;
-
-	if (bSendPacket)
-	{
-		Packet result(WIZ_LOYALTY_CHANGE, uint8(1));
-		result	<< m_iLoyalty << m_iLoyaltyMonthly
-			<< uint32(0) 
-			<< uint32(0);
-		Send(&result);	
-	}
-}
-
 /**
  * @brief	Change's a player's loyalty points (NP).
  *
