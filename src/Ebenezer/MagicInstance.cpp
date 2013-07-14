@@ -1740,20 +1740,16 @@ bool MagicInstance::ExecuteType8()
 			} break;
 
 			case 12:	// Summon a target within the zone.	
-				
-				
-				if (pSkillCaster->GetZoneID() != pTUser->GetZoneID())   // Same zone? 
+				// Cannot teleport users from other zones.
+				if (pSkillCaster->GetZoneID() != pTUser->GetZoneID()
+					// Cannot teleport ourselves.
+					|| pSkillCaster == pSkillTarget)
 					goto packet_send;
 
 				// Send the packet to the target.
-				if (pSkillCaster != pSkillTarget)
-				{
-					sData[1] = 1;
-					BuildAndSendSkillPacket(*itr, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sData); 
-
-					pTUser->Warp(pSkillCaster->GetSPosX(), pSkillCaster->GetSPosZ());
-				}
-				
+				sData[1] = 1;
+				BuildAndSendSkillPacket(*itr, true, sCasterID, (*itr)->GetID(), bOpcode, nSkillID, sData); 
+				pTUser->Warp(pSkillCaster->GetSPosX(), pSkillCaster->GetSPosZ());
 				break;
 
 			case 13:	// Summon a target outside the zone.			
