@@ -845,7 +845,7 @@ bool CMagicProcess::IsBuff(_MAGIC_TYPE4 * pType)
 
 	// If any of the stats are below 0, it's a debuff.
 	case BUFF_TYPE_STATS:
-		return !(pType->bStr < 0 || pType->bSta < 0 || pType->bDex < 0 || pType->bIntel < 0 || pType->bCha); 
+		return !(pType->bStr < 0 || pType->bSta < 0 || pType->bDex < 0 || pType->bIntel < 0 || pType->bCha < 0); 
 
 	// There are no skills that negatively affect resistances, so it will always be a buff.
 	case BUFF_TYPE_RESISTANCES:
