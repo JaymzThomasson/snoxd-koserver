@@ -2555,8 +2555,12 @@ void CUser::SendItemMove(uint8 subcommand)
 				<< GetStatBonusTotal(STAT_STR) << GetStatBonusTotal(STAT_STA)
 				<< GetStatBonusTotal(STAT_DEX) << GetStatBonusTotal(STAT_INT)
 				<< GetStatBonusTotal(STAT_CHA)
-				<< uint16(m_sFireR + m_bResistanceBonus) << uint16(m_sColdR + m_bResistanceBonus) << uint16(m_sLightningR + m_bResistanceBonus) 
-				<< uint16(m_sMagicR + m_bResistanceBonus) << uint16(m_sDiseaseR + m_bResistanceBonus) << uint16(m_sPoisonR + m_bResistanceBonus);
+				<< uint16((m_sFireR * m_bFireRAmount / 100) + m_bResistanceBonus) 
+				<< uint16((m_sColdR * m_bColdRAmount / 100) + m_bResistanceBonus) 
+				<< uint16((m_sLightningR * m_bLightningRAmount / 100) + m_bResistanceBonus) 
+				<< uint16((m_sMagicR * m_bMagicRAmount / 100) + m_bResistanceBonus) 
+				<< uint16((m_sDiseaseR * m_bDiseaseRAmount / 100) + m_bResistanceBonus) 
+				<< uint16((m_sPoisonR * m_bPoisonRAmount / 100) + m_bResistanceBonus);
 	}
 	Send(&result);
 }

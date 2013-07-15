@@ -328,12 +328,12 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_DECREASE_RESIST:
-		pTarget->m_bFireRAmount			= -(pType->bFireR / 100)	*	(pTarget->m_sFireR		- pTarget->m_bFireRAmount);
-		pTarget->m_bColdRAmount			= -(pType->bColdR / 100)	*	(pTarget->m_sColdR		- pTarget->m_bColdRAmount);
-		pTarget->m_bLightningRAmount	= -(pType->bLightningR / 100) * (pTarget->m_sLightningR - pTarget->m_bLightningRAmount);
-		pTarget->m_bMagicRAmount		= -(pType->bMagicR / 100)	*	(pTarget->m_sMagicR		- pTarget->m_bMagicRAmount);
-		pTarget->m_bDiseaseRAmount		= -(pType->bDiseaseR / 100) *	(pTarget->m_sDiseaseR	- pTarget->m_bDiseaseRAmount);
-		pTarget->m_bPoisonRAmount		= -(pType->bPoisonR / 100)	*	(pTarget->m_sPoisonR	- pTarget->m_bPoisonRAmount);
+		pTarget->m_bFireRAmount			= pType->bFireR;
+		pTarget->m_bColdRAmount			= pType->bColdR;
+		pTarget->m_bLightningRAmount	= pType->bLightningR;
+		pTarget->m_bMagicRAmount		= pType->bMagicR;
+		pTarget->m_bDiseaseRAmount		= pType->bDiseaseR;
+		pTarget->m_bPoisonRAmount		= pType->bPoisonR;
 		break;
 
 	case BUFF_TYPE_MAGE_ARMOR:
@@ -553,12 +553,12 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_RESISTANCES:
-		pTarget->m_bFireRAmount = 0;
-		pTarget->m_bColdRAmount = 0;
-		pTarget->m_bLightningRAmount = 0;
-		pTarget->m_bMagicRAmount = 0;
-		pTarget->m_bDiseaseRAmount = 0;
-		pTarget->m_bPoisonRAmount = 0;
+		pTarget->m_bFireRAmount = 100;
+		pTarget->m_bColdRAmount = 100;
+		pTarget->m_bLightningRAmount = 100;
+		pTarget->m_bMagicRAmount = 100;
+		pTarget->m_bDiseaseRAmount = 100;
+		pTarget->m_bPoisonRAmount = 100;
 		break;
 
 	case BUFF_TYPE_ACCURACY:
