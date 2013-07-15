@@ -60,12 +60,10 @@ void Unit::Initialize()
 	m_sMaxHPAmount = m_sMaxMPAmount = 0;
 	m_bHitRateAmount = 100;
 	m_sAvoidRateAmount = 100;
-	m_bFireRAmount = 100;
-	m_bColdRAmount = 100;
-	m_bLightningRAmount = 100;
-	m_bMagicRAmount = 100;
-	m_bDiseaseRAmount = 100;
-	m_bPoisonRAmount = 100;
+	m_bAddFireR = m_bAddColdR = m_bAddLightningR = 0;
+	m_bAddMagicR = m_bAddDiseaseR = m_bAddPoisonR = 0;
+	m_bPctFireR = m_bPctColdR = m_bPctLightningR = 100;
+	m_bPctMagicR = m_bPctDiseaseR = m_bPctPoisonR = 100;
 	m_bMagicDamageReduction = 100;
 	m_bManaAbsorb = 0;
 	m_bRadiusAmount = 0;
@@ -572,25 +570,22 @@ short Unit::GetMagicDamage(int damage, Unit *pTarget, bool bPreviewOnly /*= fals
 
 			switch (bType)
 			{
-			case ITEM_TYPE_FIRE :	// Fire Damage
-				total_r = pTarget->m_sFireR * pTarget->m_bFireRAmount / 100;
+			case ITEM_TYPE_FIRE: 
+				total_r = (pTarget->m_sFireR + pTarget->m_bAddFireR) * pTarget->m_bPctFireR / 100;
 				break;
-			case ITEM_TYPE_COLD :	// Ice Damage
-				total_r = pTarget->m_sColdR * pTarget->m_bColdRAmount / 100;
+			case ITEM_TYPE_COLD:
+				total_r = (pTarget->m_sColdR + pTarget->m_bAddColdR) * pTarget->m_bPctColdR / 100;
 				break;
-			case ITEM_TYPE_LIGHTNING :	// Lightning Damage
-				total_r = pTarget->m_sLightningR * pTarget->m_bLightningRAmount / 100;
+			case ITEM_TYPE_LIGHTNING:
+				total_r = (pTarget->m_sLightningR + pTarget->m_bAddLightningR) * pTarget->m_bPctLightningR / 100;
 				break;
-			case ITEM_TYPE_POISON :	// Poison Damage
-				total_r = pTarget->m_sPoisonR * pTarget->m_bPoisonRAmount / 100;
-				break;
-			case ITEM_TYPE_HP_DRAIN :	// HP Drain		
+			case ITEM_TYPE_HP_DRAIN:
 				HpChange(temp_damage);			
 				break;
-			case ITEM_TYPE_MP_DAMAGE :	// MP Damage		
+			case ITEM_TYPE_MP_DAMAGE:
 				pTarget->MSpChange(-temp_damage);
 				break;
-			case ITEM_TYPE_MP_DRAIN :	// MP Drain		
+			case ITEM_TYPE_MP_DRAIN:
 				MSpChange(temp_damage);
 				break;
 			case ITEM_TYPE_MIRROR_DAMAGE:

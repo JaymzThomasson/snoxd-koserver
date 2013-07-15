@@ -1979,24 +1979,26 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 		switch (attribute)
 		{
 			case FIRE_R: 
-				total_r = pTarget->m_sFireR + pTarget->m_bFireRAmount;
+				total_r = (pTarget->m_sFireR + pTarget->m_bAddFireR) * pTarget->m_bPctFireR / 100;
 				break;
-			case COLD_R :
-				total_r = pTarget->m_sColdR + pTarget->m_bColdRAmount;
+			case COLD_R:
+				total_r = (pTarget->m_sColdR + pTarget->m_bAddColdR) * pTarget->m_bPctColdR / 100;
 				break;
-			case LIGHTNING_R :
-				total_r = pTarget->m_sLightningR + pTarget->m_bLightningRAmount; 
+			case LIGHTNING_R:
+				total_r = (pTarget->m_sLightningR + pTarget->m_bAddLightningR) * pTarget->m_bPctLightningR / 100;
 				break;
-			case MAGIC_R :
-				total_r = pTarget->m_sMagicR + pTarget->m_bMagicRAmount;
+			case MAGIC_R:
+				total_r = (pTarget->m_sMagicR + pTarget->m_bAddMagicR) * pTarget->m_bPctMagicR / 100;
 				break;
-			case DISEASE_R :
-				total_r = pTarget->m_sDiseaseR + pTarget->m_bDiseaseRAmount;
+			case DISEASE_R:
+				total_r = (pTarget->m_sDiseaseR + pTarget->m_bAddDiseaseR) * pTarget->m_bPctDiseaseR / 100;
 				break;
-			case POISON_R :			
-				total_r = pTarget->m_sPoisonR + pTarget->m_bPoisonRAmount;
+			case POISON_R:			
+				total_r = (pTarget->m_sPoisonR + pTarget->m_bAddPoisonR) * pTarget->m_bPctPoisonR / 100;
 				break;
 		}
+
+		total_r += pTarget->m_bResistanceBonus;
 		
 		if (pSkillCaster->isPlayer()) 
 		{
@@ -2035,17 +2037,17 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 
 					switch (bType)
 					{
-						case ITEM_TYPE_FIRE :	// Fire Damage
-							sTempResist = pTarget->m_sFireR + pTarget->m_bFireRAmount;
+						case ITEM_TYPE_FIRE: 
+							sTempResist = (pTarget->m_sFireR + pTarget->m_bAddFireR) * pTarget->m_bPctFireR / 100;
 							break;
-						case ITEM_TYPE_COLD :	// Ice Damage
-							sTempResist = pTarget->m_sColdR + pTarget->m_bColdRAmount;
+						case ITEM_TYPE_COLD:
+							sTempResist = (pTarget->m_sColdR + pTarget->m_bAddColdR) * pTarget->m_bPctColdR / 100;
 							break;
-						case ITEM_TYPE_LIGHTNING :	// Lightning Damage
-							sTempResist = pTarget->m_sLightningR + pTarget->m_bLightningRAmount;
+						case ITEM_TYPE_LIGHTNING:
+							sTempResist = (pTarget->m_sLightningR + pTarget->m_bAddLightningR) * pTarget->m_bPctLightningR / 100;
 							break;
-						case ITEM_TYPE_POISON :	// Poison Damage
-							sTempResist = pTarget->m_sPoisonR + pTarget->m_bPoisonRAmount;
+						case ITEM_TYPE_POISON:
+							sTempResist = (pTarget->m_sPoisonR + pTarget->m_bAddPoisonR) * pTarget->m_bPctPoisonR / 100;
 							break;
 					}
 
@@ -2280,19 +2282,19 @@ void MagicInstance::ReflectDamage(int32 damage, Unit * pTarget)
 	switch (pTarget->m_bReflectArmorType)
 	{
 		case FIRE_DAMAGE:
-			total_resistance_caster = pSkillCaster->m_sFireR + pSkillCaster->m_bFireRAmount;
+			total_resistance_caster = (pSkillCaster->m_sFireR + pSkillCaster->m_bAddFireR) * pTarget->m_bPctFireR / 100;
 			reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) / 100 * 25;
 			pSkillCaster->HpChange(-damage, pTarget);
 		break;
 		
 		case ICE_DAMAGE:
-			total_resistance_caster = pSkillCaster->m_sColdR + pSkillCaster->m_bColdRAmount;
+			total_resistance_caster = (pSkillCaster->m_sColdR + pSkillCaster->m_bAddColdR) * pTarget->m_bPctColdR / 100;
 			reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) / 100 * 25;
 			pSkillCaster->HpChange(-damage, pTarget);
 		break;
 
 		case LIGHTNING_DAMAGE:
-			total_resistance_caster = pSkillCaster->m_sLightningR + pSkillCaster->m_bLightningRAmount;
+			total_resistance_caster = (pSkillCaster->m_sLightningR + pSkillCaster->m_bAddLightningR) * pTarget->m_bPctLightningR / 100;
 			reflect_damage = ((230 * damage) / (total_resistance_caster + 250)) / 100 * 25;
 			pSkillCaster->HpChange(-damage, pTarget);
 		break;

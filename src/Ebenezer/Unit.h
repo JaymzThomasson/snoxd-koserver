@@ -199,18 +199,18 @@ public:
 	int16	m_sAttackSpeedAmount;
 	uint8   m_bSpeedAmount;
 
-	uint16	m_sFireR;
-	uint8	m_bFireRAmount;
-	uint16	m_sColdR;
-	uint8	m_bColdRAmount;
-	uint16	m_sLightningR;
-	uint8	m_bLightningRAmount;
-	uint16	m_sMagicR;
-	uint8	m_bMagicRAmount;
-	uint16	m_sDiseaseR;
-	uint8	m_bDiseaseRAmount;
-	uint16	m_sPoisonR;
-	uint8	m_bPoisonRAmount;	
+	// Item calculated elemental resistances.
+	uint16	m_sFireR, m_sColdR, m_sLightningR, 
+			m_sMagicR, m_sDiseaseR, m_sPoisonR;
+
+	// Additional elemental resistance amounts from skills (note: NOT percentages)
+	uint8	m_bAddFireR, m_bAddColdR, m_bAddLightningR,
+			m_bAddMagicR, m_bAddDiseaseR, m_bAddPoisonR;
+
+	// Elemental resistance percentages (adjusted by debuffs)
+	uint8	m_bPctFireR, m_bPctColdR, m_bPctLightningR,
+			m_bPctMagicR, m_bPctDiseaseR, m_bPctPoisonR;
+
 	uint8	m_bMagicDamageReduction;
 	uint8	m_bManaAbsorb;
 	uint8	m_bRadiusAmount;
