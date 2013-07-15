@@ -151,6 +151,7 @@ void OdbcConnection::ResetHandles()
 tstring OdbcConnection::ReportSQLError(SQLSMALLINT handleType, SQLHANDLE handle,
 								 const TCHAR *szSource, const TCHAR *szError, ...)
 {
+	FastGuard lock(m_lock);
 	TCHAR szErrorBuffer[256];
 	OdbcError *error = new OdbcError();
 
@@ -190,10 +191,10 @@ tstring OdbcConnection::GetSQLError(SQLSMALLINT handleType, SQLHANDLE handle)
 
 OdbcError *OdbcConnection::GetError()
 {
-	if (!isError())
+	FastGuard lock(m_lock);
+	if (m_odbcErrors.empty())
 		return nullptr;
 
-	FastGuard lock(m_lock);
 	OdbcError *pError = m_odbcErrors.back();
 	m_odbcErrors.pop_back();
 	return pError;
