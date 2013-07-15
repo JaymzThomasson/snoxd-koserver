@@ -159,20 +159,21 @@ void CUser::Rotate(Packet & pkt)
 	SendToRegion(&result, this);
 }
 
-bool CUser::CanChangeZone(C3DMap * pTargetMap, ZoneChangeError & errorReason)
+bool CUser::CanChangeZone(C3DMap * pTargetMap, WarpListResponse & errorReason)
 {
 	// While unofficial, game masters should be allowed to teleport anywhere.
 	if (isGM())
 		return true;
 
 	// Generic error reason; this should only be checked when the method returns false.
-	errorReason = ZoneChangeErrorGeneric;
+	errorReason = WarpListGenericError;
 
 	// Ensure the user meets the zone's level requirements
 	if (GetLevel() < pTargetMap->GetMinLevelReq()
 		|| GetLevel() > pTargetMap->GetMaxLevelReq())
 	{
-		errorReason = ZoneChangeErrorWrongLevel;
+		// TO-DO: Implement overrides for zone-specific behaviour (e.g. wars)
+		errorReason = WarpListMinLevel;
 		return false;
 	}
 
@@ -208,17 +209,18 @@ bool CUser::CanChangeZone(C3DMap * pTargetMap, ZoneChangeError & errorReason)
 
 	case ZONE_RONARK_LAND:
 	case ZONE_ARDREAM:
+	case ZONE_RONARK_LAND_BASE:
 		// PVP zones such as Ronark Land/Ardream (do we include both?) may only be entered if a war is not started. 
 		if (g_pMain->m_byBattleOpen != NO_BATTLE)
 		{
-			errorReason = ZoneChangeErrorWarActive;
+			errorReason = WarpListNotDuringWar;
 			return false;
 		}
 
 		// They may also not be entered if the user has no NP.
 		if (GetLoyalty() <= 0)
 		{
-			errorReason = ZoneChangeErrorNeedLoyalty;
+			errorReason = WarpListNeedNP;
 			return false;
 		}
 		break;
@@ -241,28 +243,17 @@ void CUser::ZoneChange(uint16 sNewZone, float x, float z)
 	if (pMap == nullptr) 
 		return;
 
-	ZoneChangeError errorReason;
+	WarpListResponse errorReason;
 	if (!CanChangeZone(pMap, errorReason))
 	{
-		Packet result;
+		Packet result(WIZ_WARP_LIST, uint8(2));
 
-		switch (errorReason)
-		{
-		case ZoneChangeErrorWrongLevel:
-			/* this will depend on the zone */
-			break;
+		result << uint8(errorReason);
 
-		case ZoneChangeErrorWarActive:
-			result.Initialize(WIZ_WARP_LIST);
-			result << uint8(2) << uint8(4);
-			Send(&result);
-			break;
+		if (errorReason == WarpListMinLevel)
+			result << pMap->GetMinLevelReq();
 
-		case ZoneChangeErrorNeedLoyalty:
-			/* does this have an error? */
-			break;
-		}
-
+		Send(&result);
 		return;
 	}
 
