@@ -516,6 +516,7 @@ public:
 	void GoldGain(uint32 gold, bool bSendPacket = true, bool bApplyBonus = false);
 	void SendItemWeight();
 	void UpdateVisibility(InvisibilityType bNewType);
+	void ResetGMVisibility();
 	void BlinkStart();
 	void BlinkTimeCheck();
 	void GoldChange(short tid, int gold);

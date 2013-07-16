@@ -204,10 +204,14 @@ enum SkillPointCategory
 
 //////////////////////////////////////////////////////////////
 // USER ABNORMAL STATUS TYPES
-#define ABNORMAL_NORMAL			0x01
-#define ABNORMAL_GIANT			0x02
-#define ABNORMAL_DWARF			0x03
-#define ABNORMAL_BLINKING		0x04
+enum AbnormalType
+{
+	ABNORMAL_INVISIBLE	= 0, // GM only
+	ABNORMAL_NORMAL		= 1,
+	ABNORMAL_GIANT		= 2,
+	ABNORMAL_DWARF		= 3,
+	ABNORMAL_BLINKING	= 4
+};
 
 //////////////////////////////////////////////////////////////
 // Object Type

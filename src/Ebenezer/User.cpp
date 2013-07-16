@@ -690,8 +690,8 @@ void CUser::SendMyInfo()
 		m_curz = (float)z;
 	}
 
-
 	QuestDataRequest();
+
 	Packet result(WIZ_MYINFO);
 
 	// Load up our user rankings (for our NP symbols).
@@ -2129,6 +2129,16 @@ void CUser::StateChangeServerDirect(uint8 bType, uint32 nBuff)
 
 	case 3:
 		m_nOldAbnormalType = m_bAbnormalType;
+
+		// If we're a GM, we need to show ourselves before transforming.
+		// Otherwise the visibility state is completely desynced.
+		if (isGM())
+			StateChangeServerDirect(5, 1);
+
+		m_bAbnormalType = nBuff;
+		break;
+
+	case 5:
 		m_bAbnormalType = nBuff;
 		break;
 
@@ -3454,6 +3464,29 @@ void CUser::UpdateVisibility(InvisibilityType bNewType)
 	m_bInvisibilityType = (uint8)(bNewType);
 	result << GetID() << m_bInvisibilityType;
 	Send_AIServer(&result);
+}
+
+/**
+ * @brief	Forces a reset of the GM's persistent visibility 
+ * 			state.
+ */
+void CUser::ResetGMVisibility()
+{
+	if (!isGM()
+		|| isTransformed())
+		return;
+
+	// Force the client to reset
+	if (m_bAbnormalType != ABNORMAL_INVISIBLE)
+	{
+		// Only send this packet to the GM as other users 
+		// will already see the GM as invisible.
+		Packet result(WIZ_STATE_CHANGE);
+		result << GetID() << uint8(5) << uint32(0);
+		Send(&result);
+	}
+
+	m_bAbnormalType = ABNORMAL_INVISIBLE;
 }
 
 void CUser::BlinkStart()

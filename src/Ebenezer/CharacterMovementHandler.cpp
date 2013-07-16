@@ -70,6 +70,10 @@ void CUser::UserInOut(uint8 bType)
 		return;
 
 	Packet result;
+
+	if (bType != INOUT_OUT)
+		ResetGMVisibility();
+
 	GetInOut(result, bType);
 
 	if (bType == INOUT_OUT)
