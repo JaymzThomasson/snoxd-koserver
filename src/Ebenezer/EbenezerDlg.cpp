@@ -674,6 +674,7 @@ void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUse
 	FastGuard lock(pMap->m_lock);
 
 	CRegion *pRegion = &pMap->m_ppRegion[x][z];
+	FastGuard lock2(pRegion->m_lock);
 	foreach (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr);
@@ -775,6 +776,7 @@ void CEbenezerDlg::Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z
 	FastGuard lock(pMap->m_lock);
 	CRegion *pRegion = &pMap->m_ppRegion[x][z];
 
+	FastGuard lock2(pRegion->m_lock);
 	foreach (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr);
@@ -1000,6 +1002,7 @@ void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, uint16 region_x, uint16 region_
 	FastGuard lock(pMap->m_lock);
 	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
 
+	FastGuard lock2(pRegion->m_lock);
 	foreach (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr);
@@ -1024,6 +1027,7 @@ void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, uint16 region_x, uint16 regio
 	FastGuard lock(pMap->m_lock);
 	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
 
+	FastGuard lock2(pRegion->m_lock);
 	foreach (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr);
@@ -1067,6 +1071,7 @@ void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, uint16 region_x, uint16
 	FastGuard lock(pMap->m_lock);
 	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
 
+	FastGuard lock2(pRegion->m_lock);
 	foreach (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr);
