@@ -1674,3 +1674,23 @@ void CDBAgent::InsertPrizeEvent(uint8 byType, uint8 byNation, uint32 nCoins, std
 		byType, byNation, nCoins)))
 		ReportSQLError(m_GameDB->GetError());
 }
+
+/**
+ * @brief	Clears the remaining users who were connected to this server
+			from the logged in user list that may still be there as the 
+			result of an improper shutdown.
+ */
+void CDBAgent::ClearRemainUsers()
+{
+	_ZONE_SERVERINFO * pInfo = g_pMain->m_ServerArray.GetData(g_pMain->m_nServerNo);
+	if (pInfo == nullptr)
+		return;
+
+	unique_ptr<OdbcCommand> dbCommand(m_AccountDB->CreateCommand());
+	if (dbCommand.get() == nullptr)
+		return;
+
+	dbCommand->AddParameter(SQL_PARAM_INPUT, pInfo->strServerIP.c_str(), pInfo->strServerIP.length());
+	if (!dbCommand->Execute(_T("{CALL CLEAR_REMAIN_USERS(?)}")))
+		ReportSQLError(m_AccountDB->GetError());
+}

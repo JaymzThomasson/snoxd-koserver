@@ -147,6 +147,10 @@ bool CEbenezerDlg::Startup()
 		|| !LoadMonsterSummonListTable())
 		return false;
 
+	// Clear any remaining users in the currently logged in list
+	// that may be left as a result of an improper shutdown.
+	g_DBAgent.ClearRemainUsers();
+
 	LoadNoticeData();
 
 	srand((uint32)time(nullptr));
