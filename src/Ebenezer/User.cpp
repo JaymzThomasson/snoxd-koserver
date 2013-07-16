@@ -2651,6 +2651,9 @@ void CUser::HPTimeChangeType3()
 			HpChange(pEffect->m_sHPAmount, pUnit); // do we need to specify the source of the DOT?
 			pEffect->m_tHPLastTime = UNIXTIME;
 
+			if (pEffect->m_sHPAmount < 0)
+				bIsDOT = true;
+
 			// Has the skill expired yet?
 			if (++pEffect->m_bTickCount == pEffect->m_bTickLimit)
 			{
@@ -2664,10 +2667,6 @@ void CUser::HPTimeChangeType3()
 
 				Send(&result);
 				pEffect->Reset();
-			}
-			else if (pEffect->m_sHPAmount < 0)
-			{
-				bIsDOT = true;
 			}
 		}
 
