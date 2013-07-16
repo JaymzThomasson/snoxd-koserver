@@ -564,32 +564,6 @@ void CUser::ItemMove(Packet & pkt)
 		memset(pSrcItem, 0, sizeof(_ITEM_DATA)); // Clear out the source item's data
 	}
 
-
-	// If we're equipping a 2-handed weapon, we need to ensure that if there's 
-	// an item in the other weapon slot (2-handed or not), it's unequipped.
-	if (dir == ITEM_INVEN_SLOT)
-	{
-		uint8 bOtherWeaponSlot = 0;
-
-		if (bDstPos == LEFTHAND && pTable->m_bSlot == ItemSlot2HLeftHand)
-			bOtherWeaponSlot = RIGHTHAND;
-		else if (bDstPos == RIGHTHAND && pTable->is2Handed())
-			bOtherWeaponSlot = LEFTHAND;
-
-		if (bOtherWeaponSlot != 0)
-		{
-			_ITEM_DATA * pUnequipItem = GetItem(bOtherWeaponSlot);
-			if (pUnequipItem->nNum != 0)
-			{
-				// Place item where item that we just equipped was.
-				memcpy(pSrcItem, pUnequipItem, sizeof(_ITEM_DATA));
-				memset(pUnequipItem, 0, sizeof(_ITEM_DATA));
-
-				UserLookChange(bOtherWeaponSlot, 0, 0);
-			}
-		}
-	}
-
 	// If equipping/de-equipping an item
 	if (dir == ITEM_INVEN_SLOT || dir == ITEM_SLOT_INVEN
 		// or moving an item to/from our cospre item slots
@@ -787,22 +761,43 @@ bool CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)
 	if (pTable == nullptr)
 		return false;
 
+	bool bOneHandedItem = false;
 	switch (pTable->m_bSlot)
 	{
 	case ItemSlot1HEitherHand:
 		if (destpos != RIGHTHAND && destpos != LEFTHAND)
 			return false;
+
+		bOneHandedItem = true;
 		break;
 
 	case ItemSlot1HRightHand:
-	case ItemSlot2HRightHand:
 		if (destpos != RIGHTHAND)
+			return false;
+
+		bOneHandedItem = true;
+		break;
+
+	// If we're equipping a 2H item in our right hand, there must
+	// be no item in our left hand.
+	case ItemSlot2HRightHand:
+		if (destpos != RIGHTHAND
+			|| GetItem(LEFTHAND)->nNum != 0)
 			return false;
 		break;
 
 	case ItemSlot1HLeftHand:
-	case ItemSlot2HLeftHand:
 		if (destpos != LEFTHAND)
+			return false;
+
+		bOneHandedItem = true;
+		break;
+
+	// If we're equipping a 2H item in our left hand, there must
+	// be no item in our right hand.
+	case ItemSlot2HLeftHand:
+		if (destpos != LEFTHAND
+			|| GetItem(RIGHTHAND)->nNum != 0)
 			return false;
 		break;
 
@@ -883,6 +878,16 @@ bool CUser::IsValidSlotPos(_ITEM_TABLE* pTable, int destpos)
 
 	default:
 		return false;
+	}
+
+	// 1H items can only be equipped when a 2H item isn't equipped.
+	if (bOneHandedItem)
+	{
+		_ITEM_DATA * pItem;
+		_ITEM_TABLE * pTable2 = GetItemPrototype(destpos == LEFTHAND ? RIGHTHAND : LEFTHAND, pItem);
+		if (pTable2 != nullptr 
+			&& pTable2->is2Handed())
+			return false;
 	}
 
 	return true;
