@@ -2677,10 +2677,11 @@ void CUser::HPTimeChangeType3()
 
 	// Have all the skills expired?
 	if (totalActiveDurationalSkills == 0)
+	{
 		m_bType3Flag = false;
-
-	if (!bIsDOT)
-		SendUserStatusUpdate(USER_STATUS_DOT, USER_STATUS_CURE);
+		if (bIsDOT)
+			SendUserStatusUpdate(USER_STATUS_DOT, USER_STATUS_CURE);
+	}
 }
 
 void CUser::Type4Duration()
@@ -2698,18 +2699,8 @@ void CUser::Type4Duration()
 		break; // only ever handle one at a time with the current logic
 	}
 
-	bool bIsDebuffed = false;
-	foreach (itr, m_buffMap)
-	{
-		if (itr->second.isDebuff())
-		{
-			bIsDebuffed = true;
-			break;
-		}
-	}
-
-	if (isInParty() && !bIsDebuffed)
-		SendPartyStatusUpdate(2);
+	if (!isDebuffed())
+		SendUserStatusUpdate(USER_STATUS_POISON, USER_STATUS_CURE);
 }
 
 void CUser::SendAllKnightsID()

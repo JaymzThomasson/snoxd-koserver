@@ -1462,6 +1462,8 @@ bool MagicInstance::ExecuteType5()
 	{
 		Type4BuffMap::iterator buffIterator;
 		CUser * pTUser = (*itr);
+		int skillCount = 0;
+		bool bRemoveDOT = false;
 
 		switch (pType->bType)
 		{
@@ -1475,20 +1477,25 @@ bool MagicInstance::ExecuteType5()
 
 					// Ignore healing-over-time skills
 					if (pEffect->m_sHPAmount >= 0)
+					{
+						skillCount++;
 						continue;
+					}
 
 					pEffect->Reset();
 					// TO-DO: Wrap this up (ugh, I feel so dirty)
 					Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
 					result << uint8(200); // removes DOT skill
 					pTUser->Send(&result); 
+					bRemoveDOT = true;
 				}
 
-				if (!pTUser->isBuffed() && !pTUser->isDebuffed())
+				if (skillCount == 0)
+				{
 					pTUser->m_bType3Flag = false;
-
-				if (pTUser->isInParty() && !pTUser->isDebuffed())
-					pTUser->SendPartyStatusUpdate(1);
+					if (bRemoveDOT)
+						pTUser->SendUserStatusUpdate(USER_STATUS_DOT, USER_STATUS_CURE);
+				}
 				break;
 
 			case REMOVE_TYPE4: // Remove type 4 debuffs
@@ -1520,8 +1527,8 @@ bool MagicInstance::ExecuteType5()
 			{
 				if (CMagicProcess::RemoveType4Buff(BUFF_TYPE_HP_MP, pTUser))
 				{
-					if (pTUser->isInParty() && !pTUser->isDebuffed()) 
-						pTUser->SendPartyStatusUpdate(2, 0);
+					if (!pTUser->isDebuffed()) 
+						pTUser->SendUserStatusUpdate(USER_STATUS_POISON, USER_STATUS_CURE);
 				}
 			} break;
 		}
@@ -2186,19 +2193,12 @@ void MagicInstance::Type4Cancel()
 		return;
 
 	_MAGIC_TYPE4* pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
-	if (pType == nullptr)
+	if (pType == nullptr
+		|| pType->isDebuff())
 		return;
 
 	if (!CMagicProcess::RemoveType4Buff(pType->bBuffType, TO_USER(pSkillCaster)))
 		return;
-
-	if (pSkillCaster->isPlayer())
-	{
-		FastGuard bufffLock(pSkillCaster->m_buffLock);
-		if (pSkillCaster->m_buffMap.empty()
-			&& TO_USER(pSkillCaster)->isInParty())
-			TO_USER(pSkillCaster)->SendPartyStatusUpdate(2);
-	}
 
 	TO_USER(pSkillCaster)->RemoveSavedMagic(nSkillID);
 }
@@ -2239,13 +2239,18 @@ void MagicInstance::Type3Cancel()
 	for (int j = 0; j < MAX_TYPE3_REPEAT; j++)
 	{
 		if (pSkillCaster->m_durationalSkills[j].m_byUsed)
+		{
 			buff_test++;
+			break;
+		}
 	}
-	if (buff_test == 0) pSkillCaster->m_bType3Flag = false;	
 
-	if (pSkillCaster->isPlayer() && !pSkillCaster->m_bType3Flag
-		&& TO_USER(pSkillCaster)->isInParty())
-		TO_USER(pSkillCaster)->SendPartyStatusUpdate(1, 0);
+	if (buff_test == 0) 
+		pSkillCaster->m_bType3Flag = false;	
+
+	if (pSkillCaster->isPlayer() 
+		&& !pSkillCaster->m_bType3Flag)
+		TO_USER(pSkillCaster)->SendUserStatusUpdate(USER_STATUS_DOT, USER_STATUS_CURE);
 }
 
 void MagicInstance::Type4Extend()
