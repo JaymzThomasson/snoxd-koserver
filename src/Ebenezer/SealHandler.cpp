@@ -1,3 +1,7 @@
+#include "stdafx.h"
+
+using std::string;
+
 #define ITEM_SEAL_PRICE 1000000
 
 enum

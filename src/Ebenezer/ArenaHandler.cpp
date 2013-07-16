@@ -1,3 +1,8 @@
+#include "stdafx.h"
+#include "Map.h"
+
+using std::string;
+
 enum
 {
 	CHALLENGE_PVP_REQUEST	= 1,

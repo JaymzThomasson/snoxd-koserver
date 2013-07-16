@@ -1,6 +1,4 @@
 #include "stdafx.h"
-#include "EbenezerDlg.h"
-#include "User.h"
 
 using namespace std;
 

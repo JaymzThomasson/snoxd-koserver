@@ -1,8 +1,5 @@
 #include "stdafx.h"
-
 #include "Knights.h"
-#include "EbenezerDlg.h"
-#include "User.h"
 
 using std::string;
 

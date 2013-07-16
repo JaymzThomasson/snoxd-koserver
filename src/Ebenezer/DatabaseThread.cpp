@@ -1,9 +1,7 @@
 #include "stdafx.h"
 #include "../shared/Condition.h"
-#include "EbenezerDlg.h"
 #include "KnightsManager.h"
 #include "KingSystem.h"
-#include "User.h"
 #include "DBAgent.h"
 
 extern CDBAgent g_DBAgent;

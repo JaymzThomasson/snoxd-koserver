@@ -5,7 +5,6 @@
 
 #if defined(EBENEZER)
 #	include "EbenezerDlg.h"
-#	include "User.h" // need to move UserRegionCheck() to get rid of this
 #else
 #	include "../AIServer/ServerDlg.h"
 #	include "../AIServer/User.h"

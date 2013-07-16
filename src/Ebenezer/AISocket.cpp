@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "Map.h"
-#include "EbenezerDlg.h"
 #include "AISocket.h"
-#include "User.h"
 #include "MagicProcess.h"
 
 using std::string;

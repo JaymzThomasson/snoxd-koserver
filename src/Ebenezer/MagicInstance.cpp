@@ -1,8 +1,6 @@
 ﻿#include "stdafx.h"
 #include "Map.h"
-#include "EbenezerDlg.h"
 #include "../shared/KOSocketMgr.h"
-#include "User.h"
 #include "MagicProcess.h"
 #include "MagicInstance.h"
 

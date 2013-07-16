@@ -1,3 +1,11 @@
+#include "stdafx.h"
+#include "Map.h"
+#include "KnightsManager.h"
+#include "KingSystem.h"
+#include "MagicInstance.h"
+
+using namespace std;
+
 CUser::CUser(uint16 socketID, SocketMgr *mgr) : KOSocket(socketID, mgr, -1, 16384, 3172), Unit(UnitPlayer)
 {
 }

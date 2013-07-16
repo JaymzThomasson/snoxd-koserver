@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "Map.h"
 #include "KnightsManager.h"
-#include "EbenezerDlg.h"
-#include "User.h"
 #include "../shared/tstring.h"
 
 // TO-DO: Move this to the CUser class.

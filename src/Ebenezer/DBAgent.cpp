@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "../shared/database/OdbcConnection.h"
-#include "EbenezerDlg.h"
 #include "KnightsManager.h"
-#include "User.h"
 #include "DBAgent.h"
 
 CDBAgent g_DBAgent;

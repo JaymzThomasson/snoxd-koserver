@@ -1,6 +1,4 @@
 #include "stdafx.h"
-#include "EbenezerDlg.h"
-#include "User.h"
 #include "../shared/KOSocketMgr.h"
 
 using namespace std;

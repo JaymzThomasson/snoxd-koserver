@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "Map.h"
-#include "EbenezerDlg.h"
 #include "KnightsManager.h"
-#include "User.h"
+#include "KingSystem.h"
+
+using std::string;
 
 void CUser::ItemRepair(Packet & pkt)
 {

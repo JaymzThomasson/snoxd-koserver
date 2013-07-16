@@ -1,3 +1,6 @@
+#include "stdafx.h"
+#include "Map.h"
+
 void CUser::MoveProcess(Packet & pkt)
 {
 	ASSERT(GetMap() != nullptr);
@@ -115,7 +118,7 @@ void CUser::GetUserInfo(Packet & pkt)
 	// As this is the only place where this flag is actually sent to the client, we'll just convert 'dispel on attack' 
 	// back to 'dispel on move' as the client expects.
 	uint8 bInvisibilityType = m_bInvisibilityType;
-	if (bInvisibilityType == INVIS_DISPEL_ON_ATTACK)
+	if (bInvisibilityType != INVIS_NONE)
 		bInvisibilityType = INVIS_DISPEL_ON_MOVE;
 
 	pkt	<< GetLevel() << m_bRace << m_sClass

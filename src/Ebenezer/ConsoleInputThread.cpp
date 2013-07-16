@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "EbenezerDlg.h"
 #include "ConsoleInputThread.h"
 
 #ifdef WIN32

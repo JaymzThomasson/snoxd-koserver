@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "../shared/Condition.h"
-#include "EbenezerDlg.h"
 #include "ConsoleInputThread.h"
 #include "../shared/signal_handler.h"
 

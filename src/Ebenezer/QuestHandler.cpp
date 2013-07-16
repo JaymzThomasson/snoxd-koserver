@@ -1,6 +1,5 @@
 #include "stdafx.h"
-#include "EbenezerDlg.h"
-#include "User.h"
+#include "KnightsManager.h"
 
 void CUser::QuestDataRequest()
 {

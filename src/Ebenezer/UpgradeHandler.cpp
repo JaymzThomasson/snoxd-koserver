@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 // Some item ID definitions
 #define MIN_ITEM_ID 100000000
 #define MAX_ITEM_ID 999999999

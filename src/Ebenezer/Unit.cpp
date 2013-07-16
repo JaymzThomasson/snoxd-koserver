@@ -2,7 +2,6 @@
 #include "Map.h"
 #ifdef EBENEZER
 #	include "EbenezerDlg.h"
-#	include "User.h"
 #	include "MagicInstance.h"
 #else
 #	include "../AIServer/ServerDlg.h"

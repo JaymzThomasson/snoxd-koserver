@@ -1,3 +1,6 @@
+#include "stdafx.h"
+#include "Map.h"
+
 void CUser::Attack(Packet & pkt)
 {
 	Packet result;

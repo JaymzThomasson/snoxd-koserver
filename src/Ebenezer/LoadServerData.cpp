@@ -3,9 +3,7 @@
 #include "Map.h"
 #include "GameEvent.h"
 
-#include "EbenezerDlg.h"
 #include "KnightsManager.h"
-#include "User.h"
 #include "DBAgent.h"
 #include "KingSystem.h"
 

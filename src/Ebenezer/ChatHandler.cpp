@@ -1,3 +1,10 @@
+#include "stdafx.h"
+
+using std::string;
+
+ServerCommandTable CEbenezerDlg::s_commandTable;
+ChatCommandTable CUser::s_commandTable;
+
 void CEbenezerDlg::InitServerCommands()
 {
 	static Command<CEbenezerDlg> commandTable[] = 

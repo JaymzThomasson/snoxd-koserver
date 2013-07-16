@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "EbenezerDlg.h"
-#include "User.h"
+
+using std::string;
 
 enum MerchantOpenResponseCodes
 {

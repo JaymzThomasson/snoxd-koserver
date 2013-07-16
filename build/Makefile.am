@@ -97,7 +97,25 @@ Ebenezer_SOURCES = \
 	../src/Ebenezer/DBAgent.cpp \
 	../src/Ebenezer/lua_bindings.cpp \
 	../src/Ebenezer/LuaEngine.cpp \
-	../src/Ebenezer/UserPacketHandlers.cpp \
+	../src/Ebenezer/User.cpp \
+	../src/Ebenezer/ArenaHandler.cpp \
+	../src/Ebenezer/AttackHandler.cpp \
+	../src/Ebenezer/CharacterMovementHandler.cpp \
+	../src/Ebenezer/CharacterSelectionHandler.cpp \
+	../src/Ebenezer/ChatHandler.cpp \
+	../src/Ebenezer/FriendHandler.cpp \
+	../src/Ebenezer/ItemHandler.cpp \
+	../src/Ebenezer/LetterHandler.cpp \
+	../src/Ebenezer/LoginHandler.cpp \
+	../src/Ebenezer/MerchantHandler.cpp \
+	../src/Ebenezer/NPCHandler.cpp \
+	../src/Ebenezer/PartyHandler.cpp \
+	../src/Ebenezer/QuestHandler.cpp \
+	../src/Ebenezer/RentalHandler.cpp \
+	../src/Ebenezer/ShoppingMallHandler.cpp \
+	../src/Ebenezer/TradeHandler.cpp \
+	../src/Ebenezer/SealHandler.cpp \
+	../src/Ebenezer/UpgradeHandler.cpp \
 	../src/Ebenezer/AISocket.cpp \
 	../src/Ebenezer/ConsoleInputThread.cpp \
 	../src/Ebenezer/EbenezerDlg.cpp \

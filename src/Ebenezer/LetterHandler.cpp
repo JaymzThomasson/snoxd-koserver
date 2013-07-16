@@ -1,9 +1,6 @@
 #include "stdafx.h"
-#include "EbenezerDlg.h"
-#include "User.h"
 #include "DBAgent.h"
 
-extern CDBAgent g_DBAgent;
 using std::string;
 
 void CUser::LetterSystem(Packet & pkt)

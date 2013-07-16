@@ -198,9 +198,6 @@
     <ClCompile Include="..\shared\tstring.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
-    <ClCompile Include="UserPacketHandlers.cpp">
-      <Filter>Source Files\Handlers</Filter>
-    </ClCompile>
     <ClCompile Include="..\shared\ReferenceObject.cpp">
       <Filter>Shared</Filter>
     </ClCompile>

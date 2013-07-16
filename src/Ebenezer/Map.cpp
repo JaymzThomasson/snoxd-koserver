@@ -1,7 +1,5 @@
 #include "stdafx.h"
 #include "Map.h"
-#include "EbenezerDlg.h"
-#include "User.h"
 #include <set>
 #include "../shared/SMDFile.h"
 

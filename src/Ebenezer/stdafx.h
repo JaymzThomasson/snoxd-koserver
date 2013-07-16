@@ -8,4 +8,6 @@
 #	define DISABLE_PLAYER_BLINKING
 #endif
 
+#include "EbenezerDlg.h"
+
 extern bool g_bRunning;

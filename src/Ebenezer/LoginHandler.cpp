@@ -1,6 +1,4 @@
 #include "stdafx.h"
-#include "EbenezerDlg.h"
-#include "User.h"
 
 void CUser::VersionCheck(Packet & pkt)
 {

@@ -1,7 +1,5 @@
 #include "stdafx.h"
-#include "User.h"
 #include "Map.h"
-#include "EbenezerDlg.h"
 
 CNpc::CNpc() : Unit(UnitNPC)
 {

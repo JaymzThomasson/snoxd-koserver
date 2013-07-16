@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "EbenezerDlg.h"
 #include "KingSystem.h"
 
 #include "../shared/ClientSocketMgr.h"
@@ -11,7 +10,6 @@
 #include <fstream>
 #include "Map.h"
 
-#include "User.h"
 #include "AISocket.h"
 
 #include "DBAgent.h"

@@ -1,4 +1,7 @@
-﻿void CUser::SelNationToAgent(Packet & pkt)
+﻿#include "stdafx.h"
+#include "Map.h"
+
+void CUser::SelNationToAgent(Packet & pkt)
 {
 	Packet result(WIZ_SEL_NATION);
 	uint8 nation = pkt.read<uint8>();

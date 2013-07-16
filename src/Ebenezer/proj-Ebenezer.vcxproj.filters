@@ -135,9 +135,6 @@
     <ClCompile Include="StdAfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UserPacketHandlers.cpp">
-      <Filter>Source Files\Handlers</Filter>
-    </ClCompile>
     <ClCompile Include="ConsoleInputThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
