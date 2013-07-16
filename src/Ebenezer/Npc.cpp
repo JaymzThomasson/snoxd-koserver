@@ -191,17 +191,27 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /*
 	else
 		m_iHP += amount;
 
+	// NOTE: This will handle the death notification/looting.
 	if (bSendToAI)
-	{
-		// NOTE: This will handle the death notification/looting.
-		Packet result(AG_NPC_HP_CHANGE);
-		result << GetID() << tid << m_iHP << amount;
-		Send_AIServer(&result);
-	}
+		SendHpChangeToAI(tid, amount);
 
 	if (pAttacker != nullptr
 		&& pAttacker->isPlayer())
 		TO_USER(pAttacker)->SendTargetHP(0, GetID(), amount);
+}
+
+void CNpc::HpChangeMagic(int amount, Unit *pAttacker /*= nullptr*/, AttributeType attributeType /*= AttributeNone*/)
+{
+	uint16 tid = (pAttacker != nullptr ? pAttacker->GetID() : -1);
+	HpChange(amount, pAttacker, false);
+	SendHpChangeToAI(tid, amount, attributeType);
+}
+
+void CNpc::SendHpChangeToAI(uint16 sTargetID, int amount, AttributeType attributeType /*= AttributeNone*/)
+{
+	Packet result(AG_NPC_HP_CHANGE);
+	result << GetID() << sTargetID << m_iHP << amount << uint8(attributeType);
+	Send_AIServer(&result);
 }
 
 /**

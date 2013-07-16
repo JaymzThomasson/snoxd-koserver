@@ -1067,7 +1067,7 @@ bool MagicInstance::ExecuteType3()
 			// Affects target's HP
 			if (pType->bDirectType == 1)
 			{	
-				pTarget->HpChange(damage, pSkillCaster);
+				pTarget->HpChangeMagic(damage, pSkillCaster, (AttributeType) pType->bAttribute);
 				
 				if (pTarget->m_bReflectArmorType != 0 && pTarget != pSkillCaster)
 					ReflectDamage(damage, pTarget);
@@ -1097,8 +1097,8 @@ bool MagicInstance::ExecuteType3()
 				else
 					damage = (pTarget->GetMaxHealth() * (pType->sFirstDamage - 100)) / 100;
 
-				pTarget->HpChange(damage, pSkillCaster);
-				pSkillCaster->HpChange(-(damage));
+				pTarget->HpChangeMagic(damage, pSkillCaster);
+				pSkillCaster->HpChangeMagic(-(damage));
 			}
 			// Drains target's MP, gives half of it to the caster as HP
 			// NOTE: Non-durational form (as in 1.8xx). This was made durational later (database configured).
@@ -1108,7 +1108,7 @@ bool MagicInstance::ExecuteType3()
 				if (pTarget->isPlayer())
 				{
 					pTarget->MSpChange(pType->sFirstDamage);
-					pSkillCaster->HpChange(-(pType->sFirstDamage) / 2);
+					pSkillCaster->HpChangeMagic(-(pType->sFirstDamage) / 2);
 				}
 			}
 
@@ -1117,7 +1117,7 @@ bool MagicInstance::ExecuteType3()
 		else if (pType->bDuration != 0) 
 		{
 			if (damage != 0)		// In case there was first damage......
-				pTarget->HpChange(damage, pSkillCaster);			// Initial damage!!!
+				pTarget->HpChangeMagic(damage, pSkillCaster);			// Initial damage!!!
 
 			if (pTarget->isAlive()) 
 			{
@@ -2109,9 +2109,9 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 short MagicInstance::GetWeatherDamage(short damage, int attribute)
 {
 	// Give a 10% damage output boost based on weather (and skill's elemental attribute)
-	if ((g_pMain->m_byWeather == WEATHER_FINE && attribute == ATTRIBUTE_FIRE)
-		|| (g_pMain->m_byWeather == WEATHER_RAIN && attribute == ATTRIBUTE_LIGHTNING)
-		|| (g_pMain->m_byWeather == WEATHER_SNOW && attribute == ATTRIBUTE_ICE))
+	if ((g_pMain->m_byWeather == WEATHER_FINE && attribute == AttributeFire)
+		|| (g_pMain->m_byWeather == WEATHER_RAIN && attribute == AttributeLightning)
+		|| (g_pMain->m_byWeather == WEATHER_SNOW && attribute == AttributeIce))
 		damage = (damage * 110) / 100;
 
 	return damage;

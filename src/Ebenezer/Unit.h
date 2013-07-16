@@ -153,6 +153,7 @@ public:
 	virtual int16 GetSavedMagicDuration(uint32 nSkillID) { return -1; }
 
 	virtual void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToAI = true) = 0;
+	virtual void HpChangeMagic(int amount, Unit *pAttacker = nullptr, AttributeType attributeType = AttributeNone) { HpChange(amount, pAttacker); }
 	virtual void MSpChange(int amount) = 0;
 
 	void SendToRegion(Packet *result);

@@ -2744,7 +2744,7 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 		FindFriend();
 }
 
-bool CNpc::SetDamage(int nDamage, uint16 uid, bool bSendToEbenezer /*= true*/)
+bool CNpc::SetDamage(int nDamage, uint16 uid, bool bSendToEbenezer /*= true*/, AttributeType attributeType /*= AttributeNone*/)
 {
 	int i=0, len=0;
 	int userDamage = 0;
@@ -2826,37 +2826,27 @@ go_result:
 	if (m_iHP <= 0)
 		return false;
 
-	int iRandom = myrand(1, 100);
-	int iLightningR = 0;
-
-	if (uid < NPC_BAND)
+	if (uid >= NPC_BAND)
 	{
-#if 0	// This code handles stuns from skills with the lightning attribute.
-		// Since Ebenezer now handles skill code, this is only kept for future reference 
-		// so we can accurately reimplement this.
+		ChangeNTarget(pNpc);
+		return true;
+	}
 
-		if (nAttackType == 3 && m_NpcState != NPC_FAINTING)	
+	if (attributeType == AttributeLightning
+		&& m_NpcState != NPC_FAINTING)
+	{
+		int iRandom = myrand(1, 100);
+		int iLightningR = (int)(10 + (40 - 40 * ((double)m_sLightningR / 80)));
+		if (COMPARE(iRandom, 0, iLightningR))
 		{
-			iLightningR = (int)(10 + (40 - 40 * ( (double)m_sLightningR / 80)));
-			if( COMPARE(iRandom, 0, iLightningR) )	{
-				m_NpcState = NPC_FAINTING;
-				m_Delay = 0;
-				m_tFaintingTime = UNIXTIME;
-			}
-			else	
-			{
-				ChangeTarget(nAttackType, pUser);
-			}
+			m_NpcState = NPC_FAINTING;
+			m_Delay = 0;
+			m_tFaintingTime = UNIXTIME;
 		}
 		else	
-#endif
 		{
 			ChangeTarget(0, pUser);
 		}
-	}
-	else
-	{
-		ChangeNTarget(pNpc);
 	}
 
 	return true;
@@ -2885,7 +2875,6 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToEbene
 		Dead();
 }
 
-//	NPC 사망처리시 경험치 분배를 계산한다.(일반 유저와 버디 사용자구분)
 void CNpc::SendExpToUserList()
 {
 	int i=0;

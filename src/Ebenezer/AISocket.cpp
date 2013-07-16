@@ -34,10 +34,6 @@ bool CAISocket::HandlePacket(Packet & pkt)
 		case AG_MAGIC_ATTACK_REQ:
 			CMagicProcess::MagicPacket(pkt);
 			break;
-		// This will probably need to be removed eventually.
-		case AG_MAGIC_ATTACK_RESULT:
-			RecvMagicAttackResult(pkt);
-			break;
 		case AG_NPC_INFO:
 			RecvNpcInfo(pkt);
 			break;
@@ -331,49 +327,6 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 			}
 		}
 	}
-}
-
-void CAISocket::RecvMagicAttackResult(Packet & pkt)
-{
-	uint32 magicid;
-	uint16 sid, tid;
-	uint8 byCommand; 
-
-	/* 
-		This is all so redundant...
-		When everything's switched over to pass in Packets
-		we can just pass it through directly!
-		As it is now.. we still need a length (which we can hardcode, but meh)
-	*/
-	pkt >> byCommand >> magicid >> sid >> tid;
-
-	pkt.SetOpcode(WIZ_MAGIC_PROCESS);
-	if (byCommand == MAGIC_CASTING
-		|| (byCommand == MAGIC_EFFECTING && sid >= NPC_BAND && tid >= NPC_BAND))
-	{
-		CNpc *pNpc = g_pMain->GetNpcPtr(sid);
-		if (!pNpc)
-			return;
-
-		pNpc->SendToRegion(&pkt);
-	}
-	else if (byCommand == MAGIC_EFFECTING)
-	{
-		if (sid < NPC_BAND)
-		{
-			CUser *pUser = g_pMain->GetUserPtr(sid);
-			if (pUser == nullptr || pUser->isDead())
-				return;
-
-			pUser->SendToRegion(&pkt);
-			return;
-		}
-
-		// If we're an NPC, casting a skill (rather, it's finished casting) on a player...
-		pkt.rpos(0);
-		CMagicProcess::MagicPacket(pkt);
-	}
-	
 }
 
 void CAISocket::RecvNpcInfo(Packet & pkt)
@@ -839,6 +792,7 @@ void CAISocket::RecvNpcHpChange(Packet & pkt)
 	Unit * pAttacker = nullptr;
 	int16 nid, sAttackerID;
 	int32 nHP, nAmount;
+
 	pkt >> nid >> sAttackerID >> nHP >> nAmount;
 
 	CNpc * pNpc = g_pMain->GetNpcPtr(nid);
@@ -850,5 +804,5 @@ void CAISocket::RecvNpcHpChange(Packet & pkt)
 	else
 		pAttacker = g_pMain->GetNpcPtr(sAttackerID);
 
-	pNpc->HpChange(nAmount, pAttacker, false);
+	pNpc->HpChange(nAmount, pAttacker, false); 
 }

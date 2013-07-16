@@ -165,6 +165,14 @@ enum UserStatusBehaviour
 	USER_STATUS_INFLICT	= 1
 };
 
+enum AttributeType
+{
+	AttributeNone		= 0,
+	AttributeFire		= 1,
+	AttributeIce		= 2,
+	AttributeLightning	= 3
+};
+
 typedef union{
 	uint16		w;
 	uint8		b[2];

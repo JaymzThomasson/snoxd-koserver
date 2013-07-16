@@ -40,22 +40,24 @@ public:
 public:
 	CNpc();
 
-	virtual void Initialize();
-	virtual void AddToRegion(int16 new_region_x, int16 new_region_z);
+	void Initialize();
+	void AddToRegion(int16 new_region_x, int16 new_region_z);
 
 	void MoveResult(float xpos, float ypos, float zpos, float speed);
-	virtual void GetInOut(Packet & result, uint8 bType);
+	void GetInOut(Packet & result, uint8 bType);
 	void SendInOut(uint8 bType, float fx, float fz, float fy);
 	void GetNpcInfo(Packet & pkt);
 
 	void SendGateFlag(uint8 bFlag = -1, bool bSendAI = true);
 
-	virtual void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToAI = true); 
-	virtual void MSpChange(int amount);
+	void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToAI = true); 
+	void HpChangeMagic(int amount, Unit *pAttacker = nullptr, AttributeType attributeType = AttributeNone);
+	void SendHpChangeToAI(uint16 sTargetID, int amount, AttributeType attributeType = AttributeNone);
+	void MSpChange(int amount);
 
-	virtual void OnDeath(Unit *pKiller);
+	void OnDeath(Unit *pKiller);
 
-	virtual bool isDead() { return m_NpcState == NPC_DEAD || m_iHP <= 0; };
+	bool isDead() { return m_NpcState == NPC_DEAD || m_iHP <= 0; };
 
 	INLINE bool isMonster() { return m_bMonster; }
 	INLINE bool isGate() { return GetType() == NPC_GATE || GetType() == NPC_PHOENIX_GATE || GetType() == NPC_SPECIAL_GATE || GetType() == NPC_VICTORY_GATE; };

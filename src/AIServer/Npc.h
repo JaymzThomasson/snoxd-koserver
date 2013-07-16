@@ -110,20 +110,20 @@ struct __Vector3;
 class CNpc : public Unit
 {
 public:
-	virtual uint16 GetID() { return m_sNid; }
+	uint16 GetID() { return m_sNid; }
 	INLINE uint16 GetProtoID() { return GetProto()->m_sSid; }
-	virtual std::string & GetName() { return GetProto()->m_strName; }
+	std::string & GetName() { return GetProto()->m_strName; }
 
-	virtual int32 GetHealth() { return m_iHP; }
-	virtual int32 GetMaxHealth() { return GetProto()->m_iMaxHP; }
-	virtual int32 GetMana() { return m_sMP; }
-	virtual int32 GetMaxMana() { return GetProto()->m_sMaxMP; }
+	int32 GetHealth() { return m_iHP; }
+	int32 GetMaxHealth() { return GetProto()->m_iMaxHP; }
+	int32 GetMana() { return m_sMP; }
+	int32 GetMaxMana() { return GetProto()->m_sMaxMP; }
 
-	virtual void GetInOut(Packet &, uint8) {}
-	virtual void AddToRegion(int16 sRegionX, int16 sRegionZ) {}
+	void GetInOut(Packet &, uint8) {}
+	void AddToRegion(int16 sRegionX, int16 sRegionZ) {}
 
-	virtual void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToEbenezer = true);
-	virtual void MSpChange(int amount) {}
+	void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToEbenezer = true);
+	void MSpChange(int amount) {}
 
 	INLINE CNpcTable * GetProto() { return m_proto; }
 	INLINE uint8 GetType() { return GetProto()->m_tNpcType; }
@@ -356,7 +356,7 @@ public:
 	void  FindFriendRegion(int x, int z, MAP* pMap, _TargetHealer* pHealer, MonSearchType type = MonSearchSameFamily);
 	bool IsCloseTarget(CUser *pUser, int nRange);
 	void SendExpToUserList();
-	bool SetDamage(int nDamage, uint16 uid, bool bSendToEbenezer = true);
+	bool SetDamage(int nDamage, uint16 uid, bool bSendToEbenezer = true, AttributeType attributeType = AttributeNone);
 	void ChangeTarget(int nAttackType, CUser *pUser);
 	void ChangeNTarget(CNpc *pNpc);
 	bool ResetPath();

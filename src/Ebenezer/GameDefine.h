@@ -224,12 +224,6 @@ enum AbnormalType
 #define REGENE_MAGIC		1
 #define REGENE_ZONECHANGE	2
 
-//////////////////////////////////////////////////////////////
-// TYPE 3 ATTRIBUTE TYPES
-#define ATTRIBUTE_FIRE				1
-#define ATTRIBUTE_ICE				2
-#define ATTRIBUTE_LIGHTNING			3
-
 struct _CLASS_COEFFICIENT
 {
 	uint16	sClassNum;
