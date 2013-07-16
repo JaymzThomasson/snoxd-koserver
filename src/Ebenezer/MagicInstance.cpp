@@ -991,7 +991,7 @@ bool MagicInstance::ExecuteType3()
 	{
 		std::vector<uint16> unitList;
 		g_pMain->GetUnitListFromSurroundingRegions(pSkillCaster, &unitList);
-		if(pType->sFirstDamage > 0)
+		if(pType->sFirstDamage > 0 || pType->sTimeDamage > 0)
 			casted_member.push_back(pSkillCaster);
 		foreach (itr, unitList)
 		{		
