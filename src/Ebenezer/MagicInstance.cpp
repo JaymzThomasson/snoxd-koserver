@@ -811,8 +811,13 @@ bool MagicInstance::ExecuteType1()
 		}
 
 		damage = pSkillCaster->GetDamage(pSkillTarget, pSkill);
-		damage += sAdditionalDamage;
 
+		// Only add additional damage if the target's not currently blocking it.
+		// NOTE: Not sure whether to count this as physical or magic damage.
+		// Using physical damage, due to the nature of these skills.
+		if (!pSkillTarget->m_bBlockPhysical)
+			damage += sAdditionalDamage;
+	
 		pSkillTarget->HpChange(-damage, pSkillCaster);
 
 		if (pSkillTarget->m_bReflectArmorType != 0 && pSkillCaster != pSkillTarget)
@@ -997,7 +1002,7 @@ bool MagicInstance::ExecuteType3()
 				casted_member.push_back(pTarget);
 		}
 
-		//If you managed to not hit anything with your AoE, you're still gonna have a cooldown (You should l2aim)
+		// If you managed to not hit anything with your AoE, you're still gonna have a cooldown (You should l2aim)
 		if (casted_member.empty() || (sTargetID == -1 && casted_member.empty()))
 		{
 			SendSkill();
