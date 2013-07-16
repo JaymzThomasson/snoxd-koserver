@@ -455,6 +455,7 @@ void MagicInstance::SendSkillFailed(int16 sTargetID /*= -1*/)
 		return;
 
 	Packet result;
+	sData[3] = (bOpcode == MAGIC_CASTING ? SKILLMAGIC_FAIL_CASTING : SKILLMAGIC_FAIL_NOEFFECT);
 	BuildSkillPacket(result, sCasterID, sTargetID == -1 ? this->sTargetID : sTargetID, MAGIC_FAIL, nSkillID, sData);
 	TO_USER(pSkillCaster)->Send(&result);
 }
@@ -833,7 +834,7 @@ bool MagicInstance::ExecuteType1()
 	}
 
 	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
-	sData[3] = (damage == 0 ? -104 : 0);
+	sData[3] = (damage == 0 ? SKILLMAGIC_FAIL_ATTACKZERO : 0);
 
 	// Send the skill data in the current context to the caster's region
 	SendSkill();
@@ -976,7 +977,7 @@ bool MagicInstance::ExecuteType2()
 
 packet_send:
 	// This should only be sent once. I don't think there's reason to enforce this, as no skills behave otherwise
-	sData[3] = (damage == 0 ? -104 : 0);
+	sData[3] = (damage == 0 ? SKILLMAGIC_FAIL_ATTACKZERO : 0);
 
 	// Send the skill data in the current context to the caster's region
 	SendSkill();

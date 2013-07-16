@@ -357,7 +357,16 @@ enum MiningErrors
 #define MAGIC_TYPE4_EXTEND		0x08	// Extends the time of your type4 buffs by 2 times (requires "Duration Item" (PUS))
 #define MAGIC_TRANSFORM_LIST	0x09	// Shows the transformation list 
 #define MAGIC_CANCEL2			0x0D	// Not sure but it cancels...
-					
+
+enum e_SkillMagicFailMsg 
+{
+	SKILLMAGIC_FAIL_CASTING		= -100,	// "Casting failed."
+	SKILLMAGIC_FAIL_KILLFLYING	= -101,
+	SKILLMAGIC_FAIL_ENDCOMBO	= -102,
+	SKILLMAGIC_FAIL_NOEFFECT	= -103,	// "<skill name> failed"
+	SKILLMAGIC_FAIL_ATTACKZERO	= -104	// "<skill name> missed"
+};
+
 ////////////////////////////////////////////////////////////////
 // Knights Packet sub define 
 ////////////////////////////////////////////////////////////////
