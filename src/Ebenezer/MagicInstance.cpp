@@ -2259,7 +2259,8 @@ void MagicInstance::Type4Extend()
 		return;
 
 	_MAGIC_TYPE4 *pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
-	if (pType == nullptr)
+	if (pType == nullptr
+		|| pType->isDebuff())
 		return;
 
 	FastGuard lock(pSkillTarget->m_buffLock);
