@@ -145,6 +145,9 @@ enum InOutType
 // ID of the "Scroll of Identity" item. At some point we should just pass this code off to a Lua script.
 #define ITEM_SCROLL_OF_IDENTITY	800032000
 
+// ID of the Seed quest, to be automatically started on first load.
+#define STARTER_SEED_QUEST	500
+
 //////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////

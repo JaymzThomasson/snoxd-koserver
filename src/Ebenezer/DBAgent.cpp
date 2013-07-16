@@ -420,6 +420,10 @@ bool CDBAgent::LoadUserData(string & strAccountID, string & strCharID, CUser *pU
 		pUser->m_questMap.insert(std::make_pair(sQuestID, bQuestState));
 	}
 
+	// Start the Seed quest if it doesn't already exist.
+	if (pUser->CheckExistEvent(STARTER_SEED_QUEST, 0))
+		pUser->SaveEvent(STARTER_SEED_QUEST, 1);
+
 	ByteBuffer itemBuffer, serialBuffer;
 	itemBuffer.append(strItem, sizeof(strItem));
 	serialBuffer.append(strSerial, sizeof(strSerial));
