@@ -67,7 +67,6 @@ public:
 	void RemoveEventNPC(CNpc * pNpc);
 	void AllNpcInfo();
 
-	INLINE Unit * GetUnit(uint16 id) { return GetUnitPtr(id); } // temporary
 	Unit * GetUnitPtr(uint16 id);
 	CNpc * GetNpcPtr(uint16 npcId);
 

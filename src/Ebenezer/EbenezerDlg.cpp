@@ -422,7 +422,7 @@ CKnights			* CEbenezerDlg::GetClanPtr(uint16 sClanID) { return m_KnightsArray.Ge
 _KNIGHTS_ALLIANCE	* CEbenezerDlg::GetAlliancePtr(uint16 sAllianceID) { return m_KnightsAllianceArray.GetData(sAllianceID); }
 _ITEM_TABLE			* CEbenezerDlg::GetItemPtr(uint32 nItemID) { return m_ItemtableArray.GetData(nItemID); }
 
-Unit * CEbenezerDlg::GetUnit(uint16 id)
+Unit * CEbenezerDlg::GetUnitPtr(uint16 id)
 {
 	if (id < NPC_BAND)
 		return GetUserPtr(id);

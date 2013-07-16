@@ -995,7 +995,7 @@ bool MagicInstance::ExecuteType3()
 			casted_member.push_back(pSkillCaster);
 		foreach (itr, unitList)
 		{		
-			Unit * pTarget = g_pMain->GetUnit(*itr);
+			Unit * pTarget = g_pMain->GetUnitPtr(*itr);
 			if (pSkillCaster != pTarget
 				&& !pTarget->isDead() && !pTarget->isBlinking()
 				&& CMagicProcess::UserRegionCheck(pSkillCaster, pTarget, pSkill, pType->bRadius, sData[0], sData[2]))
@@ -1214,7 +1214,7 @@ bool MagicInstance::ExecuteType4()
 		g_pMain->GetUnitListFromSurroundingRegions(pSkillCaster, &unitList);
 		foreach (itr, unitList)
 		{		
-			Unit * pTarget = g_pMain->GetUnit(*itr);
+			Unit * pTarget = g_pMain->GetUnitPtr(*itr);
 			if (!pTarget->isDead() && !pTarget->isBlinking()
 				&& CMagicProcess::UserRegionCheck(pSkillCaster, pTarget, pSkill, pType->bRadius, sData[0], sData[2]))
 				casted_member.push_back(pTarget);

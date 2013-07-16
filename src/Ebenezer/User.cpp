@@ -2627,7 +2627,7 @@ void CUser::HPTimeChangeType3()
 		// Has the required interval elapsed before using this skill?
 		if ((UNIXTIME - pEffect->m_tHPLastTime) >= pEffect->m_bHPInterval)
 		{
-			Unit * pUnit = g_pMain->GetUnit(pEffect->m_sSourceID);
+			Unit * pUnit = g_pMain->GetUnitPtr(pEffect->m_sSourceID);
 
 			// Reduce the HP 
 			HpChange(pEffect->m_sHPAmount, pUnit); // do we need to specify the source of the DOT?
