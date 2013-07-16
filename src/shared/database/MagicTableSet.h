@@ -32,7 +32,7 @@ public:
 		_dbCommand->FetchByte(17, pData->bType[0]);
 		_dbCommand->FetchByte(18, pData->bType[1]);
 		_dbCommand->FetchUInt16(19, pData->sRange);
-		_dbCommand->FetchByte(20, pData->bEtc);
+		_dbCommand->FetchUInt16(20, pData->sEtc);
 
 		if (!m_pMap->PutData(pData->iNum, pData))
 			delete pData;

@@ -207,6 +207,16 @@ bool MagicInstance::UserCanCast()
 		&& pSkillCaster->GetZoneID() != ZONE_DELOS)
 		return false;
 
+#if !defined(DEBUG)
+	// For skills that are unlocked via quests, ensure the user has actually 
+	// completed the quest...
+	// NOTE: GMs are excluded.
+	if (!pSkillCaster->isGM()
+		&& pSkill->sEtc != 0
+		&& !TO_USER(pSkillCaster)->CheckExistEvent(pSkill->sEtc, 2))
+		return false;
+#endif
+
 	if ((bOpcode == MAGIC_EFFECTING || bOpcode == MAGIC_CASTING) 
 		&& !IsAvailable())
 		return false;
@@ -215,7 +225,7 @@ bool MagicInstance::UserCanCast()
 	if (pSkillCaster->canInstantCast())
 		CMagicProcess::RemoveType4Buff(BUFF_TYPE_INSTANT_MAGIC, pSkillCaster);
 
-	//Incase we made it to here, we can cast! Hurray!
+	// In case we made it to here, we can cast! Hurray!
 	return true;
 }
 
