@@ -991,6 +991,8 @@ void CUser::SetSlotItemValue()
 	memset(&m_byAcClassBonusAmount, 0, sizeof(m_byAcClassBonusAmount));
 
 	m_bItemExpGainAmount = m_bItemNPBonus = m_bItemNoahGainAmount = 0;
+
+	FastGuard lock(m_equippedItemBonusLock);
 	m_equippedItemBonuses.clear();
 
 	map<uint16, uint32> setItems;
