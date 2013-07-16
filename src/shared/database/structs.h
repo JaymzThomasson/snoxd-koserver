@@ -289,6 +289,11 @@ struct _BUFF_TYPE4_INFO
 
 	INLINE bool isBuff() { return m_bIsBuff; }
 	INLINE bool isDebuff() { return !m_bIsBuff; }
+
+	_BUFF_TYPE4_INFO() 
+		: m_nSkillID(0), m_bIsBuff(false), m_bDurationExtended(false), m_tEndTime(0)
+	{
+	}
 };
 
 struct _BUFF_TYPE9_INFO

@@ -647,6 +647,12 @@ const uint8	AG_TIME_WEATHER			= 64;	// time and whether info
 const uint8	AG_BATTLE_EVENT			= 65;	// battle event
 const uint8 AG_COMPRESSED			= 66;
 
+enum AISkillOpcode
+{
+	AISkillOpcodeBuff,		// or debuff
+	AISkillOpcodeRemoveBuff
+};
+
 // ---------------------------------------------------------------------
 // Battle Event Sub Packet
 // ---------------------------------------------------------------------

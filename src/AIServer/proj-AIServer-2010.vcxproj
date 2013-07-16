@@ -144,6 +144,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Ebenezer\MagicProcess.cpp" />
     <ClCompile Include="..\Ebenezer\Unit.cpp" />
     <ClCompile Include="..\N3BASE\N3ShapeMgr.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>

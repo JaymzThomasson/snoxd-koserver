@@ -327,6 +327,13 @@ enum StatType
 #define STAT_MAX 255
 #define QUEST_ARRAY_SIZE 600 // That's a limit of 200 quests (3 bytes per quest)
 
+enum InvisibilityType
+{
+	INVIS_NONE				= 0,
+	INVIS_DISPEL_ON_MOVE	= 1,
+	INVIS_DISPEL_ON_ATTACK	= 2
+};
+
 INLINE int myrand( int min, int max )
 {
 	if( min == max ) return min;

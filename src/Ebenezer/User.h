@@ -24,13 +24,6 @@ enum GameState
 	GAME_STATE_INGAME
 };
 
-enum InvisibilityType
-{
-	INVIS_NONE				= 0,
-	INVIS_DISPEL_ON_MOVE	= 1,
-	INVIS_DISPEL_ON_ATTACK	= 2
-};
-
 enum MerchantState
 {
 	MERCHANT_STATE_NONE		= -1,

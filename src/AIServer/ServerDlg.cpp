@@ -5,11 +5,13 @@
 #include "Npc.h"
 #include "User.h"
 #include "NpcThread.h"
+#include "../Ebenezer/MagicProcess.h"
 
 #include "../shared/database/OdbcRecordset.h"
 #include "../shared/database/MagicTableSet.h"
 #include "../shared/database/MagicType1Set.h"
 #include "../shared/database/MagicType2Set.h"
+#include "../shared/database/MagicType4Set.h"
 #include "../shared/database/NpcPosSet.h"
 #include "../shared/database/ZoneInfoSet.h"
 #include "../shared/database/NpcItemSet.h"
@@ -89,6 +91,7 @@ bool CServerDlg::Startup()
 	if (!GetMagicTableData()
 		|| !GetMagicType1Data()
 		|| !GetMagicType2Data()
+		|| !GetMagicType4Data()
 		|| !GetNpcItemTable()
 		|| !GetMakeItemGroupTable()
 		|| !GetMakeWeaponItemTableData()
@@ -124,6 +127,11 @@ bool CServerDlg::GetMagicType1Data()
 bool CServerDlg::GetMagicType2Data()
 {
 	LOAD_TABLE(CMagicType2Set, &m_GameDB, &m_Magictype2Array, false);
+}
+
+bool CServerDlg::GetMagicType4Data()
+{
+	LOAD_TABLE(CMagicType4Set, &m_GameDB, &m_Magictype4Array, false);
 }
 
 bool CServerDlg::GetMakeWeaponItemTableData()

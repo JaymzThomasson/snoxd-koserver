@@ -4,6 +4,7 @@
 #include "MAP.h"
 #include "Region.h"
 #include "../shared/globals.h"
+#include "../Ebenezer/MagicProcess.h"
 #include "Npc.h"
 
 CGameSocket::~CGameSocket() {}
@@ -88,6 +89,9 @@ bool CGameSocket::HandlePacket(Packet & pkt)
 		break;
 	case AG_NPC_SPAWN_REQ:
 		RecvNpcSpawnRequest(pkt);
+		break;
+	case AG_MAGIC_ATTACK_REQ:
+		CMagicProcess::MagicPacket(pkt);
 		break;
 	}
 	return true;

@@ -6,10 +6,14 @@
 #include "../Ebenezer/Unit.h"
 
 class MAP;
+enum UserStatus;
+enum UserStatusBehaviour;
+
 class CUser : public Unit
 {
 public:
 	INLINE bool isGM() { return m_byIsOP == AUTHORITY_GAME_MASTER; }
+
 	virtual uint16 GetID() { return m_iUserId; }
 	virtual std::string & GetName() { return m_strUserID; }
 
@@ -25,6 +29,9 @@ public:
 	virtual void MSpChange(int amount) {}
 
 	virtual bool isDead() { return m_bLive == AI_USER_DEAD || GetHealth() <= 0; }
+
+	INLINE bool isInParty() { return m_byNowParty != 0; }
+	INLINE uint16 GetPartyID() { return m_sPartyNumber; }
 
 	std::string m_strUserID;
 	short	m_iUserId;					// UserÀÇ ¹øÈ£
@@ -81,4 +88,23 @@ public:
 
 	CUser();
 	virtual ~CUser();
+
+	// Placeholders, for the magic system.
+	// These should really be using the same base class.
+	INLINE bool isInClan() { return false; }
+	INLINE uint16 GetClanID() { return 0; }
+	INLINE uint8 GetStat(StatType type) { return 0; }
+	INLINE void SetStatBuff(StatType type, uint8 val) {}
+		
+	void RemoveSavedMagic(uint32 nSkillID) {}
+	void SendUserStatusUpdate(UserStatus type, UserStatusBehaviour status) {}
+	void SetUserAbility(bool bSendPacket = true) {}
+	void Send(Packet * pkt) {}
+
+	time_t	m_tLastRegeneTime;
+	uint32	m_nOldAbnormalType;
+	uint16	m_sExpGainAmount;
+	uint8	m_bMaxWeightAmount, m_bNPGainAmount, m_bNoahGainAmount, 
+			m_bPlayerAttackAmount, m_bSkillNPBonus;
+	bool	m_bPremiumMerchant;
 };

@@ -9,6 +9,7 @@ class CMagicProcess
 {
 public:
 	static void MagicPacket(Packet & pkt, Unit * pCaster = nullptr);
+	static void UpdateAIServer(uint32 nSkillID, AISkillOpcode opcode, Unit * pTarget, Unit * pCaster = nullptr, bool bIsRecastingSavedMagic = false);
 	static void CheckExpiredType6Skills(Unit * pTarget);
 	static void CheckExpiredType9Skills(Unit * pTarget, bool bForceExpiration = false);
 	static void RemoveStealth(Unit * pTarget, InvisibilityType bInvisibilityType);

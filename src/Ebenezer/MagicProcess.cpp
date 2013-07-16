@@ -1,10 +1,17 @@
 #include "stdafx.h"
-#include "EbenezerDlg.h"
 #include "MagicProcess.h"
 #include "MagicInstance.h"
 #include "Map.h"
-#include "User.h" // need to move UserRegionCheck() to get rid of this
 
+#if defined(EBENEZER)
+#	include "EbenezerDlg.h"
+#	include "User.h" // need to move UserRegionCheck() to get rid of this
+#else
+#	include "../AIServer/ServerDlg.h"
+#	include "../AIServer/User.h"
+#endif
+
+#if defined(EBENEZER)
 void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= nullptr*/)
 {
 	MagicInstance instance;
@@ -34,6 +41,63 @@ void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= nullptr*/)
 	instance.bIsRecastingSavedMagic = false;
 	instance.Run();
 }
+
+void CMagicProcess::UpdateAIServer(uint32 nSkillID, AISkillOpcode opcode, 
+								   Unit * pTarget, Unit * pCaster /*= nullptr*/, 
+								   bool bIsRecastingSavedMagic /*= false*/)
+{
+	Packet result(AG_MAGIC_ATTACK_REQ, uint8(opcode));
+	int16	sCasterID = (pCaster == nullptr ? -1 : pCaster->GetID()),
+			sTargetID = (pTarget == nullptr ? -1 : pTarget->GetID());
+	result << nSkillID << sCasterID << sTargetID << bIsRecastingSavedMagic;
+	g_pMain->Send_AIServer(&result);
+}
+#else
+void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= nullptr*/)
+{
+	_MAGIC_TABLE * pSkill;
+	_MAGIC_TYPE4 * pType4;
+	Unit * pSkillCaster, * pSkillTarget;
+	uint32 nSkillID;
+	uint16 sCasterID, sTargetID;
+	uint8 bOpcode;
+	bool bIsRecastingSavedMagic;
+
+	pkt >> bOpcode >> nSkillID >> sCasterID >> sTargetID >> bIsRecastingSavedMagic;
+	
+	pSkill = g_pMain->m_MagictableArray.GetData(nSkillID);
+	if (pSkill == nullptr)
+		return;
+
+	pSkillCaster = g_pMain->GetUnitPtr(sCasterID);
+	pSkillTarget = g_pMain->GetUnitPtr(sTargetID);
+
+	if (bOpcode == AISkillOpcodeBuff || bOpcode == AISkillOpcodeRemoveBuff)
+	{
+		pType4 = g_pMain->m_Magictype4Array.GetData(nSkillID);
+		if (pType4 == nullptr)
+			return;
+	}
+
+	switch (bOpcode)
+	{
+	case AISkillOpcodeBuff:
+		if (pSkillCaster == nullptr || pSkillTarget == nullptr)
+			return;
+
+		GrantType4Buff(pSkill, pType4, pSkillCaster, pSkillTarget, bIsRecastingSavedMagic);
+		break;
+
+	case AISkillOpcodeRemoveBuff:
+		if (pSkillTarget == nullptr)
+			return;
+
+		RemoveType4Buff(pType4->bBuffType, pSkillTarget);
+		break;
+	}
+
+}
+#endif
 
 // TO-DO: Clean this up (even using unit code...)
 bool CMagicProcess::UserRegionCheck(Unit * pSkillCaster, Unit * pSkillTarget, _MAGIC_TABLE * pSkill, int radius, short mousex /*= 0*/, short mousez /*= 0*/)
@@ -108,6 +172,7 @@ final_test:
 	return (radius == 0 || pSkillTarget->isInRangeSlow(mousex, mousez, (float) radius));
 }
 
+#if defined(EBENEZER)
 void CMagicProcess::CheckExpiredType6Skills(Unit * pTarget)
 {
 	if (!pTarget->isPlayer()
@@ -169,6 +234,7 @@ void CMagicProcess::RemoveStealth(Unit * pTarget, InvisibilityType bInvisibility
 	instance.nSkillID = itr->second.nSkillID;
 	instance.Type9Cancel();
 }
+#endif
 
 bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, Unit * pCaster, Unit *pTarget, bool bIsRecastingSavedMagic /*= false*/)
 {
@@ -480,6 +546,15 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 	default:
 		return false;
 	}
+
+#if defined(EBENEZER)		// update the target data in the AI server.
+	UpdateAIServer(pSkill->iNum, AISkillOpcodeBuff, pCaster, pTarget, bIsRecastingSavedMagic);
+#elif defined(AI_SERVER)	// on the AI server's side, add the buff to the target's buff map.
+	_BUFF_TYPE4_INFO buffInfo;
+	buffInfo.m_nSkillID = pSkill->iNum;
+	pTarget->AddType4Buff(pType->bBuffType, buffInfo);
+#endif
+
 	return true;
 }
 
@@ -503,7 +578,6 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 	if (pTarget->isPlayer()
 		&& pTarget->HasSavedMagic(pSkill->iNum))
 		TO_USER(pTarget)->RemoveSavedMagic(pSkill->iNum);
-
 
 	if (itr->second.isBuff())
 		pTarget->m_buffCount--;
@@ -795,6 +869,10 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		result << byBuffType;
 		TO_USER(pTarget)->Send(&result);
 	}
+
+#if defined(EBENEZER) // update the target data in the AI server.
+	UpdateAIServer(pType->iNum, AISkillOpcodeRemoveBuff, pTarget);
+#endif
 
 	return true;
 }

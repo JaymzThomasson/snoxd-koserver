@@ -121,6 +121,7 @@ AIServer_CPPFLAGS = -D$(BUILD_TYPE) -DAI_SERVER
 AIServer_LDADD = $(Shared)
 AIServer_SOURCES = \
 	../src/Ebenezer/Unit.cpp \
+	../src/Ebenezer/MagicProcess.cpp \
 	../src/AIServer/main.cpp \
 	../src/AIServer/AIUser.cpp \
 	../src/AIServer/GameSocket.cpp \
