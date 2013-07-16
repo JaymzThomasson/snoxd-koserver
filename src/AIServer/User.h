@@ -6,8 +6,6 @@
 #include "../Ebenezer/Unit.h"
 
 class MAP;
-enum UserStatus;
-enum UserStatusBehaviour;
 
 class CUser : public Unit
 {

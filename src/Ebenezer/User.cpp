@@ -3010,6 +3010,16 @@ void CUser::AllPointChange()
 {
 	Packet result(WIZ_CLASS_CHANGE, uint8(ALL_POINT_CHANGE));
 	int temp_money;
+	uint16 statTotal;
+
+	// NOTE: In newer versions (1453 is just a guess at this point)
+	// they send the stat points in two bytes, rather than one.
+	// The stat points themselves are always a byte.
+#if __VERSION >= 1453
+	uint16 byStr, bySta, byDex, byInt, byCha;
+#else
+	uint8 byStr, bySta, byDex, byInt, byCha;
+#endif
 	uint8 bResult = 0;
 
 	if (GetLevel() > MAX_LEVEL)
@@ -3106,23 +3116,17 @@ void CUser::AllPointChange()
 	if (GetLevel() > 60)
 		m_sPoints += 2 * (GetLevel() - 60);
 
-	uint16 statTotal = GetStatTotal();
+	statTotal = GetStatTotal();
 	ASSERT(statTotal == 290);
 
 	SetUserAbility();
 	Send2AI_UserUpdateInfo();
 
-	// NOTE: In newer versions (1453 is just a guess at this point)
-	// they send the stat points in two bytes, rather than one.
-	// The stat points themselves are always a byte.
-#if __VERSION >= 1453
-	uint16
-#else
-	uint8
-#endif
-	byStr = GetStat(STAT_STR), bySta = GetStat(STAT_STA), 
-		byDex = GetStat(STAT_DEX), byInt = GetStat(STAT_INT),
-		byCha = GetStat(STAT_CHA);
+	byStr = GetStat(STAT_STR);
+	bySta = GetStat(STAT_STA), 
+	byDex = GetStat(STAT_DEX);
+	byInt = GetStat(STAT_INT),
+	byCha = GetStat(STAT_CHA);
 
 	result << uint8(1) // result (success)
 		<< GetCoins()

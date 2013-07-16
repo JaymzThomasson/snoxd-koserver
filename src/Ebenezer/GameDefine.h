@@ -641,28 +641,11 @@ enum BuffType
 	BUFF_TYPE_HELP_COMPENSATION		= 165, // Compensation for using the help system (to help, ask for help, both?)
 };
 
-enum UserStatus
-{
-	USER_STATUS_DOT	= 1,
-	USER_STATUS_POISON = 2,
-	USER_STATUS_SPEED = 3,
-	USER_STATUS_BLIND = 4,
-	USER_STATUS_BLACK = 5
-};
-
-enum UserStatusBehaviour
-{
-	USER_STATUS_CURE	= 0,
-	USER_STATUS_INFLICT	= 1
-};
-
 enum FlyingSantaOrAngel
 {
 	FLYING_NONE		= 0,
 	FLYING_SANTA	= 1,
 	FLYING_ANGEL	= 2
 };
-
-#define KING_SCEPTER 910074311
 
 #include "../shared/database/structs.h"

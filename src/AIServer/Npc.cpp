@@ -773,7 +773,7 @@ bool CNpc::SetLive()
 		if (g_pMain->m_CurrentNPC.increment() == g_pMain->m_TotalNPC
 			&& !m_bIsEventNpc)
 		{
-			printf("Monster All Init Success - %d\n", g_pMain->m_TotalNPC);
+			printf("Monster All Init Success - %d\n", (uint16) g_pMain->m_TotalNPC);
 			g_pMain->GameServerAcceptThread();
 		}
 	}
