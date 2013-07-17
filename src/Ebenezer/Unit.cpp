@@ -770,11 +770,8 @@ void Unit::InitType4()
 
 	for (auto itr = buffMap.begin(); itr != buffMap.end(); itr++)
 	{
-		if (HasSavedMagic(itr->second.m_nSkillID))
-			continue;
-
 #ifdef EBENEZER
-		CMagicProcess::RemoveType4Buff(itr->first, this);
+		CMagicProcess::RemoveType4Buff(itr->first, this, false);
 #endif
 	}
 }
