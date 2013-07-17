@@ -1038,11 +1038,13 @@ void CUser::SetSlotItemValue()
 
 		if (i == RIGHTHAND) 	// ItemHit Only Hands
 			m_sItemHit += item_hit;
-		else if (i == LEFTHAND)
-		{
-			if ((m_sClass == BERSERKER || m_sClass == BLADE))
-				m_sItemHit += (short)(item_hit * 0.5f);
-		}
+		// Only include AP in the left hand slot when:
+		//	- the user has at least received their first job change (i.e. they're not a beginner)
+		//	- the user is a warrior or a rogue.
+		else if (i == LEFTHAND 
+				&& !isBeginner()
+				&& (isWarrior() || isRogue()))
+			m_sItemHit += (short)(item_hit * 0.5f);
 
 		m_sItemMaxHp += pTable->m_MaxHpB;
 		m_sItemMaxMp += pTable->m_MaxMpB;
