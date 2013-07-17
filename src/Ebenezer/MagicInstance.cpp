@@ -1336,8 +1336,17 @@ bool MagicInstance::ExecuteType4()
 			continue;
 		}
 
+		uint16 sDuration = pType->sDuration;
+
+		// Only players can store persistent skills.
 		if (nSkillID > 500000 && pTarget->isPlayer())
-			pTarget->InsertSavedMagic(nSkillID, pType->sDuration);
+		{
+			// Persisting effects will already exist in the map if we're recasting it. 
+			if (!bIsRecastingSavedMagic)
+				pTarget->InsertSavedMagic(nSkillID, pType->sDuration);
+			else
+				sDuration = pTarget->GetSavedMagicDuration(nSkillID);
+		}
 
 		if (pSkillCaster->isPlayer()
 			&& (sTargetID != -1 && pSkill->bType[0] == 4))
@@ -1350,7 +1359,7 @@ bool MagicInstance::ExecuteType4()
 			pBuffInfo.m_bIsBuff = pType->bIsBuff;
 
 			pBuffInfo.m_bDurationExtended = false;
-			pBuffInfo.m_tEndTime = UNIXTIME + pType->sDuration;
+			pBuffInfo.m_tEndTime = UNIXTIME + sDuration;
 
 			// Add the buff into the buff map.
 			pTarget->AddType4Buff(pType->bBuffType, pBuffInfo);
@@ -1367,13 +1376,9 @@ bool MagicInstance::ExecuteType4()
 		if (pSkill->bType[1] == 0 || pSkill->bType[1] == 4)
 		{
 			Unit *pTmp = (pSkillCaster->isPlayer() ? pSkillCaster : pTarget);
-
-			if (!bIsRecastingSavedMagic)
-				sData[3] = (bResult == 1 || sData[3] == 0 ? pType->sDuration : 0);
-
 			int16 sDataCopy[8] = 
 			{
-				sData[0], bResult, sData[2], sData[3],
+				sData[0], bResult, sData[2], sDuration,
 				sData[4], pType->bSpeed, sData[6], sData[7]
 			};
 
