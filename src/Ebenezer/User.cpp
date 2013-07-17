@@ -1612,7 +1612,7 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 //	if( temp_str > 255 ) temp_str = 255;
 //	if( temp_dex > 255 ) temp_dex = 255;
 
-	uint32 baseAP = 0;
+	uint32 baseAP = 0, ap_stat = 0, additionalAP = 3;
 	if (temp_str > 150)
 		baseAP = temp_str - 150;
 
@@ -1623,9 +1623,17 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 
 	m_sMaxWeight = (((GetStatWithItemBonus(STAT_STR) + GetLevel()) * 50) + m_sMaxWeightBonus)  * (m_bMaxWeightAmount / 100);
 	if (isRogue()) 
-		m_sTotalHit = (short)((((0.005f * sItemDamage * (temp_dex + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_dex )) + 3) * (100 + m_byAPBonusAmount) / 100);
+	{
+		ap_stat = temp_dex;
+	}
 	else
-		m_sTotalHit = (short)(((((0.005f * sItemDamage * (temp_str + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_str )) + 3) + baseAP) * (100 + m_byAPBonusAmount) / 100);
+	{
+		ap_stat = temp_str;
+		additionalAP += baseAP;
+	}
+
+	m_sTotalHit = (uint16)((0.005f * sItemDamage * (ap_stat + 40)) + (hitcoefficient * sItemDamage * GetLevel() * ap_stat));
+	m_sTotalHit = (m_sTotalHit + additionalAP) * (100 + m_byAPBonusAmount) / 100;
 
 	m_sTotalAc = (short)(p_TableCoefficient->AC * (GetLevel() + m_sItemAc));
 	if (m_sACPercent <= 0)

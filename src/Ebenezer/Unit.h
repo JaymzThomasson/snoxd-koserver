@@ -184,8 +184,8 @@ public:
 	uint8	m_bLevel;
 	uint8	m_bNation;
 
-	short	m_sTotalHit;
-	short	m_sTotalAc;
+	uint16	m_sTotalHit;
+	uint16	m_sTotalAc;
 	float	m_fTotalHitrate;
 	float	m_fTotalEvasionrate;
 
