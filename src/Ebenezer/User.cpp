@@ -2644,7 +2644,8 @@ void CUser::HPTimeChangeType3()
 		|| !m_bType3Flag)
 		return;
 
-	int totalActiveDurationalSkills = 0;
+	uint16	totalActiveDurationalSkills = 0, 
+			totalActiveDOTSkills = 0;
 	bool bIsDOT = false;
 	for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
 	{
@@ -2681,16 +2682,20 @@ void CUser::HPTimeChangeType3()
 		}
 
 		if (pEffect->m_byUsed)
+		{
 			totalActiveDurationalSkills++;
+			if (pEffect->m_sHPAmount < 0)
+				totalActiveDOTSkills++;
+		}
 	}
 
 	// Have all the skills expired?
 	if (totalActiveDurationalSkills == 0)
-	{
 		m_bType3Flag = false;
-		if (bIsDOT)
-			SendUserStatusUpdate(USER_STATUS_DOT, USER_STATUS_CURE);
-	}
+
+	// If there was DOT skills when we started, but none anymore... revert the HP bar.
+	if (bIsDOT && totalActiveDOTSkills == 0)
+		SendUserStatusUpdate(USER_STATUS_DOT, USER_STATUS_CURE);
 }
 
 void CUser::Type4Duration()
