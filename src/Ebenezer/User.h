@@ -293,16 +293,40 @@ public:
 	INLINE bool isMage() { return JobGroupCheck(ClassMage); }
 	INLINE bool isPriest() { return JobGroupCheck(ClassPriest); }
 
-	INLINE bool isMastered() 
+	INLINE bool isBeginner() 
 	{
-		uint16 sClass = GetClass() % 100;
-		return (sClass == 6 || sClass == 8  || sClass == 10 || sClass == 12); 
+		uint16 sClass = GetClassType();
+		return (sClass <= ClassPriest);
 	}
 
-	INLINE bool isMasteredWarrior() { return (GetClass() % 100) == 6; }
-	INLINE bool isMasteredRogue()   { return (GetClass() % 100) == 8; }
-	INLINE bool isMasteredMage()    { return (GetClass() % 100) == 10; }
-	INLINE bool isMasteredPriest()  { return (GetClass() % 100) == 12; }
+	INLINE bool isBeginnerWarrior() { return GetClassType() == ClassWarrior; }
+	INLINE bool isBeginnerRogue()   { return GetClassType() == ClassRogue; }
+	INLINE bool isBeginnerMage()    { return GetClassType() == ClassMage; }
+	INLINE bool isBeginnerPriest()  { return GetClassType() == ClassPriest; }
+
+	INLINE bool isNovice() 
+	{
+		uint16 sClass = GetClassType();
+		return (sClass == ClassWarriorNovice || sClass == ClassRogueNovice
+				|| sClass == ClassMageNovice || sClass == ClassPriestNovice); 
+	}
+
+	INLINE bool isNoviceWarrior() { return GetClassType() == ClassWarriorNovice; }
+	INLINE bool isNoviceRogue()   { return GetClassType() == ClassRogueNovice; }
+	INLINE bool isNoviceMage()    { return GetClassType() == ClassMageNovice; }
+	INLINE bool isNovicePriest()  { return GetClassType() == ClassPriestNovice; }
+
+	INLINE bool isMastered() 
+	{
+		uint16 sClass = GetClassType();
+		return (sClass == ClassWarriorMaster || sClass == ClassRogueMaster 
+				|| sClass == ClassMageMaster || sClass == ClassPriestMaster); 
+	}
+
+	INLINE bool isMasteredWarrior() { return GetClassType() == ClassWarriorMaster; }
+	INLINE bool isMasteredRogue()   { return GetClassType() == ClassRogueMaster; }
+	INLINE bool isMasteredMage()    { return GetClassType() == ClassMageMaster; }
+	INLINE bool isMasteredPriest()  { return GetClassType() == ClassPriestMaster; }
 
 	INLINE bool isTrading() { return m_sExchangeUser != -1; }
 	INLINE bool isStoreOpen() { return m_bStoreOpen; }
