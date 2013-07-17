@@ -1216,9 +1216,15 @@ void CUser::ExpChange(int64 iExp)
 	// If this happens, we need to investigate why -- not sweep it under the rug.
 	ASSERT(m_iExp >= 0);
 
-	// Adjust the exp gained based on the percent set by the buff
 	if (iExp > 0)
+	{
+		// Adjust the exp gained based on the percent set by the buff
 		iExp = iExp * (m_sExpGainAmount + m_bItemExpGainAmount) / 100;
+
+		// Add on any additional XP earned because of a global XP event.
+		// NOTE: They officially check to see if the XP is <= 100,000.
+		iExp = iExp * (100 + g_pMain->m_byExpEventAmount) / 100;
+	}
 
 	bool bLevel = true;
 	if (iExp < 0 
@@ -2281,13 +2287,11 @@ void CUser::SendNotice()
 #if __VERSION < 1453 // NOTE: This is actually still supported if we wanted to use it.
 	result << count; // placeholder the count
 	result.SByte(); // only old-style notices use single byte lengths
-	for (count = 0; count < 20; count++)
-	{
-		if (g_pMain->m_ppNotice[count][0] == 0)
-			continue;
 
-		result << g_pMain->m_ppNotice[count];
-	}
+	for (int i = 0; i < 20; i++)
+		AppendNoticeEntry(result, count, g_ppMain->m_ppNotice[i]);
+
+	AppendExtraNoticeData(result, count);
 	result.put(0, count); // replace the placeholdered line count
 #else
 	result << uint8(2); // new-style notices (top-right of screen)
@@ -2296,18 +2300,46 @@ void CUser::SendNotice()
 	// Use first line for header, 2nd line for data, 3rd line for header... etc.
 	// It's most likely what they do officially (as usual, | is their line separator)
 	for (int i = 0; i < 10; i += 2)
-	{
-		if (g_pMain->m_ppNotice[i][0] == 0)
-			continue;
+		AppendNoticeEntry(result, count, g_pMain->m_ppNotice[i + 1], g_pMain->m_ppNotice[i]);
 
-		// header | data
-		result << g_pMain->m_ppNotice[i] << g_pMain->m_ppNotice[i + 1];
-		count++;
-	}
+	AppendExtraNoticeData(result, count);
 	result.put(1, count); // replace the placeholdered line count
 #endif
 	
 	Send(&result);
+}
+
+void CUser::AppendNoticeEntry(Packet & pkt, uint8 & elementCount, char * message, char * title)
+{
+	if (message == nullptr || *message == '\0')
+		return;
+
+#if __VERSION < 1453
+	pkt << message;
+#else
+	if (title == nullptr || *title == '\0')
+		return;
+
+	pkt << title << message;
+#endif
+
+	elementCount++;
+}
+
+void CUser::AppendExtraNoticeData(Packet & pkt, uint8 & elementCount)
+{
+	string message;
+	if (g_pMain->m_byExpEventAmount > 0)
+	{
+		g_pMain->GetServerResource(IDS_EXP_REPAY_EVENT, &message, g_pMain->m_byExpEventAmount);
+		AppendNoticeEntry(pkt, elementCount, const_cast<char *>(message.c_str()), "EXP event"); 
+	}
+
+	if (g_pMain->m_byCoinEventAmount > 0)
+	{
+		g_pMain->GetServerResource(IDS_MONEY_REPAY_EVENT, &message, g_pMain->m_byCoinEventAmount);
+		AppendNoticeEntry(pkt, elementCount, const_cast<char *>(message.c_str()), "Noah event"); 
+	}
 }
 
 void CUser::SkillPointChange(Packet & pkt)

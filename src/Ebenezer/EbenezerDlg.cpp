@@ -40,6 +40,9 @@ CEbenezerDlg::CEbenezerDlg()
 	m_byKingWeatherEvent_Day = 0;
 	m_byKingWeatherEvent_Hour = 0;
 	m_byKingWeatherEvent_Minute = 0;
+
+	m_byExpEventAmount = m_byCoinEventAmount = 0;
+
 	m_sPartyIndex = 0;
 
 	m_nCastleCapture = 0;

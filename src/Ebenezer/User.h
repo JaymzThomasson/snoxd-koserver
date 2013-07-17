@@ -604,6 +604,8 @@ public:
 	COMMAND_HANDLER(HandleLoyaltyChangeCommand);
 	COMMAND_HANDLER(HandleExpChangeCommand);
 	COMMAND_HANDLER(HandleGoldChangeCommand);
+	COMMAND_HANDLER(HandleExpAddCommand); /* for the server XP event */
+	COMMAND_HANDLER(HandleMoneyAddCommand); /* for the server coin event */
 
 	void Regene(uint8 regene_type, uint32 magicid = 0);
 	void RequestUserIn(Packet & pkt);
@@ -767,6 +769,8 @@ public:
 	void HandleSoccer(Packet & pkt);
 
 	void SendNotice();
+	void AppendNoticeEntry(Packet & pkt, uint8 & elementCount, char* message, char * title);
+	void AppendExtraNoticeData(Packet & pkt, uint8 & elementCount);
 	void UserLookChange( int pos, int itemid, int durability );
 	void SpeedHackUser();
 	void LoyaltyChange(int16 tid, uint16 bonusNP = 0);

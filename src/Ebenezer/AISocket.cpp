@@ -442,18 +442,19 @@ void CAISocket::RecvUserHP(Packet & pkt)
 
 void CAISocket::RecvUserExp(Packet & pkt)
 {
-	uint16 tid, sExp, sLoyalty;
-	pkt >> tid >> sExp >> sLoyalty;
+	uint16 tid;
+	int32 iExp, iLoyalty;
+	pkt >> tid >> iExp >> iLoyalty;
 
 	CUser* pUser = g_pMain->GetUserPtr(tid);
 	if (pUser == nullptr)
 		return;
 
-	if (sExp > 0)
-		pUser->ExpChange(sExp);
+	if (iExp > 0)
+		pUser->ExpChange(iExp);
 
-	if (sLoyalty > 0)
-		pUser->SendLoyaltyChange(sLoyalty);
+	if (iLoyalty > 0)
+		pUser->SendLoyaltyChange(iLoyalty);
 }
 
 void CAISocket::RecvSystemMsg(Packet & pkt)
@@ -501,6 +502,18 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 		if (g_pMain->GetItemPtr(nItemNumber[i]))
 		{
 			_LOOT_ITEM pItem(nItemNumber[i], sCount[i]);
+			if (nItemNumber[i] == ITEM_GOLD)
+			{
+				// Add on any additional coins earned because of a global coin event.
+				// NOTE: Officially it caps at SHRT_MAX, but that's really only for technical reasons.
+				// Using the unsigned range gives us a little bit of wiggle room.
+				uint32 coinAmount = sCount[i] * (100 + g_pMain->m_byCoinEventAmount) / 100;
+				if (sCount[i] + coinAmount > USHRT_MAX)
+					coinAmount = USHRT_MAX;
+
+				pItem.sCount = coinAmount;
+			}
+
 			pBundle->Items.push_back(pItem); // emplace_back() would be so much more useful here, but requires C++11.
 		}
 	}

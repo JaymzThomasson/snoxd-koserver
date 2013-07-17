@@ -346,6 +346,9 @@ public:
 	uint8 m_byKingWeatherEvent_Hour;
 	uint8 m_byKingWeatherEvent_Minute;
 
+	// XP/coin events
+	uint8 m_byExpEventAmount, m_byCoinEventAmount;
+
 	INLINE CLuaEngine * GetLuaEngine() { return &m_luaEngine; }
 
 	KOSocketMgr<CUser> m_socketMgr;

@@ -190,10 +190,10 @@ void CUser::SetPartyExp(int iNpcExp, int iLoyalty, int iPartyLevel, int iMan)
 	SendExp(iNpcExp, iLoyalty);
 }
 
-void CUser::SendExp(int iExp, int iLoyalty, int tType)
+void CUser::SendExp(int32 iExp, int32 iLoyalty, int tType)
 {
 	Packet result(AG_USER_EXP);
-	result << GetID() << uint16(iExp) << uint16(iLoyalty);
+	result << GetID() << iExp << iLoyalty;
 	g_pMain->Send(&result);   	
 }
 
