@@ -51,6 +51,7 @@ public:
 	static void ReqDonateNP(CUser *pUser, Packet & pkt);
 	static void ReqRefundNP(Packet & pkt);
 	static void ReqUpdateNP(Packet & pkt);
+	static void ReqUpdateClanNotice(Packet & pkt);
 
 	static void RecvUpdateKnights(CUser* pUser, Packet & pkt, uint8 command);
 	static void RecvModifyFame(CUser* pUser, Packet & pkt, uint8 command);

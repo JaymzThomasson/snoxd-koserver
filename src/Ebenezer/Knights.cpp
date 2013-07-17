@@ -64,8 +64,17 @@ void CKnights::ConstructClanNoticePacket(Packet *result)
 			<< m_strClanNotice;
 }
 
+/**
+ * @brief	Updates this clan's notice with clanNotice
+ * 			and informs logged in clan members.
+ *
+ * @param	clanNotice	The clan notice.
+ */
 void CKnights::UpdateClanNotice(std::string & clanNotice)
 {
+	if (clanNotice.length() > MAX_CLAN_NOTICE_LENGTH)
+		return;
+
 	Packet result;
 
 	// Update the stored clan notice
@@ -79,6 +88,11 @@ void CKnights::UpdateClanNotice(std::string & clanNotice)
 	// Construct the new clan notice packet
 	ConstructClanNoticePacket(&result);
 	Send(&result);
+
+	// Tell the database to update the clan notice.
+	result.Initialize(WIZ_CHAT);
+	result << uint8(CLAN_NOTICE) << GetID() << clanNotice;
+	g_pMain->AddDatabaseRequest(result);
 }
 
 /**

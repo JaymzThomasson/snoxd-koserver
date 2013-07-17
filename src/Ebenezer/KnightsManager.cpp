@@ -1041,7 +1041,6 @@ void CKnightsManager::DonateNPReq(CUser * pUser, Packet & pkt)
 	pUser->Send(&result);
 }
 
-
 /**
  * @brief	Handles the clan NP donations packet from the client.
  *

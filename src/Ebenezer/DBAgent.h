@@ -96,7 +96,7 @@ public:
 	bool DonateClanPoints(CUser * pUser, uint32 amountNP);
 	void RefundNP(std::string & strUserID, uint32 nRefundNP);
 	void UpdateClanFund(uint16 sClanID, uint32 nClanPointFund);
-
+	void UpdateClanNotice(uint16 sClanID, std::string & strClanNotice);
 	NameChangeOpcode UpdateCharacterName(std::string & strAccountID, std::string & strUserID, std::string & strNewUserID);
 	void UpdateCape(uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint8 b);
 

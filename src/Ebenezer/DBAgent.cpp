@@ -1297,6 +1297,23 @@ void CDBAgent::UpdateClanFund(uint16 sClanID, uint32 nClanPointFund)
 		ReportSQLError(m_GameDB->GetError());
 }
 
+/**
+ * @brief	Updates the clan notice.
+ *
+ * @param	sClanID		 	Identifier for the clan.
+ * @param	strClanNotice	The clan notice.
+ */
+void CDBAgent::UpdateClanNotice(uint16 sClanID, std::string & strClanNotice)
+{
+	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == nullptr)
+		return;
+	
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strClanNotice.c_str(), strClanNotice.length());
+	if (!dbCommand->Execute(string_format(_T("UPDATE KNIGHTS SET strClanNotice = ? WHERE IDNum = %d"), sClanID)))
+		ReportSQLError(m_GameDB->GetError());
+}
+
 NameChangeOpcode CDBAgent::UpdateCharacterName(std::string & strAccountID, std::string & strUserID, std::string & strNewUserID)
 {
 	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());

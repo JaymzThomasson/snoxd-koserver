@@ -74,6 +74,7 @@ uint32 THREADCALL DatabaseThread::ThreadProc(void * lpParam)
 				continue;
 		}
 
+		uint8 subOpcode;
 		switch (pkt.GetOpcode())
 		{
 		case WIZ_LOGIN:
@@ -96,6 +97,11 @@ uint32 THREADCALL DatabaseThread::ThreadProc(void * lpParam)
 			break;
 		case WIZ_SEL_CHAR:
 			if (pUser) pUser->ReqSelectCharacter(pkt);
+			break;
+		case WIZ_CHAT:
+			pkt >> subOpcode;
+			if (subOpcode == CLAN_NOTICE)
+				CKnightsManager::ReqUpdateClanNotice(pkt);
 			break;
 		case WIZ_DATASAVE:
 			if (pUser) pUser->ReqSaveCharacter();
@@ -710,6 +716,20 @@ void CKnightsManager::ReqRegisterClanSymbol(CUser *pUser, Packet & pkt)
 	
 	result << sErrorCode << sNewVersion;
 	pUser->Send(&result);
+}
+
+/**
+ * @brief	Requests a clan's notice be updated in the database.
+ *
+ * @param	pkt	The packet.
+ */
+void CKnightsManager::ReqUpdateClanNotice(Packet & pkt)
+{
+	uint16 sClanID;
+	string strClanNotice;
+
+	pkt >> sClanID >> strClanNotice;
+	g_DBAgent.UpdateClanNotice(sClanID, strClanNotice);
 }
 
 void CUser::ReqSetLogInInfo(Packet & pkt)
