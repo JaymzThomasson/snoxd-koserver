@@ -228,13 +228,8 @@ bool CUser::CheckWeight(_ITEM_TABLE * pTable, uint32 nItemID, uint16 sCount)
 			&& FindSlotForItem(nItemID, sCount) >= 0);
 }
 
-
 bool CUser::CheckExistItem(int itemid, short count /*= 1*/)
 {
-	_ITEM_TABLE* pTable = g_pMain->GetItemPtr(itemid);
-	if (pTable == nullptr)
-		return false;	
-
 	// Search for the existance of all items in the player's inventory storage and onwards (includes magic bags)
 	for (int i = 0; i < INVENTORY_TOTAL; i++)
 	{
@@ -246,6 +241,22 @@ bool CUser::CheckExistItem(int itemid, short count /*= 1*/)
 
 	return false;
 }
+
+#if defined(USE_ORIGINAL_QUESTS)
+uint16 CUser::GetItemCount(uint32 nItemID)
+{
+	uint16 result = 0;
+	// Search for the existance of all items in the player's inventory storage and onwards (includes magic bags)
+	for (int i = 0; i < INVENTORY_TOTAL; i++)
+	{
+		// This implementation fixes a bug where it ignored the possibility for multiple stacks.
+		if (m_sItemArray[i].nNum == nItemID)
+			result += m_sItemArray[i].sCount;
+	}
+
+	return result;
+}
+#endif
 
 // Pretend you didn't see me. This really needs to go (just copying official)
 bool CUser::CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,

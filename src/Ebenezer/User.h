@@ -464,6 +464,14 @@ public:
 		+ m_bstrSkill[SkillPointMaster];
 	}
 
+	INLINE uint8 GetSkillPoints(SkillPointCategory category)
+	{
+		if (category < SkillPointFree || category > SkillPointMaster)
+			return 0;
+
+		return m_bstrSkill[category];
+	}
+
 	INLINE _ITEM_DATA * GetItem(uint8 pos) 
 	{
 		ASSERT(pos < INVENTORY_TOTAL);
@@ -509,6 +517,7 @@ public:
 	bool CheckExistItem(int itemid, short count = 1);
 	bool CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,
 		int32 nItemID3, int16 sCount3, int32 nItemID4, int16 sCount4, int32 nItemID5, int16 sCount5);
+	uint16 GetItemCount(uint32 nItemID);
 	bool CheckWeight(uint32 nItemID, uint16 sCount);
 	bool CheckWeight(_ITEM_TABLE * pTable, uint32 nItemID, uint16 sCount);
 	bool CheckSkillPoint(uint8 skillnum, uint8 min, uint8 max);

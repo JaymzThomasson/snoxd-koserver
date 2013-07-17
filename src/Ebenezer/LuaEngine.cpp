@@ -8,6 +8,18 @@
 // define global functions to be called from Lua (e.g. myrand())
 DEFINE_LUA_FUNCTION_TABLE(g_globalFunctions, 
 	MAKE_LUA_FUNCTION(CheckPercent)
+	MAKE_LUA_FUNCTION(HowmuchItem)
+	MAKE_LUA_FUNCTION(ShowMap)
+	MAKE_LUA_FUNCTION(CheckNation)
+	MAKE_LUA_FUNCTION(CheckClass)
+	MAKE_LUA_FUNCTION(CheckLevel)
+	MAKE_LUA_FUNCTION(CheckSkillPoint)
+	MAKE_LUA_FUNCTION(SaveEvent)
+	MAKE_LUA_FUNCTION(CheckExchange)
+	MAKE_LUA_FUNCTION(RunExchange)
+	MAKE_LUA_FUNCTION(SearchQuest)
+	MAKE_LUA_FUNCTION(NpcMsg)
+	MAKE_LUA_FUNCTION(SelectMsg)
 );
 
 CLuaEngine::CLuaEngine() : m_lock(new RWLock())
@@ -25,6 +37,7 @@ CLuaScript::CLuaScript() : m_luaState(nullptr), m_lock(new FastMutex())
  */
 bool CLuaEngine::Initialise()
 {
+	printf("Starting up Lua engine in %s mode...\n", LUA_ENGINE_MODE);
 	// TO-DO: Initialise a pool of scripts (enough for 1 per worker thread).
 	return m_luaScript.Initialise();
 }
@@ -182,6 +195,7 @@ bool CLuaScript::CompileScript(const char * filename, BytecodeBuffer & buffer)
 		return false;
 	}
 
+#if !defined(USE_ORIGINAL_QUESTS)
 	// Load up the script & revert the stack.
 	// This step's only here for cleanup purposes.
 	err = lua_pcall(m_luaState, 0, LUA_MULTRET, 0);
@@ -190,6 +204,7 @@ bool CLuaScript::CompileScript(const char * filename, BytecodeBuffer & buffer)
 		RetrieveLoadError(err, filename);
 		return false;
 	}
+#endif
 
 	// Compiled!
 	return true;
@@ -240,6 +255,8 @@ bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 
 		return false;
 	}
 
+#if !defined(USE_ORIGINAL_QUESTS) // our quest implementation
+
 	// The user & NPC instances are globals. As is the selected quest reward.
 	lua_tsetglobal(m_luaState, LUA_SCRIPT_GLOBAL_USER, pUser);
 	lua_tsetglobal(m_luaState, LUA_SCRIPT_GLOBAL_NPC, pNpc);
@@ -257,9 +274,27 @@ bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 
 		0,	// 0 returned values
 		0);	// no error handler
 
+#else
+
+	lua_tsetglobal(m_luaState, "UID", pUser->GetID());
+	lua_tsetglobal(m_luaState, "STEP", bSelectedReward);
+	lua_tsetglobal(m_luaState, "EVENT", nEventID);
+
+	// Try calling the script's entry point
+	err = lua_pcall(m_luaState, 
+		0,	// no arguments
+		0,	// 0 returned values
+		0);	// no error handler
+#endif
+
 	// Nothing returned, so we can finish up here.
 	if (err == LUA_OK)
+	{
+#if defined(USE_ORIGINAL_QUESTS)
+		lua_settop(m_luaState, 0);
+#endif
 		return true;
+	}
 
 	// Attempt to provide somewhat informative errors to help the user figure out what's wrong.
 	switch (err)
@@ -287,6 +322,10 @@ bool CLuaScript::ExecuteScript(CUser * pUser, CNpc * pNpc, int32 nEventID, int8 
 		printf("ERROR: [%s] The following error was provided:\n%s\n",
 			filename, lua_to<const char *>(m_luaState, -1));
 	}
+
+#if defined(USE_ORIGINAL_QUESTS)
+	lua_settop(m_luaState, 0);
+#endif
 
 	return false;
 }

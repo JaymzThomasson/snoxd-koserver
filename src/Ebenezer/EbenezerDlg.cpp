@@ -156,6 +156,7 @@ bool CEbenezerDlg::Startup()
 	srand((uint32)time(nullptr));
 	rand(); // first value is always going to be the same, so spice things up.
 
+	printf("\n");
 	if (!m_luaEngine.Initialise())
 		return false;
 

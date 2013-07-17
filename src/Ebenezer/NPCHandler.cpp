@@ -274,7 +274,7 @@ void CUser::SelectMsg(uint8 bFlag, int32 nQuestID, int32 menuHeaderText,
 	Send(&result);
 
 	// and store the corresponding event IDs.
-	memcpy(&m_iSelMsgEvent, menuButtonEvents, sizeof(menuButtonEvents));
+	memcpy(&m_iSelMsgEvent, menuButtonEvents, sizeof(int32) * MAX_MESSAGE_EVENT);
 }
 
 void CUser::NpcEvent(Packet & pkt)
