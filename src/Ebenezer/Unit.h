@@ -140,6 +140,7 @@ public:
 	void RemoveRegion(int16 del_x, int16 del_z);
 	void InsertRegion(int16 insert_x, int16 insert_z);
 
+	bool isInAttackRange(Unit * pTarget, _MAGIC_TABLE * pSkill = nullptr);
 	virtual short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false) = 0;
 	virtual void OnAttack(Unit * pTarget, AttackType attackType) {}
 	virtual void OnDefend(Unit * pAttacker, AttackType attackType) {}

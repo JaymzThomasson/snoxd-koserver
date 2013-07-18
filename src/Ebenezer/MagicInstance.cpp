@@ -12,6 +12,12 @@ void MagicInstance::Run()
 	if (pSkill == nullptr)
 		pSkill = g_pMain->m_MagictableArray.GetData(nSkillID);
 
+	if (pSkillCaster == nullptr)
+		pSkillCaster = g_pMain->GetUnitPtr(sCasterID);
+
+	if (sTargetID != -1 && pSkillTarget == nullptr)
+		pSkillTarget = g_pMain->GetUnitPtr(sTargetID);
+
 	if (pSkill == nullptr
 		|| pSkillCaster == nullptr
 		|| !UserCanCast())
@@ -19,24 +25,7 @@ void MagicInstance::Run()
 		SendSkillFailed();
 		return;
 	}
-
-#if 0
-	// If the target is a mob/NPC *or* we're casting an AOE, tell the AI to handle it.
-	if (sTargetID >= NPC_BAND
-		|| (sTargetID == -1 && 
-			(pSkill->bMoral == MORAL_AREA_ENEMY 
-				|| pSkill->bMoral == MORAL_AREA_ALL 
-				|| pSkill->bMoral == MORAL_SELF_AREA)))
-	{
-		SendSkillToAI();
-
-		// If the target is specifically a mob, stop here. AI's got this one.
-		// Otherwise, it's an AOE -- which means it might affect players too, so we need to handle it too.
-		if (sTargetID >= NPC_BAND)
-			return;
-	}
-#endif
-
+	
 	bool bInitialResult;
 	switch (bOpcode)
 	{
@@ -144,6 +133,9 @@ bool MagicInstance::UserCanCast()
 	if (bOpcode == MAGIC_CANCEL || bOpcode == MAGIC_CANCEL2) 
 		return true;
 
+	if (bOpcode == MAGIC_FAIL)
+		return true;
+
 	if (bIsRecastingSavedMagic)
 		return true;
 
@@ -216,6 +208,11 @@ bool MagicInstance::UserCanCast()
 		&& !TO_USER(pSkillCaster)->CheckExistEvent(pSkill->sEtc, 2))
 		return false;
 #endif
+
+	if (pSkill->bType[0] < 4
+		&& pSkillTarget != nullptr
+		&& !pSkillCaster->isInAttackRange(pSkillTarget, pSkill))
+		return false;
 
 	if ((bOpcode == MAGIC_EFFECTING || bOpcode == MAGIC_CASTING) 
 		&& !IsAvailable())

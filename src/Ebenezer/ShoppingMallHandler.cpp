@@ -9,6 +9,7 @@ void CUser::ShoppingMall(Packet & pkt)
 	{
 	case STORE_OPEN:
 		TRACE("STORE_OPEN\n");
+		HandleStoreOpen(pkt);
 		break;
 
 	case STORE_CLOSE:
@@ -36,6 +37,50 @@ void CUser::ShoppingMall(Packet & pkt)
 	default:
 		TRACE("Unknown shoppingmall packet: %X\n", opcode);
 	}
+}
+
+// We're opening the PUS...
+void CUser::HandleStoreOpen(Packet & pkt)
+{
+	Packet result(WIZ_SHOPPING_MALL, uint8(STORE_OPEN));
+	int16 sErrorCode = 1, sFreeSlot = -1;
+
+	if (isDead())
+		sErrorCode = -2;
+	else if (isTrading())
+		sErrorCode = -3;
+	else if (isMerchanting())
+		sErrorCode = -4;
+	// Not allowed in private arenas
+	else if (GetZoneID() >= 40 && GetZoneID() <= 45)
+		sErrorCode = -5;
+	else if (isStoreOpen())
+		sErrorCode = -7;
+
+	if (sErrorCode != 1)
+		goto fail_return;
+	
+	for (int i = SLOT_MAX; i < INVENTORY_TOTAL; i++)
+	{
+		if (GetItem(i)->nNum == 0)
+		{
+			sFreeSlot = i;
+			break;
+		}
+	}
+
+	if (sFreeSlot < 0)
+	{
+		sErrorCode = -8;
+		goto fail_return;
+	}
+
+	m_bStoreOpen = true;
+	UserDataSaveToAgent();
+
+fail_return:
+	result << sErrorCode << sFreeSlot;
+	Send(&result);
 }
 
 // We're closing the PUS so that we can call LOAD_WEB_ITEMMALL and load the extra items.

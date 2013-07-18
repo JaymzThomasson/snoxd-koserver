@@ -20,6 +20,7 @@ DEFINE_LUA_FUNCTION_TABLE(g_globalFunctions,
 	MAKE_LUA_FUNCTION(SearchQuest)
 	MAKE_LUA_FUNCTION(NpcMsg)
 	MAKE_LUA_FUNCTION(SelectMsg)
+	MAKE_LUA_FUNCTION(CastSkill)
 );
 
 CLuaEngine::CLuaEngine() : m_lock(new RWLock())

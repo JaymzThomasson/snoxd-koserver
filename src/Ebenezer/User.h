@@ -758,6 +758,7 @@ public:
 	void CharacterSealProcess(Packet & pkt);
 
 	void ShoppingMall(Packet & pkt);
+	void HandleStoreOpen(Packet & pkt);
 	void HandleStoreClose();
 	void LetterSystem(Packet & pkt);
 
