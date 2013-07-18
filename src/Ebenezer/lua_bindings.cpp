@@ -101,7 +101,7 @@ DEFINE_LUA_CLASS
 	// MAKE_LUA_METHOD(PromoteKnight)
 	MAKE_LUA_METHOD(ShowEffect)
 	MAKE_LUA_METHOD(KissUser)
-	MAKE_LUA_METHOD(GiveMannerPoints)
+	MAKE_LUA_METHOD(ChangeManner)
 );
 #undef LUA_CLASS
 

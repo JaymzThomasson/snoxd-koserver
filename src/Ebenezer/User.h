@@ -1170,7 +1170,7 @@ public:
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->SendLoyaltyChange(-(LUA_ARG(int32, 2))));	
 	}
 
-	DECLARE_LUA_FUNCTION(GiveMannerPoints) {
-		LUA_NO_RETURN(LUA_GET_INSTANCE()->SendMannerChange(-(LUA_ARG(int32, 2))));	
+	DECLARE_LUA_FUNCTION(ChangeManner) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->SendMannerChange(LUA_ARG(int32, 2)));	
 	}
 };
