@@ -1693,6 +1693,19 @@ void CDBAgent::InsertPrizeEvent(uint8 byType, uint8 byNation, uint32 nCoins, std
 }
 
 /**
+ * @brief	Resets the monthly NP total accumulated in the last month.
+ */
+void CDBAgent::ResetLoyaltyMonthly()
+{
+	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == nullptr)
+		return;
+
+	if (!dbCommand->Execute(_T("{CALL RESET_LOYALTY_MONTHLY}")))
+		ReportSQLError(m_GameDB->GetError());
+}
+
+/**
  * @brief	Clears the remaining users who were connected to this server
 			from the logged in user list that may still be there as the 
 			result of an improper shutdown.

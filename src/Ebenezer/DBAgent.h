@@ -118,6 +118,7 @@ public:
 	void UpdateCandidacyNoticeBoard(std::string & strCharID, uint8 byNation, std::string & strNotice);
 	void UpdateNoahOrExpEvent(uint8 byType, uint8 byNation, uint8 byAmount, uint8 byDay, uint8 byHour, uint8 byMinute, uint16 sDuration);
 	void InsertPrizeEvent(uint8 byType, uint8 byNation, uint32 nCoins, std::string & strCharID);
+	void ResetLoyaltyMonthly();
 	void ClearRemainUsers();
 
 	~CDBAgent();

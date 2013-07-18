@@ -97,6 +97,7 @@ public:
 	void SetGameTime();
 	void UpdateWeather();
 	void UpdateGameTime();
+	void ResetLoyaltyMonthly();
 	void SendAllUserInfo();
 	void DeleteAllNpcList(int flag = 0);
 	CNpc*  FindNpcInZone(uint16 sPid, uint8 byZone);
