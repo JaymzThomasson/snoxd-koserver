@@ -30,7 +30,8 @@ void MagicInstance::Run()
 	switch (bOpcode)
 	{
 		case MAGIC_CASTING:
-			SendSkill(true); // send this to the region
+		case MAGIC_FAIL:
+			SendSkill(bOpcode == MAGIC_CASTING); // only send casting packets to the region, not fail packets.
 			break;
 
 		case MAGIC_FLYING:
@@ -83,10 +84,6 @@ void MagicInstance::Run()
 
 			SendSkill(true); // send this to the region
 		} break;
-
-		case MAGIC_FAIL:
-			SendSkill(false); // don't send this to the region
-			break;
 
 		case MAGIC_EFFECTING:
 			// Hacky check for a transformation item (Disguise Totem, Disguise Scroll)
