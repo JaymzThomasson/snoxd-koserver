@@ -70,10 +70,11 @@ public:
 	int16	sData[8];
 	bool	bIsRecastingSavedMagic;
 	bool	bIsItemProc;
+	bool	bInstantCast;
 
 	MagicInstance() : bOpcode(MAGIC_EFFECTING), nSkillID(0), pSkill(nullptr), 
 		sCasterID(-1), sTargetID(-1), pSkillCaster(nullptr), pSkillTarget(nullptr),
-		bIsRecastingSavedMagic(false), bIsItemProc(false)
+		bIsRecastingSavedMagic(false), bIsItemProc(false), bInstantCast(false)
 	{
 		memset(&sData, 0, sizeof(sData));
 	}

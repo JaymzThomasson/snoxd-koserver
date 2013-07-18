@@ -222,8 +222,11 @@ bool MagicInstance::UserCanCast()
 		return false;
 
 	// Instant casting affects the next cast skill only, and is then removed.
-	if (pSkillCaster->canInstantCast())
+	if (bOpcode == MAGIC_EFFECTING && pSkillCaster->canInstantCast())
+	{
 		CMagicProcess::RemoveType4Buff(BUFF_TYPE_INSTANT_MAGIC, pSkillCaster);
+		bInstantCast = true;
+	}
 
 	// In case we made it to here, we can cast! Hurray!
 	return true;
@@ -474,6 +477,14 @@ void MagicInstance::BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 
 									 uint32 nSkillID, int16 sData[8])
 {
 	result.Initialize(WIZ_MAGIC_PROCESS);
+
+	// Handle the "instantly magic" buff; this will reset the cooldown on any skill.
+	// NOTE: Unsure how this is handled officially, but this seems to produce the desired effect.
+	// Effects seem to be applying correctly for everything I tested...
+	if (bInstantCast 
+		&& opcode == MAGIC_EFFECTING)
+		bOpcode = MAGIC_FAIL;
+
 	result	<< opcode << nSkillID << sSkillCaster << sSkillTarget
 			<< sData[0] << sData[1] << sData[2] << sData[3]
 			<< sData[4] << sData[5] << sData[6] << sData[7];
