@@ -68,8 +68,8 @@ void Unit::Initialize()
 	m_bRadiusAmount = 0;
 	m_buffCount = 0;
 
-	InitType3();	 // Initialize durational type 3 stuff :)
-	InitType4();	 // Initialize durational type 4 stuff :)
+	InitType3();
+	InitType4(true);
 }
 
 /* 
@@ -762,7 +762,7 @@ void Unit::InitType3()
 	m_bType3Flag = false;
 }
 
-void Unit::InitType4()
+void Unit::InitType4(bool bRemoveSavedMagic /*= false*/)
 {
 	// Remove all buffs that should not be recast.
 	FastGuard lock(m_buffLock);
@@ -771,7 +771,7 @@ void Unit::InitType4()
 	for (auto itr = buffMap.begin(); itr != buffMap.end(); itr++)
 	{
 #ifdef EBENEZER
-		CMagicProcess::RemoveType4Buff(itr->first, this, false);
+		CMagicProcess::RemoveType4Buff(itr->first, this, bRemoveSavedMagic);
 #endif
 	}
 }

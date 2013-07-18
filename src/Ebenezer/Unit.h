@@ -159,8 +159,8 @@ public:
 	void SendToRegion(Packet *result);
 	void Send_AIServer(Packet *result);
 
-	virtual void InitType3();
-	virtual void InitType4();
+	void InitType3();
+	void InitType4(bool bRemoveSavedMagic = false);
 	void AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO & pBuffInfo);
 
 	virtual void StateChangeServerDirect(uint8 bType, uint32 nBuff) {}
