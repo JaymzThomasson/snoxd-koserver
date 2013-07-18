@@ -254,7 +254,6 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_AC:
-	case BUFF_TYPE_WEAPON_AC:
 		if (pType->sAC == 0 && pType->sACPct > 0)
 			pTarget->m_sACPercent += (pType->sACPct - 100);
 		else
@@ -341,7 +340,18 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_WEAPON_DAMAGE:
-		// uses pType->Attack
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bAddWeaponDamage = pType->bAttack;
+		break;
+
+	case BUFF_TYPE_WEAPON_AC:
+		if (pTarget->isPlayer())
+		{
+			if (pType->sAC == 0 && pType->sACPct > 0)
+				TO_USER(pTarget)->m_bPctArmourAc += (pType->sACPct - 100);
+			else
+				TO_USER(pTarget)->m_sAddArmourAc += pType->sAC;
+		}
 		break;
 
 	case BUFF_TYPE_LOYALTY:
@@ -591,7 +601,6 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget, bool bRemov
 		break;
 
 	case BUFF_TYPE_AC:
-	case BUFF_TYPE_WEAPON_AC:
 		if (pType->sAC == 0 && pType->sACPct > 0)
 			pTarget->m_sACPercent -= (pType->sACPct - 100);
 		else
@@ -654,7 +663,15 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget, bool bRemov
 		break;
 
 	case BUFF_TYPE_WEAPON_DAMAGE:
-		// uses pType->Attack
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bAddWeaponDamage = 0;
+		break;
+
+	case BUFF_TYPE_WEAPON_AC:
+		if (pType->sAC == 0 && pType->sACPct > 0)
+			TO_USER(pTarget)->m_bPctArmourAc -= (pType->sACPct - 100);
+		else
+			TO_USER(pTarget)->m_sAddArmourAc -= pType->sAC;
 		break;
 
 	case BUFF_TYPE_LOYALTY:

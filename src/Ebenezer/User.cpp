@@ -69,6 +69,11 @@ void CUser::Initialize()
 	memset(&m_bstrSkill, 0, sizeof(m_bstrSkill));
 
 	m_bPlayerAttackAmount = 100;
+
+	m_bAddWeaponDamage = 0;
+	m_bPctArmourAc = 100;
+	m_sAddArmourAc = 0;
+
 	m_sItemHitrate = 100;
 	m_sItemEvasionrate = 100;
 
@@ -1027,8 +1032,8 @@ void CUser::SetSlotItemValue()
 
 		if (pItem->sDuration == 0) 
 		{
-			item_hit = pTable->m_sDamage / 2;
-			item_ac = pTable->m_sAc / 2;
+			item_hit = pTable->m_sDamage / 10;
+			item_ac = pTable->m_sAc / 10;
 		}
 		else 
 		{
@@ -1037,14 +1042,19 @@ void CUser::SetSlotItemValue()
 		}
 
 		if (i == RIGHTHAND)
-			m_sItemHit += item_hit;
+		{
+			// NOTE: only count weapon enchant damage for right-handed weapons
+			m_sItemHit += item_hit + m_bAddWeaponDamage; 
+		}
 		// Only include AP in the left hand slot when:
 		//	- the user has at least received their first job change (i.e. they're not a beginner)
 		//	- the user is a warrior or a rogue.
 		else if (i == LEFTHAND 
 				&& !isBeginner()
 				&& (isWarrior() || isRogue()))
+		{
 			m_sItemHit += (short)(item_hit * 0.5f);
+		}
 
 		m_sItemMaxHp += pTable->m_MaxHpB;
 		m_sItemMaxMp += pTable->m_MaxMpB;
@@ -1156,6 +1166,11 @@ void CUser::SetSlotItemValue()
 
 		ApplySetItemBonuses(pItem);
 	}
+
+	if (m_sAddArmourAc > 0)
+		m_sItemAc += m_sAddArmourAc;
+	else
+		m_sItemAc = m_sItemAc * m_bPctArmourAc / 100;
 
 	if (m_sItemHit < 3)
 		m_sItemHit = 3;
@@ -1610,8 +1625,7 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 			break;
 		}
 
-		if (hitcoefficient != 0.0f)
-			sItemDamage = pRightHand->m_sDamage;
+		sItemDamage = pRightHand->m_sDamage + m_bAddWeaponDamage;
 	}
 
 	_ITEM_TABLE *pLeftHand = GetItemPrototype(LEFTHAND);
@@ -1621,11 +1635,11 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 		{
 			hitcoefficient = p_TableCoefficient->Bow;
 			bHaveBow = true;
-			sItemDamage = pLeftHand->m_sDamage;
+			sItemDamage = pLeftHand->m_sDamage + m_bAddWeaponDamage;
 		}
 		else
 		{
-			sItemDamage += pLeftHand->m_sDamage / 2;
+			sItemDamage += (pLeftHand->m_sDamage + m_bAddWeaponDamage) / 2;
 		}
 	}
 
@@ -1740,13 +1754,11 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 			m_bResistanceBonus += 50;
 	}
 
-#if 0
-    if (m_sAdditionalAttackDamage)
-      ++m_sTotalHit;
+	if (m_bAddWeaponDamage > 0)
+		++m_sTotalHit;
 
-	if (m_sAdditionalDefense > 0 || m_sAdditionalDefensePct > 100)
-      ++m_sTotalAc;
-#endif
+	if (m_sAddArmourAc > 0 || m_bPctArmourAc > 100)
+		++m_sTotalAc;
 
 	uint8 bSta = GetStat(STAT_STA);
 	if (bSta > 100)

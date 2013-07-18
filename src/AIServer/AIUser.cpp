@@ -38,6 +38,18 @@ void CUser::Initialize()
 	m_sPartyNumber = -1;
 	m_byIsOP = 0;
 	m_bInvisibilityType = 0;
+
+	m_tLastRegeneTime = 0;
+	m_sExpGainAmount = 0;
+	m_bMaxWeightAmount = 100;
+	m_bNPGainAmount = m_bNoahGainAmount = 100;
+	m_bPlayerAttackAmount = 100; 
+	m_bSkillNPBonus = 0;
+	m_bAddWeaponDamage = 0;
+	m_sAddArmourAc = 0;
+	m_bPctArmourAc = 100;
+	m_bPremiumMerchant = false;
+
 	InitNpcAttack();
 }
 

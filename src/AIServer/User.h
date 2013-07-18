@@ -103,6 +103,9 @@ public:
 	uint32	m_nOldAbnormalType;
 	uint16	m_sExpGainAmount;
 	uint8	m_bMaxWeightAmount, m_bNPGainAmount, m_bNoahGainAmount, 
-			m_bPlayerAttackAmount, m_bSkillNPBonus;
+			m_bPlayerAttackAmount, m_bSkillNPBonus,
+			m_bAddWeaponDamage;
+	uint16	m_sAddArmourAc;
+	uint8	m_bPctArmourAc;
 	bool	m_bPremiumMerchant;
 };

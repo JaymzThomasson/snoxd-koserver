@@ -193,6 +193,9 @@ public:
 	uint16   m_sSpeed;	// NOTE: Currently unused
 
 	uint8	m_bPlayerAttackAmount;
+	uint8	m_bAddWeaponDamage;
+	uint16	m_sAddArmourAc; 
+	uint8	m_bPctArmourAc;
 
 	int16	m_sItemMaxHp;
 	int16	m_sItemMaxMp;
