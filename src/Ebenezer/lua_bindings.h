@@ -13,3 +13,4 @@ LUA_FUNCTION(RunExchange);
 LUA_FUNCTION(SearchQuest);
 LUA_FUNCTION(NpcMsg);
 LUA_FUNCTION(SelectMsg);
+LUA_FUNCTION(CastSkill);

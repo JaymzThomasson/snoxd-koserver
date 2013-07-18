@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Map.h"
+#include "MagicInstance.h"
 
 CNpc::CNpc() : Unit(UnitNPC)
 {
@@ -234,6 +235,20 @@ void CNpc::MSpChange(int amount)
 	result << GetID() << m_iMP;
 	Send_AIServer(&result);
 #endif
+}
+
+void CNpc::CastSkill(Unit * pTarget, uint32 nSkillID)
+{
+	if (pTarget == nullptr)
+		return;
+
+	MagicInstance instance;
+
+	instance.nSkillID = nSkillID;
+	instance.sCasterID = GetID();
+	instance.sTargetID = pTarget->GetID();
+
+	instance.Run();
 }
 
 /**

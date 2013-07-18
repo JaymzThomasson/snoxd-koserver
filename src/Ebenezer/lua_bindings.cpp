@@ -117,6 +117,7 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(GetX)
 	MAKE_LUA_METHOD(GetY)
 	MAKE_LUA_METHOD(GetZ)
+	MAKE_LUA_METHOD(CastSkill)
 
 	// Useful methods
 	// MAKE_LUA_METHOD(CycleSpawn) // i.e. ChangePosition(), used to cycle a spawn through the various trap numbers (like 7 key quest NPCs)
@@ -234,6 +235,22 @@ LUA_FUNCTION(SelectMsg)
 	}
 
 	LUA_NO_RETURN(pUser->SelectMsg(bFlag, nQuestID, menuHeaderText, menuButtonText, menuButtonEvents));
+}
+
+LUA_FUNCTION(CastSkill)
+{
+	CUser * pUser = Lua_GetUser();
+	if (pUser == nullptr)
+		return LUA_NO_RESULTS;
+
+	CNpc * pNpc = g_pMain->GetNpcPtr(pUser->m_sEventNid);
+	if (pNpc == nullptr)
+		return LUA_NO_RESULTS;
+
+	LUA_NO_RETURN(pNpc->CastSkill(
+			reinterpret_cast<Unit *>(pUser),
+			LUA_ARG(uint32, 2)
+	));
 }
 
 #endif

@@ -55,6 +55,8 @@ public:
 	void SendHpChangeToAI(uint16 sTargetID, int amount, AttributeType attributeType = AttributeNone);
 	void MSpChange(int amount);
 
+	void CastSkill(Unit * pTarget, uint32 nSkillID);
+
 	void OnDeath(Unit *pKiller);
 
 	bool isDead() { return m_NpcState == NPC_DEAD || m_iHP <= 0; };
@@ -93,4 +95,11 @@ public:
 	DECLARE_LUA_GETTER(GetX);
 	DECLARE_LUA_GETTER(GetY);
 	DECLARE_LUA_GETTER(GetZ);
+
+	DECLARE_LUA_FUNCTION(CastSkill) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->CastSkill(
+				reinterpret_cast<Unit *>(LUA_ARG(CUser *, 2)),
+				LUA_ARG(uint32, 3)
+		));
+	}
 };

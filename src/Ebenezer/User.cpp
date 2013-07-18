@@ -4258,8 +4258,6 @@ void CUser::RecastSavedMagic()
 
 		instance.sCasterID = GetID();
 		instance.sTargetID = GetID();
-		instance.pSkillCaster = this;
-		instance.pSkillTarget = this;
 		instance.nSkillID = itr->first;
 		instance.bIsRecastingSavedMagic = true;
 

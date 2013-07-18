@@ -422,8 +422,6 @@ bool CUser::TriggerProcItem(uint8 bSlot, Unit * pTarget, ItemTriggerType trigger
 	instance.bIsItemProc = true;
 	instance.sCasterID = GetID();
 	instance.sTargetID = pTarget->GetID();
-	instance.pSkillCaster = this;
-	instance.pSkillTarget = pTarget;
 	instance.nSkillID = pData->nSkillID;
 
 	// For AOE skills such as "Splash", the AOE should be focus on the target.
