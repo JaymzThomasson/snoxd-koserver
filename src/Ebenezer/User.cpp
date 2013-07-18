@@ -517,7 +517,7 @@ void CUser::RemoveRival()
  */
 void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/, bool bIsKillReward /*= false*/)
 {
-	Packet result(WIZ_LOYALTY_CHANGE, uint8(1));
+	Packet result(WIZ_LOYALTY_CHANGE, uint8(LOYALTY_NATIONAL_POINTS));
 
 	// If we're taking NP, we need to prevent us from hitting values below 0.
 	if (nChangeAmount < 0)
@@ -1327,6 +1327,9 @@ void CUser::LevelChange(short level, bool bLevelUp /*= true*/)
 		result.Initialize(WIZ_PARTY);
 		result << uint8(PARTY_LEVELCHANGE) << GetSocketID() << GetLevel();
 		g_pMain->Send_PartyMember(GetPartyID(), &result);
+
+		if (m_bIsChicken)
+			GrantChickenManner();
 	}
 
 	// We should kick players out of the zone if their level no longer matches the requirements for this zone.
@@ -4514,5 +4517,56 @@ void CUser::InitializeStealth()
 {
 	Packet pkt(WIZ_STEALTH);
 	pkt << uint8(0) << uint16(0);
+	Send(&pkt);
+}
+
+void CUser::GrantChickenManner()
+{
+	uint8 bLevel = GetLevel(), bManner = 0;
+	// No manner points if you're not a chicken anymore nor when you're not in a party.
+	if (!m_bIsChicken || !isInParty())
+		return;
+
+	_PARTY_GROUP *pParty = nullptr;
+	pParty = g_pMain->GetPartyPtr(GetPartyID());
+
+	if(pParty == nullptr)
+		return;
+
+	for (int i = 0; i < MAX_PARTY_USERS; i++)
+	{
+		CUser *pTargetUser = nullptr;
+		if (pParty->uid[i] != GetSocketID())
+			pTargetUser = g_pMain->GetUserPtr(pParty->uid[i]);
+
+		if (pTargetUser == nullptr 
+			|| pTargetUser->isDead() 
+			|| pTargetUser->m_bIsChicken)
+			continue;
+
+		if (!isInRangeSlow(pTargetUser, 50.0f))
+			continue;
+
+		if (pTargetUser->GetLevel() > 20 && pTargetUser->GetLevel() < 40)
+			bManner = pTargetUser->GetLevel() / 10;
+		else
+			bManner = 1;
+
+		pTargetUser->SendMannerChange(bManner);
+	}
+}
+
+void CUser::SendMannerChange(int32 iMannerPoints)
+{
+	//Make sure we don't have too many or too little manner points!
+	if(m_iMannerPoint + iMannerPoints > LOYALTY_MAX)
+		m_iMannerPoint = LOYALTY_MAX;
+	else if (m_iMannerPoint + iMannerPoints < 0)
+		m_iMannerPoint = 0;
+	else
+		m_iMannerPoint += iMannerPoints;
+
+	Packet pkt(WIZ_LOYALTY_CHANGE, uint8(LOYALTY_MANNER_POINTS));
+	pkt << m_iMannerPoint;
 	Send(&pkt);
 }
