@@ -106,16 +106,14 @@ void CUser::ReqLoadWebItemMall()
 
 	SendItemWeight();
 
-	for (int i = 0; i < INVENTORY_TOTAL; i++)
+	for (int i = SLOT_MAX; i < SLOT_MAX+HAVE_MAX; i++)
 	{
-		_ITEM_DATA * pItem = &m_sItemArray[i];
+		_ITEM_DATA * pItem = GetItem(i);
 		result	<< pItem->nNum
 				<< pItem->sDuration
 				<< pItem->sCount
 				<< pItem->bFlag // item type flag (e.g. rented)
-				<< pItem->sRemainingRentalTime // remaining time
-				<< uint32(0) // unknown
-				<< pItem->nExpirationTime; // expiration date
+				<< pItem->sRemainingRentalTime; // remaining time
 	}
 
 	Send(&result);
