@@ -2271,7 +2271,11 @@ void MagicInstance::Type3Cancel()
 
 void MagicInstance::Type4Extend()
 {
-	if (pSkill == nullptr)
+	if (pSkill == nullptr
+		// Only players can extend buffs.
+		|| !pSkillCaster->isPlayer()
+		// Can't use on special items.
+		|| nSkillID >= 500000)
 		return;
 
 	_MAGIC_TYPE4 *pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
@@ -2283,13 +2287,35 @@ void MagicInstance::Type4Extend()
 	Type4BuffMap::iterator itr = pSkillTarget->m_buffMap.find(pType->bBuffType);
 
 	// Can't extend a buff that hasn't been started.
-	if (itr == pSkillTarget->m_buffMap.end()
+	if (itr == pSkillCaster->m_buffMap.end()
 		// Can't extend a buff that's already been extended.
-		|| itr->second.m_bDurationExtended
-		// Only players can extend buffs.
-		|| !pSkillCaster->isPlayer() 
-		// Require the "Duration Item" for buff duration extension.
-		|| !TO_USER(pSkillTarget)->RobItem(800022000, 1))
+		|| itr->second.m_bDurationExtended)
+		return;
+
+	// Require the "Duration Item" for buff duration extension.
+	// The things we must do to future-proof things...
+	bool bItemFound = false;
+	for (int i = SLOT_MAX; i < INVENTORY_TOTAL; i++)
+	{
+		_ITEM_DATA * pItem = nullptr;
+		_ITEM_TABLE * pTable = TO_USER(pSkillCaster)->GetItemPrototype(i, pItem);
+		if (pTable == nullptr
+			|| pTable->m_bKind != 255
+			|| pTable->m_iEffect1 == 0)
+			continue;
+
+		_MAGIC_TABLE * pEffect = g_pMain->m_MagictableArray.GetData(pTable->m_iEffect1);
+		if (pEffect == nullptr
+			|| pEffect->bMoral != MORAL_EXTEND_DURATION
+			|| !TO_USER(pSkillCaster)->RobItem(i, pTable))
+			continue;
+
+		bItemFound = true;
+		break;
+	}
+
+	// No "Duration Item" was found.
+	if (!bItemFound)
 		return;
 
 	// Extend the duration of a buff.

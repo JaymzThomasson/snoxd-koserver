@@ -537,6 +537,7 @@ public:
 	bool CheckClass(short class1, short class2 = -1, short class3 = -1, short class4 = -1, short class5 = -1, short class6 = -1);
 	bool GiveItem(uint32 nItemID, uint16 sCount = 1, bool send_packet = true);
 	bool RobItem(uint32 nItemID, uint16 sCount = 1);
+	bool RobItem(uint8 bPos, _ITEM_TABLE * pTable, uint16 sCount = 1);
 	bool RobAllItemParty(uint32 nItemID, uint16 sCount = 1);
 	bool CheckExistItem(int itemid, short count = 1);
 	bool CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,

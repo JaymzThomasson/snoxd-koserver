@@ -285,43 +285,52 @@ bool CUser::CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int
 	return true;
 }
 
-bool CUser::RobItem(uint32 itemid, uint16 count /*= 1*/)
+bool CUser::RobItem(uint32 nItemID, uint16 sCount /*= 1*/)
 {
 	// Allow unused exchanges.
-	if (count == 0)
+	if (sCount == 0)
 		return true;
 
-	_ITEM_TABLE* pTable = g_pMain->GetItemPtr( itemid );
+	_ITEM_TABLE * pTable = g_pMain->GetItemPtr(nItemID);
 	if (pTable == nullptr)
 		return false;
 
 	// Search for the existance of all items in the player's inventory storage and onwards (includes magic bags)
 	for (int i = SLOT_MAX; i < INVENTORY_TOTAL; i++)
 	{
-		_ITEM_DATA *pItem = &m_sItemArray[i];
-		if (pItem->nNum != itemid
-			|| m_sItemArray[i].sCount < count)
-			continue;
-
-		// Consumable "scrolls" (with some exceptions) use the duration/durability as a usage count
-		// instead of the stack size. Interestingly, the client shows this instead of the stack size in this case.
-		bool bIsConsumableScroll = (pTable->m_bKind == 255); /* include 97? not sure how accurate this check is... */
-		if (bIsConsumableScroll)
-			pItem->sDuration -= count;
-		else
-			pItem->sCount -= count;
-
-		// Delete the item if the stack's now 0
-		// or if the item is a consumable scroll and its "duration"/use count is now 0.
-		if (pItem->sCount == 0 
-			|| (bIsConsumableScroll && pItem->sDuration == 0))
-			memset(pItem, 0, sizeof(_ITEM_DATA));
-
-		SendStackChange(itemid, pItem->sCount, pItem->sDuration, i - SLOT_MAX);
-		return true;
+		if (RobItem(i, pTable, sCount))
+			return true;
 	}
 	
 	return false;
+}
+
+bool CUser::RobItem(uint8 bPos, _ITEM_TABLE * pTable, uint16 sCount /*= 1*/)
+{
+	if (pTable == nullptr)
+		return false;
+
+	_ITEM_DATA *pItem = GetItem(bPos);
+	if (pItem->nNum != pTable->m_iNum
+		|| pItem->sCount < sCount)
+		return false;
+
+	// Consumable "scrolls" (with some exceptions) use the duration/durability as a usage count
+	// instead of the stack size. Interestingly, the client shows this instead of the stack size in this case.
+	bool bIsConsumableScroll = (pTable->m_bKind == 255); /* include 97? not sure how accurate this check is... */
+	if (bIsConsumableScroll)
+		pItem->sDuration -= sCount;
+	else
+		pItem->sCount -= sCount;
+
+	// Delete the item if the stack's now 0
+	// or if the item is a consumable scroll and its "duration"/use count is now 0.
+	if (pItem->sCount == 0 
+		|| (bIsConsumableScroll && pItem->sDuration == 0))
+		memset(pItem, 0, sizeof(_ITEM_DATA));
+
+	SendStackChange(pTable->m_iNum, pItem->sCount, pItem->sDuration, bPos - SLOT_MAX);
+	return true;
 }
 
 /**
