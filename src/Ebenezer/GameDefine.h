@@ -206,11 +206,12 @@ enum SkillPointCategory
 // USER ABNORMAL STATUS TYPES
 enum AbnormalType
 {
-	ABNORMAL_INVISIBLE	= 0, // GM only
-	ABNORMAL_NORMAL		= 1,
-	ABNORMAL_GIANT		= 2,
-	ABNORMAL_DWARF		= 3,
-	ABNORMAL_BLINKING	= 4
+	ABNORMAL_INVISIBLE		= 0,	// Hides character completely (for GM visibility only).
+	ABNORMAL_NORMAL			= 1,	// Shows character. This is the default for players.
+	ABNORMAL_GIANT			= 2,	// Enlarges character.
+	ABNORMAL_DWARF			= 3,	// Shrinks character.
+	ABNORMAL_BLINKING		= 4,	// Forces character to start blinking.
+	ABNORMAL_GIANT_TARGET	= 6		// Enlarges character and shows "Hit!" effect.
 };
 
 //////////////////////////////////////////////////////////////

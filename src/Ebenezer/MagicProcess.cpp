@@ -270,8 +270,11 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 			switch (pSkill->iNum)
 			{
 			case 490034: // Bezoar
-			case 490401: // Maximize Scroll
 				bEffect = ABNORMAL_GIANT;
+				break;
+
+			case 490401: // Maximize Scroll
+				bEffect = ABNORMAL_GIANT_TARGET; // NOTE: not sure why, but this is what it uses officially.
 				break;
 
 			case 490035: // Rice cake
@@ -484,7 +487,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		// Just working with the TBL data for now (i.e. just the 15% AC reduction).
 		if (pTarget->isPlayer())
 		{
-			pTarget->StateChangeServerDirect(3, ABNORMAL_GIANT);
+			pTarget->StateChangeServerDirect(3, ABNORMAL_GIANT_TARGET);
 			pTarget->m_sACPercent += (pType->sACPct - 100);
 		}
 		break;
