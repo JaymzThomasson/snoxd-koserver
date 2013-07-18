@@ -4045,7 +4045,10 @@ bool Unit::isInAttackRange(Unit * pTarget, _MAGIC_TABLE * pSkill /*= nullptr*/)
 		|| !isPlayer())
 		return true;
 
-	float fRange = 15.0f, fWeaponRange = 0.0f;
+	const float fBaseMeleeRange		= 10.0f; // far too generous
+	const float fBaseRangedRange	= 50.0f;
+
+	float fRange = fBaseMeleeRange, fWeaponRange = 0.0f;
 
 	_ITEM_DATA * pItem = nullptr;
 	_ITEM_TABLE * pTable = TO_USER(this)->GetItemPrototype(RIGHTHAND, pItem);
@@ -4075,11 +4078,11 @@ bool Unit::isInAttackRange(Unit * pTarget, _MAGIC_TABLE * pSkill /*= nullptr*/)
 			fRange = fWeaponRange;
 
 		// For physical melee & magic skills, try to use the skill's range if it's set.
-		// Need to allow 5m for lag, and poorly thought out skill ranges.
+		// Need to allow more for lag, and poorly thought out skill ranges.
 		// If not, resort to using the weapon range -- or predefined 15m range in the case of type 3 skills.
 		if (pSkill->bType[0] != 2)
 		{
-			return isInRangeSlow(pTarget, pSkill->sRange == 0 ? fRange : pSkill->sRange + 5.0f);
+			return isInRangeSlow(pTarget, fBaseMeleeRange + (pSkill->sRange == 0 ? fRange : pSkill->sRange));
 		}
 		// Ranged skills (type 2) don't typically have the main skill range set to anything useful, so
 		// we need to allow for the: bow's range, flying skill-specific range, and an extra 50m for the
@@ -4087,13 +4090,13 @@ bool Unit::isInAttackRange(Unit * pTarget, _MAGIC_TABLE * pSkill /*= nullptr*/)
 		else
 		{
 			_MAGIC_TYPE2 * pType2 = g_pMain->m_Magictype2Array.GetData(pSkill->iNum);
-			return pType2 != nullptr && isInRangeSlow(pTarget, fRange + pType2->sAddRange + 50.0f);
+			return pType2 != nullptr && isInRangeSlow(pTarget, fRange + pType2->sAddRange + fBaseRangedRange);
 		}
 	}
 
 	// Regular attack range.
 	if (fWeaponRange != 0.0f)
-		fRange = fWeaponRange + 5.0f;
+		fRange = fBaseMeleeRange + fWeaponRange;
 
 	return isInRangeSlow(pTarget, fRange);
 }
