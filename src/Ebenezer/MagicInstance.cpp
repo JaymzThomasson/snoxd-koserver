@@ -144,6 +144,9 @@ bool MagicInstance::UserCanCast()
 	if (bOpcode == MAGIC_CANCEL || bOpcode == MAGIC_CANCEL2) 
 		return true;
 
+	if (bOpcode == MAGIC_FAIL)
+		return true;
+
 	if (bIsRecastingSavedMagic)
 		return true;
 
@@ -216,6 +219,11 @@ bool MagicInstance::UserCanCast()
 		&& !TO_USER(pSkillCaster)->CheckExistEvent(pSkill->sEtc, 2))
 		return false;
 #endif
+
+	if (pSkill->bType[0] < 4
+		&& pSkillTarget != nullptr
+		&& !pSkillCaster->isInAttackRange(pSkillTarget, pSkill))
+		return false;
 
 	if ((bOpcode == MAGIC_EFFECTING || bOpcode == MAGIC_CASTING) 
 		&& !IsAvailable())

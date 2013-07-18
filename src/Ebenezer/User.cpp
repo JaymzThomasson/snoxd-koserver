@@ -1036,7 +1036,7 @@ void CUser::SetSlotItemValue()
 			item_ac = pTable->m_sAc;
 		}
 
-		if (i == RIGHTHAND) 	// ItemHit Only Hands
+		if (i == RIGHTHAND)
 			m_sItemHit += item_hit;
 		// Only include AP in the left hand slot when:
 		//	- the user has at least received their first job change (i.e. they're not a beginner)
@@ -4018,6 +4018,68 @@ bool CUser::CanAttack(Unit * pTarget)
 
 	// Players cannot attack other players in any other circumstance.
 	return false;
+}
+
+bool Unit::isInAttackRange(Unit * pTarget, _MAGIC_TABLE * pSkill /*= nullptr*/)
+{
+	if (pTarget == nullptr)
+		return false;
+
+	if (pTarget == this
+		|| !isPlayer())
+		return true;
+
+	float fRange = 15.0f, fWeaponRange = 0.0f;
+
+	_ITEM_DATA * pItem = nullptr;
+	_ITEM_TABLE * pTable = TO_USER(this)->GetItemPrototype(RIGHTHAND, pItem);
+
+	if (pTable != nullptr
+		&& pItem->sDuration > 0)
+	{
+		fWeaponRange = pTable->m_sRange / 10.0f;
+	}
+	else
+	{
+		pTable = TO_USER(this)->GetItemPrototype(LEFTHAND, pItem);
+		if (pTable != nullptr
+			&& pItem->sDuration != 0)
+			fWeaponRange = pTable->m_sRange / 10.0f;
+	}
+
+	if (pSkill != nullptr)
+	{
+		// Not an attack skill, don't need to enforce these restrictions.
+		if (pSkill->bMoral != MORAL_ENEMY && pSkill->bMoral > MORAL_PARTY)
+			return true;
+
+		// For physical attack skills (type 1 - melee, type 2 - ranged), we'll need take into account 
+		// the weapon's range.
+		if (pSkill->bType[0] != 3)
+			fRange = fWeaponRange;
+
+		// For physical melee & magic skills, try to use the skill's range if it's set.
+		// Need to allow 5m for lag, and poorly thought out skill ranges.
+		// If not, resort to using the weapon range -- or predefined 15m range in the case of type 3 skills.
+		if (pSkill->bType[0] != 2)
+		{
+			return isInRangeSlow(pTarget, pSkill->sRange == 0 ? fRange : pSkill->sRange + 5.0f);
+		}
+		// Ranged skills (type 2) don't typically have the main skill range set to anything useful, so
+		// we need to allow for the: bow's range, flying skill-specific range, and an extra 50m for the
+		// also extremely poorly thought out ranges.
+		else
+		{
+			_MAGIC_TYPE2 * pType2 = g_pMain->m_Magictype2Array.GetData(pSkill->iNum);
+			return pType2 != nullptr && isInRangeSlow(pTarget, fRange + pType2->sAddRange + 50.0f);
+		}
+	}
+
+	// Regular attack range.
+	if (fWeaponRange != 0.0f)
+		fRange = fWeaponRange + 5.0f;
+
+	return isInRangeSlow(pTarget, fRange);
 }
 
 /**

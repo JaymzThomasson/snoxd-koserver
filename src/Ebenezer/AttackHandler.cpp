@@ -6,8 +6,7 @@ void CUser::Attack(Packet & pkt)
 	Packet result;
 	int16 sid = -1, tid = -1, damage, delaytime, distance;	
 	uint8 bType, bResult = 0;	
-	
-	CUser* pTUser = nullptr;
+	Unit * pTarget = nullptr;
 
 	pkt >> bType >> bResult >> tid >> delaytime >> distance;
 
@@ -35,46 +34,45 @@ void CUser::Attack(Packet & pkt)
 	else if (delaytime < 100)
 		return;			
 
-	// We're attacking a player...
-	if (tid < MAX_USER)
+	pTarget = g_pMain->GetUnitPtr(tid);
+	if (pTarget != nullptr && isInAttackRange(pTarget))
 	{
-		pTUser = g_pMain->GetUserPtr(tid);
- 
-		if (pTUser != nullptr
-			&& CanAttack(pTUser)) 
+		// We're attacking a player...
+		if (pTarget->isPlayer())
 		{
-			damage = GetDamage(pTUser, nullptr);
-			if (GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE)
-				damage = 0;		
-
-			if (damage > 0)
+			if (CanAttack(pTarget)) 
 			{
-				// TO-DO: Move all this redundant code into appropriate event-based methods so that all the other cases don't have to copypasta (and forget stuff).
-				pTUser->HpChange(-damage, this);
-				if (pTUser->isDead())
-					bResult = 2;
+				damage = GetDamage(pTarget, nullptr);
+				if (GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE)
+					damage = 0;		
 
-				ItemWoreOut(ATTACK, damage);
-				pTUser->ItemWoreOut(DEFENCE, damage);
+				if (damage > 0)
+				{
+					// TO-DO: Move all this redundant code into appropriate event-based methods so that all the other cases don't have to copypasta (and forget stuff).
+					pTarget->HpChange(-damage, this);
+					if (pTarget->isDead())
+						bResult = 2;
+
+					ItemWoreOut(ATTACK, damage);
+					TO_USER(pTarget)->ItemWoreOut(DEFENCE, damage);
+				}
 			}
 		}
-	}
-	// We're attacking an NPC...
-	else if (tid >= NPC_BAND)
-	{
-		// AI hasn't loaded yet
-		if (g_pMain->m_bPointCheckFlag == false)	
-			return;	
-
-		CNpc *pNpc = g_pMain->GetNpcPtr(tid);		
-		if (pNpc != nullptr 
-			&& CanAttack(pNpc))
+		// We're attacking an NPC...
+		else
 		{
-			result.SetOpcode(AG_ATTACK_REQ);
-			result	<< bType << bResult
-					<< GetSocketID() << tid;
-			Send_AIServer(&result);	
-			return;
+			// AI hasn't loaded yet
+			if (g_pMain->m_bPointCheckFlag == false)	
+				return;	
+
+			if (CanAttack(pTarget))
+			{
+				result.SetOpcode(AG_ATTACK_REQ);
+				result	<< bType << bResult
+						<< GetSocketID() << tid;
+				Send_AIServer(&result);	
+				return;
+			}
 		}
 	}
 
@@ -82,12 +80,13 @@ void CUser::Attack(Packet & pkt)
 	result << bType << bResult << GetSocketID() << tid;
 	SendToRegion(&result);
 
-	if (tid < NPC_BAND
-		&& bResult == 2 // 2 means a player died.
-		&& pTUser) 
+	if (pTarget != nullptr 
+		&& pTarget->isPlayer()
+		&& bResult == 2) // 2 means a player died. 
 	{
-		pTUser->Send(&result);
-		TRACE("*** User Attack Dead, id=%s, result=%d, type=%d, HP=%d\n", pTUser->GetName().c_str(), bResult, pTUser->m_bResHpType, pTUser->m_sHp);
+		TO_USER(pTarget)->Send(&result);
+		TRACE("*** User Attack Dead, id=%s, result=%d, type=%d, HP=%d\n", 
+			TO_USER(pTarget)->GetName().c_str(), bResult, TO_USER(pTarget)->m_bResHpType, TO_USER(pTarget)->m_sHp);	
 	}
 }
 
