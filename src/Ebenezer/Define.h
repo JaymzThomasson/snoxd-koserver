@@ -165,6 +165,12 @@ enum UserStatusBehaviour
 	USER_STATUS_INFLICT	= 1
 };
 
+enum LoyaltyType
+{
+	LOYALTY_NATIONAL_POINTS = 1,
+	LOYALTY_MANNER_POINTS	= 2
+};
+
 enum AttributeType
 {
 	AttributeNone		= 0,
