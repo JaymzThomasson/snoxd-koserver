@@ -20,13 +20,7 @@ local NPC=18004; --NPC 번호
 -- [대상인] 카이샨 클릭시 퀘스트 체크  
 
 if EVENT == 100 then
-	--ShowEffect(UID, 31033);
-	SetByte(UID,51); 
-	SetByte(UID,11);
-	SetByte(UID,3);
-	SetShort(UID,NPC);
-	SetDWORD(UID,31033);
-	Send(UID);
+	ShowNpcEffect(UID, 31033);
 	
 	QuestNum = SearchQuest(UID, NPC);
 		if QuestNum == 0 then --해당 NPC에게 할수 있는 퀘스트가 0개 일때 

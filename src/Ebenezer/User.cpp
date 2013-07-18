@@ -1534,6 +1534,19 @@ void CUser::ShowEffect(uint32 nSkillID)
 }
 
 /**
+ * @brief	Shows an effect on the NPC currently 
+ * 			being interacted with.
+ *
+ * @param	nEffectID	Identifier for the effect.
+ */
+void CUser::ShowNpcEffect(uint32 nEffectID)
+{
+	Packet result(WIZ_OBJECT_EVENT, uint8(OBJECT_NPC));
+	result << uint8(3) << m_sEventNid << nEffectID;
+	Send(&result);
+}
+
+/**
  * @brief	Sends a player's base information to the AI server.
  *
  * @param	initialInfo	true when initially sending a player's information

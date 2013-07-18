@@ -580,6 +580,7 @@ public:
 	virtual void MSpChange(int amount);
 	void SendPartyHPUpdate();
 	void ShowEffect(uint32 nSkillID);
+	void ShowNpcEffect(uint32 nEffectID);
 	void SendAnvilRequest(uint16 sNpcID, uint8 bType = ITEM_UPGRADE_REQ);
 	void RecastSavedMagic();
 
@@ -1125,6 +1126,10 @@ public:
 
 	DECLARE_LUA_FUNCTION(ShowEffect) {
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->ShowEffect(LUA_ARG(uint32, 2))); // effect ID
+	}
+
+	DECLARE_LUA_FUNCTION(ShowNpcEffect) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->ShowNpcEffect(LUA_ARG(uint32, 2))); // effect ID
 	}
 
 	DECLARE_LUA_FUNCTION(ZoneChange) {

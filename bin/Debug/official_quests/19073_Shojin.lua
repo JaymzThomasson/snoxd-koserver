@@ -18,61 +18,7 @@ local NPC =19073;
 
 -- 도다 캠프 게이트 클릭시 퀘스트 체크  
 if EVENT == 5744 then
-SetByte(UID,91); 
-	SetByte(UID,9);
-	SetByte(UID,1);
-	SetByte(UID,1);
-	
-	SetShort(UID,4);
-	SetString(UID,"AVCI");
-	SetByte(UID,1);
-	SetShort(UID,106);--cLASS
-	SetByte(UID,80);--level
-	SetByte(UID,2);--level
-	SetDWORD(UID,0);
-	SetByte(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	
-		SetShort(UID,5);
-	SetString(UID,"Nazif");
-	SetByte(UID,1);
-	SetShort(UID,106);--cLASS
-	SetByte(UID,80);--level
-	SetByte(UID,2);--level
-	SetDWORD(UID,0);
-	SetByte(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	SetDWORD(UID,0);
-	SetShort(UID,1);
-	Send(UID);
+	-- unknown
 end
 
 if EVENT == 100 then
