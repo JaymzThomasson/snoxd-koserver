@@ -1324,6 +1324,7 @@ bool MagicInstance::ExecuteType4()
 		Unit * pTarget = *itr;
 		_BUFF_TYPE4_INFO pBuffInfo;
 		bool bAllowCastOnSelf = false;
+		uint16 sDuration = pType->sDuration;
 
 		// A handful of skills (Krowaz, currently) should use the caster as the target.
 		// As such, we should correct this before any other buff/debuff logic is handled.
@@ -1406,8 +1407,6 @@ bool MagicInstance::ExecuteType4()
 			// not be reset on fail.
 			continue;
 		}
-
-		uint16 sDuration = pType->sDuration;
 
 		// Only players can store persistent skills.
 		if (nSkillID > 500000 && pTarget->isPlayer())
