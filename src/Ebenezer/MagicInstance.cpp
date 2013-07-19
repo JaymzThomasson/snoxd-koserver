@@ -1187,6 +1187,7 @@ bool MagicInstance::ExecuteType3()
 					pEffect->m_bTickCount = 0;
 					pEffect->m_bTickLimit = (uint8) tickCount;
 					pEffect->m_sSourceID = sCasterID;
+					pEffect->m_byAttribute = pType->bAttribute;
 					break;
 				}
 

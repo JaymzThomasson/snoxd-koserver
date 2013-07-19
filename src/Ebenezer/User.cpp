@@ -2739,6 +2739,11 @@ void CUser::HPTimeChangeType3()
 					result << uint8(200);
 
 				Send(&result);
+
+				// If the skill inflicts poison damage, remember to remove the poison indicator!
+				if (pEffect->m_byAttribute == POISON_R)
+					SendUserStatusUpdate(USER_STATUS_POISON, USER_STATUS_CURE);
+
 				pEffect->Reset();
 			}
 		}

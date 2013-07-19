@@ -250,6 +250,7 @@ public:
 		uint8	m_bTickCount;	// 
 		uint8	m_bTickLimit;	// number of ticks required before the skill expires
 		uint16	m_sSourceID;	// ID of the unit that used this skill on the unit
+		uint8	m_byAttribute;	// skill attribute
 
 		MagicType3() { Reset(); }
 
@@ -262,6 +263,7 @@ public:
 			m_bTickCount = 0;
 			m_bTickLimit = 0;
 			m_sSourceID = -1;
+			m_byAttribute = AttributeNone;
 		}
 	};
 
