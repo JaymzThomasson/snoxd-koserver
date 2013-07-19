@@ -40,7 +40,7 @@ CLuaScript::CLuaScript() : m_luaState(nullptr), m_lock(new FastMutex())
  */
 bool CLuaEngine::Initialise()
 {
-	printf("Starting up Lua engine in %s mode...\n", LUA_ENGINE_MODE);
+	printf("Starting up Lua engine in %s mode (built with %s)...\n", LUA_ENGINE_MODE, LUA_RELEASE);
 	// TO-DO: Initialise a pool of scripts (enough for 1 per worker thread).
 	return m_luaScript.Initialise();
 }
