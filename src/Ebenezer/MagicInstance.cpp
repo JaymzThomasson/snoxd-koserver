@@ -1080,8 +1080,12 @@ bool MagicInstance::ExecuteType3()
 	foreach (itr, casted_member)
 	{
 		Unit * pTarget = *itr; // it's checked above, not much need to check it again
-		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1 || pType->bDirectType == 8) && (nSkillID < 400000))	// If you are casting an attack spell.
-			damage = GetMagicDamage(pTarget, pType->sFirstDamage, pType->bAttribute);	// Get Magical damage point.
+
+		// If you are casting an attack spell.
+		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1 || pType->bDirectType == 8) 
+			&& (nSkillID < 400000) 
+			&& (pType->bDirectType != 11 && pType->bDirectType != 13))
+			damage = GetMagicDamage(pTarget, pType->sFirstDamage, pType->bAttribute);
 		else 
 			damage = pType->sFirstDamage;
 
@@ -1098,34 +1102,57 @@ bool MagicInstance::ExecuteType3()
 		// Non-durational spells.
 		if (pType->bDuration == 0) 
 		{
+			switch (pType->bDirectType)
+			{
 			// Affects target's HP
-			if (pType->bDirectType == 1)
-			{	
+			case 1:
 				pTarget->HpChangeMagic(damage, pSkillCaster, (AttributeType) pType->bAttribute);
 				
 				if (pTarget->m_bReflectArmorType != 0 && pTarget != pSkillCaster)
 					ReflectDamage(damage, pTarget);
-			}
+				break;
+
 			// Affects target's MP
-			else if (pType->bDirectType == 2 || pType->bDirectType == 3)
-			{
+			case 2:
+			case 3:
 				pTarget->MSpChange(damage);			
-			}
+				break;
+
 			// "Magic Hammer" repairs equipped items.
-			else if (pType->bDirectType == 4)
-			{
+			case 4:
 				if (pTarget->isPlayer())
+				{
+					TO_USER(pTarget)->ItemWoreOut(ATTACK, -damage);
 					TO_USER(pTarget)->ItemWoreOut(DEFENCE, -damage);
-			}
-			// Need to absorb HP from the target user to the source user
-			// NOTE: Must only affect players.
-			else if (pType->bDirectType == 8)
-			{
-				continue;
-			}
+				}
+				break;
+
+			// Increases/decreases target's HP by a percentage
+			case 5:
+				if (pType->sFirstDamage < 100)
+					damage = (pType->sFirstDamage * pTarget->GetHealth()) / -100;
+				else
+					damage = (pTarget->GetMaxHealth() * (pType->sFirstDamage - 100)) / 100;
+
+				pTarget->HpChangeMagic(damage, pSkillCaster);
+				break;
+			
+			// Caster absorbs damage based on percentage of target's HP. Players only.
+			case 8:
+				if (pTarget->isPlayer())
+				{
+					if (pType->sFirstDamage < 100)
+						damage = (pType->sFirstDamage * pTarget->GetHealth()) / -100;
+					else
+						damage = (pTarget->GetMaxHealth() * (pType->sFirstDamage - 100)) / 100;
+
+					pTarget->HpChangeMagic(damage, pSkillCaster);
+					pSkillCaster->HpChangeMagic(-(damage));
+				}
+				break;
+
 			// Caster absorbs damage based on percentage of target's max HP
-			else if (pType->bDirectType == 9)
-			{
+			case 9:
 				if (pType->sFirstDamage < 100)
 					damage = (pType->sFirstDamage * pTarget->GetHealth()) / -100;
 				else
@@ -1133,19 +1160,36 @@ bool MagicInstance::ExecuteType3()
 
 				pTarget->HpChangeMagic(damage, pSkillCaster);
 				pSkillCaster->HpChangeMagic(-(damage));
-			}
-			// Drains target's MP, gives half of it to the caster as HP
+				break;
+
+			// Inflicts true damage (i.e. disregards Ac/resistances/buffs, etc).
+			case 11:
+				pTarget->HpChange(damage, pSkillCaster);
+				break;
+
+			// Used by "Destination scroll" (whatever that is)
+			case 12:
+				continue;
+
+			// Chance (how often?) to reduce the opponent's armor and weapon durability by sFirstDamage
+			case 13:
+				if (pTarget->isPlayer() && CheckPercent(500)) // using 50% for now.
+				{
+					TO_USER(pTarget)->ItemWoreOut(ATTACK, damage);
+					TO_USER(pTarget)->ItemWoreOut(DEFENCE, damage);
+				}
+				break;
+
+			// Drains target's MP, gives half of it to the caster as HP. Players only.
 			// NOTE: Non-durational form (as in 1.8xx). This was made durational later (database configured).
-			else if (pType->bDirectType == 16)
-			{
-				// Only apply this to players
+			case 16:
 				if (pTarget->isPlayer())
 				{
 					pTarget->MSpChange(pType->sFirstDamage);
 					pSkillCaster->HpChangeMagic(-(pType->sFirstDamage) / 2);
 				}
+				break;
 			}
-
 		}
 		// Durational spells! Durational spells only involve HP.
 		else if (pType->bDuration != 0) 
