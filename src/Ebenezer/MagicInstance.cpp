@@ -140,10 +140,7 @@ SkillUseResult MagicInstance::UserCanCast()
 		|| bIsRecastingSavedMagic)
 		return SkillUseOK;
 
-	if (!pSkillCaster->canUseSkills())
-		return SkillUseFail;
-
-	// Users who are blinking cannot use skills.
+	// Ensure the caster can use skills (i.e. they're not incapacitated, or have skills blocked, etc).
 	// Additionally, unless it's resurrection-related, dead players cannot use skills.
 	if (!pSkillCaster->canUseSkills()
 		|| (pSkillCaster->isDead() && pSkill->bType[0] != 5)) 
