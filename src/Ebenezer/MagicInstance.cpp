@@ -205,6 +205,11 @@ SkillUseResult MagicInstance::UserCanCast()
 				return SkillUseHandled;
 			}
 		}
+
+		// Finally, ensure the caster is able to attack the target.
+		// This is actually a little redundant with IsAvailable(), but we'll leave it in for now.
+		if (!pSkillCaster->CanAttack(pSkillTarget))
+			return SkillUseFail;
 	}
 
 	// Archer & transformation skills will handle item checking themselves
