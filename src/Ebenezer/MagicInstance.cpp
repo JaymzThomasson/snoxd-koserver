@@ -1179,21 +1179,13 @@ bool MagicInstance::ExecuteType3()
 					pEffect->m_bHPInterval = 2;					// interval of 2s between each damage loss/HP gain 
 
 					// number of ticks required at a rate of 2s per tick over the total duration of the skill
-
-					// NOTE: This (and the calculated HP amount) are being ceil()'d temporarily to bring us 
-					// closer to hitting the full amount, which is currently not possible as the client 
-					// usually cancels the "expired" skills 1-2 ticks short.
-					// The excess here is negligible, and more than likely official exhibits the same behaviour,
-					// however we'll revise when we handle these ticks to speed things up, which should hopefully 
-					// make this a lot less of an issue.
-	
-					float tickCount = ceil((float)pType->bDuration / (float)pEffect->m_bHPInterval);
+					float tickCount = (float) pType->bDuration / (float) pEffect->m_bHPInterval;
 
 					// amount of HP to be given/taken every tick at a rate of 2s per tick
-					pEffect->m_sHPAmount = (int16)(ceil(duration_damage / tickCount));
-																					
+					pEffect->m_sHPAmount = (int16)(duration_damage / tickCount);
+
 					pEffect->m_bTickCount = 0;
-					pEffect->m_bTickLimit = (uint8)(tickCount);
+					pEffect->m_bTickLimit = (uint8) tickCount;
 					pEffect->m_sSourceID = sCasterID;
 					break;
 				}
