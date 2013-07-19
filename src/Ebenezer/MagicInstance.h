@@ -58,6 +58,13 @@ enum SkillMoral
 #define	RESURRECTION_SELF		4
 #define REMOVE_BLESS			5
 
+enum SkillUseResult
+{
+	SkillUseOK,
+	SkillUseFail,
+	SkillUseHandled
+};
+
 class Unit;
 struct _MAGIC_TABLE;
 class MagicInstance
@@ -83,7 +90,7 @@ public:
 	void Run();
 
 	bool IsAvailable();
-	bool UserCanCast();
+	SkillUseResult UserCanCast();
 
 	bool CheckType3Prerequisites();
 	bool CheckType4Prerequisites();

@@ -9,6 +9,7 @@ using std::vector;
 
 void MagicInstance::Run()
 {
+	SkillUseResult result;
 	if (pSkill == nullptr)
 		pSkill = g_pMain->m_MagictableArray.GetData(nSkillID);
 
@@ -20,11 +21,16 @@ void MagicInstance::Run()
 
 	if (pSkill == nullptr
 		|| pSkillCaster == nullptr
-		|| !UserCanCast())
+		|| (result = UserCanCast()) == SkillUseFail)
 	{
 		SendSkillFailed();
 		return;
 	}
+
+	// If the skill's already been handled (e.g. death taunts), 
+	// we don't need to do anything further.
+	if (result == SkillUseHandled)
+		return;
 	
 	bool bInitialResult;
 	switch (bOpcode)
@@ -121,29 +127,27 @@ void MagicInstance::Run()
 	}
 }
 
-bool MagicInstance::UserCanCast()
+SkillUseResult MagicInstance::UserCanCast()
 {
 	if (pSkill == nullptr)
-		return false;
+		return SkillUseFail;
 	
 	// We don't need to check anything as we're just canceling our buffs.
-	if (bOpcode == MAGIC_CANCEL || bOpcode == MAGIC_CANCEL2) 
-		return true;
-
-	if (bOpcode == MAGIC_FAIL)
-		return true;
-
-	if (bIsRecastingSavedMagic)
-		return true;
+	if (bOpcode == MAGIC_CANCEL || bOpcode == MAGIC_CANCEL2
+		// Also don't need to check anything if we're forwarding a fail packet.
+		|| bOpcode == MAGIC_FAIL
+		// Or are reapplying persistent buffs.
+		|| bIsRecastingSavedMagic)
+		return SkillUseOK;
 
 	if (!pSkillCaster->canUseSkills())
-		return false;
+		return SkillUseFail;
 
 	// Users who are blinking cannot use skills.
 	// Additionally, unless it's resurrection-related, dead players cannot use skills.
-	if (pSkillCaster->isBlinking()
+	if (!pSkillCaster->canUseSkills()
 		|| (pSkillCaster->isDead() && pSkill->bType[0] != 5)) 
-		return false;
+		return SkillUseFail;
 
 	// If we're using an AOE, and the target is specified... something's not right.
 	if ((pSkill->bMoral >= MORAL_AREA_ENEMY
@@ -153,7 +157,7 @@ bool MagicInstance::UserCanCast()
 		// Items that proc skills require the target ID to be fixed up.
 		// There's no other means of detecting who to target.
 		if (!bIsItemProc)
-			return false;
+			return SkillUseFail;
 
 		sTargetID = -1;
 	}
@@ -161,40 +165,63 @@ bool MagicInstance::UserCanCast()
 	// NPCs do not need further checks.
 	// NOTE: The source check's implemented in the main packet wrapper.
 	if (pSkillCaster->isNPC())
-		return true;
+		return SkillUseOK;
 
 	if (pSkill->sSkill != 0
 		&& (TO_USER(pSkillCaster)->m_sClass != (pSkill->sSkill / 10)
 			|| pSkillCaster->GetLevel() < pSkill->sSkillLevel))
-		return false;
+		return SkillUseFail;
 
 	if ((pSkillCaster->GetMana() - pSkill->sMsp) < 0)
-		return false;
+		return SkillUseFail;
 
 	// If we're in a snow war, we're only ever allowed to use the snowball skill.
 	if (pSkillCaster->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
 		&& nSkillID != SNOW_EVENT_SKILL)
-		return false;
+		return SkillUseFail;
 
 	// If a target is specified, and we're using an attack skill, determine if the caster can attack the target.
 	// NOTE: This disregards whether we're trying/able to attack ourselves (which may be skill induced?).
 	if (pSkillTarget != nullptr
-		&& (pSkill->bMoral == MORAL_ENEMY || pSkill->bMoral == MORAL_NPC || pSkill->bMoral == MORAL_ALL)
-		&& !pSkillCaster->CanAttack(pSkillTarget))
-		return false;
+		&& (pSkill->bMoral == MORAL_ENEMY || pSkill->bMoral == MORAL_NPC || pSkill->bMoral == MORAL_ALL))
+	{
+		// Handle death taunts (i.e. pressing the spacebar on a corpse).
+		// NOTE: These skills don't really have any other generic means of identification.
+		if (pSkill->bType[0] == 3 
+			&& pSkill->bType[1] == 0
+			// Target player must be a corpse.
+			&& pSkillTarget->isDead())
+		{
+			_MAGIC_TYPE3 * pType3 = g_pMain->m_Magictype3Array.GetData(pSkill->iNum);
+			if (pType3 == nullptr)
+				return SkillUseFail;
+
+			// Skill mustn't do any damage or such.
+			if (pType3->bDirectType == 0
+				&& pType3->sFirstDamage == 0
+				&& pType3->sTimeDamage == 0)
+			{
+				// We also need to tweak the packet being sent.
+				bOpcode = MAGIC_EFFECTING;
+				sData[1] = 1;
+				SendSkill();
+				return SkillUseHandled;
+			}
+		}
+	}
 
 	// Archer & transformation skills will handle item checking themselves
 	if ((pSkill->bType[0] != 2 && pSkill->bType[0] != 6) 
 		// The user does not meet the item's requirements or does not have any of said item.
 		&& (pSkill->iUseItem != 0
 			&& !TO_USER(pSkillCaster)->CanUseItem(pSkill->iUseItem, 1))) 
-		return false;
+		return SkillUseFail;
 
 	// We cannot use CSW transformations outside of Delos (or when CSW is not enabled.)
 	if (pSkill->bType[0] == 6
 		&& (nSkillID / 10000) == 45
 		&& pSkillCaster->GetZoneID() != ZONE_DELOS)
-		return false;
+		return SkillUseFail;
 
 #if !defined(DEBUG)
 	// For skills that are unlocked via quests, ensure the user has actually 
@@ -203,17 +230,17 @@ bool MagicInstance::UserCanCast()
 	if (!pSkillCaster->isGM()
 		&& pSkill->sEtc != 0
 		&& !TO_USER(pSkillCaster)->CheckExistEvent(pSkill->sEtc, 2))
-		return false;
+		return SkillUseFail;
 #endif
 
 	if (pSkill->bType[0] < 4
 		&& pSkillTarget != nullptr
 		&& !pSkillCaster->isInAttackRange(pSkillTarget, pSkill))
-		return false;
+		return SkillUseFail;
 
 	if ((bOpcode == MAGIC_EFFECTING || bOpcode == MAGIC_CASTING) 
 		&& !IsAvailable())
-		return false;
+		return SkillUseFail;
 
 	// Instant casting affects the next cast skill only, and is then removed.
 	if (bOpcode == MAGIC_EFFECTING && pSkillCaster->canInstantCast())
@@ -223,7 +250,7 @@ bool MagicInstance::UserCanCast()
 	}
 
 	// In case we made it to here, we can cast! Hurray!
-	return true;
+	return SkillUseOK;
 }
 
 /**
