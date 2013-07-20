@@ -2217,7 +2217,7 @@ void CUser::LoyaltyChange(int16 tid, uint16 bonusNP /*= 0*/)
 	short loyalty_source = 0, loyalty_target = 0;
 
 	// TO-DO: Rewrite this out, it shouldn't handle all cases so generally like this
-	if (m_bZone == 48 || m_bZone == 21) 
+	if (!GetMap()->isNationPVPZone()) 
 		return;
 
 	CUser* pTUser = g_pMain->GetUserPtr(tid);  
@@ -2924,7 +2924,7 @@ void CUser::Home()
 	short x = 0, z = 0;
 
 	// Forgotten Temple
-	if (GetZoneID() == 55)
+	if (GetZoneID() == ZONE_FORGOTTEN_TEMPLE)
 	{
 		KickOutZoneUser(true);
 		return;

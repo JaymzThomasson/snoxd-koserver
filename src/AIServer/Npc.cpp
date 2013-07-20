@@ -1333,7 +1333,9 @@ bool CNpc::FindEnemy()
 		return false;
 
 	bool bIsGuard = isGuard();
-	bool bIsNeutralZone = (GetZoneID() == 21 || GetZoneID() == 48); // Moradon/Arena
+
+	// We shouldn't really need this anymore...
+	bool bIsNeutralZone = (GetZoneID() == ZONE_MORADON || GetZoneID() == ZONE_ARENA); // Moradon/Arena
 
 	// Disable AI enemy finding (of users) in neutral zones.
 	// Guards and monsters are, however, allowed.
