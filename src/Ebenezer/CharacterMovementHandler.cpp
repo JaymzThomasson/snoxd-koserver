@@ -7,7 +7,8 @@ void CUser::MoveProcess(Packet & pkt)
 	if (m_bWarp || isDead()) 
 		return;
 		
-	uint16 will_x, will_z, will_y, speed=0;
+	uint16 will_x, will_z, will_y;
+	int16 speed=0;
 	float real_x, real_z, real_y;
 	uint8 echo;
 
