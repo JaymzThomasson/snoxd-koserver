@@ -1353,6 +1353,7 @@ bool MagicInstance::ExecuteType4()
 			{
 				pTarget = pSkillCaster; // skill has been reflected, the target is now the caster.
 				bBlockingDebuffs = (pTarget->m_bBlockCurses || pTarget->m_bReflectCurses); 
+				bAllowCastOnSelf = true;
 			}
 			// Didn't reflect, so we'll just block instead.
 			else 
