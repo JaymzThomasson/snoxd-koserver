@@ -157,12 +157,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 				x = (float)(pHomeInfo->BattleZoneX + myrand(0, pHomeInfo->BattleZoneLX));
 				z = (float)(pHomeInfo->BattleZoneZ + myrand(0, pHomeInfo->BattleZoneLZ));
 			}
-			// If we're in a zone that can attack other-nation players (includes snow wars), use FreeZone coordinates instead.
-			else if (GetMap()->isNationPVPZone())
-			{
-				x = (float)(pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX));
-				z = (float)(pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ));
-			}
+			// If we died in the Moradon arena, we need to spawn near the Arena.
 			else if (GetZoneID() == ZONE_MORADON && isInArena())
 			{
 				x = (float)(MINI_ARENA_RESPAWN_X + myrand(-MINI_ARENA_RESPAWN_RADIUS, MINI_ARENA_RESPAWN_RADIUS));
