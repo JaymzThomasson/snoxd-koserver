@@ -3870,22 +3870,28 @@ void CUser::OnDeath(Unit *pKiller)
 								UpdateAngerGauge(++m_byAngerGauge);
 						}
 
-						if (!pUser->isInParty()){
+						// Loyalty should be awarded on kill.
+						// Additionally, we should receive a "Meat dumpling"
+						if (!pUser->isInParty())
+						{
 							pUser->LoyaltyChange(GetID(), bonusNP);
-							pUser->GiveItem(508216000);//Meat Dumpling
+							pUser->GiveItem(ITEM_MEAT_DUMPLING);
 						}
+						// In parties, the loyalty should be divided up across the party.
+						// Each party member in range should also receive a "Meat Dumpling".
 						else
 						{
 							pUser->LoyaltyDivide(GetID(), bonusNP);
+
 							_PARTY_GROUP * pParty = g_pMain->GetPartyPtr(GetPartyID());
-							if (pParty != nullptr){
-
-								for (uint8 i = 0 ; i < MAX_PARTY_USERS;i++)
+							if (pParty != nullptr)
+							{
+								for (uint8 i = 0; i < MAX_PARTY_USERS; i++)
 								{
-									pUser = g_pMain->GetUserPtr(pParty->uid[i]);
-									if (pUser != nullptr)
-										pUser->GiveItem(508216000);//Meat Dumpling
-
+									CUser * pPartyUser = g_pMain->GetUserPtr(pParty->uid[i]);
+									if (pPartyUser != nullptr
+										&& pUser->isInRange(pPartyUser, RANGE_50M))
+										pPartyUser->GiveItem(ITEM_MEAT_DUMPLING);
 								}
 							}
 						}
@@ -4565,7 +4571,7 @@ void CUser::GrantChickenManner()
 			|| pTargetUser->m_bIsChicken)
 			continue;
 
-		if (!isInRangeSlow(pTargetUser, 50.0f))
+		if (!isInRange(pTargetUser, RANGE_50M))
 			continue;
 
 		if (pTargetUser->GetLevel() > 20 && pTargetUser->GetLevel() < 40)
