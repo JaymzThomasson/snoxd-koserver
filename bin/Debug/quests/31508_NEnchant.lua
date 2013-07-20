@@ -22,6 +22,10 @@ function DefaultMenu()
 end
 
 function ShoutForCharge()
+if (not pNpc:CastSkill(pUser, 302327)) then
+						pUser:NpcMsg(9140)
+						return
+end
 	if (pUser:hasCoins(20000)) then
 		if (pUser:GetLevel() <20) then
 						pNpc:CastSkill(pUser, 302327)
@@ -43,13 +47,25 @@ end
 function FirmWill()
 	if (pUser:hasCoins(20000)) then
 		if (pUser:GetLevel() < 20) then
+				if (not pNpc:CastSkill(pUser, 302331)) then
+						pUser:NpcMsg(9140)
+						return
+				end
 						pNpc:CastSkill(pUser, 302331)
 						pUser:NpcMsg(9137)
         elseif (pUser:GetLevel() <60) then
+				if (not pNpc:CastSkill(pUser, 302332)) then
+						pUser:NpcMsg(9140)
+						return
+				end
                         pNpc:CastSkill(pUser, 302332)
                         pUser:GoldLose(10000)
 						pUser:NpcMsg(9137)
-                else
+        else
+				if (not pNpc:CastSkill(pUser, 302333)) then
+						pUser:NpcMsg(9140)
+						return
+				end
                         pNpc:CastSkill(pUser, 302333)
                         pUser:GoldLose(20000)
 						pUser:NpcMsg(9137)
@@ -62,13 +78,25 @@ end
 function EndlessPatience()
 	if (pUser:hasCoins(20000)) then
 		if (pUser:GetLevel() <20) then
+				if (not pNpc:CastSkill(pUser, 302328)) then
+						pUser:NpcMsg(9140)
+						return
+				end
 						pNpc:CastSkill(pUser, 302328)
 						pUser:NpcMsg(9137)
 		elseif (pUser:GetLevel() <60) then
+				if (not pNpc:CastSkill(pUser, 302329)) then
+						pUser:NpcMsg(9140)
+						return
+				end
                         pNpc:CastSkill(pUser, 302329)
                         pUser:GoldLose(10000)
 						pUser:NpcMsg(9137)
-                else
+        else
+				if (not pNpc:CastSkill(pUser, 302330)) then
+						pUser:NpcMsg(9140)
+						return
+				end
                         pNpc:CastSkill(pUser, 302330)
                         pUser:GoldLose(20000)
 						pUser:NpcMsg(9137)
