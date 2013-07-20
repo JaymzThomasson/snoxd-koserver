@@ -46,6 +46,8 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(GetLoyalty)
 	MAKE_LUA_METHOD(GetMonthlyLoyalty)
 	MAKE_LUA_METHOD(GetManner)
+	MAKE_LUA_METHOD(GetActiveQuestID)
+
 	MAKE_LUA_METHOD(isWarrior)
 	MAKE_LUA_METHOD(isRogue)
 	MAKE_LUA_METHOD(isMage)
@@ -201,14 +203,17 @@ LUA_FUNCTION(CheckSkillPoint)
 	LUA_RETURN(bPoints);
 }
 
-#define LUA_WRAPPER_USER_FUNCTION(name) \
+#define _LUA_WRAPPER_USER_FUNCTION(name, methodName) \
 	LUA_FUNCTION(name) { \
 		CUser * pUser = Lua_GetUser(); /* get the user from the stack using the specified user ID */ \
 		lua_tpush(L, pUser); /* push the user pointer onto the stack, as our code expects */ \
 		lua_remove(L, 1); /* removes the user ID from the stack */ \
 		lua_insert(L, 1); /* moves the user pointer to the start of the bottom of the stack where it's expected */ \
-		return CUser::Lua_ ## name(L); \
+		return CUser::Lua_ ## methodName(L); \
 	}
+
+#define LUA_WRAPPER_USER_FUNCTION(name) \
+	_LUA_WRAPPER_USER_FUNCTION(name, name)
 
 LUA_WRAPPER_USER_FUNCTION(ShowMap);
 LUA_WRAPPER_USER_FUNCTION(SaveEvent);
@@ -218,6 +223,7 @@ LUA_WRAPPER_USER_FUNCTION(SearchQuest);
 LUA_WRAPPER_USER_FUNCTION(NpcMsg);
 LUA_WRAPPER_USER_FUNCTION(ShowEffect);
 LUA_WRAPPER_USER_FUNCTION(ShowNpcEffect);
+_LUA_WRAPPER_USER_FUNCTION(ExistMonsterQuestSub, GetActiveQuestID);
 
 LUA_FUNCTION(SelectMsg)
 {

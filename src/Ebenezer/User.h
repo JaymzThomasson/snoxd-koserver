@@ -415,6 +415,8 @@ public:
 
 	INLINE GameState GetState() { return m_state; }
 
+	INLINE uint16 GetActiveQuestID() { return m_sEventDataIndex; }
+
 	INLINE uint8 GetStat(StatType type)
 	{
 		ASSERT(type < STAT_COUNT);
@@ -968,6 +970,7 @@ public:
 	DECLARE_LUA_GETTER(GetLoyalty);
 	DECLARE_LUA_GETTER(GetMonthlyLoyalty);
 	DECLARE_LUA_GETTER(GetManner);
+	DECLARE_LUA_GETTER(GetActiveQuestID);
 	DECLARE_LUA_GETTER(isWarrior);
 	DECLARE_LUA_GETTER(isRogue);
 	DECLARE_LUA_GETTER(isMage);
