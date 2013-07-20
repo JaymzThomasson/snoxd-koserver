@@ -2002,7 +2002,7 @@ bool MagicInstance::ExecuteType9()
 		stealth << uint16(pType->sRadius);
 
 		// If the player's in a party, apply this skill to all members of the party.
-		if (pCaster->isInParty())
+		if (pCaster->isInParty() && pType->bStateChange == 4)
 		{
 			_PARTY_GROUP * pParty = g_pMain->GetPartyPtr(pCaster->GetPartyID());
 			if (pParty == nullptr)
