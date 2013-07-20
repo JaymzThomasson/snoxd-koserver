@@ -14,17 +14,20 @@ void CUser::MoveProcess(Packet & pkt)
 	pkt >> will_x >> will_z >> will_y >> speed >> echo;
 	real_x = will_x/10.0f; real_z = will_z/10.0f; real_y = will_y/10.0f;
 
+	if (!isGM())
+	{
+		// TO-DO: Handle proper speed checks against server-side amounts.
+		// We should also avoid relying on what the client has sent us.
+		if (speed > 200)	// What is the signifance of this number? Considering 90 is light feet...
+							// We shouldn't be using magic numbers at all here.
+		{
+			Disconnect();
+			return;
+		}
+	}
+
 	if (!GetMap()->IsValidPosition(real_x, real_z, real_y)) 
 		return;
-
-	//speed hack control
-	if (!isGM() && speed > 200){
-		Packet result;
-		std::string strSpeedHack = string_format("%s has used Speed Hack.",GetName().c_str());
-		ChatPacket::Construct(&result,FORCE_CHAT,&strSpeedHack);
-		g_pMain->Send_All(&result);
-		Disconnect();
-	}
 
 	if (m_oldx != GetX()
 		|| m_oldz != GetZ())
