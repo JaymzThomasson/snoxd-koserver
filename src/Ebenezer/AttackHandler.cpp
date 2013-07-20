@@ -181,7 +181,6 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 
 		SetPosition(x, 0.0f, z);
 
-		m_bAbnormalType = ABNORMAL_BLINKING;
 		m_bResHpType = USER_STANDING;	
 		m_bRegeneType = REGENE_NORMAL;
 	}
@@ -204,17 +203,21 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	result << GetSPosX() << GetSPosZ() << GetSPosY();
 	Send(&result);
 
-	HpChange(m_iMaxHp);
+	HpChange(GetMaxHealth());
 
 	m_tLastRegeneTime = UNIXTIME;
 	m_sWhoKilledMe = -1;
 	m_iLostExp = 0;
 
-	if (!isBlinking())
+	if (magicid != 0)
 	{
 		result.Initialize(AG_USER_REGENE);
 		result << GetSocketID() << m_sHp;
 		Send_AIServer(&result);
+	}
+	else
+	{
+		BlinkStart();
 	}
 
 	SetRegion(GetNewRegionX(), GetNewRegionZ());
@@ -231,7 +234,6 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	if (isInArena())
 		SendUserStatusUpdate(USER_STATUS_SPEED, USER_STATUS_CURE);
 
-	BlinkStart();
 	RecastSavedMagic();
 
 	// If we actually respawned (i.e. we weren't resurrected by a skill)...
