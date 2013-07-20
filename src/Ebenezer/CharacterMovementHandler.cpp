@@ -17,6 +17,15 @@ void CUser::MoveProcess(Packet & pkt)
 	if (!GetMap()->IsValidPosition(real_x, real_z, real_y)) 
 		return;
 
+	//speed hack control
+	if (!isGM() && speed > 200){
+		Packet result;
+		std::string strSpeedHack = string_format("%s has used Speed Hack.",GetName().c_str());
+		ChatPacket::Construct(&result,FORCE_CHAT,&strSpeedHack);
+		g_pMain->Send_All(&result);
+		Disconnect();
+	}
+
 	if (m_oldx != GetX()
 		|| m_oldz != GetZ())
 	{
