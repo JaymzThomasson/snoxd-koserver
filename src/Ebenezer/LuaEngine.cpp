@@ -6,6 +6,11 @@
 #include "Npc.h"
 
 // define global functions to be called from Lua (e.g. myrand())
+#if !defined(USE_ORIGINAL_QUESTS)
+DEFINE_LUA_FUNCTION_TABLE(g_globalFunctions, 
+	MAKE_LUA_FUNCTION(CheckPercent)
+);
+#else
 DEFINE_LUA_FUNCTION_TABLE(g_globalFunctions, 
 	MAKE_LUA_FUNCTION(CheckPercent)
 	MAKE_LUA_FUNCTION(HowmuchItem)
@@ -24,6 +29,7 @@ DEFINE_LUA_FUNCTION_TABLE(g_globalFunctions,
 	MAKE_LUA_FUNCTION(SelectMsg)
 	MAKE_LUA_FUNCTION(CastSkill)
 );
+#endif
 
 CLuaEngine::CLuaEngine() : m_lock(new RWLock())
 {
