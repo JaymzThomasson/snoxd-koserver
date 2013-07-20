@@ -1858,7 +1858,7 @@ bool MagicInstance::ExecuteType8()
 				pTUser->ExpChange( pType->sExpRecover/100 );     // Increase target experience.
 				
 				Packet result(AG_USER_REGENE);
-				result << uint16((*itr)->GetSocketID()) << uint16(pTUser->GetZoneID());
+				result << uint16((*itr)->GetSocketID()) << uint16(pTUser->GetHealth());
 				g_pMain->Send_AIServer(&result);
 			} break;
 
