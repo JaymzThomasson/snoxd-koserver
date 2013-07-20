@@ -24,33 +24,16 @@ end
 function ShoutForCharge()
 	if (pUser:hasCoins(20000)) then
 		if (pUser:GetLevel() <20) then
-				if (pUser:isMage()) then
-						pNpc:CastSkill(pUser, 302326)
-						pUser:NpcMsg(9137)
-				else
 						pNpc:CastSkill(pUser, 302327)
 						pUser:NpcMsg(9137)
-				end
 		elseif (pUser:GetLevel() <60) then
-				if (pUser:isMage()) then
-						pNpc:CastSkill(pUser, 302326)
-						pUser:GoldLose(10000)
-						pUser:NpcMsg(9137)
-				else
 						pNpc:CastSkill(pUser, 302327)
 						pUser:GoldLose(10000)
 						pUser:NpcMsg(9137)
-				end
-		else
-				if (pUser:isMage()) then
-                        pNpc:CastSkill(pUser, 302326)
-                        pUser:GoldLose(20000)
-						pUser:NpcMsg(9137)
-                else
+				else
 						pNpc:CastSkill(pUser, 302327)
 						pUser:GoldLose(20000)
 						pUser:NpcMsg(9137)
-				end
 		end
 	else
                         pUser:NpcMsg(9118)
