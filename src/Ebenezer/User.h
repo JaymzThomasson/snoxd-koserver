@@ -898,6 +898,7 @@ public:
 
 	bool PromoteUserNovice();
 	bool PromoteUser();
+	void PromoteClan(ClanTypeFlag byFlag);
 
 	// Attack/zone checks
 	bool CanAttack(Unit * pTarget);
@@ -1182,5 +1183,9 @@ public:
 
 	DECLARE_LUA_FUNCTION(ChangeManner) {
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->SendMannerChange(LUA_ARG(int32, 2)));	
+	}
+
+	DECLARE_LUA_FUNCTION(PromoteClan) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->PromoteClan((ClanTypeFlag) LUA_ARG_OPTIONAL(uint8, ClanTypePromoted, 2)));	
 	}
 };

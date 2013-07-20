@@ -736,18 +736,10 @@ void CUser::HandleCapeChange(Packet & pkt)
 
 	Send(&result);
 
-	result.Initialize(WIZ_KNIGHTS_PROCESS);
-	result	<< uint8(KNIGHTS_CAPE_UPDATE)
-			<< GetClanID()
-			<< pKnights->m_byFlag
-			<< pKnights->GetCapeID()
-			<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB
-			<< uint8(0);
-
 	// TO-DO:
 	// When we implement alliances, this should send to the alliance
 	// if the clan is part of one. Also, their capes should be updated.
-	pKnights->Send(&result);
+	pKnights->SendUpdate();
 
 	// TO-DO: Send to other servers via UDP.
 

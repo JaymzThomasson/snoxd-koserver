@@ -613,6 +613,31 @@ bool CKnightsManager::RemoveKnightsUser(int index, std::string & strUserID)
 	return (pKnights == nullptr ? false : pKnights->RemoveUser(strUserID));
 }
 
+void CKnightsManager::UpdateKnightsGrade(uint16 sClanID, uint8 byFlag)
+{
+	CKnights * pClan = g_pMain->GetClanPtr(sClanID);
+	if (pClan == nullptr)
+		return;
+
+	if (byFlag == ClanTypeTraining)
+		pClan->m_sCape = -1;
+	else if (byFlag == ClanTypePromoted)
+	{
+		pClan->m_sCape = 0;
+
+		// if (pClan->isInAlliance())
+		//	KnightsAllianceRemove(pClan);
+	}
+
+	pClan->m_byFlag = byFlag;
+	pClan->SendUpdate();
+
+	// Update the database server
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_UPDATE_GRADE));
+	result << sClanID << byFlag << pClan->m_sCape;
+	g_pMain->AddDatabaseRequest(result);
+}
+
 void CKnightsManager::AddUserDonatedNP(int index, std::string & strUserID, uint32 nDonatedNP)
 {
 	CKnights *pKnights = g_pMain->GetClanPtr(index);

@@ -1356,6 +1356,24 @@ void CDBAgent::UpdateCape(uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint
 		ReportSQLError(m_GameDB->GetError());
 }
 
+/**
+ * @brief	Updates the clan grade.
+ *
+ * @param	sClanID	Identifier for the clan.
+ * @param	byFlag 	The clan type (training, promoted, etc).
+ * @param	sCapeID	Identifier for the cape.
+ */
+void CDBAgent::UpdateClanGrade(uint16 sClanID, uint8 byFlag, uint16 sCapeID)
+{
+	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == nullptr)
+		return;
+	
+	if (!dbCommand->Execute(string_format(_T("UPDATE KNIGHTS SET sCape=%d, Flag=%d WHERE IDNum=%d"), 
+		sCapeID, byFlag, sClanID)))
+		ReportSQLError(m_GameDB->GetError());
+}
+
 void CDBAgent::UpdateBattleEvent(string & strCharID, uint8 bNation)
 {
 	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());

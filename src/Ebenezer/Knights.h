@@ -98,6 +98,7 @@ public:
 
 	void Disband(CUser *pLeader = nullptr);
 
+	void SendUpdate();
 	void SendChat(const char * format, ...);
 	void Send(Packet *pkt);
 

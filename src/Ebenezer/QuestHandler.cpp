@@ -435,3 +435,11 @@ bool CUser::PromoteUser()
 	CKnightsManager::CurrentKnightsMember(this, result); // TO-DO: Clean this up too.
 	return true;
 }
+
+void CUser::PromoteClan(ClanTypeFlag byFlag)
+{
+	if (!isInClan())
+		return;
+
+	CKnightsManager::UpdateKnightsGrade(GetClanID(), byFlag);
+}

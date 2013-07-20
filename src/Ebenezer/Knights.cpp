@@ -278,6 +278,14 @@ void CKnights::Disband(CUser *pLeader /*= nullptr*/)
 	pLeader->Send(&result);
 }
 
+void CKnights::SendUpdate()
+{
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_UPDATE));
+	result	<< GetID() << m_byFlag << GetCapeID()
+			<< m_bCapeR << m_bCapeG << m_bCapeB << uint8(0);
+	Send(&result);
+}
+
 void CKnights::SendChat(const char * format, ...)
 {
 	char buffer[128];

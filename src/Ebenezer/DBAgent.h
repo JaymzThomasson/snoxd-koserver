@@ -99,6 +99,7 @@ public:
 	void UpdateClanNotice(uint16 sClanID, std::string & strClanNotice);
 	NameChangeOpcode UpdateCharacterName(std::string & strAccountID, std::string & strUserID, std::string & strNewUserID);
 	void UpdateCape(uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint8 b);
+	void UpdateClanGrade(uint16 sClanID, uint8 byFlag, uint16 sCapeID);
 
 	void UpdateBattleEvent(std::string & strCharID, uint8 bNation);
 	void AccountLogout(std::string & strAccountID);
