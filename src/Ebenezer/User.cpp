@@ -3885,23 +3885,23 @@ void CUser::OnDeath(Unit *pKiller)
 						}
 
 						if (!pUser->isInParty()){
-						pUser->LoyaltyChange(GetID(), bonusNP);
-						_PARTY_GROUP * pParty = g_pMain->GetPartyPtr(GetPartyID());
-						if (pParty != nullptr){
-
-							for (uint8 i = 0 ; i < MAX_PARTY_USERS;i++)
-							{
-								pUser = g_pMain->GetUserPtr(pParty->uid[i]);
-								if (pUser != nullptr)
-									pUser->GiveItem(508216000);//Meat Dumpling
-								
-							}
-						}
+							pUser->LoyaltyChange(GetID(), bonusNP);
+							pUser->GiveItem(508216000);//Meat Dumpling
 						}
 						else
 						{
 							pUser->LoyaltyDivide(GetID(), bonusNP);
-							pUser->GiveItem(508216000);
+							_PARTY_GROUP * pParty = g_pMain->GetPartyPtr(GetPartyID());
+							if (pParty != nullptr){
+
+								for (uint8 i = 0 ; i < MAX_PARTY_USERS;i++)
+								{
+									pUser = g_pMain->GetUserPtr(pParty->uid[i]);
+									if (pUser != nullptr)
+										pUser->GiveItem(508216000);//Meat Dumpling
+
+								}
+							}
 						}
 
 						pUser->GoldChange(GetID(), 0);
