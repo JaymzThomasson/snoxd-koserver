@@ -808,10 +808,12 @@ bool Unit::CanAttack(Unit * pTarget)
 
 void Unit::OnDeath(Unit *pKiller)
 {
-	SendDeathAnimation();
+#ifdef EBENEZER
+	SendDeathAnimation(pKiller);
+#endif
 }
 
-void Unit::SendDeathAnimation()
+void Unit::SendDeathAnimation(Unit * pKiller /*= nullptr*/)
 {
 #ifdef EBENEZER
 	Packet result(WIZ_DEAD);
@@ -819,7 +821,8 @@ void Unit::SendDeathAnimation()
 	SendToRegion(&result);
 #else
 	Packet result(AG_DEAD);
-	result << GetID();
+	int16 tid = (pKiller == nullptr ? -1 : pKiller->GetID());
+	result << GetID() << pKiller->GetID();
 	g_pMain->Send(&result);
 #endif
 }

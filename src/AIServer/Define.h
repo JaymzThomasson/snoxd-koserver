@@ -69,16 +69,6 @@ struct _NpcPosition
 #define DEFENCE				0x02
 ////////////////////////////////////////////////////////////
 
-//
-//	Attack
-//
-
-const uint8	ATTACK_FAIL		=	0;
-const uint8	ATTACK_SUCCESS	=	1;
-const uint8	ATTACK_TARGET_DEAD	= 2;
-const uint8	ATTACK_TARGET_DEAD_OK = 3;
-const uint8	MAGIC_ATTACK_TARGET_DEAD	= 4;
-
 #define GREAT_SUCCESS			0X01		// 대성공
 #define SUCCESS					0X02		// 성공
 #define NORMAL					0X03		// 보통

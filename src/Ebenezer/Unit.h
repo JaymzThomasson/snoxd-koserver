@@ -168,7 +168,7 @@ public:
 	virtual bool CanAttack(Unit * pTarget);
 
 	void OnDeath(Unit *pKiller);
-	void SendDeathAnimation();
+	void SendDeathAnimation(Unit *pKiller = nullptr);
 
 // public for the moment
 // protected:

@@ -407,7 +407,7 @@ public:
 	void SendInOut(InOutType type);
 	void SendNpcInfo();
 	void SendRegionUpdate();
-	void Dead(bool bSendDeathPacket = true);
+	void Dead(Unit * pKiller = nullptr, bool bSendDeathPacket = true);
 
 	bool FindEnemy();
 	bool CheckFindEnemy();

@@ -1289,7 +1289,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 	return 1;
 }
 
-void CNpc::Dead(bool bSendDeathPacket /*= false*/)
+void CNpc::Dead(Unit * pKiller /*= nullptr*/, bool bSendDeathPacket /*= false*/)
 {
 	MAP* pMap = GetMap();
 	if(pMap == nullptr)	return;
@@ -1311,7 +1311,7 @@ void CNpc::Dead(bool bSendDeathPacket /*= false*/)
 
 	if (bSendDeathPacket)
 	{
-		SendDeathAnimation();
+		SendDeathAnimation(pKiller);
 		SendExpToUserList();
 		GiveNpcHaveItem();
 	}
@@ -1377,7 +1377,6 @@ bool CNpc::FindEnemy()
 		fCompareDis = FindEnemyExpand(GetRegionX(), GetRegionZ(), fCompareDis, UnitPlayer);
 
 		int x=0, y=0;
-
 		// 이웃해 있는 Region을 검색해서,,  몬의 위치와 제일 가까운 User을 향해.. 이동..
 		for(int l=0; l<4; l++)	{
 			if(m_iFind_X[l] == 0 && m_iFind_Y[l] == 0)		continue;
@@ -2196,7 +2195,6 @@ time_t CNpc::Attack()
 
 		if (pUser->isDead())
 		{
-			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->GetID(), 0, 0);
 			InitTarget();
 			m_NpcState = NPC_STANDING;
 			return nStandingTime;
@@ -2245,6 +2243,8 @@ time_t CNpc::Attack()
 			SendAttackSuccess(ATTACK_FAIL, pUser->GetID(), nDamage, pUser->m_sHP);
 		else if (pUser->SetDamage(nDamage, GetID()))
 			SendAttackSuccess(ATTACK_SUCCESS, pUser->GetID(), nDamage, pUser->m_sHP);
+		else 
+			SendAttackSuccess(ATTACK_TARGET_DEAD, pUser->GetID(), nDamage, pUser->m_sHP);
 	}
 	else // Targeting NPC
 	{
@@ -2325,7 +2325,6 @@ time_t CNpc::LongAndMagicAttack()
 
 		if (pUser->isDead())
 		{
-			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->GetID(), 0, 0);
 			InitTarget();
 			m_NpcState = NPC_STANDING;
 			return nStandingTime;
@@ -2821,7 +2820,6 @@ bool CNpc::SetDamage(int nDamage, uint16 uid, bool bSendToEbenezer /*= true*/, A
 
 go_result:
 	m_TotalDamage += userDamage;
-	m_iHP -= nDamage;	
 	HpChange(-nDamage, pAttacker, bSendToEbenezer);
 	if (m_iHP <= 0)
 		return false;
@@ -2872,7 +2870,7 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToEbene
 	}
 
 	if (m_iHP == 0)
-		Dead();
+		Dead(pAttacker);
 }
 
 void CNpc::SendExpToUserList()

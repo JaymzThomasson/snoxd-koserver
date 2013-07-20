@@ -51,7 +51,7 @@ void CUser::Attack(Packet & pkt)
 					// TO-DO: Move all this redundant code into appropriate event-based methods so that all the other cases don't have to copypasta (and forget stuff).
 					pTarget->HpChange(-damage, this);
 					if (pTarget->isDead())
-						bResult = 2;
+						bResult = ATTACK_TARGET_DEAD;
 
 					ItemWoreOut(ATTACK, damage);
 					TO_USER(pTarget)->ItemWoreOut(DEFENCE, damage);
@@ -209,15 +209,14 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	m_sWhoKilledMe = -1;
 	m_iLostExp = 0;
 
-	if (magicid != 0)
+	if (magicid == 0)
+		BlinkStart();
+
+	if (!isBlinking())
 	{
 		result.Initialize(AG_USER_REGENE);
 		result << GetSocketID() << m_sHp;
 		Send_AIServer(&result);
-	}
-	else
-	{
-		BlinkStart();
 	}
 
 	SetRegion(GetNewRegionX(), GetNewRegionZ());
