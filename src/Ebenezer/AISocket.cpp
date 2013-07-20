@@ -677,10 +677,10 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 				/* War rewards */
 				// Warders
 				if (bResult >= 3 && bResult <= 6)
-					pUser->ChangeNP(500); /* TO-DO: Remove hardcoded values */
+					pUser->SendLoyaltyChange(500); /* TO-DO: Remove hardcoded values */
 				// Keeper
 				else if (bResult == 7 || bResult == 8)
-					pUser->ChangeNP(1000);
+					pUser->SendLoyaltyChange(1000);
 			}
 		}
 

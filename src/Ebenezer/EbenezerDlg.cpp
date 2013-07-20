@@ -1515,9 +1515,9 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 		if (pTUser->GetFame() == COMMAND_CAPTAIN)
 		{
 			if (pTUser->isKing())
-				pTUser->ChangeNP(500);
+				pTUser->SendLoyaltyChange(500);
 			else
-				pTUser->ChangeNP(300);
+				pTUser->SendLoyaltyChange(300);
 		}
 				
 		// Make the winning nation use a victory emotion (yay!)

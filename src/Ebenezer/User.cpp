@@ -2274,20 +2274,6 @@ void CUser::LoyaltyChange(int16 tid, uint16 bonusNP /*= 0*/)
 	}
 }
 
-/**
- * @brief	Change's a player's loyalty points (NP).
- *
- * @param	sAmount			  	The amount.
- * @param	bDistributeToParty	true to distribute to party.
- */
-void CUser::ChangeNP(short sAmount, bool bDistributeToParty /*= true*/)
-{
-	if (bDistributeToParty && isInParty()) 
-		; /* TO-DO: Cut out all the specifics from LoyaltyDivide() and implement the core of it as its own method */
-	else // Otherwise, we just give NP to the player (which this does, implicitly)
-		SendLoyaltyChange(sAmount, true); 
-}
-
 void CUser::SpeedHackUser()
 {
 	if (!isInGame())
