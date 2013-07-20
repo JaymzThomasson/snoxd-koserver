@@ -159,86 +159,85 @@ SkillUseResult MagicInstance::UserCanCast()
 		sTargetID = -1;
 	}
 
-	// NPCs do not need further checks.
-	// NOTE: The source check's implemented in the main packet wrapper.
-	if (pSkillCaster->isNPC())
-		return SkillUseOK;
-
-	if (pSkill->sSkill != 0
-		&& (TO_USER(pSkillCaster)->m_sClass != (pSkill->sSkill / 10)
-			|| pSkillCaster->GetLevel() < pSkill->sSkillLevel))
-		return SkillUseFail;
-
-	if ((pSkillCaster->GetMana() - pSkill->sMsp) < 0)
-		return SkillUseFail;
-
-	// If we're in a snow war, we're only ever allowed to use the snowball skill.
-	if (pSkillCaster->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
-		&& nSkillID != SNOW_EVENT_SKILL)
-		return SkillUseFail;
-
-	// If a target is specified, and we're using an attack skill, determine if the caster can attack the target.
-	// NOTE: This disregards whether we're trying/able to attack ourselves (which may be skill induced?).
-	if (pSkillTarget != nullptr
-		&& (pSkill->bMoral == MORAL_ENEMY || pSkill->bMoral == MORAL_NPC || pSkill->bMoral == MORAL_ALL))
+	// NPCs do not need most of these checks.
+	if (pSkillCaster->isPlayer())
 	{
-		// Handle death taunts (i.e. pressing the spacebar on a corpse).
-		// NOTE: These skills don't really have any other generic means of identification.
-		if (pSkill->bType[0] == 3 
-			&& pSkill->bType[1] == 0
-			// Target player must be a corpse.
-			&& pSkillTarget->isDead())
-		{
-			_MAGIC_TYPE3 * pType3 = g_pMain->m_Magictype3Array.GetData(pSkill->iNum);
-			if (pType3 == nullptr)
-				return SkillUseFail;
+		if (pSkill->sSkill != 0
+			&& (TO_USER(pSkillCaster)->m_sClass != (pSkill->sSkill / 10)
+			|| pSkillCaster->GetLevel() < pSkill->sSkillLevel))
+			return SkillUseFail;
 
-			// Skill mustn't do any damage or such.
-			if (pType3->bDirectType == 0
-				&& pType3->sFirstDamage == 0
-				&& pType3->sTimeDamage == 0)
+		if ((pSkillCaster->GetMana() - pSkill->sMsp) < 0)
+			return SkillUseFail;
+
+		// If we're in a snow war, we're only ever allowed to use the snowball skill.
+		if (pSkillCaster->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
+			&& nSkillID != SNOW_EVENT_SKILL)
+			return SkillUseFail;
+
+		// If a target is specified, and we're using an attack skill, determine if the caster can attack the target.
+		// NOTE: This disregards whether we're trying/able to attack ourselves (which may be skill induced?).
+		if (pSkillTarget != nullptr
+			&& (pSkill->bMoral == MORAL_ENEMY || pSkill->bMoral == MORAL_NPC || pSkill->bMoral == MORAL_ALL))
+		{
+			// Handle death taunts (i.e. pressing the spacebar on a corpse).
+			// NOTE: These skills don't really have any other generic means of identification.
+			if (pSkill->bType[0] == 3 
+				&& pSkill->bType[1] == 0
+				// Target player must be a corpse.
+				&& pSkillTarget->isDead())
 			{
-				// We also need to tweak the packet being sent.
-				bOpcode = MAGIC_EFFECTING;
-				sData[1] = 1;
-				SendSkill();
-				return SkillUseHandled;
+				_MAGIC_TYPE3 * pType3 = g_pMain->m_Magictype3Array.GetData(pSkill->iNum);
+				if (pType3 == nullptr)
+					return SkillUseFail;
+
+				// Skill mustn't do any damage or such.
+				if (pType3->bDirectType == 0
+					&& pType3->sFirstDamage == 0
+					&& pType3->sTimeDamage == 0)
+				{
+					// We also need to tweak the packet being sent.
+					bOpcode = MAGIC_EFFECTING;
+					sData[1] = 1;
+					SendSkill();
+					return SkillUseHandled;
+				}
 			}
+
+			// Finally, ensure the caster is able to attack the target.
+			// This is actually a little redundant with IsAvailable(), but we'll leave it in for now.
+			if (!pSkillCaster->CanAttack(pSkillTarget))
+				return SkillUseFail;
 		}
 
-		// Finally, ensure the caster is able to attack the target.
-		// This is actually a little redundant with IsAvailable(), but we'll leave it in for now.
-		if (!pSkillCaster->CanAttack(pSkillTarget))
+		// Archer & transformation skills will handle item checking themselves
+		if ((pSkill->bType[0] != 2 && pSkill->bType[0] != 6) 
+			// The user does not meet the item's requirements or does not have any of said item.
+			&& (pSkill->iUseItem != 0
+				&& !TO_USER(pSkillCaster)->CanUseItem(pSkill->iUseItem, 1))) 
+			return SkillUseFail;
+
+		// We cannot use CSW transformations outside of Delos (or when CSW is not enabled.)
+		if (pSkill->bType[0] == 6
+			&& (nSkillID / 10000) == 45
+			&& pSkillCaster->GetZoneID() != ZONE_DELOS)
+			return SkillUseFail;
+
+	#if !defined(DEBUG)
+		// For skills that are unlocked via quests, ensure the user has actually 
+		// completed the quest...
+		// NOTE: GMs are excluded.
+		if (!pSkillCaster->isGM()
+			&& pSkill->sEtc != 0
+			&& !TO_USER(pSkillCaster)->CheckExistEvent(pSkill->sEtc, 2))
+			return SkillUseFail;
+	#endif
+
+		if (pSkill->bType[0] < 4
+			&& pSkillTarget != nullptr
+			&& !pSkillCaster->isInAttackRange(pSkillTarget, pSkill))
 			return SkillUseFail;
 	}
-
-	// Archer & transformation skills will handle item checking themselves
-	if ((pSkill->bType[0] != 2 && pSkill->bType[0] != 6) 
-		// The user does not meet the item's requirements or does not have any of said item.
-		&& (pSkill->iUseItem != 0
-			&& !TO_USER(pSkillCaster)->CanUseItem(pSkill->iUseItem, 1))) 
-		return SkillUseFail;
-
-	// We cannot use CSW transformations outside of Delos (or when CSW is not enabled.)
-	if (pSkill->bType[0] == 6
-		&& (nSkillID / 10000) == 45
-		&& pSkillCaster->GetZoneID() != ZONE_DELOS)
-		return SkillUseFail;
-
-#if !defined(DEBUG)
-	// For skills that are unlocked via quests, ensure the user has actually 
-	// completed the quest...
-	// NOTE: GMs are excluded.
-	if (!pSkillCaster->isGM()
-		&& pSkill->sEtc != 0
-		&& !TO_USER(pSkillCaster)->CheckExistEvent(pSkill->sEtc, 2))
-		return SkillUseFail;
-#endif
-
-	if (pSkill->bType[0] < 4
-		&& pSkillTarget != nullptr
-		&& !pSkillCaster->isInAttackRange(pSkillTarget, pSkill))
-		return SkillUseFail;
 
 	if ((bOpcode == MAGIC_EFFECTING || bOpcode == MAGIC_CASTING) 
 		&& !IsAvailable())
@@ -279,10 +278,7 @@ bool MagicInstance::CheckType3Prerequisites()
 			// Players may not cast group healing spells whilst transformed
 			// into a monster (skills with IDs of 45###). 
 			if (TO_USER(pSkillCaster)->isMonsterTransformation())
-			{
-				SendSkillFailed();
 				return false;
-			}
 
 			// Official behaviour means we cannot cast a group healing spell
 			// if we currently have an active restoration spells on us.
@@ -290,10 +286,7 @@ bool MagicInstance::CheckType3Prerequisites()
 			for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
 			{
 				if (pSkillCaster->m_durationalSkills[i].m_sHPAmount > 0)
-				{
-					SendSkillFailed();
 					return false;
-				}
 			}
 		}
 
@@ -313,10 +306,7 @@ bool MagicInstance::CheckType3Prerequisites()
 
 		// We cannot heal gates! That would be bad, very bad.
 		if (TO_NPC(pSkillTarget)->GetType() == NPC_GATE) // note: official only checks byType 50
-		{
-			SendSkillFailed();
 			return false;
-		}
 
 		// Otherwise, officially there's no reason we can't heal NPCs (more specific logic later).
 		return true;
@@ -341,10 +331,7 @@ bool MagicInstance::CheckType3Prerequisites()
 			for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
 			{
 				if (pSkillTarget->m_durationalSkills[i].m_sHPAmount > 0)
-				{
-					SendSkillFailed();
 					return false;
-				}
 			}
 		}
 
@@ -352,10 +339,7 @@ bool MagicInstance::CheckType3Prerequisites()
 		// on players that have transformed into monsters.
 		if (TO_USER(pSkillTarget)->isMonsterTransformation()
 			&& !pSkillCaster->CanAttack(pSkillTarget))
-		{
-			SendSkillFailed();
 			return false;
-		}
 
 		return true;
 	}
@@ -379,7 +363,6 @@ bool MagicInstance::CheckType4Prerequisites()
 			|| pType->sMaxHPPct != 99) // e.g. skills like Dispel Magic / Sweet Kiss
 			return true;
 
-		SendSkillFailed();
 		return false;
 	}
 
@@ -401,7 +384,7 @@ bool MagicInstance::CheckType4Prerequisites()
 			return false;
 		}
 	}
-	
+
 	// TO-DO: Allow for siege-weapon only buffs (e.g. "Physical Attack Scroll")
 
 	return true;
@@ -412,25 +395,6 @@ bool MagicInstance::ExecuteSkill(uint8 bType)
 	// Implement player-specific logic before skills are executed.
 	if (pSkillCaster->isPlayer())
 	{
-		// Handle prerequisite checks for primary skills.
-		// This must occur before stealth is removed; if a skill fails here, 
-		// it should NOT unstealth users.
-		if (pSkill->bType[0] == bType)
-		{
-			switch (bType)
-			{
-			case 3: 
-				if (!CheckType3Prerequisites())
-					return false;
-				break;
-
-			case 4: 
-				if (!CheckType4Prerequisites())
-					return false;
-				break;
-			}
-		}
-
 		// If a player is stealthed, and they are casting a type 1/2/3/7 skill
 		// it is classed as an attack, so they should be unstealthed.
 		if (TO_USER(pSkillCaster)->m_bInvisibilityType != INVIS_NONE
@@ -476,8 +440,7 @@ void MagicInstance::SendTransformationList()
  */
 void MagicInstance::SendSkillFailed(int16 sTargetID /*= -1*/)
 {
-	if (pSkillCaster == nullptr
-		|| !pSkillCaster->isPlayer())
+	if (pSkillCaster == nullptr)
 		return;
 
 	Packet result;
@@ -485,7 +448,8 @@ void MagicInstance::SendSkillFailed(int16 sTargetID /*= -1*/)
 	BuildSkillPacket(result, sCasterID, sTargetID == -1 ? this->sTargetID : sTargetID, MAGIC_FAIL, nSkillID, sData);
 
 	// No need to proceed if we're not sending fail packets.
-	if (bSendFail)
+	if (bSendFail
+		|| !pSkillCaster->isPlayer())
 		return;
 
 	TO_USER(pSkillCaster)->Send(&result);
@@ -550,7 +514,7 @@ void MagicInstance::BuildAndSendSkillPacket(Unit * pUnit, bool bSendToRegion, in
 		&& !bSendFail)
 		return;
 
-	if (bSendToRegion || pUnit->isNPC())
+	if (bSendToRegion || !pUnit->isPlayer())
 		pUnit->SendToRegion(&result);
 	else
 		TO_USER(pUnit)->Send(&result);
@@ -719,6 +683,23 @@ bool MagicInstance::IsAvailable()
 					|| !TO_USER(pSkillCaster)->isSiegeTransformation())
 					goto fail_return;
 				break;
+		}
+	}
+
+	// Check skill prerequisites
+	for (int i = 0; i < 2; i++) 
+	{
+		switch (pSkill->bType[i])
+		{
+		case 3: 
+			if (!CheckType3Prerequisites())
+				return false;
+			break;
+
+		case 4:
+			if (!CheckType4Prerequisites())
+				return false;
+			break;
 		}
 	}
 
