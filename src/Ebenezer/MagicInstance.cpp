@@ -483,6 +483,11 @@ void MagicInstance::SendSkillFailed(int16 sTargetID /*= -1*/)
 	Packet result;
 	sData[3] = (bOpcode == MAGIC_CASTING ? SKILLMAGIC_FAIL_CASTING : SKILLMAGIC_FAIL_NOEFFECT);
 	BuildSkillPacket(result, sCasterID, sTargetID == -1 ? this->sTargetID : sTargetID, MAGIC_FAIL, nSkillID, sData);
+
+	// No need to proceed if we're not sending fail packets.
+	if (bSendFail)
+		return;
+
 	TO_USER(pSkillCaster)->Send(&result);
 }
 
@@ -499,6 +504,16 @@ void MagicInstance::SendSkillFailed(int16 sTargetID /*= -1*/)
 void MagicInstance::BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, 
 									 uint32 nSkillID, int16 sData[8])
 {
+	// On skill failure, flag the skill as failed.
+	if (opcode == MAGIC_FAIL)
+	{
+		bSkillSuccessful = false;
+
+		// No need to proceed if we're not sending fail packets.
+		if (!bSendFail)
+			return;
+	}
+
 	result.Initialize(WIZ_MAGIC_PROCESS);
 
 	// Handle the "instantly magic" buff; this will reset the cooldown on any skill.
@@ -529,6 +544,11 @@ void MagicInstance::BuildAndSendSkillPacket(Unit * pUnit, bool bSendToRegion, in
 {
 	Packet result;
 	BuildSkillPacket(result, sSkillCaster, sSkillTarget, opcode, nSkillID, sData);
+
+	// No need to proceed if we're not sending fail packets.
+	if (opcode == MAGIC_FAIL
+		&& !bSendFail)
+		return;
 
 	if (bSendToRegion || pUnit->isNPC())
 		pUnit->SendToRegion(&result);

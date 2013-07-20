@@ -244,17 +244,19 @@ LUA_FUNCTION(SelectMsg)
 LUA_FUNCTION(CastSkill)
 {
 	CUser * pUser = Lua_GetUser();
-	if (pUser == nullptr)
-		return LUA_NO_RESULTS;
-
-	CNpc * pNpc = g_pMain->GetNpcPtr(pUser->m_sEventNid);
-	if (pNpc == nullptr)
-		return LUA_NO_RESULTS;
-
-	LUA_NO_RETURN(pNpc->CastSkill(
-			reinterpret_cast<Unit *>(pUser),
-			LUA_ARG(uint32, 2)
-	));
+	bool bResult = false;
+	if (pUser != nullptr)
+	{
+		CNpc * pNpc = g_pMain->GetNpcPtr(pUser->m_sEventNid);
+		if (pNpc != nullptr)
+		{
+			bResult = pNpc->CastSkill(
+				reinterpret_cast<Unit *>(pUser),
+				LUA_ARG(uint32, 2)
+			);
+		}
+	}
+	return bResult;
 }
 
 #endif

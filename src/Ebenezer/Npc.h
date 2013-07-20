@@ -55,7 +55,7 @@ public:
 	void SendHpChangeToAI(uint16 sTargetID, int amount, AttributeType attributeType = AttributeNone);
 	void MSpChange(int amount);
 
-	void CastSkill(Unit * pTarget, uint32 nSkillID);
+	bool CastSkill(Unit * pTarget, uint32 nSkillID);
 
 	void OnDeath(Unit *pKiller);
 
@@ -97,7 +97,7 @@ public:
 	DECLARE_LUA_GETTER(GetZ);
 
 	DECLARE_LUA_FUNCTION(CastSkill) {
-		LUA_NO_RETURN(LUA_GET_INSTANCE()->CastSkill(
+		LUA_RETURN(LUA_GET_INSTANCE()->CastSkill(
 				reinterpret_cast<Unit *>(LUA_ARG(CUser *, 2)),
 				LUA_ARG(uint32, 3)
 		));

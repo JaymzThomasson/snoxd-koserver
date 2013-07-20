@@ -237,18 +237,21 @@ void CNpc::MSpChange(int amount)
 #endif
 }
 
-void CNpc::CastSkill(Unit * pTarget, uint32 nSkillID)
+bool CNpc::CastSkill(Unit * pTarget, uint32 nSkillID)
 {
 	if (pTarget == nullptr)
-		return;
+		return false;
 
 	MagicInstance instance;
 
+	instance.bSendFail = false;
 	instance.nSkillID = nSkillID;
 	instance.sCasterID = GetID();
 	instance.sTargetID = pTarget->GetID();
 
 	instance.Run();
+
+	return (instance.bSkillSuccessful);
 }
 
 /**
