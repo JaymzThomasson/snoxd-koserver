@@ -241,14 +241,14 @@ void CUser::ReqLetterGetItem(Packet & pkt)
 	{
 		if (nItemID)
 		{
-			_ITEM_DATA *pItem = GetItem(SLOT_MAX + pos);
+			_ITEM_DATA *pItem = GetItem(pos);
 
 			pItem->nNum = nItemID;
 			pItem->sCount += sCount;
 			pItem->sDuration += sDurability;
 			pItem->nSerialNum = nSerialNum;
 
-			SendStackChange(nItemID, pItem->sCount, pItem->sDuration, pos, pItem->sCount == sCount);
+			SendStackChange(nItemID, pItem->sCount, pItem->sDuration, pos - SLOT_MAX, pItem->sCount == sCount);
 		}
 
 		if (nCoins)
