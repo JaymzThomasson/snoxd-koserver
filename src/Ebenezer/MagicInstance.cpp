@@ -385,6 +385,17 @@ bool MagicInstance::CheckType4Prerequisites()
 		}
 	}
 
+	// If the specified target already has this buff (debuffs are required to reset)
+	// we should fail this skill. 
+	// NOTE: AOE buffs are exempt.
+	if (pType->isBuff())
+	{
+		FastGuard lock(pSkillTarget->m_buffLock);
+		if (pSkillTarget->m_buffMap.find(pType->bBuffType) 
+			!= pSkillTarget->m_buffMap.end())
+			return false;
+	}
+
 	// TO-DO: Allow for siege-weapon only buffs (e.g. "Physical Attack Scroll")
 
 	return true;
