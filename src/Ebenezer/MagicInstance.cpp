@@ -1962,8 +1962,6 @@ bool MagicInstance::ExecuteType9()
 	if (pType == nullptr)
 		return false;
 
-	sData[1] = 1;
-
 	CUser * pCaster = TO_USER(pSkillCaster);
 	FastGuard lock(pCaster->m_buffLock);
 	Type9BuffMap & buffMap = pCaster->m_type9BuffMap;
@@ -1975,6 +1973,8 @@ bool MagicInstance::ExecuteType9()
 		SendSkillFailed();
 		return false;
 	}
+
+	sData[1] = 1;
 	
 	if (pType->bStateChange <= 2 
 		&& pCaster->canStealth())
@@ -1995,11 +1995,14 @@ bool MagicInstance::ExecuteType9()
 			pCaster->StateChangeServerDirect(7, pType->bStateChange); // Update the client to be invisible
 			buffMap.insert(std::make_pair(pType->bStateChange, _BUFF_TYPE9_INFO(nSkillID, UNIXTIME + pType->sDuration)));
 		}
+
+		// Update all players nearby to tell them we're now invisible.
+		SendSkill();
 	}
 	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4)
 	{
-		Packet stealth(WIZ_STEALTH, uint8(1));
-		stealth << uint16(pType->sRadius);
+		Packet result(WIZ_STEALTH, uint8(1));
+		result << pType->sRadius;
 
 		// If the player's in a party, apply this skill to all members of the party.
 		if (pCaster->isInParty() && pType->bStateChange == 4)
@@ -2022,22 +2025,21 @@ bool MagicInstance::ExecuteType9()
 					continue;
 
 				pUser->m_type9BuffMap.insert(std::make_pair(pType->bStateChange, _BUFF_TYPE9_INFO(nSkillID, UNIXTIME + pType->sDuration)));
-				pUser->Send(&stealth);
+				pUser->Send(&result);
+
+				// Ensure every user in the party is given the skill icon in the corner of the screen.
+				BuildAndSendSkillPacket(pUser, false, sCasterID, pUser->GetID(), bOpcode, nSkillID, sData);
 			}
 		}
 		else // not in a party, so just apply this skill to us.
 		{
 			buffMap.insert(std::make_pair(pType->bStateChange, _BUFF_TYPE9_INFO(nSkillID, UNIXTIME + pType->sDuration)));
-			pCaster->Send(&stealth);
+			pCaster->Send(&result);
+
+			// Ensure we are given the skill icon in the corner of the screen.
+			SendSkill(false); // only update us, as only we need to know that we can see invisible players.
 		}
 	}
-
-	Packet result;
-	BuildSkillPacket(result, sCasterID, sTargetID, bOpcode, nSkillID, sData);
-	if (pCaster->isInParty() && pType->bStateChange == 4)
-		g_pMain->Send_PartyMember(pCaster->GetPartyID(), &result);
-	else
-		pCaster->Send(&result);
 
 	return true;
 }
