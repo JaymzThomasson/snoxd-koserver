@@ -370,9 +370,10 @@ bool MagicInstance::CheckType4Prerequisites()
 {
 	_MAGIC_TYPE4 * pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
 
+	// Certain transformation (type 6) skills state they have an associated
+	// type 4 skill but do not have any entry in the table. Consider these OK.
 	if (pType == nullptr)
 		return (pSkill->bType[0] == 6);
-
 
 	if (sTargetID < 0 || sTargetID >= MAX_USER)
 	{
