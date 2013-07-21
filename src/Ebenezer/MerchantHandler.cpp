@@ -287,9 +287,6 @@ void CUser::MerchantItemBuy(Packet & pkt)
 	if (pMerch->sCount == 0)
 		memset(pMerch, 0, sizeof(_MERCH_DATA));
 
-	SetUserAbility();
-	pMerchant->SetUserAbility();
-
 	SendStackChange(itemid, pItem->sCount, pItem->sDuration, dest_slot, 
 		(pItem->sCount == item_count)); // is it a new item?
 

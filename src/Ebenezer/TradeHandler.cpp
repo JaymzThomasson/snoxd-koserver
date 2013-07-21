@@ -268,7 +268,10 @@ void CUser::ExchangeDecide()
 		}
 		pUser->Send(&result);
 
+		SetUserAbility(false);
 		SendItemWeight();
+
+		pUser->SetUserAbility(false);
 		pUser->SendItemWeight();
 	}
 

@@ -104,8 +104,6 @@ void CUser::ReqLoadWebItemMall()
 	foreach (itr, itemList)
 		GiveItem(itr->nNum, itr->sCount, false); 
 
-	SendItemWeight();
-
 	for (int i = SLOT_MAX; i < SLOT_MAX+HAVE_MAX; i++)
 	{
 		_ITEM_DATA * pItem = GetItem(i);
