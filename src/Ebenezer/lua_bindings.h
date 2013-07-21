@@ -12,6 +12,8 @@ LUA_FUNCTION(CheckExchange);
 LUA_FUNCTION(RunExchange);
 LUA_FUNCTION(SearchQuest);
 LUA_FUNCTION(NpcMsg);
+LUA_FUNCTION(RobItem);
+LUA_FUNCTION(GiveItem);
 LUA_FUNCTION(ShowEffect);
 LUA_FUNCTION(ShowNpcEffect);
 LUA_FUNCTION(ExistMonsterQuestSub);
