@@ -2857,6 +2857,12 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToEbene
 	uint16 tid = (pAttacker != nullptr ? pAttacker->GetID() : -1);
 	int16 oldHP = m_iHP;
 
+	// Implement damage/HP cap.
+	if (amount < -MAX_DAMAGE)
+		amount = -MAX_DAMAGE;
+	else if (amount > MAX_DAMAGE)
+		amount = MAX_DAMAGE;
+
 	if (amount < 0 && -amount >= m_iHP)
 		m_iHP = 0;
 	else if (amount >= 0 && m_iHP + amount > m_iMaxHP)

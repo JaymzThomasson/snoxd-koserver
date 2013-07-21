@@ -184,6 +184,12 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /*
 {
 	uint16 tid = (pAttacker != nullptr ? pAttacker->GetID() : -1);
 
+	// Implement damage/HP cap.
+	if (amount < -MAX_DAMAGE)
+		amount = -MAX_DAMAGE;
+	else if (amount > MAX_DAMAGE)
+		amount = MAX_DAMAGE;
+
 	// Glorious copypasta.
 	if (amount < 0 && -amount > m_iHP)
 		m_iHP = 0;
@@ -204,6 +210,13 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /*
 void CNpc::HpChangeMagic(int amount, Unit *pAttacker /*= nullptr*/, AttributeType attributeType /*= AttributeNone*/)
 {
 	uint16 tid = (pAttacker != nullptr ? pAttacker->GetID() : -1);
+
+	// Implement damage/HP cap.
+	if (amount < -MAX_DAMAGE)
+		amount = -MAX_DAMAGE;
+	else if (amount > MAX_DAMAGE)
+		amount = MAX_DAMAGE;
+
 	HpChange(amount, pAttacker, false);
 	SendHpChangeToAI(tid, amount, attributeType);
 }

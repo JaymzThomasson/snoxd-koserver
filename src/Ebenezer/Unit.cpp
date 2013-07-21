@@ -356,6 +356,10 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 			damage /= 3;
 	}
 
+	// Enforce damage cap
+	if (damage > MAX_DAMAGE)
+		damage = MAX_DAMAGE;
+
 	return damage;
 }
 
@@ -491,7 +495,11 @@ short CNpc::GetDamage(CUser *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 	if (damage > nMaxDamage)	
 		damage = nMaxDamage;
 
-	return (short) damage;	
+	// Enforce overall damage cap
+	if (damage > MAX_DAMAGE)
+		damage = MAX_DAMAGE;
+
+	return (short) damage;
 }
 
 /**
@@ -539,6 +547,10 @@ short CNpc::GetDamage(CNpc *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool bP
 		break;
 	}
 	
+	// Enforce damage cap
+	if (damage > MAX_DAMAGE)
+		damage = MAX_DAMAGE;
+
 	return damage;	
 }
 

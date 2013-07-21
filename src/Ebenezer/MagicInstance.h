@@ -123,7 +123,7 @@ public:
 	void Type4Extend();
 
 	short GetMagicDamage(Unit *pTarget, int total_hit, int attribute);
-	short GetWeatherDamage(short damage, int attribute);
+	int32 GetWeatherDamage(int32 damage, int attribute);
 	void ReflectDamage(int32 damage, Unit * pTarget);
 	void ConsumeItem();
 

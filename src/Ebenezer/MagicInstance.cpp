@@ -2094,7 +2094,7 @@ bool MagicInstance::ExecuteType9()
 
 short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 {	
-	short damage = 0, temp_hit = 0, righthand_damage = 0, attribute_damage = 0 ; 
+	int32 damage = 0, temp_hit = 0, righthand_damage = 0, attribute_damage = 0;
 	int random = 0, total_r = 0 ;
 	uint8 result; 
 
@@ -2234,17 +2234,23 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 			damage -= ((3 * righthand_damage) + (3 * attribute_damage));
 		else if (attribute != MAGIC_R)	// Only if the staff has an attribute.
 			damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * pSkillCaster->GetLevel()) / 60) + ((attribute_damage * 0.8f) + (attribute_damage * pSkillCaster->GetLevel()) / 30));
-		if(pTarget->m_bMagicDamageReduction < 100)
+		if (pTarget->m_bMagicDamageReduction < 100)
 			damage = damage * pTarget->m_bMagicDamageReduction / 100;
 	}
 
 	// Apply boost for skills matching weather type.
 	// This isn't actually used officially, but I think it's neat...
 	GetWeatherDamage(damage, attribute);
-	return damage / 3;		
+	damage /= 3;
+
+	// Implement damage cap.
+	if (damage > MAX_DAMAGE)
+		damage = MAX_DAMAGE;
+
+	return (short)(damage);
 }
 
-short MagicInstance::GetWeatherDamage(short damage, int attribute)
+int32 MagicInstance::GetWeatherDamage(int32 damage, int attribute)
 {
 	// Give a 10% damage output boost based on weather (and skill's elemental attribute)
 	if ((g_pMain->m_byWeather == WEATHER_FINE && attribute == AttributeFire)

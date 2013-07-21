@@ -1391,6 +1391,12 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 	int originalAmount = amount;
 	int mirrorDamage = 0;
 
+	// Implement damage/HP cap.
+	if (amount < -MAX_DAMAGE)
+		amount = -MAX_DAMAGE;
+	else if (amount > MAX_DAMAGE)
+		amount = MAX_DAMAGE;
+
 	// If we're taking damage...
 	if (amount < 0)
 	{
