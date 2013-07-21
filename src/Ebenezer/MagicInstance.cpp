@@ -631,8 +631,11 @@ bool MagicInstance::IsAvailable()
 
 	switch (pSkill->bMoral)
 	{
+		// Enforce self-casting skills *unless* we're an NPC.
+		// Quest NPCs, naturally, use skills set as self-buffs.
 		case MORAL_SELF:
-			if (pSkillCaster != pSkillTarget)
+			if (pSkillCaster->isPlayer() 
+				&& pSkillCaster != pSkillTarget)
 				goto fail_return;
 			break;
 
