@@ -368,18 +368,11 @@ bool MagicInstance::CheckType3Prerequisites()
  */
 bool MagicInstance::CheckType4Prerequisites()
 {
-	if (pSkill->bType[0] == 6)
-		return true;
-
 	_MAGIC_TYPE4 * pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
 
 	if (pType == nullptr)
-	{
-		if (pSkill->bType[0] == 6)
-			return true;
-		else
-			return false;
-	}
+		return (pSkill->bType[0] == 6);
+
 
 	if (sTargetID < 0 || sTargetID >= MAX_USER)
 	{
