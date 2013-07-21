@@ -169,7 +169,6 @@ public:
 
 	TransformationType m_transformationType;
 	uint16	m_sTransformID;
-	uint32	m_nTransformationItem; // item used for transforming (e.g. disguise scroll, totem..)
 	time_t	m_tTransformationStartTime;
 	uint16	m_sTransformationDuration;
 

@@ -104,8 +104,6 @@ void MagicInstance::Run()
 			}
 
 			bInitialResult = ExecuteSkill(pSkill->bType[0]);
-
-			// NOTE: Some ROFD skills require a THIRD type.
 			if (bInitialResult)
 			{
 				ExecuteSkill(pSkill->bType[1]);
@@ -224,8 +222,8 @@ SkillUseResult MagicInstance::UserCanCast()
 
 		// Some skills also require class-specific stones which are taken instead of UseItem.
 		// In this case, UseItem is considered a required item and not consumed on skill use.
-		if (pSkill->bBeforeAction >= ClassWarrior && pSkill->bBeforeAction <= ClassPriest)
-			nConsumeItem = CLASS_STONE_BASE_ID + (pSkill->bBeforeAction * 1000);
+		if (pSkill->nBeforeAction >= ClassWarrior && pSkill->nBeforeAction <= ClassPriest)
+			nConsumeItem = CLASS_STONE_BASE_ID + (pSkill->nBeforeAction * 1000);
 		else
 			nConsumeItem = pSkill->iUseItem;
 
@@ -422,6 +420,67 @@ bool MagicInstance::CheckType4Prerequisites()
 	return true;
 }
 
+bool MagicInstance::CheckType6Prerequisites()
+{
+	if (!pSkillCaster->isPlayer())
+		return true;
+
+	_MAGIC_TYPE6 * pType = g_pMain->m_Magictype6Array.GetData(nSkillID);
+	if (pType == nullptr)
+		return false;
+
+	CUser * pCaster = TO_USER(pSkillCaster);
+	switch (pType->bUserSkillUse)
+	{
+	// For monster transformations (TransformationSkillUseMonster), nBeforeAction is set to the item 
+	// used for showing the transformation list & UseItem is the consumable item.
+	case TransformationSkillUseMonster:
+		// Ensure they have the item for showing the transformation list
+		if (!pCaster->CanUseItem(pSkill->nBeforeAction)
+			// Ensure they have the required item for the skill.
+			|| !pCaster->CanUseItem(pSkill->iUseItem))
+			return false;
+
+		break;
+
+	// For all other transformations, all we care about is UseItem (BeforeAction is set to 0 in these cases).
+	default:
+		// Ensure they have the item for showing the transformation list
+		if (!pCaster->CanUseItem(pSkill->iUseItem))
+			return false;
+		break;
+	}
+
+	// Perform class check, if applicable.
+	bool bAllowedClass = (pType->sClass == 0);
+	if (bAllowedClass)
+		return true;
+
+	// NOTE: sClass is a 4 digit number (e.g. 1111) with a digit per class 
+	// in the order warrior/rogue/mage/priest with '1' representing 'allowed' & 
+	// anything else as forbidden.
+	switch (pCaster->GetBaseClassType())
+	{
+	case ClassWarrior:
+		bAllowedClass = ((pType->sClass / 1000)) == 1;
+		break;
+
+	case ClassRogue:
+		bAllowedClass = ((pType->sClass % 1000) / 100) == 1;
+		break;
+
+	case ClassMage:
+		bAllowedClass = (((pType->sClass % 1000) % 100) / 10) == 1;
+		break;
+
+	case ClassPriest:
+		bAllowedClass = (((pType->sClass % 1000) % 100) % 10) == 1;
+		break;
+	}
+
+	return bAllowedClass;
+}
+
 bool MagicInstance::ExecuteSkill(uint8 bType)
 {
 	// Implement player-specific logic before skills are executed.
@@ -460,7 +519,6 @@ void MagicInstance::SendTransformationList()
 
 	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TRANSFORM_LIST));
 	result << nSkillID;
-	TO_USER(pSkillCaster)->m_nTransformationItem = pSkill->iUseItem;
 	TO_USER(pSkillCaster)->Send(&result);
 }
 
@@ -480,7 +538,7 @@ void MagicInstance::SendSkillFailed(int16 sTargetID /*= -1*/)
 	BuildSkillPacket(result, sCasterID, sTargetID == -1 ? this->sTargetID : sTargetID, MAGIC_FAIL, nSkillID, sData);
 
 	// No need to proceed if we're not sending fail packets.
-	if (bSendFail
+	if (!bSendFail
 		|| !pSkillCaster->isPlayer())
 		return;
 
@@ -730,6 +788,11 @@ bool MagicInstance::IsAvailable()
 
 		case 4:
 			if (!CheckType4Prerequisites())
+				return false;
+			break;
+
+		case 6:
+			if (!CheckType6Prerequisites())
 				return false;
 			break;
 		}
@@ -1660,7 +1723,6 @@ bool MagicInstance::ExecuteType6()
 
 	CUser * pCaster = TO_USER(pSkillCaster);
 	_MAGIC_TYPE6 * pType = g_pMain->m_Magictype6Array.GetData(nSkillID);
-	uint32 iUseItem = 0;
 	uint16 sDuration = 0;
 
 	if (pType == nullptr
@@ -1688,43 +1750,9 @@ bool MagicInstance::ExecuteType6()
 		if (pSkillTarget->HasSavedMagic(nSkillID))
 			return false;
 
-		// Let's start by looking at the item that was used for the transformation.
-		_ITEM_TABLE *pTable = g_pMain->GetItemPtr(pCaster->m_nTransformationItem);
-
-		// Also, for the sake of specific skills that bypass the list, let's lookup the 
-		// item attached to the skill.
-		_ITEM_TABLE *pTable2 = g_pMain->GetItemPtr(pSkill->iUseItem);
-
-		// If neither of these items exist, we have a bit of a problem...
-		if (pTable == nullptr 
-			&& pTable2 == nullptr)
-			return false;
-
-		/*
-			If it's a totem (which is apparently a ring), then we need to override it 
-			with a gem (which are conveniently stored in the skill table!)
-
-			The same is true for special items such as the Hera transformation scroll, 
-			however we need to go by the item attached to the skill for this one as 
-			these skills bypass the transformation list and thus do not set the flag.
-		*/
-
-
-		// NOTE: Should this make use of "NeedItem"? It could very well indicate which to use.
-
-		// Special items (e.g. Hera transformation scroll) use the scroll (tied to the skill)
-		if ((pTable2 != nullptr && (pTable2->m_bKind == 255 || pTable2->m_bKind == 97))
-			// Totems (i.e. rings) take gems (tied to the skill)
-			|| (pTable != nullptr && pTable->m_bKind == 93)) 
-			iUseItem = pSkill->iUseItem;
-		// If we're using a normal transformation scroll, we can leave the item as it is.
-		else 
-			iUseItem = pCaster->m_nTransformationItem;
-
-		// Attempt to take the item (no further checks, so no harm in multipurposing)
-		// If we add more checks, remember to change this check.
-		if (!TO_USER(pSkillCaster)->RobItem(iUseItem))
-			return false;
+		// Monster transformations require a transformation list.
+		if (pType->bUserSkillUse == TransformationMonster)
+			pCaster->RobItem(pSkill->nBeforeAction);
 
 		// User's casting a new skill. Use the full duration.
 		sDuration = pType->sDuration;

@@ -103,6 +103,7 @@ public:
 
 	bool CheckType3Prerequisites();
 	bool CheckType4Prerequisites();
+	bool CheckType6Prerequisites();
 
 	bool ExecuteSkill(uint8 bType);
 	bool ExecuteType1();	

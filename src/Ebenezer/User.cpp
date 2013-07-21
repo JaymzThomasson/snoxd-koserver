@@ -137,7 +137,6 @@ void CUser::Initialize()
 
 	m_transformationType = TransformationNone;
  	m_sTransformID = 0;
-	m_nTransformationItem = 0;
 	m_tTransformationStartTime = 0;
 	m_sTransformationDuration = 0;
 
