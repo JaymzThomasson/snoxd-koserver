@@ -7,16 +7,16 @@ pNpc = nil
 
 function Main(event)
 	if (event == 100) then
-				BaseMenu()
-		elseif (event == 7098) then
+					BaseMenu()
+	elseif (event == 7098) then
 					VictoryMenu()
-		elseif (event == 7099) then
+	elseif (event == 7099) then
 					NoahMenu()
-		elseif (event == 7091) then
+	elseif (event == 7091) then
 					ShoutForCharge()
-		elseif (event == 7092) then
+	elseif (event == 7092) then
 					FirmWill()
-		elseif (event == 7093) then
+	elseif (event == 7093) then
 					EndlessPatience()
 	end
 end
