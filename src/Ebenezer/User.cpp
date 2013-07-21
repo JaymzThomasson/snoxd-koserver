@@ -1065,7 +1065,6 @@ void CUser::SetSlotItemValue()
 		m_sStatItemBonuses[STAT_CHA] += pTable->m_sChaB;
 		m_sItemHitrate += pTable->m_sHitrate;
 		m_sItemEvasionrate += pTable->m_sEvarate;
-		m_sItemWeight += pTable->m_sWeight;
 
 		m_sFireR += pTable->m_bFireR;
 		m_sColdR += pTable->m_bColdR;
@@ -1998,8 +1997,6 @@ void CUser::ItemGet(Packet & pkt)
 		if (pDstItem->sCount > MAX_ITEM_COUNT)
 			pDstItem->sCount = MAX_ITEM_COUNT;
 
-		pReceiver->SendItemWeight();
-
 		result	<< uint8(pReceiver == this ? LootSolo : LootPartyItemGivenToUs)
 				<< nBundleID 
 				<< uint8(bDstPos - SLOT_MAX) 
@@ -2007,6 +2004,9 @@ void CUser::ItemGet(Packet & pkt)
 				<< pReceiver->GetCoins();
 
 		pReceiver->Send(&result);
+
+		pReceiver->SetUserAbility(false);
+		pReceiver->SendItemWeight();
 
 		// Now notify the party that we've looted, if applicable.
 		if (isInParty())

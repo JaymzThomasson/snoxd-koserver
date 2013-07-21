@@ -420,7 +420,9 @@ public:
 
 	INLINE uint8 GetStat(StatType type)
 	{
-		ASSERT(type < STAT_COUNT);
+		if (type >= STAT_COUNT)
+			return 0;
+
 		return m_bStats[type];
 	}
 
@@ -1190,5 +1192,9 @@ public:
 
 	DECLARE_LUA_FUNCTION(PromoteClan) {
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->PromoteClan((ClanTypeFlag) LUA_ARG_OPTIONAL(uint8, ClanTypePromoted, 2)));	
+	}
+
+	DECLARE_LUA_FUNCTION(GetStat) {
+		LUA_RETURN(LUA_GET_INSTANCE()->GetStat((StatType)(LUA_ARG(uint8, 2) + 1)));	
 	}
 };

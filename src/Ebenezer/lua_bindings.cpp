@@ -49,6 +49,7 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(GetActiveQuestID)
 	MAKE_LUA_METHOD(GetClanGrade)
 	MAKE_LUA_METHOD(GetClanRank)
+	MAKE_LUA_METHOD(GetStat)
 
 	MAKE_LUA_METHOD(isWarrior)
 	MAKE_LUA_METHOD(isRogue)
@@ -85,7 +86,6 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(NpcMsg) // new automated quest prompt (does whatever's needed, menu, quest prompt, etc)
 	MAKE_LUA_METHOD(CheckWeight)
 	MAKE_LUA_METHOD(CheckSkillPoint)
-	// MAKE_LUA_METHOD(CheckStatPoint)
 	MAKE_LUA_METHOD(isRoomForItem) // FindSlotForItem()
 	// MAKE_LUA_METHOD(CountMonsterQuestSub) // CheckMonsterCount(2)
 	// MAKE_LUA_METHOD(CountMonsterQuestMain) // CheckMonsterCount(3)
@@ -102,7 +102,6 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(ZoneChange)
 	MAKE_LUA_METHOD(ZoneChangeParty)
 	MAKE_LUA_METHOD(ZoneChangeClan)
-	// MAKE_LUA_METHOD(PromoteKnight)
 	MAKE_LUA_METHOD(ShowEffect)
 	MAKE_LUA_METHOD(ShowNpcEffect)
 	MAKE_LUA_METHOD(KissUser)
@@ -233,6 +232,7 @@ _LUA_WRAPPER_USER_FUNCTION(PromoteKnight, PromoteClan);
 _LUA_WRAPPER_USER_FUNCTION(CheckClanGrade, GetClanGrade);
 _LUA_WRAPPER_USER_FUNCTION(CheckKnight, GetClanRank);
 _LUA_WRAPPER_USER_FUNCTION(CheckLoyalty, GetLoyalty);
+_LUA_WRAPPER_USER_FUNCTION(CheckStatPoint, GetStat);
 
 LUA_FUNCTION(SelectMsg)
 {

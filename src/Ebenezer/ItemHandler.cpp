@@ -107,6 +107,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 		if (pSrcItem->sCount == 0)
 			memset(pSrcItem, 0, sizeof(_ITEM_DATA));
 
+		SetUserAbility(false);
 		SendItemWeight();
 		break;
 
@@ -162,6 +163,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 		if (pSrcItem->sCount == 0)
 			memset(pSrcItem, 0, sizeof(_ITEM_DATA));
 
+		SetUserAbility(false);
 		SendItemWeight();
 		break;
 
@@ -379,7 +381,7 @@ bool CUser::GiveItem(uint32 itemid, uint16 count, bool send_packet /*= true*/)
 	if (pos < 0)
 		return false;
 
-	_ITEM_DATA *pItem = &m_sItemArray[pos];
+	_ITEM_DATA *pItem = GetItem(pos);
 	if (pItem->nNum != 0)
 		bNewItem = false;
 
@@ -399,14 +401,21 @@ bool CUser::GiveItem(uint32 itemid, uint16 count, bool send_packet /*= true*/)
 		pItem->sCount = pItem->sDuration;
 
 	if (send_packet)
+	{
 		SendStackChange(itemid, m_sItemArray[pos].sCount, m_sItemArray[pos].sDuration, pos - SLOT_MAX, true);
+	}
+	else
+	{
+		SetUserAbility(false);
+		SendItemWeight();
+	}
+
 	return true;
 }
 
 void CUser::SendItemWeight()
 {
 	Packet result(WIZ_WEIGHT_CHANGE);
-	SetUserAbility();
 	result << m_sItemWeight;
 	Send(&result);
 }
@@ -595,7 +604,6 @@ void CUser::ItemMove(Packet & pkt)
 	}
 
 	SendItemMove(1);
-	SendItemWeight();
 
 	// Update everyone else, so that they can see your shiny new items (you didn't take them off did you!? DID YOU!?)
 	switch (dir)
@@ -924,7 +932,9 @@ void CUser::SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes
 	result << uint8(bNewItem ? 100 : 0);
 	result << sDurability;
 
+	SetUserAbility(false);
 	SendItemWeight();
+
 	Send(&result);
 }
 
@@ -968,7 +978,9 @@ void CUser::ItemRemove(Packet & pkt)
 
 	memset(pItem, 0, sizeof(_ITEM_DATA));
 
+	SetUserAbility();
 	SendItemWeight();
+
 	result << uint8(1);
 	Send(&result);
 

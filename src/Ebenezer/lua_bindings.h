@@ -21,5 +21,6 @@ LUA_FUNCTION(PromoteKnight);
 LUA_FUNCTION(CheckClanGrade);
 LUA_FUNCTION(CheckKnight);
 LUA_FUNCTION(CheckLoyalty);
+LUA_FUNCTION(CheckStatPoint);
 LUA_FUNCTION(SelectMsg);
 LUA_FUNCTION(CastSkill);

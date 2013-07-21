@@ -499,6 +499,7 @@ void CUser::ItemTrade(Packet & pkt)
 		if (!pTable->m_bCountable)
 			m_sItemArray[SLOT_MAX+pos].nSerialNum = g_pMain->GenerateItemSerial();
 
+		SetUserAbility(false);
 		SendItemWeight();
 	}
 	// Selling an item to an NPC
@@ -532,6 +533,7 @@ void CUser::ItemTrade(Packet & pkt)
 		else
 			pItem->sCount -= count;
 
+		SetUserAbility(false);
 		SendItemWeight();
 	}
 
