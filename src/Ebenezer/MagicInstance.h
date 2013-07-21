@@ -77,7 +77,7 @@ public:
 	_MAGIC_TABLE * pSkill;
 	int16	sCasterID, sTargetID; 
 	Unit	*pSkillCaster, *pSkillTarget;
-	int16	sData[8];
+	int16	sData[7];
 	bool	bSendFail;	// When enabled (enabled by default), sends fail packets to the client.
 						// This is not preferable in cases like scripted casts, as the script should handle the failure.
 	bool	bIsRecastingSavedMagic;
@@ -128,8 +128,8 @@ public:
 	void ConsumeItem();
 
 	void SendSkillToAI();
-	void BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8]);
-	void BuildAndSendSkillPacket(Unit * pUnit, bool bSendToRegion, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8]);
+	void BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[7]);
+	void BuildAndSendSkillPacket(Unit * pUnit, bool bSendToRegion, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[7]);
 	void SendSkill(bool bSendToRegion = true, Unit * pUnit = nullptr);
 	void SendSkillFailed(int16 sTargetID = -1);
 	void SendTransformationList();

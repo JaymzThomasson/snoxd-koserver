@@ -556,7 +556,7 @@ void MagicInstance::SendSkillFailed(int16 sTargetID /*= -1*/)
  * @param	sData			Array of additional misc skill data.
  */
 void MagicInstance::BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, 
-									 uint32 nSkillID, int16 sData[8])
+									 uint32 nSkillID, int16 sData[7])
 {
 	// On skill failure, flag the skill as failed.
 	if (opcode == MAGIC_FAIL)
@@ -579,7 +579,7 @@ void MagicInstance::BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 
 
 	result	<< opcode << nSkillID << sSkillCaster << sSkillTarget
 			<< sData[0] << sData[1] << sData[2] << sData[3]
-			<< sData[4] << sData[5] << sData[6] << sData[7];
+			<< sData[4] << sData[5] << sData[6];
 }
 
 /**
@@ -594,7 +594,7 @@ void MagicInstance::BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 
  * @param	nSkillID		Identifier for the skill.
  * @param	sData			Array of additional misc skill data.
  */
-void MagicInstance::BuildAndSendSkillPacket(Unit * pUnit, bool bSendToRegion, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8])
+void MagicInstance::BuildAndSendSkillPacket(Unit * pUnit, bool bSendToRegion, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[7])
 {
 	Packet result;
 	BuildSkillPacket(result, sSkillCaster, sSkillTarget, opcode, nSkillID, sData);
@@ -1542,10 +1542,10 @@ bool MagicInstance::ExecuteType4()
 		if (pSkill->bType[1] == 0 || pSkill->bType[1] == 4)
 		{
 			Unit *pTmp = (pSkillCaster->isPlayer() ? pSkillCaster : pTarget);
-			int16 sDataCopy[8] = 
+			int16 sDataCopy[] = 
 			{
 				sData[0], bResult, sData[2], sDuration,
-				sData[4], pType->bSpeed, sData[6], sData[7]
+				sData[4], pType->bSpeed, sData[6]
 			};
 
 			BuildAndSendSkillPacket(pTmp, true, sCasterID, pTarget->GetID(), bOpcode, nSkillID, sDataCopy);

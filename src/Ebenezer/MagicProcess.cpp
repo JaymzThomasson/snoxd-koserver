@@ -25,7 +25,7 @@ void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= nullptr*/)
 
 	pkt >> instance.sCasterID >> instance.sTargetID
 		>> instance.sData[0] >> instance.sData[1] >> instance.sData[2] >> instance.sData[3]
-		>> instance.sData[4] >> instance.sData[5] >> instance.sData[6] >> instance.sData[7];
+		>> instance.sData[4] >> instance.sData[5] >> instance.sData[6];
 
 	// Prevent users from faking other players or NPCs.
 	if (pCaster != nullptr // if it's nullptr, it's from AI.
