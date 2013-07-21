@@ -1917,12 +1917,13 @@ bool MagicInstance::ExecuteType8()
 			case 21:	// Summon a monster within a zone.
 				// LATER!!! 
 				break;
+
+			// This is used by Wild Advent (70 rogue skill) and Descent, teleport the user to the target user (Moral check to distinguish between the 2 skills)
 			case 25:
-				//This is used by Wild Advent (70 rogue skill) and Descent, teleport the user to the target user (Moral check to distinguish between the 2 skills)
 				float dest_x, dest_z = 0.0f;
-				if (pTUser->GetZoneID() != pSkillCaster->GetZoneID()) //If we're not even in the same zone, I can't teleport to you!
-					return false;
-				if (pSkill->bMoral < MORAL_ENEMY && pTUser->GetNation() != pSkillCaster->GetNation()) //I'm not the same nation as you are and thus can't t
+				// If we're not even in the same zone, I can't teleport to you!
+				if (pTUser->GetZoneID() != pSkillCaster->GetZoneID()
+					|| (pSkill->bMoral < MORAL_ENEMY && pSkillCaster->isHostileTo(pTUser)))
 					return false;
 					
 				dest_x = pTUser->GetX();
