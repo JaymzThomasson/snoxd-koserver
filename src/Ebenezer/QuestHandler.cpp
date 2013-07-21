@@ -443,3 +443,15 @@ void CUser::PromoteClan(ClanTypeFlag byFlag)
 
 	CKnightsManager::UpdateKnightsGrade(GetClanID(), byFlag);
 }
+
+uint8 CUser::GetClanGrade()
+{
+	if (!isInClan())
+		return ClanTypeNone;
+
+	CKnights * pClan = g_pMain->GetClanPtr(GetClanID());
+	if (pClan == nullptr)
+		return ClanTypeNone;
+
+	return pClan->m_byFlag;
+}

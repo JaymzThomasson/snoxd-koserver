@@ -6,10 +6,10 @@ using std::string;
 CKnights::CKnights()
 {
 	m_sIndex = 0;
-	m_byFlag = 0;			// 1 : Clan, 2 : 기사단
-	m_byNation = 0;		// nation
-	m_byGrade = 5;			// clan 등급 (1 ~ 5등급)
-	m_byRanking = 0;		// clan 등급 (1 ~ 5등)
+	m_byFlag = ClanTypeNone;
+	m_byNation = 0;
+	m_byGrade = 5;
+	m_byRanking = 0;
 	m_sMembers = 1;
 	memset(&m_Image, 0, sizeof(m_Image));
 	m_nMoney = 0;

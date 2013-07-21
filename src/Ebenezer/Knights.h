@@ -25,6 +25,7 @@ struct _KNIGHTS_USER
 
 enum ClanTypeFlag
 {
+	ClanTypeNone		= 0,
 	ClanTypeTraining	= 1,
 	ClanTypePromoted	= 2,
 	ClanTypeAccredited5	= 3,
