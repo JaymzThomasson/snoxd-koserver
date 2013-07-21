@@ -19,6 +19,7 @@ LUA_FUNCTION(ShowNpcEffect);
 LUA_FUNCTION(ExistMonsterQuestSub);
 LUA_FUNCTION(PromoteKnight);
 LUA_FUNCTION(CheckClanGrade);
+LUA_FUNCTION(CheckKnight);
 LUA_FUNCTION(CheckLoyalty);
 LUA_FUNCTION(SelectMsg);
 LUA_FUNCTION(CastSkill);

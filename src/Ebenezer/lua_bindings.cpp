@@ -48,6 +48,7 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(GetManner)
 	MAKE_LUA_METHOD(GetActiveQuestID)
 	MAKE_LUA_METHOD(GetClanGrade)
+	MAKE_LUA_METHOD(GetClanRank)
 
 	MAKE_LUA_METHOD(isWarrior)
 	MAKE_LUA_METHOD(isRogue)
@@ -230,6 +231,7 @@ LUA_WRAPPER_USER_FUNCTION(ShowNpcEffect);
 _LUA_WRAPPER_USER_FUNCTION(ExistMonsterQuestSub, GetActiveQuestID);
 _LUA_WRAPPER_USER_FUNCTION(PromoteKnight, PromoteClan);
 _LUA_WRAPPER_USER_FUNCTION(CheckClanGrade, GetClanGrade);
+_LUA_WRAPPER_USER_FUNCTION(CheckKnight, GetClanRank);
 _LUA_WRAPPER_USER_FUNCTION(CheckLoyalty, GetLoyalty);
 
 LUA_FUNCTION(SelectMsg)

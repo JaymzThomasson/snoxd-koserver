@@ -31,6 +31,7 @@ DEFINE_LUA_FUNCTION_TABLE(g_globalFunctions,
 	MAKE_LUA_FUNCTION(ExistMonsterQuestSub)
 	MAKE_LUA_FUNCTION(PromoteKnight)
 	MAKE_LUA_FUNCTION(CheckClanGrade)
+	MAKE_LUA_FUNCTION(CheckKnight)
 	MAKE_LUA_FUNCTION(CheckLoyalty)
 	MAKE_LUA_FUNCTION(SelectMsg)
 	MAKE_LUA_FUNCTION(CastSkill)
