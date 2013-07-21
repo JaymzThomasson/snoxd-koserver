@@ -112,6 +112,12 @@ public:
 		return (uint8) m_buffMap.size() != m_buffCount; 
 	}
 
+	INLINE bool hasBuff(uint8 buff)
+	{
+		FastGuard lock(m_buffLock);
+		return m_buffMap.find(buff) != m_buffMap.end();
+	}
+
 	INLINE bool canInstantCast() { return m_bInstantCast; }
 	INLINE bool canStealth()	{ return m_bCanStealth; }
 

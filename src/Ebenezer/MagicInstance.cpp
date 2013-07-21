@@ -624,7 +624,7 @@ void MagicInstance::SendSkill(bool bSendToRegion /*= true*/, Unit * pUnit /*= nu
 bool MagicInstance::IsAvailable()
 {
 	CUser* pParty = nullptr;
-	int modulator = 0, Class = 0, skill_mod = 0 ;
+	int modulator = 0, Class = 0, skill_mod = 0;
 
 	if (pSkill == nullptr)
 		goto fail_return;
@@ -749,25 +749,22 @@ bool MagicInstance::IsAvailable()
 		if (pSkill->bType[0] == 3)
 		{
 			_MAGIC_TYPE3 * pType3 = g_pMain->m_Magictype3Array.GetData(pSkill->iNum);
+			_ITEM_TABLE * pTable;
 			if (pType3 == nullptr)
 				goto fail_return;
 
 			// Allow for skills that block potion use.
-			// NOTE: Officially they most likely go by skill ID (5#####), but this seems less hacky.
-			if (!pSkillCaster->canUsePotions() 
-				&& pType3->bDirectType == 1 // affects target's HP (magic numbers! yay!)
-				&& pType3->sFirstDamage > 0 // healing only
-				&& pSkill->iUseItem != 0) // requiring an item (i.e. pots) 
-			{
+			if (!pSkillCaster->canUsePotions()
+				&& pType3->bDirectType == 1		// affects target's HP (magic numbers! yay!)
+				&& pType3->sFirstDamage > 0		// healing only
+				&& pSkill->iUseItem != 0		// requiring an item (i.e. pots) 
 				// To avoid conflicting with priest skills that require items (e.g. "Laying of hands")
 				// we need to lookup the item itself for the information we need to ignore it.
-				_ITEM_TABLE * pTable = g_pMain->GetItemPtr(pSkill->iUseItem);
-				if (pTable == nullptr
-					// Item-required healing skills are class-specific. 
-					// We DO NOT want to block these skills.
-					|| pTable->m_bClass == 0)
-					goto fail_return;
-			}
+				&& (pTable = g_pMain->GetItemPtr(pSkill->iUseItem)) != nullptr
+				// Item-required healing skills are class-specific. 
+				// We DO NOT want to block these skills.
+				&& pTable->m_bClass == 0)
+				goto fail_return;
 		}
 
 		modulator = pSkill->sSkill % 10;     // Hacking prevention!
@@ -1145,11 +1142,15 @@ bool MagicInstance::ExecuteType3()
 			{
 			// Affects target's HP
 			case 1:
+				// "Critical Point" buff gives a chance to double HP from pots or the rogue skill "Minor heal".
+				if (damage > 0 && pSkillCaster->hasBuff(BUFF_TYPE_DAMAGE_DOUBLE)
+					&& CheckPercent(500))
+					damage *= 2;
+
 				pTarget->HpChangeMagic(damage, pSkillCaster, (AttributeType) pType->bAttribute);
-				
 				if (pTarget->m_bReflectArmorType != 0 && pTarget != pSkillCaster)
 					ReflectDamage(damage, pTarget);
-				break;
+			break;
 
 			// Affects target's MP
 			case 2:
@@ -1508,8 +1509,6 @@ bool MagicInstance::ExecuteType4()
 		if (bResult == 0
 			&& pSkillCaster->isPlayer())
 			SendSkillFailed((*itr)->GetID());
-
-		continue;
 	}
 	return true;
 }
