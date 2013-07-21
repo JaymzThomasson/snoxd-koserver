@@ -36,6 +36,7 @@ end
 
 -- Default event when clicking on the NPC
 function HandleNPCSelection()
+	pUser:ShowNpcEffect(31033)
 	local sQuest = pUser:SearchQuest()
 	if (sQuest == 0) then 
 		pUser:SelectMsg(2, -1, 146, 10, 101)
