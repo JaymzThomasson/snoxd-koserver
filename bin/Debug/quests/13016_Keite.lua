@@ -11,7 +11,7 @@ function Main(event)
 	elseif (event == 104) then
 						UseVoucher()
 	elseif (event == 3001) then
-						Decline()
+						Close()
 	elseif (event == 101) then
 						FamiliarHatchTrans()
 	elseif (event == 102) then
@@ -33,11 +33,11 @@ function UseVoucher()
 						pUser:SelectMsg(3,-1,820,4344,105,4345,106,4199,3001)
 end
 
-function Decline()
+function Close()
 						return
 end
 
-function FamiliarHatchTrans() -- Some sort of "anvil type" U.I should open where you can either hatch or transform an EGG into a PET!
+function FamiliarHatchTrans() -- Some sort of "anvil type" U.I should open where you can either hatch an EGG into a PET or transform it's appearance!
 						return
 end
 
@@ -49,7 +49,7 @@ function FamiliarNameChange()
 	end
 end
 
-function FamiliarRandom() -- Opens up a Shop for your little fluffy one where you can buy milk, bread and sort!
+function FamiliarRandom() -- Opens up a Shop U.I for your little fluffy one where you can buy milk, bread etc!
 						return
 end
 

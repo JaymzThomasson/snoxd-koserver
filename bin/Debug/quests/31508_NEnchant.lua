@@ -28,7 +28,7 @@ function Main(event)
 end
 
 function BaseMenu()
-						pUser:SelectMsg(2,-1,9138,7098,7098,7099,7099)
+						pUser:SelectMsg(3,-1,9138,7098,7098,7099,7099)
 end
 
 function VictoryMenu()
