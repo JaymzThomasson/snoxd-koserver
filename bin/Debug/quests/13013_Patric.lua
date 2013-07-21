@@ -1,18 +1,15 @@
 -----
--- Script for [National Enchanter] in Moradon
+-- Script for [Sentinel] Patrick in Moradon
 -----
 
 pUser = nil
-pNpc = nil
-bSelectedReward = -1
-
 
 function Main(event)
 	if (event == 165) then
-				DefaultMenu()
+						BaseMenu()
 	end
 end
 
-function DefaultMenu()
-		pUser:SelectMsg(3, -1, 167, 27, 0)
+function BaseMenu()
+						pUser:SelectMsg(3,-1,4,27,0)
 end

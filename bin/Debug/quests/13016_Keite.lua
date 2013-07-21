@@ -26,11 +26,11 @@ function Main(event)
 end
 
 function BaseMenu()
-						pUser:SelectMsg(3, -1, 4834, 4263, 101, 4264, 102, 4265, 103, 4337, 104, 4199, 3001)
+						pUser:SelectMsg(3,-1,4834,4263,101,4264,102,4265,103,4337,104,4199,3001)
 end
 
 function UseVoucher()
-						pUser:SelectMsg(3, -1, 820, 4344, 105, 4345, 106, 4199, 3001)
+						pUser:SelectMsg(3,-1,820,4344,105,4345,106,4199,3001)
 end
 
 function Decline()
