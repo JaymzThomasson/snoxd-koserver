@@ -83,16 +83,13 @@ end
 
 function AcreditedAcceptRequiredItems()
 	if (pUser:hasCoins(10000000)) then
-		if (not pUser:CheckExistItem(389221000)) then
-						pUser:SelectMsg(2,-1,6392,10,241)
-		end
-						pUser:SelectMsg(2,-1,6391,10,241)
-	else
+		if (pUser:CheckExistItem(389221000)) then
 						pUser:RunExchange(467)
 						pUser:PromoteKnight(3)
+		else
+						pUser:SelectMsg(2,-1,6392,10,241)
+		end
+	else
+						pUser:SelectMsg(2,-1,6391,10,241)
 	end
 end
-
--- RoyalTest
-
--- TrainingTest
