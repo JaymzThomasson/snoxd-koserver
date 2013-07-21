@@ -19,9 +19,9 @@ function Main(event)
 	elseif (event == 103) then
 						FamiliarRandom()
 	elseif (event == 105) then
-						ExchangeMagicBag()
+						ExchangeVoucherMagicBag()
 	elseif (event == 106) then
-						ExchangeAutoLoot()
+						ExchangeVoucherAutoLoot()
 	end
 end
 
@@ -37,22 +37,26 @@ function Decline()
 						return
 end
 
-function FamiliarHatchTrans()
+function FamiliarHatchTrans() -- Some sort of "anvil type" U.I should open where you can either hatch or transform an EGG!
 						return
 end
 
-function FamiliarNameChange()
+function FamiliarNameChange() -- Name Change U.I should open where you can change the name of your PET!
 						return
 end
 
-function FamiliarRandom()
+function FamiliarRandom() -- Have no idea YET!
 						return
 end
 
-function ExchangeMagicBag()
+function ExchangeVoucherMagicBag() -- Erm is this the Character Magic bag or do Pets have a bag??
 						return
 end
 
-function ExchangeAutoLoot()
-						return
+function ExchangeVoucherAutoLoot()
+	if (pUser:RobItem(800450000)) then
+						pUser:GiveItem(700012000)
+	else
+						pUser:SelectMsg(2,-1,824,10,3001)
+	end
 end
