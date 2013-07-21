@@ -447,6 +447,18 @@ void CUser::PromoteClan(ClanTypeFlag byFlag)
 uint8 CUser::GetClanGrade()
 {
 	if (!isInClan())
+		return 0;
+
+	CKnights * pClan = g_pMain->GetClanPtr(GetClanID());
+	if (pClan == nullptr)
+		return 0;
+
+	return pClan->m_byGrade;
+}
+
+uint8 CUser::GetClanRank()
+{
+	if (!isInClan())
 		return ClanTypeNone;
 
 	CKnights * pClan = g_pMain->GetClanPtr(GetClanID());
