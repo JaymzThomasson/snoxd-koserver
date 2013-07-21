@@ -165,6 +165,7 @@ public:
 	void AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO & pBuffInfo);
 
 	virtual void StateChangeServerDirect(uint8 bType, uint32 nBuff) {}
+	virtual bool isHostileTo(Unit * pTarget) = 0;
 	virtual bool CanAttack(Unit * pTarget);
 
 	void OnDeath(Unit *pKiller);

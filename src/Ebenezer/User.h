@@ -901,7 +901,7 @@ public:
 	void PromoteClan(ClanTypeFlag byFlag);
 
 	// Attack/zone checks
-	bool CanAttack(Unit * pTarget);
+	bool isHostileTo(Unit * pTarget);
 	bool isInArena();
 	bool isInPVPZone();
 
