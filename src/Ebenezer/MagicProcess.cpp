@@ -131,12 +131,12 @@ bool CMagicProcess::UserRegionCheck(Unit * pSkillCaster, Unit * pSkillTarget, _M
 		// For example: same nation players attacking each other in an arena.
 		case MORAL_SELF_AREA:
 		case MORAL_AREA_ENEMY:
-			if (pSkillCaster->CanAttack(pSkillTarget))
+			if (pSkillCaster->isHostileTo(pSkillTarget))
 				goto final_test;
 			break;
 
 		case MORAL_AREA_FRIEND:
-			if (pSkillTarget->GetNation() == pSkillCaster->GetNation())
+			if (!pSkillCaster->isHostileTo(pSkillTarget))
 				goto final_test;
 			break;
 

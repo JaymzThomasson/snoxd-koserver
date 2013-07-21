@@ -436,6 +436,5 @@ public:
 	void ChangeAbility(int iChangeType);
 	bool Teleport();
 
-	virtual bool CanAttack(Unit * pTarget);
 	bool isHostileTo(Unit * pTarget);
 };

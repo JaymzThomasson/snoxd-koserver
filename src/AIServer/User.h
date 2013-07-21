@@ -82,6 +82,10 @@ public:
 	void SendHP();												// user¿« HP
 	void SendExp(int32 iExp, int32 iLoyalty, int tType = 1);
 
+	bool isHostileTo(Unit * pTarget);
+	bool isInArena();
+	bool isInPVPZone();
+
 	short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false);
 
 	CUser();

@@ -75,7 +75,6 @@ public:
 	virtual int32 GetMana() { return 0; }
 	virtual int32 GetMaxMana() { return 0; }
 
-	virtual bool CanAttack(Unit * pTarget);
 	bool isHostileTo(Unit * pTarget);
 
 	short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false);
