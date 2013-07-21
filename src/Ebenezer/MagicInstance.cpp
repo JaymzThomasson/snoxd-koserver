@@ -107,10 +107,12 @@ void MagicInstance::Run()
 
 			// NOTE: Some ROFD skills require a THIRD type.
 			if (bInitialResult)
+			{
 				ExecuteSkill(pSkill->bType[1]);
 
-			if (bInitialResult && pSkill->bType[0] != 2)
-				ConsumeItem();
+				if (pSkill->bType[0] != 2)
+					ConsumeItem();
+			}
 			break;
 
 		case MAGIC_TYPE3_END: //This is also MAGIC_TYPE4_END
@@ -372,7 +374,12 @@ bool MagicInstance::CheckType4Prerequisites()
 	_MAGIC_TYPE4 * pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
 
 	if (pType == nullptr)
-		return false;
+	{
+		if (pSkill->bType[0] == 6)
+			return true;
+		else
+			return false;
+	}
 
 	if (sTargetID < 0 || sTargetID >= MAX_USER)
 	{
