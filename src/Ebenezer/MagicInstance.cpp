@@ -97,7 +97,7 @@ void MagicInstance::Run()
 			// Need to find a better way of handling this.
 			if (!bIsRecastingSavedMagic
 				&& (pSkill->bType[0] == 0 && pSkill->bType[1] != 0 && pSkill->iUseItem != 0
-				&& (pSkillCaster->isPlayer() && TO_USER(pSkillCaster)->CheckExistItem(pSkill->iUseItem, 1))))
+				&& (pSkillCaster->isPlayer() && TO_USER(pSkillCaster)->CheckExistItem(pSkill->iUseItem))))
 			{
 				SendTransformationList();
 				return;
@@ -219,10 +219,12 @@ SkillUseResult MagicInstance::UserCanCast()
 		if ((pSkill->bType[0] != 2 && pSkill->bType[0] != 6) 
 			// The user does not meet the item's requirements or does not have any of said item.
 			&& (pSkill->iUseItem != 0
-				&& !TO_USER(pSkillCaster)->CanUseItem(pSkill->iUseItem, 1))) 
+				&& !TO_USER(pSkillCaster)->CanUseItem(pSkill->iUseItem))) 
 			return SkillUseFail;
 
-		if (pSkill->bBeforeAction < 5 && pSkill->bBeforeAction > 0)
+		// Some skills also require class-specific stones which are taken instead of UseItem.
+		// In this case, UseItem is considered a required item and not consumed on skill use.
+		if (pSkill->bBeforeAction >= ClassWarrior && pSkill->bBeforeAction <= ClassPriest)
 			nConsumeItem = CLASS_STONE_BASE_ID + (pSkill->bBeforeAction * 1000);
 		else
 			nConsumeItem = pSkill->iUseItem;
@@ -230,7 +232,7 @@ SkillUseResult MagicInstance::UserCanCast()
 		if ((pSkill->bType[0] != 2 && pSkill->bType[0] != 6) 
 			// The user does not meet the item's requirements or does not have any of said item.
 			&& (pSkill->iUseItem != 0
-				&& !TO_USER(pSkillCaster)->CanUseItem(nConsumeItem, 1))) 
+				&& !TO_USER(pSkillCaster)->CanUseItem(nConsumeItem))) 
 			return SkillUseFail;
 
 		// We cannot use CSW transformations outside of Delos (or when CSW is not enabled.)
@@ -1721,7 +1723,7 @@ bool MagicInstance::ExecuteType6()
 
 		// Attempt to take the item (no further checks, so no harm in multipurposing)
 		// If we add more checks, remember to change this check.
-		if (!TO_USER(pSkillCaster)->RobItem(iUseItem, 1))
+		if (!TO_USER(pSkillCaster)->RobItem(iUseItem))
 			return false;
 
 		// User's casting a new skill. Use the full duration.
@@ -2457,6 +2459,6 @@ void MagicInstance::ReflectDamage(int32 damage, Unit * pTarget)
 
 void MagicInstance::ConsumeItem()
 {
-	if(nConsumeItem != 0 && pSkillCaster->isPlayer())
-		TO_USER(pSkillCaster)->RobItem(nConsumeItem, 1);
+	if (nConsumeItem != 0 && pSkillCaster->isPlayer())
+		TO_USER(pSkillCaster)->RobItem(nConsumeItem);
 }

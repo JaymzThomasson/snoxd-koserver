@@ -4134,9 +4134,9 @@ bool Unit::isInAttackRange(Unit * pTarget, _MAGIC_TABLE * pSkill /*= nullptr*/)
  *
  * @return	true if we can use item, false if not.
  */
-bool CUser::CanUseItem(uint32 itemid, uint16 count)
+bool CUser::CanUseItem(uint32 nItemID, uint16 sCount /*= 1*/)
 {
-	_ITEM_TABLE* pItem = pItem = g_pMain->GetItemPtr(itemid);
+	_ITEM_TABLE* pItem = pItem = g_pMain->GetItemPtr(nItemID);
 	if (pItem == nullptr)
 		return false;
 
@@ -4154,7 +4154,7 @@ bool CUser::CanUseItem(uint32 itemid, uint16 count)
 		// Check the item's level requirement
 		|| (GetLevel() < pItem->m_bReqLevel || GetLevel() > pItem->m_bReqLevelMax)
 		// Ensure the item exists.
-		|| !CheckExistItem(itemid, count))
+		|| !CheckExistItem(nItemID, sCount))
 		return false;
 
 	return true;

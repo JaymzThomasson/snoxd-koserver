@@ -859,7 +859,7 @@ public:
 
 	void SendPartyStatusUpdate(uint8 bStatus, uint8 bResult = 0);
 
-	bool CanUseItem(uint32 itemid, uint16 count);
+	bool CanUseItem(uint32 nItemID, uint16 sCount = 1);
 
 	void CheckSavedMagic();
 	virtual void InsertSavedMagic(uint32 nSkillID, uint16 sDuration);
