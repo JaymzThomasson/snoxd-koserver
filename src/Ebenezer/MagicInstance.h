@@ -58,6 +58,8 @@ enum SkillMoral
 #define	RESURRECTION_SELF		4
 #define REMOVE_BLESS			5
 
+#define CLASS_STONE_BASE_ID	 379058000
+
 enum SkillUseResult
 {
 	SkillUseOK,
@@ -84,10 +86,12 @@ public:
 
 	bool	bSkillSuccessful;
 
+	uint32 nConsumeItem;
+
 	MagicInstance() : bOpcode(MAGIC_EFFECTING), nSkillID(0), pSkill(nullptr), 
 		sCasterID(-1), sTargetID(-1), pSkillCaster(nullptr), pSkillTarget(nullptr),
 		bSendFail(true), bIsRecastingSavedMagic(false), bIsItemProc(false), bInstantCast(false),
-		bSkillSuccessful(true)
+		bSkillSuccessful(true), nConsumeItem(0)
 	{
 		memset(&sData, 0, sizeof(sData));
 	}
@@ -120,6 +124,7 @@ public:
 	short GetMagicDamage(Unit *pTarget, int total_hit, int attribute);
 	short GetWeatherDamage(short damage, int attribute);
 	void ReflectDamage(int32 damage, Unit * pTarget);
+	void ConsumeItem();
 
 	void SendSkillToAI();
 	void BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8]);

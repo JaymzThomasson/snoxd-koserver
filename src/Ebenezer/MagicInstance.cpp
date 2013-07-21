@@ -108,6 +108,9 @@ void MagicInstance::Run()
 			// NOTE: Some ROFD skills require a THIRD type.
 			if (bInitialResult)
 				ExecuteSkill(pSkill->bType[1]);
+
+			if (bInitialResult && pSkill->bType[0] != 2)
+				ConsumeItem();
 			break;
 
 		case MAGIC_TYPE3_END: //This is also MAGIC_TYPE4_END
@@ -215,6 +218,17 @@ SkillUseResult MagicInstance::UserCanCast()
 			// The user does not meet the item's requirements or does not have any of said item.
 			&& (pSkill->iUseItem != 0
 				&& !TO_USER(pSkillCaster)->CanUseItem(pSkill->iUseItem, 1))) 
+			return SkillUseFail;
+
+		if (pSkill->bBeforeAction < 5 && pSkill->bBeforeAction > 0)
+			nConsumeItem = CLASS_STONE_BASE_ID + (pSkill->bBeforeAction * 1000);
+		else
+			nConsumeItem = pSkill->iUseItem;
+
+		if ((pSkill->bType[0] != 2 && pSkill->bType[0] != 6) 
+			// The user does not meet the item's requirements or does not have any of said item.
+			&& (pSkill->iUseItem != 0
+				&& !TO_USER(pSkillCaster)->CanUseItem(nConsumeItem, 1))) 
 			return SkillUseFail;
 
 		// We cannot use CSW transformations outside of Delos (or when CSW is not enabled.)
@@ -352,7 +366,11 @@ bool MagicInstance::CheckType3Prerequisites()
  */
 bool MagicInstance::CheckType4Prerequisites()
 {
+	if (pSkill->bType[0] == 6)
+		return true;
+
 	_MAGIC_TYPE4 * pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
+
 	if (pType == nullptr)
 		return false;
 
@@ -796,8 +814,7 @@ bool MagicInstance::IsAvailable()
 					if( !pItem ) return false;
 
 					if ((pItem->m_bClass != 0 && !TO_USER(pSkillCaster)->JobGroupCheck(pItem->m_bClass))
-						|| (pItem->m_bReqLevel != 0 && TO_USER(pSkillCaster)->GetLevel() < pItem->m_bReqLevel)
-						|| (!TO_USER(pSkillCaster)->RobItem(pSkill->iUseItem, 1)))	
+						|| (pItem->m_bReqLevel != 0 && TO_USER(pSkillCaster)->GetLevel() < pItem->m_bReqLevel))	
 						return false;
 				}
 			}
@@ -2435,4 +2452,10 @@ void MagicInstance::ReflectDamage(int32 damage, Unit * pTarget)
 			pSkillCaster->HpChange(-damage, pTarget);
 		break;
 	}
+}
+
+void MagicInstance::ConsumeItem()
+{
+	if(nConsumeItem != 0 && pSkillCaster->isPlayer())
+		TO_USER(pSkillCaster)->RobItem(nConsumeItem, 1);
 }
