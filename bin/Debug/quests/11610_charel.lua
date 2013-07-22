@@ -54,6 +54,22 @@ function Main(event)
 						TrainingRequiredItems()
 	elseif (event == 287) then				
 						TrainingPromote()
+	elseif (event == 360) then
+						BuyLoyalty()
+	elseif (event == 361) then
+						Cont500()
+	elseif (event == 362) then
+						Cont500Exchange()
+	elseif (event == 363) then
+						Cont100()
+	elseif (event == 364) then
+						Cont100Exchange()
+	elseif (event == 370) then
+						RequestPersonalRankReward()
+	elseif (event == 470) then
+						MonthPersonalRankRequestReward()
+	elseif (event == 380) then
+						RequestReward()
 	end
 end
 
@@ -111,8 +127,8 @@ end
 function AcreditedPromote()
 	if (pUser:hasCoins(10000000)) then
 		if (pUser:CheckExistItem(389221000)) then
-						pUser:RunExchange(467)
-						pUser:PromoteKnight(3)
+						pUser:GoldLose(10000000)
+						pUser:RobItem(389221000)
 		else
 						pUser:SelectMsg(2,-1,6392,10,241)
 		end
@@ -158,8 +174,8 @@ end
 function RoyalPromote()
 	if (pUser:hasCoins(10000000)) then
 		if (pUser:CheckExistItem(389222000)) then
-						Puser:RunExchange(467)
-						Puser:PromoteKnight(8)
+						pUser:GoldLose(10000000)
+						pUser:RobItem(389222000)
 		else
 						pUser:SelectMsg(2, -1, 6400, 10, 241)
 		end
@@ -210,7 +226,8 @@ end
 function TrainingPromote()
 	if (pUser:hasCoins(10000000)) then
 		if (pUser:CheckExistItem(910045000)) then
-						pUser:RunExchange(467)
+						pUser:GoldLose(10000000)
+						pUser:RobItem(910045000)
 						pUser:PromoteKnight(2)
 		else
 						pUser:SelectMsg(2, -1, 4170, 10, 241)
@@ -218,5 +235,69 @@ function TrainingPromote()
 	else
 						pUser:SelectMsg(2, -1, 4171, 10, 241)
 
+	end
+end
+
+function BuyLoyalty()
+	if (pUser:hasLoyalty(100)) then
+						pUser:SelectMsg(2, -1, 4155, 10, 241)
+	else
+						pUser:SelectMsg(2, -1, 4156, 4152, 361, 4153, 363, 4154, 241)
+	end
+end
+
+function Cont500()
+	if (not pUser:hasCoins(1500000)) then
+						pUser:SelectMsg(2, -1, 4160, 10, 241)
+	else
+						pUser:SelectMsg(4, 413, 4157, 22, 362, 23, 241)
+    end
+end
+
+function Cont500Exchange()
+						pUser:GoldLose(1500000)
+						pUser:GiveLoyalty(500)
+end
+
+function Cont100()
+	if (not pUser:hasCoins(350000)) then
+						pUser:SelectMsg(2, -1, 4161, 10, 241)
+	else
+						pUser:SelectMsg(4, 414, 4159, 22, 364, 23, 241)
+	end
+end
+
+function Cont100Exchange()
+						pUser:GoldLose(350000)
+						pUser:GiveLoyalty(100)
+end
+
+function RequestPersonalRankReward() -- Needs LUA function.
+	if (pUser:RequestPersonalRankReward() == 0) then
+						pUser:SelectMsg(2, -1, 4153, 10, 241)
+	elseif (pUser:RequestPersonalRankReward() == 2) then
+						pUser:SelectMsg(2, -1, 4154, 10, 241)
+	else
+						return -- a function to claim RequestReward.
+	end
+end
+
+function MonthPersonalRankRequestReward() -- Needs LUA function however it was not implemented in 1886 "officially" it seems.
+	if (pUser:MonthPersonalRankRequestReward() == 0) then
+						pUser:SelectMsg(2, -1, 4802, 10, 241)
+	elseif (pUser:MonthPersonalRankRequestReward() == 2) then
+						pUser:SelectMsg(2, -1, 4803, 10, 241)
+	else
+						return -- a function to claim MonthPersonalRankRequestReward.
+	end
+end
+
+function RequestReward() -- Needs LUA function.
+	if (pUser:RequestReward() == 0) then
+						pUser:SelectMsg(2, -1, 4151, 10, 241)
+	elseif (pUser:RequestReward() == 2) then
+						pUser:SelectMsg(2, -1, 4152, 10, 241)
+	else
+						return -- a function to claim RequestReward.
 	end
 end
