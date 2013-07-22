@@ -274,7 +274,7 @@ void CUser::SelectMsg(uint8 bFlag, int32 nQuestID, int32 menuHeaderText,
 	Send(&result);
 
 	// and store the corresponding event IDs.
-	memcpy(&m_iSelMsgEvent, menuButtonEvents, sizeof(menuButtonEvents));
+	memcpy(&m_iSelMsgEvent, menuButtonEvents, sizeof(int32) * MAX_MESSAGE_EVENT);
 }
 
 void CUser::NpcEvent(Packet & pkt)
@@ -499,6 +499,7 @@ void CUser::ItemTrade(Packet & pkt)
 		if (!pTable->m_bCountable)
 			m_sItemArray[SLOT_MAX+pos].nSerialNum = g_pMain->GenerateItemSerial();
 
+		SetUserAbility(false);
 		SendItemWeight();
 	}
 	// Selling an item to an NPC
@@ -532,6 +533,7 @@ void CUser::ItemTrade(Packet & pkt)
 		else
 			pItem->sCount -= count;
 
+		SetUserAbility(false);
 		SendItemWeight();
 	}
 
@@ -736,18 +738,10 @@ void CUser::HandleCapeChange(Packet & pkt)
 
 	Send(&result);
 
-	result.Initialize(WIZ_KNIGHTS_PROCESS);
-	result	<< uint8(KNIGHTS_CAPE_UPDATE)
-			<< GetClanID()
-			<< pKnights->m_byFlag
-			<< pKnights->GetCapeID()
-			<< pKnights->m_bCapeR << pKnights->m_bCapeG << pKnights->m_bCapeB
-			<< uint8(0);
-
 	// TO-DO:
 	// When we implement alliances, this should send to the alliance
 	// if the clan is part of one. Also, their capes should be updated.
-	pKnights->Send(&result);
+	pKnights->SendUpdate();
 
 	// TO-DO: Send to other servers via UDP.
 

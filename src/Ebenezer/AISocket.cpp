@@ -34,10 +34,6 @@ bool CAISocket::HandlePacket(Packet & pkt)
 		case AG_MAGIC_ATTACK_REQ:
 			CMagicProcess::MagicPacket(pkt);
 			break;
-		// This will probably need to be removed eventually.
-		case AG_MAGIC_ATTACK_RESULT:
-			RecvMagicAttackResult(pkt);
-			break;
 		case AG_NPC_INFO:
 			RecvNpcInfo(pkt);
 			break;
@@ -237,38 +233,25 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 	int nHP = 0, temp_damage = 0;
 	uint16 sid, tid;
 	uint8 type, bResult, byAttackType = 0;
-	float fDir=0.0f;
 	short damage = 0;
-	CNpc* pNpc = nullptr, *pMon = nullptr;
-	CUser* pUser = nullptr;
-	_OBJECT_EVENT* pEvent = nullptr;
+	Unit * pTarget = nullptr, * pAttacker = nullptr;
 
 	pkt >> type >> bResult >> sid >> tid >> damage >> nHP >> byAttackType;
 
-	//TRACE("CAISocket-RecvNpcAttack : sid=%s, tid=%d, zone_num=%d\n", sid, tid, m_iZoneNum);
+	pTarget = g_pMain->GetUnitPtr(tid);
+	if (pTarget == nullptr)
+		return;
 
-	if(type == 0x01)			// user attack -> npc
+	pAttacker = g_pMain->GetUnitPtr(sid);
+
+	// user attack -> npc
+	if (type == 1)
 	{
-		pNpc = g_pMain->GetNpcPtr(tid);
-		if(!pNpc)	return;
-		pNpc->m_iHP -= damage;
-		if( pNpc->m_iHP < 0 )
-			pNpc->m_iHP = 0;
-
-		pUser = g_pMain->GetUserPtr(sid);
-
-		// NPC died
-		if (bResult == 2 || bResult == 4)
-			pNpc->OnDeath(pUser);
-		else 
+		if (pAttacker != nullptr 
+			&& pAttacker->isPlayer()) 
 		{
-			Packet result(WIZ_ATTACK, byAttackType);
-			result << bResult << sid << tid;
-			pNpc->SendToRegion(&result);
-		}
+			CUser * pUser = TO_USER(pAttacker);
 
-		if (pUser != nullptr) 
-		{
 			if (byAttackType != MAGIC_ATTACK && byAttackType != DURATION_ATTACK) 
 			{
 				pUser->ItemWoreOut(ATTACK, damage);
@@ -294,86 +277,25 @@ void CAISocket::RecvNpcAttack(Packet & pkt)
 			}
 		}
 	}
-	else if (type == 2)		// npc attack -> user
+	// npc attack -> user
+	else if (type == 2)		
 	{
-		pNpc = g_pMain->GetNpcPtr(sid);
-		if(!pNpc)	return;
-
-		if (tid < NPC_BAND)
+		if (pTarget->isPlayer())
 		{
-			pUser = g_pMain->GetUserPtr(tid);
-			if(pUser == nullptr)	
-				return;
-
-			pUser->HpChange(-damage, pNpc, false);
-			pUser->ItemWoreOut(DEFENCE, damage);
-
-			Packet result(WIZ_ATTACK, byAttackType);
-			result	<< uint8(bResult == 3 ? 0 : bResult)
-					<< sid << tid;
-			pNpc->SendToRegion(&result);
-
-			//TRACE("RecvNpcAttack ==> sid = %d, tid = %d, result = %d\n", sid, tid, result);
-		}
-		else // npc attack -> monster
-		{
-			pMon = g_pMain->GetNpcPtr(tid);
-			if(!pMon)	return;
-			pMon->m_iHP -= damage;
-			if( pMon->m_iHP < 0 )
-				pMon->m_iHP = 0;
-
-			Packet result(WIZ_ATTACK, byAttackType);
-			result << bResult << sid << tid;
-			pNpc->SendToRegion(&result);
-			if (bResult == 2)	{		// npc dead
-				pMon->OnDeath(pNpc);
-			}
+			TO_USER(pTarget)->ItemWoreOut(DEFENCE, damage);
+			pTarget->HpChange(-(damage), pAttacker, false);
 		}
 	}
-}
 
-void CAISocket::RecvMagicAttackResult(Packet & pkt)
-{
-	uint32 magicid;
-	uint16 sid, tid;
-	uint8 byCommand; 
-
-	/* 
-		This is all so redundant...
-		When everything's switched over to pass in Packets
-		we can just pass it through directly!
-		As it is now.. we still need a length (which we can hardcode, but meh)
-	*/
-	pkt >> byCommand >> magicid >> sid >> tid;
-
-	pkt.SetOpcode(WIZ_MAGIC_PROCESS);
-	if (byCommand == MAGIC_CASTING
-		|| (byCommand == MAGIC_EFFECTING && sid >= NPC_BAND && tid >= NPC_BAND))
+	// If the target hasn't yet died, send a response.
+	// NOTE: NPC deaths are handled separately, for the loot boxes and such.
+	if (bResult != ATTACK_TARGET_DEAD 
+		&& bResult != MAGIC_ATTACK_TARGET_DEAD)
 	{
-		CNpc *pNpc = g_pMain->GetNpcPtr(sid);
-		if (!pNpc)
-			return;
-
-		pNpc->SendToRegion(&pkt);
+		Packet result(WIZ_ATTACK, byAttackType);
+		result << bResult << sid << tid;
+		pTarget->SendToRegion(&result);
 	}
-	else if (byCommand == MAGIC_EFFECTING)
-	{
-		if (sid < NPC_BAND)
-		{
-			CUser *pUser = g_pMain->GetUserPtr(sid);
-			if (pUser == nullptr || pUser->isDead())
-				return;
-
-			pUser->SendToRegion(&pkt);
-			return;
-		}
-
-		// If we're an NPC, casting a skill (rather, it's finished casting) on a player...
-		pkt.rpos(0);
-		CMagicProcess::MagicPacket(pkt);
-	}
-	
 }
 
 void CAISocket::RecvNpcInfo(Packet & pkt)
@@ -489,18 +411,19 @@ void CAISocket::RecvUserHP(Packet & pkt)
 
 void CAISocket::RecvUserExp(Packet & pkt)
 {
-	uint16 tid, sExp, sLoyalty;
-	pkt >> tid >> sExp >> sLoyalty;
+	uint16 tid;
+	int32 iExp, iLoyalty;
+	pkt >> tid >> iExp >> iLoyalty;
 
 	CUser* pUser = g_pMain->GetUserPtr(tid);
 	if (pUser == nullptr)
 		return;
 
-	if (sExp > 0)
-		pUser->ExpChange(sExp);
+	if (iExp > 0)
+		pUser->ExpChange(iExp);
 
-	if (sLoyalty > 0)
-		pUser->SendLoyaltyChange(sLoyalty);
+	if (iLoyalty > 0)
+		pUser->SendLoyaltyChange(iLoyalty);
 }
 
 void CAISocket::RecvSystemMsg(Packet & pkt)
@@ -548,6 +471,18 @@ void CAISocket::RecvNpcGiveItem(Packet & pkt)
 		if (g_pMain->GetItemPtr(nItemNumber[i]))
 		{
 			_LOOT_ITEM pItem(nItemNumber[i], sCount[i]);
+			if (nItemNumber[i] == ITEM_GOLD)
+			{
+				// Add on any additional coins earned because of a global coin event.
+				// NOTE: Officially it caps at SHRT_MAX, but that's really only for technical reasons.
+				// Using the unsigned range gives us a little bit of wiggle room.
+				uint32 coinAmount = sCount[i] * (100 + g_pMain->m_byCoinEventAmount) / 100;
+				if (sCount[i] + coinAmount > USHRT_MAX)
+					coinAmount = USHRT_MAX;
+
+				pItem.sCount = coinAmount;
+			}
+
 			pBundle->Items.push_back(pItem); // emplace_back() would be so much more useful here, but requires C++11.
 		}
 	}
@@ -617,16 +552,18 @@ void CAISocket::RecvGateDestory(Packet & pkt)
 // TO-DO: Remove this. NPCs don't just randomly die, it would make sense to do this as a result of the cause, not just because.
 void CAISocket::RecvNpcDead(Packet & pkt)
 {
-	uint16 nid = pkt.read<uint16>();
-	CNpc* pNpc = g_pMain->GetNpcPtr(nid);
-	if (pNpc == nullptr)
+	CNpc * pNpc;
+	Unit * pAttacker;
+	uint16 nid, attackerID;
+	pkt >> nid >> attackerID;
+
+	pNpc = g_pMain->GetNpcPtr(nid);
+	if (pNpc == nullptr
+		|| pNpc->GetMap() == nullptr)
 		return;
 
-	C3DMap* pMap = pNpc->GetMap();
-	if (pMap == nullptr)
-		return;
-
-	pNpc->OnDeath(nullptr);
+	pAttacker = g_pMain->GetUnitPtr(attackerID);
+	pNpc->OnDeath(pAttacker);
 }
 
 void CAISocket::RecvNpcInOut(Packet & pkt)
@@ -711,10 +648,10 @@ void CAISocket::RecvBattleEvent(Packet & pkt)
 				/* War rewards */
 				// Warders
 				if (bResult >= 3 && bResult <= 6)
-					pUser->ChangeNP(500); /* TO-DO: Remove hardcoded values */
+					pUser->SendLoyaltyChange(500); /* TO-DO: Remove hardcoded values */
 				// Keeper
 				else if (bResult == 7 || bResult == 8)
-					pUser->ChangeNP(1000);
+					pUser->SendLoyaltyChange(1000);
 			}
 		}
 
@@ -839,16 +776,13 @@ void CAISocket::RecvNpcHpChange(Packet & pkt)
 	Unit * pAttacker = nullptr;
 	int16 nid, sAttackerID;
 	int32 nHP, nAmount;
+
 	pkt >> nid >> sAttackerID >> nHP >> nAmount;
 
 	CNpc * pNpc = g_pMain->GetNpcPtr(nid);
 	if (pNpc == nullptr)
 		return;
 
-	if (sAttackerID < NPC_BAND)
-		pAttacker = g_pMain->GetUserPtr(sAttackerID);
-	else
-		pAttacker = g_pMain->GetNpcPtr(sAttackerID);
-
-	pNpc->HpChange(nAmount, pAttacker, false);
+	pAttacker = g_pMain->GetUnitPtr(sAttackerID);
+	pNpc->HpChange(nAmount, pAttacker, false); 
 }

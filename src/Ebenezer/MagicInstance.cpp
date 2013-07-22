@@ -9,39 +9,35 @@ using std::vector;
 
 void MagicInstance::Run()
 {
+	SkillUseResult result;
 	if (pSkill == nullptr)
 		pSkill = g_pMain->m_MagictableArray.GetData(nSkillID);
 
+	if (pSkillCaster == nullptr)
+		pSkillCaster = g_pMain->GetUnitPtr(sCasterID);
+
+	if (sTargetID != -1 && pSkillTarget == nullptr)
+		pSkillTarget = g_pMain->GetUnitPtr(sTargetID);
+
 	if (pSkill == nullptr
 		|| pSkillCaster == nullptr
-		|| !UserCanCast())
+		|| (result = UserCanCast()) == SkillUseFail)
 	{
 		SendSkillFailed();
 		return;
 	}
 
-#if 0
-	// If the target is a mob/NPC *or* we're casting an AOE, tell the AI to handle it.
-	if (sTargetID >= NPC_BAND
-		|| (sTargetID == -1 && 
-			(pSkill->bMoral == MORAL_AREA_ENEMY 
-				|| pSkill->bMoral == MORAL_AREA_ALL 
-				|| pSkill->bMoral == MORAL_SELF_AREA)))
-	{
-		SendSkillToAI();
-
-		// If the target is specifically a mob, stop here. AI's got this one.
-		// Otherwise, it's an AOE -- which means it might affect players too, so we need to handle it too.
-		if (sTargetID >= NPC_BAND)
-			return;
-	}
-#endif
-
+	// If the skill's already been handled (e.g. death taunts), 
+	// we don't need to do anything further.
+	if (result == SkillUseHandled)
+		return;
+	
 	bool bInitialResult;
 	switch (bOpcode)
 	{
 		case MAGIC_CASTING:
-			SendSkill(true); // send this to the region
+		case MAGIC_FAIL:
+			SendSkill(bOpcode == MAGIC_CASTING); // only send casting packets to the region, not fail packets.
 			break;
 
 		case MAGIC_FLYING:
@@ -95,30 +91,26 @@ void MagicInstance::Run()
 			SendSkill(true); // send this to the region
 		} break;
 
-		case MAGIC_FAIL:
-			SendSkill(false); // don't send this to the region
-			break;
-
 		case MAGIC_EFFECTING:
 			// Hacky check for a transformation item (Disguise Totem, Disguise Scroll)
 			// These apply when first type's set to 0, second type's set and obviously, there's a consumable item.
 			// Need to find a better way of handling this.
 			if (!bIsRecastingSavedMagic
 				&& (pSkill->bType[0] == 0 && pSkill->bType[1] != 0 && pSkill->iUseItem != 0
-				&& (pSkillCaster->isPlayer() && TO_USER(pSkillCaster)->CheckExistItem(pSkill->iUseItem, 1))))
+				&& (pSkillCaster->isPlayer() && TO_USER(pSkillCaster)->CheckExistItem(pSkill->iUseItem))))
 			{
 				SendTransformationList();
 				return;
 			}
 
 			bInitialResult = ExecuteSkill(pSkill->bType[0]);
-
-			// NOTE: Some ROFD skills require a THIRD type.
 			if (bInitialResult)
+			{
 				ExecuteSkill(pSkill->bType[1]);
-			break;
 
-		case MAGIC_TYPE3_END: //This is also MAGIC_TYPE4_END
+				if (pSkill->bType[0] != 2)
+					ConsumeItem();
+			}
 			break;
 
 		case MAGIC_CANCEL:
@@ -135,26 +127,24 @@ void MagicInstance::Run()
 	}
 }
 
-bool MagicInstance::UserCanCast()
+SkillUseResult MagicInstance::UserCanCast()
 {
 	if (pSkill == nullptr)
-		return false;
+		return SkillUseFail;
 	
 	// We don't need to check anything as we're just canceling our buffs.
-	if (bOpcode == MAGIC_CANCEL || bOpcode == MAGIC_CANCEL2) 
-		return true;
+	if (bOpcode == MAGIC_CANCEL || bOpcode == MAGIC_CANCEL2
+		// Also don't need to check anything if we're forwarding a fail packet.
+		|| bOpcode == MAGIC_FAIL
+		// Or are reapplying persistent buffs.
+		|| bIsRecastingSavedMagic)
+		return SkillUseOK;
 
-	if (bIsRecastingSavedMagic)
-		return true;
-
-	if (!pSkillCaster->canUseSkills())
-		return false;
-
-	// Users who are blinking cannot use skills.
+	// Ensure the caster can use skills (i.e. they're not incapacitated, or have skills blocked, etc).
 	// Additionally, unless it's resurrection-related, dead players cannot use skills.
-	if (pSkillCaster->isBlinking()
+	if (!pSkillCaster->canUseSkills()
 		|| (pSkillCaster->isDead() && pSkill->bType[0] != 5)) 
-		return false;
+		return SkillUseFail;
 
 	// If we're using an AOE, and the target is specified... something's not right.
 	if ((pSkill->bMoral >= MORAL_AREA_ENEMY
@@ -164,69 +154,105 @@ bool MagicInstance::UserCanCast()
 		// Items that proc skills require the target ID to be fixed up.
 		// There's no other means of detecting who to target.
 		if (!bIsItemProc)
-			return false;
+			return SkillUseFail;
 
 		sTargetID = -1;
 	}
 
-	// NPCs do not need further checks.
-	// NOTE: The source check's implemented in the main packet wrapper.
-	if (pSkillCaster->isNPC())
-		return true;
-
-	if (pSkill->sSkill != 0
-		&& (TO_USER(pSkillCaster)->m_sClass != (pSkill->sSkill / 10)
+	// NPCs do not need most of these checks.
+	if (pSkillCaster->isPlayer())
+	{
+		if (pSkill->sSkill != 0
+			&& (TO_USER(pSkillCaster)->m_sClass != (pSkill->sSkill / 10)
 			|| pSkillCaster->GetLevel() < pSkill->sSkillLevel))
-		return false;
+			return SkillUseFail;
 
-	if ((pSkillCaster->GetMana() - pSkill->sMsp) < 0)
-		return false;
+		if ((pSkillCaster->GetMana() - pSkill->sMsp) < 0)
+			return SkillUseFail;
 
-	// If we're in a snow war, we're only ever allowed to use the snowball skill.
-	if (pSkillCaster->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
-		&& nSkillID != SNOW_EVENT_SKILL)
-		return false;
+		// If we're in a snow war, we're only ever allowed to use the snowball skill.
+		if (pSkillCaster->GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE 
+			&& nSkillID != SNOW_EVENT_SKILL)
+			return SkillUseFail;
 
-	// If a target is specified, and we're using an attack skill, determine if the caster can attack the target.
-	// NOTE: This disregards whether we're trying/able to attack ourselves (which may be skill induced?).
-	if (pSkillTarget != nullptr
-		&& (pSkill->bMoral == MORAL_ENEMY || pSkill->bMoral == MORAL_NPC || pSkill->bMoral == MORAL_ALL)
-		&& !pSkillCaster->CanAttack(pSkillTarget))
-		return false;
+		// Handle death taunts (i.e. pressing the spacebar on a corpse).
+		// NOTE: These skills don't really have any other generic means of identification.
+		if (pSkillTarget != nullptr
+			&& pSkill->bMoral == MORAL_ENEMY
+			&& pSkill->bType[0] == 3 
+			&& pSkill->bType[1] == 0
+			// Target player must be a corpse.
+			&& pSkillTarget->isDead())
+		{
+			_MAGIC_TYPE3 * pType3 = g_pMain->m_Magictype3Array.GetData(pSkill->iNum);
+			if (pType3 == nullptr)
+				return SkillUseFail;
 
-	// Archer & transformation skills will handle item checking themselves
-	if ((pSkill->bType[0] != 2 && pSkill->bType[0] != 6) 
-		// The user does not meet the item's requirements or does not have any of said item.
-		&& (pSkill->iUseItem != 0
-			&& !TO_USER(pSkillCaster)->CanUseItem(pSkill->iUseItem, 1))) 
-		return false;
+			// Skill mustn't do any damage or such.
+			if (pType3->bDirectType == 0
+				&& pType3->sFirstDamage == 0
+				&& pType3->sTimeDamage == 0)
+			{
+				// We also need to tweak the packet being sent.
+				bOpcode = MAGIC_EFFECTING;
+				sData[1] = 1;
+				SendSkill();
+				return SkillUseHandled;
+			}
+		}
 
-	// We cannot use CSW transformations outside of Delos (or when CSW is not enabled.)
-	if (pSkill->bType[0] == 6
-		&& (nSkillID / 10000) == 45
-		&& pSkillCaster->GetZoneID() != ZONE_DELOS)
-		return false;
+		// Archer & transformation skills will handle item checking themselves
+		if ((pSkill->bType[0] != 2 && pSkill->bType[0] != 6) 
+			// The user does not meet the item's requirements or does not have any of said item.
+			&& (pSkill->iUseItem != 0
+				&& !TO_USER(pSkillCaster)->CanUseItem(pSkill->iUseItem))) 
+			return SkillUseFail;
 
-#if !defined(DEBUG)
-	// For skills that are unlocked via quests, ensure the user has actually 
-	// completed the quest...
-	// NOTE: GMs are excluded.
-	if (!pSkillCaster->isGM()
-		&& pSkill->sEtc != 0
-		&& !TO_USER(pSkillCaster)->CheckExistEvent(pSkill->sEtc, 2))
-		return false;
-#endif
+		// Some skills also require class-specific stones which are taken instead of UseItem.
+		// In this case, UseItem is considered a required item and not consumed on skill use.
+		if (pSkill->nBeforeAction >= ClassWarrior && pSkill->nBeforeAction <= ClassPriest)
+			nConsumeItem = CLASS_STONE_BASE_ID + (pSkill->nBeforeAction * 1000);
+		else
+			nConsumeItem = pSkill->iUseItem;
+
+		if ((pSkill->bType[0] != 2 && pSkill->bType[0] != 6) 
+			// The user does not meet the item's requirements or does not have any of said item.
+			&& (pSkill->iUseItem != 0
+				&& !TO_USER(pSkillCaster)->CanUseItem(nConsumeItem))) 
+			return SkillUseFail;
+
+		// We cannot use CSW transformations outside of Delos (or when CSW is not enabled.)
+		if (pSkill->bType[0] == 6
+			&& (nSkillID / 10000) == 45
+			&& pSkillCaster->GetZoneID() != ZONE_DELOS)
+			return SkillUseFail;
+
+	#if !defined(DEBUG)
+		// For skills that are unlocked via quests, ensure the user has actually 
+		// completed the quest...
+		// NOTE: GMs are excluded.
+		if (!pSkillCaster->isGM()
+			&& pSkill->sEtc != 0
+			&& !TO_USER(pSkillCaster)->CheckExistEvent(pSkill->sEtc, 2))
+			return SkillUseFail;
+	#endif
+
+		if (pSkill->bType[0] < 4
+			&& pSkillTarget != nullptr
+			&& !pSkillCaster->isInAttackRange(pSkillTarget, pSkill))
+			return SkillUseFail;
+	}
 
 	if ((bOpcode == MAGIC_EFFECTING || bOpcode == MAGIC_CASTING) 
 		&& !IsAvailable())
-		return false;
+		return SkillUseFail;
 
 	// Instant casting affects the next cast skill only, and is then removed.
-	if (pSkillCaster->canInstantCast())
-		CMagicProcess::RemoveType4Buff(BUFF_TYPE_INSTANT_MAGIC, pSkillCaster);
+	if (bOpcode == MAGIC_EFFECTING && pSkillCaster->canInstantCast())
+		bInstantCast = true;
 
 	// In case we made it to here, we can cast! Hurray!
-	return true;
+	return SkillUseOK;
 }
 
 /**
@@ -253,10 +279,7 @@ bool MagicInstance::CheckType3Prerequisites()
 			// Players may not cast group healing spells whilst transformed
 			// into a monster (skills with IDs of 45###). 
 			if (TO_USER(pSkillCaster)->isMonsterTransformation())
-			{
-				SendSkillFailed();
 				return false;
-			}
 
 			// Official behaviour means we cannot cast a group healing spell
 			// if we currently have an active restoration spells on us.
@@ -264,10 +287,7 @@ bool MagicInstance::CheckType3Prerequisites()
 			for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
 			{
 				if (pSkillCaster->m_durationalSkills[i].m_sHPAmount > 0)
-				{
-					SendSkillFailed();
 					return false;
-				}
 			}
 		}
 
@@ -287,10 +307,7 @@ bool MagicInstance::CheckType3Prerequisites()
 
 		// We cannot heal gates! That would be bad, very bad.
 		if (TO_NPC(pSkillTarget)->GetType() == NPC_GATE) // note: official only checks byType 50
-		{
-			SendSkillFailed();
 			return false;
-		}
 
 		// Otherwise, officially there's no reason we can't heal NPCs (more specific logic later).
 		return true;
@@ -315,10 +332,7 @@ bool MagicInstance::CheckType3Prerequisites()
 			for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
 			{
 				if (pSkillTarget->m_durationalSkills[i].m_sHPAmount > 0)
-				{
-					SendSkillFailed();
 					return false;
-				}
 			}
 		}
 
@@ -326,10 +340,7 @@ bool MagicInstance::CheckType3Prerequisites()
 		// on players that have transformed into monsters.
 		if (TO_USER(pSkillTarget)->isMonsterTransformation()
 			&& !pSkillCaster->CanAttack(pSkillTarget))
-		{
-			SendSkillFailed();
 			return false;
-		}
 
 		return true;
 	}
@@ -343,8 +354,11 @@ bool MagicInstance::CheckType3Prerequisites()
 bool MagicInstance::CheckType4Prerequisites()
 {
 	_MAGIC_TYPE4 * pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
+
+	// Certain transformation (type 6) skills state they have an associated
+	// type 4 skill but do not have any entry in the table. Consider these OK.
 	if (pType == nullptr)
-		return false;
+		return (pSkill->bType[0] == 6);
 
 	if (sTargetID < 0 || sTargetID >= MAX_USER)
 	{
@@ -353,7 +367,6 @@ bool MagicInstance::CheckType4Prerequisites()
 			|| pType->sMaxHPPct != 99) // e.g. skills like Dispel Magic / Sweet Kiss
 			return true;
 
-		SendSkillFailed();
 		return false;
 	}
 
@@ -375,10 +388,82 @@ bool MagicInstance::CheckType4Prerequisites()
 			return false;
 		}
 	}
-	
+
+	// If the specified target already has this buff (debuffs are required to reset)
+	// we should fail this skill. 
+	// NOTE: AOE buffs are exempt.
+	if (pType->isBuff())
+	{
+		FastGuard lock(pSkillTarget->m_buffLock);
+		if (pSkillTarget->m_buffMap.find(pType->bBuffType) 
+			!= pSkillTarget->m_buffMap.end())
+			return false;
+	}
+
 	// TO-DO: Allow for siege-weapon only buffs (e.g. "Physical Attack Scroll")
 
 	return true;
+}
+
+bool MagicInstance::CheckType6Prerequisites()
+{
+	if (!pSkillCaster->isPlayer())
+		return true;
+
+	_MAGIC_TYPE6 * pType = g_pMain->m_Magictype6Array.GetData(nSkillID);
+	if (pType == nullptr)
+		return false;
+
+	CUser * pCaster = TO_USER(pSkillCaster);
+	switch (pType->bUserSkillUse)
+	{
+	// For monster transformations (TransformationSkillUseMonster), nBeforeAction is set to the item 
+	// used for showing the transformation list & UseItem is the consumable item.
+	case TransformationSkillUseMonster:
+		// Ensure they have the item for showing the transformation list
+		if (!pCaster->CanUseItem(pSkill->nBeforeAction)
+			// Ensure they have the required item for the skill.
+			|| !pCaster->CanUseItem(pSkill->iUseItem))
+			return false;
+
+		break;
+
+	// For all other transformations, all we care about is UseItem (BeforeAction is set to 0 in these cases).
+	default:
+		// Ensure they have the item for showing the transformation list
+		if (!pCaster->CanUseItem(pSkill->iUseItem))
+			return false;
+		break;
+	}
+
+	// Perform class check, if applicable.
+	bool bAllowedClass = (pType->sClass == 0);
+	if (bAllowedClass)
+		return true;
+
+	// NOTE: sClass is a 4 digit number (e.g. 1111) with a digit per class 
+	// in the order warrior/rogue/mage/priest with '1' representing 'allowed' & 
+	// anything else as forbidden.
+	switch (pCaster->GetBaseClassType())
+	{
+	case ClassWarrior:
+		bAllowedClass = ((pType->sClass / 1000)) == 1;
+		break;
+
+	case ClassRogue:
+		bAllowedClass = ((pType->sClass % 1000) / 100) == 1;
+		break;
+
+	case ClassMage:
+		bAllowedClass = (((pType->sClass % 1000) % 100) / 10) == 1;
+		break;
+
+	case ClassPriest:
+		bAllowedClass = (((pType->sClass % 1000) % 100) % 10) == 1;
+		break;
+	}
+
+	return bAllowedClass;
 }
 
 bool MagicInstance::ExecuteSkill(uint8 bType)
@@ -386,25 +471,6 @@ bool MagicInstance::ExecuteSkill(uint8 bType)
 	// Implement player-specific logic before skills are executed.
 	if (pSkillCaster->isPlayer())
 	{
-		// Handle prerequisite checks for primary skills.
-		// This must occur before stealth is removed; if a skill fails here, 
-		// it should NOT unstealth users.
-		if (pSkill->bType[0] == bType)
-		{
-			switch (bType)
-			{
-			case 3: 
-				if (!CheckType3Prerequisites())
-					return false;
-				break;
-
-			case 4: 
-				if (!CheckType4Prerequisites())
-					return false;
-				break;
-			}
-		}
-
 		// If a player is stealthed, and they are casting a type 1/2/3/7 skill
 		// it is classed as an attack, so they should be unstealthed.
 		if (TO_USER(pSkillCaster)->m_bInvisibilityType != INVIS_NONE
@@ -438,7 +504,6 @@ void MagicInstance::SendTransformationList()
 
 	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TRANSFORM_LIST));
 	result << nSkillID;
-	TO_USER(pSkillCaster)->m_nTransformationItem = pSkill->iUseItem;
 	TO_USER(pSkillCaster)->Send(&result);
 }
 
@@ -450,13 +515,18 @@ void MagicInstance::SendTransformationList()
  */
 void MagicInstance::SendSkillFailed(int16 sTargetID /*= -1*/)
 {
-	if (pSkillCaster == nullptr
-		|| !pSkillCaster->isPlayer())
+	if (pSkillCaster == nullptr)
 		return;
 
 	Packet result;
 	sData[3] = (bOpcode == MAGIC_CASTING ? SKILLMAGIC_FAIL_CASTING : SKILLMAGIC_FAIL_NOEFFECT);
 	BuildSkillPacket(result, sCasterID, sTargetID == -1 ? this->sTargetID : sTargetID, MAGIC_FAIL, nSkillID, sData);
+
+	// No need to proceed if we're not sending fail packets.
+	if (!bSendFail
+		|| !pSkillCaster->isPlayer())
+		return;
+
 	TO_USER(pSkillCaster)->Send(&result);
 }
 
@@ -471,12 +541,22 @@ void MagicInstance::SendSkillFailed(int16 sTargetID /*= -1*/)
  * @param	sData			Array of additional misc skill data.
  */
 void MagicInstance::BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, 
-									 uint32 nSkillID, int16 sData[8])
+									 uint32 nSkillID, int16 sData[7])
 {
+	// On skill failure, flag the skill as failed.
+	if (opcode == MAGIC_FAIL)
+	{
+		bSkillSuccessful = false;
+
+		// No need to proceed if we're not sending fail packets.
+		if (!bSendFail)
+			return;
+	}
+
 	result.Initialize(WIZ_MAGIC_PROCESS);
 	result	<< opcode << nSkillID << sSkillCaster << sSkillTarget
 			<< sData[0] << sData[1] << sData[2] << sData[3]
-			<< sData[4] << sData[5] << sData[6] << sData[7];
+			<< sData[4] << sData[5] << sData[6];
 }
 
 /**
@@ -491,12 +571,17 @@ void MagicInstance::BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 
  * @param	nSkillID		Identifier for the skill.
  * @param	sData			Array of additional misc skill data.
  */
-void MagicInstance::BuildAndSendSkillPacket(Unit * pUnit, bool bSendToRegion, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8])
+void MagicInstance::BuildAndSendSkillPacket(Unit * pUnit, bool bSendToRegion, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[7])
 {
 	Packet result;
 	BuildSkillPacket(result, sSkillCaster, sSkillTarget, opcode, nSkillID, sData);
 
-	if (bSendToRegion || pUnit->isNPC())
+	// No need to proceed if we're not sending fail packets.
+	if (opcode == MAGIC_FAIL
+		&& !bSendFail)
+		return;
+
+	if (bSendToRegion || !pUnit->isPlayer())
 		pUnit->SendToRegion(&result);
 	else
 		TO_USER(pUnit)->Send(&result);
@@ -524,147 +609,126 @@ void MagicInstance::SendSkill(bool bSendToRegion /*= true*/, Unit * pUnit /*= nu
 
 bool MagicInstance::IsAvailable()
 {
-	CUser* pParty = nullptr;   // When the target is a party....
-	int modulator = 0, Class = 0, moral = 0, skill_mod = 0 ;
-	bool isNPC = (sCasterID >= NPC_BAND);		// Identifies source : true means source is NPC.
+	CUser* pParty = nullptr;
+	int modulator = 0, Class = 0, skill_mod = 0;
 
 	if (pSkill == nullptr)
 		goto fail_return;
 
-	if (sTargetID >= 0 && sTargetID < MAX_USER) 
-		moral = pSkillTarget->GetNation();
-	else if (sTargetID >= NPC_BAND)     // Target existence check routine for NPC.          	
+	switch (pSkill->bMoral)
 	{
-		if (pSkillTarget == nullptr || pSkillTarget->isDead())
-			goto fail_return;	//... Assuming NPCs can't be resurrected.
+		// Enforce self-casting skills *unless* we're an NPC.
+		// Quest NPCs, naturally, use skills set as self-buffs.
+		case MORAL_SELF:
+			if (pSkillCaster->isPlayer() 
+				&& pSkillCaster != pSkillTarget)
+				goto fail_return;
+			break;
 
-		moral = pSkillTarget->GetNation();
-	}
-	else if (sTargetID == -1)  // AOE/Party Moral check routine.
-	{
-		if (isNPC)
+		case MORAL_FRIEND_WITHME:
+			if (pSkillTarget != pSkillCaster 
+				&& pSkillCaster->isHostileTo(pSkillTarget))
+				goto fail_return;
+			break;
+
+		case MORAL_FRIEND_EXCEPTME:
+			if (pSkillCaster == pSkillTarget
+				|| pSkillCaster->isHostileTo(pSkillTarget))
+				goto fail_return;
+			break;
+
+		case MORAL_PARTY:
 		{
-			moral = 1;
-		}
-		else
-		{
-			if (pSkill->bMoral == MORAL_AREA_ENEMY)
-				moral = pSkillCaster->GetNation() == KARUS ? ELMORAD : KARUS;
-			else 
-				moral = pSkillCaster->GetNation();	
-		}
-	}
-	else 
-		moral = pSkillCaster->GetNation();
+			// NPCs can't *be* in parties.
+			if (pSkillCaster->isNPC()
+				|| (pSkillTarget != nullptr && pSkillTarget->isNPC()))
+				goto fail_return;
 
-	if(pSkillCaster->m_pMap->canAttackOtherNation())
-	{
-		switch( pSkill->bMoral ) {		// Compare morals between source and target character.
-			case MORAL_SELF:   // #1         // ( to see if spell is cast on the right target or not )
-				if (pSkillCaster != pSkillTarget)
-					goto fail_return;
-				break;
-			case MORAL_FRIEND_WITHME:	// #2
-				if (moral != 0 && 
-					pSkillCaster->GetNation() != moral)
-					goto fail_return;
-				break;
-			case MORAL_FRIEND_EXCEPTME:	   // #3
-				if (pSkillCaster->GetNation() != moral
-					|| pSkillCaster == pSkillTarget)
-					goto fail_return;
-				break;
-			case MORAL_PARTY:	 // #4
-			{
-				// NPCs can't *be* in parties.
-				if (pSkillCaster->isNPC()
-					|| (pSkillTarget != nullptr && pSkillTarget->isNPC()))
-					goto fail_return;
+			// We're definitely a user, so...
+			CUser *pCaster = TO_USER(pSkillCaster);
 
-				// We're definitely a user, so...
-				CUser *pCaster = TO_USER(pSkillCaster);
+			// If the caster's not in a party, make sure the target's not someone other than themselves.
+			if ((!pCaster->isInParty() && pSkillCaster != pSkillTarget)
+				// Also ensure that if there is a target, they're in the same party.
+				|| (pSkillTarget != nullptr && 
+					TO_USER(pSkillTarget)->GetPartyID() != pCaster->GetPartyID()))
+				goto fail_return;
+		} break;
 
-				// If the caster's not in a party, make sure the target's not someone other than themselves.
-				if ((!pCaster->isInParty() && pSkillCaster != pSkillTarget)
-					// Verify that the nation matches the intended moral
-					|| pCaster->GetNation() != moral
-					// and that if there is a target, they're in the same party.
-					|| (pSkillTarget != nullptr && 
-						TO_USER(pSkillTarget)->GetPartyID() != pCaster->GetPartyID()))
-					goto fail_return;
-			} break;
-			case MORAL_NPC:		// #5
-				if (pSkillTarget == nullptr
-					|| !pSkillTarget->isNPC()
-					|| pSkillTarget->GetNation() != moral)
-					goto fail_return;
-				break;
-			case MORAL_PARTY_ALL:     // #6
-	//			if ( !m_pSrcUser->isInParty() ) goto fail_return;		
-	//			if ( !m_pSrcUser->isInParty() && sid != tid) goto fail_return;					
+		case MORAL_NPC:
+			if (pSkillTarget == nullptr
+				|| !pSkillTarget->isNPC()
+				|| pSkillCaster->isHostileTo(pSkillTarget))
+				goto fail_return;
+			break;
 
-				break;
-			case MORAL_ENEMY:	// #7
+		case MORAL_ENEMY:
+			// Allow for archery skills with no defined targets (e.g. an arrow from 'multiple shot' not hitting any targets). 
+			// These should be ignored, not fail.
+			if (pSkillTarget != nullptr
 				// Nation alone cannot dictate whether a unit can attack another.
 				// As such, we must check behaviour specific to these entities.
 				// For example: same nation players attacking each other in an arena.
-				if (!pSkillCaster->CanAttack(pSkillTarget))
-					goto fail_return;
-				break;	
-			case MORAL_ALL:	 // #8
-				// N/A
-				break;
-			case MORAL_AREA_ENEMY:		// #10
-				// N/A
-				break;
-			case MORAL_AREA_FRIEND:		// #11
-				if (pSkillCaster->GetNation() != moral)
-					goto fail_return;
-				break;
-			case MORAL_AREA_ALL:	// #12
-				// N/A
-				break;
-			case MORAL_SELF_AREA:     // #13
-				// Remeber, EVERYONE in the area is affected by this one. No moral check!!!
-				break;
-			case MORAL_CORPSE_FRIEND:		// #25
-				if (pSkillCaster->GetNation() != moral
-					// We need to revive *something*.
-					|| pSkillTarget == nullptr
-					// We cannot revive ourselves.
-					|| pSkillCaster == pSkillTarget
-					// We can't revive living targets.
-					|| pSkillTarget->isAlive())
-					goto fail_return;
-				break;
-			case MORAL_CLAN:		// #14
-			{
-				// NPCs cannot be in clans.
-				if (pSkillCaster->isNPC()
-					|| (pSkillTarget != nullptr && pSkillTarget->isNPC()))
-					goto fail_return;
+				&& !pSkillCaster->isHostileTo(pSkillTarget))
+				goto fail_return;
+			break;	
 
-				// We're definitely a user, so....
-				CUser * pCaster = TO_USER(pSkillCaster);
+		case MORAL_CORPSE_FRIEND:
+			// We need to revive *something*.
+			if (pSkillTarget == nullptr
+				// Are we allowed to revive this person?
+				|| pSkillCaster->isHostileTo(pSkillTarget)
+				// We cannot revive ourselves.
+				|| pSkillCaster == pSkillTarget
+				// We can't revive living targets.
+				|| pSkillTarget->isAlive())
+				goto fail_return;
+			break;
 
-				// If the caster's not in a clan, make sure the target's not someone other than themselves.
-				if ((!pCaster->isInClan() && pSkillCaster != pSkillTarget)
-					// Verify the intended moral
-					|| pCaster->GetNation() != moral
-					// If we're targeting someone, that target must be in our clan.
-					|| (pSkillTarget != nullptr 
-						&& TO_USER(pSkillTarget)->GetClanID() != pCaster->GetClanID()))
-					goto fail_return;
-			} break;
+		case MORAL_CLAN:
+		{
+			// NPCs cannot be in clans.
+			if (pSkillCaster->isNPC()
+				|| (pSkillTarget != nullptr && pSkillTarget->isNPC()))
+				goto fail_return;
 
-			case MORAL_CLAN_ALL:	// #15
-				break;
+			// We're definitely a user, so....
+			CUser * pCaster = TO_USER(pSkillCaster);
 
-			case MORAL_SIEGE_WEAPON:
-				if (pSkillCaster->isPlayer()
-					|| !TO_USER(pSkillCaster)->isSiegeTransformation())
-					goto fail_return;
-				break;
+			// If the caster's not in a clan, make sure the target's not someone other than themselves.
+			if ((!pCaster->isInClan() && pSkillCaster != pSkillTarget)
+				// If we're targeting someone, that target must be in our clan.
+				|| (pSkillTarget != nullptr 
+					&& TO_USER(pSkillTarget)->GetClanID() != pCaster->GetClanID()))
+				goto fail_return;
+		} break;
+
+		case MORAL_SIEGE_WEAPON:
+			if (pSkillCaster->isPlayer()
+				|| !TO_USER(pSkillCaster)->isSiegeTransformation())
+				goto fail_return;
+			break;
+	}
+
+	// Check skill prerequisites
+	for (int i = 0; i < 2; i++) 
+	{
+		switch (pSkill->bType[i])
+		{
+		case 3: 
+			if (!CheckType3Prerequisites())
+				return false;
+			break;
+
+		case 4:
+			if (!CheckType4Prerequisites())
+				return false;
+			break;
+
+		case 6:
+			if (!CheckType6Prerequisites())
+				return false;
+			break;
 		}
 	}
 
@@ -674,25 +738,22 @@ bool MagicInstance::IsAvailable()
 		if (pSkill->bType[0] == 3)
 		{
 			_MAGIC_TYPE3 * pType3 = g_pMain->m_Magictype3Array.GetData(pSkill->iNum);
+			_ITEM_TABLE * pTable;
 			if (pType3 == nullptr)
 				goto fail_return;
 
 			// Allow for skills that block potion use.
-			// NOTE: Officially they most likely go by skill ID (5#####), but this seems less hacky.
-			if (!pSkillCaster->canUsePotions() 
-				&& pType3->bDirectType == 1 // affects target's HP (magic numbers! yay!)
-				&& pType3->sFirstDamage > 0 // healing only
-				&& pSkill->iUseItem != 0) // requiring an item (i.e. pots) 
-			{
+			if (!pSkillCaster->canUsePotions()
+				&& pType3->bDirectType == 1		// affects target's HP (magic numbers! yay!)
+				&& pType3->sFirstDamage > 0		// healing only
+				&& pSkill->iUseItem != 0		// requiring an item (i.e. pots) 
 				// To avoid conflicting with priest skills that require items (e.g. "Laying of hands")
 				// we need to lookup the item itself for the information we need to ignore it.
-				_ITEM_TABLE * pTable = g_pMain->GetItemPtr(pSkill->iUseItem);
-				if (pTable == nullptr
-					// Item-required healing skills are class-specific. 
-					// We DO NOT want to block these skills.
-					|| pTable->m_bClass == 0)
-					goto fail_return;
-			}
+				&& (pTable = g_pMain->GetItemPtr(pSkill->iUseItem)) != nullptr
+				// Item-required healing skills are class-specific. 
+				// We DO NOT want to block these skills.
+				&& pTable->m_bClass == 0)
+				goto fail_return;
 		}
 
 		modulator = pSkill->sSkill % 10;     // Hacking prevention!
@@ -706,6 +767,9 @@ bool MagicInstance::IsAvailable()
 
 		if (pSkill->bType[0] == 1) {	// Weapons verification in case of COMBO attack (another hacking prevention).
 			if (pSkill->sSkill == 1055 || pSkill->sSkill == 2055) {		// Weapons verification in case of dual wielding attacks !		
+				if (TO_USER(pSkillCaster)->isWeaponsDisabled())
+					return false;
+
 				_ITEM_TABLE *pLeftHand = TO_USER(pSkillCaster)->GetItemPrototype(LEFTHAND),
 							*pRightHand = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND);
 
@@ -714,6 +778,9 @@ bool MagicInstance::IsAvailable()
 					return false;
 			}
 			else if (pSkill->sSkill == 1056 || pSkill->sSkill == 2056) {	// Weapons verification in case of 2 handed attacks !
+				if (TO_USER(pSkillCaster)->isWeaponsDisabled())
+					return false;
+
 				_ITEM_TABLE	*pRightHand = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND);
 
 				if (TO_USER(pSkillCaster)->GetItem(LEFTHAND)->nNum != 0
@@ -750,8 +817,7 @@ bool MagicInstance::IsAvailable()
 					if( !pItem ) return false;
 
 					if ((pItem->m_bClass != 0 && !TO_USER(pSkillCaster)->JobGroupCheck(pItem->m_bClass))
-						|| (pItem->m_bReqLevel != 0 && TO_USER(pSkillCaster)->GetLevel() < pItem->m_bReqLevel)
-						|| (!TO_USER(pSkillCaster)->RobItem(pSkill->iUseItem, 1)))	
+						|| (pItem->m_bReqLevel != 0 && TO_USER(pSkillCaster)->GetLevel() < pItem->m_bReqLevel))	
 						return false;
 				}
 			}
@@ -780,13 +846,12 @@ bool MagicInstance::IsAvailable()
 		}
 	}
 
-	return true;      // Magic was successful! 
+	return true;
 
-fail_return:    // In case of failure, send a packet(!)
-	if (!isNPC)
-		SendSkillFailed();
+fail_return: 
+	SendSkillFailed();
 
-	return false;     // Magic was a failure!
+	return false;
 }
 
 bool MagicInstance::ExecuteType1()
@@ -890,6 +955,9 @@ bool MagicInstance::ExecuteType2()
 		_ITEM_TABLE * pTable = nullptr;
 		if (pSkillCaster->isPlayer())
 		{
+			if (TO_USER(pSkillCaster)->isWeaponsDisabled())
+				return false;
+
 			// Not wearing a left-handed bow
 			pTable = TO_USER(pSkillCaster)->GetItemPrototype(LEFTHAND);
 			if (pTable == nullptr || !pTable->isBow())
@@ -1046,8 +1114,12 @@ bool MagicInstance::ExecuteType3()
 	foreach (itr, casted_member)
 	{
 		Unit * pTarget = *itr; // it's checked above, not much need to check it again
-		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1 || pType->bDirectType == 8) && (nSkillID < 400000))	// If you are casting an attack spell.
-			damage = GetMagicDamage(pTarget, pType->sFirstDamage, pType->bAttribute);	// Get Magical damage point.
+
+		// If you are casting an attack spell.
+		if ((pType->sFirstDamage < 0) && (pType->bDirectType == 1 || pType->bDirectType == 8) 
+			&& (nSkillID < 400000) 
+			&& (pType->bDirectType != 11 && pType->bDirectType != 13))
+			damage = GetMagicDamage(pTarget, pType->sFirstDamage, pType->bAttribute);
 		else 
 			damage = pType->sFirstDamage;
 
@@ -1064,60 +1136,104 @@ bool MagicInstance::ExecuteType3()
 		// Non-durational spells.
 		if (pType->bDuration == 0) 
 		{
+			switch (pType->bDirectType)
+			{
 			// Affects target's HP
-			if (pType->bDirectType == 1)
-			{	
-				pTarget->HpChange(damage, pSkillCaster);
-				
+			case 1:
+				// "Critical Point" buff gives a chance to double HP from pots or the rogue skill "Minor heal".
+				if (damage > 0 && pSkillCaster->hasBuff(BUFF_TYPE_DAMAGE_DOUBLE)
+					&& CheckPercent(500))
+					damage *= 2;
+
+				pTarget->HpChangeMagic(damage, pSkillCaster, (AttributeType) pType->bAttribute);
 				if (pTarget->m_bReflectArmorType != 0 && pTarget != pSkillCaster)
 					ReflectDamage(damage, pTarget);
-			}
+			break;
+
 			// Affects target's MP
-			else if (pType->bDirectType == 2 || pType->bDirectType == 3)
-			{
+			case 2:
+			case 3:
 				pTarget->MSpChange(damage);			
-			}
+				break;
+
 			// "Magic Hammer" repairs equipped items.
-			else if (pType->bDirectType == 4)
-			{
+			case 4:
 				if (pTarget->isPlayer())
+				{
+					TO_USER(pTarget)->ItemWoreOut(ATTACK, -damage);
 					TO_USER(pTarget)->ItemWoreOut(DEFENCE, -damage);
-			}
-			// Need to absorb HP from the target user to the source user
-			// NOTE: Must only affect players.
-			else if (pType->bDirectType == 8)
-			{
-				continue;
-			}
-			// Caster absorbs damage based on percentage of target's max HP
-			else if (pType->bDirectType == 9)
-			{
+				}
+				break;
+
+			// Increases/decreases target's HP by a percentage
+			case 5:
 				if (pType->sFirstDamage < 100)
 					damage = (pType->sFirstDamage * pTarget->GetHealth()) / -100;
 				else
 					damage = (pTarget->GetMaxHealth() * (pType->sFirstDamage - 100)) / 100;
 
+				pTarget->HpChangeMagic(damage, pSkillCaster);
+				break;
+			
+			// Caster absorbs damage based on percentage of target's HP. Players only.
+			case 8:
+				if (pTarget->isPlayer())
+				{
+					if (pType->sFirstDamage < 100)
+						damage = (pType->sFirstDamage * pTarget->GetHealth()) / -100;
+					else
+						damage = (pTarget->GetMaxHealth() * (pType->sFirstDamage - 100)) / 100;
+
+					pTarget->HpChangeMagic(damage, pSkillCaster);
+					pSkillCaster->HpChangeMagic(-(damage));
+				}
+				break;
+
+			// Caster absorbs damage based on percentage of target's max HP
+			case 9:
+				if (pType->sFirstDamage < 100)
+					damage = (pType->sFirstDamage * pTarget->GetHealth()) / -100;
+				else
+					damage = (pTarget->GetMaxHealth() * (pType->sFirstDamage - 100)) / 100;
+
+				pTarget->HpChangeMagic(damage, pSkillCaster);
+				pSkillCaster->HpChangeMagic(-(damage));
+				break;
+
+			// Inflicts true damage (i.e. disregards Ac/resistances/buffs, etc).
+			case 11:
 				pTarget->HpChange(damage, pSkillCaster);
-				pSkillCaster->HpChange(-(damage));
-			}
-			// Drains target's MP, gives half of it to the caster as HP
+				break;
+
+			// Used by "Destination scroll" (whatever that is)
+			case 12:
+				continue;
+
+			// Chance (how often?) to reduce the opponent's armor and weapon durability by sFirstDamage
+			case 13:
+				if (pTarget->isPlayer() && CheckPercent(500)) // using 50% for now.
+				{
+					TO_USER(pTarget)->ItemWoreOut(ATTACK, damage);
+					TO_USER(pTarget)->ItemWoreOut(DEFENCE, damage);
+				}
+				break;
+
+			// Drains target's MP, gives half of it to the caster as HP. Players only.
 			// NOTE: Non-durational form (as in 1.8xx). This was made durational later (database configured).
-			else if (pType->bDirectType == 16)
-			{
-				// Only apply this to players
+			case 16:
 				if (pTarget->isPlayer())
 				{
 					pTarget->MSpChange(pType->sFirstDamage);
-					pSkillCaster->HpChange(-(pType->sFirstDamage) / 2);
+					pSkillCaster->HpChangeMagic(-(pType->sFirstDamage) / 2);
 				}
+				break;
 			}
-
 		}
 		// Durational spells! Durational spells only involve HP.
 		else if (pType->bDuration != 0) 
 		{
 			if (damage != 0)		// In case there was first damage......
-				pTarget->HpChange(damage, pSkillCaster);			// Initial damage!!!
+				pTarget->HpChangeMagic(damage, pSkillCaster);			// Initial damage!!!
 
 			if (pTarget->isAlive()) 
 			{
@@ -1145,22 +1261,15 @@ bool MagicInstance::ExecuteType3()
 					pEffect->m_bHPInterval = 2;					// interval of 2s between each damage loss/HP gain 
 
 					// number of ticks required at a rate of 2s per tick over the total duration of the skill
-
-					// NOTE: This (and the calculated HP amount) are being ceil()'d temporarily to bring us 
-					// closer to hitting the full amount, which is currently not possible as the client 
-					// usually cancels the "expired" skills 1-2 ticks short.
-					// The excess here is negligible, and more than likely official exhibits the same behaviour,
-					// however we'll revise when we handle these ticks to speed things up, which should hopefully 
-					// make this a lot less of an issue.
-	
-					float tickCount = ceil((float)pType->bDuration / (float)pEffect->m_bHPInterval);
+					float tickCount = (float) pType->bDuration / (float) pEffect->m_bHPInterval;
 
 					// amount of HP to be given/taken every tick at a rate of 2s per tick
-					pEffect->m_sHPAmount = (int16)(ceil(duration_damage / tickCount));
-																					
+					pEffect->m_sHPAmount = (int16)(duration_damage / tickCount);
+
 					pEffect->m_bTickCount = 0;
-					pEffect->m_bTickLimit = (uint8)(tickCount);
+					pEffect->m_bTickLimit = (uint8) tickCount;
 					pEffect->m_sSourceID = sCasterID;
+					pEffect->m_byAttribute = pType->bAttribute;
 					break;
 				}
 
@@ -1253,6 +1362,7 @@ bool MagicInstance::ExecuteType4()
 		Unit * pTarget = *itr;
 		_BUFF_TYPE4_INFO pBuffInfo;
 		bool bAllowCastOnSelf = false;
+		uint16 sDuration = pType->sDuration;
 
 		// A handful of skills (Krowaz, currently) should use the caster as the target.
 		// As such, we should correct this before any other buff/debuff logic is handled.
@@ -1281,6 +1391,7 @@ bool MagicInstance::ExecuteType4()
 			{
 				pTarget = pSkillCaster; // skill has been reflected, the target is now the caster.
 				bBlockingDebuffs = (pTarget->m_bBlockCurses || pTarget->m_bReflectCurses); 
+				bAllowCastOnSelf = true;
 			}
 			// Didn't reflect, so we'll just block instead.
 			else 
@@ -1336,8 +1447,15 @@ bool MagicInstance::ExecuteType4()
 			continue;
 		}
 
+		// Only players can store persistent skills.
 		if (nSkillID > 500000 && pTarget->isPlayer())
-			pTarget->InsertSavedMagic(nSkillID, pType->sDuration);
+		{
+			// Persisting effects will already exist in the map if we're recasting it. 
+			if (!bIsRecastingSavedMagic)
+				pTarget->InsertSavedMagic(nSkillID, pType->sDuration);
+			else
+				sDuration = pTarget->GetSavedMagicDuration(nSkillID);
+		}
 
 		if (pSkillCaster->isPlayer()
 			&& (sTargetID != -1 && pSkill->bType[0] == 4))
@@ -1350,7 +1468,7 @@ bool MagicInstance::ExecuteType4()
 			pBuffInfo.m_bIsBuff = pType->bIsBuff;
 
 			pBuffInfo.m_bDurationExtended = false;
-			pBuffInfo.m_tEndTime = UNIXTIME + pType->sDuration;
+			pBuffInfo.m_tEndTime = UNIXTIME + sDuration;
 
 			// Add the buff into the buff map.
 			pTarget->AddType4Buff(pType->bBuffType, pBuffInfo);
@@ -1367,14 +1485,10 @@ bool MagicInstance::ExecuteType4()
 		if (pSkill->bType[1] == 0 || pSkill->bType[1] == 4)
 		{
 			Unit *pTmp = (pSkillCaster->isPlayer() ? pSkillCaster : pTarget);
-
-			if (!bIsRecastingSavedMagic)
-				sData[3] = (bResult == 1 || sData[3] == 0 ? pType->sDuration : 0);
-
-			int16 sDataCopy[8] = 
+			int16 sDataCopy[] = 
 			{
-				sData[0], bResult, sData[2], sData[3],
-				sData[4], pType->bSpeed, sData[6], sData[7]
+				sData[0], bResult, sData[2], sDuration,
+				sData[4], pType->bSpeed, sData[6]
 			};
 
 			BuildAndSendSkillPacket(pTmp, true, sCasterID, pTarget->GetID(), bOpcode, nSkillID, sDataCopy);
@@ -1393,8 +1507,6 @@ bool MagicInstance::ExecuteType4()
 		if (bResult == 0
 			&& pSkillCaster->isPlayer())
 			SendSkillFailed((*itr)->GetID());
-
-		continue;
 	}
 	return true;
 }
@@ -1484,7 +1596,7 @@ bool MagicInstance::ExecuteType5()
 
 					pEffect->Reset();
 					// TO-DO: Wrap this up (ugh, I feel so dirty)
-					Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
+					Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_DURATION_EXPIRED));
 					result << uint8(200); // removes DOT skill
 					pTUser->Send(&result); 
 					bRemoveDOT = true;
@@ -1552,7 +1664,6 @@ bool MagicInstance::ExecuteType6()
 
 	CUser * pCaster = TO_USER(pSkillCaster);
 	_MAGIC_TYPE6 * pType = g_pMain->m_Magictype6Array.GetData(nSkillID);
-	uint32 iUseItem = 0;
 	uint16 sDuration = 0;
 
 	if (pType == nullptr
@@ -1580,43 +1691,9 @@ bool MagicInstance::ExecuteType6()
 		if (pSkillTarget->HasSavedMagic(nSkillID))
 			return false;
 
-		// Let's start by looking at the item that was used for the transformation.
-		_ITEM_TABLE *pTable = g_pMain->GetItemPtr(pCaster->m_nTransformationItem);
-
-		// Also, for the sake of specific skills that bypass the list, let's lookup the 
-		// item attached to the skill.
-		_ITEM_TABLE *pTable2 = g_pMain->GetItemPtr(pSkill->iUseItem);
-
-		// If neither of these items exist, we have a bit of a problem...
-		if (pTable == nullptr 
-			&& pTable2 == nullptr)
-			return false;
-
-		/*
-			If it's a totem (which is apparently a ring), then we need to override it 
-			with a gem (which are conveniently stored in the skill table!)
-
-			The same is true for special items such as the Hera transformation scroll, 
-			however we need to go by the item attached to the skill for this one as 
-			these skills bypass the transformation list and thus do not set the flag.
-		*/
-
-
-		// NOTE: Should this make use of "NeedItem"? It could very well indicate which to use.
-
-		// Special items (e.g. Hera transformation scroll) use the scroll (tied to the skill)
-		if ((pTable2 != nullptr && (pTable2->m_bKind == 255 || pTable2->m_bKind == 97))
-			// Totems (i.e. rings) take gems (tied to the skill)
-			|| (pTable != nullptr && pTable->m_bKind == 93)) 
-			iUseItem = pSkill->iUseItem;
-		// If we're using a normal transformation scroll, we can leave the item as it is.
-		else 
-			iUseItem = pCaster->m_nTransformationItem;
-
-		// Attempt to take the item (no further checks, so no harm in multipurposing)
-		// If we add more checks, remember to change this check.
-		if (!TO_USER(pSkillCaster)->RobItem(iUseItem, 1))
-			return false;
+		// Monster transformations require a transformation list.
+		if (pType->bUserSkillUse == TransformationMonster)
+			pCaster->RobItem(pSkill->nBeforeAction);
 
 		// User's casting a new skill. Use the full duration.
 		sDuration = pType->sDuration;
@@ -1783,7 +1860,7 @@ bool MagicInstance::ExecuteType8()
 				pTUser->ExpChange( pType->sExpRecover/100 );     // Increase target experience.
 				
 				Packet result(AG_USER_REGENE);
-				result << uint16((*itr)->GetSocketID()) << uint16(pTUser->GetZoneID());
+				result << uint16((*itr)->GetSocketID()) << uint16(pTUser->GetHealth());
 				g_pMain->Send_AIServer(&result);
 			} break;
 
@@ -1837,12 +1914,13 @@ bool MagicInstance::ExecuteType8()
 			case 21:	// Summon a monster within a zone.
 				// LATER!!! 
 				break;
+
+			// This is used by Wild Advent (70 rogue skill) and Descent, teleport the user to the target user (Moral check to distinguish between the 2 skills)
 			case 25:
-				//This is used by Wild Advent (70 rogue skill) and Descent, teleport the user to the target user (Moral check to distinguish between the 2 skills)
 				float dest_x, dest_z = 0.0f;
-				if (pTUser->GetZoneID() != pSkillCaster->GetZoneID()) //If we're not even in the same zone, I can't teleport to you!
-					return false;
-				if (pSkill->bMoral < MORAL_ENEMY && pTUser->GetNation() != pSkillCaster->GetNation()) //I'm not the same nation as you are and thus can't t
+				// If we're not even in the same zone, I can't teleport to you!
+				if (pTUser->GetZoneID() != pSkillCaster->GetZoneID()
+					|| (pSkill->bMoral < MORAL_ENEMY && pSkillCaster->isHostileTo(pTUser)))
 					return false;
 					
 				dest_x = pTUser->GetX();
@@ -1874,8 +1952,6 @@ bool MagicInstance::ExecuteType9()
 	if (pType == nullptr)
 		return false;
 
-	sData[1] = 1;
-
 	CUser * pCaster = TO_USER(pSkillCaster);
 	FastGuard lock(pCaster->m_buffLock);
 	Type9BuffMap & buffMap = pCaster->m_type9BuffMap;
@@ -1887,6 +1963,8 @@ bool MagicInstance::ExecuteType9()
 		SendSkillFailed();
 		return false;
 	}
+
+	sData[1] = 1;
 	
 	if (pType->bStateChange <= 2 
 		&& pCaster->canStealth())
@@ -1907,14 +1985,17 @@ bool MagicInstance::ExecuteType9()
 			pCaster->StateChangeServerDirect(7, pType->bStateChange); // Update the client to be invisible
 			buffMap.insert(std::make_pair(pType->bStateChange, _BUFF_TYPE9_INFO(nSkillID, UNIXTIME + pType->sDuration)));
 		}
+
+		// Update all players nearby to tell them we're now invisible.
+		SendSkill();
 	}
 	else if (pType->bStateChange >= 3 && pType->bStateChange <= 4)
 	{
-		Packet stealth(WIZ_STEALTH, uint8(1));
-		stealth << uint16(pType->sRadius);
+		Packet result(WIZ_STEALTH, uint8(1));
+		result << pType->sRadius;
 
 		// If the player's in a party, apply this skill to all members of the party.
-		if (pCaster->isInParty())
+		if (pCaster->isInParty() && pType->bStateChange == 4)
 		{
 			_PARTY_GROUP * pParty = g_pMain->GetPartyPtr(pCaster->GetPartyID());
 			if (pParty == nullptr)
@@ -1934,29 +2015,28 @@ bool MagicInstance::ExecuteType9()
 					continue;
 
 				pUser->m_type9BuffMap.insert(std::make_pair(pType->bStateChange, _BUFF_TYPE9_INFO(nSkillID, UNIXTIME + pType->sDuration)));
-				pUser->Send(&stealth);
+				pUser->Send(&result);
+
+				// Ensure every user in the party is given the skill icon in the corner of the screen.
+				BuildAndSendSkillPacket(pUser, false, sCasterID, pUser->GetID(), bOpcode, nSkillID, sData);
 			}
 		}
 		else // not in a party, so just apply this skill to us.
 		{
 			buffMap.insert(std::make_pair(pType->bStateChange, _BUFF_TYPE9_INFO(nSkillID, UNIXTIME + pType->sDuration)));
-			pCaster->Send(&stealth);
+			pCaster->Send(&result);
+
+			// Ensure we are given the skill icon in the corner of the screen.
+			SendSkill(false); // only update us, as only we need to know that we can see invisible players.
 		}
 	}
-
-	Packet result;
-	BuildSkillPacket(result, sCasterID, sTargetID, bOpcode, nSkillID, sData);
-	if (pCaster->isInParty() && pType->bStateChange == 4)
-		g_pMain->Send_PartyMember(pCaster->GetPartyID(), &result);
-	else
-		pCaster->Send(&result);
 
 	return true;
 }
 
 short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 {	
-	short damage = 0, temp_hit = 0, righthand_damage = 0, attribute_damage = 0 ; 
+	int32 damage = 0, temp_hit = 0, righthand_damage = 0, attribute_damage = 0;
 	int random = 0, total_r = 0 ;
 	uint8 result; 
 
@@ -2027,17 +2107,18 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 
 			// double the staff's damage when using a skill of the same attribute as the staff
 			_ITEM_TABLE *pRightHand = pUser->GetItemPrototype(RIGHTHAND);
-			if (pRightHand != nullptr && pRightHand->isStaff()
+			if (!pUser->isWeaponsDisabled()
+				&& pRightHand != nullptr && pRightHand->isStaff()
 				&& pUser->GetItemPrototype(LEFTHAND) == nullptr)
 			{
 				FastGuard lock(pSkillCaster->m_equippedItemBonusLock);
-				righthand_damage = pRightHand->m_sDamage;
+				righthand_damage = pRightHand->m_sDamage + pUser->m_bAddWeaponDamage;
 				auto itr = pSkillCaster->m_equippedItemBonuses.find(RIGHTHAND);
 				if (itr != pSkillCaster->m_equippedItemBonuses.end())
 				{
 					auto bonusItr = itr->second.find(attribute);
 					if (bonusItr != itr->second.end()) 
-						attribute_damage = pRightHand->m_sDamage; 
+						attribute_damage *= 2; 
 				}
 			}
 			else 
@@ -2096,22 +2177,28 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 			damage -= ((3 * righthand_damage) + (3 * attribute_damage));
 		else if (attribute != MAGIC_R)	// Only if the staff has an attribute.
 			damage -= (short)(((righthand_damage * 0.8f) + (righthand_damage * pSkillCaster->GetLevel()) / 60) + ((attribute_damage * 0.8f) + (attribute_damage * pSkillCaster->GetLevel()) / 30));
-		if(pTarget->m_bMagicDamageReduction < 100)
+		if (pTarget->m_bMagicDamageReduction < 100)
 			damage = damage * pTarget->m_bMagicDamageReduction / 100;
 	}
 
 	// Apply boost for skills matching weather type.
 	// This isn't actually used officially, but I think it's neat...
 	GetWeatherDamage(damage, attribute);
-	return damage / 3;		
+	damage /= 3;
+
+	// Implement damage cap.
+	if (damage > MAX_DAMAGE)
+		damage = MAX_DAMAGE;
+
+	return (short)(damage);
 }
 
-short MagicInstance::GetWeatherDamage(short damage, int attribute)
+int32 MagicInstance::GetWeatherDamage(int32 damage, int attribute)
 {
 	// Give a 10% damage output boost based on weather (and skill's elemental attribute)
-	if ((g_pMain->m_byWeather == WEATHER_FINE && attribute == ATTRIBUTE_FIRE)
-		|| (g_pMain->m_byWeather == WEATHER_RAIN && attribute == ATTRIBUTE_LIGHTNING)
-		|| (g_pMain->m_byWeather == WEATHER_SNOW && attribute == ATTRIBUTE_ICE))
+	if ((g_pMain->m_byWeather == WEATHER_FINE && attribute == AttributeFire)
+		|| (g_pMain->m_byWeather == WEATHER_RAIN && attribute == AttributeLightning)
+		|| (g_pMain->m_byWeather == WEATHER_SNOW && attribute == AttributeIce))
 		damage = (damage * 110) / 100;
 
 	return damage;
@@ -2126,7 +2213,7 @@ void MagicInstance::Type6Cancel(bool bForceRemoval /*= false*/)
 		return;
 
 	CUser * pUser = TO_USER(pSkillCaster);
-	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_CANCEL_TYPE6));
+	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_CANCEL_TRANSFORMATION));
 
 	// TO-DO: Reset stat changes, recalculate stats.
 	pUser->m_transformationType = TransformationNone;
@@ -2181,7 +2268,7 @@ void MagicInstance::Type9Cancel(bool bRemoveFromMap /*= true*/)
 		bResponse = 93;
 	}
 
-	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
+	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_DURATION_EXPIRED));
 	result << bResponse;
 	pCaster->Send(&result);
 }
@@ -2230,7 +2317,7 @@ void MagicInstance::Type3Cancel()
 
 	if (pSkillCaster->isPlayer())
 	{
-		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
+		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_DURATION_EXPIRED));
 		result << uint8(100); // remove the healing-over-time skill.
 		TO_USER(pSkillCaster)->Send(&result); 
 	}
@@ -2255,7 +2342,11 @@ void MagicInstance::Type3Cancel()
 
 void MagicInstance::Type4Extend()
 {
-	if (pSkill == nullptr)
+	if (pSkill == nullptr
+		// Only players can extend buffs.
+		|| !pSkillCaster->isPlayer()
+		// Can't use on special items.
+		|| nSkillID >= 500000)
 		return;
 
 	_MAGIC_TYPE4 *pType = g_pMain->m_Magictype4Array.GetData(nSkillID);
@@ -2267,13 +2358,35 @@ void MagicInstance::Type4Extend()
 	Type4BuffMap::iterator itr = pSkillTarget->m_buffMap.find(pType->bBuffType);
 
 	// Can't extend a buff that hasn't been started.
-	if (itr == pSkillTarget->m_buffMap.end()
+	if (itr == pSkillCaster->m_buffMap.end()
 		// Can't extend a buff that's already been extended.
-		|| itr->second.m_bDurationExtended
-		// Only players can extend buffs.
-		|| !pSkillCaster->isPlayer() 
-		// Require the "Duration Item" for buff duration extension.
-		|| !TO_USER(pSkillTarget)->RobItem(800022000, 1))
+		|| itr->second.m_bDurationExtended)
+		return;
+
+	// Require the "Duration Item" for buff duration extension.
+	// The things we must do to future-proof things...
+	bool bItemFound = false;
+	for (int i = SLOT_MAX; i < INVENTORY_TOTAL; i++)
+	{
+		_ITEM_DATA * pItem = nullptr;
+		_ITEM_TABLE * pTable = TO_USER(pSkillCaster)->GetItemPrototype(i, pItem);
+		if (pTable == nullptr
+			|| pTable->m_bKind != 255
+			|| pTable->m_iEffect1 == 0)
+			continue;
+
+		_MAGIC_TABLE * pEffect = g_pMain->m_MagictableArray.GetData(pTable->m_iEffect1);
+		if (pEffect == nullptr
+			|| pEffect->bMoral != MORAL_EXTEND_DURATION
+			|| !TO_USER(pSkillCaster)->RobItem(i, pTable))
+			continue;
+
+		bItemFound = true;
+		break;
+	}
+
+	// No "Duration Item" was found.
+	if (!bItemFound)
 		return;
 
 	// Extend the duration of a buff.
@@ -2319,4 +2432,13 @@ void MagicInstance::ReflectDamage(int32 damage, Unit * pTarget)
 			pSkillCaster->HpChange(-damage, pTarget);
 		break;
 	}
+}
+
+void MagicInstance::ConsumeItem()
+{
+	if (nConsumeItem != 0 && pSkillCaster->isPlayer())
+		TO_USER(pSkillCaster)->RobItem(nConsumeItem);
+
+	if (bInstantCast)
+		CMagicProcess::RemoveType4Buff(BUFF_TYPE_INSTANT_MAGIC, pSkillCaster);
 }

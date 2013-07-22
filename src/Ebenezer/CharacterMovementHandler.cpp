@@ -7,12 +7,25 @@ void CUser::MoveProcess(Packet & pkt)
 	if (m_bWarp || isDead()) 
 		return;
 		
-	uint16 will_x, will_z, will_y, speed=0;
+	uint16 will_x, will_z, will_y;
+	int16 speed=0;
 	float real_x, real_z, real_y;
 	uint8 echo;
 
 	pkt >> will_x >> will_z >> will_y >> speed >> echo;
 	real_x = will_x/10.0f; real_z = will_z/10.0f; real_y = will_y/10.0f;
+
+	if (!isGM())
+	{
+		// TO-DO: Handle proper speed checks against server-side amounts.
+		// We should also avoid relying on what the client has sent us.
+		if (speed > 200)	// What is the signifance of this number? Considering 90 is light feet...
+							// We shouldn't be using magic numbers at all here.
+		{
+			Disconnect();
+			return;
+		}
+	}
 
 	if (!GetMap()->IsValidPosition(real_x, real_z, real_y)) 
 		return;
@@ -148,7 +161,7 @@ void CUser::GetUserInfo(Packet & pkt)
 
 	foreach_array (i, equippedItems) 
 	{
-		_ITEM_DATA * pItem = &m_sItemArray[equippedItems[i]];
+		_ITEM_DATA * pItem = GetItem(equippedItems[i]);
 		pkt << pItem->nNum << pItem->sDuration << pItem->bFlag;
 	}
 

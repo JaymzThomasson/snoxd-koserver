@@ -74,6 +74,7 @@ uint32 THREADCALL DatabaseThread::ThreadProc(void * lpParam)
 				continue;
 		}
 
+		uint8 subOpcode;
 		switch (pkt.GetOpcode())
 		{
 		case WIZ_LOGIN:
@@ -96,6 +97,11 @@ uint32 THREADCALL DatabaseThread::ThreadProc(void * lpParam)
 			break;
 		case WIZ_SEL_CHAR:
 			if (pUser) pUser->ReqSelectCharacter(pkt);
+			break;
+		case WIZ_CHAT:
+			pkt >> subOpcode;
+			if (subOpcode == CLAN_NOTICE)
+				CKnightsManager::ReqUpdateClanNotice(pkt);
 			break;
 		case WIZ_DATASAVE:
 			if (pUser) pUser->ReqSaveCharacter();
@@ -487,6 +493,9 @@ void CKnightsManager::ReqKnightsPacket(CUser* pUser, Packet & pkt)
 	case KNIGHTS_MARK_REGISTER:
 		ReqRegisterClanSymbol(pUser, pkt);
 		break;
+	case KNIGHTS_UPDATE_GRADE:
+		ReqUpdateGrade(pkt);
+		break;
 	case KNIGHTS_DONATE_POINTS:
 		ReqDonateNP(pUser, pkt);
 		break;
@@ -710,6 +719,35 @@ void CKnightsManager::ReqRegisterClanSymbol(CUser *pUser, Packet & pkt)
 	
 	result << sErrorCode << sNewVersion;
 	pUser->Send(&result);
+}
+
+/**
+ * @brief	Request a clan's grade (and cape) be updated
+ * 			in the database.
+ *
+ * @param	pkt	The packet.
+ */
+void CKnightsManager::ReqUpdateGrade(Packet & pkt)
+{
+	uint16 sClanID, sCapeID;
+	uint8 byFlag;
+
+	pkt >> sClanID >> byFlag >> sCapeID;
+	g_DBAgent.UpdateClanGrade(sClanID, byFlag, sCapeID);
+}
+
+/**
+ * @brief	Requests a clan's notice be updated in the database.
+ *
+ * @param	pkt	The packet.
+ */
+void CKnightsManager::ReqUpdateClanNotice(Packet & pkt)
+{
+	uint16 sClanID;
+	string strClanNotice;
+
+	pkt >> sClanID >> strClanNotice;
+	g_DBAgent.UpdateClanNotice(sClanID, strClanNotice);
 }
 
 void CUser::ReqSetLogInInfo(Packet & pkt)

@@ -40,6 +40,9 @@ CEbenezerDlg::CEbenezerDlg()
 	m_byKingWeatherEvent_Day = 0;
 	m_byKingWeatherEvent_Hour = 0;
 	m_byKingWeatherEvent_Minute = 0;
+
+	m_byExpEventAmount = m_byCoinEventAmount = 0;
+
 	m_sPartyIndex = 0;
 
 	m_nCastleCapture = 0;
@@ -156,6 +159,7 @@ bool CEbenezerDlg::Startup()
 	srand((uint32)time(nullptr));
 	rand(); // first value is always going to be the same, so spice things up.
 
+	printf("\n");
 	if (!m_luaEngine.Initialise())
 		return false;
 
@@ -865,6 +869,13 @@ void CEbenezerDlg::UpdateGameTime()
 		LoadUserRankings();
 	}
 
+	// Every month
+	if (m_sMonth != now.GetMonth())
+	{
+		// Reset monthly NP.
+		ResetLoyaltyMonthly();
+	}
+
 	// Update the server time
 	m_sYear = now.GetYear();
 	m_sMonth = now.GetMonth();
@@ -875,6 +886,24 @@ void CEbenezerDlg::UpdateGameTime()
 	Packet result(AG_TIME_WEATHER);
 	result << m_sYear << m_sMonth << m_sDate << m_sHour << m_sMin << m_byWeather << m_sWeatherAmount;
 	Send_AIServer(&result);
+}
+
+void CEbenezerDlg::ResetLoyaltyMonthly()
+{
+	SessionMap & sessMap = m_socketMgr.GetActiveSessionMap();
+	foreach (itr, sessMap)
+	{
+		CUser * pUser = TO_USER(itr->second);
+		pUser->m_iLoyaltyMonthly = 0;
+		pUser->SendLoyaltyChange(); // update the client (note: official doesn't bother)
+	}
+
+	// Attempt to update the database in this thread directly, while the session map's locked.
+	// This prevents new users from logging in before they've been reset (hence keeping last month's total).
+	g_DBAgent.ResetLoyaltyMonthly();
+
+	// Free the lock, so they can now continue to login and such.
+	m_socketMgr.ReleaseLock();
 }
 
 void CEbenezerDlg::UpdateWeather()
@@ -1486,9 +1515,9 @@ void CEbenezerDlg::BattleZoneVictoryCheck()
 		if (pTUser->GetFame() == COMMAND_CAPTAIN)
 		{
 			if (pTUser->isKing())
-				pTUser->ChangeNP(500);
+				pTUser->SendLoyaltyChange(500);
 			else
-				pTUser->ChangeNP(300);
+				pTUser->SendLoyaltyChange(300);
 		}
 				
 		// Make the winning nation use a victory emotion (yay!)

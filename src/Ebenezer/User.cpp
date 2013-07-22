@@ -53,7 +53,7 @@ void CUser::Initialize()
 
 	m_sItemMaxHp = m_sItemMaxMp = 0;
 	m_sItemWeight = 0;
-	m_sItemHit = m_sItemAc = 0;
+	m_sItemAc = 0;
 
 	m_sExpGainAmount = m_bNPGainAmount = m_bNoahGainAmount = 100;
 	m_bItemExpGainAmount = m_bItemNoahGainAmount = 0;
@@ -69,6 +69,11 @@ void CUser::Initialize()
 	memset(&m_bstrSkill, 0, sizeof(m_bstrSkill));
 
 	m_bPlayerAttackAmount = 100;
+
+	m_bAddWeaponDamage = 0;
+	m_bPctArmourAc = 100;
+	m_sAddArmourAc = 0;
+
 	m_sItemHitrate = 100;
 	m_sItemEvasionrate = 100;
 
@@ -132,7 +137,6 @@ void CUser::Initialize()
 
 	m_transformationType = TransformationNone;
  	m_sTransformID = 0;
-	m_nTransformationItem = 0;
 	m_tTransformationStartTime = 0;
 	m_sTransformationDuration = 0;
 
@@ -145,6 +149,8 @@ void CUser::Initialize()
 	m_tRivalExpiryTime = 0;
 
 	m_byAngerGauge = 0;
+
+	m_bWeaponsDisabled = false;
 
 	m_teamColour = TeamColourNone;
 }
@@ -517,7 +523,7 @@ void CUser::RemoveRival()
  */
 void CUser::SendLoyaltyChange(int32 nChangeAmount /*= 0*/, bool bIsKillReward /*= false*/)
 {
-	Packet result(WIZ_LOYALTY_CHANGE, uint8(1));
+	Packet result(WIZ_LOYALTY_CHANGE, uint8(LOYALTY_NATIONAL_POINTS));
 
 	// If we're taking NP, we need to prevent us from hitting values below 0.
 	if (nChangeAmount < 0)
@@ -978,7 +984,7 @@ void CUser::SetSlotItemValue()
 	int item_hit = 0, item_ac = 0;
 
 	m_sItemMaxHp = m_sItemMaxMp = 0;
-	m_sItemHit = m_sItemAc = 0; 
+	m_sItemAc = 0; 
 	m_sItemWeight = m_sMaxWeightBonus = 0;	
 	m_sItemHitrate = m_sItemEvasionrate = 100; 
 	
@@ -1021,28 +1027,17 @@ void CUser::SetSlotItemValue()
 
 		// Do not apply stats to unequipped items
 		if ((i >= SLOT_MAX && i < INVENTORY_COSP)
+			// or disabled weapons.
+			|| (isWeaponsDisabled() 
+				&& (i == RIGHTHAND || i == LEFTHAND) 
+				&& !pTable->isShield())
 			// or items in magic bags.
 			|| i >= INVENTORY_MBAG)
 			continue;
 
+		item_ac = pTable->m_sAc;
 		if (pItem->sDuration == 0) 
-		{
-			item_hit = pTable->m_sDamage / 2;
-			item_ac = pTable->m_sAc / 2;
-		}
-		else 
-		{
-			item_hit = pTable->m_sDamage;
-			item_ac = pTable->m_sAc;
-		}
-
-		if (i == RIGHTHAND) 	// ItemHit Only Hands
-			m_sItemHit += item_hit;
-		else if (i == LEFTHAND)
-		{
-			if ((m_sClass == BERSERKER || m_sClass == BLADE))
-				m_sItemHit += (short)(item_hit * 0.5f);
-		}
+			item_ac /= 10;
 
 		m_sItemMaxHp += pTable->m_MaxHpB;
 		m_sItemMaxMp += pTable->m_MaxMpB;
@@ -1054,7 +1049,6 @@ void CUser::SetSlotItemValue()
 		m_sStatItemBonuses[STAT_CHA] += pTable->m_sChaB;
 		m_sItemHitrate += pTable->m_sHitrate;
 		m_sItemEvasionrate += pTable->m_sEvarate;
-		m_sItemWeight += pTable->m_sWeight;
 
 		m_sFireR += pTable->m_bFireR;
 		m_sColdR += pTable->m_bColdR;
@@ -1155,8 +1149,10 @@ void CUser::SetSlotItemValue()
 		ApplySetItemBonuses(pItem);
 	}
 
-	if (m_sItemHit < 3)
-		m_sItemHit = 3;
+	if (m_sAddArmourAc > 0)
+		m_sItemAc += m_sAddArmourAc;
+	else
+		m_sItemAc = m_sItemAc * m_bPctArmourAc / 100;
 
 	// Update applicable weapon resistance amounts based on skill modifiers
 	// e.g. Eskrima
@@ -1216,9 +1212,15 @@ void CUser::ExpChange(int64 iExp)
 	// If this happens, we need to investigate why -- not sweep it under the rug.
 	ASSERT(m_iExp >= 0);
 
-	// Adjust the exp gained based on the percent set by the buff
 	if (iExp > 0)
+	{
+		// Adjust the exp gained based on the percent set by the buff
 		iExp = iExp * (m_sExpGainAmount + m_bItemExpGainAmount) / 100;
+
+		// Add on any additional XP earned because of a global XP event.
+		// NOTE: They officially check to see if the XP is <= 100,000.
+		iExp = iExp * (100 + g_pMain->m_byExpEventAmount) / 100;
+	}
 
 	bool bLevel = true;
 	if (iExp < 0 
@@ -1319,6 +1321,9 @@ void CUser::LevelChange(short level, bool bLevelUp /*= true*/)
 		result.Initialize(WIZ_PARTY);
 		result << uint8(PARTY_LEVELCHANGE) << GetSocketID() << GetLevel();
 		g_pMain->Send_PartyMember(GetPartyID(), &result);
+
+		if (m_bIsChicken)
+			GrantChickenManner();
 	}
 
 	// We should kick players out of the zone if their level no longer matches the requirements for this zone.
@@ -1365,6 +1370,12 @@ void CUser::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToAI /
 	int16 oldHP = m_sHp;
 	int originalAmount = amount;
 	int mirrorDamage = 0;
+
+	// Implement damage/HP cap.
+	if (amount < -MAX_DAMAGE)
+		amount = -MAX_DAMAGE;
+	else if (amount > MAX_DAMAGE)
+		amount = MAX_DAMAGE;
 
 	// If we're taking damage...
 	if (amount < 0)
@@ -1526,6 +1537,19 @@ void CUser::ShowEffect(uint32 nSkillID)
 }
 
 /**
+ * @brief	Shows an effect on the NPC currently 
+ * 			being interacted with.
+ *
+ * @param	nEffectID	Identifier for the effect.
+ */
+void CUser::ShowNpcEffect(uint32 nEffectID)
+{
+	Packet result(WIZ_OBJECT_EVENT, uint8(OBJECT_NPC));
+	result << uint8(3) << m_sEventNid << nEffectID;
+	Send(&result);
+}
+
+/**
  * @brief	Sends a player's base information to the AI server.
  *
  * @param	initialInfo	true when initially sending a player's information
@@ -1554,56 +1578,62 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 		return;
 	
 	float hitcoefficient = 0.0f;
-	_ITEM_TABLE * pRightHand = GetItemPrototype(RIGHTHAND);
-	if (pRightHand != nullptr)
+
+	if (!isWeaponsDisabled())
 	{
-		switch (pRightHand->m_bKind/10)
+		_ITEM_TABLE * pRightHand = GetItemPrototype(RIGHTHAND);
+		if (pRightHand != nullptr)
 		{
-		case WEAPON_DAGGER:
-			hitcoefficient = p_TableCoefficient->ShortSword;
-			break;
-		case WEAPON_SWORD:
-			hitcoefficient = p_TableCoefficient->Sword;
-			break;
-		case WEAPON_AXE:
-			hitcoefficient = p_TableCoefficient->Axe;
-			break;
-		case WEAPON_MACE:
-		case WEAPON_MACE2:
-			hitcoefficient = p_TableCoefficient->Club;
-			break;
-		case WEAPON_SPEAR:
-			hitcoefficient = p_TableCoefficient->Spear;
-			break;
-		case WEAPON_BOW:
-		case WEAPON_LONGBOW:
-		case WEAPON_LAUNCHER:
-			hitcoefficient = p_TableCoefficient->Bow;
-			bHaveBow = true;
-			break;
-		case WEAPON_STAFF:
-			hitcoefficient = p_TableCoefficient->Staff;
-			break;
+			switch (pRightHand->m_bKind/10)
+			{
+			case WEAPON_DAGGER:
+				hitcoefficient = p_TableCoefficient->ShortSword;
+				break;
+			case WEAPON_SWORD:
+				hitcoefficient = p_TableCoefficient->Sword;
+				break;
+			case WEAPON_AXE:
+				hitcoefficient = p_TableCoefficient->Axe;
+				break;
+			case WEAPON_MACE:
+			case WEAPON_MACE2:
+				hitcoefficient = p_TableCoefficient->Club;
+				break;
+			case WEAPON_SPEAR:
+				hitcoefficient = p_TableCoefficient->Spear;
+				break;
+			case WEAPON_BOW:
+			case WEAPON_LONGBOW:
+			case WEAPON_LAUNCHER:
+				hitcoefficient = p_TableCoefficient->Bow;
+				bHaveBow = true;
+				break;
+			case WEAPON_STAFF:
+				hitcoefficient = p_TableCoefficient->Staff;
+				break;
+			}
+
+			sItemDamage += pRightHand->m_sDamage + m_bAddWeaponDamage;
 		}
 
-		if (hitcoefficient != 0.0f)
-			sItemDamage = pRightHand->m_sDamage;
+		_ITEM_TABLE *pLeftHand = GetItemPrototype(LEFTHAND);
+		if (pLeftHand != nullptr)
+		{
+			if (pLeftHand->isBow())
+			{
+				hitcoefficient = p_TableCoefficient->Bow;
+				bHaveBow = true;
+				sItemDamage = pLeftHand->m_sDamage + m_bAddWeaponDamage;
+			}
+			else
+			{
+				sItemDamage += (pLeftHand->m_sDamage + m_bAddWeaponDamage) / 2;
+			}
+		}
 	}
 
-	_ITEM_TABLE *pLeftHand = GetItemPrototype(LEFTHAND);
-	if (pLeftHand != nullptr)
-	{
-		if (pLeftHand->isBow())
-		{
-			hitcoefficient = p_TableCoefficient->Bow;
-			bHaveBow = true;
-			sItemDamage = pLeftHand->m_sDamage;
-		}
-		else
-		{
-			sItemDamage += pLeftHand->m_sDamage / 2;
-		}
-	}
+	if (sItemDamage < 3)
+		sItemDamage = 3;
 
 	// Update stats based on item data
 	SetSlotItemValue();
@@ -1612,7 +1642,7 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 //	if( temp_str > 255 ) temp_str = 255;
 //	if( temp_dex > 255 ) temp_dex = 255;
 
-	uint32 baseAP = 0;
+	uint32 baseAP = 0, ap_stat = 0, additionalAP = 3;
 	if (temp_str > 150)
 		baseAP = temp_str - 150;
 
@@ -1623,9 +1653,17 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 
 	m_sMaxWeight = (((GetStatWithItemBonus(STAT_STR) + GetLevel()) * 50) + m_sMaxWeightBonus)  * (m_bMaxWeightAmount / 100);
 	if (isRogue()) 
-		m_sTotalHit = (short)((((0.005f * sItemDamage * (temp_dex + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_dex )) + 3) * (100 + m_byAPBonusAmount) / 100);
+	{
+		ap_stat = temp_dex;
+	}
 	else
-		m_sTotalHit = (short)(((((0.005f * sItemDamage * (temp_str + 40)) + ( hitcoefficient * sItemDamage * GetLevel() * temp_str )) + 3) + baseAP) * (100 + m_byAPBonusAmount) / 100);
+	{
+		ap_stat = temp_str;
+		additionalAP += baseAP;
+	}
+
+	m_sTotalHit = (uint16)((0.005f * sItemDamage * (ap_stat + 40)) + (hitcoefficient * sItemDamage * GetLevel() * ap_stat));
+	m_sTotalHit = (m_sTotalHit + additionalAP) * (100 + m_byAPBonusAmount) / 100;
 
 	m_sTotalAc = (short)(p_TableCoefficient->AC * (GetLevel() + m_sItemAc));
 	if (m_sACPercent <= 0)
@@ -1708,13 +1746,11 @@ void CUser::SetUserAbility(bool bSendPacket /*= true*/)
 			m_bResistanceBonus += 50;
 	}
 
-#if 0
-    if (m_sAdditionalAttackDamage)
-      ++m_sTotalHit;
+	if (m_bAddWeaponDamage > 0)
+		++m_sTotalHit;
 
-	if (m_sAdditionalDefense > 0 || m_sAdditionalDefensePct > 100)
-      ++m_sTotalAc;
-#endif
+	if (m_sAddArmourAc > 0 || m_bPctArmourAc > 100)
+		++m_sTotalAc;
 
 	uint8 bSta = GetStat(STAT_STA);
 	if (bSta > 100)
@@ -1949,8 +1985,6 @@ void CUser::ItemGet(Packet & pkt)
 		if (pDstItem->sCount > MAX_ITEM_COUNT)
 			pDstItem->sCount = MAX_ITEM_COUNT;
 
-		pReceiver->SendItemWeight();
-
 		result	<< uint8(pReceiver == this ? LootSolo : LootPartyItemGivenToUs)
 				<< nBundleID 
 				<< uint8(bDstPos - SLOT_MAX) 
@@ -1958,6 +1992,9 @@ void CUser::ItemGet(Packet & pkt)
 				<< pReceiver->GetCoins();
 
 		pReceiver->Send(&result);
+
+		pReceiver->SetUserAbility(false);
+		pReceiver->SendItemWeight();
 
 		// Now notify the party that we've looted, if applicable.
 		if (isInParty())
@@ -2173,7 +2210,7 @@ void CUser::LoyaltyChange(int16 tid, uint16 bonusNP /*= 0*/)
 	short loyalty_source = 0, loyalty_target = 0;
 
 	// TO-DO: Rewrite this out, it shouldn't handle all cases so generally like this
-	if (m_bZone == 48 || m_bZone == 21) 
+	if (!GetMap()->isNationPVPZone()) 
 		return;
 
 	CUser* pTUser = g_pMain->GetUserPtr(tid);  
@@ -2230,20 +2267,6 @@ void CUser::LoyaltyChange(int16 tid, uint16 bonusNP /*= 0*/)
 	}
 }
 
-/**
- * @brief	Change's a player's loyalty points (NP).
- *
- * @param	sAmount			  	The amount.
- * @param	bDistributeToParty	true to distribute to party.
- */
-void CUser::ChangeNP(short sAmount, bool bDistributeToParty /*= true*/)
-{
-	if (bDistributeToParty && isInParty()) 
-		; /* TO-DO: Cut out all the specifics from LoyaltyDivide() and implement the core of it as its own method */
-	else // Otherwise, we just give NP to the player (which this does, implicitly)
-		SendLoyaltyChange(sAmount, true); 
-}
-
 void CUser::SpeedHackUser()
 {
 	if (!isInGame())
@@ -2273,13 +2296,11 @@ void CUser::SendNotice()
 #if __VERSION < 1453 // NOTE: This is actually still supported if we wanted to use it.
 	result << count; // placeholder the count
 	result.SByte(); // only old-style notices use single byte lengths
-	for (count = 0; count < 20; count++)
-	{
-		if (g_pMain->m_ppNotice[count][0] == 0)
-			continue;
 
-		result << g_pMain->m_ppNotice[count];
-	}
+	for (int i = 0; i < 20; i++)
+		AppendNoticeEntry(result, count, g_ppMain->m_ppNotice[i]);
+
+	AppendExtraNoticeData(result, count);
 	result.put(0, count); // replace the placeholdered line count
 #else
 	result << uint8(2); // new-style notices (top-right of screen)
@@ -2288,18 +2309,46 @@ void CUser::SendNotice()
 	// Use first line for header, 2nd line for data, 3rd line for header... etc.
 	// It's most likely what they do officially (as usual, | is their line separator)
 	for (int i = 0; i < 10; i += 2)
-	{
-		if (g_pMain->m_ppNotice[i][0] == 0)
-			continue;
+		AppendNoticeEntry(result, count, g_pMain->m_ppNotice[i + 1], g_pMain->m_ppNotice[i]);
 
-		// header | data
-		result << g_pMain->m_ppNotice[i] << g_pMain->m_ppNotice[i + 1];
-		count++;
-	}
+	AppendExtraNoticeData(result, count);
 	result.put(1, count); // replace the placeholdered line count
 #endif
 	
 	Send(&result);
+}
+
+void CUser::AppendNoticeEntry(Packet & pkt, uint8 & elementCount, const char * message, const char * title)
+{
+	if (message == nullptr || *message == '\0')
+		return;
+
+#if __VERSION < 1453
+	pkt << message;
+#else
+	if (title == nullptr || *title == '\0')
+		return;
+
+	pkt << title << message;
+#endif
+
+	elementCount++;
+}
+
+void CUser::AppendExtraNoticeData(Packet & pkt, uint8 & elementCount)
+{
+	string message;
+	if (g_pMain->m_byExpEventAmount > 0)
+	{
+		g_pMain->GetServerResource(IDS_EXP_REPAY_EVENT, &message, g_pMain->m_byExpEventAmount);
+		AppendNoticeEntry(pkt, elementCount, message.c_str(), "EXP event"); 
+	}
+
+	if (g_pMain->m_byCoinEventAmount > 0)
+	{
+		g_pMain->GetServerResource(IDS_MONEY_REPAY_EVENT, &message, g_pMain->m_byCoinEventAmount);
+		AppendNoticeEntry(pkt, elementCount, message.c_str(), "Noah event"); 
+	}
 }
 
 void CUser::SkillPointChange(Packet & pkt)
@@ -2636,7 +2685,8 @@ void CUser::HPTimeChangeType3()
 		|| !m_bType3Flag)
 		return;
 
-	int totalActiveDurationalSkills = 0;
+	uint16	totalActiveDurationalSkills = 0, 
+			totalActiveDOTSkills = 0;
 	bool bIsDOT = false;
 	for (int i = 0; i < MAX_TYPE3_REPEAT; i++)
 	{
@@ -2659,7 +2709,7 @@ void CUser::HPTimeChangeType3()
 			// Has the skill expired yet?
 			if (++pEffect->m_bTickCount == pEffect->m_bTickLimit)
 			{
-				Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
+				Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_DURATION_EXPIRED));
 
 				// Healing-over-time skills require the type 100
 				if (pEffect->m_sHPAmount > 0)
@@ -2668,21 +2718,30 @@ void CUser::HPTimeChangeType3()
 					result << uint8(200);
 
 				Send(&result);
+
+				// If the skill inflicts poison damage, remember to remove the poison indicator!
+				if (pEffect->m_byAttribute == POISON_R)
+					SendUserStatusUpdate(USER_STATUS_POISON, USER_STATUS_CURE);
+
 				pEffect->Reset();
 			}
 		}
 
 		if (pEffect->m_byUsed)
+		{
 			totalActiveDurationalSkills++;
+			if (pEffect->m_sHPAmount < 0)
+				totalActiveDOTSkills++;
+		}
 	}
 
 	// Have all the skills expired?
 	if (totalActiveDurationalSkills == 0)
-	{
 		m_bType3Flag = false;
-		if (bIsDOT)
-			SendUserStatusUpdate(USER_STATUS_DOT, USER_STATUS_CURE);
-	}
+
+	// If there was DOT skills when we started, but none anymore... revert the HP bar.
+	if (bIsDOT && totalActiveDOTSkills == 0)
+		SendUserStatusUpdate(USER_STATUS_DOT, USER_STATUS_CURE);
 }
 
 void CUser::Type4Duration()
@@ -2858,7 +2917,7 @@ void CUser::Home()
 	short x = 0, z = 0;
 
 	// Forgotten Temple
-	if (GetZoneID() == 55)
+	if (GetZoneID() == ZONE_FORGOTTEN_TEMPLE)
 	{
 		KickOutZoneUser(true);
 		return;
@@ -3804,10 +3863,31 @@ void CUser::OnDeath(Unit *pKiller)
 								UpdateAngerGauge(++m_byAngerGauge);
 						}
 
+						// Loyalty should be awarded on kill.
+						// Additionally, we should receive a "Meat dumpling"
 						if (!pUser->isInParty())
+						{
 							pUser->LoyaltyChange(GetID(), bonusNP);
+							pUser->GiveItem(ITEM_MEAT_DUMPLING);
+						}
+						// In parties, the loyalty should be divided up across the party.
+						// Each party member in range should also receive a "Meat Dumpling".
 						else
+						{
 							pUser->LoyaltyDivide(GetID(), bonusNP);
+
+							_PARTY_GROUP * pParty = g_pMain->GetPartyPtr(GetPartyID());
+							if (pParty != nullptr)
+							{
+								for (uint8 i = 0; i < MAX_PARTY_USERS; i++)
+								{
+									CUser * pPartyUser = g_pMain->GetUserPtr(pParty->uid[i]);
+									if (pPartyUser != nullptr
+										&& pUser->isInRange(pPartyUser, RANGE_50M))
+										pPartyUser->GiveItem(ITEM_MEAT_DUMPLING);
+								}
+							}
+						}
 
 						pUser->GoldChange(GetID(), 0);
 
@@ -3895,82 +3975,69 @@ void CUser::HandleHelmet(Packet & pkt)
 	SendToRegion(&result);
 }
 
-/**
- * @brief	Determine if this user is in an arena area.
- *
- * @return	true if in arena, false if not.
- */
-bool CUser::isInArena()
+bool Unit::isInAttackRange(Unit * pTarget, _MAGIC_TABLE * pSkill /*= nullptr*/)
 {
-	/*
-		All of this needs to be handled more generically 
-		(i.e. bounds loaded from the database, or their existing SMD method).
-	*/
-
-	// If we're in the Arena zone, assume combat is acceptable everywhere.
-	// NOTE: This is why we need generic bounds checks, to ensure even attacks in the Arena zone are in one of the 4 arena locations.
-	if (GetZoneID() == ZONE_ARENA)
-		return true;
-
-	// The only other arena is located in Moradon. If we're not in Moradon, then it's not an Arena.
-	if (GetZoneID() != ZONE_MORADON)
+	if (pTarget == nullptr)
 		return false;
 
-	// Moradon outside arena spawn bounds.
-	 return ((GetX() < 735.0f && GetX() > 684.0f) 
-			&& ((GetZ() < 491.0f && GetZ() > 440.0f) || (GetZ() < 411.0f && GetZ() > 360.0f)));
-}
-
-/**
- * @brief	Determine if this user is in a normal PVP zone.
- * 			That is, they're in an PK zone that allows combat 
- * 			against the opposite nation.
- *
- * @return	true if in PVP zone, false if not.
- */
-bool CUser::isInPVPZone()
-{
-	if (GetMap()->canAttackOtherNation())
+	if (pTarget == this
+		|| !isPlayer())
 		return true;
 
-	// Native/home zones are classed as PVP zones during invasions.
-	if ((GetZoneID() == KARUS && g_pMain->m_byKarusOpenFlag) 
-		|| (GetZoneID() == ELMORAD && g_pMain->m_byElmoradOpenFlag))
-		return true;
+	const float fBaseMeleeRange		= 10.0f; // far too generous
+	const float fBaseRangedRange	= 50.0f;
 
-	return false;
-}
+	float fRange = fBaseMeleeRange, fWeaponRange = 0.0f;
 
-/**
- * @brief	Determine if a user can attack the specified unit.
- *
- * @param	pTarget	Target for the attack.
- *
- * @return	true if we can attack, false if not.
- */
-bool CUser::CanAttack(Unit * pTarget)
-{
-	if (!Unit::CanAttack(pTarget))
-		return false;
+	_ITEM_DATA * pItem = nullptr;
+	_ITEM_TABLE * pTable = TO_USER(this)->GetItemPrototype(RIGHTHAND, pItem);
 
-	bool bIsSameNation = (GetNation() == pTarget->GetNation());
+	if (pTable != nullptr
+		&& pItem->sDuration > 0)
+	{
+		fWeaponRange = pTable->m_sRange / 10.0f;
+	}
+	else
+	{
+		pTable = TO_USER(this)->GetItemPrototype(LEFTHAND, pItem);
+		if (pTable != nullptr
+			&& pItem->sDuration != 0)
+			fWeaponRange = pTable->m_sRange / 10.0f;
+	}
 
-	// If we're trying to attack an NPC, it is instead easier to defer to the NPC's 
-	// own attack logic (which takes into account its varied nations).
-	if (pTarget->isNPC())
-		return TO_NPC(pTarget)->isHostileTo(this);
+	if (pSkill != nullptr)
+	{
+		// Not an attack skill, don't need to enforce these restrictions.
+		if (pSkill->bMoral != MORAL_ENEMY && pSkill->bMoral > MORAL_PARTY)
+			return true;
 
-	// Players can attack other players in the arena.
-	if (isInArena() 
-		&& TO_USER(pTarget)->isInArena())
-		return true;
+		// For physical attack skills (type 1 - melee, type 2 - ranged), we'll need take into account 
+		// the weapon's range.
+		if (pSkill->bType[0] != 3)
+			fRange = fWeaponRange;
 
-	// Players can attack opposing nation players when they're in PVP zones.
-	if (!bIsSameNation && isInPVPZone())
-		return true;
+		// For physical melee & magic skills, try to use the skill's range if it's set.
+		// Need to allow more for lag, and poorly thought out skill ranges.
+		// If not, resort to using the weapon range -- or predefined 15m range in the case of type 3 skills.
+		if (pSkill->bType[0] != 2)
+		{
+			return isInRangeSlow(pTarget, fBaseMeleeRange + (pSkill->sRange == 0 ? fRange : pSkill->sRange));
+		}
+		// Ranged skills (type 2) don't typically have the main skill range set to anything useful, so
+		// we need to allow for the: bow's range, flying skill-specific range, and an extra 50m for the
+		// also extremely poorly thought out ranges.
+		else
+		{
+			_MAGIC_TYPE2 * pType2 = g_pMain->m_Magictype2Array.GetData(pSkill->iNum);
+			return pType2 != nullptr && isInRangeSlow(pTarget, fRange + pType2->sAddRange + fBaseRangedRange);
+		}
+	}
 
-	// Players cannot attack other players in any other circumstance.
-	return false;
+	// Regular attack range.
+	if (fWeaponRange != 0.0f)
+		fRange = fBaseMeleeRange + fWeaponRange;
+
+	return isInRangeSlow(pTarget, fRange);
 }
 
 /**
@@ -3982,9 +4049,9 @@ bool CUser::CanAttack(Unit * pTarget)
  *
  * @return	true if we can use item, false if not.
  */
-bool CUser::CanUseItem(uint32 itemid, uint16 count)
+bool CUser::CanUseItem(uint32 nItemID, uint16 sCount /*= 1*/)
 {
-	_ITEM_TABLE* pItem = pItem = g_pMain->GetItemPtr(itemid);
+	_ITEM_TABLE* pItem = pItem = g_pMain->GetItemPtr(nItemID);
 	if (pItem == nullptr)
 		return false;
 
@@ -4002,7 +4069,7 @@ bool CUser::CanUseItem(uint32 itemid, uint16 count)
 		// Check the item's level requirement
 		|| (GetLevel() < pItem->m_bReqLevel || GetLevel() > pItem->m_bReqLevelMax)
 		// Ensure the item exists.
-		|| !CheckExistItem(itemid, count))
+		|| !CheckExistItem(nItemID, sCount))
 		return false;
 
 	return true;
@@ -4149,8 +4216,6 @@ void CUser::RecastSavedMagic()
 
 		instance.sCasterID = GetID();
 		instance.sTargetID = GetID();
-		instance.pSkillCaster = this;
-		instance.pSkillTarget = this;
 		instance.nSkillID = itr->first;
 		instance.bIsRecastingSavedMagic = true;
 
@@ -4394,5 +4459,56 @@ void CUser::InitializeStealth()
 {
 	Packet pkt(WIZ_STEALTH);
 	pkt << uint8(0) << uint16(0);
+	Send(&pkt);
+}
+
+void CUser::GrantChickenManner()
+{
+	uint8 bLevel = GetLevel(), bManner = 0;
+	// No manner points if you're not a chicken anymore nor when you're not in a party.
+	if (!m_bIsChicken || !isInParty())
+		return;
+
+	_PARTY_GROUP *pParty = nullptr;
+	pParty = g_pMain->GetPartyPtr(GetPartyID());
+
+	if(pParty == nullptr)
+		return;
+
+	for (int i = 0; i < MAX_PARTY_USERS; i++)
+	{
+		CUser *pTargetUser = nullptr;
+		if (pParty->uid[i] != GetSocketID())
+			pTargetUser = g_pMain->GetUserPtr(pParty->uid[i]);
+
+		if (pTargetUser == nullptr 
+			|| pTargetUser->isDead() 
+			|| pTargetUser->m_bIsChicken)
+			continue;
+
+		if (!isInRange(pTargetUser, RANGE_50M))
+			continue;
+
+		if (pTargetUser->GetLevel() > 20 && pTargetUser->GetLevel() < 40)
+			bManner = pTargetUser->GetLevel() / 10;
+		else
+			bManner = 1;
+
+		pTargetUser->SendMannerChange(bManner);
+	}
+}
+
+void CUser::SendMannerChange(int32 iMannerPoints)
+{
+	//Make sure we don't have too many or too little manner points!
+	if(m_iMannerPoint + iMannerPoints > LOYALTY_MAX)
+		m_iMannerPoint = LOYALTY_MAX;
+	else if (m_iMannerPoint + iMannerPoints < 0)
+		m_iMannerPoint = 0;
+	else
+		m_iMannerPoint += iMannerPoints;
+
+	Packet pkt(WIZ_LOYALTY_CHANGE, uint8(LOYALTY_MANNER_POINTS));
+	pkt << m_iMannerPoint;
 	Send(&pkt);
 }

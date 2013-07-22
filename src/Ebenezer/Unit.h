@@ -112,6 +112,12 @@ public:
 		return (uint8) m_buffMap.size() != m_buffCount; 
 	}
 
+	INLINE bool hasBuff(uint8 buff)
+	{
+		FastGuard lock(m_buffLock);
+		return m_buffMap.find(buff) != m_buffMap.end();
+	}
+
 	INLINE bool canInstantCast() { return m_bInstantCast; }
 	INLINE bool canStealth()	{ return m_bCanStealth; }
 
@@ -140,6 +146,7 @@ public:
 	void RemoveRegion(int16 del_x, int16 del_z);
 	void InsertRegion(int16 insert_x, int16 insert_z);
 
+	bool isInAttackRange(Unit * pTarget, _MAGIC_TABLE * pSkill = nullptr);
 	virtual short GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill = nullptr, bool bPreviewOnly = false) = 0;
 	virtual void OnAttack(Unit * pTarget, AttackType attackType) {}
 	virtual void OnDefend(Unit * pAttacker, AttackType attackType) {}
@@ -153,20 +160,22 @@ public:
 	virtual int16 GetSavedMagicDuration(uint32 nSkillID) { return -1; }
 
 	virtual void HpChange(int amount, Unit *pAttacker = nullptr, bool bSendToAI = true) = 0;
+	virtual void HpChangeMagic(int amount, Unit *pAttacker = nullptr, AttributeType attributeType = AttributeNone) { HpChange(amount, pAttacker); }
 	virtual void MSpChange(int amount) = 0;
 
 	void SendToRegion(Packet *result);
 	void Send_AIServer(Packet *result);
 
-	virtual void InitType3();
-	virtual void InitType4();
+	void InitType3();
+	void InitType4(bool bRemoveSavedMagic = false);
 	void AddType4Buff(uint8 bBuffType, _BUFF_TYPE4_INFO & pBuffInfo);
 
 	virtual void StateChangeServerDirect(uint8 bType, uint32 nBuff) {}
+	virtual bool isHostileTo(Unit * pTarget) = 0;
 	virtual bool CanAttack(Unit * pTarget);
 
 	void OnDeath(Unit *pKiller);
-	void SendDeathAnimation();
+	void SendDeathAnimation(Unit *pKiller = nullptr);
 
 // public for the moment
 // protected:
@@ -183,8 +192,8 @@ public:
 	uint8	m_bLevel;
 	uint8	m_bNation;
 
-	short	m_sTotalHit;
-	short	m_sTotalAc;
+	uint16	m_sTotalHit;
+	uint16	m_sTotalAc;
 	float	m_fTotalHitrate;
 	float	m_fTotalEvasionrate;
 
@@ -248,6 +257,7 @@ public:
 		uint8	m_bTickCount;	// 
 		uint8	m_bTickLimit;	// number of ticks required before the skill expires
 		uint16	m_sSourceID;	// ID of the unit that used this skill on the unit
+		uint8	m_byAttribute;	// skill attribute
 
 		MagicType3() { Reset(); }
 
@@ -260,6 +270,7 @@ public:
 			m_bTickCount = 0;
 			m_bTickLimit = 0;
 			m_sSourceID = -1;
+			m_byAttribute = AttributeNone;
 		}
 	};
 

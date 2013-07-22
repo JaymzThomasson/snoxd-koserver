@@ -1297,6 +1297,23 @@ void CDBAgent::UpdateClanFund(uint16 sClanID, uint32 nClanPointFund)
 		ReportSQLError(m_GameDB->GetError());
 }
 
+/**
+ * @brief	Updates the clan notice.
+ *
+ * @param	sClanID		 	Identifier for the clan.
+ * @param	strClanNotice	The clan notice.
+ */
+void CDBAgent::UpdateClanNotice(uint16 sClanID, std::string & strClanNotice)
+{
+	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == nullptr)
+		return;
+	
+	dbCommand->AddParameter(SQL_PARAM_INPUT, strClanNotice.c_str(), strClanNotice.length());
+	if (!dbCommand->Execute(string_format(_T("UPDATE KNIGHTS SET strClanNotice = ? WHERE IDNum = %d"), sClanID)))
+		ReportSQLError(m_GameDB->GetError());
+}
+
 NameChangeOpcode CDBAgent::UpdateCharacterName(std::string & strAccountID, std::string & strUserID, std::string & strNewUserID)
 {
 	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
@@ -1336,6 +1353,24 @@ void CDBAgent::UpdateCape(uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint
 	
 	if (!dbCommand->Execute(string_format(_T("UPDATE KNIGHTS SET sCape=%d, bCapeR=%d, bCapeG=%d, bCapeB=%d WHERE IDNum=%d"), 
 			sCapeID, r, g, b, sClanID)))
+		ReportSQLError(m_GameDB->GetError());
+}
+
+/**
+ * @brief	Updates the clan grade.
+ *
+ * @param	sClanID	Identifier for the clan.
+ * @param	byFlag 	The clan type (training, promoted, etc).
+ * @param	sCapeID	Identifier for the cape.
+ */
+void CDBAgent::UpdateClanGrade(uint16 sClanID, uint8 byFlag, uint16 sCapeID)
+{
+	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == nullptr)
+		return;
+	
+	if (!dbCommand->Execute(string_format(_T("UPDATE KNIGHTS SET sCape=%d, Flag=%d WHERE IDNum=%d"), 
+		sCapeID, byFlag, sClanID)))
 		ReportSQLError(m_GameDB->GetError());
 }
 
@@ -1672,6 +1707,19 @@ void CDBAgent::InsertPrizeEvent(uint8 byType, uint8 byNation, uint32 nCoins, std
 	dbCommand->AddParameter(SQL_PARAM_INPUT, strCharID.c_str(), strCharID.length());
 	if (!dbCommand->Execute(string_format(_T("{CALL KING_INSERT_PRIZE_EVENT(%d, %d, %d, ?)}"), 
 		byType, byNation, nCoins)))
+		ReportSQLError(m_GameDB->GetError());
+}
+
+/**
+ * @brief	Resets the monthly NP total accumulated in the last month.
+ */
+void CDBAgent::ResetLoyaltyMonthly()
+{
+	unique_ptr<OdbcCommand> dbCommand(m_GameDB->CreateCommand());
+	if (dbCommand.get() == nullptr)
+		return;
+
+	if (!dbCommand->Execute(_T("{CALL RESET_LOYALTY_MONTHLY}")))
 		ReportSQLError(m_GameDB->GetError());
 }
 

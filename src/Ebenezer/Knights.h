@@ -1,8 +1,9 @@
 #pragma once
 
-#define MAX_CLAN_USERS		36
-#define MIN_NATIONAL_POINTS	500
-#define MIN_NP_TO_DONATE	1000
+#define MAX_CLAN_USERS			36
+#define MIN_NATIONAL_POINTS		500
+#define MIN_NP_TO_DONATE		1000
+#define MAX_CLAN_NOTICE_LENGTH	128
 
 class CUser;
 struct _KNIGHTS_USER
@@ -24,6 +25,7 @@ struct _KNIGHTS_USER
 
 enum ClanTypeFlag
 {
+	ClanTypeNone		= 0,
 	ClanTypeTraining	= 1,
 	ClanTypePromoted	= 2,
 	ClanTypeAccredited5	= 3,
@@ -97,6 +99,7 @@ public:
 
 	void Disband(CUser *pLeader = nullptr);
 
+	void SendUpdate();
 	void SendChat(const char * format, ...);
 	void Send(Packet *pkt);
 

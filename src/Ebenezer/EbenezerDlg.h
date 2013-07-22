@@ -97,6 +97,7 @@ public:
 	void SetGameTime();
 	void UpdateWeather();
 	void UpdateGameTime();
+	void ResetLoyaltyMonthly();
 	void SendAllUserInfo();
 	void DeleteAllNpcList(int flag = 0);
 	CNpc*  FindNpcInZone(uint16 sPid, uint8 byZone);
@@ -345,6 +346,9 @@ public:
 	uint8 m_byKingWeatherEvent_Day;
 	uint8 m_byKingWeatherEvent_Hour;
 	uint8 m_byKingWeatherEvent_Minute;
+
+	// XP/coin events
+	uint8 m_byExpEventAmount, m_byCoinEventAmount;
 
 	INLINE CLuaEngine * GetLuaEngine() { return &m_luaEngine; }
 

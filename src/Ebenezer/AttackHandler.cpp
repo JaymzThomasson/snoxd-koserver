@@ -6,8 +6,7 @@ void CUser::Attack(Packet & pkt)
 	Packet result;
 	int16 sid = -1, tid = -1, damage, delaytime, distance;	
 	uint8 bType, bResult = 0;	
-	
-	CUser* pTUser = nullptr;
+	Unit * pTarget = nullptr;
 
 	pkt >> bType >> bResult >> tid >> delaytime >> distance;
 
@@ -27,7 +26,7 @@ void CUser::Attack(Packet & pkt)
 	_ITEM_TABLE *pTable = GetItemPrototype(RIGHTHAND);
 	if (pTable != nullptr) 
 	{
-		if (delaytime < pTable->m_sDelay
+		if (delaytime < (pTable->m_sDelay + 10) // client adds 0.1 onto the interval (0.1 of 100 is 10)
 			|| distance > pTable->m_sRange)
 			return;	
 	}
@@ -35,46 +34,45 @@ void CUser::Attack(Packet & pkt)
 	else if (delaytime < 100)
 		return;			
 
-	// We're attacking a player...
-	if (tid < MAX_USER)
+	pTarget = g_pMain->GetUnitPtr(tid);
+	if (pTarget != nullptr && isInAttackRange(pTarget))
 	{
-		pTUser = g_pMain->GetUserPtr(tid);
- 
-		if (pTUser != nullptr
-			&& CanAttack(pTUser)) 
+		// We're attacking a player...
+		if (pTarget->isPlayer())
 		{
-			damage = GetDamage(pTUser, nullptr);
-			if (GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE)
-				damage = 0;		
-
-			if (damage > 0)
+			if (CanAttack(pTarget)) 
 			{
-				// TO-DO: Move all this redundant code into appropriate event-based methods so that all the other cases don't have to copypasta (and forget stuff).
-				pTUser->HpChange(-damage, this);
-				if (pTUser->isDead())
-					bResult = 2;
+				damage = GetDamage(pTarget, nullptr);
+				if (GetZoneID() == ZONE_SNOW_BATTLE && g_pMain->m_byBattleOpen == SNOW_BATTLE)
+					damage = 0;		
 
-				ItemWoreOut(ATTACK, damage);
-				pTUser->ItemWoreOut(DEFENCE, damage);
+				if (damage > 0)
+				{
+					// TO-DO: Move all this redundant code into appropriate event-based methods so that all the other cases don't have to copypasta (and forget stuff).
+					pTarget->HpChange(-damage, this);
+					if (pTarget->isDead())
+						bResult = ATTACK_TARGET_DEAD;
+
+					ItemWoreOut(ATTACK, damage);
+					TO_USER(pTarget)->ItemWoreOut(DEFENCE, damage);
+				}
 			}
 		}
-	}
-	// We're attacking an NPC...
-	else if (tid >= NPC_BAND)
-	{
-		// AI hasn't loaded yet
-		if (g_pMain->m_bPointCheckFlag == false)	
-			return;	
-
-		CNpc *pNpc = g_pMain->GetNpcPtr(tid);		
-		if (pNpc != nullptr 
-			&& CanAttack(pNpc))
+		// We're attacking an NPC...
+		else
 		{
-			result.SetOpcode(AG_ATTACK_REQ);
-			result	<< bType << bResult
-					<< GetSocketID() << tid;
-			Send_AIServer(&result);	
-			return;
+			// AI hasn't loaded yet
+			if (g_pMain->m_bPointCheckFlag == false)	
+				return;	
+
+			if (CanAttack(pTarget))
+			{
+				result.SetOpcode(AG_ATTACK_REQ);
+				result	<< bType << bResult
+						<< GetSocketID() << tid;
+				Send_AIServer(&result);	
+				return;
+			}
 		}
 	}
 
@@ -82,12 +80,13 @@ void CUser::Attack(Packet & pkt)
 	result << bType << bResult << GetSocketID() << tid;
 	SendToRegion(&result);
 
-	if (tid < NPC_BAND
-		&& bResult == 2 // 2 means a player died.
-		&& pTUser) 
+	if (pTarget != nullptr 
+		&& pTarget->isPlayer()
+		&& bResult == 2) // 2 means a player died. 
 	{
-		pTUser->Send(&result);
-		TRACE("*** User Attack Dead, id=%s, result=%d, type=%d, HP=%d\n", pTUser->GetName().c_str(), bResult, pTUser->m_bResHpType, pTUser->m_sHp);
+		TO_USER(pTarget)->Send(&result);
+		TRACE("*** User Attack Dead, id=%s, result=%d, type=%d, HP=%d\n", 
+			TO_USER(pTarget)->GetName().c_str(), bResult, TO_USER(pTarget)->m_bResHpType, TO_USER(pTarget)->m_sHp);	
 	}
 }
 
@@ -158,12 +157,7 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 				x = (float)(pHomeInfo->BattleZoneX + myrand(0, pHomeInfo->BattleZoneLX));
 				z = (float)(pHomeInfo->BattleZoneZ + myrand(0, pHomeInfo->BattleZoneLZ));
 			}
-			// If we're in a zone that can attack other-nation players (includes snow wars), use FreeZone coordinates instead.
-			else if (GetMap()->isNationPVPZone())
-			{
-				x = (float)(pHomeInfo->FreeZoneX + myrand(0, pHomeInfo->FreeZoneLX));
-				z = (float)(pHomeInfo->FreeZoneZ + myrand(0, pHomeInfo->FreeZoneLZ));
-			}
+			// If we died in the Moradon arena, we need to spawn near the Arena.
 			else if (GetZoneID() == ZONE_MORADON && isInArena())
 			{
 				x = (float)(MINI_ARENA_RESPAWN_X + myrand(-MINI_ARENA_RESPAWN_RADIUS, MINI_ARENA_RESPAWN_RADIUS));
@@ -182,7 +176,6 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 
 		SetPosition(x, 0.0f, z);
 
-		m_bAbnormalType = ABNORMAL_BLINKING;
 		m_bResHpType = USER_STANDING;	
 		m_bRegeneType = REGENE_NORMAL;
 	}
@@ -205,11 +198,14 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	result << GetSPosX() << GetSPosZ() << GetSPosY();
 	Send(&result);
 
-	HpChange(m_iMaxHp);
+	HpChange(GetMaxHealth());
 
 	m_tLastRegeneTime = UNIXTIME;
 	m_sWhoKilledMe = -1;
 	m_iLostExp = 0;
+
+	if (magicid == 0)
+		BlinkStart();
 
 	if (!isBlinking())
 	{
@@ -232,7 +228,6 @@ void CUser::Regene(uint8 regene_type, uint32 magicid /*= 0*/)
 	if (isInArena())
 		SendUserStatusUpdate(USER_STATUS_SPEED, USER_STATUS_CURE);
 
-	BlinkStart();
 	RecastSavedMagic();
 
 	// If we actually respawned (i.e. we weren't resurrected by a skill)...

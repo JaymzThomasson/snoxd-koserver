@@ -1289,7 +1289,7 @@ int CNpc::PathFind(CPoint start, CPoint end, float fDistance)
 	return 1;
 }
 
-void CNpc::Dead(bool bSendDeathPacket /*= false*/)
+void CNpc::Dead(Unit * pKiller /*= nullptr*/, bool bSendDeathPacket /*= false*/)
 {
 	MAP* pMap = GetMap();
 	if(pMap == nullptr)	return;
@@ -1311,7 +1311,7 @@ void CNpc::Dead(bool bSendDeathPacket /*= false*/)
 
 	if (bSendDeathPacket)
 	{
-		SendDeathAnimation();
+		SendDeathAnimation(pKiller);
 		SendExpToUserList();
 		GiveNpcHaveItem();
 	}
@@ -1333,7 +1333,9 @@ bool CNpc::FindEnemy()
 		return false;
 
 	bool bIsGuard = isGuard();
-	bool bIsNeutralZone = (GetZoneID() == 21 || GetZoneID() == 48); // Moradon/Arena
+
+	// We shouldn't really need this anymore...
+	bool bIsNeutralZone = (GetZoneID() == ZONE_MORADON || GetZoneID() == ZONE_ARENA); // Moradon/Arena
 
 	// Disable AI enemy finding (of users) in neutral zones.
 	// Guards and monsters are, however, allowed.
@@ -1377,7 +1379,6 @@ bool CNpc::FindEnemy()
 		fCompareDis = FindEnemyExpand(GetRegionX(), GetRegionZ(), fCompareDis, UnitPlayer);
 
 		int x=0, y=0;
-
 		// 이웃해 있는 Region을 검색해서,,  몬의 위치와 제일 가까운 User을 향해.. 이동..
 		for(int l=0; l<4; l++)	{
 			if(m_iFind_X[l] == 0 && m_iFind_Y[l] == 0)		continue;
@@ -2196,7 +2197,6 @@ time_t CNpc::Attack()
 
 		if (pUser->isDead())
 		{
-			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->GetID(), 0, 0);
 			InitTarget();
 			m_NpcState = NPC_STANDING;
 			return nStandingTime;
@@ -2245,6 +2245,8 @@ time_t CNpc::Attack()
 			SendAttackSuccess(ATTACK_FAIL, pUser->GetID(), nDamage, pUser->m_sHP);
 		else if (pUser->SetDamage(nDamage, GetID()))
 			SendAttackSuccess(ATTACK_SUCCESS, pUser->GetID(), nDamage, pUser->m_sHP);
+		else 
+			SendAttackSuccess(ATTACK_TARGET_DEAD, pUser->GetID(), nDamage, pUser->m_sHP);
 	}
 	else // Targeting NPC
 	{
@@ -2325,7 +2327,6 @@ time_t CNpc::LongAndMagicAttack()
 
 		if (pUser->isDead())
 		{
-			SendAttackSuccess(ATTACK_TARGET_DEAD_OK, pUser->GetID(), 0, 0);
 			InitTarget();
 			m_NpcState = NPC_STANDING;
 			return nStandingTime;
@@ -2744,7 +2745,7 @@ void CNpc::ChangeNTarget(CNpc *pNpc)
 		FindFriend();
 }
 
-bool CNpc::SetDamage(int nDamage, uint16 uid, bool bSendToEbenezer /*= true*/)
+bool CNpc::SetDamage(int nDamage, uint16 uid, bool bSendToEbenezer /*= true*/, AttributeType attributeType /*= AttributeNone*/)
 {
 	int i=0, len=0;
 	int userDamage = 0;
@@ -2821,42 +2822,31 @@ bool CNpc::SetDamage(int nDamage, uint16 uid, bool bSendToEbenezer /*= true*/)
 
 go_result:
 	m_TotalDamage += userDamage;
-	m_iHP -= nDamage;	
 	HpChange(-nDamage, pAttacker, bSendToEbenezer);
 	if (m_iHP <= 0)
 		return false;
 
-	int iRandom = myrand(1, 100);
-	int iLightningR = 0;
-
-	if (uid < NPC_BAND)
+	if (uid >= NPC_BAND)
 	{
-#if 0	// This code handles stuns from skills with the lightning attribute.
-		// Since Ebenezer now handles skill code, this is only kept for future reference 
-		// so we can accurately reimplement this.
+		ChangeNTarget(pNpc);
+		return true;
+	}
 
-		if (nAttackType == 3 && m_NpcState != NPC_FAINTING)	
+	if (attributeType == AttributeLightning
+		&& m_NpcState != NPC_FAINTING)
+	{
+		int iRandom = myrand(1, 100);
+		int iLightningR = (int)(10 + (40 - 40 * ((double)m_sLightningR / 80)));
+		if (COMPARE(iRandom, 0, iLightningR))
 		{
-			iLightningR = (int)(10 + (40 - 40 * ( (double)m_sLightningR / 80)));
-			if( COMPARE(iRandom, 0, iLightningR) )	{
-				m_NpcState = NPC_FAINTING;
-				m_Delay = 0;
-				m_tFaintingTime = UNIXTIME;
-			}
-			else	
-			{
-				ChangeTarget(nAttackType, pUser);
-			}
+			m_NpcState = NPC_FAINTING;
+			m_Delay = 0;
+			m_tFaintingTime = UNIXTIME;
 		}
 		else	
-#endif
 		{
 			ChangeTarget(0, pUser);
 		}
-	}
-	else
-	{
-		ChangeNTarget(pNpc);
 	}
 
 	return true;
@@ -2866,6 +2856,12 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToEbene
 {
 	uint16 tid = (pAttacker != nullptr ? pAttacker->GetID() : -1);
 	int16 oldHP = m_iHP;
+
+	// Implement damage/HP cap.
+	if (amount < -MAX_DAMAGE)
+		amount = -MAX_DAMAGE;
+	else if (amount > MAX_DAMAGE)
+		amount = MAX_DAMAGE;
 
 	if (amount < 0 && -amount >= m_iHP)
 		m_iHP = 0;
@@ -2882,10 +2878,9 @@ void CNpc::HpChange(int amount, Unit *pAttacker /*= nullptr*/, bool bSendToEbene
 	}
 
 	if (m_iHP == 0)
-		Dead();
+		Dead(pAttacker);
 }
 
-//	NPC 사망처리시 경험치 분배를 계산한다.(일반 유저와 버디 사용자구분)
 void CNpc::SendExpToUserList()
 {
 	int i=0;

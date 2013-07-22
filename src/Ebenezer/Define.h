@@ -22,6 +22,7 @@
 #define MAX_CLASS			26			// ��� MAX
 #define MAX_LEVEL			83			// �ְ�...
 #define MAX_PLAYER_HP		14000
+#define MAX_DAMAGE			32000		// Game uses a signed 2 byte integer, so the limit is technically 32,767. The game, however, caps it at 32,000.
 
 #define MAX_MESSAGE_EVENT			12
 
@@ -139,11 +140,17 @@ enum InOutType
 #define MINI_ARENA_RESPAWN_Z		428
 #define MINI_ARENA_RESPAWN_RADIUS	5
 
+// Standard (pre-squared) range used for party rewards and such.
+#define RANGE_50M					(50.0f * 50.0f)
+
 // ID of the Cont Recovery item... shouldn't hardcode this, but seems there's no other way.
 #define ITEM_CONT_RECOVERY		800370000
 
 // ID of the "Scroll of Identity" item. At some point we should just pass this code off to a Lua script.
 #define ITEM_SCROLL_OF_IDENTITY	800032000
+
+// ID of the "Meat Dumpling" item, given on kills in PVP zones.
+#define ITEM_MEAT_DUMPLING		508216000
 
 #define KING_SCEPTER 910074311
 
@@ -163,6 +170,20 @@ enum UserStatusBehaviour
 {
 	USER_STATUS_CURE	= 0,
 	USER_STATUS_INFLICT	= 1
+};
+
+enum LoyaltyType
+{
+	LOYALTY_NATIONAL_POINTS = 1,
+	LOYALTY_MANNER_POINTS	= 2
+};
+
+enum AttributeType
+{
+	AttributeNone		= 0,
+	AttributeFire		= 1,
+	AttributeIce		= 2,
+	AttributeLightning	= 3
 };
 
 typedef union{

@@ -68,8 +68,8 @@ void Unit::Initialize()
 	m_bRadiusAmount = 0;
 	m_buffCount = 0;
 
-	InitType3();	 // Initialize durational type 3 stuff :)
-	InitType4();	 // Initialize durational type 4 stuff :)
+	InitType3();
+	InitType4(true);
 }
 
 /* 
@@ -356,6 +356,10 @@ short CUser::GetDamage(Unit *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 			damage /= 3;
 	}
 
+	// Enforce damage cap
+	if (damage > MAX_DAMAGE)
+		damage = MAX_DAMAGE;
+
 	return damage;
 }
 
@@ -399,6 +403,10 @@ void CUser::OnDefend(Unit * pAttacker, AttackType attackType)
  */
 bool CUser::TriggerProcItem(uint8 bSlot, Unit * pTarget, ItemTriggerType triggerType)
 {
+	// Don't proc weapon skills if our weapon is disabled.
+	if (triggerType == TriggerTypeAttack && isWeaponsDisabled()) 
+		return false;
+
 	// Ensure there's an item in this slot, 
 	_ITEM_DATA * pItem = GetItem(bSlot);
 	if (pItem == nullptr
@@ -422,8 +430,6 @@ bool CUser::TriggerProcItem(uint8 bSlot, Unit * pTarget, ItemTriggerType trigger
 	instance.bIsItemProc = true;
 	instance.sCasterID = GetID();
 	instance.sTargetID = pTarget->GetID();
-	instance.pSkillCaster = this;
-	instance.pSkillTarget = pTarget;
 	instance.nSkillID = pData->nSkillID;
 
 	// For AOE skills such as "Splash", the AOE should be focus on the target.
@@ -493,7 +499,11 @@ short CNpc::GetDamage(CUser *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool b
 	if (damage > nMaxDamage)	
 		damage = nMaxDamage;
 
-	return (short) damage;	
+	// Enforce overall damage cap
+	if (damage > MAX_DAMAGE)
+		damage = MAX_DAMAGE;
+
+	return (short) damage;
 }
 
 /**
@@ -541,6 +551,10 @@ short CNpc::GetDamage(CNpc *pTarget, _MAGIC_TABLE *pSkill /*= nullptr*/, bool bP
 		break;
 	}
 	
+	// Enforce damage cap
+	if (damage > MAX_DAMAGE)
+		damage = MAX_DAMAGE;
+
 	return damage;	
 }
 
@@ -619,7 +633,7 @@ short Unit::GetMagicDamage(int damage, Unit *pTarget, bool bPreviewOnly /*= fals
 short Unit::GetACDamage(int damage, Unit *pTarget)
 {
 	// This isn't applicable to NPCs.
-	if (isNPC() || pTarget->isNPC())
+	if (!isPlayer() || !pTarget->isPlayer())
 		return damage;
 
 #ifdef EBENEZER
@@ -627,6 +641,9 @@ short Unit::GetACDamage(int damage, Unit *pTarget)
 		return 0;
 
 	CUser * pUser  = TO_USER(this);
+	if (pUser->isWeaponsDisabled())
+		return damage;
+
 	uint8 weaponSlots[] = { RIGHTHAND, LEFTHAND };
 
 	foreach_array (slot, weaponSlots)
@@ -762,7 +779,7 @@ void Unit::InitType3()
 	m_bType3Flag = false;
 }
 
-void Unit::InitType4()
+void Unit::InitType4(bool bRemoveSavedMagic /*= false*/)
 {
 	// Remove all buffs that should not be recast.
 	FastGuard lock(m_buffLock);
@@ -770,11 +787,8 @@ void Unit::InitType4()
 
 	for (auto itr = buffMap.begin(); itr != buffMap.end(); itr++)
 	{
-		if (HasSavedMagic(itr->second.m_nSkillID))
-			continue;
-
 #ifdef EBENEZER
-		CMagicProcess::RemoveType4Buff(itr->first, this);
+		CMagicProcess::RemoveType4Buff(itr->first, this, bRemoveSavedMagic);
 #endif
 	}
 }
@@ -808,15 +822,18 @@ bool Unit::CanAttack(Unit * pTarget)
 		|| pTarget->isBlinking())
 		return false;
 
-	return true;
+	// Finally, we can only attack the target if we are hostile towards them.
+	return isHostileTo(pTarget);
 }
 
 void Unit::OnDeath(Unit *pKiller)
 {
-	SendDeathAnimation();
+#ifdef EBENEZER
+	SendDeathAnimation(pKiller);
+#endif
 }
 
-void Unit::SendDeathAnimation()
+void Unit::SendDeathAnimation(Unit * pKiller /*= nullptr*/)
 {
 #ifdef EBENEZER
 	Packet result(WIZ_DEAD);
@@ -824,7 +841,8 @@ void Unit::SendDeathAnimation()
 	SendToRegion(&result);
 #else
 	Packet result(AG_DEAD);
-	result << GetID();
+	int16 tid = (pKiller == nullptr ? -1 : pKiller->GetID());
+	result << GetID() << pKiller->GetID();
 	g_pMain->Send(&result);
 #endif
 }
@@ -939,23 +957,8 @@ void KOMap::SetZoneAttributes(int zoneNumber)
 }
 
 /**
- * @brief	Determine if an NPC can attack the specified unit.
- *
- * @param	pTarget	The target we are attempting to attack.
- *
- * @return	true if we can attack, false if not.
- */
-bool CNpc::CanAttack(Unit * pTarget)
-{
-	if (!Unit::CanAttack(pTarget))
-		return false;
-
-	return isHostileTo(pTarget);
-}
-
-/**
  * @brief	Determines if an NPC is hostile to a unit.
- * 			Non-hostile NPCs cannot be attacked.
+ * 			Non-hostile units cannot be attacked.
  *
  * @param	pTarget	Target unit
  *
@@ -963,11 +966,18 @@ bool CNpc::CanAttack(Unit * pTarget)
  */
 bool CNpc::isHostileTo(Unit * pTarget)
 {
-	// Scarecrows are NPCs that the client allows us to attack
-	// however, since they're not a monster, and all NPCs in neutral zones
-	// are friendly, we need to override to ensure we can attack them server-side.
-	if (GetType() == NPC_SCARECROW)
-		return true;
+	if (pTarget == nullptr)
+		return false;
+
+	// Only players can attack these targets.
+	if (pTarget->isPlayer())
+	{
+		// Scarecrows are NPCs that the client allows us to attack
+		// however, since they're not a monster, and all NPCs in neutral zones
+		// are friendly, we need to override to ensure we can attack them server-side.
+		if (GetType() == NPC_SCARECROW)
+			return true;
+	}
 
 	// A nation of 0 indicates friendliness to all
 	if (GetNation() == Nation::ALL
@@ -981,4 +991,83 @@ bool CNpc::isHostileTo(Unit * pTarget)
 
 	// An NPC cannot attack a unit of the same nation
 	return (GetNation() != pTarget->GetNation());
+}
+
+/**
+ * @brief	Determines if a player is hostile to a unit.
+ * 			Non-hostile units cannot be attacked.
+ *
+ * @param	pTarget	Target unit
+ *
+ * @return	true if hostile to, false if not.
+ */
+bool CUser::isHostileTo(Unit * pTarget)
+{
+	if (pTarget == nullptr)
+		return false;
+
+	// For non-player hostility checks, refer to the appropriate override.
+	if (!pTarget->isPlayer())
+		return pTarget->isHostileTo(this);
+
+	// Players can attack other players in the arena.
+	if (isInArena() 
+		&& TO_USER(pTarget)->isInArena())
+		return true;
+
+	// Players can attack opposing nation players when they're in PVP zones.
+	if (GetNation() != pTarget->GetNation() 
+		&& isInPVPZone())
+		return true;
+
+	// Players cannot attack other players in any other circumstance.
+	return false;
+}
+
+/**
+ * @brief	Determine if this user is in an arena area.
+ *
+ * @return	true if in arena, false if not.
+ */
+bool CUser::isInArena()
+{
+	/*
+		All of this needs to be handled more generically 
+		(i.e. bounds loaded from the database, or their existing SMD method).
+	*/
+
+	// If we're in the Arena zone, assume combat is acceptable everywhere.
+	// NOTE: This is why we need generic bounds checks, to ensure even attacks in the Arena zone are in one of the 4 arena locations.
+	if (GetZoneID() == ZONE_ARENA)
+		return true;
+
+	// The only other arena is located in Moradon. If we're not in Moradon, then it's not an Arena.
+	if (GetZoneID() != ZONE_MORADON)
+		return false;
+
+	// Moradon outside arena spawn bounds.
+	 return ((GetX() < 735.0f && GetX() > 684.0f) 
+			&& ((GetZ() < 491.0f && GetZ() > 440.0f) || (GetZ() < 411.0f && GetZ() > 360.0f)));
+}
+
+/**
+ * @brief	Determine if this user is in a normal PVP zone.
+ * 			That is, they're in an PK zone that allows combat 
+ * 			against the opposite nation.
+ *
+ * @return	true if in PVP zone, false if not.
+ */
+bool CUser::isInPVPZone()
+{
+	if (GetMap()->canAttackOtherNation())
+		return true;
+
+#if defined(EBENEZER)
+	// Native/home zones are classed as PVP zones during invasions.
+	if ((GetZoneID() == KARUS && g_pMain->m_byKarusOpenFlag) 
+		|| (GetZoneID() == ELMORAD && g_pMain->m_byElmoradOpenFlag))
+		return true;
+#endif
+
+	return false;
 }

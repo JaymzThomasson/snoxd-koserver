@@ -206,11 +206,12 @@ enum SkillPointCategory
 // USER ABNORMAL STATUS TYPES
 enum AbnormalType
 {
-	ABNORMAL_INVISIBLE	= 0, // GM only
-	ABNORMAL_NORMAL		= 1,
-	ABNORMAL_GIANT		= 2,
-	ABNORMAL_DWARF		= 3,
-	ABNORMAL_BLINKING	= 4
+	ABNORMAL_INVISIBLE		= 0,	// Hides character completely (for GM visibility only).
+	ABNORMAL_NORMAL			= 1,	// Shows character. This is the default for players.
+	ABNORMAL_GIANT			= 2,	// Enlarges character.
+	ABNORMAL_DWARF			= 3,	// Shrinks character.
+	ABNORMAL_BLINKING		= 4,	// Forces character to start blinking.
+	ABNORMAL_GIANT_TARGET	= 6		// Enlarges character and shows "Hit!" effect.
 };
 
 //////////////////////////////////////////////////////////////
@@ -223,12 +224,6 @@ enum AbnormalType
 #define REGENE_NORMAL		0
 #define REGENE_MAGIC		1
 #define REGENE_ZONECHANGE	2
-
-//////////////////////////////////////////////////////////////
-// TYPE 3 ATTRIBUTE TYPES
-#define ATTRIBUTE_FIRE				1
-#define ATTRIBUTE_ICE				2
-#define ATTRIBUTE_LIGHTNING			3
 
 struct _CLASS_COEFFICIENT
 {
@@ -365,8 +360,7 @@ struct _ITEM_TABLE
 	INLINE bool isBow() { return GetItemGroup() == WEAPON_BOW || GetItemGroup() == WEAPON_LONGBOW; }
 	INLINE bool isPickaxe() { return GetKind() == WEAPON_PICKAXE; }
 
-	// Detect 2-handed weapons. There's probably a better way of doing this.
-	INLINE bool is2Handed() { return isBow() || is2HSword() || is2HAxe() || is2HMace() || is2HSpear(); }
+	INLINE bool is2Handed() { return m_bSlot == ItemSlot2HLeftHand || m_bSlot == ItemSlot2HRightHand; }
 };
 
 struct _ZONE_SERVERINFO

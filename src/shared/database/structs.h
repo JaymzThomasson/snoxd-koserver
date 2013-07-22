@@ -3,7 +3,7 @@
 struct _MAGIC_TABLE
 {
 	uint32	iNum;
-	uint8	bBeforeAction;
+	uint32	nBeforeAction;
 	uint8	bTargetAction;
 	uint8	bSelfEffect;
 	uint8	bFlyingEffect;

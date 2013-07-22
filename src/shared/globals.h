@@ -324,6 +324,16 @@ enum StatType
 	STAT_COUNT
 };
 
+
+enum AttackResult
+{
+	ATTACK_FAIL					= 0,
+	ATTACK_SUCCESS				= 1,
+	ATTACK_TARGET_DEAD			= 2,
+	ATTACK_TARGET_DEAD_OK		= 3,
+	MAGIC_ATTACK_TARGET_DEAD	= 4
+};
+
 #define STAT_MAX 255
 #define QUEST_ARRAY_SIZE 600 // That's a limit of 200 quests (3 bytes per quest)
 

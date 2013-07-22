@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "Map.h"
 
 using namespace std;
 
@@ -43,8 +44,8 @@ void CUser::ExchangeReq(Packet & pkt)
 	pUser = g_pMain->GetUserPtr(destid);
 	if (pUser == nullptr
 		|| pUser->isTrading()
-		|| (pUser->GetNation() != GetNation() && pUser->GetZoneID() != 21 && GetZoneID() != 21)
-		|| pUser->GetZoneID() != GetZoneID())
+		|| pUser->GetZoneID() != GetZoneID()
+		|| (GetNation() != GetNation() && GetMap()->canTradeWithOtherNation()))
 		goto fail_return;
 
 	m_sExchangeUser = destid;
@@ -267,7 +268,10 @@ void CUser::ExchangeDecide()
 		}
 		pUser->Send(&result);
 
+		SetUserAbility(false);
 		SendItemWeight();
+
+		pUser->SetUserAbility(false);
 		pUser->SendItemWeight();
 	}
 

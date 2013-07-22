@@ -107,6 +107,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 		if (pSrcItem->sCount == 0)
 			memset(pSrcItem, 0, sizeof(_ITEM_DATA));
 
+		SetUserAbility(false);
 		SendItemWeight();
 		break;
 
@@ -162,6 +163,7 @@ void CUser::WarehouseProcess(Packet & pkt)
 		if (pSrcItem->sCount == 0)
 			memset(pSrcItem, 0, sizeof(_ITEM_DATA));
 
+		SetUserAbility(false);
 		SendItemWeight();
 		break;
 
@@ -228,13 +230,8 @@ bool CUser::CheckWeight(_ITEM_TABLE * pTable, uint32 nItemID, uint16 sCount)
 			&& FindSlotForItem(nItemID, sCount) >= 0);
 }
 
-
 bool CUser::CheckExistItem(int itemid, short count /*= 1*/)
 {
-	_ITEM_TABLE* pTable = g_pMain->GetItemPtr(itemid);
-	if (pTable == nullptr)
-		return false;	
-
 	// Search for the existance of all items in the player's inventory storage and onwards (includes magic bags)
 	for (int i = 0; i < INVENTORY_TOTAL; i++)
 	{
@@ -246,6 +243,22 @@ bool CUser::CheckExistItem(int itemid, short count /*= 1*/)
 
 	return false;
 }
+
+#if defined(USE_ORIGINAL_QUESTS)
+uint16 CUser::GetItemCount(uint32 nItemID)
+{
+	uint16 result = 0;
+	// Search for the existance of all items in the player's inventory storage and onwards (includes magic bags)
+	for (int i = 0; i < INVENTORY_TOTAL; i++)
+	{
+		// This implementation fixes a bug where it ignored the possibility for multiple stacks.
+		if (m_sItemArray[i].nNum == nItemID)
+			result += m_sItemArray[i].sCount;
+	}
+
+	return result;
+}
+#endif
 
 // Pretend you didn't see me. This really needs to go (just copying official)
 bool CUser::CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,
@@ -274,43 +287,52 @@ bool CUser::CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int
 	return true;
 }
 
-bool CUser::RobItem(uint32 itemid, uint16 count /*= 1*/)
+bool CUser::RobItem(uint32 nItemID, uint16 sCount /*= 1*/)
 {
 	// Allow unused exchanges.
-	if (count == 0)
+	if (sCount == 0)
 		return true;
 
-	_ITEM_TABLE* pTable = g_pMain->GetItemPtr( itemid );
+	_ITEM_TABLE * pTable = g_pMain->GetItemPtr(nItemID);
 	if (pTable == nullptr)
 		return false;
 
 	// Search for the existance of all items in the player's inventory storage and onwards (includes magic bags)
 	for (int i = SLOT_MAX; i < INVENTORY_TOTAL; i++)
 	{
-		_ITEM_DATA *pItem = &m_sItemArray[i];
-		if (pItem->nNum != itemid
-			|| m_sItemArray[i].sCount < count)
-			continue;
-
-		// Consumable "scrolls" (with some exceptions) use the duration/durability as a usage count
-		// instead of the stack size. Interestingly, the client shows this instead of the stack size in this case.
-		bool bIsConsumableScroll = (pTable->m_bKind == 255); /* include 97? not sure how accurate this check is... */
-		if (bIsConsumableScroll)
-			pItem->sDuration -= count;
-		else
-			pItem->sCount -= count;
-
-		// Delete the item if the stack's now 0
-		// or if the item is a consumable scroll and its "duration"/use count is now 0.
-		if (pItem->sCount == 0 
-			|| (bIsConsumableScroll && pItem->sDuration == 0))
-			memset(pItem, 0, sizeof(_ITEM_DATA));
-
-		SendStackChange(itemid, pItem->sCount, pItem->sDuration, i - SLOT_MAX);
-		return true;
+		if (RobItem(i, pTable, sCount))
+			return true;
 	}
 	
 	return false;
+}
+
+bool CUser::RobItem(uint8 bPos, _ITEM_TABLE * pTable, uint16 sCount /*= 1*/)
+{
+	if (pTable == nullptr)
+		return false;
+
+	_ITEM_DATA *pItem = GetItem(bPos);
+	if (pItem->nNum != pTable->m_iNum
+		|| pItem->sCount < sCount)
+		return false;
+
+	// Consumable "scrolls" (with some exceptions) use the duration/durability as a usage count
+	// instead of the stack size. Interestingly, the client shows this instead of the stack size in this case.
+	bool bIsConsumableScroll = (pTable->m_bKind == 255); /* include 97? not sure how accurate this check is... */
+	if (bIsConsumableScroll)
+		pItem->sDuration -= sCount;
+	else
+		pItem->sCount -= sCount;
+
+	// Delete the item if the stack's now 0
+	// or if the item is a consumable scroll and its "duration"/use count is now 0.
+	if (pItem->sCount == 0 
+		|| (bIsConsumableScroll && pItem->sDuration == 0))
+		memset(pItem, 0, sizeof(_ITEM_DATA));
+
+	SendStackChange(pTable->m_iNum, pItem->sCount, pItem->sDuration, bPos - SLOT_MAX);
+	return true;
 }
 
 /**
@@ -359,7 +381,7 @@ bool CUser::GiveItem(uint32 itemid, uint16 count, bool send_packet /*= true*/)
 	if (pos < 0)
 		return false;
 
-	_ITEM_DATA *pItem = &m_sItemArray[pos];
+	_ITEM_DATA *pItem = GetItem(pos);
 	if (pItem->nNum != 0)
 		bNewItem = false;
 
@@ -379,14 +401,21 @@ bool CUser::GiveItem(uint32 itemid, uint16 count, bool send_packet /*= true*/)
 		pItem->sCount = pItem->sDuration;
 
 	if (send_packet)
+	{
 		SendStackChange(itemid, m_sItemArray[pos].sCount, m_sItemArray[pos].sDuration, pos - SLOT_MAX, true);
+	}
+	else
+	{
+		SetUserAbility(false);
+		SendItemWeight();
+	}
+
 	return true;
 }
 
 void CUser::SendItemWeight()
 {
 	Packet result(WIZ_WEIGHT_CHANGE);
-	SetUserAbility();
 	result << m_sItemWeight;
 	Send(&result);
 }
@@ -575,7 +604,6 @@ void CUser::ItemMove(Packet & pkt)
 	}
 
 	SendItemMove(1);
-	SendItemWeight();
 
 	// Update everyone else, so that they can see your shiny new items (you didn't take them off did you!? DID YOU!?)
 	switch (dir)
@@ -904,7 +932,9 @@ void CUser::SendStackChange(uint32 nItemID, uint32 nCount /* needs to be 4 bytes
 	result << uint8(bNewItem ? 100 : 0);
 	result << sDurability;
 
+	SetUserAbility(false);
 	SendItemWeight();
+
 	Send(&result);
 }
 
@@ -948,7 +978,9 @@ void CUser::ItemRemove(Packet & pkt)
 
 	memset(pItem, 0, sizeof(_ITEM_DATA));
 
+	SetUserAbility();
 	SendItemWeight();
+
 	result << uint8(1);
 	Send(&result);
 

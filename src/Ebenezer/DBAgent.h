@@ -96,9 +96,10 @@ public:
 	bool DonateClanPoints(CUser * pUser, uint32 amountNP);
 	void RefundNP(std::string & strUserID, uint32 nRefundNP);
 	void UpdateClanFund(uint16 sClanID, uint32 nClanPointFund);
-
+	void UpdateClanNotice(uint16 sClanID, std::string & strClanNotice);
 	NameChangeOpcode UpdateCharacterName(std::string & strAccountID, std::string & strUserID, std::string & strNewUserID);
 	void UpdateCape(uint16 sClanID, uint16 sCapeID, uint8 r, uint8 g, uint8 b);
+	void UpdateClanGrade(uint16 sClanID, uint8 byFlag, uint16 sCapeID);
 
 	void UpdateBattleEvent(std::string & strCharID, uint8 bNation);
 	void AccountLogout(std::string & strAccountID);
@@ -118,6 +119,7 @@ public:
 	void UpdateCandidacyNoticeBoard(std::string & strCharID, uint8 byNation, std::string & strNotice);
 	void UpdateNoahOrExpEvent(uint8 byType, uint8 byNation, uint8 byAmount, uint8 byDay, uint8 byHour, uint8 byMinute, uint16 sDuration);
 	void InsertPrizeEvent(uint8 byType, uint8 byNation, uint32 nCoins, std::string & strCharID);
+	void ResetLoyaltyMonthly();
 	void ClearRemainUsers();
 
 	~CDBAgent();

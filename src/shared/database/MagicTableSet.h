@@ -14,7 +14,7 @@ public:
 		_MAGIC_TABLE *pData = new _MAGIC_TABLE;
 
 		_dbCommand->FetchUInt32(1, pData->iNum);
-		_dbCommand->FetchByte(2, pData->bBeforeAction);
+		_dbCommand->FetchUInt32(2, pData->nBeforeAction);
 		_dbCommand->FetchByte(3, pData->bTargetAction);
 		_dbCommand->FetchByte(4, pData->bSelfEffect);
 		_dbCommand->FetchByte(5, pData->bFlyingEffect);

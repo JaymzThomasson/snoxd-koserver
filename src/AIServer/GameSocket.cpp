@@ -373,14 +373,16 @@ void CGameSocket::RecvNpcHpChange(Packet & pkt)
 {
 	int16 nid, sAttackerID;
 	int32 nHP, nAmount;
-	pkt >> nid >> sAttackerID >> nHP >> nAmount;
+	uint8 attributeType = AttributeNone;
+
+	pkt >> nid >> sAttackerID >> nHP >> nAmount >> attributeType;
 	CNpc * pNpc = g_pMain->GetNpcPtr(nid);
 	if (pNpc == nullptr)
 		return;
 
 	if (nAmount < 0)
 	{
-		pNpc->SetDamage(-nAmount, sAttackerID, false);
+		pNpc->SetDamage(-nAmount, sAttackerID, false, (AttributeType) attributeType);
 	}
 	else
 	{		

@@ -46,7 +46,8 @@ enum SkillMoral
 	MORAL_DRAGON			= 23,
 	MORAL_CORPSE_FRIEND		= 25,
 	MORAL_CORPSE_ENEMY		= 26,
-	MORAL_SIEGE_WEAPON		= 31  // must be using a siege weapon
+	MORAL_SIEGE_WEAPON		= 31, // must be using a siege weapon
+	MORAL_EXTEND_DURATION	= 240
 };
 
 #define WARP_RESURRECTION		1		// To the resurrection point.
@@ -56,6 +57,15 @@ enum SkillMoral
 #define RESURRECTION			3
 #define	RESURRECTION_SELF		4
 #define REMOVE_BLESS			5
+
+#define CLASS_STONE_BASE_ID	 379058000
+
+enum SkillUseResult
+{
+	SkillUseOK,
+	SkillUseFail,
+	SkillUseHandled
+};
 
 class Unit;
 struct _MAGIC_TABLE;
@@ -67,13 +77,21 @@ public:
 	_MAGIC_TABLE * pSkill;
 	int16	sCasterID, sTargetID; 
 	Unit	*pSkillCaster, *pSkillTarget;
-	int16	sData[8];
+	int16	sData[7];
+	bool	bSendFail;	// When enabled (enabled by default), sends fail packets to the client.
+						// This is not preferable in cases like scripted casts, as the script should handle the failure.
 	bool	bIsRecastingSavedMagic;
 	bool	bIsItemProc;
+	bool	bInstantCast;
+
+	bool	bSkillSuccessful;
+
+	uint32	nConsumeItem;
 
 	MagicInstance() : bOpcode(MAGIC_EFFECTING), nSkillID(0), pSkill(nullptr), 
 		sCasterID(-1), sTargetID(-1), pSkillCaster(nullptr), pSkillTarget(nullptr),
-		bIsRecastingSavedMagic(false), bIsItemProc(false)
+		bSendFail(true), bIsRecastingSavedMagic(false), bIsItemProc(false), bInstantCast(false),
+		bSkillSuccessful(true), nConsumeItem(0)
 	{
 		memset(&sData, 0, sizeof(sData));
 	}
@@ -81,10 +99,11 @@ public:
 	void Run();
 
 	bool IsAvailable();
-	bool UserCanCast();
+	SkillUseResult UserCanCast();
 
 	bool CheckType3Prerequisites();
 	bool CheckType4Prerequisites();
+	bool CheckType6Prerequisites();
 
 	bool ExecuteSkill(uint8 bType);
 	bool ExecuteType1();	
@@ -104,12 +123,13 @@ public:
 	void Type4Extend();
 
 	short GetMagicDamage(Unit *pTarget, int total_hit, int attribute);
-	short GetWeatherDamage(short damage, int attribute);
+	int32 GetWeatherDamage(int32 damage, int attribute);
 	void ReflectDamage(int32 damage, Unit * pTarget);
+	void ConsumeItem();
 
 	void SendSkillToAI();
-	void BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8]);
-	void BuildAndSendSkillPacket(Unit * pUnit, bool bSendToRegion, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[8]);
+	void BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[7]);
+	void BuildAndSendSkillPacket(Unit * pUnit, bool bSendToRegion, int16 sSkillCaster, int16 sSkillTarget, int8 opcode, uint32 nSkillID, int16 sData[7]);
 	void SendSkill(bool bSendToRegion = true, Unit * pUnit = nullptr);
 	void SendSkillFailed(int16 sTargetID = -1);
 	void SendTransformationList();

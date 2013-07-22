@@ -46,6 +46,11 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(GetLoyalty)
 	MAKE_LUA_METHOD(GetMonthlyLoyalty)
 	MAKE_LUA_METHOD(GetManner)
+	MAKE_LUA_METHOD(GetActiveQuestID)
+	MAKE_LUA_METHOD(GetClanGrade)
+	MAKE_LUA_METHOD(GetClanRank)
+	MAKE_LUA_METHOD(GetStat)
+
 	MAKE_LUA_METHOD(isWarrior)
 	MAKE_LUA_METHOD(isRogue)
 	MAKE_LUA_METHOD(isMage)
@@ -81,7 +86,6 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(NpcMsg) // new automated quest prompt (does whatever's needed, menu, quest prompt, etc)
 	MAKE_LUA_METHOD(CheckWeight)
 	MAKE_LUA_METHOD(CheckSkillPoint)
-	// MAKE_LUA_METHOD(CheckStatPoint)
 	MAKE_LUA_METHOD(isRoomForItem) // FindSlotForItem()
 	// MAKE_LUA_METHOD(CountMonsterQuestSub) // CheckMonsterCount(2)
 	// MAKE_LUA_METHOD(CountMonsterQuestMain) // CheckMonsterCount(3)
@@ -98,9 +102,11 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(ZoneChange)
 	MAKE_LUA_METHOD(ZoneChangeParty)
 	MAKE_LUA_METHOD(ZoneChangeClan)
-	// MAKE_LUA_METHOD(PromoteKnight)
 	MAKE_LUA_METHOD(ShowEffect)
+	MAKE_LUA_METHOD(ShowNpcEffect)
 	MAKE_LUA_METHOD(KissUser)
+	MAKE_LUA_METHOD(ChangeManner)
+	MAKE_LUA_METHOD(PromoteClan)
 );
 #undef LUA_CLASS
 
@@ -117,6 +123,7 @@ DEFINE_LUA_CLASS
 	MAKE_LUA_METHOD(GetX)
 	MAKE_LUA_METHOD(GetY)
 	MAKE_LUA_METHOD(GetZ)
+	MAKE_LUA_METHOD(CastSkill)
 
 	// Useful methods
 	// MAKE_LUA_METHOD(CycleSpawn) // i.e. ChangePosition(), used to cycle a spawn through the various trap numbers (like 7 key quest NPCs)
@@ -132,3 +139,139 @@ LUA_FUNCTION(CheckPercent)
 {
 	LUA_RETURN(CheckPercent(LUA_ARG(int, 1)));
 }
+
+#if defined(USE_ORIGINAL_QUESTS)
+
+#define Lua_GetUser() g_pMain->GetUserPtr(LUA_ARG(uint16, 1))
+
+LUA_FUNCTION(HowmuchItem) 
+{
+	CUser * pUser = Lua_GetUser();
+	uint32 result = 0;
+
+	if (pUser != nullptr) 
+	{
+		uint32 nItemID = LUA_ARG(uint32, 2);
+		if (nItemID == ITEM_GOLD)
+			result = pUser->GetCoins();
+		else
+			result = pUser->GetItemCount(nItemID);
+	}
+
+	LUA_RETURN(result);
+}
+
+LUA_FUNCTION(CheckNation)
+{
+	CUser * pUser = Lua_GetUser();
+	uint8 bNation = Nation::NONE;
+
+	if (pUser != nullptr)
+		bNation = pUser->GetNation();
+
+	LUA_RETURN(bNation);
+}
+
+LUA_FUNCTION(CheckClass)
+{
+	CUser * pUser = Lua_GetUser();
+	uint8 bClassType = 0;
+
+	if (pUser != nullptr)
+		bClassType = pUser->GetClassType();
+
+	LUA_RETURN(bClassType);
+}
+
+LUA_FUNCTION(CheckLevel)
+{
+	CUser * pUser = Lua_GetUser();
+	uint8 bClassType = 0;
+
+	if (pUser != nullptr)
+		bClassType = pUser->GetLevel();
+
+	LUA_RETURN(bClassType);
+}
+
+LUA_FUNCTION(CheckSkillPoint)
+{
+	CUser * pUser = Lua_GetUser();
+	uint8 bPoints = 0;
+
+	if (pUser != nullptr)
+		bPoints = pUser->GetSkillPoints((SkillPointCategory)LUA_ARG(uint32, 2));
+
+	LUA_RETURN(bPoints);
+}
+
+#define _LUA_WRAPPER_USER_FUNCTION(name, methodName) \
+	LUA_FUNCTION(name) { \
+		CUser * pUser = Lua_GetUser(); /* get the user from the stack using the specified user ID */ \
+		lua_tpush(L, pUser); /* push the user pointer onto the stack, as our code expects */ \
+		lua_remove(L, 1); /* removes the user ID from the stack */ \
+		lua_insert(L, 1); /* moves the user pointer to the start of the bottom of the stack where it's expected */ \
+		return CUser::Lua_ ## methodName(L); \
+	}
+
+#define LUA_WRAPPER_USER_FUNCTION(name) \
+	_LUA_WRAPPER_USER_FUNCTION(name, name)
+
+LUA_WRAPPER_USER_FUNCTION(ShowMap);
+LUA_WRAPPER_USER_FUNCTION(SaveEvent);
+LUA_WRAPPER_USER_FUNCTION(CheckExchange);
+LUA_WRAPPER_USER_FUNCTION(RunExchange);
+LUA_WRAPPER_USER_FUNCTION(SearchQuest);
+LUA_WRAPPER_USER_FUNCTION(NpcMsg);
+LUA_WRAPPER_USER_FUNCTION(RobItem);
+LUA_WRAPPER_USER_FUNCTION(GiveItem);
+LUA_WRAPPER_USER_FUNCTION(ShowEffect);
+LUA_WRAPPER_USER_FUNCTION(ShowNpcEffect);
+_LUA_WRAPPER_USER_FUNCTION(ExistMonsterQuestSub, GetActiveQuestID);
+_LUA_WRAPPER_USER_FUNCTION(PromoteKnight, PromoteClan);
+_LUA_WRAPPER_USER_FUNCTION(CheckClanGrade, GetClanGrade);
+_LUA_WRAPPER_USER_FUNCTION(CheckKnight, GetClanRank);
+_LUA_WRAPPER_USER_FUNCTION(CheckLoyalty, GetLoyalty);
+_LUA_WRAPPER_USER_FUNCTION(CheckStatPoint, GetStat);
+
+LUA_FUNCTION(SelectMsg)
+{
+	CUser * pUser = Lua_GetUser();
+	if (pUser == nullptr) 
+		return LUA_NO_RESULTS;
+
+	uint32 arg = 2; // start from after the user instance.
+	int32 menuButtonText[MAX_MESSAGE_EVENT], 
+		menuButtonEvents[MAX_MESSAGE_EVENT];
+	uint8 bFlag = LUA_ARG(uint8, arg++);
+	int32 nQuestID = LUA_ARG_OPTIONAL(int32, -1, arg++);
+	int32 menuHeaderText = LUA_ARG(int32, arg++);
+	arg++; // skip the NPC ID
+	foreach_array(i, menuButtonText)
+	{
+		menuButtonText[i] = LUA_ARG_OPTIONAL(int32, -1, arg++);
+		menuButtonEvents[i] = LUA_ARG_OPTIONAL(int32, -1, arg++);
+	}
+
+	LUA_NO_RETURN(pUser->SelectMsg(bFlag, nQuestID, menuHeaderText, menuButtonText, menuButtonEvents));
+}
+
+LUA_FUNCTION(CastSkill)
+{
+	CUser * pUser = Lua_GetUser();
+	bool bResult = false;
+	if (pUser != nullptr)
+	{
+		CNpc * pNpc = g_pMain->GetNpcPtr(pUser->m_sEventNid);
+		if (pNpc != nullptr)
+		{
+			bResult = pNpc->CastSkill(
+				reinterpret_cast<Unit *>(pUser),
+				LUA_ARG(uint32, 2)
+			);
+		}
+	}
+	return bResult;
+}
+
+#endif

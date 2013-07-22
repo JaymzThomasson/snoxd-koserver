@@ -23,7 +23,6 @@ public:
 	void RecvNpcInfoAll(Packet & pkt);
 	void RecvNpcMoveResult(Packet & pkt);
 	void RecvNpcAttack(Packet & pkt);
-	void RecvMagicAttackResult(Packet & pkt);
 	void RecvNpcInfo(Packet & pkt);
 	void RecvNpcRegionUpdate(Packet & pkt);
 	void RecvUserHP(Packet & pkt);

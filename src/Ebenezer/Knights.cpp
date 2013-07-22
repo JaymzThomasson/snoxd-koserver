@@ -6,10 +6,10 @@ using std::string;
 CKnights::CKnights()
 {
 	m_sIndex = 0;
-	m_byFlag = 0;			// 1 : Clan, 2 : 기사단
-	m_byNation = 0;		// nation
-	m_byGrade = 5;			// clan 등급 (1 ~ 5등급)
-	m_byRanking = 0;		// clan 등급 (1 ~ 5등)
+	m_byFlag = ClanTypeNone;
+	m_byNation = 0;
+	m_byGrade = 5;
+	m_byRanking = 0;
 	m_sMembers = 1;
 	memset(&m_Image, 0, sizeof(m_Image));
 	m_nMoney = 0;
@@ -64,8 +64,17 @@ void CKnights::ConstructClanNoticePacket(Packet *result)
 			<< m_strClanNotice;
 }
 
+/**
+ * @brief	Updates this clan's notice with clanNotice
+ * 			and informs logged in clan members.
+ *
+ * @param	clanNotice	The clan notice.
+ */
 void CKnights::UpdateClanNotice(std::string & clanNotice)
 {
+	if (clanNotice.length() > MAX_CLAN_NOTICE_LENGTH)
+		return;
+
 	Packet result;
 
 	// Update the stored clan notice
@@ -79,6 +88,11 @@ void CKnights::UpdateClanNotice(std::string & clanNotice)
 	// Construct the new clan notice packet
 	ConstructClanNoticePacket(&result);
 	Send(&result);
+
+	// Tell the database to update the clan notice.
+	result.Initialize(WIZ_CHAT);
+	result << uint8(CLAN_NOTICE) << GetID() << clanNotice;
+	g_pMain->AddDatabaseRequest(result);
 }
 
 /**
@@ -262,6 +276,14 @@ void CKnights::Disband(CUser *pLeader /*= nullptr*/)
 	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_DESTROY));
 	result << uint8(1);
 	pLeader->Send(&result);
+}
+
+void CKnights::SendUpdate()
+{
+	Packet result(WIZ_KNIGHTS_PROCESS, uint8(KNIGHTS_UPDATE));
+	result	<< GetID() << m_byFlag << GetCapeID()
+			<< m_bCapeR << m_bCapeG << m_bCapeB << uint8(0);
+	Send(&result);
 }
 
 void CKnights::SendChat(const char * format, ...)

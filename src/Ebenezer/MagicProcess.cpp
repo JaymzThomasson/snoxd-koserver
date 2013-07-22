@@ -25,16 +25,12 @@ void CMagicProcess::MagicPacket(Packet & pkt, Unit * pCaster /*= nullptr*/)
 
 	pkt >> instance.sCasterID >> instance.sTargetID
 		>> instance.sData[0] >> instance.sData[1] >> instance.sData[2] >> instance.sData[3]
-		>> instance.sData[4] >> instance.sData[5] >> instance.sData[6] >> instance.sData[7];
-
-	instance.pSkillCaster = g_pMain->GetUnitPtr(instance.sCasterID);
-	instance.pSkillTarget = g_pMain->GetUnitPtr(instance.sTargetID);
+		>> instance.sData[4] >> instance.sData[5] >> instance.sData[6];
 
 	// Prevent users from faking other players or NPCs.
 	if (pCaster != nullptr // if it's nullptr, it's from AI.
-		&& (instance.pSkillCaster == nullptr 
-			|| instance.pSkillCaster->isNPC()
-			|| instance.pSkillCaster != pCaster))
+		&& (instance.sCasterID >= NPC_BAND 
+			|| instance.sCasterID != pCaster->GetID()))
 		return;
 
 	instance.bIsRecastingSavedMagic = false;
@@ -135,12 +131,12 @@ bool CMagicProcess::UserRegionCheck(Unit * pSkillCaster, Unit * pSkillTarget, _M
 		// For example: same nation players attacking each other in an arena.
 		case MORAL_SELF_AREA:
 		case MORAL_AREA_ENEMY:
-			if (pSkillCaster->CanAttack(pSkillTarget))
+			if (pSkillCaster->isHostileTo(pSkillTarget))
 				goto final_test;
 			break;
 
 		case MORAL_AREA_FRIEND:
-			if (pSkillTarget->GetNation() == pSkillCaster->GetNation())
+			if (!pSkillCaster->isHostileTo(pSkillTarget))
 				goto final_test;
 			break;
 
@@ -258,7 +254,6 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_AC:
-	case BUFF_TYPE_WEAPON_AC:
 		if (pType->sAC == 0 && pType->sACPct > 0)
 			pTarget->m_sACPercent += (pType->sACPct - 100);
 		else
@@ -274,8 +269,11 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 			switch (pSkill->iNum)
 			{
 			case 490034: // Bezoar
-			case 490401: // Maximize Scroll
 				bEffect = ABNORMAL_GIANT;
+				break;
+
+			case 490401: // Maximize Scroll
+				bEffect = ABNORMAL_GIANT_TARGET; // NOTE: not sure why, but this is what it uses officially.
 				break;
 
 			case 490035: // Rice cake
@@ -342,7 +340,18 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		break;
 
 	case BUFF_TYPE_WEAPON_DAMAGE:
-		// uses pType->Attack
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bAddWeaponDamage = pType->bAttack;
+		break;
+
+	case BUFF_TYPE_WEAPON_AC:
+		if (pTarget->isPlayer())
+		{
+			if (pType->sAC == 0 && pType->sACPct > 0)
+				TO_USER(pTarget)->m_bPctArmourAc += (pType->sACPct - 100);
+			else
+				TO_USER(pTarget)->m_sAddArmourAc += pType->sAC;
+		}
 		break;
 
 	case BUFF_TYPE_LOYALTY:
@@ -438,6 +447,19 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 
 	case BUFF_TYPE_IGNORE_WEAPON:		// Weapon cancellation
 		// Disarms the opponent. (rendering them unable to attack)
+#if defined(EBENEZER)
+		if (pTarget->isPlayer())
+		{
+			CUser * pTUser = TO_USER(pTarget);
+
+			pTUser->m_bWeaponsDisabled = true;
+			pTUser->UserLookChange(RIGHTHAND, 0, 0);
+
+			_ITEM_TABLE * pLeftHand = pTUser->GetItemPrototype(LEFTHAND);
+			if (pLeftHand != nullptr && !pLeftHand->isShield())
+				pTUser->UserLookChange(LEFTHAND, 0, 0);
+		}
+#endif
 		break;
 
 	case BUFF_TYPE_PASSION_OF_SOUL:		// Passion of the Soul
@@ -488,7 +510,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 		// Just working with the TBL data for now (i.e. just the 15% AC reduction).
 		if (pTarget->isPlayer())
 		{
-			pTarget->StateChangeServerDirect(3, ABNORMAL_GIANT);
+			pTarget->StateChangeServerDirect(3, ABNORMAL_GIANT_TARGET);
 			pTarget->m_sACPercent += (pType->sACPct - 100);
 		}
 		break;
@@ -557,7 +579,7 @@ bool CMagicProcess::GrantType4Buff(_MAGIC_TABLE * pSkill, _MAGIC_TYPE4 *pType, U
 	return true;
 }
 
-bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
+bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget, bool bRemoveSavedMagic /*= true*/)
 {
 	// Buff must be added at this point. If it doesn't exist, we can't remove it twice.
 	FastGuard lock(pTarget->m_buffLock);
@@ -574,7 +596,8 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		return false;
 
 	// If this buff persists across logout, it should be removed here too.
-	if (pTarget->isPlayer()
+	if (bRemoveSavedMagic
+		&& pTarget->isPlayer()
 		&& pTarget->HasSavedMagic(pSkill->iNum))
 		TO_USER(pTarget)->RemoveSavedMagic(pSkill->iNum);
 
@@ -591,7 +614,6 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_AC:
-	case BUFF_TYPE_WEAPON_AC:
 		if (pType->sAC == 0 && pType->sACPct > 0)
 			pTarget->m_sACPercent -= (pType->sACPct - 100);
 		else
@@ -654,7 +676,15 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_WEAPON_DAMAGE:
-		// uses pType->Attack
+		if (pTarget->isPlayer())
+			TO_USER(pTarget)->m_bAddWeaponDamage = 0;
+		break;
+
+	case BUFF_TYPE_WEAPON_AC:
+		if (pType->sAC == 0 && pType->sACPct > 0)
+			TO_USER(pTarget)->m_bPctArmourAc -= (pType->sACPct - 100);
+		else
+			TO_USER(pTarget)->m_sAddArmourAc -= pType->sAC;
 		break;
 
 	case BUFF_TYPE_LOYALTY:
@@ -744,7 +774,24 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 		break;
 
 	case BUFF_TYPE_IGNORE_WEAPON:		// Weapon cancellation
-		// Disarms the opponent. (rendering them unable to attack)
+#if defined(EBENEZER)
+		if (pTarget->isPlayer())
+		{
+			CUser * pTUser = TO_USER(pTarget);
+			_ITEM_DATA * pLeftItem, * pRightItem;
+
+			_ITEM_TABLE * pLeftHand  = pTUser->GetItemPrototype(LEFTHAND, pLeftItem),
+						* pRightHand = pTUser->GetItemPrototype(RIGHTHAND, pRightItem);
+
+			pTUser->m_bWeaponsDisabled = false;
+
+			if (pLeftHand != nullptr)
+				pTUser->UserLookChange(LEFTHAND, pLeftItem->nNum, pLeftItem->sDuration);
+
+			if (pRightHand != nullptr)
+				pTUser->UserLookChange(RIGHTHAND, pRightItem->nNum, pRightItem->sDuration);
+		}
+#endif
 		break;
 
 	case BUFF_TYPE_VARIOUS_EFFECTS: //... whatever the event item grants.
@@ -864,7 +911,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget)
 
 		TO_USER(pTarget)->SetUserAbility();
 
-		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
+		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_DURATION_EXPIRED));
 		result << byBuffType;
 		TO_USER(pTarget)->Send(&result);
 	}

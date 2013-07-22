@@ -160,5 +160,7 @@ INLINE void lua_createclass(lua_State * L, const luaL_Reg * methods, const char 
 #define LUA_RETURN(value) lua_tpush(L, value); \
 	return 1 // return 1 result
 
+#define LUA_NO_RESULTS 0
+
 #define LUA_NO_RETURN(value) value; \
-	return 0 // return 0 results
+	return LUA_NO_RESULTS // return 0 results

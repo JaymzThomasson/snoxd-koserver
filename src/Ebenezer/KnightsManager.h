@@ -38,6 +38,7 @@ public:
 	static bool RemoveKnightsUser(int index, std::string & strUserID);
 	static bool LoadKnightsIndex(int index);
 	static bool LoadAllKnights();
+	static void UpdateKnightsGrade(uint16 sClanID, uint8 byFlag);
 
 	// database requests go here
 	static void ReqKnightsPacket(CUser* pUser, Packet & pkt);
@@ -48,9 +49,11 @@ public:
 	static void ReqAllKnightsMember(CUser *pUser, Packet & pkt);
 	static void ReqKnightsList(Packet & pkt);
 	static void ReqRegisterClanSymbol(CUser *pUser, Packet & pkt);
+	static void ReqUpdateGrade(Packet & pkt);
 	static void ReqDonateNP(CUser *pUser, Packet & pkt);
 	static void ReqRefundNP(Packet & pkt);
 	static void ReqUpdateNP(Packet & pkt);
+	static void ReqUpdateClanNotice(Packet & pkt);
 
 	static void RecvUpdateKnights(CUser* pUser, Packet & pkt, uint8 command);
 	static void RecvModifyFame(CUser* pUser, Packet & pkt, uint8 command);

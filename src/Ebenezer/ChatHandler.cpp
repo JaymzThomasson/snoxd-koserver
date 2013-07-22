@@ -56,7 +56,8 @@ void CUser::InitChatCommands()
 		{ "np_change",			&CUser::HandleLoyaltyChangeCommand,				"Change a player an loyalty" },
 		{ "exp_change",			&CUser::HandleExpChangeCommand,					"Change a player an exp" },
 		{ "gold_change",		&CUser::HandleGoldChangeCommand,				"Change a player an gold" },
-
+		{ "exp_add",			&CUser::HandleExpAddCommand,					"Sets the server-wide XP event. If bonusPercent is set to 0, the event is ended. Arguments: bonusPercent" },
+		{ "money_add",			&CUser::HandleMoneyAddCommand,					"Sets the server-wide coin event. If bonusPercent is set to 0, the event is ended. Arguments: bonusPercent" },
 	};
 
 	init_command_table(CUser, commandTable, s_commandTable);
@@ -510,9 +511,6 @@ COMMAND_HANDLER(CUser::HandleLoyaltyChangeCommand)
 		return true;
 	}
 
-	if (vargs.empty())
-		return true;
-
 	uint32 nLoyalty = atoi(vargs.front().c_str());
 
 	if (nLoyalty != 0)
@@ -540,9 +538,6 @@ COMMAND_HANDLER(CUser::HandleExpChangeCommand)
 		return true;
 	}
 
-	if (vargs.empty())
-		return true;
-
 	int64 nExp = atoi(vargs.front().c_str());
 
 	if (nExp != 0)
@@ -553,7 +548,7 @@ COMMAND_HANDLER(CUser::HandleExpChangeCommand)
 
 COMMAND_HANDLER(CUser::HandleGoldChangeCommand)
 {
-	// Char name | exp
+	// Char name | coins
 	if (vargs.size() < 2)
 	{
 		// send description
@@ -570,9 +565,6 @@ COMMAND_HANDLER(CUser::HandleGoldChangeCommand)
 		return true;
 	}
 
-	if (vargs.empty())
-		return true;
-
 	uint32 nGold = atoi(vargs.front().c_str());
 
 	if (nGold != 0)
@@ -583,6 +575,46 @@ COMMAND_HANDLER(CUser::HandleGoldChangeCommand)
 			pUser->GoldLose(nGold);
 	}
 	
+	return true;
+}
+
+// Starts/stops the server XP event & sets its server-wide bonus.
+COMMAND_HANDLER(CUser::HandleExpAddCommand)
+{
+	// Expects the bonus XP percent, e.g. '+exp_add' for a +15 XP boost.
+	if (vargs.empty())
+	{
+		// send description
+		return true;
+	}
+
+	g_pMain->m_byExpEventAmount = (uint8) atoi(vargs.front().c_str());
+
+	// Don't send the announcement if we're turning the event off.
+	if (g_pMain->m_byExpEventAmount == 0)
+		return true;
+
+	g_pMain->SendFormattedResource(IDS_EXP_REPAY_EVENT, Nation::ALL, false, g_pMain->m_byExpEventAmount);
+	return true;
+}
+
+// Starts/stops the server coin event & sets its server-wide bonus.
+COMMAND_HANDLER(CUser::HandleMoneyAddCommand)
+{
+	// Expects the bonus coin percent, e.g. '+money_add' for a +15 dropped coin boost.
+	if (vargs.empty())
+	{
+		// send description
+		return true;
+	}
+
+	g_pMain->m_byCoinEventAmount = (uint8) atoi(vargs.front().c_str());
+
+	// Don't send the announcement if we're turning the event off.
+	if (g_pMain->m_byCoinEventAmount == 0)
+		return true;
+
+	g_pMain->SendFormattedResource(IDS_MONEY_REPAY_EVENT, Nation::ALL, false, g_pMain->m_byCoinEventAmount);
 	return true;
 }
 

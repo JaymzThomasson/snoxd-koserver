@@ -169,7 +169,6 @@ public:
 
 	TransformationType m_transformationType;
 	uint16	m_sTransformID;
-	uint32	m_nTransformationItem; // item used for transforming (e.g. disguise scroll, totem..)
 	time_t	m_tTransformationStartTime;
 	uint16	m_sTransformationDuration;
 
@@ -193,11 +192,13 @@ public:
 	uint16   m_sSpeed;	// NOTE: Currently unused
 
 	uint8	m_bPlayerAttackAmount;
+	uint8	m_bAddWeaponDamage;
+	uint16	m_sAddArmourAc; 
+	uint8	m_bPctArmourAc;
 
 	int16	m_sItemMaxHp;
 	int16	m_sItemMaxMp;
 	uint32	m_sItemWeight;
-	short	m_sItemHit;
 	short	m_sItemAc;
 	short	m_sItemHitrate;
 	short	m_sItemEvasionrate;
@@ -247,7 +248,7 @@ public:
 
 	time_t	m_tBlinkExpiryTime;			// When you should stop blinking.
 
-	uint32	m_bAbnormalType;			// Is the player normal,a giant, or a dwarf?
+	uint32	m_bAbnormalType;			// Is the player normal, a giant, or a dwarf?
 	uint32	m_nOldAbnormalType;
 
 	int16	m_sWhoKilledMe;				// ID of the unit that killed you.
@@ -263,9 +264,11 @@ public:
 
 	bool	m_bZoneChangeSameZone;		// Did the server change when you warped?
 
-	int					m_iSelMsgEvent[MAX_MESSAGE_EVENT];
-	short				m_sEventNid, m_sEventSid;
-	uint32				m_nQuestHelperID;
+	int		m_iSelMsgEvent[MAX_MESSAGE_EVENT];
+	short	m_sEventNid, m_sEventSid;
+	uint32	m_nQuestHelperID;
+
+	bool	m_bWeaponsDisabled;
 
 	TeamColour	m_teamColour;
 
@@ -293,16 +296,40 @@ public:
 	INLINE bool isMage() { return JobGroupCheck(ClassMage); }
 	INLINE bool isPriest() { return JobGroupCheck(ClassPriest); }
 
-	INLINE bool isMastered() 
+	INLINE bool isBeginner() 
 	{
-		uint16 sClass = GetClass() % 100;
-		return (sClass == 6 || sClass == 8  || sClass == 10 || sClass == 12); 
+		uint16 sClass = GetClassType();
+		return (sClass <= ClassPriest);
 	}
 
-	INLINE bool isMasteredWarrior() { return (GetClass() % 100) == 6; }
-	INLINE bool isMasteredRogue()   { return (GetClass() % 100) == 8; }
-	INLINE bool isMasteredMage()    { return (GetClass() % 100) == 10; }
-	INLINE bool isMasteredPriest()  { return (GetClass() % 100) == 12; }
+	INLINE bool isBeginnerWarrior() { return GetClassType() == ClassWarrior; }
+	INLINE bool isBeginnerRogue()   { return GetClassType() == ClassRogue; }
+	INLINE bool isBeginnerMage()    { return GetClassType() == ClassMage; }
+	INLINE bool isBeginnerPriest()  { return GetClassType() == ClassPriest; }
+
+	INLINE bool isNovice() 
+	{
+		uint16 sClass = GetClassType();
+		return (sClass == ClassWarriorNovice || sClass == ClassRogueNovice
+				|| sClass == ClassMageNovice || sClass == ClassPriestNovice); 
+	}
+
+	INLINE bool isNoviceWarrior() { return GetClassType() == ClassWarriorNovice; }
+	INLINE bool isNoviceRogue()   { return GetClassType() == ClassRogueNovice; }
+	INLINE bool isNoviceMage()    { return GetClassType() == ClassMageNovice; }
+	INLINE bool isNovicePriest()  { return GetClassType() == ClassPriestNovice; }
+
+	INLINE bool isMastered() 
+	{
+		uint16 sClass = GetClassType();
+		return (sClass == ClassWarriorMaster || sClass == ClassRogueMaster 
+				|| sClass == ClassMageMaster || sClass == ClassPriestMaster); 
+	}
+
+	INLINE bool isMasteredWarrior() { return GetClassType() == ClassWarriorMaster; }
+	INLINE bool isMasteredRogue()   { return GetClassType() == ClassRogueMaster; }
+	INLINE bool isMasteredMage()    { return GetClassType() == ClassMageMaster; }
+	INLINE bool isMasteredPriest()  { return GetClassType() == ClassPriestMaster; }
 
 	INLINE bool isTrading() { return m_sExchangeUser != -1; }
 	INLINE bool isStoreOpen() { return m_bStoreOpen; }
@@ -317,6 +344,8 @@ public:
 	INLINE bool isNPCTransformation() { return m_transformationType == TransformationNPC; }
 	INLINE bool isMonsterTransformation() { return m_transformationType == TransformationMonster; }
 	INLINE bool isSiegeTransformation() { return m_transformationType == TransformationSiege; }
+
+	INLINE bool isWeaponsDisabled() { return m_bWeaponsDisabled; }
 
 	INLINE int8 GetMerchantState() { return m_bMerchantState; }
 
@@ -388,9 +417,15 @@ public:
 
 	INLINE GameState GetState() { return m_state; }
 
+	INLINE uint16 GetActiveQuestID() { return m_sEventDataIndex; }
+	uint8 GetClanGrade();
+	uint8 GetClanRank();
+
 	INLINE uint8 GetStat(StatType type)
 	{
-		ASSERT(type < STAT_COUNT);
+		if (type >= STAT_COUNT)
+			return 0;
+
 		return m_bStats[type];
 	}
 
@@ -464,6 +499,14 @@ public:
 		+ m_bstrSkill[SkillPointMaster];
 	}
 
+	INLINE uint8 GetSkillPoints(SkillPointCategory category)
+	{
+		if (category < SkillPointFree || category > SkillPointMaster)
+			return 0;
+
+		return m_bstrSkill[category];
+	}
+
 	INLINE _ITEM_DATA * GetItem(uint8 pos) 
 	{
 		ASSERT(pos < INVENTORY_TOTAL);
@@ -505,10 +548,12 @@ public:
 	bool CheckClass(short class1, short class2 = -1, short class3 = -1, short class4 = -1, short class5 = -1, short class6 = -1);
 	bool GiveItem(uint32 nItemID, uint16 sCount = 1, bool send_packet = true);
 	bool RobItem(uint32 nItemID, uint16 sCount = 1);
+	bool RobItem(uint8 bPos, _ITEM_TABLE * pTable, uint16 sCount = 1);
 	bool RobAllItemParty(uint32 nItemID, uint16 sCount = 1);
 	bool CheckExistItem(int itemid, short count = 1);
 	bool CheckExistItemAnd(int32 nItemID1, int16 sCount1, int32 nItemID2, int16 sCount2,
 		int32 nItemID3, int16 sCount3, int32 nItemID4, int16 sCount4, int32 nItemID5, int16 sCount5);
+	uint16 GetItemCount(uint32 nItemID);
 	bool CheckWeight(uint32 nItemID, uint16 sCount);
 	bool CheckWeight(_ITEM_TABLE * pTable, uint32 nItemID, uint16 sCount);
 	bool CheckSkillPoint(uint8 skillnum, uint8 min, uint8 max);
@@ -546,6 +591,7 @@ public:
 	virtual void MSpChange(int amount);
 	void SendPartyHPUpdate();
 	void ShowEffect(uint32 nSkillID);
+	void ShowNpcEffect(uint32 nEffectID);
 	void SendAnvilRequest(uint16 sNpcID, uint8 bType = ITEM_UPGRADE_REQ);
 	void RecastSavedMagic();
 
@@ -595,6 +641,8 @@ public:
 	COMMAND_HANDLER(HandleLoyaltyChangeCommand);
 	COMMAND_HANDLER(HandleExpChangeCommand);
 	COMMAND_HANDLER(HandleGoldChangeCommand);
+	COMMAND_HANDLER(HandleExpAddCommand); /* for the server XP event */
+	COMMAND_HANDLER(HandleMoneyAddCommand); /* for the server coin event */
 
 	void Regene(uint8 regene_type, uint32 magicid = 0);
 	void RequestUserIn(Packet & pkt);
@@ -722,6 +770,7 @@ public:
 	void CharacterSealProcess(Packet & pkt);
 
 	void ShoppingMall(Packet & pkt);
+	void HandleStoreOpen(Packet & pkt);
 	void HandleStoreClose();
 	void LetterSystem(Packet & pkt);
 
@@ -758,11 +807,14 @@ public:
 	void HandleSoccer(Packet & pkt);
 
 	void SendNotice();
+	void AppendNoticeEntry(Packet & pkt, uint8 & elementCount, const char * message, const char * title);
+	void AppendExtraNoticeData(Packet & pkt, uint8 & elementCount);
 	void UserLookChange( int pos, int itemid, int durability );
 	void SpeedHackUser();
 	void LoyaltyChange(int16 tid, uint16 bonusNP = 0);
 	void LoyaltyDivide(int16 tid, uint16 bonusNP = 0);
-	void ChangeNP(short sAmount, bool bDistributeToParty = true);
+	void GrantChickenManner();
+	void SendMannerChange(int32 iMannerPoints);
 
 	bool CanChangeZone(C3DMap * pTargetMap, WarpListResponse & errorReason);
 	void ZoneChange(uint16 sNewZone, float x, float z);
@@ -813,7 +865,7 @@ public:
 
 	void SendPartyStatusUpdate(uint8 bStatus, uint8 bResult = 0);
 
-	bool CanUseItem(uint32 itemid, uint16 count);
+	bool CanUseItem(uint32 nItemID, uint16 sCount = 1);
 
 	void CheckSavedMagic();
 	virtual void InsertSavedMagic(uint32 nSkillID, uint16 sDuration);
@@ -852,9 +904,10 @@ public:
 
 	bool PromoteUserNovice();
 	bool PromoteUser();
+	void PromoteClan(ClanTypeFlag byFlag);
 
 	// Attack/zone checks
-	bool CanAttack(Unit * pTarget);
+	bool isHostileTo(Unit * pTarget);
 	bool isInArena();
 	bool isInPVPZone();
 
@@ -924,6 +977,9 @@ public:
 	DECLARE_LUA_GETTER(GetLoyalty);
 	DECLARE_LUA_GETTER(GetMonthlyLoyalty);
 	DECLARE_LUA_GETTER(GetManner);
+	DECLARE_LUA_GETTER(GetActiveQuestID);
+	DECLARE_LUA_GETTER(GetClanGrade);
+	DECLARE_LUA_GETTER(GetClanRank);
 	DECLARE_LUA_GETTER(isWarrior);
 	DECLARE_LUA_GETTER(isRogue);
 	DECLARE_LUA_GETTER(isMage);
@@ -1088,6 +1144,10 @@ public:
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->ShowEffect(LUA_ARG(uint32, 2))); // effect ID
 	}
 
+	DECLARE_LUA_FUNCTION(ShowNpcEffect) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->ShowNpcEffect(LUA_ARG(uint32, 2))); // effect ID
+	}
+
 	DECLARE_LUA_FUNCTION(ZoneChange) {
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->ZoneChange(
 			LUA_ARG(uint16, 2),		// zone ID
@@ -1127,5 +1187,17 @@ public:
 
 	DECLARE_LUA_FUNCTION(RobLoyalty) {
 		LUA_NO_RETURN(LUA_GET_INSTANCE()->SendLoyaltyChange(-(LUA_ARG(int32, 2))));	
+	}
+
+	DECLARE_LUA_FUNCTION(ChangeManner) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->SendMannerChange(LUA_ARG(int32, 2)));	
+	}
+
+	DECLARE_LUA_FUNCTION(PromoteClan) {
+		LUA_NO_RETURN(LUA_GET_INSTANCE()->PromoteClan((ClanTypeFlag) LUA_ARG_OPTIONAL(uint8, ClanTypePromoted, 2)));	
+	}
+
+	DECLARE_LUA_FUNCTION(GetStat) {
+		LUA_RETURN(LUA_GET_INSTANCE()->GetStat((StatType)(LUA_ARG(uint8, 2) + 1)));	
 	}
 };
