@@ -161,7 +161,7 @@ void CUser::GetUserInfo(Packet & pkt)
 
 	foreach_array (i, equippedItems) 
 	{
-		_ITEM_DATA * pItem = &m_sItemArray[equippedItems[i]];
+		_ITEM_DATA * pItem = GetItem(equippedItems[i]);
 		pkt << pItem->nNum << pItem->sDuration << pItem->bFlag;
 	}
 

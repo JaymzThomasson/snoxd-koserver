@@ -767,6 +767,9 @@ bool MagicInstance::IsAvailable()
 
 		if (pSkill->bType[0] == 1) {	// Weapons verification in case of COMBO attack (another hacking prevention).
 			if (pSkill->sSkill == 1055 || pSkill->sSkill == 2055) {		// Weapons verification in case of dual wielding attacks !		
+				if (TO_USER(pSkillCaster)->isWeaponsDisabled())
+					return false;
+
 				_ITEM_TABLE *pLeftHand = TO_USER(pSkillCaster)->GetItemPrototype(LEFTHAND),
 							*pRightHand = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND);
 
@@ -775,6 +778,9 @@ bool MagicInstance::IsAvailable()
 					return false;
 			}
 			else if (pSkill->sSkill == 1056 || pSkill->sSkill == 2056) {	// Weapons verification in case of 2 handed attacks !
+				if (TO_USER(pSkillCaster)->isWeaponsDisabled())
+					return false;
+
 				_ITEM_TABLE	*pRightHand = TO_USER(pSkillCaster)->GetItemPrototype(RIGHTHAND);
 
 				if (TO_USER(pSkillCaster)->GetItem(LEFTHAND)->nNum != 0
@@ -949,6 +955,9 @@ bool MagicInstance::ExecuteType2()
 		_ITEM_TABLE * pTable = nullptr;
 		if (pSkillCaster->isPlayer())
 		{
+			if (TO_USER(pSkillCaster)->isWeaponsDisabled())
+				return false;
+
 			// Not wearing a left-handed bow
 			pTable = TO_USER(pSkillCaster)->GetItemPrototype(LEFTHAND);
 			if (pTable == nullptr || !pTable->isBow())
@@ -2098,17 +2107,18 @@ short MagicInstance::GetMagicDamage(Unit *pTarget, int total_hit, int attribute)
 
 			// double the staff's damage when using a skill of the same attribute as the staff
 			_ITEM_TABLE *pRightHand = pUser->GetItemPrototype(RIGHTHAND);
-			if (pRightHand != nullptr && pRightHand->isStaff()
+			if (!pUser->isWeaponsDisabled()
+				&& pRightHand != nullptr && pRightHand->isStaff()
 				&& pUser->GetItemPrototype(LEFTHAND) == nullptr)
 			{
 				FastGuard lock(pSkillCaster->m_equippedItemBonusLock);
-				righthand_damage = pRightHand->m_sDamage;
+				righthand_damage = pRightHand->m_sDamage + pUser->m_bAddWeaponDamage;
 				auto itr = pSkillCaster->m_equippedItemBonuses.find(RIGHTHAND);
 				if (itr != pSkillCaster->m_equippedItemBonuses.end())
 				{
 					auto bonusItr = itr->second.find(attribute);
 					if (bonusItr != itr->second.end()) 
-						attribute_damage = pRightHand->m_sDamage; 
+						attribute_damage *= 2; 
 				}
 			}
 			else 
