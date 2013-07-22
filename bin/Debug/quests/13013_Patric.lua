@@ -11,5 +11,5 @@ function Main(event)
 end
 
 function BaseMenu()
-						pUser:SelectMsg(3,-1,4,27,0)
+						pUser:SelectMsg(3,-1,8,10)
 end
