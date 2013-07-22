@@ -46,9 +46,9 @@ function KnightPrivileges()
 end
 
 function AcreditedTest()
-	if (pUser:CheckKnight() == 2) then
-		if (pUser:CheckClanGrade() == 1) then
-			if (pUser:CheckChief() == 1) then
+	if (pUser:GetClanRank() == 2) then
+		if (pUser:GetClanGrade() == 1) then
+			if (pUser:isClanLeader() == 1) then
 						pUser:SelectMsg(3,-1,6393,4157,111,4158,114,4159,115)
 			else
 						pUser:SelectMsg(2,-1,6384,10,241)
@@ -90,6 +90,6 @@ function AcreditedAcceptRequiredItems()
 						pUser:SelectMsg(2,-1,6392,10,241)
 		end
 	else
-						pUser:SelectMsg(2,-1,6391,10,241)
+						pUser:SelectMsg(2,-1,6392,10,241)
 	end
 end
