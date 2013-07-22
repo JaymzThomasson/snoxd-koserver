@@ -11,7 +11,6 @@ public:
 
 	virtual bool Fetch()
 	{
-		// TO-DO: This needs to be increased to support bigint
 		std::pair<uint8, int64> pData;
 
 		_dbCommand->FetchByte(1, pData.first);
