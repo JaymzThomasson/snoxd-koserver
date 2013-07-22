@@ -959,6 +959,9 @@ void KOMap::SetZoneAttributes(int zoneNumber)
  */
 bool CNpc::isHostileTo(Unit * pTarget)
 {
+	if (pTarget == nullptr)
+		return false;
+
 	// Only players can attack these targets.
 	if (pTarget->isPlayer())
 	{
@@ -993,6 +996,9 @@ bool CNpc::isHostileTo(Unit * pTarget)
  */
 bool CUser::isHostileTo(Unit * pTarget)
 {
+	if (pTarget == nullptr)
+		return false;
+
 	// For non-player hostility checks, refer to the appropriate override.
 	if (!pTarget->isPlayer())
 		return pTarget->isHostileTo(this);

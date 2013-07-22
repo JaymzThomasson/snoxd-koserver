@@ -677,10 +677,13 @@ bool MagicInstance::IsAvailable()
 			break;
 
 		case MORAL_ENEMY:
-			// Nation alone cannot dictate whether a unit can attack another.
-			// As such, we must check behaviour specific to these entities.
-			// For example: same nation players attacking each other in an arena.
-			if (!pSkillCaster->isHostileTo(pSkillTarget))
+			// Allow for archery skills with no defined targets (e.g. an arrow from 'multiple shot' not hitting any targets). 
+			// These should be ignored, not fail.
+			if (pSkillTarget != nullptr
+				// Nation alone cannot dictate whether a unit can attack another.
+				// As such, we must check behaviour specific to these entities.
+				// For example: same nation players attacking each other in an arena.
+				&& !pSkillCaster->isHostileTo(pSkillTarget))
 				goto fail_return;
 			break;	
 
