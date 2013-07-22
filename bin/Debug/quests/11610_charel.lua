@@ -129,6 +129,7 @@ function AcreditedPromote()
 		if (pUser:CheckExistItem(389221000)) then
 						pUser:GoldLose(10000000)
 						pUser:RobItem(389221000)
+						pUser:PromoteKnight(3)
 		else
 						pUser:SelectMsg(2,-1,6392,10,241)
 		end
@@ -176,6 +177,7 @@ function RoyalPromote()
 		if (pUser:CheckExistItem(389222000)) then
 						pUser:GoldLose(10000000)
 						pUser:RobItem(389222000)
+						pUser:PromoteKnight(8)
 		else
 						pUser:SelectMsg(2, -1, 6400, 10, 241)
 		end
