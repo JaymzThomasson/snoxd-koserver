@@ -360,8 +360,7 @@ struct _ITEM_TABLE
 	INLINE bool isBow() { return GetItemGroup() == WEAPON_BOW || GetItemGroup() == WEAPON_LONGBOW; }
 	INLINE bool isPickaxe() { return GetKind() == WEAPON_PICKAXE; }
 
-	// Detect 2-handed weapons. There's probably a better way of doing this.
-	INLINE bool is2Handed() { return isBow() || is2HSword() || is2HAxe() || is2HMace() || is2HSpear(); }
+	INLINE bool is2Handed() { return m_bSlot == ItemSlot2HLeftHand || m_bSlot == ItemSlot2HRightHand; }
 };
 
 struct _ZONE_SERVERINFO
