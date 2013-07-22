@@ -2330,7 +2330,7 @@ void CUser::SendNotice()
 	Send(&result);
 }
 
-void CUser::AppendNoticeEntry(Packet & pkt, uint8 & elementCount, char * message, char * title)
+void CUser::AppendNoticeEntry(Packet & pkt, uint8 & elementCount, const char * message, const char * title)
 {
 	if (message == nullptr || *message == '\0')
 		return;
@@ -2353,13 +2353,13 @@ void CUser::AppendExtraNoticeData(Packet & pkt, uint8 & elementCount)
 	if (g_pMain->m_byExpEventAmount > 0)
 	{
 		g_pMain->GetServerResource(IDS_EXP_REPAY_EVENT, &message, g_pMain->m_byExpEventAmount);
-		AppendNoticeEntry(pkt, elementCount, const_cast<char *>(message.c_str()), "EXP event"); 
+		AppendNoticeEntry(pkt, elementCount, message.c_str(), "EXP event"); 
 	}
 
 	if (g_pMain->m_byCoinEventAmount > 0)
 	{
 		g_pMain->GetServerResource(IDS_MONEY_REPAY_EVENT, &message, g_pMain->m_byCoinEventAmount);
-		AppendNoticeEntry(pkt, elementCount, const_cast<char *>(message.c_str()), "Noah event"); 
+		AppendNoticeEntry(pkt, elementCount, message.c_str(), "Noah event"); 
 	}
 }
 

@@ -804,7 +804,7 @@ public:
 	void HandleSoccer(Packet & pkt);
 
 	void SendNotice();
-	void AppendNoticeEntry(Packet & pkt, uint8 & elementCount, char* message, char * title);
+	void AppendNoticeEntry(Packet & pkt, uint8 & elementCount, const char * message, const char * title);
 	void AppendExtraNoticeData(Packet & pkt, uint8 & elementCount);
 	void UserLookChange( int pos, int itemid, int durability );
 	void SpeedHackUser();
