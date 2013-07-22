@@ -74,7 +74,7 @@ function AcreditedTest()
 						print(pUser:GetClanRank()," : Knight")
 		if (pUser:GetClanGrade() == 1) then
 						print(pUser:GetClanGrade()," : ClanGrade")
-			if (pUser:isClanLeader() == 1) then
+			if (pUser:isClanLeader()) then
 						print(pUser:isClanLeader()," : Chief")
 						pUser:SelectMsg(3,-1,6393,4157,111,4158,114,4159,115)
 			else
@@ -105,7 +105,7 @@ function AcreditedRequiredItems()
 end
 
 function AcreditedTakeTest()
-						pUser:ZoneClanChange(93,444,350)
+						pUser:ZoneChangeClan(93,444,350)
 end
 
 function AcreditedPromote()
@@ -124,7 +124,7 @@ end
 function RoyalTest()
 	if (pUser:GetClanRank() == 7) then
 						print(pUser:GetClanRank()," : Knight")
-		if(pUser:isClanLeader() == 1) then
+		if(pUser:isClanLeader()) then
 						print(pUser:isClanLeader()," : Chief")
 						pUser:SelectMsg(3, -1, 6392, 4157, 121, 4158, 124, 4159, 125)
 		else
@@ -152,7 +152,7 @@ function RoyalRequiredItems()
 end
 
 function RoyalTakeTest()
-						pUser:ZoneClanChange(94, 110, 20)
+						pUser:ZoneChangeClan(94, 110, 20)
 end
 
 function RoyalPromote()
@@ -173,7 +173,7 @@ function TrainingTest()
 						print(pUser:GetClanRank()," : Knight")
 		if (pUser:GetClanGrade() < 4) then
 						print(pUser:GetClanGrade()," : ClanGrade")
-			if (pUser:isClanLeader() == 1) then
+			if (pUser:isClanLeader()) then
 						print(pUser:isClanLeader()," : Chief")
 						pUser:SelectMsg(3, -1, 4165, 4157, 281, 4158, 286, 4159, 285)
 			else
@@ -200,7 +200,7 @@ function TrainingStory2()
 end
 
 function TrainingTakeTest()
-						pUser:ZoneClanChange(54, 150, 150)
+						pUser:ZoneChangeClan(54, 150, 150)
 end
 
 function TrainingRequiredItems()
