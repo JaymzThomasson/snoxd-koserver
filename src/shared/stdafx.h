@@ -198,6 +198,7 @@
 #	include <sqltypes.h> /* this will define the SQL & required Windows types on a non-Windows system */
 #endif
 
+#include <random>
 #include <memory>
 #include <map>
 #include <unordered_map>

@@ -346,17 +346,21 @@ enum MiningErrors
 ////////////////////////////////////////////////////////////////
 // Magic Packet sub define 
 ////////////////////////////////////////////////////////////////
-#define MAGIC_CASTING			0x01
-#define MAGIC_FLYING			0x02
-#define MAGIC_EFFECTING			0x03
-#define MAGIC_FAIL				0x04
-#define MAGIC_TYPE3_END			0x05	// For type 3 durational spells.
-#define MAGIC_TYPE4_END			0x05	// For type 4 durational spells.
-#define MAGIC_CANCEL            0x06    // When you wanna cancel your own Type 4.
-#define MAGIC_CANCEL_TYPE6		0x07
-#define MAGIC_TYPE4_EXTEND		0x08	// Extends the time of your type4 buffs by 2 times (requires "Duration Item" (PUS))
-#define MAGIC_TRANSFORM_LIST	0x09	// Shows the transformation list 
-#define MAGIC_CANCEL2			0x0D	// Not sure but it cancels...
+enum MagicOpcode
+{
+	MAGIC_CASTING				= 1,
+	MAGIC_FLYING				= 2,
+	MAGIC_EFFECTING				= 3,
+	MAGIC_FAIL					= 4,
+	MAGIC_DURATION_EXPIRED		= 5,	// For the removal of durational (i.e. type 3/4) skills.
+	MAGIC_CANCEL				= 6,	// When the client requests a buff to be removed.
+	MAGIC_CANCEL_TRANSFORMATION	= 7,	// When removing a transformation.
+	MAGIC_TYPE4_EXTEND			= 8	,	// Extends the time of your type4 buffs by 2 times (requires "Duration Item" (PUS))
+	MAGIC_TRANSFORM_LIST		= 9,	// Shows the transformation list 
+	MAGIC_FAIL_TRANSFORMATION	= 10,	// Transformation errors
+	MAGIC_UNKNOWN				= 12,
+	MAGIC_CANCEL2				= 13	// Not sure but it cancels...
+};
 
 enum e_SkillMagicFailMsg 
 {

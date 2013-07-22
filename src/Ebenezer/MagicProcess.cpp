@@ -881,7 +881,7 @@ bool CMagicProcess::RemoveType4Buff(uint8 byBuffType, Unit *pTarget, bool bRemov
 
 		TO_USER(pTarget)->SetUserAbility();
 
-		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
+		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_DURATION_EXPIRED));
 		result << byBuffType;
 		TO_USER(pTarget)->Send(&result);
 	}

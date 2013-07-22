@@ -2721,7 +2721,7 @@ void CUser::HPTimeChangeType3()
 			// Has the skill expired yet?
 			if (++pEffect->m_bTickCount == pEffect->m_bTickLimit)
 			{
-				Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
+				Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_DURATION_EXPIRED));
 
 				// Healing-over-time skills require the type 100
 				if (pEffect->m_sHPAmount > 0)

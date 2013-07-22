@@ -113,9 +113,6 @@ void MagicInstance::Run()
 			}
 			break;
 
-		case MAGIC_TYPE3_END: //This is also MAGIC_TYPE4_END
-			break;
-
 		case MAGIC_CANCEL:
 		case MAGIC_CANCEL2:
 			Type3Cancel();	//Damage over Time skills.
@@ -252,10 +249,7 @@ SkillUseResult MagicInstance::UserCanCast()
 
 	// Instant casting affects the next cast skill only, and is then removed.
 	if (bOpcode == MAGIC_EFFECTING && pSkillCaster->canInstantCast())
-	{
-		CMagicProcess::RemoveType4Buff(BUFF_TYPE_INSTANT_MAGIC, pSkillCaster);
 		bInstantCast = true;
-	}
 
 	// In case we made it to here, we can cast! Hurray!
 	return SkillUseOK;
@@ -560,14 +554,6 @@ void MagicInstance::BuildSkillPacket(Packet & result, int16 sSkillCaster, int16 
 	}
 
 	result.Initialize(WIZ_MAGIC_PROCESS);
-
-	// Handle the "instantly magic" buff; this will reset the cooldown on any skill.
-	// NOTE: Unsure how this is handled officially, but this seems to produce the desired effect.
-	// Effects seem to be applying correctly for everything I tested...
-	if (bInstantCast 
-		&& opcode == MAGIC_EFFECTING)
-		bOpcode = MAGIC_FAIL;
-
 	result	<< opcode << nSkillID << sSkillCaster << sSkillTarget
 			<< sData[0] << sData[1] << sData[2] << sData[3]
 			<< sData[4] << sData[5] << sData[6];
@@ -1601,7 +1587,7 @@ bool MagicInstance::ExecuteType5()
 
 					pEffect->Reset();
 					// TO-DO: Wrap this up (ugh, I feel so dirty)
-					Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
+					Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_DURATION_EXPIRED));
 					result << uint8(200); // removes DOT skill
 					pTUser->Send(&result); 
 					bRemoveDOT = true;
@@ -2217,7 +2203,7 @@ void MagicInstance::Type6Cancel(bool bForceRemoval /*= false*/)
 		return;
 
 	CUser * pUser = TO_USER(pSkillCaster);
-	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_CANCEL_TYPE6));
+	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_CANCEL_TRANSFORMATION));
 
 	// TO-DO: Reset stat changes, recalculate stats.
 	pUser->m_transformationType = TransformationNone;
@@ -2272,7 +2258,7 @@ void MagicInstance::Type9Cancel(bool bRemoveFromMap /*= true*/)
 		bResponse = 93;
 	}
 
-	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE4_END));
+	Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_DURATION_EXPIRED));
 	result << bResponse;
 	pCaster->Send(&result);
 }
@@ -2321,7 +2307,7 @@ void MagicInstance::Type3Cancel()
 
 	if (pSkillCaster->isPlayer())
 	{
-		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_TYPE3_END));
+		Packet result(WIZ_MAGIC_PROCESS, uint8(MAGIC_DURATION_EXPIRED));
 		result << uint8(100); // remove the healing-over-time skill.
 		TO_USER(pSkillCaster)->Send(&result); 
 	}
@@ -2442,4 +2428,7 @@ void MagicInstance::ConsumeItem()
 {
 	if (nConsumeItem != 0 && pSkillCaster->isPlayer())
 		TO_USER(pSkillCaster)->RobItem(nConsumeItem);
+
+	if (bInstantCast)
+		CMagicProcess::RemoveType4Buff(BUFF_TYPE_INSTANT_MAGIC, pSkillCaster);
 }
