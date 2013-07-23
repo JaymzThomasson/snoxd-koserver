@@ -1114,9 +1114,9 @@ void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, uint16 region_x, uint16
 
 		pkt << pUser->GetSocketID()
 			<< pUser->GetMerchantState() // 0 is selling, 1 is buyin
-			<< uint8(0); // Type of merchant [normal - gold] // bool
+			<< pUser->m_bPremiumMerchant; // Type of merchant [normal - gold] // bool
 
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; pUser->m_bPremiumMerchant ? i < 8 : i < 4; i++)
 			pkt << pUser->m_arMerchantItems[i].nNum;
 
 		t_count++;
