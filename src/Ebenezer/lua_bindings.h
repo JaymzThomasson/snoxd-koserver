@@ -16,6 +16,8 @@ LUA_FUNCTION(RobItem);
 LUA_FUNCTION(GiveItem);
 LUA_FUNCTION(ShowEffect);
 LUA_FUNCTION(ShowNpcEffect);
+LUA_FUNCTION(PromoteUserNovice);
+LUA_FUNCTION(PromoteUser);
 LUA_FUNCTION(ExistMonsterQuestSub);
 LUA_FUNCTION(PromoteKnight);
 LUA_FUNCTION(CheckClanGrade);

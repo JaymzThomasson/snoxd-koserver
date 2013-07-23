@@ -28,6 +28,8 @@ DEFINE_LUA_FUNCTION_TABLE(g_globalFunctions,
 	MAKE_LUA_FUNCTION(GiveItem)
 	MAKE_LUA_FUNCTION(ShowEffect)
 	MAKE_LUA_FUNCTION(ShowNpcEffect)
+	MAKE_LUA_FUNCTION(PromoteUserNovice)
+	MAKE_LUA_FUNCTION(PromoteUser)
 	MAKE_LUA_FUNCTION(ExistMonsterQuestSub)
 	MAKE_LUA_FUNCTION(PromoteKnight)
 	MAKE_LUA_FUNCTION(CheckClanGrade)
