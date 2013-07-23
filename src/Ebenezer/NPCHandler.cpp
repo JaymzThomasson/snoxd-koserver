@@ -356,11 +356,6 @@ void CUser::NpcEvent(Packet & pkt)
 		Send(&result);
 		break;
 
-	case NPC_CLAN: // this HAS to go.
-		result << uint16(0); // page 0
-		CKnightsManager::AllKnightsList(this, result);
-		break;
-
 	case NPC_WAREHOUSE:
 		result.SetOpcode(WIZ_WAREHOUSE);
 		result << uint8(WAREHOUSE_REQ);
@@ -371,6 +366,10 @@ void CUser::NpcEvent(Packet & pkt)
 	case NPC_CHAOTIC_GENERATOR2:
 		SendAnvilRequest(sNpcID, ITEM_BIFROST_REQ);
 		break;
+
+	case NPC_CLAN: // this HAS to go.
+		result << uint16(0); // page 0
+		CKnightsManager::AllKnightsList(this, result);
 
 	default:
 		ClientEvent(sNpcID);
