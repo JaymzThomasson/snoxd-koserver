@@ -1818,13 +1818,15 @@ void CUser::BundleOpenReq(Packet & pkt)
 	Packet result(WIZ_BUNDLE_OPEN_REQ);
 	uint32 bundle_index = pkt.read<uint32>();
 	C3DMap* pMap = GetMap();
+	CRegion * pRegion = GetRegion();
 
 	if (pMap == nullptr
 		|| bundle_index < 1 
-		|| GetRegion() == nullptr
+		|| pRegion == nullptr
 		|| isDead()) // yeah, we know people abuse this. We do not care!
 		return;
 
+	FastGuard lock(pRegion->m_RegionItemArray.m_lock);
 	_LOOT_BUNDLE *pBundle = GetRegion()->m_RegionItemArray.GetData(bundle_index);
 	if (pBundle == nullptr
 		|| !isInRange(pBundle->x, pBundle->z, MAX_LOOT_RANGE))

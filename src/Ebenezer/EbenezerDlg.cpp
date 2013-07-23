@@ -670,13 +670,14 @@ void CEbenezerDlg::Send_Region(Packet *pkt, C3DMap *pMap, int x, int z, CUser* p
 
 void CEbenezerDlg::Send_UnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, CUser *pExceptUser)
 {
-	if (pMap == nullptr 
-		|| x < 0 || z < 0 || x > pMap->GetXRegionMax() || z > pMap->GetZRegionMax())
+	if (pMap == nullptr)
 		return;
 
 	FastGuard lock(pMap->m_lock);
+	CRegion *pRegion = pMap->GetRegion(x, z);
+	if (pRegion == nullptr)
+		return;
 
-	CRegion *pRegion = &pMap->m_ppRegion[x][z];
 	FastGuard lock2(pRegion->m_lock);
 	foreach (itr, pRegion->m_RegionUserArray)
 	{
@@ -772,12 +773,13 @@ void CEbenezerDlg::Send_NearRegion(Packet *pkt, C3DMap *pMap, int region_x, int 
 
 void CEbenezerDlg::Send_FilterUnitRegion(Packet *pkt, C3DMap *pMap, int x, int z, float ref_x, float ref_z, CUser *pExceptUser)
 {
-	if (pMap == nullptr
-		|| x < 0 || z < 0 || x > pMap->GetXRegionMax() || z>pMap->GetZRegionMax())
+	if (pMap == nullptr)
 		return;
 
 	FastGuard lock(pMap->m_lock);
-	CRegion *pRegion = &pMap->m_ppRegion[x][z];
+	CRegion *pRegion = pMap->GetRegion(x, z);
+	if (pRegion == nullptr)
+		return;
 
 	FastGuard lock2(pRegion->m_lock);
 	foreach (itr, pRegion->m_RegionUserArray)
@@ -1022,21 +1024,18 @@ void CEbenezerDlg::RegionUserInOutForMe(CUser *pSendUser)
 
 void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, uint16 region_x, uint16 region_z, Packet & pkt, uint16 & t_count)
 {
-	if (pMap == nullptr 
-		|| region_x > pMap->GetXRegionMax() 
-		|| region_z > pMap->GetZRegionMax())
+	if (pMap == nullptr)
 		return;
 
 	FastGuard lock(pMap->m_lock);
-	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
+	CRegion *pRegion = pMap->GetRegion(region_x, region_z);
 
 	FastGuard lock2(pRegion->m_lock);
 	foreach (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr);
 		if (pUser == nullptr 
-			|| !pUser->isInGame()
-			|| pUser->GetRegionX() != region_x || pUser->GetRegionZ() != region_z)
+			|| !pUser->isInGame())
 			continue;
 
 		pkt << uint8(0) << pUser->GetSocketID();
@@ -1047,21 +1046,20 @@ void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, uint16 region_x, uint16 region_
 
 void CEbenezerDlg::GetRegionUserList(C3DMap* pMap, uint16 region_x, uint16 region_z, Packet & pkt, uint16 & t_count)
 {
-	if (pMap == nullptr 
-		|| region_x > pMap->GetXRegionMax() 
-		|| region_z > pMap->GetZRegionMax())
+	if (pMap == nullptr)
 		return;
 
 	FastGuard lock(pMap->m_lock);
-	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
+	CRegion *pRegion = pMap->GetRegion(region_x, region_z);
+	if (pRegion == nullptr)
+		return;
 
 	FastGuard lock2(pRegion->m_lock);
 	foreach (itr, pRegion->m_RegionUserArray)
 	{
 		CUser *pUser = GetUserPtr(*itr);
 		if (pUser == nullptr 
-			|| !pUser->isInGame()
-			|| pUser->GetRegionX() != region_x || pUser->GetRegionZ() != region_z)
+			|| !pUser->isInGame())
 			continue;
 
 		pkt << pUser->GetSocketID();
@@ -1091,13 +1089,13 @@ void CEbenezerDlg::MerchantUserInOutForMe(CUser *pSendUser)
 
 void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, uint16 region_x, uint16 region_z, Packet & pkt, uint16 & t_count)
 {
-	if (pMap == nullptr 
-		|| region_x > pMap->GetXRegionMax() 
-		|| region_z > pMap->GetZRegionMax())
+	if (pMap == nullptr)
 		return;
 
 	FastGuard lock(pMap->m_lock);
-	CRegion *pRegion = &pMap->m_ppRegion[region_x][region_z];
+	CRegion *pRegion = pMap->GetRegion(region_x, region_z);
+	if (pRegion == nullptr)
+		return;
 
 	FastGuard lock2(pRegion->m_lock);
 	foreach (itr, pRegion->m_RegionUserArray)
@@ -1105,15 +1103,14 @@ void CEbenezerDlg::GetRegionMerchantUserIn(C3DMap *pMap, uint16 region_x, uint16
 		CUser *pUser = GetUserPtr(*itr);
 		if (pUser == nullptr 
 			|| !pUser->isInGame()
-			|| pUser->GetRegionX() != region_x || pUser->GetRegionZ() != region_z 
 			|| !pUser->isMerchanting())
 			continue;
 
 		pkt << pUser->GetSocketID()
-			<< pUser->GetMerchantState() // 0 is selling, 1 is buyin
+			<< pUser->GetMerchantState() // 0 is selling, 1 is buying
 			<< pUser->m_bPremiumMerchant; // Type of merchant [normal - gold] // bool
 
-		for (int i = 0; pUser->m_bPremiumMerchant ? i < 8 : i < 4; i++)
+		for (int i = 0, listCount = (pUser->m_bPremiumMerchant ? 8 : 4); i < listCount; i++)
 			pkt << pUser->m_arMerchantItems[i].nNum;
 
 		t_count++;
@@ -1142,17 +1139,19 @@ void CEbenezerDlg::NpcInOutForMe(CUser* pSendUser)
 void CEbenezerDlg::GetRegionNpcIn(C3DMap *pMap, uint16 region_x, uint16 region_z, Packet & pkt, uint16 & t_count)
 {
 	if (!m_bPointCheckFlag
-		|| pMap == nullptr
-		|| region_x > pMap->GetXRegionMax() 
-		|| region_z > pMap->GetZRegionMax())
+		|| pMap == nullptr)
 		return;
 
 	FastGuard lock(pMap->m_lock);
-	foreach (itr, pMap->m_ppRegion[region_x][region_z].m_RegionNpcArray)
+	CRegion * pRegion = pMap->GetRegion(region_x, region_z);
+	if (pRegion == nullptr)
+		return;
+
+	FastGuard lock2(pRegion->m_lock);
+	foreach (itr, pRegion->m_RegionNpcArray)
 	{
-		CNpc *pNpc = m_arNpcArray.GetData(*itr);
+		CNpc *pNpc = GetNpcPtr(*itr);
 		if (pNpc == nullptr
-			|| pNpc->GetRegionX() != region_x || pNpc->GetRegionZ() != region_z
 			|| pNpc->isDead())
 			continue;
 
@@ -1214,15 +1213,18 @@ void CEbenezerDlg::GetUnitListFromSurroundingRegions(Unit * pOwner, std::vector<
 void CEbenezerDlg::GetRegionNpcList(C3DMap *pMap, uint16 region_x, uint16 region_z, Packet & pkt, uint16 & t_count)
 {
 	if (!m_bPointCheckFlag
-		|| pMap == nullptr
-		|| region_x > pMap->GetXRegionMax() 
-		|| region_z > pMap->GetZRegionMax())
+		|| pMap == nullptr)
 		return;
 
 	FastGuard lock(pMap->m_lock);
-	foreach (itr, pMap->m_ppRegion[region_x][region_z].m_RegionNpcArray)
+	CRegion * pRegion = pMap->GetRegion(region_x, region_z);
+	if (pRegion == nullptr)
+		return;
+
+	FastGuard lock2(pRegion->m_lock);
+	foreach (itr, pRegion->m_RegionNpcArray)
 	{
-		CNpc *pNpc = m_arNpcArray.GetData(*itr);
+		CNpc *pNpc = GetNpcPtr(*itr);
 		if (pNpc == nullptr || pNpc->isDead())
 			continue;
 

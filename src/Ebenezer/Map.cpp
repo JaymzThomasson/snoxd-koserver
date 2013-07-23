@@ -51,14 +51,17 @@ CRegion * C3DMap::GetRegion(uint16 regionX, uint16 regionZ)
 
 bool C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _LOOT_BUNDLE * pBundle)
 {
-	if (rx > GetXRegionMax() || rz > GetZRegionMax()
-		|| pBundle == nullptr)
+	if (pBundle == nullptr)
 		return false;
 
 	FastGuard lock(m_lock);
+	CRegion * pRegion = GetRegion(rx, rz);
+	if (pRegion == nullptr)
+		return false;
 
 	pBundle->nBundleID = m_wBundle++;
-	m_ppRegion[rx][rz].m_RegionItemArray.PutData(pBundle->nBundleID, pBundle);
+	pRegion->m_RegionItemArray.PutData(pBundle->nBundleID, pBundle);
+
 	if (m_wBundle > ZONEITEM_MAX)
 		m_wBundle = 1;
 
@@ -76,8 +79,11 @@ bool C3DMap::RegionItemAdd(uint16 rx, uint16 rz, _LOOT_BUNDLE * pBundle)
  */
 void C3DMap::RegionItemRemove(CRegion * pRegion, _LOOT_BUNDLE * pBundle, _LOOT_ITEM * pItem)
 {
-	if (pBundle == nullptr)
+	if (pRegion == nullptr
+		|| pBundle == nullptr)
 		return;
+
+	FastGuard lock(pRegion->m_RegionItemArray.m_lock);
 
 	// If the bundle exists, and the item matches what the user's removing
 	// we can remove this item from the bundle.
