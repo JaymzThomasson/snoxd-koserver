@@ -91,8 +91,7 @@ void CUser::ClientEvent(uint16 sNpcID)
 	if (itr == g_pMain->m_QuestNpcList.end())
 		return;
 
-	// Copy it. We should really lock the list, but nevermind.
-	QuestHelperList pList = itr->second;
+	QuestHelperList & pList = itr->second;
 	_QUEST_HELPER * pHelper = nullptr;
 	foreach (itr, pList)
 	{

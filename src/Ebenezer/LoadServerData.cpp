@@ -78,6 +78,7 @@ bool CEbenezerDlg::LoadServerResourceTable()
 
 bool CEbenezerDlg::LoadQuestHelperTable()
 {
+	FastGuard lock(m_questNpcLock);
 	m_QuestNpcList.clear();
 	LOAD_TABLE(CQuestHelperSet, g_DBAgent.m_GameDB, &m_QuestHelperArray, true);
 }
