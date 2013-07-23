@@ -17,6 +17,7 @@ int32 myrand(int32 min, int32 max)
 {
 	FastGuard lock(s_rngLock);
 	SeedRNG();
+	if (min > max) std::swap(min, max);
 	std::uniform_int_distribution<int32> dist(min, max);
 	return dist(s_randomNumberGenerator);
 }
