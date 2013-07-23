@@ -92,9 +92,9 @@ void CUser::ClientEvent(uint16 sNpcID)
 		return;
 
 	// Copy it. We should really lock the list, but nevermind.
-	QuestHelperList & pList = itr->second;
+	QuestHelperList pList = itr->second;
 	_QUEST_HELPER * pHelper = nullptr;
-	foreach(itr, pList)
+	foreach (itr, pList)
 	{
 		if ((*itr) == nullptr
 			|| (*itr)->sEventDataIndex
