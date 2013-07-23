@@ -1,5 +1,5 @@
 -----
--- Script for [Knight Clerk] Charel in Elmorad Castle
+-- Script for [Knight Clerk] Delaga in Luferson Castle
 -----
 
 pUser = nil
