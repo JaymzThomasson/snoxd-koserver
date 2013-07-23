@@ -20,7 +20,7 @@ uint64 CJvCryption::GenerateKey()
 	// We don't want that happening...
 	do
 	{
-		m_public_key = (uint64)rand() << 32 | rand();
+		m_public_key = RandUInt64();
 	} while (!m_public_key); 
 #endif
 	return m_public_key;

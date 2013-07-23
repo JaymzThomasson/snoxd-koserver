@@ -13,14 +13,8 @@ uint32 THREADCALL NpcThreadProc(void * pParam /* CNpcThread ptr */)
 	{
 		CNpcThread*	pInfo	= (CNpcThread *)pParam;
 		CNpc*				pNpc	= nullptr;
-
 		int					i			= 0;
-		time_t				dwDiffTime	= 0;
-		time_t				dwTickTime  = 0;
-		srand((uint32)UNIXTIME);
-		myrand( 1, 10000 ); myrand( 1, 10000 );
-
-		time_t fTime2 = 0;
+		time_t				dwDiffTime	= 0, dwTickTime  = 0, fTime2 = 0;
 		int    duration_damage=0;
 
 		if(!pInfo) return 0;

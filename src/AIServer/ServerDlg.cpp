@@ -51,11 +51,6 @@ CServerDlg::CServerDlg()
 
 bool CServerDlg::Startup()
 {
-	//----------------------------------------------------------------------
-	//	Sets a random number starting point.
-	//----------------------------------------------------------------------
-	srand( (unsigned)time(nullptr) );
-
 	g_timerThreads.push_back(new Thread(Timer_CheckAliveTest));
 
 	m_sMapEventNpc = 0;

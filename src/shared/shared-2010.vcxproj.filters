@@ -72,6 +72,7 @@
       <Filter>Threading</Filter>
     </ClCompile>
     <ClCompile Include="signal_handler.cpp" />
+    <ClCompile Include="globals.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CircularBuffer.h">
