@@ -66,8 +66,6 @@ function Main(event)
 						Cont100Exchange()
 	elseif (event == 370) then
 						RequestPersonalRankReward()
-	elseif (event == 470) then
-						MonthPersonalRankRequestReward()
 	elseif (event == 380) then
 						RequestReward()
 	end
@@ -280,10 +278,11 @@ function RequestPersonalRankReward() -- Needs LUA function.
 	elseif (pUser:RequestPersonalRankReward() == 2) then
 						pUser:SelectMsg(2, -1, 4154, 10, 241)
 	else
-						return -- a function to claim RequestReward.
+						return -- a function to claim the monthly knight stipend.
 	end
 end
 
+--[[ event 470
 function MonthPersonalRankRequestReward() -- Needs LUA function however it was not implemented in 1886 "officially" it seems.
 	if (pUser:MonthPersonalRankRequestReward() == 0) then
 						pUser:SelectMsg(2, -1, 4802, 10, 241)
@@ -293,6 +292,7 @@ function MonthPersonalRankRequestReward() -- Needs LUA function however it was n
 						return -- a function to claim MonthPersonalRankRequestReward.
 	end
 end
+]]
 
 function RequestReward() -- Needs LUA function.
 	if (pUser:RequestReward() == 0) then
@@ -300,6 +300,6 @@ function RequestReward() -- Needs LUA function.
 	elseif (pUser:RequestReward() == 2) then
 						pUser:SelectMsg(2, -1, 4152, 10, 241)
 	else
-						return -- a function to claim RequestReward.
+						return -- a function to claim the daily national knight stipend.
 	end
 end
