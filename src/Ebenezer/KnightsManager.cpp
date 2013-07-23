@@ -111,8 +111,7 @@ void CKnightsManager::CreateKnights(CUser* pUser, Packet & pkt)
 		ret_value = 5;
 	else if (g_pMain->m_nServerGroup == 2)
 		ret_value = 8;
-	// Users may only create a clan in their home or moradon zone.
-	else if (pUser->GetZoneID() != pUser->GetNation() && pUser->GetZoneID() != ZONE_MORADON)
+	else if (!pUser->GetMap()->canUpdateClan())
 		ret_value = 9;
 	else if (pUser->GetLevel() < CLAN_LEVEL_REQUIREMENT)
 		ret_value = 2;

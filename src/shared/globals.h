@@ -176,7 +176,7 @@ enum ZoneFlags
 	ZF_ATTACK_SAME_NATION	= (1 << 3),
 	ZF_FRIENDLY_NPCS		= (1 << 4),
 	ZF_WAR_ZONE				= (1 << 5),
-	ZF_CLAN_UPDATE			= (1 << 6)  // Joining, disbanding, etc. NOT creating.
+	ZF_CLAN_UPDATE			= (1 << 6)  // Joining, disbanding, creating etc.
 };
 
 // ITEM_SLOT DEFINE
