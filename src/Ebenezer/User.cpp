@@ -2370,7 +2370,9 @@ void CUser::SkillPointChange(Packet & pkt)
 			&& ((GetClass() % 2) != 0 || (GetClass() % 100) < 6
 				// force a limit of MAX_LEVEL - 60 (the level you can do the mastery quest)
 				// on the master skill category, so the limit's 23 skill points with a level 83 cap.
-				|| m_bstrSkill[type] >= (MAX_LEVEL - 60) || m_bstrSkill[SkillPointMaster] >= (GetLevel()-60))))
+				|| m_bstrSkill[type] >= (MAX_LEVEL  - 60) 
+				// allow only 1 point in the master category for every level above 60.
+				|| m_bstrSkill[type] >= (GetLevel() - 60))))
 
 	{
 		result << m_bstrSkill[type]; // only send the packet on failure
