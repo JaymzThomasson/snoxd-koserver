@@ -251,7 +251,8 @@ void CUser::ExchangeDecide()
 		foreach (itr, pUser->m_ExchangeItemList)
 		{
 			result	<< (*itr)->bDstPos << (*itr)->nItemID
-					<< uint16((*itr)->nCount) << (*itr)->sDurability;
+					<< uint16((*itr)->nCount) << (*itr)->sDurability
+					<< uint32(0); //Unknown, , maybe serial?
 		}
 		Send(&result);
 
@@ -264,7 +265,8 @@ void CUser::ExchangeDecide()
 		foreach (itr, m_ExchangeItemList)
 		{
 			result	<< (*itr)->bDstPos << (*itr)->nItemID
-					<< uint16((*itr)->nCount) << (*itr)->sDurability;
+					<< uint16((*itr)->nCount) << (*itr)->sDurability
+					<< uint32(0); //Unknown, maybe serial?
 		}
 		pUser->Send(&result);
 
