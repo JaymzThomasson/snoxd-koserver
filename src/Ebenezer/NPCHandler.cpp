@@ -34,7 +34,10 @@ void CUser::ItemRepair(Packet & pkt)
 		return;
 
 	pTable = g_pMain->GetItemPtr( itemid );
-	if( !pTable ) goto fail_return;
+	if (pTable == nullptr
+		|| pTable->m_iSellPrice == SellTypeNoRepairs) 
+		goto fail_return;
+
 	durability = pTable->m_sDuration;
 	if( durability == 1 ) goto fail_return;
 	if( sPos == 1 )
@@ -521,7 +524,7 @@ void CUser::ItemTrade(Packet & pkt)
 		}
 
 		short oldDurability = pItem->sDuration;
-		if (!pTable->m_iSellPrice) // NOTE: 0 sells normally, 1 sells at full price, not sure what 2's used for...
+		if (pTable->m_iSellPrice != SellTypeFullPrice)
 			transactionPrice = ((pTable->m_iBuyPrice / 6) * count); // /6 is normal, /4 for prem/discount
 		else
 			transactionPrice = (pTable->m_iBuyPrice * count);

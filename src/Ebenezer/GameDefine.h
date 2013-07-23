@@ -282,6 +282,13 @@ enum ItemRace
 	RACE_UNTRADEABLE		= 20  // Cannot be traded or sold.
 };
 
+enum SellType
+{
+	SellTypeNormal		= 0, // sell price is 1/4 of the purchase price
+	SellTypeFullPrice	= 1, // sell price is the same as the purchase price
+	SellTypeNoRepairs	= 2  // sell price is 1/4 of the purchase price, item cannot be repaired.
+};
+
 struct _ITEM_TABLE
 {
 	uint32	m_iNum;
