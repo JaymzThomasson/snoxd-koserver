@@ -1827,7 +1827,7 @@ void CUser::BundleOpenReq(Packet & pkt)
 		return;
 
 	FastGuard lock(pRegion->m_RegionItemArray.m_lock);
-	_LOOT_BUNDLE *pBundle = GetRegion()->m_RegionItemArray.GetData(bundle_index);
+	_LOOT_BUNDLE *pBundle = pRegion->m_RegionItemArray.GetData(bundle_index);
 	if (pBundle == nullptr
 		|| !isInRange(pBundle->x, pBundle->z, MAX_LOOT_RANGE))
 		return;

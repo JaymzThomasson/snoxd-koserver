@@ -1029,6 +1029,8 @@ void CEbenezerDlg::GetRegionUserIn(C3DMap *pMap, uint16 region_x, uint16 region_
 
 	FastGuard lock(pMap->m_lock);
 	CRegion *pRegion = pMap->GetRegion(region_x, region_z);
+	if (pRegion == nullptr)
+		return;
 
 	FastGuard lock2(pRegion->m_lock);
 	foreach (itr, pRegion->m_RegionUserArray)
